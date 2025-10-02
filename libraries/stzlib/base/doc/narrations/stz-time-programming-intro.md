@@ -86,9 +86,9 @@ Behind the expressive syntax lies Qt's battle-tested C++ engine. Operations exec
 
 Each class deserves its own exploration:
 
-- **[stzDate: Date Programming Made Easy](stzdate-date-programming-in-softanza.md)** - Calendar arithmetic, age calculations, multilingual day names, and human-readable formatting
-- **[stzTime: Time Handling in Softanza](stztime-handling-time-in-softanza.md)** - Duration math, format conversion, precision handling, and clock comparisons
-- **[stzDateTime: Elegant DateTime Operations](stzdatetime-guide-narration.md)** - Combined operations, timezone handling, comprehensive formatting, and Unix timestamps
+- **[stzDate: Date Programming Made Easy](../stzdate-date-programming-in-softanza.md)** - Calendar arithmetic, age calculations, multilingual day names, and human-readable formatting
+- **[stzTime: Time Handling in Softanza](../stztime-handling-time-in-softanza.md)** - Duration math, format conversion, precision handling, and clock comparisons
+- **[stzDateTime: Elegant DateTime Operations](../stzdatetime-guide-narration.md)** - Combined operations, timezone handling, comprehensive formatting, and Unix timestamps
 
 These guides show the full API with real-world examples and design rationale.
 
