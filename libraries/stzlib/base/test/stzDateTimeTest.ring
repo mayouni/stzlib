@@ -180,7 +180,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Subtracting time units
-
+*/
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
@@ -538,7 +538,7 @@ pr()
 pf()
 
 /*--- Chaining operations with Q methods
-
+*/
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
@@ -551,7 +551,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Complex duration with multiple units
-*/
+
 pr()
 
 oDateTime1 = StzDateTimeQ("2024-03-15 10:30:00.750")
@@ -560,16 +560,41 @@ oDateTime1 = StzDateTimeQ("2024-03-15 10:30:00.750")
 #-->
 '
 [
-	[ "days", 565 ],
-	[ "hours", 23 ],
-	[ "minutes", 36 ],
-	[ "seconds", 44 ],
-	[ "milliseconds", 0 ]
+	[ "days", 36 ],
+	[ "hours", 5 ],
+	[ "minutes", 15 ],
+	[ "seconds", 29 ],
+	[ "milliseconds", 250 ]
 ]
 '
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
+
+/*--- Date time components
+*/
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 10:30:18.750")
+oDateTime {
+
+	? Year()	#--> 2024
+
+	? Month()	#--> March
+	? MonthN()	#--> 3
+
+	? Day()		#--> Friday
+	? DayN()	#--> 15
+
+	? Hours()	#--> 10
+	? Minutes()	#--> 30
+	? Seconds()	#--> 18
+	? Milliseconds() #--> 750
+
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
 
 /*--- Operator subtraction to get time difference
 
@@ -578,16 +603,17 @@ pr()
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 nSecsDiff = oDateTime1 - "2024-03-15 12:30:00"
 ? nSecsDiff
-#--> -9000 (2.5 hours in seconds)
+#--> 9000 (2.5 hours in seconds)
 
 pf()
 # # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Simple datetime formatting
-
+*/
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
 ? oDateTime.ToSimple()
 #--> 15/03/2024 2:30 PM
 
