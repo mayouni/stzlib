@@ -526,7 +526,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Working with milliseconds
-*/
+
 pr()
 
 oTime = new stzTime([:Hour = 14, :Minute = 30, :Second = 45, :Millisecond = 123])

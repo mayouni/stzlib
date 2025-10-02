@@ -168,38 +168,35 @@ func IsDate(str)
 class stzDate from stzObject
     oQDate
     
-    def init(pDate)
+    def init(pcDate)
+		if NOT isString(pcDate)
+			StzRaise("Can't create the stzDate object! You must provide a string.")
+		ok
+
         oQDate = new QDate()
         
-        if pDate = NULL or pDate = ""
+        if pcDate = ""
             oQDate = oQDate.currentDate()
+
         else
             # Handle special keywords
-            if isString(pDate)
-                cLowerDate = lower(pDate)
 
-                switch cLowerDate
-                    on "today"
-                        oQDate = oQDate.currentDate()
+            cLowerDate = lower(pcDate)
 
-                    on "yesterday"
-                        oQDate = oQDate.currentDate().addDays(-1)
+            switch cLowerDate
+            on "today"
+                 oQDate = oQDate.currentDate()
 
-                    on "tomorrow"
-                        oQDate = oQDate.currentDate().addDays(1)
+            on "yesterday"
+                 oQDate = oQDate.currentDate().addDays(-1)
 
-                    other
-                        This.ParseStringDate(pDate)
-                off
+            on "tomorrow"
+                 oQDate = oQDate.currentDate().addDays(1)
 
-            else
+            other
+                 This.ParseStringDate(pcDate)
+            off
 
-                if not isString(pDate)
-                    pDate = ""+ pDate
-                ok
-
-                This.ParseStringDate(pDate)
-            ok
         ok
 
         if not oQDate.isValid()
@@ -335,32 +332,35 @@ class stzDate from stzObject
     #--- ENHANCED OPERATOR OVERLOADING ---#
     
     def operator(op, v)
+
 	    if op = "+"
 	        if isNumber(v)
 	            This.AddDays(v)
-	            return This
+	            return This.Content()
+
 	        but isString(v)
 	            This.ParseOperation(v, "+")
-	            return This
+	            return This.Content()
 	        ok
 	
 	    but op = "-"
 	        if isNumber(v)
 	            This.SubtractDays(v)
-	            return This
+	            return -This.Content()
 	
 	        but isString(v)
 	            This.ParseOperation(v, "-")
-	            return This
+	            return -This.Content()
 	
 	        but isObject(v) and v.IsAStzDate()
-	            return This.DaysTo(v)
+	            return -This.DaysTo(v)
 	
 	        else
 	            StzRaise("Unsupported value! Only a stzDate object or a date in string can be provided.")
 	        ok
 
 		but op = "<"
+
 			if (isObject(v) and v.IsAStzDate()) or
 				(isString(v) and IsDate(v))
 
@@ -371,6 +371,7 @@ class stzDate from stzObject
 			ok
 
 		but op = "<="
+
 			if (isObject(v) and v.IsAStzDate()) or
 				(isString(v) and IsDate(v))
 
