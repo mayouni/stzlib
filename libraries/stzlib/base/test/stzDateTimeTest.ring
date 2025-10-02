@@ -233,8 +233,8 @@ oDateTime - "3 hours"
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
-/*--- Calculating duration between two datetimes (string param)
-*/
+/*--- Calculating duration between two datetimes (string param) #TODO #ERR
+
 pr()
 
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
@@ -253,7 +253,9 @@ oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 pf()
 
 /*--- Calculating duration between two datetimes (object param)
+
 pr()
+
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 oDateTime2 = StzDateTimeQ("2024-03-20 14:30:00")
 
@@ -268,25 +270,45 @@ oDateTime2 = StzDateTimeQ("2024-03-20 14:30:00")
 
 ? oDateTime1.SecsTo(oDateTime2)
 #--> 448200
-pf()
 
-/*--- Human-readable duration (string param)
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*--- Human-readable duration (string param) #TODO #ERR
+
 pr()
+
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 ? oDateTime1.DurationTo("2024-03-20 14:30:15")
 #--> 5 days, 4 hours, and 30 minutes
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Human-readable duration (object param)
+
 pr()
+
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 oDateTime2 = StzDateTimeQ("2024-03-20 14:30:15")
-? oDateTime1.DurationTo(oDateTime2)
-#--> 5 days, 4 hours, and 30 minutes
+? @@NL( oDateTime1.DurationTo(oDateTime2) )
+#-->
+'
+[
+	[ "days", 5 ],
+	[ "hours", 4 ],
+	[ "minutes", 30 ],
+	[ "seconds", 15 ]
+]
+'
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Comparing datetimes with operators (string)
+
 pr()
+
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 ? oDateTime1 < "2024-03-20 10:00:00"
 #--> TRUE
@@ -296,10 +318,14 @@ oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 
 ? oDateTime1 = "2024-03-15 10:00:00"
 #--> TRUE
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Comparing datetimes with operators (object)
+
 pr()
+
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 oDateTime2 = StzDateTimeQ("2024-03-20 10:00:00")
 
@@ -311,10 +337,14 @@ oDateTime2 = StzDateTimeQ("2024-03-20 10:00:00")
 
 ? oDateTime1 = oDateTime1
 #--> TRUE
-pf()
 
-/*--- Using comparison methods (string param)
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*--- Using comparison methods (string param) #TODO #ERR
+
 pr()
+
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 
 ? oDateTime1.IsBefore("2024-03-20 10:00:00")
@@ -323,12 +353,15 @@ oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 ? oDateTime1.IsAfter("2024-03-20 10:00:00")
 #--> FALSE
 
-? oDateTime1.IsEqualTo("2024-03-15 10:00:00")
+? oDateTime1.IsEqualTo("2024-03-15 10:00:00") #ERR returned FALSE!
 #--> TRUE
+
 pf()
 
 /*--- Using comparison methods (object param)
+
 pr()
+
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 oDateTime2 = StzDateTimeQ("2024-03-20 10:00:00")
 
@@ -340,27 +373,40 @@ oDateTime2 = StzDateTimeQ("2024-03-20 10:00:00")
 
 ? oDateTime1.IsEqualTo(oDateTime1)
 #--> TRUE
-pf()
 
-/*--- Checking if datetime is between two others (string params)
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*--- Checking if datetime is between two others (string params) #TODO #ERR
+
 pr()
+
 oDateTime = StzDateTimeQ("2024-03-17 10:00:00")
 ? oDateTime.IsBetween("2024-03-15 10:00:00", :And = "2024-03-20 10:00:00")
 #--> TRUE
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Checking if datetime is between two others (object params)
+
 pr()
+
 oDateTime = StzDateTimeQ("2024-03-17 10:00:00")
 oStart = StzDateTimeQ("2024-03-15 10:00:00")
 oEnd = StzDateTimeQ("2024-03-20 10:00:00")
 ? oDateTime.IsBetween(oStart, :And = oEnd)
 #--> TRUE
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Formatting datetime with named formats
+
 pr()
+
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
 ? oDateTime.ToStringXT(:Standard)
 #--> 2024-03-15 14:30:45
 
@@ -372,25 +418,33 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 
 ? oDateTime.ToStringXT(:Long)
 #--> Friday, March 15, 2024 2:30:45 PM
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Converting to UTC and local time
+
 pr()
+
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
-oUTC = oDateTime.ToUTC()
-? oUTC.ToString()
+
+? oDateTime.ToUTC()
 #--> 2024-03-15 13:30:45 (depends on timezone)
 
-oLocal = oUTC.ToLocalTime()
-? oLocal.ToString()
+? oDateTime.ToLocalTime()
 #--> 2024-03-15 14:30:45
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Human-readable datetime
+*/
 pr()
+
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 ? oDateTime.ToHuman()
 #--> Friday, March 15th, 2024 at 2:30 PM
+
 pf()
 
 /*--- Relative time description

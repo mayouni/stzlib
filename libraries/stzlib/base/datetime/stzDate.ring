@@ -344,13 +344,14 @@ class stzDate from stzObject
 	        ok
 	
 	    but op = "-"
+
 	        if isNumber(v)
 	            This.SubtractDays(v)
 	            return -This.Content()
 	
 	        but isString(v)
 	            This.ParseOperation(v, "-")
-	            return -This.Content()
+	            return This.Content()
 	
 	        but isObject(v) and v.IsAStzDate()
 	            return -This.DaysTo(v)
@@ -679,6 +680,9 @@ class stzDate from stzObject
 	        return '' + (-nDays) + " day" + Iff(nDays=-1, "", "s") + " ago"
 	
 	    else
+
+			cNth = Ordinal(This.MonthN())
+			cHuman = This.Day() + ", " + This.Month() + cNth + ", " + This.Year()
 	        return This.ToString()
 	    ok
 
