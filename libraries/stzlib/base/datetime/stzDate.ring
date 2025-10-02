@@ -682,8 +682,8 @@ class stzDate from stzObject
 	    else
 
 			cNth = Ordinal(This.MonthN())
-			cHuman = This.Day() + ", " + This.Month() + cNth + ", " + This.Year()
-	        return This.ToString()
+			cHuman = This.Day() + ", " + This.Month() + " " + cNth + ", " + This.Year()
+	        return cHuman
 	    ok
 
 	def ToRelative()

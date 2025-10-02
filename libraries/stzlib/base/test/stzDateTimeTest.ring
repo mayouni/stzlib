@@ -443,7 +443,7 @@ pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 ? oDateTime.ToHuman()
-#--> Friday, March 15th, 2024 at 2:30 PM
+#--> Friday, March 3rd, 2024 at Half past 2 PM
 
 pf()
 
