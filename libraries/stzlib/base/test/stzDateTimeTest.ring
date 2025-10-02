@@ -180,7 +180,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Subtracting time units
-*/
+
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
@@ -538,7 +538,7 @@ pr()
 pf()
 
 /*--- Chaining operations with Q methods
-*/
+
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
@@ -572,7 +572,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Date time components
-*/
+
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 10:30:18.750")
@@ -609,7 +609,7 @@ pf()
 # # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Simple datetime formatting
-*/
+
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
@@ -636,15 +636,16 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- Natural language time addition
-*/
+
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
 ? oDateTime.Hours()
+#--> 10
 
 oDateTime.AddNatural("2 days 3 hours 30 minutes 28 seconds 540 milliseconds")
 ? oDateTime.ToStringXT("yyyy-mm-dd hh-mm-ss.zzz")
-#--> 2024-03-17 13:30:00
+#--> 2024-30-17 13-30-28.540
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
@@ -655,4 +656,558 @@ oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
 oDateTime.SubtractNatural("1 day 2 hours")
 ? oDateTime.ToString()
 #--> 2024-03-14 08:00:00
+pf()
+
+#===============================#
+#  12H / 24H FORMAT TEST CASES  #
+#===============================#
+
+/*--- Default 24-hour behavior
+
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
+? oDateTime.ToString()
+#--> 2024-03-15 14:30:45
+
+? oDateTime.ToStringXT("")
+#--> 2024-03-15 14:30:45 (uses $cDefaultDateTimeFormat)
+
+? oDateTime.ToStringXT("yyyy-MM-dd HH:mm:ss")
+#--> 2024-03-15 14:30:45
+
+? oDateTime.ToEuropean()
+#--> 15/03/2024 14:30:45
+
+? oDateTime.ToAmerican()
+#--> 03/15/2024 14:30:45
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*--- Named format configs (24-hour)
+
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
+? oDateTime.ToStringXT(:Standard)
+#--> 2024-03-15 14:30:45
+
+? oDateTime.ToStringXT(:European)
+#--> 15/03/2024 14:30:45
+
+? oDateTime.ToStringXT(:American)
+#--> 03/15/2024 14:30:45
+
+? oDateTime.ToStringXT(:ISO8601)
+#--> 2024-03-15T14:30:45
+
+? oDateTime.ToStringXT(:RFC2822) # Depends on your system locale language
+#--> 15 Mar 2024 14:30:45
+
+pf()
+# # Executed in almost 0 second(s) in Ring 1.23
+
+/*--- Explicit 12-hour methods
+
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
+? oDateTime.ToSimple()
+#--> 15/03/2024 2:30 PM
+
+? oDateTime.ToLong() # Depends on your system locale language
+#--> Friday, March 15, 2024 2:30:45 PM
+
+? oDateTime.ToString12h()
+#--> 2024-03-15 2:30:45 PM
+
+? oDateTime.ToEuropean12h()
+#--> 15/03/2024 2:30:45 PM
+
+? oDateTime.ToAmerican12h()
+#--> 03/15/2024 2:30:45 PM
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+#-------------------------------------------------------
+
+# ISO/Normalized formats (safe for storage/interchange)
+
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
+? oDateTime.ToISO()
+#--> 2024-03-15 14:30:45
+
+? oDateTime.ToISO8601()
+#--> 2024-03-15T14:30:45
+
+? oDateTime.ToStringXT(:ISOWithMs)
+#--> 2024-03-15 14:30:45.000
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*--- Compact formats
+
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
+? oDateTime.ToCompact()
+ #--> 2024-03-15 14:30
+
+? oDateTime.ToStringXT(:CompactSec)
+#--> 2024-03-15 14:30:45
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*--- # Standard formats (region-aware)
+
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
+? oDateTime.ToStandard()         #--> 15/03/2024 14:30:45
+? oDateTime.ToEuropean()         #--> 15/03/2024 14:30:45
+? oDateTime.ToAmerican()         #--> 03/15/2024 14:30:45
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*--- # Verbose formats
+
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
+? oDateTime.ToVerbose() # Depends on your current system language
+#--> Friday, March 15, 2024 14:30:45
+
+# 12-hour formats (automatic AM/PM)
+
+? oDateTime.ToISO12h()
+#--> 2024-03-15 02:30:45 PM
+
+? oDateTime.ToStandard12h()
+#--> 15/03/2024 02:30:45 PM
+
+? oDateTime.ToVerbose12h() # Depends on your current system language
+#--> Friday, March 15, 2024 02:30:45 PM
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- Custom format strings
+
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
+? oDateTime.ToStringXT("yyyy.MM.dd HH:mm")
+#--> 2024.03.15 14:30
+
+? oDateTime.ToStringXT("dd-MM-yy hh:mm AP") # Qt does not distinguis h from H
+#--> 15-03-24 02:30 PM
+
+# Named format access
+? oDateTime.ToStringXT(:RFC2822)
+#--> 15 Mar 2024 14:30:45
+
+? oDateTime.ToStringXT(:UnixLog)
+#--> Mar 15 14:30:45
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+#================================================#
+# NORMALIZATION STRATEGY #TODO Write a narration #
+#================================================#
+
+/*
+FOR SAFE DATA STORAGE AND INTERCHANGE:
+Always use ISO formats:
+- :ISO ~> Standard normalized format
+- :ISO8601 ~> T-separated ISO format
+- :ISOWithMs ~> When precision matters
+
+These formats are:
+1. Timezone-independent (always state clearly if UTC or local)
+2. Unambiguous (YYYY-MM-DD is universal)
+3. Sortable as strings
+4. Parseable across systems
+
+FOR DISPLAY TO USERS:
+Use Standard, Verbose, or region-specific formats:
+- :Standard ~> Common readable
+- :European ~> DD/MM/YYYY format
+- :American ~> MM/DD/YYYY format
+- :Verbose ~> Full text for reports
+
+Add 12h suffix for 12-hour display:
+- :Standard12h
+- :European12h
+- :American12h
+- :Verbose12h
+
+/*--- Named formats
+
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+oDateTime {
+
+
+	? ToStringXT(:Simple) # 12h by default	; can be written ToSimple()
+	#--> 15/03/2024 2:30 PM
+
+	? ToStringXT(:Simple12h)		# Or ToSimple12h()
+	#--> 15/03/2024 2:30 PM
+
+	? ToStringXT(:Simple24h) + NL	# Or ToSimple24h()
+	#--> 15/03/2024 14:30
+
+	#---
+
+	? ToLong()
+	#--> Friday, March 15, 2024 2:30:45 PM
+
+	? ToLong12h()
+	#--> Friday, March 15, 2024 2:30:45 PM
+
+	? ToLong24h() + NL
+	#--> Friday, March 15, 2024 14:30
+
+	#---
+
+	? ToShort()
+	#--> 15/03 2:30 PM
+
+	? ToShort12h()
+	#--> 15/03 2:30 PM
+
+	? ToShort24h() + NL
+	#--> 15/03 14:30 + NL
+
+	#---
+
+	? ToMedium()
+	#--> Fri., March 15 2:30 PM
+
+	? ToMedium12h()
+	#--> Fri., March 15 2:30 PM
+
+	? ToMedium24h()
+	#--> Fri., March 15 14:30
+
+}
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.23
+
+/*---
+
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
+oDateTime {
+
+	? ToEuropean()
+	#--> 15/03/2024 2:30:45 PM
+
+	? ToEuropean12h()
+	#--> 15/03/2024 2:30:45 PM
+
+	? ToEuropean24h() + NL
+	#--> 15/03/2024 14:30:45
+
+	#---
+
+	? ToAmerican()
+	#--> 03/15/2024 2:30:45 PM
+
+	? ToAmerican12h()
+	#--> 03/15/2024 2:30:45 PM
+
+	? ToAmerican24h() + NL
+	#--> 03/15/2024 14:30:45
+
+	#---
+
+	? ToISO()
+	#--> 2024-03-15 2:30:45 PM
+
+	? ToIso12h()
+	#--> 2024-03-15 2:30:45 PM
+
+	? ToIso24h() + NL
+	#--> 2024-03-15 14:30:45
+
+	#--
+
+	? ToStandard()
+	#--> 15/03/2024 2:30:45 PM
+
+	? ToStandard12h()
+	#--> 15/03/2024 2:30:45 PM
+
+	? ToStandard24h() + NL
+	#--> 15/03/2024 14:30:45
+
+	#--
+
+	? ToVerbose()
+	#--> Friday, March 15, 2024 2:30:45 PM
+
+	? ToVerbose12h()
+	#--> Friday, March 15, 2024 2:30:45 PM
+
+	? ToVerbose24h()
+	#--> Friday, March 15, 2024 14:30:45
+
+}
+
+pf()
+# Executed in 0.05 second(s) in Ring 1.23
+
+/*--- Custom 12-hour format strings
+
+pr()
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
+
+? oDateTime.ToStringXT("dd/MM/yyyy h:mm AP")
+#--> 15/03/2024 2:30 PM
+
+? oDateTime.ToStringXT("MM-dd-yyyy h:mm:ss AP")
+#--> 03-15-2024 2:30:45 PM
+
+? oDateTime.ToStringXT("dddd h:mm AP")
+#--> Friday 2:30 PM
+
+? oDateTime.ToStringXT("MMMM d, yyyy at h:mm AP")
+#--> March 15, 2024 at 2:30 PM
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*---  Morning times (AM)
+
+pr()
+
+oMorning = StzDateTimeQ("2024-03-15 09:15:30")
+
+? oMorning.ToSimple()
+#--> 15/03/2024 9:15 AM
+
+? oMorning.ToSimple12h()
+#--> 15/03/2024 9:15 AM
+
+? oMorning.ToSimple24h()
+#--> 15/03/2024 09:15
+
+? oMorning.ToStringXT("h:mm AP")
+#--> 9:15 AM
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*---  Morning times (AM)
+
+pr()
+
+oMorning = StzDateTimeQ("2024-03-15 09:15:30")
+
+? oMorning.ToCompact()
+#--> 2024-03-15 9:15 AM
+
+? oMorning.ToCompact12h()
+#--> 2024-03-15 9:15 AM
+
+? oMorning.ToCompact24h()
+#--> 2024-03-15 09:15
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- Midnight and Noon edge cases
+
+pr()
+
+oMidnight = StzDateTimeQ("2024-03-15 00:00:00")
+oNoon = StzDateTimeQ("2024-03-15 12:00:00")
+
+? oMidnight.ToString12h()
+#--> 2024-03-15 12:00:00 AM (midnight = 12 AM)
+
+? oNoon.ToString12h()
+#--> 2024-03-15 12:00:00 PM (noon = 12 PM)
+
+? oMidnight.ToSimple()
+#--> 15/03/2024 12:00 AM
+
+? oNoon.ToSimple()
+#--> 15/03/2024 12:00 PM
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.23
+
+/*--- Hour boundaries
+
+pr()
+
+oEleven = StzDateTimeQ("2024-03-15 11:59:59")
+oOne = StzDateTimeQ("2024-03-15 13:00:00")
+
+? oEleven.ToString12h()
+#--> 2024-03-15 11:59:59 AM
+
+? oOne.ToString12h()
+#--> 2024-03-15 1:00:00 PM
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- Format consistency across operations
+
+pr()
+
+oDT = StzDateTimeQ("2024-03-15 08:30:00")
+
+? oDT.ToString12h()
+#--> 2024-03-15 8:30:00 AM
+
+oDT.AddHours(6)
+? oDT.ToString12h()
+#--> 2024-03-15 2:30:00 PM (crossed noon)
+
+oDT.AddHours(12)
+? oDT.ToString12h()
+#--> 2024-03-16 2:30:00 AM (crossed midnight)
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- Locale-aware AM/PM text
+
+pr()
+
+# Assumes stzLocale returns locale-specific AM/PM
+
+Lc = new stzLocale("")
+? Lc.amText() #--> AM
+? Lc.pmText() #--> PM
+
+oDateTime = StzDateTimeQ("2024-03-15 14:30:00")
+? oDateTime.ToSimple()
+#--> 15/03/2024 2:30 PM
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- Parsing preserves original hou
+
+pr()
+
+oParsed = StzDateTimeQ("2024-03-15 14:30:45")
+
+# Hours (24h)
+
+? oParsed.Hours()
+#--> 14
+
+# Display 24h
+
+? oParsed.ToString()
+#--> 2024-03-15 14:30:45
+
+# Display 12h
+
+? oParsed.ToString12h()
+#--> 2024-03-15 2:30:45 PM
+
+pf() 
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- Integration with ToHuman()
+
+pr()
+
+oHuman = StzDateTimeQ("2024-03-15 14:30:00")
+
+? oHuman.ToHuman()
+#--> Friday March 15, 2024 at 2:30 PM
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- Single digit hours
+
+pr()
+
+oSingle = StzDateTimeQ("2024-03-15 03:05:00")
+
+? oSingle.ToString12h()
+#--> 2024-03-15 3:05:00 AM
+
+? oSingle.ToStringXT("h:mm AP")
+#--> 3:05 AM
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.23
+
+/*--- Error handling
+
+pr()
+
+oTest = StzDateTimeQ("2024-03-15 14:30:00")
+
+? oTest.ToStringXT("INVALID_FORMAT")
+#--> ERROR: The pattern name you provided does not exist in stzRegexData file.
+
+? oTest.ToStringXT(:NonExistentFormat)
+#--> ERROR: The pattern name you provided does not exist in stzRegexData file.
+
+pf()
+
+/*---
+*/
+pr()
+
+# Create a webinar event
+oWebinar = StzDateTimeQ([
+    :Year = 2024, :Month = 6, :Day = 20,
+    :Hour = 15, :Minute = 0, :Second = 0
+])
+
+# Calculate reminder times using natural syntax
+oReminder1 = oWebinar - "1 day"
+oReminder2 = oWebinar - "1 hour"
+
+# Generate user-friendly notifications
+? "Webinar: " + oWebinar.ToLong()
+#--> Webinar: Thursday, June 20, 2024 3:00:00 PM
+
+? "First reminder: " + oReminder1.ToMedium()
+#--> First reminder: Wed, Jun 19 3:00 PM
+
+? "Final reminder: " + oReminder2.ToSimple()
+#--> Final reminder: 20/06/2024 2:00 PM
+
+# Check proximity and generate countdown
+oNow = StzDateTimeQ("")
+if oNow < oWebinar
+    nDays = oNow.DaysTo(oWebinar)
+    nHours = oNow.HoursTo(oWebinar) % 24
+    ? "Webinar in " + nDays + " days, " + nHours + " hours"
+ok
+
 pf()

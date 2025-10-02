@@ -308,7 +308,7 @@ pf()
 
 
 /*--- Basic Initialization from JSON String
-
+*/
 pr()
 
 oJson = new stzJson('{"name": "John", "age": 30 }')
@@ -326,6 +326,7 @@ oJson = new stzJson('{"name": "John", "age": 30 }')
 '
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 # Executed in 0.04 second(s) in Ring 1.22
 
 /*--- Basic Initialization from Ring List

@@ -1,5 +1,3 @@
-
-
 // Define the aSingularRules list with inverse transformations of stzPlural
 aSingularRules = [
     // Irregulars (priority 1)

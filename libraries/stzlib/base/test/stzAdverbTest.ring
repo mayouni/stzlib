@@ -2,7 +2,6 @@
 
 load "../stzbase.ring"
 
-
 /*--- Morphological patterns (priority 4)
 
 pr()
@@ -14,11 +13,11 @@ pr()
 ? Adverb("comfortable")		#--> comfortably
 
 pf()
-# Executed in 0.22 second(s) in Ring 1.23
+# Executed in 0.20 second(s) in Ring 1.23
 # Executed in 0.51 second(s) in Ring 1.22
 
 /*--- Irregular forms (priority 1)
-
+*/
 pr()
 
 ? Adverb("good")	#--> well
@@ -29,7 +28,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.22
 
 /*--- Domain-specific (priority 2)
-
+*/
 pr()
 
 ? Adverb("finance")		#--> financially
@@ -67,11 +66,11 @@ pr()
 ? Adverb("west")		#--> western
 
 pf()
-# Executed in 0.35 second(s) in Ring 1.23
+# Executed in 0.09 second(s) in Ring 1.23
 # Executed in 0.80 second(s) in Ring 1.22
 
 /*--- Testing priority system
-
+*/
 pr()
 
 ? Adverb("business")	#--> business-wise
