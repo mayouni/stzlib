@@ -1178,36 +1178,3 @@ oTest = StzDateTimeQ("2024-03-15 14:30:00")
 
 pf()
 
-/*---
-*/
-pr()
-
-# Create a webinar event
-oWebinar = StzDateTimeQ([
-    :Year = 2024, :Month = 6, :Day = 20,
-    :Hour = 15, :Minute = 0, :Second = 0
-])
-
-# Calculate reminder times using natural syntax
-oReminder1 = oWebinar - "1 day"
-oReminder2 = oWebinar - "1 hour"
-
-# Generate user-friendly notifications
-? "Webinar: " + oWebinar.ToLong()
-#--> Webinar: Thursday, June 20, 2024 3:00:00 PM
-
-? "First reminder: " + oReminder1.ToMedium()
-#--> First reminder: Wed, Jun 19 3:00 PM
-
-? "Final reminder: " + oReminder2.ToSimple()
-#--> Final reminder: 20/06/2024 2:00 PM
-
-# Check proximity and generate countdown
-oNow = StzDateTimeQ("")
-if oNow < oWebinar
-    nDays = oNow.DaysTo(oWebinar)
-    nHours = oNow.HoursTo(oWebinar) % 24
-    ? "Webinar in " + nDays + " days, " + nHours + " hours"
-ok
-
-pf()
