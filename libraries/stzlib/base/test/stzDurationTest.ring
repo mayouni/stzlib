@@ -1,22 +1,18 @@
 load "../stzbase.ring"
 
-/*=======================
-   CREATING DURATIONS
-========================)
-
-/*--- From seconds
+/*--- Creating duration from seconds
 
 pr()
 
 oDuration = new stzDuration(3665)
-? oDuration.ToString()
+? oDuration.Content() # Or ToString() or Duration()
 #--> 1:01:05
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
-/*--- From natural language string
-*/
+/*--- Creation duration from natural language string
+
 pr()
 
 oDuration = new stzDuration("2 hours 30 minutes")
@@ -39,10 +35,11 @@ oDur = DurationQ("1 hour 15 minutes")
 #--> 75
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.24
 
-/*=======================
-   COMPONENT ACCESS
-========================)
+/*--- Retriving duration components
+
+pr()
 
 oDuration = new stzDuration("2 days 5 hours 30 minutes 45 seconds")
 
@@ -69,40 +66,43 @@ oDuration = new stzDuration("2 days 5 hours 30 minutes 45 seconds")
 #--> 192645
 
 # Get all components as hash
-? oDuration.Components()
+? @@NL( oDuration.Components() )
 #--> [ :Days = 2, :Hours = 5, :Minutes = 30, :Seconds = 45, :Milliseconds = 0 ]
 
-/*=======================
-   ARITHMETIC OPERATIONS
-========================)
+pf()
+# Executed in 0.07 second(s) in Ring 1.24
+
+/*--- Arithmetic operations
+
+pr()
 
 # Addition with numbers (seconds)
 oDur1 = DurationQ("1 hour")
 oDur2 = oDur1 + 1800  # Add 1800 seconds (30 minutes)
-? oDur2.ToHuman()
+? oDur2.ToHuman() + NL
 #--> 1 hour and 30 minutes
 
 # Addition with strings
 oDur3 = oDur1 + "45 minutes"
-? oDur3.ToHuman()
+? oDur3.ToHuman() + NL
 #--> 1 hour and 45 minutes
 
 # Addition with duration objects
 oDur4 = DurationQ("30 minutes")
 oDur5 = oDur1 + oDur4
-? oDur5.ToHuman()
+? oDur5.ToHuman() + NL
 #--> 1 hour and 30 minutes
 
 # Subtraction
 oDur6 = DurationQ("3 hours")
 oDur7 = oDur6 - "1 hour 15 minutes"
-? oDur7.ToHuman()
+? oDur7.ToHuman() + NL
 #--> 1 hour and 45 minutes
 
 # Multiplication
 oDur8 = DurationQ("45 minutes")
 oDur9 = oDur8 * 3
-? oDur9.ToHuman()
+? oDur9.ToHuman() + NL
 #--> 2 hours and 15 minutes
 
 # Division
@@ -111,9 +111,12 @@ oDur11 = oDur10 / 4
 ? oDur11.ToHuman()
 #--> 30 minutes
 
-/*=======================
-   COMPARISONS
-========================)
+pf()
+# Executed in 0.12 second(s) in Ring 1.24
+
+/*--- Comparisons
+
+pr()
 
 oDur1 = DurationQ("1 hour")
 oDur2 = DurationQ("90 minutes")
@@ -141,9 +144,33 @@ oDur3 = DurationQ("75 minutes")
 ? oDur3.IsBetween("1 hour", "2 hours")
 #--> TRUE
 
-/*=======================
-   FORMATTING OPTIONS
-========================)
+pf()
+# Executed in 0.09 second(s) in Ring 1.24
+
+
+/*--- Formatting options
+
+pr()
+
+? @Section("Softanza", 4, 7) #--> tanz
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- #TODO Add this feature to stzDate
+
+pr()
+
+ToDate("20250912")
+
+o1 = new stzDate("20250912")
+? o1.Content()
+
+pf()
+
+/*---
+
+pr()
 
 oDuration = new stzDuration("3 hours 25 minutes 42 seconds")
 
@@ -170,9 +197,11 @@ oDuration = new stzDuration("3 hours 25 minutes 42 seconds")
 ? oDuration.ToSimple()
 #--> 3:25:42
 
-/*=======================
-   MODIFICATION METHODS
-========================)
+pf()
+# Executed in 0.04 second(s) in Ring 1.24
+
+
+pr()
 
 oDuration = new stzDuration("1 hour")
 
@@ -197,13 +226,14 @@ oDuration {
 }
 #--> 1 hour, 45 minutes, and 30 seconds
 
-/*============================
-   REAL-WORLD EXAMPLE: TASK TIMER
-=============================)
+pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
-? "--- Task Timer ---"
 
-oTaskDuration = DurationQ(0)
+/*--- Task Timer
+
+pr()
+
 nStartTime = clock()
 
 # Simulate work
@@ -212,109 +242,52 @@ for i = 1 to 1000000
 next
 
 nEndTime = clock()
-oTaskDuration = DurationQ(nEndTime - nStartTime)
+o1 = DurationQ(nEndTime - nStartTime)
 
-? "Task completed in: " + oTaskDuration.ToHuman()
-? "Total seconds: " + oTaskDuration.TotalSeconds()
+? o1.ToHuman()
+#--> 14 seconds
 
-/*====================================
-   REAL-WORLD EXAMPLE: MEETING SCHEDULER
-=====================================)
+? o1.TotalSeconds()
+#--> 14
 
-? ""
-? "--- Meeting Scheduler ---"
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
-oMeetingLength = DurationQ("1 hour 30 minutes")
-oBreakTime = DurationQ("15 minutes")
+
+/*--- Meeting Scheduler
+
+pr()
+
 nMeetings = 3
+oMeetingDuration = DurationQ("1 hour 30 minutes")
+oBreakTime = DurationQ("15 minutes")
 
-oTotalTime = (oMeetingLength * nMeetings) + (oBreakTime * (nMeetings - 1))
 
-? "Meeting length: " + oMeetingLength.ToHuman()
-? "Number of meetings: " + nMeetings
-? "Break between meetings: " + oBreakTime.ToHuman()
-? "Total time needed: " + oTotalTime.ToHuman()
-? "End time format: " + oTotalTime.ToCompact()
+oTotalTime = (oMeetingDuration * nMeetings) + (oBreakTime * (nMeetings - 1))
 
-/*====================================
-   REAL-WORLD EXAMPLE: VIDEO PLAYER
-=====================================)
+# Meeting length
+? oMeetingDuration.ToHuman()
+#--> 1 hour and 30 minutes
 
-? ""
-? "--- Video Player Duration ---"
+# Break between meetings
+? oBreakTime.ToHuman()
+#--> 15 minutes
 
-oVideoDuration = DurationQ(7342)  # seconds from media file
+# Total time needed
+? oTotalTime.ToHuman()
+#--> 5 hours
 
-? "Duration: " + oVideoDuration.ToStringXT("HH:mm:ss")
-? "Human-readable: " + oVideoDuration.ToHuman()
-? "Compact: " + oVideoDuration.ToCompact()
+# End time format
+? oTotalTime.ToCompact()
+#--> 5h
 
-# Calculate chapters (every 30 minutes)
-oChapterLength = DurationQ("30 minutes")
-nChapters = ceil(oVideoDuration.TotalSeconds() / oChapterLength.TotalSeconds())
-? "Suggested chapters: " + nChapters
+pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
-/*====================================
-   REAL-WORLD EXAMPLE: WORKOUT TRACKER
-=====================================)
 
-? ""
-? "--- Workout Tracker ---"
+/*--- Project Time Estimation
 
-oWarmup = DurationQ("10 minutes")
-oExercise = DurationQ("45 minutes")
-oCooldown = DurationQ("5 minutes")
-
-oTotalWorkout = oWarmup + oExercise + oCooldown
-
-? "Warmup: " + oWarmup.ToCompact()
-? "Exercise: " + oExercise.ToCompact()
-? "Cooldown: " + oCooldown.ToCompact()
-? "Total workout time: " + oTotalWorkout.ToHuman()
-
-# Check if workout fits in available time
-oAvailableTime = DurationQ("1 hour 15 minutes")
-
-if oTotalWorkout < oAvailableTime
-	oExtraTime = oAvailableTime - oTotalWorkout
-	? "Workout fits! Extra time: " + oExtraTime.ToHuman()
-else
-	oOverTime = oTotalWorkout - oAvailableTime
-	? "Need more time: " + oOverTime.ToHuman()
-ok
-
-/*====================================
-   REAL-WORLD EXAMPLE: COOKING TIMER
-=====================================)
-
-? ""
-? "--- Cooking Timer ---"
-
-oPrepTime = DurationQ("15 minutes")
-oCookTime = DurationQ("45 minutes")
-oRestTime = DurationQ("10 minutes")
-
-oTotalRecipeTime = oPrepTime + oCookTime + oRestTime
-
-? "Prep: " + oPrepTime.ToCompact()
-? "Cook: " + oCookTime.ToCompact()
-? "Rest: " + oRestTime.ToCompact()
-? ""
-? "Total time: " + oTotalRecipeTime.ToHuman()
-? "Ready in: " + oTotalRecipeTime.ToStringXT("H:mm")
-
-# Multiple servings
-nServings = 3
-oTotalForAll = oTotalRecipeTime * nServings
-? ""
-? "For " + nServings + " batches: " + oTotalForAll.ToHuman()
-
-/*====================================
-   REAL-WORLD EXAMPLE: PROJECT ESTIMATION
-=====================================)
-
-? ""
-? "--- Project Time Estimation ---"
+pr()
 
 aTasks = [
 	[ "Design mockups", DurationQ("2 days") ],
@@ -343,44 +316,26 @@ oWithBuffer = oTotalProject + oBuffer
 ? "With 20% buffer: " + oWithBuffer.ToHuman()
 ? "Total days (with buffer): " + oWithBuffer.TotalDays()
 
-/*====================================
-   REAL-WORLD EXAMPLE: STREAMING SERVICE
-=====================================)
+#-->
+# Task breakdown:
+#   Design mockups: 2d
+#   Backend development: 5d
+#   Frontend development: 4d
+#   Testing: 2d
+#   Deployment: 1d
+# 
+# Total project duration: 14 days
+# Working days: 14
+# With 20% buffer: 16 days, 19 hours, and 12 minutes
+# Total days (with buffer): 16
 
-? ""
-? "--- Streaming Watch Time ---"
+pf()
+# Executed in 0.04 second(s) in Ring 1.24
 
-aWatchHistory = [
-	DurationQ("45 minutes"),  # Episode 1
-	DurationQ("43 minutes"),  # Episode 2
-	DurationQ("48 minutes"),  # Episode 3
-	DurationQ("1 hour 30 minutes")  # Movie
-]
 
-oTotalWatched = DurationQ(0)
-for oDur in aWatchHistory
-	oTotalWatched = oTotalWatched + oDur
-next
+/*--- High Precision Duration
 
-? "Total watch time: " + oTotalWatched.ToHuman()
-? "Hours watched: " + oTotalWatched.TotalHours()
-
-# Monthly limit check
-oMonthlyLimit = DurationQ("30 hours")
-oRemaining = oMonthlyLimit - oTotalWatched
-
-if oRemaining.IsPositive()
-	? "Remaining this month: " + oRemaining.ToHuman()
-else
-	? "Monthly limit reached!"
-ok
-
-/*====================================
-   MILLISECOND PRECISION
-=====================================)
-
-? ""
-? "--- High Precision Duration ---"
+pr()
 
 oPrecise = new stzDuration([
 	:Hours = 1,
@@ -398,12 +353,13 @@ oPrecise = new stzDuration([
 ? oPrecise.TotalSeconds()
 #--> 5025
 
-/*====================================
-   DURATION STATE CHECKS
-=====================================)
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
-? ""
-? "--- Duration State Checks ---"
+
+/*--- Duration State Checks
+
+pr()
 
 oZero = DurationQ(0)
 ? oZero.IsZero()
@@ -417,60 +373,48 @@ oNegative = DurationQ(-3600)
 ? oNegative.IsNegative()
 #--> TRUE
 
-/*====================================
-   INTEGRATION WITH DATETIME CLASSES
-=====================================)
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
-? ""
-? "--- Duration with DateTime ---"
 
-# Note: This assumes stzDateTime is available
-# Adding duration to time
-oMeetingLength = DurationQ("1 hour 30 minutes")
-# oStartTime = TimeQ("09:00:00")
-# oEndTime = oStartTime + oMeetingLength.TotalSeconds()
-# ? "Meeting ends at: " + oEndTime
+/*--- Copy and Clone
 
-? "Meeting duration: " + oMeetingLength.ToHuman()
-
-/*====================================
-   COPY AND CLONE
-=====================================)
-
-? ""
-? "--- Copy and Clone ---"
+pr()
 
 oOriginal = DurationQ("2 hours 30 minutes")
 oCopy = oOriginal.Copy()
 
 oCopy.AddMinutes(15)
 
-? "Original: " + oOriginal.ToHuman()
+# Original
+? oOriginal.ToHuman()
 #--> 2 hours and 30 minutes
 
-? "Copy (modified): " + oCopy.ToHuman()
+# Copy (modified)
+? oCopy.ToHuman()
 #--> 2 hours and 45 minutes
 
 oClone = oOriginal.Clone()
-? "Clone: " + oClone.ToHuman()
+? oClone.ToHuman()
 #--> 2 hours and 30 minutes
 
-/*====================================
-   EDGE CASES
-=====================================)
+pf()
+# Executed in 0.04 second(s) in Ring 1.24
 
-? ""
-? "--- Edge Cases ---"
+
+/*--- Edge Cases
+
+pr()
 
 # Empty/null duration
 oEmpty = DurationQ("")
-? oEmpty.IsZero()
+? oEmpty.IsZero() + NL
 #--> TRUE
 
 # Very large duration
 oLarge = DurationQ("365 days")
-? "Large duration: " + oLarge.ToHuman()
-? "Total hours: " + oLarge.TotalHours()
+? oLarge.ToHuman()
+? oLarge.TotalHours() + NL
 
 # Single unit durations
 oOneSecond = DurationQ("1 second")
@@ -488,3 +432,6 @@ oOneHour = DurationQ("1 hour")
 oOneDay = DurationQ("1 day")
 ? oOneDay.ToHuman()
 #--> 1 day
+
+pf()
+# Executed in 0.06 second(s) in Ring 1.24

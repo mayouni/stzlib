@@ -345,7 +345,7 @@ ok
 This example demonstrates the API's coherence—creation, arithmetic, formatting, and comparison work together naturally.
 
 
-## Softanza Advantage
+## Softanza Advantafe
 
 | Feature | stzDateTime (Softanza) | Moment.js | Luxon | Python datetime | Java LocalDateTime |
 |---------|----------------------|-----------|-------|-----------------|-------------------|

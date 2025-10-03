@@ -22,40 +22,75 @@ func Duration(p)
 
 class stzDuration from stzObject
 	@nTotalSeconds = 0
-	
-	def init(p)
+	@nMilliseconds = 0
+
+def init(p)
 		if isString(p)
-			if p = NULL or p = ""
+			if p = ""
 				@nTotalSeconds = 0
+				@nMilliseconds = 0
 			else
-				@nTotalSeconds = This.ParseDurationString(p)
+				nTotal = This.ParseDurationString(p)
+				@nTotalSeconds = floor(nTotal)
+				@nMilliseconds = round((nTotal - floor(nTotal)) * 1000)
 			ok
 			
 		but isNumber(p)
-			@nTotalSeconds = p
+			@nTotalSeconds = floor(p)
+			@nMilliseconds = round((p - floor(p)) * 1000)
 			
-		but isList(p) and Q(p).IsHashList()
+		but isList(p) and @IsHashList(p)
 			nSecs = 0
-			if ring_find(p, :Days) or ring_find(p, :Day)
-				nSecs += (p[:Days] * 86400)
+			nMs = 0
+			
+			# Days
+			if p["days"] != NULL
+				nSecs += (p["days"] * 86400)
 			ok
-			if ring_find(p, :Hours) or ring_find(p, :Hour)
-				nSecs += (p[:Hours] * 3600)
+			if p["day"] != NULL
+				nSecs += (p["day"] * 86400)
 			ok
-			if ring_find(p, :Minutes) or ring_find(p, :Minute)
-				nSecs += (p[:Minutes] * 60)
+			
+			# Hours
+			if p["hours"] != NULL
+				nSecs += (p["hours"] * 3600)
 			ok
-			if ring_find(p, :Seconds) or ring_find(p, :Second)
-				nSecs += p[:Seconds]
+			if p["hour"] != NULL
+				nSecs += (p["hour"] * 3600)
 			ok
-			if ring_find(p, :Milliseconds) or ring_find(p, :Millisecond)
-				nSecs += (p[:Milliseconds] / 1000.0)
+			
+			# Minutes
+			if p["minutes"] != NULL
+				nSecs += (p["minutes"] * 60)
 			ok
+			if p["minute"] != NULL
+				nSecs += (p["minute"] * 60)
+			ok
+			
+			# Seconds
+			if p["seconds"] != NULL
+				nSecs += p["seconds"]
+			ok
+			if p["second"] != NULL
+				nSecs += p["second"]
+			ok
+			
+			# Milliseconds
+			if p["milliseconds"] != NULL
+				nMs = p["milliseconds"]
+			ok
+			if p["millisecond"] != NULL
+				nMs = p["millisecond"]
+			ok
+			
 			@nTotalSeconds = nSecs
+			@nMilliseconds = nMs
 			
 		else
 			@nTotalSeconds = 0
+			@nMilliseconds = 0
 		ok
+
 		
 	def TotalSeconds()
 		return floor(@nTotalSeconds)
@@ -84,8 +119,7 @@ class stzDuration from stzObject
 		return floor(@nTotalSeconds % 60)
 		
 	def Milliseconds()
-		nFraction = @nTotalSeconds - floor(@nTotalSeconds)
-		return round(nFraction * 1000)
+		return @nMilliseconds
 
 	def Components()
 		return [
@@ -105,58 +139,99 @@ class stzDuration from stzObject
 		def Content()
 			return This.ToString()
 
-	def ToStringXT(cFormat)
-		nD = This.Days()
-		nH = This.Hours()
-		nM = This.Minutes()
-		nS = This.Seconds()
-		nMs = This.Milliseconds()
-		
-		cResult = cFormat
-		
-		# Days
-		if substr(cFormat, "dd")
-			cResult = substr(cResult, "dd", PadLeftXT('' + nD, 2, "0") )
-		but substr(cFormat, "d")
-			cResult = substr(cResult, "d", "" + nD)
+def ToStringXT(cFormat)
+	nD = This.Days()
+	nH = This.Hours()
+	nM = This.Minutes()
+	nS = This.Seconds()
+	nMs = This.Milliseconds()
+	
+	cResult = ""
+	i = 1
+	nLen = len(cFormat)
+	
+	while i <= nLen
+		# Three-character patterns
+		if i <= nLen - 2 and substr(cFormat, i, 3) = "zzz"
+			cResult += PadLeftXT("" + nMs, 3, '0')
+			i += 3
+			loop
 		ok
 		
-		# Hours (24-hour)
-		if substr(cFormat, "HH")
-			cResult = substr(cResult, "HH", PadLeftXT('' + nH, 2, "0"))
-		but substr(cFormat, "H")
-			cResult = substr(cResult, "H", "" + nH)
+		# Two-character patterns
+		if i <= nLen - 1
+			cTwo = substr(cFormat, i, 2)
+			if cTwo = "dd"
+				cResult += PadLeftXT('' + nD, 2, "0")
+				i += 2
+				loop
+			but cTwo = "HH"
+				cResult += PadLeftXT('' + nH, 2, "0")
+				i += 2
+				loop
+			but cTwo = "hh"
+				cResult += PadLeftXT('' + This.TotalHours(), 2, "0")
+				i += 2
+				loop
+			but cTwo = "mm"
+				cResult += PadLeftXT("" + nM, 2, '0')
+				i += 2
+				loop
+			but cTwo = "ss"
+				cResult += PadLeftXT("" + nS, 2, '0')
+				i += 2
+				loop
+			ok
 		ok
 		
-		# Hours (total)
-		if substr(cFormat, "hh")
-			cResult = substr(cResult, "hh", PadLeftXT(''+ This.TotalHours(), 2, "0"))
-		but substr(cFormat, "h")
-			cResult = substr(cResult, "h", "" + This.TotalHours())
+		# Single-character patterns - check if it's an ISOLATED format char
+		# by verifying previous and next chars aren't letters
+		cOne = cFormat[i]
+		cPrev = ""
+		cNext = ""
+		if i > 1
+			cPrev = cFormat[i-1]
+		ok
+		if i < nLen
+			cNext = cFormat[i+1]
 		ok
 		
-		# Minutes
-		if substr(cFormat, "mm")
-			cResult = substr(cResult, "mm", PadLeftXT("" + nM, 2, '0'))
-		but substr(cFormat, "m")
-			cResult = substr(cResult, "m", "" + nM)
+		bIsolated = (not isalpha(cPrev)) and (not isalpha(cNext))
+		
+		if bIsolated
+			if cOne = "d"
+				cResult += ("" + nD)
+				i += 1
+				loop
+			but cOne = "H"
+				cResult += ("" + nH)
+				i += 1
+				loop
+			but cOne = "h"
+				cResult += ("" + This.TotalHours())
+				i += 1
+				loop
+			but cOne = "m"
+				cResult += ("" + nM)
+				i += 1
+				loop
+			but cOne = "s"
+				cResult += ("" + nS)
+				i += 1
+				loop
+			but cOne = "z"
+				cResult += ("" + nMs)
+				i += 1
+				loop
+			ok
 		ok
 		
-		# Seconds
-		if substr(cFormat, "ss")
-			cResult = substr(cResult, "ss", PadLeftXT("" + nS, 2, '0'))
-		but substr(cFormat, "s")
-			cResult = substr(cResult, "s", "" + nS)
-		ok
-		
-		# Milliseconds
-		if substr(cFormat, "zzz")
-			cResult = substr(cResult, "zzz", PzdLeftXT("" + nMs, 3, '0'))
-		but substr(cFormat, "z")
-			cResult = substr(cResult, "z", "" + nMs)
-		ok
-		
-		return cResult
+		# Literal character
+		cResult += cFormat[i]
+		i += 1
+	end
+	
+	return cResult
 
 	def ToHuman()
 		nD = This.Days()
@@ -243,11 +318,11 @@ class stzDuration from stzObject
 		
 		if nH > 0
 			return "" + nH + ":" + 
-			       StzStringQ("" + nM).PadLeftWithZerosToNCharsQ(2).Content() + ":" +
-			       StzStringQ("" + nS).PadLeftWithZerosToNCharsQ(2).Content()
+			       PadLeftXT('' + nM, 2, " ") + ":" +
+			       PadLeftXT('' + nS, 2, " ")
 		else
-			return StzStringQ("" + nM).PadLeftWithZerosToNCharsQ(2).Content() + ":" +
-			       StzStringQ("" + nS).PadLeftWithZerosToNCharsQ(2).Content()
+			return PadLeftXT('' + nM, 2, " ") + ":" +
+			       PadLeftXT('' + nS, 2, " ")
 		ok
 
 	# Arithmetic operators
@@ -258,7 +333,7 @@ class stzDuration from stzObject
 				return new stzDuration(@nTotalSeconds + pValue)
 			but isString(pValue)
 				return new stzDuration(@nTotalSeconds + This.ParseDurationString(pValue))
-			but IsObject(pValue) and classname(pValue) = "stzduration"
+			but isObject(pValue) and ring_classname(pValue) = "stzduration"
 				return new stzDuration(@nTotalSeconds + pValue.TotalSeconds())
 			ok
 			
@@ -267,7 +342,7 @@ class stzDuration from stzObject
 				return new stzDuration(@nTotalSeconds - pValue)
 			but isString(pValue)
 				return new stzDuration(@nTotalSeconds - This.ParseDurationString(pValue))
-			but IsObject(pValue) and classname(pValue) = "stzduration"
+			but IsObject(pValue) and ring_classname(pValue) = "stzduration"
 				return new stzDuration(@nTotalSeconds - pValue.TotalSeconds())
 			ok
 			
@@ -309,7 +384,7 @@ class stzDuration from stzObject
 			nOtherSecs = pOther
 		but isString(pOther)
 			nOtherSecs = This.ParseDurationString(pOther)
-		but IsObject(pOther) and classname(pOther) = "stzduration"
+		but IsObject(pOther) and ring_classname(pOther) = "stzduration"
 			nOtherSecs = pOther.TotalSeconds()
 		ok
 		
@@ -351,7 +426,7 @@ class stzDuration from stzObject
 			@nTotalSeconds += p
 		but isString(p)
 			@nTotalSeconds += This.ParseDurationString(p)
-		but IsObject(p) and classname(p) = "stzduration"
+		but IsObject(p) and ring_classname(p) = "stzduration"
 			@nTotalSeconds += p.TotalSeconds()
 		ok
 		return This
@@ -361,7 +436,7 @@ class stzDuration from stzObject
 			@nTotalSeconds -= p
 		but isString(p)
 			@nTotalSeconds -= This.ParseDurationString(p)
-		but IsObject(p) and classname(p) = "stzduration"
+		but IsObject(p) and ring_classname(p) = "stzduration"
 			@nTotalSeconds -= p.TotalSeconds()
 		ok
 		return This
@@ -404,14 +479,17 @@ class stzDuration from stzObject
 		nTotal = 0
 		cStr = lower(trim(cStr))
 		
+		# Extract all numbers followed by units
 		# Days
-		if substr(cStr, "day")
-			nPos = substr(cStr, "day")
+		nPos = substr(cStr, "day")
+		if nPos > 0
 			cNum = ""
 			for i = nPos - 1 to 1 step -1
 				c = cStr[i]
 				if isdigit(c) or c = "." or c = "-"
 					cNum = c + cNum
+				but c = " " or c = "	"
+					# Continue through whitespace
 				else
 					exit
 				ok
@@ -422,17 +500,18 @@ class stzDuration from stzObject
 		ok
 		
 		# Hours
-		if substr(cStr, "hour") or substr(cStr, "hr")
-			cPattern = "hour"
-			if substr(cStr, "hr") and not substr(cStr, "hour")
-				cPattern = "hr"
-			ok
-			nPos = substr(cStr, cPattern)
+		nPos = substr(cStr, "hour")
+		if nPos = 0
+			nPos = substr(cStr, "hr")
+		ok
+		if nPos > 0
 			cNum = ""
 			for i = nPos - 1 to 1 step -1
 				c = cStr[i]
 				if isdigit(c) or c = "." or c = "-"
 					cNum = c + cNum
+				but c = " " or c = "	"
+					# Continue through whitespace
 				else
 					exit
 				ok
@@ -443,17 +522,18 @@ class stzDuration from stzObject
 		ok
 		
 		# Minutes
-		if substr(cStr, "minute") or substr(cStr, "min")
-			cPattern = "minute"
-			if substr(cStr, "min") and not substr(cStr, "minute")
-				cPattern = "min"
-			ok
-			nPos = substr(cStr, cPattern)
+		nPos = substr(cStr, "minute")
+		if nPos = 0
+			nPos = substr(cStr, "min")
+		ok
+		if nPos > 0
 			cNum = ""
 			for i = nPos - 1 to 1 step -1
 				c = cStr[i]
 				if isdigit(c) or c = "." or c = "-"
 					cNum = c + cNum
+				but c = " " or c = "	"
+					# Continue through whitespace
 				else
 					exit
 				ok
@@ -464,17 +544,18 @@ class stzDuration from stzObject
 		ok
 		
 		# Seconds
-		if substr(cStr, "second") or substr(cStr, "sec")
-			cPattern = "second"
-			if substr(cStr, "sec") and not substr(cStr, "second")
-				cPattern = "sec"
-			ok
-			nPos = substr(cStr, cPattern)
+		nPos = substr(cStr, "second")
+		if nPos = 0
+			nPos = substr(cStr, "sec")
+		ok
+		if nPos > 0
 			cNum = ""
 			for i = nPos - 1 to 1 step -1
 				c = cStr[i]
 				if isdigit(c) or c = "." or c = "-"
 					cNum = c + cNum
+				but c = " " or c = "	"
+					# Continue through whitespace
 				else
 					exit
 				ok
@@ -485,17 +566,18 @@ class stzDuration from stzObject
 		ok
 		
 		# Milliseconds
-		if substr(cStr, "millisecond") or substr(cStr, "ms")
-			cPattern = "millisecond"
-			if substr(cStr, "ms") and not substr(cStr, "millisecond")
-				cPattern = "ms"
-			ok
-			nPos = substr(cStr, cPattern)
+		nPos = substr(cStr, "millisecond")
+		if nPos = 0
+			nPos = substr(cStr, "ms")
+		ok
+		if nPos > 0
 			cNum = ""
 			for i = nPos - 1 to 1 step -1
 				c = cStr[i]
 				if isdigit(c) or c = "." or c = "-"
 					cNum = c + cNum
+				but c = " " or c = "	"
+					# Continue through whitespace
 				else
 					exit
 				ok

@@ -2215,3 +2215,75 @@ func IsLatin(p)
 	func @IsLatin(p)
 		return IsLatin(p)
 
+#--
+
+func @Section(pStrOrList, n1, n2) #TODO // Review the naming of Section() in stzSection
+
+	if CheckParams()
+		if NOT (isString(pStrOrList) or isList(pStrOrList))
+			StzRaise("Incorrect param type! pStrOrList must be a string or list.")
+		ok
+
+		if NOT (isNumber(n1) and isNumber(n2))
+			StzRaise("Incorrect param type! n1 and n2 must be both numbers.")
+		ok
+	ok
+
+	aItems = []
+
+	if isList(pStrOrList)
+		if len(pStrOrList) = 0
+			StzRaise("Can't get a section from an empty list!")
+		ok
+
+		aItems = pStrOrList
+
+	else
+		if pStrOrList = ""
+			StzRaise("Can't get a section from an empty string!")
+		ok
+
+		aItems = Chars(pStrOrList)
+	ok
+
+	nLen = len(aItems)
+
+	if n1 < 1 or n1 > nLen
+		StzRaise("Index out of range! n1 must be between 1 and " + nLen + "!")
+	ok
+
+	if n2 < 1 or n2 > nLen
+		StzRaise("Index out of range! n1 must be between 1 and " + nLen + "!")
+	ok
+
+	if n2 < n1
+		nTemp = n2
+		n2 = n1
+		n1 = nTemp
+	ok
+
+	if isList(pStrOrList)
+
+		aResult = []
+	
+		for i = n1 to n2
+			aResult + aItems[i]
+		next
+
+		return aResult
+
+	else
+		cResult = ""
+
+		for i = n1 to n2
+			cResult += aItems[i]
+		next
+
+		return cResult
+	ok
+
+	
+
+//func @Range(pStrOrList, nStart, nRange) #TODO //Review the naming of Range in stzExtinPyhton
+
+
