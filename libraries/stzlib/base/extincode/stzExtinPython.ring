@@ -31,8 +31,11 @@ func range0(p)
 				ok
 			ok
 		ok
+
 	but isString(p)
+
 		oStr = new stzString(p)
+
 		if oStr.NumberOfOccurrenceQ(":").IsEither(1, 2) and
 		   oStr.Copy().RemoveManyQ([":", "-"]).IsNumberInString()
 			acNumbers = oStr.SplitAt(":")
@@ -63,8 +66,10 @@ func range0(p)
 		StzRaise("Unsupported syntax!")
 	ok
 	return aResult
+
 	func range0Q(p)
 		return new stzList(@range(p))
+
 	func range(p)
 		return range0(p)
 		func @range(p)
