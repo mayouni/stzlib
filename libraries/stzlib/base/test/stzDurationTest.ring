@@ -5,7 +5,7 @@ load "../stzbase.ring"
 ========================)
 
 /*--- From seconds
-*/
+
 pr()
 
 oDuration = new stzDuration(3665)
@@ -13,8 +13,12 @@ oDuration = new stzDuration(3665)
 #--> 1:01:05
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.23
 
 /*--- From natural language string
+*/
+pr()
+
 oDuration = new stzDuration("2 hours 30 minutes")
 ? oDuration.ToHuman()
 #--> 2 hours and 30 minutes
@@ -33,6 +37,8 @@ oDuration = new stzDuration([
 oDur = DurationQ("1 hour 15 minutes")
 ? oDur.TotalMinutes()
 #--> 75
+
+pf()
 
 /*=======================
    COMPONENT ACCESS

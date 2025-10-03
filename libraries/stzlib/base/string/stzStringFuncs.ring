@@ -41,6 +41,45 @@ func StzStringClassName()
 
 #--
 
+func PadRight(cText, nWidth)
+	return PAdtRightXT(cText, nWidth, " ")
+
+func PadRightXT(text, width, c)
+    cStr = "" + text
+    nPad = width - len(cStr)
+    if nPad > 0
+        return cStr + copy(c, nPad)
+    else
+        return cStr
+    ok
+
+func PadLeft(cText, nWidth)
+	return PadLeftXT(cText, nWidth, " ")
+
+func PadLeftXT(text, width, c) #TODO Use stzString
+    cStr = "" + text
+    nPad = width - len(cStr)
+    if nPad > 0
+        return copy(c, nPad) + cStr
+    else
+        return cStr
+    ok
+
+func Center(text, width) #TODO Use stzString
+    cStr = "" + text
+    nPadTotal = width - len(cStr)
+    if nPadTotal <= 0
+        return cStr
+    ok
+    
+    nPadLeft = floor(nPadTotal / 2)
+    nPadRight = nPadTotal - nPadLeft
+    
+    return copy(" ", nPadLeft) + cStr + copy(" ", nPadRight)
+
+#---
+
+
 func Capitalize(str)
 		return StzStringQ(str).Capitalized()
 

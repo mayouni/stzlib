@@ -596,36 +596,8 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     ok
 
     return StzStringQ(trim(cOutput)).LastCharRemoved()
+
 # Helper Functions
-func PadRight(text, width)
-    cStr = "" + text
-    nPad = width - len(cStr)
-    if nPad > 0
-        return cStr + copy(" ", nPad)
-    else
-        return cStr
-    ok
-
-func PadLeft(text, width)
-    cStr = "" + text
-    nPad = width - len(cStr)
-    if nPad > 0
-        return copy(" ", nPad) + cStr
-    else
-        return cStr
-    ok
-
-func CenterText(text, width)
-    cStr = "" + text
-    nPadTotal = width - len(cStr)
-    if nPadTotal <= 0
-        return cStr
-    ok
-    
-    nPadLeft = floor(nPadTotal / 2)
-    nPadRight = nPadTotal - nPadLeft
-    
-    return copy(" ", nPadLeft) + cStr + copy(" ", nPadRight)
 
 func StrFill(nCount, cChar)
     cResult = ""
