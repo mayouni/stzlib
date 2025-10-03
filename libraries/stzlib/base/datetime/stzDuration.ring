@@ -3,7 +3,7 @@
 	Represents time spans independent of specific moments
 */
 
-_cDurationDefaultFormat = "h:mm:ss"
+$cDurationDefaultFormat = "h:mm:ss"
 
 func StzDurationQ(p)
 	return new stzDuration(p)
@@ -56,9 +56,6 @@ class stzDuration from stzObject
 		else
 			@nTotalSeconds = 0
 		ok
-
-	def Content()
-		return @nTotalSeconds
 		
 	def TotalSeconds()
 		return floor(@nTotalSeconds)
@@ -100,8 +97,14 @@ class stzDuration from stzObject
 		]
 
 	def ToString()
-		return This.ToStringXT(_cDurationDefaultFormat)
+		return This.ToStringXT($cDurationDefaultFormat)
 		
+		def Duration()
+			return This.ToString()
+
+		def Content()
+			return This.ToString()
+
 	def ToStringXT(cFormat)
 		nD = This.Days()
 		nH = This.Hours()
@@ -113,42 +116,42 @@ class stzDuration from stzObject
 		
 		# Days
 		if substr(cFormat, "dd")
-			cResult = substr(cResult, "dd", "" + StzStringQ("" + nD).PadLeftWithZerosToNCharsQ(2).Content())
+			cResult = substr(cResult, "dd", PadLeftXT('' + nD, 2, "0") )
 		but substr(cFormat, "d")
 			cResult = substr(cResult, "d", "" + nD)
 		ok
 		
 		# Hours (24-hour)
 		if substr(cFormat, "HH")
-			cResult = substr(cResult, "HH", "" + StzStringQ("" + nH).PadLeftWithZerosToNCharsQ(2).Content())
+			cResult = substr(cResult, "HH", PadLeftXT('' + nH, 2, "0"))
 		but substr(cFormat, "H")
 			cResult = substr(cResult, "H", "" + nH)
 		ok
 		
 		# Hours (total)
 		if substr(cFormat, "hh")
-			cResult = substr(cResult, "hh", "" + StzStringQ("" + This.TotalHours()).PadLeftWithZerosToNCharsQ(2).Content())
+			cResult = substr(cResult, "hh", PadLeftXT(''+ This.TotalHours(), 2, "0"))
 		but substr(cFormat, "h")
 			cResult = substr(cResult, "h", "" + This.TotalHours())
 		ok
 		
 		# Minutes
 		if substr(cFormat, "mm")
-			cResult = substr(cResult, "mm", "" + StzStringQ("" + nM).PadLeftWithZerosToNCharsQ(2).Content())
+			cResult = substr(cResult, "mm", PadLeftXT("" + nM, 2, '0'))
 		but substr(cFormat, "m")
 			cResult = substr(cResult, "m", "" + nM)
 		ok
 		
 		# Seconds
 		if substr(cFormat, "ss")
-			cResult = substr(cResult, "ss", "" + StzStringQ("" + nS).PadLeftWithZerosToNCharsQ(2).Content())
+			cResult = substr(cResult, "ss", PadLeftXT("" + nS, 2, '0'))
 		but substr(cFormat, "s")
 			cResult = substr(cResult, "s", "" + nS)
 		ok
 		
 		# Milliseconds
 		if substr(cFormat, "zzz")
-			cResult = substr(cResult, "zzz", "" + StzStringQ("" + nMs).PadLeftWithZerosToNCharsQ(3).Content())
+			cResult = substr(cResult, "zzz", PzdLeftXT("" + nMs, 3, '0'))
 		but substr(cFormat, "z")
 			cResult = substr(cResult, "z", "" + nMs)
 		ok
