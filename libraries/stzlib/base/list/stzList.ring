@@ -91986,6 +91986,20 @@ fdef
 			return 0
 		ok
 
+	def IsToOrAndNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+		   ( This.Item(1) = :To or This.Item(1) = :And)
+
+			return 1
+
+		else
+			return 0
+		ok
+
+		def IsAndOrToNamedParam()
+			return This.IsToOrAndNamedParam()
+
 	def IsAmongNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and
