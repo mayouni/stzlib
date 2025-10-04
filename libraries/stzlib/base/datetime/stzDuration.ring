@@ -24,7 +24,7 @@ class stzDuration from stzObject
 	@nTotalSeconds = 0
 	@nMilliseconds = 0
 
-def init(p)
+	def init(p)
 		if isString(p)
 			if p = ""
 				@nTotalSeconds = 0

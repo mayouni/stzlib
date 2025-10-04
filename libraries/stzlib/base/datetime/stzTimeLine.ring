@@ -895,8 +895,6 @@ class stzTimeLine from stzObject
 
 	# Visual Display Methods
 	
-	# Visual Display Methods
-	
 	def Show()
 		return This.ShowXT([])
 		
@@ -1037,23 +1035,36 @@ class stzTimeLine from stzObject
 				cName = aPoint[1]
 				oPointTime = new stzDateTime(aPoint[2])
 				
-				# Calculate position on timeline
-				nOffset = oStart.DurationTo(oPointTime)
-				nPos = floor((nOffset / nTotalDuration) * nTimelineWidth)
-				
-				# Highlight if requested
-				cMarker = "*"
-				if cHighlight != NULL and cName = cHighlight
-					cMarker = "X"
+				# Calculate position on timeline - FIX HERE
+				nOffsetResult = oStart.DurationTo(oPointTime)
+				nOffset = 0
+				if isNumber(nOffsetResult)
+				    nOffset = nOffsetResult
+				but isList(nOffsetResult)
+				    # If it's a hashlist, extract total seconds
+				    nOffset = (nOffsetResult[:days] * 86400) + 
+				              (nOffsetResult[:hours] * 3600) + 
+				              (nOffsetResult[:minutes] * 60) + 
+				              nOffsetResult[:seconds]
 				ok
-				
-				cLine = "    |" + ring_copy(" ", nPos) + cMarker + ring_copy(" ", nTimelineWidth - nPos - 1) + "| " + cName
-				
-				if not bCompact and bShowDates
-					cLine += " (" + aPoint[2] + ")"
+	
+				if nOffset >= 0 and nTotalDuration > 0
+					nPos = floor((nOffset / nTotalDuration) * nTimelineWidth)
+					
+					# Highlight if requested
+					cMarker = "*"
+					if cHighlight != NULL and cName = cHighlight
+						cMarker = "X"
+					ok
+					
+					cLine = "    |" + ring_copy(" ", nPos) + cMarker + ring_copy(" ", nTimelineWidth - nPos - 1) + "| " + cName
+					
+					if not bCompact and bShowDates
+						cLine += " (" + aPoint[2] + ")"
+					ok
+					
+					cResult += cLine + NL
 				ok
-				
-				cResult += cLine + NL
 			next
 		ok
 		

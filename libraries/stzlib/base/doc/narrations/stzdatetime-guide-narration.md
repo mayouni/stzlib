@@ -289,6 +289,97 @@ oUTC = oLocal.ToUTC()
 #--> 1727876445000
 ```
 
+### Epoch Conversions: Multiple Time Scales
+
+Beyond basic Unix timestamps, Softanza provides epoch conversions in multiple time units. Each method has semantic aliases for clarity in different contexts:
+
+```ring
+oEvent = StzDateTimeQ("2024-03-15 14:30:45")
+
+# Seconds - the standard Unix timestamp
+? oEvent.ToSecondsSinceEpoch() # Or ToEpochSeconds() or ToUnixTimestamp() 
+#--> 1710511845
+
+# Milliseconds - for high-precision APIs
+? oEvent.ToMillisecondsSinceEpoch() # or ToEpochMilliseconds() or ToUnixTimestampMs()
+#--> 1710511845000
+
+# Minutes - useful for session tracking
+? oEvent.ToMinutesSinceEpoch() # or ToEpochMinutes()
+#--> 28508530
+
+# Hours - for analytics and aggregation
+? oEvent.ToHoursSinceEpoch() # or ToEpochHours()
+#--> 475142
+
+# Days - for date-based comparisons
+? oEvent.ToDaysSinceEpoch() # or ToEpochDays()
+#--> 19797
+
+# Weeks - for weekly reporting periods
+? oEvent.ToWeeksSinceEpoch() # or ToEpochWeeks() 
+#--> 2828
+
+# Months - calendar-aware calculation
+? oEvent.ToMonthsSinceEpoch() # or ToEpochMonths() 
+#--> 649  # Accounts for variable month lengths
+
+# Years - handles leap years correctly
+? oEvent.ToYearsSinceEpoch() " or ToEpochYears()
+#--> 54
+
+# Decades - for historical analysis
+? oEvent.ToDecadesSinceEpoch() # or ToEpochDecades()
+#--> 5
+
+# Centuries - for very long-term data
+? oEvent.ToCenturiesSinceEpoch() # or ToEpochCenturies()
+#--> 0
+```
+
+**Why Multiple Time Scales?**
+
+Different domains need different granularity:
+- **Seconds/Milliseconds**: API interchange, logging, precise timing
+- **Minutes**: Session duration, cache expiration, polling intervals  
+- **Hours**: Hourly analytics, time-slot booking systems
+- **Days**: Date-based bucketing, retention policies, daily aggregates
+- **Weeks**: Weekly reports, sprint planning, subscription cycles
+- **Months**: Billing cycles, subscription periods, contract durations (calendar-aware)
+- **Years**: Historical analysis, age validation, multi-year trends (handles leap years)
+- **Decades**: Generational studies, long-term business cycles, demographic analysis
+- **Centuries**: Archaeological data, historical timelines, climate research
+
+The semantic aliases (`ToEpochSeconds()`, `ToUnixTimestamp()`) let you choose terminology that matches your domain—financial systems might prefer "epoch," while web developers might prefer "Unix timestamp."
+
+### Practical Example: Multi-Scale Time Tracking
+
+```ring
+oStart = StzDateTimeQ("2024-01-01 00:00:00")
+oEnd = StzDateTimeQ("2024-03-15 14:30:45")
+
+# Calculate project duration in different scales
+? "Project duration:"
+? "  Days: " + (oEnd.ToEpochDays() - oStart.ToEpochDays())
+#--> Days: 74
+
+? "  Weeks: " + (oEnd.ToEpochWeeks() - oStart.ToEpochWeeks())
+#--> Weeks: 10
+
+? "  Hours: " + (oEnd.ToEpochHours() - oStart.ToEpochHours())
+#--> Hours: 1790
+
+# Store as milliseconds for database precision
+nTimestampMs = oEnd.ToUnixTimestampMs()
+? "Stored timestamp: " + nTimestampMs
+#--> Stored timestamp: 1710511845000
+
+# Later: reconstruct from milliseconds
+oReconstructed = StzDateTimeQ(nTimestampMs / 1000)
+? oReconstructed.Content()
+#--> 2024-03-15 14:30:45
+```
+
 ## Millisecond Precision: When Microseconds Matter
 
 For high-precision logging, performance measurement, or financial timestamps, millisecond operations maintain accuracy:
