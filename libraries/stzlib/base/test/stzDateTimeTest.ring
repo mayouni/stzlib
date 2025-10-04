@@ -36,7 +36,10 @@ oDateTime = StzDateTimeQ("2024-03-15 10:30:00")
 #--> 2024-03-15 10:30:00
 
 ? oDateTime.ToEuropean()
-#--> 15/03/2024 10:30:00
+#--> 2024-03-15 10:30:00
+
+? oDateTime.ToEuropeanAMPM()
+#--> 15/03/2024 10:30:00 AM
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -1178,3 +1181,220 @@ oTest = StzDateTimeQ("2024-03-15 14:30:00")
 
 pf()
 
+#===================================================================#
+#  USAGE EXAMPLES OF CREATION A STZDATETIME OBJECT FROM EPOCH TIME  #
+#==================================================================="
+
+/*--- Example 1: From epoch seconds
+
+pr()
+
+oDateTime = new stzDateTime([ :FromEpochSeconds = 1609459200 ])
+? oDateTime.ToStringXT(:ISO)
+#--> 2021-01-01 00:00:00
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Example 2: From epoch days
+
+pr()
+
+oDateTime = new stzDateTime([ :FromEpochDays = 20000 ])
+? oDateTime.ToStringXT(:Standard)
+#--> 04/10/2024 01:00:00
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Example 3: Natural language string (auto-detected - must include "from epoch")
+
+pr()
+
+oDateTime = new stzDateTime("54 years 9 months 3 days from epoch")
+? oDateTime.ToVerbose()
+#--> Sunday, July 11, 2079 13:00:00
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Example 4: From epoch duration hash
+
+pr()
+
+oDateTime = new stzDateTime([
+    :FromEpochDuration = [
+        :Years = 54,
+        :Months = 9,
+        :Days = 3,
+        :Hours = 14,
+        :Minutes = 30
+    ]
+])
+? oDateTime.ToISOWithAmPm()
+#--> 2024-09-21 9:30:00 AM
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*--- Example 5: From epoch weeks
+
+pr()
+
+oDateTime = new stzDateTime([ :FromEpochWeeks = 2857 ])
+? oDateTime.ToStringXT(:Compact)
+#--> 2024-10-03 01:00
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Example 6: Complex natural language (auto-detected - must include "from epoch")
+
+pr()
+
+oDateTime = new stzDateTime("5 years 3 months 20 days 8 hours 45 minutes 30 seconds from epoch")
+? oDateTime.ToStringXT(:ISO8601)
+#--> 1980-08-09T07:16:30
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
+
+/*--- Example 7: From epoch milliseconds
+
+pr()
+
+oDateTime = new stzDateTime([ :FromEpochMilliseconds = 1609459200500 ])
+? oDateTime.ToStringXT(:ISOWithMs)
+#--> 2021-01-01 01:00:00.500
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Example 8: Natural epoch via hash
+
+pr()
+
+oDateTime = new stzDateTime([ :FromNaturalEpoch = "2 years 6 months 15 days" ])
+? oDateTime.ToStringXT(:European)
+#--> 30/01/1975 01:00:00
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*--- Example 9: From epoch hours
+
+pr()
+
+oDateTime = new stzDateTime([ :FromEpochHours = 480000 ])
+? oDateTime.ToStringXT(:American12h)
+#--> 10/04/2024 1:00:00 AM
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*--- Example 10: From epoch years
+
+pr()
+
+oDateTime = new stzDateTime([ :FromEpochYears = 55 ])
+? oDateTime.ToLong()
+#--> Wednesday, January 1, 2025 12:00:00 AM
+
+? oDateTime.ToLongDate()
+#--> Wednesday, January 1, 2025
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*--- Example 11 : Seconds counting from Unix start
+
+pr()
+
+oDateTime = new stzDateTime([ :CountingFromUnixStart = 1609459200 ])
+? oDateTime.ToCompact()  #--> 2021-01-01 01:00
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Example 12: Duration counting from specific origin
+
+pr()
+
+oDateTime = new stzDateTime([
+    :CountingFrom = [ :Origin = :UnixStart, :Years = 50, :Days = 100 ]
+])
+
+? oDateTime.Content()
+#--> 2020-03-29 01:00:00
+
+pf()
+
+/*--- Example 13: Natural language with origin
+
+pr()
+
+oDateTime = new stzDateTime("5 years 3 months counting from space age")
+? oDateTime.Content()
+#--> 1975-04-01 07:00:00
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*--- Example 14: Counting from Year One
+
+pr()
+
+oDateTime = new stzDateTime([ :CountingFromYearOne = 63_113_904_000 ])  # seconds
+? oDateTime.Content()
+#--> 2001-01-01 01:00:00
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Example 15: Counting from Islamic calendar
+
+pr()
+
+oDateTime = new stzDateTime([
+    :CountingFromIslamicCalendar = [ :Years = 1400 ]
+])
+
+? oDateTime.Content()
+#--> 2021-08-13 01:00:00
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Example 16: Query methods
+*/
+pr()
+
+oNow = new stzDateTime("")
+? oNow.SecondsSinceUnixStart()
+#--> 1759579659
+
+//? @@NL(oNow.CountingFromUnixStartXT())
+#--> [
+#	[ "milliseconds", 1759579946021 ],
+#	[ "seconds", 1759579946 ],
+#	[ "minutes", 29326332 ],
+#	[ "hours", 488772 ],
+#	[ "days", 20365 ],
+#	[ "weeks", 2909 ],
+#	[ "years", 55 ]
+# ]
+
+? oNow.CountingInSecondsFrom(:SpaceAge) # Or CountingInSecondsFrom(:SpaceAge)
+#--> 2153995946021
+
+pf()
+
+/*--- Example 17: US Independence reference
+oDate7 = new stzDateTime([
+    :CountingFromUSIndependence = [ :Years = 248, :Months = 3 ]
+])
+? oDate7.Content()
+
+/*--- Example 18: Natural with atomic age
+oDate8 = new stzDateTime("79 years 2 months counting from atomic age")
+? oDate8.Content()
