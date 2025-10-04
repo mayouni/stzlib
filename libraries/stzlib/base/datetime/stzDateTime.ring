@@ -669,6 +669,9 @@ class stzDateTime from stzObject
 	
 			return [ :Days = nDays, :Hours = nHours, :Minutes = nMinutes, :Seconds = nSeconds, :Milliseconds = nMilliseconds ]
     
+		def DurationToQ(oOtherDateTime)
+			return new stzDuration(This.DurationTo(oOtherDateTime))
+
     #--- COMPARISON METHODS ---#
     
     def IsBefore(poOtherDateTime)
