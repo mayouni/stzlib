@@ -475,8 +475,8 @@ class stzDate from stzObject
             oOtherDate = new stzDate(oOtherDate)
         ok
         
-        nYears = oOtherDate.YearN() - This.YearN()
-        nMonths = oOtherDate.MonthN() - This.MonthN()
+        nYears = oOtherDate.Year() - This.Year()
+        nMonths = oOtherDate.Month() - This.Month()
         
         return (nYears * 12) + nMonths
 
@@ -485,7 +485,7 @@ class stzDate from stzObject
             oOtherDate = new stzDate(oOtherDate)
         ok
         
-        return oOtherDate.YearN() - This.YearN()
+        return oOtherDate.Year() - This.Year()
     
     def IsBefore(oOtherDate)
         return This.DaysTo(oOtherDate) > 0
