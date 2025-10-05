@@ -115,7 +115,7 @@ class stzTimeLine from stzObject
 		
 	def Duration()
 		if This.HasBoundaries()
-			return This.StartQ().DurationTo(@cEnd)
+			return This.StartQ().DurationTo(@cEnd, :InSeconds)
 		ok
 		return NULL
 
@@ -892,7 +892,6 @@ class stzTimeLine from stzObject
 		def Clone()
 			return This.Copy()
 
-
 	# Visual Display Methods
 	
 	def Show()
@@ -972,7 +971,7 @@ class stzTimeLine from stzObject
 			return cResult + "No timeline data to display" + NL
 		ok
 		
-		nTotalDuration = oStart.DurationTo(oEnd)
+		nTotalDuration = oStart.DurationTo(oEnd, :InSeconds)
 		if nTotalDuration = 0
 			nTotalDuration = 1  # Avoid division by zero
 		ok
@@ -1035,8 +1034,8 @@ class stzTimeLine from stzObject
 				cName = aPoint[1]
 				oPointTime = new stzDateTime(aPoint[2])
 				
-				# Calculate position on timeline - FIX HERE
-				nOffsetResult = oStart.DurationTo(oPointTime)
+				# Calculate position on timeline
+				nOffsetResult = oStart.DurationTo(oPointTime, :InSeconds)
 				nOffset = 0
 				if isNumber(nOffsetResult)
 				    nOffset = nOffsetResult

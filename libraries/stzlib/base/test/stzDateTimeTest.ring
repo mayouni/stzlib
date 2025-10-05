@@ -5,16 +5,17 @@ load "../stzbase.ring"
 pr()
 
 ? NowXT()
-#--> 2025-10-01 14:23:45
+#--> 2025-30-04 21:30:44
 
 ? NowDateTime()
-#--> 2025-10-01 14:23:45
+#--> 2025-30-04 21:30:44
 
 oDateTime = StzDateTimeQ("")
 ? oDateTime.DateTime() # Or Content() or ToString()
-#--> 2025-10-01 14:23:45
+#--> 2025-10-04 21:30:44.668
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Creating datetime from standard format
 
@@ -35,14 +36,15 @@ oDateTime = StzDateTimeQ("2024-03-15 10:30:00")
 ? oDateTime.Content()
 #--> 2024-03-15 10:30:00
 
-? oDateTime.ToEuropean()
-#--> 2024-03-15 10:30:00
-
-? oDateTime.ToEuropeanAMPM()
+? oDateTime.ToEuropean() # Or ToEuropeanAmPm() or ToEuropean12h()
 #--> 15/03/2024 10:30:00 AM
 
+# Or you can say
+? oDateTime.ToEuropeanWithoutAmPm() # Or ToEuropean24h()
+#--> 15/03/2024 10:30:00
+
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Creating datetime from American format
 
@@ -53,7 +55,7 @@ oDateTime = StzDateTimeQ("2024-03-15 10:30:00")
 #--> 2024-03-15 10:30:00
 
 ? oDateTime.ToAmerican()
-#--> 03/15/2024 10:30:00
+#--> 03/15/2024 10:30:00 AM
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -138,7 +140,7 @@ oDateTime {
 	? Content()
 	#--> 2024-03-20 10:00:00
 
-	AddDays(-3)
+	SubtractDays(3)
 	? Content()
 	#--> 2024-03-17 10:00:00
 }
@@ -152,6 +154,7 @@ pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
 oDateTime {
+
 	AddMonths(2)
 	? Content()
 	#--> 2024-05-15 10:00:00
@@ -162,22 +165,27 @@ oDateTime {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Adding hours, minutes, seconds
 
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
+oDateTime {
 
-? oDateTime.AddHours(3)
-#--> 2024-03-15 13:00:00
+	AddHours(3)
+	? Content()
+	#--> 2024-03-15 13:00:00
 
-? oDateTime.AddMinutes(45)
-#--> 2024-03-15 13:45:00
+	AddMinutes(45)
+	? Content()
+	#--> 2024-03-15 13:45:00
 
-? oDateTime.AddSeconds(30)
-#--> 2024-03-15 13:45:30
+	AddSeconds(30)
+	? Content()
+	#--> 2024-03-15 13:45:30
+}
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -187,15 +195,20 @@ pf()
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
+oDateTime {
 
-? oDateTime.SubtractDays(5)
-#--> 2024-03-10 10:00:00
+	SubtractDays(5)
+	? Content()
+	#--> 2024-03-10 10:00:00
 
-? oDateTime.SubtractHours(2)
-#--> 2024-03-10 08:00:00
+	SubtractHours(2)
+	? Content()
+	#--> 2024-03-10 08:00:00
 
-? oDateTime.SubtractMinutes(30)
-#--> 2024-03-10 07:30:00
+	SubtractMinutes(30)
+	? Content()
+	#--> 2024-03-10 07:30:00
+}
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -219,6 +232,7 @@ oDateTime + "2 days 5 hours"
 #--> 2024-03-19 18:00:00
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Using operator overloading for subtraction
 
@@ -241,19 +255,24 @@ pf()
 pr()
 
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
+
 ? oDateTime1.ToString()
+#--> 2024-03-15 10:00:00
+
 ? oDateTime1.DaysTo("2024-03-20 14:30:00")
 #--> 5
 
 ? oDateTime1.HoursTo("2024-03-20 14:30:00")
-#--> 124
+#--> 124.5
 
 ? oDateTime1.MinutesTo("2024-03-20 14:30:00")
 #--> 7470
 
 ? oDateTime1.SecsTo("2024-03-20 14:30:00")
 #--> 448200
+
 pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Calculating duration between two datetimes (object param)
 
@@ -275,27 +294,18 @@ oDateTime2 = StzDateTimeQ("2024-03-20 14:30:00")
 #--> 448200
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Duration (string param) #TODO #ERR
 
 pr()
 
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
-? @@NL( oDateTime1.DurationTo("2024-03-20 14:30:15") )
-#-->
-'
-[
-	[ "days", 566 ],
-	[ "hours", 0 ],
-	[ "minutes", 4 ],
-	[ "seconds", 53 ],
-	[ "milliseconds", 0 ]
-]
-'
+? oDateTime1.DurationTo("2024-03-20 14:30:15", :InMinutes)
+#--> 7470.25
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Duration (object param)
 
@@ -303,20 +313,11 @@ pr()
 
 oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 oDateTime2 = StzDateTimeQ("2024-03-20 14:30:15")
-? @@NL( oDateTime1.DurationTo(oDateTime2) )
-#-->
-'
-[
-	[ "days", 5 ],
-	[ "hours", 4 ],
-	[ "minutes", 30 ],
-	[ "seconds", 15 ],
-	[ "milliseconds", 0 ]
-]
-'
+? oDateTime1.DurationTo(oDateTime2, :In = :Days)
+#--> 5
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Comparing datetimes with operators (string)
 
@@ -333,7 +334,7 @@ oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 #--> TRUE
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Comparing datetimes with operators (object)
 
@@ -366,10 +367,11 @@ oDateTime1 = StzDateTimeQ("2024-03-15 10:00:00")
 ? oDateTime1.IsAfter("2024-03-20 10:00:00")
 #--> FALSE
 
-? oDateTime1.IsEqualTo("2024-03-15 10:00:00") #ERR returned FALSE!
+? oDateTime1.IsEqualTo("2024-03-15 10:00:00")
 #--> TRUE
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Using comparison methods (object param)
 
@@ -388,7 +390,7 @@ oDateTime2 = StzDateTimeQ("2024-03-20 10:00:00")
 #--> TRUE
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Checking if datetime is between two others (string params) #TODO #ERR
 
@@ -399,7 +401,7 @@ oDateTime = StzDateTimeQ("2024-03-17 10:00:00")
 #--> TRUE
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Checking if datetime is between two others (object params)
 
@@ -412,7 +414,7 @@ oEnd = StzDateTimeQ("2024-03-20 10:00:00")
 #--> TRUE
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Formatting datetime with named formats
 
@@ -424,7 +426,7 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 #--> 2024-03-15 14:30:45
 
 ? oDateTime.ToStringXT(:Short)
-#--> 15/03/2024 14:30
+#--> 15/03 2:30 PM
 
 ? oDateTime.ToStringXT(:ISO8601)
 #--> 2024-03-15T14:30:45
@@ -433,7 +435,7 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 #--> Friday, March 15, 2024 2:30:45 PM
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Converting to UTC and local time
 
@@ -459,13 +461,16 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 #--> Friday, March 3rd, 2024 at Half past 2 PM
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Relative time description
 
 pr()
 
-oDateTime = StzDateTimeQ('') - "2 hours"
-? oDateTime.ToRelative()
+o1 = new stzDateTime('')
+o1 - "2 hours"
+? o1.Content()
+? o1.ToRelative()
 #--> 2 hours ago
 
 oFuture = StzDateTimeQ('') + "3 days"
@@ -487,18 +492,20 @@ oNow = StzDateTimeQ("")
 #--> TRUE
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Checking if datetime is tomorrow/yesterday
 
 pr()
 
-oTomorrow = StzDateTimeQ('') + "1 day"
-? oTomorrow.IsTomorrow()
+o1 = StzDateTimeQ('')
+o1 + "1 day"
+? o1.IsTomorrow()
 #--> TRUE
 
-oYesterday = StzDateTimeQ('') - "1 day"
-? oYesterday.IsYesterday()
+o2 = StzDateTimeQ('')
+o2 - "1 day"
+? o2.IsYesterday()
 #--> TRUE
 
 pf()
@@ -539,6 +546,7 @@ pr()
 #--> TRUE
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Chaining operations with Q methods
 
@@ -546,33 +554,37 @@ pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
 
-oResult = oDateTime.AddDaysQ(5).AddHoursQ(3).AddMinutesQ(30)
-? oResult.ToString()
+? oDateTime.AddDaysQ(5).AddHoursQ(3).AddMinutesQ(30).ToString()
 #--> 2024-03-20 13:30:00
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Complex duration with multiple units
 
 pr()
 
-oDateTime1 = StzDateTimeQ("2024-03-15 10:30:00.750")
+oDateTime = StzDateTimeQ("2024-03-15 10:30:00.750")
+oDateTime {
 
-? @@NL( oDateTime1.DurationTo("2024-04-20 15:45:30") )
-#-->
-'
-[
-	[ "days", 36 ],
-	[ "hours", 5 ],
-	[ "minutes", 15 ],
-	[ "seconds", 29 ],
-	[ "milliseconds", 250 ]
-]
-'
+	? DurationTo("2024-04-20 15:45:30", :In = :Days)
+	#--> 36
+	
+	? DurationTo(StzDateTimeQ("2024-04-20 15:45:30"), :InDays)
+	#--> 36
+
+	? DurationTo("2027-04-20", :In = :Years)
+	#--> 3
+
+	? DurationTo("2030-10-10", :InWeeks)
+	#--> 342
+
+	? DurationTo("2027-04-20", :InYears) # Date only
+	#--> 3	
+}
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Date time components
 
@@ -581,17 +593,17 @@ pr()
 oDateTime = StzDateTimeQ("2024-03-15 10:30:18.750")
 oDateTime {
 
-	? Year()	#--> 2024
+	? Year()	 #--> 2024
 
-	? Month()	#--> March
-	? MonthN()	#--> 3
+	? Month()	 #--> March
+	? MonthN()	 #--> 3
 
-	? Day()		#--> Friday
-	? DayN()	#--> 15
+	? Day()		 #--> Friday
+	? DayN()	 #--> 15
 
-	? Hours()	#--> 10
-	? Minutes()	#--> 30
-	? Seconds()	#--> 18
+	? Hours()	 #--> 10
+	? Minutes()	 #--> 30
+	? Seconds()	 #--> 18
 	? Milliseconds() #--> 750
 
 }
@@ -609,7 +621,7 @@ nSecsDiff = oDateTime1 - "2024-03-15 12:30:00"
 #--> 9000 (2.5 hours in seconds)
 
 pf()
-# # Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Simple datetime formatting
 
@@ -624,7 +636,7 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 #--> Friday, March 15, 2024 2:30:45 PM
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Adding seconds directly with operator
 
@@ -636,7 +648,7 @@ oDateTime + 3600 # Add 3600 seconds (1 hour)
 #--> 2024-03-15 11:00:00
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Natural language time addition
 
@@ -651,19 +663,19 @@ oDateTime.AddNatural("2 days 3 hours 30 minutes 28 seconds 540 milliseconds")
 #--> 2024-30-17 13-30-28.540
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Natural language time subtraction
+
 pr()
+
 oDateTime = StzDateTimeQ("2024-03-15 10:00:00")
 oDateTime.SubtractNatural("1 day 2 hours")
 ? oDateTime.ToString()
 #--> 2024-03-14 08:00:00
-pf()
 
-#===============================#
-#  12H / 24H FORMAT TEST CASES  #
-#===============================#
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Default 24-hour behavior
 
@@ -681,15 +693,15 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 #--> 2024-03-15 14:30:45
 
 ? oDateTime.ToEuropean()
-#--> 15/03/2024 14:30:45
+#--> 15/03/2024 2:30:45 PM
 
 ? oDateTime.ToAmerican()
-#--> 03/15/2024 14:30:45
+#--> 03/15/2024 2:30:45 PM
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
-/*--- Named format configs (24-hour)
+/*--- Named format configs
 
 pr()
 
@@ -711,7 +723,7 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 #--> 15 Mar 2024 14:30:45
 
 pf()
-# # Executed in almost 0 second(s) in Ring 1.23
+# # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Explicit 12-hour methods
 
@@ -737,9 +749,8 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 pf()
 # Executed in 0.02 second(s) in Ring 1.23
 
-#-------------------------------------------------------
 
-# ISO/Normalized formats (safe for storage/interchange)
+/*--- ISO/Normalized formats (safe for storage/interchange)
 
 pr()
 
@@ -748,10 +759,10 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 ? oDateTime.ToISO()
 #--> 2024-03-15 14:30:45
 
-? oDateTime.ToISO8601()
+? oDateTime.ToIso8601()
 #--> 2024-03-15T14:30:45
 
-? oDateTime.ToStringXT(:ISOWithMs)
+? oDateTime.ToIsoWithMs()
 #--> 2024-03-15 14:30:45.000
 
 pf()
@@ -764,40 +775,48 @@ pr()
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 
 ? oDateTime.ToCompact()
- #--> 2024-03-15 14:30
+ #--> 2024-03-15 2:30 PM
 
 ? oDateTime.ToStringXT(:CompactSec)
 #--> 2024-03-15 14:30:45
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
-/*--- # Standard formats (region-aware)
+/*--- Standard formats (region-aware)
 
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 
-? oDateTime.ToStandard()         #--> 15/03/2024 14:30:45
-? oDateTime.ToEuropean()         #--> 15/03/2024 14:30:45
-? oDateTime.ToAmerican()         #--> 03/15/2024 14:30:45
+? oDateTime.ToStandard()
+#--> 15/03/2024 2:30:45 PM
+
+? oDateTime.ToEuropean()
+#--> 15/03/2024 2:30:45 PM
+
+? oDateTime.ToAmerican()
+#--> 03/15/2024 2:30:45 PM
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.243
 
-/*--- # Verbose formats
+/*--- Verbose formats
 
 pr()
 
 oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 
 ? oDateTime.ToVerbose() # Depends on your current system language
+#--> Friday, March 15, 2024 2:30:45 PM
+
+? oDateTime.ToVerbose24h()
 #--> Friday, March 15, 2024 14:30:45
 
 # 12-hour formats (automatic AM/PM)
 
-? oDateTime.ToISO12h()
-#--> 2024-03-15 02:30:45 PM
+? oDateTime.ToISO()
+#--> 2024-03-15 02:30:45
 
 ? oDateTime.ToStandard12h()
 #--> 15/03/2024 02:30:45 PM
@@ -871,7 +890,7 @@ oDateTime {
 	? ToStringXT(:Simple) # 12h by default	; can be written ToSimple()
 	#--> 15/03/2024 2:30 PM
 
-	? ToStringXT(:Simple12h)		# Or ToSimple12h()
+	? ToStringXT(:Simple12h) # Or ToSimple12h()
 	#--> 15/03/2024 2:30 PM
 
 	? ToStringXT(:Simple24h) + NL	# Or ToSimple24h()
@@ -913,7 +932,7 @@ oDateTime {
 }
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*---
 
@@ -948,12 +967,6 @@ oDateTime {
 	? ToISO()
 	#--> 2024-03-15 2:30:45 PM
 
-	? ToIso12h()
-	#--> 2024-03-15 2:30:45 PM
-
-	? ToIso24h() + NL
-	#--> 2024-03-15 14:30:45
-
 	#--
 
 	? ToStandard()
@@ -979,7 +992,7 @@ oDateTime {
 }
 
 pf()
-# Executed in 0.05 second(s) in Ring 1.23
+# Executed in 0.03 second(s) in Ring 1.24
 
 /*--- Custom 12-hour format strings
 
@@ -996,11 +1009,8 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 ? oDateTime.ToStringXT("dddd h:mm AP")
 #--> Friday 2:30 PM
 
-? oDateTime.ToStringXT("MMMM d, yyyy at h:mm AP")
-#--> March 15, 2024 at 2:30 PM
-
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*---  Morning times (AM)
 
@@ -1021,7 +1031,7 @@ oMorning = StzDateTimeQ("2024-03-15 09:15:30")
 #--> 9:15 AM
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*---  Morning times (AM)
 
@@ -1061,7 +1071,7 @@ oNoon = StzDateTimeQ("2024-03-15 12:00:00")
 #--> 15/03/2024 12:00 PM
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.243
 
 /*--- Hour boundaries
 
@@ -1077,7 +1087,7 @@ oOne = StzDateTimeQ("2024-03-15 13:00:00")
 #--> 2024-03-15 1:00:00 PM
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.243
 
 /*--- Format consistency across operations
 
@@ -1097,7 +1107,7 @@ oDT.AddHours(12)
 #--> 2024-03-16 2:30:00 AM (crossed midnight)
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Locale-aware AM/PM text
 
@@ -1114,9 +1124,9 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:00")
 #--> 15/03/2024 2:30 PM
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
-/*--- Parsing preserves original hou
+/*--- Parsing preserves original hour
 
 pr()
 
@@ -1138,7 +1148,7 @@ oParsed = StzDateTimeQ("2024-03-15 14:30:45")
 #--> 2024-03-15 2:30:45 PM
 
 pf() 
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Integration with ToHuman()
 
@@ -1150,7 +1160,7 @@ oHuman = StzDateTimeQ("2024-03-15 14:30:00")
 #--> Friday March 15, 2024 at 2:30 PM
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Single digit hours
 
@@ -1165,7 +1175,7 @@ oSingle = StzDateTimeQ("2024-03-15 03:05:00")
 #--> 3:05 AM
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Error handling
 
@@ -1190,7 +1200,7 @@ pf()
 pr()
 
 oDateTime = new stzDateTime([ :FromEpochSeconds = 1609459200 ])
-? oDateTime.ToStringXT(:ISO)
+? oDateTime.ToString()
 #--> 2021-01-01 00:00:00
 
 pf()
@@ -1213,7 +1223,7 @@ pr()
 
 oDateTime = new stzDateTime("54 years 9 months 3 days from epoch")
 ? oDateTime.ToVerbose()
-#--> Sunday, July 11, 2079 13:00:00
+#--> Sunday, July 11, 2079 13:00:00 PM
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
@@ -1231,11 +1241,11 @@ oDateTime = new stzDateTime([
         :Minutes = 30
     ]
 ])
-? oDateTime.ToISOWithAmPm()
-#--> 2024-09-21 9:30:00 AM
+? oDateTime.ToISO()
+#--> 2024-09-21 9:30:00
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Example 5: From epoch weeks
 
@@ -1311,10 +1321,11 @@ pf()
 pr()
 
 oDateTime = new stzDateTime([ :CountingFromUnixStart = 1609459200 ])
-? oDateTime.ToCompact()  #--> 2021-01-01 01:00
+? oDateTime.ToCompact()
+#--> 2021-01-01 01:00 AM
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Example 12: Duration counting from specific origin
 
@@ -1328,6 +1339,7 @@ oDateTime = new stzDateTime([
 #--> 2020-03-29 01:00:00
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Example 13: Natural language with origin
 
@@ -1366,35 +1378,56 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Example 16: Query methods
-*/
+
 pr()
 
 oNow = new stzDateTime("")
-? oNow.SecondsSinceUnixStart()
-#--> 1759579659
 
-//? @@NL(oNow.CountingFromUnixStartXT())
-#--> [
-#	[ "milliseconds", 1759579946021 ],
-#	[ "seconds", 1759579946 ],
-#	[ "minutes", 29326332 ],
-#	[ "hours", 488772 ],
-#	[ "days", 20365 ],
-#	[ "weeks", 2909 ],
-#	[ "years", 55 ]
-# ]
+? oNow.YearsSince(:YearOne)
+#--> 2024
 
-? oNow.CountingInSecondsFrom(:SpaceAge) # Or CountingInSecondsFrom(:SpaceAge)
+? oNow.SecondsSince(:Epoch)
+#--> 1759588945
+
+? oNow.DurationSince(:IslamicHijra, :In = :Centuries)
+#--> 14
+
+? oNow.SecondsSince(:SpaceAge)
 #--> 2153995946021
 
+? oNow.YearsSince(:InternetAge)
+#--> 65
+
+? oNow.WeeksSince(:FrenchRevolution)
+#--> 12159
+
+? oNow.YearsSince("01/08/1976")
+#--> 55
+
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Example 17: US Independence reference
-oDate7 = new stzDateTime([
+
+pr()
+
+oDateTime = new stzDateTime([
     :CountingFromUSIndependence = [ :Years = 248, :Months = 3 ]
 ])
-? oDate7.Content()
+
+? oDateTime.Content()
+#--> 2024-08-04 07:00:00
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Example 18: Natural with atomic age
-oDate8 = new stzDateTime("79 years 2 months counting from atomic age")
-? oDate8.Content()
+*/
+pr()
+
+oDateTime = new stzDateTime("79 years 2 months counting from atomic age")
+? oDateTime.Content()
+#--> 2049-02-10 21:00:00
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
