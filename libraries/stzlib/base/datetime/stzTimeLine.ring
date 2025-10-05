@@ -894,7 +894,7 @@ class stzTimeLine from stzObject
 
 	# Visual Display Methods
 	
-	def Show()
+def Show()
 		return This.ShowXT([])
 		
 	def ShowXT(paParams)
@@ -922,18 +922,6 @@ class stzTimeLine from stzObject
 		ok
 		
 		cResult = ""
-		
-		# Header
-		if This.HasBoundaries()
-			cResult += "Timeline: " + @cStart + " to " + @cEnd + NL
-			if This.Duration() != NULL
-				cResult += "Duration: " + This.DurationQ().ToHuman() + NL
-			ok
-		else
-			cResult += "Timeline (unbounded)" + NL
-		ok
-		
-		cResult += ring_copy("=", nWidth) + NL + NL
 		
 		# Calculate timeline range
 		oStart = NULL
@@ -973,22 +961,35 @@ class stzTimeLine from stzObject
 		
 		nTotalDuration = oStart.DurationTo(oEnd, :InSeconds)
 		if nTotalDuration = 0
-			nTotalDuration = 1  # Avoid division by zero
+			nTotalDuration = 1
 		ok
 		
-		# Build timeline visualization
-		nTimelineWidth = nWidth - 20  # Reserve space for labels
+		# Build modern header
+		nTimelineWidth = nWidth - 6
 		
-		# Draw timeline bar
-		cResult += "    |" + ring_copy("-", nTimelineWidth) + "|" + NL
-		
-		if bShowDates
-			cResult += "    " + oStart.ToString() + ring_copy(" ", nTimelineWidth - len(oStart.ToString()) - len(oEnd.ToString())) + oEnd.ToString() + NL + NL
+		cResult += "┌" + ring_copy("─", nWidth - 2) + "┐" + NL
+		if This.HasBoundaries()
+			cTitle = " TIMELINE: " + oStart.ToString() + " → " + oEnd.ToString() + " "
+			if len(cTitle) > nWidth - 4
+				cTitle = " TIMELINE "
+			ok
+			nPad = nWidth - 2 - len(cTitle)
+			cResult += "│" + cTitle + ring_copy(" ", nPad) + "│" + NL
+			
+			if This.Duration() != NULL
+				cDur = " Duration: " + This.DurationQ().ToHuman() + " "
+				nPad = nWidth - 2 - len(cDur)
+				cResult += "│" + cDur + ring_copy(" ", nPad) + "│" + NL
+			ok
+		else
+			cTitle = " TIMELINE (unbounded) "
+			nPad = nWidth - 2 - len(cTitle)
+			cResult += "│" + cTitle + ring_copy(" ", nPad) + "│" + NL
 		ok
+		cResult += "├" + ring_copy("─", nWidth - 2) + "┤" + NL
 		
-		# Display spans
+		# Display spans as colored blocks
 		if len(@aSpans) > 0
-			cResult += "Spans:" + NL
 			aSorted = This.SortedSpans()
 			
 			for aSpan in aSorted
@@ -996,7 +997,6 @@ class stzTimeLine from stzObject
 				oSpanStart = new stzDateTime(aSpan[2])
 				oSpanEnd = new stzDateTime(aSpan[3])
 				
-				# Calculate position on timeline
 				nStartOffset = oStart.DurationTo(oSpanStart)
 				nEndOffset = oStart.DurationTo(oSpanEnd)
 				
@@ -1007,40 +1007,50 @@ class stzTimeLine from stzObject
 					nLength = 1
 				ok
 				
-				# Highlight if requested
-				cBar = "="
+				# Choose visual style
+				cBar = "━"
+				cLeft = "┣"
+				cRight = "┫"
 				if cHighlight != NULL and cName = cHighlight
-					cBar = "#"
+					cBar = "█"
+					cLeft = "▐"
+					cRight = "▌"
 				ok
 				
-				cLine = "    |" + ring_copy(" ", nStartPos) + ring_copy(cBar, nLength) + ring_copy(" ", nTimelineWidth - nStartPos - nLength) + "| " + cName
+				cLine = "│ " + ring_copy(" ", nStartPos) + cLeft + ring_copy(cBar, nLength) + cRight + ring_copy(" ", nTimelineWidth - nStartPos - nLength) + " │"
+				cResult += cLine + NL
 				
+				# Label line
+				cLabel = "  " + cName
 				if not bCompact
 					oDuration = oSpanStart.DurationToQ(oSpanEnd)
-					cLine += " (" + oDuration.ToHuman() + ")"
+					cLabel += " (" + oDuration.ToHuman() + ")"
 				ok
-				
-				cResult += cLine + NL
+				nPad = nWidth - 2 - len(cLabel)
+				cResult += "│" + cLabel + ring_copy(" ", nPad) + "│" + NL
 			next
-			cResult += NL
 		ok
 		
-		# Display points
+		# Display timeline axis
+		cResult += "│ " + ring_copy("─", nTimelineWidth) + " │" + NL
+		
+		# Display points as markers
 		if len(@aPoints) > 0
-			cResult += "Points:" + NL
 			aSorted = This.SortedPoints()
+			
+			# Create marker line
+			cMarkerLine = ring_copy(" ", nTimelineWidth)
+			aPositions = []
 			
 			for aPoint in aSorted
 				cName = aPoint[1]
 				oPointTime = new stzDateTime(aPoint[2])
 				
-				# Calculate position on timeline
 				nOffsetResult = oStart.DurationTo(oPointTime, :InSeconds)
 				nOffset = 0
 				if isNumber(nOffsetResult)
 				    nOffset = nOffsetResult
 				but isList(nOffsetResult)
-				    # If it's a hashlist, extract total seconds
 				    nOffset = (nOffsetResult[:days] * 86400) + 
 				              (nOffsetResult[:hours] * 3600) + 
 				              (nOffsetResult[:minutes] * 60) + 
@@ -1049,23 +1059,62 @@ class stzTimeLine from stzObject
 	
 				if nOffset >= 0 and nTotalDuration > 0
 					nPos = floor((nOffset / nTotalDuration) * nTimelineWidth)
-					
-					# Highlight if requested
-					cMarker = "*"
-					if cHighlight != NULL and cName = cHighlight
-						cMarker = "X"
+					if nPos >= 0 and nPos < nTimelineWidth
+						# Place marker
+						cMarker = "◆"
+						if cHighlight != NULL and cName = cHighlight
+							cMarker = "◈"
+						ok
+						
+						# Update marker line
+						cTemp = ""
+						for i = 1 to nTimelineWidth
+							if i - 1 = nPos
+								cTemp += cMarker
+							else
+								if i - 1 < len(cMarkerLine)
+									cTemp += substr(cMarkerLine, i, 1)
+								else
+									cTemp += " "
+								ok
+							ok
+						next
+						cMarkerLine = cTemp
+						
+						aPositions + [nPos, cName]
 					ok
-					
-					cLine = "    |" + ring_copy(" ", nPos) + cMarker + ring_copy(" ", nTimelineWidth - nPos - 1) + "| " + cName
-					
-					if not bCompact and bShowDates
-						cLine += " (" + aPoint[2] + ")"
-					ok
-					
-					cResult += cLine + NL
 				ok
 			next
+			
+			cResult += "│ " + cMarkerLine + " │" + NL
+			
+			# Add point labels
+			for aPos in aPositions
+				nPos = aPos[1]
+				cName = aPos[2]
+				
+				cLine = ring_copy(" ", nPos) + "│"
+				cLabel = "  " + cLine + " " + cName
+				nPad = nWidth - 2 - len(cLabel)
+				if nPad < 0
+					nPad = 0
+				ok
+				cResult += "│" + cLabel + ring_copy(" ", nPad) + "│" + NL
+			next
 		ok
+		
+		# Footer with date markers
+		if bShowDates
+			cStart = substr(oStart.ToString(), 1, 10)
+			cEnd = substr(oEnd.ToString(), 1, 10)
+			nSpacing = nTimelineWidth - len(cStart) - len(cEnd)
+			if nSpacing < 0
+				nSpacing = 0
+			ok
+			cResult += "│ " + cStart + ring_copy(" ", nSpacing) + cEnd + " │" + NL
+		ok
+		
+		cResult += "└" + ring_copy("─", nWidth - 2) + "┘" + NL
 		
 		return cResult
 		
