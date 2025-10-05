@@ -5,6 +5,29 @@
 
 $cDurationDefaultFormat = "h:mm:ss"
 
+
+# Global container for duration formulations
+# Add new patterns here without modifying ToHuman() code
+$aDurationPatterns = [
+	# [days, hours, minutes, seconds, output_string]
+	[365, 23, 59, 59, "1 year"],
+	[183, 23, 59, 59, "6 months"],
+	[30, 23, 59, 59, "1 month"],
+	[7, 0, 0, 0, "1 week"],
+	[14, 0, 0, 0, "2 weeks"]
+	# Add more patterns as needed
+]
+
+# Global container for unit names
+$aUnitNames = [
+	# [unit_value_getter, singular, plural]
+	[:Days, "day", "days"],
+	[:Hours, "hour", "hours"],
+	[:Minutes, "minute", "minutes"],
+	[:Seconds, "second", "seconds"]
+]
+
+
 func StzDurationQ(p)
 	return new stzDuration(p)
 
@@ -239,55 +262,38 @@ def ToStringXT(cFormat)
 		nM = This.Minutes()
 		nS = This.Seconds()
 		
+		# Check against patterns
+		nLen = len($aDurationPatterns)
+		for i = 1 to nLen
+			if nD = $aDurationPatterns[i][1] and nH = $aDurationPatterns[i][2] and 
+			   nM = $aDurationPatterns[i][3] and nS = $aDurationPatterns[i][4]
+				return $aDurationPatterns[i][5]
+			ok
+		next
+		
+		# Build component-based description
 		aParts = []
-		
-		if nD > 0
-			if nD = 1
-				aParts + "1 day"
-			else
-				aParts + ("" + nD + " days")
+		aValues = [nD, nH, nM, nS]
+		nLen = len($aUnitNames)
+
+		for i = 1 to nLen
+			nValue = aValues[i]
+			if nValue > 0
+				if nValue = 1
+					aParts + ("1 " + $aUnitNames[i][2])
+				else
+					aParts + ('' + nValue + " " + $aUnitNames[i][3])
+				ok
 			ok
+		next
+		
+		# Handle edge case: no time components
+		if len(aParts) = 0
+			aParts + "0 seconds"
 		ok
 		
-		if nH > 0
-			if nH = 1
-				aParts + "1 hour"
-			else
-				aParts + ("" + nH + " hours")
-			ok
-		ok
-		
-		if nM > 0
-			if nM = 1
-				aParts + "1 minute"
-			else
-				aParts + ("" + nM + " minutes")
-			ok
-		ok
-		
-		if nS > 0 or len(aParts) = 0
-			if nS = 1
-				aParts + "1 second"
-			else
-				aParts + ("" + nS + " seconds")
-			ok
-		ok
-		
-		nLen = len(aParts)
-		if nLen = 0
-			return "0 seconds"
-		but nLen = 1
-			return aParts[1]
-		but nLen = 2
-			return aParts[1] + " and " + aParts[2]
-		else
-			cResult = ""
-			for i = 1 to nLen - 1
-				cResult += aParts[i] + ", "
-			next
-			cResult += "and " + aParts[nLen]
-			return cResult
-		ok
+		# Format output
+		return This.JoinParts(aParts)
 
 	def ToCompact()
 		nD = This.Days()
@@ -594,3 +600,21 @@ def ToStringXT(cFormat)
 		
 	def Clone()
 		return This.Copy()
+
+	PRIVATE
+
+	
+	def JoinParts(aParts)
+		nLen = len(aParts)
+		if nLen = 1
+			return aParts[1]
+		but nLen = 2
+			return aParts[1] + " and " + aParts[2]
+		else
+			cResult = ""
+			for i = 1 to nLen - 1
+				cResult += aParts[i] + ", "
+			next
+			cResult += "and " + aParts[nLen]
+			return cResult
+		ok

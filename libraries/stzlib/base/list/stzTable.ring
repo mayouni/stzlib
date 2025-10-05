@@ -15371,6 +15371,9 @@ Class stzTable from stzList
 	 #  DSIPLAY  #
 	#-----------#
 
+	def ToString()
+		return This._displayFullTable()
+
 	def Show()
 		? This._displayFullTable()
 
