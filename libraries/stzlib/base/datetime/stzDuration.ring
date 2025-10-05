@@ -602,7 +602,6 @@ def ToStringXT(cFormat)
 		return This.Copy()
 
 	PRIVATE
-
 	
 	def JoinParts(aParts)
 		nLen = len(aParts)

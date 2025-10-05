@@ -21,7 +21,7 @@ class stzTimeLine from stzObject
 
 	# Display properties
 	@nVizWidth = 52
-	@nVizHeight = 2
+	@nVizHeight = 5
 	@cAxisChar = "─"
 	@cPointChar = "●"
 	@cSpanChar = "═"
@@ -858,22 +858,19 @@ class stzTimeLine from stzObject
 	# Output Methods
 	
 	def Summary()
+
 		aResult = []
 		
 		# Add boundaries if they exist
 		if This.HasBoundaries()
-			aResult + [
-				:Start = @cStart,
-				:End = @cEnd,
-				:TotalDuration = This.DurationQ().ToHuman()
-			]
+			aResult + [ "start", @cStart ] + 
+				[ "end", @cEnd ] +
+				[ "totalduration", This.DurationQ().ToHuman() ]
 		ok
 		
 		# Add counts
-		aResult + [
-			:CountPoints = This.CountPoints(),
-			:CountSpans = This.CountSpans()
-		]
+		aResult + [ "countpoints", This.CountPoints() ] +
+			[ "countspans", This.CountSpans() ]
 		
 		# Add sorted points
 		if len(@aPoints) > 0
@@ -881,12 +878,10 @@ class stzTimeLine from stzObject
 			aSorted = This.SortedPoints()
 			nLen = len(aSorted)
 			for i = 1 to nLen
-				aPoints + [
-					:Name = aSorted[i][1],
-					:DateTime = aSorted[i][2]
-				]
+				aPoints + [ "name", aSorted[i][1] ] +
+					[ "datetime", aSorted[i][2] ]
 			next
-			aResult + [ :Points = aPoints ]
+			aResult + [ "points", aPoints ]
 		ok
 		
 		# Add sorted spans with durations
@@ -898,16 +893,14 @@ class stzTimeLine from stzObject
 
 			for i = 1 to nLen
 				oStart = new stzDateTime(aSorted[i][2])
-				oDuration = oStart.DurationToQ(aSorted[i][3])
-				aSpans + [
-					:Name = aSorted[i][1],
-					:Start = aSorted[i][2],
-					:End = aSorted[i][3],
-					:Duration = oDuration.ToHuman()
-				]
+				oDuration = StzDurationQ(oStart.DurationTo(aSorted[i][3], :InSeconds))
+				aSpans + [ "name", aSorted[i][1] ] +
+					[ "start", aSorted[i][2] ] +
+					[ "end", aSorted[i][3] ] +
+					[ "duration", oDuration.ToHuman() ]
 			next
 
-			aResult + [ :Spans = aSpans ]
+			aResult + [ "spans", aSpans ]
 		ok
 		
 		return aResult
@@ -1386,6 +1379,9 @@ class stzTimeLine from stzObject
 	
 	# Main Display Methods
 	
+	def ShowUncovered() #TODO
+		raise("Not yet implemented!")
+
 	def Show()
 		? This.ToString()
 		
@@ -1476,13 +1472,3 @@ class stzTimeLine from stzObject
 			
 		def VizFindPeriods(cName)
 			return This.VizFindSpans(cName)
-	
-	def Viz()
-		return This.Show()
-		
-		def Visualize()
-			return This.Show()
-			
-		def Display()
-			return This.Show()
-	

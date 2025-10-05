@@ -480,7 +480,7 @@ pf()
 # Executed in 0.17 second(s) in Ring 1.24
 
 /*--- Customising unit names
-*/
+
 pr()
 
 # Global unit container
@@ -505,3 +505,4 @@ oDur = DurationQ("2 days 5 hours")
 #--> 2 d and 5 h
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.24
