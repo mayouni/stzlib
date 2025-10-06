@@ -165,8 +165,6 @@ If overlaps exist, `OverlappingSpans()` returns a list of groups showing which s
 and for how long (in seconds).
 This makes it trivial to detect scheduling conflicts or workload collisions.
 
----
-
 ## Visualizing the Timeline
 
 ### Text-Based Display with `Show()`
