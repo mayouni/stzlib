@@ -46,7 +46,7 @@ oTimeLine = new stzTimeLine(
 #--> FALSE
 
 ? oTimeLine.Duration()
-#--> NULL
+#--> ""
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
@@ -93,6 +93,26 @@ o1 = new stzTimeLine("2024-10-10 12:10:10", "18:59:59")
 #--> ERROR: Invalid input in pEnd! Time specified without a date.
 
 pf()
+
+/*---
+*/
+pr()
+
+o1 = new stzTimeLine("2024-01-01", "2024-03-20")
+o1.AddPoint("EVENT", "2024-03-15") # time added automatically "00:00:00"
+? o1.Point("EVENT")
+#--> 2024-03-15 00:00:00
+
+o1.AddSpan("WEEK", "2024-03-01", "2024-03-07")  # Both dates normalized
+? @@(o1.Span("WEEK"))
+#--> [ "2024-03-01 00:00:00", "2024-03-07 00:00:00" ]
+
+o1.SetStart("2024-01-01") # Works without time
+? o1.Start()
+#--> 2024-01-01 00:00:00
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 #------------------------#
 #  TimePoint Management  #
