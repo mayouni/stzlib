@@ -3,35 +3,13 @@
 Time in real-world applications is more than a number on a clock —
 it is **structured**, **sequenced**, and **meaningful**.
 
-A restaurant’s daily shifts, a project’s phases, or a student’s academic year all unfold **over time**,
-often overlapping, aligning, or depending on each other.
+A restaurant’s daily shifts, a project’s phases, or a student’s academic year all unfold **over time**, often overlapping, aligning, or depending on each other.
 
-While `stzDate`, `stzTime`, `stzDuration`, and `stzDateTime` each specialize in handling different aspects of time,
-**`stzTimeLine`** brings them together into a **coherent temporal model**,
-turning time into a programmable structure you can navigate, analyze, and visualize.
+While `stzDate`, `stzTime`, `stzDuration`, and `stzDateTime` each specialize in handling different aspects of time, **`stzTimeLine`** turns time into a programmable structure you can navigate, analyze, and visualize. Together, they form a complete language for expressing time — from *“how long”* to *“when”* to *“what happens during”*.
 
----
+## The Concept of `TimeLine`
 
-## The Temporal Ecosystem of Softanza
-
-Softanza provides a full set of interoperable classes for managing time with natural clarity:
-
-| Class             | Purpose                                                                                                                       |
-| ----------------- | ----------------------------------------------------------------------------------------------------------------------------- |
-| **`stzDate`**     | Manages calendar days, months, and years with awareness of leap years and locale formats.                                     |
-| **`stzTime`**     | Handles hours, minutes, seconds, and milliseconds with fluent arithmetic (`+`, `-`, `.AddMinutes()`, etc.).                   |
-| **`stzDuration`** | Represents the measurable gap between two datetimes, with conversions to human-readable or numeric units.                     |
-| **`stzDateTime`** | Unifies date and time into a single precise entity — ideal for timestamps, logs, and event markers.                           |
-| **`stzTimeLine`** | Organizes all of the above into a **narrative of time** — with events (points) and periods (spans) inside defined boundaries. |
-
-Together, they form a complete language for expressing time —
-from *“how long”* to *“when”* to *“what happens during”*.
-
----
-
-## The Concept of `stzTimeLine`
-
-A `stzTimeLine` defines a **bounded period** and arranges within it two types of temporal entities:
+A Timeline as defined in the `stzTimeLine` class defines a **bounded period** and arranges within it two types of temporal entities:
 
 * **Points** — instantaneous events (like deliveries, releases, or meetings).
 * **Spans** — intervals with start and end times (like projects, seasons, or campaigns).
@@ -40,8 +18,6 @@ Each item has a *label* to describe what it represents.
 Labels don’t have to be unique — several events can share the same label if they represent similar occurrences.
 
 This design mirrors real life: multiple “deliveries” or “EVENT1” entries can exist along a single timeline.
-
----
 
 ## Creating a Timeline
 
@@ -56,8 +32,6 @@ oTimeLine = new stzTimeLine([
 
 All subsequent items must remain within these boundaries.
 Adding a span outside them raises an exception, ensuring structural consistency.
-
----
 
 ## Adding Points and Spans
 
@@ -91,8 +65,6 @@ oTimeLine.RemovePoint("EVENT1") # removes third
 Each call removes the first occurrence of the label —
 which means points are identified internally by their **position** rather than by name.
 
----
-
 ### Adding Spans — Continuous Periods
 
 Spans represent intervals between two datetimes:
@@ -106,8 +78,6 @@ oTimeLine {
 
 Spans can overlap or nest.
 Here, the `CAMPAIGN` span is contained entirely within `PROJECT`.
-
----
 
 ## Querying the Timeline
 
@@ -127,8 +97,6 @@ The `WhatsAt()` method lists all elements active at a specific instant:
 This query is central to `stzTimeLine`:
 it merges *instant* and *interval* logic, showing every relevant activity in context.
 
----
-
 ### Counting and Listing Elements
 
 ```ring
@@ -141,8 +109,6 @@ it merges *instant* and *interval* logic, showing every relevant activity in con
 
 The API maintains a natural symmetry between points and spans, making iteration intuitive.
 
----
-
 ### Existence and Validation
 
 ```ring
@@ -152,8 +118,6 @@ The API maintains a natural symmetry between points and spans, making iteration 
 ```
 
 Use these checks to verify data or avoid exceptions when manipulating timelines dynamically.
-
----
 
 ## Editing and Validation
 
@@ -167,8 +131,6 @@ oTimeLine.RemoveSpan("PHASE2")
 
 Removal functions delete the first matching label occurrence —
 ideal for progressive event processing or cleanup workflows.
-
----
 
 ### Boundary Enforcement
 
@@ -186,8 +148,6 @@ This behavior ensures consistency between all related `stzDateTime` objects and 
 
 The tests also mention a future validation for invalid spans (`start >= end`),
 confirming the class’s focus on correctness.
-
----
 
 ## Detecting Overlaps
 
@@ -237,8 +197,6 @@ Features:
 
 This is especially useful in console-based applications, tests, or log reviews.
 
----
-
 ## Error Handling and Safety Patterns
 
 Softanza’s design philosophy prioritizes reliability through readability.
@@ -248,8 +206,6 @@ Here are some recommended practices drawn from the tests:
 * Use `HasPoint()` or `HasSpan()` before removal.
 * Compare counts before and after operations to assert expected outcomes.
 * Use `Show()` to visualize and verify changes interactively.
-
----
 
 ## End-to-End Example: Planning and Analysis
 
@@ -276,29 +232,6 @@ oTimeLine.Show()
 This compact example shows how the same API supports **temporal logic**, **data integrity**, and **visual clarity**
 in a single, cohesive tool.
 
----
-
-## Performance and Design
-
-`stzTimeLine` builds on **Qt’s C++ time engine**, like the other time classes in Softanza.
-Operations such as sorting, overlap detection, and containment tests execute in microseconds.
-
-Its API emphasizes **natural syntax** — `AddPoint`, `HasOverlaps`, `Show()` —
-so developers can focus on *what they mean*, not *how to calculate it*.
-
----
-
-## Best Practices
-
-* **Labels are descriptive, not unique.** Multiple points or spans may share the same label.
-* **Order matters.** Each element is identified by its chronological position.
-* **Always define clear bounds.** Timeline boundaries maintain logical consistency.
-* **Validate inputs early.** Use `HasPoint()`, `HasSpan()`, and `try/catch` guards.
-* **Visualize frequently.** `Show()` turns raw data into insight.
-* **Combine with other Softanza time classes.** Use `stzDuration` to compute intervals, `stzDateTime` to store boundaries, and `stzTime` for precise calculations.
-
----
-
 ## Comparative Analysis: `stzTimeLine` vs. Other Ecosystems
 
 | Feature / Capability               | `stzTimeLine` (Ring)         | Python (`datetime` + libs)     | Java (`java.time` + extras)    | JavaScript (Luxon/Moment)      | Specialized (e.g., TimelineJS) |
@@ -320,9 +253,4 @@ so developers can focus on *what they mean*, not *how to calculate it*.
 Built atop the precise engines of `stzTime`, `stzDate`, `stzDuration`, and `stzDateTime`,
 it gives structure, insight, and context to your temporal data.
 
-Where other systems just *measure* time,
-Softanza — through `stzTimeLine` — helps your applications **understand** it.
-
----
-
-Would you like me to produce a short **graphical summary diagram** (showing how `stzDate`, `stzTime`, `stzDuration`, `stzDateTime`, and `stzTimeLine` relate conceptually — like a visual map for the documentation)? It would fit beautifully right after the introduction.
+Where other systems just *measure* time, Softanza — through `stzTimeLine` — helps your applications **understand** it.
