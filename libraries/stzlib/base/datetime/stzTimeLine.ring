@@ -47,27 +47,50 @@ class stzTimeLine from stzObject
 	@nDateRow = 0
 	@acVizCanvas = []
 
-	def init(p)
-		if isList(p) and @IsHashList(p)
-			# Initialize start/end boundaries
-			if len(p) >= 1 and p[1][1] = :Start and p[1][2] != NULL
-				if isString(p[1][2])
-					@cStart = p[1][2]
-				else
-					@cStart = new stzDateTime(p[1][2]).ToString()
-				ok
+	def init(pStart, pEnd)
+
+		if CheckParams()
+			if isList(pStart) and StzListQ(pStart).IsStartOrFromNamedParam()
+				pStart = pStart[2]
 			ok
-			if len(p) >= 2 and p[2][1] = :End and p[2][2] != NULL
-				if isString(p[2][2])
-					@cEnd = p[2][2]
-				else
-					@cEnd = new stzDateTime(p[2][2]).ToString()
-				ok
+			if isList(pEnd) and StzListQ(pEnd).IsEndOrToNamedParam()
+				pEnd = pEnd[2]
 			ok
-		else
-			@cStart = NULL
-			@cEnd = NULL
 		ok
+
+		if isString(pStart)
+			pStart = trim(pStart)
+			if This._IsDateOnly(pStart)
+				pStart += " 00:00:00"
+
+			but This._IsTimeOnly(pStart)
+				StzRaise("Invalid input in pStart! Time specified without a date.")
+			ok
+		ok
+
+		if isString(pEnd)
+			pEnd = trim(pEnd)
+			if This._IsDateOnly(pEnd)
+				pStart += " 00:00:00"
+
+			but This._IsTimeOnly(pEnd)
+				StzRaise("Invalid input in pEnd! Time specified without a date.")
+			ok
+		ok
+
+		@cStart = StzDateTimeQ(pStart).ToString()
+		@cEnd = StzDateTimeQ(pEnd).ToString()
+
+	def Content()
+		aResult = [
+			:Start = @cStart,
+			:End = @cEnd,
+
+			:Points = @aPoints,
+			:Spans = @aSpans
+		]
+
+		return aResult
 
 	# Boundary Management
 	
@@ -108,7 +131,7 @@ class stzTimeLine from stzObject
 		if isString(p)
 			@cStart = p
 		else
-			@cStart = new stzDateTime(p).ToString()
+			@cStart = StzDateTimeQ(p).ToString()
 		ok
 
 		def SetStartQ(p)
@@ -119,7 +142,7 @@ class stzTimeLine from stzObject
 		if isString(p)
 			@cEnd = p
 		else
-			@cEnd = new stzDateTime(p).ToString()
+			@cEnd = StzDateTimeQ(p).ToString()
 		ok
 
 		def SetEndQ(p)
@@ -154,7 +177,7 @@ class stzTimeLine from stzObject
 				StzRaise("Invalid input! Time specified without a date.")
 			ok
 		else
-			cPoint = new stzDateTime(pDateTime).ToString()
+			cPoint = StzDateTimeQ(pDateTime).ToString()
 		ok
 		
 		# Validate against boundaries
@@ -193,6 +216,41 @@ class stzTimeLine from stzObject
 
 		def AddMoments(paPoints)
 			This.AddPoints(paPoints)
+
+	# Find the occurences of a given moment (by lable)
+	# on the timeline (returns its relative datetimes)
+	def FindPoint(pcPoint)
+		acResult = []
+		nLen = len(@aPoints)
+
+		for i = 1 to nLen
+			if lower(@aPoints[i][1]) = lower(pcPoint)
+				acResult + @aPoints[i][2]
+			ok
+		next
+
+		return acResult
+
+		def FindMoment(pcPoint)
+			return This.FindPoint(pcPoint)
+
+	# Returns the positions along with the datetimes
+	def FindPointXT(pcPoint)
+		aResult = []
+		nLen = len(@aPoints)
+
+		for i = 1 to nLen
+			if lower(@aPoints[i][1]) = lower(pcPoint)
+				aResult + [ ""+i, @aPoints[i][2] ]
+			ok
+		next
+
+		return aResult
+
+		def FindMomentXT(pcPoint)
+			return This.FindPointXT(pcPoint)
+
+	#--
 
 	def Points()
 		return @aPoints
@@ -360,6 +418,9 @@ class stzTimeLine from stzObject
 			This.AddSpan(paSpans[i][1], paSpans[i][2], paSpans[i][3])
 		next
 
+		def AddPeriods(paSpans)
+			This.AddSpans(paSpans)
+
 	def AddSpan(cName, pStart, pEnd)
 	    cStart = ""
 	    cEnd = ""
@@ -411,7 +472,42 @@ class stzTimeLine from stzObject
 
 			def AddPeriodQ(cName, pStart, pEnd)
 				return This.AddSpanQ(cName, pStart, pEnd)
-			
+
+
+	# Find the occurences of a given Period (by lable)
+	# on the timeline (returns its relative datetimes)
+	def FindSpan(pcSpan)
+		acResult = []
+		nLen = len(@aSpans)
+
+		for i = 1 to nLen
+			if lower(@aSpans[i][1]) = lower(pcSpan)
+				acResult + [ @aSpans[i][2], @aSpans[i][3] ]
+			ok
+		next
+
+		return acResult
+
+		def FindPeriod(pcSpan)
+			return This.FindSpan(pcSpan)
+
+	# Returns the positions along with the datetimes
+	def FindSpanXT(pcSpan)
+		aResult = []
+		nLen = len(@aSpans)
+
+		for i = 1 to nLen
+			if lower(@aSpans[i][1]) = lower(pcSpan)
+				aResult + [ ""+i, [ @aSpans[i][2], @aSpans[i][3] ] ]
+			ok
+		next
+
+		return aResult
+
+		def FindPeriodXT(pcSpan)
+			return This.FindSpanXT(pcSpan)
+
+	
 	def Spans()
 		return @aSpans
 
@@ -545,7 +641,7 @@ class stzTimeLine from stzObject
 		if isString(pDateTime)
 			cDateTime = pDateTime
 		else
-			cDateTime = new stzDateTime(pDateTime).ToString()
+			cDateTime = StzDateTimeQ(pDateTime).ToString()
 		ok
 	
 		# Detect search mode
@@ -708,12 +804,12 @@ class stzTimeLine from stzObject
 		if isString(pStart)
 			cStart = pStart
 		else
-			cStart = new stzDateTime(pStart).ToString()
+			cStart = StzDateTimeQ(pStart).ToString()
 		ok
 		if isString(pEnd)
 			cEnd = pEnd
 		else
-			cEnd = new stzDateTime(pEnd).ToString()
+			cEnd = StzDateTimeQ(pEnd).ToString()
 		ok
 
 		oStart = new stzDateTime(cStart)
@@ -748,12 +844,12 @@ class stzTimeLine from stzObject
 		if isString(pStart)
 			cStart = pStart
 		else
-			cStart = new stzDateTime(pStart).ToString()
+			cStart = StzDateTimeQ(pStart).ToString()
 		ok
 		if isString(pEnd)
 			cEnd = pEnd
 		else
-			cEnd = new stzDateTime(pEnd).ToString()
+			cEnd = StzDateTimeQ(pEnd).ToString()
 		ok
 
 		oStart = new stzDateTime(cStart)
@@ -777,7 +873,7 @@ class stzTimeLine from stzObject
 		if isString(pDateTime)
 			cDateTime = pDateTime
 		else
-			cDateTime = new stzDateTime(pDateTime).ToString()
+			cDateTime = StzDateTimeQ(pDateTime).ToString()
 		ok
 
 		oDateTime = new stzDateTime(cDateTime)
