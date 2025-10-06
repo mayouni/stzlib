@@ -6,30 +6,70 @@ load "../stzbase.ring"
 ? @@( TimeStamp() )
 
 /*--- Creating basic entities
-*/
+
 pr()
 
-oEntity = new stzEntity([
+o1 = new stzEntity([
     :name = "john",
     :type = "person"
 ])
 
-? oEntity.Name()
+? o1.Name()
 #--> john
 
-? oEntity.Type()
+? o1.Type()
 #--> person
 
-? oEntity.Created()
+? o1.Created()
 #--> 2025-09-26 14:30:15 (timestamp)
 
 pf()
+
+/*--- Using the @() wildcard to read and set properties
+
+pr()
+
+o1 = new stzEntity([
+	:name = "customer",
+	:value = "sonibank"
+])
+
+o1 {
+	# Checking a property
+
+	? @(:name)
+	#--> customer
+
+	? @(:value)
+	#--> sonibank
+
+	# Setting a property
+
+	@(:value = "cousbox")
+	? @(:value)
+	#--> cousbox
+
+	# Setting many properties at once
+	@([ :name = "partner", :value = "nigercom", :country = "niger" ])
+
+	? @(:name)
+	#--> partner
+
+	? @(:value)
+	#--> nigercom
+
+	? @(:country)
+	#--> niger
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Entity with custom properties
 
 pr()
 
-oEntity2 = new stzEntity([
+o1 = new stzEntity([
     :name = "toyota",
     :type = "car",
     :model = "camry",
@@ -37,22 +77,23 @@ oEntity2 = new stzEntity([
     :color = "blue"
 ])
 
-? oEntity2.Property("model")
+? o1.Property("model")
 #--> camry
 
-? @@(oEntity2.Properties())
+? @@(o1.Properties())
 #--> ["name", "type", "created", "model", "year", "color"]
 
-? oEntity2.ContainsProperty("year")
+? o1.ContainsProperty("year")
 #--> 1
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Modifying entity properties
-*/
+
 pr()
 
-oEntity = new stzEntity([
+o1 = new stzEntity([
     :name = "toyota",
     :type = "car",
     :model = "camry",
@@ -60,40 +101,62 @@ oEntity = new stzEntity([
     :color = "blue"
 ])
 
-oEntity.SetProperty("price", 25000)
-? oEntity.Property("price")
-#--> 25000
+o1 {
+	SetProperty("price", 25000) # Or Set@() or @Set() or @(:price = 2500)
+	? Property("price") # Or @(:price)
+	#--> 25000
 
-oEntity.SetName("honda")
-? oEntity.Name()
-#--> honda
+	SetName("honda") # Or @(:name = "honda")
+	? Name() # Or @(:name)
+	#--> honda
 
-oEntity.RemoveProperty("color")
-? oEntity.ContainsProperty("color")
-#--> 0
+	RemoveProperty("color") # or @Remove("color") or Remove@("color")
+	? ContainsProperty("color")
+	#--> FALSE
+
+	? ContainsValue("camry")
+	#--> TRUE
+
+	? ContainsProperty("year") # or ContainsPropOrVal("car") or @Contains() or Contains@()
+	#--> TRUE
+}
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 /*--- Entity type checking
 
-? oEntity1.IsOfType("person")
+pr()
+
+o1 = new stzEntity([
+	:name = "john",
+	:type = "person",
+	:age = 35,
+	:job = "programmer"
+])
+
+? o1.IsOfType("person")
 #--> 1
 
-? oEntity1.HasName("john")
+? o1.HasName("john")
 #--> 1
 
-? oEntity2.Size()
+? o1.Size()
 #--> 5
 
-oEntity2.Show()
+o1.Show()
 #-->
-# Entity: honda (Type: car)
-#   created: 2025-09-26 14:30:15
-#   model: camry
-#   year: 2023
-#   price: 25000
+# Entity: john (Type: person)
+#  age: 35
+#  job: programmer
+#  created: 06/10/2025 21:34:40
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Creating list of entities
+
+pr()
 
 aEntities = [
     [ :name = "alice", :type = "person", :age = 30 ],
@@ -107,13 +170,22 @@ oList = new stzListOfEntities(aEntities)
 ? oList.NumberOfEntities()
 #--> 4
 
-? oList.Names()
+? @@(oList.Names())
 #--> ["alice", "bob", "ferrari", "laptop"]
 
-? oList.Types()
+? @@(oList.Types())
 #--> ["person", "person", "car", "device"]
 
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
 /*--- Finding entities
+*/
+pr()
+
+o1 = new stzEntities([
+
+])
 
 ? oList.FindEntityByName("alice")
 #--> 1
@@ -126,6 +198,8 @@ oList = new stzListOfEntities(aEntities)
 
 ? oList.FindEntitiesByType("person")
 #--> [1, 2]
+
+pf()
 
 /*--- Getting specific entities
 

@@ -5,7 +5,7 @@ func stzListOfEntitiesError(pcError)
 	on :CanNotAddThisEntityTwice
 		cErrorMsg += "   What : Can't add the same entity twice!" + NL
 		cErrorMsg += "   Why  : The list already contains an entity with that name-and-type." + NL
-		cErrorMsg += "   Todo : Provide an entity with a different name-and-type it will be fine ;)."
+		cErrorMsg += "   Todo : Provide an entity with a different name-and-type and it will be fine ;)."
 
 	on :CanNotAddNotAHashList
 		cErrorMsg += "   What : Can't add the entity to the list!" + NL

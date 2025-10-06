@@ -45,7 +45,7 @@ class stzEntity
 			paEntity[:created] = TimeStamp()
 		ok
 
-		@aEntity = aEntity
+		@aEntity = paEntity
 	
 	
 	def Content()
@@ -80,6 +80,32 @@ class stzEntity
 	def Created()
 		return @aEntity[:created]
 
+	def ContainsPropertyOrValue(pPropOrVal)
+		if This.ContainsProperty(pPropOrVal) or This.ContainsValue(pPropOrVal)
+			return 1
+		else
+			return 0
+		ok
+
+		#< @FunctionAlternativeForms
+
+		def Contains@(pPropOrVal)
+			return This.ContainsPropertyOrValue(pPropOrVal)
+
+		def @Contains(pPropOrVal)
+			return This.ContainsPropertyOrValue(pPropOrVal)
+
+		def ContainsValueOrProperty(pPropOrVal)
+			return This.ContainsPropertyOrValue(pPropOrVal)
+
+		def ContainsPropOrVal(pPropOrVal)
+			return This.ContainsPropertyOrValue(pPropOrVal)
+
+		def ContainsValOrPrep(pPropOrVal)
+			return This.ContainsPropertyOrValue(pPropOrVal)
+
+		#>
+
 	def ContainsProperty(pcProp)
 		if NOT isString(pcProp)
 			StzRaise("Incorrect param type! pcProp must be a string.")
@@ -94,7 +120,7 @@ class stzEntity
 	def ContainsValue(pValue)
 		bResult = 0
 		for aPair in This.Entity()
-			if AreEqual(aPair[2], pValue)  # Fixed: was aPair[1], should be aPair[2]
+			if @AreEqual([ aPair[2], pValue ])
 				bResult = 1
 				exit
 			ok
@@ -116,7 +142,28 @@ class stzEntity
 		ok
 
 		def Prop(pcProp)
-			return Property(pcProp)
+			return This.Property(pcProp)
+
+	def @(p)
+		if isString(p)
+			return This.Property(p)
+
+		but isList(p)
+			if len(p) = 2 and isString(p[1])
+				This.SetProperty(p[1], p[2])
+				return
+
+			but IsListOfPairs(p)
+				nLen = len(p)
+				for i = 1 to nLen
+					This.SetProperty(p[i][1], p[i][2])
+				next
+				return
+			ok
+		ok
+
+		StzRaise("Incorrect param type! p must be a string or a pair of a string and on other value of any type.")
+
 
 	def SetProperty(pcProp, pValue)
 		if NOT isString(pcProp)
@@ -133,13 +180,19 @@ class stzEntity
 		def SetProp(pcProp, pValue)
 			This.SetProperty(pcProp, pValue)
 
-	def FindPropert(pcProp)
+		def Set@(pcProp, pValue)
+			This.SetProperty(pcProp, pValue)
+
+		def @Set(pcProp, pValue)
+			This.SetProperty(pcProp, pValue)
+
+	def FindProperty(pcProp)
 		if NOT isString(pcProp)
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
 		pcProp = ring_lower(pcProp)
-		if NOT HasKey(@aEnity, pcProp)
+		if NOT HasKey(@aEntity, pcProp)
 			return 0
 		else
 			nLen = len(@aEntity)
@@ -149,6 +202,15 @@ class stzEntity
 				ok
 			next
 		ok
+
+		def FindProp(pcProp)
+			return This.FindProperty(pcProp)
+
+		def Find@(pcProp)
+			return This.FindProperty(pcProp)
+
+		def @Find(pcProp)
+			return This.FindProperty(pcProp)
 
 	def RemoveProperty(pcProp)
 		if NOT isString(pcProp)
@@ -161,6 +223,15 @@ class stzEntity
 		else
 			StzRaise("Property does not exist!")
 		ok
+
+		def RemoveProp(pcProp)
+			This.RemoveProperty(pcProp)
+
+		def Remove@(pcProp)
+			This.RemoveProperty(pcProp)
+
+		def @Remove(pcProp)
+			This.RemoveProperty(pcProp)
 
 	def Properties()
 		aResult = []

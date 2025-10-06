@@ -8,10 +8,10 @@ load "../stzbase.ring"
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	? Start()
@@ -37,10 +37,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = NULL,
 	:End = NULL
-])
+)
 
 ? oTimeLine.HasBoundaries()
 #--> FALSE
@@ -55,7 +55,7 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([ :Start = NULL, :End = NULL ])
+oTimeLine = new stzTimeLine(NULL, NULL)
 
 oTimeLine.SetStart("2024-06-01 00:00:00")
 oTimeLine.SetEnd("2024-06-30 23:59:59")
@@ -68,6 +68,32 @@ oTimeLine.SetEnd("2024-06-30 23:59:59")
 
 pf()
 
+/*--- Creating timeline onject with a date containing no time
+
+pr()
+
+o1 = new stzTimeLine(:From = "2024-10-10", :To = "2024-10-22 16:40:00")
+
+? @@NL(o1.Content()) # Time is added automatically to "2024-10-10"
+#--> [
+#	[ "start", "2024-10-10 00:00:00" ],
+#	[ "end", "2024-10-22 16:40:00" ],
+#	[ "points", [  ] ],
+#	[ "spans", [  ] ]
+# ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+#---
+
+pr()
+
+o1 = new stzTimeLine("2024-10-10 12:10:10", "18:59:59")
+#--> ERROR: Invalid input in pEnd! Time specified without a date.
+
+pf()
+
 #------------------------#
 #  TimePoint Management  #
 #------------------------#
@@ -76,10 +102,7 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
-	:Start = "2024-01-01 00:00:00",
-	:End = "2024-12-31 23:59:59"
-])
+oTimeLine = new stzTimeLine("2024-01-01 00:00:00", "2024-12-31 23:59:59")
 
 oTimeLine {
 
@@ -107,13 +130,12 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Adding points with Q() chaining
-
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoint("EVENT1", "2024-03-15 10:00:00")
@@ -131,10 +153,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoints([ 
@@ -174,10 +196,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine.AddMoment("MILESTONE", "2024-06-15 12:00:00")
 
@@ -200,10 +222,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 
@@ -231,10 +253,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 
@@ -257,10 +279,10 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Removing spans
-
+*
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
 ])
@@ -293,10 +315,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine.AddPeriod("VACATION", "2024-07-01 00:00:00", "2024-07-15 23:59:59")
 
@@ -317,10 +339,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoint("MEETING", "2024-03-15 10:00:00")
@@ -344,10 +366,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoint("JAN_EVENT", "2024-01-15 10:00:00")
@@ -370,10 +392,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddSpan("JAN_SPAN", "2024-01-01 00:00:00", "2024-01-31 23:59:59")
@@ -391,10 +413,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 
@@ -441,10 +463,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddSpan("SPAN_A", "2024-02-01 00:00:00", "2024-04-30 23:59:59")
@@ -470,10 +492,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddSpan("PROJECT_A", "2024-02-01 00:00:00", "2024-04-30 23:59:59")
@@ -492,10 +514,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddSpan("Q1", "2024-01-01 00:00:00", "2024-03-31 23:59:59")
@@ -528,10 +550,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddSpan("PHASE1", "2024-01-01 00:00:00", "2024-02-15 23:59:59")
@@ -560,10 +582,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddSpan("BUSY", "2024-03-01 00:00:00", "2024-05-31 23:59:59")
@@ -608,10 +630,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoint("START", "2024-01-15 10:00:00")
@@ -635,10 +657,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddSpan("PHASE1", "2024-01-01 00:00:00", "2024-02-28 23:59:59")
@@ -656,10 +678,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoint("KICKOFF", "2024-01-15 10:00:00")
@@ -683,10 +705,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoint("THIRD", "2024-09-15 10:00:00")
@@ -708,10 +730,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddSpan("Q3", "2024-07-01 00:00:00", "2024-09-30 23:59:59")
@@ -733,10 +755,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoint("KICKOFF", "2024-02-01 10:00:00")
@@ -772,10 +794,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoint("EVENT", "2024-03-15 10:00:00")
@@ -799,10 +821,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoint("EVENT1", "2024-03-15 10:00:00")
@@ -839,10 +861,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoint("KICKOFF", "2024-03-01 00:00:00")
@@ -870,13 +892,13 @@ pf()
 # Executed in 0.06 second(s) in Ring 1.24
 
 /*--- Custom width display
-
+*
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddPoint("Q1", "2024-03-31 23:59:59")
@@ -901,26 +923,41 @@ oTimeLine {
 pf()
 # Executed in 0.04 second(s) in Ring 1.24
 
-/*--- Highlighting specific element
+/*--- Finding and Highlighting specific element
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
-	AddPoint("EVENT_1", "2024-02-15 10:00:00")
-	AddPoint("EVENT_2", "2024-05-15 10:00:00")
-	AddPoint("EVENT_3", "2024-08-15 10:00:00")
-}
 
-? oTimeLine.VizFindPoint("EVENT_2")
+	AddMoments([
+		[ "EVENT_1", "2024-02-15 10:00:00" ],
+		[ "EVENT_2", "2024-05-15 10:00:00" ],
+		[ "EVENT_1", "2024-08-15 10:00:00" ]
+	])
+
+	# Finding the occurrences of a given moment by lablel
+	# and returning the occurences datetimes
+
+	? @@(FindMoment("EVENT_1"))
+	#--> [ "2024-02-15 10:00:00", "2024-08-15 10:00:00" ]
+
+	# The same as above along with the positions on the timeline
+
+	? @@(FindMomentXT("EVENT_1")) + NL
+	#--> [ [ "1", "2024-02-15 10:00:00" ], [ "3", "2024-08-15 10:00:00" ] ]
+
+	# Higligting the moments visually on the timeline
+	? VizFindMoment("EVENT_1")
+}
 #-->
 '
     EVENT_1     EVENT_2      EVENT_3                
-│──────●───────────█────────────●────────────────────►
+│──────█───────────●────────────█────────────────────►
        1           2            3                   
 
 ╭────┬─────────────────────┬─────────┬───────────────╮
@@ -973,14 +1010,74 @@ oTimeLine {
 pf()
 # Executed in 0.09 second(s) in Ring 1.24
 
+/*--- #NOTE Perios is an aliais of Span
+
+pr()
+
+oTimeLine = new stzTimeLine(
+	:Start = "2024-01-01 00:00:00",
+	:End = "2024-12-31 23:59:59"
+)
+
+oTimeLine {
+
+	AddPeriods([
+		[ "SUCCESS", "2024-01-01 00:00:00", "2024-03-31 23:59:59" ],
+		[ "FAILURE", "2024-04-01 00:00:00", "2024-06-30 23:59:59" ],
+		[ "SUCCESS", "2024-07-01 00:00:00", "2024-09-30 23:59:59" ]
+	])
+
+	# Finding the occurrences of a given Period by lablel
+	# and returning the occurences datetimes
+
+	? @@(FindPeriod("SUCCESS"))
+	#--> [
+	# 	[ "2024-01-01 00:00:00", "2024-03-31 23:59:59" ],
+	# 	[ "2024-07-01 00:00:00", "2024-09-30 23:59:59" ]
+	# ]
+
+	# The same as above along with the positions on the timeline
+
+	? @@(FindPeriodXT("SUCCESS")) + NL
+	#--> [
+	# 	[ "1", [ "2024-01-01 00:00:00", "2024-03-31 23:59:59" ] ],
+	# 	[ "3", [ "2024-07-01 00:00:00", "2024-09-30 23:59:59" ] ]
+	# ]
+
+	# Higligting the Periods visually on the timeline
+	? VizFindPeriod("SUCCESS")
+}
+#-->
+'
+                                                    
+             ╞══FAILURE══╡                          
+╞══SUCCESS═══╡           ╞══SUCCESS═══╡             
+●████████████●───────────●████████████●──────────────►
+1            3           5            6             
+
+╭────┬─────────────────────┬─────────┬──────────────────╮
+│ No │      Timepoint      │  Label  │   Description    │
+├────┼─────────────────────┼─────────┼──────────────────┤
+│  1 │ 2024-01-01 00:00:00 │ SUCCESS │ Start of SUCCESS │
+│  2 │ 2024-03-31 23:59:59 │ SUCCESS │ End of SUCCESS   │
+│  3 │ 2024-04-01 00:00:00 │ FAILURE │ Start of FAILURE │
+│  4 │ 2024-06-30 23:59:59 │ FAILURE │ End of FAILURE   │
+│  5 │ 2024-07-01 00:00:00 │ SUCCESS │ Start of SUCCESS │
+│  6 │ 2024-09-30 23:59:59 │ SUCCESS │ End of SUCCESS   │
+╰────┴─────────────────────┴─────────┴──────────────────╯
+'
+
+pf()
+# Executed in 0.08 second(s) in Ring 1.24
+
 /*--- Complex timeline with overlapping spans
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddSpan("PROJECT_A", "2024-02-01 00:00:00", "2024-05-31 23:59:59")
@@ -1029,10 +1126,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 try
 	oTimeLine.AddPoint("FUTURE", "2025-01-15 10:00:00")
@@ -1048,10 +1145,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 try
 	oTimeLine.AddSpan("OVERFLOW", "2024-11-01 00:00:00", "2025-02-28 23:59:59")
@@ -1067,10 +1164,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine.AddSpan("INVALID", "2024-03-15 10:00:00", "2024-03-15 10:00:00")
 #--> ERROR: Span 'INVALID' has invalid dates. Start time (2024-03-15 10:00:00)
@@ -1082,10 +1179,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 # Should auto-adjust height for overlapping spans
 oTimeLine.AddSpan("SPAN1", "2024-01-01", "2024-06-30")
@@ -1121,10 +1218,10 @@ pf()
 
 pr()
 
-o1 = new stzTimeLine([
+o1 = new stzTimeLine(
 	:Start = "2024-03-01 00:00:00",
 	:End   = "2024-03-30 00:00:00"
-])
+)
 
 //o1.AddPoint("ONE", "10:12:25")
 #--> ERROR MESSAGE: Invalid input! Time specified without a date.
@@ -1140,10 +1237,10 @@ pf()
 
 pr()
 
-o1 = new stzTimeLine([
+o1 = new stzTimeLine(
 	:Start = "2024-03-01 00:00:00",
 	:End   = "2024-03-30 00:00:00"
-])
+)
 
 o1 {
 

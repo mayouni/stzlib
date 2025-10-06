@@ -89669,6 +89669,19 @@ fdef
 
 	#==
 
+	def IsStartOrFromNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :Start or This.Item(1) = :From) )
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IsFromOrStartNamedParam()
+			return This.IsStartOrFromNamedParam()
+
 	def IsStartNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Start )
@@ -89722,6 +89735,19 @@ fdef
 		else
 			return 0
 		ok
+
+	def IsEndOrToNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and
+			(This.Item(1) = :End or This.Item(1) = :To) )
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IsToOrEndNamedParam()
+			return This.IsEndOrToNamedParam()
 
 	def IsEndNamedParam()
 		if This.NumberOfItems() = 2 and
