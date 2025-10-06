@@ -152,7 +152,7 @@ oTimeLine.Show()
 oTimeLine.RemovePoint("EVENT1")
 oTimeLine.RemovePoint("EVENT1")
 oTimeLine.RemovePoint("EVENT1")
-oTimeLine.RemovePoint("EVENT1")
+
 ? oTimeLine.CountPoints()
 #--> 2
 
