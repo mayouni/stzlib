@@ -128,7 +128,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Removing points
-*/
+
 pr()
 
 oTimeLine = new stzTimeLine([
@@ -145,6 +145,10 @@ oTimeLine {
 }
 
 oTimeLine.Show()
+#-->
+#         EVENT1  EVENT1       EVENT1                 
+#│──────────●───────●────────────●────────────────────►
+#           1       2            3           
 
 ? oTimeLine.CountPoints()
 #--> 3
@@ -154,15 +158,17 @@ oTimeLine.RemovePoint("EVENT1")
 oTimeLine.RemovePoint("EVENT1")
 
 ? oTimeLine.CountPoints()
-#--> 2
+#--> 0
 
 ? oTimeLine.HasPoint("EVENT2")
 #--> FALSE
 
 oTimeLine.Show()
+#-->
+# │────────────────────────────────────────────────────►
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.07 second(s) in Ring 1.24
 
 /*--- Alternative names for points (Moments)
 
@@ -324,9 +330,9 @@ oTimeLine {
 
 ? @@NL( oTimeLine.WhatsAt("2024-03-15 10:00:00") )
 #--> [
-#	[:Point, "MEETING"],
-#	[:Span, "PROJECT"],
-#	[:Span, "CAMPAIGN"]
+#	[ "point", "MEETING" ],
+#	[ "span", "PROJECT" ],
+#	[ "span", "CAMPAIGN" ]
 # ]
 
 ? @@( oTimeLine.WhatsAt("2024-02-15 12:00:00") )
@@ -577,7 +583,7 @@ oTimeLine {
 #	]
 # ]
 
-oTimeLine.ShowUncovered() #TODO // Visulise uncovered spans like this
+oTimeLine.ShowUncovered() #TODO // Visalise uncovered spans like this
 #-->
 #          ╞═══BUSY════╡                              
 # │////////●───────────●/////////////////////////////►
@@ -1057,4 +1063,104 @@ done
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
-/*--- Invalid span (start >= end) #TODO
+/*--- Invalid span (start >= end)
+
+pr()
+
+oTimeLine = new stzTimeLine([
+	:Start = "2024-01-01 00:00:00",
+	:End = "2024-12-31 23:59:59"
+])
+
+oTimeLine.AddSpan("INVALID", "2024-03-15 10:00:00", "2024-03-15 10:00:00")
+#--> ERROR: Span 'INVALID' has invalid dates. Start time (2024-03-15 10:00:00)
+# must be before end time (2024-03-15 10:00:00)
+
+pf()
+
+/*---
+
+pr()
+
+oTimeLine = new stzTimeLine([
+	:Start = "2024-01-01 00:00:00",
+	:End = "2024-12-31 23:59:59"
+])
+
+# Should auto-adjust height for overlapping spans
+oTimeLine.AddSpan("SPAN1", "2024-01-01", "2024-06-30")
+oTimeLine.AddSpan("SPAN2", "2024-03-01", "2024-09-30")
+oTimeLine.AddSpan("SPAN3", "2024-05-01", "2024-12-31")
+
+? oTimeLine.Show()  # Should display all spans without overlap issues
+#-->
+'
+                                                    
+                 ╞═════════════SPAN3══════════════╡ 
+         ╞═══════════SPAN2════════════╡             
+╞═════════SPAN1══════════╡                          
+●────────●───────●───────●────────────●───────────●──►
+1        2       3       4            5           6 
+
+╭────┬────────────┬───────┬────────────────╮
+│ No │ Timepoint  │ Label │  Description   │
+├────┼────────────┼───────┼────────────────┤
+│  1 │ 2024-01-01 │ SPAN1 │ Start of SPAN1 │
+│  2 │ 2024-03-01 │ SPAN2 │ Start of SPAN2 │
+│  3 │ 2024-05-01 │ SPAN3 │ Start of SPAN3 │
+│  4 │ 2024-06-30 │ SPAN1 │ End of SPAN1   │
+│  5 │ 2024-09-30 │ SPAN2 │ End of SPAN2   │
+│  6 │ 2024-12-31 │ SPAN3 │ End of SPAN3   │
+╰────┴────────────┴───────┴────────────────╯
+'
+
+pf()
+# Executed in 0.09 second(s) in Ring 1.24
+
+/*---
+
+pr()
+
+o1 = new stzTimeLine([
+	:Start = "2024-03-01 00:00:00",
+	:End   = "2024-03-30 00:00:00"
+])
+
+//o1.AddPoint("ONE", "10:12:25")
+#--> ERROR MESSAGE: Invalid input! Time specified without a date.
+ 
+# When only a date is provide, Softanza extends it with a " 00:00:00" time
+o1.AddPoint("ONE", "2024-03-12")
+? @@(o1.Points())
+#--> [ [ "ONE", "2024-03-12 00:00:00" ] ]
+
+pf()
+
+/*---
+
+pr()
+
+o1 = new stzTimeLine([
+	:Start = "2024-03-01 00:00:00",
+	:End   = "2024-03-30 00:00:00"
+])
+
+o1 {
+
+	AddMoment("One", "2024-03-15 10:00:00")
+	AddMoment("Two", "2024-03-15 10:00:00")
+	AddMoment("Three", "2024-03-15 10:00:00")
+
+	AddSpan("Phase1", "2024-03-15 00:00:00", "2024-03-18 10:00:00")
+
+	? @@(WhatsAt("2024-03-15 10:00:00")) + NL
+	#--> [ [ "One", "point" ], [ "Two", "point" ], [ "Three", "point" ] ]
+
+	? @@(WhatsAt("2024-03-15")) + NL         # Date only: all events on that date
+	? @@(WhatsAt("10:00:00") )            # Time only: all events at that time
+
+	? @@(PointNamesXT())                 # [["EVENT1", 3], ["EVENT2", 1]]
+
+}
+
+pf()

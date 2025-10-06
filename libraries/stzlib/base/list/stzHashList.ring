@@ -1061,15 +1061,21 @@ class stzHashList from stzList # Also called stzAssociativeList
 			This.ReverseKeysAndValues()
 			return This
 	
-	  #----------------------#
-	 #     ADDING A PAIR    #
-	#----------------------#
+	  #---------------------#
+	 #     ADDING PAIRS    #
+	#---------------------#
 
 	def AddPair(paNewPair)
 
-		if isList(paNewPair) and @IsPair(paNewPair)and isString(paNewPair[1])
+		if isList(paNewPair) and @IsPair(paNewPair) and isString(paNewPair[1])
+
+			if This.HasKey(paNewPair[1])
+				StzRaise("Can't add the pair! the key you provided already exists.")
+			ok
+
 			aContent = This.Content()
 			aContent + paNewPair
+
 			This.UpdateWith(aContent)
 
 		else
@@ -1079,6 +1085,35 @@ class stzHashList from stzList # Also called stzAssociativeList
 		def AddPairQ(paNewPair)
 			This.AddPair(paNewPair)
 			return This
+
+		def Add(paNewPair)
+			This.AddPair(paNewPair)
+
+			def AddQ(paNewPair)
+				return This.AddPairQ(paNewPair)
+
+
+	def AddPairs(paListOfPairs)
+		nLen = len(paListOfPairs)
+		for i = 1 to nLen
+			This.AddPair(paListOfPairs[i])
+		next
+
+		def AddPairsQ(paListOfPairs)
+			This.AddPairs(paListOfPairs)
+			return This
+
+		def AddManyPairs(paListOfPairs)
+			This.AddPairs(paListOfPairs)
+
+			def AddManyPairsQ(paListOfPairs)
+				return This.AddPairsQ(paListOfPairs)
+
+		def AddMany(paListOfPairs)
+			This.AddPairs(paListOfPairs)
+
+			def AddManyQ(paListOfPairs)
+				return This.AddPairsQ(paListOfPairs)
 
 	  #------------------#
 	 #     INSERTING    #

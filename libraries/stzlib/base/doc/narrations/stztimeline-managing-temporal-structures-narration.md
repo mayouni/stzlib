@@ -146,8 +146,7 @@ done
 
 This behavior ensures consistency between all related `stzDateTime` objects and prevents silent data corruption.
 
-The tests also mention a future validation for invalid spans (`start >= end`),
-confirming the class’s focus on correctness.
+It's also possible to check for invalid spans (`start >= end`), confirming the class’s focus on correctness.
 
 ## Detecting Overlaps
 
@@ -220,7 +219,7 @@ oTimeLine {
 }
 
 ? @@( oTimeLine.WhatsAt("2024-03-15 10:00:00") )
-#--> [:Point "MEETING"], [:Span "PROJECT"], [:Span "CAMPAIGN"]
+#--> [ [:Point "MEETING"], [:Span "PROJECT"], [:Span "CAMPAIGN"]
 
 ? oTimeLine.HasOverlaps()   #--> TRUE
 

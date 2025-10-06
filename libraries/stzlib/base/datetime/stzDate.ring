@@ -376,7 +376,7 @@ class stzDate from stzObject
 			if (isObject(v) and v.IsAStzDate()) or
 				(isString(v) and IsDate(v))
 
-				return This.IsBefore(v) or This.EqualTo(v)
+				return This.IsBefore(v) or This.IsEqualTo(v)
 
 			else
 				StzRaise("Unsupported value! Only a stzDate onject or a date in string can be provided.")
@@ -396,7 +396,7 @@ class stzDate from stzObject
 			if (isObject(v) and v.IsAStzDate()) or
 				(isString(v) and IsDate(v))
 
-				return This.IsAfter(v) or This.EqualTo(v)
+				return This.IsAfter(v) or This.IsEqualTo(v)
 
 			else
 				StzRaise("Unsupported value! Only a stzDate onject or a date in string can be provided.")

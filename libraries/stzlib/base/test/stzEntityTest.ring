@@ -1,21 +1,26 @@
 load "../stzbase.ring"
 
-/*--- Creating basic entities
 
+/*---
+
+? @@( TimeStamp() )
+
+/*--- Creating basic entities
+*/
 pr()
 
-oEntity1 = new stzEntity([
+oEntity = new stzEntity([
     :name = "john",
     :type = "person"
 ])
 
-? oEntity1.Name()
+? oEntity.Name()
 #--> john
 
-? oEntity1.Type()
+? oEntity.Type()
 #--> person
 
-? oEntity1.Created()
+? oEntity.Created()
 #--> 2025-09-26 14:30:15 (timestamp)
 
 pf()

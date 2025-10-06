@@ -26,45 +26,27 @@ class stzEntity
 	@aEntity
 
 	def init(paEntity)
-		if @IsHashList(paEntity)
-			if paEntity[:name] != ""
-				aEntity = paEntity
+		if NOT ( isList(paEntity) and IsHashList(paentity) )
+			StzRaise("Incorrect param type! paEntity mus tbe a hashlist.")
+		ok
 
-				# 'name' is compulsory and it must be a valid word
-				if NOT ( isString(aEntity[:name]) and @IsWord(aEntity[:name]) )
-					StzRaise(stzEntityError(:CanNotCreateEntityObjectWithIncorrectName))
-				ok
+		if NOT HasKey(paEntity, "name")
+			paEntity + [ "name", "@noname" ]
+		ok
 
-				# if 'type' is not provided then it is automatically added
-				# and set to 'undefined'
-				if aEntity[:type] = ""
-					insert(aEntity, 1, :type = 'undefined')
-				else
-					# but when it is provided, it must be a valid word
-					# (if it is NULL string then it is set to 'undefined'
-					if isString(aEntity[:type]) and aEntity[:type] = ""
-						aEntity[:type] = 'undefined'
-					else
-						if NOT ( isString(aEntity[:type]) and @IsWord(aEntity[:type]) )
-							StzRaise(stzEntityError(:CanNotCreateEntityObjectWithIncorrectType))
-						ok
-					ok
-				ok
+		if NOT HasKey(paEntity, "type")
+			paEntity + [ "type", "undefined" ]
+		ok
 
-				# Auto-add creation timestamp if not present
-				if aEntity[:created] = ""
-					aEntity + [ "created", TimeStamp() ]
-				ok
-
-				@aEntity = aEntity
-				
-			else
-				StzRaise(stzEntityError(:CanNotCreateEntityObjectWithoutName))
-			ok
-			
+		# Auto-add creation timestamp
+		if NOT HasKey(paEntity, "created")
+			paEntity + [ "created", TimeStamp() ]
 		else
-			StzRaise(stzEntityError(:CanNotCreateEntityObject))
-		ok	
+			paEntity[:created] = TimeStamp()
+		ok
+
+		@aEntity = aEntity
+	
 	
 	def Content()
 		return @aEntity
@@ -96,29 +78,18 @@ class stzEntity
 			ok
 
 	def Created()
-		if This.ContainsProperty(:created)
-			return This.Property(:created)
-		else
-			return ""
-		ok
+		return @aEntity[:created]
 
 	def ContainsProperty(pcProp)
 		if NOT isString(pcProp)
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
-		bResult = 0
-		aPairs = This.Entity()
-		nLen = len(aPairs)
-
-		for i = 1 to nLen
-			if aPairs[i][1] = ring_lower(pcProp)
-				bResult = 1
-				exit
-			ok
-		next
-
-		return bResult
+		if @aEntity[pcProp] != ""
+			return 1
+		else
+			return 0
+		ok
 
 	def ContainsValue(pValue)
 		bResult = 0
@@ -136,9 +107,10 @@ class stzEntity
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
-		if This.ContainsProperty(pcProp)
-			pcProp = ring_lower(pcProp)
-			return This.Content()[pcProp]
+		pcProp = ring_lower(pcProp)
+
+		if HasKey(@aEntity, pcProp)
+			return @aEntity[pcProp]
 		else
 			StzRaise("Inexistent property!")
 		ok
@@ -152,25 +124,40 @@ class stzEntity
 		ok
 
 		pcProp = ring_lower(pcProp)
-		@aEntity[pcProp] = pValue
+		if HasKey(@aEntity, pcProp)
+			@aEntity[pcProp] = pValue
+		else
+			@aEntity + [ pcProp, pValue ]
+		ok
 
 		def SetProp(pcProp, pValue)
 			This.SetProperty(pcProp, pValue)
+
+	def FindPropert(pcProp)
+		if NOT isString(pcProp)
+			StzRaise("Incorrect param type! pcProp must be a string.")
+		ok
+
+		pcProp = ring_lower(pcProp)
+		if NOT HasKey(@aEnity, pcProp)
+			return 0
+		else
+			nLen = len(@aEntity)
+			for i = 1 to nLen
+				if @aEntity[i][1] = pcProp
+					return i
+				ok
+			next
+		ok
 
 	def RemoveProperty(pcProp)
 		if NOT isString(pcProp)
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
-		if This.ContainsProperty(pcProp)
-			pcProp = ring_lower(pcProp)
-			if pcProp != "name" and pcProp != "type"  # Protect core properties
-? @@(@aEntity)
-? pcProp
-				del(@aEntity, pcProp)
-			else
-				StzRaise("Cannot remove core property: " + pcProp)
-			ok
+		pcProp = ring_lower(pcProp)
+		if HasKey(@aEntity, pcProp)
+			del(@aEntity, this.FindProperty(pcProp))
 		else
 			StzRaise("Property does not exist!")
 		ok
