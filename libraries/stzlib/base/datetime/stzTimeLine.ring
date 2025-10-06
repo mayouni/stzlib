@@ -13,6 +13,13 @@ func TimeLineQ(p)
 func TimeLine(p)
 	return new stzTimeLine(p)
 
+func IsStzDateTime(p)
+	if isObject(p) and classname(p) = "stzdatetime"
+		return 1
+	else
+		return 0
+	ok
+
 class stzTimeLine from stzObject
 	@cStart = NULL
 	@cEnd = NULL
@@ -88,26 +95,14 @@ class stzTimeLine from stzObject
 			ok
 			return NULL
 
-		def End_Q()
-			return This.EndQ()
-
 		def EndDate()
 			return This.End_()
 
 		def EndDateQ()
 			return This.EndQ()
 
-		def _End()
-			return This.End_()
-
-		def _EndQ()
-			return This.EndQ()
-
 		def Endd()
 			return This.End_()
-
-		def EnddQ()
-			return This.EndQ()
 
 	def SetStart(p)
 		if isString(p)
@@ -149,9 +144,15 @@ class stzTimeLine from stzObject
 	# Point Management (single moments in time)
 	
 	def AddPoint(cName, pDateTime)
-		cPoint = NULL
+		cPoint = ""
 		if isString(pDateTime)
-			cPoint = pDateTime
+			cPoint = trim(pDateTime)
+			if This._IsDateOnly(cPoint)
+				cPoint += " 00:00:00"
+
+			but This._IsTimeOnly(cPoint)
+				StzRaise("Invalid input! Time specified without a date.")
+			ok
 		else
 			cPoint = new stzDateTime(pDateTime).ToString()
 		ok
@@ -215,15 +216,97 @@ class stzTimeLine from stzObject
 
 		def MomentsQ()
 			return This.PointsQ()
-			
+
 	def PointNames()
+		# Return unique names only
 		acResult = []
+		acSeen = []
+		nLen = len(@aPoints)
+
+		for i = 1 to nLen
+			cName = @aPoints[i][1]
+			if ring_find(acSeen, cName) = 0
+				acResult + cName
+				acSeen + cName
+			ok
+		next
+	
+		return acResult
+
+	def PointNamesXT()
+		# Return names with occurrence counts: [["EVENT1", 3], ["EVENT2", 1]]
+		aResult = []
+		aCounts = []
+	
 		nLen = len(@aPoints)
 		for i = 1 to nLen
-			acResult + @aPoints[i][1]
+			cName = @aPoints[i][1]
+			nPos = 0
+	
+			# Find if name already counted
+			for j = 1 to len(aCounts)
+				if aCounts[j][1] = cName
+					nPos = j
+					exit
+				ok
+			next
+	
+			if nPos = 0
+				aCounts + [cName, 1]
+			else
+				aCounts[nPos][2]++
+			ok
+		next
+	
+		return aCounts
+
+	def SpanNames()
+		# Return unique names only
+		acResult = []
+		acSeen = []
+		nLen = len(@aSpans)
+		for i = 1 to nLen
+			cName = @aSpans[i][1]
+			if find(acSeen, cName) = 0
+				acResult + cName
+				acSeen + cName
+			ok
 		next
 		return acResult
-		
+
+		def PeriodNames()
+	        return This.SpanNames()
+
+	def SpanNamesXT()
+		# Return names with occurrence counts: [["PHASE1", 2], ["PHASE2", 1]]
+		aResult = []
+		aCounts = []
+	
+		nLen = len(@aSpans)
+		for i = 1 to nLen
+			cName = @aSpans[i][1]
+			nPos = 0
+	
+			# Find if name already counted
+			for j = 1 to len(aCounts)
+				if aCounts[j][1] = cName
+					nPos = j
+					exit
+				ok
+			next
+	
+			if nPos = 0
+				aCounts + [cName, 1]
+			else
+				aCounts[nPos][2]++
+			ok
+		next
+	
+		return aCounts
+    
+	    def PeriodNamesXT()
+	        return This.SpanNamesXT()
+
 	def Point(cName)
 		nLen = len(@aPoints)
 		for i = 1 to nLen
@@ -278,39 +361,47 @@ class stzTimeLine from stzObject
 		next
 
 	def AddSpan(cName, pStart, pEnd)
-		cStart = NULL
-		cEnd = NULL
-		
-		if isString(pStart)
-			cStart = pStart
-		else
-			cStart = new stzDateTime(pStart).ToString()
+	    cStart = ""
+	    cEnd = ""
+	   
+	    if isString(pStart)
+	        cStart = lower(pStart)
+		if This._IsDateOnly(cStart)
+			cPoint += " 00:00:00"
+
+		but This._IsTimeOnly(cStart)
+			StzRaise("Invalid input! Time specified without a date.")
 		ok
-		
-		if isString(pEnd)
-			cEnd = pEnd
-		else
-			cEnd = new stzDateTime(pEnd).ToString()
-		ok
-		
-		# Validate span
-		oStart = new stzDateTime(cStart)
-		oEnd = new stzDateTime(cEnd)
-		if oStart >= oEnd
-			raise("Span '" + cName + "' start must be before end")
-		ok
-		
-		# Validate against boundaries
-		if This.HasBoundaries()
-			oTLStart = This.StartQ()
-			oTLEnd = This.EndQ()
-			if oStart < oTLStart or oEnd > oTLEnd
-				raise("Span '" + cName + "' is outside timeline boundaries")
-			ok
-		ok
-		
-		@aSpans + [cName, cStart, cEnd]
-		
+
+	    else
+	        cStart = StzDateTimeQ(pStart).ToString()
+	    ok
+	
+	    if isString(pEnd)
+	        cEnd = pEnd
+	    else
+	        cEnd = StzDateTimeQ(pEnd).ToString()
+	    ok
+	
+	    # Validate span: start must be strictly before end
+	    oStart = new stzDateTime(cStart)
+	    oEnd = new stzDateTime(cEnd)
+	    if oStart >= oEnd
+	        raise("Error: Span '" + cName + "' has invalid dates. Start time (" + 
+	              cStart + ") must be before end time (" + cEnd + ")")
+	    ok
+	
+	    # Validate against boundaries
+	    if This.HasBoundaries()
+	        oTLStart = This.StartQ()
+	        oTLEnd = This.EndQ()
+	        if oStart < oTLStart or oEnd > oTLEnd
+	            raise("Span '" + cName + "' is outside timeline boundaries")
+	        ok
+	    ok
+	
+	    @aSpans + [cName, cStart, cEnd]
+			
 		def AddSpanQ(cName, pStart, pEnd)
 			This.AddSpan(cName, pStart, pEnd)
 			return This
@@ -341,17 +432,6 @@ class stzTimeLine from stzObject
 
 		def PeriodsQ()
 			return This.SpansQ()
-			
-	def SpanNames()
-		acResult = []
-		nLen = len(@aSpans)
-		for i = 1 to nLen
-			acResult + @aSpans[i][1]
-		next
-		return acResult
-		
-		def PeriodNames()
-			return This.SpanNames()
 			
 	def Span(cName)
 		nLen = len(@aSpans)
@@ -459,7 +539,7 @@ class stzTimeLine from stzObject
 			return This.CountSpans()
 
 	# Temporal Queries
-	
+
 	def WhatsAt(pDateTime)
 		cDateTime = NULL
 		if isString(pDateTime)
@@ -467,30 +547,142 @@ class stzTimeLine from stzObject
 		else
 			cDateTime = new stzDateTime(pDateTime).ToString()
 		ok
-		
-		oDateTime = new stzDateTime(cDateTime)
+	
+		# Detect search mode
+		bDateOnly = This._isDateOnly(cDateTime)
+		bTimeOnly = This._isTimeOnly(cDateTime)
+
 		aResult = []
-		
-		# Check points at exact time
-		nLen = len(@aPoints)
-		for i = 1 to nLen
-			if StzDateTimeQ(@aPoints[i][2]).IsEqualTo(oDateTime)
-				aResult + [:Point, @aPoints[i][1]]
-			ok
-		next
-		
-		# Check spans containing this time
-		nLen = len(@aSpans)
-		for i = 1 to nLen
-			oStart = new stzDateTime(@aSpans[i][2])
-			oEnd = new stzDateTime(@aSpans[i][3])
-			if oDateTime >= oStart and oDateTime <= oEnd
-				aResult + [:Span, @aSpans[i][1]]
-			ok
-		next
-		
+	
+		if bDateOnly
+			# Match all times on this date
+			oDate = new stzDate(cDateTime)
+			nLen = len(@aPoints)
+			for i = 1 to nLen
+				if left(@aPoints[i][2], 10) = cDateTime
+					aResult + [@aPoints[i][1], :Point]
+				ok
+			next
+	
+			nLen = len(@aSpans)
+			for i = 1 to nLen
+				oSpanStart = new stzDate(left(@aSpans[i][2], 10))
+				oSpanEnd = new stzDate(left(@aSpans[i][3], 10))
+				if oDate >= oSpanStart and oDate <= oSpanEnd
+					aResult + [@aSpans[i][1], :Span]
+				ok
+			next
+	
+		but bTimeOnly
+			# Match this time on all dates
+			cTime = cDateTime
+			nLen = len(@aPoints)
+			for i = 1 to nLen
+				if right(@aPoints[i][2], 8) = cTime
+					aResult + [@aPoints[i][1], :Point]
+				ok
+			next
+	
+			nLen = len(@aSpans)
+			for i = 1 to nLen
+				oTime = new stzTime(cTime)
+				oStart = new stzTime(@aSpans[i][2])
+				oEnd = new stzTime(@aSpans[i][3])
+	
+				# Check if time falls within span's time range
+
+				oSpanStartTime = new stzTime(right(@aSpans[i][2], 8))
+				oSpanEndTime = new stzTime(right(@aSpans[i][3], 8))
+	
+				if oTime >= oSpanStartTime or oTime <= oSpanEndTime
+					aResult + [@aSpans[i][1], :Span]
+				ok
+			next
+	        
+		else
+			# Exact datetime match
+			oDateTime = new stzDateTime(cDateTime)
+	
+			nLen = len(@aPoints)
+			for i = 1 to nLen
+				if StzDateTimeQ(@aPoints[i][2]).IsEqualTo(oDateTime)
+					aResult + [@aPoints[i][1], :Point]
+				ok
+			next
+	
+			nLen = len(@aSpans)
+			for i = 1 to nLen
+				oStart = new stzDateTime(@aSpans[i][2])
+				oEnd = new stzDateTime(@aSpans[i][3])
+				if oDateTime >= oStart and oDateTime <= oEnd
+					aResult + [@aSpans[i][1], :Span]
+				ok
+			next
+		ok
+	
 		return aResult
-		
+
+	def WhatsAtXT(pDateTime, pMode)
+		# Explicit mode control: :DateOnly, :TimeOnly, or :Exact
+		cDateTime = NULL
+		if isString(pDateTime)
+			cDateTime = pDateTime
+		else
+			cDateTime = StzDateTimeQ(pDateTime).ToString()
+		ok
+	
+		cMode = :Exact
+		if isList(pMode) and len(pMode) = 2
+			cMode = pMode[2]
+		ok
+	
+		aResult = []
+	
+		switch cMode
+		on :DateOnly
+			cDate = left(cDateTime, 10)
+			nLen = len(@aPoints)
+			for i = 1 to nLen
+				if left(@aPoints[i][2], 10) = cDate
+					aResult + [@aPoints[i][1], :Point]
+				ok
+			next
+	
+			nLen = len(@aSpans)
+			for i = 1 to nLen
+				cSpanStart = left(@aSpans[i][2], 10)
+				cSpanEnd = left(@aSpans[i][3], 10)
+				if cDate >= cSpanStart and cDate <= cSpanEnd
+					aResult + [@aSpans[i][1], :Span]
+				ok
+			next
+	
+		on :TimeOnly
+			cTime = right(cDateTime, 8)
+			nLen = len(@aPoints)
+			for i = 1 to nLen
+				if right(@aPoints[i][2], 8) = cTime
+					aResult + [@aPoints[i][1], :Point]
+				ok
+			next
+	        
+			nLen = len(@aSpans)
+			for i = 1 to nLen
+				cSpanStartTime = right(@aSpans[i][2], 8)
+				cSpanEndTime = right(@aSpans[i][3], 8)
+				if cTime >= cSpanStartTime or cTime <= cSpanEndTime
+					aResult + [@aSpans[i][1], :Span]
+				ok
+			next
+	
+		other
+			return This.WhatsAt(cDateTime)
+		off
+	
+		return aResult
+
+		#< @FunctionAlternativeForms
+
 		def HappeningAt(pDateTime)
 			return This.WhatsAt(pDateTime)
 			
@@ -502,6 +694,7 @@ class stzTimeLine from stzObject
 
 		def MomentsAt(pDateTime)
 			return This.WhatsAt(pDateTime)
+		#>
 
 	def PointsBetween(pStart, pEnd)
 		if CheckParams()
@@ -959,6 +1152,106 @@ class stzTimeLine from stzObject
 	def VizHeight()
 		return @nVizHeight
 	
+
+	# Main Display Methods
+	
+	def ShowUncovered() #TODO
+		raise("Not yet implemented!")
+
+	def Show()
+		? This.ToString()
+		
+	def ToString()
+		return This.ToStringXT([])
+		
+	def ToStringXT(paParams)
+		nRequestedWidth = @nVizWidth
+		
+		# Process parameters
+		if isList(paParams)
+			nLen = len(paParams)
+
+			for i = 1 to nLen
+
+				if isList(paParams[i]) and len(paParams[i]) = 2
+					switch paParams[i][1]
+					on :Width
+						nRequestedWidth = max([30, paParams[i][2]])
+
+					on :Height
+						@nVizHeight = max([3, paParams[i][2]])
+
+					on :Highlight
+						@cHighlight = paParams[i][2]
+					off
+				ok
+			next
+		ok
+		
+		if not This.HasBoundaries()
+			return "Timeline has no boundaries set"
+		ok
+		
+		# Collect all timepoints
+		aTimepoints = _collectAllTimepoints()
+		
+		# Calculate layout
+		oLayout = _calculateVizLayout()
+		if oLayout = NULL
+			return "Cannot display timeline"
+		ok
+		
+		# Initialize canvas
+		_initVizCanvas(nRequestedWidth, oLayout[:total_height])
+		
+		# Draw visual elements
+		_drawAxis(oLayout)
+		_drawSpans(oLayout, aTimepoints)
+		_drawPoints(oLayout, aTimepoints)
+		_drawLabels(oLayout, aTimepoints)
+		_drawNumbers(oLayout, aTimepoints)
+		
+		# Build output
+		cViz = _vizCanvasToString()
+		cTable = _buildTimepointsTable(aTimepoints)
+		
+		return cViz + nl + nl + cTable
+	
+	# Highlight Visualization Methods
+	
+	def VizFindMoments(cName)
+		@cHighlight = cName
+		cResult = This.ToString()
+		@cHighlight = NULL
+		return cResult
+		
+		def VizFindMoment(cName)
+			return This.VizFindMoments(cName)
+			
+		def VizFindPoint(cName)
+			return This.VizFindMoments(cName)
+			
+		def VizFindPoints(cName)
+			return This.VizFindMoments(cName)
+			
+	def VizFindSpans(cName)
+		@cHighlight = cName
+		cResult = This.ToString()
+		@cHighlight = NULL
+		return cResult
+		
+		def VizFindSpan(cName)
+			return This.VizFindSpans(cName)
+			
+		def VizFindPeriod(cName)
+			return This.VizFindSpans(cName)
+			
+		def VizFindPeriods(cName)
+			return This.VizFindSpans(cName)
+
+
+	PRIVATE
+
 	# Canvas Operations
 	
 	def _initVizCanvas(nWidth, nHeight)
@@ -989,13 +1282,16 @@ class stzTimeLine from stzObject
 		if not This.HasBoundaries()
 			return NULL
 		ok
-		
+	    
 		nTotalRows = 0
-		
-		# Calculate needed span rows
+
+		# Calculate needed span rows dynamically
 		nSpanRows = 0
 		if len(@aSpans) > 0
-			nSpanRows = min([@nVizHeight, len(@aSpans)])
+			# Auto-calculate required height
+			nRequiredHeight = This._calculateRequiredVizHeight()
+			@nVizHeight = max([@nVizHeight, nRequiredHeight])
+			nSpanRows = @nVizHeight - 3  # Reserve 3 rows for labels, axis, numbers
 		ok
 		
 		# Spans area (only if needed)
@@ -1377,98 +1673,55 @@ class stzTimeLine from stzObject
 		oTable = new stzTable(aTableData)
 		return oTable.ToString()
 	
-	# Main Display Methods
-	
-	def ShowUncovered() #TODO
-		raise("Not yet implemented!")
+	def _calculateRequiredVizHeight()
+	    # Calculate maximum span overlap depth
+	    if len(@aSpans) = 0
+	        return 3  # Minimum height for axis, labels, numbers
+	    ok
+	    
+	    # Sort spans by start time
+	    aSorted = This.SortedSpans()
+	    nLen = len(aSorted)
+	    
+	    # Track concurrent spans at each point
+	    nMaxOverlap = 0
+	    
+	    for i = 1 to nLen
+	        nConcurrent = 1
+	        oStart1 = new stzDateTime(aSorted[i][2])
+	        oEnd1 = new stzDateTime(aSorted[i][3])
+	        
+	        for j = 1 to nLen
+	            if i != j
+	                oStart2 = new stzDateTime(aSorted[j][2])
+	                oEnd2 = new stzDateTime(aSorted[j][3])
+	                
+	                # Check if spans overlap
+	                if oStart1 < oEnd2 and oStart2 < oEnd1
+	                    nConcurrent++
+	                ok
+	            ok
+	        next
+	        
+	        if nConcurrent > nMaxOverlap
+	            nMaxOverlap = nConcurrent
+	        ok
+	    next
+	    
+	    # Return max overlap + 3 (for labels, axis, numbers rows)
+	    return nMaxOverlap + 3
 
-	def Show()
-		? This.ToString()
-		
-	def ToString()
-		return This.ToStringXT([])
-		
-	def ToStringXT(paParams)
-		nRequestedWidth = @nVizWidth
-		
-		# Process parameters
-		if isList(paParams)
-			nLen = len(paParams)
 
-			for i = 1 to nLen
-
-				if isList(paParams[i]) and len(paParams[i]) = 2
-					switch paParams[i][1]
-					on :Width
-						nRequestedWidth = max([30, paParams[i][2]])
-
-					on :Height
-						@nVizHeight = max([3, paParams[i][2]])
-
-					on :Highlight
-						@cHighlight = paParams[i][2]
-					off
-				ok
-			next
+	def _isDateOnly(cDateTime)
+		# Check if format is YYYY-MM-DD (no time component)
+		if len(cDateTime) = 10 and substr(cDateTime, 5, 1) = "-" and substr(cDateTime, 8, 1) = "-"
+			return TRUE
 		ok
-		
-		if not This.HasBoundaries()
-			return "Timeline has no boundaries set"
-		ok
-		
-		# Collect all timepoints
-		aTimepoints = _collectAllTimepoints()
-		
-		# Calculate layout
-		oLayout = _calculateVizLayout()
-		if oLayout = NULL
-			return "Cannot display timeline"
-		ok
-		
-		# Initialize canvas
-		_initVizCanvas(nRequestedWidth, oLayout[:total_height])
-		
-		# Draw visual elements
-		_drawAxis(oLayout)
-		_drawSpans(oLayout, aTimepoints)
-		_drawPoints(oLayout, aTimepoints)
-		_drawLabels(oLayout, aTimepoints)
-		_drawNumbers(oLayout, aTimepoints)
-		
-		# Build output
-		cViz = _vizCanvasToString()
-		cTable = _buildTimepointsTable(aTimepoints)
-		
-		return cViz + nl + nl + cTable
+		return FALSE
 	
-	# Highlight Visualization Methods
-	
-	def VizFindMoments(cName)
-		@cHighlight = cName
-		cResult = This.ToString()
-		@cHighlight = NULL
-		return cResult
-		
-		def VizFindMoment(cName)
-			return This.VizFindMoments(cName)
-			
-		def VizFindPoint(cName)
-			return This.VizFindMoments(cName)
-			
-		def VizFindPoints(cName)
-			return This.VizFindMoments(cName)
-			
-	def VizFindSpans(cName)
-		@cHighlight = cName
-		cResult = This.ToString()
-		@cHighlight = NULL
-		return cResult
-		
-		def VizFindSpan(cName)
-			return This.VizFindSpans(cName)
-			
-		def VizFindPeriod(cName)
-			return This.VizFindSpans(cName)
-			
-		def VizFindPeriods(cName)
-			return This.VizFindSpans(cName)
+	def _isTimeOnly(cDateTime)
+		# Check if format is HH:MM:SS (no date component)
+		if len(cDateTime) = 8 and substr(cDateTime, 3, 1) = ":" and substr(cDateTime, 6, 1) = ":"
+			return TRUE
+		ok
+		return FALSE
