@@ -128,23 +128,15 @@ class stzTimeLine from stzObject
 			return This.End_()
 
 	def SetStart(p)
-		if isString(p)
-			@cStart = p
-		else
-			@cStart = StzDateTimeQ(p).ToString()
-		ok
-
+		@cStart = This._normalizeDateTime(p)
+	
 		def SetStartQ(p)
 			This.SetStart(p)
 			return This
-		
+	
 	def SetEnd(p)
-		if isString(p)
-			@cEnd = p
-		else
-			@cEnd = StzDateTimeQ(p).ToString()
-		ok
-
+		@cEnd = This._normalizeDateTime(p)
+	
 		def SetEndQ(p)
 			This.SetEnd(p)
 			return This
@@ -167,29 +159,19 @@ class stzTimeLine from stzObject
 	# Point Management (single moments in time)
 	
 	def AddPoint(cName, pDateTime)
-		cPoint = ""
-		if isString(pDateTime)
-			cPoint = trim(pDateTime)
-			if This._IsDateOnly(cPoint)
-				cPoint += " 00:00:00"
-
-			but This._IsTimeOnly(cPoint)
-				StzRaise("Invalid input! Time specified without a date.")
-			ok
-		else
-			cPoint = StzDateTimeQ(pDateTime).ToString()
-		ok
-		
+		cPoint = This._normalizeDateTime(pDateTime)
+	
 		# Validate against boundaries
 		if This.HasBoundaries()
 			oPoint = new stzDateTime(cPoint)
 			oStart = This.StartQ()
 			oEnd = This.EndQ()
+	
 			if oPoint < oStart or oPoint > oEnd
 				raise("Point '" + cName + "' is outside timeline boundaries")
 			ok
 		ok
-		
+	    
 		@aPoints + [cName, cPoint]
 
 		def AddPointQ(cName, pDateTime)
@@ -422,46 +404,28 @@ class stzTimeLine from stzObject
 			This.AddSpans(paSpans)
 
 	def AddSpan(cName, pStart, pEnd)
-	    cStart = ""
-	    cEnd = ""
-	   
-	    if isString(pStart)
-	        cStart = lower(pStart)
-		if This._IsDateOnly(cStart)
-			cPoint += " 00:00:00"
-
-		but This._IsTimeOnly(cStart)
-			StzRaise("Invalid input! Time specified without a date.")
+		cStart = This._normalizeDateTime(pStart)
+		cEnd = This._normalizeDateTime(pEnd)
+	
+		# Validate span: start must be strictly before end
+		oStart = new stzDateTime(cStart)
+		oEnd = new stzDateTime(cEnd)
+		if oStart >= oEnd
+			raise("Error: Span '" + cName + "' has invalid dates. Start time (" + 
+				cStart + ") must be before end time (" + cEnd + ")")
 		ok
+	
+		# Validate against boundaries
+		if This.HasBoundaries()
+			oTLStart = This.StartQ()
+			oTLEnd = This.EndQ()
+			if oStart < oTLStart or oEnd > oTLEnd
+				raise("Span '" + cName + "' is outside timeline boundaries")
+			ok
+		ok
+	
+		@aSpans + [cName, cStart, cEnd]
 
-	    else
-	        cStart = StzDateTimeQ(pStart).ToString()
-	    ok
-	
-	    if isString(pEnd)
-	        cEnd = pEnd
-	    else
-	        cEnd = StzDateTimeQ(pEnd).ToString()
-	    ok
-	
-	    # Validate span: start must be strictly before end
-	    oStart = new stzDateTime(cStart)
-	    oEnd = new stzDateTime(cEnd)
-	    if oStart >= oEnd
-	        raise("Error: Span '" + cName + "' has invalid dates. Start time (" + 
-	              cStart + ") must be before end time (" + cEnd + ")")
-	    ok
-	
-	    # Validate against boundaries
-	    if This.HasBoundaries()
-	        oTLStart = This.StartQ()
-	        oTLEnd = This.EndQ()
-	        if oStart < oTLStart or oEnd > oTLEnd
-	            raise("Span '" + cName + "' is outside timeline boundaries")
-	        ok
-	    ok
-	
-	    @aSpans + [cName, cStart, cEnd]
 			
 		def AddSpanQ(cName, pStart, pEnd)
 			This.AddSpan(cName, pStart, pEnd)
@@ -1821,3 +1785,20 @@ class stzTimeLine from stzObject
 			return TRUE
 		ok
 		return FALSE
+
+	def _normalizeDateTime(pDateTime)
+	    # Convert date-only input to full datetime by appending 00:00:00
+	    cDateTime = NULL
+	    
+	    if isString(pDateTime)
+	        cDateTime = pDateTime
+	    else
+	        cDateTime = new stzDateTime(pDateTime).ToString()
+	    ok
+	    
+	    # Check if date-only format (YYYY-MM-DD)
+	    if This._isDateOnly(cDateTime)
+	        cDateTime += " 00:00:00"
+	    ok
+	    
+	    return cDateTime
