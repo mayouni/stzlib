@@ -599,7 +599,7 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.24
 
 /*--- Finding uncovered periods in timeline
-*/
+
 pr()
 
 oTimeLine = new stzTimeLine(
@@ -1043,10 +1043,10 @@ pf()
 
 pr()
 
-oTimeLine = new stzTimeLine([
+oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 	AddSpan("PHASE1", "2024-01-01 00:00:00", "2024-03-31 23:59:59")
@@ -1059,8 +1059,8 @@ oTimeLine {
 '                                              
              ╞══PHASE2═══╡                          
 ╞═══PHASE1═══╡           ╞═══PHASE3═══╡             
-●────────────●███████████●────────────●──────────────►
-1            3           5            6             
+|────────────●███████████●────────────●──────────────►
+1           2-3         4-5           6             
 
 ╭────┬─────────────────────┬────────┬─────────────────╮
 │ No │      Timepoint      │ Label  │   Description   │
@@ -1301,7 +1301,7 @@ o1.AddPoint("ONE", "2024-03-12")
 pf()
 
 /*---
-
+*/
 pr()
 
 o1 = new stzTimeLine(
@@ -1325,6 +1325,7 @@ o1 {
 
 	? @@(PointNamesXT())                 # [["EVENT1", 3], ["EVENT2", 1]]
 
+	? @@(WhatsBetween("2024-03-12", "2024-03-18"))
 }
 
 pf()
