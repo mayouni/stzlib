@@ -5565,113 +5565,113 @@ class stzNumber from stzObject
 
 			# Precision
 
-			if paFormat[ :RestrictFractionalPart ] != ""
+			if HasKey(paFormat, :RestrictFractionalPart)
 				bRestrictFractionalPart = paFormat[ :RestrictFractionalPart ]
 			ok
 
-			if paFormat[ :NumberOfDigitsInFractionalPart ] != ""
+			if HasKey(paFormat, :NumberOfDigitsInFractionalPart)
 				nNumberOfDigitsInFractionalPart = paFormat[ :NumberOfDigitsInFractionalPart ]
 			ok
 
-			if paFormat[ :RoundItWhenRestricted ] != ""
+			if HasKey(paFormat, :RoundItWhenRestricted)
 				bRoundItWhenRestricted = paFormat[ :RoundItWhenRestricted ]
 			ok
 		
 			# Round
 
-			if paFormat[ :ApplyRound ] != ""
+			if HasKey(paFormat, :ApplyRound)
 				bRounded = paFormat[ :ApplyRound ]
 			ok
 
-			if paFormat[ :RoundTo ] != ""
+			if HasKey(paFormat, :RoundTo)
 				nRoundTo = paFormat[ :RoundTo ]
 			ok
 			
 			# Alignment
 				
-			if paFormat[ :ApplyAlignment ] != ""
+			if HasKey(paFormat, :ApplyAlignment)
 				bApplyAlignment = paFormat[ :ApplyAlignment ]
 			ok
 
-			if paFormat[ :Width ] != ""
+			if HasKey(paFormat, :Width)
 				nWidth = paFormat[ :Width ]
 			ok
 
-			if paFormat[ :FillBlanksWith ]
+			if HasKey(paFormat, :FillBlanksWith)
 				cFillBlanksWith = paFormat[ :FillBlanksWith ]
 			ok
 
-			if paFormat[ :AlignTo ]			
+			if HasKey(paFormat, :AlignTo)		
 				cAlignTo = paFormat[ :AlignTo ]
 			ok
 
-			if paFormat[ :FixPrefixToLeft ]
+			if HasKey(paFormat, :FixPrefixToLeft)
 				bFixPrefixToLeft = paFormat[ :FixPrefixToLeft ]
 			ok
 
-			if paFormat[ :FixSuffixToRight ]
+			if HasKey(paFormat, :FixSuffixToRight)
 				bFixSuffixToRight = paFormat[ :FixSuffixToRight ]
 			ok
 				
 			# Sign
 
-			if paFormat[ :ShowSign ]
+			if HasKey(paFormat, :ShowSign)
 				bShowSign = paFormat[ :ShowSign ]
 			ok
 
-			if paFormat[ :PutNegativeBetweenParentheses ]
+			if HasKey(paFormat, :PutNegativeBetweenParentheses)
 				bPutNegativeBetweenParentheses = paFormat[ :PutNegativeBetweenParentheses ]
 			ok
 			
 			# Prefix, separators, and suffix
 
-			if paFormat[ :Prefix ]
+			if HasKey(paFormat, :Prefix)
 				cPrefix = paFormat[ :Prefix ]
 			ok
 			
-			if paFormat[ :ThousandsSeparator ]
+			if HasKey(paFormat, :ThousandsSeparator)
 				cThousandsSeparator = paFormat[ :ThousandsSeparator ]
 			ok
 
-			if paFormat[ :FractionalSeparator ]
+			if HasKey(paFormat, :FractionalSeparator)
 				cFractionalSeparator = paFormat[ :FractionalSeparator ]
 			ok
 			
-			if paFormat[ :Suffix ]
+			if HasKey(paFormat, :Suffix)
 				cSuffix = paFormat[ :Suffix ]
 			ok
 			
 			# Conversion
 
-			if paFormat[ :ToPercentage ]
+			if HasKey(paFormat, :ToPercentage)
 				bToPercentage = paFormat[ :ToPercentage ]
 			ok
 
-			if paFormat[ :ToScientificNotation ]
+			if HasKey(paFormat, :ToScientificNotation)
 				bToScientificNotation = paFormat[ :ToScientificNotation ]
 			ok
 
-			if paFormat[ :ToHex ]
+			if HasKey(paFormat, :ToHex)
 				bToHex = paFormat[ :ToHex ]
 			ok
 
-			if paFormat[ :ToBinary ]
+			if HasKey(paFormat, :ToBinary)
 				bToBinary = paFormat[ :ToBinary ]
 			ok
 
-			if paFormat[ :ToOctal ]
+			if HasKey(paFormat, :ToOctal)
 				bToOctal = paFormat[ :ToOctal ]
 			ok
 
-			if paFormat[ :ToBase ]
+			if HasKey(paFormat, :ToBase)
 				nToBase = paFormat[ :ToBase ]
 			ok
 			
-			if paFormat[ :ToIndian ]
+			if HasKey(paFormat, :ToIndian)
 				bToIndian = paFormat[ :ToIndian ]
 			ok
 
-			if paFormat[ :ToRoman ]
+			if HasKey(paFormat, :ToRoman)
 				bToRoman = paFormat[ :ToRoman ]
 			ok
 

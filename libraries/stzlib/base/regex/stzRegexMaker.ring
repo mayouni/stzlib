@@ -1260,7 +1260,7 @@ class stzRecursiveRegexMaker
 
 		# Add quantifier if present
 
-		if level[:quant] != ""
+		if HasKey(level[:quant])
 
 			if bNamedRecursion
 

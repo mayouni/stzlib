@@ -111,7 +111,7 @@ class stzEntity
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
-		if @aEntity[pcProp] != ""
+		if HasKey(@aEntity, pcProp)
 			return 1
 		else
 			return 0

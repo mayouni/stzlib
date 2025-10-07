@@ -374,12 +374,15 @@ class stzExterCode
 
             cCmd = @aLanguages[@cLanguage][:runtime] + " " + @cSourceFile
 
-            if @aLanguages[@cLanguage][:customPath] != ""
+            if HasKeys(@aLanguages, [@cLanguage, :customPath])
                 cCmd = @aLanguages[@cLanguage][:customPath] + " " + @cSourceFile
             ok
+
             return cCmd
 
-        but @aLanguages[@cLanguage][:type] = "compiled"
+        but HasKeys(@aLanguages, [@cLanguage, :type]) and
+	    @aLanguages[@cLanguage][:type] = "compiled"
+
 	    cCmd = @aLanguages[@cLanguage][:Runtime] + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile
             return cCmd
         ok
@@ -387,6 +390,9 @@ class stzExterCode
         stzraise("Unsupported language type for " + @cLanguage)
 
     def RecordExecution(cLog, nExitCode)
+	if NOT HasKeys(@aLanguages, [@cLangage, :type])
+		StzRaise("Incorrect format! Can't access the path @aLanguages[@cLangage][:type].")
+	ok
 
         cMode = @aLanguages[@cLanguage][:type]
 
@@ -404,6 +410,9 @@ class stzExterCode
         ]
 
     def PrepareSourceCode()
+	if NOT HasKeys(@aLanguages, [@cLangage, :TransFunc])
+		StzRaise("Incorrect format! Can't access the path @aLanguages[@cLanguage][:TransFunc].")
+	ok
 
         cTransFunc = @aLanguages[@cLanguage][:TransFunc]
 
