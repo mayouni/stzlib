@@ -53981,7 +53981,7 @@ class stzString from stzObject
 		# STEP 2: Reading params values
 
 		bCaseSensitive = 1
-		if ( isString(paOptions[:CaseSensitive]) and paOptions[:CaseSensitive] != "" ) or
+		if ( isString(paOptions[:CaseSensitive]) and HasKey(paOptions, :CaseSensitive) ) or
 		   ( isNumber(paOptions[:CaseSensitive]) and (paOptions[:CaseSensitive] = 0 or paOptions[:CaseSensitive] = 1)  )
 
 			bCaseSensitive = paOptions[:CaseSensitive]
@@ -53989,39 +53989,39 @@ class stzString from stzObject
 
 		cPositionSign = "^"
 
-		if isString(paOptions[:PositionSign]) and paOptions[:PositionSign] != ""
+		if isString(paOptions[:PositionSign]) and HasKey(paOptions, :PositionSign)
 			cPositionSign = paOptions[:PositionSign]
 
-		but isString(paOptions[:PositionChar]) and paOptions[:PositionChar] != ""
+		but isString(paOptions[:PositionChar]) and HasKey(paOptions, :PositionChar)
 			cPositionSign = paOptions[:PositionChar]
 		ok
 
 		cBlankSign = "-"
-		if isString(paOptions[:BlankSign]) and paOptions[:BlankSign] != ""
+		if isString(paOptions[:BlankSign]) and HasKey(paOptions, :BlankSign)
 			cBlankSign = paOptions[:BlankSign]
 		ok
 
 		bNumbered = 0
-		if ( isString(paOptions[:Numbered]) and paOptions[:Numbered] != "" ) or
+		if ( isString(paOptions[:Numbered]) and HasKey(paOptions, :Numbered) ) or
 		   ( isNumber(paOptions[:Numbered]) and ( paOptions[:Numbered] = 0 or paOptions[:Numbered] = 1 )  )
 
 			bNumbered = paOptions[:Numbered]
 
-		but ( isString(paOptions[:Number]) and paOptions[:Number] != "" ) or
+		but ( isString(paOptions[:Number]) and HasKey(paOptions, :Number) ) or
 		   ( isNumber(paOptions[:Number]) and ( paOptions[:Number] = 0 or paOptions[:Number] = 1 )  )
 
 			bNumbered = paOptions[:Number]
 		ok
 
 		bSpacified = 0
-		if ( isString(paOptions[:Spacified]) and paOptions[:Spacified] != "" ) or
+		if ( isString(paOptions[:Spacified]) and HasKey(paOptions, :Spacified) ) or
 		   ( isNumber(paOptions[:Spacified]) and ( paOptions[:Spacified] = 0 or paOptions[:Spacified] = 1 )  )
 
 			bSpacified = paOptions[:Spacified]
 		ok
 
 		bSectioned = 0
-		if ( isString(paOptions[:Sectioned]) and paOptions[:Sectioned] != "" ) or
+		if ( isString(paOptions[:Sectioned]) and HasKey(paOptions, :Sectioned) ) or
 		   ( isNumber(paOptions[:Sectioned]) and ( paOptions[:Sectioned] = 0 or paOptions[:Sectioned] = 1 )  )
 
 			bSectioned = paOptions[:Sectioned]

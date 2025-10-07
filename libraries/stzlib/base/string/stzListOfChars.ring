@@ -798,9 +798,9 @@ class stzListOfChars from stzListOfStrings
 			
 			anHilighted = []
 
-			if paBoxOptions[ :Hilight ] != "" or
-			   paBoxOptions[ :HilightPositions ] != "" or
-			   paBoxOptions[ :ShowPositions ] != ""
+			if HasKey(paBoxOptions[ :Hilight ]) or
+			   HasKey(paBoxOptions[ :HilightPositions ]) or
+			   HasKey(paBoxOptions[ :ShowPositions ])
 
 				for i = 1 to len(paBoxOptions)
 					if paBoxOptions[i][1] = :Hilight or
@@ -841,16 +841,16 @@ class stzListOfChars from stzListOfStrings
 
 			cSign = HilightChar()
 
-			if ( paBoxOptions[ :PositionSign ] != "" and @IsChar(paBoxOptions[ :PositionSign ]) )
+			if ( HasKey(paBoxOptions, :PositionSign) and @IsChar(paBoxOptions[ :PositionSign ]) )
 				cSign = paBoxOptions[ :PositionSign ]
 
-			but ( paBoxoptions[ :PositionChar ] != "" and @IsChar(paBoxOptions[ :PositionChar ]) )
+			but ( HasKey(paBoxoptions, :PositionChar) and @IsChar(paBoxOptions[ :PositionChar ]) )
 				cSign = paBoxOptions[ :PositionChar ]
 
-			but ( paBoxOptions[ :HilightSign ] != "" and @IsChar(paBoxOptions[ :HilightSign ]) )
+			but ( HasKey(paBoxOptions, :HilightSign) and @IsChar(paBoxOptions[ :HilightSign ]) )
 				cSign = paBoxOptions[ :HilightSign ]
 
-			but ( paBoxoptions[ :HilightChar ] != "" and @IsChar(paBoxOptions[ :HilightChar ]) )
+			but ( HasKey(paBoxoptions, :HilightChar) and @IsChar(paBoxOptions[ :HilightChar ]) )
 				cSign = paBoxOptions[ :HilightChar ]
 
 			ok
@@ -859,14 +859,14 @@ class stzListOfChars from stzListOfStrings
 
 			bNumbered = 0
 
-			if (paBoxOptions[ :Numbered ] != "" and
-			   paBoxOptions[ :Numbered ] = 1) or
+			if ( HasKey(paBoxOptions, :Numbered) and
+			   paBoxOptions[ :Numbered ] = 1 ) or
 
-			   (paBoxOptions[ :Numbers ] != "" and
-			   paBoxOptions[ :Numbers ] = 1) or
+			   ( HasKey(paBoxOptions, :Numbers) and
+			   paBoxOptions[ :Numbers ] = 1 ) or
 
-			   (paBoxOptions[ :ShowPositions ] != "" and
-			   paBoxOptions[ :ShowPositions ] = 1)
+			   ( HasKey(paBoxOptions, :ShowPositions) and
+			   paBoxOptions[ :ShowPositions ] = 1 )
 
 				bNumbered = 1
 			ok
@@ -875,13 +875,13 @@ class stzListOfChars from stzListOfStrings
 
 			bNumbered = 0
 
-			if (paBoxOptions[ :Numbered ] != "" and
+			if ( HasKey(paBoxOptions, :Numbered) and
 			   paBoxOptions[ :Numbered ] = 1) or
 
-			   (paBoxOptions[ :Numbers ] != "" and
+			   ( HasKey(paBoxOptions, :Numbers) and
 			   paBoxOptions[ :Numbers ] = 1) or
 
-			   (paBoxOptions[ :ShowPositions ] != "" and
+			   ( HasKey(paBoxOptions, :ShowPositions) and
 			   paBoxOptions[ :ShowPositions ] = 1)
 
 				bNumbered = 1
@@ -891,20 +891,20 @@ class stzListOfChars from stzListOfStrings
 
 			bNumberedXT = 0
 
-			if (paBoxOptions[ :NumberedXT ] != "" and
-			   paBoxOptions[ :NumberedXT ] = 1) or
+			if ( HasKey(paBoxOptions, :NumberedXT) and
+			   paBoxOptions[ :NumberedXT ] = 1 ) or
 
-			   (paBoxOptions[ :NumbersXT ] != "" and
-			   paBoxOptions[ :NumbersXT ] = 1) or
+			   ( HasKey(paBoxOptions, :NumbersXT) and
+			   paBoxOptions[ :NumbersXT ] = 1 ) or
 
-			   (paBoxOptions[ :ShowPositionsXT ] != "" and
-			   paBoxOptions[ :ShowPositionsXT ] = 1) or
+			   ( HasKey(paBoxOptions, :ShowPositionsXT) and
+			   paBoxOptions[ :ShowPositionsXT ] = 1 ) or
 
-			   (paBoxOptions[ :ShowAllPositions ] != "" and
-			   paBoxOptions[ :ShowAllPositions ] = 1) or
+			   ( HasKey(paBoxOptions, :ShowAllPositions) and
+			   paBoxOptions[ :ShowAllPositions ] = 1 ) or
 
-			   (paBoxOptions[ :AllPositions ] != "" and
-			   paBoxOptions[ :AllPositions ] = 1)
+			   ( HasKey(paBoxOptions, :AllPositions) and
+			   paBoxOptions[ :AllPositions ] = 1 )
 
 				bNumberedXT = 1
 				bNumbered = 0
@@ -914,7 +914,7 @@ class stzListOfChars from stzListOfStrings
 
 			bSectioned = 0
 
-			if paBoxOptions[:Sectioned] != "" and
+			if HasKey(paBoxOptions, :Sectioned) and
 			   paBoxOptions[:Sectioned] = 1
 
 				bSectioned = 1

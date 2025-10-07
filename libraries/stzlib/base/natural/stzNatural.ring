@@ -884,8 +884,10 @@ class stzNaturalEngine
 		
 		if cActionType = "create_object"
 			cValue = '""'
-			if len(aAction[:value]) > 0 and aAction[:value] != "" and aAction[:value] != nothing
-				if lower("" + aAction[:value]) != "nothing"
+			if len(aAction[:value]) > 0 and
+			   HasKey(aAction, :value) and aAction[:value] != nothing
+
+				if lower('' + aAction[:value]) != "nothing"
 					cValue = @@(aAction[:value])
 				ok
 			ok
@@ -926,7 +928,7 @@ class stzNaturalEngine
 			if nModifiersLen > 0
 				for i = 1 to nModifiersLen
 					aMod = aModifiers[i]
-					if len(aMod[:method]) > 0 and aMod[:method] != ""
+					if len(aMod[:method]) > 0 and HasKey(aMod, :method)
 						cSignature = substr(cSignature, aMethodInfo[:ring_method], aMod[:method])
 						if len(aMod[:ring_param]) > 0
 							cSignature = substr(cSignature, "()", "([" + aMod[:ring_param] + "])")
