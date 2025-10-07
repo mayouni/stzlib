@@ -1218,6 +1218,9 @@ class stzTimeLine from stzObject
 	def ShowUncovered() #TODO
 		raise("Not yet implemented!")
 
+	def ShowXT(paOptions)
+		? This.ToStringXT(paOptions)
+
 	def Show()
 		? This.ToString()
 		
@@ -1226,57 +1229,110 @@ class stzTimeLine from stzObject
 		
 	def ToStringXT(paParams)
 		nRequestedWidth = @nVizWidth
-		
+		bShowTable = TRUE
+		cTableType = :Normal
+	
 		# Process parameters
 		if isList(paParams)
 			nLen = len(paParams)
-
+	
 			for i = 1 to nLen
-
 				if isList(paParams[i]) and len(paParams[i]) = 2
 					switch paParams[i][1]
 					on :Width
 						nRequestedWidth = max([30, paParams[i][2]])
-
+	
 					on :Height
 						@nVizHeight = max([3, paParams[i][2]])
-
+	
 					on :Highlight
 						@cHighlight = paParams[i][2]
+	
+					on :ShowTable
+						bShowTable = paParams[i][2]
+	
+					on :TableType
+						cTableType = paParams[i][2]
 					off
 				ok
 			next
 		ok
-		
+	
 		if not This.HasBoundaries()
 			return "Timeline has no boundaries set"
 		ok
-		
+	
 		# Collect all timepoints
 		aTimepoints = _collectAllTimepoints()
-		
+	
 		# Calculate layout
 		oLayout = _calculateVizLayout()
-		if oLayout = NULL
+		if oLayout = ""
 			return "Cannot display timeline"
 		ok
-		
+	
 		# Initialize canvas
 		_initVizCanvas(nRequestedWidth, oLayout[:total_height])
-		
+	
 		# Draw visual elements
 		_drawAxis(oLayout)
 		_drawSpans(oLayout, aTimepoints)
 		_drawPoints(oLayout, aTimepoints)
 		_drawLabels(oLayout, aTimepoints)
 		_drawNumbers(oLayout, aTimepoints)
-		
+	
 		# Build output
 		cViz = _vizCanvasToString()
-		cTable = _buildTimepointsTable(aTimepoints)
-		
+	
+		if not bShowTable
+			return cViz
+		ok
+	
+		# Add table based on type
+		cTable = ""
+		if cTableType = :Statistical
+			cTable = StzTableQ(_buildStatisticalTable()).ToString()
+		else
+			cTable = _buildTimepointsTable(aTimepoints)
+		ok
+	
 		return cViz + nl + nl + cTable
 	
+	def Stats()
+		return _buildStatisticalTable()
+	
+	def ShowShort()
+		? This.ToStringShort()
+	
+	def ToStringShort()
+		if not This.HasBoundaries()
+			return "Timeline has no boundaries set"
+		ok
+	
+		# Collect timepoints
+		aTimepoints = _collectAllTimepoints()
+	
+		# Calculate layout
+		oLayout = _calculateVizLayout()
+		if oLayout = NULL
+			return "Cannot display timeline"
+		ok
+	
+		# Initialize canvas
+		_initVizCanvas(@nVizWidth, oLayout[:total_height])
+	
+		# Draw visual elements
+		_drawAxis(oLayout)
+		_drawSpans(oLayout, aTimepoints)
+		_drawPoints(oLayout, aTimepoints)
+		_drawLabels(oLayout, aTimepoints)
+		_drawNumbers(oLayout, aTimepoints)
+	
+		# Return only canvas (no table)
+		return _vizCanvasToString()
+
+
+
 	# Highlight Visualization Methods
 	
 	def VizFindMoments(cName)
@@ -1573,22 +1629,40 @@ class stzTimeLine from stzObject
 	def _drawPoints(oLayout, aTimepoints)
 		nAxisRow = oLayout[:axis_row]
 		nLen = len(aTimepoints)
-
+	
 		for i = 1 to nLen
 			cType = aTimepoints[i][5]
+	
 			if cType = "point" or cType = "boundary"
 				cDateTime = aTimepoints[i][2]
 				nPos = _timeToPosition(cDateTime)
-				
+	
 				bHighlighted = FALSE
 				if @cHighlight != NULL and aTimepoints[i][3] = @cHighlight
 					bHighlighted = TRUE
 				ok
-				
+	
 				cChar = iff(bHighlighted, @cHighlightChar, @cPointChar)
 				_setVizChar(nAxisRow, nPos, cChar)
 			ok
 		next
+	
+		# Add highlighting for spans on axis
+		if @cHighlight != NULL
+			nLen = len(@aSpans)
+			for i = 1 to nLen
+				if @aSpans[i][1] = @cHighlight
+					nStartPos = _timeToPosition(@aSpans[i][2])
+					nEndPos = _timeToPosition(@aSpans[i][3])
+	
+					# Highlight axis between start and end
+					for j = nStartPos to nEndPos
+						_setVizChar(nAxisRow, j, @cHighlightChar)
+					next
+				ok
+			next
+		ok
+
 
 	def _drawSpans(oLayout, aTimepoints)
 		nAxisRow = oLayout[:axis_row]
@@ -1657,25 +1731,25 @@ class stzTimeLine from stzObject
 		return nAxisRow - 1
 	
 	def _drawSpanBar(nRow, nStartPos, nEndPos, cLabel, bHighlighted)
-		cBarChar = iff(bHighlighted, @cHighlightChar, @cSpanChar)
-		
+		cBarChar = @cSpanChar  # Always use normal char for bar
+
 		_setVizChar(nRow, nStartPos, @cSpanStartChar)
-		
+
 		# Draw label in the middle of span
 		nSpanWidth = nEndPos - nStartPos + 1
 		nLabelLen = len(cLabel)
-		
+
 		if nLabelLen <= nSpanWidth - 2
 			nLabelStart = nStartPos + floor((nSpanWidth - nLabelLen) / 2)
-			
+
 			# Draw bar before label
 			for i = nStartPos + 1 to nLabelStart - 1
 				_setVizChar(nRow, i, cBarChar)
 			next
-			
+
 			# Draw label
 			_setVizString(nRow, nLabelStart, cLabel)
-			
+
 			# Draw bar after label
 			for i = nLabelStart + nLabelLen to nEndPos - 1
 				_setVizChar(nRow, i, cBarChar)
@@ -1686,7 +1760,7 @@ class stzTimeLine from stzObject
 				_setVizChar(nRow, i, cBarChar)
 			next
 		ok
-		
+
 		if nEndPos > nStartPos
 			_setVizChar(nRow, nEndPos, @cSpanEndChar)
 		ok
@@ -1772,6 +1846,73 @@ class stzTimeLine from stzObject
 	    return nMaxOverlap + 3
 
 
+	def _buildStatisticalTable()
+	    aStats = []
+	    
+	    # Total counts
+	    aStats + ["Total Points", This.CountPoints()]
+	    aStats + ["Total Spans", This.CountSpans()]
+	    
+	    # Timeline duration
+	    if This.HasBoundaries()
+	        oDuration = This.DurationQ()
+	        if oDuration != ""
+	            aStats + ["Timeline Duration", oDuration.ToHuman()]
+	        ok
+	    ok
+	    
+	    # Coverage calculation
+	    if This.HasBoundaries() and len(@aSpans) > 0
+	        nTotalDuration = This.Duration()
+	        nCoveredDuration = 0
+	        
+	        # Sum all span durations (simplified - doesn't handle overlaps)
+	        nLen = len(@aSpans)
+	        for i = 1 to nLen
+	            nCoveredDuration += This.SpanDuration(@aSpans[i][1])
+	        next
+	        
+	        nCoveragePercent = (nCoveredDuration * 100.0) / nTotalDuration
+	        aStats + ["Coverage", "" + floor(nCoveragePercent) + "%"]
+	    ok
+	    
+	    # Longest span
+	    if len(@aSpans) > 0
+	        nMaxDuration = 0
+	        cLongestSpan = ""
+	        
+	        nLen = len(@aSpans)
+	        for i = 1 to nLen
+	            nDuration = This.SpanDuration(@aSpans[i][1])
+	            if nDuration > nMaxDuration
+	                nMaxDuration = nDuration
+	                cLongestSpan = @aSpans[i][1]
+	            ok
+	        next
+	        
+	        oDuration = new stzDuration(nMaxDuration)
+	        aStats + ["Longest Span", cLongestSpan + " (" + oDuration.ToHuman() + ")"]
+	    ok
+	    
+	    # Gaps count
+	    aGaps = This.Gaps()
+	    aStats + ["Gaps Between Spans", len(aGaps)]
+	    
+	    # Overlaps
+	    aOverlaps = This.OverlappingSpans()
+	    aStats + ["Overlapping Spans", len(aOverlaps)]
+	    
+	    # Build table
+	    aTableData = [[:METRIC, :VALUE]]
+
+	    nLen = len(aStats)
+	    for i = 1 to nLen
+	        aTableData + [ aStats[i][1], aStats[i][2] ]
+	    next
+	    
+	    return aTableData	
+
+
 	def _isDateOnly(cDateTime)
 		# Check if format is YYYY-MM-DD (no time component)
 		if len(cDateTime) = 10 and substr(cDateTime, 5, 1) = "-" and substr(cDateTime, 8, 1) = "-"
@@ -1802,3 +1943,4 @@ class stzTimeLine from stzObject
 	    ok
 	    
 	    return cDateTime
+

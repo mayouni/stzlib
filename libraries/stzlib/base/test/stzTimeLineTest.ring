@@ -95,7 +95,7 @@ o1 = new stzTimeLine("2024-10-10 12:10:10", "18:59:59")
 pf()
 
 /*---
-*/
+
 pr()
 
 o1 = new stzTimeLine("2024-01-01", "2024-03-20")
@@ -186,7 +186,7 @@ oTimeLine {
 	])
 }
 
-oTimeLine.Show()
+oTimeLine.ShowShort()
 #-->
 #         EVENT1  EVENT1       EVENT1                 
 #│──────────●───────●────────────●────────────────────►
@@ -205,7 +205,7 @@ oTimeLine.RemovePoint("EVENT1")
 ? oTimeLine.HasPoint("EVENT2")
 #--> FALSE
 
-oTimeLine.Show()
+oTimeLine.ShowShort()
 #-->
 # │────────────────────────────────────────────────────►
 
@@ -878,7 +878,7 @@ pf()
 #---------------------------#
 
 /*--- Simple display (without configuration)
-
+*/
 pr()
 
 oTimeLine = new stzTimeLine(
@@ -891,6 +891,8 @@ oTimeLine {
 	AddSpan("PREP", "2024-05-01 00:00:00", "2024-08-01 00:00:00")
 	AddPoint("CLOSING", "2024-11-01 00:00:00")
 }
+
+# Displaying the timeline along with the info tbale
 
 oTimeLine.Show()
 #-->
@@ -908,8 +910,53 @@ oTimeLine.Show()
 # │  4 │ 2024-11-01 00:00:00 │ CLOSING │ CLOSING event │
 # ╰────┴─────────────────────┴─────────┴───────────────╯
 
+ 
+# If you want to see the timeline without the table
+
+oTimeLine.ShowShort() # Same as ShowXT([ :ShowTable = FALSE ])
+#-->
+#                                                     
+#       KICKOFF    ╞════PREP════╡        CLOSING      
+# │────────●───────●────────────●───────────●──────────►
+#          1       2            3           4         
+
+# You can display a statistical legend instead of the norma table
+
+oTimeLine.ShowXT([ :TableType = :Statistical ]) # VS :TableType = :Normal
+#-->
+#                                                     
+#       KICKOFF    ╞════PREP════╡        CLOSING      
+# │────────●───────●────────────●───────────●──────────►
+#          1       2            3           4         
+# 
+# ╭────────────────────┬────────────────╮
+# │       Metric       │     Value      │
+# ├────────────────────┼────────────────┤
+# │ Total Points       │              2 │
+# │ Total Spans        │              1 │
+# │ Timeline Duration  │ 1 year         │
+# │ Coverage           │ 25%            │
+# │ Longest Span       │ PREP (92 days) │
+# │ Gaps Between Spans │              0 │
+# │ Overlapping Spans  │              0 │
+# ╰────────────────────┴────────────────╯
+
+# You can get the stats as date:
+? @@NL( oTimeLine.Stats() )
+#--> [
+#	[ "metric", "value" ],
+
+#	[ "Total Points", 2 ],
+#	[ "Total Spans", 1 ],
+#	[ "Timeline Duration", "1 year" ],
+#	[ "Coverage", "25%" ],
+#	[ "Longest Span", "PREP (92 days)" ],
+#	[ "Gaps Between Spans", 0 ],
+#	[ "Overlapping Spans", 0 ]
+# ]
+
 pf()
-# Executed in 0.06 second(s) in Ring 1.24
+# Executed in 0.12 second(s) in Ring 1.24
 
 /*--- Custom width display
 *
