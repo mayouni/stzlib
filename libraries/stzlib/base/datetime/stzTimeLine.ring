@@ -1369,56 +1369,58 @@ class stzTimeLine from stzObject
 	def ShowUncovered()
 	    ? This.ToStringUncovered()
 	
-	def ToStringUncovered()
-	    if not This.HasBoundaries()
-	        return "Timeline has no boundaries set"
-	    ok
-	    
-	    # Get uncovered periods
-	    aUncovered = This.UncoveredPeriods()
-	    if len(aUncovered) = 0
-	        return "Timeline is fully covered by spans"
-	    ok
-	    
-	    # Collect timepoints including uncovered regions
-	    aTimepoints = _collectAllTimepoints()
-	    
-	    # Add uncovered regions to timepoints
-	    nIndex = len(aTimepoints)
-	    nLen = len(aUncovered)
-	    for i = 1 to nLen
-	        nIndex++
-	        aTimepoints + [nIndex, aUncovered[i][:Start], "", "Uncovered region", "uncovered_start"]
-	        nIndex++
-	        aTimepoints + [nIndex, aUncovered[i][:End], "", "Uncovered region", "uncovered_end"]
-	    next
-? @@NL(aTimepoints)    
-	    # Sort by date
-	    aTimepoints = This._sortTimepointsByDate(aTimepoints)
-	    
-	    # Calculate layout
-	    oLayout = _calculateVizLayout()
-	    if oLayout = NULL
-	        return "Cannot display timeline"
-	    ok
-	    
-	    # Initialize canvas
-	    _initVizCanvas(@nVizWidth, oLayout[:total_height])
-	    
-	    # Draw visual elements
-	    _drawAxis(oLayout)
-	    _drawSpans(oLayout, aTimepoints)
-	    _drawUncoveredRegions(oLayout, aUncovered)
-	    _drawPoints(oLayout, aTimepoints)
-	    _drawLabels(oLayout, aTimepoints)
-	    _drawNumbers(oLayout, aTimepoints)
-	    
-	    # Build output
-	    cViz = _vizCanvasToString()
-	    cTable = _buildTimepointsTable(aTimepoints)
-	    
-	    return cViz + nl + nl + cTable
-	
+def ToStringUncovered()
+    if not This.HasBoundaries()
+        return "Timeline has no boundaries set"
+    ok
+    
+    # Get uncovered periods
+    aUncovered = This.UncoveredPeriods()
+    if len(aUncovered) = 0
+        return "Timeline is fully covered by spans"
+    ok
+    
+    # Collect timepoints (without boundaries)
+    aTimepoints = _collectAllTimepoints()
+    
+    # Add uncovered regions
+    nLen = len(aUncovered)
+    for i = 1 to nLen
+        aTimepoints + [0, aUncovered[i][:Start], "", "Uncovered region", "uncovered_start"]
+        aTimepoints + [0, aUncovered[i][:End], "", "Uncovered region", "uncovered_end"]
+    next
+    
+    # Sort by date
+    aTimepoints = This._sortTimepointsByDate(aTimepoints)
+    
+    # Reassign sequential indices
+    nLen = len(aTimepoints)
+    for i = 1 to nLen
+        aTimepoints[i][1] = i
+    next
+    
+    # Calculate layout
+    oLayout = _calculateVizLayout()
+    if oLayout = NULL
+        return "Cannot display timeline"
+    ok
+    
+    # Initialize canvas
+    _initVizCanvas(@nVizWidth, oLayout[:total_height])
+    
+    # Draw visual elements
+    _drawAxis(oLayout)
+    _drawSpans(oLayout, aTimepoints)
+    _drawUncoveredRegions(oLayout, aUncovered)  # Draw uncovered BEFORE points
+    _drawPoints(oLayout, aTimepoints)  # Points will overwrite uncovered chars
+    _drawLabels(oLayout, aTimepoints)
+    _drawNumbers(oLayout, aTimepoints)
+    
+    # Build output
+    cViz = _vizCanvasToString()
+    cTable = _buildTimepointsTable(aTimepoints)
+    
+    return cViz + nl + nl + cTable	
 
 	PRIVATE
 
@@ -1578,22 +1580,25 @@ class stzTimeLine from stzObject
 
 	# Drawing Methods
 	
-	def _drawAxis(oLayout)
-		nRow = oLayout[:axis_row]
-		nCanvasWidth = len(@acVizCanvas[1])
-		
-		# Draw main axis line
-		for i = 1 to nCanvasWidth - 2
-			_setVizChar(nRow, i, @cAxisChar)
-		next
-		
-		# Add spacing before arrow
-		_setVizChar(nRow, nCanvasWidth - 1, @cAxisChar)
-		
-		# Draw start marker and end arrow
-		_setVizChar(nRow, 1, @cTickChar)
-		_setVizChar(nRow, nCanvasWidth, @cArrowChar)
-	
+def _drawAxis(oLayout)
+    nRow = oLayout[:axis_row]
+    nCanvasWidth = len(@acVizCanvas[1])
+    
+    # Draw main axis line
+    for i = 2 to nCanvasWidth - 2
+        _setVizChar(nRow, i, @cAxisChar)
+    next
+    
+    # Draw start marker as vertical bar
+    _setVizChar(nRow, 1, @cTickChar)
+    
+    # Add spacing before arrow
+    _setVizChar(nRow, nCanvasWidth - 1, @cAxisChar)
+    
+    # Draw end arrow
+    _setVizChar(nRow, nCanvasWidth, @cArrowChar)
+
+
 	def _drawLabels(oLayout, aTimepoints)
 		nRow = oLayout[:labels_row]
 		
@@ -1952,26 +1957,32 @@ class stzTimeLine from stzObject
 	    return aTableData	
 
 
-	def _drawUncoveredRegions(oLayout, aUncovered)
-	    nAxisRow = oLayout[:axis_row]
-	    nLen = len(aUncovered)
-	    
-	    for i = 1 to nLen
-	        cStart = aUncovered[i][:Start]
-	        cEnd = aUncovered[i][:End]
-	        
-	        nStartPos = _timeToPosition(cStart)
-	        nEndPos = _timeToPosition(cEnd)
-	        
-	        # Draw // pattern in uncovered regions
-	        for j = nStartPos to nEndPos
-	            if (j - nStartPos) % 2 = 0
-	                _setVizChar(nAxisRow, j, @cUncoveredChar)
-	            else
-	                _setVizChar(nAxisRow, j, @cUncoveredChar)
-	            ok
-	        next
-	    next
+def _drawUncoveredRegions(oLayout, aUncovered)
+    nAxisRow = oLayout[:axis_row]
+    nLen = len(aUncovered)
+    
+    # Collect span boundary positions to avoid
+    aSpanPositions = []
+    nLenSpans = len(@aSpans)
+    for i = 1 to nLenSpans
+        aSpanPositions + _timeToPosition(@aSpans[i][2])
+        aSpanPositions + _timeToPosition(@aSpans[i][3])
+    next
+    
+    for i = 1 to nLen
+        cStart = aUncovered[i][:Start]
+        cEnd = aUncovered[i][:End]
+        
+        nStartPos = _timeToPosition(cStart)
+        nEndPos = _timeToPosition(cEnd)
+        
+        # Draw / pattern, skip span boundaries
+        for j = nStartPos to nEndPos
+            if find(aSpanPositions, j) = 0
+                _setVizChar(nAxisRow, j, "/")
+            ok
+        next
+    next
 
 	def _isDateOnly(cDateTime)
 		# Check if format is YYYY-MM-DD (no time component)
