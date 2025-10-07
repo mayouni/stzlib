@@ -111,11 +111,17 @@ class stzExterCode
         @cResultFile = @aLanguages[@cLanguage][:ResultFile]
 
     def IsLanguageSupported(cLang)
-        return @aLanguages[lower(cLang)] != NULL
+        return HasKey(@aLanguages, lower(cLang))
 
     def SetRuntimePath(cPath)
         # Set custom runtime path for the language
-        @aLanguages[@cLanguage][:CustomPath] = cPath
+	if HasKey(@aLanguages, @cLanguage) and
+	   HasKey(@aLanguages[@cLanguage], :CustomPath)
+
+        	@aLanguages[@cLanguage][:CustomPath] = cPath
+	else
+		StzRaise("Can't set the path! This path does not exist: @aLanguages[@cLanguage][:CustomPath].")
+	ok
 
     def SetCode(cNewCode)
         @cCode = cNewCode
@@ -155,8 +161,13 @@ class stzExterCode
 	
 	    # Get extra args if they exist
 	    cExtraArgs = ""
-	    if @aLanguages[@cLanguage][:ExtraArgs] != NULL
-	        cExtraArgs = " " + @aLanguages[@cLanguage][:ExtraArgs]
+
+	    if HasKey(@aLanguages, @cLanguage) and
+	   	HasKey(@aLanguages[@cLanguage], :ExtraArgs)
+
+        		cExtraArgs = " " + @aLanguages[@cLanguage][:ExtraArgs]
+	    else
+		StzRaise("Can't set the path! This path does not exist: @aLanguages[@cLanguage][:ExtraArgs].")
 	    ok
 	
 	    cScriptFile = "run" + @cLanguage
@@ -358,7 +369,8 @@ class stzExterCode
 
         # Not used with batch approach, kept for compatibility
 
-        if @aLanguages[@cLanguage][:type] = "interpreted"
+	if HasKeys(@aLanguages, [@cLanguage, :type]) and 
+           @aLanguages[@cLanguage][:type] = "interpreted"
 
             cCmd = @aLanguages[@cLanguage][:runtime] + " " + @cSourceFile
 

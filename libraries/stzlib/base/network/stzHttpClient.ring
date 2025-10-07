@@ -530,12 +530,12 @@ class stzHttpParallelClient
         ok
     
     def CleanupRequest(request_data)
-        if request_data[:tcp] != NULL
+        if HasKey(request_data, :tcp)
             uv_close(request_data[:tcp], NULL)
             destroy_uv_tcp_t(request_data[:tcp])
         ok
         
-        if request_data[:connect] != NULL
+        if HasKey(request_data, :connect)
             destroy_uv_connect_t(request_data[:connect])
         ok
     

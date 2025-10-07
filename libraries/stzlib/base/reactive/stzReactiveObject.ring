@@ -78,7 +78,7 @@ class stzReactiveObject from stzReactive
 		# Handle errors in async operations
 		nLenOp = len(aAsyncOperations)
 		for i = 1 to nLenOp
-			if len(aAsyncOperations[i]) >= 5 and aAsyncOperations[i][5] != NULL
+			if len(aAsyncOperations[i]) >= 5 and aAsyncOperations[i][5] != ""
 				try
 					f = aAsyncOperations[i][5]
 					call f(cError)

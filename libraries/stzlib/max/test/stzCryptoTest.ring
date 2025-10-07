@@ -1,11 +1,11 @@
 #TODO: Check this file
-
+load "..\stzmax.ring"
 #=================================#
 #        BASIC HASHING            #
 #=================================#
 
 /*--- Computing MD5 hash of a string
-
+*/
 pr()
 
 o1 = new stzCrypto()
@@ -232,9 +232,9 @@ o1 {
     
     see "Key type: " + aParams[:type] + nl
     see "Key bits: " + aParams[:bits] + nl
-    see "Has modulus: " + (aParams[:n] != NULL) + nl
-    see "Has public exponent: " + (aParams[:e] != NULL) + nl
-    see "Has private exponent: " + (aParams[:d] != NULL) + nl
+    see "Has modulus: " + HasKey(aParams, :n) + nl
+    see "Has public exponent: " + HasKey(aParams, :e) + nl
+    see "Has private exponent: " + HasKey(aParams, :d) + nl
     
     #--> Key type: RSA
     #--> Key bits: 1024

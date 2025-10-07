@@ -261,65 +261,65 @@ class stzDateTime from stzObject
 	        
 	        but IsHashList(pDateTime)
 	            # CountingFrom with explicit origin
-	            if pDateTime[:CountingFrom] != NULL
+	            if HasKey(pDateTime, :CountingFrom)
 	                This.SetCountingFrom(pDateTime[:CountingFrom], pDateTime[:Origin])
 	                
 	            # CountingFrom specific origins
-	            but pDateTime[:CountingFromUnixStart] != NULL
+	            but HasKey(pDateTime, :CountingFromUnixStart)
 	                This.SetCountingFrom(pDateTime[:CountingFromUnixStart], :UnixEpoch)
 	                
-	            but pDateTime[:CountingFromYearOne] != NULL
+	            but HasKey(pDateTime, :CountingFromYearOne)
 	                This.SetCountingFrom(pDateTime[:CountingFromYearOne], :YearOne)
 	                
-	            but pDateTime[:CountingFromIslamicHijra] != NULL
+	            but HasKey(pDateTime, :CountingFromIslamicHijra)
 	                This.SetCountingFrom(pDateTime[:CountingFromIslamicHijra], :IslamicHijra)
 	                
-	            but pDateTime[:CountingFromUSIndependence] != NULL
+	            but HasKey(pDateTime, :CountingFromUSIndependence)
 	                This.SetCountingFrom(pDateTime[:CountingFromUSIndependence], :USIndependence)
 	                
-	            but pDateTime[:CountingFromSpaceAge] != NULL
+	            but HasKey(pDateTime, :CountingFromSpaceAge)
 	                This.SetCountingFrom(pDateTime[:CountingFromSpaceAge], :SpaceAge)
 	                
-	            but pDateTime[:CountingFromAtomicAge] != NULL
+	            but HasKey(pDateTime, :CountingFromAtomicAge)
 	                This.SetCountingFrom(pDateTime[:CountingFromAtomicAge], :AtomicAge)
 	                
 	            # Natural language with origin
-	            but pDateTime[:NaturalDuration] != NULL
+	            but HasKey(pDateTime, :NaturalDuration)
 	                cOrigin = :UnixEpoch
-	                if pDateTime[:Origin] != NULL
+	                if HasKey(pDateTime, :Origin)
 	                    cOrigin = pDateTime[:Origin]
 	                ok
 	                This.SetFromNaturalDuration(pDateTime[:NaturalDuration], cOrigin)
 	                
 	            # Original epoch-based creation
-	            but pDateTime[:FromEpochSeconds] != NULL
+	            but HasKey(pDateTime, :FromEpochSeconds)
 	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochSeconds] * 1000)
          
-	            but pDateTime[:FromEpochMilliseconds] != NULL
+	            but HasKey(pDateTime, :FromEpochMilliseconds)
 	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochMilliseconds])
 	                
-	            but pDateTime[:FromEpochMinutes] != NULL
+	            but HasKey(pDateTime, :FromEpochMinutes)
 	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochMinutes] * 60 * 1000)
 	                
-	            but pDateTime[:FromEpochHours] != NULL
+	            but HasKey(pDateTime, :FromEpochHours)
 	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochHours] * 3600 * 1000)
 	                
-	            but pDateTime[:FromEpochDays] != NULL
+	            but HasKey(pDateTime, :FromEpochDays)
 	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochDays] * 86400 * 1000)
 	                
-	            but pDateTime[:FromEpochWeeks] != NULL
+	            but HasKey(pDateTime, :FromEpochWeeks)
 	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochWeeks] * 604800 * 1000)
 	                
-	            but pDateTime[:FromEpochMonths] != NULL
+	            but HasKey(pDateTime, :FromEpochMonths)
 	                This.SetFromEpochMonths(pDateTime[:FromEpochMonths])
 	                
-	            but pDateTime[:FromEpochYears] != NULL
+	            but HasKey(pDateTime, :FromEpochYears)
 	                This.SetFromEpochYears(pDateTime[:FromEpochYears])
 	                
-	            but pDateTime[:FromNaturalEpoch] != NULL
+	            but HasKey(pDateTime, :FromNaturalEpoch)
 	                This.ParseNaturalEpoch(pDateTime[:FromNaturalEpoch])
 	                
-	            but pDateTime[:FromEpochDuration] != NULL
+	            but HasKey(pDateTime, :FromEpochDuration)
 	                This.SetFromEpochDuration(pDateTime[:FromEpochDuration])
 	                
 	            else
@@ -331,22 +331,27 @@ class stzDateTime from stzObject
 	                nMinute = 0
 	                nSecond = 0
 	                
-	                if pDateTime[:Year] != NULL
+	                if HasKey(pDateTime, :Year)
 	                    nYear = 0+ pDateTime[:Year]
 	                ok
-	                if pDateTime[:Month] != NULL
+
+	                if HasKey(pDateTime, :Month)
 	                    nMonth = 0+ pDateTime[:Month]
 	                ok
-	                if pDateTime[:Day] != NULL
+
+	                if HasKey(pDateTime, :Day)
 	                    nDay = 0+ pDateTime[:Day]
 	                ok
-	                if pDateTime[:Hour] != NULL
+
+	                if HasKey(pDateTime, :Hour)
 	                    nHour = 0+ pDateTime[:Hour]
 	                ok
-	                if pDateTime[:Minute] != NULL
+
+	                if HasKey(pDateTime, :Minute)
 	                    nMinute = 0+ pDateTime[:Minute]
 	                ok
-	                if pDateTime[:Second] != NULL
+
+	                if HasKey(pDateTime, :Second)
 	                    nSecond = 0+ pDateTime[:Second]
 	                ok
 	                
@@ -1860,28 +1865,35 @@ def ToStringXT(cFormat)
 	    # Hash like [:Years = 54, :Months = 3, :Days = 15, :Hours = 10]
 	    nTotalMs = 0
 	    
-	    if aHash[:Years] != NULL
+	    if HasKey(aHash, :Years)
 	        nTotalMs += (aHash[:Years] * 31536000000)
 	    ok
-	    if aHash[:Months] != NULL
+
+	    if HasKey(aHash, :Months)
 	        nTotalMs += (aHash[:Months] * 2628000000)
 	    ok
-	    if aHash[:Weeks] != NULL
+
+	    if HasKey(aHash, :Weeks)
 	        nTotalMs += (aHash[:Weeks] * 604800000)
 	    ok
-	    if aHash[:Days] != NULL
+
+	    if HasKey(aHash, :Days)
 	        nTotalMs += (aHash[:Days] * 86400000)
 	    ok
-	    if aHash[:Hours] != NULL
+
+	    if HasKey(aHash, :Hours)
 	        nTotalMs += (aHash[:Hours] * 3600000)
 	    ok
-	    if aHash[:Minutes] != NULL
+
+	    if HasKey(aHash, :Minutes)
 	        nTotalMs += (aHash[:Minutes] * 60000)
 	    ok
-	    if aHash[:Seconds] != NULL
+
+	    if HasKey(aHash, :Seconds)
 	        nTotalMs += (aHash[:Seconds] * 1000)
 	    ok
-	    if aHash[:Milliseconds] != NULL
+
+	    if HasKey(aHash, :Milliseconds)
 	        nTotalMs += aHash[:Milliseconds]
 	    ok
 	    
@@ -2023,25 +2035,31 @@ def ToStringXT(cFormat)
     def HashToMilliseconds(aHash)
         nMs = 0
         
-        if aHash[:Years] != NULL
+        if HasKey(aHash, :Years)
             nMs += (aHash[:Years] * 31536000000)
         ok
-        if aHash[:Months] != NULL
+
+        if HasKey(aHash, :Months)
             nMs += (aHash[:Months] * 2628000000)
         ok
-        if aHash[:Weeks] != NULL
+
+        if HasKey(aHash, :Weeks)
             nMs += (aHash[:Weeks] * 604800000)
         ok
-        if aHash[:Days] != NULL
+
+        if HasKey(aHash, :Days)
             nMs += (aHash[:Days] * 86400000)
         ok
-        if aHash[:Hours] != NULL
+
+        if Haskey(aHash, :Hours)
             nMs += (aHash[:Hours] * 3600000)
         ok
-        if aHash[:Minutes] != NULL
+
+        if HasKey(aHash, :Minutes)
             nMs += (aHash[:Minutes] * 60000)
         ok
-        if aHash[:Seconds] != NULL
+
+        if HasKey(aHash, :Seconds)
             nMs += (aHash[:Seconds] * 1000)
         ok
         
@@ -2431,22 +2449,27 @@ def ToStringXT(cFormat)
         nMinute = 0
         nSecond = 0
         
-        if aHash[:Year] != NULL
+        if HasKey(aHash, :Year)
             nYear = 0+ aHash[:Year]
         ok
-        if aHash[:Month] != NULL
+
+        if HasKey(aHash, :Month)
             nMonth = 0+ aHash[:Month]
         ok
-        if aHash[:Day] != NULL
+
+        if HasKey(aHash, :Day)
             nDay = 0+ aHash[:Day]
         ok
-        if aHash[:Hour] != NULL
+
+        if HasKey(aHash, :Hour)
             nHour = 0+ aHash[:Hour]
         ok
-        if aHash[:Minute] != NULL
+
+        if HasKey(aHash, :Minute)
             nMinute = 0+ aHash[:Minute]
         ok
-        if aHash[:Second] != NULL
+
+        if HasKey(aHash, :Second)
             nSecond = 0+ aHash[:Second]
         ok
         

@@ -599,7 +599,7 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.24
 
 /*--- Finding uncovered periods in timeline
-
+*/
 pr()
 
 oTimeLine = new stzTimeLine(
@@ -878,7 +878,7 @@ pf()
 #---------------------------#
 
 /*--- Simple display (without configuration)
-*/
+
 pr()
 
 oTimeLine = new stzTimeLine(

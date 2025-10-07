@@ -242,7 +242,7 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
         dim1Width = 0
         for dim2Value in aColDim2Values
             key = dim1Value + "_" + dim2Value
-            if aDataColWidths[key] != NULL
+            if HasKey(aDataColWidths, key)
                 dim1Width += aDataColWidths[key]
             ok
         next
@@ -313,7 +313,7 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
         # Get all second dimension columns for this first dimension
         for dim2Value in aColDim2Values
             key = dim1Value + "_" + dim2Value
-            if aDataColWidths[key] != NULL
+            if HasKey(aDataColWidths, key)
                 dim2Width = aDataColWidths[key]
                 cLine += StrFill(dim2Width, aBorder[:Horizontal])
                 
@@ -353,7 +353,7 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     for dim1Value in aColDim1Values
         for dim2Value in aColDim2Values
             key = dim1Value + "_" + dim2Value
-            if aDataColWidths[key] != NULL
+            if HasKey(aDataColWidths, key)
                 oDim2 = new stzString(dim2Value)
                 capitalizedDim2 = Upper(Left(dim2Value, 1)) + oDim2.Section(2, oDim2.NumberOfChars())
                 cLine += CenterText(capitalizedDim2, aDataColWidths[key])
@@ -390,7 +390,7 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     for dim1Value in aColDim1Values
         for dim2Value in aColDim2Values
             key = dim1Value + "_" + dim2Value
-            if aDataColWidths[key] != NULL
+            if HasKey(aDataColWidths, key)
                 cLine += StrFill(aDataColWidths[key], aBorder[:Horizontal])
                 
                 if dim2Value != aColDim2Values[len(aColDim2Values)]
@@ -488,7 +488,7 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
             for dim1Value in aColDim1Values
                 for dim2Value in aColDim2Values
                     key = dim1Value + "_" + dim2Value
-                    if aDataColWidths[key] != NULL
+                    if HasKey(aDataColWidths, key)
                         cLine += StrFill(aDataColWidths[key], " ")
                         
                         if dim2Value != aColDim2Values[len(aColDim2Values)]
@@ -527,7 +527,7 @@ func DisplayPivotTable(aPivotData, aRowDims, aColDims, cTotalLabel)
     for dim1Value in aColDim1Values
         for dim2Value in aColDim2Values
             key = dim1Value + "_" + dim2Value
-            if aDataColWidths[key] != NULL
+            if HasKey(aDataColWidths, key)
                 cLine += StrFill(aDataColWidths[key], aBorder[:Horizontal])
                 
                 if dim2Value != aColDim2Values[len(aColDim2Values)]
