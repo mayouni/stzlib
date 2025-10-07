@@ -67,42 +67,47 @@ class stzDuration from stzObject
 			nMs = 0
 			
 			# Days
-			if p["days"] != NULL
+			if HasKey(p, "days")
 				nSecs += (p["days"] * 86400)
 			ok
-			if p["day"] != NULL
+
+			if HasKey(p, "day")
 				nSecs += (p["day"] * 86400)
 			ok
 			
 			# Hours
-			if p["hours"] != NULL
+			if HasKey(p, "hours")
 				nSecs += (p["hours"] * 3600)
 			ok
-			if p["hour"] != NULL
+
+			if HasKey(p, "hour")
 				nSecs += (p["hour"] * 3600)
 			ok
 			
 			# Minutes
-			if p["minutes"] != NULL
+			if HasKey(p, "minutes")
 				nSecs += (p["minutes"] * 60)
 			ok
-			if p["minute"] != NULL
+
+			if HasKey(p, "minute")
 				nSecs += (p["minute"] * 60)
 			ok
 			
 			# Seconds
-			if p["seconds"] != NULL
+			if HasKey(p, "seconds")
 				nSecs += p["seconds"]
 			ok
-			if p["second"] != NULL
+
+			if HasKey(p, "second")
 				nSecs += p["second"]
 			ok
 			
 			# Milliseconds
-			if p["milliseconds"] != NULL
+			if HasKey(p, "milliseconds")
 				nMs = p["milliseconds"]
 			ok
-			if p["millisecond"] != NULL
+
+			if HasKey(p, "millisecond")
 				nMs = p["millisecond"]
 			ok
 			

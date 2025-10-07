@@ -1442,7 +1442,7 @@ class stzPivotTable from stzList
 			for i2 = 1 to nColDim2ValuesLen
 				dim2Value = aColDim2Values[i2]
 				key = dim1Value + "_" + dim2Value
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 					dim1Width += aDataColWidths[key]
 				ok
 			next
@@ -1503,7 +1503,7 @@ class stzPivotTable from stzList
 			for i2 = 1 to nColDim2ValuesLen
 				dim2Value = aColDim2Values[i2]
 				key = dim1Value + "_" + dim2Value
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 					dim2Width = aDataColWidths[key]
 					cLine += StrFill(dim2Width, @aBorder[:Horizontal])
 					
@@ -1544,7 +1544,7 @@ class stzPivotTable from stzList
 				dim2Value = aColDim2Values[i2]
 
 				key = dim1Value + "_" + dim2Value
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 					oDim2 = new stzString(dim2Value)
 					capitalizedDim2 = Upper(Left(dim2Value, 1)) + oDim2.Section(2, oDim2.NumberOfChars())
 					cLine += CenterText(capitalizedDim2, aDataColWidths[key])
@@ -1584,7 +1584,7 @@ class stzPivotTable from stzList
 
 				key = dim1Value + "_" + dim2Value
 
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 					cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
 					
 					if i2 < nColDim2ValuesLen
@@ -1683,7 +1683,7 @@ class stzPivotTable from stzList
 
 						key = dim1Value + "_" + dim2Value
 
-						if aDataColWidths[key] != NULL
+						if HasKey(aDataColWidths, key)
 							cLine += StrFill(aDataColWidths[key], " ")
 							
 							if i2 < nColDim2ValuesLen
@@ -1725,7 +1725,7 @@ class stzPivotTable from stzList
 
 				key = dim1Value + "_" + dim2Value
 
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 					cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
 					
 					if i2 < nColDim2ValuesLen
@@ -2059,7 +2059,7 @@ class stzPivotTable from stzList
 			for i2 = 1 to nColDim2ValuesLen
 				dim2Value = aColDim2Values[i2]
 				key = dim1Value + "_" + dim2Value
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 					dim1Width += aDataColWidths[key]
 				ok
 			next
@@ -2120,7 +2120,7 @@ class stzPivotTable from stzList
 			for i2 = 1 to nColDim2ValuesLen
 				dim2Value = aColDim2Values[i2]
 				key = dim1Value + "_" + dim2Value
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 					dim2Width = aDataColWidths[key]
 					cLine += StrFill(dim2Width, @aBorder[:Horizontal])
 					
@@ -2161,7 +2161,7 @@ class stzPivotTable from stzList
 				dim2Value = aColDim2Values[i2]
 	
 				key = dim1Value + "_" + dim2Value
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 					oDim2 = new stzString(dim2Value)
 					capitalizedDim2 = Upper(Left(dim2Value, 1)) + oDim2.Section(2, oDim2.NumberOfChars())
 					cLine += CenterText(capitalizedDim2, aDataColWidths[key])
@@ -2201,7 +2201,7 @@ class stzPivotTable from stzList
 	
 				key = dim1Value + "_" + dim2Value
 	
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 					cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
 					
 					if i2 < nColDim2ValuesLen
@@ -2303,7 +2303,7 @@ class stzPivotTable from stzList
 	
 						key = dim1Value + "_" + dim2Value
 	
-						if aDataColWidths[key] != NULL
+						if HasKey(aDataColWidths, key)
 							cLine += " " + @Copy("-", aDataColWidths[key] - 2) + " "
 							
 							if i2 < nColDim2ValuesLen
@@ -2338,7 +2338,7 @@ class stzPivotTable from stzList
 	
 						key = dim1Value + "_" + dim2Value
 						
-						if aDataColWidths[key] != NULL
+						if HasKey(aDataColWidths, key)
 							value = aGroupTotals[cCurrentRowDim1][key]
 							
 							if isNumber(value) and value != 0
@@ -2383,7 +2383,7 @@ class stzPivotTable from stzList
 	
 						key = dim1Value + "_" + dim2Value
 	
-						if aDataColWidths[key] != NULL
+						if HasKey(aDataColWidths, key)
 							cLine += StrFill(aDataColWidths[key], " ")
 							
 						ok
@@ -2420,7 +2420,7 @@ class stzPivotTable from stzList
 	
 				key = dim1Value + "_" + dim2Value
 	
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 					cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
 					
 					if i2 < nColDim2ValuesLen
@@ -2654,7 +2654,7 @@ class stzPivotTable from stzList
 
 				key = dim1Value + "_" + dim2Value
 
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 					dim1Width += aDataColWidths[key]
 				ok
 
@@ -2717,7 +2717,7 @@ class stzPivotTable from stzList
 
 				key = dim1Value + "_" + dim2Value
 
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 
 					dim2Width = aDataColWidths[key]
 					cLine += StrFill(dim2Width, @aBorder[:Horizontal])
@@ -2759,7 +2759,7 @@ class stzPivotTable from stzList
 
 				key = dim1Value + "_" + dim2Value
 
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 
 					oDim2 = new stzString(dim2Value)
 					capitalizedDim2 = Upper(Left(dim2Value, 1)) + oDim2.Section(2, oDim2.NumberOfChars())
@@ -2794,7 +2794,7 @@ class stzPivotTable from stzList
 
 				key = dim1Value + "_" + dim2Value
 
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 
 					cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
 				
@@ -2881,7 +2881,7 @@ class stzPivotTable from stzList
 
 				key = dim1Value + "_" + dim2Value
 
-				if aDataColWidths[key] != NULL
+				if HasKey(aDataColWidths, key)
 
 					cLine += StrFill(aDataColWidths[key], @aBorder[:Horizontal])
 				

@@ -16,10 +16,9 @@
 
 # Loading files related to the DATA module
 
-	load "data/stzBoxDrawCharsData.ring"
 	load "data/stzConstraintsData.ring"
-	load "data/stzStopWordsData.ring"
-	load "data/stzStringArtData.ring"
+//	load "data/stzStopWordsData.ring"
+	load "data/stzDataModelData.ring"
 
 # Loading files related to OBJECT module
 
@@ -40,7 +39,6 @@
 	load "string/stzMultiString.ring"
 	load "string/stzSringConstraints.ring"
 	load "string/stzTextEncoding.ring"
-	load "string/stzStopWords.ring"
 
 # Loading files related to the LIST module
 
@@ -68,16 +66,9 @@
 
 # Loading files related to the ERROR module
 
-	load "error/stzCountryError.ring"
-	load "error/stzCurrencyError.ring"
-	load "error/stzEntityError.ring"
 	load "error/stzGridError.ring"
-	load "error/stzLanguageError.ring"
-	load "error/stzListOfEntitiesError.ring"
 	load "error/stzListOfSetsError.ring"
-	load "error/stzLocaleError.ring"
 	load "error/stzMultiStringError.ring"
-	load "error/stzScriptError.ring"
 	load "error/stzSetError.ring"
 	load "error/stzTextEncodingSystemError.ring"
 

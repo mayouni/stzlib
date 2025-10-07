@@ -183,6 +183,10 @@
 # Loading files related to the EXERCODE module
 
 	load "extercode/stzExterCode.ring"
+	load "extercode/stzPythonCode.ring"
+	load "extercode/stzRCode.ring"
+	load "extercode/stzJuliaCode.ring"
+	load "extercode/stzPrologCode.ring"
 
 # Loading files related to the NEtwORK module
 

@@ -5,7 +5,7 @@ load "../stzbase.ring"
 #======================================#
 
 /*--- Basic example
-*/
+
 pr()
 
 # Create instance for Python
@@ -53,7 +53,6 @@ oPyCode.Execute()
 
 pf()
 # Executed in 0.36 second(s) in Ring 1.23
-
 
 /*--- Different number types
 
@@ -157,7 +156,7 @@ pf()
 # Executed in 0.41 second(s) in Ring 1.23
 
 /*--- Complex nested structure
-*/
+
 pr()
 
 oPyCode = new stzExterCode("python")
@@ -351,7 +350,7 @@ pf()
 # Executed in 0.33 second(s) in Ring 1.23
 
 /*--- Machine Learning Integration
-*/
+
 pr()
 
 #WARNING For that sample to work 'scikit-learn' must be installed ontop of python
@@ -581,7 +580,7 @@ pf()
 # Executed in 0.45 second(s) in Ring 1.23
 
 /*--- Nested calculations with custom functions
-*/
+
 pr()
 
 R = new stzExterCode(:R)

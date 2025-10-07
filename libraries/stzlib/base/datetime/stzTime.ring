@@ -63,16 +63,19 @@ class stzTime from stzObject
             nSecond = 0
             nMs     = 0
 
-            if pTime[:Hour] != NULL
+            if HasKey(pTime, :Hour)
                 nHour = 0+ pTime[:Hour]
             ok
-            if pTime[:Minute] != NULL
+
+            if HasKey(pTime, :Minute)
                 nMinute = 0+ pTime[:Minute]
             ok
-            if pTime[:Second] != NULL
+
+            if HasKey(pTime, :Second)
                 nSecond = 0+ pTime[:Second]
             ok
-            if pTime[:Millisecond] != NULL
+
+            if HasKey(pTime, :Millisecond)
                 nMs = 0+ pTime[:Millisecond]
             ok
 

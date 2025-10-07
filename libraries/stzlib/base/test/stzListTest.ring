@@ -8,6 +8,36 @@ load "../stzbase.ring"
 */
 pr()
 
+# Test case
+aHash = [
+	:user = [
+		:profile = [
+			:settings = [
+				:theme = "dark",
+				:language = "en"
+			]
+		],
+		:name = "John"
+	],
+	:config = "value"
+]
+
+# These should return TRUE
+? HasKeys(aHash, [:user])
+? HasKeys(aHash, [:user, :profile])
+? HasKeys(aHash, [:user, :profile, :settings])
+
+# These should return FALSE
+? HasKeys(aHash, [:user, :profile, :settings, :nonexistent])
+? HasKeys(aHash, [:user, :missing])
+? HasKeys(aHash, [:nothere])
+
+pf()
+
+/*---
+*/
+pr()
+
 o1 = new stzList([ 2, 4, 8 ])
 ? o1.EachItemIsA(:Number)
 #--> TRUE

@@ -31,24 +31,24 @@ class stzCounter from stzObject
 		if isList(paParams) and
 		   IsCounterNamedParamList(paParams)
 
-			if paParams[ :StartAt ] != ""
+			if HasKey(paParams, :StartAt)
 				@nStartAt = paParams[ :StartAt ]
 			ok
 
-			if paParams[ :AfterYouSkip ] != ""
+			if HasKey(paParams, :AfterYouSkip)
 				@nAfterYouSkip = paParams[ :AfterYouSkip ]
 			ok
 	
-			if paParams[ :WhenYouReach ] != ""
+			if HasKey(paParams, :WhenYouReach)
 
 				@nWhenYouReach = paParams[ :WhenYouReach ]
 			ok
 
-			if paParams[ :RestartAt ] != ""
+			if HasKey(paParams, :RestartAt)
 				@nRestartAt = paParams[ :RestartAt ]
 			ok
 	
-			if paParams[ :Step ] != ""
+			if HasKey(paParams, :Step)
 				@nStep = paParams[ :Step ]
 			else
 				@nStep = 1

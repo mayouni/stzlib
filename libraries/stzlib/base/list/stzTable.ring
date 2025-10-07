@@ -15609,14 +15609,17 @@ Class stzTable from stzList
 						ok
 					next
 				ok
+
 			but IsHashList(pParams)
-				if pParams[:RowNumber] != NULL
+				if HasKey(pParams, :RowNumber)
 					bRowNumber = pParams[:RowNumber]
 				ok
-				if pParams[:SubTotal] != NULL
+
+				if HasKey(pParams, :SubTotal)
 					bSubTotal = pParams[:SubTotal]
 				ok
-				if pParams[:GrandTotal] != NULL
+
+				if HasKey(pParams, :GrandTotal)
 					bGrandTotal = pParams[:GrandTotal]
 				ok
 			ok
