@@ -28,15 +28,18 @@ class stzTimeLine from stzObject
 
 	# Display properties
 	@nVizWidth = 52
-	@nVizHeight = 5
+	@nVizMinWidth = 30
+	@nVizHeight = 5 # Will adjust autumatically to the required hight
+
 	@cAxisChar = "─"
 	@cPointChar = "●"
 	@cSpanChar = "═"
 	@cSpanStartChar = "╞"
 	@cSpanEndChar = "╡"
-	@cTickChar = "│"
+	@cBoundaryStartChar = "|"
+	@cBoundaryEndChar = "○"
 	@cHighlightChar = "█"
-	@cArrowChar = "──►"
+	@cArrowChar = "►"
 	@cUncoveredChar = "/"
 	@bShowDates = TRUE
 	@bShowLabels = TRUE
@@ -60,23 +63,12 @@ class stzTimeLine from stzObject
 		ok
 
 		if isString(pStart)
-			pStart = trim(pStart)
-			if This._IsDateOnly(pStart)
-				pStart += " 00:00:00"
+			pStart = This._normalizeDateTime(pStart)
 
-			but This._IsTimeOnly(pStart)
-				StzRaise("Invalid input in pStart! Time specified without a date.")
-			ok
 		ok
 
 		if isString(pEnd)
-			pEnd = trim(pEnd)
-			if This._IsDateOnly(pEnd)
-				pStart += " 00:00:00"
-
-			but This._IsTimeOnly(pEnd)
-				StzRaise("Invalid input in pEnd! Time specified without a date.")
-			ok
+			pEnd = This._normalizeDateTime(pEnd)
 		ok
 
 		@cStart = StzDateTimeQ(pStart).ToString()
@@ -141,15 +133,9 @@ class stzTimeLine from stzObject
 		def SetEndQ(p)
 			This.SetEnd(p)
 			return This
-		
-	def HasBoundaries()
-		return @cStart != NULL and @cEnd != NULL
-		
+				
 	def Duration()
-		if This.HasBoundaries()
-			return This.StartQ().DurationTo(@cEnd, :InSeconds)
-		ok
-		return NULL
+		return This.StartQ().DurationTo(@cEnd, :InSeconds)
 
 		def DurationQ()
 			if This.Duration() != NULL
@@ -161,16 +147,13 @@ class stzTimeLine from stzObject
 	
 	def AddPoint(cName, pDateTime)
 		cPoint = This._normalizeDateTime(pDateTime)
+
+		oPoint = new stzDateTime(cPoint)
+		oStart = This.StartQ()
+		oEnd = This.EndQ()
 	
-		# Validate against boundaries
-		if This.HasBoundaries()
-			oPoint = new stzDateTime(cPoint)
-			oStart = This.StartQ()
-			oEnd = This.EndQ()
-	
-			if oPoint < oStart or oPoint > oEnd
-				raise("Point '" + cName + "' is outside timeline boundaries")
-			ok
+		if oPoint < oStart or oPoint > oEnd
+			raise("Point '" + cName + "' is outside timeline boundaries")
 		ok
 	    
 		@aPoints + [cName, cPoint]
@@ -416,15 +399,13 @@ class stzTimeLine from stzObject
 				cStart + ") must be before end time (" + cEnd + ")")
 		ok
 	
-		# Validate against boundaries
-		if This.HasBoundaries()
-			oTLStart = This.StartQ()
-			oTLEnd = This.EndQ()
-			if oStart < oTLStart or oEnd > oTLEnd
-				raise("Span '" + cName + "' is outside timeline boundaries")
-			ok
+		oTLStart = This.StartQ()
+		oTLEnd = This.EndQ()
+
+		if oStart < oTLStart or oEnd > oTLEnd
+			raise("Span '" + cName + "' is outside timeline boundaries")
 		ok
-	
+
 		@aSpans + [cName, cStart, cEnd]
 
 			
@@ -643,12 +624,13 @@ class stzTimeLine from stzObject
 					aResult + [@aPoints[i][1], :Point]
 				ok
 			next
+
 	
 			nLen = len(@aSpans)
 			for i = 1 to nLen
 				oTime = new stzTime(cTime)
-				oStart = new stzTime(@aSpans[i][2])
-				oEnd = new stzTime(@aSpans[i][3])
+				oStart = new stzDateTime(@aSpans[i][2])
+				oEnd = new stzDateTime(@aSpans[i][3])
 	
 				# Check if time falls within span's time range
 
@@ -947,7 +929,7 @@ class stzTimeLine from stzObject
 		return aGaps
 		
 	def UncoveredPeriods()
-		if not This.HasBoundaries() or len(@aSpans) = 0
+		if len(@aSpans) = 0
 			return []
 		ok
 		
@@ -1115,12 +1097,10 @@ class stzTimeLine from stzObject
 
 		aResult = []
 		
-		# Add boundaries if they exist
-		if This.HasBoundaries()
-			aResult + [ "start", @cStart ] + 
-				[ "end", @cEnd ] +
-				[ "totalduration", This.DurationQ().ToHuman() ]
-		ok
+		# Add boundaries
+		aResult + [ "start", @cStart ] + 
+			[ "end", @cEnd ] +
+			[ "totalduration", This.DurationQ().ToHuman() ]
 		
 		# Add counts
 		aResult + [ "countpoints", This.CountPoints() ] +
@@ -1165,30 +1145,15 @@ class stzTimeLine from stzObject
 		return This
 		
 	def Copy()
-		oCopy = new stzTimeLine([
-			:Start, NULL,
-			:End, NULL
-		])
+		_oCopy_ = new stzTimeLine(
+			:Start = This.Start(),
+			:End = This.End_()
+		)
+
+		_oCopy_.@aPoints = This.@aPoints
+		_oCopy_.@aSpans = This.@aSpans
 		
-		# Copy boundaries
-		if This.HasBoundaries()
-			oCopy.SetStart(This.Start())
-			oCopy.SetEnd(This.End_())
-		ok
-		
-		# Copy points
-		nLen = len(@aPoints)
-		for i = 1 to nLen
-			oCopy.AddPoint(@aPoints[i][1], @aPoints[i][2])
-		next
-		
-		# Copy spans
-		nLen = len(@aSpans)
-		for i = 1 to nLen
-			oCopy.AddSpan(@aSpans[i][1], @aSpans[i][2], @aSpans[i][3])
-		next
-		
-		return oCopy
+		return _oCopy_
 		
 		def Clone()
 			return This.Copy()
@@ -1200,11 +1165,11 @@ class stzTimeLine from stzObject
 	# Configuration
 	
 	def SetVizWidth(n)
-		@nVizWidth = max([30, n])
+		@nVizWidth = max([@nVizMinWidth, n])
 		return This
 		
 	def SetVizHeight(n)
-		@nVizHeight = max([3, n])
+		@nVizHeight = max([@nVizHeight, n])
 		return This
 		
 	def VizWidth()
@@ -1256,13 +1221,9 @@ class stzTimeLine from stzObject
 			next
 		ok
 	
-		if not This.HasBoundaries()
-			return "Timeline has no boundaries set"
-		ok
-	
 		# Collect all timepoints
 		aTimepoints = _collectAllTimepoints()
-	
+
 		# Calculate layout
 		oLayout = _calculateVizLayout()
 		if oLayout = ""
@@ -1294,6 +1255,11 @@ class stzTimeLine from stzObject
 			cTable = _buildTimepointsTable(aTimepoints)
 		ok
 	
+		# Workaround: replacing eventual ──○●► with ─●○─►
+		#TODO // Resolve it logically at construction
+
+		cViz = substr(cViz, "──○●►", "───●○─►")
+
 		return cViz + nl + nl + cTable
 	
 	def Stats()
@@ -1303,9 +1269,6 @@ class stzTimeLine from stzObject
 		? This.ToStringShort()
 	
 	def ToStringShort()
-		if not This.HasBoundaries()
-			return "Timeline has no boundaries set"
-		ok
 	
 		# Collect timepoints
 		aTimepoints = _collectAllTimepoints()
@@ -1370,9 +1333,6 @@ class stzTimeLine from stzObject
 	    ? This.ToStringUncovered()
 	
 def ToStringUncovered()
-    if not This.HasBoundaries()
-        return "Timeline has no boundaries set"
-    ok
     
     # Get uncovered periods
     aUncovered = This.UncoveredPeriods()
@@ -1380,24 +1340,66 @@ def ToStringUncovered()
         return "Timeline is fully covered by spans"
     ok
     
-    # Collect timepoints (without boundaries)
-    aTimepoints = _collectAllTimepoints()
+    # Collect timepoints WITHOUT boundaries
+    aTimepoints = []
+    aSorted = []
     
-    # Add uncovered regions
-    nLen = len(aUncovered)
+    # Add points
+    nLen = len(@aPoints)
     for i = 1 to nLen
-        aTimepoints + [0, aUncovered[i][:Start], "", "Uncovered region", "uncovered_start"]
-        aTimepoints + [0, aUncovered[i][:End], "", "Uncovered region", "uncovered_end"]
+        aSorted + ["point", @aPoints[i][1], @aPoints[i][2], @aPoints[i][1]]
+    next
+
+    # Add span starts and ends
+    nLen = len(@aSpans)
+    for i = 1 to nLen
+        aSorted + ["span_start", @aSpans[i][1], @aSpans[i][2], @aSpans[i][1]]
+        aSorted + ["span_end", @aSpans[i][1], @aSpans[i][3], @aSpans[i][1]]
     next
     
-    # Sort by date
-    aTimepoints = This._sortTimepointsByDate(aTimepoints)
+	# Sort by datetime - MANUAL SORT
+	nLen = len(aSorted)
+	for i = 1 to nLen - 1
+	    for j = 1 to nLen - i
+	        oDateTime1 = StzDateTimeQ(aSorted[j][3])
+	        oDateTime2 = StzDateTimeQ(aSorted[j + 1][3])
+	        if oDateTime1 > oDateTime2
+	            aTemp = aSorted[j]
+	            aSorted[j] = aSorted[j + 1]
+	            aSorted[j + 1] = aTemp
+	        ok
+	    next
+	next
     
-    # Reassign sequential indices
-    nLen = len(aTimepoints)
-    for i = 1 to nLen
-        aTimepoints[i][1] = i
-    next
+    # Build timepoints - boundaries get NULL index
+    # Add start boundary (no index)
+    aTimepoints + [NULL, @cStart, "", "Timeline start", "boundary"]
+    
+	# Add sorted timepoints with indices
+	nIndex = 1
+	nLen = len(aSorted)
+	for i = 1 to nLen
+	    cType = aSorted[i][1]
+	    cLabel = aSorted[i][2]        # This is the name/label
+	    cDateTime = aSorted[i][3]     # This is the datetime
+	    cOrigName = aSorted[i][4]     # This is also the name
+	    
+	    cDesc = ""
+	    switch cType
+	    on "point"
+	        cDesc = cOrigName + " event"
+	    on "span_start"
+	        cDesc = "Start of " + cOrigName
+	    on "span_end"
+	        cDesc = "End of " + cOrigName
+	    off
+	    
+	    aTimepoints + [nIndex, cDateTime, cLabel, cDesc, cType]
+	    nIndex++
+	next
+    
+    # Add end boundary (no index)
+    aTimepoints + [NULL, @cEnd, "", "Timeline end", "boundary"]
     
     # Calculate layout
     oLayout = _calculateVizLayout()
@@ -1411,8 +1413,8 @@ def ToStringUncovered()
     # Draw visual elements
     _drawAxis(oLayout)
     _drawSpans(oLayout, aTimepoints)
-    _drawUncoveredRegions(oLayout, aUncovered)  # Draw uncovered BEFORE points
-    _drawPoints(oLayout, aTimepoints)  # Points will overwrite uncovered chars
+    _drawUncoveredRegions(oLayout, aUncovered)
+    _drawPoints(oLayout, aTimepoints)
     _drawLabels(oLayout, aTimepoints)
     _drawNumbers(oLayout, aTimepoints)
     
@@ -1420,7 +1422,7 @@ def ToStringUncovered()
     cViz = _vizCanvasToString()
     cTable = _buildTimepointsTable(aTimepoints)
     
-    return cViz + nl + nl + cTable	
+    return cViz + nl + nl + cTable
 
 	PRIVATE
 
@@ -1450,56 +1452,56 @@ def ToStringUncovered()
 	
 	# Layout Calculation
 	
-	def _calculateVizLayout()
-		if not This.HasBoundaries()
-			return NULL
-		ok
-	    
-		nTotalRows = 0
+def _calculateVizLayout()
+	
+	nTotalRows = 0
 
-		# Calculate needed span rows dynamically
-		nSpanRows = 0
-		if len(@aSpans) > 0
-			# Auto-calculate required height
-			nRequiredHeight = This._calculateRequiredVizHeight()
-			@nVizHeight = max([@nVizHeight, nRequiredHeight])
-			nSpanRows = @nVizHeight - 3  # Reserve 3 rows for labels, axis, numbers
-		ok
-		
-		# Spans area (only if needed)
-		nSpansStart = 0
-		if nSpanRows > 0
-			nSpansStart = nTotalRows + 1
-			nTotalRows += nSpanRows
-		ok
-		
-		# Labels row (above axis)
+	# Calculate needed span rows dynamically
+	nSpanRows = 0
+	if len(@aSpans) > 0
+		# Auto-calculate required height
+		nRequiredHeight = This._calculateRequiredVizHeight()
+		@nVizHeight = max([@nVizHeight, nRequiredHeight])
+		nSpanRows = @nVizHeight - 3  # Reserve 3 rows for labels, axis, numbers
+	ok
+	
+	# Spans area (only if needed)
+	nSpansStart = 0
+	if nSpanRows > 0
+		nSpansStart = nTotalRows + 1
+		nTotalRows += nSpanRows
+	ok
+	
+	# Labels row (above axis) - only if there are points
+	nLabelsRow = 0
+	if len(@aPoints) > 0
 		nLabelsRow = nTotalRows + 1
 		nTotalRows += 1
-		
-		# Axis row
-		nAxisRow = nTotalRows + 1
-		nTotalRows += 1
-		
-		# Numbers row
+	ok
+	
+	# Axis row
+	nAxisRow = nTotalRows + 1
+	nTotalRows += 1
+	
+	# Numbers row (only if there are points or spans)
+	nNumbersRow = 0
+	if len(@aPoints) > 0 or len(@aSpans) > 0
 		nNumbersRow = nTotalRows + 1
 		nTotalRows += 1
-		
-		return [
-			:total_height = nTotalRows,
-			:labels_row = nLabelsRow,
-			:spans_start = nSpansStart,
-			:span_rows = nSpanRows,
-			:axis_row = nAxisRow,
-			:numbers_row = nNumbersRow
-		]
+	ok
+	
+	return [
+		:total_height = nTotalRows,
+		:labels_row = nLabelsRow,
+		:spans_start = nSpansStart,
+		:span_rows = nSpanRows,
+		:axis_row = nAxisRow,
+		:numbers_row = nNumbersRow
+	]
 	
 	# Position Mapping & Timepoint Collection
 	
 	def _timeToPosition(cDateTime)
-		if not This.HasBoundaries()
-			return 0
-		ok
 		
 		oStart = This.StartQ()
 		oEnd = This.EndQ()
@@ -1517,66 +1519,78 @@ def ToStringUncovered()
 		
 		return max([1, min([nPosition, nCanvasWidth])])
 	
-	def _collectAllTimepoints()
-		# Returns: [[index, datetime, label, description, type], ...]
-		aTimepoints = []
-		nIndex = 0
-		
-		# Add start boundary
-		aTimepoints + [nIndex, @cStart, "", "Timeline start", "boundary"]
-		nIndex++
-		
-		# Collect all points and span boundaries
-		aSorted = []
-		
-		# Add points
-		nLen = len(@aPoints)
-		for i = 1 to nLen
-			aSorted + ["point", @aPoints[i][1], @aPoints[i][2], @aPoints[i][1]]
-		next
-
-		# Add span starts and ends
-		nLen = len(@aSpans)
-		for i = 1 to nLen
-			aSorted + ["span_start", @aSpans[i][1], @aSpans[i][2], @aSpans[i][1]]
-			aSorted + ["span_end", @aSpans[i][1], @aSpans[i][3], @aSpans[i][1]]
-		next
-		
-		# Sort by datetime
-		aSorted = This._sortTimepointsByDate(aSorted)
-		
-		# Add to timepoints with indices
-		nLen = len(aSorted)
-		for i = 1 to nLen
-			cType = aSorted[i][1]
-			cLabel = aSorted[i][2]
-			cDateTime = aSorted[i][3]
-			cOrigName = aSorted[i][4]
-			
-			cDesc = ""
-			switch cType
-			on "point"
-				cDesc = cOrigName + " event"
-			on "span_start"
-				cDesc = "Start of " + cOrigName
-			on "span_end"
-				cDesc = "End of " + cOrigName
-			off
-			
-			aTimepoints + [nIndex, cDateTime, cLabel, cDesc, cType]
-			nIndex++
-		next
-		
-		# Add end boundary
-		aTimepoints + [nIndex, @cEnd, '', "Timeline end", "boundary"]
-
-		return aTimepoints
+def _collectAllTimepoints()
+	# Returns: [[index, datetime, label, description, type], ...]
+	aTimepoints = []
 	
-	def _sortTimepointsByDate(aItems)	
-		return @SortOn(aItems, 2)
+	# Add start boundary (NO INDEX)
+	aTimepoints + [NULL, @cStart, "", "Timeline start", "boundary"]
+	
+	# Collect all points and span boundaries
+	aSorted = []
+	
+	# Add points
+	nLen = len(@aPoints)
+	for i = 1 to nLen
+		aSorted + ["point", @aPoints[i][1], @aPoints[i][2], @aPoints[i][1]]
+	next
 
-	def _sortTimepointsByOrder(aItems)
-		return @SortOn(aItems, 1)
+	# Add span starts and ends
+	nLen = len(@aSpans)
+	for i = 1 to nLen
+		aSorted + ["span_start", @aSpans[i][1], @aSpans[i][2], @aSpans[i][1]]
+		aSorted + ["span_end", @aSpans[i][1], @aSpans[i][3], @aSpans[i][1]]
+	next
+	
+	# Sort by datetime
+	aSorted = This._sortTimepointsByDate(aSorted)
+	
+	# Add to timepoints with indices (starting from 1)
+	nIndex = 1
+	nLen = len(aSorted)
+	for i = 1 to nLen
+		cType = aSorted[i][1]
+		cLabel = aSorted[i][2]
+		cDateTime = aSorted[i][3]
+		cOrigName = aSorted[i][4]
+		
+		cDesc = ""
+		switch cType
+		on "point"
+			cDesc = cOrigName + " event"
+		on "span_start"
+			cDesc = "Start of " + cOrigName
+		on "span_end"
+			cDesc = "End of " + cOrigName
+		off
+		
+		aTimepoints + [nIndex, cDateTime, cLabel, cDesc, cType]
+		nIndex++
+	next
+	
+	# Add end boundary (NO INDEX)
+	aTimepoints + [NULL, @cEnd, "", "Timeline end", "boundary"]
+
+	return aTimepoints
+	
+def _sortTimepointsByDate(aItems)
+	# Manual bubble sort by datetime (index 3 in the array)
+	nLen = len(aItems)
+	
+	for i = 1 to nLen - 1
+		for j = 1 to nLen - i
+			oDateTime1 = new stzDateTime(aItems[j][3])
+			oDateTime2 = new stzDateTime(aItems[j + 1][3])
+			
+			if oDateTime1 > oDateTime2
+				aTemp = aItems[j]
+				aItems[j] = aItems[j + 1]
+				aItems[j + 1] = aTemp
+			ok
+		next
+	next
+	
+	return aItems
 
 	# Drawing Methods
 	
@@ -1584,170 +1598,255 @@ def _drawAxis(oLayout)
     nRow = oLayout[:axis_row]
     nCanvasWidth = len(@acVizCanvas[1])
     
+    # Draw start boundary
+    _setVizChar(nRow, 1, @cBoundaryStartChar)
+    
     # Draw main axis line
-    for i = 2 to nCanvasWidth - 2
+    for i = 2 to nCanvasWidth - 3
         _setVizChar(nRow, i, @cAxisChar)
     next
     
-    # Draw start marker as vertical bar
-    _setVizChar(nRow, 1, @cTickChar)
-    
-    # Add spacing before arrow
+    # Draw end boundary and arrow
+    _setVizChar(nRow, nCanvasWidth - 2, @cBoundaryEndChar)
     _setVizChar(nRow, nCanvasWidth - 1, @cAxisChar)
-    
-    # Draw end arrow
     _setVizChar(nRow, nCanvasWidth, @cArrowChar)
 
-
-	def _drawLabels(oLayout, aTimepoints)
-		nRow = oLayout[:labels_row]
-		
-		# Collect positions and labels for points only
-		aLabelsToPlace = []
-		nLen = len(aTimepoints)
-
-		for i = 1 to nLen
-			cType = aTimepoints[i][5]
-			cLabel = aTimepoints[i][3]
-			
-			if (cType = "point" or cType = "boundary") and cLabel != ""
-				cDateTime = aTimepoints[i][2]
-				nPos = _timeToPosition(cDateTime)
-				aLabelsToPlace + [nPos, cLabel]
-			ok
-		next
-		
-		# Check for collisions and place labels
-		aPlaced = []
-		nLen = len(aLabelsToPlace)
-
-		for i = 1 to nLen
-
-			nPos = aLabelsToPlace[i][1]
-			cLabel = aLabelsToPlace[i][2]
-			nLabelLen = len(cLabel)
-			
-			# Calculate label span (centered on position)
-			nLabelStart = max([1, nPos - floor(nLabelLen / 2)])
-			nLabelEnd = nLabelStart + nLabelLen - 1
-			
-			# Check for collision with already placed labels
-			bCollides = FALSE
-			nLenJ = len(aPlaced)
-
-			for j = 1 to nLenJ
-				nPlacedStart = aPlaced[j][1]
-				nPlacedEnd = aPlaced[j][2]
-				
-				# Check overlap
-				if not (nLabelEnd < nPlacedStart or nLabelStart > nPlacedEnd)
-					bCollides = TRUE
-					exit
-				ok
-			next
-			
-			# Place label if no collision
-			if not bCollides
-				_setVizString(nRow, nLabelStart, cLabel)
-				aPlaced + [nLabelStart, nLabelEnd]
-			ok
-		next
+def _drawLabels(oLayout, aTimepoints)
+	nRow = oLayout[:labels_row]
 	
-	def _drawNumbers(oLayout, aTimepoints)
-		nRow = oLayout[:numbers_row]
-		nLen = len(aTimepoints)
+	# Skip if no labels row allocated
+	if nRow = 0
+		return
+	ok
+	
+	# Collect positions and labels for points only
+	aLabelsToPlace = []
+	nLen = len(aTimepoints)
 
-		for i = 1 to nLen
-			nIndex = aTimepoints[i][1]
+	for i = 1 to nLen
+		cType = aTimepoints[i][5]
+		cLabel = aTimepoints[i][3]
+		
+		if (cType = "point" or cType = "boundary") and cLabel != ""
 			cDateTime = aTimepoints[i][2]
 			nPos = _timeToPosition(cDateTime)
+			aLabelsToPlace + [nPos, cLabel]
+		ok
+	next
+	
+	# Check for collisions and place labels
+	aPlaced = []
+	nLen = len(aLabelsToPlace)
+
+	for i = 1 to nLen
+
+		nPos = aLabelsToPlace[i][1]
+		cLabel = aLabelsToPlace[i][2]
+		nLabelLen = len(cLabel)
+		
+		# Calculate label span (centered on position)
+		nLabelStart = max([1, nPos - floor(nLabelLen / 2)])
+		nLabelEnd = nLabelStart + nLabelLen - 1
+		
+		# Check for collision with already placed labels
+		bCollides = FALSE
+		nLenJ = len(aPlaced)
+
+		for j = 1 to nLenJ
+			nPlacedStart = aPlaced[j][1]
+			nPlacedEnd = aPlaced[j][2]
 			
-			cNum = "" + nIndex
-			nNumLen = len(cNum)
-			
-			# Center the number at position
-			nStartCol = max([1, nPos - floor(nNumLen / 2)])
-			_setVizString(nRow, nStartCol, cNum)
-		next
-	
-	def _drawPoints(oLayout, aTimepoints)
-		nAxisRow = oLayout[:axis_row]
-		nLen = len(aTimepoints)
-	
-		for i = 1 to nLen
-			cType = aTimepoints[i][5]
-	
-			if cType = "point" or cType = "boundary"
-				cDateTime = aTimepoints[i][2]
-				nPos = _timeToPosition(cDateTime)
-	
-				bHighlighted = FALSE
-				if @cHighlight != NULL and aTimepoints[i][3] = @cHighlight
-					bHighlighted = TRUE
-				ok
-	
-				cChar = iff(bHighlighted, @cHighlightChar, @cPointChar)
-				_setVizChar(nAxisRow, nPos, cChar)
+			# Check overlap
+			if not (nLabelEnd < nPlacedStart or nLabelStart > nPlacedEnd)
+				bCollides = TRUE
+				exit
 			ok
 		next
+		
+		# Place label if no collision
+		if not bCollides
+			_setVizString(nRow, nLabelStart, cLabel)
+			aPlaced + [nLabelStart, nLabelEnd]
+		ok
+	next
 	
-		# Add highlighting for spans on axis
-		if @cHighlight != NULL
-			nLen = len(@aSpans)
-			for i = 1 to nLen
-				if @aSpans[i][1] = @cHighlight
-					nStartPos = _timeToPosition(@aSpans[i][2])
-					nEndPos = _timeToPosition(@aSpans[i][3])
+def _drawNumbers(oLayout, aTimepoints)
+	nRow = oLayout[:numbers_row]
 	
-					# Highlight axis between start and end
-					for j = nStartPos to nEndPos
-						_setVizChar(nAxisRow, j, @cHighlightChar)
-					next
+	# Skip if no numbers row allocated
+	if nRow = 0
+		return
+	ok
+	
+	# Count non-boundary timepoints
+	nCount = 0
+	nLen = len(aTimepoints)
+	for i = 1 to nLen
+		if aTimepoints[i][1] != NULL
+			nCount++
+		ok
+	next
+	
+	# Only draw numbers if there are actual points/spans (not just boundaries)
+	if nCount = 0
+		return
+	ok
+	
+	# Group indices by position
+	aPositionGroups = []  # [[position, [index1, index2, ...]], ...]
+	
+	for i = 1 to nLen
+		nIndex = aTimepoints[i][1]
+		
+		# Skip boundaries (NULL index)
+		if nIndex = NULL
+			loop
+		ok
+		
+		cDateTime = aTimepoints[i][2]
+		nPos = _timeToPosition(cDateTime)
+		
+		# Find if this position already has indices
+		nGroupPos = 0
+		nLenGroups = len(aPositionGroups)
+		for j = 1 to nLenGroups
+			if aPositionGroups[j][1] = nPos
+				nGroupPos = j
+				exit
+			ok
+		next
+		
+		if nGroupPos = 0
+			# New position
+			aPositionGroups + [nPos, [nIndex]]
+		else
+			# Add to existing position
+			aPositionGroups[nGroupPos][2] + nIndex
+		ok
+	next
+	
+	# Draw grouped numbers
+	nLenGroups = len(aPositionGroups)
+	for i = 1 to nLenGroups
+		nPos = aPositionGroups[i][1]
+		aIndices = aPositionGroups[i][2]
+		
+		# Build number string
+		cNum = ""
+		nLenIndices = len(aIndices)
+		
+		if nLenIndices = 1
+			cNum = "" + aIndices[1]
+		else
+			# Multiple indices at same position: show as "1-2-3"
+			for j = 1 to nLenIndices
+				if j > 1
+					cNum += "-"
 				ok
+				cNum += "" + aIndices[j]
 			next
 		ok
-
-
-	def _drawSpans(oLayout, aTimepoints)
-		nAxisRow = oLayout[:axis_row]
 		
-		# Group span starts and ends
-		aSpanRanges = []
-		nLen = len(@aSpans)
-
-		for i = 1 to nLen
-			cName = @aSpans[i][1]
-			cStart = @aSpans[i][2]
-			cEnd = @aSpans[i][3]
-			
-			nStartPos = _timeToPosition(cStart)
-			nEndPos = _timeToPosition(cEnd)
-			
-			bHighlighted = (@cHighlight != NULL and @cHighlight = cName)
-			
-			aSpanRanges + [cName, nStartPos, nEndPos, bHighlighted]
-		next
+		nNumLen = len(cNum)
 		
-		# Draw spans with vertical offset
-		aRowUsed = []
-		for i = 1 to @nVizHeight
-			aRowUsed + []
-		next
+		# Center the number at position
+		nStartCol = max([1, nPos - floor(nNumLen / 2)])
+		_setVizString(nRow, nStartCol, cNum)
+	next
 
-		nLen = len(aSpanRanges)
-		for i = 1 to nLen
-			cName = aSpanRanges[i][1]
-			nStartPos = aSpanRanges[i][2]
-			nEndPos = aSpanRanges[i][3]
-			bHighlighted = aSpanRanges[i][4]
-			
-			nRow = _findAvailableRow(oLayout, nStartPos, nEndPos, aRowUsed)
-			_drawSpanBar(nRow, nStartPos, nEndPos, cName, bHighlighted)
-			
-			# Mark span boundaries on axis with dots
-			_setVizChar(nAxisRow, nStartPos, @cPointChar)
-			_setVizChar(nAxisRow, nEndPos, @cPointChar)
-		next
+	
+def _drawPoints(oLayout, aTimepoints)
+    nAxisRow = oLayout[:axis_row]
+    nLen = len(aTimepoints)
+
+    # First, draw regular points
+    for i = 1 to nLen
+        cType = aTimepoints[i][5]
+
+        # Skip boundaries - they're already drawn by _drawAxis
+        if cType = "boundary"
+            loop
+        ok
+
+        if cType = "point"
+            cDateTime = aTimepoints[i][2]
+            nPos = _timeToPosition(cDateTime)
+
+            bHighlighted = FALSE
+            if @cHighlight != NULL and aTimepoints[i][3] = @cHighlight
+                bHighlighted = TRUE
+            ok
+
+            cChar = iff(bHighlighted, @cHighlightChar, @cPointChar)
+            _setVizChar(nAxisRow, nPos, cChar)
+        ok
+    next
+
+    # Then, handle span highlighting and boundaries
+    nLenSpans = len(@aSpans)
+    for i = 1 to nLenSpans
+        nStartPos = _timeToPosition(@aSpans[i][2])
+        nEndPos = _timeToPosition(@aSpans[i][3])
+        
+        if @cHighlight != NULL and @aSpans[i][1] = @cHighlight
+            # Highlight axis between start and end
+            for j = nStartPos to nEndPos
+                _setVizChar(nAxisRow, j, @cHighlightChar)
+            next
+        ok
+        
+        # Always mark span boundaries with dots (override any highlighting)
+        _setVizChar(nAxisRow, nStartPos, @cPointChar)
+        _setVizChar(nAxisRow, nEndPos, @cPointChar)
+    next
+
+
+def _drawSpans(oLayout, aTimepoints)
+	nAxisRow = oLayout[:axis_row]
+	
+	# Group span starts and ends
+	aSpanRanges = []
+	nLen = len(@aSpans)
+
+	for i = 1 to nLen
+		cName = @aSpans[i][1]
+		cStart = @aSpans[i][2]
+		cEnd = @aSpans[i][3]
+		
+		nStartPos = _timeToPosition(cStart)
+		nEndPos = _timeToPosition(cEnd)
+		
+		bHighlighted = (@cHighlight != NULL and @cHighlight = cName)
+		
+		aSpanRanges + [cName, nStartPos, nEndPos, bHighlighted]
+	next
+	
+	# Draw spans with vertical offset
+	aRowUsed = []
+	for i = 1 to @nVizHeight
+		aRowUsed + []
+	next
+
+	nLen = len(aSpanRanges)
+	for i = 1 to nLen
+		cName = aSpanRanges[i][1]
+		nStartPos = aSpanRanges[i][2]
+		nEndPos = aSpanRanges[i][3]
+		bHighlighted = aSpanRanges[i][4]
+		
+		nRow = _findAvailableRow(oLayout, nStartPos, nEndPos, aRowUsed)
+		_drawSpanBar(nRow, nStartPos, nEndPos, cName, bHighlighted)
+	next
+	
+	# Mark ALL span boundaries on axis with dots (after drawing span bars)
+	for i = 1 to nLen
+		nStartPos = aSpanRanges[i][2]
+		nEndPos = aSpanRanges[i][3]
+		
+		_setVizChar(nAxisRow, nStartPos, @cPointChar)
+		_setVizChar(nAxisRow, nEndPos, @cPointChar)
+	next
+
 
 	def _findAvailableRow(oLayout, nStartPos, nEndPos, aRowUsed)
 		nAxisRow = oLayout[:axis_row]
@@ -1830,26 +1929,30 @@ def _drawAxis(oLayout)
 		next
 		
 		return cResult
-	
-	def _buildTimepointsTable(aTimepoints)
-		# Build table data as nested array
-		aTableData = [
-			[:NO, :TIMEPOINT, :LABEL, :DESCRIPTION]
-		]
 
-		nLen = len(aTimepoints)
-		for i = 1 to nLen
-			nIndex = aTimepoints[i][1]
-			cDateTime = aTimepoints[i][2]
-			cLabel = aTimepoints[i][3]
-			cDesc = aTimepoints[i][4]
-			
-			aTableData + ["" + nIndex, cDateTime, cLabel, cDesc]
-		next
+def _buildTimepointsTable(aTimepoints)
+	aTableData = [
+		[:NO, :TIMEPOINT, :LABEL, :DESCRIPTION]
+	]
+
+	nLen = len(aTimepoints)
+	for i = 1 to nLen
+		nIndex = aTimepoints[i][1]
+		cDateTime = aTimepoints[i][2]
+		cLabel = aTimepoints[i][3]
+		cDesc = aTimepoints[i][4]
 		
-		# Create and return table string
-		oTable = new stzTable(aTableData)
-		return oTable.ToString()
+		# Use empty string for NULL (boundaries)
+		cIndexStr = ""
+		if nIndex != NULL
+			cIndexStr = "" + nIndex
+		ok
+		
+		aTableData + [cIndexStr, cDateTime, cLabel, cDesc]
+	next
+	
+	oTable = new stzTable(aTableData)
+	return oTable.ToString()
 	
 	def _calculateRequiredVizHeight()
 	    # Calculate maximum span overlap depth
@@ -1898,20 +2001,18 @@ def _drawAxis(oLayout)
 	    aStats + ["Total Spans", This.CountSpans()]
 	    
 	    # Timeline duration
-	    if This.HasBoundaries()
-	        oDuration = This.DurationQ()
-	        if oDuration != ""
-	            aStats + ["Timeline Duration", oDuration.ToHuman()]
-	        ok
-	    ok
+	     oDuration = This.DurationQ()
+	     aStats + ["Timeline Duration", oDuration.ToHuman()]
 	    
 	    # Coverage calculation
-	    if This.HasBoundaries() and len(@aSpans) > 0
+	    nLenSpans = len(@aSpans)
+
+	    if nLenSpans > 0
 	        nTotalDuration = This.Duration()
 	        nCoveredDuration = 0
 	        
 	        # Sum all span durations (simplified - doesn't handle overlaps)
-	        nLen = len(@aSpans)
+	        nLen = nLenSpans
 	        for i = 1 to nLen
 	            nCoveredDuration += This.SpanDuration(@aSpans[i][1])
 	        next
@@ -1921,11 +2022,11 @@ def _drawAxis(oLayout)
 	    ok
 	    
 	    # Longest span
-	    if len(@aSpans) > 0
+	    if nLenSpans > 0
 	        nMaxDuration = 0
 	        cLongestSpan = ""
 	        
-	        nLen = len(@aSpans)
+	        nLen = nLenSpans
 	        for i = 1 to nLen
 	            nDuration = This.SpanDuration(@aSpans[i][1])
 	            if nDuration > nMaxDuration
@@ -1960,6 +2061,7 @@ def _drawAxis(oLayout)
 def _drawUncoveredRegions(oLayout, aUncovered)
     nAxisRow = oLayout[:axis_row]
     nLen = len(aUncovered)
+    nCanvasWidth = len(@acVizCanvas[1])
     
     # Collect span boundary positions to avoid
     aSpanPositions = []
@@ -1976,10 +2078,11 @@ def _drawUncoveredRegions(oLayout, aUncovered)
         nStartPos = _timeToPosition(cStart)
         nEndPos = _timeToPosition(cEnd)
         
-        # Draw / pattern, skip span boundaries
+        # Draw / pattern, skip span boundaries AND timeline boundaries
         for j = nStartPos to nEndPos
-            if find(aSpanPositions, j) = 0
-                _setVizChar(nAxisRow, j, "/")
+            # Skip position 1 (start boundary) and last 3 positions (end boundary + arrow)
+            if j != 1 and j < nCanvasWidth - 2 and find(aSpanPositions, j) = 0
+                _setVizChar(nAxisRow, j, @cUncoveredChar)
             ok
         next
     next
@@ -2000,18 +2103,33 @@ def _drawUncoveredRegions(oLayout, aUncovered)
 
 	def _normalizeDateTime(pDateTime)
 	    # Convert date-only input to full datetime by appending 00:00:00
-	    cDateTime = NULL
+	    cDateTime = ""
 	    
 	    if isString(pDateTime)
-	        cDateTime = pDateTime
+	        cDateTime = trim(pDateTime)
+		if cDateTime = ""
+			StzRaise("Invalid format! Empty strings are not allowed for datevalue!")
+		ok
+
 	    else
 	        cDateTime = new stzDateTime(pDateTime).ToString()
 	    ok
 	    
 	    # Check if date-only format (YYYY-MM-DD)
-	    if This._isDateOnly(cDateTime)
+	    if This._isTimeOnly(cDateTime)
+		StzRaise("Invalid format! Time specified without a date")
+
+	    but This._isDateOnly(cDateTime)
 	        cDateTime += " 00:00:00"
 	    ok
 	    
+	    # Ensure the string contains valide datetime processable by Qt
+
+	    try
+		new stzDateTime(cDateTime)
+	    catch
+		StzRaise("Invalid datetime format (" + cDateTime + ")!")
+	    done
+
 	    return cDateTime
 
