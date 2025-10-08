@@ -401,7 +401,7 @@ Output:
 
 ### Visualizing Uncovered Periods
 
-When you call `ShowUncovered()`, the timeline explicitly displays the gaps using a `/` pattern — giving an instant view of idle intervals.
+When you call `ShowUncovered()`, the timeline explicitly displays the gaps using a `/` pattern — giving an instant view of idle intervals. Let's see it by example.
 
 ```ring
 oTimeLine = new stzTimeLine(
@@ -412,26 +412,50 @@ oTimeLine = new stzTimeLine(
 oTimeLine {
 	AddSpan("BUSY", "2024-03-01 00:00:00", "2024-05-31 23:59:59")
 }
-
-oTimeLine.ShowUncovered()
+```
+Before visualizing the uncovered periods, let’s first retrieve them as data:
+```
+? oTimeLine.UncoveredPeriods()
 ```
 Output:
 ```
-
-          ╞═══BUSY════╡                              
- │////////●───────────●/////////////////////////////►
-          1           2                              
-
- ╭────┬─────────────────────┬───────┬───────────────────╮
- │ No │      Timepoint      │ Label │  Description      │
- ├────┼─────────────────────┼───────┼───────────────────┤
- │  1 │ 2024-03-01 00:00:00 │       │ Start Uncovered 1 │
- │  2 │ 2024-05-31 23:59:59 │       │ End Uncovered 1   │
- │ ...│ ...                 │ ...   │ ...               │
- ╰────┴─────────────────────┴───────┴───────────────────╯
+[
+	[
+		[ "start", "2024-01-01 00:00:00" ],
+		[ "end", "2024-03-01 00:00:00" ],
+	[
+		[ "start", "2024-05-31 23:59:59" ],
+		[ "end", "2024-12-31 23:59:59" ],
+		[ "duration", 18489600 ]
+	]
+]
+```
+This provides two periods, each defined by a start and end datetime, along with the duration in seconds. The duration can be easily converted into any time unit (days, months, years…) using a `stzDuration` object, for example:
+```ring
+? StzDurationQ(18489600).Days
+#--> 214
 ```
 
-This clear depiction helps you visually identify areas of inactivity or missing coverage.
+However, this information becomes even more intuitive when visualized on the timeline itself:
+```
+oTimeLine.ShowUncovered()
+#-->
+
+         ╞═══BUSY════╡                              
+|////////●───────────●///////////////////////////○─►
+         1           2                              
+╭────┬─────────────────────┬───────┬────────────────╮
+│ No │      Timepoint      │ Label │  Description   │
+├────┼─────────────────────┼───────┼────────────────┤
+│    │ 2024-01-01 00:00:00 │       │ Timeline start │
+│  1 │ 2024-03-01 00:00:00 │ BUSY  │ Start of BUSY  │
+│  2 │ 2024-05-31 23:59:59 │ BUSY  │ End of BUSY    │
+│    │ 2024-12-31 23:59:59 │       │ Timeline end   │
+╰────┴─────────────────────┴───────┴────────────────╯
+```
+
+This clear visualization makes it easy to identify periods of inactivity or gaps in coverage at a glance.
+
 
 ### Dynamic Height Adjustment
 

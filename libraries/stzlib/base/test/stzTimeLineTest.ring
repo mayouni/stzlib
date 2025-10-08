@@ -20,9 +20,6 @@ oTimeLine {
 	? End_()
 	#--> 2024-12-31 23:59:59
 
-	? HasBoundaries()
-	#--> TRUE
-
 	? Duration()
 	#--> 31622399 (seconds)
 
@@ -32,41 +29,6 @@ oTimeLine {
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Creating timeline without boundaries
-
-pr()
-
-oTimeLine = new stzTimeLine(
-	:Start = NULL,
-	:End = NULL
-)
-
-? oTimeLine.HasBoundaries()
-#--> FALSE
-
-? oTimeLine.Duration()
-#--> ""
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-/*--- Setting boundaries after creation
-
-pr()
-
-oTimeLine = new stzTimeLine(NULL, NULL)
-
-oTimeLine.SetStart("2024-06-01 00:00:00")
-oTimeLine.SetEnd("2024-06-30 23:59:59")
-
-? oTimeLine.HasBoundaries()
-#--> TRUE
-
-? oTimeLine.Start()
-#--> 2024-06-01 00:00:00
-
-pf()
 
 /*--- Creating timeline onject with a date containing no time
 
@@ -91,6 +53,18 @@ pr()
 
 o1 = new stzTimeLine("2024-10-10 12:10:10", "18:59:59")
 #--> ERROR: Invalid input in pEnd! Time specified without a date.
+
+pf()
+
+/*---
+
+pr()
+
+oTimeLine = new stzTimeLine(
+	:Start = "",
+	:End = ""
+)
+#--> ERROR: Can't create the stzTimeLine object! pStart must not be empty!
 
 pf()
 
@@ -150,6 +124,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Adding points with Q() chaining
+
 pr()
 
 oTimeLine = new stzTimeLine(
@@ -186,11 +161,23 @@ oTimeLine {
 	])
 }
 
-oTimeLine.ShowShort()
+oTimeLine.Show()
 #-->
-#         EVENT1  EVENT1       EVENT1                 
-#│──────────●───────●────────────●────────────────────►
-#           1       2            3           
+'
+        EVENT1  EVENT1       EVENT1                 
+|──────────●───────●────────────●────────────────○─►
+           1       2            3                 
+
+╭────┬─────────────────────┬────────┬────────────────╮
+│ No │      Timepoint      │ Label  │  Description   │
+├────┼─────────────────────┼────────┼────────────────┤
+│    │ 2024-01-01 00:00:00 │        │ Timeline start │
+│  1 │ 2024-03-15 10:00:00 │ EVENT1 │ EVENT1 event   │
+│  2 │ 2024-05-16 14:30:00 │ EVENT1 │ EVENT1 event   │
+│  3 │ 2024-08-17 09:00:00 │ EVENT1 │ EVENT1 event   │
+│    │ 2024-12-31 23:59:59 │        │ Timeline end   │
+╰────┴─────────────────────┴────────┴────────────────╯
+'
 
 ? oTimeLine.CountPoints()
 #--> 3
@@ -205,12 +192,19 @@ oTimeLine.RemovePoint("EVENT1")
 ? oTimeLine.HasPoint("EVENT2")
 #--> FALSE
 
-oTimeLine.ShowShort()
+oTimeLine.Show()
 #-->
-# │────────────────────────────────────────────────────►
+# |────────────────────────────────────────────────○─►
+#
+# ╭────┬─────────────────────┬───────┬────────────────╮
+# │ No │      Timepoint      │ Label │  Description   │
+# ├────┼─────────────────────┼───────┼────────────────┤
+# │    │ 2024-01-01 00:00:00 │       │ Timeline start │
+# │    │ 2024-12-31 23:59:59 │       │ Timeline end   │
+# ╰────┴─────────────────────┴───────┴────────────────╯
 
 pf()
-# Executed in 0.07 second(s) in Ring 1.24
+# Executed in 0.09 second(s) in Ring 1.24
 
 /*--- Alternative names for points (Moments)
 
@@ -299,13 +293,13 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Removing spans
-*
+
 pr()
 
 oTimeLine = new stzTimeLine(
 	:Start = "2024-01-01 00:00:00",
 	:End = "2024-12-31 23:59:59"
-])
+)
 
 oTimeLine {
 
@@ -401,7 +395,7 @@ oTimeLine {
 ? @@( oTimeLine.PointsBetween("2024-02-01 00:00:00", "2024-03-31 23:59:59") )
 #--> ["FEB_EVENT", "MAR_EVENT"]
 
-# More expressive (Moment alterbative and named parameter syntax, looks like poetry;)
+# More expressive (Moment alternative and named parameter syntax, looks like poetry;)
 ? oTimeLine.MomentsBetween("2024-02-01 00:00:00", :And = "2024-03-31 23:59:59")
 #--> ["FEB_EVENT", "MAR_EVENT"]
 
@@ -413,8 +407,8 @@ pf()
 pr()
 
 oTimeLine = new stzTimeLine(
-	:Start = "2024-01-01 00:00:00",
-	:End = "2024-12-31 23:59:59"
+	:From = "2024-01-01 00:00:00",
+	:To = "2024-12-31 23:59:59"
 )
 
 oTimeLine {
@@ -447,7 +441,7 @@ oTimeLine {
 	? @@( SpansOverlapping("2024-03-15 12:00:00") )
 	#--> [ "PROJECT_A", "PROJECT_B" ]
 
-	? @@( SpansContaining("2024-07-15 12:00:00") )
+	? @@( SpansContaining("2024-07-15 12:00:00") ) + NL
 	#--> [ "PROJECT_C" ]
 
 }
@@ -455,25 +449,27 @@ oTimeLine {
 oTimeLine.Show()
 #-->
 '
-         ╞═PROJECT_B═╡                              
+         ╞═PROJECT_B═╡                            
      ╞═PROJECT_A═╡   ╞═PROJECT_C══╡                 
-│────●───●───────●───●────────────●──────────────────►
-     1   2       3   5            6                 
+│────●───●───────●───●────────────●─────────────────○─►
+     1   2       3  4-5           6                 
 
 ╭────┬─────────────────────┬───────────┬────────────────────╮
 │ No │      Timepoint      │   Label   │    Description     │
 ├────┼─────────────────────┼───────────┼────────────────────┤
+│    │ 2024-01-01 00:00:00 │           │ Timeline start     │
 │  1 │ 2024-02-01 00:00:00 │ PROJECT_A │ Start of PROJECT_A │
 │  2 │ 2024-03-01 00:00:00 │ PROJECT_B │ Start of PROJECT_B │
 │  3 │ 2024-04-30 23:59:59 │ PROJECT_A │ End of PROJECT_A   │
 │  4 │ 2024-05-31 23:59:59 │ PROJECT_B │ End of PROJECT_B   │
 │  5 │ 2024-06-01 00:00:00 │ PROJECT_C │ Start of PROJECT_C │
 │  6 │ 2024-08-31 23:59:59 │ PROJECT_C │ End of PROJECT_C   │
+│    │ 2024-12-31 23:59:59 │           │ Timeline end       │
 ╰────┴─────────────────────┴───────────┴────────────────────╯
 '
 
 pf()
-# Executed in 0.08 second(s) in Ring 1.24
+# Executed in 0.17 second(s) in Ring 1.24
 
 #-----------------------#
 #  Overlap Detection    #
@@ -496,12 +492,12 @@ oTimeLine {
 ? oTimeLine.HasOverlaps()
 #--> TRUE
 
-oTimeLine.Show()
+oTimeLine.ShowShort()
 #-->
 '
         ╞══SPAN_B═══╡                              
      ╞══SPAN_A═══╡                                  
-│────●───●───────●───●───────────────────────────────►
+│────●───●───────●───●─────────────────────────────○─►
      1   2       3   4                              
 '
 
@@ -528,7 +524,7 @@ oTimeLine {
 # Duration shows overlap in seconds
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Timeline without overlaps
 
@@ -549,18 +545,45 @@ oTimeLine {
 #--> FALSE
 
 ? @@(oTimeLine.OverlappingSpans())
-#--> []
+#--> [ ]
 
 oTimeLine.Show()
 #-->
 '
              ╞════Q2═════╡                          
 ╞═════Q1═════╡           ╞═════Q3═════╡             
-●────────────●───────────●────────────●──────────────►
-1            3           5            6             
+●────────────●───────────●────────────●────────────○─►
+1           2-3         4-5           6             
+
+╭────┬─────────────────────┬───────┬────────────────╮
+│ No │      Timepoint      │ Label │  Description   │
+├────┼─────────────────────┼───────┼────────────────┤
+│    │ 2024-01-01 00:00:00 │       │ Timeline start │
+│  1 │ 2024-01-01 00:00:00 │ Q1    │ Start of Q1    │
+│  2 │ 2024-03-31 23:59:59 │ Q1    │ End of Q1      │
+│  3 │ 2024-04-01 00:00:00 │ Q2    │ Start of Q2    │
+│  4 │ 2024-06-30 23:59:59 │ Q2    │ End of Q2      │
+│  5 │ 2024-07-01 00:00:00 │ Q3    │ Start of Q3    │
+│  6 │ 2024-09-30 23:59:59 │ Q3    │ End of Q3      │
+│    │ 2024-12-31 23:59:59 │       │ Timeline end   │
+╰────┴─────────────────────┴───────┴────────────────╯
 '
 
+# NOTE: As you can see, the start of the timeline — usually marked with "|" — 
+# is now displayed as "●" because it coincides with the beginning of the Q1 span.  
+#
+# Both the start of the timeline and the start of Q1 share the same datetime in the table.  
+# However, the start of the timeline has no numeric order, since, like the end of the timeline, 
+# it simply acts as a boundary marker rather than a data point.  
+#
+# The start or end of a timeline may appear as "●" only when a defined point or span 
+# (added via `AddPoint()` or `AddSpan()`) starts or ends exactly at those boundaries.  
+#
+# When the end of the timeline has no explicitly defined event, it is still worth noting — 
+# it usually represents an *implicit milestone* of the timeline, illustrated by the symbol "○─►".
+
 pf()
+# Executed in 0.15 second(s) in Ring 1.24
 
 #------------------#
 #  Gap Analysis    #
@@ -587,16 +610,28 @@ oTimeLine {
 #     [:After = "PHASE2", :Before = "PHASE3", :Duration = 1296000]
 # ]
 
-oTimeLine.Show()
+oTimeLine.ShowShort()
 #-->
 '
 ╞PHASE1╡ ╞═════╡ ╞PHASE3═╡                          
-●──────●─●─────●─●───────●───────────────────────────►
+●──────●─●─────●─●───────●─────────────────────────○─►
 1      2 3     4 5       6                          
 '
 
 pf()
-# Executed in 0.10 second(s) in Ring 1.24
+# Executed in 0.08 second(s) in Ring 1.24
+
+/*---
+
+pr()
+
+StzDurationQ(18489600) {
+	? Days() 	#--> 214
+	? ToHuman() 	#--> "214 days"
+}
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Finding uncovered periods in timeline
 
@@ -609,6 +644,8 @@ oTimeLine = new stzTimeLine(
 
 oTimeLine {
 	AddSpan("BUSY", "2024-03-01 00:00:00", "2024-05-31 23:59:59")
+	AddSpan("BUSY", "2024-04-01 00:00:00", "2024-06-30 23:59:59")
+	AddSpan("BUSY", "2024-08-01 00:00:00", "2024-08-30 23:59:59")
 }
 
 ? @@NL( oTimeLine.UncoveredPeriods() )
@@ -619,28 +656,39 @@ oTimeLine {
 #		[ "duration", 5184000 ]
 #	],
 #	[
-#		[ "start", "2024-05-31 23:59:59" ],
+#		[ "start", "2024-06-30 23:59:59" ],
+#		[ "end", "2024-08-01 00:00:00" ],
+#		[ "duration", 2678401 ]
+#	],
+#	[
+#		[ "start", "2024-08-30 23:59:59" ],
 #		[ "end", "2024-12-31 23:59:59" ],
-#		[ "duration", 18489600 ]
+#		[ "duration", 10627200 ]
 #	]
 # ]
 
-oTimeLine.ShowUncovered() #TODO // Visalise uncovered spans like this
+oTimeLine.ShowUncovered()
 #-->
-#          ╞═══BUSY════╡                              
-# │////////●───────────●/////////////////////////////►
-#          1           2                              
+#              ╞═══BUSY════╡                          
+#          ╞═══BUSY════╡        ╞═══╡                 
+# |////////●───●───────●───●////●───●//////////////○─►
+#          1   2       3   4    5   6                 
 # 
-# ╭────┬─────────────────────┬───────┬───────────────────╮
-# │ No │      Timepoint      │ Label │  Description      │
-# ├────┼─────────────────────┼───────┼───────────────────┤
-# │  1 │ 2024-03-01 00:00:00 │       │ Start Uncovered 1 │
-# │  2 │ 2024-05-31 23:59:59 │       │ End Uncovered 1   │
-# │ ...│ ...                 │ ...   │ ...               │
-# ╰────┴─────────────────────┴───────┴───────────────────╯
+# ╭────┬─────────────────────┬───────┬────────────────╮
+# │ No │      Timepoint      │ Label │  Description   │
+# ├────┼─────────────────────┼───────┼────────────────┤
+# │    │ 2024-01-01 00:00:00 │       │ Timeline start │
+# │  1 │ 2024-03-01 00:00:00 │ BUSY  │ Start of BUSY  │
+# │  2 │ 2024-04-01 00:00:00 │ BUSY  │ Start of BUSY  │
+# │  3 │ 2024-05-31 23:59:59 │ BUSY  │ End of BUSY    │
+# │  4 │ 2024-06-30 23:59:59 │ BUSY  │ End of BUSY    │
+# │  5 │ 2024-08-01 00:00:00 │ BUSY  │ Start of BUSY  │
+# │  6 │ 2024-08-30 23:59:59 │ BUSY  │ End of BUSY    │
+# │    │ 2024-12-31 23:59:59 │       │ Timeline end   │
+# ╰────┴─────────────────────┴───────┴────────────────╯
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.24
+# Executed in 0.07 second(s) in Ring 1.24
 
 #---------------------------#
 #  Distance Calculations    #
@@ -744,7 +792,7 @@ oTimeLine {
 # ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Sorted spans
 
@@ -769,7 +817,7 @@ oTimeLine {
 # ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.03 second(s) in Ring 1.24
 
 /*--- Timeline summary
 
@@ -808,7 +856,7 @@ oTimeLine {
 # ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Copying timeline
 
@@ -866,10 +914,6 @@ oTimeLine.Clear()
 ? oTimeLine.CountSpans()
 #--> 0
 
-# Boundaries remain
-? oTimeLine.HasBoundaries()
-#--> TRUE
-
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
@@ -896,20 +940,21 @@ oTimeLine {
 
 oTimeLine.Show()
 #-->
-#                                                     
+#                                                    
 #       KICKOFF    ╞════PREP════╡        CLOSING      
-# │────────●───────●────────────●───────────●──────────►
+# |────────●───────●────────────●───────────●──────○─►
 #          1       2            3           4         
 # 
-# ╭────┬─────────────────────┬─────────┬───────────────╮
-# │ No │      Timepoint      │  Label  │  Description  │
-# ├────┼─────────────────────┼─────────┼───────────────┤
-# │  1 │ 2024-03-01 00:00:00 │ KICKOFF │ KICKOFF event │
-# │  2 │ 2024-05-01 00:00:00 │ PREP    │ Start of PREP │
-# │  3 │ 2024-08-01 00:00:00 │ PREP    │ End of PREP   │
-# │  4 │ 2024-11-01 00:00:00 │ CLOSING │ CLOSING event │
-# ╰────┴─────────────────────┴─────────┴───────────────╯
-
+# ╭────┬─────────────────────┬─────────┬────────────────╮
+# │ No │      Timepoint      │  Label  │  Description   │
+# ├────┼─────────────────────┼─────────┼────────────────┤
+# │    │ 2024-01-01 00:00:00 │         │ Timeline start │
+# │  1 │ 2024-03-01 00:00:00 │ KICKOFF │ KICKOFF event  │
+# │  2 │ 2024-05-01 00:00:00 │ PREP    │ Start of PREP  │
+# │  3 │ 2024-08-01 00:00:00 │ PREP    │ End of PREP    │
+# │  4 │ 2024-11-01 00:00:00 │ CLOSING │ CLOSING event  │
+# │    │ 2024-12-31 23:59:59 │         │ Timeline end   │
+# ╰────┴─────────────────────┴─────────┴────────────────╯
  
 # If you want to see the timeline without the table
 
@@ -917,7 +962,7 @@ oTimeLine.ShowShort() # Same as ShowXT([ :ShowTable = FALSE ])
 #-->
 #                                                     
 #       KICKOFF    ╞════PREP════╡        CLOSING      
-# │────────●───────●────────────●───────────●──────────►
+# │────────●───────●────────────●───────────●────────○─►
 #          1       2            3           4         
 
 # You can display a statistical legend instead of the norma table
@@ -926,7 +971,7 @@ oTimeLine.ShowXT([ :TableType = :Statistical ]) # VS :TableType = :Normal
 #-->
 #                                                     
 #       KICKOFF    ╞════PREP════╡        CLOSING      
-# │────────●───────●────────────●───────────●──────────►
+# │────────●───────●────────────●───────────●────────○─►
 #          1       2            3           4         
 # 
 # ╭────────────────────┬────────────────╮
@@ -955,11 +1000,13 @@ oTimeLine.ShowXT([ :TableType = :Statistical ]) # VS :TableType = :Normal
 #	[ "Overlapping Spans", 0 ]
 # ]
 
+#TODO: May it's better Stats() returns the values in number formats not in natural text...
+
 pf()
 # Executed in 0.12 second(s) in Ring 1.24
 
 /*--- Custom width display
-*
+
 pr()
 
 oTimeLine = new stzTimeLine(
@@ -976,8 +1023,8 @@ oTimeLine {
 ? oTimeLine.ToStringXT([ :Width = 30 ])
 #-->
 #       Q1     Q2     Q3        
-# │──────●──────●──────●─────────►
-#       1      2      3   
+# │──────●──────●──────●────────○─►
+#        1      2      3   
 #
 # ╭────┬─────────────────────┬───────┬─────────────╮
 # │ No │      Timepoint      │ Label │ Description │
@@ -988,7 +1035,7 @@ oTimeLine {
 # ╰────┴─────────────────────┴───────┴─────────────╯
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.24
+# Executed in 0.07 second(s) in Ring 1.24
 
 /*--- Finding and Highlighting specific element
 
@@ -1023,21 +1070,23 @@ oTimeLine {
 }
 #-->
 '
-    EVENT_1     EVENT_2      EVENT_3                
-│──────█───────────●────────────█────────────────────►
+    EVENT_1     EVENT_2      EVENT_1                
+│──────█───────────●────────────█───────────────────○─►
        1           2            3                   
 
-╭────┬─────────────────────┬─────────┬───────────────╮
-│ No │      Timepoint      │  Label  │  Description  │
-├────┼─────────────────────┼─────────┼───────────────┤
-│  1 │ 2024-02-15 10:00:00 │ EVENT_1 │ EVENT_1 event │
-│  2 │ 2024-05-15 10:00:00 │ EVENT_2 │ EVENT_2 event │
-│  3 │ 2024-08-15 10:00:00 │ EVENT_3 │ EVENT_3 event │
-╰────┴─────────────────────┴─────────┴───────────────╯
+╭────┬─────────────────────┬─────────┬────────────────╮
+│ No │      Timepoint      │  Label  │  Description   │
+├────┼─────────────────────┼─────────┼────────────────┤
+│    │ 2024-01-01 00:00:00 │         │ Timeline start │
+│  1 │ 2024-02-15 10:00:00 │ EVENT_1 │ EVENT_1 event  │
+│  2 │ 2024-05-15 10:00:00 │ EVENT_2 │ EVENT_2 event  │
+│  3 │ 2024-08-15 10:00:00 │ EVENT_1 │ EVENT_1 event  │
+│    │ 2024-12-31 23:59:59 │         │ Timeline end   │
+╰────┴─────────────────────┴─────────┴────────────────╯
 '
 
 pf()
-# Executed in 0.05 second(s) in Ring 1.24
+# Executed in 0.09 second(s) in Ring 1.24
 
 /*--- Highlighting spans
 
@@ -1054,30 +1103,32 @@ oTimeLine {
 	AddSpan("PHASE3", "2024-07-01 00:00:00", "2024-09-30 23:59:59")
 }
 
-? oTimeLine.VizFindSpan("PHASE2") #TODO Put the higlight on the axis not on the lable
+? oTimeLine.VizFindSpan("PHASE2")
 #-->
 '                                              
              ╞══PHASE2═══╡                          
 ╞═══PHASE1═══╡           ╞═══PHASE3═══╡             
-|────────────●███████████●────────────●──────────────►
+●────────────●███████████●────────────●──────────○─►
 1           2-3         4-5           6             
 
 ╭────┬─────────────────────┬────────┬─────────────────╮
 │ No │      Timepoint      │ Label  │   Description   │
 ├────┼─────────────────────┼────────┼─────────────────┤
+│    │ 2024-01-01 00:00:00 │        │ Timeline start  │
 │  1 │ 2024-01-01 00:00:00 │ PHASE1 │ Start of PHASE1 │
 │  2 │ 2024-03-31 23:59:59 │ PHASE1 │ End of PHASE1   │
 │  3 │ 2024-04-01 00:00:00 │ PHASE2 │ Start of PHASE2 │
 │  4 │ 2024-06-30 23:59:59 │ PHASE2 │ End of PHASE2   │
 │  5 │ 2024-07-01 00:00:00 │ PHASE3 │ Start of PHASE3 │
 │  6 │ 2024-09-30 23:59:59 │ PHASE3 │ End of PHASE3   │
+│    │ 2024-12-31 23:59:59 │        │ Timeline end    │
 ╰────┴─────────────────────┴────────┴─────────────────╯
 '
 
 pf()
-# Executed in 0.09 second(s) in Ring 1.24
+# Executed in 0.16 second(s) in Ring 1.24
 
-/*--- #NOTE Perios is an aliais of Span
+/*--- #NOTE Period is an alias of Span
 
 pr()
 
@@ -1116,26 +1167,27 @@ oTimeLine {
 }
 #-->
 '
-                                                    
              ╞══FAILURE══╡                          
 ╞══SUCCESS═══╡           ╞══SUCCESS═══╡             
-●████████████●───────────●████████████●──────────────►
-1            3           5            6             
+●████████████●───────────●████████████●──────────○─►
+1           2-3         4-5           6             
 
 ╭────┬─────────────────────┬─────────┬──────────────────╮
 │ No │      Timepoint      │  Label  │   Description    │
 ├────┼─────────────────────┼─────────┼──────────────────┤
+│    │ 2024-01-01 00:00:00 │         │ Timeline start   │
 │  1 │ 2024-01-01 00:00:00 │ SUCCESS │ Start of SUCCESS │
 │  2 │ 2024-03-31 23:59:59 │ SUCCESS │ End of SUCCESS   │
 │  3 │ 2024-04-01 00:00:00 │ FAILURE │ Start of FAILURE │
 │  4 │ 2024-06-30 23:59:59 │ FAILURE │ End of FAILURE   │
 │  5 │ 2024-07-01 00:00:00 │ SUCCESS │ Start of SUCCESS │
 │  6 │ 2024-09-30 23:59:59 │ SUCCESS │ End of SUCCESS   │
+│    │ 2024-12-31 23:59:59 │         │ Timeline end     │
 ╰────┴─────────────────────┴─────────┴──────────────────╯
 '
 
 pf()
-# Executed in 0.08 second(s) in Ring 1.24
+# Executed in 0.16 second(s) in Ring 1.24
 
 /*--- Complex timeline with overlapping spans
 
@@ -1158,16 +1210,16 @@ oTimeLine {
 oTimeLine.Show()
 #-->
 '
-                                                    
                      ╞═══PROJECT_C════╡             
              ╞═══PROJECT_B════╡                     
      ╞MILESTONE1_A═══╡     MILESTONE2               
-│────●─────●─●───────●────────●─●─────●──────────────►
-     1     2 3       5        6 7     8             
+|────●─────●─●───────●────────●─●─────●──────────○─►
+     1     2 3      4-5       6 7     8             
 
 ╭────┬─────────────────────┬────────────┬────────────────────╮
 │ No │      Timepoint      │   Label    │    Description     │
 ├────┼─────────────────────┼────────────┼────────────────────┤
+│    │ 2024-01-01 00:00:00 │            │ Timeline start     │
 │  1 │ 2024-02-01 00:00:00 │ PROJECT_A  │ Start of PROJECT_A │
 │  2 │ 2024-03-15 00:00:00 │ MILESTONE1 │ MILESTONE1 event   │
 │  3 │ 2024-04-01 00:00:00 │ PROJECT_B  │ Start of PROJECT_B │
@@ -1176,11 +1228,9 @@ oTimeLine.Show()
 │  6 │ 2024-07-31 23:59:59 │ PROJECT_B  │ End of PROJECT_B   │
 │  7 │ 2024-08-15 00:00:00 │ MILESTONE2 │ MILESTONE2 event   │
 │  8 │ 2024-09-30 23:59:59 │ PROJECT_C  │ End of PROJECT_C   │
+│    │ 2024-12-31 23:59:59 │            │ Timeline end       │
 ╰────┴─────────────────────┴────────────┴────────────────────╯
 '
-
-#TODO: Adjust the class attribute @nVizHeight = 5 automatically depending
-# on the actual number of levels required
 
 pf()
 # Executed in 0.11 second(s) in Ring 1.24
@@ -1198,15 +1248,10 @@ oTimeLine = new stzTimeLine(
 	:End = "2024-12-31 23:59:59"
 )
 
-try
-	oTimeLine.AddPoint("FUTURE", "2025-01-15 10:00:00")
-catch
-	? "Error: Point outside timeline boundaries"
-	#--> Error: Point outside timeline boundaries
-done
+oTimeLine.AddPoint("FUTURE", "2025-01-15 10:00:00")
+#--> ERROR: Point 'FUTURE' is outside timeline boundaries 
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Span outside boundaries (raises error)
 
@@ -1217,15 +1262,10 @@ oTimeLine = new stzTimeLine(
 	:End = "2024-12-31 23:59:59"
 )
 
-try
-	oTimeLine.AddSpan("OVERFLOW", "2024-11-01 00:00:00", "2025-02-28 23:59:59")
-catch
-	? "Error: Span outside timeline boundaries"
-	#--> Error: Span outside timeline boundaries
-done
+oTimeLine.AddSpan("OVERFLOW", "2024-11-01 00:00:00", "2025-02-28 23:59:59")
+#--> ERROR: Span 'OVERFLOW' is outside timeline boundaries 
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Invalid span (start >= end)
 
@@ -1263,23 +1303,37 @@ oTimeLine.AddSpan("SPAN3", "2024-05-01", "2024-12-31")
                  ╞═════════════SPAN3══════════════╡ 
          ╞═══════════SPAN2════════════╡             
 ╞═════════SPAN1══════════╡                          
-●────────●───────●───────●────────────●───────────●──►
+●────────●───────●───────●────────────●───────────●○─►
 1        2       3       4            5           6 
 
-╭────┬────────────┬───────┬────────────────╮
-│ No │ Timepoint  │ Label │  Description   │
-├────┼────────────┼───────┼────────────────┤
-│  1 │ 2024-01-01 │ SPAN1 │ Start of SPAN1 │
-│  2 │ 2024-03-01 │ SPAN2 │ Start of SPAN2 │
-│  3 │ 2024-05-01 │ SPAN3 │ Start of SPAN3 │
-│  4 │ 2024-06-30 │ SPAN1 │ End of SPAN1   │
-│  5 │ 2024-09-30 │ SPAN2 │ End of SPAN2   │
-│  6 │ 2024-12-31 │ SPAN3 │ End of SPAN3   │
-╰────┴────────────┴───────┴────────────────╯
+╭────┬─────────────────────┬───────┬────────────────╮
+│ No │      Timepoint      │ Label │  Description   │
+├────┼─────────────────────┼───────┼────────────────┤
+│    │ 2024-01-01 00:00:00 │       │ Timeline start │
+│  1 │ 2024-01-01 00:00:00 │ SPAN1 │ Start of SPAN1 │
+│  2 │ 2024-03-01 00:00:00 │ SPAN2 │ Start of SPAN2 │
+│  3 │ 2024-05-01 00:00:00 │ SPAN3 │ Start of SPAN3 │
+│  4 │ 2024-06-30 00:00:00 │ SPAN1 │ End of SPAN1   │
+│  5 │ 2024-09-30 00:00:00 │ SPAN2 │ End of SPAN2   │
+│  6 │ 2024-12-31 00:00:00 │ SPAN3 │ End of SPAN3   │
+│    │ 2024-12-31 23:59:59 │       │ Timeline end   │
+╰────┴─────────────────────┴───────┴────────────────╯
 '
 
 pf()
 # Executed in 0.09 second(s) in Ring 1.24
+
+/*---
+
+pr()
+
+oTimeLine = new stzTimeLine(
+	:Start = "2024-01-01 00:00:00",
+	:End = "2024-12-32 23:59:59"
+)
+#--> ERROR: Invalid datetime format (2024-12-32 23:59:59)!
+
+pf()
 
 /*---
 
@@ -1299,9 +1353,10 @@ o1.AddPoint("ONE", "2024-03-12")
 #--> [ [ "ONE", "2024-03-12 00:00:00" ] ]
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*---
-*/
+
 pr()
 
 o1 = new stzTimeLine(
@@ -1317,15 +1372,62 @@ o1 {
 
 	AddSpan("Phase1", "2024-03-15 00:00:00", "2024-03-18 10:00:00")
 
-	? @@(WhatsAt("2024-03-15 10:00:00")) + NL
-	#--> [ [ "One", "point" ], [ "Two", "point" ], [ "Three", "point" ] ]
+	? @@NL(WhatsAt("2024-03-15 10:00:00")) + NL
+	#--> [
+	# [
+	# 	[ "One", "point" ],
+	# 	[ "Two", "point" ],
+	# 	[ "Three", "point" ],
+	# 	[ "Phase1", "span" ]
+	# ]
 
-	? @@(WhatsAt("2024-03-15")) + NL         # Date only: all events on that date
-	? @@(WhatsAt("10:00:00") )            # Time only: all events at that time
+	? @@NL(WhatsAt("2024-03-15")) + NL         # Date only: all events on that date
+	#--> [
+	# 	[ "One", "point" ],
+	# 	[ "Two", "point" ],
+	# 	[ "Three", "point" ],
+	# 	[ "Phase1", "span" ]
+	# ]
 
-	? @@(PointNamesXT())                 # [["EVENT1", 3], ["EVENT2", 1]]
+	? @@NL(WhatsAt("10:00:00") )            # Time only: all events at that time
+	#--> [
+	# 	[ "One", "point" ],
+	# 	[ "Two", "point" ],
+	# 	[ "Three", "point" ],
+	# 	[ "Phase1", "span" ]
+	# ]
+
+	? @@NL(PointNamesXT()) + NL           # [["EVENT1", 3], ["EVENT2", 1]]
+	#--> [
+	# 	[ "One", 1 ],
+	# 	[ "Two", 1 ],
+	# 	[ "Three", 1 ]
+	# ]
 
 	? @@(WhatsBetween("2024-03-12", "2024-03-18"))
+	#--> [ "One", "Two", "Three" ]
+
 }
+
+pf()
+# Executed in 0.05 second(s) in Ring 1.24
+
+/*---
+
+pr()
+o1 = new stzTimeLine(
+	:Start = "2024-03-01 00:00:00",
+	:End   = "2024-03-30 00:00:00"
+)
+
+o1 {
+
+	AddMoment("One", "2024-03-15 10:00:00")
+	AddMoment("Two", "2024-03-15 10:00:00")
+	AddMoment("Three", "2024-03-15 10:00:00")
+
+	AddSpan("Phase1", "2024-03-15 00:00:00", "2024-03-18 10:00:00")
+
+	Show()
 
 pf()
