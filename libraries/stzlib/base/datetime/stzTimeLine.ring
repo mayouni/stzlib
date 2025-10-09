@@ -417,6 +417,7 @@ class stzTimeLine from stzObject
 			return This.HasMoment(pcLabelOrDateTime)
 
 	# Removing points
+	#TODO // Add Removing all the items with a given label
 
 	def RemovePoint(pcLabelOrDateTime)
 		aPos = This.FindPointXT(pcLabelOrDateTime)
@@ -434,6 +435,63 @@ class stzTimeLine from stzObject
 			def RemoveMomentQ(pcLabelOrDateTime)
 				return This.RemovePointQ(pcLabelOrDateTime)
 
+	# Renaming labels
+
+	def RenameLabel(pcLabel, pcNewLabel)
+		This.RenamePointLabel(pcLabel, pcNewLabel)
+		This.RenameSpanLabel(pcLabel, pcNewLabel)
+	
+	def RenamePointLabel(pcLabel, pcNewLabel)
+	
+		if CheckParams()
+			if isList(pcNewLabel) and StzListQ(pcNewLabel).IsWithOrByOrUsingNamedParam()
+				pcNewLabel = pcNewLabel[2]
+			ok
+		ok
+
+		if NOT isString(pcLabel)
+			StzRaise("Incorrect param type! pcLabel must be a string.")
+		ok
+		if NOT isString(pcNewLabel)
+			StzRaise("Incorrect param type! pcNewLabel must be a string.")
+		ok
+	
+		pcLabel = upper(pcLabel)
+		pcNewLabel = upper(pcNewLabel)
+	
+		nLen = len(@aPoints)
+	
+		for i = 1 to nLen
+			if @aPoints[i][1] = pcLabel
+				@aPoints[i][1] = pcNewLabel
+			ok
+		next
+	
+	def RenameSpanLabel(pcLabel, pcNewLabel)
+	
+		if CheckParams()
+			if isList(pcNewLabel) and StzListQ(pcNewLabel).IsWithOrByOrUsingNamedParam()
+				pcNewLabel = pcNewLabel[2]
+			ok
+		ok
+
+		if NOT isString(pcLabel)
+			StzRaise("Incorrect param type! pcLabel must be a string.")
+		ok
+		if NOT isString(pcNewLabel)
+			StzRaise("Incorrect param type! pcNewLabel must be a string.")
+		ok
+	
+		pcLabel = upper(pcLabel)
+		pcNewLabel = upper(pcNewLabel)
+	
+		nLen = len(@aSpans)
+	
+		for i = 1 to nLen
+			if @aSpans[i][1] = pcLabel
+				@aSpans[i][1] = pcNewLabel
+			ok
+		next
 
 	# How many points
 
@@ -481,7 +539,7 @@ class stzTimeLine from stzObject
 			raise("Span '" + pcLabel + "' is outside timeline boundaries")
 		ok
 	
-		if This.IsRangeBlocked(cStart, cEnd)
+		if This.IsSectionBlocked(cStart, cEnd)
 			raise("Span '" + pcLabel + "' overlaps with a blocked span")
 		ok
 	
@@ -1510,8 +1568,8 @@ def IsPointBlocked(pDateTime)
 	return FALSE
 
 def IsBlocked(pDateTime)
-	if isList(pDatetime) and len(pDateTime) = 2
-		return This.IsRangeBlocked(pDateTime[1], pDateTime[2])
+	if isList(pDateTime) and len(pDateTime) = 2
+		return This.IsSectionBlocked(pDateTime[1], pDateTime[2])
 	ok
 
 	# Check both blocked points and blocked spans
@@ -1538,7 +1596,7 @@ def IsBlocked(pDateTime)
 
 	return FALSE
 
-def IsRangeBlocked(pStart, pEnd)
+def IsSectionBlocked(pStart, pEnd)
 	if isString(pStart)
 		cStart = pStart
 	else
@@ -1573,6 +1631,9 @@ def IsRangeBlocked(pStart, pEnd)
 	next
 
 	return FALSE
+
+	def IsBlockedSection(pStart, pEnd)
+		return This.IsSectionBlocked(pStart, pEnd)
 
 #---
 

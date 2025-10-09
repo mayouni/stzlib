@@ -370,7 +370,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*---
-*/
+
 pr()
 
 o1 = new stzDate("10/12/2024")
@@ -386,3 +386,28 @@ o1 = new stzDate("10/12/2024")
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
+
+/*=== Julian day
+
+/*--- Convert current date to Julian day number
+
+pr()
+
+o1 = new stzDate("")
+? o1.ToJulianDay()
+#--> 2460958
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Create a date from a Julian day number
+*/
+pr()
+
+o1 = new stzDate("")
+o1.FromJulianDay(2460570)
+? o1.Content()
+#--> 16/09/2024	(the corresponding Gregorian date)
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
