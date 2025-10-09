@@ -1400,29 +1400,29 @@ class stzTimeLine from stzObject
 	def ShowShort()
 		? This.ToStringShort()
 	
-def ToStringShort()
-
-    # Collect timepoints
-    aTimepoints = _collectAllTimepoints()
-
-    # Calculate layout
-    oLayout = _calculateVizLayout()
-    if oLayout = NULL
-        return "Cannot display timeline"
-    ok
-
-    # Initialize canvas
-    _initVizCanvas(@nVizWidth, oLayout[:total_height])
-
-    # Draw visual elements
-    _drawAxis(oLayout)
-    _drawSpans(oLayout, aTimepoints)
-    _drawPoints(oLayout, aTimepoints)
-    _drawLabels(oLayout, aTimepoints)
-    _drawNumbers(oLayout, aTimepoints)
-
-    # Return only canvas (no table)
-    return _vizCanvasToString()
+	def ToStringShort()
+	
+	    # Collect timepoints
+	    aTimepoints = _collectAllTimepoints()
+	
+	    # Calculate layout
+	    oLayout = _calculateVizLayout()
+	    if oLayout = NULL
+	        return "Cannot display timeline"
+	    ok
+	
+	    # Initialize canvas
+	    _initVizCanvas(@nVizWidth, oLayout[:total_height])
+	
+	    # Draw visual elements
+	    _drawAxis(oLayout)
+	    _drawSpans(oLayout, aTimepoints)
+	    _drawPoints(oLayout, aTimepoints)
+	    _drawLabels(oLayout, aTimepoints)
+	    _drawNumbers(oLayout, aTimepoints)
+	
+	    # Return only canvas (no table)
+	    return _vizCanvasToString()
 
 
 	# Highlight Visualization Methods
@@ -1498,47 +1498,47 @@ def ToStringShort()
 	    
 	    return cViz + nl + nl + cTable
 
-	#----------------------------#
+	#-------------------------------------#
 	#  MANAGING BLOCKED POINTS AND SPANS  #
-	#----------------------------#
+	#-------------------------------------#
 
-def AddBlockedPoint(pDateTime)
-	cPoint = This._normalizeDateTime(pDateTime)
-	oPoint = new stzDateTime(cPoint)
-	oStart = This.StartQ()
-	oEnd = This.EndQ()
+	def AddBlockedPoint(pDateTime)
+		cPoint = This._normalizeDateTime(pDateTime)
+		oPoint = new stzDateTime(cPoint)
+		oStart = This.StartQ()
+		oEnd = This.EndQ()
+	
+		if oPoint < oStart or oPoint > oEnd
+			raise("Blocked point is outside timeline boundaries")
+		ok
+	
+		if find(@aBlockedPoints, cPoint) = 0
+			@aBlockedPoints + cPoint
+		ok
+	
+		def AddBlockedPointQ(pDateTime)
+			This.AddBlockedPoint(pDateTime)
+			return This
+	
+	def AddBlockedPoints(paDateTimes)
+		nLen = len(paDateTimes)
+		for i = 1 to nLen
+			This.AddBlockedPoint(paDateTimes[i])
+		next
 
-	if oPoint < oStart or oPoint > oEnd
-		raise("Blocked point is outside timeline boundaries")
-	ok
+	def RemoveBlockedPoint(pDateTime)
+		cPoint = This._normalizeDateTime(pDateTime)
+		nPos = find(@aBlockedPoints, cPoint)
+		if nPos > 0
+			del(@aBlockedPoints, nPos)
+		ok
 
-	if find(@aBlockedPoints, cPoint) = 0
-		@aBlockedPoints + cPoint
-	ok
+		def RemoveBlockedPointQ(pDateTime)
+			This.RemoveBlockedPoint(pDateTime)
+			return This
 
-	def AddBlockedPointQ(pDateTime)
-		This.AddBlockedPoint(pDateTime)
-		return This
-
-def AddBlockedPoints(paDateTimes)
-	nLen = len(paDateTimes)
-	for i = 1 to nLen
-		This.AddBlockedPoint(paDateTimes[i])
-	next
-
-def RemoveBlockedPoint(pDateTime)
-	cPoint = This._normalizeDateTime(pDateTime)
-	nPos = find(@aBlockedPoints, cPoint)
-	if nPos > 0
-		del(@aBlockedPoints, nPos)
-	ok
-
-	def RemoveBlockedPointQ(pDateTime)
-		This.RemoveBlockedPoint(pDateTime)
-		return This
-
-def BlockedPoints()
-	return @aBlockedPoints
+	def BlockedPoints()
+		return @aBlockedPoints
 
 	def BlockedPointsQ()
 		aResult = []
@@ -1548,160 +1548,160 @@ def BlockedPoints()
 		next
 		return aResult
 
-def IsPointBlocked(pDateTime)
-	if isString(pDateTime)
-		cDateTime = pDateTime
-	else
-		cDateTime = StzDateTimeQ(pDateTime).ToString()
-	ok
-
-	oDateTime = new stzDateTime(cDateTime)
-	nLen = len(@aBlockedPoints)
-
-	for i = 1 to nLen
-		oBlocked = new stzDateTime(@aBlockedPoints[i])
-		if oDateTime.IsEqualTo(oBlocked)
-			return TRUE
+	def IsPointBlocked(pDateTime)
+		if isString(pDateTime)
+			cDateTime = pDateTime
+		else
+			cDateTime = StzDateTimeQ(pDateTime).ToString()
 		ok
-	next
-
-	return FALSE
-
-def IsBlocked(pDateTime)
-	if isList(pDateTime) and len(pDateTime) = 2
-		return This.IsSectionBlocked(pDateTime[1], pDateTime[2])
-	ok
-
-	# Check both blocked points and blocked spans
-	if This.IsPointBlocked(pDateTime)
-		return TRUE
-	ok
-
-	if isString(pDateTime)
-		cDateTime = pDateTime
-	else
-		cDateTime = StzDateTimeQ(pDateTime).ToString()
-	ok
-
-	oDateTime = new stzDateTime(cDateTime)
-	nLen = len(@aBlockedSpans)
-
-	for i = 1 to nLen
-		oStart = new stzDateTime(@aBlockedSpans[i][2])
-		oEnd = new stzDateTime(@aBlockedSpans[i][3])
-		if oDateTime >= oStart and oDateTime <= oEnd
-			return TRUE
-		ok
-	next
-
-	return FALSE
-
-def IsSectionBlocked(pStart, pEnd)
-	if isString(pStart)
-		cStart = pStart
-	else
-		cStart = StzDateTimeQ(pStart).ToString()
-	ok
-
-	if isString(pEnd)
-		cEnd = pEnd
-	else
-		cEnd = StzDateTimeQ(pEnd).ToString()
-	ok
-
-	oStart = new stzDateTime(cStart)
-	oEnd = new stzDateTime(cEnd)
-	nLen = len(@aBlockedSpans)
-
-	for i = 1 to nLen
-		oBlockStart = new stzDateTime(@aBlockedSpans[i][2])
-		oBlockEnd = new stzDateTime(@aBlockedSpans[i][3])
-		if oStart < oBlockEnd and oEnd > oBlockStart
-			return TRUE
-		ok
-	next
-
-	# Also check blocked points within range
-	nLen = len(@aBlockedPoints)
-	for i = 1 to nLen
-		oPoint = new stzDateTime(@aBlockedPoints[i])
-		if oPoint >= oStart and oPoint <= oEnd
-			return TRUE
-		ok
-	next
-
-	return FALSE
-
-	def IsBlockedSection(pStart, pEnd)
-		return This.IsSectionBlocked(pStart, pEnd)
-
-#---
-
-def AddBlockedSpan(pcLabel, pStart, pEnd)
-	if NOT isString(pcLabel)
-		StzRaise("Incorrect param type! pcLabel must be a string.")
-	ok
-
-	cStart = This._normalizeDateTime(pStart)
-	cEnd = This._normalizeDateTime(pEnd)
-
-	oStart = new stzDateTime(cStart)
-	oEnd = new stzDateTime(cEnd)
-	if oStart >= oEnd
-		raise("Error: Blocked span '" + pcLabel + "' has invalid dates.")
-	ok
-
-	oTLStart = This.StartQ()
-	oTLEnd = This.EndQ()
-
-	if oStart < oTLStart or oEnd > oTLEnd
-		raise("Blocked span '" + pcLabel + "' is outside timeline boundaries")
-	ok
-
-	@aBlockedSpans + [upper(pcLabel), cStart, cEnd]
-
-	def AddBlockedSpanQ(pcLabel, pStart, pEnd)
-		This.AddBlockedSpan(pcLabel, pStart, pEnd)
-		return This
-
-def RemoveBlockedSpan(pcLabel)
-	if NOT isString(pcLabel)
-		StzRaise("Incorrect param type! pcLabel must be a string.")
-	ok
-
-	pcLabel = upper(pcLabel)
-	nPos = 0
-	nLen = len(@aBlockedSpans)
-
-	for i = 1 to nLen
-		if @aBlockedSpans[i][1] = pcLabel
-			nPos = i
-			exit
-		ok
-	next
-
-	if nPos > 0
-		del(@aBlockedSpans, nPos)
-	ok
-
-	def RemoveBlockedSpanQ(pcLabel)
-		This.RemoveBlockedSpan(pcLabel)
-		return This
-
-def BlockedSpans()
-	return @aBlockedSpans
-
-	def BlockedSpansQ()
-		aResult = []
-		nLen = len(@aBlockedSpans)
+	
+		oDateTime = new stzDateTime(cDateTime)
+		nLen = len(@aBlockedPoints)
+	
 		for i = 1 to nLen
-			aResult + [
-				@aBlockedSpans[i][1],
-				new stzDateTime(@aBlockedSpans[i][2]),
-				new stzDateTime(@aBlockedSpans[i][3])
-			]
+			oBlocked = new stzDateTime(@aBlockedPoints[i])
+			if oDateTime.IsEqualTo(oBlocked)
+				return TRUE
+			ok
 		next
-		return aResult
+	
+		return FALSE
+
+	def IsBlocked(pDateTime)
+		if isList(pDateTime) and len(pDateTime) = 2
+			return This.IsSectionBlocked(pDateTime[1], pDateTime[2])
+		ok
+	
+		# Check both blocked points and blocked spans
+		if This.IsPointBlocked(pDateTime)
+			return TRUE
+		ok
+	
+		if isString(pDateTime)
+			cDateTime = pDateTime
+		else
+			cDateTime = StzDateTimeQ(pDateTime).ToString()
+		ok
+	
+		oDateTime = new stzDateTime(cDateTime)
+		nLen = len(@aBlockedSpans)
+	
+		for i = 1 to nLen
+			oStart = new stzDateTime(@aBlockedSpans[i][2])
+			oEnd = new stzDateTime(@aBlockedSpans[i][3])
+			if oDateTime >= oStart and oDateTime <= oEnd
+				return TRUE
+			ok
+		next
+	
+		return FALSE
+
+	def IsSectionBlocked(pStart, pEnd)
+		if isString(pStart)
+			cStart = pStart
+		else
+			cStart = StzDateTimeQ(pStart).ToString()
+		ok
+	
+		if isString(pEnd)
+			cEnd = pEnd
+		else
+			cEnd = StzDateTimeQ(pEnd).ToString()
+		ok
+	
+		oStart = new stzDateTime(cStart)
+		oEnd = new stzDateTime(cEnd)
+		nLen = len(@aBlockedSpans)
+	
+		for i = 1 to nLen
+			oBlockStart = new stzDateTime(@aBlockedSpans[i][2])
+			oBlockEnd = new stzDateTime(@aBlockedSpans[i][3])
+			if oStart < oBlockEnd and oEnd > oBlockStart
+				return TRUE
+			ok
+		next
+	
+		# Also check blocked points within range
+		nLen = len(@aBlockedPoints)
+		for i = 1 to nLen
+			oPoint = new stzDateTime(@aBlockedPoints[i])
+			if oPoint >= oStart and oPoint <= oEnd
+				return TRUE
+			ok
+		next
+	
+		return FALSE
+	
+		def IsBlockedSection(pStart, pEnd)
+			return This.IsSectionBlocked(pStart, pEnd)
+	
+	#---
+	
+	def AddBlockedSpan(pcLabel, pStart, pEnd)
+		if NOT isString(pcLabel)
+			StzRaise("Incorrect param type! pcLabel must be a string.")
+		ok
+	
+		cStart = This._normalizeDateTime(pStart)
+		cEnd = This._normalizeDateTime(pEnd)
+	
+		oStart = new stzDateTime(cStart)
+		oEnd = new stzDateTime(cEnd)
+		if oStart >= oEnd
+			raise("Error: Blocked span '" + pcLabel + "' has invalid dates.")
+		ok
+	
+		oTLStart = This.StartQ()
+		oTLEnd = This.EndQ()
+	
+		if oStart < oTLStart or oEnd > oTLEnd
+			raise("Blocked span '" + pcLabel + "' is outside timeline boundaries")
+		ok
+	
+		@aBlockedSpans + [upper(pcLabel), cStart, cEnd]
+	
+		def AddBlockedSpanQ(pcLabel, pStart, pEnd)
+			This.AddBlockedSpan(pcLabel, pStart, pEnd)
+			return This
+	
+	def RemoveBlockedSpan(pcLabel)
+		if NOT isString(pcLabel)
+			StzRaise("Incorrect param type! pcLabel must be a string.")
+		ok
+	
+		pcLabel = upper(pcLabel)
+		nPos = 0
+		nLen = len(@aBlockedSpans)
+	
+		for i = 1 to nLen
+			if @aBlockedSpans[i][1] = pcLabel
+				nPos = i
+				exit
+			ok
+		next
+	
+		if nPos > 0
+			del(@aBlockedSpans, nPos)
+		ok
+	
+		def RemoveBlockedSpanQ(pcLabel)
+			This.RemoveBlockedSpan(pcLabel)
+			return This
+	
+	def BlockedSpans()
+		return @aBlockedSpans
+	
+		def BlockedSpansQ()
+			aResult = []
+			nLen = len(@aBlockedSpans)
+			for i = 1 to nLen
+				aResult + [
+					@aBlockedSpans[i][1],
+					new stzDateTime(@aBlockedSpans[i][2]),
+					new stzDateTime(@aBlockedSpans[i][3])
+				]
+			next
+			return aResult
 
 
 	#-----------#

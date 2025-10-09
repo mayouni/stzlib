@@ -1,11 +1,11 @@
 #----------------------------------------------------------------#
-# 		    SOFTANZA LIBRARY (V0.9) - STZLOCALE                  #
-#		An accelerative library for Ring applications            #
+#            SOFTANZA LIBRARY (V0.9) - STZLOCALE                 #
+#        An accelerative library for Ring applications           #
 #----------------------------------------------------------------#
 #                                                                #
-# 	Description	: The class for managing locales in Softanza     #
-#	Version		: V0.9 (2020-2025)                               #
-#	Author		: Mansour Ayouni (kalidianow@gmail.com)          #
+#  Description	: The class for managing locales in Softanza     #
+#  Version      : V0.9 (2020-2025)                               #
+#  Author       : Mansour Ayouni (kalidianow@gmail.com)          #
 #                                                                #
 #----------------------------------------------------------------#
 
