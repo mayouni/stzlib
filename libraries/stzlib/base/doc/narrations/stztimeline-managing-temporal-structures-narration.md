@@ -7,9 +7,8 @@ In **Softanza**, it’s a **living timeline** you can **see**, **query**, and **
 
 Let’s build one together — step by step, visually, interactively.
 
----
 
-## 🌱 Starting with Boundaries
+## Starting with Boundaries
 
 Every meaningful story has a beginning and an end. So does every `stzTimeLine`.
 
@@ -29,7 +28,7 @@ oTimeLine.AddPoint("FUTURE", "2025-01-15")
 #--> ERROR: Point 'FUTURE' is outside timeline boundaries
 ```
 
-> 🔒 Boundaries enforce **temporal integrity**. No rogue datetimes. No silent bugs.
+> Boundaries enforce **temporal integrity**. No rogue datetimes. No silent bugs.
 
 And don’t worry about format quirks — Softanza **normalizes intelligently**:
 
@@ -46,9 +45,8 @@ o1 = new stzTimeLine("2024-10-10", "2024-10-22 16:40:00")
 
 Missing time? It becomes `00:00:00`. Clean, predictable, safe.
 
----
 
-## ⚡ Adding Moments — Even When They Repeat
+##  Adding Moments — Even When They Repeat
 
 Let’s say your team does **quarterly HR evaluations**. Same label, different dates. That’s not a bug — it’s a **feature**.
 
@@ -68,7 +66,7 @@ Now ask: *“How many HR-EVALs do we have?”*
 #--> [["HR-EVAL", 3]]
 ```
 
-> 💡 **Same-label grouping** enables powerful analytics: count occurrences, find all instances, highlight them together — all without extra code.
+> **Same-label grouping** enables powerful analytics: count occurrences, find all instances, highlight them together — all without extra code.
 
 And yes — labels are **case-insensitive internally**:
 
@@ -83,9 +81,7 @@ Even **empty labels** are allowed (useful for anonymous markers):
 oTimeLine.AddMoment("", "2024-06-01")
 ```
 
----
-
-## 📏 Defining Periods — With Overlap Awareness
+## Defining Periods — With Overlap Awareness
 
 Now add a project and a marketing campaign:
 
@@ -108,9 +104,7 @@ But here’s where Softanza shines: **it sees overlaps**.
 
 No hidden conflicts. No manual date math. Just **truth**.
 
----
-
-## 👁️ Seeing Is Believing — Three Views, One Engine
+## Seeing Is Believing — Three Views, One Engine
 
 ### First: `.ShowShort()` — The Sketch
 
@@ -131,8 +125,6 @@ oTimeLine.ShowShort()
 - Numbers = event order
 
 Clean. Immediate. Perfect for quick checks.
-
----
 
 ### Next: `.Show()` — The Full Story
 
@@ -163,8 +155,6 @@ oTimeLine.Show()
 ```
 
 Every boundary, every event — **chronologically ordered**, **human-readable**.
-
----
 
 ### Finally: `.ShowXT()` — The Unified Visual Engine
 
@@ -212,11 +202,10 @@ Or get the data directly:
 # ]
 ```
 
-> 📊 This is your **temporal dashboard** — in one call.
+> This is your **temporal dashboard** — in one call.
 
----
 
-## 🔍 Querying Time Like a Human
+## Querying Time Like a Human
 
 What’s happening **right now**?
 
@@ -245,9 +234,8 @@ Even **partial inputs** work intuitively:
 
 Softanza **infers context** — so you don’t have to.
 
----
 
-## 🚫 Blocking Forbidden Time
+## Blocking Forbidden Time
 
 Some days, the system is down for maintenance. Others, leadership is on retreat. Mark those as **blocked**:
 
@@ -287,9 +275,8 @@ oTimeLine.Show()
 
 No guesswork. No calendar drift.
 
----
 
-## 🔍 Highlighting What Matters
+## Highlighting What Matters
 
 Got three `"HR-EVAL"` events? Highlight them:
 
@@ -313,11 +300,10 @@ oTimeLine.VizFindSpan("PROJECT")
 # Fills the PROJECT span with █
 ```
 
-> 🎯 Focus your attention **without filtering data** — just visual emphasis.
+> Focus your attention **without filtering data** — just visual emphasis.
 
----
 
-## 🧱 Stacking Overlaps — Automatically
+## Stacking Overlaps — Automatically
 
 When spans overlap, Softanza **stacks them vertically** so nothing hides:
 
@@ -341,9 +327,8 @@ oTimeLine.Show()
 
 No configuration. No z-index. Just **automatic clarity**.
 
----
 
-## 🕳️ Revealing Idle Time with `ShowUncovered()`
+## Revealing Idle Time with `ShowUncovered()`
 
 What if you want to know **when nothing is happening**? That’s **uncovered time** — crucial for capacity planning or identifying scheduling opportunities.
 
@@ -379,13 +364,11 @@ This isn’t just visual — you can **query it programmatically**:
 # ]
 ```
 
-> 🕳️ **Uncovered ≠ Gaps**:  
+> **Uncovered ≠ Gaps**:  
 > - **Gaps** are only *between spans* (`Gaps()` returns `[:After, :Before, :Duration]`)  
 > - **Uncovered** is *total idle time* across the entire timeline — including before the first and after the last event.
 
----
-
-## 📏 Measuring Time — Naturally
+##  Measuring Time — Naturally
 
 How far apart are two events?
 
@@ -405,9 +388,8 @@ From span to point?
 
 > 📏 `.Distance()` and `.TimeBetween()` are **context-aware**: they use the closest boundaries.
 
----
 
-## 🧹 Maintenance & Safety
+## Maintenance & Safety
 
 Timelines are **mutable**:
 
@@ -439,9 +421,8 @@ oTimeLine.AddSpan("BAD", "2024-03-15", "2024-03-15")
 #--> ERROR: Span 'BAD' has invalid dates. Start time must be before end time
 ```
 
----
 
-## 🧩 The Full Picture — One Final Example
+## The Full Picture — One Final Example
 
 ```ring
 oTimeLine = new stzTimeLine("2024-01-01", "2024-12-31")
@@ -467,7 +448,6 @@ oTimeLine.ShowXT()
 
 Events, spans, blocks — all **coexisting**, **visible**, **queryable**.
 
----
 
 ## 🌟 Softanza Advantage: `stzTimeLine` vs. Other Ecosystems
 
@@ -497,9 +477,8 @@ Here’s how it stacks up:
 > **Takeaway**: `stzTimeLine` uniquely combines **temporal modeling**, **validation**, **statistical analysis**, **flexible querying**, and **rich console visualization** in a single, dependency-free class — ideal for scripting, testing, and backend logic in Ring.  
 > While other ecosystems require stitching together parsers, interval logic, and custom renderers, Softanza gives you a **cohesive, visual, and safe time workspace** out of the box.
 
----
 
-## ✨ Conclusion: Time as a First-Class Citizen
+## Conclusion: Time as a First-Class Citizen
 
 In Softanza, time isn’t stored — it’s **modeled**.  
 With `stzTimeLine`, you get:

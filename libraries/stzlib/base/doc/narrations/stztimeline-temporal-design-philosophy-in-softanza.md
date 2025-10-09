@@ -1,4 +1,4 @@
-Temporal Design Philosophy of stzTimeLine
+# Temporal Design Philosophy of stzTimeLine
 
 Most time-handling libraries across ecosystems (Python’s `datetime`, Java’s `java.time`, JavaScript’s Luxon, etc.) treat time as **scalar values** to be parsed, formatted, or arithmetically manipulated. They stop at *representation* and *calculation*.  
 
