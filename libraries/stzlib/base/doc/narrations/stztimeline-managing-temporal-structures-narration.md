@@ -1,4 +1,4 @@
-# **Visual Time Modeling in Softanza using `stzTimeLine`**
+# **Time Modeling in Softanza using `stzTimeLine`**
 
 > *Time isn’t a line you scroll through — it’s a canvas you shape.*
 
