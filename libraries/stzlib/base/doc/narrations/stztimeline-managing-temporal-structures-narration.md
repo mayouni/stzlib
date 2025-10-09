@@ -270,7 +270,7 @@ Check proactively using the unified `IsBlocked()` method, which handles both sin
 ? oTimeLine.IsBlocked("HR-EVAL")  # TRUE (if blocked by label)
 ```
 
-`IsBlocked()` intelligently handles datetimes, ranges as lists, or labels for flexibility.
+`IsBlocked()` intelligently handles datetimes, ranges as lists, or labels for flexibility (to be explicit you can use `IsBlockedSection(pStart, pEnd)` instead)
 
 And **see it visually**:
 

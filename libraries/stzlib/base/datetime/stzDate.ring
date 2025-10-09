@@ -228,65 +228,65 @@ class stzDate from stzObject
         oQDate = oQDate.addDays(nDays)
         return This.ToString()
  
-    def AddDaysQ(nDays)
-        This.AddDays(nDays)
-        return This
+	    def AddDaysQ(nDays)
+	        This.AddDays(nDays)
+	        return This
 
     def AddWeeks(nWeeks)
         oQDate = oQDate.addDays(nWeeks * 7)
         return This.ToString()
 
-    def AddWeeksQ(nWeeks)
-        This.AddWeeks(nWeeks)
-        return This
+	    def AddWeeksQ(nWeeks)
+	        This.AddWeeks(nWeeks)
+	        return This
 
     def AddMonths(nMonths)
         oQDate = oQDate.addMonths(nMonths)
         return This.ToString()
 
-    def AddMonthsQ(nMonths)
-        This.AddMonths(nMonths)
-        return This
+	    def AddMonthsQ(nMonths)
+	        This.AddMonths(nMonths)
+	        return This
 
     def AddYears(nYears)
         oQDate = oQDate.addYears(nYears)
         return This.ToString()
 
-    def AddYearsQ(nYears)
-        This.AddYears(nYears)
-        return This
+	    def AddYearsQ(nYears)
+	        This.AddYears(nYears)
+	        return This
 
     def SubtractDays(nDays)
         oQDate = oQDate.addDays(-nDays)
         return This.ToString()
 
-    def SubtractDaysQ(nDays)
-        This.SubtractDays(nDays)
-        return This
+	    def SubtractDaysQ(nDays)
+	        This.SubtractDays(nDays)
+	        return This
 
     def SubtractWeeks(nWeeks)
         oQDate = oQDate.addDays(-nWeeks * 7)
         return This.ToString()
 
-    def SubtractWeeksQ(nWeeks)
-        This.SubtractWeeks(nWeeks)
-        return This
+	    def SubtractWeeksQ(nWeeks)
+	        This.SubtractWeeks(nWeeks)
+	        return This
 
     def SubtractMonths(nMonths)
         oQDate = oQDate.addMonths(-nMonths)
         return This.ToString()
     
-    def SubtractMonthsQ(nMonths)
-        This.SubtractMonths(nMonths)
-        return This
+	    def SubtractMonthsQ(nMonths)
+	        This.SubtractMonths(nMonths)
+	        return This
 
     def SubtractYears(nYears)
         oQDate = oQDate.addYears(-nYears)
         return This.ToString()
     
-    def SubtractYearsQ(nYears)
-        This.SubtractYears(nYears)
-        return This
+	    def SubtractYearsQ(nYears)
+	        This.SubtractYears(nYears)
+	        return This
 
     #--- SMART NAVIGATION METHODS ---#
     
@@ -681,8 +681,8 @@ class stzDate from stzObject
 	
 	    else
 
-			cNth = Ordinal(This.MonthN())
-			cHuman = This.Day() + ", " + This.Month() + " " + cNth + ", " + This.Year()
+		cNth = Ordinal(This.MonthN())
+		cHuman = This.Day() + ", " + This.Month() + " " + cNth + ", " + This.Year()
 	        return cHuman
 	    ok
 
@@ -760,6 +760,19 @@ class stzDate from stzObject
 
     def ToLong()
         return This.Day() + ", " + This.Month() + " " + This.DayN() + ", " + This.Year()
+
+#--- JULIAN DAY METHODS ---#
+    
+    def ToJulianDay()
+        return oQDate.toJulianDay()
+    
+    def FromJulianDay(nJulianDay)
+        oQDate = oQDate.fromJulianDay(nJulianDay)
+        return This.ToString()
+    
+    def FromJulianDayQ(nJulianDay)
+        This.FromJulianDay(nJulianDay)
+        return This
 
     #--- BATCH OPERATIONS ---#
     

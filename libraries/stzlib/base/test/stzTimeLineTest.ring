@@ -64,8 +64,36 @@ o1.SetStart("2024-01-01") # Works without time
 ? o1.Start()
 #--> 2024-01-01 00:00:00
 
+? @@NL( o1.Content() ) + NL
+#--> [
+#	[ "start", "2024-01-01 00:00:00" ],
+#	[ "end", "2024-03-20 00:00:00" ],
+#	[
+#		"points",
+#		[
+#			[ "EVENT", "2024-03-15 00:00:00" ]
+#		]
+#	],
+#	[
+#		"spans",
+#		[
+#			[
+#				"WEEK",
+#				"2024-03-01 00:00:00",
+#				"2024-03-07 00:00:00"
+#			]
+#		]
+#	]
+# ]
+
+? @@( o1.Points() ) + NL
+#--> [ [ "EVENT", "2024-03-15 00:00:00" ] ]
+
+? @@( o1.Spans() )
+#--> [ [ "WEEK", "2024-03-01 00:00:00", "2024-03-07 00:00:00" ] ]
+
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.02 second(s) in Ring 1.24
 
 #------------------------#
 #  TimePoint Management  #
@@ -97,6 +125,14 @@ oTimeLine {
 
 	? HasPoint("WINTER")
 	#--> FALSE
+
+	? @@NL( Points() )
+	#--> [
+	# 	[ "NEW_YEAR", "2024-01-01 00:00:00" ],
+	# 	[ "VALENTINE", "2024-02-14 00:00:00" ],
+	# 	[ "SUMMER", "2024-06-21 00:00:00" ]
+	# ]
+
 }
 
 pf()
@@ -184,6 +220,155 @@ oTimeLine.Show()
 
 pf()
 # Executed in 0.09 second(s) in Ring 1.24
+
+/*--- Renaming labels (of points and spans togethor)
+
+pr()
+
+oTimeLine = new stzTimeLine("2024-01-01", "2024-12-31")
+oTimeLine {
+
+	AddPoints([ 
+		[ "HR-EVAL", "2024-03-15 10:00:00" ],
+		[ "KICKOFF", "2024-05-16 14:30:00" ],
+		[ "HR-EVAL", "2024-08-17 09:00:00" ]
+	])
+
+	AddSpans([
+		[ "PREP", "2024-03-15", "2024-05-15" ],
+		[ "HR-EVAL", "2024-11-01", "2024-11-25" ]
+	])
+
+	? @@NL( Content() ) + NL
+
+	# replacing the 2 moments and 1 spance having "HR-EVAL" as label:
+
+	RenameLabel("HR-EVAL", "PERF-REVIEW")
+
+	? @@NL( Content() )
+
+}
+#--> Before renaming:
+'
+[
+	[ "start", "2024-01-01 00:00:00" ],
+	[ "end", "2024-12-31 00:00:00" ],
+	[
+		"points",
+		[
+			[ "HR-EVAL", "2024-03-15 10:00:00" ],
+			[ "KICKOFF", "2024-05-16 14:30:00" ],
+			[ "HR-EVAL", "2024-08-17 09:00:00" ]
+		]
+	],
+	[
+		"spans",
+		[
+			[
+				"PREP",
+				"2024-03-15 00:00:00",
+				"2024-05-15 00:00:00"
+			],
+			[
+				"HR-EVAL",
+				"2024-11-01 00:00:00",
+				"2024-11-25 00:00:00"
+			]
+		]
+	]
+]
+' 
+#--> After renaming:
+'
+[
+	[ "start", "2024-01-01 00:00:00" ],
+	[ "end", "2024-12-31 00:00:00" ],
+	[
+		"points",
+		[
+			[ "PERF-REVIEW", "2024-03-15 10:00:00" ],
+			[ "KICKOFF", "2024-05-16 14:30:00" ],
+			[ "PERF-REVIEW", "2024-08-17 09:00:00" ]
+		]
+	],
+	[
+		"spans",
+		[
+			[
+				"PREP",
+				"2024-03-15 00:00:00",
+				"2024-05-15 00:00:00"
+			],
+			[
+				"PERF-REVIEW",
+				"2024-11-01 00:00:00",
+				"2024-11-25 00:00:00"
+			]
+		]
+	]
+]
+'
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
+
+
+/*--- Renaming labels (of points and spans togethor)
+
+pr()
+
+oTimeLine = new stzTimeLine("2024-01-01", "2024-12-31")
+oTimeLine {
+
+	AddPoints([ 
+		[ "HR-EVAL", "2024-03-15 10:00:00" ],
+		[ "KICKOFF", "2024-05-16 14:30:00" ],
+		[ "HR-EVAL", "2024-08-17 09:00:00" ]
+	])
+
+	AddSpans([
+		[ "PREP", "2024-03-15", "2024-05-15" ],
+		[ "HR-EVAL", "2024-11-01", "2024-11-25" ]
+	])
+
+	RenamePointLabel("HR-EVAL", :With = "PERF-REVIEW")
+	RenameSpanLabel("PREP", :Using = "PREPARATION")
+
+	? @@NL( Content() )
+}
+#-->
+'
+[
+	[ "start", "2024-01-01 00:00:00" ],
+	[ "end", "2024-12-31 00:00:00" ],
+	[
+		"points",
+		[
+			[ "PERF-REVIEW", "2024-03-15 10:00:00" ],
+			[ "KICKOFF", "2024-05-16 14:30:00" ],
+			[ "PERF-REVIEW", "2024-08-17 09:00:00" ]
+		]
+	],
+	[
+		"spans",
+		[
+			[
+				"PREPARATION",
+				"2024-03-15 00:00:00",
+				"2024-05-15 00:00:00"
+			],
+			[
+				"HR-EVAL",
+				"2024-11-01 00:00:00",
+				"2024-11-25 00:00:00"
+			]
+		]
+	]
+]
+'
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Alternative names for points (Moments)
 
@@ -520,6 +705,25 @@ oTimeLine {
 	AddSpan("Q2", "2024-04-01 00:00:00", "2024-06-30 23:59:59")
 	AddSpan("Q3", "2024-07-01 00:00:00", "2024-09-30 23:59:59")
 }
+
+? @@NL( oTimeLine.Spans() ) + NL
+#--> [
+#	[
+#		"Q1",
+#		"2024-01-01 00:00:00",
+#		"2024-03-31 23:59:59"
+#	],
+#	[
+#		"Q2",
+#		"2024-04-01 00:00:00",
+#		"2024-06-30 23:59:59"
+#	],
+#	[
+#		"Q3",
+#		"2024-07-01 00:00:00",
+#		"2024-09-30 23:59:59"
+#	]
+# ]
 
 ? oTimeLine.HasOverlaps()
 #--> FALSE
@@ -1489,7 +1693,7 @@ if oTimeline.IsBlocked("2024-08-05 14:30:00")
 ok
 #--> Cannot add event during blackout
 
-if oTimeline.IsRangeBlocked("2024-08-07", "2024-08-10")
+if oTimeline.IsSectionBlocked("2024-08-07", "2024-08-10")
 	? "Span partially blocked"
 ok
 #--> Span partially blocked

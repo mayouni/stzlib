@@ -158,6 +158,27 @@ oDate {
 
 Every aspect of a date is accessible with clarity without the need of remembering standard Ring `TimeList()` indices.
 
+### Julian Day Conversion
+
+Working with astronomical data, historical dates, or needing a universal date representation? Julian day numbers have you covered.
+
+**Convert current date to Julian day number:**
+```ring
+o1 = new stzDate("") # Or any date you would supply instead of ""
+? o1.ToJulianDay()
+#--> 2460958
+```
+
+**Create a date from a Julian day number:**
+```ring
+o1 = new stzDate("")
+o1.FromJulianDay(2460570)
+? o1.Content()
+#--> 16/09/2024	(the corresponding Gregorian date)
+```
+
+Julian day conversion runs at native (Qt C++) speed while providing a direct bridge to scientific computing and historical timelines.
+
 ### Validation Built-In
 
 ```ring
@@ -190,8 +211,8 @@ You're not trading performance for convenience. You're getting both.
 | Localize | Complex formatters | `oDate.DayIn(:French)` |
 | Calculate age | Manual date math | `oBirthDate.Age()` |
 | Validate | Try/catch parsing | `IsDate(cString)` |
+| Julian day | Manual conversion | `oDate.ToJulianDay()` |
 
 ## Final Thoughts
 
-Softanza’s date programming feels like a breath of fresh air. It prioritizes developer experience without compromising performance, making it ideal for projects where dates are central (e.g., scheduling apps, timelines, or user interfaces). The human-readable output and localization features are particularly compelling for client-facing applications.
-
+Softanza's date programming feels like a breath of fresh air. It prioritizes developer experience without compromising performance, making it ideal for projects where dates are central (e.g., scheduling apps, timelines, or user interfaces). The human-readable output, localization features, and Julian day conversion are particularly compelling for both client-facing applications and scientific computing tasks.
