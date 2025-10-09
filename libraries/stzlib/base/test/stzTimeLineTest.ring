@@ -614,7 +614,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Finding uncovered periods in timeline
-
+*/
 pr()
 
 oTimeLine = new stzTimeLine(
@@ -623,33 +623,19 @@ oTimeLine = new stzTimeLine(
 )
 
 oTimeLine {
+
 	AddSpan("BUSY", "2024-03-01 00:00:00", "2024-05-31 23:59:59")
 	AddSpan("BUSY", "2024-04-01 00:00:00", "2024-06-30 23:59:59")
 	AddSpan("BUSY", "2024-08-01 00:00:00", "2024-09-20 23:59:59")
 
 	AddMoment('MMM', "2024-08-01")
+
+	ShowUncovered()
 }
 
-? @@NL( oTimeLine.UncoveredPeriods() )
-#--> [
-#	[
-#		[ "start", "2024-01-01 00:00:00" ],
-#		[ "end", "2024-03-01 00:00:00" ],
-#		[ "duration", 5184000 ]
-#	],
-#	[
-#		[ "start", "2024-06-30 23:59:59" ],
-#		[ "end", "2024-08-01 00:00:00" ],
-#		[ "duration", 2678401 ]
-#	],
-#	[
-#		[ "start", "2024-08-30 23:59:59" ],
-#		[ "end", "2024-12-31 23:59:59" ],
-#		[ "duration", 10627200 ]
-#	]
-# ]
+//oTimeLine.ShowUncovered()
 
-oTimeLine.ShowUncovered()
+
 #-->
 #              ╞===BUSY====╡                          
 #          ╞===BUSY====╡        ╞=BUSY=╡              
