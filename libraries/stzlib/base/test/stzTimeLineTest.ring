@@ -613,7 +613,7 @@ StzDurationQ(18489600) {
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
-/*--- Finding uncovered periods in timeline
+/*--- Managing uncovered periods in timeline
 */
 pr()
 
@@ -624,14 +624,16 @@ oTimeLine = new stzTimeLine(
 
 oTimeLine {
 
-	AddSpan("BUSY", "2024-03-01 00:00:00", "2024-05-31 23:59:59")
-	AddSpan("BUSY", "2024-04-01 00:00:00", "2024-06-30 23:59:59")
-	AddSpan("BUSY", "2024-08-01 00:00:00", "2024-09-20 23:59:59")
+	AddSpan("BUSY", "2024-03-01", "2024-05-31")
+	AddSpan("BUSY", "2024-04-01", "2024-06-30")
+	AddSpan("BUSY", "2024-08-01", "2024-09-20")
 
 	AddMoment('MMM', "2024-08-01")
 
 	ShowUncovered()
 }
+
+
 
 //oTimeLine.ShowUncovered()
 

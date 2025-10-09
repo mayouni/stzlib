@@ -244,19 +244,33 @@ oTimeLine.AddBlockedSpan("MAINTENANCE", "2024-07-01", "2024-07-15")
 oTimeLine.AddBlockedPoint("2024-10-05 09:00:00")
 ```
 
-Now try to schedule something inside:
+### Blocking Existing Spans and Moments
+
+You can also block an existing span or moment by its label, converting it to a blocked item:
+
+```ring
+oTimeLine.BlockSpan("PROJECT")
+oTimeLine.BlockPoint("HR-EVAL")
+```
+
+Note that for points with the same label, `BlockPoint()` blocks one occurrence at a time, similar to removal behavior.
+
+Now try to schedule something inside a blocked time:
 
 ```ring
 oTimeLine.AddPoint("MEETING", "2024-07-10")
 #--> ERROR: Point 'MEETING' falls within a blocked span or blocked point
 ```
 
-Check proactively:
+Check proactively using the unified `IsBlocked()` method, which handles both single times and ranges:
 
 ```ring
-? oTimeLine.IsBlocked("2024-07-10")  # TRUE
-? oTimeLine.IsRangeBlocked("2024-07-14", "2024-07-16")  # TRUE (partial overlap)
+? oTimeLine.IsBlocked("2024-07-10")  # TRUE (single datetime)
+? oTimeLine.IsBlocked(["2024-07-14", "2024-07-16"])  # TRUE (range with partial overlap)
+? oTimeLine.IsBlocked("HR-EVAL")  # TRUE (if blocked by label)
 ```
+
+`IsBlocked()` intelligently handles datetimes, ranges as lists, or labels for flexibility.
 
 And **see it visually**:
 
@@ -400,26 +414,124 @@ oTimeLine.Clear()
 ? oCopy.CountPoints()      # 3
 ```
 
-And **self-describing**:
+You can also remove specific points and spans. Note that for points with the same label, `RemovePoint()` removes one occurrence at a time.
+
+### Removing Points
 
 ```ring
-? @@NL(oTimeLine.Summary())
-#--> [
-#     :Start = "2024-01-01 00:00:00",
-#     :End = "2024-12-31 23:59:59",
-#     :TotalDuration = "1 year",
-#     :CountPoints = 3,
-#     :CountSpans = 2,
-#     ...
-# ]
+oTimeLine = new stzTimeLine(
+	:Start = "2024-01-01 00:00:00",
+	:End = "2024-12-31 23:59:59"
+)
+
+oTimeLine {
+	AddPoints([ 
+		[ "EVENT1", "2024-03-15 10:00:00" ],
+		[ "EVENT1", "2024-05-16 14:30:00" ],
+		[ "EVENT1", "2024-08-17 09:00:00" ]
+	])
+}
+
+oTimeLine.Show()
 ```
 
-Errors are **explicit**, not cryptic:
+**Output:**
+```
+        EVENT1  EVENT1       EVENT1                 
+|──────────●───────●────────────●────────────────○─►
+           1       2            3                 
+
+╭────┬─────────────────────┬────────┬────────────────╮
+│ No │      Timepoint      │ Label  │  Description   │
+├────┼─────────────────────┼────────┼────────────────┤
+│    │ 2024-01-01 00:00:00 │        │ Timeline start │
+│  1 │ 2024-03-15 10:00:00 │ EVENT1 │ EVENT1 event   │
+│  2 │ 2024-05-16 14:30:00 │ EVENT1 │ EVENT1 event   │
+│  3 │ 2024-08-17 09:00:00 │ EVENT1 │ EVENT1 event   │
+│    │ 2024-12-31 23:59:59 │        │ Timeline end   │
+╰────┴─────────────────────┴────────┴────────────────╯
+```
 
 ```ring
-oTimeLine.AddSpan("BAD", "2024-03-15", "2024-03-15")
-#--> ERROR: Span 'BAD' has invalid dates. Start time must be before end time
+? oTimeLine.CountPoints()
+#--> 3
+
+oTimeLine.RemovePoint("EVENT1")
+oTimeLine.RemovePoint("EVENT1")
+oTimeLine.RemovePoint("EVENT1")
+
+? oTimeLine.CountPoints()
+#--> 0
+
+? oTimeLine.HasPoint("EVENT2")
+#--> FALSE
+
+oTimeLine.Show()
 ```
+
+**Output:**
+```
+|────────────────────────────────────────────────○─►
+
+╭────┬─────────────────────┬───────┬────────────────╮
+│ No │      Timepoint      │ Label │  Description   │
+├────┼─────────────────────┼───────┼────────────────┤
+│    │ 2024-01-01 00:00:00 │       │ Timeline start │
+│    │ 2024-12-31 23:59:59 │       │ Timeline end   │
+╰────┴─────────────────────┴───────┴────────────────╯
+```
+
+### Removing Spans
+
+```ring
+oTimeLine = new stzTimeLine(
+	:Start = "2024-01-01 00:00:00",
+	:End = "2024-12-31 23:59:59"
+)
+
+oTimeLine {
+
+	AddSpans([
+		[ "PHASE1", "2024-01-01 00:00:00", "2024-03-31 23:59:59" ],
+		[ "PHASE2", "2024-04-01 00:00:00", "2024-06-30 23:59:59" ],
+		[ "PHASE3", "2024-07-01 00:00:00", "2024-09-30 23:59:59" ]
+	])
+
+	? CountSpans()
+	#--> 3
+
+	RemoveSpan("PHASE2")
+
+	? CountSpans()
+	#--> 2
+
+	? SpanNames()
+	#--> [ "PHASE1", "PHASE3" ]
+
+}
+```
+
+You can also rename labels for points and spans. This affects all occurrences of the label, whether for points or spans.
+
+### Renaming Labels
+
+To rename all the occurerrences of a given label in the timeline (beeing a moment or a period label), use `RenameLabel()`:
+```ring
+# replacing the 3 moments with "HR-EVAL" label:
+
+oTimeLine.RenameLabel("HR-EVAL", "PERF-REVIEW")
+# Checking the change made:
+? oTimeLine.PointNamesXT()
+#--> [["PERF-REVIEW", 3]]
+
+# Replacing the span with label "PROJECT"
+oTimeLine.RenameLabel("PROJECT", "INITIATIVE")
+# Checking the change made:
+? oTimeLine.SpanNames()
+#--> ["INITIATIVE"]
+```
+
+And if you want to more precise you can use `RenamePointLabel()` and `RenameSpanLabel()` directly.
 
 
 ## The Full Picture — One Final Example
