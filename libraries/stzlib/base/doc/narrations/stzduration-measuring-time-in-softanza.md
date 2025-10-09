@@ -177,6 +177,81 @@ oDuration = new stzDuration("3 hours 25 minutes 42 seconds")
 
 Choose between technical precision (`ToString()`) and user-friendly text (`ToHuman()`).
 
+## Customizing Human Output: Data-Driven Patterns
+
+`ToHuman()` is designed for extensibility. Add custom patterns globally without modifying the class code:
+
+```ring
+# Global pattern container (defined once in your application)
+
+? @@NL($aDurationPatterns) + NL
+#--> [
+#    [365, 23, 59, 59, "1 year"],
+#    [183, 23, 59, 59, "6 months"],
+#    [30, 23, 59, 59, "1 month"],
+#    [7, 0, 0, 0, "1 week"],
+#    [14, 0, 0, 0, "2 weeks"]
+# ]
+
+# Now durations matching these patterns display specially
+o1 = new stzDuration("365 days 23 hours 59 minutes 59 seconds")
+? o1.ToHuman()
+#--> 1 year
+
+o1 = new stzDuration("7 days")
+? o1.ToHuman() + NL
+#--> 1 week
+
+# Non-matching durations fall back to component-based format
+o1 = new stzDuration("8 days")
+? o1.ToHuman()
+#--> 8 days
+
+# Add domain-specific patterns for your application
+$aDurationPatterns + [90, 0, 0, 0, "1 quarter"]
+$aDurationPatterns + [1, 0, 0, 0, "1 business day"]
+
+o1 = new stzDuration("90 days")
+? o1.ToHuman()
+#--> 1 quarter
+
+? StzDurationQ("1 day").ToHuman()
+#--> 1 business day
+```
+
+**How it works:**
+
+1. **Pattern structure:** Each pattern is `[days, hours, minutes, seconds, label]`
+2. **Exact matching:** `ToHuman()` checks if duration components match any pattern exactly
+3. **Fallback logic:** Non-matching durations use component-based formatting ("5 days, 3 hours, and 20 minutes")
+4. **Global scope:** Patterns defined once apply to all `stzDuration` instances
+
+**Customizing unit names:**
+
+```ring
+# Global unit container
+$aUnitNames = [
+    [:Days, "day", "days"],
+    [:Hours, "hour", "hours"],
+    [:Minutes, "minute", "minutes"],
+    [:Seconds, "second", "seconds"]
+]
+
+# Change to abbreviated forms
+$aUnitNames = [
+    [:Days, "d", "d"],
+    [:Hours, "h", "h"],
+    [:Minutes, "m", "m"],
+    [:Seconds, "s", "s"]
+]
+
+oDur = DurationQ("2 days 5 hours")
+? oDur.ToHuman()
+#--> 2 d and 5 h
+```
+
+This pattern-driven approach separates presentation logic from core functionality. Define patterns that match your domain (sprints, billing cycles, service intervals) without touching class internals.
+
 ## High Precision: Millisecond Support
 
 When accuracy matters:
@@ -400,4 +475,4 @@ Like `stzTime` and `stzDateTime`, durations leverage Qt's C++ engine through Rin
 
 ## Conclusion
 
-`stzDuration` transforms time measurements from data juggling into natural operations. Whether you're building dashboards, schedulers, or timers, it handles the complexity while keeping your code readable. The unified design across Softanza's temporal classes means patterns learned here apply everywhere—one philosophy, three specialized tools.
+`stzDuration` transforms time measurements from data juggling into natural operations. Whether you're building dashboards, schedulers, or timers, it handles the complexity while keeping your code readable. The data-driven customization system means your duration displays adapt to your domain language without code changes—define patterns once, apply everywhere. The unified design across Softanza's temporal classes means patterns learned here apply everywhere—one philosophy, three specialized tools.
