@@ -390,7 +390,7 @@ pf()
 /*=== Julian day
 
 /*--- Convert current date to Julian day number
-
+*/
 pr()
 
 o1 = new stzDate("")

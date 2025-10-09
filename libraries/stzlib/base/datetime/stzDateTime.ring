@@ -411,240 +411,240 @@ class stzDateTime from stzObject
         
         StzRaise("Cannot parse date/time string: " + cDateTime)
 
-def GuessDateTimeFormat(cDateTime)
-    # Check for T separator (ISO 8601)
-    if substr(cDateTime, "T") > 0
-        if substr(cDateTime, ".") > 0
-            return "yyyy-MM-ddTHH:mm:ss.zzz"
-        but substr(cDateTime, ":") > 0
-            nColons = CountOccurrences(cDateTime, ":")
-            if nColons = 2
-                return "yyyy-MM-ddTHH:mm:ss"
-            but nColons = 1
-                return "yyyy-MM-ddTHH:mm"
-            ok
-        ok
-        return "yyyy-MM-dd"
-    ok
-    
-    # Check separator type
-    cDateSep = ""
-    if substr(cDateTime, "/") > 0
-        cDateSep = "/"
-    but substr(cDateTime, "-") > 0 and substr(cDateTime, " ") = 0
-        return "yyyy-MM-dd" # Date only
-    but substr(cDateTime, "-") > 0
-        cDateSep = "-"
-    ok
-    
-    if cDateSep = ""
-        return NULL
-    ok
-    
-    # Split by space to separate date and time
-    aParts = split(cDateTime, " ")
-    cDatePart = aParts[1]
-    cTimePart = ""
-    cAMPM = ""
-    
-    if len(aParts) >= 2
-        cTimePart = aParts[2]
-        if len(aParts) >= 3
-            cAMPM = " AP"
-        ok
-    ok
-    
-    # Analyze date part
-    aDateParts = split(cDatePart, cDateSep)
-    if len(aDateParts) != 3
-        return NULL
-    ok
-    
-    # Determine date format based on first part length
-    cDateFormat = ""
-    if len(aDateParts[1]) = 4
-        # Year first: yyyy-MM-dd or yyyy/MM/dd
-        cDateFormat = "yyyy" + cDateSep + "MM" + cDateSep + "dd"
-    else
-        # Day or month first - assume European dd/MM/yyyy for now
-        # (You can add logic to distinguish MM/dd/yyyy if needed)
-        cDateFormat = "dd" + cDateSep + "MM" + cDateSep + "yyyy"
-    ok
-    
-    # Analyze time part if present
-    if cTimePart != ""
-        aTimeParts = split(cTimePart, ":")
-        cTimeFormat = ""
-        
-        if len(aTimeParts) >= 3
-            cTimeFormat = "HH:mm:ss"
-        but len(aTimeParts) = 2
-            cTimeFormat = "HH:mm"
-        ok
-        
-        # Check for milliseconds
-        if substr(cTimePart, ".") > 0
-            cTimeFormat = cTimeFormat + ".zzz"
-        ok
-        
-        return cDateFormat + " " + cTimeFormat + cAMPM
-    ok
-    
-    return cDateFormat
-
-def TryManualParse(cDateTime)
-    # Manual parsing as last resort
-    # Split by common separators and try to extract components
-    
-    cDateTime = trim(cDateTime)
-    
-    # Check for space separator between date and time
-    nSpacePos = substr(cDateTime, " ")
-    if nSpacePos = 0
-        # Date only
-        return This.TryManualDateParse(cDateTime)
-    ok
-    
-    # Split into date and time
-    cDatePart = left(cDateTime, nSpacePos - 1)
-    cRest = substr(cDateTime, nSpacePos + 1)
-    
-    # Check for AM/PM
-    cTimePart = cRest
-    bPM = FALSE
-    if upper(right(cRest, 2)) = "PM"
-        bPM = TRUE
-        cTimePart = trim(left(cRest, len(cRest) - 2))
-    but upper(right(cRest, 2)) = "AM"
-        cTimePart = trim(left(cRest, len(cRest) - 2))
-    ok
-    
-    # Parse date part
-    aDateParts = []
-    if substr(cDatePart, "/") > 0
-        aDateParts = split(cDatePart, "/")
-    but substr(cDatePart, "-") > 0
-        aDateParts = split(cDatePart, "-")
-    else
-        return FALSE
-    ok
-    
-    if len(aDateParts) != 3
-        return FALSE
-    ok
-    
-    # Determine year, month, day
-    nYear = 0
-    nMonth = 0
-    nDay = 0
-    
-    if len(aDateParts[1]) = 4
-        # yyyy-MM-dd format
-        nYear = 0+ aDateParts[1]
-        nMonth = 0+ aDateParts[2]
-        nDay = 0+ aDateParts[3]
-    else
-        # Assume dd/MM/yyyy (European) format
-        nDay = 0+ aDateParts[1]
-        nMonth = 0+ aDateParts[2]
-        nYear = 0+ aDateParts[3]
-    ok
-    
-    # Parse time part
-    aTimeParts = split(cTimePart, ":")
-    if len(aTimeParts) < 2
-        return FALSE
-    ok
-    
-    nHour = 0+ aTimeParts[1]
-    nMinute = 0+ aTimeParts[2]
-    nSecond = 0
-    nMs = 0
-    
-    if len(aTimeParts) >= 3
-        cSecPart = aTimeParts[3]
-        if substr(cSecPart, ".") > 0
-            aSecParts = split(cSecPart, ".")
-            nSecond = 0+ aSecParts[1]
-            if len(aSecParts) >= 2
-                nMs = 0+ aSecParts[2]
-            ok
-        else
-            nSecond = 0+ cSecPart
-        ok
-    ok
-    
-    # Adjust for PM
-    if bPM and nHour < 12
-        nHour = nHour + 12
-    ok
-    
-    # Create QDateTime
-    try
-        oDate = new QDate()
-        oDate.setDate(nYear, nMonth, nDay)
-        
-        oTime = new QTime()
-        oTime.setHMS(nHour, nMinute, nSecond, nMs)
-        
-        @oQDateTime.setDate(oDate)
-        @oQDateTime.setTime(oTime)
-        
-        if @oQDateTime.isValid()
-            return TRUE
-        ok
-    catch
-        return FALSE
-    done
-    
-    return FALSE
-
-def TryManualDateParse(cDate)
-    # Parse date-only strings
-    aDateParts = []
-    
-    if substr(cDate, "/") > 0
-        aDateParts = split(cDate, "/")
-    but substr(cDate, "-") > 0
-        aDateParts = split(cDate, "-")
-    else
-        return FALSE
-    ok
-    
-    if len(aDateParts) != 3
-        return FALSE
-    ok
-    
-    nYear = 0
-    nMonth = 0
-    nDay = 0
-    
-    if len(aDateParts[1]) = 4
-        nYear = 0+ aDateParts[1]
-        nMonth = 0+ aDateParts[2]
-        nDay = 0+ aDateParts[3]
-    else
-        nDay = 0+ aDateParts[1]
-        nMonth = 0+ aDateParts[2]
-        nYear = 0+ aDateParts[3]
-    ok
-    
-    try
-        oDate = new QDate()
-        oDate.setDate(nYear, nMonth, nDay)
-        
-        oTime = new QTime()
-        oTime.setHMS(0, 0, 0, 0)
-        
-        @oQDateTime.setDate(oDate)
-        @oQDateTime.setTime(oTime)
-        
-        return @oQDateTime.isValid()
-    catch
-        return FALSE
-    done
-    
-    return FALSE
+	def GuessDateTimeFormat(cDateTime)
+	    # Check for T separator (ISO 8601)
+	    if substr(cDateTime, "T") > 0
+	        if substr(cDateTime, ".") > 0
+	            return "yyyy-MM-ddTHH:mm:ss.zzz"
+	        but substr(cDateTime, ":") > 0
+	            nColons = CountOccurrences(cDateTime, ":")
+	            if nColons = 2
+	                return "yyyy-MM-ddTHH:mm:ss"
+	            but nColons = 1
+	                return "yyyy-MM-ddTHH:mm"
+	            ok
+	        ok
+	        return "yyyy-MM-dd"
+	    ok
+	    
+	    # Check separator type
+	    cDateSep = ""
+	    if substr(cDateTime, "/") > 0
+	        cDateSep = "/"
+	    but substr(cDateTime, "-") > 0 and substr(cDateTime, " ") = 0
+	        return "yyyy-MM-dd" # Date only
+	    but substr(cDateTime, "-") > 0
+	        cDateSep = "-"
+	    ok
+	    
+	    if cDateSep = ""
+	        return NULL
+	    ok
+	    
+	    # Split by space to separate date and time
+	    aParts = split(cDateTime, " ")
+	    cDatePart = aParts[1]
+	    cTimePart = ""
+	    cAMPM = ""
+	    
+	    if len(aParts) >= 2
+	        cTimePart = aParts[2]
+	        if len(aParts) >= 3
+	            cAMPM = " AP"
+	        ok
+	    ok
+	    
+	    # Analyze date part
+	    aDateParts = split(cDatePart, cDateSep)
+	    if len(aDateParts) != 3
+	        return NULL
+	    ok
+	    
+	    # Determine date format based on first part length
+	    cDateFormat = ""
+	    if len(aDateParts[1]) = 4
+	        # Year first: yyyy-MM-dd or yyyy/MM/dd
+	        cDateFormat = "yyyy" + cDateSep + "MM" + cDateSep + "dd"
+	    else
+	        # Day or month first - assume European dd/MM/yyyy for now
+	        # (You can add logic to distinguish MM/dd/yyyy if needed)
+	        cDateFormat = "dd" + cDateSep + "MM" + cDateSep + "yyyy"
+	    ok
+	    
+	    # Analyze time part if present
+	    if cTimePart != ""
+	        aTimeParts = split(cTimePart, ":")
+	        cTimeFormat = ""
+	        
+	        if len(aTimeParts) >= 3
+	            cTimeFormat = "HH:mm:ss"
+	        but len(aTimeParts) = 2
+	            cTimeFormat = "HH:mm"
+	        ok
+	        
+	        # Check for milliseconds
+	        if substr(cTimePart, ".") > 0
+	            cTimeFormat = cTimeFormat + ".zzz"
+	        ok
+	        
+	        return cDateFormat + " " + cTimeFormat + cAMPM
+	    ok
+	    
+	    return cDateFormat
+	
+	def TryManualParse(cDateTime)
+	    # Manual parsing as last resort
+	    # Split by common separators and try to extract components
+	    
+	    cDateTime = trim(cDateTime)
+	    
+	    # Check for space separator between date and time
+	    nSpacePos = substr(cDateTime, " ")
+	    if nSpacePos = 0
+	        # Date only
+	        return This.TryManualDateParse(cDateTime)
+	    ok
+	    
+	    # Split into date and time
+	    cDatePart = left(cDateTime, nSpacePos - 1)
+	    cRest = substr(cDateTime, nSpacePos + 1)
+	    
+	    # Check for AM/PM
+	    cTimePart = cRest
+	    bPM = FALSE
+	    if upper(right(cRest, 2)) = "PM"
+	        bPM = TRUE
+	        cTimePart = trim(left(cRest, len(cRest) - 2))
+	    but upper(right(cRest, 2)) = "AM"
+	        cTimePart = trim(left(cRest, len(cRest) - 2))
+	    ok
+	    
+	    # Parse date part
+	    aDateParts = []
+	    if substr(cDatePart, "/") > 0
+	        aDateParts = split(cDatePart, "/")
+	    but substr(cDatePart, "-") > 0
+	        aDateParts = split(cDatePart, "-")
+	    else
+	        return FALSE
+	    ok
+	    
+	    if len(aDateParts) != 3
+	        return FALSE
+	    ok
+	    
+	    # Determine year, month, day
+	    nYear = 0
+	    nMonth = 0
+	    nDay = 0
+	    
+	    if len(aDateParts[1]) = 4
+	        # yyyy-MM-dd format
+	        nYear = 0+ aDateParts[1]
+	        nMonth = 0+ aDateParts[2]
+	        nDay = 0+ aDateParts[3]
+	    else
+	        # Assume dd/MM/yyyy (European) format
+	        nDay = 0+ aDateParts[1]
+	        nMonth = 0+ aDateParts[2]
+	        nYear = 0+ aDateParts[3]
+	    ok
+	    
+	    # Parse time part
+	    aTimeParts = split(cTimePart, ":")
+	    if len(aTimeParts) < 2
+	        return FALSE
+	    ok
+	    
+	    nHour = 0+ aTimeParts[1]
+	    nMinute = 0+ aTimeParts[2]
+	    nSecond = 0
+	    nMs = 0
+	    
+	    if len(aTimeParts) >= 3
+	        cSecPart = aTimeParts[3]
+	        if substr(cSecPart, ".") > 0
+	            aSecParts = split(cSecPart, ".")
+	            nSecond = 0+ aSecParts[1]
+	            if len(aSecParts) >= 2
+	                nMs = 0+ aSecParts[2]
+	            ok
+	        else
+	            nSecond = 0+ cSecPart
+	        ok
+	    ok
+	    
+	    # Adjust for PM
+	    if bPM and nHour < 12
+	        nHour = nHour + 12
+	    ok
+	    
+	    # Create QDateTime
+	    try
+	        oDate = new QDate()
+	        oDate.setDate(nYear, nMonth, nDay)
+	        
+	        oTime = new QTime()
+	        oTime.setHMS(nHour, nMinute, nSecond, nMs)
+	        
+	        @oQDateTime.setDate(oDate)
+	        @oQDateTime.setTime(oTime)
+	        
+	        if @oQDateTime.isValid()
+	            return TRUE
+	        ok
+	    catch
+	        return FALSE
+	    done
+	    
+	    return FALSE
+	
+	def TryManualDateParse(cDate)
+	    # Parse date-only strings
+	    aDateParts = []
+	    
+	    if substr(cDate, "/") > 0
+	        aDateParts = split(cDate, "/")
+	    but substr(cDate, "-") > 0
+	        aDateParts = split(cDate, "-")
+	    else
+	        return FALSE
+	    ok
+	    
+	    if len(aDateParts) != 3
+	        return FALSE
+	    ok
+	    
+	    nYear = 0
+	    nMonth = 0
+	    nDay = 0
+	    
+	    if len(aDateParts[1]) = 4
+	        nYear = 0+ aDateParts[1]
+	        nMonth = 0+ aDateParts[2]
+	        nDay = 0+ aDateParts[3]
+	    else
+	        nDay = 0+ aDateParts[1]
+	        nMonth = 0+ aDateParts[2]
+	        nYear = 0+ aDateParts[3]
+	    ok
+	    
+	    try
+	        oDate = new QDate()
+	        oDate.setDate(nYear, nMonth, nDay)
+	        
+	        oTime = new QTime()
+	        oTime.setHMS(0, 0, 0, 0)
+	        
+	        @oQDateTime.setDate(oDate)
+	        @oQDateTime.setTime(oTime)
+	        
+	        return @oQDateTime.isValid()
+	    catch
+	        return FALSE
+	    done
+	    
+	    return FALSE
 
 	#--- EPOCH-BASED CREATION METHODS ---#
 	
@@ -807,9 +807,9 @@ def TryManualDateParse(cDate)
 
     #--- COMPONENT EXTRACTION ---#
     
-	def Date()
-		acDateTime = @split(This.Content(), " ")
-		return acDateTime[1]
+    def Date()
+	acDateTime = @split(This.Content(), " ")
+	return acDateTime[1]
 
     def DateQ()
         return new stzDate(This.Date())
@@ -1279,99 +1279,99 @@ def TryManualDateParse(cDate)
 		def DateTime()
 			return This.ToStringXT("")
 
-def ToStringXT(cFormat)
-    if NOT isString(cFormat)
-        StzRaise("Incorrect param type! cFormat must be a string.")
-    ok
-
-    # Handle empty format FIRST (before regex validation)
-    if cFormat = ""
-        cFormat = $cDefaultDateTimeFormat
-        if @oQDateTime.time().msec() > 0
-            cFormat = "yyyy-MM-dd HH:mm:ss.zzz"
-        ok
-    ok
-    
-    # Handle named patterns
-    acNamedPatterns = [
-        "simple", "simple12h", "simple24h",
-        "long", "long12h", "long24h",
-        "short", "short12h", "short24h",
-        "medium", "medium12h", "medium24h",
-    ]
-
-    if ring_find(acNamedPatterns, cFormat) > 0
-
-        # Handle special named formats with 24h/12h variants
-        # Simple formats (concise, user-friendly)
-        if cFormat = "simple" or cFormat = "simple12h"
-            return This.ToSimple()  # Default: 12-hour (dd/MM/yyyy h:mm AM/PM)
-        
-        but cFormat = "simple24h"
-            return @oQDateTime.toString("dd/MM/yyyy HH:mm")  # 15/03/2024 14:30
-        
-        # Long formats (verbose, fully spelled out)
-        but cFormat = "long" or cFormat = "long12h"
-            return This.ToLong()  # Default: 12-hour (dddd, MMMM d, yyyy h:mm:ss AM/PM)
-        
-        but cFormat = "long24h"
-            return @oQDateTime.toString("dddd, MMMM d, yyyy HH:mm:ss")  # Friday, March 15, 2024 14:30:45
-        
-        # Short formats (minimal, no year sometimes)
-        but cFormat = "short" or cFormat = "short12h"
-            nHour = This.Hours()
-            nHour12 = ConvertTo12Hour(nHour)
-            cAmPm = GetAmPmText(nHour)
-            return @oQDateTime.toString("dd/MM") + " " + nHour12 + ":" + 
-                   Right("0" + This.Minutes(), 2) + " " + cAmPm  # 15/03 2:30 PM
-        
-        but cFormat = "short24h"
-            return @oQDateTime.toString("dd/MM HH:mm")  # 15/03 14:30
-        
-        # Medium formats (balanced detail)
-        but cFormat = "medium" or cFormat = "medium12h"
-            nHour = This.Hours()
-            nHour12 = ConvertTo12Hour(nHour)
-            cAmPm = GetAmPmText(nHour)
-            return @oQDateTime.toString("ddd, MMM d") + " " + nHour12 + ":" + 
-                   Right("0" + This.Minutes(), 2) + " " + cAmPm  # Fri, Mar 15 2:30 PM
-        
-        but cFormat = "medium24h"
-            return @oQDateTime.toString("ddd, MMM d HH:mm")  # Fri, Mar 15 14:30
-        ok
-
-    ok
-
-    # Get actual Qt format string
-    cQtFormat = GetDateTimeFormat(cFormat)
-    
-    # Check if this is a 12-hour format that needs manual AM/PM handling
-    if substr(upper(cQtFormat), "AP") > 0
-        # Remove AP marker from format and format the datetime
-        cFormatWithout12h = substr(cQtFormat, "AP", "")
-        cFormatWithout12h = substr(cFormatWithout12h, "ap", "")
-        cFormatWithout12h = trim(cFormatWithout12h)
-        
-        # Replace HH with actual 12-hour value
-        nHour = This.Hours()
-        nHour12 = ConvertTo12Hour(nHour)
-        
-        # Replace hh in format with actual hour
-        cFormatFinal = substr(cFormatWithout12h, "hh", "" + nHour12)
-        if cFormatFinal = cFormatWithout12h
-            # Try single h
-            cFormatFinal = substr(cFormatWithout12h, "h", "" + nHour12)
-        ok
-        
-        cResult = @oQDateTime.toString(cFormatFinal)
-        cAmPm = GetAmPmText(nHour)
-        
-        return cResult + " " + cAmPm
-    else
-        # Standard 24-hour format
-        return @oQDateTime.toString(cQtFormat)
-    ok
+	def ToStringXT(cFormat)
+	    if NOT isString(cFormat)
+	        StzRaise("Incorrect param type! cFormat must be a string.")
+	    ok
 	
+	    # Handle empty format FIRST (before regex validation)
+	    if cFormat = ""
+	        cFormat = $cDefaultDateTimeFormat
+	        if @oQDateTime.time().msec() > 0
+	            cFormat = "yyyy-MM-dd HH:mm:ss.zzz"
+	        ok
+	    ok
+	    
+	    # Handle named patterns
+	    acNamedPatterns = [
+	        "simple", "simple12h", "simple24h",
+	        "long", "long12h", "long24h",
+	        "short", "short12h", "short24h",
+	        "medium", "medium12h", "medium24h",
+	    ]
+	
+	    if ring_find(acNamedPatterns, cFormat) > 0
+	
+	        # Handle special named formats with 24h/12h variants
+	        # Simple formats (concise, user-friendly)
+	        if cFormat = "simple" or cFormat = "simple12h"
+	            return This.ToSimple()  # Default: 12-hour (dd/MM/yyyy h:mm AM/PM)
+	        
+	        but cFormat = "simple24h"
+	            return @oQDateTime.toString("dd/MM/yyyy HH:mm")  # 15/03/2024 14:30
+	        
+	        # Long formats (verbose, fully spelled out)
+	        but cFormat = "long" or cFormat = "long12h"
+	            return This.ToLong()  # Default: 12-hour (dddd, MMMM d, yyyy h:mm:ss AM/PM)
+	        
+	        but cFormat = "long24h"
+	            return @oQDateTime.toString("dddd, MMMM d, yyyy HH:mm:ss")  # Friday, March 15, 2024 14:30:45
+	        
+	        # Short formats (minimal, no year sometimes)
+	        but cFormat = "short" or cFormat = "short12h"
+	            nHour = This.Hours()
+	            nHour12 = ConvertTo12Hour(nHour)
+	            cAmPm = GetAmPmText(nHour)
+	            return @oQDateTime.toString("dd/MM") + " " + nHour12 + ":" + 
+	                   Right("0" + This.Minutes(), 2) + " " + cAmPm  # 15/03 2:30 PM
+	        
+	        but cFormat = "short24h"
+	            return @oQDateTime.toString("dd/MM HH:mm")  # 15/03 14:30
+	        
+	        # Medium formats (balanced detail)
+	        but cFormat = "medium" or cFormat = "medium12h"
+	            nHour = This.Hours()
+	            nHour12 = ConvertTo12Hour(nHour)
+	            cAmPm = GetAmPmText(nHour)
+	            return @oQDateTime.toString("ddd, MMM d") + " " + nHour12 + ":" + 
+	                   Right("0" + This.Minutes(), 2) + " " + cAmPm  # Fri, Mar 15 2:30 PM
+	        
+	        but cFormat = "medium24h"
+	            return @oQDateTime.toString("ddd, MMM d HH:mm")  # Fri, Mar 15 14:30
+	        ok
+	
+	    ok
+	
+	    # Get actual Qt format string
+	    cQtFormat = GetDateTimeFormat(cFormat)
+	    
+	    # Check if this is a 12-hour format that needs manual AM/PM handling
+	    if substr(upper(cQtFormat), "AP") > 0
+	        # Remove AP marker from format and format the datetime
+	        cFormatWithout12h = substr(cQtFormat, "AP", "")
+	        cFormatWithout12h = substr(cFormatWithout12h, "ap", "")
+	        cFormatWithout12h = trim(cFormatWithout12h)
+	        
+	        # Replace HH with actual 12-hour value
+	        nHour = This.Hours()
+	        nHour12 = ConvertTo12Hour(nHour)
+	        
+	        # Replace hh in format with actual hour
+	        cFormatFinal = substr(cFormatWithout12h, "hh", "" + nHour12)
+	        if cFormatFinal = cFormatWithout12h
+	            # Try single h
+	            cFormatFinal = substr(cFormatWithout12h, "h", "" + nHour12)
+	        ok
+	        
+	        cResult = @oQDateTime.toString(cFormatFinal)
+	        cAmPm = GetAmPmText(nHour)
+	        
+	        return cResult + " " + cAmPm
+	    else
+	        # Standard 24-hour format
+	        return @oQDateTime.toString(cQtFormat)
+	    ok
+		
 	# Short formats
 
 	def ToShort()
