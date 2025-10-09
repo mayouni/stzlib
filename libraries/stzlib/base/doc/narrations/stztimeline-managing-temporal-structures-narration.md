@@ -1,549 +1,479 @@
-# Managing Temporal Structures with `stzTimeLine`
+# **Visual Time Modeling in Softanza using `stzTimeLine`**
 
-Time in real-world applications is more than a number on a clock — it is **structured**, **sequenced**, and **meaningful**.
+> *Time isn’t a line you scroll through — it’s a canvas you shape.*
 
-A restaurant's daily shifts, a project's phases, or a student's academic year all unfold **over time**, often overlapping, aligning, or depending on each other.
+Imagine you’re planning a product launch. You’ve got milestones, sprints, blackout dates for holidays, and three HR reviews scattered across the year. In most systems, that’s a spreadsheet or a calendar invite.  
+In **Softanza**, it’s a **living timeline** you can **see**, **query**, and **refactor** — all from the console.
 
-While `stzDate`, `stzTime`, `stzDuration`, and `stzDateTime` each specialize in handling different aspects of time, **`stzTimeLine`** turns time into a programmable structure you can navigate, analyze, and visualize. Together, they form a complete language for expressing time — from *"how long"* to *"when"* to *"what happens during"*.
+Let’s build one together — step by step, visually, interactively.
 
-## The Concept of `TimeLine`
+---
 
-A Timeline as defined in the `stzTimeLine` class defines a **bounded period** and arranges within it two types of temporal entities:
+## 🌱 Starting with Boundaries
 
-* **Points** — instantaneous events (like deliveries, releases, or meetings).
-* **Spans** — intervals with start and end times (like projects, seasons, or campaigns).
-
-Each item has a *label* to describe what it represents.
-Labels don't have to be unique — several events can share the same label if they represent similar occurrences.
-
-## Creating a Timeline
-
-A timeline always begins with explicit temporal limits:
+Every meaningful story has a beginning and an end. So does every `stzTimeLine`.
 
 ```ring
+load "../stzbase.ring"
+
 oTimeLine = new stzTimeLine(
     :Start = "2024-01-01 00:00:00",
     :End   = "2024-12-31 23:59:59"
 )
 ```
 
-All subsequent items must remain within these boundaries.
-Adding a span outside them raises an exception, ensuring structural consistency.
-
-### Simplified Date Input
-
-Date-only timestamps are automatically normalized to midnight:
+This isn’t just metadata — it’s a **contract**. Try adding an event in 2025, and Softanza stops you cold:
 
 ```ring
-oTimeLine.AddPoint("MEETING", "2024-03-15")  # → 2024-03-15 00:00:00
-oTimeLine.AddSpan("WEEK", "2024-03-01", "2024-03-07")
+oTimeLine.AddPoint("FUTURE", "2025-01-15")
+#--> ERROR: Point 'FUTURE' is outside timeline boundaries
 ```
 
-This makes timeline construction more intuitive for day-level planning.
+> 🔒 Boundaries enforce **temporal integrity**. No rogue datetimes. No silent bugs.
 
-## Adding Points and Spans
-
-
-### Adding Points — Single Moments
-
-A point defines an instantaneous event.
+And don’t worry about format quirks — Softanza **normalizes intelligently**:
 
 ```ring
-oTimeLine.AddPoint("MEETING", "2024-03-15 10:00:00")
-```
-
-As introduced above, points can share labels. This flexibility allows us to tag different moments in time with similar labels — for example, when we define three meetings all related to evaluating employees:
-
-```ring
-oTimeLine {
-	AddPoints([
-		["HR-EVAL-MEETING", "2024-03-15 10:00:00"],
-		["HR-EVAL-MEETING", "2024-05-16 14:30:00"],
-		["HR-EVAL-MEETING", "2024-08-17 09:00:00"]
-	])
-}
-
-? oTimeLine.CountPoints()  #--> 3
-? oTimeLine.PointNames()   #--> ["HR-EVAL-MEETING"]  # Unique names only
-? oTimeLine.PointNamesXT() #--> [["HR-EVAL-MEETING", 3]]  # With counts
-```
-
-This will be useful when querying our timeline for all moments that share the same `"HR-EVAL-MEETING"` tag, using the `FindPoints()` method (also called `FindMoment()`) like this:
-
-```ring
-? FindPoint("HR-EVAL-MEETING")
-#--> [ "2024-03-15 10:00:00", "2024-05-16 14:30:00", "2024-08-17 09:00:00" ]
-```
-
-Effectively, our evaluation meeting occurs exactly at these three datetimes!
-
->**NOTE:** Later, in the _Querying the Timeline_ section, we will discover how to search the timeline by datetime using the `WhatAt()` method — not by label as we’ve done here with `FindPoint()`.
-
-
-### Adding Spans — Continuous Periods
-
-Spans represent intervals between two datetimes:
-
-```ring
-oTimeLine {
-	AddSpan("PROJECT",  "2024-03-01 00:00:00", "2024-05-31 23:59:59")
-	AddSpan("CAMPAIGN", "2024-03-10 00:00:00", "2024-03-20 23:59:59")
-}
-```
-
-**Enhanced Validation**: Invalid spans (where start ≥ end) raise descriptive errors:
-
-```ring
-try
-    oTimeLine.AddSpan("INVALID", "2024-03-15 10:00:00", "2024-03-15 10:00:00")
-catch
-    ? "Error: Span 'INVALID' has invalid dates..."
-done
-```
-
-## Querying the Timeline
-
-### Finding What Happens at a Given Time
-
-Sometimes, we need to know what’s going on at a particular moment in our timeline — not by label, but by **time itself**.\
-That’s exactly what the `WhatsAt()` method is for. It lists every element that is active at the given instant, returning results in the **\[ label, type ]** format:
-
-```ring
-? @@NL( oTimeLine.WhatsAt("2024-03-15 10:00:00") )
+o1 = new stzTimeLine("2024-10-10", "2024-10-22 16:40:00")
+? @@NL(o1.Content())
 #--> [
-#    ["MEETING", :Point],
-#    ["PROJECT", :Span],
-#    ["CAMPAIGN", :Span]
+#     [ "start", "2024-10-10 00:00:00" ],
+#     [ "end",   "2024-10-22 16:40:00" ],
+#     [ "points", [] ],
+#     [ "spans",  [] ]
 # ]
 ```
 
-In this example, three different elements overlap at that exact moment: a meeting point, a running project, and an ongoing campaign. This makes `WhatsAt()` particularly useful for detecting **concurrent activities** or understanding **context around an event**.
+Missing time? It becomes `00:00:00`. Clean, predictable, safe.
 
-**Flexible Matching:**
-Depending on what you provide as input, `WhatsAt()` automatically adapts the scope of its search:
+---
 
-- **Date-only search:** `WhatsAt("2024-03-15")` → returns all events occurring on that date
--  **Time-only search:** `WhatsAt("10:00:00")` → finds everything happening at that time across all dates
--  **Exact search:** providing a full datetime triggers a precise match
+## ⚡ Adding Moments — Even When They Repeat
 
-This flexibility allows you to explore your timeline from any perspective — whether you’re reviewing a whole day’s schedule or pinpointing what was active at a single moment in time.
-
-### Finding What Happens Between Two Instants
-
-`WhatsBetween()` lets you check all timeline elements that overlap a given **time range**. For example, to find what is active between `"2024-03-01"` and `"2024-03-15"`:
-
-```
-? @@NL( oTimeLine.WhatsBetween("2024-03-01", "2024-03-15") )
-#--> [
-#    ["PROJECT", :Span],
-#    ["CAMPAIGN", :Span],
-#    ["HR-EVAL-MEETING", :Point]
-# ]
-```
-
-This is particularly useful for planning or analyzing **coverage across a period**, not just a single instant.
-
-### Counting and Listing Elements
-
-Once your timeline is populated, you may want to get an overview of its contents — how many points and spans it includes, and how they’re distributed.
+Let’s say your team does **quarterly HR evaluations**. Same label, different dates. That’s not a bug — it’s a **feature**.
 
 ```ring
-? oTimeLine.CountPoints()    #--> 3
-? oTimeLine.PointNames()     #--> ["EVENT1"]  # Deduplicated
-? oTimeLine.PointNamesXT()   #--> [["EVENT1", 3]]  # With occurrence counts
-
-? oTimeLine.CountSpans()     #--> 3
-? oTimeLine.SpanNames()      #--> ["Q1", "Q2", "Q3"]
-? oTimeLine.SpanNamesXT()    #--> [["Q1", 1], ["Q2", 1], ["Q3", 1]]
+oTimeLine = new stzTimeLine("2024-01-01", "2024-12-31")
+oTimeLine.AddMoments([
+    ["HR-EVAL", "2024-03-15 10:00:00"],
+    ["HR-EVAL", "2024-05-16 14:30:00"],
+    ["HR-EVAL", "2024-08-17 09:00:00"]
+])
 ```
 
-Here, we can see that the timeline contains three points and three spans. While `CountPoints()` and `CountSpans()` give us totals, the `Names()` and `NamesXT()` methods go further — listing all distinct names and their occurrence counts. This is especially useful when several elements share the same label, helping you verify data consistency at a glance.
-
-
-### Existence and Validation
-
-Before performing actions on timeline items, it’s a good habit to check if they actually exist. The following methods make that easy:
+Now ask: *“How many HR-EVALs do we have?”*
 
 ```ring
-? oTimeLine.HasPoint("SUMMER")  #--> TRUE
-? oTimeLine.HasSpan("Q3")       #--> TRUE
+? oTimeLine.PointNamesXT()
+#--> [["HR-EVAL", 3]]
 ```
 
-These quick checks prevent runtime errors and ensure your code behaves safely when manipulating user-provided data.
+> 💡 **Same-label grouping** enables powerful analytics: count occurrences, find all instances, highlight them together — all without extra code.
 
-## Editing and Validation
-
-### Removing Items
-
-When you need to clean up or modify your timeline, you can remove elements just as easily:
+And yes — labels are **case-insensitive internally**:
 
 ```ring
-oTimeLine.RemoveSpan("PHASE2")
-? oTimeLine.CountSpans()  #--> 2
+? oTimeLine.HasPoint("hr-eval")  # TRUE
+? oTimeLine.HasPoint("Hr-EvAl")  # TRUE
 ```
 
-Here, we delete the span named `"PHASE2"`. The count immediately reflects the change, confirming the removal worked as expected.
-
-### Boundary Enforcement
-
-Every point and span must fit within the timeline’s defined boundaries. If you attempt to add something that extends beyond, the system automatically prevents it and raises an error:
+Even **empty labels** are allowed (useful for anonymous markers):
 
 ```ring
-try
-    oTimeLine.AddSpan("OVERFLOW", "2024-11-01", "2025-02-28")
-catch
-    ? "Error: Span outside timeline boundaries"
-done
+oTimeLine.AddMoment("", "2024-06-01")
 ```
 
-This kind of validation keeps your timeline coherent and ensures the integrity of all operations.
+---
 
-## Detecting Overlaps and Gaps
+## 📏 Defining Periods — With Overlap Awareness
 
-### Overlap Analysis
+Now add a project and a marketing campaign:
 
-When two spans share a common time window, it’s considered an overlap — and the timeline can detect it instantly:
+```ring
+oTimeLine.AddPeriod("PROJECT", "2024-03-01", "2024-05-31")
+oTimeLine.AddPeriod("CAMPAIGN", "2024-03-10", "2024-03-20")
+```
+
+Notice: `AddPeriod()` is just an alias for `AddSpan()` — same with `AddMoment()` vs `AddPoint()`. Choose the word that fits your domain.
+
+But here’s where Softanza shines: **it sees overlaps**.
 
 ```ring
 ? oTimeLine.HasOverlaps()
 #--> TRUE
 
-? @@( oTimeLine.OverlappingSpans() )
-#--> [
-#    ["PROJECT", "CAMPAIGN", 950400]  # Duration in seconds
-# ]
+? @@(oTimeLine.OverlappingSpans())
+#--> [["PROJECT", "CAMPAIGN", 864000]]  # 10 days of overlap
 ```
 
-This output shows that the `"PROJECT"` and `"CAMPAIGN"` spans overlap for 950,400 seconds. Overlap detection is crucial for scheduling tasks, resource management, or detecting conflicting activities.
+No hidden conflicts. No manual date math. Just **truth**.
 
-### Gap Detection
+---
 
-In contrast, gaps represent **idle or uncovered** periods between spans. Detecting them helps identify free time slots or missing coverage.
+## 👁️ Seeing Is Believing — Three Views, One Engine
+
+### First: `.ShowShort()` — The Sketch
 
 ```ring
-? @@NL( oTimeLine.Gaps() )
-#--> [
-#    [:After = "Q1", :Before = "Q2", :Duration = 86400]
-# ]
-
-? @@NL( oTimeLine.UncoveredPeriods() )
-#--> Periods between timeline boundaries and spans
+oTimeLine.ShowShort()
 ```
 
-With this insight, you can easily plan what to fill next, or confirm that your timeline achieves full coverage from start to end.
+**Output:**
+```
+╞PROJECT══╡  ╞═CAMPAIGN═╡                           
 
-## Visualizing the Timeline
+│───────────●────────────●──────────────────────────►
+            1            2                          
+```
 
-### Basic Display with `Show()`
+- `●` = moments  
+- `╞══╡` = periods  
+- Numbers = event order
 
-Visual feedback is often the most intuitive way to understand your data. Calling `Show()` draws an ASCII representation of your timeline directly in the console:
+Clean. Immediate. Perfect for quick checks.
+
+---
+
+### Next: `.Show()` — The Full Story
 
 ```ring
-oTimeLine = new stzTimeLine(
-	:Start = "2024-01-01 00:00:00",
-	:End = "2024-12-31 23:59:59"
-)
-
-oTimeLine {
-	AddSpan("PHASE1", "2024-01-01 00:00:00", "2024-02-15 23:59:59")
-	AddSpan("PHASE2", "2024-03-01 00:00:00", "2024-04-15 23:59:59")
-	AddSpan("PHASE3", "2024-05-01 00:00:00", "2024-06-30 23:59:59")
-}
-
 oTimeLine.Show()
 ```
 
-Output:
-
+**Output:**
 ```
-╞PHASE1╡ ╞═════╡ ╞PHASE3═╡                          
-●──────●─●─────●─●───────●───────────────────────────►
-1      2 3     4 5       6                          
+╞PROJECT══╡  ╞═CAMPAIGN═╡                           
+
+│───────────●────────────●──────────────────────────►
+            1            2                          
 
 ╭────┬─────────────────────┬───────────┬────────────────────╮
 │ No │      Timepoint      │   Label   │    Description     │
 ├────┼─────────────────────┼───────────┼────────────────────┤
-│  1 │ 2024-01-01 00:00:00 │ PHASE1 │ Start of PHASE1 │
-│  2 │ 2024-02-15 23:59:59 │ PHASE1 │ End of PHASE1 │
-...
+│    │ 2024-01-01 00:00:00 │           │ Timeline start     │
+│  1 │ 2024-03-01 00:00:00 │ PROJECT   │ Start of PROJECT   │
+│  2 │ 2024-03-10 00:00:00 │ CAMPAIGN  │ Start of CAMPAIGN  │
+│  3 │ 2024-03-15 10:00:00 │ HR-EVAL   │ HR-EVAL event      │
+│  4 │ 2024-03-20 00:00:00 │ CAMPAIGN  │ End of CAMPAIGN    │
+│  5 │ 2024-05-16 14:30:00 │ HR-EVAL   │ HR-EVAL event      │
+│  6 │ 2024-05-31 00:00:00 │ PROJECT   │ End of PROJECT     │
+│  7 │ 2024-08-17 09:00:00 │ HR-EVAL   │ HR-EVAL event      │
+│    │ 2024-12-31 23:59:59 │           │ Timeline end       │
+╰────┴─────────────────────┴───────────┴────────────────────╯
 ```
 
-**Visual Elements**:
+Every boundary, every event — **chronologically ordered**, **human-readable**.
 
-- `|` — Timeline origin
-- `─` — Axis line
-- `●` — Points/timepoints
-- `╞═╡` — Span bars
-- `──►` — Direction arrow
+---
 
-And these that we will present later in the article:
-- `█` — Highlighted items (searches)
-- `/` — Uncovered regions
-- `x`  — Blocked regions 
+### Finally: `.ShowXT()` — The Unified Visual Engine
 
-### Enhanced Display Options
+Behind both `.Show()` and `.ShowShort()` lies **one powerful renderer**: `.ShowXT()`.
 
-Need more control over how things look? The `ShowShort()` and `ToStringXT()` methods give you flexibility in what to display.
-
-**Show visual only** (no table):
+Want stats instead of a table?
 
 ```ring
-? oTimeLine.ShowShort()
+oTimeLine.ShowXT([:TableType = :Statistical])
 ```
 
-**Control table display:**
+**Output:**
+```
+╞PROJECT══╡  ╞═CAMPAIGN═╡                           
+
+│───────────●────────────●──────────────────────────►
+            1            2                          
+
+╭────────────────────┬────────────────╮
+│       Metric       │     Value      │
+├────────────────────┼────────────────┤
+│ Total Points       │              3 │
+│ Total Spans        │              2 │
+│ Timeline Duration  │ 1 year         │
+│ Coverage           │ 25%            │
+│ Longest Span       │ PROJECT (92 days) │
+│ Gaps Between Spans │              0 │
+│ Overlapping Spans  │              1 │
+╰────────────────────┴────────────────╯
+```
+
+Or get the data directly:
 
 ```ring
-? oTimeLine.ToStringXT([
-    :Width = 80,
-    :ShowTable = FALSE
-])
-```
-
-**Statistical summary:**
-
-A statistical table can be displayed instead of the normal table we saw earlier, providing a concise, quantitative overview of the timeline — ideal for reports, debugging, or analytical reviews.
-
-```ring
-? oTimeLine.ToStringXT([:TableType = :Statistical])
-```
-
-Output:
-
-```
-╭──────────────────────┬────────────────────╮
-│       Metric         │       Value        │
-├──────────────────────┼────────────────────┤
-│ Total Points         │ 5                  │
-│ Total Spans          │ 3                  │
-│ Timeline Duration    │ 365 days           │
-│ Coverage             │ 82%                │
-│ Longest Span         │ Q3 (92 days)       │
-│ Gaps Between Spans   │ 2                  │
-│ Overlapping Spans    │ 1                  │
-╰──────────────────────┴────────────────────╯
-```
-
-To get the statistics in a Ring list you can call the `Stats()`method directly, like this:
-
-```ring
-oTimeLine.Stats()
+? @@NL(oTimeLine.Stats())
 #--> [
-	[ "metric", "value" ],
-
-	[ "Total Points", 2 ],
-	[ "Total Spans", 1 ],
-	[ "Timeline Duration", "1 year" ],
-	[ "Coverage", "25%" ],
-	[ "Longest Span", "PREP (92 days)" ],
-	[ "Gaps Between Spans", 0 ],
-	[ "Overlapping Spans", 0 ]
-]
+#     ["metric", "value"],
+#     ["Total Points", 3],
+#     ["Total Spans", 2],
+#     ["Timeline Duration", "1 year"],
+#     ["Coverage", "25%"],
+#     ["Longest Span", "PROJECT (92 days)"],
+#     ["Gaps Between Spans", 0],
+#     ["Overlapping Spans", 1]
+# ]
 ```
 
-### Highlighting Specific Elements
+> 📊 This is your **temporal dashboard** — in one call.
 
-Highlighting is a quick way to focus on a particular point or span:
+---
 
-**Find and highlight points:**
+## 🔍 Querying Time Like a Human
+
+What’s happening **right now**?
 
 ```ring
-oTimeLine = new stzTimeLine(
-	:Start = "2024-01-01 00:00:00",
-	:End = "2024-12-31 23:59:59"
-)
-
-oTimeLine {
-	AddMoments([
-		[ "EVENT_1", "2024-02-15 10:00:00" ],
-		[ "EVENT_2", "2024-05-15 10:00:00" ],
-		[ "EVENT_1", "2024-08-15 10:00:00" ]
-	])
-}
-
-? oTimeLine.vizFindMoment("EVENT_1")
-```
-Output:
+? @@NL(oTimeLine.WhatsAt("2024-03-15 10:00:00"))
+#--> [
+#     ["HR-EVAL", "point"],
+#     ["PROJECT", "span"],
+#     ["CAMPAIGN", "span"]
+# ]
 ```
 
-    EVENT_1     EVENT_2      EVENT_1                
-│──────█───────────●────────────█────────────────────►
-       1           2            3                  
-```
-
-**Find and highlight spans** (highlights axis, not label):
-
-The output visually emphasizes the corresponding regions using `█` symbols along the axis, making it easy to locate key events:
-```ring
-oTimeLine = new stzTimeLine(
-	:Start = "2024-01-01 00:00:00",
-	:End = "2024-12-31 23:59:59"
-)
-
-oTimeLine {
-	AddPeriods([
-		[ "SUCCESS", "2024-01-01 00:00:00", "2024-03-31 23:59:59" ],
-		[ "FAILURE", "2024-04-01 00:00:00", "2024-06-30 23:59:59" ],
-		[ "SUCCESS", "2024-07-01 00:00:00", "2024-09-30 23:59:59" ]
-	])
-}
-
-? oTimeLine.vizFindSpan("SUCCESS")
-```
-Output:
-```
-
-             ╞══FAILURE══╡                          
-╞══SUCCESS═══╡           ╞══SUCCESS═══╡             
-●████████████●───────────●████████████●──────────────►
-1            3           5            6             
-```
-
-### Visualizing Uncovered Periods
-
-When you call `ShowUncovered()`, the timeline explicitly displays the gaps using a `/` pattern — giving an instant view of idle intervals. Let's see it by example.
+What’s active **this month**?
 
 ```ring
-oTimeLine = new stzTimeLine(
-	:Start = "2024-01-01 00:00:00",
-	:End = "2024-12-31 23:59:59"
-)
-
-oTimeLine {
-	AddSpan("BUSY", "2024-03-01 00:00:00", "2024-05-31 23:59:59")
-}
-```
-Before visualizing the uncovered periods, let’s first retrieve them as data:
-```
-? oTimeLine.UncoveredPeriods()
-```
-Output:
-```
-[
-	[
-		[ "start", "2024-01-01 00:00:00" ],
-		[ "end", "2024-03-01 00:00:00" ],
-	[
-		[ "start", "2024-05-31 23:59:59" ],
-		[ "end", "2024-12-31 23:59:59" ],
-		[ "duration", 18489600 ]
-	]
-]
-```
-This provides two periods, each defined by a start and end datetime, along with the duration in seconds. The duration can be easily converted into any time unit (days, months, years…) using a `stzDuration` object, for example:
-```ring
-? StzDurationQ(18489600).Days
-#--> 214
+? oTimeLine.MomentsBetween("2024-03-01", :And = "2024-03-31")
+#--> ["HR-EVAL"]
 ```
 
-However, this information becomes even more intuitive when visualized on the timeline itself:
-```
-oTimeLine.ShowUncovered()
-#-->
-
-         ╞═══BUSY════╡                              
-|////////●───────────●///////////////////////////○─►
-         1           2                              
-╭────┬─────────────────────┬───────┬────────────────╮
-│ No │      Timepoint      │ Label │  Description   │
-├────┼─────────────────────┼───────┼────────────────┤
-│    │ 2024-01-01 00:00:00 │       │ Timeline start │
-│  1 │ 2024-03-01 00:00:00 │ BUSY  │ Start of BUSY  │
-│  2 │ 2024-05-31 23:59:59 │ BUSY  │ End of BUSY    │
-│    │ 2024-12-31 23:59:59 │       │ Timeline end   │
-╰────┴─────────────────────┴───────┴────────────────╯
-```
-
-This clear visualization makes it easy to identify periods of inactivity or gaps in coverage at a glance.
-
-
-### Dynamic Height Adjustment
-
-The visualization engine automatically adjusts the timeline’s height to accommodate overlapping spans. No more clipped bars or confusing overlaps — every element remains clear and readable.
+Even **partial inputs** work intuitively:
 
 ```ring
-oTimeLine {
-	AddSpan("PROJECT_A", "2024-02-01 00:00:00", "2024-05-31 23:59:59")
-	AddSpan("PROJECT_B", "2024-04-01 00:00:00", "2024-07-31 23:59:59")
-	AddSpan("PROJECT_C", "2024-06-01 00:00:00", "2024-09-30 23:59:59")
+? @@NL(oTimeLine.WhatsAt("2024-03-15"))   # All events on that date
+? @@NL(oTimeLine.WhatsAt("10:00:00"))     # All events at that time
+```
 
-	AddPoint("MILESTONE1", "2024-03-15 00:00:00")
-	AddPoint("MILESTONE2", "2024-08-15 00:00:00")
-}
+Softanza **infers context** — so you don’t have to.
 
+---
+
+## 🚫 Blocking Forbidden Time
+
+Some days, the system is down for maintenance. Others, leadership is on retreat. Mark those as **blocked**:
+
+```ring
+oTimeLine.AddBlockedSpan("MAINTENANCE", "2024-07-01", "2024-07-15")
+oTimeLine.AddBlockedPoint("2024-10-05 09:00:00")
+```
+
+Now try to schedule something inside:
+
+```ring
+oTimeLine.AddPoint("MEETING", "2024-07-10")
+#--> ERROR: Point 'MEETING' falls within a blocked span or blocked point
+```
+
+Check proactively:
+
+```ring
+? oTimeLine.IsBlocked("2024-07-10")  # TRUE
+? oTimeLine.IsRangeBlocked("2024-07-14", "2024-07-16")  # TRUE (partial overlap)
+```
+
+And **see it visually**:
+
+```ring
 oTimeLine.Show()
 ```
 
-Output:
-
+**Output snippet:**
 ```
-             
-                     ╞═══PROJECT_C════╡             
-             ╞═══PROJECT_B════╡                     
-     ╞MILESTONE1_A═══╡     MILESTONE2               
-│────●─────●─●───────●────────●─●─────●──────────────►
-     1     2 3       5        6 7     8             
+|───────●──────XXXXX─────●───────X──────────────────○─►
+        1                2               
 ```
-## Distance and Duration Calculations
 
-Timelines are about time, after all — so measuring durations is key.\
-The `Distance()` methods help compute intervals between points, spans, or any labeled elements.
+- `x` = blocked span  
+- `X` = blocked point  
+
+No guesswork. No calendar drift.
+
+---
+
+## 🔍 Highlighting What Matters
+
+Got three `"HR-EVAL"` events? Highlight them:
 
 ```ring
-? oTimeLine.Distance(:From = "MEETING", :To = "LAUNCH")
-#--> Duration in seconds
-
-? oTimeLine.DistanceBetweenQ("Q1", "Q2").ToHuman()
-#--> "15 days"
+oTimeLine.VizFindMoment("HR-EVAL")
 ```
 
-These calculations make it easy to build analytics, compare project phases, or display user-friendly durations like _“2 months and 3 days.”_
+**Output:**
+```
+    HR-EVAL                HR-EVAL                HR-EVAL
+│──────█─────────────────────█──────────────────────█────○─►
+       1                     2                      3     
+```
 
-## Error Handling and Safety Patterns
+- `█` = highlighted moment
 
-Softanza’s design philosophy emphasizes **reliability through clarity**.\
-Follow these best practices to keep your timeline robust and error-free:
-
-- Wrap `AddSpan()` and `AddPoint()` calls in `try/catch` when dealing with user input
-- Use `HasPoint()` or `HasSpan()` before attempting removals
-- Compare counts before and after operations to validate expected results
-- Use `Show()` frequently to visualize and confirm structural changes
-- Rely on built-in boundary validation to prevent silent data corruption
-
-Together, these habits create safer, more predictable code — exactly what Softanza aims for.
-
-## End-to-End Example: Planning and Analysis
-
-Let’s wrap up with a complete example that demonstrates the core features in action.
+Same for spans:
 
 ```ring
-oTimeLine = new stzTimeLine([
-    :Start = "2024-01-01",
-    :End   = "2024-12-31"
-])
+oTimeLine.VizFindSpan("PROJECT")
+# Fills the PROJECT span with █
+```
 
+> 🎯 Focus your attention **without filtering data** — just visual emphasis.
+
+---
+
+## 🧱 Stacking Overlaps — Automatically
+
+When spans overlap, Softanza **stacks them vertically** so nothing hides:
+
+```ring
+oTimeLine = new stzTimeLine("2024-01-01", "2024-12-31")
 oTimeLine {
-    AddPoint("MEETING", "2024-03-15 10:00:00")
-    AddSpan("PROJECT",  "2024-03-01", "2024-05-31")
-    AddSpan("CAMPAIGN", "2024-03-10", "2024-03-20")
+    AddSpan("A", "2024-02-01", "2024-05-31")
+    AddSpan("B", "2024-04-01", "2024-07-31")
+    AddSpan("C", "2024-06-01", "2024-09-30")
 }
-
-? @@NL( oTimeLine.WhatsAt("2024-03-15") )
-#--> All events on that date
-
-? oTimeLine.HasOverlaps()   #--> TRUE
-
-? oTimeLine.ToStringXT([:TableType = :Statistical])
-#--> Complete statistical overview
-
-oTimeLine.ShowUncovered()
-#--> Visual gap analysis
+oTimeLine.Show()
 ```
 
-This small scenario covers everything: defining points and spans, detecting overlaps, checking coverage, and visualizing results — a full planning and analysis workflow in just a few lines of code.
+**Output:**
+```
+                 ╞══C══╡
+            ╞══B══╡
+╞══A══╡
+●─────●────────●──────────────►
+```
 
+No configuration. No z-index. Just **automatic clarity**.
 
-## Comparative Analysis: `stzTimeLine` vs. Other Ecosystems
+---
+
+## 🕳️ Revealing Idle Time with `ShowUncovered()`
+
+What if you want to know **when nothing is happening**? That’s **uncovered time** — crucial for capacity planning or identifying scheduling opportunities.
+
+```ring
+oTimeLine = new stzTimeLine("2024-01-01", "2024-12-31")
+oTimeLine {
+    AddSpan("BUSY", "2024-03-01", "2024-05-31")
+    AddSpan("BUSY", "2024-08-01", "2024-09-20")
+    AddMoment("MMM", "2024-08-01")
+}
+oTimeLine.ShowUncovered()
+```
+
+**Output:**
+```
+              ╞===BUSY====╡                          
+          ╞===BUSY====╡        ╞=BUSY=╡              
+|////////●───●───────●───●////◉──────●///////////○─►
+         1   2       3   4   5-6     7                     
+```
+
+- `/` = **uncovered (idle) time**  
+- `◉` = boundary where uncovered meets a defined event
+
+This isn’t just visual — you can **query it programmatically**:
+
+```ring
+? @@NL(oTimeLine.UncoveredPeriods())
+#--> [
+#  [ [ "start", "2024-01-01 00:00:00" ], [ "end", "2024-03-01 00:00:00" ], [ "duration", 5184000 ] ],
+#  [ [ "start", "2024-05-31 23:59:59" ], [ "end", "2024-08-01 00:00:00" ], [ "duration", 5270401 ] ],
+#  [ [ "start", "2024-09-20 23:59:59" ], [ "end", "2024-12-31 23:59:59" ], [ "duration", 8035200 ] ]
+# ]
+```
+
+> 🕳️ **Uncovered ≠ Gaps**:  
+> - **Gaps** are only *between spans* (`Gaps()` returns `[:After, :Before, :Duration]`)  
+> - **Uncovered** is *total idle time* across the entire timeline — including before the first and after the last event.
+
+---
+
+## 📏 Measuring Time — Naturally
+
+How far apart are two events?
+
+```ring
+oTimeLine.AddPoint("START", "2024-01-15")
+oTimeLine.AddPoint("END", "2024-03-15")
+? oTimeLine.DistanceQ("START", "END").ToHuman()
+#--> "60 days"
+```
+
+From span to point?
+
+```ring
+? oTimeLine.TimeBetween("PROJECT", "HR-EVAL")
+#--> 1296000 seconds (15 days)
+```
+
+> 📏 `.Distance()` and `.TimeBetween()` are **context-aware**: they use the closest boundaries.
+
+---
+
+## 🧹 Maintenance & Safety
+
+Timelines are **mutable**:
+
+```ring
+oCopy = oTimeLine.Copy()
+oTimeLine.Clear()
+? oTimeLine.CountPoints()  # 0
+? oCopy.CountPoints()      # 3
+```
+
+And **self-describing**:
+
+```ring
+? @@NL(oTimeLine.Summary())
+#--> [
+#     :Start = "2024-01-01 00:00:00",
+#     :End = "2024-12-31 23:59:59",
+#     :TotalDuration = "1 year",
+#     :CountPoints = 3,
+#     :CountSpans = 2,
+#     ...
+# ]
+```
+
+Errors are **explicit**, not cryptic:
+
+```ring
+oTimeLine.AddSpan("BAD", "2024-03-15", "2024-03-15")
+#--> ERROR: Span 'BAD' has invalid dates. Start time must be before end time
+```
+
+---
+
+## 🧩 The Full Picture — One Final Example
+
+```ring
+oTimeLine = new stzTimeLine("2024-01-01", "2024-12-31")
+oTimeLine {
+    AddMoments([
+        ["HR-EVAL", "2024-03-15"],
+        ["HR-EVAL", "2024-08-17"]
+    ])
+    AddPeriod("PROJECT", "2024-03-01", "2024-05-31")
+    AddBlockedSpan("MAINTENANCE", "2024-07-01", "2024-07-15")
+    AddBlockedPoint("2024-10-05 09:00:00")
+}
+oTimeLine.ShowXT()
+```
+
+**Output:**
+```
+╞PROJECT══╡                                           
+
+│──────█────●────────────█──────XXXXX──────X────────○─►
+       1    2            3                4          
+```
+
+Events, spans, blocks — all **coexisting**, **visible**, **queryable**.
+
+---
+
+## 🌟 Softanza Advantage: `stzTimeLine` vs. Other Ecosystems
+
+Most time libraries stop at **parsing and formatting**. A few go further with intervals or durations. But none offer what `stzTimeLine` delivers: a **complete, visual, analytical model of time itself** — all in one dependency-free Ring class.
+
+Here’s how it stacks up:
 
 | Feature / Capability               | `stzTimeLine` (Ring)         | Python (`datetime` + libs)     | Java (`java.time` + extras)    | JavaScript (Luxon/Moment)      | Specialized (e.g., TimelineJS) |
 |----------------------------------|------------------------------|--------------------------------|--------------------------------|--------------------------------|-------------------------------|
@@ -560,13 +490,25 @@ This small scenario covers everything: defining points and spans, detecting over
 | **Dynamic height adjustment**    | ✅ Auto-calculated           |  ⚪                             |  ⚪                             |  ⚪                             | ⚠️ Fixed UI layout            |
 | **Label-based querying**         | ✅ `.Point("X")`, `.Span("Y")` |  ⚪ Loop/filter                |  ⚪ Loop/filter                 |  ⚪ Loop/filter                | ⚠️ Via ID                     |
 | **Occurrence counting**          | ✅ `.PointNamesXT()`, `.SpanNamesXT()` |  ⚪ Custom                |  ⚪ Custom                      |  ⚪ Custom                      |  ⚪                            |
+| **Blocked time regions**         | ✅ Spans **and** points      |  ⚪ Custom                      |  ⚪ Custom                      |  ⚪ Custom                      | ⚠️ Visual only                |
+| **Case-insensitive labels**      | ✅ Yes                       |  ⚪ Manual                      |  ⚪ Manual                      |  ⚪ Manual                      | ⚪                             |
+| **Empty-label support**          | ✅ Yes                       |  ⚪ Possible                    |  ⚪ Possible                    |  ⚪ Possible                    | ⚪                             |
 
-> **Takeaway**: `stzTimeLine` uniquely combines **temporal modeling**, **validation**, **statistical analysis**, **flexible querying**, and **rich console visualization** in a single, dependency-free class — ideal for scripting, testing, and backend logic in Ring.
+> **Takeaway**: `stzTimeLine` uniquely combines **temporal modeling**, **validation**, **statistical analysis**, **flexible querying**, and **rich console visualization** in a single, dependency-free class — ideal for scripting, testing, and backend logic in Ring.  
+> While other ecosystems require stitching together parsers, interval logic, and custom renderers, Softanza gives you a **cohesive, visual, and safe time workspace** out of the box.
 
-## Conclusion
+---
 
-`stzTimeLine` transforms time management from a low-level operation into a **semantic narrative**.
-Built atop the precise engines of `stzTime`, `stzDate`, `stzDuration`, and `stzDateTime`,
-it gives structure, insight, and context to your temporal data.
+## ✨ Conclusion: Time as a First-Class Citizen
 
-With features like automatic date normalization, flexible time matching, statistical analytics, dynamic visualization adjustment, and comprehensive gap analysis, it provides enterprise-grade timeline management without external dependencies.
+In Softanza, time isn’t stored — it’s **modeled**.  
+With `stzTimeLine`, you get:
+
+- **Visual integrity** (what you see is what you have)
+- **Grouped analytics** (same labels → powerful queries)
+- **Automatic layout** (overlaps, gaps, blocks — handled)
+- **Humanized output** (durations in “60 days”, not seconds)
+- **Safety by design** (boundaries, blocks, validation)
+- **Idle-time awareness** via `ShowUncovered()` and `UncoveredPeriods()`
+
+You don’t just **manage** time — you **reason** with it.

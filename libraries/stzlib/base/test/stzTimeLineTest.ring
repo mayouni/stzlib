@@ -47,27 +47,6 @@ o1 = new stzTimeLine(:From = "2024-10-10", :To = "2024-10-22 16:40:00")
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
-#---
-
-pr()
-
-o1 = new stzTimeLine("2024-10-10 12:10:10", "18:59:59")
-#--> ERROR: Invalid input in pEnd! Time specified without a date.
-
-pf()
-
-/*---
-
-pr()
-
-oTimeLine = new stzTimeLine(
-	:Start = "",
-	:End = ""
-)
-#--> ERROR: Can't create the stzTimeLine object! pStart must not be empty!
-
-pf()
-
 /*---
 
 pr()
@@ -102,7 +81,7 @@ oTimeLine {
 
 	AddPoint("NEW_YEAR", "2024-01-01 00:00:00")
 	AddPoint("VALENTINE", "2024-02-14 00:00:00")
-	AddPoint("SUMMER", "2024-06-21 00:00:00")
+	AddPoint("summer", "2024-06-21 00:00:00") # Note all labels are uppercased internally
 
 	? CountPoints()
 	#--> 3
@@ -113,7 +92,7 @@ oTimeLine {
 	? Point("VALENTINE")
 	#--> 2024-02-14 00:00:00
 
-	? HasPoint("SUMMER")
+	? HasPoint("sUMMER") # You can enter lable in any case
 	#--> TRUE
 
 	? HasPoint("WINTER")
@@ -121,7 +100,7 @@ oTimeLine {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Adding points with Q() chaining
 
@@ -366,15 +345,16 @@ oTimeLine {
 
 ? @@NL( oTimeLine.WhatsAt("2024-03-15 10:00:00") )
 #--> [
-#	[ "point", "MEETING" ],
-#	[ "span", "PROJECT" ],
-#	[ "span", "CAMPAIGN" ]
+#	[ "MEETING", "point" ],
+#	[ "PROJECT", "span" ],
+#	[ "CAMPAIGN", "span" ]
 # ]
 
 ? @@( oTimeLine.WhatsAt("2024-02-15 12:00:00") )
-#--> []
+#--> [ ]
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 /*--- Finding points between dates
 
@@ -421,7 +401,7 @@ oTimeLine {
 #--> ["JAN_SPAN", "FEB_SPAN"]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Finding spans overlapping a point
 
@@ -451,7 +431,7 @@ oTimeLine.Show()
 '
          ╞═PROJECT_B═╡                            
      ╞═PROJECT_A═╡   ╞═PROJECT_C══╡                 
-│────●───●───────●───●────────────●─────────────────○─►
+│────◉───◉───────◉───◉────────────◉─────────────────○─►
      1   2       3  4-5           6                 
 
 ╭────┬─────────────────────┬───────────┬────────────────────╮
@@ -469,7 +449,7 @@ oTimeLine.Show()
 '
 
 pf()
-# Executed in 0.17 second(s) in Ring 1.24
+# Executed in 0.19 second(s) in Ring 1.24
 
 #-----------------------#
 #  Overlap Detection    #
@@ -645,7 +625,9 @@ oTimeLine = new stzTimeLine(
 oTimeLine {
 	AddSpan("BUSY", "2024-03-01 00:00:00", "2024-05-31 23:59:59")
 	AddSpan("BUSY", "2024-04-01 00:00:00", "2024-06-30 23:59:59")
-	AddSpan("BUSY", "2024-08-01 00:00:00", "2024-08-30 23:59:59")
+	AddSpan("BUSY", "2024-08-01 00:00:00", "2024-09-20 23:59:59")
+
+	AddMoment('MMM', "2024-08-01")
 }
 
 ? @@NL( oTimeLine.UncoveredPeriods() )
@@ -669,10 +651,10 @@ oTimeLine {
 
 oTimeLine.ShowUncovered()
 #-->
-#              ╞═══BUSY════╡                          
-#          ╞═══BUSY════╡        ╞═══╡                 
-# |////////●───●───────●───●////●───●//////////////○─►
-#          1   2       3   4    5   6                 
+#              ╞===BUSY====╡                          
+#          ╞===BUSY====╡        ╞=BUSY=╡              
+# |////////●───●───────●───●////◉──────●///////////○─►
+#          1   2       3   4   5-6     7                     
 # 
 # ╭────┬─────────────────────┬───────┬────────────────╮
 # │ No │      Timepoint      │ Label │  Description   │
@@ -688,7 +670,7 @@ oTimeLine.ShowUncovered()
 # ╰────┴─────────────────────┴───────┴────────────────╯
 
 pf()
-# Executed in 0.07 second(s) in Ring 1.24
+# Executed in 0.22 second(s) in Ring 1.24
 
 #---------------------------#
 #  Distance Calculations    #
@@ -1239,6 +1221,27 @@ pf()
 #  Error Handling & Validation #
 #------------------------------#
 
+#---
+
+pr()
+
+o1 = new stzTimeLine("2024-10-10 12:10:10", "18:59:59")
+#--> ERROR: Invalid input in pEnd! Time specified without a date.
+
+pf()
+
+/*---
+
+pr()
+
+oTimeLine = new stzTimeLine(
+	:Start = "",
+	:End = ""
+)
+#--> ERROR: Can't create the stzTimeLine object! pStart must not be empty!
+
+pf()
+
 /*--- Point outside boundaries (raises error)
 
 pr()
@@ -1298,8 +1301,7 @@ oTimeLine.AddSpan("SPAN3", "2024-05-01", "2024-12-31")
 
 ? oTimeLine.Show()  # Should display all spans without overlap issues
 #-->
-'
-                                                    
+'                                                    
                  ╞═════════════SPAN3══════════════╡ 
          ╞═══════════SPAN2════════════╡             
 ╞═════════SPAN1══════════╡                          
@@ -1321,7 +1323,7 @@ oTimeLine.AddSpan("SPAN3", "2024-05-01", "2024-12-31")
 '
 
 pf()
-# Executed in 0.09 second(s) in Ring 1.24
+# Executed in 0.10 second(s) in Ring 1.24
 
 /*---
 
@@ -1415,6 +1417,7 @@ pf()
 /*---
 
 pr()
+
 o1 = new stzTimeLine(
 	:Start = "2024-03-01 00:00:00",
 	:End   = "2024-03-30 00:00:00"
@@ -1422,12 +1425,216 @@ o1 = new stzTimeLine(
 
 o1 {
 
-	AddMoment("One", "2024-03-15 10:00:00")
-	AddMoment("Two", "2024-03-15 10:00:00")
-	AddMoment("Three", "2024-03-15 10:00:00")
+	AddMoment('', "2024-03-15 10:00:00")
+	AddMoment('', "2024-03-15 10:00:00")
+	AddMoment('', "2024-03-15 10:00:00")
 
-	AddSpan("Phase1", "2024-03-15 00:00:00", "2024-03-18 10:00:00")
+	AddSpan('', "2024-03-15 00:00:00", "2024-03-18 10:00:00")
 
 	Show()
+}
+#-->
+'              
+                         ╞═════╡                    
+|────────────────────────◉─────●─────────────────○─►
+                        1-2    5                    
+                        3-4                         
+
+╭────┬─────────────────────┬────────┬─────────────────╮
+│ No │      Timepoint      │ Label  │   Description   │
+├────┼─────────────────────┼────────┼─────────────────┤
+│    │ 2024-03-01 00:00:00 │        │ Timeline start  │
+│  1 │ 2024-03-15 00:00:00 │ Phase1 │ Start of Phase1 │
+│  2 │ 2024-03-15 10:00:00 │ One    │ One event       │
+│  3 │ 2024-03-15 10:00:00 │ Two    │ Two event       │
+│  4 │ 2024-03-15 10:00:00 │ Three  │ Three event     │
+│  5 │ 2024-03-18 10:00:00 │ Phase1 │ End of Phase1   │
+│    │ 2024-03-30 00:00:00 │        │ Timeline end    │
+╰────┴─────────────────────┴────────┴─────────────────╯
+'
 
 pf()
+# Executed in 0.08 second(s) in Ring 1.24
+
+#------------------------------------#
+#  Blocking regions of the timeline  #
+#------------------------------------#
+
+/*--- Simple blocked maintenance period
+
+pr()
+
+oTimeline = new stzTimeLine("2024-01-01", "2024-12-31")
+oTimeline.AddBlockedSpan("MAINTENANCE", "2024-06-15 09:00:00", "2024-06-15 17:00:00")
+oTimeline.AddPoint("EVENT1", "2024-06-15 08:00:00")  # OK
+oTimeline.AddPoint("EVENT2", "2024-06-15 12:00:00")  # Error: blocked
+#--> Point 'EVENT2' falls within a blocked span 
+
+pf()
+
+/*--- Multiple blocked periods
+
+pr()
+
+oTimeline = new stzTimeLine("2024-01-01", "2024-12-31")
+
+oTimeline.AddBlockedSpan("Q2_FREEZE", "2024-04-01", "2024-06-30")
+oTimeline.AddBlockedSpan("HOLIDAY", "2024-12-20", "2024-12-31")
+
+oTimeline.AddSpan("PROJECT", "2024-05-01", "2024-05-15")
+#--> ERROR: Span 'PROJECT' overlaps with a blocked span 
+
+oTimeline.AddSpan("PLANNING", "2024-07-01", "2024-07-15") # OK
+
+pf()
+
+
+/*--- Checking blocks before operations
+
+pr()
+
+oTimeline = new stzTimeLine("2024-01-01", "2024-12-31")
+oTimeline.AddBlockedSpan("BLACKOUT", "2024-08-01 00:00:00", "2024-08-08 23:59:59")
+
+if oTimeline.IsBlocked("2024-08-05 14:30:00")
+	? "Cannot add event during blackout"
+ok
+#--> Cannot add event during blackout
+
+if oTimeline.IsRangeBlocked("2024-08-07", "2024-08-10")
+	? "Span partially blocked"
+ok
+#--> Span partially blocked
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*--- Block specific maintenance points
+
+pr()
+
+oTimeline = new stzTimeLine("2024-01-01", "2024-01-31")
+oTimeline.AddBlockedPoint("2024-01-15 12:00:00")
+oTimeline.AddBlockedPoint("2024-01-20 09:00:00")
+
+oTimeline.AddPoint("MEETING", "2024-01-15 12:00:00")
+#--> ERROR: Point 'MEETING' falls within a blocked span or blocked point 
+
+oTimeline.AddPoint("LAUNCH", "2024-01-15 14:00:00")   # OK
+
+pf()
+
+/*--- Mixed blocked spans and points
+
+pr()
+
+oTimeline = new stzTimeLine("2024-06-01", "2024-06-30")
+oTimeline.AddBlockedSpan("FREEZE", "2024-06-15", "2024-06-20")
+oTimeline.AddBlockedPoint("2024-06-10 10:00:00")
+
+//oTimeline.AddPoint("EVENT1", "2024-06-10 10:00:00")
+#--> ERROR: Point 'EVENT1' falls within a blocked span or blocked point 
+
+oTimeline.AddPoint("EVENT2", "2024-06-17 14:00:00")
+#--> oint 'EVENT2' falls within a blocked span or blocked point 
+
+oTimeline.AddPoint("EVENT3", "2024-06-05 09:00:00")  # OK
+
+pf()
+
+/*--- Visualize blocks
+*/
+pr()
+
+oTimeline = new stzTimeLine("2024-01-01", "2024-01-31")
+oTimeline.AddBlockedSpan("MAINTENANCE", "2024-01-10", "2024-01-12")
+oTimeline.AddBlockedPoints(["2024-01-20 08:00:00", "2024-01-25 15:00:00"])
+oTimeline.AddPoint("TASK1", "2024-01-05 10:00:00")
+oTimeline.AddPoint("TASK2", "2024-01-15 10:00:00")
+oTimeline.Show()  # Shows 'x' for blocked regions and points
+#-->
+'
+|───────●──────XXXXX─────●───────X────────X──────○─►
+        1                2               
+
+╭────┬─────────────────────┬───────┬────────────────╮
+│ No │      Timepoint      │ Label │  Description   │
+├────┼─────────────────────┼───────┼────────────────┤
+│    │ 2024-01-01 00:00:00 │       │ Timeline start │
+│  1 │ 2024-01-05 10:00:00 │ TASK1 │ TASK1 event    │
+│  2 │ 2024-01-15 10:00:00 │ TASK2 │ TASK2 event    │
+│    │ 2024-01-31 00:00:00 │       │ Timeline end   │
+╰────┴─────────────────────┴───────┴────────────────╯
+'
+
+pf()
+# Executed in 0.09 second(s) in Ring 1.24
+
+/*--- Complex timeline with blocked regions and points
+
+pr()
+
+oTimeLine = new stzTimeLine(
+	:Start = "2024-01-01 00:00:00",
+	:End = "2024-12-31 23:59:59"
+)
+
+oTimeLine {
+
+	# Regular spans
+
+	AddSpan("SPAN1", "2024-01-01", "2024-06-30")
+	AddSpan("SPAN2", "2024-03-01", "2024-09-30")
+	AddSpan("SPAN3", "2024-05-01", "2024-12-31")
+
+	# Blocked spans (maintenance windows, freezes)
+
+	AddBlockedSpan("FREEZE1", "2024-01-20", "2024-02-28")
+	AddBlockedSpan("FREEZE2", "2024-07-01", "2024-07-15")
+	AddBlockedSpan("MAINTENANCE", "2024-11-15", "2024-11-20")
+
+	# Blocked individual points
+
+	AddBlockedPoint("2024-03-15 10:30:00")
+	AddBlockedPoint("2024-06-15 14:00:00")
+	AddBlockedPoint("2024-10-05 09:00:00")
+
+	# Regular points
+
+	AddPoint("KICKOFF", "2024-01-05 09:00:00")
+	//oTimeLine.AddPoint("REVIEW1", "2024-03-15 10:30:00")  # Will error - blocked point
+	AddPoint("MEETING", "2024-05-10 11:00:00")
+	//oTimeLine.AddPoint("DEMO", "2024-06-15 14:00:00")     # Will error - blocked point
+	AddPoint("SYNC", "2024-08-20 15:00:00")
+	AddPoint("FINAL", "2024-11-10 10:00:00")
+
+	Show()
+}
+#-->
+'
+                ╞=============SPAN3==============╡ 
+         ╞===========SPAN2============╡             
+╞=========SPAN1SPAN3=====╡                      SPAN
+●●─XXXXXX●─X─────●●────X─●XX────●─────●X───●XX────●○─►
+12       3       45      6      7     8    9     10 
+
+╭────┬─────────────────────┬─────────┬────────────────╮
+│ No │      Timepoint      │  Label  │  Description   │
+├────┼─────────────────────┼─────────┼────────────────┤
+│    │ 2024-01-01 00:00:00 │         │ Timeline start │
+│  1 │ 2024-01-01 00:00:00 │ SPAN1   │ Start of SPAN1 │
+│  2 │ 2024-01-05 09:00:00 │ KICKOFF │ KICKOFF event  │
+│  3 │ 2024-03-01 00:00:00 │ SPAN2   │ Start of SPAN2 │
+│  4 │ 2024-05-01 00:00:00 │ SPAN3   │ Start of SPAN3 │
+│  5 │ 2024-05-10 11:00:00 │ MEETING │ MEETING event  │
+│  6 │ 2024-06-30 00:00:00 │ SPAN1   │ End of SPAN1   │
+│  7 │ 2024-08-20 15:00:00 │ SYNC    │ SYNC event     │
+│  8 │ 2024-09-30 00:00:00 │ SPAN2   │ End of SPAN2   │
+│  9 │ 2024-11-10 10:00:00 │ FINAL   │ FINAL event    │
+│ 10 │ 2024-12-31 00:00:00 │ SPAN3   │ End of SPAN3   │
+│    │ 2024-12-31 23:59:59 │         │ Timeline end   │
+╰────┴─────────────────────┴─────────┴────────────────╯
+'
+
+pf()
+# Executed in 0.35 second(s) in Ring 1.24
