@@ -90,7 +90,8 @@ func Keys(paList)
 		return Keys(paList)
 
 
-func HasPath(paList, pacKeys)
+func HasPath(paList, pacKeys) #TODO // Generalise it to work on any list not only hashlists
+			      #TODO // Move it to stzList.ring file
 	if CheckParams()
 
 		if NOT isList(paList)
