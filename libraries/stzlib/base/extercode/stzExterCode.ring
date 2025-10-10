@@ -369,18 +369,18 @@ class stzExterCode
 
         # Not used with batch approach, kept for compatibility
 
-	if HasKeys(@aLanguages, [@cLanguage, :type]) and 
+	if HasPath(@aLanguages, [@cLanguage, :type]) and 
            @aLanguages[@cLanguage][:type] = "interpreted"
 
             cCmd = @aLanguages[@cLanguage][:runtime] + " " + @cSourceFile
 
-            if HasKeys(@aLanguages, [@cLanguage, :customPath])
+            if HasPath(@aLanguages, [@cLanguage, :customPath])
                 cCmd = @aLanguages[@cLanguage][:customPath] + " " + @cSourceFile
             ok
 
             return cCmd
 
-        but HasKeys(@aLanguages, [@cLanguage, :type]) and
+        but HasPath(@aLanguages, [@cLanguage, :type]) and
 	    @aLanguages[@cLanguage][:type] = "compiled"
 
 	    cCmd = @aLanguages[@cLanguage][:Runtime] + " " + @aLanguages[@cLanguage][:CompilerFlags] + " " + @cSourceFile
@@ -390,7 +390,7 @@ class stzExterCode
         stzraise("Unsupported language type for " + @cLanguage)
 
     def RecordExecution(cLog, nExitCode)
-	if NOT HasKeys(@aLanguages, [@cLangage, :type])
+	if NOT HasPath(@aLanguages, [@cLangage, :type])
 		StzRaise("Incorrect format! Can't access the path @aLanguages[@cLangage][:type].")
 	ok
 
@@ -410,7 +410,7 @@ class stzExterCode
         ]
 
     def PrepareSourceCode()
-	if NOT HasKeys(@aLanguages, [@cLangage, :TransFunc])
+	if NOT HasPath(@aLanguages, [@cLangage, :TransFunc])
 		StzRaise("Incorrect format! Can't access the path @aLanguages[@cLanguage][:TransFunc].")
 	ok
 

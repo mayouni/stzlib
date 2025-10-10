@@ -160,6 +160,7 @@
 	load "datetime/stzDateTime.ring"
 	load "datetime/stzDuration.ring"
 	load "datetime/stzTimeLine.ring"
+	load "datetime/stzCalendar.ring"
 
 # Loading files related to the I18N module
 

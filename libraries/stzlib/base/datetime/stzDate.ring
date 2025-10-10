@@ -169,9 +169,19 @@ class stzDate from stzObject
     oQDate
     
     def init(pcDate)
-		if NOT isString(pcDate)
-			StzRaise("Can't create the stzDate object! You must provide a string.")
+	if isList(pcDate) and len(pcDate) = 3
+		if IsListOfNumbers(pcDate)
+			pcDate = ''+ pcDate[1] + "-" + pcDate[2] + "-" + pcDate[3]
+			#TODO // do more checks here
+
+		but IsHashList(pcDate) and HasKeys(pcDate, [ :Year, :Month, :Day ])
+			pcDate = '' + pcDate[:Year] + "-" + pcDate[:Month] + "-" + pcDate[:Day]
 		ok
+	ok
+
+	if NOT isString(pcDate)
+		StzRaise("Can't create the stzDate object! You must provide a string.")
+	ok
 
         oQDate = new QDate()
         

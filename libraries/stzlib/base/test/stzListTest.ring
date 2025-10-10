@@ -23,14 +23,14 @@ aHash = [
 ]
 
 # These should return TRUE
-? HasKeys(aHash, [:user])
-? HasKeys(aHash, [:user, :profile])
-? HasKeys(aHash, [:user, :profile, :settings])
+? HasPath(aHash, [:user])
+? HasPath(aHash, [:user, :profile])
+? HasPath(aHash, [:user, :profile, :settings])
 
 # These should return FALSE
-? HasKeys(aHash, [:user, :profile, :settings, :nonexistent])
-? HasKeys(aHash, [:user, :missing])
-? HasKeys(aHash, [:nothere])
+? HasPath(aHash, [:user, :profile, :settings, :nonexistent])
+? HasPath(aHash, [:user, :missing])
+? HasPath(aHash, [:nothere])
 
 pf()
 
