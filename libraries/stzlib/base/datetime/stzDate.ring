@@ -84,6 +84,7 @@ func EndOfMonth()
     nDays = oDate.DaysInMonthN()
     return StzDateQ('' + nDays + "/" + oDate.MonthNumberInString() + "/" + oDate.Year()).Content()
 
+
 #=== UTILITY FUNCTIONS ===#
 
 func GetDayByName(nDayOfWeek)
@@ -165,57 +166,100 @@ func IsDate(str)
 	func IsValidDate(str)
 		return IsDate(str)
 
+func DayOrdinalSuffix(nDay)
+    if nDay % 10 = 1 and nDay != 11
+        return "st"
+    but nDay % 10 = 2 and nDay != 12
+        return "nd"
+    but nDay % 10 = 3 and nDay != 13
+        return "rd"
+    else
+        return "th"
+    ok
+
 class stzDate from stzObject
-    oQDate
+   	 oQDate
     
-    def init(pcDate)
-	This.SetDate(pcDate)
+    	def init(pcDate)
+		This.SetDate(pcDate)
 
-    def SetDate(pcDate)
-	if isList(pcDate) and len(pcDate) = 3
-		if IsListOfNumbers(pcDate)
-			pcDate = ''+ pcDate[1] + "-" + pcDate[2] + "-" + pcDate[3]
-			#TODO // do more checks here
+	def SetDate(pcDate)
+	    if isList(pcDate) and len(pcDate) = 3
+	        if IsListOfNumbers(pcDate)
+	            pcDate = '' + pcDate[1] + "-" + pcDate[2] + "-" + pcDate[3]
+	        but IsHashList(pcDate) and HasKeys(pcDate, [ :Year, :Month, :Day ])
+	            pcDate = '' + pcDate[:Year] + "-" + pcDate[:Month] + "-" + pcDate[:Day]
+	        ok
+	    ok
+	
+	    if NOT isString(pcDate)
+	        StzRaise("Can't create the stzDate object! You must provide a string.")
+	    ok
+	
+	    oQDate = new QDate()
+	    cDate = lower(trim(pcDate))
+	    nLenDate = len(cDate)
+	
+	
+	    if cDate = ''
+	        oQDate = oQDate.currentDate()
+	        return
 
-		but IsHashList(pcDate) and HasKeys(pcDate, [ :Year, :Month, :Day ])
-			pcDate = '' + pcDate[:Year] + "-" + pcDate[:Month] + "-" + pcDate[:Day]
-		ok
-	ok
+	    but cDate = "today"
+	        oQDate = oQDate.currentDate()
+	        return
+	    
+	    but cDate = "yesterday"
+	        oQDate = oQDate.currentDate().addDays(-1)
+	        return
 
-	if NOT isString(pcDate)
-		StzRaise("Can't create the stzDate object! You must provide a string.")
-	ok
-
-        oQDate = new QDate()
-        
-        if pcDate = ""
-            oQDate = oQDate.currentDate()
-
-        else
-            # Handle special keywords
-
-            cLowerDate = lower(pcDate)
-
-            switch cLowerDate
-            on "today"
-                 oQDate = oQDate.currentDate()
-
-            on "yesterday"
-                 oQDate = oQDate.currentDate().addDays(-1)
-
-            on "tomorrow"
-                 oQDate = oQDate.currentDate().addDays(1)
-
-            other
-                 This.ParseStringDate(pcDate)
-            off
-
-        ok
-
-        if not oQDate.isValid()
-            StzRaise("Invalid date provided!")
-        ok
-
+	    but cDate = "tomorrow"
+	        oQDate = oQDate.currentDate().addDays(1)
+	        return
+	    ok
+	
+	    if left(cDate, 3) = "in "
+	        aValueUnit = ExtractValueAndUnit(substr(cDate, 4))
+	        if aValueUnit != NULL
+	            nValue = aValueUnit[1]
+	            cUnit = aValueUnit[2]
+	            
+	            switch cUnit
+	                on "day"
+	                    oQDate = oQDate.currentDate().addDays(nValue)
+	                on "days"
+	                    oQDate = oQDate.currentDate().addDays(nValue)
+	                on "week"
+	                    oQDate = oQDate.currentDate().addDays(nValue * 7)
+	                on "weeks"
+	                    oQDate = oQDate.currentDate().addDays(nValue * 7)
+	                on "month"
+	                    oQDate = oQDate.currentDate().addMonths(nValue)
+	                on "months"
+	                    oQDate = oQDate.currentDate().addMonths(nValue)
+	                on "year"
+	                    oQDate = oQDate.currentDate().addYears(nValue)
+	                on "years"
+	                    oQDate = oQDate.currentDate().addYears(nValue)
+	                on "decade"
+	                    oQDate = oQDate.currentDate().addDays(nValue * 3650)
+	                on "decades"
+	                    oQDate = oQDate.currentDate().addDays(nValue * 3650)
+	                on "century"
+	                    oQDate = oQDate.currentDate().addDays(nValue * 36500)
+	                on "centuries"
+	                    oQDate = oQDate.currentDate().addDays(nValue * 36500)
+	            off
+	            return
+	        ok
+	    ok
+	
+	    This.ParseStringDate(pcDate)
+	
+	    if not oQDate.isValid()
+	        StzRaise("Invalid date provided!")
+	    ok
+	
     def ParseStringDate(cDate)
         # Enhanced parser with more formats
         aFormats = [ 
@@ -360,14 +404,14 @@ class stzDate from stzObject
 
 	        if isNumber(v)
 	            This.SubtractDays(v)
-	            return -This.Content()
+	            return This.Content()
 	
 	        but isString(v)
 	            This.ParseOperation(v, "-")
 	            return This.Content()
 	
 	        but isObject(v) and v.IsAStzDate()
-	            return -This.DaysTo(v)
+	            return abs(This.DaysTo(v))
 	
 	        else
 	            StzRaise("Unsupported value! Only a stzDate object or a date in string can be provided.")
@@ -425,15 +469,16 @@ class stzDate from stzObject
 			ok
         ok
     
-	 def ParseOperation(cOperation, cOperator)
-	    acWords = @split(cOperation, " ")
+
+	def ParseOperation(cOperation, cOperator)
+	    aValueUnit = ExtractValueAndUnit(cOperation)
 	    
-	    if len(acWords) != 2
+	    if aValueUnit = NULL
 	        StzRaise("Invalid operation format. Use 'n days/weeks/months/years'")
 	    ok
 	    
-	    nValue = 0+ acWords[1]
-	    cUnit = lower(acWords[2])
+	    nValue = aValueUnit[1]
+	    cUnit = aValueUnit[2]
 	    
 	    if cOperator = "-"
 	        nValue = -nValue
@@ -442,48 +487,71 @@ class stzDate from stzObject
 	    switch cUnit
 	        on "day"
 	            This.AddDays(nValue)
+
 	        on "days"
 	            This.AddDays(nValue)
-	
+
 	        on "week"
 	            This.AddWeeks(nValue)
+
 	        on "weeks"
 	            This.AddWeeks(nValue)
-	
+
 	        on "month"
 	            This.AddMonths(nValue)
+
 	        on "months"
 	            This.AddMonths(nValue)
-	
+
 	        on "year"
 	            This.AddYears(nValue)
+
 	        on "years"
 	            This.AddYears(nValue)
-	
+
 	        other
 	            StzRaise("Invalid unit! Use 'days', 'weeks', 'months', or 'years'.")
 	    off
-
-    
+	    
     #--- COMPARISON METHODS ---#
     
     def DaysTo(oOtherDate)
+
+	if isList(oOtherDate) and len(oOtherDate) = 3
+		if IsListOfNumbers(oOtherDate)
+			cOtherDate = '' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3]
+			oOtherDate = cOtherDate
+
+		but IsHashList(oOtherDate) and HasKeys(oOtherDate, [ :Year, :Month, :Day ])
+			cOtherDate = '' + oOtherDate[:Year] + "-" + oOtherDate[:Month] + "-" + oOtherDate[:Day]
+			oOtherDate = cOtherDate
+		ok
+	ok
+
         if isString(oOtherDate)
             oTempDate = new stzDate(oOtherDate)
-			oOtherDate = oTempDate
+	    oOtherDate = oTempDate
         ok
         
-        if not isObject(oOtherDate) or not oOtherDate.IsAStzDate()
+        if not isObject(oOtherDate) or not ring_classname(oOtherDate) = "stzdate"
             StzRaise("Parameter must be a stzDate object or date string")
         ok
 
         nResult = oQDate.daysTo(oOtherDate.QDateObject())
-		return nResult
+	return nResult
 
     def WeeksTo(oOtherDate)
         return floor(This.DaysTo(oOtherDate) / 7)
 
     def MonthsTo(oOtherDate)
+        if isList(oOtherDate) and len(oOtherDate) = 3
+	        if IsListOfNumbers(oOtherDate)
+	            oOtherDate = new stzDate('' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3])
+	        but IsHashList(oOtherDate) and HasKeys(oOtherDate, [ :Year, :Month, :Day ])
+	            oOtherDate = new stzDate('' + oOtherDate[:Year] + "-" + oOtherDate[:Month] + "-" + oOtherDate[:Day])
+	        ok
+        ok
+
         if isString(oOtherDate)
             oOtherDate = new stzDate(oOtherDate)
         ok
@@ -494,6 +562,14 @@ class stzDate from stzObject
         return (nYears * 12) + nMonths
 
     def YearsTo(oOtherDate)
+        if isList(oOtherDate) and len(oOtherDate) = 3
+	        if IsListOfNumbers(oOtherDate)
+	            oOtherDate = new stzDate('' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3])
+	        but IsHashList(oOtherDate) and HasKeys(oOtherDate, [ :Year, :Month, :Day ])
+	            oOtherDate = new stzDate('' + oOtherDate[:Year] + "-" + oOtherDate[:Month] + "-" + oOtherDate[:Day])
+	        ok
+        ok
+
         if isString(oOtherDate)
             oOtherDate = new stzDate(oOtherDate)
         ok
@@ -513,18 +589,42 @@ class stzDate from stzObject
 			return This.DaysTo(oOtherDate) = 0
 
     def IsSameWeek(oOtherDate)
+	    if isList(oOtherDate) and len(oOtherDate) = 3
+	        if IsListOfNumbers(oOtherDate)
+	            oOtherDate = new stzDate('' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3])
+	        but IsHashList(oOtherDate) and HasKeys(oOtherDate, [ :Year, :Month, :Day ])
+	            oOtherDate = new stzDate('' + oOtherDate[:Year] + "-" + oOtherDate[:Month] + "-" + oOtherDate[:Day])
+	        ok
+	    ok
+
         if isString(oOtherDate)
             oOtherDate = new stzDate(oOtherDate)
         ok
         return This.WeekNumber() = oOtherDate.WeekNumber() and This.YearN() = oOtherDate.YearN()
 
     def IsSameMonth(oOtherDate)
+	    if isList(oOtherDate) and len(oOtherDate) = 3
+	        if IsListOfNumbers(oOtherDate)
+	            oOtherDate = new stzDate('' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3])
+	        but IsHashList(oOtherDate) and HasKeys(oOtherDate, [ :Year, :Month, :Day ])
+	            oOtherDate = new stzDate('' + oOtherDate[:Year] + "-" + oOtherDate[:Month] + "-" + oOtherDate[:Day])
+	        ok
+	    ok
+
         if isString(oOtherDate)
             oOtherDate = new stzDate(oOtherDate)
         ok
         return This.MonthN() = oOtherDate.MonthN() and This.YearN() = oOtherDate.YearN()
 
     def IsSameYear(oOtherDate)
+	    if isList(oOtherDate) and len(oOtherDate) = 3
+	        if IsListOfNumbers(oOtherDate)
+	            oOtherDate = new stzDate('' + oOtherDate[1] + "-" + oOtherDate[2] + "-" + oOtherDate[3])
+	        but IsHashList(oOtherDate) and HasKeys(oOtherDate, [ :Year, :Month, :Day ])
+	            oOtherDate = new stzDate('' + oOtherDate[:Year] + "-" + oOtherDate[:Month] + "-" + oOtherDate[:Day])
+	        ok
+	    ok
+	
         if isString(oOtherDate)
             oOtherDate = new stzDate(oOtherDate)
         ok
@@ -674,66 +774,73 @@ class stzDate from stzObject
 
     #--- HUMAN-READABLE FORMATTING ---#
     
-	def ToHuman()
-	    nDays = -This.DaysTo(new stzDate(""))  # Invert the sign
-	    
-	    if nDays = 0
-	        return "today"
-	
-	    but nDays = 1
-	        return "tomorrow"
-	
-	    but nDays = -1
-	        return "yesterday"
-	
-	    but nDays > 0 and nDays <= 7
-	        return "In " + nDays + " day" + Iff(nDays=1, "", "s")
-	
-	    but nDays < 0 and nDays >= -7
-	        return '' + (-nDays) + " day" + Iff(nDays=-1, "", "s") + " ago"
-	
-	    else
+def ToHuman()
+    oToday = new stzDate("")
+    nDays = This.DaysTo(oToday)
+    nDays = -nDays  # Invert to get positive for future dates
+    
+    if nDays = 0
+        return "today"
+    
+    but nDays = 1
+        return "tomorrow"
+    
+    but nDays = -1
+        return "yesterday"
+    
+    but nDays > 0 and nDays <= 7
+        return "In " + nDays + " day" + Iff(nDays=1, "", "s")
+    
+    but nDays < 0 and nDays >= -7
+        return '' + (-nDays) + " day" + Iff(nDays=-1, "", "s") + " ago"
+    
+    else
+        # Use the ordinal suffix properly
+        nDay = This.DayN()
+        cDaySuffix = DayOrdinalSuffix(nDay)
+        cHuman = This.Day() + ", " + This.Month() + " " + nDay + cDaySuffix + ", " + This.Year()
+        return cHuman
+    ok
 
-		cNth = Ordinal(This.MonthN())
-		cHuman = This.Day() + ", " + This.Month() + " " + cNth + ", " + This.Year()
-	        return cHuman
-	    ok
 
-	def ToRelative()
-	    nDays = -This.DaysTo(new stzDate(""))  # Invert the sign
-	    
-	    if nDays = 0
-	        return "today"
-	
-	    but nDays = 1
-	        return "tomorrow"
-	
-	    but nDays = -1
-	        return "yesterday"
-	
-	    but nDays > 1 and nDays <= 7
-	        return "in " + nDays + " days"
-	
-	    but nDays > 7 and nDays <= 14
-	        return "in 1 week"
-	
-	    but nDays > 14 and nDays <= 30
-	        nWeeks = floor(nDays / 7)
-	        return "in " + nWeeks + " weeks"
-	
-	    but nDays < -1 and nDays >= -7
-	        return '' + (-nDays) + " days ago"
-	
-	    but nDays < -7 and nDays >= -14
-	        return "1 week ago"
-	
-	    but nDays < -14 and nDays >= -30
-	        nWeeks = floor((-nDays) / 7)
-	        return '' + nWeeks + " weeks ago"
-	
-	    else
-	        return This.ToString()
-	    ok
+def ToRelative()
+    oToday = new stzDate("")
+    nDays = This.DaysTo(oToday)
+    nDays = -nDays  # Invert to get positive for future dates
+    
+    if nDays = 0
+        return "today"
+    
+    but nDays = 1
+        return "tomorrow"
+    
+    but nDays = -1
+        return "yesterday"
+    
+    but nDays > 1 and nDays <= 7
+        return "in " + nDays + " days"
+    
+    but nDays > 7 and nDays <= 14
+        return "in 1 week"
+    
+    but nDays > 14 and nDays <= 30
+        nWeeks = floor(nDays / 7)
+        return "in " + nWeeks + " weeks"
+    
+    but nDays < -1 and nDays >= -7
+        return '' + (-nDays) + " days ago"
+    
+    but nDays < -7 and nDays >= -14
+        return "1 week ago"
+    
+    but nDays < -14 and nDays >= -30
+        nWeeks = floor((-nDays) / 7)
+        return '' + nWeeks + " weeks ago"
+    
+    else
+        return This.ToString()
+    ok
+
 
     def ToString()
         return This.ToStringXT("")
@@ -790,11 +897,27 @@ class stzDate from stzObject
     #--- BATCH OPERATIONS ---#
     
     def IsBetween(oStartDate, oEndDate)
-		if CheckParams()
-			if isList(oEndDate) and StzListQ(oEndDate).IsAndNamedParam()
-				oEndDate = oEndDate[2]
-			ok
+	if CheckParams()
+		if isList(oEndDate) and StzListQ(oEndDate).IsAndNamedParam()
+			oEndDate = oEndDate[2]
 		ok
+	ok
+
+        if isList(oStartDate) and len(oStartDate) = 3
+	        if IsListOfNumbers(oStartDate)
+	            oStartDate = new stzDate('' + oStartDate[1] + "-" + oStartDate[2] + "-" + oStartDate[3])
+	        but IsHashList(oStartDate) and HasKeys(oStartDate, [ :Year, :Month, :Day ])
+	            oStartDate = new stzDate('' + oStartDate[:Year] + "-" + oStartDate[:Month] + "-" + oStartDate[:Day])
+	        ok
+        ok
+
+        if isList(oEndDate) and len(oEndDate) = 3
+	        if IsListOfNumbers(oEndDate)
+	            oEndDate = new stzDate('' + oEndDate[1] + "-" + oEndDate[2] + "-" + oEndDate[3])
+	        but IsHashList(oEndDate) and HasKeys(oEndDate, [ :Year, :Month, :Day ])
+	            oEndDate = new stzDate('' + oEndDate[:Year] + "-" + oEndDate[:Month] + "-" + oEndDate[:Day])
+	        ok
+        ok
 
         if isString(oStartDate)
             oStartDate = new stzDate(oStartDate)
@@ -832,3 +955,16 @@ class stzDate from stzObject
     
     def IsAStzDate()
         return TRUE
+
+   func ExtractValueAndUnit(cExpression)
+	    cExpression = lower(trim(cExpression))
+	    acWords = @split(cExpression, " ")
+	    if len(acWords) < 2
+	    
+	        return NULL
+	    ok
+	    
+	    nValue = 0 + acWords[1]
+	    cUnit = acWords[2]
+	    
+	    return [ nValue, cUnit ]

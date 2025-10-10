@@ -20,7 +20,7 @@ $aOrdinalConfig = [
 
 // Helper function
 func Ordinal(n)
-	_oOrd_ = new stzOrdinal(n)
+    _oOrd_ = new stzOrdinal(n)
     return _oOrd_.Content()
 
 // Set global language
