@@ -7265,6 +7265,63 @@ func AnyOf(paList)
 	func AnyItemOf(paList)
 		return AnyOf(paList)
 
+#===
+
+func HasPath(paList, pacKeys)
+	if CheckParams()
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+
+		if not (isList(pacKeys) and IsListOfStrings(pacKeys))
+			StzRaise("Incorrect param type! pacKeys must be a list of strings.")
+		ok
+	ok
+
+	# Start with the top-level list
+	aCurrent = paList
+	nLen = len(pacKeys)
+	
+	for i = 1 to nLen
+		cKey = pacKeys[i]
+		
+		# Check if current level is a list (can be traversed)
+		if not isList(aCurrent)
+			return FALSE
+		ok
+		
+		# Try to find the key in current level
+		nPos = 0
+		nCurrentLen = len(aCurrent)
+		
+		for j = 1 to nCurrentLen
+			# Handle hashlist format [key, value]
+			if isList(aCurrent[j]) and len(aCurrent[j]) >= 2
+				if isString(aCurrent[j][1]) and lower(aCurrent[j][1]) = lower(cKey)
+					nPos = j
+					exit
+				ok
+			ok
+		next
+		
+		# If key not found at this level
+		if nPos = 0
+			return FALSE
+		ok
+		
+		# Move to the next level (the value of the found key)
+		# Only do this if we're not at the last key
+		if i < nLen
+			if isList(aCurrent[nPos]) and len(aCurrent[nPos]) >= 2
+				aCurrent = aCurrent[nPos][2]
+			else
+				return FALSE
+			ok
+		ok
+	next
+
+	return TRUE
+
   /////////////////
  ///   CLASS   ///
 /////////////////
