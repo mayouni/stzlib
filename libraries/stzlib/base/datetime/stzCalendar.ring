@@ -55,27 +55,27 @@ class stzCalendar from stzObject
 		
 		if cPeriod = "Q1"
 			@cQuarter = "Q1"
-			@dStart = new stzDate(nYear, 1, 1)
-			@dEnd = new stzDate(nYear, 3, 31)
+			@dStart = new stzDate([ nYear, 1, 1 ])
+			@dEnd = new stzDate([ nYear, 3, 31 ])
 		but cPeriod = "Q2"
 			@cQuarter = "Q2"
-			@dStart = new stzDate(nYear, 4, 1)
-			@dEnd = new stzDate(nYear, 6, 30)
+			@dStart = new stzDate([ nYear, 4, 1 ])
+			@dEnd = new stzDate([ nYear, 6, 30 ])
 		but cPeriod = "Q3"
 			@cQuarter = "Q3"
-			@dStart = new stzDate(nYear, 7, 1)
-			@dEnd = new stzDate(nYear, 9, 30)
+			@dStart = new stzDate([ nYear, 7, 1 ])
+			@dEnd = new stzDate([ nYear, 9, 30 ])
 		but cPeriod = "Q4"
 			@cQuarter = "Q4"
-			@dStart = new stzDate(nYear, 10, 1)
-			@dEnd = new stzDate(nYear, 12, 31)
+			@dStart = new stzDate([ nYear, 10, 1 ])
+			@dEnd = new stzDate([ nYear, 12, 31 ])
 		else
 			# Try as month name
 			nMonth = _monthNameToNumber(cPeriod)
 			if nMonth > 0
 				@nMonth = nMonth
-				@dStart = new stzDate(nYear, nMonth, 1)
-				oStart = new stzDate(nYear, nMonth, 1)
+				@dStart = new stzDate([ nYear, nMonth, 1 ])
+				oStart = new stzDate([ nYear, nMonth, 1 ])
 				@dEnd = oStart.DayAfterMonthEnd()
 			else
 				StzRaise("Invalid period: " + pPeriod)
@@ -85,8 +85,8 @@ class stzCalendar from stzObject
 	def _initializeYear(nYear, pLocale)
 		@nYear = nYear
 		@oLocale = _setupLocale(pLocale)
-		@dStart = new stzDate(nYear, 1, 1)
-		@dEnd = new stzDate(nYear, 12, 31)
+		@dStart = new stzDate([ nYear, 1, 1 ])
+		@dEnd = new stzDate([ nYear, 12, 31 ])
 
 	def _initializeFromDateRange(cStart, cEnd, pLocale)
 		@oLocale = _setupLocale(pLocale)
@@ -124,8 +124,8 @@ class stzCalendar from stzObject
 		ok
 
 	def _setupLocale(pLocale)
-		if pLocale = NULL
-			return new stzLocale()
+		if pLocale = ""
+			return new stzLocale("C")
 		but isString(pLocale)
 			return new stzLocale(pLocale)
 		but isObject(pLocale)
@@ -135,7 +135,7 @@ class stzCalendar from stzObject
 
 	def _monthNameToNumber(cName)
 		aMonths = [ "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
-					"JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER" ]
+			"JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER" ]
 		nPos = find(aMonths, cName)
 		return nPos
 
@@ -164,7 +164,7 @@ class stzCalendar from stzObject
 	def MonthName()
 		if @nMonth > 0
 			aMonths = [ "January", "February", "March", "April", "May", "June",
-						"July", "August", "September", "October", "November", "December" ]
+				"July", "August", "September", "October", "November", "December" ]
 			return aMonths[@nMonth]
 		ok
 		return ""

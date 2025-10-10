@@ -26,6 +26,30 @@ oDate = StzDateQ("15/03/2024")
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
+/*--- Creating a date objectfrom list of numbers
+$
+pr()
+
+o1 = new stzDate([ 2024, 10, 10 ])
+? o1.Date()
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.23
+
+/*--- Createing a date object from a hashlist
+*/
+pr()
+
+aHash = [ :Day = 12, :Month = 10, :Year = 2024 ]
+
+? HasKeys(aHash, [ :Day, :Month, :Year ])
+
+o1 = new stzDate([ :Day = 12, :Month = 10, :Year = 2024 ])
+? o1.Date()
+#--> 12/10/2024
+
+pf()
+
 /*--- Getting current date and time
 
 pr()
@@ -390,7 +414,7 @@ pf()
 /*=== Julian day
 
 /*--- Convert current date to Julian day number
-*/
+
 pr()
 
 o1 = new stzDate("")
@@ -401,7 +425,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Create a date from a Julian day number
-*/
+
 pr()
 
 o1 = new stzDate("")

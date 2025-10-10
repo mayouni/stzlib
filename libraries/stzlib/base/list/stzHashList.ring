@@ -90,6 +90,139 @@ func Keys(paList)
 		return Keys(paList)
 
 
+func HasPath(paList, pacKeys)
+	if CheckParams()
+
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+
+		if not (isList(pacKeys) and IsListOfStrings(pacKeys))
+			StzRaise("Incorrect param type! pacKeys must be a list of strings.")
+		ok
+
+	ok
+
+	if not IsHashList(paList)
+		return FALSE
+	ok
+
+	# Start with the top-level hash
+	aCurrent = paList
+	nLen = len(pacKeys)
+	
+	for i = 1 to nLen
+		cKey = pacKeys[i]
+		
+		# Check if current level is a hash
+		if not IsHashList(aCurrent)
+			return FALSE
+		ok
+		
+		# Build lowercase keys list for current level
+		nCurrentLen = len(aCurrent)
+		acCurrentKeys = []
+		
+		for j = 1 to nCurrentLen
+			acCurrentKeys + lower(aCurrent[j][1])
+		next
+		
+		# Find the key in current level
+		nPos = ring_find(acCurrentKeys, lower(cKey))
+		
+		if nPos = 0
+			return FALSE
+		ok
+		
+		# Move to the next level (the value of the found key)
+		# Only do this if we're not at the last key
+		if i < nLen
+			aCurrent = aCurrent[nPos][2]
+		ok
+	next
+
+	return TRUE
+
+
+func HasKey(paList, pcKey)
+	if isList(pcKey)
+		return HasKeys(paList, pcKey)
+	ok
+
+	if CheckParams()
+		if NOT isString(pcKey)
+			StzRaise("Incorrect param type! pcKey must be a string.")
+		ok
+
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	if not IsHashList(paList)
+		return FALSE
+	ok
+
+	nLen = len(paList)
+	acKeys = []
+
+	for i = 1 to nLen
+		acKeys + lower(paList[i][1])
+	next
+
+	return iff(ring_find(acKeys, lower(pcKey)) > 0, TRUE, FALSE)
+
+	func @HasKey(paList, pcKey)
+		return HasKey(paList, pcKey)
+
+	def ContainsKey(paList, pcKey)
+		return HasKey(paList, pcKey)
+
+	def @ContainsKey(paList, pcKey)
+		return HasKey(paList, pcKey)
+
+func HasKeys(paList, pacKeys)
+	if CheckParams()
+		if NOT (isList(pacKeys) and IsListOfStrings(pacKeys))
+			StzRaise("Incorrect param type! pacKeys must be a list of strings.")
+		ok
+
+		if NOT isList(paList)
+			StzRaise("Incorrect param type! paList must be a list.")
+		ok
+	ok
+
+	if not IsHashList(paList)
+		return FALSE
+	ok
+
+	nLen = len(paList)
+	acAllKeys = []
+
+	for i = 1 to nLen
+		acAllKeys + paList[i][1]
+	next
+
+	nLen = len(pacKeys)
+	for i = 1 to nLen
+		if find(acAllKeys, pacKeys[i]) = 0
+			return 0
+		ok
+	next
+
+	return 1
+
+
+	func @HasKeys(paList, pacKeys)
+		return HasKeys(paList, pacKeys)
+
+	def ContainsKeys(paList, pacKeys)
+		return HasKeys(paList, pacKeys)
+
+	def @ContainsKeys(paList, pacKeys)
+		return HasKey(paList, pacKeys)
+
+
 func IsHashListOfNumbers(paList)
 	if NOT isList(paList)
 		return FALSE
