@@ -36,7 +36,7 @@ o1.SetDate(Tomorrow())
 #--> tomorrow
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Creating a date from string
 
@@ -61,7 +61,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Createing a date object from a hashlist in any order
-*/
+
 pr()
 
 o1 = new stzDate([ :Day = 12, :Month = 10, :Year = 2024 ])
@@ -71,12 +71,29 @@ o1 = new stzDate([ :Day = 12, :Month = 10, :Year = 2024 ])
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
-/*--- Getting current date and time
+/*---
 
 pr()
 
-? Now()
+? Today() #--> 10/10/2025
+
+o1 = new stzDate("In 15 days")
+? o1.Date() #--> 25/10/2025
+? o1.ToHuman()
+#--> Saturday, October 25th, 2025
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*=== Getting current date and time
+
+pr()
+
+? Now() # Default format
 #--> 27/09/2025 14:30:25
+
+? NowXT() # ISO format
+#--> 2025-26-10 14:26:38
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -296,8 +313,8 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*---
-
 pr()
+
 Rx = new stzRegex(pat(:Date))
 ? Rx.Match("20-10-2025")
 
@@ -311,9 +328,10 @@ Rx = new stzRegex(pat(:Date))
 #--> TRUE
 
 ? QQ("20/10/2025") = "20-10-2025"
-#•-> TRUE
+#--> TRUE
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.24
 
 /*--- Formatting dates in different styles
 
@@ -355,8 +373,7 @@ pf()
 
 pr()
 
-oDate = StzDateQ("15/07/2024")
-? oDate.WeekNumber()
+? StzDateQ("15/07/2024").WeekNumber()
 #--> 29
 
 pf()
@@ -366,13 +383,8 @@ pf()
 
 pr()
 
-try
-    oDate = StzDateQ("32/13/2024")  # Invalid date
-    ? oDate.Date()
-catch
-    ? "Invalid date detected and handled"
-done
-#--> Invalid date detected and handled
+oDate = StzDateQ("32/13/2024")  # Invalid date
+#--> Cannot parse date string: 32/13/2024
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -396,23 +408,23 @@ pr()
 
 o1 = new stzDate(:Today)
 
-? o1.Date()				#--> 30/09/2025
+? o1.Date()		#--> 30/09/2025
 ? o1.ToHuman()	+ NL	#--> today
 
 o1 + "1 day"
-? o1.Date()				#--> 01/10/2025
-? o1.ToHuman() + NL		#--> tomorrow
+? o1.Date()		#--> 01/10/2025
+? o1.ToHuman() + NL	#--> tomorrow
 
 o1 - "2 days"
-? o1.Date()				#--> 29/09/2025
-? o1.ToHuman() + NL		#--> yesterday
+? o1.Date()		#--> 29/09/2025
+? o1.ToHuman() + NL	#--> yesterday
 
 o1 + "2 weeks"
-? o1.Date()				#--> 13/10/2025
-? o1.ToRelative()		#--> in 1 week
+? o1.Date()		#--> 13/10/2025
+? o1.ToRelative()	#--> in 1 week
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*---
 
@@ -427,7 +439,7 @@ o1 = new stzDate("10/12/2024")
 #--> December
 
 ? o1.ToHuman()
-#--> Tuesday, December 12th, 2024
+#--> Tuesday, December 10th, 2024
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -446,7 +458,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Create a date from a Julian day number
-
+*/
 pr()
 
 o1 = new stzDate("")

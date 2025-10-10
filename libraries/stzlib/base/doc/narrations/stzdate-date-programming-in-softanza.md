@@ -3,6 +3,7 @@
 ## The Problem We All Know
 
 You're building a project timeline tracker. The client wants to see "in 2 weeks" instead of "14/10/2025". You need to add three months to a contract start date, but only if it falls on a weekday. Your code becomes a maze of calculations, string formatting, and edge cases.
+
 We've all been there. Date programming shouldn't be this hard.
 
 ## A Different Approach
@@ -27,6 +28,52 @@ oDate = TodayQ()	# Or oDate = new stzDate(:Today)
 ```
 
 No ceremony. No configuration. Just ask for today's date and you get it. The `Q` suffix returns an object when you need to do more—a pattern you'll see throughout Softanza.
+
+### Creating a stzDate object
+
+You can create an empty object and then decide what date to set in it:
+```ring
+o1 = new stzDate("")
+? o1.Date()
+#--> 10/10/2025
+
+? o1.ToHuman() + NL
+#--> today
+
+#--
+
+o1.SetDate(Tomorrow())
+? o1.Date()
+#--> 11/10/2025
+
+? o1.ToHuman()
+#--> tomorrow
+```
+
+Or you can initialise the date directly with the object creation:
+```ring
+# By providing a date in string in whatever format used for a date:
+
+o1 = new stzDate("15/03/2024") # Or 2024-03-15 if you want
+? o1.Date()
+#--> 15/03/2024		# Format returned by default, can be changed as we will see later
+
+# By providing the date component in numbers corresponding to Year, Month and then Day
+
+o1 = new stzDate([ 2024, 3, 15 ])
+? o1.Date() #--> 25/10/2025
+
+# Or by providing a hahslist of named values in any order you want
+
+o1 = new stzDate([ :Year = 2024, :Month = 3, :Day = 15 ])
+? o1.Date() #--> 25/10/2025
+
+# Or even using a natural expression like this
+
+? Today() #--> 10/10/2025
+o1 = new stzDate("In 15 days")
+? o1.Date() #--> 25/10/2025
+```
 
 ### Arithmetic That Makes Sense
 
