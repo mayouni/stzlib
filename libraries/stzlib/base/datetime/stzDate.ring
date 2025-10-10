@@ -169,6 +169,9 @@ class stzDate from stzObject
     oQDate
     
     def init(pcDate)
+	This.SetDate(pcDate)
+
+    def SetDate(pcDate)
 	if isList(pcDate) and len(pcDate) = 3
 		if IsListOfNumbers(pcDate)
 			pcDate = ''+ pcDate[1] + "-" + pcDate[2] + "-" + pcDate[3]

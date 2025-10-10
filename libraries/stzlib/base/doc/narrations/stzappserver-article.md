@@ -162,7 +162,10 @@ Flow:
 
 ### Component Breakdown
 
-**1. stzComputeEngine - The Persistent Brain**
+**1. stzAppServer _ the Main Orchestrator**
+#TODO
+
+**2. stzComputeEngine - The Persistent Brain**
 This component loads Softanza once at startup and keeps it ready:
 
 ```ring
@@ -171,25 +174,26 @@ oComputeEngine {
     PreloadStringEngine()    # Unicode tables, patterns ready
     PreloadObjectSystem()    # Class definitions cached
     PreloadCollections()     # Data structures initialized
-    PreloadNLP()            # Language models loaded
+    PreloadNLP()             # Language models loaded
 }
 ```
 
-**2. stzContextPool - Smart Memory Management**
+**3. stzContextPool - Smart Memory Management**
 Manages reusable execution contexts:
 
 ```ring
 oPool = new stzContextPool()
 oPool {
-    CreateContexts(20)           # Pre-create 20 contexts
+    CreateContexts(20)           	 # Pre-create 20 contexts
     SetContextMemoryLimit("100MB")   # Limit per context
     SetContextTimeout(30)            # Max 30 seconds per request
 }
 ```
 
+**4. stzAppRouter - …**
+#TODO
 
-
-**3. stzReactiveSystem - Non-blocking Processing**
+**5. stzReactiveSystem - Non-blocking Processing**
 Built on event-driven architecture for handling thousands of concurrent requests without blocking:
 
 ```ring
@@ -300,6 +304,7 @@ Request Timeline:
 ## What Problems Does stzAppServer Solve?
 
 ### 1. **Computational API Performance**
+
 Traditional web servers are optimized for simple CRUD operations. When you need rich text processing, complex algorithms, or linguistic analysis, the overhead becomes crushing.
 
 **Before stzAppServer:**
@@ -313,6 +318,7 @@ Traditional web servers are optimized for simple CRUD operations. When you need 
 - Scales to thousands of concurrent requests
 
 ### 2. **Resource Waste**
+
 Loading the same heavy libraries thousands of times per day wastes:
 - CPU cycles on initialization
 - Memory allocation/deallocation churn
@@ -320,6 +326,7 @@ Loading the same heavy libraries thousands of times per day wastes:
 - Network latency under load
 
 ### 3. **Developer Frustration**
+
 Powerful libraries become "too expensive" to use in web APIs, forcing developers to:
 - Choose weaker but faster alternatives
 - Implement caching layers
@@ -379,6 +386,7 @@ While application servers do keep some components loaded, they're not optimized 
 ## Use Cases Where stzAppServer Excels
 
 ### 1. **Natural Language Processing APIs**
+
 ```ring
 # Instant access to powerful NLP without loading overhead
 app.Post("/nlp", func oRequest, oResponse {
@@ -393,6 +401,7 @@ app.Post("/nlp", func oRequest, oResponse {
 ```
 
 ### 2. **Real-time Text Analysis**
+
 Perfect for applications requiring immediate text processing:
 - Content moderation systems
 - Live translation services  
@@ -400,6 +409,7 @@ Perfect for applications requiring immediate text processing:
 - Social media monitoring
 
 ### 3. **Educational Platforms**
+
 Rich linguistic analysis for:
 - Grammar checking
 - Writing assistance
@@ -407,6 +417,7 @@ Rich linguistic analysis for:
 - Literature analysis
 
 ### 4. **Business Intelligence**
+
 Text mining and analysis for:
 - Document classification
 - Customer feedback analysis
@@ -417,21 +428,17 @@ Text mining and analysis for:
 
 ### Pool Configuration
 
-ring
-
 ```ring
 app = new stzAppServer()
 app.ConfigureContextPool([
-    :size = 50,                    # Number of contexts in pool
-    :memoryLimitPerContext = "200MB",  # Memory limit per context
-    :timeoutSeconds = 60,              # Max execution time
-    :preloadEngines = true             # Pre-initialize Softanza in each context
+    :size = 50,                     	# Number of contexts in pool
+    :memoryLimitPerContext = "200MB",  	# Memory limit per context
+    :timeoutSeconds = 60,              	# Max execution time
+    :preloadEngines = true             	# Pre-initialize Softanza in each context
 ])
 ```
 
 ### Performance Tuning
-
-ring
 
 ```ring
 app.ConfigurePerformance([
@@ -445,8 +452,6 @@ app.ConfigurePerformance([
 
 ### Monitoring and Health Checks
 
-ring
-
 ```ring
 app.Get("/health", func oRequest, oResponse {
     oResponse.Json([
@@ -455,9 +460,9 @@ app.Get("/health", func oRequest, oResponse {
         :requests_served = app.RequestCount(),
         :active_connections = app.ActiveConnections(),
         :context_pool = [
-            :total = app.ContextPool().TotalCount(),
-            :available = app.ContextPool().AvailableCount(),
-            :active = app.ContextPool().ActiveCount()
+            :total = app.ContextPoolQ().TotalCount(),
+            :available = app.ContextPoolQ().AvailableCount(),
+            :active = app.ContextPoolQ().ActiveCount()
         ],
         :memory_usage = app.MemoryUsage(),
         :cpu_usage = app.CPUUsage()
@@ -471,7 +476,7 @@ app.Get("/health", func oRequest, oResponse {
 ### Basic Setup
 ```ring
 # Load the framework
-load "stzappserver.ring"
+load "stzAppServer.ring"
 
 # Create your server
 app = new stzAppServer()
@@ -490,8 +495,6 @@ app.Start(3000)
 ? "Server running at http://localhost:3000"
 ```
 ### Advanced Configuration
-
-ring
 
 ```ring
 app = new stzAppServer()
@@ -525,6 +528,7 @@ stzAppServer represents a paradigm shift from **request-response web servers** t
 - **Real-time linguistic processing** at web scale  
 - **Rich educational platforms** with instant feedback
 - **Advanced text analysis** accessible to any application
+- **Reliable and higly reatcive entreprise platforms** ready for critical business scenarios
 
 By treating computational power as a persistent asset rather than a per-request burden, stzAppServer enables a new class of web applications that were previously impractical due to performance constraints.
 

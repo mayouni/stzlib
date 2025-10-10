@@ -15,40 +15,61 @@ oDate = TodayQ()
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
-/*--- Creating a date from string
-*
+/*--- Creating an empty stzDate object and then setting the date
+
 pr()
 
-oDate = StzDateQ("15/03/2024")
+o1 = new stzDate("")
+? o1.Date()
+#--> 10/10/2025
+
+? o1.ToHuman() + NL
+#--> today
+
+#--
+
+o1.SetDate(Tomorrow())
+? o1.Date()
+#--> 11/10/2025
+
+? o1.ToHuman()
+#--> tomorrow
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Creating a date from string
+
+pr()
+
+oDate = StzDateQ("15/03/2024") # Or 2024-03-15
 ? oDate.Date()
-#--> 15/03/2024
+#--> 15/03/2024		# Format by deafult, can be changed
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
 /*--- Creating a date objectfrom list of numbers
-$
+
 pr()
 
 o1 = new stzDate([ 2024, 10, 10 ])
 ? o1.Date()
+#--> 10/10/2024
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
-/*--- Createing a date object from a hashlist
+/*--- Createing a date object from a hashlist in any order
 */
 pr()
-
-aHash = [ :Day = 12, :Month = 10, :Year = 2024 ]
-
-? HasKeys(aHash, [ :Day, :Month, :Year ])
 
 o1 = new stzDate([ :Day = 12, :Month = 10, :Year = 2024 ])
 ? o1.Date()
 #--> 12/10/2024
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Getting current date and time
 
