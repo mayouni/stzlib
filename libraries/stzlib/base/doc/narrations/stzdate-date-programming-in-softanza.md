@@ -75,6 +75,74 @@ o1 = new stzDate("In 15 days")
 ? o1.Date() #--> 25/10/2025
 ```
 
+### Smart Navigation Methods
+
+Create a stzDate object and start navigating time immediately with this ritch set of natural-oriented methods:
+
+```ring
+o1 = new stzDate("10/10/2025")
+
+? o1.NextWeekday()
+#--> 13/10/2025
+
+? o1.PreviousWeekday()
+#--> 09/10/2025
+
+? o1.NextMonday()
+#--> 13/10/2025
+
+? o1.FirstDayOfMonth()
+#--> 01/10/2025
+
+? o1.LastDayOfMonth()
+#--> 31/10/2025
+
+? o1.StartOfMonth()
+#--> 01/10/2025
+
+? o1.EndOfMonth()
+#--> 31/10/2025
+
+? o1.StartOfYear()
+#--> 01/01/2025
+
+? o1.EndOfYear()
+#--> 31/12/2025
+
+? o1.DayAfterMonthEnd()
+#--> 01/11/2025
+
+? o1.DayBeforeMonthStart()
+#--> 30/09/2025
+
+? o1.DayAfterYearEnd()
+#--> 01/01/2026
+
+? o1.DayBeforeYearStart()
+#--> 31/12/2024
+
+? o1.NextEndOfMonth()
+#--> 30/11/2025
+
+? o1.PreviousEndOfMonth()
+#--> 30/09/2025
+
+? o1.NextStartOfMonth()
+#--> 01/11/2025
+
+? o1.PreviousStartOfMonth()
+#--> 01/09/2025
+
+? o1.MidMonth()
+#--> 16/10/2025
+
+? o1.FirstWeekdayOfMonth()
+#--> 01/10/2025
+
+? o1.LastWeekdayOfMonth()
+#--> 31/10/2025
+```
+
 ### Arithmetic That Makes Sense
 
 Remember that project deadline calculation?

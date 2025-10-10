@@ -450,21 +450,90 @@ pf()
 
 pr()
 
-o1 = new stzDate("")
+o1 = new stzDate("2025-10-10")
 ? o1.ToJulianDay()
-#--> 2460958
+#--> 2460959
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Create a date from a Julian day number
-*/
+
 pr()
 
 o1 = new stzDate("")
-o1.FromJulianDay(2460570)
+o1.FromJulianDay(2460959)
 ? o1.Content()
 #--> 16/09/2024	(the corresponding Gregorian date)
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Navigation methods
+*/
+pr()
+
+o1 = new stzDate("10/10/2025")
+
+? o1.NextWeekday()
+#--> 10/10/2025
+
+? o1.PreviousWeekday()
+#--> 10/10/2025
+
+? o1.NextMonday()
+#--> 10/10/2025
+
+? o1.FirstDayOfMonth()
+#--> 01/10/2025
+
+? o1.LastDayOfMonth()
+#--> 31/10/2025
+
+? o1.StartOfMonth()
+#--> 01/10/2025
+
+? o1.EndOfMonth()
+#--> 31/10/2025
+
+? o1.StartOfYear()
+#--> 01/01/2025
+
+? o1.EndOfYear()
+#--> 31/12/2025
+
+? o1.DayAfterMonthEnd()
+#--> 31/10/2025
+
+? o1.DayBeforeMonthStart()
+#--> 01/10/2025
+
+? o1.DayAfterYearEnd()
+#--> 31/12/2025
+
+? o1.DayBeforeYearStart()
+#--> 01/01/2025
+
+? o1.NextEndOfMonth()
+#--> 31/10/2025
+
+? o1.PreviousEndOfMonth()
+#--> 31/10/2025
+
+? o1.NextStartOfMonth()
+#--> 01/10/2025
+
+? o1.PreviousStartOfMonth()
+#--> 01/10/2025
+
+? o1.MidMonth()
+#--> 16/10/2025
+
+? o1.FirstWeekdayOfMonth()
+#--> 01/10/2025
+
+? o1.LastWeekdayOfMonth()
+#--> 31/10/2025
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
