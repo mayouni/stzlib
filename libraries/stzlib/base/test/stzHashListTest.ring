@@ -1,9 +1,55 @@
 load "../stzbase.ring"
 
+/*--- #TODO Write a small narration about HasKey(), HasKeys() and HasKeysXT()
+*/
+pr()
+
+aHash = [
+	:name = "Alice",
+	:email = "alice@example.com",
+	:age = 30
+]
+
+? HasKey(aHash, "email")
+#--> TRUE
+
+? HasKey(aHash, "none")
+#--> FALSE
+
+? HasKeys(aHash, [ "name", "age" ])
+#--> TRUE
+
+? HasKeys(aHash, [ "name", "none", "age" ])
+#--> FALSE
+
+? @@( HasKeysXT(aHash, [ "name", "none", "age" ]) ) + NL
+#--> [ TRUE, FALSE, TRUE ]
+
+#--
+
+aDeepHash = [
+	:name = "TechCorp",
+	:departments = [
+		:name = "Engineering",
+		:teams = [
+			:name = "Backend",
+			:members = [
+				:name = "Alice",
+				:role = "Senior Developer"
+			]
+		]
+	]
+]
+
+? HasPath(aDeepHash, ["departments", "teams", "members"])
+
+pf()
+
+
 /*-- #ring #bug #todo write a narration about it
 
 pr()
-/*
+
 # Ring autoadds an entry in a hashlist when you call it wit aHash[:key] and
 # that key does not exists, which leads to subtle errors hardly debuggable
 # like the fellowing example:
@@ -88,7 +134,7 @@ ok
 '
 
 pf()
-
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*-------------- #TODO adjust lines under titles
 
