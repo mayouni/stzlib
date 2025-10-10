@@ -181,14 +181,18 @@ class stzDate from stzObject
    	 oQDate
     
     	def init(pcDate)
+		oQDate = new QDate()
 		This.SetDate(pcDate)
 
 	def SetDate(pcDate)
 	    if isList(pcDate) and len(pcDate) = 3
 	        if IsListOfNumbers(pcDate)
-	            pcDate = '' + pcDate[1] + "-" + pcDate[2] + "-" + pcDate[3]
+		    oQDate.setDate(pcDate[1], pcDate[2], pcDate[3])
+		    return
+
 	        but IsHashList(pcDate) and HasKeys(pcDate, [ :Year, :Month, :Day ])
-	            pcDate = '' + pcDate[:Year] + "-" + pcDate[:Month] + "-" + pcDate[:Day]
+		    oQDate.setDate(pcDate[:Year], pcDate[:Month], pcDate[:Day])
+		    return
 	        ok
 	    ok
 	
@@ -283,7 +287,6 @@ class stzDate from stzObject
     
     def AddDays(nDays)
         oQDate = oQDate.addDays(nDays)
-        return This.ToString()
  
 	    def AddDaysQ(nDays)
 	        This.AddDays(nDays)
@@ -291,7 +294,6 @@ class stzDate from stzObject
 
     def AddWeeks(nWeeks)
         oQDate = oQDate.addDays(nWeeks * 7)
-        return This.ToString()
 
 	    def AddWeeksQ(nWeeks)
 	        This.AddWeeks(nWeeks)
@@ -299,7 +301,6 @@ class stzDate from stzObject
 
     def AddMonths(nMonths)
         oQDate = oQDate.addMonths(nMonths)
-        return This.ToString()
 
 	    def AddMonthsQ(nMonths)
 	        This.AddMonths(nMonths)
@@ -307,7 +308,6 @@ class stzDate from stzObject
 
     def AddYears(nYears)
         oQDate = oQDate.addYears(nYears)
-        return This.ToString()
 
 	    def AddYearsQ(nYears)
 	        This.AddYears(nYears)
@@ -315,15 +315,13 @@ class stzDate from stzObject
 
     def SubtractDays(nDays)
         oQDate = oQDate.addDays(-nDays)
-        return This.ToString()
 
 	    def SubtractDaysQ(nDays)
 	        This.SubtractDays(nDays)
 	        return This
 
     def SubtractWeeks(nWeeks)
-        oQDate = oQDate.addDays(-nWeeks * 7)
-        return This.ToString()
+        oQdate = oQDate.addDays(-nWeeks * 7)
 
 	    def SubtractWeeksQ(nWeeks)
 	        This.SubtractWeeks(nWeeks)
@@ -331,7 +329,6 @@ class stzDate from stzObject
 
     def SubtractMonths(nMonths)
         oQDate = oQDate.addMonths(-nMonths)
-        return This.ToString()
     
 	    def SubtractMonthsQ(nMonths)
 	        This.SubtractMonths(nMonths)
@@ -339,52 +336,242 @@ class stzDate from stzObject
 
     def SubtractYears(nYears)
         oQDate = oQDate.addYears(-nYears)
-        return This.ToString()
     
 	    def SubtractYearsQ(nYears)
 	        This.SubtractYears(nYears)
 	        return This
 
     #--- SMART NAVIGATION METHODS ---#
+
+def NextWeekday()
+    nCurrentDay = oQDate.dayOfWeek()
+    _oCopy_ = This.Copy()
+
+    if nCurrentDay < 5  # Monday-Thursday
+        _oCopy_.AddDays(1)
+    else  # Friday-Sunday
+        _oCopy_.AddDays(8 - nCurrentDay)
+    ok
+    return _oCopy_.ToString()
+
+def PreviousWeekday()
+    nCurrentDay = oQDate.dayOfWeek()
+    _oCopy_ = This.Copy()
+
+    if nCurrentDay > 1  # Tuesday-Sunday
+        _oCopy_.SubtractDays(1)
+    else  # Monday
+        _oCopy_.SubtractDays(3)
+    ok
+    return _oCopy_.ToString()
+
+def NextMonday()
+    nDaysToAdd = 8 - oQDate.dayOfWeek()
+    if nDaysToAdd = 8
+        nDaysToAdd = 7
+    ok
+
+    _oCopy_ = This.Copy()
+    _oCopy_.AddDays(nDaysToAdd)
+    return _oCopy_.ToString()
+
+def FirstDayOfMonth()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), 1 ])
+    return _oCopy_.ToString()
+
+def LastDayOfMonth()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), oQDate.daysInMonth() ])
+    return _oCopy_.ToString()
+
+def StartOfMonth()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), 1 ])
+    return _oCopy_.ToString()
+
+    def StartOfMonthQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SetDate([ oQDate.year(), oQDate.month(), 1 ])
+        return _oCopy_
+
+def EndOfMonth()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), oQDate.daysInMonth() ])
+    return _oCopy_.ToString()
+
+    def EndOfMonthQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SetDate([ oQDate.year(), oQDate.month(), oQDate.daysInMonth() ])
+        return _oCopy_
+
+def StartOfYear()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ oQDate.year(), 1, 1 ])
+    return _oCopy_.ToString()
+
+    def StartOfYearQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SetDate([ oQDate.year(), 1, 1 ])
+        return _oCopy_
+
+def EndOfYear()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ oQDate.year(), 12, 31 ])
+    return _oCopy_.ToString()
+
+    def EndOfYearQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SetDate([ oQDate.year(), 12, 31 ])
+        return _oCopy_
+
+def DayAfterMonthEnd()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), oQDate.daysInMonth() ])
+    _oCopy_.AddDays(1)
+    return _oCopy_.ToString()
+
+    def DayAfterMonthEndQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SetDate([ oQDate.year(), oQDate.month(), oQDate.daysInMonth() ])
+        _oCopy_.AddDays(1)
+        return _oCopy_
+
+def DayBeforeMonthStart()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), 1 ])
+    _oCopy_.SubtractDays(1)
+    return _oCopy_.ToString()
+
+    def DayBeforeMonthStartQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SetDate([ oQDate.year(), oQDate.month(), 1 ])
+        _oCopy_.SubtractDays(1)
+        return _oCopy_
+
+def DayAfterYearEnd()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ oQDate.year(), 12, 31 ])
+    _oCopy_.AddDays(1)
+    return _oCopy_.ToString()
+
+    def DayAfterYearEndQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SetDate([ oQDate.year(), 12, 31 ])
+        _oCopy_.AddDays(1)
+        return _oCopy_
+
+def DayBeforeYearStart()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ oQDate.year(), 1, 1 ])
+    _oCopy_.SubtractDays(1)
+    return _oCopy_.ToString()
+
+    def DayBeforeYearStartQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SetDate([ oQDate.year(), 1, 1 ])
+        _oCopy_.SubtractDays(1)
+        return _oCopy_
+
+def NextEndOfMonth()
+    _oCopy_ = This.Copy()
+    _oCopy_.AddMonths(1)
+    _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), _oCopy_.DaysInMonthN() ])
+    return _oCopy_.ToString()
+
+    def NextEndOfMonthQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.AddMonths(1)
+        _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), _oCopy_.DaysInMonthN() ])
+        return _oCopy_
+
+def PreviousEndOfMonth()
+    _oCopy_ = This.Copy()
+    _oCopy_.SubtractMonths(1)
+    _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), _oCopy_.DaysInMonthN() ])
+    return _oCopy_.ToString()
+
+    def PreviousEndOfMonthQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SubtractMonths(1)
+        _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), _oCopy_.DaysInMonthN() ])
+        return _oCopy_
+
+def NextStartOfMonth()
+    _oCopy_ = This.Copy()
+    _oCopy_.AddMonths(1)
+    _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), 1 ])
+    return _oCopy_.ToString()
+
+    def NextStartOfMonthQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.AddMonths(1)
+        _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), 1 ])
+        return _oCopy_
+
+def PreviousStartOfMonth()
+    _oCopy_ = This.Copy()
+    _oCopy_.SubtractMonths(1)
+    _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), 1 ])
+    return _oCopy_.ToString()
+
+    def PreviousStartOfMonthQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SubtractMonths(1)
+        _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), 1 ])
+        return _oCopy_
+
+def MidMonth()
+    _oCopy_ = This.Copy()
+    nMid = ceil(_oCopy_.DaysInMonthN() / 2)
+    _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), nMid ])
+    return _oCopy_.ToString()
+
+    def MidMonthQ()
+        _oCopy_ = This.Copy()
+        nMid = ceil(_oCopy_.DaysInMonthN() / 2)
+        _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), nMid ])
+        return _oCopy_
+
+def FirstWeekdayOfMonth()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), 1 ])
     
-    def NextWeekday()
-        nCurrentDay = oQDate.dayOfWeek()
-        if nCurrentDay < 5  # Monday-Thursday
-            return This.AddDays(1)
-        else  # Friday-Sunday
-            return This.AddDays(8 - nCurrentDay)
-        ok
+    while _oCopy_.IsWeekend()
+        _oCopy_.AddDays(1)
+    end
+    
+    return _oCopy_.ToString()
 
-    def PreviousWeekday()
-        nCurrentDay = oQDate.dayOfWeek()
-        if nCurrentDay > 1  # Tuesday-Sunday
-            return This.SubtractDays(1)
-        else  # Monday
-            return This.SubtractDays(3)
-        ok
+    def FirstWeekdayOfMonthQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), 1 ])
+        
+        while _oCopy_.IsWeekend()
+            _oCopy_.AddDays(1)
+        end
+        
+        return _oCopy_
 
-    def NextMonday()
-        nDaysToAdd = 8 - oQDate.dayOfWeek()
-        if nDaysToAdd = 8
-            nDaysToAdd = 7
-        ok
-        return This.AddDays(nDaysToAdd)
+def LastWeekdayOfMonth()
+    _oCopy_ = This.Copy()
+    _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), _oCopy_.DaysInMonthN() ])
+    
+    while _oCopy_.IsWeekend()
+        _oCopy_.SubtractDays(1)
+    end
+    
+    return _oCopy_.ToString()
 
-    def LastDayOfMonth()
-        oQDate = oQDate.setDate(oQDate.year(), oQDate.month(), oQDate.daysInMonth())
-        return This.ToString()
-
-    def FirstDayOfMonth()
-        oQDate = oQDate.setDate(oQDate.year(), oQDate.month(), 1)
-        return This.ToString()
-
-    def StartOfYear()
-        oQDate = oQDate.setDate(oQDate.year(), 1, 1)
-        return This.ToString()
-
-    def EndOfYear()
-        oQDate = oQDate.setDate(oQDate.year(), 12, 31)
-        return This.ToString()
+    def LastWeekdayOfMonthQ()
+        _oCopy_ = This.Copy()
+        _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), _oCopy_.DaysInMonthN() ])
+        
+        while _oCopy_.IsWeekend()
+            _oCopy_.SubtractDays(1)
+        end
+        
+        return _oCopy_
 
     #--- ENHANCED OPERATOR OVERLOADING ---#
     
@@ -774,73 +961,73 @@ class stzDate from stzObject
 
     #--- HUMAN-READABLE FORMATTING ---#
     
-def ToHuman()
-    oToday = new stzDate("")
-    nDays = This.DaysTo(oToday)
-    nDays = -nDays  # Invert to get positive for future dates
-    
-    if nDays = 0
-        return "today"
-    
-    but nDays = 1
-        return "tomorrow"
-    
-    but nDays = -1
-        return "yesterday"
-    
-    but nDays > 0 and nDays <= 7
-        return "In " + nDays + " day" + Iff(nDays=1, "", "s")
-    
-    but nDays < 0 and nDays >= -7
-        return '' + (-nDays) + " day" + Iff(nDays=-1, "", "s") + " ago"
-    
-    else
-        # Use the ordinal suffix properly
-        nDay = This.DayN()
-        cDaySuffix = DayOrdinalSuffix(nDay)
-        cHuman = This.Day() + ", " + This.Month() + " " + nDay + cDaySuffix + ", " + This.Year()
-        return cHuman
-    ok
+    def ToHuman()
+	    oToday = new stzDate("")
+	    nDays = This.DaysTo(oToday)
+	    nDays = -nDays  # Invert to get positive for future dates
+	    
+	    if nDays = 0
+	        return "today"
+	    
+	    but nDays = 1
+	        return "tomorrow"
+	    
+	    but nDays = -1
+	        return "yesterday"
+	    
+	    but nDays > 0 and nDays <= 7
+	        return "In " + nDays + " day" + Iff(nDays=1, "", "s")
+	    
+	    but nDays < 0 and nDays >= -7
+	        return '' + (-nDays) + " day" + Iff(nDays=-1, "", "s") + " ago"
+	    
+	    else
+	        # Use the ordinal suffix properly
+	        nDay = This.DayN()
+	        cDaySuffix = DayOrdinalSuffix(nDay)
+	        cHuman = This.Day() + ", " + This.Month() + " " + nDay + cDaySuffix + ", " + This.Year()
+	        return cHuman
+	    ok
 
 
-def ToRelative()
-    oToday = new stzDate("")
-    nDays = This.DaysTo(oToday)
-    nDays = -nDays  # Invert to get positive for future dates
-    
-    if nDays = 0
-        return "today"
-    
-    but nDays = 1
-        return "tomorrow"
-    
-    but nDays = -1
-        return "yesterday"
-    
-    but nDays > 1 and nDays <= 7
-        return "in " + nDays + " days"
-    
-    but nDays > 7 and nDays <= 14
-        return "in 1 week"
-    
-    but nDays > 14 and nDays <= 30
-        nWeeks = floor(nDays / 7)
-        return "in " + nWeeks + " weeks"
-    
-    but nDays < -1 and nDays >= -7
-        return '' + (-nDays) + " days ago"
-    
-    but nDays < -7 and nDays >= -14
-        return "1 week ago"
-    
-    but nDays < -14 and nDays >= -30
-        nWeeks = floor((-nDays) / 7)
-        return '' + nWeeks + " weeks ago"
-    
-    else
-        return This.ToString()
-    ok
-
+    def ToRelative()
+	    oToday = new stzDate("")
+	    nDays = This.DaysTo(oToday)
+	    nDays = -nDays  # Invert to get positive for future dates
+	    
+	    if nDays = 0
+	        return "today"
+	    
+	    but nDays = 1
+	        return "tomorrow"
+	    
+	    but nDays = -1
+	        return "yesterday"
+	    
+	    but nDays > 1 and nDays <= 7
+	        return "in " + nDays + " days"
+	    
+	    but nDays > 7 and nDays <= 14
+	        return "in 1 week"
+	    
+	    but nDays > 14 and nDays <= 30
+	        nWeeks = floor(nDays / 7)
+	        return "in " + nWeeks + " weeks"
+	    
+	    but nDays < -1 and nDays >= -7
+	        return '' + (-nDays) + " days ago"
+	    
+	    but nDays < -7 and nDays >= -14
+	        return "1 week ago"
+	    
+	    but nDays < -14 and nDays >= -30
+	        nWeeks = floor((-nDays) / 7)
+	        return '' + nWeeks + " weeks ago"
+	    
+	    else
+	        return This.ToString()
+	    ok
+	
 
     def ToString()
         return This.ToStringXT("")
@@ -852,7 +1039,7 @@ def ToRelative()
 			return This.ToString()
 
     def ToStringXT(cFormat)
-        if cFormat = NULL or cFormat = ""
+        if cFormat = ""
             cFormat = $cDefaultDateFormat
         ok
         
@@ -881,18 +1068,17 @@ def ToRelative()
     def ToLong()
         return This.Day() + ", " + This.Month() + " " + This.DayN() + ", " + This.Year()
 
-#--- JULIAN DAY METHODS ---#
+    #--- JULIAN DAY METHODS ---#
     
     def ToJulianDay()
         return oQDate.toJulianDay()
     
     def FromJulianDay(nJulianDay)
         oQDate = oQDate.fromJulianDay(nJulianDay)
-        return This.ToString()
     
-    def FromJulianDayQ(nJulianDay)
-        This.FromJulianDay(nJulianDay)
-        return This
+	    def FromJulianDayQ(nJulianDay)
+	        This.FromJulianDay(nJulianDay)
+	        return This
 
     #--- BATCH OPERATIONS ---#
     
@@ -929,10 +1115,8 @@ def ToRelative()
         return This.IsAfter(oStartDate) and This.IsBefore(oEndDate)
 
     def Copy()
-        oNewDate = new stzDate("")
-        oNewDate.SetQDate(new QDate())
-        oNewDate.QDateObject().setDate(This.YearN(), This.MonthN(), This.DayN())
-        return oNewDate
+        oQDateCopy = new stzDate(This.Date())
+        return oQDateCopy
 
     #--- UTILITY METHODS ---#
     
