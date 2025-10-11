@@ -15831,7 +15831,7 @@ Class stzTable from stzList
 		cOutput = ""
 		cLine = @aBorder[:Vertical]
 		for i = 1 to nCols
-			cLine += " " + @Copy("-", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+			cLine += " " + RepeatChar("-", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
 		next
 		cOutput += cLine + NL
 		
@@ -15855,7 +15855,7 @@ Class stzTable from stzList
 		
 		cLine = @aBorder[:Vertical]
 		for i = 1 to nCols
-			cLine += " " + @Copy(" ", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
+			cLine += " " + RepeatChar(" ", aColWidths[i] - 2) + " " + @aBorder[:Vertical]
 		next
 		cOutput += cLine + NL
 		
@@ -16062,7 +16062,7 @@ Class stzTable from stzList
 		cStr = "" + cText
 		nPad = nWidth - stzlen(cStr)
 		if nPad > 0
-			return cStr + @copy(" ", nPad)
+			return cStr + RepeatChar(" ", nPad)
 		else
 			return cStr
 		ok
@@ -16076,7 +16076,7 @@ Class stzTable from stzList
 		cStr = "" + cText
 		nPad = nWidth - stzlen(cStr)
 		if nPad > 0
-			return @copy(" ", nPad) + cStr
+			return RepeatChar(" ", nPad) + cStr
 		else
 			return cStr
 		ok
@@ -16096,7 +16096,7 @@ Class stzTable from stzList
 		nPadLeft = floor(nPadTotal / 2)
 		nPadRight = nPadTotal - nPadLeft
 		
-		return @copy(" ", nPadLeft) + cStr + @copy(" ", nPadRight)
+		return RepeatChar(" ", nPadLeft) + cStr + RepeatChar(" ", nPadRight)
 	
 	def StrFill(nCount, cChar)
 

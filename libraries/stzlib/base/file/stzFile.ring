@@ -899,7 +899,7 @@ class stzFileAppender from stzFileReadingMixin
         if cChar = NULL
             cChar = "-"
         ok
-        This.WriteLine(@Copy(cChar, 50))
+        This.WriteLine(RepeatChar(cChar, 50))
     	return 1
 
 	   def WriteSeparatorQ(cChar)
@@ -1001,7 +1001,7 @@ class stzFileCreator from stzFileReadingMixin
     def WriteHeader(cTitle)
         This.WriteLine("# " + cTitle)
         This.WriteLine("# Created: " + TimeStamp())
-        This.WriteLine("#" + @Copy("=", len(cTitle) + 2))
+        This.WriteLine("#" + RepeatChar("=", len(cTitle) + 2))
         This.WriteBlankLine()
     	return 1
 
@@ -1162,7 +1162,7 @@ class stzFileOverwriter from stzFileReadingMixin
     def WriteHeader(cTitle)
         This.WriteLine("# " + cTitle)
         This.WriteLine("# Updated: " + TimeStamp())
-        This.WriteLine("#" + @Copy("=", len(cTitle) + 2))
+        This.WriteLine("#" + RepeatChar("=", len(cTitle) + 2))
         This.WriteBlankLine()
     	return 1
 

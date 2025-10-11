@@ -1113,13 +1113,13 @@ class stzPivotTable from stzList
 		cLine = @aBorder[:Vertical]
 	
 		# Column for row dimension
-		cLine += @copy(" ", nRowLabelWidth) + @aBorder[:Vertical]
+		cLine += RepeatChar(" ", nRowLabelWidth) + @aBorder[:Vertical]
 
 		# Experience header
 		cLine += CenterText(@Capitalize(aColDims[1]), nExpWidth) + @aBorder[:Vertical]
 	
 		# Median header
-		cLine += @copy(" ", nTotalColWidth) + @aBorder[:Vertical]
+		cLine += RepeatChar(" ", nTotalColWidth) + @aBorder[:Vertical]
 		cOutput += cLine + NL
 	
 		# Separator after Experience row
@@ -2304,7 +2304,7 @@ class stzPivotTable from stzList
 						key = dim1Value + "_" + dim2Value
 	
 						if HasKey(aDataColWidths, key)
-							cLine += " " + @Copy("-", aDataColWidths[key] - 2) + " "
+							cLine += " " + RepeatChar("-", aDataColWidths[key] - 2) + " "
 							
 							if i2 < nColDim2ValuesLen
 								cLine += @aBorder[:Vertical]
@@ -2317,7 +2317,7 @@ class stzPivotTable from stzList
 					ok
 				next
 				
-				cLine += @aBorder[:Vertical] + " " + @Copy("-", nTotalColWidth - 2) + " " + @aBorder[:Vertical]
+				cLine += @aBorder[:Vertical] + " " + RepeatChar("-", nTotalColWidth - 2) + " " + @aBorder[:Vertical]
 				cOutput += cLine + NL
 				
 				# Add SUM row
@@ -3138,7 +3138,7 @@ class stzPivotTable from stzList
 		# The main raw label centered across all data columns
 
 		cLine += CenterText(@Capitalize(aColDims[1]), nCombinedDataWidth)
-		cLine += @aBorder[:Vertical] + @copy(" ", nTotalColWidth) + @aBorder[:Vertical]
+		cLine += @aBorder[:Vertical] + RepeatChar(" ", nTotalColWidth) + @aBorder[:Vertical]
 		cOutput += cLine + NL
 	
 		# Separator after main raw header
@@ -3395,7 +3395,7 @@ class stzPivotTable from stzList
 		cStr = "" + text
 		nPad = width - len(cStr)
 		if nPad > 0
-			return cStr + @copy(" ", nPad)
+			return cStr + RepeatChar(" ", nPad)
 		else
 			return cStr
 		ok
@@ -3405,7 +3405,7 @@ class stzPivotTable from stzList
 		cStr = "" + text
 		nPad = width - len(cStr)
 		if nPad > 0
-			return @copy(" ", nPad) + cStr
+			return RepeatChar(" ", nPad) + cStr
 		else
 			return cStr
 		ok
@@ -3421,7 +3421,7 @@ class stzPivotTable from stzList
 		nPadLeft = floor(nPadTotal / 2)
 		nPadRight = nPadTotal - nPadLeft
 		
-		return @copy(" ", nPadLeft) + cStr + @copy(" ", nPadRight)
+		return RepeatChar(" ", nPadLeft) + cStr + RepeatChar(" ", nPadRight)
 	
 	def StrFill(nCount, cChar)
 		# Create string of repeated character

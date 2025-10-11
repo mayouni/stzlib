@@ -411,7 +411,7 @@ pf()
 #------------------------------------------#
 
 /*--- Navigating between months
-*/
+
 pr()
 
 oCal = new stzCalendar([2024, 10])

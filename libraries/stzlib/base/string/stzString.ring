@@ -81636,7 +81636,7 @@ class stzString from stzObject
 		# Doing the job
 
 		n = n2 - n1 + 1
-		cResult = This.QStringObject().replace(n1 - 1, n2 - n1 + 1, @Copy(pcChar, n))
+		cResult = This.QStringObject().replace(n1 - 1, n2 - n1 + 1, RepeatChar(pcChar, n))
 		This.Update(cResult)
 
 		def FillSectionQ(n1, n2, pcChar)
@@ -81779,7 +81779,7 @@ class stzString from stzObject
 		# Doing the job
 
 		n = n2 - n1 + 1
-		cResult = This.QStringObject().replace(n1 - 1, n2 - n1 + 1, @Copy(" ", n))
+		cResult = This.QStringObject().replace(n1 - 1, n2 - n1 + 1, RepeatChar(" ", n))
 		This.Update(cResult)
 
 		def EraseSectionQ(n1, n2)
