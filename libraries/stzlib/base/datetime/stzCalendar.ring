@@ -30,6 +30,25 @@ class stzCalendar from stzObject
 	@aEvents = []       # Timeline events marked for visualization
 	@aConstraints = []  # Custom constraint definitions
 
+	# Display Characters
+	@cVizBoundaryChar = "│"
+	@cVizSpanStartChar = "["
+	@cVizSpanEndChar = "]"
+	@cVizBlockChar = "X"
+	@cVizWeekendChar = "░"
+	@cVizTopLeftCorner = "╭"
+	@cVizTopRightCorner = "╮"
+	@cVizBottomLeftCorner = "╰"
+	@cVizBottomRightCorner = "╯"
+	@cVizTopTSeparator = "├"
+	@cVizBottomTSeparator = "┤"
+	@cVizHorizontalLine = "─"
+
+	# NEW: Display dimensions
+	@nVizMinWidth = 40
+	@nVizWidth = 50
+	@nVizHeight = 10
+
 	def init(p)
 		# Single parameter initialization with flexible handling
 		if isNumber(p) and p > 1900
@@ -348,8 +367,8 @@ class stzCalendar from stzObject
 		return find(@aWorkingDays, nDayOfWeek) > 0
 	
 	def _getDayOfWeek(cDate)
-		return StzDateQ(cDate).DayOfWeek()
-	
+		return StzDateQ(cDate).DayOfWeekN()
+
 	def FirstWorkingDay()
 		cDate = @cStartDate
 		while not This.IsWorkingDay(cDate)
@@ -463,22 +482,22 @@ class stzCalendar from stzObject
 	def AvailableHours()
 		return This.AvailableHoursBetween(This.Start(), This.End_())
 	
-def AvailableHoursBetween(pStart, pEnd)
-	cStart = _toDateString(pStart)
-	cEnd = _toDateString(pEnd)
-	nTotalHours = 0
-	nDays = StzDateQ(cStart).DaysToDate(cEnd)
-	
-	cDate = cStart
-	for i = 0 to nDays
-		if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
-			nDayHours = This.AvailableHoursOn(cDate)
-			nTotalHours += nDayHours
-		ok
-		cDate = _getNextDay(cDate)
-	next
-	
-	return nTotalHours
+	def AvailableHoursBetween(pStart, pEnd)
+		cStart = _toDateString(pStart)
+		cEnd = _toDateString(pEnd)
+		nTotalHours = 0
+		nDays = StzDateQ(cStart).DaysToDate(cEnd)
+		
+		cDate = cStart
+		for i = 0 to nDays
+			if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
+				nDayHours = This.AvailableHoursOn(cDate)
+				nTotalHours += nDayHours
+			ok
+			cDate = _getNextDay(cDate)
+		next
+		
+		return nTotalHours
 	
 	def AvailableHoursOn(pDate)
 		if This.IsHoliday(pDate)
@@ -539,9 +558,10 @@ def AvailableHoursBetween(pStart, pEnd)
 	
 	def FirstAvailableSlot(pDuration)
 		nRequiredHours = val("" + pDuration)
+		nDays = This.TotalDays()
 		cDate = @cStartDate
 		
-		while cDate <= @cEndDate
+		for i = 1 to nDays
 			if This.CanFit(cDate, nRequiredHours)
 				cStart = cDate + " " + @cBusinessStart
 				# Add hours to business start time
@@ -550,22 +570,24 @@ def AvailableHoursBetween(pStart, pEnd)
 				return [cStart, cEnd]
 			ok
 			cDate = _getNextDay(cDate)
-		end
+		next
 		
 		return []
-	
+
 	def ConsecutiveWorkingDaysAvailable(pDate)
 		cDate = _toDateString(pDate)
 		nCount = 0
+		nDays = This.TotalDays()
+		nStartDay = _daysDifference(@cStartDate, cDate)
 		
-		while cDate <= @cEndDate
+		for i = nStartDay to nDays
 			if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
 				nCount++
 			else
 				exit
 			ok
 			cDate = _getNextDay(cDate)
-		end
+		next
 		
 		return nCount
 
@@ -600,13 +622,13 @@ def AvailableHoursBetween(pStart, pEnd)
 	
 	def NextYear()
 		@nYear++
-		@cStartDate = @nYear + "-01-01"
-		@cEndDate = @nYear + "-12-31"
+		@cStartDate = ''+ @nYear + "-01-01"
+		@cEndDate = ''+ @nYear + "-12-31"
 	
 	def PreviousYear()
 		@nYear--
-		@cStartDate = @nYear + "-01-01"
-		@cEndDate = @nYear + "-12-31"
+		@cStartDate = ''+ @nYear + "-01-01"
+		@cEndDate = ''+ @nYear + "-12-31"
 	
 	def GoTo(pDate)
 		cDate = _toDateString(pDate)
@@ -625,11 +647,40 @@ def AvailableHoursBetween(pStart, pEnd)
 		return This.Start() + " to " + This.End_()
 	
 	def IsToday()
-		cToday = date()
-		return (@cStartDate <= cToday and cToday <= @cEndDate)
+		cToday = Today()
+		oToday = new stzDate(cToday)
+		oStartDate = new stzDate(@cStartDate)
+		return (oStartDate <= cToday and oToday <= @cEndDate)
 
 	# Date queries
-def WorkingDays()
+
+	def FirstDayOfWeek()
+		cDate = @cStartDate
+		oDate = new stzDate(cDate)
+		nDayOfWeek = oDate.DayOfWeek()
+		
+		# Go back to Monday of this week
+		nDaysBack = nDayOfWeek - 1
+		for i = 1 to nDaysBack
+			cDate = _getPreviousDay(cDate)
+		next
+		
+		return cDate
+	
+	def LastDayOfWeek()
+		cDate = @cStartDate
+		oDate = new stzDate(cDate)
+		nDayOfWeek = oDate.DayOfWeek()
+		
+		# Go forward to Sunday of this week
+		nDaysForward = 7 - nDayOfWeek
+		for i = 1 to nDaysForward
+			cDate = _getNextDay(cDate)
+		next
+		
+		return cDate
+
+	def WorkingDays()
 		aResult = []
 		cDate = @cStartDate
 		nDays = This.TotalDays()
@@ -657,14 +708,15 @@ def WorkingDays()
 		
 		return aResult
 	
+	# FIXED: FreeDays() - returns working days with no breaks scheduled
+	# A "free day" is a working day that's not a holiday and has no breaks
 	def FreeDays()
 		aResult = []
 		cDate = @cStartDate
 		nDays = This.TotalDays()
 		
 		for i = 1 to nDays
-			if This.IsWorkingDay(cDate) and
-			   not This.IsHoliday(cDate) and len(@aBreaks) = 0
+			if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
 				aResult + cDate
 			ok
 			cDate = _getNextDay(cDate)
@@ -676,96 +728,539 @@ def WorkingDays()
 		cDate = _toDateString(pDate)
 		
 		aResult = [
-			[:date, cDate],
-			[:isWorkingDay, This.IsWorkingDay(cDate)],
-			[:isHoliday, This.IsHoliday(cDate)],
-			[:availableHours, This.AvailableHoursOn(cDate)]
+			[ "date", cDate],
+			[ "isWorkingDay", This.IsWorkingDay(cDate)],
+			[ "isHoliday", This.IsHoliday(cDate)],
+			[ "availableHours", This.AvailableHoursOn(cDate)]
 		]
 		
 		return aResult
 
-	# Statistics
-	def Stats()
-		aStats = []
-		
-		aStats + [[:totalDays, This.TotalDays()]]
-		aStats + [[:workingDays, This.AvailableDays()]]
-		aStats + [[:weekendDays, This.TotalDays() - This.AvailableDays() - len(@aHolidays)]]
-		aStats + [[:holidays, len(@aHolidays)]]
-		aStats + [[:totalAvailableHours, This.AvailableHours()]]
-		
-		if This.AvailableDays() > 0
-			aStats + [[:averageHoursPerWorkingDay, floor(This.AvailableHours() / This.AvailableDays())]]
-		ok
-		
-		aStats + [[:firstWorkingDay, This.FirstWorkingDay()]]
-		aStats + [[:lastWorkingDay, This.LastWorkingDay()]]
-		
-		return aStats
-
 	# Copy and Clone
 	def Copy()
-		oCopy = new stzCalendar(This.Start())
-		oCopy.@cStartDate = This.@cStartDate
-		oCopy.@cEndDate = This.@cEndDate
-		oCopy.@aWorkingDays = This.@aWorkingDays
-		oCopy.@aHolidays = This.@aHolidays
-		oCopy.@aBreaks = This.@aBreaks
-		oCopy.@cBusinessStart = This.@cBusinessStart
-		oCopy.@cBusinessEnd = This.@cBusinessEnd
-		oCopy.@nYear = This.@nYear
-		oCopy.@nMonth = This.@nMonth
-		oCopy.@cQuarter = This.@cQuarter
-		return oCopy
+		_oCopy_ = new stzCalendar(This.Start())
+
+		_oCopy_.@cStartDate = This.@cStartDate
+		_oCopy_.@cEndDate = This.@cEndDate
+		_oCopy_.@aWorkingDays = This.@aWorkingDays
+		_oCopy_.@aHolidays = This.@aHolidays
+		_oCopy_.@aBreaks = This.@aBreaks
+		_oCopy_.@cBusinessStart = This.@cBusinessStart
+		_oCopy_.@cBusinessEnd = This.@cBusinessEnd
+		_oCopy_.@nYear = This.@nYear
+		_oCopy_.@nMonth = This.@nMonth
+		_oCopy_.@cQuarter = This.@cQuarter
+
+		return _oCopy_
 	
 	def Clone()
 		return This.Copy()
 
-	# Display
+
+	  #------------------------#
+	 #  TimeLine Integration  #
+	#------------------------#
+
+def MarkTimeline(oTimeLine)
+	if NOT (isObject(oTimeLine) and ring_classname(oTimeLine) = "stztimeline")
+		StzRaise("Incorrect param type! oTimeLine must be a stzTimeLine object.")
+	ok
+	
+	@oTimeline = oTimeLine
+	
+	oTimelineStart = new stzDate(oTimeLine.Start())
+	oTimelineEnd = new stzDate(oTimeLine.End_())
+	
+	if oTimelineStart < @cStartDate or oTimelineEnd > @cEndDate
+		? "Warning: Timeline extends beyond calendar range"
+	ok
+
+def TimelineEventsSummary()
+	if NOT (isObject(oTimeLine) and ring_classname(oTimeLine) = "stztimeline")
+		StzRaise("Incorrect param type! oTimeLine must be a stzTimeLine object.")
+	ok
+	
+	aResult = [[:LABEL, :COUNT, :DURATION, :CONFLICTS]]
+	
+	aPoints = @oTimeline.Points()
+	aSpans = @oTimeline.Spans()
+	aBlockedSpans = @oTimeline.BlockedSpans()
+	
+	nPointCount = len(aPoints)
+	if nPointCount > 0
+		aResult + ["Points", nPointCount, "—", 0]
+	ok
+	
+	nSpanCount = len(aSpans)
+	if nSpanCount > 0
+		aResult + ["Spans", nSpanCount, "—", 0]
+	ok
+	
+	nBlockedCount = len(aBlockedSpans)
+	if nBlockedCount > 0
+		aResult + ["Blocked", nBlockedCount, "—", 0]
+	ok
+	
+	return aResult
+
+def ConflictsWith(oTimeLine)
+	if NOT (isObject(oTimeLine) and ring_classname(oTimeLine) = "stztimeline")
+		StzRaise("Incorrect param type! oTimeLine must be a stzTimeLine object.")
+	ok
+	
+	aPoints = oTimeLine.Points()
+	aSpans = oTimeLine.Spans()
+	
+	nLen = len(aPoints)
+	for i = 1 to nLen
+		cDate = aPoints[i][2]
+		aParts = @split(cDate, " ")
+		cDateOnly = aParts[1]
+		
+		if This.IsHoliday(cDateOnly) or not This.IsWorkingDay(cDateOnly)
+			return TRUE
+		ok
+	next
+	
+	nLen = len(aSpans)
+	for i = 1 to nLen
+		cStart = aSpans[i][2]
+		cEnd = aSpans[i][3]
+		
+		aParts = @split(cStart, " ")
+		cStartDate = aParts[1]
+		
+		aParts = @split(cEnd, " ")
+		cEndDate = aParts[1]
+		
+		nDays = StzDateQ(cStartDate).DaysToDate(cEndDate)
+		cDate = cStartDate
+		for j = 0 to nDays
+			if This.IsHoliday(cDate) or not This.IsWorkingDay(cDate)
+				return TRUE
+			ok
+			cDate = _getNextDay(cDate)
+		next
+	next
+	
+	return FALSE
+
+def ConflictsWithSpan(cLabel, aParams)
+	if NOT (isObject(oTimeLine) and ring_classname(oTimeLine) = "stztimeline")
+		StzRaise("Incorrect param type! oTimeLine must be a stzTimeLine object.")
+	ok
+	
+	aSpans = @oTimeline.Spans()
+	aConflicts = []
+	
+	nLen = len(aSpans)
+	for i = 1 to nLen
+		if aSpans[i][1] = cLabel
+			cStart = aSpans[i][2]
+			cEnd = aSpans[i][3]
+			
+			aParts = @split(cStart, " ")
+			cStartDate = aParts[1]
+			
+			aParts = @split(cEnd, " ")
+			cEndDate = aParts[1]
+			
+			nDays = StzDateQ(cStartDate).DaysToDate(cEndDate)
+			cDate = cStartDate
+			for j = 0 to nDays
+				if This.IsHoliday(cDate)
+					aConflicts + [cDate, "Holiday: " + This.HolidayName(cDate)]
+				but not This.IsWorkingDay(cDate)
+					aConflicts + [cDate, "Weekend"]
+				ok
+				cDate = _getNextDay(cDate)
+			next
+		ok
+	next
+	
+	return aConflicts
+
+	  #-----------------------------------------#
+	 #  Visual Display System for stzCalendar  #
+	#-----------------------------------------#
+
+	# Configuration
+
+	def SetVizWidth(n)
+		@nVizWidth = max([@nVizMinWidth, n])
+		
+	def SetVizHeight(n)
+		@nVizHeight = max([@nVizHeight, n])
+		
+	def VizWidth()
+		return @nVizWidth
+		
+	def VizHeight()
+		return @nVizHeight
+
+
+	# Main Display Methods (matching stzTimeLine pattern)
+
+	def ShowXT(paOptions)
+		? This.ToStringXT(paOptions)
+
 	def Show()
 		? This.ToString()
-	
+		
 	def ToString()
-		return This.ToStringDetailed()
-	
-	def ToStringDetailed()
-		cResult = ""
+		return This.ToStringXT([])
 		
-		cResult += This.Current() + nl + nl
+	def ShowShort()
+		? This.ToStringShort()
+
+	def ToStringShort()
+		return This._drawMonthGrid()
+
+	def ToStringXT(paParams)
+		bShowTable = TRUE
 		
-		cResult += "Calendar Structure:" + nl
-		cResult += "───────────────────" + nl
-		cResult += "Start: " + This.Start() + nl
-		cResult += "End: " + This.End_() + nl
-		cResult += "Total Days: " + This.TotalDays() + nl
-		cResult += "Working Days: " + This.AvailableDays() + nl
-		cResult += "Available Hours: " + This.AvailableHours() + " hours" + nl
-		cResult += nl
-		
-		if len(@aHolidays) > 0
-			cResult += "Holidays:" + nl
-			nLen = len(@aHolidays)
+		if isList(paParams)
+			nLen = len(paParams)
 			for i = 1 to nLen
-				cResult += "  " + @aHolidays[i][1] + " - " + @aHolidays[i][2] + nl
+				if isList(paParams[i]) and len(paParams[i]) = 2
+					if paParams[i][1] = :ShowTable
+						bShowTable = paParams[i][2]
+					ok
+				ok
 			next
-			cResult += nl
 		ok
 		
-		cResult += "Business Hours: " + @cBusinessStart + " to " + @cBusinessEnd + nl
+		cResult = This._drawMonthGrid()
 		
-		if len(@aBreaks) > 0
-			cResult += "Breaks:" + nl
-			nLen = len(@aBreaks)
-			for i = 1 to nLen
-				cResult += "  " + @aBreaks[i][1] + " - " + @aBreaks[i][2] + " (" + @aBreaks[i][3] + ")" + nl
-			next
+		if bShowTable
+			cResult += nl + nl + This._buildCalendarTable()
 		ok
 		
 		return cResult
 
-	#-----------#
-	# PRIVATE HELPERS
-	#-----------#
+	# Display Methods
+
+	def _drawMonthGrid()
+		cResult = ""
+		
+		if @nMonth = 0
+			return This._drawCompactYear()
+		ok
+		
+		cMonthName = This.MonthName()
+		cResult += @copy(" ", 16) + cMonthName + " " + @nYear + nl
+		
+		aParts = @split(This.Start(), "-")
+		cYear = aParts[1]
+		cMonth = aParts[2]
+		
+		cFirstDay = This.Start()
+		oFirstDay = new stzDate(cFirstDay)
+		nFirstDayOfWeek = oFirstDay.DayOfWeek()
+		nDaysInMonth = This.TotalDays()
+		
+		aTableData = [["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]]
+		
+		nDay = 1
+		while nDay <= nDaysInMonth
+			aWeek = []
+			
+			nStartCol = 1
+			if nDay = 1
+				nStartCol = nFirstDayOfWeek
+			ok
+			
+			# Initialize week with spaces
+			for i = 1 to nStartCol - 1
+				aWeek + " "
+			next
+			
+			# Fill days
+			nCol = nStartCol
+			while nCol <= 7 and nDay <= nDaysInMonth
+				cDate = cYear + "-" + cMonth + "-" + PadLeftXT(""+ nDay, 2, "0")
+				cCell = ""
+				
+				if This.IsHoliday(cDate)
+					cCell = "[" + PadLeftXT(""+ nDay, 1, " ") + "]"
+				but This.IsWorkingDay(cDate) = FALSE
+					cCell = RepeatChar(@cVizWeekendChar, 2)
+				else
+					cCell = PadLeftXT(""+ nDay, 2, " ")
+				ok
+				
+				aWeek + cCell
+				nCol++
+				nDay++
+			end
+			
+			# Pad remaining cells to 7
+			while len(aWeek) < 7
+				aWeek + " "
+			end
+			
+			aTableData + aWeek
+		end
+		
+		oTable = new stzTable(aTableData)
+		cResult += oTable.ToString()
+		cResult = substr(cResult, " │ ", "   ")
+		cResult = substr(cResult, "┬", "─")
+		cResult = substr(cResult, "┼", "─")
+		cResult = substr(cResult, "┴", "─")
+	
+		cResult += nl + "Legend:" + nl
+		cResult += "  [D] = Holiday" + nl
+		cResult += "  " + RepeatChar(@cVizWeekendChar, 2) + "  = Weekend"
+		
+		return cResult
+	
+	
+	def _drawCompactYear()
+		cResult = ""
+		
+		if @nYear = 0
+			return "No calendar data to display"
+		ok
+		
+		cResult += "                    " + @nYear + " Overview" + nl
+		cResult += nl
+		
+		aQuarters = [
+			[1, 3, "Q1"],
+			[4, 6, "Q2"],
+			[7, 9, "Q3"],
+			[10, 12, "Q4"]
+		]
+		
+		nLen = len(aQuarters)
+		for i = 1 to nLen
+			nStartMonth = aQuarters[i][1]
+			nEndMonth = aQuarters[i][2]
+			cQuarter = aQuarters[i][3]
+			
+			cResult += cQuarter + " Months: "
+			
+			for nMonth = nStartMonth to nEndMonth
+				oCalTemp = new stzCalendar([@nYear, nMonth])
+				# Transfer constraints from parent to temp
+				oCalTemp.@aWorkingDays = This.@aWorkingDays
+				oCalTemp.@aHolidays = This.@aHolidays
+				oCalTemp.@aBreaks = This.@aBreaks
+				oCalTemp.@cBusinessStart = This.@cBusinessStart
+				oCalTemp.@cBusinessEnd = This.@cBusinessEnd
+				
+				nDays = oCalTemp.AvailableDays()
+				nHours = oCalTemp.AvailableHours()
+				
+				cMonthName = oCalTemp.MonthName()
+				cResult += cMonthName + "(" + nDays + "d/" + nHours + "h) "
+			next
+			
+			cResult += nl
+		next
+		
+		return cResult
+
+
+	def _buildCalendarTable()
+		aTableData = [
+			[:METRIC, :VALUE]
+		]
+		
+		aTableData + ["Total Days", This.TotalDays()]
+		aTableData + ["Working Days", This.AvailableDays()]
+		aTableData + ["Weekend Days", This.TotalDays() - This.AvailableDays() - len(@aHolidays)]
+		aTableData + ["Holidays", len(@aHolidays)]
+		aTableData + ["Total Available Hours", ''+ This.AvailableHours()]
+		
+		if This.AvailableDays() > 0
+			aTableData + ["Average Hours Per Day", floor(This.AvailableHours() / This.AvailableDays())]
+		ok
+		
+		aTableData + ["First Working Day", This.FirstWorkingDay()]
+		aTableData + ["Last Working Day", This.LastWorkingDay()]
+		aTableData + ["Business Hours", @cBusinessStart + " - " + @cBusinessEnd]
+		
+		if len(@aHolidays) > 0
+			cHolidaysList = ""
+			nLen = len(@aHolidays)
+			for i = 1 to nLen
+				if i > 1
+					cHolidaysList += ", "
+				ok
+				cHolidaysList += @aHolidays[i][2]
+			next
+			aTableData + ["Holidays Listed", cHolidaysList]
+		ok
+		
+		if len(@aBreaks) > 0
+			cBreaksList = ""
+			nLen = len(@aBreaks)
+			for i = 1 to nLen
+				if i > 1
+					cBreaksList += " | "
+				ok
+				cBreaksList += @aBreaks[i][3] + ": " + @aBreaks[i][1] + "-" + @aBreaks[i][2]
+			next
+			aTableData + ["Breaks", cBreaksList]
+		ok
+		
+		oTable = new stzTable(aTableData)
+		return oTable.ToString()
+
+	def ShowHeatMap()
+		? This._drawHeatMap()
+
+	def _drawHeatMap()
+		cResult = ""
+		
+		if @nMonth = 0
+			return "Heat map available only for monthly views"
+		ok
+		
+		cResult += This.MonthName() + " " + @nYear + " - Capacity Heat Map" + nl
+		cResult += nl
+		
+		# Calculate weeks
+		cFirstDay = This.Start()
+		oFirstDay = new stzDate(cFirstDay)
+		nFirstDayOfWeek = oFirstDay.DayOfWeek()
+		
+		nDaysInMonth = This.TotalDays()
+		nWeeks = ceil((nFirstDayOfWeek - 1 + nDaysInMonth) / 7)
+		
+		aParts = @split(This.Start(), "-")
+		cYear = aParts[1]
+		cMonth = aParts[2]
+		
+		nDay = 1
+		for nWeek = 1 to nWeeks
+			cResult += "Week " + nWeek + ":  "
+			
+			# Calculate available capacity for this week
+			nWeekCapacity = 0
+			nWeekDays = 0
+			
+			for i = 1 to 7
+				if nDay <= nDaysInMonth
+					cDate = cYear + "-" + cMonth + "-" + PadLeftXT(""+ nDay, 2, "0")
+					
+					if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
+						nWeekCapacity++
+					ok
+					nWeekDays++
+					nDay++
+				ok
+			end
+			
+			# Draw heat bar
+			if nWeekCapacity >= 5
+				cResult += RepeatChar(@cVizBlockChar, 5) + " (5/5 days available)"
+			but nWeekCapacity = 4
+				cResult += RepeatChar(@cVizBlockChar, 4) + @cVizWeekendChar + " (4/5 days available)"
+			but nWeekCapacity = 3
+				cResult += RepeatChar(@cVizBlockChar, 3) + RepeatChar(@cVizWeekendChar, 2) + " (3/5 days available)"
+			but nWeekCapacity = 2
+				cResult += RepeatChar(@cVizBlockChar, 2) + RepeatChar(@cVizWeekendChar, 3) + " (2/5 days available)"
+			but nWeekCapacity = 1
+				cResult += @cVizBlockChar + RepeatChar(@cVizWeekendChar, 4) + " (1/5 days available)"
+			else
+				cResult += RepeatChar(@cVizWeekendChar, 5) + " (0/5 days - weekend/holiday)"
+			ok
+			
+			cResult += nl
+		end
+		
+		cResult += nl + "Legend:" + nl
+		cResult += "  " + @cVizBlockChar + " = Available working day" + nl
+		cResult += "  " + @cVizWeekendChar + " = Weekend or holiday" + nl
+		
+		return cResult
+	
+	
+		def ShowTable()
+			? This._drawDetailedTable()
+	
+	def _drawDetailedTable()
+		cResult = ""
+		cResult += This.MonthName() + " " + @nYear + " - Detailed View" + nl
+		cResult += nl
+		
+		nDaysInMonth = This.TotalDays()
+		aParts = @split(This.Start(), "-")
+		cYear = aParts[1]
+		cMonth = aParts[2]
+		
+		aTableData = [["Date", "Day", "Business", "Breaks", "Available"]]
+		
+		for nDay = 1 to nDaysInMonth
+			cDate = cYear + "-" + cMonth + "-" + PadLeftXT(""+ nDay, 2, "0")
+			oDate = new stzDate(cDate)
+			
+			cDayName = oDate.DayName()
+			
+			cBizHours = ""
+			cBreaks = ""
+			cAvailable = ""
+			
+			if This.IsHoliday(cDate)
+				cBizHours = "HOLIDAY"
+				cAvailable = "0h"
+			but This.IsWorkingDay(cDate) = FALSE
+				cBizHours = "WEEKEND"
+				cAvailable = "0h"
+			else
+				cBizHours = @cBusinessStart + "-" + @cBusinessEnd
+				
+				if len(@aBreaks) > 0
+					cBreaks = @aBreaks[1][1] + "-" + @aBreaks[1][2]
+				else
+					cBreaks = "─"
+				ok
+				
+				nHours = This.AvailableHoursOn(cDate)
+				cAvailable = "" + nHours + "h"
+			ok
+			
+			aTableData + [cDate, cDayName, cBizHours, cBreaks, cAvailable]
+		next
+		
+		oTable = new stzTable(aTableData)
+		cResult += oTable.ToString()
+		
+		cResult += nl + "Summary:" + nl
+		cResult += "  Total Days: " + This.TotalDays() + nl
+		cResult += "  Working Days: " + This.AvailableDays() + nl
+		cResult += "  Available Hours: " + This.AvailableHours() + nl
+		
+		return cResult
+	
+	
+	def Stats()
+		return This._buildStatisticalTable()
+
+	def _buildStatisticalTable()
+		aTableData = [[:METRIC, :VALUE]]
+		
+		aTableData + ["Total Days", This.TotalDays()]
+		aTableData + ["Working Days", This.AvailableDays()]
+		aTableData + ["Weekend Days", This.TotalDays() - This.AvailableDays() - len(@aHolidays)]
+		aTableData + ["Holidays", len(@aHolidays)]
+		aTableData + ["Total Available Hours", This.AvailableHours()]
+		
+		if This.AvailableDays() > 0
+			aTableData + ["Average Hours Per Day", floor(This.AvailableHours() / This.AvailableDays())]
+		ok
+		
+		aTableData + ["First Working Day", This.FirstWorkingDay()]
+		aTableData + ["Last Working Day", This.LastWorkingDay()]
+		
+		return aTableData
+
+	#-----------------#
+	# PRIVATE HELPERS #
+	#-----------------#
 
 	def _daysDifference(cDate1, cDate2)
 		return StzDateQ(cDate1).DaysTo(cDate2)

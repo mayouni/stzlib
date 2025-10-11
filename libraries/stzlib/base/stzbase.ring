@@ -162,6 +162,8 @@
 	load "datetime/stzTimeLine.ring"
 	load "datetime/stzCalendar.ring"
 
+	load "datetime/stzListOfTimeLines.ring"
+
 # Loading files related to the I18N module
 
 	load "i18n/stzCountry.ring"
