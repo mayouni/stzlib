@@ -15421,8 +15421,8 @@ Class stzTable from stzList
 					cellValue = @@(aColData[j])
 				ok
 
-                if len(cellValue) > nMaxWidth
-                    nMaxWidth = len(cellValue)
+                if stzlen(cellValue) > nMaxWidth
+                    nMaxWidth = stzlen(cellValue)
                 ok
 
             next
@@ -15554,7 +15554,7 @@ Class stzTable from stzList
 		bRowNumber = FALSE
 		bSubTotal = FALSE
 		bGrandTotal = FALSE
-		
+
 		# Process parameters and ensure boolean values
 		processParameters(pParams, bRowNumber, bSubTotal, bGrandTotal)
 		bRowNumber = @if(not isNull(pParams[:RowNumber]), pParams[:RowNumber], FALSE)
@@ -15577,7 +15577,8 @@ Class stzTable from stzList
 		? cOutput
 
 	# Submethod to process parameters and set flags
-	def processParameters(pParams, bRowNumber, bSubTotal, bGrandTotal)
+	#TODO // Redesign this method the Softanza way!
+	def processParameters(pParams, bRowNumber, bSubTotal, bGrandTotal, bCleanDesign)
 		if pParams = NULL
 			# Use defaults
 		else
@@ -15585,25 +15586,27 @@ Class stzTable from stzList
 				if len(pParams) = 0
 					# Use defaults
 				else
-					for i = 1 to len(pParams)
+					nLenP = len(pParams)
+					for i = 1 to nLenP
 						if isList(pParams[i])
 							cParamName = lower(string(pParams[i][1]))
 							if len(pParams[i]) >= 2
-								if lower(cParamName) = "rownumber" or cParamName = ":rownumber"
+								if lower(cParamName) = "rownumber"
 									bRowNumber = pParams[i][2]
-								but lower(cParamName) = "subtotal" or cParamName = ":subtotal"
+								but lower(cParamName) = "subtotal"
 									bSubTotal = pParams[i][2]
-								but lower(cParamName) = "grandtotal" or cParamName = ":grandtotal"
+								but lower(cParamName) = "grandtotal"
 									bGrandTotal = pParams[i][2]
+
 								ok
 							ok
 						but isString(pParams[i])
 							cParam = pParams[i]
-							if substr(cParam, 1, 10) = ":rownumber"
+							if @substr(cParam, 1, 9) = "rownumber"
 								bRowNumber = TRUE
-							but substr(cParam, 1, 9) = ":subtotal"
+							but @substr(cParam, 1, 8) = "subtotal"
 								bSubTotal = TRUE
-							but substr(cParam, 1, 11) = ":grandtotal"
+							but @substr(cParam, 1, 10) = "grandtotal"
 								bGrandTotal = TRUE
 							ok
 						ok
@@ -15630,7 +15633,6 @@ Class stzTable from stzList
 		bSubTotal = @if(IsBoolean(bSubTotal), bSubTotal, FALSE)
 		bGrandTotal = @if(IsBoolean(bGrandTotal), bGrandTotal, FALSE)
 
-
 	# Submethod to calculate column widths
 	def calculateColumnWidths(acColNames, aContent, bRowNumber, bGrandTotal)
 		aColWidths = []
@@ -15647,7 +15649,7 @@ Class stzTable from stzList
 				else
 					cellValue = @@(aColData[j])
 				ok
-				nLenCell = len(cellValue)
+				nLenCell = stzlen(cellValue)
 				if nLenCell > nMaxWidth
 					nMaxWidth = nLenCell
 				ok
@@ -16051,42 +16053,42 @@ Class stzTable from stzList
 	 #  UTILITY FUNCTIONS  #
 	#---------------------#
 
-	def PadRight(text, width)
-		if NOT (isNumber(text) or isString(text))
-			text = @@(text)
+	def PadRight(cText, nWidth)
+		if NOT (isNumber(cText) or isString(cText))
+			cText = @@(cText)
 		ok
 
 		# Pad text to the right
-		cStr = "" + text
-		nPad = width - len(cStr)
+		cStr = "" + cText
+		nPad = nWidth - stzlen(cStr)
 		if nPad > 0
 			return cStr + @copy(" ", nPad)
 		else
 			return cStr
 		ok
 	
-	def PadLeft(text, width)
-		if NOT (isNumber(text) or isString(text))
-			text = @@(text)
+	def PadLeft(cText, nWidth)
+		if NOT (isNumber(cText) or isString(cText))
+			text = @@(cText)
 		ok
 
 		# Pad text to the left
-		cStr = "" + text
-		nPad = width - len(cStr)
+		cStr = "" + cText
+		nPad = nWidth - stzlen(cStr)
 		if nPad > 0
 			return @copy(" ", nPad) + cStr
 		else
 			return cStr
 		ok
 	
-	def CenterText(text, width)
-		if NOT (isNumber(text) or isString(text))
-			text = Q(text).Stringified()
+	def CenterText(cText, nWidth)
+		if NOT (isNumber(cText) or isString(cText))
+			cText = Q(cText).Stringified()
 		ok
 
 		# Center text within width
-		cStr = "" + text
-		nPadTotal = width - len(cStr)
+		cStr = "" + cText
+		nPadTotal = nWidth - stzlen(cStr)
 		if nPadTotal <= 0
 			return cStr
 		ok
@@ -16162,24 +16164,25 @@ Class stzTable from stzList
 			return This.ToHtml()
 
 	def ToHtmlXT()
-	    data = This.Content()
-	    if len(data) = 0
+	    aContent = This.Content()
+	    if len(aContent) = 0
 	        return '<table class="data"><thead><tr></tr></thead><tbody></tbody></table>'
 	    ok
 	    
 	    # Ensure all columns have exactly the same number of values
 	    # This is critical for the buggy parser
+	    nLen = len(aContent)
 	    nRows = 0
-	    for i = 1 to len(data)
-	        if len(data[i][2]) > nRows
-	            nRows = len(data[i][2])
+	    for i = 1 to nLen
+	        if len(aContent[i][2]) > nRows
+	            nRows = len(aContent[i][2])
 	        ok
 	    next
 	    
 	    # Pad shorter columns with empty strings to match longest column
-	    for i = 1 to len(data)
-	        while len(data[i][2]) < nRows
-	            data[i][2] + ""
+	    for i = 1 to nLen
+	        while len(aContent[i][2]) < nRows
+	            aContent[i][2] + ""
 	        end
 	    next
 	    
@@ -16189,7 +16192,7 @@ Class stzTable from stzList
 	    cHtml += '<tr>' + nl
 	    
 	    # Generate header row - ensure format matches parser expectations
-	    for i = 1 to len(data)
+	    for i = 1 to nLen
 	        cHtml += '            ' + '<th scope="col">' + data[i][1] + '</th>' + nl
 	    next
 	    
@@ -16205,8 +16208,8 @@ Class stzTable from stzList
 	        cHtml += '<tr class="row">' + nl
 	        
 	        # For each column, get the value at this row index
-	        for nColIndex = 1 to len(data)
-	            cValue = data[nColIndex][2][nRowIndex]
+	        for nColIndex = 1 to nLen
+	            cValue = aContent[nColIndex][2][nRowIndex]
 	            cHtml += '        ' + '<td>' + cValue + '</td>' + nl
 	        next
 	        
@@ -16219,8 +16222,8 @@ Class stzTable from stzList
 	    cHtml += '</table>' + nl
 			return cHtml
 	
-			def ToHtmlTableXT()
-				return This.ToHtmlXT()
+		def ToHtmlTableXT()
+			return This.ToHtmlXT()
 
 
 	def FromHtml(pcHtmlTable)

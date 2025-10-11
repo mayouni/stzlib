@@ -249,6 +249,9 @@ func ring_copy(p1, p2)
 	func @copy(p1, p2)
 		return copy(p1, p2)
 
+	func RepeatChar(p1, p2) #TODO// Should be located in stzChar or stzSring
+		return copy(p1, p2)
+
 func ring_len(p)
 	return len(p)
 

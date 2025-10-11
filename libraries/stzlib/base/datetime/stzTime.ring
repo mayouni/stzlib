@@ -314,12 +314,23 @@ class stzTime from stzObject
         def HourN()
             return oQTime.hour()
     
+	def Hours()
+		return oQTime.hour()
+
+	def HoursN()
+		return oQTime.hour()
+
     def Minute()
         return oQTime.minute()
 
         def MinuteN()
             return oQTime.minute()
     
+	def Minutes()
+		return oQTime.minute()
+
+	def MinutesN()
+
     def Second()
         return oQTime.second()
 
@@ -327,10 +338,16 @@ class stzTime from stzObject
             return oQTime.second()
     
     def Millisecond()
-        return oQTime.msec()
+		return oQTime.msec()
 
         def MillisecondN()
             return oQTime.msec()
+
+	def Milliseconds()
+		return oQTime.msec()
+
+	def MillisecondsN()
+		return oQTime.msec()
 
     def Hour12()
         nHour = oQTime.hour()
@@ -341,6 +358,21 @@ class stzTime from stzObject
         else
             return nHour
         ok
+
+	def Hour12N()
+		return This.Hour12()
+
+	def HourN12()
+		return This.Hour12()
+
+	def Hours12()
+		return This.Hour12()
+
+	def Hours12N()
+		return This.Hour12()
+
+	def HoursN12()
+		return This.Hour12()
 
     def AMPM()
         if This.IsAM()
