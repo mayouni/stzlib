@@ -1,6 +1,10 @@
 load "../stzbase.ring"
 
-/*--- #TODO Write a small narration about HasKey(), HasKeys() and HasKeysXT()
+/*--- #TODO Write a small narration about HasKey(), HasKeys(),
+# HasKeysXT(), and HasPath() and how they help make safe access
+# hashlists and deeplists by keys, and help avoid Ring issue
+# discribed in the example next this one
+
 */
 pr()
 
@@ -42,9 +46,10 @@ aDeepHash = [
 ]
 
 ? HasPath(aDeepHash, ["departments", "teams", "members"])
+#--> TRUE
 
 pf()
-
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*-- #ring #bug #todo write a narration about it
 

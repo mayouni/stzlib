@@ -5,10 +5,10 @@ load "../stzbase.ring"
 #------------------------------------------#
 
 /*--- Creating calendar with year and month
-*/
+
 pr()
 
-oCal = new stzCalendar(2024, :October, "")
+oCal = new stzCalendar([2024, 10])
 
 oCal {
 	? Start()
@@ -37,7 +37,7 @@ oCal {
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Creating calendar with year only (full year view)
 
@@ -49,7 +49,7 @@ oCal {
 	? Start()
 	#--> 2024-01-01
 
-	? End()
+	? End_()
 	#--> 2024-12-31
 
 	? TotalDays()
@@ -66,13 +66,13 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :Q3)
+oCal = new stzCalendar([2024, "Q3"])
 
 oCal {
 	? Start()
 	#--> 2024-07-01
 
-	? End()
+	? End_()
 	#--> 2024-09-30
 
 	? QuarterNumber()
@@ -83,27 +83,27 @@ oCal {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Creating calendar with date range
 
 pr()
 
-oCal = new stzCalendar("2024-10-01", "2024-10-31")
+oCal = new stzCalendar([ :Start = "2024-10-01", :End = "2024-10-31" ])
 
 oCal {
 	? Start()
 	#--> 2024-10-01
 
-	? End()
+	? End_()
 	#--> 2024-10-31
 
-	? TotalDays()
+	? NumberOfDays() # Or DaysN()
 	#--> 31
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Creating calendar with named parameters
 
@@ -115,15 +115,15 @@ oCal {
 	? Start()
 	#--> 2024-10-01
 
-	? End()
+	? End_()
 	#--> 2024-12-31
 
-	? TotalDays()
+	? DaysN()
 	#--> 92
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24
 
 #------------------------------------------#
 #  Working Days Configuration              #
@@ -133,15 +133,15 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 
-	? IsWorkingDay("2024-10-03")  # Thursday
+	? IsWorkingDay("2024-10-03")
 	#--> 1
 
-	? IsWorkingDay("2024-10-05")  # Saturday
+	? IsWorkingDay("2024-10-05")
 	#--> 0
 
 	? FirstWorkingDay()
@@ -150,8 +150,7 @@ oCal {
 	? LastWorkingDay()
 	#--> 2024-10-31
 
-	aWorkingDays = WorkingDays()
-	? len(aWorkingDays)
+	? len( WorkingDays() )
 	#--> 23
 }
 
@@ -162,8 +161,8 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
-oCal.SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+oCal = new stzCalendar([2024, 10])
+oCal.SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 
 aWeekends = oCal.Weekends()
 
@@ -171,7 +170,7 @@ aWeekends = oCal.Weekends()
 #--> 8
 
 ? aWeekends[1]
-#--> 2024-10-05
+#--> 05/10/2024
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.24
@@ -184,7 +183,7 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
 	AddHoliday("2024-10-05", "Independence Day")
@@ -205,19 +204,19 @@ oCal {
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Finding holidays in date range
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
 	AddHoliday("2024-10-05", "Independence Day")
 	AddHoliday("2024-10-25", "Revolution Day")
 
-	aHolidaysInRange = HolidaysBetween("2024-10-01", :And = "2024-10-20")
+	aHolidaysInRange = HolidaysBetween("2024-10-01", "2024-10-20")
 
 	? len(aHolidaysInRange)
 	#--> 1
@@ -237,16 +236,16 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
 	SetBusinessHours("09:00:00", "17:00:00")
 
 	aBusinessHours = BusinessHours()
-	? aBusinessHours[:From]
+	? aBusinessHours[1][2]
 	#--> 09:00:00
 
-	? aBusinessHours[:To]
+	? aBusinessHours[2][2]
 	#--> 17:00:00
 
 	AddBreak("12:00:00", "13:00:00", "Lunch")
@@ -268,84 +267,85 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 	SetBusinessHours("09:00:00", "17:00:00")
+
 	AddBreak("12:00:00", "13:00:00", "Lunch")
 	AddHoliday("2024-10-05", "Independence Day")
 
 	? AvailableHours()
-	#--> 152  # (20 working days - 1 holiday) * 8 hours
+	#--> 161
 
 	? AvailableDays()
-	#--> 19
+	#--> 23
 
 	? AvailableMinutes()
-	#--> 9120
+	#--> 9660
 }
 
 pf()
-# Executed in 0.14 second(s) in Ring 1.24
+# Executed in 0.24 second(s) in Ring 1.24
 
 /*--- Calculating available hours on specific date
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 	SetBusinessHours("09:00:00", "17:00:00")
 	AddBreak("12:00:00", "13:00:00", "Lunch")
 
-	? AvailableHoursOn("2024-10-03")  # Thursday
-	#--> 8
+	? AvailableHoursOn("2024-10-03")
+	#--> 7
 
-	? AvailableHoursOn("2024-10-05")  # Saturday
+	? AvailableHoursOn("2024-10-05")
 	#--> 0
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Calculating hours in date range
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 	SetBusinessHours("09:00:00", "17:00:00")
 	AddBreak("12:00:00", "13:00:00", "Lunch")
 
 	? AvailableHoursBetween("2024-10-01", "2024-10-15")
-	#--> 80  # 10 working days * 8 hours
+	#--> 77
 }
 
 pf()
 # Executed in 0.05 second(s) in Ring 1.24
 
 /*--- Checking if duration fits and consecutive working days
-
+*/
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 	AddHoliday("2024-10-13", "Holiday")
 
-	? CanFit("2024-10-10", :Duration = "8 hours")
+	? CanFit("2024-10-10", "8")
 	#--> 1
 
-	? CanFit("2024-10-10", :Duration = "10 hours")
+	? CanFit("2024-10-10", "10")
 	#--> 0
 
 	? ConsecutiveWorkingDaysAvailable("2024-10-10")
-	#--> 2  # Thursday (10) and Friday (11) before holiday on Sunday
+	#--> 2
 }
 
 pf()
@@ -355,14 +355,14 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 	SetBusinessHours("09:00:00", "17:00:00")
 	AddBreak("12:00:00", "13:00:00", "Lunch")
 
-	aSlot = FirstAvailableSlot(:Duration = "4 hours")
+	aSlot = FirstAvailableSlot("4")
 
 	? aSlot[1]
 	#--> 2024-10-01 09:00:00
@@ -382,7 +382,7 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 ? oCal.Current()
 #--> October 2024
@@ -396,7 +396,6 @@ oCal.PreviousMonth()
 
 ? oCal.Current()
 #--> October 2024
-}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -405,7 +404,7 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 ? oCal.Year()
 #--> 2024
@@ -427,10 +426,10 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, 10, 10)
+oCal = new stzCalendar([2024, 10])
 
 ? oCal.IsToday()
-#--> 0  # (unless running test today)
+#--> 0
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -443,29 +442,26 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 	SetBusinessHours("09:00:00", "17:00:00")
 	AddBreak("12:00:00", "13:00:00", "Lunch")
 	AddHoliday("2024-10-05", "Independence Day")
 
 	aInfo = DateInfo("2024-10-03")
 
-	? aInfo[:date]
+	? aInfo[1][2]
 	#--> 2024-10-03
 
-	? aInfo[:day]
-	#--> Thursday
-
-	? aInfo[:isWorkingDay]
+	? aInfo[2][2]
 	#--> 1
 
-	? aInfo[:isHoliday]
+	? aInfo[3][2]
 	#--> 0
 
-	? aInfo[:availableHours]
+	? aInfo[4][2]
 	#--> 8
 }
 
@@ -476,26 +472,26 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 	SetBusinessHours("09:00:00", "17:00:00")
 	AddBreak("12:00:00", "13:00:00", "Lunch")
 	AddHoliday("2024-10-05", "Independence Day")
 
 	aStats = Stats()
 
-	? aStats[:totalDays]
+	? aStats[1][2]
 	#--> 31
 
-	? aStats[:workingDays]
+	? aStats[2][2]
 	#--> 19
 
-	? aStats[:holidays]
+	? aStats[3][2]
 	#--> 1
 
-	? aStats[:totalAvailableHours]
+	? aStats[5][2]
 	#--> 152
 }
 
@@ -510,8 +506,8 @@ pf()
 
 pr()
 
-oCal1 = new stzCalendar(2024, :October)
-oCal1.SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+oCal1 = new stzCalendar([2024, 10])
+oCal1.SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 
 oCal2 = oCal1.Copy()
 
@@ -537,28 +533,28 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 	AddHoliday("2024-10-05", "Independence Day")
 	SetBusinessHours("09:00:00", "17:00:00")
 
 	aContent = Content()
 
-	? aContent[:Start]
+	? aContent[1][2]
 	#--> 2024-10-01
 
-	? aContent[:End]
+	? aContent[2][2]
 	#--> 2024-10-31
 
-	? aContent[:Year]
+	? aContent[3][2]
 	#--> 2024
 
-	? aContent[:Month]
+	? aContent[4][2]
 	#--> 10
 
-	? len(aContent[:Holidays])
+	? len(aContent[7][2])
 	#--> 1
 }
 
@@ -569,10 +565,10 @@ pf()
 
 pr()
 
-oCal = new stzCalendar(2024, :October)
+oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays([ :Monday, :Tuesday, :Wednesday, :Thursday, :Friday ])
+	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 	SetBusinessHours("09:00:00", "17:00:00")
 	AddBreak("12:00:00", "13:00:00", "Lunch")
 	AddHoliday("2024-10-05", "Independence Day")

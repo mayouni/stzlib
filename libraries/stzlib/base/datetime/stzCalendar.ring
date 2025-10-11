@@ -2,6 +2,7 @@
 	stzCalendar - Calendar Management and Capacity Planning in Softanza
 	Manages calendar periods, working days, holidays, and capacity calculations
 	String-first design: methods accept/return strings, ...Q() returns objects
+	Ring-compliant: single init(p) parameter with flexible argument handling
 */
 
 func StzCalendarQ(p)
@@ -14,146 +15,242 @@ func Calendar(p)
 	return new stzCalendar(p)
 
 class stzCalendar from stzObject
-	@dStart = NULL      # stzDate object
-	@dEnd = NULL        # stzDate object
+	@cStartDate = ""        # String: start date
+	@cEndDate = ""          # String: end date
 	@nYear = 0
 	@nMonth = 0
 	@cQuarter = ""
 	
-	@aWorkingDays = []  # [1=Mon, 2=Tue, ..., 7=Sun] or ["Monday", "Tuesday", ...]
+	@aWorkingDays = []  # [1=Mon, 2=Tue, ..., 7=Sun]
 	@aHolidays = []     # [["2024-10-05", "Independence Day"], ...]
 	@aBreaks = []       # [["12:00:00", "13:00:00", "Lunch"], ...]
 	@cBusinessStart = "09:00:00"
 	@cBusinessEnd = "17:00:00"
-	@oLocale = NULL
+	@oLocale = ""
 	@aEvents = []       # Timeline events marked for visualization
 	@aConstraints = []  # Custom constraint definitions
 
-	def init(p1, p2, p3)
-		# Flexible initialization patterns
-		if isNumber(p1) and isString(p2)
-			# Year and month/quarter
-			_initializeFromYearAndPeriod(p1, p2, p3)
-		but isString(p1) and isString(p2)
-			# Date range
-			_initializeFromDateRange(p1, p2, p3)
-		but isList(p1)
-			# Named parameters
-			_initializeFromList(p1, p2)
-		but isNumber(p1) and p2 = NULL
+	def init(p)
+		# Single parameter initialization with flexible handling
+		if isNumber(p) and p > 1900
 			# Year only
-			_initializeYear(p1, p3)
+			_initializeYear(p)
+		but isList(p)
+			# Named parameters or date range
+			_initializeFromList(p)
+		but isString(p)
+			# Could be a date, year-month, or period
+			_initializeFromString(p)
 		else
-			StzRaise("Invalid parameters for stzCalendar initialization")
+			StzRaise("Invalid parameter for stzCalendar initialization")
 		ok
 
-	def _initializeFromYearAndPeriod(nYear, pPeriod, pLocale)
+	def _initializeYear(nYear)
 		@nYear = nYear
-		@oLocale = _setupLocale(pLocale)
+		@oLocale = _setupLocale("")
+		@cStartDate = "" + nYear + "-01-01"
+		@cEndDate = "" + nYear + "-12-31"
+
+	def _initializeFromString(cParam)
+		@oLocale = _setupLocale("")
+		cParam = trim(cParam)
 		
-		cPeriod = upper(trim("" + pPeriod))
+		# Check if it's a year-quarter (e.g., "2024-Q1")
+		if stzStringQ(cParam).Contains("-Q")
+			_parseQuarterString(cParam)
+			return
+		ok
 		
-		if cPeriod = "Q1"
-			@cQuarter = "Q1"
-			@dStart = new stzDate([ nYear, 1, 1 ])
-			@dEnd = new stzDate([ nYear, 3, 31 ])
-		but cPeriod = "Q2"
-			@cQuarter = "Q2"
-			@dStart = new stzDate([ nYear, 4, 1 ])
-			@dEnd = new stzDate([ nYear, 6, 30 ])
-		but cPeriod = "Q3"
-			@cQuarter = "Q3"
-			@dStart = new stzDate([ nYear, 7, 1 ])
-			@dEnd = new stzDate([ nYear, 9, 30 ])
-		but cPeriod = "Q4"
-			@cQuarter = "Q4"
-			@dStart = new stzDate([ nYear, 10, 1 ])
-			@dEnd = new stzDate([ nYear, 12, 31 ])
-		else
-			# Try as month name
-			nMonth = _monthNameToNumber(cPeriod)
-			if nMonth > 0
-				@nMonth = nMonth
-				@dStart = new stzDate([ nYear, nMonth, 1 ])
-				oStart = new stzDate([ nYear, nMonth, 1 ])
-				@dEnd = oStart.DayAfterMonthEnd()
-			else
-				StzRaise("Invalid period: " + pPeriod)
+		# Check if it's a year-month (e.g., "2024-10")
+		if stzStringQ(cParam).Contains("-") and len(stzStringQ(cParam).Split("-")) = 2
+			aParts = stzStringQ(cParam).Split("-")
+			nYear = val(aParts[1])
+			nMonth = val(aParts[2])
+			if nMonth >= 1 and nMonth <= 12
+				_initializeMonth(nYear, nMonth)
+				return
 			ok
 		ok
-
-	def _initializeYear(nYear, pLocale)
-		@nYear = nYear
-		@oLocale = _setupLocale(pLocale)
-		@dStart = new stzDate([ nYear, 1, 1 ])
-		@dEnd = new stzDate([ nYear, 12, 31 ])
-
-	def _initializeFromDateRange(cStart, cEnd, pLocale)
-		@oLocale = _setupLocale(pLocale)
-		@dStart = new stzDate(cStart)
-		@dEnd = new stzDate(cEnd)
-
-	def _initializeFromList(paParams, pLocale)
-		cStart = ""
-		cEnd = ""
 		
-		if isList(paParams)
-			nLen = len(paParams)
-			for i = 1 to nLen
-				if isList(paParams[i]) and len(paParams[i]) = 2
-					if paParams[i][1] = :Start or paParams[i][1] = :From
-						cStart = "" + paParams[i][2]
-					but paParams[i][1] = :End or paParams[i][1] = :To
-						cEnd = "" + paParams[i][2]
-					but paParams[i][1] = :Year
-						@nYear = paParams[i][2]
-					but paParams[i][1] = :Month
-						@nMonth = paParams[i][2]
-					but paParams[i][1] = :Locale
-						pLocale = paParams[i][2]
-					ok
-				ok
-			next
+		# Otherwise treat as a single date
+		@cStartDate = cParam
+		@cEndDate = cParam
+
+	def _parseQuarterString(cQuarter)
+		cQuarter = upper(trim(cQuarter))
+		aParts = stzStringQ(cQuarter).Split("-")
+		@nYear = val(aParts[1])
+		@cQuarter = aParts[2]
+		
+		switch @cQuarter
+		case "Q1"
+			@cStartDate = ''+ @nYear + "-01-01"
+			@cEndDate = ''+ @nYear + "-03-31"
+		case "Q2"
+			@cStartDate = ''+ @nYear + "-04-01"
+			@cEndDate = ''+ @nYear + "-06-30"
+		case "Q3"
+			@cStartDate = ''+ @nYear + "-07-01"
+			@cEndDate = ''+ @nYear + "-09-30"
+		case "Q4"
+			@cStartDate = ''+ @nYear + "-10-01"
+			@cEndDate = ''+ @nYear + "-12-31"
+		other
+			StzRaise("Invalid quarter: " + @cQuarter)
+		end
+
+	def _initializeMonth(nYear, nMonth)
+		@nYear = nYear
+		@nMonth = nMonth
+		@cStartDate =  ''+ @nYear + "-" +
+			PadLeftXT(''+ nMonth, 2, "0") + "-01"
+			
+		# Calculate last day of month
+		aDaysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+		
+		# Check for leap year
+		if (nYear % 4 = 0 and nYear % 100 != 0) or (nYear % 400 = 0)
+			aDaysInMonth[2] = 29
 		ok
 		
-		@oLocale = _setupLocale(pLocale)
+		nLastDay = aDaysInMonth[nMonth]
+		@cEndDate = ''+ @nYear + "-" +
+			PadLeftXT(''+ nMonth, 2, "0") + "-" +
+			PadLeftXT(''+ nLastDay, 2, "0")
+
+	def _initializeFromList(aParams)
+		@oLocale = _setupLocale("")
+		cStart = ""
+		cEnd = ""
+		nYear = 0
+		nMonth = 0
+		cQuarter = ""
 		
-		if cStart != "" and cEnd != ""
-			@dStart = new stzDate(cStart)
-			@dEnd = new stzDate(cEnd)
+		nLen = len(aParams)
+		
+		# Check if first element is a number (year)
+		if isNumber(aParams[1])
+			nYear = aParams[1]
+			
+			# Check second element
+			if nLen >= 2
+				if isNumber(aParams[2])
+					# [2024, 10] format - year and month
+					nMonth = aParams[2]
+					_initializeMonth(nYear, nMonth)
+					return
+				but isString(aParams[2])
+					cValue = upper(aParams[2])
+					# Check if it's a quarter like "Q3"
+
+					if cValue[1] = "Q"
+						_parseQuarterString('' + nYear + "-" + cValue)
+						return
+					ok
+				ok
+			else
+				# Just year
+				_initializeYear(nYear)
+				return
+			ok
+		ok
+		
+		# Handle named parameters format: [["Start", "2024-10-01"], ["End", "2024-10-31"]]
+		i = 1
+		while i <= nLen
+			if isList(aParams[i]) and len(aParams[i]) = 2
+				cKey = "" + lower(aParams[i][1])
+				cValue = "" + aParams[i][2]
+				
+				if cKey = "start" or cKey = "from"
+					cStart = cValue
+				but cKey = "end" or cKey = "to"
+					cEnd = cValue
+				but cKey = "year"
+					nYear = val(cValue)
+				but cKey = "month"
+					nMonth = val(cValue)
+				but cKey = "quarter"
+					cQuarter = upper(cValue)
+				but cKey = "lLocale"
+					@oLocale = _setupLocale(cValue)
+				ok
+			ok
+			i++
+		end
+		
+		# Apply initialization logic based on collected params
+		if cStart != '' and cEnd != ""
+			@cStartDate = cStart
+			@cEndDate = cEnd
+		but cQuarter != ""
+			_parseQuarterString('' + nYear + "-" + cQuarter)
+		but nYear > 0 and nMonth > 0
+			_initializeMonth(nYear, nMonth)
+		but nYear > 0
+			_initializeYear(nYear)
 		ok
 
 	def _setupLocale(pLocale)
-		if pLocale = ""
-			return new stzLocale("C")
-		but isString(pLocale)
-			return new stzLocale(pLocale)
-		but isObject(pLocale)
-			return pLocale
+		if isString(pLocale) and pLocale != ""
+			return pLocale  # For now, store as string
 		ok
-		return new stzLocale()
+		return "C"
 
 	def _monthNameToNumber(cName)
 		aMonths = [ "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
 			"JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER" ]
-		nPos = find(aMonths, cName)
+		nPos = find(aMonths, upper(cName))
 		return nPos
+
+	def _dayNameToNumber(cName)
+		aDays = [ "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" ]
+		nPos = find(aDays, upper(cName))
+		return nPos
+	
+	def _numberToDayName(nDay)
+		aDays = [ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" ]
+		if nDay >= 1 and nDay <= 7
+			return aDays[nDay]
+		ok
+		return ""
+
+	def _dayOfYear(nMonth, nDay, nYear)
+		aDaysInMonth = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+		
+		if (nYear % 4 = 0 and nYear % 100 != 0) or (nYear % 400 = 0)
+			aDaysInMonth[2] = 29
+		ok
+		
+		nTotal = 0
+		for i = 1 to nMonth - 1
+			nTotal += aDaysInMonth[i]
+		next
+		
+		return nTotal + nDay
+
+	def _countLeapYears(nYear)
+		nYear--
+		return floor(nYear / 4) - floor(nYear / 100) + floor(nYear / 400)
+
+	def _toDateString(pDate)
+		if isString(pDate)
+			return pDate
+		ok
+		return "" + pDate
 
 	# Boundary accessors
 	def Start()
-		return @dStart.ToString()
+		return @cStartDate
 	
-		def StartQ()
-			return @dStart
+	def StartQ()
+		return @cStartDate  # String-first, so Q version also returns string
 	
 	def End_()
-		return @dEnd.ToString()
+		return @cEndDate
 	
-		def Endd()
-			return @dEnd.ToString()
-
-		def EndQ()
-			return @dEnd
+	def EndQ()
+		return @cEndDate
 	
 	def Year()
 		return @nYear
@@ -162,7 +259,7 @@ class stzCalendar from stzObject
 		return @nMonth
 	
 	def MonthName()
-		if @nMonth > 0
+		if @nMonth > 0 and @nMonth <= 12
 			aMonths = [ "January", "February", "March", "April", "May", "June",
 				"July", "August", "September", "October", "November", "December" ]
 			return aMonths[@nMonth]
@@ -175,24 +272,51 @@ class stzCalendar from stzObject
 		ok
 		return 0
 	
+		def QuarterN()
+			return This.QuarterNumber()
+
 	def TotalDays()
-		return @dStart.DaysUntil(@dEnd) + 1
+		return _daysDifference(@cStartDate, @cEndDate) + 1
 	
+		def DaysN()
+			return This.TotalDays()
+
+		def NumberOfDays()
+			return This.TotalDays()
+
+		def HowManyDays()
+			return This.TotalDays()
+
+		def CountDays()
+			return This.TotalDays()
+
 	def TotalWeeks()
 		return ceil(This.TotalDays() / 7.0)
 	
+		def WeeksN()
+			return This.TotalWeeks()
+
+		def NumberOfWeeks()
+			return This.TotalWeeks()
+
+		def HowManyWeeks()
+			return This.TotalWeeks()
+
+		def CountWeeks()
+			return This.TotalWeeks()
+
 	def Content()
 		aResult = [
-			:Start = This.Start(),
-			:End = This.End_(),
-			:Year = @nYear,
-			:Month = @nMonth,
-			:Quarter = @cQuarter,
-			:TotalDays = This.TotalDays(),
-			:WorkingDays = This.WorkingDays(),
-			:Holidays = @aHolidays,
-			:BusinessHours = [ :From = @cBusinessStart, :To = @cBusinessEnd ],
-			:Breaks = @aBreaks
+			[:Start, This.Start()],
+			[:End, This.End_()],
+			[:Year, @nYear],
+			[:Month, @nMonth],
+			[:Quarter, @cQuarter],
+			[:TotalDays, This.TotalDays()],
+			[:WorkingDays, This.WorkingDays()],
+			[:Holidays, @aHolidays],
+			[:BusinessHours, [ [:From, @cBusinessStart], [:To, @cBusinessEnd] ]],
+			[:Breaks, @aBreaks]
 		]
 		return aResult
 
@@ -212,39 +336,33 @@ class stzCalendar from stzObject
 			next
 		ok
 	
-	def _dayNameToNumber(cName)
-		aDays = [ "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" ]
-		nPos = find(aDays, cName)
-		return nPos
-	
-	def _numberToDayName(nDay)
-		aDays = [ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" ]
-		if nDay >= 1 and nDay <= 7
-			return aDays[nDay]
-		ok
-		return ""
-	
 	def IsWorkingDay(pDate)
-		oDate = _toDate(pDate)
-		nDayOfWeek = oDate.DayOfWeekNumber()
+		cDate = _toDateString(pDate)
+		# Get day of week number (1-7, where 1=Monday, 7=Sunday)
+		nDayOfWeek = _getDayOfWeek(cDate)
+		
 		if len(@aWorkingDays) = 0
 			SetWorkingDays("DEFAULT")
 		ok
+		
 		return find(@aWorkingDays, nDayOfWeek) > 0
 	
+	def _getDayOfWeek(cDate)
+		return StzDateQ(cDate).DayOfWeek()
+	
 	def FirstWorkingDay()
-		oDate = new stzDate(@dStart)
-		while not This.IsWorkingDay(oDate.ToString())
-			oDate = oDate.NextDay()
+		cDate = @cStartDate
+		while not This.IsWorkingDay(cDate)
+			cDate = _getNextDay(cDate)
 		end
-		return oDate.ToString()
+		return cDate
 	
 	def LastWorkingDay()
-		oDate = new stzDate(@dEnd)
-		while not This.IsWorkingDay(oDate.ToString())
-			oDate = oDate.PreviousDay()
+		cDate = @cEndDate
+		while not This.IsWorkingDay(cDate)
+			cDate = _getPreviousDay(cDate)
 		end
-		return oDate.ToString()
+		return cDate
 
 	# Holiday management
 	def AddHoliday(pHolidayOrLabel, pName)
@@ -258,13 +376,15 @@ class stzCalendar from stzObject
 		but isString(pHolidayOrLabel)
 			if pName = NULL
 				pName = "Holiday"
+			else
+				pName = "" + pName
 			ok
-			cDate = new stzDate(pHolidayOrLabel).ToString()
+			cDate = _toDateString(pHolidayOrLabel)
 			@aHolidays + [cDate, pName]
 		ok
 	
 	def IsHoliday(pDate)
-		cDate = _toDate(pDate).ToString()
+		cDate = _toDateString(pDate)
 		nLen = len(@aHolidays)
 		for i = 1 to nLen
 			if @aHolidays[i][1] = cDate
@@ -274,7 +394,7 @@ class stzCalendar from stzObject
 		return FALSE
 	
 	def HolidayName(pDate)
-		cDate = _toDate(pDate).ToString()
+		cDate = _toDateString(pDate)
 		nLen = len(@aHolidays)
 		for i = 1 to nLen
 			if @aHolidays[i][1] = cDate
@@ -287,18 +407,14 @@ class stzCalendar from stzObject
 		return @aHolidays
 	
 	def HolidaysBetween(pStart, pEnd)
-		if isList(pEnd) and StzListQ(pEnd).IsAndNamedParam()
-			pEnd = pEnd[2]
-		ok
-		
-		oStart = _toDate(pStart)
-		oEnd = _toDate(pEnd)
+		cStart = _toDateString(pStart)
+		cEnd = _toDateString(pEnd)
 		aResult = []
 		
 		nLen = len(@aHolidays)
 		for i = 1 to nLen
 			oHolidayDate = new stzDate(@aHolidays[i][1])
-			if oHolidayDate >= oStart and oHolidayDate <= oEnd
+			if oHolidayDate >= cStart and oHolidayDate <= cEnd
 				aResult + @aHolidays[i]
 			ok
 		next
@@ -308,7 +424,7 @@ class stzCalendar from stzObject
 	# Business hours
 	def SetBusinessHours(pStart, pEnd)
 		if isList(pStart)
-			if isList(pStart) and len(pStart) >= 2
+			if len(pStart) >= 2
 				@cBusinessStart = "" + pStart[2]
 			ok
 			if isList(pEnd) and len(pEnd) >= 2
@@ -320,7 +436,7 @@ class stzCalendar from stzObject
 		ok
 	
 	def BusinessHours()
-		return [ :From = @cBusinessStart, :To = @cBusinessEnd ]
+		return [ [:From, @cBusinessStart], [:To, @cBusinessEnd] ]
 	
 	# Breaks management
 	def AddBreak(pBreakStart, pBreakEnd, pLabel)
@@ -334,6 +450,8 @@ class stzCalendar from stzObject
 		else
 			if pLabel = NULL
 				pLabel = "Break"
+			else
+				pLabel = "" + pLabel
 			ok
 			@aBreaks + ["" + pBreakStart, "" + pBreakEnd, pLabel]
 		ok
@@ -345,20 +463,22 @@ class stzCalendar from stzObject
 	def AvailableHours()
 		return This.AvailableHoursBetween(This.Start(), This.End_())
 	
-	def AvailableHoursBetween(pStart, pEnd)
-		oStart = _toDate(pStart)
-		oEnd = _toDate(pEnd)
-		nTotalHours = 0
-		
-		while oStart <= oEnd
-			if This.IsWorkingDay(oStart.ToString()) and not This.IsHoliday(oStart.ToString())
-				nDayHours = This.AvailableHoursOn(oStart.ToString())
-				nTotalHours += nDayHours
-			ok
-			oStart = oStart.NextDay()
-		end
-		
-		return nTotalHours
+def AvailableHoursBetween(pStart, pEnd)
+	cStart = _toDateString(pStart)
+	cEnd = _toDateString(pEnd)
+	nTotalHours = 0
+	nDays = StzDateQ(cStart).DaysToDate(cEnd)
+	
+	cDate = cStart
+	for i = 0 to nDays
+		if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
+			nDayHours = This.AvailableHoursOn(cDate)
+			nTotalHours += nDayHours
+		ok
+		cDate = _getNextDay(cDate)
+	next
+	
+	return nTotalHours
 	
 	def AvailableHoursOn(pDate)
 		if This.IsHoliday(pDate)
@@ -368,15 +488,23 @@ class stzCalendar from stzObject
 			return 0
 		ok
 		
-		oStart = new stzTime(@cBusinessStart)
-		oEnd = new stzTime(@cBusinessEnd)
-		nTotalMinutes = oStart.MinutesUntil(oEnd)
+		# Parse times: "09:00:00" format
+		aStartParts = @split(@cBusinessStart, ":")
+		aEndParts = @split(@cBusinessEnd, ":")
+		
+		nStartMinutes = val(aStartParts[1]) * 60 + val(aStartParts[2])
+		nEndMinutes = val(aEndParts[1]) * 60 + val(aEndParts[2])
+		nTotalMinutes = nEndMinutes - nStartMinutes
 		
 		nLen = len(@aBreaks)
 		for i = 1 to nLen
-			oBreakStart = new stzTime(@aBreaks[i][1])
-			oBreakEnd = new stzTime(@aBreaks[i][2])
-			nBreakMinutes = oBreakStart.MinutesUntil(oBreakEnd)
+			aBreakStart = @split(@aBreaks[i][1], ":")
+			aBreakEnd = @split(@aBreaks[i][2], ":")
+			
+			nBreakStartMinutes = val(aBreakStart[1]) * 60 + val(aBreakStart[2])
+			nBreakEndMinutes = val(aBreakEnd[1]) * 60 + val(aBreakEnd[2])
+			nBreakMinutes = nBreakEndMinutes - nBreakStartMinutes
+			
 			nTotalMinutes -= nBreakMinutes
 		next
 		
@@ -384,14 +512,18 @@ class stzCalendar from stzObject
 	
 	def AvailableDays()
 		nDays = 0
-		oDate = new stzDate(@dStart)
-		while oDate <= @dEnd
-			if This.IsWorkingDay(oDate.ToString()) and not This.IsHoliday(oDate.ToString())
+		nTotalDays = This.TotalDays()
+		cDate = @cStartDate
+		
+		for i = 1 to nTotalDays
+			if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
 				nDays++
 			ok
-			oDate = oDate.NextDay()
-		end
+			cDate = _getNextDay(cDate)
+		next
+		
 		return nDays
+
 	
 	def AvailableWeeks()
 		return ceil(This.AvailableDays() / 5.0)
@@ -400,47 +532,39 @@ class stzCalendar from stzObject
 		return This.AvailableHours() * 60
 	
 	def CanFit(pDate, pDuration)
-		if isList(pDuration) and len(pDuration) >= 2
-			pDuration = pDuration[2]
-		ok
-		
+		nDuration = val("" + pDuration)
 		nAvailableHours = This.AvailableHoursOn(pDate)
-		nRequiredHours = val("" + pDuration)
 		
-		return nRequiredHours <= nAvailableHours
+		return nDuration <= nAvailableHours
 	
 	def FirstAvailableSlot(pDuration)
-		if isList(pDuration) and len(pDuration) >= 2
-			pDuration = pDuration[2]
-		ok
-		
 		nRequiredHours = val("" + pDuration)
-		oDate = new stzDate(@dStart)
+		cDate = @cStartDate
 		
-		while oDate <= @dEnd
-			if This.CanFit(oDate.ToString(), :Duration = nRequiredHours)
-				cStart = oDate.ToString() + " " + @cBusinessStart
-				oEndTime = new stzTime(@cBusinessStart)
-				oEndTime = oEndTime.AddHours(nRequiredHours)
-				cEnd = oDate.ToString() + " " + oEndTime.ToString()
+		while cDate <= @cEndDate
+			if This.CanFit(cDate, nRequiredHours)
+				cStart = cDate + " " + @cBusinessStart
+				# Add hours to business start time
+				nEndMinutes = _timeToMinutes(@cBusinessStart) + (nRequiredHours * 60)
+				cEnd = cDate + " " + _minutesToTime(nEndMinutes)
 				return [cStart, cEnd]
 			ok
-			oDate = oDate.NextDay()
+			cDate = _getNextDay(cDate)
 		end
 		
-		return NULL
+		return []
 	
 	def ConsecutiveWorkingDaysAvailable(pDate)
-		oDate = _toDate(pDate)
+		cDate = _toDateString(pDate)
 		nCount = 0
 		
-		while oDate <= @dEnd
-			if This.IsWorkingDay(oDate.ToString()) and not This.IsHoliday(oDate.ToString())
+		while cDate <= @cEndDate
+			if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
 				nCount++
 			else
 				exit
 			ok
-			oDate = oDate.NextDay()
+			cDate = _getNextDay(cDate)
 		end
 		
 		return nCount
@@ -450,9 +574,6 @@ class stzCalendar from stzObject
 		This.NextMonth()
 		return This
 	
-		def Nextt()
-			return This.Next_()
-
 	def NextMonth()
 		if @nMonth > 0
 			@nMonth++
@@ -460,9 +581,7 @@ class stzCalendar from stzObject
 				@nMonth = 1
 				@nYear++
 			ok
-			@dStart = new stzDate(@nYear, @nMonth, 1)
-			oStart = new stzDate(@nYear, @nMonth, 1)
-			@dEnd = oStart.DayAfterMonthEnd()
+			_initializeMonth(@nYear, @nMonth)
 		ok
 	
 	def Previous()
@@ -476,31 +595,26 @@ class stzCalendar from stzObject
 				@nMonth = 12
 				@nYear--
 			ok
-			@dStart = new stzDate(@nYear, @nMonth, 1)
-			oStart = new stzDate(@nYear, @nMonth, 1)
-			@dEnd = oStart.DayAfterMonthEnd()
+			_initializeMonth(@nYear, @nMonth)
 		ok
 	
 	def NextYear()
 		@nYear++
-		@dStart = new stzDate(@nYear, 1, 1)
-		@dEnd = new stzDate(@nYear, 12, 31)
+		@cStartDate = @nYear + "-01-01"
+		@cEndDate = @nYear + "-12-31"
 	
 	def PreviousYear()
 		@nYear--
-		@dStart = new stzDate(@nYear, 1, 1)
-		@dEnd = new stzDate(@nYear, 12, 31)
+		@cStartDate = @nYear + "-01-01"
+		@cEndDate = @nYear + "-12-31"
 	
 	def GoTo(pDate)
-		if isString(pDate) and upper(pDate) = "TODAY"
-			oToday = new stzDate(date())
-			@dStart = oToday
-			@dEnd = oToday
-		else
-			oDate = _toDate(pDate)
-			@dStart = oDate
-			@dEnd = oDate
+		cDate = _toDateString(pDate)
+		if upper(cDate) = "TODAY"
+			cDate = date()
 		ok
+		@cStartDate = cDate
+		@cEndDate = cDate
 	
 	def Current()
 		if @nMonth > 0
@@ -512,53 +626,60 @@ class stzCalendar from stzObject
 	
 	def IsToday()
 		cToday = date()
-		return (@dStart.ToString() <= cToday and cToday <= @dEnd.ToString())
+		return (@cStartDate <= cToday and cToday <= @cEndDate)
 
 	# Date queries
-	def WorkingDays()
+def WorkingDays()
 		aResult = []
-		oDate = new stzDate(@dStart)
-		while oDate <= @dEnd
-			if This.IsWorkingDay(oDate.ToString())
-				aResult + oDate.ToString()
+		cDate = @cStartDate
+		nDays = This.TotalDays()
+		
+		for i = 1 to nDays
+			if This.IsWorkingDay(cDate)
+				aResult + cDate
 			ok
-			oDate = oDate.NextDay()
-		end
+			cDate = _getNextDay(cDate)
+		next
+		
 		return aResult
 	
 	def Weekends()
 		aResult = []
-		oDate = new stzDate(@dStart)
-		while oDate <= @dEnd
-			if not This.IsWorkingDay(oDate.ToString())
-				aResult + oDate.ToString()
+		cDate = @cStartDate
+		nDays = This.TotalDays()
+		
+		for i = 1 to nDays
+			if not This.IsWorkingDay(cDate)
+				aResult + cDate
 			ok
-			oDate = oDate.NextDay()
-		end
+			cDate = _getNextDay(cDate)
+		next
+		
 		return aResult
 	
 	def FreeDays()
 		aResult = []
-		oDate = new stzDate(@dStart)
-		while oDate <= @dEnd
-			cDateStr = oDate.ToString()
-			if This.IsWorkingDay(cDateStr) and not This.IsHoliday(cDateStr) and len(@aBreaks) = 0
-				aResult + cDateStr
+		cDate = @cStartDate
+		nDays = This.TotalDays()
+		
+		for i = 1 to nDays
+			if This.IsWorkingDay(cDate) and
+			   not This.IsHoliday(cDate) and len(@aBreaks) = 0
+				aResult + cDate
 			ok
-			oDate = oDate.NextDay()
-		end
+			cDate = _getNextDay(cDate)
+		next
+		
 		return aResult
 	
 	def DateInfo(pDate)
-		oDate = _toDate(pDate)
-		cDateStr = oDate.ToString()
+		cDate = _toDateString(pDate)
 		
 		aResult = [
-			:date = cDateStr,
-			:day = _numberToDayName(oDate.DayOfWeekNumber()),
-			:isWorkingDay = This.IsWorkingDay(cDateStr),
-			:isHoliday = This.IsHoliday(cDateStr),
-			:availableHours = This.AvailableHoursOn(cDateStr)
+			[:date, cDate],
+			[:isWorkingDay, This.IsWorkingDay(cDate)],
+			[:isHoliday, This.IsHoliday(cDate)],
+			[:availableHours, This.AvailableHoursOn(cDate)]
 		]
 		
 		return aResult
@@ -567,24 +688,26 @@ class stzCalendar from stzObject
 	def Stats()
 		aStats = []
 		
-		aStats + [:totalDays, This.TotalDays()]
-		aStats + [:workingDays, This.AvailableDays()]
-		aStats + [:weekendDays, This.TotalDays() - This.AvailableDays() - len(@aHolidays)]
-		aStats + [:holidays, len(@aHolidays)]
-		aStats + [:totalAvailableHours, This.AvailableHours()]
+		aStats + [[:totalDays, This.TotalDays()]]
+		aStats + [[:workingDays, This.AvailableDays()]]
+		aStats + [[:weekendDays, This.TotalDays() - This.AvailableDays() - len(@aHolidays)]]
+		aStats + [[:holidays, len(@aHolidays)]]
+		aStats + [[:totalAvailableHours, This.AvailableHours()]]
 		
 		if This.AvailableDays() > 0
-			aStats + [:averageHoursPerWorkingDay, floor(This.AvailableHours() / This.AvailableDays())]
+			aStats + [[:averageHoursPerWorkingDay, floor(This.AvailableHours() / This.AvailableDays())]]
 		ok
 		
-		aStats + [:firstWorkingDay, This.FirstWorkingDay()]
-		aStats + [:lastWorkingDay, This.LastWorkingDay()]
+		aStats + [[:firstWorkingDay, This.FirstWorkingDay()]]
+		aStats + [[:lastWorkingDay, This.LastWorkingDay()]]
 		
 		return aStats
 
-	# Copy
+	# Copy and Clone
 	def Copy()
-		oCopy = new stzCalendar(This.Start(), This.End_())
+		oCopy = new stzCalendar(This.Start())
+		oCopy.@cStartDate = This.@cStartDate
+		oCopy.@cEndDate = This.@cEndDate
 		oCopy.@aWorkingDays = This.@aWorkingDays
 		oCopy.@aHolidays = This.@aHolidays
 		oCopy.@aBreaks = This.@aBreaks
@@ -611,7 +734,7 @@ class stzCalendar from stzObject
 		cResult += This.Current() + nl + nl
 		
 		cResult += "Calendar Structure:" + nl
-		cResult += "─────────────────" + nl
+		cResult += "───────────────────" + nl
 		cResult += "Start: " + This.Start() + nl
 		cResult += "End: " + This.End_() + nl
 		cResult += "Total Days: " + This.TotalDays() + nl
@@ -641,13 +764,25 @@ class stzCalendar from stzObject
 		return cResult
 
 	#-----------#
-	PRIVATE
+	# PRIVATE HELPERS
 	#-----------#
 
-	def _toDate(pDate)
-		if isString(pDate)
-			return new stzDate(pDate)
-		but isObject(pDate)
-			return pDate
-		ok
-		return new stzDate(date())
+	def _daysDifference(cDate1, cDate2)
+		return StzDateQ(cDate1).DaysTo(cDate2)
+
+	def _getNextDay(cDate)
+		return StzDateQ(cDate).NextDay()
+
+	def _getPreviousDay(cDate)
+		return StzDateQ(cDate).PreviousDay()
+
+	def _timeToMinutes(cTime)
+		return StzTimeQ(cTime).Minutes()
+
+	def _minutesToTime(nMinutes)
+		nHours = floor(nMinutes / 60)
+		nMins = nMinutes % 60
+
+		return PadLeftXT(''+ nHours, 2, "0") + ":" +
+		       PadLeftXT(''+ nMins, 2, "0") + ":00"
+
