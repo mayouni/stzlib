@@ -612,7 +612,7 @@ pf()
 # Executed in 0.07 second(s) in Ring 1.24
 
 /*--- Displaying calendar details
-*/
+
 pr()
 
 oCal = new stzCalendar([2024, 10])
@@ -659,3 +659,75 @@ Legend:
 '
 pf()
 # Executed in 0.55 second(s) in Ring 1.24
+
+/*===
+*/
+pr()
+
+# Test 1: Basic calendar creation and display
+oCal = new stzCalendar([2024, 10])
+
+oCal {
+	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+	SetBusinessHours("09:00:00", "17:00:00")
+	AddBreak("12:00:00", "13:00:00", "Lunch")
+	AddHoliday("2024-10-05", "Independence Day")
+	
+	Show()
+}
+
+# Test 2: ShowDetailed()
+oCal.ShowTable()
+
+# Test 3: ShowHeatMap()
+oCal.ShowHeatMap()
+
+# Test 4: Capacity calculations
+? "Total Available Hours: " + oCal.AvailableHours()
+? "Available Days: " + oCal.AvailableDays()
+? "Available Minutes: " + oCal.AvailableMinutes()
+? "Available Weeks: " + oCal.AvailableWeeks()
+
+# Test 5: Date queries
+? @@NL(oCal.DateInfo("2024-10-10"))
+? @@NL(oCal.RangeInfo("2024-10-01", "2024-10-15"))
+
+# Test 6: Navigation and queries
+? "First Working Day: " + oCal.FirstWorkingDay()
+? "Last Working Day: " + oCal.LastWorkingDay()
+? "First Day of Week: " + oCal.FirstDayOfWeek()
+? "Last Day of Week: " + oCal.LastDayOfWeek()
+
+# Test 7: GoTo with symbols
+oCal.GoTo(:Today)
+? "Current after GoTo(:Today): " + oCal.Current()
+
+# Test 8: Stats and export
+? @@NL(oCal.Stats())
+
+# Test 9: ToHash()
+? @@NL(oCal.ToHash())
+
+# Test 10: ToCSV()
+? oCal.ToCSV()
+
+# Test 11: ToJSON()
+? oCal.ToJSON()
+
+# Test 12: Copy and navigation
+oCopy = oCal.Copy()
+oCopy.NextMonth()
+? "Original: " + oCal.Current()
+? "Copy after NextMonth: " + oCopy.Current()
+
+# Test 13: CompareWith
+? @@NL(oCal.CompareWith(oCopy))
+
+# Test 14: Custom constraints
+oCal.AddConstraint("MaintWindow", [:Every, :Wednesday, :From, "14:00", :To, "16:00"])
+? "Hours after constraint: " + oCal.ApplyConstraints("2024-10-09")
+
+# Test 15: Constraints list
+? @@NL(oCal.Constraints())
+
+pf()
