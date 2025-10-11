@@ -760,7 +760,7 @@ class stzScatterPlot
 					nArrowPos = ring_substr1(acLines[i], @cVArrowChar)
 					if nArrowPos > 0
 						# Create X line above the arrow
-						cXLine = @copy(" ", nArrowPos-1) + "X"
+						cXLine = RepeatChar(" ", nArrowPos-1) + "X"
 						# Insert at the beginning
 						acNewLines = [cXLine]
 						for j = 1 to len(acLines)
@@ -782,9 +782,9 @@ class stzScatterPlot
 			oTempStr = new stzString(cResult)
 			# Place X letter at the end of vertical axis
 			nPos = oTempStr.FindFirst(@cVArrowChar)
-			oTempStr.InsertAt(1, @copy(" ", nPos-1) + "X" + NL)
+			oTempStr.InsertAt(1, RepeatChar(" ", nPos-1) + "X" + NL)
 
-			oTempStr.Replace(@cVArrowChar, @cVArrowChar + NL + @copy(" ", nPos-1) + @cVAxisChar)
+			oTempStr.Replace(@cVArrowChar, @cVArrowChar + NL + RepeatChar(" ", nPos-1) + @cVAxisChar)
 		ok
 
 

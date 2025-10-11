@@ -44,10 +44,13 @@ class stzCalendar from stzObject
 	@cVizBottomTSeparator = "┤"
 	@cVizHorizontalLine = "─"
 
-	# NEW: Display dimensions
+	# Display dimensions
 	@nVizMinWidth = 40
 	@nVizWidth = 50
 	@nVizHeight = 10
+
+	# Timeline
+	@oTimeLine = NULL
 
 	def init(p)
 		# Single parameter initialization with flexible handling
@@ -940,81 +943,130 @@ def ConflictsWithSpan(cLabel, aParams)
 
 	# Display Methods
 
-	def _drawMonthGrid()
-		cResult = ""
+def _drawMonthGrid()
+	cResult = ""
+	
+	if @nMonth = 0
+		return This._drawCompactYear()
+	ok
+	
+	cMonthName = This.MonthName()
+	cResult += RepeatChar(" ", 16) + cMonthName + " " + @nYear + nl
+	
+	aParts = stzStringQ(This.Start()).Split("-")
+	cYear = aParts[1]
+	cMonth = aParts[2]
+	
+	cFirstDay = This.Start()
+	oFirstDay = new stzDate(cFirstDay)
+	nFirstDayOfWeek = oFirstDay.DayOfWeek()
+	nDaysInMonth = This.TotalDays()
+	
+	aTableData = [["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]]
+	
+	nDay = 1
+	while nDay <= nDaysInMonth
+		aWeek = []
 		
-		if @nMonth = 0
-			return This._drawCompactYear()
+		nStartCol = 1
+		if nDay = 1
+			nStartCol = nFirstDayOfWeek
 		ok
 		
-		cMonthName = This.MonthName()
-		cResult += @copy(" ", 16) + cMonthName + " " + @nYear + nl
+		for i = 1 to nStartCol - 1
+			aWeek + " "
+		next
 		
-		aParts = @split(This.Start(), "-")
-		cYear = aParts[1]
-		cMonth = aParts[2]
-		
-		cFirstDay = This.Start()
-		oFirstDay = new stzDate(cFirstDay)
-		nFirstDayOfWeek = oFirstDay.DayOfWeek()
-		nDaysInMonth = This.TotalDays()
-		
-		aTableData = [["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]]
-		
-		nDay = 1
-		while nDay <= nDaysInMonth
-			aWeek = []
+		nCol = nStartCol
+		while nCol <= 7 and nDay <= nDaysInMonth
+			cDate = cYear + "-" + cMonth + "-" + PadLeftXT('' + nDay, 2, "0")
+			cCell = ""
+			cEventSymbol = ""
 			
-			nStartCol = 1
-			if nDay = 1
-				nStartCol = nFirstDayOfWeek
+			# Check for timeline events
+			if @oTimeline != NULL
+				cEventSymbol = _getTimelineSymbol(cDate)
 			ok
 			
-			# Initialize week with spaces
-			for i = 1 to nStartCol - 1
-				aWeek + " "
-			next
+			if This.IsHoliday(cDate)
+				cCell = "[" + PadLeftXT('' + nDay, 1, " ") + "]"
+			but This.IsWorkingDay(cDate) = FALSE
+				cCell = RepeatChar(@cVizWeekendChar, 2)
+			else
+				cCell = PadLeftXT('' + nDay, 2, " ")
+			ok
 			
-			# Fill days
-			nCol = nStartCol
-			while nCol <= 7 and nDay <= nDaysInMonth
-				cDate = cYear + "-" + cMonth + "-" + PadLeftXT(""+ nDay, 2, "0")
-				cCell = ""
-				
-				if This.IsHoliday(cDate)
-					cCell = "[" + PadLeftXT(""+ nDay, 1, " ") + "]"
-				but This.IsWorkingDay(cDate) = FALSE
-					cCell = RepeatChar(@cVizWeekendChar, 2)
-				else
-					cCell = PadLeftXT(""+ nDay, 2, " ")
-				ok
-				
-				aWeek + cCell
-				nCol++
-				nDay++
-			end
+			if cEventSymbol != ""
+				cCell = cEventSymbol + cCell
+			ok
 			
-			# Pad remaining cells to 7
-			while len(aWeek) < 7
-				aWeek + " "
-			end
-			
-			aTableData + aWeek
+			aWeek + cCell
+			nCol++
+			nDay++
 		end
 		
-		oTable = new stzTable(aTableData)
-		cResult += oTable.ToString()
-		cResult = substr(cResult, " │ ", "   ")
-		cResult = substr(cResult, "┬", "─")
-		cResult = substr(cResult, "┼", "─")
-		cResult = substr(cResult, "┴", "─")
-	
-		cResult += nl + "Legend:" + nl
-		cResult += "  [D] = Holiday" + nl
-		cResult += "  " + RepeatChar(@cVizWeekendChar, 2) + "  = Weekend"
+		while len(aWeek) < 7
+			aWeek + " "
+		end
 		
-		return cResult
+		aTableData + aWeek
+	end
 	
+	oTable = new stzTable(aTableData)
+	cResult += oTable.ToString()
+	cResult = substr(cResult, " │ ", "   ")
+	cResult = substr(cResult, "┬", "─")
+	cResult = substr(cResult, "┼", "─")
+	cResult = substr(cResult, "┴", "─")
+
+	cResult += nl + "Legend:" + nl
+	cResult += "  [D] = Holiday" + nl
+	cResult += "  " + RepeatChar(@cVizWeekendChar, 2) + "  = Weekend"
+	
+	if @oTimeline != NULL
+		cResult += nl
+		cResult += "  ● = Timeline event" + nl
+	ok
+	
+	return cResult
+
+
+def _getTimelineSymbol(cDate)
+	if @oTimeline = NULL
+		return
+	ok
+
+	aPoints = @oTimeline.Points()
+	aSpans = @oTimeline.Spans()
+	
+	# Check points
+	nLen = len(aPoints)
+	for i = 1 to nLen
+		aParts = stzStringQ(aPoints[i][2]).Split(" ")
+		cPointDate = aParts[1]
+		if cPointDate = cDate
+			return "●"
+		ok
+	next
+	
+	# Check spans
+	nLen = len(aSpans)
+	for i = 1 to nLen
+		cStart = aSpans[i][2]
+		cEnd = aSpans[i][3]
+		
+		aParts = stzStringQ(cStart).Split(" ")
+		cStartDate = aParts[1]
+		
+		aParts = stzStringQ(cEnd).Split(" ")
+		cEndDate = aParts[1]
+		
+		if cDate >= cStartDate and cDate <= cEndDate
+			return "▬"
+		ok
+	next
+	
+	return ""
 	
 	def _drawCompactYear()
 		cResult = ""

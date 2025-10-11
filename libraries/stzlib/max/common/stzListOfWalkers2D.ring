@@ -789,9 +789,9 @@ class stzListOfWalkers2D
 		for x = 1 to nGridWidth
 
 			if aTopMarkers[x] = "v"
-				sBorder = "─v" + ring_copy("─", nCellWidth-2)
+				sBorder = "─v" + RepeatChar("─", nCellWidth-2)
 			else
-				sBorder = ring_copy("─", nCellWidth)
+				sBorder = RepeatChar("─", nCellWidth)
 			ok
 
 			sResult += sBorder
@@ -813,8 +813,8 @@ for y = 1 to nGridHeight
     for x = 1 to nGridWidth
         sContent = aGrid[y][x]
         nPadding = floor((nCellWidth - len(sContent)) / 2)
-        sSpaceBefore = ring_copy(" ", nPadding)
-        sSpaceAfter = ring_copy(" ", nCellWidth - len(sContent) - nPadding)
+        sSpaceBefore = RepeatChar(" ", nPadding)
+        sSpaceAfter = RepeatChar(" ", nCellWidth - len(sContent) - nPadding)
         sResult += sSpaceBefore + sContent + sSpaceAfter
     next
     
@@ -826,7 +826,7 @@ next
 		sResult += "  ╰─"
 
 		for x = 1 to nGridWidth
-			sResult += ring_copy("─", nCellWidth)
+			sResult += RepeatChar("─", nCellWidth)
 		next
 		sResult += "╯" + NL
     
