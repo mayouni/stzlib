@@ -34,7 +34,7 @@ class stzCalendar from stzObject
 	@cVizBoundaryChar = "│"
 	@cVizSpanStartChar = "["
 	@cVizSpanEndChar = "]"
-	@cVizBlockChar = "X"
+	@cVizBlockChar = "▓"
 	@cVizWeekendChar = "░"
 	@cVizTopLeftCorner = "╭"
 	@cVizTopRightCorner = "╮"
@@ -594,6 +594,48 @@ class stzCalendar from stzObject
 		
 		return nCount
 
+	# Range info
+
+def RangeInfo(pStart, pEnd)
+	cStart = _toDateString(pStart)
+	cEnd = _toDateString(pEnd)
+	
+	nTotalDays = StzDateQ(cStart).DaysToDate(cEnd) + 1
+	nWorkingDays = 0
+	nHolidays = 0
+	nWeekends = 0
+	nAvailableHours = 0
+	aOverlappingEvents = []
+	
+	cDate = cStart
+	for i = 1 to nTotalDays
+		if This.IsHoliday(cDate)
+			nHolidays++
+		but not This.IsWorkingDay(cDate)
+			nWeekends++
+		else
+			nWorkingDays++
+			nAvailableHours += This.AvailableHoursOn(cDate)
+		ok
+		cDate = _getNextDay(cDate)
+	next
+	
+	aResult = [
+		[ "startDate", cStart],
+		[ "endDate", cEnd],
+		[ "totalDays", nTotalDays],
+		[ "workingDays", nWorkingDays],
+		[ "weekendDays", nWeekends],
+		[ "holidays", nHolidays],
+		[ "availableHours", nAvailableHours],
+		[ "overlappingEvents", aOverlappingEvents]
+	]
+	
+	return aResult
+
+	def SectionInfo(pStart, pEnd)
+		return This.RangeInfo(pStart, pend)
+
 	# Navigation
 	def Next_()
 		This.NextMonth()
@@ -882,6 +924,194 @@ def ConflictsWithSpan(cLabel, aParams)
 	next
 	
 	return aConflicts
+
+	  #-------------------------#
+	 #  CONSTRAINT MANAGEMENT  #
+	#-------------------------#
+
+def AddConstraint(cName, pConstraint)
+	if isString(cName) and isList(pConstraint)
+		@aConstraints + [cName, pConstraint]
+	ok
+
+def Constraints()
+	return @aConstraints
+
+def ApplyConstraints(pDate)
+	cDate = _toDateString(pDate)
+	nAvailableHours = This.AvailableHoursOn(cDate)
+	
+	nLen = len(@aConstraints)
+	for i = 1 to nLen
+		cConstraintName = @aConstraints[i][1]
+		aConstraintDef = @aConstraints[i][2]
+		
+		# Check constraint type
+		if isList(aConstraintDef) and len(aConstraintDef) >= 2
+			cType = aConstraintDef[1]
+			
+			if cType = :Every
+				# Format: [:Every, :Wednesday, :From, "14:00", :To, "16:00"]
+				cDay = "" + aConstraintDef[2]
+				oDate = new stzDate(cDate)
+				
+				if upper(oDate.DayName()) = upper(cDay)
+					if len(aConstraintDef) >= 6
+						cFrom = aConstraintDef[4]
+						cTo = aConstraintDef[6]
+						nConstraintMinutes = _timeWindowMinutes(cFrom, cTo)
+						nAvailableHours -= floor(nConstraintMinutes / 60.0)
+					ok
+				ok
+			ok
+		ok
+	next
+	
+	return max([0, nAvailableHours])
+
+def _timeWindowMinutes(cStart, cEnd)
+	aStartParts = stzStringQ(cStart).Split(":")
+	aEndParts = stzStringQ(cEnd).Split(":")
+	
+	nStartMinutes = val(aStartParts[1]) * 60 + val(aStartParts[2])
+	nEndMinutes = val(aEndParts[1]) * 60 + val(aEndParts[2])
+	
+	return nEndMinutes - nStartMinutes
+
+	  #-----------------------------#
+	 #  MULTI-CALENDAR COMPARISON  #
+	#-----------------------------#
+
+def CompareWith(oOtherCal)
+	if oOtherCal = NULL
+		return []
+	ok
+	
+	aResult = []
+	
+	aResult + ["Metric", "This Calendar", "Other Calendar", "Difference"]
+	
+	nThisDays = This.TotalDays()
+	nOtherDays = oOtherCal.TotalDays()
+	aResult + ["Total Days", nThisDays, nOtherDays, nThisDays - nOtherDays]
+	
+	nThisWorking = This.AvailableDays()
+	nOtherWorking = oOtherCal.AvailableDays()
+	aResult + ["Working Days", nThisWorking, nOtherWorking, nThisWorking - nOtherWorking]
+	
+	nThisHours = This.AvailableHours()
+	nOtherHours = oOtherCal.AvailableHours()
+	aResult + ["Available Hours", nThisHours, nOtherHours, nThisHours - nOtherHours]
+	
+	nThisHolidays = len(@aHolidays)
+	nOtherHolidays = len(oOtherCal.Holidays())
+	aResult + ["Holidays", nThisHolidays, nOtherHolidays, nThisHolidays - nOtherHolidays]
+	
+	nThisWeeks = This.TotalWeeks()
+	nOtherWeeks = oOtherCal.TotalWeeks()
+	aResult + ["Total Weeks", nThisWeeks, nOtherWeeks, nThisWeeks - nOtherWeeks]
+	
+	return aResult
+
+	  #------------------#
+	 #  EXPORT METHODS  #
+	#------------------#
+
+def ToHash()
+	aHash = [
+		[:startDate, @cStartDate],
+		[:endDate, @cEndDate],
+		[:year, @nYear],
+		[:month, @nMonth],
+		[:quarter, @cQuarter],
+		[:totalDays, This.TotalDays()],
+		[:workingDays, This.AvailableDays()],
+		[:availableHours, This.AvailableHours()],
+		[:workingDaysList, @aWorkingDays],
+		[:holidays, @aHolidays],
+		[:breaks, @aBreaks],
+		[:businessStart, @cBusinessStart],
+		[:businessEnd, @cBusinessEnd]
+	]
+	return aHash
+
+def ToJSON()
+	aHash = This.ToHash()
+	cJSON = "{"
+	nLen = len(aHash)
+	
+	for i = 1 to nLen
+		cKey = "" + aHash[i][1]
+		cValue = aHash[i][2]
+		
+		cJSON += nl + '"' + cKey + '": '
+		
+		if isString(cValue)
+			cJSON += '"' + cValue + '"'
+		but isNumber(cValue)
+			cJSON += "" + cValue
+		but isList(cValue)
+			cJSON += _listToJSON(cValue)
+		else
+			cJSON += '""'
+		ok
+		
+		if i < nLen
+			cJSON += ","
+		ok
+	next
+	
+	cJSON += nl + "}"
+	return cJSON
+
+def _listToJSON(aList)
+	cJSON = "["
+	nLen = len(aList)
+	
+	for i = 1 to nLen
+		cItem = aList[i]
+		
+		if isString(cItem)
+			cJSON += '"' + cItem + '"'
+		but isNumber(cItem)
+			cJSON += "" + cItem
+		but isList(cItem)
+			cJSON += _listToJSON(cItem)
+		ok
+		
+		if i < nLen
+			cJSON += ","
+		ok
+	next
+	
+	cJSON += "]"
+	return cJSON
+
+def ToCSV()
+	cCSV = "Metric,Value" + nl
+	
+	cCSV += "Start Date," + @cStartDate + nl
+	cCSV += "End Date," + @cEndDate + nl
+	cCSV += "Year," + @nYear + nl
+	cCSV += "Month," + @nMonth + nl
+	cCSV += "Quarter," + @cQuarter + nl
+	cCSV += "Total Days," + This.TotalDays() + nl
+	cCSV += "Working Days," + This.AvailableDays() + nl
+	cCSV += "Available Hours," + This.AvailableHours() + nl
+	cCSV += "Business Start," + @cBusinessStart + nl
+	cCSV += "Business End," + @cBusinessEnd + nl
+	
+	nLen = len(@aHolidays)
+	for i = 1 to nLen
+		cCSV += "Holiday," + @aHolidays[i][1] + "," + @aHolidays[i][2] + nl
+	next
+	
+	nLen = len(@aBreaks)
+	for i = 1 to nLen
+		cCSV += "Break," + @aBreaks[i][1] + "," + @aBreaks[i][2] + "," + @aBreaks[i][3] + nl
+	next
+	
+	return cCSV
 
 	  #-----------------------------------------#
 	 #  Visual Display System for stzCalendar  #

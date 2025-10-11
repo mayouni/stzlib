@@ -915,8 +915,8 @@ def LastWeekdayOfMonth()
     def Month()
         return GetMonthName(oQDate.month())
 
-		def MonthName()
-			return GetMonthName(oQDate.month())
+	def MonthName()
+		return GetMonthName(oQDate.month())
 
     def MonthN()
         return oQDate.month()
@@ -937,6 +937,9 @@ def LastWeekdayOfMonth()
     def Day()
         return GetDayName(oQDate.dayOfWeek())
         
+	def DayName()
+		return This.Day()
+
     def DayN()
         return oQDate.day()
 
