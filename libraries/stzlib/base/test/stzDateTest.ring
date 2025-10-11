@@ -1,6 +1,5 @@
 load "../stzbase.ring"
 
-
 /*--- Calling Today() and Creating a date object from today
 
 pr()
@@ -245,19 +244,25 @@ oDate = StzDateQ("15/02/2024")
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
 
-/*--- Calculating days between dates
-
+/*--- Calculating days, months and years between dates
+*/
 pr()
 
 oDate1 = StzDateQ("01/01/2025")
-oDate2 = StzDateQ("31/12/2025")
+oDate2 = StzDateQ("31/12/2027")
 
-? oDate1.DaysTo(oDate2)
-#--> 364
+? oDate1.DaysToN(oDate2)
+#--> 1094
 
 # Or better:
 ? oDate2 - oDate1
-#--> 364
+#--> 1094
+
+? oDate1.MonthsToN(oDate2)
+#--> 35
+
+? oDate1.YearsToN(oDate2)
+#•--> 2
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -475,14 +480,20 @@ pr()
 
 o1 = new stzDate("10/10/2025")
 
+? o1.NextDay()
+#--> 11/10/2025
+
+? o1.PreviousDay()
+#--> 09/10/2025
+
 ? o1.NextWeekday()
-#--> 10/10/2025
+#--> 13/10/2025
 
 ? o1.PreviousWeekday()
-#--> 10/10/2025
+#--> 09/10/2025
 
 ? o1.NextMonday()
-#--> 10/10/2025
+#--> 13/10/2025
 
 ? o1.FirstDayOfMonth()
 #--> 01/10/2025

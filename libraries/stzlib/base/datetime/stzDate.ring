@@ -341,7 +341,18 @@ class stzDate from stzObject
 	        This.SubtractYears(nYears)
 	        return This
 
+
     #--- SMART NAVIGATION METHODS ---#
+
+def NextDay()
+	_oCopy_ = This.Copy()
+	_oCopy_.AddDays(1)
+	return _oCopy_.Date()
+
+def PreviousDay()
+	_oCopy_ = This.Copy()
+	_oCopy_.SubtractDays(1)
+	return _oCopy_.Date()
 
 def NextWeekday()
     nCurrentDay = oQDate.dayOfWeek()
@@ -727,8 +738,26 @@ def LastWeekdayOfMonth()
         nResult = oQDate.daysTo(oOtherDate.QDateObject())
 	return nResult
 
+	def DaysToN(oOtherDate)
+		return This.DaysTo(oOtherDate)
+
+	def DaysToDate(oOtherDate)
+		return This.DaysTo(oOtherDate)
+
+	def DaysToDateN(oOtherDate)
+		return This.DaysTo(oOtherDate)
+
     def WeeksTo(oOtherDate)
         return floor(This.DaysTo(oOtherDate) / 7)
+
+	def WeeksToN(oOtherDate)
+		return this.WeeksTo(oOtherDate)
+
+	def WeeksToDate(oOtherDate)
+		return this.WeeksTo(oOtherDate)
+
+	def WeeksToDateN(oOtherDate)
+		return this.WeeksTo(oOtherDate)
 
     def MonthsTo(oOtherDate)
         if isList(oOtherDate) and len(oOtherDate) = 3
@@ -744,9 +773,18 @@ def LastWeekdayOfMonth()
         ok
         
         nYears = oOtherDate.Year() - This.Year()
-        nMonths = oOtherDate.Month() - This.Month()
+        nMonths = oOtherDate.MonthN() - This.MonthN()
         
         return (nYears * 12) + nMonths
+
+	def MonthsToN(oOtherDate)
+		return This.MonthsTo(oOtherDate)
+
+	def MonthsToDate(oOtherDate)
+		return This.MonthsTo(oOtherDate)
+
+	def MonthsToDateN(oOtherDate)
+		return This.MonthsTo(oOtherDate)
 
     def YearsTo(oOtherDate)
         if isList(oOtherDate) and len(oOtherDate) = 3
@@ -763,6 +801,16 @@ def LastWeekdayOfMonth()
         
         return oOtherDate.Year() - This.Year()
     
+	def YearsToN(oOtherDate)
+		return This.YearsTo(oOtherDate)
+
+	def YearsToDate(oOtherDate)
+		return This.YearsTo(oOtherDate)
+
+	def YearsToDateN(oOtherDate)
+		return This.YearsTo(oOtherDate)
+
+
     def IsBefore(oOtherDate)
         return This.DaysTo(oOtherDate) > 0
     

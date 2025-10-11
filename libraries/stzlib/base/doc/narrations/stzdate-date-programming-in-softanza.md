@@ -82,6 +82,12 @@ Create a stzDate object and start navigating time immediately with this ritch se
 ```ring
 o1 = new stzDate("10/10/2025")
 
+? o1.NextDay()
+#--> 11/10/2025
+
+? o1.PreviousDay()
+#--> 09/10/2025
+
 ? o1.NextWeekday()
 #--> 13/10/2025
 
@@ -110,28 +116,28 @@ o1 = new stzDate("10/10/2025")
 #--> 31/12/2025
 
 ? o1.DayAfterMonthEnd()
-#--> 01/11/2025
+#--> 31/10/2025
 
 ? o1.DayBeforeMonthStart()
-#--> 30/09/2025
+#--> 01/10/2025
 
 ? o1.DayAfterYearEnd()
-#--> 01/01/2026
+#--> 31/12/2025
 
 ? o1.DayBeforeYearStart()
-#--> 31/12/2024
+#--> 01/01/2025
 
 ? o1.NextEndOfMonth()
-#--> 30/11/2025
+#--> 31/10/2025
 
 ? o1.PreviousEndOfMonth()
-#--> 30/09/2025
+#--> 31/10/2025
 
 ? o1.NextStartOfMonth()
-#--> 01/11/2025
+#--> 01/10/2025
 
 ? o1.PreviousStartOfMonth()
-#--> 01/09/2025
+#--> 01/10/2025
 
 ? o1.MidMonth()
 #--> 16/10/2025
@@ -186,6 +192,32 @@ oDate2 = StzDateQ("20/06/2024")
 ```
 
 The code reads like the logic in your head.
+
+
+### Calculating Days, Months, and Years Between Dates
+
+Durations can be computed and returned in whichever unit you need using these methods:
+
+```ring
+oDate1 = StzDateQ("01/01/2025")
+oDate2 = StzDateQ("31/12/2027")
+
+? oDate1.DaysToN(oDate2)
+#--> 1094
+
+# Or more simply:
+? oDate2 - oDate1
+#--> 1094
+
+? oDate1.MonthsToN(oDate2)
+#--> 35
+
+? oDate1.YearsToN(oDate2)
+#--> 2
+```
+
+> **NOTE:** Softanza also provides a class called `stzDuration`, specialized in this area, which will be documented in its own article.
+
 
 ### The Human Touch
 
