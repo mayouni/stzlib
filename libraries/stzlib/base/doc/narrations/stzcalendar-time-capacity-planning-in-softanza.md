@@ -504,6 +504,31 @@ ok
 
 ---
 
+## Natural Language Orientation: Enhancing Programmer Experience
+
+One of `stzCalendar`'s standout design principles is its *natural language orientation*, which prioritizes intuitive, readable code that mirrors how developers think and speak about time. This is achieved through thoughtful method naming conventions that disambiguate results without verbosity, improving flow and reducing cognitive load.
+
+For collection-based queries (e.g., days, holidays, breaks), the base method like `AvailableDays()` returns a *list* of items (e.g., dates as strings), while the suffixed `AvailableDaysN()` returns the *number* (count). This lets you chain naturally: get the list for iteration or the count for quick checks. Similarly, `ContainsAvailableDays()` (or alias `HasAvailableDays()`) returns a boolean for existence, allowing safe guards before operations.
+
+Consistency check across similar methods:
+- **WorkingDays()**: Returns list of working dates; `WorkingDaysN()`: count; `ContainsWorkingDays()`: bool (>0). *Consistent*.
+- **Holidays()**: List of holiday pairs [date, name]; `HolidaysN()`: count; `ContainsHolidays()`: bool. *Consistent*.
+- **Breaks()**: List of break triples [start, end, label]; `BreaksN()`: count; `ContainsBreaks()`: bool. *Consistent*.
+- **AvailableDays()**: List of available dates; `AvailableDaysN()`: count; `ContainsAvailableDays()`: bool. *Consistent*.
+- Range variants (e.g., `AvailableDaysBetween()`: list; `AvailableDaysBetweenN()`: count; `ContainsAvailableDaysBetween()`: bool) extend the pattern. *Consistent*.
+
+> Even exceptions to this rule follow natural semantics. For instance, when working with aggregates like minutes — which have no natural list form — `AvailableMinutes()` returns the number directly, without requiring an **N** suffix. However, you may still use `AvailableMinutesN()` for consistency if you prefer.
+
+This design shines in programmer experience:
+- **Readability**: Code reads like English—`if oCal.ContainsAvailableDays() { for date in oCal.AvailableDays() { ... } }` flows naturally, avoiding awkward `if len(oCal.AvailableDays()) > 0`.
+- **Safety**: `Contains...()` encourages checks, preventing errors on empty results (e.g., no working days in a weekend-only range).
+- **Flexibility**: Need a count? Use N-suffix for quick math (`total = oCal.WorkingDaysN() + oCal.HolidaysN()`). Need details? Base method gives the list.
+- **Discovery**: Intuitive aliases like `HowManyAvailableDays()` (= `AvailableDaysN()`) and `CountHolidays()` enhance discoverability without docs.
+
+In practice, this reduces bugs (e.g., assuming a method returns a list when it doesn't) and speeds development—your code *thinks* like you do. Compared to rigid APIs in other libs, Softanza's approach feels human-centered, boosting productivity in time-sensitive apps.
+
+---
+
 ## API Reference
 
 | Category | Key Methods | Purpose |

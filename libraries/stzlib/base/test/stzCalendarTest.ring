@@ -128,16 +128,16 @@ oCal {
     AddBreak("12:00:00", "13:00:00", "Lunch")
     AddHoliday("2024-10-05", "Independence Day")
     
-    ? AvailableHours()
+    ? AvailableHoursN()
     #--> 161
 
-    ? AvailableDays()
+    ? AvailableDaysN()
     #--> 23
 
-    ? AvailableHoursOn("2024-10-10")
+    ? AvailableHoursOnN("2024-10-10")
     #--> 7
 
-    ? AvailableHoursBetween("2024-10-01", "2024-10-15")
+    ? AvailableHoursBetweenN("2024-10-01", "2024-10-15")
     #--> 7
 
 }
@@ -145,9 +145,9 @@ oCal {
 pf()
 # Executed in 0.20 second(s) in Ring 1.24
 
-/*------------------------------------------#
+/*----------------------------------------#
 #  Test 6: Task fitting                   #
-#------------------------------------------#
+#-----------------------------------------#
 
 pr()
 
@@ -244,9 +244,10 @@ oCal {
 │  21    22    23    24    25   ░░    ░░  │
 │  28    29    30    31                   │
 ╰─────────────────────────────────────────╯
+
 Legend:
   [D] = Holiday
-  ░░  = Weekend
+  ░ = Weekend
 
 ╭───────────────────────┬──────────────────────────╮
 │        Metric         │          Value           │
@@ -362,6 +363,7 @@ October 2024 - Detailed View
 │ 2024-10-30 │ Wednesday │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
 │ 2024-10-31 │ Thursday  │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
 ╰────────────┴───────────┴───────────────────┴───────────────────┴───────────╯
+
 Summary:
   Total Days: 31
   Working Days: 23
@@ -374,6 +376,8 @@ pf()
 #  Test 11: Navigation                    #
 #-----------------------------------------#
 
+/*--- Navigation to next and previous month
+
 pr()
 
 oCal = new stzCalendar([2024, 10])
@@ -381,28 +385,113 @@ oCal {
 	? Current()
 	#--> October 2024
 
-	GotoNextMonth()
+	? NextMonth() # Does not move the calendar, just returns the month
+	#--> November
+
+	? Current() # Calendar is still in october!
+	#--> October 2024
+
+	GotoNextMonth() # Now it will move to next month
+
+	? Current() + NL
+	#--> November 2024
+
+	# Let's do the same gymanastics with previous month
+
+	? PreviousMonth()
+	#--> October
 
 	? Current()
 	#--> November 2024
 
 	GoToPreviousMonth()
 
+	? Current() + NL
+	#--> October 2024
+
+}
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*--- Navigating to Next and previous year
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+oCal {
 	? Current()
 	#--> October 2024
 
+	? NextYear() # Does not move the calendar, just returns the Year
+	#--> 2025
 
-	GotoNextMonth()
+	? Current() # Calendar is still in october!
+	#--> October 2024
+
+	GotoNextYear() # Now it will move to next Year
+
+	? Current() + NL
+	#--> November 2025
+
+	# Let's do the same gymanastics with previous Year
+
+	? PreviousYear()
+	#--> 2024
+
 	? Current()
-	# November 2024
+	#--> November 2025
 
-	GoTo("2024-09-10") #TODO fix
+	GoToPreviousYear()
+
+	? Current() + NL
+	#--> October 2024
+
+}
+
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Navigation next/previous day
+
+...
+
+/*--- Navigating to a given date #TODO
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+oCal {
+	? Current()
+	#--> October 2024
+
+	GoTo("01/12/2026") #TODO fix
 
 	? Current()
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Getting current info #TODO
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+oCal {
+	? Current()
+	#--> October 2024	# Add the current day
+
+	? @@(CurrentXT())
+	#--> [ :year = ..., :month = ..., :day = ... ]
+
+	? CurrentYear()
+
+	? CurrentMonth() # for name and CurrentMonthN() for number
+
+	? CurrentDay()
+
+}
+
+#NOTE: All dispaly of calendar should show the current day with a distinguuisded char
 
 /*----------------------------------------#
 #  Test 12: Copy and comparison           #
@@ -595,31 +684,30 @@ pf()
 
 pr()
 
-oCal1 = new stzCalendar([2023, 11])
-oCal2 = new stzCalendar([2024, 11])
-aComparison = oCal1.CompareWith(oCal2)
-StzTableQ(aComparison).Shwo()
-# Shows side-by-side metrics: days, hours, holidays, etc.
+oCal1 = new stzCalendar([ 2024, 2 ])
+oCal2 = new stzCalendar([ 2029, 2 ])
+
+? oCal1.CompareToQR(oCal2, :stzTable).Show()
 #-->
 '
-╭─────────────────┬───────────────┬────────────────┬────────────╮
-│     Metric      │ This Calendar │ Other Calendar │ Difference │
-├─────────────────┼───────────────┼────────────────┼────────────┤
-│ Total Days      │            30 │             30 │          0 │
-│ Working Days    │            22 │             21 │          1 │
-│ Available Hours │           176 │            168 │          8 │
-│ Holidays        │             0 │              0 │          0 │
-│ Total Weeks     │             5 │              5 │          0 │
-╰─────────────────┴───────────────┴────────────────┴────────────╯
+╭─────────────────┬───────────────┬───────────────┬────────────╮
+│     Metric      │ February 2024 │ February 2029 │ Difference │
+├─────────────────┼───────────────┼───────────────┼────────────┤
+│ Total Days      │            29 │            28 │          1 │
+│ Working Days    │            21 │            20 │          1 │
+│ Available Hours │           168 │           160 │          8 │
+│ Holidays        │             0 │             0 │          0 │
+│ Total Weeks     │             5 │             4 │          1 │
+╰─────────────────┴───────────────┴───────────────┴────────────╯
 '
 
 pf()
-# Executed in 0.34 second(s) in Ring 1.24
+# Executed in 0.31 second(s) in Ring 1.24
 
 /*-----------------------#
 #  TimeLine Integration  #
 #------------------------#
-*/
+
 pr()
 
 oCal = new stzCalendar([ 2024, 10 ])
@@ -642,11 +730,11 @@ oCal.Show()  # Events appear as ● and ▬
 │  21    22    23    24    25   ░░    ░░  │
 │  28    29    30    31                   │
 ╰─────────────────────────────────────────╯
-Legend:
-  [D] = Holiday
-  ░░  = Weekend
-  ● = Timeline event
 
+Legend:
+  ░ = Weekend
+  ● = Timeline-event
+  ▬ = Timeline-span
 
 ╭───────────────────────┬─────────────────────╮
 │        Metric         │        Value        │
@@ -666,37 +754,36 @@ Legend:
 ? oCal.ConflictsWith(oTimeline)
 #--> TRUE (events hit holidays/weekends)
 
-? @@NL(oCal.TimelineEventsSummary())    # Count events, analyze
+? @@NL(oCal.TimelineEvents())    # Count events, analyze
 #-->
 '
 [
 	[
-		"label",
-		"count",
-		"duration",
-		"conflicts"
+		"points",
+		[
+			[ "STANDUP", "2024-10-10 09:00:00" ]
+		]
 	],
 	[
-		"Points",
-		1,
-		"—",
-		0
-	],
-	[
-		"Spans",
-		1,
-		"—",
-		0
+		"spans",
+		[
+			[
+				"PROJECT",
+				"2024-10-15 00:00:00",
+				"2024-10-20 00:00:00"
+			]
+		]
 	]
 ]
 '
 
 pf()
+# Executed in 0.61 second(s) in Ring 1.24
 
 /*---------------------------------------#
 #  Real world example : sprint planning  #
 #----------------------------------------#
-
+*/
 pr()
 
 oCal = new stzCalendar([2024, 10])
@@ -718,7 +805,7 @@ for aTask in aTasks
     nRequired += aTask[2]
 next
 
-nAvailable = oCal.AvailableHours()
+nAvailable = oCal.AvailableHoursN()
 
 if nRequired <= nAvailable
     ? "✓ Sprint fits: " + nRequired + "h needed, " + nAvailable + "h available"

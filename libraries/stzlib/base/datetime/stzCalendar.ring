@@ -30,12 +30,20 @@ class stzCalendar from stzObject
 	@aEvents = []       # Timeline events marked for visualization
 	@aConstraints = []  # Custom constraint definitions
 
+	# Display dimensions
+	@nVizMinWidth = 40
+	@nVizWidth = 50
+	@nVizHeight = 10
+
 	# Display Characters
 	@cVizBoundaryChar = "│"
 	@cVizSpanStartChar = "["
 	@cVizSpanEndChar = "]"
+
 	@cVizBlockChar = "▓"
 	@cVizWeekendChar = "░"
+	@cVizHolidayChar = "[D]"
+
 	@cVizTopLeftCorner = "╭"
 	@cVizTopRightCorner = "╮"
 	@cVizBottomLeftCorner = "╰"
@@ -44,13 +52,12 @@ class stzCalendar from stzObject
 	@cVizBottomTSeparator = "┤"
 	@cVizHorizontalLine = "─"
 
-	# Display dimensions
-	@nVizMinWidth = 40
-	@nVizWidth = 50
-	@nVizHeight = 10
 
 	# Timeline
 	@oTimeLine = NULL
+
+	@cVizTimeLineEventChar = "●"
+	@cVizTimeLineSpanChar = "▬"
 
 	# Cache system
 	@nCachedAvailableHours = -1
@@ -319,6 +326,12 @@ class stzCalendar from stzObject
 		def CountDays()
 			return This.TotalDays()
 
+	def ContainsDays()
+		return This.TotalDays() > 0
+
+		def HasDays()
+			return This.TotalDays() > 0
+
 	def TotalWeeks()
 		return ceil(This.TotalDays() / 7.0)
 	
@@ -334,6 +347,12 @@ class stzCalendar from stzObject
 		def CountWeeks()
 			return This.TotalWeeks()
 
+	def ContainsWeeks()
+		return This.TotalWeeks() > 0
+
+		def HasWeeks()
+			return This.TotalWeeks() > 0
+
 	def Content()
 		aResult = [
 			[:Start, This.Start()],
@@ -342,7 +361,7 @@ class stzCalendar from stzObject
 			[:Month, @nMonth],
 			[:Quarter, @cQuarter],
 			[:TotalDays, This.TotalDays()],
-			[:WorkingDays, This.WorkingDays()],
+			[:WorkingDays, This.WorkingDaysN()],
 			[:Holidays, @aHolidays],
 			[:BusinessHours, [ [:From, @cBusinessStart], [:To, @cBusinessEnd] ]],
 			[:Breaks, @aBreaks]
@@ -366,6 +385,24 @@ class stzCalendar from stzObject
 		ok
 	
 		This.InvalidateCache()
+
+	def ContainsWorkingDays()
+		return len(@aWorkingDays) > 0
+
+		def HasWorkingDays()
+			return len(@aWorkingDays) > 0
+
+	def WorkingDaysN()
+		return len(@aWorkingDays)
+
+		def NumberOfWorkingDays()
+			return len(@aWorkingDays)
+
+		def HowManyWorkingDays()
+			return len(@aWorkingDays)
+
+		def CountWorkingDays()
+			return len(@aWorkingDays)
 
 	def IsWorkingDay(pDate)
 		cDate = _toDateString(pDate)
@@ -395,6 +432,39 @@ class stzCalendar from stzObject
 		end
 		return cDate
 
+	def  WorkingDaysBetween(pStart, pEnd)
+		cStart = _toDateString(pStart)
+		cEnd = _toDateString(pEnd)
+		aResult = []
+		
+		nLen = len(@aWorkingDays)
+		for i = 1 to nLen
+			oWorkingDayDate = new stzDate(@aWorkingDays[i][1])
+			if oWorkingDayDate >= cStart and oWorkingDayDate <= cEnd
+				aResult + @aWorkingDays[i]
+			ok
+		next
+		
+		return aResult
+
+	def WorkingDaysBetweenN(pStart, pEnd)
+		return len(This.WorkingDaysBetween(pStart, pEnd))
+
+		def NumberOfWorkingDaysBetween(pStart, pEnd)
+			return This.WorkingDaysBetweenN(pStart, pEnd)
+
+		def HowManyWorkingDaysBetween(pStart, pEnd)
+			return This.WorkingDaysBetweenN(pStart, pEnd)
+
+		def CountWorkingDaysBetween(pStart, pEnd)
+			return This.WorkingDaysBetweenN(pStart, pEnd)
+
+	def ContainsWorkingDaysBetween(pStart, pEnd)
+		return len(This.WorkingDaysBetween(pStart, pEnd)) > 0
+
+		def HasWorkingDaysBetween(pStart, pEnd)
+			return len(This.WorkingDaysBetween(pStart, pEnd))
+
 	# Holiday management
 	def AddHoliday(pHolidayOrLabel, pName)
 		if isList(pHolidayOrLabel)
@@ -405,7 +475,7 @@ class stzCalendar from stzObject
 				ok
 			next
 		but isString(pHolidayOrLabel)
-			if pName = NULL
+			if pName = ""
 				pName = "Holiday"
 			else
 				pName = "" + pName
@@ -415,6 +485,12 @@ class stzCalendar from stzObject
 		ok
 	
 		This.InvalidateCache()
+
+	def ContainsHolidays()
+		return len(@aHolidays) > 0
+
+		def HasHolidays()
+			return len(@aHolidays)
 
 	def IsHoliday(pDate)
 		cDate = _toDateString(pDate)
@@ -435,10 +511,19 @@ class stzCalendar from stzObject
 			ok
 		next
 		return ""
-	
+
 	def Holidays()
 		return @aHolidays
 	
+	def HolidaysN()
+		return len(@aHolidays)
+
+		def NumberOfHolidays()
+			return len(@aHolidays)
+
+		def CountHolidays()
+			return len(@aHolidays)
+
 	def HolidaysBetween(pStart, pEnd)
 		cStart = _toDateString(pStart)
 		cEnd = _toDateString(pEnd)
@@ -453,6 +538,21 @@ class stzCalendar from stzObject
 		next
 		
 		return aResult
+
+	def HolidaysBetweenN(pStart, pEnd)
+		return len(This.HolidaysBetween(pStart, pEnd))
+
+		def NumberOfHolidaysBetween(pStart, pEnd)
+			return len(This.HolidaysBetween(pStart, pEnd))
+
+		def CountHolidaysBetween(pStart, pEnd)
+			return len(This.HolidaysBetween(pStart, pEnd))
+
+	def ContainsHolidaysBetween(pStart, pEnd)
+		return len(This.HolidaysBetween(pStart, pEnd)) > 0
+
+		def HasHolidaysBetween(pStart, pEnd)
+			return len(This.HolidaysBetween(pStart, pEnd)) > 0
 
 	# Business hours
 	def SetBusinessHours(pStart, pEnd)
@@ -473,6 +573,12 @@ class stzCalendar from stzObject
 	def BusinessHours()
 		return [ [:From, @cBusinessStart], [:To, @cBusinessEnd] ]
 	
+	def ContainsBusinessHours()
+		return @cBusinessStart != '' and @cBusinessEnd = ""
+
+		def HasBusinessHours()
+			return @cBusinessStart != '' and @cBusinessEnd = ""
+
 	# Breaks management
 	def AddBreak(pBreakStart, pBreakEnd, pLabel)
 		if isList(pBreakStart)
@@ -496,38 +602,120 @@ class stzCalendar from stzObject
 	def Breaks()
 		return @aBreaks
 
+	def BreaksN()
+		return len(@aBreaks)
+
+		def NumberOfBreaks()
+			return len(@aBreaks)
+
+		def CountBreaks()
+			return len(@aBreaks)
+
+	def ContainsBreaks()
+		return len(@aBreaks) > 0
+
+		def HasBreaks()
+			return len(@aBreaks)
+
+	def  BreaksBetween(pStart, pEnd)
+		cStart = _toDateString(pStart)
+		cEnd = _toDateString(pEnd)
+		aResult = []
+		
+		nLen = len(@aBreaks)
+		for i = 1 to nLen
+			oBreakDate = new stzDate(@aBreaks[i][1])
+			if oBreakDate >= cStart and oBreakDate <= cEnd
+				aResult + @a Breaks[i]
+			ok
+		next
+		
+		return aResult
+
+	def BreaksBetweenN(pStart, pEnd)
+		return len(This.BreaksBetween(pStart, pEnd))
+
+		def HowManyBreaksBetween(pStart, pEnd)
+			return len(This.BreaksBetween(pStart, pEnd))
+
+		def CountBreaksBetween(pStart, pEnd)
+			return len(This.BreaksBetween(pStart, pEnd))
+
+	def ContainsBreaksBetween(pStart, pEnd)
+		return len(This. reaksBetween(pStart, pEnd)) > 0
+
+		def HasBreaksBetween(pStart, pEnd)
+			return len(This.BreaksBetween(pStart, pEnd))
+
 	# Capacity calculations
+
 	def AvailableHours()
+		stzraise("Not yet implemented!")
+		#TODO// Returns a list of datetime strings
+
+	def AvailableHoursN()
 		# Return cached value if range hasn't changed
 		if @cCachedStart = @cStartDate and @cCachedEnd = @cEndDate and @nCachedAvailableHours >= 0
 			return @nCachedAvailableHours
 		ok
 		
-		return This.AvailableHoursBetween(This.Start(), This.End_())
+		return This.AvailableHoursBetweenN(This.Start(), This.End_())
 		
-def AvailableHoursBetween(pStart, pEnd)
-	cStart = _toDateString(pStart)
-	cEnd = _toDateString(pEnd)
-	nTotalHours = 0
-	nDays = StzDateQ(cStart).DaysToDate(cEnd)
+		def HowManyAvailableHoursB()
+			return This.AvailableHoursN()
+
+		def CountAvailableHours()
+			return This.AvailableHoursN()
+
+	def ContainsAvailableHours()
+		return This.AvailableHoursN() > 0
 	
-	cDate = cStart
-	for i = 0 to nDays
-		if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
-			nDayHours = This.AvailableHoursOn(cDate)
-			nTotalHours += nDayHours
-		ok
-		cDate = _getNextDay(cDate)
-	next
+		def HasAvailableHours()
+			return This.AvailableHoursN() > 0
+
+	def AvailableHoursBetween(pStart, pEnd)
+		stzraise("Not yet implemented!")
+		#TODO// Returns a list of datetime strings
+
+	def AvailableHoursBetweenN(pStart, pEnd)
+		cStart = _toDateString(pStart)
+		cEnd = _toDateString(pEnd)
+		nTotalHours = 0
+		nDays = StzDateQ(cStart).DaysToDate(cEnd)
+		
+		cDate = cStart
+		for i = 0 to nDays
+			if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
+				nDayHours = This.AvailableHoursOnN(cDate)
+				nTotalHours += nDayHours
+			ok
+			cDate = _getNextDay(cDate)
+		next
+		
+		# Cache result
+		@cCachedStart = This.Start()
+		@cCachedEnd = This.End_()
+		@nCachedAvailableHours = nTotalHours
+		
+		return nTotalHours
 	
-	# Cache result
-	@cCachedStart = This.Start()
-	@cCachedEnd = This.End_()
-	@nCachedAvailableHours = nTotalHours
+	def HowManyAvailableHoursBetween(pStart, pEnd)
+		return This.AvailableHoursBetweenN(pStart, pEnd)
+
+	def CountAvailableHoursBetween(pStart, pEnd)
+		return len(This.BreaksBetween(pStart, pEnd))
+
+	def ContainsAvailableHoursBetween(pStart, pEnd)
+		return This.AvailableHoursBetweenN(pStart, pEnd) > 0
 	
-	return nTotalHours
-	
+		def HasAvailableHoursBetween(pStart, pEnd)
+			return This.AvailableHoursBetween(pStart, pEnd) > 0
+
 	def AvailableHoursOn(pDate)
+		stzraise("Not yet implemented!")
+		#TODO// Returns a list of datetime strings
+
+	def AvailableHoursOnN(pDate)
 		if This.IsHoliday(pDate)
 			return 0
 		ok
@@ -557,39 +745,124 @@ def AvailableHoursBetween(pStart, pEnd)
 		
 		return floor(nTotalMinutes / 60.0)
 	
+	def HowManyAvailableHoursOn(pDate)
+		return This.AvailableHoursOnN(pDate)
 
-def AvailableDays()
-	if @cCachedStart = @cStartDate and @cCachedEnd = @cEndDate and @nCachedAvailableDays >= 0
-		return @nCachedAvailableDays
-	ok
+	def CountAvailableHoursOn(pDate)
+		return This.AvailableHoursOnN(pDate)
+
+	def ContainsAvailableHoursOn(pDate)
+		return This.AvailableHoursOn(pDate) > 0
 	
-	nDays = 0
-	nTotalDays = This.TotalDays()
-	cDate = @cStartDate
-	
-	for i = 1 to nTotalDays
-		if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
-			nDays++
+		def HasAvailableHoursOn(pDate)
+			return This.AvailableHoursOn(pDate) > 0
+
+	# Days
+
+	def AvailableDaysN()
+		if @cCachedStart = @cStartDate and @cCachedEnd = @cEndDate and @nCachedAvailableDays >= 0
+			return @nCachedAvailableDays
 		ok
-		cDate = _getNextDay(cDate)
-	next
-	
-	# Cache result
-	@nCachedAvailableDays = nDays
-	
-	return nDays
+		
+		nDays = 0
+		nTotalDays = This.TotalDays()
+		cDate = @cStartDate
+		
+		for i = 1 to nTotalDays
+			if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
+				nDays++
+			ok
+			cDate = _getNextDay(cDate)
+		next
+		
+		# Cache result
+		@nCachedAvailableDays = nDays
+		
+		return nDays
 
+	def AvailableDays()
 
+		acResult = []
+		
+		nTotalDays = This.TotalDays()
+		cDate = @cStartDate
+		
+		for i = 1 to nTotalDays
+			if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
+				acResult + cDate
+			ok
+			cDate = _getNextDay(cDate)
+		next
+		
+		return acResult
+
+	def HowManyAvailableDays()
+		return This.AvailableDaysN()
+
+	def CountAvailableDays()
+		return This.AvailableDaysN()
+
+	def ContainsAvailableDays()
+		return This.AvailablesDaysN() > 0
+
+		def HasAvailableDays()
+			return This.AvailableDaysN() > 0
+
+	def AvailableDaysBetween(pStart, pEnd) #TODO
+		raise("Not yet implemented!")
+		# returns a list of dates
 	
+	def AvailableDaysBetweenN(pStart, pEnd)
+		return len(This.AvailabelDaysBetween(pStart, pEnd))
+
+	def HowManyAvailableDaysBetween(pStart, pEnd)
+		return This.AvailableDaysBetweenN(pStart, pEnd)
+
+	def CountAvailableDaysBetween(pStart, pEnd)
+		return this.AvailableDaysBetweenN(pStart, pEnd)
+
+	def ContainsAvailableDaysBetween(pStart, pEnd)
+		return This.AvailableDaysBetweenN(pStart, pEnd) > 0
+
+		def HasAvailableDaysBetween(pStart, pEnd)
+			return This.AvailableDaysBetweenN(pStart, pEnd) > 0
+
+	#--
+
 	def AvailableWeeks()
-		return ceil(This.AvailableDays() / 5.0)
+		stzraise("Not yet implemented!")
+		#TODO// Returns a list of pairs of dates of end and start of weeks
+
+	def AvailableWeeksN()
+		return ceil(This.AvailableDaysN() / 5.0)
 	
-	def AvailableMinutes()
-		return This.AvailableHours() * 60
+		def HowManyAvailableWeeks()
+			return This.AvailableWeeksN()
+
+		def CountAvailableWeeks()
+			return This.AvailableWeeksN()
+
+	def ContainsAvailableWeeks()
+		return This.AvailableWeeksN() > 0
+
+		def HasAvailableWeeks()
+			return This.AvailableWeeksN() > 0
+
+	def AvailableMinutesN()
+		return This.AvailableHoursN() * 60
 	
+		def AvailableMinutes()
+			#NOTE// Exceptionnaly we semantically allow it to return
+			# a number because it is what we really expect when
+			# we ask for available minutes
+
+			return This.AvailableHoursN() * 60
+
+	#-- Checking Fitness of a date-duration in the calendar
+
 	def CanFit(pDate, pDuration)
 		nDuration = val("" + pDuration)
-		nAvailableHours = This.AvailableHoursOn(pDate)
+		nAvailableHours = This.AvailableHoursOnN(pDate)
 		
 		return nDuration <= nAvailableHours
 	
@@ -612,21 +885,115 @@ def AvailableDays()
 		return []
 
 	def ConsecutiveWorkingDaysAvailable(pDate)
+		if isList(pDate) and StzListQ(pDate).IsStartingFromNamedParam()
+			pDate = pDate[2]
+		ok
+
+		aResult = []
+
 		cDate = _toDateString(pDate)
-		nCount = 0
 		nDays = This.TotalDays()
 		nStartDay = _daysDifference(@cStartDate, cDate)
 		
 		for i = nStartDay to nDays
 			if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
-				nCount++
+				aResult + cDate
 			else
 				exit
 			ok
 			cDate = _getNextDay(cDate)
 		next
 		
-		return nCount
+		return aResult
+
+		#< @FunctionAlternativeForms
+
+		def ConsecutiveAvailableWorkingDays(pDate)
+			return This.ConsecutiveWorkingDaysAvailable(pDate)
+
+		def AvailableConsecutiveWorkingDays(pDate)
+			return This.ConsecutiveWorkingDaysAvailable(pDate)
+
+		#--
+
+		def ConsecutiveWorkingDaysAvailableStartingFrom(pDate)
+			return This.ConsecutiveWorkingDaysAvailable(pDate)
+
+		def ConsecutiveAvailableWorkingDaysStartingFrom(pDate)
+			return This.ConsecutiveWorkingDaysAvailable(pDate)
+
+		def AvailableConsecutiveWorkingDaysStartingFrom(pDate)
+			return This.ConsecutiveWorkingDaysAvailable(pDate)
+
+		#>
+
+	def ConsecutiveWorkingDaysAvailableN(pDate)
+		return len(This.ConsecutiveWorkingDaysAvailable(pDate))
+
+		#< @FunctionAlternativeForms
+
+		def ConsecutiveAvailableWorkingDaysN(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		def AvailableConsecutiveWorkingDaysN(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		#--
+
+		def ConsecutiveWorkingDaysAvailableStartingFromN(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		def ConsecutiveAvailableWorkingDaysStartingFromN(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		def AvailableConsecutiveWorkingDaysStartingFromN(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		#==
+
+		def HowManyConsecutiveWorkingDaysAvailable(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		def HowManyConsecutiveAvailableWorkingDays(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		def HawManyAvailableConsecutiveWorkingDays(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		#--
+
+		def HowManyConsecutiveWorkingDaysAvailableStartingFrom(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		def HowManyConsecutiveAvailableWorkingDaysStartingFrom(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		def HowManyAvailableConsecutiveWorkingDaysStartingFrom(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		#==
+
+		def CountConsecutiveWorkingDaysAvailable(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		def CountManyConsecutiveAvailableWorkingDays(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		def CountManyAvailableConsecutiveWorkingDays(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		#--
+
+		def CountConsecutiveWorkingDaysAvailableStartingFrom(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		def HawManyConsecutiveAvailableWorkingDaysStartingFrom(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		def CountAvailableConsecutiveWorkingDaysStartingFrom(pDate)
+			return This.ConsecutiveWorkingDaysAvailableN(pDate)
+
+		#>
 
 	# Range info
 
@@ -649,7 +1016,7 @@ def RangeInfo(pStart, pEnd)
 			nWeekends++
 		else
 			nWorkingDays++
-			nAvailableHours += This.AvailableHoursOn(cDate)
+			nAvailableHours += This.AvailableHoursOnN(cDate)
 		ok
 		cDate = _getNextDay(cDate)
 	next
@@ -670,24 +1037,103 @@ def RangeInfo(pStart, pEnd)
 	def SectionInfo(pStart, pEnd)
 		return This.RangeInfo(pStart, pend)
 
-	# Navigation
-	def GoToNext_()
-		This.GoNextMonth()
-		return This
+	def PeriodInfo(pStart, pEnd)
+		return This.RangeInfo(pStart, pend)
+
+	def SpanInfo(pStart, pEnd)
+		return This.RangeInfo(pStart, pend)
+
+	def RangeXT(pStart, pEnd)
+		return This.RangeInfo(pStart, pend)
+
+	def SpanXT(pStart, pEnd)
+		return This.RangeInfo(pStart, pend)
+
+	def PeriodXT(pStart, pEnd)
+		return This.RangeInfo(pStart, pend)
+
+
+	#------------------------------------------#
+	#  NAVIGATING THE CALENDAR BACK AND FORTH  #
+	#------------------------------------------#
+
+	# Navigating to next/previous Day
+
+	def NextDay()
+		stzraise("Not yet implemented!")
+		#TODO// See how meonths and years are implemented
+		#NOTE// Currently the class does not save the current day in the calendar
+
+
+	def GoToNextDay()
+		stzraise("Not yet implemented!")
 	
-	def GoToNextMonth()
+		def GotoNextDayQ()
+			This.GotoNextDay()
+			return This
+
+	def PreviousDay()
+		stzraise("Not yet implemented!")
+
+	def GoToPreviousDay()
+		stzraise("Not yet implemented!")
+	
+		def GotoPreviousDayQ()
+			This.GotoPreviousDay()
+			return THis
+
+	# Navigating to next/previous year
+
+	def Next_() # Does not naviaget just returns the next month
+		_nMonth_ = @nMonth
+		_nYear_ = @nYear
+
+		if _nMonth_ > 0
+			_nMonth_++
+			if _nMonth_ > 12
+				_nYear_++
+			ok
+			return StzDateQ(''+ _nYear_ + "-" + _nMonth_ + "-01").MonthName()
+		ok
+
+		def NextMonth()
+			return This.Next_()
+	
+	def GotoNextMonth()
 		if @nMonth > 0
 			@nMonth++
 			if @nMonth > 12
-				@nMonth = 1
 				@nYear++
 			ok
 			_initializeMonth(@nYear, @nMonth)
 		ok
 	
-	def GoToPrevious()
-		This.goPreviousMonth()
-		return This
+		def GotoNextMonthQ()
+			This.GotoNextMonth()
+			return This
+
+		def GoToNext()
+			This.GoNextMonth()
+
+			def GotoNextQ()
+				return This.GotoNextMonthQ()
+
+
+	def Previous() # Does not naviaget just returns the next month
+		_nMonth_ = @nMonth
+		_nYear_ = @nYear
+
+		if _nMonth_ > 0
+			_nMonth_--
+			if _nMonth_ < 1
+				_nMonth_ = 12
+				_nYear_--
+			ok
+			return StzDateQ('' + @nYear+ "-" + _nMonth_ + "-01").MonthName()
+		ok
+
+		def PreviousMonth()
+			return This.Previous()
 	
 	def GoToPreviousMonth()
 		if @nMonth > 0
@@ -699,23 +1145,50 @@ def RangeInfo(pStart, pEnd)
 			_initializeMonth(@nYear, @nMonth)
 		ok
 	
+		def GotoPreviousMonthQ()
+			This.GotoPreviousMonth()
+			return This
+
+		def GoToPrevious()
+			This.GoToPreviousMonth()
+
+			def GoToPreviousQ()
+				return This.GotoPreviousMonthQ()
+
+	# Navigating to next/previous year
+
+	def NextYear()
+		_nYear_ = @nYear
+		return _nYear_ + 1
+
 	def GoToNextYear()
 		@nYear++
 		@cStartDate = ''+ @nYear + "-01-01"
 		@cEndDate = ''+ @nYear + "-12-31"
 	
+		def GotoNextYearQ()
+			This.GotoNextYear()
+			return This
+
+	def PreviousYear()
+		_nYear_ = @nYear
+		return  _nYear_ - 1
+
 	def GoToPreviousYear()
 		@nYear--
 		@cStartDate = ''+ @nYear + "-01-01"
 		@cEndDate = ''+ @nYear + "-12-31"
 	
+		def GotoPreviousYearQ()
+			This.GotoPreviousYear()
+			return THis
+
+	# Going to a give date
+
 	def GoTo(pDate)
-		cDate = StzDateQ(pDate).ToString()
-		if upper(cDate) = "TODAY"
-			cDate = date()
-		ok
-		@cStartDate = cDate
-		@cEndDate = cDate
+		stzraise("Not yet implemented!")
+
+	# Getting info
 	
 	def Current()
 		if @nMonth > 0
@@ -724,7 +1197,8 @@ def RangeInfo(pStart, pEnd)
 			return @cQuarter + " " + @nYear
 		ok
 		return This.Start() + " to " + This.End_()
-	
+
+
 	def IsToday()
 		cToday = Today()
 		oToday = new stzDate(cToday)
@@ -787,6 +1261,34 @@ def RangeInfo(pStart, pEnd)
 		
 		return aResult
 	
+	def WeekendsN()
+		return len(This.Weekends())
+
+		def HowManyWeekends()
+			return THis.WeekendsN()
+
+		def CountWeekends()
+			return THis.WeekendsN()
+
+	def ContainsWeekends()
+		return len(This.Weekends()) > 0
+
+		def HasWeekends()
+
+	def WeekendsBetween(pStart, pEnd)
+		stzraise("Not yet implemented!")
+		#TODO// Returns a list days as datestrings
+
+	def WeekendsBetweenN(pStart, pEnd)
+		return len(This.WeekendsBetween(pStart, pEnd))
+
+		def HowManyWeekendsBetween(pStart, pEnd)
+			return This.WeekendsBetweenN(pStart, pEnd)
+
+		def CountWeekendsBetween(pStart, pEnd)
+			return This.WeekendsBetweenN(pStart, pEnd)
+
+
 	# FIXED: FreeDays() - returns working days with no breaks scheduled
 	# A "free day" is a working day that's not a holiday and has no breaks
 	def FreeDays()
@@ -810,7 +1312,7 @@ def RangeInfo(pStart, pEnd)
 			[ "date", cDate],
 			[ "isWorkingDay", This.IsWorkingDay(cDate)],
 			[ "isHoliday", This.IsHoliday(cDate)],
-			[ "availableHours", This.AvailableHoursOn(cDate)]
+			[ "availableHours", This.AvailableHoursOnN(cDate)]
 		]
 		
 		return aResult
@@ -854,7 +1356,7 @@ def MarkTimeline(oTimeLine)
 		? "Warning: Timeline extends beyond calendar range"
 	ok
 
-def TimelineEventsSummary()
+def TimelineEventsXT()
 	if NOT (isObject(oTimeLine) and ring_classname(oTimeLine) = "stztimeline")
 		StzRaise("Incorrect param type! oTimeLine must be a stzTimeLine object.")
 	ok
@@ -881,6 +1383,173 @@ def TimelineEventsSummary()
 	ok
 	
 	return aResult
+
+def HasTimeline()
+	if isString(@oTimeLine) and @oTimeLine = ""
+		return 0
+	but isObject(@oTimeLine) and ring_classname(@oTimeLine) = "stztimeline"
+		return 1
+	ok
+
+	def ContainsTimeline()
+		return This.HasTimeLine()
+
+	def HasATimeLine()
+		return This.HasTimeLine()
+
+	def ContainsATimeLine()
+		return This.HasTimeLine()
+
+def StzTimeLineObject()
+	return @oTimeLine
+
+	def TimeLineObject()
+		return @oTimeLine
+
+def TimeLinePoints()
+	if This.HasATimeLine()
+		return This.TimeLineObject().Points()
+	else
+		return []
+	ok
+
+	def TimeLineMoments()
+		return This.TimeLinePoints()
+
+def ContainsTimeLinePoints()
+	return len(This.TimeLinePoints()) > 0
+
+	def ContainsTimeLineMoments()
+		return THis.ContainsTimeLinePoints()
+
+	def HasTimeLinePoints()
+		return THis.ContainsTimeLinePoints()
+
+	def HasTimeLineMoments()
+		return THis.ContainsTimeLinePoints()
+
+def TimeLineSpans()
+	if This.HasATimeLine()
+		return This.TimeLineObject().Spans()
+	else
+		return []
+	ok
+
+	def TimeLinePeriods()
+		return This.TimeLineSpans()
+
+def ContainsTimeLineSpans()
+	return len(This.TimeLineSpans()) > 0
+
+	def ContainsTimeLinePeriods()
+		return THis.ContainsTimeLineSpans()
+
+	def HasTimeLineSpans()
+		return THis.ContainsTimeLineSpans()
+
+	def HasTimeLinePeriods()
+		return THis.ContainsTimeLineSpans()
+
+
+
+
+
+def TimeLineEvents()
+	if This.HasATimeLine()
+		return [
+			:Points = This.TimeLineObject().Points(),
+			:Spans = This.TimeLineObject().Spans()
+		]
+
+	else
+		return []
+	ok
+
+	def TimeLinePointsAndSpans()
+		return This.TimeLineEvents()
+
+	def TimeLineSpansAndPoints()
+		return This.TimeLineEvents()
+
+	def TimeLineMomentsAndPeriods()
+		return This.TimeLineEvents()
+
+	def TimeLinePeriodsAndMoments()
+		return This.TimeLineEvents()
+
+	def TimeLinePointsAndPeriods()
+		return This.TimeLineEvents()
+
+	def TimeLinePeriodsAndPoints()
+		return This.TimeLineEvents()
+
+	def TimeLineMomentsAndSpans()
+		return This.TimeLineEvents()
+
+	def TimeLinespansAndMoments()
+		return This.TimeLineEvents()
+
+def ContainsTimeLineEvents()
+	return len(This.TimeLineEvents()) > 0
+
+	#< @FunctionAlternativeForms
+
+	def ContainsTimeLinePointsOrSpans()
+		return This.ContainsTimeLineEvents()
+
+	def ContainsTimeLineSpansOrPoints()
+		return This.ContainsTimeLineEvents()
+
+	def ContainsTimeLineMomentsOrPeriods()
+		return This.ContainsTimeLineEvents()
+
+	def ContainsTimeLinePeriodsOrMoments()
+		return This.ContainsTimeLineEvents()
+
+	def ContainsTimeLinePointsOrPeriods()
+		return This.ContainsTimeLineEvents()
+
+	def ContainsTimeLinePeriodsOrPoints()
+		return This.ContainsTimeLineEvents()
+
+	def ContainsTimeLineMomentsOrSpans()
+		return This.ContainsTimeLineEvents()
+
+	def ContainsTimeLinespansOrMoments()
+		return This.ContainsTimeLineEvents()
+
+
+	#--
+
+	def HasTimeLineEvents()
+		return This.ContainsTimeLineEvents()
+
+	def HasTimeLinePointsOrSpans()
+		return This.HasTimeLineEvents()
+
+	def HasTimeLineSpansOrPoints()
+		return This.HasTimeLineEvents()
+
+	def HasTimeLineMomentsOrPeriods()
+		return This.HasTimeLineEvents()
+
+	def HasTimeLinePeriodsOrMoments()
+		return This.HasTimeLineEvents()
+
+	def HasTimeLinePointsOrPeriods()
+		return This.HasTimeLineEvents()
+
+	def HasTimeLinePeriodsOrPoints()
+		return This.HasTimeLineEvents()
+
+	def HasTimeLineMomentsOrSpans()
+		return This.HasTimeLineEvents()
+
+	def HasTimeLinespansOrMoments()
+		return This.HasTimeLineEvents()
+
+	#>
+
 
 def ConflictsWith(oTimeLine)
 	if NOT (isObject(oTimeLine) and ring_classname(oTimeLine) = "stztimeline")
@@ -973,7 +1642,7 @@ def Constraints()
 
 def ApplyConstraints(pDate)
 	cDate = _toDateString(pDate)
-	nAvailableHours = This.AvailableHoursOn(cDate)
+	nAvailableHours = This.AvailableHoursOnN(cDate)
 	
 	nLen = len(@aConstraints)
 	for i = 1 to nLen
@@ -1004,8 +1673,8 @@ def ApplyConstraints(pDate)
 	return max([0, nAvailableHours])
 
 def _timeWindowMinutes(cStart, cEnd)
-	aStartParts = stzStringQ(cStart).Split(":")
-	aEndParts = stzStringQ(cEnd).Split(":")
+	aStartParts = @split(cStart, ":")
+	aEndParts = @split(cEnd, ":")
 	
 	nStartMinutes = val(aStartParts[1]) * 60 + val(aStartParts[2])
 	nEndMinutes = val(aEndParts[1]) * 60 + val(aEndParts[2])
@@ -1017,24 +1686,24 @@ def _timeWindowMinutes(cStart, cEnd)
 	#-----------------------------#
 
 def CompareWith(oOtherCal)
-	if oOtherCal = NULL
-		return []
+	if not (isobject(oOtherCal) and ring_classname(oOtherCal) = "stzcalendar")
+		StzRaise("Incorrect param type! oOtherCal must be a stzCalendar object.")
 	ok
 	
 	aResult = []
 	
-	aResult + ["Metric", "This Calendar", "Other Calendar", "Difference"]
+	aResult + [ :Metric, This.Current(), oOtherCal.Current(), :Difference ]
 	
 	nThisDays = This.TotalDays()
 	nOtherDays = oOtherCal.TotalDays()
 	aResult + ["Total Days", nThisDays, nOtherDays, nThisDays - nOtherDays]
 	
-	nThisWorking = This.AvailableDays()
-	nOtherWorking = oOtherCal.AvailableDays()
+	nThisWorking = This.AvailableDaysN()
+	nOtherWorking = oOtherCal.AvailableDaysN()
 	aResult + ["Working Days", nThisWorking, nOtherWorking, nThisWorking - nOtherWorking]
 	
-	nThisHours = This.AvailableHours()
-	nOtherHours = oOtherCal.AvailableHours()
+	nThisHours = This.AvailableHoursN()
+	nOtherHours = oOtherCal.AvailableHoursN()
 	aResult + ["Available Hours", nThisHours, nOtherHours, nThisHours - nOtherHours]
 	
 	nThisHolidays = len(@aHolidays)
@@ -1046,6 +1715,54 @@ def CompareWith(oOtherCal)
 	aResult + ["Total Weeks", nThisWeeks, nOtherWeeks, nThisWeeks - nOtherWeeks]
 	
 	return aResult
+
+	#< @FunctionFluentForm
+
+	def CompareWithQ(oOtherCal)
+		return new stzListQ(oOtherCal)
+
+	def CompareWithQR(oOtherCal, pcReturnType)
+		switch pcReturnType
+		on :stzList
+			return new stzList(This.CompareWith(oOtherCal))
+
+		on :stzListOfLists
+			return new stzListOfLists(This.CompareWith(oOtherCal))
+
+		on :stzTable
+			return new stzTable(This.CompareWith(oOtherCal))
+ 
+		other
+			StzRaise("Insupported return type!")
+		off
+
+	#>
+
+	#< @FunctionAlternativeForms
+
+	def CompareTo(oOtherCal)
+		return This.CompareWith(oOtherCal)
+
+		def CompareToQ(oOtherCal)
+			return This.CompareWithQ(oOtherCal)
+
+		def CompareToQR(oOtherCal, pcReturnType)
+			return This.CompareWithQR(oOtherCal, pcReturnType)
+
+	def Compare(oOtherCal)
+		if isList(oOtherCal) and StzListQ(oOtherCal).IsToOrWithNamedParam()
+			oOtherCal = oOtherCal[2]
+		ok
+
+		return This.CompareWith(oOtherCal)
+
+		def CompareQ(oOtherCal)
+			return This.CompareWithQ(oOtherCal)
+
+		def CompareQR(oOtherCal, pcReturnType)
+			return This.CompareWithQR(oOtherCal, pcReturnType)
+
+	#>
 
 	  #----------------------#
 	 #  CACHE INVALIDATION  #
@@ -1070,8 +1787,8 @@ def ToHash()
 		[:month, @nMonth],
 		[:quarter, @cQuarter],
 		[:totalDays, This.TotalDays()],
-		[:workingDays, This.AvailableDays()],
-		[:availableHours, This.AvailableHours()],
+		[:workingDays, This.AvailableDaysN()],
+		[:availableHours, This.AvailableHoursN()],
 		[:workingDaysList, @aWorkingDays],
 		[:holidays, @aHolidays],
 		[:breaks, @aBreaks],
@@ -1289,22 +2006,62 @@ def _drawMonthGrid()
 	
 	oTable = new stzTable(aTableData)
 	cResult += oTable.ToString()
+	#TODO // Review this solution by adding a configurable ShowXT()
+	# in stzTable (exmple :InterLines = FALSE), because if the
+	# defautl chars used in displaying a stzTable change (become
+	# different from those we use here in this hack), the the result
+	# will be erronous
+
 	cResult = substr(cResult, " │ ", "   ")
 	cResult = substr(cResult, "┬", "─")
 	cResult = substr(cResult, "┼", "─")
 	cResult = substr(cResult, "┴", "─")
 
-	cResult += nl + "Legend:" + nl
-	cResult += "  [D] = Holiday" + nl
-	cResult += "  " + RepeatChar(@cVizWeekendChar, 2) + "  = Weekend"
-	
-	if @oTimeline != NULL
-		cResult += nl
-		cResult += "  ● = Timeline event" + nl
-	ok
-	
+	# Drawing the legend
+	cResult += NL + NL + _drawLegend()
 	return cResult
 
+def _drawLegend()
+	cResult = "Legend:" + NL
+
+	aLegend = This.Legend()
+	nLen = len(aLegend)
+
+	for i = 1 to nLen
+		cResult += ("  " + aLegend[i][2] + " = " + Capitalise(aLegend[i][1]) )
+		if i < nLen
+			cResult += NL
+		ok
+	next
+
+	return cResult
+
+def Legend()
+	aResult = []
+
+	if This.ContainsHolidays()
+		aResult + [ "holiday",  @cVizHolidayChar ]
+	ok
+
+	if This.ContainsWeekends()
+		aResult + [ "weekend", @cVizWeekendChar ]
+	ok
+
+	if NOT (isString(@oTimeline) and @oTimeLine = "")
+
+		if This.ContainsTimeLinePoints()
+			aResult + [ "timeline-point", @cVizTimeLineEventChar ]
+		ok
+
+		if This.ContainsTimeLineSpans()
+			aResult + [ "timeline-span", @cVizTimeLineSpanChar ]
+		ok
+	ok
+
+	return aResult
+
+	def LegendQ()
+		return new stzList(This.Legend())
 
 def _getTimelineSymbol(cDate)
 	if @oTimeline = NULL
@@ -1320,7 +2077,7 @@ def _getTimelineSymbol(cDate)
 		aParts = stzStringQ(aPoints[i][2]).Split(" ")
 		cPointDate = aParts[1]
 		if cPointDate = cDate
-			return "●"
+			return @cVizTimeLineEventChar
 		ok
 	next
 	
@@ -1331,14 +2088,14 @@ def _getTimelineSymbol(cDate)
 		cStart = aSpans[i][2]
 		cEnd = aSpans[i][3]
 		
-		aParts = stzStringQ(cStart).Split(" ")
+		aParts = @split(cStart, " ")
 		cStartDate = aParts[1]
 		
-		aParts = stzStringQ(cEnd).Split(" ")
+		aParts = @split(cEnd, " ")
 		cEndDate = aParts[1]
 		
 		if _oDate_ >= cStartDate and _oDate_ <= cEndDate
-			return "▬"
+			return @cVizTimeLineSpanChar
 		ok
 	next
 	
@@ -1397,13 +2154,13 @@ def _getTimelineSymbol(cDate)
 		]
 		
 		aTableData + ["Total Days", This.TotalDays()]
-		aTableData + ["Working Days", This.AvailableDays()]
-		aTableData + ["Weekend Days", This.TotalDays() - This.AvailableDays() - len(@aHolidays)]
+		aTableData + ["Working Days", This.AvailableDaysN()]
+		aTableData + ["Weekend Days", This.TotalDays() - This.AvailableDaysN() - len(@aHolidays)]
 		aTableData + ["Holidays", len(@aHolidays)]
-		aTableData + ["Total Available Hours", ''+ This.AvailableHours()]
+		aTableData + ["Total Available Hours", ''+ This.AvailableHoursN()]
 		
-		if This.AvailableDays() > 0
-			aTableData + ["Average Hours Per Day", floor(This.AvailableHours() / This.AvailableDays())]
+		if This.AvailableDaysN() > 0
+			aTableData + ["Average Hours Per Day", floor(This.AvailableHoursN() / This.AvailableDaysN())]
 		ok
 		
 		aTableData + ["First Working Day", This.FirstWorkingDay()]
@@ -1541,7 +2298,7 @@ def _getTimelineSymbol(cDate)
 					cBreaks = "─"
 				ok
 				
-				nHours = This.AvailableHoursOn(cDate)
+				nHours = This.AvailableHoursOnN(cDate)
 				cAvailable = "" + nHours + "h"
 			ok
 			
@@ -1565,10 +2322,10 @@ def _getTimelineSymbol(cDate)
 		oTable = new stzTable(This.DetailedTable())
 		cResult += oTable.ToString()
 		
-		cResult += nl + "Summary:" + nl
+		cResult += nl + nl + "Summary:" + nl
 		cResult += "  Total Days: " + This.TotalDays() + nl
-		cResult += "  Working Days: " + This.AvailableDays() + nl
-		cResult += "  Available Hours: " + This.AvailableHours() + nl
+		cResult += "  Working Days: " + This.AvailableDaysN() + nl
+		cResult += "  Available Hours: " + This.AvailableHoursN() + nl
 		
 		return cResult
 	
@@ -1580,13 +2337,13 @@ def _getTimelineSymbol(cDate)
 		aTableData = [[:METRIC, :VALUE]]
 		
 		aTableData + ["Total Days", This.TotalDays()]
-		aTableData + ["Working Days", This.AvailableDays()]
-		aTableData + ["Weekend Days", This.TotalDays() - This.AvailableDays() - len(@aHolidays)]
+		aTableData + ["Working Days", This.AvailableDaysN()]
+		aTableData + ["Weekend Days", This.TotalDays() - This.AvailableDaysN() - len(@aHolidays)]
 		aTableData + ["Holidays", len(@aHolidays)]
-		aTableData + ["Total Available Hours", This.AvailableHours()]
+		aTableData + ["Total Available Hours", This.AvailableHoursN()]
 		
-		if This.AvailableDays() > 0
-			aTableData + ["Average Hours Per Day", floor(This.AvailableHours() / This.AvailableDays())]
+		if This.AvailableDaysN() > 0
+			aTableData + ["Average Hours Per Day", floor(This.AvailableHoursN() / This.AvailableDaysN())]
 		ok
 		
 		aTableData + ["First Working Day", This.FirstWorkingDay()]
