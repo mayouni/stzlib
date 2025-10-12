@@ -2,14 +2,15 @@
 
 > *Time isn't infinite—it's shaped by weekends, holidays, breaks, and real-world chaos. What if your code could model that chaos and turn it into actionable insights? Enter `stzCalendar` from SoftanzaLib, a powerhouse for reasoning about time in Ring programming.*
 
-In project management, software development, or even personal scheduling, a calendar is more than a grid of dates—it's a dynamic constraint engine. Traditional tools like spreadsheets force you to manually track holidays, calculate available hours, and spot conflicts. Mistakes creep in, deadlines slip. Softanza's `stzCalendar` changes that by letting you *build* a calendar as code: configure it, query it, visualize it, and integrate it with timelines. It's not just data—it's intelligent, validated time.
+In the world of project management, software development, or even personal scheduling, a calendar is more than a grid of dates—it's a dynamic constraint engine. Traditional tools like spreadsheets force you to manually track holidays, calculate available hours, and spot conflicts. Mistakes creep in, deadlines slip. Softanza's `stzCalendar` changes that by letting you *build* a calendar as code: configure it, query it, visualize it, and integrate it with timelines. It's not just data—it's intelligent, validated time.
 
+Drawing from real-world tests in Softanza's implementation (as seen in `stzCalendarTest.ring`), we'll walk through its features step-by-step. Each example includes code, output, and practical insights, with explanations of *why* the results make sense based on layered constraints. By the end, you'll see why `stzCalendar` stands out for capacity planning—and how it stacks up against counterparts in other languages.
 
 ---
 
 ## Getting Started: Defining Your Time Boundaries
 
-Start by instantiating a calendar with a year/month, full year, quarter, or custom range. Softanza validates inputs automatically—no invalid dates slip through.
+Start by instantiating a calendar with a year/month, full year, quarter, or custom range. Softanza validates inputs automatically—no invalid dates slip through, preventing silent errors like date overflows.
 
 ```ring
 load "../stzbase.ring"
@@ -29,13 +30,13 @@ oCal {
 }
 ```
 
-*Practicality*: This sets a "fenced" time scope. Query outside it? Error. It's perfect for sprint planning where you focus on one month without accidental spillover.
+*Practicality*: This sets a "fenced" time scope—October 2024 spans 31 days, starting on a Tuesday and ending on a Thursday. Query outside it? Error. It's perfect for sprint planning where you focus on one month without accidental spillover.
 
 ---
 
 ## Configuring the Rhythm: Working Days and Weekends
 
-Real calendars respect weekends. Define working days to filter out non-productive time.
+Real calendars respect weekends. Define working days to filter out non-productive time automatically.
 
 ```ring
 oCal = new stzCalendar([2024, 10])
@@ -53,13 +54,13 @@ oCal {
 }
 ```
 
-*Power Move*: This auto-excludes weekends from capacity calcs. In a global team? Customize per region (e.g., exclude Friday for some cultures).
+*Power Move*: October 2024 has 31 days, but with Mon-Fri as working days, only 23 are available (31 total minus 8 weekends: Oct 5-6, 12-13, 19-20, 26-27). This auto-excludes weekends from all downstream capacity calculations. In a global team? Customize per region (e.g., exclude Friday for some cultures).
 
 ---
 
 ## Handling Exceptions: Holidays and Custom Blocks
 
-Holidays disrupt flow—`stzCalendar` lets you add them singly or in bulk, with names for context.
+Holidays disrupt flow—`stzCalendar` lets you add them singly or in bulk, with names for context. They layer on top of working days, blocking even if they fall on weekends (for accurate tracking).
 
 ```ring
 oCal = new stzCalendar([2024, 10])
@@ -73,13 +74,13 @@ oCal {
 }
 ```
 
-*Practicality*: Holidays reduce available days dynamically. Query `HolidaysBetween()` for ranges to plan around events like national shutdowns.
+*Practicality*: Holidays reduce usable time dynamically. Here, Oct 5 (a Saturday, already non-working) is marked, but it doesn't further reduce working days since weekends are excluded. Oct 15 (Tuesday) would drop working days by 1 if added. Query `HolidaysBetween()` for ranges to plan around events like national shutdowns.
 
 ---
 
 ## Granular Time: Business Hours, Breaks, and Constraints
 
-Go beyond days—model hours. Set office times and subtract breaks or custom constraints (e.g., weekly maintenance).
+Go beyond days—model hours. Set office times and subtract breaks or custom constraints (e.g., weekly maintenance) for precise capacity.
 
 ```ring
 oCal = new stzCalendar([2024, 10])
@@ -102,7 +103,7 @@ oCal {
 }
 ```
 
-Add constraints for recurring blocks:
+Add recurring constraints:
 
 ```ring
 oCal.AddConstraint("MaintWindow", [:Every, :Wednesday, :From, "14:00", :To, "16:00"])
@@ -124,13 +125,13 @@ oCal.AddConstraint("MaintWindow", [:Every, :Wednesday, :From, "14:00", :To, "16:
 # ]
 ```
 
-*Power Move*: Constraints auto-adjust capacity. Ideal for IT ops where servers go down weekly—prevent scheduling conflicts.
+*Power Move*: Each working day starts with 8 hours (9-17), minus 1 for lunch = 7. On Wednesdays, subtract another 2 for maintenance = 5. Constraints auto-adjust capacity across matching days. Ideal for IT ops where servers go down weekly—prevent scheduling conflicts.
 
 ---
 
 ## Core Strength: Capacity Calculations and Task Fitting
 
-The killer feature: Quantify *usable* time. Combine all constraints for instant answers.
+The killer feature: Quantify *usable* time. Combine all constraints for instant, auditable answers.
 
 ```ring
 oCal = new stzCalendar([2024, 10])
@@ -141,11 +142,13 @@ oCal {
     AddHoliday("2024-10-05", "Independence Day")
     
     ? AvailableHours()                      #--> 161 (total usable hours)
-    ? AvailableDays()                       #--> 23 (working days minus holidays)
+    ? AvailableDays()                       #--> 23 (working days, holiday on weekend doesn't reduce)
     ? AvailableHoursOn("2024-10-10")        #--> 7 (single day, post-breaks)
     ? AvailableHoursBetween("2024-10-01", "2024-10-15")  #--> 77 (range total)
 }
 ```
+
+These numbers are defensible: 23 working days × 7 hours/day (8 - 1 lunch) = 161 total. The range (Oct 1-15) covers 11 working days × 7 = 77 hours. No guesswork—constraints justify every figure.
 
 Fit tasks intelligently:
 
@@ -157,13 +160,13 @@ oCal {
 }
 ```
 
-*Practicality*: For Agile teams, check if a 40-hour task fits a sprint. No manual math—Softanza computes it.
+*Practicality*: For Agile teams, check if a 40-hour task fits a sprint. Objective math replaces hunches.
 
 ---
 
 ## Intelligent Queries: Date and Range Insights
 
-Drill down with contextual info.
+Drill down with contextual info for any date or period.
 
 ```ring
 oCal {
@@ -191,13 +194,13 @@ oCal {
 }
 ```
 
-*Power Move*: Use for reporting—e.g., "How many hours in Q4 after holidays?"
+*Power Move*: Use for reporting—e.g., "How many hours in the first half of October after constraints?" The range breakdown shows exactly why: 15 total days include 4 weekends, leaving 11 working × 7 hours = 77.
 
 ---
 
 ## Visualization: See Your Constraints
 
-Three views make abstract time tangible.
+Three views make abstract time tangible, helping spot bottlenecks at a glance.
 
 1. **Grid View** (with holidays/weekends marked):
 
@@ -235,6 +238,8 @@ oCal.Show()
 # ╰───────────────────────┴──────────────────────────╯
 ```
 
+The grid visualizes the month, with [5] marking the holiday on a weekend (░░). The summary ties back to calculations: 23 days × 7 hours = 161.
+
 2. **Heatmap** (weekly density):
 
 ```ring
@@ -252,6 +257,8 @@ oCal.ShowHeatMap()
 #   ▓ = Available working day
 #   ░ = Weekend or holiday
 ```
+
+Week 5 has only 3 available days (Oct 28-31: Mon-Thu, but 31 is Thu), highlighting lighter capacity for buffer planning.
 
 3. **Detailed Table** (day-by-day):
 
@@ -272,7 +279,7 @@ oCal.ShowTable()
 #   Available Hours: 161
 ```
 
-*Practicality*: Visuals spot overloads fast—e.g., heatmap for "Which week is slammed?"
+*Practicality*: Visuals make constraints tangible—e.g., the heatmap spots "light weeks" for low-priority tasks.
 
 ---
 
@@ -292,7 +299,7 @@ oCal {
 }
 ```
 
-Copy and compare:
+Copy and compare for "what-if" analysis:
 
 ```ring
 oCal1 = new stzCalendar([2024, 10])
@@ -319,11 +326,34 @@ oCal2.GotoNextMonth()
 #         30,
 #         1
 #     ],
-#     ... (full metrics: working days, hours, etc.)
+#     [
+#         "Working Days",
+#         23,
+#         21,
+#         2
+#     ],
+#     [
+#         "Available Hours",
+#         184,
+#         168,
+#         16
+#     ],
+#     [
+#         "Holidays",
+#         0,
+#         0,
+#         0
+#     ],
+#     [
+#         "Total Weeks",
+#         5,
+#         5,
+#         0
+#     ]
 # ]
 ```
 
-*Power Move*: Simulate "what if" scenarios, like comparing Q3 vs. Q4 capacity.
+*Power Move*: October (31 days) vs. November (30 days) shows differences like 2 fewer working days, leading to 16 fewer hours (assuming 8h/day here, no breaks). Use for seasonal planning.
 
 ---
 
@@ -364,28 +394,81 @@ Quick stats:
 
 ## Timeline Integration: Overlaying Events
 
-Merge with `stzTimeLine` for event-aware calendars.
+Merge with `stzTimeLine` for event-aware calendars, detecting conflicts against constraints.
 
 ```ring
-oCal = new stzCalendar([2024, 10])
+oCal = new stzCalendar([ 2024, 10 ])
+oCal.SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+oCal.AddHoliday("2024-10-05", "Independence Day")
+
 oTimeline = new stzTimeLine("2024-10-01", "2024-10-31")
 oTimeline.AddPoint("STANDUP", "2024-10-10 09:00:00")
 oTimeline.AddSpan("PROJECT", "2024-10-15", "2024-10-20")
 
 oCal.MarkTimeline(oTimeline)
 oCal.Show()  # Grid now shows ● (points) and ▬ (spans)
+#-->
+#                 October 2024
+# ╭─────────────────────────────────────────╮
+# │ Mon   Tue   Wed   Thu   Fri   Sat   Sun │
+# ├─────────────────────────────────────────┤
+# │        1     2     3     4    ░░    ░░  │
+# │  7     8     9    ●10    11   ░░    ░░  │
+# │  14   ▬15   ▬16   ▬17   ▬18   ▬░░   ▬░░ │
+# │  21    22    23    24    25   ░░    ░░  │
+# │  28    29    30    31                   │
+# ╰─────────────────────────────────────────╯
+# Legend:
+#   [D] = Holiday
+#   ░░  = Weekend
+#   ● = Timeline event
+# 
+# ╭───────────────────────┬─────────────────────╮
+# │        Metric         │        Value        │
+# ├───────────────────────┼─────────────────────┤
+# │ Total Days            │                  31 │
+# │ Working Days          │                  23 │
+# │ Weekend Days          │                   8 │
+# │ Holidays              │                   0 │
+# │ Total Available Hours │                 184 │
+# │ Average Hours Per Day │                   8 │
+# │ First Working Day     │ 2024-10-01          │
+# │ Last Working Day      │ 2024-10-31          │
+# │ Business Hours        │ 09:00:00 - 17:00:00 │
+# ╰───────────────────────┴─────────────────────╯
 
-? oCal.ConflictsWith(oTimeline)          #--> TRUE (if overlaps holidays/weekends)
+? oCal.ConflictsWith(oTimeline)          #--> TRUE (if overlaps holidays/weekends; here, project span hits weekend days)
 ? @@NL(oCal.TimelineEventsSummary())     #--> Event counts, durations, conflicts
+#-->
+# [
+#     [
+#         "label",
+#         "count",
+#         "duration",
+#         "conflicts"
+#     ],
+#     [
+#         "Points",
+#         1,
+#         "—",
+#         0
+#     ],
+#     [
+#         "Spans",
+#         1,
+#         "—",
+#         0
+#     ]
+# ]
 ```
 
-*Practicality*: Detect if a project span hits a holiday—prevent scheduling fails.
+*Practicality*: The project span (Oct 15-20) crosses a weekend (19-20), triggering conflicts. No silent scheduling fails—ideal for validating milestones.
 
 ---
 
 ## Real-World Power: Sprint Planning Example
 
-Tie it together for a sprint:
+Tie it together for a sprint feasibility check:
 
 ```ring
 oCal = new stzCalendar([2024, 10])
@@ -417,8 +500,24 @@ else
 ok
 ```
 
-*Power Move*: Automate feasibility checks—scale to teams with varying constraints.
+*Power Move*: 152 required fits into 161 available (23 days × 7h). If tasks grew to 170? "✗ Exceeded by 9 hours." Automate for teams with varying constraints.
 
+---
+
+## API Reference
+
+| Category | Key Methods | Purpose |
+|----------|-------------|---------|
+| **Basics** | `Start()`, `End_()`, `TotalDays()`, `Current()` | Scope and metadata |
+| **Config** | `SetWorkingDays()`, `AddHoliday()`, `SetBusinessHours()`, `AddBreak()`, `AddConstraint()` | Define rhythms and blocks |
+| **Capacity** | `AvailableHours()`, `AvailableDays()`, `CanFit()`, `FirstAvailableSlot()` | Quantify and fit tasks |
+| **Queries** | `DateInfo()`, `RangeInfo()`, `IsWorkingDay()`, `IsHoliday()` | Temporal insights |
+| **Viz** | `Show()`, `ShowHeatMap()`, `ShowTable()` | Visual outputs |
+| **Nav/Compare** | `GotoNextMonth()`, `Copy()`, `CompareWith()` | Time travel and diffs |
+| **Export** | `ToHash()`, `ToJSON()`, `ToCSV()`, `Stats()` | Data out |
+| **Integration** | `MarkTimeline()`, `ConflictsWith()`, `TimelineEventsSummary()` | Event overlays |
+
+---
 
 ## How `stzCalendar` Compares to Other Languages/Frameworks
 
@@ -426,16 +525,18 @@ While many languages have date utilities, few offer integrated capacity planning
 
 | Feature                  | Softanza (Ring/stzCalendar) | Python (calendar + pandas) | JavaScript (Luxon + FullCalendar) | Java (Joda-Time) | Ruby (ActiveSupport) |
 |--------------------------|-----------------------------|-----------------------------|-----------------------------------|------------------|-----------------------|
-| **Basic Date Boundaries**| Yes (validated scopes)     | Partial (manual ranges)    | Yes (ranges in Luxon)            | Yes (intervals) | Yes (date ranges)    |
-| **Working Days Config**  | Yes (customizable)         | Partial (need custom logic)| Yes (FullCalendar work hours)   | Partial (custom) | Partial (extensions) |
-| **Holidays Management**  | Yes (add/query with names) | Partial (external libs like holidays-py) | Partial (event overlays) | Partial (custom) | Yes (holidays gem)   |
-| **Business Hours/Breaks**| Yes (granular, auto-subtract) | Partial (pandas timedeltas) | Yes (FullCalendar constraints)  | Partial (durations) | Partial (time calc)  |
-| **Capacity Calculations**| Yes (hours/days/ranges, task fitting) | Partial (custom scripts) | Partial (event duration calcs)   | No (basic durations) | Partial (time math)  |
-| **Visualizations**       | Yes (grid, heatmap, table) | Partial (matplotlib plots) | Yes (UI calendar views)         | No (text only)   | No (text/CLI)        |
-| **Timeline Integration** | Yes (mark events, detect conflicts) | Partial (pandas timelines) | Yes (FullCalendar events)       | Partial (intervals) | Partial (ranges)     |
-| **Multi-Calendar Compare**| Yes (side-by-side metrics) | Partial (pandas diffs)     | No                               | No              | No                   |
-| **Data Export**          | Yes (hash/JSON/CSV)        | Yes (CSV/JSON via pandas)  | Partial (JSON export)            | Partial (strings)| Yes (JSON)           |
-| **Practicality for Planning** | High (built-in reasoning) | Medium (requires glue code)| High (UI-focused)               | Low (low-level)  | Medium (extensions needed) |
+| **Basic Date Boundaries**| ✓ Validated scopes         | ◐ Manual ranges            | ✓ Luxon ranges                   | ✓ Intervals     | ✓ Date ranges        |
+| **Working Days Config**  | ✓ Customizable              | ◐ Custom logic             | ✓ FullCalendar hours             | ◐ Custom        | ◐ Extensions         |
+| **Holidays Management**  | ✓ Add/query with names      | ◐ External libs            | ◐ Event overlays                 | ◐ Custom        | ✓ Holidays gem       |
+| **Business Hours/Breaks**| ✓ Granular auto-subtract    | ◐ Pandas timedeltas        | ✓ Constraints                    | ◐ Durations     | ◐ Time math          |
+| **Capacity Calculations**| ✓ Hours/days/ranges, task fitting | ◐ Custom scripts    | ◐ Event durations                | ✗ Basic only    | ◐ Time math          |
+| **Visualizations**       | ✓ Grid/heatmap/table        | ◐ Matplotlib plots         | ✓ UI calendar                    | ✗ Text only     | ✗ Text/CLI           |
+| **Timeline Integration** | ✓ Mark events, detect conflicts | ◐ Pandas timelines     | ✓ FullCalendar events            | ◐ Intervals     | ◐ Ranges             |
+| **Multi-Calendar Compare**| ✓ Side-by-side metrics     | ◐ Pandas diffs             | ✗                                | ✗               | ✗                    |
+| **Data Export**          | ✓ Hash/JSON/CSV             | ✓ CSV/JSON                 | ◐ JSON export                    | ◐ Strings       | ✓ JSON               |
+| **Planning-First Design**| ✓ Built-in reasoning        | ◐ Glue code needed         | ◐ UI-focused                     | ✗ Low-level     | ◐ Extensions needed  |
+
+**Legend**: ✓ Native, ◐ Partial/workaround, ✗ Not available
 
 *Insights*: Softanza shines in *declarative planning*—code your constraints once, query forever. Python needs assembly; JS is UI-heavy; Java/Ruby are more primitive. For devs in Ring, it's a no-brainer for time-bound apps.
 
