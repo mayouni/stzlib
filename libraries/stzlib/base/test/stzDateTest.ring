@@ -339,7 +339,7 @@ pf()
 # Executed in 0.07 second(s) in Ring 1.24
 
 /*--- Formatting dates in different styles
-
+*/
 pr()
 
 oDate = StzDateQ("15/07/2024")
@@ -475,7 +475,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Navigation methods
-*/
+
 pr()
 
 o1 = new stzDate("10/10/2025")

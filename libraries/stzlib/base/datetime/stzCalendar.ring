@@ -52,6 +52,13 @@ class stzCalendar from stzObject
 	# Timeline
 	@oTimeLine = NULL
 
+	# Cache system
+	@nCachedAvailableHours = -1
+	@nCachedAvailableDays = -1
+	@cCachedStart = ""
+	@cCachedEnd = ""
+
+
 	def init(p)
 		# Single parameter initialization with flexible handling
 		if isNumber(p) and p > 1900
@@ -358,6 +365,8 @@ class stzCalendar from stzObject
 			next
 		ok
 	
+		This.InvalidateCache()
+
 	def IsWorkingDay(pDate)
 		cDate = _toDateString(pDate)
 		# Get day of week number (1-7, where 1=Monday, 7=Sunday)
@@ -405,6 +414,8 @@ class stzCalendar from stzObject
 			@aHolidays + [cDate, pName]
 		ok
 	
+		This.InvalidateCache()
+
 	def IsHoliday(pDate)
 		cDate = _toDateString(pDate)
 		nLen = len(@aHolidays)
@@ -457,6 +468,8 @@ class stzCalendar from stzObject
 			@cBusinessEnd = "" + pEnd
 		ok
 	
+		This.InvalidateCache()
+
 	def BusinessHours()
 		return [ [:From, @cBusinessStart], [:To, @cBusinessEnd] ]
 	
@@ -478,29 +491,41 @@ class stzCalendar from stzObject
 			@aBreaks + ["" + pBreakStart, "" + pBreakEnd, pLabel]
 		ok
 	
+		This.InvalidateCache()
+
 	def Breaks()
 		return @aBreaks
 
 	# Capacity calculations
 	def AvailableHours()
+		# Return cached value if range hasn't changed
+		if @cCachedStart = @cStartDate and @cCachedEnd = @cEndDate and @nCachedAvailableHours >= 0
+			return @nCachedAvailableHours
+		ok
+		
 		return This.AvailableHoursBetween(This.Start(), This.End_())
+		
+def AvailableHoursBetween(pStart, pEnd)
+	cStart = _toDateString(pStart)
+	cEnd = _toDateString(pEnd)
+	nTotalHours = 0
+	nDays = StzDateQ(cStart).DaysToDate(cEnd)
 	
-	def AvailableHoursBetween(pStart, pEnd)
-		cStart = _toDateString(pStart)
-		cEnd = _toDateString(pEnd)
-		nTotalHours = 0
-		nDays = StzDateQ(cStart).DaysToDate(cEnd)
-		
-		cDate = cStart
-		for i = 0 to nDays
-			if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
-				nDayHours = This.AvailableHoursOn(cDate)
-				nTotalHours += nDayHours
-			ok
-			cDate = _getNextDay(cDate)
-		next
-		
-		return nTotalHours
+	cDate = cStart
+	for i = 0 to nDays
+		if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
+			nDayHours = This.AvailableHoursOn(cDate)
+			nTotalHours += nDayHours
+		ok
+		cDate = _getNextDay(cDate)
+	next
+	
+	# Cache result
+	@cCachedStart = This.Start()
+	@cCachedEnd = This.End_()
+	@nCachedAvailableHours = nTotalHours
+	
+	return nTotalHours
 	
 	def AvailableHoursOn(pDate)
 		if This.IsHoliday(pDate)
@@ -532,19 +557,28 @@ class stzCalendar from stzObject
 		
 		return floor(nTotalMinutes / 60.0)
 	
-	def AvailableDays()
-		nDays = 0
-		nTotalDays = This.TotalDays()
-		cDate = @cStartDate
-		
-		for i = 1 to nTotalDays
-			if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
-				nDays++
-			ok
-			cDate = _getNextDay(cDate)
-		next
-		
-		return nDays
+
+def AvailableDays()
+	if @cCachedStart = @cStartDate and @cCachedEnd = @cEndDate and @nCachedAvailableDays >= 0
+		return @nCachedAvailableDays
+	ok
+	
+	nDays = 0
+	nTotalDays = This.TotalDays()
+	cDate = @cStartDate
+	
+	for i = 1 to nTotalDays
+		if This.IsWorkingDay(cDate) and not This.IsHoliday(cDate)
+			nDays++
+		ok
+		cDate = _getNextDay(cDate)
+	next
+	
+	# Cache result
+	@nCachedAvailableDays = nDays
+	
+	return nDays
+
 
 	
 	def AvailableWeeks()
@@ -637,11 +671,11 @@ def RangeInfo(pStart, pEnd)
 		return This.RangeInfo(pStart, pend)
 
 	# Navigation
-	def Next_()
-		This.NextMonth()
+	def GoToNext_()
+		This.GoNextMonth()
 		return This
 	
-	def NextMonth()
+	def GoToNextMonth()
 		if @nMonth > 0
 			@nMonth++
 			if @nMonth > 12
@@ -651,11 +685,11 @@ def RangeInfo(pStart, pEnd)
 			_initializeMonth(@nYear, @nMonth)
 		ok
 	
-	def Previous()
-		This.PreviousMonth()
+	def GoToPrevious()
+		This.goPreviousMonth()
 		return This
 	
-	def PreviousMonth()
+	def GoToPreviousMonth()
 		if @nMonth > 0
 			@nMonth--
 			if @nMonth < 1
@@ -665,18 +699,18 @@ def RangeInfo(pStart, pEnd)
 			_initializeMonth(@nYear, @nMonth)
 		ok
 	
-	def NextYear()
+	def GoToNextYear()
 		@nYear++
 		@cStartDate = ''+ @nYear + "-01-01"
 		@cEndDate = ''+ @nYear + "-12-31"
 	
-	def PreviousYear()
+	def GoToPreviousYear()
 		@nYear--
 		@cStartDate = ''+ @nYear + "-01-01"
 		@cEndDate = ''+ @nYear + "-12-31"
 	
 	def GoTo(pDate)
-		cDate = _toDateString(pDate)
+		cDate = StzDateQ(pDate).ToString()
 		if upper(cDate) = "TODAY"
 			cDate = date()
 		ok
@@ -813,8 +847,8 @@ def MarkTimeline(oTimeLine)
 	
 	@oTimeline = oTimeLine
 	
-	oTimelineStart = new stzDate(oTimeLine.Start())
-	oTimelineEnd = new stzDate(oTimeLine.End_())
+	oTimelineStart = new stzDateTime(oTimeLine.Start())
+	oTimelineEnd = new stzDatetime(oTimeLine.End_())
 	
 	if oTimelineStart < @cStartDate or oTimelineEnd > @cEndDate
 		? "Warning: Timeline extends beyond calendar range"
@@ -1012,6 +1046,17 @@ def CompareWith(oOtherCal)
 	aResult + ["Total Weeks", nThisWeeks, nOtherWeeks, nThisWeeks - nOtherWeeks]
 	
 	return aResult
+
+	  #----------------------#
+	 #  CACHE INVALIDATION  #
+	#----------------------#
+
+def InvalidateCache()
+	@nCachedAvailableHours = -1
+	@nCachedAvailableDays = -1
+	@cCachedStart = ""
+	@cCachedEnd = ""
+
 
 	  #------------------#
 	 #  EXPORT METHODS  #
@@ -1280,6 +1325,7 @@ def _getTimelineSymbol(cDate)
 	next
 	
 	# Check spans
+	_oDate_ = new stzDate(cDate)
 	nLen = len(aSpans)
 	for i = 1 to nLen
 		cStart = aSpans[i][2]
@@ -1291,7 +1337,7 @@ def _getTimelineSymbol(cDate)
 		aParts = stzStringQ(cEnd).Split(" ")
 		cEndDate = aParts[1]
 		
-		if cDate >= cStartDate and cDate <= cEndDate
+		if _oDate_ >= cStartDate and _oDate_ <= cEndDate
 			return "▬"
 		ok
 	next
@@ -1461,14 +1507,8 @@ def _getTimelineSymbol(cDate)
 		return cResult
 	
 	
-		def ShowTable()
-			? This._drawDetailedTable()
-	
-	def _drawDetailedTable()
-		cResult = ""
-		cResult += This.MonthName() + " " + @nYear + " - Detailed View" + nl
-		cResult += nl
-		
+	def DetailedTable()
+
 		nDaysInMonth = This.TotalDays()
 		aParts = @split(This.Start(), "-")
 		cYear = aParts[1]
@@ -1507,8 +1547,22 @@ def _getTimelineSymbol(cDate)
 			
 			aTableData + [cDate, cDayName, cBizHours, cBreaks, cAvailable]
 		next
+
+		return aTableData
+
+		def DetailedTableQ()
+			return new stzTable(This.DetailedTable())
+
+
+		def ShowTable()
+			? This._drawDetailedTable()
+	
+	def _drawDetailedTable()
+		cResult = ""
+		cResult += This.MonthName() + " " + @nYear + " - Detailed View" + nl
+		cResult += nl
 		
-		oTable = new stzTable(aTableData)
+		oTable = new stzTable(This.DetailedTable())
 		cResult += oTable.ToString()
 		
 		cResult += nl + "Summary:" + nl

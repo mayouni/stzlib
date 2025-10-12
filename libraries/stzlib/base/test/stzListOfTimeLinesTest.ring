@@ -5,7 +5,7 @@ load "../stzbase.ring"
 #-------------------------------------------#
 
 /*--- Creating timelines with lanes, start, and end boundaries
-*/
+
 pr()
 
 oTimeLines = new stzTimeLines([
@@ -38,14 +38,14 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Creating timelines with date-only inputs
-
+*/
 pr()
 
-o1 = new stzTimeLines( @{
+o1 = new stzTimeLines([
 	:Lanes = [ "Dev", "QA" ],
 	:From  = "2024-10-10",
 	:To    = "2024-10-22 16:40:00"
-} )
+])
 
 ? @@NL( o1.Content() )  # Time added automatically to "2024-10-10"
 #--> [

@@ -1,629 +1,236 @@
+
 load "../stzbase.ring"
 
-/*---
-
-pr()
-
-? len("░")
-#--> 3
-
-? stzlen("░")
-#↨--> 1
-
-? StzTableQ([
-	[ "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" ],
-
-	[    ' ',   "1",   "2",   "3",   "4", "[5]",  "░░" ],
-     	[   "7",   "8",   "9",  "10",  "11",  "░░",  "░░" ],
-	[  "14",  "15",  "16",  "17",  "18",  "░░",  "░░" ],
-	[  "21",  "22",  "23",  "24",  "25",  "░░",  "░░" ],
-	[  "28",  "29",  "30",  "31",    ' ',   " ",    " "  ]
-]).Show()
-#-->
-'
-╭─────┬─────┬─────┬─────┬─────┬─────┬─────╮
-│ Mon │ Tue │ Wed │ Thu │ Fri │ Sat │ Sun │
-├─────┼─────┼─────┼─────┼─────┼─────┼─────┤
-│     │   1 │   2 │   3 │   4 │ [5] │ ░░  │
-│   7 │   8 │   9 │  10 │  11 │ ░░  │ ░░  │
-│  14 │  15 │  16 │  17 │  18 │ ░░  │ ░░  │
-│  21 │  22 │  23 │  24 │  25 │ ░░  │ ░░  │
-│  28 │  29 │  30 │  31 │     │     │     │
-╰─────┴─────┴─────┴─────┴─────┴─────┴─────╯
-'
-pf()
-
-#------------------------------------------#
-#  Basic Calendar Creation with Periods    #
-#------------------------------------------#
-
-/*--- Creating calendar with year and month
+/*----------------------------------------#
+#  Test 1: Basic calendar creation        #
+#-----------------------------------------#
 
 pr()
 
 oCal = new stzCalendar([2024, 10])
 
 oCal {
-	? Start()
-	#--> 2024-10-01
-
-	? End_()
-	#--> 2024-10-31
-
-	? Year()
-	#--> 2024
-
-	? MonthNumber()
-	#--> 10
-
-	? MonthName()
-	#--> October
-
-	? TotalDays()
-	#--> 31
-
-	? TotalWeeks()
-	#--> 5
-
-	? Current()
-	#--> October 2024
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Creating calendar with year only (full year view)
-
-pr()
-
-oCal = new stzCalendar(2024)
-
-oCal {
-	? Start()
-	#--> 2024-01-01
-
-	? End_()
-	#--> 2024-12-31
-
-	? TotalDays()
-	#--> 366
-
-	? TotalWeeks()
-	#--> 53
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Creating calendar with quarter
-
-pr()
-
-oCal = new stzCalendar([2024, "Q3"])
-
-oCal {
-	? Start()
-	#--> 2024-07-01
-
-	? End_()
-	#--> 2024-09-30
-
-	? QuarterNumber()
-	#--> 3
-
-	? Current()
-	#--> Q3 2024
+    ? Start()
+    #--> 2024-10-01
+    
+    ? End_()
+    #--> 2024-10-31
+    
+    ? Year()
+    #--> 2024
+    
+    ? MonthName()
+    #--> October
+    
+    ? TotalDays()
+    #--> 31
 }
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
-/*--- Creating calendar with date range
-
-pr()
-
-oCal = new stzCalendar([ :Start = "2024-10-01", :End = "2024-10-31" ])
-
-oCal {
-	? Start()
-	#--> 2024-10-01
-
-	? End_()
-	#--> 2024-10-31
-
-	? NumberOfDays() # Or DaysN()
-	#--> 31
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-/*--- Creating calendar with named parameters
-
-pr()
-
-oCal = new stzCalendar([ :Start = "2024-10-01", :End = "2024-12-31" ])
-
-oCal {
-	? Start()
-	#--> 2024-10-01
-
-	? End_()
-	#--> 2024-12-31
-
-	? DaysN()
-	#--> 92
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-#------------------------------------------#
-#  Working Days Configuration              #
-#------------------------------------------#
-
-/*--- Setting and querying working days
+/*----------------------------------------#
+#  Test 2: Working days configuration     #
+#-----------------------------------------#
 
 pr()
 
 oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-
-	? IsWorkingDay("2024-10-03")
-	#--> 1
-
-	? IsWorkingDay("2024-10-05")
-	#--> 0
-
-	? FirstWorkingDay()
-	#--> 2024-10-01
-
-	? LastWorkingDay()
-	#--> 2024-10-31
-
-	? len( WorkingDays() )
-	#--> 23
-}
-
-pf()
-# Executed in 0.08 second(s) in Ring 1.24
-
-/*--- Querying weekend days
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-oCal.SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-
-aWeekends = oCal.Weekends()
-
-? len(aWeekends)
-#--> 8
-
-? aWeekends[1]
-#--> 05/10/2024
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.24
-
-#------------------------------------------#
-#  Holiday Management                      #
-#------------------------------------------#
-
-/*--- Adding and checking holidays
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-oCal {
-	AddHoliday("2024-10-05", "Independence Day")
-	AddHoliday("2024-10-15", "National Day")
-
-	? IsHoliday("2024-10-05")
-	#--> 1
-
-	? IsHoliday("2024-10-10")
-	#--> 0
-
-	? HolidayName("2024-10-05")
-	#--> Independence Day
-
-	aHolidays = Holidays()
-	? len(aHolidays)
-	#--> 2
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-/*--- Finding holidays in date range
-
-pr()
-
-oCal = new stzCalendar([ 2024, 10 ])
-
-oCal {
-	AddHoliday("2024-10-05", "Independence Day")
-	AddHoliday("2024-10-25", "Revolution Day")
-
-	? @@NL( HolidaysBetween("2024-10-01", "2024-10-20") )
-	#--> [
-	# 	[ "2024-10-05", "Independence Day" ]
-	# ]
-
-}
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.24
-
-#------------------------------------------#
-#  Business Hours and Breaks               #
-#------------------------------------------#
-
-/*--- Setting business hours and breaks
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-oCal {
-	SetBusinessHours("09:00:00", "17:00:00")
-
-	? @@NL( BusinessHours() ) + NL
-	#--> [
-	# 	[ "from", "09:00:00" ],
-	# 	[ "to", "17:00:00" ]
-	# ]
-
-	AddBreak("12:00:00", "13:00:00", "Lunch")
-	AddBreak("15:00:00", "15:15:00", "Break")
-
-	? @@NL( Breaks() )
-	#--> [
-	# 	[ "12:00:00", "13:00:00", "Lunch" ],
-	# 	[ "15:00:00", "15:15:00", "Break" ]
-	# ]
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-#------------------------------------------#
-#  Capacity Calculations                   #
-#------------------------------------------#
-
-/*--- Calculating available hours in working month
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-oCal {
-	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-	SetBusinessHours("09:00:00", "17:00:00")
-
-	AddBreak("12:00:00", "13:00:00", "Lunch")
-	AddHoliday("2024-10-05", "Independence Day")
-
-	? AvailableHours()
-	#--> 161
-
-	? AvailableDays()
-	#--> 23
-
-	? AvailableMinutes()
-	#--> 9660
-}
-
-pf()
-# Executed in 0.24 second(s) in Ring 1.24
-
-/*--- Calculating available hours on specific date
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-oCal {
-	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-	SetBusinessHours("09:00:00", "17:00:00")
-	AddBreak("12:00:00", "13:00:00", "Lunch")
-
-	? AvailableHoursOn("2024-10-03")
-	#--> 7
-
-	? AvailableHoursOn("2024-10-05")
-	#--> 0
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Calculating hours in date range
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-oCal {
-	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-	SetBusinessHours("09:00:00", "17:00:00")
-	AddBreak("12:00:00", "13:00:00", "Lunch")
-
-	? AvailableHoursBetween("2024-10-01", "2024-10-15")
-	#--> 77
-}
-
-pf()
-# Executed in 0.05 second(s) in Ring 1.24
-
-/*--- Checking if duration fits and consecutive working days
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-oCal {
-	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-	AddHoliday("2024-10-13", "Holiday")
-
-	? CanFit("2024-10-10", "8")
-	#--> 1
-
-	? CanFit("2024-10-10", "10")
-	#--> 0
-
-	? ConsecutiveWorkingDaysAvailable("2024-10-10")
-	#--> 2
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Finding first available slot for a task
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-oCal {
-	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-	SetBusinessHours("09:00:00", "17:00:00")
-	AddBreak("12:00:00", "13:00:00", "Lunch")
-
-	aSlot = FirstAvailableSlot("4")
-
-	? aSlot[1]
-	#--> 2024-10-01 09:00:00
-
-	? aSlot[2]
-	#--> 2024-10-01 04:00:00
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-#------------------------------------------#
-#  Navigation and Current State            #
-#------------------------------------------#
-
-/*--- Navigating between months
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-? oCal.Current()
-#--> October 2024
-
-oCal.NextMonth()
-
-? oCal.Current()
-#--> November 2024
-
-oCal.PreviousMonth()
-
-? oCal.Current()
-#--> October 2024
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Navigating between years
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-? oCal.Year()
-#--> 2024
-
-oCal.NextYear()
-
-? oCal.Year()
-#--> 2025
-
-oCal.PreviousYear()
-
-? oCal.Year()
-#--> 2024
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Checking if today is in calendar range
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-? oCal.IsToday()
-#--> 0
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-#------------------------------------------#
-#  Date Information and Queries            #
-#------------------------------------------#
-
-/*--- Getting information about specific date
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-oCal {
-	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-	SetBusinessHours("09:00:00", "17:00:00")
-	AddBreak("12:00:00", "13:00:00", "Lunch")
-	AddHoliday("2024-10-05", "Independence Day")
-
-	? @@NL( DateInfo("2024-10-03") )
-	#--> [
-	# 	[ "date", "2024-10-03" ],
-	# 	[ "isworkingday", 1 ],
-	# 	[ "isholiday", 0 ],
-	# 	[ "availablehours", 7 ]
-	# ]
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Getting calendar statistics
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-oCal {
-	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-	SetBusinessHours("09:00:00", "17:00:00")
-	AddBreak("12:00:00", "13:00:00", "Lunch")
-	AddHoliday("2024-10-05", "Independence Day")
-
-	? @@NL( Stats() )
-	#--> [
-	# 	[ "totalDays", 31 ],
-	# 	[ "workingDays", 23 ],
-	# 	[ "weekendDays", 7 ],
-	# 	[ "holidays", 1 ],
-	# 	[ "totalAvailableHours", 161 ],
-	# 	[ "averageHoursPerWorkingDay", 7 ],
-	# 	[ "firstWorkingDay", "2024-10-01" ],
-	# 	[ "lastWorkingDay", "2024-10-31" ]
-	# ]
-
-}
-
-pf()
-# Executed in 0.42 second(s) in Ring 1.24
-
-#------------------------------------------#
-#  Copying and Cloning                     #
-#------------------------------------------#
-
-/*--- Creating independent calendar copy
-
-pr()
-
-oCal1 = new stzCalendar([2024, 10])
-oCal1.SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-
-oCal2 = oCal1.Copy()
-
-oCal2.NextMonth()
-
-? oCal1.Current()
-#--> October 2024
-
-? oCal2.Current()
-#--> November 2024
-
-? oCal1.Clone().Current()
-#--> October 2024
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-#------------------------------------------#
-#  Content and Display                     #
-#------------------------------------------#
-
-/*--- Getting calendar content as hash
-
-pr()
-
-oCal = new stzCalendar([2024, 10])
-
-oCal {
-	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-	AddHoliday("2024-10-05", "Independence Day")
-	SetBusinessHours("09:00:00", "17:00:00")
-
-	? @@NL( Content() )
-	#--> [
-	# 	[ "start", "2024-10-01" ],
-	# 	[ "end", "2024-10-31" ],
-	# 
-	# 	[ "year", 2024 ],
-	# 	[ "month", 10 ],
-	# 	[ "quarter", "" ],
-	# 	[ "totaldays", 31 ],
-	# 
-	# 	[
-	# 	  "workingdays", [
-	# 		"2024-10-01", "02/10/2024", "03/10/2024",
-	# 		"04/10/2024", "07/10/2024", "08/10/2024",
-	# 		"09/10/2024", "10/10/2024", "11/10/2024",
-	# 		"14/10/2024", "15/10/2024", "16/10/2024",
-	# 		"17/10/2024", "18/10/2024", "21/10/2024",
-	# 		"22/10/2024", "23/10/2024", "24/10/2024",
-	# 		"25/10/2024", "28/10/2024", "29/10/2024",
-	# 		"30/10/2024", "31/10/2024"
-	# 		]
-	# 
-	# 	],
-	# 
-	# 	[
-	# 	  "holidays", [
-	# 		[ "2024-10-05", "Independence Day" ]
-	# 	   ]
-	# 	],
-	# 
-	# 	[
-	# 	  "businesshours", [
-	# 		[ "from", "09:00:00" ],
-	# 		[ "to", "17:00:00" ]
-	# 	   ]
-	# 	],
-	# 
-	# 	[ "breaks", [  ] ]
-	# 
-	# ]
-
+    SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    
+    ? IsWorkingDay("2024-10-03")
+    #--> 1
+    
+    ? IsWorkingDay("2024-10-05")
+    #--> 0
+    
+    ? FirstWorkingDay()
+    #--> 2024-10-01
+    
+    ? len(WorkingDays())
+    #--> 23
 }
 
 pf()
 # Executed in 0.07 second(s) in Ring 1.24
 
-/*--- Displaying calendar details
+/*----------------------------------------#
+#  Test 3: Holiday management             #
+#-----------------------------------------#
 
 pr()
 
 oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-	SetBusinessHours("09:00:00", "17:00:00")
-	AddBreak("12:00:00", "13:00:00", "Lunch")
-	AddHoliday("2024-10-05", "Independence Day")
+    AddHoliday("2024-10-05", "Independence Day")
+    AddHoliday("2024-10-15", "National Day")
+    
+    ? IsHoliday("2024-10-05")
+    #--> 1
+    
+    ? HolidayName("2024-10-05")
+    #--> Independence Day
+    
+    ? len(Holidays())
+    #--> 2
+}
 
-	Show()
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*----------------------------------------#
+#  Test 4: Business hours and breaks      #
+#-----------------------------------------#
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+
+oCal {
+    SetBusinessHours("09:00:00", "17:00:00")
+    AddBreak("12:00:00", "13:00:00", "Lunch")
+    
+    ? @@NL(BusinessHours())
+	#-->
+	'
+	[
+		[ "from", "09:00:00" ],
+		[ "to", "17:00:00" ]
+	]
+	'
+
+    ? @@NL(Breaks())
+	#-->
+	'
+	[
+		[ "12:00:00", "13:00:00", "Lunch" ]
+	]
+	'
+}
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*----------------------------------------#
+#  Test 5: Capacity calculations          #
+#-----------------------------------------#
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+
+oCal {
+    SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    SetBusinessHours("09:00:00", "17:00:00")
+    AddBreak("12:00:00", "13:00:00", "Lunch")
+    AddHoliday("2024-10-05", "Independence Day")
+    
+    ? AvailableHours()
+    #--> 161
+
+    ? AvailableDays()
+    #--> 23
+
+    ? AvailableHoursOn("2024-10-10")
+    #--> 7
+
+    ? AvailableHoursBetween("2024-10-01", "2024-10-15")
+    #--> 7
+
+}
+
+pf()
+# Executed in 0.20 second(s) in Ring 1.24
+
+/*------------------------------------------#
+#  Test 6: Task fitting                   #
+#------------------------------------------#
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+
+oCal {
+    SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    SetBusinessHours("09:00:00", "17:00:00")
+    AddBreak("12:00:00", "13:00:00", "Lunch")
+    
+    ? CanFit("2024-10-10", "5")
+    #--> TRUE
+
+    ? CanFit("2024-10-10", "10")
+    #--> FALSE
+
+    ? @@NL( FirstAvailableSlot("4") )
+    #--> [ "2024-10-01 09:00:00", "2024-10-01 04:00:00" ]
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*-----------------------------------------#
+#  Test 7: Date information                #
+#------------------------------------------#
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+
+oCal {
+    SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    SetBusinessHours("09:00:00", "17:00:00")
+    AddBreak("12:00:00", "13:00:00", "Lunch")
+    AddHoliday("2024-10-05", "Independence Day")
+    
+    ? @@NL(DateInfo("2024-10-03"))
+    #-->
+	'
+	[
+		[ "date", "2024-10-03" ],
+		[ "isWorkingDay", 1 ],
+		[ "isHoliday", 0 ],
+		[ "availableHours", 7 ]
+	]
+	'
+
+    ? @@NL(RangeInfo("2024-10-01", "2024-10-15"))
+    #-->
+	'
+	[
+		[ "startDate", "2024-10-01" ],
+		[ "endDate", "2024-10-15" ],
+		[ "totalDays", 15 ],
+		[ "workingDays", 11 ],
+		[ "weekendDays", 4 ],
+		[ "holidays", 0 ],
+		[ "availableHours", 77 ],
+		[ "overlappingEvents", [  ] ]
+	]
+	'
+
+}
+
+pf()
+# Executed in 0.05 second(s) in Ring 1.24
+
+/*----------------------------------------#
+#  Test 8: Display options                #
+#-----------------------------------------#
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+
+oCal {
+    SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    SetBusinessHours("09:00:00", "17:00:00")
+    AddBreak("12:00:00", "13:00:00", "Lunch")
+    AddHoliday("2024-10-05", "Independence Day")
+    
+    Show()
 }
 #-->
 '
@@ -657,77 +264,469 @@ Legend:
 │ Breaks                │ Lunch: 12:00:00-13:00:00 │
 ╰───────────────────────┴──────────────────────────╯
 '
-pf()
-# Executed in 0.55 second(s) in Ring 1.24
 
-/*===
-*/
+pf()
+# Executed in 0.34 second(s) in Ring 1.24
+
+/*----------------------------------------#
+#  Test 9: Heat map visualization         #
+#-----------------------------------------#
+
 pr()
 
-# Test 1: Basic calendar creation and display
 oCal = new stzCalendar([2024, 10])
 
 oCal {
-	SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-	SetBusinessHours("09:00:00", "17:00:00")
-	AddBreak("12:00:00", "13:00:00", "Lunch")
-	AddHoliday("2024-10-05", "Independence Day")
-	
-	Show()
+    SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    AddHoliday("2024-10-05", "Independence Day")
+    
+    ShowHeatMap()
 }
+#-->
+'
+October 2024 - Capacity Heat Map
 
-# Test 2: ShowDetailed()
-oCal.ShowTable()
+Week 1:  ▓▓▓▓▓ (5/5 days available)
+Week 2:  ▓▓▓▓▓ (5/5 days available)
+Week 3:  ▓▓▓▓▓ (5/5 days available)
+Week 4:  ▓▓▓▓▓ (5/5 days available)
+Week 5:  ▓▓▓░░ (3/5 days available)
 
-# Test 3: ShowHeatMap()
-oCal.ShowHeatMap()
+Legend:
+  ▓ = Available working day
+  ░ = Weekend or holiday
 
-# Test 4: Capacity calculations
-? "Total Available Hours: " + oCal.AvailableHours()
-? "Available Days: " + oCal.AvailableDays()
-? "Available Minutes: " + oCal.AvailableMinutes()
-? "Available Weeks: " + oCal.AvailableWeeks()
-
-# Test 5: Date queries
-? @@NL(oCal.DateInfo("2024-10-10"))
-? @@NL(oCal.RangeInfo("2024-10-01", "2024-10-15"))
-
-# Test 6: Navigation and queries
-? "First Working Day: " + oCal.FirstWorkingDay()
-? "Last Working Day: " + oCal.LastWorkingDay()
-? "First Day of Week: " + oCal.FirstDayOfWeek()
-? "Last Day of Week: " + oCal.LastDayOfWeek()
-
-# Test 7: GoTo with symbols
-oCal.GoTo(:Today)
-? "Current after GoTo(:Today): " + oCal.Current()
-
-# Test 8: Stats and export
-? @@NL(oCal.Stats())
-
-# Test 9: ToHash()
-? @@NL(oCal.ToHash())
-
-# Test 10: ToCSV()
-? oCal.ToCSV()
-
-# Test 11: ToJSON()
-? oCal.ToJSON()
-
-# Test 12: Copy and navigation
-oCopy = oCal.Copy()
-oCopy.NextMonth()
-? "Original: " + oCal.Current()
-? "Copy after NextMonth: " + oCopy.Current()
-
-# Test 13: CompareWith
-? @@NL(oCal.CompareWith(oCopy))
-
-# Test 14: Custom constraints
-oCal.AddConstraint("MaintWindow", [:Every, :Wednesday, :From, "14:00", :To, "16:00"])
-? "Hours after constraint: " + oCal.ApplyConstraints("2024-10-09")
-
-# Test 15: Constraints list
-? @@NL(oCal.Constraints())
+'
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
+
+/*----------------------------------------#
+#  Test 10: Detailed table                #
+/*----------------------------------------#
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+
+oCal {
+    SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    SetBusinessHours("09:00:00", "17:00:00")
+    AddBreak("12:00:00", "13:00:00", "Lunch")
+    AddHoliday("2024-10-05", "Independence Day")
+    
+    ShowTable()
+
+    # You can get the table content using:
+    # ? @@NL( DetailedTable() )
+
+    # And you can cast it to a stzTable object:
+    # DetailedTableQ().Show()
+}
+#-->
+'
+October 2024 - Detailed View
+
+╭────────────┬───────────┬───────────────────┬───────────────────┬───────────╮
+│    Date    │    Day    │     Business      │      Breaks       │ Available │
+├────────────┼───────────┼───────────────────┼───────────────────┼───────────┤
+│ 2024-10-01 │ Tuesday   │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-02 │ Wednesday │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-03 │ Thursday  │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-04 │ Friday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-05 │ Saturday  │ HOLIDAY           │                   │ 0h        │
+│ 2024-10-06 │ Sunday    │ WEEKEND           │                   │ 0h        │
+│ 2024-10-07 │ Monday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-08 │ Tuesday   │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-09 │ Wednesday │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-10 │ Thursday  │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-11 │ Friday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-12 │ Saturday  │ WEEKEND           │                   │ 0h        │
+│ 2024-10-13 │ Sunday    │ WEEKEND           │                   │ 0h        │
+│ 2024-10-14 │ Monday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-15 │ Tuesday   │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-16 │ Wednesday │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-17 │ Thursday  │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-18 │ Friday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-19 │ Saturday  │ WEEKEND           │                   │ 0h        │
+│ 2024-10-20 │ Sunday    │ WEEKEND           │                   │ 0h        │
+│ 2024-10-21 │ Monday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-22 │ Tuesday   │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-23 │ Wednesday │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-24 │ Thursday  │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-25 │ Friday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-26 │ Saturday  │ WEEKEND           │                   │ 0h        │
+│ 2024-10-27 │ Sunday    │ WEEKEND           │                   │ 0h        │
+│ 2024-10-28 │ Monday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-29 │ Tuesday   │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-30 │ Wednesday │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-31 │ Thursday  │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+╰────────────┴───────────┴───────────────────┴───────────────────┴───────────╯
+Summary:
+  Total Days: 31
+  Working Days: 23
+  Available Hours: 161
+'
+pf()
+# Executed in 0.50 second(s) in Ring 1.24
+
+/*----------------------------------------#
+#  Test 11: Navigation                    #
+#-----------------------------------------#
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+oCal {
+	? Current()
+	#--> October 2024
+
+	GotoNextMonth()
+
+	? Current()
+	#--> November 2024
+
+	GoToPreviousMonth()
+
+	? Current()
+	#--> October 2024
+
+
+	GotoNextMonth()
+	? Current()
+	# November 2024
+
+	GoTo("2024-09-10") #TODO fix
+
+	? Current()
+}
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*----------------------------------------#
+#  Test 12: Copy and comparison           #
+#-----------------------------------------#
+
+pr()
+
+oCal1 = new stzCalendar([2024, 10])
+oCal1.SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+
+oCal2 = oCal1.Copy()
+oCal2.GotoNextMonth()
+
+? "Original: " + oCal1.Current() #--> October 2024
+? "Copy: " + oCal2.Current()	 #--> October 2024
+
+? @@NL(oCal1.CompareWith(oCal2))
+#-->
+'
+[
+	[
+		"Metric",
+		"This Calendar",
+		"Other Calendar",
+		"Difference"
+	],
+	[
+		"Total Days",
+		31,
+		30,
+		1
+	],
+	[
+		"Working Days",
+		23,
+		21,
+		2
+	],
+	[
+		"Available Hours",
+		184,
+		168,
+		16
+	],
+	[
+		"Holidays",
+		0,
+		0,
+		0
+	],
+	[
+		"Total Weeks",
+		5,
+		5,
+		0
+	]
+]
+'
+
+pf()
+# Executed in 0.28 second(s) in Ring 1.24
+
+/*----------------------------------------#
+#  Test 13: Data export                   #
+#-----------------------------------------#
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+
+oCal {
+    SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    AddHoliday("2024-10-05", "Independence Day")
+    SetBusinessHours("09:00:00", "17:00:00")
+}
+
+? @@NL(oCal.ToHash())
+#-->
+'
+[
+	[ "startdate", "2024-10-01" ],
+	[ "enddate", "2024-10-31" ],
+	[ "year", 2024 ],
+	[ "month", 10 ],
+	[ "quarter", "" ],
+	[ "totaldays", 31 ],
+	[ "workingdays", 23 ],
+	[ "availablehours", 184 ],
+	[
+		"workingdayslist",
+		[
+			1,
+			2,
+			3,
+			4,
+			5
+		]
+	],
+	[
+		"holidays",
+		[
+			[ "2024-10-05", "Independence Day" ]
+		]
+	],
+	[ "breaks", [  ] ],
+	[ "businessstart", "09:00:00" ],
+	[ "businessend", "17:00:00" ]
+]
+'
+
+pf()
+# Executed in 0.16 second(s) in Ring 1.24
+
+/*-----------------------------------------#
+#  Test 14: Custom constraints             #
+#------------------------------------------#
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+
+oCal {
+    SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    SetBusinessHours("09:00:00", "17:00:00")
+    AddBreak("12:00:00", "13:00:00", "Lunch")
+    
+    AddConstraint("MaintWindow", [:Every, :Wednesday, :From, "14:00", :To, "16:00"])
+    
+    ? "Hours on Wednesday 2024-10-09: " + ApplyConstraints("2024-10-09")
+    ? @@NL(Constraints())
+}
+#-->
+'
+Hours on Wednesday 2024-10-09: 5
+[
+	[
+		"MaintWindow",
+		[
+			"every",
+			"wednesday",
+			"from",
+			"14:00",
+			"to",
+			"16:00"
+		]
+	]
+]
+'
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*-----------------------------------------#
+#  Test 15: Stats                          #
+#------------------------------------------#
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+
+oCal {
+    SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    SetBusinessHours("09:00:00", "17:00:00")
+    AddBreak("12:00:00", "13:00:00", "Lunch")
+    AddHoliday("2024-10-05", "Independence Day")
+    
+    ? @@NL(Stats())
+}
+#-->
+'
+[
+	[ "metric", "value" ],
+	[ "Total Days", 31 ],
+	[ "Working Days", 23 ],
+	[ "Weekend Days", 7 ],
+	[ "Holidays", 1 ],
+	[ "Total Available Hours", 161 ],
+	[ "Average Hours Per Day", 7 ],
+	[ "First Working Day", "2024-10-01" ],
+	[ "Last Working Day", "2024-10-31" ]
+]
+'
+
+pf()
+# Executed in 0.22 second(s) in Ring 1.24
+
+/*----------------------------#
+#  Multi-calendar Comparsion  #
+#-----------------------------#
+
+pr()
+
+oCal1 = new stzCalendar([2023, 11])
+oCal2 = new stzCalendar([2024, 11])
+aComparison = oCal1.CompareWith(oCal2)
+StzTableQ(aComparison).Shwo()
+# Shows side-by-side metrics: days, hours, holidays, etc.
+#-->
+'
+╭─────────────────┬───────────────┬────────────────┬────────────╮
+│     Metric      │ This Calendar │ Other Calendar │ Difference │
+├─────────────────┼───────────────┼────────────────┼────────────┤
+│ Total Days      │            30 │             30 │          0 │
+│ Working Days    │            22 │             21 │          1 │
+│ Available Hours │           176 │            168 │          8 │
+│ Holidays        │             0 │              0 │          0 │
+│ Total Weeks     │             5 │              5 │          0 │
+╰─────────────────┴───────────────┴────────────────┴────────────╯
+'
+
+pf()
+# Executed in 0.34 second(s) in Ring 1.24
+
+/*-----------------------#
+#  TimeLine Integration  #
+#------------------------#
+*/
+pr()
+
+oCal = new stzCalendar([ 2024, 10 ])
+
+oTimeline = new stzTimeLine("2024-10-01", "2024-10-31")
+oTimeline.AddPoint("STANDUP", "2024-10-10 09:00:00")
+oTimeline.AddSpan("PROJECT", "2024-10-15", "2024-10-20")
+
+oCal.MarkTimeline(oTimeline)
+oCal.Show()  # Events appear as ● and ▬
+#-->
+'
+                October 2024
+╭─────────────────────────────────────────╮
+│ Mon   Tue   Wed   Thu   Fri   Sat   Sun │
+├─────────────────────────────────────────┤
+│        1     2     3     4    ░░    ░░  │
+│  7     8     9    ●10    11   ░░    ░░  │
+│  14   ▬15   ▬16   ▬17   ▬18   ▬░░   ▬░░ │
+│  21    22    23    24    25   ░░    ░░  │
+│  28    29    30    31                   │
+╰─────────────────────────────────────────╯
+Legend:
+  [D] = Holiday
+  ░░  = Weekend
+  ● = Timeline event
+
+
+╭───────────────────────┬─────────────────────╮
+│        Metric         │        Value        │
+├───────────────────────┼─────────────────────┤
+│ Total Days            │                  31 │
+│ Working Days          │                  23 │
+│ Weekend Days          │                   8 │
+│ Holidays              │                   0 │
+│ Total Available Hours │                 184 │
+│ Average Hours Per Day │                   8 │
+│ First Working Day     │ 2024-10-01          │
+│ Last Working Day      │ 2024-10-31          │
+│ Business Hours        │ 09:00:00 - 17:00:00 │
+╰───────────────────────┴─────────────────────╯
+'
+
+? oCal.ConflictsWith(oTimeline)
+#--> TRUE (events hit holidays/weekends)
+
+? @@NL(oCal.TimelineEventsSummary())    # Count events, analyze
+#-->
+'
+[
+	[
+		"label",
+		"count",
+		"duration",
+		"conflicts"
+	],
+	[
+		"Points",
+		1,
+		"—",
+		0
+	],
+	[
+		"Spans",
+		1,
+		"—",
+		0
+	]
+]
+'
+
+pf()
+
+/*---------------------------------------#
+#  Real world example : sprint planning  #
+#----------------------------------------#
+
+pr()
+
+oCal = new stzCalendar([2024, 10])
+oCal {
+    SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+    SetBusinessHours("09:00:00", "17:00:00")
+    AddBreak("12:00:00", "13:00:00", "Lunch")
+    AddHoliday("2024-10-05", "Independence Day")
+}
+
+aTasks = [
+    ["Design", 40],
+    ["Development", 80],
+    ["Testing", 32]
+]
+
+nRequired = 0
+for aTask in aTasks
+    nRequired += aTask[2]
+next
+
+nAvailable = oCal.AvailableHours()
+
+if nRequired <= nAvailable
+    ? "✓ Sprint fits: " + nRequired + "h needed, " + nAvailable + "h available"
+else
+    ? "✗ Capacity exceeded by " + (nRequired - nAvailable) + " hours"
+ok
+
+#--> ✓ Sprint fits: 152h needed, 161h available
+
+pf()
+# Executed in 0.09 second(s) in Ring 1.24
