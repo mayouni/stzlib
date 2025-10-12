@@ -1567,7 +1567,7 @@ class stzNumber from stzObject
 		#   Otherwise, the current round is taken.
 		#   ~> Example : new stzNumber("12.375")
 
-		# 3- By providing a pair conataining the number itself (as a number
+		# 3- By providing a pair containing the number itself (as a number
 		#    or as a number in string), and the round to be taken.
 		#    ~> Example : new stzNumber([ 12.275865, :Round = 3 ])
 

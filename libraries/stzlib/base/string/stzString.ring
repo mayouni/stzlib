@@ -54861,9 +54861,9 @@ class stzString from stzObject
 
 		#>
 
-	  #------------------------------------------------#
-	 #   CHECKING CONATAINMENT ON A GIVEN CONDITION   #
-	#------------------------------------------------#
+	  #-----------------------------------------------#
+	 #   CHECKING CONTAINMENT ON A GIVEN CONDITION   #
+	#-----------------------------------------------#
 
 	def ContainsCharsWCS(pcCondition, pCaseSensitive)
 		/* EXAMPLE
@@ -55027,9 +55027,9 @@ class stzString from stzObject
 	def ContainsAfterSubString(pcSubStr1, pcSubStr2)
 		return This.ContainsAfterSubStringCS(pcSubStr1, pcSubStr2, 1)
 
-	  #---------------------------------------#
-	 #   CHECKING CONATAINMENT -- EXTENDED   #
-	#---------------------------------------#
+	  #--------------------------------------#
+	 #   CHECKING CONTAINMENT -- EXTENDED   #
+	#--------------------------------------#
 	#NOTE // This code was so complex before I used ClaudeAI to reorganize it.
 	#TODO // Do the same wit other simular functions FindXT, ReplaceXT, RemoveXT...
 
@@ -78928,7 +78928,7 @@ class stzString from stzObject
 		# the list is sorted in ascending. Then first in the list is greater.
 
 		# If you want to perform the comparison in a locale-sensitive way,
-		# use ComapreInLocale() instead. WARRING: This function needs the
+		# use CompareInLocale() instead. WARRING: This function needs the
 		# the support of the QCollator class in RingQt.
 
 		if CheckingParams()

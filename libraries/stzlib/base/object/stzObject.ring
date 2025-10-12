@@ -5042,7 +5042,7 @@ class stzObject
 		bOfType2 = 0
 
 		if pcType1 = :String or pcType1 = :AString
-			bOfTyep1 = This.IsStzString()
+			bOfType1 = This.IsStzString()
 
 		but pcType1 = :Char or pcType1 = :AChar
 			bOfType1 = This.IsStzChar()
