@@ -803,7 +803,7 @@ class stzCalendar from stzObject
 		return This.AvailableDaysN()
 
 	def ContainsAvailableDays()
-		return This.AvailablesDaysN() > 0
+		return This.AvailableDaysN() > 0
 
 		def HasAvailableDays()
 			return This.AvailableDaysN() > 0
@@ -1305,6 +1305,22 @@ def RangeInfo(pStart, pEnd)
 		
 		return aResult
 	
+	def FreeDaysN()
+		return len(This.FreeDays())
+
+		def HowManyFreeDays()
+			return len(This.FreeDays())
+
+		def CountFreeDays()
+			return len(This.FreeDays())
+
+	def ContainsFreeDays()
+		return len(This.FreeDays()) > 0
+
+		def HasFreeDays()
+			return len(This.FreeDays()) > 0
+
+
 	def DateInfo(pDate)
 		cDate = _toDateString(pDate)
 		
