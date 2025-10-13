@@ -212,12 +212,25 @@ class stzFolder from stzObject
 	def Separator()
 		return "/"
 	
+		#-- @Misspelled
+
+		def Seperator()
+			return This.Seprator()*
+
 	def SystemSeparator()
 		return Char(@oQDir.separator().unicode())
 	
 		def PathSeparator()
 			return This.Separator()
 	
+		#-- @Misspelled
+
+		def SystemSeperator()
+			return This.SystemSeparator()
+
+		def PathSeperator()
+			return This.Separator()
+
 	def IsInside(cPath)
 	
 	    if NOT ( isString(cPath) and cPath != "" )

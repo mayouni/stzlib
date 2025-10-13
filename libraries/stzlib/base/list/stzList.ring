@@ -91575,6 +91575,9 @@ fdef
 			return 0
 		ok
 
+		def IsSeperatorNamedParam()
+			return This.IsSeparatorNamedParam()
+
 	#--
 
 	def IsFirstCharsNamedParam()

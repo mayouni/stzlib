@@ -906,6 +906,14 @@ class stzFileAppender from stzFileReadingMixin
 		This.WriteSeparator(cChar)
 		return This
 
+	   #-- @Misspelled
+
+	   def WriteSeperator(cChar)
+		This.WriteSeparator(cChar)
+
+		def WriteSeperatorQ(cChar)
+			return This.WriteSeparatorQ(cChar)
+
     def WriteBlankLine()
         This.WriteLine("")
     	return 1

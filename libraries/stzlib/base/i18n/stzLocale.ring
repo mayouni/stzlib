@@ -842,6 +842,9 @@ class stzLocale from stzObject
 	def GroupSeparator()
 		return QCharToString(@oQLocale.groupSeparator())
 
+		def GroupSeperator()
+			return This.GroupSeparator()
+
 	def NegativeSign()
 		return QCharToString(@oQLocale.negativeSign())
 

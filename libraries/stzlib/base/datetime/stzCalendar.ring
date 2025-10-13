@@ -1866,27 +1866,31 @@ def _listToJSON(aList)
 	return cJSON
 
 def ToCSV()
+	return This.ToCSVXT(DefaultCSVSeperator())
+
+def ToCSVXT(cSep)
+
 	cCSV = "Metric,Value" + nl
 	
-	cCSV += "Start Date," + @cStartDate + nl
-	cCSV += "End Date," + @cEndDate + nl
-	cCSV += "Year," + @nYear + nl
-	cCSV += "Month," + @nMonth + nl
-	cCSV += "Quarter," + @cQuarter + nl
-	cCSV += "Total Days," + This.TotalDays() + nl
-	cCSV += "Working Days," + This.AvailableDays() + nl
-	cCSV += "Available Hours," + This.AvailableHours() + nl
-	cCSV += "Business Start," + @cBusinessStart + nl
-	cCSV += "Business End," + @cBusinessEnd + nl
+	cCSV += "Start Date" + cSep + @cStartDate + nl
+	cCSV += "End Date" + cSep +  + @cEndDate + nl
+	cCSV += "Year" + cSep +  + @nYear + nl
+	cCSV += "Month" + cSep +  + @nMonth + nl
+	cCSV += "Quarter" + cSep +  + @cQuarter + nl
+	cCSV += "Total Days" + cSep +  + This.TotalDays() + nl
+	cCSV += "Working Days" + cSep +  + This.AvailableDaysN() + nl
+	cCSV += "Available Hours" + cSep +  + This.AvailableHoursN() + nl
+	cCSV += "Business Start" + cSep +  + @cBusinessStart + nl
+	cCSV += "Business End" + cSep +  + @cBusinessEnd + nl
 	
 	nLen = len(@aHolidays)
 	for i = 1 to nLen
-		cCSV += "Holiday," + @aHolidays[i][1] + "," + @aHolidays[i][2] + nl
+		cCSV += "Holiday" + cSep + @aHolidays[i][1] + cSep + @aHolidays[i][2] + nl
 	next
 	
 	nLen = len(@aBreaks)
 	for i = 1 to nLen
-		cCSV += "Break," + @aBreaks[i][1] + "," + @aBreaks[i][2] + "," + @aBreaks[i][3] + nl
+		cCSV += "Break" + cSep + @aBreaks[i][1] + cSep + @aBreaks[i][2] + cSep + @aBreaks[i][3] + nl
 	next
 	
 	return cCSV
