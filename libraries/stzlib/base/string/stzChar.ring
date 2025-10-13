@@ -311,11 +311,26 @@ func CharIsArabic7arakah(c)
 func CharIsWordSeparator(c)
 	return StzCharQ(c).IsWordSeparator()
 
+	#-- @Misspelled
+
+	func CharIsWordSeperator(c)
+		return CharIsWordSeparator(c)
+
 func CharIsSenstenceSeparator(c)
 	return StzCharQ(c).IsSentenceSeparator(c)
 
+	#-- @Misspelled
+
+	func CharIsSenstenceSeperator(c)
+		return CharIsSenstenceSeparator(c)
+
 func CharIsLineSeparator(c)
 	return StzCharQ(c).IsLineSeparator(c)
+
+	#-- @Misspelled
+
+	func CharIsLineSeperator(c)
+		return CharIsLineSeparator(c)
 
 func RemoveDiacritic(pcChar)
 	return StzCharQ(pcChar).DiacriticRemoved()
@@ -949,6 +964,11 @@ class stzChar from stzObject
 			return 0
 		ok
 
+		#-- @Misspelled
+
+		def IsEuropeanNumberSeperator()
+			return This.IsEuropeanNumberSeparator()
+
 	def IsEuropeanNumberTerminator()
 		if This.UnicodeDirectionNumber() = "4"
 			return 1
@@ -976,6 +996,12 @@ class stzChar from stzObject
 			return 0
 		ok
 
+		#-- @Misspelled
+
+		def IsCommonNumberSeperator()
+			return This.IsCommonNumberSeparator()
+
+
 	def IsParagraphSeparator()
 		if This.UnicodeDirectionNumber() = "7"
 			return 1
@@ -983,12 +1009,22 @@ class stzChar from stzObject
 			return 0
 		ok
 
+		#-- @Misspelled
+
+		def IsParagraphSeperator()
+			return This.IsParagraphSeparator()
+
 	def IsSectionSeparator()
 		if This.UnicodeDirectionNumber() = "8"
 			return 1
 		else
 			return 0
 		ok
+
+		#-- @Misspelled
+
+		def IsSectionSeperator()
+			return This.IsSectionSeparator()
 
 	def IsWhitespace()
 		if This.UnicodeDirectionNumber() = "9"
@@ -1364,6 +1400,13 @@ class stzChar from stzObject
 		# And then we use, like in IsPunctuation() function above, the Ring
 		# ring_find( SeparatorUnicodes(), This.Unicode() ) to get the result.
 
+		#< @FunctionMisspelledForm
+
+		def IsSeperator()
+			return This.IsSeparator()
+
+		#>
+
 
 	def IsOneOfThese(pacChars)
 		/* Could be solved expressively like this:
@@ -1402,8 +1445,19 @@ class stzChar from stzObject
 			return 0
 		ok
 
+		#-- @Misspelled
+
+		def IsSentenceSeperator()
+			return This.IsSentenceSeparator()
+
 	def IsLineSeparator()
 		return This.Content() = NL
+
+		#-- @Misspelled
+
+		def IsLineSeperator()
+			return This.IsLineSeparator()
+
 
 	def IsMirrored() // Like "{", "}", "[", "]", etc.
 		// TODO: implement it by analyzing the output of This.Caregory()
@@ -1624,6 +1678,11 @@ class stzChar from stzObject
 		else
 			return 0
 		ok
+
+		#-- @Misspelled
+
+		def IsLocaleSeperator()
+			return This.IsLocaleSeparator()
 
 	  #--------------------------------#
 	 #   VISIBLE AND INVISIBLE CHAR   #
@@ -3196,6 +3255,23 @@ class stzChar from stzObject
 
 		#>
 
+		#< @FunctionMisspelledForm
+
+		def ToHexSeperated(pcSep)
+			return This.ToHexSeparated(pcSep)
+
+		def ToHexSeperatedBy(pcSep)
+			return This.ToHexSeparatedBy(pcSep)
+
+		def ToHexSeperatedWith(pcSep)
+			return This.ToHexSeparatedWith(pcSep)
+
+		def ToHexSeperatedUsing(pcSep)
+			return This.ToHexSeparatedUsing(pcSep)
+
+		#>
+
+
 	def ToHexSpacified()
 		return This.ToHexSeparatedBy(" ")
 
@@ -3204,7 +3280,7 @@ class stzChar from stzObject
 	def ToHexWithoutPrefixSeparated(pcSep)
 		cResult = This.ToStzListOfBytes().ToHexWithoutPrefixSeparated(pcSep)
 
-		#< @FunctionAlternativeForm
+		#< @FunctionAlternativeForms
 
 		def ToHexWithoutPrefixSeparatedBy(pcSep)
 			if CheckingParams()
@@ -3232,6 +3308,22 @@ class stzChar from stzObject
 			ok
 
 			return This.ToHexWithoutPrefixSeparated(pcSep)
+
+		#>
+
+		#< @FunctionMisspelledForms
+
+		def ToHexWithoutPrefixSeperated(pcSep)
+			return This.ToHexWithoutPrefixSeparated(pcSep)
+
+		def ToHexWithoutPrefixSeperatedBy(pcSep)
+			return This.ToHexWithoutPrefixSeparatedBy(pcSep)
+
+		def ToHexWithoutPrefixSeperatedWith(pcSep)
+			return This.ToHexWithoutPrefixSeparatedBy(pcSep)
+
+		def ToHexWithoutPrefixSeperatedUsing(pcSep)
+			return This.ToHexWithoutPrefixSeparatedUsing(pcSep)
 
 		#>
 

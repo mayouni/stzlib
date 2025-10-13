@@ -1854,11 +1854,20 @@ _cMarquerChar = "#"
 	func SentenceSeparators()
 		return _acSentenceSeparators
 
+		func SentenceSeperators()
+			return _acSentenceSeparators
+	
 	func WordNonLetterChars()
 		return _acWordNonLetterChars
 
 	func WordBoundingChars()
 		return _acWordBoundingChars
+
+	#--
+
+	func WordSeperator()
+		return _acWordSeparators
+
 
 	# Dotless letters
 

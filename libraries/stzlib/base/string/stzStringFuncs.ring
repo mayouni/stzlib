@@ -1891,6 +1891,32 @@ func BoxifyRound(str)
 	func @BoxifiedRounded(str)
 		return BoxifyRound(str)
 
+	#--
+
+	func RoundBox(str)
+		return BoxifyRound(str)
+
+	func RoundedBox(str)
+		return BoxifyRound(str)
+
+	func RoundedBoxed(str)
+		return BoxifyRound(str)
+
+	func RoundBoxed(str)
+		return BoxifyRound(str)
+
+	func @RoundBox(str)
+		return BoxifyRound(str)
+
+	func @RoundedBox(str)
+		return BoxifyRound(str)
+
+	func @RoundedBoxed(str)
+		return BoxifyRound(str)
+
+	func @RoundBoxed(str)
+		return BoxifyRound(str)
+	
 	#>
 
 func BoxifyDash(str)

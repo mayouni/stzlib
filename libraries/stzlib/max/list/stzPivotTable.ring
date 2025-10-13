@@ -168,6 +168,11 @@ class stzPivotTable from stzList
 		@cRowLabelsSeparator = pcSeparator
 		@bIsGenerated = FALSE
 
+		#-- @Misspelled
+
+		def SetRowLabelsSeperator(pcSeparator)
+			This.SetRowLabelsSeparator(pcSeparator)
+
 	def SetShowTotals(pbShowRow, pbShowCol)
 		# Configure visibility of total row and column
 		@bShowTotalRow = pbShowRow

@@ -43,8 +43,18 @@ _acSubStrNotAllowedInEndOfWord	= [ "_acSubStrNotAllowedInEndOfWord" ]
 func SentenceSeparator()
 	return _cSentenceSeparator
 
+	#-- @Misspelled
+
+	func SentenceSeperator()
+		return SentenceSeparator()
+
 func ParagraphSeparator()
 	return _cParagraphSeparator
+
+	#-- @Misspelled
+
+	func ParagraphSeperator()
+		return ParagraphSeparator()
 
 func DefaultLanguage()
 	return _cDefaultLanguage

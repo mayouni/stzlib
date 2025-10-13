@@ -478,9 +478,18 @@ func MoneyNumberPrefix()
 func DefaultFractionalSeparator()
 	return _cNumberFractionalSeparator
 
-	def DefaultDecimalSeparator()
+	func DefaultDecimalSeparator()
 		return This.DefaultFractionalSeparator()
 	
+	#-- @Misspelled
+
+	func DefaultFractionalSeperator()
+		return DefaultFractionalSeparator()
+
+	func DefaultDecimalSeperator()
+		return This.DefaultFractionalSeparator()
+
+
 func StringRepresentsInteger(cNumber)
 	oStr = new stzString(cNumber)
 	return oStr.RepresentsInteger()

@@ -679,6 +679,23 @@ class stzListOfBytes from stzList
 
 		#>
 
+		#< @FunctionMisspelledForms
+
+		def ToHexSeperated(pcSep)
+			return This.ToHexSeparated(pcSep)
+
+		def ToHexSeperatedBy(pcSep)
+			return This.ToHexSeparatedBy(pcSep)
+
+		def ToHexSeperatedWith(pcSep)
+			return This.ToHexSeparatedWith(pcSep)
+
+		def ToHexSeperatedUsing(pcSep)
+			return This.ToHexSeparatedUsing(pcSep)
+
+		#>
+
+
 	def ToHexSpacified()
 		return This.ToHexSeparatedBy(" ")
 
@@ -739,6 +756,20 @@ class stzListOfBytes from stzList
 			return This.ToHexWithoutPrefixSeparated(pcSep)
 
 		#>
+
+		#< @FunctionMisspelledForms
+
+		def ToHexWithoutPrefixSeperatedBy(pcSep)
+			return This.ToHexWithoutPrefixSeparatedBy(pcSep)
+
+		def ToHexWithoutPrefixSeperatedWith(pcSep)
+			return This.ToHexWithoutPrefixSeparatedWith(pcSep)(pcSep)
+
+		def ToHexWithoutPrefixSeperatedUsing(pcSep)
+			return This.ToHexWithoutPrefixSeparatedUsing(pcSep)
+
+		#>
+
 
 	def ToHexWithoutPrefixSpacified()
 		return This.ToHexWithoutPrefixSeparatedBy(" ")

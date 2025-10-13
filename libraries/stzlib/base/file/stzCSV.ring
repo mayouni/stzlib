@@ -1,20 +1,29 @@
 # A small CSV class ~Softanza library
 
-_cCSVSep = ";"
+$cCSVSep = ";"
 
 # Functions for setting and reading the default separator
 
 func CSVSeparator()
-	return _cCSVSep
+	return $cCSVSep
 
 	func CSVSep()
-		return _cCSVSep
+		return $cCSVSep
 
 	func DefaultCSVSeparator()
-		return _cCSVSep
+		return $cCSVSep
 
 	func DefaultCSVSep()
-		return _cCSVSep
+
+		return $cCSVSep
+
+	#-- @FunctionMisspelledForm
+
+	func CSVSeperator()
+		return $cCSVSep
+
+	func DefaultCSVSeperator()
+		return $cCSVSep
 
 func SetCSVSeparator(cSep)
 
@@ -24,10 +33,15 @@ func SetCSVSeparator(cSep)
 		ok
 	ok
 
-	_cCSVSep = cSep
+	$cCSVSep = cSep
 
 	func SetCSVSep(cSep)
 		This.SetCSVSeparator(cSep)
+
+	#-- @Misspelled
+
+	func SetCSVSeperator(cSep)
+		return func SetCSVSeparator(cSep)
 
 # Functions for transformin a list to cCSV
 

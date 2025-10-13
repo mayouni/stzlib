@@ -1283,7 +1283,7 @@ pf()
 /*----------------------------------------#
 #  Test 30: IsToday method                #
 #-----------------------------------------#
-*/
+
 pr()
 
 # Create calendar for current month
@@ -1308,7 +1308,7 @@ pf()
 /*----------------------------------------#
 #  Test 31: ToJSON and ToCSV export       #
 #-----------------------------------------#
-
+*/
 pr()
 
 oCal = new stzCalendar([2024, 10])
@@ -1320,15 +1320,15 @@ oCal {
     
     # Test JSON export
     cJSON = ToJSON()
-    ? "JSON Export (first 100 chars): "
-    ? substr(cJSON, 1, 100)
+    ? RoundBox("JSON Export (first 100 chars)")
+    ? @substr(cJSON, 1, 100)
     
     ? nl
     
     # Test CSV export
     cCSV = ToCSV()
-    ? "CSV Export (first 200 chars): "
-    ? substr(cCSV, 1, 200)
+    ? RoundBox("CSV Export (first 200 chars)")
+    ? @substr(cCSV, 1, 200)
 }
 
 pf()
@@ -1337,7 +1337,7 @@ pf()
 /*----------------------------------------#
 #  Test 32: Display variants              #
 #-----------------------------------------#
-
+*/
 pr()
 
 oCal = new stzCalendar([2024, 10])
