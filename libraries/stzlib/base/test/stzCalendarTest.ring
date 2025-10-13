@@ -819,7 +819,7 @@ pf()
 # Executed in 0.09 second(s) in Ring 1.24
 
 /*----------------------------------------#
-#  Test 16: Quarter initialization        #
+#  Quarter initialization                 #
 #-----------------------------------------#
 
 pr()
@@ -887,7 +887,7 @@ pf()
 # Executed in 0.03 second(s) in Ring 1.24
 
 /*----------------------------------------#
-#  Test 17: Year-month string init        #
+#  Year-month string init                 #
 #-----------------------------------------#
 
 pr()
@@ -912,7 +912,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*----------------------------------------#
-#  Test 18: Single date initialization    #
+#  Single date initialization             #
 #-----------------------------------------#
 
 pr()
@@ -937,7 +937,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*----------------------------------------#
-#  Test 19: Year-only initialization      #
+#  Year-only initialization               #
 #-----------------------------------------#
 
 pr()
@@ -962,7 +962,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*----------------------------------------#
-#  Test 20: List initialization variants  #
+#  List initialization variants           #
 #-----------------------------------------#
 
 pr()
@@ -1005,7 +1005,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*----------------------------------------#
-#  Test 21: Content method               #
+#  Content method                         #
 #-----------------------------------------#
 
 pr()
@@ -1040,7 +1040,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*----------------------------------------#
-#  Test 22: FirstDayOfWeek/LastDayOfWeek #
+#  FirstDayOfWeek/LastDayOfWeek           #
 #-----------------------------------------#
 
 pr()
@@ -1060,9 +1060,9 @@ oCal {
 pf()
 # Executed in 0.03 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 23: Working days list             #
-#-----------------------------------------#
+/*-------------------------------#
+#  Working days list             #
+#--------------------------------#
 
 pr()
 
@@ -1086,9 +1086,9 @@ oCal {
 pf()
 # Executed in 0.10 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 24: Weekends list                 #
-#-----------------------------------------#
+/*-------------------------------#
+#  Weekends list                 #
+#--------------------------------#
 
 pr()
 
@@ -1115,9 +1115,9 @@ oCal {
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 25: Available days list           #
-#-----------------------------------------#
+/*-------------------------------#
+#  Available days list           #
+#--------------------------------#
 
 pr()
 
@@ -1173,9 +1173,9 @@ oCal {
 pf()
 # Executed in 0.28 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 26: Consecutive working days      #
-#-----------------------------------------#
+/*-------------------------------#
+#  Consecutive working days      #
+#--------------------------------#
 
 pr()
 
@@ -1200,9 +1200,9 @@ oCal {
 pf()
 # Executed in 0.06 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 27: FreeDays                      #
-#-----------------------------------------#
+/*-------------------------------#
+#  FreeDays                      #
+#--------------------------------#
 
 pr()
 
@@ -1226,9 +1226,9 @@ oCal {
 pf()
 # Executed in 0.09 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 28: TotalWeeks and ContainsWeeks  #
-#-----------------------------------------#
+/*-------------------------------#
+#  TotalWeeks and ContainsWeeks  #
+#--------------------------------#
 
 pr()
 
@@ -1251,9 +1251,9 @@ oCal {
 pf()
 # Executed in 0.02 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 29: AvailableWeeks and Minutes    #
-#-----------------------------------------#
+/*-------------------------------#
+#  AvailableWeeks and Minutes    #
+#--------------------------------#
 
 pr()
 
@@ -1280,9 +1280,9 @@ oCal {
 pf()
 # Executed in 0.31 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 30: IsToday method                #
-#-----------------------------------------#
+/*-------------------------------#
+#  IsToday method                #
+#--------------------------------#
 
 pr()
 
@@ -1305,10 +1305,10 @@ oTodayCal = new stzCalendar(Today())
 pf()
 # Executed in 0.03 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 31: ToJSON and ToCSV export       #
-#-----------------------------------------#
-*/
+/*-------------------------------#
+#  ToJSON and ToCSV export       #
+#--------------------------------#
+
 pr()
 
 oCal = new stzCalendar([2024, 10])
@@ -1321,23 +1321,48 @@ oCal {
     # Test JSON export
     cJSON = ToJSON()
     ? RoundBox("JSON Export (first 100 chars)")
-    ? @substr(cJSON, 1, 100)
-    
-    ? nl
+    ? @substr(cJSON, 1, 100) + NL
     
     # Test CSV export
-    cCSV = ToCSV()
+    cCSV = ToCSV() # Or ToCSVXT(";") if you want to specify a separator
     ? RoundBox("CSV Export (first 200 chars)")
     ? @substr(cCSV, 1, 200)
 }
+#--> #TODO Check the correctness of JSON string
+#--> #TODO Check why Quarter is null in CSV string
+'
+╭───────────────────────────────╮
+│ JSON Export (first 100 chars) │
+╰───────────────────────────────╯
+[][],
+"businessstart": "09:00:00",
+"businessend": "17:00:00"
+}
+
+╭──────────────────────────────╮
+│ CSV Export (first 200 chars) │
+╰──────────────────────────────╯
+Metric,Value
+Start Date;2024-10-01
+End Date;2024-10-31
+Year;2024
+Month;10
+Quarter;
+Total Days;31
+Working Days;23
+Available Hours;184
+Business Start;09:00:00
+Business End;17:00:00
+Holiday;2024-10-05;Ho
+'
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in almost 0.27 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 32: Display variants              #
-#-----------------------------------------#
-*/
+/*-------------------------------#
+#  Display variants              #
+#--------------------------------#
+
 pr()
 
 oCal = new stzCalendar([2024, 10])
@@ -1346,19 +1371,74 @@ oCal {
     SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
     AddHoliday("2024-10-05", "Holiday")
     
-    ? "===== Short Display ====="
+    ? BoxRound("Short Display")
     ShowShort()
     
-    ? nl + "===== Default Display ====="
+    ? nl + BoxRound("Default Display")
     Show()
 }
+#-->
+'
+╭───────────────╮
+│ Short Display │
+╰───────────────╯
+                October 2024
+╭─────────────────────────────────────────╮
+│ Mon   Tue   Wed   Thu   Fri   Sat   Sun │
+├─────────────────────────────────────────┤
+│        1     2     3     4    [5]   ░░  │
+│  7     8     9     10    11   ░░    ░░  │
+│  14    15    16    17    18   ░░    ░░  │
+│  21    22    23    24    25   ░░    ░░  │
+│  28    29    30    31                   │
+╰─────────────────────────────────────────╯
+
+Legend:
+  [D] = Holiday
+  ░ = Weekend
+
+╭─────────────────╮
+│ Default Display │
+╰─────────────────╯
+                October 2024
+╭─────────────────────────────────────────╮
+│ Mon   Tue   Wed   Thu   Fri   Sat   Sun │
+├─────────────────────────────────────────┤
+│        1     2     3     4    [5]   ░░  │
+│  7     8     9     10    11   ░░    ░░  │
+│  14    15    16    17    18   ░░    ░░  │
+│  21    22    23    24    25   ░░    ░░  │
+│  28    29    30    31                   │
+╰─────────────────────────────────────────╯
+
+Legend:
+  [D] = Holiday
+  ░ = Weekend
+
+╭───────────────────────┬─────────────────────╮
+│        Metric         │        Value        │
+├───────────────────────┼─────────────────────┤
+│ Total Days            │                  31 │
+│ Working Days          │                  23 │
+│ Weekend Days          │                   7 │
+│ Holidays              │                   1 │
+│ Total Available Hours │                 184 │
+│ Average Hours Per Day │                   8 │
+│ First Working Day     │ 2024-10-01          │
+│ Last Working Day      │ 2024-10-31          │
+│ Business Hours        │ 09:00:00 - 17:00:00 │
+│ Holidays Listed       │ Holiday             │
+╰───────────────────────┴─────────────────────╯
+
+Executed in 0.83 second(s) in Ring 1.24
+'
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.83 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 33: DateInfo variations           #
-#-----------------------------------------#
+/*-------------------------------#
+#  DateInfo variations           #
+#--------------------------------#
 
 pr()
 
@@ -1380,13 +1460,39 @@ oCal {
     ? nl + "Weekend Info:"
     ? @@NL(DateInfo("2024-10-06"))
 }
+#-->
+'
+Working Day Info:
+[
+	[ "date", "2024-10-03" ],
+	[ "isWorkingDay", 1 ],
+	[ "isHoliday", 0 ],
+	[ "availableHours", 7 ]
+]
+
+Holiday Info:
+[
+	[ "date", "2024-10-05" ],
+	[ "isWorkingDay", 0 ],
+	[ "isHoliday", 1 ],
+	[ "availableHours", 0 ]
+]
+
+Weekend Info:
+[
+	[ "date", "2024-10-06" ],
+	[ "isWorkingDay", 0 ],
+	[ "isHoliday", 0 ],
+	[ "availableHours", 0 ]
+]
+'
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 34: Year navigation methods       #
-#-----------------------------------------#
+/*-------------------------------#
+#  Year navigation methods       #
+#--------------------------------#
 
 pr()
 
@@ -1419,9 +1525,9 @@ oCal {
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 35: Month navigation methods      #
-#-----------------------------------------#
+/*-------------------------------#
+#  Month navigation methods      #
+#--------------------------------#
 
 pr()
 
@@ -1452,11 +1558,11 @@ oCal {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 36: Alias methods verification    #
-#-----------------------------------------#
+/*-------------------------------#
+#  Alias methods verification    #
+#--------------------------------#
 
 pr()
 
@@ -1489,11 +1595,11 @@ oCal {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.43 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 37: Legend method                 #
-#-----------------------------------------#
+/*-------------------------------#
+#  Legend method                 #
+#--------------------------------#
 
 pr()
 
@@ -1507,18 +1613,22 @@ oCal {
     
     ? "Legend entries:"
     ? @@NL(aLegend)
-    
+    #--> [
+    # 	[ "holiday", "[D]" ],
+    # 	[ "weekend", "░" ]
+    # ]
+
     oLegendQ = LegendQ()
     ? nl + "LegendQ returns stzList: " + ring_classname(oLegendQ)
     #--> LegendQ returns stzList: stzlist
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.19 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 38: SetVizWidth and SetVizHeight  #
-#-----------------------------------------#
+/*-------------------------------#
+#  SetVizWidth and SetVizHeight  #
+#--------------------------------#
 
 pr()
 
@@ -1544,9 +1654,9 @@ oCal {
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 39: Stats method                  #
-#-----------------------------------------#
+/*-------------------------------#
+#  Stats method                  #
+#--------------------------------#
 
 pr()
 
@@ -1558,16 +1668,33 @@ oCal {
     AddBreak("12:00:00", "13:00:00", "Lunch")
     AddHoliday("2024-10-05", "Holiday")
     
-    ? "===== Statistics ====="
+    ? BoxRound("Statistics")
     ? @@NL(Stats())
 }
+#-->
+'
+╭────────────╮
+│ Statistics │
+╰────────────╯
+[
+	[ "metric", "value" ],
+	[ "Total Days", 31 ],
+	[ "Working Days", 23 ],
+	[ "Weekend Days", 7 ],
+	[ "Holidays", 1 ],
+	[ "Total Available Hours", 161 ],
+	[ "Average Hours Per Day", 7 ],
+	[ "First Working Day", "2024-10-01" ],
+	[ "Last Working Day", "2024-10-31" ]
+]
+'
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.32 second(s) in Ring 1.24
 
-/*----------------------------------------#
-#  Test 40: DetailedTable methods         #
-#-----------------------------------------#
+/*-------------------------------#
+#  DetailedTable methods         #
+#--------------------------------#
 
 pr()
 
@@ -1590,6 +1717,48 @@ oCal {
     ? nl + "===== Using DetailedTableQ ====="
     DetailedTableQ().Show()
 }
+#-->
+'
+Detailed Table Row Count: 32
+First row: [ "Date", "Day", "Business", "Breaks", "Available" ]
+Second row: [ "2024-10-01", "Tuesday", "09:00:00-17:00:00", "12:00:00-13:00:00", "7h" ]
+
+╭────────────┬───────────┬───────────────────┬───────────────────┬───────────╮
+│    Date    │    Day    │     Business      │      Breaks       │ Available │
+├────────────┼───────────┼───────────────────┼───────────────────┼───────────┤
+│ 2024-10-01 │ Tuesday   │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-02 │ Wednesday │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-03 │ Thursday  │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-04 │ Friday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-05 │ Saturday  │ HOLIDAY           │                   │ 0h        │
+│ 2024-10-06 │ Sunday    │ WEEKEND           │                   │ 0h        │
+│ 2024-10-07 │ Monday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-08 │ Tuesday   │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-09 │ Wednesday │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-10 │ Thursday  │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-11 │ Friday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-12 │ Saturday  │ WEEKEND           │                   │ 0h        │
+│ 2024-10-13 │ Sunday    │ WEEKEND           │                   │ 0h        │
+│ 2024-10-14 │ Monday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-15 │ Tuesday   │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-16 │ Wednesday │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-17 │ Thursday  │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-18 │ Friday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-19 │ Saturday  │ WEEKEND           │                   │ 0h        │
+│ 2024-10-20 │ Sunday    │ WEEKEND           │                   │ 0h        │
+│ 2024-10-21 │ Monday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-22 │ Tuesday   │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-23 │ Wednesday │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-24 │ Thursday  │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-25 │ Friday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-26 │ Saturday  │ WEEKEND           │                   │ 0h        │
+│ 2024-10-27 │ Sunday    │ WEEKEND           │                   │ 0h        │
+│ 2024-10-28 │ Monday    │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-29 │ Tuesday   │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-30 │ Wednesday │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+│ 2024-10-31 │ Thursday  │ 09:00:00-17:00:00 │ 12:00:00-13:00:00 │ 7h        │
+╰────────────┴───────────┴───────────────────┴───────────────────┴───────────╯
+'
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.58 second(s) in Ring 1.24

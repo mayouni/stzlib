@@ -1873,15 +1873,15 @@ def ToCSVXT(cSep)
 	cCSV = "Metric,Value" + nl
 	
 	cCSV += "Start Date" + cSep + @cStartDate + nl
-	cCSV += "End Date" + cSep +  + @cEndDate + nl
-	cCSV += "Year" + cSep +  + @nYear + nl
-	cCSV += "Month" + cSep +  + @nMonth + nl
-	cCSV += "Quarter" + cSep +  + @cQuarter + nl
-	cCSV += "Total Days" + cSep +  + This.TotalDays() + nl
-	cCSV += "Working Days" + cSep +  + This.AvailableDaysN() + nl
-	cCSV += "Available Hours" + cSep +  + This.AvailableHoursN() + nl
-	cCSV += "Business Start" + cSep +  + @cBusinessStart + nl
-	cCSV += "Business End" + cSep +  + @cBusinessEnd + nl
+	cCSV += "End Date" + cSep + @cEndDate + nl
+	cCSV += "Year" + cSep + @nYear + nl
+	cCSV += "Month" + cSep + @nMonth + nl
+	cCSV += "Quarter" + cSep + @cQuarter + nl
+	cCSV += "Total Days" + cSep + This.TotalDays() + nl
+	cCSV += "Working Days" + cSep + This.AvailableDaysN() + nl
+	cCSV += "Available Hours" + cSep + This.AvailableHoursN() + nl
+	cCSV += "Business Start" + cSep + @cBusinessStart + nl
+	cCSV += "Business End" + cSep + @cBusinessEnd + nl
 	
 	nLen = len(@aHolidays)
 	for i = 1 to nLen
