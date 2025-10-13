@@ -36,12 +36,12 @@ func SetCSVSeparator(cSep)
 	$cCSVSep = cSep
 
 	func SetCSVSep(cSep)
-		This.SetCSVSeparator(cSep)
+		SetCSVSeparator(cSep)
 
 	#-- @Misspelled
 
 	func SetCSVSeperator(cSep)
-		return func SetCSVSeparator(cSep)
+		return SetCSVSeparator(cSep)
 
 # Functions for transformin a list to cCSV
 

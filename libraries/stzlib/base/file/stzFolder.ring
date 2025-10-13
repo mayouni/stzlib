@@ -215,7 +215,7 @@ class stzFolder from stzObject
 		#-- @Misspelled
 
 		def Seperator()
-			return This.Seprator()*
+			return This.Seprator()
 
 	def SystemSeparator()
 		return Char(@oQDir.separator().unicode())
