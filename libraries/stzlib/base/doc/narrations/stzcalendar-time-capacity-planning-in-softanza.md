@@ -1,6 +1,79 @@
 # Time Capacity Planning in Softanza: Mastering Constraints with `stzCalendar`
 
-Traditional scheduling tools force manual tracking of holidays, breaks, and business hours. Softanza's `stzCalendar` changes that by embedding constraints as first-class features, letting you reason about *usable time* declaratively. Define constraints once, query unlimited scenarios instantly. This article walks through real examples from the test suite, building a mental model of how time compounds through layers of constraints.
+Most scheduling tools think of time as a **grid**—a calendar full of cells you fill with events.\
+`stzCalendar` starts from a different intuition: **time is a limited capacity**, shaped by constraints you define, into which events can be plugged using `stzTimeLine`—the class responsible for managing events and spans of time within the calendar context. Meanwhile, the calendar retains its native role as the **constraint engine**, forcing events to face their real destiny: to find an available time to occur, or to acknowledge that none exists.
+
+Rather than _manually calculating_ what remains after weekends, holidays, or breaks, you _declare the rules_ and let the system compute real, usable time for you. This creates **transparent, auditable planning**, not guesswork, while setting the stage for a paradigm that treats time as a composable, constraint-driven resource.
+
+---
+
+## A Paradigm Shift: From Events to Constraint Composition
+
+In `stzCalendar`, your available time is built step by step, as if stacking transparent filters on top of one another:
+
+```
+constraint input → filter/reduce → output → next layer input
+```
+
+Each layer refines the available capacity from the previous one—automatically and consistently.
+
+1. **Boundary** – Define your calendar’s scope (no leaks beyond it).
+2. **Filter** – Remove non-working days like weekends and holidays.
+3. **Quantify** – Translate days into hours using your business schedule.
+4. **Subtract** – Exclude breaks, meetings, or maintenance windows.
+5. **Query** – Inspect any layer; trace the logic behind each result.
+
+This isn’t theoretical. It’s a **mental model** that makes time reasoning *composable*—each constraint adds meaning, not confusion.
+
+Here’s what it looks like in practice:
+
+```
+╭──────────────────────────────────────────────────────────────────────╮
+│ CALENDAR BOUNDARY: [2024-10-01 to 2024-10-31] = 31 days                  
+│                                                                           
+│ ╭────────────────────────────────────────────────────────────────╮  
+│ │ LAYER 2: WORKING DAYS FILTER (Mon-Fri)                                
+│ │ Input: 31 days → Output: 23 days (weekends: 8 removed)               
+│ │                                                                      
+│ │ ╭─────────────────────────────────────────────────────────────╮ 
+│ │ │ LAYER 3: HOLIDAYS FILTER (Oct 5 = Independence Day)                
+│ │ │ Input: 23 days → Output: 23 days (Oct 5 is already weekend)      
+│ │ │                                                             
+│ │ │ ╭─────────────────────────────────────────────────────────╮
+│ │ │ │ LAYER 4: BUSINESS HOURS (09:00-17:00 = 8h/day)          
+│ │ │ │ Input: 23 days × 8h → Output: 184 hours                 
+│ │ │ │                                                           
+│ │ │ │ ╭────────────────────────────────────────────────────╮ 
+│ │ │ │ │ LAYER 5: BREAKS (Lunch 12:00-13:00 = -1h/day)          
+│ │ │ │ │ Input: 184 hours → Output: 161 hours                 
+│ │ │ │ │ (23 days × 7 hours/day after lunch)                  
+│ │ │ │ │                                                         
+│ │ │ │ │ ╭────────────────────────────────────────────────╮ 
+│ │ │ │ │ │ LAYER 6: CUSTOM CONSTRAINTS
+│ │ │ │ │ │ (Maintenance: Wed 14:00-16:00 = -2h/day)
+│ │ │ │ │ │ Wednesdays: 7h - 2h = 5h usable
+│ │ │ │ │ │ Other days: 7h (unchanged)
+│ │ │ │ │ │
+│ │ │ │ │ │ ╭───────────────────────────────────────────╮
+│ │ │ │ │ │ │ FINAL CAPACITY
+│ │ │ │ │ │ │ Total: 161h (with maintenance accounted for)
+│ │ │ │ │ │ │ Per day: 5-7h (depending on day of week)
+│ │ │ │ │ │ │ Auditable: Every number traced to constraints
+│ │ │ │ │ │ ╰───────────────────────────────────────────╯
+│ │ │ │ │ ╰────────────────────────────────────────────────╯
+│ │ │ │ ╰────────────────────────────────────────────────────╯
+│ │ │ ╰────────────────────────────────────────────────────────╯
+│ │ ╰────────────────────────────────────────────────────────────╯
+│ ╰────────────────────────────────────────────────────────────────╯
+│                                                                
+╰─────────────────────────────────────────────────────────────────────╯
+```
+
+**Key insight:**
+Change anything—a holiday, a break, or a working rule—and your total capacity instantly recalculates. The model guarantees full traceability: you can justify every number in your plan.
+
+So let’s see this idea in action.
+In the next section, we’ll build this same logic in code and watch how each layer interacts, starting with the simplest boundary definition.
 
 ---
 
@@ -76,7 +149,8 @@ oCal {
 ```
 
 With 8-hour days (9-17) minus 1-hour lunch breaks:
-- 23 working days × 7 hours/day = **161 total available hours**
+
+* 23 working days × 7 hours/day = **161 total available hours**
 
 Each working day yields 7 usable hours. This compounds through layers: start with 31 calendar days → filter to 23 working → multiply by 7 hours per day = 161.
 
@@ -428,9 +502,10 @@ Softanza prioritizes methods that read like English, with consistent naming conv
 **Pattern: Base, Count, Existence**
 
 For collections (days, holidays, breaks):
-- Base method (e.g., `WorkingDays()`) returns a **list**
-- Suffixed variant (e.g., `WorkingDaysN()`) returns the **count**
-- Prefixed variant (e.g., `ContainsWorkingDays()` or alias `HasWorkingDays()`) returns a **boolean**
+
+* Base method (e.g., `WorkingDays()`) returns a **list**
+* Suffixed variant (e.g., `WorkingDaysN()`) returns the **count**
+* Prefixed variant (e.g., `ContainsWorkingDays()` or alias `HasWorkingDays()`) returns a **boolean**
 
 ```ring
 oCal {
@@ -442,13 +517,13 @@ oCal {
 
 This is **consistent** across the API:
 
-| Collection | List | Count | Boolean |
-|-----------|------|-------|---------|
-| Working Days | `WorkingDays()` | `WorkingDaysN()` | `ContainsWorkingDays()` |
-| Holidays | `Holidays()` | `HolidaysN()` | `ContainsHolidays()` |
-| Breaks | `Breaks()` | `BreaksN()` | `ContainsBreaks()` |
-| Available Days | `AvailableDays()` | `AvailableDaysN()` | `ContainsAvailableDays()` |
-| Weekends | `Weekends()` | `WeekendsN()` | `ContainsWeekends()` / `HasWeekends()` |
+| Collection     | List              | Count              | Boolean                                |
+| -------------- | ----------------- | ------------------ | -------------------------------------- |
+| Working Days   | `WorkingDays()`   | `WorkingDaysN()`   | `ContainsWorkingDays()`                |
+| Holidays       | `Holidays()`      | `HolidaysN()`      | `ContainsHolidays()`                   |
+| Breaks         | `Breaks()`        | `BreaksN()`        | `ContainsBreaks()`                     |
+| Available Days | `AvailableDays()` | `AvailableDaysN()` | `ContainsAvailableDays()`              |
+| Weekends       | `Weekends()`      | `WeekendsN()`      | `ContainsWeekends()` / `HasWeekends()` |
 
 **Power of Consistency**: Your code reads naturally. No guessing whether a method returns a number or a list. If you see the N suffix, you know it's a count. If you see `Contains` or `Has`, you know it's a boolean check.
 
@@ -471,15 +546,15 @@ This is **consistent** across the API:
 
 **Key Differences**:
 
-- **Softanza**: Constraints are first-class, baked into every query. Capacity is computed on demand, not manually. Visualizations are integrated. Timeline conflicts are detected automatically.
-- **Python**: Powerful data manipulation, but requires glue code to tie calendar, holidays, and business hours together. `pandas` excels at analysis but has no capacity-planning primitives.
-- **JavaScript**: FullCalendar dominates UI-based scheduling. Luxon handles date math well. But reasoning about constraints is delegated to application code; no built-in capacity engine.
-- **Java/Joda-Time**: Low-level, precise, but verbose. You build calendars from primitives—no opinions, no shortcuts.
-- **Ruby**: ActiveSupport provides helpers, but capacity planning requires external gems or custom code.
+* **Softanza**: Constraints are first-class, baked into every query. Capacity is computed on demand, not manually. Visualizations are integrated. Timeline conflicts are detected automatically.
+* **Python**: Powerful data manipulation, but requires glue code to tie calendar, holidays, and business hours together. `pandas` excels at analysis but has no capacity-planning primitives.
+* **JavaScript**: FullCalendar dominates UI-based scheduling. Luxon handles date math well. But reasoning about constraints is delegated to application code; no built-in capacity engine.
+* **Java/Joda-Time**: Low-level, precise, but verbose. You build calendars from primitives—no opinions, no shortcuts.
+* **Ruby**: ActiveSupport provides helpers, but capacity planning requires external gems or custom code.
 
-**Verdict**: Softanza excels when you need to *reason* about time in code. Python and JS win at visualization and data analysis. Java and Ruby are sufficient for simple date handling but require assembly for planning.
+**The Paradigm Gap:**
 
----
+Softanza's key differentiator isn't features—it's *philosophy*. Other tools treat constraints as data to manage; Softanza treats them as a **composable reasoning engine**. When you add a holiday or break, everything recalculates because the constraints are wired into the model, not bolted on. Python, JS, Java, Ruby all require you to build that wiring yourself. This makes Softanza ideal for time-driven applications where capacity must be continuously queryable and justified.
 
 ## Conclusion
 
