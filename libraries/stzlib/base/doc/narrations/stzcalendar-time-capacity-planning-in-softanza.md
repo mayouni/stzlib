@@ -1,29 +1,32 @@
-# Time Capacity Planning in Softanza: Mastering Constraints with `stzCalendar`
+# Time Capacity Planning in Softanza: Mastering Constraints with stzCalendar
 
-Most scheduling tools think of time as a **grid**—a calendar full of cells you fill with events.\
-`stzCalendar` starts from a different intuition: **time is a limited capacity**, shaped by constraints you define, into which events can be plugged using `stzTimeLine`—the class responsible for managing events and spans of time within the calendar context. Meanwhile, the calendar retains its native role as the **constraint engine**, forcing events to face their real destiny: to find an available time to occur, or to acknowledge that none exists.
+Most scheduling tools treat time as a **grid**—a static calendar of slots you fill with events, often leading to manual guesswork and overlooked conflicts.
 
-Rather than _manually calculating_ what remains after weekends, holidays, or breaks, you _declare the rules_ and let the system compute real, usable time for you. This creates **transparent, auditable planning**, not guesswork, while setting the stage for a paradigm that treats time as a composable, constraint-driven resource.
+Softanza's stzCalendar rethinks this with a pragmatic intuition: **time as a finite, constraint-driven resource**, much like a computational budget. You declare rules—boundaries, working days, holidays, breaks—and the system computes realistic, usable capacity automatically. Events plug in via stzTimeLine, which handles timelines and spans, while stzCalendar acts as the **constraint engine**, ensuring events fit available slots or reveal impossibilities upfront.
+
+This declarative approach eliminates tedious calculations, fostering **transparent, auditable planning**. It elevates calendars from passive date trackers to active reasoning tools, aligning with Softanza's philosophy of intent-based, composable constructs that mirror natural thinking in code.
 
 ---
 
 ## A Paradigm Shift: From Events to Constraint Composition
 
-In `stzCalendar`, your available time is built step by step, as if stacking transparent filters on top of one another:
+In stzCalendar, available time emerges layer by layer, like stacking filters in a query pipeline:
+
+text
 
 ```
 constraint input → filter/reduce → output → next layer input
 ```
 
-Each layer refines the available capacity from the previous one—automatically and consistently.
+Each layer refines capacity from the prior one—declarative, automatic, and traceable.
 
-1. **Boundary** – Define your calendar’s scope (no leaks beyond it).
-2. **Filter** – Remove non-working days like weekends and holidays.
-3. **Quantify** – Translate days into hours using your business schedule.
-4. **Subtract** – Exclude breaks, meetings, or maintenance windows.
-5. **Query** – Inspect any layer; trace the logic behind each result.
+1. **Boundary** – Set your calendar's scope to prevent leaks.
+2. **Filter** – Exclude non-working days like weekends and holidays.
+3. **Quantify** – Convert days to hours based on business schedules.
+4. **Subtract** – Deduct breaks, meetings, or maintenance windows.
+5. **Query** – Probe any layer to trace the logic.
 
-This isn’t theoretical. It’s a **mental model** that makes time reasoning *composable*—each constraint adds meaning, not confusion.
+This isn't abstract; it's a practical mental model for composable time reasoning, where constraints build meaning without complexity.
 
 Here’s what it looks like in practice:
 
@@ -70,9 +73,8 @@ Here’s what it looks like in practice:
 ```
 
 **Key insight:**
-Change anything—a holiday, a break, or a working rule—and your total capacity instantly recalculates. The model guarantees full traceability: you can justify every number in your plan.
+**Key insight:** Alter any rule—a new holiday, adjusted break, or custom constraint—and capacity recalculates instantly. The model ensures full traceability, turning scheduling into a logical, feasibility-checked process rather than improvisation.
 
-So let’s see this idea in action.
 In the next section, we’ll build this same logic in code and watch how each layer interacts, starting with the simplest boundary definition.
 
 ---
@@ -558,4 +560,4 @@ Softanza's key differentiator isn't features—it's *philosophy*. Other tools tr
 
 ## Conclusion
 
-`stzCalendar` transforms time from an abstract liability into a concrete, queryable resource. Layers of constraints (boundaries → working days → holidays → business hours → breaks → custom rules) compound predictably, ensuring no hidden time is lost. Visualizations make patterns visible, comparisons reveal trade-offs, and exports feed reports. For Ring developers in capacity-constrained domains—Agile teams, ops, resource planning—it's the foundation for honest, auditable scheduling.
+stzCalendar reimagines time as a concrete, queryable asset rather than an abstract liability, much like Softanza's intent-based paradigms in file handling or data crafting. Its layered constraints (boundaries → working days → holidays → business hours → breaks → custom rules) compound predictably, surfacing usable capacity while detecting hidden losses. Visualizations highlight patterns, comparisons uncover trade-offs, and exports enable seamless integration.
