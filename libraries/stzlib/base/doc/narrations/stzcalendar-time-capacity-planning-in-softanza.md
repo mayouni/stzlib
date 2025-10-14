@@ -14,10 +14,21 @@ Time availability isn't binary—it's layered. Start with a month, peel away wee
 oCal = new stzCalendar([2024, 10])
 
 oCal {
-    ? Start()       #--> 2024-10-01
-    ? End_()        #--> 2024-10-31
-    ? TotalDays()   #--> 31
-    ? MonthName()   #--> October
+    ? Start()
+    #--> 2024-10-01
+    ? StartQ().DayName()
+    #--> Tuesday
+
+    ? End_()
+    #--> 2024-10-31
+    ? EndQ().DayName()
+    #--> Thursday
+
+    ? Year()
+    #--> 2024
+    
+    ? MonthName()
+    #--> October
 }
 ```
 
@@ -31,7 +42,7 @@ oCal.SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
 oCal {
     ? IsWorkingDay("2024-10-03")  #--> 1 (TRUE, Thursday)
     ? IsWorkingDay("2024-10-05")  #--> 0 (FALSE, Saturday)
-    ? len(WorkingDays())          #--> 23
+    ? HowManWorkingDays()         #--> 23
 }
 ```
 
@@ -46,7 +57,7 @@ oCal {
     
     ? IsHoliday("2024-10-05")     #--> 1 (TRUE)
     ? HolidayName("2024-10-05")   #--> Independence Day
-    ? len(Holidays())             #--> 2
+    ? HowManyHolidays()           #--> 2
 }
 ```
 
