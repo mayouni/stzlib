@@ -279,18 +279,18 @@ class stzCalendar from stzObject
 	def Start()
 		return @cStartDate
 	
-	def StartQ()
-		return @cStartDate  # String-first, so Q version also returns string
+		def StartQ()
+			return new stzDate(@cStartDate) 
 	
 	def End_()
 		return @cEndDate
 	
-	def EndQ()
-		return @cEndDate
+		def EndQ()
+			return new stzDate(@cEndDate)
 	
 	def Year()
 		return @nYear
-	
+
 	def MonthNumber()
 		return @nMonth
 	

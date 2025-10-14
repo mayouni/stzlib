@@ -4,18 +4,23 @@ load "../stzbase.ring"
 /*----------------------------------------#
 #  Test 1: Basic calendar creation        #
 #-----------------------------------------#
-
+*/
 pr()
 
 oCal = new stzCalendar([2024, 10])
 
 oCal {
+
     ? Start()
     #--> 2024-10-01
-    
+    ? StartQ().DayName()
+    #--> Tuesday
+
     ? End_()
     #--> 2024-10-31
-    
+    ? EndQ().DayName()
+
+
     ? Year()
     #--> 2024
     
@@ -296,7 +301,6 @@ Week 5:  ▓▓▓░░ (3/5 days available)
 Legend:
   ▓ = Available working day
   ░ = Weekend or holiday
-
 '
 
 pf()
