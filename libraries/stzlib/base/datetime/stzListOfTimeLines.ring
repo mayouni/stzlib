@@ -85,6 +85,7 @@ class stzListOfTimeLines from stzObject
 
 		// Initialize each lane as a stzTimeLine with global bounds
 		nLen = len(@aLanes)
+? @@([ @cGlobalStart, @cGlobalEnd ])
 		for i = 1 to nLen
 			oLaneTL = new stzTimeLine(@cGlobalStart, @cGlobalEnd)
 			@aTimeLines + oLaneTL

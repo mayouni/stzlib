@@ -93,12 +93,12 @@ func @dir(cPath) # Same as Ring dir() but in lowercase
 
 	return aResult
 
-def CreateIfInexistant(cPath)
+func CreateIfInexistant(cPath)
     # Check if it has an extension (likely a file)
     if substr(cPath, ".")
-        This.CreateFileIfInexistant(cPath)
+        CreateFileIfInexistant(cPath)
     else
-        This.CreateFolderIfInexistant(cPath)
+        CreateFolderIfInexistant(cPath)
     ok
 
 	func @CreateIfInexistant(cPath)

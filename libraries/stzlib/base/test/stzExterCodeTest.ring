@@ -711,7 +711,7 @@ pf()
 # Executed in 0.49 second(s) in Ring 1.23
 
 /*=== Graphic DataViz - Complex scatter plot with density
-
+*/
 pr()
 
 #WARNING Before you can run this sample, you must install 'ggplot2', 'plotly',
