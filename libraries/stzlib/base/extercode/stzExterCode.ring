@@ -31,7 +31,8 @@ class stzExterCode
             :ResultFile = "rresult.txt",
             :CustomPath = "D:/R/R-4.5.1/bin/Rscript.exe",  # Replace with your R path
             :TransFunc = $cRToRingTransFunc,
-            :Cleanup = 0
+            :Cleanup = 0,
+	    :ExtraArgs = ""
         ],
 
         :julia = [
@@ -84,7 +85,7 @@ class stzExterCode
 	    :CustomPath = "D:/nodejs/nodejs-22.20/node.exe",  # Replace with your Node.js path
 	    :TransFunc = $cJSToRingTransFunc,
 	    :Cleanup = 0
-	]
+	],
 
     ]
 
@@ -390,8 +391,8 @@ class stzExterCode
         stzraise("Unsupported language type for " + @cLanguage)
 
     def RecordExecution(cLog, nExitCode)
-	if NOT HasPath(@aLanguages, [@cLangage, :type])
-		StzRaise("Incorrect format! Can't access the path @aLanguages[@cLangage][:type].")
+	if NOT HasPath(@aLanguages, [@clanguage, :type])
+		StzRaise("Incorrect format! Can't access the path @aLanguages[@clanguage][:type].")
 	ok
 
         cMode = @aLanguages[@cLanguage][:type]
@@ -410,7 +411,7 @@ class stzExterCode
         ]
 
     def PrepareSourceCode()
-	if NOT HasPath(@aLanguages, [@cLangage, :TransFunc])
+	if NOT HasPath(@aLanguages, [@cLanguage, :TransFunc])
 		StzRaise("Incorrect format! Can't access the path @aLanguages[@cLanguage][:TransFunc].")
 	ok
 

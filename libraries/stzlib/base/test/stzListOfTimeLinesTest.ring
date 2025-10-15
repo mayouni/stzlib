@@ -5,7 +5,7 @@ load "../stzbase.ring"
 #-------------------------------------------#
 
 /*--- Creating timelines with lanes, start, and end boundaries
-
+*/
 pr()
 
 oTimeLines = new stzTimeLines([
@@ -38,7 +38,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Creating timelines with date-only inputs
-*/
+
 pr()
 
 o1 = new stzTimeLines([

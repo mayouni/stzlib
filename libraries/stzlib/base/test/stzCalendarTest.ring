@@ -1,10 +1,16 @@
 
 load "../stzbase.ring"
 
+pr()
+
+StzCalendarQ([1528, 10 ]).Show()
+
+pf()
+
 /*----------------------------------------#
 #  Test 1: Basic calendar creation        #
 #-----------------------------------------#
-*/
+*
 pr()
 
 oCal = new stzCalendar([2024, 10])
@@ -19,7 +25,7 @@ oCal {
     ? End_()
     #--> 2024-10-31
     ? EndQ().DayName()
-
+    #--> Thursday
 
     ? Year()
     #--> 2024
