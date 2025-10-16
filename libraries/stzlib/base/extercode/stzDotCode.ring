@@ -1,7 +1,10 @@
 
 
-func XDot()
+func StzDotCodeQ()
 	return new stzDotCode
+
+	func XDot()
+		return new stzDotCode()
 
 	func GraphvizQ()
 		return new stzDotCode()

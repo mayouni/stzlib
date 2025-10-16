@@ -1,58 +1,19 @@
 
-
-digraph CustomerOnboarding {
-    # Overall defaults
-    graph [
-        fontname="Verdana",
-        rankdir=LR,
-        splines=ortho,
-        nodesep=0.6,
-        ranksep=1.2,
-        label="Customer Onboarding BPMN"
-    ];
-
-    # Node defaults
-    node [
-        style=filled,
-        colorscheme=purples9,
-        penwidth=1.5
-    ];
-
-    # Edge defaults
-    edge [
-        arrowhead=normal,
-        penwidth=1.8
-    ];
-
-    # Nodes
-    StartEvent [shape=circle, label="Start", fillcolor=1, fontcolor=white];
-    Register [shape=rect, label="Register Account", fillcolor=3];
-    VerifyEmail [shape=rect, label="Verify Email", fillcolor=5];
-    Gateway [shape=diamond, label="Approved?", fillcolor=7, fontcolor=white];
-    Activate [shape=rect, label="Activate Profile", fillcolor=3];
-    Reject [shape=rect, label="Reject & Notify", fillcolor=9, fontcolor=white];
-    EndEvent [shape=doublecircle, label="End", fillcolor=1, fontcolor=white];
-
-    # Edges
-    StartEvent -> Register;
-    Register -> VerifyEmail;
-    VerifyEmail -> Gateway;
-    Gateway -> Activate [label="Yes"];
-    Gateway -> Reject [label="No", style=dashed];
-    Activate -> EndEvent;
-    Reject -> EndEvent;
-
-    # Clustered lanes
-    subgraph cluster_user {
-        label="User Lane";
-        style=filled;
-        fillcolor="#f3e5f5";
-        Register; Activate;
-    }
-    subgraph cluster_system {
-        label="System Lane";
-        style=filled;
-        fillcolor="#f3e5f5";
-        VerifyEmail; Gateway; Reject;
-    }
+digraph Workflow {
+    graph [rankdir=LR, splines=ortho]
+    node [shape=box, style="rounded,filled"]
+    
+    start [shape=circle, fillcolor=lightgreen, label="Start"]
+    input [fillcolor=lightblue, label="Input Data"]
+    process [fillcolor=lightyellow, label="Process"]
+    decision [shape=diamond, fillcolor=gold, label="Valid?"]
+    output [fillcolor=lightgreen, label="Output"]
+    error [fillcolor=lightcoral, label="Error"]
+    end [shape=circle, fillcolor=lightcoral, label="End"]
+    
+    start -> input -> process -> decision
+    decision -> output [label="Yes"]
+    decision -> error [label="No"]
+    output -> end
+    error -> end
 }
