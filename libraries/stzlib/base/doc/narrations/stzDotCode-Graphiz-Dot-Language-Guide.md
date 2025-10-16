@@ -534,6 +534,7 @@ digraph G {
 }
 ')
 ```
+![graph14.png](../images/graph14.png)
 
 ### 2. Use Consistent Styling
 
@@ -558,6 +559,7 @@ digraph G {
 }
 ')
 ```
+![graph15.png](../images/graph15.png)
 
 ### 3. Label Everything
 
