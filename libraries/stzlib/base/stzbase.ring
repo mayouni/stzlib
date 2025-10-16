@@ -190,7 +190,9 @@
 	load "extercode/stzRCode.ring"
 	load "extercode/stzJuliaCode.ring"
 	load "extercode/stzPrologCode.ring"
+
 	load "extercode/stzDotCode.ring"
+	load "extercode/stzDiagramBuilder.ring"
 
 # Loading files related to the NEtwORK module
 

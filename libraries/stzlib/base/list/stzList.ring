@@ -92630,6 +92630,50 @@ fdef
 		def IsOfOrOnNamedParam()
 			return This.IsOnOrOfNamedParam()
 
+	#--
+
+	def IsIDNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :ID )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsLabelNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Label )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsWithOrLabelNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and (This.Item(1) = :Label or This.Item(1) = :With) )
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IsLabelORWithNamedParam()
+			return This.IsWithOrLabelNamedParam()
+
+	def IsTypeNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Type )
+
+			return 1
+		else
+			return 0
+		ok
 
 #WARNING #TODO: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.
