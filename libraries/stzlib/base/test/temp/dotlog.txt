@@ -1,1 +1,0 @@
-Warning: Orthogonal edges do not currently handle edge labels. Try using xlabels.

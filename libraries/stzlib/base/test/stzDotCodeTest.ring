@@ -3,30 +3,23 @@
 #===========================================#
 load "../stzbase.ring"
 
-
-
 pr()
 
 dot = new stzDotCode()
 
 Dot.SetCode('
-digraph Workflow {
-    graph [rankdir=LR, splines=ortho]
-    node [shape=box, style="rounded,filled"]
+digraph G {
+    # All processes: blue boxes
+    node [shape=box, fillcolor=lightblue]
+    process1; process2; process3
     
-    start [shape=circle, fillcolor=lightgreen, label="Start"]
-    input [fillcolor=lightblue, label="Input Data"]
-    process [fillcolor=lightyellow, label="Process"]
-    decision [shape=diamond, fillcolor=gold, label="Valid?"]
-    output [fillcolor=lightgreen, label="Output"]
-    error [fillcolor=lightcoral, label="Error"]
-    end [shape=circle, fillcolor=lightcoral, label="End"]
+    # All decisions: gold diamonds
+    node [shape=diamond, fillcolor=gold]
+    decision1; decision2
     
-    start -> input -> process -> decision
-    decision -> output [label="Yes"]
-    decision -> error [label="No"]
-    output -> end
-    error -> end
+    # All endpoints: circles
+    node [shape=circle, fillcolor=green]
+    start; end
 }
 ')
 
