@@ -11,6 +11,8 @@
 $cDefaultNodeType = :Event
 $cDefaultTheme = :Light
 $cDefaultLayout = :TopDown
+$cDefaultOutputFolder = "output"
+@cDefaultOutputFile = "ouput.svg"
 
 # Color Palettes - data-driven, globally configurable
 $gDiagramPalettes = [

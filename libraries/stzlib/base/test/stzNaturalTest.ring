@@ -228,7 +228,7 @@ pf()
 # Executed in 0.04 second(s) in Ring 1.23
 
 /*--- PREPEND OPERATIONS
-*/
+
 pr()
 
 Naturally() {
@@ -498,7 +498,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- COMPLEX CHAINING
-*/
+=
 pr()
 
 Naturally() {

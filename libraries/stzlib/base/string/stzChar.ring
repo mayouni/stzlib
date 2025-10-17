@@ -504,6 +504,12 @@ func NumberOfChineseLetters()
 #TODO // add simular functions to all other languages
 
 func NthChar(n, str)
+	if isString(n) and isNumber(str)
+		temp = n
+		n = str
+		str = temp
+	ok
+
 	if CheckingParams()
 		if NOT ( isNumber(n) and isString(str) )
 			StzRaise("Incorrect param type! n must be a number and str must be a string.")
