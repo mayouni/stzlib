@@ -1,45 +1,24 @@
-digraph "Insurance Claims Workflow" {
+digraph "Order Processing" {
 	graph [
-		rankdir=TB
+		rankdir=LR
 		bgcolor="white"
 		fontname="Helvetica"
-		splines=ortho
-		nodesep=0.60
-		ranksep=0.80
+		splines=spline
+		nodesep=0.80
+		ranksep=1
 	]
 
 	node [fontname="Helvetica"]
 	edge [fontname="Helvetica"]
 
-	claim_filed [label=<>, shape=polygon, sides=3, orientation=180, penwidth=1.50, width=0.50, height=0.50, fixedsize=true, fillcolor="#003366", color="gray", fontcolor="white"]
-	claim_intake [label=<<font color="white">Claim Intake</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#003366", color="gray", fontcolor="white"]
-	assign_adjuster [label=<<font color="white">Assign Adjuster</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#2196F3", color="gray", fontcolor="white"]
-	field_inspection [label=<<font color="white">Field Inspection</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#2196F3", color="gray", fontcolor="white"]
-	documentation [label=<<font color="white">Gather Documentation</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#2196F3", color="gray", fontcolor="white"]
-	fraud_check [label=<<font color="black">Fraud Review</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#FF9800", color="gray", fontcolor="black"]
-	fraud_flag [label=<<font color="black">Fraud Detected?</font>>, shape=diamond, style="filled", penwidth=1.50, fillcolor="#FF9800", color="gray", fontcolor="black"]
-	estimate_damage [label=<<font color="white">Estimate Damage</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#2196F3", color="gray", fontcolor="white"]
-	estimate_ok [label=<<font color="black">Estimate Approved?</font>>, shape=diamond, style="filled", penwidth=1.50, fillcolor="#FF9800", color="gray", fontcolor="black"]
-	reserve_funds [label=<<font color="white">Reserve Funds</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#757575", color="gray", fontcolor="white"]
-	authorize_repair [label=<<font color="white">Authorize Repair/Payout</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#4CAF50", color="gray", fontcolor="white"]
-	payment_processed [label=<<font color="white">Process Payment</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#4CAF50", color="gray", fontcolor="white"]
-	claim_closed [label=<>, shape=doublecircle, penwidth=1.50, width=0.50, height=0.50, fixedsize=true, fillcolor="#4CAF50", color="gray", fontcolor="white"]
-	claim_denied [label=<>, shape=doublecircle, penwidth=1.50, width=0.50, height=0.50, fixedsize=true, fillcolor="#F44336", color="gray", fontcolor="white"]
-	investigation [label=<<font color="white">Fraud Investigation</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#F44336", color="gray", fontcolor="white"]
-	claim_filed -> claim_intake [color="gray"]
-	claim_intake -> assign_adjuster [color="gray"]
-	assign_adjuster -> field_inspection [color="gray"]
-	field_inspection -> documentation [color="gray"]
-	documentation -> fraud_check [color="gray"]
-	fraud_check -> fraud_flag:c [color="gray"]
-	fraud_flag:c -> estimate_damage [color="gray", label="No", labeldistance=2.0, labelangle=0]
-	fraud_flag:c -> investigation [color="gray", label="Yes", labeldistance=2.0, labelangle=0]
-	investigation -> claim_denied [color="gray"]
-	estimate_damage -> estimate_ok:c [color="gray"]
-	estimate_ok:c -> reserve_funds [color="gray", label="Yes", labeldistance=2.0, labelangle=0]
-	estimate_ok:c -> claim_denied [color="gray", label="No", labeldistance=2.0, labelangle=0]
-	reserve_funds -> authorize_repair [color="gray"]
-	authorize_repair -> payment_processed [color="gray"]
-	payment_processed -> claim_closed [color="gray"]
+	start [label=<>, shape=polygon, sides=3, orientation=270, penwidth=1.50, width=0.50, height=0.50, fixedsize=true, fillcolor="#43A047", color="gray", fontcolor="white"]
+	verify [label=<<font color="white">Verify Payment</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#0288D1", color="gray", fontcolor="white"]
+	decision [label=<<font color="white">Payment OK?</font>>, shape=diamond, style="filled", penwidth=1.50, fillcolor="#FB8C00", color="gray", fontcolor="white"]
+	ship [label=<<font color="white">Ship Order</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#0288D1", color="gray", fontcolor="white"]
+	end [label=<>, shape=doublecircle, penwidth=1.50, width=0.50, height=0.50, fixedsize=true, fillcolor="#43A047", color="gray", fontcolor="white"]
+	start -> verify [color="gray", label="Step 1", labeldistance=2.0, labelangle=0]
+	verify -> decision:c [color="gray", label="Check", labeldistance=2.0, labelangle=0]
+	decision:c -> ship [color="gray", label="Yes", labeldistance=2.0, labelangle=0]
+	ship -> end [color="gray", label="Complete", labeldistance=2.0, labelangle=0]
 
 }

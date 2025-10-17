@@ -27,8 +27,40 @@ func StzListQ(paList)
 
 #===
 
+func ListSection(aList, n1, n2)
+
+	if CheckParams()
+		if NOT isList(aList)
+			StzRaise("Incorrect param type! aList must be a list.")
+		ok
+		if NOT (isNumber(n1) and isNumber(n2))
+			StzRaise("Incorrect param types! n1 and n2 must be both numbers.")
+		ok
+	ok
+
+	# Early check
+
+	nLen = len(aList)
+	if nLen = 0
+		return []
+	ok
+
+	if n1 > n2
+		nTemp = n1
+		n1 = n2
+		n2 = nTemp
+	ok
+
+	aResult = []
+	for i = n1 to n2
+		aResult + aList[i]
+	next
+	return aResult
+
+#===
+
 #NOTE the next 3 fucntions are based on the implementation made for them
-# by Mahloud in the Ring StdLib. Here I rewrote them for better efficiency
+# by Mahكoud in the Ring StdLib. Here I rewrote them for better efficiency
 #TODO // We may need more performant C-based implementation for large data!
 
 # Executing a function on each list item

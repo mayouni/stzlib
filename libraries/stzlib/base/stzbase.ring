@@ -106,6 +106,11 @@
 	load "list/stzTable.ring"
 	load "list/stzListOfTables.ring"
 
+# Loading files related to the GRAPH module
+
+	load "graph/stzGraph.ring"
+	load "graph/stzDiagram.ring"
+
 # Loading files related to SYSTEM module
 
 	load "system/stzMemoryGlobals.ring"
