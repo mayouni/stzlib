@@ -2181,9 +2181,18 @@ func StringSection(str, n1, n2)
 	return cResult
 
 func stzleft(str, n)
+	if isList(str)
+		return ListSection(str, 1, n)
+	ok
+
 	return StringSection(str, 1, n)
 
 func stzRight(str, n)
+	if isList(str)
+		nLen = len(str)
+		return ListSection(str, nLen+1-n, n)
+	ok
+
 	oQStr = new QString2()
 	oQStr.append(str)
 	nLen = oQStr.size()

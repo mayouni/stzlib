@@ -11,13 +11,20 @@ load "../stzbase.ring"
 #-----------------#
 
 /*--- Simple process flow with theme and layout
-
+*/
 pr()
 
 oDiagBuilder = new stzDiagramBuilder("Order Processing")
 oDiagBuilder {
+
+	# Configuring Theme, layout and colors
+
 	SetTheme(:Vibrant)
 	SetLayout(:LeftRight)
+	SetEdgeColor(:Gray)
+	SetNodeStrokeColor(:Gray)
+
+	# Desiging the nodes
 
 	AddNodeXT(:ID = "start", :Label = "Start Order", :Type = :Start)
 	WithColor(:Success)
@@ -26,20 +33,23 @@ oDiagBuilder {
 	WithColor(:Primary)
 
 	AddNodeXT("decision", "Payment OK?", :Decision)
-	WithColor(:warning)
+	WithColor(:Warning)
 
 	AddNodeXT("ship", "Ship Order", :Process)
-	WithColor(:primary)
+	WithColor(:Primary)
 
 	AddNodeXT("end", "Order Complete", :Endpoint)
-	WithColor(:success)
+	WithColor(:Success)
+
+	# Connecting the nodes
 
 	ConnectXT("start", :To = "verify", :With = "Step 1")
 	ConnectXT("verify", :To = "decision", :With = "Check")
 	ConnectXT("decision", :To = "ship", :With = "Yes")
 	ConnectXT("ship", :To = "end", :With = "Complete")
 
-	Render("example1_basic_flow.svg")
+	# Rendering and display the diagram
+	Show()
 }
 
 pf()
