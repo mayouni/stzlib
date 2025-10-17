@@ -353,7 +353,7 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 
 		return nMax
 
-#------------------------------------------
+	#------------------------------------------
 	#  VISUALIZATION
 	#------------------------------------------
 
@@ -388,215 +388,230 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 			This.ShowHorizontal()
 		ok
 
-def ShowVertical()
-	aRoots = []
-	for oNode in @aNodes
-		if len(This.Incoming(oNode["id"])) = 0
-			aRoots + oNode["id"]
+	def ShowVertical()
+		aRoots = []
+		nNodeCount = len(@aNodes)
+		for i = 1 to nNodeCount
+			oNode = @aNodes[i]
+			if len(This.Incoming(oNode["id"])) = 0
+				aRoots + oNode["id"]
+			ok
+		end
+		
+		if len(aRoots) = 0
+			aRoots + @aNodes[1]["id"]
 		ok
-	end
-	
-	if len(aRoots) = 0
-		aRoots + @aNodes[1]["id"]
-	ok
-	
-	for cRoot in aRoots
-		aVisitedPath = []
-		This.PrivateShowVerticalBranch(cRoot, aVisitedPath)
-	end
+		
+		for cRoot in aRoots
+			aVisitedPath = []
+			This.PrivateShowVerticalBranch(cRoot, aVisitedPath)
+		end
 
 		def ShowV()
 			This.ShowVertical()
 
-def PrivateShowVerticalBranch(pcNodeId, paVisitedPath)
-	oNode = This.Node(pcNodeId)
-	cBoxed = BoxRound(oNode["label"])
-	aLines = StzStringQ(cBoxed).Split(nl)
-	for cLine in aLines
-		? CenterAlignXT(cLine, 25, " ")
-	end
-	
-	paVisitedPath + pcNodeId
-	aNeighbors = This.Neighbors(pcNodeId)
-	
-	if len(aNeighbors) = 0
-		return
-	ok
-	
-	for cNext in aNeighbors
-		if find(paVisitedPath, cNext) = 0
-			aEdge = This.Edge(pcNodeId, cNext)
-			? CenterAlignXT("|", 25, " ")
-			if aEdge["label"] != ""
-				? CenterAlignXT(aEdge["label"], 25, " ")
-				? CenterAlignXT("|", 25, " ")
-			ok
-			? CenterAlignXT("v", 25, " ")
-			
-			aCopyPath = paVisitedPath
-			This.PrivateShowVerticalBranch(cNext, aCopyPath)
+	def PrivateShowVerticalBranch(pcNodeId, paVisitedPath)
+		oNode = This.Node(pcNodeId)
+		cBoxed = BoxRound(oNode["label"])
+		aLines = StzStringQ(cBoxed).Split(nl)
+		for cLine in aLines
+			? CenterAlignXT(cLine, 25, " ")
+		end
+		
+		paVisitedPath + pcNodeId
+		aNeighbors = This.Neighbors(pcNodeId)
+		
+		if len(aNeighbors) = 0
+			return
 		ok
-	end
-
+		
+		for cNext in aNeighbors
+			if find(paVisitedPath, cNext) = 0
+				aEdge = This.Edge(pcNodeId, cNext)
+				? CenterAlignXT("|", 25, " ")
+				if aEdge["label"] != ""
+					? CenterAlignXT(aEdge["label"], 25, " ")
+					? CenterAlignXT("|", 25, " ")
+				ok
+				? CenterAlignXT("v", 25, " ")
+				
+				aCopyPath = paVisitedPath
+				This.PrivateShowVerticalBranch(cNext, aCopyPath)
+			else
+				# Back-edge detected (cycle)
+				aEdge = This.Edge(pcNodeId, cNext)
+				cNodeLabel = This.Node(cNext)["label"]
+				cArrowLine = RepeatChar(" ", 12) + "|" + RepeatChar(" ", stzlen("[" + cNodeLabel + "]") + 7) + "↑"
+				
+				? "            |            "
+				? "      <CYCLE: " + aEdge["label"] + ">   "
+				? cArrowLine
+				? "            ╰──> [" + cNodeLabel + "] ──╯"
+			ok
+		end
 
 	def ShowHorizontal()	
-		aVisited = []
 		aRoots = []
-		
-		# Find root nodes
 		for oNode in @aNodes
 			if len(This.Incoming(oNode["id"])) = 0
 				aRoots + oNode["id"]
 			ok
 		end
 		
-		# If no roots, start from first node
 		if len(aRoots) = 0
-			for oNode in @aNodes
-				if find(aVisited, oNode["id"]) = 0
-					aRoots + oNode["id"]
-				ok
-			end
+			aRoots + @aNodes[1]["id"]
 		ok
 		
-		cOutput = ""
 		for cRoot in aRoots
-			if find(aVisited, cRoot) = 0
-				cOutput += This.PrivateShowHorizontalBranch(cRoot, aVisited)
+			aVisited = []
+			aBoxLines = []
+			aArrowLines = []
+			This.PrivateShowHorizontalBranch(cRoot, aVisited, aBoxLines, aArrowLines)
+			
+			# Print the box lines
+			for cLine in aBoxLines
+				? cLine
+			end
+			
+			# Print feedback loop if exists
+			cFeedback = This.PrivateBuildFeedbackLine(aVisited)
+			if cFeedback != ""
+				? cFeedback
 			ok
 		end
-		
-		? cOutput
 
 		def ShowH()
 			This.ShowHorizontal()
 
-	def PrivateShowHorizontalBranch(pcNodeId, paVisited)
+	def PrivateShowHorizontalBranch(pcNodeId, paVisited, paBoxLines, paArrowLines)
 		oNode = This.Node(pcNodeId)
-		cLabel = oNode["label"]
-		cOutput = "[" + cLabel + "]"
-		paVisited + pcNodeId
+		cBoxed = BoxRound(oNode["label"])
+		aLines = StzStringQ(cBoxed).Split(nl)
 		
 		aNeighbors = This.Neighbors(pcNodeId)
-		for i = 1 to len(aNeighbors)
-			cNext = aNeighbors[i]
+		
+		if len(paBoxLines) = 0
+			for cLine in aLines
+				paBoxLines + cLine
+			end
+		else
+			# Get the connector from previous edge
+			cConnector = ""
+			if len(paVisited) > 0
+				cPrev = paVisited[len(paVisited)]
+				aEdge = This.Edge(cPrev, pcNodeId)
+				if aEdge != ""
+					cConnector = "--" + aEdge["label"] + "-->"
+				ok
+			ok
+			
+			# Add connector to all lines, but use spaces for top/bottom lines
+			for i = 1 to len(aLines)
+				if i = 2
+					paBoxLines[i] += cConnector + aLines[i]
+				else
+					paBoxLines[i] += RepeatChar(" ", len(cConnector)) + aLines[i]
+				ok
+			end
+		ok
+		
+		paVisited + pcNodeId
+		
+		if len(aNeighbors) > 0
+			cNext = aNeighbors[1]
 			aEdge = This.Edge(pcNodeId, cNext)
 			cEdgeLabel = aEdge["label"]
 			
-			cOutput += " --"
-			if cEdgeLabel != ""
-				cOutput += cEdgeLabel + "--"
+			if find(paVisited, cNext) = 0
+				This.PrivateShowHorizontalBranch(cNext, paVisited, paBoxLines, paArrowLines)
+			else
+				# Mark feedback
+				paArrowLines + [pcNodeId, cNext, cEdgeLabel]
 			ok
-			cOutput += "> "
-			cOutput += This.PrivateShowHorizontalBranch(cNext, paVisited)
-		end
-		
-		return cOutput
-
-	def ShowPath(pcFromId, pcToId)
-		aPath = This.FindAllPaths(pcFromId, pcToId)
-		
-		if len(aPath) = 0
-			? "No path found from [" + pcFromId + "] to [" + pcToId + "]"
-			return
 		ok
+
+	def PrivateBuildFeedbackLine(paVisited)
+		cFeedback = ""
 		
-		cPath = aPath[1]
-		
-		? ""
-		? "=== Path from " + pcFromId + " to " + pcToId + " ==="
-		? ""
-		
-		for i = 1 to len(cPath) - 1
-			cCurrent = cPath[i]
-			cNext = cPath[i + 1]
-			oCurrentNode = This.Node(cCurrent)
-			aEdge = This.Edge(cCurrent, cNext)
-			cEdgeLabel = aEdge["label"]
-			
-			? "[" + oCurrentNode["label"] + "]"
-			? "   |"
-			if cEdgeLabel != ""
-				? "   " + cEdgeLabel
-				? "   |"
+		for aEdge in @aEdges
+			if HasKey(aEdge, "from") and HasKey(aEdge, "to")
+				if find(paVisited, aEdge["from"]) > 0 and find(paVisited, aEdge["to"]) > 0
+					if find(paVisited, aEdge["to"]) < find(paVisited, aEdge["from"])
+						nToIdx = find(paVisited, aEdge["to"])
+						nFromIdx = find(paVisited, aEdge["from"])
+						
+						# Calculate dynamic box width based on node labels
+						aBoxWidths = []
+						for i = 1 to len(paVisited)
+							oNode = This.Node(paVisited[i])
+							nBoxW = len(oNode["label"]) + 4
+							aBoxWidths + nBoxW
+						end
+						
+						# Compute target position
+						nToPos = 0
+						for i = 1 to nToIdx - 1
+							nToPos += aBoxWidths[i]
+							if i < len(paVisited)
+								cPrev = paVisited[i]
+								cNext = paVisited[i + 1]
+								aE = This.Edge(cPrev, cNext)
+								if aE != ""
+									nToPos += len("--" + aE["label"] + "-->")
+								ok
+							ok
+						end
+						nToPos += aBoxWidths[nToIdx] / 2
+						
+						# Compute source position
+						nFromPos = 0
+						for i = 1 to nFromIdx - 1
+							nFromPos += aBoxWidths[i]
+							if i < len(paVisited)
+								cPrev = paVisited[i]
+								cNext = paVisited[i + 1]
+								aE = This.Edge(cPrev, cNext)
+								if aE != ""
+									nFromPos += len("--" + aE["label"] + "-->")
+								ok
+							ok
+						end
+						nFromPos += aBoxWidths[nFromIdx] / 2
+						
+						nSpacing = nFromPos - nToPos - 1
+						
+						cFirstLine = RepeatChar(" ", nToPos) + "↑" + RepeatChar(" ", nSpacing) + "|"
+						nLineWidth = len(cFirstLine)
+						
+						nLabelLen = len(aEdge["label"])
+						nContentWidth = nLineWidth - nToPos - 2
+						nTotalDashes = nContentWidth - nLabelLen - 2
+						nLeftDashes = nTotalDashes / 2
+						nRightDashes = nTotalDashes - nLeftDashes						
+						cSecondLine = RepeatChar(" ", nToPos) + "╰" + RepeatChar("─", nLeftDashes) + "─" + aEdge["label"] + "─" + RepeatChar("─", nRightDashes) + "╯"
+						
+						cFeedback = cFirstLine + nl + cSecondLine
+						
+					ok
+				ok
 			ok
-			? "   V"
 		end
+	
+		# Adjust line lengths to match exactly
+		acSplits = @split(cFeedback, nl)
+		nLenLine1 = stzlen(acSplits[1])
+		nLenLine2 = stzlen(acSplits[2])
 		
-		oLastNode = This.Node(cPath[len(cPath)])
-		? "[" + oLastNode["label"] + "]"
-		? ""
-
-	def ShowNeighborhood(pcNodeId)
-		if NOT This.NodeExists(pcNodeId)
-			? "Node [" + pcNodeId + "] not found"
-			return
+		nDiff = nLenLine2 - nLenLine1
+		if nDiff = 0
+			return cFeedback
 		ok
 		
-		oNode = This.Node(pcNodeId)
-		aOutgoing = This.Neighbors(pcNodeId)
-		aIncoming = This.Incoming(pcNodeId)
-		
-		? ""
-		? "=== Neighborhood of [" + oNode["label"] + "] ==="
-		? ""
-		
-		if len(aIncoming) > 0
-			? "INCOMING:"
-			for cFrom in aIncoming
-				oFrom = This.Node(cFrom)
-				aEdge = This.Edge(cFrom, pcNodeId)
-				? "  [" + oFrom["label"] + "]"
-				if aEdge["label"] != ""
-					? "    (" + aEdge["label"] + ")"
-				ok
-			end
-			? ""
-		ok
-		
-		? "CENTER: [" + oNode["label"] + "]"
-		? ""
-		
-		if len(aOutgoing) > 0
-			? "OUTGOING:"
-			for cTo in aOutgoing
-				oTo = This.Node(cTo)
-				aEdge = This.Edge(pcNodeId, cTo)
-				? "  [" + oTo["label"] + "]"
-				if aEdge["label"] != ""
-					? "    (" + aEdge["label"] + ")"
-				ok
-			end
-		ok
-		? ""
-
-	def ShowBottlenecks()
-		aBottlenecks = This.BottleneckNodes()
-		
-		? ""
-		? "=== BOTTLENECKS ==="
-		? ""
-		
-		if len(aBottlenecks) = 0
-			? "No bottlenecks found"
+		if nDiff > 0
+			cLine2 = substr(acSplits[2], "─╯", "╯")
 		else
-			for cNodeId in aBottlenecks
-				oNode = This.Node(cNodeId)
-				nIncoming = len(This.Incoming(cNodeId))
-				nOutgoing = len(This.Neighbors(cNodeId))
-				
-				? "[" + oNode["label"] + "]"
-				? "  Incoming: " + nIncoming
-				? "  Outgoing: " + nOutgoing
-				? ""
-			end
+			cLine2 = substr(acSplits[2], "╯", "─╯")
 		ok
+		
+		return acSplits[1] + nl + cLine2
 
-	def Inspect()
-		? "=== Graph: " + @cId + " ==="
-		? "Nodes: " + len(@aNodes)
-		? "Edges: " + len(@aEdges)
-		? "Cyclic: " + (iif(This.CyclicDependencies(), "Yes", "No"))
-		? "Density: " + This.NodeDensity() + "%"
-		? "Longest Path: " + This.LongestPath()
-		? ""

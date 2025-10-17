@@ -348,7 +348,7 @@ oWorkflow {
 	AddEdge(:@manager, :@director, "escalate")
 	AddEdge(:@director, :@approved, "finalize")
 	
-	ShowV()
+	Show()
 }
 
 #-->
@@ -382,8 +382,8 @@ oWorkflow {
 pf()
 # Executed in 0.04 second(s) in Ring 1.24
 
-/*---- Multi-path process - showing alternatives
-
+/*---- Multi-path process - showing alternatives #TODO
+*/
 pr()
 
 oMultiPath = new stzGraph("MultiPathProcess")
@@ -403,173 +403,50 @@ oMultiPath {
 
 #-->
 '
-=== MultiPathProcess (Vertical) ===
+        ╭───────╮        
+        │ Start │        
+        ╰───────╯        
+            |            
+        expedited        
+            |            
+            v            
+      ╭───────────╮      
+      │ Fast Path │      
+      ╰───────────╯      
+            |            
+         finish          
+            |            
+            v            
+      ╭──────────╮       
+      │ Complete │       
+      ╰──────────╯ 
 
-[Start]
-  |
-  expedited
-  |
-  V
-  [Fast Path]
-    |
-    finish
-    |
-    V
-    [Complete]
+          ////
 
-[Start]
-  |
-  normal
-  |
-  V
-  [Standard Path]
-    |
-    finish
-    |
-    V
-    [Complete]
+  ↓     ╭───────╮        
+  ╰─────│ Start │        
+        ╰───────╯ 
+            |            
+         normal          
+            |            
+            v            
+    ╭───────────────╮    
+    │ Standard Path │    
+    ╰───────────────╯    
+            |            
+         finish          
+            |            
+            v            
+      ╭──────────╮       
+      │ Complete │       
+      ╰──────────╯ 
 '
 
 pf()
-/*---- Show specific path between nodes
 
-pr()
-
-oProcess = new stzGraph("ServiceFlow")
-oProcess {
-	AddNode(:@api, "API Gateway")
-	AddNode(:@auth, "Auth Service")
-	AddNode(:@db, "Database")
-	AddNode(:@cache, "Cache")
-	
-	AddEdge(:@api, :@auth, "validate")
-	AddEdge(:@auth, :@db, "query")
-	AddEdge(:@db, :@cache, "store")
-	
-	ShowPath(:@api, :@cache)
-}
-
-#-->
-'
-=== Path from @api to @cache ===
-
-[API Gateway]
-   |
-   validate
-   |
-   V
-[Auth Service]
-   |
-   query
-   |
-   V
-[Database]
-   |
-   store
-   |
-   V
-[Cache]
-'
-
-/*---- Show neighborhood analysis
-
-pr()
-
-oOrg = new stzGraph("Organization")
-oOrg {
-	AddNode(:@ceo, "CEO")
-	AddNode(:@director, "Director")
-	AddNode(:@manager, "Manager")
-	AddNode(:@dev1, "Developer 1")
-	AddNode(:@dev2, "Developer 2")
-	
-	AddEdge(:@ceo, :@director, "manages")
-	AddEdge(:@director, :@manager, "manages")
-	AddEdge(:@manager, :@dev1, "manages")
-	AddEdge(:@manager, :@dev2, "manages")
-	
-	ShowNeighborhood(:@manager)
-}
-
-#-->
-'
-=== Neighborhood of [Manager] ===
-
-INCOMING:
-  [Director]
-    (manages)
-
-CENTER: [Manager]
-
-OUTGOING:
-  [Developer 1]
-    (manages)
-  [Developer 2]
-    (manages)
-'
-
-/*---- Show bottleneck analysis
-
-pr()
-
-oDataFlow = new stzGraph("DataSystem")
-oDataFlow {
-	AddNode(:@sourceA, "Source A")
-	AddNode(:@sourceB, "Source B")
-	AddNode(:@sourceC, "Source C")
-	AddNode(:@hub, "Central Hub")
-	AddNode(:@analysis, "Analysis Service")
-	
-	AddEdge(:@sourceA, :@hub, "feed")
-	AddEdge(:@sourceB, :@hub, "feed")
-	AddEdge(:@sourceC, :@hub, "feed")
-	AddEdge(:@hub, :@analysis, "output")
-	
-	ShowBottlenecks()
-}
-
-#-->
-'
-=== BOTTLENECKS ===
-
-[Central Hub]
-  Incoming: 3
-  Outgoing: 1
-
-'
-pf()
-
-/*---- Display statistics
-
-pr()
-
-oGraph = new stzGraph("SystemA")
-oGraph {
-	AddNode(:@a, "Component A")
-	AddNode(:@b, "Component B")
-	AddNode(:@c, "Component C")
-	
-	AddEdge(:@a, :@b, "")
-	AddEdge(:@b, :@c, "")
-	AddEdge(:@a, :@c, "")
-	
-	Inspect()
-}
-
-#-->
-'
-=== Graph: SystemA ===
-Nodes: 3
-Edges: 3
-Cyclic: No
-Density: 50%
-Longest Path: 2
-'
-
-pf()
 
 /*---- Cycle detection visualization
-
+*/
 pr()
 
 oCyclic = new stzGraph("CyclicWorkflow")
@@ -582,40 +459,55 @@ oCyclic {
 	AddEdge(:@p2, :@p3, "next")
 	AddEdge(:@p3, :@p1, "loop")
 	
-	? "Has Cycles: " + oCyclic.CyclicDependencies()
-	Show()
+	? oCyclic.CyclicDependencies()
+	#--> TRUE
+
+	Show() # or ShowVertical() or ShowV()
 }
 
 #-->
 '
-Has Cycles: 1
+      ╭───────────╮      
+      │ Process 1 │      
+      ╰───────────╯      
+            |            
+          next           
+            |            
+            v            
+      ╭───────────╮      
+      │ Process 2 │      
+      ╰───────────╯      
+            |            
+          next           
+            |            
+            v            
+      ╭───────────╮      
+      │ Process 3 │      
+      ╰───────────╯      
+            |            
+      <CYCLE: loop>   
+            |                  ↑ 
+            ╰──> [Process 1] ──╯
+'
 
-=== CyclicWorkflow (Vertical) ===
+# And you can display the same diagram horizontall
 
-[Process 1]
-  |
-  next
-  |
-  V
-  [Process 2]
-    |
-    next
-    |
-    V
-    [Process 3]
-      |
-      loop
-      |
-      V
-      [Process 1]
+? ""
+oCyclic.ShowH() # Or ShowHorizontal
+#-->
+'
 
-(Note: Cycle detected in visualization)
+╭───────────╮         ╭───────────╮         ╭───────────╮
+│ Process 1 │--next-->│ Process 2 │--next-->│ Process 3 │
+╰───────────╯         ╰───────────╯         ╰───────────╯
+      ↑                                           |
+      ╰────────────────────loop───────────────────╯
 '
 
 pf()
 
 /*---- Reachability analysis
-*/
+
 pr()
 
 oHierarchy = new stzGraph("TypeSystem")
@@ -640,7 +532,6 @@ oHierarchy {
 
 #-->
 '
-
        ╭────────╮        
        │ Entity │        
        ╰────────╯        
