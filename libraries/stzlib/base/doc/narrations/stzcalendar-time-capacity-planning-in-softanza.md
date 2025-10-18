@@ -77,7 +77,7 @@ Here’s what it looks like in practice:
 
 In the next section, we’ll build this same logic in code and watch how each layer interacts, starting with the simplest boundary definition.
 
----
+
 
 ## The Layered Constraint Model
 
@@ -196,7 +196,7 @@ oCal {
 
 A 5-hour task fits on Oct 10 (7 hours available). A 10-hour task doesn't. A 4-hour task starts Oct 1 at 9am, ends at 1pm (after lunch break). Decisions are transparent and auditable.
 
----
+
 
 ## Visualization: Making Time Tangible
 
@@ -274,7 +274,7 @@ Summary:
 
 Each row shows exactly why hours are available (or zero). HOLIDAY and WEEKEND labels make exclusions explicit.
 
----
+
 
 ## Comparison and Navigation
 
@@ -304,7 +304,7 @@ oCal2.GotoNextMonth()
 
 October has 31 days (23 working), November has 30 (21 working). That's a 16-hour gap (2 fewer working days × 8 hours). Use this for sprint planning: tighter capacity in November means fewer stories.
 
----
+
 
 ## Timeline Integration: Events Meet Constraints
 
@@ -370,7 +370,7 @@ The STANDUP event (●) lands on Oct 10, a Thursday (working day). The PROJECT s
 
 No silent failures—if a milestone touches a weekend or holiday, `ConflictsWith()` flags it explicitly.
 
----
+
 
 ## Real-World Scenario: Sprint Feasibility
 
@@ -408,7 +408,7 @@ ok
 
 152 hours required; 161 available (23 working days × 7 hours). Sprint fits with 9-hour buffer. This calculation is bulletproof: every hour is justified by the constraint stack.
 
----
+
 
 ## Querying Details: Drilling Deeper
 
@@ -448,7 +448,7 @@ Oct 3 is Thursday (working day, 7 hours). Use this for scheduling individual tas
 
 First half of October: 15 days span, but only 11 are working (4 weekend days excluded), yielding 77 hours. Events field shows conflicts if timeline is marked.
 
----
+
 
 ## Data Export and Integration
 
@@ -495,7 +495,7 @@ Full config exported as a hash—load into reports, APIs, or databases.
 
 One-line stats for dashboards or reports.
 
----
+
 
 ## Natural Language Orientation: Intuitive API Design
 
@@ -529,7 +529,7 @@ This is **consistent** across the API:
 
 **Power of Consistency**: Your code reads naturally. No guessing whether a method returns a number or a list. If you see the N suffix, you know it's a count. If you see `Contains` or `Has`, you know it's a boolean check.
 
----
+
 
 ## Comparative Analysis: stzCalendar vs. Other Ecosystems
 

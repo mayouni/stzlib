@@ -497,22 +497,26 @@ To understand stzGraph's place in the ecosystem, we compare across key dimension
 
 **Domain Extensibility** — Can one implementation serve multiple domains? stzGraph: yes (workflows, hierarchies, type systems inherit same algorithms). Others: domain-specific or query-language-bound.
 
-
 | Dimension | stzGraph | NetworkX | Neo4j | GraphQL |
 |-----------|----------|----------|-------|---------|
-| **Structure Validation** | `.Explain()` returns facts: cycles, bottlenecks, coherence | Manual analysis | Query-based inspection | Schema validation only |
-| **Development Speed** | Instant—no deps, in-memory | `pip install`, external plotting | Server infrastructure, setup overhead | Endpoint + schema definition |
-| **Language Integration** | Native Ring: fluent chaining, symbol literals | Python idiomatic but imperative | Java/Cypher switching cost | JSON/REST, client library |
-| **Visualization** | ASCII built-in, terminal, version-safe | Matplotlib external, GUI/file step | Web UI, infrastructure | None—results only |
-| **Introspection** | Programmatic: bottlenecks, cycles, metrics as data | Manual graph traversal | Cypher queries; not data structures | Schema introspection tools |
-| **Pure Structure** | Semantics by design excluded; test independently | Semantics in attributes; mixed concerns | Semantics baked in; can't extract | Semantics mandatory (schema) |
-| **Domain Extensibility** | Single base: workflows, hierarchies, data flows, types | Limited; domain-specific usage | Specialized for persistent queries | Schema-bound to use case |
-| **Reusability** | One codebase across all relational domains | Research/prototype focus | Enterprise graph store | API-specific |
-| **Reasoning Path** | Facts enable CI/CD validation, linting, reporting | Manual observation | Query results | Schema-based tooling |
-| **Scope** | Structure only (by design) | Algorithms + research | Full database | API language |
-| **Best For** | Validate, understand, extend systems | Algorithm research, prototyping | Persistent queryable graphs | Data API services |
+| **Structure Validation** | ✅ `.Explain()` facts: cycles, bottlenecks | ◯ Manual analysis | ◯ Query-based | ◯ Schema only |
+| **Development Speed** | ✅ Instant—no deps | ◯ `pip install` + setup | 🟠 Server required | 🟠 Endpoint + schema |
+| **Language Integration** | ✅ Native Ring fluency | ◯ Python idiomatic | 🟠 Java/Cypher | 🟠 JSON/REST layer |
+| **Visualization** | ✅ ASCII instant (stzDiagram: Graphviz layouts) | 🟠 Matplotlib | ◯ Web UI | ✗ Results only |
+| **Introspection** | ✅ Programmatic data arrays | ✗ Manual traversal | 🟠 Query results | ◯ Schema tools |
+| **Pure Structure** | ✅ Semantics excluded (design) | 🟠 Semantics in attributes | ✗ Semantics baked in | ✗ Semantics mandatory |
+| **Domain Extensibility** | ✅ Single base, all domains | 🟠 Domain-specific | ✗ Query-bound | ✗ Schema-bound |
+| **Reusability** | ✅ One codebase across domains | ◯ Research focus | ◯ Graph DB specific | 🟠 API-specific |
+| **Reasoning Path** | ✅ CI/CD validation, linting | 🟠 Manual observation | ◯ Query analysis | ◯ Schema validation |
+| **Scope** | ✅ Narrow (structure) | ✅ Comprehensive | ✅ Full database | ◯ Schema-centric |
+| **Best For** | ✅ Validate, extend systems | ✅ Algorithm research | ✅ Persistent queries | ◯ Data APIs |
 
-
+**Legend:**
+- ✅ Strong feature
+- ◯ Adequate/mixed
+- 🟠 Difficult/inconvenient
+- ✗ Missing/weak
+  
 ## Extension Points
 
 `stzGraph` seeds higher-level frameworks:
