@@ -1,5 +1,25 @@
 load "../stzbase.ring"
 
+oDataFlow = new stzGraph("DataSystem")
+oDataFlow {
+    AddNode(:@sourceA, "Data Source A")
+    AddNode(:@sourceB, "Data Source B")
+    AddNode(:@sourceC, "Data Source C")
+    AddNode(:@hub, "Hub")
+    AddNode(:@analysis, "Analysis")
+
+    AddEdge(:@sourceA, :@hub, "")
+    AddEdge(:@sourceB, :@hub, "")
+    AddEdge(:@sourceC, :@hub, "")
+    AddEdge(:@hub, :@analysis, "")
+
+    ? @@(oDataFlow.BottleneckNodes())
+    #--> [@hub]
+
+    Show()
+}
+
+pf()
 #  stzGraphTest - Test Suite
 
 /*--- Creating a simple 3-node linear graph
@@ -121,8 +141,77 @@ oGraph.AddEdge(:@1, :@2, "")
 oGraph.AddEdge(:@3, :@1, "")
 
 ? oGraph.CyclicDependencies() #--> TRUE
+oGraph.ShowWithLegend()
+
+? NL + BoxRound("Explanation")
+? @@NL( oGraph.Explain() )
+#-->
+'
+         ╭────╮          
+         │ P3 │          
+         ╰────╯          
+            |            
+            v            
+        ╭──────╮         
+        │ !P1! │         
+        ╰──────╯         
+            |            
+            v            
+         ╭────╮          
+         │ P2 │          
+         ╰────╯          
+
+          ////
+
+        ╭──────╮  ↑
+        │ !P1! │──╯
+        ╰──────╯         
+            |            
+            v            
+         ╭────╮          
+         │ P2 │          
+         ╰────╯  
+
+Legend:
+
+╭───────────┬────────────────────────────────────╮
+│   Sign    │              Meaning               │
+├───────────┼────────────────────────────────────┤
+│ !label!   │ High connectivity hub (bottleneck) │
+│ [...] __↑ │ Feedback loop                      │
+│ ////      │ Branch separator (multiple paths)  │
+╰───────────┴────────────────────────────────────╯ 
+
+╭─────────────╮
+│ Explanation │
+╰─────────────╯
+[
+	[
+		"general",
+		[ "Graph: CyclicTest", "Nodes: 3 | Edges: 3" ]
+	],
+	[
+		"bottlenecks",
+		[
+			"Bottleneck nodes: @1",
+			"All nodes have average degree 2",
+			"  @1: degree 3 (above average)"
+		]
+	],
+	[
+		"cycles",
+		[ "WARNING: Circular dependencies detected" ]
+	],
+	[
+		"metrics",
+		[ "Density: 50% (dense)", "Longest path: 2 hops" ]
+	]
+]
+
+'
 
 pf()
+# Executed in 0.14 second(s) in Ring 1.24
 
 #-----------------#
 #  TEST 7: BOTTLENECK NODES
@@ -144,10 +233,97 @@ oGraph.AddEdge(:@2, :@hub, "")
 oGraph.AddEdge(:@3, :@hub, "")
 oGraph.AddEdge(:@hub, :@1, "")
 
-? @@( oGraph.BottleneckNodes() )
+? @@( oGraph.BottleneckNodes() ) + NL
 #--> [ "@hub" ]
 
+oGraph.Show()
+#-->
+'
+          ╭───╮          
+          │ B │          
+          ╰───╯          
+            |            
+                         
+            |            
+            v            
+        ╭───────╮        
+        │ !Hub! │        
+        ╰───────╯        
+            |            
+                         
+            |            
+            v            
+          ╭───╮          
+          │ A │          
+          ╰───╯          
+            |            
+      <CYCLE:  >   
+            |              ↑
+            ╰──> [!Hub!] ──╯
+
+          ////
+
+          ╭───╮          
+          │ C │          
+          ╰───╯          
+            |            
+                         
+            |            
+            v            
+        ╭───────╮        
+        │ !Hub! │        
+        ╰───────╯        
+            |            
+                         
+            |            
+            v            
+          ╭───╮          
+          │ A │          
+          ╰───╯          
+            |            
+      <CYCLE:  >   
+            |              ↑
+            ╰──> [!Hub!] ──╯
+'
+
+? ""
+? BoxRound("EXPLANATION")
+
+? @@NL( oGraph.Explain() )
+#-->
+'
+╭─────────────╮
+│ EXPLANATION │
+╰─────────────╯
+[
+	[
+		"general",
+		[ "Graph: BottleneckTest", "Nodes: 4 | Edges: 4" ]
+	],
+	[
+		"bottlenecks",
+		[
+			"Bottleneck nodes: @hub",
+			"All nodes have average degree 2",
+			"  @hub: degree 4 (above average)"
+		]
+	],
+	[
+		"cycles",
+		[ "WARNING: Circular dependencies detected" ]
+	],
+	[
+		"metrics",
+		[
+			"Density: 33.33% (moderate)",
+			"Longest path: 2 hops"
+		]
+	]
+]
+'
+
 pf()
+# Executed in 0.16 second(s) in Ring 1.24
 
 #-----------------#
 #  TEST 8: GRAPH DENSITY
@@ -383,7 +559,7 @@ pf()
 # Executed in 0.04 second(s) in Ring 1.24
 
 /*---- Multi-path process - showing alternatives #TODO
-*/
+
 pr()
 
 oMultiPath = new stzGraph("MultiPathProcess")
@@ -398,55 +574,92 @@ oMultiPath {
 	AddEdge(:@fast, :@end, "finish")
 	AddEdge(:@standard, :@end, "finish")
 	
-	Show()
+	ShowWithLegend() #TODO Add control : if diagram contains alternatives only vertical dispaly is possible
 }
 
 #-->
 '
-        ╭───────╮        
-        │ Start │        
-        ╰───────╯        
+       ╭─────────╮       
+       │ !Start! │       
+       ╰─────────╯       
             |            
         expedited        
             |            
             v            
-      ╭───────────╮      
-      │ Fast Path │      
-      ╰───────────╯      
+     ╭─────────────╮     
+     │ !Fast Path! │     
+     ╰─────────────╯     
             |            
          finish          
             |            
             v            
-      ╭──────────╮       
-      │ Complete │       
-      ╰──────────╯ 
+     ╭────────────╮      
+     │ !Complete! │      
+     ╰────────────╯      
 
           ////
 
-  ↓     ╭───────╮        
-  ╰─────│ Start │        
-        ╰───────╯ 
+       ╭─────────╮  ↑
+       │ !Start! │──╯
+       ╰─────────╯       
             |            
          normal          
             |            
             v            
-    ╭───────────────╮    
-    │ Standard Path │    
-    ╰───────────────╯    
+   ╭─────────────────╮   
+   │ !Standard Path! │   
+   ╰─────────────────╯   
             |            
          finish          
             |            
             v            
-      ╭──────────╮       
-      │ Complete │       
-      ╰──────────╯ 
+     ╭────────────╮      
+     │ !Complete! │      
+     ╰────────────╯      
+
+Legend:
+
+╭─────────┬────────────────────────────────────╮
+│  Sign   │              Meaning               │
+├─────────┼────────────────────────────────────┤
+│ !label! │ High connectivity hub (bottleneck) │
+╰─────────┴────────────────────────────────────╯    
 '
 
+? ""
+? @@Nl( oMultiPath.Explain() )
+#-->
+'
+[
+	[
+		"general",
+		[
+			"Graph: MultiPathProcess",
+			"Nodes: 4 | Edges: 4"
+		]
+	],
+	[
+		"bottlenecks",
+		[ "No bottlenecks (average degree = 2)" ]
+	],
+	[
+		"cycles",
+		[ "No cycles - acyclic graph (DAG)" ]
+	],
+	[
+		"metrics",
+		[
+			"Density: 33.33% (moderate)",
+			"Longest path: 3 hops"
+		]
+	]
+]
+'
 pf()
-
+# Executed in 0.17 second(s) in Ring 1.24
 
 /*---- Cycle detection visualization
-*/
+
 pr()
 
 oCyclic = new stzGraph("CyclicWorkflow")
@@ -507,7 +720,7 @@ oCyclic.ShowH() # Or ShowHorizontal
 pf()
 
 /*---- Reachability analysis
-
+*/
 pr()
 
 oHierarchy = new stzGraph("TypeSystem")
@@ -524,10 +737,10 @@ oHierarchy {
 	? @@(oHierarchy.ReachableFrom(:@person))
 	#--> [@person, @employee, @manager]
 
-	? oHierarchy.PathExists(:@person, :@manager)
+	? oHierarchy.PathExists(:@person, :@manager) + NL
 	#--> TRUE
 
-	Show()
+	ShowWithLegend()
 }
 
 #-->
@@ -539,23 +752,87 @@ oHierarchy {
           is_a           
             |            
             v            
-       ╭────────╮        
-       │ Person │        
-       ╰────────╯        
+      ╭──────────╮       
+      │ !Person! │       
+      ╰──────────╯       
             |            
           is_a           
             |            
             v            
-      ╭──────────╮       
-      │ Employee │       
-      ╰──────────╯       
+     ╭────────────╮      
+     │ !Employee! │      
+     ╰────────────╯      
             |            
           is_a           
             |            
             v            
        ╭─────────╮       
        │ Manager │       
-       ╰─────────╯   
+       ╰─────────╯       
+
+Legend:
+
+╭─────────┬────────────────────────────────────╮
+│  Sign   │              Meaning               │
+├─────────┼────────────────────────────────────┤
+│ !label! │ High connectivity hub (bottleneck) │
+╰─────────┴────────────────────────────────────╯ 
 '
+
+? @@NL( oHierarchy.Explain() )
+#-->
+'
+[
+	[
+		"general",
+		[ "Graph: TypeSystem", "Nodes: 4 | Edges: 3" ]
+	],
+	[
+		"bottlenecks",
+		[
+			"Bottleneck nodes: @person, @employee",
+			"All nodes have average degree 1.50",
+			"  @person: degree 2 (above average)",
+			"  @employee: degree 2 (above average)"
+		]
+	],
+	[
+		"cycles",
+		[ "No cycles - acyclic graph (DAG)" ]
+	],
+	[
+		"metrics",
+		[
+			"Density: 25% (moderate)",
+			"Longest path: 3 hops"
+		]
+	]
+]
+'
+
+pf()
+
+/*---
+*/
+pr()
+
+oDataFlow = new stzGraph("DataSystem")
+oDataFlow {
+    AddNode(:@sourceA, "Data Source A")
+    AddNode(:@sourceB, "Data Source B")
+    AddNode(:@sourceC, "Data Source C")
+    AddNode(:@hub, "Hub")
+    AddNode(:@analysis, "Analysis")
+
+    AddEdge(:@sourceA, :@hub, "")
+    AddEdge(:@sourceB, :@hub, "")
+    AddEdge(:@sourceC, :@hub, "")
+    AddEdge(:@hub, :@analysis, "")
+
+    ? @@(oDataFlow.BottleneckNodes())
+    #--> [@hub]
+
+    Show()
+}
 
 pf()

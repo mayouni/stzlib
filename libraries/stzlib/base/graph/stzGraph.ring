@@ -27,12 +27,12 @@ class stzGraph
 		This.AddNodeXT(pcNodeId, pcLabel, [])
 
 	def AddNodeXT(pcNodeId, pcLabel, paProperties)
-		oNode = [
+		aNode = [
 			:id = pcNodeId,
 			:label = pcLabel,
 			:properties = iif(isList(paProperties), paProperties, [])
 		]
-		@aNodes + oNode
+		@aNodes + aNode
 
 	def Node(pcNodeId)
 		for aNode in @aNodes
@@ -69,9 +69,9 @@ class stzGraph
 	def NodeCount()
 		return len(@aNodes)
 
-	#------------------------------------------
-	#  EDGE OPERATIONS
-	#------------------------------------------
+	#-------------------#
+	#  EDGE OPERATIONS  #
+	#-------------------#
 
 	def AddEdge(pcFromId, pcToId, pcLabel)
 		This.AddEdgeXT(pcFromId, pcToId, pcLabel, [])
@@ -119,9 +119,9 @@ class stzGraph
 	def EdgeCount()
 		return len(@aEdges)
 
-	#------------------------------------------
-	#  TRAVERSAL & PATHFINDING
-	#------------------------------------------
+	#---------------------------#
+	#  TRAVERSAL & PATHFINDING  #
+	#---------------------------#
 
 	def PathExists(pcFromId, pcToId)
 		if pcFromId = pcToId
@@ -152,40 +152,36 @@ class stzGraph
 
 		return 0
 
-def FindAllPaths(pcFromId, pcToId)
-	aAllPaths = []
-	aCurrentPath = [pcFromId]
-	This.PrivateFindAllPathsDFS(pcFromId, pcToId, aCurrentPath, aAllPaths, 0)
-	return aAllPaths
-
-def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDepth)
-	? "DEBUG: Depth=" + pnDepth + " Current=" + pcCurrent + " Path=" + @@(paCurrentPath)
+	def FindAllPaths(pcFromId, pcToId)
+		aAllPaths = []
+		aCurrentPath = [pcFromId]
+		This.PrivateFindAllPathsDFS(pcFromId, pcToId, aCurrentPath, aAllPaths, 0)
+		return aAllPaths
 	
-	if pnDepth > 10
-		? "DEBUG: DEPTH LIMIT EXCEEDED"
-		return
-	ok
-
-	if pcCurrent = pcTarget
-		? "DEBUG: FOUND PATH: " + @@(paCurrentPath)
-		paAllPaths + paCurrentPath
-		return
-	ok
-
-	for aEdge in @aEdges
-		if HasKey(aEdge, "from") and aEdge["from"] = pcCurrent
-			if HasKey(aEdge, "to")
-				cNext = aEdge["to"]
-				? "DEBUG: Checking edge " + pcCurrent + " -> " + cNext + " (in path: " + (find(paCurrentPath, cNext) > 0) + ")"
-				
-				if find(paCurrentPath, cNext) = 0
-					paCurrentPath + cNext
-					This.PrivateFindAllPathsDFS(cNext, pcTarget, paCurrentPath, paAllPaths, pnDepth + 1)
-					paCurrentPath = stzleft(paCurrentPath, len(paCurrentPath) - 1)
+	def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDepth)
+		
+		if pnDepth > 10
+			return
+		ok
+	
+		if pcCurrent = pcTarget
+			paAllPaths + paCurrentPath
+			return
+		ok
+	
+		for aEdge in @aEdges
+			if HasKey(aEdge, "from") and aEdge["from"] = pcCurrent
+				if HasKey(aEdge, "to")
+					cNext = aEdge["to"]
+					
+					if find(paCurrentPath, cNext) = 0
+						paCurrentPath + cNext
+						This.PrivateFindAllPathsDFS(cNext, pcTarget, paCurrentPath, paAllPaths, pnDepth + 1)
+						paCurrentPath = stzleft(paCurrentPath, len(paCurrentPath) - 1)
+					ok
 				ok
 			ok
-		ok
-	end
+		end
 
 
 	def Neighbors(pcNodeId)
@@ -311,21 +307,28 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 
 	def BottleneckNodes()
 		aBottlenecks = []
-		nMaxDegree = 0
-
-		for oNode in @aNodes
-			nIncoming = len(This.Incoming(oNode["id"]))
-			nOutgoing = len(This.Neighbors(oNode["id"]))
+		nTotalDegree = 0
+		
+		# Calculate average degree
+		for aNode in @aNodes
+			nIncoming = len(This.Incoming(aNode["id"]))
+			nOutgoing = len(This.Neighbors(aNode["id"]))
+			nTotalDegree += nIncoming + nOutgoing
+		end
+		
+		nAvgDegree = nTotalDegree / len(@aNodes)
+		
+		# Mark nodes above average
+		for aNode in @aNodes
+			nIncoming = len(This.Incoming(aNode["id"]))
+			nOutgoing = len(This.Neighbors(aNode["id"]))
 			nDegree = nIncoming + nOutgoing
-
-			if nDegree > nMaxDegree
-				nMaxDegree = nDegree
-				aBottlenecks = [oNode["id"]]
-			but nDegree = nMaxDegree and nDegree > 1
-				aBottlenecks + oNode["id"]
+			
+			if nDegree > nAvgDegree
+				aBottlenecks + aNode["id"]
 			ok
 		end
-
+		
 		return aBottlenecks
 
 	def NodeDensity()
@@ -342,8 +345,8 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 	def LongestPath()
 		nMax = 0
 
-		for oNode in @aNodes
-			aReachable = This.ReachableFrom(oNode["id"])
+		for aNode in @aNodes
+			aReachable = This.ReachableFrom(aNode["id"])
 			nLength = len(aReachable) - 1
 
 			if nLength > nMax
@@ -358,7 +361,9 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 	#------------------------------------------
 
 	def Show()
-		This.ShowVertical()
+		aDisplayNodes = This.PrivatePrepareDisplayNodes()
+		This.ShowVerticalWithNodes(aDisplayNodes)
+
 
 	def ShowXT(paOptions)
 		if isString(paOptions) and paOptions = ""
@@ -370,7 +375,8 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 		ok
 
 		if len(paOptions) = 0
-			return This.ShowVertical()
+			aDisplayNodes = This.PrivatePrepareDisplayNodes()
+			return This.ShowVerticalWithNodes(aDisplayNodes)
 		ok
 
 		if NOT IsHashList(paOptions)
@@ -382,19 +388,149 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 			cOrientation = paOptions["orientation"]
 		ok
 		
+		bShowLegend = FALSE
+		if HasKey(paOptions, "Legend")
+			bShowLegend = paOptions["Legend"]
+		ok
+		
+		aDisplayNodes = This.PrivatePrepareDisplayNodes()
+		
 		if cOrientation = "vertical"
-			This.ShowVertical()
+			This.ShowVerticalWithNodes(aDisplayNodes)
 		else
-			This.ShowHorizontal()
+			This.ShowHorizontalWithNodes(aDisplayNodes)
+		ok
+		
+		if bShowLegend
+			aTable = [
+				[ :Sign, :Meaning ]
+			]
+
+			aLegend = This.Legend()
+
+			for aSign in aLegend
+				aTable + aSign[2]
+			end
+
+			? ""
+			? "Legend:" + NL
+			StzTableQ(aTable).Show()
 		ok
 
 	def ShowVertical()
+		This.Show()
+
+		def ShowV()
+			This.Show()
+
+	def ShowHorizontal()
+		This.ShowXT([ :orientation = "horizontal" ])
+
+		def ShowH()
+			This.ShowXT([ :orientation = "horizontal" ])
+
+	def PrivatePrepareDisplayNodes()
+		aBottlenecks = This.BottleneckNodes()
+		aCyclic = This.PrivateGetCyclicNodes()
+		aDisplayNodes = []
+		
+		for aNode in @aNodes
+			aDisplayNode = [
+				:id = aNode["id"],
+				:label = aNode["label"],
+				:properties = aNode["properties"]
+			]
+			
+			cLabel = aNode["label"]
+			lIsBottleneck = find(aBottlenecks, aNode["id"]) > 0
+			lIsCyclic = find(aCyclic, aNode["id"]) > 0
+			
+			if lIsBottleneck and lIsCyclic
+				aDisplayNode["label"] = "!~" + cLabel + "~!"
+			but lIsBottleneck
+				aDisplayNode["label"] = "!" + cLabel + "!"
+			but lIsCyclic
+				aDisplayNode["label"] = "~" + cLabel + "~"
+			ok
+			
+			aDisplayNodes + aDisplayNode
+		end
+		
+		return aDisplayNodes
+
+	def PrivateGetCyclicNodes()
+		aCyclicNodes = []
+		
+		# Find all nodes that are part of strongly connected components (cycles)
+		for aNode in @aNodes
+			if HasKey(aNode, "id")
+				cNodeId = aNode["id"]
+				aReachableFromNode = This.PrivateReachableFromNode(cNodeId)
+				
+				# Remove starting node from reachable set
+				aReachableWithoutStart = []
+				for cReachable in aReachableFromNode
+					if cReachable != cNodeId
+						aReachableWithoutStart + cReachable
+					ok
+				end
+				
+				# If the node can reach itself through other nodes, it's in a cycle
+				if find(aReachableWithoutStart, cNodeId) > 0
+					if find(aCyclicNodes, cNodeId) = 0
+						aCyclicNodes + cNodeId
+					ok
+				ok
+			ok
+		end
+
+		return aCyclicNodes
+
+	def PrivateReachableFromNode(pcStartNode)
+		aReachable = []
+		aVisited = []
+		aQueue = [pcStartNode]
+		aVisited + pcStartNode
+		
+		while len(aQueue) > 0
+			cCurrent = aQueue[1]
+			if len(aQueue) > 1
+				aQueue = stzright(aQueue, len(aQueue) - 1)
+			else
+				aQueue = []
+			ok
+			aReachable + cCurrent
+			
+			for aEdge in @aEdges
+				if HasKey(aEdge, "from") and aEdge["from"] = cCurrent
+					if HasKey(aEdge, "to")
+						cNext = aEdge["to"]
+						if find(aVisited, cNext) = 0
+							aVisited + cNext
+							aQueue + cNext
+						ok
+					ok
+				ok
+			end
+		end
+		
+		return aReachable
+
+	def PrivateGetDisplayLabel(pcNodeId, paDisplayNodes)
+		for aNode in paDisplayNodes
+			if HasKey(aNode, "id") and aNode["id"] = pcNodeId
+				return aNode["label"]
+			ok
+		end
+		return ""
+
+	def ShowVerticalWithNodes(paDisplayNodes)
 		aRoots = []
 		nNodeCount = len(@aNodes)
 		for i = 1 to nNodeCount
-			oNode = @aNodes[i]
-			if len(This.Incoming(oNode["id"])) = 0
-				aRoots + oNode["id"]
+			aNode = @aNodes[i]
+			if len(This.Incoming(aNode["id"])) = 0
+				aRoots + aNode["id"]
 			ok
 		end
 		
@@ -402,18 +538,24 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 			aRoots + @aNodes[1]["id"]
 		ok
 		
+		nRootIdx = 0
 		for cRoot in aRoots
+			nRootIdx += 1
 			aVisitedPath = []
-			This.PrivateShowVerticalBranch(cRoot, aVisitedPath)
+			This.PrivateShowVerticalBranchWithNodes(cRoot, aVisitedPath, 0, paDisplayNodes)
+			
+			if nRootIdx < len(aRoots)
+				? ""
+				? "          ////"
+				? ""
+			ok
 		end
 
-		def ShowV()
-			This.ShowVertical()
-
-	def PrivateShowVerticalBranch(pcNodeId, paVisitedPath)
-		oNode = This.Node(pcNodeId)
-		cBoxed = BoxRound(oNode["label"])
+	def PrivateShowVerticalBranchWithNodes(pcNodeId, paVisitedPath, pnBranchDepth, paDisplayNodes)
+		cDisplayLabel = This.PrivateGetDisplayLabel(pcNodeId, paDisplayNodes)
+		cBoxed = BoxRound(cDisplayLabel)
 		aLines = StzStringQ(cBoxed).Split(nl)
+		
 		for cLine in aLines
 			? CenterAlignXT(cLine, 25, " ")
 		end
@@ -425,9 +567,36 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 			return
 		ok
 		
+		nNeighborIdx = 0
 		for cNext in aNeighbors
+			nNeighborIdx += 1
+			
 			if find(paVisitedPath, cNext) = 0
 				aEdge = This.Edge(pcNodeId, cNext)
+				
+				if len(aNeighbors) > 1 and nNeighborIdx > 1
+					? ""
+					? "          ////"
+					? ""
+					cDisplayLabel = This.PrivateGetDisplayLabel(pcNodeId, paDisplayNodes)
+					cBoxed = BoxRound(cDisplayLabel)
+					aLines = StzStringQ(cBoxed).Split(nl)
+					
+					for i = 1 to len(aLines)
+						if i = 1
+							cTempLine = CenterAlignXT(aLines[i], 25, " ")
+							cTempLine = TrimRight(cTempLine) + "  ↑"
+							? cTempLine
+						but i = 2
+							cTempLine = CenterAlignXT(aLines[i], 25, " ")
+							cTempLine = TrimRight(cTempLine) +  + "──╯"
+							? cTempLine
+						else
+							? CenterAlignXT(aLines[i], 25, " ")
+						ok
+					end
+				ok
+				
 				? CenterAlignXT("|", 25, " ")
 				if aEdge["label"] != ""
 					? CenterAlignXT(aEdge["label"], 25, " ")
@@ -436,11 +605,11 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 				? CenterAlignXT("v", 25, " ")
 				
 				aCopyPath = paVisitedPath
-				This.PrivateShowVerticalBranch(cNext, aCopyPath)
+				This.PrivateShowVerticalBranchWithNodes(cNext, aCopyPath, pnBranchDepth + 1, paDisplayNodes)
+				
 			else
-				# Back-edge detected (cycle)
 				aEdge = This.Edge(pcNodeId, cNext)
-				cNodeLabel = This.Node(cNext)["label"]
+				cNodeLabel = This.PrivateGetDisplayLabel(cNext, paDisplayNodes)
 				cArrowLine = RepeatChar(" ", 12) + "|" + RepeatChar(" ", stzlen("[" + cNodeLabel + "]") + 7) + "↑"
 				
 				? "            |            "
@@ -450,11 +619,12 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 			ok
 		end
 
-	def ShowHorizontal()	
+	def ShowHorizontalWithNodes(paDisplayNodes)
 		aRoots = []
-		for oNode in @aNodes
-			if len(This.Incoming(oNode["id"])) = 0
-				aRoots + oNode["id"]
+
+		for aNode in @aNodes
+			if len(This.Incoming(aNode["id"])) = 0
+				aRoots + aNode["id"]
 			ok
 		end
 		
@@ -466,26 +636,21 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 			aVisited = []
 			aBoxLines = []
 			aArrowLines = []
-			This.PrivateShowHorizontalBranch(cRoot, aVisited, aBoxLines, aArrowLines)
+			This.PrivateShowHorizontalBranchWithNodes(cRoot, aVisited, aBoxLines, aArrowLines, paDisplayNodes)
 			
-			# Print the box lines
 			for cLine in aBoxLines
 				? cLine
 			end
 			
-			# Print feedback loop if exists
-			cFeedback = This.PrivateBuildFeedbackLine(aVisited)
+			cFeedback = This.PrivateBuildFeedbackLineWithNodes(aVisited, "horizontal", paDisplayNodes)
 			if cFeedback != ""
 				? cFeedback
 			ok
 		end
 
-		def ShowH()
-			This.ShowHorizontal()
-
-	def PrivateShowHorizontalBranch(pcNodeId, paVisited, paBoxLines, paArrowLines)
-		oNode = This.Node(pcNodeId)
-		cBoxed = BoxRound(oNode["label"])
+	def PrivateShowHorizontalBranchWithNodes(pcNodeId, paVisited, paBoxLines, paArrowLines, paDisplayNodes)
+		cDisplayLabel = This.PrivateGetDisplayLabel(pcNodeId, paDisplayNodes)
+		cBoxed = BoxRound(cDisplayLabel)
 		aLines = StzStringQ(cBoxed).Split(nl)
 		
 		aNeighbors = This.Neighbors(pcNodeId)
@@ -495,7 +660,6 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 				paBoxLines + cLine
 			end
 		else
-			# Get the connector from previous edge
 			cConnector = ""
 			if len(paVisited) > 0
 				cPrev = paVisited[len(paVisited)]
@@ -505,7 +669,6 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 				ok
 			ok
 			
-			# Add connector to all lines, but use spaces for top/bottom lines
 			for i = 1 to len(aLines)
 				if i = 2
 					paBoxLines[i] += cConnector + aLines[i]
@@ -523,14 +686,13 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 			cEdgeLabel = aEdge["label"]
 			
 			if find(paVisited, cNext) = 0
-				This.PrivateShowHorizontalBranch(cNext, paVisited, paBoxLines, paArrowLines)
+				This.PrivateShowHorizontalBranchWithNodes(cNext, paVisited, paBoxLines, paArrowLines, paDisplayNodes)
 			else
-				# Mark feedback
 				paArrowLines + [pcNodeId, cNext, cEdgeLabel]
 			ok
 		ok
 
-	def PrivateBuildFeedbackLine(paVisited)
+	def PrivateBuildFeedbackLineWithNodes(paVisited, pcOrientation, paDisplayNodes)
 		cFeedback = ""
 		
 		for aEdge in @aEdges
@@ -540,15 +702,13 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 						nToIdx = find(paVisited, aEdge["to"])
 						nFromIdx = find(paVisited, aEdge["from"])
 						
-						# Calculate dynamic box width based on node labels
 						aBoxWidths = []
 						for i = 1 to len(paVisited)
-							oNode = This.Node(paVisited[i])
-							nBoxW = len(oNode["label"]) + 4
+							cDisplayLabel = This.PrivateGetDisplayLabel(paVisited[i], paDisplayNodes)
+							nBoxW = len(cDisplayLabel) + 4
 							aBoxWidths + nBoxW
 						end
 						
-						# Compute target position
 						nToPos = 0
 						for i = 1 to nToIdx - 1
 							nToPos += aBoxWidths[i]
@@ -563,7 +723,6 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 						end
 						nToPos += aBoxWidths[nToIdx] / 2
 						
-						# Compute source position
 						nFromPos = 0
 						for i = 1 to nFromIdx - 1
 							nFromPos += aBoxWidths[i]
@@ -596,8 +755,11 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 				ok
 			ok
 		end
-	
-		# Adjust line lengths to match exactly
+
+		if NOT pcOrientation = "horizontal"
+			return cFeedback
+		ok
+
 		acSplits = @split(cFeedback, nl)
 		nLenLine1 = stzlen(acSplits[1])
 		nLenLine2 = stzlen(acSplits[2])
@@ -615,3 +777,120 @@ def PrivateFindAllPathsDFS(pcCurrent, pcTarget, paCurrentPath, paAllPaths, pnDep
 		
 		return acSplits[1] + nl + cLine2
 
+
+	def ShowWithLegend()
+		This.ShowXT([ :Legend = TRUE ])
+
+	def Legend()
+		aBottlenecks = This.BottleneckNodes()
+		aCyclic = This.PrivateGetCyclicNodes()
+		aLegend = []
+		
+		if len(aBottlenecks) > 0
+			aLegend[:bottleneck] = [ "!label!", "High connectivity hub (bottleneck)" ]
+		ok
+		
+		if len(aCyclic) > 0
+			aLegend[:cyclic] = [ "~label~", "Participates in cycle" ]
+		ok
+		
+		if len(aBottlenecks) > 0 and len(aCyclic) > 0
+			aLegend[:both] = [ "!~label~!", "Hub with cyclic dependency" ]
+		ok
+		
+		if This.CyclicDependencies()
+			aLegend[:feedback] = [ "[...] __↑", "Feedback loop" ]
+			aLegend[:branch] = [ "////", "Branch separator (multiple paths)" ]
+		ok
+		
+		if len(aLegend) = 0
+			aLegend[:normal] = [ "label", "Regular node" ]
+		ok
+		
+		return aLegend
+
+	def Explain()
+		aExplanation = [
+			:general = [],
+			:bottlenecks = [],
+			:cycles = [],
+			:metrics = []
+		]
+		
+		aBottlenecks = This.BottleneckNodes()
+		aCyclic = This.PrivateGetCyclicNodes()
+		
+		# General section
+		aExplanation[:general] + ("Graph: " + This.Id())
+		aExplanation[:general] + ("Nodes: " + len(@aNodes) + " | Edges: " + len(@aEdges))
+		
+		# Bottlenecks section
+		if len(aBottlenecks) > 0
+			nTotalDegree = 0
+			for aNode in @aNodes
+				nIncoming = len(This.Incoming(aNode["id"]))
+				nOutgoing = len(This.Neighbors(aNode["id"]))
+				nTotalDegree += nIncoming + nOutgoing
+			end
+			nAvgDegree = nTotalDegree / len(@aNodes)
+			
+			aExplanation[:bottlenecks] + ("Bottleneck nodes: " + JoinXT(aBottlenecks, ", "))
+			aExplanation[:bottlenecks] + ("All nodes have average degree " + nAvgDegree)
+			
+			for cNode in aBottlenecks
+				nIncoming = len(This.Incoming(cNode))
+				nOutgoing = len(This.Neighbors(cNode))
+				nDegree = nIncoming + nOutgoing
+				aExplanation[:bottlenecks] + ("  " + cNode + ": degree " + nDegree + " (above average)")
+			end
+		else
+			nTotalDegree = 0
+			for aNode in @aNodes
+				nIncoming = len(This.Incoming(aNode["id"]))
+				nOutgoing = len(This.Neighbors(aNode["id"]))
+				nTotalDegree += nIncoming + nOutgoing
+			end
+			nAvgDegree = nTotalDegree / len(@aNodes)
+			aExplanation[:bottlenecks] + ("No bottlenecks (average degree = " + nAvgDegree + ")")
+		ok
+		
+		# Cycles section
+		if len(aCyclic) > 0
+			aExplanation[:cycles] + ("Cyclic nodes: " + JoinXT(aCyclic, ", "))
+			for cNode in aCyclic
+				aExplanation[:cycles] + ("  " + cNode + " can reach itself")
+			end
+		ok
+		
+		if This.CyclicDependencies()
+			aExplanation[:cycles] + "WARNING: Circular dependencies detected"
+		else
+			if len(aCyclic) = 0
+				aExplanation[:cycles] + "No cycles - acyclic graph (DAG)"
+			ok
+		ok
+		
+		# Metrics section
+		nDensity = This.NodeDensity()
+		if nDensity = 0
+			aExplanation[:metrics] + "Density: 0% (no connections)"
+		but nDensity < 25
+			aExplanation[:metrics] + ("Density: " + nDensity + "% (sparse)")
+		but nDensity < 50
+			aExplanation[:metrics] + ("Density: " + nDensity + "% (moderate)")
+		but nDensity < 75
+			aExplanation[:metrics] + ("Density: " + nDensity + "% (dense)")
+		else
+			aExplanation[:metrics] + ("Density: " + nDensity + "% (very dense)")
+		ok
+		
+		nLongest = This.LongestPath()
+		if nLongest = 0
+			aExplanation[:metrics] + "Longest path: 0 hops (isolated)"
+		but nLongest = 1
+			aExplanation[:metrics] + "Longest path: 1 hop"
+		else
+			aExplanation[:metrics] + ("Longest path: " + nLongest + " hops")
+		ok
+		
+		return aExplanation

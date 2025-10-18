@@ -1,19 +1,21 @@
-# stzGraph: Computational Foundation
+# stzGraph: Computational Foundation and Design
 
 ## Introduction: What This Article Is About
 
 stzGraph is the foundational layer of Softanza's graph ecosystem. It handles one focused responsibility: representing and reasoning about the structure of relationships.
 
-This article explains the design philosophy behind stzGraph—why it's intentionally narrow in scope, how it separates concerns, and what role it plays in the larger system. If you want practical examples and tutorials, see "Getting Started with stzGraph" instead.
+This article explains the design philosophy—why it's intentionally narrow in scope, how it separates concerns, and what role it plays in the larger system. It also explores two major features made by deliberate design: **Visualization** and **Explanation**.
 
-The core insight we'll explore: separating *how things connect* from *what those connections mean*.
+The core insight: separating _how things connect_ from _what those connections mean_.
+
+***
 
 ## The Problem: Mixed Concerns
 
-Most systems that work with relationships conflate two distinct concerns:
+Most systems conflate two distinct concerns:
 
-1. **The structure**: How entities connect, which paths exist, what reaches what
-2. **The semantics**: What those entities represent, what the connections mean, what rules apply
+1. **Structure**: How entities connect, which paths exist, what reaches what
+2. **Semantics**: What entities represent, what connections mean, what rules apply
 
 This conflation creates problems:
 
@@ -34,19 +36,19 @@ Result: Hard to test, hard to extend,
         hard to reason about independently
 ```
 
-The Softanza answer: separate these concerns cleanly.
+***
 
 ## The stzGraph Vision
 
-stzGraph handles **only the structure**. It answers structural questions:
+stzGraph handles **only structure**. Structural questions:
 
-- Can I reach point B from point A?
-- What are all possible routes from A to B?
-- Does a circular dependency exist?
-- Which nodes are bottlenecks?
-- How connected is this structure?
+* Can I reach point B from point A?
+* What are all possible routes from A to B?
+* Does a circular dependency exist?
+* Which nodes are bottlenecks?
+* How connected is this structure?
 
-stzGraph deliberately doesn't care what the nodes represent or what semantics matter. This isn't a limitation—it's the point.
+stzGraph deliberately doesn't care what nodes represent or what semantics matter. This isn't a limitation—it's the point.
 
 ```
 Clean Architecture:
@@ -57,187 +59,377 @@ Clean Architecture:
 │  ├─ Cycle detection               │
 │  ├─ Reachability analysis         │
 │  ├─ Bottleneck identification     │
-│  └─ Metrics                       │
+│  ├─ Metrics                       │
+│  ├─ Visualization (ASCII)         │
+│  └─ Explanation (structured)      │
 │                                   │
-│  (No domain logic, no rendering,  │
-│   no semantics—just algorithms)   │
+│  (No domain logic, no semantics—  │
+│   pure algorithms + introspection)│
 └────────────────────────────────────┘
          ↑ (Inherited by)
 ┌────────────────────────────────────┐
-│  Workflow Domain (stzDiagram)      │
-│  ├─ Workflow semantics            │
-│  ├─ Validation rules              │
-│  ├─ Visual rendering              │
-│  ├─ Compliance checking           │
-│  └─ Annotations                   │
-└────────────────────────────────────┘
-         ↑ (Inherited by)
-┌────────────────────────────────────┐
-│  Semantic Framework                │
+│  Domain Specializations            │
+│  ├─ stzDiagram (workflows)         │
 │  ├─ stzEntity (type hierarchies)   │
-│  ├─ stzRelation (entity relations) │
-│  ├─ stzListOfEntities (collections)│
-│  └─ Natural language modeling      │
-└────────────────────────────────────┘
-         ↑ (Inherited by)
-┌────────────────────────────────────┐
-│  Custom Domains                    │
-│  ├─ Organization hierarchies      │
-│  ├─ Data architectures            │
-│  ├─ Service dependencies          │
-│  └─ ...anything with relationships│
+│  ├─ stzRelation (relations)        │
+│  ├─ Custom domains                 │
+│  └─ ... (any with relationships)   │
 └────────────────────────────────────┘
 ```
 
-This layering creates advantages:
+***
 
-**Testability**: Test stzGraph's algorithms independently from domain logic
-**Reusability**: One graph implementation serves all domains
-**Clarity**: Easy to distinguish what's structure vs. what's semantics
-**Extensibility**: New domains inherit all capabilities automatically
-**Natural Modeling**: Semantic frameworks can express language naturally while leveraging sound graph algorithms
+## What stzGraph Provides
 
-## What stzGraph Actually Provides
+### Core: Structural Analysis
 
-### 1. Explicit Node and Edge Management
+1. **Path Analysis**: What routes exist from A to B?
+2. **Reachability**: From X, what else is reachable?
+3. **Cycle Detection**: Are there circular dependencies?
+4. **Bottleneck Identification**: Which nodes are critical hubs?
+5. **Metrics**: Density (coupling), longest path (depth)
+6. **Neighborhoods**: Direct incoming/outgoing connections
 
-Nodes are entities. Edges are directed relationships.
+### Design Feature 1: Visualization
 
-```
-Nodes: "request", "approval", "completion"
-Edges: request → approval → completion
-```
+stzGraph includes **native ASCII visualization**. This is deliberate design, not an afterthought.
 
-That's it. No hidden state, no implicit behavior.
+**Why built-in visualization matters:**
 
-### 2. Path Analysis Algorithms
+* Developers see structure immediately without external tools
+* ASCII avoids tool dependencies; works in terminal, logs, docs, version control
+* Visualization is computational feedback—quick validation during development
+* Enables visual debugging and communication between programmers
 
-Answer: What routes exist from one node to another?
+**Visualization modes:**
 
-This reveals alternatives, single points of failure, and mandatory sequences. In semantic frameworks, this enables discovering all possible inference paths between entities.
+* `Show()` / `ShowV()` — vertical layout (sequential flows)
+* `ShowH()` / `ShowHorizontal()` — horizontal layout (parallel paths)
+* `ShowWithLegend()` — annotate structural characteristics
 
-### 3. Reachability Analysis
+**Legend markers** (added by design):
 
-Answer: Starting from here, what else can I reach?
+* `!label!` — bottleneck node (high-degree hub)
+* `////` — path separator (multiple alternative routes)
+* `<CYCLE: label>` — feedback loop indicator
+* `[Node]` — node participating in cycle
 
-This reveals scope, impact, and the extent of influence. In language models, this shows what entities are semantically accessible from a given type.
-
-### 4. Cycle Detection
-
-Answer: Are there circular dependencies?
-
-Cycles are structural red flags. A process can't work if it loops back on itself. In type systems, cycles indicate contradictory definitions.
-
-### 5. Bottleneck Identification
-
-Answer: Which nodes are critical hubs?
-
-These are risk points—if they fail, impact is widespread. In semantic models, bottlenecks are core entities that many others depend on.
-
-### 6. Metrics
-
-Answer: How complex is this structure?
-
-Density reveals coupling. Path length reveals process complexity. In language models, these reveal how tightly types are coupled and how deep inheritance hierarchies are.
-
-## Properties: Metadata for Later Analysis
-
-stzGraph can store metadata in node properties. These properties don't affect graph algorithms—they're inert data.
-
-But they're critical for domain specializations:
+Example: A multi-path workflow visualized with `ShowWithLegend()`:
 
 ```
-stzGraph stores:
-  Node properties: [criticality = "high", owner = "eng-team", sla = "99.9%"]
+       ╭─────────╮       
+       │ !Start! │       
+       ╰─────────╯       
+            |            
+        expedited        
+            |            
+            v            
+     ╭─────────────╮     
+     │ !Fast Path! │     
+     ╰─────────────╯     
+            |            
+         finish          
+            |            
+            v            
+     ╭────────────╮      
+     │ !Complete! │      
+     ╰────────────╯      
 
-stzDiagram uses them:
-  - Criticality triggers compliance validation
-  - Owner enables accountability checks
-  - SLA enables performance analysis
+          ////
 
-Semantic Framework uses them:
-  - Entity constraints: min_cardinality, max_cardinality
-  - Type metadata: is_abstract, is_mutable, documentation
-  - Validation rules: required_fields, allowed_values
-
-Custom domains use them:
-  - Financial domain: cost, risk, regulatory-status
-  - Healthcare domain: patient-safety-impact, data-sensitivity
-  - Anything: domain-specific metadata
+       ╭─────────╮  ↑
+       │ !Start! │──╯
+       ╰─────────╯       
+            |            
+         normal          
+            |            
+            v            
+   ╭─────────────────╮   
+   │ !Standard Path! │   
+   ╰─────────────────╯   
+            |            
+         finish          
+            |            
+            v            
+     ╭────────────╮      
+     │ !Complete! │      
+     ╰────────────╯
 ```
 
-Properties are the bridge between pure structure and semantic richness. stzGraph stores them neutrally. Domain specializations interpret them meaningfully.
+Marks show:
+
+* `!Start!`, `!Fast Path!`, `!Standard Path!`, `!Complete!` are bottlenecks (high degree)
+* `////` separates two distinct paths
+* Multiple routes to completion visible at a glance
+
+**Design principle**: Visualization surfaces structural insights without interpretation. A programmer sees the actual topology, not a filtered or prettified version.
+
+***
+
+### Design Feature 2: Explanation
+
+stzGraph includes `.Explain()` — **structured introspection**. This is deliberate design.
+
+**Why built-in explanation matters:**
+
+* Graph characteristics become programmable facts, not just visual observations
+* Enables automated reporting, validation, linting
+* Structured output (not prose) allows downstream processing
+* Bridges visual understanding with computational reasoning
+
+**Explanation structure:**
+
+```ring
+Explain() returns an array with four sections:
+
+[
+    ["general", [
+        "Graph name and counts"
+    ]],
+    ["bottlenecks", [
+        "Identified bottleneck nodes",
+        "Degree analysis",
+        "Which nodes exceed average degree"
+    ]],
+    ["cycles", [
+        "Cycle detection result",
+        "If cycles exist: nature and risk"
+    ]],
+    ["metrics", [
+        "Density percentage",
+        "Longest path length"
+    ]]
+]
+```
+
+Example output for a cyclic workflow:
+
+```ring
+[
+    ["general", ["Graph: CyclicWorkflow", "Nodes: 3 | Edges: 3"]],
+    ["bottlenecks", ["Bottleneck nodes: @p1", "@p1: degree 3 (above average)"]],
+    ["cycles", ["WARNING: Circular dependencies detected"]],
+    ["metrics", ["Density: 50% (dense)", "Longest path: 2 hops"]]
+]
+```
+
+**Use cases:**
+
+```ring
+# Validation in CI/CD
+if Explain()["cycles"][1].contains("WARNING")
+    throw("Pipeline has cycles—fix before deploying")
+end
+
+# Automated reporting
+oReport.AddSection("Bottlenecks", oGraph.Explain()["bottlenecks"])
+
+# Linting
+if oGraph.Explain()["metrics"][1].toNumber() > 75
+    log("Warning: Dense coupling detected")
+end
+```
+
+**Design principle**: Explanation extracts structural facts into programmable form. Developers reason about graphs using data, not interpretation.
+
+***
+
+## Properties: Metadata Without Semantics
+
+stzGraph stores node properties without interpreting them:
+
+```ring
+AddNodeXT(:@step, "Validate", :Process, [
+    "priority" = "high",
+    "owner" = "eng-team",
+    "sla" = "99.9%"
+])
+```
+
+Properties remain **inert to graph algorithms**. But domain specializations interpret them:
+
+* **stzDiagram** uses priority for rendering, owner for accountability
+* **Semantic Framework** uses constraints: `min_cardinality`, `max_cardinality`, `is_abstract`
+* **Custom domains** add their own metadata: cost, risk, compliance status
+
+Properties are the bridge between pure structure and semantic richness.
+
+***
 
 ## Design Principles
 
 ### Computational Purity
 
-stzGraph contains algorithms, not semantics. This means:
+stzGraph contains algorithms, not semantics:
 
-- Same code works for org hierarchies, workflows, data flows, service architectures, type systems, entity relations
-- You reason about structure without domain assumptions
-- Algorithms are provably correct (no domain logic to get wrong)
-- Semantic frameworks can safely inherit and extend
+* Same code works for workflows, type systems, org hierarchies, data flows, service architectures
+* Algorithms are provably correct (no domain logic to get wrong)
+* Specializations safely inherit and extend
 
 ### Explicit Representation
 
 Everything is observable:
 
-```
-All nodes: @aNodes
-All edges: @aEdges
+```ring
+? oGraph.NodeCount()
+? oGraph.EdgeCount()
+? oGraph.NodeExists(:@id)
+? oGraph.EdgeExists(:@from, :@to)
 ```
 
-No hidden state, no implicit relationships. You can inspect the exact structure at any time.
+No hidden state, no implicit relationships.
 
 ### Algorithmic Safety
 
-All traversal algorithms use visited tracking to prevent infinite loops—even in cyclic graphs. This is non-negotiable for production systems, especially semantic frameworks that must handle cycles gracefully without entering infinite validation loops.
+All traversal algorithms use visited tracking to prevent infinite loops—even in cyclic graphs. This is non-negotiable for production systems.
 
-### Separation Enables Composition
+### Visibility: Native Visualization
 
-Because stzGraph is pure structure, you can:
+ASCII visualization is deliberate design:
 
-- Combine graphs (merge nodes and edges)
-- Transform graphs (filter, collapse, expand)
-- Analyze graphs (detect patterns)
-- Layer semantics on top (add domain meaning)
+* **Immediate feedback** during development without external tools
+* **Tool-independent** (works in terminal, logs, docs, version control)
+* **Semantic-neutral** (shows actual structure, not interpretation)
+* **Programmable markers** (legends encode structural facts)
 
-Each of these is independent because there's no entangled domain logic. Semantic frameworks can extend these operations safely.
+Methods: `Show()` / `ShowV()` (vertical), `ShowH()` / `ShowHorizontal()` (horizontal), `ShowWithLegend()` (annotated)
+
+Legend markers reveal structure:
+
+* `!label!` — bottleneck node (high-degree hub)
+* `////` — path separator (multiple routes)
+* `<CYCLE: label>` — feedback loop
+* `[Node]` — node in cycle
+
+Example multi-path workflow with `ShowWithLegend()`:
+
+```
+       ╭─────────╮       
+       │ !Start! │       
+       ╰─────────╯       
+            |            
+        expedited        
+            |            
+            v            
+     ╭─────────────╮     
+     │ !Fast Path! │     
+     ╰─────────────╯     
+            |            
+         finish          
+            |            
+            v            
+     ╭────────────╮      
+     │ !Complete! │      
+     ╰────────────╯      
+
+          ////
+
+       ╭─────────╮  ↑
+       │ !Start! │──╯
+       ╰─────────╯       
+            |            
+         normal          
+            |            
+            v            
+   ╭─────────────────╮   
+   │ !Standard Path! │   
+   ╰─────────────────╯   
+            |            
+         finish          
+            |            
+            v            
+     ╭────────────╮      
+     │ !Complete! │      
+     ╰────────────╯
+```
+
+### Expressiveness: Structured Explanation
+
+`.Explain()` makes graph characteristics programmable:
+
+* **Structured introspection** returning organized analysis data
+* **Programmatic validation** (test properties in CI/CD, not by inspection)
+* **Automated linting** (check density, degree distribution, cycles)
+* **Systematic understanding** without manual graph inspection
+
+Returns array with sections:
+
+* `general`: Graph name and counts
+* `bottlenecks`: Hub nodes and degree analysis
+* `cycles`: Cycle detection and risk
+* `metrics`: Density percentage, longest path
+
+Example for cyclic workflow:
+
+```ring
+[
+    ["general", ["Graph: CyclicWorkflow", "Nodes: 3 | Edges: 3"]],
+    ["bottlenecks", ["Bottleneck nodes: @p1", "@p1: degree 3 (above average)"]],
+    ["cycles", ["WARNING: Circular dependencies detected"]],
+    ["metrics", ["Density: 50% (dense)", "Longest path: 2 hops"]]
+]
+```
+
+Use cases:
+
+```ring
+# Validation in CI/CD
+if Explain()["cycles"][1].contains("WARNING")
+    throw("Pipeline has cycles—fix before deploying")
+end
+
+# Automated reporting
+oReport.AddSection("Bottlenecks", oGraph.Explain()["bottlenecks"])
+
+# Linting
+if oGraph.Explain()["metrics"][1].toNumber() > 75
+    log("Warning: Dense coupling detected")
+end
+```
+
+***
 
 ## Algorithmic Guarantees
 
 stzGraph algorithms are:
 
-- **Correct**: They produce valid results for any input
-- **Terminating**: They always finish (cycle detection prevents infinite loops)
-- **Efficient**: O(V + E) where V = nodes, E = edges
-- **Deterministic**: Same input always produces same output
+* **Correct**: Valid results for any input
+* **Terminating**: Always finish (visited tracking prevents infinite loops)
+* **Efficient**: O(V + E) complexity
+* **Deterministic**: Same input always produces same output
 
-These properties matter because downstream specializations (stzDiagram, semantic frameworks, compliance checkers, risk analyzers) depend on reliable computation.
+These properties matter because downstream specializations (stzDiagram, semantic frameworks, compliance checkers) depend on reliable computation.
+
+***
 
 ## The Role in the Ecosystem
 
-stzGraph is the **computational foundation** that enables:
+stzGraph is the **computational foundation** enabling:
 
 1. **Workflow analysis** (stzDiagram): Detect invalid processes, validate completeness, check compliance
+
 2. **Natural language modeling** (Semantic Framework):
-   - **stzEntity**: Model type hierarchies, inheritance chains, entity specialization
-   - **stzRelation**: Define valid relationships between entities with semantic constraints
-   - **stzListOfEntities**: Collections with cardinality and constraint validation
-   - Express language structure naturally while leveraging sound graph algorithms
-3. **Organizational analysis**: Reveal structure, identify bottlenecks, understand information flow
+
+   * Leverage sound graph algorithms for type hierarchies, inheritance, entity relations
+   * Express language structure naturally while building on proven foundations
+
+3. **Organizational analysis**: Reveal structure, identify bottlenecks, understand flow
+
 4. **Data architecture**: Trace flows, detect cycles, identify dependencies
+
 5. **System design**: Analyze services, find critical paths, guide resilience
+
 6. **Custom domains**: Any problem with relational structure
 
-All these build on stzGraph's foundation. They inherit path analysis, cycle detection, reachability, and metrics. They add domain-specific validation, rendering, rules, and semantics.
+All build on stzGraph's foundation. They inherit pathfinding, cycle detection, reachability, metrics, visualization, and explanation. They add domain-specific validation, rendering, rules, and semantics.
+
+***
 
 ## Why This Design
 
-Most graph systems mix concerns. You have to understand and modify domain logic to debug structural issues. You can't test algorithms independently. You can't reuse code across domains.
+Most graph systems mix concerns. Debugging structural issues requires understanding domain logic. Algorithms can't be tested independently. Code doesn't reuse across domains.
 
-stzGraph breaks this pattern. It's intentionally narrow:
+stzGraph breaks this pattern by being intentionally narrow:
 
 ```
 stzGraph scope:
@@ -247,33 +439,78 @@ stzGraph scope:
   ✓ Cycle detection
   ✓ Bottleneck analysis
   ✓ Metrics
+  ✓ ASCII Visualization
+  ✓ Structured Explanation
   
-  ✗ Rendering
+  ✗ Rendering (sophisticated layouts)
   ✗ Validation rules
   ✗ Domain semantics
   ✗ Compliance checking
   ✗ Type constraints
-  ✗ Cardinality rules
 ```
 
 This narrowness enables:
 
-- **Testability**: Verify algorithms independently from domain logic
-- **Reusability**: One implementation serves workflows, semantic frameworks, and custom domains
-- **Maintainability**: Small, stable, focused codebase
-- **Extensibility**: New domains inherit capabilities automatically
-- **Clarity**: Structure separate from semantics is explicit
-- **Semantic Soundness**: Natural language models can build on mathematically proven foundations
+* **Testability**: Verify algorithms independently
+* **Reusability**: One implementation serves all domains
+* **Maintainability**: Small, focused codebase
+* **Extensibility**: New domains inherit automatically
+* **Transparency**: Structure vs. semantics is explicit
+* **Developer Experience**: Visualization and explanation built-in, not bolted-on
+
+***
+
+## Visualization and Explanation as Core Features
+
+### Why they're part of stzGraph (not delegated to specializations)
+
+1. **Universal need**: Any graph-based problem needs to see and understand structure
+2. **Foundation responsibility**: A foundation should aid comprehension, not hide complexity
+3. **No semantic bias**: ASCII visualization and structured explanation don't impose domain assumptions
+4. **Development velocity**: Built-in feedback accelerates iteration
+
+### What they enable
+
+**Visualization** enables:
+
+* Quick validation during graph construction
+* Immediate visibility into structural issues
+* Natural debugging (see the actual topology)
+* Communication between programmers
+
+**Explanation** enables:
+
+* Programmatic validation (test graph properties in CI/CD)
+* Automated compliance checking
+* Quantitative analysis (density, degree distribution, path lengths)
+* Structured reporting without custom parsing
+
+### What they avoid
+
+Both features are **intentionally simple**:
+
+* Visualization doesn't interpret structure (doesn't add domain layout logic)
+* Explanation doesn't judge structure (doesn't enforce domain rules)
+* Neither requires external dependencies
+
+This keeps stzGraph lightweight while providing essential developer tools.
+
+***
 
 ## Conclusion
 
 stzGraph provides rock-solid computational thinking at the foundation. It handles one thing: the mathematics of relationships.
 
+**Core responsibility**: Correct algorithms for path analysis, reachability, cycle detection, bottleneck identification, and metrics.
+
+**Developer experience features** (visualization and explanation) are part of the design—not afterthoughts—because a foundation should aid understanding.
+
 Domain specializations add meaning to that structure:
-- **stzDiagram** brings workflow semantics
-- **Semantic Framework** (stzEntity, stzRelation, stzListOfEntities) enables natural language modeling
-- Custom applications add their own meaning
 
-They all build on a foundation that doesn't change—a foundation of pure, correct, testable algorithms.
+* stzDiagram brings workflow semantics
+* Semantic Framework enables natural language modeling
+* Custom applications add their own meaning
 
-This is Softanza philosophy: make the thinking clear first, then build tools on top of clarity. stzGraph is what clear computational thinking looks like for graphs. The semantic framework is what natural language modeling looks like when built on that clarity.
+They all build on a foundation that doesn't change—a foundation of pure, correct, introspectable algorithms.
+
+This is Softanza philosophy: make the thinking clear first (through visualization and explanation), then build tools on top of clarity.
