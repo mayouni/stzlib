@@ -90,151 +90,7 @@ Clean Architecture:
 5. **Metrics**: Density (coupling), longest path (depth)
 6. **Neighborhoods**: Direct incoming/outgoing connections
 
-### Design Feature 1: Visualization
-
-stzGraph includes **native ASCII visualization**. This is deliberate design, not an afterthought.
-
-**Why built-in visualization matters:**
-
-* Developers see structure immediately without external tools
-* ASCII avoids tool dependencies; works in terminal, logs, docs, version control
-* Visualization is computational feedback—quick validation during development
-* Enables visual debugging and communication between programmers
-
-**Visualization modes:**
-
-* `Show()` / `ShowV()` — vertical layout (sequential flows)
-* `ShowH()` / `ShowHorizontal()` — horizontal layout (parallel paths)
-* `ShowWithLegend()` — annotate structural characteristics
-
-**Legend markers** (added by design):
-
-* `!label!` — bottleneck node (high-degree hub)
-* `////` — path separator (multiple alternative routes)
-* `<CYCLE: label>` — feedback loop indicator
-* `[Node]` — node participating in cycle
-
-Example: A multi-path workflow visualized with `ShowWithLegend()`:
-
-```
-       ╭─────────╮       
-       │ !Start! │       
-       ╰─────────╯       
-            |            
-        expedited        
-            |            
-            v            
-     ╭─────────────╮     
-     │ !Fast Path! │     
-     ╰─────────────╯     
-            |            
-         finish          
-            |            
-            v            
-     ╭────────────╮      
-     │ !Complete! │      
-     ╰────────────╯      
-
-          ////
-
-       ╭─────────╮  ↑
-       │ !Start! │──╯
-       ╰─────────╯       
-            |            
-         normal          
-            |            
-            v            
-   ╭─────────────────╮   
-   │ !Standard Path! │   
-   ╰─────────────────╯   
-            |            
-         finish          
-            |            
-            v            
-     ╭────────────╮      
-     │ !Complete! │      
-     ╰────────────╯
-```
-
-Marks show:
-
-* `!Start!`, `!Fast Path!`, `!Standard Path!`, `!Complete!` are bottlenecks (high degree)
-* `////` separates two distinct paths
-* Multiple routes to completion visible at a glance
-
-**Design principle**: Visualization surfaces structural insights without interpretation. A programmer sees the actual topology, not a filtered or prettified version.
-
-***
-
-### Design Feature 2: Explanation
-
-stzGraph includes `.Explain()` — **structured introspection**. This is deliberate design.
-
-**Why built-in explanation matters:**
-
-* Graph characteristics become programmable facts, not just visual observations
-* Enables automated reporting, validation, linting
-* Structured output (not prose) allows downstream processing
-* Bridges visual understanding with computational reasoning
-
-**Explanation structure:**
-
-```ring
-Explain() returns an array with four sections:
-
-[
-    ["general", [
-        "Graph name and counts"
-    ]],
-    ["bottlenecks", [
-        "Identified bottleneck nodes",
-        "Degree analysis",
-        "Which nodes exceed average degree"
-    ]],
-    ["cycles", [
-        "Cycle detection result",
-        "If cycles exist: nature and risk"
-    ]],
-    ["metrics", [
-        "Density percentage",
-        "Longest path length"
-    ]]
-]
-```
-
-Example output for a cyclic workflow:
-
-```ring
-[
-    ["general", ["Graph: CyclicWorkflow", "Nodes: 3 | Edges: 3"]],
-    ["bottlenecks", ["Bottleneck nodes: @p1", "@p1: degree 3 (above average)"]],
-    ["cycles", ["WARNING: Circular dependencies detected"]],
-    ["metrics", ["Density: 50% (dense)", "Longest path: 2 hops"]]
-]
-```
-
-**Use cases:**
-
-```ring
-# Validation in CI/CD
-if Explain()["cycles"][1].contains("WARNING")
-    throw("Pipeline has cycles—fix before deploying")
-end
-
-# Automated reporting
-oReport.AddSection("Bottlenecks", oGraph.Explain()["bottlenecks"])
-
-# Linting
-if oGraph.Explain()["metrics"][1].toNumber() > 75
-    log("Warning: Dense coupling detected")
-end
-```
-
-**Design principle**: Explanation extracts structural facts into programmable form. Developers reason about graphs using data, not interpretation.
-
-***
-
-## Properties: Metadata Without Semantics
+### Properties: Metadata Without Semantics
 
 stzGraph stores node properties without interpreting them:
 
@@ -389,6 +245,198 @@ end
 
 ***
 
+## Problem Classes stzGraph Solves
+
+**Workflows & Processes**
+
+* Detect impossible approval chains, dependency loops
+* Find bottlenecks (single points of failure)
+* Validate process completeness before execution
+* Trace impact of changes
+
+**Organization & Hierarchies**
+
+* Map reporting structures, find span-of-control imbalances
+* Identify critical nodes
+* Analyze decision propagation paths
+* Plan restructuring with visibility into impact
+
+**Data Architectures**
+
+* Trace data flows from source to consumption
+* Detect circular data dependencies
+* Find missing transformations
+* Plan migration strategies
+
+**Service Dependencies**
+
+* Map microservice call graphs
+* Identify critical services where failure cascades
+* Plan resilience strategies
+* Validate system designs
+
+**Natural Language Modeling** (Semantic Foundation)
+
+* Model entity hierarchies and type inheritance
+* Express relationships between concepts with integrity
+* Detect semantic contradictions (circular type definitions: "Person is\_a Employee" and "Employee is\_a Person")
+* Build language understanding on sound relational foundations
+* Enable semantic inference: "What entities are accessible from this concept?"
+* Support multi-path semantic reasoning: "Can I reach meaning through alternative relations?"
+
+Example—type hierarchy with semantic reachability:
+
+```
+Entity → Person → Employee → Manager
+
+From Person, reachable: [Person, Employee, Manager]
+Person is bottleneck: changes cascade to all specializations
+Density: linear chain (loose coupling, safe to modify)
+```
+
+Example—semantic contradiction detection:
+
+```
+AddEdge(:@person, :@employee, "is_a")
+AddEdge(:@employee, :@person, "is_a")  # Circular
+
+? CyclicDependencies()  #--> TRUE
+# Type system is logically incoherent
+```
+
+***
+
+## How Softanza Enables Natural Language Modeling
+
+**Traditional NLP**: Embed semantics directly in code.
+
+* Type systems hardcoded, rigid
+* Relations mixed with validation logic
+* Difficult to reason about semantic structure independently
+* Can't validate language model coherence before interpretation
+
+**Softanza approach**: Separate semantic structure from interpretation.
+
+```
+stzGraph layer (structure):
+  ├─ Entities as nodes (Person, Employee, Order, Payment)
+  ├─ Relations as edges (is_a, has_a, belongs_to)
+  ├─ Properties as metadata (cardinality, constraints)
+  ├─ Validation: cycles, reachability, bottlenecks
+  └─ Introspection: Explain() reveals logical soundness
+
+Semantic layer (stzEntity, stzRelation):
+  ├─ Type hierarchies with inheritance rules
+  ├─ Cardinality constraints (1-to-1, 1-to-many, many-to-many)
+  ├─ Required vs optional relationships
+  ├─ Validation rules (age > 0, status in {active, inactive})
+  └─ Semantic meaning (what this relation entails)
+
+Natural language layer (application):
+  ├─ Parse text to semantic graph
+  ├─ Validate against type system
+  ├─ Infer meaning through reachability
+  ├─ Generate structured output
+  └─ Explain reasoning (trace inference paths)
+```
+
+**Validation before interpretation**: Check that type system is acyclic, no contradictions, no isolated concepts before processing language.
+
+```ring
+# Validate semantic model
+if oTypeSystem.CyclicDependencies()
+    throw("Type system has logical contradictions")
+end
+
+# Check coherence
+aAnalysis = oTypeSystem.Explain()
+if aAnalysis["bottlenecks"][1].contains("Warning")
+    log("Risk: Core entity is single point of failure")
+end
+
+# Proceed with language understanding
+sSemanticModel.Interpret(sInput)
+```
+
+**Multi-path semantic reasoning**: Find all valid interpretations through graph pathfinding.
+
+```ring
+# Can "Document" reach "Archive" through relations?
+aAllMeanings = oModel.FindAllPaths(:@document, :@archive)
+# Result: multiple semantic interpretations
+# Choose interpretation based on context
+```
+
+**Reachability for inference**: What knowledge is semantically accessible?
+
+```ring
+# From concept "Human", what's reachable?
+aReachable = oModel.ReachableFrom(:@human)
+# Result: [Human, Mortal, Living, Physical]
+# Used for automatic constraint inheritance in reasoning
+```
+
+***
+
+## Practical Workflow: NLP Example
+
+**Step 1: Model language structure** (stzGraph)
+
+```ring
+oLanguage = new stzGraph("EnglishTypeSystem")
+oLanguage.AddNode(:@entity, "Entity")
+oLanguage.AddNode(:@person, "Person")
+oLanguage.AddNode(:@employee, "Employee")
+oLanguage.AddNode(:@manager, "Manager")
+
+oLanguage.AddEdge(:@entity, :@person, "is_a")
+oLanguage.AddEdge(:@person, :@employee, "is_a")
+oLanguage.AddEdge(:@employee, :@manager, "is_a")
+```
+
+**Step 2: Validate semantic coherence** (stzGraph analysis)
+
+```ring
+? oLanguage.CyclicDependencies()      # Logically consistent?
+? oLanguage.BottleneckNodes()         # Which concepts are critical?
+aAnalysis = oLanguage.Explain()       # Reveal structure
+```
+
+**Step 3: Visualize** (stzGraph presentation)
+
+```ring
+oLanguage.ShowWithLegend()
+# Programmer sees exact type hierarchy before interpretation
+```
+
+**Step 4: Add semantic constraints** (stzEntity layer)
+
+```ring
+oEntity = new stzEntity("Person")
+oEntity.AddProperty("age", :Integer, ["min" = 0, "max" = 150])
+oEntity.AddRelation(:@person, :@employee, "is_a", ["cardinality" = "1-to-many"])
+```
+
+**Step 5: Validate language interpretation** (application layer)
+
+```ring
+# Parse: "Manager John works in Engineering"
+# Validate: John is a Manager (subtype of Employee, subtype of Person)
+# Infer: John inherits all Person properties and constraints
+# Execute: Store with proper type hierarchy
+```
+
+**Step 6: Semantic reasoning** (complex queries)
+
+```ring
+# Query: "What are all beings that inherit from Entity?"
+aAllBeings = oLanguage.ReachableFrom(:@entity)
+# Result: [Person, Employee, Manager]
+# Used for automatic constraint propagation
+```
+
+***
+
 ## Algorithmic Guarantees
 
 stzGraph algorithms are:
@@ -397,8 +445,6 @@ stzGraph algorithms are:
 * **Terminating**: Always finish (visited tracking prevents infinite loops)
 * **Efficient**: O(V + E) complexity
 * **Deterministic**: Same input always produces same output
-
-These properties matter because downstream specializations (stzDiagram, semantic frameworks, compliance checkers) depend on reliable computation.
 
 ***
 
@@ -457,43 +503,6 @@ This narrowness enables:
 * **Extensibility**: New domains inherit automatically
 * **Transparency**: Structure vs. semantics is explicit
 * **Developer Experience**: Visualization and explanation built-in, not bolted-on
-
-***
-
-## Visualization and Explanation as Core Features
-
-### Why they're part of stzGraph (not delegated to specializations)
-
-1. **Universal need**: Any graph-based problem needs to see and understand structure
-2. **Foundation responsibility**: A foundation should aid comprehension, not hide complexity
-3. **No semantic bias**: ASCII visualization and structured explanation don't impose domain assumptions
-4. **Development velocity**: Built-in feedback accelerates iteration
-
-### What they enable
-
-**Visualization** enables:
-
-* Quick validation during graph construction
-* Immediate visibility into structural issues
-* Natural debugging (see the actual topology)
-* Communication between programmers
-
-**Explanation** enables:
-
-* Programmatic validation (test graph properties in CI/CD)
-* Automated compliance checking
-* Quantitative analysis (density, degree distribution, path lengths)
-* Structured reporting without custom parsing
-
-### What they avoid
-
-Both features are **intentionally simple**:
-
-* Visualization doesn't interpret structure (doesn't add domain layout logic)
-* Explanation doesn't judge structure (doesn't enforce domain rules)
-* Neither requires external dependencies
-
-This keeps stzGraph lightweight while providing essential developer tools.
 
 ***
 
