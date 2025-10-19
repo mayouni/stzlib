@@ -1,25 +1,6 @@
 load "../stzbase.ring"
 
-oDataFlow = new stzGraph("DataSystem")
-oDataFlow {
-    AddNode(:@sourceA, "Data Source A")
-    AddNode(:@sourceB, "Data Source B")
-    AddNode(:@sourceC, "Data Source C")
-    AddNode(:@hub, "Hub")
-    AddNode(:@analysis, "Analysis")
 
-    AddEdge(:@sourceA, :@hub, "")
-    AddEdge(:@sourceB, :@hub, "")
-    AddEdge(:@sourceC, :@hub, "")
-    AddEdge(:@hub, :@analysis, "")
-
-    ? @@(oDataFlow.BottleneckNodes())
-    #--> [@hub]
-
-    Show()
-}
-
-pf()
 #  stzGraphTest - Test Suite
 
 /*--- Creating a simple 3-node linear graph
@@ -427,7 +408,7 @@ pf()
 #-----------------#
 
 /*--- Deleting node and its edges
-
+*/
 pr()
 
 oGraph = new stzGraph("RemoveNodeTest")
@@ -510,7 +491,7 @@ pf()
 #============================================#
 
 #---- Linear workflow - vertical display
-
+=
 pr()
 
 oWorkflow = new stzGraph("ApprovalProcess")
@@ -720,7 +701,7 @@ oCyclic.ShowH() # Or ShowHorizontal
 pf()
 
 /*---- Reachability analysis
-*/
+
 pr()
 
 oHierarchy = new stzGraph("TypeSystem")

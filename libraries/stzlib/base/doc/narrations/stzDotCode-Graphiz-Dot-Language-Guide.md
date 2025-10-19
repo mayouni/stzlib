@@ -1,6 +1,6 @@
 # Graphviz DOT Language Guide: Using stzDotCode
 
-## Introduction: Why Graphviz in SoftAnza?
+## Introduction: Why Graphviz in Softanza?
 
 Graphviz has been integrated into the Softanza ExerCode framework to provide a powerful, code-driven approach to creating professional diagrams. Rather than building visualizations through UI interactions, Graphviz allows developers to **define diagrams as structured text**, making them version-controllable, reproducible, and programmatically generated.
 
