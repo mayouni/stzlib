@@ -1,5 +1,5 @@
 # Softanza External Tools Ecosystem: Design & Architecture
-## A Comprehensive Reference for Intent-Driven Computational Thinking
+A Comprehensive Reference for Intent-Driven Computational Thinking
 
 ---
 
@@ -194,7 +194,7 @@ Motivating use case:
   → Feeds to statistical or ML tool
 ```
 
-#### 4. **stzMLTool** — Machine Learning
+#### 4. **stzMachineLearningTool** — Machine Learning
 ```
 Domain: Classification, regression, clustering, model evaluation
 Mechanism: scikit-learn (most accessible ML framework)
@@ -481,33 +481,33 @@ Workflow = new stzComposedWorkflow()
 
 Workflow.Compose {
   
-  input: "sales.csv"
+  :input = "sales.csv"
   
   load_data {
-    tool: :data
-    operation: :load
+    :tool = :data
+    :operation =  :load
   }
   
   detect_anomalies {
-    tool: :stat
-    analysis: :outlier_detection
-    input: :load_data
+    :tool = :stat
+    :analysis = :outlier_detection
+    :input = :load_data
   }
   
   visualize {
-    tool: :visualization
-    type: :scatter_with_outliers
-    input: :load_data
+    :tool = :visualization
+    :type = :scatter_with_outliers
+    :input = :load_data
     overlay: :detect_anomalies
   }
   
   report {
-    tool: :doc
-    template: :technical_report
-    content: @visualize
+    :tool = :doc
+    :template = :technical_report
+    :content = @visualize
   }
   
-  output: :report
+  :output = :report
 }
 
 Workflow.Execute()
@@ -518,9 +518,9 @@ Workflow.Execute()
 **Declarative Stage Definition**
 ```
 Each braced block = one computational stage
-tool: identifies which tool executes
-operation/analysis: semantic intent
-input: references upstream stage (auto-bridges)
+:tool = identifies which tool executes
+operation/:analysis = semantic intent
+:input = references upstream stage (auto-bridges)
 ```
 
 **Stage References**
@@ -532,47 +532,47 @@ input: references upstream stage (auto-bridges)
 
 **Branching Pattern**
 ```ring
-stage_a { tool: :data, ... }
+stage_a { :tool = :data, ... }
 
 # Two independent branches
-stage_b { tool: :stat, input: :stage_a }
-stage_c { tool: :ml, input: :stage_a }
+stage_b { :tool = :stat, :input = :stage_a }
+stage_c { :tool = :ml, :input = :stage_a }
 
 # Merge
-stage_d { tool: :visualization, input: [:stage_b, :stage_c] }
+stage_d { :tool = :visualization, :input = [:stage_b, :stage_c] }
 # Bridge auto-joins stage_b and stage_c results
 ```
 
 **Conditional Execution**
 ```ring
-stage_quality_check { tool: :data, operation: :validate }
+stage_quality_check { :tool = :data, :operation =  :validate }
 
 stage_deep_analysis {
-  tool: :ml
-  algorithm: :xgboost
-  input: :load_data
-  when: @quality_check.passed  # Only execute if true
+  :tool = :ml
+  :algorithm = :xgboost
+  :input = :load_data
+  :when = @quality_check.passed  # Only execute if true
 }
 
 stage_fallback {
-  tool: :stat
-  analysis: :regression
-  input: :load_data
-  when: NOT @stage_deep_analysis  # Fallback
+  :tool = :stat
+  :analysis = :regression
+  :input = :load_data
+  :when = NOT @stage_deep_analysis  # Fallback
 }
 ```
 
 **Batch Processing**
 ```ring
-stage_load_batch { tool: :image, operation: :batch_load }
+stage_load_batch { :tool = :image, :operation =  :batch_load }
 
 stage_process_each {
-  tool: :image
-  operation: :resize
+  :tool = :image
+  :operation =  :resize
   foreach: :load_batch  # Run once per item in batch
 }
 
-stage_aggregate { tool: :data, operation: :combine, input: :process_each }
+stage_aggregate { :tool = :data, :operation =  :combine, :input = :process_each }
 ```
 
 ### DSL Execution Model
@@ -612,7 +612,7 @@ Final result: output stage
 **stzExterCode (Language Runtimes)**
 ```
 Purpose: Execute arbitrary code in another language
-Use when: Custom algorithm, research code, prototyping
+Use :when = Custom algorithm, research code, prototyping
 Example: 
   Python = new stzPythonCode()
   Python.SetCode("result = my_custom_algorithm(data)")
@@ -625,7 +625,7 @@ Weakness: Developer responsible for format compatibility, error handling
 **stzExterTool (Domain Specialists)**
 ```
 Purpose: Invoke standard operations on curated tools
-Use when: Problem is standard, solution is well-known
+Use :when = Problem is standard, solution is well-known
 Example:
   Stat = new stzStatTool()
   Stat.SetAnalysis("regression")
@@ -687,10 +687,10 @@ aValidated = Stat.Result()
 
 // All in one workflow:
 Workflow.Compose {
-  load { tool: :data, operation: :query }
-  analyze { tool: :python, input: :load }  // Custom
-  validate { tool: :stat, input: :analyze }
-  output: :validate
+  load { :tool = :data, :operation =  :query }
+  analyze { :tool = :python, :input = :load }  // Custom
+  validate { :tool = :stat, :input = :analyze }
+  :output = :validate
 }
 ```
 
@@ -723,15 +723,15 @@ Route to appropriate tools:
 │           Result: [TabularData]                     │
 │                        ↓ [Bridge]                   │
 │ Stage 2 → stzStatTool.Execute()                     │
-│           Input: [TabularData]                      │
+│           :input = [TabularData]                      │
 │           Result: [StatisticalModel]                │
 │                        ↓ [Bridge]                   │
 │ Stage 3 → stzVisualizationTool.Execute()            │
-│           Input: [StatisticalModel]                 │
+│           :input = [StatisticalModel]                 │
 │           Result: [Image]                           │
 │                        ↓ [Bridge]                   │
 │ Stage 4 → stzDocTool.Execute()                      │
-│           Input: [Image] + metadata                 │
+│           :input = [Image] + metadata                 │
 │           Result: [Document]                        │
 └─────────────────────────────────────────────────────┘
                         ↓
@@ -806,7 +806,7 @@ Assumption: If stage logic doesn't change, result valid
 Benefit: Fast, catches parameter changes
 Cost: May serve stale data if upstream changed
 
-Use when: Input data updates on known schedule
+Use :when = Input data updates on known schedule
 ```
 
 **Strict Hashing**
@@ -818,7 +818,7 @@ Includes: Exact upstream results
 Benefit: Absolutely correct
 Cost: Expensive (hashes large datasets), defeats caching if data changes frequently
 
-Use when: Correctness > performance
+Use :when = Correctness > performance
 ```
 
 **Dependency-Aware (Recommended)**
@@ -831,7 +831,7 @@ If any upstream stage recomputes, downstream invalidates automatically
 Benefit: Correct AND performant
 Cost: Requires DAG tracking (built-in)
 
-Use when: Professional setting, balanced priorities
+Use :when = Professional setting, balanced priorities
 ```
 
 ### Parallelization
@@ -983,7 +983,7 @@ Workflow = new stzComposedWorkflow()
 
 Workflow.Compose {
   
-  input: "monthly_sales.csv"
+  :input = "monthly_sales.csv"
   
   metadata: [
     :name = "Monthly Sales Analysis",
@@ -991,46 +991,46 @@ Workflow.Compose {
     :recipients = ["exec@company.com"]
   ]
   
-  parameters: [
+  :parameters = [
     :anomaly_threshold = 3.0,
     :forecast_horizon = 30
   ]
   
   # Stage 1: Load and validate data
   load_data {
-    tool: :data
-    operation: :load
+    :tool = :data
+    :operation =  :load
   }
   
   validate_quality {
-    tool: :data
-    operation: :quality_check
-    input: :load_data
+    :tool = :data
+    :operation =  :quality_check
+    :input = :load_data
     checks: [:no_nulls, :numeric_ranges, :date_validity]
   }
   
   # Stage 2: Statistical analysis (branch 1)
   detect_anomalies {
-    tool: :stat
-    analysis: :outlier_detection
+    :tool = :stat
+    :analysis = :outlier_detection
     method: :isolation_forest
     threshold: @parameters.anomaly_threshold
-    input: :load_data
+    :input = :load_data
   }
   
   # Stage 3: Forecasting (branch 2)
   forecast_next_month {
-    tool: :stat
-    analysis: :time_series_forecast
-    model: :arima
+    :tool = :stat
+    :analysis = :time_series_forecast
+    :model = :arima
     horizon: @parameters.forecast_horizon
-    input: :load_data
+    :input = :load_data
   }
   
   # Stage 4: Visualization (branch 3)
   visualize_analysis {
-    tool: :visualization
-    type: :multi_panel
+    :tool = :visualization
+    :type = :multi_panel
     panels: [
       [ :title = "Historical Sales", :data = :load_data ],
       [ :title = "Anomalies Detected", :overlay = :detect_anomalies ],
@@ -1040,16 +1040,16 @@ Workflow.Compose {
   
   # Stage 5: Merge statistical results
   compile_findings {
-    tool: :data
-    operation: :aggregate
-    input: [:detect_anomalies, :forecast_next_month]
+    :tool = :data
+    :operation =  :aggregate
+    :input = [:detect_anomalies, :forecast_next_month]
     # Bridge auto-joins on semantic keys
   }
   
   # Stage 6: Generate report
   generate_report {
-    tool: :doc
-    template: :executive_summary
+    :tool = :doc
+    :template = :executive_summary
     title: "Sales Analysis - " + @metadata.month
     sections: [
       [ :title = "Executive Summary", :content = :compile_findings.summary ],
@@ -1061,14 +1061,14 @@ Workflow.Compose {
   
   # Stage 7: Package for delivery
   package_delivery {
-    tool: :doc
-    operation: :convert_format
-    input: :generate_report
+    :tool = :doc
+    :operation =  :convert_format
+    :input = :generate_report
     from_format: :html
     to_format: :pdf
   }
   
-  output: :package_delivery
+  :output = :package_delivery
 }
 
 Workflow.Execute()
@@ -1084,7 +1084,7 @@ SendEmail(
 )
 ```
 
-**Softanza approach metrics:**
+**Softanza approach :metrics = **
 ```
 Total time: 15 minutes (DSL written once, reusable)
 Cost: One developer, high-level thinking
@@ -1110,7 +1110,7 @@ What Softanza did automatically:
   ✓ Bridged output formats between stages
   ✓ Executed in optimal order (parallelized branches)
   ✓ Cached results for reruns
-  ✓ Collected metrics: 15 min vs. 6 hours
+  ✓ Collected :metrics =  15 min vs. 6 hours
 ```
 
 ---
@@ -1121,29 +1121,29 @@ What Softanza did automatically:
 
 ```ring
 Workflow.Compose {
-  load { tool: :data, operation: :load }
+  load { :tool = :data, :operation =  :load }
   
   validate {
-    tool: :data
-    operation: :quality_check
-    input: :load
+    :tool = :data
+    :operation =  :quality_check
+    :input = :load
   }
   
   proceed_analysis {
-    tool: :stat
-    analysis: :regression
-    input: :load
-    when: @validate.passed  # Only if quality passes
+    :tool = :stat
+    :analysis = :regression
+    :input = :load
+    :when = @validate.passed  # Only if quality passes
   }
   
   fallback_alert {
-    tool: :doc
-    template: :alert_email
-    input: :validate
-    when: NOT @validate.passed  # If quality fails
+    :tool = :doc
+    :template = :alert_email
+    :input = :validate
+    :when = NOT @validate.passed  # If quality fails
   }
   
-  output: @proceed_analysis OR @fallback_alert
+  :output = @proceed_analysis OR @fallback_alert
 }
 ```
 
@@ -1153,36 +1153,36 @@ Workflow.Compose {
 
 ```ring
 Workflow.Compose {
-  load { tool: :data }
+  load { :tool = :data }
   
   # Three independent ML models
   model_random_forest {
-    tool: :ml
-    algorithm: :random_forest
-    input: :load
+    :tool = :ml
+    :algorithm = :random_forest
+    :input = :load
   }
   
   model_gradient_boosting {
-    tool: :ml
-    algorithm: :gradient_boosting
-    input: :load
+    :tool = :ml
+    :algorithm = :gradient_boosting
+    :input = :load
   }
   
   model_neural_net {
-    tool: :dl
-    model: "pretrained.onnx"
-    input: :load
+    :tool = :dl
+    :model = "pretrained.onnx"
+    :input = :load
   }
   
   # Merge predictions
   ensemble_voting {
-    tool: :data
-    operation: :aggregate
-    input: [:model_random_forest, :model_gradient_boosting, :model_neural_net]
+    :tool = :data
+    :operation =  :aggregate
+    :input = [:model_random_forest, :model_gradient_boosting, :model_neural_net]
     aggregation: :voting  # Majority vote on predictions
   }
   
-  output: :ensemble_voting
+  :output = :ensemble_voting
 }
 ```
 
@@ -1192,48 +1192,48 @@ Workflow.Compose {
 
 ```ring
 Workflow.Compose {
-  input: "raw_video.mp4"
+  :input = "raw_video.mp4"
   
   extract_frames {
-    tool: :media
-    operation: :extract_frames
+    :tool = :media
+    :operation =  :extract_frames
     interval: 1  # Every 1 second
   }
   
   enhance_each {
-    tool: :image
-    operation: :enhance
+    :tool = :image
+    :operation =  :enhance
     sharpness: 1.5
     foreach: :extract_frames  # Process each frame
   }
   
   classify_each {
-    tool: :dl
-    model: "object_detection.onnx"
+    :tool = :dl
+    :model = "object_detection.onnx"
     foreach: :enhance_each
   }
   
   aggregate_results {
-    tool: :data
-    operation: :summarize
-    input: :classify_each
+    :tool = :data
+    :operation =  :summarize
+    :input = :classify_each
     # Produces: frame-by-frame detections
   }
   
   visualize {
-    tool: :visualization
-    type: :timeline
+    :tool = :visualization
+    :type = :timeline
     data: :aggregate_results
     # Shows detections over time
   }
   
   report {
-    tool: :doc
-    template: :analysis_report
-    content: :visualize
+    :tool = :doc
+    :template = :analysis_report
+    :content = :visualize
   }
   
-  output: :report
+  :output = :report
 }
 ```
 
@@ -1243,34 +1243,34 @@ Workflow.Compose {
 
 ```ring
 Workflow.Compose {
-  load { tool: :data }
+  load { :tool = :data }
   
   # Version A: Current approach
   analysis_current {
-    tool: :ml
-    algorithm: :random_forest
-    parameters: [ :n_estimators = 50, :max_depth = 5 ]
-    input: :load
+    :tool = :ml
+    :algorithm = :random_forest
+    :parameters = [ :n_estimators = 50, :max_depth = 5 ]
+    :input = :load
   }
   
   # Version B: Proposed approach
   analysis_proposed {
-    tool: :ml
-    algorithm: :gradient_boosting
-    parameters: [ :learning_rate = 0.1, :n_estimators = 100 ]
-    input: :load
+    :tool = :ml
+    :algorithm = :gradient_boosting
+    :parameters = [ :learning_rate = 0.1, :n_estimators = 100 ]
+    :input = :load
   }
   
   # Compare
   comparison {
-    tool: :visualization
-    type: :comparison_panel
-    panel_a: :analysis_current
-    panel_b: :analysis_proposed
-    metrics: [:accuracy, :precision, :recall, :training_time]
+    :tool = :visualization
+    :type = :comparison_panel
+    :panel_a = :analysis_current
+    :panel_b = :analysis_proposed
+    :metrics =  [:accuracy, :precision, :recall, :training_time]
   }
   
-  output: :comparison
+  :output = :comparison
 }
 ```
 
@@ -1283,9 +1283,9 @@ Workflow = new stzComposedWorkflow()
 
 // First pass
 Workflow.Compose {
-  load { tool: :data }
-  analyze { tool: :stat, analysis: :regression, input: :load }
-  output: :analyze
+  load { :tool = :data }
+  analyze { :tool = :stat, :analysis = :regression, :input = :load }
+  :output = :analyze
 }
 
 Workflow.Execute()
@@ -1314,45 +1314,45 @@ aSecondPass = Workflow.Result()
 **Retry Logic**
 ```ring
 risky_stage {
-  tool: :ml
-  algorithm: :deep_model
+  :tool = :ml
+  :algorithm = :deep_model
   retry: 3  # Try up to 3 times
-  timeout: 300  # 5 minute timeout per attempt
-  input: :load
+  :timeout = 300  # 5 minute timeout per attempt
+  :input = :load
 }
 ```
 
 **Fallback Logic**
 ```ring
 attempt_advanced {
-  tool: :dl
-  model: "complex.onnx"
-  input: :load
-  on_error: :fallback_simple  # If fails, try fallback
+  :tool = :dl
+  :model = "complex.onnx"
+  :input = :load
+  :on_error = :fallback_simple  # If fails, try fallback
 }
 
 fallback_simple {
-  tool: :stat
-  analysis: :regression
-  input: :load
+  :tool = :stat
+  :analysis = :regression
+  :input = :load
 }
 
 final {
-  tool: :doc
-  content: @attempt_advanced OR @fallback_simple
+  :tool = :doc
+  :content = @attempt_advanced OR @fallback_simple
   # Uses whichever succeeded
 }
 ```
 
 **Conditional Skip**
 ```ring
-validate { tool: :data, operation: :validate }
+validate { :tool = :data, :operation =  :validate }
 
 proceed {
-  tool: :ml
-  algorithm: :expensive_model
-  input: :load
-  when: @validate.quality_score > 0.9  # Skip if data poor
+  :tool = :ml
+  :algorithm = :expensive_model
+  :input = :load
+  :when = @validate.quality_score > 0.9  # Skip if data poor
 }
 ```
 
@@ -1368,11 +1368,11 @@ Workflow.Execute()
 // Per-stage metrics
 aMetrics = Workflow.GetMetrics()
 #--> [
-#-->   [ :stage = "load_data", :duration = 2.3, :from_cache = 0 ],
-#-->   [ :stage = "analyze", :duration = 15.7, :from_cache = 0 ],
-#-->   [ :stage = "visualize", :duration = 0.8, :from_cache = 0 ],
-#-->   [ :stage = "report", :duration = 1.2, :from_cache = 0 ]
-#--> ]
+#      [ :stage = "load_data", :duration = 2.3, :from_cache = 0 ],
+#      [ :stage = "analyze", :duration = 15.7, :from_cache = 0 ],
+#      [ :stage = "visualize", :duration = 0.8, :from_cache = 0 ],
+#      [ :stage = "report", :duration = 1.2, :from_cache = 0 ]
+#    ]
 
 // Bottleneck identification
 aCriticalPath = Workflow.GetCriticalPath()
@@ -1381,10 +1381,10 @@ aCriticalPath = Workflow.GetCriticalPath()
 // Cache effectiveness
 aCacheStats = Workflow.GetCacheStats()
 #--> [
-#-->   :total_stages = 4,
-#-->   :cached_stages = 2,
-#-->   :speedup_factor = 1.8
-#--> ]
+#      :total_stages = 4,
+#      :cached_stages = 2,
+#      :speedup_factor = 1.8
+#    ]
 ```
 
 ### Observability in Production
@@ -1569,15 +1569,15 @@ Rather than building execution mechanics from scratch, the DSL leverages Reaxis'
 Compositional DSL               Reaxis Reactive System
 ─────────────────────────────────────────────────────────
 
-Workflow                    ←→  ReactiveSystem Container
-  ├─ Stage 1                    ├─ Shared Services
-  ├─ Stage 2                    │  (Timers, I/O, Scheduling)
-  └─ Stage N                    │
-                                ├─ Stream: "data-flow"
+Workflow                     ←→  ReactiveSystem Container
+  ├─ Stage 1                     ├─ Shared Services
+  ├─ Stage 2                     │  (Timers, I/O, Scheduling)
+  └─ Stage N                     │
+                                 ├─ Stream: "data-flow"
 Data flowing between stages  ←→  │  ├─ Receive (input)
-                                │  ├─ Buffer (overflow handling)
-                                │  ├─ Queue (ordering)
-                                │  └─ Rfunctions (processing)
+                                 │  ├─ Buffer (overflow handling)
+                                 │  ├─ Queue (ordering)
+                                 │  └─ Rfunctions (processing)
 ```
 
 ### Concrete Implementation: DSL Execution Model
@@ -1588,43 +1588,43 @@ Workflow = new stzComposedWorkflow()
 Workflow.Compose {
   
   # This becomes a Reaxis container internally
-  input: "sales.csv"
+  :input = "sales.csv"
   
   load_data {
-    tool: :data
-    operation: :load
+    :tool = :data
+    :operation =  :load
   }
   
   # Each stage becomes a Stream within the container
   # When this stage completes, it Feeds data to the next
   
   analyze {
-    tool: :stat
-    analysis: :regression
-    input: :load_data
+    :tool = :stat
+    :analysis = :regression
+    :input = :load_data
     # Internally: oAnalyzeStream.Feed(loadDataResult)
   }
   
   # Parallel stages become independent streams
   forecast {
-    tool: :stat
-    analysis: :arima
-    input: :load_data
+    :tool = :stat
+    :analysis = :arima
+    :input = :load_data
     # Independently receives from same source
   }
   
   # Merge happens through explicit feed
   compile {
-    tool: :data
-    operation: :combine
-    input: [:analyze, :forecast]
+    :tool = :data
+    :operation =  :combine
+    :input = [:analyze, :forecast]
     # Both streams feed their results here
   }
   
-  output: :compile
+  :output = :compile
 }
 
-# Execution model: Reaxis Container + Streams
+# Execution :model = Reaxis Container + Streams
 Workflow.Execute()
 # Internally:
 #   Rs = new stzReactiveSystem()
@@ -1639,20 +1639,20 @@ Reaxis's **localized error handling** (Rfunctions with `OnSuccess`/`OnError`) ma
 Workflow.Compose {
   
   risky_model {
-    tool: :ml
-    algorithm: :xgboost
-    input: :load_data
+    :tool = :ml
+    :algorithm = :xgboost
+    :input = :load_data
     
     # These become Rfunction error handlers
-    on_error: :fallback_regression
+    :on_error = :fallback_regression
     retry: 3
-    timeout: 300
+    :timeout = 300
   }
   
   fallback_regression {
-    tool: :stat
-    analysis: :regression
-    input: :load_data
+    :tool = :stat
+    :analysis = :regression
+    :input = :load_data
   }
 }
 
@@ -1672,8 +1672,8 @@ The caching layer we described earlier maps directly to Reaxis buffer concepts:
 Stage execution cache          ↔  Reaxis Buffer overflow strategies
 
 Semantic hash invalidation     ↔  OnBufferOverflow() decisions
-Dependency-aware caching      ↔  Upstream stream hash tracking
-Parallelization              ↔  Independent streams (no dependencies)
+Dependency-aware caching       ↔  Upstream stream hash tracking
+Parallelization                ↔  Independent streams (no dependencies)
 ```
 
 ### Data Bridging: Stream Natural Typing
@@ -1701,8 +1701,8 @@ Workflow = new stzComposedWorkflow()
 Workflow.Compose {
   
   monitor_stream {
-    tool: :data
-    operation: :load
+    :tool = :data
+    :operation =  :load
     source: "streaming-data"
     
     # Natural timing with Reaxis semantics
@@ -1710,13 +1710,13 @@ Workflow.Compose {
   }
   
   analyze {
-    tool: :stat
-    input: :monitor_stream
+    :tool = :stat
+    :input = :monitor_stream
   }
   
   report {
-    tool: :doc
-    content: :analyze
+    :tool = :doc
+    :content = :analyze
     
     # Execute on schedule
     schedule: :every_hour  # Reaxis RunEvery() semantics
@@ -1744,15 +1744,15 @@ This is how architectural layers work correctly: each layer provides value to th
 │ COMPOSITIONAL DSL (Intent Layer)                    │
 │ "What should happen when data flows"                │
 └──────────────┬──────────────────────────────────────┘
-               │ Interpreted as
-               ↓
+                │ Interpreted as
+                ↓
 ┌─────────────────────────────────────────────────────┐
 │ REAXIS REACTIVE SYSTEM (Execution Layer)            │
 │ Container → Stream → Rfunction                      │
 │ "How data flows, errors recover, timing works"      │
 └──────────────┬──────────────────────────────────────┘
-               │ Built on
-               ↓
+                │ Built on
+                ↓
 ┌─────────────────────────────────────────────────────┐
 │ LIBUV EVENT LOOP (Infrastructure)                   │
 │ "Non-blocking I/O, timers, process management"      │
@@ -1985,23 +1985,3 @@ Softanza competes on:
 - ✅ Accessibility to non-programmers (unique advantage)
 
 This is legitimate competitive positioning: **We don't try to beat specialists at their specialty. We beat fragmentation at coordination.**
-
----
-
-## Investment Thesis
-
-Softanza represents a **category shift** rather than an incremental improvement:
-
-**Thesis**: The computational workflow market is consolidating away from fragmented tool chains toward unified orchestration platforms. Softanza's semantic coherence and reactive foundation position it as the leading option for organizations rejecting artificial complexity.
-
-**Markets**:
-- Education (60 million students learning programming annually)
-- Enterprise analytics (1M+ data analysts, 500K+ data scientists)
-- Startup development (50K+ startups annually)
-- Ring community expansion (growing adoption)
-
-**Defensibility**: The semantic architecture (DSL + Reaxis + bridge layer) is difficult to replicate—it requires both conceptual innovation and proven reactive systems. First-mover advantage in this category could be substantial.
-
-**Funding Requirement**: €3-5M to achieve production-ready implementation + market validation across target segments.
-
----

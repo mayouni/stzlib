@@ -43,7 +43,6 @@ oGraph.AddNodeXT(:@step, "Validate", :Process, [
 `stzGraph` feels almost conversational — you declare relationships, it makes sense of them.
 No configuration, no setup, just pure connected logic.
 
----
 
 ## Problem → Solution Map
 
@@ -71,7 +70,6 @@ Whenever you face a structural question, there’s usually a direct `stzGraph` m
 
 You can think of this table as your *mental debugger*: each method answers a common question in systems design.
 
----
 
 ## Connectivity — Does the Path Exist?
 
@@ -124,7 +122,6 @@ Visualization:
 
 You just expressed a process that *thinks*. Each arrow tells you exactly where logic flows — no hidden assumptions, no mystery links.
 
----
 
 ## Alternative Routes — Finding All Paths
 
@@ -207,7 +204,6 @@ Visualization:
 
 Here, two valid paths exist — fast and standard. You see redundancy not as clutter, but as resilience.
 
----
 
 ## Cyclic Dependencies — Detect Infinite Loops
 
@@ -267,7 +263,6 @@ Horizontal view via `ShowH()`:
 
 You can *see* the infinite loop — and fix it before it becomes a runtime bug.
 
----
 
 ## Reachability — Measure Scope and Influence
 
@@ -345,7 +340,6 @@ Legend:
 Here, **Person** and **Employee** are bottlenecks — they propagate change.
 When a concept that central shifts, the whole tree feels it.
 
----
 
 ## Bottleneck Nodes — Identify Critical Hubs
 
@@ -428,7 +422,6 @@ Visualization:
 Every architect knows this truth: **a hub is power and risk combined**.
 The code sees it, quantifies it, and warns you early.
 
----
 
 ## Complexity Metrics — Assess Architecture
 
@@ -447,7 +440,6 @@ A system’s beauty is often invisible — but `stzGraph` can measure it.
 You start thinking in **topologies**, not just functions.
 It’s design through measurement — a hallmark of mature systems.
 
----
 
 ## Direct Dependencies — Neighborhoods
 
@@ -472,7 +464,6 @@ oGraph {
 A quick neighborhood check reveals who talks to whom —
 an invaluable shortcut when isolating components or testing modules independently.
 
----
 
 ## Core Operations
 
@@ -496,7 +487,6 @@ And to inspect the state:
 
 Each line is both code and reasoning — your program *explains itself*.
 
----
 
 ## Visualization Options
 
@@ -515,7 +505,6 @@ Markers:
 
 The ASCII output feels charmingly direct — it speaks the same language as the console you code in.
 
----
 
 ## Softanza Advantage: How stzGraph Stands Out
 
@@ -549,19 +538,14 @@ ate/mixed
 
 `stzGraph` doesn’t try to replace databases — it complements them by being the *thinking layer* before persistence.
 
----
 
-## Extension Points
+# Extension Points: stzGraph as Strategic Foundation
 
-`stzGraph` is a foundation — it grows into ecosystems:
+`stzGraph` is far more than a data structure—it is the **architectural spine** upon which Softanza builds an entire ecosystem of domain-specific reasoning systems. Every domain that Softanza addresses—from code analysis to workflow orchestration, from database design to natural language understanding—can be represented as a graph.
 
-* **stzDiagram** — workflow visualization and layout
-* **stzEntity / stzRelation** — semantic and knowledge graphs
-* **Custom domains** — governance, analytics, simulation
+The power lies in a single design principle: **structure is universal, semantics is domain-specific**. `stzGraph` handles topology (nodes, edges, paths, reachability). Domain classes, like stzWorkflow, stzDecisionTree, stzSemanticModel, stzDataModel, stzNaturalLangauge,  and more, add meaning and domain-specific reasoning methods.
 
-At its core, it embodies Softanza’s principle: **separate structure from semantics**.
-`stzGraph` masters the *shape* of relationships, while others add the *meaning*.
-That separation is what keeps your reasoning clear and your code future-proof.
+> NOTE: Each one of these classes will be documented on its own artlcle.
 
 ---
 
