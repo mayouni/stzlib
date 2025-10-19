@@ -1,6 +1,21 @@
 load "../stzbase.ring"
 
+oGraph = new stzGraph("BottleneckTest")
+oGraph {
+    AddNode(:@a, "A")
+    AddNode(:@b, "B")
+    AddNode(:@c, "C")
+    AddNode(:@hub, "Hub")
+    
+    AddEdge(:@a, :@hub, "")
+    AddEdge(:@b, :@hub, "")
+    AddEdge(:@c, :@hub, "")
+    AddEdge(:@hub, :@a, "")
+    
+    ShowWithLegend()
+}
 
+pf()
 #  stzGraphTest - Test Suite
 
 /*--- Creating a simple 3-node linear graph
@@ -408,7 +423,7 @@ pf()
 #-----------------#
 
 /*--- Deleting node and its edges
-*/
+
 pr()
 
 oGraph = new stzGraph("RemoveNodeTest")
@@ -794,7 +809,7 @@ Legend:
 pf()
 
 /*---
-*/
+
 pr()
 
 oDataFlow = new stzGraph("DataSystem")
@@ -815,5 +830,340 @@ oDataFlow {
 
     Show()
 }
+#-->
+'
+    ╭───────────────╮    
+    │ Data Source A │    
+    ╰───────────────╯    
+            |            
+            v            
+        ╭───────╮        
+        │ !Hub! │        
+        ╰───────╯        
+            |            
+            v            
+      ╭──────────╮       
+      │ Analysis │       
+      ╰──────────╯       
+
+          ////
+
+    ╭───────────────╮    
+    │ Data Source B │    
+    ╰───────────────╯    
+            |            
+            v            
+        ╭───────╮        
+        │ !Hub! │        
+        ╰───────╯        
+            |            
+            v            
+      ╭──────────╮       
+      │ Analysis │       
+      ╰──────────╯       
+
+          ////
+
+    ╭───────────────╮    
+    │ Data Source C │    
+    ╰───────────────╯    
+            |            
+            v            
+        ╭───────╮        
+        │ !Hub! │        
+        ╰───────╯        
+            |            
+            v            
+      ╭──────────╮       
+      │ Analysis │       
+      ╰──────────╯  
+'
+
+pf()
+
+#=====================#
+#  ADVANCED FEATURES  #
+#=====================#
+
+/*--- Sample 1: Parallelizable Branches
+
+pr()
+
+# Detect independent execution paths that can run concurrently.
+
+oGraph = new stzGraph("TaskSystem")
+oGraph.AddNode(:@start, "Start")
+oGraph.AddNode(:@pathA1, "Path A-1")
+oGraph.AddNode(:@pathA2, "Path A-2")
+oGraph.AddNode(:@pathB1, "Path B-1")
+oGraph.AddNode(:@pathB2, "Path B-2")
+
+oGraph.AddEdge(:@start, :@pathA1, "")
+oGraph.AddEdge(:@start, :@pathB1, "")
+oGraph.AddEdge(:@pathA1, :@pathA2, "")
+oGraph.AddEdge(:@pathB1, :@pathB2, "")
+
+? oGraph.ParallelizableBranches()
+# Returns: [[:@pathA1, :@pathB1]] - branches with no shared downstream
+
+? oGraph.DependencyFreeNodes()
+# Returns: [:@start] - only entry point
+
+pf()
+
+/*--- Sample 2: Criticality and Impact
+
+# Identify bottleneck nodes and their failure scope.
+
+pr()
+
+oGraph = new stzGraph("SystemDependencies")
+oGraph.AddNode(:@database, "Database")
+oGraph.AddNode(:@api, "API")
+oGraph.AddNode(:@cache, "Cache")
+oGraph.AddNode(:@worker1, "Worker1")
+oGraph.AddNode(:@worker2, "Worker2")
+
+oGraph.AddEdge(:@database, :@api, "")
+oGraph.AddEdge(:@api, :@worker1, "")
+oGraph.AddEdge(:@api, :@worker2, "")
+
+? @@( oGraph.ImpactOf(:@api) )
+#--> 2 - affects 2 downstream nodes
+
+? @@( oGraph.FailureScope(:@api) )
+#--> [:@worker1, :@worker2] - these fail if API fails
+
+? @@( oGraph.MostCriticalNodes(2) )
+#--> [:@api, :@database] - top 2 critical nodes
+
+pf()
+
+/*--- Sample 3: Constraints and Validation
+
+# Enforce structural rules on the graph.
+
+pr()
+
+oGraph = new stzGraph("WorkflowEngine")
+oGraph.AddNode(:@task1, "Task 1")
+oGraph.AddNode(:@task2, "Task 2")
+oGraph.AddNode(:@task3, "Task 3")
+
+oGraph.AddConstraint("NO_CYCLES", "ACYCLIC")
+oGraph.AddConstraint("CONNECTED", "CONNECTED")
+
+oGraph.AddEdge(:@task1, :@task2, "")
+oGraph.AddEdge(:@task2, :@task3, "")
+
+? oGraph.ValidateConstraints()
+# Returns: 1 - all constraints satisfied
+
+? @@( oGraph.ConstraintViolations() )
+# Returns: [] - no violations
+
+pf()
+
+/*--- Sample 4: Inference Rules
+
+# Automatically derive implicit relationships.
+
+pr()
+
+oGraph = new stzGraph("Organization")
+oGraph.AddNode(:@alice, "Alice")
+oGraph.AddNode(:@bob, "Bob")
+oGraph.AddNode(:@carol, "Carol")
+
+oGraph.AddEdge(:@alice, :@bob, "manages")
+oGraph.AddEdge(:@bob, :@carol, "manages")
+
+oGraph.AddInferenceRule("HIERARCHY", "TRANSITIVITY")
+? oGraph.ApplyInference()
+# Returns: 1 - created one inferred edge
+
+? oGraph.EdgeExists(:@alice, :@carol)
+# Returns: 1 - now alice can reach carol transitively
+
+? @@NL(oGraph.InferredEdges())
+#-->
+'
+[
+	[
+		[ "from", "@alice" ],
+		[ "to", "@carol" ],
+		[ "label", "(inferred)" ],
+		[ "properties", [  ] ]
+	]
+]
+'
+
+pf()
+
+/*--- Sample 5: Rich Querying
+
+# Flexible pattern-based searches.
+
+pr()
+
+oGraph = new stzGraph("Codebase")
+oGraph.AddNodeXT(:@fn1, "function1", [:type = "function"])
+oGraph.AddNodeXT(:@fn2, "function2", [:type = "function"])
+oGraph.AddNodeXT(:@mod1, "module1", [:type = "module"])
+
+oGraph.AddEdge(:@fn1, :@fn2, "calls")
+oGraph.AddEdge(:@fn2, :@mod1, "imports")
+
+? oGraph.Query([:nodeType = "function"])
+# Returns: [:@fn1, :@fn2]
+
+? oGraph.Query([:edgeLabel = "calls"])
+# Returns: edges with label "calls"
+
+? oGraph.FindNodesWhere(func node { return substr(node["label"], "function") > 0 })
+# Returns: [:@fn1, :@fn2]
+
+pf()
+
+/*--- Sample 6: Temporal Snapshots
+
+# Track graph evolution over time.
+
+pr()
+
+oGraph = new stzGraph("DatabaseSchema")
+oGraph.AddNode(:@users, "users")
+oGraph.AddNode(:@orders, "orders")
+oGraph.AddEdge(:@users, :@orders, "has_many")
+
+oGraph.Snapshot("v1.0")
+
+# Make changes
+oGraph.AddNode(:@payments, "payments")
+oGraph.AddEdge(:@orders, :@payments, "has_many")
+
+? @@(oGraph.ListSnapshots()) + NL
+#--> ["v1.0"]
+
+? @@NL(oGraph.ChangesSince("v1.0")) + NL
+#-->
+'
+[
+	[
+		"nodesadded",
+		[ "@payments" ]
+	],
+	[ "nodesremoved", [  ] ],
+	[
+		"edgesadded",
+		[
+			[ "@orders", "@payments" ]
+		]
+	],
+	[ "edgesremoved", [  ] ]
+]
+'
+
+oGraph.RestoreSnapshot("v1.0")
+? oGraph.NodeCount()
+#--> 2 - reverted to v1.0 state
+
+pf()
+
+/*--- Sample 7: Export Formats
+*/
+# Serialize graph to standard formats.
+
+pr()
+
+oGraph = new stzGraph("Pipeline")
+oGraph.AddNode(:@input, "Input")
+oGraph.AddNode(:@process, "Process")
+oGraph.AddNode(:@output, "Output")
+oGraph.AddEdge(:@input, :@process, "feeds")
+oGraph.AddEdge(:@process, :@output, "produces")
+
+? BoxRound("DOT FORMAT")
+? oGraph.ExportDOT() + NL
+# Returns: GraphViz DOT format string
+
+? BoxRound("JSON FORMAT")
+? oGraph.ExportJSON() + NL
+# Returns: JSON with nodes, edges, and metrics
+
+? BoxRound("YAML FORMAT")
+? oGraph.ExportYAML()
+# Returns: YAML representation
+
+# Custom exporter
+? BoxRound("CUSTOM FORMAT")
+aAllNodes = oGraph.AllNodes()
+
+oGraph.RegisterExporter("MERMAID", func {
+	acNodes = oGraph.AllNodes()
+	acEdges = oGraph.AllEdges()
+	cMermaid = "graph LR;" + nl
+	
+	for i = 1 to len(acNodes)
+		aNode = acNodes[i]
+		cMermaid += "  " + aNode["id"] + "[" + aNode["label"] + "]" + nl
+	end
+	
+	for i = 1 to len(acEdges)
+		aEdge = acEdges[i]
+		cMermaid += "  " + aEdge["from"] + " --> " + aEdge["to"] + nl
+	end
+	
+	return cMermaid
+})
+
+? oGraph.ExportUsing("MERMAID")
+# Returns: Mermaid diagram syntax
+
+#-->
+'
+╭────────────╮
+│ DOT FORMAT │
+╰────────────╯
+digraph Pipeline {
+  rankdir=LR;
+  node [shape=box];
+
+  @input [label=  @process [label=  @output [label=
+  @input -> @process [label=;
+  @process -> @output [label=;
+}
+
+
+╭─────────────╮
+│ JSON FORMAT │
+╰─────────────╯
+{"id":"Pipeline","nodes":[{"id":"@input","label":"Input","properties":{}},{"id":"@process","label":"Process","properties":{}},{"id":"@output","label":"Output","properties":{}}],"edges":[{"from":"@input","to":"@process","label":"feeds","properties":{}},{"from":"@process","to":"@output","label":"produces","properties":{}}],"metrics":{"nodecount":3,"edgecount":2,"density":33.33,"longestpath":2,"hascycles":0}}
+
+╭─────────────╮
+│ YAML FORMAT │
+╰─────────────╯
+graph: Pipeline
+nodes:
+  - id: @input
+    label: Input
+  - id: @process
+    label: Process
+  - id: @output
+    label: Output
+
+edges:
+  - from: @input
+    to: @process
+    label: feeds
+  - from: @process
+    to: @output
+    label: produces
+
+╭───────────────╮
+│ CUSTOM FORMAT │
+╰───────────────╯
+graph LR; @input --> @process
+'
 
 pf()
