@@ -76,12 +76,24 @@ func ListToJson(aList)
 	func ListToJsonString(aList)
 		return ListToJson(aList)
 
+	func ToJson(aList)
+		return ListToJson(aList)
+
+	func Json(aList)
+		return ListToJson(aList)
+
 	func @ListToJson(aList)
 		return ListToJson(aList)
 
 	func @ListToJsonString(aList)
 		return ListToJson(aList)
 
+	func @ToJson(aList)
+		return ListToJson(aList)
+
+	func @Json(aList)
+		return ListToJson(aList)
+	
 # Convert Ring list to JSON string with indentation
 func ListToJsonXT(aList)
     if not (isList(aList) and IsJsonList(aList))
