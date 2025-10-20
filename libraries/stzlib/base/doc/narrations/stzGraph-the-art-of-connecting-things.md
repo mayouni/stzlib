@@ -511,22 +511,97 @@ Query history or restore snapshots for schema migrations, audits, or rollbacks.
 
 ## Export and Interoperability
 
-Export to various formats:
+Export to various formats, starting with GraphViz DOT langauge:
 
 ```ring
 ? oGraph.ExportDOT()     # GraphViz
-? oGraph.ExportJSON()    # JSON
-? oGraph.ExportYAML()    # YAML
+#--> '
+digraph Pipeline {
+  rankdir=LR;
+  node [shape=box];
+
+  @input [label=  @process [label=  @output [label=
+  @input -> @process [label=;
+  @process -> @output [label=;
+}
+'
 ```
 
-Create custom exporters (e.g., Mermaid):
+Or the ubiquitous JSON format:
+```
+? oGraph.ExportJSON()
+#--> '
+{
+  "id": "Pipeline",
+  "nodes": [
+    {
+      "id": "@input",
+      "label": "Input",
+      "properties": {}
+    },
+ 	...
+  ],
+  "metrics": {
+    "nodecount": 3,
+    "edgecount": 2,
+    "density": 33.33,
+    "longestpath": 2,
+    "hascycles": 0
+  }
+}
+```
+Or the elegant YAML:
+```
+? oGraph.ExportYAML()
+#--> '
+graph: Pipeline
+nodes:
+  - id: @input
+    label: Input
+  - id: @process
+    label: Process
+  - id: @output
+    label: Output
+`
+```
+
+
+Or cCreate custom exporters (e.g., Mermaid):
 
 ```ring
 oGraph.RegisterExporter("MERMAID", func {
-    # Custom export logic
+	acNodes = oGraph.AllNodes()
+	acEdges = oGraph.AllEdges()
+	cMermaid = "graph LR;" + nl
+	
+	for i = 1 to len(acNodes)
+		aNode = acNodes[i]
+		cMermaid += "  " + aNode["id"] + "[" + aNode["label"] + "]" + nl
+	end
+	
+	for i = 1 to len(acEdges)
+		aEdge = acEdges[i]
+		cMermaid += "  " + aEdge["from"] + " --> " + aEdge["to"] + nl
+	end
+	
+	return cMermaid
 })
+
 ? oGraph.ExportUsing("MERMAID")
 ```
+Output:
+```
+graph LR;
+  input[Input]
+  process[Process]
+  output[Output]
+  input --> process
+  process --> output
+```
+Copy it and past in Mermaid Live Editor at [mermaid.live]() and you will get:
+
+![mermaid-export.png](./images/mermaid-export.png)
+
 
 ## Visualization Options
 
