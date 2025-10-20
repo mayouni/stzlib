@@ -591,141 +591,165 @@ def ReachableFrom(pcNodeId)
 	#------------------------------------------
 	#  3. CONSTRAINTS AND VALIDATION
 	#------------------------------------------
-
-	def AddConstraint(pcName, pcRule)
-		if NOT isList(@acProperties)
-			@acProperties = []
-		ok
-		
-		aConstraint = [
-			:name = pcName,
-			:rule = pcRule,
-			:violations = []
-		]
-		
-		if NOT HasKey(@acProperties, "constraints")
-			@acProperties["constraints"] = []
-		ok
-		
-		@acProperties["constraints"] + aConstraint
-
+	
+	def AddConstraint(pcConstraintType)
+	    if NOT isList(@acProperties)
+	        @acProperties = []
+	    ok
+	    
+	    cType = upper(pcConstraintType)
+	    
+	    aConstraint = [
+	        :type = cType,
+	        :violations = []
+	    ]
+	    
+	    if NOT HasKey(@acProperties, "constraints")
+	        @acProperties["constraints"] = []
+	    ok
+	    
+	    @acProperties["constraints"] + aConstraint
+	
 	def ValidateConstraints()
-		if NOT HasKey(@acProperties, "constraints")
-			return 1
-		ok
-		
-		acConstraints = @acProperties["constraints"]
-		nLen = len(acConstraints)
-		
-		for i = 1 to nLen
-			aConstraint = acConstraints[i]
-			cRule = aConstraint["rule"]
-			
-			# Apply rule evaluation
-			bValid = This._EvaluateConstraint(cRule)
-			
-			if NOT bValid
-				aConstraint["violations"] + "Constraint failed"
-			ok
-		end
-		
-		return This.ConstraintViolations() = 0
-
-	def _EvaluateConstraint(pcRule)
-		# Basic constraint types
-		if substr(pcRule, "NO_CYCLES") > 0
-			return NOT This.CyclicDependencies()
-		ok
-		
-		if substr(pcRule, "ACYCLIC") > 0
-			return NOT This.CyclicDependencies()
-		ok
-		
-		if substr(pcRule, "CONNECTED") > 0
-			return This._IsConnected()
-		ok
-		
-		return 1
-
+	    if NOT HasKey(@acProperties, "constraints")
+	        return 1
+	    ok
+	    
+	    acConstraints = @acProperties["constraints"]
+	    nLen = len(acConstraints)
+	    
+	    for i = 1 to nLen
+	        aConstraint = acConstraints[i]
+	        cType = aConstraint["type"]
+	        
+	        bValid = This._EvaluateConstraint(cType)
+	        
+	        if NOT bValid
+	            aConstraint["violations"] + "Constraint failed"
+	        ok
+	    end
+	    
+	    return len(This.ConstraintViolations()) = 0
+	
+	def _EvaluateConstraint(pcType)
+	    if pcType = "ACYCLIC" or pcType = "NO_CYCLES"
+	        return NOT This.CyclicDependencies()
+	    ok
+	    
+	    if pcType = "CONNECTED"
+	        return This._IsConnected()
+	    ok
+	    
+	    return 1
+	
 	def _IsConnected()
-		if len(@acNodes) <= 1
-			return 1
-		ok
-		
-		acVisited = []
-		This._ReachableBFS(@acNodes[1]["id"], acVisited, [])
-		
-		return len(acVisited) = len(@acNodes)
-
+	    if len(@acNodes) <= 1
+	        return 1
+	    ok
+	    
+	    acVisited = []
+	    acQueue = [@acNodes[1]["id"]]
+	    acVisited + @acNodes[1]["id"]
+	    nIdx = 1
+	    
+	    while nIdx <= len(acQueue)
+	        cCurrent = acQueue[nIdx]
+	        
+	        acNeighbors = This.Neighbors(cCurrent)
+	        acIncoming = This.Incoming(cCurrent)
+	        
+	        for i = 1 to len(acNeighbors)
+	            cNext = acNeighbors[i]
+	            if find(acVisited, cNext) = 0
+	                acVisited + cNext
+	                acQueue + cNext
+	            ok
+	        end
+	        
+	        for i = 1 to len(acIncoming)
+	            cNext = acIncoming[i]
+	            if find(acVisited, cNext) = 0
+	                acVisited + cNext
+	                acQueue + cNext
+	            ok
+	        end
+	        
+	        nIdx += 1
+	    end
+	    
+	    return len(acVisited) = len(@acNodes)
+	
 	def ConstraintViolations()
-		if NOT HasKey(@acProperties, "constraints")
-			return []
-		ok
-		
-		acViolations = []
-		acConstraints = @acProperties["constraints"]
-		nLen = len(acConstraints)
-		
-		for i = 1 to nLen
-			aConstraint = acConstraints[i]
-			if len(aConstraint["violations"]) > 0
-				acViolations + [
-					:constraint = aConstraint["name"],
-					:count = len(aConstraint["violations"])
-				]
-			ok
-		end
-		
-		return acViolations
+	    if NOT HasKey(@acProperties, "constraints")
+	        return []
+	    ok
+	    
+	    acViolations = []
+	    acConstraints = @acProperties["constraints"]
+	    nLen = len(acConstraints)
+	    
+	    for i = 1 to nLen
+	        aConstraint = acConstraints[i]
+	        if len(aConstraint["violations"]) > 0
+	            acViolations + [
+	                :type = aConstraint["type"],
+	                :count = len(aConstraint["violations"])
+	            ]
+	        ok
+	    end
+	    
+	    return acViolations
+	
 
 	#------------------------------------------
 	#  4. INFERENCE AND IMPLICIT KNOWLEDGE
 	#------------------------------------------
 
-	def AddInferenceRule(pcName, pcRule)
-		if NOT isList(@acProperties)
-			@acProperties = []
-		ok
-		
-		aRule = [
-			:name = pcName,
-			:rule = pcRule,
-			:inferredEdges = []
-		]
-		
-		if NOT HasKey(@acProperties, "inferenceRules")
-			@acProperties["inferenceRules"] = []
-		ok
-		
-		@acProperties["inferenceRules"] + aRule
+	def AddInferenceRule(pcRuleType)
+	    if NOT isList(@acProperties)
+	        @acProperties = []
+	    ok
+	    
+	    cType = upper(pcRuleType)
+	    
+	    aRule = [
+	        :type = cType,
+	        :inferredEdges = []
+	    ]
+	    
+	    if NOT HasKey(@acProperties, "inferenceRules")
+	        @acProperties["inferenceRules"] = []
+	    ok
+	    
+	    @acProperties["inferenceRules"] + aRule
 
 	def ApplyInference()
-		if NOT HasKey(@acProperties, "inferenceRules")
-			return 0
-		ok
-		
-		acRules = @acProperties["inferenceRules"]
-		nRuleLen = len(acRules)
-		nInferred = 0
-		
-		for i = 1 to nRuleLen
-			aRule = acRules[i]
-			cRuleType = aRule["rule"]
-			
-			if substr(cRuleType, "TRANSITIVITY") > 0
-				nInferred += This._ApplyTransitivity(aRule)
-			ok
-			
-			if substr(cRuleType, "SYMMETRY")
-				nInferred += This._ApplySymmetry(aRule)
-			ok
-			
-			if substr(cRuleType, "COMPOSITION")
-				nInferred += This._ApplyComposition(aRule)
-			ok
-		end
-		
-		return nInferred
+	    if NOT HasKey(@acProperties, "inferenceRules")
+	        return 0
+	    ok
+	    
+	    acRules = @acProperties["inferenceRules"]
+	    nRuleLen = len(acRules)
+	    nInferred = 0
+	    
+	    for i = 1 to nRuleLen
+	        aRule = acRules[i]
+	        cType = aRule["type"]
+	        
+	        if cType = "TRANSITIVITY"
+	            nInferred += This._ApplyTransitivity(aRule)
+	        ok
+	        
+	        if cType = "SYMMETRY"
+	            nInferred += This._ApplySymmetry(aRule)
+	        ok
+	        
+	        if cType = "COMPOSITION"
+	            nInferred += This._ApplyComposition(aRule)
+	        ok
+	    end
+	    
+	    return nInferred
 
 	def _ApplyTransitivity(paRule)
 		nInferred = 0
