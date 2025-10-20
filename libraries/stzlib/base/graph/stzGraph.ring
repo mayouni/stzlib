@@ -856,6 +856,78 @@ def ReachableFrom(pcNodeId)
 		
 		return acInferred
 
+	#=== CUSTOM INFERENCE RULES
+
+def RegisterInferenceRule(pcRuleName, pFunc)
+	if NOT isList(@acProperties)
+		@acProperties = []
+	ok
+	
+	cName = upper(pcRuleName)
+	
+	aRule = [
+		:name = cName,
+		:callback = pFunc
+	]
+	
+	if NOT HasKey(@acProperties, "inferenceRules")
+		@acProperties["inferenceRules"] = []
+	ok
+	
+	@acProperties["inferenceRules"] + aRule
+
+def ApplyCustomInference(pcRuleName)
+	if NOT HasKey(@acProperties, "inferenceRules")
+		return 0
+	ok
+	
+	acRules = @acProperties["inferenceRules"]
+	cName = upper(pcRuleName)
+	nLen = len(acRules)
+	
+	for i = 1 to nLen
+		aRule = acRules[i]
+		if aRule["name"] = cName
+			pFunc = aRule["callback"]
+			return call pFunc(this)
+		ok
+	end
+	
+	return 0
+
+def ApplyAllCustomInference()
+	if NOT HasKey(@acProperties, "inferenceRules")
+		return 0
+	ok
+	
+	acRules = @acProperties["inferenceRules"]
+	nTotalInferred = 0
+	nLen = len(acRules)
+	
+	for i = 1 to nLen
+		aRule = acRules[i]
+		pFunc = aRule["callback"]
+		nInferred = call pFunc()
+		nTotalInferred += nInferred
+	end
+	
+	return nTotalInferred
+
+def CustomInferenceRules()
+	if NOT HasKey(@acProperties, "inferenceRules")
+		return []
+	ok
+	
+	acNames = []
+	acRules = @acProperties["inferenceRules"]
+	nLen = len(acRules)
+	
+	for i = 1 to nLen
+		acNames + acRules[i]["name"]
+	end
+	
+	return acNames
+
 	#------------------------------------------
 	#  5. RICH QUERYING
 	#------------------------------------------
@@ -963,7 +1035,7 @@ def ReachableFrom(pcNodeId)
 			if aEdge["label"] = pcLabel
 				acFound + aEdge
 			ok
-		end
+		next
 		
 		return acFound
 
@@ -1174,7 +1246,7 @@ def ReachableFrom(pcNodeId)
 		
 		return acChanges
 
-	def ListSnapshots()
+	def Snapshots()
 		if NOT HasKey(@acProperties, "snapshots")
 			return []
 		ok
@@ -1399,7 +1471,7 @@ def ExportYAML()
 		
 		return ""
 
-	def ListExporters()
+	def Exporters()
 		if NOT HasKey(@acProperties, "exporters")
 			return []
 		ok
