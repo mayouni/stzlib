@@ -1194,79 +1194,176 @@ def ReachableFrom(pcNodeId)
 	#------------------------------------------
 
 	def ExportDOT()
-		cDOT = "digraph " + This.Id() + " {" + nl
-		cDOT += "  rankdir=LR;" + nl
-		cDOT += "  node [shape=box];" + nl + nl
+	cDOT = "digraph " + This.Id() + " {" + nl
+	cDOT += "  rankdir=LR;" + nl
+	cDOT += "  node [shape=box];" + nl + nl
+	
+	# Export nodes
+	nLen = len(@acNodes)
+	for i = 1 to nLen
+		aNode = @acNodes[i]
+		cId = aNode["id"]
+		cLabel = aNode["label"]
 		
-		# Export nodes
-		nLen = len(@acNodes)
-		for i = 1 to nLen
-			aNode = @acNodes[i]
-			cLabel = aNode["label"]
-			cDOT += "  " + aNode["id"] + " [label=""" + cLabel + """];" + nl
-		end
+		# Remove @ prefix if present
+		if left(cId, 1) = "@"
+			cId = @substr(cId, 2, len(cId))
+		ok
 		
-		cDOT += nl
+		cDOT += "  " + cId + " [label=" + '"' + cLabel + '"' + "];" + nl
+	end
+	
+	cDOT += nl
+	
+	# Export edges
+	nLen = len(@acEdges)
+	for i = 1 to nLen
+		aEdge = @acEdges[i]
+		cFrom = aEdge["from"]
+		cTo = aEdge["to"]
+		cLabel = aEdge["label"]
 		
-		# Export edges
-		nLen = len(@acEdges)
-		for i = 1 to nLen
-			aEdge = @acEdges[i]
-			cLabel = aEdge["label"]
-			cDOT += "  " + aEdge["from"] + " -> " + aEdge["to"]
-			if cLabel != ""
-				cDOT += " [label=""" + cLabel + """]"
-			ok
-			cDOT += ";" + nl
-		end
+		# Remove @ prefix if present
+		if left(cFrom, 1) = "@"
+			cFrom = @substr(cFrom, 2, len(cFrom))
+		ok
+		if left(cTo, 1) = "@"
+			cTo = @substr(cTo, 2, len(cTo))
+		ok
 		
-		cDOT += "}" + nl
-		return cDOT
+		cDOT += "  " + cFrom + " -> " + cTo
+		if cLabel != ""
+			cDOT += " [label=" + '"' + cLabel + '"' + "]"
+		ok
+		cDOT += ";" + nl
+	end
+	
+	cDOT += "}" + nl
+	return cDOT
 
-	def ExportJSON()
-		aJSON = [
-			:id = This.Id(),
-			:nodes = @acNodes,
-			:edges = @acEdges,
-			:metrics = [
-				:nodeCount = len(@acNodes),
-				:edgeCount = len(@acEdges),
-				:density = This.NodeDensity(),
-				:longestPath = This.LongestPath(),
-				:hasCycles = This.CyclicDependencies()
-			]
+def ExportJSON()
+	acNodes = []
+	acEdges = []
+	
+	# Process nodes and remove @ prefix
+	nLen = len(@acNodes)
+	for i = 1 to nLen
+		aNode = @acNodes[i]
+		cId = aNode["id"]
+		if substr(cId, 1, 1) = "@"
+			cId = substr(cId, 2, len(cId) - 1)
+		ok
+		acNodes + [
+			:id = cId,
+			:label = aNode["label"],
+			:properties = aNode["properties"]
 		]
-		return tojson(aJSON)
+	end
+	
+	# Process edges and remove @ prefix
+	nLen = len(@acEdges)
+	for i = 1 to nLen
+		aEdge = @acEdges[i]
+		cFrom = aEdge["from"]
+		cTo = aEdge["to"]
+		if substr(cFrom, 1, 1) = "@"
+			cFrom = substr(cFrom, 2, len(cFrom) - 1)
+		ok
+		if substr(cTo, 1, 1) = "@"
+			cTo = substr(cTo, 2, len(cTo) - 1)
+		ok
+		acEdges + [
+			:from = cFrom,
+			:to = cTo,
+			:label = aEdge["label"],
+			:properties = aEdge["properties"]
+		]
+	end
+	
+	cJSON = "{" + nl
+	cJSON += '  "id": "' + This.Id() + '",' + nl
+	cJSON += '  "nodes": [' + nl
+	
+	nLen = len(acNodes)
+	for i = 1 to nLen
+		cJSON += '    ' + ToJSON(acNodes[i])
+		if i < nLen
+			cJSON += ","
+		ok
+		cJSON += nl
+	end
+	
+	cJSON += '  ],' + nl
+	cJSON += '  "edges": [' + nl
+	
+	nLen = len(acEdges)
+	for i = 1 to nLen
+		cJSON += '    ' + ToJSON(acEdges[i])
+		if i < nLen
+			cJSON += ","
+		ok
+		cJSON += nl
+	end
+	
+	cJSON += '  ],' + nl
+	cJSON += '  "metrics": ' + ToJSON([
+		:nodeCount = len(@acNodes),
+		:edgeCount = len(@acEdges),
+		:density = This.NodeDensity(),
+		:longestPath = This.LongestPath(),
+		:hasCycles = This.CyclicDependencies()
+	]) + nl
+	cJSON += "}"
+	
+	return cJSON
 
-	def ExportYAML()
-		cYAML = "graph: " + This.Id() + nl
-		cYAML += "nodes:" + nl
+def ExportYAML()
+	cYAML = "graph: " + This.Id() + nl
+	cYAML += "nodes:" + nl
+	
+	nLen = len(@acNodes)
+	for i = 1 to nLen
+		aNode = @acNodes[i]
+		cId = aNode["id"]
 		
-		nLen = len(@acNodes)
-		for i = 1 to nLen
-			aNode = @acNodes[i]
-			cYAML += "  - id: " + aNode["id"] + nl
-			cYAML += "    label: " + aNode["label"] + nl
-			if len(aNode["properties"]) > 0
-				cYAML += "    properties:" + nl
-				acProps = aNode["properties"]
-				nPropLen = len(acProps)
-				for j = 1 to nPropLen
-					cYAML += "      - " + string(acProps[j]) + nl
-				end
-			ok
-		end
+		# Remove @ prefix if present
+		if left(cId, 1) = "@"
+			cId = @substr(cId, 2, len(cId))
+		ok
 		
-		cYAML += nl + "edges:" + nl
-		nLen = len(@acEdges)
-		for i = 1 to nLen
-			aEdge = @acEdges[i]
-			cYAML += "  - from: " + aEdge["from"] + nl
-			cYAML += "    to: " + aEdge["to"] + nl
-			cYAML += "    label: " + aEdge["label"] + nl
-		end
+		cYAML += "  - id: " + cId + nl
+		cYAML += "    label: " + aNode["label"] + nl
+		if len(aNode["properties"]) > 0
+			cYAML += "    properties:" + nl
+			acProps = aNode["properties"]
+			nPropLen = len(acProps)
+			for j = 1 to nPropLen
+				cYAML += "      - " + string(acProps[j]) + nl
+			end
+		ok
+	end
+	
+	cYAML += nl + "edges:" + nl
+	nLen = len(@acEdges)
+	for i = 1 to nLen
+		aEdge = @acEdges[i]
+		cFrom = aEdge["from"]
+		cTo = aEdge["to"]
 		
-		return cYAML
+		# Remove @ prefix if present
+		if left(cFrom, 1) = "@"
+			cFrom = @substr(cFrom, 2, len(cFrom))
+		ok
+		if left(cTo, 1) = "@"
+			cTo = @substr(cTo, 2, len(cTo))
+		ok
+		
+		cYAML += "  - from: " + cFrom + nl
+		cYAML += "    to: " + cTo + nl
+		cYAML += "    label: " + aEdge["label"] + nl
+	end
+	
+	return cYAML
 
 	def RegisterExporter(pcName, pFunc)
 		if NOT isList(@acProperties)
@@ -1316,6 +1413,7 @@ def ReachableFrom(pcNodeId)
 		end
 		
 		return acNames
+
 	#------------------------------------------
 	#  VISUALIZATION
 	#------------------------------------------
