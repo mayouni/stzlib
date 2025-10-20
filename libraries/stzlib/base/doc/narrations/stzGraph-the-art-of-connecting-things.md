@@ -1,18 +1,16 @@
 # stzGraph: The Art of Connected Thinking
 
-## What Is a Graph?
+## The Beauty of Graphs
 
-A **graph** is one of the most elegant ideas in computer science — a structure made of **nodes** (things) and **edges** (relationships).
-It models how parts of a system depend, influence, or interact with one another.
+A **graph** is a profound yet elegant concept in computer science—a structure of **nodes** (entities) and **edges** (relationships) that reveals how systems connect, interact, and evolve. Whether modeling **workflows**, **codebases**, **data schemas**, or **conversational logic**, `stzGraph` transforms complexity into clarity. With a syntax that mirrors human reasoning, it makes relationships not just visible but **intuitive, explorable, and actionable**—directly from your terminal.
 
-Whether you're modeling **workflows**, **program code**, **data schemas**, or **natural language conversations**, a graph turns complexity into clarity.
-In `stzGraph`, this clarity comes alive: the code reads like plain reasoning, and the structure you imagine becomes visible, explorable, and exportable — right from your terminal.
+`stzGraph` is more than a tool; it’s a way to **think in systems**, where flows of influence, chains of dependency, and cycles of cause and effect come alive. Its lightweight, dependency-free design and powerful features make it a universal foundation for reasoning about any relational system.
 
 ---
 
-## Quick Start
+## Quick Start: From Vision to Reality
 
-Create a graph, visualize it, query it, augment it with metadata:
+Create a graph, visualize it, query it, and enrich it with metadata in just a few lines:
 
 ```ring
 oGraph = new stzGraph("MyFlow")
@@ -50,71 +48,74 @@ Output:
          ╰─────╯
 ```
 
-Quick checks:
+Switch to a horizontal view with `ShowH()`:
 
-```ring
-? oGraph.NodeCount()        #--> 3
-? oGraph.PathExists(:@start, :@end)  #--> TRUE
+```
+╭───────╮          ╭───────────╮              ╭─────╮
+│ Start │--flows-->│ !Process! │--completes-->│ End │
+╰───────╯          ╰───────────╯              ╰─────╯
 ```
 
-Augment nodes with domain properties:
+Quick queries:
+
+```ring
+? oGraph.NodeCount()                #--> 3
+? oGraph.PathExists(:@start, :@end) #--> TRUE
+```
+
+Enrich nodes with domain-specific metadata:
 
 ```ring
 oGraph.AddNodeXT(:@middle, "Process", [
-    "priority" = "high",
-    "owner" = "team-a"
+    :priority = "high",
+    :owner = "team-a"
 ])
 ```
 
-`stzGraph` feels conversational — you declare relationships, it makes sense of them.
-No configuration, no setup, just pure connected logic.
+`stzGraph` feels like a conversation with your system—declare relationships, and it responds with insights. No setup, no dependencies, just **connected logic**.
 
+## A Natural API: Code That Thinks Like You
 
-## Natural API: Your Questions Become Methods
+The `stzGraph` API is designed to mirror how you reason about systems. Ask a question, and the method answers directly:
 
-Every method mirrors how you actually think about graphs. Ask the question naturally; the method name follows:
+| Your Question             | Method                                          | Returns             |
+|---------------------------|-------------------------------------------------|---------------------|
+| Can A reach B?            | `PathExists(:@a, :@b)`                          | TRUE / FALSE        |
+| What are all paths from A to B? | `FindAllPaths(:@a, :@b)`                  | Array of paths      |
+| Are there loops?          | `CyclicDependencies()`                          | TRUE / FALSE        |
+| What does X influence?    | `ReachableFrom(:@x)`                            | Array of nodes      |
+| Which nodes are critical? | `BottleneckNodes()`                             | Array of IDs        |
+| How connected is the graph? | `NodeDensity()`                               | % (0–100)           |
+| What’s the longest chain? | `LongestPath()`                                 | Edge count          |
+| What connects to X?       | `NeighborsOf(:@x)`                              | Array of nodes      |
+| What leads to X?          | `IncomingTo(:@x)`                               | Array of nodes      |
+| Describe the graph        | `Explain()`                                     | Structured analysis |
+| Does this exist?          | `NodeExists(:@id)` / `EdgeExists(:@from, :@to)` | TRUE / FALSE        |
+| Show vertical view        | `Show()` / `ShowV()`                            | ASCII diagram       |
+| Show horizontal view      | `ShowH()` / `ShowHorizontal()`                  | ASCII diagram       |
+| Show with annotations     | `ShowWithLegend()`                              | ASCII + legend      |
 
-| What You're Thinking        | Method You Call                              | What You Get        |
-| --------------------------- | ---------------------------------------------- | ------------------- |
-| Can A reach B?              | `PathExists(:@a, :@b)`                         | TRUE / FALSE        |
-| Show me all routes A to B   | `FindAllPaths(:@a, :@b)`                       | Array of paths      |
-| Any loops here?             | `CyclicDependencies()`                         | TRUE / FALSE        |
-| What can X influence?       | `ReachableFrom(:@x)`                           | Array of nodes      |
-| Which nodes are critical?   | `BottleneckNodes()`                            | Array of node IDs   |
-| How tightly coupled?        | `NodeDensity()`                                | Percentage (0-100)  |
-| What's the longest chain?   | `LongestPath()`                                | Edge count          |
-| What leaves this node?      | `NeighborsOf(:@x)`                             | Array of nodes      |
-| What reaches this node?     | `IncomingTo(:@x)`                              | Array of nodes      |
-| Tell me about this graph    | `Explain()`                                    | Structured analysis |
-| Does this exist?            | `NodeExists(:@id)`, `EdgeExists(:@from, :@to)` | TRUE / FALSE        |
-| See vertical layout         | `Show()` / `ShowV()`                           | ASCII diagram       |
-| See horizontal layout       | `ShowH()` / `ShowHorizontal()`                 | ASCII diagram       |
-| See annotated graph         | `ShowWithLegend()`                             | ASCII + legend      |
+The API speaks your language, turning thoughts into code with no friction.
 
-The API speaks your language. No translation layer.
+## Connectivity: Mapping the Possible
 
-
-## Connectivity — Does the Path Exist?
-
-Every structure hides a story. Sometimes you just want to know: *Can this system reach its goal?*
+Every system tells a story. `stzGraph` lets you ask: **Can this process reach its goal?**
 
 ```ring
 oWorkflow = new stzGraph("ApprovalProcess")
 oWorkflow {
     AddNode(:@request, "Request")
     AddNode(:@manager, "Manager")
-    AddNode(:@director, "Director")
     AddNode(:@approved, "Approved")
     
     AddEdge(:@request, :@manager, "submit")
-    AddEdge(:@manager, :@director, "escalate")
-    AddEdge(:@director, :@approved, "finalize")
+    AddEdge(:@manager, :@approved, "finalize")
     
     Show()
 }
 ```
 
-Output (vertical):
+Output:
 
 ```
        ╭─────────╮       
@@ -128,19 +129,12 @@ Output (vertical):
       │ !Manager! │      
       ╰───────────╯      
             |            
-        escalate         
-            |            
-            v            
-     ╭────────────╮      
-     │ !Director! │      
-     ╰────────────╯      
-            |            
         finalize         
             |            
             v            
       ╭──────────╮       
       │ Approved │       
-      ╰──────────╯ 
+      ╰──────────╯  
 ```
 
 Query:
@@ -149,10 +143,9 @@ Query:
 ? oWorkflow.PathExists(:@request, :@approved)  #--> TRUE
 ```
 
+## Alternative Routes: Exploring All Paths
 
-## Alternative Routes — Finding All Paths
-
-Real systems rarely have one straight route. They branch, merge, or overlap.
+Real systems branch and converge. `stzGraph` reveals every possible route:
 
 ```ring
 oProcess = new stzGraph("MultiPathProcess")
@@ -167,45 +160,73 @@ oProcess {
     AddEdge(:@fast, :@end, "finish")
     AddEdge(:@standard, :@end, "finish")
     
-    ShowH()
+    Show()
 }
 ```
 
-Output (horizontal):
+Output (branches separated by `////`):
 
 ```
-╭───────╮              ╭───────────╮           ╭──────────╮
-│ Start │--expedited-->│ Fast Path │--finish-->│ Complete │
-╰───────╯              ╰───────────╯           ╰──────────╯
+        ╭───────╮        
+        │ Start │        
+        ╰───────╯        
+            |            
+        expedited        
+            |            
+            v            
+      ╭───────────╮      
+      │ Fast Path │      
+      ╰───────────╯      
+            |            
+         finish          
+            |            
+            v            
+      ╭──────────╮       
+      │ Complete │       
+      ╰──────────╯       
+
+          ////
+
+        ╭───────╮  ↑
+        │ Start │──╯
+        ╰───────╯        
+            |            
+         normal          
+            |            
+            v            
+    ╭───────────────╮    
+    │ Standard Path │    
+    ╰───────────────╯    
+            |            
+         finish          
+            |            
+            v            
+      ╭──────────╮       
+      │ Complete │       
+      ╰──────────╯       
 ```
 
-Query:
+Query the routes:
 
 ```ring
 aPaths = oProcess.FindAllPaths(:@start, :@end)
 ? len(aPaths)  #--> 2
 ```
 
-**Feature 1: Independent Branches**
+## Independent Branches: Parallel Power
 
-Identify which branches diverge yet have no overlapping downstream:
+Identify branches that can run concurrently:
 
 ```ring
-? oProcess.ParallelizableBranches()
-#--> [[:@fast, :@standard]]
-
-? oProcess.DependencyFreeNodes()
-#--> [:@start]
+? oProcess.ParallelizableBranches()  #--> [[:@fast, :@standard]]
+? oProcess.DependencyFreeNodes()    #--> [:@start]
 ```
 
-These branches can advance independently without interference.
+This unlocks insights for optimizing workflows, code execution, or operations.
 
-*Note: Concrete use cases like concurrent execution appear in domain-specific classes. `stzCodeModel` applies this for concurrent code; `stzWorkflow` for parallel activities.*
+## Cyclic Dependencies: Illuminating Feedback Loops
 
-
-## Cyclic Dependencies — Detect Feedback Loops
-
-Graphs make circular structures visible — and `stzGraph` identifies them.
+`stzGraph` doesn’t just detect cycles—it visualizes them clearly:
 
 ```ring
 oCyclic = new stzGraph("CyclicStructure")
@@ -222,7 +243,7 @@ oCyclic {
 }
 ```
 
-Output:
+Output (cycle highlighted):
 
 ```
          ╭────╮          
@@ -244,15 +265,13 @@ Output:
             ╰──> [P1] ──╯
 ```
 
-Query:
-
 ```ring
 ? oCyclic.CyclicDependencies()  #--> TRUE
 ```
 
-**Feature 3: Structural Constraints**
+## Structural Constraints: Ensuring Soundness
 
-Enforce rules to guarantee design properties:
+Enforce design rules to maintain system integrity:
 
 ```ring
 oGraph = new stzGraph("DAGStructure")
@@ -261,25 +280,25 @@ oGraph {
     AddNode(:@b, "B")
     AddNode(:@c, "C")
     
-    AddConstraint("NO_CYCLES", "ACYCLIC")
-    AddConstraint("CONNECTIVITY", "CONNECTED")
+    AddConstraint("ACYCLIC")
+    AddConstraint("CONNECTED")
+    
+    AddCustomConstraint("NO_ORPHANS", func {
+        return len(This.DependencyFreeNodes()) = 1
+    })
     
     AddEdge(:@a, :@b, "")
     AddEdge(:@b, :@c, "")
 }
 
-? oGraph.ValidateConstraints()
-#--> TRUE
+? oGraph.ValidateConstraints()  #--> TRUE
 ```
 
-Supported constraints: `ACYCLIC`, `NO_CYCLES`, `CONNECTED`. Validate structural correctness at any point in your analysis.
+Constraints like `ACYCLIC`, `CONNECTED`, and custom rules ensure your graph aligns with your design goals, catching flaws early.
 
+## Reachability: Measuring Influence
 
-## Reachability — Measure Scope and Influence
-
-Not all nodes are equal. Some trigger cascades. When you modify a concept that many others depend on, the entire structure ripples with change.
-
-Nodes marked with `!label!` are **bottlenecks**—high-connectivity hubs where many paths converge. These are critical junction points:
+Identify hubs that drive system behavior:
 
 ```ring
 oHierarchy = new stzGraph("TypeSystem")
@@ -326,31 +345,26 @@ Output:
        ╰─────────╯  
 ```
 
-**Person** and **Employee** are marked because they sit at critical points in the hierarchy—change them, and everything downstream is affected.
-
-Query the influence:
+Query:
 
 ```ring
-? oHierarchy.ReachableFrom(:@person)
-#--> [:@person, :@employee, :@manager]
-```
-
-Understand the structure holistically:
-
-```ring
+? oHierarchy.ReachableFrom(:@person)  #--> [:@person, :@employee, :@manager]
 ? oHierarchy.Explain()
-#--> [
-    ["general", ["Graph: TypeSystem", "Nodes: 4 | Edges: 3"]],
-    ["bottlenecks", ["Bottleneck nodes: @person, @employee", ...]],
-    ["cycles", ["No cycles - acyclic graph (DAG)"]],
-    ["metrics", ["Density: 25%...", "Longest path: 3 hops"]]
-]
 ```
 
+Output:
 
-## Bottleneck Nodes — Identify Critical Hubs
+```
+Graph: TypeSystem
+Nodes: 4 | Edges: 3
+Bottleneck nodes: @person, @employee
+No cycles - DAG
+Density: 25% | Longest path: 3 hops
+```
 
-Some nodes are crossroads — everything passes through them. When they fail, the system halts.
+## Bottlenecks: Finding Critical Hubs
+
+Spot nodes where paths converge:
 
 ```ring
 oGraph = new stzGraph("BottleneckTest")
@@ -363,74 +377,20 @@ oGraph {
     AddEdge(:@a, :@hub, "")
     AddEdge(:@b, :@hub, "")
     AddEdge(:@c, :@hub, "")
-    AddEdge(:@hub, :@a, "")
     
     ShowWithLegend()
 }
 ```
 
-Output:
-
-```
-          ╭───╮          
-          │ B │          
-          ╰───╯          
-            |            
-            v            
-        ╭───────╮        
-        │ !Hub! │        
-        ╰───────╯        
-            |            
-            v            
-          ╭───╮          
-          │ A │          
-          ╰───╯          
-            |            
-      <CYCLE: >   
-            |              ↑
-            ╰──> [!Hub!] ──╯
-
-          ////
-
-          ╭───╮          
-          │ C │          
-          ╰───╯          
-            |            
-            v            
-        ╭───────╮        
-        │ !Hub! │        
-        ╰───────╯        
-            |            
-            v            
-          ╭───╮          
-          │ A │          
-          ╰───╯          
-            |            
-      <CYCLE: >   
-            |              ↑
-            ╰──> [!Hub!] ──╯
-
-Legend:
-
-╭────────────┬─────────────────────────────────────────────────────╮
-│    Sign    │                       Meaning                       │
-├────────────┼─────────────────────────────────────────────────────┤
-│ bottleneck │ [ "!label!", "High connectivity hub (bottleneck)" ] │
-│ feedback   │ [ "[...] ↑", "Feedback loop" ]                      │
-│ branch     │ [ "////", "Branch separator (multiple paths)" ]     │
-╰────────────┴─────────────────────────────────────────────────────╯
-```
-
-Query:
+Output highlights `!Hub!` as a bottleneck. Query:
 
 ```ring
-? oGraph.BottleneckNodes()
-#--> [:@hub]
+? oGraph.BottleneckNodes()  #--> [:@hub]
 ```
 
-**Feature 2: Criticality & Impact Analysis**
+## Impact Analysis: Quantifying Risk
 
-Understand which nodes matter most and what fails when they fail:
+Understand how failures propagate:
 
 ```ring
 oSystem = new stzGraph("SystemDependencies")
@@ -445,33 +405,25 @@ oSystem {
     AddEdge(:@api, :@worker2, "")
 }
 
-? oSystem.ImpactOf(:@api)
-#--> 2
-
-? oSystem.FailureScope(:@api)
-#--> [:@worker1, :@worker2]
-
-? oSystem.MostCriticalNodes(2)
-#--> [:@api, :@database]
+? oSystem.ImpactOf(:@api)       #--> 2
+? oSystem.FailureScope(:@api)   #--> [:@worker1, :@worker2]
+? oSystem.MostCriticalNodes(2)  #--> [:@api, :@database]
 ```
 
-Risk assessment made visible.
+## Complexity Metrics: System Health
 
-
-## Complexity Metrics — Assess Architecture
+Gauge architectural health:
 
 ```ring
-? oGraph.NodeDensity()   # 0-100: tightness of connections
-? oGraph.LongestPath()   # Maximum hops in any path
+? oGraph.NodeDensity()  #--> % (0–100, tight vs. modular)
+? oGraph.LongestPath()  #--> Edge count (latency indicator)
 ```
 
-* High density (near 100): tightly coupled, brittle
-* Low density (near 0): modular, loose
-* Long paths: deep chains, potential latency
-* Short paths: simple flows, fast completion
+High density suggests tight coupling; long paths hint at latency risks.
 
+## Direct Dependencies: Local Insights
 
-## Direct Dependencies — Neighborhoods
+See immediate connections:
 
 ```ring
 oGraph = new stzGraph("Services")
@@ -484,33 +436,13 @@ oGraph {
     AddEdge(:@api, :@db, "")
 }
 
-? oGraph.NeighborsOf(:@api)   #--> [:@auth, :@db]
-? oGraph.IncomingTo(:@auth)   #--> [:@api]
+? oGraph.NeighborsOf(:@api)  #--> [:@auth, :@db]
+? oGraph.IncomingTo(:@auth)  #--> [:@api]
 ```
 
-Quick neighborhood checks reveal connectivity patterns.
+## Rich Querying
 
-
-## Core Operations
-
-```ring
-oGraph.AddNode(:@new, "Label")
-oGraph.RemoveNode(:@old)
-oGraph.AddEdge(:@from, :@to, "label")
-oGraph.RemoveEdge(:@from, :@to)
-
-? oGraph.NodeCount()
-? oGraph.EdgeCount()
-? oGraph.NodeExists(:@id)
-? oGraph.EdgeExists(:@from, :@to)
-```
-
-
-## Power User Features
-
-### Feature 4: Rich Querying
-
-Search nodes and paths by type or custom predicate:
+Attach metadata and query with precision:
 
 ```ring
 oGraph = new stzGraph("Codebase")
@@ -524,23 +456,16 @@ oGraph {
 }
 
 ? oGraph.Query([:nodeType = "function"])
-#--> [:@fn1, :@fn2]
-
-? oGraph.Query([:edgeLabel = "calls"])
-#--> edges with label "calls"
-
-? oGraph.FindNodesWhere(func node { 
-    return substr(node["label"], "function") > 0 
+? oGraph.FindNodesWhere(func node {
+    return substr(node["label"], "function") > 0
 })
-#--> [:@fn1, :@fn2]
 ```
 
-Metadata attached to nodes enables domain-aware searches.
+Metadata makes your graph domain-aware, enabling tailored queries.
 
+## Inference: Uncovering Implicit Knowledge
 
-### Feature 5: Inference & Implicit Knowledge
-
-Automatically derive relationships from logic rules:
+Extend your graph with automatic reasoning:
 
 ```ring
 oGraph = new stzGraph("Organization")
@@ -552,21 +477,21 @@ oGraph {
     AddEdge(:@alice, :@bob, "manages")
     AddEdge(:@bob, :@carol, "manages")
     
-    AddInferenceRule("HIERARCHY", "TRANSITIVITY")
+    AddInferenceRule("TRANSITIVITY")
+    AddCustomInferenceRule("TEAM_HIERARCHY", func {
+        # Custom logic for inferring team relationships
+        return This.AddEdge(:@alice, :@carol, "manages")
+    })
+    
     ? oGraph.ApplyInference()
-    #--> 1
 }
-
-? oGraph.EdgeExists(:@alice, :@carol)
-#--> TRUE (transitively derived)
 ```
 
-Supported rules: `TRANSITIVITY`, `SYMMETRY`, `COMPOSITION`.
+Alice now indirectly manages Carol via transitivity. Built-in rules (`TRANSITIVITY`, `SYMMETRY`, `COMPOSITION`) and custom inference rules unlock dynamic system insights.
 
+## Temporal Evolution: Tracking Change
 
-### Feature 6: Temporal Evolution & Snapshots
-
-Track graph changes over time:
+Monitor how your graph evolves:
 
 ```ring
 oGraph = new stzGraph("DatabaseSchema")
@@ -580,124 +505,78 @@ oGraph {
     AddNode(:@payments, "payments")
     AddEdge(:@orders, :@payments, "has_many")
 }
-
-? oGraph.ListSnapshots()
-#--> ["v1.0"]
-
-aChanges = oGraph.ChangesSince("v1.0")
-? aChanges["nodesAdded"]
-#--> [:@payments]
-
-oGraph.RestoreSnapshot("v1.0")
-? oGraph.NodeCount()
-#--> 2
 ```
 
-Schema versioning, migration audits, rollback scenarios.
+Query history or restore snapshots for schema migrations, audits, or rollbacks.
 
+## Export and Interoperability
 
-### Feature 7: Export & Interoperability
-
-Serialize to multiple formats:
+Export to various formats:
 
 ```ring
-oGraph = new stzGraph("Pipeline")
-oGraph {
-    AddNode(:@input, "Input")
-    AddNode(:@process, "Process")
-    AddNode(:@output, "Output")
-    AddEdge(:@input, :@process, "feeds")
-    AddEdge(:@process, :@output, "produces")
-}
+? oGraph.ExportDOT()     # GraphViz
+? oGraph.ExportJSON()    # JSON
+? oGraph.ExportYAML()    # YAML
+```
 
-? oGraph.ExportDOT()      # GraphViz format
-? oGraph.ExportJSON()     # JSON with metrics
-? oGraph.ExportYAML()     # YAML representation
+Create custom exporters (e.g., Mermaid):
 
+```ring
 oGraph.RegisterExporter("MERMAID", func {
-    acNodes = oGraph.AllNodes()
-    acEdges = oGraph.AllEdges()
-    cMermaid = "graph LR;" + nl
-    
-    for i = 1 to len(acNodes)
-        aNode = acNodes[i]
-        cMermaid += "  " + aNode["id"] + "[" + aNode["label"] + "]" + nl
-    end
-    
-    for i = 1 to len(acEdges)
-        aEdge = acEdges[i]
-        cMermaid += "  " + aEdge["from"] + " --> " + aEdge["to"] + nl
-    end
-    
-    return cMermaid
+    # Custom export logic
 })
-
 ? oGraph.ExportUsing("MERMAID")
 ```
 
-CI/CD visualization, documentation generation, graph database import.
-
-
 ## Visualization Options
 
-Use `Show()` to render:
+- `Show()` / `ShowV()` — vertical layout
+- `ShowH()` / `ShowHorizontal()` — horizontal layout
+- `ShowWithLegend()` — annotated with markers
 
-* `Show()` / `ShowV()` — vertical ASCII layout
-* `ShowH()` / `ShowHorizontal()` — horizontal ASCII layout
-* `ShowWithLegend()` — annotated with markers
+Markers:
+- `!label!` — bottleneck node
+- `~label~` — cycle participant
+- `!~label~!` — cyclic hub
+- `<CYCLE: label>` — feedback indicator
+- `[Node]` — cycle member
+- `////` — branch separator
 
-Markers in output:
+## Foundation for Domain-Specific Reasoning
 
-* `!label!` — bottleneck node (high connectivity)
-* `~label~` — participates in cycle
-* `!~label~!` — hub with cyclic dependency
-* `<CYCLE: label>` — feedback loop indicator
-* `[Node]` — part of cycle path
-* `////` — branch separator (multiple independent routes)
+`stzGraph` is the **architectural spine** for specialized abstractions:
+- **stzWorkflow** — task dependencies
+- **stzDecisionTree** — branching logic
+- **stzSemanticModel** — concept relations
+- **stzDataModel** — schema and cardinality
+- **stzCodeModel** — module and function dependencies
+- **stzNaturalLanguage** — semantic role networks
 
----
+Each inherits `stzGraph`'s power while tailoring its vocabulary. **Structure is universal; semantics are domain-specific.**
 
-## Why stzGraph?
+## Softanza Advantage
 
-`stzGraph` treats **relationships as first-class code constructs** — concise, visual, analytical.
+`stzGraph` treats **relationships as first-class code constructs**—concise, visual, and analytical. It’s a lightweight, developer-centric tool for reasoning about systems without the overhead of heavy frameworks or proprietary ecosystems.
 
-| Dimension                | stzGraph                                       | NetworkX                   | Neo4j                | GraphQL               |
-| ------------------------ | ---------------------------------------------- | -------------------------- | -------------------- | --------------------- |
-| **Structure Validation** | ✅ `.Explain()` facts: cycles, bottlenecks      | ◯ Manual analysis          | ◯ Query-based        | ◯ Schema only         |
-| **Development Speed**    | ✅ Instant—no deps                              | ◯ `pip install` + setup    | 🟠 Server required   | 🟠 Endpoint + schema  |
-| **Language Integration** | ✅ Native Ring fluency                          | ◯ Python idiomatic         | 🟠 Java/Cypher       | 🟠 JSON/REST layer    |
-| **Visualization**        | ✅ ASCII instant (stzDiagram: Graphviz layouts) | 🟠 Matplotlib              | ◯ Web UI             | ✗ Results only        |
-| **Introspection**        | ✅ Programmatic data arrays                     | ✗ Manual traversal         | 🟠 Query results     | ◯ Schema tools        |
-| **Temporal Tracking**    | ✅ Snapshots + change history                   | ◯ Attribute-based          | 🟠 Transaction logs  | ✗ None                |
-| **Inference Engine**     | ✅ Rules-based derivation                       | ◯ Manual computation       | 🟠 Query inference   | ✗ None                |
-| **Custom Exporters**     | ✅ Pluggable format serialization               | ◯ Format-specific          | 🟠 Cypher only       | ✗ Schema-bound        |
-| **Reusability**          | ✅ One codebase across domains                  | ◯ Research focus           | ◯ Graph DB specific  | 🟠 API-specific       |
-| **Best For**             | ✅ Validate, extend systems                     | ✅ Algorithm research       | ✅ Persistent queries | ◯ Data APIs           |
+| Dimension                | stzGraph                                       | NetworkX                   | Neo4j                | GraphQL               | Wolfram Language Graphs |
+| ------------------------ | ---------------------------------------------- | -------------------------- | -------------------- | --------------------- | ----------------------- |
+| **Structure Validation** | ✅ `.Explain()` facts: cycles, bottlenecks      | ◯ Manual analysis          | ◯ Query-based        | ◯ Schema only         | ✅ Built-in (e.g., `IsAcyclicGraphQ`, `FindCycles`) |
+| **Development Speed**    | ✅ Instant—no deps                              | ◯ `pip install` + setup    | 🟠 Server required   | 🟠 Endpoint + schema  | 🟠 Proprietary install + learning curve |
+| **Language Integration** | ✅ Native Ring fluency                          | ◯ Python idiomatic         | 🟠 Java/Cypher       | 🟠 JSON/REST layer    | ✅ Wolfram-native, symbolic |
+| **Visualization**        | ✅ ASCII instant (stzDiagram: Graphviz layouts) | 🟠 Matplotlib              | ◯ Web UI             | ✗ Results only        | ✅ Rich (e.g., `GraphPlot`, interactive) |
+| **Introspection**        | ✅ Programmatic data arrays                     | ◯ Manual traversal         | 🟠 Query results     | ◯ Schema tools        | ✅ Deep symbolic queries |
+| **Temporal Tracking**    | ✅ Snapshots + change history                   | ◯ Attribute-based          | 🟠 Transaction logs  | ✗ None                | ◯ Versioning via notebooks |
+| **Inference Engine**     | ✅ Rules-based + custom derivation              | ◯ Manual computation       | 🟠 Query inference   | ✗ None                | ✅ Symbolic + algorithmic (e.g., `TransitiveClosureGraph`) |
+| **Custom Exporters**     | ✅ Pluggable format serialization               | ◯ Format-specific          | 🟠 Cypher only       | ✗ Schema-bound        | ◯ Export to images/formats |
+| **Reusability**          | ✅ One codebase across domains                  | ◯ Research focus           | ◯ Graph DB specific  | 🟠 API-specific       | ◯ Computation-heavy apps |
+| **Best For**             | ✅ Validate, extend systems                     | ✅ Algorithm research       | ✅ Persistent queries | ◯ Data APIs           | ✅ Scientific/computational modeling |
 
-
-## Extension: Foundation for Domain-Specific Reasoning
-
-`stzGraph` is the architectural spine for domain-specific systems:
-
-* **stzWorkflow** — task dependencies and execution order
-* **stzDecisionTree** — branching logic and outcomes
-* **stzSemanticModel** — concept relationships
-* **stzDataModel** — schema and cardinality
-* **stzCodeModel** — module and function dependencies
-* **stzNaturalLanguage** — semantic role networks
-
-Each inherits `stzGraph`'s power while specializing its vocabulary. **Structure is universal; semantics is domain-specific.**
-
----
+While Wolfram Language excels in symbolic computation and rich visualizations for scientific modeling, `stzGraph` shines for its instant usability, domain-agnostic flexibility, and focus on system validation—perfect for developers tackling real-world complexity.
 
 ## Conclusion
 
-Every programmer who touches complexity eventually feels it — the moment where diagrams blur, dependencies cross, logic seems alive.
+Every developer wrestling with complexity knows the moment when systems feel alive—dependencies intertwine, logic branches, and outcomes hinge on hidden connections. Graphs are the map to that territory.
 
-Graphs are the map for that territory.
+`stzGraph` turns invisible relationships into visible order, empowering you to **think in flows**, **reason through dependencies**, and **master cycles**. Its features—from constraint validation and custom inference to snapshots and impact analysis—make it not just a visualization tool but a **reasoning engine**.
 
-`stzGraph` turns invisible connections into visible order. You learn to think not in lines of code, but in flows of influence, chains of reasoning, cycles of cause and effect.
-
-The 7 features transform it from visualization into a **reasoning engine**: independent branches, criticality analysis, constraint validation, rich querying, inference, temporal tracking, and format interoperability.
-
-From the first node to the final export, you've learned to **think like a graph**.
+From the first node to the final export, `stzGraph` invites you to **think like a graph**, unlocking clarity and control in any domain.

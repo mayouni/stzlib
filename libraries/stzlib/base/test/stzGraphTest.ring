@@ -1,19 +1,23 @@
 load "../stzbase.ring"
 
-oGraph = new stzGraph("BottleneckTest")
+/*---
+
+oGraph = new stzGraph("DAGStructure")
 oGraph {
     AddNode(:@a, "A")
     AddNode(:@b, "B")
     AddNode(:@c, "C")
-    AddNode(:@hub, "Hub")
     
-    AddEdge(:@a, :@hub, "")
-    AddEdge(:@b, :@hub, "")
-    AddEdge(:@c, :@hub, "")
-    AddEdge(:@hub, :@a, "")
+    AddConstraint("ACYCLIC")
+    AddConstraint("CONNECTED")
     
-    ShowWithLegend()
+    AddEdge(:@a, :@b, "")
+    AddEdge(:@b, :@c, "")
 }
+
+? oGraph.ValidateConstraints()
+#--> TRUE
+
 
 pf()
 #  stzGraphTest - Test Suite
@@ -950,8 +954,8 @@ oGraph.AddNode(:@task1, "Task 1")
 oGraph.AddNode(:@task2, "Task 2")
 oGraph.AddNode(:@task3, "Task 3")
 
-oGraph.AddConstraint("NO_CYCLES", "ACYCLIC")
-oGraph.AddConstraint("CONNECTED", "CONNECTED")
+oGraph.AddConstraint("ACYCLIC")
+oGraph.AddConstraint("CONNECTED")
 
 oGraph.AddEdge(:@task1, :@task2, "")
 oGraph.AddEdge(:@task2, :@task3, "")
@@ -967,7 +971,7 @@ pf()
 /*--- Sample 4: Inference Rules
 
 # Automatically derive implicit relationships.
-
+*/
 pr()
 
 oGraph = new stzGraph("Organization")
@@ -978,7 +982,7 @@ oGraph.AddNode(:@carol, "Carol")
 oGraph.AddEdge(:@alice, :@bob, "manages")
 oGraph.AddEdge(:@bob, :@carol, "manages")
 
-oGraph.AddInferenceRule("HIERARCHY", "TRANSITIVITY")
+oGraph.AddInferenceRule("TRANSITIVITY")
 ? oGraph.ApplyInference()
 # Returns: 1 - created one inferred edge
 
