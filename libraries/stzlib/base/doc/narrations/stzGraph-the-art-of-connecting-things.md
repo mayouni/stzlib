@@ -526,6 +526,9 @@ digraph Pipeline {
 }
 '
 ```
+Copy paste it to this view online (https://dreampuf.github.io/) and you get:
+
+![graphiz-dot-export.png](./images/graphiz-dot-export.png)
 
 Or the ubiquitous JSON format:
 ```
