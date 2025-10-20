@@ -1004,6 +1004,67 @@ oGraph.AddInferenceRule("TRANSITIVITY")
 
 pf()
 
+#---
+*/
+pr()
+
+oGraph = new stzGraph("Organization")
+oGraph.AddNode(:@alice, "Alice")
+oGraph.AddNode(:@bob, "Bob")
+oGraph.AddNode(:@carol, "Carol")
+oGraph.AddNode(:@david, "David")
+
+oGraph.AddEdge(:@alice, :@bob, "manages")
+oGraph.AddEdge(:@bob, :@carol, "manages")
+oGraph.AddEdge(:@carol, :@david, "manages")
+
+# Register custom inference rule as autonomous function
+oGraph.RegisterInferenceRule("CHAIN_OF_COMMAND", func oGraph {
+	nInferred = 0
+	acEdges = oGraph.AllEdges()
+	acNewEdges = []
+	
+	nLen = len(acEdges)
+	for i = 1 to nLen
+		aEdge1 = acEdges[i]
+		cMidpoint = aEdge1["to"]
+		
+		for j = 1 to nLen
+			aEdge2 = acEdges[j]
+			if aEdge2["from"] = cMidpoint
+				cFrom = aEdge1["from"]
+				cTo = aEdge2["to"]
+				
+				if NOT oGraph.EdgeExists(cFrom, cTo)
+					if find(acNewEdges, [cFrom, cTo]) = 0
+						acNewEdges + [cFrom, cTo]
+						nInferred += 1
+					ok
+				ok
+			ok
+		end
+	end
+	
+	nNewLen = len(acNewEdges)
+	for i = 1 to nNewLen
+		aNewEdge = acNewEdges[i]
+		oGraph.AddEdge(aNewEdge[1], aNewEdge[2], "(chain-inferred)")
+	end
+	
+	return nInferred
+})
+
+? oGraph.ApplyCustomInference("CHAIN_OF_COMMAND")
+# Returns: 3
+
+? oGraph.EdgeExists(:@alice, :@carol)
+# Returns: 1
+
+? oGraph.CustomInferenceRules()
+# Returns: ["CHAIN_OF_COMMAND"]
+
+pf()
+
 /*--- Sample 5: Rich Querying
 
 # Flexible pattern-based searches.
@@ -1046,7 +1107,7 @@ oGraph.Snapshot("v1.0")
 oGraph.AddNode(:@payments, "payments")
 oGraph.AddEdge(:@orders, :@payments, "has_many")
 
-? @@(oGraph.ListSnapshots()) + NL
+? @@(oGraph.Snapshots()) + NL
 #--> ["v1.0"]
 
 ? @@NL(oGraph.ChangesSince("v1.0")) + NL
@@ -1075,7 +1136,7 @@ oGraph.RestoreSnapshot("v1.0")
 pf()
 
 /*--- Sample 7: Export Formats
-*/
+
 # Serialize graph to standard formats.
 
 pr()
