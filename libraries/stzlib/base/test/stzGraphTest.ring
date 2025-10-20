@@ -971,7 +971,7 @@ pf()
 /*--- Sample 4: Inference Rules
 
 # Automatically derive implicit relationships.
-*/
+
 pr()
 
 oGraph = new stzGraph("Organization")
