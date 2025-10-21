@@ -3,6 +3,51 @@
 #  Pure computational thinking construct     #
 #============================================#
 
+func IsStzGraph(pObj)
+	if isObject(pObj) and classname(pObj) = "stzgraph"
+		return 1
+	else
+		return 0
+	ok
+
+	#--
+
+	func IsAStzGraph(pObj)
+		return IsStzGraph(pObj)
+
+	func IsStzGraphObject(pObj)
+		return IsStzGraph(pObj)
+
+	func IsAStzGraphObject(pObj)
+		return IsStzGraph(pObj)
+
+	func IsGraphObject(pObj)
+		return IsStzGraph(pObj)
+
+	func IsAGraphObject(oObj)
+		return IsStzGraph(pObj)
+
+	#--
+
+	func @IsStzGraph(pObj)
+		return IsStzGraph(pObj)
+
+	func @IsAStzGraph(pObj)
+		return IsStzGraph(pObj)
+
+	func @IsStzGraphObject(pObj)
+		return This.IsStzGraph(pObj)
+
+	func @IsAStzGraphObject(pObj)
+		return IsStzGraph(pObj)
+
+	func @IsGraphObject(pObj)
+		return IsStzGraph(pObj)
+
+	func @IsAGraphObject(oObj)
+		return IsStzGraph(pObj)
+
+
 class stzGraph
 
 	@cId = ""
@@ -34,14 +79,41 @@ class stzGraph
 	def Id()
 		return @cId
 
+	def IsGraph()
+		return 1
+
+		def IsAGraph()
+			return 1
+	
+		def IsStzGraph()
+			return 1
+	
+		def IsAStzGraph()
+			return 1
+	
+		def IsStzGraphObject()
+			return 1
+	
+		def IsAStzGraphObject()
+			return 1
+	
+		def IsGraphObject()
+			return 1
+	
+		def IsAGraphObjec()
+			return 1
 	#------------------------------------------
 	#  NODE OPERATIONS
 	#------------------------------------------
 
-	def AddNode(pcNodeId, pcLabel)
-		This.AddNodeXT(pcNodeId, pcLabel, [])
 
-	def AddNodeXT(pcNodeId, pcLabel, pacProperties)
+	def AddNode(pcNodeId)
+		This.AddNodeXT(pcNodeId, pcNodeId)
+
+	def AddNodeXT(pcNodeId, pcLabel)
+		This.AddNodeXTT(pcNodeId, pcLabel, [])
+
+	def AddNodeXTT(pcNodeId, pcLabel, pacProperties)
 		aNode = [
 			:id = pcNodeId,
 			:label = pcLabel,
@@ -83,7 +155,7 @@ class stzGraph
 		end
 		@acEdges = acNewEdges
 
-	def AllNodes()
+	def Nodes()
 		return @acNodes
 
 	def NodeCount()
@@ -93,10 +165,33 @@ class stzGraph
 	#  EDGE OPERATIONS  #
 	#-------------------#
 
-	def AddEdge(pcFromId, pcToId, pcLabel)
-		This.AddEdgeXT(pcFromId, pcToId, pcLabel, [])
+	def AddEdge(pcFromId, pcToId)
+		This.AddEdgeXTT(pcFromId, pcToId, "", [])
 
-	def AddEdgeXT(pcFromId, pcToId, pcLabel, pacProperties)
+		def Connect(pcFromId, pcToId)
+			This.AddEdgeXTT(pcFromId, pcToId, "", [])
+
+	def AddEdgeXT(pcFromId, pcToId, pcLabel)
+		This.AddEdgeXTT(pcFromId, pcToId, pcLabel, [])
+
+		def ConnectXT(pcFromId, pcId, pcLabel)
+			This.This.AddEdgeXTT(pcFromId, pcToId, pcLabel, [])
+
+	def AddEdgeXTT(pcFromId, pcToId, pcLabel, pacProperties)
+		if CheckParams()
+			if isList(pcFromId) and StzListQ(pcFromId).IsFromNamedParam()
+				pcFromId = pcFromId[2]
+			ok
+
+			if isList(pcToId) and StzListQ(pcToId).IsToNamedParam()
+				pcToId = pcToId[2]
+			ok
+
+			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
+				pcLabel = pcLabel[2]
+			ok		
+		ok
+
 		if NOT This.NodeExists(pcFromId) or NOT This.NodeExists(pcToId)
 			return 0
 		ok
@@ -109,6 +204,9 @@ class stzGraph
 		]
 		@acEdges + aEdge
 		return 1
+
+		def ConnectXTT(pcFromId, pcToId, pcLabel, pacProperties)
+			This.AddEdgeXTT(pcFromId, pcToId, pcLabel, pacProperties)
 
 	def Edge(pcFromId, pcToId)
 		nLen = len(@acEdges)
@@ -134,7 +232,7 @@ class stzGraph
 		end
 		@acEdges = acNew
 
-	def AllEdges()
+	def Edges()
 		return @acEdges
 
 	def EdgeCount()
@@ -779,7 +877,7 @@ def ReachableFrom(pcNodeId)
 		nNewLen = len(acNewEdges)
 		for i = 1 to nNewLen
 			aNewEdge = acNewEdges[i]
-			This.AddEdge(aNewEdge[1], aNewEdge[2], "(inferred)")
+			This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred)")
 		end
 		
 		return nInferred
@@ -805,7 +903,7 @@ def ReachableFrom(pcNodeId)
 		nNewLen = len(acNewEdges)
 		for i = 1 to nNewLen
 			aNewEdge = acNewEdges[i]
-			This.AddEdge(aNewEdge[1], aNewEdge[2], "(inferred-symmetric)")
+			This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred-symmetric)")
 		end
 		
 		return nInferred
@@ -838,7 +936,7 @@ def ReachableFrom(pcNodeId)
 		nNewLen = len(acNewEdges)
 		for i = 1 to nNewLen
 			aNewEdge = acNewEdges[i]
-			This.AddEdge(aNewEdge[1], aNewEdge[2], "(inferred-composed)")
+			This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred-composed)")
 		end
 		
 		return nInferred

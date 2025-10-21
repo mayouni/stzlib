@@ -59,6 +59,61 @@ func ListSection(aList, n1, n2)
 
 #===
 
+func DeepContainsCS(paList, pItem, pCaseSensitive)
+	return StzListQ(paList).DeepContainsCS(pItem, pCaseSensitive)
+
+	func @DeepContainsCS(paList, pItem, pCaseSensitive)
+		return DeepContainsCS(paList, pItem, pCaseSensitive)
+
+
+func DeepContains(paList, pItem)
+	return DeepContainsCS(paList, pItem, 0)
+
+	func @DeepContains(paList, pItem)
+		return DeepContains(paList, pItem)
+
+#--
+
+func DeepContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
+	if CheckParams()
+		if NOT ( isList(paList) and isList(paItems) )
+			StzRaise("Incorrect param type! paList and paItems must be both lists.")
+		ok
+	ok
+
+	nLenList = len(paList)
+	if nLenList = 0
+		return 0
+	ok
+
+	nLenItems = len(paItems)
+	if nLenItems = 0
+		return 0
+	ok
+
+	bResult = 0
+	for i = 1 to nLenItems
+		if DeepContainsCS(paList, paItems[i], pCaseSensitive)
+			bResult = 1
+			exit
+		ok
+	next
+
+	return bResult
+
+	func @DeepContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
+		return DeepContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
+
+
+func DeepContainsOneOfThese(paList, paItems)
+	return DeepContainsOneOfTheseCS(paList, paItems, 0)
+
+	func @DeepContainsOneOfThese(paList, paItems)
+		return DeepContainsOneOfThese(paList, paItems)
+
+
+#===
+
 #NOTE the next 3 fucntions are based on the implementation made for them
 # by Mahكoud in the Ring StdLib. Here I rewrote them for better efficiency
 #TODO // We may need more performant C-based implementation for large data!
@@ -6002,7 +6057,7 @@ func ObjectsIn(paList)
 
 #===
 
-func StzListContainsCS(paList, pItem, pCaseSensitive)
+func ListContainsCS(paList, pItem, pCaseSensitive)
 	nPos = @FindFirstCS(paList, pItem, pCaseSensitive)
 	if nPos > 0
 		return 1
@@ -6010,33 +6065,46 @@ func StzListContainsCS(paList, pItem, pCaseSensitive)
 		return 0
 	ok
 
-	func ListContainsCS(paList, pItem, pCaseSensitive)
-		return StzListContainsCS(paList, pItem, pCaseSensitive)
-
 	func @ListContainsCS(paList, pItem, pCaseSensitive)
-		return StzListContainsCS(paList, pItem, pCaseSensitive)
+		return ListContainsCS(paList, pItem, pCaseSensitive)
 
-func StzListContains(paList, pItem)
-	return StzListContainsCS(paList, pItem, 1)
-
-	func ListContains(paList, pItem)
-		return StzListContains(paList, pItem)
+func ListContains(paList, pItem)
+	return ListContainsCS(paList, pItem, 1)
 
 	func @ListContains(paList, pItem)
-		return StzListContains(paList, pItem)
+		return SListContains(paList, pItem)
+
 #--
 
-func StzListCountCS(aList, pItem, pCaseSensitive)
+func ListContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
+	nLen = len(paItems)
+	bResult = FALSE
+
+	for i = 1 to nLen
+		if ListContainsCS(paList, paItems[i])
+			bResult = TRUE
+			exit
+		ok
+	next
+
+	return bResult
+
+	func @ListContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
+		return ListContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
+
+func ListContainsOneOfThese(paList, paItems)
+	return ListContainsOneOfTheseCS(paList, paItems, 1)
+
+	func @ListContainsOneOfThese(paList, paItems)
+		return SListContainsOneOfThese(paList, paItems)
+
+#===
+
+func ListCountCS(aList, pItem, pCaseSensitive)
 	nResult = StzListQ(aList).FindAllCS(aList, pItem, pCaseSensitive)
 
-	func ListCountCS(aList, pItem, pCaseSensitive)
-		return StzListCountCS(aList, pItem, pCaseSensitive)
-
-func StzListCount(aList, pItem)
-	return StzListCountCS(aList, pItem, pCaseSensitive)
-
-	func ListCount(aList, pItem)
-		return StzListCount(aList, pItem)
+func ListCount(aList, pItem)
+	return ListCountCS(aList, pItem, pCaseSensitive)
 
 
 #=== Enhance Ring+Softanza finding functions #todo #narration

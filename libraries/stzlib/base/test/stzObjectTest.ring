@@ -1,7 +1,165 @@
 load "../stzbase.ring"
 
-/*--------
+/*=== CHECKING TRUTH
+
+pr()
+
+? IsTrue(1) #--> TRUE
+
+? IsTrue(0) #--> FALSE
+
+? IsTrue(1250) #--> TRUE
+
+? IsTrue(0.0008) #--> TRUE
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*---
+
+pr()
+
+? IsTrue("") #--> FLASE
+
+? IsTrue("Hello") #--> FALSE
+
+? IsTrueXT("Hello") #--> TRUE
+
+? IsTrueXT("") #--> FALSE
+# Because:
+? EmptyStringIsConsideredFalse() #--> TRUE
+
+# Change the default and try again:
+SetEmptyStringIsConsideredFalse(0)
+? IsTrueXT("") #--> TRUE
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*=== TRUTH IN RING
 */
+pr()
+
+# In Ring a null string is FALSE
+
+if ""
+	? "TRUE"
+else
+	? "FALSE"
+ok
+#--> FALSE
+
+# And a nom empty string is TRUE
+
+if "Hello"
+	? "TRUE"
+else
+	? "FALSE"
+ok
+#--> TRUE
+
+# A empty list is also FALSE
+
+if []
+	? "TRUE"
+else
+	? "FALSE"
+ok
+#--> FALSE
+
+# While a non empty list is TRUE
+
+if ["Hello"]
+	? "TRUE"
+else
+	? "FALSE"
+ok
+#--> TRUE
+
+# An object is always TRUE
+o1 = new Person
+
+if o1
+	? "TRUE"
+else
+	? "FALSE"
+ok
+#--> TRUE
+
+pf()
+
+class Person { name }
+
+/*--- TRUTH IN SOFTANZA
+
+pr()
+
+# By default Sotanza IsTrue/IsFalse functions keep the
+# same standard behavior of Ring
+
+? IsTrue("") #--> FALSE
+
+? IsTrue([]) #--> FALSE
+
+? IsTrue(["Hello"]) #--> TRUE
+
+# Softanza alos offer a configurable eXTended forms
+# which depend on the settings made at global level
+? ""
+
+? IsTrueXT([]) #--> FALSE
+
+# Returned FALSE because we have:
+? EmptyListIsConsideredFalse() #--> TRUE
+
+# Change the confi and try again:
+SetEmptyListIsConsideredFalse(:No)
+? IsTrueXT([]) #--> False
+
+# An other advance feature is to define substrings that
+# can automatically "falsilfy" their container string
+? ""
+
+# To do so, let's check their list in this gloabal variable:
+
+? @@( SubStringsMakingAStringFalse() )
+#--> []
+
+# Let set some of them:
+
+SetSubStringsMakingAStringFalse([ "false", "wrong", "dangerours" ])
+
+? IsTrueXT("this is dangerous and should be false")
+#--> FALSE
+
+# while of course in normal Ring-like logic it's TRUE
+? IsTrue("this is dangerous and should be false")
+#--> TRUE
+
+# Same think is configurable for lists, both for items and inneritems
+? ""
+SetItemsMakingAListFalse = [ "false", "wrong", "dangerous" ]
+? IsTrueXT([ "hello", "this", "is", "wrong" ])
+#--> FALSE
+
+? IsTrue([ "hello", "this", "is", "wrong" ])
+#--> TRUE
+
+SetInnerItemsMakingAListFalse([ "X" ])
+? @@( InnerItemsMakingAListFalse() )
+#--> [ "X" ]
+
+? IsTrueXT([ 1, 2, [ 3, "X", 4 ], 5 ])
+#--> TRUE
+
+# becuase in fact
+? DeepContains([ 1, 2, [ 3, "X", 4 ], 5 ], "X")
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*=====
+
 pr()
 
 ? Q(5).Inn([ 2, 3, 5, 7 ])

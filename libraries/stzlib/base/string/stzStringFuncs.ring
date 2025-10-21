@@ -316,35 +316,43 @@ func IsBlank(pcStr)
 #TODO Some of these functions should call their corresponding (same)
 # functions in the core layer
 
-func StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+func ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	if isString(pStrOrList)
 		return StringContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 	but isList(pStrOrList)
-		nPos = @FindFirstCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		if nPos > 0
-			return 1
-		else
-			return 0
-		ok
+		return ListContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	else
 		StzRaise("Can't proceed! pStrOrList must be a string or list.")
 	ok
 
-	func ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-
 	func @ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
-func StzContains(pStrOrList, pSubStrOrItem)
-	return StzContainsCS(pStrOrList, pSubStrOrItem, 1)
-
-	func Contains(pStrOrList, pSubStrOrItem)
-		return StzContains(pStrOrList, pSubStrOrItem)
+func Contains(pStrOrList, pSubStrOrItem)
+	return ContainsCS(pStrOrList, pSubStrOrItem, 1)
 
 	func @Contains(pStrOrList, pSubStrOrItem)
-		return StzContains(pStrOrList, pSubStrOrItem)
+		return Contains(pStrOrList, pSubStrOrItem)
+
+func ContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+	if isString(pStrOrList)
+		return StringContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
+	but isList(pStrOrList)
+		return ListContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+	else
+		StzRaise("Can't proceed! pStrOrList must be a string or list.")
+	ok
+
+	func @ContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return ContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
+func ContainsOneOfThese(pStrOrList, pSubStrOrItem)
+	return ContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, 1)
+
+	func @ContainsOneOfThese(pStrOrList, pSubStrOrItem)
+		return ContainsOneOfThese(pStrOrList, pSubStrOrItem)
 
 #==
 
@@ -395,6 +403,12 @@ func StzEndsWith(pStrOrList, pSubStrOrItem) # endsWith() seems to be reserved by
 # if we are searching for an empty string!
 
 func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
+	if CheckParams()
+		if NOT ( isString(pcStr) and isString(pcSubStr) )
+			StzRaise("Incorrect param type! pcStr and pcSubStr must be both strings.")
+		ok
+	ok
+
 	if pcStr = "" or
 	   pcSubStr = ""
 		return 0
@@ -440,10 +454,67 @@ func StringContains(pcStr, pcSubStr)
 		return StringContains(pcStr, pcSubStr)
 
 	func StzStringContains(pcStr, pcSubStr)
-		return StringContainsCS(pcStr, pcSubStr)
+		return StringContains(pcStr, pcSubStr)
 
 	func @StzStringContains(pcStr, pcSubStr)
 		return StringContains(pcStr, pcSubStr)
+
+#--
+
+func StringContainsOneOfTheseCS(pcStr, pacSubStr, pCaseSensitive)
+	if CheckParams()
+		if NOT isString(pcStr)
+			StzRaise("Incorrect param type! pcStr must be a string.")
+		ok
+
+		if NOT IsListOfStrings(pacSubStr)
+			StzRaise("Incorrect param type! pacSubStr must be a list of strings.")
+		ok
+	ok
+
+	nLenSubStr = len(pacSubStr)
+
+	if pcStr = "" or
+	   len(pacSubStr) = 0
+		return 0
+	ok
+
+	bResult = 0
+	for i = 1 to nLenSubStr
+		if StringContainsCS(pcStr, pacSubStr[i], pCaseSensitive)
+			bResult = 1
+			exit
+		ok
+	next
+
+	return bResult
+	
+
+	#< @FunctionAlternativeForms
+
+	func @StringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
+		return StringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
+
+	func StzStringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
+		return StringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
+
+	func @StzStringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
+		return StringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
+
+	#>
+
+func StringContainsOneOfThese(pcStr, pcSubStr)
+	return StringContainsOneOfTheseCS(pcStr, pcSubStr, 1)
+
+	func @StringContainsOneOfThese(pcStr, pcSubStr)
+		return StringContainsOneOfThese(pcStr, pcSubStr)
+
+	func StzStringContainsOneOfThese(pcStr, pcSubStr)
+		return StringContainsOneOfThese(pcStr, pcSubStr)
+
+	func @StzStringContainsOneOfThese(pcStr, pcSubStr)
+		return StringContainsOneOfThese(pcStr, pcSubStr)
+
 #==
 
 func StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)

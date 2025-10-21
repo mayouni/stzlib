@@ -4,33 +4,71 @@ load "../stzbase.ring"
 
 oGraph = new stzGraph("DAGStructure")
 oGraph {
-    AddNode(:@a, "A")
-    AddNode(:@b, "B")
-    AddNode(:@c, "C")
+    AddNodeXT(:@a, "A")
+    AddNodeXT(:@b, "B")
+    AddNodeXT(:@c, "C")
     
     AddConstraint("ACYCLIC")
     AddConstraint("CONNECTED")
     
-    AddEdge(:@a, :@b, "")
-    AddEdge(:@b, :@c, "")
+    AddEdge(:@a, :@b) # Or Connect() as you see in the fellowing line
+    Connect(:@b, :To = :@c)
 }
 
 ? oGraph.ValidateConstraints()
 #--> TRUE
 
-
 pf()
 #  stzGraphTest - Test Suite
 
+/*--- Three forms of AddEge/Connect method
+*/
+
+pr()
+
+oGraph = new stzGraph("DAGStructure")
+oGraph {
+
+    # Adding a node by just providong it's ID, wihc will also be it's label
+
+    AddNode(:@a)
+
+    # Adding a node by giving the ID and the label
+    AddNodeXT(:@b, "B")
+
+    # Adding a node by giving an ID, a label, and a hashlist of metatdate
+
+    AddNodeXTT(:@c, "C", [ :prop1 = "", :prop2 = "" ])
+    
+    # Providing only the nodes forming the edge
+    AddEdge(:@a, :@b)
+    # Or Connect(:@a, :To = :@b)
+
+    # Providing the edges and the label between them
+    AddEdgeXT(:@a, :@c, "label")
+    # Or ConnectXT(:@a, :To = :@b, :With = "label")
+    # You can use :Label = "label" instead of :With
+
+    # Providing the edge, the label, and a hashlist of metada
+    AddEdgeXTT(:@a, :@d, "label", [ :prop1 = "", :prop2 = "" ])
+    # Or ConnectXTTT(:@a, :To = @d, :Label = "label", :Props = [...]
+
+    ? @@NL( Nodes() ) + NL
+
+    ? @@NL( Edges() )
+}
+
+
+pf()
 /*--- Creating a simple 3-node linear graph
 
 pr()
 
 oGraph = new stzGraph("SimpleGraph")
 oGraph {
-	AddNode(:@1, "Node 1")
-	AddNode(:@2, "Node 2")
-	AddNode(:@3, "Node 3")
+	AddNodeXT(:@1, "Node 1")
+	AddNodeXT(:@2, "Node 2")
+	AddNodeXT(:@3, "Node 3")
 
 	AddEdge(:@1, :@2, "connects")
 	AddEdge(:@2, :@3, "flows")
@@ -49,10 +87,10 @@ pr()
 
 oGraph = new stzGraph("PathTest")
 
-oGraph.AddNode(:@start, "Start")
-oGraph.AddNode(:@middle, "Middle")
-oGraph.AddNode(:@end, "End")
-oGraph.AddNode(:@isolated, "Isolated")
+oGraph.AddNodeXT(:@start, "Start")
+oGraph.AddNodeXT(:@middle, "Middle")
+oGraph.AddNodeXT(:@end, "End")
+oGraph.AddNodeXT(:@isolated, "Isolated")
 
 oGraph.AddEdge(:@start, :@middle, "")
 oGraph.AddEdge(:@middle, :@end, "")
@@ -70,10 +108,10 @@ pr()
 
 oGraph = new stzGraph("ReachabilityTest")
 
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
-oGraph.AddNode(:@3, "C")
-oGraph.AddNode(:@4, "D")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
+oGraph.AddNodeXT(:@3, "C")
+oGraph.AddNodeXT(:@4, "D")
 
 oGraph.AddEdge(:@1, :@2, "")
 oGraph.AddEdge(:@2, :@3, "")
@@ -90,10 +128,10 @@ pr()
 
 oGraph = new stzGraph("AllPathsTest")
 
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
-oGraph.AddNode(:@3, "C")
-oGraph.AddNode(:@4, "D")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
+oGraph.AddNodeXT(:@3, "C")
+oGraph.AddNodeXT(:@4, "D")
 
 oGraph.AddEdge(:@1, :@2, "")
 oGraph.AddEdge(:@1, :@3, "")
@@ -111,9 +149,9 @@ pf()
 pr()
 
 oGraph = new stzGraph("AcyclicTest")
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
-oGraph.AddNode(:@3, "C")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
+oGraph.AddNodeXT(:@3, "C")
 
 oGraph.AddEdge(:@4, :@2, "")
 oGraph.AddEdge(:@5, :@3, "")
@@ -132,9 +170,9 @@ pr()
 
 oGraph = new stzGraph("CyclicTest")
 
-oGraph.AddNode(:@1, "P1")
-oGraph.AddNode(:@2, "P2")
-oGraph.AddNode(:@3, "P3")
+oGraph.AddNodeXT(:@1, "P1")
+oGraph.AddNodeXT(:@2, "P2")
+oGraph.AddNodeXT(:@3, "P3")
 
 oGraph.AddEdge(:@1, :@2, "")
 oGraph.AddEdge(:@1, :@2, "")
@@ -223,10 +261,10 @@ pr()
 
 oGraph = new stzGraph("BottleneckTest")
 
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
-oGraph.AddNode(:@3, "C")
-oGraph.AddNode(:@hub, "Hub")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
+oGraph.AddNodeXT(:@3, "C")
+oGraph.AddNodeXT(:@hub, "Hub")
 
 oGraph.AddEdge(:@1, :@hub, "")
 oGraph.AddEdge(:@2, :@hub, "")
@@ -335,9 +373,9 @@ pr()
 
 oGraph = new stzGraph("DensityTest")
 
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
-oGraph.AddNode(:@3, "C")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
+oGraph.AddNodeXT(:@3, "C")
 
 oGraph.AddEdge(:@1, :@2, "")
 oGraph.AddEdge(:@2, :@3, "")
@@ -358,11 +396,11 @@ pr()
 
 oGraph = new stzGraph("LongestPathTest")
 
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
-oGraph.AddNode(:@3, "C")
-oGraph.AddNode(:@4, "D")
-oGraph.AddNode(:@5, "E")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
+oGraph.AddNodeXT(:@3, "C")
+oGraph.AddNodeXT(:@4, "D")
+oGraph.AddNodeXT(:@5, "E")
 
 oGraph.AddEdge(:@1, :@2, "")
 oGraph.AddEdge(:@2, :@3, "")
@@ -384,10 +422,10 @@ pr()
 
 oGraph = new stzGraph("NeighborsTest")
 
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
-oGraph.AddNode(:@3, "C")
-oGraph.AddNode(:@4, "D")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
+oGraph.AddNodeXT(:@3, "C")
+oGraph.AddNodeXT(:@4, "D")
 
 oGraph.AddEdge(:@1, :@2, "")
 oGraph.AddEdge(:@1, :@3, "")
@@ -408,10 +446,10 @@ pr()
 
 oGraph = new stzGraph("IncomingTest")
 
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
-oGraph.AddNode(:@3, "C")
-oGraph.AddNode(:@4, "D")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
+oGraph.AddNodeXT(:@3, "C")
+oGraph.AddNodeXT(:@4, "D")
 
 oGraph.AddEdge(:@1, :@4, "")
 oGraph.AddEdge(:@2, :@4, "")
@@ -432,9 +470,9 @@ pr()
 
 oGraph = new stzGraph("RemoveNodeTest")
 
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
-oGraph.AddNode(:@3, "C")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
+oGraph.AddNodeXT(:@3, "C")
 
 oGraph.AddEdge(:@1, :@2, "")
 oGraph.AddEdge(:@2, :@3, "")
@@ -456,9 +494,9 @@ pr()
 
 oGraph = new stzGraph("RemoveEdgeTest")
 
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
-oGraph.AddNode(:@3, "C")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
+oGraph.AddNodeXT(:@3, "C")
 
 oGraph.AddEdge(:@1, :@2, "")
 oGraph.AddEdge(:@2, :@3, "")
@@ -477,8 +515,8 @@ pf()
 pr()
 
 oGraph = new stzGraph("NodeExistsTest")
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
 
 ? oGraph.NodeExists(:@1) #--> TRUE
 ? oGraph.NodeExists(:@5) #--> FALSE
@@ -495,8 +533,8 @@ pr()
 
 oGraph = new stzGraph("EdgeExistsTest")
 
-oGraph.AddNode(:@1, "A")
-oGraph.AddNode(:@2, "B")
+oGraph.AddNodeXT(:@1, "A")
+oGraph.AddNodeXT(:@2, "B")
 
 oGraph.AddEdge(:@1, :@2, "")
 
@@ -515,10 +553,10 @@ pr()
 
 oWorkflow = new stzGraph("ApprovalProcess")
 oWorkflow {
-	AddNode(:@request, "Request Submitted")
-	AddNode(:@manager, "Manager Review")
-	AddNode(:@director, "Director Approval")
-	AddNode(:@approved, "Approved")
+	AddNodeXT(:@request, "Request Submitted")
+	AddNodeXT(:@manager, "Manager Review")
+	AddNodeXT(:@director, "Director Approval")
+	AddNodeXT(:@approved, "Approved")
 	
 	AddEdge(:@request, :@manager, "submit")
 	AddEdge(:@manager, :@director, "escalate")
@@ -564,10 +602,10 @@ pr()
 
 oMultiPath = new stzGraph("MultiPathProcess")
 oMultiPath {
-	AddNode(:@start, "Start")
-	AddNode(:@fast, "Fast Path")
-	AddNode(:@standard, "Standard Path")
-	AddNode(:@end, "Complete")
+	AddNodeXT(:@start, "Start")
+	AddNodeXT(:@fast, "Fast Path")
+	AddNodeXT(:@standard, "Standard Path")
+	AddNodeXT(:@end, "Complete")
 	
 	AddEdge(:@start, :@fast, "expedited")
 	AddEdge(:@start, :@standard, "normal")
@@ -664,9 +702,9 @@ pr()
 
 oCyclic = new stzGraph("CyclicWorkflow")
 oCyclic {
-	AddNode(:@p1, "Process 1")
-	AddNode(:@p2, "Process 2")
-	AddNode(:@p3, "Process 3")
+	AddNodeXT(:@p1, "Process 1")
+	AddNodeXT(:@p2, "Process 2")
+	AddNodeXT(:@p3, "Process 3")
 	
 	AddEdge(:@p1, :@p2, "next")
 	AddEdge(:@p2, :@p3, "next")
@@ -725,10 +763,10 @@ pr()
 
 oHierarchy = new stzGraph("TypeSystem")
 oHierarchy {
-	AddNode(:@entity, "Entity")
-	AddNode(:@person, "Person")
-	AddNode(:@employee, "Employee")
-	AddNode(:@manager, "Manager")
+	AddNodeXT(:@entity, "Entity")
+	AddNodeXT(:@person, "Person")
+	AddNodeXT(:@employee, "Employee")
+	AddNodeXT(:@manager, "Manager")
 	
 	AddEdge(:@entity, :@person, "is_a")
 	AddEdge(:@person, :@employee, "is_a")
@@ -818,11 +856,11 @@ pr()
 
 oDataFlow = new stzGraph("DataSystem")
 oDataFlow {
-    AddNode(:@sourceA, "Data Source A")
-    AddNode(:@sourceB, "Data Source B")
-    AddNode(:@sourceC, "Data Source C")
-    AddNode(:@hub, "Hub")
-    AddNode(:@analysis, "Analysis")
+    AddNodeXT(:@sourceA, "Data Source A")
+    AddNodeXT(:@sourceB, "Data Source B")
+    AddNodeXT(:@sourceC, "Data Source C")
+    AddNodeXT(:@hub, "Hub")
+    AddNodeXT(:@analysis, "Analysis")
 
     AddEdge(:@sourceA, :@hub, "")
     AddEdge(:@sourceB, :@hub, "")
@@ -896,11 +934,11 @@ pr()
 # Detect independent execution paths that can run concurrently.
 
 oGraph = new stzGraph("TaskSystem")
-oGraph.AddNode(:@start, "Start")
-oGraph.AddNode(:@pathA1, "Path A-1")
-oGraph.AddNode(:@pathA2, "Path A-2")
-oGraph.AddNode(:@pathB1, "Path B-1")
-oGraph.AddNode(:@pathB2, "Path B-2")
+oGraph.AddNodeXT(:@start, "Start")
+oGraph.AddNodeXT(:@pathA1, "Path A-1")
+oGraph.AddNodeXT(:@pathA2, "Path A-2")
+oGraph.AddNodeXT(:@pathB1, "Path B-1")
+oGraph.AddNodeXT(:@pathB2, "Path B-2")
 
 oGraph.AddEdge(:@start, :@pathA1, "")
 oGraph.AddEdge(:@start, :@pathB1, "")
@@ -922,11 +960,11 @@ pf()
 pr()
 
 oGraph = new stzGraph("SystemDependencies")
-oGraph.AddNode(:@database, "Database")
-oGraph.AddNode(:@api, "API")
-oGraph.AddNode(:@cache, "Cache")
-oGraph.AddNode(:@worker1, "Worker1")
-oGraph.AddNode(:@worker2, "Worker2")
+oGraph.AddNodeXT(:@database, "Database")
+oGraph.AddNodeXT(:@api, "API")
+oGraph.AddNodeXT(:@cache, "Cache")
+oGraph.AddNodeXT(:@worker1, "Worker1")
+oGraph.AddNodeXT(:@worker2, "Worker2")
 
 oGraph.AddEdge(:@database, :@api, "")
 oGraph.AddEdge(:@api, :@worker1, "")
@@ -950,9 +988,9 @@ pf()
 pr()
 
 oGraph = new stzGraph("WorkflowEngine")
-oGraph.AddNode(:@task1, "Task 1")
-oGraph.AddNode(:@task2, "Task 2")
-oGraph.AddNode(:@task3, "Task 3")
+oGraph.AddNodeXT(:@task1, "Task 1")
+oGraph.AddNodeXT(:@task2, "Task 2")
+oGraph.AddNodeXT(:@task3, "Task 3")
 
 oGraph.AddConstraint("ACYCLIC")
 oGraph.AddConstraint("CONNECTED")
@@ -975,9 +1013,9 @@ pf()
 pr()
 
 oGraph = new stzGraph("Organization")
-oGraph.AddNode(:@alice, "Alice")
-oGraph.AddNode(:@bob, "Bob")
-oGraph.AddNode(:@carol, "Carol")
+oGraph.AddNodeXT(:@alice, "Alice")
+oGraph.AddNodeXT(:@bob, "Bob")
+oGraph.AddNodeXT(:@carol, "Carol")
 
 oGraph.AddEdge(:@alice, :@bob, "manages")
 oGraph.AddEdge(:@bob, :@carol, "manages")
@@ -1005,18 +1043,18 @@ oGraph.AddInferenceRule("TRANSITIVITY")
 pf()
 
 #---
-*/
+
 pr()
 
 oGraph = new stzGraph("Organization")
-oGraph.AddNode(:@alice, "Alice")
-oGraph.AddNode(:@bob, "Bob")
-oGraph.AddNode(:@carol, "Carol")
-oGraph.AddNode(:@david, "David")
+oGraph.AddNodeXT(:@alice, "Alice")
+oGraph.AddNodeXT(:@bob, "Bob")
+oGraph.AddNodeXT(:@carol, "Carol")
+oGraph.AddNodeXT(:@david, "David")
 
-oGraph.AddEdge(:@alice, :@bob, "manages")
-oGraph.AddEdge(:@bob, :@carol, "manages")
-oGraph.AddEdge(:@carol, :@david, "manages")
+oGraph.AddEdgeXT(:@alice, :@bob, "manages")
+oGraph.AddEdgeXT(:@bob, :@carol, "manages")
+oGraph.AddEdgeXT(:@carol, :@david, "manages")
 
 # Register custom inference rule as autonomous function
 oGraph.RegisterInferenceRule("CHAIN_OF_COMMAND", func oGraph {
@@ -1048,7 +1086,7 @@ oGraph.RegisterInferenceRule("CHAIN_OF_COMMAND", func oGraph {
 	nNewLen = len(acNewEdges)
 	for i = 1 to nNewLen
 		aNewEdge = acNewEdges[i]
-		oGraph.AddEdge(aNewEdge[1], aNewEdge[2], "(chain-inferred)")
+		oGraph.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(chain-inferred)")
 	end
 	
 	return nInferred
@@ -1072,9 +1110,9 @@ pf()
 pr()
 
 oGraph = new stzGraph("Codebase")
-oGraph.AddNodeXT(:@fn1, "function1", [:type = "function"])
-oGraph.AddNodeXT(:@fn2, "function2", [:type = "function"])
-oGraph.AddNodeXT(:@mod1, "module1", [:type = "module"])
+oGraph.AddNodeXTT(:@fn1, "function1", [:type = "function"])
+oGraph.AddNodeXTT(:@fn2, "function2", [:type = "function"])
+oGraph.AddNodeXTT(:@mod1, "module1", [:type = "module"])
 
 oGraph.AddEdge(:@fn1, :@fn2, "calls")
 oGraph.AddEdge(:@fn2, :@mod1, "imports")
@@ -1097,14 +1135,14 @@ pf()
 pr()
 
 oGraph = new stzGraph("DatabaseSchema")
-oGraph.AddNode(:@users, "users")
-oGraph.AddNode(:@orders, "orders")
+oGraph.AddNodeXT(:@users, "users")
+oGraph.AddNodeXT(:@orders, "orders")
 oGraph.AddEdge(:@users, :@orders, "has_many")
 
 oGraph.Snapshot("v1.0")
 
 # Make changes
-oGraph.AddNode(:@payments, "payments")
+oGraph.AddNodeXT(:@payments, "payments")
 oGraph.AddEdge(:@orders, :@payments, "has_many")
 
 ? @@(oGraph.Snapshots()) + NL
@@ -1142,9 +1180,9 @@ pf()
 pr()
 
 oGraph = new stzGraph("Pipeline")
-oGraph.AddNode(:@input, "Input")
-oGraph.AddNode(:@process, "Process")
-oGraph.AddNode(:@output, "Output")
+oGraph.AddNodeXT(:@input, "Input")
+oGraph.AddNodeXT(:@process, "Process")
+oGraph.AddNodeXT(:@output, "Output")
 oGraph.AddEdge(:@input, :@process, "feeds")
 oGraph.AddEdge(:@process, :@output, "produces")
 
