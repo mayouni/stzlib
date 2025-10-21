@@ -111,6 +111,8 @@
 	load "graph/stzGraph.ring"
 	load "graph/stzDiagram.ring"
 
+	load "graph/stzGraphex.ring"
+
 # Loading files related to SYSTEM module
 
 	load "system/stzMemoryGlobals.ring"

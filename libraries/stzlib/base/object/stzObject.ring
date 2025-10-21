@@ -94,6 +94,134 @@
 
 */
 
+$bEmptyStringIsConsideredFalse = 1 # Ring's default behaviour
+$acSubStringsMakingAStringFalse = []
+
+$bEmptyListIsConsideredFalse = 1 # Ring's default behavior
+$aItemsMakingAListFalse = []
+$aInnerItemsMakingAListFalse = []
+
+$bNullObjectIsFalse = 1 # A Siftanza's default, confroming to Ring default
+$bObjectContentDefinesItsTruth = 0
+
+func EmptyStringIsConsideredFalse()
+	return $bEmptyStringIsConsideredFalse
+
+	func EmptyStringConsideredFalse()
+		return $bEmptyStringIsConsideredFalse
+
+	func NullStringIsConsideredFalse()
+		return $bEmptyStringIsConsideredFalse
+
+	func NullStringConsideredFalse()
+		return $bEmptyStringIsConsideredFalse
+
+func SetEmptyStringIsConsideredFalse(pnTrueFalse)
+
+	if CheckParams() and isString(pnTrueFalse)
+		cLower = lower(pnTrueFalse)
+		if cLower = "yes" or cLower = "on"
+			pnTrueFalse = 1
+		but cLower = "no" or cLower = "off"
+			pnTrueFalse = 0
+		else
+			StzRaise("Incorrect param value! Possible values are 0, 1, 'yes', 'no', 'on', and 'off'.")
+
+		ok
+	ok
+
+	if NOT (isNumber(pnTrueFalse) and (pnTrueFalse = 1 or pnTrueFalse = 0) )
+		StzRaise("Incorrect param type! pnTrueFalse must be a number equal to 1 or 0.")
+	ok
+
+	$bEmptyStringIsConsideredFalse = pnTrueFalse
+
+func SubStringsMakingAStringFalse()
+	return $acSubStringsMakingAStringFalse
+
+	func SubStringsMakingStringFalse()
+		return $acSubStringsMakingAStringFalse
+
+func SetSubStringsMakingAStringFalse(pacStr)
+	if CheckParams()
+		if NOT IsListOfStrings(pacStr)
+			StzRaise("Incorrect param type! pacStr must be a list of strings.")
+		ok
+	ok
+
+	$acSubStringsMakingAStringFalse = pacStr
+
+	func SetSubStringsMakingStringFalse(pacStr)
+		SetSubStringsMakingAStringFalse(pacStr)
+
+func EmptyListIsConsideredFalse()
+	return $bEmptyListIsConsideredFalse
+
+	func EmptyListConsideredFalse()
+		return $bEmptyListIsConsideredFalse
+
+func SetEmptyListIsConsideredFalse(pnTrueFalse)
+
+	if CheckParams() and isString(pnTrueFalse)
+		cLower = lower(pnTrueFalse)
+		if cLower = "yes" or cLower = "on"
+			pnTrueFalse = 1
+		but cLower = "no" or cLower = "off"
+			pnTrueFalse = 0
+		else
+			StzRaise("Incorrect param value! Possible values are 0, 1, 'yes', 'no', 'on', and 'off'.")
+
+		ok
+	ok
+
+	if NOT (isNumber(pnTrueFalse) and (pnTrueFalse = 1 or pnTrueFalse = 0) )
+		StzRaise("Incorrect param type! pnTrueFalse must be a number equal to 1 or 0.")
+	ok
+
+	$bEmptyListIsConsideredFalse = pnTrueFalse
+
+func ItemsMakingAListFalse()
+	return $aItemsMakingAListFalse
+
+	func ItemsMakingListFalse()
+		return $aItemsMakingAListFalse
+
+func SetItemsMakingAListFalse(paItems)
+	if CheckParams()
+		if NOT IsList(paItems)
+			StzRaise("Incorrect param type! paItems must be a list.")
+		ok
+	ok
+
+	$aItemsMakingAListFalse = paItems
+
+	func SetItemsMakingListFalse(paItems)
+		SetItemsMakingAListFalse(paItems)
+
+func InnerItemsMakingAListFalse()
+	return $aInnerItemsMakingAListFalse
+
+	func InnerItemsMakingListFalse()
+		return $aInnerItemsMakingAListFalse
+
+func SetInnerItemsMakingAListFalse(paItems)
+	if CheckParams()
+		if NOT IsList(paItems)
+			StzRaise("Incorrect param type! paItems must be a list.")
+		ok
+	ok
+
+	$aInnerItemsMakingAListFalse = paItems
+
+	func SetInnerItemsMakingListFalse(paItems)
+		SetInnerItemsMakingAListFalse(paItems)
+
+func NullObjectIsFalse()
+	return $bNullObjectIsFalse
+
+func ObjectContentDefinesItsTruth()
+	return $bObjectContentDefinesItsTruth
+
   ///////////////////
  //   FUNCTIONS   //
 ///////////////////
@@ -178,6 +306,82 @@ func HasAttribute(pObject, cAttr)
 
 	func @ContainsAttribute(pObject, cAttr)
 		return HasAttribute(pObject, cAttr)
+
+#--
+
+func IsTrue(p)
+	if p
+		return 1
+	else
+		return 0
+	ok
+
+func IsFalse(p)
+	return NOT IsTrue(p)
+
+
+func IsTrueXT(p)
+	if isNumber(p)
+		return IsTrue(p)
+	
+	but isString(p)
+
+		if EmptyStringConsideredFalse() and p = ""
+			return 0
+
+		but ContainsOneOfTheseCS(p, SubStringsMakingAStringFalse(), 0)
+			return 0
+
+		else
+			return IsTrue(p)
+		ok
+
+	but isList(p)
+		if EmptyListIsConsideredFalse() and len(p) = 0
+			return 0
+
+		but ContainsOneOfTheseCS(p, ItemsMakingAListFalse(), 0)
+			return 0
+
+		but DeepContainsCS(p, InnerItemsMakingAListFalse(), 0)
+			return 0
+
+		else
+			return IsTrue(p)
+		ok
+
+	but isObject(p)
+		if IsTrueObject()
+			return 1
+
+		but IsFalseObject()
+			return 0
+
+		but IsNullObject()
+			if NullObjectIsFalse()
+				return 1
+			else
+				return 0
+			ok
+
+		else
+			if ObjectContentDefinesItsTruth()
+				return IsTrue(p.Content())
+			else
+				return 0
+			ok
+		ok
+
+	ok
+
+func IsFalseXT(p)
+	return NOT IsTrueXT(p)
+
+#--
+
+
+
+#--
 
 #TODO Abstract stzNamedObject into the MAX layer
 
