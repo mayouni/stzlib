@@ -78,6 +78,8 @@
 	load "regex/stzRegexMaker.ring"
 	load "regex/stzListex.ring"
 	load "regex/stzNumbrex.ring"
+	load "regex/stzTimex.ring"
+
 	load "regex/stzGraphex.ring"
 
 	load "regex/stzListexuter.ring"
