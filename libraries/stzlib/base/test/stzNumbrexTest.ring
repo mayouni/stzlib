@@ -1,14 +1,5 @@
 load "../stzbase.ring"
 
-pr()
-
-oNx = Nx("[@E2, @O+, @P(1..10)]")
-? @@NL(oNx.TokensXT() )
-#--> [ "@E2", "@O+", "@P" ]
-#--> true
-
-
-pf()
 
 #=========================================#
 #  SOFTANZA NUMBEREX (Nx) - TEST SUITE   #
@@ -267,7 +258,7 @@ pf()
 
 pr()
 
-? Nx("[@$(1..10)+]").Match([5, 7, 3, 9]) #ERR
+? Nx("[@$(1..10)+]").Match([5, 7, 3, 9])
 #--> true (all between 1 and 10)
 
 ? Nx("[@$(1..10)+]").Match([5, 15, 3])
@@ -497,11 +488,16 @@ pf()
 
 pr()
 
-? Nx("[@PR, @D(2)+]").Match([2, 11, 13, 17, 19])
-#--> false (2 is single digit)
+# Pattern: one prime, then one or more 2-digit numbers
 
-? Nx("[@D(2), @PR+]").Match([11, 13, 17, 19, 23])
-#--> true (first is 2-digit, rest are prime)
+
+? Nx("[@PR, @D(2)+]").Match([2, 11, 13, 17, 19])
+#--> true (2 is prime, then 11,13,17,19 are all 2-digit)
+
+# Requiring all numbers to be 2-digit primes
+
+? Nx("[@D(2), @PR+]").Match([2, 11, 13, 17, 19])
+#--> false (2 is only 1 digit, fails first token)
 
 pf()
 
@@ -510,7 +506,9 @@ pf()
 pr()
 
 # Detect values outside 10-90 section
-? Nx("[@!$(10..90)+]").Match([5, 2, 95, 100]) #ERR
+Nx = Nx("[@!$(10..90)+]")
+Nx.EnableDebug()
+? Nx.Match([5, 2, 95, 100])
 #--> true (all outside 10-90)
 
 ? Nx("[@!$(10..90)+]").Match([5, 50, 95])
@@ -532,8 +530,19 @@ pf()
 
 pr()
 
-? Nx("[@DIV(10)(10..100)+]").Match([10, 20, 50, 100]) #ERR
+Nx = Nx("[@DIV(10)(10..100)+]")
+Nx.EnableDebug()
+? Nx.Match([10, 20, 50, 100])
 #--> true (all multiples of 10, within section)
+'
+BacktrackMatch: token 1/1, number 1/4
+  Token: @DIV (min: 1, max: 999999999)
+  Trying matches from 1 to 4
+  Matched 1 number(s)
+  Matched 2 number(s)
+  Matched 3 number(s)
+  Matched 4 number(s)
+'
 
 pf()
 
@@ -593,16 +602,16 @@ pf()
 
 pr()
 
-? Nx("[@!$(50..100)+]").Match([10, 20, 110, 120]) #ERR
+? Nx("[@!$(50..100)+]").Match([10, 20, 110, 120])
 #--> true (all outside 50-100)
 
 pf()
 
 /*--- NOT divisible by 2 (odd numbers another way)
-
+*/
 pr()
 
-? Nx("[@!DIV(2)+]").Match([1, 3, 5, 7]) #ERR
+? Nx("[@!DIV(2)+]").Match([1, 3, 5, 7])
 #--> true
 
 pf()
@@ -839,7 +848,3 @@ oNx = Nx("[@PR+, @DIV(3)2]")
 #--> "[@PR+, @DIV(3)2]"
 
 pf()
-
-#================================#
-#  END OF TEST SUITE             #
-#================================#
