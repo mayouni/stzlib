@@ -37,12 +37,12 @@ class stzGraphex from stzGraph
 			? "Edge count: " + This.EdgeCount()
 			? "All nodes: " + @@(This.Nodes())
 			
-/*		catch
+//		catch
 			cError = cCatchError
 			? "ERROR in init: " + cError
 			raise("Pattern initialization failed: " + cError)
-		done
-*/
+//		done
+
 
 	def NormalizePattern(cPattern)
 		cPattern = trim(cPattern)
@@ -259,160 +259,159 @@ class stzGraphex from stzGraph
 		return aTokens
 
 
-def ParseSingleToken(cTokenStr)
-	cTokenStr = @trim(cTokenStr)
-	
-	? "  ==> ParseSingleToken: [" + cTokenStr + "]"
-	
-	if cTokenStr = ""
-		? "      Empty token"
-		return []
-	ok
-	
-	bNegated = StartsWith(cTokenStr, "@!")
-	if bNegated
-		# Remove @! (positions 1-2), keep from position 3 onwards
-		cTokenStr = "@" + @substr(cTokenStr, 3, len(cTokenStr))
-	ok
+	def ParseSingleToken(cTokenStr)
+		cTokenStr = @trim(cTokenStr)
 		
-	# Now process cTokenStr normally with bNegated flag set...
-	
-	nMin = 1
-	nMax = 1
-	aSetValues = []
-	bRequireUnique = FALSE
-	cLabel = ""
-	cProps = ""
-
-	# Process quantifiers - look for +, *, ? at the end
-	cLastChar = Right(cTokenStr, 1)
-	if cLastChar = "+" or cLastChar = "*" or cLastChar = "?"
-		switch cLastChar
-		on "+"
-			nMin = 1
-			nMax = 999999
-		on "*"
-			nMin = 0
-			nMax = 999999
-		on "?"
-			nMin = 0
-			nMax = 1
-		off
-		cTokenStr = Left(cTokenStr, len(cTokenStr) - 1)
-	ok
-
-	# Process set constraints - look for {...}U or {...}
-	nBraceStart = substr(cTokenStr, "{")
-	if nBraceStart > 0
-		nBraceEnd = substr(cTokenStr, "}")
-		if nBraceEnd > nBraceStart
-
-			cSetContent = @substr(cTokenStr, nBraceStart + 1, nBraceEnd)
+		? "  ==> ParseSingleToken: [" + cTokenStr + "]"
+		
+		if cTokenStr = ""
+			? "      Empty token"
+			return []
+		ok
+		
+		bNegated = StartsWith(cTokenStr, "@!")
+		if bNegated
+			# Remove @! (positions 1-2), keep from position 3 onwards
+			cTokenStr = "@" + @substr(cTokenStr, 3, len(cTokenStr))
+		ok
 			
-			# Check for U after closing brace
-			if nBraceEnd < len(cTokenStr) and @substr(cTokenStr, nBraceEnd + 1, nBraceEnd + 2) = "U"
-				bRequireUnique = TRUE
-				cTokenStr = left(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 2, len(cTokenStr))
-			else
-				cTokenStr = left(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 1, len(cTokenStr))
+		# Now process cTokenStr normally with bNegated flag set...
+		
+		nMin = 1
+		nMax = 1
+		aSetValues = []
+		bRequireUnique = FALSE
+		cLabel = ""
+		cProps = ""
+	
+		# Process quantifiers - look for +, *, ? at the end
+		cLastChar = Right(cTokenStr, 1)
+		if cLastChar = "+" or cLastChar = "*" or cLastChar = "?"
+			switch cLastChar
+			on "+"
+				nMin = 1
+				nMax = 999999
+			on "*"
+				nMin = 0
+				nMax = 999999
+			on "?"
+				nMin = 0
+				nMax = 1
+			off
+			cTokenStr = Left(cTokenStr, len(cTokenStr) - 1)
+		ok
+	
+		# Process set constraints - look for {...}U or {...}
+		nBraceStart = substr(cTokenStr, "{")
+		if nBraceStart > 0
+			nBraceEnd = substr(cTokenStr, "}")
+			if nBraceEnd > nBraceStart
+	
+				cSetContent = @substr(cTokenStr, nBraceStart + 1, nBraceEnd)
+				
+				# Check for U after closing brace
+				if nBraceEnd < len(cTokenStr) and @substr(cTokenStr, nBraceEnd + 1, nBraceEnd + 2) = "U"
+					bRequireUnique = TRUE
+					cTokenStr = left(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 2, len(cTokenStr))
+				else
+					cTokenStr = left(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 1, len(cTokenStr))
+				ok
+				
+				# Parse set values
+				if contains(cSetContent, ";")
+					aSetValues = @split(cSetContent, ";")
+				else
+					aSetValues = [cSetContent]
+				ok
+			ok
+		ok
+	
+		# Parse token type
+		cTokenLower = lower(cTokenStr)
+		? "      cTokenLower = [" + cTokenLower + "]"
+		
+		if startsWith(cTokenLower, "@node")
+			? "      Parsing as @Node"
+			
+			# Manual extraction: @Node(label){props}
+			nParenStart = substr(cTokenStr, "(")
+			if nParenStart > 0
+				nParenEnd = substr(cTokenStr, ")")
+				if nParenEnd > nParenStart
+					cLabel = @substr(cTokenStr, nParenStart + 1, nParenEnd - 1)
+				ok
 			ok
 			
-			# Parse set values
-			if contains(cSetContent, ";")
-				aSetValues = @split(cSetContent, ";")
-			else
-				aSetValues = [cSetContent]
+			# Props already handled above in set constraints
+			
+			? "      Matched: label=[" + cLabel + "]"
+			
+			return [
+				[ "type", "node" ],
+				[ "label", cLabel ],
+				[ "properties", cProps ],
+				[ "min", nMin ],
+				[ "max", nMax ],
+				[ "setvalues", aSetValues ],
+				[ "unique", bRequireUnique ],
+				[ "negated", bNegated ]
+			]
+			
+		but startsWith(cTokenLower, "@edge")
+			? "      Parsing as @Edge"
+			
+			# Manual extraction: @Edge(label){props}
+			nParenStart = substr(cTokenStr, "(")
+			if nParenStart > 0
+				nParenEnd = substr(cTokenStr, ")")
+				if nParenEnd > nParenStart
+					cLabel = @substr(cTokenStr, nParenStart + 1, nParenEnd - 1)
+				ok
 			ok
+			
+			? "      Matched: label=[" + cLabel + "]"
+			
+			return [
+				[ "type", "edge" ],
+				[ "label", cLabel ],
+				[ "properties", cProps ],
+				[ "min", nMin ],
+				[ "max", nMax ],
+				[ "setvalues", aSetValues ],
+				[ "unique", bRequireUnique ],
+				[ "negated", bNegated ]
+			]
+			
+		but startsWith(cTokenLower, "@cycle")
+			? "      Parsing as @Cycle"
+			return [
+				[ "type", "cycle" ],
+				[ "label", "" ],
+				[ "properties", "" ],
+				[ "min", nMin ],
+				[ "max", nMax ],
+				[ "setvalues", aSetValues ],
+				[ "unique", bRequireUnique ],
+				[ "negated", bNegated ]
+			]
+			
+		but startsWith(cTokenLower, "@path")
+			? "      Parsing as @Path"
+			return [
+				[ "type", "path" ],
+				[ "label", "" ],
+				[ "properties", "" ],
+				[ "min", nMin ],
+				[ "max", nMax ],
+				[ "setvalues", aSetValues ],
+				[ "unique", bRequireUnique ],
+				[ "negated", bNegated ]
+			]
+			
+		else
+			? "      WARNING: Invalid token type"
+			return []
 		ok
-	ok
-
-	# Parse token type
-	cTokenLower = lower(cTokenStr)
-	? "      cTokenLower = [" + cTokenLower + "]"
-	
-	if startsWith(cTokenLower, "@node")
-		? "      Parsing as @Node"
-		
-		# Manual extraction: @Node(label){props}
-		nParenStart = substr(cTokenStr, "(")
-		if nParenStart > 0
-			nParenEnd = substr(cTokenStr, ")")
-			if nParenEnd > nParenStart
-				cLabel = @substr(cTokenStr, nParenStart + 1, nParenEnd - 1)
-			ok
-		ok
-		
-		# Props already handled above in set constraints
-		
-		? "      Matched: label=[" + cLabel + "]"
-		
-		return [
-			[ "type", "node" ],
-			[ "label", cLabel ],
-			[ "properties", cProps ],
-			[ "min", nMin ],
-			[ "max", nMax ],
-			[ "setvalues", aSetValues ],
-			[ "unique", bRequireUnique ],
-			[ "negated", bNegated ]
-		]
-		
-	but startsWith(cTokenLower, "@edge")
-		? "      Parsing as @Edge"
-		
-		# Manual extraction: @Edge(label){props}
-		nParenStart = substr(cTokenStr, "(")
-		if nParenStart > 0
-			nParenEnd = substr(cTokenStr, ")")
-			if nParenEnd > nParenStart
-				cLabel = @substr(cTokenStr, nParenStart + 1, nParenEnd - 1)
-			ok
-		ok
-		
-		? "      Matched: label=[" + cLabel + "]"
-		
-		return [
-			[ "type", "edge" ],
-			[ "label", cLabel ],
-			[ "properties", cProps ],
-			[ "min", nMin ],
-			[ "max", nMax ],
-			[ "setvalues", aSetValues ],
-			[ "unique", bRequireUnique ],
-			[ "negated", bNegated ]
-		]
-		
-	but startsWith(cTokenLower, "@cycle")
-		? "      Parsing as @Cycle"
-		return [
-			[ "type", "cycle" ],
-			[ "label", "" ],
-			[ "properties", "" ],
-			[ "min", nMin ],
-			[ "max", nMax ],
-			[ "setvalues", aSetValues ],
-			[ "unique", bRequireUnique ],
-			[ "negated", bNegated ]
-		]
-		
-	but startsWith(cTokenLower, "@path")
-		? "      Parsing as @Path"
-		return [
-			[ "type", "path" ],
-			[ "label", "" ],
-			[ "properties", "" ],
-			[ "min", nMin ],
-			[ "max", nMax ],
-			[ "setvalues", aSetValues ],
-			[ "unique", bRequireUnique ],
-			[ "negated", bNegated ]
-		]
-		
-	else
-		? "      WARNING: Invalid token type"
-		return []
-	ok
-
 
 
 	def ListifyGraph(oGraph)
@@ -694,205 +693,172 @@ def ParseSingleToken(cTokenStr)
 			ok
 		ok
 
-def MatchBranches(aPatternBranches, aTargetBranches)
-	nLenPatternBranches = len(aPatternBranches)
-	
-	if @bDebugMode
-		? "=== MatchBranches Debug ==="
-		? "Number of pattern branches: " + nLenPatternBranches
-		? "Number of target branches: " + len(aTargetBranches)
-	ok
-	
-	for i = 1 to nLenPatternBranches
-		aPatternBranch = aPatternBranches[i]
+	def MatchBranches(aPatternBranches, aTargetBranches)
+		nLenPatternBranches = len(aPatternBranches)
 		
 		if @bDebugMode
-			? "Pattern branch #" + i + ": " + @@(aPatternBranch)
+			? "=== MatchBranches Debug ==="
+			? "Number of pattern branches: " + nLenPatternBranches
+			? "Number of target branches: " + len(aTargetBranches)
 		ok
 		
-		# Extract labels and check for negations
-		aPatternLabels = []
-		aForbiddenLabels = []
-		nLenPattern = len(aPatternBranch)
-		
-		for j = 1 to nLenPattern
-			cToken = aPatternBranch[j]
-			cLabel = ""
-			
-			nParenPos = substr(cToken, "(")
-			if nParenPos > 0
-				nClosePos = substr(cToken, ")")
-				if nClosePos > nParenPos
-					cLabel = @substr(cToken, nParenPos + 1, nClosePos - 1)
-				ok
-			ok
-			
-			# Check if negated
-			aNodeFromPattern = This.Node(":p" + j)
-			bIsNegated = FALSE
-			if aNodeFromPattern != ""
-				acProps = aNodeFromPattern[:properties]
-				for k = 1 to len(acProps)
-					if acProps[k] = "negated=TRUE"
-						bIsNegated = TRUE
-						exit
-					ok
-				next
-			ok
-			
-			if cLabel != ""
-				if bIsNegated
-					aForbiddenLabels + cLabel
-				else
-					aPatternLabels + cLabel
-				ok
-			ok
-		next
-		
-		if @bDebugMode
-			? "Pattern labels: " + @@(aPatternLabels)
-			? "Forbidden labels: " + @@(aForbiddenLabels)
-		ok
-		
-		# Check each target branch
-		nLenTargetBranches = len(aTargetBranches)
-		for k = 1 to nLenTargetBranches
-			aTargetBranch = aTargetBranches[k]
+		for i = 1 to nLenPatternBranches
+			aPatternBranch = aPatternBranches[i]
 			
 			if @bDebugMode
-				? "  Testing against target branch #" + k + ": " + @@(aTargetBranch)
+				? "Pattern branch #" + i + ": " + @@(aPatternBranch)
 			ok
 			
-			# First check forbidden labels - if any exist in target, skip this branch
-			bHasForbidden = FALSE
-			for m = 1 to len(aForbiddenLabels)
-				for n = 1 to len(aTargetBranch)
-					if aForbiddenLabels[m] = aTargetBranch[n]
-						bHasForbidden = TRUE
-						exit
+			# Extract labels and check for negations
+			aPatternLabels = []
+			aForbiddenLabels = []
+			nLenPattern = len(aPatternBranch)
+			
+			for j = 1 to nLenPattern
+				cToken = aPatternBranch[j]
+				cLabel = ""
+				
+				nParenPos = substr(cToken, "(")
+				if nParenPos > 0
+					nClosePos = substr(cToken, ")")
+					if nClosePos > nParenPos
+						cLabel = @substr(cToken, nParenPos + 1, nClosePos - 1)
 					ok
-				next
-				if bHasForbidden
-					exit
+				ok
+				
+				# Check if negated
+				aNodeFromPattern = This.Node(":p" + j)
+				bIsNegated = FALSE
+				if aNodeFromPattern != ""
+					acProps = aNodeFromPattern[:properties]
+					for k = 1 to len(acProps)
+						if acProps[k] = "negated=TRUE"
+							bIsNegated = TRUE
+							exit
+						ok
+					next
+				ok
+				
+				if cLabel != ""
+					if bIsNegated
+						aForbiddenLabels + cLabel
+					else
+						aPatternLabels + cLabel
+					ok
 				ok
 			next
 			
-			if bHasForbidden
-				if @bDebugMode
-					? "  Forbidden label found, skipping"
-				ok
-				loop
+			if @bDebugMode
+				? "Pattern labels: " + @@(aPatternLabels)
+				? "Forbidden labels: " + @@(aForbiddenLabels)
 			ok
 			
-			# Check if pattern labels appear as subsequence in target
-			if This.IsSubsequenceSimple(aPatternLabels, aTargetBranch)
+			# Check each target branch
+			nLenTargetBranches = len(aTargetBranches)
+			for k = 1 to nLenTargetBranches
+				aTargetBranch = aTargetBranches[k]
+				
 				if @bDebugMode
-					? "  MATCH FOUND!"
+					? "  Testing against target branch #" + k + ": " + @@(aTargetBranch)
 				ok
-				return TRUE
+				
+				# First check forbidden labels - if any exist in target, skip this branch
+				bHasForbidden = FALSE
+				for m = 1 to len(aForbiddenLabels)
+					for n = 1 to len(aTargetBranch)
+						if aForbiddenLabels[m] = aTargetBranch[n]
+							bHasForbidden = TRUE
+							exit
+						ok
+					next
+					if bHasForbidden
+						exit
+					ok
+				next
+				
+				if bHasForbidden
+					if @bDebugMode
+						? "  Forbidden label found, skipping"
+					ok
+					loop
+				ok
+				
+				# Check if pattern labels appear as subsequence in target
+				if This.IsSubsequenceSimple(aPatternLabels, aTargetBranch)
+					if @bDebugMode
+						? "  MATCH FOUND!"
+					ok
+					return TRUE
+				ok
+			next
+		next
+		
+		if @bDebugMode
+			? "No matches found"
+		ok
+		
+		return FALSE
+	
+	def IsSubsequenceSimple(aPattern, aTarget)
+		nPatternLen = len(aPattern)
+		nTargetLen = len(aTarget)
+		
+		if nPatternLen = 0
+			return TRUE
+		ok
+		
+		if nPatternLen > nTargetLen
+			return FALSE
+		ok
+		
+		nPatternIdx = 1
+		
+		for i = 1 to nTargetLen
+			if aPattern[nPatternIdx] = aTarget[i]
+				nPatternIdx++
+				if nPatternIdx > nPatternLen
+					return TRUE
+				ok
 			ok
 		next
-	next
-	
-	if @bDebugMode
-		? "No matches found"
-	ok
-	
-	return FALSE
-
-def IsSubsequenceSimple(aPattern, aTarget)
-	nPatternLen = len(aPattern)
-	nTargetLen = len(aTarget)
-	
-	if nPatternLen = 0
-		return TRUE
-	ok
-	
-	if nPatternLen > nTargetLen
+		
 		return FALSE
-	ok
 	
-	nPatternIdx = 1
-	
-	for i = 1 to nTargetLen
-		if aPattern[nPatternIdx] = aTarget[i]
-			nPatternIdx++
-			if nPatternIdx > nPatternLen
-				return TRUE
-			ok
+	def IsSubsequence(aPattern, aTarget, aPatternNegations)
+		nPatternLen = len(aPattern)
+		nTargetLen = len(aTarget)
+		
+		if nPatternLen = 0
+			return TRUE
 		ok
-	next
-	
-	return FALSE
-
-def IsSubsequence(aPattern, aTarget, aPatternNegations)
-	nPatternLen = len(aPattern)
-	nTargetLen = len(aTarget)
-	
-	if nPatternLen = 0
-		return TRUE
-	ok
-	
-	nPatternIdx = 1
-	
-	for i = 1 to nTargetLen
-		if nPatternIdx <= nPatternLen
-			bNegated = aPatternNegations[nPatternIdx]
-			bMatches = (aPattern[nPatternIdx] = aTarget[i])
-			
-			if bNegated
-				# Negated: if this label appears anywhere in target, fail
-				if bMatches
-					return FALSE
-				ok
-				# Skip to next pattern element (negation doesn't consume target element)
-				nPatternIdx++
-			else
-				# Normal: advance when matched
-				if bMatches
+		
+		nPatternIdx = 1
+		
+		for i = 1 to nTargetLen
+			if nPatternIdx <= nPatternLen
+				bNegated = aPatternNegations[nPatternIdx]
+				bMatches = (aPattern[nPatternIdx] = aTarget[i])
+				
+				if bNegated
+					# Negated: if this label appears anywhere in target, fail
+					if bMatches
+						return FALSE
+					ok
+					# Skip to next pattern element (negation doesn't consume target element)
 					nPatternIdx++
-				ok
-			ok
-		ok
-	next
-	
-	# Success if we processed all pattern elements
-	return nPatternIdx > nPatternLen
-/*
-def IsSubsequence(aPattern, aTarget, aPatternNegations)
-	nPatternLen = len(aPattern)
-	nTargetLen = len(aTarget)
-	
-	if nPatternLen = 0
-		return TRUE
-	ok
-	
-	nPatternIdx = 1
-	
-	for i = 1 to nTargetLen
-		if nPatternIdx <= nPatternLen
-			bNegated = aPatternNegations[nPatternIdx]
-			bMatches = (aPattern[nPatternIdx] = aTarget[i])
-			
-			if bNegated
-				# For negated patterns, fail if found in target
-				if bMatches
-					return FALSE
-				ok
-			else
-				# For normal patterns, advance if matched
-				if bMatches
-					nPatternIdx++
-					if nPatternIdx > nPatternLen
-						return TRUE
+				else
+					# Normal: advance when matched
+					if bMatches
+						nPatternIdx++
 					ok
 				ok
 			ok
-		ok
-	next
-	
-	return nPatternIdx > nPatternLen
-*/
+		next
+		
+		# Success if we processed all pattern elements
+		return nPatternIdx > nPatternLen
+
+
 	# Enhanced: Better handling of token conversion to stzListex patterns
 	def TokensToListexPattern(aBranch)
 		aPattern = []
