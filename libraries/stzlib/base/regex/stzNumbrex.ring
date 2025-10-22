@@ -92,126 +92,149 @@ class stzNumberex
 		
 		return aParts
 
-	def ParseToken(cTokenStr)
-		# Default values
-		bNegated = false
-		nMin = 1
-		nMax = 1
-		nQuantifier = 1
-		aConstraints = []
+def ParseToken(cTokenStr)
+	# Default values
+	bNegated = false
+	nMin = 1
+	nMax = 1
+	nQuantifier = 1
+	aConstraints = []
 
-		# Check for negation
-		if StartsWith(cTokenStr, "@!")
-			bNegated = true
-			cTokenStr = @substr(cTokenStr, 3, len(cTokenStr))
+	# Check for negation
+	if StartsWith(cTokenStr, "@!")
+		bNegated = true
+		cTokenStr = @substr(cTokenStr, 3, len(cTokenStr))
+	ok
+
+	# Ensure token starts with @
+	if NOT StartsWith(cTokenStr, "@")
+		cTokenStr = "@" + cTokenStr
+	ok
+
+	# Extract keyword (2-3 chars)
+	cKeyword = ""
+	cRemainder = ""
+	
+	if @substr(cTokenStr, 1, 4) = "@DIV"
+		cKeyword = "@DIV"
+		cRemainder = @substr(cTokenStr, 5, len(cTokenStr))
+	but @substr(cTokenStr, 1, 3) = "@PR"
+		cKeyword = "@PR"
+		cRemainder = @substr(cTokenStr, 4, len(cTokenStr))
+	else
+		cKeyword = @substr(cTokenStr, 1, 2)
+		cRemainder = @substr(cTokenStr, 3, len(cTokenStr))
+	ok
+
+	# Check if remainder has constraints (starts with parenthesis or brace)
+	bHasConstraints = false
+	if len(cRemainder) > 0
+		if cRemainder[1] = "(" or cRemainder[1] = "{"
+			bHasConstraints = true
 		ok
+	ok
 
-		# Ensure token starts with @
-		if NOT StartsWith(cTokenStr, "@")
-			cTokenStr = "@" + cTokenStr
-		ok
-
-		# Extract keyword (2-3 chars)
-		cKeyword = ""
-		cRemainder = ""
-		
-		if @substr(cTokenStr, 1, 4) = "@DIV"
-			cKeyword = "@DIV"
-			cRemainder = @substr(cTokenStr, 5, len(cTokenStr))
-		but @substr(cTokenStr, 1, 3) = "@PR"
-			cKeyword = "@PR"
-			cRemainder = @substr(cTokenStr, 4, len(cTokenStr))
-		else
-			cKeyword = @substr(cTokenStr, 1, 2)
-			cRemainder = @substr(cTokenStr, 3, len(cTokenStr))
-		ok
-
-		# Parse quantifiers
+	if bHasConstraints
+		# Parse constraints AND quantifier after them
+		aResult = This.ParseConstraintsAndQuantifier(cRemainder, cKeyword)
+		aConstraints = aResult[1]
+		nMin = aResult[2]
+		nMax = aResult[3]
+		nQuantifier = aResult[4]
+	else
+		# Parse quantifier directly (no constraints)
 		if len(cRemainder) > 0
 			aQuantInfo = This.ParseQuantifier(cRemainder)
 			nMin = aQuantInfo[1]
 			nMax = aQuantInfo[2]
 			nQuantifier = aQuantInfo[3]
-			cRemainder = aQuantInfo[4]
 		ok
+	ok
 
-		# Parse constraints (ranges, sets, etc)
-		if len(cRemainder) > 0
-			aConstraints = This.ParseConstraints(cRemainder, cKeyword)
-		ok
+	# Build token
+	aToken = This.BuildToken(cKeyword, nMin, nMax, nQuantifier, aConstraints, bNegated)
+	
+	return aToken
 
-		# Build token
-		aToken = This.BuildToken(cKeyword, nMin, nMax, nQuantifier, aConstraints, bNegated)
-		
-		return aToken
 
-	def ParseQuantifier(cStr)
-		nMin = 1
-		nMax = 1
-		nQuantifier = 1
-		cRemainder = cStr
+def ParseQuantifier(cStr)
+	nMin = 1
+	nMax = 1
+	nQuantifier = 1
+	cRemainder = cStr
 
-		# Check for range pattern (e.g., "2-5")
-		oRangeMatch = rx('(\d+)-(\d+)')
-		if oRangeMatch.Match(cStr)
-			aMatches = @split( oRangeMatch.Matches()[1], "-" )
-			nMin = 0+ aMatches[1]
-			nMax = 0+ aMatches[2]
-			
-			if nMin > nMax
-				stzraise("Error: Invalid range - min > max")
-			ok
-			
-			nMatchLen = len(aMatches[1]) + 1 + len(aMatches[2])
-			cRemainder = @substr(cStr, nMatchLen + 1, len(cStr))
-
-		# Check for +, *, ?
-		but cStr[1] = "+"
+	# Check for +, *, ? FIRST (before range pattern)
+	if len(cStr) > 0
+		if cStr[1] = "+"
 			nMin = 1
 			nMax = 999999999
 			cRemainder = @substr(cStr, 2, len(cStr))
+			return [nMin, nMax, nQuantifier, cRemainder]
 
 		but cStr[1] = "*"
 			nMin = 0
 			nMax = 999999999
 			cRemainder = @substr(cStr, 2, len(cStr))
+			return [nMin, nMax, nQuantifier, cRemainder]
 
 		but cStr[1] = "?"
 			nMin = 0
 			nMax = 1
 			cRemainder = @substr(cStr, 2, len(cStr))
-
-		# Check for single number
-		else
-			oNumberMatch = rx('^\d+')
-			if oNumberMatch.Match(cStr)
-				aMatches = oNumberMatch.Matches()
-				nQuantifier = 0+ aMatches[1]
-				nMin = nQuantifier
-				nMax = nQuantifier
-				cRemainder = @substr(cStr, len(aMatches[1]) + 1, len(cStr))
-			ok
+			return [nMin, nMax, nQuantifier, cRemainder]
 		ok
+	ok
 
+	# Check for range pattern (e.g., "2-5") - only for quantifiers, not constraints
+	oRangeMatch = rx('^(\d+)-(\d+)')
+	if oRangeMatch.Match(cStr)
+		aMatches = @split(oRangeMatch.Matches()[1], "-")
+		nMin = 0+ aMatches[1]
+		nMax = 0+ aMatches[2]
+		
+		if nMin > nMax
+			stzraise("Error: Invalid range - min > max")
+		ok
+		
+		nMatchLen = len(aMatches[1]) + 1 + len(aMatches[2])
+		cRemainder = @substr(cStr, nMatchLen + 1, len(cStr))
 		return [nMin, nMax, nQuantifier, cRemainder]
+	ok
+
+	# Check for single number
+	oNumberMatch = rx('^\d+')
+	if oNumberMatch.Match(cStr)
+		aMatches = oNumberMatch.Matches()
+		nQuantifier = 0+ aMatches[1]
+		nMin = nQuantifier
+		nMax = nQuantifier
+		cRemainder = @substr(cStr, len(aMatches[1]) + 1, len(cStr))
+	ok
+
+	return [nMin, nMax, nQuantifier, cRemainder]
+
 
 	def ParseConstraints(cStr, cKeyword)
 		aConstraints = []
-
+	
 		# Parse range constraints: (min..max)
 		oRangeMatch = rx('\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
 		if oRangeMatch.Match(cStr)
-			cTempStr = StzStringQ(oRangeMatch.Matches()[1]).SubStringsBoundedBy([ "(", ")" ])[1]
-			aMatches = @split( cTempStr, "..")
-			aConstraints + ["range", [0+ aMatches[1], 0+ aMatches[2]]]
-
+			aMatches = oRangeMatch.Matches()
+			# Extract the content without parentheses and split on ".."
+			cRangeStr = aMatches[1]
+			cRangeContent = @substr(cRangeStr, 2, len(cRangeStr) - 1)  # Remove ( and )
+			aParts = @split(cRangeContent, "..")
+			aConstraints + ["range", [0+ aParts[1], 0+ aParts[2]]]
 		ok
-
+	
 		# Parse set constraints: {val1;val2;val3}
 		oSetMatch = rx('\{([^}]+)\}')
 		if oSetMatch.Match(cStr)
 			aMatches = oSetMatch.Matches()
-			cSetContent = aMatches[1]
+			# Extract content without braces
+			cSetStr = aMatches[1]
+			cSetContent = substr(cSetStr, 2, len(cSetStr) - 2)  # Remove { and }
 			aParts = @split(cSetContent, ";")
 			
 			aValues = []
@@ -225,26 +248,77 @@ class stzNumberex
 			
 			aConstraints + ["set", aValues]
 		ok
-
+	
 		# Parse divisible constraint: @DIV(n)
 		if cKeyword = "@DIV"
 			oDivMatch = rx('\((\d+)\)')
 			if oDivMatch.Match(cStr)
 				aMatches = oDivMatch.Matches()
-				aConstraints + ["divisor", 0+ aMatches[1]]
+				cDivStr = aMatches[1]
+				cDivNum = substr(cDivStr, 2, len(cDivStr) - 2)  # Remove ( and )
+				aConstraints + ["divisor", 0+ cDivNum]
 			ok
 		ok
-
+	
 		# Parse digit count: @D(n)
 		if cKeyword = "@D"
 			oDigitMatch = rx('\((\d+)\)')
 			if oDigitMatch.Match(cStr)
 				aMatches = oDigitMatch.Matches()
-				aConstraints + ["digits", 0+ aMatches[1]]
+				cDigitStr = aMatches[1]
+				cDigitNum = substr(cDigitStr, 2, len(cDigitStr) - 2)  # Remove ( and )
+				aConstraints + ["digits", 0+ cDigitNum]
 			ok
 		ok
-
+	
 		return aConstraints
+
+def ParseConstraintsAndQuantifier(cStr, cKeyword)
+	aConstraints = []
+	nMin = 1
+	nMax = 1
+	nQuantifier = 1
+
+	# Parse constraints first
+	aConstraints = This.ParseConstraints(cStr, cKeyword)
+	
+	# Find where constraints end
+	# Remove constraint portions to get remaining string
+	cRemainder = cStr
+	
+	# Remove range constraints: (min..max)
+	oRangeMatch = rx('\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
+	if oRangeMatch.Match(cRemainder)
+		aMatches = oRangeMatch.Matches()
+		cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
+	ok
+	
+	# Remove set constraints: {val1;val2;val3}
+	oSetMatch = rx('\{([^}]+)\}')
+	if oSetMatch.Match(cRemainder)
+		aMatches = oSetMatch.Matches()
+		cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
+	ok
+	
+	# Remove simple parenthesis constraints: (n) for @D and @DIV
+	if cKeyword = "@D" or cKeyword = "@DIV"
+		oSimpleMatch = rx('\(\d+\)')
+		if oSimpleMatch.Match(cRemainder)
+			aMatches = oSimpleMatch.Matches()
+			cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
+		ok
+	ok
+	
+	# Now parse quantifier from remainder
+	if len(cRemainder) > 0
+		aQuantInfo = This.ParseQuantifier(cRemainder)
+		nMin = aQuantInfo[1]
+		nMax = aQuantInfo[2]
+		nQuantifier = aQuantInfo[3]
+	ok
+
+	return [aConstraints, nMin, nMax, nQuantifier]
+
 
 	def BuildToken(cKeyword, nMin, nMax, nQuantifier, aConstraints, bNegated)
 		aToken = [
@@ -336,64 +410,145 @@ class stzNumberex
 			return false
 		done
 
-	def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
-		nLenTokens = len(aTokens)
-		nLenNumbers = len(aNumbers)
+/*
+def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 
-		# Base case: processed all tokens
-		if nTokenIndex > nLenTokens
-			return nNumberIndex > nLenNumbers
-		ok
+	# DEBUG
+	? "BacktrackMatch: token " + nTokenIndex + ", number " + nNumberIndex
 
-		aToken = aTokens[nTokenIndex]
+	nLenTokens = len(aTokens)
+	nLenNumbers = len(aNumbers)
 
-		# Try different match counts
-		nMin = Min([aToken[:max], nLenNumbers - nNumberIndex + 1])
+	# Base case: processed all tokens
+	if nTokenIndex > nLenTokens
+		return nNumberIndex > nLenNumbers
+	ok
 
-		for nMatchCount = aToken[:min] to nMin
-			bSuccess = true
-			nNumIdx = nNumberIndex
+	aToken = aTokens[nTokenIndex]
 
-			# Try to match nMatchCount numbers
-			for i = 1 to nMatchCount
-				if nNumIdx > nLenNumbers
-					bSuccess = false
-					exit
-				ok
+	# Try different match counts
+	nMax = Min([aToken[:max], nLenNumbers - nNumberIndex + 1])
+	
+	# DEBUG
+	? "  Token min: " + aToken[:min] + ", max: " + aToken[:max]
+	? "  Trying matches from " + aToken[:min] + " to " + nMax
 
-				nNumber = aNumbers[nNumIdx]
-				
-				if NOT This.MatchNumber(nNumber, aToken)
-					bSuccess = false
-					exit
-				ok
+	for nMatchCount = aToken[:min] to nMax
+		bSuccess = true
+		nNumIdx = nNumberIndex
 
-				nNumIdx++
-			next
-
-			if bSuccess
-				# Last token - ensure complete match
-				if nTokenIndex = nLenTokens
-					if nNumIdx = nLenNumbers + 1
-						return true
-					ok
-				else
-					# Recurse for remaining tokens
-					if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumIdx)
-						return true
-					ok
-				ok
+		# Try to match nMatchCount numbers
+		for i = 1 to nMatchCount
+			if nNumIdx > nLenNumbers
+				bSuccess = false
+				exit
 			ok
+
+			nNumber = aNumbers[nNumIdx]
+			
+			if NOT This.MatchNumber(nNumber, aToken)
+				bSuccess = false
+				exit
+			ok
+
+			nNumIdx++
 		next
 
-		# Handle optional tokens
-		if aToken[:min] = 0
-			if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumberIndex)
-				return true
+		if bSuccess
+			# Last token - ensure complete match
+			if nTokenIndex = nLenTokens
+				if nNumIdx = nLenNumbers + 1
+					return true
+				ok
+			else
+				# Recurse for remaining tokens
+				if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumIdx)
+					return true
+				ok
 			ok
 		ok
+	next
 
-		return false
+	# Handle optional tokens
+	if aToken[:min] = 0
+		if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumberIndex)
+			return true
+		ok
+	ok
+
+	return false
+*/
+def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
+	nLenTokens = len(aTokens)
+	nLenNumbers = len(aNumbers)
+
+	# Base case: processed all tokens
+	if nTokenIndex > nLenTokens
+		return nNumberIndex > nLenNumbers
+	ok
+
+	aToken = aTokens[nTokenIndex]
+
+	# Try different match counts
+	nMax = Min([aToken[:max], nLenNumbers - nNumberIndex + 1])
+
+	if @bDebugMode
+		? "BacktrackMatch: token " + nTokenIndex + "/" + nLenTokens + ", number " + nNumberIndex + "/" + nLenNumbers
+		? "  Token: " + aToken[:keyword] + " (min: " + aToken[:min] + ", max: " + aToken[:max] + ")"
+		? "  Trying matches from " + aToken[:min] + " to " + nMax
+	ok
+
+	for nMatchCount = aToken[:min] to nMax
+		bSuccess = true
+		nNumIdx = nNumberIndex
+
+		# Try to match nMatchCount numbers
+		for i = 1 to nMatchCount
+			if nNumIdx > nLenNumbers
+				bSuccess = false
+				exit
+			ok
+
+			nNumber = aNumbers[nNumIdx]
+			
+			if NOT This.MatchNumber(nNumber, aToken)
+				if @bDebugMode
+					? "  Number " + nNumber + " failed to match"
+				ok
+				bSuccess = false
+				exit
+			ok
+
+			nNumIdx++
+		next
+
+		if bSuccess
+			if @bDebugMode
+				? "  Matched " + nMatchCount + " number(s)"
+			ok
+			
+			# Last token - ensure complete match
+			if nTokenIndex = nLenTokens
+				if nNumIdx = nLenNumbers + 1
+					return true
+				ok
+			else
+				# Recurse for remaining tokens
+				if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumIdx)
+					return true
+				ok
+			ok
+		ok
+	next
+
+	# Handle optional tokens
+	if aToken[:min] = 0
+		if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumberIndex)
+			return true
+		ok
+	ok
+
+	return false
 
 	def MatchNumber(nNumber, aToken)
 		bMatch = false
@@ -532,14 +687,28 @@ class stzNumberex
 
 	def EnableDebug()
 		@bDebugMode = true
-		return self
 
 	def DisableDebug()
 		@bDebugMode = false
-		return self
+
+	def TokensXT()
+		return @aTokens
 
 	def Tokens()
-		return @aTokens
+		acResult = []
+		nLen = len(@aTokens)
+
+		for i = 1 to nLen
+			acResult + @aTokens[i][:keyword]
+		next
+
+		return acResult
+
+	def TokensU()
+		return U(This.Tokens())
+
+		def UniqueTokens()
+			return This.TokensU()
 
 	def TokensInfo()
 		aInfo = []
