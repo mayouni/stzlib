@@ -1,4 +1,5 @@
-# Number Patterns Made Simple: A Guide to stzNumbrex
+# stzNumbrex: A Pattern Language for Numbers
+
 
 Validating numbers can be a chore. Take RGB colors—three integers from 0 to 255. Usually, you'd write lots of code: check the list length, loop through each number, confirm it’s an integer, not negative, and not over 255. It’s long, repetitive, and error-prone.
 
