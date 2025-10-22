@@ -92,126 +92,126 @@ class stzNumberex
 		
 		return aParts
 
-def ParseToken(cTokenStr)
-	# Default values
-	bNegated = false
-	nMin = 1
-	nMax = 1
-	nQuantifier = 1
-	aConstraints = []
-
-	# Check for negation
-	if StartsWith(cTokenStr, "@!")
-		bNegated = true
-		cTokenStr = @substr(cTokenStr, 3, len(cTokenStr))
-	ok
-
-	# Ensure token starts with @
-	if NOT StartsWith(cTokenStr, "@")
-		cTokenStr = "@" + cTokenStr
-	ok
-
-	# Extract keyword (2-3 chars)
-	cKeyword = ""
-	cRemainder = ""
+	def ParseToken(cTokenStr)
+		# Default values
+		bNegated = false
+		nMin = 1
+		nMax = 1
+		nQuantifier = 1
+		aConstraints = []
 	
-	if @substr(cTokenStr, 1, 4) = "@DIV"
-		cKeyword = "@DIV"
-		cRemainder = @substr(cTokenStr, 5, len(cTokenStr))
-	but @substr(cTokenStr, 1, 3) = "@PR"
-		cKeyword = "@PR"
-		cRemainder = @substr(cTokenStr, 4, len(cTokenStr))
-	else
-		cKeyword = @substr(cTokenStr, 1, 2)
-		cRemainder = @substr(cTokenStr, 3, len(cTokenStr))
-	ok
-
-	# Check if remainder has constraints (starts with parenthesis or brace)
-	bHasConstraints = false
-	if len(cRemainder) > 0
-		if cRemainder[1] = "(" or cRemainder[1] = "{"
-			bHasConstraints = true
+		# Check for negation
+		if StartsWith(cTokenStr, "@!")
+			bNegated = true
+			cTokenStr = @substr(cTokenStr, 3, len(cTokenStr))
 		ok
-	ok
-
-	if bHasConstraints
-		# Parse constraints AND quantifier after them
-		aResult = This.ParseConstraintsAndQuantifier(cRemainder, cKeyword)
-		aConstraints = aResult[1]
-		nMin = aResult[2]
-		nMax = aResult[3]
-		nQuantifier = aResult[4]
-	else
-		# Parse quantifier directly (no constraints)
+	
+		# Ensure token starts with @
+		if NOT StartsWith(cTokenStr, "@")
+			cTokenStr = "@" + cTokenStr
+		ok
+	
+		# Extract keyword (2-3 chars)
+		cKeyword = ""
+		cRemainder = ""
+		
+		if @substr(cTokenStr, 1, 4) = "@DIV"
+			cKeyword = "@DIV"
+			cRemainder = @substr(cTokenStr, 5, len(cTokenStr))
+		but @substr(cTokenStr, 1, 3) = "@PR"
+			cKeyword = "@PR"
+			cRemainder = @substr(cTokenStr, 4, len(cTokenStr))
+		else
+			cKeyword = @substr(cTokenStr, 1, 2)
+			cRemainder = @substr(cTokenStr, 3, len(cTokenStr))
+		ok
+	
+		# Check if remainder has constraints (starts with parenthesis or brace)
+		bHasConstraints = false
 		if len(cRemainder) > 0
-			aQuantInfo = This.ParseQuantifier(cRemainder)
-			nMin = aQuantInfo[1]
-			nMax = aQuantInfo[2]
-			nQuantifier = aQuantInfo[3]
+			if cRemainder[1] = "(" or cRemainder[1] = "{"
+				bHasConstraints = true
+			ok
 		ok
-	ok
-
-	# Build token
-	aToken = This.BuildToken(cKeyword, nMin, nMax, nQuantifier, aConstraints, bNegated)
 	
-	return aToken
+		if bHasConstraints
+			# Parse constraints AND quantifier after them
+			aResult = This.ParseConstraintsAndQuantifier(cRemainder, cKeyword)
+			aConstraints = aResult[1]
+			nMin = aResult[2]
+			nMax = aResult[3]
+			nQuantifier = aResult[4]
+		else
+			# Parse quantifier directly (no constraints)
+			if len(cRemainder) > 0
+				aQuantInfo = This.ParseQuantifier(cRemainder)
+				nMin = aQuantInfo[1]
+				nMax = aQuantInfo[2]
+				nQuantifier = aQuantInfo[3]
+			ok
+		ok
+	
+		# Build token
+		aToken = This.BuildToken(cKeyword, nMin, nMax, nQuantifier, aConstraints, bNegated)
+		
+		return aToken
+	
 
-
-def ParseQuantifier(cStr)
-	nMin = 1
-	nMax = 1
-	nQuantifier = 1
-	cRemainder = cStr
-
-	# Check for +, *, ? FIRST (before section pattern)
-	if len(cStr) > 0
-		if cStr[1] = "+"
-			nMin = 1
-			nMax = 999999999
-			cRemainder = @substr(cStr, 2, len(cStr))
-			return [nMin, nMax, nQuantifier, cRemainder]
-
-		but cStr[1] = "*"
-			nMin = 0
-			nMax = 999999999
-			cRemainder = @substr(cStr, 2, len(cStr))
-			return [nMin, nMax, nQuantifier, cRemainder]
-
-		but cStr[1] = "?"
-			nMin = 0
-			nMax = 1
-			cRemainder = @substr(cStr, 2, len(cStr))
+	def ParseQuantifier(cStr)
+		nMin = 1
+		nMax = 1
+		nQuantifier = 1
+		cRemainder = cStr
+	
+		# Check for +, *, ? FIRST
+		if len(cStr) > 0
+			if cStr[1] = "+"
+				nMin = 1
+				nMax = 999999999
+				cRemainder = @substr(cStr, 2, len(cStr))
+				return [nMin, nMax, nQuantifier, cRemainder]
+	
+			but cStr[1] = "*"
+				nMin = 0
+				nMax = 999999999
+				cRemainder = @substr(cStr, 2, len(cStr))
+				return [nMin, nMax, nQuantifier, cRemainder]
+	
+			but cStr[1] = "?"
+				nMin = 0
+				nMax = 1
+				cRemainder = @substr(cStr, 2, len(cStr))
+				return [nMin, nMax, nQuantifier, cRemainder]
+			ok
+		ok
+	
+		# Check for section pattern WITHOUT parentheses (e.g., "2-5")
+		oSectionMatch = rx('^(\d+)-(\d+)')
+		if oSectionMatch.Match(cStr)
+			aMatches = @split(oSectionMatch.Matches()[1], "-")
+			nMin = 0+ aMatches[1]
+			nMax = 0+ aMatches[2]
+			
+			if nMin > nMax
+				stzraise("Error: Invalid section - min > max")
+			ok
+			
+			nMatchLen = len(aMatches[1]) + 1 + len(aMatches[2])
+			cRemainder = @substr(cStr, nMatchLen + 1, len(cStr))
 			return [nMin, nMax, nQuantifier, cRemainder]
 		ok
-	ok
-
-	# Check for section pattern (e.g., "2-5") - only for quantifiers, not constraints
-	oSectionMatch = rx('^(\d+)-(\d+)')
-	if oSectionMatch.Match(cStr)
-		aMatches = @split(oSectionMatch.Matches()[1], "-")
-		nMin = 0+ aMatches[1]
-		nMax = 0+ aMatches[2]
-		
-		if nMin > nMax
-			stzraise("Error: Invalid section - min > max")
+	
+		# Check for single number (not in parentheses)
+		oNumberMatch = rx('^\d+')
+		if oNumberMatch.Match(cStr)
+			aMatches = oNumberMatch.Matches()
+			nQuantifier = 0+ aMatches[1]
+			nMin = nQuantifier
+			nMax = nQuantifier
+			cRemainder = @substr(cStr, len(aMatches[1]) + 1, len(cStr))
 		ok
-		
-		nMatchLen = len(aMatches[1]) + 1 + len(aMatches[2])
-		cRemainder = @substr(cStr, nMatchLen + 1, len(cStr))
+	
 		return [nMin, nMax, nQuantifier, cRemainder]
-	ok
-
-	# Check for single number
-	oNumberMatch = rx('^\d+')
-	if oNumberMatch.Match(cStr)
-		aMatches = oNumberMatch.Matches()
-		nQuantifier = 0+ aMatches[1]
-		nMin = nQuantifier
-		nMax = nQuantifier
-		cRemainder = @substr(cStr, len(aMatches[1]) + 1, len(cStr))
-	ok
-
-	return [nMin, nMax, nQuantifier, cRemainder]
 
 
 	def ParseConstraints(cStr, cKeyword)
@@ -273,51 +273,51 @@ def ParseQuantifier(cStr)
 	
 		return aConstraints
 
-def ParseConstraintsAndQuantifier(cStr, cKeyword)
-	aConstraints = []
-	nMin = 1
-	nMax = 1
-	nQuantifier = 1
 
-	# Parse constraints first
-	aConstraints = This.ParseConstraints(cStr, cKeyword)
+	def ParseConstraintsAndQuantifier(cStr, cKeyword)
+		aConstraints = []
+		nMin = 1
+		nMax = 1
+		nQuantifier = 1
+		cRemainder = cStr
 	
-	# Find where constraints end
-	# Remove constraint portions to get remaining string
-	cRemainder = cStr
-	
-	# Remove section constraints: (min..max)
-	oSectionMatch = rx('\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
-	if oSectionMatch.Match(cRemainder)
-		aMatches = oSectionMatch.Matches()
-		cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
-	ok
-	
-	# Remove set constraints: {val1;val2;val3}
-	oSetMatch = rx('\{([^}]+)\}')
-	if oSetMatch.Match(cRemainder)
-		aMatches = oSetMatch.Matches()
-		cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
-	ok
-	
-	# Remove simple parenthesis constraints: (n) for @D and @DIV
-	if cKeyword = "@D" or cKeyword = "@DIV"
-		oSimpleMatch = rx('\(\d+\)')
-		if oSimpleMatch.Match(cRemainder)
-			aMatches = oSimpleMatch.Matches()
+		# Parse constraints first
+		aConstraints = This.ParseConstraints(cStr, cKeyword)
+		
+		# Remove constraints from string in order
+		# 1. Remove @DIV(n) or @D(n) - simple single number in parens
+		if cKeyword = "@D" or cKeyword = "@DIV"
+			oSimpleMatch = rx('^\(\d+\)')
+			if oSimpleMatch.Match(cRemainder)
+				aMatches = oSimpleMatch.Matches()
+				cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
+			ok
+		ok
+		
+		# 2. Remove section constraints: (min..max) 
+		oSectionMatch = rx('^\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
+		if oSectionMatch.Match(cRemainder)
+			aMatches = oSectionMatch.Matches()
 			cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
 		ok
-	ok
+		
+		# 3. Remove set constraints: {val1;val2;val3}
+		oSetMatch = rx('^\{([^}]+)\}')
+		if oSetMatch.Match(cRemainder)
+			aMatches = oSetMatch.Matches()
+			cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
+		ok
+		
+		# Now parse quantifier from remainder
+		if len(cRemainder) > 0
+			aQuantInfo = This.ParseQuantifier(cRemainder)
+			nMin = aQuantInfo[1]
+			nMax = aQuantInfo[2]
+			nQuantifier = aQuantInfo[3]
+		ok
 	
-	# Now parse quantifier from remainder
-	if len(cRemainder) > 0
-		aQuantInfo = This.ParseQuantifier(cRemainder)
-		nMin = aQuantInfo[1]
-		nMax = aQuantInfo[2]
-		nQuantifier = aQuantInfo[3]
-	ok
-
-	return [aConstraints, nMin, nMax, nQuantifier]
+		return [aConstraints, nMin, nMax, nQuantifier]
+	
 
 
 	def BuildToken(cKeyword, nMin, nMax, nQuantifier, aConstraints, bNegated)
@@ -357,6 +357,7 @@ def ParseConstraintsAndQuantifier(cStr, cKeyword)
 		off
 
 		return aToken
+
 
 	def OptimizeTokens()
 		# Merge adjacent compatible tokens
@@ -552,7 +553,7 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 
 	def MatchNumber(nNumber, aToken)
 		bMatch = false
-
+	
 		# Type checking
 		switch aToken[:keyword]
 		on "@I"
@@ -572,35 +573,32 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 		on "@$"
 			bMatch = true
 		on "@D"
-			# Handled in constraints
 			bMatch = true
 		on "@DIV"
-			# Handled in constraints
 			bMatch = true
 		off
-
-		# Apply negation
-		if aToken[:negated]
-			bMatch = NOT bMatch
-		ok
-
-		if NOT bMatch
+	
+		# If base type already failed and not negated, no need to check constraints
+		if NOT bMatch and NOT aToken[:negated]
 			return false
 		ok
-
-		# Check constraints
+	
+		# Check constraints - any failure means no match
 		nLen = len(aToken[:constraints])
+		bConstraintsMet = true
+		
 		for i = 1 to nLen
 			aConstraint = aToken[:constraints][i]
 			cType = aConstraint[1]
-
+	
 			switch cType
 			on "section"
 				aSection = aConstraint[2]
 				if nNumber < aSection[1] or nNumber > aSection[2]
-					return false
+					bConstraintsMet = false
+					exit
 				ok
-
+	
 			on "set"
 				aSet = aConstraint[2]
 				bInSet = false
@@ -612,24 +610,35 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 					ok
 				next
 				if NOT bInSet
-					return false
+					bConstraintsMet = false
+					exit
 				ok
-
+	
 			on "divisor"
 				nDivisor = aConstraint[2]
 				if (nNumber % nDivisor) != 0
-					return false
+					bConstraintsMet = false
+					exit
 				ok
-
+	
 			on "digits"
 				nDigits = aConstraint[2]
 				if This.CountDigits(nNumber) != nDigits
-					return false
+					bConstraintsMet = false
+					exit
 				ok
 			off
 		next
-
-		return true
+	
+		# Combine base match with constraints
+		bMatch = bMatch and bConstraintsMet
+	
+		# Apply negation AFTER all checks
+		if aToken[:negated]
+			bMatch = NOT bMatch
+		ok
+	
+		return bMatch
 
 	  #--------------------#
 	 #   HELPER METHODS   #
