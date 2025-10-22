@@ -1,5 +1,15 @@
 load "../stzbase.ring"
 
+pr()
+
+oNx = Nx("[@E2, @O+, @P(1..10)]")
+? @@NL(oNx.TokensXT() )
+#--> [ "@E2", "@O+", "@P" ]
+#--> true
+
+
+pf()
+
 #=========================================#
 #  SOFTANZA NUMBEREX (Nx) - TEST SUITE   #
 #=========================================#
@@ -16,18 +26,18 @@ pr()
 #--> true
 
 ? Nx("[@I3]").Match([1.5, 2, 3])
-#--> false (first element is float)
+#--> false (first element is real not integer)
 
 pf()
 
-/*--- Matching floats only
+/*--- Matching reals only
 
 pr()
 
-? Nx("[@F2]").Match([3.14, 2.71])
+? Nx("[@R2]").Match([3.14, 2.71])
 #--> true
 
-? Nx("[@F2]").Match([3, 2.71])
+? Nx("[@R2]").Match([3, 2.71])
 #--> false (first element is integer)
 
 pf()
@@ -37,7 +47,7 @@ pf()
 pr()
 
 ? Nx("[@$5]").Match([1, 2.5, -3, 0, 100])
-#--> true (accepts integers and floats)
+#--> true (accepts integers and reals)
 
 pf()
 
@@ -182,7 +192,7 @@ pr()
 
 pf()
 
-/*--- Range quantifier: min-max
+/*--- Section quantifier: min-max
 
 pr()
 
@@ -199,7 +209,7 @@ BacktrackMatch: token 1/1, number 1/3
 '
 #~> The debug output is clear and informative. It shows:
 #    - Token position and totals
-#    - Token type and quantifier range
+#    - Token type and quantifier section
 #    - Match attempts (2 and 3 numbers)
 #    - Final result (true)
 
@@ -253,7 +263,7 @@ pf()
 #  RANGE CONSTRAINTS            #
 #-------------------------------#
 
-/*--- Numbers within a range using (min..max)
+/*--- Numbers within a section using (min..max)
 
 pr()
 
@@ -261,11 +271,11 @@ pr()
 #--> true (all between 1 and 10)
 
 ? Nx("[@$(1..10)+]").Match([5, 15, 3])
-#--> false (15 exceeds range)
+#--> false (15 exceeds section)
 
 pf()
 
-/*--- Positive integers in range
+/*--- Positive integers in section
 
 pr()
 
@@ -274,7 +284,7 @@ pr()
 
 pf()
 
-/*--- Combining type and range constraints
+/*--- Combining type and section constraints
 
 pr()
 
@@ -282,7 +292,7 @@ pr()
 #--> true (3 even numbers between 10-50)
 
 ? Nx("[@E(10..50)3]").Match([12, 24, 60])
-#--> false (60 out of range)
+#--> false (60 out of section)
 
 pf()
 
@@ -458,7 +468,7 @@ pr()
 
 pf()
 
-/*--- Game scores: 3-5 positive integers from specific range
+/*--- Game scores: 3-5 positive integers from specific section
 
 pr()
 
@@ -495,16 +505,16 @@ pr()
 
 pf()
 
-/*--- Statistical outlier detection: NOT in normal range
+/*--- Statistical outlier detection: NOT in normal section
 
 pr()
 
-# Detect values outside 10-90 range
+# Detect values outside 10-90 section
 ? Nx("[@!$(10..90)+]").Match([5, 2, 95, 100]) #ERR
 #--> true (all outside 10-90)
 
 ? Nx("[@!$(10..90)+]").Match([5, 50, 95])
-#--> false (50 is within range)
+#--> false (50 is within section)
 
 pf()
 
@@ -514,7 +524,7 @@ pr()
 
 # Note: uniqueness requires set constraint
 ? Nx("[@PR(1..50)6]").Match([7, 11, 13, 19, 23, 29])
-#--> true (6 primes in range)
+#--> true (6 primes in section)
 
 pf()
 
@@ -523,7 +533,7 @@ pf()
 pr()
 
 ? Nx("[@DIV(10)(10..100)+]").Match([10, 20, 50, 100]) #ERR
-#--> true (all multiples of 10, within range)
+#--> true (all multiples of 10, within section)
 
 pf()
 
@@ -579,7 +589,7 @@ pr()
 
 pf()
 
-/*--- NOT in range (outliers)
+/*--- NOT in section (outliers)
 
 pr()
 
@@ -799,7 +809,7 @@ oNx = Nx("[@E2, @O+, @P(1..10)]")
 			"constraints",
 			[
 				[
-					"range",
+					"section",
 					[ 1, 10 ]
 				]
 			]
@@ -821,7 +831,7 @@ Token #3: @P [constraints: 1]
 pf()
 
 /*--- Pattern retrieval
-*/
+
 pr()
 
 oNx = Nx("[@PR+, @DIV(3)2]")
