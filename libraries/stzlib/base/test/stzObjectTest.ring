@@ -87,6 +87,7 @@ ok
 #--> TRUE
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 class Person { name }
 
