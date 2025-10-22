@@ -1,9 +1,10 @@
-# Number Patterns Made Simple: A Guide to stzNumberex
+# Number Patterns Made Simple: A Guide to stzNumbrex
 
-Imagine validating RGB color values—three integers between 0 and 255. The traditional approach demands ceremonial code: check the length, loop through values, verify each is an integer, confirm it's non-negative, ensure it doesn't exceed 255. Fifteen lines of conditional logic for a simple concept.
+Validating numbers can be a chore. Take RGB colors—three integers from 0 to 255. Usually, you'd write lots of code: check the list length, loop through each number, confirm it’s an integer, not negative, and not over 255. It’s long, repetitive, and error-prone.
+
+### Old way to check RGB
 
 ```ring
-# Traditional validation
 func ValidateRGB(aColors)
     if len(aColors) != 3
         return false
@@ -21,377 +22,411 @@ func ValidateRGB(aColors)
 end
 ```
 
-Now write similar validators for HTTP status codes, test scores, transaction sequences, sensor readings. The code multiplies. The patterns blur into procedural fog.
+Now imagine repeating this kind of validation for HTTP codes, test scores, or bank transactions.
+Each case has its own logic, yet the code looks almost the same.
 
-## Regex Reimagined
-
-Regular expressions revolutionized string matching by making patterns declarative. You write *what* you want, not *how* to find it. Softanza extends this revolution beyond text—first to lists, then to graphs, and now, for the first time in programming history, to numbers themselves.
-
-Meet **stzNumberex**:
+That’s where **stzNumbrex** (or simply **Nx**) comes in. It’s like *regular expressions*—but for numbers.
+Instead of telling the computer *how* to check values, you describe *what you expect*.
 
 ```ring
 ? Nx("[@I(0..255)3]").Match([128, 64, 192])
 #--> true
 ```
 
-One line. The pattern speaks: three integers, each within 0 to 255. The intent is transparent. The implementation vanishes.
+One short line captures the entire rule: “three integers, each between 0 and 255.”
+Readable, declarative, and instantly verifiable.
 
-## The Language of Number Patterns
 
-Let's start exploring. We need to match exactly three integers:
+## Understanding Number Patterns
+
+Nx gives you a compact way to describe numeric sequences. Each token defines a *type* of number—integer, real, positive, even, etc.—and optional *quantifiers* tell how many such numbers to expect.
+
+Want three integers?
 
 ```ring
 ? Nx("[@I3]").Match([1, 2, 3])
 #--> true
 ```
 
-The `@I` token means "integer." The `3` is our quantifier—exactly three. But what if our first value is a float?
+If one of them is a real number, the pattern rejects it:
 
 ```ring
 ? Nx("[@I3]").Match([1.5, 2, 3])
 #--> false
 ```
 
-The pattern catches it immediately. This is the power of declarative matching—your validation logic becomes readable pattern syntax.
-
-Integers aren't enough. Sometimes we need floats specifically:
+Need two real numbers instead?
 
 ```ring
-? Nx("[@F2]").Match([3.14, 2.71])
+? Nx("[@R2]").Match([3.14, 2.71])
 #--> true
+
+? Nx("[@R2]").Match([3, 2.71])
+#--> false
 ```
 
-Or perhaps we don't care—any number will do:
+You can even accept any kind of number—integer or real, positive or negative—with `@$`:
 
 ```ring
 ? Nx("[@$5]").Match([1, 2.5, -3, 0, 100])
 #--> true
 ```
 
-The `@$` wildcard accepts anything numeric. Mix integers, floats, negatives, zeros—all pass.
+Patterns become your own shorthand for numeric expectations.
 
-## Composing Patterns
 
-Patterns gain power through composition. Imagine validating a sequence: two positive numbers, then two negative ones.
+## Signs and Parity: Describing the Mood of Numbers
+
+Numbers often carry a *sign* or a *nature*—positive or negative, even or odd. Nx makes these qualities expressible and enforceable.
+
+Want only positive values?
+
+```ring
+? Nx("[@P+]").Match([1, 5, 10, 99])
+#--> true
+```
+
+Only negatives?
+
+```ring
+? Nx("[@N+]").Match([-1, -5, -10])
+#--> true
+```
+
+Or a specific mix—say, two positives followed by two negatives:
 
 ```ring
 ? Nx("[@P2, @N2]").Match([5, 10, -3, -7])
 #--> true
 ```
 
-The comma separates pattern segments. Each segment must match in order. Change the sequence, break the pattern:
+Even (`@E`) and odd (`@O`) numbers are just as easy:
 
 ```ring
-? Nx("[@P2, @N2]").Match([5, -10, -3, 7])
-#--> false
+? Nx("[@E+]").Match([2, 4, 6, 8])
+#--> true
 ```
 
-This sequential matching opens possibilities. Consider alternating even and odd numbers:
+You can even alternate them to enforce patterns like `[even, odd, even, odd]`:
 
 ```ring
 ? Nx("[@E, @O, @E, @O]").Match([2, 3, 4, 5])
 #--> true
 ```
 
-Four tokens, four positions, perfect alignment. The pattern reads like a specification document.
 
-## Quantifiers: From Rigid to Flexible
+## Quantifiers: Controlling the Rhythm
 
-Exact counts work for rigid structures. But real data is messier. We need flexible repetition—and here Nx borrows regex wisdom.
+Not all data have fixed lengths. Sometimes you need one or more numbers, sometimes none, sometimes a range.
+Quantifiers in Nx give you that flexibility.
 
-The `+` quantifier means "one or more":
+Use `+` for *one or more*:
 
 ```ring
 ? Nx("[@E+]").Match([2, 4, 6])
 #--> true
-
-? Nx("[@E+]").Match([2])
-#--> true
 ```
 
-Both pass—three even numbers, one even number. But zero even numbers fails:
-
-```ring
-? Nx("[@E+]").Match([])
-#--> false
-```
-
-The `+` requires at least one match. For optional sequences, use `*` (zero or more):
+Use `*` for *zero or more*:
 
 ```ring
 ? Nx("[@O*]").Match([1, 3, 5])
 #--> true
-
-? Nx("[@O*]").Match([])
-#--> true
 ```
 
-Now both succeed. The empty list is valid—zero matches satisfies the pattern.
-
-Sometimes "optional" means "at most one." The `?` quantifier gives us this:
+Use `?` for *zero or one* (optional):
 
 ```ring
 ? Nx("[@P?, @N+]").Match([-5, -10])
-#--> true  # Zero positive, multiple negative
-
-? Nx("[@P?, @N+]").Match([5, -10, -20])
-#--> true  # One positive, multiple negative
-```
-
-Combine these quantifiers and watch patterns come alive. Here's sensor data validation: five positive readings, then an optional negative anomaly:
-
-```ring
-? Nx("[@P5, @N?]").Match([10, 20, 30, 40, 50])
-#--> true
-
-? Nx("[@P5, @N?]").Match([10, 20, 30, 40, 50, -5])
 #--> true
 ```
 
-Both pass. The negative value is optional—present or absent, the pattern flexes.
-
-## Constraints: Narrowing the Field
-
-Types and quantifiers establish structure. Constraints add precision. We can bound values with range notation:
+And if you want a precise range, specify it directly:
 
 ```ring
-? Nx("[@$(1..10)+]").Match([5, 7, 3, 9])
+? Nx("[@I2-4]").Match([1, 2, 3])
 #--> true
 ```
 
-Every number must fall within 1 to 10. Step outside, fail the pattern:
+With quantifiers, your rules become flexible templates that adapt to data.
+
+
+## Constraints: Setting Boundaries with Logic
+
+In real data, values must often stay within certain limits—like percentages (0–100), sensor readings, or ages.
+**Constraints** let you express those limits naturally.
+
+For example, to accept only numbers in section 1–10:
 
 ```ring
-? Nx("[@$(1..10)+]").Match([5, 15, 3])
-#--> false
+? Nx("[@S(1..10)+]").Match([5, 7, 3, 9])
+#--> true
 ```
 
-The 15 breaks the constraint. Constraints combine with types for surgical precision:
+You can also combine constraints with types.
+For instance, even integers within section 10–50:
 
 ```ring
 ? Nx("[@E(10..50)3]").Match([12, 24, 36])
 #--> true
 ```
 
-Three even numbers, each between 10 and 50. Both conditions must hold. Try a value outside the range:
-
-```ring
-? Nx("[@E(10..50)3]").Match([12, 24, 60])
-#--> false
-```
-
-The 60 satisfies "even" but violates the range. Pattern matching demands *all* conditions.
-
-Sometimes ranges aren't enough—we need exact membership. Set constraints use curly braces:
+Or restrict values to a specific set:
 
 ```ring
 ? Nx("[@${1;3;5;7}+]").Match([1, 5, 3, 7])
 #--> true
 ```
 
-Only values from the set `{1, 3, 5, 7}` pass. Introduce a foreign value:
+Constraints transform vague numeric expectations into *bounded, checkable rules*.
 
-```ring
-? Nx("[@${1;3;5;7}+]").Match([1, 2, 3])
-#--> false
-```
 
-The 2 isn't in the set. The pattern rejects it. This makes validation of discrete options trivial—think dice rolls, star ratings, priority levels:
+## Primes and Divisibility: Number Theory in Your Patterns
 
-```ring
-? Nx("[@I{1;2;3;4;5;6}+]").Match([3, 5, 1, 6, 2])
-#--> true  # Valid dice rolls
-```
+Nx isn’t just about validation—it understands number properties.
+You can filter primes, composites, or multiples as easily as words in a sentence.
 
-## Prime Numbers and Divisibility
-
-Mathematical properties become first-class pattern elements. Finding primes in a sequence:
+Primes only:
 
 ```ring
 ? Nx("[@PR+]").Match([2, 3, 5, 7, 11])
 #--> true
 ```
 
-The `@PR` token checks primality. Slip in a composite:
-
-```ring
-? Nx("[@PR+]").Match([2, 3, 4, 5])
-#--> false
-```
-
-The 4 fails—it's not prime. Patterns can enforce mathematical structure: three primes followed by any number:
-
-```ring
-? Nx("[@PR3, @$]").Match([2, 3, 5, 100])
-#--> true
-```
-
-Divisibility patterns use `@DIV`:
+Multiples of five:
 
 ```ring
 ? Nx("[@DIV(5)+]").Match([5, 10, 15, 20])
 #--> true
 ```
 
-All multiples of 5. Break the pattern with 12:
+Exclude evens (i.e., odd numbers) by negating the rule:
 
 ```ring
-? Nx("[@DIV(5)+]").Match([5, 10, 12])
-#--> false
-```
-
-Compose divisibility constraints for complex rhythms:
-
-```ring
-? Nx("[@DIV(5)2, @DIV(3)2]").Match([10, 25, 6, 9])
+? Nx("[@!DIV(2)+]").Match([1, 3, 5, 7])
 #--> true
 ```
 
-Two multiples of 5, then two multiples of 3. The pattern captures mathematical relationships.
+You’re not writing logic anymore—you’re declaring mathematical intent.
 
-## The Power of Negation
 
-Every pattern can invert with `@!`. Want odd numbers? Negate even:
+## Digit Counts: Defining the Shape of Numbers
+
+Sometimes, the *number of digits* itself matters—like phone numbers, codes, or PINs.
+Nx can check that too, using `@D`.
+
+Single-digit numbers:
+
+```ring
+? Nx("[@D(1)+]").Match([5, 7, 2, 9])
+#--> true
+```
+
+Two-digit numbers:
+
+```ring
+? Nx("[@D(2)+]").Match([10, 25, 99])
+#--> true
+```
+
+Even combinations are easy—like two one-digit and two two-digit numbers:
+
+```ring
+? Nx("[@D(1)2, @D(2)2]").Match([5, 7, 10, 25])
+#--> true
+```
+
+
+## Negation: Expressing What You Don’t Want
+
+Rules aren’t always about inclusion.
+Sometimes you need to say what’s *not* allowed—values outside a section, or anything but even numbers.
+
+Negation (`@!`) flips any condition:
+
+Not even (i.e., odd):
 
 ```ring
 ? Nx("[@!E+]").Match([1, 3, 5, 7])
 #--> true
 ```
 
-Non-positive values? Negate positive:
+Not positive (zero or negative):
 
 ```ring
 ? Nx("[@!P+]").Match([0, -5, -10])
 #--> true
 ```
 
-Outlier detection becomes elegant. Find values *outside* a normal range:
+Values *outside* section 50–100:
 
 ```ring
-? Nx("[@!$(50..100)+]").Match([10, 20, 110, 120])
-#--> true  # All outliers
+? Nx("[@!S(50..100)+]").Match([10, 20, 110, 120])
+#--> true
 ```
 
-Every number violates the 50-100 range. For statistical analysis, this pattern identifies anomalies instantly.
+Negation turns validation into fine-grained filtering.
 
-## Real-World Scenarios
 
-Validation patterns emerge everywhere once you see them. API responses return HTTP codes—success codes cluster in 200-299:
+## Real-World Uses
+
+Once you start thinking in patterns, many real-world problems become simpler.
+Here are some quick examples:
+
+HTTP success codes (200–299):
 
 ```ring
 ? Nx("[@I(200..299)+]").Match([200, 201, 204])
 #--> true
 ```
 
-Error codes span 400-599:
-
-```ring
-? Nx("[@I(400..599)+]").Match([404, 500, 503])
-#--> true
-```
-
-Banking transactions segregate by sign—deposits are positive:
+Bank deposits (positive numbers):
 
 ```ring
 ? Nx("[@P+]").Match([100.50, 250.00, 75.25])
 #--> true
 ```
 
-Withdrawals negative:
-
-```ring
-? Nx("[@N+]").Match([-50.00, -100.00, -25.50])
-#--> true
-```
-
-Test scores bound between 0 and 100:
-
-```ring
-? Nx("[@P(0..100)+]").Match([85, 92, 78, 95])
-#--> true
-```
-
-A score of 105 fails validation:
-
-```ring
-? Nx("[@P(0..100)+]").Match([85, 105, 78])
-#--> false
-```
-
-Age verification requires integers in adult range:
+Ages between 18 and 120:
 
 ```ring
 ? Nx("[@I(18..120)+]").Match([25, 45, 67])
 #--> true
-
-? Nx("[@I(18..120)+]").Match([25, 15, 67])
-#--> false
 ```
 
-Game mechanics validate with set constraints—star ratings from 1 to 5:
+Dice rolls (1–6):
 
 ```ring
-? Nx("[@I{1;2;3;4;5}+]").Match([5, 4, 5, 3, 4])
+? Nx("[@I{1;2;3;4;5;6}+]").Match([3, 5, 1, 6, 2])
 #--> true
 ```
 
-Port validation checks well-known range:
+Each rule reads like a sentence, not a program.
+
+
+## Debugging: Seeing the Pattern Think
+
+Nx helps you understand what it’s doing internally.
+Enable debug mode to trace matches:
 
 ```ring
-? Nx("[@I(0..1023)+]").Match([80, 443, 22, 21])
+Nx = Nx("[@I2-4]")
+Nx.EnableDebug()
+? Nx.Match([1, 2, 3])
 #--> true
 ```
+Debug output:
+```
+BacktrackMatch: token 1/1, number 1/3
+  Token: @I (min: 2, max: 4)
+  Trying matches from 2 to 3
+  Matched 2 number(s)
+  Matched 3 number(s)
+```
 
-Each scenario reduces to a pattern. The pattern encodes domain rules. The code disappears into declarative syntax.
-
-## Advanced Compositions
-
-Complex validators emerge from simple building blocks. Game scores need 3 to 5 positive integers within 1 to 1000:
+Alsi, you can inspect the tokens that make up a pattern:
 
 ```ring
-? Nx("[@I(1..1000)3-5]").Match([100, 250, 500])
-#--> true
-
-? Nx("[@I(1..1000)3-5]").Match([100, 250, 500, 750, 900])
-#--> true
+oNx = Nx("[@E2, @O+, @P(1..10)]")
+? @@(oNx.Tokens()
+#--> [ "@E2", "@O+", "@P" ]
+```
+Or see all their details with this eXTended form:
+```
+? @@NL( Nx.TokensXT() )
+#-->
+'
+[
+	[
+		[ "keyword", "@E" ],
+		[ "min", 2 ],
+		[ "max", 2 ],
+		[ "quantifier", 2 ],
+		[ "constraints", [  ] ],
+		[ "negated", 0 ],
+		[ "type", "even" ]
+	],
+	[
+		[ "keyword", "@O" ],
+		[ "min", 1 ],
+		[ "max", 999999999 ],
+		[ "quantifier", 1 ],
+		[ "constraints", [  ] ],
+		[ "negated", 0 ],
+		[ "type", "odd" ]
+	],
+	[
+		[ "keyword", "@P" ],
+		[ "min", 1 ],
+		[ "max", 1 ],
+		[ "quantifier", 1 ],
+		[
+			"constraints",
+			[
+				[
+					"section",
+					[ 1, 10 ]
+				]
+			]
+		],
+		[ "negated", 0 ],
+		[ "type", "positive" ]
+	]
+]
+'
 ```
 
-Temperature readings allow optional negative values before required positive ones:
+It’s validation that can explain itself.
 
-```ring
-? Nx("[@N*, @P+]").Match([10, 20, 30])
-#--> true  # No negatives
 
-? Nx("[@N*, @P+]").Match([-5, -10, 5, 10])
-#--> true  # Two negative, two positive
-```
+## Softanza Advantage
 
-Pagination sizes must be multiples of 10 within 10 to 100:
+`stzNumbrex` brings **pattern thinking to numeric data**, blending mathematical reasoning with textual fluency. It’s the first system where numbers can be matched, filtered, and validated as effortlessly as text with regex.
 
-```ring
-? Nx("[@DIV(10)(10..100)+]").Match([10, 20, 50, 100])
-#--> true
-```
+| Dimension                  | stzNumbrex (Nx)                               | Python + Regex / Validation Libs | JavaScript Validators  | Pandas / NumPy Rules |
+| -------------------------- | --------------------------------------------- | -------------------------------- | ---------------------- | -------------------- |
+| **Pattern Syntax**         | ✅ Regex-like for numbers (`[@P2, @N1]`)       | 🟠 Regex text only               | ◯ Ad-hoc JS logic      | ◯ Condition-based    |
+| **Expressiveness**         | ✅ Sections, sets, signs, primes, divisibility | ◯ Limited by strings             | ◯ Manual checks        | 🟠 Math only         |
+| **Declarative Validation** | ✅ One-line patterns                           | ◯ Imperative loops               | ◯ If/else blocks       | 🟠 Formula-based     |
+| **Ease of Use**            | ✅ Native Ring fluency, zero setup             | 🟠 Imports & setup               | 🟠 Library boilerplate | 🟠 Data-specific     |
+| **Type Awareness**         | ✅ Built-in types: int, real, parity, sign     | ◯ Manual type testing            | ◯ `typeof` checks      | 🟠 Limited metadata  |
+| **Composability**          | ✅ Patterns combine naturally                  | ◯ Regex concatenation only       | ◯ Functions only       | 🟠 Sequential ops    |
+| **Debugging Support**      | ✅ `.EnableDebug()` visual traces              | ◯ Manual debugging               | ◯ Console logs         | ◯ No pattern trace   |
+| **Performance**            | ✅ Lightweight, direct evaluation              | 🟠 Depends on parsing            | 🟠 JS overhead         | ✅ Vectorized ops     |
+| **Best For**               | ✅ Declarative data validation                 | ✅ Text matching                  | 🟠 Form checks         | ✅ Data analytics     |
 
-The pattern layers type, divisibility, and range—three constraints in one expression.
+**stzNumbrex** stands out for its clarity, instant feedback, and universal expressiveness.
+It turns numeric logic into an elegant, declarative language of its own—fast to write, easy to read, and consistent across domains.
 
-## The Declarative Revolution
 
-Softanza's insight: patterns aren't just for strings. The regex concept—declarative matching through patterns—applies across all data structures we work with.
+## Final Words
 
-`stzRegex` started it, reimagining text patterns. `stzListex` extended patterns to lists—matching sequences, alternations, nested structures. `stzGraphex` brought patterns to graph topology—nodes, edges, paths, cycles. Now `stzNumberex` applies patterns to numeric sequences—types, constraints, mathematical properties. And `stzTimex` is coming—temporal patterns for dates, durations, intervals, and time sequences.
+`stzNumbrex` is more than a validator—it’s a way of *thinking about numbers*.
+Just as `stzGraph` models relationships and `stzList` structures data, `stzNumbrex` gives numeric logic its own expressive syntax.
+Together, they form the foundation of Softanza’s vision: **turning code into clear patterns of meaning**, where structure, value, and logic harmonize naturally.
 
-This is regex reimagined for the data structures we actually work with. Want to validate a sequence? Write a pattern. The how dissolves. The what remains.
+---
 
-Compare the RGB validator we started with—fifteen lines of procedural checks—to this:
+## Syntax Legend
 
-```ring
-? Nx("[@I(0..255)3]").Match([128, 64, 192])
-#--> true
-```
+| Token     | Meaning                      | Example                                  |
+| --------- | ---------------------------- | ---------------------------------------- |
+| `@I`      | Integer numbers              | `[@I3] → three integers`                 |
+| `@R`      | Real numbers (with decimals) | `[@R2] → two real numbers`               |
+| `@S`      | Section (range constraint)   | `[@S(1..10)+] → numbers in section 1–10` |
+| `@P`      | Positive numbers             | `[@P+] → one or more positives`          |
+| `@N`      | Negative numbers             | `[@N2] → two negatives`                  |
+| `@E`      | Even numbers                 | `[@E+] → one or more evens`              |
+| `@O`      | Odd numbers                  | `[@O+] → one or more odds`               |
+| `@$`      | Any number (integer or real) | `[@$5] → five arbitrary numbers`         |
+| `@D(n)`   | Numbers with `n` digits      | `[@D(2)+] → two-digit numbers`           |
+| `@PR`     | Prime numbers                | `[@PR+] → one or more primes`            |
+| `@DIV(n)` | Multiples of `n`             | `[@DIV(5)+] → multiples of 5`            |
+| `@!`      | Negation (reverses rule)     | `[@!E+] → not even (odd)`                |
+| `{a;b;c}` | Set of accepted values       | `[@I{1;2;3}+] → integers 1, 2, or 3`     |
+| `(a..b)`  | Section of allowed values    | `[@S(0..100)] → from 0 to 100`           |
+| `+`       | One or more                  | `[@I+] → one or more integers`           |
+| `*`       | Zero or more                 | `[@O*] → optional odds`                  |
+| `?`       | Zero or one (optional)       | `[@P?] → optional positive`              |
+| `m-n`     | Range of counts              | `[@I2-4] → 2 to 4 integers`              |
 
-One line. Self-documenting. Composable. Change the requirement? Edit the pattern. The validation logic flows from the specification.
-
-This is programming where intent meets implementation at the syntax level. Where domain rules become first-class code. Where the pattern *is* the program.
-
-Welcome to number patterns. Welcome to declarative matching. Welcome to the next chapter in Softanza's regex revolution.

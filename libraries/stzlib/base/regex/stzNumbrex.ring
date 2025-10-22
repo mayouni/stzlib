@@ -17,13 +17,13 @@ class stzNumberex
 
 	# Token type patterns
 	@cIntPattern = '^@I'		# Integer
-	@cFloatPattern = '^@F'		# Float
+	@cRealPattern = '^@R'		# Real
 	@cPosPattern = '^@P'		# Positive
 	@cNegPattern = '^@N'		# Negative
 	@cEvenPattern = '^@E'		# Even
 	@cOddPattern = '^@O'		# Odd
 	@cPrimePattern = '^@PR'		# Prime
-	@cRangePattern = '^@R'		# Range
+	@cSectionPattern = '^@S'	# Section
 	@cAnyPattern = '^@\$'		# Any number
 	@cDigitPattern = '^@D'		# Digit count
 	@cDivisiblePattern = '^@DIV'	# Divisible by
@@ -163,7 +163,7 @@ def ParseQuantifier(cStr)
 	nQuantifier = 1
 	cRemainder = cStr
 
-	# Check for +, *, ? FIRST (before range pattern)
+	# Check for +, *, ? FIRST (before section pattern)
 	if len(cStr) > 0
 		if cStr[1] = "+"
 			nMin = 1
@@ -185,15 +185,15 @@ def ParseQuantifier(cStr)
 		ok
 	ok
 
-	# Check for range pattern (e.g., "2-5") - only for quantifiers, not constraints
-	oRangeMatch = rx('^(\d+)-(\d+)')
-	if oRangeMatch.Match(cStr)
-		aMatches = @split(oRangeMatch.Matches()[1], "-")
+	# Check for section pattern (e.g., "2-5") - only for quantifiers, not constraints
+	oSectionMatch = rx('^(\d+)-(\d+)')
+	if oSectionMatch.Match(cStr)
+		aMatches = @split(oSectionMatch.Matches()[1], "-")
 		nMin = 0+ aMatches[1]
 		nMax = 0+ aMatches[2]
 		
 		if nMin > nMax
-			stzraise("Error: Invalid range - min > max")
+			stzraise("Error: Invalid section - min > max")
 		ok
 		
 		nMatchLen = len(aMatches[1]) + 1 + len(aMatches[2])
@@ -217,15 +217,15 @@ def ParseQuantifier(cStr)
 	def ParseConstraints(cStr, cKeyword)
 		aConstraints = []
 	
-		# Parse range constraints: (min..max)
-		oRangeMatch = rx('\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
-		if oRangeMatch.Match(cStr)
-			aMatches = oRangeMatch.Matches()
+		# Parse section constraints: (min..max)
+		oSectionMatch = rx('\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
+		if oSectionMatch.Match(cStr)
+			aMatches = oSectionMatch.Matches()
 			# Extract the content without parentheses and split on ".."
-			cRangeStr = aMatches[1]
-			cRangeContent = @substr(cRangeStr, 2, len(cRangeStr) - 1)  # Remove ( and )
-			aParts = @split(cRangeContent, "..")
-			aConstraints + ["range", [0+ aParts[1], 0+ aParts[2]]]
+			cSectionStr = aMatches[1]
+			cSectionContent = @substr(cSectionStr, 2, len(cSectionStr) - 1)  # Remove ( and )
+			aParts = @split(cSectionContent, "..")
+			aConstraints + ["section", [0+ aParts[1], 0+ aParts[2]]]
 		ok
 	
 		# Parse set constraints: {val1;val2;val3}
@@ -286,10 +286,10 @@ def ParseConstraintsAndQuantifier(cStr, cKeyword)
 	# Remove constraint portions to get remaining string
 	cRemainder = cStr
 	
-	# Remove range constraints: (min..max)
-	oRangeMatch = rx('\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
-	if oRangeMatch.Match(cRemainder)
-		aMatches = oRangeMatch.Matches()
+	# Remove section constraints: (min..max)
+	oSectionMatch = rx('\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
+	if oSectionMatch.Match(cRemainder)
+		aMatches = oSectionMatch.Matches()
 		cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
 	ok
 	
@@ -334,8 +334,8 @@ def ParseConstraintsAndQuantifier(cStr, cKeyword)
 		switch cKeyword
 		on "@I"
 			aToken + ["type", "integer"]
-		on "@F"
-			aToken + ["type", "float"]
+		on "@R"
+			aToken + ["type", "real"]
 		on "@P"
 			aToken + ["type", "positive"]
 		on "@N"
@@ -346,8 +346,8 @@ def ParseConstraintsAndQuantifier(cStr, cKeyword)
 			aToken + ["type", "odd"]
 		on "@PR"
 			aToken + ["type", "prime"]
-		on "@R"
-			aToken + ["type", "range"]
+		on "@S"
+			aToken + ["type", "section"]
 		on "@$"
 			aToken + ["type", "any"]
 		on "@D"
@@ -557,8 +557,8 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 		switch aToken[:keyword]
 		on "@I"
 			bMatch = This.IsInteger(nNumber)
-		on "@F"
-			bMatch = This.IsFloat(nNumber)
+		on "@R"
+			bMatch = This.IsReal(nNumber)
 		on "@P"
 			bMatch = nNumber > 0
 		on "@N"
@@ -595,9 +595,9 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 			cType = aConstraint[1]
 
 			switch cType
-			on "range"
-				aRange = aConstraint[2]
-				if nNumber < aRange[1] or nNumber > aRange[2]
+			on "section"
+				aSection = aConstraint[2]
+				if nNumber < aSection[1] or nNumber > aSection[2]
 					return false
 				ok
 
@@ -638,7 +638,7 @@ def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
 	def IsInteger(n)
 		return n = floor(n)
 
-	def IsFloat(n)
+	def IsReal(n)
 		return n != floor(n)
 
 	def IsEven(n)

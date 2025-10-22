@@ -585,6 +585,40 @@ func IsBit(n)
 
 	#>
 
+func IsRGBColor(anColor)
+	if CheckParams() and NOT IsListOfNumbers(anColor)
+		StzRaise("Incorrect param type! anColor must be a list of numbers")
+
+	ok
+
+	if len(anColor) != 3
+		StzRaise("Incorrect param value! anColor must contain 3 numbers.")
+	ok
+
+	for i = 1 to 3
+		n = anColor[i]
+
+		if n != floor(n)
+			return 0
+		ok
+
+		if n < 0 or n > 255
+			return false
+		ok
+	next
+
+	return 1
+
+	func @IsRGBColor(anColor)
+		return IsRGBColor(anColor)
+
+	func IsRGB(anColor)
+		return IsRGBColor(anColor)
+
+	func @IsRGB(anColor)
+		return IsRGBColor(anColor)
+
+
 func DecimalDigits()
 	return _anDecimalDigits
 
@@ -6286,6 +6320,12 @@ class stzNumber from stzObject
 	  #-------------#
 	 #    MISC.    #
 	#-------------#
+
+	def IsRGBColor()
+		return @IsRGBColor(This.Content())
+
+		def IsAnRGBColor()
+			return @IsRGBColor(This.Content())
 
 	def HasSameTypeAs(p)
 		return isNumber(p)
