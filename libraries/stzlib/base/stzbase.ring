@@ -72,11 +72,13 @@
 	load "string/stzText.ring"
 	load "string/stzStopWords.ring"
 
-# Loading files related to REGX module
+# Loading files related to REGEX module
 
 	load "regex/stzRegex.ring"
 	load "regex/stzRegexMaker.ring"
 	load "regex/stzListex.ring"
+	load "regex/stzNumbrex.ring"
+	load "regex/stzGraphex.ring"
 
 	load "regex/stzListexuter.ring"
 	load "regex/stzRegexuter.ring"
@@ -110,8 +112,6 @@
 
 	load "graph/stzGraph.ring"
 	load "graph/stzDiagram.ring"
-
-	load "graph/stzGraphex.ring"
 
 # Loading files related to SYSTEM module
 
