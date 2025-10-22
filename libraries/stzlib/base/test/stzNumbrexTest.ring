@@ -186,13 +186,31 @@ pf()
 
 pr()
 
-? Nx("[@I2-4]").Match([1, 2, 3])
+Nx = Nx("[@I2-4]")
+Nx.EnableDebug()
+? Nx.Match([1, 2, 3])
 #--> true (3 integers, within 2-4)
+'
+BacktrackMatch: token 1/1, number 1/3
+  Token: @I (min: 2, max: 4)
+  Trying matches from 2 to 3
+  Matched 2 number(s)
+  Matched 3 number(s)
+'
+#~> The debug output is clear and informative. It shows:
+#    - Token position and totals
+#    - Token type and quantifier range
+#    - Match attempts (2 and 3 numbers)
+#    - Final result (true)
 
-? Nx("[@I2-4]").Match([1])
+#--
+? ""
+
+Nx.DisableDebug()
+? Nx.Match([1])
 #--> false (only 1, needs at least 2)
 
-? Nx("[@I2-4]").Match([1, 2, 3, 4, 5])
+? Nx.Match([1, 2, 3, 4, 5])
 #--> false (5 integers exceeds max of 4)
 
 pf()
@@ -248,7 +266,7 @@ pr()
 pf()
 
 /*--- Positive integers in range
-*/
+
 pr()
 
 ? Nx("[@I(0..100)+]").Match([25, 50, 75])
@@ -362,10 +380,23 @@ pf()
 
 pr()
 
-? Nx("[@D(2)+]").Match([10, 25, 99])
+Nx = Nx("[@D(2)+]")
+Nx.EnableDebug()
+? Nx.Match([10, 25, 99])
 #--> true
+'
+BacktrackMatch: token 1/1, number 1/3
+  Token: @D (min: 1, max: 999999999)
+  Trying matches from 1 to 3
+  Matched 1 number(s)
+  Matched 2 number(s)
+  Matched 3 number(s)
+'
 
-? Nx("[@D(2)+]").Match([10, 5, 99])
+? ""
+
+Nx.DisableDebug()
+? Nx.Match([10, 5, 99])
 #--> false (5 is single digit)
 
 pf()
@@ -431,13 +462,23 @@ pf()
 
 pr()
 
-? Nx("[@I(1..1000)3-5]").Match([100, 250, 500])
+Nx = Nx("[@I(1..1000)3-5]")
+Nx.EnableDebug()
+? Nx.Match([100, 250, 500])
 #--> true (3 scores)
+'
+BacktrackMatch: token 1/1, number 1/3
+  Token: @I (min: 3, max: 5)
+  Trying matches from 3 to 3
+  Matched 3 number(s)
+'
 
-? Nx("[@I(1..1000)3-5]").Match([100, 250, 500, 750, 900])
+? ""
+Nx.DisableDebug()
+? Nx.Match([100, 250, 500, 750, 900])
 #--> true (5 scores)
 
-? Nx("[@I(1..1000)3-5]").Match([100, 250])
+? Nx.Match([100, 250])
 #--> false (only 2 scores)
 
 pf()
@@ -459,7 +500,7 @@ pf()
 pr()
 
 # Detect values outside 10-90 range
-? Nx("[@!$(10..90)+]").Match([5, 2, 95, 100])
+? Nx("[@!$(10..90)+]").Match([5, 2, 95, 100]) #ERR
 #--> true (all outside 10-90)
 
 ? Nx("[@!$(10..90)+]").Match([5, 50, 95])
@@ -481,7 +522,7 @@ pf()
 
 pr()
 
-? Nx("[@DIV(10)(10..100)+]").Match([10, 20, 50, 100])
+? Nx("[@DIV(10)(10..100)+]").Match([10, 20, 50, 100]) #ERR
 #--> true (all multiples of 10, within range)
 
 pf()
@@ -542,7 +583,7 @@ pf()
 
 pr()
 
-? Nx("[@!$(50..100)+]").Match([10, 20, 110, 120])
+? Nx("[@!$(50..100)+]").Match([10, 20, 110, 120]) #ERR
 #--> true (all outside 50-100)
 
 pf()
@@ -551,7 +592,7 @@ pf()
 
 pr()
 
-? Nx("[@!DIV(2)+]").Match([1, 3, 5, 7])
+? Nx("[@!DIV(2)+]").Match([1, 3, 5, 7]) #ERR
 #--> true
 
 pf()
@@ -653,10 +694,10 @@ pf()
 
 pr()
 
-? Nx("[@$(0..100)+]").Match([75.5, 85.0, 92.3])
+? Nx("[@$(0..100)+]").Match([75.5, 85, 92.3])
 #--> true
 
-? Nx("[@$(0..100)+]").Match([75.5, 105.0])
+? Nx("[@$(0..100)+]").Match([75.5, 105])
 #--> false (105 exceeds 100)
 
 pf()
@@ -723,13 +764,64 @@ pf()
 pr()
 
 oNx = Nx("[@E2, @O+, @P(1..10)]")
+
+? @@( oNx.Tokens()) + NL
+#--> [ "@E", "@O", "@P" ]
+
+? @@NL( oNx.TokensXT() ) + NL
+#-->
+'
+[
+	[
+		[ "keyword", "@E" ],
+		[ "min", 2 ],
+		[ "max", 2 ],
+		[ "quantifier", 2 ],
+		[ "constraints", [  ] ],
+		[ "negated", 0 ],
+		[ "type", "even" ]
+	],
+	[
+		[ "keyword", "@O" ],
+		[ "min", 1 ],
+		[ "max", 999999999 ],
+		[ "quantifier", 1 ],
+		[ "constraints", [  ] ],
+		[ "negated", 0 ],
+		[ "type", "odd" ]
+	],
+	[
+		[ "keyword", "@P" ],
+		[ "min", 1 ],
+		[ "max", 1 ],
+		[ "quantifier", 1 ],
+		[
+			"constraints",
+			[
+				[
+					"range",
+					[ 1, 10 ]
+				]
+			]
+		],
+		[ "negated", 0 ],
+		[ "type", "positive" ]
+	]
+]
+'
+
 ? oNx.TokensInfo()
-#--> Shows parsed token structure
+#-->
+'
+Token #1: @E2
+Token #2: @O (1-999999999)
+Token #3: @P [constraints: 1]
+'
 
 pf()
 
 /*--- Pattern retrieval
-
+*/
 pr()
 
 oNx = Nx("[@PR+, @DIV(3)2]")
