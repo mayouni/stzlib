@@ -1,281 +1,239 @@
 load "../stzbase.ring"
 
-# stzTimex Examples - Demonstrating Time Pattern Matching
+# stzTimex Test Suite - Updated for Match/MatchPartial semantics
 
 /*--- Example 1: Basic Instant Matching
 
 pr()
 
-# Validate a single timestamp
+# Match single timestamp
 
-Tx = Tx("{@Instant(2025-10-22T14:30)}")
-? Tx.Match( StzDateTimeQ("2025-10-22 14:30:00") )
-#--> TRUE
+Tx = Tx("{@Instant}")
+? Tx.Match(StzDateTimeQ("2025-10-22 14:30:00"))
+#--> TRUE (exact match)
+
+? Tx.MatchPartial(StzDateTimeQ("2025-10-22 14:30:00"))
+#--> TRUE (partial also works for single item)
 
 pf()
 
-/*--- Duration Constraints
-*/
+/*--- Example 2: Duration Constraints with Steps
+
 pr()
 
-# Match spans with ranges and steps
-
-
-oDur1 = new stzDuration("1 hour 30 minutes")
-oDur2 = new stzDuration("1 hour 20 minutes")
+oDur1 = new stzDuration("1 hour 30 minutes")  # 90 minutes
+oDur2 = new stzDuration("1 hour 20 minutes")  # 80 minutes
 
 Tx = new stzTimex("{@Duration(1h..2h:15min)}")
 
 ? Tx.Match(oDur1)
-#--> TRUE (within range, on 15min step)
+#--> TRUE (90min is in range and on 15min boundary)
 
 ? Tx.Match(oDur2)
-#--> FALSE (not on 15min step)
-
-? @@NL(oTx.MatchedParts())
-#-->
-'
-[
-	[
-		[ "type", "duration" ],
-		[ "label", "" ],
-		[
-			"data",
-			[
-				[ "type", "duration" ],
-				[ "label", "" ],
-				[ "start", "" ],
-				[ "end", "" ],
-				[ "object", @noname ]
-			]
-		]
-	]
-]
-'
+#--> FALSE (80min not on 15min step: 60, 75, 90, 105, 120)
 
 pf()
 
-#------------------------------------------------------------#
-# Example 3: Event Sequences in Timeline
-#------------------------------------------------------------#
+/*--- Example 3: Event Sequences - Match vs MatchPartial
 
-? "┌─ Example 3: Event Sequences ─┐"
+pr()
 
-# Create a timeline with events
 oTimeline = new stzTimeLine("2025-10-22", "2025-10-22")
 oTimeline.AddPoint("Meeting", "2025-10-22 09:00:00")
 oTimeline.AddSpan("Break", "2025-10-22 10:00:00", "2025-10-22 10:15:00")
 oTimeline.AddPoint("Lunch", "2025-10-22 12:00:00")
 
-# Pattern: Meeting -> short break -> Lunch (with alternation)
-oTx = new stzTimex("{@Event(Meeting) -> @Duration(15m..30m) -> (@Event(Break)|@Event(Lunch))}")
+# Pattern: Meeting -> any gaps -> Break
+Tx1 = new stzTimex("{@Event(Meeting) -> @Duration* -> @Event(Break)}")
 
-? "Pattern: Meeting -> 15-30min duration -> (Break or Lunch)"
-? "Match: " + oTx.Match(oTimeline)
-#--> TRUE
+# Match (exact - must consume all data):
+? Tx1.Match(oTimeline)
+#--> FALSE (pattern stops at Break, but Lunch remains)
 
-? "Token breakdown:"
-aTokens = oTx.TokensXT()
-for i = 1 to len(aTokens)
-	? "  " + i + ": " + @@(aTokens[i])
-next
-? "└────────────────────────────────────────┘" + NL
+# MatchPartial (finds pattern anywhere):
+? Tx1.MatchPartial(oTimeline)
+#--> TRUE (Meeting->Break sequence exists)
 
-#------------------------------------------------------------#
-# Example 4: Negation Pattern
-#------------------------------------------------------------#
+pf()
 
-? "┌─ Example 4: Negation - No Overtime ─┐"
+/*--- Example 4: Complete Sequence Matching
 
-# Ensure no duration exceeds 8 hours
+pr()
+
 oTimeline2 = new stzTimeLine("2025-10-22", "2025-10-22")
+oTimeline2.AddPoint("Start", "2025-10-22 09:00:00")
 oTimeline2.AddSpan("Work", "2025-10-22 09:00:00", "2025-10-22 17:00:00")
+oTimeline2.AddPoint("End", "2025-10-22 17:00:00")
 
-oTx = new stzTimex("{@!Duration(>8h)}")
+# Pattern matches entire timeline
+Tx2 = new stzTimex("{@Event(Start) -> @Duration* -> @Event(Work) -> @Duration* -> @Event(End)}")
 
-? "Pattern: {@!Duration(>8h)} (no overtime)"
-? "Testing 8-hour workday"
-? "Match: " + oTx.Match(oTimeline2)
-#--> TRUE (no duration exceeds 8h)
+? Tx2.Match(oTimeline2)
+#--> TRUE (exact match - entire timeline consumed)
 
-# Test with overtime
+pf()
+
+/*--- Example 5: Gap Duration Constraints
+
+pr()
+
 oTimeline3 = new stzTimeLine("2025-10-22", "2025-10-22")
-oTimeline3.AddSpan("Work", "2025-10-22 09:00:00", "2025-10-22 19:00:00")
+oTimeline3.AddPoint("A", "2025-10-22 09:00:00")
+oTimeline3.AddPoint("B", "2025-10-22 09:30:00")  # 30min gap
+oTimeline3.AddPoint("C", "2025-10-22 10:00:00")  # 30min gap
 
-? "Testing 10-hour workday"
-? "Match: " + oTx.Match(oTimeline3)
-#--> FALSE (has overtime)
-? "└────────────────────────────────────────┘" + NL
+# Match events with 30min gaps
+Tx3 = new stzTimex("{@Event(A) -> @Duration(30m) -> @Event(B)}")
 
-#------------------------------------------------------------#
-# Example 5: Cyclic Pattern - Weekly Meetings
-#------------------------------------------------------------#
+? Tx3.MatchPartial(oTimeline3)
+#--> TRUE (finds A->30min->B)
 
-? "┌─ Example 5: Cyclic Pattern ─┐"
+# Try with wrong gap duration
+Tx4 = new stzTimex("{@Event(A) -> @Duration(1h) -> @Event(B)}")
 
-# Match recurring weekly standups
-oCalendar = new stzCalendar("2025-10")
-oCalendar.SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
+? Tx4.MatchPartial(oTimeline3) #ERR
+#--> FALSE (gap is 30min, not 1h)
 
-oTx = new stzTimex("{@Event(Standup)~Mon}")
+pf()
 
-? "Pattern: {@Event(Standup)~Mon} (every Monday)"
-? "Testing October calendar with working days"
-? "Calendar has: " + oCalendar.HowManyWorkingDays() + " working days"
+/*--- Example 6: Alternation Patterns
 
-# Would match if standups occur every Monday
-? "Pattern explanation:"
-aExplain = oTx.Explain()
-for i = 1 to len(aExplain)
-	? "  " + aExplain[i][1] + ": " + @@(aExplain[i][2])
-next
-? "└────────────────────────────────────────┘" + NL
+pr()
 
-#------------------------------------------------------------#
-# Example 6: Complex Nested Pattern
-#------------------------------------------------------------#
+oTimeline4 = new stzTimeLine("2025-10-22", "2025-10-22")
+oTimeline4.AddPoint("Meeting", "2025-10-22 09:00:00")
+oTimeline4.AddSpan("Coffee", "2025-10-22 10:00:00", "2025-10-22 10:15:00")
+oTimeline4.AddPoint("Lunch", "2025-10-22 12:00:00")
 
-? "┌─ Example 6: Project Phases ─┐"
+# Match Meeting followed by Coffee OR Lunch
+Tx5 = new stzTimex("{@Event(Meeting) -> @Duration* -> (@Event(Coffee)|@Event(Lunch))}")
 
-# Pattern for multi-phase project: 2-4 phases, each 3-7 days
-oProjectTimeline = new stzTimeLine("2025-10-01", "2025-10-31")
-oProjectTimeline.AddSpan("Phase1", "2025-10-01", "2025-10-05")  # 5 days
-oProjectTimeline.AddSpan("Phase2", "2025-10-06", "2025-10-10")  # 5 days
-oProjectTimeline.AddSpan("Phase3", "2025-10-11", "2025-10-17")  # 7 days
+? Tx5.MatchPartial(oTimeline4)
+#--> TRUE (Meeting->Coffee path matches)
 
-oTx = new stzTimex("{@Sequence({@Instant(Start) -> @Duration(3d..7d)+ -> @Instant(End)})2-4}")
+pf()
 
-? "Pattern: 2-4 project phases, each 3-7 days"
-? "Testing 3-phase project"
-? "Match: " + oTx.Match(oProjectTimeline)
+/*--- Example 7: Event Span Duration Constraints
 
-? "Tokens parsed: " + len(oTx.Tokens())
-? "└────────────────────────────────────────┘" + NL
+pr()
 
-#------------------------------------------------------------#
-# Example 7: Set Constraints - Specific Days
-#------------------------------------------------------------#
+oTimeline5 = new stzTimeLine("2025-10-22", "2025-10-22")
+oTimeline5.AddSpan("Session", "2025-10-22 09:00:00", "2025-10-22 10:00:00")  # 60min
 
-? "┌─ Example 7: Set Constraints ─┐"
+# Match event that lasts exactly 1 hour
+Tx6 = new stzTimex("{@Event(Session:1h)}")
 
-# Match events only on specific days
-oTx = new stzTimex("{@Event+ & @Frame({Mon;Wed;Fri})}")
+? Tx6.Match(oTimeline5) #ERR
+#--> TRUE (Session span is 60 minutes)
 
-? "Pattern: Events on Mon/Wed/Fri only"
+# Try with wrong duration
+Tx7 = new stzTimex("{@Event(Session:30m)}")
 
-# Create timeline with various events
-oTimeline4 = new stzTimeLine("2025-10-20", "2025-10-24")
-oTimeline4.AddPoint("Event1", "2025-10-20")  # Monday
-oTimeline4.AddPoint("Event2", "2025-10-22")  # Wednesday
-oTimeline4.AddPoint("Event3", "2025-10-24")  # Friday
+? Tx7.Match(oTimeline5)
+#--> FALSE (Session is 60min, not 30min)
 
-? "Testing events on Mon, Wed, Fri"
-? "Match: " + oTx.Match(oTimeline4)
-#--> TRUE (all events on allowed days)
-? "└────────────────────────────────────────┘" + NL
+pf()
 
-#------------------------------------------------------------#
-# Example 8: Debugging Mode
-#------------------------------------------------------------#
+/*--- Example 8: Quantifiers - Zero or More
 
-? "┌─ Example 8: Debug Mode ─┐"
+pr()
 
-oTx = new stzTimex("{@Instant -> @Duration(~1h:unique)}")
-oTx.EnableDebug()
+oTimeline6 = new stzTimeLine("2025-10-22", "2025-10-22")
+oTimeline6.AddPoint("Start", "2025-10-22 09:00:00")
+oTimeline6.AddPoint("End", "2025-10-22 17:00:00")
 
-? "Pattern with fuzzy duration and uniqueness"
-? "Debug output shows parsing and matching steps..."
+# Match Start and End with any number of gaps between
+Tx8 = new stzTimex("{@Event(Start) -> @Duration* -> @Event(End)}")
 
-aData = [
-	new stzDateTime("2025-10-22 09:00:00"),
-	new stzDuration("55 minutes")
-]
+? Tx8.Match(oTimeline6)
+#--> TRUE (@Duration* matches 1 gap)
 
-? "Match result: " + oTx.Match(aData)
+pf()
+
+/*--- Example 9: Adjacent Events (No Gaps)
+
+pr()
+
+oTimeline7 = new stzTimeLine("2025-10-22", "2025-10-22")
+oTimeline7.AddSpan("Session1", "2025-10-22 09:00:00", "2025-10-22 10:00:00")
+oTimeline7.AddSpan("Session2", "2025-10-22 10:00:00", "2025-10-22 11:00:00")
+
+# Match adjacent events
+Tx9 = new stzTimex("{@Event(Session1) -> @Event(Session2)}")
+
+? Tx9.Match(oTimeline7)
+#--> TRUE (events are adjacent, no gap required)
+
+pf()
+
+/*--- Example 10: Pattern Debugging
+
+pr()
+
+oTimeline8 = new stzTimeLine("2025-10-22", "2025-10-22")
+oTimeline8.AddPoint("A", "2025-10-22 09:00:00")
+oTimeline8.AddPoint("B", "2025-10-22 10:00:00")
+oTimeline8.AddPoint("C", "2025-10-22 11:00:00")
+
+Tx10 = new stzTimex("{@Event(A) -> @Duration* -> @Event(C)}")
+//Tx10.EnableDebug()
+
+? Tx10.MatchPartial(oTimeline8) #ERR
+#--> TRUE (with detailed trace)
+
+
+pf()
+
+/*--- Example 11: Real-World Meeting Scheduler
+
+pr()
+
+oSchedule = new stzTimeLine("2025-10-22", "2025-10-22")
+oSchedule.AddPoint("DayStart", "2025-10-22 08:00:00")
+oSchedule.AddSpan("Standup", "2025-10-22 09:00:00", "2025-10-22 09:15:00")
+oSchedule.AddSpan("DeepWork", "2025-10-22 09:30:00", "2025-10-22 12:00:00")
+oSchedule.AddSpan("Lunch", "2025-10-22 12:00:00", "2025-10-22 13:00:00")
+
+# Validate standup happens after day start
+Tx11 = new stzTimex("{@Event(DayStart) -> @Duration* -> @Event(Standup)}")
+
+? Tx11.MatchPartial(oSchedule)
+#--> TRUE (pattern exists in schedule)
+
+# Check for deep work session (2+ hours)
+Tx12 = new stzTimex("{@Event(DeepWork:2h..4h)}")
+
+? Tx12.MatchPartial(oSchedule) #ERR
+#--> TRUE (DeepWork is 2.5 hours)
+
+pf()
+
+/*--- Example 12: Finding Patterns Across Timeline
+
+pr()
+
+oTimeline9 = new stzTimeLine("2025-10-22", "2025-10-22")
+oTimeline9.AddPoint("X", "2025-10-22 08:00:00")
+oTimeline9.AddPoint("Y", "2025-10-22 09:00:00")
+oTimeline9.AddPoint("Target", "2025-10-22 10:00:00")
+oTimeline9.AddPoint("Z", "2025-10-22 11:00:00")
+
+# Find Target anywhere in timeline
+Tx13 = new stzTimex("{@Event(Target)}")
+
+? Tx13.MatchPartial(oTimeline9)
+#--> TRUE (Target found at position 3)
+
+pf()
+
+/*--- Example 13: Pattern Explanation
+*/
+pr()
+
+Tx14 = new stzTimex("{@Event(Meeting) -> @Duration(30m..1h) -> @Event(Break)}")
 
 ? "Pattern structure:"
-? @@NL(oTx.Explain())
-? "└────────────────────────────────────────┘" + NL
+? @@NL(Tx14.Explain())
+#--> Shows tokens, constraints, and semantics
 
-#------------------------------------------------------------#
-# Example 9: Practical Use - Meeting Scheduler
-#------------------------------------------------------------#
-
-? "┌─ Example 9: Meeting Scheduler ─┐"
-
-# Validate meeting schedule: start, 1h meeting, 30min break, 1h meeting
-oSchedule = new stzTimeLine("2025-10-22", "2025-10-22")
-oSchedule.AddPoint("Start", "2025-10-22 09:00:00")
-oSchedule.AddSpan("Meeting1", "2025-10-22 09:00:00", "2025-10-22 10:00:00")
-oSchedule.AddSpan("Break", "2025-10-22 10:00:00", "2025-10-22 10:30:00")
-oSchedule.AddSpan("Meeting2", "2025-10-22 10:30:00", "2025-10-22 11:30:00")
-
-oTx = new stzTimex("{@Instant(Start) -> @Duration(1h) -> @Duration(30m) -> @Duration(1h)}")
-
-? "Pattern: Start -> 1h meeting -> 30m break -> 1h meeting"
-? "Match: " + oTx.Match(oSchedule)
-
-if oTx.Match(oSchedule)
-	? "✓ Schedule is valid!"
-	aParts = oTx.MatchedParts()
-	? "Matched " + len(aParts) + " temporal elements"
-else
-	? "✗ Schedule doesn't match pattern"
-ok
-? "└────────────────────────────────────────┘" + NL
-
-#------------------------------------------------------------#
-# Example 10: Integration with Calendar Constraints
-#------------------------------------------------------------#
-
-? "┌─ Example 10: Calendar Integration ─┐"
-
-# Pattern: Events during business hours, no holidays
-oCalendar2 = new stzCalendar([2025, 10])
-oCalendar2.SetWorkingDays(["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"])
-oCalendar2.SetBusinessHours("09:00:00", "17:00:00")
-oCalendar2.AddHoliday("2025-10-05", "National Day")
-
-oTx = new stzTimex("{@Event+ & @Frame(BusinessHours:!Holiday)}")
-
-? "Pattern: Events in business hours, not on holidays"
-? "Calendar:"
-? "  Working days: Mon-Fri"
-? "  Business hours: 09:00-17:00"
-? "  Holidays: Oct 5"
-
-? "This pattern would validate events against calendar constraints"
-? "└────────────────────────────────────────┘" + NL
-
-#------------------------------------------------------------#
-# Summary
-#------------------------------------------------------------#
-
-? "╔═══════════════════════════════════════════════════╗"
-? "║              Pattern Syntax Summary               ║"
-? "╠═══════════════════════════════════════════════════╣"
-? "║ @Instant(label)     - Point in time              ║"
-? "║ @Duration(1h..2h)   - Time span with range       ║"
-? "║ @Event(Meeting)     - Labeled temporal event     ║"
-? "║ @Sequence(...)      - Ordered series             ║"
-? "║ @Frame(context)     - Bounded time space         ║"
-? "║                                                   ║"
-? "║ Operators:                                        ║"
-? "║   ->    Sequence (follows)                       ║"
-? "║   |     Alternation (or)                         ║"
-? "║   &     Overlap (during)                         ║"
-? "║   !     Negation (not)                           ║"
-? "║                                                   ║"
-? "║ Quantifiers:                                      ║"
-? "║   +     One or more                              ║"
-? "║   *     Zero or more                             ║"
-? "║   ?     Optional (0 or 1)                        ║"
-? "║   m-n   Range                                    ║"
-? "║   ~     Cyclic (repeating)                       ║"
-? "║                                                   ║"
-? "║ Constraints:                                      ║"
-? "║   (1h..2h)      Range                            ║"
-? "║   {Mon;Wed}     Set                              ║"
-? "║   :15min        Step                             ║"
-? "║   :unique       No duplicates                    ║"
-? "╚═══════════════════════════════════════════════════╝"
+pf()
