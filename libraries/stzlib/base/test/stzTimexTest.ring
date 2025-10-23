@@ -227,7 +227,7 @@ Tx13 = new stzTimex("{@Event(Target)}")
 pf()
 
 /*--- Example 13: Pattern Explanation
-*/
+
 pr()
 
 Tx14 = new stzTimex("{@Event(Meeting) -> @Duration(30m..1h) -> @Event(Break)}")
