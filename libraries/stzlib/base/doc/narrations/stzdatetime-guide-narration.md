@@ -1,47 +1,8 @@
-# Review of "stzDateTime: Elegant DateTime Operations in Softanza"
-
-## Overview
-The provided article is a comprehensive guide to the `stzDateTime` class in the Softanza library for Ring, emphasizing its intuitive design, operator overloading, formatting hierarchy, and practical examples. It effectively covers core functionalities like creation, arithmetic, durations, formatting, comparisons, and epoch conversions, while highlighting Softanza's advantages over other libraries.
-
-However, the test file (`stzDateTimeTest.ring`) reveals several **new or expanded features** not fully addressed in the article. These include:
-- **Advanced creation methods from historical epochs**: Support for creating datetimes by counting from predefined origins like `:YearOne`, `:IslamicHijra`, `:SpaceAge`, `:AtomicAge`, `:USIndependence`, `:FrenchRevolution`, and `:InternetAge`. This includes natural language strings (e.g., "5 years 3 months counting from space age") and hash-based durations (e.g., `:CountingFrom = [:Origin = :UnixStart, :Years = 50, :Days = 100]`).
-- **Query methods for durations since origins**: Methods like `YearsSince(:YearOne)`, `SecondsSince(:Epoch)`, `DurationSince(:IslamicHijra, :In = :Centuries)`, `SecondsSince(:SpaceAge)`, `YearsSince(:InternetAge)`, `WeeksSince(:FrenchRevolution)`, and even from custom dates (e.g., `YearsSince("01/08/1976")`).
-- **Enhanced natural language operations**: `AddNatural()` and `SubtractNatural()` for complex strings including milliseconds (e.g., "2 days 3 hours 30 minutes 28 seconds 540 milliseconds").
-- **Additional formatting variants**: More granular 12h/24h suffixes (e.g., `ToSimple24h()`, `ToMedium12h()`, `ToShort24h()`), compact formats like `ToCompact12h()`, locale-aware AM/PM, midnight/noon handling (12:00 AM/PM), and error handling for invalid formats.
-- **Component accessors with strings**: `Month()` returns string ("March"), `MonthN()` for number (3); `Day()` for "Friday", `DayN()` for 15.
-- **Human-readable enhancements**: `ToHuman()` now includes ordinals and natural phrasing (e.g., "Friday, March 3rd, 2024 at Half past 2 PM").
-- **Validation functions**: `IsDateTime()` and `IsValidDateTime()`.
-- **Relative and temporal checks**: `ToRelative()` (e.g., "2 hours ago", "in 3 days"); `IsTomorrow()`, `IsYesterday()`.
-- **Chaining with Q methods**: e.g., `AddDaysQ(5).AddHoursQ(3)`.
-- **Duration in various units**: Expanded `DurationTo()` with `:InYears`, `:InWeeks`, etc.
-- **Verbose date-only**: `ToLongDate()` (e.g., "Wednesday, January 1, 2025").
-- **Current datetime globals**: `NowXT()` and `NowDateTime()` as alternatives to empty string.
-
-These features expand `stzDateTime`'s scope into historical and cultural timelines, making it suitable for educational, historical, or global applications. The article's structure is solid but should incorporate these for completeness. The formatting section's hierarchy (Time System → Localization → Precision → Verbosity) aligns well but needs examples of new variants.
-
-## Strengths of the Article
-- **Clear Architecture Explanation**: The three-class split (`stzDateTime`, `stzDate`, `stzTime`) is well-motivated.
-- **Practical Examples**: The event scheduling system unifies concepts effectively.
-- **Comparison Table**: Highlights unique features like operator overloading.
-- **Hierarchical Formatting**: The philosophy is insightful and matches test behaviors.
-
-## Gaps and Suggestions
-- **Epoch/Origin Features**: The article covers basic epoch conversions (e.g., `ToEpochSeconds()`) but misses creation from origins and "since" queries. Add a new section: "Historical Epochs and Origin-Based Calculations."
-- **Formatting Updates**: Update examples to reflect 24h defaults, new suffixes, and human enhancements. Correct `Month()` to return string (use `MonthN()` for numeric).
-- **Natural Language and Validation**: Briefly mention `AddNatural()`/`SubtractNatural()` as explicit alternatives to operator-based parsing, and add validation functions.
-- **Minor Corrections**: Update `ToHuman()` example to show ordinals/natural phrasing. Include midnight/noon and single-digit hour examples in formatting.
-- **Expansion**: Add a table of supported origins for quick reference.
-
-## Revised Article
-Below is a revised version of the article, incorporating the identified new features. I've integrated them seamlessly into existing sections where possible, added a new section for historical epochs, updated examples, and corrected inaccuracies (e.g., `Month()` behavior).
-
----
-
 # stzDateTime: Elegant DateTime Operations in Softanza
 
 DateTime manipulation is a universal programming challenge—combining date and time logic while handling formats, timezones, and arithmetic. The `stzDateTime` class from Softanza transforms this complexity into an intuitive, expressive experience built on Qt's robust foundation.
 
-## The Temporal Class Suite: Date, Time, DateTime, Duration, and Timeline
+## The Temporal Class Suite: stzDate, stzTime, stzDateTime, stzDuration, stzTimeline, and stzCalendar
 
 Softanza's temporal system comprises a suite of interconnected classes, each addressing specific aspects of time handling to avoid conceptual overlap while enabling seamless integration:
 
@@ -50,6 +11,7 @@ Softanza's temporal system comprises a suite of interconnected classes, each add
 * **stzDateTime**: Combined operations requiring both date and time (logging, event scheduling, timestamps).
 * **stzDuration**: Dedicated handling of time spans independently of specific dates/times, with arithmetic, unit conversions, and formatting (e.g., "2 days 3 hours" as an object).
 * **stzTimeline**: Management of sequences or series of temporal events, supporting interval calculations, overlaps, timelines, and event ordering.
+* **stzCalendar**: #TODO
 
 This modular design mirrors real-world reasoning: Use stzDateTime for timestamps, extract stzDate or stzTime for specialized ops via DateQ() or TimeQ(), wrap durations in stzDuration for reusable spans, and organize events with stzTimeline. The classes interoperate fluidly—e.g., adding a stzDuration to a stzDateTime or building a stzTimeline from stzDateTime instances.
 

@@ -320,6 +320,7 @@ class stzTime from stzObject
 	def HoursN()
 		return oQTime.hour()
 
+
     def Minute()
         return oQTime.minute()
 
@@ -330,6 +331,8 @@ class stzTime from stzObject
 		return oQTime.minute()
 
 	def MinutesN()
+		return oQTime.minute()
+
 
     def Second()
         return oQTime.second()
@@ -337,6 +340,13 @@ class stzTime from stzObject
         def SecondN()
             return oQTime.second()
     
+        def Seconds()
+            return oQTime.second()
+
+        def SecondsN()
+            return oQTime.second()
+
+
     def Millisecond()
 		return oQTime.msec()
 
@@ -348,6 +358,7 @@ class stzTime from stzObject
 
 	def MillisecondsN()
 		return oQTime.msec()
+
 
     def Hour12()
         nHour = oQTime.hour()
