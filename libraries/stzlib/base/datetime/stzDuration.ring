@@ -123,29 +123,41 @@ class stzDuration from stzObject
 	def TotalSeconds()
 		return floor(@nTotalSeconds)
 		
+		def ToSeconds()
+			return floor(@nTotalSeconds)
+
 	def TotalMinutes()
 		return floor(@nTotalSeconds / 60)
 		
+		def ToMinutes()
+			return floor(@nTotalSeconds / 60)
+
 	def TotalHours()
 		return floor(@nTotalSeconds / 3600)
 		
+		def ToHours()
+			return floor(@nTotalSeconds / 3600)
+
 	def TotalDays()
 		return floor(@nTotalSeconds / 86400)
 		
+		def ToDays()
+			return floor(@nTotalSeconds / 86400)
+
 	def Days()
 		return floor(@nTotalSeconds / 86400)
-		
+
 	def Hours()
 		nRemainder = @nTotalSeconds % 86400
 		return floor(nRemainder / 3600)
-		
+
 	def Minutes()
 		nRemainder = @nTotalSeconds % 3600
 		return floor(nRemainder / 60)
-		
+
 	def Seconds()
 		return floor(@nTotalSeconds % 60)
-		
+
 	def Milliseconds()
 		return @nMilliseconds
 

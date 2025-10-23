@@ -37,14 +37,14 @@ func IsTime(str)
         return IsTime(str)
 
 class stzTime from stzObject
-    oQTime
+    @oQTime
     
     def init(pTime)
-        oQTime = new QTime()
+        @oQTime = new QTime()
         
         if IsNull(pTime) or pTime = ""
             # Current time
-            oQTime = oQTime.currentTime()
+            @oQTime = @oQTime.currentTime()
             
         but isString(pTime)
             This.ParseStringTime(pTime)
@@ -54,7 +54,7 @@ class stzTime from stzObject
             nHours = floor(pTime / 3600)
             nMinutes = floor((pTime % 3600) / 60)
             nSeconds = pTime % 60
-            oQTime.setHMS(nHours, nMinutes, nSeconds, 0)
+            @oQTime.setHMS(nHours, nMinutes, nSeconds, 0)
             
         but isList(pTime) and IsHashList(pTime)
             # Hash format [:Hour = 14, :Minute = 30, :Second = 45]
@@ -79,10 +79,10 @@ class stzTime from stzObject
                 nMs = 0+ pTime[:Millisecond]
             ok
 
-            oQTime.setHMS(nHour, nMinute, nSecond, nMs)
+            @oQTime.setHMS(nHour, nMinute, nSecond, nMs)
         ok
         
-        if not oQTime.isValid()
+        if not @oQTime.isValid()
             StzRaise("Invalid time provided!")
         ok
     
@@ -91,9 +91,9 @@ class stzTime from stzObject
                     "hh:mm:ss.zzz", "h:mm:ss AP", "hh:mm AP", "h:mm AP" ]
         
         for cFormat in aFormats
-            oTemp = oQTime.fromString(cTime, cFormat)
+            oTemp = @oQTime.fromString(cTime, cFormat)
             if oTemp.isValid()
-                oQTime = oTemp
+                @oQTime = oTemp
                 return
             ok
         next
@@ -103,7 +103,7 @@ class stzTime from stzObject
     #--- ARITHMETIC OPERATIONS ---#
     
     def AddSeconds(nSeconds)
-        oQTime = oQTime.addSecs(nSeconds)
+        @oQTime = @oQTime.addSecs(nSeconds)
         return This.ToString()
     
     def AddSecondsQ(nSeconds)
@@ -111,7 +111,7 @@ class stzTime from stzObject
         return This
     
     def AddMinutes(nMinutes)
-        oQTime = oQTime.addSecs(nMinutes * 60)
+        @oQTime = @oQTime.addSecs(nMinutes * 60)
         return This.ToString()
     
     def AddMinutesQ(nMinutes)
@@ -119,7 +119,7 @@ class stzTime from stzObject
         return This
     
     def AddHours(nHours)
-        oQTime = oQTime.addSecs(nHours * 3600)
+        @oQTime = @oQTime.addSecs(nHours * 3600)
         return This.ToString()
     
     def AddHoursQ(nHours)
@@ -127,7 +127,7 @@ class stzTime from stzObject
         return This
     
     def AddMilliseconds(nMs)
-        oQTime = oQTime.addMSecs(nMs)
+        @oQTime = @oQTime.addMSecs(nMs)
         return This.ToString()
     
     def AddMillisecondsQ(nMs)
@@ -135,7 +135,7 @@ class stzTime from stzObject
         return This
 
     def SubtractSeconds(nSeconds)
-        oQTime = oQTime.addSecs(-nSeconds)
+        @oQTime = @oQTime.addSecs(-nSeconds)
         return This.ToString()
     
     def SubtractSecondsQ(nSeconds)
@@ -143,7 +143,7 @@ class stzTime from stzObject
         return This
     
     def SubtractMinutes(nMinutes)
-        oQTime = oQTime.addSecs(-nMinutes * 60)
+        @oQTime = @oQTime.addSecs(-nMinutes * 60)
         return This.ToString()
     
     def SubtractMinutesQ(nMinutes)
@@ -151,7 +151,7 @@ class stzTime from stzObject
         return This
     
     def SubtractHours(nHours)
-        oQTime = oQTime.addSecs(-nHours * 3600)
+        @oQTime = @oQTime.addSecs(-nHours * 3600)
         return This.ToString()
     
     def SubtractHoursQ(nHours)
@@ -159,7 +159,7 @@ class stzTime from stzObject
         return This
     
     def SubtractMilliseconds(nMs)
-        oQTime = oQTime.addMSecs(-nMs)
+        @oQTime = @oQTime.addMSecs(-nMs)
         return This.ToString()
     
     def SubtractMillisecondsQ(nMs)
@@ -222,13 +222,13 @@ class stzTime from stzObject
             oTempTime = new stzTime(oOtherTime)
 			oOtherTime = oTempTime
         ok
-        return oQTime.secsTo(oOtherTime.QTimeObject())
+        return @oQTime.secsTo(oOtherTime.QTimeObject())
     
     def MSecsTo(oOtherTime)
         if isString(oOtherTime)
             oOtherTime = new stzTime(oOtherTime)
         ok
-        return oQTime.msecsTo(oOtherTime.QTimeObject())
+        return @oQTime.msecsTo(oOtherTime.QTimeObject())
 
     def MinutesTo(oOtherTime)
         return floor(This.SecsTo(oOtherTime) / 60)
@@ -269,99 +269,112 @@ class stzTime from stzObject
     #--- UTILITY CHECKS ---#
     
     def IsAM()
-        return oQTime.hour() < 12
+        return @oQTime.hour() < 12
 
     def IsPM()
-        return oQTime.hour() >= 12
+        return @oQTime.hour() >= 12
 
     def IsMidnight()
-        return oQTime.hour() = 0 and oQTime.minute() = 0 and oQTime.second() = 0
+        return @oQTime.hour() = 0 and @oQTime.minute() = 0 and @oQTime.second() = 0
 
     def IsNoon()
-        return oQTime.hour() = 12 and oQTime.minute() = 0 and oQTime.second() = 0
+        return @oQTime.hour() = 12 and @oQTime.minute() = 0 and @oQTime.second() = 0
 
     def IsMorning()
-        nHour = oQTime.hour()
+        nHour = @oQTime.hour()
         return nHour >= 5 and nHour < 12
 
     def IsAfternoon()
-        nHour = oQTime.hour()
+        nHour = @oQTime.hour()
         return nHour >= 12 and nHour < 17
 
     def IsEvening()
-        nHour = oQTime.hour()
+        nHour = @oQTime.hour()
         return nHour >= 17 and nHour < 21
 
     def IsNight()
-        nHour = oQTime.hour()
+        nHour = @oQTime.hour()
         return nHour >= 21 or nHour < 5
 
     def IsWorkHours()
-        nHour = oQTime.hour()
+        nHour = @oQTime.hour()
         return nHour >= 9 and nHour < 17
 
     def IsNow()
         oNow = new QTime()
         oNow = oNow.currentTime()
-        nDiff = abs(oQTime.secsTo(oNow))
+        nDiff = abs(@oQTime.secsTo(oNow))
         return nDiff < 60  # Within 1 minute
 
     #--- GETTERS ---#
     
     def Hour()
-        return oQTime.hour()
+        return @oQTime.hour()
 
         def HourN()
-            return oQTime.hour()
+            return @oQTime.hour()
     
 	def Hours()
-		return oQTime.hour()
+		return @oQTime.hour()
 
 	def HoursN()
-		return oQTime.hour()
+		return @oQTime.hour()
 
+	#--
+
+	def ToHour()
+		return @oQTime.hour()
+
+        def ToHourN()
+            return @oQTime.hour()
+    
+	def ToHours()
+		return @oQTime.hour()
+
+	def ToHoursN()
+		return @oQTime.hour()
 
     def Minute()
-        return oQTime.minute()
+        return @oQTime.minute()
 
         def MinuteN()
-            return oQTime.minute()
+            return @oQTime.minute()
     
 	def Minutes()
-		return oQTime.minute()
+		return @oQTime.minute()
 
 	def MinutesN()
-		return oQTime.minute()
+		return @oQTime.minute()
 
 
     def Second()
-        return oQTime.second()
+        return @oQTime.second()
 
         def SecondN()
-            return oQTime.second()
+            return @oQTime.second()
     
         def Seconds()
-            return oQTime.second()
+            return @oQTime.second()
 
         def SecondsN()
-            return oQTime.second()
+            return @oQTime.second()
 
 
     def Millisecond()
-		return oQTime.msec()
+		return @oQTime.msec()
 
         def MillisecondN()
-            return oQTime.msec()
+            return @oQTime.msec()
 
 	def Milliseconds()
-		return oQTime.msec()
+		return @oQTime.msec()
 
 	def MillisecondsN()
-		return oQTime.msec()
+		return @oQTime.msec()
 
 
     def Hour12()
-        nHour = oQTime.hour()
+        nHour = @oQTime.hour()
         if nHour = 0
             return 12
         but nHour > 12
@@ -393,58 +406,64 @@ class stzTime from stzObject
         ok
 
     def SecondsSinceMidnight()
-        return (oQTime.hour() * 3600) + (oQTime.minute() * 60) + oQTime.second()
+        return (@oQTime.hour() * 3600) + (@oQTime.minute() * 60) + @oQTime.second()
+
+	def ToSecondsSinceMidnight()
+		return This.SecondsSinceMidnight()
 
     def SecondsUntilMidnight()
         return 86400 - This.SecondsSinceMidnight()
 
+	def ToSecondsUntilMidnight()
+		return This.SecondsUntilMidnight()
+
     #--- SMART NAVIGATION ---#
 
     def NextHour()
-		oQCopy = oQTime
+		oQCopy = @oQTime
         oQCopy.addSecs(3600)
         return oQCopy.ToString()
 
     def PreviousHour()
-		oQCopy = oQTime
+		oQCopy = @oQTime
         oQCopy.addSecs(-3600)
         return oQCopy.ToString()
 
     def NextMinute()
-		oQCopy = oQTime
+		oQCopy = @oQTime
         oQCopy.addSecs(60)
         return oQCopy.ToString()
 
     def PreviousMinute()
-		oQCopy = oQTime
+		oQCopy = @oQTime
         oQCopy.addSecs(-60)
         return oQCopy.ToString()
 
     def RoundToNearestHour()
-        if oQTime.minute() >= 30
-            oQTime.setHMS(oQTime.hour() + 1, 0, 0, 0)
+        if @oQTime.minute() >= 30
+            @oQTime.setHMS(@oQTime.hour() + 1, 0, 0, 0)
         else
-            oQTime.setHMS(oQTime.hour(), 0, 0, 0)
+            @oQTime.setHMS(@oQTime.hour(), 0, 0, 0)
         ok
         return This.ToString()
 
     def RoundToNearestMinute()
-        if oQTime.second() >= 30
-            oQTime = oQTime.addSecs(60 - oQTime.second())
+        if @oQTime.second() >= 30
+            @oQTime = @oQTime.addSecs(60 - @oQTime.second())
         ok
-        oQTime.setHMS(oQTime.hour(), oQTime.minute(), 0, 0)
+        @oQTime.setHMS(@oQTime.hour(), @oQTime.minute(), 0, 0)
         return This.ToString()
 
     def StartOfHour()
         oQCopy = new QTime()
 		oQCopy.fromString(This.Content(), $cDefaultTimeFormat)
-        oQCopy.setHMS(oQTime.hour(), 0, 0, 0)
+        oQCopy.setHMS(@oQTime.hour(), 0, 0, 0)
         return oQCopy.ToString($cDefaultTimeFormat)
 
     def EndOfHour()
         oQCopy = new QTime()
 		oQCopy.fromString(This.Content(), $cDefaultTimeFormat)
-        oQCopy.setHMS(oQTime.hour(), 59, 59, 999)
+        oQCopy.setHMS(@oQTime.hour(), 59, 59, 999)
         return oQCopy.ToString($cDefaultTimeFormat)
 
     #--- FORMATTING ---#
@@ -488,7 +507,7 @@ class stzTime from stzObject
 		if cFormat = "long"
 			return This.ToLong()
 		else
-        	return oQTime.toString(cFormat)
+        	return @oQTime.toString(cFormat)
     	ok
 
     def To12Hour()
@@ -581,7 +600,7 @@ class stzTime from stzObject
         return oNewTime
     
     def SetQTime(oNewQTime)
-        oQTime = oNewQTime
+        @oQTime = oNewQTime
         return This
 
     def SetQTimeQ(oNewQTime)
@@ -589,10 +608,10 @@ class stzTime from stzObject
         return This
     
     def QTimeObject()
-        return oQTime
+        return @oQTime
     
     def IsValid()
-        if oQTime.isValid()
+        if @oQTime.isValid()
             return TRUE
         else
             return FALSE

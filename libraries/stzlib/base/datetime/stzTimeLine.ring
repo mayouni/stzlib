@@ -74,11 +74,15 @@ class stzTimeLine from stzObject
 		ok
 
 		if isString(pEnd)
+			if substr(pEnd, " ") = 0
+				pEnd += " 23:59:59"
+			ok
 			pEnd = This._normalizeDateTime(pEnd)
 		ok
 
 		@cStart = StzDateTimeQ(pStart).ToString()
 		@cEnd = StzDateTimeQ(pEnd).ToString()
+
 
 	def Content()
 		aResult = [
