@@ -194,6 +194,12 @@ class stzTimeLine from stzObject
 			def AddMomentQ(pcLabel, pDateTime)
 				return This.AddPointQ(pcLabel, pDateTime)
 
+		def AddInstant(pcLabel, pDateTime)
+			This.AddPoint(pcLabel, pDateTime)
+	
+			def AddInstantQ(pcLabel, pDateTime)
+				return This.AddPointQ(pcLabel, pDateTime)
+
 	def AddPoints(paPoints)
 		nLen = len(paPoints)
 		for i = 1 to nLen
@@ -201,6 +207,9 @@ class stzTimeLine from stzObject
 		next
 
 		def AddMoments(paPoints)
+			This.AddPoints(paPoints)
+
+		def AddInstants(paPoints)
 			This.AddPoints(paPoints)
 
 	# Find the occurences of a given moment (by label)
@@ -229,6 +238,9 @@ class stzTimeLine from stzObject
 		def FindMoment(pcLabel)
 			return This.FindPoint(pcLabel)
 
+		def FindInstant(pcLabel)
+			return This.FindPoint(pcLabel)
+
 	# Returns the datetime along with the position
 	def FindPointXT(pcLabel)
 
@@ -254,6 +266,9 @@ class stzTimeLine from stzObject
 		def FindMomentXT(pcLabel)
 			return This.FindPointXT(pcLabel)
 
+		def FindInstantXT(pcLabel)
+			return THis.FindPointXT(pcLabel)
+
 	#--
 
 	def Points()
@@ -270,14 +285,20 @@ class stzTimeLine from stzObject
 		def TimePoints()
 			return This.Points()
 
-		def TimePointsQ()
-			return This.PointsQ()
+			def TimePointsQ()
+				return This.PointsQ()
 			
 		def Moments()
 			return This.Points()
 
-		def MomentsQ()
-			return This.PointsQ()
+			def MomentsQ()
+				return This.PointsQ()
+
+		def Instants()
+			return This.Points()
+
+			def InstantsQ()
+				return This.PointsQ()
 
 	def PointNames()
 		# Return unique names only
@@ -294,6 +315,12 @@ class stzTimeLine from stzObject
 		next
 	
 		return acResult
+
+		def MomentNames()
+			return This.PointNames()
+
+		def InstantNodes()
+			return This.PointNames()
 
 	def PointNamesXT()
 		# Return names with occurrence counts: [["EVENT1", 3], ["EVENT2", 1]]
@@ -321,6 +348,9 @@ class stzTimeLine from stzObject
 		next
 	
 		return aCounts
+
+		def InstantNamesXT()
+			return This.PointNamesXT()
 
 	def SpanNames()
 		# Return unique names only
@@ -408,6 +438,12 @@ class stzTimeLine from stzObject
 			def MomentQ(pcLabelOrDateTime)
 				return This.PointQ(pcLabelOrDateTime)
 
+		def Instant(pcLabelOrDateTime)
+			return This.Point(pcLabelOrDateTime)
+
+			def InstantQ(pcLabelOrDateTime)
+				return This.PointQ(pcLabelOrDateTime)
+
 	# Checking if a point exists
 
 	def HasPoint(pcLabelOrDateTime)
@@ -418,6 +454,17 @@ class stzTimeLine from stzObject
 		ok
 		
 		def HasMoment(pcLabelOrDateTime)
+			return This.HasMoment(pcLabelOrDateTime)
+
+		def HasInstant(pcLabelOrDateTime)
+			return This.HasMoment(pcLabelOrDateTime)
+
+		#--
+
+		def ContainsMoment(pcLabelOrDateTime)
+			return This.HasMoment(pcLabelOrDateTime)
+
+		def ContainsInstant(pcLabelOrDateTime)
 			return This.HasMoment(pcLabelOrDateTime)
 
 	# Removing points
@@ -439,12 +486,20 @@ class stzTimeLine from stzObject
 			def RemoveMomentQ(pcLabelOrDateTime)
 				return This.RemovePointQ(pcLabelOrDateTime)
 
+		#--
+		
+		def RemoveMInstant(pcLabelOrDateTime)
+			This.RemovePoint(pcLabelOrDateTime)
+
+			def RemoveInstantQ(pcLabelOrDateTime)
+				return This.RemovePointQ(pcLabelOrDateTime)
+
 	# Renaming labels
 
 	def RenameLabel(pcLabel, pcNewLabel)
 		This.RenamePointLabel(pcLabel, pcNewLabel)
 		This.RenameSpanLabel(pcLabel, pcNewLabel)
-	
+
 	def RenamePointLabel(pcLabel, pcNewLabel)
 	
 		if CheckParams()
@@ -471,6 +526,13 @@ class stzTimeLine from stzObject
 			ok
 		next
 	
+		def RenameMomentLabel(pcLabel, pcNewLabel)
+			This.RenamePointLabel(pcLabel, pcNewLabel)
+
+		def RenameInstantLabel(pcLabel, pcNewLabel)
+			This.RenamePointLabel(pcLabel, pcNewLabel)
+
+
 	def RenameSpanLabel(pcLabel, pcNewLabel)
 	
 		if CheckParams()
@@ -506,6 +568,28 @@ class stzTimeLine from stzObject
 			return This.CountPoints()
 
 		def HowManyPoints()
+			return This.CountPoints()
+
+		#--
+
+		def CountMoments()
+			return This.CountPoints()
+
+		def NumberOfMoments()
+			return This.CountPoints()
+
+		def HowManyMoments()
+			return This.CountPoints()
+
+		#--
+
+		def CountOInstants()
+			return This.CountPoints()
+
+		def NumberOfInstants()
+			return This.CountPoints()
+
+		def HowManyInstants()
 			return This.CountPoints()
 
 	# Span Management (time periods with start and end)
@@ -918,6 +1002,7 @@ class stzTimeLine from stzObject
 
 		return aResult
 		
+
 		def MomentsBetween(pStart, pEnd)
 			return This.PointsBetween(pStart, pEnd)
 
@@ -929,6 +1014,12 @@ class stzTimeLine from stzObject
 
 		def WhatHappenedBetween(pStart, pEnd)
 			return This.PointsBetween(pStart, pEnd)
+
+		#--
+
+		def InstantsBetween(pStart, pEnd)
+			return This.PointsBetween(pStart, pEnd)
+
 
 	def SpansBetween(pStart, pEnd)
 
@@ -965,6 +1056,9 @@ class stzTimeLine from stzObject
 
 		return aResult
 
+		def PeriodsBetween(pStart, pEnd)
+			return This.SpansBetween(pStart, pEnd)
+
 	def SpansOverlapping(pDateTime)
 
 		if isString(pDateTime)
@@ -993,8 +1087,16 @@ class stzTimeLine from stzObject
 
 		return aResult
 		
+
 		def SpansContaining(pDateTime)
 			return This.SpansOverlapping(pDateTime)
+
+		def PeriodsOverlapping(pDateTime)
+			return THis.SpansOverlapping(pDateTime)
+
+		def PeriodsContaining(pDateTime)
+			return This.SpansOverlapping(pDateTime)
+
 
 	# Overlap Detection
 	
@@ -1059,6 +1161,9 @@ class stzTimeLine from stzObject
 			next
 		next
 		return aResult
+
+		def OverlappingPeriods()
+			return THis.OverlappingSpans()
 
 	# Gap Analysis
 	
@@ -1139,6 +1244,9 @@ class stzTimeLine from stzObject
 		
 		return aUncovered
 
+		def UncoveredSpans()
+			return This.UncoveredPeriods()
+
 	# Duration Calculations
 	
 	def DurationXT(cLabel1, cLabel2)
@@ -1208,6 +1316,9 @@ class stzTimeLine from stzObject
 		next
 		
 		return aSorted
+
+		def SortedPeriods()
+			return This.SortedSpans()
 		
 	def SortedPoints()
 		# Simple bubble sort by time
@@ -1227,6 +1338,12 @@ class stzTimeLine from stzObject
 		next
 		
 		return aSorted
+
+		def SortedMoments()
+			return This.SortedPoints()
+
+		def SortedInstants()
+			return This.SortedPoints()
 
 	# Output Methods
 	
