@@ -1,6 +1,17 @@
 # stzTimex - Temporal Pattern Matching for Softanza
 # A regex-like pattern language for time structures
 
+/*
+   IMPORTANT: Ring's substr() function has only TWO forms:
+   1. substr(str, substring)           → finds position of substring in str
+   2. substr(str, substr1, substr2)    → replaces substr1 with substr2 in str
+   
+   Ring does NOT have substr(str, position, length) form, nor it has a substr(str, n) form!
+   
+   That's why Softanza provides @substr(str, nStart, nEnd) which extracts
+   a substring from position nStart to position nEnd (both inclusive).
+*/
+
 # Quick constructor functions
 func StzTimexQ(cPattern)
 	return new stzTimex(cPattern)
@@ -45,17 +56,14 @@ class stzTimex
 		@aMatchedParts = []
 		
 		# Parse pattern into tokens
-//		try
-			@aTokens = This.ParsePattern(@cPattern)
+		@aTokens = This.ParsePattern(@cPattern)
 			
-			if @bDebugMode
-				? "=== stzTimex Init ==="
-				? "Pattern: " + @cPattern
-				? "Tokens parsed: " + len(@aTokens)
-			ok
-//		catch
-//			raise("Pattern initialization failed: " + cCatchError)
-//		done
+		if @bDebugMode
+			? "=== stzTimex Init ==="
+			? "Pattern: " + @cPattern
+			? "Tokens parsed: " + len(@aTokens)
+		ok
+
 	
 	def NormalizePattern(cPattern)
 		cPattern = trim(cPattern)
@@ -194,23 +202,23 @@ class stzTimex
 		if startsWith(cTokenStr, "@Instant")
 			cType = "instant"
 			cTokenStr = @substr(cTokenStr, 9, len(cTokenStr))
-
+	
 		but startsWith(cTokenStr, "@Duration")
 			cType = "duration"
 			cTokenStr = @substr(cTokenStr, 10, len(cTokenStr))
-
+	
 		but startsWith(cTokenStr, "@Event")
 			cType = "event"
 			cTokenStr = @substr(cTokenStr, 7, len(cTokenStr))
-
+	
 		but startsWith(cTokenStr, "@Sequence")
 			cType = "sequence"
 			cTokenStr = @substr(cTokenStr, 10, len(cTokenStr))
-
+	
 		but startsWith(cTokenStr, "@Frame")
 			cType = "frame"
 			cTokenStr = @substr(cTokenStr, 7, len(cTokenStr))
-
+	
 		else
 			if @bDebugMode
 				? "Unknown token type: " + cTokenStr
@@ -223,9 +231,24 @@ class stzTimex
 		if nOpenParen > 0
 			nCloseParen = substr(cTokenStr, ")")
 			if nCloseParen > nOpenParen
-				cLabel = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
-				# Parse constraints from label
-				aConstraints = This.ParseConstraints(cLabel)
+				cContent = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+				
+				# For Event type: check if label contains duration constraint (Label:Duration)
+				if cType = "event" and contains(cContent, ":")
+					aParts = @split(cContent, ":")
+					cLabel = @trim(aParts[1])
+					if len(aParts) > 1
+						cDurationPart = @trim(aParts[2])
+						aConstraints = This.ParseConstraints(cDurationPart)
+					ok
+				# For Duration type: parse as constraints
+				but cType = "duration"
+					cLabel = ""
+					aConstraints = This.ParseConstraints(cContent)
+				# For other types: just label
+				else
+					cLabel = cContent
+				ok
 			ok
 		ok
 		
@@ -246,9 +269,8 @@ class stzTimex
 		
 		# Check for numeric quantifiers
 		if isDigit(cLastChar)
-			# Look for m-n pattern
 			nLenTokenStr = len(cTokenStr)
-
+	
 			for i = nLenTokenStr to 1 step -1
 				cChar = @substr(cTokenStr, i, i+1)
 				if not isDigit(cChar) and cChar != "-"
@@ -277,619 +299,673 @@ class stzTimex
 			["cyclic", bCyclic],
 			["negated", bNegated]
 		]
-	
-def ParseConstraints(cConstraintStr)
-	# Parse constraints like "1h..2h:15min" or "{Mon;Wed;Fri}"
-	aConstraints = []
-	
-	if cConstraintStr = ""
+		
+	def ParseConstraints(cConstraintStr)
+		# Parse constraints like "1h..2h:15min" or "{Mon;Wed;Fri}" or "1h" (single duration)
+		aConstraints = []
+		
+		if cConstraintStr = ""
+			return aConstraints
+		ok
+		
+		# Check for range (1h..2h) - extract step first if present
+		cStep = ""
+		cWorkingStr = cConstraintStr
+		
+		if contains(cConstraintStr, ":")
+			aParts = @split(cConstraintStr, ":")
+			cWorkingStr = @trim(aParts[1])
+			if len(aParts) > 1
+				cStep = @trim(aParts[2])
+			ok
+		ok
+		
+		# Now check for range in the working string
+		if contains(cWorkingStr, "..")
+			aParts = @split(cWorkingStr, "..")
+			if len(aParts) = 2
+				cStart = @trim(aParts[1])
+				cEnd = @trim(aParts[2])
+				
+				aConstraints + [
+					["type", "range"],
+					["start", cStart],
+					["end", cEnd],
+					["step", cStep]
+				]
+			ok
+		# Check for single duration (e.g., "1h", "30m")
+		but len(cWorkingStr) > 0
+			# Single duration - treat as exact match
+			nMinutes = This.ParseDurationToMinutes(cWorkingStr)
+			aConstraints + [
+				["type", "exact"],
+				["minutes", nMinutes]
+			]
+		ok
+		
+		# Check for set {Mon;Wed;Fri}
+		nBraceStart = substr(cConstraintStr, "{")
+		if nBraceStart > 0
+			nBraceEnd = substr(cConstraintStr, "}")
+			if nBraceEnd > nBraceStart
+				cSetContent = @substr(cConstraintStr, nBraceStart + 1, nBraceEnd - 1)
+				aSetValues = @split(cSetContent, ";")
+				
+				aConstraints + [
+					["type", "set"],
+					["values", aSetValues]
+				]
+			ok
+		ok
+		
 		return aConstraints
-	ok
-	
-	# Check for range (1h..2h) - extract step first if present
-	cStep = ""
-	cWorkingStr = cConstraintStr
-	
-	if contains(cConstraintStr, ":")
-		aParts = @split(cConstraintStr, ":")
-		cWorkingStr = @trim(aParts[1])
-		if len(aParts) > 1
-			cStep = @trim(aParts[2])
+		
+	def ParseDurationToMinutes(cDuration)
+		# Parse duration strings like "1h", "30min", "1h30min", "2h"
+		cDuration = lower(@trim(cDuration))
+		nMinutes = 0
+		
+		# Extract hours
+		nHPos = substr(cDuration, "h")
+		if nHPos > 0
+			cHours = left(cDuration, nHPos - 1)
+			nMinutes = (0 + cHours) * 60
+			cDuration = @substr(cDuration, nHPos + 1, len(cDuration))
 		ok
-	ok
-	
-	# Now check for range in the working string
-	if contains(cWorkingStr, "..")
-		aParts = @split(cWorkingStr, "..")
-		if len(aParts) = 2
-			cStart = @trim(aParts[1])
-			cEnd = @trim(aParts[2])
-			
-			aConstraints + [
-				["type", "range"],
-				["start", cStart],
-				["end", cEnd],
-				["step", cStep]
-			]
+		
+		# Extract minutes
+		if contains(cDuration, "min")
+			cMinutes = @substr(cDuration, 1, substr(cDuration, "min") - 1)
+			nMinutes += (0 + StzStringQ(cDuration).Numbers()[1])  # ADD @trim() here
+		but len(cDuration) > 0  # CHANGE: was cDuration != ""
+			# Just a number, assume minutes
+			nMinutes += (0 + StzStringQ(cDuration).Numbers()[1])  # ADD @trim() here
 		ok
-	ok
-	
-	# Check for set {Mon;Wed;Fri}
-	nBraceStart = substr(cConstraintStr, "{")
-	if nBraceStart > 0
-		nBraceEnd = substr(cConstraintStr, "}")
-		if nBraceEnd > nBraceStart
-			cSetContent = @substr(cConstraintStr, nBraceStart + 1, nBraceEnd - 1)
-			aSetValues = @split(cSetContent, ";")
-			
-			aConstraints + [
-				["type", "set"],
-				["values", aSetValues]
-			]
-		ok
-	ok
-	
-	return aConstraints
-	
-def ParseDurationToMinutes(cDuration)
-	# Parse duration strings like "1h", "30min", "1h30min", "2h"
-	cDuration = lower(@trim(cDuration))
-	nMinutes = 0
-	
-	# Extract hours
-	nHPos = substr(cDuration, "h")
-	if nHPos > 0
-		cHours = left(cDuration, nHPos - 1)
-		nMinutes = (0 + cHours) * 60
-		cDuration = @substr(cDuration, nHPos + 1, len(cDuration))
-	ok
-	
-	# Extract minutes - FIXED
-	if contains(cDuration, "min")
-		cMinutes = @substr(cDuration, 1, substr(cDuration, "min") - 1)
-		nMinutes += (0 + StzStringQ(cDuration).Numbers()[1])  # ADD @trim() here
-	but len(cDuration) > 0  # CHANGE: was cDuration != ""
-		# Just a number, assume minutes
-		nMinutes += (0 + StzStringQ(cDuration).Numbers()[1])  # ADD @trim() here
-	ok
-	
-	return nMinutes
+		
+		return nMinutes
 
 	  #--------------------#
 	 #  MATCHING LOGIC    #
 	#--------------------#
 	
-def Match(oTarget)
-	# Full match - pattern must match completely
-	return This.MatchExact(oTarget)
-
-def MatchExact(oTarget)
-	# Entire timeline must match pattern exactly
-	@oTarget = oTarget
-	aNormalized = This.NormalizeTarget(@oTarget)
+	def Match(oTarget)
+		# Full match - pattern must match completely
+		return This.MatchExact(oTarget)
 	
-	# Must consume all data
-	bResult = This.BacktrackMatch(@aTokens, aNormalized, 1, 1, [])
-	if bResult
-		This.ExtractMatches(aNormalized)
-	ok
-	return bResult
-
-def MatchPartial(oTarget)
-	# Pattern exists somewhere in timeline (prefix match)
-	@oTarget = oTarget
-	aNormalized = This.NormalizeTarget(@oTarget)
-	
-	# Try matching from each position
-	nLen = len(aNormalized)
-	for nStart = 1 to nLen
-		bResult = This.BacktrackMatchPartial(@aTokens, aNormalized, 1, nStart, [])
+	def MatchExact(oTarget)
+		# Entire timeline must match pattern exactly
+		@oTarget = oTarget
+		aNormalized = This.NormalizeTarget(@oTarget)
+		
+		# Must consume all data
+		bResult = This.BacktrackMatch(@aTokens, aNormalized, 1, 1, [])
 		if bResult
 			This.ExtractMatches(aNormalized)
+		ok
+		return bResult
+	
+	def MatchPartial(oTarget)
+		# Pattern exists somewhere in timeline (prefix match)
+		@oTarget = oTarget
+		aNormalized = This.NormalizeTarget(@oTarget)
+		
+		# Try matching from each position
+		nLen = len(aNormalized)
+		for nStart = 1 to nLen
+			bResult = This.BacktrackMatchPartial(@aTokens, aNormalized, 1, nStart, [])
+			if bResult
+				This.ExtractMatches(aNormalized)
+				return TRUE
+			ok
+		next
+		return FALSE
+	
+	def MatchAsYouBuild(oTarget)
+		# For real-time validation as timeline is built
+		# Returns true if pattern matches OR could match with more events
+		@oTarget = oTarget
+		aNormalized = This.NormalizeTarget(@oTarget)
+		
+		# Check if current state matches
+		if This.MatchPartial(oTarget)
 			return TRUE
 		ok
-	next
-	return FALSE
-
-def MatchAsYouBuild(oTarget)
-	# For real-time validation as timeline is built
-	# Returns true if pattern matches OR could match with more events
-	@oTarget = oTarget
-	aNormalized = This.NormalizeTarget(@oTarget)
-	
-	# Check if current state matches
-	if This.MatchPartial(oTarget)
-		return TRUE
-	ok
-	
-	# Check if it could match with more data
-	return This.CouldMatchWithMore(aNormalized)
-
-
-def SortByDateTime(aItems)
-	nLen = len(aItems)
-	for i = 1 to nLen - 1
-		for j = i + 1 to nLen
-			cTime1 = ""
-			cTime2 = ""
-			
-			if aItems[i]["type"] = "instant"
-				cTime1 = aItems[i]["datetime"]
-			else
-				cTime1 = aItems[i]["start"]
-			ok
-			
-			if aItems[j]["type"] = "instant"
-				cTime2 = aItems[j]["datetime"]
-			else
-				cTime2 = aItems[j]["start"]
-			ok
-			
-			if StzDateTimeQ(cTime1) > cTime2
-				temp = aItems[i]
-				aItems[i] = aItems[j]
-				aItems[j] = temp
-			ok
-		next
-	next
-	return aItems
-	
-def BacktrackMatch(aTokens, aNormalized, nTokenIdx, nDataIdx, aMatched)
-	nLenTokens = len(aTokens)
-	nLenData = len(aNormalized)
-	
-	# Base case: all tokens processed
-	if nTokenIdx > nLenTokens
-		return nDataIdx > nLenData
-	ok
-	
-	aToken = aTokens[nTokenIdx]
-	
-	# Handle alternation - try each alternative as a separate path
-	if aToken[:type] = "alternation"
-		nLen = len(aToken[:alternatives])
-		for i = 1 to nLen
-			aAlt = aToken[:alternatives][i]
-			
-			# Create new token sequence with this alternative
-			aNewTokens = []
-			for j = 1 to nTokenIdx - 1
-				aNewTokens + aTokens[j]
-			next
-			aNewTokens + aAlt
-			for j = nTokenIdx + 1 to nLenTokens
-				aNewTokens + aTokens[j]
-			next
-			
-			if This.BacktrackMatch(aNewTokens, aNormalized, nTokenIdx, nDataIdx, aMatched)
-				return TRUE
-			ok
-		next
-		return FALSE
-	ok
-	
-	# Calculate maximum matches possible
-	nMaxPossible = @Min([aToken[:max], nLenData - nDataIdx + 1])
-	
-	# FIXED: Try match counts from max down to min for better backtracking
-	# This allows skipping over non-matching items when constraints fail
-	for nMatchCount = nMaxPossible to aToken[:min] step -1
-		bSuccess = TRUE
-		nElemIdx = nDataIdx
-		aLocalMatched = []
 		
-		# Copy existing matches
-		nLenMatched = len(aMatched)
-		for i = 1 to nLenMatched
-			aLocalMatched + aMatched[i]
-		next
-		
-		# Try to match nMatchCount elements
-		for i = 1 to nMatchCount
-			if nElemIdx > nLenData
-				bSuccess = FALSE
-				exit
-			ok
-			
-			aData = aNormalized[nElemIdx]
-			
-			# Type matching logic
-			bTypeMatch = FALSE
-			
-			if aToken[:type] = "event"
-				# Events match: labeled instants OR labeled event spans
-				bTypeMatch = (aData[:type] = "instant") or 
-				             (aData[:type] = "event")
-			but aToken[:type] = "duration"
-				# Durations only match unlabeled gaps
-				bTypeMatch = (aData[:type] = "duration" and aData[:label] = "")
-			but aToken[:type] = "instant"
-				# Instants only match instant type
-				bTypeMatch = (aData[:type] = "instant")
-			else
-				# Exact match for other types
-				bTypeMatch = (aToken[:type] = aData[:type])
-			ok
-			
-			if aToken[:negated]
-				bTypeMatch = NOT bTypeMatch
-			ok
-			
-			if not bTypeMatch
-				bSuccess = FALSE
-				exit
-			ok
-			
-			# Check label if specified
-			if aToken[:label] != "" and aData[:label] != ""
-				if lower(aToken[:label]) != lower(aData[:label])
-					bSuccess = FALSE
-					exit
-				ok
-			ok
-			
-			# Check constraints
-			if not This.CheckConstraints(aToken[:constraints], aData)
-				bSuccess = FALSE
-				exit
-			ok
-			
-			aLocalMatched + aData
-			nElemIdx++
-		next
-		
-		if bSuccess
-			# For last token, ensure complete match
-			if nTokenIdx = nLenTokens
-				if nElemIdx = nLenData + 1
-					return TRUE
-				ok
-			else
-				# Recurse for remaining tokens
-				if This.BacktrackMatch(aTokens, aNormalized, nTokenIdx + 1, nElemIdx, aLocalMatched)
-					return TRUE
-				ok
-			ok
-		ok
-	next
+		# Check if it could match with more data
+		return This.CouldMatchWithMore(aNormalized)
 	
-	return FALSE
-
-
-def BacktrackMatchPartial(aTokens, aNormalized, nTokenIdx, nDataIdx, aMatched)
-	nLenTokens = len(aTokens)
-	nLenData = len(aNormalized)
 	
-	# Base case: all tokens processed - PARTIAL match succeeds
-	if nTokenIdx > nLenTokens
-		return TRUE
-	ok
-	
-	aToken = aTokens[nTokenIdx]
-	
-	# Handle alternation
-	if aToken[:type] = "alternation"
-		nLen = len(aToken[:alternatives])
-		for i = 1 to nLen
-			aAlt = aToken[:alternatives][i]
-			
-			aNewTokens = []
-			for j = 1 to nTokenIdx - 1
-				aNewTokens + aTokens[j]
-			next
-			aNewTokens + aAlt
-			for j = nTokenIdx + 1 to nLenTokens
-				aNewTokens + aTokens[j]
-			next
-			
-			if This.BacktrackMatchPartial(aNewTokens, aNormalized, nTokenIdx, nDataIdx, aMatched)
-				return TRUE
-			ok
-		next
-		return FALSE
-	ok
-	
-	# Try different match counts
-	nMaxPossible = @Min([aToken[:max], nLenData - nDataIdx + 1])
-	
-	for nMatchCount = aToken[:min] to nMaxPossible
-		if @bDebugMode
-			? "Token " + nTokenIdx + " (type=" + aToken[:type] + ", label=" + aToken[:label] + "): trying " + nMatchCount + " matches starting at data position " + nDataIdx
-		ok
-		
-		bSuccess = TRUE
-		nElemIdx = nDataIdx
-		aLocalMatched = []
-		
-		nLenMatched = len(aMatched)
-		for i = 1 to nLenMatched
-			aLocalMatched + aMatched[i]
-		next
-		
-		for i = 1 to nMatchCount
-			if nElemIdx > nLenData
-				bSuccess = FALSE
-				exit
-			ok
-			
-			aData = aNormalized[nElemIdx]
-			
-			if @bDebugMode
-				? "  Attempt " + i + ": checking data[" + nElemIdx + "] type=" + aData[:type] + ", label=" + aData[:label]
-			ok
-			
-			bTypeMatch = FALSE
-			
-			if aToken[:type] = "event"
-				bTypeMatch = (aData[:type] = "instant" or aData[:type] = "event")
-			but aToken[:type] = "duration"
-				bTypeMatch = (aData[:type] = "duration" and aData[:label] = "")
-			but aToken[:type] = "instant"
-				bTypeMatch = (aData[:type] = "instant")
-			else
-				bTypeMatch = (aToken[:type] = aData[:type])
-			ok
-			
-			if aToken[:negated]
-				bTypeMatch = NOT bTypeMatch
-			ok
-			
-			if not bTypeMatch
-				bSuccess = FALSE
-				exit
-			ok
-			
-			if aToken[:label] != "" and aData[:label] != ""
-				if lower(aToken[:label]) != lower(aData[:label])
-					bSuccess = FALSE
-					exit
-				ok
-			ok
-			
-			if not This.CheckConstraints(aToken[:constraints], aData)
-				bSuccess = FALSE
-				exit
-			ok
-			
-			aLocalMatched + aData
-			nElemIdx++
-		next
-		
-		if bSuccess
-			# PARTIAL: success when tokens exhausted, regardless of remaining data
-			if nTokenIdx = nLenTokens
-				return TRUE
-			else
-				if This.BacktrackMatchPartial(aTokens, aNormalized, nTokenIdx + 1, nElemIdx, aLocalMatched)
-					return TRUE
-				ok
-			ok
-		ok
-	next
-	
-	return FALSE
-
-
-# Complete NormalizeTarget fix
-def NormalizeTarget(oTarget)
-	aNormalized = []
-	
-	if @IsStzTimeLine(oTarget)
-		aItems = []
-		
-		# Collect points as instants
-		aPoints = oTarget.Points()
-		nLenPoints = len(aPoints)
-		for i = 1 to nLenPoints
-			aPoint = aPoints[i]
-			aItems + [
-				["type", "instant"],
-				["label", aPoint[1]],
-				["datetime", aPoint[2]],
-				["object", NULL]
-			]
-		next
-		
-		# Collect spans as events
-		aSpans = oTarget.Spans()
-		nLenSpans = len(aSpans)
-		for i = 1 to nLenSpans
-			aSpan = aSpans[i]
-			oStart = new stzDateTime(aSpan[2])
-			oEnd = new stzDateTime(aSpan[3])
-			nMinutes = oStart.DurationInMinutesTo(oEnd)
-			
-			aItems + [
-				["type", "event"],
-				["label", aSpan[1]],
-				["start", aSpan[2]],
-				["end", aSpan[3]],
-				["minutes", nMinutes],
-				["object", NULL]
-			]
-		next
-		
-		# Sort by datetime
-		aItems = This.SortByDateTime(aItems)
-		
-		# Build sequence with gaps
+	def SortByDateTime(aItems)
 		nLen = len(aItems)
-		for i = 1 to nLen
-			aNormalized + aItems[i]
-			
-			# Add gap between items
-			if i < nLen
-				cCurrent = ""
-				cNext = ""
+		for i = 1 to nLen - 1
+			for j = i + 1 to nLen
+				cTime1 = ""
+				cTime2 = ""
 				
 				if aItems[i]["type"] = "instant"
-					cCurrent = aItems[i]["datetime"]
+					cTime1 = aItems[i]["datetime"]
 				else
-					cCurrent = aItems[i]["end"]
+					cTime1 = aItems[i]["start"]
 				ok
 				
-				if aItems[i+1]["type"] = "instant"
-					cNext = aItems[i+1]["datetime"]
+				if aItems[j]["type"] = "instant"
+					cTime2 = aItems[j]["datetime"]
 				else
-					cNext = aItems[i+1]["start"]
+					cTime2 = aItems[j]["start"]
 				ok
 				
-				oStart = new stzDateTime(cCurrent)
-				oEnd = new stzDateTime(cNext)
-				nGapMinutes = oStart.DurationInMinutesTo(oEnd)
+				if StzDateTimeQ(cTime1) > cTime2
+					temp = aItems[i]
+					aItems[i] = aItems[j]
+					aItems[j] = temp
+				ok
+			next
+		next
+		return aItems
+		
+	def BacktrackMatch(aTokens, aNormalized, nTokenIdx, nDataIdx, aMatched)
+		nLenTokens = len(aTokens)
+		nLenData = len(aNormalized)
+		
+		# Base case: all tokens processed
+		if nTokenIdx > nLenTokens
+			return nDataIdx > nLenData
+		ok
+		
+		aToken = aTokens[nTokenIdx]
+		
+		# Handle alternation - try each alternative as a separate path
+		if aToken[:type] = "alternation"
+			nLen = len(aToken[:alternatives])
+			for i = 1 to nLen
+				aAlt = aToken[:alternatives][i]
 				
-				if nGapMinutes > 0
+				# Create new token sequence with this alternative
+				aNewTokens = []
+				for j = 1 to nTokenIdx - 1
+					aNewTokens + aTokens[j]
+				next
+				aNewTokens + aAlt
+				for j = nTokenIdx + 1 to nLenTokens
+					aNewTokens + aTokens[j]
+				next
+				
+				if This.BacktrackMatch(aNewTokens, aNormalized, nTokenIdx, nDataIdx, aMatched)
+					return TRUE
+				ok
+			next
+			return FALSE
+		ok
+		
+		# Calculate maximum matches possible
+		nMaxPossible = @Min([aToken[:max], nLenData - nDataIdx + 1])
+		
+		# Try match counts from max down to min for better backtracking
+		# This allows skipping over non-matching items when constraints fail
+		for nMatchCount = nMaxPossible to aToken[:min] step -1
+			bSuccess = TRUE
+			nElemIdx = nDataIdx
+			aLocalMatched = []
+			
+			# Copy existing matches
+			nLenMatched = len(aMatched)
+			for i = 1 to nLenMatched
+				aLocalMatched + aMatched[i]
+			next
+			
+			# Try to match nMatchCount elements
+			for i = 1 to nMatchCount
+				if nElemIdx > nLenData
+					bSuccess = FALSE
+					exit
+				ok
+				
+				aData = aNormalized[nElemIdx]
+				
+				# Type matching logic
+				bTypeMatch = FALSE
+				
+				if aToken[:type] = "event"
+					# Events match: labeled instants OR labeled event spans
+					bTypeMatch = (aData[:type] = "instant") or 
+					             (aData[:type] = "event")
+				but aToken[:type] = "duration"
+					# Durations only match unlabeled gaps
+					bTypeMatch = (aData[:type] = "duration" and aData[:label] = "")
+				but aToken[:type] = "instant"
+					# Instants only match instant type
+					bTypeMatch = (aData[:type] = "instant")
+				else
+					# Exact match for other types
+					bTypeMatch = (aToken[:type] = aData[:type])
+				ok
+				
+				if aToken[:negated]
+					bTypeMatch = NOT bTypeMatch
+				ok
+				
+				if not bTypeMatch
+					bSuccess = FALSE
+					exit
+				ok
+				
+				# Check label if specified
+				if aToken[:label] != "" and aData[:label] != ""
+					if lower(aToken[:label]) != lower(aData[:label])
+						bSuccess = FALSE
+						exit
+					ok
+				ok
+				
+				# Check constraints
+				if not This.CheckConstraints(aToken[:constraints], aData)
+					bSuccess = FALSE
+					exit
+				ok
+				
+				aLocalMatched + aData
+				nElemIdx++
+			next
+			
+			if bSuccess
+				# For last token, ensure complete match
+				if nTokenIdx = nLenTokens
+					if nElemIdx = nLenData + 1
+						return TRUE
+					ok
+				else
+					# Recurse for remaining tokens
+					if This.BacktrackMatch(aTokens, aNormalized, nTokenIdx + 1, nElemIdx, aLocalMatched)
+						return TRUE
+					ok
+				ok
+			ok
+		next
+		
+		return FALSE
+
+
+	def BacktrackMatchPartial(aTokens, aNormalized, nTokenIdx, nDataIdx, aMatched)
+		nLenTokens = len(aTokens)
+		nLenData = len(aNormalized)
+		
+		# Base case: all tokens processed - PARTIAL match succeeds
+		if nTokenIdx > nLenTokens
+			return TRUE
+		ok
+		
+		# Out of data but tokens remain
+		if nDataIdx > nLenData
+			# Check if remaining tokens can match zero times
+			for i = nTokenIdx to nLenTokens
+				if aTokens[i][:min] > 0
+					return FALSE
+				ok
+			next
+			return TRUE
+		ok
+		
+		aToken = aTokens[nTokenIdx]
+		
+		# Handle alternation
+		if aToken[:type] = "alternation"
+			nLen = len(aToken[:alternatives])
+			for i = 1 to nLen
+				aAlt = aToken[:alternatives][i]
+				
+				aNewTokens = []
+				for j = 1 to nTokenIdx - 1
+					aNewTokens + aTokens[j]
+				next
+				aNewTokens + aAlt
+				for j = nTokenIdx + 1 to nLenTokens
+					aNewTokens + aTokens[j]
+				next
+				
+				if This.BacktrackMatchPartial(aNewTokens, aNormalized, nTokenIdx, nDataIdx, aMatched)
+					return TRUE
+				ok
+			next
+			return FALSE
+		ok
+		
+		# Calculate how many items could possibly match
+		nAvailable = 0
+		for i = nDataIdx to nLenData
+			aData = aNormalized[i]
+			bCanMatch = FALSE
+			
+			if aToken[:type] = "event"
+				bCanMatch = (aData[:type] = "instant" or aData[:type] = "event")
+			but aToken[:type] = "duration"
+				bCanMatch = (aData[:type] = "duration" and aData[:label] = "")
+			but aToken[:type] = "instant"
+				bCanMatch = (aData[:type] = "instant")
+			else
+				bCanMatch = (aToken[:type] = aData[:type])
+			ok
+			
+			if aToken[:negated]
+				bCanMatch = NOT bCanMatch
+			ok
+			
+			if bCanMatch
+				nAvailable++
+			ok
+		next
+		
+		nMaxPossible = @Min([aToken[:max], nAvailable])
+		
+		# Try different match counts from max down to min
+		for nMatchCount = nMaxPossible to aToken[:min] step -1
+			if @bDebugMode
+				? "Token " + nTokenIdx + " (type=" + aToken[:type] + ", label=" + aToken[:label] + "): trying " + nMatchCount + " matches starting at data position " + nDataIdx
+			ok
+			
+			bSuccess = TRUE
+			nElemIdx = nDataIdx
+			aLocalMatched = []
+			nMatched = 0
+			
+			nLenMatched = len(aMatched)
+			for i = 1 to nLenMatched
+				aLocalMatched + aMatched[i]
+			next
+			
+			# Try to match nMatchCount elements
+			while nMatched < nMatchCount and nElemIdx <= nLenData
+				aData = aNormalized[nElemIdx]
+				
+				if @bDebugMode
+					? "  Attempt " + (nMatched + 1) + ": checking data[" + nElemIdx + "] type=" + aData[:type] + ", label=" + aData[:label]
+				ok
+				
+				bTypeMatch = FALSE
+				
+				if aToken[:type] = "event"
+					bTypeMatch = (aData[:type] = "instant" or aData[:type] = "event")
+				but aToken[:type] = "duration"
+					bTypeMatch = (aData[:type] = "duration" and aData[:label] = "")
+				but aToken[:type] = "instant"
+					bTypeMatch = (aData[:type] = "instant")
+				else
+					bTypeMatch = (aToken[:type] = aData[:type])
+				ok
+				
+				if aToken[:negated]
+					bTypeMatch = NOT bTypeMatch
+				ok
+				
+				if not bTypeMatch
+					nElemIdx++
+					loop
+				ok
+				
+				if aToken[:label] != "" and aData[:label] != ""
+					if lower(aToken[:label]) != lower(aData[:label])
+						nElemIdx++
+						loop
+					ok
+				ok
+				
+				if not This.CheckConstraints(aToken[:constraints], aData)
+					nElemIdx++
+					loop
+				ok
+				
+				# This element matches!
+				aLocalMatched + aData
+				nMatched++
+				nElemIdx++
+			end
+			
+			# Check if we got enough matches
+			if nMatched >= nMatchCount
+				# PARTIAL: success when tokens exhausted, regardless of remaining data
+				if nTokenIdx = nLenTokens
+					return TRUE
+				else
+					if This.BacktrackMatchPartial(aTokens, aNormalized, nTokenIdx + 1, nElemIdx, aLocalMatched)
+						return TRUE
+					ok
+				ok
+			ok
+		next
+		
+		return FALSE
+
+
+	def NormalizeTarget(oTarget)
+		aNormalized = []
+		
+		if @IsStzTimeLine(oTarget)
+			aItems = []
+			
+			# Collect points as instants
+			aPoints = oTarget.Points()
+			nLenPoints = len(aPoints)
+			for i = 1 to nLenPoints
+				aPoint = aPoints[i]
+				aItems + [
+					["type", "instant"],
+					["label", aPoint[1]],
+					["datetime", aPoint[2]],
+					["object", NULL]
+				]
+			next
+			
+			# Collect spans as events
+			aSpans = oTarget.Spans()
+			nLenSpans = len(aSpans)
+			for i = 1 to nLenSpans
+				aSpan = aSpans[i]
+				oStart = new stzDateTime(aSpan[2])
+				oEnd = new stzDateTime(aSpan[3])
+				nMinutes = oStart.DurationInMinutesTo(oEnd)
+				
+				aItems + [
+					["type", "event"],
+					["label", aSpan[1]],
+					["start", aSpan[2]],
+					["end", aSpan[3]],
+					["minutes", nMinutes],
+					["object", NULL]
+				]
+			next
+			
+			# Sort by datetime
+			aItems = This.SortByDateTime(aItems)
+			
+			# Build sequence with gaps
+			nLen = len(aItems)
+			for i = 1 to nLen
+				aNormalized + aItems[i]
+				
+				# Add gap between items
+				if i < nLen
+					cCurrent = ""
+					cNext = ""
+					
+					if aItems[i]["type"] = "instant"
+						cCurrent = aItems[i]["datetime"]
+					else
+						cCurrent = aItems[i]["end"]
+					ok
+					
+					if aItems[i+1]["type"] = "instant"
+						cNext = aItems[i+1]["datetime"]
+					else
+						cNext = aItems[i+1]["start"]
+					ok
+					
+					oStart = new stzDateTime(cCurrent)
+					oEnd = new stzDateTime(cNext)
+					nGapMinutes = oStart.DurationInMinutesTo(oEnd)
+					
+					if nGapMinutes > 0
+						aNormalized + [
+							["type", "duration"],
+							["label", ""],
+							["start", cCurrent],
+							["end", cNext],
+							["minutes", nGapMinutes],
+							["object", NULL]
+						]
+					ok
+				ok
+			next
+		
+		but @IsStzCalendar(oTarget)
+			aWorkDays = oTarget.WorkingDays()
+			nLen = len(aWorkDays)
+			for i = 1 to nLen
+				aNormalized + [
+					["type", "instant"],
+					["label", "WorkDay"],
+					["datetime", aWorkDays[i]],
+					["object", NULL]
+				]
+			next
+		
+		but isList(oTarget)
+			nLen = len(oTarget)
+			for i = 1 to nLen
+				xItem = oTarget[i]
+				
+				if isString(xItem)
+					aNormalized + [
+						["type", "instant"],
+						["label", ""],
+						["datetime", xItem],
+						["object", NULL]
+					]
+				but @IsStzDateTime(xItem)
+					aNormalized + [
+						["type", "instant"],
+						["label", ""],
+						["datetime", xItem.ToString()],
+						["object", xItem]
+					]
+				but @IsStzDuration(xItem)
 					aNormalized + [
 						["type", "duration"],
 						["label", ""],
-						["start", cCurrent],
-						["end", cNext],
-						["minutes", nGapMinutes],
-						["object", NULL]
+						["start", ""],
+						["end", ""],
+						["minutes", xItem.TotalMinutes()],
+						["object", xItem]
 					]
 				ok
-			ok
-		next
-	
-	but @IsStzCalendar(oTarget)
-		aWorkDays = oTarget.WorkingDays()
-		nLen = len(aWorkDays)
-		for i = 1 to nLen
+			next
+		
+		but @IsStzDateTime(oTarget)
 			aNormalized + [
 				["type", "instant"],
-				["label", "WorkDay"],
-				["datetime", aWorkDays[i]],
-				["object", NULL]
+				["label", ""],
+				["datetime", oTarget.ToString()],
+				["object", oTarget]
 			]
-		next
-	
-	but isList(oTarget)
-		nLen = len(oTarget)
-		for i = 1 to nLen
-			xItem = oTarget[i]
-			
-			if isString(xItem)
-				aNormalized + [
-					["type", "instant"],
-					["label", ""],
-					["datetime", xItem],
-					["object", NULL]
-				]
-			but @IsStzDateTime(xItem)
-				aNormalized + [
-					["type", "instant"],
-					["label", ""],
-					["datetime", xItem.ToString()],
-					["object", xItem]
-				]
-			but @IsStzDuration(xItem)
-				aNormalized + [
-					["type", "duration"],
-					["label", ""],
-					["start", ""],
-					["end", ""],
-					["minutes", xItem.TotalMinutes()],
-					["object", xItem]
-				]
-			ok
-		next
-	
-	but @IsStzDateTime(oTarget)
-		aNormalized + [
-			["type", "instant"],
-			["label", ""],
-			["datetime", oTarget.ToString()],
-			["object", oTarget]
-		]
-	
-	but @IsStzDuration(oTarget)
-		aNormalized + [
-			["type", "duration"],
-			["label", ""],
-			["start", ""],
-			["end", ""],
-			["minutes", oTarget.TotalMinutes()],
-			["object", oTarget]
-		]
-	ok
-	
-	return aNormalized
+		
+		but @IsStzDuration(oTarget)
+			aNormalized + [
+				["type", "duration"],
+				["label", ""],
+				["start", ""],
+				["end", ""],
+				["minutes", oTarget.TotalMinutes()],
+				["object", oTarget]
+			]
+		ok
+		
+		return aNormalized
 	
 
-def CheckConstraints(aConstraints, aData)
-	nLen = len(aConstraints)
-	
-	if @bDebugMode
-		? "CheckConstraints: type=" + aData[:type] + ", label=" + aData[:label] + ", constraints=" + nLen
-	ok
-	
-	for i = 1 to nLen
-		aConstraint = aConstraints[i]
+	def CheckConstraints(aConstraints, aData)
+		nLen = len(aConstraints)
 		
-		if aConstraint[:type] = "range"
-			# Check range for durations and events
-			if aData[:type] = "duration" or aData[:type] = "event"
-				nMinutes = aData[:minutes]
-				nStart = This.ParseDurationToMinutes(aConstraint[:start])
-				nEnd = This.ParseDurationToMinutes(aConstraint[:end])
-				
-				if @bDebugMode
-					? "Range check: " + nMinutes + " in [" + nStart + ".." + nEnd + "]"
-				ok
-				
-				if nMinutes < nStart or nMinutes > nEnd
+		if @bDebugMode
+			? "CheckConstraints: type=" + aData[:type] + ", label=" + aData[:label] + ", constraints=" + nLen
+		ok
+		
+		for i = 1 to nLen
+			aConstraint = aConstraints[i]
+			
+			if aConstraint[:type] = "range"
+				# Check range for durations and events
+				if aData[:type] = "duration" or aData[:type] = "event"
+					nMinutes = aData[:minutes]
+					nStart = This.ParseDurationToMinutes(aConstraint[:start])
+					nEnd = This.ParseDurationToMinutes(aConstraint[:end])
+					
 					if @bDebugMode
-						? "FAILED: out of range"
+						? "Range check: " + nMinutes + " in [" + nStart + ".." + nEnd + "]"
 					ok
-					return FALSE
-				ok
-				
-				# Check step if specified
-				if aConstraint[:step] != ""
-					nStep = This.ParseDurationToMinutes(aConstraint[:step])
-					if nStep > 0
-						nOffset = nMinutes - nStart
-						if (nOffset % nStep) != 0
-							if @bDebugMode
-								? "FAILED: step mismatch"
+					
+					if nMinutes < nStart or nMinutes > nEnd
+						if @bDebugMode
+							? "FAILED: out of range"
+						ok
+						return FALSE
+					ok
+					
+					# Check step if specified
+					if aConstraint[:step] != ""
+						nStep = This.ParseDurationToMinutes(aConstraint[:step])
+						if nStep > 0
+							nOffset = nMinutes - nStart
+							if (nOffset % nStep) != 0
+								if @bDebugMode
+									? "FAILED: step mismatch"
+								ok
+								return FALSE
 							ok
-							return FALSE
 						ok
 					ok
 				ok
-			ok
-		
-		but aConstraint[:type] = "set"
-			bInSet = FALSE
-			nLenTemp = len(aConstraint[:values])
-			for j = 1 to nLenTemp
-				if lower(aData[:label]) = lower(@trim(aConstraint[:values][j]))
-					bInSet = TRUE
-					exit
+			
+			but aConstraint[:type] = "exact"
+				# Check exact duration match
+				if aData[:type] = "duration" or aData[:type] = "event"
+					nMinutes = aData[:minutes]
+					if nMinutes != aConstraint[:minutes]
+						if @bDebugMode
+							? "FAILED: exact duration mismatch (" + nMinutes + " != " + aConstraint[:minutes] + ")"
+						ok
+						return FALSE
+					ok
 				ok
-			next
-			if not bInSet
-				return FALSE
+			
+			but aConstraint[:type] = "set"
+				bInSet = FALSE
+				nLenTemp = len(aConstraint[:values])
+				for j = 1 to nLenTemp
+					if lower(aData[:label]) = lower(@trim(aConstraint[:values][j]))
+						bInSet = TRUE
+						exit
+					ok
+				next
+				if not bInSet
+					return FALSE
+				ok
 			ok
-		ok
-	next
-	
-	return TRUE
-
-	
-	def ExtractMatches(aNormalized)
-		# Extract matched parts for later retrieval
-		@aMatchedParts = []
-		nLen = len(aNormalized)
-
-		for i = 1 to nLen
-			aData = aNormalized[i]
-			@aMatchedParts + [
-				["type", aData[:type]],
-				["label", aData[:label]],
-				["data", aData]
-			]
 		next
+		
+		return TRUE
+		
+		def ExtractMatches(aNormalized)
+			# Extract matched parts for later retrieval
+			@aMatchedParts = []
+			nLen = len(aNormalized)
+	
+			for i = 1 to nLen
+				aData = aNormalized[i]
+				@aMatchedParts + [
+					["type", aData[:type]],
+					["label", aData[:label]],
+					["data", aData]
+				]
+			next
 	
 	  #----------------------#
 	 #  QUERY METHODS       #

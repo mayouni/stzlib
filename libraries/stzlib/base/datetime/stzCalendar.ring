@@ -14,6 +14,16 @@ func CalendarQ(p)
 func Calendar(p)
 	return new stzCalendar(p)
 
+func IsStzCalendar(p)
+	if isObject(p) and classname(p) = "stzcalendar"
+		return 1
+	else
+		return 0
+	ok
+
+	def @IsStzCalendar(p)
+		return IsStzCalendar(p)
+
 class stzCalendar from stzObject
 	@cStartDate = ""        # String: start date
 	@cEndDate = ""          # String: end date

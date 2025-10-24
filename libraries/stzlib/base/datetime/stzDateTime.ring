@@ -151,6 +151,16 @@ aTimeOrigins = [
 func StzDateTimeQ(pDateTime)
     return new stzDateTime(pDateTime)
 
+func IsStzDateTime(p)
+	if isObject(p) and classname(p) = "stzdatetime"
+		return 1
+	else
+		return 0
+	ok
+
+	func @IsStzDateTime(p)
+		return IsStzDateTime(p)
+
 func NowDateTime()
     return StzDateTimeQ("").ToStringXT('yyyy-mm-dd hh:mm:ss')
 

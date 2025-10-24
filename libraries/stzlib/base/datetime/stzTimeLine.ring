@@ -13,12 +13,15 @@ func TimeLineQ(p)
 func TimeLine(p)
 	return new stzTimeLine(p)
 
-func IsStzDateTime(p)
-	if isObject(p) and classname(p) = "stzdatetime"
+func IsStzTimeLine(p)
+	if isObject(p) and classname(p) = "stztimeline"
 		return 1
 	else
 		return 0
 	ok
+
+	def @IsStzTimeLine(p)
+		return IsStzTimeLine(p)
 
 class stzTimeLine from stzObject
 	@cStart = NULL

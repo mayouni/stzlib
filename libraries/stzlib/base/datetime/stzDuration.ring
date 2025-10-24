@@ -43,6 +43,16 @@ func Duration(p)
 		return StzDurationQ(p).ToString()
 	ok
 
+func IsStzDuration(p)
+	if isObject(p) and classname(p) = "stzduration"
+		return 1
+	else
+		return 0
+	ok
+
+	def @IsStzDuration(p)
+		return IsStzDuration(p)
+
 class stzDuration from stzObject
 	@nTotalSeconds = 0
 	@nMilliseconds = 0
