@@ -54,6 +54,87 @@ Lx = Lx('[ @N, [ @S, [ @N, [ @S, @N ] ] ] ]')
 pf()
 # Executed in 0.14 second(s) in Ring 1.22
 
+#=======================================================================#
+#  TESTING THE THEEE TYPES OF MATCHING: EXACT, PARTIAL, AND ASYOUBUILD  #
+#=======================================================================#
+
+load "stzlib.ring"
+
+/*--- Example 1: Match (Exact) - Complete consumption required
+
+pr()
+
+aList1 = ["apple", 5]
+? Lx("[@S, @N]").Match(aList1)
+#--> TRUE (exact match, nothing left)
+
+aList2 = ["apple", 5, "extra"]
+? Lx("[@S, @N]").Match(aList2)
+#--> FALSE (leftover "extra")
+
+pf()
+
+/*--- Example 2: MatchPartial - Find pattern anywhere
+
+pr()
+
+aShoppingList = ["apple", 5, "banana", 3, "orange", 7, "grape", 4]
+? Lx("[@S, @N]").MatchPartial(aShoppingList)
+#--> TRUE (finds "apple", 5 at start)
+
+aList3 = [1, 2, 3, "hello", 42, "world"]
+? Lx("[@S, @N]").MatchPartial(aList3)
+#--> TRUE (finds "hello", 42)
+
+aList4 = [1, 2, 3, 4]
+? Lx("[@S, @N]").MatchPartial(aList4)
+#--> FALSE (no string-number pair)
+
+pf()
+
+/*--- Example 3: MatchAsYouBuild - Validates incomplete data
+
+pr()
+
+aBuilding = []
+? Lx("[@S, @N]").MatchAsYouBuild(aBuilding)
+#--> TRUE #ERR (can still add required elements)
+
+aBuilding + "apple"
+? Lx("[@S, @N]").MatchAsYouBuild(aBuilding)
+#--> TRUE (needs @N to complete)
+
+aBuilding + 5
+? Lx("[@S, @N]").MatchAsYouBuild(aBuilding)
+#--> TRUE (complete match found)
+
+aBuilding + ["wrong", "items"]
+? Lx("[@S, @N]").MatchAsYouBuild(aBuilding)
+#--> TRUE (still has valid pair at start)
+
+pf()
+
+/*--- Example 4: Comparative behavior
+
+pr()
+
+oPattern = Lx("[@S, @N]+")
+
+aComplete = ["a", 1, "b", 2, "c", 3]
+? oPattern.Match(aComplete)        #--> TRUE #ERR
+? oPattern.MatchPartial(aComplete) #--> TRUE #ERR
+
+aPartial = [0, 0, "a", 1, "b", 2, 0, 0]
+? oPattern.Match(aPartial)        #--> FALSE (extra 0's)
+? oPattern.MatchPartial(aPartial) #--> TRUE #ERR (finds pairs in middle)
+
+aIncomplete = ["a", 1, "b"]
+? oPattern.Match(aIncomplete)           #--> FALSE (incomplete pair)
+? oPattern.MatchPartial(aIncomplete)    #--> TRUE #ERR (finds "a",1)
+? oPattern.MatchAsYouBuild(aIncomplete) #--> TRUE #ERR (could add number)
+
+pf()
+
 /*======================================================#
 #   LISTEX - AUTOMATED TEST SUITE FOR PATTERN MATCHING  #
 #=======================================================#

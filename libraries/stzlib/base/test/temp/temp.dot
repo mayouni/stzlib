@@ -1,24 +1,19 @@
-digraph "Order Processing" {
-	graph [
-		rankdir=LR
-		bgcolor="white"
-		fontname="Helvetica"
-		splines=spline
-		nodesep=0.80
-		ranksep=1
-	]
 
-	node [fontname="Helvetica"]
-	edge [fontname="Helvetica"]
-
-	start [label=<>, shape=polygon, sides=3, orientation=270, penwidth=1.50, width=0.50, height=0.50, fixedsize=true, fillcolor="#43A047", color="gray", fontcolor="white"]
-	verify [label=<<font color="white">Verify Payment</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#0288D1", color="gray", fontcolor="white"]
-	decision [label=<<font color="white">Payment OK?</font>>, shape=diamond, style="filled", penwidth=1.50, fillcolor="#FB8C00", color="gray", fontcolor="white"]
-	ship [label=<<font color="white">Ship Order</font>>, shape=box, style="rounded,filled", penwidth=1.50, fillcolor="#0288D1", color="gray", fontcolor="white"]
-	end [label=<>, shape=doublecircle, penwidth=1.50, width=0.50, height=0.50, fixedsize=true, fillcolor="#43A047", color="gray", fontcolor="white"]
-	start -> verify [color="gray", label="Step 1", labeldistance=2.0, labelangle=0]
-	verify -> decision:c [color="gray", label="Check", labeldistance=2.0, labelangle=0]
-	decision:c -> ship [color="gray", label="Yes", labeldistance=2.0, labelangle=0]
-	ship -> end [color="gray", label="Complete", labeldistance=2.0, labelangle=0]
-
+digraph EdgeStyles {
+    graph [rankdir=TB, nodesep=0.8]
+    node [shape=box, style="rounded,filled", fillcolor=lightblue]
+    
+    A [label="Node A"]
+    B [label="Node B"]
+    C [label="Node C"]
+    D [label="Node D"]
+    
+    # Normal solid edge
+    A -> B [label="Normal"]
+    
+    # Dashed: optional or weak connection
+    A -> C [label="Optional", style=dashed]
+    
+    # Bold: strong or primary path
+    A -> D [label="Primary", style=bold, penwidth=3]
 }
