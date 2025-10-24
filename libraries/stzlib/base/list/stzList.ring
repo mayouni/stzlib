@@ -92310,6 +92310,7 @@ fdef
 		def IsForOrWhenOrIfNamedParam()
 			return This.IsIfOrForOrWhenNamedParam()
 
+
 	def IsToColNamedParam()
 		if This.NumberOfItems() = 2 and
 		   isString(This.Item(1)) and
@@ -92409,6 +92410,37 @@ fdef
 
 		def IsToRowOrByNamedParam()
 			return This.IsByOrToRowNamedParam()
+
+	def IsToOrToColOrToRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+
+		   ring_find([ :To, :ToCol, :ToRow ], This.Item(1)) > 0
+
+			return 1
+
+		else
+			return 0
+		ok
+
+		def IsToOrToRowOrToColNamedParam()
+			return This.IsToOrToColOrToRowNamedParam()
+
+
+	def IsByOrByColOrByRowNamedParam()
+		if This.NumberOfItems() = 2 and
+		   isString(This.Item(1)) and
+
+		   ring_find([ :By, :ByCol, :ByRow ], This.Item(1)) > 0
+
+			return 1
+
+		else
+			return 0
+		ok
+
+		def IsByOrByRowOrByColNamedParam()
+			return This.IsByOrByColOrByRowNamedParam()
 
 	def IsByXTNamedParam()
 		if This.NumberOfItems() = 2 and

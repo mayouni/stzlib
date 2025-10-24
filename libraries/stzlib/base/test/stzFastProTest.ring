@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzbase.ring"
 
 /*---
 
@@ -52,10 +52,11 @@ pf()
 
 pr()
 
-? IsListOfNumbers(1:1_000_000)
+? IsListOfNumbers(1:100_000) #TODO Check #perf regression between Ring 1.22 and 1.24!
 #--> TRUE
 
 pf()
+# Executed in 9.69 second(s) in Ring 1.24!!
 # Executed in 0.23 second(s) in Ring 1.22
 
 /*===
@@ -64,7 +65,7 @@ pr()
 
 # Create a 1D list and set all items to 1000
 
-myList = 1:1_000_000
+myList = 1:1_000_0//00
 
 FastProUpdate(myList, :set = [ :All, :with = 1000 ])
 ? ShowShort(myList)
@@ -135,7 +136,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-
+*/
 pr()
 
 # Create a matrix and perform multi-row/column operations
