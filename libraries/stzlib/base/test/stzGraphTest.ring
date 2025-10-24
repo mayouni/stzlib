@@ -1,7 +1,7 @@
 load "../stzbase.ring"
 
 /*---
-
+*/
 oGraph = new stzGraph("DAGStructure")
 oGraph {
     AddNodeXT(:@a, "A")
