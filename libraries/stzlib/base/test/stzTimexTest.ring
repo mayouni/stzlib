@@ -91,7 +91,7 @@ Tx3 = new stzTimex("{@Event(A) -> @Duration(30m) -> @Event(B)}")
 # Try with wrong gap duration
 Tx4 = new stzTimex("{@Event(A) -> @Duration(1h) -> @Event(B)}")
 
-? Tx4.MatchPartial(oTimeline3) #ERR
+? Tx4.MatchPartial(oTimeline3)
 #--> FALSE (gap is 30min, not 1h)
 
 pf()
@@ -123,7 +123,7 @@ oTimeline5.AddSpan("Session", "2025-10-22 09:00:00", "2025-10-22 10:00:00")  # 6
 # Match event that lasts exactly 1 hour
 Tx6 = new stzTimex("{@Event(Session:1h)}")
 
-? Tx6.Match(oTimeline5) #ERR
+? Tx6.Match(oTimeline5)
 #--> TRUE (Session span is 60 minutes)
 
 # Try with wrong duration
@@ -167,7 +167,7 @@ Tx9 = new stzTimex("{@Event(Session1) -> @Event(Session2)}")
 pf()
 
 /*--- Example 10: Pattern Debugging
-
+*/
 pr()
 
 oTimeline8 = new stzTimeLine("2025-10-22", "2025-10-22")
@@ -176,11 +176,24 @@ oTimeline8.AddPoint("B", "2025-10-22 10:00:00")
 oTimeline8.AddPoint("C", "2025-10-22 11:00:00")
 
 Tx10 = new stzTimex("{@Event(A) -> @Duration* -> @Event(C)}")
-//Tx10.EnableDebug()
+Tx10.EnableDebug()
 
-? Tx10.MatchPartial(oTimeline8) #ERR
+? Tx10.MatchPartial(oTimeline8)
 #--> TRUE (with detailed trace)
-
+'
+Token 1 (type=event, label=A): trying 1 matches starting at data position 1
+  Attempt 1: checking data[1] type=instant, label=A
+CheckConstraints: type=instant, label=A, constraints=0
+Token 2 (type=duration, label=): trying 2 matches starting at data position 2
+  Attempt 1: checking data[2] type=duration, label=
+CheckConstraints: type=duration, label=, constraints=0
+  Attempt 2: checking data[3] type=instant, label=B
+  Attempt 2: checking data[4] type=duration, label=
+CheckConstraints: type=duration, label=, constraints=0
+Token 3 (type=event, label=C): trying 1 matches starting at data position 5
+  Attempt 1: checking data[5] type=instant, label=C
+CheckConstraints: type=instant, label=C, constraints=0
+'
 
 pf()
 
@@ -203,7 +216,7 @@ Tx11 = new stzTimex("{@Event(DayStart) -> @Duration* -> @Event(Standup)}")
 # Check for deep work session (2+ hours)
 Tx12 = new stzTimex("{@Event(DeepWork:2h..4h)}")
 
-? Tx12.MatchPartial(oSchedule) #ERR
+? Tx12.MatchPartial(oSchedule)
 #--> TRUE (DeepWork is 2.5 hours)
 
 pf()
@@ -235,5 +248,46 @@ Tx14 = new stzTimex("{@Event(Meeting) -> @Duration(30m..1h) -> @Event(Break)}")
 ? "Pattern structure:"
 ? @@NL(Tx14.Explain())
 #--> Shows tokens, constraints, and semantics
-
+'
+[
+	[
+		"Pattern",
+		"{@Event(Meeting) -> @Duration(30m..1h) -> @Event(Break)}"
+	],
+	[ "TokenCount", 3 ],
+	[
+		"Tokens",
+		[
+			[
+				[ "index", 1 ],
+				[ "type", "event" ],
+				[ "label", "Meeting" ]
+			],
+			[
+				[ "index", 2 ],
+				[ "type", "duration" ],
+				[ "label", "" ],
+				[
+					"constraints",
+					[
+						[
+							[ "type", "range" ],
+							[ "start", "30m" ],
+							[ "end", "1h" ],
+							[ "step", "" ]
+						]
+					]
+				]
+			],
+			[
+				[ "index", 3 ],
+				[ "type", "event" ],
+				[ "label", "Break" ]
+			]
+		]
+	],
+	[ "TargetSet", 1 ],
+	[ "LastMatch", 0 ]
+]
+'
 pf()
