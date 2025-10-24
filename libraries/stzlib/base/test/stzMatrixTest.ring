@@ -1,8 +1,8 @@
-load "../stzmax.ring"
+load "../stzbase.ring"
 
 /*----------------#
 # BASIC EXAMPLES  #
-#-----------------#
+#----------------#
 
 pr()
 
@@ -168,7 +168,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Multiplying two matrices
-*/
+
 pr()
 
 o1 = new stzMatrix([
@@ -418,7 +418,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*===
-*
+
 pr()
 
 ? IsMatrixOfNonZeroPositiveNumbers([ [ 10, 20, 30 ], [ 40, 50, 60 ] ])
@@ -1291,6 +1291,14 @@ o1.MultiplyVR(3, 2)
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
+
+/*===
+
+pr()
+
+? StzListQ(:ToCol = 3 ).IsToOrToColOrToRowNamedParam()
+#--> TRUE
+pf()
 
 /*===
 

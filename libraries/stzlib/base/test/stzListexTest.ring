@@ -36,7 +36,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- GETTING MATCHED VALUES AFTER MATHCH IS DONE #TODO
-
+*/
 pr()
 
 Lx = Lx('[ @N, [ @S, [ @N, [ @S, @N ] ] ] ]')
@@ -58,7 +58,6 @@ pf()
 #  TESTING THE THEEE TYPES OF MATCHING: EXACT, PARTIAL, AND ASYOUBUILD  #
 #=======================================================================#
 
-load "stzlib.ring"
 
 /*--- Example 1: Match (Exact) - Complete consumption required
 
@@ -115,7 +114,7 @@ aBuilding + ["wrong", "items"]
 pf()
 
 /*--- Example 4: Comparative behavior
-
+*/
 pr()
 
 oPattern = Lx("[@S, @N]+")

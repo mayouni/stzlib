@@ -56,6 +56,9 @@
 	load "number/stzRandom.ring"
 	load "number/stzSciNumber.ring"
 
+	load "number/stzFastPro.ring"
+	load "number/stzMatrix.ring"
+
 # Loading files related to the STRING module
 
 	load "string/stzStringFuncs.ring"
