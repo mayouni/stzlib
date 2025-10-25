@@ -14,7 +14,6 @@ class stzListex
 	@cPattern		# The original pattern string
 	@aTokens		# List of parsed token definitions
 	@bDebugMode = false	# Debug mode flag
-	@oTarget = ""  # Target list being matched
 
 	# Regular expression patterns for various token types
 
@@ -62,66 +61,19 @@ class stzListex
 		
 		return cPattern
 
-def ParsePattern(cPattern)
-	# Remove outer brackets and trim
-	nLenPatt = len(cPattern)
-	cInner = @trim(@substr(cPattern, 2, nLenPatt-1))
+	def ParsePattern(cPattern)
+		# Remove outer brackets and trim
+		cInner = @trim( @substr( @trim(cPattern), 2, len(cPattern)-1 ) )
+		# Split at top-level commas
+		aParts = SplitAtTopLevelCommas(cInner)
 
-	# Check if entire pattern has a trailing quantifier
-	cQuantifier = ""
-	nLen = len(cInner)
-	
-	if nLen > 0
-		cLast = right(cInner, 1)
-		if cLast = "+" or cLast = "*" or cLast = "?"
-			cQuantifier = cLast
-			cInner = left(cInner, nLen - 1)
-		ok
-	ok
+		# Parse each part into tokens
+		aTokens = []
+		for i = 1 to len(aParts)
+			aTokens + This.ParseToken(@trim(aParts[i]))
+		next
 
-	# Split at top-level commas
-	aParts = SplitAtTopLevelCommas(cInner)
-
-	# Parse each part into tokens
-	aBaseTokens = []
-	nLen = len(aParts)
-	for i = 1 to nLen
-		aBaseTokens + This.ParseToken(@trim(aParts[i]))
-	next
-
-	# If quantifier exists, create artificial repeating structure
-	if cQuantifier != ""
-		# Create single token that represents "repeat this sequence"
-		aRepeatToken = [
-			["keyword", "@SEQ"],
-			["type", "sequence"],
-			["pattern", ""],
-			["subtokens", aBaseTokens],
-			["min", 0],
-			["max", 0],
-			["quantifier", 1],
-			["hasset", false],
-			["setvalues", []],
-			["requireunique", false],
-			["negated", false]
-		]
-		
-		switch cQuantifier
-		on "+"
-			aRepeatToken[:min] = 1
-			aRepeatToken[:max] = 999999999
-		on "*"
-			aRepeatToken[:min] = 0
-			aRepeatToken[:max] = 999999999
-		on "?"
-			aRepeatToken[:min] = 0
-			aRepeatToken[:max] = 1
-		off
-		
-		return [aRepeatToken]
-	ok
-
-	return aBaseTokens
+		return aTokens
 
 	def ParseNestedPattern(cNestedPattern, bNegated)
 
@@ -138,8 +90,8 @@ def ParsePattern(cPattern)
 		aParts = SplitAtTopLevelCommas(cInner)
 
 		# Parse each part into tokens
-		nLenParts = len(aParts)
-		for i = 1 to nLenParts
+
+		for i = 1 to len(aParts)
 			aNestedTokens + This.ParseToken(@trim(aParts[i]))
 		next
 
@@ -151,9 +103,9 @@ def ParsePattern(cPattern)
     
 		# Check if a quantifier is appended after the closing bracket
 
-		nLenNestedPattern = len(cNestedPattern)
-		if nLenNestedPattern > 2
-			cRest = @substr(cNestedPattern, 1, nLenNestedPattern-1)
+		nLenNestPat = len(cNestedPattern)
+		if nLenNestPat > 2
+			cRest = Right(cNestedPattern, 1)
 			# Handle +, *, ? quantifiers
 			oQMatch = rx(@cQuantifierPattern)
 			if oQMatch.Match(cRest)
@@ -179,7 +131,7 @@ def ParsePattern(cPattern)
 				oNumberMatch = rx(@cSingleNumberPattern).Match(cRest)
 				if oNumberMatch
 					aMatches = oNumberMatch.Matches()
-					nQuantifier = @number(aMatches[1])
+					nQuantifier = number(aMatches[1])
 					nMin = nQuantifier
 					nMax = nQuantifier
 				ok
@@ -257,7 +209,7 @@ def ParsePattern(cPattern)
 
 		if StartsWith(cTokenStr, "@!")
 			bNegated = true
-			cTokenStr = @SubStr(cTokenStr, 3, len(cTokenStr))  # Remove @! prefix
+			cTokenStr = @subStr(cTokenStr, 3, len(cTokenStr))  # Remove @! prefix
 		ok
 	
 
@@ -332,6 +284,8 @@ def ParsePattern(cPattern)
 
 			else
 				# Check for +, *, ? quantifiers
+				oQMatch = rx('^([+*?])')
+
 				oQMatch = rx(@cQuantifierPattern)
 
 				if oQMatch.Match(cRemainder)
@@ -539,16 +493,15 @@ def ParsePattern(cPattern)
 		# Split by semicolons
 
 		aParts = @split(cSetContent, ";")
-		nLenParts = len(aParts)
-
-		for i = 1 to nLenParts
+		
+		for i = 1 to len(aParts)
 
 			cValue = @trim(aParts[i])
-
+			
 			if cValue = ""
 				loop # Skip empty values
 			ok
-
+			
 			switch cType
 
 			on "number"
@@ -586,8 +539,8 @@ def ParsePattern(cPattern)
 
 				if bCheckUnique
 					cUnquotedValue = This.RemoveQuotes(cValue)
-					nLenVal = len(aValues)
-					for j = 1 to nLenVal
+					
+					for j = 1 to len(aValues)
 						if This.RemoveQuotes(aValues[j]) = cUnquotedValue
 							raise("Error: Duplicate value in unique set: " + cValue)
 						ok
@@ -630,18 +583,19 @@ def ParsePattern(cPattern)
 	def RemoveQuotes(cStr)
 		if (StartsWith(cStr, "'") and EndsWith(cStr, "'")) or
 		   (StartsWith(cStr, '"') and EndsWith(cStr, '"'))
-			cResult = @susbtr(str, 2, len(str)-1)
+
+			cResult = @substr(cStr, 2, len(cStr)-1)
+			return cResult
 		ok
 		return cStr
 
 	def OptimizeTokens()
-		return # Temporaliy!
 
 		# This method performs optimizations on the token sequence
 		# For now, it just merges adjacent tokens of the same type
 		# with min-max constraints
 		
-/*		nLen = len(@aTokens)
+		nLen = len(@aTokens)
 		
 		if nLen <= 1
 			return # Nothing to optimize
@@ -670,72 +624,40 @@ def ParsePattern(cPattern)
 				ok
 			ok
 		next
-*/
 
 	  #--------------------#
 	 #   MATCHING LOGIC   #
 	#--------------------#
 
 	def Match(paList)
-		# Exact match - must consume all elements
-		return This.MatchExact(paList)
-	
-	def MatchExact(paList)
-		@oTarget = paList
-		
+
 		if NOT isList(paList)
 			return FALSE
 		ok
-	
-		# Ensure all elements are numbers/strings/lists
+
+		# Convert the list to string representations for matching
+
+		aElements = []
 		nLen = len(paList)
+
 		for i = 1 to nLen
-			# Elements stored as-is
+			aElements + paList[i]  # Store actual values, not string representations
 		next
-	
+
+		# Perform the matching
+
 		try
-			return This.BacktrackMatch(@aTokens, paList, 1, 1, [])
+			bResult = This.MatchTokensToElements(@aTokens, aElements)
+			return bResult
+
 		catch
 			if @bDebugMode
-				? "Error during matching: " + cCatchError
+				? "Error during matching: " + cError
 			ok
+
+			return false
 			return FALSE
 		done
-
-	def MatchPartial(paList)
-		# Pattern exists somewhere in list
-		@oTarget = paList
-		
-		if NOT isList(paList)
-			return FALSE
-		ok
-	
-		nLen = len(paList)
-		
-		# Try matching from each position
-		for nStart = 1 to nLen
-			if This.BacktrackMatchPartial(@aTokens, paList, 1, nStart, [])
-				return TRUE
-			ok
-		next
-		
-		return FALSE
-	
-	def MatchAsYouBuild(paList)
-		# Validates if current list could eventually match
-		@oTarget = paList
-		
-		if NOT isList(paList)
-			return FALSE
-		ok
-	
-		# Check if current state matches
-		if This.MatchPartial(paList)
-			return TRUE
-		ok
-		
-		# Check if it could match with more elements
-		return This.CouldMatchWithMore(paList)
 
 	def MatchTokensToElements(aTokens, aElements)
 		nLenTokens = len(aTokens)
@@ -768,9 +690,8 @@ def ParsePattern(cPattern)
 		# Create local copy of used values for uniqueness tracking
 
 		aLocalUsedValues = []
-		nLenUsedVal = len(aUsedValues)
 
-		for i = 1 to nLenUsedVal
+		for i = 1 to len(aUsedValues)
 			aLocalUsedValues + aUsedValues[i]
 		next
 
@@ -779,8 +700,8 @@ def ParsePattern(cPattern)
 		if aToken[:keyword] = "@ALT"
 
 			# Try each alternative
-			nLenTokenAlt = len(aToken[:alternatives])
-			for i = 1 to nLenTokenAlt
+
+			for i = 1 to len(aToken[:alternatives])
 
 				aAltTokens = aToken[:alternatives]
 				aNewTokens = []
@@ -806,135 +727,6 @@ def ParsePattern(cPattern)
 			next
 
 			return false
-		ok
-
-	# Handle sequence repetition
-	if aToken[:keyword] = "@SEQ"
-		aSubTokens = aToken[:subtokens]
-		nSubLen = len(aSubTokens)
-		
-		# Calculate max repetitions possible
-		nMaxReps = @Min([aToken[:max], floor(nLenElements / nSubLen)])
-		
-		for nRepCount = nMaxReps to aToken[:min] step -1
-			bSuccess = TRUE
-			nElemIdx = nElementIndex
-			
-			# Match the subsequence nRepCount times
-			for nRep = 1 to nRepCount
-				# Try to match all subtokens
-				bRepSuccess = This.BacktrackMatch(aSubTokens, aElements, 1, nElemIdx, aLocalUsedValues)
-				
-				if NOT bRepSuccess
-					bSuccess = FALSE
-					exit
-				ok
-				
-				# Advance by number of subtokens matched
-				nElemIdx += nSubLen
-			next
-			
-			if bSuccess
-				if nTokenIndex = nLenTokens
-					return nElemIdx > nLenElements
-				else
-					if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValues)
-						return TRUE
-					ok
-				ok
-			ok
-		next
-		
-		return FALSE
-	ok
-
-		# Handle repeat patterns
-		if aToken[:keyword] = "@REPEAT"
-			aSubTokens = aToken[:tokens]
-			nSubTokenLen = len(aSubTokens)
-			
-			# Try different repetition counts
-			nMaxReps = @Min([aToken[:max], floor((nLenElements - nElementIndex + 1) / nSubTokenLen)])
-			
-			for nRepCount = nMaxReps to aToken[:min] step -1
-				bSuccess = TRUE
-				nElemIdx = nElementIndex
-				aLocalUsedValuesCopy = aLocalUsedValues
-				
-				# Try to match nRepCount repetitions of the sub-pattern
-				for nRep = 1 to nRepCount
-					# Match all sub-tokens in sequence
-					for nSubIdx = 1 to nSubTokenLen
-						aSubToken = aSubTokens[nSubIdx]
-						
-						# Try to match this sub-token
-						bSubMatched = FALSE
-						nSubMax = @Min([aSubToken[:max], nLenElements - nElemIdx + 1])
-						
-						for nSubMatch = aSubToken[:min] to nSubMax
-							bSubSuccess = TRUE
-							nSubElemIdx = nElemIdx
-							
-							for k = 1 to nSubMatch
-								if nSubElemIdx > nLenElements
-									bSubSuccess = FALSE
-									exit
-								ok
-								
-								xElement = aElements[nSubElemIdx]
-								cElement = @@(xElement)
-								bMatched = FALSE
-								
-								if aSubToken[:type] = "list"
-									bMatched = rx(@cRecursiveListPattern).MatchRecursive(cElement)
-								else
-									bMatched = rx("^" + aSubToken[:pattern] + "$").Match(cElement)
-								ok
-								
-								if aSubToken[:negated]
-									bMatched = NOT bMatched
-								ok
-								
-								if NOT bMatched
-									bSubSuccess = FALSE
-									exit
-								ok
-								
-								nSubElemIdx++
-							next
-							
-							if bSubSuccess
-								bSubMatched = TRUE
-								nElemIdx = nSubElemIdx
-								exit
-							ok
-						next
-						
-						if NOT bSubMatched
-							bSuccess = FALSE
-							exit
-						ok
-					next
-					
-					if NOT bSuccess
-						exit
-					ok
-				next
-				
-				if bSuccess
-					if nTokenIndex = nLenTokens
-						# For exact match: check complete consumption
-						# For partial match: just return TRUE
-						return nElemIdx > nLenElements  # Change for MatchPartial
-					else
-						if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValuesCopy)
-							return TRUE
-						ok
-					ok
-				ok
-			next
-			
-			return FALSE
 		ok
 
 		if aToken[:keyword] = "@NESTED"
@@ -1067,8 +859,8 @@ def ParsePattern(cPattern)
 					if aToken[:hasset]
 						xElemValue = This.ConvertToType(cElement, aToken[:type])
 						bInSet = false
-						nLenTokenSetVal = len(aToken[:setvalues])
-						for j = 1 to nLenTokenSetVal
+
+						for j = 1 to len(aToken[:setvalues])
 							xSetValue = aToken[:setvalues][j]
 
 							# Direct comparison for set membership
@@ -1094,8 +886,8 @@ def ParsePattern(cPattern)
 						# Unique constraint for non-negated tokens
 	
 						if aToken[:requireunique] and NOT aToken[:negated]
-							nLenLocalUsedValCopy = len(aLocalUsedValuesCopy)
-							for j = 1 to nLenLocalUsedValCopy
+		
+							for j = 1 to len(aLocalUsedValuesCopy)
 		
 								if This.CompareValues(xElemValue, aLocalUsedValuesCopy[j], aToken[:type])
 									bSuccess = false
@@ -1155,373 +947,7 @@ def ParsePattern(cPattern)
 
 		return false
 
-def BacktrackMatchPartial(aTokens, aElements, nTokenIndex, nElementIndex, aUsedValues)
-	nLenTokens = len(aTokens)
-	nLenElements = len(aElements)
-
-	# Base case: all tokens processed
-	if nTokenIndex > nLenTokens
-		return TRUE  # PARTIAL: pattern found, ignore remaining elements
-	ok
-
-	# Out of elements but tokens remain
-	if nElementIndex > nLenElements
-		# Check if remaining tokens are optional
-		for i = nTokenIndex to nLenTokens
-			if aTokens[i][:min] > 0
-				return FALSE
-			ok
-		next
-		return TRUE
-	ok
-
-	aToken = aTokens[nTokenIndex]
-	
-	aLocalUsedValues = []
-	nLenUsedVal = len(aUsedValues)
-	for i = 1 to nLenUsedVal
-		aLocalUsedValues + aUsedValues[i]
-	next
-
-	# Handle alternation
-	if aToken[:keyword] = "@ALT"
-		nLenTokenAlt = len(aToken[:alternatives])
-		for i = 1 to nLenTokenAlt
-			aAltTokens = aToken[:alternatives]
-			aNewTokens = []
-
-			for j = 1 to nTokenIndex - 1
-				aNewTokens + aTokens[j]
-			next
-			aNewTokens + aAltTokens[i]
-			for j = nTokenIndex + 1 to nLenTokens
-				aNewTokens + aTokens[j]
-			next
-
-			if This.BacktrackMatchPartial(aNewTokens, aElements, nTokenIndex, nElementIndex, aLocalUsedValues)
-				return TRUE
-			ok
-		next
-		return FALSE
-	ok
-
-	# Handle repeat patterns
-	if aToken[:keyword] = "@REPEAT"
-		aSubTokens = aToken[:tokens]
-		nSubTokenLen = len(aSubTokens)
-		
-		# Try different repetition counts
-		nMaxReps = @Min([aToken[:max], floor((nLenElements - nElementIndex + 1) / nSubTokenLen)])
-		
-		for nRepCount = nMaxReps to aToken[:min] step -1
-			bSuccess = TRUE
-			nElemIdx = nElementIndex
-			aLocalUsedValuesCopy = aLocalUsedValues
-			
-			# Try to match nRepCount repetitions of the sub-pattern
-			for nRep = 1 to nRepCount
-				# Match all sub-tokens in sequence
-				for nSubIdx = 1 to nSubTokenLen
-					aSubToken = aSubTokens[nSubIdx]
-					
-					# Try to match this sub-token
-					bSubMatched = FALSE
-					nSubMax = @Min([aSubToken[:max], nLenElements - nElemIdx + 1])
-					
-					for nSubMatch = aSubToken[:min] to nSubMax
-						bSubSuccess = TRUE
-						nSubElemIdx = nElemIdx
-						
-						for k = 1 to nSubMatch
-							if nSubElemIdx > nLenElements
-								bSubSuccess = FALSE
-								exit
-							ok
-							
-							xElement = aElements[nSubElemIdx]
-							cElement = @@(xElement)
-							bMatched = FALSE
-							
-							if aSubToken[:type] = "list"
-								bMatched = rx(@cRecursiveListPattern).MatchRecursive(cElement)
-							else
-								bMatched = rx("^" + aSubToken[:pattern] + "$").Match(cElement)
-							ok
-							
-							if aSubToken[:negated]
-								bMatched = NOT bMatched
-							ok
-							
-							if NOT bMatched
-								bSubSuccess = FALSE
-								exit
-							ok
-							
-							nSubElemIdx++
-						next
-						
-						if bSubSuccess
-							bSubMatched = TRUE
-							nElemIdx = nSubElemIdx
-							exit
-						ok
-					next
-					
-					if NOT bSubMatched
-						bSuccess = FALSE
-						exit
-					ok
-				next
-				
-				if NOT bSuccess
-					exit
-				ok
-			next
-			
-			if bSuccess
-				if nTokenIndex = nLenTokens
-					# For exact match: check complete consumption
-					# For partial match: just return TRUE
-					return nElemIdx > nLenElements  # Change for MatchPartial
-				else
-					if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValuesCopy)
-						return TRUE
-					ok
-				ok
-			ok
-		next
-		
-		return FALSE
-	ok
-
-	# Handle nested patterns
-	if aToken[:keyword] = "@NESTED"
-		nMaxPossible = @Min([aToken[:max], nLenElements - nElementIndex + 1])
-
-		for nMatchCount = nMaxPossible to aToken[:min] step -1
-			bSuccess = TRUE
-			nElemIdx = nElementIndex
-
-			for i = 1 to nMatchCount
-				if nElemIdx > nLenElements
-					bSuccess = FALSE
-					exit
-				ok
-
-				xElement = aElements[nElemIdx]
-
-				if NOT isList(xElement)
-					bSuccess = FALSE
-					exit
-				ok
-
-				if aToken[:negated]
-					bSuccess = FALSE
-					exit
-				ok
-
-				if NOT This.MatchTokensToElements(aToken[:nestedTokens], xElement)
-					bSuccess = FALSE
-					exit
-				ok
-
-				nElemIdx++
-			next
-
-			if bSuccess
-				if nTokenIndex = nLenTokens
-					return TRUE
-				else
-					if This.BacktrackMatchPartial(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValues)
-						return TRUE
-					ok
-				ok
-			ok
-		next
-		
-		return FALSE
-	ok
-
-	# Regular token matching - NO SKIPPING
-	nMaxPossible = @Min([aToken[:max], nLenElements - nElementIndex + 1])
-
-	for nMatchCount = nMaxPossible to aToken[:min] step -1
-		bSuccess = TRUE
-		nElemIdx = nElementIndex
-		aLocalUsedValuesCopy = aLocalUsedValues
-
-		# Try to match nMatchCount consecutive elements
-		for i = 1 to nMatchCount
-			if nElemIdx > nLenElements
-				bSuccess = FALSE
-				exit
-			ok
-
-			xElement = aElements[nElemIdx]
-			cElement = @@(xElement)
-			bMatched = FALSE
-
-			# Type matching
-			if aToken[:type] = "list"
-				bMatched = rx(@cRecursiveListPattern).MatchRecursive(cElement)
-			else
-				bMatched = rx("^" + aToken[:pattern] + "$").Match(cElement)
-			ok
-
-			if aToken[:negated]
-				bMatched = NOT bMatched
-			ok
-
-			if NOT bMatched
-				bSuccess = FALSE
-				exit
-			ok
-
-			# Check constraints
-			if aToken[:hasset]
-				xElemValue = This.ConvertToType(cElement, aToken[:type])
-				bInSet = FALSE
-				nLenTokenSetVal = len(aToken[:setvalues])
-				for j = 1 to nLenTokenSetVal
-					if This.CompareValues(xElemValue, aToken[:setvalues][j], aToken[:type])
-						bInSet = TRUE
-						exit
-					ok
-				next
-
-				if aToken[:negated]
-					bInSet = NOT bInSet
-				ok
-
-				if NOT bInSet
-					bSuccess = FALSE
-					exit
-				ok
-
-				if aToken[:requireunique] and NOT aToken[:negated]
-					nLenLocalUsedValCop = len(aLocalUsedValuesCopy)
-					for j = 1 to nLenLocalUsedValCop
-						if This.CompareValues(xElemValue, aLocalUsedValuesCopy[j], aToken[:type])
-							bSuccess = FALSE
-							exit
-						ok
-					next
-					
-					if bSuccess
-						aLocalUsedValuesCopy + xElemValue
-					else
-						exit
-					ok
-				ok
-			ok
-
-			nElemIdx++
-		next
-
-		if bSuccess
-			if nTokenIndex = nLenTokens
-				return TRUE  # Pattern complete, partial match succeeds
-			else
-				if This.BacktrackMatchPartial(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValuesCopy)
-					return TRUE
-				ok
-			ok
-		ok
-	next
-
-	return FALSE
-
 	# Helper function for value comparison by type
-	
-def CouldMatchWithMore(paList)
-	# Empty list can always potentially match
-	if len(paList) = 0
-		return TRUE
-	ok
-	
-	# Try matching with progressively fewer tokens
-	# to see if current list is a valid prefix
-	nLen = len(@aTokens)
-	
-	for nTokenCount = 1 to nLen
-		aTruncated = []
-		for j = 1 to nTokenCount
-			aTruncated + @aTokens[j]
-		next
-		
-		# Check if this truncated pattern could match
-		# by allowing partial consumption
-		if This.BacktrackMatchPartialPrefix(aTruncated, paList, 1, 1, [])
-			return TRUE
-		ok
-	next
-	
-	return FALSE
-
-def BacktrackMatchPartialPrefix(aTokens, aElements, nTokenIndex, nElementIndex, aUsedValues)
-	# Special version that allows running out of elements
-	nLenTokens = len(aTokens)
-	nLenElements = len(aElements)
-
-	if nTokenIndex > nLenTokens
-		return TRUE
-	ok
-
-	# Running out of elements is OK for prefix matching
-	if nElementIndex > nLenElements
-		return TRUE
-	ok
-
-	aToken = aTokens[nTokenIndex]
-	aLocalUsedValues = []
-	nLenVal = len(aUsedValues)
-	for i = 1 to nLenVal
-		aLocalUsedValues + aUsedValues[i]
-	next
-
-	# Try matching from min to available
-	nMaxPossible = @Min([aToken[:max], nLenElements - nElementIndex + 1])
-
-	for nMatchCount = aToken[:min] to nMaxPossible
-		bSuccess = TRUE
-		nElemIdx = nElementIndex
-
-		for i = 1 to nMatchCount
-			if nElemIdx > nLenElements
-				bSuccess = FALSE
-				exit
-			ok
-
-			xElement = aElements[nElemIdx]
-			cElement = @@(xElement)
-			bMatched = FALSE
-
-			if aToken[:type] = "list"
-				bMatched = rx(@cRecursiveListPattern).MatchRecursive(cElement)
-			else
-				bMatched = rx("^" + aToken[:pattern] + "$").Match(cElement)
-			ok
-
-			if aToken[:negated]
-				bMatched = NOT bMatched
-			ok
-
-			if NOT bMatched
-				bSuccess = FALSE
-				exit
-			ok
-
-			nElemIdx++
-		next
-
-		if bSuccess
-			if This.BacktrackMatchPartialPrefix(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValues)
-				return TRUE
-			ok
-		ok
-	next
-
-	return FALSE
 
 	def CompareValues(xValue1, xValue2, cType)
 
@@ -1566,10 +992,10 @@ def BacktrackMatchPartialPrefix(aTokens, aElements, nTokenIndex, nElementIndex, 
 		
 		# Remove all whitespace for consistent comparison
 		
-		cList = substr(cList, " ", "")
-		cList = substr(cList, Char(9), "")
-		cList = substr(cList, Char(10), "")
-		cList = substr(cList, Char(13), "")
+		cList = @substr(cList, " ", "")
+		cList = @substr(cList, Char(9), "")
+		cList = @substr(cList, Char(10), "")
+		cList = @substr(cList, Char(13), "")
 
 		return cList
 
@@ -1619,8 +1045,8 @@ def BacktrackMatchPartialPrefix(aTokens, aElements, nTokenIndex, nElementIndex, 
 
 	def TokensInfo()
 		aInfo = []
-		nLenToken = len(@aTokens)
-		for i = 1 to nLenToken
+		
+		for i = 1 to len(@aTokens)
 
 			aToken = @aTokens[i]
 			cInfo = "Token #" + i + ": " + aToken[:keyword]
@@ -1660,8 +1086,8 @@ def BacktrackMatchPartialPrefix(aTokens, aElements, nTokenIndex, nElementIndex, 
 	def JoinSetValues(aValues)
 
 		cResult = ""
-		nLenVal = len(aValues)
-		for i = 1 to nLenVal
+		
+		for i = 1 to len(aValues)
 			if i > 1
 				cResult += "; "
 			ok
