@@ -1,749 +1,807 @@
-# Softanza Number Regex Engine
+# stzNumbrex - Number Pattern Matching for Softanza
+# A regex-like pattern language for number structures
 
-func StzNumberRegexQ(cPattern)
-	return new stzNumberex(cPattern)
+# Quick constructor functions
+func StzNumbrexQ(cPattern)
+	return new stzNumbrex(cPattern)
 
-func StzNumberexQ(cPattern)
-	return StzNumberRegexQ(cPattern)
+func Numbrex(cPattern)
+	return new stzNumbrex(cPattern)
 
 func Nx(cPattern)
-	return StzNumberRegexQ(cPattern)
+	return new stzNumbrex(cPattern)
 
-class stzNumberex
-
-	@cPattern		# Original pattern string
-	@aTokens		# Parsed token definitions
-	@bDebugMode = false
-
-	# Token type patterns
-	@cIntPattern = '^@I'		# Integer
-	@cRealPattern = '^@R'		# Real
-	@cPosPattern = '^@P'		# Positive
-	@cNegPattern = '^@N'		# Negative
-	@cEvenPattern = '^@E'		# Even
-	@cOddPattern = '^@O'		# Odd
-	@cPrimePattern = '^@PR'		# Prime
-	@cSectionPattern = '^@S'	# Section
-	@cAnyPattern = '^@\$'		# Any number
-	@cDigitPattern = '^@D'		# Digit count
-	@cDivisiblePattern = '^@DIV'	# Divisible by
-
+class stzNumbrex from stzObject
+	
+	@cPattern           # Pattern string, e.g., "{@Property(Prime)}"
+	@aTokens            # Parsed token definitions
+	@nNumber = 0            # Target number to match
+	@bDebugMode = FALSE # Debug flag
+	@aMatchedParts = [] # Extracted parts like digits, factors
+	
+	# Pattern token definitions
+	@cDigitPattern = '@Digit(?:\((.*?)\))?'
+	@cFactorPattern = '@Factor(?:\((.*?)\))?'
+	@cPropertyPattern = '@Property(?:\((.*?)\))?'
+	@cPartPattern = '@Part(?:\((.*?)\))?'
+	@cRelationPattern = '@Relation(?:\((.*?)\))?'
+	@cApproxPattern = '@Approx(?:\((.*?)\))?'
+	
+	@cQuantifierPattern = '([+*?~]|\d+|\d+-\d+)'
+	@cNegationPattern = '@!'
+	@cConstraintPattern = '\((.*?)\)'
+	
 	  #-------------------#
 	 #  INITIALIZATION   #
 	#-------------------#
-
-	def init(cPattern)
-		if NOT isString(cPattern)
-			stzraise("Error: Pattern must be a string")
+	
+	def init(pcPattern)
+		if NOT isString(pcPattern)
+			raise("Error: Pattern must be a string")
 		ok
-
-		@cPattern = This.NormalizePattern(cPattern)
-		@aTokens = This.ParsePattern(@cPattern)
-		This.OptimizeTokens()
-
-	def NormalizePattern(cPattern)
-		cPattern = @trim(cPattern)
 		
-		# Ensure pattern is enclosed in brackets
-		if NOT (StartsWith(cPattern, "[") and EndsWith(cPattern, "]"))
-			cPattern = "[" + cPattern + "]"
+		@cPattern = This.NormalizePattern(pcPattern)
+		
+		# Parse pattern into tokens
+		@aTokens = This.ParsePattern(@cPattern)
+		
+		if @bDebugMode
+			? "=== stzNumbrex Init ==="
+			? "Pattern: " + @cPattern
+			? "Tokens parsed: " + len(@aTokens)
+		ok
+	
+	def NormalizePattern(cPattern)
+		cPattern = trim(cPattern)
+		
+		# Ensure pattern is wrapped in {}
+		if NOT (startsWith(cPattern, "{") and endsWith(cPattern, "}"))
+			cPattern = "{" + cPattern + "}"
 		ok
 		
 		return cPattern
-
+	
+	  #--------------------#
+	 #  PATTERN PARSING   #
+	#--------------------#
+	
 	def ParsePattern(cPattern)
-		# Remove outer brackets
-		cPattern = @trim(cPattern)
+		# Remove outer braces
 		cInner = @substr(cPattern, 2, len(cPattern) - 1)
-		cInner = @trim(cInner)
-
-		# Split at commas
-		aParts = This.SplitAtCommas(cInner)
-
-		# Parse each token
+		cInner = trim(cInner)
+		
+		if @bDebugMode
+			? "Parsing inner pattern: " + cInner
+		ok
+		
+		# Split by composition operator (->)
+		aParts = This.SplitByOperator(cInner, "->")
+		
 		aTokens = []
-		nLen = len(aParts)
-		for i = 1 to nLen
-			aTokens + This.ParseToken(@trim(aParts[i]))
+		for i = 1 to len(aParts)
+			cPart = trim(aParts[i])
+			
+			if cPart = ""
+				loop
+			ok
+			
+			# Check for alternation (|)
+			if substr(cPart, "|") > 0
+				aToken = This.ParseAlternation(cPart)
+			# Check for conjunction (&)
+			but substr(cPart, "&") > 0
+				aToken = This.ParseConjunction(cPart)
+			else
+				aToken = This.ParseSingleToken(cPart)
+			ok
+			
+			if len(aToken) > 0
+				aTokens + aToken
+			ok
 		next
-
+		
 		return aTokens
-
-	def SplitAtCommas(cStr)
+	
+	def SplitByOperator(cStr, cOperator)
+		# Split by operator but respect parentheses nesting
 		aParts = []
 		cCurrent = ""
-		acChars = Chars(cStr)
-		nLen = len(acChars)
+		nDepth = 0
+		nLen = len(cStr)
+		nOpLen = len(cOperator)
 		
 		for i = 1 to nLen
-			cChar = acChars[i]
+			cChar = substr(cStr, i, 1)
 			
-			if cChar = ","
-				aParts + @trim(cCurrent)
+			if cChar = "(" or cChar = "{"
+				nDepth++
+				cCurrent += cChar
+			but cChar = ")" or cChar = "}"
+				nDepth--
+				cCurrent += cChar
+			but nDepth = 0 and substr(cStr, i, nOpLen) = cOperator
+				aParts + trim(cCurrent)
 				cCurrent = ""
+				i += nOpLen - 1
 			else
 				cCurrent += cChar
 			ok
 		next
 		
 		if len(cCurrent) > 0
-			aParts + @trim(cCurrent)
+			aParts + trim(cCurrent)
 		ok
 		
 		return aParts
-
-	def ParseToken(cTokenStr)
-		# Default values
-		bNegated = false
-		nMin = 1
-		nMax = 1
-		nQuantifier = 1
-		aConstraints = []
 	
+	def ParseAlternation(cTokenStr)
+		# Handle (A | B | C) patterns
+		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
+			cTokenStr = @substr(cTokenStr, 2, len(cTokenStr) - 1)
+		ok
+		
+		aParts = This.SplitByOperator(cTokenStr, "|")
+		aAlternatives = []
+		
+		for i = 1 to len(aParts)
+			cPart = trim(aParts[i])
+			if cPart != ""
+				aToken = This.ParseSingleToken(cPart)
+				if len(aToken) > 0
+					aAlternatives + aToken
+				ok
+			ok
+		next
+		
+		return [
+			["type", "alternation"],
+			["alternatives", aAlternatives],
+			["negated", FALSE]
+		]
+	
+	def ParseConjunction(cTokenStr)
+		# Handle (A & B & C) patterns
+		if startsWith(cTokenStr, "(") and endsWith(cTokenStr, ")")
+			cTokenStr = @substr(cTokenStr, 2, len(cTokenStr) - 1)
+		ok
+		
+		aParts = This.SplitByOperator(cTokenStr, "&")
+		aConditions = []
+		
+		for i = 1 to len(aParts)
+			cPart = trim(aParts[i])
+			if cPart != ""
+				aToken = This.ParseSingleToken(cPart)
+				if len(aToken) > 0
+					aConditions + aToken
+				ok
+			ok
+		next
+		
+		return [
+			["type", "conjunction"],
+			["conditions", aConditions],
+			["negated", FALSE]
+		]
+	
+	def ParseSingleToken(cTokenStr)
+		cTokenStr = trim(cTokenStr)
+		
+		if cTokenStr = ""
+			return []
+		ok
+		
 		# Check for negation
-		if StartsWith(cTokenStr, "@!")
-			bNegated = true
+		bNegated = FALSE
+		if startsWith(cTokenStr, "@!")
+			bNegated = TRUE
 			cTokenStr = @substr(cTokenStr, 3, len(cTokenStr))
 		ok
-	
-		# Ensure token starts with @
-		if NOT StartsWith(cTokenStr, "@")
-			cTokenStr = "@" + cTokenStr
-		ok
-	
-		# Extract keyword (2-3 chars)
-		cKeyword = ""
-		cRemainder = ""
 		
-		if @substr(cTokenStr, 1, 4) = "@DIV"
-			cKeyword = "@DIV"
-			cRemainder = @substr(cTokenStr, 5, len(cTokenStr))
-		but @substr(cTokenStr, 1, 3) = "@PR"
-			cKeyword = "@PR"
-			cRemainder = @substr(cTokenStr, 4, len(cTokenStr))
-		else
-			cKeyword = @substr(cTokenStr, 1, 2)
-			cRemainder = @substr(cTokenStr, 3, len(cTokenStr))
-		ok
-	
-		# Check if remainder has constraints (starts with parenthesis or brace)
-		bHasConstraints = false
-		if len(cRemainder) > 0
-			if cRemainder[1] = "(" or cRemainder[1] = "{"
-				bHasConstraints = true
-			ok
-		ok
-	
-		if bHasConstraints
-			# Parse constraints AND quantifier after them
-			aResult = This.ParseConstraintsAndQuantifier(cRemainder, cKeyword)
-			aConstraints = aResult[1]
-			nMin = aResult[2]
-			nMax = aResult[3]
-			nQuantifier = aResult[4]
-		else
-			# Parse quantifier directly (no constraints)
-			if len(cRemainder) > 0
-				aQuantInfo = This.ParseQuantifier(cRemainder)
-				nMin = aQuantInfo[1]
-				nMax = aQuantInfo[2]
-				nQuantifier = aQuantInfo[3]
-			ok
-		ok
-	
-		# Build token
-		aToken = This.BuildToken(cKeyword, nMin, nMax, nQuantifier, aConstraints, bNegated)
-		
-		return aToken
-	
-
-	def ParseQuantifier(cStr)
-		nMin = 1
-		nMax = 1
-		nQuantifier = 1
-		cRemainder = cStr
-	
-		# Check for +, *, ? FIRST
-		if len(cStr) > 0
-			if cStr[1] = "+"
-				nMin = 1
-				nMax = 999999999
-				cRemainder = @substr(cStr, 2, len(cStr))
-				return [nMin, nMax, nQuantifier, cRemainder]
-	
-			but cStr[1] = "*"
-				nMin = 0
-				nMax = 999999999
-				cRemainder = @substr(cStr, 2, len(cStr))
-				return [nMin, nMax, nQuantifier, cRemainder]
-	
-			but cStr[1] = "?"
-				nMin = 0
-				nMax = 1
-				cRemainder = @substr(cStr, 2, len(cStr))
-				return [nMin, nMax, nQuantifier, cRemainder]
-			ok
-		ok
-	
-		# Check for section pattern WITHOUT parentheses (e.g., "2-5")
-		oSectionMatch = rx('^(\d+)-(\d+)')
-		if oSectionMatch.Match(cStr)
-			aMatches = @split(oSectionMatch.Matches()[1], "-")
-			nMin = 0+ aMatches[1]
-			nMax = 0+ aMatches[2]
-			
-			if nMin > nMax
-				stzraise("Error: Invalid section - min > max")
-			ok
-			
-			nMatchLen = len(aMatches[1]) + 1 + len(aMatches[2])
-			cRemainder = @substr(cStr, nMatchLen + 1, len(cStr))
-			return [nMin, nMax, nQuantifier, cRemainder]
-		ok
-	
-		# Check for single number (not in parentheses)
-		oNumberMatch = rx('^\d+')
-		if oNumberMatch.Match(cStr)
-			aMatches = oNumberMatch.Matches()
-			nQuantifier = 0+ aMatches[1]
-			nMin = nQuantifier
-			nMax = nQuantifier
-			cRemainder = @substr(cStr, len(aMatches[1]) + 1, len(cStr))
-		ok
-	
-		return [nMin, nMax, nQuantifier, cRemainder]
-
-
-	def ParseConstraints(cStr, cKeyword)
-		aConstraints = []
-	
-		# Parse section constraints: (min..max)
-		oSectionMatch = rx('\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
-		if oSectionMatch.Match(cStr)
-			aMatches = oSectionMatch.Matches()
-			# Extract the content without parentheses and split on ".."
-			cSectionStr = aMatches[1]
-			cSectionContent = @substr(cSectionStr, 2, len(cSectionStr) - 1)  # Remove ( and )
-			aParts = @split(cSectionContent, "..")
-			aConstraints + ["section", [0+ aParts[1], 0+ aParts[2]]]
-		ok
-	
-		# Parse set constraints: {val1;val2;val3}
-		oSetMatch = rx('\{([^}]+)\}')
-		if oSetMatch.Match(cStr)
-			aMatches = oSetMatch.Matches()
-			# Extract content without braces
-			cSetStr = aMatches[1]
-			cSetContent = substr(cSetStr, 2, len(cSetStr) - 2)  # Remove { and }
-			aParts = @split(cSetContent, ";")
-			
-			aValues = []
-			nLen = len(aParts)
-			for i = 1 to nLen
-				cVal = @trim(aParts[i])
-				if len(cVal) > 0
-					aValues + (0+ cVal)
-				ok
-			next
-			
-			aConstraints + ["set", aValues]
-		ok
-	
-		# Parse divisible constraint: @DIV(n)
-		if cKeyword = "@DIV"
-			oDivMatch = rx('\((\d+)\)')
-			if oDivMatch.Match(cStr)
-				aMatches = oDivMatch.Matches()
-				cDivStr = aMatches[1]
-				cDivNum = substr(cDivStr, 2, len(cDivStr) - 2)  # Remove ( and )
-				aConstraints + ["divisor", 0+ cDivNum]
-			ok
-		ok
-	
-		# Parse digit count: @D(n)
-		if cKeyword = "@D"
-			oDigitMatch = rx('\((\d+)\)')
-			if oDigitMatch.Match(cStr)
-				aMatches = oDigitMatch.Matches()
-				cDigitStr = aMatches[1]
-				cDigitNum = substr(cDigitStr, 2, len(cDigitStr) - 2)  # Remove ( and )
-				aConstraints + ["digits", 0+ cDigitNum]
-			ok
-		ok
-	
-		return aConstraints
-
-
-	def ParseConstraintsAndQuantifier(cStr, cKeyword)
+		# Initialize token properties
+		cType = ""
+		cValue = ""
 		aConstraints = []
 		nMin = 1
 		nMax = 1
-		nQuantifier = 1
-		cRemainder = cStr
-	
-		# Parse constraints first
-		aConstraints = This.ParseConstraints(cStr, cKeyword)
 		
-		# Remove constraints from string in order
-		# 1. Remove @DIV(n) or @D(n) - simple single number in parens
-		if cKeyword = "@D" or cKeyword = "@DIV"
-			oSimpleMatch = rx('^\(\d+\)')
-			if oSimpleMatch.Match(cRemainder)
-				aMatches = oSimpleMatch.Matches()
-				cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
-			ok
-		ok
-		
-		# 2. Remove section constraints: (min..max) 
-		oSectionMatch = rx('^\((-?\d+(?:\.\d+)?)\.\.(-?\d+(?:\.\d+)?)\)')
-		if oSectionMatch.Match(cRemainder)
-			aMatches = oSectionMatch.Matches()
-			cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
-		ok
-		
-		# 3. Remove set constraints: {val1;val2;val3}
-		oSetMatch = rx('^\{([^}]+)\}')
-		if oSetMatch.Match(cRemainder)
-			aMatches = oSetMatch.Matches()
-			cRemainder = @substr(cRemainder, len(aMatches[1]) + 1, len(cRemainder))
-		ok
-		
-		# Now parse quantifier from remainder
-		if len(cRemainder) > 0
-			aQuantInfo = This.ParseQuantifier(cRemainder)
-			nMin = aQuantInfo[1]
-			nMax = aQuantInfo[2]
-			nQuantifier = aQuantInfo[3]
-		ok
-	
-		return [aConstraints, nMin, nMax, nQuantifier]
-	
-
-
-	def BuildToken(cKeyword, nMin, nMax, nQuantifier, aConstraints, bNegated)
-		aToken = [
-			["keyword", cKeyword],
-			["min", nMin],
-			["max", nMax],
-			["quantifier", nQuantifier],
-			["constraints", aConstraints],
-			["negated", bNegated]
-		]
-
-		# Add type-specific info
-		switch cKeyword
-		on "@I"
-			aToken + ["type", "integer"]
-		on "@R"
-			aToken + ["type", "real"]
-		on "@P"
-			aToken + ["type", "positive"]
-		on "@N"
-			aToken + ["type", "negative"]
-		on "@E"
-			aToken + ["type", "even"]
-		on "@O"
-			aToken + ["type", "odd"]
-		on "@PR"
-			aToken + ["type", "prime"]
-		on "@S"
-			aToken + ["type", "section"]
-		on "@$"
-			aToken + ["type", "any"]
-		on "@D"
-			aToken + ["type", "digits"]
-		on "@DIV"
-			aToken + ["type", "divisible"]
-		off
-
-		return aToken
-
-
-	def OptimizeTokens()
-		# Merge adjacent compatible tokens
-		nLen = len(@aTokens)
-		
-		if nLen <= 1
-			return
-		ok
-		
-		for i = nLen to 2 step -1
-			aToken1 = @aTokens[i-1]
-			aToken2 = @aTokens[i]
-			
-			# Can merge if same type and no constraints
-			if aToken1[:keyword] = aToken2[:keyword] and
-			   len(aToken1[:constraints]) = 0 and
-			   len(aToken2[:constraints]) = 0
-				
-				nNewMin = Min([aToken1[:min], aToken2[:min]])
-				nNewMax = aToken1[:max] + aToken2[:max]
-				
-				@aTokens[i-1][:min] = nNewMin
-				@aTokens[i-1][:max] = nNewMax
-				del(@aTokens, i)
-			ok
-		next
-
-	  #--------------------#
-	 #   MATCHING LOGIC   #
-	#--------------------#
-
-	def Match(paNumbers)
-		if NOT isList(paNumbers)
-			return false
-		ok
-
-		# Ensure all elements are numbers
-		nLen = len(paNumbers)
-		for i = 1 to nLen
-			if NOT isNumber(paNumbers[i])
-				return false
-			ok
-		next
-
-		try
-			return This.BacktrackMatch(@aTokens, paNumbers, 1, 1)
-		catch
+		# Identify token type
+		if startsWith(cTokenStr, "@Digit")
+			cType = "digit"
+			cTokenStr = @substr(cTokenStr, 7, len(cTokenStr))
+		but startsWith(cTokenStr, "@Factor")
+			cType = "factor"
+			cTokenStr = @substr(cTokenStr, 8, len(cTokenStr))
+		but startsWith(cTokenStr, "@Property")
+			cType = "property"
+			cTokenStr = @substr(cTokenStr, 10, len(cTokenStr))
+		but startsWith(cTokenStr, "@Part")
+			cType = "part"
+			cTokenStr = @substr(cTokenStr, 6, len(cTokenStr))
+		but startsWith(cTokenStr, "@Relation")
+			cType = "relation"
+			cTokenStr = @substr(cTokenStr, 10, len(cTokenStr))
+		but startsWith(cTokenStr, "@Approx")
+			cType = "approx"
+			cTokenStr = @substr(cTokenStr, 8, len(cTokenStr))
+		else
 			if @bDebugMode
-				? "Error during matching"
+				? "Unknown token type: " + cTokenStr
 			ok
-			return false
-		done
-
-/*
-def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
-
-	# DEBUG
-	? "BacktrackMatch: token " + nTokenIndex + ", number " + nNumberIndex
-
-	nLenTokens = len(aTokens)
-	nLenNumbers = len(aNumbers)
-
-	# Base case: processed all tokens
-	if nTokenIndex > nLenTokens
-		return nNumberIndex > nLenNumbers
-	ok
-
-	aToken = aTokens[nTokenIndex]
-
-	# Try different match counts
-	nMax = Min([aToken[:max], nLenNumbers - nNumberIndex + 1])
-	
-	# DEBUG
-	? "  Token min: " + aToken[:min] + ", max: " + aToken[:max]
-	? "  Trying matches from " + aToken[:min] + " to " + nMax
-
-	for nMatchCount = aToken[:min] to nMax
-		bSuccess = true
-		nNumIdx = nNumberIndex
-
-		# Try to match nMatchCount numbers
-		for i = 1 to nMatchCount
-			if nNumIdx > nLenNumbers
-				bSuccess = false
-				exit
-			ok
-
-			nNumber = aNumbers[nNumIdx]
-			
-			if NOT This.MatchNumber(nNumber, aToken)
-				bSuccess = false
-				exit
-			ok
-
-			nNumIdx++
-		next
-
-		if bSuccess
-			# Last token - ensure complete match
-			if nTokenIndex = nLenTokens
-				if nNumIdx = nLenNumbers + 1
-					return true
-				ok
-			else
-				# Recurse for remaining tokens
-				if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumIdx)
-					return true
-				ok
-			ok
+			return []
 		ok
-	next
-
-	# Handle optional tokens
-	if aToken[:min] = 0
-		if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumberIndex)
-			return true
-		ok
-	ok
-
-	return false
-*/
-def BacktrackMatch(aTokens, aNumbers, nTokenIndex, nNumberIndex)
-	nLenTokens = len(aTokens)
-	nLenNumbers = len(aNumbers)
-
-	# Base case: processed all tokens
-	if nTokenIndex > nLenTokens
-		return nNumberIndex > nLenNumbers
-	ok
-
-	aToken = aTokens[nTokenIndex]
-
-	# Try different match counts
-	nMax = Min([aToken[:max], nLenNumbers - nNumberIndex + 1])
-
-	if @bDebugMode
-		? "BacktrackMatch: token " + nTokenIndex + "/" + nLenTokens + ", number " + nNumberIndex + "/" + nLenNumbers
-		? "  Token: " + aToken[:keyword] + " (min: " + aToken[:min] + ", max: " + aToken[:max] + ")"
-		? "  Trying matches from " + aToken[:min] + " to " + nMax
-	ok
-
-	for nMatchCount = aToken[:min] to nMax
-		bSuccess = true
-		nNumIdx = nNumberIndex
-
-		# Try to match nMatchCount numbers
-		for i = 1 to nMatchCount
-			if nNumIdx > nLenNumbers
-				bSuccess = false
-				exit
-			ok
-
-			nNumber = aNumbers[nNumIdx]
-			
-			if NOT This.MatchNumber(nNumber, aToken)
-				if @bDebugMode
-					? "  Number " + nNumber + " failed to match"
-				ok
-				bSuccess = false
-				exit
-			ok
-
-			nNumIdx++
-		next
-
-		if bSuccess
-			if @bDebugMode
-				? "  Matched " + nMatchCount + " number(s)"
-			ok
-			
-			# Last token - ensure complete match
-			if nTokenIndex = nLenTokens
-				if nNumIdx = nLenNumbers + 1
-					return true
-				ok
-			else
-				# Recurse for remaining tokens
-				if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumIdx)
-					return true
-				ok
-			ok
-		ok
-	next
-
-	# Handle optional tokens
-	if aToken[:min] = 0
-		if This.BacktrackMatch(aTokens, aNumbers, nTokenIndex + 1, nNumberIndex)
-			return true
-		ok
-	ok
-
-	return false
-
-	def MatchNumber(nNumber, aToken)
-		bMatch = false
-	
-		# Type checking
-		switch aToken[:keyword]
-		on "@I"
-			bMatch = This.IsInteger(nNumber)
-		on "@R"
-			bMatch = This.IsReal(nNumber)
-		on "@P"
-			bMatch = nNumber > 0
-		on "@N"
-			bMatch = nNumber < 0
-		on "@E"
-			bMatch = This.IsEven(nNumber)
-		on "@O"
-			bMatch = This.IsOdd(nNumber)
-		on "@PR"
-			bMatch = This.IsPrime(nNumber)
-		on "@$"
-			bMatch = true
-		on "@D"
-			bMatch = true
-		on "@DIV"
-			bMatch = true
-		off
-	
-		# If base type already failed and not negated, no need to check constraints
-		if NOT bMatch and NOT aToken[:negated]
-			return false
-		ok
-	
-		# Check constraints - any failure means no match
-		nLen = len(aToken[:constraints])
-		bConstraintsMet = true
 		
-		for i = 1 to nLen
-			aConstraint = aToken[:constraints][i]
-			cType = aConstraint[1]
-	
-			switch cType
-			on "section"
-				aSection = aConstraint[2]
-				if nNumber < aSection[1] or nNumber > aSection[2]
-					bConstraintsMet = false
+		# Extract value/constraints from parentheses
+		nOpenParen = substr(cTokenStr, "(")
+		if nOpenParen > 0
+			nCloseParen = substr(cTokenStr, ")")
+			if nCloseParen > nOpenParen
+				cContent = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+				
+				if cType = "property" or cType = "approx"
+					cValue = cContent
+				else
+					aConstraints = This.ParseConstraints(cContent, cType)
+				ok
+			ok
+		ok
+		
+		# Extract quantifier
+		cLastChar = right(cTokenStr, 1)
+		if cLastChar = "+"
+			nMin = 1
+			nMax = 999999
+		but cLastChar = "*"
+			nMin = 0
+			nMax = 999999
+		but cLastChar = "?"
+			nMin = 0
+			nMax = 1
+		ok
+		
+		# Check for numeric quantifiers
+		if isDigit(cLastChar)
+			for i = len(cTokenStr) to 1 step -1
+				cChar = @substr(cTokenStr, i, i)
+				if not isDigit(cChar) and cChar != "-"
+					cQuantPart = @substr(cTokenStr, i + 1, len(cTokenStr))
+					if substr(cQuantPart, "-") > 0
+						aRange = split(cQuantPart, "-")
+						if len(aRange) = 2
+							nMin = 0 + aRange[1]
+							nMax = 0 + aRange[2]
+						ok
+					else
+						nMin = 0 + cQuantPart
+						nMax = nMin
+					ok
 					exit
 				ok
+			next
+		ok
+		
+		return [
+			["type", cType],
+			["value", cValue],
+			["constraints", aConstraints],
+			["min", nMin],
+			["max", nMax],
+			["negated", bNegated]
+		]
 	
-			on "set"
-				aSet = aConstraint[2]
-				bInSet = false
-				nSetLen = len(aSet)
-				for j = 1 to nSetLen
-					if nNumber = aSet[j]
-						bInSet = true
+	def ParseConstraints(cConstraintStr, cType)
+		aConstraints = []
+		
+		if cConstraintStr = ""
+			return aConstraints
+		ok
+		
+		# Parse based on type
+		if cType = "digit"
+			# Range: 1-5, Set: {1;3;5}, Step: :2, Unique: :unique
+			if substr(cConstraintStr, "..") > 0
+				aParts = split(cConstraintStr, "..")
+				if len(aParts) = 2
+					aConstraints + [
+						["type", "range"],
+						["start", 0 + trim(aParts[1])],
+						["end", 0 + trim(aParts[2])]
+					]
+				ok
+			but substr(cConstraintStr, "{") > 0
+				nStart = substr(cConstraintStr, "{")
+				nEnd = substr(cConstraintStr, "}")
+				cSet = substr(cConstraintStr, nStart + 1, nEnd - nStart - 1)
+				aValues = split(cSet, ";")
+				aConstraints + [
+					["type", "set"],
+					["values", aValues]
+				]
+			but substr(cConstraintStr, ":unique") > 0
+				aConstraints + [["type", "unique"]]
+			but substr(cConstraintStr, ":step") > 0
+				cStep = substr(cConstraintStr, 5)
+				aConstraints + [
+					["type", "step"],
+					["value", 0 + cStep]
+				]
+			but isDigit(cConstraintStr)
+				aConstraints + [
+					["type", "exact"],
+					["value", 0 + cConstraintStr]
+				]
+			but substr(cConstraintStr, "-") > 0
+				aParts = split(cConstraintStr, "-")
+				if len(aParts) = 2
+					aConstraints + [
+						["type", "range"],
+						["start", 0 + trim(aParts[1])],
+						["end", 0 + trim(aParts[2])]
+					]
+				ok
+			ok
+		
+		but cType = "factor"
+			# Prime, Unique, Count constraints
+			if lower(cConstraintStr) = "prime"
+				aConstraints + [["type", "prime"]]
+			but lower(cConstraintStr) = "unique"
+				aConstraints + [["type", "unique"]]
+			but isDigit(cConstraintStr)
+				aConstraints + [
+					["type", "count"],
+					["value", 0 + cConstraintStr]
+				]
+			ok
+		ok
+		
+		return aConstraints
+	
+	  #--------------------#
+	 #  MATCHING LOGIC    #
+	#--------------------#
+	
+	def Match(pnNumber)
+		if NOT isNumber(pnNumber)
+			StzRaise("Incorrect param type! pnNumber must be a number.")
+		ok
+
+		@nNumber = pnNumber
+		
+		# Match all tokens
+		bResult = This.MatchTokens(@aTokens, @nNumber)
+		
+		if bResult
+			This.ExtractParts(@nNumber)
+		ok
+		
+		return bResult
+
+	
+	def MatchTokens(aTokens, nNum)
+		for i = 1 to len(aTokens)
+			aToken = aTokens[i]
+			
+			if aToken[:type] = "alternation"
+				bMatched = FALSE
+				for j = 1 to len(aToken[:alternatives])
+					if This.MatchSingleToken(aToken[:alternatives][j], nNum)
+						bMatched = TRUE
 						exit
 					ok
 				next
-				if NOT bInSet
-					bConstraintsMet = false
-					exit
+				if not bMatched
+					return FALSE
 				ok
-	
-			on "divisor"
-				nDivisor = aConstraint[2]
-				if (nNumber % nDivisor) != 0
-					bConstraintsMet = false
-					exit
+			
+			but aToken[:type] = "conjunction"
+				for j = 1 to len(aToken[:conditions])
+					if not This.MatchSingleToken(aToken[:conditions][j], nNum)
+						return FALSE
+					ok
+				next
+			
+			else
+				if not This.MatchSingleToken(aToken, nNum)
+					return FALSE
 				ok
-	
-			on "digits"
-				nDigits = aConstraint[2]
-				if This.CountDigits(nNumber) != nDigits
-					bConstraintsMet = false
-					exit
-				ok
-			off
+			ok
 		next
+		
+		return TRUE
 	
-		# Combine base match with constraints
-		bMatch = bMatch and bConstraintsMet
-	
-		# Apply negation AFTER all checks
+	def MatchSingleToken(aToken, nNum)
+		bResult = FALSE
+		
+		if aToken[:type] = "property"
+			bResult = This.CheckProperty(aToken[:value], nNum)
+		
+		but aToken[:type] = "digit"
+			bResult = This.CheckDigits(aToken, nNum)
+		
+		but aToken[:type] = "factor"
+			bResult = This.CheckFactors(aToken, nNum)
+		
+		but aToken[:type] = "relation"
+			bResult = This.CheckRelation(aToken[:value], nNum)
+		
+		but aToken[:type] = "approx"
+			bResult = This.CheckApprox(aToken[:value], nNum)
+		
+		but aToken[:type] = "part"
+			bResult = This.CheckPart(aToken[:value], nNum)
+		ok
+		
 		if aToken[:negated]
-			bMatch = NOT bMatch
+			bResult = NOT bResult
 		ok
+		
+		return bResult
 	
-		return bMatch
-
+	  #-----------------------#
+	 #  PROPERTY CHECKING    #
+	#-----------------------#
+	
+	def CheckProperty(cProperty, nNum)
+		cProperty = lower(trim(cProperty))
+		
+		if cProperty = "prime"
+			return This.IsPrime(nNum)
+		
+		but cProperty = "even"
+			return (nNum % 2) = 0
+		
+		but cProperty = "odd"
+			return (nNum % 2) != 0
+		
+		but cProperty = "perfect"
+			return This.IsPerfect(nNum)
+		
+		but cProperty = "fibonacci"
+			return This.IsFibonacci(nNum)
+		
+		but cProperty = "palindrome"
+			return This.IsPalindrome(nNum)
+		
+		but cProperty = "square"
+			return This.IsSquare(nNum)
+		
+		but cProperty = "positive"
+			return nNum > 0
+		
+		but cProperty = "negative"
+			return nNum < 0
+		
+		but cProperty = "zero"
+			return nNum = 0
+		ok
+		
+		return FALSE
+	
+	def IsPrime(nNum)
+		if nNum < 2
+			return FALSE
+		ok
+		if nNum = 2
+			return TRUE
+		ok
+		if (nNum % 2) = 0
+			return FALSE
+		ok
+		
+		for i = 3 to sqrt(nNum) step 2
+			if (nNum % i) = 0
+				return FALSE
+			ok
+		next
+		
+		return TRUE
+	
+	def IsPerfect(nNum)
+		if nNum < 2
+			return FALSE
+		ok
+		
+		nSum = 1
+		for i = 2 to sqrt(nNum)
+			if (nNum % i) = 0
+				nSum += i
+				if i != (nNum / i)
+					nSum += (nNum / i)
+				ok
+			ok
+		next
+		
+		return nSum = nNum
+	
+	def IsFibonacci(nNum)
+		# A number is Fibonacci if one of (5*n^2 + 4) or (5*n^2 - 4) is a perfect square
+		return This.IsSquare(5 * nNum * nNum + 4) or This.IsSquare(5 * nNum * nNum - 4)
+	
+	def IsSquare(nNum)
+		if nNum < 0
+			return FALSE
+		ok
+		nSqrt = sqrt(nNum)
+		return nSqrt = floor(nSqrt)
+	
+	def IsPalindrome(nNum)
+		cStr = "" + nNum
+		cReversed = ""
+		for i = len(cStr) to 1 step -1
+			cReversed += substr(cStr, i, 1)
+		next
+		return cStr = cReversed
+	
 	  #--------------------#
-	 #   HELPER METHODS   #
+	 #  DIGIT CHECKING    #
 	#--------------------#
-
-	def IsInteger(n)
-		return n = floor(n)
-
-	def IsReal(n)
-		return n != floor(n)
-
-	def IsEven(n)
-		if NOT This.IsInteger(n)
-			return false
+	
+	def CheckDigits(aToken, nNum)
+		aDigits = This.GetDigits(nNum)
+		
+		# Check quantifiers
+		nCount = len(aDigits)
+		if nCount < aToken[:min] or nCount > aToken[:max]
+			return FALSE
 		ok
-		return (n % 2) = 0
-
-	def IsOdd(n)
-		if NOT This.IsInteger(n)
-			return false
-		ok
-		return (n % 2) != 0
-
-	def IsPrime(n)
-		if NOT This.IsInteger(n) or n < 2
-			return false
-		ok
-
-		if n = 2
-			return true
-		ok
-
-		if (n % 2) = 0
-			return false
-		ok
-
-		for i = 3 to sqrt(n) step 2
-			if (n % i) = 0
-				return false
+		
+		# Check constraints
+		for i = 1 to len(aToken[:constraints])
+			aConstraint = aToken[:constraints][i]
+			
+			if aConstraint[:type] = "range"
+				for j = 1 to len(aDigits)
+					nDigit = aDigits[j]
+					if nDigit < aConstraint[:start] or nDigit > aConstraint[:end]
+						return FALSE
+					ok
+				next
+			
+			but aConstraint[:type] = "set"
+				for j = 1 to len(aDigits)
+					bFound = FALSE
+					for k = 1 to len(aConstraint[:values])
+						if aDigits[j] = (0 + trim(aConstraint[:values][k]))
+							bFound = TRUE
+							exit
+						ok
+					next
+					if not bFound
+						return FALSE
+					ok
+				next
+			
+			but aConstraint[:type] = "unique"
+				for j = 1 to len(aDigits)
+					for k = j + 1 to len(aDigits)
+						if aDigits[j] = aDigits[k]
+							return FALSE
+						ok
+					next
+				next
+			
+			but aConstraint[:type] = "exact"
+				if nCount != aConstraint[:value]
+					return FALSE
+				ok
 			ok
 		next
-
-		return true
-
-	def CountDigits(n)
-		n = fabs(n)
-		if n = 0
-			return 1
+		
+		return TRUE
+	
+	def GetDigits(nNum)
+		cStr = "" + abs(nNum)
+		aDigits = []
+		for i = 1 to len(cStr)
+			cChar = substr(cStr, i, 1)
+			if isDigit(cChar)
+				aDigits + (0 + cChar)
+			ok
+		next
+		return aDigits
+	
+	  #---------------------#
+	 #  FACTOR CHECKING    #
+	#---------------------#
+	
+	def CheckFactors(aToken, nNum)
+		aFactors = This.GetFactors(nNum)
+		
+		# Check quantifiers
+		nCount = len(aFactors)
+		if nCount < aToken[:min] or nCount > aToken[:max]
+			return FALSE
 		ok
-		return floor(log10(n)) + 1
-
-	  #---------------------------#
-	 #     DEBUG METHODS         #
-	#---------------------------#
-
-	def EnableDebug()
-		@bDebugMode = true
-
-	def DisableDebug()
-		@bDebugMode = false
-
-	def TokensXT()
-		return @aTokens
-
+		
+		# Check constraints
+		for i = 1 to len(aToken[:constraints])
+			aConstraint = aToken[:constraints][i]
+			
+			if aConstraint[:type] = "prime"
+				for j = 1 to len(aFactors)
+					if not This.IsPrime(aFactors[j])
+						return FALSE
+					ok
+				next
+			
+			but aConstraint[:type] = "unique"
+				for j = 1 to len(aFactors)
+					for k = j + 1 to len(aFactors)
+						if aFactors[j] = aFactors[k]
+							return FALSE
+						ok
+					next
+				next
+			
+			but aConstraint[:type] = "count"
+				if nCount != aConstraint[:value]
+					return FALSE
+				ok
+			ok
+		next
+		
+		return TRUE
+	
+	def GetFactors(nNum)
+		nNum = abs(nNum)
+		aFactors = []
+		
+		if nNum = 0
+			return aFactors
+		ok
+		
+		for i = 1 to sqrt(nNum)
+			if (nNum % i) = 0
+				aFactors + i
+				if i != (nNum / i)
+					aFactors + (nNum / i)
+				ok
+			ok
+		next
+		
+		# Sort factors
+		for i = 1 to len(aFactors) - 1
+			for j = i + 1 to len(aFactors)
+				if aFactors[i] > aFactors[j]
+					temp = aFactors[i]
+					aFactors[i] = aFactors[j]
+					aFactors[j] = temp
+				ok
+			next
+		next
+		
+		return aFactors
+	
+	  #-----------------------#
+	 #  RELATION CHECKING    #
+	#-----------------------#
+	
+	def CheckRelation(cRelation, nNum)
+		# Parse relation like "Mod:5=0"
+		if substr(cRelation, "Mod:") > 0
+			cRest = @substr(cRelation, 5, len(cRelation))
+			nEquals = substr(cRest, "=")
+			if nEquals > 0
+				nMod = 0 + @substr(cRest, 1, nEquals - 1)
+				nExpected = 0 + @substr(cRest, nEquals + 1, len(cRest))
+				return (nNum % nMod) = nExpected
+			ok
+		ok
+		
+		return FALSE
+	
+	def CheckApprox(cApprox, nNum)
+		# Parse like "~3.14" or "~3.14:2decimals"
+		if startsWith(cApprox, "~")
+			cValue = @substr(cApprox, 2, len(cApprox))
+			nDecimals = 2  # Default
+			
+			if substr(cValue, ":") > 0
+				aParts = split(cValue, ":")
+				cValue = aParts[1]
+				if len(aParts) > 1 and substr(aParts[2], "decimal") > 0
+					# Extract decimal count
+					for i = 1 to len(aParts[2])
+						if isDigit(@substr(aParts[2], i, i))
+							nDecimals = 0 + @substr(aParts[2], i, i)
+							exit
+						ok
+					next
+				ok
+			ok
+			
+			nTarget = 0 + cValue
+			nFactor = pow(10, nDecimals)
+			return floor(nNum * nFactor) = floor(nTarget * nFactor)
+		ok
+		
+		return FALSE
+	
+	def CheckPart(cPart, nNum)
+		# For future: handle Integer/Fractional parts with nested patterns
+		return TRUE
+	
+	  #----------------------#
+	 #  PART EXTRACTION     #
+	#----------------------#
+	
+	def ExtractParts(nNum)
+		@aMatchedParts = []
+		
+		# Extract digits
+		aDigits = This.GetDigits(nNum)
+		@aMatchedParts + ["Digits", aDigits]
+		
+		# Extract factors
+		aFactors = This.GetFactors(nNum)
+		@aMatchedParts + ["Factors", aFactors]
+		
+		# Extract properties
+		aProps = []
+		if This.IsPrime(nNum)
+			aProps + "Prime"
+		ok
+		if (nNum % 2) = 0
+			aProps + "Even"
+		else
+			aProps + "Odd"
+		ok
+		if This.IsPerfect(nNum)
+			aProps + "Perfect"
+		ok
+		if This.IsFibonacci(nNum)
+			aProps + "Fibonacci"
+		ok
+		if This.IsPalindrome(nNum)
+			aProps + "Palindrome"
+		ok
+		
+		@aMatchedParts + ["Properties", aProps]
+		@aMatchedParts + ["Value", nNum]
+	
+	  #----------------------#
+	 #  QUERY METHODS       #
+	#----------------------#
+	
+	def MatchedParts()
+		return @aMatchedParts
+	
 	def Tokens()
-		acResult = []
-		nLen = len(@aTokens)
-
-		for i = 1 to nLen
-			acResult + @aTokens[i][:keyword]
-		next
-
-		return acResult
-
-	def TokensU()
-		return U(This.Tokens())
-
-		def UniqueTokens()
-			return This.TokensU()
-
-	def TokensInfo()
-		aInfo = []
-		
-		for i = 1 to len(@aTokens)
-			aToken = @aTokens[i]
-			cInfo = "Token #" + i + ": " + aToken[:keyword]
-			
-			if aToken[:min] != aToken[:max]
-				cInfo += " (" + aToken[:min] + "-" + aToken[:max] + ")"
-			but aToken[:min] > 1
-				cInfo += aToken[:min]
-			ok
-
-			if len(aToken[:constraints]) > 0
-				cInfo += " [constraints: " + len(aToken[:constraints]) + "]"
-			ok
-
-			if aToken[:negated]
-				cInfo += " [negated]"
-			ok
-			
-			aInfo + cInfo
-		next
-		
-		return aInfo
-
+		return @aTokens
+	
 	def Pattern()
 		return @cPattern
+	
+	def SetTarget(pnNumber)
+		@nNumber = pnNumber
+	
+	def Explain()
+		aExplanation = [
+			["Pattern", @cPattern],
+			["TokenCount", len(@aTokens)],
+			["Tokens", @aTokens]
+		]
+		
+		if @nNumber != NULL
+			aExplanation + ["Target", @nNumber]
+		ok
+		
+		if len(@aMatchedParts) > 0
+			aExplanation + ["MatchedParts", @aMatchedParts]
+		ok
+		
+		return aExplanation
+	
+	  #----------------------#
+	 #  DEBUG METHODS       #
+	#----------------------#
+	
+	def EnableDebug()
+		@bDebugMode = TRUE
+	
+	def DisableDebug()
+		@bDebugMode = FALSE
+	
+	def SetDebug(bFlag)
+		@bDebugMode = bFlag

@@ -65,7 +65,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*===
-*/
+
 pr()
 
 StzChartQ(:VBar, [ 5, 4, 2, 5, 3, 2, 4 ]) {
@@ -153,7 +153,7 @@ pf()
 # Executed in almost 0.01 second(s) in Ring 1.22
 
 /*---
-
+*/
 pr()
 
 oPlot = new stzVBarPlot([
@@ -161,11 +161,12 @@ oPlot = new stzVBarPlot([
 ])
 
 oPlot {
-	AddValues()
-	AddAverage()
+//	AddValues()
+//	AddAverage()
+AddLegend()
 
-	SetBarWidth(1)
-	SetTopChar("▲")
+//	SetBarWidth(1)
+//	SetTopChar("▲")
 	Show()
 
 }

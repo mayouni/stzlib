@@ -1,5 +1,16 @@
 load "../stzbase.ring"
 
+pr()
+
+Naturally() {
+    Create a string with "hello niger" inside
+ #   Uppercase it spacify it and_ @box it
+#    The box@ should be rounded
+    Display the final result
+}
+
+pf()
+
 /*---
 
 pr()

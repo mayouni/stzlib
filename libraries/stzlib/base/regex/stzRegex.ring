@@ -718,6 +718,9 @@ class stzRegex
 		def Capture()
 			return This.CaptureGroups()
 
+		def Captures()
+			return This.CaptureGroups()
+
 		def CaptureValues()
 			return This.CaptureGroups()
 

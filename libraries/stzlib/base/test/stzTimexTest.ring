@@ -1,293 +1,466 @@
 load "../stzbase.ring"
 
-# stzTimex Test Suite - Updated for Match/MatchPartial semantics
+/*=========================================#
+#   NUMBREX - PATTERN LANGUAGE FOR NUMBERS #
+#=========================================*/
 
-/*--- Example 1: Basic Instant Matching
+/*--- BASIC PROPERTY MATCHING
 
 pr()
 
-# Match single timestamp
-
-Tx = Tx("{@Instant}")
-? Tx.Match(StzDateTimeQ("2025-10-22 14:30:00"))
-#--> TRUE (exact match)
-
-? Tx.MatchPartial(StzDateTimeQ("2025-10-22 14:30:00"))
-#--> TRUE (partial also works for single item)
+oNx = new stzNumbrex("{@Property(Prime)}")
+? oNx.Match(17)  #--> TRUE
+? oNx.Match(18)  #--> FALSE
 
 pf()
 
-/*--- Example 2: Duration Constraints with Steps
+/*--- PERFECT NUMBERS
 
 pr()
 
-oDur1 = new stzDuration("1 hour 30 minutes")  # 90 minutes
-oDur2 = new stzDuration("1 hour 20 minutes")  # 80 minutes
-
-Tx = new stzTimex("{@Duration(1h..2h:15min)}")
-
-? Tx.Match(oDur1)
-#--> TRUE (90min is in range and on 15min boundary)
-
-? Tx.Match(oDur2)
-#--> FALSE (80min not on 15min step: 60, 75, 90, 105, 120)
+oPerfect = Nx("{@Property(Perfect)}")
+? oPerfect.Match(6)   #--> TRUE
+? oPerfect.Match(28)  #--> TRUE
+? oPerfect.Match(12)  #--> FALSE
 
 pf()
 
-/*--- Example 3: Event Sequences - Match vs MatchPartial
+/*--- FIBONACCI SEQUENCE MEMBERS
 
 pr()
 
-oTimeline = new stzTimeLine("2025-10-22", "2025-10-22")
-oTimeline.AddPoint("Meeting", "2025-10-22 09:00:00")
-oTimeline.AddSpan("Break", "2025-10-22 10:00:00", "2025-10-22 10:15:00")
-oTimeline.AddPoint("Lunch", "2025-10-22 12:00:00")
-
-# Pattern: Meeting -> any gaps -> Break
-Tx1 = new stzTimex("{@Event(Meeting) -> @Duration* -> @Event(Break)}")
-
-# Match (exact - must consume all data):
-? Tx1.Match(oTimeline)
-#--> FALSE (pattern stops at Break, but Lunch remains)
-
-# MatchPartial (finds pattern anywhere):
-? Tx1.MatchPartial(oTimeline)
-#--> TRUE (Meeting->Break sequence exists)
+oFib = Nx("{@Property(Fibonacci)}")
+? oFib.Match(13)  #--> TRUE
+? oFib.Match(21)  #--> TRUE
+? oFib.Match(22)  #--> FALSE
 
 pf()
 
-/*--- Example 4: Complete Sequence Matching
+/*--- PALINDROMIC NUMBERS
 
 pr()
 
-oTimeline2 = new stzTimeLine("2025-10-22", "2025-10-22")
-oTimeline2.AddPoint("Start", "2025-10-22 09:00:00")
-oTimeline2.AddSpan("Work", "2025-10-22 09:00:00", "2025-10-22 17:00:00")
-oTimeline2.AddPoint("End", "2025-10-22 17:00:00")
-
-# Pattern matches entire timeline
-Tx2 = new stzTimex("{@Event(Start) -> @Duration* -> @Event(Work) -> @Duration* -> @Event(End)}")
-
-? Tx2.Match(oTimeline2)
-#--> TRUE (exact match - entire timeline consumed)
+oPalin = Nx("{@Property(Palindrome)}")
+? oPalin.Match(121)   #--> TRUE
+? oPalin.Match(1221)  #--> TRUE
+? oPalin.Match(123)   #--> FALSE
 
 pf()
 
-/*--- Example 5: Gap Duration Constraints
+/*--- PERFECT SQUARES
 
 pr()
 
-oTimeline3 = new stzTimeLine("2025-10-22", "2025-10-22")
-oTimeline3.AddPoint("A", "2025-10-22 09:00:00")
-oTimeline3.AddPoint("B", "2025-10-22 09:30:00")  # 30min gap
-oTimeline3.AddPoint("C", "2025-10-22 10:00:00")  # 30min gap
-
-# Match events with 30min gaps
-Tx3 = new stzTimex("{@Event(A) -> @Duration(30m) -> @Event(B)}")
-
-? Tx3.MatchPartial(oTimeline3)
-#--> TRUE (finds A->30min->B)
-
-# Try with wrong gap duration
-Tx4 = new stzTimex("{@Event(A) -> @Duration(1h) -> @Event(B)}")
-
-? Tx4.MatchPartial(oTimeline3)
-#--> FALSE (gap is 30min, not 1h)
+oSquare = Nx("{@Property(Square)}")
+? oSquare.Match(16)  #--> TRUE
+? oSquare.Match(25)  #--> TRUE
+? oSquare.Match(26)  #--> FALSE
 
 pf()
 
-/*--- Example 6: Alternation Patterns
+/*--- EXACT DIGIT COUNT
 
 pr()
 
-oTimeline4 = new stzTimeLine("2025-10-22", "2025-10-22")
-oTimeline4.AddPoint("Meeting", "2025-10-22 09:00:00")
-oTimeline4.AddSpan("Coffee", "2025-10-22 10:00:00", "2025-10-22 10:15:00")
-oTimeline4.AddPoint("Lunch", "2025-10-22 12:00:00")
-
-# Match Meeting followed by Coffee OR Lunch
-Tx5 = new stzTimex("{@Event(Meeting) -> @Duration* -> (@Event(Coffee)|@Event(Lunch))}")
-
-? Tx5.MatchPartial(oTimeline4)
-#--> TRUE (Meeting->Coffee path matches)
+oNx3 = Nx("{@Digit3}")
+? oNx3.Match(123)    #--> TRUE	#ERR
+? oNx3.Match(1234)   #--> FALSE
+? oNx3.Match(12)     #--> FALSE
 
 pf()
 
-/*--- Example 7: Event Span Duration Constraints
+/*--- DIGITS WITHIN RANGE
 
 pr()
 
-oTimeline5 = new stzTimeLine("2025-10-22", "2025-10-22")
-oTimeline5.AddSpan("Session", "2025-10-22 09:00:00", "2025-10-22 10:00:00")  # 60min
-
-# Match event that lasts exactly 1 hour
-Tx6 = new stzTimex("{@Event(Session:1h)}")
-
-? Tx6.Match(oTimeline5)
-#--> TRUE (Session span is 60 minutes)
-
-# Try with wrong duration
-Tx7 = new stzTimex("{@Event(Session:30m)}")
-
-? Tx7.Match(oTimeline5)
-#--> FALSE (Session is 60min, not 30min)
+oNx = Nx("{@Digit(1-5)+}")
+? oNx.Match(1234)  #--> TRUE
+? oNx.Match(1256)  #--> FALSE
+? oNx.Match(543)   #--> TRUE
 
 pf()
 
-/*--- Example 8: Quantifiers - Zero or More
+/*--- DIGITS FROM SPECIFIC SET
 
 pr()
 
-oTimeline6 = new stzTimeLine("2025-10-22", "2025-10-22")
-oTimeline6.AddPoint("Start", "2025-10-22 09:00:00")
-oTimeline6.AddPoint("End", "2025-10-22 17:00:00")
-
-# Match Start and End with any number of gaps between
-Tx8 = new stzTimex("{@Event(Start) -> @Duration* -> @Event(End)}")
-
-? Tx8.Match(oTimeline6)
-#--> TRUE (@Duration* matches 1 gap)
+oNx = Nx("{@Digit({1;3;5;7})+}")
+? oNx.Match(1357)  #--> TRUE
+? oNx.Match(135)   #--> TRUE
+? oNx.Match(1358)  #--> FALSE
 
 pf()
 
-/*--- Example 9: Adjacent Events (No Gaps)
+/*--- ALL DIGITS UNIQUE
 
 pr()
 
-oTimeline7 = new stzTimeLine("2025-10-22", "2025-10-22")
-oTimeline7.AddSpan("Session1", "2025-10-22 09:00:00", "2025-10-22 10:00:00")
-oTimeline7.AddSpan("Session2", "2025-10-22 10:00:00", "2025-10-22 11:00:00")
-
-# Match adjacent events
-Tx9 = new stzTimex("{@Event(Session1) -> @Event(Session2)}")
-
-? Tx9.Match(oTimeline7)
-#--> TRUE (events are adjacent, no gap required)
+oNx = Nx("{@Digit(:unique)+}") #TODO Check sensitivity to case "Unique"
+? oNx.Match(1234)    #--> TRUE
+? oNx.Match(1223)    #--> FALSE
+? oNx.Match(987654)  #--> TRUE
 
 pf()
 
-/*--- Example 10: Pattern Debugging
-*/
+/*--- DIGIT COUNT RANGE
+
 pr()
 
-oTimeline8 = new stzTimeLine("2025-10-22", "2025-10-22")
-oTimeline8.AddPoint("A", "2025-10-22 09:00:00")
-oTimeline8.AddPoint("B", "2025-10-22 10:00:00")
-oTimeline8.AddPoint("C", "2025-10-22 11:00:00")
+oNx = Nx("{@Digit2-4}")
+? oNx.Match(12)     #--> TRUE	#ERR
+? oNx.Match(1234)   #--> TRUE	#ERR
+? oNx.Match(1)      #--> FALSE	#ERR
+? oNx.Match(12345)  #--> FALSE
 
-Tx10 = new stzTimex("{@Event(A) -> @Duration* -> @Event(C)}")
-Tx10.EnableDebug()
+pf()
 
-? Tx10.MatchPartial(oTimeline8)
-#--> TRUE (with detailed trace)
+/*--- FACTOR COUNT
+
+pr()
+
+oNx4 = Nx("{@Factor4}")
+? oNx4.Match(6)   #--> TRUE	#ERR
+? oNx4.Match(8)   #--> TRUE	#ERR
+? oNx4.Match(12)  #--> FALSE
+
+pf()
+
+/*--- FACTOR COUNT IN RANGE
+
+pr()
+
+oNx = Nx("{@Factor2-5}")
+? oNx.Match(6)   #--> TRUE	#ERR
+? oNx.Match(12)  #--> FALSE
+? oNx.Match(4)   #--> TRUE	#ERR
+
+pf()
+
+/*--- ALTERNATION: EVEN OR PRIME
+
+pr()
+
+oNx = Nx("{@Property(Even) | @Property(Prime)}")
+? oNx.Match(2)  #--> TRUE
+? oNx.Match(4)  #--> TRUE
+? oNx.Match(7)  #--> TRUE
+? oNx.Match(9)  #--> FALSE
+
+pf()
+
+/*--- ALTERNATION: MULTIPLE PROPERTIES
+
+pr()
+
+oNx = Nx("{@Property(Perfect) | @Property(Fibonacci) | @Property(Palindrome)}")
+? oNx.Match(6)    #--> TRUE
+? oNx.Match(13)   #--> TRUE
+? oNx.Match(121)  #--> TRUE
+? oNx.Match(10)   #--> FALSE
+
+pf()
+
+/*--- CONJUNCTION: EVEN AND PRIME
+
+pr()
+
+oNx = Nx("{@Property(Even) & @Property(Prime)}")
+? oNx.Match(2)  #--> TRUE
+? oNx.Match(4)  #--> FALSE
+? oNx.Match(3)  #--> FALSE
+
+pf()
+
+/*--- CONJUNCTION: PALINDROME AND SQUARE
+
+pr()
+
+oNx = Nx("{@Property(Palindrome) & @Property(Square)}")
+? oNx.Match(121)  #--> TRUE
+? oNx.Match(144)  #--> FALSE
+? oNx.Match(131)  #--> FALSE
+
+pf()
+
+/*--- CONJUNCTION: MULTIPLE CONDITIONS
+
+pr()
+
+oNx = Nx("{@Property(Even) & @Digit3 & @Property(Palindrome)}")
+? oNx.Match(212)  #--> TRUE	#ERR
+? oNx.Match(222)  #--> TRUE	#ERR
+? oNx.Match(213)  #--> FALSE
+
+pf()
+
+/*--- NEGATION: NOT PRIME
+
+pr()
+
+oNx = Nx("{@!Property(Prime)}")
+? oNx.Match(4)  #--> TRUE
+? oNx.Match(9)  #--> TRUE
+? oNx.Match(7)  #--> FALSE	#ERR
+
+pf()
+
+/*--- NEGATION: NOT PERFECT
+
+pr()
+
+oNx = Nx("{@!Property(Perfect)}")
+? oNx.Match(10)  #--> TRUE
+? oNx.Match(28)  #--> FALSE	#ERR
+
+pf()
+
+/*--- NEGATION: NOT EVEN (ODD)
+
+pr()
+
+oNx = Nx("{@!Property(Even)}")
+? oNx.Match(7)  #--> TRUE
+? oNx.Match(8)  #--> FALSE	#ERR
+
+pf()
+
+/*--- RELATION: DIVISIBLE BY 5
+
+pr()
+
+oNx = Nx("{@Relation(Mod:5=0)}")
+? oNx.Match(10)  #--> TRUE	#ERR
+? oNx.Match(25)  #--> TRUE	#ERR
+? oNx.Match(13)  #--> FALSE	#ERR
+
+pf()
+
+/*--- RELATION: SPECIFIC REMAINDER
+
+pr()
+
+oNx = Nx("{@Relation(Mod:3=1)}")
+? oNx.Match(10)  #--> TRUE	#ERR
+? oNx.Match(7)   #--> TRUE	#ERR
+? oNx.Match(9)   #--> FALSE
+
+pf()
+
+/*--- RELATION: DIVISIBLE BY 10
+
+pr()
+
+oNx = Nx("{@Relation(Mod:5=0) & @Property(Even)}")
+? oNx.Match(10)  #--> TRUE	#ERR
+? oNx.Match(20)  #--> TRUE	#ERR
+? oNx.Match(15)  #--> FALSE
+
+pf()
+
+/*--- EXTRACTING DIGIT LIST
+
+pr()
+
+oNx = Nx("{@Digit+}")
+? oNx.Match(1234) #--> TRUE
+
+? @@NL( oNx.MatchedParts() )
+#-->
 '
-Token 1 (type=event, label=A): trying 1 matches starting at data position 1
-  Attempt 1: checking data[1] type=instant, label=A
-CheckConstraints: type=instant, label=A, constraints=0
-Token 2 (type=duration, label=): trying 2 matches starting at data position 2
-  Attempt 1: checking data[2] type=duration, label=
-CheckConstraints: type=duration, label=, constraints=0
-  Attempt 2: checking data[3] type=instant, label=B
-  Attempt 2: checking data[4] type=duration, label=
-CheckConstraints: type=duration, label=, constraints=0
-Token 3 (type=event, label=C): trying 1 matches starting at data position 5
-  Attempt 1: checking data[5] type=instant, label=C
-CheckConstraints: type=instant, label=C, constraints=0
+[
+	[ "Digits", [ 1, 2, 3, 4 ] ],
+	[ "Factors", [ 	1, 2, 617, 1234 ] ],
+	[ "Properties", [ "Even" ] ],
+	[ "Value", 1234 ]
+]
 '
 
 pf()
 
-/*--- Example 11: Real-World Meeting Scheduler
+/*--- EXTRACTING FACTOR LIST
 
 pr()
 
-oSchedule = new stzTimeLine("2025-10-22", "2025-10-22")
-oSchedule.AddPoint("DayStart", "2025-10-22 08:00:00")
-oSchedule.AddSpan("Standup", "2025-10-22 09:00:00", "2025-10-22 09:15:00")
-oSchedule.AddSpan("DeepWork", "2025-10-22 09:30:00", "2025-10-22 12:00:00")
-oSchedule.AddSpan("Lunch", "2025-10-22 12:00:00", "2025-10-22 13:00:00")
-
-# Validate standup happens after day start
-Tx11 = new stzTimex("{@Event(DayStart) -> @Duration* -> @Event(Standup)}")
-
-? Tx11.MatchPartial(oSchedule)
-#--> TRUE (pattern exists in schedule)
-
-# Check for deep work session (2+ hours)
-Tx12 = new stzTimex("{@Event(DeepWork:2h..4h)}")
-
-? Tx12.MatchPartial(oSchedule)
-#--> TRUE (DeepWork is 2.5 hours)
+oNx = Nx("{@Factor+}")
+? oNx.Match(42) #--> TRUE
+? oNx.MatchedParts()[:Factors]
+#--> [ 1, 2, 3, 6, 7, 14, 21, 42 ]
 
 pf()
 
-/*--- Example 12: Finding Patterns Across Timeline
+/*--- EXTRACTING PROPERTIES
 
 pr()
 
-oTimeline9 = new stzTimeLine("2025-10-22", "2025-10-22")
-oTimeline9.AddPoint("X", "2025-10-22 08:00:00")
-oTimeline9.AddPoint("Y", "2025-10-22 09:00:00")
-oTimeline9.AddPoint("Target", "2025-10-22 10:00:00")
-oTimeline9.AddPoint("Z", "2025-10-22 11:00:00")
-
-# Find Target anywhere in timeline
-Tx13 = new stzTimex("{@Event(Target)}")
-
-? Tx13.MatchPartial(oTimeline9)
-#--> TRUE (Target found at position 3)
-
-pf()
-
-/*--- Example 13: Pattern Explanation
-
-pr()
-
-Tx14 = new stzTimex("{@Event(Meeting) -> @Duration(30m..1h) -> @Event(Break)}")
-
-? "Pattern structure:"
-? @@NL(Tx14.Explain())
-#--> Shows tokens, constraints, and semantics
+oNx = Nx("{@Property(Even)}")
+? oNx.Match(6)
+? @@NL( oNx.MatchedParts() )
+#-->
 '
 [
 	[
-		"Pattern",
-		"{@Event(Meeting) -> @Duration(30m..1h) -> @Event(Break)}"
+		"Digits",
+		[ 6 ]
 	],
-	[ "TokenCount", 3 ],
+	[
+		"Factors",
+		[
+			1,
+			2,
+			3,
+			6
+		]
+	],
+	[
+		"Properties",
+		[ "Even", "Perfect", "Palindrome" ]
+	],
+	[ "Value", 6 ]
+]
+'
+
+pf()
+
+/*--- APPLICATION: PIN CODE VALIDATION
+
+pr()
+
+oPinValidator = Nx("{@Digit4:unique}")
+? oPinValidator.Match(1234)  #--> TRUE	#ERR
+? oPinValidator.Match(1123)  #--> FALSE
+? oPinValidator.Match(9876)  #--> TRUE	#ERR
+
+pf()
+
+/*--- APPLICATION: CRYPTO KEY VALIDATION
+
+pr()
+
+oKeyValidator = Nx("{@Property(Prime) & @Digit3+}")
+? oKeyValidator.Match(101)  #--> TRUE
+? oKeyValidator.Match(103)  #--> TRUE
+? oKeyValidator.Match(100)  #--> FALSE
+? oKeyValidator.Match(97)   #--> FALSE	#ERR
+
+pf()
+
+/*--- APPLICATION: GAME SCORE VALIDATION
+
+pr()
+
+oScoreValidator = Nx("{@Property(Even) & @Digit2-4 & @Relation(Mod:10=0)}")
+? oScoreValidator.Match(100)   #--> TRUE	#ERR
+? oScoreValidator.Match(1230)  #--> TRUE	#ERR
+? oScoreValidator.Match(125)   #--> FALSE
+? oScoreValidator.Match(10)    #--> TRUE	#ERR
+
+pf()
+
+/*--- APPLICATION: LOTTERY NUMBER VALIDATION
+
+pr()
+
+oLottery = Nx("{@Digit(1-9)6:unique}")
+? oLottery.Match(123456)  #--> TRUE	#ERR
+? oLottery.Match(123455)  #--> FALSE
+? oLottery.Match(123450)  #--> FALSE
+
+pf()
+
+/*--- PATTERN EXPLANATION
+
+pr()
+
+oNx = Nx("{@Property(Prime)}")
+? @@NL( oNx.Explain() )
+#-->
+'
+[
+	[ "Pattern", "{@Property(Prime)}" ],
+	[ "TokenCount", 1 ],
 	[
 		"Tokens",
 		[
 			[
-				[ "index", 1 ],
-				[ "type", "event" ],
-				[ "label", "Meeting" ]
-			],
-			[
-				[ "index", 2 ],
-				[ "type", "duration" ],
-				[ "label", "" ],
-				[
-					"constraints",
-					[
-						[
-							[ "type", "range" ],
-							[ "start", "30m" ],
-							[ "end", "1h" ],
-							[ "step", "" ]
-						]
-					]
-				]
-			],
-			[
-				[ "index", 3 ],
-				[ "type", "event" ],
-				[ "label", "Break" ]
+				[ "type", "property" ],
+				[ "value", "Prime" ],
+				[ "constraints", [  ] ],
+				[ "min", 1 ],
+				[ "max", 1 ],
+				[ "negated", 0 ]
 			]
 		]
-	],
-	[ "TargetSet", 1 ],
-	[ "LastMatch", 0 ]
+	]
 ]
 '
+
+pf()
+
+/*--- COMPLEX PATTERN EXPLANATION
+
+pr()
+
+oNx = Nx("{@Property(Even) & @Digit3 & @Relation(Mod:5=0)}")
+? @@NL( oNx.Explain() )
+#-->
+'
+[
+	[
+		"Pattern",
+		"{@Property(Even) & @Digit3 & @Relation(Mod:5=0)}"
+	],
+	[ "TokenCount", 1 ],
+	[
+		"Tokens",
+		[
+			[
+				[ "type", "conjunction" ],
+				[
+					"conditions",
+					[
+						[
+							[ "type", "property" ],
+							[ "value", "Even" ],
+							[ "constraints", [  ] ],
+							[ "min", 1 ],
+							[ "max", 1 ],
+							[ "negated", 0 ]
+						],
+						[
+							[ "type", "digit" ],
+							[ "value", "" ],
+							[ "constraints", [  ] ],
+							[ "min", 1 ],
+							[ "max", 1 ],
+							[ "negated", 0 ]
+						],
+						[
+							[ "type", "relation" ],
+							[ "value", "" ],
+							[ "constraints", [  ] ],
+							[ "min", 1 ],
+							[ "max", 1 ],
+							[ "negated", 0 ]
+						]
+					]
+				],
+				[ "negated", 0 ]
+			]
+		]
+	]
+]
+'
+
+pf()
+
+/*--- DEBUG MODE TRACING
+
+pr()
+
+oNx = Nx("{@Property(Prime)}")
+oNx.EnableDebug()
+? oNx.Match(17)
+#--> TRUE (with debug trace)
+#ERR the output is correct but No debug has been dispalyed
+
 pf()
