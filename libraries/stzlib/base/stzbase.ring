@@ -82,7 +82,7 @@
 	load "regex/stzListex.ring"
 	load "regex/stzNumbrex.ring"
 	load "regex/stzTimex.ring"
-
+	load "regex/stzMatrex.ring"
 	load "regex/stzGraphex.ring"
 
 	load "regex/stzListexuter.ring"

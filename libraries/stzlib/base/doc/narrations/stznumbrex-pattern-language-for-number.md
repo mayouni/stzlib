@@ -191,7 +191,22 @@ stzNumbrex therefore provides **direct accessors** — `Digits()`, `Factors()`, 
 
 These methods give you immediate access to the number’s inner structure while maintaining full consistency with the data contained in `MatchedParts()`.
 
-This capability makes **stzNumbrex** particularly valuable in **educational tools**, **mathematical exploration**, or **AI data pipelines**, where understanding a number’s composition is as important as verifying its properties.
+## Expressive Matching Functions
+
+In the redesigned version, **FindNext()** and **FindInSection()** have evolved into more expressive counterparts:
+
+* `MatchingNumberAfter()` → finds the next number matching the pattern *after* a given value (short form: `MatchingAfter()`).
+* `MatchingNumbersBetween()` → finds all matching numbers *between* two given bounds (short form: `MatchingBetween()`).
+
+This design reflects a more declarative intent and aligns with Softanza’s naming philosophy.
+
+```ring
+Nx = new stzNumbrex("{@Property(Prime)}")
+? Nx.MatchingAfter(10)          #--> 11
+? Nx.MatchingBetween(10, 20)    #--> [11, 13, 17, 19]
+```
+
+These methods allow **navigational reasoning** through numeric domains using the same pattern semantics — making it easy to query sequences or ranges declaratively.
 
 ## Pattern Explanation
 
@@ -220,25 +235,25 @@ This feature is invaluable for learners, testers, and performance optimizers who
 ## Comparative Analysis: stzNumbrex vs. Other Ecosystems
 
 | Feature                         | Softanza (stzNumbrex)         | Python              | JavaScript      | Java               | Ruby            |
-| ------------------------------- | ----------------------------- | ------------------- | --------------- | ------------------ | --------------- | --------- |
+| ------------------------------- | ----------------------------- | ------------------- | --------------- | ------------------ |------------------ |
 | **Declarative Number Patterns** | ✅ Native `{@Property(Prime)}` | ❌ Procedural checks | ❌ Imperative    | ❌ Verbose methods  | ❌ Chained calls |
-| **Property Detection**          | ✅ Built-in                    | ⚠️ `sympy`          | ❌ Manual        | ⚠️ External        | ⚠️ Gems         |
-| **Digit Pattern Matching**      | ✅ Declarative                 | ❌ String loops      | ❌ Regex tricks  | ❌ Manual           | ❌ Manual        | 
-| **Factor Analysis**             | ✅ Structural                  | ⚠️ Loops            | ❌ None          | ⚠️ BigInteger only | ❌ None          |
-| **Logical Composition**         | ✅ `&                          | !` syntax           | ❌ Code logic    | ❌ Nested ifs       | ❌ Methods       |
-| **Modular Relations**           | ✅ `{@Relation(Mod:5=0)}`      | ✅ Verbose           | ✅               | ✅                  | ✅               | 
+| **Property Detection**          | ✅ Built-in                    | ⚠️ `sympy`          | ❌ Manual        | ⚠️ External         | ⚠️ Gems         |
+| **Digit Pattern Matching**      | ✅ Declarative                 | ❌ String loops      | ❌ Regex tricks  | ❌ Manual           | ❌ Manual        |
+| **Factor Analysis**             | ✅ Structural                  | ⚠️ Loops            | ❌ None          | ⚠️ BigInteger only  | ❌ None          |
+| **Logical Composition**         | ✅ `&!` syntax              | ❌ Code logic        | ❌ Nested ifs    | ❌ Methods          | ❌ Methods       |
+| **Modular Relations**           | ✅ `{@Relation(Mod:5=0)}`      | ✅ Verbose           | ✅               | ✅                  | ✅               |
 | **Pattern Negation**            | ✅ Built-in                    | ❌ `not ...`         | ❌ `!isPrime()`  | ❌ `!prime()`       | ❌ `!method`     |
 | **Information Extraction**      | ✅ Structured output           | ❌ Manual            | ❌ Manual        | ❌ Manual           | ❌ Manual        |
-| **Pattern Explanation**         | ✅ Introspectable              | ❌ None              | ❌ None          | ❌ None             | ❌ None          | 
-| **Debug Tracing**               | ✅ Engine-level                | ⚠️ Prints           | ⚠️ Console      | ⚠️ Debugger        | ⚠️ puts         |
+| **Pattern Explanation**         | ✅ Introspectable              | ❌ None              | ❌ None          | ❌ None             | ❌ None          |
+| **Debug Tracing**               | ✅ Engine-level                | ⚠️ Prints           | ⚠️ Console       | ⚠️ Debugger         | ⚠️ puts          |
 | **Composability**               | ✅ Full                        | ❌ Functions         | ❌ Chains        | ❌ Chains           | ❌ Chains        |
 | **Self-Documentation**          | ✅ Pattern-as-spec             | ❌ Comments          | ❌ Comments      | ❌ JavaDoc          | ❌ RDoc          |
-| **Type Safety**                 | ✅ Structural                  | ⚠️ Dynamic          | ❌ Weak          | ✅ Static           | ⚠️ Duck         |
-| **Performance**                 | ✅ Intent-optimized            | ✅ Fast              | ⚠️ Engine-based | ✅ JVM              | ⚠️ Interpreted  |
+| **Type Safety**                 | ✅ Structural                  | ⚠️ Dynamic           | ❌ Weak          | ✅ Static           | ⚠️ Duck          |
+| **Performance**                 | ✅ Intent-optimized            | ✅ Fast              | ⚠️ Engine-based  | ✅ JVM              | ⚠️ Interpreted   |
 | **Learning Curve**              | ⚠️ New paradigm               | ✅ Familiar          | ✅ Familiar      | ✅ Familiar         | ✅ Familiar      |
-| **Integration**                 | ✅ Unified Softanza            | ❌ Fragmented        | ❌ Fragmented    | ⚠️ Framework-based | ⚠️ Gem-based    |
+| **Integration**                 | ✅ Unified Softanza            | ❌ Fragmented        | ❌ Fragmented    | ⚠️ Framework-based  | ⚠️ Gem-based     |
 | **Real-Number Support**         | ✅ `@Approx` (planned)         | ✅ `isclose()`       | ✅ ε-checks      | ✅ BigDecimal       | ✅ Float         |
-| **Prime Generation**            | 🔄 Future: built-in           | ✅ `sympy`           | ⚠️ Manual       | ✅ BigInteger       | ⚠️ Gems         |
+| **Prime Generation**            | 🔄 Future: built-in            | ✅ `sympy`           | ⚠️ Manual        | ✅ BigInteger       | ⚠️ Gems          |
 
 ## Conclusion
 
