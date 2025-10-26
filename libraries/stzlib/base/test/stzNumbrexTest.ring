@@ -1,850 +1,586 @@
 load "../stzbase.ring"
 
+/*=========================================#
+#   NUMBREX - PATTERN LANGUAGE FOR NUMBERS #
+#   COMPREHENSIVE TEST SUITE               #
+#==========================================#
 
-#=========================================#
-#  SOFTANZA NUMBEREX (Nx) - TEST SUITE   #
-#=========================================#
 
-#-------------------------------#
-#  BASIC TYPE MATCHING          #
-#-------------------------------#
-
-/*--- Matching integers only
+/*--- BASIC PROPERTY MATCHING
 
 pr()
 
-? Nx("[@I3]").Match([1, 2, 3])
-#--> true
-
-? Nx("[@I3]").Match([1.5, 2, 3])
-#--> false (first element is real not integer)
+Nx = new stzNumbrex("{@Property(Prime)}")
+? Nx.Match(17)  #--> TRUE
+? Nx.Match(18)  #--> FALSE
 
 pf()
 
-/*--- Matching reals only
+/*--- PERFECT NUMBERS
 
 pr()
 
-? Nx("[@R2]").Match([3.14, 2.71])
-#--> true
-
-? Nx("[@R2]").Match([3, 2.71])
-#--> false (first element is integer)
+oPerfect = Nx("{@Property(Perfect)}")
+? oPerfect.Match(6)   #--> TRUE
+? oPerfect.Match(28)  #--> TRUE
+? oPerfect.Match(12)  #--> FALSE
 
 pf()
 
-/*--- Matching any numbers with @$
+/*--- FIBONACCI SEQUENCE MEMBERS
 
 pr()
 
-? Nx("[@$5]").Match([1, 2.5, -3, 0, 100])
-#--> true (accepts integers and reals)
+oFib = Nx("{@Property(Fibonacci)}")
+? oFib.Match(13)  #--> TRUE
+? oFib.Match(21)  #--> TRUE
+? oFib.Match(22)  #--> FALSE
 
 pf()
 
-#-------------------------------#
-#  SIGN-BASED MATCHING          #
-#-------------------------------#
-
-/*--- Positive numbers only
+/*--- PALINDROMIC NUMBERS
 
 pr()
 
-? Nx("[@P+]").Match([1, 5, 10, 99])
-#--> true
-
-? Nx("[@P+]").Match([1, -5, 10])
-#--> false (contains negative)
+oPalin = Nx("{@Property(Palindrome)}")
+? oPalin.Match(121)   #--> TRUE
+? oPalin.Match(1221)  #--> TRUE
+? oPalin.Match(123)   #--> FALSE
 
 pf()
 
-/*--- Negative numbers only
+/*--- PERFECT SQUARES
 
 pr()
 
-? Nx("[@N+]").Match([-1, -5, -10])
-#--> true
-
-? Nx("[@N+]").Match([-1, 0, -10])
-#--> false (zero is not negative)
+oSquare = Nx("{@Property(Square)}")
+? oSquare.Match(16)  #--> TRUE
+? oSquare.Match(25)  #--> TRUE
+? oSquare.Match(26)  #--> FALSE
 
 pf()
 
-/*--- Mixed pattern: positive then negative
+/*--- EXACT DIGIT COUNT
 
 pr()
 
-? Nx("[@P2, @N2]").Match([5, 10, -3, -7])
-#--> true (2 positive, then 2 negative)
+Nx3 = Nx("{@Digit3}")
+? Nx3.Match(123)    #--> TRUE
+? Nx3.Match(1234)   #--> FALSE
+? Nx3.Match(12)     #--> FALSE
 
 pf()
 
-#-------------------------------#
-#  EVEN AND ODD MATCHING        #
-#-------------------------------#
-
-/*--- Even numbers only
+/*--- DIGITS WITHIN Section
 
 pr()
 
-? Nx("[@E+]").Match([2, 4, 6, 8])
-#--> true
+Nx = Nx("{@Digit(1-5)+}")
+? Nx.Match(1234)  #--> TRUE
+? Nx.Match(1256)  #--> FALSE
+? Nx.Match(543)   #--> TRUE
+pf()
 
-? Nx("[@E+]").Match([2, 4, 5, 8])
-#--> false (5 is odd)
+/*--- DIGITS FROM SPECIFIC SET
+
+pr()
+
+Nx = Nx("{@Digit({1;3;5;7})+}")
+? Nx.Match(1357)  #--> TRUE
+? Nx.Match(135)   #--> TRUE
+? Nx.Match(1358)  #--> FALSE
 
 pf()
 
-/*--- Odd numbers only
+/*--- ALL DIGITS UNIQUE
 
 pr()
 
-? Nx("[@O+]").Match([1, 3, 5, 7])
-#--> true
+Nx = Nx("{@Digit(:unique)+}")
+? Nx.Match(1234)    #--> TRUE
+? Nx.Match(1223)    #--> FALSE
+? Nx.Match(987654)  #--> TRUE
 
 pf()
 
-/*--- Alternating even and odd
+/*--- DIGIT COUNT Section
 
 pr()
 
-? Nx("[@E, @O, @E, @O]").Match([2, 3, 4, 5])
-#--> true
+Nx = Nx("{@Digit2-4}")
+? Nx.Match(12)     #--> TRUE
+? Nx.Match(1234)   #--> TRUE
+? Nx.Match(1)      #--> FALSE
+? Nx.Match(12345)  #--> FALSE
 
 pf()
 
-/*--- NOT operator: matching non-even (odd) numbers
+/*--- FACTOR COUNT
 
 pr()
 
-? Nx("[@!E+]").Match([1, 3, 5, 7])
-#--> true (all are NOT even, i.e., odd)
-
-? Nx("[@!E+]").Match([1, 2, 5])
-#--> false (2 is even)
+Nx4 = Nx("{@Factor4}")
+? Nx4.Match(6)   #--> TRUE (factors: 1,2,3,6)
+? Nx4.Match(8)   #--> TRUE (factors: 1,2,4,8)
+? Nx4.Match(12)  #--> FALSE (factors: 1,2,3,4,6,12 = 6 factors)
 
 pf()
 
-#-------------------------------#
-#  QUANTIFIERS                  #
-#-------------------------------#
-
-/*--- Exact count quantifier
+/*--- FACTOR COUNT IN Section
 
 pr()
 
-? Nx("[@I5]").Match([1, 2, 3, 4, 5])
-#--> true (exactly 5 integers)
-
-? Nx("[@I5]").Match([1, 2, 3, 4])
-#--> false (only 4 integers)
+Nx = Nx("{@Factor2-5}")
+? Nx.Match(6)   #--> TRUE (4 factors)
+? Nx.Match(12)  #--> FALSE (6 factors)
+? Nx.Match(4)   #--> TRUE (3 factors)
 
 pf()
 
-/*--- Plus (+) quantifier: one or more
+/*--- ALTERNATION: EVEN OR PRIME
 
 pr()
 
-? Nx("[@E+]").Match([2, 4, 6])
-#--> true (3 even numbers)
-
-? Nx("[@E+]").Match([2])
-#--> true (1 even number)
-
-? Nx("[@E+]").Match([])
-#--> false (requires at least 1)
+Nx = Nx("{@Property(Even) | @Property(Prime)}")
+? Nx.Match(2)  #--> TRUE (both even and prime)
+? Nx.Match(4)  #--> TRUE (even)
+? Nx.Match(7)  #--> TRUE (prime)
+? Nx.Match(9)  #--> FALSE (neither)
 
 pf()
 
-/*--- Star (*) quantifier: zero or more
+/*--- ALTERNATION: MULTIPLE PROPERTIES
 
 pr()
 
-? Nx("[@O*]").Match([1, 3, 5])
-#--> true (3 odd numbers)
-
-? Nx("[@O*]").Match([])
-#--> true (0 odd numbers allowed)
+Nx = Nx("{@Property(Perfect) | @Property(Fibonacci) | @Property(Palindrome)}")
+? Nx.Match(6)    #--> TRUE (perfect)
+? Nx.Match(13)   #--> TRUE (fibonacci)
+? Nx.Match(121)  #--> TRUE (palindrome)
+? Nx.Match(10)   #--> FALSE (none)
 
 pf()
 
-/*--- Question (?) quantifier: zero or one
+/*--- CONJUNCTION: EVEN AND PRIME
 
 pr()
 
-? Nx("[@P?, @N+]").Match([-5, -10])
-#--> true (0 positive, 2 negative)
-
-? Nx("[@P?, @N+]").Match([5, -10, -20])
-#--> true (1 positive, 2 negative)
-
-? Nx("[@P?, @N+]").Match([5, 10, -20])
-#--> false (2 positive exceeds ?)
+Nx = Nx("{@Property(Even) & @Property(Prime)}")
+? Nx.Match(2)  #--> TRUE (only even prime)
+? Nx.Match(4)  #--> FALSE (even but not prime)
+? Nx.Match(3)  #--> FALSE (prime but not even)
 
 pf()
 
-/*--- Section quantifier: min-max
+/*--- CONJUNCTION: PALINDROME AND SQUARE
 
 pr()
 
-Nx = Nx("[@I2-4]")
-Nx.EnableDebug()
-? Nx.Match([1, 2, 3])
-#--> true (3 integers, within 2-4)
-'
-BacktrackMatch: token 1/1, number 1/3
-  Token: @I (min: 2, max: 4)
-  Trying matches from 2 to 3
-  Matched 2 number(s)
-  Matched 3 number(s)
-'
-#~> The debug output is clear and informative. It shows:
-#    - Token position and totals
-#    - Token type and quantifier section
-#    - Match attempts (2 and 3 numbers)
-#    - Final result (true)
-
-#--
-? ""
-
-Nx.DisableDebug()
-? Nx.Match([1])
-#--> false (only 1, needs at least 2)
-
-? Nx.Match([1, 2, 3, 4, 5])
-#--> false (5 integers exceeds max of 4)
+Nx = Nx("{@Property(Palindrome) & @Property(Square)}")
+? Nx.Match(121)  #--> TRUE (11^2 = 121)
+? Nx.Match(144)  #--> FALSE (palindrome check: 144 != 441)
+? Nx.Match(131)  #--> FALSE (not a square)
 
 pf()
 
-#-------------------------------#
-#  PRIME NUMBER MATCHING        #
-#-------------------------------#
-
-/*--- Detecting prime numbers
+/*--- CONJUNCTION: MULTIPLE CONDITIONS
 
 pr()
 
-? Nx("[@PR+]").Match([2, 3, 5, 7, 11])
-#--> true (all are prime)
-
-? Nx("[@PR+]").Match([2, 3, 4, 5])
-#--> false (4 is not prime)
+Nx = Nx("{@Property(Even) & @Digit3 & @Property(Palindrome)}")
+? Nx.Match(212)  #--> TRUE
+? Nx.Match(222)  #--> TRUE
+? Nx.Match(213)  #--> FALSE (not palindrome)
 
 pf()
 
-/*--- Pattern: 3 primes followed by any number
+/*--- NEGATION: NOT PRIME
 
 pr()
 
-? Nx("[@PR3, @$]").Match([2, 3, 5, 100])
-#--> true
+Nx = Nx("{@!Property(Prime)}")
+? Nx.Match(4)  #--> TRUE (composite)
+? Nx.Match(9)  #--> TRUE (composite)
+? Nx.Match(7)  #--> FALSE (is prime)
 
 pf()
 
-/*--- NOT prime (composite numbers)
+/*--- NEGATION: NOT PERFECT
 
 pr()
 
-? Nx("[@!PR+]").Match([4, 6, 8, 9, 10])
-#--> true (all are composite/not prime)
+Nx = Nx("{@!Property(Perfect)}")
+? Nx.Match(10)  #--> TRUE (not perfect)
+? Nx.Match(28)  #--> FALSE (is perfect)
 
 pf()
 
-#-------------------------------#
-#  RANGE CONSTRAINTS            #
-#-------------------------------#
-
-/*--- Numbers within a section using (min..max)
+/*--- NEGATION: NOT EVEN (ODD)
 
 pr()
 
-? Nx("[@$(1..10)+]").Match([5, 7, 3, 9])
-#--> true (all between 1 and 10)
+Nx = Nx("{@!Property(Even)}")
+? Nx.Match(7)  #--> TRUE (odd)
+? Nx.Match(8)  #--> FALSE (is even)
+pf()
 
-? Nx("[@$(1..10)+]").Match([5, 15, 3])
-#--> false (15 exceeds section)
+/*--- RELATION: DIVISIBLE BY 5
+
+pr()
+
+Nx = Nx("{@Relation(Mod:5=0)}")
+? Nx.Match(10)  #--> TRUE
+? Nx.Match(25)  #--> TRUE
+? Nx.Match(13)  #--> FALSE
 
 pf()
 
-/*--- Positive integers in section
+/*--- RELATION: SPECIFIC REMAINDER
 
 pr()
 
-? Nx("[@I(0..100)+]").Match([25, 50, 75])
-#--> true
+Nx = Nx("{@Relation(Mod:3=1)}")
+? Nx.Match(10)  #--> TRUE (10 % 3 = 1)
+? Nx.Match(7)   #--> TRUE (7 % 3 = 1)
+? Nx.Match(9)   #--> FALSE (9 % 3 = 0)
 
 pf()
 
-/*--- Combining type and section constraints
+/*--- RELATION: DIVISIBLE BY 10
 
 pr()
 
-? Nx("[@E(10..50)3]").Match([12, 24, 36])
-#--> true (3 even numbers between 10-50)
-
-? Nx("[@E(10..50)3]").Match([12, 24, 60])
-#--> false (60 out of section)
+Nx = Nx("{@Relation(Mod:5=0) & @Property(Even)}")
+? Nx.Match(10)  #--> TRUE
+? Nx.Match(20)  #--> TRUE
+? Nx.Match(15)  #--> FALSE (not even)
 
 pf()
 
-#-------------------------------#
-#  SET CONSTRAINTS              #
-#-------------------------------#
-
-/*--- Matching numbers from a specific set
+/*--- EXTRACTING DIGIT LIST
 
 pr()
 
-? Nx("[@${1;3;5;7}+]").Match([1, 5, 3, 7])
-#--> true (all in set)
-
-? Nx("[@${1;3;5;7}+]").Match([1, 2, 3])
-#--> false (2 not in set)
-
-pf()
-
-/*--- Exact count with set constraint
-
-pr()
-
-? Nx("[@${10;20;30}3]").Match([10, 20, 30])
-#--> true
-
-? Nx("[@${10;20;30}3]").Match([10, 20, 20])
-#--> true (duplicates allowed)
-
-pf()
-
-/*--- Even numbers from specific set
-
-pr()
-
-? Nx("[@E{2;4;6;8}+]").Match([2, 4, 6])
-#--> true (all even AND in set)
-
-? Nx("[@E{2;4;6;8}+]").Match([2, 4, 10])
-#--> false (10 not in set)
-
-pf()
-
-#-------------------------------#
-#  DIVISIBILITY MATCHING        #
-#-------------------------------#
-
-/*--- Numbers divisible by specific value
-
-pr()
-
-? Nx("[@DIV(5)+]").Match([5, 10, 15, 20])
-#--> true (all divisible by 5)
-
-? Nx("[@DIV(5)+]").Match([5, 10, 12])
-#--> false (12 not divisible by 5)
-
-pf()
-
-/*--- Divisible by 3, exactly 4 numbers
-
-pr()
-
-? Nx("[@DIV(3)4]").Match([3, 6, 9, 12])
-#--> true
-
-pf()
-
-/*--- Pattern: 2 multiples of 5, then 2 multiples of 3
-
-pr()
-
-? Nx("[@DIV(5)2, @DIV(3)2]").Match([10, 25, 6, 9])
-#--> true
-
-pf()
-
-#-------------------------------#
-#  DIGIT COUNT MATCHING         #
-#-------------------------------#
-
-/*--- Single-digit numbers only
-
-pr()
-
-? Nx("[@D(1)+]").Match([5, 7, 2, 9])
-#--> true (all single digit)
-
-? Nx("[@D(1)+]").Match([5, 12, 2])
-#--> false (12 is two digits)
-
-pf()
-
-/*--- Two-digit numbers only
-
-pr()
-
-Nx = Nx("[@D(2)+]")
-Nx.EnableDebug()
-? Nx.Match([10, 25, 99])
-#--> true
-'
-BacktrackMatch: token 1/1, number 1/3
-  Token: @D (min: 1, max: 999999999)
-  Trying matches from 1 to 3
-  Matched 1 number(s)
-  Matched 2 number(s)
-  Matched 3 number(s)
-'
-
-? ""
-
-Nx.DisableDebug()
-? Nx.Match([10, 5, 99])
-#--> false (5 is single digit)
-
-pf()
-
-/*--- Pattern: 2 single-digit, then 2 two-digit
-
-pr()
-
-? Nx("[@D(1)2, @D(2)2]").Match([5, 7, 10, 25])
-#--> true
-
-pf()
-
-#-------------------------------#
-#  COMPLEX PATTERNS             #
-#-------------------------------#
-
-/*--- Validation: score pattern (0-100, positive)
-
-pr()
-
-? Nx("[@P(0..100)+]").Match([85, 92, 78, 95])
-#--> true (valid test scores)
-
-? Nx("[@P(0..100)+]").Match([85, 105, 78])
-#--> false (105 exceeds 100)
-
-pf()
-
-/*--- Financial: amounts with cents pattern
-
-pr()
-
-aTransactions = [10.50, 25.99, 100.00, 5.25]
-
-? Nx("[@P+]").Match(aTransactions)
-#--> true (all positive amounts)
-
-pf()
-
-/*--- Sensor data: 5 positive readings, then optional negative
-
-pr()
-
-? Nx("[@P5, @N?]").Match([10, 20, 30, 40, 50])
-#--> true (5 positive, 0 negative)
-
-? Nx("[@P5, @N?]").Match([10, 20, 30, 40, 50, -5])
-#--> true (5 positive, 1 negative)
-
-pf()
-
-/*--- Time series: alternating increases/decreases
-
-pr()
-
-? Nx("[@P, @N, @P, @N]").Match([5, -2, 8, -3])
-#--> true (alternating pattern)
-
-pf()
-
-/*--- Game scores: 3-5 positive integers from specific section
-
-pr()
-
-Nx = Nx("[@I(1..1000)3-5]")
-Nx.EnableDebug()
-? Nx.Match([100, 250, 500])
-#--> true (3 scores)
-'
-BacktrackMatch: token 1/1, number 1/3
-  Token: @I (min: 3, max: 5)
-  Trying matches from 3 to 3
-  Matched 3 number(s)
-'
-
-? ""
-Nx.DisableDebug()
-? Nx.Match([100, 250, 500, 750, 900])
-#--> true (5 scores)
-
-? Nx.Match([100, 250])
-#--> false (only 2 scores)
-
-pf()
-
-/*--- Cryptographic: prime numbers of specific digit length
-
-pr()
-
-# Pattern: one prime, then one or more 2-digit numbers
-
-
-? Nx("[@PR, @D(2)+]").Match([2, 11, 13, 17, 19])
-#--> true (2 is prime, then 11,13,17,19 are all 2-digit)
-
-# Requiring all numbers to be 2-digit primes
-
-? Nx("[@D(2), @PR+]").Match([2, 11, 13, 17, 19])
-#--> false (2 is only 1 digit, fails first token)
-
-pf()
-
-/*--- Statistical outlier detection: NOT in normal section
-
-pr()
-
-# Detect values outside 10-90 section
-Nx = Nx("[@!$(10..90)+]")
-Nx.EnableDebug()
-? Nx.Match([5, 2, 95, 100])
-#--> true (all outside 10-90)
-
-? Nx("[@!$(10..90)+]").Match([5, 50, 95])
-#--> false (50 is within section)
-
-pf()
-
-/*--- Lottery numbers: 6 unique primes from 1-50
-
-pr()
-
-# Note: uniqueness requires set constraint
-? Nx("[@PR(1..50)6]").Match([7, 11, 13, 19, 23, 29])
-#--> true (6 primes in section)
-
-pf()
-
-/*--- Pagination: page sizes (multiples of 10)
-
-pr()
-
-Nx = Nx("[@DIV(10)(10..100)+]")
-Nx.EnableDebug()
-? Nx.Match([10, 20, 50, 100])
-#--> true (all multiples of 10, within section)
-'
-BacktrackMatch: token 1/1, number 1/4
-  Token: @DIV (min: 1, max: 999999999)
-  Trying matches from 1 to 4
-  Matched 1 number(s)
-  Matched 2 number(s)
-  Matched 3 number(s)
-  Matched 4 number(s)
-'
-
-pf()
-
-/*--- RGB color validation: 3 integers 0-255
-
-pr()
-
-? Nx("[@I(0..255)3]").Match([128, 64, 192])
-#--> true (valid RGB)
-
-? Nx("[@I(0..255)3]").Match([128, 64])
-#--> false (only 2 values)
-
-? Nx("[@I(0..255)3]").Match([128, 64, 300])
-#--> false (300 exceeds 255)
-
-pf()
-
-/*--- Temperature readings: optional negative, then positive
-
-pr()
-
-? Nx("[@N*, @P+]").Match([10, 20, 30])
-#--> true (0 negative, 3 positive)
-
-? Nx("[@N*, @P+]").Match([-5, -10, 5, 10])
-#--> true (2 negative, 2 positive)
-
-pf()
-
-#-------------------------------#
-#  NEGATION PATTERNS            #
-#-------------------------------#
-
-/*--- NOT even = odd numbers
-
-pr()
-
-? Nx("[@!E+]").Match([1, 3, 5, 7])
-#--> true
-
-pf()
-
-/*--- NOT positive = zero or negative
-
-pr()
-
-? Nx("[@!P+]").Match([0, -5, -10])
-#--> true
-
-? Nx("[@!P+]").Match([0, 5, -10])
-#--> false (5 is positive)
-
-pf()
-
-/*--- NOT in section (outliers)
-
-pr()
-
-? Nx("[@!$(50..100)+]").Match([10, 20, 110, 120])
-#--> true (all outside 50-100)
-
-pf()
-
-/*--- NOT divisible by 2 (odd numbers another way)
-*/
-pr()
-
-? Nx("[@!DIV(2)+]").Match([1, 3, 5, 7])
-#--> true
-
-pf()
-
-#-------------------------------#
-#  REAL-WORLD USE CASES         #
-#-------------------------------#
-
-/*--- API response validation: HTTP status codes
-
-pr()
-
-# Success codes (200-299)
-? Nx("[@I(200..299)+]").Match([200, 201, 204])
-#--> true
-
-# Error codes (400-499 or 500-599)
-aErrors = [404, 500, 503]
-? Nx("[@I(400..599)+]").Match(aErrors)
-#--> true
-
-pf()
-
-/*--- Banking: transaction validation
-
-pr()
-
-# Deposits: positive only
-? Nx("[@P+]").Match([100.50, 250.00, 75.25])
-#--> true
-
-# Withdrawals: negative only
-? Nx("[@N+]").Match([-50.00, -100.00, -25.50])
-#--> true
-
-pf()
-
-/*--- Age validation: adults only (18-120)
-
-pr()
-
-? Nx("[@I(18..120)+]").Match([25, 45, 67])
-#--> true
-
-? Nx("[@I(18..120)+]").Match([25, 15, 67])
-#--> false (15 < 18)
-
-pf()
-
-/*--- Dice rolls: 1-6 only
-
-pr()
-
-? Nx("[@I{1;2;3;4;5;6}+]").Match([3, 5, 1, 6, 2])
-#--> true (all valid dice rolls)
-
-? Nx("[@I{1;2;3;4;5;6}+]").Match([3, 7, 1])
-#--> false (7 invalid)
-
-pf()
-
-/*--- Rating system: 1-5 stars
-
-pr()
-
-? Nx("[@I{1;2;3;4;5}+]").Match([5, 4, 5, 3, 4])
-#--> true (valid ratings)
-
-pf()
-
-/*--- Priority queue: levels 1, 2, or 3 only
-
-pr()
-
-? Nx("[@I{1;2;3}+]").Match([1, 2, 1, 3, 2])
-#--> true
-
-pf()
-
-/*--- Fibonacci sequence validator (first 10)
-
-pr()
-
-? Nx("[@${1;1;2;3;5;8;13;21;34;55}+]").Match([1, 1, 2, 3, 5])
-#--> true (valid Fibonacci subsequence)
-
-pf()
-
-/*--- Port numbers: well-known (0-1023)
-
-pr()
-
-? Nx("[@I(0..1023)+]").Match([80, 443, 22, 21])
-#--> true (common ports)
-
-pf()
-
-/*--- Percentage validation: 0-100
-
-pr()
-
-? Nx("[@$(0..100)+]").Match([75.5, 85, 92.3])
-#--> true
-
-? Nx("[@$(0..100)+]").Match([75.5, 105])
-#--> false (105 exceeds 100)
-
-pf()
-
-/*--- Cryptographic: checking prime factors
-
-pr()
-
-# Ensure all factors are prime
-? Nx("[@PR+]").Match([2, 3, 5, 7])
-#--> true (useful for RSA key validation)
-
-pf()
-
-#-------------------------------#
-#  ADVANCED COMPOSITIONS        #
-#-------------------------------#
-
-/*--- Pattern: even prime (only 2), then odd primes
-
-pr()
-
-? Nx("[@E, @PR1, @O, @PR+]").Match([2, 2, 3, 5, 7])
-#--> true (2 is even AND prime, rest odd primes)
-
-pf()
-
-/*--- Three-part pattern: negative, zeros, positive
-
-pr()
-
-? Nx("[@N+, @${0}*, @P+]").Match([-5, -3, 0, 0, 5, 10])
-#--> true
-
-? Nx("[@N+, @${0}*, @P+]").Match([-5, -3, 5, 10])
-#--> true (zero section optional)
-
-pf()
-
-/*--- Alternating constraints
-
-pr()
-
-? Nx("[@E, @DIV(3), @E, @DIV(3)]").Match([2, 9, 4, 12])
-#--> true (2 even, 9 div by 3, 4 even, 12 div by 3)
-
-pf()
-
-/*--- Multiple quantifiers in sequence
-
-pr()
-
-? Nx("[@P1-3, @N2-4, @$*]").Match([5, 10, -2, -5, -8, 100, 200])
-#--> true (2 pos, 3 neg, 2 any)
-
-pf()
-
-#-------------------------------#
-#  DEBUG AND INTROSPECTION      #
-#-------------------------------#
-
-/*--- Viewing parsed tokens
-
-pr()
-
-oNx = Nx("[@E2, @O+, @P(1..10)]")
-
-? @@( oNx.Tokens()) + NL
-#--> [ "@E", "@O", "@P" ]
-
-? @@NL( oNx.TokensXT() ) + NL
+Nx = Nx("{@Digit+}")
+? Nx.Match(1234) #--> TRUE
+? @@NL( Nx.MatchedParts() )
 #-->
 '
 [
+	[ "Digits", [ 1, 2, 3, 4 ] ],
+	[ "Factors", [ 1, 2, 617, 1234 ] ],
+	[ "Properties", [ "Even", "Deficient", "Composite" ] ],
+	[ "Value", 1234 ]
+]
+'
+
+pf()
+
+/*--- EXTRACTING FACTOR LIST
+
+pr()
+
+Nx = Nx("{@Factor+}")
+? Nx.Match(42) #--> TRUE
+? @@( Nx.Factors() )
+#--> [ 1, 2, 3, 6, 7, 14, 21, 42 ]
+
+pf()
+
+/*--- EXTRACTING PROPERTIES
+
+pr()
+
+Nx = Nx("{@Property(Even)}")
+
+? Nx.Match(6)
+#--> TRUE
+
+? @@( Nx.Properties() )
+#--> [ "Even", "Perfect", "Palindrome", "Triangular", "Composite" ]
+
+? Nx.Value()
+#--> 6
+
+pf()
+
+/*--- APPLICATION: PIN CODE VALIDATION
+
+pr()
+
+oPinValidator = Nx("{@Digit4:unique}")
+? oPinValidator.Match(1234)  #--> TRUE
+? oPinValidator.Match(1123)  #--> FALSE (not unique)
+? oPinValidator.Match(9876)  #--> TRUE
+
+pf()
+
+/*--- APPLICATION: CRYPTO KEY VALIDATION
+
+pr()
+
+oKeyValidator = Nx("{@Property(Prime) & @Digit3+}")
+? oKeyValidator.Match(101)  #--> TRUE (prime, 3 digits)
+? oKeyValidator.Match(103)  #--> TRUE (prime, 3 digits)
+? oKeyValidator.Match(100)  #--> FALSE (not prime)
+? oKeyValidator.Match(97)   #--> FALSE (only 2 digits)
+
+pf()
+
+/*--- APPLICATION: GAME SCORE VALIDATION
+
+pr()
+
+oScoreValidator = Nx("{@Property(Even) & @Digit2-4 & @Relation(Mod:10=0)}")
+? oScoreValidator.Match(100)   #--> TRUE
+? oScoreValidator.Match(1230)  #--> TRUE
+? oScoreValidator.Match(125)   #--> FALSE (not even)
+? oScoreValidator.Match(10)    #--> TRUE
+
+pf()
+
+/*---
+
+pr()
+
+Nx = Nx("{@Digit(1-9)6}")
+? Nx.Match(123456) #--> TRUE
+
+pf()
+
+/*--- APPLICATION: LOTTERY NUMBER VALIDATION
+
+pr()
+
+oLottery = Nx("{@Digit(1-9)6:unique}")
+? oLottery.Match(123456)  #--> TRUE
+? oLottery.Match(123455)  #--> FALSE (not unique)
+? oLottery.Match(123450)  #--> FALSE (contains 0)
+
+pf()
+
+/*--- PATTERN EXPLANATION
+
+pr()
+
+Nx = Nx("{@Property(Prime)}")
+? @@NL( Nx.Explain() )
+#-->
+'
+[
+	[ "Pattern", "{@Property(Prime)}" ],
+	[ "TokenCount", 1 ],
 	[
-		[ "keyword", "@E" ],
-		[ "min", 2 ],
-		[ "max", 2 ],
-		[ "quantifier", 2 ],
-		[ "constraints", [  ] ],
-		[ "negated", 0 ],
-		[ "type", "even" ]
-	],
-	[
-		[ "keyword", "@O" ],
-		[ "min", 1 ],
-		[ "max", 999999999 ],
-		[ "quantifier", 1 ],
-		[ "constraints", [  ] ],
-		[ "negated", 0 ],
-		[ "type", "odd" ]
-	],
-	[
-		[ "keyword", "@P" ],
-		[ "min", 1 ],
-		[ "max", 1 ],
-		[ "quantifier", 1 ],
+		"Tokens",
 		[
-			"constraints",
 			[
-				[
-					"section",
-					[ 1, 10 ]
-				]
+				[ "type", "property" ],
+				[ "value", "Prime" ],
+				[ "constraints", [  ] ],
+				[ "min", 1 ],
+				[ "max", 1 ],
+				[ "negated", 0 ]
 			]
-		],
-		[ "negated", 0 ],
-		[ "type", "positive" ]
+		]
 	]
 ]
 '
 
-? oNx.TokensInfo()
+pf()
+
+/*--- COMPLEX PATTERN EXPLANATION
+
+pr()
+
+Nx = Nx("{@Property(Even) & @Digit3 & @Relation(Mod:5=0)}")
+? @@NL( Nx.Explain() )
 #-->
 '
-Token #1: @E2
-Token #2: @O (1-999999999)
-Token #3: @P [constraints: 1]
+[
+	[
+		"Pattern",
+		"{@Property(Even) & @Digit3 & @Relation(Mod:5=0)}"
+	],
+	[ "TokenCount", 1 ],
+	[
+		"Tokens",
+		[
+			[
+				[ "type", "conjunction" ],
+				[
+					"conditions",
+					[
+						[
+							[ "type", "property" ],
+							[ "value", "Even" ],
+							[ "constraints", [  ] ],
+							[ "min", 1 ],
+							[ "max", 1 ],
+							[ "negated", 0 ]
+						],
+						[
+							[ "type", "digit" ],
+							[ "value", "" ],
+							[ "constraints", [  ] ],
+							[ "min", 3 ],
+							[ "max", 3 ],
+							[ "negated", 0 ]
+						],
+						[
+							[ "type", "relation" ],
+							[ "value", "Mod:5=0" ],
+							[ "constraints", [  ] ],
+							[ "min", 1 ],
+							[ "max", 1 ],
+							[ "negated", 0 ]
+						]
+					]
+				],
+				[ "negated", 0 ]
+			]
+		]
+	]
+]
 '
 
 pf()
 
-/*--- Pattern retrieval
+/*--- NEW FEATURES: ADDITIONAL PROPERTIES
 
 pr()
 
-oNx = Nx("[@PR+, @DIV(3)2]")
-? oNx.Pattern()
-#--> "[@PR+, @DIV(3)2]"
+Nx = Nx("{@Property(Triangular)}")
+? Nx.Match(1)   #--> TRUE
+? Nx.Match(3)   #--> TRUE
+? Nx.Match(6)   #--> TRUE
+? Nx.Match(10)  #--> TRUE
+? Nx.Match(11)  #--> FALSE
+
+pf()
+
+/*---
+
+pr()
+
+Nx = Nx("{@Property(Cube)}")
+? Nx.Match(1)   #--> TRUE
+? Nx.Match(8)   #--> TRUE
+? Nx.Match(27)  #--> TRUE
+? Nx.Match(10)  #--> FALSE
+
+pf()
+
+/*---
+
+pr()
+
+Nx = Nx("{@Property(Abundant)}")
+? Nx.Match(12)  #--> TRUE (1+2+3+4+6 = 16 > 12)
+? Nx.Match(18)  #--> TRUE
+? Nx.Match(10)  #--> FALSE
+
+pf()
+
+/*---
+
+pr()
+
+Nx = Nx("{@Property(Deficient)}")
+? Nx.Match(8)   #--> TRUE (1+2+4 = 7 < 8)
+? Nx.Match(10)  #--> TRUE (1+2+5 = 8 < 10)
+? Nx.Match(6)   #--> FALSE (perfect)
+pf()
+
+/*--- NEW FEATURES: PART MATCHING
+
+pr()
+
+Nx = Nx("{@Part(Integer)}")
+? Nx.Match(5)     #--> TRUE
+? Nx.Match(5.7)   #--> FALSE
+
+pf()
+
+/*---
+
+pr()
+
+Nx = Nx("{@Part(Fractional)}")
+? Nx.Match(5)     #--> FALSE
+? Nx.Match(5.7)   #--> TRUE
+
+pf()
+
+/*--- NEW FEATURES: DIVISOR/MULTIPLE
+
+pr()
+
+Nx = Nx("{@Divisor(3)}")
+? Nx.Match(9)   #--> TRUE
+? Nx.Match(15)  #--> TRUE
+? Nx.Match(10)  #--> FALSE
+
+pf()
+
+/*---
+
+pr()
+
+Nx = Nx("{@Multiple(5)}")
+? Nx.Match(10)  #--> TRUE
+? Nx.Match(15)  #--> TRUE
+? Nx.Match(12)  #--> FALSE
+
+pf()
+
+/*--- NEW FEATURES: FIND METHODS
+
+pr()
+
+# Get Next Matching Number
+
+Nx = Nx("{@Property(Prime) & @Digit2}")
+? Nx.MatchingNumberAfter(10)  #--> 11 (first 2-digit prime >= 10)
+
+pf()
+
+/*---
+
+pr()
+
+# Get matching numbers in between two numbers
+
+Nx = Nx("{@Property(Perfect)}")
+aResults = Nx.MatchingNumbersBetween(1, :And = 100)
+? @@(aResults)  #--> [6, 28]
+
+pf()
+
+/*---
+
+pr()
+
+# Count matching numbers between two given numbers
+
+Nx = Nx("{@Property(Prime) & @Digit2}")
+? Nx.CountMatchingNumbersBetween(10, :And = 99)
+#--> 21
+
+pf()
+
+/*--- CASE INSENSITIVITY
+
+pr()
+
+# Case Insensitive Keywords
+
+Nx = Nx("{@PROPERTY(PRIME)}")
+? Nx.Match(17)  #--> TRUE
+
+Nx = Nx("{@property(prime)}")
+? Nx.Match(17)  #--> TRUE
+
+Nx = Nx("{@Property(Prime)}")
+? Nx.Match(17)  #--> TRUE
 
 pf()
