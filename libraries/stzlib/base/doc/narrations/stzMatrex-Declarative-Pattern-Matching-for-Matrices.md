@@ -76,7 +76,6 @@ aMatrix3 = [[1,2,3,4]]
 These size patterns provide the foundation for structural reasoning in numerical workflows.
 
 
-
 ## 2. Recognizing Matrix Shape
 
 Shape patterns let you distinguish between geometric configurations — square, rectangular, tall, wide, or vector-like.
@@ -124,7 +123,6 @@ aCol = [[1],[2],[3]]
 ```
 
 These shape-based expressions clarify algorithms that depend on the matrix’s orientation.
-
 
 
 ## 3. Detecting Matrix Properties
@@ -178,7 +176,6 @@ aAsymmetric = [
 The same logic identifies diagonal, upper, lower, and zero matrices, allowing you to encode classification rules directly in patterns.
 
 
-
 ## 4. Applying Element Constraints
 
 Sometimes the structure is less important than what the matrix contains.
@@ -221,7 +218,6 @@ aBinary = [
 ```
 
 These patterns make it easy to validate numerical domains across large data structures.
-
 
 
 ## 5. Combining Logical Conditions
@@ -273,7 +269,6 @@ aDiag3x3 = [
 ```
 
 This logical composition is a natural way to describe high-level matrix requirements.
-
 
 
 ## 6. Matching Sets of Matrices
@@ -335,7 +330,6 @@ aMatrices = [
 Such analytical feedback transforms `stzMatrex` into a compact matrix quality assessment tool.
 
 
-
 ## 7. Extracting Matched Components
 
 After a successful match, you can inspect what properties were recognized.
@@ -365,7 +359,6 @@ oMx.Match(aMatrix)
 This structured introspection is ideal for automated documentation or for building explainable AI models that interpret numerical patterns.
 
 
-
 ## 8. Filtering and Selection
 
 When analyzing heterogeneous datasets, you can filter entire lists by pattern match.
@@ -385,7 +378,6 @@ aFiltered = oMx.FilterMatrices(aMatrices)
 ```
 
 Filtering based on structural rules reduces preprocessing complexity in multi-matrix computations.
-
 
 
 ## 9. Analytical Operations on Similarity and Constraints
@@ -446,7 +438,6 @@ oMx.AddConstraint("property(symmetric)")
 This adaptability makes `stzMatrex` well-suited for progressive data validation and iterative model checking.
 
 
-
 ## 10. Debugging and Pattern Inspection
 
 For deeper insight, `stzMatrex` offers verbose introspection tools.
@@ -476,7 +467,6 @@ You can also query the current pattern or inspect its internal tokens:
 ```
 
 These features make `stzMatrex` as transparent as it is expressive.
-
 
 
 ## 11. Comparative Advantages
