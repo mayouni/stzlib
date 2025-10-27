@@ -965,6 +965,9 @@ class stzRegex
 	def IsValid()
 		return This.QRegexObject().isValid()
 
+		def IsValidPattern()
+			return THis.IsValid()
+
 	def LastError()
 		return This.QRegexObject().errorString()
 
