@@ -8,6 +8,10 @@ func StzTablexQ(cPattern)
 func Tablex(cPattern)
 	return new stzTablex(cPattern)
 
+	
+func Tbx(cPattern)
+	return new stzTablex(cPattern)
+
 func IsStzTablex(pObj)
 	if isObject(pObj) and classname(pObj) = "stztablex"
 		return TRUE
@@ -169,6 +173,7 @@ class stzTablex from stzObject
 		ok
 		
 		bNegated = FALSE
+		bCaseSensitive = FALSE
 		
 		# Check for negation
 		if startsWith(lower(cTokenStr), "@!")
@@ -176,11 +181,27 @@ class stzTablex from stzObject
 			cTokenStr = @substr(cTokenStr, 3, len(cTokenStr))
 		ok
 		
+		# Check for case sensitivity flag
+		if startsWith(lower(cTokenStr), "@cs:")
+			bCaseSensitive = TRUE
+			cTokenStr = @substr(cTokenStr, 5, len(cTokenStr))
+		ok
+		
 		cType = ""
 		cValue = ""
 		aConstraints = []
 		nMin = 1
 		nMax = 1
+		
+		# Extract and preserve content in parentheses before lowercasing
+		cPreservedValue = ""
+		nOpenParen = substr(cTokenStr, "(")
+		if nOpenParen > 0
+			nCloseParen = substr(cTokenStr, ")")
+			if nCloseParen > nOpenParen
+				cPreservedValue = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+			ok
+		ok
 		
 		cTokenStr = lower(cTokenStr)
 		
@@ -237,12 +258,13 @@ class stzTablex from stzObject
 			]
 		ok
 		
-		# Parse parentheses content
+		# Parse parentheses content - use preserved value
 		nOpenParen = substr(cTokenStr, "(")
 		if nOpenParen > 0
 			nCloseParen = substr(cTokenStr, ")")
 			if nCloseParen > nOpenParen
-				cContent = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+				# Use the preserved (non-lowercased) content
+				cContent = cPreservedValue
 				
 				if cType = "property" or cType = "colname" or 
 				   cType = "contains" or cType = "sorted" or 
@@ -293,7 +315,8 @@ class stzTablex from stzObject
 			["constraints", aConstraints],
 			["min", nMin],
 			["max", nMax],
-			["negated", bNegated]
+			["negated", bNegated],
+			["casesensitive", bCaseSensitive]
 		]
 	
 	def RemovePrefix(cStr, aPrefixes)
@@ -599,9 +622,36 @@ class stzTablex from stzObject
 	def CheckContains(aToken, oTable)
 		if HasKey(aToken, "value")
 			cValue = aToken["value"]
-			return oTable.Contains(:Cell = cValue)
+			_value_ = cValue
+			
+			bCaseSensitive = FALSE
+			if HasKey(aToken, "casesensitive")
+				bCaseSensitive = aToken["casesensitive"]
+			ok
+
+			if IsNumberInString(cValue)
+				_value_ = 0+ cValue
+
+			but IsListInString(cValue)
+				cCode = "_value_ = " + cValue
+				eval(cCode)
+			ok
+
+			# WARNING: The pattern does not understand values
+			# of type OBJECT, only NUMBER, STRING and LIST.
+			# TODO: Clarify this in the documentation
+
+			# Check with case sensitivity
+			if bCaseSensitive
+				bResult = oTable.ContainsCellCS(_value_, TRUE)
+			else
+				bResult = oTable.ContainsCellCS(_value_, FALSE)
+			ok
+			
+			return bResult
 		ok
-		return TRUE
+
+		return FALSE
 	
 	def CheckSorted(aToken, oTable)
 		if HasKey(aToken, "value")
