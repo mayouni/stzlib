@@ -171,6 +171,22 @@ func IsMatrixOfNonZeroPositiveNumbers(paList)
 	func @IsMatrixOfStrictlyPositiveNumbers(paList)
 		return IsMatrixOfNonZeroPositiveNumbers(paList)
 
+func IsListOfMatrices(paList)
+	if NOT isList(paList)
+		return 0
+	ok
+
+	bResult = 1
+	nLen = len(paList)
+
+	for i = 1 to nLen
+		if NOT IsMAtrix(paList[i])
+			bResult = 0
+			exit
+		ok
+	next
+
+	return bResult
 
 class stzMatrix
 
