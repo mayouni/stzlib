@@ -5,7 +5,7 @@ load "../stzbase.ring"
 #--------------------------#
 
 /*--- Matching exact column count
-
+*/
 pr()
 
 oTable = new stzTable([
@@ -1112,7 +1112,7 @@ pf()
 # ✓ Test suites (assertions on fixtures)
 # ✓ Dashboard refreshes (pattern reuse)
 
-*/
+
 pr()
 
 oTable1 = new stzTable([
