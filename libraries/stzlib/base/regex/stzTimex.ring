@@ -19,7 +19,7 @@ func StzTimexQ(cPattern)
 func Timex(cPattern)
 	return new stzTimex(cPattern)
 
-func Tx(cPattern)
+func Tmx(cPattern)
 	return new stzTimex(cPattern)
 
 class stzTimex

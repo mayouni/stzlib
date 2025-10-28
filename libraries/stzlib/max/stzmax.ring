@@ -32,7 +32,7 @@
 	load "number/stzListOfPairsOfNumbers.ring"
 
 	load "number/stzNumberLowLevelType.ring"
-	load "number/stzPairOfNumbers.ring"
+
 
 # Loading files related to STRING module
 

@@ -103,6 +103,7 @@ func StringToCSVListXT(cStr, cSep)
 		if NOT IsCSV(cStr)
 			StzRaise("Can't proceed! The string must be in CSV format.")
 		ok
+
 	ok
 
 		cStr = @trim(cStr)

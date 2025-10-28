@@ -511,6 +511,40 @@ func FileCreateIfInexistant(cFilePath)
 		FileCreateIfInexistant(cFilePath)
 
 
+class stzFileXT from stzObject
+
+	def init(pcFileName, pcIntent)
+		pcIntent = lower(pcIntent)
+
+		if pcIntent = "info"
+			return new stzFileInfo(cFileName)
+
+		but pcIntent = "read" or pcIntent = "reader" or pcIntent = "readonly"
+			return new stzFileReader(pcFileName)
+
+		but pcIntent = "append" or pcIntent = "appender"
+			return new stzFileAppender(pcFileName)
+
+		but pcIntent = "create" or pcIntent = "creator"
+			return new stzFileCreator(pcFileName)
+
+		but pcIntent = "overwrite" or pcIntent = "overwiriter"
+			return new stzFileOverwriter(pcFileName)
+
+		but pcIntent = "erase" or pcIntent = "eraser"
+			return new stzFileEraser(pcFileName)
+
+		but pcIntent = "modify" or pcIntent = "modifier"
+			return new stzFileModifier(pcFileName)
+
+		but pcIntent = "mange" or pcIntent = "manager"
+			return new stzFileManager(pcFileName)
+
+		else
+			StzRaise("Can't proceed! The intent you provided is not support in Softanza file API.")
+		ok
+		
+
 #=================================================#
 # META INFORMATION ABOUT FILE WITHOUT OPENING IT  #
 #=================================================#
@@ -785,9 +819,12 @@ class stzFileReader from stzFileReadingMixin
         
         @cFileName = cFileName
         @oQFile = new QFile()
-	    @oQfile.setFileName(cFileName)
+	@oQfile.setFileName(cFileName)
         @oQFile.open_3(QIODevice_ReadOnly | QIODevice_Text)
     
+    def Content()
+	return ring_read(@cFileName)
+
     def Close()
         @oQFile.close()
 
@@ -817,6 +854,8 @@ class stzFileReader from stzFileReadingMixin
 # Purpose: Supports adding content (e.g., logs) with
 # methods like WriteLogEntry() and read access for
 # context-aware operations.
+
+class stzFile from stzFileAppender
 
 class stzFileAppender from stzFileReadingMixin
     @cFileName
@@ -1201,7 +1240,7 @@ class stzFileOverwriter from stzFileReadingMixin
 
 # SPECIAL CASE OF THE OVERWRITE INTENT
 
-class stzEaraser from stzObject
+class stzFileEaraser from stzObject
     @cFileName
     @oQFile
     @cOriginalContent  # Preserve original content for reading

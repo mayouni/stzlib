@@ -4,8 +4,8 @@
 #---------------------------------------------------------------------#
 #                                                                     #
 #    Description    : The class for managing tables in SoftanzaLib    #
-#    Version        : V0.9 (2020-2024)                                #
-#    Author         : Mansour Ayouni (kalidianow@gmail.com)	          #
+#    Version        : V0.9 (2020-2025)                                #
+#    Author         : Mansour Ayouni (kalidianow@gmail.com)	      #
 #                                                                     #
 #---------------------------------------------------------------------#
 
@@ -278,7 +278,8 @@ Class stzTable from stzList
 			return "stztable"
 
 	def Content()
-		return @aContent
+		_aContent_ = @aContent # A deep copy to avoid reference propagation
+		return _aContent_
 
 		def Table()
 			return This.Content()
@@ -291,8 +292,15 @@ Class stzTable from stzList
 
 	
 	def Copy()
-		oCopy = new stzTable(This.Content())
-		return oCopy
+		
+		_aCopy_ = []
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			_aCopy_ + @aContent[i]
+		next
+
+		_oCopy_ = new stzTable(_aCopy_)
+		return _oCopy_
 
 	def IsEmpty()
 		if This.CellsQ().AllItemsAreNull()
@@ -9566,7 +9574,7 @@ Class stzTable from stzList
 			ok
 		ok
 
-		aContent = This.Content()
+		aContent = @aContent
 		cCol = This.ColToName(pCol)
 		aContent[cCol][pnRow] = pNewCellValue
 
@@ -10454,7 +10462,7 @@ Class stzTable from stzList
 		ok
 
 		aCol = []
-		aContent = This.Content()
+		aContent = @aContent
 
 		for i = 1 to nRows
 			if i <= nLen
@@ -10544,7 +10552,7 @@ Class stzTable from stzList
 			ok
 		next
 
-		aContent = This.Content()
+		aContent = @aContent
 		aContent[n][2] = aCol
 		This.UpdateWith(aContent)
 
@@ -10721,7 +10729,7 @@ Class stzTable from stzList
 			aTemp + paColData[i]
 		next
 
-		aContent = This.Content()
+		aContent = @aContent
 		aContent[n][1] = pcColName
 		aContent[n][2] = aTemp
 
@@ -10789,7 +10797,7 @@ Class stzTable from stzList
 
 		nCol = This.ColToColNumber(pCol)
 		nRows = This.NumberOfRows()
-		aContent = This.Content()
+		aContent = @aContent
 
 		for i = 1 to nRows
 			aContent[nCol][2][i] = pCell
@@ -11033,7 +11041,7 @@ Class stzTable from stzList
 
 		nLenCols = @Min([ len(paNewRow), len(@aContent) ])
 		nLenRows = This.NumberOfRows()
-		aContent = This.Content()
+		aContent = @aContent
 
 		for i = 1 to nLenCols
 			for j = 1 to nLenRows
@@ -11446,7 +11454,7 @@ Class stzTable from stzList
 			StzRaise("Incorrect format! paRow must contain " + This.NumberOfCols() + " items.")
 		ok
 
-		aContent = This.Content()
+		aContent = @aContent
 
 		for i = 1 to nLen
 			aContent[i][2] + paRow[i]
@@ -11625,7 +11633,7 @@ Class stzTable from stzList
 			return
 		ok
 
-		aContent = This.Content()
+		aContent = @aContent
 		ring_remove(aContent, n)
 		This.UpdateWith(aContent)
 
@@ -11647,10 +11655,9 @@ Class stzTable from stzList
 			return
 		ok
 
-		aContent = This.Content()
-		ring_remove(@aContent, nCol)
+		aContent = @aContent
+		ring_remove(aContent, nCol)
 		This.UpdateWith(aContent)
-
 
 		def RemoveCol(pColNameOrNumber)
 			This.RemoveColumn(pColNameOrNumber)
@@ -11669,7 +11676,7 @@ Class stzTable from stzList
 		anColNumbers = ring_sort( U(TpacColNamesOrNumbers) )
 		nLen = len(anColNumbers)
 
-		aContent = This.Content()
+		aContent = @aContent
 
 		for i = nLen to 1 step -1
 			ring_remove(aContent, anColNumbers[i])
@@ -11692,7 +11699,7 @@ Class stzTable from stzList
 		anColNumbers = ring_sort( U(This.TheseColsToColNumbers(pacColNamesOrNumbers)) )
 		nLen = len(anColNumbers)
 
-		aContent = This.Content()
+		aContent = @aContent
 
 		for i = nLen to 1 step -1
 			ring_remove(aContent, anColNumbers[i])
@@ -11832,7 +11839,7 @@ Class stzTable from stzList
 			ok
 		ok
 
-		aContent = This.Content()
+		aContent = @aContent
 		nLen = len(aContent)
 
 		for i = 1 to nLen
@@ -11863,7 +11870,7 @@ Class stzTable from stzList
 			ok
 		ok
 
-		aContent = This.Content()
+		aContent = @aContent
 		nLen = len(aContent)
 		anPos = ring_sort( U(panRows) )
 		nLenPos = len(anPos)
@@ -11970,7 +11977,7 @@ Class stzTable from stzList
 		# Only data in cells is erased, columns and
 		# rows remain as they are!
 
-		aContent = This.Content()
+		aContent = @aContent
 
 		nLen = len(aContent)
 
@@ -12038,7 +12045,7 @@ Class stzTable from stzList
 			StzRaise("Incorrect column name!")
 		ok
 
-		aContent = This.Content()
+		aContent = @aContent
 
 		nCol = This.ColToColNumber(pCol)
 		aContent[nCol][2][pnRow] = ""
@@ -12054,7 +12061,7 @@ Class stzTable from stzList
 			StzRaise("Incorrect param type! paCellsPos must be a list of pairs of numbers.")
 		ok
 
-		aContent = This.Content()
+		aContent = @aContent
 		nLen = len(paCellsPos)
 
 		for i = 1 to nLen
@@ -12129,7 +12136,7 @@ Class stzTable from stzList
 
 		# Adding the column
 
-		aContent = This.Content()
+		aContent = @aContent
 		@aContent + [ cColName, aColData ]
 		This.UpdateWith(aContent)
 
@@ -12233,7 +12240,7 @@ Class stzTable from stzList
 
 		# Doing the job
 
-		aContent = This.Content()
+		aContent = @aContent
 
 		for i = 1 to nCols
 			ring_insert(aContent[i][2], n, paRowData[i])
@@ -12956,7 +12963,7 @@ Class stzTable from stzList
 
 		# Doing the job
 
-		aContent = This.Content()
+		aContent = @aContent
 
 		if pnFrom != pnTo
 			aCopy = @aContent[pnTo]
@@ -12995,7 +13002,7 @@ Class stzTable from stzList
 		nCol1 = This.ColNumber(pCol1)
 		nCol2 = This.ColNumber(pCol2)
 
-		aContent = This.Content()
+		aContent = @aContent
 		aContent[nCol1][1] = cName2
 		aContent[nCol2][1] = cName1
 
@@ -13109,7 +13116,7 @@ Class stzTable from stzList
 			StzRaise("Can't replace the column with this name (" + pcNewColName + ")! Name you provided already exists.")
 		ok
 
-		aContent = This.Content()
+		aContent = @aContent
 		n = This.ColNumber(pCol)
 		@aContent[n][1] = pcNewColName
 		This.UpdateWith(aContent)
@@ -13185,7 +13192,7 @@ Class stzTable from stzList
 	#-----------------------------------#
 
 	def SortDown()
-		This.SortOnDown(1)
+		This.SortDownOn(1)
 
 		#< @FunctionFluentForm
 
@@ -13239,10 +13246,10 @@ Class stzTable from stzList
 
 		#< @FunctionAlternativeForms
 
-		def SortOnUp(pCol)
+		def SortUpOn(pCol)
 			This.SortOn(pCol)
 
-			def SortOnUpQ(pCol)
+			def SortUpOnQ(pCol)
 				return This.SortOnQ(pCol)
 
 		def SortOnInAscending(pCol)
@@ -13257,16 +13264,16 @@ Class stzTable from stzList
 			def SortOnColQ(pCol)
 				return This.SortOnQ(pCol)
 
-		def SortOnColUp(pCol)
+		def SortColUpOn(pCol)
 			This.SortOn(pCol)
 
-			def SortOnColUpQ(pCol)
+			def SortColUpOnQ(pCol)
 				return This.SortOnQ(pCol)
 
-		def SortOnColInAscending(pCol)
+		def SortInAscendingOnCol(pCol)
 			This.SortOn(pCol)
 
-			def SortOnColInAscendingQ(pCol)
+			def SortInAscendingOnColQ(pCol)
 				return This.SortOnQ(pCol)
 
 		def SortOnColumn(pCol)
@@ -13275,16 +13282,16 @@ Class stzTable from stzList
 			def SortOnColumnQ(pCol)
 				return This.SortOnQ(pCol)
 
-		def SortOnColumnUp(pCol)
+		def SortUpOnColumn(pCol)
 			This.SortOn(pCol)
 
-			def SortOnColumnUpQ(pCol)
+			def SortUpOnColumnQ(pCol)
 				return This.SortOnQ(pCol)
 
-		def SortOnColumnInAscending(pCol)
+		def SortInAscendingOnColumn(pCol)
 			This.SortOn(pCol)
 
-			def SortOnColumnInAscendingQ(pCol)
+			def SortInAscendingOnColumnQ(pCol)
 				return This.SortOnQ(pCol)
 
 		#>
@@ -13295,28 +13302,28 @@ Class stzTable from stzList
 
 		#< @FunctionAlternativeForms
 
-		def SortedOnUp(pCol)
+		def SortedUpOn(pCol)
 			return This.SortedOn(pCol)
 
-		def SortedOnInAscending(pCol)
+		def SortedInAscendingOn(pCol)
 			return This.SortedOn(pCol)
 
 		def SortedOnCol(pCol)
 			return This.SortedOn(pCol)
 
-		def SortedOnColUp(pCol)
+		def SortedUpOnCol(pCol)
 			return This.SortedOn(pCol)
 
-		def SortedOnColInAscending(pCol)
+		def SortedInAscendingOnCol(pCol)
 			return This.SortedOn(pCol)
 
 		def SortedOnColumn(pCol)
 			return This.SortedOn(pCol)
 
-		def SortedOnColumnUp(pCol)
+		def SortedUpOnColumn(pCol)
 			return This.SortedOn(pCol)
 
-		def SortedOnColumnInAscending(pCol)
+		def SortedInAscendingOnColumn(pCol)
 			return This.SortedOn(pCol)
 
 		#>
@@ -13325,7 +13332,7 @@ Class stzTable from stzList
 	 #  SORTING THE TABLE ON A GIVEN COLUMN IN DESCENDiNG  #
 	#=====================================================#
 
-	def SortOnDown(pCol)
+	def SortDownOn(pCol)
 
 		nCol = This.ColToColNumber(pCol)
 		aRowsSorted = ring_reverse( @SortOn( This.Rows(), nCol) )
@@ -13339,65 +13346,65 @@ Class stzTable from stzList
 		#< @FunctionFluentForm
 
 
-		def SortOnDownQ(pCol)
-			This.SortOnDown(pCol)
+		def SortDownOnQ(pCol)
+			This.SortDownOn(pCol)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SortOnInDescending(pCol)
+		def SortInDescendingOn(pCol)
 			This.SortOnDown(pCol)
 
-			def SortOnInDescendingQ(pCol)
-				return This.SortOnDownQ(pCol)
+			def SortInDescendingOnQ(pCol)
+				return This.SortDownOnQ(pCol)
 
-		def SortOnColDown(pCol)
-			This.SortOnDown(pCol)
+		def SortColDownOn(pCol)
+			This.SortDownOn(pCol)
 
-			def SortOnColDownQ(pCol)
-				return This.SortOnDownQ(pCol)
+			def SortColDownOnQ(pCol)
+				return This.SortDownOnQ(pCol)
 
-		def SortInColInDescending(pCol)
-			This.SortOnDown(pCol)
+		def SortInDescendingOnCol(pCol)
+			This.SortDownOn(pCol)
 
-			def SortInColInDescendingQ(pCol)
-				return This.SortOnDownQ(pCol)
+			def SortInDescendingOnColQ(pCol)
+				return This.SortDownOnQ(pCol)
 
-		def SortOnColumnDown(pCol)
-			This.SortOnDown(pCol)
+		def SortDownOnColumn(pCol)
+			This.SortDownOn(pCol)
 
-			def SortOnColumnDownQ(pCol)
-				return This.SortOnDownQ(pCol)
+			def SortDownOnColumnQ(pCol)
+				return This.SortDownOnQ(pCol)
 
-		def SortOnColumnInDescending(pCol)
-			This.SortOnDown(pCol)
+		def SortInDescendingOnColumn(pCol)
+			This.SortDownOn(pCol)
 
-			def SortOnColumnInDescendingQ(pCol)
-				return This.SortOnDownQ(pCol)
+			def SortInDescendingOnColumnQ(pCol)
+				return This.SortDownOnQ(pCol)
 
 		#>
 
-	def SortedOnDown(pCol)
-		aResult = This.Copy().SortOnDownQ().Content()
+	def SortedDownOn(pCol)
+		aResult = This.Copy().SortDownOnQ().Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def SortedOnInDescending(pCol)
+		def SortedInDescendingOn(pCol)
 			return This.SortedDown(pcol)
 
-		def SortedOnColDown(pCol)
+		def SortedColDownOn(pCol)
 			return This.SortedDown(pcol)
 
-		def SortedInColInDescending(pCol)
+		def SortedInDescendingOnCol(pCol)
 			return This.SortedDown(pcol)
 
-		def SortedOnColumnDown(pCol)
+		def SortedDownOnColumn(pCol)
 			return This.SortedDown(pcol)
 
-		def SortedOnColumnInDescending(pCol)
+		def SortedInDescendingOnColumn(pCol)
 			return This.SortedDown(pcol)
 
 		#>
@@ -13420,16 +13427,16 @@ Class stzTable from stzList
 
 		#< @FunctionAlternativeForms
 
-		def SortByUp(pcExpr)
+		def SortUpBy(pcExpr)
 			This.SortBy(pcExpr)
 
-			def SortByUpQ(pcExpr)
+			def SortUpByQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
-		def SortByInAscending(pcExpr)
+		def SortInAscendingBy(pcExpr)
 			This.SortBy(pcExpr)
 
-			def SortByInAscendingQ(pcExpr)
+			def SortInAscendingByQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
 		#>
@@ -13440,10 +13447,10 @@ Class stzTable from stzList
 
 		#< @FunctionAlternativeForms
 
-		def SortedByUp(pcExpr)
+		def SortedUpBy(pcExpr)
 			return This.SortedBy(pcExpr)
 
-		def SortedByInAscending(pcExpr)
+		def SortedInAscendingBy(pcExpr)
 			return This.SortedBy(pcExpr)
 
 		#>
@@ -13452,35 +13459,35 @@ Class stzTable from stzList
 	 #  SORTING THE TABLE BY A GIVEN EXPRESSION IN DESCENDING  #
 	#---------------------------------------------------------#
 
-	def SortByDown(pcExpr)
-		This.SortOnByDown(1, pcExpr)
+	def SortDownBy(pcExpr)
+		This.SortDownOnBy(1, pcExpr)
 
 		#< @FunctionFluentForm
 
-		def SortByDownQ(pcExpr)
-			This.SortByDown(pcExpr)
+		def SortDownByQ(pcExpr)
+			This.SortDownBy(pcExpr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForm
 
-		def SortByInDescending(pcExpr)
-			This.SortByDown(pcExpr)
+		def SortInDescendingBy(pcExpr)
+			This.SortDownBy(pcExpr)
 
-			def SortByInDescendingQ(pcExpr)
-				return This.SortByDownQ(pcExpr)
+			def SortInDescendingByQ(pcExpr)
+				return This.SortDownByQ(pcExpr)
 
 		#>
 
-	def SortedByDown(pcExpr)
-		aResult = This.Copy().SortByDownQ(pcExpr).Content()
+	def SortedDownBy(pcExpr)
+		aResult = This.Copy().SortDownByQ(pcExpr).Content()
 		return aResult
 
 		#< @FunctionAlternativeForm
 
-		def SortedByInDescending(pcExpr)
-			return This.SortedByDown(pcExpr)
+		def SortedBInDescendingy(pcExpr)
+			return This.SortedDownBy(pcExpr)
 
 		#>
 
@@ -13519,10 +13526,10 @@ Class stzTable from stzList
 			def SortOnByUpQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
-		def SortOnByInAscending(pCol, pcExpr)
+		def SortInAscendingOnBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
-			def SortOnByInAscendingQ(pCol, pcExpr)
+			def SortInAscendingOnByQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
 		def SortOnColBy(pCol, pcExpr)
@@ -13531,16 +13538,16 @@ Class stzTable from stzList
 			def SortOnColByQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
-		def SortOnColByUp(pCol, pcExpr)
+		def SortUpOnColBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
-			def SortOnColByUpQ(pCol, pcExpr)
+			def SortUpOnColByQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
-		def SortOnColByInAscending(pCol, pcExpr)
+		def SortInAscendingOnColBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
-			def SortOnColByInAscendingQ(pCol, pcExp)
+			def SortInAscendingOnColByQ(pCol, pcExp)
 				return This.SortOnByQ(pCol, pcExpr)
 
 		def SortOnColumnBy(pCol, pcExpr)
@@ -13549,16 +13556,16 @@ Class stzTable from stzList
 			def SortOnColumnByQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
-		def SortOnColumnByUp(pCol, pcExpr)
+		def SortUpOnColumnBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
-			def SortOnColumnByUpQ(pCol, pcExpr)
+			def SortUpOnColumnByQ(pCol, pcExpr)
 				return This.SortOnByQ(pCol, pcExpr)
 
-		def SortOnColumnByInAscending(pCol, pcExpr)
+		def SortInAscendingOnColumnBy(pCol, pcExpr)
 			This.SortOnBy(pCol, pcExpr)
 
-			def SortOnColumnByInAscendingQ(pCol, pcExp)
+			def SortInAscendingOnColumnByQ(pCol, pcExp)
 				return This.SortOnByQ(pCol, pcExpr)
 
 		#>
@@ -13569,28 +13576,28 @@ Class stzTable from stzList
 
 		#< @FunctionAlternativeForms
 
-		def SortedOnByUp(pCol, pcExpr)
+		def SortedUpOnBy(pCol, pcExpr)
 			return This.SortedOnBy(pCol, pcExpr)
 
-		def SortedOnByInAscending(pCol, pcExpr)
+		def SortedInAscendingOnBy(pCol, pcExpr)
 			return This.SortedOnBy(pCol, pcExpr)
 
 		def SortedOnColBy(pCol, pcExpr)
 			return This.SortedOnBy(pCol, pcExpr)
 
-		def SortedOnColByUp(pCol, pcExpr)
+		def SortedUpOnColBy(pCol, pcExpr)
 			return This.SortedOnBy(pCol, pcExpr)
 
-		def SortedOnColByInAscending(pCol, pcExpr)
+		def SortedInAscendingOnColBy(pCol, pcExpr)
 			return This.SortedOnBy(pCol, pcExpr)
 
 		def SortedOnColumnBy(pCol, pcExpr)
 			return This.SortedOnBy(pCol, pcExpr)
 
-		def SortedOnColumnByUp(pCol, pcExpr)
+		def SortedUpOnColumnBy(pCol, pcExpr)
 			return This.SortedOnBy(pCol, pcExpr)
 
-		def SortedOnColumnByInAscending(pCol, pcExpr)
+		def SortedInAscendingOnColumnBy(pCol, pcExpr)
 			return This.SortedOnBy(pCol, pcExpr)
 
 		#>
@@ -13599,13 +13606,13 @@ Class stzTable from stzList
 	 #  SORTING THE TABLE ON A GIVEN COLUMN BY A GIVEN EXPRESSION IN DESCENDiNG  #
 	#===========================================================================#
 
-	def SortOnByDown(pCol, pcExpr)
+	def SortDownOnBy(pCol, pcExpr)
 
 		nCol = This.ColToColNumber(pCol)
 
 		oLoL = new stzListOfLists( This.Rows() )
 		pcExpr = StzStringQ(pcExpr).ReplaceCSQ("@cell", "@item", 0).Content()
-		oLoL.SortOnByDown(nCol, pcExpr)
+		oLoL.SortDownOnBy(nCol, pcExpr)
 
 		aRowsSorted = oLol.Content()
 		nLenRows = len(aRowsSorted)
@@ -13616,68 +13623,341 @@ Class stzTable from stzList
 
 		#< @FunctionFluentForm
 
-		def SortOnByDownQ(pCol, pcExpr)
-			This.SortOnByDown(pCol, pcExpr)
+		def SortDownOnByQ(pCol, pcExpr)
+			This.SortDownOnBy(pCol, pcExpr)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SortOnByInDescending(pCol, pcExpr)
-			This.SortOnByDown(nCol, pcExpr)
+		def SortInDescendingOnBy(pCol, pcExpr)
+			This.SortDownOnBy(nCol, pcExpr)
 
-			def SortOnByInDescendingQ(pCol, pcExpr)
-				return This.SortOnByDownQ(pCol, pcExpr)
+			def SortInDescendingOnByQ(pCol, pcExpr)
+				return This.SortDownOnByQ(pCol, pcExpr)
 				
-		def SortOnColByDown(nCol, pcExpr)
-			This.SortOnByDown(pCol, pcExpr)
+		def SortDownOnColBy(nCol, pcExpr)
+			This.SortDownOnBy(pCol, pcExpr)
 
-			def SortOnColByDownQ(nCol, pcExpr)
-				return This.SortOnByDownQ(pCol, pcExpr)
+			def SortDownOnColByQ(nCol, pcExpr)
+				return This.SortDownOnByQ(pCol, pcExpr)
 
-		def SortInColByInDescending(pCol, pcExpr)
-			This.SortOnByDown(pCol, pcExpr)
+		def SortInDescendingOnColBy(pCol, pcExpr)
+			This.SortDownOnBy(pCol, pcExpr)
 
-			def SortInColByInDescendingQ(pCol, pcExpr)
-				return This.SortOnByDownQ(pCol, pcExpr)
+			def SortInDescendingOnColByQ(pCol, pcExpr)
+				return This.SortDownOnByQ(pCol, pcExpr)
 
-		def SortOnColumnByDown(pCol, pcExpr)
-			This.SortOnByDown(pCol, pcExpr)
+		def SortDownOnColumnBy(pCol, pcExpr)
+			This.SortDownOnBy(pCol, pcExpr)
 
-			def SortedOnColumnByDownQ(pCol, pcExpr)
-				return This.SortOnByDownQ(pCol, pcExpr)
+			def SortedDownOnColumnByQ(pCol, pcExpr)
+				return This.SortDownOnByQ(pCol, pcExpr)
 
-		def SortOnColumnByInDescending(pCol, pcExpr)
-			This.SortOnByDown(pCol, pcExpr)
+		def SortInDescendingOnColumnBy(pCol, pcExpr)
+			This.SortDownOnBy(pCol, pcExpr)
 
-			def SortOnColumnByInDescendingQ(pCol, pcExpr)
-				return This.SortOnByDownQ(pCol, pcExpr)
+			def SortInDescendingOnColumnByQ(pCol, pcExpr)
+				return This.SortDownOnByQ(pCol, pcExpr)
 
 		#>
 
-	def SortedOnByDown(pCol, pcExpr)
-		aResult = This.Copy().SortOnByDownQ(pCol, pcExpr).Content()
+	def SortedDownOnBy(pCol, pcExpr)
+		aResult = This.Copy().SortDownOnByQ(pCol, pcExpr).Content()
 		return aResult
 
 		#< @FunctionAlternativeForms
 
-		def SortedOnByInDescending(pCol, pcExpr)
-			return This.SortedOnByDown(pCol, pcExpr)
+		def SortedInDescendingOnBy(pCol, pcExpr)
+			return This.SortedDownOnBy(pCol, pcExpr)
 				
-		def SortedOnColByDown(nCol, pcExpr)
-			return This.SortedOnByDown(pCol, pcExpr)
+		def SortedDownOnColBy(nCol, pcExpr)
+			return This.SortedDownOnBy(pCol, pcExpr)
 
-		def SortedInColByInDescending(pCol, pcExpr)
-			return This.SortedOnByDown(pCol, pcExpr)
+		def SortedInDescendingInColBy(pCol, pcExpr)
+			return This.SortedDownOnBy(pCol, pcExpr)
 
-		def SortedOnColumnByDown(pCol, pcExpr)
-			return This.SortedOnByDown(pCol, pcExpr)
+		def SortedDownOnColumnBy(pCol, pcExpr)
+			return This.SortedDownOnBy(pCol, pcExpr)
 
-		def SortedOnColumnByInDescending(pCol, pcExpr)
-			return This.SortedOnByDown(pCol, pcExpr)
+		def SortedInDescendingOnColumnBy(pCol, pcExpr)
+			return This.SortedDownOnBy(pCol, pcExpr)
 
 		#>
+
+	#-----------------------------------#
+	#  CHECKING IF THE TABLE IS SORTED  #
+	#-----------------------------------#
+
+	def IsSorted()
+		return This.IsSortedOn(1)
+
+	def IsSortedUp()
+		return This.IsSortedUpOn(1)
+
+		def IsSortedInAscending()
+			return This.IsSortedUpOn(1)
+
+	def IsSortedDown()
+		return This.IsSortedDownOn(1)
+
+		def IsSortedInDescending()
+			return This.IsSortedDownOn(1)
+
+	def IsSortedOn(pCol)
+		_oCopy_ = This.Copy()
+		_oCopy_.SortOn(pCol)
+
+		_bResult_ = TRUE
+		nLen = This.NumberOfCols()
+
+		for i = 1 to nLen
+			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
+				_bResult_ = FALSE
+				exit
+			ok
+		next
+
+		return _bResult_
+
+		def IsSortedOnCol(pCol)
+			return This.IsSortedOn(pCol)
+
+		def IsSortedOnColumn(pCol)
+			return This.IsSortedOn(pCol)
+
+	def IsSortedUpOn(pCol)
+		_oCopy_ = This.Copy()
+		_oCopy_.SortUpOn(pCol)
+
+		_bResult_ = TRUE
+		nLen = This.NumberOfCols()
+
+		for i = 1 to nLen
+			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
+				_bResult_ = FALSE
+				exit
+			ok
+		next
+
+		return _bResult_
+
+
+		def IsSortedOnUp(pCol)
+			return THis.IsSortedUpOn(pCol)
+
+		def IsSortedUpOnCol(pCol)
+			return THis.IsSortedUpOn(pCol)
+
+		def IsSortedUpOnColumn(pCol)
+			return THis.IsSortedUpOn(pCol)
+
+		#--
+
+		def IsSortedInAscendingOn(pCol)
+			return THis.IsSortedUpOn(pCol)
+
+		def IsSortedInAscendingUp(pCol)
+			return THis.IsSortedUpOn(pCol)
+
+		def IsSortedInAscendingCol(pCol)
+			return THis.IsSortedUpOn(pCol)
+
+		def IsSortedInAscendingColumn(pCol)
+			return THis.IsSortedUpOn(pCol)
+
+	def IsSortedDownOn(pCol)
+		_oCopy_ = This.Copy()
+		_oCopy_.SortDownOn(pCol)
+
+		_bResult_ = TRUE
+		nLen = This.NumberOfCols()
+
+		for i = 1 to nLen
+			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
+				_bResult_ = FALSE
+				exit
+			ok
+		next
+
+		return _bResult_
+
+
+		def IsSortedDownOnCol(pCol)
+			return THis.IsSortedDownOn(pCol)
+
+		def IsSortedDownOnColumn(pCol)
+			return THis.IsSortedDownOn(pCol)
+
+		#--
+
+		def IsSortedInDescendingOn(pCol)
+			return THis.IsSortedDownOn(pCol)
+
+		def IsSortedUpInDescending(pCol)
+			return THis.IsSortedDownOn(pCol)
+
+		def IsSortedInDescendingCol(pCol)
+			return THis.IsSortedDownOn(pCol)
+
+		def IsSortedInDescendingOnColumn(pCol)
+			return THis.IsSortedDownOn(pCol)
+
+	#--
+
+	def IsSortedBy(pcExpr)
+		return This.IsSotedOnBy(1, pcExpr)
+
+	def IsSortedUpBy(pcExpr)
+		return This.IsSortedUpOn(1, pcExpr)
+
+		def IsSortedInAscendingBy(pcExpr)
+			return This.IsSortedUpBy(1, pcExpr)
+
+	def IsSortedDownBy(pcExpr)
+		return This.IsSortedDownOnBy(1, pcExpr)
+
+		def IsSortedInDescendingBy(pcExpr)
+			return This.IsSortedDownOnBy(1, pcExpr)
+
+	def IsSortedOnBy(pCol, pcExpr)
+		_oCopy_ = This.Copy()
+		_oCopy_.SortOnBy(pCol, pcExpr)
+
+		_bResult_ = TRUE
+		nLen = This.NumberOfCols()
+
+		for i = 1 to nLen
+			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
+				_bResult_ = FALSE
+				exit
+			ok
+		next
+
+		return _bResult_
+
+		def IsSortedOnColBy(pCol, pcExpr)
+			return This.IsSortedOnBy(pCol, pcExpr)
+
+		def IsSortedOnColumnBy(pCol, pcExpr)
+			return This.IsSortedOnBy(pCol, pcExpr)
+
+		#--
+
+		def IsSortedByOn(pcExpr, pCol)
+			return This.IsSortedOnBy(pCol, pcExpr)
+
+		def IsSortedByOnCol(pcExpr, pCol)
+			return This.IsSortedOnBy(pCol, pcExpr)
+
+		def IsSortedByOnColumn(pcExpr, pCol)
+			return This.IsSortedOnBy(pCol, pcExpr)
+
+	def IsSortedUpOnBy(pCol, pcExpr)
+		_oCopy_ = This.Copy()
+		_oCopy_.SortUpOnBy(pCol, pcExpr)
+
+		_bResult_ = TRUE
+		nLen = This.NumberOfCols()
+
+		for i = 1 to nLen
+			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
+				_bResult_ = FALSE
+				exit
+			ok
+		next
+
+		return _bResult_
+
+		def IsSortedUpOnColBy(pCol, pcExpr)
+			return This.IsSortedUpOnBy(pCol, pcExpr)
+
+		def IsSortedUpOnColumnBy(pCol, pcExpr)
+			return This.IsSortedUpOnBy(pCol, pcExpr)
+
+		#--
+
+		def IsSorteUpByOn(pcExpr, pCol)
+			return This.IsSortedUpOnBy(pCol, pcExpr)
+
+		def IsSortedUpByOnCol(pcExpr, pCol)
+			return This.IsSortedUpOnBy(pCol, pcExpr)
+
+		def IsSortedUpByOnColumn(pcExpr, pCol)
+			return This.IsSortedUpOnBy(pCol, pcExpr)
+
+		#==
+
+		def IsSortedInAscendingOnColBy(pCol, pcExpr)
+			return This.IsSortedUpOnBy(pCol, pcExpr)
+
+		def IsSortedInAscendingOnColumnBy(pCol, pcExpr)
+			return This.IsSortedUpOnBy(pCol, pcExpr)
+
+		#--
+
+		def IsSorteInAscendingByOn(pcExpr, pCol)
+			return This.IsSortedUpOnBy(pCol, pcExpr)
+
+		def IsSortedInAscendingByOnCol(pcExpr, pCol)
+			return This.IsSortedUpOnBy(pCol, pcExpr)
+
+		def IsSortedInAscendingByOnColumn(pcExpr, pCol)
+			return This.IsSortedUpOnBy(pCol, pcExpr)
+
+	def IsSortedDownOnBy(pCol, pcExpr)
+		_oCopy_ = This.Copy()
+		_oCopy_.SortDownOnBy(pCol, pcExpr)
+
+		_bResult_ = TRUE
+		nLen = This.NumberOfCols()
+
+		for i = 1 to nLen
+			if NOT _oCopy_.ColQ(i).IsEqualToXT(This.Col(i))
+				_bResult_ = FALSE
+				exit
+			ok
+		next
+
+		return _bResult_
+
+
+		def IsSortedDownOnColBy(pCol, pcExpr)
+			return This.IsSortedDownOnBy(pCol, pcExpr)
+
+		def IsSortedDownOnColumnBy(pCol, pcExpr)
+			return This.IsSortedDownOnBy(pCol, pcExpr)
+
+		#--
+
+		def IsSortedDownByOn(pcExpr, pCol)
+			return This.IsSortedDownOnBy(pCol, pcExpr)
+
+		def IsSortedDownByOnCol(pcExpr, pCol)
+			return This.IsSortedDownOnBy(pCol, pcExpr)
+
+		def IsSortedDownByOnColumn(pcExpr, pCol)
+			return This.IsSortedDownOnBy(pCol, pcExpr)
+
+		#==
+
+		def IsSortedInDescendingOnColBy(pCol, pcExpr)
+			return This.IsSortedDownOnBy(pCol, pcExpr)
+
+		def IsSortedInDescendingOnColumnBy(pCol, pcExpr)
+			return This.IsSortedDownOnBy(pCol, pcExpr)
+
+		#--
+
+		def IsSortedInDescendingByOn(pcExpr, pCol)
+			return This.IsSortedDownOnBy(pCol, pcExpr)
+
+		def IsSortedInDescendingByOnCol(pcExpr, pCol)
+			return This.IsSortedDownOnBy(pCol, pcExpr)
+
+		def IsSortedInDescendingByOnColumn(pcExpr, pCol)
+			return This.IsSortedDownOnBy(pCol, pcExpr)
 
 	  #===========================================================#
 	 #  FILLING ALL THE TABLE WITH A GIVEN CELL, COLUMN, OR ROW  #
@@ -14171,7 +14451,7 @@ Class stzTable from stzList
 
 		next		
 
-		aContent = This.Content()
+		aContent = @aContent
 		aContent = ring_insert(aContent, n, [ pcColName, aColData ])
 		This.UpdateWith(aContent)
 		@anCalculatedCols + n
@@ -15398,7 +15678,7 @@ Class stzTable from stzList
     def _displayFullTable()
         # Get column names and content
         acColNames = This.ColNames()
-        aContent = This.Content()
+        aContent = @aContent
         
         # Calculate column widths
         aColWidths = []
@@ -15563,7 +15843,7 @@ Class stzTable from stzList
 		
 		# Get column names and content
 		acColNames = This.ColNames()
-		aContent = This.Content()
+		aContent = @aContent
 
 		# Calculate column widths
 		aColWidths = calculateColumnWidths(acColNames, aContent, bRowNumber, bGrandTotal)
@@ -16164,7 +16444,7 @@ Class stzTable from stzList
 			return This.ToHtml()
 
 	def ToHtmlXT()
-	    aContent = This.Content()
+	    aContent = @aContent
 	    if len(aContent) = 0
 	        return '<table class="data"><thead><tr></tr></thead><tbody></tbody></table>'
 	    ok

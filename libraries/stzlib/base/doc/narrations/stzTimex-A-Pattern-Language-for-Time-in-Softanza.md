@@ -65,9 +65,9 @@ Two matching modes exist:
 A basic use case is to match one precise point in time.
 
 ```ring
-Tx = Tx("{@Instant}")
-? Tx.Match(StzDateTimeQ("2025-10-22 14:30:00"))     #--> TRUE
-? Tx.MatchPartial(StzDateTimeQ("2025-10-22 14:30:00")) #--> TRUE
+Tmx = Tmx("{@Instant}")
+? Tmx.Match(StzDateTimeQ("2025-10-22 14:30:00"))     #--> TRUE
+? Tmx.MatchPartial(StzDateTimeQ("2025-10-22 14:30:00")) #--> TRUE
 ```
 
 Both calls succeed — confirming the timestamp’s existence.
@@ -82,10 +82,10 @@ Durations can carry constraints — minimum, maximum, and step.
 oDur1 = new stzDuration("1 hour 30 minutes")
 oDur2 = new stzDuration("1 hour 20 minutes")
 
-Tx = new stzTimex("{@Duration(1h..2h:15min)}")
+Tmx = new stzTimex("{@Duration(1h..2h:15min)}")
 
-? Tx.Match(oDur1)  #--> TRUE
-? Tx.Match(oDur2)  #--> FALSE
+? Tmx.Match(oDur1)  #--> TRUE
+? Tmx.Match(oDur2)  #--> FALSE
 ```
 
 Here, 90 minutes fits perfectly (between 1h and 2h, in 15-minute steps),
@@ -104,10 +104,10 @@ oTimeline.AddPoint("Meeting", "2025-10-22 09:00:00")
 oTimeline.AddSpan("Break", "2025-10-22 10:00:00", "2025-10-22 10:15:00")
 oTimeline.AddPoint("Lunch", "2025-10-22 12:00:00")
 
-Tx = new stzTimex("{@Event(Meeting) -> @Duration* -> @Event(Break)}")
+Tmx = new stzTimex("{@Event(Meeting) -> @Duration* -> @Event(Break)}")
 
-? Tx.Match(oTimeline)        #--> FALSE
-? Tx.MatchPartial(oTimeline) #--> TRUE
+? Tmx.Match(oTimeline)        #--> FALSE
+? Tmx.MatchPartial(oTimeline) #--> TRUE
 ```
 
 `Match()` fails because extra elements (“Lunch”) exist.
@@ -125,9 +125,9 @@ oTimeline2.AddPoint("Start", "2025-10-22 09:00:00")
 oTimeline2.AddSpan("Work", "2025-10-22 09:00:00", "2025-10-22 17:00:00")
 oTimeline2.AddPoint("End", "2025-10-22 17:00:00")
 
-Tx = new stzTimex("{@Event(Start) -> @Duration* -> @Event(Work) -> @Duration* -> @Event(End)}")
+Tmx = new stzTimex("{@Event(Start) -> @Duration* -> @Event(Work) -> @Duration* -> @Event(End)}")
 
-? Tx.Match(oTimeline2)  #--> TRUE
+? Tmx.Match(oTimeline2)  #--> TRUE
 ```
 
 The asterisk (`*`) allows unspecified gaps — making this pattern useful for validating full shifts, work cycles, or process continuity.
@@ -142,9 +142,9 @@ oTimeline3 = new stzTimeLine("2025-10-22", "2025-10-22")
 oTimeline3.AddPoint("A", "2025-10-22 09:00:00")
 oTimeline3.AddPoint("B", "2025-10-22 09:30:00")
 
-Tx = new stzTimex("{@Event(A) -> @Duration(30m) -> @Event(B)}")
+Tmx = new stzTimex("{@Event(A) -> @Duration(30m) -> @Event(B)}")
 
-? Tx.MatchPartial(oTimeline3)  #--> TRUE
+? Tmx.MatchPartial(oTimeline3)  #--> TRUE
 ```
 
 Change `30m` to `1h`, and the match fails.
@@ -159,9 +159,9 @@ Each event can include its expected duration directly in the pattern.
 oTimeline5 = new stzTimeLine("2025-10-22", "2025-10-22")
 oTimeline5.AddSpan("Session", "2025-10-22 09:00:00", "2025-10-22 10:00:00")
 
-Tx = new stzTimex("{@Event(Session:30m)}")
+Tmx = new stzTimex("{@Event(Session:30m)}")
 
-? Tx.Match(oTimeline5)  #--> FALSE
+? Tmx.Match(oTimeline5)  #--> FALSE
 ```
 
 The session lasted 60 minutes, not 30 — a violation.
@@ -177,9 +177,9 @@ oTimeline6 = new stzTimeLine("2025-10-22", "2025-10-22")
 oTimeline6.AddPoint("Start", "2025-10-22 09:00:00")
 oTimeline6.AddPoint("End", "2025-10-22 17:00:00")
 
-Tx = new stzTimex("{@Event(Start) -> @Duration* -> @Event(End)}")
+Tmx = new stzTimex("{@Event(Start) -> @Duration* -> @Event(End)}")
 
-? Tx.Match(oTimeline6)  #--> TRUE
+? Tmx.Match(oTimeline6)  #--> TRUE
 ```
 
 This pattern remains true whether the gap is minutes or hours — ideal for loose or asynchronous timelines.
@@ -194,9 +194,9 @@ oTimeline7 = new stzTimeLine("2025-10-22", "2025-10-22")
 oTimeline7.AddSpan("Session1", "2025-10-22 09:00:00", "2025-10-22 10:00:00")
 oTimeline7.AddSpan("Session2", "2025-10-22 10:00:00", "2025-10-22 11:00:00")
 
-Tx = new stzTimex("{@Event(Session1) -> @Event(Session2)}")
+Tmx = new stzTimex("{@Event(Session1) -> @Event(Session2)}")
 
-? Tx.Match(oTimeline7)  #--> TRUE
+? Tmx.Match(oTimeline7)  #--> TRUE
 ```
 
 This ensures back-to-back execution — valuable for continuous operations or handovers.
@@ -207,10 +207,10 @@ This ensures back-to-back execution — valuable for continuous operations or ha
 `EnableDebug()` provides a live trace of how each token is processed.
 
 ```ring
-Tx = new stzTimex("{@Event(A) -> @Duration* -> @Event(C)}")
-Tx.EnableDebug()
+Tmx = new stzTimex("{@Event(A) -> @Duration* -> @Event(C)}")
+Tmx.EnableDebug()
 
-? Tx.MatchPartial(oTimeline8)  #--> TRUE  (detailed trace)
+? Tmx.MatchPartial(oTimeline8)  #--> TRUE  (detailed trace)
 ```
 
 The trace reveals step-by-step checks — a powerful aid for debugging complex temporal rules.
@@ -224,11 +224,11 @@ oSchedule.AddPoint("DayStart", "2025-10-22 08:00:00")
 oSchedule.AddSpan("Standup", "2025-10-22 09:00:00", "2025-10-22 09:15:00")
 oSchedule.AddSpan("DeepWork", "2025-10-22 09:30:00", "2025-10-22 12:00:00")
 
-Tx1 = new stzTimex("{@Event(DayStart) -> @Duration* -> @Event(Standup)}")
-Tx2 = new stzTimex("{@Event(DeepWork:2h..4h)}")
+Tmx1 = new stzTimex("{@Event(DayStart) -> @Duration* -> @Event(Standup)}")
+Tmx2 = new stzTimex("{@Event(DeepWork:2h..4h)}")
 
-? Tx1.MatchPartial(oSchedule)  #--> TRUE
-? Tx2.MatchPartial(oSchedule)  #--> TRUE
+? Tmx1.MatchPartial(oSchedule)  #--> TRUE
+? Tmx2.MatchPartial(oSchedule)  #--> TRUE
 ```
 
 Two checks, no loops, no iteration — just plain intent verification.
@@ -237,8 +237,8 @@ Two checks, no loops, no iteration — just plain intent verification.
 ## Searching for a Specific Event
 
 ```ring
-Tx = new stzTimex("{@Event(Target)}")
-? Tx.MatchPartial(oTimeline9)  #--> TRUE
+Tmx = new stzTimex("{@Event(Target)}")
+? Tmx.MatchPartial(oTimeline9)  #--> TRUE
 ```
 
 Simple and efficient: confirm whether a labeled event exists anywhere in the timeline.
@@ -249,8 +249,8 @@ Simple and efficient: confirm whether a labeled event exists anywhere in the tim
 To understand what your pattern means internally:
 
 ```ring
-Tx = new stzTimex("{@Event(Meeting) -> @Duration(30m..1h) -> @Event(Break)}")
-? @@(Tx.Explain())
+Tmx = new stzTimex("{@Event(Meeting) -> @Duration(30m..1h) -> @Event(Break)}")
+? @@(Tmx.Explain())
 ```
 
 `Explain()` reveals the token structure, duration rules, and logical flow — making your patterns self-documenting.

@@ -30221,6 +30221,9 @@ class stzList from stzObject
 
 			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
 
+		def IsEqualToCSXT(paOtherList, pCaseSensitive)
+			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -30245,6 +30248,9 @@ class stzList from stzObject
 				pOtherList = pOtherList[2]
 			ok
 
+			return This.IsStrictlyEqualTo(paOtherList)
+
+		def IsEqualToXT(paOtherList)
 			return This.IsStrictlyEqualTo(paOtherList)
 
 		#>

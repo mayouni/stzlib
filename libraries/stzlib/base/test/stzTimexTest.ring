@@ -9,11 +9,11 @@ pr()
 
 # Match single timestamp
 
-Tx = Tx("{@Instant}")
-? Tx.Match(StzDateTimeQ("2025-10-22 14:30:00"))
+Tmx = Tmx("{@Instant}")
+? Tmx.Match(StzDateTimeQ("2025-10-22 14:30:00"))
 #--> TRUE (exact match)
 
-? Tx.MatchPartial(StzDateTimeQ("2025-10-22 14:30:00"))
+? Tmx.MatchPartial(StzDateTimeQ("2025-10-22 14:30:00"))
 #--> TRUE (partial also works for single item)
 
 pf()
@@ -25,12 +25,12 @@ pr()
 oDur1 = new stzDuration("1 hour 30 minutes")  # 90 minutes
 oDur2 = new stzDuration("1 hour 20 minutes")  # 80 minutes
 
-Tx = new stzTimex("{@Duration(1h..2h:15min)}")
+Tmx = new stzTimex("{@Duration(1h..2h:15min)}")
 
-? Tx.Match(oDur1)
+? Tmx.Match(oDur1)
 #--> TRUE (90min is in range and on 15min boundary)
 
-? Tx.Match(oDur2)
+? Tmx.Match(oDur2)
 #--> FALSE (80min not on 15min step: 60, 75, 90, 105, 120)
 
 pf()
@@ -45,14 +45,14 @@ oTimeline.AddSpan("Break", "2025-10-22 10:00:00", "2025-10-22 10:15:00")
 oTimeline.AddInstant("Lunch", "2025-10-22 12:00:00")
 
 # Pattern: Meeting -> any gaps -> Break
-Tx1 = new stzTimex("{@Event(Meeting) -> @Duration* -> @Event(Break)}")
+Tmx1 = new stzTimex("{@Event(Meeting) -> @Duration* -> @Event(Break)}")
 
 # Match (exact - must consume all data):
-? Tx1.Match(oTimeline)
+? Tmx1.Match(oTimeline)
 #--> FALSE (pattern stops at Break, but Lunch remains)
 
 # MatchPartial (finds pattern anywhere):
-? Tx1.MatchPartial(oTimeline)
+? Tmx1.MatchPartial(oTimeline)
 #--> TRUE (Meeting->Break sequence exists)
 
 pf()
@@ -67,9 +67,9 @@ oTimeline2.AddSpan("Work", "2025-10-22 09:00:00", "2025-10-22 17:00:00")
 oTimeline2.AddInstant("End", "2025-10-22 17:00:00")
 
 # Pattern matches entire timeline
-Tx2 = new stzTimex("{@Event(Start) -> @Duration* -> @Event(Work) -> @Duration* -> @Event(End)}")
+Tmx2 = new stzTimex("{@Event(Start) -> @Duration* -> @Event(Work) -> @Duration* -> @Event(End)}")
 
-? Tx2.Match(oTimeline2)
+? Tmx2.Match(oTimeline2)
 #--> TRUE (exact match - entire timeline consumed)
 
 pf()
@@ -84,15 +84,15 @@ oTimeline3.AddInstant("B", "2025-10-22 09:30:00")  # 30min gap
 oTimeline3.AddInstant("C", "2025-10-22 10:00:00")  # 30min gap
 
 # Match events with 30min gaps
-Tx3 = new stzTimex("{@Event(A) -> @Duration(30m) -> @Event(B)}")
+Tmx3 = new stzTimex("{@Event(A) -> @Duration(30m) -> @Event(B)}")
 
-? Tx3.MatchPartial(oTimeline3)
+? Tmx3.MatchPartial(oTimeline3)
 #--> TRUE (finds A->30min->B)
 
 # Try with wrong gap duration
-Tx4 = new stzTimex("{@Event(A) -> @Duration(1h) -> @Event(B)}")
+Tmx4 = new stzTimex("{@Event(A) -> @Duration(1h) -> @Event(B)}")
 
-? Tx4.MatchPartial(oTimeline3)
+? Tmx4.MatchPartial(oTimeline3)
 #--> FALSE (gap is 30min, not 1h)
 
 pf()
@@ -107,9 +107,9 @@ oTimeline4.AddSpan("Coffee", "2025-10-22 10:00:00", "2025-10-22 10:15:00")
 oTimeline4.AddInstant("Lunch", "2025-10-22 12:00:00")
 
 # Match Meeting followed by Coffee OR Lunch
-Tx5 = new stzTimex("{@Event(Meeting) -> @Duration* -> (@Event(Coffee)|@Event(Lunch))}")
+Tmx5 = new stzTimex("{@Event(Meeting) -> @Duration* -> (@Event(Coffee)|@Event(Lunch))}")
 
-? Tx5.MatchPartial(oTimeline4)
+? Tmx5.MatchPartial(oTimeline4)
 #--> TRUE (Meeting->Coffee path matches)
 
 pf()
@@ -122,15 +122,15 @@ oTimeline5 = new stzTimeLine("2025-10-22", "2025-10-22")
 oTimeline5.AddSpan("Session", "2025-10-22 09:00:00", "2025-10-22 10:00:00")  # 60min
 
 # Match event that lasts exactly 1 hour
-Tx6 = new stzTimex("{@Event(Session:1h)}")
+Tmx6 = new stzTimex("{@Event(Session:1h)}")
 
-? Tx6.Match(oTimeline5)
+? Tmx6.Match(oTimeline5)
 #--> TRUE (Session span is 60 minutes)
 
 # Try with wrong duration
-Tx7 = new stzTimex("{@Event(Session:30m)}")
+Tmx7 = new stzTimex("{@Event(Session:30m)}")
 
-? Tx7.Match(oTimeline5)
+? Tmx7.Match(oTimeline5)
 #--> FALSE (Session is 60min, not 30min)
 
 pf()
@@ -144,9 +144,9 @@ oTimeline6.AddInstant("Start", "2025-10-22 09:00:00")
 oTimeline6.AddInstant("End", "2025-10-22 17:00:00")
 
 # Match Start and End with any number of gaps between
-Tx8 = new stzTimex("{@Event(Start) -> @Duration* -> @Event(End)}")
+Tmx8 = new stzTimex("{@Event(Start) -> @Duration* -> @Event(End)}")
 
-? Tx8.Match(oTimeline6)
+? Tmx8.Match(oTimeline6)
 #--> TRUE (@Duration* matches 1 gap)
 
 pf()
@@ -160,9 +160,9 @@ oTimeline7.AddSpan("Session1", "2025-10-22 09:00:00", "2025-10-22 10:00:00")
 oTimeline7.AddSpan("Session2", "2025-10-22 10:00:00", "2025-10-22 11:00:00")
 
 # Match adjacent events
-Tx9 = new stzTimex("{@Event(Session1) -> @Event(Session2)}")
+Tmx9 = new stzTimex("{@Event(Session1) -> @Event(Session2)}")
 
-? Tx9.Match(oTimeline7)
+? Tmx9.Match(oTimeline7)
 #--> TRUE (events are adjacent, no gap required)
 
 pf()
@@ -176,10 +176,10 @@ oTimeline8.AddInstant("A", "2025-10-22 09:00:00")
 oTimeline8.AddInstant("B", "2025-10-22 10:00:00")
 oTimeline8.AddInstant("C", "2025-10-22 11:00:00")
 
-Tx10 = new stzTimex("{@Event(A) -> @Duration* -> @Event(C)}")
-Tx10.EnableDebug()
+Tmx10 = new stzTimex("{@Event(A) -> @Duration* -> @Event(C)}")
+Tmx10.EnableDebug()
 
-? Tx10.MatchPartial(oTimeline8)
+? Tmx10.MatchPartial(oTimeline8)
 #--> TRUE (with detailed trace)
 '
 Token 1 (type=event, label=A): trying 1 matches starting at data position 1
@@ -209,15 +209,15 @@ oSchedule.AddSpan("DeepWork", "2025-10-22 09:30:00", "2025-10-22 12:00:00")
 oSchedule.AddSpan("Lunch", "2025-10-22 12:00:00", "2025-10-22 13:00:00")
 
 # Validate standup happens after day start
-Tx11 = new stzTimex("{@Event(DayStart) -> @Duration* -> @Event(Standup)}")
+Tmx11 = new stzTimex("{@Event(DayStart) -> @Duration* -> @Event(Standup)}")
 
-? Tx11.MatchPartial(oSchedule)
+? Tmx11.MatchPartial(oSchedule)
 #--> TRUE (pattern exists in schedule)
 
 # Check for deep work session (2+ hours)
-Tx12 = new stzTimex("{@Event(DeepWork:2h..4h)}")
+Tmx12 = new stzTimex("{@Event(DeepWork:2h..4h)}")
 
-? Tx12.MatchPartial(oSchedule)
+? Tmx12.MatchPartial(oSchedule)
 #--> TRUE (DeepWork is 2.5 hours)
 
 pf()
@@ -233,9 +233,9 @@ oTimeline9.AddInstant("Target", "2025-10-22 10:00:00")
 oTimeline9.AddInstant("Z", "2025-10-22 11:00:00")
 
 # Find Target anywhere in timeline
-Tx13 = new stzTimex("{@Event(Target)}")
+Tmx13 = new stzTimex("{@Event(Target)}")
 
-? Tx13.MatchPartial(oTimeline9)
+? Tmx13.MatchPartial(oTimeline9)
 #--> TRUE (Target found at position 3)
 
 pf()
@@ -244,10 +244,10 @@ pf()
 */
 pr()
 
-Tx14 = new stzTimex("{@Event(Meeting) -> @Duration(30m..1h) -> @Event(Break)}")
+Tmx14 = new stzTimex("{@Event(Meeting) -> @Duration(30m..1h) -> @Event(Break)}")
 
 ? "Pattern structure:"
-? @@NL(Tx14.Explain())
+? @@NL(Tmx14.Explain())
 #--> Shows tokens, constraints, and semantics
 '
 [
