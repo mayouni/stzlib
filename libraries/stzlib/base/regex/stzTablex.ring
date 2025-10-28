@@ -70,8 +70,9 @@ class stzTablex from stzObject
 		# Split by logical operators -> (sequence), & (and), | (or)
 		aParts = This.SplitByOperator(cInner, "->")
 		aTokens = []
-		
-		for i = 1 to len(aParts)
+		nLen = len(aParts)
+
+		for i = 1 to nLen
 			cPart = trim(aParts[i])
 			
 			if cPart = ""
@@ -131,8 +132,9 @@ class stzTablex from stzObject
 		
 		aParts = This.SplitByOperator(cTokenStr, "|")
 		aAlternatives = []
-		
-		for i = 1 to len(aParts)
+		nLen = len(aParts)
+
+		for i = 1 to nLen
 			cPart = trim(aParts[i])
 			if cPart != ""
 				aToken = This.ParseSingleToken(cPart)
@@ -154,10 +156,10 @@ class stzTablex from stzObject
 		ok
 		
 		aParts = This.SplitByOperator(cTokenStr, "&")
-
+		nLen = len(aParts)
 		aConditions = []
 		
-		for i = 1 to len(aParts)
+		for i = 1 to nLen
 			cPart = trim(aParts[i])
 			if cPart != ""
 				aToken = This.ParseSingleToken(cPart)
@@ -171,266 +173,267 @@ class stzTablex from stzObject
 			["negated", FALSE]
 		]
 	
-def ParseSingleToken(cTokenStr)
-	cTokenStr = trim(cTokenStr)
-	if cTokenStr = ""
-		return []
-	ok
-	
-	if @bDebugMode
-		? "=== ParseSingleToken ==="
-		? "Input: " + cTokenStr
-	ok
-	
-	bNegated = FALSE
-	bCaseSensitive = FALSE
-	
-	# Check for negation
-	if startsWith(lower(cTokenStr), "@!")
-		bNegated = TRUE
-		cTokenStr = @substr(cTokenStr, 3, len(cTokenStr))
-	ok
-	
-	# Check for case sensitivity flag
-	if startsWith(lower(cTokenStr), "@cs:")
-		bCaseSensitive = TRUE
-		cTokenStr = @substr(cTokenStr, 5, len(cTokenStr))
-	ok
-	
-	cType = ""
-	cValue = ""
-	aConstraints = []
-	nMin = 1
-	nMax = 1
-	
-	# Extract and preserve content in parentheses BEFORE lowercasing
-	cPreservedValue = ""
-	nOpenParen = substr(cTokenStr, "(")
-	if nOpenParen > 0
-		nCloseParen = substr(cTokenStr, ")")
-		if nCloseParen > nOpenParen
-			cPreservedValue = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
-			if @bDebugMode
-				? "Preserved value: " + cPreservedValue
+	def ParseSingleToken(cTokenStr)
+		cTokenStr = trim(cTokenStr)
+		if cTokenStr = ""
+			return []
+		ok
+		
+		if @bDebugMode
+			? "=== ParseSingleToken ==="
+			? "Input: " + cTokenStr
+		ok
+		
+		bNegated = FALSE
+		bCaseSensitive = FALSE
+		
+		# Check for negation
+		if startsWith(lower(cTokenStr), "@!")
+			bNegated = TRUE
+			cTokenStr = @substr(cTokenStr, 3, len(cTokenStr))
+		ok
+		
+		# Check for case sensitivity flag
+		if startsWith(lower(cTokenStr), "@cs:")
+			bCaseSensitive = TRUE
+			cTokenStr = @substr(cTokenStr, 5, len(cTokenStr))
+		ok
+		
+		cType = ""
+		cValue = ""
+		aConstraints = []
+		nMin = 1
+		nMax = 1
+		
+		# Extract and preserve content in parentheses BEFORE lowercasing
+		cPreservedValue = ""
+		nOpenParen = substr(cTokenStr, "(")
+		if nOpenParen > 0
+			nCloseParen = substr(cTokenStr, ")")
+			if nCloseParen > nOpenParen
+				cPreservedValue = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
+				if @bDebugMode
+					? "Preserved value: " + cPreservedValue
+				ok
 			ok
 		ok
-	ok
+		
+		# NOW lowercase the token string for type detection
+		cTokenStr = lower(cTokenStr)
+		
+		if @bDebugMode
+			? "After lowercase: " + cTokenStr
+		ok
+		
+		# Parse token types (same as before...)
+		#WARNING// The order is imprtant, for example:
+		# all col* variants mustappear before the generic col check.
 	
-	# NOW lowercase the token string for type detection
-	cTokenStr = lower(cTokenStr)
-	
-	if @bDebugMode
-		? "After lowercase: " + cTokenStr
-	ok
-	
-	# Parse token types (same as before...)
-	#WARNING// The order is imprtant, for example:
-	# all col* variants mustappear before the generic col check.
-
-	if startsWith(cTokenStr, "@cols") or startsWith(cTokenStr, "cols")
-		cType = "cols"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@cols", "cols"])
-		
-	but startsWith(cTokenStr, "@rows") or startsWith(cTokenStr, "rows")
-		cType = "rows"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@rows", "rows"])
-		
-	but startsWith(cTokenStr, "@hascol") or startsWith(cTokenStr, "hascol")
-		cType = "hascol"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@hascol", "hascol"])
-		
-	but startsWith(cTokenStr, "@coltype") or startsWith(cTokenStr, "coltype")
-		cType = "coltype"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@coltype", "coltype"])
-
-	but startsWith(cTokenStr, "@colpattern") or startsWith(cTokenStr, "colpattern")
-		cType = "colpattern"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@colpattern", "colpattern"])
-
-	but startsWith(cTokenStr, "@colname") or startsWith(cTokenStr, "colname")
-		cType = "colname"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@colname", "colname"])
-
-	but startsWith(cTokenStr, "@sumcol") or startsWith(cTokenStr, "sumcol")
-		cType = "sumcol"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@sumcol", "sumcol"])
-		
-	but startsWith(cTokenStr, "@avgcol") or startsWith(cTokenStr, "avgcol")
-		cType = "avgcol"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@avgcol", "avgcol"])
-		
-	but startsWith(cTokenStr, "@mincol") or startsWith(cTokenStr, "mincol")
-		cType = "mincol"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@mincol", "mincol"])
-		
-	but startsWith(cTokenStr, "@maxcol") or startsWith(cTokenStr, "maxcol")
-		cType = "maxcol"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@maxcol", "maxcol"])
-		
-	but startsWith(cTokenStr, "@col") or startsWith(cTokenStr, "col")
-		cType = "col"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@col", "col"])
-		
-	but startsWith(cTokenStr, "@row") or startsWith(cTokenStr, "row")
-		cType = "row"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@row", "row"])
-		
-	but startsWith(cTokenStr, "@cell") or startsWith(cTokenStr, "cell")
-		cType = "cell"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@cell", "cell"])
-				
-	but startsWith(cTokenStr, "@property") or startsWith(cTokenStr, "property")
-		cType = "property"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@property", "property"])
-		
-	but startsWith(cTokenStr, "@contains") or startsWith(cTokenStr, "contains")
-		cType = "contains"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@contains", "contains"])
-		
-	but startsWith(cTokenStr, "@sorted") or startsWith(cTokenStr, "sorted")
-		cType = "sorted"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@sorted", "sorted"])
-		
-	but startsWith(cTokenStr, "@unique") or startsWith(cTokenStr, "unique")
-		cType = "unique"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@unique", "unique"])
-		
-	but startsWith(cTokenStr, "@duplicates") or startsWith(cTokenStr, "duplicates")
-		cType = "duplicates"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@duplicates", "duplicates"])
-		
-	but startsWith(cTokenStr, "@grouped") or startsWith(cTokenStr, "grouped")
-		cType = "grouped"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@grouped", "grouped"])
-		
-	but startsWith(cTokenStr, "@filtered") or startsWith(cTokenStr, "filtered")
-		cType = "filtered"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@filtered", "filtered"])
-		
-	but startsWith(cTokenStr, "@aggregated") or startsWith(cTokenStr, "aggregated")
-		cType = "aggregated"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@aggregated", "aggregated"])
-		
-	but startsWith(cTokenStr, "@transposed") or startsWith(cTokenStr, "transposed")
-		cType = "transposed"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@transposed", "transposed"])
-		
-	but startsWith(cTokenStr, "@calculated") or startsWith(cTokenStr, "calculated")
-		cType = "calculated"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@calculated", "calculated"])
-
-	but startsWith(cTokenStr, "@nulls") or startsWith(cTokenStr, "nulls")
-		cType = "nulls"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@nulls", "nulls"])
-		
-	but startsWith(cTokenStr, "@completeness") or startsWith(cTokenStr, "completeness")
-		cType = "completeness"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@completeness", "completeness"])
-		
-	but startsWith(cTokenStr, "@numeric") or startsWith(cTokenStr, "numeric")
-		cType = "numeric"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@numeric", "numeric"])
-		
-	but startsWith(cTokenStr, "@alphabetic") or startsWith(cTokenStr, "alphabetic")
-		cType = "alphabetic"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@alphabetic", "alphabetic"])
-		
-	but startsWith(cTokenStr, "@format") or startsWith(cTokenStr, "format")
-		cType = "format"
-		cTokenStr = This.RemovePrefix(cTokenStr, ["@format", "format"])
-		
-	else
-		return [
-			["type", "ERROR"],
-			["value", cTokenStr],
-			["message", "Unrecognized token type"]
-		]
-	ok
-	
-	if @bDebugMode
-		? "Detected type: " + cType
-	ok
-	
-	# Parse parentheses content - use preserved value
-	nOpenParen = substr(cTokenStr, "(")
-	if nOpenParen > 0
-		nCloseParen = substr(cTokenStr, ")")
-		if nCloseParen > nOpenParen
-			cContent = cPreservedValue
+		if startsWith(cTokenStr, "@cols") or startsWith(cTokenStr, "cols")
+			cType = "cols"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@cols", "cols"])
 			
-			if cType = "property" or cType = "colname" or 
-			   cType = "contains" or cType = "sorted" or 
-			   cType = "unique" or cType = "duplicates" or cType = "hascol" or 
-			   cType = "grouped" or cType = "filtered" or cType = "calculated" or
-			   cType = "nulls" or cType = "numeric" or cType = "alphabetic" or
-			   cType = "coltype" or cType = "colpattern" or 
-			   cType = "sumcol" or cType = "avgcol" or cType = "mincol" or cType = "maxcol" or
-			   cType = "completeness" or cType = "format"
-				cValue = cContent
-
-				if @bDebugMode
-					? "Assigned cValue: " + cValue
+		but startsWith(cTokenStr, "@rows") or startsWith(cTokenStr, "rows")
+			cType = "rows"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@rows", "rows"])
+			
+		but startsWith(cTokenStr, "@hascol") or startsWith(cTokenStr, "hascol")
+			cType = "hascol"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@hascol", "hascol"])
+			
+		but startsWith(cTokenStr, "@coltype") or startsWith(cTokenStr, "coltype")
+			cType = "coltype"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@coltype", "coltype"])
+	
+		but startsWith(cTokenStr, "@colpattern") or startsWith(cTokenStr, "colpattern")
+			cType = "colpattern"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@colpattern", "colpattern"])
+	
+		but startsWith(cTokenStr, "@colname") or startsWith(cTokenStr, "colname")
+			cType = "colname"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@colname", "colname"])
+	
+		but startsWith(cTokenStr, "@sumcol") or startsWith(cTokenStr, "sumcol")
+			cType = "sumcol"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@sumcol", "sumcol"])
+			
+		but startsWith(cTokenStr, "@avgcol") or startsWith(cTokenStr, "avgcol")
+			cType = "avgcol"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@avgcol", "avgcol"])
+			
+		but startsWith(cTokenStr, "@mincol") or startsWith(cTokenStr, "mincol")
+			cType = "mincol"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@mincol", "mincol"])
+			
+		but startsWith(cTokenStr, "@maxcol") or startsWith(cTokenStr, "maxcol")
+			cType = "maxcol"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@maxcol", "maxcol"])
+			
+		but startsWith(cTokenStr, "@col") or startsWith(cTokenStr, "col")
+			cType = "col"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@col", "col"])
+			
+		but startsWith(cTokenStr, "@row") or startsWith(cTokenStr, "row")
+			cType = "row"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@row", "row"])
+			
+		but startsWith(cTokenStr, "@cell") or startsWith(cTokenStr, "cell")
+			cType = "cell"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@cell", "cell"])
+					
+		but startsWith(cTokenStr, "@property") or startsWith(cTokenStr, "property")
+			cType = "property"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@property", "property"])
+			
+		but startsWith(cTokenStr, "@contains") or startsWith(cTokenStr, "contains")
+			cType = "contains"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@contains", "contains"])
+			
+		but startsWith(cTokenStr, "@sorted") or startsWith(cTokenStr, "sorted")
+			cType = "sorted"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@sorted", "sorted"])
+			
+		but startsWith(cTokenStr, "@unique") or startsWith(cTokenStr, "unique")
+			cType = "unique"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@unique", "unique"])
+			
+		but startsWith(cTokenStr, "@duplicates") or startsWith(cTokenStr, "duplicates")
+			cType = "duplicates"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@duplicates", "duplicates"])
+			
+		but startsWith(cTokenStr, "@grouped") or startsWith(cTokenStr, "grouped")
+			cType = "grouped"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@grouped", "grouped"])
+			
+		but startsWith(cTokenStr, "@filtered") or startsWith(cTokenStr, "filtered")
+			cType = "filtered"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@filtered", "filtered"])
+			
+		but startsWith(cTokenStr, "@aggregated") or startsWith(cTokenStr, "aggregated")
+			cType = "aggregated"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@aggregated", "aggregated"])
+			
+		but startsWith(cTokenStr, "@transposed") or startsWith(cTokenStr, "transposed")
+			cType = "transposed"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@transposed", "transposed"])
+			
+		but startsWith(cTokenStr, "@calculated") or startsWith(cTokenStr, "calculated")
+			cType = "calculated"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@calculated", "calculated"])
+	
+		but startsWith(cTokenStr, "@nulls") or startsWith(cTokenStr, "nulls")
+			cType = "nulls"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@nulls", "nulls"])
+			
+		but startsWith(cTokenStr, "@completeness") or startsWith(cTokenStr, "completeness")
+			cType = "completeness"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@completeness", "completeness"])
+			
+		but startsWith(cTokenStr, "@numeric") or startsWith(cTokenStr, "numeric")
+			cType = "numeric"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@numeric", "numeric"])
+			
+		but startsWith(cTokenStr, "@alphabetic") or startsWith(cTokenStr, "alphabetic")
+			cType = "alphabetic"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@alphabetic", "alphabetic"])
+			
+		but startsWith(cTokenStr, "@format") or startsWith(cTokenStr, "format")
+			cType = "format"
+			cTokenStr = This.RemovePrefix(cTokenStr, ["@format", "format"])
+			
+		else
+			return [
+				["type", "ERROR"],
+				["value", cTokenStr],
+				["message", "Unrecognized token type"]
+			]
+		ok
+		
+		if @bDebugMode
+			? "Detected type: " + cType
+		ok
+		
+		# Parse parentheses content - use preserved value
+		nOpenParen = substr(cTokenStr, "(")
+		if nOpenParen > 0
+			nCloseParen = substr(cTokenStr, ")")
+			if nCloseParen > nOpenParen
+				cContent = cPreservedValue
+				
+				if cType = "property" or cType = "colname" or 
+				   cType = "contains" or cType = "sorted" or 
+				   cType = "unique" or cType = "duplicates" or cType = "hascol" or 
+				   cType = "grouped" or cType = "filtered" or cType = "calculated" or
+				   cType = "nulls" or cType = "numeric" or cType = "alphabetic" or
+				   cType = "coltype" or cType = "colpattern" or 
+				   cType = "sumcol" or cType = "avgcol" or cType = "mincol" or cType = "maxcol" or
+				   cType = "completeness" or cType = "format"
+					cValue = cContent
+	
+					if @bDebugMode
+						? "Assigned cValue: " + cValue
+					ok
+				else
+					aConstraints = This.ParseConstraints(cContent, cType)
+					if @bDebugMode
+						? "Parsed constraints: " + @@(aConstraints)
+					ok
+				ok
+			ok
+		ok
+		
+		# Parse quantifiers (same as before...)
+		cQuantPart = ""
+		if nCloseParen > 0 and nCloseParen < len(cTokenStr)
+			cQuantPart = @substr(cTokenStr, nCloseParen + 1, len(cTokenStr))
+		ok
+		
+		cQuantPart = trim(cQuantPart)
+		
+		if len(cQuantPart) > 0
+			if substr(cQuantPart, "-") > 0
+				aSection = @split(cQuantPart, "-")
+				if len(aSection) = 2
+					nMin = 0 + trim(aSection[1])
+					nMax = 0 + trim(aSection[2])
 				ok
 			else
-				aConstraints = This.ParseConstraints(cContent, cType)
-				if @bDebugMode
-					? "Parsed constraints: " + @@(aConstraints)
+				cLastChar = right(cQuantPart, 1)
+				if cLastChar = "+"
+					nMin = 1
+					nMax = 999999
+				but cLastChar = "*"
+					nMin = 0
+					nMax = 999999
+				but cLastChar = "?"
+					nMin = 0
+					nMax = 1
+				but This.IsNumeric(cQuantPart)
+					nMin = 0 + cQuantPart
+					nMax = nMin
 				ok
 			ok
 		ok
-	ok
-	
-	# Parse quantifiers (same as before...)
-	cQuantPart = ""
-	if nCloseParen > 0 and nCloseParen < len(cTokenStr)
-		cQuantPart = @substr(cTokenStr, nCloseParen + 1, len(cTokenStr))
-	ok
-	
-	cQuantPart = trim(cQuantPart)
-	
-	if len(cQuantPart) > 0
-		if substr(cQuantPart, "-") > 0
-			aSection = @split(cQuantPart, "-")
-			if len(aSection) = 2
-				nMin = 0 + trim(aSection[1])
-				nMax = 0 + trim(aSection[2])
-			ok
-		else
-			cLastChar = right(cQuantPart, 1)
-			if cLastChar = "+"
-				nMin = 1
-				nMax = 999999
-			but cLastChar = "*"
-				nMin = 0
-				nMax = 999999
-			but cLastChar = "?"
-				nMin = 0
-				nMax = 1
-			but This.IsNumeric(cQuantPart)
-				nMin = 0 + cQuantPart
-				nMax = nMin
-			ok
+		
+		aResult = [
+			["type", cType],
+			["value", cValue],
+			["constraints", aConstraints],
+			["min", nMin],
+			["max", nMax],
+			["negated", bNegated],
+			["casesensitive", bCaseSensitive]
+		]
+		
+		if @bDebugMode
+			? "Result token: " + @@(aResult)
 		ok
-	ok
-	
-	aResult = [
-		["type", cType],
-		["value", cValue],
-		["constraints", aConstraints],
-		["min", nMin],
-		["max", nMax],
-		["negated", bNegated],
-		["casesensitive", bCaseSensitive]
-	]
-	
-	if @bDebugMode
-		? "Result token: " + @@(aResult)
-	ok
-	
-	return aResult
+		
+		return aResult
 	
 	def RemovePrefix(cStr, aPrefixes)
-		for i = 1 to len(aPrefixes)
+		nLen = len(aPrefixes)
+		for i = 1 to nLen
 			if startsWith(cStr, aPrefixes[i])
 				return @substr(cStr, len(aPrefixes[i]) + 1, len(cStr))
 			ok
@@ -518,8 +521,9 @@ def ParseSingleToken(cTokenStr)
 		# Check cache
 		cTableSig = This.TableSignature(poTable)
 		cCacheKey = @cPattern + "|" + cTableSig
-		
-		for i = 1 to len(@aMatchCache)
+		nLen = len(@aMatchCache)
+
+		for i = 1 to nLen
 			if @aMatchCache[i][1] = cCacheKey
 				if @bDebugMode
 					? "Cache hit!"
@@ -545,14 +549,18 @@ def ParseSingleToken(cTokenStr)
 		return bResult
 	
 	def MatchTokens(aTokens, oTable)
-		for i = 1 to len(aTokens)
+		nLen = len(aTokens)
+		for i = 1 to nLen
 			aToken = aTokens[i]
 			
 			if HasKey(aToken, "type") and aToken["type"] = "alternation"
 				bMatched = FALSE
 				if HasKey(aToken, "alternatives")
-					for j = 1 to len(aToken["alternatives"])
-						if This.MatchSingleToken(aToken["alternatives"][j], oTable)
+					aAlternatives = aToken["alternatives"]
+					nLenAlt = len(aAlternatives)
+
+					for j = 1 to nLenAlt
+						if This.MatchSingleToken(aAlternatives[j], oTable)
 							bMatched = TRUE
 							exit
 						ok
@@ -564,8 +572,11 @@ def ParseSingleToken(cTokenStr)
 			
 			but HasKey(aToken, "type") and aToken["type"] = "conjunction"
 				if HasKey(aToken, "conditions")
-					for j = 1 to len(aToken["conditions"])
-						if not This.MatchSingleToken(aToken["conditions"][j], oTable)
+					aConditions = aToken["conditions"]
+					nLenCond = len(aConditions)
+
+					for j = 1 to nLenCond
+						if not This.MatchSingleToken(aConditions[j], oTable)
 							return FALSE
 						ok
 					next
@@ -899,7 +910,8 @@ def ParseSingleToken(cTokenStr)
 				else
 					# Case-insensitive: lowercase all values first
 					aLower = []
-					for i = 1 to len(aCol)
+					nLen = len(aCol)
+					for i = 1 to nLen
 						if isString(aCol[i])
 							aLower + lower(aCol[i])
 						else
@@ -1066,8 +1078,9 @@ def ParseSingleToken(cTokenStr)
 	def CheckColType(aToken, oTable)
 		if HasKey(aToken, "value")
 			# Format: colname:type (e.g., "salary:number")
-			if substr(aToken["value"], ":") > 0
-				aParts = @split(aToken["value"], ":")
+			cValue = aToken["value"]
+			if substr(cValue, ":") > 0
+				aParts = @split(cValue, ":")
 				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cType = lower(trim(aParts[2]))
@@ -1110,8 +1123,9 @@ def ParseSingleToken(cTokenStr)
 	def CheckColPattern(aToken, oTable)
 		if HasKey(aToken, "value")
 			# Format: colname:pattern (e.g., "email:@EMAIL")
-			if substr(aToken["value"], ":") > 0
-				aParts = @split(aToken["value"], ":")
+			cValue = aToken["value"]
+			if substr(cValue, ":") > 0
+				aParts = @split(cValue, ":")
 				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cPattern = trim(aParts[2])
@@ -1138,8 +1152,9 @@ def ParseSingleToken(cTokenStr)
 	def CheckSumCol(aToken, oTable)
 		if HasKey(aToken, "value")
 			# Format: colname:value or colname:>value or colname:<value
-			if substr(aToken["value"], ":") > 0
-				aParts = @split(aToken["value"], ":")
+			cValue = aToken["value"]
+			if substr(cValue, ":") > 0
+				aParts = @split(cValue, ":")
 				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cConstraint = trim(aParts[2])
@@ -1170,8 +1185,9 @@ def ParseSingleToken(cTokenStr)
 	
 	def CheckAvgCol(aToken, oTable)
 		if HasKey(aToken, "value")
-			if substr(aToken["value"], ":") > 0
-				aParts = @split(aToken["value"], ":")
+			cValue = Token["value"]
+			if substr(cValue, ":") > 0
+				aParts = @split(cValue, ":")
 				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cConstraint = trim(aParts[2])
@@ -1180,7 +1196,8 @@ def ParseSingleToken(cTokenStr)
 						aCol = oTable.Col(cColName)
 						nSum = 0
 						nCount = 0
-						for i = 1 to len(aCol)
+						nLen = len(aCol)
+						for i = 1 to nLen
 							if isNumber(aCol[i])
 								nSum += aCol[i]
 								nCount++
@@ -1215,7 +1232,8 @@ def ParseSingleToken(cTokenStr)
 					if oTable.HasColumn(cColName)
 						aCol = oTable.Col(cColName)
 						nMin = NULL
-						for i = 1 to len(aCol)
+						nLen = len(aCol)
+						for i = 1 to nLen
 							if isNumber(aCol[i])
 								if nMin = NULL
 									nMin = aCol[i]
@@ -1242,8 +1260,9 @@ def ParseSingleToken(cTokenStr)
 	
 	def CheckMaxCol(aToken, oTable)
 		if HasKey(aToken, "value")
-			if substr(aToken["value"], ":") > 0
-				aParts = @split(aToken["value"], ":")
+			cValue = aToken["value"]
+			if substr(cValue, ":") > 0
+				aParts = @split(cValue, ":")
 				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cConstraint = trim(aParts[2])
@@ -1251,7 +1270,8 @@ def ParseSingleToken(cTokenStr)
 					if oTable.HasColumn(cColName)
 						aCol = oTable.Col(cColName)
 						nMax = NULL
-						for i = 1 to len(aCol)
+						nLen = len(aCol)
+						for i = 1 to nLen
 							if isNumber(aCol[i])
 								if nMax = NULL
 									nMax = aCol[i]
@@ -1281,7 +1301,8 @@ def ParseSingleToken(cTokenStr)
 			cColName = aToken["value"]
 			if oTable.HasColumn(cColName)
 				aCol = oTable.Col(cColName)
-				for i = 1 to len(aCol)
+				nLen = len(aCol)
+				for i = 1 to nLen
 					if aCol[i] = NULL or aCol[i] = "" or aCol[i] = 0
 						return TRUE
 					ok
@@ -1293,8 +1314,9 @@ def ParseSingleToken(cTokenStr)
 	def CheckCompleteness(aToken, oTable)
 		if HasKey(aToken, "value")
 			# Format: colname:percentage (e.g., "email:90" means 90% complete)
-			if substr(aToken["value"], ":") > 0
-				aParts = @split(aToken["value"], ":")
+			cValue = aToken["value"]
+			if substr(cValue, ":") > 0
+				aParts = @split(cValue, ":")
 				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cPercent = trim(aParts[2])
@@ -1302,12 +1324,13 @@ def ParseSingleToken(cTokenStr)
 					if oTable.HasColumn(cColName) and This.IsNumeric(cPercent)
 						aCol = oTable.Col(cColName)
 						nNonEmpty = 0
-						for i = 1 to len(aCol)
+						nLenCol = len(aCol)
+						for i = 1 to nLenCol
 							if aCol[i] != NULL and aCol[i] != "" and aCol[i] != 0
 								nNonEmpty++
 							ok
 						next
-						nCompleteness = (nNonEmpty * 100.0) / len(aCol)
+						nCompleteness = (nNonEmpty * 100.0) / nLenCol
 						return nCompleteness >= (0 + cPercent)
 					ok
 				ok
@@ -1320,7 +1343,8 @@ def ParseSingleToken(cTokenStr)
 			cColName = aToken["value"]
 			if oTable.HasColumn(cColName)
 				aCol = oTable.Col(cColName)
-				for i = 1 to len(aCol)
+				nLen = len(aCol)
+				for i = 1 to nLen
 					if NOT isNumber(aCol[i])
 						return FALSE
 					ok
@@ -1335,7 +1359,8 @@ def ParseSingleToken(cTokenStr)
 			cColName = aToken["value"]
 			if oTable.HasColumn(cColName)
 				aCol = oTable.Col(cColName)
-				for i = 1 to len(aCol)
+				nLen = len(aCol)
+				for i = 1 to nLen
 					if isString(aCol[i])
 						if NOT Q(aCol[i]).IsAlphabetic()
 							return FALSE
@@ -1352,16 +1377,18 @@ def ParseSingleToken(cTokenStr)
 	def CheckFormat(aToken, oTable)
 		if HasKey(aToken, "value")
 			# Format: colname:format (e.g., "date:YYYY-MM-DD")
-			if substr(aToken["value"], ":") > 0
-				aParts = @split(aToken["value"], ":")
+			cValue = aToken["value"]
+			if substr(cValue, ":") > 0
+				aParts = @split(cValue, ":")
 				if len(aParts) = 2
 					cColName = trim(aParts[1])
 					cFormat = trim(aParts[2])
 					
 					if oTable.HasColumn(cColName)
 						aCol = oTable.Col(cColName)
+						nLen = len(aCol)
 						# Check if values match the format pattern
-						for i = 1 to len(aCol)
+						for i = 1 to nLen
 							if isString(aCol[i])
 								# Simple format check - could be enhanced
 								if NOT This.MatchesFormat(aCol[i], cFormat)
@@ -1377,19 +1404,14 @@ def ParseSingleToken(cTokenStr)
 		return FALSE
 	
 	def MatchesFormat(cValue, cFormat)
-		# Simple format matching - can be enhanced with regex
-		switch lower(cFormat)
-		on "yyyy-mm-dd"
-			return len(cValue) = 10 and 
-			       substr(cValue, "-") = 5 and 
-			       substr(cValue, "-", 6) = 8
-		on "email"
-			return substr(cValue, "@") > 0 and substr(cValue, ".") > 0
-		on "phone"
-			return This.IsNumeric(ring_substr2(cValue, "-", ""))
-		off
-		return TRUE
-	
+
+		oRegex = new stzRegex(cFormat)
+		if oRegex.Match(pat(cValue)) or oRegex.Match(cValue)
+			return TRUE
+		else
+			return FALSE
+		ok
+
 	  #----------------------#
 	 #  PART EXTRACTION     #
 	#----------------------#
@@ -1397,22 +1419,22 @@ def ParseSingleToken(cTokenStr)
 	def ExtractParts(oTable)
 		@aMatchedParts = []
 		
-		@aMatchedParts + ["Cols", oTable.NumberOfColumns()]
-		@aMatchedParts + ["Rows", oTable.NumberOfRows()]
-		@aMatchedParts + ["ColNames", oTable.Columns()]
+		@aMatchedParts + ["cols", oTable.NumberOfColumns()]
+		@aMatchedParts + ["rows", oTable.NumberOfRows()]
+		@aMatchedParts + ["colnames", oTable.Columns()]
 		
 		aProps = []
 		if oTable.IsEmpty()
-			aProps + "Empty"
+			aProps + "empty"
 		else
-			aProps + "NonEmpty"
+			aProps + "nonempty"
 		ok
 		
 		if len(oTable.FindCalculatedCols()) > 0
-			aProps + "HasCalculated"
+			aProps + "hasclculated"
 		ok
 		
-		@aMatchedParts + ["Properties", aProps]
+		@aMatchedParts + ["properties", aProps]
 	
 	  #----------------------#
 	 #  QUERY METHODS       #
@@ -1429,10 +1451,10 @@ def ParseSingleToken(cTokenStr)
 	
 	def Explain()
 		return [
-			["Pattern", @cPattern],
-			["TokenCount", len(@aTokens)],
-			["Tokens", @aTokens],
-			["MatchedParts", @aMatchedParts]
+			["pattern", @cPattern],
+			["tokencount", len(@aTokens)],
+			["tokens", @aTokens],
+			["matchedparts", @aMatchedParts]
 		]
 	
 	  #---------------------------#
@@ -1445,7 +1467,8 @@ def ParseSingleToken(cTokenStr)
 		ok
 		
 		aMatching = []
-		for i = 1 to len(paTables)
+		nLen = len(paTables)
+		for i = 1 to nLen
 			if This.Match(paTables[i])
 				aMatching + paTables[i]
 			ok
@@ -1461,7 +1484,8 @@ def ParseSingleToken(cTokenStr)
 		ok
 		
 		nCount = 0
-		for i = 1 to len(paTables)
+		nLen = len(paTables)
+		for i = 1 to nLen
 			if This.Match(paTables[i])
 				nCount++
 			ok
@@ -1493,7 +1517,8 @@ def ParseSingleToken(cTokenStr)
 			return FALSE
 		ok
 		
-		for i = 1 to len(cStr)
+		nLen = len(cStr)
+		for i = 1 to nLen
 			cChar = @substr(cStr, i, i)
 			if not isDigit(cChar) and cChar != "-" and cChar != "."
 				return FALSE
@@ -1541,21 +1566,31 @@ def ParseSingleToken(cTokenStr)
 	 #  CACHE UTILITY  #
 	#-----------------#
 
-	def TableSignature(oTable)
+	def TableSignature(poTable)
 		# Use content checksum for efficiency
-		cContent = @@(oTable.Content())
+		cContent = @@(poTable.Content())
 		nChecksum = 0
-		for i = 1 to len(cContent)
+		nLen = len(cContent)
+
+		for i = 1 to nLen
 			nChecksum += ascii(cContent[i])
 		next
-		
-		return "" + oTable.NumberOfColumns() + ":" + 
-		       oTable.NumberOfRows() + ":" + 
-		       @@(oTable.ColNames()) + ":" +
+
+		cResult = '' + poTable.NumberOfColumns() + ":" + 
+		       poTable.NumberOfRows() + ":" + 
+		       @@(poTable.ColNames()) + ":" +
 		       nChecksum
+
+		return cResult
 
 	def ClearCache()
 		@aMatchCache = []
 	
 	def SetCacheSize(nSize)
+		if CheckParams()
+			if NOT isNumber(nSize)
+				StzRaise("Incorrect param type! nSize must be a number.")
+			ok
+		ok
+
 		@nMaxCacheSize = nSize
