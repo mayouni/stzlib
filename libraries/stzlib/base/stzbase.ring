@@ -45,6 +45,7 @@
 
 	load "number/stzNumber.ring" #TODO Check compatibiiliy with stkNumber in CORE layer
 	load "number/stzListOfNumbers.ring"
+	load "number/stzPairOfNumbers.ring"
 
 	load "number/stzBinaryNumber.ring"
 	load "number/stzDecimalToBinary.ring"

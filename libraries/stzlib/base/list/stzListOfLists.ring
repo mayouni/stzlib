@@ -3520,27 +3520,27 @@ class stzListOfLists from stzList
 		bResult = This.ColQ(n).IsSortedInAscending()
 		return bResult
 
-		def IsSortedOnUp(n)
-			return This.IsSortedInAscendingDown(n)
+		def IsSortedUpOn(n)
+			return This.IsSortedInAscendingOn(n)
 
 		def IsSortedOn(n)
-			return This.IsSortedInAscendingDown(n)
+			return This.IsSortedInAscendingOn(n)
 
 	  #---------------------------------------------------------------------------#
 	 #  CHECKING IF THE LIST OF LISTS IS SORTED IN DESCENDING ON THE NTH COLUMN  #
 	#---------------------------------------------------------------------------#
 
 	def IsSortedInDescending()
-		return This.IsSortedOnInDescending(1)
+		return This.IsSortedInDescendingOn(1)
 
 		def IsSortedDown()
 			return This.IsSortedInDescending()
 
-	def IsSortedOnInDescending(n)
+	def IsSortedInDescendingOn(n)
 		bResult = This.ColQ(n).IsSortedInDescending()
 		return bResult
 
-		def IsSortedOnDown(n)
+		def IsSortedDownOn(n)
 			return This.IsSortedInDescendingDown(n)
 
 	  #----------------------------------#
@@ -3645,10 +3645,10 @@ class stzListOfLists from stzList
 				This.SortOn(n)
 				return This
 
-		def SortOnInAscending(n)
+		def SortInAscendingOn(n)
 			This.SortOn(n)
 
-			def SortOnInAscendingQ(n)
+			def SortInAscendingOnQ(n)
 				return This.SortOnQ(n)
 
 		#>
@@ -3658,45 +3658,45 @@ class stzListOfLists from stzList
 
 		return aResult
 
-		def SortedOnUp(n)
+		def SortedUpOn(n)
 			return This.SortedOn(n)
 
-		def SortedOnInAscending(n)
+		def SortedInAscendingOn(n)
 			return This.SortedOn(n)
 
 	  #-------------------------------------------------------------#
 	 #  SORTING THE LIST OF LISTS IN DESCENDING ON A GIVEN COLUMN  #
 	#-------------------------------------------------------------#
 
-	def SortOnDown(n)
+	def SortDownOn(n)
 		aResult = ring_reverse( This.SortedOn(n) )
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
 
-		def SortOnDownQ(n)
-			This.SortOnDown(n)
+		def SortDownOnQ(n)
+			This.SortDownOn(n)
 			return This
 
 		#>
 
 		#< @FunctionAlternativeForms
 
-		def SortOnInDescending(n)
+		def SortInDescendingOn(n)
 			This.SortDown(n)
 
-			def SortOnInDescendingQ(n)
-				return This.SortOnDownQ(n)
+			def SortInDescendingOnQ(n)
+				return This.SortDownOnQ(n)
 
 		#>
 
-	def SortedOnDown(n)
-		aResult = This.Copy().SortOnDownQ(n).Content()
+	def SortedDownOn(n)
+		aResult = This.Copy().SortDownOnQ(n).Content()
 
 		return aResult
 
-		def SortedOnInDescending(n)
-			return This.SortedOnDown(n)
+		def SortedInDescendingOn(n)
+			return This.SortedDownOn(n)
 
 	  #---------------------------------------------------------------#
 	 #  SORTING THE LISTS BY AN EVALUATED EXPRESSION - IN ASCENDING  #
@@ -3717,16 +3717,16 @@ class stzListOfLists from stzList
 
 		#< @FunctionAlternativeForms
 
-		def SortByInAscending(pcExpr)
+		def SortInAscendingBy(pcExpr)
 			This.SortBy(pcExpr)
 
-			def SortByInAscendingQ(pcExpr)
+			def SortInAscendingByQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
-		def SortByUp(pcExpr)
+		def SortUpBy(pcExpr)
 			This.SortBy(pcExpr)
 
-			def SortByUpQ(pcExpr)
+			def SortUpByQ(pcExpr)
 				return This.SortByQ(pcExpr)
 
 		#>
@@ -3735,36 +3735,36 @@ class stzListOfLists from stzList
 		aResult = This.Copy().SortByQ(pcExpr).Content()
 		return aResult
 
-		def SortedByInAscending(pcExpr)
+		def SortedInAscendingBy(pcExpr)
 			return This.SortedBy(pcExpr)
 
-		def SortedByUp(pcExpr)
+		def SortedUpBy(pcExpr)
 			return This.SortedBy(pcExpr)
 
 	  #------------------------------------------------------#
 	 #  SORTING THE LISTS BY AN EXPRESSION - IN DESCENDING  #
 	#------------------------------------------------------#
  
-	def SortByInDescending(pcExpr)
-		This.SortByInAscending(pcExpr)
+	def SortInDescendingBy(pcExpr)
+		This.SortInAscendingBy(pcExpr)
 		This.Reverse()
 
-		def SortByInDescendingQ(pcExpr)
-			This.SortByInDescending(pcExpr)
+		def SortInDescendingByQ(pcExpr)
+			This.SortInDescendingBy(pcExpr)
 			return This
 
-		def SortByDown(pcExpr)
-			This.SortByInDescending(pcExpr)
+		def SortDownBy(pcExpr)
+			This.SortInDescendingBy(pcExpr)
 
-			def SortByDownQ(pcExpr)
-				return This.SortByInDescendingQ(pcExpr)
+			def SortDownByQ(pcExpr)
+				return This.SortInDescendingByQ(pcExpr)
 
-	def SortedByInDescending(pcExpr)
-		aResult = This.Copy().SortByInDescendingQ(pcExpr).Content()
+	def SortedInDescendingBy(pcExpr)
+		aResult = This.Copy().SortInDescendingByQ(pcExpr).Content()
 		return aResult
 
-		def SortedByDown(pcExpr)
-			return This.SortedByInDescending(pcExpr)
+		def SortedDownBy(pcExpr)
+			return This.SortedInDescendingBy(pcExpr)
 
 	  #--------------------------------------------------------------------------------------#
 	 #  SORTING THE LISTS BY AN EXPRESSION EVALUATED AGAINST A GIVEN COLUMN - IN ASCENDING  #
@@ -3805,13 +3805,13 @@ class stzListOfLists from stzList
 
 		#< @FunctionAlternativeForms
 
-		def SortOnByInAscending(nCol, pcExpr)
+		def SortInAscendingOnBy(nCol, pcExpr)
 			This.SortOnBy(nCol, pcExpr)
 
-			def SortOnByInAscendingQ(nCol, pcExpr)
+			def SortInAscendingOnByQ(nCol, pcExpr)
 				return This.SortOnByQ(nCol, pcExpr)
 
-		def SortOnByUp(nCol, pcExpr)
+		def SortUpOnBy(nCol, pcExpr)
 			This.SortOnBy(nCol, pcExpr)
 
 			def SortOnByUQ(nCol, pcExpr)
@@ -3823,36 +3823,36 @@ class stzListOfLists from stzList
 		aResult = This.Copy().SortOnByQ(nCol, pcExpr).Content()
 		return aResult
 
-		def SortedOnByInAscending(nCol, pcExpr)
+		def SortedInAscendingOnBy(nCol, pcExpr)
 			return This.SortedOnBy(nCol, pcExpr)
 
-		def SortedOnByUp(nCol, pcExpr)
-			return This.SortedOnBy(nCol, pcExpr)
+		def SortedUpOnBy(nCol, pcExpr)
+			return This.SortedByOn(nCol, pcExpr)
 
 	  #---------------------------------------------------------------------------------------#
 	 #  SORTING THE LISTS BY AN EXPRESSION EVALUATED AGAINST A GIVEN COLUMN - IN DESCENDING  #
 	#---------------------------------------------------------------------------------------#
 
-	def SortOnByInDescending(nCol, pcExpr)
-		This.SortOnByInAscending(nCol, pcExpr)
+	def SortInDescendingOnBy(nCol, pcExpr)
+		This.SortInAscendingOnBy(nCol, pcExpr)
 		This.Reverse()
 
-		def SortOnByInDescendingQ(nCol, pcExpr)
-			This.SortOnByInDescending(nCol, pcExpr)
+		def SortInDescendingOnByQ(nCol, pcExpr)
+			This.SortInDescendingOnBy(nCol, pcExpr)
 			return This
 
-		def SortOnByDown(nCol, pcExpr)
-			This.SortOnByInDescending(nCol, pcExpr)
+		def SortDownOnBy(nCol, pcExpr)
+			This.SortInDescendingOnBy(nCol, pcExpr)
 
-			def SortOnByDownQ(nCol, pcExpr)
-				return This.SortOnByInDescendingQ(nCol, pcExpr)
+			def SortDownOnByQ(nCol, pcExpr)
+				return This.SortInDescendingOnByQ(nCol, pcExpr)
 
-	def SortedOnByInDescending(nCol, pcExpr)
-		aResult = This.Copy().SortOnByInDescendingQ(nCol, pcExpr).Content()
+	def SortedInDescendingOnBy(nCol, pcExpr)
+		aResult = This.Copy().SortInDescendingOnByQ(nCol, pcExpr).Content()
 		return aResult
 
-		def SortedOnByDown(nCol, pcExpr)
-			return This.SortedOnByInDescending(nCol, pcExpr)
+		def SortedDownOnBy(nCol, pcExpr)
+			return This.SortedInDescendingOnBy(nCol, pcExpr)
 
 	  #===========================================#
 	 #  REMOVING DUPLICATES INSIDE THE NTH LIST  #

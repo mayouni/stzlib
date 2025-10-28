@@ -96,6 +96,7 @@ o1.Sort()
 # ]
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 # Executed in 0.02 second(s) in Ring 1.21
 
 /*-------- #ring #qt
