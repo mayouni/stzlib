@@ -5,7 +5,7 @@ load "../stzbase.ring"
 #--------------------------#
 
 /*--- Matching exact column count
-*/
+
 pr()
 
 oTable = new stzTable([
@@ -23,6 +23,7 @@ oTx = new stzTablex("{cols(4)}")
 #--> FALSE
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.24
 
 /*--- Matching column count with comparisons
 
@@ -43,6 +44,7 @@ oTx = new stzTablex("{cols(<10)}")
 #--> TRUE
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.24
 
 /*--- Matching exact row count
 
@@ -64,6 +66,7 @@ oTx = new stzTablex("{rows(>2)}")
 #--> TRUE
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.24
 
 /*--- Combining structure constraints
 
@@ -84,6 +87,7 @@ oTx = new stzTablex("{cols(>2) & rows(<5)}")
 #--> TRUE
 
 pf()
+# Executed in 0.10 second(s) in Ring 1.24
 
 #--------------------------#
 #  CASE SENSITIVITY TESTS  #
@@ -114,6 +118,7 @@ oTx = new stzTablex("{contains(Ali)}")
 #--> FALSE
 
 pf()
+#◙ Executed in 0.10 second(s) in Ring 1.24
 
 /*--- Case-sensitive contains
 
@@ -145,6 +150,7 @@ oTable = new stzTable([
 #--> TRUE
 
 pf()
+# Executed in 0.16 second(s) in Ring 1.24
 
 /*--- Case sensitivity in unique check
 
@@ -168,6 +174,7 @@ oTx = new stzTablex("{@cs:unique(name)}")
 #--> TRUE (each is unique with case)
 
 pf()
+# Executed in 0.09 second(s) in Ring 1.24
 
 /*--- Case sensitivity in duplicates check
 
@@ -190,6 +197,7 @@ oTx = new stzTablex("{@cs:duplicates(email)}")
 #--> FALSE
 
 pf()
+# Executed in 0.10 second(s) in Ring 1.24
 
 /*--- Case sensitivity in sorted check
 
@@ -220,6 +228,7 @@ oTx = new stzTablex("{@cs:sorted(name)}")
 #--> TRUE
 
 pf()
+# Executed in 0.10 second(s) in Ring 1.24
 
 /*--- Case sensitivity in grouped check
 
@@ -243,7 +252,21 @@ oTx = new stzTablex("{@cs:grouped(dept)}")
 ? oTx.Match(oTable)
 #--> FALSE
 
+#--> DEBUG OUTPUT
+'
+=== CheckGrouped ===
+Token: [ [ "type", "grouped" ], [ "value", "dept" ], [ "constraints", [ ] ], [ "min", 1 ], [ "max", 1 ], [ "negated", 0 ], [ "casesensitive", 0 ] ]
+Column name: dept
+Has column: 1
+Case sensitive: 0
+Column data: [ "IT", "it", "HR" ]
+Comparing [1] 'IT' vs [2] 'it': 1
+Comparing [2] 'it' vs [3] 'HR': 0
+Consecutive duplicates found: 1
+'
+
 pf()
+# Executed in 0.12 second(s) in Ring 1.24
 
 /*---
 
@@ -256,11 +279,27 @@ oTable = new stzTable([
 ])
 
 oTx = new stzTablex("{coltype(salary:number)}")
-oTx.EnableDebug()
-? @@(oTx.Tokens())  # Check what was parsed
+
 ? oTx.Match(oTable)
+#--> TRUE
+
+? @@NL(oTx.Tokens())  # Check what was parsed
+#-->
+'
+	[
+		[ "type", "coltype" ],
+		[ "value", "salary:number" ],
+		[ "constraints", [  ] ],
+		[ "min", 1 ],
+		[ "max", 1 ],
+		[ "negated", 0 ],
+		[ "casesensitive", 0 ]
+	]
+]
+'
 
 pf()
+# Executed in 0.05 second(s) in Ring 1.24
 
 /*--- Combining case-sensitive patterns
 
@@ -279,6 +318,7 @@ oTx = new stzTablex("{@cs:unique(name) & @cs:contains(Ali) & @cs:sorted(name)}")
 #--> TRUE
 
 pf()
+# Executed in 0.17 second(s) in Ring 1.24
 
 #--------------------------#
 #  COLUMN EXISTENCE TESTS  #
@@ -307,6 +347,7 @@ oTx = new stzTablex("{colname(bonus)}")
 #--> FALSE
 
 pf()
+# Executed in 0.14 second(s) in Ring 1.24
 
 /*--- Using hascol (alternative syntax)
 
@@ -325,6 +366,7 @@ oTx = new stzTablex("{hascol(name) & hascol(age)}")
 #--> TRUE
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.24
 
 #--------------------------#
 #  DATA CONTENT TESTS      #
@@ -355,6 +397,7 @@ oTx = new stzTablex("{contains(Ali)}")
 #--> FALSE
 
 pf()
+# Executed in 0.12 second(s) in Ring 1.24
 
 /*--- Case-sensitive contains
 
@@ -386,6 +429,7 @@ oTable = new stzTable([
 #--> TRUE
 
 pf()
+# Executed in 0.20 second(s) in Ring 1.24
 
 /*--- Combining contains with structure
 
@@ -402,6 +446,7 @@ oTx = new stzTablex("{cols(>2) & contains(Tunis)}")
 #--> TRUE
 
 pf()
+# Executed in 0.15 second(s) in Ring 1.24
 
 #--------------------------#
 #  UNIQUENESS TESTS        #
@@ -427,6 +472,7 @@ oTx = new stzTablex("{unique(dept)}")
 #--> FALSE (IT appears twice)
 
 pf()
+# Executed in 0.13 second(s) in Ring 1.24
 
 /*--- Detecting duplicates
 
@@ -448,6 +494,7 @@ oTx = new stzTablex("{@!duplicates(email)}")
 #--> FALSE (negated - we DO have duplicates)
 
 pf()
+# Executed in 0.12 second(s) in Ring 1.24
 
 #--------------------------#
 #  COLUMN TYPE TESTS       #
@@ -476,6 +523,7 @@ oTx = new stzTablex("{coltype(name:number)}")
 #--> FALSE
 
 pf()
+# Executed in 0.11 second(s) in Ring 1.24
 
 /*--- Multiple type constraints
 
@@ -492,6 +540,7 @@ oTx = new stzTablex("{coltype(id:number) & coltype(name:string) & coltype(tags:l
 #--> TRUE
 
 pf()
+# Executed in 0.17 second(s) in Ring 1.24
 
 #--------------------------#
 #  NUMERIC COLUMN TESTS    #
@@ -516,6 +565,7 @@ oTx = new stzTablex("{numeric(name)}")
 #--> FALSE
 
 pf()
+# Executed in 0.16 second(s) in Ring 1.24
 
 /*--- Alphabetic column check
 
@@ -536,6 +586,7 @@ oTx = new stzTablex("{alphabetic(code)}")
 #--> TRUE
 
 pf()
+# Executed in 0.25 second(s) in Ring 1.24
 
 #--------------------------#
 #  STATISTICAL TESTS       #
@@ -565,6 +616,7 @@ oTx = new stzTablex("{sumcol(sales:<50000)}")
 #--> FALSE
 
 pf()
+# Executed in 0.17 second(s) in Ring 1.24
 
 /*--- Column average constraints
 
@@ -586,6 +638,7 @@ oTx = new stzTablex("{avgcol(score:>75)}")
 #--> TRUE
 
 pf()
+# Executed in 0.13 second(s) in Ring 1.24
 
 /*--- Min and max column values
 
@@ -611,6 +664,7 @@ oTx = new stzTablex("{mincol(price:>0) & maxcol(price:<100)}")
 #--> TRUE
 
 pf()
+# Executed in 0.23 second(s) in Ring 1.24
 
 #--------------------------#
 #  DATA QUALITY TESTS      #
@@ -640,6 +694,7 @@ oTx = new stzTablex("{nulls(email)}")
 #--> FALSE
 
 pf()
+# Executed in 0.09 second(s) in Ring 1.24
 
 /*--- Completeness percentage
 
@@ -663,6 +718,7 @@ oTx = new stzTablex("{completeness(phone:90)}")
 #--> FALSE
 
 pf()
+# Executed in 0.17 second(s) in Ring 1.24
 
 /*--- Ensuring no nulls
 
@@ -679,6 +735,7 @@ oTx = new stzTablex("{@!nulls(email) & @!nulls(name)}")
 #--> TRUE
 
 pf()
+# Executed in 0.15 second(s) in Ring 1.24
 
 #--------------------------#
 #  CALCULATED COLUMNS      #
@@ -706,6 +763,7 @@ oTx = new stzTablex("{calculated(price)}")
 #--> FALSE
 
 pf()
+# Executed in 0.14 second(s) in Ring 1.24
 
 /*--- Checking for any calculated data
 
@@ -727,6 +785,7 @@ oTable.AddCalculatedCol(:SUM, '@(:A) + @(:B)')
 #--> TRUE
 
 pf()
+# Executed in 0.09 second(s) in Ring 1.24
 
 #--------------------------#
 #  LOGICAL COMBINATIONS    #
@@ -748,6 +807,7 @@ oTx = new stzTablex("{cols(3) & rows(3) & unique(id) & numeric(age)}")
 #--> TRUE
 
 pf()
+# Executed in 0.19 second(s) in Ring 1.24
 
 /*--- OR operator for alternatives
 
@@ -771,6 +831,7 @@ oTx = new stzTablex("{cols(3) | cols(4)}")
 #--> TRUE
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.24
 
 /*--- Negation with @!
 
@@ -788,6 +849,7 @@ oTx = new stzTablex("{@!duplicates(id) & @!nulls(name)}")
 #--> TRUE
 
 pf()
+# Executed in 0.12 second(s) in Ring 1.24
 
 /*--- Complex nested conditions
 
@@ -804,6 +866,7 @@ oTx = new stzTablex("{(cols(3) | cols(4)) & unique(id) & (avgcol(salary:>40000) 
 #--> TRUE
 
 pf()
+# Executed in 0.08 second(s) in Ring 1.24
 
 #--------------------------#
 #  MULTIPLE TABLE MATCHING #
@@ -837,6 +900,7 @@ oTx = new stzTablex("{cols(3) & contains(Tunis)}")
 #--> 1
 
 pf()
+# Executed in 0.15 second(s) in Ring 1.24
 
 /*--- Filtering table collections
 
@@ -849,7 +913,7 @@ aTables = [
 ]
 
 oTx = new stzTablex("{cols(>2)}")
-aFiltered = oTx.MatchingTablesIn(aTables)
+aFiltered = oTx.MatchingTablesIn(aTables) #ERR
 
 ? len(aFiltered)
 #--> 2 (tables with 3 and 4 columns)
@@ -886,6 +950,7 @@ oTx = new stzTablex("{@cs:contains(Ali)}")
 #--> 1 (only exact "Ali")
 
 pf()
+# Executed in 0.27 second(s) in Ring 1.24
 
 #--------------------------#
 #  PATTERN COMBINATION     #
@@ -912,6 +977,7 @@ oTable = new stzTable([
 #--> TRUE
 
 pf()
+# Executed in 0.15 second(s) in Ring 1.24
 
 /*--- Combining patterns with Or_()
 
@@ -925,6 +991,7 @@ oTx3 = oTx1.Or_(oTx2)
 #--> {cols(3) | cols(4)}
 
 pf()
+# Executed in 0.15 second(s) in Ring 1.24
 
 /*--- Negating a pattern
 
@@ -946,6 +1013,7 @@ oTable = new stzTable([
 #--> TRUE (no duplicates)
 
 pf()
+# Executed in 0.11 second(s) in Ring 1.24
 
 #-------------------------------#
 #  DEBUGGING AND INTROSPECTION  #
@@ -957,13 +1025,14 @@ pr()
 
 oTx = new stzTablex("{cols(3) & unique(id) & avgcol(salary:>40000)}")
 
-? "Pattern: " + oTx.Pattern()
-#--> Pattern: {cols(3) & unique(id) & avgcol(salary:>40000)}
+? oTx.Pattern()
+#--> {cols(3) & unique(id) & avgcol(salary:>40000)}
 
-? "Token count: " + len(oTx.Tokens())
+? oTx.NumberOfTokens()
 #--> Token count: 1
 
 pf()
+# Executed in 0.09 second(s) in Ring 1.24
 
 /*--- Explaining matches
 
@@ -986,6 +1055,7 @@ aExplain = oTx.Explain()
 #--> ["TokenCount",1]
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.24
 
 /*--- Debug mode
 
@@ -1001,7 +1071,7 @@ oTable = new stzTable([
 
 ? oTx.Match(oTable)
 #--> TRUE
-# (with debug output showing token parsing)
+# (with debug output showing token parsing) #ERR
 
 oTx.DisableDebug()
 
@@ -1029,6 +1099,7 @@ oTx = new stzTablex("{unique(id) & @!nulls(email) & avgcol(salary:>40000) & avgc
 #--> TRUE
 
 pf()
+# Executed in 0.19 second(s) in Ring 1.24
 
 /*--- Sales data quality check
 
@@ -1048,6 +1119,7 @@ oTx = new stzTablex("{cols(4) & @!nulls(product) & mincol(amount:>0) & sumcol(am
 #--> TRUE
 
 pf()
+# Executed in 0.16 second(s) in Ring 1.24
 
 /*--- Student grades validation
 
@@ -1067,6 +1139,7 @@ oTx = new stzTablex("{cols(5) & unique(student_id) & @!nulls(name) & mincol(math
 #--> TRUE
 
 pf()
+# Executed in 0.23 second(s) in Ring 1.24
 
 /*--- Data warehouse ETL validation
 
@@ -1086,6 +1159,7 @@ oTx = new stzTablex("{cols(4) & completeness(source:100) & sumcol(record_count:>
 #--> TRUE
 
 pf()
+# Executed in 0.15 second(s) in Ring 1.24
 
 #=== AUTOMATIC CAHCE SYSTEM
 
@@ -1112,6 +1186,7 @@ pf()
 # ✓ Test suites (assertions on fixtures)
 # ✓ Dashboard refreshes (pattern reuse)
 
+*/
 
 pr()
 
@@ -1134,34 +1209,40 @@ oTx = new stzTablex("{hascol(name) & hascol(age) & rows(>2)}")
 # Internally: Parse tokens → Check conditions → Store result
 t0 = clock()
 ? oTx.Match(oTable1)  #--> TRUE
-? "First match (no cache): " + (clock() - t0) + " ticks"
+# First match (no cache):
+? ''+ (clock() - t0) + " ticks"
+#--> 20 ticks
 
 # SECOND MATCH - Cache hit!
 # Internally: Signature matches → Return stored TRUE (skip all checking)
 t0 = clock()
 ? oTx.Match(oTable1)  #--> TRUE (instant)
-? "Cached match: " + (clock() - t0) + " ticks"
-#--> 10-100x faster
+# Cached match:
+? ''+ (clock() - t0) + " ticks"
+#--> 1 ticks (20x faster)
 
 # THIRD MATCH - Cache miss (different table signature)
 # Internally: New signature → Compute → Store new result
 t0 = clock()
 ? oTx.Match(oTable2)  #--> FALSE
-? "Different table: " + (clock() - t0) + " ticks"
+# Different table:
+?'' + (clock() - t0) + " ticks"
+#--> 8 ticks
 
 # REAL-WORLD SCENARIO: Validation loop
 # Cache makes repeated checks nearly free
-? "--- 1000 Validations (same table) ---"
+? NL + "--- 1000 Validations (same table) ---"
 
 t0 = clock()
 for i = 1 to 1000
 	oTx.Match(oTable1)  # All hits cached after first
 next
-? "1000 matches: " + (clock() - t0) + " ticks"
-#--> ~1000x speedup vs no cache
+? '' + (clock() - t0) + " ticks"
+#--> 854 ticks
 
 # CACHE CONTROL (optional)
 oTx.ClearCache()        # Reset manually
 oTx.SetCacheSize(50)    # Limit entries (LRU eviction)
 
 pf()
+# Executed in 0.92 second(s) in Ring 1.24

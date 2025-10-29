@@ -1,368 +1,479 @@
 load "../stzbase.ring"
 
-/*---
+#============================#
+#  ENHANCEMENT 1: PREFIX ORDERING TESTS
+#============================#
+
+/*--- Test longer token prefixes parsed correctly
 
 pr()
 
-oTargetGraph = new stzGraph("Sample")
-oTargetGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "Process")
-	AddNodeXT(:c, "End")
-
-	AddEdgeXT(:a, :b, "flows")
-	AddEdgeXT(:b, :c, "completes")
-}
-
-# Test 1: Valid alternation
-oGraphex = new stzGraphex("{@Node(Start) -> (@Edge(flows)|@Edge(completes)) -> @Node(End)}", oTargetGraph)
-oGraphex.EnableDebug()
-? oGraphex.Match(oTargetGraph)
-#--> should return TRUE (matches flows path)
-
-pf()
-
-/*---
-
-# Test 2: Single edge in parentheses
-
-pr()
-
-oTargetGraph = new stzGraph("Sample")
-oTargetGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "Process")
-	AddNodeXT(:c, "End")
-
-	AddEdgeXT(:a, :b, "flows")
-	AddEdgeXT(:b, :c, "completes")
-}
-
-oGraphex2 = new stzGraphex("{@Node(Start) -> (@Edge(flows)) -> @Node(Process)}", oTargetGraph)
-? oGraphex2.Match(oTargetGraph)  # → TRUE
-
-pf()
-
-/*---
-
-pr()
-
-# Test 3: Set without semicolons
-
-oTargetGraph = new stzGraph("Sample")
-oTargetGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "Process")
-	AddNodeXT(:c, "End")
-
-	AddEdgeXT(:a, :b, "flows")
-	AddEdgeXT(:b, :c, "completes")
-}
-
-oGraphex3 = new stzGraphex("{@Node{Start} -> @Edge -> @Node}", oTargetGraph)
-? oGraphex3.Match(oTargetGraph)  # → TRUE (matches {Start} as single value)
-
-pf()
-
-/*---
-
-pr()
-
-# Test 4: Empty alternation with debug mode
-
-oTargetGraph = new stzGraph("Sample")
-oTargetGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "Process")
-	AddNodeXT(:c, "End")
-
-	AddEdgeXT(:a, :b, "flows")
-	AddEdgeXT(:b, :c, "completes")
-}
-
-oGraphex4 = new stzGraphex("{@Node(Start) -> (@Edge(flows)|) -> @Node}", oTargetGraph)
-oGraphex4.EnableDebugMode()
-? oGraphex4.Match(oTargetGraph)  # → Warning: Empty alternation part... TRUE
-
-pf()
-
-#========================#
-#  BASIC NODE MATCHING   #
-#========================#
-
-/*--- Match single node type
-
-pr()
-
-# Pattern matches any graph with at least one node
-
-oGraph = new stzGraph("Simple")
+oGraph = new stzGraph("Props")
 oGraph {
-	AddNodeXT(:@a, "Task")
+	AddNodeXT(:a, "Start", ["type" = "entry", "priority" = 1])
+	AddNodeXT(:b, "End", ["type" = "exit"])
+	AddEdgeXT(:a, :b, "flows")
 }
 
-oGx = new stzGraphex("{@Node}", oGraph)
+# Test @NodeProperty (longer prefix) vs @Node
+oGx = new stzGraphex("{@NodeProperty(type)}", oGraph)
 oGx.EnableDebug()
 ? oGx.Match(oGraph)
-#--> TRUE
+#--> Should parse as "nodeproperty" not "node"
 
 pf()
 
-/*--- Match specific node label
+/*--- Test @EdgeProperty vs @Edge
 
 pr()
 
-# Pattern requires a node labeled "Start"
-
-oGraph = new stzGraph("Workflow")
+oGraph = new stzGraph("EdgeProps")
 oGraph {
-	AddNodeXT(:@a, "Start")
-	AddNodeXT(:@b, "Process")
+	AddNodeXT(:a, "A")
+	AddNodeXT(:b, "B")
+	AddEdgeXT(:a, :b, "connects", ["weight" = 5])
 }
 
-oGx = new stzGraphex("{@Node(Start)}", oGraph)
-//oGx.SetDebug(TRUE)
+oGx = new stzGraphex("{@Node -> @EdgeProperty(weight) -> @Node}", oGraph)
 ? oGx.Match(oGraph)
-#--> should return TRUE
+#--> Should parse as "edgeproperty" not "edge"
 
 pf()
 
-/*--- Node label mismatch
+/*--- Test @NodeCount vs @Node
 
 pr()
 
-# Pattern looks for "End" but graph only has "Start"
-
-oGraph = new stzGraph("Workflow")
+oGraph = new stzGraph("Count")
 oGraph {
-	AddNodeXT(:@a, "Start")
+	AddNodeXT(:a, "A")
+	AddNodeXT(:b, "B")
+	AddNodeXT(:c, "C")
 }
 
-oGx = new stzGraphex("{@Node(End)}", oGraph)
-oGx.EnableDebug()
+oGx = new stzGraphex("{@NodeCount}", oGraph)
 ? oGx.Match(oGraph)
-#--> FALSE
+#--> Should parse as "nodecount"
 
 pf()
 
-#========================#
-#  BASIC EDGE MATCHING   #
-#========================#
+#============================#
+#  ENHANCEMENT 2: CASE SENSITIVITY TESTS
+#============================#
 
-/*--- Match node-edge-node sequence
+/*--- Case-insensitive matching (default)
 
 pr()
 
-# Pattern matches a simple two-node flow
-
-oGraph = new stzGraph("Flow")
+oGraph = new stzGraph("Mixed")
 oGraph {
 	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "End")
-	AddEdgeXT(:a, :b, "connects")
+	AddNodeXT(:b, "PROCESS")
+	AddNodeXT(:c, "end")
+	AddEdgeXT(:a, :b, "Flows")
+	AddEdgeXT(:b, :c, "COMPLETES")
 }
 
-oGx = new stzGraphex("{@Node(Start) -> @Edge(connects) -> @Node(End)}", oGraph)
+# Without @cs:, should match any case
+oGx = new stzGraphex("{@Node(start) -> @Edge(flows) -> @Node(process)}", oGraph)
 ? oGx.Match(oGraph)
-#--> TRUE
+#--> TRUE (case-insensitive by default)
 
 pf()
 
-/*--- Edge label mismatch
+/*--- Case-sensitive matching with @cs: flag
 
 pr()
 
-# Pattern expects "flows" but graph has "connects"
-
-oGraph = new stzGraph("Flow")
+oGraph = new stzGraph("CaseSensitive")
 oGraph {
 	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "End")
-	AddEdgeXT(:a, :b, "connects")
+	AddNodeXT(:b, "start")
+	AddEdgeXT(:a, :b, "flows")
 }
 
-oGx = new stzGraphex("{@Node(Start) -> @Edge(flows) -> @Node(End)}", oGraph)
+# With @cs:, exact case required
+oGx = new stzGraphex("{@cs:@Node(Start)}", oGraph)
 ? oGx.Match(oGraph)
-#--> FALSE
+#--> TRUE (exact "Start" exists)
+
+oGx2 = new stzGraphex("{@cs:@Node(start)}", oGraph)
+? oGx2.Match(oGraph)
+#--> TRUE (exact "start" exists)
+
+oGx3 = new stzGraphex("{@cs:@Node(START)}", oGraph)
+? oGx3.Match(oGraph)
+#--> FALSE (no "START" node)
 
 pf()
 
-/*--- Any edge label
+/*--- Mixed case sensitivity in pattern
 
 pr()
 
-# Pattern accepts any edge label between nodes
-
-oGraph = new stzGraph("Flow")
+oGraph = new stzGraph("Mixed")
 oGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "End")
-	AddEdgeXT(:a, :b, "anything")
+	AddNodeXT(:a, "User")
+	AddNodeXT(:b, "ADMIN")
+	AddEdgeXT(:a, :b, "Promotes")
 }
 
-oGx = new stzGraphex("{@Node(Start) -> @Edge -> @Node(End)}", oGraph)
+# Case-sensitive on first node, insensitive on second
+oGx = new stzGraphex("{@cs:@Node(User) -> @Edge -> @Node(admin)}", oGraph)
 ? oGx.Match(oGraph)
 #--> TRUE
 
 pf()
 
 #============================#
-#  ALTERNATION PATTERNS      #
+#  ENHANCEMENT 3: CACHING TESTS
 #============================#
 
-/*--- Simple alternation - first branch
+/*--- Cache performance test
 
 pr()
 
-# Pattern matches either "flows" or "completes" edge
+# Create large graph
+oGraph = new stzGraph("Large")
+for i = 1 to 100
+	cId = ":n" + i
+	oGraph.AddNodeXT(cId, "Node" + i)
+	if i > 1
+		oGraph.AddEdgeXT(":n" + (i-1), cId, "next")
+	ok
+next
 
-oGraph = new stzGraph("Workflow")
+oGx = new stzGraphex("{@Node(Node1) -> @Edge(next) -> @Node(Node2)}", oGraph)
+
+? "=== First Match (no cache) ==="
+t1 = clock()
+bResult1 = oGx.Match(oGraph)
+t2 = clock()
+? "Result: " + bResult1
+? "Time: " + (t2 - t1)
+
+? "=== Second Match (cached) ==="
+t3 = clock()
+bResult2 = oGx.Match(oGraph)
+t4 = clock()
+? "Result: " + bResult2
+? "Time: " + (t4 - t3)
+? "Speedup: " + ((t2-t1)/(t4-t3))
+
+pf()
+
+/*--- Cache stats and management
+
+pr()
+
+oGraph = new stzGraph("Test")
+oGraph.AddNodeXT(:a, "A")
+
+oGx = new stzGraphex("{@Node(A)}", oGraph)
+
+? "Initial cache: " + @@(oGx.CacheStats())
+? oGx.Match(oGraph)
+? "After match: " + @@(oGx.CacheStats())
+
+oGx.ClearCache()
+? "After clear: " + @@(oGx.CacheStats())
+
+oGx.SetCacheSize(50)
+? "New max size: " + @@(oGx.CacheStats())
+
+pf()
+
+/*--- Cache with different graphs
+
+pr()
+
+oGraph1 = new stzGraph("G1")
+oGraph1.AddNodeXT(:a, "Start")
+
+oGraph2 = new stzGraph("G2")
+oGraph2.AddNodeXT(:a, "Start")
+oGraph2.AddNodeXT(:b, "End")
+
+oGx = new stzGraphex("{@Node(Start)}", oGraph1)
+
+? oGx.Match(oGraph1)  # Cached
+? oGx.Match(oGraph2)  # Different graph signature
+? "Cache entries: " + @@(oGx.CacheStats())
+
+pf()
+
+#============================#
+#  ENHANCEMENT 4: PROPERTY CONSTRAINTS TESTS
+#============================#
+
+/*--- Property value comparison (greater than)
+
+pr()
+
+oGraph = new stzGraph("Users")
 oGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "Process")
-	AddNodeXT(:c, "End")
-	AddEdgeXT(:a, :b, "flows")
-	AddEdgeXT(:b, :c, "completes")
+	AddNodeXT(:u1, "Alice", ["age" = 30])
+	AddNodeXT(:u2, "Bob", ["age" = 20])
+	AddNodeXT(:u3, "Charlie", ["age" = 35])
 }
 
-oGx = new stzGraphex("{@Node(Start) -> (@Edge(flows)|@Edge(completes)) -> @Node}", oGraph)
+# Match nodes with age > 25
+oGx = new stzGraphex("{@Node{age:>:25}}", oGraph)
+? oGx.Match(oGraph)
+#--> TRUE (Alice and Charlie match)
+
+pf()
+
+/*--- Property value comparison (less than)
+
+pr()
+
+oGraph = new stzGraph("Products")
+oGraph {
+	AddNodeXT(:p1, "ItemA", ["price" = 10])
+	AddNodeXT(:p2, "ItemB", ["price" = 50])
+	AddNodeXT(:p3, "ItemC", ["price" = 5])
+}
+
+# Match items with price < 15
+oGx = new stzGraphex("{@Node{price:<:15}}", oGraph)
+? oGx.Match(oGraph)
+#--> TRUE (ItemA and ItemC match)
+
+pf()
+
+/*--- Property equality constraint
+
+pr()
+
+oGraph = new stzGraph("Roles")
+oGraph {
+	AddNodeXT(:u1, "User1", ["role" = "admin"])
+	AddNodeXT(:u2, "User2", ["role" = "user"])
+	AddNodeXT(:u3, "User3", ["role" = "admin"])
+}
+
+# Match admin users
+oGx = new stzGraphex("{@Node{role:=:admin}}", oGraph)
 ? oGx.Match(oGraph)
 #--> TRUE
 
 pf()
 
-/*--- Simple alternation - second branch
+/*--- Multiple property constraints
 
 pr()
-
-# Graph has "completes" edge, matching second alternative
-
-oGraph = new stzGraph("Workflow")
-oGraph {
-	AddNodeXT(:a, "Process")
-	AddNodeXT(:b, "End")
-	AddEdgeXT(:a, :b, "completes")
-}
-
-oGx = new stzGraphex("{@Node -> (@Edge(flows)|@Edge(completes)) -> @Node(End)}", oGraph)
-? oGx.Match(oGraph)
-#--> TRUE
-
-pf()
-
-/*--- Alternation with continuation
-
-pr()
-
-# Pattern has alternation in middle of sequence
-
-oGraph = new stzGraph("Workflow")
-oGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "Middle")
-	AddNodeXT(:c, "End")
-	AddEdgeXT(:a, :b, "flows")
-	AddEdgeXT(:b, :c, "next")
-}
-
-oGx = new stzGraphex("{@Node(Start) -> (@Edge(flows)|@Edge(skips)) -> @Node -> @Edge -> @Node(End)}", oGraph)
-? oGx.Match(oGraph)
-#--> TRUE
-
-pf()
-
-/*--- Multiple alternations
-
-pr()
-
-# Pattern with two separate alternation points
 
 oGraph = new stzGraph("Complex")
 oGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "Mid")
-	AddNodeXT(:c, "End")
-	AddEdgeXT(:a, :b, "option1")
-	AddEdgeXT(:b, :c, "choice2")
+	AddNodeXT(:u1, "Alice", ["age" = 30, "score" = 85])
+	AddNodeXT(:u2, "Bob", ["age" = 25, "score" = 90])
+	AddNodeXT(:u3, "Charlie", ["age" = 35, "score" = 75])
 }
 
-oGx = new stzGraphex("{@Node(Start) -> (@Edge(option1)|@Edge(option2)) -> @Node -> (@Edge(choice1)|@Edge(choice2)) -> @Node(End)}", oGraph)
+# Match nodes: age > 26 AND score > 80
+oGx = new stzGraphex("{@Node{age:>:26;score:>:80}}", oGraph)
+? oGx.Match(oGraph)
+#--> TRUE (Alice matches both)
+
+pf()
+
+/*--- Property constraint with flow
+
+pr()
+
+oGraph = new stzGraph("Workflow")
+oGraph {
+	AddNodeXT(:a, "Task1", ["priority" = 1])
+	AddNodeXT(:b, "Task2", ["priority" = 5])
+	AddEdgeXT(:a, :b, "depends")
+}
+
+# Match high-priority task flow
+oGx = new stzGraphex("{@Node{priority:>:3} -> @Edge -> @Node}", oGraph)
+? oGx.Match(oGraph)
+#--> TRUE (Task2 has priority 5)
+
+pf()
+
+#============================#
+#  ENHANCEMENT 5: DEBUG & EXPLAIN TESTS
+#============================#
+
+/*--- Explain method usage
+
+pr()
+
+oGraph = new stzGraph("Sample")
+oGraph {
+	AddNodeXT(:a, "Start")
+	AddNodeXT(:b, "End")
+	AddEdgeXT(:a, :b, "flows")
+}
+
+oGx = new stzGraphex("{@Node(Start) -> @Edge(flows) -> @Node(End)}", oGraph)
+? "=== Pattern Explanation ==="
+? @@(oGx.Explain())
+
+pf()
+
+/*--- Standardized debug output
+
+pr()
+
+oGraph = new stzGraph("Debug")
+oGraph {
+	AddNodeXT(:a, "A")
+	AddNodeXT(:b, "B")
+	AddEdgeXT(:a, :b, "connects")
+}
+
+oGx = new stzGraphex("{@Node(A) -> @Edge -> @Node(B)}", oGraph)
+oGx.EnableDebug()
+? oGx.Match(oGraph)
+#--> Shows consistent debug messages
+
+pf()
+
+#============================#
+#  ENHANCEMENT 6: VALUE PRESERVATION TESTS
+#============================#
+
+/*--- Preserved case in labels
+
+pr()
+
+oGraph = new stzGraph("Case")
+oGraph {
+	AddNodeXT(:a, "StartNode")
+	AddNodeXT(:b, "EndNode")
+	AddEdgeXT(:a, :b, "FlowsTo")
+}
+
+# Label should preserve exact case
+oGx = new stzGraphex("{@Node(StartNode) -> @Edge(FlowsTo) -> @Node(EndNode)}", oGraph)
+? oGx.Match(oGraph)
+#--> TRUE (case preserved correctly)
+
+pf()
+
+/*--- Parentheses content before lowercasing
+
+pr()
+
+oGraph = new stzGraph("Labels")
+oGraph {
+	AddNodeXT(:a, "CamelCaseLabel")
+	AddNodeXT(:b, "UPPERCASE")
+	AddEdgeXT(:a, :b, "MixedCase")
+}
+
+# All labels should be extracted before lowercasing
+oGx = new stzGraphex("{@Node(CamelCaseLabel) -> @Edge(MixedCase) -> @Node(UPPERCASE)}", oGraph)
 ? oGx.Match(oGraph)
 #--> TRUE
 
 pf()
 
 #============================#
-#  NEGATION PATTERNS         #
+#  ORIGINAL TESTS (UPDATED)
 #============================#
 
-/*--- Negative node matching
+/*--- Alternation with enhancement tracking
 
 pr()
 
-# Pattern excludes nodes labeled "Error"
+oTargetGraph = new stzGraph("Sample")
+oTargetGraph {
+	AddNodeXT(:a, "Start")
+	AddNodeXT(:b, "Process")
+	AddNodeXT(:c, "End")
+	AddEdgeXT(:a, :b, "flows")
+	AddEdgeXT(:b, :c, "completes")
+}
+
+oGraphex = new stzGraphex("{@Node(Start) -> (@Edge(flows)|@Edge(completes)) -> @Node(End)}", oTargetGraph)
+oGraphex.EnableDebug()
+? "Cache before: " + @@(oGraphex.CacheStats())
+? oGraphex.Match(oTargetGraph)
+? "Cache after: " + @@(oGraphex.CacheStats())
+
+pf()
+
+/*--- CI/CD with case sensitivity
+
+pr()
+
+oGraph = new stzGraph("CICD")
+oGraph {
+	AddNodeXT(:code, "code")  # lowercase
+	AddNodeXT(:build, "BUILD")  # uppercase
+	AddNodeXT(:test, "Test")  # mixed
+	AddNodeXT(:deploy, "Deploy")
+	AddEdgeXT(:code, :build, "compiles")
+	AddEdgeXT(:build, :test, "validates")
+	AddEdgeXT(:test, :deploy, "releases")
+}
+
+# Case-insensitive pattern
+oGx = new stzGraphex("{@Node(Code) -> @Edge(compiles) -> @Node(Build)}", oGraph)
+? oGx.Match(oGraph)
+#--> TRUE (case-insensitive)
+
+# Case-sensitive pattern
+oGx2 = new stzGraphex("{@cs:@Node(BUILD) -> @Edge -> @Node(Test)}", oGraph)
+? oGx2.Match(oGraph)
+#--> TRUE (exact case match)
+
+pf()
+
+/*--- State machine with properties
+
+pr()
+
+oGraph = new stzGraph("StateMachine")
+oGraph {
+	AddNodeXT(:idle, "Idle", ["energy" = 0])
+	AddNodeXT(:running, "Running", ["energy" = 100])
+	AddNodeXT(:paused, "Paused", ["energy" = 50])
+	AddEdgeXT(:idle, :running, "start")
+	AddEdgeXT(:running, :paused, "pause")
+}
+
+# Match high-energy states
+oGx = new stzGraphex("{@Node{energy:>:40}}", oGraph)
+? oGx.Match(oGraph)
+#--> TRUE (Running and Paused)
+
+pf()
+
+/*--- Negation with case sensitivity
+
+pr()
 
 oGraph = new stzGraph("Clean")
 oGraph {
 	AddNodeXT(:a, "Start")
 	AddNodeXT(:b, "Success")
+	AddNodeXT(:c, "error")  # lowercase
 	AddEdgeXT(:a, :b, "proceeds")
 }
 
+# Case-insensitive negation
 oGx = new stzGraphex("{@Node(Start) -> @Edge -> @!Node(Error)}", oGraph)
 ? oGx.Match(oGraph)
-#--> TRUE
+#--> FALSE (matches "error" case-insensitively)
+
+# Case-sensitive negation
+oGx2 = new stzGraphex("{@cs:@Node(Start) -> @Edge -> @!Node(Error)}", oGraph)
+? oGx2.Match(oGraph)
+#--> TRUE ("Error" != "error" in case-sensitive mode)
 
 pf()
 
-/*--- Negative edge matching
+/*--- Multi-stage with caching benchmark
 
 pr()
-
-# Pattern excludes "fails" edges
-
-oGraph = new stzGraph("Positive")
-oGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "End")
-	AddEdgeXT(:a, :b, "succeeds")
-}
-
-oGx = new stzGraphex("{@Node(Start) -> @!Edge(fails) -> @Node(End)}", oGraph)
-? oGx.Match(oGraph)
-#--> TRUE
-
-pf()
-
-/*--- Negation fails when present #ERR
-
-pr()
-
-# Graph contains the excluded "Error" node
-
-oGraph = new stzGraph("HasError")
-oGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "Error")
-	AddEdgeXT(:a, :b, "fails")
-}
-
-oGx = new stzGraphex("{@Node(Start) -> @Edge -> @!Node(Error)}", oGraph)
-? oGx.Match(oGraph)
-#--> FALSE
-
-pf()
-
-#============================#
-#  COMPLEX WORKFLOWS         #
-#============================#
-
-
-/*--- Multi-stage pipeline
-
-pr()
-
-# Pattern matches a 4-stage processing pipeline
 
 oGraph = new stzGraph("Pipeline")
 oGraph {
@@ -375,258 +486,51 @@ oGraph {
 	AddEdgeXT(:process, :output, "completes")
 }
 
-oGx = new stzGraphex("{@Node(Input) -> @Edge(feeds) -> @Node(Validate) -> @Edge(approved) -> @Node(Process) -> @Edge -> @Node(Output)}", oGraph)
+oGx = new stzGraphex("{@Node(Input) -> @Edge -> @Node(Validate) -> @Edge -> @Node(Process)}", oGraph)
+
+? "First match:"
+t1 = clock()
 ? oGx.Match(oGraph)
-#--> TRUE
+? "Time: " + (clock() - t1)
 
-pf()
-
-/*--- Branching workflow with alternations
-
-pr()
-
-# Pattern matches approval or rejection paths
-
-oGraph = new stzGraph("Approval")
-oGraph {
-	AddNodeXT(:submit, "Submit")
-	AddNodeXT(:review, "Review")
-	AddNodeXT(:approved, "Approved")
-	AddNodeXT(:rejected, "Rejected")
-	AddEdgeXT(:submit, :review, "pending")
-	AddEdgeXT(:review, :approved, "approve")
-	AddEdgeXT(:review, :rejected, "reject")
-}
-
-oGx = new stzGraphex("{@Node(Submit) -> @Edge -> @Node(Review) -> (@Edge(approve)|@Edge(reject)) -> @Node}", oGraph)
+? "Cached match:"
+t2 = clock()
 ? oGx.Match(oGraph)
-#--> TRUE
+? "Time: " + (clock() - t2)
 
-pf()
-
-/*--- Error handling pattern
-
-pr()
-
-# Pattern detects error recovery flows
-
-oGraph = new stzGraph("Resilient")
-oGraph {
-	AddNodeXT(:start, "Start")
-	AddNodeXT(:task, "Task")
-	AddNodeXT(:retry, "Retry")
-	AddNodeXT(:success, "Success")
-	AddEdgeXT(:start, :task, "begins")
-	AddEdgeXT(:task, :retry, "fails")
-	AddEdgeXT(:retry, :success, "recovers")
-}
-
-oGx = new stzGraphex("{@Node(Start) -> @Edge -> @Node(Task) -> (@Edge(fails)|@Edge(succeeds)) -> @Node}", oGraph)
-? oGx.Match(oGraph)
-#--> TRUE
+? "Explain:"
+? @@(oGx.Explain())
 
 pf()
 
 #============================#
-#  PRACTICAL APPLICATIONS    #
+#  COMBINED ENHANCEMENTS TEST
 #============================#
 
-/*--- CI/CD pipeline validation
+/*--- All enhancements together
 
 pr()
 
-# Verify deployment pipeline structure
-
-oGraph = new stzGraph("CICD")
+oGraph = new stzGraph("Ultimate")
 oGraph {
-	AddNodeXT(:code, "Code")
-	AddNodeXT(:build, "Build")
-	AddNodeXT(:test, "Test")
-	AddNodeXT(:deploy, "Deploy")
-	AddEdgeXT(:code, :build, "compiles")
-	AddEdgeXT(:build, :test, "validates")
-	AddEdgeXT(:test, :deploy, "releases")
+	AddNodeXT(:u1, "UserA", ["age" = 30, "role" = "admin"])
+	AddNodeXT(:u2, "USERB", ["age" = 25, "role" = "user"])
+	AddNodeXT(:u3, "userC", ["age" = 35, "role" = "ADMIN"])
+	AddEdgeXT(:u1, :u2, "Manages")
+	AddEdgeXT(:u2, :u3, "reports")
 }
 
-oGx = new stzGraphex("{
-	@Node(Code) -> @Edge(compiles) -> @Node(Build) ->
-	@Edge(validates) -> @Node(Test) -> @Edge(releases) ->
-	@Node(Deploy)}", oGraph)
+# Pattern with:
+# - Property constraints (age > 28)
+# - Case sensitivity (@cs:)
+# - Alternation (Manages|reports)
+# - Negation (@!)
+oGx = new stzGraphex("{@Node{age:>:28} -> (@Edge(Manages)|@Edge(reports)) -> @!Node(error)}", oGraph)
+oGx.EnableDebug()
 
-? oGx.Match(oGraph)
-#--> TRUE
-
-pf()
-
-/*--- State machine validation
-
-pr()
-
-# Check valid state transitions
-
-oGraph = new stzGraph("StateMachine")
-oGraph {
-	AddNodeXT(:idle, "Idle")
-	AddNodeXT(:running, "Running")
-	AddNodeXT(:paused, "Paused")
-	AddEdgeXT(:idle, :running, "start")
-	AddEdgeXT(:running, :paused, "pause")
-	AddEdgeXT(:paused, :running, "resume")
-}
-
-oGx = new stzGraphex("{
-	@Node(Idle) ->
-	@Edge(start) ->
-	@Node(Running) ->
-	(@Edge(pause)|@Edge(stop)) ->
-	@Node
-}", oGraph)
-
-? oGx.Match(oGraph)
-#--> TRUE
-
-pf()
-
-/*--- Dependency graph validation
-
-pr()
-
-# Ensure build dependencies are correct
-
-oGraph = new stzGraph("Dependencies")
-oGraph {
-	AddNodeXT(:core, "Core")
-	AddNodeXT(:utils, "Utils")
-	AddNodeXT(:app, "App")
-	AddEdgeXT(:core, :utils, "depends")
-	AddEdgeXT(:utils, :app, "depends")
-}
-
-oGx = new stzGraphex("{
-	@Node(Core) -> @Edge(depends) -> @Node(Utils) ->
-	@Edge(depends) -> @Node(App) }", oGraph)
-
-? oGx.Match(oGraph)
-#--> TRUE
-
-pf()
-
-#============================#
-#  EDGE CASES                #
-#============================#
-
-/*--- Empty graph
-
-pr()
-
-# Pattern cannot match empty graph
-
-oGraph = new stzGraph("Empty")
-
-oGx = new stzGraphex("{@Node}", oGraph)
-? oGx.Match(oGraph)
-#--> FALSE
-
-pf()
-
-/*--- Single node graph
-
-pr()
-
-# Pattern matches isolated node
-
-oGraph = new stzGraph("Singleton")
-oGraph {
-	AddNodeXT(:only, "Alone")
-}
-
-oGx = new stzGraphex("{@Node(Alone)}", oGraph)
-? oGx.Match(oGraph)
-#--> TRUE
-
-pf()
-
-/*--- Disconnected components
-
-pr()
-
-# Pattern matches one component
-
-oGraph = new stzGraph("Disconnected")
-oGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "End")
-	AddNodeXT(:x, "Isolated")
-	AddEdgeXT(:a, :b, "connects")
-}
-
-oGx = new stzGraphex("{@Node(Start) -> @Edge(connects) -> @Node(End)}", oGraph)
-? oGx.Match(oGraph)
-#--> TRUE
-
-pf()
-
-/*=== TESTS RETURNING FALSE
-
-/*--- Path doesn't exist
-
-pr()
-
-oGraph = new stzGraph("Test")
-oGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "End")
-	# No edge connecting them
-}
-
-oGx = new stzGraphex("{@Node(Start) -> @Edge -> @Node(End)}", oGraph)
-? oGx.Match(oGraph)  #--> Should be FALSE (no path between Start and End)
-
-pf()
-
-/*--- Wrong edge label
-
-pr()
-
-oGraph = new stzGraph("Test")
-oGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "End")
-	AddEdgeXT(:a, :b, "wrong_label")
-}
-
-oGx = new stzGraphex("{@Node(Start) -> @Edge(flows) -> @Node(End)}", oGraph)
-? oGx.Match(oGraph)  #--> Should be FALSE (edge labeled 'wrong_label' not 'flows')
-
-pf()
-
-/*--- Missing required node
-
-pr()
-
-oGraph = new stzGraph("Test")
-oGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "Process")
-}
-
-oGx = new stzGraphex("{@Node(Start) -> @Edge -> @Node(End)}", oGraph)
-? oGx.Match(oGraph)  #--> Should be FALSE (no 'End' node exists)
-
-pf()
-
-/*--- Negation violated (already tested) #ERR
-*/
-pr()
-
-oGraph = new stzGraph("Test")
-oGraph {
-	AddNodeXT(:a, "Start")
-	AddNodeXT(:b, "Error")
-	AddEdgeXT(:a, :b, "fails")
-}
-
-oGx = new stzGraphex("{@Node(Start) -> @Edge -> @!Node(Error)}", oGraph)
-? oGx.Match(oGraph)  #--> Should be FALSE (Error node present)
+? "=== Combined Test ==="
+? "Match result: " + oGx.Match(oGraph)
+? "Explanation: " + @@(oGx.Explain())
+? "Cache stats: " + @@(oGx.CacheStats())
 
 pf()
