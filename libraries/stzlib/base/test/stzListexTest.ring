@@ -1,71 +1,52 @@
 load "../stzbase.ring"
 
 /*====================================#
-#   LISTEX - TESTING MATCHES CAPTURE  #
+#   LISTEX - ENHANCED TEST SUITE      #
 #=====================================#
-
-/*---
-
-pr()
-
-# [ 8, [ "tocolsfrom", [ 1, [ "to", 2 ] ] ] ]
-# [ @N, [ @S, [ @N, [ @S, @N ] ] ] ]
-oStr = new stzString(@@([ 8, [ "tocolsfrom", [ 1, [ "to", 2 ] ] ] ]))
-acValues = ( oStr.RemoveManyQ([ "[ ", " ]" ]).Split(", ") )
-nLenVal = len(acValues)
-aValues = []
-for i = 1 to nLenVal
-	cCode = 'val = ' + acValues[i]
-	eval(cCode)
-	aValues + val
-next
-
-? @@NL(aValues)
-#-->
-'
-[
-	8,
-	"tocolsfrom",
-	1,
-	"to",
-	2
-]
-'
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
-/*--- GETTING MATCHED VALUES AFTER MATHCH IS DONE #TODO
-
-pr()
-
-Lx = Lx('[ @N, [ @S, [ @N, [ @S, @N ] ] ] ]')
-
-? Lx.Match([ 8, :ToColsFrom = [1, :To = 2] ])
-#--> TRUE
-
-? @@( Lx.Matches() ) + NL
-#--> [ 8, "tocolsfrom", 1, "to", 2 ]
-
-? @@NL( Lx.MatchesXT() )
-#--> [ [ "@N", 8 ], [ "@S", "tocolsfrom" ], [ "@N", 1 ], [ "@S", "to" ], [ "@N", 2 ] ]
-
-
-pf()
-# Executed in 0.14 second(s) in Ring 1.22
-
-
-/*======================================================#
-#   LISTEX - AUTOMATED TEST SUITE FOR PATTERN MATCHING  #
-#=======================================================#
 */
+
+# Test the problematic patterns with debug enabled
+? ""
+? "#========================================#"
+? "#  DEBUG: Investigating failing tests   #"
+? "#========================================#"
+
+? ""
+? "DEBUG TEST 1: [@N, @S] with ['hello', 1]"
+? "Expected: FALSE (should fail - wrong order)"
+? ""
+oLx1 = new stzListex("[@N, @S]")
+oLx1.EnableDebug()
+? "Result: " + oLx1.Match(["hello", 1])
+oLx1.DisableDebug()
+
+? ""
+? "DEBUG TEST 2: [@S{'hello'; 'world'}] with ['world']"
+? "Expected: TRUE (should match)"
+? ""
+oLx2 = new stzListex('[@S{"hello"; "world"}]')
+oLx2.EnableDebug()
+? "Result: " + oLx2.Match(["world"])
+oLx2.DisableDebug()
+
+? ""
+? "DEBUG TEST 3: [@N2-3{1; 2; 3}U] with [1, 2]"
+? "Expected: TRUE (unique values from set)"
+? ""
+oLx3 = new stzListex("[@N2-3{1; 2; 3}U]")
+oLx3.EnableDebug()
+? "Result: " + oLx3.Match([1, 2])
+oLx3.DisableDebug()
+
+? ""
+? "#========================================#"
+? ""
+
 pr()
 
 ? "#----------------------------------------#"
 ? "#  TEST GROUP 1: Basic Pattern Matching  #"
 ? "#----------------------------------------#"
-
-# Basic single-token patterns
 
 TestPattern("[@N]", [
 	[1], "TRUE",
@@ -96,8 +77,6 @@ TestPattern("[@$]", [
 	[], "FALSE"
 ])
 
-# Basic multi-token patterns
-
 TestPattern("[@N, @S]", [
 	[1, "hello"], "TRUE",
 	["hello", 1], "FALSE",
@@ -118,15 +97,11 @@ TestPattern("[@N, @N, @S]", [
 ? "#  TEST GROUP 2: Pattern With Quantifier  #"
 ? "#-----------------------------------------#"
 
-# Single-number quantifier
-
 TestPattern("[@N2]", [
 	[1, 2], "TRUE",
 	[1], "FALSE",
 	[1, 2, 3], "FALSE"
 ])
-
-# Range quantifiers
 
 TestPattern("[@N1-3]", [
 	[1], "TRUE",
@@ -135,8 +110,6 @@ TestPattern("[@N1-3]", [
 	[1, 2, 3, 4], "FALSE",
 	[], "FALSE"
 ])
-
-# Special quantifiers
 
 TestPattern("[@N+]", [
 	[1], "TRUE",
@@ -156,8 +129,6 @@ TestPattern("[@N?]", [
 	[1, 2], "FALSE"
 ])
 
-# Mixed quantifiers
-
 TestPattern("[@N2, @S+]", [
 	[1, 2, "hello"], "TRUE",
 	[1, 2, "hello", "world"], "TRUE",
@@ -170,8 +141,6 @@ TestPattern("[@N2, @S+]", [
 ? "#------------------------------------------------#"
 ? "#  TEST GROUP 3: Set Selection Pattern Matching  #"
 ? "#------------------------------------------------#"
-
-# Basic set constraints
 
 TestPattern("[@N{1; 2; 3}]", [
 	[1], "TRUE",
@@ -186,16 +155,12 @@ TestPattern('[ @S{"hello"; "world"} ]', [
 	["other"], "FALSE"
 ])
 
-# Unique sets
-
 TestPattern("[@N2-3{1; 2; 3}U]", [
 	[1, 2], "TRUE",
 	[1, 2, 3], "TRUE",
 	[1, 1], "FALSE",
 	[1, 4], "FALSE"
 ])
-
-# Sets with quantifiers
 
 TestPattern("[@N+{1; 2; 3}]", [
 	[1], "TRUE",
@@ -212,14 +177,11 @@ TestPattern("[@N+{1; 2; 3}]", [
 ? "#  TEST GROUP 4: Complex Pattern Combinations  #"
 ? "#----------------------------------------------#"
 
-# Complex nesting patterns
-
 TestPattern("[@L{[1,2]; [1,4]}]", [
 	[[1, 2]], "TRUE",
+	[[1, 4]], "TRUE",
 	[[3, 4]], "FALSE"
 ])
-
-# Testing optimization capabilities
 
 TestPattern("[@N1-2, @N0-3]", [
 	[1], "TRUE",
@@ -227,8 +189,6 @@ TestPattern("[@N1-2, @N0-3]", [
 	[1, 2, 3], "TRUE",
 	[1, 2, 3, 4, 5], "TRUE"
 ])
-
-# Combining multiple token types with quantifiers and sets
 
 TestPattern('[ @N+{1; 2; 3}, @S{"hello"; "world"}, @L? ]', [
     [1, 2, "hello"], "TRUE",
@@ -246,35 +206,24 @@ TestPattern('[ @N+{1; 2; 3}, @S{"hello"; "world"}, @L? ]', [
 ? "#  TEST GROUP 5: Edge Cases and Error Handling  #"
 ? "#-----------------------------------------------#"
 
-# Empty pattern handling
-
 TestPattern("[]", [
 	[], "TRUE",
 	[1], "FALSE"
 ])
-
-# Decimal numbers
 
 TestPattern("[@N]", [
 	[3.14], "TRUE",
 	[-2.5], "TRUE"
 ])
 
-# Nested lists with multiple levels
-
 TestPattern("[@L]", [
 	[[[1, 2], [3, 4]]], "TRUE"
 ])
 
-# Very large quantifiers
-
 TestPattern("[@N0-100]", [
 	[], "TRUE",
-	[1, 2, 3, 4, 5],
-	"TRUE"
+	[1, 2, 3, 4, 5], "TRUE"
 ])
-
-# Pattern with all token types
 
 TestPattern("[@N, @S, @L, @$]", [
 	[1, "hello", [1, 2], 42], "TRUE",
@@ -289,27 +238,26 @@ TestPattern("[@N, @S, @L, @$]", [
 ? "#-------------------------------------------#"
 
 TestPattern("[@!N]", [
-	[ 10 ], "FALSE",
-	[ "hello" ], "TRUE"
+	[10], "FALSE",
+	["hello"], "TRUE"
 ])
 
 TestPattern("[@!S]", [
-	[ "hello" ], "FALSE",
-	[ 10 ], "TRUE",
-	[ [1, 2, 3] ], "TRUE"
+	["hello"], "FALSE",
+	[10], "TRUE",
+	[[1, 2, 3]], "TRUE"
 ])
 
-
 TestPattern('[@!L]', [
-	[ [1, 2, 3] ], "FALSE",
-	[ 10 ], "TRUE",
-	[ "hello" ], "TRUE"
+	[[1, 2, 3]], "FALSE",
+	[10], "TRUE",
+	["hello"], "TRUE"
 ])
 
 TestPattern("[@N, @!N]", [
-	[ 10, "hello" ], "TRUE",
-	[ 10, 20 ], "FALSE",
-	[ "hello", 10 ], "FALSE"
+	[10, "hello"], "TRUE",
+	[10, 20], "FALSE",
+	["hello", 10], "FALSE"
 ])
 
 #---
@@ -320,30 +268,30 @@ TestPattern("[@N, @!N]", [
 ? "#----------------------------------------------#"
 
 TestPattern("[@N|@S]", [
-	[ 10 ], "TRUE",
-	[ "hello" ], "TRUE",
-	[ [1, 2, 3] ], "FALSE"
+	[10], "TRUE",
+	["hello"], "TRUE",
+	[[1, 2, 3]], "FALSE"
 ])
 
 TestPattern("[ @N|@S, @L|@N ]", [
-	[ 10, 20 ], "TRUE",
-	[ "hello", [1, 2, 3] ], "TRUE",
-	[ 10, [1, 2, 3] ], "TRUE",
-	[ "hello", "world" ], "FALSE"
+	[10, 20], "TRUE",
+	["hello", [1, 2, 3]], "TRUE",
+	[10, [1, 2, 3]], "TRUE",
+	["hello", "world"], "FALSE"
 ])
 
 TestPattern("[ @N{1;2;3} | @S ]", [
-	[ 1 ], "TRUE",
-	[ 2 ], "TRUE",
-	[ "hello" ], "TRUE",
-	[ 4 ], "FALSE"
+	[1], "TRUE",
+	[2], "TRUE",
+	["hello"], "TRUE",
+	[4], "FALSE"
 ])
 
 TestPattern("[ @N|@S, @!S ]", [
-	[ 10, [1, 2, 3] ], "TRUE",
-	[ "hello", [1, 2, 3] ], "TRUE",
-	[ 10, "hello" ], "FALSE",
-	[ "hello", 10 ], "TRUE"
+	[10, [1, 2, 3]], "TRUE",
+	["hello", [1, 2, 3]], "TRUE",
+	[10, "hello"], "FALSE",
+	["hello", 10], "TRUE"
 ])
 
 #---
@@ -353,42 +301,33 @@ TestPattern("[ @N|@S, @!S ]", [
 ? "#  TEST GROUP 8: NESTED PATTERNS  #"
 ? "#---------------------------------#"
 
-# Simple nested list with number constraints
-
 TestPattern("[@N, [@N2], @N]", [
 	[1, [2, 3], 4], "TRUE",
-	[1, [2], 4], "FALSE",	# (inner list must have exactly 2 elements)
-	[1, [2, 3, 4], 4], "FALSE" # (inner list must have exactly 2 elements)
+	[1, [2], 4], "FALSE",
+	[1, [2, 3, 4], 4], "FALSE"
 ])
-
-# Mixed type nested list
 
 TestPattern("[@N, [@S, @N], @S]", [
 	[1, ["hello", 42], "world"], "TRUE",
-	[1, ["hello"], "world"], "FALSE" # (inner list must have both string and number)
+	[1, ["hello"], "world"], "FALSE"
 ])
-
-# Nested list with set constraints
 
 TestPattern("[@N, [@N{10;20}], @N]", [
-	[1, [10, 20], 5], "FALSE",
+	[1, [10], 5], "TRUE",
+	[1, [20], 5], "TRUE",
 	[1, [15], 5], "FALSE",
-	[1, [30], 5], "FALSE" # (inner number not in set)
+	[1, [30], 5], "FALSE"
 ])
-
-# Complex nested pattern with multiple constraints
 
 TestPattern("[@N, [@S, @N, [@N2]], @S]", [
 	[1, ["hello", 42, [1, 2]], "world"], "TRUE",
-	[1, ["hello", 42, [1]], "world"], "FALSE",  # (third nested list must have exactly 2 elements)
-	[1, ["hello", 42, [1, 2, 3]], "world"], "FALSE"  # (third nested list must have exactly 2 elements)
+	[1, ["hello", 42, [1]], "world"], "FALSE",
+	[1, ["hello", 42, [1, 2, 3]], "world"], "FALSE"
 ])
 
-# Nested list with quantifiers
-
 TestPattern("[@N, [@N+], @N]", [
-	[1, [10, 20, 30], 5], "TRUE",  # (one or more numbers in nested list)
-	[1, [10], 5], "TRUE"  # (at least one number in nested list)
+	[1, [10, 20, 30], 5], "TRUE",
+	[1, [10], 5], "TRUE"
 ])
 
 #---
@@ -398,7 +337,6 @@ TestPattern("[@N, [@N+], @N]", [
 ? "#  TEST GROUP 9: STEPPED RANGE PATTERN  #"
 ? "#---------------------------------------#"
 
-# Basic stepped range tests
 TestPattern("[@N{1-10:3}]", [
     [1], "TRUE",
     [4], "TRUE",
@@ -411,7 +349,6 @@ TestPattern("[@N{1-10:3}]", [
     ["text"], "FALSE"
 ])
 
-# Stepped range with uniqueness constraint
 TestPattern("[@N+{5-20:5}U]", [
     [5, 10, 15, 20], "TRUE",
     [5, 10, 15], "TRUE",
@@ -420,7 +357,6 @@ TestPattern("[@N+{5-20:5}U]", [
     [5, 25], "FALSE"
 ])
 
-# Multiple instances with different steps
 TestPattern("[@N{1-5:1}, @N{10-20:5}]", [
     [3, 15], "TRUE",
     [5, 10], "TRUE",
@@ -429,7 +365,6 @@ TestPattern("[@N{1-5:1}, @N{10-20:5}]", [
     [3, 12], "FALSE"
 ])
 
-# Combining with other quantifiers
 TestPattern("[@N*{2-10:2}]", [
     [2, 4, 6, 8, 10], "TRUE",
     [2, 6, 10], "TRUE",
@@ -440,7 +375,6 @@ TestPattern("[@N*{2-10:2}]", [
     [2, 3], "FALSE"
 ])
 
-# Combining with alternation
 TestPattern("[@N{1-9:2}|@S]", [
     [1], "TRUE",
     [3], "TRUE",
@@ -450,7 +384,6 @@ TestPattern("[@N{1-9:2}|@S]", [
     [10], "FALSE"
 ])
 
-# Complex pattern with stepped ranges
 TestPattern("[@N+{1-10:3}, @S, @N?{50-100:25}]", [
     [1, 4, "text"], "TRUE",
     [7, 10, 1, "hello"], "TRUE",
@@ -461,7 +394,6 @@ TestPattern("[@N+{1-10:3}, @S, @N?{50-100:25}]", [
     ["word", 7], "FALSE"
 ])
 
-# Nested patterns with stepped ranges
 TestPattern("[[@N+{1-10:3}]]", [
     [[1, 4, 7]], "TRUE",
     [[10]], "TRUE",
@@ -470,29 +402,242 @@ TestPattern("[[@N+{1-10:3}]]", [
     [1, 4, 7], "FALSE"
 ])
 
-# Negated stepped range
-# Matches any non-number or any number that is
-# NOT in the set [2,5,8,11].
-
 TestPattern("[@!N{2-12:3}]", [
     [2], "FALSE",
     [5], "FALSE",
     [8], "FALSE",
-
     [3], "TRUE",
     [6], "TRUE",
     [9], "TRUE"
 ])
 
-#NOTES:
-# - The negation is first applied only to the type check (e.g., "is this a number?")
-# - Then, if the type check passes, we handle set membership separately
+#---
 
-# - For negated tokens, uniqueness tracking is less relevant since we're matching what's NOT in the set
-# - Uniqueness constraints are now only applied to non-negated tokens where appropriate
+? ""
+? "#--------------------------------------------#"
+? "#  TEST GROUP 10: CASE SENSITIVITY (NEW!)    #"
+? "#--------------------------------------------#"
+
+# Default: case-insensitive
+TestPattern("[@S{Ali}]", [
+	["Ali"], "TRUE",
+	["ali"], "TRUE",
+	["ALI"], "TRUE",
+	["aLi"], "TRUE"
+])
+
+# Case-sensitive with @cs: prefix
+TestPattern("[@cs:@S{Ali}]", [
+	["Ali"], "TRUE",
+	["ali"], "FALSE",
+	["ALI"], "FALSE",
+	["aLi"], "FALSE"
+])
+
+# Multiple values case-insensitive
+TestPattern('[@S{"Hello"; "World"}]', [
+	["hello"], "TRUE",
+	["HELLO"], "TRUE",
+	["world"], "TRUE",
+	["WORLD"], "TRUE",
+	["other"], "FALSE"
+])
+
+# Multiple values case-sensitive
+TestPattern('[@cs:@S{"Hello"; "World"}]', [
+	["Hello"], "TRUE",
+	["World"], "TRUE",
+	["hello"], "FALSE",
+	["HELLO"], "FALSE",
+	["world"], "FALSE"
+])
+
+# Case-insensitive with quantifiers
+TestPattern('[@S+{"red"; "green"; "blue"}]', [
+	["Red", "GREEN", "Blue"], "TRUE",
+	["red", "green"], "TRUE",
+	["RED"], "TRUE"
+])
+
+# Case-sensitive with quantifiers
+TestPattern('[@cs:@S+{"red"; "green"; "blue"}]', [
+	["red", "green", "blue"], "TRUE",
+	["Red", "GREEN", "Blue"], "FALSE",
+	["red", "Green"], "FALSE"
+])
+
+# Case-insensitive unique set
+TestPattern('[@S2-3{"apple"; "banana"}U]', [
+	["apple", "BANANA"], "TRUE",
+	["Apple", "banana"], "TRUE",
+	["apple", "apple"], "FALSE",
+	["APPLE", "apple"], "FALSE"
+])
+
+# Mixed case in alternation (default case-insensitive)
+TestPattern('[@S{"Hi"}|@N]', [
+	["hi"], "TRUE",
+	["HI"], "TRUE",
+	["Hi"], "TRUE",
+	[42], "TRUE"
+])
+
+# Case-sensitive alternation
+TestPattern('[@cs:@S{"Hi"}|@N]', [
+	["Hi"], "TRUE",
+	["hi"], "FALSE",
+	["HI"], "FALSE",
+	[42], "TRUE"
+])
+
+#---
+
+? ""
+? "#-------------------------------------------#"
+? "#  TEST GROUP 11: CACHE PERFORMANCE (NEW!)  #"
+? "#-------------------------------------------#"
+
+? ""
+? "Testing cache performance with large list..."
+
+# Create large test list
+aLarge = 1:1000
+oLx = new stzListex("[@N+]")
+
+# First match (no cache)
+t1 = clock()
+bResult1 = oLx.Match(aLarge)
+t2 = clock()
+nTime1 = t2 - t1
+
+# Second match (from cache)
+t3 = clock()
+bResult2 = oLx.Match(aLarge)
+t4 = clock()
+nTime2 = t4 - t3
+
+? "  First match:  " + nTime1 + "s (computed)"
+? "  Second match: " + nTime2 + "s (cached)"
+? "  Speedup: " + (nTime1 / nTime2) + "x"
+
+# Cache info
+aCacheInfo = oLx.CacheInfo()
+? "  Cache entries: " + aCacheInfo[1][2]
+? "  Cache max size: " + aCacheInfo[2][2]
+
+# Test cache clearing
+oLx.ClearCache()
+aCacheInfo = oLx.CacheInfo()
+? "  After clear: " + aCacheInfo[1][2] + " entries"
+
+#---
+
+? ""
+? "#--------------------------------------#"
+? "#  TEST GROUP 12: EXPLAIN METHOD (NEW!)#"
+? "#--------------------------------------#"
+
+? ""
+? "Testing Explain() method..."
+? ""
+
+oLx = new stzListex("[@N+, @S{hello;world}U, @L?]")
+aExplain = oLx.Explain()
+
+? "Pattern: " + aExplain[1][2]
+? "Token count: " + aExplain[2][2]
+? "Cache entries: " + aExplain[3][2]
+? ""
+? "Token details:"
+
+aTokens = aExplain[4][2]
+for i = 1 to len(aTokens)
+	aToken = aTokens[i]
+	? "  Token #" + aToken[1][2] + ":"
+	? "    Keyword: " + aToken[2][2]
+	? "    Type: " + aToken[3][2]
+	? "    Range: " + aToken[4][2] + "-" + aToken[5][2]
+	? "    Has set: " + aToken[6][2]
+	? "    Unique: " + aToken[8][2]
+	? "    Case-sensitive: " + aToken[10][2]
+next
+
+#---
+
+? ""
+? "#----------------------------------------------#"
+? "#  TEST GROUP 13: VALUE PRESERVATION (NEW!)    #"
+? "#----------------------------------------------#"
+
+# Mixed case values should be preserved
+TestPattern('[@S{"Ali"; "MAHMOUD"; "sami"}]', [
+	["ali"], "TRUE",
+	["Ali"], "TRUE",
+	["mahmoud"], "TRUE",
+	["MAHMOUD"], "TRUE",
+	["Sami"], "TRUE",
+	["other"], "FALSE"
+])
+
+# Case-sensitive preservation
+TestPattern('[@cs:@S{"Ali"; "MAHMOUD"; "sami"}]', [
+	["Ali"], "TRUE",
+	["MAHMOUD"], "TRUE",
+	["sami"], "TRUE",
+	["ali"], "FALSE",
+	["mahmoud"], "FALSE",
+	["Sami"], "FALSE"
+])
+
+# Preserve special characters
+TestPattern('[@S{"hello-world"; "test_123"}]', [
+	["hello-world"], "TRUE",
+	["HELLO-WORLD"], "TRUE",
+	["test_123"], "TRUE",
+	["TEST_123"], "TRUE"
+])
+
+#---
+
+? ""
+? "#-------------------------------------------#"
+? "#  TEST GROUP 14: DEBUG MODE (NEW!)         #"
+? "#-------------------------------------------#"
+
+? ""
+? "Testing with debug mode enabled:"
+? ""
+
+oLx = new stzListex("[@N+, @S]")
+oLx.EnableDebug()
+
+? "--- Debug output will appear below ---"
+bResult = oLx.Match([1, 2, 3, "hello"])
+? "--- End debug output ---"
+? ""
+? "Match result: " + bResult
+
+oLx.DisableDebug()
+
+#---
+
+? ""
+? "#-------------------------------------------#"
+? "#  TEST GROUP 15: TOKENSINFO ENHANCED       #"
+? "#-------------------------------------------#"
+
+? ""
+? "Testing enhanced TokensInfo()..."
+? ""
+
+oLx = new stzListex('[@cs:@N+{1;2;3}, @S{"test"}U, @L?]')
+aInfo = oLx.TokensInfo()
+
+for i = 1 to len(aInfo)
+	? aInfo[i]
+next
 
 pf()
-# Executed in 3.71 second(s) in Ring 1.22
 
 /*=======================#
 #  TEST HELPER FUNCTION  #

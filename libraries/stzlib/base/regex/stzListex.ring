@@ -1,4 +1,4 @@
-# Softanza List Regex Engine
+# Softanza List Regex Engine - Enhanced Version
 
 func StzListRegexQ(cPattern)
 	return new stzListex(cPattern)
@@ -15,14 +15,17 @@ class stzListex
 	@aTokens		# List of parsed token definitions
 	@bDebugMode = false	# Debug mode flag
 
-	# Regular expression patterns for various token types
+	# Cache system attributes
+	@aMatchCache = []
+	@nMaxCacheSize = 100
 
+	# Regular expression patterns for various token types
 	@cNumberPattern = '(?:-?\d+(?:\.\d+)?)'
 	@cStringPattern = "(?:" + char(34) + "[^" + char(34) + "]*" + char(34) + "|\'[^\']*\')"
 	@cSimpleListPattern = '\[\s*[^\[\]]*\s*\]'
 	@cRecursiveListPattern = '\[\s*(?:[^\[\]]|\[(?:[^\[\]]|(?R))*\])*\s*\]'
-	@cListPattern = @cSimpleListPattern  # Default to simple pattern
-	@cAnyPattern = "" # Will be set in init()
+	@cListPattern = @cSimpleListPattern
+	@cAnyPattern = ""
 
 	@cQuantifierPattern = '^([+*?])'
 	@cSingleNumberPattern = '^(\d+)'
@@ -39,22 +42,14 @@ class stzListex
 			raise("Error: Pattern must be a string")
 		ok
 
-		# Initialize @cAnyPattern as the combination of all patterns
 		@cAnyPattern = @cNumberPattern + "|" + @cStringPattern + "|" + @cListPattern
-
-		# Normalize the pattern by ensuring it has outer brackets
 		@cPattern = This.NormalizePattern(cPattern)
-		
-		# Parse the pattern into tokens
 		@aTokens = This.ParsePattern(@cPattern)
-		
-		# Optimize the token sequence if possible
 		This.OptimizeTokens()
 
 	def NormalizePattern(cPattern)
 		cPattern = @trim(cPattern)
 		
-		# Ensure pattern is enclosed in square brackets
 		if NOT (StartsWith(cPattern, "[") and EndsWith(cPattern, "]"))
 			cPattern = "[" + cPattern + "]"
 		ok
@@ -62,51 +57,40 @@ class stzListex
 		return cPattern
 
 	def ParsePattern(cPattern)
-		# Remove outer brackets and trim
+		This.DebugLog("ParsePattern", "Input: " + cPattern)
+		
 		cInner = @trim( @substr( @trim(cPattern), 2, len(cPattern)-1 ) )
-		# Split at top-level commas
 		aParts = SplitAtTopLevelCommas(cInner)
 
-		# Parse each part into tokens
 		aTokens = []
 		for i = 1 to len(aParts)
 			aTokens + This.ParseToken(@trim(aParts[i]))
 		next
 
+		This.DebugLog("ParsePattern", "Tokens created: " + len(aTokens))
 		return aTokens
 
-	def ParseNestedPattern(cNestedPattern, bNegated)
-
-		# Remove outer brackets
-
+	def ParseNestedPattern(cNestedPattern, bNegated, bCaseSensitive)
 		cInner = @substr(cNestedPattern, 2, len(cNestedPattern)-1)
-
-		# Parse the nested pattern into tokens
-
 		aNestedTokens = []
-
-		# Split at top-level commas
-
 		aParts = SplitAtTopLevelCommas(cInner)
 
-		# Parse each part into tokens
-
 		for i = 1 to len(aParts)
-			aNestedTokens + This.ParseToken(@trim(aParts[i]))
+			aToken = This.ParseToken(@trim(aParts[i]))
+			# Inherit case sensitivity if not specified
+			if NOT HasKey(aToken, "casesensitive")
+				aToken + ["casesensitive", bCaseSensitive]
+			ok
+			aNestedTokens + aToken
 		next
-
-		# Process quantifiers for the entire nested pattern
 
 		nMin = 1
 		nMax = 1
 		nQuantifier = 1
     
-		# Check if a quantifier is appended after the closing bracket
-
 		nLenNestPat = len(cNestedPattern)
 		if nLenNestPat > 2
 			cRest = Right(cNestedPattern, 1)
-			# Handle +, *, ? quantifiers
 			oQMatch = rx(@cQuantifierPattern)
 			if oQMatch.Match(cRest)
 				aMatches = oQMatch.Matches()
@@ -115,19 +99,15 @@ class stzListex
 				switch cQuantifier
 				on "+"
 					nMin = 1
-					nMax = 999999999  # Effectively unlimited
+					nMax = 999999999
 				on "*"
 					nMin = 0
-					nMax = 999999999  # Effectively unlimited
+					nMax = 999999999
 				on "?"
 					nMin = 0
 					nMax = 1
 				off
-
 			else
-
-				# Check for a single number quantifier
-
 				oNumberMatch = rx(@cSingleNumberPattern).Match(cRest)
 				if oNumberMatch
 					aMatches = oNumberMatch.Matches()
@@ -138,8 +118,6 @@ class stzListex
 			ok
 		ok
     
-		# Create a nested pattern token
-
 		aToken = [
 			[ "keyword", "@NESTED" ],
 			[ "type", "nested" ],
@@ -151,38 +129,32 @@ class stzListex
 			[ "hasset", false ],
 			[ "setvalues", [] ],
 			[ "requireunique", false ],
-			[ "negated", bNegated ]
+			[ "negated", bNegated ],
+			[ "casesensitive", bCaseSensitive ]
 		]
     
 		return aToken
 
-	def ParseAlternationToken(cTokenStr, bNegated)
-
-		# Split alternation tokens
-
+	def ParseAlternationToken(cTokenStr, bNegated, bCaseSensitive)
 		aParts = @split(cTokenStr, "|")
-		
 		nLen = len(aParts)
-
 		aAlternatives = []
-		nLen = len(aParts)
 
 		for i = 1 to nLen
-
 			cPart = @trim(aParts[i])
-
-			# Add negation back to the first token if it exists
 
 			if bNegated and i = 1
 				cPart = "@!" + cPart
 			ok
 
-			aAlternatives + This.ParseToken(cPart)
-
+			aToken = This.ParseToken(cPart)
+			# Inherit case sensitivity if not specified
+			if NOT HasKey(aToken, "casesensitive")
+				aToken + ["casesensitive", bCaseSensitive]
+			ok
+			aAlternatives + aToken
 		next
 		
-		# Create an alternation token
-
 		aToken = [
 			[ "keyword", "@ALT" ],
 			[ "type", "alternation" ],
@@ -193,62 +165,63 @@ class stzListex
 			[ "hasset", false ],
 			[ "setvalues", [] ],
 			[ "requireunique", false ],
-			[ "negated", bNegated ]
+			[ "negated", bNegated ],
+			[ "casesensitive", bCaseSensitive ]
 		]
 		
 		return aToken
 
 	def ParseToken(cTokenStr)
-		# Default values
-		bNegated = false
-	
+		This.DebugLog("ParseToken", "Input: " + cTokenStr)
+		
+		bNegated = FALSE
+		bCaseSensitive = FALSE
+
+		# Check for case-sensitive prefix @cs:
+		if StartsWith(lower(cTokenStr), "@cs:")
+			bCaseSensitive = TRUE
+			cTokenStr = @substr(cTokenStr, 5, len(cTokenStr))
+		ok
+
+		# Extract set values BEFORE case conversion to preserve original values
+		cPreservedSet = ""
+		nSetStart = substr(cTokenStr, "{")
+		if nSetStart > 0
+			nSetEnd = substr(cTokenStr, "}")
+			if nSetEnd > nSetStart
+				cPreservedSet = @substr(cTokenStr, nSetStart, nSetEnd - nSetStart + 1)
+			ok
+		ok
 
 		# Check for negation prefix
-
-		bNegated = FALSE
-
 		if StartsWith(cTokenStr, "@!")
 			bNegated = true
-			cTokenStr = @subStr(cTokenStr, 3, len(cTokenStr))  # Remove @! prefix
+			cTokenStr = @subStr(cTokenStr, 3, len(cTokenStr))
 		ok
-	
 
 		# Handle nested list patterns
-
 		if StartsWith(cTokenStr, "[") and EndsWith(cTokenStr, "]")
-			return This.ParseNestedPattern(cTokenStr, bNegated)
+			return This.ParseNestedPattern(cTokenStr, bNegated, bCaseSensitive)
 		ok
 
 		# Alternation handling
-
 		if @Contains(cTokenStr, "|")
-			return This.ParseAlternationToken(cTokenStr, bNegated)
+			return This.ParseAlternationToken(cTokenStr, bNegated, bCaseSensitive)
 		ok
-	
 
-		# Ensure token starts with @ or add it
-
+		# Ensure token starts with @
 		if NOT StartsWith(cTokenStr, "@")
 			cTokenStr = "@" + cTokenStr
 		ok
     
 		# Extract keyword (first two characters)
-
 		cKeyword = @substr(cTokenStr, 1, 2)
-
-		# Rest of the parsing remains the same as in the original implementation
-		# (Include the rest of the ParseToken method from the original code)
 		
-		# Default values
-
 		nMin = 1
 		nMax = 1
-		nQuantifier = 1  # Default quantifier
 		nQuantifier = 1
 		aSetValues = []
 		bRequireUnique = false
-
-		# Get remainder after keyword
 
 		cRemainder = ""
 		nLenToken = stzlen(cTokenStr)
@@ -257,51 +230,36 @@ class stzListex
 			cRemainder = @substr(cTokenStr, 3, nLenToken)
 		ok
 
-		# Range and quantifier processing (from original code)
 		# Range and quantifier processing
-
 		if len(cRemainder) > 0
-
-			# Check for explicit range pattern like "1-3"
 			oRangeMatch = rx(@cRangePattern)
 
 			if oRangeMatch.Match(cRemainder)
-
 				acNumbers = @split(oRangeMatch.Matches()[1], "-")
 				nMin = 0+ acNumbers[1]
 				nMax = 0+ acNumbers[2]
 			
 				if nMin > nMax
 					raise("Error: Invalid range - min value greater than max: " + cTokenStr)
-					stzraise("Error: Invalid range - min value greater than max: " + cTokenStr)
 				ok
-			
         
-				# Remove the processed range from remainder
-
-				nRangeLen = len(acNumbers[1]) + 1 + len(acNumbers[2])  # +1 for the "-"
+				nRangeLen = len(acNumbers[1]) + 1 + len(acNumbers[2])
 				cRemainder = right(cRemainder, len(cRemainder) - nRangeLen)
 
 			else
-				# Check for +, *, ? quantifiers
-				oQMatch = rx('^([+*?])')
-
 				oQMatch = rx(@cQuantifierPattern)
 
 				if oQMatch.Match(cRemainder)
-
 					aMatches = oQMatch.Matches()
 					cQuantifier = aMatches[1]
-				
 
 					switch cQuantifier
 					on "+"
 						nMin = 1
-						nMax = 999999999  # Effectively unlimited
-
+						nMax = 999999999
 					on "*"
 						nMin = 0
-						nMax = 999999999  # Effectively unlimited
+						nMax = 999999999
 					on "?"
 						nMin = 0
 						nMax = 1
@@ -310,120 +268,75 @@ class stzListex
 					cRemainder = right(cRemainder, len(cRemainder) - 1)
 
 				else
-					# Check for a single number quantifier
-					oNumberMatch = rx('^(\d+)')
-
 					oNumberMatch = rx(@cSingleNumberPattern)
 
 					if oNumberMatch.Match(cRemainder)
-
 						aMatches = oNumberMatch.Matches()
 						nQuantifier = number(aMatches[1])
 						nMin = nQuantifier
 						nMax = nQuantifier
-					
                 
-						# Remove the processed quantifier from remainder
-
 						cRemainder = right(cRemainder, len(cRemainder) - len(aMatches[1]))
 					ok
 				ok
 			ok
 		ok
 
-		# Set constraints processing (from original code)
-		# Set constraints processing
-
-		if len(cRemainder) > 0
-
-			# Check for {values}U format (set with uniqueness constraint)
-			oUniqueSetMatch = rx('^(\{(.*?)\})U')
-
-			oUniqueSetMatch = rx(@cUniqueSetPattern)
-
-			if oUniqueSetMatch.Match(cRemainder)
-
-				aMatches = oUniqueSetMatch.Matches()
-				cSetContent = aMatches[1]
-
-				# Parse the set values with uniqueness enforcement
-
-				aSetValues = This.ParseSetValues(cSetContent, "any", true)
-				bRequireUnique = true
+		# Set constraints processing using preserved values
+		if len(cPreservedSet) > 0
+			# Check for {values}U format
+			if EndsWith(cRemainder, "U") and substr(cRemainder, "{") > 0
 				bRequireUnique = TRUE
-
-				# Remove the processed part from remainder
-
-				nSetLen = len(aMatches[1]) + 1 # +1 for the U
-				cRemainder = right(cRemainder, len(cRemainder) - nSetLen)
-
-			else
-				# Check for {values} format (regular set)
-				oSetMatch = rx('^(\{(.*?)\})')
-
-				oSetMatch = rx(@cSetPattern)
-
-				if oSetMatch.Match(cRemainder)
-
-					aMatches = oSetMatch.Matches()
-					cSetContent = aMatches[1]
-
-					# Parse the set values
-
-					aSetValues = This.ParseSetValues(cSetContent, "any", false)
-
-					# Remove the processed part from remainder
-
-					nSetLen = len(aMatches[1])
-					cRemainder = right(cRemainder, len(cRemainder) - nSetLen)
-				ok
+				cPreservedSet = ring_substr2(cPreservedSet, "U", "")
 			ok
+			
+			# Determine type for set parsing
+			cType = "any"
+			switch cKeyword
+			on "@N"
+				cType = "number"
+			on "@S"
+				cType = "string"
+			on "@L"
+				cType = "list"
+			off
+			
+			aSetValues = This.ParseSetValues(cPreservedSet, cType, bRequireUnique)
 		ok
 
-		# Set token type based on keyword
-
+		# Set token type based on keyword (ordered longest to shortest for future extensions)
 		aToken = []
 
 		switch cKeyword
-
 		on "@N"
 			aToken = [
 				[ "keyword", "@N" ],
 				[ "type", "number" ],
 				[ "pattern", @cNumberPattern ]
 			]
-		
-    
 		on "@S"
 			aToken = [
 				[ "keyword", "@S" ],
 				[ "type", "string" ],
 				[ "pattern", @cStringPattern ]
 			]
-		
-
 		on "@L"
 			aToken = [
 				[ "keyword", "@L" ],
 				[ "type", "list" ],
 				[ "pattern", @cListPattern ]
 			]
-		
-
 		on "@$"
 			aToken = [
 				[ "keyword", "@$" ],
 				[ "type", "any" ],
 				[ "pattern", @cAnyPattern ]
 			]
-
 		off
-
-		# Add the processed information to the token
 
 		aToken + [ "min", nMin ]
 		aToken + [ "max", nMax ]
-		aToken + [ "quantifier", nQuantifier ]  # Store the explicit quantifier if any
+		aToken + [ "quantifier", nQuantifier ]
 
 		if len(aSetValues) > 0
 			aToken + [ "hasset", true ]
@@ -434,19 +347,14 @@ class stzListex
 			aToken + [ "setvalues", [] ]
 			aToken + [ "requireunique", false ]
 		ok
-	
-
-		# Add negation flag
 
 		aToken + [ "negated", bNegated ]
+		aToken + [ "casesensitive", bCaseSensitive ]
 
+		This.DebugLog("ParseToken", "Type: " + cKeyword + " CaseSens: " + bCaseSensitive)
 		return aToken
 
-
-	# Helper function to split at top-level commas (from previous suggestions)
-
 	def SplitAtTopLevelCommas(cStr)
-
 		acParts = []
 		cCurrent = ""
 		nDepth = 0
@@ -454,21 +362,17 @@ class stzListex
 		nLen = len(acChars)
 
 		for i = 1 to nLen
-
 			cChar = acChars[i]
 
 			if cChar = "["
 				nDepth++
 				cCurrent += cChar
-
 			but cChar = "]"
 				nDepth--
 				cCurrent += cChar
-
 			but cChar = "," and nDepth = 0
 				acParts + @trim(cCurrent)
 				cCurrent = ""
-
 			else
 				cCurrent += cChar
 			ok
@@ -489,28 +393,20 @@ class stzListex
 		cSetContent = ring_substr2(cSetContent, "}", "")
 
 		aValues = []
-		
-		# Split by semicolons
-
 		aParts = @split(cSetContent, ";")
 		
 		for i = 1 to len(aParts)
-
 			cValue = @trim(aParts[i])
 			
 			if cValue = ""
-				loop # Skip empty values
+				loop
 			ok
 			
 			switch cType
-
 			on "number"
-
-				if rx("^(-?\d+(?:\.\d+)?)$").Match(cValue) // #TODO: Put it an attribute variable
+				if rx("^(-?\d+(?:\.\d+)?)$").Match(cValue)
 					nValue = @number(cValue)
 					
-					# Check for uniqueness if required
-
 					if bCheckUnique and @Contains(aValues, nValue)
 						raise("Error: Duplicate value in unique set: " + cValue)
 					ok
@@ -521,27 +417,25 @@ class stzListex
 				ok
 
 			on "string"
-
-				# For strings, normalize quoted values
-
-				if (StartsWith(cValue, "'") and EndsWith(cValue, "'")) or
-				   (StartsWith(cValue, '"') and EndsWith(cValue, '"'))
-
-					# Store with quotes for pattern matching
+				# Don't call RemoveQuotes - just normalize quotes
+				if (StartsWith(cValue, "'") and EndsWith(cValue, "'"))
+					# Single quotes - convert to double
+					cUnquoted = @substr(cValue, 2, len(cValue) - 1)
+					cNormalizedValue = '"' + cUnquoted + '"'
+				but (StartsWith(cValue, '"') and EndsWith(cValue, '"'))
+					# Already double quoted
 					cNormalizedValue = cValue
-
 				else
-					# Add quotes for consistency
+					# No quotes - add double quotes
 					cNormalizedValue = '"' + cValue + '"'
 				ok
 
-				# Check for uniqueness if required
-
 				if bCheckUnique
-					cUnquotedValue = This.RemoveQuotes(cValue)
-					
+					# For uniqueness check, compare unquoted values
+					cCheck1 = @substr(cNormalizedValue, 2, len(cNormalizedValue) - 1)
 					for j = 1 to len(aValues)
-						if This.RemoveQuotes(aValues[j]) = cUnquotedValue
+						cCheck2 = @substr(aValues[j], 2, len(aValues[j]) - 1)
+						if cCheck1 = cCheck2
 							raise("Error: Duplicate value in unique set: " + cValue)
 						ok
 					next
@@ -550,24 +444,20 @@ class stzListex
 				aValues + cNormalizedValue
 				
 			on "list"
-
-				# For lists, keep the brackets and format
-
+				# Normalize list format - ensure spaces after commas
+				cNormalized = This.NormalizeListString(cValue)
+				
 				if NOT (StartsWith(cValue, "[") and EndsWith(cValue, "]"))
 					raise("Error: Invalid list format in set: " + cValue)
 				ok
 				
-				# Check for uniqueness if required
-
-				if bCheckUnique and @Contains(aValues, cValue)
+				if bCheckUnique and @Contains(aValues, cNormalized)
 					raise("Error: Duplicate value in unique set: " + cValue)
 				ok
 				
-				aValues + cValue
+				aValues + cNormalized
 				
 			on "any"
-				# Any type can be in the set
-
 				if bCheckUnique and @Contains(aValues, cValue)
 					raise("Error: Duplicate value in unique set: " + cValue)
 				ok
@@ -578,46 +468,32 @@ class stzListex
 		
 		return aValues
 
-	# Helper method to remove quotes from string
-
 	def RemoveQuotes(cStr)
 		if (StartsWith(cStr, "'") and EndsWith(cStr, "'")) or
 		   (StartsWith(cStr, '"') and EndsWith(cStr, '"'))
-
 			cResult = @substr(cStr, 2, len(cStr)-1)
 			return cResult
 		ok
 		return cStr
 
 	def OptimizeTokens()
-
-		# This method performs optimizations on the token sequence
-		# For now, it just merges adjacent tokens of the same type
-		# with min-max constraints
-		
 		nLen = len(@aTokens)
 		
 		if nLen <= 1
-			return # Nothing to optimize
+			return
 		ok
 		
-		for i = nLen to 2
+		for i = nLen to 2 step -1
 			aToken1 = @aTokens[i-1]
 			aToken2 = @aTokens[i]
 			
-			# Check if tokens can be merged (same keyword, no sets, adjacent ranges)
-
 			if aToken1[:keyword] = aToken2[:keyword] and
 			   NOT aToken1[:hasset] and NOT aToken2[:hasset]
 				
-				# If both tokens have min-max ranges, try to merge them
-
 				if aToken1[:min] != aToken1[:max] and aToken2[:min] != aToken2[:max]
 					nNewMin = @Min([ aToken1[:min], aToken2[:min] ])
 					nNewMax = aToken1[:max] + aToken2[:max]
 					
-					# Update the first token and remove the second
-
 					@aTokens[i-1][:min] = nNewMin
 					@aTokens[i-1][:max] = nNewMax
 					del(@aTokens, i)
@@ -630,83 +506,95 @@ class stzListex
 	#--------------------#
 
 	def Match(paList)
-
 		if NOT isList(paList)
 			return FALSE
 		ok
 
-		# Convert the list to string representations for matching
+		# Generate cache key BEFORE any modifications
+		cListSig = This.ListSignature(paList)
+		cCacheKey = @cPattern + "|" + cListSig
+		
+		# Check cache
+		for i = 1 to len(@aMatchCache)
+			if @aMatchCache[i][1] = cCacheKey
+				This.DebugLog("Match", "Cache hit!")
+				return @aMatchCache[i][2]
+			ok
+		next
 
+		# Convert list elements (don't modify original)
 		aElements = []
 		nLen = len(paList)
 
 		for i = 1 to nLen
-			aElements + paList[i]  # Store actual values, not string representations
+			aElements + paList[i]
 		next
 
-		# Perform the matching
-
+		# Perform matching
+		bResult = false
 		try
 			bResult = This.MatchTokensToElements(@aTokens, aElements)
-			return bResult
 
 		catch
 			if @bDebugMode
-				? "Error during matching: " + cError
+				? "Error during matching: " + cCatchError
 			ok
-
-			return false
-			return FALSE
+			bResult = false
 		done
+		
+		# Store in cache AFTER computing result
+		@aMatchCache + [cCacheKey, bResult]
+		if len(@aMatchCache) > @nMaxCacheSize
+			del(@aMatchCache, 1)
+		ok
+		
+		return bResult
 
 	def MatchTokensToElements(aTokens, aElements)
 		nLenTokens = len(aTokens)
 		nLenElements = len(aElements)
     
-		# Use backtracking to find valid matches
-
 		return This.BacktrackMatch(aTokens, aElements, 1, 1, [])
-	
 
 	def BacktrackMatch(aTokens, aElements, nTokenIndex, nElementIndex, aUsedValues)
-		# A regex-like backtracking mechanism, made for lists
-
 		nLenTokens = len(aTokens)
 		nLenElements = len(aElements)
 
-		# Base case: If we've processed all tokens
-
-		if nTokenIndex > nLenTokens
-			# Crucial change: Ensure ALL elements have been exactly matched
-
-			# Ensure ALL elements have been exactly matched
-			return nElementIndex > nLenElements
+		if @bDebugMode
+			? ">>> Backtrack: token#" + nTokenIndex + "/" + nLenTokens + 
+			  " elem#" + nElementIndex + "/" + nLenElements
 		ok
 
-		# Get current token
+		# Base case: all tokens processed
+		if nTokenIndex > nLenTokens
+			bResult = (nElementIndex > nLenElements)
+			if @bDebugMode
+				? ">>> All tokens done. Elements consumed: " + bResult
+			ok
+			return bResult
+		ok
 
 		aToken = aTokens[nTokenIndex]
-
-		# Create local copy of used values for uniqueness tracking
+		
+		if @bDebugMode
+			? ">>> Token: " + aToken[:keyword] + " Type: " + aToken[:type] + 
+			  " Min: " + aToken[:min] + " Max: " + aToken[:max]
+		ok
 
 		aLocalUsedValues = []
-
 		for i = 1 to len(aUsedValues)
 			aLocalUsedValues + aUsedValues[i]
 		next
 
 		# Alternation token handling
-
 		if aToken[:keyword] = "@ALT"
-
-			# Try each alternative
-
+			if @bDebugMode
+				? ">>> Alternation token with " + len(aToken[:alternatives]) + " alternatives"
+			ok
+			
 			for i = 1 to len(aToken[:alternatives])
-
 				aAltTokens = aToken[:alternatives]
 				aNewTokens = []
-
-				# Prepare tokens list with the current alternative
 
 				for j = 1 to nTokenIndex - 1
 					aNewTokens + aTokens[j]
@@ -718,33 +606,34 @@ class stzListex
 					aNewTokens + aTokens[j]
 				next
 
-				# Check this alternative's match
-
-				if This.BacktrackMatch(aNewTokens, aElements, nTokenIndex, nElementIndex, aLocalUsedValues)
-					return true
+				if @bDebugMode
+					? ">>> Trying alternative #" + i
 				ok
 
+				if This.BacktrackMatch(aNewTokens, aElements, nTokenIndex, nElementIndex, aLocalUsedValues)
+					if @bDebugMode
+						? ">>> Alternative #" + i + " MATCHED!"
+					ok
+					return true
+				ok
 			next
 
+			if @bDebugMode
+				? ">>> All alternatives FAILED"
+			ok
 			return false
 		ok
 
+		# Nested pattern handling
 		if aToken[:keyword] = "@NESTED"
-
-			# Try different match counts within min-max range
-
 			nMin = @Min([aToken[:max], nLenElements - nElementIndex + 1])
 
 			for nMatchCount = aToken[:min] to nMin
-
 				bSuccess = TRUE
 				nElemIdx = nElementIndex
 				aLocalUsedValuesCopy = aLocalUsedValues
 
-				# Attempt to match exactly nMatchCount nested lists
-
 				for i = 1 to nMatchCount
-
 					if nElemIdx > nLenElements
 						bSuccess = false
  						exit
@@ -752,24 +641,17 @@ class stzListex
 
 					xElement = aElements[nElemIdx]
 
-					# Check if element is a list for nested matching
-
 					if NOT isList(xElement)
 						bSuccess = false
 						exit
 					ok
 
-					# Apply negation if specified (for the list type check)
-
 					if aToken[:negated]
-						bSuccess = false  # If negated and is a list, this fails
+						bSuccess = false
 						exit
 					ok
                 
-					# Recursively match the nested tokens against the nested list
-
 					if NOT This.MatchTokensToElements(aToken[:nestedTokens], xElement)
-
 						bSuccess = false
 						exit
 					ok
@@ -778,17 +660,11 @@ class stzListex
 				next
 
 				if bSuccess
-					# For final token, ensure complete matching
-
 					if nTokenIndex = nLenTokens
-
 						if nElemIdx = nLenElements + 1
 							return true
 						ok
-
 					else
-						# For non-final tokens, recursively match the rest
-
 						if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValuesCopy)
 							return TRUE
 						ok
@@ -796,10 +672,7 @@ class stzListex
 				ok
 			next
         
-			# Handle optional nested tokens
-
 			if aToken[:min] = 0
-
 				if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElementIndex, aLocalUsedValues)
 					return TRUE
 				ok
@@ -808,162 +681,239 @@ class stzListex
 			return FALSE
 		ok
 
-		# Try different match counts within min-max range (original token handling)
+		# Standard token handling
+		# Calculate maximum matches possible
+		nMaxPossible = nLenElements - nElementIndex + 1
+		nMin = @Min([aToken[:max], nMaxPossible])
 
-		nMin = @Min([aToken[:max], nLenElements - nElementIndex + 1])
+		if @bDebugMode
+			? ">>> Will try match counts from " + aToken[:min] + " to " + nMin
+		ok
 
+		# Try different match counts from min to max
 		for nMatchCount = aToken[:min] to nMin
-
+			if @bDebugMode
+				? ">>> Trying to match " + nMatchCount + " element(s)"
+			ok
+			
 			bSuccess = true
 			nElemIdx = nElementIndex
 			aMatchedElements = []
-			aLocalUsedValuesCopy = aLocalUsedValues
+			aLocalUsedValuesCopy = []
+			
+			# Copy used values
+			for i = 1 to len(aLocalUsedValues)
+				aLocalUsedValuesCopy + aLocalUsedValues[i]
+			next
 
-			# Attempt to match exactly nMatchCount elements
-
+			# Try to match exactly nMatchCount elements
 			for i = 1 to nMatchCount
-
 				if nElemIdx > nLenElements
+					if @bDebugMode
+						? ">>> Ran out of elements"
+					ok
 					bSuccess = false
 					exit
 				ok
 
-				cElement = aElements[nElemIdx]
 				xElement = aElements[nElemIdx]
 				bMatched = false
             
-				# Convert element to string for pattern matching if needed
-
 				cElement = @@(xElement)
 
-				# Pattern and type matching
+				if @bDebugMode
+					? ">>> Checking element #" + nElemIdx + ": " + cElement
+				ok
 
+				# Pattern matching
 				if aToken[:type] = "list"
 					bMatched = rx(@cRecursiveListPattern).MatchRecursive(cElement)
-
 				else
 					bMatched = rx("^" + aToken[:pattern] + "$").Match(cElement)
 				ok
-            
+				
+				if @bDebugMode
+					? ">>> Pattern match: " + bMatched
+				ok
         
-				# Apply negation if specified
-
+				# Apply negation
 				if aToken[:negated]
 					bMatched = NOT bMatched
+					if @bDebugMode
+						? ">>> After negation: " + bMatched
+					ok
 				ok
-            
         
 				if bMatched
 					# Set constraint checking
-
 					if aToken[:hasset]
 						xElemValue = This.ConvertToType(cElement, aToken[:type])
 						bInSet = false
+						
+						if @bDebugMode
+							? ">>> Checking set constraint..."
+							? ">>> Element value: " + xElemValue
+							? ">>> Set values: " + @@(aToken[:setvalues])
+						ok
+						
+						# Get case sensitivity setting
+						bCaseSensitive = TRUE
+						if HasKey(aToken, "casesensitive")
+							bCaseSensitive = aToken[:casesensitive]
+						ok
 
 						for j = 1 to len(aToken[:setvalues])
 							xSetValue = aToken[:setvalues][j]
 
-							# Direct comparison for set membership
-							if This.CompareValues(xElemValue, xSetValue, aToken[:type])
+							if This.CompareValues(xElemValue, xSetValue, aToken[:type], bCaseSensitive)
 								bInSet = true
+								if @bDebugMode
+									? ">>> Found in set at position " + j
+								ok
 								exit
 							ok
 						next
 
 						# Modify set check for negation
-
 						if aToken[:negated]
 							bInSet = NOT bInSet
 						ok
 
-	
+						if @bDebugMode
+							? ">>> In set: " + bInSet
+						ok
+
 						if NOT bInSet
+							if @bDebugMode
+								? ">>> FAILED: not in set"
+							ok
 							bSuccess = false
 							exit
 						ok
-                    
 	                
 						# Unique constraint for non-negated tokens
-	
 						if aToken[:requireunique] and NOT aToken[:negated]
-		
+							bDuplicate = FALSE
+							
+							if @bDebugMode
+								? ">>> Checking uniqueness..."
+								? ">>> Already used: " + @@(aLocalUsedValuesCopy)
+							ok
+							
 							for j = 1 to len(aLocalUsedValuesCopy)
-		
-								if This.CompareValues(xElemValue, aLocalUsedValuesCopy[j], aToken[:type])
-									bSuccess = false
+								if This.CompareValues(xElemValue, aLocalUsedValuesCopy[j], aToken[:type], bCaseSensitive)
+									bDuplicate = TRUE
+									if @bDebugMode
+										? ">>> DUPLICATE found!"
+									ok
 									exit
 								ok
 							next
                         
-		
-							if bSuccess
-								aLocalUsedValuesCopy + xElemValue
-							else
+							if bDuplicate
+								bSuccess = false
 								exit
+							else
+								aLocalUsedValuesCopy + xElemValue
+								if @bDebugMode
+									? ">>> Added to used values"
+								ok
 							ok
 						ok
 					ok
 
 					aMatchedElements + xElement
 					nElemIdx++
-
-				else
-					bSuccess = 0
-					exit
-				ok
-
-			next
-
-			if bSuccess
-				# Crucial change: Ensure COMPLETE matching 
-				# when processing the last token
-				# Ensure COMPLETE matching when processing the last token
-
-				if nTokenIndex = nLenTokens
-					if nElemIdx = nLenElements + 1
-						return 1
+					
+					if @bDebugMode
+						? ">>> Element matched, moving to next"
 					ok
 
 				else
-					# For non-final tokens, recursively match the rest
+					# Match failed - this match count doesn't work
+					if @bDebugMode
+						? ">>> Element FAILED to match"
+					ok
+					bSuccess = false
+					exit
+				ok
+			next
 
+			# If we successfully matched nMatchCount elements
+			if bSuccess
+				if @bDebugMode
+					? ">>> Successfully matched " + nMatchCount + " element(s)"
+					? ">>> Now at element index: " + nElemIdx
+				ok
+				
+				if nTokenIndex = nLenTokens
+					# Last token - must consume all elements
+					if nElemIdx = nLenElements + 1
+						if @bDebugMode
+							? ">>> FINAL MATCH - all elements consumed!"
+						ok
+						return true
+					ok
+					if @bDebugMode
+						? ">>> Failed: " + (nLenElements - nElemIdx + 1) + " element(s) remaining"
+					ok
+					# else: didn't consume all elements, try next match count
+				else
+					# Not last token - try matching rest
+					if @bDebugMode
+						? ">>> Recursing to next token..."
+					ok
 					if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElemIdx, aLocalUsedValuesCopy)
-						return 1
+						if @bDebugMode
+							? ">>> Recursion SUCCESS!"
+						ok
+						return true
                 	ok
+					if @bDebugMode
+						? ">>> Recursion failed, trying next match count"
+					ok
+					# else: rest didn't match, try next match count
 				ok
 			ok
-
 		next
 
-		# Handle optional tokens
-
+		# All match counts failed
+		# Only skip this token if it's optional (min=0)
 		if aToken[:min] = 0
-
-			if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElementIndex, aLocalUsedValues)
-				return 1
+			if @bDebugMode
+				? ">>> Token is optional, trying to skip..."
 			ok
-
+			if This.BacktrackMatch(aTokens, aElements, nTokenIndex + 1, nElementIndex, aLocalUsedValues)
+				if @bDebugMode
+					? ">>> Skip SUCCESS!"
+				ok
+				return true
+			ok
 		ok
 
+		if @bDebugMode
+			? ">>> Token COMPLETELY FAILED"
+		ok
 		return false
 
-	# Helper function for value comparison by type
-
-	def CompareValues(xValue1, xValue2, cType)
-
+	def CompareValues(xValue1, xValue2, cType, bCaseSensitive)
 		switch cType
-
 		on "number"
 			return xValue1 = xValue2
 
 		on "string"
 			cVal1 = This.RemoveQuotes("" + xValue1)
 			cVal2 = This.RemoveQuotes("" + xValue2)
-			return cVal1 = cVal2
+			
+			if bCaseSensitive
+				return cVal1 = cVal2
+			else
+				return lower(cVal1) = lower(cVal2)
+			ok
 
 		on "list"
-			cVal1 = This.NormalizeListString(xValue1)
-			cVal2 = This.NormalizeListString(xValue2)
+			cVal1 = This.NormalizeListString("" + xValue1)
+			cVal2 = This.NormalizeListString("" + xValue2)
 			return cVal1 = cVal2
 
 		on "any"
@@ -971,72 +921,92 @@ class stzListex
 				return xValue1 = xValue2
 			ok
         
-			cVal1 = This.RemoveQuotes("" + xValue1)
-			cVal2 = This.RemoveQuotes("" + xValue2)
-  
+			cVal1 = "" + xValue1
+			cVal2 = "" + xValue2
+			
+			# Check if both are lists
 			if ( StartsWith(cVal1, "[") and EndsWith(cVal1, "]") ) and
 			   ( StartsWith(cVal2, "[") and EndsWith(cVal2, "]") )
-
 				cVal1 = This.NormalizeListString(cVal1)
 				cVal2 = This.NormalizeListString(cVal2)
+				return cVal1 = cVal2
 			ok
-
-			return cVal1 = cVal2
+			
+			# String comparison
+			cVal1 = This.RemoveQuotes(cVal1)
+			cVal2 = This.RemoveQuotes(cVal2)
+			
+			if bCaseSensitive
+				return cVal1 = cVal2
+			else
+				return lower(cVal1) = lower(cVal2)
+			ok
 		off
 
-	# Normalize list string representation for comparison
-
 	def NormalizeListString(xList)
-
 		cList = "" + xList
-		
-		# Remove all whitespace for consistent comparison
-		
 		cList = @substr(cList, " ", "")
 		cList = @substr(cList, Char(9), "")
 		cList = @substr(cList, Char(10), "")
 		cList = @substr(cList, Char(13), "")
-
 		return cList
 
 	def ConvertToType(cValue, cType)
-
-		# Convert a string representation to the appropriate type for comparison
-		
 		switch cType
-
 		on "number"
-
-			# Convert to numeric value
 			return @number(cValue)
-			
 		on "string"
-
-			# Return as is - normalization happens in CompareValues
 			return cValue
-			
 		on "list"
-
-			# Keep list representation as is
 			return cValue
-			
 		on "any"
-
-			# Keep as is for any type
 			return cValue
 		off
+
+	  #---------------------------#
+	 #     CACHE METHODS         #
+	#---------------------------#
+
+	def ListSignature(aList)
+		cContent = @@(aList)
+		nChecksum = 0
+		nLen = len(cContent)
+		
+		for i = 1 to nLen
+			nChecksum += ascii(cContent[i])
+		next
+		
+		return "" + len(aList) + ":" + nChecksum
+
+	def ClearCache()
+		@aMatchCache = []
+		return self
+
+	def SetCacheSize(nSize)
+		@nMaxCacheSize = nSize
+		return self
+
+	def CacheInfo()
+		return [
+			["entries", len(@aMatchCache)],
+			["maxsize", @nMaxCacheSize]
+		]
 
 	  #---------------------------#
 	 #     DEBUG METHODS         #
 	#---------------------------#
 
-	def EnableDebug()
+	def DebugLog(cMethod, cMessage)
+		if @bDebugMode
+			? "=== " + cMethod + " ==="
+			? cMessage
+		ok
 
+	def EnableDebug()
 		@bDebugMode = true
 		return self
 
 	def DisableDebug()
-
 		@bDebugMode = false
 		return self
 
@@ -1047,35 +1017,29 @@ class stzListex
 		aInfo = []
 		
 		for i = 1 to len(@aTokens)
-
 			aToken = @aTokens[i]
 			cInfo = "Token #" + i + ": " + aToken[:keyword]
 			
-			# Handle different quantifier scenarios
-
 			if aToken[:min] = aToken[:max]
-
 				if aToken[:min] = 1
-					# Default quantifier - no need to show
-
+					# Default - no display
 				else
-					# Fixed quantifier
 					cInfo += aToken[:min]
 				ok
-
 			else
-
-				# Range quantifier
 				cInfo += aToken[:min] + "-" + aToken[:max]
 			ok
 			
 			if aToken[:hasset]
-
 				cInfo += " {" + This.JoinSetValues(aToken[:setvalues]) + "}"
 				
 				if aToken[:requireunique]
 					cInfo += "U"
 				ok
+			ok
+			
+			if HasKey(aToken, "casesensitive") and aToken[:casesensitive]
+				cInfo += " [CS]"
 			ok
 			
 			aInfo + cInfo
@@ -1084,14 +1048,12 @@ class stzListex
 		return aInfo
 
 	def JoinSetValues(aValues)
-
 		cResult = ""
 		
 		for i = 1 to len(aValues)
 			if i > 1
 				cResult += "; "
 			ok
-			
 			cResult += "" + aValues[i]
 		next
 		
@@ -1099,6 +1061,33 @@ class stzListex
 
 	def Pattern()
 		return @cPattern
+
+	def Explain()
+		aInfo = [
+			["Pattern", @cPattern],
+			["TokenCount", len(@aTokens)],
+			["CacheEntries", len(@aMatchCache)]
+		]
+		
+		aTokenDetails = []
+		for i = 1 to len(@aTokens)
+			aToken = @aTokens[i]
+			aTokenDetails + [
+				["Index", i],
+				["Keyword", aToken[:keyword]],
+				["Type", aToken[:type]],
+				["Min", aToken[:min]],
+				["Max", aToken[:max]],
+				["HasSet", aToken[:hasset]],
+				["SetValues", aToken[:setvalues]],
+				["Unique", aToken[:requireunique]],
+				["Negated", aToken[:negated]],
+				["CaseSensitive", iff(HasKey(aToken, "casesensitive"), aToken[:casesensitive], TRUE)]
+			]
+		next
+		
+		aInfo + ["Tokens", aTokenDetails]
+		return aInfo
 
 	  #---------------------------#
 	 #     ALIAS METHODS         #
@@ -1115,3 +1104,6 @@ class stzListex
 
 	def TokensXT()
 		return This.Tokens()
+
+	def ExplainXT()
+		return This.Explain()
