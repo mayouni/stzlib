@@ -196,7 +196,11 @@ _aLocaleScriptsXT = [
 	[ "140" , 	:Han_With_Bopomofo, 	"Hanb", 		:literary_chinese 		], # Alias for Han + Bopomofo
 												           # We considered here the same default language we put for
 												           # the :Bopofomo script (could also be :mandarin_chinese ?)
-	[ "141" , 	:Jamo, 			"Jamo", 		:undefined			]  #  Jamo subset of Hangul
+	[ "141" , 	:Jamo, 			"Jamo", 		:undefined			], #  Jamo subset of Hangul
+
+	#-- SCRIPTS NON AVAILABLE IN QT ~ ADDED BY SOFTANZA (STARTING FROM "700"
+
+	[ "700" ,	:Boko,			"Boko",			:Hausa				]
 ]
 
 func DefaultScriptForLanguage(cLang)
