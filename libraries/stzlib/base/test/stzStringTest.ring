@@ -17451,7 +17451,7 @@ pf()
 # Executed in 0.02 second(s).
 
 /*---------------- Used to enable constraint-oriented programming
-*/
+
 pr()
 
 o1 = new stzString("MustHave@32@CharsAnd@8@Spaces")
@@ -18708,7 +18708,8 @@ o1.SpacifyCharsXT(:Separator = "~", :Step = 2, :Direction = :Default)
 #--> SO~FT~AN~ZA
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in ring 1.20
 
 /*-----------------
 
@@ -18720,7 +18721,8 @@ o1.SpacifyCharsXT("~", 3, :backward)
 #--> SO~FTA~NZA
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.20
 
 /*----------------- #todo #narration
 
@@ -18781,6 +18783,7 @@ o1 = new stzString("SOFTANZA")
 #                   5           8
 
 pf()
+# Executed in 0.28 second(s) in Ring 1.24
 # Executed in 0.19 second(s) in Ring 1.22
 # Executed in 0.23 second(s) in Ring 1.20
 
@@ -18811,14 +18814,14 @@ SetPositionSign("↑")
 
 # When you provide one option, enclose it between [ and ]:
 
-? o1.VizFindBoxedXT( "A", [ :Rounded = TRUE ] )
+? o1.VizFindBoxedXT( "A", [ :Rounded = TRUE, :Numbered = FALSE ] )
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───╮
 # │ S │ O │ F │ T │ A │ N │ Z │ A │
 # ╰───┴───┴───┴───┴─↑─┴───┴───┴─↑─╯
 
 pf()
-# Executed in 0.12 second(s).
+# Executed in 0.12 second(s) in Ring 1.24
 
 /*-----
 
@@ -18855,10 +18858,10 @@ o1 = new stzString("SOFTANZA")
 #                   5           8
 
 pf()
-# Executed in 0.10 second(s).
+# Executed in 0.14 second(s) in Ring 1.24
 
 /*=====
-*/
+
 pr()
 
 o1 = new stzString("..STZ..STZ..STZ")
@@ -18866,7 +18869,8 @@ o1 = new stzString("..STZ..STZ..STZ")
 ? o1.ToStzListOfChars().BoxXT([
 	:Hilighted = Q( o1.FindZZ("STZ") ).Flattened(),
 	:Sectioned = TRUE,
-	:Numbered = TRUE
+	:Numbered = TRUE,
+	:Rounded = TRUE
  ])
 #-->
 # ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
@@ -18876,10 +18880,10 @@ o1 = new stzString("..STZ..STZ..STZ")
 #           3       5           8     10            13     15
 
 pf()
-# Executed in 0.09 second(s) in Ring 1.21
+# Executed in 0.12 second(s) in Ring 1.24
 
 /*-----
-
+*/
 pr()
 
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
@@ -18917,7 +18921,7 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 ? o1.BoxDashRound()
 
 pf()
-# Executed in 0.06 second(s).
+# Executed in 0.10 second(s) in Ring 1.24
 
 /*-----
 
@@ -18927,20 +18931,20 @@ o1 = new stzListOfChars( @Chars("..STZ..StZ..stz") )
 
 ? o1.Boxify() # Or simply Box()
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
+# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
 # │ . │ . │ S │ T │ Z │ . │ . │ S │ t │ Z │ . │ . │ s │ t │ z │
-# ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
 
 ? o1.BoxDash()
 #-->
-# ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
+# ┌╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┐
 # ┊ . ┊ . ┊ S ┊ T ┊ Z ┊ . ┊ . ┊ S ┊ t ┊ Z ┊ . ┊ . ┊ s ┊ t ┊ z ┊
-# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
+# └╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┘
 
 pf()
-# Executed in 0.04 second(s).
+# Executed in 0.06 second(s) in Ring 1.24
 
-/*-----
+/*----- #ERR
 
 pr()
 
@@ -18953,7 +18957,7 @@ o1 = new stzString("..STZ..StZ..stz")
 pf()
 # Executed in 0.01 second(s).
 
-/*------
+/*------ #ERR
 
 pr()
 
@@ -18982,7 +18986,7 @@ o1 = new stzString("..STZ..StZ..stz")
 pf()
 # Executed in 0.02 second(s) in Ring 1.21
 
-/*------
+/*------ #ERR
 
 pr()
 
@@ -18999,7 +19003,7 @@ o1 = new stzString("..STZ..StZ..stz...STZ")
 pf()
 # Executed in 0.11 second(s) in Ring 1.22
 
-/*-----
+/*----- #ERR
 
 pr()
 
@@ -19025,7 +19029,7 @@ o1.ReplaceByMany("^", [ "A", "B", "C" ])
 #--> ----A----------B----------C-----
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*===============
 
