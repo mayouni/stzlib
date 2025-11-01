@@ -53981,48 +53981,50 @@ class stzString from stzObject
 		# STEP 2: Reading params values
 
 		bCaseSensitive = 1
-		if ( isString(paOptions[:CaseSensitive]) and HasKey(paOptions, :CaseSensitive) ) or
-		   ( isNumber(paOptions[:CaseSensitive]) and (paOptions[:CaseSensitive] = 0 or paOptions[:CaseSensitive] = 1)  )
+
+		if HasKey(paOptions, :CaseSensitive) and
+		   isNumber(paOptions[:CaseSensitive]) and
+		   (paOptions[:CaseSensitive] = 0 or paOptions[:CaseSensitive] = 1)
 
 			bCaseSensitive = paOptions[:CaseSensitive]
 		ok
 
 		cPositionSign = "^"
 
-		if isString(paOptions[:PositionSign]) and HasKey(paOptions, :PositionSign)
+		if HasKey(paOptions, :PositionSign)
 			cPositionSign = paOptions[:PositionSign]
 
-		but isString(paOptions[:PositionChar]) and HasKey(paOptions, :PositionChar)
+		but HasKey(paOptions, :PositionChar)
 			cPositionSign = paOptions[:PositionChar]
 		ok
 
 		cBlankSign = "-"
-		if isString(paOptions[:BlankSign]) and HasKey(paOptions, :BlankSign)
+		if HasKey(paOptions, :BlankSign)
 			cBlankSign = paOptions[:BlankSign]
 		ok
 
 		bNumbered = 0
-		if ( isString(paOptions[:Numbered]) and HasKey(paOptions, :Numbered) ) or
-		   ( isNumber(paOptions[:Numbered]) and ( paOptions[:Numbered] = 0 or paOptions[:Numbered] = 1 )  )
+		if HasKey(paOptions, :Numbered) and
+		   ( paOptions[:Numbered] = 0 or paOptions[:Numbered] = 1 )
 
 			bNumbered = paOptions[:Numbered]
 
-		but ( isString(paOptions[:Number]) and HasKey(paOptions, :Number) ) or
-		   ( isNumber(paOptions[:Number]) and ( paOptions[:Number] = 0 or paOptions[:Number] = 1 )  )
+		but HasKey(paOptions, :Number) and
+		    ( paOptions[:Number] = 0 or paOptions[:Number] = 1 )
 
 			bNumbered = paOptions[:Number]
 		ok
 
 		bSpacified = 0
-		if ( isString(paOptions[:Spacified]) and HasKey(paOptions, :Spacified) ) or
-		   ( isNumber(paOptions[:Spacified]) and ( paOptions[:Spacified] = 0 or paOptions[:Spacified] = 1 )  )
+		if HasKey(paOptions, :Spacified) and
+		  ( paOptions[:Spacified] = 0 or paOptions[:Spacified] = 1 )
 
 			bSpacified = paOptions[:Spacified]
 		ok
 
 		bSectioned = 0
-		if ( isString(paOptions[:Sectioned]) and HasKey(paOptions, :Sectioned) ) or
-		   ( isNumber(paOptions[:Sectioned]) and ( paOptions[:Sectioned] = 0 or paOptions[:Sectioned] = 1 )  )
+		if HasKey(paOptions, :Sectioned) and
+		  ( paOptions[:Sectioned] = 0 or paOptions[:Sectioned] = 1 )
 
 			bSectioned = paOptions[:Sectioned]
 		ok
@@ -95733,206 +95735,208 @@ class stzString from stzObject
 
 	#--
 
-def BoxXT(paBoxOptions)
-	/*
-	Enhanced version that supports nested boxing with corrected line widths,
-	proper initialization of cTextAdjustedTo, and fixed :Rounded option handling
-	to ensure [ :Rounded = 1 ] produces rounded corners as in the original.
-
-	Examples:
-	- Box("SOFTANZA") creates a simple box
-	- Box(Box("SOFTANZA")) creates a box around an already boxed string
-	- Box(Box(Box("SOFTANZA"))) creates triple-nested boxes
-	- BoxXT("SOFTANZA", [ :Rounded = 1 ]) creates a rounded box
-	*/
-
-	# Normalize input if a single string option is provided
-	if isString(paBoxOptions)
-		paBoxOptions = [ [ paBoxOptions, 1 ] ]
-	ok
-
-	if isList(paBoxOptions) and len(paBoxOptions) = 2 and isString(paBoxOptions[1])
-		paBoxOptions = [ paBoxOptions ]
-	ok
-
-	if NOT isList(paBoxOptions)
-		StzRaise("Incorrect param type! paBoxOptions must be a list.")
-	ok
-
-	# Convert string options to hashlist format
-	aTemp = []
-	nLenTemp = len(paBoxOptions)
-	for i = 1 to nLenTemp
-		if isString(paBoxOptions[i])
-			aTemp + [ paBoxOptions[i], 1 ]
-		else
-			aTemp + paBoxOptions[i]
+	def BoxXT(paBoxOptions)
+		/*
+		Enhanced version that supports nested boxing with corrected line widths,
+		proper initialization of cTextAdjustedTo, and fixed :Rounded option handling
+		to ensure [ :Rounded = 1 ] produces rounded corners as in the original.
+	
+		Examples:
+		- Box("SOFTANZA") creates a simple box
+		- Box(Box("SOFTANZA")) creates a box around an already boxed string
+		- Box(Box(Box("SOFTANZA"))) creates triple-nested boxes
+		- BoxXT("SOFTANZA", [ :Rounded = 1 ]) creates a rounded box
+		*/
+	
+		# Normalize input if a single string option is provided
+		if isString(paBoxOptions)
+			paBoxOptions = [ [ paBoxOptions, 1 ] ]
 		ok
-	next
-	paBoxOptions = aTemp
-
-	# Validate options
-	if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
-
-		# Reading the type of line (thin or dashed)
-		cLine = :Solid # By default
-		if paBoxOptions[:Line] = :Dashed
-			cLine = :Dashed
+	
+		if isList(paBoxOptions) and len(paBoxOptions) = 2 and isString(paBoxOptions[1])
+			paBoxOptions = [ paBoxOptions ]
 		ok
-
-		# Reading if the box is rounded
-		bRounded = "" # By default
-		if isNumber(paBoxOptions[:Rounded])
-			if paBoxOptions[:Rounded] = 1
-				bRounded = 1
-			but paBoxOptions[:Rounded] = 0
-				bRounded = 0
+	
+		if NOT isList(paBoxOptions)
+			StzRaise("Incorrect param type! paBoxOptions must be a list.")
+		ok
+	
+		# Convert string options to hashlist format
+		aTemp = []
+		nLenTemp = len(paBoxOptions)
+		for i = 1 to nLenTemp
+			if isString(paBoxOptions[i])
+				aTemp + [ paBoxOptions[i], 1 ]
+			else
+				aTemp + paBoxOptions[i]
 			ok
-		ok
+		next
+		paBoxOptions = aTemp
 
-		# Reading the type of corners (rectangular or round)
-		cAllCorners = :Rectangular # By default
-		if paBoxOptions[:AllCorners] = :Round or
-		   paBoxOptions[:AllCorners] = :Rounded
+		# Validate options
+		if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
 
-			if isString(bRounded) and bRounded = ""
-				bRounded = 1
+			# Reading the type of line (thin or dashed)
+			cLine = :Solid # By default
+			if (HasKey(paBoxOptions, :Line) and paBoxOptions[:Line] = :Dashed) or
+			   (HasKey(paBoxOptions, :Dashed) and paBoxOptions[:Dashed] = 1)
+				cLine = :Dashed
 			ok
-			cAllCorners = :Round
-		ok
 
-		aCorners = []
-		if cAllCorners = :Rectangular or cAllCorners = :Rect
-			if isString(bRounded) and bRounded = ""
-				bRounded = 0
-			ok
-			# By default
-			aCorners = [ :Rectangular, :Rectangular, :Rectangular, :Rectangular ]
-
-		but cAllCorners = :Round or cAllCorners = :Rounded
-			if isString(bRounded) and bRounded = ""
-				bRounded = 1
-			ok
-			aCorners = [ :Round, :Round, :Round, :Round ]
-		ok
-
-		if len(paBoxOptions[:Corners]) = 4 and
-		   StzListQ(paBoxOptions[:Corners]).IsMadeOfSome([ :Rectangular, :Round ])
-
-			if isString(bRounded) and bRounded = ""
-				bRounded = 1
-			ok
-			aCorners = paBoxOptions[:Corners]
-		ok
-
-		if len(aCorners) = 0 and bRounded = ""
-			if isString(bRounded) and bRounded = ""
-				bRounded = 0
-			ok
-		ok
-
-		if bRounded = 1 and ring_find(aCorners, :Round) = 0
-			aCorners = [ :Round, :Round, :Round, :Round ]
-		ok
-
-		# If the boxing happens at the char level, delegate it
-		# to the stzListOfChars class
-
-		if paBoxOptions[:EachChar] = 1
-			cResult = This.ToStzListOfChars().BoxedXT(paBoxOptions)
-			This.UpdateWith(cResult)
-			return
-		ok
-
-		# If the boxing happens at the word level, delegate it
-		# to the stzListOfStrings class
-
-		if paBoxOptions[:EachWord] = 1
-			cResult = This.ToListOfStringsQ().Boxed(paBoxOptions)
-			This.UpdateWith(cResult)
-			return
-		ok
-
-		# Reading the width of the box in number of chars
-		nWidth = This.NumberOfChars() + 2 # By default
-		if isNumber(paBoxOptions[:Width]) and
-		   paBoxOptions[:Width] > This.NumberOfChars() + 2
-			nWidth = paBoxOptions[:Width]
-		ok
-
-		# Reading the text adjustment option
-		cTextAdjustedTo = :Center # By default
-		if ring_find([ :Left, :Center, :Centered, :Right, :Justified ],
-			paBoxOptions[:TextAdjustedTo]) > 0
-			cTextAdjustedTo = paBoxOptions[:TextAdjustedTo]
-		ok
-
-		# Check if the string is already boxed
-		bIsBoxed = This.ContainsAny([ "┌", "┐", "└", "┘", "╭", "╮", "╯", "╰" ])
-
-		if bIsBoxed
-			# Split the content into lines to determine the max width
-			aLines = StzStringQ(This.Content()).Split(NL)
-			nMaxLineWidth = 0
-			for cLine in aLines
-				nLineWidth = StzStringQ(cLine).NumberOfChars()
-				if nLineWidth > nMaxLineWidth
-					nMaxLineWidth = nLineWidth
+			# Reading if the box is rounded
+			bRounded = "" # By default
+			if isNumber(paBoxOptions[:Rounded])
+				if paBoxOptions[:Rounded] = 1
+					bRounded = 1
+				but paBoxOptions[:Rounded] = 0
+					bRounded = 0
 				ok
-			next
-
-			# Adjust width to accommodate the inner box plus padding
-			nWidth = nMaxLineWidth + 4 # 2 for borders, 2 for padding spaces
-			if isNumber(paBoxOptions[:Width]) and paBoxOptions[:Width] > nMaxLineWidth + 4
+			ok
+	
+			# Reading the type of corners (rectangular or round)
+			cAllCorners = :Rectangular # By default
+			if paBoxOptions[:AllCorners] = :Round or
+			   paBoxOptions[:AllCorners] = :Rounded
+	
+				if isString(bRounded) and bRounded = ""
+					bRounded = 1
+				ok
+				cAllCorners = :Round
+			ok
+	
+			aCorners = []
+			if cAllCorners = :Rectangular or cAllCorners = :Rect
+				if isString(bRounded) and bRounded = ""
+					bRounded = 0
+				ok
+				# By default
+				aCorners = [ :Rectangular, :Rectangular, :Rectangular, :Rectangular ]
+	
+			but cAllCorners = :Round or cAllCorners = :Rounded
+				if isString(bRounded) and bRounded = ""
+					bRounded = 1
+				ok
+				aCorners = [ :Round, :Round, :Round, :Round ]
+			ok
+	
+			if len(paBoxOptions[:Corners]) = 4 and
+			   StzListQ(paBoxOptions[:Corners]).IsMadeOfSome([ :Rectangular, :Round ])
+	
+				if isString(bRounded) and bRounded = ""
+					bRounded = 1
+				ok
+				aCorners = paBoxOptions[:Corners]
+			ok
+	
+			if len(aCorners) = 0 and bRounded = ""
+				if isString(bRounded) and bRounded = ""
+					bRounded = 0
+				ok
+			ok
+	
+			if bRounded = 1 and ring_find(aCorners, :Round) = 0
+				aCorners = [ :Round, :Round, :Round, :Round ]
+			ok
+	
+			# If the boxing happens at the char level, delegate it
+			# to the stzListOfChars class
+	
+			if paBoxOptions[:EachChar] = 1
+				cResult = This.ToStzListOfChars().BoxedXT(paBoxOptions)
+				This.UpdateWith(cResult)
+				return
+			ok
+	
+			# If the boxing happens at the word level, delegate it
+			# to the stzListOfStrings class
+	
+			if paBoxOptions[:EachWord] = 1
+				cResult = This.ToListOfStringsQ().Boxed(paBoxOptions)
+				This.UpdateWith(cResult)
+				return
+			ok
+	
+			# Reading the width of the box in number of chars
+			nWidth = This.NumberOfChars() + 2 # By default
+			if isNumber(paBoxOptions[:Width]) and
+			   paBoxOptions[:Width] > This.NumberOfChars() + 2
 				nWidth = paBoxOptions[:Width]
 			ok
+	
+			# Reading the text adjustment option
+			cTextAdjustedTo = :Center # By default
+			if ring_find([ :Left, :Center, :Centered, :Right, :Justified ],
+				paBoxOptions[:TextAdjustedTo]) > 0
+				cTextAdjustedTo = paBoxOptions[:TextAdjustedTo]
+			ok
+	
+			# Check if the string is already boxed
+			bIsBoxed = This.ContainsAny([ "┌", "┐", "└", "┘", "╭", "╮", "╯", "╰" ])
+	
+			if bIsBoxed
+				# Split the content into lines to determine the max width
+				aLines = StzStringQ(This.Content()).Split(NL)
+				nMaxLineWidth = 0
+				for cLine in aLines
+					nLineWidth = StzStringQ(cLine).NumberOfChars()
+					if nLineWidth > nMaxLineWidth
+						nMaxLineWidth = nLineWidth
+					ok
+				next
+	
+				# Adjust width to accommodate the inner box plus padding
+				nWidth = nMaxLineWidth + 4 # 2 for borders, 2 for padding spaces
+				if isNumber(paBoxOptions[:Width]) and paBoxOptions[:Width] > nMaxLineWidth + 4
+					nWidth = paBoxOptions[:Width]
+				ok
+	
+				# Prepare the box characters
+				cVTrait = iff(cLine = :Dashed, "┊", "│")
+				cHTrait = iff(cLine = :Dashed, "╌", "─")
+				cCorner1 = iff(aCorners[1] = :Round, "╭", "┌")
+				cCorner2 = iff(aCorners[2] = :Round, "╮", "┐")
+				cCorner3 = iff(aCorners[3] = :Round, "╯", "┘")
+				cCorner4 = iff(aCorners[4] = :Round, "╰", "└")
+	
+				# Construct the box
+				cUpLine = cCorner1 + StzStringQ(cHTrait).RepeatedNTimes(nWidth - 2) + cCorner2 + NL
+	
+				# Adjust each line of the content
+				cMidLines = ""
+				for cLine in aLines
+					cAdjustedLine = StzStringQ(cLine).AlignXTQ(nWidth - 4, " ", cTextAdjustedTo).Content()
+					cMidLines += cVTrait + " " + cAdjustedLine + " " + cVTrait + NL
+				next
+	
+				cDownLine = cCorner4 + StzStringQ(cHTrait).RepeatedNTimes(nWidth - 2) + cCorner3
+	
+				This.UpdateWith(cUpLine + cMidLines + cDownLine)
 
-			# Prepare the box characters
-			cVTrait = iff(cLine = :Dashed, "┊", "│")
-			cHTrait = iff(cLine = :Dashed, "╌", "─")
-			cCorner1 = iff(aCorners[1] = :Round, "╭", "┌")
-			cCorner2 = iff(aCorners[2] = :Round, "╮", "┐")
-			cCorner3 = iff(aCorners[3] = :Round, "╯", "┘")
-			cCorner4 = iff(aCorners[4] = :Round, "╰", "└")
-
-			# Construct the box
-			cUpLine = cCorner1 + StzStringQ(cHTrait).RepeatedNTimes(nWidth - 2) + cCorner2 + NL
-
-			# Adjust each line of the content
-			cMidLines = ""
-			for cLine in aLines
-				cAdjustedLine = StzStringQ(cLine).AlignXTQ(nWidth - 4, " ", cTextAdjustedTo).Content()
-				cMidLines += cVTrait + " " + cAdjustedLine + " " + cVTrait + NL
-			next
-
-			cDownLine = cCorner4 + StzStringQ(cHTrait).RepeatedNTimes(nWidth - 2) + cCorner3
-
-			This.UpdateWith(cUpLine + cMidLines + cDownLine)
+			else
+				# Boxing logic for non-boxed strings
+				# Prepare the box characters
+				cVTrait = iff(cLine = :Dashed, "┊", "│")
+				cHTrait = iff(cLine = :Dashed, "╌", "─")
+				cCorner1 = iff(aCorners[1] = :Round, "╭", "┌")
+				cCorner2 = iff(aCorners[2] = :Round, "╮", "┐")
+				cCorner3 = iff(aCorners[3] = :Round, "╯", "┘")
+				cCorner4 = iff(aCorners[4] = :Round, "╰", "└")
+	
+				# Construct the box
+				cUpLine = cCorner1 + StzStringQ(cHTrait).RepeatedNTimes(nWidth) + cCorner2
+				cMidLine = cVTrait + " " + This.AlignXTQ(nWidth - 2, " ", cTextAdjustedTo).Content() + " " + cVTrait
+				cDownLine = cCorner4 + StzStringQ(cHTrait).RepeatedNTimes(nWidth) + cCorner3
+	
+				This.UpdateWith(cUpLine + NL + cMidLine + NL + cDownLine)
+			ok
+	
+		but isList(paBoxOptions) and len(paBoxOptions) = 0
+			# Do nothing, takes default options for boxing
+	
 		else
-			# Boxing logic for non-boxed strings
-			# Prepare the box characters
-			cVTrait = iff(cLine = :Dashed, "┊", "│")
-			cHTrait = iff(cLine = :Dashed, "╌", "─")
-			cCorner1 = iff(aCorners[1] = :Round, "╭", "┌")
-			cCorner2 = iff(aCorners[2] = :Round, "╮", "┐")
-			cCorner3 = iff(aCorners[3] = :Round, "╯", "┘")
-			cCorner4 = iff(aCorners[4] = :Round, "╰", "└")
-
-			# Construct the box
-			cUpLine = cCorner1 + StzStringQ(cHTrait).RepeatedNTimes(nWidth) + cCorner2
-			cMidLine = cVTrait + " " + This.AlignXTQ(nWidth - 2, " ", cTextAdjustedTo).Content() + " " + cVTrait
-			cDownLine = cCorner4 + StzStringQ(cHTrait).RepeatedNTimes(nWidth) + cCorner3
-
-			This.UpdateWith(cUpLine + NL + cMidLine + NL + cDownLine)
+			StzRaise("Invalid boxing options provided!")
 		ok
-
-	but isList(paBoxOptions) and len(paBoxOptions) = 0
-		# Do nothing, takes default options for boxing
-
-	else
-		StzRaise("Invalid boxing options provided!")
-	ok
-
+	
 		#< @FunctionFluentForm
 
 		def BoxXTQ(paBoxOptions)

@@ -88,7 +88,7 @@ pf()
 # Executed in 0.09 second(s) in Ring 1.22
 
 /*--- Restaurant menu planning"
-
+*/
 pr()
 
 # Planning optimal menu mix to maximize profit
@@ -121,7 +121,7 @@ o1 {
 
     # Solve the problem using the greedy algorithm (fast, good-enough solution)
     Solve("greedy")
-	Show()
+    Show()
 
 }
 

@@ -1,9 +1,9 @@
 # Enhanced Multilingual Softanza Natural Programming System
 # Complete separation of language data from processing logic
 
-# ═══════════════════════════════════════════════════════
+#------------------------------#
 #  GLOBAL LANGUAGE REGISTRY - Pure Data Configuration
-# ═══════════════════════════════════════════════════════
+#------------------------------#
 
 $aLanguageDefinitions = [
 	[
@@ -21,6 +21,7 @@ $aLanguageDefinitions = [
 		],
 		
 		:semantic_mappings = [
+
 			# Object creation triggers
 			[:natural = "create", :semantic = "CREATE_OBJECT"],
 			[:natural = "make", :semantic = "CREATE_OBJECT"],
@@ -41,6 +42,21 @@ $aLanguageDefinitions = [
 			[:natural = "uppercase", :semantic = "METHOD_UPPERCASE"],
 			[:natural = "caps", :semantic = "METHOD_UPPERCASE"],
 			
+			# Method: Lowercase
+			[:natural = "lowercase", :semantic = "METHOD_LOWERCASE"],
+
+			# Method: Capitalize
+			[:natural = "capitalize", :semantic = "METHOD_CAPITALIZE"],
+			[:natural = "capitalise", :semantic = "METHOD_CAPITALIZE"],
+
+			# Method: Trim
+			[:natural = "trim", :semantic = "METHOD_TRIM"],
+
+			# Method: Reverse
+			[:natural = "reverse", :semantic = "METHOD_REVERSE"],
+
+			#--
+
 			# Method: Box
 			[:natural = "box", :semantic = "METHOD_BOX"],
 			[:natural = "frame", :semantic = "METHOD_BOX"],
@@ -48,13 +64,26 @@ $aLanguageDefinitions = [
 			# Modifier: Rounded
 			[:natural = "rounded", :semantic = "MODIFIER_ROUNDED"],
 			
+			#--
+
+			# Method: Replace
+			[:natural = "replace", :semantic = "METHOD_REPLACE"],
+			[:natural = "substitute", :semantic = "METHOD_REPLACE"],
+			[:natural = "change", :semantic = "METHOD_REPLACE"],
+			[:natural = "swap", :semantic = "METHOD_REPLACE"],
+
+			#--
+
 			# Output
 			[:natural = "show", :semantic = "OUTPUT_DISPLAY"],
 			[:natural = "display", :semantic = "OUTPUT_DISPLAY"],
 			[:natural = "print", :semantic = "OUTPUT_DISPLAY"],
 			
+			#--
+
 			# Context words (kept for natural flow but ignored)
-			[:natural = "screen", :semantic = "CONTEXT_IGNORED"]
+			[:natural = "screen", :semantic = "CONTEXT_IGNORED"],
+
 		]
 	],
 	
@@ -77,13 +106,14 @@ $aLanguageDefinitions = [
 			[:natural = "raba", :semantic = "METHOD_SPACIFY"],
 			[:natural = "maida", :semantic = "METHOD_UPPERCASE"],
 			[:natural = "maiɗa", :semantic = "METHOD_UPPERCASE"],
+			[:natural = "datsa", :semantic = "METHOD_TRIM"],
 			[:natural = "akwati", :semantic = "METHOD_BOX"],
 			[:natural = "zagaye", :semantic = "MODIFIER_ROUNDED"],
 			[:natural = "nuna", :semantic = "OUTPUT_DISPLAY"],
 			[:natural = "allo", :semantic = "CONTEXT_IGNORED"]
 		]
 	],
-
+	
 	[
 		:code = "ha-ajami",
 		:name = "hausa-ajami",
@@ -100,6 +130,7 @@ $aLanguageDefinitions = [
 			[:natural = "ɗوكي", :semantic = "VALUE_INDICATOR"],
 			[:natural = "رب", :semantic = "METHOD_SPACIFY"],
 			[:natural = "ميّرد", :semantic = "METHOD_UPPERCASE"],
+			[:natural = "دَتْسِ", :semantic = "METHOD_TRIM"],
 			[:natural = "اَكْوَتِ", :semantic = "METHOD_BOX"],
 			[:natural = "اَكْوَتِن", :semantic = "METHOD_BOX"],
 			[:natural = "زَغَيِ", :semantic = "MODIFIER_ROUNDED"],
@@ -107,12 +138,11 @@ $aLanguageDefinitions = [
 			[:natural = "اَلّو", :semantic = "CONTEXT_IGNORED"]
 		]
 	]
-
 ]
 
-# ═══════════════════════════════════════════════════════
+#------------------------------#
 #  SEMANTIC REGISTRY - Language-Independent Operations
-# ═══════════════════════════════════════════════════════
+#------------------------------#
 
 $aSemanticOperations = [
 	[
@@ -121,42 +151,75 @@ $aSemanticOperations = [
 		:constructor = "StzStringQ(@)",
 		:variable = "oStr"
 	],
-	
+
+	[
+		:semantic_id = "METHOD_REPLACE",
+		:stz_method = "Replace",
+		:stz_signature = "@var.Replace(@param1, @param2)",
+		:requires_params = 2,
+		:param_pattern = "value_with_value"  # old_value with new_value
+	],
+
 	[
 		:semantic_id = "METHOD_SPACIFY",
-		:ring_method = "Spacify",
-		:ring_signature = "@var.Spacify()"
+		:stz_method = "Spacify",
+		:stz_signature = "@var.Spacify()"
 	],
 	
 	[
 		:semantic_id = "METHOD_UPPERCASE",
-		:ring_method = "Uppercase",
-		:ring_signature = "@var.Uppercase()"
+		:stz_method = "Uppercase",
+		:stz_signature = "@var.Uppercase()"
 	],
 	
 	[
+		:semantic_id = "METHOD_LOWERCASE",
+		:stz_method = "Lowercase",
+		:stz_signature = "@var.Lowercase()"
+	],
+
+	[
+		:semantic_id = "METHOD_CAPITALIZE",
+		:stz_method = "Capitalize",
+		:stz_signature = "@var.Capitalize()"
+	],
+
+	[
+		:semantic_id = "METHOD_TRIM",
+		:stz_method = "Trim",
+		:stz_signature = "@var.Trim()"
+	],
+
+	[
+		:semantic_id = "METHOD_REVERSE",
+		:stz_method = "Reverse",
+		:stz_signature = "@var.Reverse()"
+	],
+
+	[
 		:semantic_id = "METHOD_BOX",
-		:ring_method = "Box",
-		:ring_signature = "@var.Box()",
+		:stz_method = "Box",
+		:stz_signature = "@var.Box()",
 		:supports_modifiers = 1,
 		:modifiers = [
 			[
 				:semantic_id = "MODIFIER_ROUNDED",
-				:ring_method = "BoxXT",
-				:ring_param = ":Rounded = 1"
+				:stz_method = "BoxXT",
+				:stz_param = ":Rounded = 1"
 			]
 		]
 	],
 	
 	[
 		:semantic_id = "OUTPUT_DISPLAY",
-		:ring_signature = "? @var.Content()"
+		:stz_signature = "? @var.Content()"
 	]
+
 ]
 
-# ═══════════════════════════════════════════════════════
+#------------------------------#
 #  GLOBAL INTERFACE
-# ═══════════════════════════════════════════════════════
+#------------------------------#
 
 func NaturallyIn(cLanguage)
 	return new stzNaturalEngine(cLanguage)
@@ -164,9 +227,9 @@ func NaturallyIn(cLanguage)
 func Naturally()
 	return new stzNaturalEngine("en")
 
-# ═══════════════════════════════════════════════════════
+#------------------------------#
 #  ENHANCED NATURAL ENGINE
-# ═══════════════════════════════════════════════════════
+#------------------------------#
 
 class stzNaturalEngine
 	@cLanguage = "en"
@@ -177,9 +240,13 @@ class stzNaturalEngine
 	@cCurrentObject = ""
 	@cCurrentVariable = ""
 	@aDefineRecallState = []
+	@bDebugMode = 0
+	@aDebugLog = []
 	
+	@result
+
 	def init(cLang)
-		if cLang != "" and cLang != ""
+		if cLang != "" and cLang != nothing
 			if isString(cLang)
 				@cLanguage = lower(cLang)
 			else
@@ -226,11 +293,24 @@ class stzNaturalEngine
 		ok
 	
 	def braceEnd()
+		This.AddToDebugLog("Method: BraceEnd()")
+		This.AddToDebugLog("Starting processing")
+		This.AddToDebugLog("Raw values received: " + len(@aValues) + " items")
+
 		This.Process()
 	
 	def Process()
+
 		@aSemanticTokens = This.ConvertToSemanticTokens()
+
+		This.AddToDebugLog("Method: Process()")
+		This.AddToDebugLog("Semantic tokens created: " + len(@aSemanticTokens) + " tokens")
+		
 		cCode = This.GenerateCodeFromSemantics()
+
+		This.AddToDebugLog("Generated Ring code:")
+		This.AddToDebugLog(cCode)
+		
 		if cCode != ""
 			eval(cCode)
 		ok
@@ -238,6 +318,9 @@ class stzNaturalEngine
 	def ConvertToSemanticTokens()
 		aTokens = []
 		nLen = len(@aValues)
+		
+		This.AddToDebugLog("Method: ConvertToSemanticTokens()")
+		This.AddToDebugLog("Converting to semantic tokens")
 		
 		for i = 1 to nLen
 			cValue = @aValues[i]
@@ -247,6 +330,7 @@ class stzNaturalEngine
 			
 			# Skip ignored words
 			if This.IsIgnoredWord(cValue)
+				This.AddToDebugLog("Ignoring: '" + cValue + "'")
 				loop
 			ok
 			
@@ -254,13 +338,54 @@ class stzNaturalEngine
 			cSemantic = This.ToSemantic(cValue)
 			
 			if cSemantic != ""
-				aTokens + [:type = "semantic", :value = cSemantic, :original = cValue]
+				# Check if previous token suggests this should be a literal
+				# (e.g., after VALUE_INDICATOR or after a method expecting params)
+				bTreatAsLiteral = This.ShouldTreatAsLiteral(aTokens, cSemantic, cValue)
+				
+				if bTreatAsLiteral
+					aTokens + [:type = "literal", :value = cValue]
+					This.AddToDebugLog("Literal (context): '" + cValue + "' (was " + cSemantic + ")")
+				else
+					aTokens + [:type = "semantic", :value = cSemantic, :original = cValue]
+					This.AddToDebugLog("Semantic: '" + cValue + "' -> " + cSemantic)
+				ok
 			else
 				aTokens + [:type = "literal", :value = cValue]
+				This.AddToDebugLog("Literal: '" + cValue + "'")
 			ok
 		next
 		
 		return aTokens
+	
+	def ShouldTreatAsLiteral(aTokens, cSemantic, cValue)
+		# Check if we should treat this semantic word as a literal based on context
+		nLen = len(aTokens)
+		if nLen = 0
+			return 0  # No context, use semantic
+		ok
+		
+		# Get last token
+		aLastToken = aTokens[nLen]
+		
+		# If last token was VALUE_INDICATOR, this should be literal
+		if aLastToken[:type] = "semantic" and aLastToken[:value] = "VALUE_INDICATOR"
+			return 1
+		ok
+		
+		# If last token was a literal and before that was a method with params
+		# then we're collecting parameters, treat as literal
+		if aLastToken[:type] = "literal" and nLen >= 2
+			aBeforeLast = aTokens[nLen-1]
+			if aBeforeLast[:type] = "semantic" and left(aBeforeLast[:value], 7) = "METHOD_"
+				# Check if that method needs parameters
+				aOp = This.GetSemanticOperation(aBeforeLast[:value])
+				if len(aOp) > 0 and HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
+					return 1  # We're in parameter collection mode
+				ok
+			ok
+		ok
+		
+		return 0  # Use semantic meaning
 	
 	def IsIgnoredWord(cWord)
 		cLower = lower(cWord)
@@ -296,6 +421,7 @@ class stzNaturalEngine
 	
 	def GenerateCodeFromSemantics()
 		aCodeLines = []
+
 		nLen = len(@aSemanticTokens)
 		i = 1
 		
@@ -346,7 +472,7 @@ class stzNaturalEngine
 				but cSemantic = "OUTPUT_DISPLAY"
 					aOp = This.GetSemanticOperation(cSemantic)
 					if len(aOp) > 0
-						cCode = aOp[:ring_signature]
+						cCode = aOp[:stz_signature]
 						cCode = substr(cCode, "@var", @cCurrentVariable)
 						aCodeLines + cCode
 					ok
@@ -359,7 +485,9 @@ class stzNaturalEngine
 			ok
 		end
 		
-		return JoinXT(aCodeLines, NL)
+
+		cCode = JoinXT(aCodeLines, NL) + NL + "@result = " + @cCurrentVariable + ".Content()"
+		return cCode
 	
 	def FindDefineIndex(cSemantic)
 		nLen = len(@aDefineRecallState)
@@ -408,15 +536,98 @@ class stzNaturalEngine
 		return [:code = "", :next_index = nIndex+1]
 	
 	def ProcessMethod(nIndex, cSemantic)
+		This.AddToDebugLog("Method: ProcessMethod(nIndex, cSemantic)")
+		This.AddToDebugLog("Processing Method: " + cSemantic + " at index " + nIndex)
+		
 		aOp = This.GetSemanticOperation(cSemantic)
 		if len(aOp) = 0
+			This.AddToDebugLog("ERROR: No operation found for " + cSemantic)
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
-		cCode = aOp[:ring_signature]
+		This.AddToDebugLog("Operation found: " + aOp[:stz_method])
+		
+		cCode = aOp[:stz_signature]
 		cCode = substr(cCode, "@var", @cCurrentVariable)
 		
+		# Check if method requires parameters
+		if HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
+			This.AddToDebugLog("Method requires " + aOp[:requires_params] + " parameters")
+			
+			# Extract parameters after method
+			aResult = This.ExtractMethodParameters(nIndex, aOp[:requires_params])
+			aParams = aResult[:params]
+			nNextIndex = aResult[:next_index]
+			
+			This.AddToDebugLog("Extracted " + len(aParams) + " parameters")
+			for i = 1 to len(aParams)
+				This.AddToDebugLog("  Param" + i + " = '" + aParams[i] + "'")
+			next
+			This.AddToDebugLog("Next index will be: " + nNextIndex)
+			
+			# Replace parameter placeholders
+			for i = 1 to len(aParams)
+				cPlaceholder = "@param" + i
+				cParamValue = @@(aParams[i])
+				This.AddToDebugLog("Replacing " + cPlaceholder + " with " + cParamValue)
+				cCode = substr(cCode, cPlaceholder, cParamValue)
+			next
+			
+			This.AddToDebugLog("Final code: " + cCode)
+			return [:code = cCode, :next_index = nNextIndex]
+		ok
+		
+		This.AddToDebugLog("Method has no parameters, final code: " + cCode)
 		return [:code = cCode, :next_index = nIndex+1]
+	
+	def ExtractMethodParameters(nIndex, nParamCount)
+		# Extract literal values following the method
+		# Pattern: METHOD literal1 [VALUE_INDICATOR] literal2
+		This.AddToDebugLog("Method: ExtractMethodParameters(nIndex, nParamCount)")
+		This.AddToDebugLog("Extracting " + nParamCount + " parameters from index " + nIndex)
+		
+		aParams = []
+		nLen = len(@aSemanticTokens)
+		nLastIndex = nIndex
+		
+		This.AddToDebugLog("Total tokens available: " + nLen)
+		
+		for i = nIndex+1 to nLen
+			aToken = @aSemanticTokens[i]
+			
+			This.AddToDebugLog("Token[" + i + "]: type=" + aToken[:type] + ", value=" + aToken[:value])
+			
+			# Track last processed index
+			nLastIndex = i
+			
+			# Skip VALUE_INDICATOR tokens (like "with")
+			if aToken[:type] = "semantic" and aToken[:value] = "VALUE_INDICATOR"
+				This.AddToDebugLog("  Skipping VALUE_INDICATOR at index " + i)
+				loop
+			ok
+			
+			# Collect literal values
+			if aToken[:type] = "literal"
+				aParams + aToken[:value]
+				This.AddToDebugLog("Collected literal: '" + aToken[:value] + "' (total params: " + len(aParams) + ")")
+				if len(aParams) = nParamCount
+					This.AddToDebugLog("Reached required param count, stopping at index " + i)
+					exit
+				ok
+			ok
+			
+			# Stop if we hit another method or output
+			if aToken[:type] = "semantic" and 
+			   (left(aToken[:value], 7) = "METHOD_" or aToken[:value] = "OUTPUT_DISPLAY")
+				nLastIndex = i - 1  # Don't consume the next method token
+				This.AddToDebugLog("Hit next semantic at index " + i + ", backing up to " + nLastIndex)
+				exit
+			ok
+		next
+		
+		This.AddToDebugLog("Extraction complete. Params: " + len(aParams) + ", Next index: " + (nLastIndex + 1))
+		
+		return [:params = aParams, :next_index = nLastIndex + 1]
 	
 	def ProcessMethodWithModifiers(nIndex, cSemantic)
 		aOp = This.GetSemanticOperation(cSemantic)
@@ -424,7 +635,7 @@ class stzNaturalEngine
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
-		cCode = aOp[:ring_signature]
+		cCode = aOp[:stz_signature]
 		cCode = substr(cCode, "@var", @cCurrentVariable)
 		
 		# Look for modifiers
@@ -437,8 +648,8 @@ class stzNaturalEngine
 					for j = 1 to nModLen
 						aMod = aOp[:modifiers][j]
 						if aMod[:semantic_id] = aToken[:value]
-							cCode = substr(cCode, aOp[:ring_method], aMod[:ring_method])
-							cCode = substr(cCode, "()", "([" + aMod[:ring_param] + "])")
+							cCode = substr(cCode, aOp[:stz_method], aMod[:stz_method])
+							cCode = substr(cCode, "()", "([" + aMod[:stz_param] + "])")
 							exit 2
 						ok
 					next
@@ -460,3 +671,52 @@ class stzNaturalEngine
 	
 	def Code()
 		return This.GenerateCodeFromSemantics()
+	
+	def Result()
+		return @result
+
+	#------------------------------#
+	#  DEBUG METHODS
+	#------------------------------#
+	
+	def EnableDebug()
+		@bDebugMode = 1
+		@aDebugLog = []
+	
+	def DisableDebug()
+		@bDebugMode = 0
+	
+	def AddToDebugLog(cMessage)
+		if @bDebugMode
+			@aDebugLog + [
+				:timestamp = clock(),
+				:message = cMessage
+			]
+		ok
+	
+	def DebugLog()
+		return @aDebugLog
+	
+	def ClearDebugLog()
+		@aDebugLog = []
+
+		def ClearDebug()
+			@aDebugLog = []
+
+	def Language()
+		return @cLanguage
+
+	def IgnoredWords()
+		return @aIgnoredWords
+
+	def Mappings()
+		return @aMappings
+
+	def Values()
+		return @aValues
+
+	def Tokens()
+		return @aSemanticTokens
+
+	def Object()
+		return @cCurrentObject

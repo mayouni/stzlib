@@ -1,15 +1,80 @@
 load "../stzbase.ring"
 
+/*---
+*/
+pr()
+
+o1 = Naturally()
+o1 {
+  Create a fantastic string with "Softanza ♥ Ring"
+  @Box it
+  The box@ should be rounded
+  Display the result
+}
+#-->
+'
+╭─────────────────╮
+│ Softanza ♥ Ring │
+╰─────────────────╯
+'
+
+? @@Nl( o1.Tokens() )
+
+pf()
+# Executed in 0.12 second(s) in Ring 1.24
+
+/*--- Getting the result of computation without display
+*/
+pr()
+
+Nt = Naturally()
+
+Nt {
+    Create a stzString with "test.data"
+    
+    Replace "." with "_"
+    Uppercase it
+
+}
+#--> TEST_DATA
+
+# You can dissmiss "Show it" and get the result
+# of the computation and do whatever you want with
+
+? Nt.Result()
+#--> TEST_DATA
+
+? Nt.Code() + NL
+#-->
+'
+oStr = StzStringQ("test.data")
+oStr.Replace(".", "_")
+oStr.Uppercase()
+@result = oStr.Content()
+'
+
+pf()
+# Executed in 0.12 second(s) in Ring 1.24
+
+/*---
+
 pr()
 
 Naturally() {
     Create a string with "hello niger" inside
- #   Uppercase it spacify it and_ @box it
-#    The box@ should be rounded
+    Uppercase it spacify it and_ @box it
+    The box@ should be rounded
     Display the final result
 }
+#•-->
+'
+╭───────────────────────╮
+│ H E L L O   N I G E R │
+╰───────────────────────╯
+'
 
 pf()
+#--> Executed in 0.10 second(s) in Ring 1.24
 
 /*---
 
@@ -27,6 +92,8 @@ pf()
 # Executed in 0.04 second(s) in Ring 1.23
 
 /*---
+
+pr()
 
 ? Box("SOFTANZA")
 '
@@ -110,71 +177,7 @@ pf()
 '
 
 pf()
-# Executed in 3.311.01 second(s) in Ring 1.23
-
-/*--- BASIC OBJECT CREATION
-
-pr()
-
-Nt = Naturally()
-
-Nt {
-    Create a string with "hello"
-    Show it
-}
-#--> hello
-
-? @@(Nt.Errors())
-
-#--> DEBUG OUTPUT
-# braceError captured: 'create'
-# braceError captured: 'string'
-# braceError captured: 'with'
-# braceError captured: 'show'
-# === braceEnd called ===
-# Values before processing: 5
-#  [1]: create
-#  [2]: string
-#  [3]: with
-#  [4]: hello
-#  [5]: show
-# Processing values: 
-# create
-# string
-# with
-# hello
-# show
-
-# === Split into 2 commands ===
-# Command 1: 4 words
-#  [1]: 'create'
-#  [2]: 'string'
-#  [3]: 'with'
-#  [4]: 'hello'
-# Command 2: 1 words
-#  [1]: 'show'
-# === ExecuteNaturalCommand ===
-# Values received: 4
-#  [1]: 'create'
-#  [2]: 'string'
-#  [3]: 'with'
-#  [4]: 'hello'
-# Pattern matching: 'create' + 'string' + 'with'
-# Creating string with value: 'hello'
-# String created successfully
-# === ExecuteNaturalCommand ===
-# Values received: 1
-#  [1]: 'show'
-# Show patter object: 1
-# About to show content: 'hello'
-# hello
-# === After ProcessNaturalCode ===
-# Created object: 1
-# Object conten check: 'show'
-# Has creatednt: hello
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.22 second(s) in Ring 1.23
 
 /*--- OBJECT CREATION VARIATIONS
 
@@ -188,14 +191,13 @@ Nt {
 #--> world
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.07 second(s) in Ring 1.23
 
 /*--- BASIC TRANSFORMATIONS
 
 pr()
 
 Nt = Naturally()
-//Nt.EnableDebug()
 
 Nt {
     Create a string with "softanza"
@@ -219,7 +221,7 @@ Naturally() {
 #--> R I N G   L A N G U A G E
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.07 second(s) in Ring 1.24
 
 /*--- BOXING WITH OPTIONS
 
@@ -236,36 +238,7 @@ Naturally() {
 #    ╰─────────────────────╯
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.23
-
-/*--- PREPEND OPERATIONS
-
-pr()
-
-Naturally() {
-    Create a string with "world"
-    Prepend it with "hello "
-    Show it
-}
-#--> "hello world"
-
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
-/*--- APPEND OPERATIONS
-
-pr()
-
-Naturally() {
-    Make a string with "hello"
-    Append " beautiful world" to_ it
-    Display the result
-}
-#--> "hello beautiful world"
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.10 second(s) in Ring 1.24
 
 /*--- TRIMMING OPERATIONS
 
@@ -282,28 +255,28 @@ o1 = Naturally() {
 ? o1.Code()
 #-->
 '
-oStr = stringQ("  spaced text  ")
+oStr = StzStringQ("  spaced text  ")
 oStr.Trim()
 oStr.Uppercase()
 ? oStr.Content()
 '
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.10 second(s) in Ring 1.24
 
 /*--- REVERSE OPERATIONS
 
 pr()
 
 Naturally() {
-    Create a string with "stressed"
+    Create a string with "STRESSED"
     Reverse it
     Show the result
 }
-#--> desserts
+#--> DESSERTS
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.24
 
 /*--- CASE TRANSFORMATIONS
 
@@ -312,32 +285,13 @@ pr()
 Naturally() {
     Make a string with "MiXeD cAsE"
     Lowercase it
+    Replace "mixed" with "lower"
     Show it
 }
-#--> mixed case
+#--> lower case
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
-
-/*---
-
-pr()
-
-Naturally() {
-    Create a string with "Softanza" inside
-    Append it with the substring " Semantics"
-    Uppercase it and_ then @box it a box@ that is rounded
-    Display the result
-}
-#-->
-'
-╭────────────────────╮
-│ SOFTANZA SEMANTICS │
-╰────────────────────╯
-'
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.24
 
 /*--- REFERENCE VARIATIONS
 
@@ -357,11 +311,13 @@ Naturally() {
 #    └─────────────────────────────┘
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.10 second(s) in Ring 1.24
 
 /*--- #todo #Narration
 
 pr()
+
+# To simulate realworld writing style, add punctuations between ''
 
 Nt = Naturally() {
     Make a string with "Softanza ♥ Ring" inside '.'
@@ -369,8 +325,8 @@ Nt = Naturally() {
     Uppercase it ',' spacify it ',' and then @box it '.'
     The box@ must be rounded '!'
 
-	You knwow what ':' @Box it again_ '!'
-	Yes ',' this_ second box@ must also be rounded '.'
+    You knwow what ':' @Box it again_ '!'
+    Yes ',' this_ second box@ must also be rounded '.'
 
     Show the final result '...'
 }
@@ -386,7 +342,7 @@ Nt = Naturally() {
 ? NL + Nt.Code()
 #-->
 '
-oStr = stringQ("Softanza ♥ Ring")
+oStr = StzStringQ("Softanza ♥ Ring")
 oStr.Uppercase()
 oStr.Spacify()
 oStr.BoxXT([:Rounded = 1])
@@ -395,7 +351,7 @@ oStr.BoxXT([:Rounded = 1])
 '
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.09 second(s) in Ring 1.24
 
 /*--- CONNECTOR VARIATIONS
 
@@ -411,14 +367,14 @@ Naturally() {
 #    └─────────┘
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.09 second(s) in Ring 1.24
 
 /*--- ALTERNATIVE CONNECTORS
 
 pr()
 
 Naturally() {
-    Create a string containing "connectors"
+    Create a string containing "softanza"
     Uppercase it plus spacify it plus box it
     Show the result
 }
@@ -427,13 +383,16 @@ Naturally() {
 #    └─────────────────────┘
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.09 second(s) in Ring 1.24
 
 /*--- SUBSTITUTE OPERATION
 
 pr()
 
-Naturally() {
+o1 = Naturally()
+//o1.EnableDebug()
+
+o1 {
     Make a string with "old text old"
     Substitute "old" with "new"
     Display it
@@ -441,7 +400,7 @@ Naturally() {
 #--> new text new
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.23
 
 /*--- CHANGE OPERATION
 
@@ -455,7 +414,7 @@ Naturally() {
 #--> change this
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.10 second(s) in Ring 1.23
 
 /*--- MULTIPLE MODIFIERS
 
@@ -472,7 +431,7 @@ Naturally() {
 #    ╰───────────────────────────────────╯
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.23
+# Executed in 0.09 second(s) in Ring 1.23
 
 /*--- FRAME ALTERNATIVE
 
@@ -481,7 +440,7 @@ pr()
 Naturally() {
     Make a string containing "natural"
     Uppercase it and_ spacify it
-    Frame it with rounded corners
+    @Frame it then_ the frame@ should have rounded corners
     Display the result
 }
 #-->
@@ -492,7 +451,7 @@ Naturally() {
 '
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.10 second(s) in Ring 1.23
 
 /*--- PRINT ALTERNATIVE
 
@@ -509,13 +468,13 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
 /*--- COMPLEX CHAINING
-=
+
 pr()
 
 Naturally() {
     Create a string with "train of thoughts"
     Uppercase it and_ spacify it
-    Then box it with rounded corners
+    Then @box it with box@ having rounded corners
     Also show the final result
 }
 #--> ╭───────────────────────────────────╮
@@ -523,19 +482,19 @@ Naturally() {
 #    ╰───────────────────────────────────╯
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.23
+# Executed in 0.10 second(s) in Ring 1.23
 
 /*--- COMMAND CHAINING
 
 pr()
 
 Naturally() {
-    Create a string with "hello world"
-    Replace "hello" with "goodbye"
+    Create a string with "goodbye world"
+    Replace "goodbye" with "hello"
     Uppercase it
     Show it
 }
-#--> GOODBYE WORLD
+#--> HELLO WORLD
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.23
@@ -545,17 +504,17 @@ pf()
 pr()
 
 Naturally() {
-    Create a string with "one two three"
+    Create a string with "ONE two three"
     Replace "two" with "TWO"
     Replace "three" with "THREE" 
     Show it
 }
-#--> one TWO THREE
+#--> ONE TWO THREE
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.23
 
-/*--- DEFINE/RECALL STATE CLEANUP
+/*--- DEFINE/RECALL STATE CLEANUP (technical test)
 
 pr()
 
@@ -571,9 +530,9 @@ Naturally() {
 #    └──────┘
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.23
 
-/*--- MULTIPLE DEFINE/RECALL CYCLES
+/*--- MULTIPLE DEFINE/RECALL CYCLES (technical test)
 
 pr()
 
@@ -590,18 +549,18 @@ Naturally() {
 #    └───────┘
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.23
 
 /*---
 
 pr()
 
 # You can't use "it" as a value for object creation
-# or any other ignore keyword (in @aWordsToIgnore)
-# and if you don you will get it replace by "":
+# or any other ignored keyword (in @aWordsToIgnore)
+# and if you do you will get it replaced by "":
 
 o1 = Naturally() {
-    Create a string with "it"
+    Create a string with "it" # NO! Don't use any ignored keyword as a value! 
     Box it rounded
     Show it
 }
@@ -610,25 +569,15 @@ o1 = Naturally() {
 #    ╰──╯
 
 ? o1.Code()
-pf()
-# Executed in 0.02 second(s) in Ring 1.23
-
-/*--- MODIFIERS WITH CHAINING
-
-pr()
-
-Naturally() {
-    Create a string with "hello"
-    Uppercase it
-    Box it rounded
-    Show it  
-}
-#--> ╭───────╮
-#    │ HELLO │
-#    ╰───────╯
+#-->
+'
+oStr = StzStringQ("")
+oStr.Box()
+? oStr.Content()
+'
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.23
 
 /*--- METHOD ALIAS RESOLUTION
 
@@ -642,9 +591,9 @@ Naturally() {
 #--> TEST
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.07 second(s) in Ring 1.23
 
-/*--- MIXED ALIASES
+/*---
 
 pr()
 
@@ -660,13 +609,13 @@ o1 = Naturally() {
 ? ""
 ? o1.Code()
 #-->
-# oStr = stringQ("Hello World")
+# oStr = StzStringQ("Hello World")
 # oStr.Lowercase()
 # oStr.Capitalize()
 # ? oStr.Content()
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.23
 
 /*--- EMPTY VALUE PROTECTION
 
@@ -680,11 +629,11 @@ o1 = Naturally() {
 #--> ""
 
 ? o1.Code()
-# oStr = stringQ("")
+# oStr = StzStringQ("")
 # ? oStr.Content()
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.23
 
 /*--- NULL VALUE HANDLING #ERR #Idem
 
@@ -693,7 +642,7 @@ pr()
 Naturally() {
     Create a string with nothing
     Spacify it
-	Box it
+    Box it
     Show it
 }
 #--> 
@@ -702,7 +651,7 @@ Naturally() {
 # └──┘
 
 pf()
-# Executed in 0.012 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.23
 
 /*--- DEBUG MODE TESTING
 
@@ -716,16 +665,84 @@ Nt {
     Show it
 }
 
-
-? @@( Nt.Errors() )
-
-#--> Errors:
-#--> [ "Method 'nonexistentmethod' not found for object 'string'" ]
+? @@NL( Nt.DebugLog() )
+#-->
+# [
+# 	[
+# 		[ "timestamp", 3307 ],
+# 		[ "message", "Method: BraceEnd()" ]
+# 	],
+# 	[
+# 		[ "timestamp", 3307 ],
+# 		[ "message", "Starting processing" ]
+# 	],
+# 	[
+# 		[ "timestamp", 3307 ],
+# 		[ "message", "Raw values received: 5 items" ]
+# 	],
+# 	[
+# 		[ "timestamp", 3308 ],
+# 		[ "message", "Method: ConvertToSemanticTokens()" ]
+# 	],
+# 	[
+# 		[ "timestamp", 3308 ],
+# 		[ "message", "Converting to semantic tokens" ]
+# 	],
+# 	[
+# 		[ "timestamp", 3308 ],
+# 		[
+# 			"message",
+# 			"Semantic: 'create' -> CREATE_OBJECT"
+# 		]
+# 	],
+# 	[
+# 		[ "timestamp", 3308 ],
+# 		[
+# 			"message",
+# 			"Semantic: 'string' -> OBJECT_STRING"
+# 		]
+# 	],
+# 	[
+# 		[ "timestamp", 3308 ],
+# 		[ "message", "Literal: 'test'" ]
+# 	],
+# 	[
+# 		[ "timestamp", 3308 ],
+# 		[ "message", "Literal: 'nonexistentmethod'" ]
+# 	],
+# 	[
+# 		[ "timestamp", 3308 ],
+# 		[
+# 			"message",
+# 			"Semantic: 'show' -> OUTPUT_DISPLAY"
+# 		]
+# 	],
+# 	[
+# 		[ "timestamp", 3308 ],
+# 		[ "message", "Method: Process()" ]
+# 	],
+# 	[
+# 		[ "timestamp", 3308 ],
+# 		[ "message", "Semantic tokens created: 5 tokens" ]
+# 	],
+# 	[
+# 		[ "timestamp", 3309 ],
+# 		[ "message", "Generated Ring code:" ]
+# 	],
+# 	[
+# 		[ "timestamp", 3309 ],
+# 		[
+# 			"message",
+# 			'oStr = StzStringQ("test")
+# ? oStr.Content()'
+# 		]
+# 	]
+# ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.08 second(s) in Ring 1.23
 
-/*--- ERROR CLEARING
+/*--- CLEARING DEBUG LOG
 
 pr()
 
@@ -734,158 +751,160 @@ Nt.EnableDebug()
 Nt {
     BadMethod it
 }
-? "Before clear: " + len(Nt.Errors())
-Nt.ClearErrors()
-? "After clear: " + len(Nt.Errors())
 
-#--> Before clear: 1
-#--> After clear: 0
+# Before clear
+? len(Nt.DebugLog())
+#--> 10
+
+Nt.ClearDebugLog()
+
+# After clear
+? len(Nt.DebugLog())
+#◙--> 0
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.07 second(s) in Ring 1.24
 
-/*--- TYPE VALIDATION ENHANCEMENT
+/*--- Multiple boxing of a string
+
+/*---
 
 pr()
 
-Nt = Naturally()
-Nt.EnableDebug()
+o1 = Naturally()
+o1 {
+    Make a string with "i ♥ niamey"
+    @box it ~ Spacify it ~ and_ Uppercase it
 
-Nt {
-    Create a string with "hello world test"
-    Replace "invalid_position" with "X"
-    Show it
+    the box@ must be rounded
+
+    @box it again_ 
+    yet this_ second box@ should be rounded as well
+ 
+    Display the result
 }
-#--> hello world test
 
-? @@NL( Nt.Errors() )
-#--> []
+#-->
+'
+╭─────────────────────────╮
+│ ╭─────────────────────╮ │
+│ │ I   ♥   N I A M E Y │ │
+│ ╰─────────────────────╯ │
+╰─────────────────────────╯
+'
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.23
+# Executed in 0.12 second(s) in Ring 1.24
 
-#------------------------#
-#  REAL-WORLD USE CASES  #
-#------------------------#
+#-----------------------------#
+#  MULTILINGUAL NUTURAL CODE  #
+#-----------------------------#
 
-/*-- 1. Data Sanitization for User Input
+/*--- NATURAL CODE IN ENGLISH
 
-# Clean and validate user registration data
+pr()
 
 Naturally() {
-    Create a string with "  John@EXAMPLE.com  "
-    
-    Trim it
-    Lowercase it
-    Replace "@" with " at "
-    Capitalize it
-    
-    Show the final result
-}
-#--> John At Example.com
 
-pf()
-# Executed in 2.09 second(s) in Ring 1.23
+	Make a string with "hello niger" inside
+	Spacify it and_ uppercase it
+	@Box it while_ the box@ is rounded
+	Display it on_ the screen
+	Thank you very mutch
 
-/*-- 2. Report Header Generation
-
-pr()
-
-# Generate formatted headers for business reports
-ReportFormatter = Naturally() {
-    Make a string with "QUARTERLY SALES REPORT 2024"
-    
-    Lowercase it
-    Capitalize it
-    Spacify it
-    Box it with rounded corners
-    The box@ should be displayed
 }
 #-->
 '
-╭─────────────────────────────────────────────────────────╮
-│ Q u a r t e r l y   S a l e s   R e p o r t   2 0 2 4 │
-╰─────────────────────────────────────────────────────────╯
+╭───────────────────────╮
+│ H E L L O   N I G E R │
+╰───────────────────────╯
 '
+
 pf()
-# Executed in 0.06 second(s) in Ring 1.23
+# Executed in 0.10 second(s) in Ring 1.24
 
-```
-
-/*-- 3. API Response Processing
+/*--- NATURAL CODE IN HAUSA LATIN SCRIPT (BOKO)
 
 pr()
 
-# Process and format API response data
-APIProcessor = Naturally() {
-    Create a string with "user_profile_data_2024"
-    
-    Replace "_" with " "
-    Capitalize it
-    Prepend it with "Processing: "
-    Append it with " - Complete"
-    
-    Show it
+o1 = NaturallyIn("hausa")
+o1 {
+
+	Yi rubutu da dauke "hello niger" a ciki 
+	Raba shi kuma maida shi
+	@Akwati shi kuma wannan akwati@ dole zagaye
+	Nuna shi a kan allo
+	Na gode susai
 }
-#--> Processing: User Profile Data 2024 - Complete
-
-pf()
-
-
-/*-- 4. Configuration Validation with Error Handling
-```ring
-# Validate system configuration with debug output
-ConfigValidator = Naturally()
-ConfigValidator.EnableDebug()
-
-ConfigValidator {
-    Create a string with "database.connection.timeout"
-    
-    Replace "." with "_"
-    Uppercase it
-    ValidateConfig it  # This method doesn't exist - will trigger error
-    
-    Show it
-}
-
-? "Generated Code:"
-? ConfigValidator.Code()
 #-->
-oStr = stringQ("database.connection.timeout")
-oStr.Replace(".", "_")
+'
+╭───────────────────────╮
+│ H E L L O   N I G E R │
+╰───────────────────────╯
+'
+
+# For your information:
+#	Make 	--> Yi
+#	String 	--> Rubuti
+#	With 	--> Dauke
+#	Raba 	--> Spacify
+#	Maida 	--> Uppercase
+#	Box 	--> Akwati
+#	Rounded --> Zagaye
+
+# To inspect the internal Ring code generated by Softanza
+? o1.Code()
+#-->
+'
+oStr = StzStringQ("hello niger")
+oStr.Spacify()
 oStr.Uppercase()
-? oStr.Content()
-
-? "Validation Errors:"
-? @@( ConfigValidator.Errors() )
-#--> [ "Method 'validateconfig' not found for object 'string'" ]
-```
-
-/*-- 5. Document Template Processor
-```ring
-# Process document templates with multiple transformations
-DocProcessor = Naturally() {
-    Make a string with "template_invoice_draft"
-    
-    Replace "_" with " "
-    Capitalize it
-    @Frame it as a document header
-    
-    Append " - Ready for Review"
-    The frame@ should be presented with rounded borders
-}
-#-->
-╭───────────────────────────────────────────╮
-│ Template Invoice Draft - Ready for Review │
-╰───────────────────────────────────────────╯
-
-? DocProcessor.Code()
-#-->
-oStr = stringQ("template_invoice_draft")
-oStr.Replace("_", " ")
-oStr.Capitalize()
 oStr.BoxXT([:Rounded = 1])
-oStr.Append(" - Ready for Review")
 ? oStr.Content()
-```
+'
 
+pf()
+# Executed in 0.06 second(s) in Ring 1.24
+
+/*---  NATURAL CODE IN HAUSA ARABIC SCRIPT (AJAMI)
+
+pr()
+
+o1 = NaturallyIn("hausa-ajami")
+
+o1 {
+
+    يي روْبُتُ دا ɗوكي "hello niger" ا چِكِ		
+  رب شي كوما ميّرد شي	     
+  @اَكْوَتِ شي كوما وَنَّن اَكْوَتِن@ دُولِ زَغَيِ	    
+    نُوْنَ شي اَ كَنْ اَلّو	    
+
+}
+
+? o1.Code()
+#-->
+'
+╭───────────────────────╮
+│ H E L L O   N I G E R │
+╰───────────────────────╯
+oStr = StzStringQ("hello niger")
+oStr.Spacify()
+oStr.Uppercase()
+oStr.BoxXT([:Rounded = 1])
+? oStr.Content()
+'
+
+pf()
+# Executed in 0.06 second(s) in Ring 1.24
+
+# For your information:
+#	Make --> "يي"
+#	String --> "روْبُتُ"
+#	With --> "ɗوكي"
+#	Raba --> "رب"
+#	Maida --> "ميّرد"
+#	Box --> "اَكْوَتِن"
+#	Rounded --> "زَغَيِ"
+
+pf()
+# Executed in 0.06 second(s) in Ring 1.24
