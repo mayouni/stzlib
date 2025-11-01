@@ -1,4 +1,5 @@
 # Why I Built `stzNatural`: A Journey from Ring’s NaturalLib to Softanza’s own Natural system
+*By Mansour Ayouni. Creator of Softanza library.*
 
 When I first discovered Ring’s **NaturalLib**, I was both inspired and excited. It lets you write `count from 1 to 5` and have it run as real code—using English words.
 
@@ -9,9 +10,9 @@ I wanted to **transform one object through a sequence of natural steps**—like 
 
 I needed a natural code that constructs a **complete computational model in memory *before* executing anything**, so I can apply all the gymnastcis required by natural langauge semantics (deferred execution) before tunring human words to Ring code.
 
-So I built `stzNatural` from scratch. Not to replace the Natural Library—but to explore a different path: **focused, object-centric natural programming**.
+So I built `stzNatural` from scratch. Not to replace the NaturalLib—but to explore a different path: **focused, object-centric natural programming**.
 
-This made Softanza `stzNatural` different by design then Ring `NaturalLib` on several aspects.
+This made Softanza `stzNatural` different by design from Ring `NaturalLib` on several aspects.
 
 ## The Molecular Design Principle
 
