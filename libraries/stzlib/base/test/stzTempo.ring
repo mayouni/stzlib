@@ -336,9 +336,9 @@ Dépôt → Yantala → Aéroport (27km)"
 */
 pr()
 
-# Contexte : Restaurant CousBox doit décider combien de pizzas et salades produire
-# Contraintes : temps préparation, personnel, fours disponibles
-# Objectif : maximiser profit
+Contexte : Le resto doit décider combien de pizzas/salades produire
+Contraintes : temps préparation, personnel, fours disponibles
+Objectif : maximiser profit
 
 oSolver = new stzLinearSolver()
 oSolver {
@@ -351,17 +351,11 @@ oSolver {
     
     Maximize("12*pizzas + 6*salades")  # Profit ($)
     
-    Solve("greedy")
-    
-    ? "📊 Plan de production optimal :"
-    ? "   - Pizzas : " + SolutionValue("pizzas")
-    ? "   - Salades : " + SolutionValue("salades")
-    ? "💰 Profit attendu : $" + ObjectiveValue()
+    Solve("greedy") # Mode favorisant le temps de réponse à la précision
+    Show()
 }
-```
 
 #-->
-```
 📊 Plan de production optimal :
    - Pizzas : 100
    - Salades : 100

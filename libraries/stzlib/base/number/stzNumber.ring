@@ -3772,6 +3772,32 @@ class stzNumber from stzObject
 			def RetrieveManyXTQ(paOtherNumbers, paReturnIntermediateResults)
 				return This.SubStructManyXTQ(paOtherNumbers, paReturnIntermediateResults)
   	
+	  #-------------------------------------------#
+	 #  INCRMENET / DECREMENT THE NUMBER (BY 1)  #
+	#-------------------------------------------#
+
+	def Increment()
+		This.Add(1)
+
+		def IncrementQ()
+			This.Add(1)
+			return This
+
+	def Incremented()
+		nResult = This.NumericValue() + 1
+
+	#--
+
+	def Decrement()
+		This.Substract(1)
+
+		def DecrementQ()
+			This.Subtract(1)
+			return This
+
+	def Decremented()
+		nResult = This.NumericValue() - 1
+
 	  #-------------------------------------------------#
 	 #    MULTIPLYING THE NUMBER BY AN OTHER NUMBER    #
 	#-------------------------------------------------#
