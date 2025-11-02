@@ -1,7 +1,67 @@
 load "../stzbase.ring"
 
 /*---
+
+pr()
+
+Naturally() {
+    Create number with 100
+    Increment it
+    Show it
+}
+#--> 101
+
+pf()
+
+/*---
+
+pr()
+
+$acFruits = ["banana", "apple", "cherry"]
+
+Naturally() {
+    Create a list with $acFruits
+    Sort it
+    Uppercase it
+    Show it
+}
+#-->
+'
+APPLE
+BANANA
+CHERRY
+'
+
+/*---
 */
+pr()
+
+o1 = Naturally()
+o1 {
+	Create a string with " hello  "
+	Trim it
+        Capitalize it
+}
+
+o2 = Naturally()
+o2 {
+	Create a string with " niamy  "
+	Trim it
+        Capitalize it
+}
+
+? BoxRound( o1.Result() + " " + o2.Result() )
+#-->
+'
+╭─────────────╮
+│ Hello Niamy │
+╰─────────────╯
+'
+
+pf()
+
+/*---
+
 pr()
 
 o1 = Naturally()
@@ -24,7 +84,7 @@ pf()
 # Executed in 0.12 second(s) in Ring 1.24
 
 /*--- Getting the result of computation without display
-*/
+
 pr()
 
 Nt = Naturally()
@@ -824,7 +884,7 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.24
 
 /*--- NATURAL CODE IN HAUSA LATIN SCRIPT (BOKO)
-
+*/
 pr()
 
 o1 = NaturallyIn("hausa")
