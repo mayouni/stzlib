@@ -1,5 +1,5 @@
 # Enhanced Multilingual Softanza Natural Programming System
-# Organized by common vs object-specific operations
+# Refactored to use string-based natural code input
 
 #------------------------------#
 #  GLOBAL LANGUAGE REGISTRY
@@ -13,10 +13,10 @@ $aLanguageDefinitions = [
 		
 		:ignored_words = [
 			"is", "are", "should", "must", "can", "will", "the",
-			"this_", "that", "these", "those", "and_", "then", "also",
-			"plus", "with", "using", "to_", "by", "containing", "be",
+			"this", "that", "these", "those", "and", "then", "also",
+			"plus", "with", "using", "to", "by", "containing", "be",
 			"being", "decorated", "final", "result", "object", "at",
-			"position", "a", "it", "on_", "inside", "very", "much",
+			"position", "a", "it", "on", "inside", "very", "much",
 			"thank", "you", "please", "nice"
 		],
 		
@@ -103,22 +103,22 @@ $aLanguageDefinitions = [
 		:script = "ajami",
 		
 		:ignored_words = [
-			"دا", "دُولُ", "كُوما", "ا", "چِكِ", "شي", "وَنَنّ",
-			"كَنْ", "نَ", "گُودَ", "سُوساي"
+			"دا", "دÙولÙ", "Ùƒوما", "ا", "Ú†ÙƒÙ", "Ø´Ù", "وَنَنْ",
+			"كَنْ", "نَ", "Ú¯وده", "سوساي"
 		],
 		
 		:semantic_mappings = [
-			[:natural = "يي", :semantic = "CREATE_OBJECT"],
-			[:natural = "رُوْبُتُ", :semantic = "OBJECT_STRING"],
-			[:natural = "ɗُوكِي", :semantic = "VALUE_INDICATOR"],
+			[:natural = "ÙŠÙ", :semantic = "CREATE_OBJECT"],
+			[:natural = "روْبÙØªÙ", :semantic = "OBJECT_STRING"],
+			[:natural = "ɗوكÙ", :semantic = "VALUE_INDICATOR"],
 			[:natural = "رَبَ", :semantic = "METHOD_SPACIFY"],
-			[:natural = "مَيْدَ", :semantic = "METHOD_UPPERCASE"],
+			[:natural = "مَيْده", :semantic = "METHOD_UPPERCASE"],
 			[:natural = "دَتْسَ", :semantic = "METHOD_TRIM"],
-			[:natural = "أَكْوَتِ", :semantic = "METHOD_BOX"],
-			[:natural = "أَكْوَتِن", :semantic = "METHOD_BOX"],
+			[:natural = "أَكْوَتÙ", :semantic = "METHOD_BOX"],
+			[:natural = "أَكْوَتÙن", :semantic = "METHOD_BOX"],
 			[:natural = "زَغَيَ", :semantic = "MODIFIER_ROUNDED"],
-			[:natural = "نُوْنَ", :semantic = "OUTPUT_DISPLAY"],
-			[:natural = "أَلْو", :semantic = "CONTEXT_IGNORED"]
+			[:natural = "نÙوْنَ", :semantic = "OUTPUT_DISPLAY"],
+			[:natural = "أَلْÙˆ", :semantic = "CONTEXT_IGNORED"]
 		]
 	]
 ]
@@ -272,11 +272,19 @@ $aSemanticOperations = [
 #  GLOBAL INTERFACE
 #------------------------------#
 
-func NaturallyIn(cLanguage)
-	return new stzNaturalEngine(cLanguage)
+func NaturallyIn(cLanguageOrCode, cCode)
+	if cCode = NULL or cCode = ""
+		return new stzNaturalEngine(cLanguageOrCode, NULL)
+	else
+		return new stzNaturalEngine(cLanguageOrCode, cCode)
+	ok
 
-func Naturally()
-	return new stzNaturalEngine("en")
+func Naturally(cCode)
+	if cCode = NULL or cCode = ""
+		return new stzNaturalEngine("en", NULL)
+	else
+		return new stzNaturalEngine("en", cCode)
+	ok
 
 #------------------------------#
 #  NATURAL ENGINE
@@ -294,17 +302,135 @@ class stzNaturalEngine
 	@bDebugMode = 0
 	@aDebugLog = []
 	@result
+	@cNaturalCode = ""
 
-	def init(cLang)
-		if cLang != "" and cLang != nothing
-			if isString(cLang)
-				@cLanguage = lower(cLang)
+	def init(cLangOrCode, cCode)
+		# Handle different initialization patterns
+		if cCode != NULL and cCode != ""
+			# Case: Naturally("en", "code here")
+			@cLanguage = lower(cLangOrCode)
+			@cNaturalCode = cCode
+		else
+			# Detect if first param is language code or natural code
+			if This.IsLanguageCode(cLangOrCode)
+				# Case: NaturallyIn("hausa")
+				@cLanguage = lower(cLangOrCode)
 			else
-				@cLanguage = lower("" + cLang)
+				# Case: Naturally("code here")
+				@cLanguage = "en"
+				if cLangOrCode != NULL
+					@cNaturalCode = cLangOrCode
+				ok
 			ok
 		ok
+		
 		This.LoadLanguageData()
-		This.CreateIgnoreWordAttributes()
+		
+		# Auto-execute if code provided
+		if @cNaturalCode != "" and @cNaturalCode != NULL
+			This.Execute(@cNaturalCode)
+		ok
+	
+	def IsLanguageCode(cStr)
+		if cStr = NULL or NOT isString(cStr)
+			return 0
+		ok
+		
+		cLower = lower(cStr)
+		
+		# Check against known language codes
+		nLen = len($aLanguageDefinitions)
+		for i = 1 to nLen
+			aLang = $aLanguageDefinitions[i]
+			if aLang[:code] = cLower or aLang[:name] = cLower
+				return 1
+			ok
+		next
+		
+		return 0
+	
+	def Execute(cCode)
+		if cCode = NULL or NOT isString(cCode)
+			return
+		ok
+		
+		@cNaturalCode = cCode
+		This.AddToDebugLog("Executing natural code")
+		This.AddToDebugLog("Code length: " + len(cCode) + " chars")
+		
+		# Tokenize the code
+		This.TokenizeCode(cCode)
+		
+		This.AddToDebugLog("Raw values: " + len(@aValues) + " items")
+		for i = 1 to len(@aValues)
+			val = @aValues[i]
+			This.AddToDebugLog("Value[" + i + "]: type=" + type(val) + ", content=" + @@(val))
+		next
+		
+		This.Process()
+	
+	def TokenizeCode(cCode)
+		@aValues = []
+		
+		# Clean the code
+		cCode = trim(cCode)
+		
+		# Split by whitespace while preserving quoted strings
+		aTokens = This.SmartSplit(cCode)
+		
+		@aValues = aTokens
+	
+	def SmartSplit(cCode)
+		aResult = []
+		cCurrent = ""
+		bInQuote = 0
+		cQuoteChar = ""
+		nLen = len(cCode)
+		
+		for i = 1 to nLen
+			cChar = @substr(cCode, i, i)
+			
+			# Handle quotes
+			if (cChar = "'" or cChar = '"' or cChar = "`") and NOT bInQuote
+				bInQuote = 1
+				cQuoteChar = cChar
+				loop
+			ok
+			
+			if bInQuote and cChar = cQuoteChar
+				# End of quoted string
+				if cCurrent != ""
+					aResult + cCurrent
+					cCurrent = ""
+				ok
+				bInQuote = 0
+				cQuoteChar = ""
+				loop
+			ok
+			
+			# Inside quotes, collect everything
+			if bInQuote
+				cCurrent += cChar
+				loop
+			ok
+			
+			# Outside quotes, split on whitespace
+			if cChar = " " or cChar = TAB or cChar = NL or cChar = CR
+				if cCurrent != ""
+					aResult + cCurrent
+					cCurrent = ""
+				ok
+			else
+				cCurrent += cChar
+			ok
+		next
+		
+		# Add final token
+		if cCurrent != ""
+			aResult + cCurrent
+		ok
+		
+		return aResult
 	
 	def LoadLanguageData()
 		aLangDef = This.FindLanguageDefinition(@cLanguage)
@@ -322,36 +448,6 @@ class stzNaturalEngine
 			ok
 		next
 		return []
-	
-	def CreateIgnoreWordAttributes()
-		nLen = len(@aIgnoredWords)
-		for i = 1 to nLen
-			cWord = @aIgnoredWords[i]
-			addAttribute(this, cWord)
-			eval("this." + cWord + ' = ""')
-		next
-	
-	def braceExprEval(value)
-		if NOT( isString(value) and value = "" )
-			@aValues + value
-		ok
-	
-	def braceError()
-		if left(CatchError(), 11) = "Error (R24)"
-			cUndefined = trim(split(CatchError(), ":")[3])
-			@aValues + cUndefined
-		ok
-	
-	def braceEnd()
-		This.AddToDebugLog("Method: BraceEnd()")
-		This.AddToDebugLog("Raw values: " + len(@aValues) + " items")
-		
-		for i = 1 to len(@aValues)
-			val = @aValues[i]
-			This.AddToDebugLog("Value[" + i + "]: type=" + type(val) + ", content=" + @@(val))
-		next
-
-		This.Process()
 	
 	def Process()
 		@aSemanticTokens = This.ConvertToSemanticTokens()
@@ -734,3 +830,6 @@ class stzNaturalEngine
 
 	def Object()
 		return @cCurrentObject
+	
+	def NaturalCode()
+		return @cNaturalCode
