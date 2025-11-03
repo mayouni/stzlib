@@ -54,7 +54,7 @@ Initially, `stzNatural` used Ring's brace syntax (`{ }`) with dynamic attribute 
 
 **The Breakthrough:**
 
-We refactored the entire system to accept **natural code as plain strings**:
+I refactored the entire system to accept **natural code as plain strings**:
 
 ```ring
 # Old approach (brace-based)
@@ -86,7 +86,7 @@ Natural code became a **first-class data type**:
 * **Storable**: Save to `.natural` files
 * **Versionable**: Git-friendly plain text
 * **Searchable**: Use grep, regex, IDE tools
-* **Manipulable**: Full `stzString` and `stzRegex` power
+* **Manipulable**: Full `stzString` and `stzRegex` power with full punctuation freedom
 * **Sharable**: Exchange natural code across systems
 * **IDE-friendly**: Syntax highlighting, linting possible
 
@@ -99,14 +99,12 @@ The string-based approach eliminated all underscore hacks:
 # After:  and the is   (work naturally)
 ```
 
-The `SmartSplit()` tokenizer preserves quoted strings as single tokens while respecting natural word boundaries, giving us the best of both worlds: human readability and machine parsability.
-
 ***
 
 ## Deferred Execution: Thinking Before Acting
 
 Ring's `NaturalLib` executes commands **as they appear**.\
-`stzNatural` **captures the entire block first**, stores it in an internal computational graph, then compiles it into efficient Ring code only when ready.
+`stzNatural` **captures the entire block first**, stores it internally, then compiles it into efficient Ring code only when ready.
 
 Why? Because humans **plan before they act**.
 
@@ -126,17 +124,6 @@ In `stzNatural`, **only words defined in the semantic dictionary are interpreted
 The `ignored_words` list (e.g., `"a"`, `"with"`, `"containing"`) exists **only to enable natural phrasing around structural boundaries**—like `Create a string` or `Replace X with Y`.
 
 This lets you write fluently **without compromising parsing integrity**.
-
-Values are clearly marked with quotes:
-
-```ring
-Naturally("
-    Create string with 'hello world'
-    Replace 'world' with 'niger'
-")
-```
-
-***
 
 ## Data-Driven, Config-Only Multilingualism
 
@@ -204,5 +191,3 @@ String-based natural code adds `NaturalCode()` accessor—you can inspect, modif
 * And native Ring code execution speed.
 
 The shift from brace-based to string-based natural code wasn't just a refactoring—it was a strategic leap that removed artificial constraints, unlocked massive performance gains, and transformed natural code into a true data medium.
-
-Natural programming is no longer trapped in Ring's syntax boundaries. It's free to flow, evolve, and integrate with the entire software development ecosystem.
