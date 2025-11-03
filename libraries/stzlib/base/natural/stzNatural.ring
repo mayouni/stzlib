@@ -29,9 +29,14 @@ $aLanguageDefinitions = [
 			# Object types
 			[:natural = "string", :semantic = "OBJECT_STRING"],
 			[:natural = "text", :semantic = "OBJECT_STRING"],
+			[:natural = "stzstring", :semantic = "OBJECT_STRING"],
+
 			[:natural = "list", :semantic = "OBJECT_LIST"],
+			[:natural = "stzlist", :semantic = "OBJECT_LIST"],
+
 			[:natural = "number", :semantic = "OBJECT_NUMBER"],
-			
+			[:natural = "stznumber", :semantic = "OBJECT_NUMBER"],
+
 			# Value indicators
 			[:natural = "with", :semantic = "VALUE_INDICATOR"],
 			
@@ -103,22 +108,22 @@ $aLanguageDefinitions = [
 		:script = "ajami",
 		
 		:ignored_words = [
-			"دا", "دÙولÙ", "Ùƒوما", "ا", "Ú†ÙƒÙ", "Ø´Ù", "وَنَنْ",
-			"كَنْ", "نَ", "Ú¯وده", "سوساي"
+			"دا", "دُولِ", "كوما", "ا", "چِكِ", "شي", "وَنَّن",
+			"كَنْ", "نَ", "گودِ", "سوساي"
 		],
 		
 		:semantic_mappings = [
-			[:natural = "ÙŠÙ", :semantic = "CREATE_OBJECT"],
-			[:natural = "روْبÙØªÙ", :semantic = "OBJECT_STRING"],
-			[:natural = "ɗوكÙ", :semantic = "VALUE_INDICATOR"],
-			[:natural = "رَبَ", :semantic = "METHOD_SPACIFY"],
-			[:natural = "مَيْده", :semantic = "METHOD_UPPERCASE"],
-			[:natural = "دَتْسَ", :semantic = "METHOD_TRIM"],
-			[:natural = "أَكْوَتÙ", :semantic = "METHOD_BOX"],
-			[:natural = "أَكْوَتÙن", :semantic = "METHOD_BOX"],
-			[:natural = "زَغَيَ", :semantic = "MODIFIER_ROUNDED"],
-			[:natural = "نÙوْنَ", :semantic = "OUTPUT_DISPLAY"],
-			[:natural = "أَلْÙˆ", :semantic = "CONTEXT_IGNORED"]
+			[:natural = "يي", :semantic = "CREATE_OBJECT"],
+			[:natural = "روْبُتُ", :semantic = "OBJECT_STRING"],
+			[:natural = "ɗوكي", :semantic = "VALUE_INDICATOR"],
+			[:natural = "رب", :semantic = "METHOD_SPACIFY"],
+			[:natural = "ميّرد", :semantic = "METHOD_UPPERCASE"],
+			[:natural = "دَتْسِ", :semantic = "METHOD_TRIM"],
+			[:natural = "اَكْوَتِ", :semantic = "METHOD_BOX"],
+			[:natural = "اَكْوَتِن", :semantic = "METHOD_BOX"],
+			[:natural = "زَغَيِ", :semantic = "MODIFIER_ROUNDED"],
+			[:natural = "نُوْنَ", :semantic = "OUTPUT_DISPLAY"],
+			[:natural = "اَلّو", :semantic = "CONTEXT_IGNORED"]
 		]
 	]
 ]
@@ -385,10 +390,12 @@ class stzNaturalEngine
 		cCurrent = ""
 		bInQuote = 0
 		cQuoteChar = ""
-		nLen = len(cCode)
+
+		acChars = Chars(cCode)
+		nLen = len(acChars)
 		
 		for i = 1 to nLen
-			cChar = @substr(cCode, i, i)
+			cChar = acChars[i]
 			
 			# Handle quotes
 			if (cChar = "'" or cChar = '"' or cChar = "`") and NOT bInQuote
@@ -626,6 +633,10 @@ class stzNaturalEngine
 			ok
 		end
 		
+		if @cCurrentVariable = trim("")
+			StzRaise('Unsupported object type while processing "CREATE_OBJECT"!')
+		ok
+
 		cCode = JoinXT(aCodeLines, NL) + NL + "@result = " + @cCurrentVariable + ".Content()"
 		return cCode
 	
