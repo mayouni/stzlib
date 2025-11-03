@@ -749,12 +749,14 @@ pf()
 */
 pr()
 
-Naturally("
+#TODO #ERR// if we add '.' after 'rounded' it fails
+
+o1 = Naturally("
     1. Create a string with 'softanza'
     2. Uppercase it
     3. Spacify it
     4. @Box it
-    5. The box@ should be rounded #TODO #ERR// if we add "." after "rounded" it fails
+    5. The box@ should be rounded
     6. Display the result
     7. Thanks!
 ")
@@ -762,6 +764,29 @@ Naturally("
 # ╭─────────────────╮
 # │ S O F T A N Z A │
 # ╰─────────────────╯
+
+? o1.Code() + NL
+#-->
+'
+oStr = StzStringQ("softanza")
+oStr.Uppercase()
+oStr.Spacify()
+oStr.BoxXT([:Rounded = 1])
+? oStr.Content()
+@result = oStr.Content()
+'
+
+? o1.NaturalCode()
+#-->
+'
+    1. Create a string with 'softanza'
+    2. Uppercase it
+    3. Spacify it
+    4. @Box it
+    5. The box@ should be rounded
+    6. Display the result
+    7. Thanks!
+'
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.24
