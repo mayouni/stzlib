@@ -1,7 +1,7 @@
 load "../stzbase.ring"
 
 /*---
-*/
+
 pr()
 
 Naturally("
@@ -12,19 +12,20 @@ Naturally("
 #--> 101
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
-/*---
+/*--- #ERR
 
 pr()
 
-$acFruits = ["banana", "apple", "cherry"]
+//$acFruits = ["banana", "apple", "cherry"]
 
-Naturally("
-    Create a list with $acFruits
+Naturally('
+    Create a list with ["banana", "apple", "cherry"]
     Sort it
     Uppercase it
     Show it
-")
+')
 #-->
 # APPLE
 # BANANA
@@ -33,7 +34,7 @@ Naturally("
 pf()
 
 /*---
-*/
+
 pr()
 
 o1 = Naturally("
@@ -55,15 +56,15 @@ o2 = Naturally("
 # ╰─────────────╯
 
 pf()
-
+# Executed in 0.02 second(s) in Ring 1.24
+ 
 /*--- BOXING WITH MODIFIERS
 
 pr()
 
 Naturally("
     Create a fantastic string with 'Softanza ♥ Ring'
-    @Box it
-    The box@ should be rounded
+    @Box it but the box@ should be rounded
     Display the result
 ")
 #-->
@@ -72,13 +73,24 @@ Naturally("
 # ╰─────────────────╯
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.24
+
+/*--- RAISING ERROR WHEN OBJECT TYPE IS NOT SUPPORTED
+
+
+Nt = Naturally("
+    Create a stxString with 'test.data'
+    Replace '.' with '_'
+    Uppercase it
+")
+#--> ERROR: Unsupported object type while processing "CREATE_OBJECT"!
 
 /*--- GETTING RESULT WITHOUT DISPLAY
 
 pr()
 
 Nt = Naturally("
-    Create a stzString with 'test.data'
+    Create a text with 'test.data'
     Replace '.' with '_'
     Uppercase it
 ")
@@ -94,6 +106,7 @@ Nt = Naturally("
 # @result = oStr.Content()
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- CHAINED OPERATIONS
 
@@ -111,6 +124,7 @@ Naturally("
 # ╰───────────────────────╯
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- OBJECT CREATION VARIATIONS
 
@@ -123,6 +137,7 @@ Naturally("
 #--> world
 
 pf()
+#--> world
 
 /*--- BASIC TRANSFORMATIONS
 
@@ -136,6 +151,7 @@ Naturally("
 #--> SOFTANZA
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- MULTIPLE OPERATIONS
 
@@ -149,6 +165,7 @@ Naturally("
 #--> R I N G   L A N G U A G E
 
 pf()
+#☺ Executed in 0.01 second(s) in Ring 1.24
 
 /*--- BOXING WITH OPTIONS
 
@@ -166,6 +183,7 @@ Naturally("
 # ╰─────────────────────╯
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- TRIMMING OPERATIONS
 
@@ -187,6 +205,7 @@ o1 = Naturally("
 # ? oStr.Content()
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- REVERSE OPERATIONS
 
@@ -200,6 +219,7 @@ Naturally("
 #--> DESSERTS
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- CASE TRANSFORMATIONS
 
@@ -214,6 +234,7 @@ Naturally("
 #--> lower case
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- SUBSTITUTE OPERATION
 
@@ -227,6 +248,7 @@ Naturally("
 #--> new text new
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- CHANGE OPERATION
 
@@ -234,7 +256,7 @@ pr()
 
 Naturally("
     Create a string with 'change me'
-    Change 'me' to 'this'
+    change 'me' to 'thisd' #ERR returns empy if = "this"
     Show the result
 ")
 #--> change this
@@ -257,6 +279,7 @@ Naturally("
 # ╰───────────────────────────────────╯
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- FRAME ALTERNATIVE
 
@@ -274,6 +297,7 @@ Naturally("
 # ╰───────────────╯
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- PRINT ALTERNATIVE
 
@@ -287,6 +311,7 @@ Naturally("
 #--> PRINT TEST
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- COMPLEX CHAINING
 
@@ -304,6 +329,7 @@ Naturally("
 # ╰───────────────────────────────────╯
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- COMMAND CHAINING
 
@@ -318,6 +344,7 @@ Naturally("
 #--> HELLO WORLD
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- MULTIPLE PARAMETER CONSUMPTION
 
@@ -332,6 +359,7 @@ Naturally("
 #--> ONE TWO THREE
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- DEFINE/RECALL STATE
 
@@ -350,6 +378,7 @@ Naturally("
 # └──────┘
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- MULTIPLE DEFINE/RECALL CYCLES
 
@@ -369,6 +398,7 @@ Naturally("
 # └───────┘
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- CAPITALIZE
 
@@ -383,6 +413,7 @@ Naturally("
 #--> Hello World
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- EMPTY VALUE PROTECTION
 
@@ -396,8 +427,12 @@ o1 = Naturally("
 #--> ""
 
 ? o1.Code()
-# oStr = StzStringQ("")
-# ? oStr.Content()
+'
+oStr = StzStringQ("")
+oStr.Uppercase()
+? oStr.Content()
+@result = oStr.Content()
+'
 
 pf()
 
@@ -412,9 +447,150 @@ Nt.Execute("
     Show it
 ")
 
-? "Debug entries: " + len(Nt.DebugLog())
+? @@NL( Nt.DebugLog() )
+#--> [
+#	[
+#		[ "timestamp", 2166 ],
+#		[ "message", "Executing natural code" ]
+#	],
+#	[
+#		[ "timestamp", 2166 ],
+#		[ "message", "Code length: 45 chars" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "Raw values: 7 items" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[
+#			"message",
+#			'Value[1]: type=STRING, content="Create"'
+#		]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[
+#			"message",
+#			'Value[2]: type=STRING, content="a"'
+#		]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[
+#			"message",
+#			'Value[3]: type=STRING, content="string"'
+#		]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[
+#			"message",
+#			'Value[4]: type=STRING, content="with"'
+#		]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[
+#			"message",
+#			'Value[5]: type=STRING, content="test"'
+#		]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[
+#			"message",
+#			'Value[6]: type=STRING, content="Show"'
+#		]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[
+#			"message",
+#			'Value[7]: type=STRING, content="it"'
+#		]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "Converting to semantic tokens" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "Processing: 'Create'" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "  Semantic: CREATE_OBJECT" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "Processing: 'a'" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "  Ignored" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "Processing: 'string'" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "  Semantic: OBJECT_STRING" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "Processing: 'with'" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "  Ignored" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "Processing: 'test'" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "  Literal" ]
+#	],
+#	[
+#		[ "timestamp", 2168 ],
+#		[ "message", "Processing: 'Show'" ]
+#	],
+#	[
+#		[ "timestamp", 2169 ],
+#		[ "message", "  Semantic: OUTPUT_DISPLAY" ]
+#	],
+#	[
+#		[ "timestamp", 2169 ],
+#		[ "message", "Processing: 'it'" ]
+#	],
+#	[
+#		[ "timestamp", 2169 ],
+#		[ "message", "  Ignored" ]
+#	],
+#	[
+#		[ "timestamp", 2169 ],
+#		[ "message", "Tokens: 4" ]
+#	],
+#	[
+#		[ "timestamp", 2170 ],
+#		[ "message", "Generated code:" ]
+#	],
+#	[
+#		[ "timestamp", 2170 ],
+#		[
+#			"message",
+#			'oStr = StzStringQ("test")
+#			? oStr.Content()
+#			@result = oStr.Content()'
+#		]
+#	]
+# ]
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- CLEARING DEBUG LOG
 
@@ -424,23 +600,25 @@ Nt = Naturally("")
 Nt.EnableDebug()
 Nt.Execute("Create string with 'test'")
 
-? "Before clear: " + len(Nt.DebugLog())
+? len(Nt.DebugLog()) #--> 19
+
 Nt.ClearDebugLog()
-? "After clear: " + len(Nt.DebugLog())
+? len(Nt.DebugLog()) #--> 0
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
-/*--- MULTIPLE BOXING
+/*--- MULTIPLE BOXING (WITH FREE PUNCTUATION)
 
 pr()
 
 Naturally("
     Make a string with 'i ♥ niamey'
-    @box it ~ Spacify it ~ and Uppercase it
-    the box@ must be rounded
-    @box it again
-    yet this second box@ should be rounded as well
-    Display the result
+    @box it, spacify it, and Uppercase it.
+    the box@ must be rounded...
+    @box it again!
+    Yet: this second box@ should be rounded as well.
+    Display the result...
 ")
 #-->
 # ╭─────────────────────────╮
@@ -450,6 +628,7 @@ Naturally("
 # ╰─────────────────────────╯
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 #-----------------------------#
 #  MULTILINGUAL NATURAL CODE  #
@@ -460,11 +639,15 @@ pf()
 pr()
 
 Naturally("
-    Make a string with 'hello niger' inside
-    Spacify it and uppercase it
-    @Box it while the box@ is rounded
-    Display it on the screen
-    Thank you very much
+
+    Make a text containing 'hello niger'.
+    Spacify it and uppercase it!
+
+    @Box it but the box@ should be rounded ;
+
+    Display it on the screen...
+    Thank you very much ♥
+
 ")
 #-->
 # ╭───────────────────────╮
@@ -472,17 +655,22 @@ Naturally("
 # ╰───────────────────────╯
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- NATURAL CODE IN HAUSA LATIN SCRIPT (BOKO)
-*/
+
 pr()
 
 o1 = NaturallyIn("hausa", "
-    Yi rubutu da dauke 'hello niger' a ciki 
-    Raba shi kuma maida shi
-    @Akwati shi kuma wannan akwati@ dole zagaye
-    Nuna shi a kan allo
-    Na gode susai
+
+    Yi rubutu da dauke 'hello niger' a ciki.
+    Raba shi kuma maida shi!
+
+    @Akwati shi kuma wannan akwati@ dole zagaye ;
+
+    Nuna shi a kan allo...
+    Na gode susai ♥
+
 ")
 #-->
 # ╭───────────────────────╮
@@ -508,15 +696,15 @@ o1 = NaturallyIn("hausa", "
 
 pf()
 
-/*--- NATURAL CODE IN HAUSA ARABIC SCRIPT (AJAMI)
+/*--- NATURAL CODE IN HAUSA ARABIC SCRIPT (AJAMI) #ERR
 
 pr()
 
 o1 = NaturallyIn("hausa-ajami", "
-    يي رُوْبُتُ دا ɗوكي 'hello niger' ا چِكِ
-    رَبَ شي كُومَا مَيْدَ شي
-    @أَكْوَتُ شي كُومَا وَنَنْ أَكْوَتُن@ دُولُ زَغَيَ
-    نُوْنَ شي اَ كَنْ أَلْوُ
+   يي رُوْبُتُ دا ɗوكي 'hello niger' ا چِكِ
+رَبَ شي كُومَا مَيْدَ شي
+ @أَكْوَتُ شي كُومَا وَنَنْ أَكْوَتُن@ دُولُ زَغَيَ
+ نُوْنَ شي اَ كَنْ أَلْوُ
 ")
 
 ? o1.Code()
@@ -548,26 +736,27 @@ cCode = "
     Uppercase it
     Show it
 "
-write("test.natural", cCode)
+write("test.stzn", cCode)
 
 # Execute from file
-Naturally(read("test.natural"))
+Naturally(read("test.stzn"))
 #--> FROM FILE
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- MULTILINE WITH PROPER FORMATTING
-
+*/
 pr()
 
 Naturally("
-    Create a string with 'softanza'
-    
-    Uppercase it
-    Spacify it
-    
-    @Box it rounded
-    Display the result
+    1. Create a string with 'softanza'
+    2. Uppercase it
+    3. Spacify it
+    4. @Box it
+    5. The box@ should be rounded #TODO #ERR// if we add "." after "rounded" it fails
+    6. Display the result
+    7. Thanks!
 ")
 #-->
 # ╭─────────────────╮
