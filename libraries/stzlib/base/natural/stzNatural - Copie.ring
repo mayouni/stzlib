@@ -1,7 +1,9 @@
 # Enhanced Multilingual Softanza Natural Programming System
-# Extended with Context Interpolation Support
+# Refactored to use string-based natural code input
 
-#-- [Previous global definitions remain the same]
+
+#-- GLOBAL LANGUAGE REGISTRY  
+
 $aLanguageDefinitions = [
 	[
 		:code = "en",
@@ -18,10 +20,12 @@ $aLanguageDefinitions = [
 		],
 		
 		:semantic_mappings = [
+			# Object creation
 			[:natural = "create", :semantic = "CREATE_OBJECT"],
 			[:natural = "make", :semantic = "CREATE_OBJECT"],
 			[:natural = "new", :semantic = "CREATE_OBJECT"],
 			
+			# Object types
 			[:natural = "string", :semantic = "OBJECT_STRING"],
 			[:natural = "text", :semantic = "OBJECT_STRING"],
 			[:natural = "stzstring", :semantic = "OBJECT_STRING"],
@@ -32,8 +36,10 @@ $aLanguageDefinitions = [
 			[:natural = "number", :semantic = "OBJECT_NUMBER"],
 			[:natural = "stznumber", :semantic = "OBJECT_NUMBER"],
 
+			# Value indicators
 			[:natural = "with", :semantic = "VALUE_INDICATOR"],
 			
+			# Common methods (work on multiple objects)
 			[:natural = "uppercase", :semantic = "METHOD_UPPERCASE"],
 			[:natural = "lowercase", :semantic = "METHOD_LOWERCASE"],
 			[:natural = "capitalize", :semantic = "METHOD_CAPITALIZE"],
@@ -45,21 +51,25 @@ $aLanguageDefinitions = [
 			[:natural = "substitute", :semantic = "METHOD_REPLACE"],
 			[:natural = "change", :semantic = "METHOD_REPLACE"],
 
+			# String-specific methods
 			[:natural = "spacify", :semantic = "METHOD_SPACIFY"],
 			[:natural = "addspaces", :semantic = "METHOD_SPACIFY"],
 			[:natural = "box", :semantic = "METHOD_BOX"],
 			[:natural = "frame", :semantic = "METHOD_BOX"],
 			[:natural = "rounded", :semantic = "MODIFIER_ROUNDED"],
 
+			# Number-specific methods
 			[:natural = "increment", :semantic = "METHOD_INCREMENT"],
 			[:natural = "decrement", :semantic = "METHOD_DECREMENT"],
 			[:natural = "multiply", :semantic = "METHOD_MULTIPLY"],
 			[:natural = "divide", :semantic = "METHOD_DIVIDE"],
 			
+			# Output
 			[:natural = "show", :semantic = "OUTPUT_DISPLAY"],
 			[:natural = "display", :semantic = "OUTPUT_DISPLAY"],
 			[:natural = "print", :semantic = "OUTPUT_DISPLAY"],
 			
+			# Context words
 			[:natural = "screen", :semantic = "CONTEXT_IGNORED"]
 		]
 	],
@@ -92,7 +102,12 @@ $aLanguageDefinitions = [
 	]
 ]
 
+#--  SEMANTIC REGISTRY - Organized by Object Type
+
 $aSemanticOperations = [
+
+	#--- OBJECTS
+
 	[
 		:semantic_id = "OBJECT_STRING",
 		:object_type = "stzString",
@@ -113,6 +128,8 @@ $aSemanticOperations = [
 		:constructor = "StzNumberQ(@)",
 		:variable = "oNum"
 	],
+
+	#--- COMMON METHODS (work on multiple object types)
 
 	[
 		:semantic_id = "METHOD_UPPERCASE",
@@ -156,6 +173,8 @@ $aSemanticOperations = [
 		:applies_to = ["stzString", "stzList"]
 	],
 
+	#--- STRING-SPECIFIC METHODS
+
 	[
 		:semantic_id = "METHOD_SPACIFY",
 		:stz_method = "Spacify",
@@ -185,6 +204,8 @@ $aSemanticOperations = [
 			]
 		]
 	],
+
+	#--- NUMBER-SPECIFIC METHODS
 
 	[
 		:semantic_id = "METHOD_INCREMENT",
@@ -216,44 +237,31 @@ $aSemanticOperations = [
 		:applies_to = ["stzNumber"]
 	],
 
+	#--- OUTPUT
+
 	[
 		:semantic_id = "OUTPUT_DISPLAY",
 		:stz_signature = "? @var.Content()"
 	]
 ]
 
-#-- GLOBAL FUNCTIONS WITH CONTEXT SUPPORT
+#-- GLOBAL FUNCTIONS
 
-func NaturallyInXT(cLang, aContext, cCode)
-	# Handle: NaturallyInXT(aContext, "code")
-	if isList(cLang) and isString(aContext)
-		return new stzNaturalEngine("en", "", cLang, aContext)
+func NaturallyIn(cLanguageOrCode, cCode)
+	if cCode = ""
+		return new stzNaturalEngine(cLanguageOrCode, "")
+	else
+		return new stzNaturalEngine(cLanguageOrCode, cCode)
 	ok
-	
-	# Handle: NaturallyInXT("lang", aContext, "code")
-	if isString(cLang) and isList(aContext) and isString(cCode)
-		return new stzNaturalEngine(cLang, "", aContext, cCode)
-	ok
-	
-	# Fallback
-	return new stzNaturalEngine("en", "", [], "")
-
-func NaturallyXT(aContext, cCode)
-	# Handle: NaturallyXT(aContext, "code")
-	if isList(aContext) and isString(cCode)
-		return new stzNaturalEngine("en", "", aContext, cCode)
-	ok
-	
-	# Fallback
-	return new stzNaturalEngine("en", "", [], "")
-
-func NaturallyIn(cLang, cCode)
-	return NaturallyInXT(cLang, [], cCode)
 
 func Naturally(cCode)
-	return NaturallyXT([], cCode)
+	if cCode = ""
+		return new stzNaturalEngine("en", "")
+	else
+		return new stzNaturalEngine("en", cCode)
+	ok
 
-#-- NATURAL ENGINE CLASS WITH CONTEXT
+#-- NATURAL ENGINE CLASS
 
 class stzNaturalEngine
 	@cLanguage = "en"
@@ -268,161 +276,54 @@ class stzNaturalEngine
 	@aDebugLog = []
 	@result
 	@cNaturalCode = ""
-	@cOriginalCode = ""
-	@aContext = []
 
-	def init(cLang, cCode, aContext, cContextCode)
-		# Handle context-enabled calls
-		if isList(aContext) and isString(cContextCode)
-			@aContext = aContext
-			@cOriginalCode = cContextCode
-			@cLanguage = lower(cLang)
-			if @cLanguage = "" or NOT IsLanguageAbbreviation(@cLanguage)
-				@cLanguage = "en"
-			ok
-			This.LoadLanguageData()
-
-			cInterpolated = This.InterpolateContext(cContextCode, aContext)
-			@cNaturalCode = cInterpolated
-			This.Execute(cInterpolated)
-			return
-		ok
-		
-		# Handle original patterns
+	def init(cLangOrCode, cCode)
+		# Handle different initialization patterns
 		if cCode != ""
-			@cLanguage = lower(cLang)
+			# Case: Naturally("en", "code here")
+			@cLanguage = lower(cLangOrCode)
 			@cNaturalCode = cCode
-			@cOriginalCode = cCode
 		else
-			if IsLanguageAbbreviation(cLang)
-				@cLanguage = lower(cLang)
+			# Detect if first param is language code or natural code
+			if This.IsLanguageCode(cLangOrCode)
+				# Case: NaturallyIn("hausa")
+				@cLanguage = lower(cLangOrCode)
 			else
+				# Case: Naturally("code here")
 				@cLanguage = "en"
-				if cLang != ""
-					@cNaturalCode = cLang
-					@cOriginalCode = cLang
+				if cLangOrCode != ""
+					@cNaturalCode = cLangOrCode
 				ok
 			ok
 		ok
 		
 		This.LoadLanguageData()
 		
+		# Auto-execute if code provided
 		if @cNaturalCode != ""
 			This.Execute(@cNaturalCode)
 		ok
 	
-	def InterpolateContext(cCode, aContext)
-		if len(aContext) = 0
-			return cCode
+	def IsLanguageCode(cStr)
+		if cStr = "" or NOT isString(cStr)
+			return 0
 		ok
 		
-		cResult = cCode
+		cLower = lower(cStr)
 		
-		# Extract all {key} or {key.nested.path} patterns
-
-		aMatches = StzStringQ(cCode).SubstringsBoundedBy([ "{", "}" ])
-
-		for i = 1 to len(aMatches)
-			cKey = aMatches[i]
-			cValue = @@(This.GetContextValue(cKey, aContext))
-
-			if cValue != :NOT_FOUND
-				cResult = substr(cResult, "{" + cKey + "}", cValue)
-			ok
-		next
-		
-		return cResult
-	
-	def FindContextPlaceholders(cCode)
-		aResult = []
-		nLen = stzlen(cCode)
-		i = 1
-		
-		while i <= nLen
-			if @substr(cCode, i, i) = "{"
-				# Find closing }
-				nEnd = i + 1
-				nDepth = 1
-				
-				while nEnd <= nLen and nDepth > 0
-					cChar = @substr(cCode, nEnd, nEnd)
-					if cChar = "{"
-						nDepth++
-					but cChar = "}"
-						nDepth--
-					ok
-					nEnd++
-				end
-				
-				if nDepth = 0
-					cPlaceholder = @substr(cCode, i, nEnd - i)
-					aResult + cPlaceholder
-					i = nEnd
-				else
-					i++
-				ok
-			else
-				i++
-			ok
-		end
-		
-		return aResult
-	
-	def GetContextValue(cKey, aContext)
-		# Handle nested keys like "user.profile.name"
-		if substr(cKey, ".") > 0
-			aParts = @split(cKey, ".")
-			xCurrent = aContext
-			
-			for i = 1 to len(aParts)
-				cPart = trim(aParts[i])
-				
-				# Normalize key (case-insensitive, capitalize first letter)
-				cNormalized = This.NormalizeKey(cPart)
-				
-				if isList(xCurrent)
-					xCurrent = This.FindInList(xCurrent, cNormalized)
-					if xCurrent = :NOT_FOUND
-						return :NOT_FOUND
-					ok
-				else
-					return :NOT_FOUND
-				ok
-			next
-			
-			return xCurrent
-		else
-			# Simple key lookup
-			cNormalized = This.NormalizeKey(cKey)
-			return This.FindInList(aContext, cNormalized)
-		ok
-	
-	def NormalizeKey(cKey)
-		cKey = trim(cKey)
-		if len(cKey) = 0
-			return cKey
-		ok
-		
-		# Capitalize first letter, lowercase rest
-		return upper(@substr(cKey, 1, 1)) + lower(substr(cKey, 2, stzlen(cKey) - 1))
-	
-	def FindInList(aList, cKey) #TODO// Review it
-		nLen = len(aList)
+		# Check against known language codes
+		nLen = len($aLanguageDefinitions)
 		for i = 1 to nLen
-			if isList(aList[i]) and len(aList[i]) = 2
-				if isString(aList[i][1])
-					cNormalized = This.NormalizeKey(aList[i][1])
-					if cNormalized = cKey
-						return aList[i][2]
-					ok
-				ok
+			aLang = $aLanguageDefinitions[i]
+			if aLang[:code] = cLower or aLang[:name] = cLower
+				return 1
 			ok
 		next
-		return :NOT_FOUND
-
+		
+		return 0
 	
 	def Execute(cCode)
-		if NOT isString(cCode) or trim(cCode) = ""
+		if cCode = "" or NOT isString(cCode)
 			return
 		ok
 		
@@ -430,102 +331,76 @@ class stzNaturalEngine
 		This.AddToDebugLog("Executing natural code")
 		This.AddToDebugLog("Code length: " + stzlen(cCode) + " chars")
 		
+		# Tokenize the code
 		This.TokenizeCode(cCode)
 	
 		This.AddToDebugLog("Raw values: " + len(@aValues) + " items")
+		nLen = len(@aValues)
+		for i = 1 to nLen
+			val = @aValues[i]
+			This.AddToDebugLog("Value[" + i + "]: type=" + type(val) + ", content=" + @@(val))
+		next
 		
 		This.Process()
 	
 	def TokenizeCode(cCode)
 		@aValues = []
+		
+		# Clean the code
 		cCode = trim(cCode)
+		
+		# Split by whitespace while preserving quoted strings
 		aTokens = This.SmartSplit(cCode)
+		
 		@aValues = aTokens
 	
 	def SmartSplit(cCode)
 	    aResult = []
-	    _oStr_ = new stzString(cCode)
+	    cCurrent = ""
+	    bInQuote = 0
+	    cQuoteChar = ""
+	
+	    acChars = Chars(cCode)
+	    nLen = len(acChars)
 	    
-	    # Find all protected sections (lists AND standalone strings)
-	    aListSections = _oStr_.FindSubStringsBoundedByIBZZ([ "[", "]" ])
-	    
-	    # For strings, only find those OUTSIDE of lists
-	    aAllQuoteSections = Merge([
-	        _oStr_.FindSubStringsBoundedByIBZZ([ '"', '"' ]),
-	        _oStr_.FindSubStringsBoundedByIBZZ([ "'", "'" ])
-	    ])
-	    
-	    # Filter out quote sections that are inside list sections
-	    aStringSections = []
-	    for aQuoteSection in aAllQuoteSections
-	        bInsideList = FALSE
-	        for aListSection in aListSections
-	            if aQuoteSection[1] >= aListSection[1] and aQuoteSection[2] <= aListSection[2]
-	                bInsideList = TRUE
-	                exit
-	            ok
-	        next
-	        if NOT bInsideList
-	            aStringSections + aQuoteSection
-	        ok
-	    next
-	    
-	    aProtectedSections = Merge([aListSections, aStringSections])
-	    
-	    # Get splittable sections
-	    aSplittableSections = _oStr_.FindAntiSectionsZZ(aProtectedSections)
-	    
-	    # Merge and sort by position
-	    aAllSections = []
-
-	    nLen = len(aSplittableSections)
 	    for i = 1 to nLen
-		aPair = aSplittableSections[i]
-	        aAllSections + [:pos = aPair[1], :type = "splittable", :pair = aPair]
-	    next
-
-	    nLen = len(aListSections)
-	    for i = 1 to nLen
-		aPair = aListSections[i]
-	        aAllSections + [:pos = aPair[1], :type = "list", :pair = aPair]
-	    next
-
-	    nLen = len(aStringSections)
-	    for i = 1 to nLen
-		aPair = aStringSections[i]
-	        aAllSections + [:pos = aPair[1], :type = "string", :pair = aPair]
-	    next
-	    
-	    aAllSections = SortListsOn(aAllSections, 1)
-	    nLen = len(aAllSections)
-
-	    # Process in order
-
-	    for i = 1 to nLen
-		aSection = aAllSections[i]
-	        aPair = aSection[:pair]
-	        cSection = _oStr_.Section(aPair[1], aPair[2])
+	        cChar = acChars[i]
 	        
-	        if aSection[:type] = "splittable"
-	            acWords = @split(cSection, " ")
-		    nLenWords = len(acWords)
-
-		    for j = 1 to nLenWords
-	                if trim(acWords[j]) != ""
-	                    aResult + acWords[j]
-	                ok
-	            next
-
-	        but aSection[:type] = "list"
-	            cCode = 'aResult + ' + cSection
-	            eval(cCode)
-
-	        else  # string
-	            # Remove quotes
-	            aResult + @substr(cSection, 2, stzlen(cSection) - 1)
+	        if (cChar = "'" or cChar = '"' or cChar = "`") and NOT bInQuote
+	            bInQuote = 1
+	            cQuoteChar = cChar
+	            loop
+	        ok
+	        
+	        if bInQuote and cChar = cQuoteChar
+	            if cCurrent != ""
+	                aResult + cCurrent
+	                cCurrent = ""
+	            ok
+	            bInQuote = 0
+	            cQuoteChar = ""
+	            loop
+	        ok
+	        
+	        if bInQuote
+	            cCurrent += cChar
+	            loop
+	        ok
+	
+	        if cChar = " " or cChar = TAB or cChar = NL or cChar = CR
+	            if cCurrent != ""
+	                aResult + cCurrent
+	                cCurrent = ""
+	            ok
+	        else
+	            cCurrent += cChar
 	        ok
 	    next
 	    
+	    if cCurrent != ""
+	        aResult + cCurrent
+	    ok
+
 	    return aResult
 	
 	def LoadLanguageData()
@@ -550,43 +425,43 @@ class stzNaturalEngine
 		This.AddToDebugLog("Tokens: " + len(@aSemanticTokens))
 		
 		cCode = This.GenerateCodeFromSemantics()
-
 		This.AddToDebugLog("Generated code:")
 		This.AddToDebugLog(cCode)
 		
-		if trim(cCode) != ""
+		if cCode != ""
 			eval(cCode)
 		ok
 	
 	def ConvertToSemanticTokens()
 		aTokens = []
-
 		nLen = len(@aValues)
+		
 		This.AddToDebugLog("Converting to semantic tokens")
 		
 		for i = 1 to nLen
 			cValue = @aValues[i]
-		
-			if isString(cValue) and isListInString(cValue)
-				cCode = 'aListValue = ' + cValue
-				eval(cCode)
-				aTokens + [:type = "literal", :value = aListValue]
-				This.AddToDebugLog("List literal parsed: " + stzlen(aListValue) + " items")
+			
+			# Handle lists
+			if isList(cValue)
+				aTokens + [:type = "literal", :value = cValue]
+				This.AddToDebugLog("List literal: " + stzlen(cValue) + " items")
 				loop
 			ok
 			
-
+			# Convert to string
 			if NOT isString(cValue)
-				cValue = @@(cValue)
+				cValue = "" + cValue
 			ok
 			
 			This.AddToDebugLog("Processing: '" + cValue + "'")
 			
+			# Skip ignored
 			if This.IsIgnoredWord(cValue)
-				This.AddToDebugLog("Ignored")
+				This.AddToDebugLog("  Ignored")
 				loop
 			ok
 			
+			# Get semantic
 			cSemantic = This.ToSemantic(cValue)
 			
 			if cSemantic != ""
@@ -594,14 +469,14 @@ class stzNaturalEngine
 				
 				if bLiteral
 					aTokens + [:type = "literal", :value = cValue]
-					This.AddToDebugLog("Literal (context)")
+					This.AddToDebugLog("  Literal (context)")
 				else
 					aTokens + [:type = "semantic", :value = cSemantic, :original = cValue]
-					This.AddToDebugLog("Semantic: " + cSemantic)
+					This.AddToDebugLog("  Semantic: " + cSemantic)
 				ok
 			else
 				aTokens + [:type = "literal", :value = cValue]
-				This.AddToDebugLog("Literal")
+				This.AddToDebugLog("  Literal")
 			ok
 		next
 		
@@ -615,10 +490,12 @@ class stzNaturalEngine
 		
 		aLast = aTokens[nLen]
 		
+		# After VALUE_INDICATOR
 		if aLast[:type] = "semantic" and aLast[:value] = "VALUE_INDICATOR"
 			return 1
 		ok
 		
+		# In parameter collection
 		if aLast[:type] = "literal" and nLen >= 2
 			aBeforeLast = aTokens[nLen-1]
 			if aBeforeLast[:type] = "semantic" and left(aBeforeLast[:value], 7) = "METHOD_"
@@ -641,9 +518,9 @@ class stzNaturalEngine
 		bRecall = right(cLower, 1) = "@"
 		
 		if bDefine
-			cLower = @substr(cLower, 2, stzlen(cLower) - 1)
+			cLower = @substr(cLower, 2, stzlen(cLower))
 		but bRecall
-			cLower = left(cLower, stzlen(cLower) - 1)
+			cLower = left(cLower, stzlen(cLower)-1)
 		ok
 		
 		nLen = len(@aMappings)
@@ -664,7 +541,6 @@ class stzNaturalEngine
 	def GenerateCodeFromSemantics()
 		aCodeLines = []
 		nLen = len(@aSemanticTokens)
-
 		i = 1
 
 		while i <= nLen
@@ -672,17 +548,18 @@ class stzNaturalEngine
 			
 			if aToken[:type] = "semantic"
 				cSemantic = aToken[:value]
-				nLenSem = stzLen(cSemantic)
-
+				
+				# Define pattern
 				if left(cSemantic, 1) = "@"
-					cClean = @substr(cSemantic, 2, nLenSem - 1)
+					cClean = @substr(cSemantic, 2, stzlen(cSemantic))
 					@aDefineRecallState + [:semantic = cClean, :index = i]
 					i++
 					loop
 				ok
 				
+				# Recall pattern
 				if right(cSemantic, 1) = "@"
-					cClean = left(cSemantic, nLenSem - 1)
+					cClean = left(cSemantic, stzlen(cSemantic)-1)
 					aResult = This.ProcessMethodWithModifiers(i, cClean)
 					if stzlen(aResult[:code]) > 0
 						aCodeLines + aResult[:code]
@@ -692,7 +569,9 @@ class stzNaturalEngine
 				ok
 				
 				if cSemantic = "CREATE_OBJECT"
+
 					aResult = This.ProcessObjectCreation(i)
+
 					if stzlen(aResult[:code]) > 0
 						aCodeLines + aResult[:code]
 					ok
@@ -721,10 +600,10 @@ class stzNaturalEngine
 		end
 
 		if trim(@cCurrentVariable) = ""
-			raise("Unsupported object type!")
+			StzRaise('Unsupported object type while processing "CREATE_OBJECT"!')
 		ok
 
-		cCode = JoinLines(aCodeLines) + char(10) + "@result = " + @cCurrentVariable + ".Content()"
+		cCode = JoinXT(aCodeLines, NL) + NL + "@result = " + @cCurrentVariable + ".Content()"
 		return cCode
 	
 	def FindDefineIndex(cSemantic)
@@ -737,7 +616,6 @@ class stzNaturalEngine
 		return 0
 	
 	def ProcessObjectCreation(nIndex)
-
 		nLen = len(@aSemanticTokens)
 		cObjectType = ""
 		cValue = ""
@@ -758,7 +636,7 @@ class stzNaturalEngine
 				next
 			ok
 		next
-
+		
 		if cObjectType != ""
 			aOp = This.GetSemanticOperation(cObjectType)
 
@@ -767,11 +645,20 @@ class stzNaturalEngine
 				@cCurrentVariable = aOp[:variable]
 				cConstructor = aOp[:constructor]
 				
-				if isListInString(cValue)
-					cConstructor = substr(cConstructor, "@", cValue)
+				# Handle lists
+				if isList(cValue)
+					cListStr = "["
+					nLen = stzlen(cValue)
+					for k = 1 to nLen
+						if k > 1
+							cListStr += ", "
+						ok
+						cListStr += @@(cValue[k])
+					next
+					cListStr += "]"
+					cConstructor = substr(cConstructor, "@", cListStr)
 				else
-
-					cConstructor = substr(cConstructor, "@", '"' + cValue + '"')
+					cConstructor = substr(cConstructor, "@", @@(cValue))
 				ok
 				
 				cCode = @cCurrentVariable + " = " + cConstructor
@@ -779,9 +666,8 @@ class stzNaturalEngine
 			ok
 		ok
 		
-		aResult = [:code = "", :next_index = nIndex+1]
-		return aResult
-
+		return [:code = "", :next_index = nIndex+1]
+	
 	def ProcessMethod(nIndex, cSemantic)
 		This.AddToDebugLog("Processing method: " + cSemantic)
 		
@@ -800,11 +686,7 @@ class stzNaturalEngine
 
 			for i = 1 to nLen
 				cPlaceholder = "@param" + i
-				if isString(aParams[i])
-					cParamValue = '"' + aParams[i] + '"'
-				else
-					cParamValue = "" + aParams[i]
-				ok
+				cParamValue = @@(aParams[i])
 				cCode = substr(cCode, cPlaceholder, cParamValue)
 			next
 			
@@ -886,15 +768,6 @@ class stzNaturalEngine
 	def Result()
 		return @result
 
-	def OriginalCode()
-		return @cOriginalCode
-	
-	def NaturalCode()
-		return @cNaturalCode
-	
-	def Context()
-		return @aContext
-
 	#--- DEBUG ---
 	
 	def EnableDebug()
@@ -937,3 +810,6 @@ class stzNaturalEngine
 
 	def Object()
 		return @cCurrentObject
+	
+	def NaturalCode()
+		return @cNaturalCode
