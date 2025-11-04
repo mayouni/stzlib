@@ -7441,6 +7441,7 @@ class stzList from stzObject
 	#--------------#
 
 	def init(paList)
+
 		if CheckingParams()
 
 			if NOT isList(paList)

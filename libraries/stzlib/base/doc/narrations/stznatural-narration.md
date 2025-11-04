@@ -72,7 +72,31 @@ Naturally() {
 #--> SOFTANZA
 ```
 
-### 2. **Chained Operations with Natural Connectors**
+### 3. Action Application: Natural Verbs as Methods
+
+Once an object exists, you apply actions using intuitive verbs. Here are examples from the stzString domain:
+
+```ring
+Nt = Naturally() {
+    Create a stzString with "  Sample Data  "
+    
+    Trim it
+    Uppercase it
+    Show it
+}
+#--> SAMPLE DATA
+
+? Nt.Code()
+#-->
+oStr = StzStringQ("  Sample Data  ")
+oStr.Trim()
+oStr.Uppercase()
+? oStr.Content()
+```
+
+**Important:** These string operations are not "features" of the natural programming system itself. They're examples of how any Ring object with any methods can be naturally expressed. The system dynamically maps natural verbs to actual method calls.
+
+### 4. **Chained Operations with Natural Connectors**
 ```ring
 Naturally() {
   Make a string containing "ring language"
@@ -83,7 +107,7 @@ Naturally() {
 ```
 Words like `and_`, `then_`, `plus` are **ignored**—they exist only for fluency.
 
-### 3. **Parameterized Methods**
+### 5. **Parameterized Methods**
 ```ring
 Naturally() {
   Create a string with "old text old"
@@ -94,7 +118,7 @@ Naturally() {
 ```
 The system intelligently treats tokens after `replace` as **literals**, even if they match known keywords.
 
-### 4. **Modifiers via Deferred Reference (`@...@`)**
+### 6. **Modifiers via Deferred Reference (`@...@`)**
 This is where `stzNatural` shines:
 ```ring
 o1 = Naturally()
@@ -124,14 +148,14 @@ oStr.BoxXT([:Rounded = 1])
 
 > 💡 **Note**: `box` and `frame` are aliases. So are `replace`, `substitute`, `change`, and `swap`.
 
-### 5. **Multilingual Execution**
+### 7. **Multilingual Execution**
 #### English:
 ![stznatural-english.png](./images/stznatural-english.png)
 #### Hausa (Latin script):
 ![stznatural-hausa-boko.png](./images/stznatural-hausa-boko.png)
 #### Hausa (Ajami/Arabic script):
 ![stznatural-hausa-ajami.png](./images/stznatural-hausa-ajami.png)
-All produce identical output—and identical internal Ring code.![stznatural-hausa-ajami.png](./images/stznatural-hausa-ajami.png)
+All produce identical output—and identical internal Ring code.
 
 This isn’t just localization—it’s **linguistic inclusion** in programming.
 
