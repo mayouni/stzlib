@@ -1187,23 +1187,23 @@ oGraph.AddEdge(:@input, :@process, "feeds")
 oGraph.AddEdge(:@process, :@output, "produces")
 
 ? BoxRound("DOT FORMAT")
-? oGraph.ExportDOT() + NL
+? oGraph.ExportToDOT() + NL
 # Returns: GraphViz DOT format string
 
 ? BoxRound("JSON FORMAT")
-? oGraph.ExportJSON() + NL
+? oGraph.ExportToJSON() + NL
 # Returns: JSON with nodes, edges, and metrics
 
 ? BoxRound("YAML FORMAT")
-? oGraph.ExportYAML()
+? oGraph.ExportToYAML()
 # Returns: YAML representation
 
 # Custom exporter
 ? BoxRound("CUSTOM FORMAT")
-aAllNodes = oGraph.AllNodes()
+aNodes = oGraph.Nodes()
 
 oGraph.RegisterExporter("MERMAID", func {
-	acNodes = oGraph.AllNodes()
+	acNodes = oGraph.Nodes()
 	acEdges = oGraph.AllEdges()
 	cMermaid = "graph LR;" + nl
 	

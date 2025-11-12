@@ -106,7 +106,6 @@ class stzGraph
 	#  NODE OPERATIONS
 	#------------------------------------------
 
-
 	def AddNode(pcNodeId)
 		This.AddNodeXT(pcNodeId, pcNodeId)
 
@@ -956,75 +955,75 @@ def ReachableFrom(pcNodeId)
 
 	#=== CUSTOM INFERENCE RULES
 
-def RegisterInferenceRule(pcRuleName, pFunc)
-	if NOT isList(@acProperties)
-		@acProperties = []
-	ok
-	
-	cName = upper(pcRuleName)
-	
-	aRule = [
-		:name = cName,
-		:callback = pFunc
-	]
-	
-	if NOT HasKey(@acProperties, "inferenceRules")
-		@acProperties["inferenceRules"] = []
-	ok
-	
-	@acProperties["inferenceRules"] + aRule
-
-def ApplyCustomInference(pcRuleName)
-	if NOT HasKey(@acProperties, "inferenceRules")
-		return 0
-	ok
-	
-	acRules = @acProperties["inferenceRules"]
-	cName = upper(pcRuleName)
-	nLen = len(acRules)
-	
-	for i = 1 to nLen
-		aRule = acRules[i]
-		if aRule["name"] = cName
-			pFunc = aRule["callback"]
-			return call pFunc(this)
+	def RegisterInferenceRule(pcRuleName, pFunc)
+		if NOT isList(@acProperties)
+			@acProperties = []
 		ok
-	end
+		
+		cName = upper(pcRuleName)
+		
+		aRule = [
+			:name = cName,
+			:callback = pFunc
+		]
+		
+		if NOT HasKey(@acProperties, "inferenceRules")
+			@acProperties["inferenceRules"] = []
+		ok
+		
+		@acProperties["inferenceRules"] + aRule
 	
-	return 0
-
-def ApplyAllCustomInference()
-	if NOT HasKey(@acProperties, "inferenceRules")
+	def ApplyCustomInference(pcRuleName)
+		if NOT HasKey(@acProperties, "inferenceRules")
+			return 0
+		ok
+		
+		acRules = @acProperties["inferenceRules"]
+		cName = upper(pcRuleName)
+		nLen = len(acRules)
+		
+		for i = 1 to nLen
+			aRule = acRules[i]
+			if aRule["name"] = cName
+				pFunc = aRule["callback"]
+				return call pFunc(this)
+			ok
+		end
+		
 		return 0
-	ok
 	
-	acRules = @acProperties["inferenceRules"]
-	nTotalInferred = 0
-	nLen = len(acRules)
+	def ApplyAllCustomInference()
+		if NOT HasKey(@acProperties, "inferenceRules")
+			return 0
+		ok
+		
+		acRules = @acProperties["inferenceRules"]
+		nTotalInferred = 0
+		nLen = len(acRules)
+		
+		for i = 1 to nLen
+			aRule = acRules[i]
+			pFunc = aRule["callback"]
+			nInferred = call pFunc()
+			nTotalInferred += nInferred
+		end
+		
+		return nTotalInferred
 	
-	for i = 1 to nLen
-		aRule = acRules[i]
-		pFunc = aRule["callback"]
-		nInferred = call pFunc()
-		nTotalInferred += nInferred
-	end
-	
-	return nTotalInferred
-
-def CustomInferenceRules()
-	if NOT HasKey(@acProperties, "inferenceRules")
-		return []
-	ok
-	
-	acNames = []
-	acRules = @acProperties["inferenceRules"]
-	nLen = len(acRules)
-	
-	for i = 1 to nLen
-		acNames + acRules[i]["name"]
-	end
-	
-	return acNames
+	def CustomInferenceRules()
+		if NOT HasKey(@acProperties, "inferenceRules")
+			return []
+		ok
+		
+		acNames = []
+		acRules = @acProperties["inferenceRules"]
+		nLen = len(acRules)
+		
+		for i = 1 to nLen
+			acNames + acRules[i]["name"]
+		end
+		
+		return acNames
 
 	#------------------------------------------
 	#  5. RICH QUERYING
@@ -1363,193 +1362,202 @@ def CustomInferenceRules()
 	#  7. EXPORT AND INTEROPERABILITY
 	#------------------------------------------
 
-	def ExportDOT()
-	cDOT = "digraph " + This.Id() + " {" + nl
-	cDOT += "  rankdir=LR;" + nl
-	cDOT += "  node [shape=box];" + nl + nl
-	
-	# Export nodes
-	nLen = len(@acNodes)
-	for i = 1 to nLen
-		aNode = @acNodes[i]
-		cId = aNode["id"]
-		cLabel = aNode["label"]
-		
-		# Remove @ prefix if present
-		if left(cId, 1) = "@"
-			cId = @substr(cId, 2, len(cId))
-		ok
-		
-		cDOT += "  " + cId + " [label=" + '"' + cLabel + '"' + "];" + nl
-	end
-	
-	cDOT += nl
-	
-	# Export edges
-	nLen = len(@acEdges)
-	for i = 1 to nLen
-		aEdge = @acEdges[i]
-		cFrom = aEdge["from"]
-		cTo = aEdge["to"]
-		cLabel = aEdge["label"]
-		
-		# Remove @ prefix if present
-		if left(cFrom, 1) = "@"
-			cFrom = @substr(cFrom, 2, len(cFrom))
-		ok
-		if left(cTo, 1) = "@"
-			cTo = @substr(cTo, 2, len(cTo))
-		ok
-		
-		cDOT += "  " + cFrom + " -> " + cTo
-		if cLabel != ""
-			cDOT += " [label=" + '"' + cLabel + '"' + "]"
-		ok
-		cDOT += ";" + nl
-	end
-	
-	cDOT += "}" + nl
-	return cDOT
-
-def ExportJSON()
-	acNodes = []
-	acEdges = []
-	
-	# Process nodes and remove @ prefix
-	nLen = len(@acNodes)
-	for i = 1 to nLen
-		aNode = @acNodes[i]
-		cId = aNode["id"]
-		if substr(cId, 1, 1) = "@"
-			cId = substr(cId, 2, len(cId) - 1)
-		ok
-		acNodes + [
-			:id = cId,
-			:label = aNode["label"],
-			:properties = aNode["properties"]
+	def ToHashlist()
+		return [
+			:id = @cId,
+			:nodes = @acNodes,
+			:edges = @acEdges,
+			:properties = @acProperties
 		]
-	end
-	
-	# Process edges and remove @ prefix
-	nLen = len(@acEdges)
-	for i = 1 to nLen
-		aEdge = @acEdges[i]
-		cFrom = aEdge["from"]
-		cTo = aEdge["to"]
-		if substr(cFrom, 1, 1) = "@"
-			cFrom = substr(cFrom, 2, len(cFrom) - 1)
-		ok
-		if substr(cTo, 1, 1) = "@"
-			cTo = substr(cTo, 2, len(cTo) - 1)
-		ok
-		acEdges + [
-			:from = cFrom,
-			:to = cTo,
-			:label = aEdge["label"],
-			:properties = aEdge["properties"]
-		]
-	end
-	
-	cJSON = "{" + nl
-	cJSON += '  "id": "' + This.Id() + '",' + nl
-	cJSON += '  "nodes": [' + nl
-	
-	nLen = len(acNodes)
-	for i = 1 to nLen
-		cJSON += '    ' + ToJSON(acNodes[i])
-		if i < nLen
-			cJSON += ","
-		ok
-		cJSON += nl
-	end
-	
-	cJSON += '  ],' + nl
-	cJSON += '  "edges": [' + nl
-	
-	nLen = len(acEdges)
-	for i = 1 to nLen
-		cJSON += '    ' + ToJSON(acEdges[i])
-		if i < nLen
-			cJSON += ","
-		ok
-		cJSON += nl
-	end
-	
-	cJSON += '  ],' + nl
-	cJSON += '  "metrics": ' + ToJSON([
-		:nodeCount = len(@acNodes),
-		:edgeCount = len(@acEdges),
-		:density = This.NodeDensity(),
-		:longestPath = This.LongestPath(),
-		:hasCycles = This.CyclicDependencies()
-	]) + nl
-	cJSON += "}"
-	
-	return cJSON
 
-def ExportYAML()
-	cYAML = "graph: " + This.Id() + nl
-	cYAML += "nodes:" + nl
+	def ExporToDOT()
+		cDOT = "digraph " + This.Id() + " {" + nl
+		cDOT += "  rankdir=LR;" + nl
+		cDOT += "  node [shape=box];" + nl + nl
+		
+		# Export nodes
+		nLen = len(@acNodes)
+		for i = 1 to nLen
+			aNode = @acNodes[i]
+			cId = aNode["id"]
+			cLabel = aNode["label"]
+			
+			# Remove @ prefix if present
+			if left(cId, 1) = "@"
+				cId = @substr(cId, 2, len(cId))
+			ok
+			
+			cDOT += "  " + cId + " [label=" + '"' + cLabel + '"' + "];" + nl
+		end
+		
+		cDOT += nl
+		
+		# Export edges
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			aEdge = @acEdges[i]
+			cFrom = aEdge["from"]
+			cTo = aEdge["to"]
+			cLabel = aEdge["label"]
+			
+			# Remove @ prefix if present
+			if left(cFrom, 1) = "@"
+				cFrom = @substr(cFrom, 2, len(cFrom))
+			ok
+			if left(cTo, 1) = "@"
+				cTo = @substr(cTo, 2, len(cTo))
+			ok
+			
+			cDOT += "  " + cFrom + " -> " + cTo
+			if cLabel != ""
+				cDOT += " [label=" + '"' + cLabel + '"' + "]"
+			ok
+			cDOT += ";" + nl
+		end
+		
+		cDOT += "}" + nl
+		return cDOT
 	
-	nLen = len(@acNodes)
-	for i = 1 to nLen
-		aNode = @acNodes[i]
-		cId = aNode["id"]
-		
-		# Remove @ prefix if present
-		if left(cId, 1) = "@"
-			cId = @substr(cId, 2, len(cId))
-		ok
-		
-		cYAML += "  - id: " + cId + nl
-		cYAML += "    label: " + aNode["label"] + nl
-		if len(aNode["properties"]) > 0
-			cYAML += "    properties:" + nl
-			acProps = aNode["properties"]
-			nPropLen = len(acProps)
-			for j = 1 to nPropLen
-				cYAML += "      - " + string(acProps[j]) + nl
-			end
-		ok
-	end
-	
-	cYAML += nl + "edges:" + nl
-	nLen = len(@acEdges)
-	for i = 1 to nLen
-		aEdge = @acEdges[i]
-		cFrom = aEdge["from"]
-		cTo = aEdge["to"]
-		
-		# Remove @ prefix if present
-		if left(cFrom, 1) = "@"
-			cFrom = @substr(cFrom, 2, len(cFrom))
-		ok
-		if left(cTo, 1) = "@"
-			cTo = @substr(cTo, 2, len(cTo))
-		ok
-		
-		cYAML += "  - from: " + cFrom + nl
-		cYAML += "    to: " + cTo + nl
-		cYAML += "    label: " + aEdge["label"] + nl
-	end
-	
-	return cYAML
 
-	def RegisterExporter(pcName, pFunc)
-		if NOT isList(@acProperties)
-			@acProperties = []
-		ok
+	def ExportToJSON()
+		acNodes = []
+		acEdges = []
 		
-		if NOT HasKey(@acProperties, "exporters")
-			@acProperties["exporters"] = []
-		ok
+		# Process nodes and remove @ prefix
+		nLen = len(@acNodes)
+		for i = 1 to nLen
+			aNode = @acNodes[i]
+			cId = aNode["id"]
+			if substr(cId, 1, 1) = "@"
+				cId = substr(cId, 2, len(cId) - 1)
+			ok
+			acNodes + [
+				:id = cId,
+				:label = aNode["label"],
+				:properties = aNode["properties"]
+			]
+		end
 		
-		aExporter = [
-			:name = pcName,
-			:callback = pFunc
-		]
+		# Process edges and remove @ prefix
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			aEdge = @acEdges[i]
+			cFrom = aEdge["from"]
+			cTo = aEdge["to"]
+			if substr(cFrom, 1, 1) = "@"
+				cFrom = substr(cFrom, 2, len(cFrom) - 1)
+			ok
+			if substr(cTo, 1, 1) = "@"
+				cTo = substr(cTo, 2, len(cTo) - 1)
+			ok
+			acEdges + [
+				:from = cFrom,
+				:to = cTo,
+				:label = aEdge["label"],
+				:properties = aEdge["properties"]
+			]
+		end
 		
-		@acProperties["exporters"] + aExporter
+		cJSON = "{" + nl
+		cJSON += '  "id": "' + This.Id() + '",' + nl
+		cJSON += '  "nodes": [' + nl
+		
+		nLen = len(acNodes)
+		for i = 1 to nLen
+			cJSON += '    ' + ToJSON(acNodes[i])
+			if i < nLen
+				cJSON += ","
+			ok
+			cJSON += nl
+		end
+		
+		cJSON += '  ],' + nl
+		cJSON += '  "edges": [' + nl
+		
+		nLen = len(acEdges)
+		for i = 1 to nLen
+			cJSON += '    ' + ToJSON(acEdges[i])
+			if i < nLen
+				cJSON += ","
+			ok
+			cJSON += nl
+		end
+		
+		cJSON += '  ],' + nl
+		cJSON += '  "metrics": ' + ToJSON([
+			:nodeCount = len(@acNodes),
+			:edgeCount = len(@acEdges),
+			:density = This.NodeDensity(),
+			:longestPath = This.LongestPath(),
+			:hasCycles = This.CyclicDependencies()
+		]) + nl
+		cJSON += "}"
+		
+		return cJSON
+
+	def ExportToYAML()
+		cYAML = "graph: " + This.Id() + nl
+		cYAML += "nodes:" + nl
+		
+		nLen = len(@acNodes)
+		for i = 1 to nLen
+			aNode = @acNodes[i]
+			cId = aNode["id"]
+			
+			# Remove @ prefix if present
+			if left(cId, 1) = "@"
+				cId = @substr(cId, 2, len(cId))
+			ok
+			
+			cYAML += "  - id: " + cId + nl
+			cYAML += "    label: " + aNode["label"] + nl
+			if len(aNode["properties"]) > 0
+				cYAML += "    properties:" + nl
+				acProps = aNode["properties"]
+				nPropLen = len(acProps)
+				for j = 1 to nPropLen
+					cYAML += "      - " + string(acProps[j]) + nl
+				end
+			ok
+		end
+		
+		cYAML += nl + "edges:" + nl
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			aEdge = @acEdges[i]
+			cFrom = aEdge["from"]
+			cTo = aEdge["to"]
+			
+			# Remove @ prefix if present
+			if left(cFrom, 1) = "@"
+				cFrom = @substr(cFrom, 2, len(cFrom))
+			ok
+			if left(cTo, 1) = "@"
+				cTo = @substr(cTo, 2, len(cTo))
+			ok
+			
+			cYAML += "  - from: " + cFrom + nl
+			cYAML += "    to: " + cTo + nl
+			cYAML += "    label: " + aEdge["label"] + nl
+		end
+		
+		return cYAML
+	
+		def RegisterExporter(pcName, pFunc)
+			if NOT isList(@acProperties)
+				@acProperties = []
+			ok
+			
+			if NOT HasKey(@acProperties, "exporters")
+				@acProperties["exporters"] = []
+			ok
+			
+			aExporter = [
+				:name = pcName,
+				:callback = pFunc
+			]
+			
+			@acProperties["exporters"] + aExporter
 
 	def ExportUsing(pcName)
 		if NOT HasKey(@acProperties, "exporters")

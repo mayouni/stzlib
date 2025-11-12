@@ -616,6 +616,26 @@ func TrimString(cStr)
 	func StzTrimString(cStr)
 		return TrimString(cStr)
 
+func TrimLines(pStrOrList)
+	if CheckParams()
+		if NOT (isString(pStrOrList) or isList(pStrOrList))
+			StzRaise("Incorrect param type! pStrOrList must be a string or list.")
+		ok
+	ok
+
+	if stzleft(pStrOrList, 1) != NL and stzright(pStrOrList, 1) != NL
+		return pStrOrList
+	ok
+
+	if isString(pStrOrList)
+		acSplits = @split(pStrOrList, NL)
+	else
+		acSplits = pStrOrList
+	ok
+
+	return TrimList(acSplits)
+
+
 func TrimList(aList)
 	if CheckParams()
 		if NOT isList(aList)

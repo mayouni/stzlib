@@ -3,29 +3,33 @@ load "../stzbase.ring"
 /*===================================================
 #  stzDiagramTest - Test Suite
 #  Each test runs independently
-#===================================================*/
+#===================================================
 
 #-----------------#
 #  TEST 1: CREATE SIMPLE DIAGRAM
 #-----------------#
 
 /*--- Building workflow diagram with node types and theme
-
+*/
 pr()
 
 oDiag = new stzDiagram("OrderFlow")
 oDiag.SetTheme(:Professional)
 oDiag.SetLayout(:TopDown)
 
-oDiag.AddDiagramNode("start", "Order Received", :Start, :success)
-oDiag.AddDiagramNode("validate", "Validate", :Process, :primary)
-oDiag.AddDiagramNode("complete", "Done", :Endpoint, :success)
+oDiag.AddNodeXT("start", "Order Received", :Start, :Success)
+oDiag.AddNodeXT("validate", "Validate", :Process, :Primary)
+oDiag.AddNodeXT("complete", "Done", :Endpoint, :Success)
 
-oDiag.Connect("start", "validate", "")
-oDiag.Connect("validate", "complete", "")
+oDiag.Connect("start", "validate")
+oDiag.Connect("validate", "complete")
 
 ? oDiag.NodeCount() #--> 3
 ? oDiag.EdgeCount() #--> 2
+
+? oDiag.Dot()
+
+oDiag.Show()
 
 pf()
 
@@ -38,11 +42,11 @@ pf()
 pr()
 
 oDiag = new stzDiagram("ValidDAG")
-oDiag.AddDiagramNode("s", "Start", :Start, :success)
-oDiag.AddDiagramNode("p", "Process", :Process, :primary)
-oDiag.AddDiagramNode("e", "End", :Endpoint, :success)
-oDiag.Connect("s", "p", "")
-oDiag.Connect("p", "e", "")
+oDiag.AddNodeXT("s", "Start", :Start, :Success)
+oDiag.AddNodeXT("p", "Process", :Process, :Primary)
+oDiag.AddNodeXT("e", "End", :Endpoint, :Success)
+oDiag.Connect("s", "p")
+oDiag.Connect("p", "e")
 
 ? oDiag.ValidateDAG() #--> TRUE
 
@@ -57,11 +61,11 @@ pf()
 pr()
 
 oDiag = new stzDiagram("ReachableEndpoints")
-oDiag.AddDiagramNode("start", "Start", :Start, :success)
-oDiag.AddDiagramNode("process", "Process", :Process, :primary)
-oDiag.AddDiagramNode("end", "End", :Endpoint, :success)
-oDiag.Connect("start", "process", "")
-oDiag.Connect("process", "end", "")
+oDiag.AddNodeXT("start", "Start", :Start, :Success)
+oDiag.AddNodeXT("process", "Process", :Process, :Primary)
+oDiag.AddNodeXT("end", "End", :Endpoint, :Success)
+oDiag.Connect("start", "process")
+oDiag.Connect("process", "end")
 
 aResult = oDiag.ValidateReachability()
 ? aResult["status"] #--> pass
@@ -77,11 +81,11 @@ pf()
 pr()
 
 oDiag = new stzDiagram("Completeness")
-oDiag.AddDiagramNode("d", "Approved?", :Decision, :warning)
-oDiag.AddDiagramNode("yes", "Yes", :Endpoint, :success)
-oDiag.AddDiagramNode("no", "No", :Endpoint, :danger)
-oDiag.Connect("d", "yes", "Yes")
-oDiag.Connect("d", "no", "No")
+oDiag.AddNodeXT("d", "Approved?", :Decision, :Warning)
+oDiag.AddNodeXT("yes", "Yes", :Endpoint, :Success)
+oDiag.AddNodeXT("no", "No", :Endpoint, :Danger)
+oDiag.ConnectXT("d", "yes", "Yes")
+oDiag.ConnectXT("d", "no", "No")
 
 aResult = oDiag.ValidateCompleteness()
 ? aResult["status"] #--> pass
@@ -97,17 +101,33 @@ pf()
 pr()
 
 oDiag = new stzDiagram("MetricsTest")
-oDiag.AddDiagramNode("start", "Start", :Start, :success)
-oDiag.AddDiagramNode("p1", "Step 1", :Process, :primary)
-oDiag.AddDiagramNode("p2", "Step 2", :Process, :primary)
-oDiag.AddDiagramNode("end", "End", :Endpoint, :success)
-oDiag.Connect("start", "p1", "")
-oDiag.Connect("p1", "p2", "")
-oDiag.Connect("p2", "end", "")
+oDiag.AddNodeXT("start", "Start", :Start, :Success)
+oDiag.AddNodeXT("p1", "Step 1", :Process, :Primary)
+oDiag.AddNodeXT("p2", "Step 2", :Process, :Primary)
+oDiag.AddNodeXT("end", "End", :Endpoint, :Success)
+oDiag.Connect("start", "p1")
+oDiag.Connect("p1", "p2")
+oDiag.Connect("p2", "end")
 
 aMetrics = oDiag.ComputeMetrics()
-? aMetrics["nodeCount"] #--> 4
-? aMetrics["maxPathLength"] #--> 3
+? @@NL(aMetrics)
+#-->
+'
+[
+	[ "avgpathlength", 2 ],
+	[ "maxpathlength", 3 ],
+	[
+		"bottlenecks",
+		[ "p1", "p2" ]
+	],
+	[ "density", 25 ],
+	[ "nodecount", 4 ],
+	[ "edgecount", 3 ]
+]
+'
+
+? aMetrics[:NodeCount] #--> 4
+? aMetrics[:MaxPathLength] #--> 3
 
 pf()
 
@@ -120,15 +140,15 @@ pf()
 pr()
 
 oDiag = new stzDiagram("Annotated")
-oDiag.AddDiagramNode("process", "Process", :Process, :primary)
+oDiag.AddNodeXT("process", "Process", :Process, :Primary)
 
 oPerf = new stzDiagramAnnotator(:Performance)
 oPerf.Annotate("process", ["latency" = 150, "unit" = "ms"])
 
 oDiag.AddAnnotation(oPerf)
 
-? len(oDiag.AllAnnotations()) #--> 1
-? len(oPerf.AllNodeData()) #--> 1
+? len(oDiag.Annotations()) #--> 1
+? len(oPerf.NodesData()) #--> 1
 
 pf()
 
@@ -141,7 +161,7 @@ pf()
 pr()
 
 oDiag = new stzDiagram("AnnotationTypes")
-oDiag.AddDiagramNode("n1", "Node 1", :Process, :primary)
+oDiag.AddNodeXT("n1", "Node 1", :Process, :Primary)
 
 oPerf = new stzDiagramAnnotator(:Performance)
 oPerf.Annotate("n1", ["latency" = 100])
@@ -168,15 +188,15 @@ pf()
 pr()
 
 oDiag = new stzDiagram("Clustered")
-oDiag.AddDiagramNode("user_api", "User API", :Process, :success)
-oDiag.AddDiagramNode("user_db", "User DB", :Storage, :success)
-oDiag.AddDiagramNode("order_api", "Order API", :Process, :info)
-oDiag.AddDiagramNode("order_db", "Order DB", :Storage, :info)
+oDiag.AddNodeXT("user_api", "User API", :Process, :Success)
+oDiag.AddNodeXT("user_db", "User DB", :Storage, :Success)
+oDiag.AddNodeXT("order_api", "Order API", :Process, :Info)
+oDiag.AddNodeXT("order_db", "Order DB", :Storage, :Info)
 
-oDiag.AddCluster("users", "User Domain", ["user_api", "user_db"], "lightgreen")
-oDiag.AddCluster("orders", "Order Domain", ["order_api", "order_db"], "lightblue")
+oDiag.AddCluster("users", "User Domain", ["user_api", "user_db"], :LightGreen)
+oDiag.AddCluster("orders", "Order Domain", ["order_api", "order_db"], :Lightblue)
 
-? len(oDiag.AllClusters()) #--> 2
+? len(oDiag.Clusters()) #--> 2
 
 pf()
 
@@ -189,16 +209,16 @@ pf()
 pr()
 
 oDiag = new stzDiagram("ClusterInfo")
-oDiag.AddDiagramNode("a", "A", :Process, :primary)
-oDiag.AddDiagramNode("b", "B", :Process, :primary)
+oDiag.AddNodeXT("a", "A", :Process, :primary)
+oDiag.AddNodeXT("b", "B", :Process, :primary)
 
 oDiag.AddCluster("domain1", "My Domain", ["a", "b"], "lightblue")
 
-aClusters = oDiag.AllClusters()
-oCluster = aClusters[1]
+aClusters = oDiag.Clusters()
+aCluster = aClusters[1]
 
-? oCluster["label"] #--> My Domain
-? len(oCluster["nodes"]) #--> 2
+? aCluster["label"] #--> My Domain
+? len(aCluster["nodes"]) #--> 2
 
 pf()
 
@@ -232,11 +252,11 @@ pf()
 
 pr()
 
-oDiag1 = new stzDiagram("TopDownLayout")
+oDiag1 = new stzDiagram("MyDiagram")
 oDiag1.SetLayout(:TopDown)
 ? oDiag1.@cLayout #--> TopDown
 
-oDiag2 = new stzDiagram("LeftRightLayout")
+oDiag2 = new stzDiagram("MyDiagram")
 oDiag2.SetLayout(:LeftRight)
 ? oDiag2.@cLayout #--> LeftRight
 
@@ -251,24 +271,24 @@ pf()
 pr()
 
 oDiag = new stzDiagram("SoxPayment")
-oDiag.AddDiagramNode("submit", "Submit", :Start, :success)
-oDiag.AddDiagramNode("approve", "Approve?", :Decision, :warning)
-oDiag.AddDiagramNode("pay", "Pay", :Process, :primary)
-oDiag.AddDiagramNode("log", "Log", :Data, :neutral)
-oDiag.AddDiagramNode("done", "Done", :Endpoint, :success)
+oDiag.AddNodeXT("submit", "Submit", :Start, :success)
+oDiag.AddNodeXT("approve", "Approve?", :Decision, :warning)
+oDiag.AddNodeXT("pay", "Pay", :Process, :primary)
+oDiag.AddNodeXT("log", "Log", :Data, :neutral)
+oDiag.AddNodeXT("done", "Done", :Endpoint, :success)
 
-oDiag.Connect("submit", "approve", "")
-oDiag.Connect("approve", "pay", "Yes")
-oDiag.Connect("pay", "log", "")
-oDiag.Connect("log", "done", "")
+oDiag.Connect("submit", "approve")
+oDiag.ConnectXT("approve", "pay", "Yes")
+oDiag.Connect("pay", "log")
+oDiag.Connect("log", "done")
 
-oDiag.GetNode("pay")["properties"]["domain"] = :financial
-oDiag.GetNode("approve")["properties"]["requiresApproval"] = TRUE
+oDiag.Node("pay")["properties"]["domain"] = :financial
+oDiag.Node("approve")["properties"]["requiresApproval"] = TRUE
 
 oSoxValidator = $aDiagramValidators[:SOX]
 aResult = oSoxValidator.Validate(oDiag)
 
-? aResult["domain"] #--> SOX
+? aResult["domain"] #--> sox
 ? aResult["issueCount"] >= 0 #--> TRUE
 
 pf()
@@ -282,17 +302,17 @@ pf()
 pr()
 
 oDiag = new stzDiagram("GdprData")
-oDiag.AddDiagramNode("collect", "Collect", :Process, :primary)
-oDiag.AddDiagramNode("process", "Process", :Process, :primary)
-oDiag.AddDiagramNode("delete", "Delete", :Process, :info)
+oDiag.AddNodeXT("collect", "Collect", :Process, :primary)
+oDiag.AddNodeXT("process", "Process", :Process, :primary)
+oDiag.AddNodeXT("delete", "Delete", :Process, :info)
 
-oDiag.Connect("collect", "process", "")
-oDiag.Connect("collect", "delete", "")
+oDiag.Connect("collect", "process")
+oDiag.Connect("collect", "delete")
 
-oDiag.GetNode("collect")["properties"]["dataType"] = :personal
-oDiag.GetNode("collect")["properties"]["requiresConsent"] = TRUE
-oDiag.GetNode("collect")["properties"]["retentionPolicy"] = "1 year"
-oDiag.GetNode("delete")["properties"]["operation"] = :delete
+oDiag.Node("collect")["properties"]["dataType"] = :personal
+oDiag.Node("collect")["properties"]["requiresConsent"] = TRUE
+oDiag.Node("collect")["properties"]["retentionPolicy"] = "1 year"
+oDiag.Node("delete")["properties"]["operation"] = :delete
 
 oGdprValidator = $aDiagramValidators[:GDPR]
 aResult = oGdprValidator.Validate(oDiag)
@@ -311,21 +331,21 @@ pf()
 pr()
 
 oDiag = new stzDiagram("BankingTx")
-oDiag.AddDiagramNode("init", "Initiate", :Start, :success)
-oDiag.AddDiagramNode("fraud", "Fraud Check", :Process, :info)
-oDiag.AddDiagramNode("approve", "Approve?", :Decision, :warning)
-oDiag.AddDiagramNode("execute", "Execute", :Process, :primary)
-oDiag.AddDiagramNode("done", "Done", :Endpoint, :success)
+oDiag.AddNodeXT("init", "Initiate", :Start, :success)
+oDiag.AddNodeXT("fraud", "Fraud Check", :Process, :info)
+oDiag.AddNodeXT("approve", "Approve?", :Decision, :warning)
+oDiag.AddNodeXT("execute", "Execute", :Process, :primary)
+oDiag.AddNodeXT("done", "Done", :Endpoint, :success)
 
-oDiag.Connect("init", "fraud", "")
-oDiag.Connect("fraud", "approve", "")
-oDiag.Connect("approve", "execute", "Yes")
-oDiag.Connect("execute", "done", "")
+oDiag.Connect("init", "fraud")
+oDiag.Connect("fraud", "approve")
+oDiag.ConnectXT("approve", "execute", "Yes")
+oDiag.Connect("execute", "done")
 
-oDiag.GetNode("init")["properties"]["transactionType"] = :large
-oDiag.GetNode("fraud")["properties"]["operation"] = :fraud_check
-oDiag.GetNode("approve")["properties"]["role"] = :approver
-oDiag.GetNode("execute")["properties"]["operation"] = :payment
+oDiag.Node("init")["properties"]["transactionType"] = :large
+oDiag.Node("fraud")["properties"]["operation"] = :fraud_check
+oDiag.Node("approve")["properties"]["role"] = :approver
+oDiag.Node("execute")["properties"]["operation"] = :payment
 
 oBankingValidator = $aDiagramValidators[:Banking]
 aResult = oBankingValidator.Validate(oDiag)
@@ -345,7 +365,7 @@ pr()
 
 oDiag = new stzDiagram("HashlistExport")
 oDiag.SetTheme(:Professional)
-oDiag.AddDiagramNode("n1", "Node", :Process, :primary)
+oDiag.AddNodeXT("n1", "Node", :Process, :primary)
 
 aHashlist = oDiag.ToHashlist()
 
@@ -357,31 +377,55 @@ pf()
 /*===================================================
 #  stzDiagramConvertersTest - Test Suite
 #  Each test runs independently
-#===================================================*/
+#===================================================
 
 #-----------------#
 #  TEST 1: GENERATE STZDIAG FORMAT
 #-----------------#
 
-/*--- Generating .stzdiagram native text format
+/*--- Generating .stzdiag native text format
 
 pr()
 
 oDiag = new stzDiagram("FormatTest")
 oDiag.SetTheme(:Professional)
 oDiag.SetLayout(:TopDown)
-oDiag.AddDiagramNode("start", "Begin", :Start, :success)
-oDiag.AddDiagramNode("process", "Work", :Process, :primary)
-oDiag.AddDiagramNode("end", "Finish", :Endpoint, :success)
-oDiag.Connect("start", "process", "")
-oDiag.Connect("process", "end", "")
+oDiag.AddNodeXT("start", "Begin", :Start, :success)
+oDiag.AddNodeXT("process", "Work", :Process, :primary)
+oDiag.AddNodeXT("end", "Finish", :Endpoint, :success)
+oDiag.Connect("start", "process")
+oDiag.Connect("process", "end")
 
-oConv = new stzDiagramToStzDiag(oDiag)
-cOutput = oConv.Generate()
+? oDiag.stzdiag()
+#-->
+'
+diagram "FormatTest"
 
-? (find(cOutput, "diagram") > 0) #--> TRUE
-? (find(cOutput, "nodes") > 0) #--> TRUE
-? (find(cOutput, "edges") > 0) #--> TRUE
+metadata
+    theme: professional
+    layout: topdown
+
+nodes
+    start
+        label: "Begin"
+        type: start
+        color: success
+
+    process
+        label: "Work"
+        type: process
+        color: primary
+
+    end
+        label: "Finish"
+        type: endpoint
+        color: success
+
+edges
+    start -> process
+
+    process -> end
+'
 
 pf()
 
@@ -394,15 +438,38 @@ pf()
 pr()
 
 oDiag = new stzDiagram("SaveTest")
-oDiag.AddDiagramNode("a", "Node A", :Process, :primary)
-oDiag.AddDiagramNode("b", "Node B", :Process, :primary)
-oDiag.Connect("a", "b", "flows")
+oDiag.AddNodeXT("a", "Node A", :Process, :primary)
+oDiag.AddNodeXT("b", "Node B", :Process, :primary)
+oDiag.ConnectXT("a", "b", "flows")
 
 oConv = new stzDiagramToStzDiag(oDiag)
-bSuccess = oConv.WriteToFile("test_diagram.stzdiagram")
+bSuccess = oConv.WriteToFile("test_diagram.stzdiag")
 
 ? bSuccess #--> TRUE
-? file_exists("test_diagram.stzdiagram") #--> TRUE
+? read("test_diagram.stzdiag") #--> TRUE
+#-->
+'
+diagram "SaveTest"
+
+metadata
+    theme: null
+    layout: null
+
+nodes
+    a
+        label: "Node A"
+        type: process
+        color: primary
+
+    b
+        label: "Node B"
+        type: process
+        color: primary
+
+edges
+    a -> b
+        label: "flows"
+'
 
 pf()
 
@@ -415,15 +482,36 @@ pf()
 pr()
 
 oDiag = new stzDiagram("ClusterTest")
-oDiag.AddDiagramNode("api", "API", :Process, :success)
-oDiag.AddDiagramNode("db", "DB", :Storage, :success)
+oDiag.AddNodeXT("api", "API", :Process, :success)
+oDiag.AddNodeXT("db", "DB", :Storage, :success)
 oDiag.AddCluster("domain", "Service Domain", ["api", "db"], "lightblue")
 
-oConv = new stzDiagramToStzDiag(oDiag)
-cOutput = oConv.Generate()
+? oDiag.stzdiag()
+#-->
+'
+diagram "ClusterTest"
 
-? (find(cOutput, "clusters") > 0) #--> TRUE
-? (find(cOutput, "Service Domain") > 0) #--> TRUE
+metadata
+    theme: null
+    layout: null
+
+nodes
+    api
+        label: "API"
+        type: process
+        color: success
+
+    db
+        label: "DB"
+        type: storage
+        color: success
+
+clusters
+    domain
+        label: "Service Domain"
+        nodes: [api, db]
+        color: lightblue
+'
 
 pf()
 
@@ -436,17 +524,31 @@ pf()
 pr()
 
 oDiag = new stzDiagram("AnnotationTest")
-oDiag.AddDiagramNode("process", "Process", :Process, :primary)
+oDiag.AddNodeXT("process", "MyProcess", :Process, :primary)
 
 oPerf = new stzDiagramAnnotator(:Performance)
 oPerf.Annotate("process", ["latency" = 150])
 oDiag.AddAnnotation(oPerf)
 
-oConv = new stzDiagramToStzDiag(oDiag)
-cOutput = oConv.Generate()
+? oDiag.stzdiag()
+#-->
+'
+diagram "AnnotationTest"
 
-? (find(cOutput, "annotations") > 0) #--> TRUE
-? (find(cOutput, "performance") > 0) #--> TRUE
+metadata
+    theme: null
+    layout: null
+
+nodes
+    process
+        label: "MyProcess"
+        type: process
+        color: primary
+
+annotations
+    performance
+        process: null
+'
 
 pf()
 
@@ -459,16 +561,32 @@ pf()
 pr()
 
 oDiag = new stzDiagram("DotTest")
-oDiag.AddDiagramNode("start", "Start", :Start, :success)
-oDiag.AddDiagramNode("end", "End", :Endpoint, :success)
-oDiag.Connect("start", "end", "")
+oDiag.AddNodeXT("start", "Start", :Start, :success)
+oDiag.AddNodeXT("end", "End", :Endpoint, :success)
+oDiag.Connect("start", "end")
 
-oConv = new stzDiagramToDot(oDiag)
-cOutput = oConv.Generate()
+? oDiag.stzdiag()
+#-->
+'
+diagram "DotTest"
 
-? (find(cOutput, "digraph") > 0) #--> TRUE
-? (find(cOutput, "->") > 0) #--> TRUE
-? (find(cOutput, "}") > 0) #--> TRUE
+metadata
+    theme: null
+    layout: null
+
+nodes
+    start
+        label: "Start"
+        type: start
+        color: success
+
+    end
+        label: "End"
+        type: endpoint
+        color: success
+
+edge
+'
 
 pf()
 
@@ -481,15 +599,30 @@ pf()
 pr()
 
 oDiag = new stzDiagram("DotFileTest")
-oDiag.AddDiagramNode("a", "A", :Process, :primary)
-oDiag.AddDiagramNode("b", "B", :Process, :primary)
-oDiag.Connect("a", "b", "")
+oDiag.AddNodeXT("a", "A", :Process, :white)
+oDiag.AddNodeXT("b", "B", :Process, :white)
+oDiag.Connect("a", "b")
+
 
 oConv = new stzDiagramToDot(oDiag)
 bSuccess = oConv.WriteToFile("test_diagram.dot")
 
 ? bSuccess #--> TRUE
-? file_exists("test_diagram.dot") #--> TRUE
+? read("test_diagram.dot") #--> TRUE
+#-->
+'
+digraph "DotFileTest" {
+    graph [rankdir=TB, bgcolor=white, fontname=Helvetica]
+    node [fontname=Helvetica]
+    edge [fontname=Helvetica, color=NULL]
+
+    a [label="A", shape=box, style="rounded,filled", fillcolor="white"]
+    b [label="B", shape=box, style="rounded,filled", fillcolor="white"]
+
+    a -> b
+
+}
+'
 
 pf()
 
@@ -498,22 +631,32 @@ pf()
 #-----------------#
 
 /*--- Verifying DOT node type shapes
+#ERROR: default color should be translated in color names for dot file
 
 pr()
 
 oDiag = new stzDiagram("DotShapesTest")
-oDiag.AddDiagramNode("s", "S", :Start, :success)
-oDiag.AddDiagramNode("d", "D", :Decision, :warning)
-oDiag.AddDiagramNode("p", "P", :Process, :primary)
-oDiag.AddDiagramNode("e", "E", :Endpoint, :success)
+oDiag.AddNodeXT("s", "S", :Start, :success)
+oDiag.AddNodeXT("d", "D", :Decision, :warning)
+oDiag.AddNodeXT("p", "P", :Process, :primary)
+oDiag.AddNodeXT("e", "E", :Endpoint, :success)
 
-oConv = new stzDiagramToDot(oDiag)
-cOutput = oConv.Generate()
+? oDiag.Dot()
+#-->
+'
+digraph "DotShapesTest" {
+    graph [rankdir=TB, bgcolor=white, fontname=Helvetica]
+    node [fontname=Helvetica]
+    edge [fontname=Helvetica, color=NULL]
 
-? (find(cOutput, "polygon") > 0) #--> TRUE
-? (find(cOutput, "diamond") > 0) #--> TRUE
-? (find(cOutput, "box") > 0) #--> TRUE
-? (find(cOutput, "doublecircle") > 0) #--> TRUE
+    s [label="S", shape=polygon, style="filled", fillcolor="success"]
+    d [label="D", shape=diamond, style="filled", fillcolor="warning"]
+    p [label="P", shape=box, style="rounded,filled", fillcolor="primary"]
+    e [label="E", shape=doublecircle, style="filled", fillcolor="success"]
+
+
+}
+'
 
 pf()
 
@@ -522,24 +665,53 @@ pf()
 #-----------------#
 
 /*--- Converting to Mermaid.js syntax
+#ERRROR
 
 pr()
 
 oDiag = new stzDiagram("MermaidTest")
-oDiag.AddDiagramNode("start", "Start", :Start, :success)
-oDiag.AddDiagramNode("decision", "Check", :Decision, :warning)
-oDiag.AddDiagramNode("process", "Process", :Process, :primary)
-oDiag.AddDiagramNode("end", "End", :Endpoint, :success)
+oDiag.AddNodeXT("start", "Start", :Start, :success)
+oDiag.AddNodeXT("decision", "Check", :Decision, :warning)
+oDiag.AddNodeXT("process", "Process", :Process, :primary)
+oDiag.AddNodeXT("end", "End", :Endpoint, :success)
 
-oDiag.Connect("start", "decision", "")
-oDiag.Connect("decision", "process", "Yes")
-oDiag.Connect("process", "end", "")
+oDiag.Connect("start", "decision")
+oDiag.ConnectXT("decision", "process", "Yes")
+oDiag.Connect("process", "end")
 
-oConv = new stzDiagramToMermaid(oDiag)
-cOutput = oConv.Generate()
+? oDiag.Mermaid()
+#-->
+'
+graph TD
+    start(["Start"])
+    decision{{"Check"}}
+    process[["Process"]]
+    end([" End "])
 
-? (find(cOutput, "graph TD") > 0) #--> TRUE
-? (find(cOutput, "-->") > 0) #--> TRUE
+    start --> decision
+    decision --> process |Yes|
+    process --> end
+'
+#-->
+'
+graph TD
+    start(["Start"])
+    decision{{"Check"}}
+    process[["Process"]]
+    end([" End "])
+
+    start --> decision
+    decision --> process |Yes|
+    process --> end
+'
+#ERROR in MermaidJs editor
+'
+Syntax error
+rror: Error: Parse error on line 5:
+Error: Error: Parse error on line 5:
+...ss[["Process"]]    end([" End "])    
+----------------------^
+Expecting 'SEMI', 'NEWLINE', 'SPACE', 'EOF', 'subgraph', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'AMP', 'COLON', 'STYLE', 'LINKSTYLE', 'CLASSDEF', 'CLASS', 'CLICK', 'DOWN', 'DEFAULT', 'NUM', 'COMMA', 'NODE_STRING', 'BRKT', 'MINUS', 'MULT', 'UNICODE_TEXT', 'direction_tb', 'direction_bt', 'direction_rl', 'direction_lr', got 'end'
 
 pf()
 
@@ -552,15 +724,21 @@ pf()
 pr()
 
 oDiag = new stzDiagram("MermaidFileTest")
-oDiag.AddDiagramNode("a", "A", :Process, :primary)
-oDiag.AddDiagramNode("b", "B", :Process, :primary)
-oDiag.Connect("a", "b", "leads")
+oDiag.AddNodeXT("a", "A", :Process, :primary)
+oDiag.AddNodeXT("b", "B", :Process, :primary)
+oDiag.ConnectXT("a", "b", "leads")
 
-oConv = new stzDiagramToMermaid(oDiag)
-bSuccess = oConv.WriteToFile("test_diagram.mmd")
-
+bSuccess = oDiag.WriteToMermaidFile("test_diagram.mmd") #  # Or just WriteToFile() ~> idenified by .mmd extension
 ? bSuccess #--> TRUE
-? file_exists("test_diagram.mmd") #--> TRUE
+? read("test_diagram.mmd") #--> TRUE
+#-->
+'
+graph TD
+    a[["A"]]
+    b[["B"]]
+
+    a --> b |leads|
+'
 
 pf()
 
@@ -573,15 +751,18 @@ pf()
 pr()
 
 oDiag = new stzDiagram("MermaidShapesTest")
-oDiag.AddDiagramNode("s", "S", :Start, :success)
-oDiag.AddDiagramNode("d", "D", :Decision, :warning)
-oDiag.AddDiagramNode("e", "E", :Endpoint, :success)
+oDiag.AddNodeXT("s", "S", :Start, :success)
+oDiag.AddNodeXT("d", "D", :Decision, :warning)
+oDiag.AddNodeXT("e", "E", :Endpoint, :success)
 
-oConv = new stzDiagramToMermaid(oDiag)
-cOutput = oConv.Generate()
-
-? (find(cOutput, "([") > 0) #--> TRUE
-? (find(cOutput, "{{") > 0) #--> TRUE
+? oDiag.Mermaid()
+#-->
+'
+graph TD
+    s(["S"])
+    d{{"D"}}
+    e([" E "])
+'
 
 pf()
 
@@ -595,16 +776,17 @@ pr()
 
 oDiag = new stzDiagram("JsonTest")
 oDiag.SetTheme(:Professional)
-oDiag.AddDiagramNode("a", "A", :Process, :primary)
-oDiag.AddDiagramNode("b", "B", :Process, :primary)
-oDiag.Connect("a", "b", "")
+oDiag.AddNodeXT("a", "A", :Process, :primary)
+oDiag.AddNodeXT("b", "B", :Process, :primary)
+oDiag.Connect("a", "b")
 
-oConv = new stzDiagramToJSON(oDiag)
-cOutput = oConv.Generate()
+? oDiag.Json()
+#-->
+'
+{"id":"JsonTest","nodes":[{"id":"a","label":"A","properties":{"type":"process","color":"primary"}},{"id":"b","label":"B","properties":{"type":"process","color":"primary"}}],"edges":[{"from":"a","to":"b","label":"","properties":{}}],"properties":{},"theme":"professional","layout":"NULL","clusters":{},"annotations":{},"templates":{}}
+'
 
-? (find(cOutput, "{") > 0) #--> TRUE
-? (find(cOutput, "}") > 0) #--> TRUE
-? (find(cOutput, "Professional") > 0) #--> TRUE
+#TODO Add JsonXT() --> Indented
 
 pf()
 
@@ -617,13 +799,16 @@ pf()
 pr()
 
 oDiag = new stzDiagram("JsonFileTest")
-oDiag.AddDiagramNode("x", "X", :Process, :primary)
+oDiag.AddNodeXT("x", "X", :Process, :primary)
 
-oConv = new stzDiagramToJSON(oDiag)
-bSuccess = oConv.WriteToFile("test_diagram.json")
+bSuccess = oDiag.WriteToJsonFile("test_diagram.json") # Or just WriteToFile() ~> idenified by .json extension
+? bSuccess
 
-? bSuccess #--> TRUE
-? file_exists("test_diagram.json") #--> TRUE
+? read("test_diagram.json")
+#-->
+'
+{"id":"JsonFileTest","nodes":[{"id":"x","label":"X","properties":{"type":"process","color":"primary"}}],"edges":{},"properties":{},"theme":"NULL","layout":"NULL","clusters":{},"annotations":{},"templates":{}}
+'
 
 pf()
 
@@ -636,44 +821,13 @@ pf()
 pr()
 
 oDiag = new stzDiagram("JsonStructureTest")
-oDiag.AddDiagramNode("n", "Node", :Process, :primary)
+oDiag.AddNodeXT("n", "Node", :Process, :primary)
 
-oConv = new stzDiagramToJSON(oDiag)
-cOutput = oConv.Generate()
-
-? (find(cOutput, "id") > 0) #--> TRUE
-? (find(cOutput, "nodes") > 0) #--> TRUE
-? (find(cOutput, "edges") > 0) #--> TRUE
-
-pf()
-
-#-----------------#
-#  TEST 14: MULTI-FORMAT EXPORT
-#-----------------#
-
-/*--- Exporting to all formats simultaneously
-
-pr()
-
-oDiag = new stzDiagram("MultiFormatTest")
-oDiag.AddDiagramNode("start", "S", :Start, :success)
-oDiag.AddDiagramNode("end", "E", :Endpoint, :success)
-oDiag.Connect("start", "end", "")
-
-oStzdiag = new stzDiagramToStzDiag(oDiag)
-oDot = new stzDiagramToDot(oDiag)
-oMermaid = new stzDiagramToMermaid(oDiag)
-oJSON = new stzDiagramToJSON(oDiag)
-
-oStzdiag.WriteToFile("multi_test.stzdiagram")
-oDot.WriteToFile("multi_test.dot")
-oMermaid.WriteToFile("multi_test.mmd")
-oJSON.WriteToFile("multi_test.json")
-
-? file_exists("multi_test.stzdiagram") #--> TRUE
-? file_exists("multi_test.dot") #--> TRUE
-? file_exists("multi_test.mmd") #--> TRUE
-? file_exists("multi_test.json") #--> TRUE
+? oDiag.Json()
+#-->
+'
+{"id":"JsonStructureTest","nodes":[{"id":"n","label":"Node","properties":{"type":"process","color":"primary"}}],"edges":{},"properties":{},"theme":"NULL","layout":"NULL","clusters":{},"annotations":{},"templates":{}}
+'
 
 pf()
 
@@ -686,21 +840,16 @@ pf()
 pr()
 
 oDiag = new stzDiagram("EdgeLabelTest")
-oDiag.AddDiagramNode("a", "A", :Process, :primary)
-oDiag.AddDiagramNode("b", "B", :Process, :primary)
-oDiag.Connect("a", "b", "important")
+oDiag.AddNodeXT("a", "A", :Process, :primary)
+oDiag.AddNodeXT("b", "B", :Process, :primary)
+oDiag.ConnectXT("a", "b", "important")
 
-oStzdiag = new stzDiagramToStzDiag(oDiag)
-cStzOutput = oStzdiag.Generate()
+cStzOutput = oDiag.stzdiag()
+cDotOutput = odiag.dot()
+cMermaidOutput = oDiag.mermaid()
 
-oDot = new stzDiagramToDot(oDiag)
-cDotOutput = oDot.Generate()
-
-oMermaid = new stzDiagramToMermaid(oDiag)
-cMermaidOutput = oMermaid.Generate()
-
-? (find(cStzOutput, "important") > 0) #--> TRUE
-? (find(cDotOutput, "important") > 0) #--> TRUE
-? (find(cMermaidOutput, "important") > 0) #--> TRUE
+? contains(cStzOutput, "important") #--> TRUE
+? contains(cDotOutput, "important") #--> TRUE
+? contains(cMermaidOutput, "important") #--> TRUE
 
 pf()

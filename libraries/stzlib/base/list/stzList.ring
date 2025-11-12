@@ -7813,6 +7813,12 @@ class stzList from stzObject
 			def SizeBQ()
 				return This.NumberOfCharBQ()
 
+		def Count()
+			return This.NumberOfItems()
+
+		def HowMany()
+			return This.HowManyItems()
+
 		def Length()
 			return This.NumberOfItems()
 
@@ -36881,10 +36887,10 @@ class stzList from stzObject
 		def NumberOfOccurrencesCS(pItem, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
 
-		def CountCS(pItem, pCaseSensitive)
+		def CountCSXT(pItem, pCaseSensitive)
 			return NumberOfOccurrenceCS(pItem, pCaseSensitive)
 
-		def HowManyCS(pItem, pCaseSensitive)
+		def HowManyCSXT(pItem, pCaseSensitive)
 			return NumberOfOccurrenceCS(pItem, pCaseSensitive)
 
 		def ItemOccursNTimesCS(n, pItem, pCaseSensitive)
@@ -36942,10 +36948,10 @@ class stzList from stzObject
 		def NumberOfOccurrenceOf(pItem)
 			return This.NumberOfOccurrence(pItem)
 
-		def Count(pItem)
+		def CountXT(pItem)
 			return This.NumberOfOccurrence(pItem)
 
-		def HowMany(pItem)
+		def HowManyXT(pItem)
 			return This.NumberOfOccurrence(pItem)
 
 		def ItemOccursNTimes(n, pItem)
