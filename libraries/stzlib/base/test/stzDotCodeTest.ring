@@ -3,6 +3,8 @@
 #===========================================#
 load "../stzbase.ring"
 
+/*--
+
 pr()
 
 Dot = new stzDotCode()
@@ -33,6 +35,7 @@ Dot.RunAndView()
 pf()
 
 /*--
+
 pr()
 
 dot = new stzDotCode()
@@ -60,6 +63,8 @@ pf()
 /*------------------
 #  Example 1: Basic
 #-------------------
+
+*/
 
 pr()
 

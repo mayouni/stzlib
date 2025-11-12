@@ -119,6 +119,7 @@
 
 	load "graph/stzGraph.ring"
 	load "graph/stzDiagram.ring"
+	load "graph/stzDiagramBuilder.ring"
 
 # Loading files related to SYSTEM module
 
@@ -206,7 +207,6 @@
 	load "extercode/stzPrologCode.ring"
 
 	load "extercode/stzDotCode.ring"
-	load "extercode/stzDiagramBuilder.ring"
 
 # Loading files related to the NEtwORK module
 
@@ -259,6 +259,7 @@
 
 	load "natural/stzNaturalCode.ring"
 	load "natural/stzNatural.ring"
+	load "natural/stzNaturalMarkup.ring"
 
 	load "natural/stzAdverb.ring"
 	load "natural/stzPlural.ring"

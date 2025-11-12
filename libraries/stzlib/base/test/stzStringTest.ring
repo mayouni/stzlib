@@ -18919,6 +18919,10 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 # ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
 
 ? o1.BoxDashRound()
+#-->
+# ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
+# ┊ R ┊ I ┊ N ┊ G ┊
+# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
 
 pf()
 # Executed in 0.10 second(s) in Ring 1.24
