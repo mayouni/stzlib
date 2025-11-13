@@ -121,6 +121,10 @@
 	load "graph/stzDiagram.ring"
 	load "graph/stzDiagramBuilder.ring"
 
+# Loading files related to the VISUAL module
+
+	load "visual/stzVisualStyle.ring"
+
 # Loading files related to SYSTEM module
 
 	load "system/stzMemoryGlobals.ring"

@@ -12,8 +12,8 @@
 <!-- start -->
 <g id="node1" class="node">
 <title>start</title>
-<ellipse fill="#006633" stroke="black" cx="74.02" cy="-198.2" rx="74.02" ry="18"/>
-<text xml:space="preserve" text-anchor="middle" x="74.02" y="-192.78" font-family="Helvetica,sans-Serif" font-size="14.00" fill="white">Order Received</text>
+<ellipse fill="lightgreen" stroke="black" cx="74.02" cy="-198.2" rx="74.02" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="74.02" y="-192.78" font-family="Helvetica,sans-Serif" font-size="14.00">Order Received</text>
 </g>
 <!-- validate -->
 <g id="node2" class="node">
@@ -30,9 +30,9 @@
 <!-- complete -->
 <g id="node3" class="node">
 <title>complete</title>
-<ellipse fill="#006633" stroke="black" cx="74.02" cy="-36.1" rx="32.1" ry="32.1"/>
+<ellipse fill="lightgreen" stroke="black" cx="74.02" cy="-36.1" rx="32.1" ry="32.1"/>
 <ellipse fill="none" stroke="black" cx="74.02" cy="-36.1" rx="36.1" ry="36.1"/>
-<text xml:space="preserve" text-anchor="middle" x="74.02" y="-30.68" font-family="Helvetica,sans-Serif" font-size="14.00" fill="white">Done</text>
+<text xml:space="preserve" text-anchor="middle" x="74.02" y="-30.68" font-family="Helvetica,sans-Serif" font-size="14.00">Done</text>
 </g>
 <!-- validate&#45;&gt;complete -->
 <g id="edge2" class="edge">
