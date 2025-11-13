@@ -886,6 +886,7 @@ pr()
 
 oDiag1 = new stzDiagram("LayoutTest")
 oDiag1 {
+	SetTheme(:vibrant) # Or :Print or :Gray or :Access
 	SetLayout(:LeftRight)      # Semantic
 	# SetLayout(:LR)           # Short form
 	
@@ -919,7 +920,7 @@ digraph "LayoutTest" {
 pf()
 
 /*-- Test 2: Edge style variations
-*/
+
 pr()
 
 oDiag2 = new stzDiagram("EdgeStyleTest")

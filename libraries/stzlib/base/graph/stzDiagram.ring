@@ -87,11 +87,15 @@ $acEdgeColors = [
 
 # THEMES
 
+# THEMES
 $acThemes = [
 	"light",
 	"dark",
 	"vibrant",
-	"pro"
+	"pro",
+	"accessible",
+	"print",
+	"grayscale"
 ]
 
 @cDefaultTheme = "light"
@@ -123,6 +127,17 @@ $acFonts = [
 
 @cDefaultFont = "helvetica"
 @cDefaultFontSize = 12
+
+# Theme-specific font settings
+$aThemeFonts = [
+	:light = [:font = "helvetica", :size = 12],
+	:dark = [:font = "helvetica", :size = 12],
+	:vibrant = [:font = "helvetica", :size = 12],
+	:pro = [:font = "helvetica", :size = 12],
+	:accessible = [:font = "arial", :size = 16],
+	:print = [:font = "times", :size = 11],
+	:grayscale = [:font = "helvetica", :size = 12]
+]
 
 # PALETTE AND FONT COLORS
 
@@ -161,6 +176,33 @@ $aPalette = [
 		:danger = "#CC0000",
 		:info = "#0066CC",
 		:neutral = "#666666",
+		:background = "white"
+	],
+	:accessible = [
+		:primary = "#0077CC",
+		:success = "#008800",
+		:warning = "#FFAA00",
+		:danger = "#CC0000",
+		:info = "#0066CC",
+		:neutral = "#555555",
+		:background = "#FFFEF7"
+	],
+	:print = [
+		:primary = "white",
+		:success = "white",
+		:warning = "white",
+		:danger = "white",
+		:info = "white",
+		:neutral = "white",
+		:background = "white"
+	],
+	:grayscale = [
+		:primary = "#CCCCCC",
+		:success = "#999999",
+		:warning = "#BBBBBB",
+		:danger = "#666666",
+		:info = "#AAAAAA",
+		:neutral = "#888888",
 		:background = "white"
 	]
 ]
@@ -323,6 +365,12 @@ class stzDiagram from stzGraph
 		
 		if HasKey($aPalette, cThemeKey)
 			@cTheme = cThemeKey
+			
+			# Apply theme-specific font settings
+			if HasKey($aThemeFonts, cThemeKey)
+				@cFont = $aThemeFonts[cThemeKey][:font]
+				@nFontSize = $aThemeFonts[cThemeKey][:size]
+			ok
 		ok
 	
 	def SetLayout(pLayout)
@@ -379,73 +427,95 @@ class stzDiagram from stzGraph
 		# Always use luminance calculation for consistent contrast
 		return This.ContrastingTextColor(cBgColor)
 	
+	def ContrastingTextColor(cColor)
+		# Convert color to RGB
+		aRGB = This.ColorToRGB(cColor)
+		nR = aRGB[1]
+		nG = aRGB[2]
+		nB = aRGB[3]
 		
-def ContrastingTextColor(cColor)
-	# Convert color to RGB
-	aRGB = This.ColorToRGB(cColor)
-	nR = aRGB[1]
-	nG = aRGB[2]
-	nB = aRGB[3]
-	
-	# Simple perceptual brightness formula (ITU BT.709)
-	# This works better than gamma-corrected luminance for UI text
-	nBrightness = (0.299 * nR + 0.587 * nG + 0.114 * nB)
-	
-	# Threshold at 150 for better contrast
-	# Accounts for human perception where colors need more brightness for black text
-	if nBrightness < 150
-		return "white"
-	else
-		return "black"
-	ok
-	
-def ColorToRGB(cColor)
-	# Handle hex colors
-	if substr(cColor, "#")
-		cHex = @substr(cColor, 2, len(cColor))
-		if len(cHex) = 6
-
-			nR = dec(@substr(cHex, 1, 2))
-			nG = dec(@substr(cHex, 3, 4))
-			nB = dec(@substr(cHex, 5, 6))
-			return [nR, nG, nB]
+		# Simple perceptual brightness formula (ITU BT.709)
+		# This works better than gamma-corrected luminance for UI text
+		nBrightness = (0.299 * nR + 0.587 * nG + 0.114 * nB)
+		
+		# Threshold at 150 for better contrast
+		# Accounts for human perception where colors need more brightness for black text
+		if nBrightness < 150
+			return "white"
+		else
+			return "black"
 		ok
-	ok
 	
-	# Named colors mapping (expanded)
-	aColorMap = [
-		:white = [255, 255, 255],
-		:black = [0, 0, 0],
-		:red = [255, 0, 0],
-		:green = [0, 128, 0],
-		:blue = [0, 0, 255],
-		:yellow = [255, 255, 0],
-		:orange = [255, 165, 0],
-		:lightblue = [173, 216, 230],
-		:lightgreen = [144, 238, 144],
-		:lightyellow = [255, 255, 224],
-		:lightcoral = [240, 128, 128],
-		:lightgray = [211, 211, 211],
-		:lightcyan = [224, 255, 255],
-		:lavender = [230, 230, 250],
-		:lightpink = [255, 182, 193],
-		:darkgreen = [0, 100, 0],
-		:darkblue = [0, 0, 139],
-		:darkred = [139, 0, 0]
-	]
-	
-	cKey = lower(cColor)
-	if HasKey(aColorMap, cKey)
-		return aColorMap[cKey]
-	ok
-	
-	# Parse RGB values for palette hex colors
-	if len(cColor) = 7 and substr(cColor, "#")
-		return This.ColorToRGB(cColor)
-	ok
-	
-	# Default to light color
-	return [200, 200, 200]
+	def ColorToRGB(cColor)
+		# Handle hex colors
+		if substr(cColor, "#")
+			cHex = @substr(cColor, 2, len(cColor))
+			if len(cHex) = 6
+				nR = dec(@substr(cHex, 1, 2))
+				nG = dec(@substr(cHex, 3, 4))
+				nB = dec(@substr(cHex, 5, 6))
+				return [nR, nG, nB]
+			ok
+		ok
+		
+		# Named colors mapping (expanded)
+		aColorMap = [
+			:white = [255, 255, 255],
+			:black = [0, 0, 0],
+			:red = [255, 0, 0],
+			:green = [0, 128, 0],
+			:blue = [0, 0, 255],
+			:yellow = [255, 255, 0],
+			:orange = [255, 165, 0],
+			:lightblue = [173, 216, 230],
+			:lightgreen = [144, 238, 144],
+			:lightyellow = [255, 255, 224],
+			:lightcoral = [240, 128, 128],
+			:lightgray = [211, 211, 211],
+			:lightcyan = [224, 255, 255],
+			:lavender = [230, 230, 250],
+			:lightpink = [255, 182, 193],
+			:darkgreen = [0, 100, 0],
+			:darkblue = [0, 0, 139],
+			:darkred = [139, 0, 0]
+		]
+		
+		cKey = lower(cColor)
+		if HasKey(aColorMap, cKey)
+			return aColorMap[cKey]
+		ok
+		
+		# Parse RGB values for palette hex colors
+		if len(cColor) = 7 and substr(cColor, "#")
+			return This.ColorToRGB(cColor)
+		ok
+		
+		# Default to light color
+		return [200, 200, 200]
+
+	def GetNodeStrokeColor(cTheme)
+		if cTheme = "print" or cTheme = "grayscale"
+			return "black"
+		ok
+
+	def ConvertColorToGrayscale(cColor)
+		aRGB = This.ColorToRGB(cColor)
+		nR = aRGB[1]
+		nG = aRGB[2]
+		nB = aRGB[3]
+		
+		# Use perceptual brightness formula
+		nGray = floor(0.299 * nR + 0.587 * nG + 0.114 * nB)
+		
+		# Convert to hex
+		cHex = "#"
+		cGrayHex = hex(nGray)
+		if len(cGrayHex) = 1
+			cGrayHex = "0" + cGrayHex
+		ok
+		cHex += cGrayHex + cGrayHex + cGrayHex
+		
+		return cHex
 
 	#------------------------------------------
 	#  DIAGRAM-SPECIFIC NODE OPERATIONS
@@ -1168,6 +1238,7 @@ class stzDiagramToDot
 
 	def _Generate()
 		cOutput = ""
+		cTheme = lower(@oDiagram.@cTheme)
 	
 		cOutput += 'digraph "' + @oDiagram.Id() + '" {' + NL
 		
@@ -1203,6 +1274,11 @@ class stzDiagramToDot
 		cEdgeColor = @oDiagram.@cEdgeColor
 		if cEdgeColor = ""
 			cEdgeColor = @cDefaultEdgeColor
+		ok
+		
+		# Print theme uses black edges
+		if cTheme = "print" or cTheme = "grayscale"
+			cEdgeColor = "black"
 		ok
 	
 		cEdgeStyle = "solid"
@@ -1261,6 +1337,17 @@ class stzDiagramToDot
 			# Resolve symbolic colors
 			if aNode["properties"]["color"] != ""
 				cFillColor = @oDiagram.ResolveColor(aNode["properties"]["color"])
+				
+				# Handle grayscale theme
+				if cTheme = "grayscale"
+					cFillColor = @oDiagram.ConvertColorToGrayscale(cFillColor)
+				ok
+				
+				# Handle print theme (white fill, black stroke)
+				if cTheme = "print"
+					cFillColor = "white"
+				ok
+				
 				cFontColor = @oDiagram.ResolveFontColor(aNode["properties"]["color"])
 			ok
 	
@@ -1268,6 +1355,8 @@ class stzDiagramToDot
 			cStrokeColor = ""
 			if @oDiagram.@cNodeStrokeColor != ""
 				cStrokeColor = ', color="' + @oDiagram.@cNodeStrokeColor + '"'
+			but cTheme = "print" or cTheme = "grayscale"
+				cStrokeColor = ', color="black", penwidth=2'
 			ok
 	
 			cOutput += '    ' + cNodeId + ' [label="' + cLabel + '", '

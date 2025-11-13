@@ -1,13 +1,13 @@
-digraph "EdgeStyleTest" {
-    graph [rankdir=TB, bgcolor=white, fontname=helvetica, fontsize=12]
+digraph "LayoutTest" {
+    graph [rankdir=LR, bgcolor=white, fontname=helvetica, fontsize=12]
     node [fontname=helvetica, fontsize=12]
-    edge [fontname=helvetica, fontsize=12, color=blue, style=dashed]
+    edge [fontname=helvetica, fontsize=12, color=black, style=solid]
 
-    a [label="Start", shape=ellipse, style="filled", fillcolor="lightgreen", fontcolor="black"]
-    b [label="Check", shape=diamond, style="filled", fillcolor="lightyellow", fontcolor="black"]
-    c [label="End", shape=doublecircle, style="filled", fillcolor="lightcoral", fontcolor="black"]
+    n1 [label="Node 1", shape=ellipse, style="filled", fillcolor="#43A047", fontcolor="white"]
+    n2 [label="Node 2", shape=box, style="rounded,filled", fillcolor="#0288D1", fontcolor="white"]
+    n3 [label="Node 3", shape=doublecircle, style="filled", fillcolor="#E53935", fontcolor="white"]
 
-    a -> b
-    b -> c [label=" Yes"]
+    n1 -> n2
+    n2 -> n3
 
 }
