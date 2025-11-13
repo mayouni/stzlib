@@ -12,13 +12,13 @@
 <!-- n1 -->
 <g id="node1" class="node">
 <title>n1</title>
-<ellipse fill="#43a047" stroke="black" cx="34.98" cy="-38.98" rx="34.98" ry="18"/>
+<ellipse fill="#555555" stroke="black" cx="34.98" cy="-38.98" rx="34.98" ry="18"/>
 <text xml:space="preserve" text-anchor="middle" x="34.98" y="-34.71" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Node 1</text>
 </g>
 <!-- n2 -->
 <g id="node2" class="node">
 <title>n2</title>
-<path fill="#0288d1" stroke="black" d="M148.96,-56.98C148.96,-56.98 117.96,-56.98 117.96,-56.98 111.96,-56.98 105.96,-50.98 105.96,-44.98 105.96,-44.98 105.96,-32.98 105.96,-32.98 105.96,-26.98 111.96,-20.98 117.96,-20.98 117.96,-20.98 148.96,-20.98 148.96,-20.98 154.96,-20.98 160.96,-26.98 160.96,-32.98 160.96,-32.98 160.96,-44.98 160.96,-44.98 160.96,-50.98 154.96,-56.98 148.96,-56.98"/>
+<path fill="#666666" stroke="black" d="M148.96,-56.98C148.96,-56.98 117.96,-56.98 117.96,-56.98 111.96,-56.98 105.96,-50.98 105.96,-44.98 105.96,-44.98 105.96,-32.98 105.96,-32.98 105.96,-26.98 111.96,-20.98 117.96,-20.98 117.96,-20.98 148.96,-20.98 148.96,-20.98 154.96,-20.98 160.96,-26.98 160.96,-32.98 160.96,-32.98 160.96,-44.98 160.96,-44.98 160.96,-50.98 154.96,-56.98 148.96,-56.98"/>
 <text xml:space="preserve" text-anchor="middle" x="133.46" y="-34.71" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Node 2</text>
 </g>
 <!-- n1&#45;&gt;n2 -->
@@ -30,7 +30,7 @@
 <!-- n3 -->
 <g id="node3" class="node">
 <title>n3</title>
-<ellipse fill="#e53935" stroke="black" cx="235.94" cy="-38.98" rx="34.98" ry="34.98"/>
+<ellipse fill="#333333" stroke="black" cx="235.94" cy="-38.98" rx="34.98" ry="34.98"/>
 <ellipse fill="none" stroke="black" cx="235.94" cy="-38.98" rx="38.98" ry="38.98"/>
 <text xml:space="preserve" text-anchor="middle" x="235.94" y="-34.71" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Node 3</text>
 </g>

@@ -93,9 +93,11 @@ $acThemes = [
 	"dark",
 	"vibrant",
 	"pro",
-	"accessible",
+	"access",
 	"print",
-	"grayscale"
+	"gray",
+	"lightgray",
+	"darkgray"
 ]
 
 @cDefaultTheme = "light"
@@ -134,9 +136,9 @@ $aThemeFonts = [
 	:dark = [:font = "helvetica", :size = 12],
 	:vibrant = [:font = "helvetica", :size = 12],
 	:pro = [:font = "helvetica", :size = 12],
-	:accessible = [:font = "arial", :size = 16],
+	:access = [:font = "arial", :size = 16],
 	:print = [:font = "times", :size = 11],
-	:grayscale = [:font = "helvetica", :size = 12]
+	:gray = [:font = "helvetica", :size = 12]
 ]
 
 # PALETTE AND FONT COLORS
@@ -178,7 +180,7 @@ $aPalette = [
 		:neutral = "#666666",
 		:background = "white"
 	],
-	:accessible = [
+	:access = [
 		:primary = "#0077CC",
 		:success = "#008800",
 		:warning = "#FFAA00",
@@ -196,15 +198,36 @@ $aPalette = [
 		:neutral = "white",
 		:background = "white"
 	],
-	:grayscale = [
+	:lightgray = [
+		:primary = "#E6E6E6",
+		:success = "#CCCCCC",
+		:warning = "#D9D9D9",
+		:danger = "#B3B3B3",
+		:info = "#DDDDDD",
+		:neutral = "#C0C0C0",
+		:background = "#F9F9F9"
+	],
+	
+	:gray = [
 		:primary = "#CCCCCC",
 		:success = "#999999",
 		:warning = "#BBBBBB",
 		:danger = "#666666",
 		:info = "#AAAAAA",
 		:neutral = "#888888",
-		:background = "white"
+		:background = "#FFFFFF"
+	],
+	
+	:darkgray = [
+		:primary = "#666666",
+		:success = "#555555",
+		:warning = "#777777",
+		:danger = "#333333",
+		:info = "#444444",
+		:neutral = "#222222",
+		:background = "#111111"
 	]
+	
 ]
 
 $aFontColors = [
@@ -494,11 +517,11 @@ class stzDiagram from stzGraph
 		return [200, 200, 200]
 
 	def GetNodeStrokeColor(cTheme)
-		if cTheme = "print" or cTheme = "grayscale"
+		if cTheme = "print" or cTheme = "gray"
 			return "black"
 		ok
 
-	def ConvertColorToGrayscale(cColor)
+	def ConvertColorTogray(cColor)
 		aRGB = This.ColorToRGB(cColor)
 		nR = aRGB[1]
 		nG = aRGB[2]
@@ -1277,7 +1300,7 @@ class stzDiagramToDot
 		ok
 		
 		# Print theme uses black edges
-		if cTheme = "print" or cTheme = "grayscale"
+		if cTheme = "print" or cTheme = "gray"
 			cEdgeColor = "black"
 		ok
 	
@@ -1338,9 +1361,9 @@ class stzDiagramToDot
 			if aNode["properties"]["color"] != ""
 				cFillColor = @oDiagram.ResolveColor(aNode["properties"]["color"])
 				
-				# Handle grayscale theme
-				if cTheme = "grayscale"
-					cFillColor = @oDiagram.ConvertColorToGrayscale(cFillColor)
+				# Handle gray theme
+				if cTheme = "gray"
+					cFillColor = @oDiagram.ConvertColorTogray(cFillColor)
 				ok
 				
 				# Handle print theme (white fill, black stroke)
@@ -1355,7 +1378,7 @@ class stzDiagramToDot
 			cStrokeColor = ""
 			if @oDiagram.@cNodeStrokeColor != ""
 				cStrokeColor = ', color="' + @oDiagram.@cNodeStrokeColor + '"'
-			but cTheme = "print" or cTheme = "grayscale"
+			but cTheme = "print" or cTheme = "gray"
 				cStrokeColor = ', color="black", penwidth=2'
 			ok
 	
