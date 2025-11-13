@@ -881,12 +881,12 @@ pf()
 
 
 /*-- Test 1: Layout variations
-
+*/
 pr()
 
 oDiag1 = new stzDiagram("LayoutTest")
 oDiag1 {
-	SetTheme(:vibrant) # Or :Print or :Gray or :Access
+	SetTheme(:gray) # Or :Print or :Gray :LightGray or :DarkGray or :Access
 	SetLayout(:LeftRight)      # Semantic
 	# SetLayout(:LR)           # Short form
 	
