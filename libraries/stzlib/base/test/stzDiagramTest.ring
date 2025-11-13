@@ -1,35 +1,47 @@
 load "../stzbase.ring"
 
-/*===================================================
-#  stzDiagramTest - Test Suite
-#  Each test runs independently
-#===================================================
-
 #-----------------#
 #  TEST 1: CREATE SIMPLE DIAGRAM
 #-----------------#
 
 /*--- Building workflow diagram with node types and theme
-*/
+
 pr()
 
 oDiag = new stzDiagram("OrderFlow")
-oDiag.SetTheme(:Professional)
-oDiag.SetLayout(:TopDown)
+oDiag {
 
-oDiag.AddNodeXT("start", "Order Received", :Start, :Success)
-oDiag.AddNodeXT("validate", "Validate", :Process, :Primary)
-oDiag.AddNodeXT("complete", "Done", :Endpoint, :Success)
+	AddNodeXT("start", "Order Received", :Start, :Success)
+	AddNodeXT("validate", "Validate", :Process, :Primary)
+	AddNodeXT("complete", "Done", :Endpoint, :Success)
 
-oDiag.Connect("start", "validate")
-oDiag.Connect("validate", "complete")
+	Connect("start", "validate")
+	Connect("validate", "complete")
 
-? oDiag.NodeCount() #--> 3
-? oDiag.EdgeCount() #--> 2
+	? NodeCount() #--> 3
+	? EdgeCount() #--> 2
 
-? oDiag.Dot()
+	? Dot()
 
-oDiag.Show()
+	View()
+}
+
+#-->
+'
+digraph "OrderFlow" {
+    graph [rankdir=TB, bgcolor=white, fontname=Helvetica]
+    node [fontname=Helvetica]
+    edge [fontname=Helvetica, color=black]
+
+    start [label="Order Received", shape=ellipse, style="filled", fillcolor="#006633", fontcolor="white"]
+    validate [label="Validate", shape=box, style="rounded,filled", fillcolor="lightblue", fontcolor="black"]
+    complete [label="Done", shape=doublecircle, style="filled", fillcolor="#006633", fontcolor="white"]
+
+    start -> validate
+    validate -> complete
+
+}
+'
 
 pf()
 
@@ -177,6 +189,7 @@ aCompliance = oDiag.AnnotationsByType(:Compliance)
 ? len(aPerf) #--> 1
 ? len(aCompliance) #--> 1
 
+
 pf()
 
 #-----------------#
@@ -271,16 +284,19 @@ pf()
 pr()
 
 oDiag = new stzDiagram("SoxPayment")
-oDiag.AddNodeXT("submit", "Submit", :Start, :success)
-oDiag.AddNodeXT("approve", "Approve?", :Decision, :warning)
-oDiag.AddNodeXT("pay", "Pay", :Process, :primary)
-oDiag.AddNodeXT("log", "Log", :Data, :neutral)
-oDiag.AddNodeXT("done", "Done", :Endpoint, :success)
 
-oDiag.Connect("submit", "approve")
-oDiag.ConnectXT("approve", "pay", "Yes")
-oDiag.Connect("pay", "log")
-oDiag.Connect("log", "done")
+oDiag.AddNodeXT(:Submit, "Submit", :Start, :Success)
+oDiag.AddNodeXT(:Approve, "Approve?", :Decision, :Warning)
+oDiag.AddNodeXT(:Pay, "Pay", :Process, :Primary)
+oDiag.AddNodeXT(:Log, "Log", :Data, :Neutral)
+oDiag.AddNodeXT(:Done, "Done", :Endpoint, :Success)
+
+oDiag.Connect(:Submit, :Approve)
+oDiag.ConnectXT(:Approve, :Pay, " Yes")
+oDiag.Connect(:Pay, :Log)
+oDiag.Connect(:Log, :Done)
+
+oDiag.View()
 
 oDiag.Node("pay")["properties"]["domain"] = :financial
 oDiag.Node("approve")["properties"]["requiresApproval"] = TRUE
@@ -364,12 +380,12 @@ pf()
 pr()
 
 oDiag = new stzDiagram("HashlistExport")
-oDiag.SetTheme(:Professional)
+oDiag.SetTheme(:pro)
 oDiag.AddNodeXT("n1", "Node", :Process, :primary)
 
 aHashlist = oDiag.ToHashlist()
 
-? aHashlist["theme"] #--> Professional
+? aHashlist["theme"] #--> pro
 ? aHashlist["nodeCount"] >= 0 #--> TRUE
 
 pf()
@@ -388,7 +404,7 @@ pf()
 pr()
 
 oDiag = new stzDiagram("FormatTest")
-oDiag.SetTheme(:Professional)
+oDiag.SetTheme(:pro)
 oDiag.SetLayout(:TopDown)
 oDiag.AddNodeXT("start", "Begin", :Start, :success)
 oDiag.AddNodeXT("process", "Work", :Process, :primary)
@@ -402,7 +418,7 @@ oDiag.Connect("process", "end")
 diagram "FormatTest"
 
 metadata
-    theme: professional
+    theme: pro
     layout: topdown
 
 nodes
@@ -536,14 +552,14 @@ oDiag.AddAnnotation(oPerf)
 diagram "AnnotationTest"
 
 metadata
-    theme: null
-    layout: null
+    theme: light
+    layout: topdown
 
 nodes
     process
         label: "MyProcess"
         type: process
-        color: primary
+        color: lightblue
 
 annotations
     performance
@@ -566,13 +582,14 @@ oDiag.AddNodeXT("end", "End", :Endpoint, :success)
 oDiag.Connect("start", "end")
 
 ? oDiag.stzdiag()
+oDiag.View()
 #-->
 '
 diagram "DotTest"
 
 metadata
-    theme: null
-    layout: null
+    theme: light
+    layout: topdown
 
 nodes
     start
@@ -585,7 +602,8 @@ nodes
         type: endpoint
         color: success
 
-edge
+edges
+    start -> end
 '
 
 pf()
@@ -631,8 +649,8 @@ pf()
 #-----------------#
 
 /*--- Verifying DOT node type shapes
-#ERROR: default color should be translated in color names for dot file
 
+#ERR edges are not displayed!
 pr()
 
 oDiag = new stzDiagram("DotShapesTest")
@@ -647,16 +665,19 @@ oDiag.AddNodeXT("e", "E", :Endpoint, :success)
 digraph "DotShapesTest" {
     graph [rankdir=TB, bgcolor=white, fontname=Helvetica]
     node [fontname=Helvetica]
-    edge [fontname=Helvetica, color=NULL]
+    edge [fontname=Helvetica, color=black, style=solid]
 
-    s [label="S", shape=polygon, style="filled", fillcolor="success"]
-    d [label="D", shape=diamond, style="filled", fillcolor="warning"]
-    p [label="P", shape=box, style="rounded,filled", fillcolor="primary"]
-    e [label="E", shape=doublecircle, style="filled", fillcolor="success"]
+    s [label="S", shape=ellipse, style="filled", fillcolor="lightgreen", fontcolor="black"]
+    d [label="D", shape=diamond, style="filled", fillcolor="lightyellow", fontcolor="black"]
+    p [label="P", shape=box, style="rounded,filled", fillcolor="lightblue", fontcolor="black"]
+    e [label="E", shape=doublecircle, style="filled", fillcolor="lightgreen", fontcolor="black"]
 
 
 }
 '
+
+oDiag.View()
+
 
 pf()
 
@@ -775,7 +796,7 @@ pf()
 pr()
 
 oDiag = new stzDiagram("JsonTest")
-oDiag.SetTheme(:Professional)
+oDiag.SetTheme(:pro)
 oDiag.AddNodeXT("a", "A", :Process, :primary)
 oDiag.AddNodeXT("b", "B", :Process, :primary)
 oDiag.Connect("a", "b")
@@ -783,7 +804,7 @@ oDiag.Connect("a", "b")
 ? oDiag.Json()
 #-->
 '
-{"id":"JsonTest","nodes":[{"id":"a","label":"A","properties":{"type":"process","color":"primary"}},{"id":"b","label":"B","properties":{"type":"process","color":"primary"}}],"edges":[{"from":"a","to":"b","label":"","properties":{}}],"properties":{},"theme":"professional","layout":"NULL","clusters":{},"annotations":{},"templates":{}}
+{"id":"JsonTest","nodes":[{"id":"a","label":"A","properties":{"type":"process","color":"primary"}},{"id":"b","label":"B","properties":{"type":"process","color":"primary"}}],"edges":[{"from":"a","to":"b","label":"","properties":{}}],"properties":{},"theme":"pro","layout":"NULL","clusters":{},"annotations":{},"templates":{}}
 '
 
 #TODO Add JsonXT() --> Indented
@@ -851,5 +872,208 @@ cMermaidOutput = oDiag.mermaid()
 ? contains(cStzOutput, "important") #--> TRUE
 ? contains(cDotOutput, "important") #--> TRUE
 ? contains(cMermaidOutput, "important") #--> TRUE
+
+pf()
+
+#--------------------------#
+# TESTING VISUAL OPTTIONS  #
+#--------------------------#
+
+
+/*-- Test 1: Layout variations
+
+pr()
+
+oDiag1 = new stzDiagram("LayoutTest")
+oDiag1 {
+	SetLayout(:LeftRight)      # Semantic
+	# SetLayout(:LR)           # Short form
+	
+	AddNodeXT("n1", "Node 1", :Start, :Success)
+	AddNodeXT("n2", "Node 2", :Process, :Primary)
+	AddNodeXT("n3", "Node 3", :Endpoint, :Danger)
+	
+	Connect("n1", "n2")
+	Connect("n2", "n3")
+	
+	? Dot()
+	View()
+}
+#-->
+'
+digraph "LayoutTest" {
+    graph [rankdir=LR, bgcolor=white, fontname=Helvetica]
+    node [fontname=Helvetica]
+    edge [fontname=Helvetica, color=black, style=solid]
+
+    n1 [label="Node 1", shape=ellipse, style="filled", fillcolor="lightgreen", fontcolor="black"]
+    n2 [label="Node 2", shape=box, style="rounded,filled", fillcolor="lightblue", fontcolor="black"]
+    n3 [label="Node 3", shape=doublecircle, style="filled", fillcolor="lightcoral", fontcolor="black"]
+
+    n1 -> n2
+    n2 -> n3
+
+}
+'
+
+pf()
+
+/*-- Test 2: Edge style variations
+*/
+pr()
+
+oDiag2 = new stzDiagram("EdgeStyleTest")
+oDiag2 {
+	SetLayout(:TopDown)
+	SetEdgeStyle(:Conditional)  # Semantic → dashed
+	# SetEdgeStyle(:Dashed)     # Visual term
+
+	SetEdgeColor("blue")
+	
+	AddNodeXT("a", "Start", :Start, :Success)
+	AddNodeXT("b", "Check", :Decision, :Warning)
+	AddNodeXT("c", "End", :Endpoint, :Danger)
+	
+	Connect("a", "b")
+	ConnectXT("b", "c", "Yes")
+	
+	View()
+}
+
+pf()
+
+/*-- Test 3: Node type variations
+
+pr()
+
+oDiag3 = new stzDiagram("NodeTypeTest")
+oDiag3 {
+	SetTheme(:Pro)           # Semantic
+	# SetTheme("professional") # Alias
+	SetLayout(:BottomUp)
+	
+	# Using semantic types
+	AddNodeXT("s1", "Begin", :Start, :Success)
+	AddNodeXT("p1", "Work", :Process, :Primary)
+	AddNodeXT("d1", "Choice?", :Decision, :Warning)
+	AddNodeXT("e1", "Done", :Endpoint, :Danger)
+	
+	# Using visual terms (if implemented)
+	# AddNodeXT("s2", "Begin", :Ellipse, :Success)
+	# AddNodeXT("p2", "Work", :Box, :Primary)
+	
+	Connect("s1", "p1")
+	Connect("p1", "d1")
+	Connect("d1", "e1")
+	
+	View()
+}
+
+pf()
+
+/*-- Test 4: Theme variations
+
+pr()
+
+oDiag4 = new stzDiagram("ThemeTest")
+oDiag4 {
+	SetTheme(:Vibrant)       # Or :Light, :Dark, :Pro
+	SetLayout(:RightLeft)
+	SetNodeStrokeColor("navy")
+	
+	AddNodeXT("x", "Alpha", :Start, :Success)
+	AddNodeXT("y", "Beta", :Process, :Primary)
+	AddNodeXT("z", "Gamma", :Endpoint, :Info)
+	
+	Connect("x", "y")
+	Connect("y", "z")
+	
+	View()
+}
+
+pf()
+
+/*-- Test 5: Combined options
+
+pr()
+
+oDiag5 = new stzDiagram("CompleteTest")
+oDiag5 {
+	SetTheme(:Light)
+	SetLayout("lr")              # Short form
+	SetEdgeStyle(:ErrorFlow)     # Semantic → dotted
+	SetEdgeColor("gray")
+	
+	AddNodeXT("start", "Begin", :Start, :Success)
+	AddNodeXT("proc1", "Validate", :Process, :Primary)
+	AddNodeXT("dec1", "Valid?", :Decision, :Warning)
+	AddNodeXT("error", "Error", :Error, :Danger)
+	AddNodeXT("done", "Complete", :Endpoint, :Success)
+	
+	Connect("start", "proc1")
+	ConnectXT("proc1", "dec1", "Check")
+	ConnectXT("dec1", "error", "No")
+	ConnectXT("dec1", "done", "Yes")
+	
+	? "Nodes: " + NodeCount()
+	? "Edges: " + EdgeCount()
+	
+	View()
+}
+
+pf()
+
+/*-- Test 6: Color resolution
+*/
+
+pr()
+
+oDiag6 = new stzDiagram("ColorTest")
+oDiag6 {
+	SetTheme(:vibrant)
+	
+	# Symbolic colors from palette
+	AddNodeXT("n1", "Success", :Process, :Success)
+	AddNodeXT("n2", "Warning", :Process, :Warning)
+	AddNodeXT("n3", "Danger", :Process, :Danger)
+	
+	# Direct color names
+	AddNodeXT("n4", "Blue", :Process, "lightblue")
+	AddNodeXT("n5", "Green", :Process, "lightgreen")
+	
+	# Hex colors
+	AddNodeXT("n6", "Custom", :Process, "#FF9900")
+	
+	Connect("n1", "n2")
+	Connect("n2", "n3")
+	Connect("n3", "n4")
+	Connect("n4", "n5")
+	Connect("n5", "n6")
+	
+	View()
+}
+
+pf()
+
+#----------------#
+#  FONT EXAMPLE  #
+#----------------#
+
+/*---
+
+pr()
+
+oDiag = new stzDiagram("FontTest")
+oDiag {
+	SetFont("helvetica")
+	SetFontSize(18)
+	SetTheme(:Pro)
+	
+	AddNodeXT("n1", "Custom Font", :Start, :Success)
+	AddNodeXT("n2", "Arial 18pt", :Process, :Primary)
+	ConnectXT("n1", "n2", "size")
+	
+	View()
+}
 
 pf()

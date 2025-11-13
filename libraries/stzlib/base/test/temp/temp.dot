@@ -1,13 +1,13 @@
-digraph "OrderFlow" {
-    graph [rankdir=TB, bgcolor=white, fontname=Helvetica]
-    node [fontname=Helvetica]
-    edge [fontname=Helvetica, color=black]
+digraph "EdgeStyleTest" {
+    graph [rankdir=TB, bgcolor=white, fontname=helvetica, fontsize=12]
+    node [fontname=helvetica, fontsize=12]
+    edge [fontname=helvetica, fontsize=12, color=blue, style=dashed]
 
-    start [label="Order Received", shape=ellipse, style="filled", fillcolor="#006633", fontcolor="white"]
-    validate [label="Validate", shape=box, style="rounded,filled", fillcolor="lightblue", fontcolor="black"]
-    complete [label="Done", shape=doublecircle, style="filled", fillcolor="#006633", fontcolor="white"]
+    a [label="Start", shape=ellipse, style="filled", fillcolor="lightgreen", fontcolor="black"]
+    b [label="Check", shape=diamond, style="filled", fillcolor="lightyellow", fontcolor="black"]
+    c [label="End", shape=doublecircle, style="filled", fillcolor="lightcoral", fontcolor="black"]
 
-    start -> validate
-    validate -> complete
+    a -> b
+    b -> c [label=" Yes"]
 
 }
