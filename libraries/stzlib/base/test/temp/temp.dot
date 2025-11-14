@@ -1,13 +1,15 @@
-digraph "LayoutTest" {
-    graph [rankdir=LR, bgcolor=white, fontname=helvetica, fontsize=12]
+digraph "NodeTypeTest" {
+    graph [rankdir=BT, bgcolor=white, fontname=helvetica, fontsize=12]
     node [fontname=helvetica, fontsize=12]
     edge [fontname=helvetica, fontsize=12, color=black, style=solid]
 
-    n1 [label="Node 1", shape=ellipse, style="filled", fillcolor="#555555", fontcolor="white"]
-    n2 [label="Node 2", shape=box, style="rounded,filled", fillcolor="#666666", fontcolor="white"]
-    n3 [label="Node 3", shape=doublecircle, style="filled", fillcolor="#333333", fontcolor="white"]
+    s1 [label="Begin", shape=ellipse, style="filled", fillcolor="#006633", fontcolor="white"]
+    p1 [label="Work", shape=box, style="rounded,filled", fillcolor="lightblue", fontcolor="black"]
+    d1 [label="Choice?", shape=diamond, style="filled", fillcolor="#CC6600", fontcolor="white"]
+    e1 [label="Done", shape=doublecircle, style="filled", fillcolor="#CC0000", fontcolor="white"]
 
-    n1 -> n2
-    n2 -> n3
+    s1 -> p1
+    p1 -> d1
+    d1 -> e1
 
 }

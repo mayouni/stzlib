@@ -265,6 +265,48 @@ $aFontColors = [
 	]
 ]
 
+#------------------
+#  VISUAL MAPPINGS
+#------------------
+
+# Shape modifiers for metadata attributes
+$aShapeModifiers = [
+	:critical = [:penwidth = 3, :style = "bold,filled"],
+	:optional = [:style = "dashed,filled"],
+	:automated = [:style = "rounded,filled", :peripheries = 2],
+	:manual = [:style = "rounded,filled"],
+	:deprecated = [:style = "dotted,filled", :fontcolor = "gray"]
+]
+
+# Edge decorations for relationship types
+$aEdgeDecorations = [
+	:requires = [:arrowhead = "normal", :style = "bold"],
+	:optional = [:arrowhead = "empty", :style = "dashed"],
+	:async = [:arrowhead = "normal", :style = "dashed"],
+	:sync = [:arrowhead = "normal", :style = "solid"],
+	:triggers = [:arrowhead = "vee", :style = "bold"],
+	:data_flow = [:arrowhead = "normal", :style = "solid"]
+]
+
+# Color gradients for numeric metadata (0-100 scale)
+$aMetricColorGradients = [
+	:performance = [
+		[0, 50] = "#FF4444",   # Poor (red)
+		[51, 75] = "#FFA500",  # Moderate (orange)
+		[76, 100] = "#44FF44"  # Good (green)
+	],
+	:risk = [
+		[0, 33] = "#44FF44",   # Low risk (green)
+		[34, 66] = "#FFA500",  # Medium risk (orange)
+		[67, 100] = "#FF4444"  # High risk (red)
+	],
+	:priority = [
+		[0, 33] = "#CCCCCC",   # Low (gray)
+		[34, 66] = "#4488FF",  # Medium (blue)
+		[67, 100] = "#FF4444"  # High (red)
+	]
+]
+
 # STYLE RESOLUTION - Map semantic to visual properties
 func ResolveEdgeStyle(pStyle)
 	cStyleKey = lower("" + pStyle)
@@ -374,6 +416,13 @@ class stzDiagram from stzGraph
 
 	@cFont = @cDefaultFont
 	@nFontSize = @cDefaultFontSize
+
+	@aVisualRules = []
+	@aMetadataKeys = []
+
+@aNodeMetadata = []  # Dictionary: nodeId -> metadata
+@aNodeTags = []      # Dictionary: nodeId -> tags
+@aNodeEnhancements = []  # Store computed visual effects
 
 	def init(pTitle)
 		super.init(pTitle)
@@ -714,6 +763,7 @@ class stzDiagram from stzGraph
 	#------------------------------------------
 
 	def Show()
+
 		# Generate DOT code
 		cDotCode = This.Dot()
 		
@@ -849,6 +899,113 @@ class stzDiagram from stzGraph
 		bSuccess = oConv.WriteToFile(pcFileName)
 		return bSuccess
 
+	#---------------
+	#  VISUAL RULES AND SEMANTICS
+	#------------------
+
+	def AddVisualRule(oRule)
+		@aVisualRules + oRule
+
+	
+	def AddNodeWithMetadata(pNodeId, pLabel, pType, pColor, aMetadata, aTags)
+		This.AddNodeXT(pNodeId, pLabel, pType, pColor)
+		
+		if NOT isList(aMetadata)
+			aMetadata = []
+		ok
+		
+		@aNodeMetadata[pNodeId] = aMetadata
+		@aNodeTags[pNodeId] = aTags
+		
+		if @IsHashList(aMetadata)
+			@aMetadataKeys = @Keys(aMetadata)
+		ok
+
+	def AddEdgeWithMetaData(pFromId, pToId, pLabel, aMetadata, aTags)
+	
+		This.ConnectXT(pFromId, pToId, pLabel)
+			
+			# Find and enhance the edge
+			aEdges = This.Edges()
+	
+			for i = 1 to len(aEdges)
+				aEdge = aEdges[i]
+				if aEdge["from"] = pFromId and aEdge["to"] = pToId
+					if aEdge["label"] = NULL or NOT isString(aEdge["label"])
+						aEdge["label"] = ""
+					ok
+					
+					if NOT HasKey(aEdge, "metadata")
+						aEdge["metadata"] = []
+					ok
+					aEdge["metadata"] = aMetadata
+					
+					if NOT HasKey(aEdge, "tags")
+						aEdge["tags"] = []
+					ok
+					aEdge["tags"] = aTags
+					
+					exit
+				ok
+			end
+	
+	def ApplyVisualRules()
+		aNodes = This.Nodes()
+		
+		for i = 1 to len(aNodes)
+			aNode = aNodes[i]
+			cNodeId = aNode["id"]
+			
+			if HasKey(@aNodeMetadata, cNodeId)
+				aNode["metadata"] = @aNodeMetadata[cNodeId]
+			else
+				aNode["metadata"] = []
+			ok
+			
+			if HasKey(@aNodeTags, cNodeId)
+				aNode["tags"] = @aNodeTags[cNodeId]
+			else
+				aNode["tags"] = []
+			ok
+			
+			if NOT HasKey(aNode, "properties")
+				aNode["properties"] = []
+			ok
+	   
+			for oRule in @aVisualRules
+				if oRule.Matches(aNode)
+					aEffects = oRule.Effects()
+					for aEffect in aEffects
+						cAspect = aEffect[1]
+						pValue = aEffect[2]
+						aNode["properties"][cAspect] = pValue
+					end
+				ok
+			end
+			
+			@aNodeEnhancements[cNodeId] = aNode["properties"]
+		end
+		
+		def MetadataLegend()
+			# Generate legend showing metadata-to-visual mappings
+			aLegend = []
+			
+			aLegend + "=== METADATA LEGEND ==="
+			aLegend + ""
+			
+			for oRule in @aVisualRules
+				cDesc = "When: " + oRule.@cConditionType
+				aLegend + cDesc
+				
+				aEffects = oRule.Effects()
+				for aEffect in aEffects
+					aLegend + "  → " + aEffect[1] + ": " + aEffect[2]
+				end
+				aLegend + ""
+			end
+			
+			return aLegend
+	
 #=====================================================
 #  stzDiagramAnnotator - METADATA OVERLAY
 #=====================================================
@@ -1259,13 +1416,23 @@ class stzDiagramToDot
 		@oDiagram = poDiagram
 		This._Generate()
 
+
+
 	def _Generate()
 		cOutput = ""
-		cTheme = lower(@oDiagram.@cTheme)
-	
+		cTheme = ""
+		if @oDiagram.@cTheme != NULL and @oDiagram.@cTheme != ""
+			cTheme = lower(@oDiagram.@cTheme)
+		else
+			cTheme = "light"
+		ok
+		
+		if len(@oDiagram.@aVisualRules) > 0
+			@oDiagram.ApplyVisualRules()
+		ok
+		
 		cOutput += 'digraph "' + @oDiagram.Id() + '" {' + NL
 		
-		# Map layout to Graphviz rankdir
 		cRankDir = "TB"
 		cLayout = lower(@oDiagram.@cLayout)
 	
@@ -1279,27 +1446,24 @@ class stzDiagramToDot
 			cRankDir = "RL"
 		ok
 		
-		# Handle font settings
 		cFont = @oDiagram.@cFont
-		if cFont = ""
+		if cFont = "" or cFont = NULL
 			cFont = @cDefaultFont
 		ok
 	
 		nFontSize = @oDiagram.@nFontSize
-		if nFontSize = 0
+		if nFontSize = 0 or nFontSize = NULL
 			nFontSize = @cDefaultFontSize
 		ok
 		
 		cOutput += "    graph [rankdir=" + cRankDir + ", bgcolor=white, fontname=" + cFont + ", fontsize=" + nFontSize + "]" + NL
 		cOutput += "    node [fontname=" + cFont + ", fontsize=" + nFontSize + "]" + NL
 		
-		# Handle edge color and style
 		cEdgeColor = @oDiagram.@cEdgeColor
 		if cEdgeColor = ""
 			cEdgeColor = @cDefaultEdgeColor
 		ok
 		
-		# Print theme uses black edges
 		if cTheme = "print" or cTheme = "gray"
 			cEdgeColor = "black"
 		ok
@@ -1311,99 +1475,147 @@ class stzDiagramToDot
 	
 		cOutput += "    edge [fontname=" + cFont + ", fontsize=" + nFontSize + ", color=" + cEdgeColor + ", style=" + cEdgeStyle + "]" + NL + NL
 	
-		# Generate nodes
 		for aNode in @oDiagram.Nodes()
 			cNodeId = aNode["id"]
 			cLabel = aNode["label"]
+			
+			aEnhancements = []
+			if HasKey(@oDiagram.@aNodeEnhancements, cNodeId)
+				aEnhancements = @oDiagram.@aNodeEnhancements[cNodeId]
+			ok
+			
 			cShape = "box"
 			cStyle = "rounded,filled"
-			cFillColor = "lightblue"
-			cFontColor = "black"
-	
+			
 			if aNode["properties"]["type"] != NULL
 				cType = lower("" + aNode["properties"]["type"])
 	
 				if cType = "process"
 					cShape = "box"
 					cStyle = "rounded,filled"
-
 				but cType = "decision"
 					cShape = "diamond"
 					cStyle = "filled"
-
 				but cType = "start"
 					cShape = "ellipse"
 					cStyle = "filled"
-
 				but cType = "endpoint"
 					cShape = "doublecircle"
 					cStyle = "filled"
-
 				but cType = "state"
 					cShape = "circle"
 					cStyle = "filled"
-
 				but cType = "storage"
 					cShape = "cylinder"
 					cStyle = "filled"
-
 				but cType = "data"
 					cShape = "box"
 					cStyle = "rounded,filled"
-
 				but cType = "event"
 					cShape = "ellipse"
 					cStyle = "filled"
 				ok
 			ok
 	
-			# Resolve symbolic colors
-			if aNode["properties"]["color"] != ""
-				cFillColor = @oDiagram.ResolveColor(aNode["properties"]["color"])
-				
-				# Handle gray theme
-				if cTheme = "gray"
-					cFillColor = @oDiagram.ConvertColorTogray(cFillColor)
-				ok
-				
-				# Handle print theme (white fill, black stroke)
-				if cTheme = "print"
-					cFillColor = "white"
-				ok
-				
-				cFontColor = @oDiagram.ResolveFontColor(aNode["properties"]["color"])
+			if HasKey(aEnhancements, "shape")
+				cShape = aEnhancements["shape"]
 			ok
+			
+			if HasKey(aEnhancements, "style")
+				cStyle = aEnhancements["style"]
+			ok
+			
+			cOrigColor = aNode["properties"]["color"]
+			if HasKey(aEnhancements, "color")
+				cOrigColor = aEnhancements["color"]
+			ok
+			
+			cFillColor = cOrigColor
+			
+			if NOT (isString(cOrigColor) and substr(cOrigColor, "#"))
+				cFillColor = @oDiagram.ResolveColor(cOrigColor)
+			ok
+			
+			if cTheme = "gray"
+				cFillColor = @oDiagram.ConvertColorTogray(cFillColor)
+			ok
+			if cTheme = "print"
+				cFillColor = "white"
+			ok
+			
+			cFontColor = @oDiagram.ResolveFontColor(cFillColor)
 	
-			# Handle node stroke color
+			cOutput += '    ' + cNodeId + ' [label="' + cLabel + '", '
+			cOutput += 'shape=' + cShape + ', style="' + cStyle + '", '
+			cOutput += 'fillcolor="' + cFillColor + '"'
+			
+			if HasKey(aEnhancements, "penwidth")
+				cOutput += ', penwidth=' + aEnhancements["penwidth"]
+			ok
+			
 			cStrokeColor = ""
 			if @oDiagram.@cNodeStrokeColor != ""
 				cStrokeColor = ', color="' + @oDiagram.@cNodeStrokeColor + '"'
 			but cTheme = "print" or cTheme = "gray"
 				cStrokeColor = ', color="black", penwidth=2'
 			ok
-	
-			cOutput += '    ' + cNodeId + ' [label="' + cLabel + '", '
-			cOutput += 'shape=' + cShape + ', style="' + cStyle + '", '
-			cOutput += 'fillcolor="' + cFillColor + '"' + cStrokeColor + ', '
-			cOutput += 'fontcolor="' + cFontColor + '"]' + NL
+			cOutput += cStrokeColor
+			
+			cOutput += ', fontcolor="' + cFontColor + '"'
+			
+			cOutput += ']' + NL
 		end
 	
 		cOutput += NL
 	
-		# Generate edges
 		for aEdge in @oDiagram.Edges()
-			cOutput += '    ' + aEdge["from"] + ' -> ' + aEdge["to"]
-			if aEdge["label"] != ""
-				cOutput += ' [label="' +
-					   iff( cRankDir = "TB", " ", "") +
-					   aEdge["label"] + '"]'
+			cFrom = aEdge["from"]
+			cTo = aEdge["to"]
+			cOutput += '    ' + cFrom + ' -> ' + cTo
+			
+			aAttrs = []
+			
+			if HasKey(aEdge, "label")
+				cLabel = aEdge["label"]
+				if cLabel != "" and cLabel != NULL
+					cLabelText = iff(cRankDir = "TB", " ", "") + cLabel
+					aAttrs + ('label="' + cLabelText + '"')
+				ok
 			ok
+			
+			if HasKey(aEdge, "properties") and @IsHashList(aEdge["properties"])
+				if HasKey(aEdge["properties"], "style")
+					aAttrs + ('style="' + aEdge["properties"]["style"] + '"')
+				ok
+				if HasKey(aEdge["properties"], "arrowhead")
+					aAttrs + ('arrowhead=' + aEdge["properties"]["arrowhead"])
+				ok
+				if HasKey(aEdge["properties"], "color")
+					aAttrs + ('color="' + aEdge["properties"]["color"] + '"')
+				ok
+				if HasKey(aEdge["properties"], "penwidth")
+					aAttrs + ('penwidth=' + aEdge["properties"]["penwidth"])
+				ok
+			ok
+			
+			if len(aAttrs) > 0
+				cOutput += ' ['
+				for i = 1 to len(aAttrs)
+					cOutput += aAttrs[i]
+					if i < len(aAttrs)
+						cOutput += ', '
+					ok
+				end
+				cOutput += ']'
+			ok
+			
 			cOutput += NL
 		end
 	
 		cOutput += NL + "}"
 	
 		@cDotCode = cOutput
+
 	
 	def DotCode()
 		return @cDotCode
@@ -1547,3 +1759,96 @@ class stzDiagramToJSON
 		fwrite(oFile, This.JsonCode())
 		fclose(oFile)
 		return TRUE
+
+
+#------------------
+#  VISUAL RULES
+#------------------
+
+class stzVisualRule
+	@cRuleId
+	@cConditionType  # :metadata_exists, :metadata_equals, :metadata_range, :tag_exists
+	@aConditionParams
+	@aVisualEffects  # List of [aspect, value] pairs
+	
+	def init(pcRuleId)
+		@cRuleId = pcRuleId
+		@aVisualEffects = []
+	
+	def WhenMetadataExists(pcKey)
+		@cConditionType = :metadata_exists
+		@aConditionParams = [pcKey]
+		return This
+	
+	def WhenMetadataEquals(pcKey, pValue)
+		@cConditionType = :metadata_equals
+		@aConditionParams = [pcKey, pValue]
+		return This
+	
+	def WhenMetadataInRange(pcKey, nMin, nMax)
+		@cConditionType = :metadata_range
+		@aConditionParams = [pcKey, nMin, nMax]
+		return This
+	
+	def WhenTagExists(pcTag)
+		@cConditionType = :tag_exists
+		@aConditionParams = [pcTag]
+		return This
+	
+	def ApplyColor(pColor)
+		@aVisualEffects + [:color, pColor]
+		return This
+	
+	def ApplyShape(pcShape)
+		@aVisualEffects + [:shape, pcShape]
+		return This
+	
+	def ApplyStyle(pcStyle)
+		@aVisualEffects + [:style, pcStyle]
+		return This
+	
+	def ApplyPenWidth(nWidth)
+		@aVisualEffects + [:penwidth, nWidth]
+		return This
+	
+	def Matches(aNodeOrEdge)
+
+		switch @cConditionType
+		on :metadata_exists
+			cKey = @aConditionParams[1]
+			if HasKey(aNodeOrEdge, "metadata")
+				return HasKey(aNodeOrEdge["metadata"], cKey)
+			ok
+			return FALSE
+		
+		on :metadata_equals
+			cKey = @aConditionParams[1]
+			pValue = @aConditionParams[2]
+			if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
+				return aNodeOrEdge["metadata"][cKey] = pValue
+			ok
+			return FALSE
+		
+		on :metadata_range
+			cKey = @aConditionParams[1]
+			nMin = @aConditionParams[2]
+			nMax = @aConditionParams[3]
+			if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
+				nValue = aNodeOrEdge["metadata"][cKey]
+				return nValue >= nMin and nValue <= nMax
+			ok
+			return FALSE
+		
+		on :tag_exists
+			cTag = @aConditionParams[1]
+
+			if HasKey(aNodeOrEdge, "tags")
+				return ring_find(aNodeOrEdge["tags"], cTag) > 0
+			ok
+			return FALSE
+		off
+		
+		return FALSE
+	
+	def Effects()
+		return @aVisualEffects
