@@ -1,15 +1,13 @@
-digraph "NodeTypeTest" {
-    graph [rankdir=BT, bgcolor=white, fontname=helvetica, fontsize=12]
+digraph "E2EMonitoring" {
+    graph [rankdir=TB, bgcolor=white, fontname=helvetica, fontsize=12]
     node [fontname=helvetica, fontsize=12]
     edge [fontname=helvetica, fontsize=12, color=black, style=solid]
 
-    s1 [label="Begin", shape=ellipse, style="filled", fillcolor="#006633", fontcolor="white"]
-    p1 [label="Work", shape=box, style="rounded,filled", fillcolor="lightblue", fontcolor="black"]
-    d1 [label="Choice?", shape=diamond, style="filled", fillcolor="#CC6600", fontcolor="white"]
-    e1 [label="Done", shape=doublecircle, style="filled", fillcolor="#CC0000", fontcolor="white"]
+    lb [label="Load Balancer", shape=box, style="rounded,filled", fillcolor="#FF4444", penwidth=3, fontcolor="white"]
+    db [label="Database", shape=cylinder, style="bold,filled", fillcolor="lightblue", fontcolor="black"]
+    old_api [label="Legacy API", shape=box, style="dotted,filled", fillcolor="#888888", fontcolor="white"]
 
-    s1 -> p1
-    p1 -> d1
-    d1 -> e1
+    lb -> db
+    lb -> old_api
 
 }
