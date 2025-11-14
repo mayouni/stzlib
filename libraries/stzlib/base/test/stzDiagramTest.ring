@@ -875,13 +875,13 @@ cMermaidOutput = oDiag.mermaid()
 
 pf()
 
-#--------------------------#
-# TESTING VISUAL OPTTIONS  #
-#--------------------------#
+#-------------------------#
+# TESTING VISUAL OPTIONS  #
+#-------------------------#
 
 
 /*-- Test 1: Layout variations
-*/
+
 pr()
 
 oDiag1 = new stzDiagram("LayoutTest")
@@ -944,12 +944,12 @@ oDiag2 {
 pf()
 
 /*-- Test 3: Node type variations
-
+*/
 pr()
 
 oDiag3 = new stzDiagram("NodeTypeTest")
 oDiag3 {
-	SetTheme(:Pro)           # Semantic
+	SetTheme(:pro)           # Semantic
 	# SetTheme("professional") # Alias
 	SetLayout(:BottomUp)
 	
@@ -1025,7 +1025,6 @@ oDiag5 {
 pf()
 
 /*-- Test 6: Color resolution
-*/
 
 pr()
 
@@ -1076,5 +1075,126 @@ oDiag {
 	
 	View()
 }
+
+pf()
+
+#------------------------------#
+#  VISUAL RULES AND SEMANTICS  #
+#------------------------------#
+*/
+
+/*---  Example 1: Security Risk Visualization
+
+pr()
+
+# Create the diagram object
+
+oDiag = new stzDiagram("SecurityFlow")
+
+# Define visual rules based on metadata
+
+oHighRiskRule = new stzVisualRule("high_risk")
+oHighRiskRule {
+	WhenMetadataInRange("risk_score", 70, 100)
+	ApplyColor("#FF4444")
+	ApplyPenWidth(3)
+}
+
+oSecureRule = new stzVisualRule("secure")
+oSecureRule {
+	WhenTagExists(:security)
+}
+
+# Crafing the diagram object
+
+oDiag {
+
+	# Use those rules inside the diagram object
+
+	AddVisualRule(oHighRiskRule)
+	AddVisualRule(oSecureRule)
+
+	# Add nodes with metadata
+
+	AddNodeWithMetaData("auth", "Authentication", :Process, :Primary,
+		[ :risk_score = 85, :sla_ms = 100], # <-- metadata
+		[ :security, :critical ] # <-- tags
+	)
+
+	AddNodeWithMetaData("db", "Database", :Storage, :Info,
+		[ :risk_score = 45, :encrypted = TRUE],
+		[ :security ]
+	)
+
+	AddEdgeWithMetaData("auth", "db", "query",
+		[ :type = "requires"],
+		[ :data_flow ]
+	)
+
+	? Code()
+	View()
+}
+
+
+pf()
+
+/*---  Example 2: Performance Monitoring
+
+pr()
+
+oDiag = new stzDiagram("APIFlow")
+
+# Performance-based coloring
+oSlowRule = new stzVisualRule("slow_api")
+oSlowRule.WhenMetadataInRange("latency_ms", 500, 9999).
+	  ApplyColor("#FFA500")
+
+oFastRule = new stzVisualRule("fast_api")
+oFastRule.WhenMetadataInRange("latency_ms", 0, 100).
+	  ApplyColor("#44FF44")
+
+oDiag.AddVisualRule(oSlowRule)
+oDiag.AddVisualRule(oFastRule)
+
+oDiag.AddNodeWithMetaData("api1", "User API", :Process, :Primary,
+	[ :latency_ms = 50, :throughput = 1000], [:api])
+
+oDiag.AddNodeWithMetaData("api2", "Payment API", :Process, :Primary,
+	[ :latency_ms = 800, :throughput = 100], [:api, :critical])
+
+
+oDiag.View()
+
+pf()
+
+/*---  Example 3: Compliance Tagging
+*/
+pr()
+
+oDiag = new stzDiagram("DataFlow")
+
+# GDPR compliance visualization
+oGdprRule = new stzVisualRule("gdpr")
+oGdprRule {
+	WhenTagExists(:gdpr)
+	ApplyPenWidth(2)
+}
+
+# PCI-DSS compliance
+oPciRule = new stzVisualRule("pci")
+oPciRule.WhenTagExists(:pci).
+	 ApplyColor("#0066CC")
+
+oDiag.AddVisualRule(oGdprRule)
+oDiag.AddVisualRule(oPciRule)
+
+oDiag.AddNodewithMetaData("collect", "Data Collection", :Process, :Info,
+	[:retention_days = 90], ["gdpr"])
+
+oDiag.AddNodeWithMetaData("payment", "Payment Processing", :Process, :Warning,
+	[:encryption = TRUE], ["pci"])
+
+? oDiag.code()
+oDiag.View()
 
 pf()
