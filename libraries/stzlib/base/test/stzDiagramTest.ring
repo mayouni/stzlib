@@ -1,8 +1,8 @@
 load "../stzbase.ring"
 
-#-----------------#
-#  TEST 1: CREATE SIMPLE DIAGRAM
-#-----------------#
+#-------------------------#
+#  CREATE SIMPLE DIAGRAM  #
+#-------------------------#
 
 /*--- Building workflow diagram with node types and theme
 
@@ -45,9 +45,9 @@ digraph "OrderFlow" {
 
 pf()
 
-#-----------------#
-#  TEST 2: VALIDATE DAG
-#-----------------#
+#------------------------#
+#  TEST 2: VALIDATE DAG  {
+#------------------------#
 
 /*--- Ensuring workflow is acyclic
 
@@ -64,9 +64,9 @@ oDiag.Connect("p", "e")
 
 pf()
 
-#-----------------#
-#  TEST 3: VALIDATE REACHABILITY
-#-----------------#
+#---------------------------------#
+#  TEST 3: VALIDATE REACHABILITY  #
+#---------------------------------#
 
 /*--- Checking all endpoints reachable from start
 
@@ -944,7 +944,7 @@ oDiag2 {
 pf()
 
 /*-- Test 3: Node type variations
-*/
+
 pr()
 
 oDiag3 = new stzDiagram("NodeTypeTest")
@@ -1081,7 +1081,7 @@ pf()
 #------------------------------#
 #  VISUAL RULES AND SEMANTICS  #
 #------------------------------#
-*/
+
 
 /*---  Example 1: Security Risk Visualization
 
@@ -1168,7 +1168,7 @@ oDiag.View()
 pf()
 
 /*---  Example 3: Compliance Tagging
-*/
+
 pr()
 
 oDiag = new stzDiagram("DataFlow")
@@ -1196,5 +1196,333 @@ oDiag.AddNodeWithMetaData("payment", "Payment Processing", :Process, :Warning,
 
 ? oDiag.code()
 oDiag.View()
+
+pf()
+
+/*---------------------------#
+#  TEST 4: Exact Value Matching
+#---------------------------#
+
+pr()
+
+oDiag = new stzDiagram("EnvironmentColors")
+
+# Production systems get red warning color
+oProductionRule = new stzVisualRule("prod_warning")
+oProductionRule {
+	WhenMetadataEquals("env", "production")
+	ApplyColor("#FF0000")
+	ApplyPenWidth(4)
+}
+
+oDiag {
+	AddVisualRule(oProductionRule)
+	
+	AddNodeWithMetadata("prod_db", "Production DB", :Storage, :Primary,
+		[:env = "production", :replicas = 3], [:database])
+	
+	AddNodeWithMetadata("dev_db", "Dev DB", :Storage, :Info,
+		[:env = "development"], [:database])
+	
+	Connect("prod_db", "dev_db")
+	View()
+}
+
+pf()
+
+/*---------------------------#
+#  TEST 5: Priority Gradient
+#---------------------------#
+
+pr()
+
+oDiag = new stzDiagram("TaskPriority")
+
+# Three-tier priority visualization
+oLowPrio = new stzVisualRule("low")
+oLowPrio {
+	WhenMetadataInRange("priority", 0, 33)
+	ApplyColor("#CCCCCC")  # Gray for low
+}
+
+oMedPrio = new stzVisualRule("medium")
+oMedPrio {
+	WhenMetadataInRange("priority", 34, 66)
+	ApplyColor("#4488FF")  # Blue for medium
+}
+
+oHighPrio = new stzVisualRule("high")
+oHighPrio {
+	WhenMetadataInRange("priority", 67, 100)
+	ApplyColor("#FF4444")  # Red for high
+	ApplyPenWidth(3)
+}
+
+oDiag {
+	AddVisualRule(oLowPrio)
+	AddVisualRule(oMedPrio)
+	AddVisualRule(oHighPrio)
+	
+	AddNodeWithMetadata("task1", "Cleanup", :Process, :Neutral, 
+		[:priority = 20], [])
+	AddNodeWithMetadata("task2", "Review", :Process, :Info, 
+		[:priority = 50], [])
+	AddNodeWithMetadata("task3", "Deploy", :Process, :Danger, 
+		[:priority = 90], [:critical])
+	
+	Connect("task1", "task2")
+	Connect("task2", "task3")
+	
+	View()
+}
+
+pf()
+
+/*---------------------------#
+#  TEST 6: Edge Styling
+#---------------------------#
+
+pr()
+
+oDiag = new stzDiagram("ConnectionTypes")
+
+# Synchronous calls are bold and blue
+oSyncEdge = new stzVisualRule("sync")
+oSyncEdge {
+	WhenMetadataEquals("type", "sync")
+	ApplyStyle("bold")
+	ApplyColor("#0066CC")
+}
+
+# Async calls are dashed and gray
+oAsyncEdge = new stzVisualRule("async")
+oAsyncEdge {
+	WhenMetadataEquals("type", "async")
+	ApplyStyle("dashed")
+	ApplyColor("#999999")
+}
+
+oDiag {
+	AddVisualRule(oSyncEdge)
+	AddVisualRule(oAsyncEdge)
+	
+	AddNode("api", "API Gateway")
+	AddNode("service", "Auth Service")
+	AddNode("cache", "Redis Cache")
+	
+	AddEdgeWithMetadata("api", "service", "authenticate", 
+		[:type = "sync"], [])
+	AddEdgeWithMetadata("service", "cache", "invalidate", 
+		[:type = "async"], [])
+	
+	View()
+	? Code()
+}
+
+pf()
+
+/*---------------------------#
+#  TEST 7: Metadata Presence
+#---------------------------#
+
+pr()
+
+oDiag = new stzDiagram("SlaMonitoring")
+
+# Any node with SLA gets thick border
+oHasSla = new stzVisualRule("sla_defined")
+oHasSla {
+	WhenMetadataExists("sla_ms")
+	ApplyPenWidth(2)
+	ApplyColor(:green)
+}
+
+oDiag {
+	AddVisualRule(oHasSla)
+	
+	AddNodeWithMetadata("critical_api", "Payment API", :Process, :Primary,
+		[:sla_ms = 100, :uptime = 99.99], [])
+	
+	AddNodeWithMetadata("batch_job", "Batch Job", :Process, :Info,
+		[:schedule = "daily" ], [])  # No SLA
+	
+	Connect("critical_api", "batch_job")
+	View()
+}
+
+pf()
+
+/*---------------------------#
+#  TEST 8: Rule Cascading
+#---------------------------#
+
+pr()
+
+oDiag = new stzDiagram("RuleOverride")
+
+# Base rule for all APIs
+oApiBase = new stzVisualRule("api_base")
+oApiBase {
+	WhenTagExists(:api)
+	ApplyColor("#E0E0E0")
+}
+
+# Override for critical APIs (applied last, takes precedence)
+oCritical = new stzVisualRule("critical_override")
+oCritical {
+	WhenTagExists(:critical)
+	ApplyColor("#FF0000")
+	ApplyPenWidth(4)
+}
+
+oDiag {
+	AddVisualRule(oApiBase)     # Applied first
+	AddVisualRule(oCritical)    # Overrides color for critical
+	
+	AddNodeWithMetadata("standard", "User API", :Process, :Primary,
+		[], [:api])
+	
+	AddNodeWithMetadata("vital", "Payment API", :Process, :Primary,
+		[], [:api, :critical])  # Gets both rules, last wins
+	
+	Connect("standard", "vital")
+	View()
+}
+
+pf()
+
+#---------------------------#
+#  TEST 9: Dynamic Shapes
+#---------------------------#
+
+pr()
+
+oDiag = new stzDiagram("ServiceTypes")
+
+# Storage services get cylinder shape
+oStorageShape = new stzVisualRule("storage")
+oStorageShape {
+	WhenTagExists(:storage)
+	ApplyShape("cylinder")
+	ApplyColor("#8B4513")
+}
+
+# Queue services get parallelogram
+oQueueShape = new stzVisualRule("queue")
+oQueueShape {
+	WhenTagExists(:messaging)
+	ApplyShape("parallelogram")
+	ApplyColor("#FFA500")
+}
+
+oDiag {
+	AddVisualRule(oStorageShape)
+	AddVisualRule(oQueueShape)
+	
+	AddNodeWithMetadata("postgres", "PostgreSQL", :Process, :Info,
+		[:type = "relational"], [:storage, :database])
+	
+	AddNodeWithMetadata("rabbitmq", "RabbitMQ", :Process, :Warning,
+		[:type = "broker"], [:messaging, :queue])
+	
+	AddNodeWithMetadata("api", "REST API", :Process, :Primary,
+		[], [:service])
+	
+	Connect("api", "postgres")
+	Connect("api", "rabbitmq")
+	
+	View()
+}
+
+pf()
+
+/*---------------------------#
+#  TEST 10: Self-Documenting
+#---------------------------#
+
+pr()
+
+oDiag = new stzDiagram("DocumentedRules")
+
+oEncrypted = new stzVisualRule("secure")
+oEncrypted {
+	WhenTagExists(:encrypted)
+	ApplyColor("#00AA00")
+}
+
+oSlow = new stzVisualRule("performance")
+oSlow {
+	WhenMetadataInRange("latency_ms", 500, 9999)
+	ApplyColor("#FFA500")
+	ApplyPenWidth(2)
+}
+
+oDiag {
+	AddVisualRule(oEncrypted)
+	AddVisualRule(oSlow)
+	
+	AddNodeWithMetadata("secure_db", "Encrypted DB", :Storage, :Success,
+		[], [:encrypted])
+	
+	AddNodeWithMetadata("slow_api", "Legacy API", :Process, :Warning,
+		[:latency_ms = 750], [])
+	
+	# Generate legend showing all rule mappings
+	? "=== Visual Rules Legend ==="
+	? @@NL( MetadataLegend() )
+	
+	View()
+}
+
+pf()
+
+/*---------------------------#
+#  TEST 11: Complex Workflow
+#---------------------------#
+*/
+pr()
+
+oDiag = new stzDiagram("E2EMonitoring")
+
+# Combine multiple rules for realistic monitoring
+oHighLoad = new stzVisualRule("load")
+oHighLoad {
+	WhenMetadataInRange("load_pct", 80, 100)
+	ApplyColor("#FF4444")
+	ApplyPenWidth(3)
+}
+
+oEncrypted = new stzVisualRule("secure")
+oEncrypted {
+	WhenTagExists(:encrypted)
+	ApplyStyle("bold,filled")
+}
+
+oDeprecated = new stzVisualRule("legacy")
+oDeprecated {
+	WhenMetadataEquals("status", "deprecated")
+	ApplyColor("#888888")
+	ApplyStyle("dotted,filled")
+}
+
+oDiag {
+	AddVisualRule(oHighLoad)
+	AddVisualRule(oEncrypted)
+	AddVisualRule(oDeprecated)
+	
+	AddNodeWithMetadata("lb", "Load Balancer", :Process, :Primary,
+		[:load_pct = 85], [:critical])
+	
+	AddNodeWithMetadata("db", "Database", :Storage, :Primary,
+		[:load_pct = 60], [:encrypted])
+	
+	AddNodeWithMetadata("old_api", "Legacy API", :Process, :Neutral,
+		[:status = "deprecated"], [])
+	
+	Connect("lb", "db")
+	Connect("lb", "old_api")
+	
+	View()
+}
 
 pf()

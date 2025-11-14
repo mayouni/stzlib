@@ -420,9 +420,13 @@ class stzDiagram from stzGraph
 	@aVisualRules = []
 	@aMetadataKeys = []
 
-@aNodeMetadata = []  # Dictionary: nodeId -> metadata
-@aNodeTags = []      # Dictionary: nodeId -> tags
-@aNodeEnhancements = []  # Store computed visual effects
+	@aNodeMetadata = []  # Dictionary: nodeId -> metadata
+	@aNodeTags = []      # Dictionary: nodeId -> tags
+	@aNodeEnhancements = []  # Store computed visual effects
+	
+	@aEdgeMetadata = []
+	@aEdgeTags = []
+	@aEdgeEnhancements = []
 
 	def init(pTitle)
 		super.init(pTitle)
@@ -921,41 +925,30 @@ class stzDiagram from stzGraph
 			@aMetadataKeys = @Keys(aMetadata)
 		ok
 
-	def AddEdgeWithMetaData(pFromId, pToId, pLabel, aMetadata, aTags)
-	
+	def AddEdgeWithMetadata(pFromId, pToId, pLabel, aMetadata, aTags)
 		This.ConnectXT(pFromId, pToId, pLabel)
-			
-			# Find and enhance the edge
-			aEdges = This.Edges()
-	
-			for i = 1 to len(aEdges)
-				aEdge = aEdges[i]
-				if aEdge["from"] = pFromId and aEdge["to"] = pToId
-					if aEdge["label"] = NULL or NOT isString(aEdge["label"])
-						aEdge["label"] = ""
-					ok
-					
-					if NOT HasKey(aEdge, "metadata")
-						aEdge["metadata"] = []
-					ok
-					aEdge["metadata"] = aMetadata
-					
-					if NOT HasKey(aEdge, "tags")
-						aEdge["tags"] = []
-					ok
-					aEdge["tags"] = aTags
-					
-					exit
-				ok
-			end
+		
+		if NOT isList(aMetadata)
+			aMetadata = []
+		ok
+		
+		if NOT isList(aTags)
+			aTags = []
+		ok
+		
+		cEdgeKey = pFromId + "->" + pToId
+		@aEdgeMetadata[cEdgeKey] = aMetadata
+		@aEdgeTags[cEdgeKey] = aTags
 	
 	def ApplyVisualRules()
+		# Process nodes
 		aNodes = This.Nodes()
 		
 		for i = 1 to len(aNodes)
 			aNode = aNodes[i]
 			cNodeId = aNode["id"]
 			
+			# Restore metadata/tags from storage
 			if HasKey(@aNodeMetadata, cNodeId)
 				aNode["metadata"] = @aNodeMetadata[cNodeId]
 			else
@@ -972,6 +965,7 @@ class stzDiagram from stzGraph
 				aNode["properties"] = []
 			ok
 	   
+			# Apply matching rules
 			for oRule in @aVisualRules
 				if oRule.Matches(aNode)
 					aEffects = oRule.Effects()
@@ -983,7 +977,48 @@ class stzDiagram from stzGraph
 				ok
 			end
 			
+			# Store computed enhancements
 			@aNodeEnhancements[cNodeId] = aNode["properties"]
+		end
+		
+		# Process edges
+		aEdges = This.Edges()
+		
+		for i = 1 to len(aEdges)
+			aEdge = aEdges[i]
+			cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
+			
+			# Restore metadata/tags from storage
+			if HasKey(@aEdgeMetadata, cEdgeKey)
+				aEdge["metadata"] = @aEdgeMetadata[cEdgeKey]
+			else
+				aEdge["metadata"] = []
+			ok
+			
+			if HasKey(@aEdgeTags, cEdgeKey)
+				aEdge["tags"] = @aEdgeTags[cEdgeKey]
+			else
+				aEdge["tags"] = []
+			ok
+			
+			if NOT HasKey(aEdge, "properties")
+				aEdge["properties"] = []
+			ok
+			
+			# Apply matching rules
+			for oRule in @aVisualRules
+				if oRule.Matches(aEdge)
+					aEffects = oRule.Effects()
+					for aEffect in aEffects
+						cAspect = aEffect[1]
+						pValue = aEffect[2]
+						aEdge["properties"][cAspect] = pValue
+					end
+				ok
+			end
+			
+			# Store computed enhancements
+			@aEdgeEnhancements[cEdgeKey] = aEdge["properties"]
 		end
 		
 		def MetadataLegend()
@@ -1417,7 +1452,6 @@ class stzDiagramToDot
 		This._Generate()
 
 
-
 	def _Generate()
 		cOutput = ""
 		cTheme = ""
@@ -1475,6 +1509,7 @@ class stzDiagramToDot
 	
 		cOutput += "    edge [fontname=" + cFont + ", fontsize=" + nFontSize + ", color=" + cEdgeColor + ", style=" + cEdgeStyle + "]" + NL + NL
 	
+		# Generate nodes
 		for aNode in @oDiagram.Nodes()
 			cNodeId = aNode["id"]
 			cLabel = aNode["label"]
@@ -1568,13 +1603,17 @@ class stzDiagramToDot
 	
 		cOutput += NL
 	
+		# Generate edges with enhancements
 		for aEdge in @oDiagram.Edges()
 			cFrom = aEdge["from"]
 			cTo = aEdge["to"]
+			cEdgeKey = cFrom + "->" + cTo
+			
 			cOutput += '    ' + cFrom + ' -> ' + cTo
 			
 			aAttrs = []
 			
+			# Add label
 			if HasKey(aEdge, "label")
 				cLabel = aEdge["label"]
 				if cLabel != "" and cLabel != NULL
@@ -1583,21 +1622,27 @@ class stzDiagramToDot
 				ok
 			ok
 			
-			if HasKey(aEdge, "properties") and @IsHashList(aEdge["properties"])
-				if HasKey(aEdge["properties"], "style")
-					aAttrs + ('style="' + aEdge["properties"]["style"] + '"')
-				ok
-				if HasKey(aEdge["properties"], "arrowhead")
-					aAttrs + ('arrowhead=' + aEdge["properties"]["arrowhead"])
-				ok
-				if HasKey(aEdge["properties"], "color")
-					aAttrs + ('color="' + aEdge["properties"]["color"] + '"')
-				ok
-				if HasKey(aEdge["properties"], "penwidth")
-					aAttrs + ('penwidth=' + aEdge["properties"]["penwidth"])
-				ok
+			# Get edge enhancements
+			aEdgeEnhancements = []
+			if HasKey(@oDiagram.@aEdgeEnhancements, cEdgeKey)
+				aEdgeEnhancements = @oDiagram.@aEdgeEnhancements[cEdgeKey]
 			ok
 			
+			# Apply enhancements
+			if HasKey(aEdgeEnhancements, "style")
+				aAttrs + ('style="' + aEdgeEnhancements["style"] + '"')
+			ok
+			if HasKey(aEdgeEnhancements, "color")
+				aAttrs + ('color="' + aEdgeEnhancements["color"] + '"')
+			ok
+			if HasKey(aEdgeEnhancements, "penwidth")
+				aAttrs + ('penwidth=' + aEdgeEnhancements["penwidth"])
+			ok
+			if HasKey(aEdgeEnhancements, "arrowhead")
+				aAttrs + ('arrowhead=' + aEdgeEnhancements["arrowhead"])
+			ok
+			
+			# Build attributes string
 			if len(aAttrs) > 0
 				cOutput += ' ['
 				for i = 1 to len(aAttrs)
