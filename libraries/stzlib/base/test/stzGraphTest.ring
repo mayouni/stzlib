@@ -1,7 +1,9 @@
 load "../stzbase.ring"
 
 /*---
-*/
+
+pr()
+
 oGraph = new stzGraph("DAGStructure")
 oGraph {
     AddNodeXT(:@a, "A")
@@ -19,10 +21,8 @@ oGraph {
 #--> TRUE
 
 pf()
-#  stzGraphTest - Test Suite
 
 /*--- Three forms of AddEge/Connect method
-*/
 
 pr()
 
@@ -60,6 +60,7 @@ oGraph {
 
 
 pf()
+
 /*--- Creating a simple 3-node linear graph
 
 pr()
@@ -70,8 +71,8 @@ oGraph {
 	AddNodeXT(:@2, "Node 2")
 	AddNodeXT(:@3, "Node 3")
 
-	AddEdge(:@1, :@2, "connects")
-	AddEdge(:@2, :@3, "flows")
+	AddEdgeXT(:@1, :@2, "connects")
+	AddEdgeXT(:@2, :@3, "flows")
 
 	? NodeCount() #--> 3
 	? EdgeCount() #--> 2
@@ -92,8 +93,8 @@ oGraph.AddNodeXT(:@middle, "Middle")
 oGraph.AddNodeXT(:@end, "End")
 oGraph.AddNodeXT(:@isolated, "Isolated")
 
-oGraph.AddEdge(:@start, :@middle, "")
-oGraph.AddEdge(:@middle, :@end, "")
+oGraph.AddEdge(:@start, :@middle)
+oGraph.AddEdge(:@middle, :@end)
 
 ? oGraph.PathExists(:@start, :@end) 		#--> TRUE
 ? oGraph.PathExists(:@start, :@isolated) 	#--> FALSE
@@ -105,7 +106,6 @@ pf()
 
 pr()
 
-
 oGraph = new stzGraph("ReachabilityTest")
 
 oGraph.AddNodeXT(:@1, "A")
@@ -113,12 +113,15 @@ oGraph.AddNodeXT(:@2, "B")
 oGraph.AddNodeXT(:@3, "C")
 oGraph.AddNodeXT(:@4, "D")
 
-oGraph.AddEdge(:@1, :@2, "")
-oGraph.AddEdge(:@2, :@3, "")
-oGraph.AddEdge(:@1, :@4, "")
+oGraph.AddEdge(:@1, :@2)
+oGraph.AddEdge(:@2, :@3)
+oGraph.AddEdge(:@1, :@4)
 
 aReachable = oGraph.ReachableFrom(:@1)
 ? len(aReachable) #--> 4
+
+? @@(aReachable)
+#--> [ "@1", "@2", "@4", "@3" ]
 
 pf()
 
@@ -133,13 +136,16 @@ oGraph.AddNodeXT(:@2, "B")
 oGraph.AddNodeXT(:@3, "C")
 oGraph.AddNodeXT(:@4, "D")
 
-oGraph.AddEdge(:@1, :@2, "")
-oGraph.AddEdge(:@1, :@3, "")
-oGraph.AddEdge(:@2, :@4, "")
-oGraph.AddEdge(:@3, :@4, "")
+oGraph.AddEdge(:@1, :@2)
+oGraph.AddEdge(:@1, :@3)
+oGraph.AddEdge(:@2, :@4)
+oGraph.AddEdge(:@3, :@4)
 
 aAllPaths = oGraph.FindAllPaths(:@1, :@4)
 ? len(aAllPaths) #--> 2
+
+? @@(aAllPaths)
+#--> [ [ "@1", "@2", "@4" ], [ "@1", "@3", "@4" ] ]
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
@@ -153,8 +159,8 @@ oGraph.AddNodeXT(:@1, "A")
 oGraph.AddNodeXT(:@2, "B")
 oGraph.AddNodeXT(:@3, "C")
 
-oGraph.AddEdge(:@4, :@2, "")
-oGraph.AddEdge(:@5, :@3, "")
+oGraph.AddEdge(:@4, :@2)
+oGraph.AddEdge(:@5, :@3)
 
 ? oGraph.CyclicDependencies() #--> FALSE
 
@@ -174,9 +180,9 @@ oGraph.AddNodeXT(:@1, "P1")
 oGraph.AddNodeXT(:@2, "P2")
 oGraph.AddNodeXT(:@3, "P3")
 
-oGraph.AddEdge(:@1, :@2, "")
-oGraph.AddEdge(:@1, :@2, "")
-oGraph.AddEdge(:@3, :@1, "")
+oGraph.AddEdge(:@1, :@2)
+oGraph.AddEdge(:@1, :@2)
+oGraph.AddEdge(:@3, :@1)
 
 ? oGraph.CyclicDependencies() #--> TRUE
 oGraph.ShowWithLegend()
@@ -208,17 +214,17 @@ oGraph.ShowWithLegend()
             v            
          ╭────╮          
          │ P2 │          
-         ╰────╯  
+         ╰────╯          
 
 Legend:
 
-╭───────────┬────────────────────────────────────╮
-│   Sign    │              Meaning               │
-├───────────┼────────────────────────────────────┤
-│ !label!   │ High connectivity hub (bottleneck) │
-│ [...] __↑ │ Feedback loop                      │
-│ ////      │ Branch separator (multiple paths)  │
-╰───────────┴────────────────────────────────────╯ 
+╭────────────┬─────────────────────────────────────────────────────╮
+│    Sign    │                       Meaning                       │
+├────────────┼─────────────────────────────────────────────────────┤
+│ bottleneck │ [ "!label!", "High connectivity hub (bottleneck)" ] │
+│ feedback   │ [ "[...] ↑", "Feedback loop" ]                      │
+│ branch     │ [ "////", "Branch separator (multiple paths)" ]     │
+╰────────────┴─────────────────────────────────────────────────────╯
 
 ╭─────────────╮
 │ Explanation │
@@ -232,7 +238,7 @@ Legend:
 		"bottlenecks",
 		[
 			"Bottleneck nodes: @1",
-			"All nodes have average degree 2",
+			"Average degree: 2",
 			"  @1: degree 3 (above average)"
 		]
 	],
@@ -245,7 +251,6 @@ Legend:
 		[ "Density: 50% (dense)", "Longest path: 2 hops" ]
 	]
 ]
-
 '
 
 pf()
@@ -266,10 +271,10 @@ oGraph.AddNodeXT(:@2, "B")
 oGraph.AddNodeXT(:@3, "C")
 oGraph.AddNodeXT(:@hub, "Hub")
 
-oGraph.AddEdge(:@1, :@hub, "")
-oGraph.AddEdge(:@2, :@hub, "")
-oGraph.AddEdge(:@3, :@hub, "")
-oGraph.AddEdge(:@hub, :@1, "")
+oGraph.AddEdge(:@1, :@hub)
+oGraph.AddEdge(:@2, :@hub)
+oGraph.AddEdge(:@3, :@hub)
+oGraph.AddEdge(:@hub, :@1)
 
 ? @@( oGraph.BottleneckNodes() ) + NL
 #--> [ "@hub" ]
@@ -377,9 +382,9 @@ oGraph.AddNodeXT(:@1, "A")
 oGraph.AddNodeXT(:@2, "B")
 oGraph.AddNodeXT(:@3, "C")
 
-oGraph.AddEdge(:@1, :@2, "")
-oGraph.AddEdge(:@2, :@3, "")
-oGraph.AddEdge(:@1, :@3, "")
+oGraph.AddEdge(:@1, :@2)
+oGraph.AddEdge(:@2, :@3)
+oGraph.AddEdge(:@1, :@3)
 
 nDensity = oGraph.NodeDensity()
 ? nDensity #--> 50
@@ -402,10 +407,10 @@ oGraph.AddNodeXT(:@3, "C")
 oGraph.AddNodeXT(:@4, "D")
 oGraph.AddNodeXT(:@5, "E")
 
-oGraph.AddEdge(:@1, :@2, "")
-oGraph.AddEdge(:@2, :@3, "")
-oGraph.AddEdge(:@3, :@4, "")
-oGraph.AddEdge(:@4, :@5, "")
+oGraph.AddEdge(:@1, :@2)
+oGraph.AddEdge(:@2, :@3)
+oGraph.AddEdge(:@3, :@4)
+oGraph.AddEdge(:@4, :@5)
 
 nLongest = oGraph.LongestPath()
 ? nLongest #--> 4
@@ -427,12 +432,15 @@ oGraph.AddNodeXT(:@2, "B")
 oGraph.AddNodeXT(:@3, "C")
 oGraph.AddNodeXT(:@4, "D")
 
-oGraph.AddEdge(:@1, :@2, "")
-oGraph.AddEdge(:@1, :@3, "")
-oGraph.AddEdge(:@1, :@4, "")
+oGraph.AddEdge(:@1, :@2)
+oGraph.AddEdge(:@1, :@3)
+oGraph.AddEdge(:@1, :@4)
 
 aNeighbors = oGraph.NeighborsOf(:@1)
 ? len(aNeighbors) #--> 3
+
+? @@(aNeighbors)
+#--> [ "@2", "@3", "@4" ]
 
 pf()
 
@@ -451,12 +459,15 @@ oGraph.AddNodeXT(:@2, "B")
 oGraph.AddNodeXT(:@3, "C")
 oGraph.AddNodeXT(:@4, "D")
 
-oGraph.AddEdge(:@1, :@4, "")
-oGraph.AddEdge(:@2, :@4, "")
-oGraph.AddEdge(:@3, :@4, "")
+oGraph.AddEdge(:@1, :@4)
+oGraph.AddEdge(:@2, :@4)
+oGraph.AddEdge(:@3, :@4)
 
 aIncoming = oGraph.IncomingTo(:@4)
 ? len(aIncoming) #--> 3
+
+? @@(aIncoming)
+#--> [ "@1", "@2", "@3" ]
 
 pf()
 
@@ -474,8 +485,8 @@ oGraph.AddNodeXT(:@1, "A")
 oGraph.AddNodeXT(:@2, "B")
 oGraph.AddNodeXT(:@3, "C")
 
-oGraph.AddEdge(:@1, :@2, "")
-oGraph.AddEdge(:@2, :@3, "")
+oGraph.AddEdge(:@1, :@2)
+oGraph.AddEdge(:@2, :@3)
 
 oGraph.RemoveNode(:@2)
 
@@ -498,8 +509,8 @@ oGraph.AddNodeXT(:@1, "A")
 oGraph.AddNodeXT(:@2, "B")
 oGraph.AddNodeXT(:@3, "C")
 
-oGraph.AddEdge(:@1, :@2, "")
-oGraph.AddEdge(:@2, :@3, "")
+oGraph.AddEdge(:@1, :@2)
+oGraph.AddEdge(:@2, :@3)
 
 oGraph.RemoveEdge(:@1, :@2)
 ? oGraph.EdgeCount() #--> 1
@@ -536,7 +547,7 @@ oGraph = new stzGraph("EdgeExistsTest")
 oGraph.AddNodeXT(:@1, "A")
 oGraph.AddNodeXT(:@2, "B")
 
-oGraph.AddEdge(:@1, :@2, "")
+oGraph.AddEdge(:@1, :@2)
 
 ? oGraph.EdgeExists(:@1, :@2) #--> TRUE
 ? oGraph.EdgeExists(:@2, :@1) #--> FALSE
@@ -548,7 +559,7 @@ pf()
 #============================================#
 
 #---- Linear workflow - vertical display
-=
+
 pr()
 
 oWorkflow = new stzGraph("ApprovalProcess")
@@ -558,9 +569,9 @@ oWorkflow {
 	AddNodeXT(:@director, "Director Approval")
 	AddNodeXT(:@approved, "Approved")
 	
-	AddEdge(:@request, :@manager, "submit")
-	AddEdge(:@manager, :@director, "escalate")
-	AddEdge(:@director, :@approved, "finalize")
+	AddEdgeXT(:@request, :@manager, "submit")
+	AddEdgeXT(:@manager, :@director, "escalate")
+	AddEdgeXT(:@director, :@approved, "finalize")
 	
 	Show()
 }
@@ -607,12 +618,12 @@ oMultiPath {
 	AddNodeXT(:@standard, "Standard Path")
 	AddNodeXT(:@end, "Complete")
 	
-	AddEdge(:@start, :@fast, "expedited")
-	AddEdge(:@start, :@standard, "normal")
-	AddEdge(:@fast, :@end, "finish")
-	AddEdge(:@standard, :@end, "finish")
+	AddEdgeXT(:@start, :@fast, "expedited")
+	AddEdgeXT(:@start, :@standard, "normal")
+	AddEdgeXT(:@fast, :@end, "finish")
+	AddEdgeXT(:@standard, :@end, "finish")
 	
-	ShowWithLegend() #TODO Add control : if diagram contains alternatives only vertical dispaly is possible
+	ShowWithLegend() #TODO //Add control : if diagram contains alternatives only vertical dispaly is possible
 }
 
 #-->
@@ -694,7 +705,7 @@ Legend:
 ]
 '
 pf()
-# Executed in 0.17 second(s) in Ring 1.24
+# Executed in 0.12 second(s) in Ring 1.24
 
 /*---- Cycle detection visualization
 
@@ -706,9 +717,9 @@ oCyclic {
 	AddNodeXT(:@p2, "Process 2")
 	AddNodeXT(:@p3, "Process 3")
 	
-	AddEdge(:@p1, :@p2, "next")
-	AddEdge(:@p2, :@p3, "next")
-	AddEdge(:@p3, :@p1, "loop")
+	AddEdgeXT(:@p1, :@p2, "next")
+	AddEdgeXT(:@p2, :@p3, "next")
+	AddEdgeXT(:@p3, :@p1, "loop")
 	
 	? oCyclic.CyclicDependencies()
 	#--> TRUE
@@ -768,9 +779,9 @@ oHierarchy {
 	AddNodeXT(:@employee, "Employee")
 	AddNodeXT(:@manager, "Manager")
 	
-	AddEdge(:@entity, :@person, "is_a")
-	AddEdge(:@person, :@employee, "is_a")
-	AddEdge(:@employee, :@manager, "is_a")
+	AddEdgeXT(:@entity, :@person, "is_a")
+	AddEdgeXT(:@person, :@employee, "is_a")
+	AddEdgeXT(:@employee, :@manager, "is_a")
 	
 	? @@(oHierarchy.ReachableFrom(:@person))
 	#--> [@person, @employee, @manager]
@@ -862,10 +873,10 @@ oDataFlow {
     AddNodeXT(:@hub, "Hub")
     AddNodeXT(:@analysis, "Analysis")
 
-    AddEdge(:@sourceA, :@hub, "")
-    AddEdge(:@sourceB, :@hub, "")
-    AddEdge(:@sourceC, :@hub, "")
-    AddEdge(:@hub, :@analysis, "")
+    AddEdge(:@sourceA, :@hub)
+    AddEdge(:@sourceB, :@hub)
+    AddEdge(:@sourceC, :@hub)
+    AddEdge(:@hub, :@analysis)
 
     ? @@(oDataFlow.BottleneckNodes())
     #--> [@hub]
@@ -940,16 +951,16 @@ oGraph.AddNodeXT(:@pathA2, "Path A-2")
 oGraph.AddNodeXT(:@pathB1, "Path B-1")
 oGraph.AddNodeXT(:@pathB2, "Path B-2")
 
-oGraph.AddEdge(:@start, :@pathA1, "")
-oGraph.AddEdge(:@start, :@pathB1, "")
-oGraph.AddEdge(:@pathA1, :@pathA2, "")
-oGraph.AddEdge(:@pathB1, :@pathB2, "")
+oGraph.AddEdge(:@start, :@pathA1)
+oGraph.AddEdge(:@start, :@pathB1)
+oGraph.AddEdge(:@pathA1, :@pathA2)
+oGraph.AddEdge(:@pathB1, :@pathB2)
 
-? oGraph.ParallelizableBranches()
-# Returns: [[:@pathA1, :@pathB1]] - branches with no shared downstream
+? @@( oGraph.ParallelizableBranches() )
+#-->  [ [ "@patha1", "@pathb1" ] ] - branches with no shared downstream
 
-? oGraph.DependencyFreeNodes()
-# Returns: [:@start] - only entry point
+? @@( oGraph.DependencyFreeNodes() )
+#--> [ "@start" ] - only entry point
 
 pf()
 
@@ -966,9 +977,9 @@ oGraph.AddNodeXT(:@cache, "Cache")
 oGraph.AddNodeXT(:@worker1, "Worker1")
 oGraph.AddNodeXT(:@worker2, "Worker2")
 
-oGraph.AddEdge(:@database, :@api, "")
-oGraph.AddEdge(:@api, :@worker1, "")
-oGraph.AddEdge(:@api, :@worker2, "")
+oGraph.AddEdge(:@database, :@api)
+oGraph.AddEdge(:@api, :@worker1)
+oGraph.AddEdge(:@api, :@worker2)
 
 ? @@( oGraph.ImpactOf(:@api) )
 #--> 2 - affects 2 downstream nodes
@@ -995,14 +1006,14 @@ oGraph.AddNodeXT(:@task3, "Task 3")
 oGraph.AddConstraint("ACYCLIC")
 oGraph.AddConstraint("CONNECTED")
 
-oGraph.AddEdge(:@task1, :@task2, "")
-oGraph.AddEdge(:@task2, :@task3, "")
+oGraph.AddEdge(:@task1, :@task2)
+oGraph.AddEdge(:@task2, :@task3)
 
 ? oGraph.ValidateConstraints()
-# Returns: 1 - all constraints satisfied
+#--> 1 - all constraints satisfied
 
 ? @@( oGraph.ConstraintViolations() )
-# Returns: [] - no violations
+#--> [] - no violations
 
 pf()
 
@@ -1017,15 +1028,15 @@ oGraph.AddNodeXT(:@alice, "Alice")
 oGraph.AddNodeXT(:@bob, "Bob")
 oGraph.AddNodeXT(:@carol, "Carol")
 
-oGraph.AddEdge(:@alice, :@bob, "manages")
-oGraph.AddEdge(:@bob, :@carol, "manages")
+oGraph.AddEdgeXT(:@alice, :@bob, "manages")
+oGraph.AddEdgeXT(:@bob, :@carol, "manages")
 
 oGraph.AddInferenceRule("TRANSITIVITY")
 ? oGraph.ApplyInference()
-# Returns: 1 - created one inferred edge
+#--> 1 - created one inferred edge
 
 ? oGraph.EdgeExists(:@alice, :@carol)
-# Returns: 1 - now alice can reach carol transitively
+#--> 1 - now alice can reach carol transitively
 
 ? @@NL(oGraph.InferredEdges())
 #-->
@@ -1041,6 +1052,7 @@ oGraph.AddInferenceRule("TRANSITIVITY")
 '
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 #---
 
@@ -1059,7 +1071,7 @@ oGraph.AddEdgeXT(:@carol, :@david, "manages")
 # Register custom inference rule as autonomous function
 oGraph.RegisterInferenceRule("CHAIN_OF_COMMAND", func oGraph {
 	nInferred = 0
-	acEdges = oGraph.AllEdges()
+	acEdges = oGraph.Edges()
 	acNewEdges = []
 	
 	nLen = len(acEdges)
@@ -1093,15 +1105,16 @@ oGraph.RegisterInferenceRule("CHAIN_OF_COMMAND", func oGraph {
 })
 
 ? oGraph.ApplyCustomInference("CHAIN_OF_COMMAND")
-# Returns: 3
+#--> 2
 
 ? oGraph.EdgeExists(:@alice, :@carol)
-# Returns: 1
+#--> TRUE
 
-? oGraph.CustomInferenceRules()
-# Returns: ["CHAIN_OF_COMMAND"]
+? @@( oGraph.CustomInferenceRules() )
+#--> ["CHAIN_OF_COMMAND"]
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Sample 5: Rich Querying
 
@@ -1114,17 +1127,27 @@ oGraph.AddNodeXTT(:@fn1, "function1", [:type = "function"])
 oGraph.AddNodeXTT(:@fn2, "function2", [:type = "function"])
 oGraph.AddNodeXTT(:@mod1, "module1", [:type = "module"])
 
-oGraph.AddEdge(:@fn1, :@fn2, "calls")
-oGraph.AddEdge(:@fn2, :@mod1, "imports")
+oGraph.AddEdgeXT(:@fn1, :@fn2, "calls")
+oGraph.AddEdgeXT(:@fn2, :@mod1, "imports")
 
-? oGraph.Query([:nodeType = "function"])
-# Returns: [:@fn1, :@fn2]
+? @@( oGraph.Query([:nodeType = "function"]) )
+#--> [:@fn1, :@fn2]
 
-? oGraph.Query([:edgeLabel = "calls"])
-# Returns: edges with label "calls"
+? @@NL( oGraph.Query([:edgeLabel = "calls"]) )
+#-->
+'
+[
+	[
+		[ "from", "@fn1" ],
+		[ "to", "@fn2" ],
+		[ "label", "calls" ],
+		[ "properties", [  ] ]
+	]
+]
+'
 
-? oGraph.FindNodesWhere(func node { return substr(node["label"], "function") > 0 })
-# Returns: [:@fn1, :@fn2]
+? @@( oGraph.FindNodesWhere(func node { return substr(node["label"], "function") > 0 }) )
+#--> [:@fn1, :@fn2]
 
 pf()
 
@@ -1137,13 +1160,13 @@ pr()
 oGraph = new stzGraph("DatabaseSchema")
 oGraph.AddNodeXT(:@users, "users")
 oGraph.AddNodeXT(:@orders, "orders")
-oGraph.AddEdge(:@users, :@orders, "has_many")
+oGraph.AddEdgeXT(:@users, :@orders, "has_many")
 
 oGraph.Snapshot("v1.0")
 
 # Make changes
 oGraph.AddNodeXT(:@payments, "payments")
-oGraph.AddEdge(:@orders, :@payments, "has_many")
+oGraph.AddEdgeXT(:@orders, :@payments, "has_many")
 
 ? @@(oGraph.Snapshots()) + NL
 #--> ["v1.0"]
@@ -1183,19 +1206,19 @@ oGraph = new stzGraph("Pipeline")
 oGraph.AddNodeXT(:@input, "Input")
 oGraph.AddNodeXT(:@process, "Process")
 oGraph.AddNodeXT(:@output, "Output")
-oGraph.AddEdge(:@input, :@process, "feeds")
-oGraph.AddEdge(:@process, :@output, "produces")
+oGraph.AddEdgeXT(:@input, :@process, "feeds")
+oGraph.AddEdgeXT(:@process, :@output, "produces")
 
 ? BoxRound("DOT FORMAT")
-? oGraph.ExportToDOT() + NL
+? oGraph.ExportToDOT() + NL	# Or Simply oGraph.Dot() or ToDot()
 # Returns: GraphViz DOT format string
 
 ? BoxRound("JSON FORMAT")
-? oGraph.ExportToJSON() + NL
+? oGraph.ExportToJSON() + NL	# Or Simply oGraph.Json() or ToJson()
 # Returns: JSON with nodes, edges, and metrics
 
 ? BoxRound("YAML FORMAT")
-? oGraph.ExportToYAML()
+? oGraph.ExportToYAML()		# Or Simply oGraph.Yaml() or ToYaml()
 # Returns: YAML representation
 
 # Custom exporter
@@ -1204,7 +1227,7 @@ aNodes = oGraph.Nodes()
 
 oGraph.RegisterExporter("MERMAID", func {
 	acNodes = oGraph.Nodes()
-	acEdges = oGraph.AllEdges()
+	acEdges = oGraph.Edges()
 	cMermaid = "graph LR;" + nl
 	
 	for i = 1 to len(acNodes)
@@ -1232,41 +1255,255 @@ digraph Pipeline {
   rankdir=LR;
   node [shape=box];
 
-  @input [label=  @process [label=  @output [label=
-  @input -> @process [label=;
-  @process -> @output [label=;
+  input [label="Input"];
+  process [label="Process"];
+  output [label="Output"];
+
+  input -> process [label="feeds"];
+  process -> output [label="produces"];
 }
 
 
 ╭─────────────╮
 │ JSON FORMAT │
 ╰─────────────╯
-{"id":"Pipeline","nodes":[{"id":"@input","label":"Input","properties":{}},{"id":"@process","label":"Process","properties":{}},{"id":"@output","label":"Output","properties":{}}],"edges":[{"from":"@input","to":"@process","label":"feeds","properties":{}},{"from":"@process","to":"@output","label":"produces","properties":{}}],"metrics":{"nodecount":3,"edgecount":2,"density":33.33,"longestpath":2,"hascycles":0}}
+{
+  "id": "Pipeline",
+  "nodes": [
+    {"id":"input","label":"Input","properties":{}},
+    {"id":"process","label":"Process","properties":{}},
+    {"id":"output","label":"Output","properties":{}}
+  ],
+  "edges": [
+    {"from":"input","to":"process","label":"feeds","properties":{}},
+    {"from":"process","to":"output","label":"produces","properties":{}}
+  ],
+  "metrics": {"nodecount":3,"edgecount":2,"density":33.33,"longestpath":2,"hascycles":0}
+}
 
 ╭─────────────╮
 │ YAML FORMAT │
 ╰─────────────╯
 graph: Pipeline
 nodes:
-  - id: @input
+  - id: input
     label: Input
-  - id: @process
+  - id: process
     label: Process
-  - id: @output
+  - id: output
     label: Output
 
 edges:
-  - from: @input
-    to: @process
+  - from: input
+    to: process
     label: feeds
-  - from: @process
-    to: @output
+  - from: process
+    to: output
     label: produces
 
 ╭───────────────╮
 │ CUSTOM FORMAT │
 ╰───────────────╯
-graph LR; @input --> @process
+graph LR;
+  @input[Input]
+  @process[Process]
+  @output[Output]
+  @input --> @process
+  @process --> @output
 '
 
 pf()
+
+/*--- Sample 7: Export Formats
+
+# Serialize graph to standard formats.
+
+pr()
+
+oGraph = new stzGraph("Pipeline")
+oGraph {
+	AddNodeXT(:@input, "Input")
+	AddNodeXT(:@process, "Process")
+	AddNodeXT(:@output, "Output")
+	AddEdgeXT(:@input, :@process, "feeds")
+	AddEdgeXT(:@process, :@output, "produces")
+
+	ShowH()
+	ToDotQ().RunAndView()
+
+	#WARNING// View alone raises an error
+	#--> Can't view the generated visual! You must Run() the DOT code firts.
+}
+#--> Generates an sbg image with the graph:
+'
+╭───────╮          ╭───────────╮             ╭────────╮
+│ Input │--feeds-->│ !Process! │--produces-->│ Output │
+╰───────╯          ╰───────────╯             ╰────────╯
+'
+
+pf()
+
+#================================#
+#  NODE FINDING AND PATH TESTS   #
+#================================#
+
+/*-- Check if Node Exists
+
+pr()
+
+oGraph = new stzGraph("TestGraph")
+oGraph.AddNodeXT("start", "Start")
+oGraph.AddNodeXT("middle", "Middle")
+oGraph.AddNodeXT("end", "End")
+
+? oGraph.HasNode("start")
+#--> TRUE
+
+? oGraph.HasNode("nonexistent")
+#--> FALSE
+
+pf()
+#--> Executed in almost 0 second(s) in Ring 1.24
+
+/*-- Find Single Path to Node
+
+pr()
+
+oGraph = new stzGraph("LinearFlow")
+oGraph.AddNodeXT("a", "A")
+oGraph.AddNodeXT("b", "B")
+oGraph.AddNodeXT("c", "C")
+oGraph.AddEdge("a", "b")
+oGraph.AddEdge("b", "c")
+
+? @@NL( oGraph.FindNode("c") )
+#-->
+'
+[
+	[ "a", "b", "c" ]
+]
+'
+
+pf()
+#--> Executed in 0.01 second(s) in Ring 1.24
+
+/*-- Find Multiple Paths to Node
+
+pr()
+
+oGraph = new stzGraph("DiamondFlow")
+oGraph.AddNodeXT("start", "Start")
+oGraph.AddNodeXT("path1", "Path 1")
+oGraph.AddNodeXT("path2", "Path 2")
+oGraph.AddNodeXT("end", "End")
+
+oGraph.AddEdge("start", "path1")
+oGraph.AddEdge("start", "path2")
+oGraph.AddEdge("path1", "end")
+oGraph.AddEdge("path2", "end")
+
+aPaths = oGraph.FindNode("end")
+? len(aPaths)
+#--> 2
+
+? @@NL(aPaths)
+#-->
+'
+[
+	[ "start", "path1", "end" ],
+	[ "start", "path2", "end" ]
+]
+'
+
+pf()
+#--> Executed in 0.01 second(s) in Ring 1.24
+
+/*-- Find Paths Using Alias Methods
+
+pr()
+
+oGraph = new stzGraph("TestGraph")
+oGraph.AddNodeXT("a", "A")
+oGraph.AddNodeXT("b", "B")
+oGraph.AddNodeXT("c", "C")
+oGraph.AddEdge("a", "b")
+oGraph.AddEdge("b", "c")
+
+? @@( oGraph.PathsTo("c") )
+#--> [ [ "a", "b", "c" ] ]
+
+? @@( oGraph.PathsToNode("c") )
+#--> [ [ "a", "b", "c" ] ]
+
+pf()
+#--> Executed in almost 0 second(s) in Ring 1.24
+
+/*-- Find Isolated Node
+
+pr()
+
+oGraph = new stzGraph("TestGraph")
+oGraph.AddNodeXT("isolated", "Isolated")
+oGraph.AddNodeXT("a", "A")
+oGraph.AddNodeXT("b", "B")
+oGraph.AddEdge("a", "b")
+
+aPaths = oGraph.FindNode("isolated")
+? len(aPaths)
+#--> 1
+
+? @@(aPaths)
+#--> [ [ "isolated" ] ]
+
+pf()
+#--> Executed in 0.02 second(s) in Ring 1.24
+
+/*-- Find Root Node
+
+pr()
+
+oGraph = new stzGraph("TestGraph")
+oGraph.AddNodeXT("root", "Root")
+oGraph.AddNodeXT("child", "Child")
+oGraph.AddEdge("root", "child")
+
+aPaths = oGraph.FindNode("root")
+? @@(aPaths)
+#--> [ [ "root" ] ]
+
+pf()
+#--> Executed in almost 0 second(s) in Ring 1.24
+
+/*-- Complex Multi-Path Scenario
+*/
+pr()
+
+oGraph = new stzGraph("ComplexFlow")
+oGraph.AddNodeXT("s1", "Source 1")
+oGraph.AddNodeXT("s2", "Source 2")
+oGraph.AddNodeXT("m1", "Middle 1")
+oGraph.AddNodeXT("m2", "Middle 2")
+oGraph.AddNodeXT("target", "Target")
+
+oGraph.AddEdge("s1", "m1")
+oGraph.AddEdge("s1", "m2")
+oGraph.AddEdge("s2", "m1")
+oGraph.AddEdge("m1", "target")
+oGraph.AddEdge("m2", "target")
+
+aPaths = oGraph.FindNode("target")
+? len(aPaths)
+#--> 3
+
+? @@NL(aPaths)
+#-->
+'
+[
+	[ "s1", "m1", "target" ],
+	[ "s1", "m2", "target" ],
+	[ "s2", "m1", "target" ]
+]
+'
+
+pf()
+#--> Executed in 0.01 second(s) in Ring 1.24

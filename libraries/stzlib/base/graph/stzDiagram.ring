@@ -12,6 +12,71 @@ $aDiagramValidators = [
 	:Banking = new stzDiagramBankingValidator()
 ]
 
+# ============================================
+#  UNIFIED COLOR SYSTEM
+# ============================================
+
+# Base color definitions (single source of truth)
+$acColors = [
+	# Grayscale
+	:white = "#FFFFFF",
+	:black = "#000000",
+	:gray = "#808080",
+	
+	# Primary colors
+	:red = "#FF0000",
+	:green = "#008000",
+	:blue = "#0000FF",
+	:yellow = "#FFFF00",
+	:orange = "#FFA500",
+	:purple = "#800080",
+	:cyan = "#00FFFF",
+	:magenta = "#FF00FF",
+	
+	# Extended palette
+	:brown = "#A52A2A",
+	:pink = "#FFC0CB",
+	:navy = "#000080",
+	:teal = "#008080",
+	:olive = "#808000",
+	:maroon = "#800000",
+	:lime = "#00FF00",
+	:aqua = "#00FFFF",
+	:silver = "#C0C0C0",
+	:gold = "#FFD700",
+	:coral = "#FF7F50",
+	:salmon = "#FA8072",
+	:lavender = "#E6E6FA",
+	:steelblue = "#4682B4"
+]
+
+# Semantic color meanings (abstraction layer)
+$acColorsBySemanticMeaning = [
+	:Success = "green",
+	:Warning = "yellow",
+	:Danger = "red",
+	:Info = "blue",
+	:Primary = "blue",
+	:Neutral = "gray"
+]
+
+# Node type color mappings
+$acColorsByNodeType = [
+	:Start = "green",
+	:Process = "blue",
+	:Decision = "yellow",
+	:Endpoint = "coral",
+	:State = "cyan",
+	:Storage = "gray",
+	:Data = "lavender",
+	:Event = "pink",
+	:Gateway = "yellow",
+	:Subprocess = "steelblue",
+	:Timer = "salmon",
+	:Error = "coral",
+	:Compensation = "gold"
+]
+
 # Global node type definitions
 $acNodeTypes = [
 	:Start,
@@ -29,26 +94,9 @@ $acNodeTypes = [
 	:Compensation
 ]
 
-# Default colors for node types
-$acNodeColors = [
-	:Start = "lightgreen",
-	:Process = "lightblue",
-	:Decision = "lightyellow",
-	:Endpoint = "lightcoral",
-	:State = "lightcyan",
-	:Storage = "lightgray",
-	:Data = "lavender",
-	:Event = "lightpink",
-	:Gateway = "lightyellow",
-	:Subprocess = "lightsteelblue",
-	:Timer = "lightsalmon",
-	:Error = "lightcoral",
-	:Compensation = "lightgoldenrodyellow"
-]
-
 # Default node type and color
 @cDefaultNodeType = "process"
-@cDefaultNodeColor = "lightblue"
+@cDefaultNodeColor = :blue
 
 # Edge styles
 $acEdgeStyles = [
@@ -59,35 +107,100 @@ $acEdgeStyles = [
 ]
 
 @cDefaultEdgeStyle = "normal"
-
-$acEdgeColors = [
-	"black",
-	"gray",
-	"blue",
-	"green",
-	"red",
-	"orange",
-	"purple",
-	"brown",
-	"pink",
-	"cyan",
-	"magenta",
-	"yellow",
-	"navy",
-	"teal",
-	"olive",
-	"maroon",
-	"lime",
-	"aqua",
-	"silver",
-	"gold"
-]
-
 @cDefaultEdgeColor = "black"
 
-# THEMES
+#---
+
+# Global color palette - lazy initialization
+$acFullColorPalette = []
+
+# Initialize theme palettes after ResolveColor is defined
+$aPalette = [
+	:light = [
+		:primary = "blue+",
+		:success = "green+",
+		:warning = "yellow+",
+		:danger = "coral",
+		:info = "cyan+",
+		:neutral = "gray+",
+		:background = "white"
+	],
+	:dark = [
+		:primary = "blue--",
+		:success = "green",
+		:warning = "orange",
+		:danger = "red",
+		:info = "blue",
+		:neutral = "gray-",
+		:background = "gray++"
+	],
+	:vibrant = [
+		:primary = "blue",
+		:success = "green",
+		:warning = "orange",
+		:danger = "red",
+		:info = "blue",
+		:neutral = "gray--",
+		:background = "white"
+	],
+	:pro = [
+		:primary = "blue+",
+		:success = "green-",
+		:warning = "orange-",
+		:danger = "red-",
+		:info = "blue",
+		:neutral = "gray",
+		:background = "white"
+	],
+	:access = [
+		:primary = "blue",
+		:success = "green-",
+		:warning = "yellow+",
+		:danger = "red-",
+		:info = "blue",
+		:neutral = "gray-",
+		:background = "#FFFEF7"
+	],
+	:print = [
+		:primary = "white",
+		:success = "white",
+		:warning = "white",
+		:danger = "white",
+		:info = "white",
+		:neutral = "white",
+		:background = "white"
+	],
+	:lightgray = [
+		:primary = "gray++",
+		:success = "gray+",
+		:warning = "gray++",
+		:danger = "gray+",
+		:info = "gray++",
+		:neutral = "gray+",
+		:background = "#F9F9F9"
+	],
+	:gray = [
+		:primary = "gray+",
+		:success = "gray",
+		:warning = "gray+",
+		:danger = "gray-",
+		:info = "gray",
+		:neutral = "gray",
+		:background = "white"
+	],
+	:darkgray = [
+		:primary = "gray-",
+		:success = "gray-",
+		:warning = "gray-",
+		:danger = "gray--",
+		:info = "gray-",
+		:neutral = "gray--",
+		:background = "gray--"
+	]
+]
 
 # THEMES
+
 $acThemes = [
 	"light",
 	"dark",
@@ -102,9 +215,9 @@ $acThemes = [
 
 @cDefaultTheme = "light"
 
-# LAYOUT ~ These map to Graphviz's rankdir values:
+# LAYOUT
 $acLayouts = [
-	:TopDown = [ "tb", "td", "topbottom", "ud", "updown", "ub", "upbottom" ],	# "TB" in Graphviz DOT notation
+	:TopDown = [ "tb", "td", "topbottom", "ud", "updown", "ub", "upbottom" ],
 	:BottomUp = [ "bt", "dt", "bottomtop", "du", "downup", "bu", "bottomup" ],
 	:LeftRight = [ "lr" ],
 	:RightLeft = [ "rl" ]
@@ -141,94 +254,9 @@ $aThemeFonts = [
 	:gray = [:font = "helvetica", :size = 12]
 ]
 
-# PALETTE AND FONT COLORS
+# PALETTE AND FONT COLORS (will be populated after ResolveColor is defined)
 
-$aPalette = [
-	:light = [
-		:primary = "lightblue",
-		:success = "lightgreen",
-		:warning = "lightyellow",
-		:danger = "lightcoral",
-		:info = "lightcyan",
-		:neutral = "lightgray",
-		:background = "white"
-	],
-	:dark = [
-		:primary = "#003366",
-		:success = "#4CAF50",
-		:warning = "#FF9800",
-		:danger = "#F44336",
-		:info = "#2196F3",
-		:neutral = "#757575",
-		:background = "#F5F5F5"
-	],
-	:vibrant = [
-		:primary = "#0288D1",
-		:success = "#43A047",
-		:warning = "#FB8C00",
-		:danger = "#E53935",
-		:info = "#1E88E5",
-		:neutral = "#424242",
-		:background = "white"
-	],
-	:pro = [
-		:primary = "lightblue",
-		:success = "#006633",
-		:warning = "#CC6600",
-		:danger = "#CC0000",
-		:info = "#0066CC",
-		:neutral = "#666666",
-		:background = "white"
-	],
-	:access = [
-		:primary = "#0077CC",
-		:success = "#008800",
-		:warning = "#FFAA00",
-		:danger = "#CC0000",
-		:info = "#0066CC",
-		:neutral = "#555555",
-		:background = "#FFFEF7"
-	],
-	:print = [
-		:primary = "white",
-		:success = "white",
-		:warning = "white",
-		:danger = "white",
-		:info = "white",
-		:neutral = "white",
-		:background = "white"
-	],
-	:lightgray = [
-		:primary = "#E6E6E6",
-		:success = "#CCCCCC",
-		:warning = "#D9D9D9",
-		:danger = "#B3B3B3",
-		:info = "#DDDDDD",
-		:neutral = "#C0C0C0",
-		:background = "#F9F9F9"
-	],
-	
-	:gray = [
-		:primary = "#CCCCCC",
-		:success = "#999999",
-		:warning = "#BBBBBB",
-		:danger = "#666666",
-		:info = "#AAAAAA",
-		:neutral = "#888888",
-		:background = "#FFFFFF"
-	],
-	
-	:darkgray = [
-		:primary = "#666666",
-		:success = "#555555",
-		:warning = "#777777",
-		:danger = "#333333",
-		:info = "#444444",
-		:neutral = "#222222",
-		:background = "#111111"
-	]
-	
-]
+$aPalette = []
 
 $aFontColors = [
 	:light = [
@@ -291,32 +319,195 @@ $aEdgeDecorations = [
 # Color gradients for numeric metadata (0-100 scale)
 $aMetricColorGradients = [
 	:performance = [
-		[0, 50] = "#FF4444",   # Poor (red)
-		[51, 75] = "#FFA500",  # Moderate (orange)
-		[76, 100] = "#44FF44"  # Good (green)
+		[0, 50] = "#FF4444",
+		[51, 75] = "#FFA500",
+		[76, 100] = "#44FF44"
 	],
 	:risk = [
-		[0, 33] = "#44FF44",   # Low risk (green)
-		[34, 66] = "#FFA500",  # Medium risk (orange)
-		[67, 100] = "#FF4444"  # High risk (red)
+		[0, 33] = "#44FF44",
+		[34, 66] = "#FFA500",
+		[67, 100] = "#FF4444"
 	],
 	:priority = [
-		[0, 33] = "#CCCCCC",   # Low (gray)
-		[34, 66] = "#4488FF",  # Medium (blue)
-		[67, 100] = "#FF4444"  # High (red)
+		[0, 33] = "#CCCCCC",
+		[34, 66] = "#4488FF",
+		[67, 100] = "#FF4444"
 	]
 ]
 
-# STYLE RESOLUTION - Map semantic to visual properties
+# ============================================
+#  COLOR INTENSITY GENERATION & RESOLUTION
+# ============================================
+
+# Generate color intensities: color--, color-, color, color+, color++
+func GenerateColorIntensities(cColorName, cHexValue)
+	aIntensities = []
+	
+	aRGB = HexToRGB(cHexValue)
+	nR = aRGB[1]
+	nG = aRGB[2]
+	nB = aRGB[3]
+	
+	nLum = 0.299 * nR + 0.587 * nG + 0.114 * nB
+	
+	if nLum < 128  # Dark color
+		# Base is original
+		aIntensities[cColorName] = cHexValue
+		
+		# - : lighter (add ~64% white)
+		aIntensities[cColorName + "-"] = RGBToHex(
+			min([255, nR + floor((255 - nR) * 0.64)]),
+			min([255, nG + floor((255 - nG) * 0.64)]),
+			min([255, nB + floor((255 - nB) * 0.64)])
+		)
+		
+		# -- : much lighter (add ~88% white)
+		aIntensities[cColorName + "--"] = RGBToHex(
+			min([255, nR + floor((255 - nR) * 0.88)]),
+			min([255, nG + floor((255 - nG) * 0.88)]),
+			min([255, nB + floor((255 - nB) * 0.88)])
+		)
+		
+		# + : darker - for pure colors add 77 to zero channels, scale primary to 79%
+		nRedPlus = floor(nR * 0.79)
+		nGreenPlus = floor(nG * 0.79)
+		nBluePlus = floor(nB * 0.79)
+		
+		if nR = 0 and (nG > 0 or nB > 0)
+			nRedPlus = 77
+		ok
+		if nG = 0 and (nR > 0 or nB > 0)
+			nGreenPlus = 77
+		ok
+		if nB = 0 and (nR > 0 or nG > 0)
+			nBluePlus = 77
+		ok
+		
+		aIntensities[cColorName + "+"] = RGBToHex(
+			max([0, nRedPlus]),
+			max([0, nGreenPlus]),
+			max([0, nBluePlus])
+		)
+		
+		# ++ : much darker (scale to 40%)
+		aIntensities[cColorName + "++"] = RGBToHex(
+			max([0, floor(nR * 0.4)]),
+			max([0, floor(nG * 0.4)]),
+			max([0, floor(nB * 0.4)])
+		)
+		
+	else  # Light color
+		# Base is original
+		aIntensities[cColorName] = cHexValue
+		
+		# - : lighter (64% to white)
+		aIntensities[cColorName + "-"] = RGBToHex(
+			min([255, nR + floor((255 - nR) * 0.64)]),
+			min([255, nG + floor((255 - nG) * 0.64)]),
+			min([255, nB + floor((255 - nB) * 0.64)])
+		)
+		
+		# -- : much lighter (88% to white)
+		aIntensities[cColorName + "--"] = RGBToHex(
+			min([255, nR + floor((255 - nR) * 0.88)]),
+			min([255, nG + floor((255 - nG) * 0.88)]),
+			min([255, nB + floor((255 - nB) * 0.88)])
+		)
+		
+		# + : darker (20% of original)
+		aIntensities[cColorName + "+"] = RGBToHex(
+			max([0, floor(nR * 0.2)]),
+			max([0, floor(nG * 0.2)]),
+			max([0, floor(nB * 0.2)])
+		)
+		
+		# ++ : much darker (5% of original)
+		aIntensities[cColorName + "++"] = RGBToHex(
+			max([0, floor(nR * 0.05)]),
+			max([0, floor(nG * 0.05)]),
+			max([0, floor(nB * 0.05)])
+		)
+	ok
+	
+	return aIntensities
+
+# Build complete color palette with all intensities
+func BuildColorPalette()
+	aPalette = []
+	
+	# Add base colors
+	for cKey in keys($acColors)
+		cHex = $acColors[cKey]
+		aPalette[cKey] = cHex
+	end
+	
+	# Add all intensity variations
+	for cKey in keys($acColors)
+		cHex = $acColors[cKey]
+		cColorName = "" + cKey
+		aIntensities = GenerateColorIntensities(cColorName, cHex)
+		
+		for cIntensityKey in keys(aIntensities)
+			aPalette[cIntensityKey] = aIntensities[cIntensityKey]
+		end
+	end
+	
+	return aPalette
+
+
+# Global color resolution function
+func ResolveColor(pColor)
+	if len($acFullColorPalette) = 0
+		$acFullColorPalette = BuildColorPalette()
+	ok
+	
+	if isString(pColor) and substr(pColor, "#")
+		return pColor
+	ok
+	
+	cColorKey = lower("" + pColor)
+	
+	if HasKey($acFullColorPalette, cColorKey)
+		return $acFullColorPalette[cColorKey]
+	ok
+	
+	if HasKey($acColorsBySemanticMeaning, cColorKey)
+		cBaseColor = "" + $acColorsBySemanticMeaning[cColorKey]
+		return ResolveColor(cBaseColor)
+	ok
+	
+	if HasKey($acColorsByNodeType, cColorKey)
+		cBaseColor = "" + $acColorsByNodeType[cColorKey]
+		return ResolveColor(cBaseColor)
+	ok
+	
+	aLegacyMap = [
+		:lightblue = "blue+",
+		:lightgreen = "green+",
+		:lightyellow = "yellow+",
+		:lightcoral = "coral",
+		:lightgray = "gray+",
+		:lightcyan = "cyan+",
+		:lightpink = "pink+",
+		:darkgreen = "green-",
+		:darkblue = "blue-",
+		:darkred = "red-"
+	]
+	
+	if HasKey(aLegacyMap, cColorKey)
+		return ResolveColor(aLegacyMap[cColorKey])
+	ok
+	
+	return $acFullColorPalette[:blue]
+
+# STYLE RESOLUTION
 func ResolveEdgeStyle(pStyle)
 	cStyleKey = lower("" + pStyle)
 	
-	# Check if it's already a valid visual style
 	if HasKey($acEdgeStyles, cStyleKey)
 		return $acEdgeStyles[cStyleKey]
 	ok
 	
-	# Return as-is if it's a direct value (solid, dashed, dotted, bold)
 	if ring_find(["solid", "dashed", "dotted", "bold"], cStyleKey)
 		return cStyleKey
 	ok
@@ -326,12 +517,10 @@ func ResolveEdgeStyle(pStyle)
 func ResolveNodeType(pType)
 	cTypeKey = lower("" + pType)
 	
-	# Check if it's a valid semantic type
 	if ring_find($acNodeTypes, cTypeKey)
 		return cTypeKey
 	ok
 	
-	# Map visual terms to semantic types
 	aVisualMap = [
 		:box = :process,
 		:diamond = :decision,
@@ -347,13 +536,55 @@ func ResolveNodeType(pType)
 	
 	return @cDefaultNodeType
 
+# Helper: Hex to RGB
+func HexToRGB(cHex)
+	# Remove # if present
+	if substr(cHex, "#")
+		cHex = @substr(cHex, 2, len(cHex))
+	ok
+	
+	if len(cHex) != 6
+		return [128, 128, 128] # Gray fallback
+	ok
+	
+	cR = @substr(cHex, 1, 2)
+	cG = @substr(cHex, 3, 4)
+	cB = @substr(cHex, 5, 6)
+	
+	nR = HexToDec(cR)
+	nG = HexToDec(cG)
+	nB = HexToDec(cB)
+	
+	return [nR, nG, nB]
+
+# Helper: RGB to Hex
+func RGBToHex(nR, nG, nB)
+	# Clamp values to 0-255
+	nR = max([ 0, min([ 255, nR ]) ])
+	nG = max([ 0, min([ 255, nG ]) ])
+	nB = max([ 0, min([ 255, nB ]) ])
+	
+	cR = DecToHex(nR)
+	cG = DecToHex(nG)
+	cB = DecToHex(nB)
+	
+	# Pad to 2 digits
+	if len(cR) = 1 cR = "0" + cR ok
+	if len(cG) = 1 cG = "0" + cG ok
+	if len(cB) = 1 cB = "0" + cB ok
+	
+	return "#" + upper(cR) + upper(cG) + upper(cB)
+
+
+
+
 func Palette()
 	return $aPalette
 
 func FontColors()
 	return $aFontColors
 
-# NODE TYPE CALL FUNCTIONS
+# NODE TYPE FUNCTIONS
 
 func DefaultNodeType()
 	return @cDefaultNodeType
@@ -365,15 +596,15 @@ func IsValidNodeType(pcType)
 	return ring_find($acNodeTypes, pcType) > 0
 
 func DefaultNodeColor()
-	return @cDefaultNodeColor
+	return ResolveColor(@cDefaultNodeColor)
 
 func ColorForNodeType(pcType)
-	if HasKey($acNodeColors, pcType)
-		return $acNodeColors[pcType]
+	if HasKey($acColorsByNodeType, pcType)
+		return ResolveColor($acColorsByNodeType[pcType])
 	ok
-	return @cDefaultNodeColor
+	return ResolveColor(@cDefaultNodeColor)
 
-# EDGE STYLE CALL FUNCTIONS
+# EDGE STYLE FUNCTIONS
 
 func IsValidEdgeStyle(pcStyle)
 	return HasKey($acEdgeStyles, pcStyle)
@@ -390,11 +621,14 @@ func StyleForEdgeType(pcType)
 	ok
 	return @cDefaultEdgeStyle
 
-# VALIDATOR CALL FUNCTION
+# VALIDATOR FUNCTION
 
 func DiagramValidators()
 	return $aDiagramValidators
 
+# =====================================================
+#  stzDiagram Class - Main Diagram Implementation
+# =====================================================
 
 class stzDiagram from stzGraph
 
@@ -404,15 +638,13 @@ class stzDiagram from stzGraph
 	@aAnnotations = []
 	@aTemplates = []
 
-	@cEdgeColor = @cDefaultEdgeColor
+	@cEdgeColor = ResolveColor(@cDefaultEdgeColor)
 	@cNodeStrokeColor = ""
 
 	@aPalette = $aPalette
 	@aFontColors = $aFontColors
 
-	@cEdgeColor = @cDefaultEdgeColor
 	@cEdgeStyle = @cDefaultEdgeStyle
-	@cNodeStrokeColor = ""
 
 	@cFont = @cDefaultFont
 	@nFontSize = @cDefaultFontSize
@@ -420,9 +652,9 @@ class stzDiagram from stzGraph
 	@aVisualRules = []
 	@aMetadataKeys = []
 
-	@aNodeMetadata = []  # Dictionary: nodeId -> metadata
-	@aNodeTags = []      # Dictionary: nodeId -> tags
-	@aNodeEnhancements = []  # Store computed visual effects
+	@aNodeMetadata = []
+	@aNodeTags = []
+	@aNodeEnhancements = []
 	
 	@aEdgeMetadata = []
 	@aEdgeTags = []
@@ -434,7 +666,6 @@ class stzDiagram from stzGraph
 	def SetTheme(pTheme)
 		cThemeKey = lower(pTheme)
 		
-		# Map semantic to actual theme names
 		if cThemeKey = "professional"
 			cThemeKey = "pro"
 		ok
@@ -442,7 +673,6 @@ class stzDiagram from stzGraph
 		if HasKey($aPalette, cThemeKey)
 			@cTheme = cThemeKey
 			
-			# Apply theme-specific font settings
 			if HasKey($aThemeFonts, cThemeKey)
 				@cFont = $aThemeFonts[cThemeKey][:font]
 				@nFontSize = $aThemeFonts[cThemeKey][:size]
@@ -456,10 +686,10 @@ class stzDiagram from stzGraph
 		@cEdgeStyle = lower(pStyle)
 
 	def SetEdgeColor(pColor)
-		@cEdgeColor = lower(pColor)
+		@cEdgeColor = ResolveColor(pColor)
 
 	def SetNodeStrokeColor(pColor)
-		@cNodeStrokeColor = pColor
+		@cNodeStrokeColor = ResolveColor(pColor)
 
 	def SetFont(pFont)
 		@cFont = lower(pFont)
@@ -471,34 +701,9 @@ class stzDiagram from stzGraph
 	#  COLOR RESOLUTION
 	#------------------------------------------
 
-	def ResolveColor(pColor)
-		# If already a hex or standard color, return as-is
-		if isString(pColor) and (substr(pColor, "#") or 
-		   ring_find(["white", "black", "red", "blue", "green", "yellow", 
-		              "lightblue", "lightgreen", "lightyellow", "lightcoral",
-		              "lightgray", "lightcyan", "lavender", "lightpink"], lower(pColor)))
-			return pColor
-		ok
-		
-		# Resolve symbolic color from palette
-		cTheme = lower(@cTheme)
-		if cTheme = "" or cTheme = NULL
-			cTheme = "pro"
-		ok
-		
-		cColorKey = lower("" + pColor)
-		
-		if HasKey(@aPalette, cTheme) and HasKey(@aPalette[cTheme], cColorKey)
-			return @aPalette[cTheme][cColorKey]
-		ok
-		
-		# Default fallback
-		return "lightblue"
-
-
 	def ResolveFontColor(pBgColor)
 		# Get actual resolved background color
-		cBgColor = This.ResolveColor(pBgColor)
+		cBgColor = ResolveColor(pBgColor)
 		
 		# Always use luminance calculation for consistent contrast
 		return This.ContrastingTextColor(cBgColor)
@@ -511,11 +716,9 @@ class stzDiagram from stzGraph
 		nB = aRGB[3]
 		
 		# Simple perceptual brightness formula (ITU BT.709)
-		# This works better than gamma-corrected luminance for UI text
 		nBrightness = (0.299 * nR + 0.587 * nG + 0.114 * nB)
 		
 		# Threshold at 150 for better contrast
-		# Accounts for human perception where colors need more brightness for black text
 		if nBrightness < 150
 			return "white"
 		else
@@ -523,56 +726,15 @@ class stzDiagram from stzGraph
 		ok
 	
 	def ColorToRGB(cColor)
-		# Handle hex colors
-		if substr(cColor, "#")
-			cHex = @substr(cColor, 2, len(cColor))
-			if len(cHex) = 6
-				nR = dec(@substr(cHex, 1, 2))
-				nG = dec(@substr(cHex, 3, 4))
-				nB = dec(@substr(cHex, 5, 6))
-				return [nR, nG, nB]
-			ok
-		ok
-		
-		# Named colors mapping (expanded)
-		aColorMap = [
-			:white = [255, 255, 255],
-			:black = [0, 0, 0],
-			:red = [255, 0, 0],
-			:green = [0, 128, 0],
-			:blue = [0, 0, 255],
-			:yellow = [255, 255, 0],
-			:orange = [255, 165, 0],
-			:lightblue = [173, 216, 230],
-			:lightgreen = [144, 238, 144],
-			:lightyellow = [255, 255, 224],
-			:lightcoral = [240, 128, 128],
-			:lightgray = [211, 211, 211],
-			:lightcyan = [224, 255, 255],
-			:lavender = [230, 230, 250],
-			:lightpink = [255, 182, 193],
-			:darkgreen = [0, 100, 0],
-			:darkblue = [0, 0, 139],
-			:darkred = [139, 0, 0]
-		]
-		
-		cKey = lower(cColor)
-		if HasKey(aColorMap, cKey)
-			return aColorMap[cKey]
-		ok
-		
-		# Parse RGB values for palette hex colors
-		if len(cColor) = 7 and substr(cColor, "#")
-			return This.ColorToRGB(cColor)
-		ok
-		
-		# Default to light color
-		return [200, 200, 200]
+		# First resolve to hex, then convert
+		cHex = ResolveColor(cColor)
+		return HexToRGB(cHex)
 
 	def GetNodeStrokeColor(cTheme)
 		if cTheme = "print" or cTheme = "gray"
 			return "black"
 		ok
+		return ""
 
 	def ConvertColorTogray(cColor)
 		aRGB = This.ColorToRGB(cColor)
@@ -583,15 +745,8 @@ class stzDiagram from stzGraph
 		# Use perceptual brightness formula
 		nGray = floor(0.299 * nR + 0.587 * nG + 0.114 * nB)
 		
-		# Convert to hex
-		cHex = "#"
-		cGrayHex = hex(nGray)
-		if len(cGrayHex) = 1
-			cGrayHex = "0" + cGrayHex
-		ok
-		cHex += cGrayHex + cGrayHex + cGrayHex
-		
-		return cHex
+		# Use global helper
+		return RGBToHex(nGray, nGray, nGray)
 
 	#------------------------------------------
 	#  DIAGRAM-SPECIFIC NODE OPERATIONS
@@ -602,7 +757,11 @@ class stzDiagram from stzGraph
 
 	def AddNodeXT(pNodeId, pLabel, pType, pColor)
 		cResolvedType = ResolveNodeType(pType)
-		cResolvedColor = This.ResolveColor(pColor)
+		# Store color as-is if it's already hex, otherwise resolve
+		cResolvedColor = pColor
+		if NOT substr(pColor, "#")
+			cResolvedColor = ResolveColor(pColor)
+		ok
 		
 		super.AddNodeXTT(pNodeId, pLabel, [
 			:type = cResolvedType,
@@ -628,7 +787,7 @@ class stzDiagram from stzGraph
 			:id = pClusterId,
 			:label = pLabel,
 			:nodes = aNodeIds,
-			:color = pColor
+			:color = ResolveColor(pColor)
 		]
 		@aClusters + oCluster
 
@@ -766,26 +925,18 @@ class stzDiagram from stzGraph
 	#  VISUALIZATION
 	#------------------------------------------
 
-	def Show()
+	def View()
 
 		# Generate DOT code
 		cDotCode = This.Dot()
 		
-		# Create stzDotCode instance
+		# Create stzDotCode instance and execute
 		oDotExec = new stzDotCode()
 		oDotExec.SetCode(cDotCode)
-		
-		# Set output format and file
 		oDotExec.SetOutputFormat("svg")
-		oDotExec.SetOutputFile("diagram_" + This.Id() + ".svg")
-		
-		# Execute and view
 		oDotExec.ExecuteAndView()
 		
 		def Display()
-			This.Show()
-		
-		def View()
 			This.Show()
 		
 		def Visualize()
@@ -911,7 +1062,7 @@ class stzDiagram from stzGraph
 		@aVisualRules + oRule
 
 	
-	def AddNodeWithMetadata(pNodeId, pLabel, pType, pColor, aMetadata, aTags)
+	def AddNodeWithMetaData(pNodeId, pLabel, pType, pColor, aMetadata, aTags)
 		This.AddNodeXT(pNodeId, pLabel, pType, pColor)
 		
 		if NOT isList(aMetadata)
@@ -925,7 +1076,7 @@ class stzDiagram from stzGraph
 			@aMetadataKeys = @Keys(aMetadata)
 		ok
 
-	def AddEdgeWithMetadata(pFromId, pToId, pLabel, aMetadata, aTags)
+	def AddEdgeWithMetaData(pFromId, pToId, pLabel, aMetadata, aTags)
 		This.ConnectXT(pFromId, pToId, pLabel)
 		
 		if NOT isList(aMetadata)
@@ -940,6 +1091,7 @@ class stzDiagram from stzGraph
 		@aEdgeMetadata[cEdgeKey] = aMetadata
 		@aEdgeTags[cEdgeKey] = aTags
 	
+
 	def ApplyVisualRules()
 		# Process nodes
 		aNodes = This.Nodes()
@@ -1021,26 +1173,245 @@ class stzDiagram from stzGraph
 			@aEdgeEnhancements[cEdgeKey] = aEdge["properties"]
 		end
 		
-		def MetadataLegend()
-			# Generate legend showing metadata-to-visual mappings
-			aLegend = []
+	def MetadataLegend()
+		# Generate legend showing metadata-to-visual mappings
+		aLegend = []
+		
+		aLegend + "=== METADATA LEGEND ==="
+		aLegend + ""
+		
+		for oRule in @aVisualRules
+			cDesc = "When: " + oRule.@cConditionType
+			aLegend + cDesc
 			
-			aLegend + "=== METADATA LEGEND ==="
-			aLegend + ""
-			
-			for oRule in @aVisualRules
-				cDesc = "When: " + oRule.@cConditionType
-				aLegend + cDesc
-				
-				aEffects = oRule.Effects()
-				for aEffect in aEffects
-					aLegend + "  → " + aEffect[1] + ": " + aEffect[2]
-				end
-				aLegend + ""
+			aEffects = oRule.Effects()
+			for aEffect in aEffects
+				aLegend + "  → " + aEffect[1] + ": " + aEffect[2]
 			end
-			
-			return aLegend
+			aLegend + ""
+		end
+		
+		return aLegend
+
+	#------------------------------------------
+	#  IMPORT WITH SUBDIAGRAM SUPPORT
+	#------------------------------------------
 	
+	def ImportDiag(cDiagString)
+		# Parse first node of imported diagram
+		cFirstNodeId = This.ExtractFirstNodeId(cDiagString)
+		
+		if cFirstNodeId = ""
+			StzRaise("Cannot parse imported diagram - no nodes found")
+		ok
+		
+		# Check if current diagram has nodes
+		if This.NodeCount() > 0
+			# Check if first node exists in current diagram
+			if This.HasNode(cFirstNodeId)
+				# Import as subdiagram under this node
+				This.ImportAsSubdiagram(cDiagString, cFirstNodeId)
+			else
+				StzRaise("Import failed: First node '" + cFirstNodeId + "' not found in current diagram. " +
+					"Either add node '" + cFirstNodeId + "' first, or clear the diagram with RemoveAllNodes()")
+			ok
+		else
+			# Empty diagram - do normal import
+			This.ParseAndImport(cDiagString)
+		ok
+	
+	def ExtractFirstNodeId(cDiagString)
+		aLines = @split(cDiagString, NL)
+		bInNodesSection = FALSE
+		
+		for cLine in aLines
+			cLine = trim(cLine)
+			if cLine = "nodes"
+				bInNodesSection = TRUE
+				loop
+			ok
+			
+			if bInNodesSection and cLine != "" and 
+			   NOT substr(cLine, "label:") and 
+			   NOT substr(cLine, "type:") and 
+			   NOT substr(cLine, "color:")
+				return cLine
+			ok
+			
+			if bInNodesSection and (cLine = "edges" or cLine = "clusters")
+				exit
+			ok
+		end
+	
+	def ImportAsSubdiagram(cDiagString, cParentNodeId)
+		oTemp = new stzDiagram("temp")
+		oTemp.ParseAndImport(cDiagString)
+		
+		aNodes = oTemp.Nodes()
+		aEdges = oTemp.Edges()
+		
+		# Add all nodes EXCEPT the parent (which already exists)
+		for aNode in aNodes
+			if aNode["id"] != cParentNodeId
+				This.AddNodeXT(aNode["id"], aNode["label"], 
+					aNode["properties"]["type"], 
+					aNode["properties"]["color"])
+			ok
+		end
+		
+		# Add all edges
+		for aEdge in aEdges
+			cFrom = aEdge["from"]
+			cTo = aEdge["to"]
+			
+			# All edges are added normally since parent node exists
+			This.Connect(cFrom, cTo)
+		end
+	
+def ParseAndImport(cDiagString)
+	aLines = split(cDiagString, NL)
+	cCurrentSection = ""
+	cCurrentNode = ""
+	cLabel = ""
+	cType = ""
+	cColor = ""
+	aEdgesToAdd = []  # Store edges for later
+	
+	for cLine in aLines
+		cLineTrimmed = trim(cLine)
+		if cLineTrimmed = "" or left(cLineTrimmed, 1) = "#"
+			loop
+		ok
+		cLine = cLineTrimmed
+		
+		if substr(cLine, "diagram ")
+			cTitle = trim(@substr(cLine, 10, len(cLine)-1))			
+			@cId = cTitle
+			
+		but cLine = "metadata"
+			cCurrentSection = "metadata"
+			
+		but cLine = "nodes"
+			cCurrentSection = "nodes"
+			
+		but cLine = "edges"
+			cCurrentSection = "edges"
+			
+		but cCurrentSection = "metadata" and substr(cLine, ":")
+			aParts = split(cLine, ":")
+			cKey = trim(aParts[1])
+			cValue = trim(aParts[2])
+			
+			if cKey = "theme"
+				This.SetTheme(cValue)
+			but cKey = "layout"
+				This.SetLayout(cValue)
+			ok
+			
+		but cCurrentSection = "nodes"
+			if NOT substr(cLine, "label:") and NOT substr(cLine, "type:") and NOT substr(cLine, "color:")
+				if cCurrentNode != "" and cLabel != ""
+					if cType = "" cType = @cDefaultNodeType ok
+					if cColor = "" cColor = @cDefaultNodeColor ok
+					This.AddNodeXT(cCurrentNode, cLabel, cType, cColor)
+				ok
+				cCurrentNode = cLine
+				cLabel = ""
+				cType = ""
+				cColor = ""
+			but substr(cLine, "label:")
+				cLabel = @substr(cLine, 8, len(cLine))
+				cLabel = This.UnescapeString(cLabel)
+			but substr(cLine, "type:")
+				cType = trim(@substr(cLine, 7, len(cLine)))
+			but substr(cLine, "color:")
+				cColor = trim(@substr(cLine, 8, len(cLine)))
+			ok
+			
+		but cCurrentSection = "edges" and substr(cLine, "->")
+			aEdgeParts = split(cLine, "->")
+			cFrom = trim(aEdgeParts[1])
+			cTo = trim(aEdgeParts[2])
+			aEdgesToAdd + [cFrom, cTo]  # Store for later
+		ok
+	end
+	
+	# Add last node
+	if cCurrentNode != "" and cLabel != ""
+		if cType = "" cType = @cDefaultNodeType ok
+		if cColor = "" cColor = @cDefaultNodeColor ok
+		This.AddNodeXT(cCurrentNode, cLabel, cType, cColor)
+	ok
+	
+	# Now add all edges
+	for aEdge in aEdgesToAdd
+		This.Connect(aEdge[1], aEdge[2])
+	end
+	
+	def UnescapeString(cStr)
+
+		cStr = trim(cStr)
+		if left(cStr, 1) = '"' and right(cStr, 1) = '"'
+			cStr = @substr(cStr, 2, len(cStr) - 1)
+		ok
+		cStr = substr(cStr, '\"', '"')
+		return cStr
+	
+
+	#------------------------------------------
+	#  METADATA OPERATIONS
+	#------------------------------------------
+	
+	def SetNodeMetadata(pNodeId, aMetadata)
+		@aNodeMetadata[pNodeId] = aMetadata
+	
+	def GetNodeMetadata(pNodeId)
+		if HasKey(@aNodeMetadata, pNodeId)
+			return @aNodeMetadata[pNodeId]
+		ok
+		return []
+	
+	def RemoveNodeMetadata(pNodeId)
+		if HasKey(@aNodeMetadata, pNodeId)
+			@aNodeMetadata[pNodeId] = NULL
+		ok
+	
+	def UpdateNodeMetadata(pNodeId, cKey, pValue)
+		if NOT HasKey(@aNodeMetadata, pNodeId)
+			@aNodeMetadata[pNodeId] = []
+		ok
+		@aNodeMetadata[pNodeId][cKey] = pValue
+	
+	def SetEdgeMetadata(pFromId, pToId, aMetadata)
+		cEdgeKey = pFromId + "->" + pToId
+		@aEdgeMetadata[cEdgeKey] = aMetadata
+	
+	def GetEdgeMetadata(pFromId, pToId)
+		cEdgeKey = pFromId + "->" + pToId
+		if HasKey(@aEdgeMetadata, cEdgeKey)
+			return @aEdgeMetadata[cEdgeKey]
+		ok
+		return []
+	
+	def RemoveEdgeMetadata(pFromId, pToId)
+		cEdgeKey = pFromId + "->" + pToId
+		if HasKey(@aEdgeMetadata, cEdgeKey)
+			@aEdgeMetadata[cEdgeKey] = NULL
+		ok
+	
+	def UpdateEdgeMetadata(pFromId, pToId, cKey, pValue)
+		cEdgeKey = pFromId + "->" + pToId
+		if NOT HasKey(@aEdgeMetadata, cEdgeKey)
+			@aEdgeMetadata[cEdgeKey] = []
+		ok
+		@aEdgeMetadata[cEdgeKey][cKey] = pValue
+	
+	def RemoveAllMetadata()
+		@aNodeMetadata = []
+		@aEdgeMetadata = []
+		@aNodeTags = []
+		@aEdgeTags = []
+
 #=====================================================
 #  stzDiagramAnnotator - METADATA OVERLAY
 #=====================================================
@@ -1436,7 +1807,7 @@ class stzDiagramToStzDiag
 
 
 #=====================================================
-#  stzDiagramToDot - GRAPHVIZ DOT
+#  stzDiagramToDot - GRAPHVIZ DOT (UPDATED)
 #=====================================================
 
 class stzDiagramToDot
@@ -1493,13 +1864,15 @@ class stzDiagramToDot
 		cOutput += "    graph [rankdir=" + cRankDir + ", bgcolor=white, fontname=" + cFont + ", fontsize=" + nFontSize + "]" + NL
 		cOutput += "    node [fontname=" + cFont + ", fontsize=" + nFontSize + "]" + NL
 		
-		cEdgeColor = @oDiagram.@cEdgeColor
-		if cEdgeColor = ""
-			cEdgeColor = @cDefaultEdgeColor
-		ok
+		cEdgeColor = ResolveColor(@oDiagram.@cEdgeColor)
 		
 		if cTheme = "print" or cTheme = "gray"
-			cEdgeColor = "black"
+			cEdgeColor = ResolveColor(:black)
+		ok
+		
+		# Remove # from hex colors
+		if substr(cEdgeColor, "#")
+			cEdgeColor = @substr(cEdgeColor, 2, len(cEdgeColor))
 		ok
 	
 		cEdgeStyle = "solid"
@@ -1522,9 +1895,14 @@ class stzDiagramToDot
 			cShape = "box"
 			cStyle = "rounded,filled"
 			
-			if aNode["properties"]["type"] != NULL
+			# FIX: Check if properties exists and has type
+			cType = ""
+			if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
+			   HasKey(aNode["properties"], "type") and aNode["properties"]["type"] != NULL
 				cType = lower("" + aNode["properties"]["type"])
+			ok
 	
+			if cType != ""
 				if cType = "process"
 					cShape = "box"
 					cStyle = "rounded,filled"
@@ -1560,24 +1938,36 @@ class stzDiagramToDot
 				cStyle = aEnhancements["style"]
 			ok
 			
-			cOrigColor = aNode["properties"]["color"]
+			# FIX: Get color safely
+			cOrigColor = ""
+			if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
+			   HasKey(aNode["properties"], "color") and aNode["properties"]["color"] != NULL
+				cOrigColor = aNode["properties"]["color"]
+			ok
+			
+			if cOrigColor = "" or cOrigColor = NULL
+				cOrigColor = @cDefaultNodeColor
+			ok
+			
 			if HasKey(aEnhancements, "color")
 				cOrigColor = aEnhancements["color"]
 			ok
 			
-			cFillColor = cOrigColor
-			
-			if NOT (isString(cOrigColor) and substr(cOrigColor, "#"))
-				cFillColor = @oDiagram.ResolveColor(cOrigColor)
+			# Don't resolve if already hex
+			if substr(cOrigColor, "#")
+				cFillColor = cOrigColor
+			else
+				cFillColor = ResolveColor(cOrigColor)
 			ok
 			
 			if cTheme = "gray"
 				cFillColor = @oDiagram.ConvertColorTogray(cFillColor)
 			ok
 			if cTheme = "print"
-				cFillColor = "white"
+				cFillColor = ResolveColor(:white)
 			ok
 			
+			# Calculate font color
 			cFontColor = @oDiagram.ResolveFontColor(cFillColor)
 	
 			cOutput += '    ' + cNodeId + ' [label="' + cLabel + '", '
@@ -1590,7 +1980,11 @@ class stzDiagramToDot
 			
 			cStrokeColor = ""
 			if @oDiagram.@cNodeStrokeColor != ""
-				cStrokeColor = ', color="' + @oDiagram.@cNodeStrokeColor + '"'
+				cStrokeColorHex = @oDiagram.@cNodeStrokeColor
+				if substr(cStrokeColorHex, "#")
+					cStrokeColorHex = @substr(cStrokeColorHex, 2, len(cStrokeColorHex))
+				ok
+				cStrokeColor = ', color="' + cStrokeColorHex + '"'
 			but cTheme = "print" or cTheme = "gray"
 				cStrokeColor = ', color="black", penwidth=2'
 			ok
@@ -1633,7 +2027,12 @@ class stzDiagramToDot
 				aAttrs + ('style="' + aEdgeEnhancements["style"] + '"')
 			ok
 			if HasKey(aEdgeEnhancements, "color")
-				aAttrs + ('color="' + aEdgeEnhancements["color"] + '"')
+				cResolvedColor = ResolveColor(aEdgeEnhancements["color"])
+				# Strip # from hex
+				if substr(cResolvedColor, "#")
+					cResolvedColor = @substr(cResolvedColor, 2, len(cResolvedColor))
+				ok
+				aAttrs + ('color="' + cResolvedColor + '"')
 			ok
 			if HasKey(aEdgeEnhancements, "penwidth")
 				aAttrs + ('penwidth=' + aEdgeEnhancements["penwidth"])
@@ -1823,39 +2222,70 @@ class stzVisualRule
 	def WhenMetadataExists(pcKey)
 		@cConditionType = :metadata_exists
 		@aConditionParams = [pcKey]
-		return This
+
+	def When(pcKey, pValue)
+		if isList(pValue)
+			oVal = StzListQ(pValue)
+			if oVal.IsEqualsNamedParam()
+				This.WhenMetaDataEquals(pcKey, pValue[2])
+				return
+
+			but oVal.IsInRangeParam()
+				This.WhenMetadataInRange(pcKey, pValue[1], pValue[2])
+				return
+			ok
+
+		but isString(pValue)
+			if pValue = "exists"
+				This.WhenMetadataExists(pcKey)
+				This.WhenTagExists(pcKey)
+				return
+			ok
+		ok
+
+		StzRaise("Unsupported syntax!")
+
 	
-	def WhenMetadataEquals(pcKey, pValue)
+	def WhenMetaDataEquals(pcKey, pValue)
 		@cConditionType = :metadata_equals
 		@aConditionParams = [pcKey, pValue]
-		return This
-	
+
 	def WhenMetadataInRange(pcKey, nMin, nMax)
 		@cConditionType = :metadata_range
 		@aConditionParams = [pcKey, nMin, nMax]
-		return This
 	
 	def WhenTagExists(pcTag)
 		@cConditionType = :tag_exists
 		@aConditionParams = [pcTag]
-		return This
 	
 	def ApplyColor(pColor)
-		@aVisualEffects + [:color, pColor]
-		return This
+		cResolvedColor = ResolveColor(pColor)
+		@aVisualEffects + [:color, cResolvedColor]
 	
+		def UseColor(pColor)
+			This.ApplyColor(pColor)
+
 	def ApplyShape(pcShape)
 		@aVisualEffects + [:shape, pcShape]
-		return This
 	
+		def UseShape(pcShape)
+			This.ApplyShape(pcShape)
+
 	def ApplyStyle(pcStyle)
 		@aVisualEffects + [:style, pcStyle]
-		return This
 	
+		def UseStyle(pcStyle)
+			This.ApplyStyle(pcStyle)
+
 	def ApplyPenWidth(nWidth)
 		@aVisualEffects + [:penwidth, nWidth]
-		return This
 	
+		def UsePenWidth(nWidth)
+			This.ApplyPenWidth(nWidth)
+
+		def SetPenWidth(nWidth)
+			This.ApplyPenWidth(nWidth)
+
 	def Matches(aNodeOrEdge)
 
 		switch @cConditionType
@@ -1897,3 +2327,13 @@ class stzVisualRule
 	
 	def Effects()
 		return @aVisualEffects
+
+
+	def RemoveAllNodes()
+		super.RemoveAllNodes()
+		@aNodeMetadata = []
+		@aNodeTags = []
+		@aNodeEnhancements = []
+		@aEdgeMetadata = []
+		@aEdgeTags = []
+		@aEdgeEnhancements = []

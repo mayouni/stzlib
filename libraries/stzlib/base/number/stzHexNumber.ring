@@ -78,6 +78,12 @@ func IsUnicodeHexNumber(cNumber)
 
 	#>
 
+func HexToDec(cHex)
+	return dec(cHex)
+
+func DecToHex(nDec)
+	return hex(nDec)
+
 func HexNumberPrefix()
 	return _cHexNumberPrefix
 

@@ -3,6 +3,7 @@
 #===========================================#
 load "../stzbase.ring"
 
+
 /*--
 
 pr()
@@ -64,8 +65,6 @@ pf()
 #  Example 1: Basic
 #-------------------
 
-*/
-
 pr()
 
 Dot = new stzDotCode()
@@ -79,7 +78,6 @@ Dot.SetCode('
 	}
 ')
 
-Dot.SetOutputFile("graph1.svg")
 Dot.ExecuteAndView()
 
 # Duration in seconds
@@ -92,7 +90,7 @@ pf()
 /*-------------------------------#
 #  Example 2: Styled Graph
 #-------------------------------#
-
+*/
 pr()
 
 Dot = new stzdotCode()
@@ -118,7 +116,6 @@ digraph G {
 
 } ')
 
-Dot.SetOutputFile("graph2.png")
 Dot.SetOutputFormat("png")
 
 Dot.Run()
@@ -130,7 +127,7 @@ pf()
 /*--------------------------------
 #  Example 3: System Architecture
 #---------------------------------
-
+*/
 pr()
 
 Dot = XDot()  # Using the XDot() function
@@ -168,7 +165,7 @@ digraph {
 }
 ')
 
-Dot.SetOutputFile("architecture.svg")
+Dot.SetOutputFormat("svg")
 Dot.SetVerbose(1)
 Dot.ExecuteAndView()
 
@@ -231,7 +228,6 @@ digraph ProcessFlow {
 }
 ')
 
-Dot.SetOutputFile("process_flow.pdf")
 Dot.SetOutputFormat("pdf")
 Dot.Execute()
 
@@ -248,7 +244,7 @@ pf()
 /*--------------------------#
 #  Example 5: Modern Design
 #---------------------------#
-
+*/
 pr()
 
 Dot = XDot()  # Using the XDot() function
@@ -291,7 +287,7 @@ digraph ModernDesign {
 }
 ')
 
-Dot.SetOutputFile("modern_design.svg")
+Dot.SetOutputFormat("svg")
 Dot.RunAndView()
 
 #TODO Check why colors are not printed
@@ -346,7 +342,7 @@ digraph DataCard {
 }
 ')
 
-Dot.SetOutputFile("enhanced_06_html_card.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
@@ -450,7 +446,7 @@ digraph OrgChart {
 }
 ')
 
-Dot.SetOutputFile("org_chart.svg")
+Dot.SetOutputformat("svg")
 Dot.RunAndView()
 
 pf()
@@ -516,9 +512,8 @@ digraph OrderWorkflow {
 }
 ')
 
-Dot.SetOutputFile("order_workflow.png")
 Dot.SetOutputFormat("png")
-Dot.ExecAndShow()
+Dot.ExecAndView()
 
 pf()
 # Executed in 1.40 second(s) in Ring 1.24
@@ -526,7 +521,7 @@ pf()
 #-------------------------------------------------
 #  Example 10: BPMN Process (Customer Onboarding)
 #-------------------------------------------------
-
+*/
 pr()
 
 Dot = new stzDotCode()
@@ -592,7 +587,7 @@ digraph CustomerOnboarding {
 }
 ')
 
-Dot.SetOutputFile("bpmn_onboarding.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
@@ -658,7 +653,7 @@ digraph SalesFunnel {
 }
 ')
 
-Dot.SetOutputFile("sales_funnel.svg")
+Dot.SetOutputFormat("svg")
 Dot.SetVerbose(1)
 Dot.RunXT()
 
@@ -793,7 +788,7 @@ digraph NodeShapes {
 }
 ')
 
-Dot.SetOutputFile("01_node_shapes.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
@@ -842,7 +837,7 @@ digraph EdgeStyles {
 }
 ')
 
-Dot.SetOutputFile("02_edge_styles.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
@@ -886,7 +881,7 @@ digraph Hierarchy {
 }
 ')
 
-Dot.SetOutputFile("03_hierarchy_ranks.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
@@ -945,7 +940,7 @@ digraph Clusters {
 }
 ')
 
-Dot.SetOutputFile("04_clusters.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
@@ -994,7 +989,7 @@ digraph Records {
 }
 ')
 
-Dot.SetOutputFile("05_records.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 
@@ -1064,7 +1059,7 @@ digraph ColorSchemes {
 }
 ')
 
-Dot.SetOutputFile("06_color_schemes.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 ? Dot.Duration()
@@ -1114,7 +1109,7 @@ digraph StateMachine {
 }
 ')
 
-Dot.SetOutputFile("07_state_machine.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 ? Dot.Duration()
 #--> 0.95
@@ -1171,7 +1166,7 @@ graph Network {
 }
 ')
 
-Dot.SetOutputFile("08_network.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 ? Dot.Duration()
 #--> 0.97
@@ -1221,7 +1216,7 @@ digraph DecisionTree {
 }
 ')
 
-Dot.SetOutputFile("09_decision_tree.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
@@ -1278,7 +1273,7 @@ digraph Timeline {
 }
 ')
 
-Dot.SetOutputFile("10_timeline.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
@@ -1354,7 +1349,7 @@ digraph BPMN_OrderProcessing {
 }
 ')
 
-Dot.SetOutputFile("bpmn_order_processing.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
@@ -1430,7 +1425,7 @@ digraph BPMN_OrderProcessing {
 }
 ')
 
-Dot.SetOutputFile("bpmn_order_processing.svg")
+Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()

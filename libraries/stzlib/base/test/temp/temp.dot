@@ -1,13 +1,11 @@
-digraph "E2EMonitoring" {
+digraph "SecurityFlow" {
     graph [rankdir=TB, bgcolor=white, fontname=helvetica, fontsize=12]
     node [fontname=helvetica, fontsize=12]
-    edge [fontname=helvetica, fontsize=12, color=black, style=solid]
+    edge [fontname=helvetica, fontsize=12, color=000000, style=solid]
 
-    lb [label="Load Balancer", shape=box, style="rounded,filled", fillcolor="#FF4444", penwidth=3, fontcolor="white"]
-    db [label="Database", shape=cylinder, style="bold,filled", fillcolor="lightblue", fontcolor="black"]
-    old_api [label="Legacy API", shape=box, style="dotted,filled", fillcolor="#888888", fontcolor="white"]
+    auth [label="Authentication", shape=box, style="rounded,filled", fillcolor="#FF4444", penwidth=3, fontcolor="white"]
+    db [label="Database", shape=cylinder, style="filled", fillcolor="#0000FF", fontcolor="white"]
 
-    lb -> db
-    lb -> old_api
+    auth -> db [label=" query"]
 
 }

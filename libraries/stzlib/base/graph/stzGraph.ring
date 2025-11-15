@@ -133,6 +133,65 @@ class stzGraph
 	def NodeExists(pcNodeId)
 		return This.Node(pcNodeId) != ""
 
+	#--
+
+	def RemoveNodes(paNodeIds)
+		nLen = len(paNodeIds)
+		for i = 1 to nLen
+			This.RemoveNode(paNodeIds[i])
+		end
+
+	def RemoveAllNodes()
+		@acNodes = []
+		@acEdges = []
+		@acProperties = []
+	
+		def Clear()
+			This.RemoveAllNodes()
+
+	def ReplaceNode(pcOldNodeId, pcNewNodeId, pcLabel)
+		aIncoming = []
+		aOutgoing = []
+		
+		aEdges = This.Edges()
+		nLen = len(aEdges)
+		for i = 1 to nLen
+			aEdge = aEdges[i]
+			if aEdge["from"] = pcOldNodeId
+				aOutgoing + aEdge["to"]
+			ok
+			if aEdge["to"] = pcOldNodeId
+				aIncoming + aEdge["from"]
+			ok
+		end
+		
+		This.RemoveNode(pcOldNodeId)
+		This.AddNodeXT(pcNewNodeId, pcLabel)
+		
+		nLen = len(aIncoming)
+		for i = 1 to nLen
+			This.Connect(aIncoming[i], pcNewNodeId)
+		end
+		
+		nLen = len(aOutgoing)
+		for i = 1 to nLen
+			This.Connect(pcNewNodeId, aOutgoing[i])
+		end
+
+
+
+	def RemoveAllEdges()
+		@acEdges = []
+
+	def RemoveEdges()
+
+
+	def SetNodes(paNodes)
+		@acNodes = paNodes
+	
+	def SetEdges(paEdges)
+		@acEdges = paEdges
+
 	def RemoveNode(pcNodeId)
 		acNew = []
 		nLen = len(@acNodes)
@@ -145,14 +204,14 @@ class stzGraph
 		@acNodes = acNew
 		
 		acNewEdges = []
-		nLen = len(@acEdges)
+		nLen = len(@acEdges)  # Changed from @aEdges
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @acEdges[i]  # Changed from @aEdges
 			if aEdge["from"] != pcNodeId and aEdge["to"] != pcNodeId
 				acNewEdges + aEdge
 			ok
 		end
-		@acEdges = acNewEdges
+		@acEdges = acNewEdges  # Changed from @aEdges
 
 	def Nodes()
 		return @acNodes
@@ -1136,6 +1195,57 @@ def ReachableFrom(pcNodeId)
 		
 		return acFound
 
+	#------------------------------------------
+	#  NODE FINDING AND PATH OPERATIONS
+	#------------------------------------------
+	
+	def HasNode(pcNodeId)
+		return This.NodeExists(pcNodeId)
+	
+	def FindNode(pcNodeId)
+		if NOT This.NodeExists(pcNodeId)
+			return []
+		ok
+		
+		# Find all paths leading to this node
+		acAllPaths = []
+		acRoots = This.DependencyFreeNodes()
+		
+		if len(acRoots) = 0
+			# If no root nodes, use all nodes as potential starts
+			acRoots = []
+			nLen = len(@acNodes)
+			for i = 1 to nLen
+				acRoots + @acNodes[i]["id"]
+			end
+		ok
+		
+		# Find paths from each root to target node
+		nLen = len(acRoots)
+		for i = 1 to nLen
+			cRoot = acRoots[i]
+			if cRoot != pcNodeId
+				acPaths = This.FindAllPaths(cRoot, pcNodeId)
+				nPathLen = len(acPaths)
+				for j = 1 to nPathLen
+					acAllPaths + acPaths[j]
+				end
+			ok
+		end
+		
+		# If node is a root itself or isolated, return single-element path
+		if len(acAllPaths) = 0
+			acAllPaths + [pcNodeId]
+		ok
+		
+		return acAllPaths
+	
+		def PathsTo(pcNodeId)
+			return This.FindNode(pcNodeId)
+	
+		def PathsToNode(pcNodeId)
+			return This.FindNode(pcNodeId)
+
 	def FindNodesWhere(pFunc)
 		acMatching = []
 		nLen = len(@acNodes)
@@ -1370,7 +1480,7 @@ def ReachableFrom(pcNodeId)
 			:properties = @acProperties
 		]
 
-	def ExporToDOT()
+	def ExportToDOT()
 		cDOT = "digraph " + This.Id() + " {" + nl
 		cDOT += "  rankdir=LR;" + nl
 		cDOT += "  node [shape=box];" + nl + nl
@@ -1418,6 +1528,22 @@ def ReachableFrom(pcNodeId)
 		cDOT += "}" + nl
 		return cDOT
 	
+		def ExportToDotQ()
+			oDotCode = new stzDotCode()
+			oDotCode.SetCode(This.ExportToDot())
+			return oDotCode
+
+		def Dot()
+			return This.ExportToDot()
+
+			def DotQ()
+				return This.ExportToDotQ()
+
+		def ToDot()
+			return This.ExportToDot()
+
+			def ToDotQ()
+				return This.ExportToDotQ()
 
 	def ExportToJSON()
 		acNodes = []
@@ -1495,6 +1621,12 @@ def ReachableFrom(pcNodeId)
 		
 		return cJSON
 
+		def Json()
+			return This.ExportToJson()
+
+		def ToJson()
+			return This.ExportToJson()
+
 	def ExportToYAML()
 		cYAML = "graph: " + This.Id() + nl
 		cYAML += "nodes:" + nl
@@ -1543,6 +1675,12 @@ def ReachableFrom(pcNodeId)
 		
 		return cYAML
 	
+		def Yaml()
+			return This.ExportToYaml()
+
+		def ToYaml()
+			return This.ExportToYaml()
+
 		def RegisterExporter(pcName, pFunc)
 			if NOT isList(@acProperties)
 				@acProperties = []
@@ -1595,6 +1733,11 @@ def ReachableFrom(pcNodeId)
 	#------------------------------------------
 	#  VISUALIZATION
 	#------------------------------------------
+
+	def View()
+		oDot = new stzDotCode()
+		oDot.SetCode(This.Dot())
+		oDot.View()
 
 	def Show()
 		acDisplayNodes = This._PrepareDisplayNodes()
