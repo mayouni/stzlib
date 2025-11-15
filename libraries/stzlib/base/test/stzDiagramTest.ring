@@ -1,5 +1,260 @@
 load "../stzbase.ring"
 
+#--------------------------------------------------#
+#  TESTING COLOR SEMANTIC DESIGN & INFRASTRUCTURE  #
+#--------------------------------------------------#
+
+/*--- Base Colors
+
+pr()
+
+? ResolveColor(:red)      #--> #FF0000
+? ResolveColor(:blue)     #--> #0000FF
+? ResolveColor(:green)    #--> #008000
+? ResolveColor(:yellow)   #--> #FFFF00
+? ResolveColor(:white)    #--> #FFFFFF
+? ResolveColor(:black)    #--> #000000
+? ResolveColor(:gray)     #--> #808080
+
+pf()
+
+/*--- Base colors Intensities
+
+pr()
+
+# Grayscale
+? "--- GRAYSCALE ---"
+? "white--  : " + ResolveColor("white--")
+? "white-   : " + ResolveColor("white-")
+? "white    : " + ResolveColor("white")
+? "white+   : " + ResolveColor("white+")
+? "white++  : " + ResolveColor("white++")
+? ""
+
+? "black--  : " + ResolveColor("black--")
+? "black-   : " + ResolveColor("black-")
+? "black    : " + ResolveColor("black")
+? "black+   : " + ResolveColor("black+")
+? "black++  : " + ResolveColor("black++")
+? ""
+
+? "gray--   : " + ResolveColor("gray--")
+? "gray-    : " + ResolveColor("gray-")
+? "gray     : " + ResolveColor("gray")
+? "gray+    : " + ResolveColor("gray+")
+? "gray++   : " + ResolveColor("gray++")
+? NL
+
+# Primary Colors
+? "--- PRIMARY COLORS ---"
+? "red--    : " + ResolveColor("red--")
+? "red-     : " + ResolveColor("red-")
+? "red      : " + ResolveColor("red")
+? "red+     : " + ResolveColor("red+")
+? "red++    : " + ResolveColor("red++")
+? ""
+
+? "green--  : " + ResolveColor("green--")
+? "green-   : " + ResolveColor("green-")
+? "green    : " + ResolveColor("green")
+? "green+   : " + ResolveColor("green+")
+? "green++  : " + ResolveColor("green++")
+? ""
+
+? "blue--   : " + ResolveColor("blue--")
+? "blue-    : " + ResolveColor("blue-")
+? "blue     : " + ResolveColor("blue")
+? "blue+    : " + ResolveColor("blue+")
+? "blue++   : " + ResolveColor("blue++")
+? ""
+
+? "yellow-- : " + ResolveColor("yellow--")
+? "yellow-  : " + ResolveColor("yellow-")
+? "yellow   : " + ResolveColor("yellow")
+? "yellow+  : " + ResolveColor("yellow+")
+? "yellow++ : " + ResolveColor("yellow++")
+? NL
+
+# Secondary Colors
+? "--- SECONDARY COLORS ---"
+? "orange-- : " + ResolveColor("orange--")
+? "orange-  : " + ResolveColor("orange-")
+? "orange   : " + ResolveColor("orange")
+? "orange+  : " + ResolveColor("orange+")
+? "orange++ : " + ResolveColor("orange++")
+? ""
+
+? "purple-- : " + ResolveColor("purple--")
+? "purple-  : " + ResolveColor("purple-")
+? "purple   : " + ResolveColor("purple")
+? "purple+  : " + ResolveColor("purple+")
+? "purple++ : " + ResolveColor("purple++")
+? ""
+
+? "cyan--   : " + ResolveColor("cyan--")
+? "cyan-    : " + ResolveColor("cyan-")
+? "cyan     : " + ResolveColor("cyan")
+? "cyan+    : " + ResolveColor("cyan+")
+? "cyan++   : " + ResolveColor("cyan++")
+? ""
+
+? "magenta--: " + ResolveColor("magenta--")
+? "magenta- : " + ResolveColor("magenta-")
+? "magenta  : " + ResolveColor("magenta")
+? "magenta+ : " + ResolveColor("magenta+")
+? "magenta++: " + ResolveColor("magenta++")
+? NL
+
+# Extended Palette
+? "--- EXTENDED PALETTE ---"
+? "brown--  : " + ResolveColor("brown--")
+? "brown-   : " + ResolveColor("brown-")
+? "brown    : " + ResolveColor("brown")
+? "brown+   : " + ResolveColor("brown+")
+? "brown++  : " + ResolveColor("brown++")
+? ""
+
+? "pink--   : " + ResolveColor("pink--")
+? "pink-    : " + ResolveColor("pink-")
+? "pink     : " + ResolveColor("pink")
+? "pink+    : " + ResolveColor("pink+")
+? "pink++   : " + ResolveColor("pink++")
+? ""
+
+? "coral--  : " + ResolveColor("coral--")
+? "coral-   : " + ResolveColor("coral-")
+? "coral    : " + ResolveColor("coral")
+? "coral+   : " + ResolveColor("coral+")
+? "coral++  : " + ResolveColor("coral++")
+? ""
+
+? "teal--   : " + ResolveColor("teal--")
+? "teal-    : " + ResolveColor("teal-")
+? "teal     : " + ResolveColor("teal")
+? "teal+    : " + ResolveColor("teal+")
+? "teal++   : " + ResolveColor("teal++")
+? ""
+
+? "lavender--: " + ResolveColor("lavender--")
+? "lavender- : " + ResolveColor("lavender-")
+? "lavender  : " + ResolveColor("lavender")
+? "lavender+ : " + ResolveColor("lavender+")
+? "lavender++: " + ResolveColor("lavender++")
+
+pf()
+
+
+/*--- Semantic Colors
+? ResolveColor(:Success)  # Should resolve to green
+? ResolveColor(:Warning)  # Should resolve to yellow
+? ResolveColor(:Danger)   # Should resolve to red
+? ResolveColor(:Info)     # Should resolve to blue
+? ResolveColor(:Primary)  # Should resolve to blue
+? ResolveColor(:Neutral)  # Should resolve to gray
+
+
+/*--- Node Type Colors
+? ColorForNodeType(:Start)        # Should be green
+? ColorForNodeType(:Process)      # Should be blue
+? ColorForNodeType(:Decision)     # Should be yellow
+? ColorForNodeType(:Endpoint)     # Should be coral
+? ColorForNodeType(:State)        # Should be cyan
+? ColorForNodeType(:Storage)      # Should be gray
+? ColorForNodeType(:Data)         # Should be lavender
+
+
+/*--- Direct Hex Colors
+? ResolveColor("#FF5733")  # Should return: #FF5733
+? ResolveColor("#00AAFF")  # Should return: #00AAFF
+? ResolveColor("#123456")  # Should return: #123456
+
+
+/*--- Extended Palette
+? ResolveColor(:brown)     # #A52A2A
+? ResolveColor(:pink)      # #FFC0CB
+? ResolveColor(:navy)      # #000080
+? ResolveColor(:teal)      # #008080
+? ResolveColor(:coral)     # #FF7F50
+? ResolveColor(:salmon)    # #FA8072
+? ResolveColor(:lavender)  # #E6E6FA
+? ResolveColor(:steelblue) # #4682B4
+
+
+/*--- Full Intensity Chain: Coral
+? ResolveColor("coral--")
+? ResolveColor("coral-")
+? ResolveColor("coral")
+? ResolveColor("coral+")
+? ResolveColor("coral++")
+
+/*--- Full Intensity Chain: Teal
+? ResolveColor("teal--")
+? ResolveColor("teal-")
+? ResolveColor("teal")
+? ResolveColor("teal+")
+? ResolveColor("teal++")
+
+
+/*--- Legacy Color Names
+
+? ResolveColor(:lightblue)   # Should map to blue+
+? ResolveColor(:lightgreen)  # Should map to green+
+? ResolveColor(:lightyellow) # Should map to yellow+
+? ResolveColor(:darkgreen)   # Should map to green-
+? ResolveColor(:darkblue)    # Should map to blue-
+? ResolveColor(:darkred)     # Should map to red-
+
+
+/*--- Full Palette Count
+
+pr()
+
+aPalette = BuildColorPalette()
+? len(aPalette) #--> 125
+#--> 24 base + (24 × 4 intensities) = 120
+
+pf()
+
+/*--- Creating Test Diagram
+
+pr()
+
+oDiag = new stzDiagram("ColorSystemTest")
+oDiag {
+	# Base colors
+	AddNodeXT("n1", "Red Base", :Process, :red)
+	AddNodeXT("n2", "Blue Base", :Process, :blue)
+	
+	# Intensities
+	AddNodeXT("n3", "Red Dark", :Process, "red++")
+	AddNodeXT("n4", "Blue Light", :Process, "blue--")
+	
+	# Semantic
+	AddNodeXT("n5", "Success", :Process, :Success)
+	AddNodeXT("n6", "Warning", :Decision, :Warning)
+	
+	# Extended palette
+	AddNodeXT("n7", "Coral", :Process, :coral)
+	AddNodeXT("n8", "Lavender", :Process, :lavender)
+	
+	# Direct hex
+	AddNodeXT("n9", "Custom", :Process, "#FF6B9D")
+	
+	Connect("n1", "n2")
+	Connect("n2", "n3")
+	Connect("n3", "n4")
+	Connect("n4", "n5")
+	Connect("n5", "n6")
+	Connect("n6", "n7")
+	Connect("n7", "n8")
+	Connect("n8", "n9")
+	
+	? Code()
+	View()
+}
+
+pf()
+
 #-------------------------#
 #  CREATE SIMPLE DIAGRAM  #
 #-------------------------#
@@ -79,6 +334,7 @@ oDiag.AddNodeXT("end", "End", :Endpoint, :Success)
 oDiag.Connect("start", "process")
 oDiag.Connect("process", "end")
 
+odiag.view()
 aResult = oDiag.ValidateReachability()
 ? aResult["status"] #--> pass
 
@@ -284,24 +540,22 @@ pf()
 pr()
 
 oDiag = new stzDiagram("SoxPayment")
+oDiag {
+	AddNodeXT(:@Submit, "Submit", :Start, :Success)
+	AddNodeXT(:@Approve, "Approve?", :Decision, :Warning)
+	AddNodeXT(:@Pay, "Pay", :Process, :Primary)
+	AddNodeXT(:@Log, "Log", :Data, :Neutral)
+	AddNodeXT(:@Done, "Done", :Endpoint, :Success)
 
-oDiag.AddNodeXT(:Submit, "Submit", :Start, :Success)
-oDiag.AddNodeXT(:Approve, "Approve?", :Decision, :Warning)
-oDiag.AddNodeXT(:Pay, "Pay", :Process, :Primary)
-oDiag.AddNodeXT(:Log, "Log", :Data, :Neutral)
-oDiag.AddNodeXT(:Done, "Done", :Endpoint, :Success)
+	Connect(:@Submit, :@Approve)
+	ConnectXT(:@Approve, :@Pay, "Yes")
+	Connect(:@Pay, :@Log)
+	Connect(:@Log, :@Done)
 
-oDiag.Connect(:Submit, :Approve)
-oDiag.ConnectXT(:Approve, :Pay, " Yes")
-oDiag.Connect(:Pay, :Log)
-oDiag.Connect(:Log, :Done)
+	View()
+}
 
-oDiag.View()
-
-oDiag.Node("pay")["properties"]["domain"] = :financial
-oDiag.Node("approve")["properties"]["requiresApproval"] = TRUE
-
-oSoxValidator = $aDiagramValidators[:SOX]
+oSoxValidator = new stzDiagramValidator(:SOX)//$aDiagramValidators[:SOX]
 aResult = oSoxValidator.Validate(oDiag)
 
 ? aResult["domain"] #--> sox
@@ -418,24 +672,24 @@ oDiag.Connect("process", "end")
 diagram "FormatTest"
 
 metadata
-    theme: pro
+    theme: light
     layout: topdown
 
 nodes
     start
         label: "Begin"
         type: start
-        color: success
+        color: #008000
 
     process
         label: "Work"
         type: process
-        color: primary
+        color: #0000FF
 
     end
         label: "Finish"
         type: endpoint
-        color: success
+        color: #008000
 
 edges
     start -> process
@@ -950,7 +1204,6 @@ pr()
 oDiag3 = new stzDiagram("NodeTypeTest")
 oDiag3 {
 	SetTheme(:pro)           # Semantic
-	# SetTheme("professional") # Alias
 	SetLayout(:BottomUp)
 	
 	# Using semantic types
@@ -1188,7 +1441,7 @@ oPciRule.WhenTagExists(:pci).
 oDiag.AddVisualRule(oGdprRule)
 oDiag.AddVisualRule(oPciRule)
 
-oDiag.AddNodewithMetaData("collect", "Data Collection", :Process, :Info,
+oDiag.AddNodeWithMetaData("collect", "Data Collection", :Process, :Info,
 	[:retention_days = 90], ["gdpr"])
 
 oDiag.AddNodeWithMetaData("payment", "Payment Processing", :Process, :Warning,
@@ -1218,10 +1471,10 @@ oProductionRule {
 oDiag {
 	AddVisualRule(oProductionRule)
 	
-	AddNodeWithMetadata("prod_db", "Production DB", :Storage, :Primary,
+	AddNodeWithMetaData("prod_db", "Production DB", :Storage, :Primary,
 		[:env = "production", :replicas = 3], [:database])
 	
-	AddNodeWithMetadata("dev_db", "Dev DB", :Storage, :Info,
+	AddNodeWithMetaData("dev_db", "Dev DB", :Storage, :Info,
 		[:env = "development"], [:database])
 	
 	Connect("prod_db", "dev_db")
@@ -1263,11 +1516,11 @@ oDiag {
 	AddVisualRule(oMedPrio)
 	AddVisualRule(oHighPrio)
 	
-	AddNodeWithMetadata("task1", "Cleanup", :Process, :Neutral, 
+	AddNodeWithMetaData("task1", "Cleanup", :Process, :Neutral, 
 		[:priority = 20], [])
-	AddNodeWithMetadata("task2", "Review", :Process, :Info, 
+	AddNodeWithMetaData("task2", "Review", :Process, :Info, 
 		[:priority = 50], [])
-	AddNodeWithMetadata("task3", "Deploy", :Process, :Danger, 
+	AddNodeWithMetaData("task3", "Deploy", :Process, :Danger, 
 		[:priority = 90], [:critical])
 	
 	Connect("task1", "task2")
@@ -1281,7 +1534,7 @@ pf()
 /*---------------------------#
 #  TEST 6: Edge Styling
 #---------------------------#
-
+"TODO see why all are blue
 pr()
 
 oDiag = new stzDiagram("ConnectionTypes")
@@ -1310,9 +1563,9 @@ oDiag {
 	AddNode("service", "Auth Service")
 	AddNode("cache", "Redis Cache")
 	
-	AddEdgeWithMetadata("api", "service", "authenticate", 
+	AddEdgeWithMetaData("api", "service", "authenticate", 
 		[:type = "sync"], [])
-	AddEdgeWithMetadata("service", "cache", "invalidate", 
+	AddEdgeWithMetaData("service", "cache", "invalidate", 
 		[:type = "async"], [])
 	
 	View()
@@ -1340,10 +1593,10 @@ oHasSla {
 oDiag {
 	AddVisualRule(oHasSla)
 	
-	AddNodeWithMetadata("critical_api", "Payment API", :Process, :Primary,
+	AddNodeWithMetaData("critical_api", "Payment API", :Process, :Primary,
 		[:sla_ms = 100, :uptime = 99.99], [])
 	
-	AddNodeWithMetadata("batch_job", "Batch Job", :Process, :Info,
+	AddNodeWithMetaData("batch_job", "Batch Job", :Process, :Info,
 		[:schedule = "daily" ], [])  # No SLA
 	
 	Connect("critical_api", "batch_job")
@@ -1379,10 +1632,10 @@ oDiag {
 	AddVisualRule(oApiBase)     # Applied first
 	AddVisualRule(oCritical)    # Overrides color for critical
 	
-	AddNodeWithMetadata("standard", "User API", :Process, :Primary,
+	AddNodeWithMetaData("standard", "User API", :Process, :Primary,
 		[], [:api])
 	
-	AddNodeWithMetadata("vital", "Payment API", :Process, :Primary,
+	AddNodeWithMetaData("vital", "Payment API", :Process, :Primary,
 		[], [:api, :critical])  # Gets both rules, last wins
 	
 	Connect("standard", "vital")
@@ -1419,13 +1672,13 @@ oDiag {
 	AddVisualRule(oStorageShape)
 	AddVisualRule(oQueueShape)
 	
-	AddNodeWithMetadata("postgres", "PostgreSQL", :Process, :Info,
+	AddNodeWithMetaData("postgres", "PostgreSQL", :Process, :Info,
 		[:type = "relational"], [:storage, :database])
 	
-	AddNodeWithMetadata("rabbitmq", "RabbitMQ", :Process, :Warning,
+	AddNodeWithMetaData("rabbitmq", "RabbitMQ", :Process, :Warning,
 		[:type = "broker"], [:messaging, :queue])
 	
-	AddNodeWithMetadata("api", "REST API", :Process, :Primary,
+	AddNodeWithMetaData("api", "REST API", :Process, :Primary,
 		[], [:service])
 	
 	Connect("api", "postgres")
@@ -1461,10 +1714,10 @@ oDiag {
 	AddVisualRule(oEncrypted)
 	AddVisualRule(oSlow)
 	
-	AddNodeWithMetadata("secure_db", "Encrypted DB", :Storage, :Success,
+	AddNodeWithMetaData("secure_db", "Encrypted DB", :Storage, :Success,
 		[], [:encrypted])
 	
-	AddNodeWithMetadata("slow_api", "Legacy API", :Process, :Warning,
+	AddNodeWithMetaData("slow_api", "Legacy API", :Process, :Warning,
 		[:latency_ms = 750], [])
 	
 	# Generate legend showing all rule mappings
@@ -1479,7 +1732,7 @@ pf()
 /*---------------------------#
 #  TEST 11: Complex Workflow
 #---------------------------#
-*/
+
 pr()
 
 oDiag = new stzDiagram("E2EMonitoring")
@@ -1510,13 +1763,13 @@ oDiag {
 	AddVisualRule(oEncrypted)
 	AddVisualRule(oDeprecated)
 	
-	AddNodeWithMetadata("lb", "Load Balancer", :Process, :Primary,
+	AddNodeWithMetaData("lb", "Load Balancer", :Process, :Primary,
 		[:load_pct = 85], [:critical])
 	
-	AddNodeWithMetadata("db", "Database", :Storage, :Primary,
+	AddNodeWithMetaData("db", "Database", :Storage, :Primary,
 		[:load_pct = 60], [:encrypted])
 	
-	AddNodeWithMetadata("old_api", "Legacy API", :Process, :Neutral,
+	AddNodeWithMetaData("old_api", "Legacy API", :Process, :Neutral,
 		[:status = "deprecated"], [])
 	
 	Connect("lb", "db")
@@ -1526,3 +1779,908 @@ oDiag {
 }
 
 pf()
+
+#---------------------------#
+#  Microservices Health Dashboard
+#---------------------------#
+
+pr()
+
+oDiag = new stzDiagram("ServiceHealth")
+
+# Health-based coloring: green=healthy, yellow=degraded, red=down
+oHealthy = new stzVisualRule("healthy")
+oHealthy{
+	WhenMetadataEquals("status", "up")
+	ApplyColor("#00AA01")
+}
+
+oDegraded = new stzVisualRule("degraded")
+oDegraded{
+	WhenMetadataEquals("status", "degraded")
+	ApplyColor("#FFAA00")
+	ApplyPenWidth(2)
+}
+
+oDown = new stzVisualRule("down")
+oDown {
+	WhenMetadataEquals("status", "down")
+	ApplyColor("#FF0000")
+	ApplyPenWidth(3)
+}
+
+# Critical services get diamond shape
+oCritical = new stzVisualRule("critical_service")
+oCritical {
+	WhenTagExists(:critical)
+	ApplyShape("diamond")
+}
+
+oDiag {
+	SetTheme(:pro)
+	
+	AddVisualRule(oHealthy)
+	AddVisualRule(oDegraded)
+	AddVisualRule(oDown)
+	AddVisualRule(oCritical)
+	
+	AddNodeWithMetaData("gateway", "API Gateway", :Process, :Primary,
+		[:status = "up", :latency_ms = 45], [:critical])
+	
+	AddNodeWithMetaData("auth", "Auth Service", :Process, :Primary,
+		[:status = "degraded", :latency_ms = 320], [:critical])
+	
+	AddNodeWithMetaData("users", "Users API", :Process, :Primary,
+		[:status = "up", :latency_ms = 80], [])
+	
+	AddNodeWithMetaData("orders", "Orders API", :Process, :Primary,
+		[:status = "down", :latency_ms = 0], [:critical])
+	
+	AddNodeWithMetaData("db", "PostgreSQL", :Storage, :Info,
+		[:status = "up", :replicas = 3], [:critical])
+	
+	Connect("gateway", "auth")
+	Connect("gateway", "users")
+	Connect("gateway", "orders")
+	Connect("users", "db")
+	Connect("orders", "db")
+	
+	View()
+}
+
+pf()
+
+/*---------------------------#
+#  Data Pipeline with Compliance
+#---------------------------#
+
+#ERR Datawarehsous node whoe on white!
+pr()
+
+oDiag = new stzDiagram("DataCompliance")
+
+# PII data gets special marking
+oPiiData = new stzVisualRule("pii")
+oPiiData {
+	WhenTagExists(:pii)
+	ApplyPenWidth(3)
+}
+
+# Encrypted connections
+oEncrypted = new stzVisualRule("encrypted")
+oEncrypted {
+	WhenMetadataEquals("encrypted", TRUE)
+	ApplyStyle("bold")
+}
+
+# Audit logging required
+oAudited = new stzVisualRule("audit")
+oAudited {
+	WhenTagExists(:audit)
+	ApplyShape("octagon")
+}
+
+oDiag {
+	SetTheme(:vibrant)
+	SetLayout(:LeftRight)
+	
+	AddVisualRule(oPiiData)
+	AddVisualRule(oEncrypted)
+	AddVisualRule(oAudited)
+	
+	AddNodeWithMetaData("collect", "Data Collector", :Process, :Info,
+		[], [:audit])
+	
+	AddNodeWithMetaData("transform", "ETL Pipeline", :Process, :Primary,
+		[], [])
+	
+	AddNodeWithMetaData("warehouse", "Data Warehouse", :Storage, :Success,
+		[:encrypted = TRUE], [:pii, :audit])
+	
+	AddNodeWithMetaData("analytics", "Analytics", :Process, :Primary,
+		[], [])
+	
+	AddNodeWithMetaData("reports", "Reports", :Endpoint, :Info,
+		[], [:audit])
+	
+	AddEdgeWithMetaData("collect", "transform", "raw", 
+		[:encrypted = FALSE], [])
+	
+	AddEdgeWithMetaData("transform", "warehouse", "store", 
+		[:encrypted = TRUE], [])
+	
+	AddEdgeWithMetaData("warehouse", "analytics", "query", 
+		[:encrypted = TRUE], [])
+	
+	AddEdgeWithMetaData("analytics", "reports", "publish", 
+		[:encrypted = FALSE], [])
+	
+	View()
+? Code()
+}
+
+pf()
+
+/*---------------------------#
+#  Cost-Based Infrastructure
+#---------------------------#
+
+pr()
+
+oDiag = new stzDiagram("CloudCosts")
+
+# Color by monthly cost
+oLowCost = new stzVisualRule("cheap")
+oLowCost {
+	WhenMetadataInRange("monthly_usd", 0, 100)
+	ApplyColor("#E8F5E9")
+}
+
+oMedCost = new stzVisualRule("moderate")
+oMedCost {
+	WhenMetadataInRange("monthly_usd", 101, 500)
+	ApplyColor("#FFF9C4")
+}
+
+oHighCost = new stzVisualRule("expensive")
+oHighCost {
+	WhenMetadataInRange("monthly_usd", 501, 9999)
+	ApplyColor("#FFCDD2")
+	ApplyPenWidth(3)
+}
+
+# Production gets thicker borders
+#ERR all nodes are thin!!
+
+oProduction = new stzVisualRule("prod")
+oProduction {
+	WhenTagExists(:production)
+	ApplyPenWidth(2)
+}
+
+oDiag {
+	SetTheme(:light)
+	
+	AddVisualRule(oLowCost)
+	AddVisualRule(oMedCost)
+	AddVisualRule(oHighCost)
+	AddVisualRule(oProduction)
+	
+	AddNodeWithMetaData("lb", "Load Balancer", :Process, :Primary,
+		[:monthly_usd = 50], [:production])
+	
+	AddNodeWithMetaData("app1", "App Server 1", :Process, :Primary,
+		[:monthly_usd = 200], [:production])
+	
+	AddNodeWithMetaData("app2", "App Server 2", :Process, :Primary,
+		[:monthly_usd = 200], [:production])
+	
+	AddNodeWithMetaData("rds", "RDS Database", :Storage, :Info,
+		[:monthly_usd = 800], [:production])
+	
+	AddNodeWithMetaData("cache", "Redis Cache", :Storage, :Warning,
+		[:monthly_usd = 120], [:production])
+	
+	AddNodeWithMetaData("s3", "S3 Storage", :Storage, :Success,
+		[:monthly_usd = 30], [:production])
+	
+	Connect("lb", "app1")
+	Connect("lb", "app2")
+	Connect("app1", "rds")
+	Connect("app2", "rds")
+	Connect("app1", "cache")
+	Connect("app2", "cache")
+	Connect("app1", "s3")
+	
+	View()
+}
+
+pf()
+
+/*---------------------------#
+#  Security Zones
+#---------------------------#
+
+pr()
+
+oDiag = new stzDiagram("SecurityArchitecture")
+
+# Color by security zone
+oPublic = new stzVisualRule("public_zone")
+oPublic {
+	WhenMetadataEquals("zone", "public")
+	ApplyColor("#FFE0B2")
+}
+
+oDmz = new stzVisualRule("dmz_zone")
+oDmz {
+	WhenMetadataEquals("zone", "dmz")
+	ApplyColor("#FFF59D")
+}
+
+oPrivate = new stzVisualRule("private_zone")
+oPrivate {
+	WhenMetadataEquals("zone", "private")
+	ApplyColor("#C8E6C9")
+}
+
+# Firewall edges
+oFirewall = new stzVisualRule("firewall")
+oFirewall {
+	WhenMetadataEquals("firewall", TRUE)
+	ApplyStyle("bold")
+	ApplyColor("#FF5722")
+	ApplyPenWidth(3)
+}
+
+oDiag {
+	SetTheme(:pro)
+	SetLayout(:TopDown)
+	
+	AddVisualRule(oPublic)
+	AddVisualRule(oDmz)
+	AddVisualRule(oPrivate)
+	AddVisualRule(oFirewall)
+	
+	AddNodeWithMetaData("internet", "Internet", :Start, :Info,
+		[:zone = "public"], [])
+	
+	AddNodeWithMetaData("waf", "WAF", :Process, :Warning,
+		[:zone = "dmz"], [:security])
+	
+	AddNodeWithMetaData("lb", "Load Balancer", :Process, :Primary,
+		[:zone = "dmz"], [])
+	
+	AddNodeWithMetaData("web", "Web Tier", :Process, :Primary,
+		[:zone = "private"], [])
+	
+	AddNodeWithMetaData("app", "App Tier", :Process, :Primary,
+		[:zone = "private"], [])
+	
+	AddNodeWithMetaData("db", "Database", :Storage, :Success,
+		[:zone = "private"], [:encrypted])
+	
+	AddEdgeWithMetaData("internet", "waf", "443", 
+		[:firewall = TRUE], [])
+	
+	AddEdgeWithMetaData("waf", "lb", "https", 
+		[:firewall = TRUE], [])
+	
+	AddEdgeWithMetaData("lb", "web", "internal", 
+		[:firewall = FALSE], [])
+	
+	AddEdgeWithMetaData("web", "app", "api", 
+		[:firewall = TRUE], [])
+	
+	AddEdgeWithMetaData("app", "db", "query", 
+		[:firewall = TRUE], [])
+	
+	View()
+}
+
+pf()
+
+/*---------------------------#
+#  CI/CD Pipeline States
+#---------------------------#
+
+pr()
+
+oDiag = new stzDiagram("DeploymentPipeline")
+
+# Stage status coloring
+oPassed = new stzVisualRule("passed")
+oPassed {
+
+	When(:lastrun, :Equals = "pass")
+	UseColor("#4CAF50") # Allow resolving color name (like :red), semantic (like :Success)
+	# Add UseColorXT("red++", "white") # first is node background, the second is the color of the text
+
+# We should not favoor the use of actual colore values, especially when they
+# are hex values because they are not expressive. Keep them supported but add
+# the resolvecolor feature anywhre to allow using colore names and color semantic types
+# as noted above. Also, make a semantic engering of color names so they are bot
+# powerful and string to use:
+
+# all starts by givin a name to an actual hex color in an abstruct gloabla container
+# called @acColors not as it is made now (splitted between @acEdgeColors and other containers)
+
+# Also, it's confusing to say $acNodeColors = [ :Start = "lightgreen", ... ] while they
+# are actually $acNodeTypesAndTheirColors or $acNodeColorByType. This is not a superficial naming
+# choice, because it frees the name @acColors from any dependency to anything, because the same
+# coloers can be used with any thing
+
+# The same clean naming design should be applied to colors semantics meaning, so we keep oonly one
+# copy of everthing and just make the ling between them in an other container.
+
+# Also, the color names should be creatively simple and powerfully expressive in the same time:
+# so each color will have 5 levels of densitin: gray--, gray-, gray, gray+, and gray+++
+# The feature should be automatically activated for any new color we add to the unique color container
+# where we define names for coler within their actual hexvalues. So for example, whey we add :cyan = "#00FFFF",
+# then cyan--, cyan--, cyan+, and cyan++ should all be supported (and resolved when used as coloer values anywhre)
+# (even in other classes, so make the resolve color dature as global function)
+
+# also, wwe should avoit confusing namings like "lightgreen" and "lightgreen" and use
+# "green-" instead, etc.
+
+
+//	WhenMetadataEquals("last_run", "pass")
+//	ApplyColor("#4CAF50")
+}
+
+oFailed = new stzVisualRule("failed")
+oFailed {
+	When(:last_run, :Equals = "fail")
+	UseColor("#F44336")
+//	WhenMetadataEquals("last_run", "fail")
+//	ApplyColor("#F44336")
+}
+
+oRunning = new stzVisualRule("running")
+oRunning {
+	When(:last_run, :Equals = "running")
+	UseColor("#2196F3")
+	UsePenWidth(2)
+//	WhenMetadataEquals("last_run", "running")
+//	ApplyColor("#2196F3")
+//	ApplyPenWidth(2)
+}
+
+# Critical stages
+oCriticalStage = new stzVisualRule("critical_stage")
+oCriticalStage {
+	WhenTagExists(:gate)
+	ApplyShape("diamond")
+}
+
+oDiag {
+	SetTheme(:lightgray)
+	SetLayout(:TopDown)
+	
+# Rules can be composed from exitant set of rules, which more accurade for clean design and reusable rules
+	AddVisualRule(oPassed)
+	AddVisualRule(oFailed)
+	AddVisualRule(oRunning)
+	AddVisualRule(oCriticalStage)
+	
+# Also rules can be defined directly here, which is more intuitive for focused usage
+#	When(:lastrun, :Equals = "pass")
+#	UseColor("#4CAF50") # Allow resolving color name (like :red), semantic (like :Success)
+
+# And we can check them by calling Rules() #--> Their content lists
+# Or by calling RulesObjects() #--> Thir stzRule objects
+
+# Finaly, like colore paletes, we should be able to define named rulesets as data conatiners
+#  at the gloabl level, classifid by domain, so we can load all the rules of all the domain
+# we want to work with, without the necessity of adding each rule indiviually
+#~> this will allow powerful business domains chekcs in banking, quality, legal, etc
+
+	AddNodeWithMetaData("commit", "Git Commit", :Start, :Success,
+		[:last_run = "pass"], [])
+	
+# Allow using AddNodeXTT() as an alternative : be careful of confusion with
+# parent same method. In fact, I think we don't need implementing this method
+# at all at this class level, the parent one is sufficient. It's also a better
+# design decision, because adding metadata is a feature abstructed is stzGraph
+# to be reused by all it's child classes. The point is that this one has an
+# additiona tag param at the end that i don't see why we ever need it! Because
+# tages are themselves medatadat since we can add them as :tags = [ ... ] in the
+# metadata param... Review this design!
+
+# the same thing should  be done to AddEdgeWithMetaData!
+
+	AddNodeWithMetaData("build", "Build", :Process, :Primary,
+		[:last_run = "pass", :duration_s = 120], [])
+	
+	AddNodeWithMetaData("unit", "Unit Tests", :Process, :Primary,
+		[:last_run = "running", :duration_s = 45], [])
+	
+	AddNodeWithMetaData("security", "Security Scan", :Decision, :Warning,
+		[:last_run = "pass", :issues = 0], [:gate])
+	
+	AddNodeWithMetaData("deploy_stage", "Deploy Staging", :Process, :Info,
+		[:last_run = "pass"], [])
+	
+	AddNodeWithMetaData("integration", "Integration Tests", :Process, :Primary,
+		[:last_run = "fail", :failed_tests = 3], [])
+	
+	AddNodeWithMetaData("approval", "Manual Approval", :Decision, :Warning,
+		[:last_run = "pass"], [:gate])
+	
+	AddNodeWithMetaData("deploy_prod", "Deploy Production", :Endpoint, :Success,
+		[:last_run = "pass"], [])
+	
+	Connect("commit", "build")
+	Connect("build", "unit")
+	Connect("unit", "security")
+	Connect("security", "deploy_stage")
+	Connect("deploy_stage", "integration")
+	Connect("integration", "approval")
+	Connect("approval", "deploy_prod")
+	
+	View()
+}
+
+pf()
+
+#=============================#
+#  DIAGRAM IMPORT & EDITING   #
+#=============================#
+
+/*-- Basic Import on Empty Diagram
+
+pr()
+
+oDiag = new stzDiagram("MainFlow")
+
+cImported = '
+diagram "ProcessFlow"
+
+metadata
+    theme: pro
+    layout: topdown
+
+nodes
+    start
+        label: "Begin"
+        type: start
+        color: #008000
+
+    process
+        label: "Work"
+        type: process
+        color: #0000FF
+
+    end
+        label: "Finish"
+        type: endpoint
+        color: #008000
+
+edges
+    start -> process
+    process -> end
+'
+
+oDiag.ImportDiag(cImported)
+? oDiag.Code() + NL
+? oDiag.NodeCount()
+#--> 3
+
+? oDiag.EdgeCount()
+#--> 2
+
+? oDiag.View()
+
+pf()
+#--> Executed in 0.05 second(s) in Ring 1.24
+
+#=============================#
+#  SEMANTIC COLOR IMPORT      #
+#=============================#
+
+/*-- Import Diagram with Semantic Colors
+
+pr()
+
+oDiag = new stzDiagram("MainFlow")
+
+cImported = '
+diagram "ProcessFlow"
+
+metadata
+    theme: pro
+    layout: topdown
+
+nodes
+    start
+        label: "Begin"
+        type: start
+        color: success
+
+    process
+        label: "Work"
+        type: process
+        color: primary
+
+    validate
+        label: "Work"
+        type: danger
+        color: danger
+
+    end
+        label: "Finish"
+        type: endpoint
+        color: success
+
+edges
+    start -> process
+    process -> validate
+    validate -> end
+'
+
+oDiag.ImportDiag(cImported)
+oDiag.Show()
+
+pf()
+#--> Executed in 0.08 second(s) in Ring 1.24
+
+/*-- Import as Subdiagram
+
+pr()
+
+oDiag = new stzDiagram("MainFlow")
+oDiag.AddNodeXT("start", "Main Start", :start, :success)
+oDiag.AddNodeXT("main", "Main Process", :process, :primary)
+oDiag.Connect("start", "main")
+
+# Diagram before import (note how it contains a "Main Process" node
+oDiag.Show()
+#-->
+'
+     ╭────────────╮      
+     │ Main Start │      
+     ╰────────────╯      
+            |            
+            v            
+    ╭──────────────╮     
+    │ Main Process │     
+    ╰──────────────╯  
+'
+
+# The stzdiag string to be imported (node that it starts with a "Main Process" node
+
+cSubFlow = '
+diagram "SubFlow"
+
+nodes
+    main
+        label: "Main Process"
+        type: process
+        color: #0000FF
+
+    sub1
+        label: "Sub Task 1"
+        type: process
+        color: #FFA500
+
+    sub2
+        label: "Sub Task 2"
+        type: process
+        color: #FFA500
+
+    result
+        label: "Result"
+        type: endpoint
+        color: #008000
+
+edges
+    main -> sub1
+    main -> sub2
+    sub1 -> result
+    sub2 -> result
+'
+
+# The import will incrust the subflow in the common "Main Process" node
+
+oDiag.ImportDiag(cSubFlow)
+? oDiag.NodeCount()
+#--> 5 (start, main, sub1, sub2, result)
+
+? oDiag.HasNode("sub1")
+#--> TRUE
+
+? oDiag.Code()
+
+# Let's visuaise the actual diagram (not view() ~> image vs show() ~> ascii from stzGraph)
+oDiag.View()
+
+pf()
+#--> Executed in 0.06 second(s) in Ring 1.24
+
+/*-- Import Error - Missing Connection Node
+
+pr()
+
+oDiag = new stzDiagram("MainFlow")
+oDiag.AddNodeXT("start", "Begin", :start, :success)
+
+cBadImport = '
+diagram "BadFlow"
+
+nodes
+    process
+        label: "Work"
+        type: process
+        color: #0000FF
+
+    end
+        label: "Finish"
+        type: endpoint
+        color: #008000
+
+edges
+    process -> end
+'
+
+oDiag.ImportDiag(cBadImport)
+#--> ERROR MESSAGE:
+# Import failed: First node 'process' not found in current diagram.
+# Either add node 'process' first, or clear the diagram with RemoveAllNodes()
+
+pf()
+#--> Executed in 0.03 second(s) in Ring 1.24
+
+#========================#
+#  NODE REMOVAL          #
+#========================#
+
+/*-- Remove Single Node
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
+oDiag.AddNodeXT("n2", "Node 2", :process, :blue)
+oDiag.AddNodeXT("n3", "Node 3", :process, :blue)
+oDiag.Connect("n1", "n2")
+oDiag.Connect("n2", "n3")
+
+? oDiag.NodeCount()
+#--> 3
+? oDiag.EdgeCount()
+#--> 2
+
+oDiag.RemoveNode("n2")
+
+? oDiag.NodeCount()
+#--> 2
+? oDiag.EdgeCount()
+#--> 0 (both edges removed)
+
+pf()
+#--> Executed in 0.04 second(s) in Ring 1.24
+
+/*-- Remove Multiple Nodes
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
+oDiag.AddNodeXT("n2", "Node 2", :process, :blue)
+oDiag.AddNodeXT("n3", "Node 3", :process, :blue)
+oDiag.AddNodeXT("n4", "Node 4", :process, :blue)
+oDiag.Connect("n1", "n2")
+oDiag.Connect("n3", "n4")
+
+oDiag.RemoveNodes(["n2", "n4"])
+
+? oDiag.NodeCount()
+#--> 2
+
+pf()
+#--> Executed in 0.03 second(s) in Ring 1.24
+
+/*-- Clear All Nodes
+*/
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
+oDiag.AddNodeXT("n2", "Node 2", :process, :blue)
+oDiag.Connect("n1", "n2")
+oDiag.SetNodeMetadata("n1", [:priority = "high"])
+
+oDiag.RemoveAllNodes()
+
+? oDiag.NodeCount()
+#--> 0
+? oDiag.EdgeCount()
+#--> 0
+? len(oDiag.@aNodeMetadata)
+#--> 0
+
+pf()
+#--> Executed in 0.02 second(s) in Ring 1.24
+
+/*-- Replace Node with Edge Preservation
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
+oDiag.AddNodeXT("old", "Old Node", :process, :yellow)
+oDiag.AddNodeXT("n3", "Node 3", :process, :blue)
+oDiag.Connect("n1", "old")
+oDiag.Connect("old", "n3")
+
+oDiag.ReplaceNode("old", "new", "New Node", :process, :green)
+
+? oDiag.HasNode("old")
+#--> FALSE
+? oDiag.HasNode("new")
+#--> TRUE
+? oDiag.EdgeCount()
+#--> 2 (edges preserved with new node)
+
+pf()
+#--> Executed in 0.04 second(s) in Ring 1.24
+
+#========================#
+#  METADATA OPERATIONS   #
+#========================#
+
+/*-- Set and Get Node Metadata
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXT("task", "Task", :process, :blue)
+
+oDiag.SetNodeMetadata("task", [
+    :priority = "high",
+    :owner = "Alice",
+    :duration = 120
+])
+
+aMeta = oDiag.GetNodeMetadata("task")
+? aMeta[:priority]
+#--> high
+? aMeta[:owner]
+#--> Alice
+
+pf()
+#--> Executed in 0.03 second(s) in Ring 1.24
+
+/*-- Update Node Metadata
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXT("task", "Task", :process, :blue)
+
+oDiag.SetNodeMetadata("task", [:priority = "low"])
+oDiag.UpdateNodeMetadata("task", "priority", "critical")
+oDiag.UpdateNodeMetadata("task", "status", "active")
+
+aMeta = oDiag.GetNodeMetadata("task")
+? aMeta[:priority]
+#--> critical
+? aMeta[:status]
+#--> active
+
+pf()
+#--> Executed in 0.03 second(s) in Ring 1.24
+
+/*-- Edge Metadata Operations
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
+oDiag.AddNodeXT("n2", "Node 2", :process, :blue)
+oDiag.Connect("n1", "n2")
+
+oDiag.SetEdgeMetadata("n1", "n2", [
+    :type = "data_flow",
+    :bandwidth = "high",
+    :encrypted = TRUE
+])
+
+aMeta = oDiag.GetEdgeMetadata("n1", "n2")
+? aMeta[:type]
+#--> data_flow
+? aMeta[:encrypted]
+#--> TRUE
+
+pf()
+#--> Executed in 0.03 second(s) in Ring 1.24
+
+/*-- Remove Metadata
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
+oDiag.SetNodeMetadata("n1", [:key = "value"])
+
+? len(oDiag.GetNodeMetadata("n1"))
+#--> 1
+
+oDiag.RemoveNodeMetadata("n1")
+
+? len(oDiag.GetNodeMetadata("n1"))
+#--> 0
+
+pf()
+#--> Executed in 0.02 second(s) in Ring 1.24
+
+#================================#
+#  COMBINED OPERATIONS           #
+#================================#
+
+/*-- Build, Edit, Import, and Visualize
+
+pr()
+
+# Build initial diagram
+oDiag = new stzDiagram("PaymentFlow")
+oDiag.SetTheme(:pro)
+oDiag.AddNodeXT("start", "Request", :start, :success)
+oDiag.AddNodeXT("validate", "Validate", :decision, :warning)
+oDiag.AddNodeXT("approved", "Approved", :endpoint, :success)
+oDiag.Connect("start", "validate")
+oDiag.Connect("validate", "approved")
+
+# Add metadata
+oDiag.SetNodeMetadata("validate", [
+    :rule = "amount < 10000",
+    :approver = "system"
+])
+
+# Import subflow for manual approval
+cManualFlow = '
+diagram "ManualApproval"
+
+nodes
+    validate
+        label: "Validate"
+        type: decision
+        color: #FFFF00
+
+    manual
+        label: "Manual Review"
+        type: process
+        color: #FFA500
+
+    manager
+        label: "Manager Approval"
+        type: decision
+        color: #FFFF00
+
+    approved
+        label: "Approved"
+        type: endpoint
+        color: #008000
+
+edges
+    validate -> manual
+    manual -> manager
+    manager -> approved
+'
+
+oDiag.ImportDiag(cManualFlow)
+
+? oDiag.NodeCount()
+#--> 5 (start, validate, manual, manager, approved)
+
+? oDiag.HasNode("manager")
+#--> TRUE
+
+# Update metadata
+oDiag.UpdateNodeMetadata("validate", "approver", "system+manual")
+
+# Visualize
+oDiag.Show()
+
+pf()
+#--> Executed in 0.15 second(s) in Ring 1.24

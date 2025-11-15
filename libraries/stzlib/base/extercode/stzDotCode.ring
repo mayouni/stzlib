@@ -1,5 +1,3 @@
-
-
 func StzDotCodeQ()
 	return new stzDotCode
 
@@ -12,21 +10,19 @@ func StzDotCodeQ()
 
 class stzDotCode
 	@cDotCode = ""
-	@cOutputFile = "output.svg"
-	@cOutputFormat = "svg"  # svg, png, pdf, etc.
+	@cOutputFormat = "svg"
 	@cDotPath = "D:\Graphviz\bin\dot.exe"
 	@cTempDotFile = "temp.dot"
 	@cLogFile = "dotlog.txt"
+	@cOutputDir = "output"
 	@bVerbose = 0
 	@nStartTime = 0
 	@nEndTime = 0
 	@cTempDir = "temp"
-	@cOutputDir = "output"
-
-	# Initializing the dot code
+	@cLastOutputFile = ""
+	@bWasExtecutedAtLeastOnce = 0
 
 	def Init()
-		# Create directories if they don't exist
 		This.EnsureDirectories()
 
 	def EnsureDirectories()
@@ -39,41 +35,21 @@ class stzDotCode
 		def @(pcDotCode)
 			This.SetCode(pcDotCode)
 
-	# Setting output options
-
-	def SetOutputFile(cFile)
-		# Prepend output directory if not already included
-		if NOT substr(cFile, @cOutputDir)
-			@cOutputFile = @cOutputDir + "\" + cFile
-		else
-			@cOutputFile = cFile
-		ok
-
 	def SetOutputFormat(cFormat)
-		# Supported: svg, png, pdf, jpg, gif, ps, etc.
 		@cOutputFormat = lower(cFormat)
 
 	def SetTempDir(cDir)
 		@cTempDir = cDir
 		This.EnsureDirectories()
 
-	def SetOutputDir(cDir)
-		@cOutputDir = cDir
-		This.EnsureDirectories()
-
 	def TempDir()
 		return @cTempDir
-
-	def OutputDir()
-		return @cOutputDir
 
 	def SetDotPath(cPath)
 		@cDotPath = cPath
 
 	def SetVerbose(bVerbose)
 		@bVerbose = bVerbose
-
-	# Running the dot code
 
 	def Execute()
 		This.EnsureDirectories()
@@ -85,32 +61,38 @@ class stzDotCode
 
 		@nStartTime = clock()
 
-		# Build full paths with directories
+		# Generate unique filename with timestamp IN OUTPUT FOLDER
+		cTimestamp = "" + clock()
+		cOutputFile = @cOutputDir + "\diagram_" + cTimestamp + "." + @cOutputFormat  # CHANGED
 		cTempDotPath = @cTempDir + "\" + @cTempDotFile
 		cLogPath = @cTempDir + "\" + @cLogFile
+
+		# Store for View() to use
+		@cLastOutputFile = cOutputFile
 
 		# Write dot code to temp file
 		This.WriteToFile(cTempDotPath, @cDotCode)
 
-		# Build command with full paths
+		# Build command
 		cCmd = @cDotPath + " -T" + @cOutputFormat + " " + 
-		       cTempDotPath + " -o " + @cOutputFile + 
+		       cTempDotPath + " -o " + cOutputFile + 
 		       " > " + cLogPath + " 2>&1"
 
 		# Execute
 		system(cCmd)
-
 		@nEndTime = clock()
 
 		if @bVerbose
 			? "Command: " + cCmd
-			? "Output file: " + @cOutputFile
+			? "Output file: " + cOutputFile
 			? "Log: " + @@(This.Log())
 		ok
 
-		if NOT fexists(@cOutputFile)
-			stzraise("Output file '" + @cOutputFile + "' not created. Log: " + This.Log())
+		if NOT fexists(cOutputFile)
+			stzraise("Output file '" + cOutputFile + "' not created. Log: " + This.Log())
 		ok
+
+		@bWasExtecutedAtLeastOnce = 1
 
 		def Run()
 			This.Execute()
@@ -118,30 +100,28 @@ class stzDotCode
 		def Exec()
 			This.Execute()
 
-	# View the generated output
-
 	def View()
-		if NOT fexists(@cOutputFile)
-			stzraise("Output file does not exist: " + @cOutputFile)
-		ok
-		system(@cOutputFile)
+		if NOT @bWasExtecutedAtLeastOnce
+			stzraise("Can't view the generated visual! You must Run() the DOT code firts.")
 
-		def Show()
-			This.View()
+		ok
+
+		if @cLastOutputFile = "" or NOT fexists(@cLastOutputFile)
+			stzraise("Output file does not exist: " + @cLastOutputFile)
+		ok
+		system('"' + @cLastOutputFile + '"')
 
 		def Display()
 			This.View()
 
-	# Execute and view in one call
+		def Visualise()
+			This.View()
 
 	def ExecuteAndView()
 		This.Execute()
 		This.View()
 
 		def RunAndView()
-			This.ExecuteAndView()
-
-		def ExecAndShow()
 			This.ExecuteAndView()
 
 		def RunXT()
@@ -153,10 +133,8 @@ class stzDotCode
 		def ExecXT()
 			This.ExecuteAndView()
 
-	# Get information
-
 	def OutputFile()
-		return @cOutputFile
+		return @cLastOutputFile
 
 	def OutputFormat()
 		return @cOutputFormat
@@ -171,15 +149,14 @@ class stzDotCode
 		return 0
 
 	def Log()
-		if NOT fexists(@cLogFile)
+		cLogPath = @cTempDir + "\" + @cLogFile
+		if NOT fexists(cLogPath)
 			return ""
 		ok
-		return This.ReadFile(@cLogFile)
+		return This.ReadFile(cLogPath)
 
 	def IsVerbose()
 		return @bVerbose
-
-	# Cleanup
 
 	def Cleanup()
 		try
@@ -193,20 +170,17 @@ class stzDotCode
 				remove(cLogPath)
 			ok
 		catch
-			# Silent cleanup
 		done
 
 	def CleanupAll()
 		This.Cleanup()
 		try
-			if fexists(@cOutputFile)
-				remove(@cOutputFile)
+			cOutputFile = @cOutputDire + "/" + "diagram." + @cOutputFormat
+			if fexists(cOutputFile)
+				remove(cOutputFile)
 			ok
 		catch
-			# Silent cleanup
 		done
-
-	# Private methods
 
 	def WriteToFile(cFile, cContent)
 		fp = fopen(cFile, "w")
