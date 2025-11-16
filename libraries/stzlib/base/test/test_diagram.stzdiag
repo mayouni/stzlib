@@ -1,19 +1,19 @@
 diagram "SaveTest"
 
 metadata
-    theme: null
-    layout: null
+    theme: light
+    layout: topdown
 
 nodes
     a
         label: "Node A"
         type: process
-        color: primary
+        color: #0000FF
 
     b
         label: "Node B"
         type: process
-        color: primary
+        color: #0000FF
 
 edges
     a -> b

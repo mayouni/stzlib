@@ -57,21 +57,21 @@ func IsJsonList(aList)
 
 # Convert Ring list to JSON string
 func ListToJson(aList)
-    if not (isList(aList) and IsJsonList(aList))
-        StzRaise("Incorrect param type! aList must be a well-formatted JSON list.")
-    ok
-    
-    nLen = len(aList)
-    if nLen = 0
-        return "[]"
-    ok
-    
-    # Check if it's a HashList (Ring's normal format) or DeepHashList
-    if IsHashList(aList) or _IsValidDeepHashList(aList)
-        return _HashListToJsonString(aList)
-    else
-        return _ListToJsonArray(aList)
-    ok
+    	if not (isList(aList) and IsJsonList(aList))
+	        StzRaise("Incorrect param type! aList must be a well-formatted JSON list.")
+	ok
+	    
+	nLen = len(aList)
+	if nLen = 0
+	    return "[]"
+	ok
+
+	# Check if it's a HashList (Ring's normal format) or DeepHashList
+	if IsHashList(aList) or _IsValidDeepHashList(aList)
+	     return _HashListToJsonString(aList)
+	else
+	     return _ListToJsonArray(aList)
+	ok
 
 	func ListToJsonString(aList)
 		return ListToJson(aList)
@@ -96,23 +96,42 @@ func ListToJson(aList)
 	
 # Convert Ring list to JSON string with indentation
 func ListToJsonXT(aList)
-    if not (isList(aList) and IsJsonList(aList))
-        StzRaise("Incorrect param type! aList must be a well-formatted JSON list.")
-    ok
+	if not (isList(aList) and IsJsonList(aList))
+	    StzRaise("Incorrect param type! aList must be a well-formatted JSON list.")
+	ok
+  
+	nLen = len(aList)
+	if nLen = 0
+	    return "[]"
+	ok
     
-    nLen = len(aList)
-    if nLen = 0
-        return "[]"
-    ok
-    
-    # Check if it's a HashList (Ring's normal format) or DeepHashList
-    if IsHashList(aList) or _IsValidDeepHashList(aList)
-        return _HashListToJsonStringXT(aList, 0)
-    else
-        return _ListToJsonArrayXT(aList, 0)
-    ok
+	# Check if it's a HashList (Ring's normal format) or DeepHashList
+	if IsHashList(aList) or _IsValidDeepHashList(aList)
+	   return _HashListToJsonStringXT(aList, 0)
+	else
+	   return _ListToJsonArrayXT(aList, 0)
+	ok
 
 	func @ListToJsonXT(aList)
+		return ListToJsonXT(aList)
+
+	func ListToJsonStringXT(aList)
+		return ListToJsonXT(aList)
+
+	func ToJsonXT(aList)
+		return ListToJsonXT(aList)
+
+	func JsonXT(aList)
+		return ListToJsonXT(aList)
+
+
+	func @ListToJsonStringXT(aList)
+		return ListToJsonXT(aList)
+
+	func @ToJsonXT(aList)
+		return ListToJsonXT(aList)
+
+	func @JsonXT(aList)
 		return ListToJsonXT(aList)
 
 # Convert JSON string to Ring list
