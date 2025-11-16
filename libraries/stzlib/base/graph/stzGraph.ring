@@ -113,7 +113,7 @@ class stzGraph
 				return aNode
 			ok
 		end
-		return ""
+		stzraise("Node '" + pcNodeId + "' does not exist!")
 
 	def NodeExists(pcNodeId)
 		return This.Node(pcNodeId) != ""
@@ -162,7 +162,6 @@ class stzGraph
 		for i = 1 to nLen
 			This.Connect(pcNewNodeId, aOutgoing[i])
 		end
-
 
 
 	def RemoveAllEdges()
@@ -259,7 +258,7 @@ class stzGraph
 				return aEdge
 			ok
 		end
-		return ""
+		stzraise("Inexistant edge!")
 
 	def EdgeExists(pcFromId, pcToId)
 		return This.Edge(pcFromId, pcToId) != ""
@@ -280,6 +279,56 @@ class stzGraph
 
 	def EdgeCount()
 		return len(@acEdges)
+
+	#----------------------------#
+	#  MANAGING NODE PROPERTIES  #
+	#----------------------------#
+
+	def SetNodeProperty(pNodeId, cProperty, pValue)
+		aNode = This.Node(pNodeId)
+		
+		if NOT HasKey(aNode, "properties")
+			aNode["properties"] = []
+		ok
+		
+		aNode["properties"][cProperty] = pValue
+	
+	def SetNodeProperties(pNodeId, aProperties)
+		if NOT IsHashList(aProperties)
+			StzRaise("aProperties must be a hashlist")
+		ok
+		
+		for cKey in keys(aProperties)
+			This.SetNodeProperty(pNodeId, cKey, aProperties[cKey])
+		end
+	
+	def NodeProperty(pNodeId, cProperty)
+		aNode = This.Node(pNodeId)
+		
+		if HasKey(aNode, "properties") and HasKey(aNode["properties"], cProperty)
+			return aNode["properties"][cProperty]
+	
+		else
+			stzraise("Inexistant node key or/and property!")
+		ok
+	
+	def SetEdgeProperty(pFromId, pToId, cProperty, pValue)
+		aEdge = This.Edge(pFromId, pToId)
+	
+		if NOT HasKey(aEdge, "properties")
+			aEdge["properties"] = []
+		ok
+		
+		aEdge["properties"][cProperty] = pValue
+	
+	def EdgeProperty(pFromId, pToId, cProperty)
+		aEdge = This.Edge(pFromId, pToId)
+		
+		if HasKey(aEdge, "properties") and HasKey(aEdge["properties"], cProperty)
+			return aEdge["properties"][cProperty]
+		else
+			stzraise("Inexistant node key or/and property!")
+		ok
 
 	#---------------------------#
 	#  TRAVERSAL & PATHFINDING  #
@@ -1738,7 +1787,7 @@ def ReachableFrom(pcNodeId)
 
 	def ExportUsing(pcName)
 		if NOT HasKey(@acProperties, "exporters")
-			return ""
+			stzraise("Can't make the export!")
 		ok
 		
 		acExporters = @acProperties["exporters"]
@@ -1752,7 +1801,8 @@ def ReachableFrom(pcNodeId)
 			ok
 		end
 		
-		return ""
+		stzraise("Can't make the export!")
+		#TODO// Enhance the error messages
 
 	def Exporters()
 		if NOT HasKey(@acProperties, "exporters")

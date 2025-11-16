@@ -803,7 +803,7 @@ class stzListOfWalkers2D
 for y = 1 to nGridHeight
     sYLabel = "" + ((y+nMinY-1) % 10)
     
-    # Fix: Replace the vertical line with ">" when there's a marker
+    # Replace the vertical line with ">" when there's a marker
     if aLeftMarkers[y] = ">"
         sResult += sYLabel + " > " # Show y-coordinate and ">" as the border
     else

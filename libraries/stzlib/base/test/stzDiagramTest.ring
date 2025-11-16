@@ -496,20 +496,20 @@ pf()
 #-----------------#
 
 /*--- Testing different theme configurations
-*/
+
 pr()
 
 oDiag1 = new stzDiagram("LightTheme")
 oDiag1.SetTheme(:Light)
-? oDiag1.@cTheme #--> Light
+? oDiag1.Theme() #--> Light
 
 oDiag2 = new stzDiagram("DarkTheme")
 oDiag2.SetTheme(:Dark)
-? oDiag2.@cTheme #--> Dark
+? oDiag2.Theme() #--> Dark
 
 oDiag3 = new stzDiagram("VibrantTheme")
 oDiag3.SetTheme(:Vibrant)
-? oDiag3.@cTheme #--> Vibrant
+? oDiag3.Theme() #--> Vibrant
 
 pf()
 
@@ -523,11 +523,11 @@ pr()
 
 oDiag1 = new stzDiagram("MyDiagram")
 oDiag1.SetLayout(:TopDown)
-? oDiag1.@cLayout #--> TopDown
+? oDiag1.Layout() #--> TopDown
 
 oDiag2 = new stzDiagram("MyDiagram")
 oDiag2.SetLayout(:LeftRight)
-? oDiag2.@cLayout #--> LeftRight
+? oDiag2.Layout() #--> LeftRight
 
 pf()
 
@@ -555,7 +555,7 @@ oDiag {
 	View()
 }
 
-oSoxValidator = new stzDiagramValidator(:SOX)//$aDiagramValidators[:SOX]
+oSoxValidator = new stzDiagramValidatorXT(:SOX)
 aResult = oSoxValidator.Validate(oDiag)
 
 ? aResult["domain"] #--> sox
@@ -568,7 +568,7 @@ pf()
 #-----------------#
 
 /*--- Validating data flow against GDPR rules
-
+*/
 pr()
 
 oDiag = new stzDiagram("GdprData")
@@ -579,16 +579,27 @@ oDiag.AddNodeXT("delete", "Delete", :Process, :info)
 oDiag.Connect("collect", "process")
 oDiag.Connect("collect", "delete")
 
-oDiag.Node("collect")["properties"]["dataType"] = :personal
-oDiag.Node("collect")["properties"]["requiresConsent"] = TRUE
-oDiag.Node("collect")["properties"]["retentionPolicy"] = "1 year"
-oDiag.Node("delete")["properties"]["operation"] = :delete
+# Set node properties using the new methods
+oDiag.SetNodeProperties("collect", [
+	:dataType = :personal,
+	:requiresConsent = TRUE,
+	:retentionPolicy = "1 year"
+])
 
-oGdprValidator = $aDiagramValidators[:GDPR]
-aResult = oGdprValidator.Validate(oDiag)
+oDiag.SetNodeProperty("delete", :operation, :delete)
 
-? aResult["domain"] #--> GDPR
-? aResult["issueCount"] >= 0 #--> TRUE
+oDiag.SetNodeProperties("process", [
+	:dataType = :personal,
+	:requiresConsent = TRUE,
+	:retentionPolicy = "1 year"
+])
+
+# Validate
+oGdprValidator = new stzDiagramValidatorXT(:GDPR)
+oGdprValidator.Validate(oDiag)
+
+? oGdprValidator.Domain()     #--> GDPR
+? oGdprValidator.IssueCount()   #--> Should be 1 (process node missing consent)
 
 pf()
 
