@@ -184,7 +184,7 @@ class stzGraphex from stzGraph
 				loop
 			ok
 			
-			# FIX: Check for alternation group wrapped in parentheses
+			# Check for alternation group wrapped in parentheses
 			# Strip outer parentheses first, then check for pipe
 			if startsWith(cPart, "(") and endsWith(cPart, ")")
 				# Strip outer parentheses to get the inner content

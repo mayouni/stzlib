@@ -7,9 +7,9 @@
 #==================
 
 $aDiagramValidators = [
-	:SOX = new stzDiagramSoxValidator(),
-	:GDPR = new stzDiagramGdprValidator(),
-	:Banking = new stzDiagramBankingValidator()
+	:SOX,
+	:GDPR,
+	:Banking
 ]
 
 # ============================================
@@ -95,8 +95,8 @@ $acNodeTypes = [
 ]
 
 # Default node type and color
-@cDefaultNodeType = "process"
-@cDefaultNodeColor = :blue
+$cDefaultNodeType = "process"
+$cDefaultNodeColor = :blue
 
 # Edge styles
 $acEdgeStyles = [
@@ -106,8 +106,8 @@ $acEdgeStyles = [
 	:MessageFlow = "bold"
 ]
 
-@cDefaultEdgeStyle = "normal"
-@cDefaultEdgeColor = "black"
+$cDefaultEdgeStyle = "normal"
+$cDefaultEdgeColor = "black"
 
 #---
 
@@ -213,7 +213,7 @@ $acThemes = [
 	"darkgray"
 ]
 
-@cDefaultTheme = "light"
+$cDefaultTheme = "light"
 
 # LAYOUT
 $acLayouts = [
@@ -223,7 +223,7 @@ $acLayouts = [
 	:RightLeft = [ "rl" ]
 ]
 
-@cDefaultLayout = "topdown"
+$cDefaultLayout = "topdown"
 
 # FONTS
 $acFonts = [
@@ -240,8 +240,8 @@ $acFonts = [
 	"impact"
 ]
 
-@cDefaultFont = "helvetica"
-@cDefaultFontSize = 12
+$cDefaultFont = "helvetica"
+$cDefaultFontSize = 12
 
 # Theme-specific font settings
 $aThemeFonts = [
@@ -253,10 +253,6 @@ $aThemeFonts = [
 	:print = [:font = "times", :size = 11],
 	:gray = [:font = "helvetica", :size = 12]
 ]
-
-# PALETTE AND FONT COLORS (will be populated after ResolveColor is defined)
-
-$aPalette = []
 
 $aFontColors = [
 	:light = [
@@ -512,7 +508,7 @@ func ResolveEdgeStyle(pStyle)
 		return cStyleKey
 	ok
 	
-	return @cDefaultEdgeStyle
+	return $cDefaultEdgeStyle
 
 func ResolveNodeType(pType)
 	cTypeKey = lower("" + pType)
@@ -534,7 +530,7 @@ func ResolveNodeType(pType)
 		return aVisualMap[cTypeKey]
 	ok
 	
-	return @cDefaultNodeType
+	return $cDefaultNodeType
 
 # Helper: Hex to RGB
 func HexToRGB(cHex)
@@ -587,7 +583,7 @@ func FontColors()
 # NODE TYPE FUNCTIONS
 
 func DefaultNodeType()
-	return @cDefaultNodeType
+	return $cDefaultNodeType
 
 func NodeTypes()
 	return $acNodeTypes
@@ -596,13 +592,13 @@ func IsValidNodeType(pcType)
 	return ring_find($acNodeTypes, pcType) > 0
 
 func DefaultNodeColor()
-	return ResolveColor(@cDefaultNodeColor)
+	return ResolveColor($cDefaultNodeColor)
 
 func ColorForNodeType(pcType)
 	if HasKey($acColorsByNodeType, pcType)
 		return ResolveColor($acColorsByNodeType[pcType])
 	ok
-	return ResolveColor(@cDefaultNodeColor)
+	return ResolveColor($cDefaultNodeColor)
 
 # EDGE STYLE FUNCTIONS
 
@@ -613,18 +609,18 @@ func EdgeStyles()
 	return $acEdgeStyles
 
 func DefaultEdgeStyle()
-	return @cDefaultEdgeStyle
+	return $cDefaultEdgeStyle
 
 func StyleForEdgeType(pcType)
 	if HasKey($acEdgeStyles, pcType)
 		return $acEdgeStyles[pcType]
 	ok
-	return @cDefaultEdgeStyle
+	return $cDefaultEdgeStyle
 
 # VALIDATOR FUNCTION
 
 func DiagramValidators()
-	return $aDiagramValidators
+	return $acDiagramValidators
 
 # =====================================================
 #  stzDiagram Class - Main Diagram Implementation
@@ -632,8 +628,8 @@ func DiagramValidators()
 
 class stzDiagram from stzGraph
 
-	@cTheme = @cDefaultTheme
-	@cLayout = @cDefaultLayout
+	@cTheme = $cDefaultTheme
+	@cLayout = $cDefaultLayout
 	@aClusters = []
 	@aAnnotations = []
 	@aTemplates = []
@@ -644,10 +640,10 @@ class stzDiagram from stzGraph
 	@aPalette = $aPalette
 	@aFontColors = $aFontColors
 
-	@cEdgeStyle = @cDefaultEdgeStyle
+	@cEdgeStyle = $cDefaultEdgeStyle
 
-	@cFont = @cDefaultFont
-	@nFontSize = @cDefaultFontSize
+	@cFont = $cDefaultFont
+	@nFontSize = $cDefaultFontSize
 
 	@aVisualRules = []
 	@aMetadataKeys = []
@@ -664,11 +660,8 @@ class stzDiagram from stzGraph
 		super.init(pTitle)
 
 	def SetTheme(pTheme)
+	
 		cThemeKey = lower(pTheme)
-		
-		if cThemeKey = "professional"
-			cThemeKey = "pro"
-		ok
 		
 		if HasKey($aPalette, cThemeKey)
 			@cTheme = cThemeKey
@@ -697,6 +690,38 @@ class stzDiagram from stzGraph
 	def SetFontSize(pSize)
 		@nFontSize = pSize
 	
+	#---
+
+	def Theme()
+		return @cTheme
+	
+	def Layout()
+		return @cLayout
+	
+	def EdgeColor()
+		return @cEdgeColor
+	
+	def NodeStrokeColor()
+		return @cNodeStrokeColor
+	
+	def EdgeStyle()
+		return @cEdgeStyle
+	
+	def Font()
+		return @cFont
+	
+	def FontSize()
+		return @nFontSize
+	
+	def VisualRules()
+		return @aVisualRules
+	
+	def NodeEnhancements()
+		return @aNodeEnhancements
+	
+	def EdgeEnhancements()
+		return @aEdgeEnhancements
+
 	#------------------------------------------
 	#  COLOR RESOLUTION
 	#------------------------------------------
@@ -716,9 +741,9 @@ class stzDiagram from stzGraph
 		cResult = oResolver.ColorToRGB(cColor)
 		return cResult
 
-	def NodeStrokeColor(cTheme)
+	def NodeStrokeColorForTheme(cTheme)
 		oResolver = new stzColorResolver()
-		cResult = oResolver.NodeStrokeColor(cTheme)
+		cResult = oResolver.NodeStrokeColorForTheme(cTheme)
 		return cResult
 
 	def ConvertColorTogray(cColor)
@@ -731,7 +756,7 @@ class stzDiagram from stzGraph
 	#------------------------------------------
 
 	def AddNode(pNodeId, pLabel)
-		This.AddNodeXT(pNodeId, pLabel, @cDefaultNodeType, @cDefaultNodeColor)
+		This.AddNodeXT(pNodeId, pLabel, $cDefaultNodeType, $cDefaultNodeColor)
 
 	def AddNodeXT(pNodeId, pLabel, pType, pColor)
 		cResolvedType = ResolveNodeType(pType)
@@ -1279,8 +1304,8 @@ class stzDiagram from stzGraph
 			but cCurrentSection = "nodes"
 				if NOT substr(cLine, "label:") and NOT substr(cLine, "type:") and NOT substr(cLine, "color:")
 					if cCurrentNode != "" and cLabel != ""
-						if cType = "" cType = @cDefaultNodeType ok
-						if cColor = "" cColor = @cDefaultNodeColor ok
+						if cType = "" cType = $cDefaultNodeType ok
+						if cColor = "" cColor = $cDefaultNodeColor ok
 						This.AddNodeXT(cCurrentNode, cLabel, cType, cColor)
 					ok
 					cCurrentNode = cLine
@@ -1306,8 +1331,8 @@ class stzDiagram from stzGraph
 		
 		# Add last node
 		if cCurrentNode != "" and cLabel != ""
-			if cType = "" cType = @cDefaultNodeType ok
-			if cColor = "" cColor = @cDefaultNodeColor ok
+			if cType = "" cType = $cDefaultNodeType ok
+			if cColor = "" cColor = $cDefaultNodeColor ok
 			This.AddNodeXT(cCurrentNode, cLabel, cType, cColor)
 		ok
 		
@@ -1365,8 +1390,8 @@ class stzDiagramValidator
 		@aValidators = []
 
 	def ValidateDiagram(oDiagram, pcDomain)
-		if HasKey($aDiagramValidators, pcDomain)
-			oValidator = $aDiagramValidators[pcDomain]
+		if HasKey($acDiagramValidators, pcDomain)
+			oValidator = nex stzDiagramValidatorXT(pcDomain)
 			return oValidator.Validate(oDiagram)
 		else
 			return [
@@ -1376,14 +1401,43 @@ class stzDiagramValidator
 		ok
 
 	def Validators()
-		return $aDiagramValidators
+		return $acDiagramValidators
 
+
+class stzDiagramValidatorXT
+	@cValidatorType
+
+	def init(pcValidator)
+		if not isString(pcValidator)
+			stzraise("Incorrect param type! pcValidator must be a string.")
+		ok
+
+		@cValidatorType =  lower(pcValidator)
+
+	def Validate(oDiag)
+
+		switch @cValidatorType
+		on "sox"
+			oValidator = new stzDiagramSoxValidator()
+
+		on "gdpr"
+			oValidator = new stzDiagramGdprValidator()
+
+		on "banking"
+			oValidator = new stzDiagramBankingValidator()
+
+		other
+			stzraise("Unsupported diagram validator! Use 'sox', 'gdpr', or 'banking'.")
+		off
+
+		return oValidator.Validate(oDiag)
 
 #=====================================================
 #  stzDiagramSoxValidator - SARBANES-OXLEY
 #=====================================================
 
 class stzDiagramSoxValidator from stzDiagramValidator
+	@aValidationResult = []
 
 	def Validate(oDiag)
 		aIssues = []
@@ -1427,13 +1481,29 @@ class stzDiagramSoxValidator from stzDiagramValidator
 			aIssues + "SOX-005: Cyclic dependency detected in workflow"
 		ok
 
-		return [
+		@aValidationResult = [
 			:status = iif(len(aIssues) = 0, "pass", "fail"),
 			:domain = "sox",
 			:issueCount = len(aIssues),
 			:issues = aIssues
 		]
 
+	def Result()
+		return @aValidationResult
+
+	def Domain()
+		return @aValidationResult["domain"]
+	
+	def IssueCount()
+		return @aValidationResult["issueCount"]
+	
+	def Issues()
+		return @aValidationResult["issues"]
+	
+	def Status()
+		return @aValidationResult["status"]
+
+	#TODO// Should be abstracted in stzGraph
 	def NodesByType(pDiag, pType)
 		aFound = []
 		for aNode in pDiag.Nodes()
@@ -1458,6 +1528,7 @@ class stzDiagramSoxValidator from stzDiagramValidator
 #=====================================================
 
 class stzDiagramGdprValidator from stzDiagramValidator
+	@aValidationResult = []
 
 	def Validate(oDiag)
 		aIssues = []
@@ -1491,19 +1562,51 @@ class stzDiagramGdprValidator from stzDiagramValidator
 			ok
 		end
 
-		return [
+		@aValidationResult = [
 			:status = iif(len(aIssues) = 0, "pass", "fail"),
 			:domain = "gdpr",
 			:issueCount = len(aIssues),
 			:issues = aIssues
 		]
 
+	def Result()
+		return @aValidationResult
+
+	def Domain()
+		return @aValidationResult["domain"]
+	
+	def IssueCount()
+		return @aValidationResult["issueCount"]
+	
+	def Issues()
+		return @aValidationResult["issues"]
+	
+	def Status()
+		return @aValidationResult["status"]
+
+	#TODO// Should be called somehow from stzGraph
 	def NodesByProperty(pDiag, pProperty, pValue)
 		aFound = []
 		for aNode in pDiag.Nodes()
-			if HasKey(aNode, "properties") and HasKey(aNode["properties"], pProperty) and
-			   aNode["properties"][pProperty] = pValue
-				aFound + aNode["id"]
+			if HasKey(aNode, "properties") and 
+			   HasKey(aNode["properties"], pProperty)
+				
+				# Get property value
+				propVal = aNode["properties"][pProperty]
+				
+				# Compare (handle both string and symbol)
+				bMatch = FALSE
+				if propVal = pValue
+					bMatch = TRUE
+				but isString(propVal) and isString(pValue)
+					if lower(propVal) = lower(pValue)
+						bMatch = TRUE
+					ok
+				ok
+				
+				if bMatch
+					aFound + aNode["id"]
+				ok
 			ok
 		end
 		return aFound
@@ -1513,6 +1616,7 @@ class stzDiagramGdprValidator from stzDiagramValidator
 #=====================================================
 
 class stzDiagramBankingValidator from stzDiagramValidator
+	@aValidationResult = []
 
 	def Validate(oDiag)
 		aIssues = []
@@ -1554,13 +1658,29 @@ class stzDiagramBankingValidator from stzDiagramValidator
 			ok
 		end
 
-		return [
+		@aValidationResult = [
 			:status = iif(len(aIssues) = 0, "pass", "fail"),
 			:domain = "banking",
 			:issueCount = len(aIssues),
 			:issues = aIssues
 		]
 
+	def Result()
+		return @aValidationResult
+
+	def Domain()
+		return @aValidationResult["domain"]
+	
+	def IssueCount()
+		return @aValidationResult["issueCount"]
+	
+	def Issues()
+		return @aValidationResult["issues"]
+	
+	def Status()
+		return @aValidationResult["status"]
+
+	#TODO// Should be called from stzGraph
 	def NodesByProperty(pDiag, pProperty, pValue)
 		aFound = []
 		for aNode in pDiag.Nodes()
@@ -1570,6 +1690,7 @@ class stzDiagramBankingValidator from stzDiagramValidator
 			ok
 		end
 		return aFound
+
 
 #=====================================================
 #  stzDiagramToStzDiag - NATIVE FORMAT
@@ -1730,240 +1851,365 @@ class stzDiagramToDot
 
 	def _Generate()
 		cOutput = ""
-		cTheme = ""
-		if @oDiagram.@cTheme != NULL and @oDiagram.@cTheme != ""
-			cTheme = lower(@oDiagram.@cTheme)
-		else
-			cTheme = "light"
-		ok
 		
+		# Apply visual rules if any
 		if len(@oDiagram.@aVisualRules) > 0
 			@oDiagram.ApplyVisualRules()
 		ok
 		
+		# Get theme
+		cTheme = This._GetTheme()
+		
+		# Start digraph
 		cOutput += 'digraph "' + @oDiagram.Id() + '" {' + NL
 		
-		cRankDir = "TB"
-		cLayout = lower(@oDiagram.@cLayout)
+		# Graph attributes
+		cOutput += This._GenerateGraphAttributes(cTheme)
+		
+		# Node attributes  
+		cOutput += This._GenerateNodeAttributes(cTheme)
+		
+		# Edge attributes
+		cOutput += This._GenerateEdgeAttributes(cTheme)
+		
+		cOutput += NL
+		
+		# Generate nodes
+		cOutput += This._GenerateNodes(cTheme)
+		
+		cOutput += NL
+		
+		# Generate edges
+		cOutput += This._GenerateEdges(cTheme)
+		
+		cOutput += NL + "}"
+		
+		@cDotCode = cOutput
 	
+	def _GetTheme()
+		cTheme = lower(@oDiagram.@cTheme)
+		if cTheme = "" or cTheme = NULL
+			cTheme = "light"
+		ok
+		return cTheme
+	
+	def _GenerateGraphAttributes(cTheme)
+		cRankDir = This._GetRankDir()
+		cFont = This._GetFont()
+		nFontSize = This._GetFontSize()
+		
+		cResult =  '    graph [rankdir=' + cRankDir +
+			   ', bgcolor=white, fontname="' +
+			   cFont + '", fontsize=' + nFontSize + ']' + NL
+
+		return cResult
+
+	def _GenerateNodeAttributes(cTheme)
+		cFont = This._GetFont()
+		nFontSize = This._GetFontSize()
+		
+		cResult = '    node [fontname="' + cFont + '", fontsize=' +
+			  nFontSize + ']' + NL
+	
+		return cResult
+
+	def _GenerateEdgeAttributes(cTheme)
+		cFont = This._GetFont()
+		nFontSize = This._GetFontSize()
+		cEdgeColor = This._GetEdgeColor(cTheme)
+		cEdgeStyle = This._GetEdgeStyle()
+		
+		cResult = '    edge [fontname="' + cFont + '", fontsize=' +
+			  nFontSize + ', color="' + cEdgeColor + '", style=' +
+			  cEdgeStyle + ']' + NL
+
+		return cResult
+	
+	def _GetRankDir()
+		cLayout = lower(@oDiagram.@cLayout)
+		cRankDir = "TB"
+		
 		if cLayout = "topdown" or ring_find($acLayouts[:TopDown], cLayout)
 			cRankDir = "TB"
+
 		but cLayout = "bottomup" or ring_find($acLayouts[:BottomUp], cLayout)
 			cRankDir = "BT"
+
 		but cLayout = "leftright" or ring_find($acLayouts[:LeftRight], cLayout)
 			cRankDir = "LR"
+
 		but cLayout = "rightleft" or ring_find($acLayouts[:RightLeft], cLayout)
 			cRankDir = "RL"
 		ok
 		
+		return cRankDir
+	
+	def _GetFont()
 		cFont = @oDiagram.@cFont
 		if cFont = "" or cFont = NULL
-			cFont = @cDefaultFont
+			cFont = $cDefaultFont
 		ok
+
+		return cFont
 	
+	def _GetFontSize()
 		nFontSize = @oDiagram.@nFontSize
 		if nFontSize = 0 or nFontSize = NULL
-			nFontSize = @cDefaultFontSize
+			nFontSize = $cDefaultFontSize
 		ok
-		
-		cOutput += "    graph [rankdir=" + cRankDir + ", bgcolor=white, fontname=" + cFont + ", fontsize=" + nFontSize + "]" + NL
-		cOutput += "    node [fontname=" + cFont + ", fontsize=" + nFontSize + "]" + NL
-		
+
+		return nFontSize
+	
+	def _GetEdgeColor(cTheme)
 		cEdgeColor = ResolveColor(@oDiagram.@cEdgeColor)
 		
 		if cTheme = "print" or cTheme = "gray"
 			cEdgeColor = ResolveColor(:black)
 		ok
 		
-		# Remove # from hex colors
-		if substr(cEdgeColor, "#")
-			cEdgeColor = @substr(cEdgeColor, 2, len(cEdgeColor))
-		ok
+		return cEdgeColor
 	
+	def _GetEdgeStyle()
 		cEdgeStyle = "solid"
-		if @oDiagram.@cEdgeStyle != "" 
+
+		if @oDiagram.@cEdgeStyle != "" and @oDiagram.@cEdgeStyle != NULL
 			cEdgeStyle = ResolveEdgeStyle(@oDiagram.@cEdgeStyle)
 		ok
+
+		return cEdgeStyle
 	
-		cOutput += "    edge [fontname=" + cFont + ", fontsize=" + nFontSize + ", color=" + cEdgeColor + ", style=" + cEdgeStyle + "]" + NL + NL
-	
-		# Generate nodes
+	def _GenerateNodes(cTheme)
+		cOutput = ""
+		
 		for aNode in @oDiagram.Nodes()
-			cNodeId = aNode["id"]
-			cLabel = aNode["label"]
-			
-			aEnhancements = []
-			if HasKey(@oDiagram.@aNodeEnhancements, cNodeId)
-				aEnhancements = @oDiagram.@aNodeEnhancements[cNodeId]
-			ok
-			
-			cShape = "box"
-			cStyle = "rounded,filled"
-			
-			# FIX: Check if properties exists and has type
-			cType = ""
-			if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
-			   HasKey(aNode["properties"], "type") and aNode["properties"]["type"] != NULL
-				cType = lower("" + aNode["properties"]["type"])
-			ok
+			cOutput += This._GenerateNode(aNode, cTheme)
+		end
+		
+		return cOutput
 	
-			if cType != ""
-				if cType = "process"
-					cShape = "box"
-					cStyle = "rounded,filled"
-				but cType = "decision"
-					cShape = "diamond"
-					cStyle = "filled"
-				but cType = "start"
-					cShape = "ellipse"
-					cStyle = "filled"
-				but cType = "endpoint"
-					cShape = "doublecircle"
-					cStyle = "filled"
-				but cType = "state"
-					cShape = "circle"
-					cStyle = "filled"
-				but cType = "storage"
-					cShape = "cylinder"
-					cStyle = "filled"
-				but cType = "data"
-					cShape = "box"
-					cStyle = "rounded,filled"
-				but cType = "event"
-					cShape = "ellipse"
-					cStyle = "filled"
-				ok
-			ok
+	def _GenerateNode(aNode, cTheme)
+		cNodeId = This._SanitizeNodeId(aNode["id"])
+		cLabel = aNode["label"]
+		
+		# Get enhancements
+		aEnhancements = []
+		if HasKey(@oDiagram.@aNodeEnhancements, aNode["id"])
+			aEnhancements = @oDiagram.@aNodeEnhancements[aNode["id"]]
+		ok
+		
+		# Get shape and style
+		cShape = This._GetNodeShape(aNode, aEnhancements)
+		cStyle = This._GetNodeStyle(aNode, aEnhancements)
+		
+		# Get colors
+		cFillColor = This._GetNodeFillColor(aNode, aEnhancements, cTheme)
+		cFontColor = @oDiagram.ResolveFontColor(cFillColor)
+		cStrokeColor = This._GetNodeStrokeColor(cTheme)
+		
+		# Build node line
+		cOutput = '    ' + cNodeId + ' [label="' + cLabel + '"'
+		cOutput += ', shape=' + cShape
+		cOutput += ', style="' + cStyle + '"'
+		cOutput += ', fillcolor="' + cFillColor + '"'
+		cOutput += ', fontcolor="' + cFontColor + '"'
+		
+		# Add pen width if enhanced
+		if HasKey(aEnhancements, "penwidth")
+			cOutput += ', penwidth=' + aEnhancements["penwidth"]
+		ok
+		
+		# Add stroke color
+		if cStrokeColor != ""
+			cOutput += ', color="' + cStrokeColor + '", penwidth=2'
+		ok
+		
+		cOutput += ']' + NL
+		
+		return cOutput
 	
-			if HasKey(aEnhancements, "shape")
-				cShape = aEnhancements["shape"]
-			ok
-			
-			if HasKey(aEnhancements, "style")
-				cStyle = aEnhancements["style"]
-			ok
-			
-			# FIX: Get color safely
-			cOrigColor = ""
+	def _SanitizeNodeId(cNodeId)
+		if left(cNodeId, 1) = "@"
+			return @substr(cNodeId, 2, len(cNodeId))
+		ok
+
+		return cNodeId
+	
+	def _GetNodeShape(aNode, aEnhancements)
+		if HasKey(aEnhancements, "shape")
+			return aEnhancements["shape"]
+		ok
+		
+		cType = ""
+		if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
+		   HasKey(aNode["properties"], "type") and aNode["properties"]["type"] != NULL
+			cType = lower("" + aNode["properties"]["type"])
+		ok
+		
+		switch cType
+		on "process"
+			return "box"
+
+		on "decision"
+			return "diamond"
+
+		on "start"
+			return "ellipse"
+
+		on "endpoint"
+			return "doublecircle"
+
+		on "state"
+			return "circle"
+
+		on "storage"
+			return "cylinder"
+
+		on "data"
+			return "box"
+
+		on "event"
+			return "ellipse"
+
+		other
+			return "box"
+		off
+	
+	def _GetNodeStyle(aNode, aEnhancements)
+		if HasKey(aEnhancements, "style")
+			return aEnhancements["style"]
+		ok
+		
+		cType = ""
+
+		if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
+		   HasKey(aNode["properties"], "type") and aNode["properties"]["type"] != NULL
+			cType = lower("" + aNode["properties"]["type"])
+		ok
+		
+		if cType = "decision"
+			return "filled"
+		ok
+		
+		return "rounded,filled"
+	
+	def _GetNodeFillColor(aNode, aEnhancements, cTheme)
+		cColor = ""
+		
+		# Check enhancements first
+		if HasKey(aEnhancements, "color")
+			cColor = aEnhancements["color"]
+		ok
+		
+		# Then node properties
+		if cColor = "" or cColor = NULL
 			if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
 			   HasKey(aNode["properties"], "color") and aNode["properties"]["color"] != NULL
-				cOrigColor = aNode["properties"]["color"]
+				cColor = aNode["properties"]["color"]
 			ok
-			
-			if cOrigColor = "" or cOrigColor = NULL
-				cOrigColor = @cDefaultNodeColor
-			ok
-			
-			if HasKey(aEnhancements, "color")
-				cOrigColor = aEnhancements["color"]
-			ok
-			
-			# Don't resolve if already hex
-			if substr(cOrigColor, "#")
-				cFillColor = cOrigColor
-			else
-				cFillColor = ResolveColor(cOrigColor)
-			ok
-			
-			if cTheme = "gray"
-				cFillColor = @oDiagram.ConvertColorTogray(cFillColor)
-			ok
-			if cTheme = "print"
-				cFillColor = ResolveColor(:white)
-			ok
-			
-			# Calculate font color
-			cFontColor = @oDiagram.ResolveFontColor(cFillColor)
+		ok
+		
+		# Default
+		if cColor = "" or cColor = NULL
+			cColor = $cDefaultNodeColor
+		ok
+		
+		# Resolve color
+		if NOT substr(cColor, "#")
+			cColor = ResolveColor(cColor)
+		ok
+		
+		# Apply theme transformations
+		if cTheme = "gray"
+			cColor = @oDiagram.ConvertColorTogray(cColor)
+		but cTheme = "print"
+			cColor = ResolveColor(:white)
+		ok
+		
+		return cColor
 	
-			cOutput += '    ' + cNodeId + ' [label="' + cLabel + '", '
-			cOutput += 'shape=' + cShape + ', style="' + cStyle + '", '
-			cOutput += 'fillcolor="' + cFillColor + '"'
-			
-			if HasKey(aEnhancements, "penwidth")
-				cOutput += ', penwidth=' + aEnhancements["penwidth"]
-			ok
-			
-			cStrokeColor = ""
-			if @oDiagram.@cNodeStrokeColor != ""
-				cStrokeColorHex = @oDiagram.@cNodeStrokeColor
-				if substr(cStrokeColorHex, "#")
-					cStrokeColorHex = @substr(cStrokeColorHex, 2, len(cStrokeColorHex))
-				ok
-				cStrokeColor = ', color="' + cStrokeColorHex + '"'
-			but cTheme = "print" or cTheme = "gray"
-				cStrokeColor = ', color="black", penwidth=2'
-			ok
-			cOutput += cStrokeColor
-			
-			cOutput += ', fontcolor="' + cFontColor + '"'
-			
-			cOutput += ']' + NL
-		end
+	def _GetNodeStrokeColor(cTheme)
+		if @oDiagram.@cNodeStrokeColor != "" and @oDiagram.@cNodeStrokeColor != NULL
+			return @oDiagram.@cNodeStrokeColor
+		ok
+		
+		if cTheme = "print" or cTheme = "gray"
+			return "black"
+		ok
+		
+		return ""
 	
-		cOutput += NL
-	
-		# Generate edges with enhancements
+	def _GenerateEdges(cTheme)
+		cOutput = ""
+		
 		for aEdge in @oDiagram.Edges()
-			cFrom = aEdge["from"]
-			cTo = aEdge["to"]
-			cEdgeKey = cFrom + "->" + cTo
-			
-			cOutput += '    ' + cFrom + ' -> ' + cTo
-			
-			aAttrs = []
-			
-			# Add label
-			if HasKey(aEdge, "label")
-				cLabel = aEdge["label"]
-				if cLabel != "" and cLabel != NULL
-					cLabelText = iff(cRankDir = "TB", " ", "") + cLabel
-					aAttrs + ('label="' + cLabelText + '"')
-				ok
-			ok
-			
-			# Get edge enhancements
-			aEdgeEnhancements = []
-			if HasKey(@oDiagram.@aEdgeEnhancements, cEdgeKey)
-				aEdgeEnhancements = @oDiagram.@aEdgeEnhancements[cEdgeKey]
-			ok
-			
-			# Apply enhancements
-			if HasKey(aEdgeEnhancements, "style")
-				aAttrs + ('style="' + aEdgeEnhancements["style"] + '"')
-			ok
-			if HasKey(aEdgeEnhancements, "color")
-				cResolvedColor = ResolveColor(aEdgeEnhancements["color"])
-				# Strip # from hex
-				if substr(cResolvedColor, "#")
-					cResolvedColor = @substr(cResolvedColor, 2, len(cResolvedColor))
-				ok
-				aAttrs + ('color="' + cResolvedColor + '"')
-			ok
-			if HasKey(aEdgeEnhancements, "penwidth")
-				aAttrs + ('penwidth=' + aEdgeEnhancements["penwidth"])
-			ok
-			if HasKey(aEdgeEnhancements, "arrowhead")
-				aAttrs + ('arrowhead=' + aEdgeEnhancements["arrowhead"])
-			ok
-			
-			# Build attributes string
-			if len(aAttrs) > 0
-				cOutput += ' ['
-				for i = 1 to len(aAttrs)
-					cOutput += aAttrs[i]
-					if i < len(aAttrs)
-						cOutput += ', '
-					ok
-				end
-				cOutput += ']'
-			ok
-			
-			cOutput += NL
+			cOutput += This._GenerateEdge(aEdge, cTheme)
 		end
+		
+		return cOutput
 	
-		cOutput += NL + "}"
+	def _GenerateEdge(aEdge, cTheme)
+		cFrom = This._SanitizeNodeId(aEdge["from"])
+		cTo = This._SanitizeNodeId(aEdge["to"])
+		cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
+		
+		cOutput = '    ' + cFrom + ' -> ' + cTo
+		
+		# Get enhancements
+		aEnhancements = []
+		if HasKey(@oDiagram.@aEdgeEnhancements, cEdgeKey)
+			aEnhancements = @oDiagram.@aEdgeEnhancements[cEdgeKey]
+		ok
+		
+		# Build attributes
+		aAttrs = []
+		
+		# Label
+		if HasKey(aEdge, "label") and aEdge["label"] != "" and aEdge["label"] != NULL
+			aAttrs + ('label=" ' + aEdge["label"] + '"')
+		ok
+		
+		# Style
+		if HasKey(aEnhancements, "style")
+			aAttrs + ('style="' + aEnhancements["style"] + '"')
+		ok
+		
+		# Color
+		if HasKey(aEnhancements, "color")
+			cColor = ResolveColor(aEnhancements["color"])
+			aAttrs + ('color="' + cColor + '"')
+		ok
+		
+		# Pen width
+		if HasKey(aEnhancements, "penwidth")
+			aAttrs + ('penwidth=' + aEnhancements["penwidth"])
+		ok
+		
+		# Arrow head
+		if HasKey(aEnhancements, "arrowhead")
+			aAttrs + ('arrowhead=' + aEnhancements["arrowhead"])
+		ok
+		
+		# Add attributes
+		if len(aAttrs) > 0
+			cOutput += ' [' + This._JoinAttributes(aAttrs) + ']'
+		ok
+		
+		cOutput += NL
+		
+		return cOutput
 	
-		@cDotCode = cOutput
+	def _JoinAttributes(aAttrs)
+		cResult = ""
+		nLen = len(aAttrs)
+
+		for i = 1 to nLen
+			cResult += aAttrs[i]
+			if i < nLen
+				cResult += ', '
+			ok
+		end
+
+		return cResult
 
 	
 	def DotCode()
@@ -2281,10 +2527,11 @@ class stzColorResolver
 		cHex = ResolveColor(cColor)
 		return HexToRGB(cHex)
 
-	def NodeStrokeColor(cTheme)
+	def NodeStrokeColorForTheme(cTheme)
 		if cTheme = "print" or cTheme = "gray"
 			return "black"
 		ok
+		return ""
 
 	def ConvertColorToGray(cColor)
 		aRGB = This.ColorToRGB(cColor)

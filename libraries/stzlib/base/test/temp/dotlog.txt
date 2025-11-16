@@ -1,1 +1,0 @@
-Warning: 000000 is not a known color.

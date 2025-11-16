@@ -1885,7 +1885,7 @@ class stzDiagramToDot
 			cShape = "box"
 			cStyle = "rounded,filled"
 			
-			# FIX: Check if properties exists and has type
+			# Check if properties exists and has type
 			cType = ""
 			if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
 			   HasKey(aNode["properties"], "type") and aNode["properties"]["type"] != NULL
@@ -1928,7 +1928,7 @@ class stzDiagramToDot
 				cStyle = aEnhancements["style"]
 			ok
 			
-			# FIX: Get color safely
+			# Get color safely
 			cOrigColor = ""
 			if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
 			   HasKey(aNode["properties"], "color") and aNode["properties"]["color"] != NULL
