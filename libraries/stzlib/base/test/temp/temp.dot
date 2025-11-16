@@ -1,11 +1,13 @@
-digraph "SecurityFlow" {
+digraph "ReachableEndpoints" {
     graph [rankdir=TB, bgcolor=white, fontname=helvetica, fontsize=12]
     node [fontname=helvetica, fontsize=12]
     edge [fontname=helvetica, fontsize=12, color=000000, style=solid]
 
-    auth [label="Authentication", shape=box, style="rounded,filled", fillcolor="#FF4444", penwidth=3, fontcolor="white"]
-    db [label="Database", shape=cylinder, style="filled", fillcolor="#0000FF", fontcolor="white"]
+    start [label="Start", shape=ellipse, style="filled", fillcolor="#008000", fontcolor="white"]
+    process [label="Process", shape=box, style="rounded,filled", fillcolor="#0000FF", fontcolor="white"]
+    end [label="End", shape=doublecircle, style="filled", fillcolor="#008000", fontcolor="white"]
 
-    auth -> db [label=" query"]
+    start -> process
+    process -> end
 
 }

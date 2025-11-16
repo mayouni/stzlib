@@ -702,29 +702,51 @@ class stzDiagram from stzGraph
 	#------------------------------------------
 
 	def ResolveFontColor(pBgColor)
-		oResolver = new stzColorResolver()
-		cResult = oResolver.ResolveFontColor(pBgColor)
-		return cResult
+		# Get actual resolved background color
+		cBgColor = ResolveColor(pBgColor)
+		
+		# Always use luminance calculation for consistent contrast
+		return This.ContrastingTextColor(cBgColor)
 	
 	def ContrastingTextColor(cColor)
-		oResolver = new stzColorResolver()
-		cResult = oResolver.ContrastingTextColor(cColor)
-		return cResult
+		# Convert color to RGB
+		aRGB = This.ColorToRGB(cColor)
+		nR = aRGB[1]
+		nG = aRGB[2]
+		nB = aRGB[3]
+		
+		# Simple perceptual brightness formula (ITU BT.709)
+		nBrightness = (0.299 * nR + 0.587 * nG + 0.114 * nB)
+		
+		# Threshold at 150 for better contrast
+		if nBrightness < 150
+			return "white"
+		else
+			return "black"
+		ok
 	
 	def ColorToRGB(cColor)
-		oResolver = new stzColorResolver()
-		cResult = oResolver.ColorToRGB(cColor)
-		return cResult
+		# First resolve to hex, then convert
+		cHex = ResolveColor(cColor)
+		return HexToRGB(cHex)
 
-	def NodeStrokeColor(cTheme)
-		oResolver = new stzColorResolver()
-		cResult = oResolver.NodeStrokeColor(cTheme)
-		return cResult
+	def GetNodeStrokeColor(cTheme)
+		if cTheme = "print" or cTheme = "gray"
+			return "black"
+		ok
+		return ""
 
 	def ConvertColorTogray(cColor)
-		oResolver = new stzColorResolver()
-		cResult = oResolver.ConvertColorTogray(cColor)
-		return cResult
+		aRGB = This.ColorToRGB(cColor)
+		nR = aRGB[1]
+		nG = aRGB[2]
+		nB = aRGB[3]
+		
+		# Use perceptual brightness formula
+		nGray = floor(0.299 * nR + 0.587 * nG + 0.114 * nB)
+		
+		# Use global helper
+		return RGBToHex(nGray, nGray, nGray)
 
 	#------------------------------------------
 	#  DIAGRAM-SPECIFIC NODE OPERATIONS
@@ -915,8 +937,10 @@ class stzDiagram from stzGraph
 		oDotExec.ExecuteAndView()
 		
 		def Display()
-			This.View()
-
+			This.Show()
+		
+		def Visualize()
+			This.Show()
 
 	#------------------------------------------
 	#  EXPORT
@@ -1077,7 +1101,11 @@ class stzDiagram from stzGraph
 			cNodeId = aNode["id"]
 			
 			# Restore metadata/tags from storage
-			aNode["metadata"] = This.GetNodeMetadata(cNodeId)
+			if HasKey(@aNodeMetadata, cNodeId)
+				aNode["metadata"] = @aNodeMetadata[cNodeId]
+			else
+				aNode["metadata"] = []
+			ok
 			
 			if HasKey(@aNodeTags, cNodeId)
 				aNode["tags"] = @aNodeTags[cNodeId]
@@ -1113,7 +1141,11 @@ class stzDiagram from stzGraph
 			cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
 			
 			# Restore metadata/tags from storage
-			aEdge["metadata"] = This.GetEdgeMetadata(aEdge["from"], aEdge["to"])
+			if HasKey(@aEdgeMetadata, cEdgeKey)
+				aEdge["metadata"] = @aEdgeMetadata[cEdgeKey]
+			else
+				aEdge["metadata"] = []
+			ok
 			
 			if HasKey(@aEdgeTags, cEdgeKey)
 				aEdge["tags"] = @aEdgeTags[cEdgeKey]
@@ -1316,6 +1348,59 @@ class stzDiagram from stzGraph
 			This.Connect(aEdge[1], aEdge[2])
 		end
 	
+	#------------------------------------------
+	#  METADATA OPERATIONS
+	#------------------------------------------
+	
+	def SetNodeMetadata(pNodeId, aMetadata)
+		@aNodeMetadata[pNodeId] = aMetadata
+	
+	def GetNodeMetadata(pNodeId)
+		if HasKey(@aNodeMetadata, pNodeId)
+			return @aNodeMetadata[pNodeId]
+		ok
+		return []
+	
+	def RemoveNodeMetadata(pNodeId)
+		if HasKey(@aNodeMetadata, pNodeId)
+			@aNodeMetadata[pNodeId] = NULL
+		ok
+	
+	def UpdateNodeMetadata(pNodeId, cKey, pValue)
+		if NOT HasKey(@aNodeMetadata, pNodeId)
+			@aNodeMetadata[pNodeId] = []
+		ok
+		@aNodeMetadata[pNodeId][cKey] = pValue
+	
+	def SetEdgeMetadata(pFromId, pToId, aMetadata)
+		cEdgeKey = pFromId + "->" + pToId
+		@aEdgeMetadata[cEdgeKey] = aMetadata
+	
+	def GetEdgeMetadata(pFromId, pToId)
+		cEdgeKey = pFromId + "->" + pToId
+		if HasKey(@aEdgeMetadata, cEdgeKey)
+			return @aEdgeMetadata[cEdgeKey]
+		ok
+		return []
+	
+	def RemoveEdgeMetadata(pFromId, pToId)
+		cEdgeKey = pFromId + "->" + pToId
+		if HasKey(@aEdgeMetadata, cEdgeKey)
+			@aEdgeMetadata[cEdgeKey] = NULL
+		ok
+	
+	def UpdateEdgeMetadata(pFromId, pToId, cKey, pValue)
+		cEdgeKey = pFromId + "->" + pToId
+		if NOT HasKey(@aEdgeMetadata, cEdgeKey)
+			@aEdgeMetadata[cEdgeKey] = []
+		ok
+		@aEdgeMetadata[cEdgeKey][cKey] = pValue
+	
+	def RemoveAllMetadata()
+		@aNodeMetadata = []
+		@aEdgeMetadata = []
+		@aNodeTags = []
+		@aEdgeTags = []
 
 #=====================================================
 #  stzDiagramAnnotator - METADATA OVERLAY
@@ -2242,58 +2327,3 @@ class stzVisualRule
 		@aEdgeMetadata = []
 		@aEdgeTags = []
 		@aEdgeEnhancements = []
-
-
-#------------------------#
-#  COLOR RESOLVER CLASS  #
-#------------------------#
-
-class stzColorResolver
-
-	def init()
-
-	def ResolveFontColor(pBgColor)
-		# Get actual resolved background color
-		cBgColor = ResolveColor(pBgColor)
-		
-		# Always use luminance calculation for consistent contrast
-		return This.ContrastingTextColor(cBgColor)
-	
-	def ContrastingTextColor(cColor)
-		# Convert color to RGB
-		aRGB = This.ColorToRGB(cColor)
-		nR = aRGB[1]
-		nG = aRGB[2]
-		nB = aRGB[3]
-		
-		# Simple perceptual brightness formula (ITU BT.709)
-		nBrightness = (0.299 * nR + 0.587 * nG + 0.114 * nB)
-		
-		# Threshold at 150 for better contrast
-		if nBrightness < 150
-			return "white"
-		else
-			return "black"
-		ok
-	
-	def ColorToRGB(cColor)
-		# First resolve to hex, then convert
-		cHex = ResolveColor(cColor)
-		return HexToRGB(cHex)
-
-	def NodeStrokeColor(cTheme)
-		if cTheme = "print" or cTheme = "gray"
-			return "black"
-		ok
-
-	def ConvertColorToGray(cColor)
-		aRGB = This.ColorToRGB(cColor)
-		nR = aRGB[1]
-		nG = aRGB[2]
-		nB = aRGB[3]
-		
-		# Use perceptual brightness formula
-		nGray = floor(0.299 * nR + 0.587 * nG + 0.114 * nB)
-		
-		# Use global helper
-		return RGBToHex(nGray, nGray, nGray)

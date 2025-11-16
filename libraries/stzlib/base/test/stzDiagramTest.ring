@@ -301,7 +301,7 @@ digraph "OrderFlow" {
 pf()
 
 #------------------------#
-#  TEST 2: VALIDATE DAG  {
+#  TEST 2: VALIDATE DAG  #
 #------------------------#
 
 /*--- Ensuring workflow is acyclic
@@ -496,7 +496,7 @@ pf()
 #-----------------#
 
 /*--- Testing different theme configurations
-
+*/
 pr()
 
 oDiag1 = new stzDiagram("LightTheme")

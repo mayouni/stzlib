@@ -54,21 +54,6 @@ class stzGraph
 	@acNodes = []
 	@acEdges = []
 	@acProperties = []
-	
-	# ASCII Display Characters
-	@cBoxTopLeft = "╭"
-	@cBoxTopRight = "╮"
-	@cBoxBottomLeft = "╰"
-	@cBoxBottomRight = "╯"
-	@cBoxHorizontal = "─"
-	@cBoxVertical = "│"
-	@cArrowDown = "v"
-	@cArrowUp = "↑"
-	@cPipeChar = "|"
-	@cBranchSeparator = "////"
-	@cCycleIndicator = "CYCLE"
-	@cConnectorDash = "-"
-	@cConnectorArrow = ">"
 
 	def init(pcId)
 		@cId = pcId
@@ -1469,6 +1454,60 @@ def ReachableFrom(pcNodeId)
 		return acSnapshots
 
 	#------------------------------------------
+	#  METADATA OPERATIONS
+	#------------------------------------------
+	
+	def SetNodeMetadata(pNodeId, aMetadata)
+		@aNodeMetadata[pNodeId] = aMetadata
+	
+	def GetNodeMetadata(pNodeId)
+		if HasKey(@aNodeMetadata, pNodeId)
+			return @aNodeMetadata[pNodeId]
+		ok
+		return []
+	
+	def RemoveNodeMetadata(pNodeId)
+		if HasKey(@aNodeMetadata, pNodeId)
+			@aNodeMetadata[pNodeId] = NULL
+		ok
+	
+	def UpdateNodeMetadata(pNodeId, cKey, pValue)
+		if NOT HasKey(@aNodeMetadata, pNodeId)
+			@aNodeMetadata[pNodeId] = []
+		ok
+		@aNodeMetadata[pNodeId][cKey] = pValue
+	
+	def SetEdgeMetadata(pFromId, pToId, aMetadata)
+		cEdgeKey = pFromId + "->" + pToId
+		@aEdgeMetadata[cEdgeKey] = aMetadata
+	
+	def GetEdgeMetadata(pFromId, pToId)
+		cEdgeKey = pFromId + "->" + pToId
+		if HasKey(@aEdgeMetadata, cEdgeKey)
+			return @aEdgeMetadata[cEdgeKey]
+		ok
+		return []
+	
+	def RemoveEdgeMetadata(pFromId, pToId)
+		cEdgeKey = pFromId + "->" + pToId
+		if HasKey(@aEdgeMetadata, cEdgeKey)
+			@aEdgeMetadata[cEdgeKey] = NULL
+		ok
+	
+	def UpdateEdgeMetadata(pFromId, pToId, cKey, pValue)
+		cEdgeKey = pFromId + "->" + pToId
+		if NOT HasKey(@aEdgeMetadata, cEdgeKey)
+			@aEdgeMetadata[cEdgeKey] = []
+		ok
+		@aEdgeMetadata[cEdgeKey][cKey] = pValue
+	
+	def RemoveAllMetadata()
+		@aNodeMetadata = []
+		@aEdgeMetadata = []
+		@aNodeTags = []
+		@aEdgeTags = []
+
+	#------------------------------------------
 	#  7. EXPORT AND INTEROPERABILITY
 	#------------------------------------------
 
@@ -1590,7 +1629,7 @@ def ReachableFrom(pcNodeId)
 		
 		nLen = len(acNodes)
 		for i = 1 to nLen
-			cJSON += '    ' + ToJSON(acNodes[i])
+			cJSON += '    ' + @ToJSON(acNodes[i])
 			if i < nLen
 				cJSON += ","
 			ok
@@ -1602,7 +1641,7 @@ def ReachableFrom(pcNodeId)
 		
 		nLen = len(acEdges)
 		for i = 1 to nLen
-			cJSON += '    ' + ToJSON(acEdges[i])
+			cJSON += '    ' + @ToJSON(acEdges[i])
 			if i < nLen
 				cJSON += ","
 			ok
@@ -1610,7 +1649,7 @@ def ReachableFrom(pcNodeId)
 		end
 		
 		cJSON += '  ],' + nl
-		cJSON += '  "metrics": ' + ToJSON([
+		cJSON += '  "metrics": ' + @ToJSON([
 			:nodeCount = len(@acNodes),
 			:edgeCount = len(@acEdges),
 			:density = This.NodeDensity(),
@@ -1730,19 +1769,243 @@ def ReachableFrom(pcNodeId)
 		
 		return acNames
 
-	#------------------------------------------
-	#  VISUALIZATION
-	#------------------------------------------
+	#------------------------#
+	#  VISUALISING IN ASCII  #
+	#------------------------#
 
-	def View()
-		oDot = new stzDotCode()
-		oDot.SetCode(This.Dot())
-		oDot.View()
+	def Show()
+		oViz = new stzGraphAsciiVisualizer(This)
+		oViz.Show()
+
+	def ShowHorizontal()
+		oViz = new stzGraphAsciiVisualizer(This)
+		oViz.ShowHorizontal()
+
+		def ShowH()
+			This.ShowHorizontal()
+
+	def ShowVertical()
+		oViz = new stzGraphAsciiVisualizer(This)
+		oViz.ShowVertical()
+
+		def ShowV()
+			This.ShowVertical()
+
+	def ShowWithLegend()
+		oViz = new stzGraphAsciiVisualizer(This)
+		oViz.ShowWithLegend()
+
+	def ShowXT(paOptions)
+		oViz = new stzGraphAsciiVisualizer(This)
+		oViz.Show(paOptions)
+
+	def Explain()
+		oViz = new stzGraphExplainer(This)
+		return oViz.Explain()
+
+#--------------------------------------------------#
+#  A CLASS TO GENERATE ASCII GRAPH REPRESENTATION  #
+#--------------------------------------------------#
+
+class stzGraphanalyzer
+
+	@oGraph
+
+	def init(poGraph)
+		@oGraph = poGraph
+
+	def CyclicNodes()
+		acCyclicNodes = []
+		
+		acNodes = @oGraph.Nodes()
+		nLen = len(acNodes)
+		for i = 1 to nLen
+			aNode = acNodes[i]
+			cNodeId = aNode["id"]
+			acReachableFromNode = This.ReachableFromNode(cNodeId)
+			
+			# Remove starting node from reachable set
+			acReachableWithoutStart = []
+			nLen2 = len(acReachableFromNode)
+			for j = 1 to nLen2
+				cReachable = acReachableFromNode[j]
+				if cReachable != cNodeId
+					acReachableWithoutStart + cReachable
+				ok
+			end
+			
+			# If the node can reach itself through other nodes, it's in a cycle
+			if find(acReachableWithoutStart, cNodeId) > 0
+				if find(acCyclicNodes, cNodeId) = 0
+					acCyclicNodes + cNodeId
+				ok
+			ok
+		end
+
+		return acCyclicNodes
+
+	def ReachableFromNode(pcStartNode)
+		acReachable = []
+		acVisited = []
+		acQueue = [pcStartNode]
+		acVisited + pcStartNode
+		
+		acEdges = @oGraph.Edges()
+		
+		while len(acQueue) > 0
+			cCurrent = acQueue[1]
+			if len(acQueue) > 1
+				acQueue = stzright(acQueue, len(acQueue) - 1)
+			else
+				acQueue = []
+			ok
+			acReachable + cCurrent
+			
+			nLen = len(acEdges)
+			for i = 1 to nLen
+				aEdge = acEdges[i]
+				if aEdge["from"] = cCurrent
+					cNext = aEdge["to"]
+					if find(acVisited, cNext) = 0
+						acVisited + cNext
+						acQueue + cNext
+					ok
+				ok
+			end
+		end
+		
+		return acReachable
+
+class stzGraphExplainer
+
+	@oGraph
+
+	def init(poGraph)
+		@oGraph = poGraph
+
+	def Explain()
+		aoExplanation = [
+			:general = [],
+			:bottlenecks = [],
+			:cycles = [],
+			:metrics = []
+		]
+		
+		acBottlenecks = @oGraph.BottleneckNodes()
+		oAnalyzer = new stzGraphAnalyzer(@oGraph)
+		acCyclic = oAnalyzer.CyclicNodes()
+		
+		acNodes = @oGraph.Nodes()
+		acEdges = @oGraph.Edges()
+		
+		# General section
+		aoExplanation[:general] + ("Graph: " + @oGraph.Id())
+		aoExplanation[:general] + ("Nodes: " + len(acNodes) + " | Edges: " + len(acEdges))
+		
+		# Bottlenecks section
+		if len(acBottlenecks) > 0
+			nTotalDegree = 0
+			nLen = len(acNodes)
+			for i = 1 to nLen
+				aNode = acNodes[i]
+				nIncoming = len(@oGraph.Incoming(aNode["id"]))
+				nOutgoing = len(@oGraph.Neighbors(aNode["id"]))
+				nTotalDegree += nIncoming + nOutgoing
+			end
+			nAvgDegree = nTotalDegree / len(acNodes)
+			
+			aoExplanation[:bottlenecks] + ("Bottleneck nodes: " + joinXT(acBottlenecks, ", "))
+			aoExplanation[:bottlenecks] + ("Average degree: " + nAvgDegree)
+			
+			nLen = len(acBottlenecks)
+			for i = 1 to nLen
+				cNode = acBottlenecks[i]
+				nIncoming = len(@oGraph.Incoming(cNode))
+				nOutgoing = len(@oGraph.Neighbors(cNode))
+				nDegree = nIncoming + nOutgoing
+				aoExplanation[:bottlenecks] + ("  " + cNode + ": degree " + nDegree + " (above average)")
+			end
+		else
+			nTotalDegree = 0
+			nLen = len(acNodes)
+			for i = 1 to nLen
+				aNode = acNodes[i]
+				nIncoming = len(@oGraph.Incoming(aNode["id"]))
+				nOutgoing = len(@oGraph.Neighbors(aNode["id"]))
+				nTotalDegree += nIncoming + nOutgoing
+			end
+			nAvgDegree = nTotalDegree / len(acNodes)
+			aoExplanation[:bottlenecks] + ("No bottlenecks (average degree = " + nAvgDegree + ")")
+		ok
+		
+		# Cycles section
+		if len(acCyclic) > 0
+			aoExplanation[:cycles] + ("Cyclic nodes: " + join(acCyclic, ", "))
+			nLen = len(acCyclic)
+			for i = 1 to nLen
+				cNode = acCyclic[i]
+				aoExplanation[:cycles] + ("  " + cNode + " can reach itself")
+			end
+		ok
+		
+		if @oGraph.CyclicDependencies()
+			aoExplanation[:cycles] + "WARNING: Circular dependencies detected"
+		else
+			if len(acCyclic) = 0
+				aoExplanation[:cycles] + "No cycles - acyclic graph (DAG)"
+			ok
+		ok
+		
+		# Metrics section
+		nDensity = @oGraph.NodeDensity()
+		if nDensity = 0
+			aoExplanation[:metrics] + "Density: 0% (no connections)"
+		but nDensity < 25
+			aoExplanation[:metrics] + ("Density: " + nDensity + "% (sparse)")
+		but nDensity < 50
+			aoExplanation[:metrics] + ("Density: " + nDensity + "% (moderate)")
+		but nDensity < 75
+			aoExplanation[:metrics] + ("Density: " + nDensity + "% (dense)")
+		else
+			aoExplanation[:metrics] + ("Density: " + nDensity + "% (very dense)")
+		ok
+		
+		nLongest = @oGraph.LongestPath()
+		if nLongest = 0
+			aoExplanation[:metrics] + "Longest path: 0 hops (isolated)"
+		but nLongest = 1
+			aoExplanation[:metrics] + "Longest path: 1 hop"
+		else
+			aoExplanation[:metrics] + ("Longest path: " + nLongest + " hops")
+		ok
+		
+		return aoExplanation
+
+class stzGraphAsciiVisualizer
+
+	@oGraph
+	
+	# ASCII Display Characters
+	@cBoxTopLeft = "╭"
+	@cBoxTopRight = "╮"
+	@cBoxBottomLeft = "╰"
+	@cBoxBottomRight = "╯"
+	@cBoxHorizontal = "─"
+	@cBoxVertical = "│"
+	@cArrowDown = "v"
+	@cArrowUp = "↑"
+	@cPipeChar = "|"
+	@cBranchSeparator = "////"
+	@cCycleIndicator = "CYCLE"
+	@cConnectorDash = "-"
+	@cConnectorArrow = ">"
+
+	def init(poGraph)
+		@oGraph = poGraph
 
 	def Show()
 		acDisplayNodes = This._PrepareDisplayNodes()
 		This._ShowVerticalWithNodes(acDisplayNodes)
-
 
 	def ShowXT(pacOptions)
 		if isString(pacOptions) and pacOptions = ""
@@ -1809,13 +2072,15 @@ def ReachableFrom(pcNodeId)
 			This.ShowXT([ :orientation = "horizontal" ])
 
 	def _PrepareDisplayNodes()
-		acBottlenecks = This.BottleneckNodes()
-		acCyclic = This._GetCyclicNodes()
+		acBottlenecks = @oGraph.BottleneckNodes()
+		oAnalyzer = new stzGraphAnalyzer(@oGraph)
+		acCyclic = oAnalyzer.CyclicNodes()
 		acDisplayNodes = []
 		
-		nLen = len(@acNodes)
+		acNodes = @oGraph.Nodes()
+		nLen = len(acNodes)
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = acNodes[i]
 			aDisplayNode = [
 				:id = aNode["id"],
 				:label = aNode["label"],
@@ -1839,66 +2104,6 @@ def ReachableFrom(pcNodeId)
 		
 		return acDisplayNodes
 
-	def _GetCyclicNodes()
-		acCyclicNodes = []
-		
-		# Find all nodes that are part of strongly connected components (cycles)
-		nLen = len(@acNodes)
-		for i = 1 to nLen
-			aNode = @acNodes[i]
-			cNodeId = aNode["id"]
-			acReachableFromNode = This._ReachableFromNode(cNodeId)
-			
-			# Remove starting node from reachable set
-			acReachableWithoutStart = []
-			nLen2 = len(acReachableFromNode)
-			for j = 1 to nLen2
-				cReachable = acReachableFromNode[j]
-				if cReachable != cNodeId
-					acReachableWithoutStart + cReachable
-				ok
-			end
-			
-			# If the node can reach itself through other nodes, it's in a cycle
-			if find(acReachableWithoutStart, cNodeId) > 0
-				if find(acCyclicNodes, cNodeId) = 0
-					acCyclicNodes + cNodeId
-				ok
-			ok
-		end
-
-		return acCyclicNodes
-
-	def _ReachableFromNode(pcStartNode)
-		acReachable = []
-		acVisited = []
-		acQueue = [pcStartNode]
-		acVisited + pcStartNode
-		
-		while len(acQueue) > 0
-			cCurrent = acQueue[1]
-			if len(acQueue) > 1
-				acQueue = stzright(acQueue, len(acQueue) - 1)
-			else
-				acQueue = []
-			ok
-			acReachable + cCurrent
-			
-			nLen = len(@acEdges)
-			for i = 1 to nLen
-				aEdge = @acEdges[i]
-				if aEdge["from"] = cCurrent
-					cNext = aEdge["to"]
-					if find(acVisited, cNext) = 0
-						acVisited + cNext
-						acQueue + cNext
-					ok
-				ok
-			end
-		end
-		
-		return acReachable
-
 	def _GetDisplayLabel(pcNodeId, pacDisplayNodes)
 		nLen = len(pacDisplayNodes)
 		for i = 1 to nLen
@@ -1911,16 +2116,17 @@ def ReachableFrom(pcNodeId)
 
 	def _ShowVerticalWithNodes(pacDisplayNodes)
 		acRoots = []
-		nNodeCount = len(@acNodes)
+		acNodes = @oGraph.Nodes()
+		nNodeCount = len(acNodes)
 		for i = 1 to nNodeCount
-			aNode = @acNodes[i]
-			if len(This.Incoming(aNode["id"])) = 0
+			aNode = acNodes[i]
+			if len(@oGraph.Incoming(aNode["id"])) = 0
 				acRoots + aNode["id"]
 			ok
 		end
 		
 		if len(acRoots) = 0
-			acRoots + @acNodes[1]["id"]
+			acRoots + acNodes[1]["id"]
 		ok
 		
 		nRootIdx = 0
@@ -1950,7 +2156,7 @@ def ReachableFrom(pcNodeId)
 		end
 		
 		pacVisitedPath + pcNodeId
-		acNeighbors = This.Neighbors(pcNodeId)
+		acNeighbors = @oGraph.Neighbors(pcNodeId)
 		
 		if len(acNeighbors) = 0
 			return
@@ -1963,7 +2169,7 @@ def ReachableFrom(pcNodeId)
 			nNeighborIdx += 1
 			
 			if find(pacVisitedPath, cNext) = 0
-				aEdge = This.Edge(pcNodeId, cNext)
+				aEdge = @oGraph.Edge(pcNodeId, cNext)
 				
 				if len(acNeighbors) > 1 and nNeighborIdx > 1
 					? ""
@@ -2001,7 +2207,7 @@ def ReachableFrom(pcNodeId)
 				This._ShowVerticalBranchWithNodes(cNext, acCopyPath, pnBranchDepth + 1, pacDisplayNodes)
 				
 			else
-				aEdge = This.Edge(pcNodeId, cNext)
+				aEdge = @oGraph.Edge(pcNodeId, cNext)
 				cNodeLabel = This._GetDisplayLabel(cNext, pacDisplayNodes)
 				cArrowLine = RepeatChar(" ", 12) + @cPipeChar + RepeatChar(" ", stzlen("[" + cNodeLabel + "]") + 7) + @cArrowUp
 				
@@ -2015,16 +2221,17 @@ def ReachableFrom(pcNodeId)
 	def _ShowHorizontalWithNodes(pacDisplayNodes)
 		acRoots = []
 
-		nLen = len(@acNodes)
+		acNodes = @oGraph.Nodes()
+		nLen = len(acNodes)
 		for i = 1 to nLen
-			aNode = @acNodes[i]
-			if len(This.Incoming(aNode["id"])) = 0
+			aNode = acNodes[i]
+			if len(@oGraph.Incoming(aNode["id"])) = 0
 				acRoots + aNode["id"]
 			ok
 		end
 		
 		if len(acRoots) = 0
-			acRoots + @acNodes[1]["id"]
+			acRoots + acNodes[1]["id"]
 		ok
 		
 		nLen = len(acRoots)
@@ -2051,7 +2258,7 @@ def ReachableFrom(pcNodeId)
 		cBoxed = BoxRound(cDisplayLabel)
 		acLines = split(cBoxed, nl)
 		
-		acNeighbors = This.Neighbors(pcNodeId)
+		acNeighbors = @oGraph.Neighbors(pcNodeId)
 		
 		if len(pacBoxLines) = 0
 			nLen = len(acLines)
@@ -2062,7 +2269,7 @@ def ReachableFrom(pcNodeId)
 			cConnector = ""
 			if len(pacVisited) > 0
 				cPrev = pacVisited[len(pacVisited)]
-				aEdge = This.Edge(cPrev, pcNodeId)
+				aEdge = @oGraph.Edge(cPrev, pcNodeId)
 				if aEdge != ""
 					cConnector = @cConnectorDash + @cConnectorDash + aEdge["label"] + @cConnectorDash + @cConnectorDash + @cConnectorArrow
 				ok
@@ -2082,7 +2289,7 @@ def ReachableFrom(pcNodeId)
 		
 		if len(acNeighbors) > 0
 			cNext = acNeighbors[1]
-			aEdge = This.Edge(pcNodeId, cNext)
+			aEdge = @oGraph.Edge(pcNodeId, cNext)
 			
 			if find(pacVisited, cNext) = 0
 				This._ShowHorizontalBranchWithNodes(cNext, pacVisited, pacBoxLines, pacArrowLines, pacDisplayNodes)
@@ -2093,10 +2300,11 @@ def ReachableFrom(pcNodeId)
 
 	def _BuildFeedbackLineWithNodes(pacVisited, pcOrientation, pacDisplayNodes)
 		cFeedback = ""
-		nLen = len(@acEdges)
+		acEdges = @oGraph.Edges()
+		nLen = len(acEdges)
 		
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = acEdges[i]
 			nToIdx = find(pacVisited, aEdge["to"])
 			nFromIdx = find(pacVisited, aEdge["from"])
 			
@@ -2127,7 +2335,7 @@ def ReachableFrom(pcNodeId)
 			if j < nLen
 				cPrev = pacVisited[j]
 				cNext = pacVisited[j + 1]
-				aE = This.Edge(cPrev, cNext)
+				aE = @oGraph.Edge(cPrev, cNext)
 				if aE != ""
 					nConnectorLen = stzlen(@cConnectorDash + @cConnectorDash + aE["label"] + @cConnectorDash + @cConnectorDash + @cConnectorArrow)
 					nToPos += nConnectorLen
@@ -2145,7 +2353,7 @@ def ReachableFrom(pcNodeId)
 			if j < nLen
 				cPrev = pacVisited[j]
 				cNext = pacVisited[j + 1]
-				aE = This.Edge(cPrev, cNext)
+				aE = @oGraph.Edge(cPrev, cNext)
 				if aE != ""
 					nConnectorLen = stzlen(@cConnectorDash + @cConnectorDash + aE["label"] + @cConnectorDash + @cConnectorDash + @cConnectorArrow)
 					nFromPos += nConnectorLen
@@ -2171,12 +2379,9 @@ def ReachableFrom(pcNodeId)
 		return cFirstLine + nl + cSecondLine
 
 	def _BuildHorizontalFeedback(pacVisited, pnToIdx, pnFromIdx, paEdge, pacDisplayNodes)
-		# For horizontal, we need to count actual characters from rendered output
-		# Find positions by counting box widths in the actual visited sequence
 		nToPos = 0
 		nLen = len(pacVisited)
 		
-		# Count characters up to "to" node
 		for i = 1 to pnToIdx - 1
 			cLabel = This._GetDisplayLabel(pacVisited[i], pacDisplayNodes)
 			nBoxWidth = stzlen(cLabel) + 4
@@ -2185,7 +2390,7 @@ def ReachableFrom(pcNodeId)
 			if i < nLen
 				cPrev = pacVisited[i]
 				cNext = pacVisited[i + 1]
-				aE = This.Edge(cPrev, cNext)
+				aE = @oGraph.Edge(cPrev, cNext)
 				if aE != ""
 					nConnectorWidth = stzlen(@cConnectorDash + @cConnectorDash + aE["label"] + @cConnectorDash + @cConnectorDash + @cConnectorArrow)
 					nToPos += nConnectorWidth
@@ -2203,7 +2408,7 @@ def ReachableFrom(pcNodeId)
 			if i < nLen
 				cPrev = pacVisited[i]
 				cNext = pacVisited[i + 1]
-				aE = This.Edge(cPrev, cNext)
+				aE = @oGraph.Edge(cPrev, cNext)
 				if aE != ""
 					nConnectorWidth = stzlen(@cConnectorDash + @cConnectorDash + aE["label"] + @cConnectorDash + @cConnectorDash + @cConnectorArrow)
 					nFromPos += nConnectorWidth
@@ -2234,12 +2439,11 @@ def ReachableFrom(pcNodeId)
 		
 		return cFirstLine + nl + cSecondLine
 
-
 	def ShowWithLegend()
-		This.ShowXT([ :Legend = TRUE ])
+		This.ShowXT([ :Lengend = 1 ])
 
 	def Legend()
-		acBottlenecks = This.BottleneckNodes()
+		acBottlenecks = @oGraph.BottleneckNodes()
 		acCyclic = This._GetCyclicNodes()
 		aoLegend = []
 		
@@ -2255,7 +2459,7 @@ def ReachableFrom(pcNodeId)
 			aoLegend[:both] = [ "!~label~!", "Hub with cyclic dependency" ]
 		ok
 		
-		if This.CyclicDependencies()
+		if @oGraph.CyclicDependencies()
 			aoLegend[:feedback] = [ "[...] ↑", "Feedback loop" ]
 			aoLegend[:branch] = [ "////", "Branch separator (multiple paths)" ]
 		ok
@@ -2266,96 +2470,3 @@ def ReachableFrom(pcNodeId)
 		
 		return aoLegend
 
-	def Explain()
-		aoExplanation = [
-			:general = [],
-			:bottlenecks = [],
-			:cycles = [],
-			:metrics = []
-		]
-		
-		acBottlenecks = This.BottleneckNodes()
-		acCyclic = This._GetCyclicNodes()
-		
-		# General section
-		aoExplanation[:general] + ("Graph: " + This.Id())
-		aoExplanation[:general] + ("Nodes: " + len(@acNodes) + " | Edges: " + len(@acEdges))
-		
-		# Bottlenecks section
-		if len(acBottlenecks) > 0
-			nTotalDegree = 0
-			nLen = len(@acNodes)
-			for i = 1 to nLen
-				aNode = @acNodes[i]
-				nIncoming = len(This.Incoming(aNode["id"]))
-				nOutgoing = len(This.Neighbors(aNode["id"]))
-				nTotalDegree += nIncoming + nOutgoing
-			end
-			nAvgDegree = nTotalDegree / len(@acNodes)
-			
-			aoExplanation[:bottlenecks] + ("Bottleneck nodes: " + joinXT(acBottlenecks, ", "))
-			aoExplanation[:bottlenecks] + ("Average degree: " + nAvgDegree)
-			
-			nLen = len(acBottlenecks)
-			for i = 1 to nLen
-				cNode = acBottlenecks[i]
-				nIncoming = len(This.Incoming(cNode))
-				nOutgoing = len(This.Neighbors(cNode))
-				nDegree = nIncoming + nOutgoing
-				aoExplanation[:bottlenecks] + ("  " + cNode + ": degree " + nDegree + " (above average)")
-			end
-		else
-			nTotalDegree = 0
-			nLen = len(@acNodes)
-			for i = 1 to nLen
-				aNode = @acNodes[i]
-				nIncoming = len(This.Incoming(aNode["id"]))
-				nOutgoing = len(This.Neighbors(aNode["id"]))
-				nTotalDegree += nIncoming + nOutgoing
-			end
-			nAvgDegree = nTotalDegree / len(@acNodes)
-			aoExplanation[:bottlenecks] + ("No bottlenecks (average degree = " + nAvgDegree + ")")
-		ok
-		
-		# Cycles section
-		if len(acCyclic) > 0
-			aoExplanation[:cycles] + ("Cyclic nodes: " + join(acCyclic, ", "))
-			nLen = len(acCyclic)
-			for i = 1 to nLen
-				cNode = acCyclic[i]
-				aoExplanation[:cycles] + ("  " + cNode + " can reach itself")
-			end
-		ok
-		
-		if This.CyclicDependencies()
-			aoExplanation[:cycles] + "WARNING: Circular dependencies detected"
-		else
-			if len(acCyclic) = 0
-				aoExplanation[:cycles] + "No cycles - acyclic graph (DAG)"
-			ok
-		ok
-		
-		# Metrics section
-		nDensity = This.NodeDensity()
-		if nDensity = 0
-			aoExplanation[:metrics] + "Density: 0% (no connections)"
-		but nDensity < 25
-			aoExplanation[:metrics] + ("Density: " + nDensity + "% (sparse)")
-		but nDensity < 50
-			aoExplanation[:metrics] + ("Density: " + nDensity + "% (moderate)")
-		but nDensity < 75
-			aoExplanation[:metrics] + ("Density: " + nDensity + "% (dense)")
-		else
-			aoExplanation[:metrics] + ("Density: " + nDensity + "% (very dense)")
-		ok
-		
-		nLongest = This.LongestPath()
-		if nLongest = 0
-			aoExplanation[:metrics] + "Longest path: 0 hops (isolated)"
-		but nLongest = 1
-			aoExplanation[:metrics] + "Longest path: 1 hop"
-		else
-			aoExplanation[:metrics] + ("Longest path: " + nLongest + " hops")
-		ok
-		
-		return aoExplanation
