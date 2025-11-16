@@ -552,14 +552,17 @@ oDiag {
 	Connect(:@Pay, :@Log)
 	Connect(:@Log, :@Done)
 
+	? Validate(:SOX) # Or IsValid(:SOX)
+	#--> FALSE
+
+	? @@NL( ValidationIssues() )
+	# [
+	# 	"SOX-002: Decision node lacks approval requirement: ",
+	# 	"@approve"
+	# ]
+
 	View()
 }
-
-oSoxValidator = new stzDiagramValidatorXT(:SOX)
-aResult = oSoxValidator.Validate(oDiag)
-
-? aResult["domain"] #--> sox
-? aResult["issueCount"] >= 0 #--> TRUE
 
 pf()
 
@@ -568,38 +571,36 @@ pf()
 #-----------------#
 
 /*--- Validating data flow against GDPR rules
-*/
+
 pr()
 
 oDiag = new stzDiagram("GdprData")
-oDiag.AddNodeXT("collect", "Collect", :Process, :primary)
-oDiag.AddNodeXT("process", "Process", :Process, :primary)
-oDiag.AddNodeXT("delete", "Delete", :Process, :info)
+oDiag {
+	AddNodeXT("collect", "Collect", :Process, :primary)
+	AddNodeXT("process", "Process", :Process, :primary)
+	AddNodeXT("delete", "Delete", :Process, :info)
 
-oDiag.Connect("collect", "process")
-oDiag.Connect("collect", "delete")
+	Connect("collect", "process")
+	Connect("collect", "delete")
 
-# Set node properties using the new methods
-oDiag.SetNodeProperties("collect", [
-	:dataType = :personal,
-	:requiresConsent = TRUE,
-	:retentionPolicy = "1 year"
-])
+	# Set node properties using the new methods
+	SetNodeProperties("collect", [
+		:dataType = :personal,
+		:requiresConsent = TRUE,
+		:retentionPolicy = "1 year"
+	])
 
-oDiag.SetNodeProperty("delete", :operation, :delete)
+	SetNodeProperty("delete", :operation, :delete)
 
-oDiag.SetNodeProperties("process", [
-	:dataType = :personal,
-	:requiresConsent = TRUE,
-	:retentionPolicy = "1 year"
-])
+	SetNodeProperties("process", [
+		:dataType = :personal,
+		:requiresConsent = TRUE,
+		:retentionPolicy = "1 year"
+	])
 
-# Validate
-oGdprValidator = new stzDiagramValidatorXT(:GDPR)
-oGdprValidator.Validate(oDiag)
-
-? oGdprValidator.Domain()     #--> GDPR
-? oGdprValidator.IssueCount()   #--> Should be 1 (process node missing consent)
+	? Validate(:GDPR) 	   #--> TRUE
+	? @@( ValidationIssues() ) #--> []
+}
 
 pf()
 
@@ -612,27 +613,29 @@ pf()
 pr()
 
 oDiag = new stzDiagram("BankingTx")
-oDiag.AddNodeXT("init", "Initiate", :Start, :success)
-oDiag.AddNodeXT("fraud", "Fraud Check", :Process, :info)
-oDiag.AddNodeXT("approve", "Approve?", :Decision, :warning)
-oDiag.AddNodeXT("execute", "Execute", :Process, :primary)
-oDiag.AddNodeXT("done", "Done", :Endpoint, :success)
+oDiag {
+	AddNodeXT("init", "Initiate", :Start, :success)
+	AddNodeXT("fraud", "Fraud Check", :Process, :info)
+	AddNodeXT("approve", "Approve?", :Decision, :warning)
+	AddNodeXT("execute", "Execute", :Process, :primary)
+	AddNodeXT("done", "Done", :Endpoint, :success)
 
-oDiag.Connect("init", "fraud")
-oDiag.Connect("fraud", "approve")
-oDiag.ConnectXT("approve", "execute", "Yes")
-oDiag.Connect("execute", "done")
+	Connect("init", "fraud")
+	Connect("fraud", "approve")
+	ConnectXT("approve", "execute", "Yes")
+	Connect("execute", "done")
 
-oDiag.Node("init")["properties"]["transactionType"] = :large
-oDiag.Node("fraud")["properties"]["operation"] = :fraud_check
-oDiag.Node("approve")["properties"]["role"] = :approver
-oDiag.Node("execute")["properties"]["operation"] = :payment
+	SetNodeProperty("init", :transactionType, :large)
+	SetNodeProperty("fraud", :operation, :fraud_check)
+	SetNodeProperty("approve", :role, :approver)
+	SetNodeProperty("execute", :operation, :payment)
 
-oBankingValidator = $aDiagramValidators[:Banking]
-aResult = oBankingValidator.Validate(oDiag)
+	? @@(Validate(:Banking))
+	#--> TRUE
 
-? aResult["domain"] #--> Banking
-? aResult["issueCount"] >= 0 #--> TRUE
+	? ValidationIssueCount()
+	#--> 0
+}
 
 pf()
 
@@ -671,9 +674,9 @@ pr()
 oDiag = new stzDiagram("FormatTest")
 oDiag.SetTheme(:pro)
 oDiag.SetLayout(:TopDown)
-oDiag.AddNodeXT("start", "Begin", :Start, :success)
-oDiag.AddNodeXT("process", "Work", :Process, :primary)
-oDiag.AddNodeXT("end", "Finish", :Endpoint, :success)
+oDiag.AddNodeXT("start", "Begin", "start", "success-")
+oDiag.AddNodeXT("process", "Work", "process", "primary++")
+oDiag.AddNodeXT("end", "Finish", "endpoint", "success")
 oDiag.Connect("start", "process")
 oDiag.Connect("process", "end")
 
@@ -707,6 +710,26 @@ edges
 
     process -> end
 '
+
+oDiag.Show()
+#-->
+'
+        ╭───────╮        
+        │ Begin │        
+        ╰───────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ !Work! │        
+       ╰────────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ Finish │        
+       ╰────────╯    
+'
+
+oDiag.View()
 
 pf()
 
@@ -773,26 +796,28 @@ oDiag.AddCluster("domain", "Service Domain", ["api", "db"], "lightblue")
 diagram "ClusterTest"
 
 metadata
-    theme: null
-    layout: null
+    theme: light
+    layout: topdown
 
 nodes
     api
         label: "API"
         type: process
-        color: success
+        color: #008000
 
     db
         label: "DB"
         type: storage
-        color: success
+        color: #008000
 
 clusters
     domain
         label: "Service Domain"
         nodes: [api, db]
-        color: lightblue
+        color: #4D4DC9
 '
+
+oDiag.View()
 
 pf()
 
@@ -915,10 +940,10 @@ pf()
 
 /*--- Verifying DOT node type shapes
 
-#ERR edges are not displayed!
 pr()
 
 oDiag = new stzDiagram("DotShapesTest")
+oDiag.SetTheme("vibrant")
 oDiag.AddNodeXT("s", "S", :Start, :success)
 oDiag.AddNodeXT("d", "D", :Decision, :warning)
 oDiag.AddNodeXT("p", "P", :Process, :primary)
@@ -951,7 +976,6 @@ pf()
 #-----------------#
 
 /*--- Converting to Mermaid.js syntax
-#ERRROR
 
 pr()
 
@@ -966,38 +990,43 @@ oDiag.ConnectXT("decision", "process", "Yes")
 oDiag.Connect("process", "end")
 
 ? oDiag.Mermaid()
-#-->
+#--> Past it in https://mermaid.live/
 '
 graph TD
-    start(["Start"])
+    node_start(["Start"])
     decision{{"Check"}}
-    process[["Process"]]
-    end([" End "])
+    process["Process"]
+    node_end(["End"])
 
-    start --> decision
-    decision --> process |Yes|
-    process --> end
+    node_start --> decision
+    decision -->|Yes| process
+    process --> node_end
 '
+
+oDiag.Show()
 #-->
 '
-graph TD
-    start(["Start"])
-    decision{{"Check"}}
-    process[["Process"]]
-    end([" End "])
-
-    start --> decision
-    decision --> process |Yes|
-    process --> end
+        ╭───────╮        
+        │ Start │        
+        ╰───────╯        
+            |            
+            v            
+       ╭─────────╮       
+       │ !Check! │       
+       ╰─────────╯       
+            |            
+           Yes           
+            |            
+            v            
+      ╭───────────╮      
+      │ !Process! │      
+      ╰───────────╯      
+            |            
+            v            
+         ╭─────╮         
+         │ End │         
+         ╰─────╯   
 '
-#ERROR in MermaidJs editor
-'
-Syntax error
-rror: Error: Parse error on line 5:
-Error: Error: Parse error on line 5:
-...ss[["Process"]]    end([" End "])    
-----------------------^
-Expecting 'SEMI', 'NEWLINE', 'SPACE', 'EOF', 'subgraph', 'acc_title', 'acc_descr', 'acc_descr_multiline_value', 'AMP', 'COLON', 'STYLE', 'LINKSTYLE', 'CLASSDEF', 'CLASS', 'CLICK', 'DOWN', 'DEFAULT', 'NUM', 'COMMA', 'NODE_STRING', 'BRKT', 'MINUS', 'MULT', 'UNICODE_TEXT', 'direction_tb', 'direction_bt', 'direction_rl', 'direction_lr', got 'end'
 
 pf()
 
@@ -1112,8 +1141,26 @@ oDiag.AddNodeXT("n", "Node", :Process, :primary)
 ? oDiag.Json()
 #-->
 '
-{"id":"JsonStructureTest","nodes":[{"id":"n","label":"Node","properties":{"type":"process","color":"primary"}}],"edges":{},"properties":{},"theme":"NULL","layout":"NULL","clusters":{},"annotations":{},"templates":{}}
-'
+{
+	"id": "JsonStructureTest",
+	"nodes": [
+		{
+			"id": "n",
+			"label": "Node",
+			"properties": {
+				"type": "process",
+				"color": "primary"
+			}
+		}
+	],
+	"edges": {},
+	"properties": {},
+	"theme": "light",
+	"layout": "topdown",
+	"clusters": {},
+	"annotations": {},
+	"templates": {}
+}
 
 pf()
 
@@ -1143,7 +1190,6 @@ pf()
 #-------------------------#
 # TESTING VISUAL OPTIONS  #
 #-------------------------#
-
 
 /*-- Test 1: Layout variations
 
@@ -1209,28 +1255,35 @@ oDiag2 {
 pf()
 
 /*-- Test 3: Node type variations
-
+*/
 pr()
 
-oDiag3 = new stzDiagram("NodeTypeTest")
-oDiag3 {
-	SetTheme(:pro)           # Semantic
-	SetLayout(:BottomUp)
+oDiag = new stzDiagram("ShapeTest")
+oDiag {
+	SetTheme(:pro)
+	SetLayout(:TopDown)
 	
-	# Using semantic types
-	AddNodeXT("s1", "Begin", :Start, :Success)
-	AddNodeXT("p1", "Work", :Process, :Primary)
-	AddNodeXT("d1", "Choice?", :Decision, :Warning)
-	AddNodeXT("e1", "Done", :Endpoint, :Danger)
+	# Semantic types (shape auto-selected)
+	AddNodeXT("start", "Start", "start", :success)
+	AddNodeXT("validate", "Validate", "process", :primary)
+	AddNodeXT("check", "Valid?", "decision", :warning)
+	AddNodeXT("done", "Done", "endpoint", :success)
 	
-	# Using visual terms (if implemented)
-	# AddNodeXT("s2", "Begin", :Ellipse, :Success)
-	# AddNodeXT("p2", "Work", :Box, :Primary)
+	# Direct DOT shapes (explicit control)
+	AddNodeXT("db", "Database", "cylinder", :neutral)
+	AddNodeXT("alert", "Alert", "hexagon", :danger)
+	AddNodeXT("backup", "Backup", "parallelogram", :info)
+	AddNodeXT("end", "End", "octagon", :success)
 	
-	Connect("s1", "p1")
-	Connect("p1", "d1")
-	Connect("d1", "e1")
+	Connect("start", "validate")
+	Connect("validate", "check")
+	ConnectXT("check", "db", "Yes")
+	ConnectXT("check", "alert", "No")
+	Connect("db", "backup")
+	Connect("backup", "done")
+	Connect("alert", "end")
 	
+? Code()
 	View()
 }
 

@@ -1,17 +1,23 @@
-digraph "SoxPayment" {
+digraph "ShapeTest" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12]
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#0000FF", style=solid]
 
-    submit [label="Submit", shape=ellipse, style="rounded,filled", fillcolor="#008000", fontcolor="white"]
-    approve [label="Approve?", shape=diamond, style="filled", fillcolor="#FFFF00", fontcolor="black"]
-    pay [label="Pay", shape=box, style="rounded,filled", fillcolor="#0000FF", fontcolor="white"]
-    log [label="Log", shape=box, style="rounded,filled", fillcolor="#808080", fontcolor="white"]
-    done [label="Done", shape=doublecircle, style="rounded,filled", fillcolor="#008000", fontcolor="white"]
+    start [label="Start", shape=ellipse, style="rounded,filled", fillcolor="#A3D1A3", fontcolor="black"]
+    validate [label="Validate", shape=box, style="rounded,filled", fillcolor="#4D4DC9", fontcolor="white"]
+    check [label="Valid?", shape=diamond, style="filled", fillcolor="#FFDEA3", fontcolor="black"]
+    done [label="Done", shape=doublecircle, style="rounded,filled", fillcolor="#A3D1A3", fontcolor="black"]
+    db [label="Database", shape=cylinder, style="rounded,filled", fillcolor="#808080", fontcolor="white"]
+    alert [label="Alert", shape=ellipse, style="rounded,filled", fillcolor="#FFA3A3", fontcolor="black"]
+    backup [label="Backup", shape=ellipse, style="rounded,filled", fillcolor="#0000FF", fontcolor="white"]
+    end [label="End", shape=ellipse, style="rounded,filled", fillcolor="#A3D1A3", fontcolor="black"]
 
-    submit -> approve
-    approve -> pay [label=" Yes"]
-    pay -> log
-    log -> done
+    start -> validate
+    validate -> check
+    check -> db [label=" Yes"]
+    check -> alert [label=" No"]
+    db -> backup
+    backup -> done
+    alert -> end
 
 }

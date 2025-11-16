@@ -463,20 +463,36 @@ func ResolveColor(pColor)
 	
 	cColorKey = lower("" + pColor)
 	
+	# Extract intensity modifier (++, +, --, -)
+	cIntensity = ""
+	cBaseKey = cColorKey
+	
+	if right(cColorKey, 2) = "++" or right(cColorKey, 2) = "--"
+		cIntensity = right(cColorKey, 2)
+		cBaseKey = left(cColorKey, len(cColorKey) - 2)
+	but right(cColorKey, 1) = "+" or right(cColorKey, 1) = "-"
+		cIntensity = right(cColorKey, 1)
+		cBaseKey = left(cColorKey, len(cColorKey) - 1)
+	ok
+	
+	# Try direct palette lookup
 	if HasKey($acFullColorPalette, cColorKey)
 		return $acFullColorPalette[cColorKey]
 	ok
 	
-	if HasKey($acColorsBySemanticMeaning, cColorKey)
-		cBaseColor = "" + $acColorsBySemanticMeaning[cColorKey]
-		return ResolveColor(cBaseColor)
+	# Try semantic meaning
+	if HasKey($acColorsBySemanticMeaning, cBaseKey)
+		cBaseColor = "" + $acColorsBySemanticMeaning[cBaseKey]
+		return ResolveColor(cBaseColor + cIntensity)
 	ok
 	
-	if HasKey($acColorsByNodeType, cColorKey)
-		cBaseColor = "" + $acColorsByNodeType[cColorKey]
-		return ResolveColor(cBaseColor)
+	# Try node type
+	if HasKey($acColorsByNodeType, cBaseKey)
+		cBaseColor = "" + $acColorsByNodeType[cBaseKey]
+		return ResolveColor(cBaseColor + cIntensity)
 	ok
 	
+	# Legacy map
 	aLegacyMap = [
 		:lightblue = "blue+",
 		:lightgreen = "green+",
@@ -572,8 +588,6 @@ func RGBToHex(nR, nG, nB)
 	return "#" + upper(cR) + upper(cG) + upper(cB)
 
 
-
-
 func Palette()
 	return $aPalette
 
@@ -656,6 +670,10 @@ class stzDiagram from stzGraph
 	@aEdgeTags = []
 	@aEdgeEnhancements = []
 
+	# Validation state
+	@cLastValidator = ""
+	@aLastValidationResult = []
+	
 	def init(pTitle)
 		super.init(pTitle)
 
@@ -760,15 +778,15 @@ class stzDiagram from stzGraph
 
 	def AddNodeXT(pNodeId, pLabel, pType, pColor)
 		cResolvedType = ResolveNodeType(pType)
-		# Store color as-is if it's already hex, otherwise resolve
+		# Store color name, not hex - resolve later during visualization
 		cResolvedColor = pColor
-		if NOT substr(pColor, "#")
-			cResolvedColor = ResolveColor(pColor)
+		if substr(pColor, "#")
+			cResolvedColor = pColor  # Already hex, keep it
 		ok
 		
 		super.AddNodeXTT(pNodeId, pLabel, [
 			:type = cResolvedType,
-			:color = cResolvedColor
+			:color = cResolvedColor  # Store as-is
 		])
 
 	def Connect(pFromId, pToId)
@@ -833,56 +851,128 @@ class stzDiagram from stzGraph
 	#  VALIDATION
 	#------------------------------------------
 
-	def ValidateDAG()
-		return NOT This.CyclicDependencies()
-
-	def ValidateReachability()
-		aStartNodes = []
-		aEndpointNodes = []
-
-		for aNode in This.Nodes()
-			if aNode["properties"]["type"] = :Start
-				aStartNodes + aNode["id"]
+	def Validate(pcValidator)
+		@cLastValidator = lower(pcValidator)
+		
+		switch @cLastValidator
+		on "sox"
+			oValidator = new stzDiagramSoxValidator()
+			oValidator.Validate(This)
+			@aLastValidationResult = oValidator.Result()
+			
+		on "gdpr"
+			oValidator = new stzDiagramGdprValidator()
+			oValidator.Validate(This)
+			@aLastValidationResult = oValidator.Result()
+			
+		on "banking"
+			oValidator = new stzDiagramBankingValidator()
+			oValidator.Validate(This)
+			@aLastValidationResult = oValidator.Result()
+			
+		on "dag"
+			@aLastValidationResult = This._ValidateDAG()
+			
+		on "reachability"
+			@aLastValidationResult = This._ValidateReachability()
+			
+		on "completeness"
+			@aLastValidationResult = This._ValidateCompleteness()
+			
+		other
+			stzraise("Unsupported validator: " + pcValidator)
+		off
+		
+		return This.IsValid(@cLastValidator)
+	
+	def IsValid(pcValidator)
+		if pcValidator != NULL and pcValidator != ""
+			if lower(pcValidator) != @cLastValidator
+				This.Validate(pcValidator)
 			ok
-			if aNode["properties"]["type"] = :Endpoint
-				aEndpointNodes + aNode["id"]
-			ok
-		end
+		ok
+		return This.ValidationStatus() = "pass"
 
+	def _ValidateDAG()
+		bIsDAG = NOT This.CyclicDependencies()
+		return [
+			:status = iif(bIsDAG, "pass", "fail"),
+			:domain = "dag",
+			:issueCount = iif(bIsDAG, 0, 1),
+			:issues = iif(bIsDAG, [], ["Graph contains cycles"])
+		]
+	
+	def _ValidateReachability()
+		aStartNodes = This.NodesByType("start")
+		aEndpointNodes = This.NodesByType("endpoint")
+		aIssues = []
+	
 		for cEndpoint in aEndpointNodes
-			bReachable = 0
+			bReachable = FALSE
 			for cStart in aStartNodes
 				if This.PathExists(cStart, cEndpoint)
-					bReachable = 1
+					bReachable = TRUE
 					exit
 				ok
 			end
 			if NOT bReachable
-				return [
-					:status = "fail",
-					:issue = "Endpoint unreachable: " + cEndpoint
-				]
+				aIssues + "Endpoint unreachable: " + cEndpoint
 			ok
 		end
-
-		return [ :status = "pass" ]
-
-	def ValidateCompleteness()
-		aIssues = []
-
-		for aNode in This.Nodes()
-			if aNode["properties"]["type"] = "decision"
-				aNeighbors = This.Neighbors(aNode["id"])
-				if len(aNeighbors) < 2
-					aIssues + "Decision node has fewer than 2 paths: " + aNode["id"]
-				ok
-			ok
-		end
-
+	
 		return [
 			:status = iif(len(aIssues) = 0, "pass", "fail"),
+			:domain = "reachability",
+			:issueCount = len(aIssues),
 			:issues = aIssues
 		]
+	
+	def _ValidateCompleteness()
+		aIssues = []
+		aDecisions = This.NodesByType("decision")
+	
+		for cNodeId in aDecisions
+			if len(This.Neighbors(cNodeId)) < 2
+				aIssues + "Decision node has fewer than 2 paths: " + cNodeId
+			ok
+		end
+	
+		return [
+			:status = iif(len(aIssues) = 0, "pass", "fail"),
+			:domain = "completeness",
+			:issueCount = len(aIssues),
+			:issues = aIssues
+		]
+
+	def ValidationResult()
+		return @aLastValidationResult
+	
+	def ValidationStatus()
+		if len(@aLastValidationResult) = 0
+			return ""
+		ok
+		return @aLastValidationResult["status"]
+	
+	def ValidationDomain()
+		if len(@aLastValidationResult) = 0
+			return ""
+		ok
+		return @aLastValidationResult["domain"]
+	
+	def ValidationIssueCount()
+		if len(@aLastValidationResult) = 0
+			return 0
+		ok
+		return @aLastValidationResult["issueCount"]
+	
+	def ValidationIssues()
+		if len(@aLastValidationResult) = 0
+			return []
+		ok
+		return @aLastValidationResult["issues"]
+	
+	def HasValidationIssues()
+		return This.ValidationIssueCount() > 0
 
 	#------------------------------------------
 	#  METRICS
@@ -1404,34 +1494,6 @@ class stzDiagramValidator
 		return $acDiagramValidators
 
 
-class stzDiagramValidatorXT
-	@cValidatorType
-
-	def init(pcValidator)
-		if not isString(pcValidator)
-			stzraise("Incorrect param type! pcValidator must be a string.")
-		ok
-
-		@cValidatorType =  lower(pcValidator)
-
-	def Validate(oDiag)
-
-		switch @cValidatorType
-		on "sox"
-			oValidator = new stzDiagramSoxValidator()
-
-		on "gdpr"
-			oValidator = new stzDiagramGdprValidator()
-
-		on "banking"
-			oValidator = new stzDiagramBankingValidator()
-
-		other
-			stzraise("Unsupported diagram validator! Use 'sox', 'gdpr', or 'banking'.")
-		off
-
-		return oValidator.Validate(oDiag)
-
 #=====================================================
 #  stzDiagramSoxValidator - SARBANES-OXLEY
 #=====================================================
@@ -1439,11 +1501,13 @@ class stzDiagramValidatorXT
 class stzDiagramSoxValidator from stzDiagramValidator
 	@aValidationResult = []
 
+	def init()
+
 	def Validate(oDiag)
 		aIssues = []
 
 		# Rule 1: Financial processes must have audit trail
-		aFinancialNodes = This.NodesByProperty(oDiag, "domain", "financial")
+		aFinancialNodes = oDiag.NodesByProperty("domain", "financial")
 		for cNodeId in aFinancialNodes
 			aAnnPerf = oDiag.AnnotationsByType("performance")
 			bHasAudit = 0
@@ -1462,7 +1526,7 @@ class stzDiagramSoxValidator from stzDiagramValidator
 		end
 
 		# Rule 2: Payment/approval decisions must require approval
-		aDec = This.NodesByType(oDiag, "decision")
+		aDec = oDiag.NodesByType("decision")
 		for cNodeId in aDec
 			aNode = oDiag.Node(cNodeId)
 			bHasApprovalReq = 0
@@ -1491,38 +1555,6 @@ class stzDiagramSoxValidator from stzDiagramValidator
 	def Result()
 		return @aValidationResult
 
-	def Domain()
-		return @aValidationResult["domain"]
-	
-	def IssueCount()
-		return @aValidationResult["issueCount"]
-	
-	def Issues()
-		return @aValidationResult["issues"]
-	
-	def Status()
-		return @aValidationResult["status"]
-
-	#TODO// Should be abstracted in stzGraph
-	def NodesByType(pDiag, pType)
-		aFound = []
-		for aNode in pDiag.Nodes()
-			if aNode["properties"]["type"] = pType
-				aFound + aNode["id"]
-			ok
-		end
-		return aFound
-
-	def NodesByProperty(pDiag, pProperty, pValue)
-		aFound = []
-		for aNode in pDiag.Nodes()
-			if HasKey(aNode, "properties") and HasKey(aNode["properties"], pProperty) and
-			   aNode["properties"][pProperty] = pValue
-				aFound + aNode["id"]
-			ok
-		end
-		return aFound
-
 #=====================================================
 #  stzDiagramGdprValidator - GDPR
 #=====================================================
@@ -1530,11 +1562,13 @@ class stzDiagramSoxValidator from stzDiagramValidator
 class stzDiagramGdprValidator from stzDiagramValidator
 	@aValidationResult = []
 
+	def init()
+
 	def Validate(oDiag)
 		aIssues = []
 
 		# Rule 1: Personal data processing requires consent
-		aDataNodes = This.NodesByProperty(oDiag, "dataType", "personal")
+		aDataNodes = oDiag.NodesByProperty("dataType", "personal")
 		for cNodeId in aDataNodes
 			aNode = oDiag.Node(cNodeId)
 			bHasConsent = 0
@@ -1572,45 +1606,6 @@ class stzDiagramGdprValidator from stzDiagramValidator
 	def Result()
 		return @aValidationResult
 
-	def Domain()
-		return @aValidationResult["domain"]
-	
-	def IssueCount()
-		return @aValidationResult["issueCount"]
-	
-	def Issues()
-		return @aValidationResult["issues"]
-	
-	def Status()
-		return @aValidationResult["status"]
-
-	#TODO// Should be called somehow from stzGraph
-	def NodesByProperty(pDiag, pProperty, pValue)
-		aFound = []
-		for aNode in pDiag.Nodes()
-			if HasKey(aNode, "properties") and 
-			   HasKey(aNode["properties"], pProperty)
-				
-				# Get property value
-				propVal = aNode["properties"][pProperty]
-				
-				# Compare (handle both string and symbol)
-				bMatch = FALSE
-				if propVal = pValue
-					bMatch = TRUE
-				but isString(propVal) and isString(pValue)
-					if lower(propVal) = lower(pValue)
-						bMatch = TRUE
-					ok
-				ok
-				
-				if bMatch
-					aFound + aNode["id"]
-				ok
-			ok
-		end
-		return aFound
-
 #=====================================================
 #  stzDiagramBankingValidator - CUSTOM BANKING
 #=====================================================
@@ -1618,11 +1613,13 @@ class stzDiagramGdprValidator from stzDiagramValidator
 class stzDiagramBankingValidator from stzDiagramValidator
 	@aValidationResult = []
 
+	def init()
+
 	def Validate(oDiag)
 		aIssues = []
 
 		# Rule 1: Large transactions require multi-level approval
-		aLargeTransactions = This.NodesByProperty(oDiag, "transactionType", "large")
+		aLargeTransactions = oDiag.NodesByProperty("transactionType", "large")
 		for cNodeId in aLargeTransactions
 			aIncoming = oDiag.Incoming(cNodeId)
 			nApprovals = 0
@@ -1640,7 +1637,7 @@ class stzDiagramBankingValidator from stzDiagramValidator
 		end
 
 		# Rule 2: Fraud detection before payment
-		aPaymentNodes = This.NodesByProperty(oDiag, "operation", "payment")
+		aPaymentNodes = oDiag.NodesByProperty("operation", "payment")
 		for cNodeId in aPaymentNodes
 			aIncoming = oDiag.Incoming(cNodeId)
 			bHasFraudCheck = 0
@@ -1667,29 +1664,6 @@ class stzDiagramBankingValidator from stzDiagramValidator
 
 	def Result()
 		return @aValidationResult
-
-	def Domain()
-		return @aValidationResult["domain"]
-	
-	def IssueCount()
-		return @aValidationResult["issueCount"]
-	
-	def Issues()
-		return @aValidationResult["issues"]
-	
-	def Status()
-		return @aValidationResult["status"]
-
-	#TODO// Should be called from stzGraph
-	def NodesByProperty(pDiag, pProperty, pValue)
-		aFound = []
-		for aNode in pDiag.Nodes()
-			if HasKey(aNode, "properties") and HasKey(aNode["properties"], pProperty) and
-			   aNode["properties"][pProperty] = pValue
-				aFound + aNode["id"]
-			ok
-		end
-		return aFound
 
 
 #=====================================================
@@ -1876,9 +1850,32 @@ class stzDiagramToDot
 		
 		# Generate nodes
 		cOutput += This._GenerateNodes(cTheme)
-		
 		cOutput += NL
 		
+		# Generate clusters (subgraphs)
+		if len(@oDiagram.Clusters()) > 0
+			cOutput += NL
+			
+			for aCluster in @oDiagram.Clusters()
+				cClusterId = "cluster_" + aCluster["id"]
+				cLabel = aCluster["label"]
+				cColor = aCluster["color"]
+				
+				cOutput += '    subgraph ' + cClusterId + ' {' + NL
+				cOutput += '        label="' + cLabel + '";' + NL
+				cOutput += '        style=filled;' + NL
+				cOutput += '        color="' + cColor + '";' + NL
+				cOutput += '        fillcolor="' + cColor + '20";' + NL  # 20 = transparency
+				
+				# List nodes in cluster
+				for cNodeId in aCluster["nodes"]
+					cOutput += '        ' + This._SanitizeNodeId(cNodeId) + ';' + NL
+				end
+				
+				cOutput += '    }' + NL
+			end
+		ok
+
 		# Generate edges
 		cOutput += This._GenerateEdges(cTheme)
 		
@@ -2045,31 +2042,33 @@ class stzDiagramToDot
 			cType = lower("" + aNode["properties"]["type"])
 		ok
 		
+		# Direct DOT shape (bypasses semantic mapping)
+		aDotShapes = ["box", "ellipse", "circle", "diamond", "parallelogram", 
+		              "hexagon", "octagon", "cylinder", "rect", "square", 
+		              "doublecircle", "tripleoctagon", "invtriangle", "house"]
+		
+		if ring_find(aDotShapes, cType) > 0
+			return cType
+		ok
+		
+		# Semantic to shape mapping
 		switch cType
 		on "process"
 			return "box"
-
 		on "decision"
 			return "diamond"
-
 		on "start"
 			return "ellipse"
-
 		on "endpoint"
 			return "doublecircle"
-
 		on "state"
 			return "circle"
-
 		on "storage"
 			return "cylinder"
-
 		on "data"
 			return "box"
-
 		on "event"
 			return "ellipse"
-
 		other
 			return "box"
 		off
@@ -2113,12 +2112,34 @@ class stzDiagramToDot
 			cColor = $cDefaultNodeColor
 		ok
 		
-		# Resolve color
+		# If already hex, skip theme mapping
+		if substr(cColor, "#")
+			if cTheme = "gray"
+				return @oDiagram.ConvertColorTogray(cColor)
+			but cTheme = "print"
+				return ResolveColor(:white)
+			ok
+			return cColor
+		ok
+		
+		# Apply theme palette for semantic colors
+		cLowerColor = lower(cColor)
+		
+		if HasKey($aPalette, cTheme)
+			aThemePalette = $aPalette[cTheme]
+			
+			# Direct palette key match
+			if HasKey(aThemePalette, cLowerColor)
+				cColor = ResolveColor(aThemePalette[cLowerColor])
+			ok
+		ok
+		
+		# Fallback: resolve normally
 		if NOT substr(cColor, "#")
 			cColor = ResolveColor(cColor)
 		ok
 		
-		# Apply theme transformations
+		# Final theme transforms
 		if cTheme = "gray"
 			cColor = @oDiagram.ConvertColorTogray(cColor)
 		but cTheme = "print"
@@ -2246,62 +2267,63 @@ class stzDiagramToMermaid
 
 	def _Generate()
 		cOutput = "graph TD" + NL
-
+		
+		# Mermaid reserved keywords
+		aReservedWords = ["end", "start", "subgraph", "graph", "style", "class", 
+		                  "click", "call", "direction", "flowchart", "stateDiagram",
+		                  "state", "note", "default", "loop", "alt", "par", "and"]
+	
 		for aNode in @oDiagram.Nodes()
 			cNodeId = aNode["id"]
 			cLabel = aNode["label"]
-
-			# Escape reserved Mermaid keywords
+	
+			# Escape reserved keywords
 			cSafeNodeId = cNodeId
-			if cNodeId = "end" or cNodeId = "start" or cNodeId = "subgraph"
+			if ring_find(aReservedWords, lower(cNodeId)) > 0
 				cSafeNodeId = "node_" + cNodeId
 			ok
-
+	
 			cType = aNode["properties"]["type"]
-			if cType = :start
-				cOutput += '    ' + cSafeNodeId + '(["' +
-					   cLabel + '"])' + NL
-
-			but cType = :endpoint
-				cOutput += '    ' + cSafeNodeId + '(["' +
-					   cLabel + '"])' + NL
-
-			but cType = :decision
-				cOutput += '    ' + cSafeNodeId + '{{"' +
-					   cLabel + '"}}' + NL
-
-			but cType = :process
-				cOutput += '    ' + cSafeNodeId + '["' +
-					   cLabel + '"]' + NL
-
+			if cType = :start or cType = "start"
+				cOutput += '    ' + cSafeNodeId + '(["' + cLabel + '"])' + NL
+	
+			but cType = :endpoint or cType = "endpoint"
+				cOutput += '    ' + cSafeNodeId + '(["' + cLabel + '"])' + NL
+	
+			but cType = :decision or cType = "decision"
+				cOutput += '    ' + cSafeNodeId + '{{"' + cLabel + '"}}' + NL
+	
+			but cType = :process or cType = "process"
+				cOutput += '    ' + cSafeNodeId + '["' + cLabel + '"]' + NL
+	
 			else
 				cOutput += '    ' + cSafeNodeId + '["' + cLabel + '"]' + NL
 			ok
 		end
-
+	
 		cOutput += NL
-
+	
 		for aEdge in @oDiagram.Edges()
 			cFromId = aEdge["from"]
 			cToId = aEdge["to"]
 			
-			# Apply same escaping to edge references
-			if cFromId = "end" or cFromId = "start" or cFromId = "subgraph"
+			# Escape reserved keywords in edges
+			if ring_find(aReservedWords, lower(cFromId)) > 0
 				cFromId = "node_" + cFromId
 			ok
-			if cToId = "end" or cToId = "start" or cToId = "subgraph"
+			if ring_find(aReservedWords, lower(cToId)) > 0
 				cToId = "node_" + cToId
 			ok
 			
-			cOutput += '    ' + cFromId + ' --> ' + cToId
-			if aEdge["label"] != ""
-				cOutput += ' |' + aEdge["label"] + '|'
+			if aEdge["label"] != "" and aEdge["label"] != NULL
+				cOutput += '    ' + cFromId + ' -->|' + aEdge["label"] + '| ' + cToId + NL
+			else
+				cOutput += '    ' + cFromId + ' --> ' + cToId + NL
 			ok
-			cOutput += NL
 		end
-
+	
 		@cMermaidCode = cOutput
-
+	
 	def Code()
 		return @cMermaidCode
 
@@ -2335,7 +2357,7 @@ class stzDiagramToJSON
 
 	def _Generate()
 		aData = @oDiagram.ToHashlist()
-		@cJsonCode = ToJSON(aData)
+		@cJsonCode = ToJSONXT(aData)
 
 	def Json()
 		return @cJsonCode

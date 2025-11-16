@@ -32,22 +32,22 @@ def init(p)
         
     but isList(p)
         #NOTE #TODO
-		# Normally we should use Qt's built-in conversion like this:
+	# Normally we should use Qt's built-in conversion like this:
 
-         # 	@oQJsonDoc = @oQJsonDoc.fromVariant(obj2ptr(p))
-	    #   if @oQJsonDoc.isNull()
-	    #       @cLastError = "Invalid list structure"
-	    #      return
-	    #   ok
+        # @oQJsonDoc = @oQJsonDoc.fromVariant(obj2ptr(p))
+	#   if @oQJsonDoc.isNull()
+	#       @cLastError = "Invalid list structure"
+	#      return
+	#   ok
     
-		# But this does not return anything!
+	# But this does not return anything!
 
-		# As an alternative solution, I'll transform the p list into
-		# a json string using ListToJson() from stzJsonFuncs file,
-		# and reuse the "if isString(p)" section of this code.
+	# As an alternative solution, I'll transform the p list into
+	# a json string using ListToJson() from stzJsonFuncs file,
+	# and reuse the "if isString(p)" section of this code.
 
-		cJson = ListToJson(p)
-		This.Init(cJson)
+	cJson = ListToJson(p)
+	This.Init(cJson)
 
     but isObject(p) and ClassOfObject(p) = "QJsonDocument"
         @oQJsonDoc = p

@@ -1330,6 +1330,53 @@ def ReachableFrom(pcNodeId)
 		def PathsMatchingF(pFunc)
 			return This.PathsMatching(pFunc)
 
+	def NodesByType(pType)
+		aFound = []
+		for aNode in This.Nodes()
+			if HasKey(aNode, "properties") and 
+			   HasKey(aNode["properties"], "type") and
+			   aNode["properties"]["type"] = pType
+				aFound + aNode["id"]
+			ok
+		end
+		return aFound
+	
+	def NodesByProperty(pProperty, pValue)
+		aFound = []
+		for aNode in This.Nodes()
+			if HasKey(aNode, "properties") and 
+			   HasKey(aNode["properties"], pProperty)
+				
+				propVal = aNode["properties"][pProperty]
+				
+				# Handle string/symbol comparison
+				bMatch = FALSE
+				if propVal = pValue
+					bMatch = TRUE
+				but isString(propVal) and isString(pValue)
+					if lower(propVal) = lower(pValue)
+						bMatch = TRUE
+					ok
+				ok
+				
+				if bMatch
+					aFound + aNode["id"]
+				ok
+			ok
+		end
+		return aFound
+	
+	def EdgesByProperty(pProperty, pValue)
+		aFound = []
+		for aEdge in This.Edges()
+			if HasKey(aEdge, "properties") and 
+			   HasKey(aEdge["properties"], pProperty) and
+			   aEdge["properties"][pProperty] = pValue
+				aFound + [aEdge["from"], aEdge["to"]]
+			ok
+		end
+		return aFound
+
 	#------------------------------------------
 	#  6. TEMPORAL EVOLUTION
 	#------------------------------------------

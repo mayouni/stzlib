@@ -12,26 +12,26 @@
 <!-- s -->
 <g id="node1" class="node">
 <title>s</title>
-<ellipse fill="#008000" stroke="black" cx="27" cy="-22" rx="27" ry="18"/>
+<ellipse fill="#4b4b4b" stroke="black" stroke-width="2" cx="27" cy="-22" rx="27" ry="18"/>
 <text xml:space="preserve" text-anchor="middle" x="27" y="-17.73" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">S</text>
 </g>
 <!-- d -->
 <g id="node2" class="node">
 <title>d</title>
-<polygon fill="#ffff00" stroke="black" points="99,-40 72,-22 99,-4 126,-22 99,-40"/>
+<polygon fill="#e1e1e1" stroke="black" stroke-width="2" points="99,-40 72,-22 99,-4 126,-22 99,-40"/>
 <text xml:space="preserve" text-anchor="middle" x="99" y="-17.73" font-family="Helvetica,sans-Serif" font-size="12.00">D</text>
 </g>
 <!-- p -->
 <g id="node3" class="node">
 <title>p</title>
-<path fill="#0000ff" stroke="black" d="M186,-40C186,-40 156,-40 156,-40 150,-40 144,-34 144,-28 144,-28 144,-16 144,-16 144,-10 150,-4 156,-4 156,-4 186,-4 186,-4 192,-4 198,-10 198,-16 198,-16 198,-28 198,-28 198,-34 192,-40 186,-40"/>
+<path fill="#1d1d1d" stroke="black" stroke-width="2" d="M186,-40C186,-40 156,-40 156,-40 150,-40 144,-34 144,-28 144,-28 144,-16 144,-16 144,-10 150,-4 156,-4 156,-4 186,-4 186,-4 192,-4 198,-10 198,-16 198,-16 198,-28 198,-28 198,-34 192,-40 186,-40"/>
 <text xml:space="preserve" text-anchor="middle" x="171" y="-17.73" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">P</text>
 </g>
 <!-- e -->
 <g id="node4" class="node">
 <title>e</title>
-<ellipse fill="#008000" stroke="black" cx="238" cy="-22" rx="18" ry="18"/>
-<ellipse fill="none" stroke="black" cx="238" cy="-22" rx="22" ry="22"/>
+<ellipse fill="#4b4b4b" stroke="black" stroke-width="2" cx="238" cy="-22" rx="18" ry="18"/>
+<ellipse fill="none" stroke="black" stroke-width="2" cx="238" cy="-22" rx="22" ry="22"/>
 <text xml:space="preserve" text-anchor="middle" x="238" y="-17.73" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">E</text>
 </g>
 </g>
