@@ -123,7 +123,7 @@
 
 # Loading files related to the VISUAL module
 
-	load "visual/stzVisualStyle.ring"
+	#TODO// Put here all visual-oriented functions and classes
 
 # Loading files related to SYSTEM module
 

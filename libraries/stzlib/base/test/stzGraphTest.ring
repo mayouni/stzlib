@@ -705,7 +705,7 @@ Legend:
 ]
 '
 pf()
-# Executed in 0.12 second(s) in Ring 1.24
+# Executed in 0.06 second(s) in Ring 1.24
 
 /*---- Cycle detection visualization
 
@@ -1506,4 +1506,4 @@ aPaths = oGraph.FindNode("target")
 '
 
 pf()
-#--> Executed in 0.01 second(s) in Ring 1.24
+#--> Executed in almost 0 second(s) in Ring 1.24

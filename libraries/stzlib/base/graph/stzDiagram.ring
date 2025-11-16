@@ -702,51 +702,29 @@ class stzDiagram from stzGraph
 	#------------------------------------------
 
 	def ResolveFontColor(pBgColor)
-		# Get actual resolved background color
-		cBgColor = ResolveColor(pBgColor)
-		
-		# Always use luminance calculation for consistent contrast
-		return This.ContrastingTextColor(cBgColor)
+		oResolver = new stzColorResolver()
+		cResult = oResolver.ResolveFontColor(pBgColor)
+		return cResult
 	
 	def ContrastingTextColor(cColor)
-		# Convert color to RGB
-		aRGB = This.ColorToRGB(cColor)
-		nR = aRGB[1]
-		nG = aRGB[2]
-		nB = aRGB[3]
-		
-		# Simple perceptual brightness formula (ITU BT.709)
-		nBrightness = (0.299 * nR + 0.587 * nG + 0.114 * nB)
-		
-		# Threshold at 150 for better contrast
-		if nBrightness < 150
-			return "white"
-		else
-			return "black"
-		ok
+		oResolver = new stzColorResolver()
+		cResult = oResolver.ContrastingTextColor(cColor)
+		return cResult
 	
 	def ColorToRGB(cColor)
-		# First resolve to hex, then convert
-		cHex = ResolveColor(cColor)
-		return HexToRGB(cHex)
+		oResolver = new stzColorResolver()
+		cResult = oResolver.ColorToRGB(cColor)
+		return cResult
 
-	def GetNodeStrokeColor(cTheme)
-		if cTheme = "print" or cTheme = "gray"
-			return "black"
-		ok
-		return ""
+	def NodeStrokeColor(cTheme)
+		oResolver = new stzColorResolver()
+		cResult = oResolver.NodeStrokeColor(cTheme)
+		return cResult
 
 	def ConvertColorTogray(cColor)
-		aRGB = This.ColorToRGB(cColor)
-		nR = aRGB[1]
-		nG = aRGB[2]
-		nB = aRGB[3]
-		
-		# Use perceptual brightness formula
-		nGray = floor(0.299 * nR + 0.587 * nG + 0.114 * nB)
-		
-		# Use global helper
-		return RGBToHex(nGray, nGray, nGray)
+		oResolver = new stzColorResolver()
+		cResult = oResolver.ConvertColorTogray(cColor)
+		return cResult
 
 	#------------------------------------------
 	#  DIAGRAM-SPECIFIC NODE OPERATIONS
@@ -937,10 +915,8 @@ class stzDiagram from stzGraph
 		oDotExec.ExecuteAndView()
 		
 		def Display()
-			This.Show()
-		
-		def Visualize()
-			This.Show()
+			This.View()
+
 
 	#------------------------------------------
 	#  EXPORT
@@ -1101,11 +1077,7 @@ class stzDiagram from stzGraph
 			cNodeId = aNode["id"]
 			
 			# Restore metadata/tags from storage
-			if HasKey(@aNodeMetadata, cNodeId)
-				aNode["metadata"] = @aNodeMetadata[cNodeId]
-			else
-				aNode["metadata"] = []
-			ok
+			aNode["metadata"] = This.GetNodeMetadata(cNodeId)
 			
 			if HasKey(@aNodeTags, cNodeId)
 				aNode["tags"] = @aNodeTags[cNodeId]
@@ -1141,11 +1113,7 @@ class stzDiagram from stzGraph
 			cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
 			
 			# Restore metadata/tags from storage
-			if HasKey(@aEdgeMetadata, cEdgeKey)
-				aEdge["metadata"] = @aEdgeMetadata[cEdgeKey]
-			else
-				aEdge["metadata"] = []
-			ok
+			aEdge["metadata"] = This.GetEdgeMetadata(aEdge["from"], aEdge["to"])
 			
 			if HasKey(@aEdgeTags, cEdgeKey)
 				aEdge["tags"] = @aEdgeTags[cEdgeKey]
@@ -1268,149 +1236,86 @@ class stzDiagram from stzGraph
 			This.Connect(cFrom, cTo)
 		end
 	
-def ParseAndImport(cDiagString)
-	aLines = split(cDiagString, NL)
-	cCurrentSection = ""
-	cCurrentNode = ""
-	cLabel = ""
-	cType = ""
-	cColor = ""
-	aEdgesToAdd = []  # Store edges for later
-	
-	for cLine in aLines
-		cLineTrimmed = trim(cLine)
-		if cLineTrimmed = "" or left(cLineTrimmed, 1) = "#"
-			loop
-		ok
-		cLine = cLineTrimmed
+	def ParseAndImport(cDiagString)
+		aLines = split(cDiagString, NL)
+		cCurrentSection = ""
+		cCurrentNode = ""
+		cLabel = ""
+		cType = ""
+		cColor = ""
+		aEdgesToAdd = []  # Store edges for later
 		
-		if substr(cLine, "diagram ")
-			cTitle = trim(@substr(cLine, 10, len(cLine)-1))			
-			@cId = cTitle
-			
-		but cLine = "metadata"
-			cCurrentSection = "metadata"
-			
-		but cLine = "nodes"
-			cCurrentSection = "nodes"
-			
-		but cLine = "edges"
-			cCurrentSection = "edges"
-			
-		but cCurrentSection = "metadata" and substr(cLine, ":")
-			aParts = split(cLine, ":")
-			cKey = trim(aParts[1])
-			cValue = trim(aParts[2])
-			
-			if cKey = "theme"
-				This.SetTheme(cValue)
-			but cKey = "layout"
-				This.SetLayout(cValue)
+		for cLine in aLines
+			cLineTrimmed = trim(cLine)
+			if cLineTrimmed = "" or left(cLineTrimmed, 1) = "#"
+				loop
 			ok
+			cLine = cLineTrimmed
 			
-		but cCurrentSection = "nodes"
-			if NOT substr(cLine, "label:") and NOT substr(cLine, "type:") and NOT substr(cLine, "color:")
-				if cCurrentNode != "" and cLabel != ""
-					if cType = "" cType = @cDefaultNodeType ok
-					if cColor = "" cColor = @cDefaultNodeColor ok
-					This.AddNodeXT(cCurrentNode, cLabel, cType, cColor)
+			if substr(cLine, "diagram ")
+				cTitle = trim(@substr(cLine, 10, len(cLine)-1))			
+				@cId = cTitle
+				
+			but cLine = "metadata"
+				cCurrentSection = "metadata"
+				
+			but cLine = "nodes"
+				cCurrentSection = "nodes"
+				
+			but cLine = "edges"
+				cCurrentSection = "edges"
+				
+			but cCurrentSection = "metadata" and substr(cLine, ":")
+				aParts = split(cLine, ":")
+				cKey = trim(aParts[1])
+				cValue = trim(aParts[2])
+				
+				if cKey = "theme"
+					This.SetTheme(cValue)
+				but cKey = "layout"
+					This.SetLayout(cValue)
 				ok
-				cCurrentNode = cLine
-				cLabel = ""
-				cType = ""
-				cColor = ""
-			but substr(cLine, "label:")
-				cLabel = @substr(cLine, 8, len(cLine))
-				cLabel = This.UnescapeString(cLabel)
-			but substr(cLine, "type:")
-				cType = trim(@substr(cLine, 7, len(cLine)))
-			but substr(cLine, "color:")
-				cColor = trim(@substr(cLine, 8, len(cLine)))
+				
+			but cCurrentSection = "nodes"
+				if NOT substr(cLine, "label:") and NOT substr(cLine, "type:") and NOT substr(cLine, "color:")
+					if cCurrentNode != "" and cLabel != ""
+						if cType = "" cType = @cDefaultNodeType ok
+						if cColor = "" cColor = @cDefaultNodeColor ok
+						This.AddNodeXT(cCurrentNode, cLabel, cType, cColor)
+					ok
+					cCurrentNode = cLine
+					cLabel = ""
+					cType = ""
+					cColor = ""
+				but substr(cLine, "label:")
+					cLabel = @substr(cLine, 8, len(cLine))
+					cLabel = This.UnescapeString(cLabel)
+				but substr(cLine, "type:")
+					cType = trim(@substr(cLine, 7, len(cLine)))
+				but substr(cLine, "color:")
+					cColor = trim(@substr(cLine, 8, len(cLine)))
+				ok
+				
+			but cCurrentSection = "edges" and substr(cLine, "->")
+				aEdgeParts = split(cLine, "->")
+				cFrom = trim(aEdgeParts[1])
+				cTo = trim(aEdgeParts[2])
+				aEdgesToAdd + [cFrom, cTo]  # Store for later
 			ok
-			
-		but cCurrentSection = "edges" and substr(cLine, "->")
-			aEdgeParts = split(cLine, "->")
-			cFrom = trim(aEdgeParts[1])
-			cTo = trim(aEdgeParts[2])
-			aEdgesToAdd + [cFrom, cTo]  # Store for later
+		end
+		
+		# Add last node
+		if cCurrentNode != "" and cLabel != ""
+			if cType = "" cType = @cDefaultNodeType ok
+			if cColor = "" cColor = @cDefaultNodeColor ok
+			This.AddNodeXT(cCurrentNode, cLabel, cType, cColor)
 		ok
-	end
+		
+		# Now add all edges
+		for aEdge in aEdgesToAdd
+			This.Connect(aEdge[1], aEdge[2])
+		end
 	
-	# Add last node
-	if cCurrentNode != "" and cLabel != ""
-		if cType = "" cType = @cDefaultNodeType ok
-		if cColor = "" cColor = @cDefaultNodeColor ok
-		This.AddNodeXT(cCurrentNode, cLabel, cType, cColor)
-	ok
-	
-	# Now add all edges
-	for aEdge in aEdgesToAdd
-		This.Connect(aEdge[1], aEdge[2])
-	end
-	
-	def UnescapeString(cStr)
-
-		cStr = trim(cStr)
-		if left(cStr, 1) = '"' and right(cStr, 1) = '"'
-			cStr = @substr(cStr, 2, len(cStr) - 1)
-		ok
-		cStr = substr(cStr, '\"', '"')
-		return cStr
-	
-
-	#------------------------------------------
-	#  METADATA OPERATIONS
-	#------------------------------------------
-	
-	def SetNodeMetadata(pNodeId, aMetadata)
-		@aNodeMetadata[pNodeId] = aMetadata
-	
-	def GetNodeMetadata(pNodeId)
-		if HasKey(@aNodeMetadata, pNodeId)
-			return @aNodeMetadata[pNodeId]
-		ok
-		return []
-	
-	def RemoveNodeMetadata(pNodeId)
-		if HasKey(@aNodeMetadata, pNodeId)
-			@aNodeMetadata[pNodeId] = NULL
-		ok
-	
-	def UpdateNodeMetadata(pNodeId, cKey, pValue)
-		if NOT HasKey(@aNodeMetadata, pNodeId)
-			@aNodeMetadata[pNodeId] = []
-		ok
-		@aNodeMetadata[pNodeId][cKey] = pValue
-	
-	def SetEdgeMetadata(pFromId, pToId, aMetadata)
-		cEdgeKey = pFromId + "->" + pToId
-		@aEdgeMetadata[cEdgeKey] = aMetadata
-	
-	def GetEdgeMetadata(pFromId, pToId)
-		cEdgeKey = pFromId + "->" + pToId
-		if HasKey(@aEdgeMetadata, cEdgeKey)
-			return @aEdgeMetadata[cEdgeKey]
-		ok
-		return []
-	
-	def RemoveEdgeMetadata(pFromId, pToId)
-		cEdgeKey = pFromId + "->" + pToId
-		if HasKey(@aEdgeMetadata, cEdgeKey)
-			@aEdgeMetadata[cEdgeKey] = NULL
-		ok
-	
-	def UpdateEdgeMetadata(pFromId, pToId, cKey, pValue)
-		cEdgeKey = pFromId + "->" + pToId
-		if NOT HasKey(@aEdgeMetadata, cEdgeKey)
-			@aEdgeMetadata[cEdgeKey] = []
-		ok
-		@aEdgeMetadata[cEdgeKey][cKey] = pValue
-	
-	def RemoveAllMetadata()
-		@aNodeMetadata = []
-		@aEdgeMetadata = []
-		@aNodeTags = []
-		@aEdgeTags = []
 
 #=====================================================
 #  stzDiagramAnnotator - METADATA OVERLAY
@@ -2337,3 +2242,58 @@ class stzVisualRule
 		@aEdgeMetadata = []
 		@aEdgeTags = []
 		@aEdgeEnhancements = []
+
+
+#------------------------#
+#  COLOR RESOLVER CLASS  #
+#------------------------#
+
+class stzColorResolver
+
+	def init()
+
+	def ResolveFontColor(pBgColor)
+		# Get actual resolved background color
+		cBgColor = ResolveColor(pBgColor)
+		
+		# Always use luminance calculation for consistent contrast
+		return This.ContrastingTextColor(cBgColor)
+	
+	def ContrastingTextColor(cColor)
+		# Convert color to RGB
+		aRGB = This.ColorToRGB(cColor)
+		nR = aRGB[1]
+		nG = aRGB[2]
+		nB = aRGB[3]
+		
+		# Simple perceptual brightness formula (ITU BT.709)
+		nBrightness = (0.299 * nR + 0.587 * nG + 0.114 * nB)
+		
+		# Threshold at 150 for better contrast
+		if nBrightness < 150
+			return "white"
+		else
+			return "black"
+		ok
+	
+	def ColorToRGB(cColor)
+		# First resolve to hex, then convert
+		cHex = ResolveColor(cColor)
+		return HexToRGB(cHex)
+
+	def NodeStrokeColor(cTheme)
+		if cTheme = "print" or cTheme = "gray"
+			return "black"
+		ok
+
+	def ConvertColorToGray(cColor)
+		aRGB = This.ColorToRGB(cColor)
+		nR = aRGB[1]
+		nG = aRGB[2]
+		nB = aRGB[3]
+		
+		# Use perceptual brightness formula
+		nGray = floor(0.299 * nR + 0.587 * nG + 0.114 * nB)
+		
+		# Use global helper
+		return RGBToHex(nGray, nGray, nGray)
