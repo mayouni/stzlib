@@ -80411,7 +80411,7 @@ fdef
 
 		return 1
 
-	def IsRangeNamedParam()
+	def IsRangeNamedParam() #TODO// Review this, seems more complex then necessary!
 
 		if This.IsEmpty()
 			return 1
@@ -80441,6 +80441,15 @@ fdef
 			ok
 		ok
 
+	def IsInRangeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :InRange )
+
+			return 1
+
+		else
+			return 0
+		ok
 
 	#--
 
