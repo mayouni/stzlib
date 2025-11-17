@@ -1255,7 +1255,7 @@ oDiag2 {
 pf()
 
 /*-- Test 3: Node type variations
-*/
+
 pr()
 
 oDiag = new stzDiagram("ShapeTest")
@@ -1270,7 +1270,7 @@ oDiag {
 	AddNodeXT("done", "Done", "endpoint", :success)
 	
 	# Direct DOT shapes (explicit control)
-	AddNodeXT("db", "Database", "cylinder", :neutral)
+	AddNodeXT("db", "Database", "cylinder", "neutral+") # Note how we made neutral a bit darker with +
 	AddNodeXT("alert", "Alert", "hexagon", :danger)
 	AddNodeXT("backup", "Backup", "parallelogram", :info)
 	AddNodeXT("end", "End", "octagon", :success)
@@ -1283,7 +1283,7 @@ oDiag {
 	Connect("backup", "done")
 	Connect("alert", "end")
 	
-? Code()
+	? Code()
 	View()
 }
 
@@ -1293,9 +1293,12 @@ pf()
 
 pr()
 
+# Supported thems: light, dark, vibrant, pro, access,
+# print, gray, lightgray, darkgray
+
 oDiag4 = new stzDiagram("ThemeTest")
 oDiag4 {
-	SetTheme(:Vibrant)       # Or :Light, :Dark, :Pro
+	SetTheme(:light)
 	SetLayout(:RightLeft)
 	SetNodeStrokeColor("navy")
 	
@@ -1311,6 +1314,47 @@ oDiag4 {
 
 pf()
 
+/*--- Generating the diagram image in all the supported themes
+
+pr()
+
+# Test all themes with semantic colors
+aThemes = ["light", "dark", "vibrant", "pro", "access", 
+           "print", "gray", "lightgray", "darkgray"]
+
+aThemes = ["pro"]
+
+for cTheme in aThemes
+	oDiag = new stzDiagram("Theme_" + cTheme)
+	oDiag {
+		SetTheme(cTheme)
+		SetLayout(:LeftRight)
+		
+		# All semantic color types
+		AddNodeXT("s", "Start", :Start, :success)
+		AddNodeXT("p1", "Process", :Process, :primary)
+		AddNodeXT("w", "Warning", :Decision, :warning)
+		AddNodeXT("d", "Danger", :Process, :danger)
+		AddNodeXT("i", "Info", :Storage, :info)
+		AddNodeXT("n", "Neutral", :Process, :neutral)
+		AddNodeXT("e", "End", :Endpoint, :success)
+		
+		Connect("s", "p1")
+		Connect("p1", "w")
+		ConnectXT("w", "d", "Yes")
+		ConnectXT("w", "i", "No")
+		Connect("d", "n")
+		Connect("i", "n")
+		Connect("n", "e")
+		
+		? "Theme: " + cTheme
+		View()
+		sleep(2)  # Pause between diagrams
+	}
+next
+
+pf()
+
 /*-- Test 5: Combined options
 
 pr()
@@ -1320,7 +1364,8 @@ oDiag5 {
 	SetTheme(:Light)
 	SetLayout("lr")              # Short form
 	SetEdgeStyle(:ErrorFlow)     # Semantic → dotted
-	SetEdgeColor("gray")
+	SetPenWidth(3) #TODO
+	SetEdgeColor("gray+")
 	
 	AddNodeXT("start", "Begin", :Start, :Success)
 	AddNodeXT("proc1", "Validate", :Process, :Primary)
@@ -1382,12 +1427,12 @@ pr()
 
 oDiag = new stzDiagram("FontTest")
 oDiag {
-	SetFont("helvetica")
-	SetFontSize(18)
+	SetFont("helvetica") 	#ERR // Not applied
+	SetFontSize(24)		#ERR // Idem
 	SetTheme(:Pro)
 	
 	AddNodeXT("n1", "Custom Font", :Start, :Success)
-	AddNodeXT("n2", "Arial 18pt", :Process, :Primary)
+	AddNodeXT("n2", "Arial 24pt", :Process, :Primary)
 	ConnectXT("n1", "n2", "size")
 	
 	View()
@@ -1413,7 +1458,8 @@ oDiag = new stzDiagram("SecurityFlow")
 oHighRiskRule = new stzVisualRule("high_risk")
 oHighRiskRule {
 	WhenMetadataInRange("risk_score", 70, 100)
-	ApplyColor("#FF4444")
+	ApplyColor("#FF4444") 	#NOTE // Possible to use hex but better use semantic names
+				# Try with ApplyColor("green") or "sucess--" etc
 	ApplyPenWidth(3)
 }
 
@@ -1428,7 +1474,7 @@ oDiag {
 
 	# Use those rules inside the diagram object
 
-	AddVisualRule(oHighRiskRule)
+	AddVisualRule(oHighRiskRule) #TODO// Make rules definable directly here, if not done yet!
 	AddVisualRule(oSecureRule)
 
 	# Add nodes with metadata
@@ -1463,12 +1509,12 @@ oDiag = new stzDiagram("APIFlow")
 
 # Performance-based coloring
 oSlowRule = new stzVisualRule("slow_api")
-oSlowRule.WhenMetadataInRange("latency_ms", 500, 9999).
-	  ApplyColor("#FFA500")
+oSlowRule.WhenMetadataInRange("latency_ms", 500, 9999)
+oSlowRule.ApplyColor("#FFA500")
 
 oFastRule = new stzVisualRule("fast_api")
-oFastRule.WhenMetadataInRange("latency_ms", 0, 100).
-	  ApplyColor("#44FF44")
+oFastRule.WhenMetadataInRange("latency_ms", 0, 100)
+oFastRule.ApplyColor("#44FF44")
 
 oDiag.AddVisualRule(oSlowRule)
 oDiag.AddVisualRule(oFastRule)
@@ -1499,8 +1545,8 @@ oGdprRule {
 
 # PCI-DSS compliance
 oPciRule = new stzVisualRule("pci")
-oPciRule.WhenTagExists(:pci).
-	 ApplyColor("#0066CC")
+oPciRule.WhenTagExists(:pci)
+oPciRule.ApplyColor("#0066CC")
 
 oDiag.AddVisualRule(oGdprRule)
 oDiag.AddVisualRule(oPciRule)
@@ -1513,6 +1559,9 @@ oDiag.AddNodeWithMetaData("payment", "Payment Processing", :Process, :Warning,
 
 ? oDiag.code()
 oDiag.View()
+
+#TODO Enricth the tooltip content in svg format
+#TODO Add hyperlinks in svg diagrams for interactive usecases
 
 pf()
 
@@ -1528,6 +1577,9 @@ oDiag = new stzDiagram("EnvironmentColors")
 oProductionRule = new stzVisualRule("prod_warning")
 oProductionRule {
 	WhenMetadataEquals("env", "production")
+	# or more elgant:
+	# When("env", :equals = "production")
+
 	ApplyColor("#FF0000")
 	ApplyPenWidth(4)
 }
@@ -1550,7 +1602,7 @@ pf()
 /*---------------------------#
 #  TEST 5: Priority Gradient
 #---------------------------#
-
+*/
 pr()
 
 oDiag = new stzDiagram("TaskPriority")
@@ -1558,7 +1610,8 @@ oDiag = new stzDiagram("TaskPriority")
 # Three-tier priority visualization
 oLowPrio = new stzVisualRule("low")
 oLowPrio {
-	WhenMetadataInRange("priority", 0, 33)
+//	WhenMetadataInRange("priority", 0, 33)
+	When("priority", :InRange = [ 0, 33 ])
 	ApplyColor("#CCCCCC")  # Gray for low
 }
 

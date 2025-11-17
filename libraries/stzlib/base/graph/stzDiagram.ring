@@ -529,10 +529,22 @@ func ResolveEdgeStyle(pStyle)
 func ResolveNodeType(pType)
 	cTypeKey = lower("" + pType)
 	
+	# DOT shapes pass through unchanged
+	aDotShapes = ["box", "ellipse", "circle", "diamond", "parallelogram", 
+	              "hexagon", "octagon", "cylinder", "pentagon", "septagon",
+	              "trapezium", "invtrapezium", "triangle", "house", "invtriangle",
+	              "doublecircle", "tripleoctagon"]
+	
+	if ring_find(aDotShapes, cTypeKey) > 0
+		return cTypeKey
+	ok
+	
+	# Semantic types
 	if ring_find($acNodeTypes, cTypeKey)
 		return cTypeKey
 	ok
 	
+	# Fallback mapping
 	aVisualMap = [
 		:box = :process,
 		:diamond = :decision,
@@ -1960,8 +1972,13 @@ class stzDiagramToDot
 	def _GetEdgeColor(cTheme)
 		cEdgeColor = ResolveColor(@oDiagram.@cEdgeColor)
 		
-		if cTheme = "print" or cTheme = "gray"
+		# Theme-specific edge colors
+		if cTheme = "print"
 			cEdgeColor = ResolveColor(:black)
+		but cTheme = "gray" or cTheme = "lightgray" or cTheme = "darkgray"
+			cEdgeColor = ResolveColor(:black)
+		but cTheme = "dark"
+			cEdgeColor = ResolveColor("gray-")
 		ok
 		
 		return cEdgeColor
@@ -2045,7 +2062,9 @@ class stzDiagramToDot
 		# Direct DOT shape (bypasses semantic mapping)
 		aDotShapes = ["box", "ellipse", "circle", "diamond", "parallelogram", 
 		              "hexagon", "octagon", "cylinder", "rect", "square", 
-		              "doublecircle", "tripleoctagon", "invtriangle", "house"]
+		              "doublecircle", "tripleoctagon", "invtriangle", "house",
+		              "pentagon", "septagon", "trapezium", "invtrapezium",
+		              "triangle", "egg", "tab", "folder", "component", "note"]
 		
 		if ring_find(aDotShapes, cType) > 0
 			return cType
@@ -2078,17 +2097,19 @@ class stzDiagramToDot
 			return aEnhancements["style"]
 		ok
 		
-		cType = ""
-
-		if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
-		   HasKey(aNode["properties"], "type") and aNode["properties"]["type"] != NULL
-			cType = lower("" + aNode["properties"]["type"])
-		ok
+		# Get the actual shape that will be rendered
+		cShape = This._GetNodeShape(aNode, aEnhancements)
 		
-		if cType = "decision"
+		# Polygon shapes don't support rounded
+		aPolygonShapes = ["hexagon", "octagon", "parallelogram", "pentagon", 
+		                  "septagon", "trapezium", "invtrapezium", "triangle",
+		                  "house", "invtriangle", "diamond"]
+		
+		if ring_find(aPolygonShapes, cShape) > 0
 			return "filled"
 		ok
 		
+		# Default: rounded for box-like shapes
 		return "rounded,filled"
 	
 	def _GetNodeFillColor(aNode, aEnhancements, cTheme)
@@ -2403,7 +2424,7 @@ class stzVisualRule
 				This.WhenMetaDataEquals(pcKey, pValue[2])
 				return
 
-			but oVal.IsInRangeParam()
+			but oVal.IsInRangeNamedParam()
 				This.WhenMetadataInRange(pcKey, pValue[1], pValue[2])
 				return
 			ok
