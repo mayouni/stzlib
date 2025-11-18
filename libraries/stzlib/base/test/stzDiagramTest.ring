@@ -215,12 +215,42 @@ aPalette = BuildColorPalette()
 
 pf()
 
-/*--- Creating Test Diagram
+/*--- Style options
+*/
+pr()
 
+oDiag = new stzDiagram("StyleTest")
+oDiag {
+	SetTheme(:pro)
+	
+	# Node styling
+	SetNodePenWidth(2)
+	SetNodePenStyle("bold,dashed")  # or "bold,dashed"
+	
+	# Edge styling
+	SetEdgePenWidth(3)
+	SetEdgePenStyle("dotted")
+	SetArrowHead("vee")
+	SetArrowTail("diamond")
+	SetEdgeColor("red")
+	
+	AddNodeXT("a", "Start", :start, :success)
+	AddNodeXT("b", "End", :endpoint, :danger)
+	Connect("a", "b")
+	
+	View()
+? code()
+}
+
+pf()
+
+/*--- Creating Test Diagram
+*/
 pr()
 
 oDiag = new stzDiagram("ColorSystemTest")
 oDiag {
+	SetPenWidth(5)
 	# Base colors
 	AddNodeXT("n1", "Red Base", :Process, :red)
 	AddNodeXT("n2", "Blue Base", :Process, :blue)
@@ -1356,7 +1386,7 @@ next
 pf()
 
 /*-- Test 5: Combined options
-
+*/
 pr()
 
 oDiag5 = new stzDiagram("CompleteTest")
@@ -1364,7 +1394,7 @@ oDiag5 {
 	SetTheme(:Light)
 	SetLayout("lr")              # Short form
 	SetEdgeStyle(:ErrorFlow)     # Semantic → dotted
-	SetPenWidth(3) #TODO
+	SetPenWidth(3)
 	SetEdgeColor("gray+")
 	
 	AddNodeXT("start", "Begin", :Start, :Success)
@@ -2598,7 +2628,7 @@ pf()
 #--> Executed in 0.03 second(s) in Ring 1.24
 
 /*-- Clear All Nodes
-*/
+
 pr()
 
 oDiag = new stzDiagram("Test")
