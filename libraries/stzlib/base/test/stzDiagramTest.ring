@@ -215,6 +215,66 @@ aPalette = BuildColorPalette()
 
 pf()
 
+/*--- Node forms #TODO #ERR Check whys SetLaypout does not work
+
+pr()
+
+oDiag = new stzDiagram("")
+oDiag {
+
+	# Rounded/Elliptical Shapes
+	AddNodeXT("@Node1", "Circle", :Circle, :White)
+	AddNodeXT("@Node2", "Double Circle", :DoubleCircle, :White)
+	AddNodeXT("@Node3", "Ellpise", :Ellpise, :White)
+	AddNodeXT("@Node4", "Egg", :Egg, :White)
+	
+	# Quadrilateral Shapes (4-sided/Box-like)
+	AddNodeXT("@Node5", "Square", :Square, :White)
+	AddNodeXT("@Node6", "Rect", :Rect, :White)
+	AddNodeXT("@Node7", "Box", :Box, :White)
+	AddNodeXT("@Node8", "Parallelogram", :Parallelogram, :White)
+	AddNodeXT("@Node9", "Trapezium", :Trapezium, :White)
+	AddNodeXT("@Node10", "Inverted Trapezium", :InvTrapezium, :White)
+	AddNodeXT("@Node11", "Diamond", :Diamond, :White)
+	
+	# Polygon Shapes (3 or more sides)
+	AddNodeXT("@Node12", "Triangle", :Triangle, :White)
+	AddNodeXT("@Node13", "Inverted Triangle", :InvTriangle, :White)
+	AddNodeXT("@Node14", "Pentagon", :Pentagon, :White)
+	AddNodeXT("@Node15", "Hexagon", :Hexagon, :White)
+	AddNodeXT("@Node16", "Septagon", :Septagon, :White)
+	AddNodeXT("@Node17", "Octagon", :Octagon, :White)
+	AddNodeXT("@Node18", "Triple Octagon", :TripleOctagon, :White)
+	
+	# Non-geometric/Conceptual Shapes
+	AddNodeXT("@Node19", "Cylinder", :Cylinder, :White)
+	AddNodeXT("@Node20", "House", :House, :White)
+	AddNodeXT("@Node21", "Tab", :Tab, :White)
+	AddNodeXT("@Node22", "Folder", :Folder, :White)
+	AddNodeXT("@Node23", "Component", :Component, :White)
+	AddNodeXT("@Node24", "Note", :Note, :Yellow)
+
+	View()
+}
+
+pf()
+
+/*---
+*/
+pr()
+
+o1 = new stzDiagram("")
+o1 {
+	AddNode("a")
+	AddNodeXT("b", "pass")
+	AddNodeXTT("c", "end", [ :type = "endpoint", :color = "yellow" ]) 
+	Connect("a", "b")
+	ConnectXT("a", "c", "focus")
+	View()
+}
+
+pf()
+
 /*--- Style options
 */
 pr()
@@ -222,10 +282,10 @@ pr()
 oDiag = new stzDiagram("StyleTest")
 oDiag {
 	SetTheme(:pro)
-	
+	SetLayout(:TopDoun)
 	# Node styling
 	SetNodePenWidth(2)
-	SetNodePenStyle("bold,dashed")  # or "bold,dashed"
+	SetNodePenStyle("bold+dashed")  # or "bold,dashed"
 	
 	# Edge styling
 	SetEdgePenWidth(3)
@@ -234,18 +294,18 @@ oDiag {
 	SetArrowTail("diamond")
 	SetEdgeColor("red")
 	
-	AddNodeXT("a", "Start", :start, :success)
-	AddNodeXT("b", "End", :endpoint, :danger)
+	AddNodeXTT("a", "Start", [ :type = "start", :color = "success" ])
+	AddNodeXTT("b", "End", [ :type = "endpoint", :color = "danger" ])
 	Connect("a", "b")
 	
 	View()
-? code()
+	? code()
 }
 
 pf()
 
 /*--- Creating Test Diagram
-*/
+
 pr()
 
 oDiag = new stzDiagram("ColorSystemTest")
@@ -299,6 +359,7 @@ oDiag {
 	AddNodeXT("start", "Order Received", :Start, :Success)
 	AddNodeXT("validate", "Validate", :Process, :Primary)
 	AddNodeXT("complete", "Done", :Endpoint, :Success)
+	# Test with .................. :Note,....:Yellow)
 
 	Connect("start", "validate")
 	Connect("validate", "complete")
@@ -345,7 +406,7 @@ oDiag.AddNodeXT("e", "End", :Endpoint, :Success)
 oDiag.Connect("s", "p")
 oDiag.Connect("p", "e")
 
-? oDiag.ValidateDAG() #--> TRUE
+? oDiag.Validate("DAG") #--> TRUE
 
 pf()
 
@@ -365,8 +426,19 @@ oDiag.Connect("start", "process")
 oDiag.Connect("process", "end")
 
 odiag.view()
-aResult = oDiag.ValidateReachability()
-? aResult["status"] #--> pass
+? oDiag.Validate("Reachability")
+? @@NL(oDiag.ValidationResult()) # Or simply Resul()
+#-->
+'[
+	[ "status", "pass" ],
+	[ "domain", "reachability" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ]
+]
+'
+
+? oDiag.ValidationStatus() # Or simply Status()
+#--> pass
 
 pf()
 
@@ -385,8 +457,8 @@ oDiag.AddNodeXT("no", "No", :Endpoint, :Danger)
 oDiag.ConnectXT("d", "yes", "Yes")
 oDiag.ConnectXT("d", "no", "No")
 
-aResult = oDiag.ValidateCompleteness()
-? aResult["status"] #--> pass
+? oDiag.Validate(:Completeness) #--> TRUE
+? oDiag.Status() #--> pass
 
 pf()
 
@@ -591,7 +663,6 @@ oDiag {
 	# 	"@approve"
 	# ]
 
-	View()
 }
 
 pf()
@@ -663,7 +734,7 @@ oDiag {
 	? @@(Validate(:Banking))
 	#--> TRUE
 
-	? ValidationIssueCount()
+	? ValidationIssueCount() # Or simply IssueCount()
 	#--> 0
 }
 
@@ -688,11 +759,6 @@ aHashlist = oDiag.ToHashlist()
 
 pf()
 
-/*===================================================
-#  stzDiagramConvertersTest - Test Suite
-#  Each test runs independently
-#===================================================
-
 #-----------------#
 #  TEST 1: GENERATE STZDIAG FORMAT
 #-----------------#
@@ -705,7 +771,7 @@ oDiag = new stzDiagram("FormatTest")
 oDiag.SetTheme(:pro)
 oDiag.SetLayout(:TopDown)
 oDiag.AddNodeXT("start", "Begin", "start", "success-")
-oDiag.AddNodeXT("process", "Work", "process", "primary++")
+oDiag.AddNodeXT("process", "Work", "process", "primary+")
 oDiag.AddNodeXT("end", "Finish", "endpoint", "success")
 oDiag.Connect("start", "process")
 oDiag.Connect("process", "end")
@@ -723,7 +789,7 @@ nodes
     start
         label: "Begin"
         type: start
-        color: #008000
+        color: #008000		#TODO should stay semantic!!
 
     process
         label: "Work"
@@ -1386,7 +1452,7 @@ next
 pf()
 
 /*-- Test 5: Combined options
-*/
+
 pr()
 
 oDiag5 = new stzDiagram("CompleteTest")
@@ -1598,7 +1664,7 @@ pf()
 /*---------------------------#
 #  TEST 4: Exact Value Matching
 #---------------------------#
-
+*/
 pr()
 
 oDiag = new stzDiagram("EnvironmentColors")
@@ -1606,22 +1672,35 @@ oDiag = new stzDiagram("EnvironmentColors")
 # Production systems get red warning color
 oProductionRule = new stzVisualRule("prod_warning")
 oProductionRule {
-	WhenMetadataEquals("env", "production")
+//	WhenMetadataEquals("env", "production")
 	# or more elgant:
-	# When("env", :equals = "production")
+	When("env", :equals = "production")
 
-	ApplyColor("#FF0000")
-	ApplyPenWidth(4)
+	ApplyColor("green")
+	ApplyPenWidth(3)
 }
 
 oDiag {
 	AddVisualRule(oProductionRule)
 	
-	AddNodeWithMetaData("prod_db", "Production DB", :Storage, :Primary,
-		[:env = "production", :replicas = 3], [:database])
+	# UNIFY AddNodeXTT() remove tags they are just metatdata!
+
+	AddNodeXTT("prod_db", "Production DB", [
+		:Type = :Storage,
+		:Color = :Primary,
+
+		:env = "production",
+		:replicas = 3,
+		:tags = ["database"]
+	])
 	
-	AddNodeWithMetaData("dev_db", "Dev DB", :Storage, :Info,
-		[:env = "development"], [:database])
+	AddNodeXTT("dev_db", "Dev DB", [
+		:Type = :Storage,
+		:Color = :Info,
+
+		:env = "development",
+		:tags = [:database]
+	])
 	
 	Connect("prod_db", "dev_db")
 	View()
@@ -1640,8 +1719,10 @@ oDiag = new stzDiagram("TaskPriority")
 # Three-tier priority visualization
 oLowPrio = new stzVisualRule("low")
 oLowPrio {
-//	WhenMetadataInRange("priority", 0, 33)
+WhenMetadataInRange("priority", 0, 33)
+	 //WhenMetadataInRange("priority", 0, 33)
 	When("priority", :InRange = [ 0, 33 ])
+
 	ApplyColor("#CCCCCC")  # Gray for low
 }
 

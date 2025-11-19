@@ -8,12 +8,12 @@ nodes
     a
         label: "Node A"
         type: process
-        color: #0000FF
+        color: primary
 
     b
         label: "Node B"
         type: process
-        color: #0000FF
+        color: primary
 
 edges
     a -> b

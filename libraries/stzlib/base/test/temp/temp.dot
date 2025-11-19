@@ -1,11 +1,13 @@
-digraph "StyleTest" {
+digraph "" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12]
-    node [fontname="helvetica", fontsize=12, penwidth=2, style=dashed]
-    edge [fontname="helvetica", fontsize=12, color="#FF0000", style=dotted, penwidth=3, arrowhead=vee, arrowtail=diamond]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#0000FF", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    a [label="Start", shape=ellipse, style="rounded,filled", fillcolor="#A3D1A3", fontcolor="black"]
-    b [label="End", shape=doublecircle, style="rounded,filled", fillcolor="#FFA3A3", fontcolor="black"]
+    a [label="a", shape=box, style="rounded,solid,filled", fillcolor="#0000FF", fontcolor="white"]
+    b [label="pass", shape=box, style="rounded,solid,filled", fillcolor="#0000FF", fontcolor="white"]
+    c [label="end", shape=box, style="rounded,solid,filled", fillcolor="#FFFF00", fontcolor="black"]
 
     a -> b
+    a -> c [label=" focus"]
 
 }
