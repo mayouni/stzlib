@@ -215,7 +215,31 @@ aPalette = BuildColorPalette()
 
 pf()
 
-/*--- Node forms #TODO #ERR Check whys SetLaypout does not work
+/*---
+
+pr()
+
+# Softanza enhances DOT/Graphviz in several ways:
+# 1. Forces layout respect: Graphviz ignores rankdir for disconnected nodes.
+#    Softanza adds invisible edges to enforce TopDown/LeftRight layouts.
+# 2. Smart defaults: Black edges (not blue), TopDown orientation (not LeftRight).
+# 3. Intuitive behavior: Diagrams "just work" without needing Graphviz expertise.
+
+oDiag = new stzDiagram("")
+oDiag {
+
+	AddNodeXTT(:@Node1, "Circle", [:type = "circle", :color = "white"])
+	AddNodeXTT(:@Node2, "Double Circle", [:type = "DoubleCircle", :color = "White" ])
+	AddNodeXTT(:@Node3, "Ellipse", [:type = "Ellipse", :color = "White" ])
+	AddNodeXTT(:@Node4, "Egg", [:type = "Egg", :color = "White"])
+
+	? code()
+	View()
+}
+
+pf()
+
+/*--- Node forms
 
 pr()
 
@@ -223,44 +247,86 @@ oDiag = new stzDiagram("")
 oDiag {
 
 	# Rounded/Elliptical Shapes
-	AddNodeXT("@Node1", "Circle", :Circle, :White)
-	AddNodeXT("@Node2", "Double Circle", :DoubleCircle, :White)
-	AddNodeXT("@Node3", "Ellpise", :Ellpise, :White)
-	AddNodeXT("@Node4", "Egg", :Egg, :White)
+	AddNodeXTT(:@Node1, "Circle", [:type = "circle", :color = "white"])
+	AddNodeXTT(:@Node2, "Double Circle", [:type = "DoubleCircle", :color = "White" ])
+	AddNodeXTT(:@Node3, "Ellpise", [:type = :Ellpise, :color = "White" ])
+	AddNodeXTT(:@Node4, "Egg", [:type = :Egg, :color = :White])
 	
 	# Quadrilateral Shapes (4-sided/Box-like)
-	AddNodeXT("@Node5", "Square", :Square, :White)
-	AddNodeXT("@Node6", "Rect", :Rect, :White)
-	AddNodeXT("@Node7", "Box", :Box, :White)
-	AddNodeXT("@Node8", "Parallelogram", :Parallelogram, :White)
-	AddNodeXT("@Node9", "Trapezium", :Trapezium, :White)
-	AddNodeXT("@Node10", "Inverted Trapezium", :InvTrapezium, :White)
-	AddNodeXT("@Node11", "Diamond", :Diamond, :White)
+	AddNodeXTT(:@Node5, "Square", [:type = :Square, :color = :White])
+	AddNodeXTT(:@Node6, "Rect", [:type = :Rect, :color = :White])
+	AddNodeXTT(:@Node7, "Box", [:type = :Box, :color = :White])
+	AddNodeXTT(:@Node8, "Parallelogram", [:type = :Parallelogram, :color = :White])
+	AddNodeXTT(:@Node9, "Trapezium", [:type = :Trapezium, :color = :White])
+	AddNodeXTT(:@Node10, "Inverted Trapezium", [:type = :InvTrapezium, :color = :White])
+	AddNodeXTT(:@Node11, "Diamond", [:type = :Diamond, :color = :White])
 	
 	# Polygon Shapes (3 or more sides)
-	AddNodeXT("@Node12", "Triangle", :Triangle, :White)
-	AddNodeXT("@Node13", "Inverted Triangle", :InvTriangle, :White)
-	AddNodeXT("@Node14", "Pentagon", :Pentagon, :White)
-	AddNodeXT("@Node15", "Hexagon", :Hexagon, :White)
-	AddNodeXT("@Node16", "Septagon", :Septagon, :White)
-	AddNodeXT("@Node17", "Octagon", :Octagon, :White)
-	AddNodeXT("@Node18", "Triple Octagon", :TripleOctagon, :White)
+	AddNodeXTT(:@Node12, "Triangle", [:type = :Triangle, :color = :White])
+	AddNodeXTT(:@Node13, "Inverted Triangle", [:type = :InvTriangle, :color = :White])
+	AddNodeXTT(:@Node14, "Pentagon", [:type = :Pentagon, :color = :White])
+	AddNodeXTT(:@Node15, "Hexagon", [:type = :Hexagon, :color = :White])
+	AddNodeXTT(:@Node16, "Septagon", [:type = :Septagon, :color = :White])
+	AddNodeXTT(:@Node17, "Octagon", [:type = :Octagon, :color = :White])
+	AddNodeXTT(:@Node18, "Triple Octagon", [:type = :TripleOctagon, :color = :White])
 	
 	# Non-geometric/Conceptual Shapes
-	AddNodeXT("@Node19", "Cylinder", :Cylinder, :White)
-	AddNodeXT("@Node20", "House", :House, :White)
-	AddNodeXT("@Node21", "Tab", :Tab, :White)
-	AddNodeXT("@Node22", "Folder", :Folder, :White)
-	AddNodeXT("@Node23", "Component", :Component, :White)
-	AddNodeXT("@Node24", "Note", :Note, :Yellow)
+	AddNodeXTT(:@Node19, "Cylinder", [:type = :Cylinder, :color = :White])
+	AddNodeXTT(:@Node20, "House", [:type = :House, :color = :White])
+	AddNodeXTT(:@Node21, "Tab", [:type = :Tab, :color = :White])
+	AddNodeXTT(:@Node22, "Folder", [:type = :Folder, :color = :White])
+	AddNodeXTT(:@Node23, "Component", [:type = :Component, :color = :White])
+	AddNodeXTT(:@Node24, "Note", [:type = :Note, :color = :Yellow])
 
 	View()
 }
 
 pf()
 
-/*---
+/*--- Using direct names of forms to create nodes
 */
+pr()
+
+oDiag = new stzDiagram("")
+oDiag {
+	# Rounded/Elliptical Shapes
+	AddCircle(:@Node1, "Circle")
+	AddDoubleCircle(:@Node2, "Double Circle")
+	AddEllipse(:@Node3, "Ellipse")
+	AddEgg(:@Node4, "Egg")
+	
+	# Quadrilateral Shapes
+	AddSquare(:@Node5, "Square")
+	AddRect(:@Node6, "Rect")
+	AddBox(:@Node7, "Box")
+	AddParallelogram(:@Node8, "Parallelogram")
+	AddTrapezium(:@Node9, "Trapezium")
+	AddInvTrapezium(:@Node10, "Inverted Trapezium")
+	AddDiamond(:@Node11, "Diamond")
+	
+	# Polygon Shapes
+	AddTriangle(:@Node12, "Triangle")
+	AddInvTriangle(:@Node13, "Inverted Triangle")
+	AddPentagon(:@Node14, "Pentagon")
+	AddHexagon(:@Node15, "Hexagon")
+	AddSeptagon(:@Node16, "Septagon")
+	AddOctagon(:@Node17, "Octagon")
+	AddTripleOctagon(:@Node18, "Triple Octagon")
+	
+	# Non-geometric/Conceptual Shapes
+	AddCylinder(:@Node19, "Cylinder")
+	AddHouse(:@Node20, "House")
+	AddTab(:@Node21, "Tab")
+	AddFolder(:@Node22, "Folder")
+	AddComponent(:@Node23, "Component")
+	AddNoteXT(:@Node24, "Note", :Yellow)
+
+	View()
+}
+
+pf()
+/*--- Like in stzGraph, three levels are allowed: AddNode(), AddNodeXT() and AddNodeXTT()
+
 pr()
 
 o1 = new stzDiagram("")
@@ -276,13 +342,13 @@ o1 {
 pf()
 
 /*--- Style options
-*/
+
 pr()
 
 oDiag = new stzDiagram("StyleTest")
 oDiag {
 	SetTheme(:pro)
-	SetLayout(:TopDoun)
+	SetLayout(:TopDown)
 	# Node styling
 	SetNodePenWidth(2)
 	SetNodePenStyle("bold+dashed")  # or "bold,dashed"
