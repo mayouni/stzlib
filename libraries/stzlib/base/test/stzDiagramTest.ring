@@ -284,7 +284,7 @@ oDiag {
 pf()
 
 /*--- Using direct names of forms to create nodes
-*/
+
 pr()
 
 oDiag = new stzDiagram("")
@@ -1727,10 +1727,11 @@ oDiag.View()
 
 pf()
 
+
 /*---------------------------#
 #  TEST 4: Exact Value Matching
 #---------------------------#
-*/
+
 pr()
 
 oDiag = new stzDiagram("EnvironmentColors")
@@ -1748,8 +1749,6 @@ oProductionRule {
 
 oDiag {
 	AddVisualRule(oProductionRule)
-	
-	# UNIFY AddNodeXTT() remove tags they are just metatdata!
 
 	AddNodeXTT("prod_db", "Production DB", [
 		:Type = :Storage,
@@ -1770,38 +1769,35 @@ oDiag {
 	
 	Connect("prod_db", "dev_db")
 	View()
+	? Code()
 }
 
 pf()
 
 /*---------------------------#
-#  TEST 5: Priority Gradient
+#  TEST 5: Task Priority
 #---------------------------#
-*/
+
 pr()
 
 oDiag = new stzDiagram("TaskPriority")
 
-# Three-tier priority visualization
 oLowPrio = new stzVisualRule("low")
 oLowPrio {
-WhenMetadataInRange("priority", 0, 33)
-	 //WhenMetadataInRange("priority", 0, 33)
-	When("priority", :InRange = [ 0, 33 ])
-
-	ApplyColor("#CCCCCC")  # Gray for low
+	When("priority", :InRange = [0, 33])
+	ApplyColor(:neutral)
 }
 
 oMedPrio = new stzVisualRule("medium")
 oMedPrio {
-	WhenMetadataInRange("priority", 34, 66)
-	ApplyColor("#4488FF")  # Blue for medium
+	When("priority", :InRange = [34, 66])
+	ApplyColor(:info)
 }
 
 oHighPrio = new stzVisualRule("high")
 oHighPrio {
-	WhenMetadataInRange("priority", 67, 100)
-	ApplyColor("#FF4444")  # Red for high
+	When("priority", :InRange = [67, 100])
+	ApplyColor(:danger)
 	ApplyPenWidth(3)
 }
 
@@ -1810,12 +1806,21 @@ oDiag {
 	AddVisualRule(oMedPrio)
 	AddVisualRule(oHighPrio)
 	
-	AddNodeWithMetaData("task1", "Cleanup", :Process, :Neutral, 
-		[:priority = 20], [])
-	AddNodeWithMetaData("task2", "Review", :Process, :Info, 
-		[:priority = 50], [])
-	AddNodeWithMetaData("task3", "Deploy", :Process, :Danger, 
-		[:priority = 90], [:critical])
+	AddNodeXTT("task1", "Cleanup", [
+		:type = :process,
+		:priority = 20
+	])
+	
+	AddNodeXTT("task2", "Review", [
+		:type = :process,
+		:priority = 50
+	])
+	
+	AddNodeXTT("task3", "Deploy", [
+		:type = :process,
+		:priority = 90,
+		:tags = [:critical]
+	])
 	
 	Connect("task1", "task2")
 	Connect("task2", "task3")
@@ -1828,40 +1833,42 @@ pf()
 /*---------------------------#
 #  TEST 6: Edge Styling
 #---------------------------#
-"TODO see why all are blue
+
+
 pr()
 
 oDiag = new stzDiagram("ConnectionTypes")
 
-# Synchronous calls are bold and blue
 oSyncEdge = new stzVisualRule("sync")
 oSyncEdge {
-	WhenMetadataEquals("type", "sync")
+	When("type", :equals = "sync")
 	ApplyStyle("bold")
-	ApplyColor("#0066CC")
+	ApplyColor(:primary)
 }
 
-# Async calls are dashed and gray
 oAsyncEdge = new stzVisualRule("async")
 oAsyncEdge {
-	WhenMetadataEquals("type", "async")
+	When("type", :equals = "async")
 	ApplyStyle("dashed")
-	ApplyColor("#999999")
+	ApplyColor(:neutral)
 }
 
 oDiag {
 	AddVisualRule(oSyncEdge)
 	AddVisualRule(oAsyncEdge)
+
+	AddNodeXT("api", "API Gateway")
+	AddNodeXT("service", "Auth Service")
+	AddNodeXT("cache", "Redis Cache")
+
+	AddEdgeXTT("api", "service", "authenticate", [
+		:type = "sync"
+	])
 	
-	AddNode("api", "API Gateway")
-	AddNode("service", "Auth Service")
-	AddNode("cache", "Redis Cache")
-	
-	AddEdgeWithMetaData("api", "service", "authenticate", 
-		[:type = "sync"], [])
-	AddEdgeWithMetaData("service", "cache", "invalidate", 
-		[:type = "async"], [])
-	
+	AddEdgeXTT("service", "cache", "invalidate", [
+		:type = "async"
+	])
+
 	View()
 	? Code()
 }
@@ -1876,10 +1883,9 @@ pr()
 
 oDiag = new stzDiagram("SlaMonitoring")
 
-# Any node with SLA gets thick border
 oHasSla = new stzVisualRule("sla_defined")
 oHasSla {
-	WhenMetadataExists("sla_ms")
+	WhenMetadataExists("sla_ms")  # Use the direct method
 	ApplyPenWidth(2)
 	ApplyColor(:green)
 }
@@ -1887,14 +1893,20 @@ oHasSla {
 oDiag {
 	AddVisualRule(oHasSla)
 	
-	AddNodeWithMetaData("critical_api", "Payment API", :Process, :Primary,
-		[:sla_ms = 100, :uptime = 99.99], [])
+	AddNodeXTT("critical_api", "Payment API", [
+		:type = :process,
+		:sla_ms = 100,
+		:uptime = 99.99
+	])
 	
-	AddNodeWithMetaData("batch_job", "Batch Job", :Process, :Info,
-		[:schedule = "daily" ], [])  # No SLA
+	AddNodeXTT("batch_job", "Batch Job", [
+		:type = :process,
+		:schedule = "daily"
+	])
 	
 	Connect("critical_api", "batch_job")
 	View()
+? code()
 }
 
 pf()
@@ -1907,30 +1919,32 @@ pr()
 
 oDiag = new stzDiagram("RuleOverride")
 
-# Base rule for all APIs
 oApiBase = new stzVisualRule("api_base")
 oApiBase {
 	WhenTagExists(:api)
-	ApplyColor("#E0E0E0")
+	ApplyColor(:neutral)
 }
 
-# Override for critical APIs (applied last, takes precedence)
 oCritical = new stzVisualRule("critical_override")
 oCritical {
 	WhenTagExists(:critical)
-	ApplyColor("#FF0000")
+	ApplyColor(:danger)
 	ApplyPenWidth(4)
 }
 
 oDiag {
-	AddVisualRule(oApiBase)     # Applied first
-	AddVisualRule(oCritical)    # Overrides color for critical
+	AddVisualRule(oApiBase)
+	AddVisualRule(oCritical)
 	
-	AddNodeWithMetaData("standard", "User API", :Process, :Primary,
-		[], [:api])
+	AddNodeXTT("standard", "User API", [
+		:type = :process,
+		:tags = [:api]
+	])
 	
-	AddNodeWithMetaData("vital", "Payment API", :Process, :Primary,
-		[], [:api, :critical])  # Gets both rules, last wins
+	AddNodeXTT("vital", "Payment API", [
+		:type = :process,
+		:tags = [:api, :critical]
+	])
 	
 	Connect("standard", "vital")
 	View()
@@ -1941,39 +1955,42 @@ pf()
 #---------------------------#
 #  TEST 9: Dynamic Shapes
 #---------------------------#
-
+*/
 pr()
 
 oDiag = new stzDiagram("ServiceTypes")
 
-# Storage services get cylinder shape
 oStorageShape = new stzVisualRule("storage")
 oStorageShape {
 	WhenTagExists(:storage)
 	ApplyShape("cylinder")
-	ApplyColor("#8B4513")
+	ApplyColor(:brown)
 }
 
-# Queue services get parallelogram
 oQueueShape = new stzVisualRule("queue")
 oQueueShape {
 	WhenTagExists(:messaging)
 	ApplyShape("parallelogram")
-	ApplyColor("#FFA500")
+	ApplyColor(:orange)
 }
 
 oDiag {
 	AddVisualRule(oStorageShape)
 	AddVisualRule(oQueueShape)
 	
-	AddNodeWithMetaData("postgres", "PostgreSQL", :Process, :Info,
-		[:type = "relational"], [:storage, :database])
+	AddNodeXTT("postgres", "PostgreSQL", [
+		:type = "relational",
+		:tags = [:storage, :database]
+	])
 	
-	AddNodeWithMetaData("rabbitmq", "RabbitMQ", :Process, :Warning,
-		[:type = "broker"], [:messaging, :queue])
+	AddNodeXTT("rabbitmq", "RabbitMQ", [
+		:type = "broker",
+		:tags = [:messaging, :queue]
+	])
 	
-	AddNodeWithMetaData("api", "REST API", :Process, :Primary,
-		[], [:service])
+	AddNodeXTT("api", "REST API", [
+		:tags = [:service]
+	])
 	
 	Connect("api", "postgres")
 	Connect("api", "rabbitmq")

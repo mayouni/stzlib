@@ -24,8 +24,8 @@
 <!-- api&#45;&gt;service -->
 <g id="edge1" class="edge">
 <title>api&#45;&gt;service</title>
-<path fill="none" stroke="#000000" d="M42.88,-172.04C42.88,-161.09 42.88,-146.69 42.88,-134.07"/>
-<polygon fill="#000000" stroke="#000000" points="46.38,-134.2 42.88,-124.2 39.38,-134.2 46.38,-134.2"/>
+<path fill="none" stroke="#0000ff" d="M42.88,-172.04C42.88,-161.09 42.88,-146.69 42.88,-134.07"/>
+<polygon fill="#0000ff" stroke="#0000ff" points="46.38,-134.2 42.88,-124.2 39.38,-134.2 46.38,-134.2"/>
 <text xml:space="preserve" text-anchor="middle" x="77" y="-143.1" font-family="Helvetica,sans-Serif" font-size="12.00"> authenticate</text>
 </g>
 <!-- cache -->
@@ -37,8 +37,8 @@
 <!-- service&#45;&gt;cache -->
 <g id="edge2" class="edge">
 <title>service&#45;&gt;cache</title>
-<path fill="none" stroke="#000000" d="M42.88,-85.79C42.88,-74.84 42.88,-60.44 42.88,-47.82"/>
-<polygon fill="#000000" stroke="#000000" points="46.38,-47.95 42.88,-37.95 39.38,-47.95 46.38,-47.95"/>
+<path fill="none" stroke="#808080" stroke-dasharray="5,2" d="M42.88,-85.79C42.88,-74.84 42.88,-60.44 42.88,-47.82"/>
+<polygon fill="#808080" stroke="#808080" points="46.38,-47.95 42.88,-37.95 39.38,-47.95 46.38,-47.95"/>
 <text xml:space="preserve" text-anchor="middle" x="70.25" y="-56.85" font-family="Helvetica,sans-Serif" font-size="12.00"> invalidate</text>
 </g>
 </g>
