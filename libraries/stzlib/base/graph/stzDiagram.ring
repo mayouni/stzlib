@@ -340,6 +340,14 @@ $acArrowStyles = [
 	"box", "crow", "tee", "none"
 ]
 
+$acDotShapes = [
+	"box", "ellipse", "circle", "diamond", "parallelogram", 
+	"hexagon", "octagon", "cylinder", "rect", "square", 
+	"doublecircle", "tripleoctagon", "invtriangle", "house",
+	"pentagon", "septagon", "trapezium", "invtrapezium",
+	"triangle", "egg", "tab", "folder", "component", "note"
+]
+
 # ============================================
 #  COLOR INTENSITY GENERATION & RESOLUTION
 # ============================================
@@ -439,27 +447,27 @@ func GenerateColorIntensities(cColorName, cHexValue)
 # Build complete color palette with all intensities
 func BuildColorPalette()
 	aPalette = []
-	
-	# Add base colors
 	acKeys = keys($acColors)
 	nLen = len(acKeys)
 
+	# Add base colors
+
 	for i = 1 to nLen
-		cHex = $acColors[$acColors[i]]
-		aPalette[$acColors[i]] = cHex
+		cHex = $acColors[acKeys[i]]
+		aPalette[acKeys[i]] = cHex
 	end
 	
 	# Add all intensity variations
 
 	for i = 1 to nLen
-
-		cHex = $acColors[$acColors[i]]
-		cColorName = "" + $acColors[i]
+		cHex = $acColors[acKeys[i]]
+		cColorName = "" + acKeys[i]
 		aIntensities = GenerateColorIntensities(cColorName, cHex)
-		nLenInt = len(aIntensities)
+		acKeysInt = keys(aIntensities)
+		nLenInt = len(acKeysInt)
 
 		for j = 1 to nLenInt
-			aPalette[aIntensities[j]] = aIntensities[aIntensities[j]]
+			aPalette[acKeysInt[j]] = aIntensities[acKeysInt[j]]
 		end
 	end
 	
@@ -545,13 +553,9 @@ func ResolveEdgeStyle(pStyle)
 func ResolveNodeType(pcType)
 	cTypeKey = lower("" + pcType)
 	
-	# DOT shapes pass through unchanged
-	aDotShapes = ["box", "ellipse", "circle", "diamond", "parallelogram", 
-	              "hexagon", "octagon", "cylinder", "pentagon", "septagon",
-	              "trapezium", "invtrapezium", "triangle", "house", "invtriangle",
-	              "doublecircle", "tripleoctagon"]
+
 	
-	if ring_find(aDotShapes, cTypeKey) > 0
+	if ring_find($acDotShapes, cTypeKey) > 0
 		return cTypeKey
 	ok
 	
@@ -572,6 +576,22 @@ func ResolveNodeType(pcType)
 	
 	if HasKey(aVisualMap, cTypeKey)
 		return aVisualMap[cTypeKey]
+	ok
+
+	# Map unsupported to supported shapes
+	aShapeMap = [
+		:square = :box,
+		:rect = :box,
+		:egg = :ellipse,
+		:tab = :box,
+		:folder = :box,
+		:component = :box,
+		:note = :box,
+		:ellpise = :ellipse  # typo fix
+	]
+	
+	if HasKey(aShapeMap, cTypeKey)
+		return aShapeMap[cTypeKey]
 	ok
 	
 	return $cDefaultNodeType
@@ -690,12 +710,7 @@ class stzDiagram from stzGraph
 	@aoVisualRules = []
 	@aMetadataKeys = []
 
-	@aNodeMetadata = []
-	@aNodeTags = []
 	@aNodeEnhancements = []
-	
-	@aEdgeMetadata = []
-	@aEdgeTags = []
 	@aEdgeEnhancements = []
 
 	# Validation state
@@ -871,36 +886,6 @@ class stzDiagram from stzGraph
 		return cResult
 
 	#------------------------------------------
-	#  DIAGRAM-SPECIFIC NODE OPERATIONS
-	#------------------------------------------
-
-	def AddNode(pNodeId, pLabel)
-		This.AddNodeXT(pNodeId, pLabel, $cDefaultNodeType, $cDefaultNodeColor)
-
-	def AddNodeXT(pNodeId, pLabel, pcType, pColor)
-		cResolvedType = ResolveNodeType(pcType)
-		# Store color name, not hex - resolve later during visualization
-		cResolvedColor = pColor
-		if substr(pColor, "#")
-			cResolvedColor = pColor  # Already hex, keep it
-		ok
-		
-		super.AddNodeXTT(pNodeId, pLabel, [
-			:type = cResolvedType,
-			:color = cResolvedColor  # Store as-is
-		])
-
-	def Connect(pFromId, pToId)
-		This.ConnectXT(pFromId, pToId, "")
-
-	def ConnectXT(pFromId, pToId, pLabel)
-		This.AddEdgeXT(pFromId, pToId, pLabel)
-
-	def ConnectXTT(pFromId, pToId, pLabel, pStyle)
-		cResolvedStyle = ResolveEdgeStyle(pStyle)
-		This.AddEdgeXTT(pFromId, pToId, pLabel, [:style = cResolvedStyle])
-
-	#------------------------------------------
 	#  CLUSTER OPERATIONS
 	#------------------------------------------
 
@@ -1056,32 +1041,49 @@ class stzDiagram from stzGraph
 	def ValidationResult()
 		return @aLastValidationResult
 	
+		def Result()
+
 	def ValidationStatus()
 		if len(@aLastValidationResult) = 0
 			return ""
 		ok
 		return @aLastValidationResult["status"]
 	
+		def Status()
+			return This.ValidationStatus()
+
 	def ValidationDomain()
 		if len(@aLastValidationResult) = 0
 			return ""
 		ok
 		return @aLastValidationResult["domain"]
 	
+		def Domain()
+			return This.Validationdomain()
+
 	def ValidationIssueCount()
 		if len(@aLastValidationResult) = 0
 			return 0
 		ok
 		return @aLastValidationResult["issueCount"]
 	
+		def IssueCount()
+			return This.ValidationIssueCount()
+
 	def ValidationIssues()
 		if len(@aLastValidationResult) = 0
 			return []
 		ok
 		return @aLastValidationResult["issues"]
 	
+		def Issues()
+			return This.ValidationIssues()
+
 	def HasValidationIssues()
 		return This.ValidationIssueCount() > 0
+
+		def HasIssues()
+			return This.HasValidationIssues()
 
 	#------------------------------------------
 	#  METRICS
@@ -1261,120 +1263,111 @@ class stzDiagram from stzGraph
 	#  VISUAL RULES AND SEMANTICS
 	#------------------
 
+
 	def AddVisualRule(oRule)
 		@aoVisualRules + oRule
-
-	
-	def AddNodeWithMetaData(pNodeId, pLabel, pcType, pColor, aMetadata, aTags)
-		This.AddNodeXT(pNodeId, pLabel, pcType, pColor)
-		
-		if NOT isList(aMetadata)
-			aMetadata = []
-		ok
-		
-		@aNodeMetadata[pNodeId] = aMetadata
-		@aNodeTags[pNodeId] = aTags
-		
-		if @IsHashList(aMetadata)
-			@aMetadataKeys = @Keys(aMetadata)
-		ok
-
-	def AddEdgeWithMetaData(pFromId, pToId, pLabel, aMetadata, aTags)
-		This.ConnectXT(pFromId, pToId, pLabel)
-		
-		if NOT isList(aMetadata)
-			aMetadata = []
-		ok
-		
-		if NOT isList(aTags)
-			aTags = []
-		ok
-		
-		cEdgeKey = pFromId + "->" + pToId
-		@aEdgeMetadata[cEdgeKey] = aMetadata
-		@aEdgeTags[cEdgeKey] = aTags
 	
 
 	def ApplyVisualRules()
-		# Process nodes
-		aNodes = This.Nodes()
-		nLen = len(aNodes)
-
-		for i = 1 to nLen
-			aNode = aNodes[i]
-			cNodeId = aNode["id"]
-			
-			# Restore metadata/tags from storage
-			aNode["metadata"] = This.GetNodeMetadata(cNodeId)
-			
-			if HasKey(@aNodeTags, cNodeId)
-				aNode["tags"] = @aNodeTags[cNodeId]
-			else
-				aNode["tags"] = []
-			ok
-			
-			if NOT HasKey(aNode, "properties")
-				aNode["properties"] = []
-			ok
-	   
-			# Apply matching rules
-			nLenRules = len(@aoVisualRules)
-			for i = 1 to nLenRules
-				if @aoVisualRules[i].Matches(aNode)
-					aEffects = @aoVisualRules[i].Effects()
-					nLenEffects = len(aEffects)
-
-					for j = 1 to nLenEffects
-						cAspect = aEffects[j][1]
-						pValue = aEffects[j][2]
-						aNode["properties"][cAspect] = pValue
-					end
-				ok
-			end
-			
-			# Store computed enhancements
-			@aNodeEnhancements[cNodeId] = aNode["properties"]
-		end
-		
-		# Process edges
-		aEdges = This.Edges()
-		nLen = len(aEdges)
-
-		for i = 1 to nLen
-			aEdge = aEdges[i]
-			cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
-			
-			# Restore metadata/tags from storage
-			aEdge["metadata"] = This.GetEdgeMetadata(aEdge["from"], aEdge["to"])
-			
-			if HasKey(@aEdgeTags, cEdgeKey)
-				aEdge["tags"] = @aEdgeTags[cEdgeKey]
-			else
-				aEdge["tags"] = []
-			ok
-			
-			if NOT HasKey(aEdge, "properties")
-				aEdge["properties"] = []
-			ok
-			
-			# Apply matching rules
-			nLenRules = len(@aoVisualRules)
-			for i = 1 to nLenRules
-				if @aoVisualRules[i].Matches(aEdge)
-					aEffects = @aoVisualRules[i].Effects()
-					nLenEff = len(aEffects)
-
-					for j = 1 to nLenEff
-						cAspect = aEffects[j][1]
-						pValue = aEffects[j][2]
-						aEdge["properties"][cAspect] = pValue
-					end
-				ok
-			end
-			
-			# Store computed enhancements
-			@aEdgeEnhancements[cEdgeKey] = aEdge["properties"]
-		end
+	    # Process nodes
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        cNodeId = aNode["id"]
+	        
+	        # Extract metadata and tags from properties
+	        aMetadata = []
+	        aTags = []
+	        
+	        if HasKey(aNode, "properties") and aNode["properties"] != NULL
+	            aProps = aNode["properties"]
+	            if HasKey(aProps, "metadata")
+	                aMetadata = aProps["metadata"]
+	            ok
+	            if HasKey(aProps, "tags")
+	                aTags = aProps["tags"]
+	            ok
+	        ok
+	        
+	        # Build evaluation context
+	        aContext = aNode
+	        aContext["metadata"] = aMetadata
+	        aContext["tags"] = aTags
+	        
+	        # Apply matching rules
+	        nLenRules = len(@aoVisualRules)
+	        for j = 1 to nLenRules
+	            if @aoVisualRules[j].Matches(aContext)
+	                aEffects = @aoVisualRules[j].Effects()
+	                nLenEffects = len(aEffects)
+	
+	                for k = 1 to nLenEffects
+	                    cAspect = aEffects[k][1]
+	                    pValue = aEffects[k][2]
+	                    
+	                    # Update node property directly
+	                    This.SetNodeProperty(cNodeId, cAspect, pValue)
+	                end
+	            ok
+	        end
+	        
+	        # Store computed enhancements
+	        if HasKey(aNode, "properties")
+	            @aNodeEnhancements[cNodeId] = aNode["properties"]
+	        ok
+	    end
+	    
+	    # Process edges
+	    aEdges = This.Edges()
+	    nLen = len(aEdges)
+	
+	    for i = 1 to nLen
+	        aEdge = aEdges[i]
+	        cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
+	        
+	        # Extract metadata and tags from properties
+	        aMetadata = []
+	        aTags = []
+	        
+	        if HasKey(aEdge, "properties") and aEdge["properties"] != NULL
+	            aProps = aEdge["properties"]
+	            if HasKey(aProps, "metadata")
+	                aMetadata = aProps["metadata"]
+	            ok
+	            if HasKey(aProps, "tags")
+	                aTags = aProps["tags"]
+	            ok
+	        ok
+	        
+	        # Build evaluation context
+	        aContext = aEdge
+	        aContext["metadata"] = aMetadata
+	        aContext["tags"] = aTags
+	        
+	        # Apply matching rules
+	        nLenRules = len(@aoVisualRules)
+	        for j = 1 to nLenRules
+	            if @aoVisualRules[j].Matches(aContext)
+	                aEffects = @aoVisualRules[j].Effects()
+	                nLenEff = len(aEffects)
+	
+	                for k = 1 to nLenEff
+	                    cAspect = aEffects[k][1]
+	                    pValue = aEffects[k][2]
+	                    
+	                    # Update edge property directly
+	                    This.SetEdgeProperty(aEdge["from"], aEdge["to"], cAspect, pValue)
+	                end
+	            ok
+	        end
+	        
+	        # Store computed enhancements
+	        if HasKey(aEdge, "properties")
+	            @aEdgeEnhancements[cEdgeKey] = aEdge["properties"]
+	        ok
+	    end
 		
 	def MetadataLegend()
 		# Generate legend showing metadata-to-visual mappings
@@ -1737,7 +1730,7 @@ class stzDiagramGdprValidator from stzDiagramValidator
 			ok
 		end
 
-		nLen = ken(aIssues)
+		nLen = len(aIssues)
 		@aValidationResult = [
 			:status = iif(nLen = 0, "pass", "fail"),
 			:domain = "gdpr",
@@ -2048,9 +2041,7 @@ class stzDiagramToDot
 		cFont = This._GetFont()
 		nFontSize = This._GetFontSize()
 		
-		cResult = '    node [fontname="' + cFont + '", fontsize=' + nFontSize + 
-		          ', penwidth=' + @oDiagram.@nNodePenWidth + 
-		          ', style="' + @oDiagram.@cNodePenStyle + '"]' + NL
+		cResult = '    node [fontname="' + cFont + '", fontsize=' + nFontSize + ']' + NL
 	
 		return cResult
 
@@ -2194,17 +2185,12 @@ class stzDiagramToDot
 		ok
 		
 		# Direct DOT shape (bypasses semantic mapping)
-		aDotShapes = ["box", "ellipse", "circle", "diamond", "parallelogram", 
-		              "hexagon", "octagon", "cylinder", "rect", "square", 
-		              "doublecircle", "tripleoctagon", "invtriangle", "house",
-		              "pentagon", "septagon", "trapezium", "invtrapezium",
-		              "triangle", "egg", "tab", "folder", "component", "note"]
 		
-		if ring_find(aDotShapes, cType) > 0
+		if ring_find($acDotShapes, cType) > 0
 			return cType
 		ok
 		
-		# Semantic to shape mapping
+		# Semantic to shape mapping #TODO store them globally
 		switch cType
 		on "process"
 			return "box"
@@ -2234,17 +2220,31 @@ class stzDiagramToDot
 		# Get the actual shape that will be rendered
 		cShape = This._GetNodeShape(aNode, aEnhancements)
 		
+		# Start with global node pen style
+		cBaseStyle = @oDiagram.@cNodePenStyle
+		
 		# Polygon shapes don't support rounded
 		aPolygonShapes = ["hexagon", "octagon", "parallelogram", "pentagon", 
 		                  "septagon", "trapezium", "invtrapezium", "triangle",
 		                  "house", "invtriangle", "diamond"]
 		
 		if ring_find(aPolygonShapes, cShape) > 0
-			return "filled"
+			# Add filled if not already there
+			if NOT substr(cBaseStyle, "filled")
+				return cBaseStyle + ",filled"
+			ok
+			return cBaseStyle
 		ok
 		
-		# Default: rounded for box-like shapes
-		return "rounded,filled"
+		# For box-like shapes, add rounded and filled
+		if NOT substr(cBaseStyle, "filled")
+			cBaseStyle += ",filled"
+		ok
+		if NOT substr(cBaseStyle, "rounded") and cShape = "box"
+			cBaseStyle = "rounded," + cBaseStyle
+		ok
+		
+		return cBaseStyle
 	
 	def _GetNodeFillColor(aNode, aEnhancements, cTheme)
 		cColor = ""
@@ -2267,7 +2267,7 @@ class stzDiagramToDot
 			cColor = $cDefaultNodeColor
 		ok
 		
-		# If already hex, skip theme mapping
+		# If already hex, apply theme transforms and return
 		if substr(cColor, "#")
 			if cTheme = "gray"
 				return @oDiagram.ConvertColorTogray(cColor)
@@ -2277,7 +2277,7 @@ class stzDiagramToDot
 			return cColor
 		ok
 		
-		# Apply theme palette for semantic colors
+		# Apply theme palette for semantic colors FIRST
 		cLowerColor = lower(cColor)
 		
 		if HasKey($aPalette, cTheme)
@@ -2285,14 +2285,12 @@ class stzDiagramToDot
 			
 			# Direct palette key match
 			if HasKey(aThemePalette, cLowerColor)
-				cColor = ResolveColor(aThemePalette[cLowerColor])
+				cColor = aThemePalette[cLowerColor]
 			ok
 		ok
 		
-		# Fallback: resolve normally
-		if NOT substr(cColor, "#")
-			cColor = ResolveColor(cColor)
-		ok
+		# NOW resolve to hex
+		cColor = ResolveColor(cColor)
 		
 		# Final theme transforms
 		if cTheme = "gray"
@@ -2559,7 +2557,7 @@ class stzVisualRule
 				return
 
 			but oVal.IsInRangeNamedParam()
-				This.WhenMetadataInRange(pcKey, pValue[1], pValue[2])
+				This.WhenMetadataInRange(pcKey, pValue[2][1], pValue[2][2])
 				return
 			ok
 
@@ -2615,57 +2613,75 @@ class stzVisualRule
 			This.ApplyPenWidth(nWidth)
 
 	def Matches(aNodeOrEdge)
-
-		switch @cConditionType
-		on :metadata_exists
-			cKey = @aConditionParams[1]
-			if HasKey(aNodeOrEdge, "metadata")
-				return HasKey(aNodeOrEdge["metadata"], cKey)
-			ok
-			return FALSE
-		
-		on :metadata_equals
-			cKey = @aConditionParams[1]
-			pValue = @aConditionParams[2]
-			if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
-				return aNodeOrEdge["metadata"][cKey] = pValue
-			ok
-			return FALSE
-		
-		on :metadata_range
-			cKey = @aConditionParams[1]
-			nMin = @aConditionParams[2]
-			nMax = @aConditionParams[3]
-			if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
-				nValue = aNodeOrEdge["metadata"][cKey]
-				return nValue >= nMin and nValue <= nMax
-			ok
-			return FALSE
-		
-		on :tag_exists
-			cTag = @aConditionParams[1]
-
-			if HasKey(aNodeOrEdge, "tags")
-				return ring_find(aNodeOrEdge["tags"], cTag) > 0
-			ok
-			return FALSE
-		off
-		
-		return FALSE
+	    switch @cConditionType
+	    on :metadata_exists
+	        cKey = @aConditionParams[1]
+	        if HasKey(aNodeOrEdge, "metadata")
+	            return HasKey(aNodeOrEdge["metadata"], cKey)
+	        ok
+	        # Fallback: check properties directly
+	        if HasKey(aNodeOrEdge, "properties")
+	            return HasKey(aNodeOrEdge["properties"], cKey)
+	        ok
+	        return FALSE
+	    
+	    on :metadata_equals
+	        cKey = @aConditionParams[1]
+	        pValue = @aConditionParams[2]
+	        if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
+	            return aNodeOrEdge["metadata"][cKey] = pValue
+	        ok
+	        # Fallback: check properties directly
+	        if HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], cKey)
+	            return aNodeOrEdge["properties"][cKey] = pValue
+	        ok
+	        return FALSE
+	    
+	    on :metadata_range
+	        cKey = @aConditionParams[1]
+	        nMin = @aConditionParams[2]
+	        nMax = @aConditionParams[3]
+	        
+	        nValue = NULL
+	        if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
+	            nValue = aNodeOrEdge["metadata"][cKey]
+	        but HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], cKey)
+	            nValue = aNodeOrEdge["properties"][cKey]
+	        ok
+	        
+	        if nValue != NULL
+	            return nValue >= nMin and nValue <= nMax
+	        ok
+	        return FALSE
+	    
+	    on :tag_exists
+	        cTag = @aConditionParams[1]
+	        if HasKey(aNodeOrEdge, "tags")
+	            return ring_find(aNodeOrEdge["tags"], cTag) > 0
+	        ok
+	        # Fallback: check properties
+	        if HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], "tags")
+	            return ring_find(aNodeOrEdge["properties"]["tags"], cTag) > 0
+	        ok
+	        return FALSE
+	    off
+	    
+    return FALSE
 	
 	def Effects()
 		return @aVisualEffects
 
 
-	def RemoveAllNodes()
-		super.RemoveAllNodes()
-		@aNodeMetadata = []
-		@aNodeTags = []
-		@aNodeEnhancements = []
-		@aEdgeMetadata = []
-		@aEdgeTags = []
-		@aEdgeEnhancements = []
+	def RemoveNodes()
+	    super.RemoveNodes()
+	    @aNodeEnhancements = []
+	    @aEdgeEnhancements = []
 
+	    def RemoveAllNodes()
+		This.RemoveNodes()
+
+	    def Clear()
+		This.RemoveNodes()
 
 #------------------------#
 #  COLOR RESOLVER CLASS  #

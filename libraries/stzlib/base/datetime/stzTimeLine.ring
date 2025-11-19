@@ -1293,10 +1293,10 @@ class stzTimeLine from stzObject
 				return This.DurationXTQ(cLabel1, cLabel2)
 
 		def IntervalBetween(cLabel1, cLabel2)
-			return This.This.DurationXT(cLabel1, cLabel2)
+			return This.DurationXT(cLabel1, cLabel2)
 	
 			def IntervalBetweenQ(cLabel1, cLabel2)
-				return This.This.DurationXTQ(cLabel1, cLabel2)
+				return This.DurationXTQ(cLabel1, cLabel2)
 		#>
 
 	# Utility Methods

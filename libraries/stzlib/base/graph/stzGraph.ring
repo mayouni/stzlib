@@ -120,20 +120,24 @@ class stzGraph
 
 	#--
 
-	def RemoveNodes(paNodeIds)
+	def RemoveTheseNodes(paNodeIds)
 		nLen = len(paNodeIds)
 		for i = 1 to nLen
 			This.RemoveNode(paNodeIds[i])
 		end
 
-	def RemoveAllNodes()
+	def RemoveNodes()
 		@acNodes = []
 		@acEdges = []
 		@acProperties = []
 	
-		def Clear()
-			This.RemoveAllNodes()
+		def RemoveAllNodes()
+			This.RemoveNodes()
 
+		def Clear()
+			This.RemoveNodes()
+
+		
 	def ReplaceNode(pcOldNodeId, pcNewNodeId, pcLabel)
 		aIncoming = []
 		aOutgoing = []
@@ -216,8 +220,8 @@ class stzGraph
 	def AddEdgeXT(pcFromId, pcToId, pcLabel)
 		This.AddEdgeXTT(pcFromId, pcToId, pcLabel, [])
 
-		def ConnectXT(pcFromId, pcId, pcLabel)
-			This.This.AddEdgeXTT(pcFromId, pcToId, pcLabel, [])
+		def ConnectXT(pcFromId, pcToId, pcLabel)
+			This.AddEdgeXTT(pcFromId, pcToId, pcLabel, [])
 
 	def AddEdgeXTT(pcFromId, pcToId, pcLabel, pacProperties)
 		if CheckParams()
@@ -293,6 +297,9 @@ class stzGraph
 		
 		aNode["properties"][cProperty] = pValue
 	
+		def SetNodeProp(pNodeId, cProperty, pValue)
+			This.SetNodeProperty(pNodeId, cProperty, pValue)
+
 	def SetNodeProperties(pNodeId, aProperties)
 		if NOT IsHashList(aProperties)
 			StzRaise("aProperties must be a hashlist")
@@ -302,6 +309,9 @@ class stzGraph
 			This.SetNodeProperty(pNodeId, cKey, aProperties[cKey])
 		end
 	
+		def SetNodePropes(pNodeId, aProperties)
+			This.SetNodeProperties(pNodeId, aProperties)
+
 	def NodeProperty(pNodeId, cProperty)
 		aNode = This.Node(pNodeId)
 		
@@ -312,6 +322,9 @@ class stzGraph
 			stzraise("Inexistant node key or/and property!")
 		ok
 	
+		def NodeProp(pNodeId, cProperty)
+			return This.NodeProperty(pNodeId, cProperty)
+
 	def SetEdgeProperty(pFromId, pToId, cProperty, pValue)
 		aEdge = This.Edge(pFromId, pToId)
 	
@@ -321,6 +334,9 @@ class stzGraph
 		
 		aEdge["properties"][cProperty] = pValue
 	
+		def SetEdgePrope(pFromId, pToId, cProperty, pValue)
+			return This.SetEdgeProperty(pFromId, pToId, cProperty, pValue)
+
 	def EdgeProperty(pFromId, pToId, cProperty)
 		aEdge = This.Edge(pFromId, pToId)
 		
@@ -329,6 +345,9 @@ class stzGraph
 		else
 			stzraise("Inexistant node key or/and property!")
 		ok
+
+		def EdgeProp(pFromId, pToId, cProperty)
+			return This.EdgeProperty(pFromId, pToId, cProperty)
 
 	#---------------------------#
 	#  TRAVERSAL & PATHFINDING  #
