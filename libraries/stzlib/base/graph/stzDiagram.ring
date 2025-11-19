@@ -96,7 +96,7 @@ $acNodeTypes = [
 
 # Default node type and color
 $cDefaultNodeType = "process"
-$cDefaultNodeColor = :blue
+$cDefaultNodeColor = :white
 
 # Edge styles
 $acEdgeStyles = [
@@ -1520,7 +1520,6 @@ class stzDiagram from stzGraph
 	
 
 	def ApplyVisualRules()
-	    # Process nodes
 	    aNodes = This.Nodes()
 	    nLen = len(aNodes)
 	
@@ -1528,24 +1527,15 @@ class stzDiagram from stzGraph
 	        aNode = aNodes[i]
 	        cNodeId = aNode["id"]
 	        
-	        # Extract metadata and tags from properties
-	        aMetadata = []
-	        aTags = []
-	        
+	        # Build context from all properties (metadata is IN properties, not separate)
+	        aContext = aNode
 	        if HasKey(aNode, "properties") and aNode["properties"] != NULL
-	            aProps = aNode["properties"]
-	            if HasKey(aProps, "metadata")
-	                aMetadata = aProps["metadata"]
-	            ok
-	            if HasKey(aProps, "tags")
-	                aTags = aProps["tags"]
+	            aContext["metadata"] = aNode["properties"]
+	            aContext["tags"] = []
+	            if HasKey(aNode["properties"], "tags")
+	                aContext["tags"] = aNode["properties"]["tags"]
 	            ok
 	        ok
-	        
-	        # Build evaluation context
-	        aContext = aNode
-	        aContext["metadata"] = aMetadata
-	        aContext["tags"] = aTags
 	        
 	        # Apply matching rules
 	        nLenRules = len(@aoVisualRules)
@@ -1557,14 +1547,11 @@ class stzDiagram from stzGraph
 	                for k = 1 to nLenEffects
 	                    cAspect = aEffects[k][1]
 	                    pValue = aEffects[k][2]
-	                    
-	                    # Update node property directly
 	                    This.SetNodeProperty(cNodeId, cAspect, pValue)
 	                end
 	            ok
 	        end
 	        
-	        # Store computed enhancements
 	        if HasKey(aNode, "properties")
 	            @aNodeEnhancements[cNodeId] = aNode["properties"]
 	        ok
@@ -1578,43 +1565,31 @@ class stzDiagram from stzGraph
 	        aEdge = aEdges[i]
 	        cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
 	        
-	        # Extract metadata and tags from properties
-	        aMetadata = []
-	        aTags = []
-	        
+	        # Build context
+	        aContext = aEdge
 	        if HasKey(aEdge, "properties") and aEdge["properties"] != NULL
-	            aProps = aEdge["properties"]
-	            if HasKey(aProps, "metadata")
-	                aMetadata = aProps["metadata"]
-	            ok
-	            if HasKey(aProps, "tags")
-	                aTags = aProps["tags"]
+	            aContext["metadata"] = aEdge["properties"]
+	            aContext["tags"] = []
+	            if HasKey(aEdge["properties"], "tags")
+	                aContext["tags"] = aEdge["properties"]["tags"]
 	            ok
 	        ok
-	        
-	        # Build evaluation context
-	        aContext = aEdge
-	        aContext["metadata"] = aMetadata
-	        aContext["tags"] = aTags
 	        
 	        # Apply matching rules
 	        nLenRules = len(@aoVisualRules)
 	        for j = 1 to nLenRules
 	            if @aoVisualRules[j].Matches(aContext)
 	                aEffects = @aoVisualRules[j].Effects()
-	                nLenEff = len(aEffects)
+	                nLenEffects = len(aEffects)
 	
-	                for k = 1 to nLenEff
+	                for k = 1 to nLenEffects
 	                    cAspect = aEffects[k][1]
 	                    pValue = aEffects[k][2]
-	                    
-	                    # Update edge property directly
 	                    This.SetEdgeProperty(aEdge["from"], aEdge["to"], cAspect, pValue)
 	                end
 	            ok
 	        end
 	        
-	        # Store computed enhancements
 	        if HasKey(aEdge, "properties")
 	            @aEdgeEnhancements[cEdgeKey] = aEdge["properties"]
 	        ok
@@ -2212,7 +2187,7 @@ class stzDiagramToDot
 
 	def _Generate()
 		cOutput = ""
-		
+
 		# Apply visual rules if any
 		if len(@oDiagram.@aoVisualRules) > 0
 			@oDiagram.ApplyVisualRules()
@@ -2514,17 +2489,15 @@ class stzDiagramToDot
 	def _GetNodeFillColor(aNode, aEnhancements, cTheme)
 		cColor = ""
 		
-		# Check enhancements first
-		if HasKey(aEnhancements, "color")
-			cColor = aEnhancements["color"]
+		# Check node properties FIRST (where rules write to)
+		if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
+		   HasKey(aNode["properties"], "color") and aNode["properties"]["color"] != NULL
+			cColor = aNode["properties"]["color"]
 		ok
 		
-		# Then node properties
-		if cColor = "" or cColor = NULL
-			if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
-			   HasKey(aNode["properties"], "color") and aNode["properties"]["color"] != NULL
-				cColor = aNode["properties"]["color"]
-			ok
+		# Then check enhancements
+		if (cColor = "" or cColor = NULL) and HasKey(aEnhancements, "color")
+			cColor = aEnhancements["color"]
 		ok
 		
 		# Default
@@ -2532,7 +2505,7 @@ class stzDiagramToDot
 			cColor = $cDefaultNodeColor
 		ok
 		
-		# If already hex, apply theme transforms and return
+		# If already hex, apply theme transforms
 		if substr(cColor, "#")
 			if cTheme = "gray"
 				return @oDiagram.ConvertColorTogray(cColor)
@@ -2542,19 +2515,16 @@ class stzDiagramToDot
 			return cColor
 		ok
 		
-		# Apply theme palette for semantic colors FIRST
+		# Apply theme palette for semantic colors
 		cLowerColor = lower(cColor)
-		
 		if HasKey($aPalette, cTheme)
 			aThemePalette = $aPalette[cTheme]
-			
-			# Direct palette key match
 			if HasKey(aThemePalette, cLowerColor)
 				cColor = aThemePalette[cLowerColor]
 			ok
 		ok
 		
-		# NOW resolve to hex
+		# Resolve to hex
 		cColor = ResolveColor(cColor)
 		
 		# Final theme transforms
@@ -2596,21 +2566,13 @@ class stzDiagramToDot
 		end
 		
 		return cOutput
-	
+
 	def _GenerateEdge(aEdge, cTheme)
 		cFrom = This._SanitizeNodeId(aEdge["from"])
 		cTo = This._SanitizeNodeId(aEdge["to"])
-		cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
 		
 		cOutput = '    ' + cFrom + ' -> ' + cTo
 		
-		# Get enhancements
-		aEnhancements = []
-		if HasKey(@oDiagram.@aEdgeEnhancements, cEdgeKey)
-			aEnhancements = @oDiagram.@aEdgeEnhancements[cEdgeKey]
-		ok
-		
-		# Build attributes
 		aAttrs = []
 		
 		# Label
@@ -2618,28 +2580,22 @@ class stzDiagramToDot
 			aAttrs + ('label=" ' + aEdge["label"] + '"')
 		ok
 		
-		# Style
-		if HasKey(aEnhancements, "style")
-			aAttrs + ('style="' + aEnhancements["style"] + '"')
+		# Style from properties
+		if HasKey(aEdge, "properties") and HasKey(aEdge["properties"], "style")
+			aAttrs + ('style="' + aEdge["properties"]["style"] + '"')
 		ok
 		
-		# Color
-		if HasKey(aEnhancements, "color")
-			cColor = ResolveColor(aEnhancements["color"])
+		# Color from properties
+		if HasKey(aEdge, "properties") and HasKey(aEdge["properties"], "color")
+			cColor = ResolveColor(aEdge["properties"]["color"])
 			aAttrs + ('color="' + cColor + '"')
 		ok
 		
-		# Pen width
-		if HasKey(aEnhancements, "penwidth")
-			aAttrs + ('penwidth=' + aEnhancements["penwidth"])
+		# Pen width from properties
+		if HasKey(aEdge, "properties") and HasKey(aEdge["properties"], "penwidth")
+			aAttrs + ('penwidth=' + aEdge["properties"]["penwidth"])
 		ok
 		
-		# Arrow head
-		if HasKey(aEnhancements, "arrowhead")
-			aAttrs + ('arrowhead=' + aEnhancements["arrowhead"])
-		ok
-		
-		# Add attributes
 		if len(aAttrs) > 0
 			cOutput += ' [' + This._JoinAttributes(aAttrs) + ']'
 		ok
@@ -2895,7 +2851,6 @@ class stzVisualRule
 	        if HasKey(aNodeOrEdge, "metadata")
 	            return HasKey(aNodeOrEdge["metadata"], cKey)
 	        ok
-	        # Fallback: check properties directly
 	        if HasKey(aNodeOrEdge, "properties")
 	            return HasKey(aNodeOrEdge["properties"], cKey)
 	        ok
@@ -2904,13 +2859,17 @@ class stzVisualRule
 	    on :metadata_equals
 	        cKey = @aConditionParams[1]
 	        pValue = @aConditionParams[2]
+	        
+	        # Check metadata sub-hash
 	        if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
 	            return aNodeOrEdge["metadata"][cKey] = pValue
 	        ok
-	        # Fallback: check properties directly
+	        
+	        # Check properties directly
 	        if HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], cKey)
 	            return aNodeOrEdge["properties"][cKey] = pValue
 	        ok
+	        
 	        return FALSE
 	    
 	    on :metadata_range
@@ -2935,14 +2894,13 @@ class stzVisualRule
 	        if HasKey(aNodeOrEdge, "tags")
 	            return ring_find(aNodeOrEdge["tags"], cTag) > 0
 	        ok
-	        # Fallback: check properties
 	        if HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], "tags")
 	            return ring_find(aNodeOrEdge["properties"]["tags"], cTag) > 0
 	        ok
 	        return FALSE
 	    off
 	    
-    return FALSE
+	    return FALSE
 	
 	def Effects()
 		return @aVisualEffects

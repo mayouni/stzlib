@@ -289,13 +289,16 @@ class stzGraph
 	#----------------------------#
 
 	def SetNodeProperty(pNodeId, cProperty, pValue)
-		aNode = This.Node(pNodeId)
-		
-		if NOT HasKey(aNode, "properties")
-			aNode["properties"] = []
-		ok
-		
-		aNode["properties"][cProperty] = pValue
+		nLen = len(@acNodes)
+		for i = 1 to nLen
+			if @acNodes[i]["id"] = pNodeId
+				if NOT HasKey(@acNodes[i], "properties")
+					@acNodes[i]["properties"] = []
+				ok
+				@acNodes[i]["properties"][cProperty] = pValue
+				return
+			ok
+		end
 	
 		def SetNodeProp(pNodeId, cProperty, pValue)
 			This.SetNodeProperty(pNodeId, cProperty, pValue)
@@ -326,13 +329,16 @@ class stzGraph
 			return This.NodeProperty(pNodeId, cProperty)
 
 	def SetEdgeProperty(pFromId, pToId, cProperty, pValue)
-		aEdge = This.Edge(pFromId, pToId)
-	
-		if NOT HasKey(aEdge, "properties")
-			aEdge["properties"] = []
-		ok
-		
-		aEdge["properties"][cProperty] = pValue
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			if @acEdges[i]["from"] = pFromId and @acEdges[i]["to"] = pToId
+				if NOT HasKey(@acEdges[i], "properties")
+					@acEdges[i]["properties"] = []
+				ok
+				@acEdges[i]["properties"][cProperty] = pValue
+				return
+			ok
+		end
 	
 		def SetEdgePrope(pFromId, pToId, cProperty, pValue)
 			return This.SetEdgeProperty(pFromId, pToId, cProperty, pValue)
