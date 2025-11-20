@@ -1510,10 +1510,9 @@ class stzDiagram from stzGraph
 		bSuccess = oConv.WriteToFile(pcFileName)
 		return bSuccess
 
-	#---------------
-	#  VISUAL RULES AND SEMANTICS
-	#------------------
-
+	#========================================#
+	#  VISUAL RULES AND RULES ANALYTICS API  #
+	#========================================#
 
 	def AddVisualRule(oRule)
 		@aoVisualRules + oRule
@@ -1594,29 +1593,794 @@ class stzDiagram from stzGraph
 	            @aEdgeEnhancements[cEdgeKey] = aEdge["properties"]
 	        ok
 	    end
+	
+	# Get diagram overview with rules context
+	def Explain()
+		aExplanation = [
+			:diagram = @cId,
+			:structure = "",
+			:rules = "",
+			:effects = ""
+		]
 		
-	def MetadataLegend()
-		# Generate legend showing metadata-to-visual mappings
-		aLegend = []
+		nNodes = This.NodeCount()
+		nEdges = This.EdgeCount()
+		aExplanation[:structure] = "Diagram '" + @cId + "' contains " + nNodes + " nodes and " + nEdges + " edges."
 		
-		aLegend + "=== METADATA LEGEND ==="
-		aLegend + ""
+		nRules = len(@aoVisualRules)
+		if nRules = 0
+			aExplanation[:rules] = "No visual rules defined."
+		else
+			cRules = "Applied " + nRules + " visual rule(s): "
+			for i = 1 to nRules
+				cRules += @aoVisualRules[i].@cRuleId
+				if i < nRules
+					cRules += ", "
+				ok
+			end
+			aExplanation[:rules] = cRules
+		ok
+		
+		nNodesAffected = len(@aNodeEnhancements)
+		nEdgesAffected = len(@aEdgeEnhancements)
+		
+		if nNodesAffected = 0 and nEdgesAffected = 0
+			aExplanation[:effects] = "No rules matched any elements."
+		else
+			cEffects = ""
+			if nNodesAffected > 0
+				cEffects += ""+ nNodesAffected + " node(s) enhanced"
+			ok
+			if nEdgesAffected > 0
+				if cEffects != ""
+					cEffects += ", "
+				ok
+				cEffects += ""+ nEdgesAffected + " edge(s) enhanced"
+			ok
+			aExplanation[:effects] = cEffects + "."
+		ok
+		
+		return aExplanation
+
+	#------------------------------------------
+	#  1. BASIC AFFECTED ELEMENTS
+	#------------------------------------------
+	
+	# Get all nodes affected by any rule
+	def NodesAffectedByVisualRules()
+		return keys(@aNodeEnhancements)
+	
+		def NodesAffectedByVRules()
+			return This.NodesAffectedByVisualRules()
+
+	# Get all edges affected by any rule
+	def EdgesAffectedByVisualRules()
+		return keys(@aEdgeEnhancements)
+	
+		def EdgesAffectedByVRules()
+			return This.EdgesAffectedByVisualRules()
+	
+	# Get both nodes and edges affected
+	def ElementsAffectedByVisualRules()
+		return [
+			:nodes = This.NodesAffectedByRules(),
+			:edges = This.EdgesAffectedByRules()
+		]
+	
+		def ElementsAffectedByVRules()
+			return This.ElementsAffectedByVisualRules()
+	
+		def VisualRulesImpact()
+			return This.ElementsAffectedByVisualRules()
+
+		def VRulesImpact()
+			return This.ElementsAffectedByVisualRules()
+
+		def ImpactOfVisualRules()
+			return This.ElementsAffectedByVisualRules()
+
+		def ImpactOfVRules()
+			return This.ElementsAffectedByVisualRules()
+
+	#------------------------------------------
+	#  2. UNAFFECTED ELEMENTS
+	#------------------------------------------
+	
+	# Get nodes NOT affected by any rule
+	def NodesNotAffectedByVisualRules()
+		acAllNodes = []
+		aNodes = This.Nodes()
+		nLen = len(aNodes)
+		for i = 1 to nLen
+			acAllNodes + aNodes[i]["id"]
+		end
+		
+		acAffected = keys(@aNodeEnhancements)
+		acNotAffected = []
+		
+		nLen = len(acAllNodes)
+		for i = 1 to nLen
+			if find(acAffected, acAllNodes[i]) = 0
+				acNotAffected + acAllNodes[i]
+			ok
+		end
+		
+		return acNotAffected
+	
+		def NodesNotAffectedByVRules()
+			return This.NodesNotAffectedByVisualRules()
+
+	
+	# Get edges NOT affected by any rule
+	def EdgesNotAffectedByVisualRules()
+		acAllEdges = []
+		aEdges = This.Edges()
+		nLen = len(aEdges)
+		for i = 1 to nLen
+			acAllEdges + (aEdges[i]["from"] + "->" + aEdges[i]["to"])
+		end
+		
+		acAffected = keys(@aEdgeEnhancements)
+		acNotAffected = []
+		
+		nLen = len(acAllEdges)
+		for i = 1 to nLen
+			if find(acAffected, acAllEdges[i]) = 0
+				acNotAffected + acAllEdges[i]
+			ok
+		end
+		
+		return acNotAffected
+	
+		def EdgesNotAffectedByVRules()
+			return This.EdgesNotAffectedByVisualRules()
+	
+	# Get both unaffected nodes and edges
+	def ElementsNotAffectedByVisualRules()
+		return [
+			:nodes = This.NodesNotAffectedByVisualRules(),
+			:edges = This.EdgesNotAffectedByVisualRules()
+		]
+	
+		def ElementsNotAffectedByVRules()
+			return This.ElementsNotAffectedByVisualRules()
+	
+	#------------------------------------------
+	#  3. AFFECTED BY SPECIFIC RULE(S)
+	#------------------------------------------
+	
+	# Get nodes affected by a specific rule
+	def NodesAffectedByVisualRule(poRule)
+		acAffected = []
+		acNodeIds = keys(@aNodeEnhancements)
+		nLen = len(acNodeIds)
+		
+		for i = 1 to nLen
+			aNode = This.Node(acNodeIds[i])
+			aContext = This._BuildRuleContext(aNode)
+			if poRule.Matches(aContext)
+				acAffected + acNodeIds[i]
+			ok
+		end
+		
+		return acAffected
+	
+		def NodesAffectedByVRule(poRule)
+			return This.NodesAffectedByVisualRule(poRule)
+	
+	# Get edges affected by a specific rule
+	def EdgesAffectedByVisualRule(poRule)
+		acAffected = []
+		acEdgeKeys = keys(@aEdgeEnhancements)
+		nLen = len(acEdgeKeys)
+		
+		for i = 1 to nLen
+			acParts = split(acEdgeKeys[i], "->")
+			aEdge = This.Edge(acParts[1], acParts[2])
+			aContext = This._BuildRuleContext(aEdge)
+			if poRule.Matches(aContext)
+				acAffected + acEdgeKeys[i]
+			ok
+		end
+		
+		return acAffected
+	
+		def EdgesAffectedByVRule(poRule)
+			return This.EdgesAffectedByVisualRule(poRule)
+	
+	# Get nodes affected by any of the given rules
+	def NodesAffectedByTheseVisualRules(paoRules)
+		acAffected = []
+		acNodeIds = keys(@aNodeEnhancements)
+		nNodeLen = len(acNodeIds)
+		
+		for i = 1 to nNodeLen
+			aNode = This.Node(acNodeIds[i])
+			aContext = This._BuildRuleContext(aNode)
+			
+			nRuleLen = len(paoRules)
+			for j = 1 to nRuleLen
+				if paoRules[j].Matches(aContext)
+					if find(acAffected, acNodeIds[i]) = 0
+						acAffected + acNodeIds[i]
+					ok
+					exit
+				ok
+			end
+		end
+		
+		return acAffected
+	
+		def NodesAffectedByTheseVRules(paoRules)
+			return This.NodesAffectedByTheseVisualRules(paoRules)
+	
+	# Get edges affected by any of the given rules
+	def EdgesAffectedByTheseVisualRules(paoRules)
+		acAffected = []
+		acEdgeKeys = keys(@aEdgeEnhancements)
+		nEdgeLen = len(acEdgeKeys)
+		
+		for i = 1 to nEdgeLen
+			acParts = split(acEdgeKeys[i], "->")
+			aEdge = This.Edge(acParts[1], acParts[2])
+			aContext = This._BuildRuleContext(aEdge)
+			
+			nRuleLen = len(paoRules)
+			for j = 1 to nRuleLen
+				if paoRules[j].Matches(aContext)
+					if find(acAffected, acEdgeKeys[i]) = 0
+						acAffected + acEdgeKeys[i]
+					ok
+					exit
+				ok
+			end
+		end
+		
+		return acAffected
+	
+		def EdgesAffectedByTheseVRules(paoRules)
+			return This.EdgesAffectedByTheseVisualRules(paoRules)
+	
+	#------------------------------------------
+	#  4. ELEMENTS WITH THEIR RULES (DETAILED)
+	#------------------------------------------
+	
+	# Get nodes paired with their affecting rules
+	# Returns: [ ["node1", [oRule1, oRule2]], ["node2", [oRule3]], ... ]
+	def NodesAndTheirVisualRulesObjects()
+		aResult = []
+		acNodeIds = keys(@aNodeEnhancements)
+		nLen = len(acNodeIds)
+		
+		for i = 1 to nLen
+			cNodeId = acNodeIds[i]
+			aNode = This.Node(cNodeId)
+			aContext = This._BuildRuleContext(aNode)
+			
+			aoMatchingRules = []
+			nRuleLen = len(@aoVisualRules)
+			for j = 1 to nRuleLen
+				if @aoVisualRules[j].Matches(aContext)
+					aoMatchingRules + @aoVisualRules[j]
+				ok
+			end
+			
+			if len(aoMatchingRules) > 0
+				aResult + [cNodeId, aoMatchingRules]
+			ok
+		end
+		
+		return aResult
+	
+		def NodesAndTheirVRulesObjects()
+			return This.NodesAndTheirVisualRulesObjects()
+	
+	# Get edges paired with their affecting rules
+	# Returns: [ ["node1->node2", [oRule1]], ["node2->node3", [oRule2, oRule3]], ... ]
+	def EdgesAndTheirVisualRulesObjects()
+		aResult = []
+		acEdgeKeys = keys(@aEdgeEnhancements)
+		nLen = len(acEdgeKeys)
+		
+		for i = 1 to nLen
+			cEdgeKey = acEdgeKeys[i]
+			acParts = split(cEdgeKey, "->")
+			aEdge = This.Edge(acParts[1], acParts[2])
+			aContext = This._BuildRuleContext(aEdge)
+			
+			aoMatchingRules = []
+			nRuleLen = len(@aoVisualRules)
+			for j = 1 to nRuleLen
+				if @aoVisualRules[j].Matches(aContext)
+					aoMatchingRules + @aoVisualRules[j]
+				ok
+			end
+			
+			if len(aoMatchingRules) > 0
+				aResult + [cEdgeKey, aoMatchingRules]
+			ok
+		end
+		
+		return aResult
+	
+		def EdgesAndTheirVRulesObjects()
+			return This.EdgesAndTheirVisualRulesObjects()
+	
+	# Get both nodes and edges with their rules
+	def ElementsAndTheirVisualRulesObjects()
+		return [
+			:nodes = This.ElementsAndTheirVisualRulesObjects(),
+			:edges = This.ElementsAndTheirVisualRulesObjects()
+		]
+	
+		def ElementsAndTheirVRulesObjects()
+			return This.ElementsAndTheirVisualRulesObjects()
+	
+	#------------------------------------------
+	#  5. ELEMENTS WITH RULE IDS (STRING-FRIST)
+	#------------------------------------------
+	
+	# Get nodes paired with rule IDs (not objects)
+	# Returns: [ ["node1", ["cheap", "prod"]], ["node2", ["expensive"]], ... ]
+	def NodesAndTheirVisualRules()
+		aResult = []
+		acNodeIds = keys(@aNodeEnhancements)
+		nLen = len(acNodeIds)
+		
+		for i = 1 to nLen
+			cNodeId = acNodeIds[i]
+			aNode = This.Node(cNodeId)
+			aContext = This._BuildRuleContext(aNode)
+			
+			acRuleIds = []
+			nRuleLen = len(@aoVisualRules)
+			for j = 1 to nRuleLen
+				if @aoVisualRules[j].Matches(aContext)
+					acRuleIds + @aoVisualRules[j].@cRuleId
+				ok
+			end
+			
+			if len(acRuleIds) > 0
+				aResult + [cNodeId, acRuleIds]
+			ok
+		end
+		
+		return aResult
+	
+		def NodesAndTheirVRules()
+			return This.NodesAndTheirVisualRules()
+	
+	# Get edges paired with rule IDs
+	def EdgesAndThirVisualRules()
+		aResult = []
+		acEdgeKeys = keys(@aEdgeEnhancements)
+		nLen = len(acEdgeKeys)
+		
+		for i = 1 to nLen
+			cEdgeKey = acEdgeKeys[i]
+			acParts = split(cEdgeKey, "->")
+			aEdge = This.Edge(acParts[1], acParts[2])
+			aContext = This._BuildRuleContext(aEdge)
+			
+			acRuleIds = []
+			nRuleLen = len(@aoVisualRules)
+			for j = 1 to nRuleLen
+				if @aoVisualRules[j].Matches(aContext)
+					acRuleIds + @aoVisualRules[j].@cRuleId
+				ok
+			end
+			
+			if len(acRuleIds) > 0
+				aResult + [cEdgeKey, acRuleIds]
+			ok
+		end
+		
+		return aResult
+	
+		def EdgesAndThirVRules()
+			return This.EdgesAndThirVisualRules()
+	
+	# Get both with rule IDs
+	def ElementsAndTheirVisualRules()
+		return [
+			:nodes = This.NodesAndTheirVisualRules(),
+			:edges = This.EdgesAndTheirvisualRules()
+		]
+	
+		def ElementsAndTheirVRules()
+			return This.ElementsAndTheirVisualRules()
+	
+	#------------------------------------------
+	#  6. RULES WITH THEIR ELEMENTS (INVERSE)
+	#------------------------------------------
+	
+	# Get each rule with the elements it affected
+	# Returns: [ [oRule1, [:nodes = [...], :edges = [...]]], [oRule2, ...], ... ]
+	def VisualRulesObjectsAndTheirElements()
+		aResult = []
+		nRuleLen = len(@aoVisualRules)
+		
+		for i = 1 to nRuleLen
+			oRule = @aoVisualRules[i]
+			
+			acAffectedNodes = This.NodesAffectedByVisualRule(oRule)
+			acAffectedEdges = This.EdgesAffectedByVisualRule(oRule)
+			
+			if len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0
+				aResult + [
+					oRule,
+					[:nodes = acAffectedNodes, :edges = acAffectedEdges]
+				]
+			ok
+		end
+		
+		return aResult
+	
+		def VRulesObjectsAndTheirElements()
+			return This.VisualRulesObjectsAndTheirElements()
+	
+	# Get rule IDs with their elements
+	def VisualRulesAndTheirElements()
+		aResult = []
+		nRuleLen = len(@aoVisualRules)
+		
+		for i = 1 to nRuleLen
+			oRule = @aoVisualRules[i]
+			
+			acAffectedNodes = This.NodesAffectedByVisualRule(oRule)
+			acAffectedEdges = This.EdgesAffectedByVisualRule(oRule)
+			
+			if len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0
+				aResult + [
+					oRule.@cRuleId,
+					[:nodes = acAffectedNodes, :edges = acAffectedEdges]
+				]
+			ok
+		end
+		
+		return aResult
+	
+		def VRulesAndTheirElements()
+			return This.VisualRulesAndTheirElements()
+	
+	#------------------------------------------
+	#  7. PROPERTY-BASED QUERIES
+	#------------------------------------------
+	
+	# Get nodes with specific property key
+	def NodesWithProperty(pcKey)
+		acResult = []
+		aNodes = This.Nodes()
+		nLen = len(aNodes)
+		
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			if HasKey(aNode, "properties") and 
+			   HasKey(aNode["properties"], pcKey)
+				acResult + aNode["id"]
+			ok
+		end
+		
+		return acResult
+	
+		def NodesHavingProperty(pcKey)
+			return This.NodesWithProperty(pcKey)
+	
+	# Get nodes with property key = value
+
+	def NodesWith(pcKey, pValue)
+		if isList(pValue) and len(pValue) = 2 and isString(pValue[1])
+			cOperator = pValue[1]
+			switch cOperator
+			on "equals"
+				return This.NodesWithPropertyValue(pcKey, pValue[2])
+
+			on "InSection"
+				return This.NodesWithPropertyInSection(pcKey, pValue[2][1], pValue[2][2])
+			off
+		ok
+
+		return []
+
+	def NodesWithPropertyValue(pcKey, pValue)
+		if CheckParams()
+			if isList(pValue) and StzListQ(pValue).IsInSectionNamedParam() and
+			   len(pValue) = 2 and isNumber(pValue) and isNumber(pValue)
+	
+				return This.NodesWithPropertyInSection(pcKey, pValue[1], pValue[2])
+			ok
+		ok
+
+		acResult = []
+		aNodes = This.Nodes()
+		nLen = len(aNodes)
+	
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			if HasKey(aNode, "properties") and 
+			   HasKey(aNode["properties"], pcKey) and
+			   aNode["properties"][pcKey] = pValue
+
+				acResult + aNode["id"]
+			ok
+		end
+		
+		return acResult
+	
+		def NodesWhereProperty(pcKey, pValue)
+			return This.NodesWithPropertyValue(pcKey, pValue)
+	
+	# Get nodes with property in section
+	def NodesWithPropertyInSection(pcKey, pnMin, pnMax)
+		acResult = []
+		aNodes = This.Nodes()
+		nLen = len(aNodes)
+		
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			if HasKey(aNode, "properties") and 
+			   HasKey(aNode["properties"], pcKey)
+				nValue = aNode["properties"][pcKey]
+				if isNumber(nValue) and nValue >= pnMin and nValue <= pnMax
+					acResult + aNode["id"]
+				ok
+			ok
+		end
+		
+		return acResult
+	
+		def NodesWherePropertyInSection(pcKey, pnMin, pnMax)
+			return This.NodesWithPropertyInSection(pcKey, pnMin, pnMax)
+	
+	# Get edges with specific property key
+	def EdgesWithProperty(pcKey)
+		acResult = []
+		aEdges = This.Edges()
+		nLen = len(aEdges)
+		
+		for i = 1 to nLen
+			aEdge = aEdges[i]
+			if HasKey(aEdge, "properties") and 
+			   HasKey(aEdge["properties"], pcKey)
+				acResult + (aEdge["from"] + "->" + aEdge["to"])
+			ok
+		end
+		
+		return acResult
+	
+		def EdgesHavingProperty(pcKey)
+			return This.EdgesWithProperty(pcKey)
+	
+	# Get edges with property key = value
+	def EdgesWithPropertyValue(pcKey, pValue)
+		acResult = []
+		aEdges = This.Edges()
+		nLen = len(aEdges)
+		
+		for i = 1 to nLen
+			aEdge = aEdges[i]
+			if HasKey(aEdge, "properties") and 
+			   HasKey(aEdge["properties"], pcKey) and
+			   aEdge["properties"][pcKey] = pValue
+				acResult + (aEdge["from"] + "->" + aEdge["to"])
+			ok
+		end
+		
+		return acResult
+	
+		def EdgesWhereProperty(pcKey, pValue)
+			return This.EdgesWithPropertyValue(pcKey, pValue)
+	
+	#------------------------------------------
+	#  8. TAG-BASED QUERIES
+	#------------------------------------------
+	
+	def TaggedNodes()
+		acResult = []
+		aNodes = This.Nodes()
+		nLen = len(aNodes)
+		
+		bResult = 0
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			if HasKey(aNode, "properties") and 
+			   HasKey(aNode["properties"], "tags") and
+			   len(aNode["properties"]["tags"]) > 0
+
+				bResult = 1
+				exit
+			ok
+		end
+		
+		return bResult
+
+		def NodesWithTags()
+			return This.TaggedNodes()
+
+		def NodesTagged()
+			return This.TaggedNodes()
+
+	# Get nodes with specific tag
+	def NodesWithTag(pcTag)
+		if CheckParams()
+			if isList(pcTag)
+				return This.NodesWithTheseTags(pcTag)
+			ok
+		ok
+
+		acResult = []
+		aNodes = This.Nodes()
+		nLen = len(aNodes)
+		
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			if HasKey(aNode, "properties") and 
+			   HasKey(aNode["properties"], "tags")
+				aTags = aNode["properties"]["tags"]
+				if ring_find(aTags, pcTag) > 0
+					acResult + aNode["id"]
+				ok
+			ok
+		end
+		
+		return acResult
+	
+		def NodesTaggedWith(pcTag)
+			return This.NodesWithTag(pcTag)
+
+		def NodesHavingTag(pcTag)
+			return This.NodesWithTag(pcTag)
+	
+	# Get nodes with ALL of the given tags
+	def NodesWithTheseTags(pacTags)
+		acResult = []
+		aNodes = This.Nodes()
+		nNodeLen = len(aNodes)
+		
+		for i = 1 to nNodeLen
+			aNode = aNodes[i]
+			if HasKey(aNode, "properties") and 
+			   HasKey(aNode["properties"], "tags")
+				aTags = aNode["properties"]["tags"]
+				bHasAll = TRUE
+				
+				nTagLen = len(pacTags)
+				for j = 1 to nTagLen
+					if ring_find(aTags, pacTags[j]) = 0
+						bHasAll = FALSE
+						exit
+					ok
+				end
+				
+				if bHasAll
+					acResult + aNode["id"]
+				ok
+			ok
+		end
+		
+		return acResult
+	
+	
+	# Get nodes with ANY of the given tags
+	def NodesWithAnyOfTheseTags(pacTags)
+		acResult = []
+		aNodes = This.Nodes()
+		nNodeLen = len(aNodes)
+		
+		for i = 1 to nNodeLen
+			aNode = aNodes[i]
+			if HasKey(aNode, "properties") and 
+			   HasKey(aNode["properties"], "tags")
+				aTags = aNode["properties"]["tags"]
+				
+				nTagLen = len(pacTags)
+				for j = 1 to nTagLen
+					if ring_find(aTags, pacTags[j]) > 0
+						acResult + aNode["id"]
+						exit
+					ok
+				end
+			ok
+		end
+		
+		return acResult
+	
+		def NodesTaggedWithAnyOfThese(pacTags)
+			return This.NodesWithAnyOfTheseTags(pacTags)
+	
+	# Get edges with specific tag
+	def EdgesWithTag(pcTag)
+		acResult = []
+		aEdges = This.Edges()
+		nLen = len(aEdges)
+		
+		for i = 1 to nLen
+			aEdge = aEdges[i]
+			if HasKey(aEdge, "properties") and 
+			   HasKey(aEdge["properties"], "tags")
+				aTags = aEdge["properties"]["tags"]
+				if ring_find(aTags, pcTag) > 0
+					acResult + (aEdge["from"] + "->" + aEdge["to"])
+				ok
+			ok
+		end
+		
+		return acResult
+	
+		def EdgesTaggedWith(pcTag)
+			return This.EdgesWithTag(pcTag)
+	
+		def EdgesHavingTag(pcTag)
+			return This.EdgesWithTag(pcTag)
+	
+	#------------------------------------------
+	#  9. COMPREHENSIVE ANALYSIS
+	#------------------------------------------
+	
+	# Get complete analysis of rules and their impact
+	def VisualRulesApplied()
+		aResult = [
+			:hasEffects = FALSE,
+			:summary = "",
+			:rules = []
+		]
+		
+		bHasEffects = (len(@aNodeEnhancements) > 0 or len(@aEdgeEnhancements) > 0)
+		aResult[:hasEffects] = bHasEffects
+		
+		if NOT bHasEffects
+			aResult[:summary] = "No rules matched any elements."
+			return aResult
+		ok
+		
+		aResult[:summary] = ""+ len(@aoVisualRules) +
+				    " rule(s) defined, " + 
+		                     (len(@aNodeEnhancements) + len(@aEdgeEnhancements)) + " element(s) affected"
 		
 		nLenRules = len(@aoVisualRules)
 		for i = 1 to nLenRules
-			cDesc = "When: " + @aoVisualRules[i].@cConditionType
-			aLegend + cDesc
+			oRule = @aoVisualRules[i]
 			
-			aEffects = @aoVisualRules[i].Effects()
-			nLenEff = len(aEffects)
-
-			for j = 1 to nLenEff
-				aLegend + "  → " + aEffects[j][1] + ": " + aEffects[j][2]
-			end
-			aLegend + ""
+			acAffectedNodes = This.NodesAffectedByVisualRule(oRule)
+			acAffectedEdges = This.EdgesAffectedByVisualRule(oRule)
+			
+			bRuleMatched = (len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0)
+			
+			if bRuleMatched
+				aRuleInfo = [
+					:id = oRule.@cRuleId,
+					:condition = oRule.@cConditionType,
+					:conditionParams = oRule.@aConditionParams,
+					:effects = oRule.Effects(),
+					:affectedNodes = acAffectedNodes,
+					:affectedEdges = acAffectedEdges,
+					:matchCount = len(acAffectedNodes) + len(acAffectedEdges)
+				]
+				aResult[:rules] + aRuleInfo
+			ok
 		end
 		
-		return aLegend
+		return aResult
+	
+		def VRulesApplied()
+			return This.VisualRulesApplied()
+
+	#------------------------------------------
+	#  HELPER: Build rule matching context
+	#------------------------------------------
+	
+	def _BuildRuleContext(aNodeOrEdge)
+		aContext = aNodeOrEdge
+		
+		if HasKey(aNodeOrEdge, "properties") and aNodeOrEdge["properties"] != NULL
+			aContext["metadata"] = aNodeOrEdge["properties"]
+			aContext["tags"] = []
+			if HasKey(aNodeOrEdge["properties"], "tags")
+				aContext["tags"] = aNodeOrEdge["properties"]["tags"]
+			ok
+		ok
+		
+		return aContext
 
 	#------------------------------------------
 	#  IMPORT WITH SUBDIAGRAM SUPPORT
@@ -2392,14 +3156,16 @@ class stzDiagramToDot
 		cOutput += ', fillcolor="' + cFillColor + '"'
 		cOutput += ', fontcolor="' + cFontColor + '"'
 		
-		# Add pen width if enhanced
+		# Add pen width - check enhancements AND properties
 		if HasKey(aEnhancements, "penwidth")
 			cOutput += ', penwidth=' + aEnhancements["penwidth"]
+		but HasKey(aNode, "properties") and HasKey(aNode["properties"], "penwidth")
+			cOutput += ', penwidth=' + aNode["properties"]["penwidth"]
 		ok
 		
 		# Add stroke color
 		if cStrokeColor != ""
-			cOutput += ', color="' + cStrokeColor + '", penwidth=2'
+			cOutput += ', color="' + cStrokeColor + '"'
 		ok
 		
 		cOutput += ']' + NL
@@ -2414,10 +3180,18 @@ class stzDiagramToDot
 		return cNodeId
 	
 	def _GetNodeShape(aNode, aEnhancements)
+		# Check enhancements FIRST (from visual rules)
 		if HasKey(aEnhancements, "shape")
 			return aEnhancements["shape"]
 		ok
 		
+		# Check node properties for explicit shape
+		if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
+		   HasKey(aNode["properties"], "shape") and aNode["properties"]["shape"] != NULL
+			return aNode["properties"]["shape"]
+		ok
+		
+		# Get type for semantic mapping
 		cType = ""
 		if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
 		   HasKey(aNode["properties"], "type") and aNode["properties"]["type"] != NULL
@@ -2425,12 +3199,11 @@ class stzDiagramToDot
 		ok
 		
 		# Direct DOT shape (bypasses semantic mapping)
-		
 		if ring_find($acDotShapes, cType) > 0
 			return cType
 		ok
 		
-		# Semantic to shape mapping #TODO store them globally
+		# Semantic to shape mapping
 		switch cType
 		on "process"
 			return "box"
@@ -2788,8 +3561,8 @@ class stzVisualRule
 				This.WhenMetaDataEquals(pcKey, pValue[2])
 				return
 
-			but oVal.IsInRangeNamedParam()
-				This.WhenMetadataInRange(pcKey, pValue[2][1], pValue[2][2])
+			but oVal.IsInSectionNamedParam()
+				This.WhenMetadataInSection(pcKey, pValue[2][1], pValue[2][2])
 				return
 			ok
 
@@ -2808,7 +3581,7 @@ class stzVisualRule
 		@cConditionType = :metadata_equals
 		@aConditionParams = [pcKey, pValue]
 
-	def WhenMetadataInRange(pcKey, nMin, nMax)
+	def WhenMetadataInSection(pcKey, nMin, nMax)
 		@cConditionType = :metadata_range
 		@aConditionParams = [pcKey, nMin, nMax]
 	

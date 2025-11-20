@@ -1,13 +1,21 @@
-digraph "ServiceTypes" {
+digraph "CloudCosts" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12]
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    postgres [label="PostgreSQL", shape=box, style="rounded,solid,filled", fillcolor="#A52A2A", fontcolor="white"]
-    rabbitmq [label="RabbitMQ", shape=box, style="rounded,solid,filled", fillcolor="#FFA500", fontcolor="black"]
-    api [label="REST API", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
+    lb [label="Load Balancer", shape=box, style="rounded,solid,filled", fillcolor="#E8F5E9", fontcolor="black", penwidth=2]
+    app1 [label="App Server 1", shape=box, style="rounded,solid,filled", fillcolor="#FFF9C4", fontcolor="black", penwidth=2]
+    app2 [label="App Server 2", shape=box, style="rounded,solid,filled", fillcolor="#FFF9C4", fontcolor="black", penwidth=2]
+    rds [label="RDS Database", shape=cylinder, style="solid,filled", fillcolor="#FFCDD2", fontcolor="black", penwidth=2]
+    cache [label="Redis Cache", shape=cylinder, style="solid,filled", fillcolor="#FFF9C4", fontcolor="black", penwidth=2]
+    s3 [label="S3 Storage", shape=cylinder, style="solid,filled", fillcolor="#E8F5E9", fontcolor="black", penwidth=2]
 
-    api -> postgres
-    api -> rabbitmq
+    lb -> app1
+    lb -> app2
+    app1 -> rds
+    app2 -> rds
+    app1 -> cache
+    app2 -> cache
+    app1 -> s3
 
 }

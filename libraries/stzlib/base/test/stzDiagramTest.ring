@@ -1619,7 +1619,7 @@ oDiag = new stzDiagram("SecurityFlow")
 
 oHighRiskRule = new stzVisualRule("high_risk")
 oHighRiskRule {
-	WhenMetadataInRange("risk_score", 70, 100)
+	WhenMetadataInSection("risk_score", 70, 100)
 	ApplyColor("#FF4444") 	#NOTE // Possible to use hex but better use semantic names
 				# Try with ApplyColor("green") or "sucess--" etc
 	ApplyPenWidth(3)
@@ -1671,11 +1671,11 @@ oDiag = new stzDiagram("APIFlow")
 
 # Performance-based coloring
 oSlowRule = new stzVisualRule("slow_api")
-oSlowRule.WhenMetadataInRange("latency_ms", 500, 9999)
+oSlowRule.WhenMetadataInSection("latency_ms", 500, 9999)
 oSlowRule.ApplyColor("#FFA500")
 
 oFastRule = new stzVisualRule("fast_api")
-oFastRule.WhenMetadataInRange("latency_ms", 0, 100)
+oFastRule.WhenMetadataInSection("latency_ms", 0, 100)
 oFastRule.ApplyColor("#44FF44")
 
 oDiag.AddVisualRule(oSlowRule)
@@ -1784,19 +1784,19 @@ oDiag = new stzDiagram("TaskPriority")
 
 oLowPrio = new stzVisualRule("low")
 oLowPrio {
-	When("priority", :InRange = [0, 33])
+	When("priority", :InSection = [0, 33])
 	ApplyColor(:neutral)
 }
 
 oMedPrio = new stzVisualRule("medium")
 oMedPrio {
-	When("priority", :InRange = [34, 66])
+	When("priority", :InSection = [34, 66])
 	ApplyColor(:info)
 }
 
 oHighPrio = new stzVisualRule("high")
 oHighPrio {
-	When("priority", :InRange = [67, 100])
+	When("priority", :InSection = [67, 100])
 	ApplyColor(:danger)
 	ApplyPenWidth(3)
 }
@@ -1955,7 +1955,7 @@ pf()
 #---------------------------#
 #  TEST 9: Dynamic Shapes
 #---------------------------#
-*/
+
 pr()
 
 oDiag = new stzDiagram("ServiceTypes")
@@ -2016,7 +2016,7 @@ oEncrypted {
 
 oSlow = new stzVisualRule("performance")
 oSlow {
-	WhenMetadataInRange("latency_ms", 500, 9999)
+	When("latency_ms", :InSection = [500, 9999])
 	ApplyColor("#FFA500")
 	ApplyPenWidth(2)
 }
@@ -2025,11 +2025,11 @@ oDiag {
 	AddVisualRule(oEncrypted)
 	AddVisualRule(oSlow)
 	
-	AddNodeWithMetaData("secure_db", "Encrypted DB", :Storage, :Success,
-		[], [:encrypted])
+	AddNodeXTT("secure_db", "Encrypted DB", [
+		:type = :Storage, :color = :Success, :tags = [:encrypted] ])
 	
-	AddNodeWithMetaData("slow_api", "Legacy API", :Process, :Warning,
-		[:latency_ms = 750], [])
+	AddNodeXTT("slow_api", "Legacy API", [
+		:type = :Process, :color = :Warning, :latency_ms = 750 ])
 	
 	# Generate legend showing all rule mappings
 	? "=== Visual Rules Legend ==="
@@ -2037,6 +2037,30 @@ oDiag {
 	
 	View()
 }
+#-->
+'
+=== Visual Rules Legend ===
+[
+	"=== METADATA LEGEND ===",
+	"",
+	"When: tag_exists",
+	"  → ",
+	"color",
+	": ",
+	"#00AA00",
+	"",
+	"When: metadata_range",
+	"  → ",
+	"color",
+	": ",
+	"#FFA500",
+	"  → ",
+	"penwidth",
+	": ",
+	2,
+	""
+]
+'
 
 pf()
 
@@ -2051,7 +2075,7 @@ oDiag = new stzDiagram("E2EMonitoring")
 # Combine multiple rules for realistic monitoring
 oHighLoad = new stzVisualRule("load")
 oHighLoad {
-	WhenMetadataInRange("load_pct", 80, 100)
+	When("load_pct", :InSection = [80, 100])
 	ApplyColor("#FF4444")
 	ApplyPenWidth(3)
 }
@@ -2064,7 +2088,7 @@ oEncrypted {
 
 oDeprecated = new stzVisualRule("legacy")
 oDeprecated {
-	WhenMetadataEquals("status", "deprecated")
+	When("status", :Equals = "deprecated")
 	ApplyColor("#888888")
 	ApplyStyle("dotted,filled")
 }
@@ -2074,14 +2098,17 @@ oDiag {
 	AddVisualRule(oEncrypted)
 	AddVisualRule(oDeprecated)
 	
-	AddNodeWithMetaData("lb", "Load Balancer", :Process, :Primary,
-		[:load_pct = 85], [:critical])
+	AddNodeXTT("lb", "Load Balancer", [
+		:Type = "process", :Color = "primary",
+		:load_pct = 85, :tags = ["critical"] ])
 	
-	AddNodeWithMetaData("db", "Database", :Storage, :Primary,
-		[:load_pct = 60], [:encrypted])
+	AddNodeXTT("db", "Database", [
+		:type = "storage", :color = "primary",
+		:load_pct = 60, :tags = ["encrypted"] ])
 	
-	AddNodeWithMetaData("old_api", "Legacy API", :Process, :Neutral,
-		[:status = "deprecated"], [])
+	AddNodeXTT("old_api", "Legacy API", [
+		:type = "process", :color = "neutral",
+		:status = "deprecated" ])
 	
 	Connect("lb", "db")
 	Connect("lb", "old_api")
@@ -2091,7 +2118,7 @@ oDiag {
 
 pf()
 
-#---------------------------#
+/*---------------------------#
 #  Microservices Health Dashboard
 #---------------------------#
 
@@ -2102,21 +2129,21 @@ oDiag = new stzDiagram("ServiceHealth")
 # Health-based coloring: green=healthy, yellow=degraded, red=down
 oHealthy = new stzVisualRule("healthy")
 oHealthy{
-	WhenMetadataEquals("status", "up")
-	ApplyColor("#00AA01")
+	When("status", :equals = "up")
+	ApplyColor("green")
 }
 
 oDegraded = new stzVisualRule("degraded")
 oDegraded{
-	WhenMetadataEquals("status", "degraded")
-	ApplyColor("#FFAA00")
+	When("status", :equals = "degraded")
+	ApplyColor("orange")
 	ApplyPenWidth(2)
 }
 
 oDown = new stzVisualRule("down")
 oDown {
-	WhenMetadataEquals("status", "down")
-	ApplyColor("#FF0000")
+	When("status", :equals = "down")
+	ApplyColor("red")
 	ApplyPenWidth(3)
 }
 
@@ -2135,20 +2162,25 @@ oDiag {
 	AddVisualRule(oDown)
 	AddVisualRule(oCritical)
 	
-	AddNodeWithMetaData("gateway", "API Gateway", :Process, :Primary,
-		[:status = "up", :latency_ms = 45], [:critical])
+	AddNodeXTT("gateway", "API Gateway", [
+		:type = "process", :color = "primary",
+		:status = "up", :latency_ms = 45, :tags = [:critical] ])
 	
-	AddNodeWithMetaData("auth", "Auth Service", :Process, :Primary,
-		[:status = "degraded", :latency_ms = 320], [:critical])
+	AddNodeXTT("auth", "Auth Service",  [
+		:type = "process", :color = "primary",
+		:status = "degraded", :latency_ms = 320, :tags = [:critical] ])
 	
-	AddNodeWithMetaData("users", "Users API", :Process, :Primary,
-		[:status = "up", :latency_ms = 80], [])
+	AddNodeXTT("users", "Users API",  [
+		:type = "process", :color = "primary",
+		:status = "up", :latency_ms = 80 ])
 	
-	AddNodeWithMetaData("orders", "Orders API", :Process, :Primary,
-		[:status = "down", :latency_ms = 0], [:critical])
+	AddNodeXTT("orders", "Orders API",  [
+		:type = "process", :color = "primary",
+		:status = "down", :latency_ms = 0, :tags = [:critical] ])
 	
-	AddNodeWithMetaData("db", "PostgreSQL", :Storage, :Info,
-		[:status = "up", :replicas = 3], [:critical])
+	AddNodeXTT("db", "PostgreSQL",  [
+		:type = "storage", :type = "info",
+		:status = "up", :replicas = 3, :tags = [:critical] ])
 	
 	Connect("gateway", "auth")
 	Connect("gateway", "users")
@@ -2165,26 +2197,22 @@ pf()
 #  Data Pipeline with Compliance
 #---------------------------#
 
-#ERR Datawarehsous node whoe on white!
 pr()
 
 oDiag = new stzDiagram("DataCompliance")
 
-# PII data gets special marking
 oPiiData = new stzVisualRule("pii")
 oPiiData {
 	WhenTagExists(:pii)
 	ApplyPenWidth(3)
 }
 
-# Encrypted connections
 oEncrypted = new stzVisualRule("encrypted")
 oEncrypted {
-	WhenMetadataEquals("encrypted", TRUE)
+	When("encrypted", :equals = TRUE)
 	ApplyStyle("bold")
 }
 
-# Audit logging required
 oAudited = new stzVisualRule("audit")
 oAudited {
 	WhenTagExists(:audit)
@@ -2192,39 +2220,49 @@ oAudited {
 }
 
 oDiag {
-	SetTheme(:vibrant)
 	SetLayout(:LeftRight)
 	
 	AddVisualRule(oPiiData)
 	AddVisualRule(oEncrypted)
 	AddVisualRule(oAudited)
 	
-	AddNodeWithMetaData("collect", "Data Collector", :Process, :Info,
-		[], [:audit])
+	AddNodeXTT("collect", "Data Collector", [
+		:type = "process", :color = "info", :tags = [:audit]
+	])
 	
-	AddNodeWithMetaData("transform", "ETL Pipeline", :Process, :Primary,
-		[], [])
+	AddNodeXTT("transform", "ETL Pipeline", [
+		:type = "process", :color = "primary"
+	])
 	
-	AddNodeWithMetaData("warehouse", "Data Warehouse", :Storage, :Success,
-		[:encrypted = TRUE], [:pii, :audit])
+	AddNodeXTT("warehouse", "Data Warehouse", [
+		:type = "storage", :color = "success",
+		:encrypted = TRUE, :tags = [:pii, :audit]
+	])
 	
-	AddNodeWithMetaData("analytics", "Analytics", :Process, :Primary,
-		[], [])
+	AddNodeXTT("analytics", "Analytics", [
+		:type = "process", :color = "primary"
+	])
 	
-	AddNodeWithMetaData("reports", "Reports", :Endpoint, :Info,
-		[], [:audit])
+	AddNodeXTT("reports", "Reports", [
+		:type = "endpoint", :color = "info",
+		:tags = [:audit]
+	])
 	
-	AddEdgeWithMetaData("collect", "transform", "raw", 
-		[:encrypted = FALSE], [])
+	AddEdgeXTT("collect", "transform", "raw", [
+		:encrypted = FALSE
+	])
 	
-	AddEdgeWithMetaData("transform", "warehouse", "store", 
-		[:encrypted = TRUE], [])
+	AddEdgeXTT("transform", "warehouse", "store", [
+		:encrypted = TRUE
+	])
 	
-	AddEdgeWithMetaData("warehouse", "analytics", "query", 
-		[:encrypted = TRUE], [])
+	AddEdgeXTT("warehouse", "analytics", "query", [
+		:encrypted = TRUE
+	])
 	
-	AddEdgeWithMetaData("analytics", "reports", "publish", 
-		[:encrypted = FALSE], [])
+	AddEdgeXTT("analytics", "reports", "publish", [
+		:encrypted = FALSE
+	])
 	
 	View()
 ? Code()
@@ -2235,6 +2273,7 @@ pf()
 /*---------------------------#
 #  Cost-Based Infrastructure
 #---------------------------#
+*/
 
 pr()
 
@@ -2243,19 +2282,19 @@ oDiag = new stzDiagram("CloudCosts")
 # Color by monthly cost
 oLowCost = new stzVisualRule("cheap")
 oLowCost {
-	WhenMetadataInRange("monthly_usd", 0, 100)
+	When("monthly_usd", :InSection = [0, 100])
 	ApplyColor("#E8F5E9")
 }
 
 oMedCost = new stzVisualRule("moderate")
 oMedCost {
-	WhenMetadataInRange("monthly_usd", 101, 500)
+	When("monthly_usd", :InSection = [101, 500])
 	ApplyColor("#FFF9C4")
 }
 
 oHighCost = new stzVisualRule("expensive")
 oHighCost {
-	WhenMetadataInRange("monthly_usd", 501, 9999)
+	When("monthly_usd", :InSection = [501, 9999])
 	ApplyColor("#FFCDD2")
 	ApplyPenWidth(3)
 }
@@ -2270,30 +2309,58 @@ oProduction {
 }
 
 oDiag {
+
+	# Presentation
+
 	SetTheme(:light)
 	
-	AddVisualRule(oLowCost)
-	AddVisualRule(oMedCost)
-	AddVisualRule(oHighCost)
-	AddVisualRule(oProduction)
+	# Structure
+
+	AddNodeXTT("lb", "Load Balancer", [
+		:type = "process",
+		:color = "primary",
+		:monthly_usd = 50,
+		:env = "prod",
+		:tags = [ "tag1", "tag2", "tag3" ]
+	])
 	
-	AddNodeWithMetaData("lb", "Load Balancer", :Process, :Primary,
-		[:monthly_usd = 50], [:production])
+	AddNodeXTT("app1", "App Server 1",  [
+		:type = "process",
+		:color = "primary",
+		:env = "prod",
+		:monthly_usd = 200,
+		:tags = [ "critical" ]
+	])
 	
-	AddNodeWithMetaData("app1", "App Server 1", :Process, :Primary,
-		[:monthly_usd = 200], [:production])
+	AddNodeXTT("app2", "App Server 2",  [
+		:type = "process",
+		:color = "primary",
+		:monthly_usd = 200,
+		:env = "preprod"
+	])
 	
-	AddNodeWithMetaData("app2", "App Server 2", :Process, :Primary,
-		[:monthly_usd = 200], [:production])
+	AddNodeXTT("rds", "RDS Database", [
+		:type = "storage",
+		:color = "info",
+		:monthly_usd = 800,
+		:env = "prod",
+		:tags = [ "critical" ]
+	])
 	
-	AddNodeWithMetaData("rds", "RDS Database", :Storage, :Info,
-		[:monthly_usd = 800], [:production])
+	AddNodeXTT("cache", "Redis Cache", [
+		:type = "storage",
+		:color = "warning",
+		:monthly_usd = 120,
+		:env = "prod",
+		:tags = [ "critical" ]
+	])
 	
-	AddNodeWithMetaData("cache", "Redis Cache", :Storage, :Warning,
-		[:monthly_usd = 120], [:production])
-	
-	AddNodeWithMetaData("s3", "S3 Storage", :Storage, :Success,
-		[:monthly_usd = 30], [:production])
+	AddNodeXTT("s3", "S3 Storage", [
+		:type = "storage",
+		:color = "success",
+		:monthly_usd = 30,
+		:env = "test"
+	])
 	
 	Connect("lb", "app1")
 	Connect("lb", "app2")
@@ -2303,8 +2370,74 @@ oDiag {
 	Connect("app2", "cache")
 	Connect("app1", "s3")
 	
-	View()
+	# Logic
+
+	AddVisualRule(oLowCost)
+	AddVisualRule(oMedCost)
+	AddVisualRule(oHighCost)
+	AddVisualRule(oProduction)
+	ApplyVisualRules()
+
+	# Output
+//	View()
 }
+
+# Softanza offers a powerful analytics API for visual rules
+
+# Analysis
+/*
+? @@NL( oDiag.Explain() ) + NL
+#-->
+`
+[
+	[ "diagram", "CloudCosts" ],
+	[
+		"structure",
+		"Diagram 'CloudCosts' contains 6 nodes and 7 edges."
+	],
+	[
+		"rules",
+		"Applied 4 visual rule(s): cheap, moderate, expensive, prod"
+	],
+	[
+		"effects",
+		"6 node(s) enhanced, 7 edge(s) enhanced."
+	]
+]
+`
+
+# All nodes with cost property
+? @@( oDiag.NodesWithProperty("monthly_usd") ) + NL
+#--> [ "lb", "app1", "app2", "rds", "cache", "s3" ]
+
+# Production nodes
+
+? @@( oDiag.NodesWith("env", :equals = "prod") ) + NL
+#--> [ "lb", "app1", "rds", "cache" ]
+
+# Mid-range cost
+? @@( oDiag.NodesWith("monthly_usd", :InSection = [100, 500]) ) + NL
+#--> [ "app1", "app2", "cache" ]
+
+*/
+
+# Edges with encryption property
+? @@( oDiag.EdgesWithProperty("encrypted") ) + NL
+
+/*
+# Synchronous edges
+? oDiag.EdgesWithPropertyValue("type", "sync") + NL
+
+# Other checks
+
+? oDiag.NodesAffectedByVRules() + NL
+
+? oDiag.NodesWithTag(:production) + NL
+
+? oDiag.VRulesApplied()
+*/
+
+#--> #TODO #ERR check correctnes of "effects" string
 
 pf()
 
@@ -2319,75 +2452,103 @@ oDiag = new stzDiagram("SecurityArchitecture")
 # Color by security zone
 oPublic = new stzVisualRule("public_zone")
 oPublic {
-	WhenMetadataEquals("zone", "public")
+	When("zone", :equals = "public")
 	ApplyColor("#FFE0B2")
 }
 
 oDmz = new stzVisualRule("dmz_zone")
 oDmz {
-	WhenMetadataEquals("zone", "dmz")
+	When("zone", :equals = "dmz")
 	ApplyColor("#FFF59D")
 }
 
 oPrivate = new stzVisualRule("private_zone")
 oPrivate {
-	WhenMetadataEquals("zone", "private")
+	When("zone", :equals = "private")
 	ApplyColor("#C8E6C9")
 }
 
 # Firewall edges
 oFirewall = new stzVisualRule("firewall")
 oFirewall {
-	WhenMetadataEquals("firewall", TRUE)
+	When("firewall", :equals = TRUE)
 	ApplyStyle("bold")
 	ApplyColor("#FF5722")
 	ApplyPenWidth(3)
 }
 
 oDiag {
+
 	SetTheme(:pro)
 	SetLayout(:TopDown)
 	
+	# Rules
+
 	AddVisualRule(oPublic)
 	AddVisualRule(oDmz)
 	AddVisualRule(oPrivate)
 	AddVisualRule(oFirewall)
 	
-	AddNodeWithMetaData("internet", "Internet", :Start, :Info,
-		[:zone = "public"], [])
+	# Nodes
+
+	AddNodeXTT("internet", "Internet", [
+		:tye = "start", :color = "info",
+		:zone = "public"
+	])
+
+	AddNodeXTT("waf", "WAF", [
+		:color = "process", :color = "warning",
+		:zone = "dmz", :tags = [:security]
+	])
+
+	AddNodeXTT("lb", "Load Balancer", [
+		:color = "process", :Primary,
+		[:zone = "dmz"]
+	])
+
+	AddNodeXTT("web", "Web Tier", [
+		:type = "process", :color = "primary",
+		:zone = "private"
+	])
+
+	AddNodeXTT("app", "App Tier", [
+		:type = "process", :color = "primary",
+		:zone = "private"
+	])
+
+	AddNodeXTT("db", "Database", [
+		:type = "storage", :color = "success",
+		:zone = "private", :tags = [:encrypted]
+	])
 	
-	AddNodeWithMetaData("waf", "WAF", :Process, :Warning,
-		[:zone = "dmz"], [:security])
+	# Edges
+
+	AddEdgeXTT("internet", "waf", "443", [
+		:firewall = TRUE
+	])
 	
-	AddNodeWithMetaData("lb", "Load Balancer", :Process, :Primary,
-		[:zone = "dmz"], [])
+	AddEdgeXTT("waf", "lb", "https",  [
+		:firewall = TRUE
+	])
 	
-	AddNodeWithMetaData("web", "Web Tier", :Process, :Primary,
-		[:zone = "private"], [])
+	AddEdgeXTT("lb", "web", "internal", [
+		:firewall = FALSE
+	])
 	
-	AddNodeWithMetaData("app", "App Tier", :Process, :Primary,
-		[:zone = "private"], [])
+	AddEdgeXTT("web", "app", "api", [ 
+		:firewall = TRUE
+	])
 	
-	AddNodeWithMetaData("db", "Database", :Storage, :Success,
-		[:zone = "private"], [:encrypted])
+	AddEdgeXTT("app", "db", "query",  [
+		:firewall = TRUE
+	])
 	
-	AddEdgeWithMetaData("internet", "waf", "443", 
-		[:firewall = TRUE], [])
-	
-	AddEdgeWithMetaData("waf", "lb", "https", 
-		[:firewall = TRUE], [])
-	
-	AddEdgeWithMetaData("lb", "web", "internal", 
-		[:firewall = FALSE], [])
-	
-	AddEdgeWithMetaData("web", "app", "api", 
-		[:firewall = TRUE], [])
-	
-	AddEdgeWithMetaData("app", "db", "query", 
-		[:firewall = TRUE], [])
-	
+
 	View()
+	? @@NL( Explain() )
 }
+#-->
+
 
 pf()
 
