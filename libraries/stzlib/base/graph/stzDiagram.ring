@@ -2071,16 +2071,17 @@ class stzDiagram from stzGraph
 	def NodesWith(pcKey, pValue)
 		if isList(pValue) and len(pValue) = 2 and isString(pValue[1])
 			cOperator = pValue[1]
+
 			switch cOperator
 			on "equals"
 				return This.NodesWithPropertyValue(pcKey, pValue[2])
 
-			on "InSection"
+			on "insection"
 				return This.NodesWithPropertyInSection(pcKey, pValue[2][1], pValue[2][2])
 			off
 		ok
 
-		return []
+		stzraise("Unsupported condition syntax!")
 
 	def NodesWithPropertyValue(pcKey, pValue)
 		if CheckParams()

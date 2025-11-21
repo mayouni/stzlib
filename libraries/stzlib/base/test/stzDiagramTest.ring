@@ -2270,10 +2270,9 @@ oDiag {
 
 pf()
 
-/*---------------------------#
-#  Cost-Based Infrastructure
-#---------------------------#
-*/
+/*----------------------------#
+#  Cost-Based Infrastructure  #
+#-----------------------------#
 
 pr()
 
@@ -2362,13 +2361,13 @@ oDiag {
 		:env = "test"
 	])
 	
-	Connect("lb", "app1")
+	ConnectXTT("lb", "app1", "", [ :encrypted = TRUE ])
 	Connect("lb", "app2")
 	Connect("app1", "rds")
 	Connect("app2", "rds")
 	Connect("app1", "cache")
 	Connect("app2", "cache")
-	Connect("app1", "s3")
+	ConnectXTT("app1", "s3", "", [ :encrypted = TRUE ])
 	
 	# Logic
 
@@ -2379,13 +2378,13 @@ oDiag {
 	ApplyVisualRules()
 
 	# Output
-//	View()
+	View()
 }
 
 # Softanza offers a powerful analytics API for visual rules
 
 # Analysis
-/*
+
 ? @@NL( oDiag.Explain() ) + NL
 #-->
 `
@@ -2419,27 +2418,106 @@ oDiag {
 ? @@( oDiag.NodesWith("monthly_usd", :InSection = [100, 500]) ) + NL
 #--> [ "app1", "app2", "cache" ]
 
-*/
-
 # Edges with encryption property
 ? @@( oDiag.EdgesWithProperty("encrypted") ) + NL
+#--> [ "lb->app1", "app1->s3" ]
 
-/*
 # Synchronous edges
-? oDiag.EdgesWithPropertyValue("type", "sync") + NL
+? @@( oDiag.EdgesWithPropertyValue("type", "sync") ) + NL
 
-# Other checks
+# Nodes affected by visual rules
 
-? oDiag.NodesAffectedByVRules() + NL
+? @@( oDiag.NodesAffectedByVRules() )+ NL
+#--> [ "lb", "app1", "app2", "rds", "cache", "s3" ]
 
-? oDiag.NodesWithTag(:production) + NL
+# Nodes containing a given tag
 
-? oDiag.VRulesApplied()
-*/
+? @@NL( oDiag.NodesWithTag(:critical) ) + NL
+#--> [ "app1", "rds", "cache" ]
+
+# All the applied rules
+? @@NL( oDiag.VRulesApplied() )
+#-->
+`
+[
+	[ "haseffects", 1 ],
+	[
+		"summary",
+		"4 rule(s) defined, 13 element(s) affected"
+	],
+	[
+		"rules",
+		[
+			[
+				[ "id", "cheap" ],
+				[ "condition", "metadata_range" ],
+				[
+					"conditionparams",
+					[ "monthly_usd", 0, 100 ]
+				],
+				[
+					"effects",
+					[
+						[ "color", "#E8F5E9" ]
+					]
+				],
+				[
+					"affectednodes",
+					[ "lb", "s3" ]
+				],
+				[ "affectededges", [  ] ],
+				[ "matchcount", 2 ]
+			],
+			[
+				[ "id", "moderate" ],
+				[ "condition", "metadata_range" ],
+				[
+					"conditionparams",
+					[ "monthly_usd", 101, 500 ]
+				],
+				[
+					"effects",
+					[
+						[ "color", "#FFF9C4" ]
+					]
+				],
+				[
+					"affectednodes",
+					[ "app1", "app2", "cache" ]
+				],
+				[ "affectededges", [  ] ],
+				[ "matchcount", 3 ]
+			],
+			[
+				[ "id", "expensive" ],
+				[ "condition", "metadata_range" ],
+				[
+					"conditionparams",
+					[ "monthly_usd", 501, 9999 ]
+				],
+				[
+					"effects",
+					[
+						[ "color", "#FFCDD2" ],
+						[ "penwidth", 3 ]
+					]
+				],
+				[
+					"affectednodes",
+					[ "rds" ]
+				],
+				[ "affectededges", [  ] ],
+				[ "matchcount", 1 ]
+			]
+		]
+	]
+]
+`
+
+pf()
 
 #--> #TODO #ERR check correctnes of "effects" string
 
-pf()
 
 /*---------------------------#
 #  Security Zones
@@ -2548,14 +2626,27 @@ oDiag {
 	? @@NL( Explain() )
 }
 #-->
-
+`
+[
+	[ "diagram", "SecurityArchitecture" ],
+	[
+		"structure",
+		"Diagram 'SecurityArchitecture' contains 6 nodes and 5 edges."
+	],
+	[
+		"rules",
+		"Applied 4 visual rule(s): public_zone, dmz_zone, private_zone, firewall"
+	],
+	[ "effects", "No rules matched any elements." ]
+]
+`
 
 pf()
 
 /*---------------------------#
 #  CI/CD Pipeline States
 #---------------------------#
-
+*/
 pr()
 
 oDiag = new stzDiagram("DeploymentPipeline")
@@ -2567,33 +2658,6 @@ oPassed {
 	When(:lastrun, :Equals = "pass")
 	UseColor("#4CAF50") # Allow resolving color name (like :red), semantic (like :Success)
 	# Add UseColorXT("red++", "white") # first is node background, the second is the color of the text
-
-# We should not favoor the use of actual colore values, especially when they
-# are hex values because they are not expressive. Keep them supported but add
-# the resolvecolor feature anywhre to allow using colore names and color semantic types
-# as noted above. Also, make a semantic engering of color names so they are bot
-# powerful and string to use:
-
-# all starts by givin a name to an actual hex color in an abstruct gloabla container
-# called @acColors not as it is made now (splitted between @acEdgeColors and other containers)
-
-# Also, it's confusing to say $acNodeColors = [ :Start = "lightgreen", ... ] while they
-# are actually $acNodeTypesAndTheirColors or $acNodeColorByType. This is not a superficial naming
-# choice, because it frees the name @acColors from any dependency to anything, because the same
-# coloers can be used with any thing
-
-# The same clean naming design should be applied to colors semantics meaning, so we keep oonly one
-# copy of everthing and just make the ling between them in an other container.
-
-# Also, the color names should be creatively simple and powerfully expressive in the same time:
-# so each color will have 5 levels of densitin: gray--, gray-, gray, gray+, and gray+++
-# The feature should be automatically activated for any new color we add to the unique color container
-# where we define names for coler within their actual hexvalues. So for example, whey we add :cyan = "#00FFFF",
-# then cyan--, cyan--, cyan+, and cyan++ should all be supported (and resolved when used as coloer values anywhre)
-# (even in other classes, so make the resolve color dature as global function)
-
-# also, wwe should avoit confusing namings like "lightgreen" and "lightgreen" and use
-# "green-" instead, etc.
 
 
 //	WhenMetadataEquals("last_run", "pass")
