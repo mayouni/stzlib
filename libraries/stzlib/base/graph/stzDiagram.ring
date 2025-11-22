@@ -707,11 +707,7 @@ class stzDiagram from stzGraph
 	@cFont = $cDefaultFont
 	@nFontSize = $cDefaultFontSize
 
-	@aoVisualRules = []
 	@aMetadataKeys = []
-
-	@aNodeEnhancements = []
-	@aEdgeEnhancements = []
 
 	# Validation state
 	@cLastValidator = ""
@@ -732,6 +728,7 @@ class stzDiagram from stzGraph
 	@cArrowHead = "normal"
 	@cArrowTail = "none"
 
+	@aVisualRules = []
 
 	def init(pTitle)
 		super.init(pTitle)
@@ -847,15 +844,6 @@ class stzDiagram from stzGraph
 	
 	def PenWidth()
 		return @nPenWidth
-
-	def VisualRules()
-		return @aoVisualRules
-	
-	def NodeEnhancements()
-		return @aNodeEnhancements
-	
-	def EdgeEnhancements()
-		return @aEdgeEnhancements
 
 	#------------------------------------------
 	#  COLOR RESOLUTION
@@ -1510,91 +1498,54 @@ class stzDiagram from stzGraph
 		bSuccess = oConv.WriteToFile(pcFileName)
 		return bSuccess
 
-	#========================================#
-	#  VISUAL RULES AND RULES ANALYTICS API  #
-	#========================================#
+	#===========================#
+	#  VISUAL RULES MANAGEMENT  #
+	#===========================#
 
-	def AddVisualRule(poRule)
-		@aoVisualRules + poRule
+	def AddVisualRule(p)
+		if isString(p)
+			if HasKey(@aVisualRules, p)
+				return
+			else
+				stzraise("Visual rule '" + p + "' not found")
+			ok
+		but isObject(p) and ring_classname(p) = "stzvisualrule"
+			@aVisualRules[p.@cRuleId] = p
+			This.AddRule(p)  # Also add to parent @aRules
+		ok
 	
-
+		def AddVisualRuleObject(oVisualRule)
+			This.AddVisualRule(oVisualRule)
+	
+	def RemoveVisualRule(p)
+		if isString(p)
+			@aVisualRules[p] = NULL
+			This.RemoveRule(p)
+		but isObject(p)
+			@aVisualRules[p.@cRuleId] = NULL
+			This.RemoveRule(p)
+		ok
+	
+	def VisualRule(pcRuleId)
+		return @aVisualRules[pcRuleId]
+	
+		def VisualRuleObject(pcRuleId)
+			return This.VisualRule(pcRuleId)
+	
+	def VisualRules()
+		return @aVisualRules
+	
+		def VisualRuleObjects()
+			return @aVisualRules
+	
 	def ApplyVisualRules()
-	    aNodes = This.Nodes()
-	    nLen = len(aNodes)
+		This.ApplyRules()  # Delegates to parent
 	
-	    for i = 1 to nLen
-	        aNode = aNodes[i]
-	        cNodeId = aNode["id"]
-	        
-	        # Build context from all properties (metadata is IN properties, not separate)
-	        aContext = aNode
-	        if HasKey(aNode, "properties") and aNode["properties"] != NULL
-	            aContext["metadata"] = aNode["properties"]
-	            aContext["tags"] = []
-	            if HasKey(aNode["properties"], "tags")
-	                aContext["tags"] = aNode["properties"]["tags"]
-	            ok
-	        ok
-	        
-	        # Apply matching rules
-	        nLenRules = len(@aoVisualRules)
-	        for j = 1 to nLenRules
-	            if @aoVisualRules[j].Matches(aContext)
-	                aEffects = @aoVisualRules[j].Effects()
-	                nLenEffects = len(aEffects)
-	
-	                for k = 1 to nLenEffects
-	                    cAspect = aEffects[k][1]
-	                    pValue = aEffects[k][2]
-	                    This.SetNodeProperty(cNodeId, cAspect, pValue)
-	                end
-	            ok
-	        end
-	        
-	        if HasKey(aNode, "properties")
-	            @aNodeEnhancements[cNodeId] = aNode["properties"]
-	        ok
-	    end
-	    
-	    # Process edges
-	    aEdges = This.Edges()
-	    nLen = len(aEdges)
-	
-	    for i = 1 to nLen
-	        aEdge = aEdges[i]
-	        cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
-	        
-	        # Build context
-	        aContext = aEdge
-	        if HasKey(aEdge, "properties") and aEdge["properties"] != NULL
-	            aContext["metadata"] = aEdge["properties"]
-	            aContext["tags"] = []
-	            if HasKey(aEdge["properties"], "tags")
-	                aContext["tags"] = aEdge["properties"]["tags"]
-	            ok
-	        ok
-	        
-	        # Apply matching rules
-	        nLenRules = len(@aoVisualRules)
-	        for j = 1 to nLenRules
-	            if @aoVisualRules[j].Matches(aContext)
-	                aEffects = @aoVisualRules[j].Effects()
-	                nLenEffects = len(aEffects)
-	
-	                for k = 1 to nLenEffects
-	                    cAspect = aEffects[k][1]
-	                    pValue = aEffects[k][2]
-	                    This.SetEdgeProperty(aEdge["from"], aEdge["to"], cAspect, pValue)
-	                end
-	            ok
-	        end
-	        
-	        if HasKey(aEdge, "properties")
-	            @aEdgeEnhancements[cEdgeKey] = aEdge["properties"]
-	        ok
-	    end
-	
-	# Get diagram overview with rules context
+	#-----------------------------------------#
+	# Get diagram overview with rules context #
+	#-----------------------------------------#
+
+	#TODO// Abstract in stzGraph and specilise here
 	def Explain()
 		aExplanation = [
 			:diagram = @cId,
@@ -2933,9 +2884,9 @@ class stzDiagramToStzDiag
 		return cResult
 
 
-#=====================================================
-#  stzDiagramToDot - GRAPHVIZ DOT (UPDATED)
-#=====================================================
+#==================================#
+#  stzDiagramToDot - GRAPHVIZ DOT  #
+#==================================#
 
 class stzDiagramToDot
 
@@ -2951,10 +2902,11 @@ class stzDiagramToDot
 
 
 	def _Generate()
-		cOutput = ""
 
+		cOutput = ""
+		
 		# Apply visual rules if any
-		if len(@oDiagram.@aoVisualRules) > 0
+		if len(@oDiagram.@aVisualRules) > 0
 			@oDiagram.ApplyVisualRules()
 		ok
 		
@@ -3135,36 +3087,29 @@ class stzDiagramToDot
 		cNodeId = This._SanitizeNodeId(aNode["id"])
 		cLabel = aNode["label"]
 		
-		# Get enhancements
-		aEnhancements = []
-		if HasKey(@oDiagram.@aNodeEnhancements, aNode["id"])
-			aEnhancements = @oDiagram.@aNodeEnhancements[aNode["id"]]
+		aAppliedRules = []
+		if HasKey(@oDiagram.@aNodesAffectedByRules, aNode["id"])
+			aAppliedRules = @oDiagram.@aNodesAffectedByRules[aNode["id"]]
 		ok
 		
-		# Get shape and style
-		cShape = This._GetNodeShape(aNode, aEnhancements)
-		cStyle = This._GetNodeStyle(aNode, aEnhancements)
-		
-		# Get colors
-		cFillColor = This._GetNodeFillColor(aNode, aEnhancements, cTheme)
+		cShape = This._GetNodeShape(aNode, aAppliedRules)
+		cStyle = This._GetNodeStyle(aNode, aAppliedRules)
+		cFillColor = This._GetNodeFillColor(aNode, aAppliedRules, cTheme)
 		cFontColor = @oDiagram.ResolveFontColor(cFillColor)
 		cStrokeColor = This._GetNodeStrokeColor(cTheme)
 		
-		# Build node line
 		cOutput = '    ' + cNodeId + ' [label="' + cLabel + '"'
 		cOutput += ', shape=' + cShape
 		cOutput += ', style="' + cStyle + '"'
 		cOutput += ', fillcolor="' + cFillColor + '"'
 		cOutput += ', fontcolor="' + cFontColor + '"'
 		
-		# Add pen width - check enhancements AND properties
-		if HasKey(aEnhancements, "penwidth")
-			cOutput += ', penwidth=' + aEnhancements["penwidth"]
+		if HasKey(aAppliedRules, "penwidth")
+			cOutput += ', penwidth=' + aAppliedRules["penwidth"]
 		but HasKey(aNode, "properties") and HasKey(aNode["properties"], "penwidth")
 			cOutput += ', penwidth=' + aNode["properties"]["penwidth"]
 		ok
 		
-		# Add stroke color
 		if cStrokeColor != ""
 			cOutput += ', color="' + cStrokeColor + '"'
 		ok
@@ -3172,6 +3117,7 @@ class stzDiagramToDot
 		cOutput += ']' + NL
 		
 		return cOutput
+
 	
 	def _SanitizeNodeId(cNodeId)
 		if left(cNodeId, 1) = "@"
@@ -3182,8 +3128,8 @@ class stzDiagramToDot
 	
 	def _GetNodeShape(aNode, aEnhancements)
 		# Check enhancements FIRST (from visual rules)
-		if HasKey(aEnhancements, "shape")
-			return aEnhancements["shape"]
+		if HasKey(aAppliedRules, "shape")
+			return aAppliedRules["shape"]
 		ok
 		
 		# Check node properties for explicit shape
@@ -3269,9 +3215,8 @@ class stzDiagramToDot
 			cColor = aNode["properties"]["color"]
 		ok
 		
-		# Then check enhancements
-		if (cColor = "" or cColor = NULL) and HasKey(aEnhancements, "color")
-			cColor = aEnhancements["color"]
+		if (cColor = "" or cColor = NULL) and HasKey(aAppliedRules, "color")
+			cColor = aAppliedRules["color"]
 		ok
 		
 		# Default
@@ -3344,30 +3289,31 @@ class stzDiagramToDot
 	def _GenerateEdge(aEdge, cTheme)
 		cFrom = This._SanitizeNodeId(aEdge["from"])
 		cTo = This._SanitizeNodeId(aEdge["to"])
+		cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
 		
 		cOutput = '    ' + cFrom + ' -> ' + cTo
-		
 		aAttrs = []
 		
-		# Label
 		if HasKey(aEdge, "label") and aEdge["label"] != "" and aEdge["label"] != NULL
 			aAttrs + ('label=" ' + aEdge["label"] + '"')
 		ok
 		
-		# Style from properties
-		if HasKey(aEdge, "properties") and HasKey(aEdge["properties"], "style")
-			aAttrs + ('style="' + aEdge["properties"]["style"] + '"')
-		ok
-		
-		# Color from properties
-		if HasKey(aEdge, "properties") and HasKey(aEdge["properties"], "color")
-			cColor = ResolveColor(aEdge["properties"]["color"])
-			aAttrs + ('color="' + cColor + '"')
-		ok
-		
-		# Pen width from properties
-		if HasKey(aEdge, "properties") and HasKey(aEdge["properties"], "penwidth")
-			aAttrs + ('penwidth=' + aEdge["properties"]["penwidth"])
+		# Check rule effects from parent
+		if HasKey(@oDiagram.@aEdgesAffectedByRules, cEdgeKey)
+			aAppliedRules = @oDiagram.@aEdgesAffectedByRules[cEdgeKey]
+			
+			if HasKey(aAppliedRules, "style")
+				aAttrs + ('style="' + aAppliedRules["style"] + '"')
+			ok
+			
+			if HasKey(aAppliedRules, "color")
+				cColor = ResolveColor(aAppliedRules["color"])
+				aAttrs + ('color="' + cColor + '"')
+			ok
+			
+			if HasKey(aAppliedRules, "penwidth")
+				aAttrs + ('penwidth=' + aAppliedRules["penwidth"])
+			ok
 		ok
 		
 		if len(aAttrs) > 0
@@ -3375,7 +3321,6 @@ class stzDiagramToDot
 		ok
 		
 		cOutput += NL
-		
 		return cOutput
 	
 	def _JoinAttributes(aAttrs)
@@ -3541,158 +3486,21 @@ class stzDiagramToJSON
 #  VISUAL RULES
 #------------------
 
-class stzVisualRule
-	@cRuleId
-	@cConditionType  # :metadata_exists, :metadata_equals, :metadata_range, :tag_exists
-	@aConditionParams
-	@aVisualEffects  # List of [aspect, value] pairs
+class stzDiagramRule from stzVisualRule
+class stzVisualRule from stzGraphRule
 	
-	def init(pcRuleId)
-		@cRuleId = pcRuleId
-		@aVisualEffects = []
-	
-	def WhenMetadataExists(pcKey)
-		@cConditionType = :metadata_exists
-		@aConditionParams = [pcKey]
-
-	def When(pcKey, pValue)
-		if isList(pValue)
-			oVal = StzListQ(pValue)
-			if oVal.IsEqualsNamedParam()
-				This.WhenMetaDataEquals(pcKey, pValue[2])
-				return
-
-			but oVal.IsInSectionNamedParam()
-				This.WhenMetadataInSection(pcKey, pValue[2][1], pValue[2][2])
-				return
-			ok
-
-		but isString(pValue)
-			if pValue = "exists"
-				This.WhenMetadataExists(pcKey)
-				This.WhenTagExists(pcKey)
-				return
-			ok
-		ok
-
-		StzRaise("Unsupported syntax!")
-
-	
-	def WhenMetaDataEquals(pcKey, pValue)
-		@cConditionType = :metadata_equals
-		@aConditionParams = [pcKey, pValue]
-
-	def WhenMetadataInSection(pcKey, nMin, nMax)
-		@cConditionType = :metadata_range
-		@aConditionParams = [pcKey, nMin, nMax]
-	
-	def WhenTag(pcTag, pcExists)
-		return This.WhenTagExists(pcTag)
-
-	def WhenTagExists(pcTag)
-		@cConditionType = :tag_exists
-		@aConditionParams = [pcTag]
-	
+	# Visual-specific application methods
 	def ApplyColor(pColor)
-		cResolvedColor = ResolveColor(pColor)
-		@aVisualEffects + [:color, cResolvedColor]
+		This.Apply(:color, pColor)
 	
-		def UseColor(pColor)
-			This.ApplyColor(pColor)
-
 	def ApplyShape(pcShape)
-		@aVisualEffects + [:shape, pcShape]
+		This.Apply(:shape, pcShape)
 	
-		def UseShape(pcShape)
-			This.ApplyShape(pcShape)
-
 	def ApplyStyle(pcStyle)
-		@aVisualEffects + [:style, pcStyle]
+		This.Apply(:style, pcStyle)
 	
-		def UseStyle(pcStyle)
-			This.ApplyStyle(pcStyle)
-
 	def ApplyPenWidth(nWidth)
-		@aVisualEffects + [:penwidth, nWidth]
-	
-		def UsePenWidth(nWidth)
-			This.ApplyPenWidth(nWidth)
-
-		def SetPenWidth(nWidth)
-			This.ApplyPenWidth(nWidth)
-
-	def Matches(aNodeOrEdge)
-	    switch @cConditionType
-	    on :metadata_exists
-	        cKey = @aConditionParams[1]
-	        if HasKey(aNodeOrEdge, "metadata")
-	            return HasKey(aNodeOrEdge["metadata"], cKey)
-	        ok
-	        if HasKey(aNodeOrEdge, "properties")
-	            return HasKey(aNodeOrEdge["properties"], cKey)
-	        ok
-	        return FALSE
-	    
-	    on :metadata_equals
-	        cKey = @aConditionParams[1]
-	        pValue = @aConditionParams[2]
-	        
-	        # Check metadata sub-hash
-	        if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
-	            return aNodeOrEdge["metadata"][cKey] = pValue
-	        ok
-	        
-	        # Check properties directly
-	        if HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], cKey)
-	            return aNodeOrEdge["properties"][cKey] = pValue
-	        ok
-	        
-	        return FALSE
-	    
-	    on :metadata_range
-	        cKey = @aConditionParams[1]
-	        nMin = @aConditionParams[2]
-	        nMax = @aConditionParams[3]
-	        
-	        nValue = NULL
-	        if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
-	            nValue = aNodeOrEdge["metadata"][cKey]
-	        but HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], cKey)
-	            nValue = aNodeOrEdge["properties"][cKey]
-	        ok
-	        
-	        if nValue != NULL
-	            return nValue >= nMin and nValue <= nMax
-	        ok
-	        return FALSE
-	    
-	    on :tag_exists
-	        cTag = @aConditionParams[1]
-	        if HasKey(aNodeOrEdge, "tags")
-	            return ring_find(aNodeOrEdge["tags"], cTag) > 0
-	        ok
-	        if HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], "tags")
-	            return ring_find(aNodeOrEdge["properties"]["tags"], cTag) > 0
-	        ok
-	        return FALSE
-	    off
-	    
-	    return FALSE
-	
-	def Effects()
-		return @aVisualEffects
-
-
-	def RemoveNodes()
-	    super.RemoveNodes()
-	    @aNodeEnhancements = []
-	    @aEdgeEnhancements = []
-
-	    def RemoveAllNodes()
-		This.RemoveNodes()
-
-	    def Clear()
-		This.RemoveNodes()
+		This.Apply(:penwidth, nWidth)
 
 #------------------------#
 #  COLOR RESOLVER CLASS  #

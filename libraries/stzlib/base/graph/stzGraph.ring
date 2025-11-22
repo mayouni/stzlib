@@ -54,11 +54,18 @@ class stzGraph
 	@aNodes = []
 	@acEdges = []
 
+	# Rule system
+	@aRules = []
+	@aNodesAffectedByRules = []
+	@aEdgesAffectedByRules = []
+
 	def init(pcId)
 		@cId = pcId
-		@aNodes = []
+		@acNodes = []
 		@acEdges = []
-		@acProperties = []
+		@aRules = []
+		@aNodesAffectedByRules = []
+		@aEdgesAffectedByRules = []
 
 	def Id()
 		return @cId
@@ -405,10 +412,10 @@ class stzGraph
 	
 	# Remove all nodes (and their edges)
 	def RemoveNodes()
-		@aNodes = []
+		@acNodes = []
 		@acEdges = []
-		@aNodeEnhancements = []
-		@aEdgeEnhancements = []
+		@aNodesAffectedByRules = []
+		@aEdgesAffectedByRules = []
 	
 		def RemoveAllNodes()
 			This.RemoveNodes()
@@ -484,7 +491,7 @@ class stzGraph
 	# Remove all edges
 	def RemoveEdges()
 		@acEdges = []
-		@aEdgeEnhancements = []
+		@aEdgesAffectedByRules = []
 	
 		def RemoveAllEdges()
 			This.RemoveEdges()
@@ -1117,35 +1124,35 @@ def NodePosition(pcNodeId)
 	#  REACHABILITY & CONNECTIVITY
 	#------------------------------------------
 
-def ReachableFrom(pcNodeId)
-	if NOT This.NodeExists(pcNodeId)
-		return []
-	ok
-	
-	acReachable = []
-	acVisited = []
-	acQueue = [pcNodeId]
-	acVisited + pcNodeId
-	nQueueIdx = 1
-
-	while nQueueIdx <= len(acQueue)
-		cCurrent = acQueue[nQueueIdx]
-		acReachable + cCurrent
+	def ReachableFrom(pcNodeId)
+		if NOT This.NodeExists(pcNodeId)
+			return []
+		ok
 		
-		acNeighbors = This.Neighbors(cCurrent)
-		nLen = len(acNeighbors)
-		for i = 1 to nLen
-			cNeighbor = acNeighbors[i]
-			if find(acVisited, cNeighbor) = 0
-				acVisited + cNeighbor
-				acQueue + cNeighbor
-			ok
+		acReachable = []
+		acVisited = []
+		acQueue = [pcNodeId]
+		acVisited + pcNodeId
+		nQueueIdx = 1
+	
+		while nQueueIdx <= len(acQueue)
+			cCurrent = acQueue[nQueueIdx]
+			acReachable + cCurrent
+			
+			acNeighbors = This.Neighbors(cCurrent)
+			nLen = len(acNeighbors)
+			for i = 1 to nLen
+				cNeighbor = acNeighbors[i]
+				if find(acVisited, cNeighbor) = 0
+					acVisited + cNeighbor
+					acQueue + cNeighbor
+				ok
+			end
+			
+			nQueueIdx += 1
 		end
 		
-		nQueueIdx += 1
-	end
-	
-	return acReachable
+		return acReachable
 
 	
 	def _ReachableBFS(pcNodeId, pacReachable, pacVisited)
@@ -1233,7 +1240,7 @@ def ReachableFrom(pcNodeId)
 
 		return nMax
 
-#------------------------------------------
+	#------------------------------------------
 	#  1. INDEPENDENCE AND PARALLELIZATION
 	#------------------------------------------
 
@@ -1503,11 +1510,192 @@ def ReachableFrom(pcNodeId)
 	    end
 	    
 	    return acViolations
-	
 
-	#------------------------------------------
-	#  4. INFERENCE AND IMPLICIT KNOWLEDGE
-	#------------------------------------------
+	#--------------------#
+	#  RULES MANAGEMENT  #
+	#--------------------#
+
+	def AddRule(p)
+		if isString(p)
+			if HasKey(@aRules, p)
+				return
+			else
+				stzraise("Rule '" + p + "' not found")
+			ok
+		but isObject(p) and ring_classname(p) = "stzrule"
+			@aRules[p.@cRuleId] = p
+		ok
+	
+		def AddRuleObject(oRule)
+			This.AddRule(oRule)
+	
+	def RemoveRule(p)
+		if isString(p)
+			@aRules[p] = NULL
+		but isObject(p)
+			@aRules[p.@cRuleId] = NULL
+		ok
+	
+	def Rule(pcRuleId)
+		return @aRules[pcRuleId]
+	
+		def RuleObject(pcRuleId)
+			return This.Rule(pcRuleId)
+	
+	def Rules()
+		return @aRules
+	
+		def RuleObjects()
+			return @aRules
+
+	def ApplyRules()
+		aNodes = This.Nodes()
+		nLen = len(aNodes)
+		
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			cNodeId = aNode["id"]
+			aContext = This._BuildRuleContext(aNode)
+			
+			acRuleIds = keys(@aRules)
+			nRuleLen = len(acRuleIds)
+			
+			for j = 1 to nRuleLen
+				oRule = @aRules[acRuleIds[j]]
+				if oRule.Matches(aContext)
+					aEffects = oRule.Effects()
+					nEffLen = len(aEffects)
+					
+					for k = 1 to nEffLen
+						cAspect = aEffects[k][1]
+						pValue = aEffects[k][2]
+						This.SetNodeProperty(cNodeId, cAspect, pValue)
+					end
+				ok
+			end
+			
+			if HasKey(aNode, "properties")
+				@aNodesAffectedByRules[cNodeId] = aNode["properties"]
+			ok
+		end
+		
+		aEdges = This.Edges()
+		nLen = len(aEdges)
+		
+		for i = 1 to nLen
+			aEdge = aEdges[i]
+			cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
+			aContext = This._BuildRuleContext(aEdge)
+			
+			acRuleIds = keys(@aRules)
+			nRuleLen = len(acRuleIds)
+			
+			for j = 1 to nRuleLen
+				oRule = @aRules[acRuleIds[j]]
+				if oRule.Matches(aContext)
+					aEffects = oRule.Effects()
+					nEffLen = len(aEffects)
+					
+					for k = 1 to nEffLen
+						cAspect = aEffects[k][1]
+						pValue = aEffects[k][2]
+						This.SetEdgeProperty(aEdge["from"], aEdge["to"], cAspect, pValue)
+					end
+				ok
+			end
+			
+			if HasKey(aEdge, "properties")
+				@aEdgesAffectedByRules[cEdgeKey] = aEdge["properties"]
+			ok
+		end
+	
+	def _BuildRuleContext(aNodeOrEdge)
+		aContext = aNodeOrEdge
+		
+		if HasKey(aNodeOrEdge, "properties") and aNodeOrEdge["properties"] != NULL
+			aContext["metadata"] = aNodeOrEdge["properties"]
+			aContext["tags"] = []
+			if HasKey(aNodeOrEdge["properties"], "tags")
+				aContext["tags"] = aNodeOrEdge["properties"]["tags"]
+			ok
+		ok
+		
+		return aContext
+
+	#--------------------------#
+	#  RULES ANALYSIS METHODS  #
+	#--------------------------#
+
+	def NodesAffectedByRule(pcRuleId)
+		oRule = This.Rule(pcRuleId)
+		if oRule = NULL
+			return []
+		ok
+		return This.NodesAffectedByRuleObject(oRule)
+	
+	def NodesAffectedByRuleObject(oRule)
+		acAffected = []
+		acNodeIds = keys(@aNodesAffectedByRules)
+		nLen = len(acNodeIds)
+		
+		for i = 1 to nLen
+			aNode = This.Node(acNodeIds[i])
+			aContext = This._BuildRuleContext(aNode)
+			if oRule.Matches(aContext)
+				acAffected + acNodeIds[i]
+			ok
+		end
+		
+		return acAffected
+
+	def RulesApplied()
+		aResult = [
+			:hasEffects = FALSE,
+			:summary = "",
+			:rules = []
+		]
+		
+		bHasEffects = (len(@aNodesAffectedByRules) > 0 or len(@aEdgesAffectedByRules) > 0)
+		aResult[:hasEffects] = bHasEffects
+		
+		if NOT bHasEffects
+			aResult[:summary] = "No rules matched any elements."
+			return aResult
+		ok
+		
+		acRuleIds = keys(@aRules)
+		aResult[:summary] = len(acRuleIds) + " rule(s) defined, " + 
+		                     (len(@aNodesAffectedByRules) + len(@aEdgesAffectedByRules)) + " element(s) affected"
+		
+		nLenRules = len(acRuleIds)
+		for i = 1 to nLenRules
+			cRuleId = acRuleIds[i]
+			oRule = @aRules[cRuleId]
+			
+			acAffectedNodes = This.NodesAffectedByRule(cRuleId)
+			acAffectedEdges = This.EdgesAffectedByRule(cRuleId)
+			
+			bRuleMatched = (len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0)
+			
+			if bRuleMatched
+				aRuleInfo = [
+					:id = cRuleId,
+					:condition = oRule.@cConditionType,
+					:conditionParams = oRule.@aConditionParams,
+					:effects = oRule.Effects(),
+					:affectedNodes = acAffectedNodes,
+					:affectedEdges = acAffectedEdges,
+					:matchCount = len(acAffectedNodes) + len(acAffectedEdges)
+				]
+				aResult[:rules] + aRuleInfo
+			ok
+		end
+		
+		return aResult
+
+	#------------------------------------#
+	#  INFERENCE AND IMPLICIT KNOWLEDGE  #
+	#------------------------------------#
 
 	def AddInferenceRule(pcRuleType)
 	    if NOT isList(@acProperties)
@@ -2495,11 +2683,9 @@ def ReachableFrom(pcNodeId)
 		oViz = new stzGraphExplainer(This)
 		return oViz.Explain()
 
-#--------------------------------------------------#
-#  A CLASS TO GENERATE ASCII GRAPH REPRESENTATION  #
-#--------------------------------------------------#
 
-class stzGraphanalyzer
+
+class stzGraphAnalyzer
 
 	@oGraph
 
@@ -3162,3 +3348,104 @@ class stzGraphAsciiVisualizer
 		
 		return aoLegend
 
+
+
+class stzGraphRule
+	@cRuleId
+	@cConditionType
+	@aConditionParams
+	@aEffects
+	
+	def init(pcRuleId)
+		@cRuleId = pcRuleId
+		@aEffects = []
+	
+	def WhenPropertyExists(pcKey)
+		@cConditionType = :property_exists
+		@aConditionParams = [pcKey]
+
+	def When(pcKey, pValue)
+		if isList(pValue)
+			oVal = StzListQ(pValue)
+			if oVal.IsEqualsNamedParam()
+				This.WhenPropertyEquals(pcKey, pValue[2])
+				return
+			but oVal.IsInRangeNamedParam() or oVal.IsInSectionNamedParam()
+				This.WhenPropertyInRange(pcKey, pValue[2][1], pValue[2][2])
+				return
+			ok
+		but isString(pValue)
+			if pValue = "exists"
+				This.WhenPropertyExists(pcKey)
+				return
+			ok
+		ok
+		stzraise("Unsupported syntax!")
+
+	def WhenPropertyEquals(pcKey, pValue)
+		@cConditionType = :property_equals
+		@aConditionParams = [pcKey, pValue]
+
+	def WhenPropertyInRange(pcKey, nMin, nMax)
+		@cConditionType = :property_range
+		@aConditionParams = [pcKey, nMin, nMax]
+	
+	def WhenTagExists(pcTag)
+		@cConditionType = :tag_exists
+		@aConditionParams = [pcTag]
+	
+	def Apply(cAspect, pValue)
+		@aEffects + [cAspect, pValue]
+
+	def Matches(aNodeOrEdge)
+		switch @cConditionType
+		on :property_exists
+			cKey = @aConditionParams[1]
+			if HasKey(aNodeOrEdge, "metadata")
+				return HasKey(aNodeOrEdge["metadata"], cKey)
+			ok
+			if HasKey(aNodeOrEdge, "properties")
+				return HasKey(aNodeOrEdge["properties"], cKey)
+			ok
+			return FALSE
+		
+		on :property_equals
+			cKey = @aConditionParams[1]
+			pValue = @aConditionParams[2]
+			if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
+				return aNodeOrEdge["metadata"][cKey] = pValue
+			ok
+			if HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], cKey)
+				return aNodeOrEdge["properties"][cKey] = pValue
+			ok
+			return FALSE
+		
+		on :property_range
+			cKey = @aConditionParams[1]
+			nMin = @aConditionParams[2]
+			nMax = @aConditionParams[3]
+			nValue = NULL
+			if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
+				nValue = aNodeOrEdge["metadata"][cKey]
+			but HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], cKey)
+				nValue = aNodeOrEdge["properties"][cKey]
+			ok
+			if nValue != NULL
+				return nValue >= nMin and nValue <= nMax
+			ok
+			return FALSE
+		
+		on :tag_exists
+			cTag = @aConditionParams[1]
+			if HasKey(aNodeOrEdge, "tags")
+				return ring_find(aNodeOrEdge["tags"], cTag) > 0
+			ok
+			if HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], "tags")
+				return ring_find(aNodeOrEdge["properties"]["tags"], cTag) > 0
+			ok
+			return FALSE
+		off
+		return FALSE
+	
+	def Effects()
+		return @aEffects
