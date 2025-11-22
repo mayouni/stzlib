@@ -1146,9 +1146,6 @@ oGraph.AddEdgeXT(:@fn2, :@mod1, "imports")
 ]
 '
 
-? @@( oGraph.FindNodesWhere(func node { return substr(node["label"], "function") > 0 }) )
-#--> [:@fn1, :@fn2]
-
 pf()
 
 /*--- Sample 6: Temporal Snapshots
@@ -1475,7 +1472,7 @@ pf()
 #--> Executed in almost 0 second(s) in Ring 1.24
 
 /*-- Complex Multi-Path Scenario
-*/
+
 pr()
 
 oGraph = new stzGraph("ComplexFlow")
@@ -1507,3 +1504,294 @@ aPaths = oGraph.FindNode("target")
 
 pf()
 #--> Executed in almost 0 second(s) in Ring 1.24
+
+load "stzlib.ring"
+
+#-------------------------#
+#  Node Removal Examples  #
+#-------------------------#
+
+pr()
+
+oDiag = new stzDiagram("RemovalTest")
+oDiag {
+	AddNodeXT("n1", "Node 1")
+	AddNodeXT("n2", "Node 2")
+	AddNodeXT("n3", "Node 3")
+	AddNodeXT("temp1", "Temp 1")
+	AddNodeXT("temp2", "Temp 2")
+
+	Connect("n1", "n2")
+	Connect("n2", "n3")
+	Connect("temp1", "n2")
+
+	# Initial
+	? NodeCount() #--> 5
+	? EdgeCount() #--> 3
+
+	RemoveThisNode("temp1")
+
+	# After removing temp1
+	? NodeCount() #--> 4
+	? EdgeCount() #--> 2
+
+
+	RemoveTheseNodes(["n1", "n3"])
+
+	# After removing n1 and n3
+	? NodeCount() #--> 2
+	
+	RemoveNodes()
+	? NodeCount() #--> 0
+}
+
+pf()
+
+#-----------------------------#
+#  Node Replacement Examples  #
+#-----------------------------#
+*/
+
+pr()
+
+oDiag = new stzDiagram("ReplaceTest")
+oDiag {
+	AddNodeXTT("old", "Old Node", [:type = "process", :color = "yellow"])
+	AddNodeXT("n2", "Node 2")
+	AddNodeXT("n3", "Node 3")
+
+	? @@(NodesIds())
+	#--> [ "old", "n2", "n3" ]
+
+	Connect("old", "n2")
+	Connect("n2", "n3")
+	
+	# Replace ID only (preserve label & properties)
+	? HasNode("old")  #--> TRUE
+	ReplaceThisNode("old", "new")
+	#--> Node 'old' does not exist!
+	? HasNode("old")  #--> TFALSERUE
+	? HasNode("new")  #--> TRUE
+	? Node("new")["label"]  #--> "Old Node"
+	? EdgeCount()  #--> 2 (edges preserved)
+}
+
+pf()
+
+/*---
+
+oDiag = new stzDiagram("ReplaceXT")
+oDiag {
+	AddNodeXT("n1", "Original")
+	AddNodeXT("n2", "Node 2")
+	Connect("n1", "n2")
+	
+	# Replace ID and label
+	ReplaceThisNodeXT("n1", "updated", "Updated Node")
+	? Node("updated")["label"]  #--> "Updated Node"
+}
+
+pr()
+
+/*---
+
+oDiag = new stzDiagram("ReplaceXTT")
+oDiag {
+	AddNodeXTT("beta", "Beta Version", [:env = "test", :version = 1])
+	AddNodeXT("n2", "Node 2")
+	Connect("beta", "n2")
+	
+	# Replace everything
+	ReplaceThisNodeXTT("beta", "prod", "Production", [:env = "production", :version = 2])
+	aNode = Node("prod")
+	? aNode["label"]  #--> "Production"
+	? aNode["properties"]["env"]  #--> "production"
+}
+
+#---------------------------
+#  Bulk Replacement
+#-------------------
+
+pr()
+
+oDiag = new stzDiagram("BulkReplace")
+oDiag {
+	AddNodeXT("temp_1", "Temp 1")
+	AddNodeXT("temp_2", "Temp 2")
+	AddNodeXT("prod_3", "Prod 3")
+	
+	# Replace multiple at once
+	ReplaceTheseNodes([
+		["temp_1", "server_1"],
+		["temp_2", "server_2"]
+	])
+	
+	? HasNode("temp_1")  #--> FALSE
+	? HasNode("server_1")  #--> TRUE
+	? HasNode("server_2")  #--> TRUE
+}
+
+/*---------------------------
+  Edge Removal Examples
+
+
+pr()
+
+oDiag = new stzDiagram("EdgeRemoval")
+oDiag {
+	AddNodeXT("n1", "Node 1")
+	AddNodeXT("n2", "Node 2")
+	AddNodeXT("n3", "Node 3")
+	
+	Connect("n1", "n2")
+	Connect("n2", "n3")
+	Connect("n1", "n3")
+	
+	? "Initial edges: " + EdgeCount()  #--> 3
+	
+	RemoveThisEdge("n1", "n2")
+	? "After removing n1->n2: " + EdgeCount()  #--> 2
+	
+	RemoveEdgesConnectedTo("n3")
+	? "After removing n3's edges: " + EdgeCount()  #--> 0
+}
+
+/*---------------------------
+  Edge Replacement
+
+
+pr()
+
+oDiag = new stzDiagram("EdgeReplace")
+oDiag {
+	AddNodeXT("n1", "Node 1")
+	AddNodeXT("n2", "Node 2")
+	AddNodeXT("n3", "Node 3")
+	
+	ConnectXT("n1", "n2", "original")
+	
+	# Replace edge endpoints
+	ReplaceThisEdge("n1", "n2", "n1", "n3")
+	? EdgeExists("n1", "n2")  #--> FALSE
+	? EdgeExists("n1", "n3")  #--> TRUE
+	? Edge("n1", "n3")["label"]  #--> "original"
+}
+
+pf()
+
+/*--- Remove and replace at given path
+
+oDiag = new stzDiagram("PathTest")
+oDiag {
+	AddNodeXT("start", "Start")
+	AddNodeXT("n1", "Node 1")
+	AddNodeXT("target", "Target")
+	
+	Connect("start", "n1")
+	Connect("n1", "target")
+	
+	# Find paths to target
+	aaPaths = FindNode("target")
+	#--> [ ["start", "n1", "target"] ]
+	
+	# Remove node at first path
+	RemoveNodeAt(aaPaths[1])
+	? HasNode("target")  #--> FALSE
+	
+	# Replace using path
+	aaPaths = FindNode("n1")
+	ReplaceNodeAtXT(aaPaths[1], "updated", "Updated Node")
+}
+
+#--- Inserting nodes before and after a given path
+
+oDiag = new stzDiagram("InsertTest")
+oDiag {
+	AddNodeXT("n1", "Node 1")
+	AddNodeXT("n3", "Node 3")
+	Connect("n1", "n3")
+	
+	# Insert between
+	InsertNodeBefore("n3", "n2", "Node 2")
+	? EdgeExists("n1", "n2")  #--> TRUE
+	? EdgeExists("n2", "n3")  #--> TRUE
+	
+	# Insert after
+	InsertNodeAfter("n3", "n4", "Node 4")
+	? EdgeExists("n3", "n4")  #--> TRUE
+	
+	# Insert at path
+	aaPaths = FindNode("n4")
+	InsertNodeBeforeAt(aaPaths[1], "n3.5", "Node 3.5")
+}
+
+#--------------------#
+#  Navigating nodes  #
+#--------------------#
+
+pr()
+
+oDiag = new stzDiagram("Nav")
+oDiag {
+	AddNodeXT("n1", "First")
+	AddNodeXT("n2", "Second")
+	AddNodeXT("n3", "Third")
+	
+	? FirstNode()["label"]  #--> "First"
+	? LastNode()["label"]   #--> "Third"
+	? NodeAt(2)["label"]    #--> "Second"
+	? NodePosition("n2")    #--> 2
+}
+
+/*--- Copy & Duplicate nodes
+
+pr()
+
+oDiag = new stzDiagram("Copy")
+oDiag {
+	AddNodeXTT("template", "Template", [:type = "process", :color = "blue"])
+	AddNodeXT("next", "Next")
+	Connect("template", "next")
+	
+	# Duplicate node only
+	DuplicateNode("template", "copy1")
+	? HasNode("copy1")  #--> TRUE
+	? Node("copy1")["properties"]["color"]  #--> "blue"
+	
+	# Duplicate with edges
+	DuplicateNodeWithEdges("template", "copy2")
+	? EdgeExists("copy2", "next")  #--> TRUE
+}
+
+/*--- Merge Nodes
+
+pr()
+
+oDiag = new stzDiagram("Merge")
+oDiag {
+	AddNodeXT("server1", "Server 1")
+	AddNodeXT("server2", "Server 2")
+	AddNodeXT("server3", "Server 3")
+	AddNodeXT("lb", "Load Balancer")
+	AddNodeXT("db", "Database")
+	
+	Connect("lb", "server1")
+	Connect("lb", "server2")
+	Connect("lb", "server3")
+	Connect("server1", "db")
+	Connect("server2", "db")
+	Connect("server3", "db")
+	
+	? "Before: " + NodeCount() + " nodes, " + EdgeCount() + " edges"
+	#--> Before: 5 nodes, 6 edges
+	
+	# Merge all servers into cluster
+	MergeNodes(["server1", "server2", "server3"], "cluster", "Server Cluster")
+	
+	? "After: " + NodeCount() + " nodes, " + EdgeCount() + " edges"
+	#--> After: 3 nodes, 2 edges
+	? EdgeExists("lb", "cluster")  #--> TRUE
+	? EdgeExists("cluster", "db")  #--> TRUE
+}
+
+pf()

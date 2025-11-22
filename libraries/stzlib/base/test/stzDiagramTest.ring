@@ -1641,12 +1641,12 @@ oDiag {
 
 	# Add nodes with metadata
 
-	AddNodeWithMetaData("auth", "Authentication", :Process, :Primary,
+	AddNodeXTT("auth", "Authentication", :Process, :Primary,
 		[ :risk_score = 85, :sla_ms = 100], # <-- metadata
 		[ :security, :critical ] # <-- tags
 	)
 
-	AddNodeWithMetaData("db", "Database", :Storage, :Info,
+	AddNodeXTT("db", "Database", :Storage, :Info,
 		[ :risk_score = 45, :encrypted = TRUE],
 		[ :security ]
 	)
@@ -1681,10 +1681,10 @@ oFastRule.ApplyColor("#44FF44")
 oDiag.AddVisualRule(oSlowRule)
 oDiag.AddVisualRule(oFastRule)
 
-oDiag.AddNodeWithMetaData("api1", "User API", :Process, :Primary,
+oDiag.AddNodeXTT("api1", "User API", :Process, :Primary,
 	[ :latency_ms = 50, :throughput = 1000], [:api])
 
-oDiag.AddNodeWithMetaData("api2", "Payment API", :Process, :Primary,
+oDiag.AddNodeXTT("api2", "Payment API", :Process, :Primary,
 	[ :latency_ms = 800, :throughput = 100], [:api, :critical])
 
 
@@ -1713,10 +1713,10 @@ oPciRule.ApplyColor("#0066CC")
 oDiag.AddVisualRule(oGdprRule)
 oDiag.AddVisualRule(oPciRule)
 
-oDiag.AddNodeWithMetaData("collect", "Data Collection", :Process, :Info,
+oDiag.AddNodeXTT("collect", "Data Collection", :Process, :Info,
 	[:retention_days = 90], ["gdpr"])
 
-oDiag.AddNodeWithMetaData("payment", "Payment Processing", :Process, :Warning,
+oDiag.AddNodeXTT("payment", "Payment Processing", :Process, :Warning,
 	[:encryption = TRUE], ["pci"])
 
 ? oDiag.code()
@@ -2646,7 +2646,7 @@ pf()
 /*---------------------------#
 #  CI/CD Pipeline States
 #---------------------------#
-*/
+
 pr()
 
 oDiag = new stzDiagram("DeploymentPipeline")
@@ -2655,96 +2655,102 @@ oDiag = new stzDiagram("DeploymentPipeline")
 oPassed = new stzVisualRule("passed")
 oPassed {
 
-	When(:lastrun, :Equals = "pass")
-	UseColor("#4CAF50") # Allow resolving color name (like :red), semantic (like :Success)
-	# Add UseColorXT("red++", "white") # first is node background, the second is the color of the text
+	When(:last_run, :equals = "pass")
+	UseColor("white")
+	# Add UseColorXT("red++", "white") #TODO first is node background, the second is the color of the text
 
-
-//	WhenMetadataEquals("last_run", "pass")
-//	ApplyColor("#4CAF50")
 }
 
 oFailed = new stzVisualRule("failed")
 oFailed {
 	When(:last_run, :Equals = "fail")
-	UseColor("#F44336")
-//	WhenMetadataEquals("last_run", "fail")
-//	ApplyColor("#F44336")
+	UseColor("orange")
 }
 
 oRunning = new stzVisualRule("running")
 oRunning {
 	When(:last_run, :Equals = "running")
-	UseColor("#2196F3")
+	UseColor("green")
 	UsePenWidth(2)
-//	WhenMetadataEquals("last_run", "running")
-//	ApplyColor("#2196F3")
-//	ApplyPenWidth(2)
 }
 
 # Critical stages
 oCriticalStage = new stzVisualRule("critical_stage")
 oCriticalStage {
-	WhenTagExists(:gate)
+	WhenTag("gate", :exists)
 	ApplyShape("diamond")
 }
 
 oDiag {
-	SetTheme(:lightgray)
+	SetTheme(:LightGray)
 	SetLayout(:TopDown)
 	
-# Rules can be composed from exitant set of rules, which more accurade for clean design and reusable rules
+	# Rules can be composed from exitant set of rules,
+	# which is more accurade for clean design and reusable rules
 	AddVisualRule(oPassed)
 	AddVisualRule(oFailed)
 	AddVisualRule(oRunning)
 	AddVisualRule(oCriticalStage)
 	
-# Also rules can be defined directly here, which is more intuitive for focused usage
+	#TODO// But rules should also be defined directly inside the diagram
+	# object, which is more intuitive for quick and focused usage
 #	When(:lastrun, :Equals = "pass")
 #	UseColor("#4CAF50") # Allow resolving color name (like :red), semantic (like :Success)
 
-# And we can check them by calling Rules() #--> Their content lists
-# Or by calling RulesObjects() #--> Thir stzRule objects
 
-# Finaly, like colore paletes, we should be able to define named rulesets as data conatiners
-#  at the gloabl level, classifid by domain, so we can load all the rules of all the domain
-# we want to work with, without the necessity of adding each rule indiviually
-#~> this will allow powerful business domains chekcs in banking, quality, legal, etc
+	AddNodeXTT("commit", "Git Commit", [
+		:type = "start",
+		:color = "success",
+		:last_run = "pass"
+	])
 
-	AddNodeWithMetaData("commit", "Git Commit", :Start, :Success,
-		[:last_run = "pass"], [])
+	AddNodeXTT("build", "Build", [
+		:type = "process",
+		:color = "primary",
+		:last_run = "pass",
+		:duration_s = 120
+	])
 	
-# Allow using AddNodeXTT() as an alternative : be careful of confusion with
-# parent same method. In fact, I think we don't need implementing this method
-# at all at this class level, the parent one is sufficient. It's also a better
-# design decision, because adding metadata is a feature abstructed is stzGraph
-# to be reused by all it's child classes. The point is that this one has an
-# additiona tag param at the end that i don't see why we ever need it! Because
-# tages are themselves medatadat since we can add them as :tags = [ ... ] in the
-# metadata param... Review this design!
-
-# the same thing should  be done to AddEdgeWithMetaData!
-
-	AddNodeWithMetaData("build", "Build", :Process, :Primary,
-		[:last_run = "pass", :duration_s = 120], [])
+	AddNodeXTT("unit", "Unit Tests", [
+		:type = "process",
+		:color = "primary",
+		:last_run = "running",
+		:duration_s = 45
+	])
 	
-	AddNodeWithMetaData("unit", "Unit Tests", :Process, :Primary,
-		[:last_run = "running", :duration_s = 45], [])
+	AddNodeXTT("security", "Security Scan", [
+		:type = "decision",
+		:color = "warning",
+		:last_run = "pass",
+		:issues = 0,
+		:tags = ["gate"]
+	])
 	
-	AddNodeWithMetaData("security", "Security Scan", :Decision, :Warning,
-		[:last_run = "pass", :issues = 0], [:gate])
+	AddNodeXTT("deploy_stage", "Deploy Staging", [
+		:type = "process",
+		:color = "info",
+		:last_run = "pass"
+	])
 	
-	AddNodeWithMetaData("deploy_stage", "Deploy Staging", :Process, :Info,
-		[:last_run = "pass"], [])
+	AddNodeXTT("integration", "Integration Tests", [
+		:type = "process",
+		:color = "primary",
+		:last_run = "fail",
+		:failed_tests = 3
+	])
 	
-	AddNodeWithMetaData("integration", "Integration Tests", :Process, :Primary,
-		[:last_run = "fail", :failed_tests = 3], [])
+	AddNodeXTT("approval", "Manual Approval", [
+		:type = "decision",
+		:color = "warning",
+		:last_run = "pass",
+		:tags = [:gate]
+	])
 	
-	AddNodeWithMetaData("approval", "Manual Approval", :Decision, :Warning,
-		[:last_run = "pass"], [:gate])
-	
-	AddNodeWithMetaData("deploy_prod", "Deploy Production", :Endpoint, :Success,
-		[:last_run = "pass"], [])
+	AddNodeXTT("deploy_prod", "Deploy Production", [
+		:type = "endpoint",
+		:color = "success",
+		:last_run = "pass"
+	])
 	
 	Connect("commit", "build")
 	Connect("build", "unit")
@@ -2780,18 +2786,17 @@ nodes
     start
         label: "Begin"
         type: start
-        color: #008000
+        color: green+
 
     process
         label: "Work"
         type: process
-        color: #0000FF
+        color: blue+
 
     end
         label: "Finish"
         type: endpoint
-        color: #008000
-
+	color: orange
 edges
     start -> process
     process -> end
@@ -2841,7 +2846,7 @@ nodes
     validate
         label: "Work"
         type: danger
-        color: danger
+        color: danger+
 
     end
         label: "Finish"
@@ -2856,6 +2861,29 @@ edges
 
 oDiag.ImportDiag(cImported)
 oDiag.Show()
+oDiag.View()
+
+#-->
+'
+        ╭───────╮        
+        │ Begin │        
+        ╰───────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ !Work! │        
+       ╰────────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ !Work! │        
+       ╰────────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ Finish │        
+       ╰────────╯   
+'
 
 pf()
 #--> Executed in 0.08 second(s) in Ring 1.24
@@ -2865,8 +2893,15 @@ pf()
 pr()
 
 oDiag = new stzDiagram("MainFlow")
-oDiag.AddNodeXT("start", "Main Start", :start, :success)
-oDiag.AddNodeXT("main", "Main Process", :process, :primary)
+
+oDiag.AddNodeXTT("start", "Main Start", [
+	:type = "start", :color = "success"
+])
+
+oDiag.AddNodeXTT("main", "Main Process", [
+	:type = "process", :color = "primary"
+])
+
 oDiag.Connect("start", "main")
 
 # Diagram before import (note how it contains a "Main Process" node
@@ -2975,9 +3010,10 @@ pf()
 pr()
 
 oDiag = new stzDiagram("Test")
-oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
-oDiag.AddNodeXT("n2", "Node 2", :process, :blue)
-oDiag.AddNodeXT("n3", "Node 3", :process, :blue)
+oDiag.AddNodeXTT("n1", "Node 1", [ :color = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n2", "Node 2", [ :color = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n3", "Node 3", [ :color = "process", :color = "blue" ])
+
 oDiag.Connect("n1", "n2")
 oDiag.Connect("n2", "n3")
 
@@ -2986,12 +3022,47 @@ oDiag.Connect("n2", "n3")
 ? oDiag.EdgeCount()
 #--> 2
 
+
+oDiag.Show()
+#-->
+'
+       ╭────────╮        
+       │ Node 1 │        
+       ╰────────╯        
+            |            
+            v            
+      ╭──────────╮       
+      │ !Node 2! │       
+      ╰──────────╯       
+            |            
+            v            
+       ╭────────╮        
+       │ Node 3 │        
+       ╰────────╯ 
+'
+
+? NL + "------------" + NL + NL
+
 oDiag.RemoveNode("n2")
 
 ? oDiag.NodeCount()
 #--> 2
 ? oDiag.EdgeCount()
 #--> 0 (both edges removed)
+
+oDiag.Show()
+#-->
+'
+       ╭────────╮        
+       │ Node 1 │        
+       ╰────────╯        
+
+          ////
+
+       ╭────────╮        
+       │ Node 3 │        
+       ╰────────╯ 
+'
 
 pf()
 #--> Executed in 0.04 second(s) in Ring 1.24
@@ -3001,30 +3072,102 @@ pf()
 pr()
 
 oDiag = new stzDiagram("Test")
-oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
-oDiag.AddNodeXT("n2", "Node 2", :process, :blue)
-oDiag.AddNodeXT("n3", "Node 3", :process, :blue)
-oDiag.AddNodeXT("n4", "Node 4", :process, :blue)
+
+oDiag.AddNodeXTT("n1", "Node 1", [ :color = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n2", "Node 2", [ :color = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n3", "Node 3", [ :color = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n4", "Node 4", [ :color = "process", :color = "blue" ])
+
 oDiag.Connect("n1", "n2")
 oDiag.Connect("n3", "n4")
+oDiag.show()
+#♦-->
+'
+       ╭────────╮        
+       │ Node 1 │        
+       ╰────────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ Node 2 │        
+       ╰────────╯        
 
-oDiag.RemoveNodes(["n2", "n4"])
+          ////
+
+       ╭────────╮        
+       │ Node 3 │        
+       ╰────────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ Node 4 │        
+       ╰────────╯ 
+'
+
+? NL + "-----------" + NL + NL
+
+oDiag.RemoveTheseNodes(["n2", "n4"])
 
 ? oDiag.NodeCount()
 #--> 2
 
+oDiag.Show()
+#-->
+'
+       ╭────────╮        
+       │ Node 1 │        
+       ╰────────╯        
+
+          ////
+
+       ╭────────╮        
+       │ Node 3 │        
+       ╰────────╯ 
+'
+
 pf()
 #--> Executed in 0.03 second(s) in Ring 1.24
+
+/*--
+
+pr()
+
+? keys([ [ "color", "process" ], [ "color", "blue" ], [ "priority", "high" ] ])
+#--> Incorrect param type! paList must be a hashlist.
+#~> Because "color" is used twice as a key.
+
+pf()
 
 /*-- Clear All Nodes
 
 pr()
 
 oDiag = new stzDiagram("Test")
-oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
-oDiag.AddNodeXT("n2", "Node 2", :process, :blue)
+oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n2", "Node 2", [ :type = "decision", :color = "green", :unit = "sales" ])
+
 oDiag.Connect("n1", "n2")
-oDiag.SetNodeMetadata("n1", [:priority = "high"])
+oDiag.SetNodeProp("n1", :priority, "high")
+
+? @@( oDiag.NodeProps("n1") ) + NL
+#--> [ "type", "color", "priority" ]
+
+? @@( oDiag.NodePropsXT("n1") ) + NL
+#--> [ "type", "color", "priority" ]
+
+? @@(oDiag.Props()) + NL
+#--> [ "type", "color", "priority", "unit" ]
+
+? @@NL(oDiag.PropsXT()) + NL
+#-->
+'
+[
+	[ "type", [ "process" ] ],
+	[ "color", [ "blue" ] ],
+	[ "priority", [ "high" ] ],
+	[ "unit", [ "sales" ] ]
+]
+'
 
 oDiag.RemoveAllNodes()
 
@@ -3032,24 +3175,25 @@ oDiag.RemoveAllNodes()
 #--> 0
 ? oDiag.EdgeCount()
 #--> 0
-? len(oDiag.@aNodeMetadata)
-#--> 0
 
 pf()
+
 #--> Executed in 0.02 second(s) in Ring 1.24
 
 /*-- Replace Node with Edge Preservation
-
+*/
 pr()
 
 oDiag = new stzDiagram("Test")
-oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
-oDiag.AddNodeXT("old", "Old Node", :process, :yellow)
-oDiag.AddNodeXT("n3", "Node 3", :process, :blue)
+
+oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :color = "blue" ])
+oDiag.AddNodeXTT("old", "Old Node", [ :type = "process", :color = "yellow" ])
+oDiag.AddNodeXTT("n3", "Node 3", [ :type = "process", :color = "blue" ])
+
 oDiag.Connect("n1", "old")
 oDiag.Connect("old", "n3")
 
-oDiag.ReplaceNode("old", "new", "New Node", :process, :green)
+oDiag.ReplaceNode("old", "new", "New Node")
 
 ? oDiag.HasNode("old")
 #--> FALSE

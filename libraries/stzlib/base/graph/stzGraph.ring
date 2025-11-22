@@ -51,13 +51,12 @@ func IsStzGraph(pObj)
 class stzGraph
 
 	@cId = ""
-	@acNodes = []
+	@aNodes = []
 	@acEdges = []
-	@acProperties = []
 
 	def init(pcId)
 		@cId = pcId
-		@acNodes = []
+		@aNodes = []
 		@acEdges = []
 		@acProperties = []
 
@@ -87,9 +86,10 @@ class stzGraph
 	
 		def IsAGraphObjec()
 			return 1
-	#------------------------------------------
-	#  NODE OPERATIONS
-	#------------------------------------------
+
+	#-------------------#
+	#  NODE OPERATIONS  #
+	#-------------------#
 
 	def AddNode(pcNodeId)
 		This.AddNodeXT(pcNodeId, pcNodeId)
@@ -98,17 +98,28 @@ class stzGraph
 		This.AddNodeXTT(pcNodeId, pcLabel, [])
 
 	def AddNodeXTT(pcNodeId, pcLabel, pacProperties)
+
+		if CheckParams()
+			if NOT (isString(pcNodeId) and isString(pcLabel))
+				stzraise("Incorrect param types! pcNodeId and pcLabel must be both strings.")
+			ok
+		ok
+
+		if NOT (isList(pacProperties) and @IsHashList(pacProperties))
+			stzraise("Incorrect param type! pacProperties must be a hashlist.")
+		ok
+
 		aNode = [
 			:id = pcNodeId,
 			:label = pcLabel,
 			:properties = iif(isList(pacProperties), pacProperties, [])
 		]
-		@acNodes + aNode
+		@aNodes + aNode
 
 	def Node(pcNodeId)
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			if aNode["id"] = pcNodeId
 				return aNode
 			ok
@@ -116,96 +127,398 @@ class stzGraph
 		stzraise("Node '" + pcNodeId + "' does not exist!")
 
 	def NodeExists(pcNodeId)
-		return This.Node(pcNodeId) != ""
-
-	#--
-
-	def RemoveTheseNodes(paNodeIds)
-		nLen = len(paNodeIds)
-		for i = 1 to nLen
-			This.RemoveNode(paNodeIds[i])
-		end
-
-	def RemoveNodes()
-		@acNodes = []
-		@acEdges = []
-		@acProperties = []
-	
-		def RemoveAllNodes()
-			This.RemoveNodes()
-
-		def Clear()
-			This.RemoveNodes()
-
-		
-	def ReplaceNode(pcOldNodeId, pcNewNodeId, pcLabel)
-		aIncoming = []
-		aOutgoing = []
-		
-		aEdges = This.Edges()
-		nLen = len(aEdges)
-		for i = 1 to nLen
-			aEdge = aEdges[i]
-			if aEdge["from"] = pcOldNodeId
-				aOutgoing + aEdge["to"]
-			ok
-			if aEdge["to"] = pcOldNodeId
-				aIncoming + aEdge["from"]
-			ok
-		end
-		
-		This.RemoveNode(pcOldNodeId)
-		This.AddNodeXT(pcNewNodeId, pcLabel)
-		
-		nLen = len(aIncoming)
-		for i = 1 to nLen
-			This.Connect(aIncoming[i], pcNewNodeId)
-		end
-		
-		nLen = len(aOutgoing)
-		for i = 1 to nLen
-			This.Connect(pcNewNodeId, aOutgoing[i])
-		end
-
-
-	def RemoveAllEdges()
-		@acEdges = []
-
-	def RemoveEdges()
-
+		if ring_find( This.NodesIds(), pcNodeId) > 0
+			return 1
+		else
+			return 0
+		ok
 
 	def SetNodes(paNodes)
-		@acNodes = paNodes
+		@aNodes = paNodes
 	
 	def SetEdges(paEdges)
 		@acEdges = paEdges
 
-	def RemoveNode(pcNodeId)
-		acNew = []
-		nLen = len(@acNodes)
-		for i = 1 to nLen
-			aNode = @acNodes[i]
-			if aNode["id"] != pcNodeId
-				acNew + aNode
-			ok
-		end
-		@acNodes = acNew
-		
-		acNewEdges = []
-		nLen = len(@acEdges)  # Changed from @aEdges
-		for i = 1 to nLen
-			aEdge = @acEdges[i]  # Changed from @aEdges
-			if aEdge["from"] != pcNodeId and aEdge["to"] != pcNodeId
-				acNewEdges + aEdge
-			ok
-		end
-		@acEdges = acNewEdges  # Changed from @aEdges
-
 	def Nodes()
-		return @acNodes
+		return @aNodes
+
+	def NodesIds()
+		nLen = len(@aNodes)
+		acResult = []
+
+		for i = 1 to nLen
+			acResult + @aNodes[i][:id]
+		next
+
+		return acResult
 
 	def NodeCount()
-		return len(@acNodes)
+		return len(@aNodes)
+
+	#------------------------------------------
+	#  INSERT NODE BEFORE
+	#------------------------------------------
+	
+	def InsertNodeBefore(pcTargetId, pcNewId, pcNewLabel)
+		This.InsertNodeBeforeXT(pcTargetId, pcNewId, pcNewLabel, [])
+	
+	def InsertNodeBeforeXT(pcTargetId, pcNewId, pcNewLabel, paProps)
+		# Get incoming edges to target
+		aIncoming = []
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			if @acEdges[i]["to"] = pcTargetId
+				aIncoming + @acEdges[i]["from"]
+			ok
+		end
+		
+		# Add new node
+		This.AddNodeXTT(pcNewId, pcNewLabel, paProps)
+		
+		# Reconnect: incoming -> new -> target
+		nLen = len(aIncoming)
+		for i = 1 to nLen
+			This.RemoveThisEdge(aIncoming[i], pcTargetId)
+			This.Connect(aIncoming[i], pcNewId)
+		end
+		This.Connect(pcNewId, pcTargetId)
+	
+	def InsertNodeBeforeAt(pacPath, pcNewId, pcNewLabel)
+		This.InsertNodeBeforeAtXT(pacPath, pcNewId, pcNewLabel, [])
+	
+	def InsertNodeBeforeAtXT(pacPath, pcNewId, pcNewLabel, paProps)
+		nLen = len(pacPath)
+		if nLen = 0
+			return
+		ok
+		cTargetId = pacPath[nLen]
+		This.InsertNodeBeforeXT(cTargetId, pcNewId, pcNewLabel, paProps)
+	
+	#------------------------------------------
+	#  INSERT NODE AFTER
+	#------------------------------------------
+	
+	def InsertNodeAfter(pcTargetId, pcNewId, pcNewLabel)
+		This.InsertNodeAfterXT(pcTargetId, pcNewId, pcNewLabel, [])
+	
+	def InsertNodeAfterXT(pcTargetId, pcNewId, pcNewLabel, paProps)
+		# Get outgoing edges from target
+		aOutgoing = []
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			if @acEdges[i]["from"] = pcTargetId
+				aOutgoing + @acEdges[i]["to"]
+			ok
+		end
+		
+		# Add new node
+		This.AddNodeXTT(pcNewId, pcNewLabel, paProps)
+		
+		# Reconnect: target -> new -> outgoing
+		nLen = len(aOutgoing)
+		for i = 1 to nLen
+			This.RemoveThisEdge(pcTargetId, aOutgoing[i])
+			This.Connect(pcNewId, aOutgoing[i])
+		end
+		This.Connect(pcTargetId, pcNewId)
+	
+	def InsertNodeAfterAt(pacPath, pcNewId, pcNewLabel)
+		This.InsertNodeAfterAtXT(pacPath, pcNewId, pcNewLabel, [])
+	
+	def InsertNodeAfterAtXT(pacPath, pcNewId, pcNewLabel, paProps)
+		nLen = len(pacPath)
+		if nLen = 0
+			return
+		ok
+		cTargetId = pacPath[nLen]
+		This.InsertNodeAfterXT(cTargetId, pcNewId, pcNewLabel, paProps)
+	
+	#------------------------------------------
+	#  INSERT MULTIPLE NODES
+	#------------------------------------------
+	
+	def InsertNodesBefore(pcTargetId, paNodes)
+		# paNodes = [ ["id1", "label1"], ["id2", "label2"], ... ]
+		nLen = len(paNodes)
+		for i = 1 to nLen
+			This.InsertNodeBefore(pcTargetId, paNodes[i][1], paNodes[i][2])
+			pcTargetId = paNodes[i][1]  # Chain insertions
+		end
+	
+	def InsertNodesAfter(pcTargetId, paNodes)
+		nLen = len(paNodes)
+		cLastId = pcTargetId
+		for i = 1 to nLen
+			This.InsertNodeAfter(cLastId, paNodes[i][1], paNodes[i][2])
+			cLastId = paNodes[i][1]
+		end
+
+	#------------------------------------------
+	#  NODE REPLACEMENT
+	#------------------------------------------
+	
+	# Replace all nodes with new set
+	def ReplaceNodes(paNewNodes)
+		@aNodes = paNewNodes
+		@acEdges = []
+		@aNodeEnhancements = []
+		@aEdgeEnhancements = []
+	
+		def ReplaceAllNodes(paNewNodes)
+			This.ReplaceNodes(paNewNodes)
+	
+	# Replace specific node (preserve label & properties)
+	def ReplaceThisNode(pcOldId, pcNewId)
+		aNode = This.Node(pcOldId)
+		This.ReplaceThisNodeXTT(pcOldId, pcNewId, aNode["label"], aNode["properties"])
+	
+		def ReplaceNode(pcOldId, pcNewId)
+			This.ReplaceThisNode(pcOldId, pcNewId)
+	
+	# Replace node with new label
+	def ReplaceThisNodeXT(pcOldId, pcNewId, pcNewLabel)
+		aNode = This.Node(pcOldId)
+		This.ReplaceThisNodeXTT(pcOldId, pcNewId, pcNewLabel, aNode["properties"])
+	
+		def ReplaceNodeXT(pcOldId, pcNewId, pcNewLabel)
+			This.ReplaceThisNodeXT(pcOldId, pcNewId, pcNewLabel)
+	
+	# Replace node with everything
+	def ReplaceThisNodeXTT(pcOldId, pcNewId, pcNewLabel, paNewProps)
+		if NOT This.HasNode(pcOldId)
+			stzraise("Node '" + pcOldId + "' does not exist!")
+		ok
+		
+		# Collect edges
+		aIncoming = []
+		aOutgoing = []
+		
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			aEdge = @acEdges[i]
+			if aEdge["from"] = pcOldId
+				aOutgoing + [aEdge["to"], aEdge["label"], aEdge["properties"]]
+			ok
+			if aEdge["to"] = pcOldId
+				aIncoming + [aEdge["from"], aEdge["label"], aEdge["properties"]]
+			ok
+		end
+		
+		# Replace
+		This.RemoveThisNode(pcOldId)
+		This.AddNodeXTT(pcNewId, pcNewLabel, paNewProps)
+		
+		# Restore edges
+		nLen = len(aIncoming)
+		for i = 1 to nLen
+			This.AddEdgeXTT(aIncoming[i][1], pcNewId, aIncoming[i][2], aIncoming[i][3])
+		end
+		
+		nLen = len(aOutgoing)
+		for i = 1 to nLen
+			This.AddEdgeXTT(pcNewId, aOutgoing[i][1], aOutgoing[i][2], aOutgoing[i][3])
+		end
+	
+		def ReplaceNodeXTT(pcOldId, pcNewId, pcNewLabel, paNewProps)
+			This.ReplaceThisNodeXTT(pcOldId, pcNewId, pcNewLabel, paNewProps)
+	
+	# Replace multiple nodes
+	def ReplaceTheseNodes(paReplacements)
+		# paReplacements = [ ["old1", "new1"], ["old2", "new2"], ... ]
+		nLen = len(paReplacements)
+		for i = 1 to nLen
+			This.ReplaceThisNode(paReplacements[i][1], paReplacements[i][2])
+		end
+	
+	#------------------------------------------
+	#  EDGE REPLACEMENT
+	#------------------------------------------
+	
+	# Replace all edges
+	def ReplaceEdges(paNewEdges)
+		@acEdges = paNewEdges
+		@aEdgeEnhancements = []
+	
+		def ReplaceAllEdges(paNewEdges)
+			This.ReplaceEdges(paNewEdges)
+	
+	# Replace edge (preserve label & properties)
+	def ReplaceThisEdge(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo)
+		aEdge = This.Edge(pcOldFrom, pcOldTo)
+		This.ReplaceThisEdgeXTT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, aEdge["label"], aEdge["properties"])
+	
+		def ReplaceEdge(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo)
+			This.ReplaceThisEdge(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo)
+	
+	# Replace edge with new label
+	def ReplaceThisEdgeXT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel)
+		aEdge = This.Edge(pcOldFrom, pcOldTo)
+		This.ReplaceThisEdgeXTT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel, aEdge["properties"])
+	
+		def ReplaceEdgeXT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel)
+			This.ReplaceThisEdgeXT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel)
+	
+	# Replace edge completely
+	def ReplaceThisEdgeXTT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel, paNewProps)
+		if NOT This.EdgeExists(pcOldFrom, pcOldTo)
+			stzraise("Edge '" + pcOldFrom + "->" + pcOldTo + "' does not exist!")
+		ok
+		
+		This.RemoveThisEdge(pcOldFrom, pcOldTo)
+		This.AddEdgeXTT(pcNewFrom, pcNewTo, pcNewLabel, paNewProps)
+	
+		def ReplaceEdgeXTT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel, paNewProps)
+			This.ReplaceThisEdgeXTT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel, paNewProps)
+	
+	#--- REPLACE NODE AT PATH
+	
+	def ReplaceNodeAt(pacPath, pcNewId)
+		nLen = len(pacPath)
+		if nLen = 0
+			return
+		ok
+		
+		cOldId = pacPath[nLen]
+		This.ReplaceThisNode(cOldId, pcNewId)
+	
+	def ReplaceNodeAtXT(pacPath, pcNewId, pcNewLabel)
+		nLen = len(pacPath)
+		if nLen = 0
+			return
+		ok
+		
+		cOldId = pacPath[nLen]
+		This.ReplaceThisNodeXT(cOldId, pcNewId, pcNewLabel)
+	
+	def ReplaceNodeAtXTT(pacPath, pcNewId, pcNewLabel, paNewProps)
+		nLen = len(pacPath)
+		if nLen = 0
+			return
+		ok
+		
+		cOldId = pacPath[nLen]
+		This.ReplaceThisNodeXTT(cOldId, pcNewId, pcNewLabel, paNewProps)
+
+	#------------------------------------------
+	#  NODE REMOVAL
+	#------------------------------------------
+	
+	# Remove all nodes (and their edges)
+	def RemoveNodes()
+		@aNodes = []
+		@acEdges = []
+		@aNodeEnhancements = []
+		@aEdgeEnhancements = []
+	
+		def RemoveAllNodes()
+			This.RemoveNodes()
+	
+		def Clear()
+			This.RemoveNodes()
+	
+	# Remove specific nodes
+	def RemoveTheseNodes(pacNodeIds)
+		nLen = len(pacNodeIds)
+		for i = 1 to nLen
+			This.RemoveThisNode(pacNodeIds[i])
+		end
+	
+	# Remove single node
+	def RemoveThisNode(pcNodeId)
+		# Remove from nodes
+		acNew = []
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			if @aNodes[i]["id"] != pcNodeId
+				acNew + @aNodes[i]
+			ok
+		end
+		@aNodes = acNew
+		
+		# Remove its edges
+		This.RemoveEdgesConnectedTo(pcNodeId)
+	
+		def RemoveNode(pcNodeId)
+			This.RemoveThisNode(pcNodeId)
+	
+	#--- REMOVE NODE AT PATH
+	
+	def RemoveNodeAt(pacPath)
+		# pacPath = ["n1", "n2", "target"]
+		nLen = len(pacPath)
+		if nLen = 0
+			return
+		ok
+		
+		cNodeId = pacPath[nLen]  # Last node in path
+		This.RemoveThisNode(cNodeId)
+	
+		def RemoveNodeAtPosition(pacPath)
+			This.RemoveNodeAt(pacPath)
+	
+	def RemoveNodesAt(paPaths)
+		# paPaths = [ ["n1", "target1"], ["n2", "n3", "target2"], ... ]
+		acToRemove = []
+		nLenPaths = len(paPaths)
+		
+		for i = 1 to nLenPaths
+			acPath = paPaths[i]
+			nLen = len(acPath)
+			if nLen > 0
+				cNodeId = acPath[nLen]
+				if ring_find(acToRemove, cNodeId) = 0
+					acToRemove + cNodeId
+				ok
+			ok
+		end
+		
+		This.RemoveTheseNodes(acToRemove)
+	
+		def RemoveNodesAtPositions(paPaths)
+			This.RemoveNodesAt(paPaths)
+	
+	#------------------------------------------
+	#  EDGE REMOVAL
+	#------------------------------------------
+	
+	# Remove all edges
+	def RemoveEdges()
+		@acEdges = []
+		@aEdgeEnhancements = []
+	
+		def RemoveAllEdges()
+			This.RemoveEdges()
+	
+		def ClearEdges()
+			This.RemoveEdges()
+	
+	# Remove single edge
+	def RemoveThisEdge(pcFromId, pcToId)
+		acNew = []
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			aEdge = @acEdges[i]
+			if NOT (aEdge["from"] = pcFromId and aEdge["to"] = pcToId)
+				acNew + aEdge
+			ok
+		end
+		@acEdges = acNew
+	
+		def RemoveEdge(pcFromId, pcToId)
+			This.RemoveThisEdge(pcFromId, pcToId)
+
+	def RemoveEdgesConnectedTo(pcNodeId)
+		acNew = []
+		nLen = len(@acEdges)
+		
+		for i = 1 to nLen
+			aEdge = @acEdges[i]
+			if NOT (aEdge["from"] = pcNodeId or aEdge["to"] = pcNodeId)
+				acNew + aEdge
+			ok
+		end
+		
+		@acEdges = acNew
 
 	#-------------------#
 	#  EDGE OPERATIONS  #
@@ -267,35 +580,285 @@ class stzGraph
 	def EdgeExists(pcFromId, pcToId)
 		return This.Edge(pcFromId, pcToId) != ""
 
-	def RemoveEdge(pcFromId, pcToId)
-		acNew = []
-		nLen = len(@acEdges)
-		for i = 1 to nLen
-			aEdge = @acEdges[i]
-			if NOT (aEdge["from"] = pcFromId and aEdge["to"] = pcToId)
-				acNew + aEdge
-			ok
-		end
-		@acEdges = acNew
-
 	def Edges()
 		return @acEdges
 
 	def EdgeCount()
 		return len(@acEdges)
 
+#------------------------------------------
+#  NODE NAVIGATION
+#------------------------------------------
+
+def FirstNode()
+	if len(@aNodes) > 0
+		return @aNodes[1]
+	ok
+	return []
+
+def LastNode()
+	nLen = len(@aNodes)
+	if nLen > 0
+		return @aNodes[nLen]
+	ok
+	return []
+
+def NodeAt(n)
+	if n > 0 and n <= len(@aNodes)
+		return @aNodes[n]
+	ok
+	return []
+
+	def NthNode(n)
+		return This.NodeAt(n)
+
+def NodePosition(pcNodeId)
+	nLen = len(@aNodes)
+	for i = 1 to nLen
+		if @aNodes[i]["id"] = pcNodeId
+			return i
+		ok
+	end
+	return 0
+
+	def PositionOfNode(pcNodeId)
+		return This.NodePosition(pcNodeId)
+
+	#------------------------------------------
+	#  EDGE NAVIGATION
+	#------------------------------------------
+	
+	def FirstEdge()
+		if len(@acEdges) > 0
+			return @acEdges[1]
+		ok
+		return []
+	
+	def LastEdge()
+		nLen = len(@acEdges)
+		if nLen > 0
+			return @acEdges[nLen]
+		ok
+		return []
+	
+	def EdgeAt(n)
+		if n > 0 and n <= len(@acEdges)
+			return @acEdges[n]
+		ok
+		return []
+	
+		def NthEdge(n)
+			return This.EdgeAt(n)
+	
+	def EdgePosition(pcFrom, pcTo)
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			if @acEdges[i]["from"] = pcFrom and @acEdges[i]["to"] = pcTo
+				return i
+			ok
+		end
+		return 0
+	
+		def PositionOfEdge(pcFrom, pcTo)
+			return This.EdgePosition(pcFrom, pcTo)
+
+	#------------------------------------------
+	#  BATCH UPDATE OPERATIONS
+	#------------------------------------------
+	
+	def UpdateNodes(pFunc)
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			call pFunc(@aNodes[i])
+		end
+	
+	def UpdateEdges(pFunc)
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			call pFunc(@acEdges[i])
+		end
+
+	#------------------------------------------
+	#  COPY OPERATIONS
+	#------------------------------------------
+	
+	def CopyNode(pcNodeId)
+		aNode = This.Node(pcNodeId)
+		aCopy = [
+			:id = aNode["id"],
+			:label = aNode["label"],
+			:properties = []
+		]
+		
+		if HasKey(aNode, "properties")
+			acKeys = keys(aNode["properties"])
+			nLen = len(acKeys)
+			for i = 1 to nLen
+				aCopy["properties"][acKeys[i]] = aNode["properties"][acKeys[i]]
+			end
+		ok
+		
+		return aCopy
+	
+	def DuplicateNode(pcNodeId, pcNewId)
+		aCopy = This.CopyNode(pcNodeId)
+		aCopy["id"] = pcNewId
+		This.AddNodeXTT(aCopy["id"], aCopy["label"], aCopy["properties"])
+	
+		def CloneNode(pcNodeId, pcNewId)
+			This.DuplicateNode(pcNodeId, pcNewId)
+	
+	def DuplicateNodeWithEdges(pcNodeId, pcNewId)
+		This.DuplicateNode(pcNodeId, pcNewId)
+		
+		# Copy outgoing edges
+		aEdges = This.Edges()
+		nLen = len(aEdges)
+		for i = 1 to nLen
+			if aEdges[i]["from"] = pcNodeId
+				This.AddEdgeXTT(pcNewId, aEdges[i]["to"], aEdges[i]["label"], aEdges[i]["properties"])
+			ok
+		end
+
+	#------------------------------------------
+	#  MERGE OPERATIONS
+	#------------------------------------------
+	
+	def MergeNodes(pacNodeIds, pcNewId, pcNewLabel)
+		This.MergeNodesXT(pacNodeIds, pcNewId, pcNewLabel, [])
+	
+	def MergeNodesXT(pacNodeIds, pcNewId, pcNewLabel, paNewProps)
+		if len(pacNodeIds) < 2
+			return
+		ok
+		
+		# Collect all unique incoming and outgoing connections
+		aIncoming = []
+		aOutgoing = []
+		
+		nNodeLen = len(pacNodeIds)
+		nEdgeLen = len(@acEdges)
+		
+		for i = 1 to nNodeLen
+			cNodeId = pacNodeIds[i]
+			
+			for j = 1 to nEdgeLen
+				aEdge = @acEdges[j]
+				
+				if aEdge["to"] = cNodeId
+					if ring_find(aIncoming, aEdge["from"]) = 0 and ring_find(pacNodeIds, aEdge["from"]) = 0
+						aIncoming + aEdge["from"]
+					ok
+				ok
+				
+				if aEdge["from"] = cNodeId
+					if ring_find(aOutgoing, aEdge["to"]) = 0 and ring_find(pacNodeIds, aEdge["to"]) = 0
+						aOutgoing + aEdge["to"]
+					ok
+				ok
+			end
+		end
+		
+		# Remove old nodes
+		This.RemoveTheseNodes(pacNodeIds)
+		
+		# Add merged node
+		This.AddNodeXTT(pcNewId, pcNewLabel, paNewProps)
+		
+		# Reconnect edges
+		nLen = len(aIncoming)
+		for i = 1 to nLen
+			This.Connect(aIncoming[i], pcNewId)
+		end
+		
+		nLen = len(aOutgoing)
+		for i = 1 to nLen
+			This.Connect(pcNewId, aOutgoing[i])
+		end
+	
+		def CombineNodes(pacNodeIds, pcNewId, pcNewLabel)
+			This.MergeNodes(pacNodeIds, pcNewId, pcNewLabel)
+
 	#----------------------------#
 	#  MANAGING NODE PROPERTIES  #
 	#----------------------------#
 
-	def SetNodeProperty(pNodeId, cProperty, pValue)
-		nLen = len(@acNodes)
+	def Properties()
+		acAllProps = []
+		aNodes = This.Nodes()
+		nLen = len(aNodes)
+		
 		for i = 1 to nLen
-			if @acNodes[i]["id"] = pNodeId
-				if NOT HasKey(@acNodes[i], "properties")
-					@acNodes[i]["properties"] = []
+			if HasKey(aNodes[i], "properties")
+				acKeys = keys(aNodes[i]["properties"])
+				nKeyLen = len(acKeys)
+				for j = 1 to nKeyLen
+					if ring_find(acAllProps, acKeys[j]) = 0
+						acAllProps + acKeys[j]
+					ok
+				end
+			ok
+		end
+		
+		return acAllProps
+	
+		def Props()
+			return This.Properties()
+
+	def PropertiesXT()
+		aResult = []
+		aNodes = This.Nodes()
+		nLen = len(aNodes)
+		
+		for i = 1 to nLen
+			if HasKey(aNodes[i], "properties")
+				aProps = aNodes[i]["properties"]
+				acKeys = keys(aProps)
+				nKeyLen = len(acKeys)
+				
+				for j = 1 to nKeyLen
+					cKey = acKeys[j]
+					pValue = aProps[cKey]
+					
+					# Find or create entry
+					nFound = 0
+					nResultLen = len(aResult)
+					for k = 1 to nResultLen
+						if aResult[k][1] = cKey
+							nFound = k
+							exit
+						ok
+					end
+					
+					if nFound > 0
+						if ring_find(aResult[nFound][2], pValue) = 0
+							aResult[nFound][2] + pValue
+						ok
+					else
+						aResult + [cKey, [pValue]]
+					ok
+				end
+			ok
+		end
+		
+		return aResult
+	
+		def PropsXT()
+			return This.PropertiesXT()
+	
+		def PropsAndTheirValues()
+			return This.PropertiesXT()
+
+	#--
+
+	def SetNodeProperty(pNodeId, cProperty, pValue)
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			if @aNodes[i]["id"] = pNodeId
+				if NOT HasKey(@aNodes[i], "properties")
+					@aNodes[i]["properties"] = []
 				ok
-				@acNodes[i]["properties"][cProperty] = pValue
+				@aNodes[i]["properties"][cProperty] = pValue
 				return
 			ok
 		end
@@ -314,6 +877,32 @@ class stzGraph
 	
 		def SetNodePropes(pNodeId, aProperties)
 			This.SetNodeProperties(pNodeId, aProperties)
+
+	def NodeProperties(pcNodeId)
+		aNode = This.Node(pcNodeId)
+		if HasKey(aNode, "properties")
+			return keys(aNode["properties"])
+		ok
+		return []
+	
+		def NodeProps(pcNodeId)
+			return This.NodeProperties(pcNodeId)
+
+	def NodePropertiesXT(pcNodeId)
+		aNode = This.Node(pcNodeId)
+		if HasKey(aNode, "properties")
+			return aNode["properties"]
+		ok
+		return []
+	
+		def NodePropertiesAndTheirValues(pcNodeId)
+			return This.NodeProperties(pcNodeId)
+
+		def NodePropsXT(pcNodeId)
+			return This.NodeProperties(pcNodeId)
+
+		def NodePropsAndTheirValues(pcNodeId)
+			return This.NodeProperties(pcNodeId)
 
 	def NodeProperty(pNodeId, cProperty)
 		aNode = This.Node(pNodeId)
@@ -487,9 +1076,9 @@ class stzGraph
 		acVisited = []
 		acRecStack = []
 
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			if find(acVisited, aNode["id"]) = 0
 				if This._HasCycleDFS(aNode["id"], acVisited, acRecStack)
 					return 1
@@ -592,20 +1181,20 @@ def ReachableFrom(pcNodeId)
 		nTotalDegree = 0
 		
 		# Calculate average degree
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			nIncoming = len(This.Incoming(aNode["id"]))
 			nOutgoing = len(This.Neighbors(aNode["id"]))
 			nTotalDegree += nIncoming + nOutgoing
 		end
 		
-		nAvgDegree = nTotalDegree / len(@acNodes)
+		nAvgDegree = nTotalDegree / len(@aNodes)
 		
 		# Mark nodes above average
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			nIncoming = len(This.Incoming(aNode["id"]))
 			nOutgoing = len(This.Neighbors(aNode["id"]))
 			nDegree = nIncoming + nOutgoing
@@ -618,7 +1207,7 @@ def ReachableFrom(pcNodeId)
 		return acBottlenecks
 
 	def NodeDensity()
-		nNodes = len(@acNodes)
+		nNodes = len(@aNodes)
 		nEdges = len(@acEdges)
 
 		if nNodes <= 1
@@ -631,9 +1220,9 @@ def ReachableFrom(pcNodeId)
 	def LongestPath()
 		nMax = 0
 
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			acReachable = This.ReachableFrom(aNode["id"])
 			nLength = len(acReachable) - 1
 
@@ -650,10 +1239,10 @@ def ReachableFrom(pcNodeId)
 
 	def ParallelizableBranches()
 		acBranches = []
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			cNodeId = aNode["id"]
 			acNeighbors = This.Neighbors(cNodeId)
 			
@@ -708,10 +1297,10 @@ def ReachableFrom(pcNodeId)
 
 	def DependencyFreeNodes()
 		acDependencyFree = []
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			cNodeId = aNode["id"]
 			acIncoming = This.Incoming(cNodeId)
 			
@@ -754,10 +1343,10 @@ def ReachableFrom(pcNodeId)
 
 	def NodeCriticality()
 		acCriticality = []
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			cNodeId = aNode["id"]
 			nIncoming = len(This.Incoming(cNodeId))
 			nOutgoing = len(This.Neighbors(cNodeId))
@@ -858,13 +1447,13 @@ def ReachableFrom(pcNodeId)
 	    return 1
 	
 	def _IsConnected()
-	    if len(@acNodes) <= 1
+	    if len(@aNodes) <= 1
 	        return 1
 	    ok
 	    
 	    acVisited = []
-	    acQueue = [@acNodes[1]["id"]]
-	    acVisited + @acNodes[1]["id"]
+	    acQueue = [@aNodes[1]["id"]]
+	    acVisited + @aNodes[1]["id"]
 	    nIdx = 1
 	    
 	    while nIdx <= len(acQueue)
@@ -892,7 +1481,7 @@ def ReachableFrom(pcNodeId)
 	        nIdx += 1
 	    end
 	    
-	    return len(acVisited) = len(@acNodes)
+	    return len(acVisited) = len(@aNodes)
 	
 	def ConstraintViolations()
 	    if NOT HasKey(@acProperties, "constraints")
@@ -1205,10 +1794,10 @@ def ReachableFrom(pcNodeId)
 
 	def _FindNodesByPattern(pcPattern)
 		acFound = []
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			if HasKey(aNode, "properties")
 				acProps = aNode["properties"]
 				nPropLen = len(acProps)
@@ -1225,10 +1814,10 @@ def ReachableFrom(pcNodeId)
 
 	def _FindNodesByType(pcType)
 		acFound = []
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			if HasKey(aNode, "properties")
 				acProps = aNode["properties"]
 				if HasKey(acProps, "type")
@@ -1273,9 +1862,9 @@ def ReachableFrom(pcNodeId)
 		if len(acRoots) = 0
 			# If no root nodes, use all nodes as potential starts
 			acRoots = []
-			nLen = len(@acNodes)
+			nLen = len(@aNodes)
 			for i = 1 to nLen
-				acRoots + @acNodes[i]["id"]
+				acRoots + @aNodes[i]["id"]
 			end
 		ok
 		
@@ -1305,33 +1894,14 @@ def ReachableFrom(pcNodeId)
 		def PathsToNode(pcNodeId)
 			return This.FindNode(pcNodeId)
 
-	def FindNodesWhere(pFunc)
-		acMatching = []
-		nLen = len(@acNodes)
-		
-		for i = 1 to nLen
-			aNode = @acNodes[i]
-			if call pFunc(aNode)
-				acMatching + aNode["id"]
-			ok
-		end
-		
-		return acMatching
-
-		def NodesWhere(pFunc)
-			return This.FindNodesWhere(pFunc)
-
-		def NodesWF(pFunc)
-			return This.FindNodesWhere(pFunc)
-
 	def FindPathsMatching(pFunc)
 		acMatchingPaths = []
-		nNodeLen = len(@acNodes)
+		nNodeLen = len(@aNodes)
 		
 		for i = 1 to nNodeLen
 			for j = 1 to nNodeLen
-				aNodeI = @acNodes[i]
-				aNodeJ = @acNodes[j]
+				aNodeI = @aNodes[i]
+				aNodeJ = @aNodes[j]
 				
 				if aNodeI["id"] != aNodeJ["id"]
 					acPaths = This.FindAllPaths(aNodeI["id"], aNodeJ["id"])
@@ -1418,7 +1988,7 @@ def ReachableFrom(pcNodeId)
 		aSnapshot = [
 			:name = pcName,
 			:timestamp = now(),
-			:nodes = This._CopyList(@acNodes),
+			:nodes = This._CopyList(@aNodes),
 			:edges = This._CopyList(@acEdges)
 		]
 		
@@ -1452,7 +2022,7 @@ def ReachableFrom(pcNodeId)
 		for i = 1 to nLen
 			aSnapshot = acSnapshots[i]
 			if aSnapshot["name"] = pcName
-				@acNodes = This._CopyList(aSnapshot["nodes"])
+				@aNodes = This._CopyList(aSnapshot["nodes"])
 				@acEdges = This._CopyList(aSnapshot["edges"])
 				return 1
 			ok
@@ -1488,9 +2058,9 @@ def ReachableFrom(pcNodeId)
 		]
 		
 		# Find added nodes
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			bFound = 0
 			nOldLen = len(aOldSnapshot["nodes"])
 			for j = 1 to nOldLen
@@ -1509,9 +2079,9 @@ def ReachableFrom(pcNodeId)
 		for i = 1 to nOldLen
 			aOldNode = aOldSnapshot["nodes"][i]
 			bFound = 0
-			nLen = len(@acNodes)
+			nLen = len(@aNodes)
 			for j = 1 to nLen
-				if @acNodes[j]["id"] = aOldNode["id"]
+				if @aNodes[j]["id"] = aOldNode["id"]
 					bFound = 1
 					exit
 				ok
@@ -1635,7 +2205,7 @@ def ReachableFrom(pcNodeId)
 	def ToHashlist()
 		return [
 			:id = @cId,
-			:nodes = @acNodes,
+			:nodes = @aNodes,
 			:edges = @acEdges,
 			:properties = @acProperties
 		]
@@ -1646,9 +2216,9 @@ def ReachableFrom(pcNodeId)
 		cDOT += "  node [shape=box];" + nl + nl
 		
 		# Export nodes
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			cId = aNode["id"]
 			cLabel = aNode["label"]
 			
@@ -1710,9 +2280,9 @@ def ReachableFrom(pcNodeId)
 		acEdges = []
 		
 		# Process nodes and remove @ prefix
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			cId = aNode["id"]
 			if substr(cId, 1, 1) = "@"
 				cId = substr(cId, 2, len(cId) - 1)
@@ -1771,7 +2341,7 @@ def ReachableFrom(pcNodeId)
 		
 		cJSON += '  ],' + nl
 		cJSON += '  "metrics": ' + @ToJSON([
-			:nodeCount = len(@acNodes),
+			:nodeCount = len(@aNodes),
 			:edgeCount = len(@acEdges),
 			:density = This.NodeDensity(),
 			:longestPath = This.LongestPath(),
@@ -1791,9 +2361,9 @@ def ReachableFrom(pcNodeId)
 		cYAML = "graph: " + This.Id() + nl
 		cYAML += "nodes:" + nl
 		
-		nLen = len(@acNodes)
+		nLen = len(@aNodes)
 		for i = 1 to nLen
-			aNode = @acNodes[i]
+			aNode = @aNodes[i]
 			cId = aNode["id"]
 			
 			# Remove @ prefix if present
