@@ -1608,7 +1608,7 @@ pf()
 
 
 /*---  Example 1: Security Risk Visualization
-
+*/
 pr()
 
 # Create the diagram object
@@ -1619,7 +1619,7 @@ oDiag = new stzDiagram("SecurityFlow")
 
 oHighRiskRule = new stzVisualRule("high_risk")
 oHighRiskRule {
-	WhenMetadataInSection("risk_score", 70, 100)
+	When("risk_score", :InSection = [70, 100])
 	ApplyColor("#FF4444") 	#NOTE // Possible to use hex but better use semantic names
 				# Try with ApplyColor("green") or "sucess--" etc
 	ApplyPenWidth(3)
@@ -1636,25 +1636,32 @@ oDiag {
 
 	# Use those rules inside the diagram object
 
-	AddVisualRule(oHighRiskRule) #TODO// Make rules definable directly here, if not done yet!
-	AddVisualRule(oSecureRule)
+	SetVisualRule(oHighRiskRule) #TODO// Make rules definable directly here, if not done yet!
+	SetVisualRule(oSecureRule)
+	ApplyRules()
 
 	# Add nodes with metadata
 
-	AddNodeXTT("auth", "Authentication", :Process, :Primary,
-		[ :risk_score = 85, :sla_ms = 100], # <-- metadata
-		[ :security, :critical ] # <-- tags
-	)
+	AddNodeXTT("auth", "Authentication", [
+		:type = "process",
+		:color = "primary",
+		:risk_score = 85,
+		:sla_ms = 100,
+		:tags = [ :security, :critical ]
+	])
 
-	AddNodeXTT("db", "Database", :Storage, :Info,
-		[ :risk_score = 45, :encrypted = TRUE],
-		[ :security ]
-	)
+	AddNodeXTT("db", "Database", [
+		:type = "storage",
+		:color = "info",
+		:risk_score = 45,
+		:encrypted = TRUE,
+		:tags = [ :security ]
+	])
 
-	AddEdgeWithMetaData("auth", "db", "query",
-		[ :type = "requires"],
-		[ :data_flow ]
-	)
+	AddEdgeWithXTT("auth", "db", "query", [
+		:type = "requires",
+		:tags = [ :data_flow ]
+	])
 
 	? Code()
 	View()
@@ -1678,8 +1685,8 @@ oFastRule = new stzVisualRule("fast_api")
 oFastRule.WhenMetadataInSection("latency_ms", 0, 100)
 oFastRule.ApplyColor("#44FF44")
 
-oDiag.AddVisualRule(oSlowRule)
-oDiag.AddVisualRule(oFastRule)
+oDiag.SetVisualRule(oSlowRule)
+oDiag.SetVisualRule(oFastRule)
 
 oDiag.AddNodeXTT("api1", "User API", :Process, :Primary,
 	[ :latency_ms = 50, :throughput = 1000], [:api])
@@ -1710,8 +1717,8 @@ oPciRule = new stzVisualRule("pci")
 oPciRule.WhenTagExists(:pci)
 oPciRule.ApplyColor("#0066CC")
 
-oDiag.AddVisualRule(oGdprRule)
-oDiag.AddVisualRule(oPciRule)
+oDiag.SetVisualRule(oGdprRule)
+oDiag.SetVisualRule(oPciRule)
 
 oDiag.AddNodeXTT("collect", "Data Collection", :Process, :Info,
 	[:retention_days = 90], ["gdpr"])
@@ -1748,7 +1755,7 @@ oProductionRule {
 }
 
 oDiag {
-	AddVisualRule(oProductionRule)
+	SetVisualRule(oProductionRule)
 
 	AddNodeXTT("prod_db", "Production DB", [
 		:Type = :Storage,
@@ -1802,9 +1809,9 @@ oHighPrio {
 }
 
 oDiag {
-	AddVisualRule(oLowPrio)
-	AddVisualRule(oMedPrio)
-	AddVisualRule(oHighPrio)
+	SetVisualRule(oLowPrio)
+	SetVisualRule(oMedPrio)
+	SetVisualRule(oHighPrio)
 	
 	AddNodeXTT("task1", "Cleanup", [
 		:type = :process,
@@ -1854,8 +1861,8 @@ oAsyncEdge {
 }
 
 oDiag {
-	AddVisualRule(oSyncEdge)
-	AddVisualRule(oAsyncEdge)
+	SetVisualRule(oSyncEdge)
+	SetVisualRule(oAsyncEdge)
 
 	AddNodeXT("api", "API Gateway")
 	AddNodeXT("service", "Auth Service")
@@ -1891,7 +1898,7 @@ oHasSla {
 }
 
 oDiag {
-	AddVisualRule(oHasSla)
+	SetVisualRule(oHasSla)
 	
 	AddNodeXTT("critical_api", "Payment API", [
 		:type = :process,
@@ -1933,8 +1940,8 @@ oCritical {
 }
 
 oDiag {
-	AddVisualRule(oApiBase)
-	AddVisualRule(oCritical)
+	SetVisualRule(oApiBase)
+	SetVisualRule(oCritical)
 	
 	AddNodeXTT("standard", "User API", [
 		:type = :process,
@@ -1975,8 +1982,8 @@ oQueueShape {
 }
 
 oDiag {
-	AddVisualRule(oStorageShape)
-	AddVisualRule(oQueueShape)
+	SetVisualRule(oStorageShape)
+	SetVisualRule(oQueueShape)
 	
 	AddNodeXTT("postgres", "PostgreSQL", [
 		:type = "relational",
@@ -2022,8 +2029,8 @@ oSlow {
 }
 
 oDiag {
-	AddVisualRule(oEncrypted)
-	AddVisualRule(oSlow)
+	SetVisualRule(oEncrypted)
+	SetVisualRule(oSlow)
 	
 	AddNodeXTT("secure_db", "Encrypted DB", [
 		:type = :Storage, :color = :Success, :tags = [:encrypted] ])
@@ -2094,9 +2101,9 @@ oDeprecated {
 }
 
 oDiag {
-	AddVisualRule(oHighLoad)
-	AddVisualRule(oEncrypted)
-	AddVisualRule(oDeprecated)
+	SetVisualRule(oHighLoad)
+	SetVisualRule(oEncrypted)
+	SetVisualRule(oDeprecated)
 	
 	AddNodeXTT("lb", "Load Balancer", [
 		:Type = "process", :Color = "primary",
@@ -2157,10 +2164,10 @@ oCritical {
 oDiag {
 	SetTheme(:pro)
 	
-	AddVisualRule(oHealthy)
-	AddVisualRule(oDegraded)
-	AddVisualRule(oDown)
-	AddVisualRule(oCritical)
+	SetVisualRule(oHealthy)
+	SetVisualRule(oDegraded)
+	SetVisualRule(oDown)
+	SetVisualRule(oCritical)
 	
 	AddNodeXTT("gateway", "API Gateway", [
 		:type = "process", :color = "primary",
@@ -2222,9 +2229,9 @@ oAudited {
 oDiag {
 	SetLayout(:LeftRight)
 	
-	AddVisualRule(oPiiData)
-	AddVisualRule(oEncrypted)
-	AddVisualRule(oAudited)
+	SetVisualRule(oPiiData)
+	SetVisualRule(oEncrypted)
+	SetVisualRule(oAudited)
 	
 	AddNodeXTT("collect", "Data Collector", [
 		:type = "process", :color = "info", :tags = [:audit]
@@ -2371,10 +2378,10 @@ oDiag {
 	
 	# Logic
 
-	AddVisualRule(oLowCost)
-	AddVisualRule(oMedCost)
-	AddVisualRule(oHighCost)
-	AddVisualRule(oProduction)
+	SetVisualRule(oLowCost)
+	SetVisualRule(oMedCost)
+	SetVisualRule(oHighCost)
+	SetVisualRule(oProduction)
 	ApplyVisualRules()
 
 	# Output
@@ -2562,10 +2569,10 @@ oDiag {
 	
 	# Rules
 
-	AddVisualRule(oPublic)
-	AddVisualRule(oDmz)
-	AddVisualRule(oPrivate)
-	AddVisualRule(oFirewall)
+	SetVisualRule(oPublic)
+	SetVisualRule(oDmz)
+	SetVisualRule(oPrivate)
+	SetVisualRule(oFirewall)
 	
 	# Nodes
 
@@ -2687,10 +2694,10 @@ oDiag {
 	
 	# Rules can be composed from exitant set of rules,
 	# which is more accurade for clean design and reusable rules
-	AddVisualRule(oPassed)
-	AddVisualRule(oFailed)
-	AddVisualRule(oRunning)
-	AddVisualRule(oCriticalStage)
+	SetVisualRule(oPassed)
+	SetVisualRule(oFailed)
+	SetVisualRule(oRunning)
+	SetVisualRule(oCriticalStage)
 	
 	#TODO// But rules should also be defined directly inside the diagram
 	# object, which is more intuitive for quick and focused usage

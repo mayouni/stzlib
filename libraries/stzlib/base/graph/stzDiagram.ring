@@ -1501,21 +1501,24 @@ class stzDiagram from stzGraph
 	#===========================#
 	#  VISUAL RULES MANAGEMENT  #
 	#===========================#
-
-	def AddVisualRule(p)
-		if isString(p)
-			if HasKey(@aVisualRules, p)
-				return
-			else
-				stzraise("Visual rule '" + p + "' not found")
-			ok
-		but isObject(p) and ring_classname(p) = "stzvisualrule"
-			@aVisualRules[p.@cRuleId] = p
-			This.AddRule(p)  # Also add to parent @aRules
-		ok
 	
-		def AddVisualRuleObject(oVisualRule)
-			This.AddVisualRule(oVisualRule)
+	def SetVisualRule(p)
+		This.SetRule(p)
+	
+		def SetVisualRuleObject(oVisualRule)
+			This.SetVisualRule(oVisualRule)
+	
+	def ApplyVisualRules()
+		This.ApplyRulesByType("visual")
+	
+	def VisualRule(pcRuleId)
+		return This.Rule(pcRuleId)
+	
+	def VisualRules()
+		return This.RulesByType("visual")
+	
+	def VisualRuleObjects()
+		return This.RulesObjectsByType("visual")
 	
 	def RemoveVisualRule(p)
 		if isString(p)
@@ -1526,21 +1529,8 @@ class stzDiagram from stzGraph
 			This.RemoveRule(p)
 		ok
 	
-	def VisualRule(pcRuleId)
-		return @aVisualRules[pcRuleId]
-	
-		def VisualRuleObject(pcRuleId)
-			return This.VisualRule(pcRuleId)
-	
-	def VisualRules()
-		return @aVisualRules
-	
-		def VisualRuleObjects()
-			return @aVisualRules
-	
-	def ApplyVisualRules()
-		This.ApplyRules()  # Delegates to parent
-	
+
+
 	#-----------------------------------------#
 	# Get diagram overview with rules context #
 	#-----------------------------------------#
@@ -3482,29 +3472,56 @@ class stzDiagramToJSON
 		return TRUE
 
 
-#------------------
-#  VISUAL RULES
-#------------------
-
 class stzDiagramRule from stzVisualRule
 class stzVisualRule from stzGraphRule
 	
-	# Visual-specific application methods
+	def init(pcRuleId)
+		super.init(pcRuleId)
+		@cRuleType = "visual"
+	
+	#------------------------------------------
+	#  VISUAL EFFECTS
+	#------------------------------------------
+	
 	def ApplyColor(pColor)
-		This.Apply(:color, pColor)
+		This.Apply("color", pColor)
 	
 	def ApplyShape(pcShape)
-		This.Apply(:shape, pcShape)
+		This.Apply("shape", pcShape)
 	
 	def ApplyStyle(pcStyle)
-		This.Apply(:style, pcStyle)
+		This.Apply("style", pcStyle)
 	
 	def ApplyPenWidth(nWidth)
-		This.Apply(:penwidth, nWidth)
+		This.Apply("penwidth", nWidth)
+	
+	def ApplyFillColor(pColor)
+		This.Apply("fillcolor", pColor)
+	
+	def ApplyStrokeColor(pColor)
+		This.Apply("strokecolor", pColor)
+	
+	def ApplyFontColor(pColor)
+		This.Apply("fontcolor", pColor)
+	
+	def ApplyFontSize(nSize)
+		This.Apply("fontsize", nSize)
+	
+	def ApplyArrowHead(pcStyle)
+		This.Apply("arrowhead", pcStyle)
+	
+	def ApplyArrowTail(pcStyle)
+		This.Apply("arrowtail", pcStyle)
+	
+	def ApplyLabel(pcLabel)
+		This.Apply("label", pcLabel)
+	
+	def ApplyTooltip(pcTooltip)
+		This.Apply("tooltip", pcTooltip)
 
-#------------------------#
+#========================#
 #  COLOR RESOLVER CLASS  #
-#------------------------#
+#========================#
 
 class stzColorResolver
 
