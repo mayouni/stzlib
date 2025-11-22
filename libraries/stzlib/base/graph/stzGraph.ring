@@ -1511,44 +1511,95 @@ def NodePosition(pcNodeId)
 	    
 	    return acViolations
 
-	#--------------------#
-	#  RULES MANAGEMENT  #
-	#--------------------#
+#------------------------------------------
+#  stzGraph - Rule Management
+#------------------------------------------
 
-	def AddRule(p)
-		if isString(p)
-			if HasKey(@aRules, p)
-				return
-			else
-				stzraise("Rule '" + p + "' not found")
-			ok
-		but isObject(p) and ring_classname(p) = "stzrule"
-			@aRules[p.@cRuleId] = p
+def SetRule(p)
+	if isString(p)
+		if HasKey(@aRules, p)
+			return
+		else
+			stzraise("Rule '" + p + "' not found")
 		ok
+	but isObject(p) and ring_classname(p) = "stzgraphrule"
+		@aRules[p.@cRuleId] = p
+	ok
+
+	def SetRuleObject(oRule)
+		This.SetRule(oRule)
+
+def SetRuleXT(p, pcType)
+	if isString(p)
+		stzraise("Cannot set type for non-existent rule '" + p + "'")
+	ok
 	
-		def AddRuleObject(oRule)
-			This.AddRule(oRule)
-	
-	def RemoveRule(p)
-		if isString(p)
-			@aRules[p] = NULL
-		but isObject(p)
-			@aRules[p.@cRuleId] = NULL
-		ok
-	
-	def Rule(pcRuleId)
-		return @aRules[pcRuleId]
-	
-		def RuleObject(pcRuleId)
-			return This.Rule(pcRuleId)
-	
-	def Rules()
+	if isObject(p) and ring_classname(p) = "stzgraphrule"
+		p.SetRuleType(pcType)
+		@aRules[p.@cRuleId] = p
+	ok
+
+def RemoveRule(p)
+	if isString(p)
+		@aRules[p] = NULL
+	but isObject(p)
+		@aRules[p.@cRuleId] = NULL
+	ok
+
+def Rule(pcRuleId)
+	return @aRules[pcRuleId]
+
+	def RuleObject(pcRuleId)
+		return This.Rule(pcRuleId)
+
+def Rules()
+	return @aRules
+
+	def RuleObjects()
 		return @aRules
-	
-		def RuleObjects()
-			return @aRules
 
+def RulesByType(pcType)
+	acResult = []
+	acRuleIds = keys(@aRules)
+	nLen = len(acRuleIds)
+	
+	for i = 1 to nLen
+		cRuleId = acRuleIds[i]
+		oRule = @aRules[cRuleId]
+		cRuleType = oRule.RuleType()
+		
+		if pcType = "" or lower(pcType) = cRuleType
+			acResult + cRuleId
+		ok
+	end
+	
+	return acResult
+
+def RulesObjectsByType(pcType)
+	aoResult = []
+	acRuleIds = keys(@aRules)
+	nLen = len(acRuleIds)
+	
+	for i = 1 to nLen
+		cRuleId = acRuleIds[i]
+		oRule = @aRules[cRuleId]
+		cRuleType = oRule.RuleType()
+		
+		if pcType = "" or lower(pcType) = cRuleType
+			aoResult + oRule
+		ok
+	end
+	
+	return aoResult
+
+	#------------------------------------------
+	#  stzGraph - Rule Application
+	#------------------------------------------
+	
 	def ApplyRules()
+		This.ApplyRulesByType("")
+	
+	def ApplyRulesByType(pcType)
 		aNodes = This.Nodes()
 		nLen = len(aNodes)
 		
@@ -1562,15 +1613,17 @@ def NodePosition(pcNodeId)
 			
 			for j = 1 to nRuleLen
 				oRule = @aRules[acRuleIds[j]]
+				
+				# Filter by type if specified
+				if pcType != ""
+					cRuleType = oRule.RuleType()
+					if lower(pcType) != cRuleType
+						loop
+					ok
+				ok
+				
 				if oRule.Matches(aContext)
-					aEffects = oRule.Effects()
-					nEffLen = len(aEffects)
-					
-					for k = 1 to nEffLen
-						cAspect = aEffects[k][1]
-						pValue = aEffects[k][2]
-						This.SetNodeProperty(cNodeId, cAspect, pValue)
-					end
+					This._ApplyEffects(oRule, "node", cNodeId)
 				ok
 			end
 			
@@ -1579,6 +1632,7 @@ def NodePosition(pcNodeId)
 			ok
 		end
 		
+		# Same for edges
 		aEdges = This.Edges()
 		nLen = len(aEdges)
 		
@@ -1592,15 +1646,16 @@ def NodePosition(pcNodeId)
 			
 			for j = 1 to nRuleLen
 				oRule = @aRules[acRuleIds[j]]
+				
+				if pcType != ""
+					cRuleType = oRule.RuleType()
+					if lower(pcType) != cRuleType
+						loop
+					ok
+				ok
+				
 				if oRule.Matches(aContext)
-					aEffects = oRule.Effects()
-					nEffLen = len(aEffects)
-					
-					for k = 1 to nEffLen
-						cAspect = aEffects[k][1]
-						pValue = aEffects[k][2]
-						This.SetEdgeProperty(aEdge["from"], aEdge["to"], cAspect, pValue)
-					end
+					This._ApplyEffects(oRule, "edge", [aEdge["from"], aEdge["to"]])
 				ok
 			end
 			
@@ -1609,18 +1664,59 @@ def NodePosition(pcNodeId)
 			ok
 		end
 	
-	def _BuildRuleContext(aNodeOrEdge)
-		aContext = aNodeOrEdge
+	def _ApplyEffects(oRule, cElementType, pElementId)
+		aEffects = oRule.Effects()
+		nLen = len(aEffects)
 		
-		if HasKey(aNodeOrEdge, "properties") and aNodeOrEdge["properties"] != NULL
-			aContext["metadata"] = aNodeOrEdge["properties"]
-			aContext["tags"] = []
-			if HasKey(aNodeOrEdge["properties"], "tags")
-				aContext["tags"] = aNodeOrEdge["properties"]["tags"]
+		for i = 1 to nLen
+			cAspect = aEffects[i][1]
+			pValue = aEffects[i][2]
+			
+			# Inference effects
+			if cAspect = "addedge"
+				This.AddEdge(pValue[1], pValue[2])
+				loop
 			ok
-		ok
+			
+			if cAspect = "addproperty"
+				if cElementType = "node"
+					This.SetNodeProperty(pElementId, pValue[1], pValue[2])
+				but cElementType = "edge"
+					This.SetEdgeProperty(pElementId[1], pElementId[2], pValue[1], pValue[2])
+				ok
+				loop
+			ok
+			
+			# Validation effects
+			if cAspect = "isvalid" or cAspect = "violation"
+				if cElementType = "node"
+					This.SetNodeProperty(pElementId, cAspect, pValue)
+				but cElementType = "edge"
+					This.SetEdgeProperty(pElementId[1], pElementId[2], cAspect, pValue)
+				ok
+				loop
+			ok
+			
+			# Generic property setting
+			if cElementType = "node"
+				This.SetNodeProperty(pElementId, cAspect, pValue)
+			but cElementType = "edge"
+				This.SetEdgeProperty(pElementId[1], pElementId[2], cAspect, pValue)
+			ok
+		end
 		
-		return aContext
+		def _BuildRuleContext(aNodeOrEdge)
+			aContext = aNodeOrEdge
+			
+			if HasKey(aNodeOrEdge, "properties") and aNodeOrEdge["properties"] != NULL
+				aContext["metadata"] = aNodeOrEdge["properties"]
+				aContext["tags"] = []
+				if HasKey(aNodeOrEdge["properties"], "tags")
+					aContext["tags"] = aNodeOrEdge["properties"]["tags"]
+				ok
+			ok
+			
+			return aContext
 
 	#--------------------------#
 	#  RULES ANALYSIS METHODS  #
@@ -3349,57 +3445,155 @@ class stzGraphAsciiVisualizer
 		return aoLegend
 
 
-
 class stzGraphRule
 	@cRuleId
+	@cRuleType = ""  # visual, validation, inference, or ''
 	@cConditionType
 	@aConditionParams
 	@aEffects
 	
 	def init(pcRuleId)
 		@cRuleId = pcRuleId
+		@cRuleType = ""
+		@cConditionType = ""
+		@aConditionParams = []
 		@aEffects = []
 	
-	def WhenPropertyExists(pcKey)
-		@cConditionType = :property_exists
-		@aConditionParams = [pcKey]
-
+	#------------------------------------------
+	#  RULE TYPE
+	#------------------------------------------
+	
+	def SetRuleType(pcType)
+		@cRuleType = lower(pcType)
+	
+	def RuleType()
+		return @cRuleType
+	
+	#------------------------------------------
+	#  CONDITION METHODS
+	#------------------------------------------
+	
 	def When(pcKey, pValue)
 		if isList(pValue)
 			oVal = StzListQ(pValue)
+			
 			if oVal.IsEqualsNamedParam()
 				This.WhenPropertyEquals(pcKey, pValue[2])
 				return
-			but oVal.IsInRangeNamedParam() or oVal.IsInSectionNamedParam()
-				This.WhenPropertyInRange(pcKey, pValue[2][1], pValue[2][2])
+				
+			but oVal.IsInSectionNamedParam()
+				This.WhenPropertyInSection(pcKey, pValue[2][1], pValue[2][2])
+				return
+				
+			but oVal.IsToNamedParam()
+				This.WhenPropertyTo(pcKey, pValue[2])
+				return
+				
+			but oVal.IsGreaterThanNamedParam()
+				This.WhenPropertyGreaterThan(pcKey, pValue[2])
+				return
+				
+			but oVal.IsLessThanNamedParam()
+				This.WhenPropertyLessThan(pcKey, pValue[2])
 				return
 			ok
+			
 		but isString(pValue)
 			if pValue = "exists"
 				This.WhenPropertyExists(pcKey)
 				return
+				
+			but pValue = "notexists"
+				This.WhenPropertyNotExists(pcKey)
+				return
 			ok
 		ok
-		stzraise("Unsupported syntax!")
-
+		
+		stzraise("Unsupported condition syntax!")
+	
+	def WhenPropertyExists(pcKey)
+		@cConditionType = :propertyexists
+		@aConditionParams = [pcKey]
+	
+	def WhenPropertyNotExists(pcKey)
+		@cConditionType = :propertynotexists
+		@aConditionParams = [pcKey]
+	
 	def WhenPropertyEquals(pcKey, pValue)
-		@cConditionType = :property_equals
+		@cConditionType = :propertyequals
 		@aConditionParams = [pcKey, pValue]
-
-	def WhenPropertyInRange(pcKey, nMin, nMax)
-		@cConditionType = :property_range
+	
+	def WhenPropertyInSection(pcKey, nMin, nMax)
+		@cConditionType = :propertyinsection
 		@aConditionParams = [pcKey, nMin, nMax]
 	
+	def WhenPropertyGreaterThan(pcKey, nValue)
+		@cConditionType = :propertygreaterthan
+		@aConditionParams = [pcKey, nValue]
+	
+	def WhenPropertyLessThan(pcKey, nValue)
+		@cConditionType = :propertylessthan
+		@aConditionParams = [pcKey, nValue]
+	
+	def WhenPropertyTo(pcKey, pTarget)
+		@cConditionType = :propertyto
+		@aConditionParams = [pcKey, pTarget]
+	
 	def WhenTagExists(pcTag)
-		@cConditionType = :tag_exists
+		@cConditionType = :tagexists
 		@aConditionParams = [pcTag]
+	
+	def WhenTagNotExists(pcTag)
+		@cConditionType = :tagnotexists
+		@aConditionParams = [pcTag]
+	
+	def WhenAllTags(paTags)
+		@cConditionType = :alltags
+		@aConditionParams = paTags
+	
+	def WhenAnyTag(paTags)
+		@cConditionType = :anytag
+		@aConditionParams = paTags
+	
+	#------------------------------------------
+	#  EFFECT METHODS
+	#------------------------------------------
 	
 	def Apply(cAspect, pValue)
 		@aEffects + [cAspect, pValue]
-
+	
+	# Validation effects
+	def SetValid(bValue)
+		This.Apply("isvalid", bValue)
+	
+	def SetInvalid()
+		This.SetValid(FALSE)
+	
+	def AddViolation(cMessage)
+		This.Apply("violation", cMessage)
+	
+	# Inference effects
+	def AddEdge(pcFrom, pcTo)
+		This.Apply("addedge", [pcFrom, pcTo])
+	
+	def AddProperty(pcKey, pValue)
+		This.Apply("addproperty", [pcKey, pValue])
+	
+	def InferFrom(pcSource)
+		This.Apply("inferfrom", pcSource)
+	
+	# Generic effects
+	def SetProperty(pcKey, pValue)
+		This.Apply(pcKey, pValue)
+	
+	#------------------------------------------
+	#  MATCHING LOGIC
+	#------------------------------------------
+	
 	def Matches(aNodeOrEdge)
 		switch @cConditionType
-		on :property_exists
+		
+		on :propertyexists
 			cKey = @aConditionParams[1]
 			if HasKey(aNodeOrEdge, "metadata")
 				return HasKey(aNodeOrEdge["metadata"], cKey)
@@ -3409,9 +3603,20 @@ class stzGraphRule
 			ok
 			return FALSE
 		
-		on :property_equals
+		on :propertynotexists
+			cKey = @aConditionParams[1]
+			if HasKey(aNodeOrEdge, "metadata")
+				return NOT HasKey(aNodeOrEdge["metadata"], cKey)
+			ok
+			if HasKey(aNodeOrEdge, "properties")
+				return NOT HasKey(aNodeOrEdge["properties"], cKey)
+			ok
+			return TRUE
+		
+		on :propertyequals
 			cKey = @aConditionParams[1]
 			pValue = @aConditionParams[2]
+			
 			if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
 				return aNodeOrEdge["metadata"][cKey] = pValue
 			ok
@@ -3420,22 +3625,56 @@ class stzGraphRule
 			ok
 			return FALSE
 		
-		on :property_range
+		on :propertyinsection
 			cKey = @aConditionParams[1]
 			nMin = @aConditionParams[2]
 			nMax = @aConditionParams[3]
+			
 			nValue = NULL
 			if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
 				nValue = aNodeOrEdge["metadata"][cKey]
 			but HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], cKey)
 				nValue = aNodeOrEdge["properties"][cKey]
 			ok
-			if nValue != NULL
+			
+			if nValue != NULL and isNumber(nValue)
 				return nValue >= nMin and nValue <= nMax
 			ok
 			return FALSE
 		
-		on :tag_exists
+		on :propertygreaterthan
+			cKey = @aConditionParams[1]
+			nThreshold = @aConditionParams[2]
+			
+			nValue = NULL
+			if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
+				nValue = aNodeOrEdge["metadata"][cKey]
+			but HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], cKey)
+				nValue = aNodeOrEdge["properties"][cKey]
+			ok
+			
+			if nValue != NULL and isNumber(nValue)
+				return nValue > nThreshold
+			ok
+			return FALSE
+		
+		on :propertylessthan
+			cKey = @aConditionParams[1]
+			nThreshold = @aConditionParams[2]
+			
+			nValue = NULL
+			if HasKey(aNodeOrEdge, "metadata") and HasKey(aNodeOrEdge["metadata"], cKey)
+				nValue = aNodeOrEdge["metadata"][cKey]
+			but HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], cKey)
+				nValue = aNodeOrEdge["properties"][cKey]
+			ok
+			
+			if nValue != NULL and isNumber(nValue)
+				return nValue < nThreshold
+			ok
+			return FALSE
+		
+		on :tagexists
 			cTag = @aConditionParams[1]
 			if HasKey(aNodeOrEdge, "tags")
 				return ring_find(aNodeOrEdge["tags"], cTag) > 0
@@ -3444,8 +3683,65 @@ class stzGraphRule
 				return ring_find(aNodeOrEdge["properties"]["tags"], cTag) > 0
 			ok
 			return FALSE
+		
+		on :tagnotexists
+			cTag = @aConditionParams[1]
+			if HasKey(aNodeOrEdge, "tags")
+				return ring_find(aNodeOrEdge["tags"], cTag) = 0
+			ok
+			if HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], "tags")
+				return ring_find(aNodeOrEdge["properties"]["tags"], cTag) = 0
+			ok
+			return TRUE
+		
+		on :alltags
+			aTags = @aConditionParams
+			aElementTags = []
+			
+			if HasKey(aNodeOrEdge, "tags")
+				aElementTags = aNodeOrEdge["tags"]
+			but HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], "tags")
+				aElementTags = aNodeOrEdge["properties"]["tags"]
+			ok
+			
+			nLen = len(aTags)
+			for i = 1 to nLen
+				if ring_find(aElementTags, aTags[i]) = 0
+					return FALSE
+				ok
+			end
+			return TRUE
+		
+		on :anytag
+			aTags = @aConditionParams
+			aElementTags = []
+			
+			if HasKey(aNodeOrEdge, "tags")
+				aElementTags = aNodeOrEdge["tags"]
+			but HasKey(aNodeOrEdge, "properties") and HasKey(aNodeOrEdge["properties"], "tags")
+				aElementTags = aNodeOrEdge["properties"]["tags"]
+			ok
+			
+			nLen = len(aTags)
+			for i = 1 to nLen
+				if ring_find(aElementTags, aTags[i]) > 0
+					return TRUE
+				ok
+			end
+			return FALSE
+		
 		off
+		
 		return FALSE
 	
 	def Effects()
 		return @aEffects
+	
+	def Id()
+		return @cRuleId
+	
+	def ConditionType()
+		return @cConditionType
+	
+	def ConditionParams()
+		return @aConditionParams
