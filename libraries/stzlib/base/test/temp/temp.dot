@@ -1,19 +1,11 @@
-digraph "SecurityArchitecture" {
+digraph "Test" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12]
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    internet [label="Internet", shape=box, style="rounded,solid,filled", fillcolor="#FFE0B2", fontcolor="black"]
-    waf [label="WAF", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
-    lb [label="Load Balancer", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
-    web [label="Web Tier", shape=box, style="rounded,solid,filled", fillcolor="#C8E6C9", fontcolor="black"]
-    app [label="App Tier", shape=box, style="rounded,solid,filled", fillcolor="#C8E6C9", fontcolor="black"]
-    db [label="Database", shape=cylinder, style="solid,filled", fillcolor="#C8E6C9", fontcolor="black"]
+    n1 [label="Node 1", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
+    n3 [label="Node 3", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
 
-    internet -> waf [label=" 443", style="bold", color="#FF5722", penwidth=3]
-    waf -> lb [label=" https", style="bold", color="#FF5722", penwidth=3]
-    lb -> web [label=" internal"]
-    web -> app [label=" api", style="bold", color="#FF5722", penwidth=3]
-    app -> db [label=" query", style="bold", color="#FF5722", penwidth=3]
+    n1 -> n3 [style=invis]
 
 }

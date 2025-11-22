@@ -171,13 +171,13 @@ $aPalette = [
 		:background = "white"
 	],
 	:lightgray = [
-		:primary = "gray++",
-		:success = "gray+",
-		:warning = "gray++",
-		:danger = "gray+",
-		:info = "gray++",
-		:neutral = "gray+",
-		:background = "#F9F9F9"
+		:primary = "white",
+		:success = "gray--",
+		:warning = "gray-",
+		:danger = "gray++",
+		:info = "gray+",
+		:neutral = "white",
+		:background = "white"
 	],
 	:gray = [
 		:primary = "gray+",
@@ -1514,8 +1514,8 @@ class stzDiagram from stzGraph
 	#  VISUAL RULES AND RULES ANALYTICS API  #
 	#========================================#
 
-	def AddVisualRule(oRule)
-		@aoVisualRules + oRule
+	def AddVisualRule(poRule)
+		@aoVisualRules + poRule
 	
 
 	def ApplyVisualRules()
@@ -2448,9 +2448,10 @@ class stzDiagram from stzGraph
 
 		for i = 1 to nLenNodes
 			if acNodes[i]["id"] != cParentNodeId
-				This.AddNodeXT(acNodes[i]["id"], acNodes[i]["label"], 
-					acNodes[i]["properties"]["type"], 
-					acNodes[i]["properties"]["color"])
+				This.AddNodeXTT(acNodes[i]["id"], acNodes[i]["label"], [
+					:type = acNodes[i]["properties"]["type"], 
+					:color = acNodes[i]["properties"]["color"]
+				])
 			ok
 		end
 
@@ -2509,7 +2510,7 @@ class stzDiagram from stzGraph
 					if cCurrentNode != "" and cLabel != ""
 						if cType = "" cType = $cDefaultNodeType ok
 						if cColor = "" cColor = $cDefaultNodeColor ok
-						This.AddNodeXT(cCurrentNode, cLabel, cType, cColor)
+						This.AddNodeXTT(cCurrentNode, cLabel, [ :type = cType, :color = cColor ])
 					ok
 					cCurrentNode = cLine
 					cLabel = ""
@@ -2517,8 +2518,7 @@ class stzDiagram from stzGraph
 					cColor = ""
 
 				but substr(cLine, "label:")
-					cLabel = @substr(cLine, 8, stzlen(cLine))
-					cLabel = This.UnescapeString(cLabel)
+					cLabel = @substr(cLine, 9, stzlen(cLine)-1)
 
 				but substr(cLine, "type:")
 					cType = trim(@substr(cLine, 7, stzlen(cLine)))
@@ -2539,7 +2539,7 @@ class stzDiagram from stzGraph
 		if cCurrentNode != "" and cLabel != ""
 			if cType = "" cType = $cDefaultNodeType ok
 			if cColor = "" cColor = $cDefaultNodeColor ok
-			This.AddNodeXT(cCurrentNode, cLabel, cType, cColor)
+			This.AddNodeXTT(cCurrentNode, cLabel, [ :type = cType, :color = cColor ])
 		ok
 
 		# Now add all edges
@@ -3586,6 +3586,9 @@ class stzVisualRule
 		@cConditionType = :metadata_range
 		@aConditionParams = [pcKey, nMin, nMax]
 	
+	def WhenTag(pcTag, pcExists)
+		return This.WhenTagExists(pcTag)
+
 	def WhenTagExists(pcTag)
 		@cConditionType = :tag_exists
 		@aConditionParams = [pcTag]

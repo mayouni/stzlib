@@ -12,14 +12,14 @@
 <!-- commit -->
 <g id="node1" class="node">
 <title>commit</title>
-<ellipse fill="#656565" stroke="black" cx="96.02" cy="-640.29" rx="47.86" ry="18"/>
-<text xml:space="preserve" text-anchor="middle" x="96.02" y="-636.01" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Git Commit</text>
+<ellipse fill="#efefef" stroke="black" cx="96.02" cy="-640.29" rx="47.86" ry="18"/>
+<text xml:space="preserve" text-anchor="middle" x="96.02" y="-636.01" font-family="Helvetica,sans-Serif" font-size="12.00">Git Commit</text>
 </g>
 <!-- build -->
 <g id="node2" class="node">
 <title>build</title>
-<path fill="#333333" stroke="black" d="M111.02,-586.29C111.02,-586.29 81.02,-586.29 81.02,-586.29 75.02,-586.29 69.02,-580.29 69.02,-574.29 69.02,-574.29 69.02,-562.29 69.02,-562.29 69.02,-556.29 75.02,-550.29 81.02,-550.29 81.02,-550.29 111.02,-550.29 111.02,-550.29 117.02,-550.29 123.02,-556.29 123.02,-562.29 123.02,-562.29 123.02,-574.29 123.02,-574.29 123.02,-580.29 117.02,-586.29 111.02,-586.29"/>
-<text xml:space="preserve" text-anchor="middle" x="96.02" y="-564.01" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Build</text>
+<path fill="#ffffff" stroke="black" d="M111.02,-586.29C111.02,-586.29 81.02,-586.29 81.02,-586.29 75.02,-586.29 69.02,-580.29 69.02,-574.29 69.02,-574.29 69.02,-562.29 69.02,-562.29 69.02,-556.29 75.02,-550.29 81.02,-550.29 81.02,-550.29 111.02,-550.29 111.02,-550.29 117.02,-550.29 123.02,-556.29 123.02,-562.29 123.02,-562.29 123.02,-574.29 123.02,-574.29 123.02,-580.29 117.02,-586.29 111.02,-586.29"/>
+<text xml:space="preserve" text-anchor="middle" x="96.02" y="-564.01" font-family="Helvetica,sans-Serif" font-size="12.00">Build</text>
 </g>
 <!-- commit&#45;&gt;build -->
 <g id="edge1" class="edge">
@@ -30,31 +30,31 @@
 <!-- unit -->
 <g id="node3" class="node">
 <title>unit</title>
-<path fill="#c94dc9" stroke="black" stroke-width="4" d="M118.27,-514.29C118.27,-514.29 73.77,-514.29 73.77,-514.29 67.77,-514.29 61.77,-508.29 61.77,-502.29 61.77,-502.29 61.77,-490.29 61.77,-490.29 61.77,-484.29 67.77,-478.29 73.77,-478.29 73.77,-478.29 118.27,-478.29 118.27,-478.29 124.27,-478.29 130.27,-484.29 130.27,-490.29 130.27,-490.29 130.27,-502.29 130.27,-502.29 130.27,-508.29 124.27,-514.29 118.27,-514.29"/>
+<path fill="#4d654d" stroke="black" stroke-width="2" d="M118.27,-514.29C118.27,-514.29 73.77,-514.29 73.77,-514.29 67.77,-514.29 61.77,-508.29 61.77,-502.29 61.77,-502.29 61.77,-490.29 61.77,-490.29 61.77,-484.29 67.77,-478.29 73.77,-478.29 73.77,-478.29 118.27,-478.29 118.27,-478.29 124.27,-478.29 130.27,-484.29 130.27,-490.29 130.27,-490.29 130.27,-502.29 130.27,-502.29 130.27,-508.29 124.27,-514.29 118.27,-514.29"/>
 <text xml:space="preserve" text-anchor="middle" x="96.02" y="-492.01" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Unit Tests</text>
 </g>
 <!-- build&#45;&gt;unit -->
 <g id="edge2" class="edge">
 <title>build&#45;&gt;unit</title>
-<path fill="none" stroke="#000000" d="M96.02,-549.98C96.02,-543.15 96.02,-535.1 96.02,-527.38"/>
-<polygon fill="#000000" stroke="#000000" points="99.52,-527.62 96.02,-517.62 92.52,-527.62 99.52,-527.62"/>
+<path fill="none" stroke="#000000" d="M96.02,-549.98C96.02,-542.8 96.02,-534.27 96.02,-526.19"/>
+<polygon fill="#000000" stroke="#000000" points="99.52,-526.39 96.02,-516.39 92.52,-526.39 99.52,-526.39"/>
 </g>
 <!-- security -->
 <g id="node4" class="node">
 <title>security</title>
-<polygon fill="#333333" stroke="black" points="96.02,-442.29 14.84,-424.29 96.02,-406.29 177.2,-424.29 96.02,-442.29"/>
-<text xml:space="preserve" text-anchor="middle" x="96.02" y="-420.01" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Security Scan</text>
+<polygon fill="#d1d1d1" stroke="black" points="96.02,-442.29 14.84,-424.29 96.02,-406.29 177.2,-424.29 96.02,-442.29"/>
+<text xml:space="preserve" text-anchor="middle" x="96.02" y="-420.01" font-family="Helvetica,sans-Serif" font-size="12.00">Security Scan</text>
 </g>
 <!-- unit&#45;&gt;security -->
 <g id="edge3" class="edge">
 <title>unit&#45;&gt;security</title>
-<path fill="none" stroke="#000000" d="M96.02,-476.53C96.02,-469.62 96.02,-461.62 96.02,-454.03"/>
-<polygon fill="#000000" stroke="#000000" points="99.52,-454.17 96.02,-444.17 92.52,-454.17 99.52,-454.17"/>
+<path fill="none" stroke="#000000" d="M96.02,-477.62C96.02,-470.52 96.02,-462.15 96.02,-454.2"/>
+<polygon fill="#000000" stroke="#000000" points="99.52,-454.21 96.02,-444.21 92.52,-454.21 99.52,-454.21"/>
 </g>
 <!-- deploy_stage -->
 <g id="node5" class="node">
 <title>deploy_stage</title>
-<path fill="#333333" stroke="black" d="M133.27,-370.29C133.27,-370.29 58.77,-370.29 58.77,-370.29 52.77,-370.29 46.77,-364.29 46.77,-358.29 46.77,-358.29 46.77,-346.29 46.77,-346.29 46.77,-340.29 52.77,-334.29 58.77,-334.29 58.77,-334.29 133.27,-334.29 133.27,-334.29 139.27,-334.29 145.27,-340.29 145.27,-346.29 145.27,-346.29 145.27,-358.29 145.27,-358.29 145.27,-364.29 139.27,-370.29 133.27,-370.29"/>
+<path fill="#656565" stroke="black" d="M133.27,-370.29C133.27,-370.29 58.77,-370.29 58.77,-370.29 52.77,-370.29 46.77,-364.29 46.77,-358.29 46.77,-358.29 46.77,-346.29 46.77,-346.29 46.77,-340.29 52.77,-334.29 58.77,-334.29 58.77,-334.29 133.27,-334.29 133.27,-334.29 139.27,-334.29 145.27,-340.29 145.27,-346.29 145.27,-346.29 145.27,-358.29 145.27,-358.29 145.27,-364.29 139.27,-370.29 133.27,-370.29"/>
 <text xml:space="preserve" text-anchor="middle" x="96.02" y="-348.01" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Deploy Staging</text>
 </g>
 <!-- security&#45;&gt;deploy_stage -->
@@ -66,7 +66,7 @@
 <!-- integration -->
 <g id="node6" class="node">
 <title>integration</title>
-<path fill="#ffff00" stroke="black" d="M135.52,-298.29C135.52,-298.29 56.52,-298.29 56.52,-298.29 50.52,-298.29 44.52,-292.29 44.52,-286.29 44.52,-286.29 44.52,-274.29 44.52,-274.29 44.52,-268.29 50.52,-262.29 56.52,-262.29 56.52,-262.29 135.52,-262.29 135.52,-262.29 141.52,-262.29 147.52,-268.29 147.52,-274.29 147.52,-274.29 147.52,-286.29 147.52,-286.29 147.52,-292.29 141.52,-298.29 135.52,-298.29"/>
+<path fill="#ffa500" stroke="black" d="M135.52,-298.29C135.52,-298.29 56.52,-298.29 56.52,-298.29 50.52,-298.29 44.52,-292.29 44.52,-286.29 44.52,-286.29 44.52,-274.29 44.52,-274.29 44.52,-268.29 50.52,-262.29 56.52,-262.29 56.52,-262.29 135.52,-262.29 135.52,-262.29 141.52,-262.29 147.52,-268.29 147.52,-274.29 147.52,-274.29 147.52,-286.29 147.52,-286.29 147.52,-292.29 141.52,-298.29 135.52,-298.29"/>
 <text xml:space="preserve" text-anchor="middle" x="96.02" y="-276.01" font-family="Helvetica,sans-Serif" font-size="12.00">Integration Tests</text>
 </g>
 <!-- deploy_stage&#45;&gt;integration -->
@@ -78,8 +78,8 @@
 <!-- approval -->
 <g id="node7" class="node">
 <title>approval</title>
-<polygon fill="#333333" stroke="black" points="96.02,-226.29 0,-208.29 96.02,-190.29 192.04,-208.29 96.02,-226.29"/>
-<text xml:space="preserve" text-anchor="middle" x="96.02" y="-204.01" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Manual Approval</text>
+<polygon fill="#d1d1d1" stroke="black" points="96.02,-226.29 0,-208.29 96.02,-190.29 192.04,-208.29 96.02,-226.29"/>
+<text xml:space="preserve" text-anchor="middle" x="96.02" y="-204.01" font-family="Helvetica,sans-Serif" font-size="12.00">Manual Approval</text>
 </g>
 <!-- integration&#45;&gt;approval -->
 <g id="edge6" class="edge">
@@ -90,9 +90,9 @@
 <!-- deploy_prod -->
 <g id="node8" class="node">
 <title>deploy_prod</title>
-<ellipse fill="#656565" stroke="black" cx="96.02" cy="-77.14" rx="73.14" ry="73.14"/>
+<ellipse fill="#efefef" stroke="black" cx="96.02" cy="-77.14" rx="73.14" ry="73.14"/>
 <ellipse fill="none" stroke="black" cx="96.02" cy="-77.14" rx="77.14" ry="77.14"/>
-<text xml:space="preserve" text-anchor="middle" x="96.02" y="-72.87" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Deploy Production</text>
+<text xml:space="preserve" text-anchor="middle" x="96.02" y="-72.87" font-family="Helvetica,sans-Serif" font-size="12.00">Deploy Production</text>
 </g>
 <!-- approval&#45;&gt;deploy_prod -->
 <g id="edge7" class="edge">
