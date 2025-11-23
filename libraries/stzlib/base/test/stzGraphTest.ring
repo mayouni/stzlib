@@ -23,6 +23,7 @@ oGraph {
 
 	Show()
 }
+
 #-->
 '
        ╭────────╮        
@@ -968,8 +969,7 @@ oGraph {
 	
 	AddInferenceRule("SYMMETRY")
 	
-	nInferred = ApplyInference()
-	? nInferred   #--> 1 #ERR returned 2!
+	? ApplyInference()
 	? EdgeExists("y", "x") #--> TRUE
 }
 
@@ -1006,6 +1006,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Connected Constraint
 

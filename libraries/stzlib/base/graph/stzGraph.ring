@@ -1545,26 +1545,24 @@ class stzGraph
 		@aProperties["constraints"] + aConstraint
 	
 	def ValidateConstraints()
-		
-		if NOT HasKey(@aProperties, "constraints")
-			return 1
-		ok
-		
-		acConstraints = @aProperties["constraints"]
-		nLen = len(acConstraints)
-		
-		for i = 1 to nLen
-			aConstraint = acConstraints[i]
-			cType = aConstraint["type"]
-			
-			bValid = This._EvaluateConstraint(cType)
-			
-			if NOT bValid
-				aConstraint["violations"] + "Constraint failed"
-			ok
-		end
-		
-		return len(This.ConstraintViolations()) = 0
+	    if NOT HasKey(@aProperties, "constraints")
+	        return 1
+	    ok
+	    
+	    nLen = len(@aProperties["constraints"])
+	    
+	    for i = 1 to nLen
+	        @aProperties["constraints"][i]["violations"] = []  # Clear directly
+	        cType = @aProperties["constraints"][i]["type"]
+	        
+	        bValid = This._EvaluateConstraint(cType)
+	        
+	        if NOT bValid
+	            @aProperties["constraints"][i]["violations"] + "Constraint failed"
+	        ok
+	    end
+	    
+	    return len(This.ConstraintViolations()) = 0
 	
 	def _EvaluateConstraint(pcType)
 	    if pcType = "ACYCLIC" or pcType = "NO_CYCLES"
@@ -2132,7 +2130,7 @@ class stzGraph
 	    if NOT HasKey(@aProperties, :InferenceRules)
 	        return 0
 	    ok
-	    
+
 	    acRules = @aProperties[:InferenceRules]
 	    nRuleLen = len(acRules)
 	    nInferred = 0
@@ -2190,7 +2188,8 @@ class stzGraph
 		return nInferred
 
 	def _ApplySymmetry(paRule)
-	    nInferred = 0
+
+	    _nResult_ = 0
 	    acNewEdges = []
 	    nEdgeLen = len(@acEdges)
 	    
@@ -2209,7 +2208,7 @@ class stzGraph
 	        if NOT This.EdgeExists(cTo, cFrom)
 	            if ring_find(acNewEdges, [cTo, cFrom]) = 0
 	                acNewEdges + [cTo, cFrom]
-	                nInferred += 1
+	                _nResult_ += 1
 	            ok
 	        ok
 	    end
@@ -2219,11 +2218,8 @@ class stzGraph
 	        aNewEdge = acNewEdges[i]
 	        This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred-symmetric)")
 	    end
-	    
-? "acNewEdges count: " + len(acNewEdges)
-? "Returning nInferred: " + nInferred
 
-	    return nInferred
+	    return _nResult_
 
 	def _ApplyComposition(paRule)
 		nInferred = 0
