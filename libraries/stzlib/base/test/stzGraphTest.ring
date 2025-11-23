@@ -1318,3 +1318,353 @@ digraph MicroserviceGraph {
 
 pf()
 # Executed in 0.06 second(s) in Ring 1.24
+
+
+#===========================#
+#  PATHFINDING ALGORITHMS   #
+#===========================#
+
+/*--- Shortest path in linear graph
+*/
+pr()
+
+oGraph = new stzGraph("Linear")
+oGraph {
+	AddNodeXT(:n1, "Start")
+	AddNodeXT(:n2, "Middle")
+	AddNodeXT(:n3, "End")
+	
+	Connect(:n1, :n2)
+	Connect(:n2, :n3)
+	
+	? @@( ShortestPath(:From = :n1, :To = :n3) )
+	#--> [:n1, :n2, :n3]
+	
+	? ShortestPathLength(:From = :n1, :To = :n3)
+	#--> 2
+}
+
+pf()
+
+/*--- Shortest path with multiple routes
+
+pr()
+
+oGraph = new stzGraph("Network")
+oGraph {
+	AddNodeXT(:a, "A")
+	AddNodeXT(:b, "B")
+	AddNodeXT(:c, "C")
+	AddNodeXT(:d, "D")
+	
+	Connect(:a, :b)
+	Connect(:a, :c)
+	Connect(:b, :d)
+	Connect(:c, :d)
+	
+	? @@( ShortestPath(:From = :a, :To = :d) )
+	#--> [:a, :b, :d] or [:a, :c, :d]
+	
+	? ShortestPathLength(:From = :a, :To = :d)
+	#--> 2
+}
+
+pf()
+
+/*--- No path exists
+
+pr()
+
+oGraph = new stzGraph("Disconnected")
+oGraph {
+	AddNodeXT(:x, "X")
+	AddNodeXT(:y, "Y")
+	AddNodeXT(:z, "Z")
+	
+	Connect(:x, :y)
+	# z is isolated
+	
+	? @@( ShortestPath(:From = :x, :To = :z) )
+	#--> []
+	
+	? ShortestPathLength(:From = :x, :To = :z)
+	#--> 0
+}
+
+pf()
+
+#=======================#
+#  CONNECTIVITY TESTS   #
+#=======================#
+
+/*--- Connected graph
+
+pr()
+
+oGraph = new stzGraph("Connected")
+oGraph {
+	AddNodeXT(:a, "A")
+	AddNodeXT(:b, "B")
+	AddNodeXT(:c, "C")
+	
+	Connect(:a, :b)
+	Connect(:b, :c)
+	
+	? IsConnected()
+	#--> TRUE
+	
+	? @@NL( ConnectedComponents() )
+	#--> [[:a, :b, :c]]
+}
+
+pf()
+
+/*--- Multiple components
+
+pr()
+
+oGraph = new stzGraph("TwoComponents")
+oGraph {
+	AddNodeXT(:a, "A")
+	AddNodeXT(:b, "B")
+	AddNodeXT(:c, "C")
+	AddNodeXT(:d, "D")
+	
+	Connect(:a, :b)
+	Connect(:c, :d)
+	
+	? IsConnected()
+	#--> FALSE
+	
+	? @@NL( ConnectedComponents() )
+	#--> [[:a, :b], [:c, :d]]
+}
+
+pf()
+
+/*--- Articulation points
+
+pr()
+
+oGraph = new stzGraph("Bridge")
+oGraph {
+	AddNodeXT(:n1, "N1")
+	AddNodeXT(:n2, "N2")
+	AddNodeXT(:n3, "N3")
+	AddNodeXT(:n4, "N4")
+	
+	Connect(:n1, :n2)
+	Connect(:n2, :n3)
+	Connect(:n3, :n4)
+	
+	? @@( ArticulationPoints() )
+	#--> [:n2, :n3] - Removing either disconnects the graph
+}
+
+pf()
+
+#=======================#
+#  CENTRALITY MEASURES  #
+#=======================#
+
+/*--- Betweenness centrality
+
+pr()
+
+oGraph = new stzGraph("Star")
+oGraph {
+	AddNodeXT(:center, "Center")
+	AddNodeXT(:n1, "N1")
+	AddNodeXT(:n2, "N2")
+	AddNodeXT(:n3, "N3")
+	
+	Connect(:n1, :center)
+	Connect(:center, :n2)
+	Connect(:center, :n3)
+	
+	? BetweennessCentrality(:center)
+	#--> 1.0 (all paths go through center)
+	
+	? BetweennessCentrality(:n1)
+	#--> 0.0 (no paths go through peripheral nodes)
+}
+
+pf()
+
+/*--- Closeness centrality
+
+pr()
+
+oGraph = new stzGraph("Network")
+oGraph {
+	AddNodeXT(:a, "A")
+	AddNodeXT(:b, "B")
+	AddNodeXT(:c, "C")
+	
+	Connect(:a, :b)
+	Connect(:b, :c)
+	
+	? ClosenessCentrality(:b)
+	#--> 1.0 (average distance = 1)
+	
+	? ClosenessCentrality(:a)
+	#--> 0.66 (average distance = 1.5)
+}
+
+pf()
+
+/*--- Clustering coefficient
+
+pr()
+
+oGraph = new stzGraph("Triangle")
+oGraph {
+	AddNodeXT(:a, "A")
+	AddNodeXT(:b, "B")
+	AddNodeXT(:c, "C")
+	
+	Connect(:a, :b)
+	Connect(:b, :c)
+	Connect(:c, :a)
+	
+	? ClusteringCoefficient(:a)
+	#--> 1.0 (neighbors are fully connected)
+}
+
+pf()
+
+/*--- Clustering coefficient in incomplete triangle
+
+pr()
+
+oGraph = new stzGraph("Incomplete")
+oGraph {
+	AddNodeXT(:x, "X")
+	AddNodeXT(:y, "Y")
+	AddNodeXT(:z, "Z")
+	
+	Connect(:x, :y)
+	Connect(:x, :z)
+	# y and z not connected
+	
+	? ClusteringCoefficient(:x)
+	#--> 0.0 (neighbors not connected)
+}
+
+pf()
+
+#==================#
+#  GRAPH METRICS   #
+#==================#
+
+/*--- Diameter of graph
+
+pr()
+
+oGraph = new stzGraph("Chain")
+oGraph {
+	AddNodeXT(:n1, "N1")
+	AddNodeXT(:n2, "N2")
+	AddNodeXT(:n3, "N3")
+	AddNodeXT(:n4, "N4")
+	
+	Connect(:n1, :n2)
+	Connect(:n2, :n3)
+	Connect(:n3, :n4)
+	
+	? Diameter()
+	#--> 3 (longest path: n1 to n4)
+}
+
+pf()
+
+/*--- Average path length
+
+pr()
+
+oGraph = new stzGraph("Small")
+oGraph {
+	AddNodeXT(:a, "A")
+	AddNodeXT(:b, "B")
+	AddNodeXT(:c, "C")
+	
+	Connect(:a, :b)
+	Connect(:b, :c)
+	
+	? AveragePathLength()
+	#--> 1.33 (paths: a-b=1, b-c=1, a-c=2)
+}
+
+pf()
+
+#============================#
+#  COMBINED ALGORITHM TESTS  #
+#============================#
+
+/*--- Real-world network analysis
+
+pr()
+
+oGraph = new stzGraph("SocialNetwork")
+oGraph {
+	AddNodeXT(:alice, "Alice")
+	AddNodeXT(:bob, "Bob")
+	AddNodeXT(:charlie, "Charlie")
+	AddNodeXT(:diana, "Diana")
+	AddNodeXT(:eve, "Eve")
+	
+	Connect(:alice, :bob)
+	Connect(:bob, :charlie)
+	Connect(:charlie, :diana)
+	Connect(:diana, :eve)
+	Connect(:bob, :diana)  # Shortcut
+	
+	? "=== Network Analysis ==="
+	? "Diameter: " + Diameter()
+	? "Avg Path Length: " + AveragePathLength()
+	? "Is Connected: " + IsConnected()
+	
+	? ""
+	? "=== Node Importance ==="
+	? "Bob betweenness: " + BetweennessCentrality(:bob)
+	? "Charlie closeness: " + ClosenessCentrality(:charlie)
+	
+	? ""
+	? "=== Critical Nodes ==="
+	? @@( ArticulationPoints() )
+}
+
+pf()
+
+/*--- Workflow dependency analysis
+
+pr()
+
+oGraph = new stzGraph("Workflow")
+oGraph {
+	AddNodeXT(:start, "Start")
+	AddNodeXT(:validate, "Validate")
+	AddNodeXT(:process, "Process")
+	AddNodeXT(:review, "Review")
+	AddNodeXT(:complete, "Complete")
+	
+	Connect(:start, :validate)
+	Connect(:validate, :process)
+	Connect(:process, :review)
+	Connect(:review, :complete)
+	
+	? "Path from Start to Complete:"
+	? @@( ShortestPath(:From = :start, :To = :complete) )
+	
+	? ""
+	? "Bottleneck nodes (articulation points):"
+	? @@( ArticulationPoints() )
+	
+	? ""
+	? "Critical step (highest betweenness):"
+	? "Validate: " + BetweennessCentrality(:validate)
+	? "Process: " + BetweennessCentrality(:process)
+	? "Review: " + BetweennessCentrality(:review)
+}
+
+pf()
