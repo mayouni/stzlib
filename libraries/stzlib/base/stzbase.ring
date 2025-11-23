@@ -121,6 +121,8 @@
 	load "graph/stzDiagram.ring"
 	load "graph/stzDiagramBuilder.ring"
 
+	load "graph/stzKnowledgeGraph.ring"
+
 # Loading files related to the VISUAL module
 
 	#TODO// Put here all visual-oriented functions and classes

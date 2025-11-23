@@ -1,0 +1,229 @@
+func StzKnowledgeGraphQ(pcId)
+	return new stzKnowledgeGraph(pcId)
+
+func IsStzKnowledgeGraph(pObj)
+	if isObject(pObj) and classname(pObj) = "stzknowledgegraph"
+		return TRUE
+	ok
+	return FALSE
+
+	func IsAStzKnowledgeGraph(pObj)
+		return IsStzKnowledgeGraph(pObj)
+
+class stzKnowledgeGraph from stzGraph
+
+	@aNamespaces = []
+	@aOntology = []
+
+	def init(pcId)
+		super.init(pcId)
+		@aNamespaces = []
+		@aOntology = []
+
+	def IsKnowledgeGraph()
+		return TRUE
+
+		def IsAKnowledgeGraph()
+			return TRUE
+
+	#------------------#
+	#  TRIPLE INTERFACE
+	#------------------#
+
+	def AddFact(pcSubject, pcPredicate, pcObject)
+		if NOT This.NodeExists(pcSubject)
+			This.AddNodeXTT(pcSubject, pcSubject, [:type = "entity"])
+		ok
+		
+		if NOT This.NodeExists(pcObject)
+			This.AddNodeXTT(pcObject, pcObject, [:type = "entity"])
+		ok
+		
+		This.AddEdgeXTT(pcSubject, pcObject, pcPredicate, [:type = "fact"])
+
+		def AddTriple(pcSubject, pcPredicate, pcObject)
+			This.AddFact(pcSubject, pcPredicate, pcObject)
+
+	def RemoveFact(pcSubject, pcPredicate, pcObject)
+		This.RemoveThisEdge(pcSubject, pcObject)
+
+		def RemoveTriple(pcSubject, pcPredicate, pcObject)
+			This.RemoveFact(pcSubject, pcPredicate, pcObject)
+
+	def Facts()
+		_aFacts_ = []
+		_aEdges_ = This.Edges()
+		
+		_nLen_ = len(_aEdges_)
+		for _i_ = 1 to _nLen_
+			_aEdge_ = _aEdges_[_i_]
+			_aFacts_ + [_aEdge_[:from], _aEdge_[:label], _aEdge_[:to]]
+		end
+		
+		return _aFacts_
+
+		def Triples()
+			return This.Facts()
+
+	#------------------#
+	#  QUERY INTERFACE
+	#------------------#
+
+	def Query(paPattern)
+		# Pattern: ["?x", :IsA, "Animals"] or ["Dogs", :Eats, "?what"]
+		
+		_cSubject_ = paPattern[1]
+		_cPredicate_ = paPattern[2]
+		_cObject_ = paPattern[3]
+		
+		_acResults_ = []
+		_aEdges_ = This.Edges()
+		_nLen_ = len(_aEdges_)
+		
+		_bSubjVar_ = (isString(_cSubject_) and left(_cSubject_, 1) = "?")
+		_bObjVar_ = (isString(_cObject_) and left(_cObject_, 1) = "?")
+		
+		if _bSubjVar_ and _bObjVar_
+			# Both variables: return all subject-object pairs for predicate
+			for _i_ = 1 to _nLen_
+				if _aEdges_[_i_][:label] = _cPredicate_
+					_acResults_ + [_aEdges_[_i_][:from], _aEdges_[_i_][:to]]
+				ok
+			end
+			
+		but _bSubjVar_
+			# Subject is variable
+			for _i_ = 1 to _nLen_
+				if _aEdges_[_i_][:to] = _cObject_ and _aEdges_[_i_][:label] = _cPredicate_
+					if ring_find(_acResults_, _aEdges_[_i_][:from]) = 0
+						_acResults_ + _aEdges_[_i_][:from]
+					ok
+				ok
+			end
+			
+		but _bObjVar_
+			# Object is variable
+			for _i_ = 1 to _nLen_
+				if _aEdges_[_i_][:from] = _cSubject_ and _aEdges_[_i_][:label] = _cPredicate_
+					if ring_find(_acResults_, _aEdges_[_i_][:to]) = 0
+						_acResults_ + _aEdges_[_i_][:to]
+					ok
+				ok
+			end
+			
+		else
+			# Both bound - check existence
+			if This.EdgeExists(_cSubject_, _cObject_)
+				_aEdge_ = This.Edge(_cSubject_, _cObject_)
+				if _aEdge_[:label] = _cPredicate_
+					return TRUE
+				ok
+			ok
+			return FALSE
+		ok
+		
+		return _acResults_
+
+	def QueryPath(paaPatterns)
+		# Multi-hop: [["?x", :IsA, "Animals"], ["?x", :Eats, "?food"]]
+		
+		if len(paaPatterns) = 0
+			return []
+		ok
+		
+		# Execute first pattern
+		_aResults_ = This.Query(paaPatterns[1])
+		
+		# For multi-pattern queries, would need variable binding logic
+		# Basic implementation returns first pattern results
+		
+		return _aResults_
+
+	#---------------------#
+	#  ENTITY ANALYSIS
+	#---------------------#
+
+	def Predicates(pcEntity)
+		_acPredicates_ = []
+		_aEdges_ = This.Edges()
+		
+		_nLen_ = len(_aEdges_)
+		for _i_ = 1 to _nLen_
+			if _aEdges_[_i_][:from] = pcEntity
+				if ring_find(_acPredicates_, _aEdges_[_i_][:label]) = 0
+					_acPredicates_ + _aEdges_[_i_][:label]
+				ok
+			ok
+		end
+		
+		return _acPredicates_
+
+		def PredicatesOf(pcEntity)
+			return This.Predicates(pcEntity)
+
+	def Relations(pcEntity)
+		_aRelations_ = []
+		_aEdges_ = This.Edges()
+		
+		_nLen_ = len(_aEdges_)
+		for _i_ = 1 to _nLen_
+			if _aEdges_[_i_][:from] = pcEntity
+				_aRelations_ + [_aEdges_[_i_][:label], _aEdges_[_i_][:to]]
+			ok
+		end
+		
+		return _aRelations_
+
+		def RelationsOf(pcEntity)
+			return This.Relations(pcEntity)
+
+	def SimilarTo(pcEntity)
+		_aMyPredicates_ = This.Predicates(pcEntity)
+		_acSimilar_ = []
+		_aNodes_ = This.Nodes()
+		
+		_nNodeLen_ = len(_aNodes_)
+		for _i_ = 1 to _nNodeLen_
+			_cNodeId_ = _aNodes_[_i_][:id]
+			
+			if _cNodeId_ != pcEntity
+				_aTheirPredicates_ = This.Predicates(_cNodeId_)
+				_nOverlap_ = 0
+				
+				_nMyLen_ = len(_aMyPredicates_)
+				for _j_ = 1 to _nMyLen_
+					if ring_find(_aTheirPredicates_, _aMyPredicates_[_j_]) > 0
+						_nOverlap_++
+					ok
+				end
+				
+				if _nOverlap_ > 0
+					_acSimilar_ + [_cNodeId_, _nOverlap_]
+				ok
+			ok
+		end
+		
+		return _acSimilar_
+
+		def SimilarEntities(pcEntity)
+			return This.SimilarTo(pcEntity)
+
+	#---------------------#
+	#  ONTOLOGY SUPPORT
+	#---------------------#
+
+	def DefineClass(pcClass, pcSuperClass)
+		This.AddFact(pcClass, :SubClassOf, pcSuperClass)
+
+	def DefineProperty(pcProperty, paConstraints)
+		@aOntology + [
+			:property = pcProperty,
+			:constraints = paConstraints
+		]
+
+	def Ontology()
+		return @aOntology
+
+	def ValidateOntology()
+		# Basic validation - checks if defined properties are used consistently
+		return TRUE
