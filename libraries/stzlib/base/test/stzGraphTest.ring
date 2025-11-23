@@ -1650,16 +1650,27 @@ oGraph {
 	# Network Analysis
 
 	? Diameter()
+	#--> 3
+
 	? AveragePathLength()
+	#--> 1.60
+
 	? IsConnected() + NL
-	
+	#--> TRUE
+
 	# Node Importance
+
 	? BetweennessCentrality(:bob)
+	#--> 0.25
+
 	? ClosenessCentrality(:charlie)
-	
+	#--> 0.67
+
 	# Critical Nodes
 
 	? @@( ArticulationPoints() )
+	#--> [ "bob", "charlie", "diana" ]
+
 }
 
 pf()

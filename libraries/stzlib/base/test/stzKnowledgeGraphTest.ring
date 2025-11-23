@@ -33,15 +33,20 @@ oKG {
 	AddFact("X", :RelatesTo, "Y")
 	AddFact("X", :DifferentFrom, "Z")
 	
-	? "Before removal:"
+	# efore removal
+
 	? @@NL( Facts() )
-	
+	#--> [
+	# 	[ "X", "relatesto", "Y" ],
+	# 	[ "X", "differentfrom", "Z" ]
+	# ]
+
 	RemoveFact("X", :DifferentFrom, "Z")
 	
-	? ""
-	? "After removal:"
+	# After removal
+
 	? @@NL( Facts() )
-	#--> [["X", :RelatesTo, "Y"]]
+	#--> [ ["X", :RelatesTo, "Y"] ]
 }
 
 pf()
@@ -60,7 +65,7 @@ oKG {
 	AddFact("Cats", :IsA, "Mammals")
 	AddFact("Birds", :IsA, "Animals")
 	
-	? "What is a Mammal?"
+	# What is a Mammal?
 	? @@( Query(["?x", :IsA, "Mammals"]) )
 	#--> ["Dogs", "Cats"]
 }
@@ -77,7 +82,8 @@ oKG {
 	AddFact("Dogs", :Drinks, "Water")
 	AddFact("Cats", :Eats, "Fish")
 	
-	? "What does Dogs eat/drink?"
+	# What does Dogs eat/drink?
+
 	? @@( Query(["Dogs", :Eats, "?what"]) )
 	#--> ["Meat"]
 	
@@ -97,7 +103,8 @@ oKG {
 	AddFact("Charlie", :Knows, "Diana")
 	AddFact("Alice", :WorksWith, "Eve")
 	
-	? "Who knows whom?"
+	# Who knows whom?
+
 	? @@NL( Query(["?x", :Knows, "?y"]) )
 	#--> [
 	#     ["Alice", "Bob"],
@@ -116,11 +123,13 @@ oKG {
 	AddFact("Earth", :OrbitsAround, "Sun")
 	AddFact("Moon", :OrbitsAround, "Earth")
 	
-	? "Does Earth orbit Sun?"
+	# Does Earth orbit Sun?
+
 	? Query(["Earth", :OrbitsAround, "Sun"])
 	#--> TRUE
 	
-	? "Does Sun orbit Earth?"
+	# Does Sun orbit Earth?
+
 	? Query(["Sun", :OrbitsAround, "Earth"])
 	#--> FALSE
 }
@@ -141,7 +150,8 @@ oKG {
 	AddFact("Alice", :LivesIn, "City")
 	AddFact("Alice", :Knows, "Bob")
 	
-	? "What predicates does Alice have?"
+	# What predicates does Alice have?
+
 	? @@( Predicates("Alice") )
 	#--> [:WorksAt, :LivesIn, :Knows]
 }
@@ -158,13 +168,14 @@ oKG {
 	AddFact("Node1", :HasProperty, "Active")
 	AddFact("Node1", :PartOf, "System")
 	
-	? "All relations of Node1:"
+	# All relations of Node1
+
 	? @@NL( Relations("Node1") )
 	#--> [
 	#     [:ConnectsTo, "Node2"],
 	#     [:HasProperty, "Active"],
 	#     [:PartOf, "System"]
-	#    ]
+	# ]
 }
 
 pf()
@@ -186,10 +197,11 @@ oKG {
 	AddFact("Birds", :IsA, "Animals")
 	AddFact("Birds", :HasLegs, "2")
 	
-	? "Entities similar to Dogs:"
+	# Entities similar to Dogs
+
 	? @@NL( SimilarTo("Dogs") )
-	#--> [["Cats", 3], ["Birds", 1]]
-	# Cats shares 3 predicates, Birds shares 1
+	#--> [ ["Cats", 3], ["Birds", 2] ]
+	# Cats shares 3 predicates, Birds shares 2 predicates
 }
 
 pf()
@@ -208,13 +220,14 @@ oKG {
 	DefineClass("Dogs", "Mammals")
 	DefineClass("Cats", "Mammals")
 	
-	? "Class hierarchy as facts:"
+	# Class hierarchy as facts
+
 	? @@NL( Facts() )
 	#--> [
 	#     ["Mammals", :SubClassOf, "Animals"],
 	#     ["Dogs", :SubClassOf, "Mammals"],
 	#     ["Cats", :SubClassOf, "Mammals"]
-	#    ]
+	# ]
 }
 
 pf()
@@ -236,9 +249,36 @@ oKG {
 		:required = TRUE
 	])
 	
-	? "Ontology definitions:"
+	# Ontology definitions
+
 	? @@NL( Ontology() )
 }
+#-->
+'
+[
+	[
+		[ "property", "age" ],
+		[
+			"constraints",
+			[
+				[ "type", "number" ],
+				[ "min", 0 ],
+				[ "max", 150 ]
+			]
+		]
+	],
+	[
+		[ "property", "name" ],
+		[
+			"constraints",
+			[
+				[ "type", "string" ],
+				[ "required", 1 ]
+			]
+		]
+	]
+]
+'
 
 pf()
 
@@ -257,17 +297,18 @@ oKG {
 	AddFact("Bob", :SiblingOf, "Charlie")
 	AddFact("Bob", :ParentOf, "Diana")
 	
-	? "Who are Alice's children?"
+	# Who are Alice's children?
+
 	? @@( Query(["Alice", :ParentOf, "?child"]) )
 	#--> ["Bob", "Charlie"]
-	
-	? ""
-	? "Who is Bob's sibling?"
+
+	# Who is Bob's sibling?
+
 	? @@( Query(["Bob", :SiblingOf, "?sibling"]) )
 	#--> ["Charlie"]
-	
-	? ""
-	? "Predicates about Bob:"
+
+	# Predicates about Bob:
+
 	? @@( Predicates("Bob") )
 	#--> [:SiblingOf, :ParentOf]
 }
@@ -286,19 +327,20 @@ oKG {
 	AddFact("Bob", :ReportsTo, "Manager1")
 	AddFact("Charlie", :WorksIn, "Sales")
 	
-	? "Who works in Engineering?"
+	# Who works in Engineering?
+
 	? @@( Query(["?who", :WorksIn, "Engineering"]) )
 	#--> ["Alice", "Bob"]
-	
-	? ""
-	? "Who reports to Manager1?"
+
+	# Who reports to Manager1?
+
 	? @@( Query(["?who", :ReportsTo, "Manager1"]) )
 	#--> ["Alice", "Bob"]
 	
-	? ""
-	? "Similar employees to Alice:"
+	# Similar employees to Alice:
+
 	? @@NL( SimilarTo("Alice") )
-	#--> [["Bob", 2]] - Both work in Engineering and report to Manager1
+	#--> [["Bob", 2], [ "Charlie", 1 ]]
 }
 
 pf()
@@ -317,12 +359,11 @@ oKG {
 	AddFact("Cats", :IsA, "Mammals")
 	AddFact("Snakes", :IsA, "Reptiles")
 	
-	? "What are Vertebrates?"
+	# What are Vertebrates?
 	? @@( Query(["?x", :SubClassOf, "Vertebrates"]) )
 	#--> ["Mammals", "Reptiles"]
 	
-	? ""
-	? "What are Mammals?"
+	# What are Mammals?
 	? @@( Query(["?x", :IsA, "Mammals"]) )
 	#--> ["Dogs", "Cats"]
 }
@@ -343,17 +384,15 @@ oKG {
 	AddFact("B", :ConnectsTo, "C")
 	AddFact("C", :ConnectsTo, "D")
 	
-	? "Shortest path from A to D:"
+	# Shortest path from A to D
 	? @@( ShortestPath(:From = "A", :To = "D") )
 	#--> ["A", "B", "C", "D"]
 	
-	? ""
-	? "Is the knowledge graph connected?"
+	# Is the knowledge graph connected?
 	? IsConnected()
 	#--> TRUE
 	
-	? ""
-	? "Critical entities (articulation points):"
+	# Critical entities (articulation points)
 	? @@( ArticulationPoints() )
 	#--> ["B", "C"]
 }
@@ -370,23 +409,28 @@ oKG {
 	AddFact("Concept2", :RelatesTo, "Concept3")
 	AddFact("Concept3", :RelatesTo, "Concept1")
 	
-	? "=== Knowledge Analysis ==="
-	? "What does Concept1 relate to?"
+	# Knowledge Analysis
+	#-------------------
+
+	# What does Concept1 relate to?
 	? @@( Query(["Concept1", :RelatesTo, "?x"]) )
-	
-	? ""
-	? "Relations of Concept2:"
-	? @@NL( Relations("Concept2") )
-	
-	? ""
-	? "=== Structural Analysis ==="
-	? "Clustering coefficient of Concept2:"
+	#--> [ "Concept2" ]
+
+	# Relations of Concept2
+	? @@NL( Relations("Concept2") ) + NL
+	#--> [ [ "relatesto", "Concept3" ] ]
+
+	# Structural Analysis
+	#--------------------
+
+	# Clustering coefficient of Concept2
 	? ClusteringCoefficient("Concept2")
-	#--> 1.0 (forms a triangle)
+	#--> 1 (forms a triangle)
 	
-	? ""
-	? "Betweenness centrality of Concept2:"
+	# Betweenness centrality of Concept2
 	? BetweennessCentrality("Concept2")
+	#--> 0.50
+
 }
 
 pf()
