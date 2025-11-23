@@ -1,4 +1,4 @@
-load "stzlib.ring"
+load "../stzbase.ring"
 
 
 #============================================#
@@ -20,9 +20,28 @@ oGraph {
 	
 	? NodeCount() #--> 3
 	? EdgeCount() #--> 2
+
+	Show()
 }
+#-->
+'
+       ╭────────╮        
+       │ Node 1 │        
+       ╰────────╯        
+            |            
+            v            
+      ╭──────────╮       
+      │ !Node 2! │       
+      ╰──────────╯       
+            |            
+            v            
+       ╭────────╮        
+       │ Node 3 │        
+       ╰────────╯  
+'
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 /*--- Node and Edge Existence
 
@@ -41,6 +60,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Path Finding
 
@@ -52,8 +72,8 @@ oGraph {
 	AddNodeXT("middle", "Middle")
 	AddNodeXT("end", "End")
 	
-	Connect("start", "middle")
-	Connect("middle", "end")
+	Connect("start", :to = "middle")
+	Connect("middle", :to = "end")
 	
 	? PathExists("start", "end")      #--> TRUE
 	? PathExists("start", "isolated") #--> FALSE
@@ -63,6 +83,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Reachability
 
@@ -84,6 +105,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Neighbors and Incoming
 
@@ -105,6 +127,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 2: NODE OPERATIONS
@@ -127,6 +150,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Node Properties
 
@@ -136,17 +160,22 @@ oGraph = new stzGraph("PropsTest")
 oGraph {
 	AddNodeXTT("n1", "Node 1", [:priority = 10, :status = "active"])
 	
-	? NodeProperty("n1", "priority")  #--> 10
+	? NodeProperty("n1", "priority")
+	#--> 10
 	
 	SetNodeProperty("n1", "owner", "alice")
-	? NodeProperty("n1", "owner")     #--> "alice"
+	? NodeProperty("n1", "owner")
+	#--> "alice"
 	
-	? @@( Properties() )              #--> ["priority", "status", "owner"]
+	? @@( Properties() )
+	#--> ["priority", "status", "owner"]
+
 	? @@NL( PropertiesXT() )
 	#--> [["priority", [10]], ["status", ["active"]], ["owner", ["alice"]]]
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Node Removal
 
@@ -169,6 +198,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Node Replacement
 
@@ -187,6 +217,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Node Copy and Duplicate
 
@@ -199,13 +230,16 @@ oGraph {
 	Connect("template", "next")
 	
 	DuplicateNode("template", "copy1")
-	? Node("copy1")["properties"]["color"] #--> "blue"
+	? Node("copy1")["properties"]["color"]
+	#--> "blue"
 	
 	DuplicateNodeWithEdges("template", "copy2")
-	? EdgeExists("copy2", "next") #--> TRUE
+	? EdgeExists("copy2", "next")
+	#--> TRUE
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Node Merge
 
@@ -222,14 +256,16 @@ oGraph {
 	Connect("lb", "s2")
 	Connect("s1", "db")
 	Connect("s2", "db")
-	
+
 	MergeNodes(["s1", "s2"], "cluster", "Cluster")
 	? NodeCount() #--> 3
 	? EdgeExists("lb", "cluster") #--> TRUE
 	? EdgeExists("cluster", "db") #--> TRUE
+
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Insert Nodes
 
@@ -250,8 +286,9 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
-/*--- Batch Update
+/*--- Batch Update Using Anonymous function
 
 pr()
 
@@ -270,6 +307,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 3: PROPERTY & TAG QUERIES
@@ -288,14 +326,15 @@ oGraph {
 	? @@( NodesWithProperty("env") )
 	#--> ["n1", "n2", "n3"]
 	
-	? @@( NodesWithPropertyValue("env", "prod") )
+	? @@( NodesWithPropertyXT("env", "prod") )
 	#--> ["n1", "n3"]
 	
-	? @@( NodesWithPropertyInSection("cost", 75, 150) )
+	? @@( NodesWithPropertyXT("cost", :InSection = [75, 150]) )
 	#--> ["n1"]
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Tag Queries
 
@@ -318,6 +357,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 4: GRAPH ANALYSIS
@@ -341,6 +381,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Bottleneck Detection
 
@@ -362,6 +403,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Graph Metrics
 
@@ -382,6 +424,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Parallelizable Branches
 
@@ -405,6 +448,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Impact Analysis
 
@@ -427,6 +471,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 5: UNIFIED RULE SYSTEM
@@ -438,9 +483,9 @@ pr()
 
 oGraph = new stzGraph("ValidationTest")
 
-oRule = new stzGraphRule("requireapproval")
+oRule = new stzGraphRule(:RequireApproval)
 oRule {
-	When("isapproved", :equals = FALSE)
+	When(:IsApproved, :Equals = FALSE)
 	SetInvalid()
 	AddViolation("Requires approval")
 }
@@ -453,12 +498,13 @@ oGraph {
 	
 	ApplyRules()
 	
-	? Node("task1")["properties"]["isvalid"]    #--> FALSE
-	? Node("task1")["properties"]["violation"]  #--> "Requires approval"
+	? Node("task1")["properties"]["isvalid"]    	#--> FALSE
+	? Node("task1")["properties"]["violation"]  	#--> "Requires approval"
 	? HasKey(Node("task2")["properties"], "isvalid") #--> FALSE
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Inference Rule
 
@@ -468,7 +514,7 @@ oGraph = new stzGraph("InferenceTest")
 
 oRule = new stzGraphRule("transitivity")
 oRule {
-	When("pathexists", :to = "c")
+	WhenPathExists(:FromNode = "a", :ToNode = "c")
 	AddEdge("a", "c")
 }
 
@@ -487,6 +533,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Property-based Rule
 
@@ -497,7 +544,7 @@ oGraph = new stzGraph("PropRuleTest")
 oRule = new stzGraphRule("highcost")
 oRule {
 	When("cost", :InSection = [500, 9999])
-	SetProperty("requiresapproval", TRUE)
+	SetProperty(:RequiresApproval, :to = TRUE)
 	SetProperty("level", "high")
 }
 
@@ -515,6 +562,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Rule Analysis
 
@@ -573,8 +621,24 @@ oGraph {
 	? BoxRound("DOT FORMAT")
 	? Dot()
 }
+#-->
+'
+╭────────────╮
+│ DOT FORMAT │
+╰────────────╯
+digraph ExportTest {
+  rankdir=LR;
+  node [shape=box];
+
+  a [label="A"];
+  b [label="B"];
+
+  a -> b;
+}
+'
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- JSON Export
 
@@ -589,28 +653,27 @@ oGraph {
 	? BoxRound("JSON FORMAT")
 	? Json()
 }
-
-pf()
-
-/*--- Custom Exporter
-
-pr()
-
-oGraph = new stzGraph("CustomTest")
-oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	Connect("a", "b")
-	
-	RegisterExporter("SIMPLE", func {
-		return "Nodes: " + This.NodeCount() + ", Edges: " + This.EdgeCount()
-	})
-	
-	? ExportUsing("SIMPLE")
-	#--> "Nodes: 2, Edges: 1"
+#-->
+'
+╭─────────────╮
+│ JSON FORMAT │
+╰─────────────╯
+{
+  "id": "JSONTest",
+  "nodes": [
+    {"id":"input","label":"Input","properties":{}},
+    {"id":"output","label":"Output","properties":{}}
+  ],
+  "edges": [
+    {"from":"input","to":"output","label":"","properties":{}}
+  ],
+  "metrics": {"nodecount":2,"edgecount":1,"density":50,"longestpath":1,"hascycles":0}
 }
+'
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
 
 /*--- ASCII Visualization
 
@@ -624,43 +687,37 @@ oGraph {
 	
 	Connect("start", "middle")
 	Connect("middle", "end")
-	
-	Show()
-	ShowH()
+
 }
 
-pf()
+oGraph.Show() # ShowV by default
+#-->
+'
+        ╭───────╮        
+        │ Start │        
+        ╰───────╯        
+            |            
+            v            
+      ╭──────────╮       
+      │ !Middle! │       
+      ╰──────────╯       
+            |            
+            v            
+         ╭─────╮         
+         │ End │         
+         ╰─────╯ 
+'
 
-#============================================#
-#  SECTION 7: SNAPSHOTS & TEMPORAL
-#============================================#
-
-/*--- Snapshot Management
-
-pr()
-
-oGraph = new stzGraph("SnapshotTest")
-oGraph {
-	AddNodeXT("n1", "N1")
-	AddNodeXT("n2", "N2")
-	Connect("n1", "n2")
-	
-	Snapshot("v1")
-	
-	AddNodeXT("n3", "N3")
-	Connect("n2", "n3")
-	
-	? @@( Snapshots() ) #--> ["v1"]
-	
-	aChanges = ChangesSince("v1")
-	? @@( aChanges[:nodesAdded] )  #--> ["n3"]
-	? @@( aChanges[:edgesAdded] )  #--> [["n2", "n3"]]
-	
-	RestoreSnapshot("v1")
-	? NodeCount() #--> 2
-}
+oGraph.ShowH()
+#-->
+'
+╭───────╮     ╭──────────╮     ╭─────╮
+│ Start │---->│ !Middle! │---->│ End │
+╰───────╯     ╰──────────╯     ╰─────╯
+'
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 8: EXPLAIN FEATURE
@@ -681,17 +738,31 @@ oGraph {
 	Connect("c", "a")
 	
 	? @@NL( Explain() )
-	#-->
-	# [
-	#   ["id", "ExplainTest"],
-	#   ["type", "graph"],
-	#   ["structure", "Graph 'ExplainTest' contains 3 nodes and 3 edges."],
-	#   ["rules", "No rules defined."],
-	#   ["effects", "No rules matched any elements."]
-	# ]
 }
+#-->
+'
+[
+	[
+		"general",
+		[ "Graph: ExplainTest", "Nodes: 3 | Edges: 3" ]
+	],
+	[
+		"bottlenecks",
+		[ "No bottlenecks (average degree = 2)" ]
+	],
+	[
+		"cycles",
+		[ "WARNING: Circular dependencies detected" ]
+	],
+	[
+		"metrics",
+		[ "Density: 50% (dense)", "Longest path: 2 hops" ]
+	]
+]
+'
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 9: ADVANCED QUERYING
@@ -710,11 +781,12 @@ oGraph {
 	? @@( NodesByType("backend") )
 	#--> ["svc1", "db1"]
 	
-	? @@( NodesByProperty("type", "frontend") )
+	? @@( NodesByProp("type", "frontend") )
 	#--> ["svc2"]
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Find Node Paths
 
@@ -740,6 +812,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Path Matching
 
@@ -762,10 +835,15 @@ oGraph {
 	})
 	
 	? @@NL( aPaths )
-	#--> [["n1", "n2", "n3"], ["n2", "n3", "n4"], ["n1", "n2", "n3", "n4"]]
+	#--> [
+	# 	["n1", "n2", "n3"],
+	# 	["n2", "n3", "n4"],
+	# 	["n1", "n2", "n3", "n4"]
+	# ]
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Edge Property Queries
 
@@ -785,12 +863,13 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 10: METADATA OPERATIONS
 #============================================#
 
-/*--- Node Metadata
+/*--- Node properties
 
 pr()
 
@@ -798,24 +877,28 @@ oGraph = new stzGraph("MetadataTest")
 oGraph {
 	AddNodeXT("n1", "Node 1")
 	
-	SetNodeMetadata("n1", [:owner = "alice", :created = "2024-01-01"])
+	SetNodeProperties("n1", [:owner = "alice", :created = "2024-01-01"])
 	
-	? @@( GetNodeMetadata("n1") )
+	? @@( NodeProperties("n1") )
+	#--> [ "owner", "created" ]
+
+	? @@( NodePropertiesXT("n1") )
 	#--> [:owner = "alice", :created = "2024-01-01"]
 	
-	UpdateNodeMetadata("n1", "modified", "2024-01-15")
+	SetNodeProperty("n1", "modified", "2024-01-15")
 	
-	? GetNodeMetadata("n1")["modified"]
+	? NodeProperty("n1", "modified")
 	#--> "2024-01-15"
 	
-	RemoveNodeMetadata("n1")
-	? @@( GetNodeMetadata("n1") )
+	RemoveNodeProperties("n1")
+	? @@( NodeProperties("n1") )
 	#--> []
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
-/*--- Edge Metadata
+/*--- Edge props
 
 pr()
 
@@ -825,18 +908,22 @@ oGraph {
 	AddNodeXT("b", "B")
 	Connect("a", "b")
 	
-	SetEdgeMetadata("a", "b", [:bandwidth = 1000, :protocol = "tcp"])
+	SetEdgeProperties("a", "b", [:bandwidth = 1000, :protocol = "tcp"])
 	
-	? @@( GetEdgeMetadata("a", "b") )
+	? @@( EdgeProperties(:from = "a", :to = "b") ) + NL
+	#--> [ "bandwidth", "protocol" ]
+
+	? @@( EdgePropsXT("a", "b") ) + NL
 	#--> [:bandwidth = 1000, :protocol = "tcp"]
 	
-	UpdateEdgeMetadata("a", "b", "latency", 5)
+	UpdateEdgeProperty("a", "b", "latency", 5)
 	
-	? GetEdgeMetadata("a", "b")["latency"]
+	? EdgeProp("a", "b", "latency")
 	#--> 5
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 11: INFERENCE & KNOWLEDGE
@@ -861,11 +948,12 @@ oGraph {
 	? nInferred  #--> 1
 	? EdgeCount() #--> 3
 	
-	? @@( InferredEdges() )
+	? @@NL( InferredEdges() )
 	#--> [[:from = "a", :to = "c", :label = "(inferred)", :properties = []]]
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Symmetry Inference
 
@@ -881,69 +969,12 @@ oGraph {
 	AddInferenceRule("SYMMETRY")
 	
 	nInferred = ApplyInference()
-	? nInferred   #--> 1
+	? nInferred   #--> 1 #ERR returned 2!
 	? EdgeExists("y", "x") #--> TRUE
 }
 
 pf()
-
-/*--- Custom Inference
-
-pr()
-
-oGraph = new stzGraph("CustomInferTest")
-oGraph {
-	AddNodeXTT("n1", "N1", [:type = "server"])
-	AddNodeXTT("n2", "N2", [:type = "server"])
-	AddNodeXTT("db", "DB", [:type = "database"])
-	
-	Connect("n1", "db")
-	
-	RegisterInferenceRule("SAME_TYPE", func {
-		nCount = 0
-		aNodes = This.Nodes()
-		nLen = len(aNodes)
-		
-		for i = 1 to nLen
-			for j = i + 1 to nLen
-				aNode1 = aNodes[i]
-				aNode2 = aNodes[j]
-				
-				if HasKey(aNode1["properties"], "type") and 
-				   HasKey(aNode2["properties"], "type")
-					if aNode1["properties"]["type"] = aNode2["properties"]["type"]
-						if NOT This.EdgeExists(aNode1["id"], aNode2["id"])
-							This.AddEdgeXT(aNode1["id"], aNode2["id"], "(peer)")
-							nCount += 1
-						ok
-					ok
-				ok
-			end
-		end
-		return nCount
-	})
-	
-	nInferred = ApplyCustomInference("SAME_TYPE")
-	? nInferred  #--> 1
-	? EdgeExists("n1", "n2") #--> TRUE
-}
-
-pf()
-
-/*--- List Inference Rules
-
-pr()
-
-oGraph = new stzGraph("ListInferTest")
-oGraph {
-	RegisterInferenceRule("RULE_A", func { return 0 })
-	RegisterInferenceRule("RULE_B", func { return 0 })
-	
-	? @@( CustomInferenceRules() )
-	#--> ["RULE_A", "RULE_B"]
-}
-
-pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 12: CONSTRAINTS & VALIDATION
@@ -971,7 +1002,7 @@ oGraph {
 	? ValidateConstraints() #--> FALSE
 	
 	? @@( ConstraintViolations() )
-	#--> [[:type = "ACYCLIC", :count = 1]]
+	#--> [[:type = "ACYCLIC", :count = 1]] #TODO returned []
 }
 
 pf()
@@ -990,7 +1021,7 @@ oGraph {
 	
 	AddConstraint("CONNECTED")
 	
-	? ValidateConstraints() #--> FALSE
+	? ValidateConstraints() #--> FALSE #TODO returned TRUE!
 	
 	Connect("b", "isolated")
 	
@@ -1023,6 +1054,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Edge Replacement
 
@@ -1044,6 +1076,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Edge Properties
 
@@ -1060,16 +1093,18 @@ oGraph {
 	
 	SetEdgeProperty("a", "b", "status", "active")
 	
-	? EdgeProperty("a", "b", "status") #--> "active"
+	? EdgeProperty("a", "b", "status")
+	#--> "active"
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 14: BATCH OPERATIONS
 #============================================#
 
-/*--- Batch Edge Updates
+/*--- Batch Edge Updates Using Anonymous Functions
 
 pr()
 
@@ -1093,6 +1128,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Replace All Operations
 
@@ -1115,6 +1151,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 15: YAML EXPORT
@@ -1133,8 +1170,28 @@ oGraph {
 	? BoxRound("YAML FORMAT")
 	? Yaml()
 }
+#-->
+'
+╭─────────────╮
+│ YAML FORMAT │
+╰─────────────╯
+graph: YAMLTest
+nodes:
+  - id: srv1
+    label: Server1
+    properties:
+      - port
+  - id: srv2
+    label: Server2
+
+edges:
+  - from: srv1
+    to: srv2
+    label: connects
+'
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 16: COMPLETE WORKFLOW
@@ -1167,22 +1224,96 @@ oGraph {
 	SetRule(oRule)
 	ApplyRules()
 	
-	# Take snapshot
-	Snapshot("initial")
-	
 	# Analyze
-	? BoxRound("ANALYSIS")
+	? "ANALYSIS"
+	? "--------" + NL
+
 	? "Critical nodes: " + @@( MostCriticalNodes(2) )
 	? "Bottlenecks: " + @@( BottleneckNodes() )
-	? "Density: " + NodeDensity() + "%"
+	? "Density: " + NodeDensity() + "%" + NL
 	
 	# Visualize
-	? BoxRound("VISUALIZATION")
+	? "VISUALIZATION"
+	? "-------------" + NL
+
 	Show()
+	? ""
 	
 	# Export
-	? BoxRound("EXPORT")
+	? "EXPORT"
+	? "------" + NL
+
 	? Dot()
+
 }
+#-->
+'
+ANALYSIS
+--------
+
+Critical nodes: [ "api", "auth" ]
+Bottlenecks: [ ]
+Density: 33.33%
+
+VISUALIZATION
+-------------
+
+     ╭─────────────╮     
+     │ API Gateway │     
+     ╰─────────────╯     
+            |            
+      authenticates      
+            |            
+            v            
+    ╭──────────────╮     
+    │ Auth Service │     
+    ╰──────────────╯     
+            |            
+          reads          
+            |            
+            v            
+      ╭──────────╮       
+      │ Database │       
+      ╰──────────╯       
+
+          ////
+
+     ╭─────────────╮  ↑
+     │ API Gateway │──╯
+     ╰─────────────╯     
+            |            
+         routes          
+            |            
+            v            
+    ╭──────────────╮     
+    │ User Service │     
+    ╰──────────────╯     
+            |            
+         writes          
+            |            
+            v            
+      ╭──────────╮       
+      │ Database │       
+      ╰──────────╯       
+
+EXPORT
+------
+
+digraph MicroserviceGraph {
+  rankdir=LR;
+  node [shape=box];
+
+  api [label="API Gateway"];
+  auth [label="Auth Service"];
+  user [label="User Service"];
+  db [label="Database"];
+
+  api -> auth [label="authenticates"];
+  api -> user [label="routes"];
+  auth -> db [label="reads"];
+  user -> db [label="writes"];
+}
+'
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.24
