@@ -2934,7 +2934,7 @@ class stzGraph
 		oViz = new stzGraphAsciiVisualizer(This)
 		oViz.Show(paOptions)
 
-def Explain()
+	def Explain()
 		oViz = new stzGraphExplainer(This)
 		return oViz.Explain()
 
@@ -2943,59 +2943,80 @@ def Explain()
 	#------------------------------------------
 
 	def ShortestPath(pcFrom, pcTo)
-		# BFS-based shortest path
-		if CheckParams()
-			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
-				pcFrom = pcFrom[2]
+	    if CheckParams()
+	        if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
+	            pcFrom = pcFrom[2]
+	        ok
+	        if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
+	            pcTo = pcTo[2]
+	        ok
+	    ok
+	
+	    if NOT This.NodeExists(pcFrom) or NOT This.NodeExists(pcTo)
+	        return []
+	    ok
+	
+	    if pcFrom = pcTo
+	        return [pcFrom]
+	    ok
+	
+	    _acQueue_ = [pcFrom]
+	    _acVisited_ = [pcFrom]
+	    _aParentMap_ = [ [pcFrom, NULL] ]
+	
+	    while len(_acQueue_) > 0
+	        _cCurrent_ = _acQueue_[1]
+	        del(_acQueue_, 1)
+	        
+	        if _cCurrent_ = pcTo
+	            _acPath_ = []
+	            _cNode_ = pcTo
+	            
+	            while _cNode_ != NULL
+	                _acPath_ + _cNode_
+	                
+	                _cParent_ = NULL
+	                _nMapLen_ = len(_aParentMap_)
+	                for _j_ = 1 to _nMapLen_
+	                    if _aParentMap_[_j_][1] = _cNode_
+	                        _cParent_ = _aParentMap_[_j_][2]
+	                        exit
+	                    ok
+	                end
+	                _cNode_ = _cParent_
+	            end
+	            
+	            _acReversed_ = []
+	            _nPathLen_ = len(_acPath_)
+	            for _k_ = _nPathLen_ to 1 step -1
+	                _acReversed_ + _acPath_[_k_]
+	            end
+	            
+	            return _acReversed_
+	        ok
+	
+	        _acNeighbors_ = This.Neighbors(_cCurrent_)
+	        _nNeighLen_ = len(_acNeighbors_)
+	        for _i_ = 1 to _nNeighLen_
+	            _cNeighbor_ = _acNeighbors_[_i_]
+	            if ring_find(_acVisited_, _cNeighbor_) = 0
+	                _acVisited_ + _cNeighbor_
+	                _acQueue_ + _cNeighbor_
+	                _aParentMap_ + [_cNeighbor_, _cCurrent_]
+	            ok
+	        end
+	    end
+	
+	    return []
+
+	def _GetParent(paParents, pcNode)
+		_nLen_ = len(paParents)
+		for _i_ = 1 to _nLen_
+			if paParents[_i_][1] = pcNode
+				return paParents[_i_][2]
 			ok
-			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
-				pcTo = pcTo[2]
-			ok
-		ok
-
-		if NOT This.NodeExists(pcFrom) or NOT This.NodeExists(pcTo)
-			return []
-		ok
-
-		if pcFrom = pcTo
-			return [pcFrom]
-		ok
-
-		_acQueue_ = [pcFrom]
-		_acVisited_ = [pcFrom]
-		_aParent_ = []
-		_aParent_[pcFrom] = NULL
-		_nIdx_ = 1
-
-		while _nIdx_ <= len(_acQueue_)
-			_cCurrent_ = _acQueue_[_nIdx_]
-			
-			if _cCurrent_ = pcTo
-				# Reconstruct path
-				_acPath_ = []
-				_cNode_ = pcTo
-				while _cNode_ != NULL
-					_acPath_ = [_cNode_] + _acPath_
-					_cNode_ = _aParent_[_cNode_]
-				end
-				return _acPath_
-			ok
-
-			_acNeighbors_ = This.Neighbors(_cCurrent_)
-			_nNeighLen_ = len(_acNeighbors_)
-			for _i_ = 1 to _nNeighLen_
-				_cNeighbor_ = _acNeighbors_[_i_]
-				if ring_find(_acVisited_, _cNeighbor_) = 0
-					_acVisited_ + _cNeighbor_
-					_acQueue_ + _cNeighbor_
-					_aParent_[_cNeighbor_] = _cCurrent_
-				ok
-			end
-
-			_nIdx_++
 		end
-
-		return []
+		return NULL
 
 	def ShortestPathLength(pcFrom, pcTo)
 		if CheckParams()
@@ -3051,32 +3072,44 @@ def Explain()
 		_acArticulation_ = []
 		_aNodes_ = This.Nodes()
 		
+		# Get original component count
+		_nOriginalComponents_ = len(This.ConnectedComponents())
+		
 		_nNodeLen_ = len(_aNodes_)
 		for _i_ = 1 to _nNodeLen_
 			_cNodeId_ = _aNodes_[_i_][:id]
 			
-			# Count components without this node
-			_nOriginalComponents_ = len(This.ConnectedComponents())
+			# Save edges
+			_aIncoming_ = This.Incoming(_cNodeId_)
+			_aOutgoing_ = This.Neighbors(_cNodeId_)
+			_aSavedEdges_ = []
+			
+			# Save all edges connected to this node
+			_aEdges_ = This.Edges()
+			_nEdgeLen_ = len(_aEdges_)
+			for _j_ = 1 to _nEdgeLen_
+				_aEdge_ = _aEdges_[_j_]
+				if _aEdge_[:from] = _cNodeId_ or _aEdge_[:to] = _cNodeId_
+					_aSavedEdges_ + _aEdge_
+				ok
+			end
 			
 			# Temporarily remove node
 			_aNode_ = This.Node(_cNodeId_)
-			_aIncoming_ = This.Incoming(_cNodeId_)
-			_aOutgoing_ = This.Neighbors(_cNodeId_)
-			
 			This.RemoveThisNode(_cNodeId_)
+			
+			# Check if graph is now more fragmented
 			_nNewComponents_ = len(This.ConnectedComponents())
 			
-			# Restore node
+			# Restore node and edges
 			This.AddNodeXTT(_cNodeId_, _aNode_[:label], _aNode_[:properties])
-			_nInLen_ = len(_aIncoming_)
-			for _j_ = 1 to _nInLen_
-				This.Connect(_aIncoming_[_j_], _cNodeId_)
-			end
-			_nOutLen_ = len(_aOutgoing_)
-			for _j_ = 1 to _nOutLen_
-				This.Connect(_cNodeId_, _aOutgoing_[_j_])
+			_nSavedLen_ = len(_aSavedEdges_)
+			for _j_ = 1 to _nSavedLen_
+				_aEdge_ = _aSavedEdges_[_j_]
+				This.AddEdgeXTT(_aEdge_[:from], _aEdge_[:to], _aEdge_[:label], _aEdge_[:properties])
 			end
 			
+			# If components increased, it's an articulation point
 			if _nNewComponents_ > _nOriginalComponents_
 				_acArticulation_ + _cNodeId_
 			ok
@@ -3085,49 +3118,55 @@ def Explain()
 		return _acArticulation_
 
 	def BetweennessCentrality(pcNodeId)
-		if NOT This.NodeExists(pcNodeId)
-			return 0
-		ok
-
-		_nCentrality_ = 0
-		_aNodes_ = This.Nodes()
-		_nNodeCount_ = len(_aNodes_)
-		
-		for _i_ = 1 to _nNodeCount_
-			_cSource_ = _aNodes_[_i_][:id]
-			if _cSource_ = pcNodeId
-				loop
-			ok
-			
-			for _j_ = 1 to _nNodeCount_
-				_cTarget_ = _aNodes_[_j_][:id]
-				if _cTarget_ = pcNodeId or _cTarget_ = _cSource_
-					loop
-				ok
-				
-				_aaPaths_ = This.FindAllPaths(_cSource_, _cTarget_)
-				if len(_aaPaths_) = 0
-					loop
-				ok
-				
-				_nPathsThrough_ = 0
-				_nPathLen_ = len(_aaPaths_)
-				for _k_ = 1 to _nPathLen_
-					if ring_find(_aaPaths_[_k_], pcNodeId) > 0
-						_nPathsThrough_++
-					ok
-				end
-				
-				_nCentrality_ += (_nPathsThrough_ / len(_aaPaths_))
-			end
-		end
-		
-		if _nNodeCount_ > 2
-			_nCentrality_ = _nCentrality_ / ((_nNodeCount_ - 1) * (_nNodeCount_ - 2))
-		ok
-		
-		return _nCentrality_
-
+	    if NOT This.NodeExists(pcNodeId)
+	        return 0
+	    ok
+	
+	    _nCentrality_ = 0
+	    _aNodes_ = This.Nodes()
+	    _nNodeCount_ = len(_aNodes_)
+	    
+	    for _i_ = 1 to _nNodeCount_
+	        _cSource_ = _aNodes_[_i_][:id]
+	        if _cSource_ = pcNodeId
+	            loop
+	        ok
+	        
+	        for _j_ = 1 to _nNodeCount_
+	            _cTarget_ = _aNodes_[_j_][:id]
+	            if _cTarget_ = pcNodeId or _cTarget_ = _cSource_
+	                loop
+	            ok
+	            
+	            _acPath_ = This.ShortestPath(_cSource_, _cTarget_)
+	            
+	            if len(_acPath_) = 0
+	                loop
+	            ok
+	            
+	            _bInPath_ = FALSE
+	            _nPathLen_ = len(_acPath_)
+	            for _k_ = 2 to _nPathLen_ - 1
+	                if _acPath_[_k_] = pcNodeId
+	                    _bInPath_ = TRUE
+	                    exit
+	                ok
+	            end
+	            
+	            if _bInPath_
+	                _nCentrality_++
+	            ok
+	        end
+	    end
+	    
+	    _nTotalPairs_ = (_nNodeCount_ - 1) * (_nNodeCount_ - 2)
+	    
+	    if _nTotalPairs_ = 0
+	        return 0
+	    ok
+	    
+	    return _nCentrality_ / _nTotalPairs_
+	
 	def ClosenessCentrality(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
@@ -3198,18 +3237,35 @@ def Explain()
 			return 0
 		ok
 
-		_acNeighbors_ = This.Neighbors(pcNodeId)
-		_nNeighborCount_ = len(_acNeighbors_)
+		# Get all neighbors (both incoming and outgoing)
+		_acOutgoing_ = This.Neighbors(pcNodeId)
+		_acIncoming_ = This.Incoming(pcNodeId)
+		_acAllNeighbors_ = []
+		
+		# Combine and deduplicate
+		_nLen_ = len(_acOutgoing_)
+		for _i_ = 1 to _nLen_
+			_acAllNeighbors_ + _acOutgoing_[_i_]
+		end
+		_nLen_ = len(_acIncoming_)
+		for _i_ = 1 to _nLen_
+			if ring_find(_acAllNeighbors_, _acIncoming_[_i_]) = 0
+				_acAllNeighbors_ + _acIncoming_[_i_]
+			ok
+		end
+		
+		_nNeighborCount_ = len(_acAllNeighbors_)
 		
 		if _nNeighborCount_ < 2
 			return 0
 		ok
 
+		# Count connections between neighbors
 		_nConnections_ = 0
 		for _i_ = 1 to _nNeighborCount_
 			for _j_ = _i_ + 1 to _nNeighborCount_
-				if This.EdgeExists(_acNeighbors_[_i_], _acNeighbors_[_j_]) or
-				   This.EdgeExists(_acNeighbors_[_j_], _acNeighbors_[_i_])
+				if This.EdgeExists(_acAllNeighbors_[_i_], _acAllNeighbors_[_j_]) or
+				   This.EdgeExists(_acAllNeighbors_[_j_], _acAllNeighbors_[_i_])
 					_nConnections_++
 				ok
 			end
