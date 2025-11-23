@@ -83350,9 +83350,51 @@ fdef
 
 	#==
 
+	def IsGreaterThanNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :GreaterThan )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+	def IsLessThanNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :LessThan )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+	#==
+
 	def IsToNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :To )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+	def IsToNodeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :ToNode )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+	def IsFromNodeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :FromNode )
 
 			return 1
 

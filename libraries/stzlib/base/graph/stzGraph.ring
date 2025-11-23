@@ -3,6 +3,9 @@
 #  Pure computational thinking construct     #
 #============================================#
 
+#NOTE Take inspiration from this article:
+# https://medium.com/data-science/graphs-with-python-overview-and-best-libraries-a92aa485c2f8
+
 func IsStzGraph(pObj)
 	if isObject(pObj) and classname(pObj) = "stzgraph"
 		return 1
@@ -59,6 +62,8 @@ class stzGraph
 	@aNodesAffectedByRules = []
 	@aEdgesAffectedByRules = []
 
+	@aProperties = []
+
 	def init(pcId)
 		@cId = pcId
 		@acNodes = []
@@ -66,6 +71,7 @@ class stzGraph
 		@aRules = []
 		@aNodesAffectedByRules = []
 		@aEdgesAffectedByRules = []
+		@aProperties = []
 
 	def Id()
 		return @cId
@@ -75,7 +81,7 @@ class stzGraph
 
 		def IsAGraph()
 			return 1
-	
+
 		def IsStzGraph()
 			return 1
 	
@@ -562,6 +568,10 @@ class stzGraph
 			return 0
 		ok
 
+		if This.EdgeExists(pcFromId, pcToId)
+			return 0  # Don't add duplicate
+		ok
+
 		aEdge = [
 			:from = pcFromId,
 			:to = pcToId,
@@ -575,6 +585,21 @@ class stzGraph
 			This.AddEdgeXTT(pcFromId, pcToId, pcLabel, pacProperties)
 
 	def Edge(pcFromId, pcToId)
+		if CheckParams()
+			if isList(pcFromId)
+				oList = new stzList(pcFromId)
+				if oList.IsFromNamedParam() or oList.IsFromNodeNamedParam()
+					pcFromId = pcFromId[2]
+				ok
+			ok
+			if isList(pcToId)
+				oList = new stzList(pcToId)
+				if oList.IsToNamedParam() or oList.IsToNodeNamedParam()
+					pcToId = pcToId[2]
+				ok
+			ok
+		ok
+
 		nLen = len(@acEdges)
 		for i = 1 to nLen
 			aEdge = @acEdges[i]
@@ -585,7 +610,14 @@ class stzGraph
 		stzraise("Inexistant edge!")
 
 	def EdgeExists(pcFromId, pcToId)
-		return This.Edge(pcFromId, pcToId) != ""
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			aEdge = @acEdges[i]
+			if aEdge["from"] = pcFromId and aEdge["to"] = pcToId
+				return 1
+			ok
+		end
+		return 0
 
 	def Edges()
 		return @acEdges
@@ -593,40 +625,40 @@ class stzGraph
 	def EdgeCount()
 		return len(@acEdges)
 
-#------------------------------------------
-#  NODE NAVIGATION
-#------------------------------------------
-
-def FirstNode()
-	if len(@aNodes) > 0
-		return @aNodes[1]
-	ok
-	return []
-
-def LastNode()
-	nLen = len(@aNodes)
-	if nLen > 0
-		return @aNodes[nLen]
-	ok
-	return []
-
-def NodeAt(n)
-	if n > 0 and n <= len(@aNodes)
-		return @aNodes[n]
-	ok
-	return []
-
-	def NthNode(n)
-		return This.NodeAt(n)
-
-def NodePosition(pcNodeId)
-	nLen = len(@aNodes)
-	for i = 1 to nLen
-		if @aNodes[i]["id"] = pcNodeId
-			return i
+	#------------------------------------------
+	#  NODE NAVIGATION
+	#------------------------------------------
+	
+	def FirstNode()
+		if len(@aNodes) > 0
+			return @aNodes[1]
 		ok
-	end
-	return 0
+		return []
+	
+	def LastNode()
+		nLen = len(@aNodes)
+		if nLen > 0
+			return @aNodes[nLen]
+		ok
+		return []
+	
+	def NodeAt(n)
+		if n > 0 and n <= len(@aNodes)
+			return @aNodes[n]
+		ok
+		return []
+	
+		def NthNode(n)
+			return This.NodeAt(n)
+	
+	def NodePosition(pcNodeId)
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			if @aNodes[i]["id"] = pcNodeId
+				return i
+			ok
+		end
+		return 0
 
 	def PositionOfNode(pcNodeId)
 		return This.NodePosition(pcNodeId)
@@ -791,13 +823,16 @@ def NodePosition(pcNodeId)
 	#----------------------------#
 
 	def Properties()
+		if NOT isList(@aNodes) or len(@aNodes) = 0
+			return []
+		ok
+		
 		acAllProps = []
-		aNodes = This.Nodes()
-		nLen = len(aNodes)
+		nLen = len(@aNodes)
 		
 		for i = 1 to nLen
-			if HasKey(aNodes[i], "properties")
-				acKeys = keys(aNodes[i]["properties"])
+			if HasKey(@aNodes[i], "properties") and isList(@aNodes[i]["properties"])
+				acKeys = keys(@aNodes[i]["properties"])
 				nKeyLen = len(acKeys)
 				for j = 1 to nKeyLen
 					if ring_find(acAllProps, acKeys[j]) = 0
@@ -885,6 +920,12 @@ def NodePosition(pcNodeId)
 		def SetNodePropes(pNodeId, aProperties)
 			This.SetNodeProperties(pNodeId, aProperties)
 
+		def UpdateNodeProperty(pcNodeId, pcKey, pValue)
+			This.SetNodeProperty(pcNodeId, pcKey, pValue)
+		
+		def UpdateNodeProp(pcNodeId, pcKey, pValue)
+			This.SetNodeProperty(pcNodeId, pcKey, pValue)
+	
 	def NodeProperties(pcNodeId)
 		aNode = This.Node(pcNodeId)
 		if HasKey(aNode, "properties")
@@ -925,6 +966,21 @@ def NodePosition(pcNodeId)
 			return This.NodeProperty(pNodeId, cProperty)
 
 	def SetEdgeProperty(pFromId, pToId, cProperty, pValue)
+		if CheckParams()
+			if isList(pFromId)
+				oList = new stzList(pFromId)
+				if oList.IsFromNamedParam() or oList.IsFromNodeNamedParam()
+					pFromId = pFromId[2]
+				ok
+			ok
+			if isList(pToId)
+				oList = new stzList(pToId)
+				if oList.IsToNamedParam() or oList.IsToNodeNamedParam()
+					pToId = pToId[2]
+				ok
+			ok
+		ok
+
 		nLen = len(@acEdges)
 		for i = 1 to nLen
 			if @acEdges[i]["from"] = pFromId and @acEdges[i]["to"] = pToId
@@ -936,8 +992,15 @@ def NodePosition(pcNodeId)
 			ok
 		end
 	
-		def SetEdgePrope(pFromId, pToId, cProperty, pValue)
+		def SetEdgeProp(pFromId, pToId, cProperty, pValue)
 			return This.SetEdgeProperty(pFromId, pToId, cProperty, pValue)
+
+		def UpdateEdgeProperty(pcFrom, pcTo, pcKey, pValue)
+			This.SetEdgeProperty(pcFrom, pcTo, pcKey, pValue)
+		
+		def UpdateEdgeProp(pcFrom, pcTo, pcKey, pValue)
+			This.SetEdgeProperty(pcFrom, pcTo, pcKey, pValue)
+
 
 	def EdgeProperty(pFromId, pToId, cProperty)
 		aEdge = This.Edge(pFromId, pToId)
@@ -950,6 +1013,66 @@ def NodePosition(pcNodeId)
 
 		def EdgeProp(pFromId, pToId, cProperty)
 			return This.EdgeProperty(pFromId, pToId, cProperty)
+
+	def SetEdgeProperties(pcFrom, pcTo, aProperties)
+		if CheckParams()
+			if isList(pcFrom)
+				oList = new stzList(pcFrom)
+				if oList.IsFromNamedParam() or oList.IsFromNodeNamedParam()
+					pcFrom = pcFrom[2]
+				ok
+			ok
+			if isList(pcTo)
+				oList = new stzList(pcTo)
+				if oList.IsToNamedParam() or oList.IsToNodeNamedParam()
+					pcTo = pcTo[2]
+				ok
+			ok
+		ok
+
+		if NOT IsHashList(aProperties)
+			StzRaise("aProperties must be a hashlist")
+		ok
+		
+		nLen = len(@acEdges)
+		for i = 1 to nLen
+			if @acEdges[i]["from"] = pcFrom and @acEdges[i]["to"] = pcTo
+				if NOT HasKey(@acEdges[i], "properties")
+					@acEdges[i]["properties"] = []
+				ok
+				
+				# Directly merge properties
+				acKeys = keys(aProperties)
+				nKeyLen = len(acKeys)
+				for j = 1 to nKeyLen
+					@acEdges[i]["properties"][acKeys[j]] = aProperties[acKeys[j]]
+				end
+				return
+			ok
+		end
+	
+		def SetEdgeProps(pcFrom, pcTo, aProperties)
+			This.SetEdgeProperties(pcFrom, pcTo, aProperties)
+
+	def EdgeProperties(pcFrom, pcTo)
+		aEdge = This.Edge(pcFrom, pcTo)
+		if HasKey(aEdge, "properties")
+			return keys(aEdge["properties"])
+		ok
+		return []
+	
+		def EdgeProps(pcFrom, pcTo)
+			return This.EdgeProperties(pcFrom, pcTo)
+
+	def EdgePropertiesXT(pcFrom, pcTo)
+		aEdge = This.Edge(pcFrom, pcTo)
+		if HasKey(aEdge, "properties")
+			return aEdge["properties"]
+		ok
+		return []
+	
+		def EdgePropsXT(pcFrom, pcTo)
+			return This.EdgePropertiesXT(pcFrom, pcTo)
 
 	#---------------------------#
 	#  TRAVERSAL & PATHFINDING  #
@@ -1404,43 +1527,44 @@ def NodePosition(pcNodeId)
 	#------------------------------------------
 	
 	def AddConstraint(pcConstraintType)
-	    if NOT isList(@acProperties)
-	        @acProperties = []
-	    ok
-	    
-	    cType = upper(pcConstraintType)
-	    
-	    aConstraint = [
-	        :type = cType,
-	        :violations = []
-	    ]
-	    
-	    if NOT HasKey(@acProperties, "constraints")
-	        @acProperties["constraints"] = []
-	    ok
-	    
-	    @acProperties["constraints"] + aConstraint
+		if NOT HasKey(@aProperties, pcConstraintType)
+			@aProperties = []
+		ok
+		
+		cType = upper(pcConstraintType)
+		
+		aConstraint = [
+			:type = cType,
+			:violations = []
+		]
+		
+		if NOT HasKey(@aProperties, "constraints")
+			@aProperties["constraints"] = []
+		ok
+		
+		@aProperties["constraints"] + aConstraint
 	
 	def ValidateConstraints()
-	    if NOT HasKey(@acProperties, "constraints")
-	        return 1
-	    ok
-	    
-	    acConstraints = @acProperties["constraints"]
-	    nLen = len(acConstraints)
-	    
-	    for i = 1 to nLen
-	        aConstraint = acConstraints[i]
-	        cType = aConstraint["type"]
-	        
-	        bValid = This._EvaluateConstraint(cType)
-	        
-	        if NOT bValid
-	            aConstraint["violations"] + "Constraint failed"
-	        ok
-	    end
-	    
-	    return len(This.ConstraintViolations()) = 0
+		
+		if NOT HasKey(@aProperties, "constraints")
+			return 1
+		ok
+		
+		acConstraints = @aProperties["constraints"]
+		nLen = len(acConstraints)
+		
+		for i = 1 to nLen
+			aConstraint = acConstraints[i]
+			cType = aConstraint["type"]
+			
+			bValid = This._EvaluateConstraint(cType)
+			
+			if NOT bValid
+				aConstraint["violations"] + "Constraint failed"
+			ok
+		end
+		
+		return len(This.ConstraintViolations()) = 0
 	
 	def _EvaluateConstraint(pcType)
 	    if pcType = "ACYCLIC" or pcType = "NO_CYCLES"
@@ -1491,107 +1615,110 @@ def NodePosition(pcNodeId)
 	    return len(acVisited) = len(@aNodes)
 	
 	def ConstraintViolations()
-	    if NOT HasKey(@acProperties, "constraints")
-	        return []
-	    ok
-	    
-	    acViolations = []
-	    acConstraints = @acProperties["constraints"]
-	    nLen = len(acConstraints)
-	    
-	    for i = 1 to nLen
-	        aConstraint = acConstraints[i]
-	        if len(aConstraint["violations"]) > 0
-	            acViolations + [
-	                :type = aConstraint["type"],
-	                :count = len(aConstraint["violations"])
-	            ]
-	        ok
-	    end
-	    
-	    return acViolations
-
-#------------------------------------------
-#  stzGraph - Rule Management
-#------------------------------------------
-
-def SetRule(p)
-	if isString(p)
-		if HasKey(@aRules, p)
-			return
-		else
-			stzraise("Rule '" + p + "' not found")
+		
+		if NOT HasKey(@aProperties, "constraints")
+			return []
 		ok
-	but isObject(p) and ring_classname(p) = "stzgraphrule"
-		@aRules[p.@cRuleId] = p
-	ok
+		
+		acViolations = []
+		acConstraints = @aProperties["constraints"]
+		nLen = len(acConstraints)
+		
+		for i = 1 to nLen
+			aConstraint = acConstraints[i]
+			if len(aConstraint["violations"]) > 0
+				acViolations + [
+					:type = aConstraint["type"],
+					:count = len(aConstraint["violations"])
+				]
+			ok
+		end
+		
+		return acViolations
 
-	def SetRuleObject(oRule)
-		This.SetRule(oRule)
-
-def SetRuleXT(p, pcType)
-	if isString(p)
-		stzraise("Cannot set type for non-existent rule '" + p + "'")
-	ok
+	#------------------------------------------
+	#  stzGraph - Rule Management
+	#------------------------------------------
 	
-	if isObject(p) and ring_classname(p) = "stzgraphrule"
-		p.SetRuleType(pcType)
-		@aRules[p.@cRuleId] = p
-	ok
-
-def RemoveRule(p)
-	if isString(p)
-		@aRules[p] = NULL
-	but isObject(p)
-		@aRules[p.@cRuleId] = NULL
-	ok
-
-def Rule(pcRuleId)
-	return @aRules[pcRuleId]
-
-	def RuleObject(pcRuleId)
-		return This.Rule(pcRuleId)
-
-def Rules()
-	return @aRules
-
-	def RuleObjects()
+	def SetRule(p)
+		if isString(p)
+			if HasKey(@aRules, p)
+				return
+			else
+				stzraise("Rule '" + p + "' not found")
+			ok
+		but isObject(p) and ring_classname(p) = "stzgraphrule"
+			p.SetGraph(This)  # Pass graph reference to rule
+			@aRules[p.@cRuleId] = p
+		ok
+	
+		def SetRuleObject(oRule)
+			This.SetRule(oRule)
+	
+	def SetRuleXT(p, pcType)
+		if isString(p)
+			stzraise("Cannot set type for non-existent rule '" + p + "'")
+		ok
+		
+		if isObject(p) and ring_classname(p) = "stzgraphrule"
+			p.SetRuleType(pcType)
+			p.SetGraph(This)  # Pass graph reference to rule
+			@aRules[p.@cRuleId] = p
+		ok
+	
+	def RemoveRule(p)
+		if isString(p)
+			@aRules[p] = NULL
+		but isObject(p)
+			@aRules[p.@cRuleId] = NULL
+		ok
+	
+	def Rule(pcRuleId)
+		return @aRules[pcRuleId]
+	
+		def RuleObject(pcRuleId)
+			return This.Rule(pcRuleId)
+	
+	def Rules()
 		return @aRules
-
-def RulesByType(pcType)
-	acResult = []
-	acRuleIds = keys(@aRules)
-	nLen = len(acRuleIds)
 	
-	for i = 1 to nLen
-		cRuleId = acRuleIds[i]
-		oRule = @aRules[cRuleId]
-		cRuleType = oRule.RuleType()
+		def RuleObjects()
+			return @aRules
+	
+	def RulesByType(pcType)
+		acResult = []
+		acRuleIds = keys(@aRules)
+		nLen = len(acRuleIds)
 		
-		if pcType = "" or lower(pcType) = cRuleType
-			acResult + cRuleId
-		ok
-	end
-	
-	return acResult
-
-def RulesObjectsByType(pcType)
-	aoResult = []
-	acRuleIds = keys(@aRules)
-	nLen = len(acRuleIds)
-	
-	for i = 1 to nLen
-		cRuleId = acRuleIds[i]
-		oRule = @aRules[cRuleId]
-		cRuleType = oRule.RuleType()
+		for i = 1 to nLen
+			cRuleId = acRuleIds[i]
+			oRule = @aRules[cRuleId]
+			cRuleType = oRule.RuleType()
+			
+			if pcType = "" or lower(pcType) = cRuleType
+				acResult + cRuleId
+			ok
+		end
 		
-		if pcType = "" or lower(pcType) = cRuleType
-			aoResult + oRule
-		ok
-	end
+		return acResult
 	
-	return aoResult
-
+	def RulesObjectsByType(pcType)
+		aoResult = []
+		acRuleIds = keys(@aRules)
+		nLen = len(acRuleIds)
+		
+		for i = 1 to nLen
+			cRuleId = acRuleIds[i]
+			oRule = @aRules[cRuleId]
+			cRuleType = oRule.RuleType()
+			
+			if pcType = "" or lower(pcType) = cRuleType
+				aoResult + oRule
+			ok
+		end
+		
+		return aoResult
+	
 	#------------------------------------------
 	#  stzGraph - Rule Application
 	#------------------------------------------
@@ -1622,8 +1749,16 @@ def RulesObjectsByType(pcType)
 					ok
 				ok
 				
-				if oRule.Matches(aContext)
-					This._ApplyEffects(oRule, "node", cNodeId)
+				# Special handling for pathexists condition
+				if oRule.ConditionType() = :pathexists
+					aParams = oRule.ConditionParams()
+					if This.PathExists(aParams[1], aParams[2])
+						This._ApplyEffects(oRule, "node", cNodeId)
+					ok
+				else
+					if oRule.Matches(aContext)
+						This._ApplyEffects(oRule, "node", cNodeId)
+					ok
 				ok
 			end
 			
@@ -1654,8 +1789,16 @@ def RulesObjectsByType(pcType)
 					ok
 				ok
 				
-				if oRule.Matches(aContext)
-					This._ApplyEffects(oRule, "edge", [aEdge["from"], aEdge["to"]])
+				# Special handling for pathexists condition
+				if oRule.ConditionType() = :pathexists
+					aParams = oRule.ConditionParams()
+					if This.PathExists(aParams[1], aParams[2])
+						This._ApplyEffects(oRule, "edge", [aEdge["from"], aEdge["to"]])
+					ok
+				else
+					if oRule.Matches(aContext)
+						This._ApplyEffects(oRule, "edge", [aEdge["from"], aEdge["to"]])
+					ok
 				ok
 			end
 			
@@ -1705,44 +1848,22 @@ def RulesObjectsByType(pcType)
 			ok
 		end
 		
-		def _BuildRuleContext(aNodeOrEdge)
-			aContext = aNodeOrEdge
-			
-			if HasKey(aNodeOrEdge, "properties") and aNodeOrEdge["properties"] != NULL
-				aContext["metadata"] = aNodeOrEdge["properties"]
-				aContext["tags"] = []
-				if HasKey(aNodeOrEdge["properties"], "tags")
-					aContext["tags"] = aNodeOrEdge["properties"]["tags"]
-				ok
+	def _BuildRuleContext(aNodeOrEdge)
+		aContext = aNodeOrEdge
+		
+		if HasKey(aNodeOrEdge, "properties") and aNodeOrEdge["properties"] != NULL
+			aContext["metadata"] = aNodeOrEdge["properties"]
+			aContext["tags"] = []
+			if HasKey(aNodeOrEdge["properties"], "tags")
+				aContext["tags"] = aNodeOrEdge["properties"]["tags"]
 			ok
-			
-			return aContext
+		ok
+		
+		return aContext
 
 	#--------------------------#
 	#  RULES ANALYSIS METHODS  #
 	#--------------------------#
-
-	def NodesAffectedByRule(pcRuleId)
-		oRule = This.Rule(pcRuleId)
-		if oRule = NULL
-			return []
-		ok
-		return This.NodesAffectedByRuleObject(oRule)
-	
-	def NodesAffectedByRuleObject(oRule)
-		acAffected = []
-		acNodeIds = keys(@aNodesAffectedByRules)
-		nLen = len(acNodeIds)
-		
-		for i = 1 to nLen
-			aNode = This.Node(acNodeIds[i])
-			aContext = This._BuildRuleContext(aNode)
-			if oRule.Matches(aContext)
-				acAffected + acNodeIds[i]
-			ok
-		end
-		
-		return acAffected
 
 	def RulesApplied()
 		aResult = [
@@ -1760,7 +1881,7 @@ def RulesObjectsByType(pcType)
 		ok
 		
 		acRuleIds = keys(@aRules)
-		aResult[:summary] = len(acRuleIds) + " rule(s) defined, " + 
+		aResult[:summary] = ''+ len(acRuleIds) + " rule(s) defined, " + 
 		                     (len(@aNodesAffectedByRules) + len(@aEdgesAffectedByRules)) + " element(s) affected"
 		
 		nLenRules = len(acRuleIds)
@@ -1789,34 +1910,230 @@ def RulesObjectsByType(pcType)
 		
 		return aResult
 
+	# Get all nodes affected by any rule
+	def NodesAffectedByRules()
+		return keys(@aNodesAffectedByRules)
+	
+		def NodesAffected()
+			return This.NodesAffectedByRules()
+	
+		def AffectedNodes()
+			return This.NodesAffectedByRules()
+
+	# Get nodes affected by specific rule
+
+	def NodesAffectedByRule(pcRuleId)
+		oRule = This.Rule(pcRuleId)
+		if oRule = NULL
+			return []
+		ok
+		return This.NodesAffectedByRuleObject(oRule)
+	
+	def NodesAffectedByRuleObject(oRule)
+		acAffected = []
+		acNodeIds = keys(@aNodesAffectedByRules)
+		nLen = len(acNodeIds)
+		
+		for i = 1 to nLen
+			aNode = This.Node(acNodeIds[i])
+			aContext = This._BuildRuleContext(aNode)
+			if oRule.Matches(aContext)
+				acAffected + acNodeIds[i]
+			ok
+		end
+		
+		return acAffected
+
+	# Get nodes affected by multiple rules
+	def NodesAffectedByTheseRules(paoRules)
+		
+		acAffected = []
+		acNodeIds = keys(@aNodesAffectedByRules)
+		nNodeLen = len(acNodeIds)
+		
+		for i = 1 to nNodeLen
+			aNode = This.Node(acNodeIds[i])
+			aContext = This._BuildRuleContext(aNode)
+			
+			# Check if any of the provided rules match
+			nRuleLen = len(paoRules)
+			for j = 1 to nRuleLen
+				if paoRules[j].Matches(aContext)
+					if find(acAffected, acNodeIds[i]) = 0
+						acAffected + acNodeIds[i]
+					ok
+					exit  # Node matched, no need to check more rules
+				ok
+			end
+		end
+		
+		return acAffected
+	
+		def NodesAffectedByRulesIn(paoRules)
+			return This.NodesAffectedByTheseRules(paoRules)
+	
+	# Get nodes NOT affected by any rule
+	def NodesNotAffectedByRules()
+	
+		acAllNodes = []
+		aNodes = This.Nodes()
+		nLen = len(aNodes)
+		for i = 1 to nLen
+			acAllNodes + aNodes[i]["id"]
+		end
+		
+		acAffected = keys(@aNodesAffectedByRules)
+		acNotAffected = []
+		
+		nLen = len(acAllNodes)
+		for i = 1 to nLen
+			if find(acAffected, acAllNodes[i]) = 0
+				acNotAffected + acAllNodes[i]
+			ok
+		end
+		
+		return acNotAffected
+	
+		def NodesNotAffected()
+			return This.NodesNotAffectedByRules()
+	
+		def UnaffectedNodes()
+			return This.NodesNotAffectedByRules()
+	
+	#--- EDGES
+	
+	def EdgesAffectedByRules()
+		return keys(@aEdgesAffectedByRules)
+	
+		def EdgesAffected()
+			return This.EdgesAffectedByRules()
+	
+		def AffectedEdges()
+			return This.EdgesAffectedByRules()
+	
+	def EdgesAffectedByRule(poRule)
+		
+		acAffected = []
+		acEdgeKeys = keys(@aEdgesAffectedByRules)
+		nLen = len(acEdgeKeys)
+		
+		for i = 1 to nLen
+			acParts = split(acEdgeKeys[i], "->")
+			aEdge = This.Edge(acParts[1], acParts[2])
+			aContext = This._BuildRuleContext(aEdge)
+			if poRule.Matches(aContext)
+				acAffected + acEdgeKeys[i]
+			ok
+		end
+		
+		return acAffected
+	
+		def EdgesAffectedBy(poRule)
+			return This.EdgesAffectedByRule(poRule)
+	
+	def EdgesAffectedByTheseRules(paoRules)
+		
+		acAffected = []
+		acEdgeKeys = keys(@aEdgesAffectedByRules)
+		nEdgeLen = len(acEdgeKeys)
+		
+		for i = 1 to nEdgeLen
+			acParts = split(acEdgeKeys[i], "->")
+			aEdge = This.Edge(acParts[1], acParts[2])
+			aContext = This._BuildRuleContext(aEdge)
+			
+			nRuleLen = len(paoRules)
+			for j = 1 to nRuleLen
+				if paoRules[j].Matches(aContext)
+					if find(acAffected, acEdgeKeys[i]) = 0
+						acAffected + acEdgeKeys[i]
+					ok
+					exit
+				ok
+			end
+		end
+		
+		return acAffected
+	
+		def EdgesAffectedByRulesIn(paoRules)
+			return This.EdgesAffectedByTheseRules(paoRules)
+	
+	def EdgesNotAffectedByRules()
+		
+		acAllEdges = []
+		aEdges = This.Edges()
+		nLen = len(aEdges)
+		for i = 1 to nLen
+			acAllEdges + (aEdges[i]["from"] + "->" + aEdges[i]["to"])
+		end
+		
+		acAffected = keys(@aEdgesAffectedByRules)
+		acNotAffected = []
+		
+		nLen = len(acAllEdges)
+		for i = 1 to nLen
+			if find(acAffected, acAllEdges[i]) = 0
+				acNotAffected + acAllEdges[i]
+			ok
+		end
+		
+		return acNotAffected
+	
+		def EdgesNotAffected()
+			return This.EdgesNotAffectedByRules()
+	
+		def UnaffectedEdges()
+			return This.EdgesNotAffectedByRules()
+	
+	#--- COMBINED
+	
+	def ElementsAffectedByRules()
+		return [
+			:nodes = This.NodesAffectedByRules(),
+			:edges = This.EdgesAffectedByRules()
+		]
+	
+		def AffectedElements()
+			return This.ElementsAffectedByRules()
+	
+	def ElementsNotAffectedByRules()
+		return [
+			:nodes = This.NodesNotAffectedByRules(),
+			:edges = This.EdgesNotAffectedByRules()
+		]
+	
+		def UnaffectedElements()
+			return This.ElementsNotAffectedByRules()
+
 	#------------------------------------#
 	#  INFERENCE AND IMPLICIT KNOWLEDGE  #
 	#------------------------------------#
 
 	def AddInferenceRule(pcRuleType)
-	    if NOT isList(@acProperties)
-	        @acProperties = []
-	    ok
-	    
-	    cType = upper(pcRuleType)
-	    
-	    aRule = [
-	        :type = cType,
-	        :inferredEdges = []
-	    ]
-	    
-	    if NOT HasKey(@acProperties, "inferenceRules")
-	        @acProperties["inferenceRules"] = []
-	    ok
-	    
-	    @acProperties["inferenceRules"] + aRule
+		if NOT HasKey(@aProperties, pcRuleType)
+			@aProperties = []
+		ok
+		
+		cType = upper(pcRuleType)
+		
+		aRule = [
+			:type = cType,
+			:inferredEdges = []
+		]
+		
+		if NOT HasKey(@aProperties, :InferenceRules)
+			@aProperties[:InferenceRules] = []
+		ok
+		
+		@aProperties[:InferenceRules] + aRule
+
 
 	def ApplyInference()
-	    if NOT HasKey(@acProperties, "inferenceRules")
+	    if NOT HasKey(@aProperties, :InferenceRules)
 	        return 0
 	    ok
 	    
-	    acRules = @acProperties["inferenceRules"]
+	    acRules = @aProperties[:InferenceRules]
 	    nRuleLen = len(acRules)
 	    nInferred = 0
 	    
@@ -1873,30 +2190,40 @@ def RulesObjectsByType(pcType)
 		return nInferred
 
 	def _ApplySymmetry(paRule)
-		nInferred = 0
-		acNewEdges = []
-		nEdgeLen = len(@acEdges)
-		
-		for i = 1 to nEdgeLen
-			aEdge = @acEdges[i]
-			cFrom = aEdge["from"]
-			cTo = aEdge["to"]
-			
-			if NOT This.EdgeExists(cTo, cFrom)
-				if find(acNewEdges, [cTo, cFrom]) = 0
-					acNewEdges + [cTo, cFrom]
-					nInferred += 1
-				ok
-			ok
-		end
-		
-		nNewLen = len(acNewEdges)
-		for i = 1 to nNewLen
-			aNewEdge = acNewEdges[i]
-			This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred-symmetric)")
-		end
-		
-		return nInferred
+	    nInferred = 0
+	    acNewEdges = []
+	    nEdgeLen = len(@acEdges)
+	    
+	    # Only process existing edges (ignore those added during this call)
+	    for i = 1 to nEdgeLen
+	        aEdge = @acEdges[i]
+	        
+	        # Skip already inferred edges
+	        if substr(aEdge["label"], "(inferred") > 0
+	            loop
+	        ok
+	        
+	        cFrom = aEdge["from"]
+	        cTo = aEdge["to"]
+	        
+	        if NOT This.EdgeExists(cTo, cFrom)
+	            if ring_find(acNewEdges, [cTo, cFrom]) = 0
+	                acNewEdges + [cTo, cFrom]
+	                nInferred += 1
+	            ok
+	        ok
+	    end
+	    
+	    nNewLen = len(acNewEdges)
+	    for i = 1 to nNewLen
+	        aNewEdge = acNewEdges[i]
+	        This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred-symmetric)")
+	    end
+	    
+? "acNewEdges count: " + len(acNewEdges)
+? "Returning nInferred: " + nInferred
+
+	    return nInferred
 
 	def _ApplyComposition(paRule)
 		nInferred = 0
@@ -1944,78 +2271,6 @@ def RulesObjectsByType(pcType)
 		
 		return acInferred
 
-	#=== CUSTOM INFERENCE RULES
-
-	def RegisterInferenceRule(pcRuleName, pFunc)
-		if NOT isList(@acProperties)
-			@acProperties = []
-		ok
-		
-		cName = upper(pcRuleName)
-		
-		aRule = [
-			:name = cName,
-			:callback = pFunc
-		]
-		
-		if NOT HasKey(@acProperties, "inferenceRules")
-			@acProperties["inferenceRules"] = []
-		ok
-		
-		@acProperties["inferenceRules"] + aRule
-	
-	def ApplyCustomInference(pcRuleName)
-		if NOT HasKey(@acProperties, "inferenceRules")
-			return 0
-		ok
-		
-		acRules = @acProperties["inferenceRules"]
-		cName = upper(pcRuleName)
-		nLen = len(acRules)
-		
-		for i = 1 to nLen
-			aRule = acRules[i]
-			if aRule["name"] = cName
-				pFunc = aRule["callback"]
-				return call pFunc(this)
-			ok
-		end
-		
-		return 0
-	
-	def ApplyAllCustomInference()
-		if NOT HasKey(@acProperties, "inferenceRules")
-			return 0
-		ok
-		
-		acRules = @acProperties["inferenceRules"]
-		nTotalInferred = 0
-		nLen = len(acRules)
-		
-		for i = 1 to nLen
-			aRule = acRules[i]
-			pFunc = aRule["callback"]
-			nInferred = call pFunc()
-			nTotalInferred += nInferred
-		end
-		
-		return nTotalInferred
-	
-	def CustomInferenceRules()
-		if NOT HasKey(@acProperties, "inferenceRules")
-			return []
-		ok
-		
-		acNames = []
-		acRules = @acProperties["inferenceRules"]
-		nLen = len(acRules)
-		
-		for i = 1 to nLen
-			acNames + acRules[i]["name"]
-		end
-		
-		return acNames
-
 	#------------------------------------------
 	#  5. RICH QUERYING
 	#------------------------------------------
@@ -2030,6 +2285,147 @@ def RulesObjectsByType(pcType)
 		ok
 		
 		return []
+
+	# Query nodes with property
+	def NodesWithProperty(pcProperty)
+		acResult = []
+		nLen = len(@aNodes)
+		
+		for i = 1 to nLen
+			aNode = @aNodes[i]
+			if HasKey(aNode, "properties") and HasKey(aNode["properties"], pcProperty)
+				acResult + aNode["id"]
+			ok
+		end
+		
+		return acResult
+	
+		def NodesHavingProperty(pcProperty)
+			return This.NodesWithProperty(pcProperty)
+
+	# Query nodes with property value or condition
+	def NodesWithPropertyXT(pcProperty, pValue)
+		acResult = []
+		
+		# Handle named parameters
+		bIsInSection = FALSE
+		nMin = 0
+		nMax = 0
+		pCompareValue = pValue
+		
+		if isList(pValue)
+			oVal = new stzList(pValue)
+			
+			if oVal.IsInSectionNamedParam()
+				bIsInSection = TRUE
+				nMin = pValue[2][1]
+				nMax = pValue[2][2]
+			else
+				pCompareValue = pValue
+			ok
+		ok
+		
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			aNode = @aNodes[i]
+			
+			if HasKey(aNode, "properties") and HasKey(aNode["properties"], pcProperty)
+				pNodeValue = aNode["properties"][pcProperty]
+				
+				if bIsInSection
+					if isNumber(pNodeValue) and pNodeValue >= nMin and pNodeValue <= nMax
+						acResult + aNode["id"]
+					ok
+				else
+					if pNodeValue = pCompareValue
+						acResult + aNode["id"]
+					ok
+				ok
+			ok
+		end
+		
+		return acResult
+	
+		def NodesHavingPropertyXT(pcProperty, pValue)
+			return This.NodesWithPropertyXT(pcProperty, pValue)
+	
+	# Query nodes with tag
+	def NodesWithTag(pcTag)
+		acResult = []
+		nLen = len(@aNodes)
+		
+		for i = 1 to nLen
+			aNode = @aNodes[i]
+			if HasKey(aNode, "properties") and HasKey(aNode["properties"], "tags")
+				if ring_find(aNode["properties"]["tags"], pcTag) > 0
+					acResult + aNode["id"]
+				ok
+			ok
+		end
+		
+		return acResult
+	
+		def NodesHavingTag(pcTag)
+			return This.NodesWithTag(pcTag)
+	
+	# Query nodes with all tags
+	def NodesWithAllTags(paTags)
+		acResult = []
+		nLen = len(@aNodes)
+		
+		for i = 1 to nLen
+			aNode = @aNodes[i]
+			
+			if HasKey(aNode, "properties") and HasKey(aNode["properties"], "tags")
+				aNodeTags = aNode["properties"]["tags"]
+				bHasAll = TRUE
+				
+				nTagLen = len(paTags)
+				for j = 1 to nTagLen
+					if ring_find(aNodeTags, paTags[j]) = 0
+						bHasAll = FALSE
+						exit
+					ok
+				end
+				
+				if bHasAll
+					acResult + aNode["id"]
+				ok
+			ok
+		end
+		
+		return acResult
+	
+		def NodesHavingAllTags(paTags)
+			return This.NodesWithAllTags(paTags)
+	
+	# Query nodes with any tag
+	def NodesWithAnyTag(paTags)
+		acResult = []
+		nLen = len(@aNodes)
+		
+		for i = 1 to nLen
+			aNode = @aNodes[i]
+			
+			if HasKey(aNode, "properties") and HasKey(aNode["properties"], "tags")
+				aNodeTags = aNode["properties"]["tags"]
+				
+				nTagLen = len(paTags)
+				for j = 1 to nTagLen
+					if ring_find(aNodeTags, paTags[j]) > 0
+						if ring_find(acResult, aNode["id"]) = 0
+							acResult + aNode["id"]
+						ok
+						exit
+					ok
+				end
+			ok
+		end
+		
+		return acResult
+
+		def NodesHavingAnyTag(paTags)
+			return This.NodesWithAnyTag(paTags)
 
 	def _QueryByString(pcPattern)
 		acResults = []
@@ -2244,6 +2640,9 @@ def RulesObjectsByType(pcType)
 			ok
 		end
 		return aFound
+
+		def NodesByProp(pProperty, pValue)
+			return This.NodesByProperty(pProperty, pValue)
 	
 	def EdgesByProperty(pProperty, pValue)
 		aFound = []
@@ -2256,242 +2655,53 @@ def RulesObjectsByType(pcType)
 		end
 		return aFound
 
-	#------------------------------------------
-	#  6. TEMPORAL EVOLUTION
-	#------------------------------------------
-
-	def Snapshot(pcName)
-		if NOT isList(@acProperties)
-			@acProperties = []
-		ok
-		
-		if NOT HasKey(@acProperties, "snapshots")
-			@acProperties["snapshots"] = []
-		ok
-		
-		aSnapshot = [
-			:name = pcName,
-			:timestamp = now(),
-			:nodes = This._CopyList(@aNodes),
-			:edges = This._CopyList(@acEdges)
-		]
-		
-		@acProperties["snapshots"] + aSnapshot
-		return aSnapshot
-
-	def _CopyList(paList)
-		acCopy = []
-		nLen = len(paList)
-		
-		for i = 1 to nLen
-			if isList(paList[i])
-				acCopy + This._CopyList(paList[i])
-			but isHash(paList[i])
-				acCopy + paList[i].copy()
-			else
-				acCopy + paList[i]
-			ok
-		end
-		
-		return acCopy
-
-	def RestoreSnapshot(pcName)
-		if NOT HasKey(@acProperties, "snapshots")
-			return 0
-		ok
-		
-		acSnapshots = @acProperties["snapshots"]
-		nLen = len(acSnapshots)
-		
-		for i = 1 to nLen
-			aSnapshot = acSnapshots[i]
-			if aSnapshot["name"] = pcName
-				@aNodes = This._CopyList(aSnapshot["nodes"])
-				@acEdges = This._CopyList(aSnapshot["edges"])
-				return 1
-			ok
-		end
-		
-		return 0
-
-	def ChangesSince(pcSnapshotName)
-		if NOT HasKey(@acProperties, "snapshots")
-			return []
-		ok
-		
-		acSnapshots = @acProperties["snapshots"]
-		aOldSnapshot = NULL
-		
-		nLen = len(acSnapshots)
-		for i = 1 to nLen
-			if acSnapshots[i]["name"] = pcSnapshotName
-				aOldSnapshot = acSnapshots[i]
-				exit
-			ok
-		end
-		
-		if aOldSnapshot = NULL
-			return []
-		ok
-		
-		acChanges = [
-			:nodesAdded = [],
-			:nodesRemoved = [],
-			:edgesAdded = [],
-			:edgesRemoved = []
-		]
-		
-		# Find added nodes
+		def EdgesByProp(pProperty, pValue)
+			return This.EdgesByProperty(pProperty, pValue)
+	
+	def RemoveNodeProperties(pcNodeId)
 		nLen = len(@aNodes)
 		for i = 1 to nLen
-			aNode = @aNodes[i]
-			bFound = 0
-			nOldLen = len(aOldSnapshot["nodes"])
-			for j = 1 to nOldLen
-				if aOldSnapshot["nodes"][j]["id"] = aNode["id"]
-					bFound = 1
-					exit
-				ok
-			end
-			if NOT bFound
-				acChanges["nodesAdded"] + aNode["id"]
+			if @aNodes[i]["id"] = pcNodeId
+				@aNodes[i]["properties"] = []
+				return
 			ok
 		end
-		
-		# Find removed nodes
-		nOldLen = len(aOldSnapshot["nodes"])
-		for i = 1 to nOldLen
-			aOldNode = aOldSnapshot["nodes"][i]
-			bFound = 0
-			nLen = len(@aNodes)
-			for j = 1 to nLen
-				if @aNodes[j]["id"] = aOldNode["id"]
-					bFound = 1
-					exit
-				ok
-			end
-			if NOT bFound
-				acChanges["nodesRemoved"] + aOldNode["id"]
-			ok
+	
+		def ClearNodeProperties(pcNodeId)
+			This.RemoveNodeProperties(pcNodeId)
+	
+		def RemoveNodeProps(pcNodeId)
+			This.RemoveNodeProperties(pcNodeId)
+	
+		def ClearNodeProps(pcNodeId)
+			This.RemoveNodeProperties(pcNodeId)
+
+	def RemoveAllProperties()
+		# Clear node properties
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			@aNodes[i]["properties"] = []
 		end
 		
-		# Find added edges
+		# Clear edge properties
 		nLen = len(@acEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
-			bFound = 0
-			nOldLen = len(aOldSnapshot["edges"])
-			for j = 1 to nOldLen
-				aOldEdge = aOldSnapshot["edges"][j]
-				if aOldEdge["from"] = aEdge["from"] and aOldEdge["to"] = aEdge["to"]
-					bFound = 1
-					exit
-				ok
-			end
-			if NOT bFound
-				acChanges["edgesAdded"] + [aEdge["from"], aEdge["to"]]
-			ok
+			@acEdges[i]["properties"] = []
 		end
-		
-		# Find removed edges
-		nOldLen = len(aOldSnapshot["edges"])
-		for i = 1 to nOldLen
-			aOldEdge = aOldSnapshot["edges"][i]
-			bFound = 0
-			nLen = len(@acEdges)
-			for j = 1 to nLen
-				aEdge = @acEdges[j]
-				if aEdge["from"] = aOldEdge["from"] and aEdge["to"] = aOldEdge["to"]
-					bFound = 1
-					exit
-				ok
-			end
-			if NOT bFound
-				acChanges["edgesRemoved"] + [aOldEdge["from"], aOldEdge["to"]]
-			ok
-		end
-		
-		return acChanges
+	
+		def ClearAllProperties()
+			This.RemoveAllProperties()
 
-	def Snapshots()
-		if NOT HasKey(@acProperties, "snapshots")
-			return []
-		ok
-		
-		acSnapshots = []
-		acSnapshotList = @acProperties["snapshots"]
-		nLen = len(acSnapshotList)
-		
-		for i = 1 to nLen
-			acSnapshots + acSnapshotList[i]["name"]
-		end
-		
-		return acSnapshots
-
-	#------------------------------------------
-	#  METADATA OPERATIONS
-	#------------------------------------------
-	
-	def SetNodeMetadata(pNodeId, aMetadata)
-		@aNodeMetadata[pNodeId] = aMetadata
-	
-	def GetNodeMetadata(pNodeId)
-		if HasKey(@aNodeMetadata, pNodeId)
-			return @aNodeMetadata[pNodeId]
-		ok
-		return []
-	
-	def RemoveNodeMetadata(pNodeId)
-		if HasKey(@aNodeMetadata, pNodeId)
-			@aNodeMetadata[pNodeId] = NULL
-		ok
-	
-	def UpdateNodeMetadata(pNodeId, cKey, pValue)
-		if NOT HasKey(@aNodeMetadata, pNodeId)
-			@aNodeMetadata[pNodeId] = []
-		ok
-		@aNodeMetadata[pNodeId][cKey] = pValue
-	
-	def SetEdgeMetadata(pFromId, pToId, aMetadata)
-		cEdgeKey = pFromId + "->" + pToId
-		@aEdgeMetadata[cEdgeKey] = aMetadata
-	
-	def GetEdgeMetadata(pFromId, pToId)
-		cEdgeKey = pFromId + "->" + pToId
-		if HasKey(@aEdgeMetadata, cEdgeKey)
-			return @aEdgeMetadata[cEdgeKey]
-		ok
-		return []
-	
-	def RemoveEdgeMetadata(pFromId, pToId)
-		cEdgeKey = pFromId + "->" + pToId
-		if HasKey(@aEdgeMetadata, cEdgeKey)
-			@aEdgeMetadata[cEdgeKey] = NULL
-		ok
-	
-	def UpdateEdgeMetadata(pFromId, pToId, cKey, pValue)
-		cEdgeKey = pFromId + "->" + pToId
-		if NOT HasKey(@aEdgeMetadata, cEdgeKey)
-			@aEdgeMetadata[cEdgeKey] = []
-		ok
-		@aEdgeMetadata[cEdgeKey][cKey] = pValue
-	
-	def RemoveAllMetadata()
-		@aNodeMetadata = []
-		@aEdgeMetadata = []
-		@aNodeTags = []
-		@aEdgeTags = []
-
-	#------------------------------------------
-	#  7. EXPORT AND INTEROPERABILITY
-	#------------------------------------------
+	#-------------------------------#
+	#  EXPORT AND INTEROPERABILITY  #
+	#-------------------------------#
 
 	def ToHashlist()
 		return [
 			:id = @cId,
 			:nodes = @aNodes,
 			:edges = @acEdges,
-			:properties = @acProperties
+			:properties = This.Properties()
 		]
 
 	def ExportToDOT()
@@ -2662,7 +2872,7 @@ def RulesObjectsByType(pcType)
 				acProps = aNode["properties"]
 				nPropLen = len(acProps)
 				for j = 1 to nPropLen
-					cYAML += "      - " + string(acProps[j]) + nl
+					cYAML += "      - " + string(acProps[j][1]) + nl
 				end
 			ok
 		end
@@ -2695,56 +2905,6 @@ def RulesObjectsByType(pcType)
 		def ToYaml()
 			return This.ExportToYaml()
 
-		def RegisterExporter(pcName, pFunc)
-			if NOT isList(@acProperties)
-				@acProperties = []
-			ok
-			
-			if NOT HasKey(@acProperties, "exporters")
-				@acProperties["exporters"] = []
-			ok
-			
-			aExporter = [
-				:name = pcName,
-				:callback = pFunc
-			]
-			
-			@acProperties["exporters"] + aExporter
-
-	def ExportUsing(pcName)
-		if NOT HasKey(@acProperties, "exporters")
-			stzraise("Can't make the export!")
-		ok
-		
-		acExporters = @acProperties["exporters"]
-		nLen = len(acExporters)
-		
-		for i = 1 to nLen
-			aExporter = acExporters[i]
-			if aExporter["name"] = pcName
-				pFunc = aExporter["callback"]
-				return call pFunc()
-			ok
-		end
-		
-		stzraise("Can't make the export!")
-		#TODO// Enhance the error messages
-
-	def Exporters()
-		if NOT HasKey(@acProperties, "exporters")
-			return []
-		ok
-		
-		acNames = []
-		acExporters = @acProperties["exporters"]
-		nLen = len(acExporters)
-		
-		for i = 1 to nLen
-			acNames + acExporters[i]["name"]
-		end
-		
-		return acNames
-
 	#------------------------#
 	#  VISUALISING IN ASCII  #
 	#------------------------#
@@ -2752,6 +2912,9 @@ def RulesObjectsByType(pcType)
 	def Show()
 		oViz = new stzGraphAsciiVisualizer(This)
 		oViz.Show()
+
+	def View()
+		stzraise("Unavailable method for stzGrap! Use Show() instead.")
 
 	def ShowHorizontal()
 		oViz = new stzGraphAsciiVisualizer(This)
@@ -3451,7 +3614,8 @@ class stzGraphRule
 	@cConditionType
 	@aConditionParams
 	@aEffects
-	
+	@oGraph
+
 	def init(pcRuleId)
 		@cRuleId = pcRuleId
 		@cRuleType = ""
@@ -3459,6 +3623,15 @@ class stzGraphRule
 		@aConditionParams = []
 		@aEffects = []
 	
+	def SetGraph(poGraph)
+		@oGraph = poGraph
+	
+	def Graph()
+		return @oGraph
+
+		def GraphObject()
+			return @oGraph
+
 	#------------------------------------------
 	#  RULE TYPE
 	#------------------------------------------
@@ -3485,7 +3658,7 @@ class stzGraphRule
 				This.WhenPropertyInSection(pcKey, pValue[2][1], pValue[2][2])
 				return
 				
-			but oVal.IsToNamedParam()
+			but oVal.IsToNamedParam() or  oVal.IsToNodeNamedParam()
 				This.WhenPropertyTo(pcKey, pValue[2])
 				return
 				
@@ -3555,6 +3728,33 @@ class stzGraphRule
 		@cConditionType = :anytag
 		@aConditionParams = paTags
 	
+	def WhenPathExists(pcFrom, pcTo)
+		if CheckParams()
+			if isList(pcFrom)
+				oList = new stzList(pcFrom)
+				if oList.IsFromNamedParam() or
+				   oList.IsFromNodeNamedParam()
+
+					pcFrom = pcFrom[2]
+				ok
+			ok
+
+			if isList(pcTo)
+				oList = new stzList(pcTo)
+				if oList.IsToNamedParam() or
+				   oList.IsToNodeNamedParam()
+
+					pcTo = pcTo[2]
+				ok
+			ok
+		ok
+
+		@cConditionType = :pathexists
+		@aConditionParams = [pcFrom, pcTo]
+	
+		def WhenPath(pcFrom, pcTo)
+			This.WhenPathExists(pcFrom, pcTo)
+
 	#------------------------------------------
 	#  EFFECT METHODS
 	#------------------------------------------
@@ -3574,6 +3774,14 @@ class stzGraphRule
 	
 	# Inference effects
 	def AddEdge(pcFrom, pcTo)
+		if CheckParams()
+			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
+				pcFrom = pcFrom[2]
+			ok
+			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
+				pcTo = pcTo[2]
+			ok
+		ok
 		This.Apply("addedge", [pcFrom, pcTo])
 	
 	def AddProperty(pcKey, pValue)
@@ -3584,6 +3792,12 @@ class stzGraphRule
 	
 	# Generic effects
 	def SetProperty(pcKey, pValue)
+		if CheckParams()
+			if isList(pValue) and StzListQ(pValue).IsToNamedParam()
+				pValue = pValue[2]
+			ok
+		ok
+
 		This.Apply(pcKey, pValue)
 	
 	#------------------------------------------
@@ -3729,7 +3943,19 @@ class stzGraphRule
 				ok
 			end
 			return FALSE
-		
+
+		on :pathexists
+			cFrom = @aConditionParams[1]
+			cTo = @aConditionParams[2]
+			
+			# Need graph reference to check paths
+			if @oGraph = NULL
+				return FALSE
+			ok
+			
+			# Check if path exists in graph
+			return @oGraph.PathExists(cFrom, cTo)
+
 		off
 		
 		return FALSE
