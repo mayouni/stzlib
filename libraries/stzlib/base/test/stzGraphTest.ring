@@ -102,7 +102,7 @@ oGraph {
 	Connect("a", "d")
 	
 	? @@( ReachableFrom("a") )
-	#--> ["a", "b", "d", "c"]
+	#--> [ "a", "b", "d", "c" ]
 }
 
 pf()
@@ -123,8 +123,8 @@ oGraph {
 	Connect("n2", "hub")
 	Connect("hub", "n3")
 	
-	? @@( Neighbors("hub") )    #--> ["n3"]
-	? @@( Incoming("hub") )     #--> ["n1", "n2"]
+	? @@( Neighbors("hub") )    #--> [ "n3" ]
+	? @@( Incoming("hub") )     #--> [ "n1", "n2" ]
 }
 
 pf()
@@ -1325,7 +1325,7 @@ pf()
 #===========================#
 
 /*--- Shortest path in linear graph
-*/
+
 pr()
 
 oGraph = new stzGraph("Linear")
@@ -1362,10 +1362,10 @@ oGraph {
 	Connect(:b, :d)
 	Connect(:c, :d)
 	
-	? @@( ShortestPath(:From = :a, :To = :d) )
-	#--> [:a, :b, :d] or [:a, :c, :d]
+	? @@( ShortestPath(:From = "a", :To = "d") )
+	#--> ["a", "b", "d"]
 	
-	? ShortestPathLength(:From = :a, :To = :d)
+	? ShortestPathLength(:From = "a", :To = "d")
 	#--> 2
 }
 
@@ -1406,15 +1406,15 @@ oGraph {
 	AddNodeXT(:a, "A")
 	AddNodeXT(:b, "B")
 	AddNodeXT(:c, "C")
-	
+
 	Connect(:a, :b)
 	Connect(:b, :c)
-	
+
 	? IsConnected()
 	#--> TRUE
-	
+
 	? @@NL( ConnectedComponents() )
-	#--> [[:a, :b, :c]]
+	#--> [ [ "a", "b", "c" ] ]
 }
 
 pf()
@@ -1437,7 +1437,7 @@ oGraph {
 	#--> FALSE
 	
 	? @@NL( ConnectedComponents() )
-	#--> [[:a, :b], [:c, :d]]
+	#--> [["a", "b"], ["c", "d"]]
 }
 
 pf()
@@ -1483,13 +1483,41 @@ oGraph {
 	Connect(:center, :n3)
 	
 	? BetweennessCentrality(:center)
-	#--> 1.0 (all paths go through center)
+	#--> 0.33 (2 out of 6 possible paths go through center in directed graph)
 	
 	? BetweennessCentrality(:n1)
 	#--> 0.0 (no paths go through peripheral nodes)
 }
 
 pf()
+
+/*---
+
+pr()
+
+oGraph = new stzGraph("Star")
+oGraph {
+	AddNodeXT(:center, "Center")
+	AddNodeXT(:n1, "N1")
+	AddNodeXT(:n2, "N2")
+	AddNodeXT(:n3, "N3")
+
+	Connect(:n1, :center)
+	Connect(:center, :n1)
+	Connect(:n2, :center)
+	Connect(:center, :n2)
+	Connect(:n3, :center)
+	Connect(:center, :n3)
+
+	? BetweennessCentrality(:center)
+	#--> 1 (all paths go through center in undirected graph)
+	
+	? BetweennessCentrality(:n1)
+	#--> 0 (no paths go through peripheral nodes)
+}
+
+pf()
+
 
 /*--- Closeness centrality
 
@@ -1505,10 +1533,10 @@ oGraph {
 	Connect(:b, :c)
 	
 	? ClosenessCentrality(:b)
-	#--> 1.0 (average distance = 1)
+	#--> 1 (average distance = 1)
 	
 	? ClosenessCentrality(:a)
-	#--> 0.66 (average distance = 1.5)
+	#--> 0.67 (average distance = 1.5)
 }
 
 pf()
@@ -1527,8 +1555,8 @@ oGraph {
 	Connect(:b, :c)
 	Connect(:c, :a)
 	
-	? ClusteringCoefficient(:a)
-	#--> 1.0 (neighbors are fully connected)
+	? ClusteringCoefficient("a")
+	#--> 1 (neighbors are fully connected)
 }
 
 pf()
@@ -1548,7 +1576,7 @@ oGraph {
 	# y and z not connected
 	
 	? ClusteringCoefficient(:x)
-	#--> 0.0 (neighbors not connected)
+	#--> 0 (neighbors not connected)
 }
 
 pf()
@@ -1602,7 +1630,7 @@ pf()
 #============================#
 
 /*--- Real-world network analysis
-
+*/
 pr()
 
 oGraph = new stzGraph("SocialNetwork")
@@ -1619,18 +1647,18 @@ oGraph {
 	Connect(:diana, :eve)
 	Connect(:bob, :diana)  # Shortcut
 	
-	? "=== Network Analysis ==="
-	? "Diameter: " + Diameter()
-	? "Avg Path Length: " + AveragePathLength()
-	? "Is Connected: " + IsConnected()
+	# Network Analysis
+
+	? Diameter()
+	? AveragePathLength()
+	? IsConnected() + NL
 	
-	? ""
-	? "=== Node Importance ==="
-	? "Bob betweenness: " + BetweennessCentrality(:bob)
-	? "Charlie closeness: " + ClosenessCentrality(:charlie)
+	# Node Importance
+	? BetweennessCentrality(:bob)
+	? ClosenessCentrality(:charlie)
 	
-	? ""
-	? "=== Critical Nodes ==="
+	# Critical Nodes
+
 	? @@( ArticulationPoints() )
 }
 
