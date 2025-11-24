@@ -1,11 +1,27 @@
-digraph "Test" {
-    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12]
+digraph "Simple_Hierarchy" {
+    graph [rankdir=TD, splines=ortho, nodesep=0.6, ranksep=0.8, bgcolor=white, fontname="helvetica", fontsize=12]
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    n1 [label="Node 1", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
-    n3 [label="Node 3", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
+    ceo [label="CEO", shape=box, style="rounded,solid,filled", fillcolor="#FFD700", fontcolor="black"]
+    vp_sales [label="VP Sales", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white"]
+    vp_eng [label="VP Engineering", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white"]
+    vp_ops [label="VP Operations", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white"]
+    sales_a [label="Sales Rep A", shape=box, style="rounded,solid,filled", fillcolor="#4D654D", fontcolor="white"]
+    sales_b [label="Sales Rep B", shape=box, style="rounded,solid,filled", fillcolor="#4D654D", fontcolor="white"]
+    dev_a [label="Developer A", shape=box, style="rounded,solid,filled", fillcolor="#4D654D", fontcolor="white"]
+    dev_b [label="Developer B", shape=box, style="rounded,solid,filled", fillcolor="#4D654D", fontcolor="white"]
+    ops_a [label="Ops Staff A", shape=box, style="rounded,solid,filled", fillcolor="#4D654D", fontcolor="white"]
+    ops_b [label="Ops Staff B", shape=box, style="rounded,solid,filled", fillcolor="#4D654D", fontcolor="white"]
 
-    n1 -> n3 [style=invis]
+    ceo -> vp_sales
+    ceo -> vp_eng
+    ceo -> vp_ops
+    vp_sales -> sales_a
+    vp_sales -> sales_b
+    vp_eng -> dev_a
+    vp_eng -> dev_b
+    vp_ops -> ops_a
+    vp_ops -> ops_b
 
 }

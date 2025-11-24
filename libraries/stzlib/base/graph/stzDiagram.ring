@@ -352,6 +352,15 @@ $acDotShapes = [
 #  COLOR INTENSITY GENERATION & RESOLUTION
 # ============================================
 
+func IsStzDiagram(pObj)
+	if isObject(pObj)
+		cClass = lower(classname(pObj))
+		if cClass = "stzdiagram"
+			return TRUE
+		ok
+	ok
+	return FALSE
+
 # Generate color intensities: color--, color-, color, color+, color++
 func GenerateColorIntensities(cColorName, cHexValue)
 	aIntensities = []
@@ -1375,7 +1384,7 @@ class stzDiagram from stzGraph
 
 		# Generate DOT code
 		cDotCode = This.Dot()
-		
+
 		# Create stzDotCode instance and execute
 		oDotExec = new stzDotCode()
 		oDotExec.SetCode(cDotCode)
@@ -1423,7 +1432,12 @@ class stzDiagram from stzGraph
 
 	def Dot()
 		oConv = new stzDiagramToDot(This)
-		return oConv.Code()
+		cResult = oConv.Code()
+
+		cResult = substr(cResult, "[rankdir=TB,", "[rankdir=TD, splines=ortho, nodesep=0.6, ranksep=0.8,")
+		cResult = substr(cResult, "[rankdir=LR,", "[rankdir=LR, splines=ortho, nodesep=0.6, ranksep=0.8,")
+#TODO// Change this hardcoded solutuions
+		return cResult
 
 		def ToDot()
 			return This.Dot()
@@ -2884,7 +2898,11 @@ class stzDiagramToDot
 	@cDotCode
 
 	def init(poDiagram)
-		if NOT ( isObject(poDiagram) and ring_classname(poDiagram) = "stzdiagram")
+		if NOT ( isObject(poDiagram) and
+
+			find([ "stzdiagram", "stzorgchart", "stzworkflow" ],
+				ring_classname(poDiagram)) )
+
 			StzRaise("Incorrect param type! poDiagram must be a stzDiagram object.")
 		ok
 		@oDiagram = poDiagram
@@ -3118,8 +3136,8 @@ class stzDiagramToDot
 	
 	def _GetNodeShape(aNode, aEnhancements)
 		# Check enhancements FIRST (from visual rules)
-		if HasKey(aAppliedRules, "shape")
-			return aAppliedRules["shape"]
+		if HasKey(aEnhancements, "shape")
+			return aEnhancements["shape"]
 		ok
 		
 		# Check node properties for explicit shape

@@ -520,6 +520,9 @@ class stzGraph
 		def RemoveEdge(pcFromId, pcToId)
 			This.RemoveThisEdge(pcFromId, pcToId)
 
+		def Disconnect(pcFromId, pcToId)
+			This.RemoveThisEdge(pcFromId, pcToId)
+
 	def RemoveEdgesConnectedTo(pcNodeId)
 		acNew = []
 		nLen = len(@acEdges)
@@ -1129,6 +1132,24 @@ class stzGraph
 
 		def Paths(pcFromId, pcToId)
 			return This.FindAllPaths(pcFromId, pcToId)
+
+	def Path(pcFromId, pcToId)
+		acPaths = This.FindAllPaths(pcFromId, pcToId)
+		_nLenPaths_ = len(acPaths)
+		if _nLenPaths_ > 0
+			return acPaths[1]
+		else
+			return []
+		ok
+
+		def FirstPath(pcFromId, pcToId)
+			return This.Path(pcFromId, pcToId)
+
+		def FirstPathBetween(pcFromId, pcToId)
+			return This.Path(pcFromId, pcToId)
+
+		def PathBetween(pcFromId, pcToId)
+			return This.Path(pcFromId, pcToId)
 
 	def _FindAllPathsDFS(pcCurrent, pcTarget, pacCurrentPath, pacAllPaths, pnDepth)
 		

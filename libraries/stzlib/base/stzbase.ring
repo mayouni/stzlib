@@ -118,10 +118,11 @@
 # Loading files related to the GRAPH module
 
 	load "graph/stzGraph.ring"
+	load "graph/stzKnowledgeGraph.ring"
+
 	load "graph/stzDiagram.ring"
 	load "graph/stzDiagramBuilder.ring"
-
-	load "graph/stzKnowledgeGraph.ring"
+	load "graph/stzOrgChart.ring"
 
 # Loading files related to the VISUAL module
 
