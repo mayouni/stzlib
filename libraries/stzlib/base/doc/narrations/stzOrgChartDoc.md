@@ -1,6 +1,6 @@
 # Introducing stzOrgChart - The tool for Organizational Modeling and Intelligence
 
-In Softanza, understanding organizational structure is no longer just about drawing boxes and lines. Organizations need dynamic tools that can model, analyze, and visualize their human infrastructure with the same sophistication used for geographic information systems. Enter **stzOrgChart** – a revolutionary approach to organizational modeling that transforms static charts into living, analytical systems.
+In Softanza, understanding organizational structure is not just about drawing boxes and lines. Organizations need dynamic tools that can model, analyze, and visualize their human infrastructure. Enter **stzOrgChart** – a revolutionary approach to organizational modeling that transforms static charts into living, analytical systems.
 
 Built on the powerful foundation of Softanza's Graph Module for Ring programming language, stzOrgChart transcends traditional organizational charting by adopting a layered architecture reminiscent of GIS systems. Like GIS overlays that add demographic, environmental, or economic data to base maps, stzOrgChart allows organizations to visualize multiple analytical dimensions atop their structural foundation.
 
@@ -488,14 +488,16 @@ oOrgChart {
 	View()
 }
 ```
+
 Outpout:
+
 ![org4.png](../images/org4.png)
 
-> **NOTE**: In practice, programmers would use Ring and Softanza to develop a GUI application (desktop or web) to make it easy to business users to edit the orchart content in a grid and generate the visual by a click of a button.
+> **NOTE**: In practice, programmers would use Ring and Softanza to develop a GUI application (desktop or web) to make it easy to business users to edit the orgchart content in a grid and generate the visual by a click of a button.
 > 
 ## A Complete Example
 
-Let's bring what we saw toegother in a realistic orgchar to see the unified experience Softanza offers:
+Let's bring what we saw toegother in a realistic orgchart to see the unified experience Softanza offers:
 ```
 oOrg = new stzOrgChart("Simple_Hierarchy")
 oOrg {
