@@ -2030,25 +2030,29 @@ class stzGraph
 		def AffectedEdges()
 			return This.EdgesAffectedByRules()
 	
-	def EdgesAffectedByRule(poRule)
-		
+	def EdgesAffectedByRule(pRule)
+		if isString(pRule)
+			pRule = This.RuleObject(pRule)
+		ok
+
 		acAffected = []
 		acEdgeKeys = keys(@aEdgesAffectedByRules)
 		nLen = len(acEdgeKeys)
 		
 		for i = 1 to nLen
-			acParts = split(acEdgeKeys[i], "->")
+			acParts = @split(acEdgeKeys[i], "->")
 			aEdge = This.Edge(acParts[1], acParts[2])
 			aContext = This._BuildRuleContext(aEdge)
-			if poRule.Matches(aContext)
+
+			if pRule.Matches(aContext)
 				acAffected + acEdgeKeys[i]
 			ok
 		end
 		
 		return acAffected
 	
-		def EdgesAffectedBy(poRule)
-			return This.EdgesAffectedByRule(poRule)
+		def EdgesAffectedBy(pRule)
+			return This.EdgesAffectedByRule(pRule)
 	
 	def EdgesAffectedByTheseRules(paoRules)
 		
@@ -3999,7 +4003,9 @@ class stzGraphRule
 	#------------------------------------------
 	
 	def When(pcKey, pValue)
+
 		if isList(pValue)
+
 			oVal = StzListQ(pValue)
 			
 			if oVal.IsEqualsNamedParam()
@@ -4014,11 +4020,11 @@ class stzGraphRule
 				This.WhenPropertyTo(pcKey, pValue[2])
 				return
 				
-			but oVal.IsGreaterThanNamedParam()
+			but oVal.IsGreaterThanNamedParam() or oVal.IsIsGreaterThanNamedParam()
 				This.WhenPropertyGreaterThan(pcKey, pValue[2])
 				return
 				
-			but oVal.IsLessThanNamedParam()
+			but oVal.IsLessThanNamedParam() or oVal.IsISLessThanNamedParam()
 				This.WhenPropertyLessThan(pcKey, pValue[2])
 				return
 			ok

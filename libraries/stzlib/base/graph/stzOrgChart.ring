@@ -4,6 +4,19 @@
 #  All loop variables uniquely named to avoid collisions
 #=====================================================
 
+$aOrgColors = [
+        :board = :gold,
+        :executive = :coral,
+        :operations = :blue,
+        :treasury = :green,
+        :risk = :orange,
+        :audit = :purple,
+        :hr = :pink,
+        :it = :cyan,
+        :sales = :blue,
+        :engineering = :green
+]
+
 func IsStzOrgChart(pObj)
 	if isObject(pObj) and classname(pObj) = "stzorgchart"
 		return TRUE
@@ -51,15 +64,15 @@ class stzOrgChart from stzDiagram
 		])
 
 	def AddExecutivePositionXT(pcId, pcTitle)
-		This.AddPositionXTT(pcId, pcTitle, [:level = "executive"])
-		This.SetNodeProperty(pcId, "color", "gold")
+	    This.AddPositionXTT(pcId, pcTitle, [:level = "executive"])
+	    This.SetNodeProperty(pcId, "color", :primary)  # Theme-aware
 
 	def AddManagementPosition(pcId)
 		This.AddManagementPositionXT(pcId, pcId)
 
 	def AddManagementPositionXT(pcId, pcTitle)
-		This.AddPositionXTT(pcId, pcTitle, [:level = "management"])
-		This.SetNodeProperty(pcId, "color", "lightblue")
+	    This.AddPositionXTT(pcId, pcTitle, [:level = "management"])
+	    This.SetNodeProperty(pcId, "color", :info)  # Theme-aware
 
 	def AddStaffPositionXTT(pcId, pcTitle, paProp)
 		if NOT IsHashList(paprop)
@@ -81,8 +94,8 @@ class stzOrgChart from stzDiagram
 		This.SetNodeProperty(pcId, "color", "lightgreen")
 
 	def AddStaffPositionXT(pcId, pcTitle)
-		This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
-		This.SetNodeProperty(pcId, "color", "lightgreen")
+	    This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
+	    This.SetNodeProperty(pcId, "color", :success)  # Theme-aware
 
 	def ReportsTo(pcSubordinate, pcSupervisor)
 	    nPosCount = len(@aPositions)
@@ -93,33 +106,8 @@ class stzOrgChart from stzDiagram
 	        ok
 	    end
 	    
-	    # Store edge but DON'T create it yet
-	    # We'll handle multi-child branching in DOT generation
+	    # Use standard connection - let Graphviz handle layout
 	    This.Connect(pcSupervisor, pcSubordinate)
-	
-	def _ConnectWithHelper(pcSupervisor, pcSubordinate)
-	    # Check if supervisor already has a helper
-	    cHelperId = "_helper_" + pcSupervisor
-	    
-	    if NOT This.NodeExists(cHelperId)
-	        # Create invisible helper point
-	        This.AddNode(cHelperId)
-	        
-	        # Set helper properties directly
-	        This.SetNodeProperty(cHelperId, "shape", "point")
-	        This.SetNodeProperty(cHelperId, "width", "0.01")
-	        This.SetNodeProperty(cHelperId, "height", "0.01")
-	        This.SetNodeProperty(cHelperId, "style", "invis")
-	        This.SetNodeProperty(cHelperId, "fixedsize", "true")
-	        This.SetNodeProperty(cHelperId, "ishelper", TRUE)
-	        
-	        # Connect supervisor → helper (vertical drop, no arrow)
-	        This.AddEdgeXTT(pcSupervisor, cHelperId, "", [:weight = "10"])
-	        This.SetEdgeProperty(pcSupervisor, cHelperId, "arrowhead", "none")
-	    ok
-	    
-	    # Connect helper → subordinate (normal arrow)
-	    This.Connect(cHelperId, pcSubordinate)
 
 	def SetPositionDepartment(pcPositionId, pcDepartment)
 		nPosCount = len(@aPositions)
@@ -504,12 +492,6 @@ class stzOrgChart from stzDiagram
 	#  VISUALIZATION           #
 	#==========================#
 
-	def EnableCleanBranching(pbEnable)
-	    @bUseInvisibleHelpers = pbEnable
-	
-	    def UseCleanBranching(pbEnable)
-	        This.EnableCleanBranching(pbEnable)
-
 	def ViewWithPeople()
 		# Include person names in visualization
 		oRule = new stzVisualRule("show_people")
@@ -536,24 +518,15 @@ class stzOrgChart from stzDiagram
 		This.View()
 
 	def ColorByDepartment()
-		aColorMap = [
-			:board = "gold",
-			:executive = "lightcoral",
-			:operations = "lightblue",
-			:treasury = "lightgreen",
-			:risk = "orange",
-			:audit = "purple",
-			:hr = "pink",
-			:it = "cyan"
-		]
-		
-		nPosCount = len(@aPositions)
-		for i = 1 to nPosCount
-			cDept = @aPositions[i][:department]
-			if cDept != "" and HasKey(aColorMap, cDept)
-				This.SetNodeProperty(@aPositions[i][:id], "color", aColorMap[cDept])
-			ok
-		end
+
+	    nPosCount = len(@aPositions)
+	    for i = 1 to nPosCount
+	        cDept = @aPositions[i][:department]
+	        if cDept != "" and HasKey($aOrgColors, cDept)
+	            # Use parent's color resolution (respects themes)
+	            This.SetNodeProperty(@aPositions[i][:id], "color", $aOrgColors[cDept])
+	        ok
+	    end
 
 	def HighlightPath(pcFromId, pcToId)
 		acPath = This.PathBetween(pcFromId, pcToId)
@@ -561,92 +534,6 @@ class stzOrgChart from stzDiagram
 		for i = 1 to nPathCount
 			This.SetNodeProperty(acPath[i], "color", "yellow")
 		end
-
-	#==============================================#
-	#  SPECIALISED DOT GENERATION FOR stzOrgChart  #
-	#==============================================#
-
-	def Dot()
-	    # Build edge map: supervisor -> [list of subordinates]
-	    aEdgeMap = []
-	    aEdges = This.Edges()
-	    
-	    nLen = len(aEdges)
-	    for i = 1 to nLen
-	        cFrom = aEdges[i]["from"]
-	        cTo = aEdges[i]["to"]
-	        
-	        # Find or create entry for this supervisor
-	        nFound = 0
-	        nMapLen = len(aEdgeMap)
-	        for j = 1 to nMapLen
-	            if aEdgeMap[j][1] = cFrom
-	                nFound = j
-	                exit
-	            ok
-	        end
-	        
-	        if nFound > 0
-	            aEdgeMap[nFound][2] + cTo
-	        else
-	            aEdgeMap + [cFrom, [cTo]]
-	        ok
-	    end
-	    
-	    # Generate custom DOT
-	    cDot = 'digraph "' + This.Id() + '" {' + NL
-	    cDot += '    graph [rankdir=TB, splines=polyline, nodesep=1.5, ranksep=1.2]' + NL
-	    cDot += '    node [shape=box, style="rounded,filled", fontname="Arial"]' + NL
-	    cDot += '    edge [fontname="Arial", penwidth=1.5]' + NL + NL
-	    
-	    # Generate nodes
-	    aNodes = This.Nodes()
-	    nLen = len(aNodes)
-	    for i = 1 to nLen
-	        aNode = aNodes[i]
-	        cColor = This._GetNodeColor(aNode)
-	        
-	        cDot += '    ' + aNode["id"] + ' [label="' + aNode["label"] + '"'
-	        cDot += ', fillcolor="' + cColor + '"'
-	        cDot += ', fontcolor="' + This.ResolveFontColor(cColor) + '"]' + NL
-	    end
-	    
-	    cDot += NL
-	    
-	    # Generate edges
-	    nMapLen = len(aEdgeMap)
-	    for i = 1 to nMapLen
-	        cSupervisor = aEdgeMap[i][1]
-	        acSubordinates = aEdgeMap[i][2]
-	        
-	        # Force subordinates on same rank if multiple
-	        if len(acSubordinates) > 1
-	            cDot += '    {rank=same; '
-	            nSubLen = len(acSubordinates)
-	            for j = 1 to nSubLen
-	                cDot += acSubordinates[j]
-	                if j < nSubLen
-	                    cDot += '; '
-	                ok
-	            end
-	            cDot += '}' + NL
-	        ok
-	        
-	        # Direct connections
-	        nSubLen = len(acSubordinates)
-	        for j = 1 to nSubLen
-	            cDot += '    ' + cSupervisor + ' -> ' + acSubordinates[j] + NL
-	        end
-	    end
-	    
-	    cDot += '}' + NL
-	    return cDot
-
-	def _GetNodeColor(aNode)
-	    if HasKey(aNode, "properties") and HasKey(aNode["properties"], "color")
-	        return ResolveColor(aNode["properties"]["color"])
-	    ok
-	    return ResolveColor("white")
 
 	#=====================================================
 	#  NEW FEATURE: EXPORT TO .STZORG FORMAT
@@ -705,7 +592,7 @@ class stzOrgChart from stzDiagram
 		return cResult
 	
 	def WriteToStzOrgFile(pcFileName)
-		stzFileQ(pcFileName).SetContent(This.ToStzOrg())
+		write(pcfileName, This.ToStzOrg())
 		return TRUE
 	
 	#=====================================================
@@ -717,14 +604,15 @@ class stzOrgChart from stzDiagram
 		cCurrentSection = ""
 		cCurrentId = ""
 		aCurrent = []
-		
+		cTile = ""
+
 		nLen = len(acLines)
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
 			if cLine = "" or left(cLine, 1) = "#" loop ok
 			
 			if substr(cLine, "orgchart ")
-				This.SetTitle(substr(cLine, 10, len(cLine)-1))
+				cTitle = substr(cLine, 10, len(cLine)-1)
 				
 			but cLine = "positions"
 				cCurrentSection = "positions"
@@ -815,14 +703,16 @@ class stzOrgChart from stzDiagram
 			if aCurrent[:reportsTo] != ""
 				This.ReportsTo(cCurrentId, aCurrent[:reportsTo])
 			ok
+
 		but cCurrentSection = "people" and cCurrentId != ""
 			This.AddPersonXT(cCurrentId, aCurrent[:name])
+
 		but cCurrentSection = "departments" and cCurrentId != ""
 			This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
 		ok
 	
 	def ImportFromStzOrgFile(pcFileName)
-		cContent = stzFileQ(pcFileName).Content()
+		cContent = read(pcFileName)
 		This.ImportStzOrg(cContent)
 
 #=====================================================
