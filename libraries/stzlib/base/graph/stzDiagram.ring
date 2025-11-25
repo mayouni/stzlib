@@ -225,6 +225,19 @@ $acLayouts = [
 
 $cDefaultLayout = "topdown"
 
+# LAYOUT ENGINE OPTIONS
+$acSplineTypes = ["ortho", "spline", "polyline", "curved", "line", "none"]
+$cDefaultSplineType = "ortho"
+
+$anNodeSeparations = [0.3, 0.5, 0.6, 0.8, 1.0, 1.2, 1.5]
+$nDefaultNodeSep = 0.6
+
+$anRankSeparations = [0.5, 0.8, 1.0, 1.2, 1.5, 2.0]
+$nDefaultRankSep = 0.8
+
+$acConcentrate = ["true", "false"]
+$cDefaultConcentrate = "false"
+
 # FONTS
 $acFonts = [
 	"helvetica",
@@ -739,6 +752,11 @@ class stzDiagram from stzGraph
 
 	@aVisualRules = []
 
+	@cSplineType = $cDefaultSplineType
+	@nNodeSep = $nDefaultNodeSep
+	@nRankSep = $nDefaultRankSep
+	@bConcentrate = FALSE
+
 	def init(pTitle)
 		super.init(pTitle)
 		@cEdgeColor = ResolveColor($cDefaultEdgeColor)
@@ -778,7 +796,6 @@ class stzDiagram from stzGraph
 	def SetPenWidth(pnWidth)
 		@nNodePenWidth = pnWidth
 
-	# Setters
 	def SetNodePenWidth(pnWidth)
 		@nNodePenWidth = pnWidth
 		@nEdgePenWidth = pnWidth
@@ -805,6 +822,58 @@ class stzDiagram from stzGraph
 	def SetArrowTail(pcStyle)
 		@cArrowTail = lower(pcStyle)
 	
+	def SetSplines(pcType)
+	    cType = lower(pcType)
+	    if ring_find($acSplineTypes, cType) > 0
+	        @cSplineType = cType
+	    ok
+	
+	def SetNodeSeparation(pnValue)
+	    if isNumber(pnValue) and pnValue > 0
+	        @nNodeSep = pnValue
+	    ok
+	
+	def SetRankSeparation(pnValue)
+	    if isNumber(pnValue) and pnValue > 0
+	        @nRankSep = pnValue
+	    ok
+	
+	def SetConcentrate(pbValue)
+	    @bConcentrate = pbValue
+
+	def SetLayoutPreset(pcPreset)
+	    switch lower(pcPreset)
+	    on "orgchart"
+	        This.SetSplines("ortho")
+	        This.SetNodeSeparation(1.0)   # Increased for side-by-side
+	        This.SetRankSeparation(1.0)   # Increased for vertical clarity
+	        This.SetConcentrate(FALSE)
+	        
+	    on "orgchart_compact"
+	        This.SetSplines("ortho")
+	        This.SetNodeSeparation(0.6)
+	        This.SetRankSeparation(0.8)
+	        This.SetConcentrate(FALSE)
+	        
+	    on "compact"
+	        This.SetSplines("ortho")
+	        This.SetNodeSeparation(0.3)
+	        This.SetRankSeparation(0.5)
+	        This.SetConcentrate(TRUE)
+	        
+	    on "spacious"
+	        This.SetSplines("ortho")
+	        This.SetNodeSeparation(1.2)
+	        This.SetRankSeparation(1.5)
+	        This.SetConcentrate(FALSE)
+	        
+	    on "flowchart"
+	        This.SetSplines("polyline")
+	        This.SetNodeSeparation(0.8)
+	        This.SetRankSeparation(1.0)
+	        This.SetConcentrate(FALSE)
+	    off
+
 	# Getters
 	def NodePenWidth()
 		if @nNodePenWidth = @nEdgePenWidth
@@ -827,6 +896,18 @@ class stzDiagram from stzGraph
 	
 	def ArrowTail()
 		return @cArrowTail
+
+	def Splines()
+	    return @cSplineType
+	
+	def NodeSeparation()
+	    return @nNodeSep
+	
+	def RankSeparation()
+	    return @nRankSep
+	
+	def Concentrate()
+	    return @bConcentrate
 
 	#---
 
@@ -1433,10 +1514,6 @@ class stzDiagram from stzGraph
 	def Dot()
 		oConv = new stzDiagramToDot(This)
 		cResult = oConv.Code()
-
-		cResult = substr(cResult, "[rankdir=TB,", "[rankdir=TD, splines=ortho, nodesep=0.6, ranksep=0.8,")
-		cResult = substr(cResult, "[rankdir=LR,", "[rankdir=LR, splines=ortho, nodesep=0.6, ranksep=0.8,")
-#TODO// Change this hardcoded solutuions
 		return cResult
 
 		def ToDot()
@@ -2976,18 +3053,27 @@ class stzDiagramToDot
 			cTheme = "light"
 		ok
 		return cTheme
-	
+
 	def _GenerateGraphAttributes(cTheme)
-		cRankDir = This._GetRankDir()
-		cFont = This._GetFont()
-		nFontSize = This._GetFontSize()
-		
-		# Ensure rankdir is always set, even with no edges
-		cResult = '    graph [rankdir=' + cRankDir + 
-			   ', bgcolor=white, fontname="' + 
-			   cFont + '", fontsize=' + nFontSize + ']' + NL
-	
-		return cResult
+	    cRankDir = This._GetRankDir()
+	    cFont = This._GetFont()
+	    nFontSize = This._GetFontSize()
+	    
+	    cResult = '    graph [rankdir=' + cRankDir + 
+	               ', bgcolor=white' +
+	               ', fontname="' + cFont + '"' +
+	               ', fontsize=' + nFontSize +
+	               ', splines=' + @oDiagram.@cSplineType +
+	               ', nodesep=' + @oDiagram.@nNodeSep +
+	               ', ranksep=' + @oDiagram.@nRankSep +
+	               ', ordering=out'  # Preserve edge order
+	    
+	    if @oDiagram.@bConcentrate
+	        cResult += ', concentrate=true'
+	    ok
+	    
+	    cResult += ']' + NL
+	    return cResult
 
 	def _GenerateNodeAttributes(cTheme)
 		cFont = This._GetFont()
@@ -3092,39 +3178,53 @@ class stzDiagramToDot
 		return cOutput
 	
 	def _GenerateNode(aNode, cTheme)
-		cNodeId = This._SanitizeNodeId(aNode["id"])
-		cLabel = aNode["label"]
-		
-		aAppliedRules = []
-		if HasKey(@oDiagram.@aNodesAffectedByRules, aNode["id"])
-			aAppliedRules = @oDiagram.@aNodesAffectedByRules[aNode["id"]]
-		ok
-		
-		cShape = This._GetNodeShape(aNode, aAppliedRules)
-		cStyle = This._GetNodeStyle(aNode, aAppliedRules)
-		cFillColor = This._GetNodeFillColor(aNode, aAppliedRules, cTheme)
-		cFontColor = @oDiagram.ResolveFontColor(cFillColor)
-		cStrokeColor = This._GetNodeStrokeColor(cTheme)
-		
-		cOutput = '    ' + cNodeId + ' [label="' + cLabel + '"'
-		cOutput += ', shape=' + cShape
-		cOutput += ', style="' + cStyle + '"'
-		cOutput += ', fillcolor="' + cFillColor + '"'
-		cOutput += ', fontcolor="' + cFontColor + '"'
-		
-		if HasKey(aAppliedRules, "penwidth")
-			cOutput += ', penwidth=' + aAppliedRules["penwidth"]
-		but HasKey(aNode, "properties") and HasKey(aNode["properties"], "penwidth")
-			cOutput += ', penwidth=' + aNode["properties"]["penwidth"]
-		ok
-		
-		if cStrokeColor != ""
-			cOutput += ', color="' + cStrokeColor + '"'
-		ok
-		
-		cOutput += ']' + NL
-		
-		return cOutput
+	    cNodeId = This._SanitizeNodeId(aNode["id"])
+	    
+	    # Handle helper nodes specially
+	    if HasKey(aNode, "properties") and HasKey(aNode["properties"], "ishelper") and aNode["properties"]["ishelper"] = TRUE
+	        cOutput = '    ' + cNodeId + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
+	        return cOutput
+	    ok
+	    
+	    # Also check by name pattern as fallback
+	    if left(cNodeId, 8) = "_helper_"
+	        cOutput = '    ' + cNodeId + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
+	        return cOutput
+	    ok
+	    
+	    # Normal node processing
+	    cLabel = aNode["label"]
+	    
+	    aAppliedRules = []
+	    if HasKey(@oDiagram.@aNodesAffectedByRules, aNode["id"])
+	        aAppliedRules = @oDiagram.@aNodesAffectedByRules[aNode["id"]]
+	    ok
+	    
+	    cShape = This._GetNodeShape(aNode, aAppliedRules)
+	    cStyle = This._GetNodeStyle(aNode, aAppliedRules)
+	    cFillColor = This._GetNodeFillColor(aNode, aAppliedRules, cTheme)
+	    cFontColor = @oDiagram.ResolveFontColor(cFillColor)
+	    cStrokeColor = This._GetNodeStrokeColor(cTheme)
+	    
+	    cOutput = '    ' + cNodeId + ' [label="' + cLabel + '"'
+	    cOutput += ', shape=' + cShape
+	    cOutput += ', style="' + cStyle + '"'
+	    cOutput += ', fillcolor="' + cFillColor + '"'
+	    cOutput += ', fontcolor="' + cFontColor + '"'
+	    
+	    if HasKey(aAppliedRules, "penwidth")
+	        cOutput += ', penwidth=' + aAppliedRules["penwidth"]
+	    but HasKey(aNode, "properties") and HasKey(aNode["properties"], "penwidth")
+	        cOutput += ', penwidth=' + aNode["properties"]["penwidth"]
+	    ok
+	    
+	    if cStrokeColor != ""
+	        cOutput += ', color="' + cStrokeColor + '"'
+	    ok
+	    
+	    cOutput += ']' + NL
+	    
+	    return cOutput
 
 	
 	def _SanitizeNodeId(cNodeId)
@@ -3222,9 +3322,9 @@ class stzDiagramToDot
 		   HasKey(aNode["properties"], "color") and aNode["properties"]["color"] != NULL
 			cColor = aNode["properties"]["color"]
 		ok
-		
-		if (cColor = "" or cColor = NULL) and HasKey(aAppliedRules, "color")
-			cColor = aAppliedRules["color"]
+
+		if cColor = '' and HasKey(@oDiagram.@aNodesAffectedByRules, "color")
+			cColor = @oDiagram.@aNodesAffectedByRules["color"]
 		ok
 		
 		# Default
@@ -3295,41 +3395,57 @@ class stzDiagramToDot
 		return cOutput
 
 	def _GenerateEdge(aEdge, cTheme)
-		cFrom = This._SanitizeNodeId(aEdge["from"])
-		cTo = This._SanitizeNodeId(aEdge["to"])
-		cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
-		
-		cOutput = '    ' + cFrom + ' -> ' + cTo
-		aAttrs = []
-		
-		if HasKey(aEdge, "label") and aEdge["label"] != "" and aEdge["label"] != NULL
-			aAttrs + ('label=" ' + aEdge["label"] + '"')
-		ok
-		
-		# Check rule effects from parent
-		if HasKey(@oDiagram.@aEdgesAffectedByRules, cEdgeKey)
-			aAppliedRules = @oDiagram.@aEdgesAffectedByRules[cEdgeKey]
-			
-			if HasKey(aAppliedRules, "style")
-				aAttrs + ('style="' + aAppliedRules["style"] + '"')
-			ok
-			
-			if HasKey(aAppliedRules, "color")
-				cColor = ResolveColor(aAppliedRules["color"])
-				aAttrs + ('color="' + cColor + '"')
-			ok
-			
-			if HasKey(aAppliedRules, "penwidth")
-				aAttrs + ('penwidth=' + aAppliedRules["penwidth"])
-			ok
-		ok
-		
-		if len(aAttrs) > 0
-			cOutput += ' [' + This._JoinAttributes(aAttrs) + ']'
-		ok
-		
-		cOutput += NL
-		return cOutput
+	    cFrom = This._SanitizeNodeId(aEdge["from"])
+	    cTo = This._SanitizeNodeId(aEdge["to"])
+	    cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
+	    
+	    cOutput = '    ' + cFrom + ' -> ' + cTo
+	    aAttrs = []
+	    
+	    # Check if this is a supervisor→helper edge
+	    if left(cTo, 8) = "_helper_"
+	        aAttrs + 'arrowhead=none'
+	        aAttrs + 'weight=10'
+	    ok
+	    
+	    if HasKey(aEdge, "label") and aEdge["label"] != "" and aEdge["label"] != NULL
+	        aAttrs + ('label="' + aEdge["label"] + '"')
+	    ok
+	    
+	    # Check edge properties
+	    if HasKey(aEdge, "properties")
+	        if HasKey(aEdge["properties"], "arrowhead")
+	            aAttrs + ('arrowhead=' + aEdge["properties"]["arrowhead"])
+	        ok
+	        if HasKey(aEdge["properties"], "weight")
+	            aAttrs + ('weight=' + aEdge["properties"]["weight"])
+	        ok
+	    ok
+	    
+	    # Check rule effects from parent
+	    if HasKey(@oDiagram.@aEdgesAffectedByRules, cEdgeKey)
+	        aAppliedRules = @oDiagram.@aEdgesAffectedByRules[cEdgeKey]
+	        
+	        if HasKey(aAppliedRules, "style")
+	            aAttrs + ('style="' + aAppliedRules["style"] + '"')
+	        ok
+	        
+	        if HasKey(aAppliedRules, "color")
+	            cColor = ResolveColor(aAppliedRules["color"])
+	            aAttrs + ('color="' + cColor + '"')
+	        ok
+	        
+	        if HasKey(aAppliedRules, "penwidth")
+	            aAttrs + ('penwidth=' + aAppliedRules["penwidth"])
+	        ok
+	    ok
+	    
+	    if len(aAttrs) > 0
+	        cOutput += ' [' + This._JoinAttributes(aAttrs) + ']'
+	    ok
+	    
+	    cOutput += NL
+	    return cOutput
 	
 	def _JoinAttributes(aAttrs)
 		cResult = ""
