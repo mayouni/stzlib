@@ -17,8 +17,8 @@
 <!-- start -->
 <g id="node1" class="node">
 <title>start</title>
-<ellipse fill="#332100" stroke="black" cx="21.62" cy="-34" rx="21.62" ry="21.62"/>
-<text xml:space="preserve" text-anchor="middle" x="21.62" y="-29.73" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">ON</text>
+<ellipse fill="#ffa500" stroke="black" cx="21.62" cy="-34" rx="21.62" ry="21.62"/>
+<text xml:space="preserve" text-anchor="middle" x="21.62" y="-29.73" font-family="Helvetica,sans-Serif" font-size="12.00">ON</text>
 </g>
 <!-- process -->
 <g id="node2" class="node">

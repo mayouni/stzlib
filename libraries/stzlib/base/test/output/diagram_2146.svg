@@ -12,14 +12,14 @@
 <!-- ceo -->
 <g id="node1" class="node">
 <title>ceo</title>
-<path fill="#c94dc9" stroke="black" d="M105,-144C105,-144 75,-144 75,-144 69,-144 63,-138 63,-132 63,-132 63,-120 63,-120 63,-114 69,-108 75,-108 75,-108 105,-108 105,-108 111,-108 117,-114 117,-120 117,-120 117,-132 117,-132 117,-138 111,-144 105,-144"/>
-<text xml:space="preserve" text-anchor="middle" x="90" y="-121.72" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">ceo</text>
+<path fill="#a3a3ff" stroke="black" d="M105,-144C105,-144 75,-144 75,-144 69,-144 63,-138 63,-132 63,-132 63,-120 63,-120 63,-114 69,-108 75,-108 75,-108 105,-108 105,-108 111,-108 117,-114 117,-120 117,-120 117,-132 117,-132 117,-138 111,-144 105,-144"/>
+<text xml:space="preserve" text-anchor="middle" x="90" y="-121.72" font-family="Helvetica,sans-Serif" font-size="12.00">ceo</text>
 </g>
 <!-- vp -->
 <g id="node2" class="node">
 <title>vp</title>
-<path fill="#c94dc9" stroke="black" d="M42,-36C42,-36 12,-36 12,-36 6,-36 0,-30 0,-24 0,-24 0,-12 0,-12 0,-6 6,0 12,0 12,0 42,0 42,0 48,0 54,-6 54,-12 54,-12 54,-24 54,-24 54,-30 48,-36 42,-36"/>
-<text xml:space="preserve" text-anchor="middle" x="27" y="-13.72" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">vp</text>
+<path fill="#a3a3ff" stroke="black" d="M42,-36C42,-36 12,-36 12,-36 6,-36 0,-30 0,-24 0,-24 0,-12 0,-12 0,-6 6,0 12,0 12,0 42,0 42,0 48,0 54,-6 54,-12 54,-12 54,-24 54,-24 54,-30 48,-36 42,-36"/>
+<text xml:space="preserve" text-anchor="middle" x="27" y="-13.72" font-family="Helvetica,sans-Serif" font-size="12.00">vp</text>
 </g>
 <!-- ceo&#45;&gt;vp -->
 <g id="edge1" class="edge">

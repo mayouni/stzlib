@@ -5,16 +5,18 @@
 #=====================================================
 
 $aOrgColors = [
-        :board = :gold,
-        :executive = :coral,
-        :operations = :blue,
-        :treasury = :green,
-        :risk = :orange,
-        :audit = :purple,
-        :hr = :pink,
-        :it = :cyan,
-        :sales = :blue,
-        :engineering = :green
+        :board = "gold",
+        :executive = "coral",
+        :operations = "blue",
+        :treasury = "green",
+        :risk = "orange",
+        :audit = "purple",
+        :hr = "pink",
+        :it = "cyan",
+        :sales = "blue",
+        :engineering = "green",
+
+	:focus = "magenta+"
 ]
 
 func IsStzOrgChart(pObj)
@@ -31,6 +33,11 @@ class stzOrgChart from stzDiagram
 	@aAnalysisLayers = []
 	@bUseInvisibleHelpers = TRUE
 
+	@cEdgeStyle = $cDefaultOrgChartEdgeStyle   # Defined in stzDiagram.ring
+	@cEdgeSpline = $cDefaultOrgChartEdgeSpline # Idem
+	@cEdgeColor = $cDefaultOrgChartEdgeColor  # Idem
+	#TODO// Add other options
+
 	def init(pcTitle)
 		super.init(pcTitle)
 
@@ -40,6 +47,9 @@ class stzOrgChart from stzDiagram
 	#==========================#
 	#  POSITION MANAGEMENT     #
 	#==========================#
+
+	def AddPosition(pcId)
+		This.AddPositionXTT(pcId, pcId, [])
 
 	def AddPositionXT(pcId, pcTitle)
 		This.AddPositionXTT(pcId, pcTitle, [])
@@ -63,9 +73,16 @@ class stzOrgChart from stzDiagram
 			:positionType = "position"
 		])
 
+	#---
+
+	def AddExecutivePosition(pcId)
+		This.AddExecutivePositionXT(pcId, pcId)
+
 	def AddExecutivePositionXT(pcId, pcTitle)
 	    This.AddPositionXTT(pcId, pcTitle, [:level = "executive"])
 	    This.SetNodeProperty(pcId, "color", :primary)  # Theme-aware
+
+	#---
 
 	def AddManagementPosition(pcId)
 		This.AddManagementPositionXT(pcId, pcId)
@@ -73,6 +90,15 @@ class stzOrgChart from stzDiagram
 	def AddManagementPositionXT(pcId, pcTitle)
 	    This.AddPositionXTT(pcId, pcTitle, [:level = "management"])
 	    This.SetNodeProperty(pcId, "color", :info)  # Theme-aware
+
+	#---
+
+	def AddStaffPosition(pcId)
+		This.AddStaffPositionXT(pcIde, pcId)
+
+	def AddStaffPositionXT(pcId, pcTitle)
+	    This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
+	    This.SetNodeProperty(pcId, "color", :success)  # Theme-aware
 
 	def AddStaffPositionXTT(pcId, pcTitle, paProp)
 		if NOT IsHashList(paprop)
@@ -93,9 +119,7 @@ class stzOrgChart from stzDiagram
 		This.AddPositionXTT(pcId, pcTitle, paProp)
 		This.SetNodeProperty(pcId, "color", "lightgreen")
 
-	def AddStaffPositionXT(pcId, pcTitle)
-	    This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
-	    This.SetNodeProperty(pcId, "color", :success)  # Theme-aware
+	#---
 
 	def ReportsTo(pcSubordinate, pcSupervisor)
 	    nPosCount = len(@aPositions)
@@ -109,6 +133,8 @@ class stzOrgChart from stzDiagram
 	    # Use standard connection - let Graphviz handle layout
 	    This.Connect(pcSupervisor, pcSubordinate)
 
+	#---
+
 	def SetPositionDepartment(pcPositionId, pcDepartment)
 		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
@@ -118,6 +144,8 @@ class stzOrgChart from stzDiagram
 			ok
 		end
 		This.SetNodeProperty(pcPositionId, "department", pcDepartment)
+
+	#---
 
 	def Position(pcId)
 		nPosCount = len(@aPositions)
@@ -153,6 +181,9 @@ class stzOrgChart from stzDiagram
 	#  PEOPLE MANAGEMENT       #
 	#==========================#
 
+	def AddPerson(pcId)
+		This.AddPersonXTT(pcId, pcId, [])
+
 	def AddPersonXT(pcId, pcName)
 		This.AddPersonXTT(pcId, pcName, [])
 
@@ -164,6 +195,8 @@ class stzOrgChart from stzDiagram
 			:data = paData
 		]
 		@aPeople + aPerson
+
+	#---
 
 	def AssignPerson(pcPersonId, pcPositionId)
 		nPosCount = len(@aPositions)
@@ -200,9 +233,18 @@ class stzOrgChart from stzDiagram
 	def People()
 		return @aPeople
 
+		def Persons()
+			return @aPeople
+
 	#==========================#
 	#  DEPARTMENT MANAGEMENT   #
 	#==========================#
+
+	def AddDepartment(pcId)
+		This.AddDepratmentXTT(pcId, pcId, [])
+
+	def AddDepartmentXT(pcId, pcName)
+		This.AddDepratmentXTT(pcId, pcName, [])
 
 	def AddDepartmentXTT(pcId, pcName, paPositions)
 		aDept = [
@@ -214,7 +256,7 @@ class stzOrgChart from stzDiagram
 		@aDepartments + aDept
 		
 		if len(paPositions) > 0
-			This.AddCluster(pcId, pcName, paPositions, "lightgray")
+			This.AddClusterXTT(pcId, pcName, paPositions, "lightgray")
 		ok
 
 	def Department(pcId)
@@ -253,9 +295,9 @@ class stzOrgChart from stzDiagram
 			@aAnalysisLayers[i].Apply()
 		end
 
-	#==========================#
-	#  COMPLIANCE & GOVERNANCE #
-	#==========================#
+	#===========================#
+	#  COMPLIANCE & GOVERNANCE  #
+	#===========================#
 
 	def ValidateBCEAOGovernance()
 		oValidator = new stzOrgChartBCEAOValidator(This)
@@ -284,14 +326,10 @@ class stzOrgChart from stzDiagram
 		return oValidator.Validate()
 
 	def DirectReportsCount(pcPositionId)
-		nCount = 0
-		nPosCount = len(@aPositions)
-		for i = 1 to nPosCount
-			if @aPositions[i][:reportsTo] = pcPositionId
-				nCount++
-			ok
-		end
-		return nCount
+		return len(This.DirectReports(pcPositionId))
+
+		def DirectReportsN(pcPositionId)
+			return This.DirectReportsCount(pcPositionId)
 
 	def DirectReports(pcPositionId)
 		acReports = []
@@ -469,9 +507,9 @@ class stzOrgChart from stzDiagram
 			ok
 		end
 
-	#==========================#
-	#  SCENARIOS & SIMULATIONS #
-	#==========================#
+	#===========================#
+	#  SCENARIOS & SIMULATIONS  #
+	#===========================#
 
 	def SimulateReorganization(paChanges)
 		oSimulation = new stzOrgChartSimulation(This)
@@ -488,25 +526,35 @@ class stzOrgChart from stzDiagram
 		]
 		return aSnapshot
 
-	#==========================#
-	#  VISUALIZATION           #
-	#==========================#
+	#=================#
+	#  VISUALIZATION  #
+	#=================#
+
+	def SetEdgeStyle(pcStyle)
+		@cEdgeStyle = pcStyle
+
+	def SetEdgeSpline(pcSpline)
+		@cEdgeSpline = pcSpline
+
+	def SetEdgeColor(pcColor)
+		@cEdgeColor = pcColor
+
+	#--
 
 	def ViewWithPeople()
-		# Include person names in visualization
-		oRule = new stzVisualRule("show_people")
-		oRule.WhenPropertyEquals("ispeople", TRUE)
-		oRule.ApplyColor("blue--")
-		This.SetVisualRule(oRule)
-		This.ApplyVisualRules()
+	    nPosCount = len(@aPositions)
+	    for i = 1 to nPosCount
+	        if NOT @aPositions[i][:isVacant]
+	            This.SetNodeProperty(@aPositions[i][:id], "color", $aOrgColors[:focus])
+	        ok
+	    end
+	    This.View()
 
-		
-		This.View()
 
 	def ViewVacancies()
 		# Highlight vacant positions
 		oRule = new stzVisualRule("highlight_vacant")
-		oRule.WhenPropertyEquals("isVacant", TRUE)
+		oRule.WhenPropertyEquals("isvacant", TRUE)
 		oRule.ApplyColor("red")
 		oRule.ApplyStyle("dashed")
 		This.SetVisualRule(oRule)
@@ -532,7 +580,7 @@ class stzOrgChart from stzDiagram
 		acPath = This.PathBetween(pcFromId, pcToId)
 		nPathCount = len(acPath)
 		for i = 1 to nPathCount
-			This.SetNodeProperty(acPath[i], "color", "yellow")
+			This.SetNodeProperty(acPath[i], "color", "yellow") #TODO //Abstract it!
 		end
 
 	#=====================================================
@@ -540,7 +588,8 @@ class stzOrgChart from stzDiagram
 	#=====================================================
 
 	def ToStzOrg()
-		cResult = 'orgchart "' + This.Id() + '"' + NL + NL
+		cResult = 'orgchart "' +
+			  This.Id() + '"' + NL + NL
 		
 		# Positions
 		cResult += "positions" + NL

@@ -284,42 +284,42 @@ oDiag {
 pf()
 
 /*--- Using direct names of forms to create nodes
-
+*/
 pr()
 
 oDiag = new stzDiagram("")
 oDiag {
 	# Rounded/Elliptical Shapes
-	AddCircle(:@Node1, "Circle")
-	AddDoubleCircle(:@Node2, "Double Circle")
-	AddEllipse(:@Node3, "Ellipse")
-	AddEgg(:@Node4, "Egg")
+	AddCircleXT(:@Node1, "Circle")
+	AddDoubleCircleXT(:@Node2, "Double Circle")
+	AddEllipseXT(:@Node3, "Ellipse")
+	AddEggXT(:@Node4, "Egg")
 	
 	# Quadrilateral Shapes
-	AddSquare(:@Node5, "Square")
-	AddRect(:@Node6, "Rect")
-	AddBox(:@Node7, "Box")
-	AddParallelogram(:@Node8, "Parallelogram")
-	AddTrapezium(:@Node9, "Trapezium")
-	AddInvTrapezium(:@Node10, "Inverted Trapezium")
-	AddDiamond(:@Node11, "Diamond")
+	AddSquareXT(:@Node5, "Square")
+	AddRectXT(:@Node6, "Rect")
+	AddBoxXT(:@Node7, "Box")
+	AddParallelogramXT(:@Node8, "Parallelogram")
+	AddTrapeziumXT(:@Node9, "Trapezium")
+	AddInvTrapeziumXT(:@Node10, "Inverted Trapezium")
+	AddDiamondXT(:@Node11, "Diamond")
 	
 	# Polygon Shapes
-	AddTriangle(:@Node12, "Triangle")
-	AddInvTriangle(:@Node13, "Inverted Triangle")
-	AddPentagon(:@Node14, "Pentagon")
-	AddHexagon(:@Node15, "Hexagon")
-	AddSeptagon(:@Node16, "Septagon")
-	AddOctagon(:@Node17, "Octagon")
-	AddTripleOctagon(:@Node18, "Triple Octagon")
+	AddTriangleXT(:@Node12, "Triangle")
+	AddInvTriangleXT(:@Node13, "Inverted Triangle")
+	AddPentagonXT(:@Node14, "Pentagon")
+	AddHexagonXT(:@Node15, "Hexagon")
+	AddSeptagonXT(:@Node16, "Septagon")
+	AddOctagonXT(:@Node17, "Octagon")
+	AddTripleOctagonXT(:@Node18, "Triple Octagon")
 	
 	# Non-geometric/Conceptual Shapes
-	AddCylinder(:@Node19, "Cylinder")
-	AddHouse(:@Node20, "House")
-	AddTab(:@Node21, "Tab")
-	AddFolder(:@Node22, "Folder")
-	AddComponent(:@Node23, "Component")
-	AddNoteXT(:@Node24, "Note", :Yellow)
+	AddCylinderXT(:@Node19, "Cylinder")
+	AddHouseXT(:@Node20, "House")
+	AddTabXT(:@Node21, "Tab")
+	AddFolderXT(:@Node22, "Folder")
+	AddComponentXT(:@Node23, "Component")
+	AddNoteXTT(:@Node24, "Note", [ :color = "yellow" ])
 
 	View()
 }
@@ -681,8 +681,8 @@ oDiag.AddNodeXTT("user_db", "User DB", [ :color = "storage", :type = "success" ]
 oDiag.AddNodeXTT("order_api", "Order API", [ :color = "process", :type = "info" ])
 oDiag.AddNodeXTT("order_db", "Order DB", [ :color = "storage", :type = "info" ])
 
-oDiag.AddCluster("users", "User Domain", ["user_api", "user_db"], :LightGreen)
-oDiag.AddCluster("orders", "Order Domain", ["order_api", "order_db"], :Lightblue)
+oDiag.AddClusterXTT("users", "User Domain", ["user_api", "user_db"], :LightGreen)
+oDiag.AddClusterXTT("orders", "Order Domain", ["order_api", "order_db"], :Lightblue)
 
 ? len(oDiag.Clusters()) #--> 2
 
@@ -700,7 +700,7 @@ oDiag = new stzDiagram("ClusterInfo")
 oDiag.AddNodeXTT("a", "A", [ :type = "process", :color = "primary" ])
 oDiag.AddNodeXTT("b", "B", [ :type = "process", :color = "primary" ])
 
-oDiag.AddCluster("domain1", "My Domain", ["a", "b"], "lightblue")
+oDiag.AddClusterXTT("domain1", "My Domain", ["a", "b"], "lightblue")
 
 aClusters = oDiag.Clusters()
 aCluster = aClusters[1]
@@ -1001,7 +1001,7 @@ pr()
 oDiag = new stzDiagram("ClusterTest")
 oDiag.AddNodeXT("api", "API", :Process, :success)
 oDiag.AddNodeXT("db", "DB", :Storage, :success)
-oDiag.AddCluster("domain", "Service Domain", ["api", "db"], "lightblue")
+oDiag.AddClusterXTT("domain", "Service Domain", ["api", "db"], "lightblue")
 
 ? oDiag.stzdiag()
 #-->

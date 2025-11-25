@@ -2,9 +2,9 @@
 load "../stzbase.ring"
 
 
-#----------------------#
-# BASIC STRUCTURE CREATION #
-#----------------------#
+#----------------------------#
+#  BASIC STRUCTURE CREATION  #
+#----------------------------#
 
 /*-- Tests adding positions, executive/management/staff levels, reporting lines, and basic DOT generation.
 
@@ -43,9 +43,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# PEOPLE MANAGEMENT #
-#----------------------#
+#---------------------#
+#  PEOPLE MANAGEMENT  #
+#---------------------#
 
 /*-- Tests adding people, assigning to positions, person data, vacancy status, and people listing.
 
@@ -54,31 +54,76 @@ pr()
 oOrg = new stzOrgChart("People_Management")
 oOrg {
 
-    AddPositionXT("ceo", "CEO")
-    AddPositionXT("vp", "VP")
+    AddPosition("ceo")
+    AddPosition("vp")
+    AddPosition("cto")
+
+    ReportsTo("vp", "ceo")
+    ReportsTo("cto", "ceo")
 
     # Add people with data
     AddPersonXTT("p1", "John Doe", [:tenure = 5, :performance = "High"])
     AddPersonXT("p2", "Jane Smith")
 
-    # Assign people
+    # Assign people to positions
     AssignPerson("p1", "ceo")
     AssignPerson("p2", "vp")
 
     # Verify assignments and data
-    ? @@(People())
-    ? PersonData("p1")
-    ? @@(VacantPositions())  # Should be empty
+    ? @@NL(People()) + NL
+	#-->
+	'
+	[
+		[
+			[ "id", "p1" ],
+			[ "name", "John Doe" ],
+			[ "position", "ceo" ],
+			[
+				"data",
+				[
+					[ "tenure", 5 ],
+					[ "performance", "High" ]
+				]
+			]
+		],
+		[
+			[ "id", "p2" ],
+			[ "name", "Jane Smith" ],
+			[ "position", "vp" ],
+			[ "data", [  ] ]
+		]
+	]
+	'
 
-    # View with people
-    ViewWithPeople() #ERR
+    ? @@NL( PersonData("p1") ) + NL
+	#-->
+	'
+	[
+		[ "id", "p1" ],
+		[ "name", "John Doe" ],
+		[ "position", "ceo" ],
+		[
+			"data",
+			[
+				[ "tenure", 5 ],
+				[ "performance", "High" ]
+			]
+		]
+	]
+	'
+
+    ? @@(VacantPositions())
+	#--> [ "cto" ]
+
+    # View with nodes containing people amphasized with $aOrColors[:focus]
+    ViewWithPeople()
 }
 
 pf()
 
-#----------------------#
-# DEPARTMENT MANAGEMENT #
-#----------------------#
+#-------------------------#
+#  DEPARTMENT MANAGEMENT  #
+#-------------------------#
 
 /*-- Tests adding departments, assigning positions to departments,
 # and department queries.
@@ -92,6 +137,9 @@ oOrg {
     AddPositionXT("sales_mgr", "Sales Manager")
     AddPositionXT("eng_mgr", "Engineering Manager")
 
+    ReportsTo("sales_mgr", "ceo")
+    ReportsTo("eng_mgr", "ceo")
+
     # Add departments with positions
     AddDepartmentXTT("sales", "Sales Dept", ["sales_mgr"])
     AddDepartmentXTT("eng", "Engineering Dept", ["eng_mgr"])
@@ -101,17 +149,18 @@ oOrg {
     SetPositionDepartment("sales_mgr", "sales")
 
     # Verify
-    ? Departments()
-    ? Department("sales")
+    ? @@NL( Departments() ) + NL
 
-    ViewByDepartment() #ERR //Edges are not displayed!
+    ? @@NL( Department("sales") )
+
+    ViewByDepartment() #TODO// What is the significance of colors?
 }
 
 pf()
 
-#----------------------#
-# ANALYSIS LAYERS #
-#----------------------#
+#-------------------#
+#  ANALYSIS LAYERS  #
+#-------------------#
 
 /*-- Tests adding and applying analysis layers of different types.
 
@@ -138,7 +187,7 @@ oOrg {
     View()
 
     #TODO // But what is the impact of those layers and how to check it
-    # ny data (calling methods) and in the visualisation?
+    # by data (calling methods) and in the visualisation?
 }
 
 pf()
@@ -319,7 +368,7 @@ oOrg {
 	ColorByDepartment()
 	? "✓ Color-coded by department"
 	
-	HighlightPath("ops_analyst1", "board") #ERR //No effect in the visual
+	HighlightPath("ops_analyst1", "ceo") #ERR //No effect in the visual
 	? "✓ Highlighted reporting path to board" + NL
 
 	? "Opening visualization..."
@@ -328,9 +377,9 @@ oOrg {
 }
 pf()
 
-#----------------------#
-# VALIDATION AND COMPLIANCE #
-#----------------------#
+#----------------------------#
+# VALIDATION AND COMPLIANCE  #
+#----------------------------#
 
 /*-- Tests BCEAO governance, span of control, segregation of duties validations, and direct reports metrics.
 
@@ -338,6 +387,8 @@ pr()
 
 oOrg = new stzOrgChart("Validation_Compliance")
 oOrg {
+
+    SetEdgeSpline("ortho") #TODO not effective
 
     AddExecutivePositionXT("board", "Board")
     AddExecutivePositionXT("ceo", "CEO")
@@ -362,22 +413,84 @@ oOrg {
     SetPositionDepartment("dir_treasury", "treasury")
 
     # Validate
-    ? ValidateBCEAOGovernance()
-    ? ValidateSpanOfControl()
-    ? ValidateSegregationOfDuties()
+    ? @@NL( ValidateBCEAOGovernance() ) + NL #TODO// Abstract
+	#-->
+	'
+	[
+		[ "status", "fail" ],
+		[ "domain", "BCEAO_governance" ],
+		[ "issuecount", 1 ],
+		[
+			"issues",
+			[
+				"BCEAO-003: No dedicated Risk Management function"
+			]
+		]
+	]
+	'
+
+    ? @@NL( ValidateSpanOfControl() ) + NL
+	#-->
+	'
+	[
+		[ "status", "fail" ],
+		[ "domain", "span_of_control" ],
+		[
+			"issues",
+			[
+				"Excessive span: ",
+				"dir_ops",
+				" (",
+				10,
+				" reports)"
+			]
+		]
+	]
+'
+
+    ? @@NL( ValidateSegregationOfDuties() ) + NL
+	#-->
+	'
+	[
+		[ "status", "pass" ],
+		[ "domain", "segregation_of_duties" ],
+		[ "issuecount", 0 ],
+		[ "issues", [  ] ]
+	]
+	'
+
 
     # Metrics
-    ? DirectReportsCount("dir_ops")
-    ? DirectReports("dir_ops")
 
-    View() #ERR // edges not orthogonal!!!
+    ? DirectReportsCount("dir_ops")
+    #--> 10
+
+    ? @@NL( DirectReports("dir_ops") )
+	#-->
+	'
+	[
+		"staff1",
+		"staff2",
+		"staff3",
+		"staff4",
+		"staff5",
+		"staff6",
+		"staff7",
+		"staff8",
+		"staff9",
+		"staff10"
+	]
+	'
+	
+    View()
+
 }
 
 pf()
 
-#----------------------#
-# REPORTING AND ANALYTICS #
-#----------------------#
+#--------------------------#
+# REPORTING AND ANALYTICS  #
+#--------------------------#
 
 /*-- Tests organizational metrics and all report types.
 
@@ -399,6 +512,7 @@ oOrg {
 
     # Leave some vacant
     AddPositionXT("vacant1", "Vacant Position")
+    ReportsTo("vacant1", "ceo")
 
     # Add people to some
     AddPersonXT("p1", "Person 1")
@@ -591,15 +705,15 @@ oOrg {
 		]
 	]
 '
-	View() # Check why Vacant Position node is not linked in the visual
+	View()
 }
 
 pf()
 # Executed in 0.08 second(s) in Ring 1.24
 
-#----------------------#
-# ORGANIZATIONAL CHANGES #
-#----------------------#
+#-------------------------#
+# ORGANIZATIONAL CHANGES  #
+#-------------------------#
 
 /*-- Tests reassigning people, removing positions, changing reporting lines.
 
@@ -659,9 +773,9 @@ oOrg {
 pf()
 # Executed in 1.59 second(s) in Ring 1.24
 
-#----------------------#
+#---------------------------#
 # SIMULATIONS AND SNAPSHOTS #
-#----------------------#
+#---------------------------#
 
 /*-- Tests simulating reorganizations and creating snapshots.
 
@@ -777,9 +891,9 @@ oOrg {
 pf()
 # Executed in 0.03 second(s) in Ring 1.24
 
-#----------------------#
-# VISUALIZATION FEATURES #
-#----------------------#
+#--------------------------#
+#  VISUALIZATION FEATURES  #
+#--------------------------#
 
 /*-- Tests visualization options, branching, views, coloring, highlighting.
 
@@ -806,7 +920,7 @@ oOrg {
     ColorByDepartment()
 
     # Highlight path
-    HighlightPath("staff1", "ceo")
+    HighlightPath("staff1", "ceo") #ERR // No effect!
 
     # Different views
     ViewWithPeople()
@@ -816,9 +930,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# EDGE CASE: EMPTY CHART #
-#----------------------#
+#-------------------------#
+#  EDGE CASE: EMPTY CHART #
+#-------------------------#
 
 /*-- Tests behavior with no positions, people, or departments.
 
@@ -855,9 +969,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# EDGE CASE: SINGLE POSITION #
-#----------------------#
+#-----------------------------#
+# EDGE CASE: SINGLE POSITION  #
+#-----------------------------#
 
 /*-- Tests chart with only one position.
 
@@ -910,9 +1024,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# EDGE CASE: DUPLICATE POSITIONS #
-#----------------------#
+#---------------------------------#
+# EDGE CASE: DUPLICATE POSITIONS  #
+#---------------------------------#
 
 /*-- Tests adding position with existing ID.
 
@@ -956,9 +1070,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# EDGE CASE: INVALID REPORTING #
-#----------------------#
+#-------------------------------#
+# EDGE CASE: INVALID REPORTING  #
+#-------------------------------#
 
 /*-- Tests reporting to non-existent supervisor.
 
@@ -988,9 +1102,9 @@ digraph "Invalid_Reporting" {
 
 pf()
 
-#----------------------#
-# EDGE CASE: CYCLE IN HIERARCHY #
-#----------------------#
+#---------------------------------#
+#  EDGE CASE: CYCLE IN HIERARCHY  #
+#---------------------------------#
 
 /*-- Tests creating a reporting cycle.
 
@@ -1013,9 +1127,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# EDGE CASE: REMOVE ASSIGNED POSITION #
-#----------------------#
+#---------------------------------------#
+#  EDGE CASE: REMOVE ASSIGNED POSITION  #
+#---------------------------------------#
 
 /*-- Tests removing position with assigned person.
 
@@ -1048,9 +1162,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# EDGE CASE: INVALID ASSIGNMENTS #
-#----------------------#
+#---------------------------------#
+# EDGE CASE: INVALID ASSIGNMENTS  #
+#---------------------------------#
 
 /*-- Tests assigning invalid person or position.
 
@@ -1093,9 +1207,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# EDGE CASE: WIDE HIERARCHY #
-#----------------------#
+#----------------------------#
+# EDGE CASE: WIDE HIERARCHY  #
+#----------------------------#
 
 /*-- Tests manager with many direct reports.
 
@@ -1136,9 +1250,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# EDGE CASE: DEEP HIERARCHY #
-#----------------------#
+#----------------------------#
+# EDGE CASE: DEEP HIERARCHY  #
+#----------------------------#
 
 /*-- Tests long chain of reports.
 
@@ -1164,9 +1278,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# EDGE CASE: SPECIAL CHARACTERS #
-#----------------------#
+#--------------------------------#
+# EDGE CASE: SPECIAL CHARACTERS  #
+#--------------------------------#
 
 /*-- Tests IDs and titles with special chars.
 
@@ -1186,9 +1300,9 @@ oOrg {
 
 pf()
 
-#----------------------#
+#-----------------------------#
 # EDGE CASE: EMPTY DEPARTMENT #
-#----------------------#
+#-----------------------------#
 
 /*-- Tests department with no positions.
 
@@ -1214,9 +1328,9 @@ oOrg {
 
 pf()
 
-#----------------------#
+#------------------------------#
 # EDGE CASE: UNASSIGNED PEOPLE #
-#----------------------#
+#------------------------------#
 
 /*-- Tests people not assigned to positions.
 
@@ -1253,9 +1367,9 @@ oOrg {
 
 pf()
 
-#----------------------#
+#--------------------------#
 # EDGE CASE: INVALID LAYER #
-#----------------------#
+#--------------------------#
 
 /*-- Tests unknown analysis layer type.
 
@@ -1271,9 +1385,9 @@ oOrg {
 
 pf()
 
-#----------------------#
+#-------------------------------#
 # EDGE CASE: INVALID SIMULATION #
-#----------------------#
+#-------------------------------#
 
 /*-- Tests simulation with unknown change type.
 
@@ -1317,9 +1431,9 @@ oOrg {
 
 pf()
 
-#----------------------#
+#---------------------------#
 # EDGE CASE: EMPTY SNAPSHOT #
-#----------------------#
+#---------------------------#
 
 /*-- Tests snapshot of empty chart.
 
@@ -1344,9 +1458,9 @@ oOrg {
 
 pf()
 
-#----------------------#
+#-------------------------------------#
 # PARENT FEATURES: STZGRAPH TRAVERSAL #
-#----------------------#
+#-------------------------------------#
 
 /*-- Tests graph traversal methods from stzGraph.
 
@@ -1386,9 +1500,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# PARENT FEATURES: STZGRAPH ANALYSIS #
-#----------------------#
+#--------------------------------------#
+#  PARENT FEATURES: STZGRAPH ANALYSIS  #
+#--------------------------------------#
 
 /*-- Tests graph analysis methods from stzGraph.
 
@@ -1444,9 +1558,9 @@ oOrg {
 
 pf()
 
-#----------------------#
-# PARENT FEATURES: STZDIAGRAM VISUALIZATION #
-#----------------------#
+#---------------------------------------------#
+#  PARENT FEATURES: STZDIAGRAM VISUALIZATION  #
+#---------------------------------------------#
 
 /*-- Tests diagram-specific features like shapes, clusters, validation.
 
@@ -1458,32 +1572,32 @@ pr()
 oOrg = new stzOrgChart("Diagram_Features")
 oOrg {
 
-    SetTheme("dark") #ERR // Theme has no effect!
     SetLayout("leftright")
 
     # Use different shapes from stzDiagram
-    AddCircle("start", "Start")
-    AddBoxXT("process", "Process", "blue")
-    AddDiamond("decision", "Decision")
-    AddDoubleCircle("end", "End")
+    AddCircleXTT(:start, "ON", [:color = "green"])
 
-    Connect("start", "process")
-    Connect("process", "decision")
-    ConnectXT("decision", "end", "Yes")
+    AddBoxXTT(:process, "Process", [ :color = "blue" ])
+    AddDiamondXT(:decision, "Decision")
+    AddDoubleCircleXT(:end, "End")
+
+    Connect(:start, :process)
+    Connect(:process, :decision)
+    ConnectXT(:decision, :end, "Yes")
 
     # Add cluster
-    AddCluster("group1", "Group 1", ["process", "decision"], "lightblue")
+    AddClusterXT(:group1, "Group 1", [ :process, :decision])
 
     # Validate diagram (from stzDiagram)
-    ? Validate("dag")  #--> TRUE
+    ? Validate(:DAG)  #--> TRUE
 
     # Set visual rule
-    oRule = new stzVisualRule("highlight_start")
+    oRule = new stzVisualRule(:HighlightStart)
     oRule.When("type", :Equals = "start")
     oRule.ApplyColor("green")
     SetVisualRule(oRule)
 
-    ApplyVisualRules() #ERR // Not applied!
+    ApplyVisualRules()
 
     # View
     View()
@@ -1492,9 +1606,9 @@ oOrg {
 
 pf()
 
-#----------------------#
+#---------------------------------#
 # PARENT FEATURES: STZGRAPH RULES #
-#----------------------#
+#---------------------------------#
 
 
 /*--
@@ -1556,9 +1670,9 @@ oOrg {
 
 pf()
 
-#----------------------#
+#------------------------------------------#
 # EDGE CASE: CYCLE DETECTION FROM STZGRAPH #
-#----------------------#
+#------------------------------------------#
 
 /*-- Tests cycle detection.
 
@@ -1588,7 +1702,7 @@ pf()
 #----------------------#
 
 /*-- Tests exporting to .stzorg and importing back.
-*/
+
 pr()
 
 oOrg = new stzOrgChart("Export_Import_Test")

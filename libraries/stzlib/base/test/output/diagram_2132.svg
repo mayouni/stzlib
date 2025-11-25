@@ -11,13 +11,13 @@
 <polygon fill="white" stroke="none" points="-4,4 -4,-94 514.05,-94 514.05,4 -4,4"/>
 <g id="clust1" class="cluster">
 <title>cluster_group1</title>
-<polygon fill="#4d4dc9" fill-opacity="0.125490" stroke="#4d4dc9" points="108.25,-8 108.25,-82 370.53,-82 370.53,-8 108.25,-8"/>
+<polygon fill="#a3a3ff" fill-opacity="0.125490" stroke="#a3a3ff" points="108.25,-8 108.25,-82 370.53,-82 370.53,-8 108.25,-8"/>
 <text xml:space="preserve" text-anchor="middle" x="239.39" y="-66.6" font-family="Helvetica,sans-Serif" font-size="12.00">Group 1</text>
 </g>
 <!-- start -->
 <g id="node1" class="node">
 <title>start</title>
-<ellipse fill="#332100" stroke="black" cx="21.62" cy="-34" rx="21.62" ry="21.62"/>
+<ellipse fill="#008000" stroke="black" cx="21.62" cy="-34" rx="21.62" ry="21.62"/>
 <text xml:space="preserve" text-anchor="middle" x="21.62" y="-29.73" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">ON</text>
 </g>
 <!-- process -->

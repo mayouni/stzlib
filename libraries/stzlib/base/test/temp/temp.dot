@@ -1,7 +1,7 @@
 digraph "Imported" {
-    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=ortho, nodesep=1, ranksep=1, ordering=out]
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=1, ranksep=1, ordering=out]
     node [fontname="helvetica", fontsize=12]
-    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+    edge [fontname="helvetica", fontsize=12, color="#808080", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
     ceo [label="", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
 
