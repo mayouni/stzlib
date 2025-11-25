@@ -96,7 +96,9 @@ $acNodeTypes = [
 
 # Default node type and color
 $cDefaultNodeType = "process"
-$cDefaultNodeColor = :white
+$cDefaultNodeColor = "white"
+
+$cDefaultClusterColor = "blue-"
 
 # Edge styles
 $acEdgeStyles = [
@@ -108,6 +110,12 @@ $acEdgeStyles = [
 
 $cDefaultEdgeStyle = "normal"
 $cDefaultEdgeColor = "black"
+#TODO Add $cDefaultEdgeSpline = "spline" or "ortho" ...
+
+$cDefaultOrgChartEdgeStyle = "normal"
+$cDefaultOrgChartEdgeSpline = "spline"
+$cDefaultOrgChartEdgeColor = "gray"
+
 
 #---
 
@@ -844,19 +852,20 @@ class stzDiagram from stzGraph
 	def SetLayoutPreset(pcPreset)
 	    switch lower(pcPreset)
 	    on "orgchart"
-	        This.SetSplines("ortho")
+		This.SetEdgeColor($cDefaultOrgChartEdgeColor)
+	        This.SetSplines($cDefaultOrgChartEdgeSpline)
 	        This.SetNodeSeparation(1.0)   # Increased for side-by-side
 	        This.SetRankSeparation(1.0)   # Increased for vertical clarity
 	        This.SetConcentrate(FALSE)
 	        
 	    on "orgchart_compact"
-	        This.SetSplines("ortho")
+	        This.SetSplines("spline")
 	        This.SetNodeSeparation(0.6)
 	        This.SetRankSeparation(0.8)
 	        This.SetConcentrate(FALSE)
 	        
 	    on "compact"
-	        This.SetSplines("ortho")
+	        This.SetSplines("spline")
 	        This.SetNodeSeparation(0.3)
 	        This.SetRankSeparation(0.5)
 	        This.SetConcentrate(TRUE)
@@ -919,7 +928,7 @@ class stzDiagram from stzGraph
 	
 	def EdgeColor()
 		return @cEdgeColor
-	
+
 	def NodeStrokeColor()
 		return @cNodeStrokeColor
 	
@@ -964,261 +973,359 @@ class stzDiagram from stzGraph
 		cResult = oResolver.ConvertColorTogray(cColor)
 		return cResult
 
-	#-------------------------------------
-	#  ADDING SPECIFIC FORMS OF NODES (ALL SUPPORTED FORMS IN GRAPHVIZ DOT LANGAUGE)
-	#--------------------------------------
-
-	#NOTE // We can add nodes using paren stzGraph methods AddNode(), AddNodeXT() and AddNodeXTT()
-
-	# Rounded/Elliptical Shapes
-	def AddCircle(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :circle, :color = :white])
+	#---------------------------------------------------------------------------------#
+	# ADDING SPECIFIC FORMS OF NODES (ALL SUPPORTED FORMS IN GRAPHVIZ DOT LANGAUGE) #
+	#---------------------------------------------------------------------------------#
 	
-	def AddCircleXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :circle, :color = pcColor])
+	#NOTE // We can add nodes using parent stzGraph methods AddNode(), AddNodeXT() and AddNodeXTT()
+	
+	# Rounded/Elliptical Shapes
+	
+	def AddCircle(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :circle, :color = $cDefaultNodeColor])
+	
+	def AddCircleXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :circle, :color = $cDefaultNodeColor])
 	
 	def AddCircleXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :circle ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :circle
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddDoubleCircle(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :doublecircle, :color = :white])
+	#--
 	
-	def AddDoubleCircleXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :doublecircle, :color = pcColor])
+	def AddDoubleCircle(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :doublecircle, :color = $cDefaultNodeColor])
+	
+	def AddDoubleCircleXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :doublecircle, :color = $cDefaultNodeColor])
 	
 	def AddDoubleCircleXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :doublecircle ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :doublecircle
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddEllipse(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :ellipse, :color = :white])
+	#--
 	
-	def AddEllipseXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :ellipse, :color = pcColor])
+	def AddEllipse(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :ellipse, :color = $cDefaultNodeColor])
+	
+	def AddEllipseXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :ellipse, :color = $cDefaultNodeColor])
 	
 	def AddEllipseXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :ellipse ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :ellipse
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddEgg(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :egg, :color = :white])
+	#--
 	
-	def AddEggXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :egg, :color = pcColor])
+	def AddEgg(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :egg, :color = $cDefaultNodeColor])
+	
+	def AddEggXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :egg, :color = $cDefaultNodeColor])
 	
 	def AddEggXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :egg ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :egg
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	# Quadrilateral Shapes
-	def AddSquare(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :square, :color = :white])
 	
-	def AddSquareXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :square, :color = pcColor])
+	def AddSquare(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :square, :color = $cDefaultNodeColor])
+	
+	def AddSquareXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :square, :color = $cDefaultNodeColor])
 	
 	def AddSquareXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :square ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :square
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddRect(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :rect, :color = :white])
+	#--
 	
-	def AddRectXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :rect, :color = pcColor])
+	def AddRect(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :rect, :color = $cDefaultNodeColor])
+	
+	def AddRectXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :rect, :color = $cDefaultNodeColor])
 	
 	def AddRectXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :rect ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :rect
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddBox(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :box, :color = :white])
+	#--
 	
-	def AddBoxXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :box, :color = pcColor])
+	def AddBox(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :box, :color = $cDefaultNodeColor])
+	
+	def AddBoxXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :box, :color = $cDefaultNodeColor])
 	
 	def AddBoxXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :box ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :box
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddParallelogram(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :parallelogram, :color = :white])
+	#--
 	
-	def AddParallelogramXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :parallelogram, :color = pcColor])
+	def AddParallelogram(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :parallelogram, :color = $cDefaultNodeColor])
+	
+	def AddParallelogramXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :parallelogram, :color = $cDefaultNodeColor])
 	
 	def AddParallelogramXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :parallelogram ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :parallelogram
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddTrapezium(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :trapezium, :color = :white])
+	#--
 	
-	def AddTrapeziumXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :trapezium, :color = pcColor])
+	def AddTrapezium(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :trapezium, :color = $cDefaultNodeColor])
+	
+	def AddTrapeziumXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :trapezium, :color = $cDefaultNodeColor])
 	
 	def AddTrapeziumXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :trapezium ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :trapezium
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddInvTrapezium(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :invtrapezium, :color = :white])
+	#--
 	
-	def AddInvTrapeziumXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :invtrapezium, :color = pcColor])
+	def AddInvTrapezium(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :invtrapezium, :color = $cDefaultNodeColor])
+	
+	def AddInvTrapeziumXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :invtrapezium, :color = $cDefaultNodeColor])
 	
 	def AddInvTrapeziumXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :invtrapezium ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :invtrapezium
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddDiamond(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :diamond, :color = :white])
+	#--
 	
-	def AddDiamondXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :diamond, :color = pcColor])
+	def AddDiamond(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :diamond, :color = $cDefaultNodeColor])
+	
+	def AddDiamondXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :diamond, :color = $cDefaultNodeColor])
 	
 	def AddDiamondXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :diamond ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :diamond
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	# Polygon Shapes
-	def AddTriangle(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :triangle, :color = :white])
 	
-	def AddTriangleXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :triangle, :color = pcColor])
+	def AddTriangle(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :triangle, :color = $cDefaultNodeColor])
+	
+	def AddTriangleXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :triangle, :color = $cDefaultNodeColor])
 	
 	def AddTriangleXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :triangle ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :triangle
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddInvTriangle(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :invtriangle, :color = :white])
+	#--
 	
-	def AddInvTriangleXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :invtriangle, :color = pcColor])
+	def AddInvTriangle(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :invtriangle, :color = $cDefaultNodeColor])
+	
+	def AddInvTriangleXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :invtriangle, :color = $cDefaultNodeColor])
 	
 	def AddInvTriangleXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :invtriangle ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :invtriangle
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddPentagon(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :pentagon, :color = :white])
+	#--
 	
-	def AddPentagonXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :pentagon, :color = pcColor])
+	def AddPentagon(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :pentagon, :color = $cDefaultNodeColor])
+	
+	def AddPentagonXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :pentagon, :color = $cDefaultNodeColor])
 	
 	def AddPentagonXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :pentagon ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :pentagon
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddHexagon(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :hexagon, :color = :white])
+	#--
 	
-	def AddHexagonXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :hexagon, :color = pcColor])
+	def AddHexagon(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :hexagon, :color = $cDefaultNodeColor])
+	
+	def AddHexagonXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :hexagon, :color = $cDefaultNodeColor])
 	
 	def AddHexagonXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :hexagon ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :hexagon
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddSeptagon(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :septagon, :color = :white])
+	#--
 	
-	def AddSeptagonXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :septagon, :color = pcColor])
+	def AddSeptagon(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :septagon, :color = $cDefaultNodeColor])
+	
+	def AddSeptagonXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :septagon, :color = $cDefaultNodeColor])
 	
 	def AddSeptagonXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :septagon ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :septagon
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddOctagon(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :octagon, :color = :white])
+	#--
 	
-	def AddOctagonXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :octagon, :color = pcColor])
+	def AddOctagon(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :octagon, :color = $cDefaultNodeColor])
+	
+	def AddOctagonXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :octagon, :color = $cDefaultNodeColor])
 	
 	def AddOctagonXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :octagon ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :octagon
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddTripleOctagon(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :tripleoctagon, :color = :white])
+	#--
 	
-	def AddTripleOctagonXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :tripleoctagon, :color = pcColor])
+	def AddTripleOctagon(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :tripleoctagon, :color = $cDefaultNodeColor])
+	
+	def AddTripleOctagonXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :tripleoctagon, :color = $cDefaultNodeColor])
 	
 	def AddTripleOctagonXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :tripleoctagon ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :tripleoctagon
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	# Non-geometric/Conceptual Shapes
-	def AddCylinder(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :cylinder, :color = :white])
 	
-	def AddCylinderXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :cylinder, :color = pcColor])
+	def AddCylinder(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :cylinder, :color = $cDefaultNodeColor])
+	
+	def AddCylinderXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :cylinder, :color = $cDefaultNodeColor])
 	
 	def AddCylinderXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :cylinder ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :cylinder
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddHouse(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :house, :color = :white])
+	#--
 	
-	def AddHouseXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :house, :color = pcColor])
+	def AddHouse(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :house, :color = $cDefaultNodeColor])
+	
+	def AddHouseXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :house, :color = $cDefaultNodeColor])
 	
 	def AddHouseXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :house ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :house
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddTab(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :tab, :color = :white])
+	#--
 	
-	def AddTabXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :tab, :color = pcColor])
+	def AddTab(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :tab, :color = $cDefaultNodeColor])
+	
+	def AddTabXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :tab, :color = $cDefaultNodeColor])
 	
 	def AddTabXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :tab ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :tab
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddFolder(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :folder, :color = :white])
+	#--
 	
-	def AddFolderXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :folder, :color = pcColor])
+	def AddFolder(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :folder, :color = $cDefaultNodeColor])
+	
+	def AddFolderXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :folder, :color = $cDefaultNodeColor])
 	
 	def AddFolderXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :folder ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :folder
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddComponent(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :component, :color = :white])
+	#--
 	
-	def AddComponentXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :component, :color = pcColor])
+	def AddComponent(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :component, :color = $cDefaultNodeColor])
+	
+	def AddComponentXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :component, :color = $cDefaultNodeColor])
 	
 	def AddComponentXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :component ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :component
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
-	def AddNote(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :note, :color = :yellow])
+	#--
 	
-	def AddNoteXT(pcId, pcLabel, pcColor)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :note, :color = pcColor])
+	def AddNote(pcId)
+		This.AddNodeXTT(pcId, pcId, [:type = :note, :color = $cDefaultNodeColor])
+	
+	def AddNoteXT(pcId, pcLabel)
+		This.AddNodeXTT(pcId, pcLabel, [:type = :note, :color = $cDefaultNodeColor])
 	
 	def AddNoteXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type) paProps[:type] = :note ok
+		if NOT HasKey(paProps, :type)
+			paProps[:type] = :note
+		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 
 	#------------------------------------------
 	#  CLUSTER OPERATIONS
 	#------------------------------------------
 
-	def AddCluster(pClusterId, pLabel, aNodeIds, pColor)
+	def AddCluster(pClusterId, aNodeIds)
+		This.AddClusterXT(pClusterId, pClusterId, aNodeIds)
+
+	def AddClusterXT(pClusterId, pLabel, aNodeIds)
+		This.AddClusterXTT(pClusterId, pLabel, aNodeIds, $cDefaultClusterColor)
+
+	def AddClusterXTT(pClusterId, pLabel, aNodeIds, pColor)
 		oCluster = [
 			:id = pClusterId,
 			:label = pLabel,
@@ -1255,7 +1362,7 @@ class stzDiagram from stzGraph
 	#  TEMPLATE OPERATIONS
 	#------------------------------------------
 
-	def AddTemplate(oTemplate)
+	def AddTemplate(oTemplate) #TODO // Test this
 		@aoTemplates + oTemplate
 
 	def ApplyTemplates()
