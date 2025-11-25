@@ -83360,6 +83360,27 @@ fdef
 			return 0
 		ok
 
+	def IsIsGreaterThanNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :IsGreaterThan )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+	def IsIsLessThanNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :IsLessThan )
+
+			return 1
+
+		else
+			return 0
+		ok
+
 	def IsLessThanNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :LessThan )

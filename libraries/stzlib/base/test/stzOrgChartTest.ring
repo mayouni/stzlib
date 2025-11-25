@@ -38,7 +38,7 @@ oOrg {
 
     # View basic chart
     ? Dot()
-    View()
+    View() #TODO Check color
 }
 
 pf()
@@ -71,7 +71,7 @@ oOrg {
     ? @@(VacantPositions())  # Should be empty
 
     # View with people
-    ViewWithPeople()
+    ViewWithPeople() #ERR
 }
 
 pf()
@@ -80,7 +80,8 @@ pf()
 # DEPARTMENT MANAGEMENT #
 #----------------------#
 
-/*-- Tests adding departments, assigning positions to departments, and department queries.
+/*-- Tests adding departments, assigning positions to departments,
+# and department queries.
 
 pr()
 
@@ -103,7 +104,7 @@ oOrg {
     ? Departments()
     ? Department("sales")
 
-    ViewByDepartment()
+    ViewByDepartment() #ERR //Edges are not displayed!
 }
 
 pf()
@@ -135,11 +136,14 @@ oOrg {
 
     # View after layers applied
     View()
+
+    #TODO // But what is the impact of those layers and how to check it
+    # ny data (calling methods) and in the visualisation?
 }
 
 pf()
 
-/*---
+/*--- Complete examaple with validations and reports generation
 
 pr()
 
@@ -306,7 +310,7 @@ oOrg {
 	? "CREATING ORGANIZATIONAL SNAPSHOT"
 	? "--------------------------------" + NL
 	
-	? @@NL( CreateSnapshot("Q4_2024") ) + NL
+	? @@NL( CreateSnapshot("Q4_2024") ) + NL #TODO // What's the effect, hwat added value?
 
 	
 	? "GENERATING VISUALIZATION"
@@ -315,14 +319,13 @@ oOrg {
 	ColorByDepartment()
 	? "✓ Color-coded by department"
 	
-	HighlightPath("ops_analyst1", "board")
+	HighlightPath("ops_analyst1", "board") #ERR //No effect in the visual
 	? "✓ Highlighted reporting path to board" + NL
 
 	? "Opening visualization..."
 	
 	View()
 }
-
 pf()
 
 #----------------------#
@@ -367,7 +370,7 @@ oOrg {
     ? DirectReportsCount("dir_ops")
     ? DirectReports("dir_ops")
 
-    View()
+    View() #ERR // edges not orthogonal!!!
 }
 
 pf()
@@ -588,7 +591,7 @@ oOrg {
 		]
 	]
 '
-
+	View() # Check why Vacant Position node is not linked in the visual
 }
 
 pf()
@@ -768,7 +771,7 @@ oOrg {
 	'
 
     # View simulated
-    // SimulatedChart().View()  # Note: SimulatedChart is in simulation class, need to capture
+    ViewSimulatedChart()  #TODO// Add it. Note: SimulatedChart is in simulation class, need to capture
 }
 
 pf()
@@ -784,8 +787,6 @@ pr()
 
 oOrg = new stzOrgChart("Visualization")
 oOrg {
-
-    EnableCleanBranching(TRUE)
 
     AddExecutivePositionXT("ceo", "CEO")
     AddManagementPositionXT("vp1", "VP1")
@@ -810,7 +811,7 @@ oOrg {
     # Different views
     ViewWithPeople()
     ViewVacancies()
-    ViewByDepartment()
+    ViewByDepartment() #ERR // the 3 View generate the same visual!
 }
 
 pf()
@@ -848,7 +849,7 @@ oOrg {
 	]
 	'
 
-    View()
+    View() # Empty image
 
 }
 
@@ -867,12 +868,42 @@ oOrg {
 
     AddExecutivePositionXT("ceo", "CEO")
 
-    ? Positions()
-    ? DirectReportsCount("ceo")  # 0
-    ? VacantPositions()  # ["ceo"]
-    ? AverageSpanOfControl()  # 0
-    ? ValidateSpanOfControl()  # pass
+    ? @@NL( Positions() ) + NL
+	#-->
+	'
+	[
+		[
+			[ "id", "ceo" ],
+			[ "title", "CEO" ],
+			[ "level", 0 ],
+			[ "department", "" ],
+			[ "reportsto", "" ],
+			[ "incumbent", "" ],
+			[ "isvacant", 1 ],
+			[
+				"attributes",
+				[
+					[ "level", "executive" ]
+				]
+			]
+		]
+	]
+	'
 
+    ? DirectReportsCount("ceo")  #--> 0
+
+    ? @@( VacantPositions() ) + NL  #--> ["ceo"]
+
+    ? AverageSpanOfControl()  # 0
+
+    ? @@NL( ValidateSpanOfControl() ) # pass
+	#--> '
+	[
+		[ "status", "pass" ],
+		[ "domain", "span_of_control" ],
+		[ "issues", [  ] ]
+	]
+	'
     View()
 
 }
@@ -941,8 +972,19 @@ oOrg {
 
     ? Position("sub")[:reportsTo]  # "nonexistent"
     ? Dot()  # May have error in graph
-
+    View() #TODO // Contains just a Subordinate node, is it correct?
 }
+#-->
+'
+nonexistent
+digraph "Invalid_Reporting" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=ortho, nodesep=1, ranksep=1, ordering=out]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    sub [label="Subordinate", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
+}
+'
 
 pf()
 
@@ -986,13 +1028,22 @@ oOrg {
     AddPersonXT("p1", "Person 1")
     AssignPerson("p1", "pos")
 
-    ? Position("pos")[:incumbent]  # "p1"
+    ? Position("pos")[:incumbent]  #--> "p1"
 
     RemovePosition("pos")
 
-    ? Positions()  # []
-    ? PersonData("p1")[:position]  # ""
+    ? @@(Positions()) + NL #--> []
 
+    ? @@NL( PersonData("p1") )
+	#-->
+	'
+	[
+		[ "id", "p1" ],
+		[ "name", "Person 1" ],
+		[ "position", "" ],
+		[ "data", [  ] ]
+	]
+	'
 }
 
 pf()
@@ -1014,9 +1065,30 @@ oOrg {
     AddPositionXT("pos", "Position")
     AssignPerson("nonp", "pos")  # No effect
 
-    ? PersonData("p1")[:position]  # ""
-    ? Position("pos")[:incumbent]  # ""
+    ? @@NL( PersonData("p1") ) + NL
+	#-->
+	'
+	[
+		[ "id", "p1" ],
+		[ "name", "Person 1" ],
+		[ "position", "nonpos" ], #TODO // Is it correct?
+		[ "data", [  ] ]
+	]
+	'
 
+    ? @@NL( Position("pos") ) # ""
+	#--> '
+	[
+		[ "id", "pos" ],
+		[ "title", "Position" ],
+		[ "level", 0 ],
+		[ "department", "" ],
+		[ "reportsto", "" ],
+		[ "incumbent", "nonp" ],
+		[ "isvacant", 0 ],
+		[ "attributes", [  ] ]
+	]
+	'
 }
 
 pf()
@@ -1041,7 +1113,24 @@ oOrg {
     next
 
     ? DirectReportsCount("mgr")  # 20
-    ? ValidateSpanOfControl()  # fail
+    ? @@NL( ValidateSpanOfControl() ) # fail
+	#-->
+	'
+	[
+		[ "status", "fail" ],
+		[ "domain", "span_of_control" ],
+		[
+			"issues",
+			[
+				"Excessive span: ",
+				"mgr",
+				" (",
+				20,
+				" reports)"
+			]
+		]
+	]
+	'
 
 }
 
@@ -1069,6 +1158,7 @@ oOrg {
     next
 
     ? Dot()
+    View()
 
 }
 
@@ -1085,13 +1175,13 @@ pr()
 oOrg = new stzOrgChart("Special_Characters")
 oOrg {
 
-    AddPositionXT("pos-1@", "Pos \"1\" \n Newline")
+    AddPositionXT("pos-1@", 'Pos \"1 \n Newline')
     AddPositionXT("pos2", "Pos 2")
 
     ReportsTo("pos2", "pos-1@")
 
     ? Dot()  # Check quoting in DOT
-
+    View() # Raises an error! #todo check ids before they are used!
 }
 
 pf()
@@ -1109,7 +1199,16 @@ oOrg {
 
     AddDepartmentXTT("dept1", "Department 1", [])
 
-    ? Department("dept1")[:positions]  # []
+    ? @@NL( Department("dept1") )
+	#-->
+	'
+	[
+		[ "id", "dept1" ],
+		[ "name", "Department 1" ],
+		[ "positions", [  ] ],
+		[ "head", "" ]
+	]
+'
 
 }
 
@@ -1129,8 +1228,26 @@ oOrg {
     AddPersonXT("p1", "Person 1")
     AddPersonXT("p2", "Person 2")
 
-    ? People()
-    ? VacancyRate()  # 0, no positions
+    ? @@NL( People() ) + NL 
+	#-->
+	'
+	[
+		[
+			[ "id", "p1" ],
+			[ "name", "Person 1" ],
+			[ "position", "" ],
+			[ "data", [  ] ]
+		],
+		[
+			[ "id", "p2" ],
+			[ "name", "Person 2" ],
+			[ "position", "" ],
+			[ "data", [  ] ]
+		]
+	]
+	'
+	
+    ? VacancyRate()  #--> 0, no positions
 
 }
 
@@ -1149,7 +1266,7 @@ oOrg {
 
     AddAnalysisLayer("test", "unknown")
     ApplyLayer("test")  # No effect
-
+    #TODO// How to checki it explicitely??
 }
 
 pf()
@@ -1166,7 +1283,35 @@ oOrg = new stzOrgChart("Invalid_Simulation")
 oOrg {
 
     aChanges = [ [:type = "unknown", :param = "x"] ]
-    ? SimulateReorganization(aChanges)
+    ? @@NL( SimulateReorganization(aChanges) )
+	#-->
+	'
+	[
+		[
+			"before",
+			[
+				[ "spanofcontrol", 0 ],
+				[ "vacancyrate", 0 ]
+			]
+		],
+		[
+			"after",
+			[
+				[ "spanofcontrol", 0 ],
+				[ "vacancyrate", 0 ]
+			]
+		],
+		[
+			"changes",
+			[
+				[
+					[ "type", "unknown" ],
+					[ "param", "x" ]
+				]
+			]
+		]
+	]
+	'
 
 }
 
@@ -1183,7 +1328,17 @@ pr()
 oOrg = new stzOrgChart("Empty_Snapshot")
 oOrg {
 
-    ? CreateSnapshot("empty_snap")
+    ? @@NL( CreateSnapshot("empty_snap") )
+	#-->
+	'
+	[
+		[ "id", "empty_snap" ],
+		[ "date", "25/11/2025" ], #TODO// Date needs ormalisation?
+		[ "positions", [  ] ],
+		[ "people", [  ] ],
+		[ "departments", [  ] ]
+	]
+	'
 
 }
 
@@ -1262,28 +1417,28 @@ oOrg {
 
     # Remove cycle for further tests
     Disconnect("a", "d")
-    ? CyclicDependencies()  # FALSE
+    ? CyclicDependencies()  #--> FALSE #ERR returned TRUE!
 
     # Connected components
     ? @@( ConnectedComponents() )  # [["a", "b", "c", "d", "e"]] if connected
 
     # Articulation points (removal increases components)
-    ? @@( ArticulationPoints() ) # e.g. ["a", "b", "c"]
+    ? @@( ArticulationPoints() ) #--> [ "a", "d" ] #TODO Correct?
 
     # Betweenness centrality
-    ? BetweennessCentrality("b")  # High for b
+    ? BetweennessCentrality("b")  #--> 0.25 #TODO Correct?
 
     # Closeness centrality
-    ? ClosenessCentrality("a")  # High for root
+    ? ClosenessCentrality("a")  #--> 0.57 #TODO Correct?
 
     # Diameter (longest shortest path)
-    ? Diameter()  # 3 (a to d)
+    ? Diameter()  #--> 4 #TODO Correct?
 
     # Average path length
-    ? AveragePathLength()
+    ? AveragePathLength() #--> 2
 
     # Clustering coefficient
-    ? ClusteringCoefficient("a")  # Low since branches don't connect
+    ? ClusteringCoefficient("a")  #--> 0 Low since branches don't connect
 
 }
 
@@ -1297,10 +1452,13 @@ pf()
 
 pr()
 
+# It's wonderful: that means we can include processes inside orgcharts!!!
+# Propose an interesting visual makeing that
+
 oOrg = new stzOrgChart("Diagram_Features")
 oOrg {
 
-    SetTheme("dark")
+    SetTheme("dark") #ERR // Theme has no effect!
     SetLayout("leftright")
 
     # Use different shapes from stzDiagram
@@ -1317,15 +1475,15 @@ oOrg {
     AddCluster("group1", "Group 1", ["process", "decision"], "lightblue")
 
     # Validate diagram (from stzDiagram)
-    ? Validate("dag")  # [:status = "pass", ...]
+    ? Validate("dag")  #--> TRUE
 
     # Set visual rule
     oRule = new stzVisualRule("highlight_start")
-    oRule.WhenPropertyEquals("type", "start")
+    oRule.When("type", :Equals = "start")
     oRule.ApplyColor("green")
     SetVisualRule(oRule)
 
-    ApplyVisualRules()
+    ApplyVisualRules() #ERR // Not applied!
 
     # View
     View()
@@ -1338,9 +1496,17 @@ pf()
 # PARENT FEATURES: STZGRAPH RULES #
 #----------------------#
 
-/*-- Tests rule system from stzGraph.
+
+/*--
 
 pr()
+
+? Q([ "isgreaterthan", 15 ]).IsIsGreaterThanNamedParam()
+#--> TRUE
+
+pf()
+
+/*--- Tests rule system from stzGraph.
 
 oOrg = new stzOrgChart("Graph_Rules")
 oOrg {
@@ -1355,14 +1521,14 @@ oOrg {
     # Add visual rule
     oRule = new stzGraphRule("high_value")
     oRule.SetRuleType("visual")
-    oRule.WhenPropertyGreaterThan("value", 15)
+    oRule.When("value", :IsGreaterThan = 15)
     oRule.Apply("color", "red")
     SetRule(oRule)
 
     # Add validation rule
     oValRule = new stzGraphRule("low_value_check")
     oValRule.SetRuleType("validation")
-    oValRule.WhenPropertyLessThan("value", 10)
+    oValRule.When("value", :IsLessThan = 10)
     oValRule.AddViolation("Value too low")
     SetRule(oValRule)
 
@@ -1370,11 +1536,22 @@ oOrg {
     ApplyRules()
 
     # Check affected
-    ? @@( NodesAffectedByRules() )  # ["b", "c"] depending on rules
+    ? @@( NodesAffectedByRules() )  + NL
+	#--> [ "a", "b", "c" ]
 
     # Rules applied info
-    ? @@( RulesApplied() )
-
+    ? @@NL( RulesApplied() )
+	#-->
+	'
+	[
+		[ "haseffects", 1 ],
+		[
+			"summary",
+			"2 rule(s) defined, 5 element(s) affected"
+		],
+		[ "rules", [  ] ]
+	]
+'
 }
 
 pf()
@@ -1387,24 +1564,22 @@ pf()
 
 pr()
 
-oOrg = new stzOrgChart("Cycle_Detection")
-oOrg {
-
-    AddPositionXT("a", "A")
-    AddPositionXT("b", "B")
-    AddPositionXT("c", "C")
-
-    ReportsTo("b", "a")
-    ReportsTo("c", "b")
-    ReportsTo("a", "c")  # Cycle
-
-    ? CyclicDependencies()  # TRUE
-
-    # Remove cycle
-    Disconnect("a", "c")
-    ? CyclicDependencies()  # FALSE
-
-}
+    oOrg = new stzOrgChart("Cycle_Detection")
+    oOrg {
+        AddPositionXT("a", "A")
+        AddPositionXT("b", "B")
+        AddPositionXT("c", "C")
+        
+        ReportsTo("b", "a")
+        ReportsTo("c", "b")
+        ReportsTo("a", "c")  # Creates cycle
+        
+        ? CyclicDependencies()  #--> TRUE
+        
+        # Fix: Use proper edge removal
+        RemoveThisEdge("a", "c")  # Not Disconnect()
+        ? CyclicDependencies()  #--> FALSE! #ERR returned TRUE!
+    }
 
 pf()
 
@@ -1418,29 +1593,19 @@ pr()
 
 oOrg = new stzOrgChart("Export_Import_Test")
 oOrg {
-
-    AddExecutivePositionXT("ceo", "CEO")
-    AddManagementPositionXT("vp_sales", "VP Sales")
-    ReportsTo("vp_sales", "ceo")
-
-view()
-/*
-    # Export
-    ? ToStzOrg()
-    WriteToStzOrgFile("test.stzorg")
-
-    # Verify export
-    SaveFile("test.stzorg")
-*/
+        AddExecutivePositionXT("ceo", "CEO")
+        AddManagementPositionXT("vp_sales", "VP Sales")
+        ReportsTo("vp_sales", "ceo")
+        
+        # Export
+        WriteToStzOrgFile("test.stzorg")
 }
-pf()
-
-/*
-# Import to new chart
-oOrgChart = new stzOrgChart("Imported_Org")
-oOrgChart {
-	Import("test.stzorg")
-	View()
+    
+# Import
+oImported = new stzOrgChart("Imported")
+oImported {
+        ImportFromStzOrgFile("test.stzorg")
+        View() #ERR Empty node!
 }
 
 pf()

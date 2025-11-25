@@ -1,10 +1,9 @@
-digraph "Export_Import_Test" {
-    graph [rankdir=TB, splines=polyline, nodesep=1.5, ranksep=1.2]
-    node [shape=box, style="rounded,filled", fontname="Arial"]
-    edge [fontname="Arial", penwidth=1.5]
+digraph "Imported" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=ortho, nodesep=1, ranksep=1, ordering=out]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    ceo [label="CEO", fillcolor="#FFD700", fontcolor="black"]
-    vp_sales [label="VP Sales", fillcolor="#4D4DC9", fontcolor="white"]
+    ceo [label="", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
 
-    ceo -> vp_sales
+
 }

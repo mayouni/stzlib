@@ -1,3 +1,4 @@
+
 #=====================================================
 #  stzOrgChart - COMPLETE FIXED ARCHITECTURE
 #  All loop variables uniquely named to avoid collisions
@@ -60,6 +61,25 @@ class stzOrgChart from stzDiagram
 		This.AddPositionXTT(pcId, pcTitle, [:level = "management"])
 		This.SetNodeProperty(pcId, "color", "lightblue")
 
+	def AddStaffPositionXTT(pcId, pcTitle, paProp)
+		if NOT IsHashList(paprop)
+			stzraise("Incorrect param type! paProp must be  a hashlist.")
+		ok
+
+		bLevel = HasKey(paProp, "level")
+
+		if NOT bLevel
+			paProp + [ "level", "staff" ]
+
+		else
+			if NOT (isString(paProp[:level]) and paProp[:level] = "staff")
+				stzraise("Incorrect param value! the value of the key 'level' should be 'staff'.")
+			ok
+		ok
+
+		This.AddPositionXTT(pcId, pcTitle, paProp)
+		This.SetNodeProperty(pcId, "color", "lightgreen")
+
 	def AddStaffPositionXT(pcId, pcTitle)
 		This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
 		This.SetNodeProperty(pcId, "color", "lightgreen")
@@ -73,12 +93,9 @@ class stzOrgChart from stzDiagram
 	        ok
 	    end
 	    
-	    # Instead of direct connection, use helper if multiple reports
-	    if @bUseInvisibleHelpers
-	        This._ConnectWithHelper(pcSupervisor, pcSubordinate)
-	    else
-	        This.Connect(pcSupervisor, pcSubordinate)
-	    ok
+	    # Store edge but DON'T create it yet
+	    # We'll handle multi-child branching in DOT generation
+	    This.Connect(pcSupervisor, pcSubordinate)
 	
 	def _ConnectWithHelper(pcSupervisor, pcSubordinate)
 	    # Check if supervisor already has a helper
@@ -545,6 +562,268 @@ class stzOrgChart from stzDiagram
 			This.SetNodeProperty(acPath[i], "color", "yellow")
 		end
 
+	#==============================================#
+	#  SPECIALISED DOT GENERATION FOR stzOrgChart  #
+	#==============================================#
+
+	def Dot()
+	    # Build edge map: supervisor -> [list of subordinates]
+	    aEdgeMap = []
+	    aEdges = This.Edges()
+	    
+	    nLen = len(aEdges)
+	    for i = 1 to nLen
+	        cFrom = aEdges[i]["from"]
+	        cTo = aEdges[i]["to"]
+	        
+	        # Find or create entry for this supervisor
+	        nFound = 0
+	        nMapLen = len(aEdgeMap)
+	        for j = 1 to nMapLen
+	            if aEdgeMap[j][1] = cFrom
+	                nFound = j
+	                exit
+	            ok
+	        end
+	        
+	        if nFound > 0
+	            aEdgeMap[nFound][2] + cTo
+	        else
+	            aEdgeMap + [cFrom, [cTo]]
+	        ok
+	    end
+	    
+	    # Generate custom DOT
+	    cDot = 'digraph "' + This.Id() + '" {' + NL
+	    cDot += '    graph [rankdir=TB, splines=polyline, nodesep=1.5, ranksep=1.2]' + NL
+	    cDot += '    node [shape=box, style="rounded,filled", fontname="Arial"]' + NL
+	    cDot += '    edge [fontname="Arial", penwidth=1.5]' + NL + NL
+	    
+	    # Generate nodes
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        cColor = This._GetNodeColor(aNode)
+	        
+	        cDot += '    ' + aNode["id"] + ' [label="' + aNode["label"] + '"'
+	        cDot += ', fillcolor="' + cColor + '"'
+	        cDot += ', fontcolor="' + This.ResolveFontColor(cColor) + '"]' + NL
+	    end
+	    
+	    cDot += NL
+	    
+	    # Generate edges
+	    nMapLen = len(aEdgeMap)
+	    for i = 1 to nMapLen
+	        cSupervisor = aEdgeMap[i][1]
+	        acSubordinates = aEdgeMap[i][2]
+	        
+	        # Force subordinates on same rank if multiple
+	        if len(acSubordinates) > 1
+	            cDot += '    {rank=same; '
+	            nSubLen = len(acSubordinates)
+	            for j = 1 to nSubLen
+	                cDot += acSubordinates[j]
+	                if j < nSubLen
+	                    cDot += '; '
+	                ok
+	            end
+	            cDot += '}' + NL
+	        ok
+	        
+	        # Direct connections
+	        nSubLen = len(acSubordinates)
+	        for j = 1 to nSubLen
+	            cDot += '    ' + cSupervisor + ' -> ' + acSubordinates[j] + NL
+	        end
+	    end
+	    
+	    cDot += '}' + NL
+	    return cDot
+
+	def _GetNodeColor(aNode)
+	    if HasKey(aNode, "properties") and HasKey(aNode["properties"], "color")
+	        return ResolveColor(aNode["properties"]["color"])
+	    ok
+	    return ResolveColor("white")
+
+	#=====================================================
+	#  NEW FEATURE: EXPORT TO .STZORG FORMAT
+	#=====================================================
+
+	def ToStzOrg()
+		cResult = 'orgchart "' + This.Id() + '"' + NL + NL
+		
+		# Positions
+		cResult += "positions" + NL
+		aPositions = This.Positions()
+		nPosLen = len(aPositions)
+		for i = 1 to nPosLen
+			aPos = aPositions[i]
+			cResult += "    " + aPos[:id] + NL
+			cResult += "        title: " + aPos[:title] + NL
+			cResult += "        level: " + aPos[:level] + NL
+			cResult += "        department: " + aPos[:department] + NL
+			cResult += "        reportsTo: " + aPos[:reportsTo] + NL
+			cResult += NL
+		end
+		
+		# People
+		cResult += "people" + NL
+		aPeople = This.People()
+		nPplLen = len(aPeople)
+		for i = 1 to nPplLen
+			aPerson = aPeople[i]
+			cResult += "    " + aPerson[:id] + NL
+			cResult += "        name: " + aPerson[:name] + NL
+			cResult += NL
+		end
+		
+		# Assignments
+		cResult += "assignments" + NL
+		for i = 1 to nPosLen
+			aPos = aPositions[i]
+			if aPos[:incumbent] != ""
+				cResult += "    " + aPos[:incumbent] + " -> " + aPos[:id] + NL
+			ok
+		end
+		cResult += NL
+		
+		# Departments
+		cResult += "departments" + NL
+		aDepts = This.Departments()
+		nDeptLen = len(aDepts)
+		for i = 1 to nDeptLen
+			aDept = aDepts[i]
+			cResult += "    " + aDept[:id] + NL
+			cResult += "        name: " + aDept[:name] + NL
+			cResult += "        positions: " + Q(aDept[:positions]).ToCode() + NL
+			cResult += NL
+		end
+		
+		return cResult
+	
+	def WriteToStzOrgFile(pcFileName)
+		stzFileQ(pcFileName).SetContent(This.ToStzOrg())
+		return TRUE
+	
+	#=====================================================
+	#  NEW FEATURE: IMPORT FROM .STZORG FORMAT
+	#=====================================================
+	
+	def ImportStzOrg(cString)
+		acLines = split(cString, NL)
+		cCurrentSection = ""
+		cCurrentId = ""
+		aCurrent = []
+		
+		nLen = len(acLines)
+		for i = 1 to nLen
+			cLine = trim(acLines[i])
+			if cLine = "" or left(cLine, 1) = "#" loop ok
+			
+			if substr(cLine, "orgchart ")
+				This.SetTitle(substr(cLine, 10, len(cLine)-1))
+				
+			but cLine = "positions"
+				cCurrentSection = "positions"
+				
+			but cLine = "people"
+				cCurrentSection = "people"
+				
+			but cLine = "assignments"
+				cCurrentSection = "assignments"
+				
+			but cLine = "departments"
+				cCurrentSection = "departments"
+				
+			but cCurrentSection = "positions"
+				if NOT substr(cLine, ":")
+					if cCurrentId != ""
+						This.AddPositionXTT(cCurrentId, aCurrent[:title], [ :level = aCurrent[:level] ])
+						if aCurrent[:department] != ""
+							This.SetPositionDepartment(cCurrentId, aCurrent[:department])
+						ok
+						if aCurrent[:reportsTo] != ""
+							This.ReportsTo(cCurrentId, aCurrent[:reportsTo])
+						ok
+					ok
+					cCurrentId = cLine
+					aCurrent = [ :title = "", :level = "", :department = "", :reportsTo = "" ]
+					
+				but substr(cLine, "title:")
+					aCurrent[:title] = trim(substr(cLine, 7, len(cLine)))
+					
+				but substr(cLine, "level:")
+					aCurrent[:level] = trim(substr(cLine, 7, len(cLine)))
+					
+				but substr(cLine, "department:")
+					aCurrent[:department] = trim(substr(cLine, 12, len(cLine)))
+					
+				but substr(cLine, "reportsTo:")
+					aCurrent[:reportsTo] = trim(substr(cLine, 11, len(cLine)))
+				ok
+				
+			but cCurrentSection = "people"
+				if NOT substr(cLine, ":")
+					if cCurrentId != ""
+						This.AddPersonXT(cCurrentId, aCurrent[:name])
+					ok
+					cCurrentId = cLine
+					aCurrent = [ :name = "" ]
+					
+				but substr(cLine, "name:")
+					aCurrent[:name] = trim(substr(cLine, 6, len(cLine)))
+				ok
+				
+			but cCurrentSection = "assignments"
+				if substr(cLine, " -> ")
+					aParts = split(cLine, " -> ")
+					This.AssignPerson(trim(aParts[1]), trim(aParts[2]))
+				ok
+				
+			but cCurrentSection = "departments"
+				if NOT substr(cLine, ":")
+					if cCurrentId != ""
+						This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
+					ok
+					cCurrentId = cLine
+					aCurrent = [ :name = "", :positions = [] ]
+					
+				but substr(cLine, "name:")
+					aCurrent[:name] = trim(substr(cLine, 6, len(cLine)))
+					
+				but substr(cLine, "positions:")
+					cPosStr = trim(substr(cLine, 11, len(cLine)))
+					cPosStr = replace(cPosStr, "[", "")
+					cPosStr = replace(cPosStr, "]", "")
+					aCurrent[:positions] = split(cPosStr, ",")
+					for i = 1 to len(aCurrent[:positions])
+						aCurrent[:positions][i] = trim(aCurrent[:positions][i])
+					end
+				ok
+			ok
+		end
+		
+		# Add last item if needed
+		if cCurrentSection = "positions" and cCurrentId != ""
+			This.AddPositionXTT(cCurrentId, aCurrent[:title], [ :level = aCurrent[:level] ])
+			if aCurrent[:department] != ""
+				This.SetPositionDepartment(cCurrentId, aCurrent[:department])
+			ok
+			if aCurrent[:reportsTo] != ""
+				This.ReportsTo(cCurrentId, aCurrent[:reportsTo])
+			ok
+		but cCurrentSection = "people" and cCurrentId != ""
+			This.AddPersonXT(cCurrentId, aCurrent[:name])
+		but cCurrentSection = "departments" and cCurrentId != ""
+			This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
+		ok
+	
+	def ImportFromStzOrgFile(pcFileName)
+		cContent = stzFileQ(pcFileName).Content()
+		This.ImportStzOrg(cContent)
 
 #=====================================================
 #  stzOrgChartAnalysisLayer
