@@ -192,6 +192,37 @@ oOrg {
 
 pf()
 
+/*--- Highlighting path
+
+pr()
+
+oOrg = new stzOrgChart("Highlight_Test")
+oOrg {
+    AddExecutivePositionXT("ceo", "CEO")
+    
+    AddManagementPositionXT("vp_sales", "VP Sales")
+    AddManagementPositionXT("vp_ops", "VP Ops")
+    AddManagementPositionXT("vp_eng", "VP Eng")
+    
+    AddStaffPositionXT("sales1", "Sales Rep")
+    AddStaffPositionXT("ops1", "Ops Staff")
+    AddStaffPositionXT("dev1", "Developer")
+    
+    ReportsTo("vp_sales", "ceo")
+    ReportsTo("vp_ops", "ceo")
+    ReportsTo("vp_eng", "ceo")
+    
+    ReportsTo("sales1", "vp_sales")
+    ReportsTo("ops1", "vp_ops")
+    ReportsTo("dev1", "vp_eng")
+    
+    # Highlight just one path
+    HighlightPath("ops1", "ceo") #ERR no effect
+    View()
+}
+
+pf()
+
 /*--- Complete examaple with validations and reports generation
 
 pr()
