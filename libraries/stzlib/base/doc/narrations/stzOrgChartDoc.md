@@ -1,19 +1,16 @@
-# Introducing stzOrgChart - The tool for Organizational Modeling and Intelligence
+# Introducing stzOrgChart - The Strategic Organizational Intelligence Platform
 
-In Softanza, understanding organizational structure is not just about drawing boxes and lines. Organizations need dynamic tools that can model, analyze, and visualize their human infrastructure. Enter **stzOrgChart** – a revolutionary approach to organizational modeling that transforms static charts into living, analytical systems.
+In Softanza, understanding organizational structure transcends simple box-and-line diagrams. Organizations need dynamic tools that can model, analyze, and visualize their human infrastructure with precision and depth. Enter **stzOrgChart** – a revolutionary approach to organizational modeling that transforms static charts into living, analytical systems with governance-aware intelligence.
 
-Built on the powerful foundation of Softanza's Graph Module for Ring programming language, stzOrgChart transcends traditional organizational charting by adopting a layered architecture reminiscent of GIS systems. Like GIS overlays that add demographic, environmental, or economic data to base maps, stzOrgChart allows organizations to visualize multiple analytical dimensions atop their structural foundation.
+Built on the powerful foundation of Softanza's Graph Module for the Ring programming language, **stzOrgChart** transcends traditional organizational charting by adopting a layered architecture reminiscent of GIS systems. Like GIS overlays that add demographic, environmental, or economic data to base maps, **stzOrgChart** allows organizations to visualize multiple analytical dimensions atop their structural foundation.
 
-It's designed to make it easy to model, analyze, audit and query organizational structures for both programmers and business users.
+## The Foundation: Position, People, and Department Management
 
-## The Foundation: More Than Just Boxes and Lines
-
-Let's start with the basics. Creating an organizational hierarchy with stzOrgChart is intuitive yet powerful:
+Let's start with the core building blocks. Creating an organizational hierarchy with **stzOrgChart** is both intuitive and powerful:
 
 ```ring
 oOrg = new stzOrgChart("Basic_Hierarchy")
 oOrg {
-
     SetLayout("TD")
     
     # Add executive position
@@ -41,7 +38,11 @@ Output:
 
 ![orchart1.png](../images/orchart1.png)
 
-This simple example demonstrates how stzOrgChart automatically differentiates between executive (gold), management (blue), and staff positions (green), creating a visually intuitive hierarchy. But the real power emerges when we add people to these positions:
+Texecutive (gold), management (blue), and staff positions (green), creating a visually intuitive hierarchy.
+
+### People Management with Rich Data
+
+The true power emerges when we add people to positions with rich attribute data:
 
 ```ring
 oOrg = new stzOrgChart("People_Management")
@@ -49,162 +50,177 @@ oOrg {
     AddPositionXT("ceo", "CEO")
     AddPositionXT("vp", "VP")
     
-    # Add people with data
-    AddPersonXTT("p1", "John Doe", [:tenure = 5, :performance = "High"])
+    # Add people with comprehensive data
+    AddPersonXTT("p1", "John Doe", [:tenure = 5, :performance = "High", :education = "MBA"])
     AddPersonXT("p2", "Jane Smith")
     
-    # Assign people
+    # Assign people to positions
     AssignPerson("p1", "ceo")
     AssignPerson("p2", "vp")
     
+    # View with people emphasized
     ViewWithPeople()
 }
 ```
 
-The `ViewWithPeople()` method instantly transforms our chart to display both position titles and incumbent names, while preserving all the people data (tenure, performance metrics) behind the scenes.
+The `ViewWithPeople()` method instantly transforms our chart to display both position titles and incumbent names, while preserving all the people data (tenure, performance metrics, education) behind the scenes.
 
-## Layered Intelligence: The GIS-like Approach to Org Charts
+### Departmental Structure and Clusters
 
-The most innovative aspect of stzOrgChart is its analytical layering system. Drawing inspiration from Geographic Information Systems (GIS), stzOrgChart allows organizations to visualize multiple dimensions of intelligence overlaid on the base organizational structure. These analytical layers include:
+Organizations are naturally compartmentalized into departments, and **stzOrgChart** models this reality:
 
-1. **Performance Layer** - Visualizes performance metrics across the organization, highlighting high performers and potential performance gaps.
-2. **Risk Layer** - Identifies positions with high operational, compliance, or continuity risk.
-3. **Compliance Layer** - Ensures governance standards are maintained throughout the organization.
-4. **Succession Layer** - Maps critical positions and their succession readiness status.
+```ring
+oOrg = new stzOrgChart("Department_Management")
+oOrg {
+    AddPositionXT("ceo", "CEO")
+    AddPositionXT("sales_mgr", "Sales Manager")
+    AddPositionXT("eng_mgr", "Engineering Manager")
+    
+    ReportsTo("sales_mgr", "ceo")
+    ReportsTo("eng_mgr", "ceo")
+    
+    # Create department clusters
+    AddDepartmentXTT("sales", "Sales Dept", ["sales_mgr"])
+    AddDepartmentXTT("eng", "Engineering Dept", ["eng_mgr"])
+    
+    # Assign positions to departments
+    SetPositionDepartment("ceo", "Executive")
+    SetPositionDepartment("sales_mgr", "sales")
+    
+    ViewByDepartment()
+}
+```
 
-Each layer can be applied individually or in combination, allowing leaders to toggle between different analytical perspectives without rebuilding the organizational chart:
+This automatically generates visual clusters with appropriate coloring, enhancing readability and departmental identification.
+
+## Layered Intelligence: The GIS Approach to Organizational Analysis
+
+The most innovative aspect of **stzOrgChart** is its analytical layering system. Drawing inspiration from Geographic Information Systems (GIS), **stzOrgChart** allows organizations to visualize multiple dimensions of intelligence overlaid on the base organizational structure:
 
 ```ring
 oOrg = new stzOrgChart("Analysis_Layers")
 oOrg {
-
     AddPositionXT("ceo", "CEO")
     AddPositionXT("vp", "VP")
     ReportsTo("vp", "ceo")
     
-    # Add layers
+    # Add analytical layers
     oPerformance = AddAnalysisLayer("Performance", "performance")
     oRisk = AddAnalysisLayer("Risk", "risk")
     oCompliance = AddAnalysisLayer("Compliance", "compliance")
     oSuccession = AddAnalysisLayer("Succession", "succession")
     
-    # Apply individually and all
+    # Apply layers individually or collectively
     ApplyLayer("Performance")
     ApplyAllLayers()
+    
     View()
 }
 ```
 
-This layered approach means HR professionals can instantly switch between viewing performance metrics and succession risks, while compliance officers can toggle between governance checks and segregation of duties analysis—all on the same organizational foundation.
+Each layer type provides specialized analytical capabilities:
+- **Performance Layer**: Visualizes performance metrics across positions
+- **Risk Layer**: Identifies positions with high operational, compliance, or continuity risk
+- **Compliance Layer**: Ensures governance standards throughout the organization
+- **Succession Layer**: Maps critical positions and their succession readiness
 
-## Governance, Compliance, and Risk Analysis
+## Governance, Compliance and Risk Analysis
 
-Modern organizations face increasingly complex governance requirements. stzOrgChart addresses this with built-in validation frameworks that check critical governance standards:
+Modern organizations operate under increasingly complex regulatory frameworks. **stzOrgChart** provides built-in validation frameworks that check critical governance standards automatically:
 
 ```ring
 oOrg = new stzOrgChart("Validation_Compliance")
 oOrg {
-
+    SetEdgeSpline("ortho")
+    
+    # BCEAO Banking Governance Structure
     AddExecutivePositionXT("board", "Board")
     AddExecutivePositionXT("ceo", "CEO")
-
     ReportsTo("ceo", "board")
-
+    
+    # Audit must report directly to Board
     AddManagementPositionXT("dir_audit", "Dir Audit")
-    ReportsTo("dir_audit", "board")  # Compliant
-
+    ReportsTo("dir_audit", "board")
+    
+    # Operations and Treasury
     AddManagementPositionXT("dir_ops", "Dir Ops")
     AddManagementPositionXT("dir_treasury", "Dir Treasury")
-
-    ReportsTo("dir_ops", "ceo")  # Should not report to treasury for SOD
+    ReportsTo("dir_ops", "ceo")
     ReportsTo("dir_treasury", "ceo")
-
-    # Validate
-
-    ? @@Nl( ValidateBCEAOGovernance() )
-
-    ? @@NL( ValidateSpanOfControl() )
-
-    ? @@NL( ValidateSegregationOfDuties() )
-
+    
+    # Test span of control limits
+    for i = 1 to 10
+        AddStaffPositionXT("staff"+i, "Staff "+i)
+        ReportsTo("staff"+i, "dir_ops")
+    next
+    
+    # Set departments for SOD validation
+    SetPositionDepartment("dir_ops", "operations")
+    SetPositionDepartment("dir_treasury", "treasury")
+    
+    # Execute validations
+    ? ValidateBCEAOGovernance()
+    ? ValidateSpanOfControl() 
+    ? ValidateSegregationOfDuties()
+    
     View()
 }
 ```
 
-The system automatically flags governance issues like audit function independence and segregation of duties violations, turning compliance from a manual checklist exercise into an integrated analytical process.
+**stzOrgChart** automatically flags governance issues like:
+- Missing Board of Directors
+- Audit function reporting to non-board positions
+- Absence of Risk Management function
+- Excessive spans of control (>9 direct reports)
+- Segregation of duties violations
 
-Output of BCEAO Banking Governance validation:
-```
+The validation results provide structured data perfect for audit trails and compliance reporting:
+
+```ring
 [
-	[ "status", "fail" ],
-	[ "domain", "BCEAO_governance" ],
-	[ "issuecount", 1 ],
-	[
-		"issues",
-		[
-			"BCEAO-003: No dedicated Risk Management function"
-		]
-	]
+    [ "status", "fail" ],
+    [ "domain", "BCEAO_governance" ],
+    [ "issuecount", 1 ],
+    [
+        "issues",
+        [
+            "BCEAO-003: No dedicated Risk Management function"
+        ]
+    ]
 ]
 ```
-Output of SOC validation (Span Of Control):
-```
-[
-	[ "status", "pass" ],
-	[ "domain", "span_of_control" ],
-	[ "issues", [  ] ]
-]
-```
-Output of the Segregation of Duuty validation:
-```
-[
-	[ "status", "pass" ],
-	[ "domain", "segregation_of_duties" ],
-	[ "issuecount", 0 ],
-	[ "issues", [  ] ]
-]
-```
-
-the `View()` method generates this visual:
-
-![org1.png](../images/org1.png)
-
-
 
 ## Comprehensive Reporting: From Data to Decisions
 
-`stzOrgChart` transforms raw organizational data into actionable insights through comprehensive reporting:
+**stzOrgChart** transforms raw organizational data into actionable insights through comprehensive reporting capabilities:
 
 ```ring
-// Add these lines to the sample of the previous section
-
-# Generate reports
-? GenerateReport("summary")
-? GenerateReport("vacancies")
-? GenerateReport("succession")
-? GenerateReport("compliance")
-? GenerateReport("span")
+# Generate targeted reports
+? GenerateReport("summary")      # Overall organizational health
+? GenerateReport("vacancies")    # Open positions analysis
+? GenerateReport("succession")   # Critical succession risks
+? GenerateReport("compliance")   # Governance status
+? GenerateReport("span")         # Management span analysis
 ```
 
-Each report type provides targeted insights. The succession report identifies critical positions without ready successors, the compliance report highlights governance gaps, and the span of control analysis optimizes management structures.
+Each report type provides specialized insights. The succession report, for example, doesn't just identify positions without successors—it contextualizes the risk level by position criticality, incumbent tenure, and departmental impact:
 
-The vacancy report, for example, doesn't just count open positions—it contextualizes them by department, level, and title, enabling targeted recruitment strategies:
-
-```
+```ring
 [
-    [ "title", "Vacancy Report" ],
-    [ "vacancycount", 7 ],
-    [ "vacancyrate", 87.50 ],
+    [ "title", "Succession Risk Report" ],
+    [ "date", "25/11/2025" ],
+    [ "highriskcount", 2 ],
     [
         "details",
         [
             [
-                [ "position", "mgr1" ],
-                [ "title", "Manager 1" ],
+                [ "position", "ceo" ],
+                [ "title", "CEO" ],
+                [ "incumbent", "Jean-Baptiste Kouassi" ],
                 [ "department", "" ],
-                [ "level", "management" ]
+                [ "risklevel", "high" ]
             ],
-            # ... additional positions ...
+            # Additional high-risk positions
         ]
     ]
 ]
@@ -212,260 +228,126 @@ The vacancy report, for example, doesn't just count open positions—it contextu
 
 ## Simulation and Scenario Planning
 
-Perhaps the most powerful feature is `stzOrgChart`'s ability to simulate organizational changes before implementing them:
+Perhaps the most strategic feature of **stzOrgChart** is its ability to simulate organizational changes before implementing them in reality:
 
 ```ring
-// Add the fellwoing codeto the previous one
-
-# Create snapshot
+# Create baseline snapshot
 ? CreateSnapshot("Initial")
 
-# Simulate changes
+# Define reorganization changes
 aChanges = [
     [:type = "change_reporting", :subordinate = "vp2", :supervisor = "vp1"],
     [:type = "add_position", :id = "new_pos", :title = "New Position"],
     [:type = "remove_position", :position = "vp1"]
 ]
 
+# Analyze impact
 ? SimulateReorganization(aChanges)
 ```
 
-You start by taking a snapshot of the current orgchart state to serve as a baseline to your simulation:
-```
-# Current state of your orgchart system
+The simulation engine quantitatively analyzes the impact of proposed changes on key organizational metrics:
+
+```ring
 [
-	[ "id", "Initial" ],
-	[ "date", "25/11/2025" ],
-	[
-		"positions",
-		[
-			[
-				[ "id", "board" ],
-				[ "title", "Board" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "executive" ]
-					]
-				]
-			],
-			[
-				[ "id", "ceo" ],
-				[ "title", "CEO" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "board" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "executive" ]
-					]
-				]
-			],
-			[
-				[ "id", "dir_audit" ],
-				[ "title", "Dir Audit" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "board" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "management" ]
-					]
-				]
-			],
-			[
-				[ "id", "dir_ops" ],
-				[ "title", "Dir Ops" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "ceo" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "management" ]
-					]
-				]
-			],
-			[
-				[ "id", "dir_treasury" ],
-				[ "title", "Dir Treasury" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "ceo" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "management" ]
-					]
-				]
-			]
-		]
-	],
-	[ "people", [  ] ],
-	[ "departments", [  ] ]
+    [
+        "before",
+        [
+            [ "spanofcontrol", 2 ],
+            [ "vacancyrate", 100 ]
+        ]
+    ],
+    [
+        "after",
+        [
+            [ "spanofcontrol", 0 ],
+            [ "vacancyrate", 100 ]
+        ]
+    ],
+    # Detailed changes applied
 ]
 ```
 
-The simulation engine then analyzes the impact of proposed changes on key metrics like span of control and vacancy rates, providing quantitative evidence to support restructuring decisions.
-
-```
-# Output of the simulation
-[
-	[
-		"before",
-		[
-			[ "spanofcontrol", 2 ],
-			[ "vacancyrate", 100 ]
-		]
-	],
-	[
-		"after",
-		[
-			[ "spanofcontrol", 2 ],
-			[ "vacancyrate", 100 ]
-		]
-	],
-	[
-		"changes",
-		[
-			[
-				[ "type", "change_reporting" ],
-				[ "subordinate", "vp2" ],
-				[ "supervisor", "vp1" ]
-			],
-			[
-				[ "type", "add_position" ],
-				[ "id", "new_pos" ],
-				[ "title", "New Position" ]
-			],
-			[
-				[ "type", "remove_position" ],
-				[ "position", "vp1" ]
-			]
-		]
-	]
-]
-```
-
-This enables powerful programmatin and datadriven what-if scenarios to let you build organizatuional projecttions ofr tactical and startegic decisions.
+This enables data-driven decision making for restructuring initiatives, merger integrations, and strategic realignments.
 
 ## Advanced Visualization: Making Complexity Clear
 
-`stzOrgChart` offers multiple visualization perspectives tailored to different stakeholder needs:
+**stzOrgChart** offers multiple visualization perspectives tailored to different stakeholder needs:
 
 ```ring
 oOrg = new stzOrgChart("Visualization")
 oOrg {
-    // Same code that constrtucts the orgchart from the previous sections
-   
+    # Build organizational structure
+    
+    # Apply department-based coloring
     ColorByDepartment()
     
-    # Highlight path with a specif visual sign
+    # Highlight critical reporting path
     HighlightPath("staff1", "ceo")
     
-    # Different views for the visual output
-    ViewWithPeople()
-    ViewVacancies()
-    ViewByDepartment()
+    # Generate specialized views
+    ViewWithPeople()      # Emphasize incumbents
+    ViewVacancies()       # Highlight open positions  
+    ViewByDepartment()    # Department-focused view
 }
 ```
 
-The `ViewByDepartment()` method reorganizes the visualization to emphasize departmental boundaries, while `ViewVacancies()` highlights unfilled positions. These perspective shifts help different stakeholders understand the organization through their specific lens.
+Each visualization method serves specific analytical purposes:
+- `ViewWithPeople()`: HR planning and talent reviews
+- `ViewVacancies()`: Recruitment prioritization and budgeting
+- `ViewByDepartment()`: Departmental structure reviews and resource allocation
+- `HighlightPath()`: Critical reporting line verification and audit trails
 
 ## Technical Power: Graph Theory Meets Business Intelligence
 
-Under the hood, `stzOrgChart` leverages advanced graph theory algorithms inherited from its parent classe `stzGraph`:
+Under the hood, **stzOrgChart** leverages advanced graph theory algorithms inherited from its parent class `stzGraph`:
 
 ```ring
 oOrg = new stzOrgChart("Graph_Traversal")
 oOrg {
-    AddPositionXT("a", "A")
-    AddPositionXT("b", "B")
-    AddPositionXT("c", "C")
-    AddPositionXT("d", "D")
-    AddPositionXT("e", "E")
-
-    ReportsTo("b", "a")
-    ReportsTo("c", "b")
-    ReportsTo("d", "c")
-    ReportsTo("e", "a")  # Parallel branch
-
-    # Cyclic check (no cycle)
-    ? CyclicDependencies()  #--> FALSE
-
-    # Add cycle
-    ReportsTo("a", "d")  # Creates cycle a->b->c->d->a
-    ? CyclicDependencies()  #--> TRUE
-
-    # Remove cycle for further tests
-    Disconnect("a", "d")
-    ? CyclicDependencies()  #--> FALSE
-
-    # Connected components
-    ? @@( ConnectedComponents() )  #--> [["a", "b", "c", "d", "e"]] if connected
-
-    # Articulation points (removal increases components)
-    ? @@( ArticulationPoints() ) #--> ["a", "b", "c"]
-
-    # Betweenness centrality
-    ? BetweennessCentrality("b")  #--> High for b
-
-    # Closeness centrality
-    ? ClosenessCentrality("a")  #--> High for root
-
-    # Diameter (longest shortest path)
-    ? Diameter()  #--> 3 (a to d)
-
-    # Average path length
-    ? AveragePathLength()
-
-    # Clustering coefficient
-    ? ClusteringCoefficient("a")  #--> Low since branches don't connect
+    # Build organizational structure
+    
+    # Advanced graph analytics
+    ? CyclicDependencies()             # Detect reporting cycles
+    ? ConnectedComponents()            # Identify disconnected units
+    ? ArticulationPoints()             # Find critical positions
+    ? BetweennessCentrality("vp_eng")  # Identify communication hubs
+    ? ClosenessCentrality("ceo")       # Measure influence reach
+    ? Diameter()                       # Longest reporting chain
+    ? AveragePathLength()              # Average hierarchy depth
 }
 ```
 
-These capabilities enable sophisticated analyses like identifying critical communication bottlenecks or potential single points of failure in organizational structures.
+These capabilities enable sophisticated analyses like:
+- Identifying communication bottlenecks that slow decision-making
+- Detecting single points of failure in critical functions
+- Optimizing organizational depth to balance control and agility
+- Quantifying influence networks beyond formal reporting lines
 
-## Designed for Everyone not Only Programmers
+## Business User Accessibility: Beyond Programming
 
-`stzOrgChart` bridges the gap between technical and business users. Business people can work dircectly in text files and get their orgcharts generated without any line of code (other then loading the text file to the `stzOrgChart` object and calling the View() method)! 
-```
-# Example of a *.stzorg file the user can edit on NotePad or any text editot
+**stzOrgChart** bridges the gap between technical and business users through its dedicated `.stzorg` file format. Business analysts can edit organizational structures directly in text files without writing code:
 
-orgchart "Export_Import_Test"
+```text
+orgchart "Banking Structure"
 
 positions
     ceo
         title: CEO
-        level: 0
-        department: 
-        reportsTo: 
+        level: executive
+        department: executive
+        reportsTo: board
 
     vp_sales
         title: VP Sales
-        level: 0
-        department: 
+        level: management
+        department: sales
         reportsTo: ceo
 
 people
     p1
         name: John Doe
-
+        data: {tenure: 5, performance: "High"}
+        
     p2
         name: Jane Smith
 
@@ -475,737 +357,201 @@ assignments
 
 departments
     sales
-        name: Sales Dept
-        positions: [ "vp_sales" ]
-
+        name: Sales Department
+        positions: ["vp_sales", "sales_mgr1", "sales_mgr2"]
 ```
 
-Code we need to write inorder to load the orgchart description file, assuming it has been saved as `teststzorg`:
-```
+Loading and visualizing this structure requires minimal code:
+
+```ring
 oOrgChart = new stzOrgChart("Imported_Org")
 oOrgChart {
-	Import("test.stzorg")
-	View()
+    ImportFromStzOrgFile("banking_structure.stzorg")
+    View()
 }
 ```
 
-Outpout:
+This accessibility makes organizational intelligence available to all stakeholders, not just technical teams.
 
-![org4.png](../images/org4.png)
+## Edge Case Handling and Robustness
 
-> **NOTE**: In practice, programmers would use Ring and Softanza to develop a GUI application (desktop or web) to make it easy to business users to edit the orgchart content in a grid and generate the visual by a click of a button.
-> 
-## A Complete Example
+Real-world organizations present complex challenges that **stzOrgChart** handles with robustness:
 
-Let's bring what we saw toegother in a realistic orgchart to see the unified experience Softanza offers:
+```ring
+# Cycle detection in reporting lines
+ReportsTo("a", "b")
+ReportsTo("b", "c")
+ReportsTo("c", "a")  # Creates cycle
+? CyclicDependencies()  # Returns TRUE
+
+# Wide hierarchies with span of control analysis
+for i = 1 to 20
+    AddStaffPositionXT("staff"+i, "Staff "+i)
+    ReportsTo("staff"+i, "mgr")
+next
+? ValidateSpanOfControl()  # Flags excessive span
+
+# Deep hierarchies with path analysis
+cPrev = "top"
+for i = 1 to 15
+    cId = "level"+i
+    AddPositionXT(cId, "Level "+i)
+    ReportsTo(cId, cPrev)
+    cPrev = cId
+next
+? Diameter()  # Measures longest path
 ```
-oOrg = new stzOrgChart("Simple_Hierarchy")
-oOrg {
 
-    SetLayout("TD")
-
-    #----------------#
-    # LEVEL 1 – CEO  #
-    #----------------#
-
-    AddExecutivePositionXT("ceo", "CEO")
-
-    #----------------#
-    # LEVEL 2 – VPs  #
-    #----------------#
-
-    AddManagementPositionXT("vp_sales", "VP Sales")
-    AddManagementPositionXT("vp_eng",   "VP Engineering")
-    AddManagementPositionXT("vp_ops",   "VP Operations")
-
-    ReportsTo("vp_sales", "ceo")
-    ReportsTo("vp_eng",   "ceo")
-    ReportsTo("vp_ops",   "ceo")
-
-    #-----------------------#
-    # LEVEL 3 – SALES TEAM  #
-    #-----------------------#
-
-    AddStaffPositionXT("sales_a", "Sales Rep A")
-    AddStaffPositionXT("sales_b", "Sales Rep B")
-
-    ReportsTo("sales_a", "vp_sales")
-    ReportsTo("sales_b", "vp_sales")
-
-    #-----------------------------#
-    # LEVEL 3 – ENGINEERING TEAM  #
-    #-----------------------------#
-
-    AddStaffPositionXT("dev_a", "Developer A")
-    AddStaffPositionXT("dev_b", "Developer B")
-    AddStaffPositionXT("dev_c", "Developer C")
-    AddStaffPositionXT("junior_b", "Junior B")
-
-    ReportsTo("dev_a", "vp_eng")
-    ReportsTo("dev_b", "vp_eng")
-    ReportsTo("dev_c", "vp_eng")
-    ReportsTo("junior_b", "dev_b")
-
-    #----------------------------#
-    # LEVEL 3 – OPERATIONS TEAM  #
-    #----------------------------#
-
-    AddStaffPositionXT("ops_a", "Ops Staff A")
-    AddStaffPositionXT("ops_b", "Ops Staff B")
-
-    ReportsTo("ops_a", "vp_ops")
-    ReportsTo("ops_b", "vp_ops")
-
-    #--------------------#
-    # OPTIONAL COLORING  #
-    #--------------------#
-
-    SetNodeProperty("ceo", "department", "executive")
-    SetNodeProperty("vp_sales", "department", "sales")
-    SetNodeProperty("vp_eng", "department", "engineering")
-    SetNodeProperty("vp_ops", "department", "operations")
-
-    SetNodeProperty("sales_a", "department", "sales")
-    SetNodeProperty("sales_b", "department", "sales")
-
-    SetNodeProperty("dev_a", "department", "engineering")
-    SetNodeProperty("dev_b", "department", "engineering")
-
-    SetNodeProperty("ops_a", "department", "operations")
-    SetNodeProperty("ops_b", "department", "operations")
-	
-	#----------------------------
-	# ADD PEOPLE
-	#----------------------------
-	
-	AddPersonXT("p_ceo", "Jean-Baptiste Kouassi")
-	AssignPerson("p_ceo", "ceo")
-	
-	AddPersonXT("p_vp_sales", "Fatoumata Diarra")
-	AssignPerson("p_vp_sales", "vp_sales")
-	
-	# Leave some positions vacant for demonstration
-	
-	? "BCEAO BANKING GOVERNANCE VALIDATION"
-	? "-----------------------------------" + NL
-	
-	? @@NL( ValidateBCEAOGovernance() ) + NL
-	
-	
-	? "SPAN OF CONTROL VALIDATION"
-	? "--------------------------" + NL
-	
-	? @@NL( ValidateSpanOfControl() ) + NL
-	
-	
-	? "SEGREGATION OF DUTIES VALIDATION"
-	? "--------------------------------" + NL
-	
-	? @@NL( ValidateSegregationOfDuties() ) + NL
-	
-	
-	? "ORGANIZATIONAL SUMMARY REPORT"
-	? "-----------------------------" + NL
-	
-	? @@NL( GenerateReport("summary") ) + NL
-	
-	
-	? "VACANCY REPORT"
-	? "--------------" + NL
-	
-	? @@NL( GenerateReport("vacancies") ) + NL
-	
-	
-	? "SUCCESSION RISK REPORT"
-	? "----------------------" + NL
-	
-	? @@NL( GenerateReport("succession") ) + NL
-	
-	
-	? "COMPLIANCE STATUS REPORT"
-	? "------------------------" + NL
-	
-	? @@NL( GenerateReport("compliance") ) + NL
-	
-	
-	? "SPAN OF CONTROL ANALYSIS"
-	? "------------------------" + NL
-	
-	? @@NL( GenerateReport("span") ) + NL
-	
-	
-	? "APPLYING ANALYSIS LAYERS"
-	? "------------------------" + NL
-	
-	oRiskLayer = AddAnalysisLayer("Risk Assessment", "risk")
-	? "✓ Risk analysis layer added"
-	
-	oSuccessionLayer = AddAnalysisLayer("Succession Planning", "succession")
-	? "✓ Succession planning layer added"
-	
-	ApplyAllLayers()
-	? "✓ All analysis layers applied" + NL
-
-	
-	? "SIMULATING REORGANIZATION"
-	? "-------------------------" + NL
-	
-	aChanges = [
-		[:type = "change_reporting", :subordinate = "dir_ops", :supervisor = "ceo"],
-		[:type = "add_position", :id = "dir_digital", :title = "Director of Digital Banking"],
-		[:type = "change_reporting", :subordinate = "dir_it", :supervisor = "dir_digital"]
-	]
-	
-	? @@NL( SimulateReorganization(aChanges) ) + NL
-
-	
-	? "CREATING ORGANIZATIONAL SNAPSHOT"
-	? "--------------------------------" + NL
-	
-	? @@NL( CreateSnapshot("Q4_2024") ) + NL
-
-	
-	? "GENERATING VISUALIZATION"
-	? "------------------------" + NL
-	
-	ColorByDepartment()
-	? "✓ Color-coded by department"
-	
-	HighlightPath("ops_analyst1", "board")
-	? "✓ Highlighted reporting path to board" + NL
-	
-	View()
-}
-```
-Text output:
-```
-BCEAO BANKING GOVERNANCE VALIDATION
------------------------------------
-
-[
-	[ "status", "fail" ],
-	[ "domain", "BCEAO_governance" ],
-	[ "issuecount", 2 ],
-	[
-		"issues",
-		[
-			"BCEAO-001: No Board of Directors found",
-			"BCEAO-003: No dedicated Risk Management function"
-		]
-	]
-]
-
-SPAN OF CONTROL VALIDATION
---------------------------
-
-[
-	[ "status", "pass" ],
-	[ "domain", "span_of_control" ],
-	[ "issues", [  ] ]
-]
-
-SEGREGATION OF DUTIES VALIDATION
---------------------------------
-
-[
-	[ "status", "pass" ],
-	[ "domain", "segregation_of_duties" ],
-	[ "issuecount", 0 ],
-	[ "issues", [  ] ]
-]
-
-ORGANIZATIONAL SUMMARY REPORT
------------------------------
-
-[
-	[ "title", "Organizational Summary" ],
-	[ "date", "25/11/2025" ],
-	[
-		"metrics",
-		[
-			[ "totalpositions", 12 ],
-			[ "filledpositions", 2 ],
-			[ "vacancyrate", 83.33 ],
-			[ "avgspan", 2.20 ],
-			[
-				"levels",
-				[
-					[ "executive", 1 ],
-					[ "management", 3 ],
-					[ "staff", 8 ]
-				]
-			]
-		]
-	]
-]
-
-VACANCY REPORT
---------------
-
-[
-	[ "title", "Vacancy Report" ],
-	[ "vacancycount", 10 ],
-	[ "vacancyrate", 83.33 ],
-	[
-		"details",
-		[
-			[
-				[ "position", "vp_eng" ],
-				[ "title", "VP Engineering" ],
-				[ "department", "" ],
-				[ "level", "management" ]
-			],
-			[
-				[ "position", "vp_ops" ],
-				[ "title", "VP Operations" ],
-				[ "department", "" ],
-				[ "level", "management" ]
-			],
-			[
-				[ "position", "sales_a" ],
-				[ "title", "Sales Rep A" ],
-				[ "department", "" ],
-				[ "level", "staff" ]
-			],
-			[
-				[ "position", "sales_b" ],
-				[ "title", "Sales Rep B" ],
-				[ "department", "" ],
-				[ "level", "staff" ]
-			],
-			[
-				[ "position", "dev_a" ],
-				[ "title", "Developer A" ],
-				[ "department", "" ],
-				[ "level", "staff" ]
-			],
-			[
-				[ "position", "dev_b" ],
-				[ "title", "Developer B" ],
-				[ "department", "" ],
-				[ "level", "staff" ]
-			],
-			[
-				[ "position", "dev_c" ],
-				[ "title", "Developer C" ],
-				[ "department", "" ],
-				[ "level", "staff" ]
-			],
-			[
-				[ "position", "junior_b" ],
-				[ "title", "Junior B" ],
-				[ "department", "" ],
-				[ "level", "staff" ]
-			],
-			[
-				[ "position", "ops_a" ],
-				[ "title", "Ops Staff A" ],
-				[ "department", "" ],
-				[ "level", "staff" ]
-			],
-			[
-				[ "position", "ops_b" ],
-				[ "title", "Ops Staff B" ],
-				[ "department", "" ],
-				[ "level", "staff" ]
-			]
-		]
-	]
-]
-
-SUCCESSION RISK REPORT
-----------------------
-
-[
-	[ "title", "Succession Risk Report" ],
-	[ "date", "25/11/2025" ],
-	[ "highriskcount", 2 ],
-	[
-		"details",
-		[
-			[
-				[ "position", "ceo" ],
-				[ "title", "CEO" ],
-				[ "incumbent", "Jean-Baptiste Kouassi" ],
-				[ "department", "" ],
-				[ "risklevel", "high" ]
-			],
-			[
-				[ "position", "vp_sales" ],
-				[ "title", "VP Sales" ],
-				[ "incumbent", "Fatoumata Diarra" ],
-				[ "department", "" ],
-				[ "risklevel", "high" ]
-			]
-		]
-	]
-]
-
-COMPLIANCE STATUS REPORT
-------------------------
-
-[
-	[ "title", "Compliance Status Report" ],
-	[ "date", "25/11/2025" ],
-	[
-		"checks",
-		[
-			[
-				[ "status", "fail" ],
-				[ "domain", "BCEAO_governance" ],
-				[ "issuecount", 2 ],
-				[
-					"issues",
-					[
-						"BCEAO-001: No Board of Directors found",
-						"BCEAO-003: No dedicated Risk Management function"
-					]
-				]
-			],
-			[
-				[ "status", "pass" ],
-				[ "domain", "span_of_control" ],
-				[ "issues", [  ] ]
-			],
-			[
-				[ "status", "pass" ],
-				[ "domain", "segregation_of_duties" ],
-				[ "issuecount", 0 ],
-				[ "issues", [  ] ]
-			]
-		]
-	],
-	[ "overallstatus", "non-compliant" ],
-	[ "failedchecks", 1 ]
-]
-
-SPAN OF CONTROL ANALYSIS
-------------------------
-
-[
-	[ "title", "Span of Control Analysis" ],
-	[ "date", "25/11/2025" ],
-	[
-		"details",
-		[
-			[
-				[ "position", "ceo" ],
-				[ "title", "CEO" ],
-				[ "directreports", 3 ],
-				[ "status", "optimal" ]
-			],
-			[
-				[ "position", "vp_sales" ],
-				[ "title", "VP Sales" ],
-				[ "directreports", 2 ],
-				[ "status", "underutilized" ]
-			],
-			[
-				[ "position", "vp_eng" ],
-				[ "title", "VP Engineering" ],
-				[ "directreports", 3 ],
-				[ "status", "optimal" ]
-			],
-			[
-				[ "position", "vp_ops" ],
-				[ "title", "VP Operations" ],
-				[ "directreports", 2 ],
-				[ "status", "underutilized" ]
-			],
-			[
-				[ "position", "dev_b" ],
-				[ "title", "Developer B" ],
-				[ "directreports", 1 ],
-				[ "status", "underutilized" ]
-			]
-		]
-	]
-]
-
-APPLYING ANALYSIS LAYERS
-------------------------
-
-✓ Risk analysis layer added
-✓ Succession planning layer added
-✓ All analysis layers applied
-
-SIMULATING REORGANIZATION
--------------------------
-
-[
-	[
-		"before",
-		[
-			[ "spanofcontrol", 2.20 ],
-			[ "vacancyrate", 83.33 ]
-		]
-	],
-	[
-		"after",
-		[
-			[ "spanofcontrol", 2.20 ],
-			[ "vacancyrate", 84.62 ]
-		]
-	],
-	[
-		"changes",
-		[
-			[
-				[ "type", "change_reporting" ],
-				[ "subordinate", "dir_ops" ],
-				[ "supervisor", "ceo" ]
-			],
-			[
-				[ "type", "add_position" ],
-				[ "id", "dir_digital" ],
-				[ "title", "Director of Digital Banking" ]
-			],
-			[
-				[ "type", "change_reporting" ],
-				[ "subordinate", "dir_it" ],
-				[ "supervisor", "dir_digital" ]
-			]
-		]
-	]
-]
-
-CREATING ORGANIZATIONAL SNAPSHOT
---------------------------------
-
-[
-	[ "id", "Q4_2024" ],
-	[ "date", "25/11/2025" ],
-	[
-		"positions",
-		[
-			[
-				[ "id", "ceo" ],
-				[ "title", "CEO" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "" ],
-				[ "incumbent", "p_ceo" ],
-				[ "isvacant", 0 ],
-				[
-					"attributes",
-					[
-						[ "level", "executive" ]
-					]
-				]
-			],
-			[
-				[ "id", "vp_sales" ],
-				[ "title", "VP Sales" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "ceo" ],
-				[ "incumbent", "p_vp_sales" ],
-				[ "isvacant", 0 ],
-				[
-					"attributes",
-					[
-						[ "level", "management" ]
-					]
-				]
-			],
-			[
-				[ "id", "vp_eng" ],
-				[ "title", "VP Engineering" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "ceo" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "management" ]
-					]
-				]
-			],
-			[
-				[ "id", "vp_ops" ],
-				[ "title", "VP Operations" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "ceo" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "management" ]
-					]
-				]
-			],
-			[
-				[ "id", "sales_a" ],
-				[ "title", "Sales Rep A" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "vp_sales" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "staff" ]
-					]
-				]
-			],
-			[
-				[ "id", "sales_b" ],
-				[ "title", "Sales Rep B" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "vp_sales" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "staff" ]
-					]
-				]
-			],
-			[
-				[ "id", "dev_a" ],
-				[ "title", "Developer A" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "vp_eng" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "staff" ]
-					]
-				]
-			],
-			[
-				[ "id", "dev_b" ],
-				[ "title", "Developer B" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "vp_eng" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "staff" ]
-					]
-				]
-			],
-			[
-				[ "id", "dev_c" ],
-				[ "title", "Developer C" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "vp_eng" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "staff" ]
-					]
-				]
-			],
-			[
-				[ "id", "junior_b" ],
-				[ "title", "Junior B" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "dev_b" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "staff" ]
-					]
-				]
-			],
-			[
-				[ "id", "ops_a" ],
-				[ "title", "Ops Staff A" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "vp_ops" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "staff" ]
-					]
-				]
-			],
-			[
-				[ "id", "ops_b" ],
-				[ "title", "Ops Staff B" ],
-				[ "level", 0 ],
-				[ "department", "" ],
-				[ "reportsto", "vp_ops" ],
-				[ "incumbent", "" ],
-				[ "isvacant", 1 ],
-				[
-					"attributes",
-					[
-						[ "level", "staff" ]
-					]
-				]
-			]
-		]
-	],
-	[
-		"people",
-		[
-			[
-				[ "id", "p_ceo" ],
-				[ "name", "Jean-Baptiste Kouassi" ],
-				[ "position", "ceo" ],
-				[ "data", [  ] ]
-			],
-			[
-				[ "id", "p_vp_sales" ],
-				[ "name", "Fatoumata Diarra" ],
-				[ "position", "vp_sales" ],
-				[ "data", [  ] ]
-			]
-		]
-	],
-	[ "departments", [  ] ]
-]
-
-GENERATING VISUALIZATION
-------------------------
-
-✓ Color-coded by department
-✓ Highlighted reporting path to board
-```
-Visual output:
-
-![org3.png](../images/org3.png)
+**stzOrgChart** gracefully handles edge cases including:
+- Reporting cycles that create logical inconsistencies
+- Extremely wide hierarchies with excessive spans of control
+- Deep hierarchies with multiple management layers
+- Unassigned people and vacant positions
+- Invalid reporting relationships
+- Special characters in position IDs and titles
 
 ## Performance and Scalability
 
-stzOrgChart handles organizations of any size efficiently. For large hierarchies (500+ positions), use layout presets:
+**stzOrgChart** is engineered for real-world organizational complexity:
+
 ```ring
-oOrg.SetLayoutPreset("orgchart_compact")   # Tighter spacing
-oOrg.SetTheme("print")                     # Optimized for printing
+# For large organizations (500+ positions)
+oOrg.SetLayoutPreset("orgchart_compact")  # Optimized layout
+oOrg.SetTheme("print")                    # Print-optimized styling
+
+# For executive presentations
+oOrg.SetEdgeStyle("bold")                 # Emphasize reporting lines
+oOrg.SetEdgeColor("navy")                 # Professional color scheme
 ```
 
-The system automatically optimizes rendering for different output formats (SVG for web, PDF for documents, PNG for presentations).
+The system automatically optimizes rendering for different output formats:
+- SVG for interactive web applications
+- PDF for formal documentation and printing
+- PNG for presentations and email communications
 
-## Other Advanced Features
+## Complete Strategic Example: Banking Organization Analysis
 
-This article can't cover all the advanced features yet to add to your analytical and propgrammatic kit, like applying graph-level rules to automatically adapt the orgchart behavior, and diagram-level visual rule to modify its appearance dynamically dependingf on the metatdata it contains, and many others you can discover by reading the articles related to `stzGraph` and `stzDiagram` classes.
+Let's see **stzOrgChart** in action with a comprehensive banking organization analysis:
 
-## Conclusion: The Future of Organizational Design
+```ring
+oOrg = new stzOrgChart("Banking_Hierarchy")
+oOrg {
+    SetLayout("TD")
+    
+    # Create multi-level hierarchy with specialized positions
+    AddExecutivePositionXT("ceo", "CEO")
+    AddManagementPositionXT("vp_sales", "VP Sales")
+    AddManagementPositionXT("vp_eng", "VP Engineering")
+    AddManagementPositionXT("vp_ops", "VP Operations")
+    
+    # Configure reporting structure
+    ReportsTo("vp_sales", "ceo")
+    ReportsTo("vp_eng", "ceo")
+    ReportsTo("vp_ops", "ceo")
+    
+    # Add specialized staff positions
+    AddStaffPositionXT("sales_a", "Sales Rep A")
+    AddStaffPositionXT("sales_b", "Sales Rep B")
+    AddStaffPositionXT("dev_a", "Developer A")
+    AddStaffPositionXT("dev_b", "Developer B")
+    AddStaffPositionXT("ops_a", "Ops Staff A")
+    AddStaffPositionXT("ops_b", "Ops Staff B")
+    
+    # Complete reporting lines
+    ReportsTo("sales_a", "vp_sales")
+    ReportsTo("sales_b", "vp_sales")
+    ReportsTo("dev_a", "vp_eng")
+    ReportsTo("dev_b", "vp_eng")
+    ReportsTo("ops_a", "vp_ops")
+    ReportsTo("ops_b", "vp_ops")
+    
+    # Add people to critical positions
+    AddPersonXT("p_ceo", "Jean-Baptiste Kouassi")
+    AssignPerson("p_ceo", "ceo")
+    
+    AddPersonXT("p_vp_sales", "Fatoumata Diarra")
+    AssignPerson("p_vp_sales", "vp_sales")
+    
+    # Configure departments for analysis
+    SetPositionDepartment("ceo", "executive")
+    SetPositionDepartment("vp_sales", "sales")
+    SetPositionDepartment("vp_eng", "engineering")
+    SetPositionDepartment("vp_ops", "operations")
+    
+    # Execute comprehensive governance validation
+    ? "BCEAO BANKING GOVERNANCE VALIDATION"
+    ? "-----------------------------------" + NL
+    ? ValidateBCEAOGovernance()
+    
+    ? "SPAN OF CONTROL VALIDATION"
+    ? "--------------------------" + NL
+    ? ValidateSpanOfControl()
+    
+    ? "SEGREGATION OF DUTIES VALIDATION"
+    ? "--------------------------------" + NL
+    ? ValidateSegregationOfDuties()
+    
+    # Generate strategic reports
+    ? "ORGANIZATIONAL SUMMARY REPORT"
+    ? "-----------------------------" + NL
+    ? GenerateReport("summary")
+    
+    ? "SUCCESSION RISK REPORT"
+    ? "----------------------" + NL
+    ? GenerateReport("succession")
+    
+    ? "COMPLIANCE STATUS REPORT"
+    ? "------------------------" + NL
+    ? GenerateReport("compliance")
+    
+    # Apply analysis layers
+    AddAnalysisLayer("Risk Assessment", "risk")
+    AddAnalysisLayer("Succession Planning", "succession")
+    ApplyAllLayers()
+    
+    # Simulate strategic reorganization
+    aChanges = [
+        [:type = "add_position", :id = "dir_digital", :title = "Director of Digital Banking"],
+        [:type = "change_reporting", :subordinate = "vp_eng", :supervisor = "dir_digital"]
+    ]
+    ? "SIMULATION RESULTS:"
+    ? SimulateReorganization(aChanges)
+    
+    # Create baseline snapshot
+    CreateSnapshot("Q4_2024")
+    
+    # Generate executive visualization
+    ColorByDepartment()
+    HighlightPath("ops_a", "ceo")
+    
+    View()
+}
+```
 
-`stzOrgChart` represents a paradigm shift in how organizations model and understand their structures. By adopting a layered, GIS-inspired architecture, it transforms static org charts into dynamic analytical platforms.
+Visual output:
 
-Whether you're an HR professional evaluating succession risks, a compliance officer ensuring governance standards, or an executive planning organizational changes, `stzOrgChart` provides the tools to make data-driven decisions about your most valuable resource—your people.
+
+![org3.png](../images/org3.png)
+
+This comprehensive example demonstrates how **stzOrgChart** delivers actionable intelligence across multiple dimensions:
+1. Governance validation against industry standards
+2. Span of control optimization
+3. Critical succession risk identification
+4. Departmental resource allocation analysis
+5. Simulation of strategic digital transformation initiatives
+6. Executive-ready visualizations highlighting critical paths
+
+## Conclusion: The Strategic Value of Organizational Intelligence
+
+**stzOrgChart** represents far more than a diagramming tool—it's a strategic intelligence platform that transforms how organizations understand and optimize their human infrastructure. By integrating graph theory, governance frameworks, simulation capabilities, and multi-dimensional visualization, **stzOrgChart** enables leaders to:
+
+- **Quantify organizational health** through validated metrics rather than intuition
+- **Simulate restructuring impacts** before committing resources to change
+- **Identify hidden risks** in reporting structures and succession planning
+- **Ensure regulatory compliance** through automated governance validation
+- **Optimize decision-making velocity** by analyzing communication pathways
+- **Visualize complex relationships** through layered analytical perspectives
+
+Whether you're an HR executive evaluating talent pipelines, a compliance officer ensuring regulatory adherence, a restructuring consultant optimizing spans of control, or a CEO planning digital transformation, **stzOrgChart** provides the analytical foundation for making confident, data-driven decisions about your organization's most valuable asset—your people.
+
+In an era where organizational agility determines competitive advantage, **stzOrgChart** delivers the intelligence platform necessary to design, validate, and optimize the human infrastructure that drives business success. This is not just organizational charting—it's organizational intelligence engineering.

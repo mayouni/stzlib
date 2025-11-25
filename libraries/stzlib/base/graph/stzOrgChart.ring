@@ -5,18 +5,20 @@
 #=====================================================
 
 $aOrgColors = [
-        :board = "gold",
-        :executive = "coral",
-        :operations = "blue",
-        :treasury = "green",
-        :risk = "orange",
-        :audit = "purple",
-        :hr = "pink",
-        :it = "cyan",
-        :sales = "blue",
-        :engineering = "green",
 
-	:focus = "magenta+"
+    :board = "gold",
+    :executive = "gold-",      # Lighter gold
+    :management = "blue+",      # Mid-blue
+    :staff = "green-",          # Green
+    :operations = "blue",
+    :treasury = "green",
+    :risk = "orange",
+    :audit = "purple",
+    :hr = "pink",
+    :it = "cyan",
+    :sales = "blue",
+    :engineering = "green-",
+    :focus = "magenta+"
 ]
 
 func IsStzOrgChart(pObj)
@@ -79,9 +81,9 @@ class stzOrgChart from stzDiagram
 		This.AddExecutivePositionXT(pcId, pcId)
 
 	def AddExecutivePositionXT(pcId, pcTitle)
-	    This.AddPositionXTT(pcId, pcTitle, [:level = "executive"])
-	    This.SetNodeProperty(pcId, "color", :primary)  # Theme-aware
-
+	This.AddPositionXTT(pcId, pcTitle, [:level = "executive"])
+	This.SetNodeProperty(pcId, "color", $aOrgColors[:executive])  # Use global palette
+	
 	#---
 
 	def AddManagementPosition(pcId)
@@ -89,7 +91,7 @@ class stzOrgChart from stzDiagram
 
 	def AddManagementPositionXT(pcId, pcTitle)
 	    This.AddPositionXTT(pcId, pcTitle, [:level = "management"])
-	    This.SetNodeProperty(pcId, "color", :info)  # Theme-aware
+	    This.SetNodeProperty(pcId, "color", $aOrgColors[:management])  # Use global palette
 
 	#---
 
@@ -98,26 +100,25 @@ class stzOrgChart from stzDiagram
 
 	def AddStaffPositionXT(pcId, pcTitle)
 	    This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
-	    This.SetNodeProperty(pcId, "color", :success)  # Theme-aware
+	    This.SetNodeProperty(pcId, "color", $aOrgColors[:staff])  # Use global palette
 
 	def AddStaffPositionXTT(pcId, pcTitle, paProp)
-		if NOT IsHashList(paprop)
-			stzraise("Incorrect param type! paProp must be  a hashlist.")
-		ok
-
-		bLevel = HasKey(paProp, "level")
-
-		if NOT bLevel
-			paProp + [ "level", "staff" ]
-
-		else
-			if NOT (isString(paProp[:level]) and paProp[:level] = "staff")
-				stzraise("Incorrect param value! the value of the key 'level' should be 'staff'.")
-			ok
-		ok
-
-		This.AddPositionXTT(pcId, pcTitle, paProp)
-		This.SetNodeProperty(pcId, "color", "lightgreen")
+	    if NOT IsHashList(paprop)
+	        stzraise("Incorrect param type! paProp must be a hashlist.")
+	    ok
+	
+	    bLevel = HasKey(paProp, "level")
+	
+	    if NOT bLevel
+	        paProp + [ "level", "staff" ]
+	    else
+	        if NOT (isString(paProp[:level]) and paProp[:level] = "staff")
+	            stzraise("Incorrect param value! the value of the key 'level' should be 'staff'.")
+	        ok
+	    ok
+	
+	    This.AddPositionXTT(pcId, pcTitle, paProp)
+	    This.SetNodeProperty(pcId, "color", $aOrgColors[:engineering])  # Use global palette
 
 	#---
 
@@ -577,11 +578,31 @@ class stzOrgChart from stzDiagram
 	    end
 
 	def HighlightPath(pcFromId, pcToId)
-		acPath = This.PathBetween(pcFromId, pcToId)
-		nPathCount = len(acPath)
-		for i = 1 to nPathCount
-			This.SetNodeProperty(acPath[i], "color", "yellow") #TODO //Abstract it!
-		end
+	    acPath = This.PathBetween(pcFromId, pcToId)
+	    
+	    if len(acPath) = 0
+	        return
+	    ok
+	    
+	    # Dim all nodes first
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    for i = 1 to nLen
+	        cNodeId = aNodes[i]["id"]
+	        This.SetNodeProperty(cNodeId, "color", "gray++")
+	    end
+	    
+	    # Brighten path nodes
+	    nPathLen = len(acPath)
+	    for i = 1 to nPathLen
+	        This.SetNodeProperty(acPath[i], "color", "yellow")
+	    end
+	    
+	    # Thicken path edges
+	    for i = 1 to nPathLen - 1
+	        This.SetEdgeProperty(acPath[i], acPath[i+1], "color", "red")
+	        This.SetEdgeProperty(acPath[i], acPath[i+1], "penwidth", 3)
+	    end
 
 	#=====================================================
 	#  NEW FEATURE: EXPORT TO .STZORG FORMAT
