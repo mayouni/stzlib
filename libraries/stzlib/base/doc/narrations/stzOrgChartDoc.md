@@ -1190,6 +1190,16 @@ Visual output:
 
 ![org3.png](../images/org3.png)
 
+## Performance and Scalability
+
+stzOrgChart handles organizations of any size efficiently. For large hierarchies (500+ positions), use layout presets:
+```ring
+oOrg.SetLayoutPreset("orgchart_compact")   # Tighter spacing
+oOrg.SetTheme("print")                     # Optimized for printing
+```
+
+The system automatically optimizes rendering for different output formats (SVG for web, PDF for documents, PNG for presentations).
+
 ## Other Advanced Features
 
 This article can't cover all the advanced features yet to add to your analytical and propgrammatic kit, like applying graph-level rules to automatically adapt the orgchart behavior, and diagram-level visual rule to modify its appearance dynamically dependingf on the metatdata it contains, and many others you can discover by reading the articles related to `stzGraph` and `stzDiagram` classes.
