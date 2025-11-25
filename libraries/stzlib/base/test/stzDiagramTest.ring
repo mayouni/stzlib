@@ -378,23 +378,54 @@ oDiag = new stzDiagram("ColorSystemTest")
 oDiag {
 	SetPenWidth(5)
 	# Base colors
-	AddNodeXT("n1", "Red Base", :Process, :red)
-	AddNodeXT("n2", "Blue Base", :Process, :blue)
-	
+	AddNodeXTT("n1", "Red Base", [
+		:type = "process",
+		:color = "red"
+	])
+
+	AddNodeXTT("n2", "Blue Base", [
+		:type = "process",
+		:color = "blue"
+	])
+
 	# Intensities
-	AddNodeXT("n3", "Red Dark", :Process, "red++")
-	AddNodeXT("n4", "Blue Light", :Process, "blue--")
+	AddNodeXTT("n3", "Red Dark", [
+		:type = "process",
+		:color = "red++"
+	])
+
+	AddNodeXTT("n4", "Blue Light", [
+		:type = "process",
+		:color = "blue--"
+	])
 	
 	# Semantic
-	AddNodeXT("n5", "Success", :Process, :Success)
-	AddNodeXT("n6", "Warning", :Decision, :Warning)
+	AddNodeXTT("n5", "Success", [
+		:type = "process",
+		:color = "success"
+	])
+
+	AddNodeXTT("n6", "Warning", [
+		:tpe = "decision",
+		:color = "warning"
+	])
 	
 	# Extended palette
-	AddNodeXT("n7", "Coral", :Process, :coral)
-	AddNodeXT("n8", "Lavender", :Process, :lavender)
+	AddNodeXTT("n7", "Coral", [
+		:type = "process",
+		:color = "coral"
+	])
+
+	AddNodeXTT("n8", "Lavender", [
+		:type = "process",
+		:color = "vender"
+	])
 	
 	# Direct hex
-	AddNodeXT("n9", "Custom", :Process, "#FF6B9D")
+	AddNodeXTT("n9", "Custom", [
+		:type = "process",
+		:color = "#FF6B9D"
+	])
 	
 	Connect("n1", "n2")
 	Connect("n2", "n3")
@@ -421,10 +452,21 @@ pr()
 
 oDiag = new stzDiagram("OrderFlow")
 oDiag {
+	SetTheme("pro")
+	AddNodeXTT("start", "Order Received", [
+		:type = "start",
+		:color = "success"]
+	)
 
-	AddNodeXT("start", "Order Received", :Start, :Success)
-	AddNodeXT("validate", "Validate", :Process, :Primary)
-	AddNodeXT("complete", "Done", :Endpoint, :Success)
+	AddNodeXTT("validate", "Validate", [
+		:type = "process",
+		:color = "primary"
+	])
+
+	AddNodeXTT("complete", "Done", [
+		:type = "endpoint", :color = "success"
+	])
+
 	# Test with .................. :Note,....:Yellow)
 
 	Connect("start", "validate")
@@ -466,9 +508,11 @@ pf()
 pr()
 
 oDiag = new stzDiagram("ValidDAG")
-oDiag.AddNodeXT("s", "Start", :Start, :Success)
-oDiag.AddNodeXT("p", "Process", :Process, :Primary)
-oDiag.AddNodeXT("e", "End", :Endpoint, :Success)
+
+oDiag.AddNodeXTT("s", "Start", [ :type = "start", :color = "success" ])
+oDiag.AddNodeXTT("p", "Process", [ :type = "process", :color = "primary" ])
+oDiag.AddNodeXTT("e", "End", [ :type = "endpoint", :color = "success" ])
+
 oDiag.Connect("s", "p")
 oDiag.Connect("p", "e")
 
@@ -485,9 +529,11 @@ pf()
 pr()
 
 oDiag = new stzDiagram("ReachableEndpoints")
-oDiag.AddNodeXT("start", "Start", :Start, :Success)
-oDiag.AddNodeXT("process", "Process", :Process, :Primary)
-oDiag.AddNodeXT("end", "End", :Endpoint, :Success)
+
+oDiag.AddNodeXTT("start", "Start", [ :type = "start", :color = "success" ])
+oDiag.AddNodeXTT("process", "Process", [ :type = "process", :color = "primary" ])
+oDiag.AddNodeXTT("end", "End", [ :type = "endpoint", :color = "success" ])
+
 oDiag.Connect("start", "process")
 oDiag.Connect("process", "end")
 
@@ -517,9 +563,11 @@ pf()
 pr()
 
 oDiag = new stzDiagram("Completeness")
-oDiag.AddNodeXT("d", "Approved?", :Decision, :Warning)
-oDiag.AddNodeXT("yes", "Yes", :Endpoint, :Success)
-oDiag.AddNodeXT("no", "No", :Endpoint, :Danger)
+
+oDiag.AddNodeXTT("d", "Approved?", [ :type = "decision", :color = "warning" ])
+oDiag.AddNodeXTT("yes", "Yes", [ :type = "endpoint", :color = "success" ])
+oDiag.AddNodeXTT("no", "No", [ :type = "endpoint", :color = "danger" ])
+
 oDiag.ConnectXT("d", "yes", "Yes")
 oDiag.ConnectXT("d", "no", "No")
 
@@ -537,10 +585,13 @@ pf()
 pr()
 
 oDiag = new stzDiagram("MetricsTest")
-oDiag.AddNodeXT("start", "Start", :Start, :Success)
-oDiag.AddNodeXT("p1", "Step 1", :Process, :Primary)
-oDiag.AddNodeXT("p2", "Step 2", :Process, :Primary)
-oDiag.AddNodeXT("end", "End", :Endpoint, :Success)
+
+oDiag.AddNodeXTT("start", "Start", [ :type = "start", :color = "success" ])
+oDiag.AddNodeXTT("p1", "Step 1", [ :type = "process", :color = "primary" ])
+oDiag.AddNodeXTT("p2", "Step 2", [ :type = "process", :color = "primary" ])
+
+oDiag.AddNodeXTT("end", "End", [ :type = "endpoint", :color = "success" ])
+
 oDiag.Connect("start", "p1")
 oDiag.Connect("p1", "p2")
 oDiag.Connect("p2", "end")
@@ -576,7 +627,7 @@ pf()
 pr()
 
 oDiag = new stzDiagram("Annotated")
-oDiag.AddNodeXT("process", "Process", :Process, :Primary)
+oDiag.AddNodeXTT("process", "Process", [ :type = "process", :color = "primary" ])
 
 oPerf = new stzDiagramAnnotator(:Performance)
 oPerf.Annotate("process", ["latency" = 150, "unit" = "ms"])
@@ -597,7 +648,7 @@ pf()
 pr()
 
 oDiag = new stzDiagram("AnnotationTypes")
-oDiag.AddNodeXT("n1", "Node 1", :Process, :Primary)
+oDiag.AddNodeXTT("n1", "Node 1", [ :color = "process", :type = "primary" ])
 
 oPerf = new stzDiagramAnnotator(:Performance)
 oPerf.Annotate("n1", ["latency" = 100])
@@ -613,7 +664,6 @@ aCompliance = oDiag.AnnotationsByType(:Compliance)
 ? len(aPerf) #--> 1
 ? len(aCompliance) #--> 1
 
-
 pf()
 
 #-----------------#
@@ -625,10 +675,11 @@ pf()
 pr()
 
 oDiag = new stzDiagram("Clustered")
-oDiag.AddNodeXT("user_api", "User API", :Process, :Success)
-oDiag.AddNodeXT("user_db", "User DB", :Storage, :Success)
-oDiag.AddNodeXT("order_api", "Order API", :Process, :Info)
-oDiag.AddNodeXT("order_db", "Order DB", :Storage, :Info)
+
+oDiag.AddNodeXTT("user_api", "User API", [ :color = "process", :type = "success" ])
+oDiag.AddNodeXTT("user_db", "User DB", [ :color = "storage", :type = "success" ])
+oDiag.AddNodeXTT("order_api", "Order API", [ :color = "process", :type = "info" ])
+oDiag.AddNodeXTT("order_db", "Order DB", [ :color = "storage", :type = "info" ])
 
 oDiag.AddCluster("users", "User Domain", ["user_api", "user_db"], :LightGreen)
 oDiag.AddCluster("orders", "Order Domain", ["order_api", "order_db"], :Lightblue)
@@ -646,8 +697,8 @@ pf()
 pr()
 
 oDiag = new stzDiagram("ClusterInfo")
-oDiag.AddNodeXT("a", "A", :Process, :primary)
-oDiag.AddNodeXT("b", "B", :Process, :primary)
+oDiag.AddNodeXTT("a", "A", [ :type = "process", :color = "primary" ])
+oDiag.AddNodeXTT("b", "B", [ :type = "process", :color = "primary" ])
 
 oDiag.AddCluster("domain1", "My Domain", ["a", "b"], "lightblue")
 
@@ -709,11 +760,11 @@ pr()
 
 oDiag = new stzDiagram("SoxPayment")
 oDiag {
-	AddNodeXT(:@Submit, "Submit", :Start, :Success)
-	AddNodeXT(:@Approve, "Approve?", :Decision, :Warning)
-	AddNodeXT(:@Pay, "Pay", :Process, :Primary)
-	AddNodeXT(:@Log, "Log", :Data, :Neutral)
-	AddNodeXT(:@Done, "Done", :Endpoint, :Success)
+	AddNodeXTT(:@Submit, "Submit", [ :type = "start", :color = "success" ])
+	AddNodeXTT(:@Approve, "Approve?", [ :type = "decision", :color = "warning" ])
+	AddNodeXTT(:@Pay, "Pay", [ :type = "proces", :color = "primary" ])
+	AddNodeXTT(:@Log, "Log", [ :type = "data", :color = "neutral" ])
+	AddNodeXTT(:@Done, "Done", [ :type = "endpoint", :color = "success" ])
 
 	Connect(:@Submit, :@Approve)
 	ConnectXT(:@Approve, :@Pay, "Yes")
@@ -743,9 +794,9 @@ pr()
 
 oDiag = new stzDiagram("GdprData")
 oDiag {
-	AddNodeXT("collect", "Collect", :Process, :primary)
-	AddNodeXT("process", "Process", :Process, :primary)
-	AddNodeXT("delete", "Delete", :Process, :info)
+	AddNodeXTT("collect", "Collect", [ :type = "process", :color = "primary" ])
+	AddNodeXTT("process", "Process", [ :type = "process", :color = "primary" ])
+	AddNodeXTT("delete", "Delete", [ :type = "process", :color = "info" ])
 
 	Connect("collect", "process")
 	Connect("collect", "delete")
