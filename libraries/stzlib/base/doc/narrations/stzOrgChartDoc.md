@@ -422,8 +422,84 @@ oOrg {
 
 >**NOTE**: To get a detailed idea about the powerful features you can get for stzGraph, right inside your `stzOrgChart` objects, read [this article](../doc/narrations/stzGraphDoc.md).
 
-## Visual Plasticity : Configuring the OrgChart Appearance
+# Visual Plasticity: Configuring the OrgChart Appearance
 
+Most of the smart defaults provided by **stzOrgChart** are already optimized for clarity and consistency, and in many cases you won’t need to change anything. Still, *every aspect is customizable*—either at the **stzOrgChart** level or at its parent class **stzDiagram**, which provides a rich visual foundation.
+
+As demonstrated earlier, you can customize global values such as:
+
+* The list of organizational colors via the global `$aOrgColors`
+* The default cluster color via `$cDefaultClusterColor`
+* And many additional visual parameters
+
+We also saw how to apply a **specific cluster color** only to the current org chart using `SetClusterColor()`. Following the same approach, you can personalize many other visual aspects:
+
+* `SetEdgeColor("blue-")`
+* `SetLayout(:LeftRight)`
+* …and more.
+
+### Choosing the spline style (edge style)
+
+You can also choose the type of splines (edge drawing style) to use:
+
+* `SetSplines("ortho")` – orthogonal step-like connectors
+* `SetSplines("splines")` – smooth direct arrows (the default style used in previous visuals)
+* Other options include: `"line"`, `"polyline"`, `"curved"`, etc.
+
+### Example: Switching to Orthogonal Splines
+
+Here is one of our previous examples, revisited to use the **orthogonal** spline style:
+
+```ring
+oOrg = new stzOrgChart("People_Management")
+oOrg {
+
+    SetSplines("ortho")   # Other options: splines, line, polyline, curved, etc.
+
+    AddPosition("ceo")
+    AddPosition("vp")
+    AddPosition("cto")
+
+    ReportsTo("vp", "ceo")
+    ReportsTo("cto", "ceo")
+
+    # Add people with data
+    AddPersonXTT("p1", "John Doe", [:tenure = 5, :performance = "High"])
+    AddPersonXT("p2", "Jane Smith")
+
+    # Assign people to positions
+    AssignPerson("p1", "ceo")
+    AssignPerson("p2", "vp")
+
+    # Verify assignments and data
+    ? @@NL( People() )
+    
+    # View with people emphasized
+    ViewPopulated()
+}
+```
+
+The org chart now turns **orthogonal**:
+
+![orgchart10.png](../images/orgchart10.png)
+
+Switch to:
+
+```ring
+SetSplines("curved")
+```
+
+and you get a **curved** connector style:
+
+![orgchart11.png](../images/orgchart11.png)
+
+### Beyond These Options
+
+These examples represent only a small portion of what’s possible, because **stzOrgChart** inherits all customization capabilities from the powerful **stzDiagram** class.
+
+Anything you can visually configure in **stzDiagram** can also be applied directly to **stzOrgChart**.
+
+For more information on the `stzDiagram` class, refer to the dedicated article: **#TODO**
 
 ## Business User Accessibility: Beyond Programming
 

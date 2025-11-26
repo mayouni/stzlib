@@ -1,35 +1,13 @@
-digraph "Department_Management" {
-    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=1, ranksep=1, ordering=out]
+digraph "People_Management" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=curved, nodesep=1, ranksep=1, ordering=out]
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#808080", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    ceo [label="CEO", shape=box, style="rounded,solid,filled", fillcolor="#FFF0A3", fontcolor="black"]
-    sales_mgr [label="Sales Manager", shape=box, style="rounded,solid,filled", fillcolor="#0000FF", fontcolor="white"]
-    eng_mgr [label="Engineering Manager", shape=box, style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black"]
+    ceo [label="ceo", shape=box, style="rounded,solid,filled", fillcolor="#C94DC9", fontcolor="white"]
+    vp [label="vp", shape=box, style="rounded,solid,filled", fillcolor="#C94DC9", fontcolor="white"]
+    cto [label="cto", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
 
-
-    subgraph cluster_exec {
-        label="EXECUTIVE";
-        style=filled;
-        color="#FFA3FF";
-        fillcolor="#FFA3FF20";
-        ceo;
-    }
-    subgraph cluster_sales {
-        label="SALES";
-        style=filled;
-        color="#FFA3FF";
-        fillcolor="#FFA3FF20";
-        sales_mgr;
-    }
-    subgraph cluster_eng {
-        label="ENGINEERING";
-        style=filled;
-        color="#FFA3FF";
-        fillcolor="#FFA3FF20";
-        eng_mgr;
-    }
-    ceo -> sales_mgr
-    ceo -> eng_mgr
+    ceo -> vp
+    ceo -> cto
 
 }
