@@ -98,7 +98,7 @@ $acNodeTypes = [
 $cDefaultNodeType = "process"
 $cDefaultNodeColor = "white"
 
-$cDefaultClusterColor = "gray"
+$cDefaultClusterColor = "magenta-"
 
 # Edge styles
 $acEdgeStyles = [

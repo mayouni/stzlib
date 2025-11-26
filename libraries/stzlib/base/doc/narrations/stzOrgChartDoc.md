@@ -133,6 +133,7 @@ Organizations are naturally compartmentalized into departments, and **stzOrgChar
 ```ring
 oOrg = new stzOrgChart("Department_Management")
 oOrg {
+    # Adding the positions and who reports to whom
 
     AddPositionXT(:ceo, "CEO")
     AddPositionXT(:sales_mgr, "Sales Manager")
@@ -141,11 +142,16 @@ oOrg {
     ReportsTo(:sales_mgr, :ceo)
     ReportsTo(:eng_mgr, :ceo)
 
-    # Add departments with positions inside
-    
-    AddDepartmentXT("EXECUTIVE", :with = [ :ceo ])
-    AddDepartmentXT("SALES", :with = [ :sales_mgr ])
-    AddDepartmentXT("ENGENEERING", :with =[ :eng_mgr ])
+    # Adding departments and filling them with positions
+
+    AddDepartmentXTT(:exec, "EXECUTIVE", [ :ceo ])
+    AddDepartmentXTT(:sales, "SALES", [ :sales_mgr ])
+    AddDepartmentXTT(:eng, "ENGINEERING", [ :eng_mgr ])
+
+    # Set position departments
+    SetPositionDepartment(:ceo, "EXECUTIVE")
+    SetPositionDepartment(:sales_mgr, "SALES")
+    SetPositionDepartment(:eng_mgr, "ENGINEERING")
 
     # Verify
     ? @@NL( Departments() ) + NL
@@ -161,10 +167,17 @@ And you can call the data of just a given department using `Department(cName)` l
 
 Finally, these departments are automatically reflected on the visual org chart as three **clusters**, each containing all the nodes assigned to that department. Each cluster appears as a box that encloses the department’s nodes:
 
-
 ![orgchart6.png](../images/orgchart6.png)
 
-> **NOTE**: If the default gray cluster color doesn’t suit your needs, you can easily change it. Just add a line such as `SetClusterColor("magenta--")` in your code before calling `View()`. This will apply the new color to the clusters.
+> **Note**: If the default magenta cluster color isn’t what you prefer, you can change it effortlessly. Just add a line such as `SetClusterColor("gray")` before calling `View()`, and the new color will be applied to all clusters.
+
+You can also set the **default** cluster color globally by editing the `stzDiagram.ring` file and assigning:
+
+```
+$cDefaultClusterColor = "gray"
+```
+
+(This will apply the color automatically to all future org charts unless overridden in code.)
 
 ## Layered Intelligence: The GIS Approach to Organizational Analysis
 
