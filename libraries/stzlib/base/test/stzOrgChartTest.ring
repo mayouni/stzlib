@@ -1,7 +1,34 @@
 
 load "../stzbase.ring"
 
+pr()
 
+oOrg = new stzOrgChart("Basic_Hierarchy")
+oOrg {
+    SetLayout("TD")
+    
+    # Add executive position
+    AddExecutivePositionXT("ceo", "CEO")
+    
+    # Add management positions
+    AddManagementPositionXT("vp_sales", "VP Sales")
+    AddManagementPositionXT("vp_eng", "VP Engineering")
+    
+    # Set reporting lines
+    ReportsTo("vp_sales", "ceo")
+    ReportsTo("vp_eng", "ceo")
+    
+    # Add staff positions with attributes
+    AddStaffPositionXTT("sales_rep1", "Sales Rep 1", [:region = "North"])
+    AddStaffPositionXTT("dev1", "Developer 1", [:skill = "Backend"])
+    
+    ReportsTo("sales_rep1", "vp_sales")
+    ReportsTo("dev1", "vp_eng")
+    
+    View()
+}
+
+pf()
 #----------------------------#
 #  BASIC STRUCTURE CREATION  #
 #----------------------------#
