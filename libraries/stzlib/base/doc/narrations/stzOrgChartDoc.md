@@ -740,5 +740,3 @@ This isn't just organizational charting—it's organizational engineering with f
 - **Visualize complex relationships** through layered analytical perspectives
 
 Whether you're an HR executive evaluating talent pipelines, a compliance officer ensuring regulatory adherence, a restructuring consultant optimizing spans of control, or a CEO planning digital transformation, **stzOrgChart** provides the analytical foundation for making confident, data-driven decisions about your organization's most valuable asset—your people.
-
-In an era where organizational agility determines competitive advantage, **stzOrgChart** delivers the intelligence platform necessary to design, validate, and optimize the human infrastructure that drives business success. This is not just organizational charting—it's organizational intelligence engineering.
