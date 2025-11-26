@@ -40,7 +40,7 @@ Output:
 
 Texecutive (yellow), management (blue), and staff positions (green), creating a visually intuitive hierarchy.
 
-> NOTE: The colors and everything else are completely configurable, at the gloabl level, to cope with your taste and need, by simply editng this container at the beginning of the stzOrgChart.ring file:
+> **NOTE**: The colors and everything else are completely configurable, at the gloabl level, to cope with your taste and need, by simply editng this container at the beginning of the stzOrgChart.ring file:
 ```
 $aOrgColors = [
     :board = "gold",
@@ -169,7 +169,7 @@ Finally, these departments are automatically reflected on the visual org chart a
 
 ![orgchart6.png](../images/orgchart6.png)
 
-> **Note**: If the default magenta cluster color isn’t what you prefer, you can change it effortlessly. Just add a line such as `SetClusterColor("gray")` before calling `View()`, and the new color will be applied to all clusters.
+> **NOTE**: If the default magenta cluster color isn’t what you prefer, you can change it effortlessly. Just add a line such as `SetClusterColor("gray")` before calling `View()`, and the new color will be applied to all clusters.
 
 You can also set the **default** cluster color globally by editing the `stzDiagram.ring` file and assigning:
 
@@ -615,7 +615,7 @@ This comprehensive example demonstrates how **stzOrgChart** delivers actionable 
 5. Simulation of strategic digital transformation initiatives
 6. Executive-ready visualizations highlighting critical paths
 
-> **Note**: You can change the orientation of the org chart from the default `:TopDown` layout to `:LeftRight` simply by adding `SetLayout(:LeftRight)` before calling `View()` and so you get:
+> **NOTE**: You can change the orientation of the org chart from the default `:TopDown` layout to `:LeftRight` simply by adding `SetLayout(:LeftRight)` before calling `View()` and so you get:
 
 ![orgchart9.png](../images/orgchart9.png)
 
