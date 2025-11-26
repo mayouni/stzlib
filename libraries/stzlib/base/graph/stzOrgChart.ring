@@ -21,6 +21,7 @@ $aOrgColors = [
     :focus = "magenta+"
 ]
 
+
 func IsStzOrgChart(pObj)
 	if isObject(pObj) and classname(pObj) = "stzorgchart"
 		return TRUE
@@ -38,6 +39,8 @@ class stzOrgChart from stzDiagram
 	@cEdgeStyle = $cDefaultOrgChartEdgeStyle   # Defined in stzDiagram.ring
 	@cEdgeSpline = $cDefaultOrgChartEdgeSpline # Idem
 	@cEdgeColor = $cDefaultOrgChartEdgeColor  # Idem
+	@cClusterColor = $cDefaultClusterColor	   
+
 	#TODO// Add other options
 
 	def init(pcTitle)
@@ -245,7 +248,7 @@ class stzOrgChart from stzDiagram
 		This.AddDepratmentXTT(pcId, pcId, [])
 
 	def AddDepartmentXT(pcId, pcName)
-		This.AddDepratmentXTT(pcId, pcName, [])
+		This.AddDepartmentXTT(pcId, pcName, [])
 
 	def AddDepartmentXTT(pcId, pcName, paPositions)
 		aDept = [
@@ -257,7 +260,7 @@ class stzOrgChart from stzDiagram
 		@aDepartments + aDept
 		
 		if len(paPositions) > 0
-			This.AddClusterXTT(pcId, pcName, paPositions, "lightgray")
+			This.AddClusterXTT(pcId, pcName, paPositions, @cClusterColor)
 		ok
 
 	def Department(pcId)
@@ -540,9 +543,12 @@ class stzOrgChart from stzDiagram
 	def SetEdgeColor(pcColor)
 		@cEdgeColor = pcColor
 
+	def SetClusterColor(pcColor)
+		@cClusterColor = pcColor
+
 	#--
 
-	def ViewWithPeople()
+	def ViewPopulated()
 	    nPosCount = len(@aPositions)
 	    for i = 1 to nPosCount
 	        if NOT @aPositions[i][:isVacant]
@@ -551,16 +557,23 @@ class stzOrgChart from stzDiagram
 	    end
 	    This.View()
 
+	    def ViewPeople()
+		This.ViewPopulated()
 
-	def ViewVacancies()
-		# Highlight vacant positions
-		oRule = new stzVisualRule("highlight_vacant")
-		oRule.WhenPropertyEquals("isvacant", TRUE)
-		oRule.ApplyColor("red")
-		oRule.ApplyStyle("dashed")
-		This.SetVisualRule(oRule)
-		This.ApplyVisualRules()
-		This.View()
+	    def ViewWithPeople()
+		This.ViewPopulated()
+
+	def ViewVacant()
+	    nPosCount = len(@aPositions)
+	    for i = 1 to nPosCount
+	        if @aPositions[i][:isVacant]
+	            This.SetNodeProperty(@aPositions[i][:id], "color", $aOrgColors[:focus])
+	        ok
+	    end
+	    This.View()
+
+	    def ViewVacancies()
+		This.ViewVacant()
 
 	def ViewByDepartment()
 		This.ColorByDepartment()
@@ -820,10 +833,25 @@ class stzOrgChartAnalysisLayer
 		off
 
 	def _ApplyPerformanceMetrics()
-		# Color-code by performance
+	    nPosCount = len(@oOrgChart.@aPositions)
+	    for i = 1 to nPosCount
+	        aPos = @oOrgChart.@aPositions[i]
+	        if HasKey(aPos[:attributes], "performance")
+	            nScore = aPos[:attributes]["performance"]
+	            cColor = "red"
+	            if nScore > 75 cColor = "green" ok
+	            if nScore >= 50 and nScore <= 75 cColor = "yellow" ok
+	            @oOrgChart.SetNodeProperty(aPos[:id], "color", cColor)
+	        ok
+	    end
 
 	def _ApplyRiskAnalysis()
-		# Highlight high-risk positions
+	    acRisk = @oOrgChart.SuccessionRisk()  # Already implemented
+	    nLen = len(acRisk)
+	    for i = 1 to nLen
+	        @oOrgChart.SetNodeProperty(acRisk[i], "color", "orange")
+	        @oOrgChart.SetNodeProperty(acRisk[i], "penwidth", 3)
+	    end
 
 	def _ApplyComplianceChecks()
 		# Show compliance status
