@@ -625,17 +625,17 @@ The landscape of organizational charting tools is crowded with solutions that fo
 | **Total Cost of Ownership** | ✅ One-time development with no recurring fees | ✅ Free libraries but high development cost | ⚠️ Subscription fees with limited functionality | ✅ Free but requires specialized skills | ❌ $50K-$500K+ implementation with annual fees |
 | **Time to Value** | ✅ Days to weeks for complete implementation | ⚠️ Weeks to months for full solution | ✅ Hours for basic charts, months for analytics | ⚠️ Months for non-technical teams | ❌ 6-18 months implementation cycles |
 
-### Key Differentiators That Matter
+**Key Differentiators That Matter**
 
-**The Integrated Intelligence Approach**: Unlike visualization-only tools (D3.js, Visio), **stzOrgChart** treats organizational structure as a living analytical system. The GIS-inspired layered architecture allows leaders to toggle between compliance views, risk heatmaps, and succession planning perspectives without rebuilding charts from scratch.
+- **The Integrated Intelligence Approach**: Unlike visualization-only tools (D3.js, Visio), **stzOrgChart** treats organizational structure as a living analytical system. The GIS-inspired layered architecture allows leaders to toggle between compliance views, risk heatmaps, and succession planning perspectives without rebuilding charts from scratch.
 
-**Governance as Code**: While enterprise HRIS platforms bury compliance rules in configuration menus, **stzOrgChart** exposes governance standards as programmable validations. This enables version control, automated testing, and continuous compliance monitoring—capabilities unavailable in static diagramming tools.
+- **Governance as Code**: While enterprise HRIS platforms bury compliance rules in configuration menus, **stzOrgChart** exposes governance standards as programmable validations. This enables version control, automated testing, and continuous compliance monitoring—capabilities unavailable in static diagramming tools.
 
-**Simulation-First Mindset**: Most organizational tools present a snapshot in time. **stzOrgChart**'s simulation engine quantifies the impact of proposed changes on span of control, vacancy rates, and risk exposure before decisions are made—turning reorganization from guesswork into engineering.
+- **Simulation-First Mindset**: Most organizational tools present a snapshot in time. **stzOrgChart**'s simulation engine quantifies the impact of proposed changes on span of control, vacancy rates, and risk exposure before decisions are made—turning reorganization from guesswork into engineering.
 
-**Business-Technical Bridge**: The `.stzorg` file format eliminates the traditional divide between business analysts and developers. HR professionals can edit organizational structures in plain text while developers build sophisticated analytics on the same foundation—a duality impossible in pure GUI tools or academic graph libraries.
+- **Business-Technical Bridge**: The `.stzorg` file format eliminates the traditional divide between business analysts and developers. HR professionals can edit organizational structures in plain text while developers build sophisticated analytics on the same foundation—a duality impossible in pure GUI tools or academic graph libraries.
 
-**Total Ownership Cost**: Enterprise platforms charge premium prices for features that **stzOrgChart** delivers with elegant simplicity. Organizations avoid vendor lock-in while maintaining complete control over their organizational data and intelligence workflows.
+- **Total Ownership Cost**: Enterprise platforms charge premium prices for features that **stzOrgChart** delivers with elegant simplicity. Organizations avoid vendor lock-in while maintaining complete control over their organizational data and intelligence workflows.
 
 This isn't just organizational charting—it's organizational engineering with full strategic ownership.
 
