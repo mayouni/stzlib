@@ -420,7 +420,7 @@ oOrg {
 }
 ```
 
->**NOTE**: To get a detailed idea about the powerful features you can get for stzGraph, right inside your `stzOrgChart` objects, read [this article](../doc/narrations/stzGraphDoc.md).
+>**NOTE**: To get a detailed idea about the powerful features you can get for stzGraph, right inside your `stzOrgChart` objects, read [this article](../narrations/stzGraphDoc.md).
 
 # Visual Plasticity: Configuring the OrgChart Appearance
 
