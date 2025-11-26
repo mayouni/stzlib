@@ -1,17 +1,17 @@
-digraph "Visualization" {
+digraph "Basic_Hierarchy" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=1, ranksep=1, ordering=out]
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#808080", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
     ceo [label="CEO", shape=box, style="rounded,solid,filled", fillcolor="#FFF0A3", fontcolor="black"]
-    vp1 [label="VP1", shape=box, style="rounded,solid,filled", fillcolor="#0000FF", fontcolor="white"]
-    vp2 [label="VP2", shape=box, style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black"]
-    staff1 [label="Staff1", shape=box, style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black"]
-    staff2 [label="Staff2", shape=box, style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black"]
+    vp_sales [label="VP Sales", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white"]
+    vp_eng [label="VP Engineering", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white"]
+    sales_rep1 [label="Sales Rep 1", shape=box, style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black"]
+    dev1 [label="Developer 1", shape=box, style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black"]
 
-    ceo -> vp1
-    ceo -> vp2
-    vp1 -> staff1
-    vp2 -> staff2
+    ceo -> vp_sales
+    ceo -> vp_eng
+    vp_sales -> sales_rep1
+    vp_eng -> dev1
 
 }
