@@ -1,34 +1,21 @@
 
 load "../stzbase.ring"
 
+/*--- #TODO
+
 pr()
 
-oOrg = new stzOrgChart("Basic_Hierarchy")
-oOrg {
-    SetLayout("TD")
-    
-    # Add executive position
-    AddExecutivePositionXT("ceo", "CEO")
-    
-    # Add management positions
-    AddManagementPositionXT("vp_sales", "VP Sales")
-    AddManagementPositionXT("vp_eng", "VP Engineering")
-    
-    # Set reporting lines
-    ReportsTo("vp_sales", "ceo")
-    ReportsTo("vp_eng", "ceo")
-    
-    # Add staff positions with attributes
-    AddStaffPositionXTT("sales_rep1", "Sales Rep 1", [:region = "North"])
-    AddStaffPositionXTT("dev1", "Developer 1", [:skill = "Backend"])
-    
-    ReportsTo("sales_rep1", "vp_sales")
-    ReportsTo("dev1", "vp_eng")
-    
-    View()
+o1 = new stzOrgChart("")
+o1 {
+	SetOutput("PNG")
+	AddNodeXT("ceo", "CEO")
+	AddNodeXT("sales", "VP Sales")
+	ReportsTo("sales", "ceo")
+	View()
 }
 
 pf()
+
 #----------------------------#
 #  BASIC STRUCTURE CREATION  #
 #----------------------------#
@@ -143,7 +130,9 @@ oOrg {
 	#--> [ "cto" ]
 
     # View with nodes containing people amphasized with $aOrColors[:focus]
-    ViewWithPeople()
+    //ViewPopulated() # Or ViewWithPeople() or ViewPeople()
+    ViewVacant() # Or ViewVacancies()
+
 }
 
 pf()
@@ -160,27 +149,36 @@ pr()
 oOrg = new stzOrgChart("Department_Management")
 oOrg {
 
-    AddPositionXT("ceo", "CEO")
-    AddPositionXT("sales_mgr", "Sales Manager")
-    AddPositionXT("eng_mgr", "Engineering Manager")
+    # Adding the positions and who reports to whom
 
-    ReportsTo("sales_mgr", "ceo")
-    ReportsTo("eng_mgr", "ceo")
+    AddPositionXT(:ceo, "CEO")
+    AddPositionXT(:sales_mgr, "Sales Manager")
+    AddPositionXT(:eng_mgr, "Engineering Manager")
 
-    # Add departments with positions
-    AddDepartmentXTT("sales", "Sales Dept", ["sales_mgr"])
-    AddDepartmentXTT("eng", "Engineering Dept", ["eng_mgr"])
+    ReportsTo(:sales_mgr, :ceo)
+    ReportsTo(:eng_mgr, :ceo)
+
+    # Adding departments and filling them with positions
+
+    AddDepartmentXTT(:exec, "EXECUTIVE", [ :ceo ])
+    AddDepartmentXTT(:sales, "SALES", [ :sales_mgr ])
+    AddDepartmentXTT(:eng, "ENGINEERING", [ :eng_mgr ])
+
+#TODO // Enhance the programming experience
+# the fellowing 3 lines should be infered automatically
+# from the two lines above so we don't need to write them
 
     # Set position departments
-    SetPositionDepartment("ceo", "Executive")
-    SetPositionDepartment("sales_mgr", "sales")
+    SetPositionDepartment(:ceo, "EXECUTIVE")
+    SetPositionDepartment(:sales_mgr, "SALES")
+    SetPositionDepartment(:eng_mgr, "ENGINEERING")
 
     # Verify
     ? @@NL( Departments() ) + NL
 
-    ? @@NL( Department("sales") )
+    ? @@NL( Department("SALES") )
 
-    ViewByDepartment() #TODO// What is the significance of colors?
+    ViewByDepartment()
 }
 
 pf()
@@ -251,13 +249,13 @@ oOrg {
 pf()
 
 /*--- Complete examaple with validations and reports generation
-
+*/
 pr()
 
 oOrg = new stzOrgChart("Simple_Hierarchy")
 oOrg {
 
-    SetLayout("TD")
+    SetLayout("LeftRight")
 
     #----------------#
     # LEVEL 1 – CEO  #
@@ -954,7 +952,7 @@ pf()
 #--------------------------#
 
 /*-- Tests visualization options, branching, views, coloring, highlighting.
-
+*/
 pr()
 
 oOrg = new stzOrgChart("Visualization")
@@ -972,18 +970,18 @@ oOrg {
     ReportsTo("staff2", "vp2")
 
     # Set departments for coloring
-    SetPositionDepartment("vp1", "sales")
-    SetPositionDepartment("vp2", "engineering")
+//    SetPositionDepartment("vp1", "sales")
+ //   SetPositionDepartment("vp2", "engineering")
 
-    ColorByDepartment()
+//    ColorByDepartment()
 
     # Highlight path
-    HighlightPath("staff1", "ceo") #ERR // No effect!
+//    HighlightPath("staff1", "ceo") #ERR // No effect!
 
     # Different views
-    ViewWithPeople()
-    ViewVacancies()
-    ViewByDepartment() #ERR // the 3 View generate the same visual!
+    ViewPopulated()
+//   ViewVacant()
+//    ViewByDepartment() #ERR // the 3 View generate the same visual!
 }
 
 pf()

@@ -38,6 +38,9 @@ class stzDotCode
 	def SetOutputFormat(cFormat)
 		@cOutputFormat = lower(cFormat)
 
+		def SetOutput(cFormat)
+			@cOutputFormat = lower(cFormat)
+
 	def SetTempDir(cDir)
 		@cTempDir = cDir
 		This.EnsureDirectories()

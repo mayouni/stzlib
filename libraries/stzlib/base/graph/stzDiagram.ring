@@ -98,7 +98,7 @@ $acNodeTypes = [
 $cDefaultNodeType = "process"
 $cDefaultNodeColor = "white"
 
-$cDefaultClusterColor = "blue-"
+$cDefaultClusterColor = "gray"
 
 # Edge styles
 $acEdgeStyles = [
@@ -309,6 +309,10 @@ $aFontColors = [
 		:neutral = "white"
 	]
 ]
+
+#-- Output file
+
+$cDefaultOutputFormat = "svg" #TODO Implement it
 
 #------------------
 #  VISUAL MAPPINGS

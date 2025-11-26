@@ -14,22 +14,22 @@ oOrg {
     SetLayout("TD")
     
     # Add executive position
-    AddExecutivePositionXT("ceo", "CEO")
+    AddExecutivePositionXT(:ceo, "CEO") # ceo is the ID of the node and CEO it's label
     
     # Add management positions
-    AddManagementPositionXT("vp_sales", "VP Sales")
-    AddManagementPositionXT("vp_eng", "VP Engineering")
+    AddManagementPositionXT(:vp_sales, "VP Sales")
+    AddManagementPositionXT(:vp_eng, "VP Engineering")
     
     # Set reporting lines
-    ReportsTo("vp_sales", "ceo")
-    ReportsTo("vp_eng", "ceo")
+    ReportsTo(:vp_sales, :ceo)
+    ReportsTo(:vp_eng, :ceo)
     
     # Add staff positions with attributes
-    AddStaffPositionXTT("sales_rep1", "Sales Rep 1", [:region = "North"])
-    AddStaffPositionXTT("dev1", "Developer 1", [:skill = "Backend"])
+    AddStaffPositionXTT(:sales_rep1, "Sales Rep 1", [:region = "North"])
+    AddStaffPositionXTT(:dev1, "Developer 1", [:skill = "Backend"])
     
-    ReportsTo("sales_rep1", "vp_sales")
-    ReportsTo("dev1", "vp_eng")
+    ReportsTo(:sales_rep1, :vp_sales)
+    ReportsTo(:dev1, :vp_eng)
     
     View()
 }
@@ -38,7 +38,28 @@ Output:
 
 ![orgchart1.png](../images/orgchart1.png)
 
-Texecutive (gold), management (blue), and staff positions (green), creating a visually intuitive hierarchy.
+Texecutive (yellow), management (blue), and staff positions (green), creating a visually intuitive hierarchy.
+
+> NOTE: The colors and everything else are completely configurable, at the gloabl level, to cope with your taste and need, by simply editng this container at the beginning of the stzOrgChart.ring file:
+```
+$aOrgColors = [
+    :board = "gold",
+    :executive = "gold-",       # Lighter gold
+    :management = "blue+",      # Mid-blue
+    :staff = "green-",          # Green
+    :operations = "blue",
+    :treasury = "green",
+    :risk = "orange",
+    :audit = "purple",
+    :hr = "pink",
+    :it = "cyan",
+    :sales = "blue",
+    :engineering = "green-",
+    
+    :focus = "magenta+"
+]
+```
+
 
 ### People Management with Rich Data
 
@@ -47,23 +68,63 @@ The true power emerges when we add people to positions with rich attribute data:
 ```ring
 oOrg = new stzOrgChart("People_Management")
 oOrg {
-    AddPositionXT("ceo", "CEO")
-    AddPositionXT("vp", "VP")
-    
-    # Add people with comprehensive data
-    AddPersonXTT("p1", "John Doe", [:tenure = 5, :performance = "High", :education = "MBA"])
+
+    AddPosition("ceo")
+    AddPosition("vp")
+    AddPosition("cto")
+
+    ReportsTo("vp", "ceo")
+    ReportsTo("cto", "ceo")
+
+    # Add people with data
+    AddPersonXTT("p1", "John Doe", [:tenure = 5, :performance = "High"])
     AddPersonXT("p2", "Jane Smith")
-    
+
     # Assign people to positions
     AssignPerson("p1", "ceo")
     AssignPerson("p2", "vp")
+
+    # Verify assignments and data
+    ? @@NL( People() )
     
     # View with people emphasized
-    ViewWithPeople()
+    ViewPopulated()
 }
 ```
 
-The `ViewWithPeople()` method instantly transforms our chart to display both position titles and incumbent names, while preserving all the people data (tenure, performance metrics, education) behind the scenes.
+Our org chart now is populated and we can check the data about it's people by checking the outpout of the People() method:
+```
+[
+		[
+			[ "id", "p1" ],
+			[ "name", "John Doe" ],
+			[ "position", "ceo" ],
+			[
+				"data",
+				[
+					[ "tenure", 5 ],
+					[ "performance", "High" ]
+				]
+			]
+		],
+		[
+			[ "id", "p2" ],
+			[ "name", "Jane Smith" ],
+			[ "position", "vp" ],
+			[ "data", [  ] ]
+		]
+]
+```
+
+The `ViewPopulated()` method instantly shows, in a distinct color, the nodes of the org chart that are **populated** with persons ("ceo" and "vp") and those who are not (the "cto" node).
+
+![orgchart2.png](../images/orgchart2.png)
+
+> **NOTE**: The magenta color used here to highlight the nodes containing people is configurable in the `$aOrgColors` global setting we saw earlier, in particular, by modifying the `:focus = "magenta+"` line.
+
+Or you can focus on the **vacant** positions (nodes without people assigned to them) by using `ViewVacant()` instead of `ViewPopulated()` and so you get:
+
+![orchart7.png](../images/orchart7.png)
 
 ### Departmental Structure and Clusters
 
@@ -72,26 +133,38 @@ Organizations are naturally compartmentalized into departments, and **stzOrgChar
 ```ring
 oOrg = new stzOrgChart("Department_Management")
 oOrg {
-    AddPositionXT("ceo", "CEO")
-    AddPositionXT("sales_mgr", "Sales Manager")
-    AddPositionXT("eng_mgr", "Engineering Manager")
+
+    AddPositionXT(:ceo, "CEO")
+    AddPositionXT(:sales_mgr, "Sales Manager")
+    AddPositionXT(:eng_mgr, "Engineering Manager")
+
+    ReportsTo(:sales_mgr, :ceo)
+    ReportsTo(:eng_mgr, :ceo)
+
+    # Add departments with positions inside
     
-    ReportsTo("sales_mgr", "ceo")
-    ReportsTo("eng_mgr", "ceo")
-    
-    # Create department clusters
-    AddDepartmentXTT("sales", "Sales Dept", ["sales_mgr"])
-    AddDepartmentXTT("eng", "Engineering Dept", ["eng_mgr"])
-    
-    # Assign positions to departments
-    SetPositionDepartment("ceo", "Executive")
-    SetPositionDepartment("sales_mgr", "sales")
-    
+    AddDepartmentXT("EXECUTIVE", :with = [ :ceo ])
+    AddDepartmentXT("SALES", :with = [ :sales_mgr ])
+    AddDepartmentXT("ENGENEERING", :with =[ :eng_mgr ])
+
+    # Verify
+    ? @@NL( Departments() ) + NL
+
+    ? @@NL( Department("SALES") )
+
     ViewByDepartment()
 }
 ```
+The full content of the departments is returned using `Departments()`method:
 
-This automatically generates visual clusters with appropriate coloring, enhancing readability and departmental identification.
+And you can call the data of just a given department using `Department(cName)` like in `Department("SALES")` above.
+
+Finally, these departments are automatically reflected on the visual org chart as three **clusters**, each containing all the nodes assigned to that department. Each cluster appears as a box that encloses the department’s nodes:
+
+
+![orgchart6.png](../images/orgchart6.png)
+
+> **NOTE**: If the default gray cluster color doesn’t suit your needs, you can easily change it. Just add a line such as `SetClusterColor("magenta--")` in your code before calling `View()`. This will apply the new color to the clusters.
 
 ## Layered Intelligence: The GIS Approach to Organizational Analysis
 
@@ -123,6 +196,8 @@ Each layer type provides specialized analytical capabilities:
 - **Risk Layer**: Identifies positions with high operational, compliance, or continuity risk
 - **Compliance Layer**: Ensures governance standards throughout the organization
 - **Succession Layer**: Maps critical positions and their succession readiness
+
+#TODO Add visual here
 
 ## Governance, Compliance and Risk Analysis
 
@@ -269,53 +344,10 @@ The simulation engine quantitatively analyzes the impact of proposed changes on 
 
 This enables data-driven decision making for restructuring initiatives, merger integrations, and strategic realignments.
 
-## Advanced Visualization: Making Complexity Clear
-
-**stzOrgChart** offers multiple visualization perspectives tailored to different stakeholder needs:
-
-```ring
-oOrg = new stzOrgChart("Visualization")
-oOrg {
-    # Build organizational structure
-    
-    # Apply department-based coloring
-    ColorByDepartment()
-    
-    # Highlight critical reporting path
-    HighlightPath("staff1", "ceo")
-    
-    # Generate specialized views
-    ViewWithPeople()      # Emphasize incumbents
-    ViewVacancies()       # Highlight open positions  
-    ViewByDepartment()    # Department-focused view
-}
-```
-
-Each visualization method serves specific analytical purposes:
-- `ViewWithPeople()`: HR planning and talent reviews
-- `ViewVacancies()`: Recruitment prioritization and budgeting
-- `ViewByDepartment()`: Departmental structure reviews and resource allocation
-- `HighlightPath()`: Critical reporting line verification and audit trails
 
 ## Technical Power: Graph Theory Meets Business Intelligence
 
-Under the hood, **stzOrgChart** leverages advanced graph theory algorithms inherited from its parent class `stzGraph`:
-
-```ring
-oOrg = new stzOrgChart("Graph_Traversal")
-oOrg {
-    # Build organizational structure
-    
-    # Advanced graph analytics
-    ? CyclicDependencies()             # Detect reporting cycles
-    ? ConnectedComponents()            # Identify disconnected units
-    ? ArticulationPoints()             # Find critical positions
-    ? BetweennessCentrality("vp_eng")  # Identify communication hubs
-    ? ClosenessCentrality("ceo")       # Measure influence reach
-    ? Diameter()                       # Longest reporting chain
-    ? AveragePathLength()              # Average hierarchy depth
-}
-```
+Under the hood, **stzOrgChart** leverages advanced **graph theory** algorithms inherited from its parent class `stzGraph`.
 
 These capabilities enable sophisticated analyses like:
 - Identifying communication bottlenecks that slow decision-making
@@ -323,9 +355,66 @@ These capabilities enable sophisticated analyses like:
 - Optimizing organizational depth to balance control and agility
 - Quantifying influence networks beyond formal reporting lines
 
+Let's see some of them by example :
+
+```ring
+oOrg = new stzOrgChart("Graph_Analysis")
+oOrg {
+
+    AddPosition("a")
+    AddPosition("b")
+    AddPosition("c")
+    AddPosition("d")
+    AddPosition("e")
+
+    ReportsTo("b", "a")
+    ReportsTo("c", "b")
+    ReportsTo("d", "c")
+    ReportsTo("e", "a")  # Parallel branch
+
+    # Cyclic check (no cycle)
+    ? CyclicDependencies()  # FALSE
+
+    # Add cycle
+    ReportsTo("a", "d")  # Creates cycle a->b->c->d->a
+    ? CyclicDependencies()  # TRUE
+
+    # Remove cycle for further tests
+    Disconnect("a", "d")
+    ? CyclicDependencies()  #--> FALSE
+
+    # Connected components
+    ? @@( ConnectedComponents() )  # [["a", "b", "c", "d", "e"]]
+
+    # Articulation points (removal increases components)
+    ? @@( ArticulationPoints() ) #--> [ "a", "d" ]
+
+    # Betweenness centrality
+    ? BetweennessCentrality("b")  #--> 0.25
+
+    # Closeness centrality
+    ? ClosenessCentrality("a")  #--> 0.57
+
+    # Diameter (longest shortest path)
+    ? Diameter()  #--> 4
+
+    # Average path length
+    ? AveragePathLength() #--> 2
+
+    # Clustering coefficient
+    ? ClusteringCoefficient("a")  #--> 0 Low since branches don't connect
+
+}
+```
+
+>**NOTE**: To get a detailed idea about the powerful features you can get for stzGraph, right inside your `stzOrgChart` objects, read [this article](../doc/narrations/stzGraphDoc.md).
+
+## Visual Plasticity : Configuring the OrgChart Appearance
+
+
 ## Business User Accessibility: Beyond Programming
 
-**stzOrgChart** bridges the gap between technical and business users through its dedicated `.stzorg` file format. Business analysts can edit organizational structures directly in text files without writing code:
+**stzOrgChart** bridges the gap between technical and business users through its dedicated `.stzorg` file format. Business users can edit organizational structures **directly in text files** without writing code:
 
 ```text
 orgchart "Banking Structure"
@@ -345,11 +434,11 @@ positions
 
 people
     p1
-        name: John Doe
+        name: Ali Mamane
         data: {tenure: 5, performance: "High"}
         
     p2
-        name: Jane Smith
+        name: Salimatou Touré
 
 assignments
     p1 -> ceo
@@ -361,73 +450,46 @@ departments
         positions: ["vp_sales", "sales_mgr1", "sales_mgr2"]
 ```
 
-Loading and visualizing this structure requires minimal code:
+Loading this structure from the text file and visualizing it requires minimal code:
 
 ```ring
 oOrgChart = new stzOrgChart("Imported_Org")
 oOrgChart {
-    ImportFromStzOrgFile("banking_structure.stzorg")
+    Import("banking_structure.stzorg")
     View()
 }
 ```
+![orchart8.png](../images/orchart8.png)
 
-This accessibility makes organizational intelligence available to all stakeholders, not just technical teams.
+Now, all the `stzOrgChart` features are accessible by code, and you can edit the text file again to change the org chart structure, and then load it again. This accessibility makes organizational intelligence available to all stakeholders, not just technical teams.
 
-## Edge Case Handling and Robustness
 
-Real-world organizations present complex challenges that **stzOrgChart** handles with robustness:
+## Generating your Org Chart File
 
-```ring
-# Cycle detection in reporting lines
-ReportsTo("a", "b")
-ReportsTo("b", "c")
-ReportsTo("c", "a")  # Creates cycle
-? CyclicDependencies()  # Returns TRUE
+**stzOrgChart** can generate your organizational chart in multiple formats—images (PNG, JPEG), vector files (SVG, PDF), and any other format supported by the Graphviz DOT engine used internally to render the graph.
 
-# Wide hierarchies with span of control analysis
-for i = 1 to 20
-    AddStaffPositionXT("staff"+i, "Staff "+i)
-    ReportsTo("staff"+i, "mgr")
-next
-? ValidateSpanOfControl()  # Flags excessive span
-
-# Deep hierarchies with path analysis
-cPrev = "top"
-for i = 1 to 15
-    cId = "level"+i
-    AddPositionXT(cId, "Level "+i)
-    ReportsTo(cId, cPrev)
-    cPrev = cId
-next
-? Diameter()  # Measures longest path
-```
-
-**stzOrgChart** gracefully handles edge cases including:
-- Reporting cycles that create logical inconsistencies
-- Extremely wide hierarchies with excessive spans of control
-- Deep hierarchies with multiple management layers
-- Unassigned people and vacant positions
-- Invalid reporting relationships
-- Special characters in position IDs and titles
-
-## Performance and Scalability
-
-**stzOrgChart** is engineered for real-world organizational complexity:
+Exporting is as simple as calling `SetOutput(cFormat)`:
 
 ```ring
-# For large organizations (500+ positions)
-oOrg.SetLayoutPreset("orgchart_compact")  # Optimized layout
-oOrg.SetTheme("print")                    # Print-optimized styling
+oOrgChart = new stzOrgChart("Imported_Org")
+oOrgChart {
+    Import("banking_structure.stzorg")
+    SetOutput("PDF") # SVG is the default form.
+    View()
+}
 
-# For executive presentations
-oOrg.SetEdgeStyle("bold")                 # Emphasize reporting lines
-oOrg.SetEdgeColor("navy")                 # Professional color scheme
 ```
 
-The system automatically optimizes rendering for different output formats:
-- SVG for interactive web applications
-- PDF for formal documentation and printing
-- PNG for presentations and email communications
+This produces a PDF file that opens automatically in your browser or your system’s default PDF viewer:
+
+![orgchart_pdf.png](../images/orgchart_pdf.png)
+
+In practice, you can choose your export format based on your needs:
+
+* **SVG** — Ideal for interactive web applications and scalable visuals
+* **PDF** — Best for formal documents, reports, and printing
+* **PNG or other bitmap formats** — Useful for presentations, slides, and email sharing
+
 
 ## Complete Strategic Example: Banking Organization Analysis
 
@@ -436,7 +498,6 @@ Let's see **stzOrgChart** in action with a comprehensive banking organization an
 ```ring
 oOrg = new stzOrgChart("Banking_Hierarchy")
 oOrg {
-    SetLayout("TD")
     
     # Create multi-level hierarchy with specialized positions
     AddExecutivePositionXT("ceo", "CEO")
@@ -540,6 +601,11 @@ This comprehensive example demonstrates how **stzOrgChart** delivers actionable 
 4. Departmental resource allocation analysis
 5. Simulation of strategic digital transformation initiatives
 6. Executive-ready visualizations highlighting critical paths
+
+> **Note**: You can change the orientation of the org chart from the default `:TopDown` layout to `:LeftRight` simply by adding `SetLayout(:LeftRight)` before calling `View()` and so you get:
+
+![orgchart9.png](../images/orgchart9.png)
+
 
 ## Softanza Advantage: Why stzOrgChart Outperforms the Competition
 
