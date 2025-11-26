@@ -1,6 +1,36 @@
 
 load "../stzbase.ring"
 
+pr()
+
+oOrg = new stzOrgChart("People_Management")
+oOrg {
+
+    SetSplines("curved")
+
+    AddPosition("ceo")
+    AddPosition("vp")
+    AddPosition("cto")
+
+    ReportsTo("vp", "ceo")
+    ReportsTo("cto", "ceo")
+
+    # Add people with data
+    AddPersonXTT("p1", "John Doe", [:tenure = 5, :performance = "High"])
+    AddPersonXT("p2", "Jane Smith")
+
+    # Assign people to positions
+    AssignPerson("p1", "ceo")
+    AssignPerson("p2", "vp")
+
+    # Verify assignments and data
+    ? @@NL( People() )
+    
+    # View with people emphasized
+    ViewPopulated()
+}
+
+pf()
 
 /*--- #TODO
 
@@ -144,7 +174,7 @@ pf()
 
 /*-- Tests adding departments, assigning positions to departments,
 # and department queries.
-*/
+
 pr()
 
 oOrg = new stzOrgChart("Department_Management")
