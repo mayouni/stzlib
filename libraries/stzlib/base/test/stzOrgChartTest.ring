@@ -1,6 +1,7 @@
 
 load "../stzbase.ring"
 
+
 /*--- #TODO
 
 pr()
@@ -143,7 +144,7 @@ pf()
 
 /*-- Tests adding departments, assigning positions to departments,
 # and department queries.
-
+*/
 pr()
 
 oOrg = new stzOrgChart("Department_Management")
@@ -249,7 +250,7 @@ oOrg {
 pf()
 
 /*--- Complete examaple with validations and reports generation
-*/
+
 pr()
 
 oOrg = new stzOrgChart("Simple_Hierarchy")
