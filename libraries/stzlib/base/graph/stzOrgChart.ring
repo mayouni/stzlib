@@ -1,4 +1,3 @@
-
 #=====================================================
 #  stzOrgChart - COMPLETE FIXED ARCHITECTURE
 #  All loop variables uniquely named to avoid collisions
@@ -7,7 +6,7 @@
 $aOrgColors = [
 
     :board = "gold",
-    :executive = "gold-",      # Lighter gold
+    :executive = "gold",      # Lighter gold
     :management = "blue+",      # Mid-blue
     :staff = "green-",          # Green
     :operations = "blue",
@@ -41,7 +40,8 @@ class stzOrgChart from stzDiagram
 	@cEdgeColor = $cDefaultOrgChartEdgeColor  # Idem
 	@cClusterColor = $cDefaultClusterColor	   
 
-	#TODO// Add other options
+	@cFocusColor = $aOrgColors[:focus]  # magenta+
+	@cDefaultNodeColor = $cDefaultNodeColor  # from global
 
 	def init(pcTitle)
 		super.init(pcTitle)
@@ -73,10 +73,20 @@ class stzOrgChart from stzDiagram
 		@aPositions + aPosition
 		
 		This.AddNodeXTT(pcId, pcTitle, [
-			:type = :box,
-			:color = :white,
+			:type = "box",
+			:color = "white",
 			:positionType = "position"
 		])
+
+	    # Ensure attributes flow to node properties
+	    if isList(paAttributes) and len(paAttributes) > 0
+	        acKeys = keys(paAttributes)
+	        nKeyLen = len(acKeys)
+	        for i = 1 to nKeyLen
+	            This.SetNodeProperty(pcId, acKeys[i], paAttributes[acKeys[i]])
+	        end
+	    ok
+
 
 	#---
 
@@ -275,33 +285,30 @@ class stzOrgChart from stzDiagram
 	def Departments()
 		return @aDepartments
 
-	#==========================#
-	#  ANALYSIS LAYERS         #
-	#==========================#
-
-	def AddAnalysisLayer(pcName, pcType)
-		oLayer = new stzOrgChartAnalysisLayer(This, pcName, pcType)
-		@aAnalysisLayers + oLayer
-		return oLayer
-
-	def ApplyLayer(pcLayerName)
-		nLayerCount = len(@aAnalysisLayers)
-		for i = 1 to nLayerCount
-			if @aAnalysisLayers[i].Name() = pcLayerName
-				@aAnalysisLayers[i].Apply()
-				return
-			ok
-		end
-
-	def ApplyAllLayers()
-		nLayerCount = len(@aAnalysisLayers)
-		for i = 1 to nLayerCount
-			@aAnalysisLayers[i].Apply()
-		end
-
 	#===========================#
 	#  COMPLIANCE & GOVERNANCE  #
 	#===========================#
+
+	def Validate(pcValidator)
+		switch pcValidator
+		on :BCEAO
+			return This.ValidateBCEAOGovernance()
+
+		on :SpanOfControl
+			return This.ValidateSpanOfControl()
+		on :SOC
+			return This.ValidateSpanOfControl()
+
+		on :SeparationOfDuties
+			return This.ValidateSegregationOfDuties()
+		on :SegregationOfDuties
+			return This.ValidateSegregationOfDuties()
+		on :SOD
+			return This.ValidateSegregationOfDuties()
+
+		other
+			return super.Validate(pcValidator)
+		off
 
 	def ValidateBCEAOGovernance()
 		oValidator = new stzOrgChartBCEAOValidator(This)
@@ -414,32 +421,30 @@ class stzOrgChart from stzDiagram
 		return aLevels
 
 	def SuccessionRisk()
-		acRisk = []
-		nPosCount = len(@aPositions)
-		for i = 1 to nPosCount
-			aPos = @aPositions[i]
-			bVacant = TRUE
-			if HasKey(aPos, :isVacant)
-				bVacant = aPos[:isVacant]
-			ok
-			
-			if NOT bVacant
-				bHasSuccessor = FALSE
-				if HasKey(aPos, :attributes)
-					aAttribs = aPos[:attributes]
-					if isList(aAttribs) and HasKey(aAttribs, :successor)
-						bHasSuccessor = TRUE
-					ok
-				ok
-				
-				if NOT bHasSuccessor
-					if HasKey(aPos, :id)
-						acRisk + aPos[:id]
-					ok
-				ok
-			ok
-		end
-		return acRisk
+	    acRisk = []
+	    nPosCount = len(@aPositions)
+	    for i = 1 to nPosCount
+	        aPos = @aPositions[i]
+	        bVacant = TRUE
+	        if HasKey(aPos, :isVacant)
+	            bVacant = aPos[:isVacant]
+	        ok
+	        
+	        if NOT bVacant
+	            bHasSuccessor = FALSE
+	            # Fix: Check attributes as list
+	            if isList(aPos[:attributes]) and HasKey(aPos[:attributes], :successor)
+	                bHasSuccessor = TRUE
+	            ok
+	            
+	            if NOT bHasSuccessor
+	                if HasKey(aPos, :id)
+	                    acRisk + aPos[:id]
+	                ok
+	            ok
+	        ok
+	    end
+	    return acRisk
 
 	#==========================#
 	#  REPORTING & ANALYTICS   #
@@ -530,6 +535,49 @@ class stzOrgChart from stzDiagram
 		]
 		return aSnapshot
 
+	#-------------------------#
+	#  MANAGING VISUAL FOCUS  #
+	#-------------------------#
+	
+	def SetFocusColor(pColor)
+	    @cFocusColor = ResolveColor(pColor)
+	
+	def FocusColor()
+	    return @cFocusColor
+	
+	def ResetAllNodeColors()
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    for i = 1 to nLen
+	        cNodeId = aNodes[i]["id"]
+	        aPos = This.Position(cNodeId)
+	        
+	        # Restore original level color
+	        cOriginalColor = "white"
+	        if HasKey(aPos, :attributes) and HasKey(aPos[:attributes], :level)
+	            cLevel = aPos[:attributes][:level]
+	            if cLevel = "executive"
+	                cOriginalColor = $aOrgColors[:executive]
+	            but cLevel = "management"
+	                cOriginalColor = $aOrgColors[:management]
+	            but cLevel = "staff"
+	                cOriginalColor = $aOrgColors[:staff]
+	            ok
+	        ok
+	        
+	        This.SetNodeProperty(cNodeId, "color", cOriginalColor)
+	    end
+	
+	def ApplyFocusTo(acNodeIds)
+	    # Reset all first
+	    This.ResetAllNodeColors()
+	    
+	    # Apply focus to specified nodes
+	    nLen = len(acNodeIds)
+	    for i = 1 to nLen
+	        This.SetNodeProperty(acNodeIds[i], "color", @cFocusColor)
+	    end
+	
 	#=================#
 	#  VISUALIZATION  #
 	#=================#
@@ -549,35 +597,259 @@ class stzOrgChart from stzDiagram
 	#--
 
 	def ViewPopulated()
+	    acPopulated = []
 	    nPosCount = len(@aPositions)
 	    for i = 1 to nPosCount
 	        if NOT @aPositions[i][:isVacant]
-	            This.SetNodeProperty(@aPositions[i][:id], "color", $aOrgColors[:focus])
+	            acPopulated + @aPositions[i][:id]
 	        ok
 	    end
+	    This.ApplyFocusTo(acPopulated)
 	    This.View()
-
+	
 	    def ViewPeople()
-		This.ViewPopulated()
-
+	        This.ViewPopulated()
+	
 	    def ViewWithPeople()
-		This.ViewPopulated()
-
+	        This.ViewPopulated()
+	
 	def ViewVacant()
-	    nPosCount = len(@aPositions)
-	    for i = 1 to nPosCount
-	        if @aPositions[i][:isVacant]
-	            This.SetNodeProperty(@aPositions[i][:id], "color", $aOrgColors[:focus])
+	    acVacant = This.VacantPositions()
+	    This.ApplyFocusTo(acVacant)
+	    This.View()
+	
+	    def ViewVacancies()
+	        This.ViewVacant()
+
+	#--
+
+	def ViewPerformant()
+	    acHigh = []
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        if HasKey(aNode["properties"], "performance")
+	            nScore = aNode["properties"]["performance"]
+	            if nScore >= 75
+	                acHigh + aNode["id"]
+	            ok
 	        ok
 	    end
+	    
+	    This.ApplyFocusTo(acHigh)
+	    This.View()
+	
+	    def ViewHighPerformers()
+	        This.ViewPerformant()
+	
+	def ViewNonPerformant()
+	    acLow = []
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        if HasKey(aNode["properties"], "performance")
+	            nScore = aNode["properties"]["performance"]
+	            if nScore < 50
+	                acLow + aNode["id"]
+	            ok
+	        ok
+	    end
+	    
+	    This.ApplyFocusTo(acLow)
+	    This.View()
+	
+	    def ViewLowPerformers()
+	        This.ViewNonPerformant()
+	
+	def ViewMediumPerformers()
+	    acMedium = []
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        if HasKey(aNode["properties"], "performance")
+	            nScore = aNode["properties"]["performance"]
+	            if nScore >= 50 and nScore < 75
+	                acMedium + aNode["id"]
+	            ok
+	        ok
+	    end
+	    
+	    This.ApplyFocusTo(acMedium)
 	    This.View()
 
-	    def ViewVacancies()
-		This.ViewVacant()
+	#--
 
-	def ViewByDepartment()
-		This.ColorByDepartment()
-		This.View()
+	def ViewCompliant()
+	    aResult = This.ValidateBCEAOGovernance()
+	    
+	    # All nodes are compliant if no issues
+	    if aResult[:status] = "pass"
+	        acAll = []
+	        aNodes = This.Nodes()
+	        nLen = len(aNodes)
+	        for i = 1 to nLen
+	            acAll + aNodes[i]["id"]
+	        end
+	        This.ApplyFocusTo(acAll)
+	    else
+	        # Show nodes not mentioned in issues
+	        acIssueNodes = This._ExtractNodesFromIssues(aResult[:issues])
+	        acAll = []
+	        aNodes = This.Nodes()
+	        nLen = len(aNodes)
+	        for i = 1 to nLen
+	            cNodeId = aNodes[i]["id"]
+	            if ring_find(acIssueNodes, cNodeId) = 0
+	                acAll + cNodeId
+	            ok
+	        end
+	        This.ApplyFocusTo(acAll)
+	    ok
+	    
+	    This.View()
+	
+	def ViewNonCompliant()
+	    aResult = This.ValidateBCEAOGovernance()
+	    
+	    if aResult[:status] = "fail"
+	        acIssueNodes = This._ExtractNodesFromIssues(aResult[:issues])
+	        This.ApplyFocusTo(acIssueNodes)
+	    else
+	        This.ApplyFocusTo([])  # None non-compliant
+	    ok
+	    
+	    This.View()
+	
+	def _ExtractNodesFromIssues(acIssues)
+	    acNodes = []
+	    nLen = len(acIssues)
+	    
+	    for i = 1 to nLen
+	        cIssue = acIssues[i]
+	        # Parse issue string to extract node IDs
+	        # Format: "BCEAO-002: Audit reports to non-board position"
+	        # or: "SOC-001: Position X has excessive span"
+	        
+	        aWords = split(cIssue, " ")
+	        nWordLen = len(aWords)
+	        for j = 1 to nWordLen
+	            cWord = aWords[j]
+	            # Check if this word is a node ID
+	            if This.NodeExists(cWord)
+	                if ring_find(acNodes, cWord) = 0
+	                    acNodes + cWord
+	                ok
+	            ok
+	        end
+	    end
+	    
+	    return acNodes
+
+	#--
+	
+	def ViewAtRisk()
+	    acRisk = This.SuccessionRisk()
+	    This.ApplyFocusTo(acRisk)
+	    This.View()
+	
+	    def ViewSuccessionRisk()
+	        This.ViewAtRisk()
+	
+	def ViewNotAtRisk()
+	    acRisk = This.SuccessionRisk()
+	    acAll = []
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    
+	    for i = 1 to nLen
+	        cNodeId = aNodes[i]["id"]
+	        if ring_find(acRisk, cNodeId) = 0
+	            acAll + cNodeId
+	        ok
+	    end
+	    
+	    This.ApplyFocusTo(acAll)
+	    This.View()
+
+	#--
+
+	def ViewDepartment(pcDepartmentId)
+	    acDeptNodes = []
+	    nPosCount = len(@aPositions)
+	    
+	    for i = 1 to nPosCount
+	        if @aPositions[i][:department] = pcDepartmentId
+	            acDeptNodes + @aPositions[i][:id]
+	        ok
+	    end
+	    
+	    This.ApplyFocusTo(acDeptNodes)
+	    This.View()
+	
+	def ViewAllDepartments()
+	    This.ResetAllNodeColors()
+	    This.ColorByDepartment()
+	    This.View()
+
+	#--
+
+	def ViewPath(pcFromId, pcToId)
+	    acPath = This.PathBetween(pcFromId, pcToId)
+	    This.ApplyFocusTo(acPath)
+	    This.View()
+	
+	    def ViewReportingPath(pcFromId, pcToId)
+	        This.ViewPath(pcFromId, pcToId)
+
+	#--
+
+	def ViewNodesWithProperty(pcKey, pValue)
+	    acMatching = []
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        if HasKey(aNode["properties"], pcKey)
+	            if pValue = NULL or aNode["properties"][pcKey] = pValue
+	                acMatching + aNode["id"]
+	            ok
+	        ok
+	    end
+	    
+	    This.ApplyFocusTo(acMatching)
+	    This.View()
+	
+	def ViewNodeWithProperties(pacProps)
+		#TODO
+
+	def ViewNodesWithTag(pcTag)
+	    acMatching = []
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        if HasKey(aNode["properties"], "tags")
+	            if ring_find(aNode["properties"]["tags"], pcTag) > 0
+	                acMatching + aNode["id"]
+	            ok
+	        ok
+	    end
+	    
+	    This.ApplyFocusTo(acMatching)
+	    This.View()
+
+	def ViewNodesWithTags(pacTags)
+		#TODO
+
+	#--
 
 	def ColorByDepartment()
 
@@ -590,35 +862,8 @@ class stzOrgChart from stzDiagram
 	        ok
 	    end
 
-	def HighlightPath(pcFromId, pcToId)
-	    acPath = This.PathBetween(pcFromId, pcToId)
-	    
-	    if len(acPath) = 0
-	        return
-	    ok
-	    
-	    # Dim all nodes first
-	    aNodes = This.Nodes()
-	    nLen = len(aNodes)
-	    for i = 1 to nLen
-	        cNodeId = aNodes[i]["id"]
-	        This.SetNodeProperty(cNodeId, "color", "gray++")
-	    end
-	    
-	    # Brighten path nodes
-	    nPathLen = len(acPath)
-	    for i = 1 to nPathLen
-	        This.SetNodeProperty(acPath[i], "color", "yellow")
-	    end
-	    
-	    # Thicken path edges
-	    for i = 1 to nPathLen - 1
-	        This.SetEdgeProperty(acPath[i], acPath[i+1], "color", "red")
-	        This.SetEdgeProperty(acPath[i], acPath[i+1], "penwidth", 3)
-	    end
-
 	#=====================================================
-	#  NEW FEATURE: EXPORT TO .STZORG FORMAT
+	#  EXPORT TO .STZORG FORMAT
 	#=====================================================
 
 	def ToStzOrg()
@@ -679,7 +924,7 @@ class stzOrgChart from stzDiagram
 		return TRUE
 	
 	#=====================================================
-	#  NEW FEATURE: IMPORT FROM .STZORG FORMAT
+	#  IMPORT FROM .STZORG FORMAT
 	#=====================================================
 	
 	def ImportStzOrg(cString)
@@ -695,7 +940,7 @@ class stzOrgChart from stzDiagram
 			if cLine = "" or left(cLine, 1) = "#" loop ok
 			
 			if substr(cLine, "orgchart ")
-				cTitle = substr(cLine, 10, len(cLine)-1)
+				cTitle = @substr(cLine, 10, len(cLine)-1)
 				
 			but cLine = "positions"
 				cCurrentSection = "positions"
@@ -724,16 +969,16 @@ class stzOrgChart from stzDiagram
 					aCurrent = [ :title = "", :level = "", :department = "", :reportsTo = "" ]
 					
 				but substr(cLine, "title:")
-					aCurrent[:title] = trim(substr(cLine, 7, len(cLine)))
+					aCurrent[:title] = trim(@substr(cLine, 7, len(cLine)))
 					
 				but substr(cLine, "level:")
-					aCurrent[:level] = trim(substr(cLine, 7, len(cLine)))
+					aCurrent[:level] = trim(@substr(cLine, 7, len(cLine)))
 					
 				but substr(cLine, "department:")
-					aCurrent[:department] = trim(substr(cLine, 12, len(cLine)))
+					aCurrent[:department] = trim(@substr(cLine, 12, len(cLine)))
 					
 				but substr(cLine, "reportsTo:")
-					aCurrent[:reportsTo] = trim(substr(cLine, 11, len(cLine)))
+					aCurrent[:reportsTo] = trim(@substr(cLine, 11, len(cLine)))
 				ok
 				
 			but cCurrentSection = "people"
@@ -745,7 +990,7 @@ class stzOrgChart from stzDiagram
 					aCurrent = [ :name = "" ]
 					
 				but substr(cLine, "name:")
-					aCurrent[:name] = trim(substr(cLine, 6, len(cLine)))
+					aCurrent[:name] = trim(@substr(cLine, 6, len(cLine)))
 				ok
 				
 			but cCurrentSection = "assignments"
@@ -763,10 +1008,10 @@ class stzOrgChart from stzDiagram
 					aCurrent = [ :name = "", :positions = [] ]
 					
 				but substr(cLine, "name:")
-					aCurrent[:name] = trim(substr(cLine, 6, len(cLine)))
+					aCurrent[:name] = trim(@substr(cLine, 6, len(cLine)))
 					
 				but substr(cLine, "positions:")
-					cPosStr = trim(substr(cLine, 11, len(cLine)))
+					cPosStr = trim(@substr(cLine, 11, len(cLine)))
 					cPosStr = replace(cPosStr, "[", "")
 					cPosStr = replace(cPosStr, "]", "")
 					aCurrent[:positions] = split(cPosStr, ",")
@@ -797,68 +1042,7 @@ class stzOrgChart from stzDiagram
 	def ImportFromStzOrgFile(pcFileName)
 		cContent = read(pcFileName)
 		This.ImportStzOrg(cContent)
-
-#=====================================================
-#  stzOrgChartAnalysisLayer
-#=====================================================
-
-class stzOrgChartAnalysisLayer
-
-	@oOrgChart
-	@cName = ""
-	@cType = ""
-	@aMetrics = []
-
-	def init(poOrgChart, pcName, pcType)
-		@oOrgChart = poOrgChart
-		@cName = pcName
-		@cType = pcType
-
-	def Name()
-		return @cName
-
-	def Type()
-		return @cType
-
-	def Apply()
-		switch @cType
-		on "performance"
-			This._ApplyPerformanceMetrics()
-		on "risk"
-			This._ApplyRiskAnalysis()
-		on "compliance"
-			This._ApplyComplianceChecks()
-		on "succession"
-			This._ApplySuccessionPlanning()
-		off
-
-	def _ApplyPerformanceMetrics()
-	    nPosCount = len(@oOrgChart.@aPositions)
-	    for i = 1 to nPosCount
-	        aPos = @oOrgChart.@aPositions[i]
-	        if HasKey(aPos[:attributes], "performance")
-	            nScore = aPos[:attributes]["performance"]
-	            cColor = "red"
-	            if nScore > 75 cColor = "green" ok
-	            if nScore >= 50 and nScore <= 75 cColor = "yellow" ok
-	            @oOrgChart.SetNodeProperty(aPos[:id], "color", cColor)
-	        ok
-	    end
-
-	def _ApplyRiskAnalysis()
-	    acRisk = @oOrgChart.SuccessionRisk()  # Already implemented
-	    nLen = len(acRisk)
-	    for i = 1 to nLen
-	        @oOrgChart.SetNodeProperty(acRisk[i], "color", "orange")
-	        @oOrgChart.SetNodeProperty(acRisk[i], "penwidth", 3)
-	    end
-
-	def _ApplyComplianceChecks()
-		# Show compliance status
-
-	def _ApplySuccessionPlanning()
-		# Visualize succession readiness
-
+	
 
 #=====================================================
 #  stzOrgChartBCEAOValidator

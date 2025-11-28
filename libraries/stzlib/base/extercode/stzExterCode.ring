@@ -17,9 +17,10 @@ class stzExterCode
             :Runtime = "python",
             :AlternateRuntimes = ["python3", "py"],
             :ResultFile = "pyresult.txt",
-            :CustomPath = "D:/python/python-3.13.7/python.exe",  # Replace with your Python path
+            :CustomPath = "D:/stzexter/python.exe",  # Replace with your Python path
             :TransFunc = $cPyToRingTransFunc,
-            :Cleanup = 0
+            :Cleanup = 0,
+	    :ExtraArgs = ""
         ],
 
         :R = [
@@ -44,7 +45,8 @@ class stzExterCode
             :ResultFile = "jlresult.txt",
             :CustomPath = "D:/Julia/Julia-1.11.7/bin/julia.exe",  # Replace with your Julia path
             :TransFunc = $cJuliaToRingTransFunc,
-            :Cleanup = 0
+            :Cleanup = 0,
+	    :ExtraArgs = ""
         ],
 
         :C = [
@@ -59,7 +61,8 @@ class stzExterCode
             :CustomPath = "D:/mingw64/bin/gcc.exe",  # Replace with your Go path
             :TransFunc = $cCToRingTransFunc,
             :Cleanup = 0,
-            :CaptureBuildErrors = 1
+            :CaptureBuildErrors = 1,
+	    :ExtraArgs = ""
         ],
 
         :prolog = [
@@ -84,7 +87,8 @@ class stzExterCode
 	    :ResultFile = "jsresult.txt",
 	    :CustomPath = "D:/nodejs/nodejs-22.20/node.exe",  # Replace with your Node.js path
 	    :TransFunc = $cJSToRingTransFunc,
-	    :Cleanup = 0
+	    :Cleanup = 0,
+            :ExtraArgs = ""
 	],
 
     ]

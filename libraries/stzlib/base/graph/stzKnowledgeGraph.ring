@@ -36,7 +36,7 @@ class stzKnowledgeGraph from stzGraph
 		ok
 		
 		if NOT This.NodeExists(pcObject)
-			This.AddNodeXTT(pcObject, pcObject, [:type = "entity"])
+			This.AddNodeXTT(pcObject, @@(pcObject), [:type = "entity"])
 		ok
 		
 		This.AddEdgeXTT(pcSubject, pcObject, pcPredicate, [:type = "fact"])

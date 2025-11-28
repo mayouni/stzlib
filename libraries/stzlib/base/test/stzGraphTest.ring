@@ -478,8 +478,9 @@ pf()
 #  SECTION 5: UNIFIED RULE SYSTEM
 #============================================#
 
-/*--- Validation Rule
 
+/*--- Validation Rule
+*/
 pr()
 
 oGraph = new stzGraph("ValidationTest")
@@ -488,7 +489,10 @@ oRule = new stzGraphRule(:RequireApproval)
 oRule {
 	When(:IsApproved, :Equals = FALSE)
 	SetInvalid()
-	AddViolation("Requires approval")
+	AddAnomaly("Requires approval")
+
+	? @@(Anomalies())
+	#--> [ "Requires approval" ]
 }
 
 oGraph {
@@ -500,7 +504,7 @@ oGraph {
 	ApplyRules()
 	
 	? Node("task1")["properties"]["isvalid"]    	#--> FALSE
-	? Node("task1")["properties"]["violation"]  	#--> "Requires approval"
+	? Node("task1")["properties"]["Anomaly"]  	#--> "Requires approval"
 	? HasKey(Node("task2")["properties"], "isvalid") #--> FALSE
 }
 
@@ -1001,7 +1005,7 @@ oGraph {
 	
 	? ValidateConstraints() #--> FALSE
 	
-	? @@( ConstraintViolations() )
+	? @@( ConstraintAnomalies() )
 	#--> [[:type = "ACYCLIC", :count = 1]] #TODO returned []
 }
 
