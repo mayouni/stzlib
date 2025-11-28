@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzbase.ring"
 
 /*---
 
@@ -119,7 +119,7 @@ res = {
 
 Execute()
 
-? @@(Result())
+? @@NL(Result())
 
 }
 #--> [
@@ -202,14 +202,14 @@ res = {
 # Bakc to Ring: run the code and get the result
 
 Execute()
-? @@(Result())
+? @@NL(Result())
 
 } # closing brace of the py() object
 
 #--> [
 #	[ "accuracy", 0.90 ],
-#	[ "feature_importance", [ 0.03, 0.09, 0.33, 0.55 ] ],
-#	[ "predictions", [ 0, 0, 0, 0, 1, 1, 0, 0, 1, 1, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0 ] ]
+#	[ "feature_importance", [ 0.06, 0.08, 0.35, 0.51 ] ],
+#	[ "predictions", [ 1, 0, 0, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 1 ] ]
 # ]
 
 
@@ -339,6 +339,7 @@ aDeep =  [
 
 o1 = new stzList(aDeep)
 o1.DeepReplace("♥", "★")
+? @@NL (o1.Content())
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22

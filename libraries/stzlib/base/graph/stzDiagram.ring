@@ -12,9 +12,8 @@ $aDiagramValidators = [
 	:Banking
 ]
 
-# ============================================
-#  UNIFIED COLOR SYSTEM
-# ============================================
+#  UNIFIED COLOR SYSTEM	#TODO Abstract it in a stzColor class -> Visual Module
+# =====================
 
 # Base color definitions (single source of truth)
 $acColors = [
@@ -59,65 +58,6 @@ $acColorsBySemanticMeaning = [
 	:Primary = "blue",
 	:Neutral = "gray"
 ]
-
-# Node type color mappings
-$acColorsByNodeType = [
-	:Start = "green",
-	:Process = "blue",
-	:Decision = "yellow",
-	:Endpoint = "coral",
-	:State = "cyan",
-	:Storage = "gray",
-	:Data = "lavender",
-	:Event = "pink",
-	:Gateway = "yellow",
-	:Subprocess = "steelblue",
-	:Timer = "salmon",
-	:Error = "coral",
-	:Compensation = "gold"
-]
-
-# Global node type definitions
-$acNodeTypes = [
-	:Start,
-	:Process,
-	:Decision,
-	:Endpoint,
-	:State,
-	:Storage,
-	:Data,
-	:Event,
-	:Gateway,
-	:Subprocess,
-	:Timer,
-	:Error,
-	:Compensation
-]
-
-# Default node type and color
-$cDefaultNodeType = "process"
-$cDefaultNodeColor = "white"
-
-$cDefaultClusterColor = "magenta-"
-
-# Edge styles
-$acEdgeStyles = [
-	:Normal = "solid",
-	:Conditional = "dashed",
-	:ErrorFlow = "dotted",
-	:MessageFlow = "bold"
-]
-
-$cDefaultEdgeStyle = "normal"
-$cDefaultEdgeColor = "black"
-#TODO Add $cDefaultEdgeSpline = "spline" or "ortho" ...
-
-$cDefaultOrgChartEdgeStyle = "normal"
-$cDefaultOrgChartEdgeSpline = "spline"
-$cDefaultOrgChartEdgeColor = "gray"
-
-
-#---
 
 # Global color palette - lazy initialization
 $acFullColorPalette = []
@@ -207,6 +147,118 @@ $aPalette = [
 	]
 ]
 
+# Color gradients for numeric metadata (0-100 scale)
+$aMetricColorGradients = [
+	:performance = [
+		[0, 50] = "#FF4444",
+		[51, 75] = "#FFA500",
+		[76, 100] = "#44FF44"
+	],
+	:risk = [
+		[0, 33] = "#44FF44",
+		[34, 66] = "#FFA500",
+		[67, 100] = "#FF4444"
+	],
+	:priority = [
+		[0, 33] = "#CCCCCC",
+		[34, 66] = "#4488FF",
+		[67, 100] = "#FF4444"
+	]
+]
+
+
+$aFontColors = [
+	:light = [
+		:primary = "black",
+		:success = "black",
+		:warning = "black",
+		:danger = "black",
+		:info = "black",
+		:neutral = "black"
+	],
+	:dark = [
+		:primary = "white",
+		:success = "white",
+		:warning = "black",
+		:danger = "white",
+		:info = "white",
+		:neutral = "white"
+	],
+	:vibrant = [
+		:primary = "white",
+		:success = "white",
+		:warning = "black",
+		:danger = "white",
+		:info = "white",
+		:neutral = "white"
+	],
+	:pro = [
+		:primary = "black",
+		:success = "white",
+		:warning = "black",
+		:danger = "white",
+		:info = "white",
+		:neutral = "white"
+	]
+]
+
+# Node type color mappings
+$acColorsByNodeType = [
+	:Start = "green",
+	:Process = "blue",
+	:Decision = "yellow",
+	:Endpoint = "coral",
+	:State = "cyan",
+	:Storage = "gray",
+	:Data = "lavender",
+	:Event = "pink",
+	:Gateway = "yellow",
+	:Subprocess = "steelblue",
+	:Timer = "salmon",
+	:Error = "coral",
+	:Compensation = "gold"
+]
+
+# Global node type definitions
+$acNodeTypes = [
+	:Start,
+	:Process,
+	:Decision,
+	:Endpoint,
+	:State,
+	:Storage,
+	:Data,
+	:Event,
+	:Gateway,
+	:Subprocess,
+	:Timer,
+	:Error,
+	:Compensation
+]
+
+# Default node type and color
+$cDefaultNodeType = "process"
+$cDefaultNodeColor = "white"
+$cDefaultNodeStrokeColor = "gray"  # Can be "" or 'invisible' to hide
+
+$cDefaultClusterColor = "blue--"
+
+# Edge styles
+$acEdgeStyles = [
+	:Normal = "solid",
+	:Conditional = "dashed",
+	:ErrorFlow = "dotted",
+	:MessageFlow = "bold"
+]
+
+$cDefaultEdgeStyle = "normal"
+$cDefaultEdgeColor = "black"
+#TODO Add $cDefaultEdgeSpline = "spline" or "ortho" ...
+
+$cDefaultOrgChartEdgeStyle = "normal"
+$cDefaultOrgChartEdgeSpline = "spline"
+$cDefaultOrgChartEdgeColor = "gray"
+
 # THEMES
 
 $acThemes = [
@@ -275,41 +327,6 @@ $aThemeFonts = [
 	:gray = [:font = "helvetica", :size = 12]
 ]
 
-$aFontColors = [
-	:light = [
-		:primary = "black",
-		:success = "black",
-		:warning = "black",
-		:danger = "black",
-		:info = "black",
-		:neutral = "black"
-	],
-	:dark = [
-		:primary = "white",
-		:success = "white",
-		:warning = "black",
-		:danger = "white",
-		:info = "white",
-		:neutral = "white"
-	],
-	:vibrant = [
-		:primary = "white",
-		:success = "white",
-		:warning = "black",
-		:danger = "white",
-		:info = "white",
-		:neutral = "white"
-	],
-	:pro = [
-		:primary = "black",
-		:success = "white",
-		:warning = "black",
-		:danger = "white",
-		:info = "white",
-		:neutral = "white"
-	]
-]
-
 #-- Output file
 
 $cDefaultOutputFormat = "svg" #TODO Implement it
@@ -337,25 +354,6 @@ $aEdgeDecorations = [
 	:data_flow = [:arrowhead = "normal", :style = "solid"]
 ]
 
-# Color gradients for numeric metadata (0-100 scale)
-$aMetricColorGradients = [
-	:performance = [
-		[0, 50] = "#FF4444",
-		[51, 75] = "#FFA500",
-		[76, 100] = "#44FF44"
-	],
-	:risk = [
-		[0, 33] = "#44FF44",
-		[34, 66] = "#FFA500",
-		[67, 100] = "#FF4444"
-	],
-	:priority = [
-		[0, 33] = "#CCCCCC",
-		[34, 66] = "#4488FF",
-		[67, 100] = "#FF4444"
-	]
-]
-
 # Pen and arrow styles
 $acNodePenStyles = ["solid", "dashed", "dotted", "bold", "invis"]
 $acEdgePenStyles = ["solid", "dashed", "dotted", "bold", "invis"]
@@ -373,9 +371,15 @@ $acDotShapes = [
 	"triangle", "egg", "tab", "folder", "component", "note"
 ]
 
-# ============================================
-#  COLOR INTENSITY GENERATION & RESOLUTION
-# ============================================
+$aPolygonShapes = [
+	"hexagon", "octagon", "parallelogram", "pentagon", 
+	"septagon", "trapezium", "invtrapezium", "triangle",
+	"house", "invtriangle", "diamond"
+]
+
+#====================#
+#  GLOBAL FUNCTIONS  #
+#====================#
 
 func IsStzDiagram(pObj)
 	if isObject(pObj)
@@ -570,7 +574,28 @@ func ResolveColor(pColor)
 	
 	return $acFullColorPalette[:blue]
 
+func AttenuateColor(cColor)
+    # Remove all intensity modifiers
+    cBase = replace(cColor, "++", "")
+    cBase = replace(cBase, "+", "")
+    cBase = replace(cBase, "--", "")
+    cBase = replace(cBase, "-", "")
+    
+    # Apply maximum attenuation
+    return cBase + "--"
+
+func IntensifyColor(cColor)
+    # Remove all intensity modifiers
+    cBase = replace(cColor, "++", "")
+    cBase = replace(cBase, "+", "")
+    cBase = replace(cBase, "--", "")
+    cBase = replace(cBase, "-", "")
+    
+    # Apply maximum intensification
+    return cBase + "++"
+
 # STYLE RESOLUTION
+
 func ResolveEdgeStyle(pStyle)
 	cStyleKey = lower("" + pStyle)
 	
@@ -600,12 +625,12 @@ func ResolveNodeType(pcType)
 	
 	# Fallback mapping
 	aVisualMap = [
-		:box = :process,
-		:diamond = :decision,
-		:ellipse = :start,
-		:circle = :state,
-		:cylinder = :storage,
-		:doublecircle = :endpoint
+		:box = "process",
+		:diamond = "decision",
+		:ellipse = "start",
+		:circle = "state",
+		:cylinder = "storage",
+		:doublecircle = "endpoint"
 	]
 	
 	if HasKey(aVisualMap, cTypeKey)
@@ -614,14 +639,14 @@ func ResolveNodeType(pcType)
 
 	# Map unsupported to supported shapes
 	aShapeMap = [
-		:square = :box,
-		:rect = :box,
-		:egg = :ellipse,
-		:tab = :box,
-		:folder = :box,
-		:component = :box,
-		:note = :box,
-		:ellpise = :ellipse  # typo fix
+		:square = "box",
+		:rect = "box",
+		:egg = "ellipse",
+		:tab = "box",
+		:folder = "box",
+		:component = "box",
+		:note = "box",
+		:ellpise = "ellipse"
 	]
 	
 	if HasKey(aShapeMap, cTypeKey)
@@ -730,8 +755,9 @@ class stzDiagram from stzGraph
 	@aoAnnotations = []
 	@aoTemplates = []
 
-	@cEdgeColor = ""
-	@cNodeStrokeColor = ""
+	@cEdgeColor = $cDefaultEdgeColor
+	@cNodeColor = $cDefaultNodeColor
+	@cNodeStrokeColor = $cDefaultNodeStrokeColor
 
 	@aPalette = $aPalette
 	@aFontColors = $aFontColors
@@ -795,8 +821,18 @@ class stzDiagram from stzGraph
 	def SetEdgeColor(pColor)
 		@cEdgeColor = ResolveColor(pColor)
 
+	def SetNodeColor(pColor)
+		@cNodeColor = ResolveColor(pColor)
+
 	def SetNodeStrokeColor(pColor)
-		@cNodeStrokeColor = ResolveColor(pColor)
+	    if pColor = "" or lower(pColor) = 'invisible'
+	        @cNodeStrokeColor = ""
+	    else
+	        @cNodeStrokeColor = ResolveColor(pColor)
+	    ok
+
+	    def SetStrokeColor(pColor)
+		This.SetNodeStrokeColor(pColor)
 
 	def SetFont(pFont)
 		@cFont = lower(pFont)
@@ -986,336 +1022,336 @@ class stzDiagram from stzGraph
 	# Rounded/Elliptical Shapes
 	
 	def AddCircle(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :circle, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "circle", :color = $cDefaultNodeColor])
 	
 	def AddCircleXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :circle, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "circle", :color = $cDefaultNodeColor])
 	
 	def AddCircleXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :circle
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "circle" ]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddDoubleCircle(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :doublecircle, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "doublecircle", :color = $cDefaultNodeColor])
 	
 	def AddDoubleCircleXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :doublecircle, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "doublecircle", :color = $cDefaultNodeColor])
 	
 	def AddDoubleCircleXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :doublecircle
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "doublecircle"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddEllipse(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :ellipse, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "ellipse", :color = $cDefaultNodeColor])
 	
 	def AddEllipseXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :ellipse, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "ellipse", :color = $cDefaultNodeColor])
 	
 	def AddEllipseXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :ellipse
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "ellipse"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddEgg(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :egg, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "egg", :color = $cDefaultNodeColor])
 	
 	def AddEggXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :egg, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "egg", :color = $cDefaultNodeColor])
 	
 	def AddEggXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :egg
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "egg"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	# Quadrilateral Shapes
 	
 	def AddSquare(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :square, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "square", :color = $cDefaultNodeColor])
 	
 	def AddSquareXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :square, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "square", :color = $cDefaultNodeColor])
 	
 	def AddSquareXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :square
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "square"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddRect(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :rect, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "rect", :color = $cDefaultNodeColor])
 	
 	def AddRectXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :rect, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "rect", :color = $cDefaultNodeColor])
 	
 	def AddRectXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :rect
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "rect"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddBox(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :box, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "box", :color = $cDefaultNodeColor])
 	
 	def AddBoxXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :box, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "box", :color = $cDefaultNodeColor])
 	
 	def AddBoxXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :box
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "box"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddParallelogram(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :parallelogram, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "parallelogram", :color = $cDefaultNodeColor])
 	
 	def AddParallelogramXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :parallelogram, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "parallelogram", :color = $cDefaultNodeColor])
 	
 	def AddParallelogramXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :parallelogram
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "parallelogram"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddTrapezium(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :trapezium, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "trapezium", :color = $cDefaultNodeColor])
 	
 	def AddTrapeziumXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :trapezium, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "trapezium", :color = $cDefaultNodeColor])
 	
 	def AddTrapeziumXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :trapezium
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "trapezium"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddInvTrapezium(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :invtrapezium, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "invtrapezium", :color = $cDefaultNodeColor])
 	
 	def AddInvTrapeziumXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :invtrapezium, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "invtrapezium", :color = $cDefaultNodeColor])
 	
 	def AddInvTrapeziumXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :invtrapezium
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "invtrapezium"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddDiamond(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :diamond, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "diamond", :color = $cDefaultNodeColor])
 	
 	def AddDiamondXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :diamond, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "diamond", :color = $cDefaultNodeColor])
 	
 	def AddDiamondXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :diamond
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "diamond"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	# Polygon Shapes
 	
 	def AddTriangle(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :triangle, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "triangle", :color = $cDefaultNodeColor])
 	
 	def AddTriangleXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :triangle, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "triangle", :color = $cDefaultNodeColor])
 	
 	def AddTriangleXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :triangle
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "triangle"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddInvTriangle(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :invtriangle, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "invtriangle", :color = $cDefaultNodeColor])
 	
 	def AddInvTriangleXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :invtriangle, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "invtriangle", :color = $cDefaultNodeColor])
 	
 	def AddInvTriangleXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :invtriangle
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "invtriangle"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddPentagon(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :pentagon, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "pentagon", :color = $cDefaultNodeColor])
 	
 	def AddPentagonXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :pentagon, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "pentagon", :color = $cDefaultNodeColor])
 	
 	def AddPentagonXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :pentagon
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "pentagon"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddHexagon(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :hexagon, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "hexagon", :color = $cDefaultNodeColor])
 	
 	def AddHexagonXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :hexagon, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "hexagon", :color = $cDefaultNodeColor])
 	
 	def AddHexagonXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :hexagon
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "hexagon"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddSeptagon(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :septagon, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "septagon", :color = $cDefaultNodeColor])
 	
 	def AddSeptagonXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :septagon, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "septagon", :color = $cDefaultNodeColor])
 	
 	def AddSeptagonXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :septagon
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "septagon"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddOctagon(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :octagon, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "octagon", :color = $cDefaultNodeColor])
 	
 	def AddOctagonXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :octagon, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "octagon", :color = $cDefaultNodeColor])
 	
 	def AddOctagonXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :octagon
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "octagon"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddTripleOctagon(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :tripleoctagon, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "tripleoctagon", :color = $cDefaultNodeColor])
 	
 	def AddTripleOctagonXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :tripleoctagon, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "tripleoctagon", :color = $cDefaultNodeColor])
 	
 	def AddTripleOctagonXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :tripleoctagon
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "tripleoctagon"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	# Non-geometric/Conceptual Shapes
 	
 	def AddCylinder(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :cylinder, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "cylinder", :color = $cDefaultNodeColor])
 	
 	def AddCylinderXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :cylinder, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "cylinder", :color = $cDefaultNodeColor])
 	
 	def AddCylinderXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :cylinder
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "cylinder"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddHouse(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :house, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "house", :color = $cDefaultNodeColor])
 	
 	def AddHouseXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :house, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "house", :color = $cDefaultNodeColor])
 	
 	def AddHouseXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :house
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "house"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddTab(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :tab, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "tab", :color = $cDefaultNodeColor])
 	
 	def AddTabXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :tab, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "tab", :color = $cDefaultNodeColor])
 	
 	def AddTabXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :tab
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "tab"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddFolder(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :folder, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "folder", :color = $cDefaultNodeColor])
 	
 	def AddFolderXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :folder, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "folder", :color = $cDefaultNodeColor])
 	
 	def AddFolderXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :folder
+		if NOT HasKey(paProps, "type")
+			paProps + [ "type", "folder" ]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddComponent(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :component, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "component", :color = $cDefaultNodeColor])
 	
 	def AddComponentXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :component, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "component", :color = $cDefaultNodeColor])
 	
 	def AddComponentXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :component
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "component"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 	
 	#--
 	
 	def AddNote(pcId)
-		This.AddNodeXTT(pcId, pcId, [:type = :note, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcId, [:type = "note", :color = $cDefaultNodeColor])
 	
 	def AddNoteXT(pcId, pcLabel)
-		This.AddNodeXTT(pcId, pcLabel, [:type = :note, :color = $cDefaultNodeColor])
+		This.AddNodeXTT(pcId, pcLabel, [:type = "note", :color = $cDefaultNodeColor])
 	
 	def AddNoteXTT(pcId, pcLabel, paProps)
-		if NOT HasKey(paProps, :type)
-			paProps[:type] = :note
+		if NOT HasKey(paProps, "type")
+			paProps + ["type", "note"]
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 
@@ -2964,8 +3000,11 @@ class stzDiagramToStzDiag
 		cOutput += "    layout: " + Lower(@oDiagram.@cLayout) + NL + NL
 
 		cOutput += "nodes" + NL
-		for aNode in @oDiagram.Nodes()
+		aNodes = @oDiagram.Nodes()
+		nLen = len(aNodes)
 
+		for i = 1 to nLen
+			aNode = aNodes[i]
 			cOutput += "    " + aNode["id"] + NL
 			cOutput += "        label: " + This.EscapeString(aNode["label"]) + NL
 
@@ -2980,14 +3019,18 @@ class stzDiagramToStzDiag
 			cOutput += NL
 		end
 
-		if len(@oDiagram.Edges()) > 0
-			cOutput += "edges" + NL
+		aEdges = @oDiagram.Edges()
+		nLen = len(aEdges)
 
-			for aEdge in @oDiagram.Edges()
+		if nLen > 0
+			cOutput += "edges" + NL
+			for i = 1 to nLen
+				aEdge = aEdges[i]
 				cOutput += "    " + aEdge["from"] + " -> " + aEdge["to"] + NL
 
-				if aEdge["label"] != ""
-					cOutput += "        label: " + This.EscapeString(aEdge["label"]) + NL
+				cLabel = aEdge["label"]
+				if cLabel != ""
+					cOutput += "        label: " + This.EscapeString(cLabel) + NL
 				ok
 
 				cOutput += NL
@@ -2995,10 +3038,13 @@ class stzDiagramToStzDiag
 
 		ok
 
-		if len(@oDiagram.Clusters()) > 0
+		aClusters = @oDiagram.Clusters()
+		nLen = len(aClusters)
+		if nLen > 0
 			cOutput += "clusters" + NL
 
-			for aCluster in @oDiagram.Clusters()
+			for i = 1 to nLen
+				aCluster = aClusters[i]
 				cOutput += "    " + aCluster["id"] + NL
 				cOutput += "        label: " + This.EscapeString(aCluster["label"]) + NL
 				cNodeList = This.NodeListToString(aCluster["nodes"])
@@ -3008,14 +3054,22 @@ class stzDiagramToStzDiag
 			end
 		ok
 
-		if len(@oDiagram.Annotations()) > 0
+		aAnnotations = @oDiagram.Annotations()
+		nLen = len(aAnnotations)
+
+		if nLen > 0
 			cOutput += "annotations" + NL
-			for oAnnot in @oDiagram.Annotations()
-				cOutput += "    " + Lower(oAnnot.Type()) + NL
+			for i = 1 to nLen
+				aAnnot = aAnnotations[i]
+				cOutput += "    " + Lower(aAnnot.Type()) + NL
 
-				aAnnotData = oAnnot.NodesData()
+				aAnnotData = aAnnot.NodesData()
 
-				for cNodeId in Keys(aAnnotData)
+				acKeys = Keys(aAnnotData)
+				nLenK = len(acKeys)
+
+				for j = 1 to nLenK
+					cNodeId = acKeys[j] 
 					cData = aAnnotData[cNodeId]
 					cOutput += "        " + String(cNodeId) + ": "
 					cOutput += This.DataToString(cData) + NL
@@ -3093,6 +3147,7 @@ class stzDiagramToDot
 
 			StzRaise("Incorrect param type! poDiagram must be a stzDiagram object.")
 		ok
+
 		@oDiagram = poDiagram
 		This._Generate()
 
@@ -3291,19 +3346,17 @@ class stzDiagramToDot
 	def _GenerateNode(aNode, cTheme)
 	    cNodeId = This._SanitizeNodeId(aNode["id"])
 	    
-	    # Handle helper nodes specially
+	    # Handle helper nodes
 	    if HasKey(aNode, "properties") and HasKey(aNode["properties"], "ishelper") and aNode["properties"]["ishelper"] = TRUE
 	        cOutput = '    ' + cNodeId + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
 	        return cOutput
 	    ok
 	    
-	    # Also check by name pattern as fallback
 	    if left(cNodeId, 8) = "_helper_"
 	        cOutput = '    ' + cNodeId + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
 	        return cOutput
 	    ok
 	    
-	    # Normal node processing
 	    cLabel = aNode["label"]
 	    
 	    aAppliedRules = []
@@ -3313,25 +3366,27 @@ class stzDiagramToDot
 	    
 	    cShape = This._GetNodeShape(aNode, aAppliedRules)
 	    cStyle = This._GetNodeStyle(aNode, aAppliedRules)
-	    cFillColor = This._GetNodeFillColor(aNode, aAppliedRules, cTheme)
-	    cFontColor = @oDiagram.ResolveFontColor(cFillColor)
-	    cStrokeColor = This._GetNodeStrokeColor(cTheme)
 	    
 	    cOutput = '    ' + cNodeId + ' [label="' + cLabel + '"'
 	    cOutput += ', shape=' + cShape
 	    cOutput += ', style="' + cStyle + '"'
+	    
+	    # ORG CHART POSITION NODES
+	if HasKey(aNode["properties"], "positiontype") and 
+	   aNode["properties"]["positiontype"] = "position"
+	    
+	    cFillColor = ResolveColor(aNode["properties"]["color"])
+	    cOutput += ', style="rounded,solid,filled"'
 	    cOutput += ', fillcolor="' + cFillColor + '"'
-	    cOutput += ', fontcolor="' + cFontColor + '"'
+	    cOutput += ', fontcolor="' + @oDiagram.ResolveFontColor(cFillColor) + '"'
 	    
-	    if HasKey(aAppliedRules, "penwidth")
-	        cOutput += ', penwidth=' + aAppliedRules["penwidth"]
-	    but HasKey(aNode, "properties") and HasKey(aNode["properties"], "penwidth")
-	        cOutput += ', penwidth=' + aNode["properties"]["penwidth"]
+	    # Use diagram's stroke color setting
+	    cStrokeColor = @oDiagram.@cNodeStrokeColor
+	    if cStrokeColor = '' or cStrokeColor = "invisible"
+	        cStrokeColor = cFillColor
 	    ok
-	    
-	    if cStrokeColor != ""
-	        cOutput += ', color="' + cStrokeColor + '"'
-	    ok
+	    cOutput += ', color="' + ResolveColor(cStrokeColor) + '"'
+	ok
 	    
 	    cOutput += ']' + NL
 	    
@@ -3403,11 +3458,8 @@ class stzDiagramToDot
 		cBaseStyle = @oDiagram.@cNodePenStyle
 		
 		# Polygon shapes don't support rounded
-		aPolygonShapes = ["hexagon", "octagon", "parallelogram", "pentagon", 
-		                  "septagon", "trapezium", "invtrapezium", "triangle",
-		                  "house", "invtriangle", "diamond"]
 		
-		if ring_find(aPolygonShapes, cShape) > 0
+		if ring_find($aPolygonShapes, cShape) > 0
 			# Add filled if not already there
 			if NOT substr(cBaseStyle, "filled")
 				return cBaseStyle + ",filled"
@@ -3612,7 +3664,10 @@ class stzDiagramToMermaid
 		                  "click", "call", "direction", "flowchart", "stateDiagram",
 		                  "state", "note", "default", "loop", "alt", "par", "and"]
 	
-		for aNode in @oDiagram.Nodes()
+		aNodes = @oDiagram.Nodes()
+		nLen = len(aNodes)
+		for i = 1 to nLen
+			aNode = aNodes[i]
 			cNodeId = aNode["id"]
 			cLabel = aNode["label"]
 	
@@ -3623,16 +3678,16 @@ class stzDiagramToMermaid
 			ok
 	
 			cType = aNode["properties"]["type"]
-			if cType = :start or cType = "start"
+			if cType = "start"
 				cOutput += '    ' + cSafeNodeId + '(["' + cLabel + '"])' + NL
 	
-			but cType = :endpoint or cType = "endpoint"
+			but cType = "endpoint"
 				cOutput += '    ' + cSafeNodeId + '(["' + cLabel + '"])' + NL
 	
-			but cType = :decision or cType = "decision"
+			but cType = "decision"
 				cOutput += '    ' + cSafeNodeId + '{{"' + cLabel + '"}}' + NL
 	
-			but cType = :process or cType = "process"
+			but cType = "process"
 				cOutput += '    ' + cSafeNodeId + '["' + cLabel + '"]' + NL
 	
 			else
@@ -3642,7 +3697,11 @@ class stzDiagramToMermaid
 	
 		cOutput += NL
 	
-		for aEdge in @oDiagram.Edges()
+		aEdges =  @oDiagram.Edges()
+		nLen = len(aEdges)
+
+		for i = 1 to nLen
+			aEdge = aEdges[i]
 			cFromId = aEdge["from"]
 			cToId = aEdge["to"]
 			

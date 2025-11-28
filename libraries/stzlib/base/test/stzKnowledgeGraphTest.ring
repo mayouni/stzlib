@@ -5,7 +5,7 @@ load "../stzbase.ring"
 #====================#
 
 /*--- Adding facts (triples)
-
+*/
 pr()
 
 oKG = new stzKnowledgeGraph("Animals")

@@ -436,7 +436,7 @@ oDiag {
 pf()
 
 /*--- Like in stzGraph, three levels are allowed: AddNode(), AddNodeXT() and AddNodeXTT()
-*/
+
 pr()
 
 o1 = new stzDiagram("")
@@ -444,7 +444,7 @@ o1 {
 	SetSplines("spline")
 	AddNode("a")
 	AddNodeXT("b", "pass")
-	AddNodeXTT("c", "end", [ :type = "endpoint", :color = "yellow" ]) 
+	AddNodeXTT("c", "end", [ :type = "endpoint", :color = "green" ]) 
 	Connect("a", "b")
 	ConnectXT("a", "c", "focus")
 	View()
@@ -665,9 +665,9 @@ odiag.view()
 
 pf()
 
-#-----------------#
-#  TEST 4: VALIDATE COMPLETENESS
-#-----------------#
+#---------------------------------#
+#  TEST 4: VALIDATE COMPLETENESS  #
+#---------------------------------#
 
 /*--- Ensuring decisions have multiple paths
 
@@ -687,9 +687,9 @@ oDiag.ConnectXT("d", "no", "No")
 
 pf()
 
-#-----------------#
-#  TEST 5: COMPUTE METRICS
-#-----------------#
+#---------------------------#
+#  TEST 5: COMPUTE METRICS  #
+#---------------------------#
 
 /*--- Analyzing workflow path metrics
 
@@ -728,10 +728,11 @@ aMetrics = oDiag.ComputeMetrics()
 ? aMetrics[:MaxPathLength] #--> 3
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
-#-----------------#
-#  TEST 6: ADD ANNOTATION
-#-----------------#
+#--------------------------#
+#  TEST 6: ADD ANNOTATION  #
+#--------------------------#
 
 /*--- Adding performance metadata to nodes
 
@@ -748,11 +749,14 @@ oDiag.AddAnnotation(oPerf)
 ? len(oDiag.Annotations()) #--> 1
 ? len(oPerf.NodesData()) #--> 1
 
-pf()
+#TODO How to use annotations in practice? Is it used internally by stzDiagram?
 
-#-----------------#
-#  TEST 7: ANNOTATIONS BY TYPE
-#-----------------#
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
+
+#-------------------------------#
+#  TEST 7: ANNOTATIONS BY TYPE  #
+#-------------------------------#
 
 /*--- Retrieving annotations by type
 
@@ -777,9 +781,9 @@ aCompliance = oDiag.AnnotationsByType(:Compliance)
 
 pf()
 
-#-----------------#
-#  TEST 8: ADD CLUSTERS
-#-----------------#
+#------------------------#
+#  TEST 8: ADD CLUSTERS  #
+#------------------------#
 
 /*--- Grouping nodes into logical domains
 
@@ -799,9 +803,9 @@ oDiag.AddClusterXTT("orders", "Order Domain", ["order_api", "order_db"], :Lightb
 
 pf()
 
-#-----------------#
-#  TEST 9: GET CLUSTER INFO
-#-----------------#
+#----------------------------#
+#  TEST 9: GET CLUSTER INFO  #
+#----------------------------#
 
 /*--- Retrieving cluster details
 
@@ -821,9 +825,9 @@ aCluster = aClusters[1]
 
 pf()
 
-#-----------------#
-#  TEST 10: SET THEMES
-#-----------------#
+#-----------------------#
+#  TEST 10: SET THEMES  #
+#-----------------------#
 
 /*--- Testing different theme configurations
 
@@ -843,9 +847,9 @@ oDiag3.SetTheme(:Vibrant)
 
 pf()
 
-#-----------------#
-#  TEST 11: SET LAYOUT
-#-----------------#
+#-----------------------#
+#  TEST 11: SET LAYOUT  #
+#-----------------------#
 
 /*--- Testing different layout configurations
 
@@ -861,9 +865,9 @@ oDiag2.SetLayout(:LeftRight)
 
 pf()
 
-#-----------------#
-#  TEST 12: SOX COMPLIANCE VALIDATION
-#-----------------#
+#--------------------------------------#
+#  TEST 12: SOX COMPLIANCE VALIDATION  #
+#--------------------------------------#
 
 /*--- Validating workflow against SOX rules
 
@@ -895,9 +899,9 @@ oDiag {
 
 pf()
 
-#-----------------#
-#  TEST 13: GDPR COMPLIANCE VALIDATION
-#-----------------#
+#---------------------------------------#
+#  TEST 13: GDPR COMPLIANCE VALIDATION  #
+#---------------------------------------#
 
 /*--- Validating data flow against GDPR rules
 
@@ -943,11 +947,13 @@ pr()
 
 oDiag = new stzDiagram("BankingTx")
 oDiag {
-	AddNodeXT("init", "Initiate", :Start, :success)
-	AddNodeXT("fraud", "Fraud Check", :Process, :info)
-	AddNodeXT("approve", "Approve?", :Decision, :warning)
-	AddNodeXT("execute", "Execute", :Process, :primary)
-	AddNodeXT("done", "Done", :Endpoint, :success)
+	SetTheme("lightgray")
+
+	AddNodeXTT("init", "Initiate", [ :type = "start", :color = "success" ])
+	AddNodeXTT("fraud", "Fraud Check", [ :type = "process", :color = "info" ])
+	AddNodeXTT("approve", "Approve?", [ :type = "decision", :color = "warning" ])
+	AddNodeXTT("execute", "Execute", [ :type = "process", :color = "primary" ])
+	AddNodeXTT("done", "Done", [ :type = "endpoint", :color = "success" ])
 
 	Connect("init", "fraud")
 	Connect("fraud", "approve")
@@ -960,25 +966,28 @@ oDiag {
 	SetNodeProperty("execute", :operation, :payment)
 
 	? @@(Validate(:Banking))
-	#--> TRUE
+	#--> TRUE #ERR we get FALSE!
 
 	? ValidationIssueCount() # Or simply IssueCount()
 	#--> 0
+
+View()
+
 }
 
 pf()
 
-#-----------------#
-#  TEST 15: EXPORT TO HASHLIST
-#-----------------#
+#-------------------------------#
+#  TEST 15: EXPORT TO HASHLIST  #
+#-------------------------------#
 
 /*--- Converting diagram to hashlist representation
-
+*
 pr()
 
 oDiag = new stzDiagram("HashlistExport")
 oDiag.SetTheme(:pro)
-oDiag.AddNodeXT("n1", "Node", :Process, :primary)
+oDiag.AddNodeXT("n1", "Node")
 
 aHashlist = oDiag.ToHashlist()
 
@@ -987,9 +996,9 @@ aHashlist = oDiag.ToHashlist()
 
 pf()
 
-#-----------------#
-#  TEST 1: GENERATE STZDIAG FORMAT
-#-----------------#
+#-----------------------------------#
+#  TEST 1: GENERATE STZDIAG FORMAT  #
+#-----------------------------------#
 
 /*--- Generating .stzdiag native text format
 
@@ -998,9 +1007,9 @@ pr()
 oDiag = new stzDiagram("FormatTest")
 oDiag.SetTheme(:pro)
 oDiag.SetLayout(:TopDown)
-oDiag.AddNodeXT("start", "Begin", "start", "success-")
-oDiag.AddNodeXT("process", "Work", "process", "primary+")
-oDiag.AddNodeXT("end", "Finish", "endpoint", "success")
+oDiag.AddNodeXTT("start", "Begin", [ :type = "start", :color = "success-" ])
+oDiag.AddNodeXTT("process", "Work", [ :type = "process", :color = "primary+" ])
+oDiag.AddNodeXTT("end", "Finish", [ :type = "endpoint", :color = "success" ])
 oDiag.Connect("start", "process")
 oDiag.Connect("process", "end")
 
@@ -1010,24 +1019,24 @@ oDiag.Connect("process", "end")
 diagram "FormatTest"
 
 metadata
-    theme: light
+    theme: pro
     layout: topdown
 
 nodes
     start
         label: "Begin"
         type: start
-        color: #008000		#TODO should stay semantic!!
+        color: success-
 
     process
         label: "Work"
         type: process
-        color: #0000FF
+        color: primary+
 
     end
         label: "Finish"
         type: endpoint
-        color: #008000
+        color: success
 
 edges
     start -> process
@@ -1056,10 +1065,11 @@ oDiag.Show()
 oDiag.View()
 
 pf()
+# Executed in 1.52 second(s) in Ring 1.24
 
-#-----------------#
-#  TEST 2: WRITE STZDIAG TO FILE
-#-----------------#
+#---------------------------------#
+#  TEST 2: WRITE STZDIAG TO FILE  #
+#---------------------------------#
 
 /*--- Saving diagram to .stzdiagram file
 
@@ -1101,17 +1111,17 @@ edges
 
 pf()
 
-#-----------------#
-#  TEST 3: STZDIAG WITH CLUSTERS
-#-----------------#
+#---------------------------------#
+#  TEST 3: STZDIAG WITH CLUSTERS  #
+#---------------------------------#
 
 /*--- Converting diagram with cluster definitions
 
 pr()
 
 oDiag = new stzDiagram("ClusterTest")
-oDiag.AddNodeXT("api", "API", :Process, :success)
-oDiag.AddNodeXT("db", "DB", :Storage, :success)
+oDiag.AddNodeXTT("api", "API", [ :type = "process", :color = "success" ])
+oDiag.AddNodeXTT("db", "DB", [ :type = "storage", :color = "success" ])
 oDiag.AddClusterXTT("domain", "Service Domain", ["api", "db"], "lightblue")
 
 ? oDiag.stzdiag()
@@ -1145,16 +1155,16 @@ oDiag.View()
 
 pf()
 
-#-----------------#
-#  TEST 4: STZDIAG WITH ANNOTATIONS
-#-----------------#
+#------------------------------------#
+#  TEST 4: STZDIAG WITH ANNOTATIONS  #
+#------------------------------------#
 
 /*--- Converting diagram with annotations
 
 pr()
 
 oDiag = new stzDiagram("AnnotationTest")
-oDiag.AddNodeXT("process", "MyProcess", :Process, :primary)
+oDiag.AddNodeXTT("process", "MyProcess", [ :type = "process", :color = "primary" ])
 
 oPerf = new stzDiagramAnnotator(:Performance)
 oPerf.Annotate("process", ["latency" = 150])

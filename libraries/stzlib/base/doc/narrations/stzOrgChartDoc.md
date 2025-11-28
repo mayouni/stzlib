@@ -260,7 +260,7 @@ oOrg {
 - Audit function reporting to non-board positions
 - Absence of Risk Management function
 - Excessive spans of control (>9 direct reports)
-- Segregation of duties violations
+- Segregation of duties Anomalies
 
 The validation results provide structured data perfect for audit trails and compliance reporting:
 
@@ -422,6 +422,87 @@ oOrg {
 
 >**NOTE**: To get a detailed idea about the powerful features you can get for stzGraph, right inside your `stzOrgChart` objects, read [this article](../narrations/stzGraphDoc.md).
 
+## 11. Rule-Based Programming in stzOrgChart
+
+Because `stzOrgChart` inherits directly from `stzGraph`, it has access to the complete Softanza **rule engine** — one of the sophisticated features in the library.
+
+Rules transform a static org chart into a **live, self-validating governance system**. You encode your organization's policies once, and the chart continuously monitors itself.
+
+```ring
+oOrg = new stzOrgChart("RuleGoverned")
+oOrg {
+
+    # Only one root allowed
+    When( len(DependencyFreeNodes()) > 1 )
+        AddAnomaly("ORG-001: Multiple root nodes – only Board or CEO may be root")
+
+    # BCEAO/Basel III – Risk Officer must report directly to Board or CEO
+    WhenNodeExists("dir_risk")
+        if not ( ReportsDirectlyTo("dir_risk", "board") or ReportsDirectlyTo("dir_risk", "ceo") )
+            AddAnomaly("RISK-001: Chief Risk Officer must report to Board or CEO")
+        ok
+
+    # Internal HR policy – every manager must have at least 3 direct reports
+    WhenNodeHasAttribute(:level, "management")
+        if NumberOfDirectReports( This.CurrentNode() ) < 3
+            AddAnomaly("HR-012: Manager " + This.CurrentNode() + " has insufficient span of control")
+        ok
+
+    # Sales department minimum staffing policy
+    WhenDepartmentExists("Sales")
+        if PositionsInDepartment("Sales").len() < 6
+            AddAnomaly("SALES-001: Sales department below minimum required headcount")
+        ok
+
+    # Show results
+    ? "CUSTOM RULE Anomalies:"
+    ? @@NL( Anomalies() )
+    ShowAnomalies()   # highlights offending nodes in red
+}
+```
+
+Rules are evaluated instantly after every structural change. They perfectly complement the built-in `Validate(:BCEAO)`, `Validate(:SpanOfControl)`, etc., giving you unlimited **domain-specific** governance.
+
+## 12. Knowledge-Oriented Programming (KOP) With stzOrgChart
+
+By combining `stzOrgChart` with `stzKnowledgeGraph` classes, yet an other powerful class of the Softanza Graph Module, the organizational structure becomes a full **semantic knowledge engine** you can query in near-natural business language.
+
+```ring
+oKG = new stzKnowledgeGraph("BankSemantics")
+oKG {
+
+    # Facts derived from the org chart (can be auto-generated in future versions) #TODO Make them now!
+    AddFact("ceo",       :IsA,         "ExecutivePosition")
+    AddFact("dir_risk",  :IsA,         "ControlFunction")
+    AddFact("vp_sales",  :ReportsTo,   "ceo")
+    AddFact("vp_sales",  :InDepartment,"Sales")
+    AddFact("vp_sales",  :Criticality, "High")
+    AddFact("p_fatou",   :Holds,       "vp_sales")
+    AddFact("p_fatou",   :HasSkill,    "RevenueGrowth")
+    AddFact("p_fatou",   :Tenure,      8)
+
+    # Ontology
+    DefineClass("ControlFunction", "Position")
+    DefineClass("ExecutivePosition", "Position")
+
+    # Business-oriented queries
+    ? "Who reports directly to the CEO?"
+    ? @@( Query(["?who", :ReportsTo, "ceo"]) )
+
+    ? "Which positions are Control Functions?"
+    ? @@( Query(["?pos", :IsA, "ControlFunction"]) )
+
+    ? "Who has tenure > 5 years and holds a critical role?"
+    ? @@( Query(["?person", :Tenure, "?years"]) )   # then filter in Ring if needed
+
+    ? "Roles similar to VP Sales (shared predicates)"
+    ? @@NL( SimilarTo("vp_sales") )
+}
+```
+
+The fusion of structural graph + semantic triples delivers **hybrid intelligence**: graph algorithms reveal bottlenecks, KOP explains _why_ they matter from a business perspective.
+
+
 # Visual Plasticity: Configuring the OrgChart Appearance
 
 Most of the smart defaults provided by **stzOrgChart** are already optimized for clarity and consistency, and in many cases you won’t need to change anything. Still, *every aspect is customizable*—either at the **stzOrgChart** level or at its parent class **stzDiagram**, which provides a rich visual foundation.
@@ -578,123 +659,6 @@ In practice, you can choose your export format based on your needs:
 * **SVG** — Ideal for interactive web applications and scalable visuals
 * **PDF** — Best for formal documents, reports, and printing
 * **PNG or other bitmap formats** — Useful for presentations, slides, and email sharing
-
-
-## Complete Strategic Example: Banking Organization Analysis
-
-Let's see **stzOrgChart** in action with a comprehensive banking organization analysis:
-
-```ring
-oOrg = new stzOrgChart("Banking_Hierarchy")
-oOrg {
-    
-    # Create multi-level hierarchy with specialized positions
-    AddExecutivePositionXT("ceo", "CEO")
-    AddManagementPositionXT("vp_sales", "VP Sales")
-    AddManagementPositionXT("vp_eng", "VP Engineering")
-    AddManagementPositionXT("vp_ops", "VP Operations")
-    
-    # Configure reporting structure
-    ReportsTo("vp_sales", "ceo")
-    ReportsTo("vp_eng", "ceo")
-    ReportsTo("vp_ops", "ceo")
-    
-    # Add specialized staff positions
-    AddStaffPositionXT("sales_a", "Sales Rep A")
-    AddStaffPositionXT("sales_b", "Sales Rep B")
-    AddStaffPositionXT("dev_a", "Developer A")
-    AddStaffPositionXT("dev_b", "Developer B")
-    AddStaffPositionXT("ops_a", "Ops Staff A")
-    AddStaffPositionXT("ops_b", "Ops Staff B")
-    
-    # Complete reporting lines
-    ReportsTo("sales_a", "vp_sales")
-    ReportsTo("sales_b", "vp_sales")
-    ReportsTo("dev_a", "vp_eng")
-    ReportsTo("dev_b", "vp_eng")
-    ReportsTo("ops_a", "vp_ops")
-    ReportsTo("ops_b", "vp_ops")
-    
-    # Add people to critical positions
-    AddPersonXT("p_ceo", "Jean-Baptiste Kouassi")
-    AssignPerson("p_ceo", "ceo")
-    
-    AddPersonXT("p_vp_sales", "Fatoumata Diarra")
-    AssignPerson("p_vp_sales", "vp_sales")
-    
-    # Configure departments for analysis
-    SetPositionDepartment("ceo", "executive")
-    SetPositionDepartment("vp_sales", "sales")
-    SetPositionDepartment("vp_eng", "engineering")
-    SetPositionDepartment("vp_ops", "operations")
-    
-    # Execute comprehensive governance validation
-    ? "BCEAO BANKING GOVERNANCE VALIDATION"
-    ? "-----------------------------------" + NL
-    ? ValidateBCEAOGovernance()
-    
-    ? "SPAN OF CONTROL VALIDATION"
-    ? "--------------------------" + NL
-    ? ValidateSpanOfControl()
-    
-    ? "SEGREGATION OF DUTIES VALIDATION"
-    ? "--------------------------------" + NL
-    ? ValidateSegregationOfDuties()
-    
-    # Generate strategic reports
-    ? "ORGANIZATIONAL SUMMARY REPORT"
-    ? "-----------------------------" + NL
-    ? GenerateReport("summary")
-    
-    ? "SUCCESSION RISK REPORT"
-    ? "----------------------" + NL
-    ? GenerateReport("succession")
-    
-    ? "COMPLIANCE STATUS REPORT"
-    ? "------------------------" + NL
-    ? GenerateReport("compliance")
-    
-    # Apply analysis layers
-    AddAnalysisLayer("Risk Assessment", "risk")
-    AddAnalysisLayer("Succession Planning", "succession")
-    ApplyAllLayers()
-    
-    # Simulate strategic reorganization
-    aChanges = [
-        [:type = "add_position", :id = "dir_digital", :title = "Director of Digital Banking"],
-        [:type = "change_reporting", :subordinate = "vp_eng", :supervisor = "dir_digital"]
-    ]
-    ? "SIMULATION RESULTS:"
-    ? SimulateReorganization(aChanges)
-    
-    # Create baseline snapshot
-    CreateSnapshot("Q4_2024")
-    
-    # Generate executive visualization
-    ColorByDepartment()
-    HighlightPath("ops_a", "ceo")
-    
-    View()
-}
-```
-
-Visual output:
-
-
-![org3.png](../images/org3.png)
-
-This comprehensive example demonstrates how **stzOrgChart** delivers actionable intelligence across multiple dimensions:
-1. Governance validation against industry standards
-2. Span of control optimization
-3. Critical succession risk identification
-4. Departmental resource allocation analysis
-5. Simulation of strategic digital transformation initiatives
-6. Executive-ready visualizations highlighting critical paths
-
-> **NOTE**: You can change the orientation of the org chart from the default `:TopDown` layout to `:LeftRight` simply by adding `SetLayout(:LeftRight)` before calling `View()` and so you get:
-
-![orgchart9.png](../images/orgchart9.png)
-
 
 ## Softanza Advantage: Why stzOrgChart Outperforms the Competition
 

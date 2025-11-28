@@ -897,16 +897,17 @@ class stzGraph
 	#--
 
 	def SetNodeProperty(pNodeId, cProperty, pValue)
-		nLen = len(@aNodes)
-		for i = 1 to nLen
-			if @aNodes[i]["id"] = pNodeId
-				if NOT HasKey(@aNodes[i], "properties")
-					@aNodes[i]["properties"] = []
-				ok
-				@aNodes[i]["properties"][cProperty] = pValue
-				return
-			ok
-		end
+	    nLen = len(@aNodes)
+	    for i = 1 to nLen
+	        if @aNodes[i]["id"] = pNodeId
+	            if NOT HasKey(@aNodes[i], "properties")
+	                @aNodes[i] + ["properties", []]
+	            ok
+	            @aNodes[i]["properties"][cProperty] = pValue
+	            @aNodes[i] = @aNodes[i]  # Force write-back
+	            return
+	        ok
+	    end
 	
 		def SetNodeProp(pNodeId, cProperty, pValue)
 			This.SetNodeProperty(pNodeId, cProperty, pValue)
@@ -988,7 +989,7 @@ class stzGraph
 		for i = 1 to nLen
 			if @acEdges[i]["from"] = pFromId and @acEdges[i]["to"] = pToId
 				if NOT HasKey(@acEdges[i], "properties")
-					@acEdges[i]["properties"] = []
+					@acEdges[i] + ["properties", []]
 				ok
 				@acEdges[i]["properties"][cProperty] = pValue
 				return
@@ -1041,7 +1042,7 @@ class stzGraph
 		for i = 1 to nLen
 			if @acEdges[i]["from"] = pcFrom and @acEdges[i]["to"] = pcTo
 				if NOT HasKey(@acEdges[i], "properties")
-					@acEdges[i]["properties"] = []
+					@acEdges[i] + ["properties", []]
 				ok
 				
 				# Directly merge properties
@@ -1560,7 +1561,7 @@ class stzGraph
 		]
 		
 		if NOT HasKey(@aProperties, "constraints")
-			@aProperties["constraints"] = []
+			@aProperties + ["constraints", []]
 		ok
 		
 		@aProperties["constraints"] + aConstraint
@@ -2145,7 +2146,7 @@ class stzGraph
 		]
 		
 		if NOT HasKey(@aProperties, :InferenceRules)
-			@aProperties[:InferenceRules] = []
+			@aProperties + ["inferenceRules", []]
 		ok
 		
 		@aProperties[:InferenceRules] + aRule
@@ -4126,10 +4127,61 @@ class stzGraphRule
 	
 	def SetInvalid()
 		This.SetValid(FALSE)
-	
+
 	def AddViolation(cMessage)
 		This.Apply("violation", cMessage)
-	
+
+		#< @FunctionAlternativeForms
+
+		# For Compliance / Banking / Audit domain
+		def AddFinding(cMessage)
+			This.Apply("violation", cMessage)
+
+		# For HR / Policy / Governance domain
+		def AddIssue(cMessage)
+			This.Apply("violation", cMessage)
+
+		# For Quality / ISO / Regulated industries domain
+		def AddNonConformity(cMessage)
+			This.Apply("violation", cMessage)
+
+		# For Risk / Ops / Engineering domain
+		def AddDeviation(cMessage)
+			This.Apply("violation", cMessage)
+
+		# For AI / Knowledge / Anomaly detection style
+		def AddAnomaly(cMessage)
+			This.Apply("violation", cMessage)
+
+		#>
+
+	def Violations()
+
+		acResult = []
+		nLen = len(@aEffects)
+		for i = 1 to nLen
+			if @aEffects[i][1] = "violation"
+				acResult + @aEffects[i][2]
+			ok
+		next
+
+		return acResult
+
+	def Findings()
+		return This.Violations()
+
+	def Issues()
+		return This.Violations()
+
+	def NonConformities()
+		return This.Violations()
+
+	def Deviations()
+		return This.Violations()
+
+	def Anomalies()
+		return This.Violations()
+
 	# Inference effects
 	def AddEdge(pcFrom, pcTo)
 		if CheckParams()
