@@ -6,6 +6,8 @@
 #NOTE Take inspiration from this article:
 # https://medium.com/data-science/graphs-with-python-overview-and-best-libraries-a92aa485c2f8
 
+$acGraphDefaultValidators = ["dag", "reachability", "completeness"]
+
 func IsStzGraph(pObj)
 	if isObject(pObj) and classname(pObj) = "stzgraph"
 		return 1
@@ -63,6 +65,8 @@ class stzGraph
 	@aEdgesAffectedByRules = []
 
 	@aProperties = []
+
+	@acValidators = $acGraphDefaultValidators
 
 	def init(pcId)
 		@cId = pcId
@@ -1568,23 +1572,39 @@ class stzGraph
 	
 	def ValidateConstraints()
 	    if NOT HasKey(@aProperties, "constraints")
-	        return 1
+	        return [
+	            :status = "pass",
+	            :domain = "constraints",
+	            :issueCount = 0,
+	            :issues = [],
+	            :affectedNodes = []
+	        ]
 	    ok
 	    
+	    aIssues = []
+	    acAffected = []
 	    nLen = len(@aProperties["constraints"])
 	    
 	    for i = 1 to nLen
-	        @aProperties["constraints"][i]["violations"] = []  # Clear directly
+	        @aProperties["constraints"][i]["violations"] = []
 	        cType = @aProperties["constraints"][i]["type"]
 	        
 	        bValid = This._EvaluateConstraint(cType)
 	        
 	        if NOT bValid
-	            @aProperties["constraints"][i]["violations"] + "Constraint failed"
+	            cIssue = "Constraint failed: " + cType
+	            aIssues + cIssue
+	            @aProperties["constraints"][i]["violations"] + cIssue
 	        ok
 	    end
 	    
-	    return len(This.ConstraintViolations()) = 0
+	    return [
+	        :status = iif(len(aIssues) = 0, "pass", "fail"),
+	        :domain = "constraints",
+	        :issueCount = len(aIssues),
+	        :issues = aIssues,
+	        :affectedNodes = acAffected
+	    ]
 	
 	def _EvaluateConstraint(pcType)
 	    if pcType = "ACYCLIC" or pcType = "NO_CYCLES"
@@ -2292,6 +2312,88 @@ class stzGraph
 		end
 		
 		return acInferred
+
+	#--------------#
+	#  VALIDATION  #
+	#--------------#
+
+	def Validators()
+		return @acValidators
+
+	def SetValidators(pacValidators)
+		@acValidators = pacValidators
+
+	def Validate()
+		return This.ValidateXT(@acValidators)
+
+	def ValidateXT(pValidator)
+		if isString(pValidator)
+			return This._ValidateSingle(pValidator)
+		but isList(pValidator)
+			aResults = []
+			nFailed = 0
+			nTotalIssues = 0
+			acAllAffected = []
+			
+			nLen = len(pValidator)
+			for i = 1 to nLen
+				aResult = This._ValidateSingle(pValidator[i])
+				aResults + aResult
+				if aResult[:status] = "fail"
+					nFailed++
+					nTotalIssues += aResult[:issueCount]
+					nAffLen = len(aResult[:affectedNodes])
+					for j = 1 to nAffLen
+						if ring_find(acAllAffected, aResult[:affectedNodes][j]) = 0
+							acAllAffected + aResult[:affectedNodes][j]
+						ok
+					end
+				ok
+			end
+			
+			return [
+				:status = iif(nFailed = 0, "pass", "fail"),
+				:validatorsRun = len(pValidator),
+				:validatorsFailed = nFailed,
+				:totalIssues = nTotalIssues,
+				:results = aResults,
+				:affectedNodes = acAllAffected
+			]
+		ok
+
+	def IsValid()
+		aResult = This.Validate()
+		return aResult[:status] = "pass"
+
+	def IsValidXT(pValidator)
+		aResult = This.ValidateXT(pValidator)
+		return aResult[:status] = "pass"
+
+	def _ValidateSingle(pcValidator)
+		switch lower(pcValidator)
+		on "dag"
+			return This._ValidateDAG()
+		on "reachability"
+			return This._ValidateReachability()
+		on "completeness"
+			return This._ValidateCompleteness()
+		on "constraints"
+			return This.ValidateConstraints()
+		other
+			# User-defined validator
+			cMethodName = "Validate" + pcValidator
+			if SystemMethod(This, cMethodName)
+				return call SystemMethod(This, cMethodName)
+			else
+				return [
+					:status = "error",
+					:domain = pcValidator,
+					:issueCount = 0,
+					:issues = ["Unknown validator: " + pcValidator],
+					:affectedNodes = []
+				]
+			ok
+		off
 
 	#------------------------------------------
 	#  5. RICH QUERYING
@@ -3113,7 +3215,7 @@ class stzGraph
 		oViz = new stzGraphAsciiVisualizer(This)
 		oViz.Show()
 
-	def View()
+	def View() #TODO // Make it possible by deleagating to stzDiagram
 		stzraise("Unavailable method for stzGrap! Use Show() instead.")
 
 	def ShowHorizontal()

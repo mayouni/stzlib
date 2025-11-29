@@ -2053,7 +2053,7 @@ pf()
 #------------------------------------------#
 # EXAMPLE : Bank Organizational Structure  #
 #------------------------------------------#
-*/
+
 pr()
 
 oBank = new stzOrgChart("Regional Bank Governance")
@@ -2138,53 +2138,181 @@ oBank {
 	View()
 }
 
-/*---
-OUTPUT:
 
-=== BANK ORGANIZATION ANALYSIS ===
+#---------------------------------------------------------------
+# Example 4: Enhanced Validation - Defaults & XT Forms
+# Demonstrates: Banking vs BCEAO validator distinction
+#---------------------------------------------------------------
+*/
+pr()
 
-Organization 'Regional Bank Governance' has 10 positions, 5 people, and 0 departments.
+oBank = new stzOrgChart("International_Bank")
+oBank {
+	SetTheme("pro")
+	SetTitleVisibility(TRUE)
+	
+	# Build structure
+	AddExecutivePositionXT("board", "Board of Directors")
+	AddExecutivePositionXT("ceo", "CEO")
+	AddManagementPositionXT("cfo", "CFO")
+	AddManagementPositionXT("cro", "Chief Risk Officer")
+	AddManagementPositionXT("cto", "CTO")
+	AddManagementPositionXT("treasury_head", "Treasury Head")
+	AddManagementPositionXT("ops_head", "Operations Head")
+	
+	ReportsTo("ceo", "board")
+	ReportsTo("cfo", "ceo")
+	ReportsTo("cro", "ceo")
+	ReportsTo("cto", "ceo")
+	ReportsTo("treasury_head", "cfo")
+	ReportsTo("ops_head", "ceo")  # Proper separation
+	
+	SetPositionDepartment("cro", "risk")
+	SetPositionDepartment("treasury_head", "treasury")
+	SetPositionDepartment("ops_head", "operations")
+	SetPositionDepartment("cto", "it")
+	
+	# Assign people
+	AddPersonXT("p1", "Alice Chen")
+	AddPersonXT("p2", "Bob Kumar")
+	AddPersonXT("p3", "Carol Martinez")
+	AssignPerson("p1", "ceo")
+	AssignPerson("p2", "cfo")
+	AssignPerson("p3", "treasury_head")
+	
+	#-------------------------------------------------------
+	# PART 1: Default Validators (No Parameters)
+	#-------------------------------------------------------
+	
+	? BoxRound("DEFAULT VALIDATORS") + NL
+	
+	? "Default validators for OrgChart:"
+	? @@NL( DefaultValidators() ) + NL
+	
+	? "Running IsValid() with defaults..."
+	? "Result: " + IsValid() + NL  # Runs all 5 default validators
+	
+	? "Running Validate() with defaults (detailed)..."
+	? @@NL( Validate() )  # Full report on all defaults
+	
+	#-------------------------------------------------------
+	# PART 2: Single Validator XT Form
+	#-------------------------------------------------------
+	
+	? NL + BoxRound("SINGLE VALIDATOR (XT FORM)") + NL
+	
+	? "IsValidXT(:SOC) - Span of Control:"
+	? IsValidXT(:SOC) + NL
+	
+	? "ValidateXT(:Succession) - Detailed:"
+	? @@NL( ValidateXT(:Succession) )
+	
+	#-------------------------------------------------------
+	# PART 3: Multiple Validators XT Form
+	#-------------------------------------------------------
+	
+	? NL + BoxRound("MULTIPLE VALIDATORS (XT FORM)") + NL
+	
+	? "IsValidXT([ :Banking, :BCEAO ]) - Boolean check:"
+	? IsValidXT([ :Banking, :BCEAO ]) + NL
+	
+	? "ValidateXT([ :Banking, :BCEAO ]) - Detailed comparison:"
+	aComparison = ValidateXT([ :Banking, :BCEAO ])
+	? @@NL( aComparison )
+	
+	#-------------------------------------------------------
+	# PART 4: Banking vs BCEAO Distinction
+	#-------------------------------------------------------
+	
+	? NL + BoxRound("BANKING vs BCEAO - THE DISTINCTION") + NL
+	
+	? "═══ BANKING VALIDATOR ═══"
+	? "Scope: Universal operational controls"
+	? "Focus: Fraud prevention, dual control, IT security" + NL
+	aBanking = Validate(:Banking)
+	? "Status: " + aBanking[:status]
+	? "Domain: " + aBanking[:domain]
+	if aBanking[:issueCount] > 0
+		? "Issues found:"
+		for issue in aBanking[:issues]
+			? "  • " + issue
+		next
+	ok
+	
+	? NL + "═══ BCEAO VALIDATOR ═══"
+	? "Scope: West African banking zone regulations"
+	? "Focus: Governance structure, board composition, audit independence" + NL
+	aBCEAO = Validate(:BCEAO)
+	? "Status: " + aBCEAO[:status]
+	? "Domain: " + aBCEAO[:domain]
+	if aBCEAO[:issueCount] > 0
+		? "Issues found:"
+		for issue in aBCEAO[:issues]
+			? "  • " + issue
+		next
+	ok
+	
+	#-------------------------------------------------------
+	# PART 5: Custom Default Validators
+	#-------------------------------------------------------
+	
+	? NL + BoxRound("CUSTOM DEFAULT VALIDATORS") + NL
+	
+	? "Original defaults:"
+	? @@NL( DefaultValidators() )
+	
+	? NL + "Setting custom defaults for BCEAO region compliance..."
+	SetDefaultValidators([ :BCEAO, :Banking, :SOD, :SOC ])
+	
+	? "New defaults:"
+	? @@NL( DefaultValidators() )
+	
+	? NL + "Running IsValid() with new defaults:"
+	? IsValid() + NL
+	
+	? "Full report with new defaults:"
+	? @@NL( Validate() )
+	
+	#-------------------------------------------------------
+	# PART 6: Practical Use - Regional Audit
+	#-------------------------------------------------------
+	
+	? NL + BoxRound("PRACTICAL SCENARIO: REGIONAL AUDIT") + NL
+	
+	? "Scenario: Bank in BCEAO region needs both:"
+	? "  1. Universal banking controls (fraud, dual control)"
+	? "  2. BCEAO-specific governance compliance" + NL
+	
+	? "Quick compliance check:"
+	if IsValidXT([ :Banking, :BCEAO ])
+		? "✓ Compliant with both Banking and BCEAO standards"
+	else
+		? "✗ Non-compliant - running detailed analysis..."
+		aAudit = ValidateXT([ :Banking, :BCEAO ])
+		
+		? NL + "Audit Summary:"
+		? "  Validators run: " + aAudit[:validatorsRun]
+		? "  Failed: " + aAudit[:validatorsFailed]
+		? "  Total issues: " + aAudit[:totalIssues]
+		? "  Affected positions: " + len(aAudit[:affectedNodes])
+		
+		? NL + "Issues by validator:"
+		nLen = len(aAudit[:results])
+		for i = 1 to nLen
+			aResult = aAudit[:results][i]
+			? "  " + aResult[:domain] + ": " + aResult[:issueCount] + " issue(s)"
+			if aResult[:issueCount] > 0
+				nIssueLen = len(aResult[:issues])
+				for j = 1 to nIssueLen
+					? "    • " + aResult[:issues][j]
+				next
+			ok
+		next
+		
+		# Visual inspection
+		? NL + "Generating visual report of non-compliant nodes..."
+		ViewNonCompliant(:BCEAO)
+	ok
+}
 
-Hierarchy:
-  executive: 3 positions
-  management: 3 positions
-  staff: 2 positions
-  Average span of control: 1.5
-
-Staffing:
-  Vacancy rate: 50%
-  Vacant positions: board, cro, it_head, treasury_analyst, ops_analyst
-
-Compliance:
-  Found 1 compliance issues
-  BCEAO: BCEAO-003: No dedicated Risk Management function
-
-Efficiency:
-  Span of control may be underutilized (< 3 reports average)
-  HIGH vacancy rate - may impact operations
-
-=== BCEAO COMPLIANCE CHECK ===
-
-Status: fail
-Issues:
-  - BCEAO-003: No dedicated Risk Management function
-
-=== SEGREGATION OF DUTIES CHECK ===
-
-Status: pass
-Operations and Treasury are properly separated
-
-=== VACANCY REPORT ===
-
-Vacancy Rate: 50%
-Vacant Positions: 5
-  - Board of Directors (executive)
-  - Chief Risk Officer (management)
-  - Head of IT (management)
-  - Treasury Analyst (staff)
-  - Operations Analyst (staff)
-
-=== GENERATING VISUALIZATION ===
-[SVG visualization opens showing hierarchical org chart]
-
----*/
+pf()

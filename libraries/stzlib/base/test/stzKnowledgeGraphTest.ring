@@ -483,103 +483,118 @@ oAnimalKG {
 	AddInferenceRule("TRANSITIVITY")
 	? BoxRound("APPLYING INFERENCE RULES") + NL
 	nInferred = ApplyInference()
-	? "Inferred " + nInferred + " new facts through transitivity"
+	? "Inferred " + nInferred + " new facts through transitivity" + NL
 	
 	# Display all facts
-	? NL + BoxRound("ALL FACTS (INCLUDING INFERRED") + NL
-	aAllFacts = Facts()
-	for i = 1 to min([15, len(aAllFacts)])
-		aFact = aAllFacts[i]
-		? aFact[1] + " " + aFact[2] + " " + aFact[3]
-	next
-	if len(aAllFacts) > 15
-		? "... and " + (len(aAllFacts) - 15) + " more facts"
-	ok
+	? NL + BoxRound("ALL FACTS (INCLUDING INFERRED)") + NL
+	? @@NL( Facts() )
 	
 	# Query the knowledge graph
 	? NL + BoxRound("QUERYING THE KNOWLEDGE GRAPH") + NL
 	
-	# Query 1: What are mammals?
-	? "Query: What is a Mammal?"
-	acMammals = Query(["?x", :IsA, "Mammals"])
-	? "Answer: " + joinxt(acMammals, ", ")
+	? 'Query: What is a Mammal?'
+	? @@NL( Query(["?x", :IsA, "Mammals"]) )
 	
-	# Query 2: What do carnivores eat?
-	? NL + "Query: What eats meat?"
-	acCarnivores = Query(["?x", :Eats, "Meat"])
-	? "Answer: " + joinxt(acCarnivores, ", ")
+	? NL + 'Query: What eats meat?'
+	? @@NL( Query(["?x", :Eats, "Meat"]) )
 	
-	# Query 3: What can fly?
-	? NL + "Query: Which animals can fly?"
-	acFlying = Query(["?x", :CanFly, "true"])
-	? "Answer: " + joinxt(acFlying, ", ")
+	? NL + 'Query: Which animals can fly?'
+	? @@NL( Query(["?x", :CanFly, "true"]) )
 	
 	# Analyze entity relationships
 	? NL + BoxRound("ENTITY ANALYSIS") + NL
-	? "Relationships of 'Dogs':"
+	? 'Relationships of "Dogs":'
 	? @@NL( Relations("Dogs") )
-
-	? NL + "Relationships of 'Lions':"
+	
+	? NL + 'Relationships of "Lions":'
 	? @@NL( Relations("Lions") )
-
 	
 	# Find similar entities
 	? NL + BoxRound("SIMILARITY ANALYSIS") + NL
-	? "Entities similar to 'Dogs':"
+	? 'Entities similar to "Dogs":'
 	? @@NL( SimilarTo("Dogs") )
 	
 	# Explain the knowledge graph
 	? NL + BoxRound("KNOWLEDGE GRAPH EXPLANATION") + NL
 	? @@NL( Explain() )
+
 }
 
 #-->
-'
+`
 ╭──────────────────────────╮
 │ APPLYING INFERENCE RULES │
 ╰──────────────────────────╯
 
 Inferred 16 new facts through transitivity
 
-╭───────────────────────────────╮
-│ ALL FACTS (INCLUDING INFERRED │
-╰───────────────────────────────╯
 
-Mammals subclassof Animals
-Birds subclassof Animals
-Fish subclassof Animals
-Reptiles subclassof Animals
-Dogs isa Mammals
-Cats isa Mammals
-Lions isa Mammals
-Eagles isa Birds
-Parrots isa Birds
-Salmon isa Fish
-Sharks isa Fish
-Snakes isa Reptiles
-Dogs eats Meat
-Dogs livesin Houses
-Cats eats Meat
-... and 21 more facts
+╭────────────────────────────────╮
+│ ALL FACTS (INCLUDING INFERRED) │
+╰────────────────────────────────╯
+
+[
+	[ "Mammals", "subclassof", "Animals" ],
+	[ "Birds", "subclassof", "Animals" ],
+	[ "Fish", "subclassof", "Animals" ],
+	[ "Reptiles", "subclassof", "Animals" ],
+	[ "Dogs", "isa", "Mammals" ],
+	[ "Cats", "isa", "Mammals" ],
+	[ "Lions", "isa", "Mammals" ],
+	[ "Eagles", "isa", "Birds" ],
+	[ "Parrots", "isa", "Birds" ],
+	[ "Salmon", "isa", "Fish" ],
+	[ "Sharks", "isa", "Fish" ],
+	[ "Snakes", "isa", "Reptiles" ],
+	[ "Dogs", "eats", "Meat" ],
+	[ "Dogs", "livesin", "Houses" ],
+	[ "Cats", "eats", "Meat" ],
+	[ "Cats", "hunts", "Mice" ],
+	[ "Lions", "eats", "Meat" ],
+	[ "Lions", "livesin", "Savanna" ],
+	[ "Eagles", "eats", "Meat" ],
+	[ "Eagles", "canfly", "true" ],
+	[ "Parrots", "eats", "Seeds" ],
+	[ "Parrots", "canfly", "true" ],
+	[ "Salmon", "livesin", "Rivers" ],
+	[ "Sharks", "livesin", "Oceans" ],
+	[ "Snakes", "eats", "Rodents" ],
+	[ "Dogs", "friendof", "Humans" ],
+	[ "Cats", "friendof", "Humans" ],
+	[ "Lions", "liveswith", "Prides" ],
+	[ "Dogs", "(inferred)", "Animals" ],
+	[ "Cats", "(inferred)", "Animals" ],
+	[ "Lions", "(inferred)", "Animals" ],
+	[ "Eagles", "(inferred)", "Animals" ],
+	[ "Parrots", "(inferred)", "Animals" ],
+	[ "Salmon", "(inferred)", "Animals" ],
+	[ "Sharks", "(inferred)", "Animals" ],
+	[ "Snakes", "(inferred)", "Animals" ]
+]
 
 ╭──────────────────────────────╮
 │ QUERYING THE KNOWLEDGE GRAPH │
 ╰──────────────────────────────╯
 
 Query: What is a Mammal?
-Answer: Dogs, Cats, Lions
+[ "Dogs", "Cats", "Lions" ]
 
 Query: What eats meat?
-Answer: Dogs, Cats, Lions, Eagles
+[
+	"Dogs",
+	"Cats",
+	"Lions",
+	"Eagles"
+]
 
 Query: Which animals can fly?
-Answer: Eagles, Parrots
+[ "Eagles", "Parrots" ]
 
 ╭─────────────────╮
 │ ENTITY ANALYSIS │
 ╰─────────────────╯
 
-Relationships of 'Dogs':
+Relationships of "Dogs":
 [
 	[ "isa", "Mammals" ],
 	[ "eats", "Meat" ],
@@ -588,7 +603,7 @@ Relationships of 'Dogs':
 	[ "(inferred)", "Animals" ]
 ]
 
-Relationships of 'Lions':
+Relationships of "Lions":
 [
 	[ "isa", "Mammals" ],
 	[ "eats", "Meat" ],
@@ -601,7 +616,7 @@ Relationships of 'Lions':
 │ SIMILARITY ANALYSIS │
 ╰─────────────────────╯
 
-Entities similar to 'Dogs':
+Entities similar to "Dogs":
 [
 	[ "Cats", 4 ],
 	[ "Lions", 4 ],
@@ -620,7 +635,7 @@ Entities similar to 'Dogs':
 	[ "type", "Knowledge Graph" ],
 	[
 		"structure",
-		"Knowledge graph 'Animal Kingdom' contains 24 entities and 36 facts."
+		'Knowledge graph "Animal Kingdom" contains 24 entities and 36 facts.'
 	],
 	[
 		"facts",
@@ -665,95 +680,7 @@ Entities similar to 'Dogs':
 		]
 	]
 ]
-'
+`
+# Executed in 0.11 second(s) in Ring 1.24
 
 pf()
-
-
-/*---
-OUTPUT:
-
-=== APPLYING INFERENCE RULES ===
-
-Inferred 8 new facts through transitivity
-
-=== ALL FACTS (INCLUDING INFERRED) ===
-
-Mammals SubClassOf Animals
-Birds SubClassOf Animals
-Fish SubClassOf Animals
-Reptiles SubClassOf Animals
-Dogs IsA Mammals
-Cats IsA Mammals
-Lions IsA Mammals
-Eagles IsA Birds
-Parrots IsA Birds
-Salmon IsA Fish
-Sharks IsA Fish
-Snakes IsA Reptiles
-Dogs Eats Meat
-Dogs LivesIn Houses
-Cats Eats Meat
-... and 15 more facts
-
-=== QUERYING THE KNOWLEDGE GRAPH ===
-
-Query: What is a Mammal?
-Answer: Dogs, Cats, Lions
-
-Query: What eats meat?
-Answer: Dogs, Cats, Lions, Eagles
-
-Query: Which animals can fly?
-Answer: Eagles, Parrots
-
-=== ENTITY ANALYSIS ===
-
-Relationships of 'Dogs':
-  IsA -> Mammals
-  Eats -> Meat
-  LivesIn -> Houses
-  FriendOf -> Humans
-
-Relationships of 'Lions':
-  IsA -> Mammals
-  Eats -> Meat
-  LivesIn -> Savanna
-  LivesWith -> Prides
-
-=== SIMILARITY ANALYSIS ===
-
-Entities similar to 'Dogs':
-  Cats (overlap: 3 predicates)
-  Lions (overlap: 2 predicates)
-  Eagles (overlap: 1 predicates)
-
-=== KNOWLEDGE GRAPH EXPLANATION ===
-
-Knowledge graph 'Animal Kingdom' contains 22 entities and 30 facts.
-
-Sample Facts:
-  Mammals SubClassOf Animals
-  Birds SubClassOf Animals
-  Fish SubClassOf Animals
-  Reptiles SubClassOf Animals
-  Dogs IsA Mammals
-  ... and 25 more facts
-
-Entities:
-  Mammals, Birds, Fish, Reptiles, Dogs, Cats, Lions, Eagles, Parrots, Salmon
-  ... and 12 more
-
-Predicates:
-  SubClassOf, IsA, Eats, LivesIn, Hunts, CanFly, FriendOf, LivesWith
-
-Patterns:
-  Most connected entity: Dogs (4 relationships)
-  Moderate connectivity (35% density)
-
-Insights:
-  Contains circular relationships (cycles detected)
-  Inference rules generated new knowledge
-
-=== GENERATING VISUALIZATION ===
-[SVG visualization opens showing the knowledge graph]

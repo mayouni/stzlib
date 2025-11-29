@@ -249,7 +249,7 @@ class stzKnowledgeGraph from stzGraph
 		nNodes = This.NodeCount()
 		nEdges = This.EdgeCount()
 		nFacts = len(This.Facts())
-		aExplanation[:structure] = "Knowledge graph '" + @cId + "' contains " + 
+		aExplanation[:structure] = 'Knowledge graph "' + @cId + '" contains ' + 
 		                           nNodes + " entities and " + nFacts + " facts."
 		
 		# Facts analysis

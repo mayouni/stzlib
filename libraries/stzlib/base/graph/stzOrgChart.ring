@@ -20,6 +20,7 @@ $aOrgColors = [
     :focus = "magenta+"
 ]
 
+$acOrgChartDefaultValidators = ["bceao", "sod", "soc", "vacancy", "succession"]
 
 func IsStzOrgChart(pObj)
 	if isObject(pObj) and classname(pObj) = "stzorgchart"
@@ -41,7 +42,9 @@ class stzOrgChart from stzDiagram
 	@cClusterColor = $cDefaultClusterColor	   
 
 	@cFocusColor = $aOrgColors[:focus]  # magenta+
-	@cDefaultNodeColor = $cDefaultNodeColor  # from global
+	@cNodeColor = $cDefaultNodeColor  # from global
+
+	@aDefaultValidators = ["bceao", "sod", "soc", "vacancy", "succession"]
 
 	def init(pcTitle)
 		super.init(pcTitle)
@@ -300,38 +303,84 @@ class stzOrgChart from stzDiagram
 	#  COMPLIANCE & GOVERNANCE  #
 	#===========================#
 
+	def Validators()
+		return @acValidators
 
-	def Validate(pcValidator)
-		switch pcValidator
-		on :BCEAO
+	def SetValidators(pacValidators)
+		@acValidators = pacValidators
+
+	def Validate()
+		return This.ValidateXT(@acValidators)
+
+	def ValidateXT(pValidator)
+		if isString(pValidator)
+			return This._ValidateSingle(pValidator)
+		but isList(pValidator)
+			aResults = []
+			nFailed = 0
+			nTotalIssues = 0
+			acAllAffected = []
+			
+			nLen = len(pValidator)
+			for i = 1 to nLen
+				aResult = This._ValidateSingle(pValidator[i])
+				aResults + aResult
+				if aResult[:status] = "fail"
+					nFailed++
+					nTotalIssues += aResult[:issueCount]
+					nAffLen = len(aResult[:affectedNodes])
+					for j = 1 to nAffLen
+						if ring_find(acAllAffected, aResult[:affectedNodes][j]) = 0
+							acAllAffected + aResult[:affectedNodes][j]
+						ok
+					end
+				ok
+			end
+			
+			return [
+				:status = iif(nFailed = 0, "pass", "fail"),
+				:validatorsRun = len(pValidator),
+				:validatorsFailed = nFailed,
+				:totalIssues = nTotalIssues,
+				:results = aResults,
+				:affectedNodes = acAllAffected
+			]
+		ok
+
+	def IsValid()
+		aResult = This.Validate()
+		return aResult[:status] = "pass"
+
+	def IsValidXT(pValidator)
+		aResult = This.ValidateXT(pValidator)
+		return aResult[:status] = "pass"
+
+	def _ValidateSingle(pcValidator)
+		switch lower(pcValidator)
+		on "bceao"
 			return This.ValidateBCEAOGovernance()
-
-		on :SpanOfControl
+		on "spanofcontrol"
 			return This.ValidateSpanOfControl()
-		on :SOC
+		on "soc"
 			return This.ValidateSpanOfControl()
-
-		on :SeparationOfDuties
+		on "separationofduties"
 			return This.ValidateSegregationOfDuties()
-		on :SegregationOfDuties
+		on "segregationofduties"
 			return This.ValidateSegregationOfDuties()
-		on :SOD
+		on "sod"
 			return This.ValidateSegregationOfDuties()
-
-		on :Vacancy
+		on "vacancy"
 			return This.ValidateVacancy()
-
-		on :Succession
+		on "succession"
 			return This.ValidateSuccession()
-
-		on :Compliance
-			return This.ValidateCompliance() # BCEAO?
-
-		on :Summary
+		on "banking"
+			return This.ValidateBanking()
+		on "compliance"
+			return This.ValidateCompliance()
+		on "summary"
 			return This.ValidationSummary()
-
 		other
-			return super.Validate(pcValidator)
+			return super.ValidateXT(pcValidator)
 		off
 
 	def ValidateBCEAOGovernance()
@@ -359,6 +408,45 @@ class stzOrgChart from stzDiagram
 	def ValidateSegregationOfDuties()
 		oValidator = new stzOrgChartSODValidator(This)
 		return oValidator.Validate()
+
+	def ValidateVacancy()
+		acVacant = This.VacantPositions()
+		
+		return [
+			:status = iif(len(acVacant) = 0, "pass", "fail"),
+			:domain = "vacancy",
+			:issueCount = len(acVacant),
+			:issues = iif(len(acVacant) > 0, ["Vacant positions: " + len(acVacant)], []),
+			:affectedNodes = acVacant
+		]
+	
+	def ValidateSuccession()
+		acRisk = This.SuccessionRisk()
+		aIssues = []
+		nLen = len(acRisk)
+		for i = 1 to nLen
+			aIssues + "No successor: " + acRisk[i]
+		end
+		
+		return [
+			:status = iif(len(aIssues) = 0, "pass", "fail"),
+			:domain = "succession",
+			:issueCount = len(aIssues),
+			:issues = aIssues,
+			:affectedNodes = acRisk
+		]
+	
+	def ValidateBanking()
+		return [
+			:status = "pass",
+			:domain = "banking",
+			:issueCount = 0,
+			:issues = [],
+			:affectedNodes = []
+		]
+	
+	def ValidateCompliance()
+		return This.ValidateBCEAOGovernance()
 
 	def DirectReportsCount(pcPositionId)
 		return len(This.DirectReports(pcPositionId))
@@ -1032,7 +1120,7 @@ class stzOrgChart from stzDiagram
 		
 		acVacant = This.VacantPositions()
 		if len(acVacant) > 0
-			aExplanation[:staffing] + ("Vacant positions: " + JoinXT(acVacant, ", "))
+			aExplanation[:staffing] + ("Vacant positions: " + join(acVacant, ", "))
 		else
 			aExplanation[:staffing] + "All positions filled"
 		ok
@@ -1041,7 +1129,7 @@ class stzOrgChart from stzDiagram
 		acRisk = This.SuccessionRisk()
 		if len(acRisk) > 0
 			aExplanation[:risks] + ("Succession risk: " + len(acRisk) + " positions without successor")
-			aExplanation[:risks] + ("At-risk positions: " + JoinXT(acRisk, ", "))
+			aExplanation[:risks] + ("At-risk positions: " + join(acRisk, ", "))
 		else
 			aExplanation[:risks] + "No succession risks identified"
 		ok
@@ -1067,13 +1155,13 @@ class stzOrgChart from stzDiagram
 		else
 			aExplanation[:compliance] + ("Found " + nIssues + " compliance issues")
 			if aBCEAO[:status] = "fail"
-				aExplanation[:compliance] + ("BCEAO: " + JoinXT(aBCEAO[:issues], "; "))
+				aExplanation[:compliance] + ("BCEAO: " + join(aBCEAO[:issues], "; "))
 			ok
 			if aSOC[:status] = "fail"
-				aExplanation[:compliance] + ("Span of Control: " + JoinXT(aSOC[:issues], "; "))
+				aExplanation[:compliance] + ("Span of Control: " + join(aSOC[:issues], "; "))
 			ok
 			if aSOD[:status] = "fail"
-				aExplanation[:compliance] + ("Segregation of Duties: " + JoinXT(aSOD[:issues], "; "))
+				aExplanation[:compliance] + ("Segregation of Duties: " + join(aSOD[:issues], "; "))
 			ok
 		ok
 		
