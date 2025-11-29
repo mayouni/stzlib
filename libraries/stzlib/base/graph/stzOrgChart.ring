@@ -300,6 +300,7 @@ class stzOrgChart from stzDiagram
 	#  COMPLIANCE & GOVERNANCE  #
 	#===========================#
 
+
 	def Validate(pcValidator)
 		switch pcValidator
 		on :BCEAO
@@ -316,6 +317,18 @@ class stzOrgChart from stzDiagram
 			return This.ValidateSegregationOfDuties()
 		on :SOD
 			return This.ValidateSegregationOfDuties()
+
+		on :Vacancy
+			return This.ValidateVacancy()
+
+		on :Succession
+			return This.ValidateSuccession()
+
+		on :Compliance
+			return This.ValidateCompliance() # BCEAO?
+
+		on :Summary
+			return This.ValidationSummary()
 
 		other
 			return super.Validate(pcValidator)
@@ -980,9 +993,112 @@ class stzOrgChart from stzDiagram
 	        ok
 	    end
 
-	#=====================================================
-	#  EXPORT TO .STZORG FORMAT
-	#=====================================================
+	#==========================#
+	#  ORGANIZATIONAL EXPLAIN  #
+	#==========================#
+
+	def Explain()
+		aExplanation = [
+			:type = "Organization Chart",
+			:structure = "",
+			:hierarchy = [],
+			:staffing = [],
+			:compliance = [],
+			:risks = [],
+			:efficiency = []
+		]
+		
+		# Structure overview
+		nPos = len(@aPositions)
+		nPeople = len(@aPeople)
+		nDepts = len(@aDepartments)
+		aExplanation[:structure] = "Organization '" + @cId + "' has " + nPos + 
+		                           " positions, " + nPeople + " people, and " + 
+		                           nDepts + " departments."
+		
+		# Hierarchy analysis
+		aLevels = This.PositionsByLevel()
+		nLvlLen = len(aLevels)
+		for i = 1 to nLvlLen
+			aExplanation[:hierarchy] + (aLevels[i][1] + ": " + aLevels[i][2] + " positions")
+		end
+		
+		nAvgSpan = This.AverageSpanOfControl()
+		aExplanation[:hierarchy] + ("Average span of control: " + nAvgSpan)
+		
+		# Staffing status
+		nVacRate = This.VacancyRate()
+		aExplanation[:staffing] + ("Vacancy rate: " + nVacRate + "%")
+		
+		acVacant = This.VacantPositions()
+		if len(acVacant) > 0
+			aExplanation[:staffing] + ("Vacant positions: " + JoinXT(acVacant, ", "))
+		else
+			aExplanation[:staffing] + "All positions filled"
+		ok
+		
+		# Succession risk
+		acRisk = This.SuccessionRisk()
+		if len(acRisk) > 0
+			aExplanation[:risks] + ("Succession risk: " + len(acRisk) + " positions without successor")
+			aExplanation[:risks] + ("At-risk positions: " + JoinXT(acRisk, ", "))
+		else
+			aExplanation[:risks] + "No succession risks identified"
+		ok
+		
+		# Compliance checks
+		aBCEAO = This.ValidateBCEAOGovernance()
+		aSOC = This.ValidateSpanOfControl()
+		aSOD = This.ValidateSegregationOfDuties()
+		
+		nIssues = 0
+		if aBCEAO[:status] = "fail"
+			nIssues += len(aBCEAO[:issues])
+		ok
+		if aSOC[:status] = "fail"
+			nIssues += len(aSOC[:issues])
+		ok
+		if aSOD[:status] = "fail"
+			nIssues += len(aSOD[:issues])
+		ok
+		
+		if nIssues = 0
+			aExplanation[:compliance] + "All compliance checks passed"
+		else
+			aExplanation[:compliance] + ("Found " + nIssues + " compliance issues")
+			if aBCEAO[:status] = "fail"
+				aExplanation[:compliance] + ("BCEAO: " + JoinXT(aBCEAO[:issues], "; "))
+			ok
+			if aSOC[:status] = "fail"
+				aExplanation[:compliance] + ("Span of Control: " + JoinXT(aSOC[:issues], "; "))
+			ok
+			if aSOD[:status] = "fail"
+				aExplanation[:compliance] + ("Segregation of Duties: " + JoinXT(aSOD[:issues], "; "))
+			ok
+		ok
+		
+		# Efficiency metrics
+		if nAvgSpan < 3
+			aExplanation[:efficiency] + "Span of control may be underutilized (< 3 reports average)"
+		but nAvgSpan > 9
+			aExplanation[:efficiency] + "WARNING: Span of control exceeds recommended limit (> 9 reports average)"
+		else
+			aExplanation[:efficiency] + "Span of control within optimal range (3-9 reports)"
+		ok
+		
+		if nVacRate > 20
+			aExplanation[:efficiency] + "HIGH vacancy rate - may impact operations"
+		but nVacRate > 10
+			aExplanation[:efficiency] + "Moderate vacancy rate - monitor staffing"
+		else
+			aExplanation[:efficiency] + "Healthy staffing levels"
+		ok
+		
+		return aExplanation
+
+	#============================#
+	#  EXPORT TO .STZORG FORMAT  #
+	#============================#
 
 	def ToStzOrg()
 		cResult = 'orgchart "' +
@@ -1318,6 +1434,7 @@ class stzOrgChartReporter
 			return []
 		off
 
+
 	def SummaryReport()
 		return [
 			:title = "Organizational Summary",
@@ -1330,6 +1447,9 @@ class stzOrgChartReporter
 				:levels = @oOrgChart.PositionsByLevel()
 			]
 		]
+
+		def Summary()
+			return This.SummaryReport()
 
 	def VacancyReport()
 		acVacant = @oOrgChart.VacantPositions()
@@ -1378,6 +1498,9 @@ class stzOrgChartReporter
 		]
 		
 		return aReport
+
+		def Vacancy()
+			return This.VacancyReport()
 
 	def SuccessionReport()
 		acRisk = @oOrgChart.SuccessionRisk()
@@ -1428,6 +1551,10 @@ class stzOrgChartReporter
 			:details = aDetails
 		]
 
+
+		def Succession()
+			return This.SuccessionReport()
+
 	def ComplianceReport()
 		aReport = [
 			:title = "Compliance Status Report",
@@ -1451,6 +1578,9 @@ class stzOrgChartReporter
 		aReport[:failedChecks] = nFail
 		
 		return aReport
+
+		def Compliance()
+			return This.ComplianceReport()
 
 	def SpanOfControlReport()
 		aReport = [
@@ -1493,6 +1623,11 @@ class stzOrgChartReporter
 		
 		return aReport
 
+		def SpanOfControl()
+			return This.SpanOfControlReport()
+
+		def SOC()
+			return This.SpanOfControlReport()
 
 #=====================================================
 #  stzOrgChartSimulation

@@ -1858,9 +1858,9 @@ oOrg {
         AddExecutivePositionXT("ceo", "CEO")
         AddManagementPositionXT("vp_sales", "VP Sales")
         ReportsTo("vp_sales", "ceo")
-        
+   	view()     
         # Export
-        WriteToStzOrgFile("test.stzorg")
+ //       WriteToStzOrgFile("test.stzorg")
 }
     
 # Import
@@ -1875,8 +1875,8 @@ pf()
 #-------------------#
 #  VISUAL ANALYSIS  #
 #-------------------#
+/*--
 
-*/
 pr()
 
 oOrg = new stzOrgChart("MyOrg Organizational Chart")
@@ -1938,13 +1938,14 @@ oOrg {
     AddPersonXT("p_haroune", "Haroune Sani")
     AssignPerson("p_haroune", "staff_it2")
 
-    ViewVacant()
+
+ ? ToMermaid()
 }
 
 pf()
 
 /*---
-*/
+
 pr()
 
 oOrg = new stzOrgChart("MyOrg")
@@ -2007,7 +2008,7 @@ oOrg {
     AssignPerson("p_haroune", "staff_it2")
 
     #--
-/*
+
     AddDepartmentXTT("it", "Department IT", [ "it_mgr", "staff_it1", "staff_it2", "staff_it3" ])
     AddDepartmentXTT("hr", "Department HR", [ "hr_mgr", "staff_hr1", "staff_hr2", "staff_hr3" ])
 
@@ -2044,8 +2045,146 @@ oOrg {
     # Custom views
     ViewNodesWithProperty("critical", TRUE)
     ViewNodesWithTag("urgent")
-*/
+
 }
 
 pf()
 
+#------------------------------------------#
+# EXAMPLE : Bank Organizational Structure  #
+#------------------------------------------#
+*/
+pr()
+
+oBank = new stzOrgChart("Regional Bank Governance")
+oBank {
+	SetTheme("pro")
+	SetTitleVisibility(TRUE)
+	
+	# Board level
+	AddExecutivePositionXT("board", "Board of Directors")
+	
+	# Executive positions
+	AddExecutivePositionXT("ceo", "Chief Executive Officer")
+	AddExecutivePositionXT("cfo", "Chief Financial Officer")
+	AddManagementPositionXT("cro", "Chief Risk Officer")
+	AddManagementPositionXT("cao", "Chief Audit Officer")
+	
+	# Department heads
+	AddManagementPositionXT("treasury_head", "Head of Treasury")
+	AddManagementPositionXT("ops_head", "Head of Operations")
+	AddManagementPositionXT("it_head", "Head of IT")
+	
+	# Staff positions
+	AddStaffPositionXT("treasury_analyst", "Treasury Analyst")
+	AddStaffPositionXT("ops_analyst", "Operations Analyst")
+	
+	# Define reporting structure
+	ReportsTo("ceo", "board")
+	ReportsTo("cfo", "ceo")
+	ReportsTo("cro", "ceo")
+	ReportsTo("cao", "board")  # Audit independence
+	
+	ReportsTo("treasury_head", "cfo")
+	ReportsTo("ops_head", "ceo")
+	ReportsTo("it_head", "ceo")
+	
+	ReportsTo("treasury_analyst", "treasury_head")
+	ReportsTo("ops_analyst", "ops_head")
+	
+	# Assign departments
+	SetPositionDepartment("treasury_head", "treasury")
+	SetPositionDepartment("treasury_analyst", "treasury")
+	SetPositionDepartment("ops_head", "operations")
+	SetPositionDepartment("ops_analyst", "operations")
+	SetPositionDepartment("cao", "audit")
+	SetPositionDepartment("cro", "risk")
+	SetPositionDepartment("it_head", "it")
+	
+	# Add people
+	AddPersonXT("p1", "Sarah Johnson")
+	AddPersonXT("p2", "Michael Chen")
+	AddPersonXT("p3", "Emma Williams")
+	AddPersonXT("p4", "David Kumar")
+	AddPersonXT("p5", "Lisa Anderson")
+	
+	# Assign people to positions
+	AssignPerson("p1", "ceo")
+	AssignPerson("p2", "cfo")
+	AssignPerson("p3", "cao")
+	AssignPerson("p4", "treasury_head")
+	AssignPerson("p5", "ops_head")
+	
+	# Analyze organization
+	? "=== BANK ORGANIZATION ANALYSIS ===" + NL
+	
+	? @@NL( Explain() ) + NL
+
+	
+	# Validate BCEAO governance
+	? NL + "=== BCEAO COMPLIANCE CHECK ===" + NL
+	? @@NL( Validate(:BCEAO) ) + NL
+	
+	# Check segregation of duties
+	? NL + "=== SEGREGATION OF DUTIES CHECK ===" + NL
+	? @@NL( Validate(:SegregationOfDuties) ) + NL
+
+	# Generate vacancy report
+	? NL + "=== VACANCY REPORT ===" + NL
+	? @@NL( Validate(:Vacancy) )
+	
+	# View the chart
+	? NL + "=== GENERATING VISUALIZATION ===" + NL
+	View()
+}
+
+/*---
+OUTPUT:
+
+=== BANK ORGANIZATION ANALYSIS ===
+
+Organization 'Regional Bank Governance' has 10 positions, 5 people, and 0 departments.
+
+Hierarchy:
+  executive: 3 positions
+  management: 3 positions
+  staff: 2 positions
+  Average span of control: 1.5
+
+Staffing:
+  Vacancy rate: 50%
+  Vacant positions: board, cro, it_head, treasury_analyst, ops_analyst
+
+Compliance:
+  Found 1 compliance issues
+  BCEAO: BCEAO-003: No dedicated Risk Management function
+
+Efficiency:
+  Span of control may be underutilized (< 3 reports average)
+  HIGH vacancy rate - may impact operations
+
+=== BCEAO COMPLIANCE CHECK ===
+
+Status: fail
+Issues:
+  - BCEAO-003: No dedicated Risk Management function
+
+=== SEGREGATION OF DUTIES CHECK ===
+
+Status: pass
+Operations and Treasury are properly separated
+
+=== VACANCY REPORT ===
+
+Vacancy Rate: 50%
+Vacant Positions: 5
+  - Board of Directors (executive)
+  - Chief Risk Officer (management)
+  - Head of IT (management)
+  - Treasury Analyst (staff)
+  - Operations Analyst (staff)
+
+=== GENERATING VISUALIZATION ===
+[SVG visualization opens showing hierarchical org chart]
+
+---*/

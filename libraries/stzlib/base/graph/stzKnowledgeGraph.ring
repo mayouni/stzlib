@@ -26,9 +26,9 @@ class stzKnowledgeGraph from stzGraph
 		def IsAKnowledgeGraph()
 			return TRUE
 
-	#------------------#
-	#  TRIPLE INTERFACE
-	#------------------#
+	#--------------------#
+	#  TRIPLE INTERFACE  #
+	#--------------------#
 
 	def AddFact(pcSubject, pcPredicate, pcObject)
 		if NOT This.NodeExists(pcSubject)
@@ -65,9 +65,9 @@ class stzKnowledgeGraph from stzGraph
 		def Triples()
 			return This.Facts()
 
-	#------------------#
-	#  QUERY INTERFACE
-	#------------------#
+	#-------------------#
+	#  QUERY INTERFACE  #
+	#-------------------#
 
 	def Query(paPattern)
 		# Pattern: ["?x", :IsA, "Animals"] or ["Dogs", :Eats, "?what"]
@@ -139,9 +139,9 @@ class stzKnowledgeGraph from stzGraph
 		
 		return _aResults_
 
-	#---------------------#
-	#  ENTITY ANALYSIS
-	#---------------------#
+	#-------------------#
+	#  ENTITY ANALYSIS  #
+	#-------------------#
 
 	def Predicates(pcEntity)
 		_acPredicates_ = []
@@ -208,9 +208,9 @@ class stzKnowledgeGraph from stzGraph
 		def SimilarEntities(pcEntity)
 			return This.SimilarTo(pcEntity)
 
-	#---------------------#
-	#  ONTOLOGY SUPPORT
-	#---------------------#
+	#--------------------#
+	#  ONTOLOGY SUPPORT  #
+	#--------------------#
 
 	def DefineClass(pcClass, pcSuperClass)
 		This.AddFact(pcClass, :SubClassOf, pcSuperClass)
@@ -227,3 +227,144 @@ class stzKnowledgeGraph from stzGraph
 	def ValidateOntology()
 		# Basic validation - checks if defined properties are used consistently
 		return TRUE
+
+
+	#==========================#
+	#  KNOWLEDGE GRAPH EXPLAIN #
+	#==========================#
+
+	def Explain()
+		aExplanation = [
+			:type = "Knowledge Graph",
+			:structure = "",
+			:facts = [],
+			:entities = [],
+			:predicates = [],
+			:ontology = [],
+			:patterns = [],
+			:insights = []
+		]
+		
+		# Structure overview
+		nNodes = This.NodeCount()
+		nEdges = This.EdgeCount()
+		nFacts = len(This.Facts())
+		aExplanation[:structure] = "Knowledge graph '" + @cId + "' contains " + 
+		                           nNodes + " entities and " + nFacts + " facts."
+		
+		# Facts analysis
+		aFacts = This.Facts()
+		if len(aFacts) > 0
+			nSample = min([5, len(aFacts)])
+			for i = 1 to nSample
+				aFact = aFacts[i]
+				aExplanation[:facts] + (aFact[1] + " " + aFact[2] + " " + aFact[3])
+			end
+			if len(aFacts) > 5
+				aExplanation[:facts] + ("... and " + (len(aFacts) - 5) + " more facts")
+			ok
+		else
+			aExplanation[:facts] + "No facts defined yet"
+		ok
+		
+		# Entity analysis
+		aNodes = This.Nodes()
+		acEntities = []
+		nNodeLen = len(aNodes)
+		for i = 1 to nNodeLen
+			if HasKey(aNodes[i]["properties"], "type")
+				if aNodes[i]["properties"]["type"] = "entity"
+					acEntities + aNodes[i]["id"]
+				ok
+			ok
+		end
+		
+		if len(acEntities) > 0
+			nSample = min([10, len(acEntities)])
+			cEntityList = ""
+			for i = 1 to nSample
+				cEntityList += acEntities[i]
+				if i < nSample cEntityList += ", " ok
+			end
+			aExplanation[:entities] + ("Entities: " + cEntityList)
+			if len(acEntities) > 10
+				aExplanation[:entities] + ("... and " + (len(acEntities) - 10) + " more")
+			ok
+		ok
+		
+		# Predicate analysis
+		acAllPredicates = []
+		aEdges = This.Edges()
+		nEdgeLen = len(aEdges)
+		for i = 1 to nEdgeLen
+			cPred = aEdges[i][:label]
+			if cPred != "" and ring_find(acAllPredicates, cPred) = 0
+				acAllPredicates + cPred
+			ok
+		end
+		
+		if len(acAllPredicates) > 0
+			aExplanation[:predicates] + ("Predicates used: " + JoinXT(acAllPredicates, ", "))
+		ok
+		
+		# Ontology status
+		if len(@aOntology) > 0
+			aExplanation[:ontology] + ("Ontology defined with " + len(@aOntology) + " constraints")
+			nOntLen = len(@aOntology)
+			for i = 1 to nOntLen
+				if HasKey(@aOntology[i], :property)
+					aExplanation[:ontology] + ("Property: " + @aOntology[i][:property])
+				ok
+			end
+		else
+			aExplanation[:ontology] + "No formal ontology defined"
+		ok
+		
+		# Pattern detection
+		nMaxConnections = 0
+		cMostConnected = ""
+		for i = 1 to nNodeLen
+			cNodeId = aNodes[i]["id"]
+			nConnections = len(This.Predicates(cNodeId))
+			if nConnections > nMaxConnections
+				nMaxConnections = nConnections
+				cMostConnected = cNodeId
+			ok
+		end
+		
+		if cMostConnected != ""
+			aExplanation[:patterns] + ("Most connected entity: " + cMostConnected + 
+			                           " (" + nMaxConnections + " relationships)")
+		ok
+		
+		# Density
+		nDensity = This.NodeDensity()
+		if nDensity < 25
+			aExplanation[:patterns] + ("Graph is sparse (" + nDensity + "% density)")
+		but nDensity > 75
+			aExplanation[:patterns] + ("Graph is highly connected (" + nDensity + "% density)")
+		else
+			aExplanation[:patterns] + ("Moderate connectivity (" + nDensity + "% density)")
+		ok
+		
+		# Insights
+		if This.CyclicDependencies()
+			aExplanation[:insights] + "Contains circular relationships (cycles detected)"
+		else
+			aExplanation[:insights] + "Acyclic structure (no circular dependencies)"
+		ok
+		
+		# Inferred knowledge
+		if This.ApplyInference() > 0
+			aExplanation[:insights] + "Inference rules generated new knowledge"
+		ok
+		
+		if len(acAllPredicates) < 3
+			aExplanation[:insights] + "Limited relationship types - consider enriching the ontology"
+		ok
+		
+		if nDensity < 10 and nNodes > 5
+			aExplanation[:insights] + "Many isolated entities - may need more connections"
+		ok
+		
+		return aExplanation

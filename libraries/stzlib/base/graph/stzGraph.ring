@@ -2322,8 +2322,6 @@ class stzGraph
 		
 		return acResult
 	
-		def NodesHavingProperty(pcProperty)
-			return This.NodesWithProperty(pcProperty)
 
 	# Query nodes with property value or condition
 	def NodesWithPropertyXT(pcProperty, pValue)
@@ -2366,60 +2364,7 @@ class stzGraph
 			ok
 		end
 		
-		return acResult
-	
-		def NodesHavingPropertyXT(pcProperty, pValue)
-			return This.NodesWithPropertyXT(pcProperty, pValue)
-	
-	# Query nodes with tag
-	def NodesWithTag(pcTag)
-		acResult = []
-		nLen = len(@aNodes)
-		
-		for i = 1 to nLen
-			aNode = @aNodes[i]
-			if HasKey(aNode, "properties") and HasKey(aNode["properties"], "tags")
-				if ring_find(aNode["properties"]["tags"], pcTag) > 0
-					acResult + aNode["id"]
-				ok
-			ok
-		end
-		
-		return acResult
-	
-		def NodesHavingTag(pcTag)
-			return This.NodesWithTag(pcTag)
-	
-	# Query nodes with all tags
-	def NodesWithAllTags(paTags)
-		acResult = []
-		nLen = len(@aNodes)
-		
-		for i = 1 to nLen
-			aNode = @aNodes[i]
-			
-			if HasKey(aNode, "properties") and HasKey(aNode["properties"], "tags")
-				aNodeTags = aNode["properties"]["tags"]
-				bHasAll = TRUE
-				
-				nTagLen = len(paTags)
-				for j = 1 to nTagLen
-					if ring_find(aNodeTags, paTags[j]) = 0
-						bHasAll = FALSE
-						exit
-					ok
-				end
-				
-				if bHasAll
-					acResult + aNode["id"]
-				ok
-			ok
-		end
-		
-		return acResult
-	
-		def NodesHavingAllTags(paTags)
-			return This.NodesWithAllTags(paTags)
+		return acResult	
 	
 	# Query nodes with any tag
 	def NodesWithAnyTag(paTags)
@@ -2446,8 +2391,6 @@ class stzGraph
 		
 		return acResult
 
-		def NodesHavingAnyTag(paTags)
-			return This.NodesWithAnyTag(paTags)
 
 	def _QueryByString(pcPattern)
 		acResults = []
@@ -2713,6 +2656,241 @@ class stzGraph
 	
 		def ClearAllProperties()
 			This.RemoveAllProperties()
+
+	#--------------------------#
+	#  PROPERTY-BASED QUERIES  #
+	#--------------------------#
+	
+	def NodesWith(pcKey, pValue)
+	    if isList(pValue) and len(pValue) = 2 and isString(pValue[1])
+	        cOperator = pValue[1]
+	
+	        switch cOperator
+	        on "equals"
+	            return This.NodesWithPropertyValue(pcKey, pValue[2])
+	        on "insection"
+	            return This.NodesWithPropertyInSection(pcKey, pValue[2][1], pValue[2][2])
+	        off
+	    ok
+	
+	    stzraise("Unsupported condition syntax!")
+	
+	def NodesWithPropertyValue(pcKey, pValue)
+	    if CheckParams()
+	        if isList(pValue) and StzListQ(pValue).IsInSectionNamedParam() and
+	           len(pValue) = 2 and isNumber(pValue) and isNumber(pValue)
+	
+	            return This.NodesWithPropertyInSection(pcKey, pValue[1], pValue[2])
+	        ok
+	    ok
+	
+	    acResult = []
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        if HasKey(aNode, "properties") and 
+	           HasKey(aNode["properties"], pcKey) and
+	           aNode["properties"][pcKey] = pValue
+	
+	            acResult + aNode["id"]
+	        ok
+	    end
+	    
+	    return acResult
+	
+	    def NodesWhereProperty(pcKey, pValue)
+	        return This.NodesWithPropertyValue(pcKey, pValue)
+	
+	def NodesWithPropertyInSection(pcKey, pnMin, pnMax)
+	    acResult = []
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        if HasKey(aNode, "properties") and 
+	           HasKey(aNode["properties"], pcKey)
+	            nValue = aNode["properties"][pcKey]
+	            if isNumber(nValue) and nValue >= pnMin and nValue <= pnMax
+	                acResult + aNode["id"]
+	            ok
+	        ok
+	    end
+	    
+	    return acResult
+	
+	    def NodesWherePropertyInSection(pcKey, pnMin, pnMax)
+	        return This.NodesWithPropertyInSection(pcKey, pnMin, pnMax)
+	
+	def EdgesWithProperty(pcKey)
+	    acResult = []
+	    aEdges = This.Edges()
+	    nLen = len(aEdges)
+	    
+	    for i = 1 to nLen
+	        aEdge = aEdges[i]
+	        if HasKey(aEdge, "properties") and 
+	           HasKey(aEdge["properties"], pcKey)
+	            acResult + (aEdge["from"] + "->" + aEdge["to"])
+	        ok
+	    end
+	    
+	    return acResult
+	
+	    def EdgesHavingProperty(pcKey)
+	        return This.EdgesWithProperty(pcKey)
+	
+	def EdgesWithPropertyValue(pcKey, pValue)
+	    acResult = []
+	    aEdges = This.Edges()
+	    nLen = len(aEdges)
+	    
+	    for i = 1 to nLen
+	        aEdge = aEdges[i]
+	        if HasKey(aEdge, "properties") and 
+	           HasKey(aEdge["properties"], pcKey) and
+	           aEdge["properties"][pcKey] = pValue
+	            acResult + (aEdge["from"] + "->" + aEdge["to"])
+	        ok
+	    end
+	    
+	    return acResult
+	
+	    def EdgesWhereProperty(pcKey, pValue)
+	        return This.EdgesWithPropertyValue(pcKey, pValue)
+
+	#---------------------#
+	#  TAG-BASED QUERIES  #
+	#---------------------#
+	
+	def TaggedNodes()
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        if HasKey(aNode, "properties") and 
+	           HasKey(aNode["properties"], "tags") and
+	           len(aNode["properties"]["tags"]) > 0
+	            return TRUE
+	        ok
+	    end
+	    
+	    return FALSE
+	
+	    def NodesWithTags()
+	        return This.TaggedNodes()
+	
+	    def NodesTagged()
+	        return This.TaggedNodes()
+	
+	def NodesWithTag(pcTag)
+	    if CheckParams()
+	        if isList(pcTag)
+	            return This.NodesWithTheseTags(pcTag)
+	        ok
+	    ok
+	
+	    acResult = []
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        if HasKey(aNode, "properties") and 
+	           HasKey(aNode["properties"], "tags")
+	            aTags = aNode["properties"]["tags"]
+	            if ring_find(aTags, pcTag) > 0
+	                acResult + aNode["id"]
+	            ok
+	        ok
+	    end
+	    
+	    return acResult
+	
+	    def NodesTaggedWith(pcTag)
+	        return This.NodesWithTag(pcTag)
+
+	
+	def NodesWithTheseTags(pacTags)
+	    acResult = []
+	    aNodes = This.Nodes()
+	    nNodeLen = len(aNodes)
+	    
+	    for i = 1 to nNodeLen
+	        aNode = aNodes[i]
+	        if HasKey(aNode, "properties") and 
+	           HasKey(aNode["properties"], "tags")
+	            aTags = aNode["properties"]["tags"]
+	            bHasAll = TRUE
+	            
+	            nTagLen = len(pacTags)
+	            for j = 1 to nTagLen
+	                if ring_find(aTags, pacTags[j]) = 0
+	                    bHasAll = FALSE
+	                    exit
+	                ok
+	            end
+	            
+	            if bHasAll
+	                acResult + aNode["id"]
+	            ok
+	        ok
+	    end
+	    
+	    return acResult
+	
+	def NodesWithAnyOfTheseTags(pacTags)
+	    acResult = []
+	    aNodes = This.Nodes()
+	    nNodeLen = len(aNodes)
+	    
+	    for i = 1 to nNodeLen
+	        aNode = aNodes[i]
+	        if HasKey(aNode, "properties") and 
+	           HasKey(aNode["properties"], "tags")
+	            aTags = aNode["properties"]["tags"]
+	            
+	            nTagLen = len(pacTags)
+	            for j = 1 to nTagLen
+	                if ring_find(aTags, pacTags[j]) > 0
+	                    acResult + aNode["id"]
+	                    exit
+	                ok
+	            end
+	        ok
+	    end
+	    
+	    return acResult
+	
+	    def NodesTaggedWithAnyOfThese(pacTags)
+	        return This.NodesWithAnyOfTheseTags(pacTags)
+	
+	def EdgesWithTag(pcTag)
+	    acResult = []
+	    aEdges = This.Edges()
+	    nLen = len(aEdges)
+	    
+	    for i = 1 to nLen
+	        aEdge = aEdges[i]
+	        if HasKey(aEdge, "properties") and 
+	           HasKey(aEdge["properties"], "tags")
+	            aTags = aEdge["properties"]["tags"]
+	            if ring_find(aTags, pcTag) > 0
+	                acResult + (aEdge["from"] + "->" + aEdge["to"])
+	            ok
+	        ok
+	    end
+	    
+	    return acResult
+	
+	    def EdgesTaggedWith(pcTag)
+	        return This.EdgesWithTag(pcTag)
+	
+	    def EdgesHavingTag(pcTag)
+	        return This.EdgesWithTag(pcTag)
 
 	#-------------------------------#
 	#  EXPORT AND INTEROPERABILITY  #
