@@ -6,36 +6,15 @@ digraph "MyOrg" {
     ceo [label="CEO", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFD700", fontcolor="black", color="#808080"]
     hr_mgr [label="HR Manager", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white", color="#808080"]
     staff_hr1 [label="Staff HR1", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black", color="#808080"]
-    staff_hr2 [label="Staff HR2", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black", color="#808080"]
+    staff_hr2 [label="Staff HR2", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
     staff_hr3 [label="Staff HR3", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black", color="#808080"]
     it_mgr [label="IT Manager", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white", color="#808080"]
     staff_it1 [label="Staff IT1", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black", color="#808080"]
     staff_it2 [label="Staff IT2", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black", color="#808080"]
-    staff_it3 [label="Staff IT3", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#C94DC9", fontcolor="white", color="#808080"]
+    staff_it3 [label="Staff IT3", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
     vacant1 [label="Vacant Position 1", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
-    vacant2 [label="Vacant Position 2", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#C94DC9", fontcolor="white", color="#808080"]
+    vacant2 [label="Vacant Position 2", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
 
-
-    subgraph cluster_it {
-        label="Department IT";
-        style=filled;
-        color="#E0E0FF";
-        fillcolor="#E0E0FF20";
-        it_mgr;
-        staff_it1;
-        staff_it2;
-        staff_it3;
-    }
-    subgraph cluster_hr {
-        label="Department HR";
-        style=filled;
-        color="#E0E0FF";
-        fillcolor="#E0E0FF20";
-        hr_mgr;
-        staff_hr1;
-        staff_hr2;
-        staff_hr3;
-    }
     ceo -> hr_mgr
     hr_mgr -> staff_hr1
     hr_mgr -> staff_hr2
