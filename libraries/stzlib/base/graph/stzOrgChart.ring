@@ -611,6 +611,11 @@ class stzOrgChart from stzDiagram
 	#--
 
 	def ViewPopulated()
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Populated Positions")
+	    ok
+
 	    acPopulated = []
 	    nPosCount = len(@aPositions)
 	    for i = 1 to nPosCount
@@ -628,6 +633,11 @@ class stzOrgChart from stzDiagram
 	        This.ViewPopulated()
 	
 	def ViewVacant()
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Vacant Positions")
+	    ok
+
 	    acVacant = This.VacantPositions()
 	    This.ApplyFocusTo(acVacant)
 	    This.View()
@@ -638,6 +648,11 @@ class stzOrgChart from stzDiagram
 	#--
 
 	def ViewPerformant()
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Performant Positions")
+	    ok
+
 	    acHigh = []
 	    aNodes = This.Nodes()
 	    nLen = len(aNodes)
@@ -659,6 +674,11 @@ class stzOrgChart from stzDiagram
 	        This.ViewPerformant()
 	
 	def ViewNonPerformant()
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Non-performant Positions")
+	    ok
+
 	    acLow = []
 	    aNodes = This.Nodes()
 	    nLen = len(aNodes)
@@ -680,6 +700,11 @@ class stzOrgChart from stzDiagram
 	        This.ViewNonPerformant()
 	
 	def ViewMediumPerformers()
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Medium-performer Positions")
+	    ok
+
 	    acMedium = []
 	    aNodes = This.Nodes()
 	    nLen = len(aNodes)
@@ -700,6 +725,11 @@ class stzOrgChart from stzDiagram
 	#--
 
 	def ViewCompliant(pcNorm)
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Compliant posisitions")
+	    ok
+
 	    aResult = This.Validate(pcNorm)
 	    
 	    if isNumber(aResult)
@@ -750,6 +780,11 @@ class stzOrgChart from stzDiagram
 	    This.View()
 	
 	def ViewNonCompliant(pcNorm)
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Non Compliant posisitions")
+	    ok
+
 	    aResult = This.Validate(pcNorm)
 	    
 	    # Handle boolean results
@@ -807,6 +842,11 @@ class stzOrgChart from stzDiagram
 	#--
 	
 	def ViewAtRisk()
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("At risk posisitions")
+	    ok
+
 	    acRisk = This.SuccessionRisk()
 	    This.ApplyFocusTo(acRisk)
 	    This.View()
@@ -815,6 +855,11 @@ class stzOrgChart from stzDiagram
 	        This.ViewAtRisk()
 	
 	def ViewNotAtRisk()
+
+	    If @bShowTitle = TRUE
+		This.SetSubtitle("Not-at risk posisitions")
+	    ok
+
 	    acRisk = This.SuccessionRisk()
 	    acAll = []
 	    aNodes = This.Nodes()
@@ -833,6 +878,11 @@ class stzOrgChart from stzDiagram
 	#--
 
 	def ViewDepartment(pcDepartmentId)
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Department '" + @aDepartments[PpcDepartmentId]  + "'")
+	    ok
+
 	    acDeptNodes = []
 	    nPosCount = len(@aPositions)
 	    
@@ -853,6 +903,11 @@ class stzOrgChart from stzDiagram
 	#--
 
 	def ViewPath(pcFromId, pcToId)
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Path from '" + @aNodes[pcFromId] + "' to '" + @aNodes[pcFromId] + "'" )
+	    ok
+
 	    acPath = This.PathBetween(pcFromId, pcToId)
 	    This.ApplyFocusTo(acPath)
 	    This.View()
@@ -863,6 +918,11 @@ class stzOrgChart from stzDiagram
 	#--
 
 	def ViewNodesWithProperty(pcKey, pValue)
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Nodes with property " + @@([ pcKey, pValue ]) )
+	    ok
+
 	    acMatching = []
 	    aNodes = This.Nodes()
 	    nLen = len(aNodes)
@@ -883,6 +943,11 @@ class stzOrgChart from stzDiagram
 		#TODO
 
 	def ViewNodesWithTag(pcTag)
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Nodes with tag '" + pcTag + "'")
+	    ok
+
 	    acMatching = []
 	    aNodes = This.Nodes()
 	    nLen = len(aNodes)
