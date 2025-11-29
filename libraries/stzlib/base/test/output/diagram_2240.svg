@@ -10,7 +10,7 @@
 <title>MyOrg Organizational Chart</title>
 <polygon fill="white" stroke="none" points="-4,4 -4,-320.5 891,-320.5 891,4 -4,4"/>
 <text xml:space="preserve" text-anchor="middle" x="443.5" y="-297.3" font-family="Helvetica,sans-Serif" font-size="16.00">MyOrg Organizational Chart</text>
-<text xml:space="preserve" text-anchor="middle" x="443.5" y="-278.55" font-family="Helvetica,sans-Serif" font-size="16.00">Vacant Positions</text>
+<text xml:space="preserve" text-anchor="middle" x="443.5" y="-259.55" font-family="Helvetica,sans-Serif" font-size="16.00">Vacant Positions</text>
 <!-- ceo -->
 <g id="node1" class="node">
 <title>ceo</title>

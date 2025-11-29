@@ -1,10 +1,9 @@
-#=====================================================
-#  stzDiagram - DOMAIN SPECIALIZATION OF stzGraph
-#  Workflows, org charts, semantic diagrams
-#=====================================================
+#--------------------------------------------------#
+#  stzDiagram - DOMAIN SPECIALIZATION OF stzGraph  #
+#  Workflows, org charts, semantic diagrams        #
+#==================================================#
 
 #  GLOBAL REGISTRY
-#==================
 
 $aDiagramValidators = [
 	:SOX,
@@ -13,7 +12,7 @@ $aDiagramValidators = [
 ]
 
 #  UNIFIED COLOR SYSTEM	#TODO Abstract it in a stzColor class -> Visual Module
-# =====================
+#-----------------------
 
 # Base color definitions (single source of truth)
 $acColors = [
@@ -331,7 +330,6 @@ $aThemeFonts = [
 
 $cDefaultOutputFormat = "svg" #TODO Implement it
 
-#------------------
 #  VISUAL MAPPINGS
 #------------------
 
@@ -381,9 +379,9 @@ $aPolygonShapes = [
 
 $bTitleVisibility = FALSE
 
-#====================#
+#--------------------#
 #  GLOBAL FUNCTIONS  #
-#====================#
+#--------------------#
 
 func IsStzDiagram(pObj)
 	if isObject(pObj)
@@ -747,9 +745,9 @@ func StyleForEdgeType(pcType)
 func DiagramValidators()
 	return $acDiagramValidators
 
-# =====================================================
-#  stzDiagram Class - Main Diagram Implementation
-# =====================================================
+#--------------------------------------------------#
+#  stzDiagram Class - Main Diagram Implementation  #
+#--------------------------------------------------#
 
 class stzDiagram from stzGraph
 
@@ -1032,9 +1030,9 @@ class stzDiagram from stzGraph
 	def TitleVisibility()
 		return 	@bTitleVisibility
 
-	#------------------------------------------
-	#  COLOR RESOLUTION
-	#------------------------------------------
+	#--------------------#
+	#  COLOR RESOLUTION  #
+	#--------------------#
 
 	def ResolveFontColor(pBgColor)
 		oResolver = new stzColorResolver()
@@ -1061,9 +1059,9 @@ class stzDiagram from stzGraph
 		cResult = oResolver.ConvertColorTogray(cColor)
 		return cResult
 
-	#---------------------------------------------------------------------------------#
-	# ADDING SPECIFIC FORMS OF NODES (ALL SUPPORTED FORMS IN GRAPHVIZ DOT LANGAUGE) #
-	#---------------------------------------------------------------------------------#
+	#--------------------------------------------------------------------------------#
+	# ADDING SPECIFIC FORMS OF NODES (ALL SUPPORTED FORMS IN GRAPHVIZ DOT LANGAUGE)  #
+	#--------------------------------------------------------------------------------#
 	
 	#NOTE // We can add nodes using parent stzGraph methods AddNode(), AddNodeXT() and AddNodeXTT()
 	
@@ -1403,9 +1401,9 @@ class stzDiagram from stzGraph
 		ok
 		This.AddNodeXTT(pcId, pcLabel, paProps)
 
-	#------------------------------------------
-	#  CLUSTER OPERATIONS
-	#------------------------------------------
+	#----------------------#
+	#  CLUSTER OPERATIONS  #
+	#----------------------#
 
 	def AddCluster(pClusterId, aNodeIds)
 		This.AddClusterXT(pClusterId, pClusterId, aNodeIds)
@@ -1425,9 +1423,9 @@ class stzDiagram from stzGraph
 	def Clusters()
 		return @aClusters
 
-	#------------------------------------------
-	#  ANNOTATION OPERATIONS
-	#------------------------------------------
+	#-------------------------#
+	#  ANNOTATION OPERATIONS  #
+	#-------------------------#
 
 	def AddAnnotation(oAnnotation)
 		@aoAnnotations + oAnnotation
@@ -1446,11 +1444,11 @@ class stzDiagram from stzGraph
 	def Annotations()
 		return @aoAnnotations
 
-	#------------------------------------------
-	#  TEMPLATE OPERATIONS
-	#------------------------------------------
+	#-----------------------#
+	#  TEMPLATE OPERATIONS  #
+	#-----------------------#
 
-	def AddTemplate(oTemplate) #TODO // Test this
+	def AddTemplate(oTemplate) #TODO // #TODO Test this
 		@aoTemplates + oTemplate
 
 	def ApplyTemplates()
@@ -1459,9 +1457,9 @@ class stzDiagram from stzGraph
 			@aoTemplates[i].Apply(This)
 		end
 
-	#------------------------------------------
-	#  VALIDATION
-	#------------------------------------------
+	#--------------#
+	#  VALIDATION  #
+	#--------------#
 
 	def Validate(pcValidator)
 		@cLastValidator = lower(pcValidator)
@@ -1609,9 +1607,9 @@ class stzDiagram from stzGraph
 		def HasIssues()
 			return This.HasValidationIssues()
 
-	#------------------------------------------
-	#  METRICS
-	#------------------------------------------
+	#-----------#
+	#  METRICS  #
+	#-----------#
 
 	def ComputeMetrics()
 		aMetrics = []
@@ -1652,9 +1650,9 @@ class stzDiagram from stzGraph
 
 		return aMetrics
 
-	#------------------------------------------
-	#  VISUALIZATION
-	#------------------------------------------
+	#-----------------#
+	#  VISUALIZATION  #
+	#-----------------#
 
 	def View()
 
@@ -1671,9 +1669,9 @@ class stzDiagram from stzGraph
 			This.View()
 
 
-	#------------------------------------------
-	#  EXPORT
-	#------------------------------------------
+	#----------#
+	#  EXPORT  #
+	#----------#
 
 	def ToHashlist()
 		aBase = super.ToHashlist()
@@ -1740,9 +1738,9 @@ class stzDiagram from stzGraph
 		def ToMermaid()
 			return This.Mermaid()
 
-	#------------------
-	#  WRITE TO FILE
-	#------------------
+	#-----------------#
+	#  WRITE TO FILE  #
+	#-----------------#
 
 	def WriteToFile(pcFileName)
 		if right(pcFileName, 7) = "stzdiag"
@@ -1821,7 +1819,8 @@ class stzDiagram from stzGraph
 	# Get diagram overview with rules context #
 	#-----------------------------------------#
 
-	#TODO// Abstract in stzGraph and specilise here
+	#NOTE // There also is an Explain() at the parent stzGraph level
+
 	def Explain()
 		aExplanation = [
 			:diagram = @cId,
@@ -1869,10 +1868,10 @@ class stzDiagram from stzGraph
 		
 		return aExplanation
 
-	#------------------------------------------
-	#  1. BASIC AFFECTED ELEMENTS
-	#------------------------------------------
-	
+	#------------------------------#
+	#  1. BASIC AFFECTED ELEMENTS  #
+	#------------------------------#
+
 	# Get all nodes affected by any rule
 	def NodesAffectedByVisualRules()
 		return keys(@aNodeEnhancements)
@@ -1909,9 +1908,9 @@ class stzDiagram from stzGraph
 		def ImpactOfVRules()
 			return This.ElementsAffectedByVisualRules()
 
-	#------------------------------------------
-	#  2. UNAFFECTED ELEMENTS
-	#------------------------------------------
+	#--------------------------#
+	#  2. UNAFFECTED ELEMENTS  #
+	#--------------------------#
 	
 	# Get nodes NOT affected by any rule
 	def NodesNotAffectedByVisualRules()
@@ -1972,9 +1971,9 @@ class stzDiagram from stzGraph
 		def ElementsNotAffectedByVRules()
 			return This.ElementsNotAffectedByVisualRules()
 	
-	#------------------------------------------
-	#  3. AFFECTED BY SPECIFIC RULE(S)
-	#------------------------------------------
+	#-----------------------------------#
+	#  3. AFFECTED BY SPECIFIC RULE(S)  #
+	#-----------------------------------#
 	
 	# Get nodes affected by a specific rule
 	def NodesAffectedByVisualRule(poRule)
@@ -2068,9 +2067,9 @@ class stzDiagram from stzGraph
 		def EdgesAffectedByTheseVRules(paoRules)
 			return This.EdgesAffectedByTheseVisualRules(paoRules)
 	
-	#------------------------------------------
-	#  4. ELEMENTS WITH THEIR RULES (DETAILED)
-	#------------------------------------------
+	#-------------------------------------------#
+	#  4. ELEMENTS WITH THEIR RULES (DETAILED)  #
+	#-------------------------------------------#
 	
 	# Get nodes paired with their affecting rules
 	# Returns: [ ["node1", [oRule1, oRule2]], ["node2", [oRule3]], ... ]
@@ -2143,9 +2142,9 @@ class stzDiagram from stzGraph
 		def ElementsAndTheirVRulesObjects()
 			return This.ElementsAndTheirVisualRulesObjects()
 	
-	#------------------------------------------
-	#  5. ELEMENTS WITH RULE IDS (STRING-FRIST)
-	#------------------------------------------
+	#--------------------------------------------#
+	#  5. ELEMENTS WITH RULE IDS (STRING-FRIST)  #
+	#--------------------------------------------#
 	
 	# Get nodes paired with rule IDs (not objects)
 	# Returns: [ ["node1", ["cheap", "prod"]], ["node2", ["expensive"]], ... ]
@@ -2217,9 +2216,9 @@ class stzDiagram from stzGraph
 		def ElementsAndTheirVRules()
 			return This.ElementsAndTheirVisualRules()
 	
-	#------------------------------------------
-	#  6. RULES WITH THEIR ELEMENTS (INVERSE)
-	#------------------------------------------
+	#------------------------------------------#
+	#  6. RULES WITH THEIR ELEMENTS (INVERSE)  #
+	#------------------------------------------#
 	
 	# Get each rule with the elements it affected
 	# Returns: [ [oRule1, [:nodes = [...], :edges = [...]]], [oRule2, ...], ... ]
@@ -2270,9 +2269,57 @@ class stzDiagram from stzGraph
 		def VRulesAndTheirElements()
 			return This.VisualRulesAndTheirElements()
 	
-	#------------------------------------------
-	#  7. PROPERTY-BASED QUERIES
-	#------------------------------------------
+	# Get complete analysis of rules and their impact
+	def VisualRulesApplied()
+		aResult = [
+			:hasEffects = FALSE,
+			:summary = "",
+			:rules = []
+		]
+		
+		bHasEffects = (len(@aNodeEnhancements) > 0 or len(@aEdgeEnhancements) > 0)
+		aResult[:hasEffects] = bHasEffects
+		
+		if NOT bHasEffects
+			aResult[:summary] = "No rules matched any elements."
+			return aResult
+		ok
+		
+		aResult[:summary] = ""+ len(@aoVisualRules) +
+				    " rule(s) defined, " + 
+		                     (len(@aNodeEnhancements) + len(@aEdgeEnhancements)) + " element(s) affected"
+		
+		nLenRules = len(@aoVisualRules)
+		for i = 1 to nLenRules
+			oRule = @aoVisualRules[i]
+			
+			acAffectedNodes = This.NodesAffectedByVisualRule(oRule)
+			acAffectedEdges = This.EdgesAffectedByVisualRule(oRule)
+			
+			bRuleMatched = (len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0)
+			
+			if bRuleMatched
+				aRuleInfo = [
+					:id = oRule.@cRuleId,
+					:condition = oRule.@cConditionType,
+					:conditionParams = oRule.@aConditionParams,
+					:effects = oRule.Effects(),
+					:affectedNodes = acAffectedNodes,
+					:affectedEdges = acAffectedEdges,
+					:matchCount = len(acAffectedNodes) + len(acAffectedEdges)
+				]
+				aResult[:rules] + aRuleInfo
+			ok
+		end
+		
+		return aResult
+	
+		def VRulesApplied()
+			return This.VisualRulesApplied()
+
+	#-----------------------------#
+	#  7. PROPERTY-BASED QUERIES  #
+	#-----------------------------#
 	
 	# Get nodes with specific property key
 	def NodesWithProperty(pcKey)
@@ -2399,9 +2446,9 @@ class stzDiagram from stzGraph
 		def EdgesWhereProperty(pcKey, pValue)
 			return This.EdgesWithPropertyValue(pcKey, pValue)
 	
-	#------------------------------------------
-	#  8. TAG-BASED QUERIES
-	#------------------------------------------
+	#------------------------#
+	#  8. TAG-BASED QUERIES  #
+	#------------------------#
 	
 	def TaggedNodes()
 		acResult = []
@@ -2540,62 +2587,10 @@ class stzDiagram from stzGraph
 	
 		def EdgesHavingTag(pcTag)
 			return This.EdgesWithTag(pcTag)
-	
-	#------------------------------------------
-	#  9. COMPREHENSIVE ANALYSIS
-	#------------------------------------------
-	
-	# Get complete analysis of rules and their impact
-	def VisualRulesApplied()
-		aResult = [
-			:hasEffects = FALSE,
-			:summary = "",
-			:rules = []
-		]
-		
-		bHasEffects = (len(@aNodeEnhancements) > 0 or len(@aEdgeEnhancements) > 0)
-		aResult[:hasEffects] = bHasEffects
-		
-		if NOT bHasEffects
-			aResult[:summary] = "No rules matched any elements."
-			return aResult
-		ok
-		
-		aResult[:summary] = ""+ len(@aoVisualRules) +
-				    " rule(s) defined, " + 
-		                     (len(@aNodeEnhancements) + len(@aEdgeEnhancements)) + " element(s) affected"
-		
-		nLenRules = len(@aoVisualRules)
-		for i = 1 to nLenRules
-			oRule = @aoVisualRules[i]
-			
-			acAffectedNodes = This.NodesAffectedByVisualRule(oRule)
-			acAffectedEdges = This.EdgesAffectedByVisualRule(oRule)
-			
-			bRuleMatched = (len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0)
-			
-			if bRuleMatched
-				aRuleInfo = [
-					:id = oRule.@cRuleId,
-					:condition = oRule.@cConditionType,
-					:conditionParams = oRule.@aConditionParams,
-					:effects = oRule.Effects(),
-					:affectedNodes = acAffectedNodes,
-					:affectedEdges = acAffectedEdges,
-					:matchCount = len(acAffectedNodes) + len(acAffectedEdges)
-				]
-				aResult[:rules] + aRuleInfo
-			ok
-		end
-		
-		return aResult
-	
-		def VRulesApplied()
-			return This.VisualRulesApplied()
 
-	#------------------------------------------
-	#  HELPER: Build rule matching context
-	#------------------------------------------
+	#---------------------------------------#
+	#  HELPER: Build rule matching context  #
+	#---------------------------------------#
 	
 	def _BuildRuleContext(aNodeOrEdge)
 		aContext = aNodeOrEdge
@@ -2610,10 +2605,10 @@ class stzDiagram from stzGraph
 		
 		return aContext
 
-	#------------------------------------------
-	#  IMPORT WITH SUBDIAGRAM SUPPORT
-	#------------------------------------------
-	
+	#----------------------------------#
+	#  IMPORT WITH SUBDIAGRAM SUPPORT  #
+	#----------------------------------#
+
 	def ImportDiag(cDiagString)
 		# Parse first node of imported diagram
 		cFirstNodeId = This.ExtractFirstNodeId(cDiagString)
@@ -2776,9 +2771,9 @@ class stzDiagram from stzGraph
 		end
 	
 
-#=====================================================
-#  stzDiagramAnnotator - METADATA OVERLAY
-#=====================================================
+#==========================================#
+#  stzDiagramAnnotator - METADATA OVERLAY  #
+#==========================================#
 
 class stzDiagramAnnotator
 
@@ -2814,9 +2809,9 @@ class stzDiagramAnnotator
 			:nodeData = @aNodeData
 		]
 
-#=====================================================
-#  stzDiagramValidators - PLUGGABLE VALIDATORS
-#=====================================================
+#===============================================#
+#  stzDiagramValidators - PLUGGABLE VALIDATORS  #
+#===============================================#
 
 class stzDiagramValidator
 
@@ -2838,9 +2833,9 @@ class stzDiagramValidator
 		return $acDiagramValidators
 
 
-#=====================================================
-#  stzDiagramSoxValidator - SARBANES-OXLEY
-#=====================================================
+#===========================================#
+#  stzDiagramSoxValidator - SARBANES-OXLEY  #
+#===========================================#
 
 class stzDiagramSoxValidator from stzDiagramValidator
 	@aValidationResult = []
@@ -2907,9 +2902,9 @@ class stzDiagramSoxValidator from stzDiagramValidator
 	def Result()
 		return @aValidationResult
 
-#=====================================================
-#  stzDiagramGdprValidator - GDPR
-#=====================================================
+#==================================#
+#  stzDiagramGdprValidator - GDPR  #
+#==================================#
 
 class stzDiagramGdprValidator from stzDiagramValidator
 	@aValidationResult = []
@@ -2959,9 +2954,9 @@ class stzDiagramGdprValidator from stzDiagramValidator
 	def Result()
 		return @aValidationResult
 
-#=====================================================
-#  stzDiagramBankingValidator - CUSTOM BANKING
-#=====================================================
+#===============================================#
+#  stzDiagramBankingValidator - CUSTOM BANKING  #
+#===============================================#
 
 class stzDiagramBankingValidator from stzDiagramValidator
 	@aValidationResult = []
@@ -3020,9 +3015,9 @@ class stzDiagramBankingValidator from stzDiagramValidator
 		return @aValidationResult
 
 
-#=====================================================
-#  stzDiagramToStzDiag - NATIVE FORMAT
-#=====================================================
+#=======================================#
+#  stzDiagramToStzDiag - NATIVE FORMAT  #
+#=======================================#
 
 class stzDiagramToStzDiag
 
@@ -3048,7 +3043,6 @@ class stzDiagramToStzDiag
 		cOutput += "metadata" + NL
 		cOutput += "    theme: " + Lower(@oDiagram.@cTheme) + NL
 		cOutput += "    layout: " + Lower(@oDiagram.@cLayout) + NL + NL
-
 
 		# Generating the diagram title
 
@@ -3248,17 +3242,17 @@ class stzDiagramToDot
 		cOutput += This._GenerateGraphAttributes(cTheme)
 		
 		# Add title/subtitle if present
-? @oDiagram.@bTitleVisibility
+
 		if @oDiagram.@bTitleVisibility = TRUE
 		    if @oDiagram.Title() != ""
-		        cOutput += '    labelloc="t";' + NL
-		        cTitle = @oDiagram.Title()
+		        cOutput += '    labelloc="t";'
+		        cTitle =NL +  @oDiagram.Title()
 		        if @oDiagram.Subtitle() != ""
-		            cTitle += "\\n" + @oDiagram.Subtitle()
+		            cTitle += NL + @oDiagram.Subtitle() + NL
 		        ok
+			cTitle += NL + NL
 		        cOutput += '    label="' + cTitle + '";' + NL
-		        cOutput += '    fontsize=16;' + NL
-		        cOutput += NL
+		        cOutput += '    fontsize=16;' + NL + NL
 		    ok
 		ok
 
@@ -3520,20 +3514,28 @@ class stzDiagramToDot
 		switch cType
 		on "process"
 			return "box"
+
 		on "decision"
 			return "diamond"
+
 		on "start"
 			return "ellipse"
+
 		on "endpoint"
 			return "doublecircle"
+
 		on "state"
 			return "circle"
+
 		on "storage"
 			return "cylinder"
+
 		on "data"
 			return "box"
+
 		on "event"
 			return "ellipse"
+
 		other
 			return "box"
 		off
@@ -3732,9 +3734,9 @@ class stzDiagramToDot
 		fclose(oFile)
 		return TRUE
 
-#=====================================================
-#  stzDiagramToMermaid - MERMAID.JS
-#=====================================================
+#====================================#
+#  stzDiagramToMermaid - MERMAID.JS  #
+#====================================#
 
 class stzDiagramToMermaid
 
@@ -3829,9 +3831,9 @@ class stzDiagramToMermaid
 		fclose(oFile)
 		return TRUE
 
-#=====================================================
-#  stzDiagramToJSON - JSON FORMAT
-#=====================================================
+#==================================#
+#  stzDiagramToJSON - JSON FORMAT  #
+#==================================#
 
 class stzDiagramToJSON
 
@@ -3875,9 +3877,9 @@ class stzVisualRule from stzGraphRule
 		super.init(pcRuleId)
 		@cRuleType = "visual"
 	
-	#------------------------------------------
-	#  VISUAL EFFECTS
-	#------------------------------------------
+	#------------------#
+	#  VISUAL EFFECTS  #
+	#------------------#
 	
 	def ApplyColor(pColor)
 		This.Apply("color", pColor)
