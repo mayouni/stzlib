@@ -94,26 +94,22 @@ class stzOrgChart from stzDiagram
 		This.AddExecutivePositionXT(pcId, pcId)
 
 	def AddExecutivePositionXT(pcId, pcTitle)
-	This.AddPositionXTT(pcId, pcTitle, [:level = "executive"])
-	This.SetNodeProperty(pcId, "color", $aOrgColors[:executive])  # Use global palette
-	
-	#---
+	    This.AddPositionXTT(pcId, pcTitle, [:level = "executive"])
+	    # Don't set color here - leave as white until person assigned	
 
 	def AddManagementPosition(pcId)
 		This.AddManagementPositionXT(pcId, pcId)
 
 	def AddManagementPositionXT(pcId, pcTitle)
 	    This.AddPositionXTT(pcId, pcTitle, [:level = "management"])
-	    This.SetNodeProperty(pcId, "color", $aOrgColors[:management])  # Use global palette
-
-	#---
+	    # Don't set color here
 
 	def AddStaffPosition(pcId)
 		This.AddStaffPositionXT(pcIde, pcId)
 
 	def AddStaffPositionXT(pcId, pcTitle)
 	    This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
-	    This.SetNodeProperty(pcId, "color", $aOrgColors[:staff])  # Use global palette
+	    # Don't set color here
 
 	def AddStaffPositionXTT(pcId, pcTitle, paProp)
 	    if NOT IsHashList(paprop)
@@ -131,7 +127,6 @@ class stzOrgChart from stzDiagram
 	    ok
 	
 	    This.AddPositionXTT(pcId, pcTitle, paProp)
-	    This.SetNodeProperty(pcId, "color", $aOrgColors[:engineering])  # Use global palette
 
 	#---
 
@@ -233,7 +228,23 @@ class stzOrgChart from stzDiagram
 		aPerson = This.PersonData(pcPersonId)
 		aPosition = This.Position(pcPositionId)
 		cLabel = aPosition[:title] + "\n" + aPerson[:name]
-		This.SetNodeProperty(pcPositionId, "label", cLabel)
+
+		# Restore level color when filled
+		aPosition = This.Position(pcPositionId)
+		cLevelColor = "white"
+		    
+		if isList(aPosition[:attributes]) and HasKey(aPosition[:attributes], :level)
+		        cLevel = aPosition[:attributes][:level]
+		        if cLevel = "executive"
+		            cLevelColor = $aOrgColors[:executive]
+		        but cLevel = "management"
+		            cLevelColor = $aOrgColors[:management]
+		        but cLevel = "staff"
+		            cLevelColor = $aOrgColors[:staff]
+		        ok
+		ok
+
+		This.SetNodeProperty(pcPositionId, "color", cLevelColor)
 
 	def PersonData(pcPersonId)
 		nPplCount = len(@aPeople)
@@ -520,10 +531,13 @@ class stzOrgChart from stzDiagram
 	#  SCENARIOS & SIMULATIONS  #
 	#===========================#
 
-	def SimulateReorganization(paChanges)
+	def Simulate(paChanges)
 		oSimulation = new stzOrgChartSimulation(This)
 		oSimulation.ApplyChanges(paChanges)
 		return oSimulation.Results()
+
+		def SimulateReorganization(paChanges)
+			return This.SimulateReorganization(paChanges)
 
 	def CreateSnapshot(pcSnapshotId)
 		aSnapshot = [
@@ -685,10 +699,25 @@ class stzOrgChart from stzDiagram
 
 	#--
 
-	def ViewCompliant()
-	    aResult = This.ValidateBCEAOGovernance()
+	def ViewCompliant(pcNorm)
+	    aResult = This.Validate(pcNorm)
 	    
-	    # All nodes are compliant if no issues
+	    if isNumber(aResult)
+	        if aResult = 1
+	            acAll = []
+	            aNodes = This.Nodes()
+	            nLen = len(aNodes)
+	            for i = 1 to nLen
+	                acAll + aNodes[i]["id"]
+	            end
+	            This.ApplyFocusTo(acAll)
+	        else
+	            This.ApplyFocusTo([])
+	        ok
+	        This.View()
+	        return
+	    ok
+	    
 	    if aResult[:status] = "pass"
 	        acAll = []
 	        aNodes = This.Nodes()
@@ -698,30 +727,54 @@ class stzOrgChart from stzDiagram
 	        end
 	        This.ApplyFocusTo(acAll)
 	    else
-	        # Show nodes not mentioned in issues
+	        # For failures, only show focused nodes if issues mention specific nodes
 	        acIssueNodes = This._ExtractNodesFromIssues(aResult[:issues])
-	        acAll = []
-	        aNodes = This.Nodes()
-	        nLen = len(aNodes)
-	        for i = 1 to nLen
-	            cNodeId = aNodes[i]["id"]
-	            if ring_find(acIssueNodes, cNodeId) = 0
-	                acAll + cNodeId
-	            ok
-	        end
-	        This.ApplyFocusTo(acAll)
+	        if len(acIssueNodes) > 0
+	            # Show compliant nodes (not in issues)
+	            acAll = []
+	            aNodes = This.Nodes()
+	            nLen = len(aNodes)
+	            for i = 1 to nLen
+	                cNodeId = aNodes[i]["id"]
+	                if ring_find(acIssueNodes, cNodeId) = 0
+	                    acAll + cNodeId
+	                ok
+	            end
+	            This.ApplyFocusTo(acAll)
+	        else
+	            # Org-level failure - show nothing focused
+	            This.ApplyFocusTo([])
+	        ok
 	    ok
 	    
 	    This.View()
 	
-	def ViewNonCompliant()
-	    aResult = This.ValidateBCEAOGovernance()
+	def ViewNonCompliant(pcNorm)
+	    aResult = This.Validate(pcNorm)
 	    
+	    # Handle boolean results
+	    if isNumber(aResult)
+	        if aResult = 0  # FALSE = all non-compliant
+	            acAll = []
+	            aNodes = This.Nodes()
+	            nLen = len(aNodes)
+	            for i = 1 to nLen
+	                acAll + aNodes[i]["id"]
+	            end
+	            This.ApplyFocusTo(acAll)
+	        else  # TRUE = none non-compliant
+	            This.ApplyFocusTo([])
+	        ok
+	        This.View()
+	        return
+	    ok
+	    
+	    # Handle hashlist results
 	    if aResult[:status] = "fail"
 	        acIssueNodes = This._ExtractNodesFromIssues(aResult[:issues])
 	        This.ApplyFocusTo(acIssueNodes)
 	    else
-	        This.ApplyFocusTo([])  # None non-compliant
+	        This.ApplyFocusTo([])
 	    ok
 	    
 	    This.View()

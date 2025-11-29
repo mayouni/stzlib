@@ -1872,9 +1872,76 @@ oImported {
 
 pf()
 
-#-----------------------#
-#  VISUAL LAYER SYSTEM  #
-#-----------------------#
+#-------------------#
+#  VISUAL ANALYSIS  #
+#-------------------#
+
+*/
+pr()
+
+oOrg = new stzOrgChart("MyOrg")
+oOrg {
+    # Setup positions, people, etc...
+    
+    SetSplines("curved")
+    AddExecutivePositionXT("ceo", "CEO")
+
+    # Add positions with levels
+    AddManagementPositionXT("hr_mgr", "HR Manager")
+    ReportsTo("hr_mgr", "ceo")
+
+    for i=1 to 3
+        AddStaffPositionXT("staff_hr"+i, "Staff HR"+i)
+        ReportsTo("staff_hr"+i, "hr_mgr")
+    next
+
+    AddManagementPositionXT("it_mgr", "IT Manager")
+    ReportsTo("it_mgr", "ceo")
+
+    for i=1 to 2
+        AddStaffPositionXT("staff_it"+i, "Staff IT"+i)
+        ReportsTo("staff_it"+i, "it_mgr")
+    next
+    AddStaffPositionXTT("staff_it3", "Staff IT3", [ :critical = TRUE ])
+     ReportsTo("staff_it3", "it_mgr")
+
+   # Leave some vacant
+    AddPositionXT("vacant1", "Vacant Position 1")
+    ReportsTo("vacant1", "ceo")
+
+    AddPositionXTT("vacant2", "Vacant Position 2", [ :critical = TRUE, :tags = [ "urgent"] ])
+    ReportsTo("vacant2", "ceo")
+
+    # Add people to some
+    AddPersonXT("p_ali", "Ali Daouda")
+    AssignPerson("p_ali", "ceo")
+
+    #--
+
+    AddPersonXT("p_mamane", "Maman Touré")
+    AssignPerson("p_mamane", "hr_mgr")
+
+    AddPersonXT("p_aicha", "Aicha Mouddour")
+    AssignPerson("p_aicha", "staff_hr1")
+
+    AddPersonXT("p_hassane", "Mohamed Hassane")
+    AssignPerson("p_hassane", "staff_hr3")
+
+    #--
+
+    AddPersonXT("p_alexis", "Alexis Mbayé")
+    AssignPerson("p_alexis", "it_mgr")
+
+    AddPersonXT("p_daouda", "Daouda Omarou")
+    AssignPerson("p_daouda", "staff_it1")
+
+    AddPersonXT("p_haroune", "Haroune Sani")
+    AssignPerson("p_haroune", "staff_it2")
+
+    View()
+}
+
+pf()
 
 /*---
 */
@@ -1910,7 +1977,7 @@ oOrg {
     AddPositionXT("vacant1", "Vacant Position 1")
     ReportsTo("vacant1", "ceo")
 
-    AddPositionXTT("vacant2", "Vacant Position 2", [ :critical = TRUE ])
+    AddPositionXTT("vacant2", "Vacant Position 2", [ :critical = TRUE, :tags = [ "urgent"] ])
     ReportsTo("vacant2", "ceo")
 
     # Add people to some
@@ -1940,197 +2007,45 @@ oOrg {
     AssignPerson("p_haroune", "staff_it2")
 
     #--
-
+/*
     AddDepartmentXTT("it", "Department IT", [ "it_mgr", "staff_it1", "staff_it2", "staff_it3" ])
     AddDepartmentXTT("hr", "Department HR", [ "hr_mgr", "staff_hr1", "staff_hr2", "staff_hr3" ])
 
-//    View()
+    View()
 
     # View different analytics:
 
-//   ViewDepartment("it")   # Show IT department only
- //    ViewPath("ceo", "staff_hr2") # Show reporting path
+   ViewDepartment("it")   # Show IT department only
+   ViewPath("ceo", "staff_hr2") # Show reporting path
+
+   #-- POPULATED
+
+   ViewPopulated()        # Show filled positions
+   ViewVacant()           # Show empty positions
 
 
- //   ViewPopulated()        # Show filled positions
- //   ViewVacant()           # Show empty positions
+   #--- PERFRMANCE
 
-/*
-    ViewPerformant()       # Show high performers (≥75)
-    ViewNonPerformant()    # Show low performers (<50)
+   SetNodeProperty("ceo", "performance", 90)
+   SetNodeProperty("hr_mgr", "performance", 40)
+   SetNodeProperty("it_mgr", "performance", 40)
+
+   ViewPerformant()       # Show high performers (≥75)
+   ViewNonPerformant()    # Show low performers (<50)
+
+
+    #--- RISK
+
+    # Create positions without successors
+
+    ? @@NL( SuccessionRisk() )
     ViewAtRisk()           # Show succession risks
-    ViewCompliant()        # Show BCEAO compliant nodes
-*/
-    # Custom views:
+
+    # Custom views
     ViewNodesWithProperty("critical", TRUE)
- //   ViewNodesWithTag("urgent")
-
+    ViewNodesWithTag("urgent")
+*/
 }
 
 pf()
-
-/*--- Base View (Position Colors)
-
-pr()
-
-oOrg = new stzOrgChart("Test1_BaseColors")
-oOrg {
-    SetLayoutPreset("orgchart")
-    
-    AddExecutivePositionXT("ceo", "CEO")
-    AddManagementPositionXT("vp_sales", "VP Sales")
-    AddStaffPositionXT("rep1", "Sales Rep")
-    
-    ReportsTo("vp_sales", "ceo")
-    ReportsTo("rep1", "vp_sales")
-    
-    View()
-}
-#--> Gold (CEO) → Blue (VP) → Green (Rep)
-
-pf()
-# Executed in 1.62 second(s) in Ring 1.24
-
-
-/*--- PErformance layer (Colored strokes)
-
-pr()
-
-oOrg = new stzOrgChart("Test2_Performance")
-oOrg {
-    SetLayoutPreset("orgchart")
-    
-    AddExecutivePositionXT("ceo", "CEO")
-    AddManagementPositionXT("vp_sales", "VP Sales")
-    AddManagementPositionXT("vp_eng", "VP Engineering")
-    
-    ReportsTo("vp_sales", "ceo")
-    ReportsTo("vp_eng", "ceo")
-    
-    # Add performance scores
-? "Setting performance on ceo..."
-SetNodeProperty("ceo", "performance", 90)
-? "After set, checking:"
-DebugNodeProperties("ceo")
-
-? "Setting performance on vp_eng..."
-SetNodeProperty("vp_eng", "performance", 40)
-? "After set, checking:"
-DebugNodeProperties("vp_eng")
-    
-    # Apply performance layer
-
-    # DEBUG before layer
-    DebugNodeProperties("vp_eng")
-
-    oPerf = AddAnalysisLayer("Performance", "performance")
-    ApplyLayer("Performance")
-    
-    # DEBUG after layer
-    DebugNodeProperties("vp_eng")
-
-# Add this:
-? "=== IMMEDIATELY BEFORE View() ==="
-? "vp_eng @aNodes[3]: " + @@(@aNodes[3]["properties"])
-
-
-    View() #ERR No borders!
-}
-# Expected: Base colors + thick green borders (CEO, VP Sales) + thick red border (VP Eng)
-
-
-pf()
-
-
-/*--- Focus Layer (Dim/Intensify)
-*/
-oOrg = new stzOrgChart("Test3_Focus")
-oOrg {
-    SetLayoutPreset("orgchart")
-    
-    AddExecutivePositionXT("ceo", "CEO")
-    AddManagementPositionXT("vp_sales", "VP Sales")
-    AddManagementPositionXT("vp_eng", "VP Engineering")
-    AddStaffPositionXT("rep1", "Sales Rep")
-    
-    ReportsTo("vp_sales", "ceo")
-    ReportsTo("vp_eng", "ceo")
-    ReportsTo("rep1", "vp_sales")
-    
-    # Focus on sales chain
-
-    # DEBUG before layer
-    DebugNodeProperties("vp_eng")
-
-    oFocus = AddAnalysisLayer("SalesFocus", "focus")
-    oFocus.SetFocusNodes(["vp_sales", "rep1"])
-    ApplyLayer("SalesFocus")
-
-    # DEBUG after layer
-    DebugNodeProperties("vp_eng")
-    
-    View() #ERR No effect!!
-}
-# Expected: CEO/VP Eng pale (color--), VP Sales/Rep bright (color++) + thick borders/edges
-
-/*--- Succession Risk Layer
-*/
-oOrg = new stzOrgChart("Test4_Succession")
-oOrg {
-    SetLayoutPreset("orgchart")
-    
-    AddExecutivePositionXT("ceo", "CEO")
-    AddManagementPositionXT("vp_sales", "VP Sales")
-    
-    ReportsTo("vp_sales", "ceo")
-    
-    # Assign person only to CEO (VP Sales has no successor)
-    AddPersonXT("p1", "Alice Johnson")
-    AssignPerson("p1", "ceo")
-    
-    # Apply succession layer
-    oSucc = AddAnalysisLayer("Succession", "succession")
-    ApplyLayer("Succession")
-    
-    View() #ERR No effects at all!
-}
-# Expected: VP Sales with thick gold border (at risk)
-
-/*--- Combined Layers
-*/
-oOrg = new stzOrgChart("Test5_Combined")
-oOrg {
-    SetLayoutPreset("orgchart")
-    
-    AddExecutivePositionXT("ceo", "CEO")
-    AddManagementPositionXT("vp_eng", "VP Engineering")
-    AddStaffPositionXT("dev1", "Developer")
-    
-    ReportsTo("vp_eng", "ceo")
-    ReportsTo("dev1", "vp_eng")
-    
-# In Test2_Performance:
-SetNodeProperty("ceo", "performance", 90)
-SetNodeProperty("vp_sales", "performance", 85)
-SetNodeProperty("vp_eng", "performance", 40)
-
- /*   # Add performance scores
-    aPos = Position("vp_eng")
-    aPos[:attributes]["performance"] = 45
-    
-    aPos = Position("dev1")
-    aPos[:attributes]["performance"] = 35
-*/    
-    # Apply performance first (strokes)
-    oPerf = AddAnalysisLayer("Performance", "performance")
-    ApplyLayer("Performance")
-    
-    # Then apply focus (intensity)
-    oFocus = AddAnalysisLayer("Focus", "focus")
-    oFocus.SetFocusNodes(["vp_eng", "dev1"])
-    ApplyLayer("Focus")
-    ? Code()
-    View() #ERR No effect!
-}
-# Expected: Red/yellow borders + intensified colors on focus nodes + CEO dimmed
 
