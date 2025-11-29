@@ -2,8 +2,6 @@
 
 In Softanza, understanding organizational structure transcends simple box-and-line diagrams. Organizations need dynamic tools that can model, analyze, and visualize their human infrastructure with precision and depth. Enter **stzOrgChart** – a revolutionary approach to organizational modeling that transforms static charts into living, analytical systems with governance-aware intelligence.
 
-Built on the powerful foundation of Softanza's Graph Module for the Ring programming language, **stzOrgChart** transcends traditional organizational charting by adopting a layered architecture reminiscent of GIS systems. Like GIS overlays that add demographic, environmental, or economic data to base maps, **stzOrgChart** allows organizations to visualize multiple analytical dimensions atop their structural foundation.
-
 ## The Foundation: Position, People, and Department Management
 
 Let's start with the core building blocks. Creating an organizational hierarchy with **stzOrgChart** is both intuitive and powerful:
@@ -179,140 +177,216 @@ $cDefaultClusterColor = "gray"
 
 (This will apply the color automatically to all future org charts unless overridden in code.)
 
-## Layered Intelligence: The GIS Approach to Organizational Analysis
 
-The most innovative aspect of **stzOrgChart** is its analytical layering system. Drawing inspiration from Geographic Information Systems (GIS), **stzOrgChart** allows organizations to visualize multiple dimensions of intelligence overlaid on the base organizational structure:
+## The Unified Validation System: Two-Level Intelligence
+
+One of **stzOrgChart**'s most powerful features is its unified validation system, providing both high-level compliance checks and granular node-level analysis. This dual-level approach serves different needs: executives want quick yes/no answers, while analysts need detailed reports with specific problem nodes identified.
+
+### Level 1: Boolean Validation (Whole-Organization)
+
+For rapid compliance checks, use `IsValid()` to get immediate boolean answers:
 
 ```ring
-oOrg = new stzOrgChart("Analysis_Layers")
+oOrg = new stzOrgChart("Regional_Bank")
 oOrg {
-    AddPositionXT("ceo", "CEO")
-    AddPositionXT("vp", "VP")
-    ReportsTo("vp", "ceo")
+    # ... build structure ...
     
-    # Add analytical layers
-    oPerformance = AddAnalysisLayer("Performance", "performance")
-    oRisk = AddAnalysisLayer("Risk", "risk")
-    oCompliance = AddAnalysisLayer("Compliance", "compliance")
-    oSuccession = AddAnalysisLayer("Succession", "succession")
-    
-    # Apply layers individually or collectively
-    ApplyLayer("Performance")
-    ApplyAllLayers()
-    
-    View()
+    # Quick compliance checks
+    ? "BCEAO compliant? " + IsValid(:BCEAO)           #--> FALSE
+    ? "Span of control OK? " + IsValid(:SOC)          #--> TRUE
+    ? "Succession planning adequate? " + IsValid(:Succession)  #--> FALSE
+    ? "Vacancies acceptable? " + IsValid(:Vacancy)    #--> FALSE
 }
 ```
 
-Each layer type provides specialized analytical capabilities:
-- **Performance Layer**: Visualizes performance metrics across positions
-- **Risk Layer**: Identifies positions with high operational, compliance, or continuity risk
-- **Compliance Layer**: Ensures governance standards throughout the organization
-- **Succession Layer**: Maps critical positions and their succession readiness
+This is perfect for dashboards, automated alerts, or executive summaries where you need instant "red light / green light" indicators.
 
-#TODO Add visual here
+### Level 2: Detailed Validation (Node-Level Analysis)
 
-## Governance, Compliance and Risk Analysis
-
-Modern organizations operate under increasingly complex regulatory frameworks. **stzOrgChart** provides built-in validation frameworks that check critical governance standards automatically:
+When you need to understand *what's wrong* and *where*, use `Validate()` to get comprehensive reports:
 
 ```ring
-oOrg = new stzOrgChart("Validation_Compliance")
 oOrg {
-    SetEdgeSpline("ortho")
-    
-    # BCEAO Banking Governance Structure
-    AddExecutivePositionXT("board", "Board")
-    AddExecutivePositionXT("ceo", "CEO")
-    ReportsTo("ceo", "board")
-    
-    # Audit must report directly to Board
-    AddManagementPositionXT("dir_audit", "Dir Audit")
-    ReportsTo("dir_audit", "board")
-    
-    # Operations and Treasury
-    AddManagementPositionXT("dir_ops", "Dir Ops")
-    AddManagementPositionXT("dir_treasury", "Dir Treasury")
-    ReportsTo("dir_ops", "ceo")
-    ReportsTo("dir_treasury", "ceo")
-    
-    # Test span of control limits
-    for i = 1 to 10
-        AddStaffPositionXT("staff"+i, "Staff "+i)
-        ReportsTo("staff"+i, "dir_ops")
-    next
-    
-    # Set departments for SOD validation
-    SetPositionDepartment("dir_ops", "operations")
-    SetPositionDepartment("dir_treasury", "treasury")
-    
-    # Execute validations
-    ? ValidateBCEAOGovernance()
-    ? ValidateSpanOfControl() 
-    ? ValidateSegregationOfDuties()
-    
-    View()
+    # Detailed validation report
+    ? @@NL( Validate(:BCEAO) )
 }
 ```
 
-**stzOrgChart** automatically flags governance issues like:
-- Missing Board of Directors
-- Audit function reporting to non-board positions
-- Absence of Risk Management function
-- Excessive spans of control (>9 direct reports)
-- Segregation of duties Anomalies
-
-The validation results provide structured data perfect for audit trails and compliance reporting:
-
+Output:
 ```ring
 [
     [ "status", "fail" ],
     [ "domain", "BCEAO_governance" ],
-    [ "issuecount", 1 ],
+    [ "issueCount", 2 ],
     [
         "issues",
         [
+            "BCEAO-001: No Board of Directors found",
             "BCEAO-003: No dedicated Risk Management function"
         ]
-    ]
+    ],
+    [ "affectedNodes", [ "audit_head" ] ]
 ]
 ```
 
-## Comprehensive Reporting: From Data to Decisions
+The **`affectedNodes`** field is crucial—it enables visual highlighting of problematic positions in the org chart.
 
-**stzOrgChart** transforms raw organizational data into actionable insights through comprehensive reporting capabilities:
+### Built-in Validators
+
+**stzOrgChart** comes with comprehensive validators out of the box:
+
+| Validator | Purpose | Typical Use Case |
+|-----------|---------|------------------|
+| `:BCEAO` | West African Central Bank governance | Financial institutions |
+| `:SOC` / `:SpanOfControl` | Manager overload detection | All organizations |
+| `:SOD` / `:SegregationOfDuties` | Conflict of interest prevention | Banking, finance |
+| `:Vacancy` | Staffing gap analysis | HR planning |
+| `:Succession` | Continuity risk assessment | Executive planning |
+| `:Summary` | All validators combined | Comprehensive audit |
+
+### Visual Validation: Seeing Problems in Context
+
+The real magic happens when you combine validation with visualization. Every validator's `affectedNodes` output can be used to highlight problems directly in the org chart:
 
 ```ring
-# Generate targeted reports
-? GenerateReport("summary")      # Overall organizational health
-? GenerateReport("vacancies")    # Open positions analysis
-? GenerateReport("succession")   # Critical succession risks
-? GenerateReport("compliance")   # Governance status
-? GenerateReport("span")         # Management span analysis
+oOrg {
+    # Show vacant positions in red
+    ViewVacant()
+    
+    # Highlight succession risks
+    ViewAtRisk()
+    
+    # Show non-compliant nodes
+    ViewNonCompliant(:BCEAO)
+    
+    # Or show compliant nodes instead
+    ViewCompliant(:SOC)
+}
 ```
 
-Each report type provides specialized insights. The succession report, for example, doesn't just identify positions without successors—it contextualizes the risk level by position criticality, incumbent tenure, and departmental impact:
+Each view method uses the validator's output to apply the focus color (default: magenta) to affected nodes, making problems immediately visible in organizational context.
 
+### Validation Summary: The Complete Picture
+
+For comprehensive audits, use the summary validator:
+
+```ring
+oOrg {
+    aSummary = Validate(:Summary)
+    ? @@NL( aSummary )
+}
+```
+
+Output:
 ```ring
 [
-    [ "title", "Succession Risk Report" ],
-    [ "date", "25/11/2025" ],
-    [ "highriskcount", 2 ],
+    [ "status", "fail" ],
+    [ "domain", "summary" ],
+    [ "validatorsRun", 5 ],
+    [ "validatorsFailed", 3 ],
+    [ "totalIssues", 8 ],
     [
-        "details",
+        "results",
         [
-            [
-                [ "position", "ceo" ],
-                [ "title", "CEO" ],
-                [ "incumbent", "Jean-Baptiste Kouassi" ],
-                [ "department", "" ],
-                [ "risklevel", "high" ]
-            ],
-            # Additional high-risk positions
+            # Individual validator results...
         ]
-    ]
+    ],
+    [ "affectedNodes", [ "board", "audit_head", "ceo", "cfo", "ops_mgr" ] ]
 ]
 ```
+
+This gives you:
+- Overall pass/fail status
+- Number of validators run vs failed
+- Total issue count across all validators
+- Complete list of all affected positions
+- Detailed results from each validator
+
+### Custom Validators: Extending the System
+
+The validation system is designed for extension. Add your own validators by following the naming convention:
+
+```ring
+class stzOrgChart
+    # Your custom validator
+    def ValidateMyCustomRule()
+        aIssues = []
+        acAffected = []
+        
+        # Your validation logic...
+        if someCondition
+            aIssues + "CUSTOM-001: Issue description"
+            acAffected + "problem_node_id"
+        ok
+        
+        return [
+            :status = iif(len(aIssues) = 0, "pass", "fail"),
+            :domain = "my_custom_rule",
+            :issueCount = len(aIssues),
+            :issues = aIssues,
+            :affectedNodes = acAffected
+        ]
+    ok
+ok
+```
+
+Once defined, it automatically integrates:
+
+```ring
+oOrg {
+    ? IsValid(:MyCustomRule)              # Boolean check
+    ? @@NL( Validate(:MyCustomRule) )     # Detailed report
+    ViewNonCompliant(:MyCustomRule)       # Visual highlighting
+}
+```
+
+### Real-World Example: Banking Compliance
+
+Here's how a regional bank might use the validation system:
+
+```ring
+oBankOrg = new stzOrgChart("Regional_Bank_Governance")
+oBankOrg {
+    # Build structure...
+    AddExecutivePositionXT("board", "Board of Directors")
+    AddExecutivePositionXT("ceo", "CEO")
+    AddManagementPositionXT("cfo", "CFO")
+    AddManagementPositionXT("cro", "Chief Risk Officer")
+    AddManagementPositionXT("cao", "Chief Audit Officer")
+    
+    ReportsTo("ceo", "board")
+    ReportsTo("cfo", "ceo")
+    ReportsTo("cro", "ceo")
+    ReportsTo("cao", "board")  # Audit reports to board (BCEAO requirement)
+    
+    SetPositionDepartment("cao", "audit")
+    SetPositionDepartment("cro", "risk")
+    
+    # Compliance check
+    ? BoxRound("REGULATORY COMPLIANCE CHECK")
+    
+    if IsValid(:BCEAO)
+        ? "✓ BCEAO governance compliant"
+    else
+        ? "✗ BCEAO governance issues found:"
+        aBCEAO = Validate(:BCEAO)
+        for issue in aBCEAO[:issues]
+            ? "  • " + issue
+        next
+        
+        # Visual inspection
+        ViewNonCompliant(:BCEAO)
+    ok
+}
+```
+
+This approach transforms compliance from a checkbox exercise into a strategic tool that:
+- **Prevents** issues through structural validation
+- **Detects** problems before audits
+- **Visualizes** organizational weaknesses
+- **Documents** compliance status with evidence
+
+The validation system scales from startup governance to enterprise compliance, making **stzOrgChart** not just a diagramming tool, but a strategic organizational intelligence platform.
 
 ## Simulation and Scenario Planning
 
@@ -660,13 +734,18 @@ In practice, you can choose your export format based on your needs:
 * **PDF** — Best for formal documents, reports, and printing
 * **PNG or other bitmap formats** — Useful for presentations, slides, and email sharing
 
+### Exporing the orgchart
+
+Mermaid and others
+
+![orgchart-mermaid.png](../images/orgchart-mermaid.png)
 ## Softanza Advantage: Why stzOrgChart Outperforms the Competition
 
 The landscape of organizational charting tools is crowded with solutions that focus primarily on visualization. However, **stzOrgChart** stands apart by delivering a complete organizational intelligence platform that integrates governance, analytics, and simulation capabilities in a uniquely accessible architecture. The following comparison demonstrates why Softanza's approach represents the future of organizational design:
 
 | Feature Category | Softanza **stzOrgChart** (Ring) | D3.js/OrgChart JS (JavaScript) | Visio/Lucidchart (GUI Tools) | NetworkX (Python) | Enterprise HRIS Platforms |
 |-----------------|--------------------------------|--------------------------------|------------------------------|-------------------|---------------------------|
-| **Core Architecture** | Layered GIS-inspired system with analytical overlays | Visualization-focused libraries with limited analytics | Static diagramming with minimal data integration | Graph algorithms without business context | Monolithic systems with rigid structures |
+| **Core Architecture** | Layered system (stzGraph; stzKnwoledgeGraph, stzDiagram, stzOrgChart) with analytical rulebased dimensions | Visualization-focused libraries with limited analytics | Static diagramming with minimal data integration | Graph algorithms without business context | Monolithic systems with rigid structures |
 | **Governance Validation** | ✅ Built-in frameworks (BCEAO, SOX, ISO) with automatic issue detection | ❌ Manual implementation required | ⚠️ Visual templates only, no validation logic | ❌ Requires custom implementation | ✅ Pre-built compliance but inflexible and costly |
 | **Simulation Engine** | ✅ Quantitative impact analysis of org changes with metric tracking | ❌ No native capabilities | ❌ No simulation capabilities | ⚠️ Possible with custom code, no business context | ⚠️ Limited scenario modeling at high cost |
 | **Analysis Layers** | ✅ Performance, Risk, Compliance, Succession layers with toggle capability | ❌ Single-dimension visualization | ❌ No layered analytics | ❌ Requires complex integration | ⚠️ Separate modules that don't integrate well |
@@ -680,7 +759,7 @@ The landscape of organizational charting tools is crowded with solutions that fo
 
 **Key Differentiators That Matter**
 
-- **The Integrated Intelligence Approach**: Unlike visualization-only tools (D3.js, Visio), **stzOrgChart** treats organizational structure as a living analytical system. The GIS-inspired layered architecture allows leaders to toggle between compliance views, risk heatmaps, and succession planning perspectives without rebuilding charts from scratch.
+- **The Integrated Intelligence Approach**: Unlike visualization-only tools (D3.js, Visio), **stzOrgChart** treats organizational structure as a living analytical system. It allows leaders to toggle between compliance views, risk heatmaps, and succession planning perspectives without rebuilding charts from scratch.
 
 - **Governance as Code**: While enterprise HRIS platforms bury compliance rules in configuration menus, **stzOrgChart** exposes governance standards as programmable validations. This enables version control, automated testing, and continuous compliance monitoring—capabilities unavailable in static diagramming tools.
 

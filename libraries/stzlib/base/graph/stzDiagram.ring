@@ -1462,46 +1462,121 @@ class stzDiagram from stzGraph
 	#--------------#
 
 	def Validate(pcValidator)
-		@cLastValidator = lower(pcValidator)
+		cValidator = lower("" + pcValidator)
 		
-		switch @cLastValidator
+		# Diagram-specific validators
+		switch cValidator
 		on "sox"
 			oValidator = new stzDiagramSoxValidator()
 			oValidator.Validate(This)
-			@aLastValidationResult = oValidator.Result()
+			return oValidator.Result()
 			
 		on "gdpr"
 			oValidator = new stzDiagramGdprValidator()
 			oValidator.Validate(This)
-			@aLastValidationResult = oValidator.Result()
+			return oValidator.Result()
 			
 		on "banking"
 			oValidator = new stzDiagramBankingValidator()
 			oValidator.Validate(This)
-			@aLastValidationResult = oValidator.Result()
-			
-		on "dag"
-			@aLastValidationResult = This._ValidateDAG()
-			
-		on "reachability"
-			@aLastValidationResult = This._ValidateReachability()
-			
-		on "completeness"
-			@aLastValidationResult = This._ValidateCompleteness()
+			return oValidator.Result()
+		
+		on "summary"
+			return This.ValidationSummary()
 			
 		other
-			stzraise("Unsupported validator: " + pcValidator)
+			# Delegate to parent (stzGraph) or check user-defined
+			return super.Validate(pcValidator)
 		off
-		
-		return This.IsValid(@cLastValidator)
 	
 	def IsValid(pcValidator)
-		if pcValidator != NULL and pcValidator != ""
-			if lower(pcValidator) != @cLastValidator
-				This.Validate(pcValidator)
-			ok
+		aResult = This.Validate(pcValidator)
+		
+		if isNumber(aResult)
+			return aResult = 1
 		ok
-		return This.ValidationStatus() = "pass"
+		
+		if isList(aResult) and HasKey(aResult, :status)
+			return aResult[:status] = "pass"
+		ok
+		
+		return FALSE
+	
+	def ValidationSummary()
+		# Run all diagram validators
+		acValidators = ["sox", "gdpr", "banking", "dag", "reachability"]
+		aResults = []
+		nFailCount = 0
+		nTotalIssues = 0
+		
+		nLen = len(acValidators)
+		for i = 1 to nLen
+			aResult = This.Validate(acValidators[i])
+			aResults + aResult
+			
+			if aResult[:status] = "fail"
+				nFailCount++
+				nTotalIssues += aResult[:issueCount]
+			ok
+		end
+		
+		return [
+			:status = iif(nFailCount = 0, "pass", "fail"),
+			:domain = "summary",
+			:validatorsRun = len(acValidators),
+			:validatorsFailed = nFailCount,
+			:totalIssues = nTotalIssues,
+			:results = aResults,
+			:affectedNodes = []
+		]
+
+	def ValidationResult()
+		return @aLastValidationResult
+	
+		def Result()
+			return @aLastValidationResult
+
+	def ValidationStatus()
+		if len(@aLastValidationResult) = 0
+			return ""
+		ok
+		return @aLastValidationResult["status"]
+	
+		def Status()
+			return This.ValidationStatus()
+
+	def ValidationDomain()
+		if len(@aLastValidationResult) = 0
+			return ""
+		ok
+		return @aLastValidationResult["domain"]
+	
+		def Domain()
+			return This.Validationdomain()
+
+	def ValidationIssueCount()
+		if len(@aLastValidationResult) = 0
+			return 0
+		ok
+		return @aLastValidationResult["issueCount"]
+	
+		def IssueCount()
+			return This.ValidationIssueCount()
+
+	def ValidationIssues()
+		if len(@aLastValidationResult) = 0
+			return []
+		ok
+		return @aLastValidationResult["issues"]
+	
+		def Issues()
+			return This.ValidationIssues()
+
+	def HasValidationIssues()
+		return This.ValidationIssueCount() > 0
+
+		def HasIssues()
+			return This.HasValidationIssues()
 
 	def _ValidateDAG()
 		bIsDAG = NOT This.CyclicDependencies()
@@ -1559,53 +1634,6 @@ class stzDiagram from stzGraph
 			:issueCount = len(aIssues),
 			:issues = aIssues
 		]
-
-	def ValidationResult()
-		return @aLastValidationResult
-	
-		def Result()
-
-	def ValidationStatus()
-		if len(@aLastValidationResult) = 0
-			return ""
-		ok
-		return @aLastValidationResult["status"]
-	
-		def Status()
-			return This.ValidationStatus()
-
-	def ValidationDomain()
-		if len(@aLastValidationResult) = 0
-			return ""
-		ok
-		return @aLastValidationResult["domain"]
-	
-		def Domain()
-			return This.Validationdomain()
-
-	def ValidationIssueCount()
-		if len(@aLastValidationResult) = 0
-			return 0
-		ok
-		return @aLastValidationResult["issueCount"]
-	
-		def IssueCount()
-			return This.ValidationIssueCount()
-
-	def ValidationIssues()
-		if len(@aLastValidationResult) = 0
-			return []
-		ok
-		return @aLastValidationResult["issues"]
-	
-		def Issues()
-			return This.ValidationIssues()
-
-	def HasValidationIssues()
-		return This.ValidationIssueCount() > 0
-
-		def HasIssues()
-			return This.HasValidationIssues()
 
 	#-----------#
 	#  METRICS  #

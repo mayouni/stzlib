@@ -1,5 +1,54 @@
 load "../stzbase.ring"
+load "uuid.ring"
 
+/*---
+
+pr()
+
+? uuid_generate()
+#--> ce89386e-61a9-4de3-98f2-9189f0cb76c3
+
+pf()
+# Executed in almost 0 second(s) in Ring
+
+/*---
+
+pr()
+
+for n = 1 to 5
+	? uuid_generate()
+next
+#-->
+'
+5ba2398e-944b-47fb-b6d7-7d05951d11b3
+e569cbf7-3139-471d-9655-8ed7a65ec825
+555d69d3-259c-45c0-8944-8160d8e69522
+589120c5-1332-4b66-82a3-4e37059b13c9
+f7ab4434-1095-490d-aff5-7197b7c5207f
+'
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*---
+
+pr()
+
+cUUID = "550e8400-e29b-41d4-a716-446655440000"
+? uuid_isvalid(cUUID)
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--
+*/
+pr()
+
+? uuid_nil()
+
+pf()
+
+#---------------------
 # stzUuid Class Tests
 #--------------------
 	
@@ -19,7 +68,7 @@ o1 = new stzUuid()
 #--> CEA2F100-0E5E-4851-A516-F4A5FF4D56E5
 
 pf()
-# Executed in 0.27 second(s) in Ring 1.23
+# Executed in 1.00 second(s) in Ring 1.24
 
 /*--- Format variations
 
@@ -35,7 +84,7 @@ o1 = new stzUuid()
 #--> 550E8400E29B41D4A716446655440000
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.36 second(s) in Ring 1.24
 
 /*--- Version and variant
 
@@ -53,7 +102,7 @@ o1 = new stzUuid()
 #--> RFC 4122
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.23
+# Executed in 0.36 second(s) in Ring 1.24
 
 /*--- Null Uuid
 
@@ -72,7 +121,7 @@ o1 = new stzUuid()
 #--> 32AB6BFF-07C7-4CAC-92C6-D4A775194D42
 
 pf()
-# Executed in 0.28 second(s) in Ring 1.23
+# Executed in 0.36 second(s) in Ring 1.24
 
 /*--- Hash
 
@@ -83,6 +132,7 @@ o1 = new stzUuid()
 #--> 2146197897
 
 pf()
+# Executed in 0.35 second(s) in Ring 1.24
 
 /*--- Multiple generations
 
@@ -97,42 +147,10 @@ next
 # 08C8B293-4B36-4AF1-86B9-715CDC6494DC
 
 pf()
-# Executed in 0.78 second(s) in Ring 1.23
-
-/*--- #ring
-*/
-pr()
-
-oMyPoint = new Point
-aInnerList = [1, 2, 3]
-
-aList = [ 22, ref(oMyPoint), "B", ref(aInnerList) ]
-
-? find(aList, 22) 		#--> 1
-? find(aList, "B")		#--> 3
-? find(aList, aInnerList) 	#--> 2
-? find(aList, oMyPoint)		#--> 4
-
-pf()
-
-class Point { x=10 y=10 z=10 }
-/*--- #ring
-
-pr()
-
-myList1 = [new Company {position=3 name="Mahmoud" symbol="MHD"},
-           new Company {position=2 name="Bert" symbol="BRT"},
-           new Company {position=1 name="Ring" symbol="RNG"}
-          ]
-
-see find(mylist1,"Bert", 1, "name") #--> 2
-
-pf()
-
-class company position name symbol
+# Executed in 0.99 second(s) in Ring 1.24
 
 /*===
-
+*/
 pr()
 
 o1 = new stzString("Ring")
@@ -147,4 +165,40 @@ o1.SetUuid()
 #--> "738121558"
 
 pf()
-# Executed in 0.51 second(s) in Ring 1.23
+# Executed in 0.37 second(s) in Ring 1.24
+
+
+/*=== #ring #ref
+
+pr()
+
+oMyPoint = new Point
+aInnerList = [1, 2, 3]
+
+aList = [ 22, ref(oMyPoint), "B", ref(aInnerList) ]
+
+? find(aList, 22) 		#--> 1
+? find(aList, "B")		#--> 3
+? find(aList, aInnerList) 	#--> 2
+? find(aList, oMyPoint)		#--> 4
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+class Point { x=10 y=10 z=10 }
+
+/*--- #ring
+
+pr()
+
+myList1 = [new Company {position=3 name="Mahmoud" symbol="MHD"},
+           new Company {position=2 name="Bert" symbol="BRT"},
+           new Company {position=1 name="Ring" symbol="RNG"}
+          ]
+
+see find(mylist1,"Bert", 1, "name") #--> 2
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+class company position name symbol
