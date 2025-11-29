@@ -42,7 +42,7 @@ oOrg {
     SetPositionDepartment("dir_risk", "risk")
     SetPositionDepartment("dir_audit","audit")
 
-    SetSplines(:Ortho)
+    SetEdgeLineType(:Ortho)
     View()
 
 }
@@ -304,7 +304,7 @@ oOrg = new stzOrgChart("Simple_Hierarchy")
 oOrg {
 
     SetLayout(:LeftRight)
-    SetSplines(:Curved)
+    SetEdgeLineType(:Curved)
     SetStrokeColor(:Invisible) #ERR // No effect
 
     #----------------#
@@ -646,7 +646,7 @@ pr()
 
 oOrg = new stzOrgChart("Reporting_Analytics")
 oOrg {
-    SetSplines("curved")
+    SetEdgeLineType("curved")
     AddExecutivePositionXT("ceo", "CEO")
 
     # Add positions with levels
@@ -1879,11 +1879,11 @@ pf()
 */
 pr()
 
-oOrg = new stzOrgChart("MyOrg")
+oOrg = new stzOrgChart("MyOrg Organizational Chart")
 oOrg {
-    # Setup positions, people, etc...
-    
-    SetSplines("curved")
+
+    SetTitleVisibility(FALSE)
+    SetEdgeLineType("curved")
     AddExecutivePositionXT("ceo", "CEO")
 
     # Add positions with levels
@@ -1938,7 +1938,7 @@ oOrg {
     AddPersonXT("p_haroune", "Haroune Sani")
     AssignPerson("p_haroune", "staff_it2")
 
-    View()
+    ViewVacant()
 }
 
 pf()
@@ -1951,7 +1951,7 @@ oOrg = new stzOrgChart("MyOrg")
 oOrg {
     # Setup positions, people, etc...
     
-    SetSplines("curved")
+    SetEdgeLineType("curved")
     AddExecutivePositionXT("ceo", "CEO")
 
     # Add positions with levels

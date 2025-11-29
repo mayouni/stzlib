@@ -1,4 +1,4 @@
-digraph "MyOrg" {
+digraph "MyOrg Organizational Chart" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=curved, nodesep=1, ranksep=1, ordering=out]
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#808080", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
@@ -6,14 +6,14 @@ digraph "MyOrg" {
     ceo [label="CEO", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFD700", fontcolor="black", color="#808080"]
     hr_mgr [label="HR Manager", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white", color="#808080"]
     staff_hr1 [label="Staff HR1", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black", color="#808080"]
-    staff_hr2 [label="Staff HR2", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    staff_hr2 [label="Staff HR2", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#C94DC9", fontcolor="white", color="#808080"]
     staff_hr3 [label="Staff HR3", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black", color="#808080"]
     it_mgr [label="IT Manager", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white", color="#808080"]
     staff_it1 [label="Staff IT1", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black", color="#808080"]
     staff_it2 [label="Staff IT2", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#A3D1A3", fontcolor="black", color="#808080"]
-    staff_it3 [label="Staff IT3", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
-    vacant1 [label="Vacant Position 1", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
-    vacant2 [label="Vacant Position 2", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    staff_it3 [label="Staff IT3", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#C94DC9", fontcolor="white", color="#808080"]
+    vacant1 [label="Vacant Position 1", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#C94DC9", fontcolor="white", color="#808080"]
+    vacant2 [label="Vacant Position 2", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#C94DC9", fontcolor="white", color="#808080"]
 
     ceo -> hr_mgr
     hr_mgr -> staff_hr1

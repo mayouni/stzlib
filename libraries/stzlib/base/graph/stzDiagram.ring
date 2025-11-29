@@ -377,6 +377,10 @@ $aPolygonShapes = [
 	"house", "invtriangle", "diamond"
 ]
 
+#---
+
+$bTitleVisibility = FALSE
+
 #====================#
 #  GLOBAL FUNCTIONS  #
 #====================#
@@ -795,8 +799,13 @@ class stzDiagram from stzGraph
 	@nRankSep = $nDefaultRankSep
 	@bConcentrate = FALSE
 
+	@cTitle = ""
+	@cSubtitle = ""
+	@bTitleVisibility = $bTitleVisibility
+
 	def init(pTitle)
 		super.init(pTitle)
+		@cTitle = pTitle
 		@cEdgeColor = ResolveColor($cDefaultEdgeColor)
 
 	def SetTheme(pTheme)
@@ -840,7 +849,6 @@ class stzDiagram from stzGraph
 	def SetFontSize(pSize)
 		@nFontSize = pSize
 	
-
 	def SetPenWidth(pnWidth)
 		@nNodePenWidth = pnWidth
 
@@ -875,6 +883,12 @@ class stzDiagram from stzGraph
 	    if ring_find($acSplineTypes, cType) > 0
 	        @cSplineType = cType
 	    ok
+
+	    def SetEdgeLineStyle(pcType)
+		This.SetSplines(pcType)
+	
+	    def SetEdgeLineType(pcType)
+		This.SetSplines(pcType)
 	
 	def SetNodeSeparation(pnValue)
 	    if isNumber(pnValue) and pnValue > 0
@@ -922,6 +936,19 @@ class stzDiagram from stzGraph
 	        This.SetRankSeparation(1.0)
 	        This.SetConcentrate(FALSE)
 	    off
+
+	def SetTitleVisibility(b)
+		if NOT (isNumber(b) and (b = 1 or b = 0) )
+			stzraise("Incorrect param type! b must be a boolean.")
+		ok
+
+		@bTitleVisibility = b
+
+	def SetTitle(pcTitle)
+	    @cTitle = pcTitle
+	
+	def SetSubtitle(pcSubtitle)
+	    @cSubtitle = pcSubtitle
 
 	# Getters
 	def NodePenWidth()
@@ -983,6 +1010,27 @@ class stzDiagram from stzGraph
 	
 	def PenWidth()
 		return @nPenWidth
+
+	def EdgeSplines()
+		return @cSplineType
+
+		def SplineType()
+			return @cSplineType
+
+		def EdgeLineStyle()
+			return @cSplineType
+
+		def EdgeLineType()
+			return @cSplineType
+
+	def Title()
+	    return @cTitle
+	
+	def Subtitle()
+	    return @cSubtitle
+
+	def TitleVisibility()
+		return 	@bTitleVisibility
 
 	#------------------------------------------
 	#  COLOR RESOLUTION
@@ -2992,12 +3040,33 @@ class stzDiagramToStzDiag
 	def _Generate()
 		cOutput = ""
 
+		# Generating diagram attributes
+
 		cOutput += 'diagram "' +
 			   @oDiagram.Id() + '"' + NL + NL
 
 		cOutput += "metadata" + NL
 		cOutput += "    theme: " + Lower(@oDiagram.@cTheme) + NL
 		cOutput += "    layout: " + Lower(@oDiagram.@cLayout) + NL + NL
+
+
+		# Generating the diagram title
+
+		if @oDiagram.Title() != ""
+		    cTitle = @oDiagram.Title()
+		    cSubtitle = @oDiagram.Subtitle()
+		    if trim(cSubtitle) != ""
+			cTitle += " : " + cSubTitle
+		    ok
+
+		    cOutput += '    labelloc="t";' + NL
+
+		    cOutput += '    label="' + cTitle
+		    cOutput += '";'
+		    cOutput += '    fontsize=16;'
+		ok
+
+		# Generating nodes
 
 		cOutput += "nodes" + NL
 		aNodes = @oDiagram.Nodes()
@@ -3019,6 +3088,8 @@ class stzDiagramToStzDiag
 			cOutput += NL
 		end
 
+		# Generating edges
+
 		aEdges = @oDiagram.Edges()
 		nLen = len(aEdges)
 
@@ -3038,6 +3109,8 @@ class stzDiagramToStzDiag
 
 		ok
 
+		# Generating clusters
+
 		aClusters = @oDiagram.Clusters()
 		nLen = len(aClusters)
 		if nLen > 0
@@ -3053,6 +3126,8 @@ class stzDiagramToStzDiag
 				cOutput += NL
 			end
 		ok
+
+		# Generating annotations
 
 		aAnnotations = @oDiagram.Annotations()
 		nLen = len(aAnnotations)
@@ -3077,6 +3152,8 @@ class stzDiagramToStzDiag
 				cOutput += NL
 			end
 		ok
+
+		# Setting the DOT code
 
 		@cStzDiagCode = cOutput
 
@@ -3170,6 +3247,21 @@ class stzDiagramToDot
 		# Graph attributes
 		cOutput += This._GenerateGraphAttributes(cTheme)
 		
+		# Add title/subtitle if present
+? @oDiagram.@bTitleVisibility
+		if @oDiagram.@bTitleVisibility = TRUE
+		    if @oDiagram.Title() != ""
+		        cOutput += '    labelloc="t";' + NL
+		        cTitle = @oDiagram.Title()
+		        if @oDiagram.Subtitle() != ""
+		            cTitle += "\\n" + @oDiagram.Subtitle()
+		        ok
+		        cOutput += '    label="' + cTitle + '";' + NL
+		        cOutput += '    fontsize=16;' + NL
+		        cOutput += NL
+		    ok
+		ok
+
 		# Node attributes  
 		cOutput += This._GenerateNodeAttributes(cTheme)
 		
