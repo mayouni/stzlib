@@ -1,5 +1,13 @@
 digraph "MyOrg Organizational Chart" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=curved, nodesep=1, ranksep=1, ordering=out]
+    labelloc="t";    label="
+MyOrg Organizational Chart
+Vacant Positions
+
+
+";
+    fontsize=16;
+
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#808080", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 

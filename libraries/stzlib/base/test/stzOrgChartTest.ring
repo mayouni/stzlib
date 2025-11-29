@@ -1882,7 +1882,7 @@ pr()
 oOrg = new stzOrgChart("MyOrg Organizational Chart")
 oOrg {
 
-    SetTitleVisibility(FALSE)
+    SetTitleVisibility(TRUE)
     SetEdgeLineType("curved")
     AddExecutivePositionXT("ceo", "CEO")
 

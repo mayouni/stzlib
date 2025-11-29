@@ -2545,9 +2545,9 @@ class stzGraph
 		
 		return acFound
 
-	#------------------------------------------
-	#  NODE FINDING AND PATH OPERATIONS
-	#------------------------------------------
+	#------------------------------------#
+	#  NODE FINDING AND PATH OPERATIONS  #
+	#------------------------------------#
 	
 	def HasNode(pcNodeId)
 		return This.NodeExists(pcNodeId)
