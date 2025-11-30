@@ -22,6 +22,12 @@ $aOrgColors = [
 
 $acOrgChartDefaultValidators = ["bceao", "sod", "soc", "vacancy", "succession"]
 
+func OrgChartDefaultValidators()
+	return $acOrgChartDefaultValidators
+
+	func DefaultOrgChartValidators()
+		return $acOrgChartDefaultValidators
+
 func IsStzOrgChart(pObj)
 	if isObject(pObj) and classname(pObj) = "stzorgchart"
 		return TRUE
@@ -44,7 +50,7 @@ class stzOrgChart from stzDiagram
 	@cFocusColor = $aOrgColors[:focus]  # magenta+
 	@cNodeColor = $cDefaultNodeColor  # from global
 
-	@aDefaultValidators = ["bceao", "sod", "soc", "vacancy", "succession"]
+	@acValidators = ["bceao", "sod", "soc", "vacancy", "succession"]
 
 	def init(pcTitle)
 		super.init(pcTitle)
@@ -305,6 +311,9 @@ class stzOrgChart from stzDiagram
 
 	def Validators()
 		return @acValidators
+
+	def DefaultValidators()
+		return $acOrgChartDefaultValidators
 
 	def SetValidators(pacValidators)
 		@acValidators = pacValidators

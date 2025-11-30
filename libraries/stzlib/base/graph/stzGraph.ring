@@ -8,6 +8,12 @@
 
 $acGraphDefaultValidators = ["dag", "reachability", "completeness"]
 
+func GraphDefaultValidators()
+	return $acGraphDefaultValidators
+
+	func DefaultGraphValidators()
+		return $acGraphDefaultValidators
+
 func IsStzGraph(pObj)
 	if isObject(pObj) and classname(pObj) = "stzgraph"
 		return 1
@@ -2319,6 +2325,9 @@ class stzGraph
 
 	def Validators()
 		return @acValidators
+
+	def DefaultValidators()
+		return $acGraohDefaultValidators
 
 	def SetValidators(pacValidators)
 		@acValidators = pacValidators

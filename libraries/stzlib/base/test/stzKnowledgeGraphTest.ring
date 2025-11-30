@@ -681,6 +681,6 @@ Entities similar to "Dogs":
 	]
 ]
 `
-# Executed in 0.11 second(s) in Ring 1.24
+# Executed in 0.10 second(s) in Ring 1.24
 
 pf()

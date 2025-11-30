@@ -1,52 +1,4 @@
 load "../stzbase.ring"
-load "uuid.ring"
-
-/*---
-
-pr()
-
-? uuid_generate()
-#--> ce89386e-61a9-4de3-98f2-9189f0cb76c3
-
-pf()
-# Executed in almost 0 second(s) in Ring
-
-/*---
-
-pr()
-
-for n = 1 to 5
-	? uuid_generate()
-next
-#-->
-'
-5ba2398e-944b-47fb-b6d7-7d05951d11b3
-e569cbf7-3139-471d-9655-8ed7a65ec825
-555d69d3-259c-45c0-8944-8160d8e69522
-589120c5-1332-4b66-82a3-4e37059b13c9
-f7ab4434-1095-490d-aff5-7197b7c5207f
-'
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-/*---
-
-pr()
-
-cUUID = "550e8400-e29b-41d4-a716-446655440000"
-? uuid_isvalid(cUUID)
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-/*--
-*/
-pr()
-
-? uuid_nil()
-
-pf()
 
 #---------------------
 # stzUuid Class Tests
@@ -59,16 +11,17 @@ pr()
 # Quick function style
 
 ? Uuid()
-# ED8FD5F3-9FA8-4055-884D-CD8FEBD62D61
+# CC02DAFB-674E-40AF-A909-10F47F8C62C9
 
 # Or in object-oriented
 
 o1 = new stzUuid()
 ? o1.Content()
-#--> CEA2F100-0E5E-4851-A516-F4A5FF4D56E5
+#--> EB2D8987-C83B-4DE8-B3D8-20B058A7201B
 
 pf()
-# Executed in 1.00 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24 (with Youssef's C++ Uiid extension)
+# Executed in 1.00 second(s) in Ring 1.24 (with Softanza Ring and shell based implementation)
 
 /*--- Format variations
 
@@ -76,15 +29,15 @@ pr()
 
 o1 = new stzUuid()
 
-# From string
 ? o1.Content()
-#--> 550E8400-E29B-41D4-A716-446655440000
+#--> F78F5731-1E62-4394-AC20-4AB5AF780653
 
 ? o1.WithoutHyphens()
-#--> 550E8400E29B41D4A716446655440000
+#--> F78F57311E624394AC204AB5AF780653
 
 pf()
-# Executed in 0.36 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24 (with Youssef's C++ Uiid extension)
+# Executed in 0.36 second(s) in Ring 1.24 (with Softanza Ring and shell based implementation)
 
 /*--- Version and variant
 
@@ -102,7 +55,8 @@ o1 = new stzUuid()
 #--> RFC 4122
 
 pf()
-# Executed in 0.36 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24 (with Youssef's C++ Uiid extension)
+# Executed in 0.36 second(s) in Ring 1.24 (with Softanza Ring and shell based implementation)
 
 /*--- Null Uuid
 
@@ -118,10 +72,11 @@ o1 = new stzUuid()
 #--> FALSE
 
 ? o1.Content()
-#--> 32AB6BFF-07C7-4CAC-92C6-D4A775194D42
+#--> 3D7543C0-E5B4-43B2-B3D6-75A2AF5131D4
 
 pf()
-# Executed in 0.36 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24 (with Youssef's C++ Uiid extension)
+# Executed in 0.36 second(s) in Ring 1.24 (with Softanza Ring and shell based implementation)
 
 /*--- Hash
 
@@ -129,10 +84,11 @@ pr()
 
 o1 = new stzUuid()
 ? o1.Hashed()
-#--> 2146197897
+#--> 1484387222
 
 pf()
-# Executed in 0.35 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24 (with Youssef's C++ Uiid extension)
+# Executed in 0.35 second(s) in Ring 1.24 (with Softanza Ring and shell based implementation)
 
 /*--- Multiple generations
 
@@ -147,7 +103,8 @@ next
 # 08C8B293-4B36-4AF1-86B9-715CDC6494DC
 
 pf()
-# Executed in 0.99 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24 (with Youssef's C++ Uiid extension)
+# Executed in 0.99 second(s) in Ring 1.24 (with Softanza Ring and shell based implementation)
 
 /*===
 */
@@ -159,13 +116,14 @@ o1 = new stzString("Ring")
 
 o1.SetUuid()
 ? o1.Uuid()
-#--> "076A1822-F061-4943-A67C-9DD569115B84"
+#--> "E1C2A3B4-D74E-459E-99CE-1380D59B6DEC"
 
 ? o1.HashedUuid()
-#--> "738121558"
+#--> "1944623326"
 
 pf()
-# Executed in 0.37 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24 (with Youssef's C++ Uiid extension)
+# Executed in 0.37 second(s) in Ring 1.24 (with Softanza Ring and shell based implementation)
 
 
 /*=== #ring #ref
