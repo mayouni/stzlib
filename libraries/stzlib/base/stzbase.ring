@@ -62,7 +62,7 @@
 
 # Loading files related to the STRING module
 
-    load "string/stzstringfuncs.ring"
+    load "string/stzstringfunc.ring"
     load "string/stzstring.ring"
 
     load "string/stzlistofstrings.ring"
