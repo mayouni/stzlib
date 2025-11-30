@@ -2229,31 +2229,16 @@ oBank {
 	? "═══ BANKING VALIDATOR ═══"
 	? "Scope: Universal operational controls"
 	? "Focus: Fraud prevention, dual control, IT security" + NL
-	aBanking = Validate(:Banking)
-	? "Status: " + aBanking[:status]
-	? "Domain: " + aBanking[:domain]
-	if aBanking[:issueCount] > 0
-		? "Issues found:"
-		for issue in aBanking[:issues]
-			? "  • " + issue
-		next
-	ok
+	? @@NL( ValidateXT(:Banking) )
+	
 	
 	? NL + "═══ BCEAO VALIDATOR ═══"
 	? "Scope: West African banking zone regulations"
 	? "Focus: Governance structure, board composition, audit independence" + NL
-	aBCEAO = Validate(:BCEAO)
-	? "Status: " + aBCEAO[:status]
-	? "Domain: " + aBCEAO[:domain]
-	if aBCEAO[:issueCount] > 0
-		? "Issues found:"
-		for issue in aBCEAO[:issues]
-			? "  • " + issue
-		next
-	ok
+	? @@NL( ValidateXT(:BCEAO) )
 	
 	#-------------------------------------------------------
-	# PART 5: Custom Default Validators
+	# PART 5: Custom Validators
 	#-------------------------------------------------------
 	
 	? NL + BoxRound("CUSTOM DEFAULT VALIDATORS") + NL
@@ -2262,10 +2247,10 @@ oBank {
 	? @@NL( DefaultValidators() )
 	
 	? NL + "Setting custom defaults for BCEAO region compliance..."
-	SetDefaultValidators([ :BCEAO, :Banking, :SOD, :SOC ])
+	SetValidators([ :BCEAO, :Banking, :SOD, :SOC ])
 	
-	? "New defaults:"
-	? @@NL( DefaultValidators() )
+	? "New validators at the object level:"
+	? @@NL( Validators() )
 	
 	? NL + "Running IsValid() with new defaults:"
 	? IsValid() + NL
@@ -2288,31 +2273,282 @@ oBank {
 		? "✓ Compliant with both Banking and BCEAO standards"
 	else
 		? "✗ Non-compliant - running detailed analysis..."
-		aAudit = ValidateXT([ :Banking, :BCEAO ])
+		? @@NL( ValidateXT([ :Banking, :BCEAO ]) )
 		
 		? NL + "Audit Summary:"
 		? "  Validators run: " + aAudit[:validatorsRun]
 		? "  Failed: " + aAudit[:validatorsFailed]
 		? "  Total issues: " + aAudit[:totalIssues]
 		? "  Affected positions: " + len(aAudit[:affectedNodes])
-		
-		? NL + "Issues by validator:"
-		nLen = len(aAudit[:results])
-		for i = 1 to nLen
-			aResult = aAudit[:results][i]
-			? "  " + aResult[:domain] + ": " + aResult[:issueCount] + " issue(s)"
-			if aResult[:issueCount] > 0
-				nIssueLen = len(aResult[:issues])
-				for j = 1 to nIssueLen
-					? "    • " + aResult[:issues][j]
-				next
-			ok
-		next
+	
 		
 		# Visual inspection
 		? NL + "Generating visual report of non-compliant nodes..."
 		ViewNonCompliant(:BCEAO)
 	ok
 }
+#-->
+'
+╭────────────────────╮
+│ DEFAULT VALIDATORS │
+╰────────────────────╯
+
+Default validators for OrgChart:
+[
+	"bceao",
+	"sod",
+	"soc",
+	"vacancy",
+	"succession"
+]
+
+Running IsValid() with defaults...
+Result: 0
+
+Running Validate() with defaults (detailed)...
+[
+	[ "status", "fail" ],
+	[ "validatorsrun", 5 ],
+	[ "validatorsfailed", 2 ],
+	[ "totalissues", 10 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "pass" ],
+				[ "domain", "BCEAO_governance" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "segregation_of_duties" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "span_of_control" ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "vacancy" ],
+				[ "issuecount", 4 ],
+				[
+					"issues",
+					[ "Vacant positions: 4" ]
+				],
+				[
+					"affectednodes",
+					[
+						"board",
+						"cro",
+						"cto",
+						"ops_head"
+					]
+				]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "succession" ],
+				[ "issuecount", 6 ],
+				[
+					"issues",
+					[
+						"No successor: ",
+						"ceo",
+						"No successor: ",
+						"cfo",
+						"No successor: ",
+						"treasury_head"
+					]
+				],
+				[
+					"affectednodes",
+					[ "ceo", "cfo", "treasury_head" ]
+				]
+			]
+		]
+	],
+	[
+		"affectednodes",
+		[
+			"board",
+			"cro",
+			"cto",
+			"ops_head",
+			"ceo",
+			"cfo",
+			"treasury_head"
+		]
+	]
+]
+
+╭────────────────────────────╮
+│ SINGLE VALIDATOR (XT FORM) │
+╰────────────────────────────╯
+
+IsValidXT(:SOC) - Span of Control:
+1
+
+ValidateXT(:Succession) - Detailed:
+[
+	[ "status", "fail" ],
+	[ "domain", "succession" ],
+	[ "issuecount", 6 ],
+	[
+		"issues",
+		[
+			"No successor: ",
+			"ceo",
+			"No successor: ",
+			"cfo",
+			"No successor: ",
+			"treasury_head"
+		]
+	],
+	[
+		"affectednodes",
+		[ "ceo", "cfo", "treasury_head" ]
+	]
+]
+
+╭───────────────────────────────╮
+│ MULTIPLE VALIDATORS (XT FORM) │
+╰───────────────────────────────╯
+
+IsValidXT([ :Banking, :BCEAO ]) - Boolean check:
+1
+
+ValidateXT([ :Banking, :BCEAO ]) - Detailed comparison:
+[
+	[ "status", "pass" ],
+	[ "validatorsrun", 2 ],
+	[ "validatorsfailed", 0 ],
+	[ "totalissues", 0 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "pass" ],
+				[ "domain", "banking" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "BCEAO_governance" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			]
+		]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+╭────────────────────────────────────╮
+│ BANKING vs BCEAO - THE DISTINCTION │
+╰────────────────────────────────────╯
+
+═══ BANKING VALIDATOR ═══
+Scope: Universal operational controls
+Focus: Fraud prevention, dual control, IT security
+
+[
+	[ "status", "pass" ],
+	[ "domain", "banking" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ],
+	[ "affectednodes", [  ] ]
+]
+
+═══ BCEAO VALIDATOR ═══
+Scope: West African banking zone regulations
+Focus: Governance structure, board composition, audit independence
+
+[
+	[ "status", "pass" ],
+	[ "domain", "BCEAO_governance" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ]
+]
+
+╭───────────────────────────╮
+│ CUSTOM DEFAULT VALIDATORS │
+╰───────────────────────────╯
+
+Original defaults:
+[
+	"bceao",
+	"sod",
+	"soc",
+	"vacancy",
+	"succession"
+]
+
+Setting custom defaults for BCEAO region compliance...
+New validators at the object level:
+[
+	"bceao",
+	"banking",
+	"sod",
+	"soc"
+]
+
+Running IsValid() with new defaults:
+1
+
+Full report with new defaults:
+[
+	[ "status", "pass" ],
+	[ "validatorsrun", 4 ],
+	[ "validatorsfailed", 0 ],
+	[ "totalissues", 0 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "pass" ],
+				[ "domain", "BCEAO_governance" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "banking" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "segregation_of_duties" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "span_of_control" ],
+				[ "issues", [  ] ]
+			]
+		]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+╭────────────────────────────────────╮
+│ PRACTICAL SCENARIO: REGIONAL AUDIT │
+╰────────────────────────────────────╯
+
+Scenario: Bank in BCEAO region needs both:
+  1. Universal banking controls (fraud, dual control)
+  2. BCEAO-specific governance compliance
+
+Quick compliance check:
+✓ Compliant with both Banking and BCEAO standards
+'
 
 pf()
+# Executed in 0.12 second(s) in Ring 1.24

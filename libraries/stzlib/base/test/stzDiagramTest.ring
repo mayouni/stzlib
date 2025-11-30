@@ -7,7 +7,7 @@ load "../stzbase.ring"
 
 
 /*---
-*/
+
 pr()
 
 # Softanza enhances DOT/Graphviz in several ways:
