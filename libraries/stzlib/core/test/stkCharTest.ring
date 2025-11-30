@@ -8,14 +8,14 @@
 
 # Or just the files you actually need
 /*
-	load "LightGuiLib.ring"
+	load "lightguilib.ring"
 
-	load "../object/stkObject.ring"
-	load "../string/stkChar.ring"
+	load "../object/stkobject.ring"
+	load "../string/stkchar.ring"
 
-	load "../error/stkError.ring"
-	load "../common/stkProfiler.ring"
-	load "../common/stkRingFuncs.ring"
+	load "../error/stkerror.ring"
+	load "../common/stkprofiler.ring"
+	load "../common/stkringfuncs.ring"
 */
 #----------------#
 #  TEST SAMPLES  #

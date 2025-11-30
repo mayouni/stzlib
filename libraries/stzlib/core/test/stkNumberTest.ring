@@ -3,17 +3,15 @@
 #	load "../stklib.ring"
 
 # Or just the modules needed in this test file
-	load "../common/stkRingLibs.ring"
-	load "../common/stkRingFuncs.ring"
-	load "../common/stkProfiler.ring"
+	load "../common/stkringlibs.ring"
+	load "../common/stkringfuncs.ring"
+	load "../common/stkprofiler.ring"
 
-	load "../common/stkNumberCommons.ring"
-	load "../number/stkNumber.ring"
-	load "../number/stkSciNumber.ring"
+	load "../common/stknumbercommons.ring"
+	load "../number/stknumber.ring"
+	load "../number/stkscinumber.ring"
 
-	load "../error/stkError.ring"
-
-
+	load "../error/stkerror.ring"
 
 
 /*===

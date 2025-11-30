@@ -1,4 +1,4 @@
-load "stzExterCodeTransFuncs.ring"
+load "stzextercodetransfuncs.ring"
 
 #TODO Ensure temp script and runtime files are all generated in a temp folder
 

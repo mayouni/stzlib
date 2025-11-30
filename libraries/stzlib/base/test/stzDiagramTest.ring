@@ -5,7 +5,6 @@ load "../stzbase.ring"
 #--------------------------------------------------#
 
 
-
 /*---
 
 pr()
@@ -1462,7 +1461,7 @@ pf()
 
 
 /*---  Example 1: Security Risk Visualization
-*/
+
 pr()
 
 # Create the diagram object
@@ -3042,7 +3041,7 @@ pf()
 #--> Executed in 0.02 second(s) in Ring 1.24
 
 /*-- Replace Node with Edge Preservation
-*/
+
 pr()
 
 oDiag = new stzDiagram("Test")
@@ -3054,7 +3053,7 @@ oDiag.AddNodeXTT("n3", "Node 3", [ :type = "process", :color = "blue" ])
 oDiag.Connect("n1", "old")
 oDiag.Connect("old", "n3")
 
-oDiag.ReplaceNode("old", "new", "New Node")
+oDiag.ReplaceNodeXT("old", "new", "New Node")
 
 ? oDiag.HasNode("old")
 #--> FALSE
@@ -3064,7 +3063,7 @@ oDiag.ReplaceNode("old", "new", "New Node")
 #--> 2 (edges preserved with new node)
 
 pf()
-#--> Executed in 0.04 second(s) in Ring 1.24
+#--> Executed in 0.02 second(s) in Ring 1.24
 
 #========================#
 #  METADATA OPERATIONS   #
@@ -3546,5 +3545,326 @@ pr()
 aPalette = BuildColorPalette()
 ? len(aPalette) #--> 125
 #--> 24 base + (24 × 4 intensities) = 120
+
+pf()
+
+#-----------------------------#
+#  TESTING VALIDATION SYSTEM  #
+#-----------------------------#
+
+/*---
+*/
+pr()
+
+# Test unified validation system at stzDiagram level
+
+oDiagram = new stzDiagram("Payment_Processing")
+oDiagram {
+	SetTheme("pro")
+	
+	# Build payment workflow
+	AddNodeXTT("start", "Receive Payment", [:type = "start", :color = "green"])
+	AddNodeXTT("validate", "Validate Amount", [:type = "process", :color = "blue"])
+	AddNodeXTT("fraud_check", "Fraud Detection", [:type = "process", :color = "blue", :operation = "fraud_check"])
+	AddNodeXTT("approve", "Manager Approval", [:type = "decision", :color = "yellow", :role = "approver"])
+	AddNodeXTT("process", "Process Payment", [:type = "process", :color = "blue", :operation = "payment", :domain = "financial"])
+	AddNodeXTT("end", "Complete", [:type = "endpoint", :color = "coral"])
+	
+	Connect("start", "validate")
+	Connect("validate", "fraud_check")
+	Connect("fraud_check", "approve")
+	Connect("approve", "process")
+	Connect("process", "end")
+	
+	# PART 1: Default Validators
+	#---------------------------
+	
+	? BoxRound("DIAGRAM DEFAULT VALIDATORS") + NL
+	
+	? "Default validators for Diagram:"
+	? @@NL( Validators() ) + NL
+	
+	? "IsValid() with defaults:"
+	? IsValid() + NL
+	
+	? "Validate() detailed report:"
+	? @@NL( Validate() )
+	
+	# PART 2: Single Validator
+	#-------------------------
+	
+	? NL + BoxRound("SINGLE VALIDATOR TEST") + NL
+	
+	? "ValidateXT(:SOX) - Sarbanes-Oxley compliance:"
+	? @@NL( ValidateXT(:SOX) )
+	
+	? NL + "ValidateXT(:DAG) - Directed Acyclic Graph:"
+	? @@NL( ValidateXT(:DAG) )
+	
+	# PART 3: Multiple Validators
+	#----------------------------
+	
+	? NL + BoxRound("MULTIPLE VALIDATORS") + NL
+	
+	? "ValidateXT([:SOX, :GDPR, :Banking]):"
+	aMulti = ValidateXT([:SOX, :GDPR, :Banking])
+	? @@NL( aMulti )
+	
+	# PART 4: Custom Validators
+	#--------------------------
+	
+	? NL + BoxRound("CUSTOM VALIDATORS") + NL
+	
+	? "Original defaults:"
+	? @@NL( Validators() )
+	
+	? NL + "Setting custom validators..."
+	SetValidators([:SOX, :Banking, :DAG])
+	
+	? "New validators:"
+	? @@NL( Validators() )
+	
+	? NL + "Validate() with custom set:"
+	? @@NL( Validate() )
+	
+	# PART 5: Inheritance Check
+	#--------------------------
+	
+	? NL + BoxRound("INHERITANCE FROM STZGRAPH") + NL
+	
+	? "Calling graph-level validator from diagram:"
+	? "ValidateXT(:Reachability):"
+	? @@NL( ValidateXT(:Reachability) )
+	
+	? NL + "ValidateXT(:Completeness):"
+	? @@NL( ValidateXT(:Completeness) )
+}
+#-->
+`
+╭────────────────────────────╮
+│ DIAGRAM DEFAULT VALIDATORS │
+╰────────────────────────────╯
+
+Default validators for Diagram:
+[ "sox", "gdpr", "banking" ]
+
+IsValid() with defaults:
+0
+
+Validate() detailed report:
+[
+	[ "status", "fail" ],
+	[ "validatorsrun", 3 ],
+	[ "validatorsfailed", 2 ],
+	[ "totalissues", 6 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "fail" ],
+				[ "domain", "sox" ],
+				[ "issuecount", 4 ],
+				[
+					"issues",
+					[
+						"SOX-001: Financial process missing audit trail: ",
+						"process",
+						"SOX-002: Decision node lacks approval requirement: ",
+						"approve"
+					]
+				]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "gdpr" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "banking" ],
+				[ "issuecount", 2 ],
+				[
+					"issues",
+					[
+						"BANK-002: Payment missing fraud detection: ",
+						"process"
+					]
+				]
+			]
+		]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+╭───────────────────────╮
+│ SINGLE VALIDATOR TEST │
+╰───────────────────────╯
+
+ValidateXT(:SOX) - Sarbanes-Oxley compliance:
+[
+	[ "status", "fail" ],
+	[ "domain", "sox" ],
+	[ "issuecount", 4 ],
+	[
+		"issues",
+		[
+			"SOX-001: Financial process missing audit trail: ",
+			"process",
+			"SOX-002: Decision node lacks approval requirement: ",
+			"approve"
+		]
+	]
+]
+
+ValidateXT(:DAG) - Directed Acyclic Graph:
+[
+	[ "status", "pass" ],
+	[ "domain", "dag" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ],
+	[ "affectednodes", [  ] ]
+]
+
+╭─────────────────────╮
+│ MULTIPLE VALIDATORS │
+╰─────────────────────╯
+
+ValidateXT([:SOX, :GDPR, :Banking]):
+[
+	[ "status", "fail" ],
+	[ "validatorsrun", 3 ],
+	[ "validatorsfailed", 2 ],
+	[ "totalissues", 6 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "fail" ],
+				[ "domain", "sox" ],
+				[ "issuecount", 4 ],
+				[
+					"issues",
+					[
+						"SOX-001: Financial process missing audit trail: ",
+						"process",
+						"SOX-002: Decision node lacks approval requirement: ",
+						"approve"
+					]
+				]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "gdpr" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "banking" ],
+				[ "issuecount", 2 ],
+				[
+					"issues",
+					[
+						"BANK-002: Payment missing fraud detection: ",
+						"process"
+					]
+				]
+			]
+		]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+╭───────────────────╮
+│ CUSTOM VALIDATORS │
+╰───────────────────╯
+
+Original defaults:
+[ "sox", "gdpr", "banking" ]
+
+Setting custom validators...
+New validators:
+[ "sox", "banking", "dag" ]
+
+Validate() with custom set:
+[
+	[ "status", "fail" ],
+	[ "validatorsrun", 3 ],
+	[ "validatorsfailed", 2 ],
+	[ "totalissues", 6 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "fail" ],
+				[ "domain", "sox" ],
+				[ "issuecount", 4 ],
+				[
+					"issues",
+					[
+						"SOX-001: Financial process missing audit trail: ",
+						"process",
+						"SOX-002: Decision node lacks approval requirement: ",
+						"approve"
+					]
+				]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "banking" ],
+				[ "issuecount", 2 ],
+				[
+					"issues",
+					[
+						"BANK-002: Payment missing fraud detection: ",
+						"process"
+					]
+				]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "dag" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
+			]
+		]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+╭───────────────────────────╮
+│ INHERITANCE FROM STZGRAPH │
+╰───────────────────────────╯
+
+Calling graph-level validator from diagram:
+ValidateXT(:Reachability):
+[
+	[ "status", "pass" ],
+	[ "domain", "reachability" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ],
+	[ "affectednodes", [  ] ]
+]
+
+ValidateXT(:Completeness):
+[
+	[ "status", "fail" ],
+	[ "domain", "completeness" ],
+	[ "issuecount", 2 ],
+	[
+		"issues",
+		[
+			"Decision node has fewer than 2 paths: ",
+			"approve"
+		]
+	],
+	[
+		"affectednodes",
+		[ "approve" ]
+	]
+]
+`
 
 pf()

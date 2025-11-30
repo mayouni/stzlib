@@ -1,9 +1,9 @@
 
 
-load "../Common/stkRingLibs.ring"
-load "../common/stkNumberCommons.ring"
-load "../number/stkBigNumber.ring"
-load "../error/stkError.ring"
+load "../Common/stkringlibs.ring"
+load "../common/stknumbercommons.ring"
+load "../number/stkbignumber.ring"
+load "../error/stkerror.ring"
 
 #NOTE Tool used to check result:
 # https://www.calculator.net/big-number-calculator.htm

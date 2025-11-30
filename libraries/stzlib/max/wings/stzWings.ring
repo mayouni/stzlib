@@ -1,32 +1,30 @@
+ /*   #-- Loading files files related to DATA wings modules (data modeling)
 
+        load "../data/stzdatamodeldata.ring"
+        load "data-wings/dataphore/stzdatamodel.ring"
 
-	#-- Loading files files related to DATA wings modules (data modeling)
+        load "data-wings/dataphore/stzdatabasemodel.ring"
+        load "data-wings/dataphore/stzdatabaseperfengine.ring"
 
-		load "../data/stzDataModelData.ring"
-		load "data-wings/dataphore/stzDataModel.ring"
+    #-- Loading files files related to INTEGRATION wings modules
 
-		load "data-wings/dataphore/stzDatabaseModel.ring"
-		load "data-wings/dataphore/stzDatabasePerfEngine.ring"
+        load "integration-wings/excis/stzextercodetransfuncs.ring"
+        load "integration-wings/excis/stzextercode.ring"
+        load "integration-wings/excis/stzjuliacode.ring"
+        load "integration-wings/excis/stzprologcode.ring"
+        load "integration-wings/excis/stzpythoncode.ring"
+        load "integration-wings/excis/stzrcode.ring"
 
-	#-- Loading files files related to INTEGRATION wings modules
+    #-- Loading files files related to TURBO wings modules
 
-		load "integration-wings/excis/stzExterCodeTransFuncs.ring"
-		load "integration-wings/excis/stzExterCode.ring"
-		load "integration-wings/excis/stzJuliaCode.ring"
-		load "integration-wings/excis/stzPrologCode.ring"
-		load "integration-wings/excis/stzPythonCode.ring"
-		load "integration-wings/excis/stzRCode.ring"
+        load "turbo-wings/geo/stzgeomap.ring"
 
-	#-- Loading files files related to TURBO wings modules
+    #-- Loading files files related to WEb wings modules
 
-		load "turbo-wings/geo/stzGeoMap.ring"
+        //
 
-	#-- Loading files files related to WEb wings modules
+    #-- Loading files related to SECURITY wings modules
 
-		//
-
-	#-- Loading files related to SECURITY wings modules
-
-		load "security-wings/krypto/stzCrypto.ring"
-		load "security-wings/krypto/stzCryptoString.ring"
-		load "security-wings/krypto/stzCryptoFile.ring"
+        load "security-wings/krypto/stzcrypto.ring"
+        load "security-wings/krypto/stzcryptostring.ring"
+        load "security-wings/krypto/stzcryptofile.ring"

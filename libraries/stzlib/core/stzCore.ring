@@ -2,45 +2,45 @@
 
 # Loading external extensions
 
-	load "LightGuiLib.ring"
+    load "lightguilib.ring"
 
 # Loading files in COMMON module
 
-	load "common/stkGlobals.ring"
-	load "common/stkListCommons.ring"
-	load "common/stkLowLevelFuncs.ring"
-	load "common/stkNumberCommons.ring"
-	load "common/stkObjectCommons.ring"
-	load "common/stkRingFuncs.ring"
-	load "common/stkRingLibs.ring"
-	load "common/stkStringCommons.ring"
-	load "common/stkProfiler.ring"
+    load "common/stkglobals.ring"
+    load "common/stklistcommons.ring"
+    load "common/stklowlevelfuncs.ring"
+    load "common/stknumbercommons.ring"
+    load "common/stkobjectcommons.ring"
+    load "common/stkringfuncs.ring"
+    load "common/stkringlibs.ring"
+    load "common/stkstringcommons.ring"
+    load "common/stkprofiler.ring"
 
 # Loading files in ERROR module
 
-	load "error/stkError.ring"
+    load "error/stkerror.ring"
 
 # Loading files in OBJECT module
 
-	load "object/stkObject.ring"
+    load "object/stkobject.ring"
 
 # Loading files in LIST module
 
-	load "list/stkList.ring"
+    load "list/stklist.ring"
 
 # Loading files in NUMBER module
 
-	load "number/stkNumber.ring"
-	load "number/stkListOfNumbers.ring"
-	load "number/stkSciNumber.ring"
+    load "number/stknumber.ring"
+    load "number/stklistofnumbers.ring"
+    load "number/stkscinumber.ring"
 
 # Loading files in STRING module
 
-	load "string/stkString.ring"
-	load "string/stkChar.ring"
+    load "string/stkstring.ring"
+    load "string/stkchar.ring"
 
 # Loading files in SystEM module
 
-	load "system/stkPointer.ring"
-	load "system/stkBuffer.ring"
-	load "system/stkMemory.ring"
+    load "system/stkpointer.ring"
+    load "system/stkbuffer.ring"
+    load "system/stkmemory.ring"

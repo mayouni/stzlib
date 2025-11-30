@@ -3,7 +3,7 @@
 	Built on Qt's high-performance JSON framework via RingQt
 */
 
-load "stzJsonFuncs.ring"
+load "stzjsonfuncs.ring"
 
 Class stzJson from stzObject
 	

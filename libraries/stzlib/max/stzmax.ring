@@ -2,77 +2,76 @@
 
 # Loading the Softanza Base layer (which loads Core layer in behind)
 
-	load "../base/stzbase.ring"
+    load "../base/stzbase.ring"
 
 # Loading files related to the COMMON module
 
-	load "common/stzWalker.ring"
-	load "common/stzListOfWalkers.ring"
-	load "common/stzWalker2D.ring"
-	load "common/stzListOfWalkers2D.ring"
-	load "common/stzParser.ring"
+    load "common/stzwalker.ring"
+    load "common/stzlistofwalkers.ring"
+    load "common/stzwalker2d.ring"
+    load "common/stzlistofwalkers2d.ring"
+    load "common/stzparser.ring"
 
-	load "common/stzGlobalHelp.ring"
+    load "common/stzglobalhelp.ring"
 
 # Loading files related to the DATA module
 
-	load "data/stzConstraintsData.ring"
-//	load "data/stzStopWordsData.ring"
-	load "data/stzDataModelData.ring"
+    load "data/stzconstraintsdata.ring"
+//  load "data/stzstopwordsdata.ring"
+    load "data/stzdatamodeldata.ring"
 
 # Loading files related to OBJECT module
 
-	#TODO // Abstract stzTrueObject, stzFalseObject, stzNullObject,
-	# and stzNamedObject here in the MAX layer
+    #TODO // Abstract stzTrueObject, stzFalseObject, stzNullObject,
+    # and stzNamedObject here in the MAX layer
 
 # Loading files related to the NUMBER module
 
-	load "number/stzBigNumber.ring"
-	load "number/stzListOfListsOfNumbers.ring"
-	load "number/stzListOfPairsOfNumbers.ring"
+    load "number/stzbignumber.ring"
+    load "number/stzlistoflistsofnumbers.ring"
+    load "number/stzlistofpairsofnumbers.ring"
 
-	load "number/stzNumberLowLevelType.ring"
+    load "number/stznumberlowleveltype.ring"
 
 
 # Loading files related to STRING module
 
-	load "string/stzMultiString.ring"
-	load "string/stzSringConstraints.ring"
-	load "string/stzTextEncoding.ring"
+    load "string/stzmultistring.ring"
+    load "string/stzstringconstraints.ring"
+    load "string/stztextencoding.ring"
 
 # Loading files related to the LIST module
 
-	load "list/stzList2D.ring"
-	load "list/stzListParser.ring"
-	load "list/stzListProvidedAsString.ring"
+    load "list/stzlist2d.ring"
+    load "list/stzlistparser.ring"
+    load "list/stzlistprovidedasstring.ring"
 
-	load "list/stzSortedList.ring"
-	load "list/stzPivotTable.ring"
-	load "list/stzPivotTableShow.ring"
+    load "list/stzsortedlist.ring"
+    load "list/stzpivottable.ring"
+    load "list/stzpivottableshow.ring"
 
-	load "list/stzTree.ring"
+    load "list/stztree.ring"
 
-	load "list/stzGrid.ring"
-	load "list/stzListOfGrids.ring"
-	load "list/stzTile.ring"
+    load "list/stzgrid.ring"
+    load "list/stzlistofgrids.ring"
+    load "list/stztile.ring"
 
 # Loading files related to the SYSTEM module
 
-	load "system/stzBinaryFile.ring"
+    load "system/stzbinaryfile.ring"
 
 # Loading files related to the TEST module
 
-	load "test/stzTestoor.ring"
+    load "test/stztestoor.ring"
 
 # Loading files related to the ERROR module
 
-	load "error/stzGridError.ring"
-	load "error/stzListOfSetsError.ring"
-	load "error/stzMultiStringError.ring"
-	load "error/stzSetError.ring"
-	load "error/stzTextEncodingSystemError.ring"
+    load "error/stzgriderror.ring"
+    load "error/stzlistofsetserror.ring"
+    load "error/stzmultistringerror.ring"
+    load "error/stzseterror.ring"
+    load "error/stztextencodingsystemerror.ring"
 
 # Loading files related to WINGS modules
 
-//	load "wings/stzwings.ring"
-
+//  load "wings/stzwings.ring"

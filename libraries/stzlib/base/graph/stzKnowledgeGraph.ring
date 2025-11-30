@@ -1,6 +1,9 @@
 func StzKnowledgeGraphQ(pcId)
 	return new stzKnowledgeGraph(pcId)
 
+	func StzKnowGraphQ(pcId)
+		return new stzKnowledgeGraph(pcId)
+
 func IsStzKnowledgeGraph(pObj)
 	if isObject(pObj) and classname(pObj) = "stzknowledgegraph"
 		return TRUE
@@ -10,6 +13,13 @@ func IsStzKnowledgeGraph(pObj)
 	func IsAStzKnowledgeGraph(pObj)
 		return IsStzKnowledgeGraph(pObj)
 
+	func IsStzKnowGraph(pObj)
+		return IsStzKnowledgeGraph(pObj)
+
+	func IsAStzKnowGraph(pObj)
+		return IsStzKnowledgeGraph(pObj)
+
+class stzKnowGraph from stzKnowledgeGraph
 class stzKnowledgeGraph from stzGraph
 
 	@aNamespaces = []
@@ -228,10 +238,9 @@ class stzKnowledgeGraph from stzGraph
 		# Basic validation - checks if defined properties are used consistently
 		return TRUE
 
-
-	#==========================#
-	#  KNOWLEDGE GRAPH EXPLAIN #
-	#==========================#
+	#---------------------------#
+	#  KNOWLEDGE GRAPH EXPLAIN  #
+	#---------------------------#
 
 	def Explain()
 		aExplanation = [

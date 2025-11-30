@@ -1,5 +1,5 @@
 load "../stzbase.ring"
-load "../../max/list/stzPivotTable.ring" # some samples use stzPivotTable from the MAX layer
+load "../../max/list/stzoivottable.ring" # some samples use stzPivotTable from the MAX layer
 load "../../max/list/stzlist2D.ring" #TODO // Should be relocated in BASE layer
 
 /*=== CHECKING IF TABLE IS SORTED
