@@ -379,6 +379,10 @@ $aPolygonShapes = [
 
 $bTitleVisibility = FALSE
 
+#---
+
+$acDiagramDefaultValidators = ["sox", "gdpr", "banking"]
+
 #--------------------#
 #  GLOBAL FUNCTIONS  #
 #--------------------#
@@ -800,6 +804,8 @@ class stzDiagram from stzGraph
 	@cTitle = ""
 	@cSubtitle = ""
 	@bTitleVisibility = $bTitleVisibility
+
+	@acValidators = $acDiagramDefaultValidators
 
 	def init(pTitle)
 		super.init(pTitle)
@@ -1461,11 +1467,60 @@ class stzDiagram from stzGraph
 	#  VALIDATION  #
 	#--------------#
 
-	def Validate(pcValidator)
-		cValidator = lower("" + pcValidator)
-		
-		# Diagram-specific validators
-		switch cValidator
+	def Validators()
+		return @acValidators
+
+	def SetValidators(pacValidators)
+		@acValidators = pacValidators
+
+	def Validate()
+		return This.ValidateXT(@acValidators)
+
+	def ValidateXT(pValidator)
+		if isString(pValidator)
+			return This._ValidateSingle(pValidator)
+		but isList(pValidator)
+			aResults = []
+			nFailed = 0
+			nTotalIssues = 0
+			acAllAffected = []
+			
+			nLen = len(pValidator)
+			for i = 1 to nLen
+				aResult = This._ValidateSingle(pValidator[i])
+				aResults + aResult
+				if aResult[:status] = "fail"
+					nFailed++
+					nTotalIssues += aResult[:issueCount]
+					nAffLen = len(aResult[:affectedNodes])
+					for j = 1 to nAffLen
+						if ring_find(acAllAffected, aResult[:affectedNodes][j]) = 0
+							acAllAffected + aResult[:affectedNodes][j]
+						ok
+					end
+				ok
+			end
+			
+			return [
+				:status = iif(nFailed = 0, "pass", "fail"),
+				:validatorsRun = len(pValidator),
+				:validatorsFailed = nFailed,
+				:totalIssues = nTotalIssues,
+				:results = aResults,
+				:affectedNodes = acAllAffected
+			]
+		ok
+
+	def IsValid()
+		aResult = This.Validate()
+		return aResult[:status] = "pass"
+
+	def IsValidXT(pValidator)
+		aResult = This.ValidateXT(pValidator)
+		return aResult[:status] = "pass"
+
+	def _ValidateSingle(pcValidator)
+		switch lower(pcValidator)
 		on "sox"
 			oValidator = new stzDiagramSoxValidator()
 			oValidator.Validate(This)
@@ -1480,160 +1535,11 @@ class stzDiagram from stzGraph
 			oValidator = new stzDiagramBankingValidator()
 			oValidator.Validate(This)
 			return oValidator.Result()
-		
-		on "summary"
-			return This.ValidationSummary()
 			
 		other
-			# Delegate to parent (stzGraph) or check user-defined
-			return super.Validate(pcValidator)
+
+			return super._ValidateSingle(pcValidator)
 		off
-	
-	def IsValid(pcValidator)
-		aResult = This.Validate(pcValidator)
-		
-		if isNumber(aResult)
-			return aResult = 1
-		ok
-		
-		if isList(aResult) and HasKey(aResult, :status)
-			return aResult[:status] = "pass"
-		ok
-		
-		return FALSE
-	
-	def ValidationSummary()
-		# Run all diagram validators
-		acValidators = ["sox", "gdpr", "banking", "dag", "reachability"]
-		aResults = []
-		nFailCount = 0
-		nTotalIssues = 0
-		
-		nLen = len(acValidators)
-		for i = 1 to nLen
-			aResult = This.Validate(acValidators[i])
-			aResults + aResult
-			
-			if aResult[:status] = "fail"
-				nFailCount++
-				nTotalIssues += aResult[:issueCount]
-			ok
-		end
-		
-		return [
-			:status = iif(nFailCount = 0, "pass", "fail"),
-			:domain = "summary",
-			:validatorsRun = len(acValidators),
-			:validatorsFailed = nFailCount,
-			:totalIssues = nTotalIssues,
-			:results = aResults,
-			:affectedNodes = []
-		]
-
-	def ValidationResult()
-		return @aLastValidationResult
-	
-		def Result()
-			return @aLastValidationResult
-
-	def ValidationStatus()
-		if len(@aLastValidationResult) = 0
-			return ""
-		ok
-		return @aLastValidationResult["status"]
-	
-		def Status()
-			return This.ValidationStatus()
-
-	def ValidationDomain()
-		if len(@aLastValidationResult) = 0
-			return ""
-		ok
-		return @aLastValidationResult["domain"]
-	
-		def Domain()
-			return This.Validationdomain()
-
-	def ValidationIssueCount()
-		if len(@aLastValidationResult) = 0
-			return 0
-		ok
-		return @aLastValidationResult["issueCount"]
-	
-		def IssueCount()
-			return This.ValidationIssueCount()
-
-	def ValidationIssues()
-		if len(@aLastValidationResult) = 0
-			return []
-		ok
-		return @aLastValidationResult["issues"]
-	
-		def Issues()
-			return This.ValidationIssues()
-
-	def HasValidationIssues()
-		return This.ValidationIssueCount() > 0
-
-		def HasIssues()
-			return This.HasValidationIssues()
-
-	def _ValidateDAG()
-		bIsDAG = NOT This.CyclicDependencies()
-		return [
-			:status = iif(bIsDAG, "pass", "fail"),
-			:domain = "dag",
-			:issueCount = iif(bIsDAG, 0, 1),
-			:issues = iif(bIsDAG, [], ["Graph contains cycles"])
-		]
-	
-	def _ValidateReachability()
-		acStartNodes = This.NodesByType("start")
-		nLenStartNodes = len(acStartNodes)
-
-		acEndpointNodes = This.NodesByType("endpoint")
-		nLenEndPointNodes = len(acEndpointNodes)
-
-		aIssues = []
-	
-		for i = 1 to nLenEndPointNodes
-			bReachable = FALSE
-
-			for j = 1 to nLenStartNodes
-				if This.PathExists(acStartNodes[j], acEndpointNodes[i])
-					bReachable = TRUE
-					exit
-				ok
-			end
-			if NOT bReachable
-				aIssues + "Endpoint unreachable: " + acEndpointNodes[i]
-			ok
-		end
-	
-		return [
-			:status = iif(len(aIssues) = 0, "pass", "fail"),
-			:domain = "reachability",
-			:issueCount = len(aIssues),
-			:issues = aIssues
-		]
-	
-	def _ValidateCompleteness()
-		aIssues = []
-		acDecisions = This.NodesByType("decision")
-		nLen = len(acDecisions)
-
-		for i = 1 to nLen
-			if len(This.Neighbors(acDecisions[i])) < 2
-				aIssues + "Decision node has fewer than 2 paths: " + acDecisions[i]
-			ok
-		end
-	
-		return [
-			:status = iif(len(aIssues) = 0, "pass", "fail"),
-			:domain = "completeness",
-			:issueCount = len(aIssues),
-			:issues = aIssues
-		]
 
 	#-----------#
 	#  METRICS  #
@@ -1695,7 +1601,6 @@ class stzDiagram from stzGraph
 		
 		def Display()
 			This.View()
-
 
 	#----------#
 	#  EXPORT  #

@@ -719,6 +719,20 @@ class stzOrgChart from stzDiagram
 		@cClusterColor = pcColor
 
 	#--
+	
+	def ViewValidation(aValidationResult)
+	    # Extract affected nodes and apply focus
+	    if HasKey(aValidationResult, :affectedNodes)
+	        This.ApplyFocusTo(aValidationResult[:affectedNodes])
+	    ok
+	    This.View()
+	
+	def ViewXT(pcValidator)
+	    # Validate and view in one action
+	    aResult = This.ValidateXT(pcValidator)
+	    This.ViewValidation(aResult)
+
+	#--
 
 	def ViewPopulated()
 

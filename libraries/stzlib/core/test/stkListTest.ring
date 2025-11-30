@@ -10,12 +10,12 @@ decimals(3)
 
 # Or just the files you actually need
 
-	load "../object/stkObject.ring"
-	load "../list/stkList.ring"
+	load "../object/stkobject.ring"
+	load "../list/stklist.ring"
 
-	load "../error/stkError.ring"
-	load "../common/stkProfiler.ring"
-	load "../common/stkRingFuncs.ring"
+	load "../error/stkerror.ring"
+	load "../common/stkprofiler.ring"
+	load "../common/stkringfuncs.ring"
 
 
 #----------------#

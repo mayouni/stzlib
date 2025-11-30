@@ -1,5 +1,5 @@
 load "../stzbase.ring"
-load "../../max/wings/international-wings/stzTime.ring"
+load "../../max/wings/international-wings/stztime.ring"
 
 /*--- GETTiNG INFORMATION ABOUT FILES
 

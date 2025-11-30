@@ -2326,9 +2326,6 @@ class stzGraph
 	def Validators()
 		return @acValidators
 
-	def DefaultValidators()
-		return $acGraohDefaultValidators
-
 	def SetValidators(pacValidators)
 		@acValidators = pacValidators
 
@@ -2403,6 +2400,74 @@ class stzGraph
 				]
 			ok
 		off
+
+	def _ValidateDAG()
+		bIsDAG = NOT This.CyclicDependencies()
+		acAffected = []
+		
+		if NOT bIsDAG
+			oAnalyzer = new stzGraphAnalyzer(This)
+			acAffected = oAnalyzer.CyclicNodes()
+		ok
+		
+		return [
+			:status = iif(bIsDAG, "pass", "fail"),
+			:domain = "dag",
+			:issueCount = iif(bIsDAG, 0, 1),
+			:issues = iif(bIsDAG, [], ["Graph contains cycles"]),
+			:affectedNodes = acAffected
+		]
+	
+	def _ValidateReachability()
+		acStartNodes = This.NodesByType("start")
+		acEndpointNodes = This.NodesByType("endpoint")
+		aIssues = []
+		acAffected = []
+		
+		nEndLen = len(acEndpointNodes)
+		for i = 1 to nEndLen
+			bReachable = FALSE
+			nStartLen = len(acStartNodes)
+			for j = 1 to nStartLen
+				if This.PathExists(acStartNodes[j], acEndpointNodes[i])
+					bReachable = TRUE
+					exit
+				ok
+			end
+			if NOT bReachable
+				aIssues + "Endpoint unreachable: " + acEndpointNodes[i]
+				acAffected + acEndpointNodes[i]
+			ok
+		end
+	
+		return [
+			:status = iif(len(aIssues) = 0, "pass", "fail"),
+			:domain = "reachability",
+			:issueCount = len(aIssues),
+			:issues = aIssues,
+			:affectedNodes = acAffected
+		]
+	
+	def _ValidateCompleteness()
+		aIssues = []
+		acAffected = []
+		acDecisions = This.NodesByType("decision")
+		nLen = len(acDecisions)
+
+		for i = 1 to nLen
+			if len(This.Neighbors(acDecisions[i])) < 2
+				aIssues + "Decision node has fewer than 2 paths: " + acDecisions[i]
+				acAffected + acDecisions[i]
+			ok
+		end
+	
+		return [
+			:status = iif(len(aIssues) = 0, "pass", "fail"),
+			:domain = "completeness",
+			:issueCount = len(aIssues),
+			:issues = aIssues,
+			:affectedNodes = acAffected
+		]
 
 	#------------------------------------------
 	#  5. RICH QUERYING

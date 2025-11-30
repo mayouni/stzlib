@@ -1,4 +1,4 @@
-load "../error/stkError.ring"
+load "../error/stkerror.ring"
 
 ? StkError(:IncorrectParamType)
 #--> 1
