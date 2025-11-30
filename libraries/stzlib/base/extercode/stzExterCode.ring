@@ -11,7 +11,7 @@ class stzExterCode
     @aLanguages = [
 
         :python = [
-            :Name = "Python",
+            :Name = "python",
             :Type = "interpreted",
             :Extension = ".py",
             :Runtime = "python",
@@ -24,33 +24,33 @@ class stzExterCode
         ],
 
         :R = [
-            :Name = "R",
+            :Name = "r",
             :Type = "interpreted",
             :Extension = ".R",
             :Runtime = "Rscript",
-            :AlternateRuntimes = ["R"],
+            :AlternateRuntimes = ["r"],
             :ResultFile = "rresult.txt",
-            :CustomPath = "D:/R/R-4.5.1/bin/Rscript.exe",  # Replace with your R path
+            :CustomPath = "D:/R/R-4.5.1/bin/rscript.exe",  # Replace with your R path
             :TransFunc = $cRToRingTransFunc,
             :Cleanup = 0,
 	    :ExtraArgs = ""
         ],
 
         :julia = [
-            :Name = "Julia",
+            :Name = "julia",
             :Type = "interpreted",
             :Extension = ".jl",
             :Runtime = "julia",
             :AlternateRuntimes = [],
             :ResultFile = "jlresult.txt",
-            :CustomPath = "D:/Julia/Julia-1.11.7/bin/julia.exe",  # Replace with your Julia path
+            :CustomPath = "d:/julia/julia-1.11.7/bin/julia.exe",  # Replace with your Julia path
             :TransFunc = $cJuliaToRingTransFunc,
             :Cleanup = 0,
 	    :ExtraArgs = ""
         ],
 
         :C = [
-            :Name = "C",
+            :Name = "c",
             :Type = "compiled",
             :Extension = ".c",
             :Runtime = "gcc",
@@ -66,20 +66,20 @@ class stzExterCode
         ],
 
         :prolog = [
-            :Name = "SWI-Prolog",
+            :Name = "swi-Prolog",
             :Type = "interpreted",
             :Extension = ".pl",
             :Runtime = "swipl",
             :AlternateRuntimes = ["prolog"],
             :ResultFile = "plresult.txt",
-            :CustomPath = "D:/Prolog/swipl-9.9.9/bin/swipl.exe",  # Update to your actual path
+            :CustomPath = "D:/prolog/swipl-9.9.9/bin/swipl.exe",  # Update to your actual path
             :TransFunc = $cPrologToRingTransFunc,
             :Cleanup = 0,
             :ExtraArgs = "-q -g main -t halt"   # Quiet mode, call main/0, halt after execution
         ],
 
 	:NodeJS = [
-	    :Name = "NodeJS",
+	    :Name = "nodejs",
 	    :Type = "interpreted",
 	    :Extension = ".njs",
 	    :Runtime = "node",
