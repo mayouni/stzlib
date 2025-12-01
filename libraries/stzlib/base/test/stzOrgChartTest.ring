@@ -2556,13 +2556,13 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.24
 
 #===========
-*/
+
 pr()
 
 # Load from file
 oBank = new stzOrgChart("SOFTABANK")
 oBank {
-    LoadStzOrg("softabank.stzorg")
+    LoadStzOrg("softabank.stzorg") #TODO //check why the last node is not imported
     LoadRuleBase("bceao_complete.stzrulz")
     
     # Or combine multiple sources
@@ -2576,6 +2576,33 @@ oBank {
     ? @@NL( ValidateXT(:bceao) )
 
     View()
+}
+
+pf()
+
+/*====
+*/
+pr()
+
+# Example 1: Programmatic simulation
+oBank = new stzOrgChart("Regional_Bank")
+oBank {
+    # Build structure...
+    LoadStzOrg("softabank.stzorg")
+
+    # Create simulation
+    oSim = CreateSimulation("treasury_restructure")
+    oSim {
+        SetDescription("Move treasury under CFO")
+        MovePosition("treasury_head", "ceo", "cfo")
+        AddPosition("risk_officer", "Risk Officer", "staff", "treasury_head")
+        TrackSpanOfControl("cfo")
+        TrackCompliance([:bceao, :banking])
+    }
+    
+    # Run and view results
+    aResults = oSim.Run()
+    ? @@NL( aResults )
 }
 
 pf()

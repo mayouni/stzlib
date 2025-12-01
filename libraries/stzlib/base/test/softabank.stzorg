@@ -49,8 +49,6 @@ positions
         department: operations
         reportsTo: ceo
 
-    any
-
 people
     p1
         name: Alice Chen

@@ -77,6 +77,8 @@ class stzGraph
 	@oRuleEngine = ""
 	@acLoadedRuleBases = []
 
+	@oSimulationEngine = ""
+
 	def init(pcId)
 		@cId = pcId
 		@acNodes = []
@@ -185,9 +187,9 @@ class stzGraph
 	def NodeCount()
 		return len(@aNodes)
 
-	#------------------------------------------
-	#  INSERT NODE BEFORE
-	#------------------------------------------
+	#----------------------#
+	#  INSERT NODE BEFORE  #
+	#----------------------#
 	
 	def InsertNodeBefore(pcTargetId, pcNewId, pcNewLabel)
 		This.InsertNodeBeforeXT(pcTargetId, pcNewId, pcNewLabel, [])
@@ -224,9 +226,9 @@ class stzGraph
 		cTargetId = pacPath[nLen]
 		This.InsertNodeBeforeXT(cTargetId, pcNewId, pcNewLabel, paProps)
 	
-	#------------------------------------------
-	#  INSERT NODE AFTER
-	#------------------------------------------
+	#---------------------#
+	#  INSERT NODE AFTER  #
+	#---------------------#
 	
 	def InsertNodeAfter(pcTargetId, pcNewId, pcNewLabel)
 		This.InsertNodeAfterXT(pcTargetId, pcNewId, pcNewLabel, [])
@@ -263,9 +265,9 @@ class stzGraph
 		cTargetId = pacPath[nLen]
 		This.InsertNodeAfterXT(cTargetId, pcNewId, pcNewLabel, paProps)
 	
-	#------------------------------------------
-	#  INSERT MULTIPLE NODES
-	#------------------------------------------
+	#-------------------------#
+	#  INSERT MULTIPLE NODES  #
+	#-------------------------#
 	
 	def InsertNodesBefore(pcTargetId, paNodes)
 		# paNodes = [ ["id1", "label1"], ["id2", "label2"], ... ]
@@ -283,9 +285,9 @@ class stzGraph
 			cLastId = paNodes[i][1]
 		end
 
-	#------------------------------------------
-	#  NODE REPLACEMENT
-	#------------------------------------------
+	#--------------------#
+	#  NODE REPLACEMENT  #
+	#--------------------#
 	
 	# Replace all nodes with new set
 	def ReplaceNodes(paNewNodes)
@@ -360,9 +362,9 @@ class stzGraph
 			This.ReplaceThisNode(paReplacements[i][1], paReplacements[i][2])
 		end
 	
-	#------------------------------------------
-	#  EDGE REPLACEMENT
-	#------------------------------------------
+	#--------------------#
+	#  EDGE REPLACEMENT  #
+	#--------------------#
 	
 	# Replace all edges
 	def ReplaceEdges(paNewEdges)
@@ -1801,9 +1803,9 @@ class stzGraph
 		
 		return aoResult
 	
-	#------------------------------------------
-	#  stzGraph - Rule Application
-	#------------------------------------------
+	#-------------------------------#
+	#  stzGraph - Rule Application  #
+	#-------------------------------#
 	
 	def ApplyRules()
 		This.ApplyRulesByType("")
@@ -2124,7 +2126,7 @@ class stzGraph
 		nEdgeLen = len(acEdgeKeys)
 		
 		for i = 1 to nEdgeLen
-			acParts = split(acEdgeKeys[i], "->")
+			acParts = @split(acEdgeKeys[i], "->")
 			aEdge = This.Edge(acParts[1], acParts[2])
 			aContext = This._BuildRuleContext(aEdge)
 			
@@ -2471,9 +2473,9 @@ class stzGraph
 			:affectedNodes = acAffected
 		]
 */
-	#------------------------------------------
-	#  5. RICH QUERYING
-	#------------------------------------------
+	#--------------------#
+	#  5. RICH QUERYING  #
+	#--------------------#
 
 	def Query(pcPattern)
 		if isString(pcPattern)
@@ -2579,7 +2581,7 @@ class stzGraph
 		ok
 		
 		if substr(pcPattern, "find_paths_")
-			acParts = split(pcPattern, "_to_")
+			acParts = @split(pcPattern, "_to_")
 			if len(acParts) = 2
 				cFrom = trim(acParts[1])
 				cTo = trim(acParts[2])
@@ -3069,6 +3071,37 @@ class stzGraph
 	
 	    def EdgesHavingTag(pcTag)
 	        return This.EdgesWithTag(pcTag)
+
+	#--------------#
+	#  SIMULATION  #
+	#--------------#
+
+	def CreateSimulation(pcId)
+	        oSim = new stzGraphSimulation(pcId)
+	        oSim.SetGraph(This)
+	        return oSim
+	    
+	def LoadSimulation(pSource)
+	        if isString(pSource)
+	            # Load from file
+	            oParser = new stzSimulationParser()
+	            oSim = oParser.ParseFile(pSource)
+	            oSim.SetGraph(This)
+	            return oSim
+	        but isObject(pSource)
+	            pSource.SetGraph(This)
+	            return pSource
+	        ok
+	    
+	def RunSimulation(pSim)
+	        if isString(pSim)
+	            # Load and run
+	            oSim = This.LoadSimulation(pSim)
+	            return oSim.Run()
+	        but isObject(pSim)
+	            pSim.SetGraph(This)
+	            return pSim.Run()
+	        ok
 
 	#-------------------------------#
 	#  EXPORT AND INTEROPERABILITY  #
@@ -3997,7 +4030,7 @@ class stzGraphAsciiVisualizer
 	def _ShowVerticalBranchWithNodes(pcNodeId, pacVisitedPath, pnBranchDepth, pacDisplayNodes)
 		cDisplayLabel = This._GetDisplayLabel(pcNodeId, pacDisplayNodes)
 		cBoxed = BoxRound(cDisplayLabel)
-		acLines = split(cBoxed, nl)
+		acLines = @split(cBoxed, nl)
 		nLen = len(acLines)
 		
 		for i = 1 to nLen
@@ -4027,7 +4060,7 @@ class stzGraphAsciiVisualizer
 					? ""
 					cDisplayLabel = This._GetDisplayLabel(pcNodeId, pacDisplayNodes)
 					cBoxed = BoxRound(cDisplayLabel)
-					acLines = split(cBoxed, nl)
+					acLines = @split(cBoxed, nl)
 					nLen2 = len(acLines)
 					
 					for j = 1 to nLen2
@@ -4106,7 +4139,7 @@ class stzGraphAsciiVisualizer
 	def _ShowHorizontalBranchWithNodes(pcNodeId, pacVisited, pacBoxLines, pacArrowLines, pacDisplayNodes)
 		cDisplayLabel = This._GetDisplayLabel(pcNodeId, pacDisplayNodes)
 		cBoxed = BoxRound(cDisplayLabel)
-		acLines = split(cBoxed, nl)
+		acLines = @split(cBoxed, nl)
 		
 		acNeighbors = @oGraph.Neighbors(pcNodeId)
 		
