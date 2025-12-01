@@ -3,7 +3,7 @@
 
 **stzOrgChart** is a living organizational intelligence platform that combines precise modeling, automated regulatory validation, programmable rules, semantic reasoning, graph analytics, quantitative simulation, and executive visualization — all in pure Ring, completely free.
 
-This article follows a real-world journey at a WAEMU-zone bank (Ecobank-style, BCEAO-regulated).  
+This article follows a real-world journey at a Softabank (Virtual bank name, BCEAO-regulated).
 We deliberately **start with a realistically flawed, non-compliant structure** — exactly what you often inherit in practice — then use stzOrgChart’s intelligence layers to **detect, explain, and repair** every issue, before finally simulating a strategic reorganization.
 
 For the full technical reference, see the main article:  
@@ -16,7 +16,7 @@ For the full technical reference, see the main article:
 Most organizations do not begin perfect. Here is the structure the new Chief Risk Officer discovered on her first day:
 
 ```ring
-oOrg = new stzOrgChart("Ecobank WAEMU – Inherited Structure (Flawed)")
+oOrg = new stzOrgChart("Softabank – Inherited Structure (Flawed)")
 oOrg {
 
     AddExecutivePositionXT("ceo", "CEO")
@@ -44,7 +44,15 @@ oOrg {
     SetPositionDepartment("vp_ops",   "operations")
     SetPositionDepartment("dir_risk", "risk")
     SetPositionDepartment("dir_audit","audit")
+
+	SetLayout(:LeftRight)
+    SetSpline("curved")
+    View()
+}
 ```
+
+![orchchart-bank-1.png](../images/orchchart-bank-1.png)
+
 
 ### First Diagnosis – Let the Intelligence Engine Speak
 
@@ -52,9 +60,9 @@ We immediately run the full compliance suite:
 
 ```ring
     ? "=== REGULATORY VALIDATION ==="
-    ? ValidateBCEAOGovernance()     # → FAIL with 3 critical issues
-    ? ValidateSpanOfControl()
-    ? ValidateSegregationOfDuties()
+    ? Validate(:BCEAO)     # → FAIL with 3 critical issues
+    ? Validate(:SpanOfControl)
+    ? Validate(:SegregationOfDuties)
     ? Validate(:GDPR)
     ? Validate(:SOX)
     ? Validate(:BANKING)
@@ -69,7 +77,7 @@ BCEAO-003: Risk Management function does not report to Board
 Overall status: NON-COMPLIANT
 ```
 
-We also activate custom bank rules using Softanza’s domain-resonant API:
+We also activate custom bank rules using Softanza’s rule engine:
 
 ```ring
     WhenNodeExists("dir_risk")
@@ -85,7 +93,7 @@ We also activate custom bank rules using Softanza’s domain-resonant API:
         ok
 
     ? "=== CUSTOM FINDINGS ==="
-    ? @@NL( Findings() )
+    ? @@NL( Anomalies() )
 ```
 
 The system instantly highlights the exact governance gaps — no manual audit required.
@@ -105,9 +113,13 @@ Using the findings as a checklist, we fix the structure in minutes:
 
     # Re-run validation instantly
     ? "=== AFTER REMEDIATION ==="
-    ? ValidateBCEAOGovernance()       # → PASS
-    ? @@NL( Findings() )              # → [] Empty – fully clean
+    ? Validate(:BCEAO)       # → PASS
+    ? @@NL( Anomalies() )    # → [] Empty – fully clean
+
+    View() #todo ViewConformant() ViewNonConfromant()
 ```
+
+![stzOrgChart-BankUseCase2.png](../images/stzOrgChart-BankUseCase2.png)
 
 The same code that detected the problems now confirms perfect compliance.  
 No external consultants. No months of workshops.
@@ -202,9 +214,5 @@ In under 150 lines of code we:
 
 No Workday. No OrgVue. No Lucidchart. No $300K consulting engagement.
 
-Just **Softanza** — pure, open, infinitely powerful organizational intelligence.
-
-This is not science fiction.  
-This is Ring code you can run today.
-
+Just **Softanza** — pure, open Ring code, infinitely powerful organizational intelligence.
 Welcome to the future of organizational engineering.
