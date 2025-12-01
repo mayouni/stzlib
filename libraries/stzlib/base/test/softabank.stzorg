@@ -1,4 +1,4 @@
-orgchart "SOFTABANK"
+orgchart "International_Bank"
 
 positions
     board
@@ -36,12 +36,6 @@ positions
         level: 0
         department: treasury
         reportsTo: cfo
-
-    security_manager
-        title: Security Manager
-        level: 0
-        department: it
-        reportsTo: cto
 
     ops_head
         title: Operations Head

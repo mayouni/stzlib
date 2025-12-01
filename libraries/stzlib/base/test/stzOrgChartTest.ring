@@ -2,7 +2,7 @@
 load "../stzbase.ring"
 
 /*---
-
+*/
 pr()
 
 oOrg = new stzOrgChart("Softabank – Inherited Structure (Flawed)")
@@ -48,6 +48,7 @@ oOrg {
 }
 
 pf()
+# Executed in 2.03 second(s) in Ring 1.24
 
 /*--- #TODO
 
@@ -55,7 +56,7 @@ pr()
 
 o1 = new stzOrgChart("")
 o1 {
-	SetOutput("PNG")
+	SetOutput("PNG") #ERR #TODDO
 	AddNodeXT("ceo", "CEO")
 	AddNodeXT("sales", "VP Sales")
 	ReportsTo("sales", "ceo")
@@ -95,15 +96,138 @@ oOrg {
     ReportsTo("dev1", "vp_eng")
 
     # Verify positions
-    ? Positions()
-    ? Position("ceo")
+    ? @@NL( Positions() ) + NL
+	#-->
+	`
+	[
+		[
+			[ "id", "ceo" ],
+			[ "title", "CEO" ],
+			[ "level", 0 ],
+			[ "department", "" ],
+			[ "reportsto", "" ],
+			[ "incumbent", "" ],
+			[ "isvacant", 1 ],
+			[
+				"attributes",
+				[
+					[ "level", "executive" ]
+				]
+			]
+		],
+		[
+			[ "id", "vp_sales" ],
+			[ "title", "VP Sales" ],
+			[ "level", 0 ],
+			[ "department", "" ],
+			[ "reportsto", "ceo" ],
+			[ "incumbent", "" ],
+			[ "isvacant", 1 ],
+			[
+				"attributes",
+				[
+					[ "level", "management" ]
+				]
+			]
+		],
+		[
+			[ "id", "vp_eng" ],
+			[ "title", "VP Engineering" ],
+			[ "level", 0 ],
+			[ "department", "" ],
+			[ "reportsto", "ceo" ],
+			[ "incumbent", "" ],
+			[ "isvacant", 1 ],
+			[
+				"attributes",
+				[
+					[ "level", "management" ]
+				]
+			]
+		],
+		[
+			[ "id", "sales_rep1" ],
+			[ "title", "Sales Rep 1" ],
+			[ "level", 0 ],
+			[ "department", "" ],
+			[ "reportsto", "vp_sales" ],
+			[ "incumbent", "" ],
+			[ "isvacant", 1 ],
+			[
+				"attributes",
+				[
+					[ "region", "North" ],
+					[ "level", "staff" ]
+				]
+			]
+		],
+		[
+			[ "id", "dev1" ],
+			[ "title", "Developer 1" ],
+			[ "level", 0 ],
+			[ "department", "" ],
+			[ "reportsto", "vp_eng" ],
+			[ "incumbent", "" ],
+			[ "isvacant", 1 ],
+			[
+				"attributes",
+				[
+					[ "skill", "Backend" ],
+					[ "level", "staff" ]
+				]
+			]
+		]
+	]
+	`
+
+    ? @@NL( Position("ceo") ) + NL
+	#-->
+	`
+	[
+		[ "id", "ceo" ],
+		[ "title", "CEO" ],
+		[ "level", 0 ],
+		[ "department", "" ],
+		[ "reportsto", "" ],
+		[ "incumbent", "" ],
+		[ "isvacant", 1 ],
+		[
+			"attributes",
+			[
+				[ "level", "executive" ]
+			]
+		]
+	]
+	`
 
     # View basic chart
-    ? Dot()
-    View() #TODO Check color
+//    ? Dot()
+
+//    View() #TODO Check color
 }
+#-->
+`
+digraph "Basic_Hierarchy" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=1, ranksep=1, ordering=out]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#808080", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    ceo [label="CEO", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    vp_sales [label="VP Sales", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    vp_eng [label="VP Engineering", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    sales_rep1 [label="Sales Rep 1", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    dev1 [label="Developer 1", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+
+    ceo -> vp_sales
+    ceo -> vp_eng
+    vp_sales -> sales_rep1
+    vp_eng -> dev1
+
+}
+`
 
 pf()
+# Executed in 2.07 second(s) in Ring 1.24
 
 #---------------------#
 #  PEOPLE MANAGEMENT  #
@@ -184,6 +308,7 @@ oOrg {
 }
 
 pf()
+# Executed in 2.23 second(s) in Ring 1.24
 
 #-------------------------#
 #  DEPARTMENT MANAGEMENT  #
@@ -223,47 +348,47 @@ oOrg {
 
     # Verify
     ? @@NL( Departments() ) + NL
+	#-->
+	`
+	[
+		[
+			[ "id", "exec" ],
+			[ "name", "EXECUTIVE" ],
+			[
+				"positions",
+				[ "ceo" ]
+			],
+			[ "head", "" ]
+		],
+		[
+			[ "id", "sales" ],
+			[ "name", "SALES" ],
+			[
+				"positions",
+				[ "sales_mgr" ]
+			],
+			[ "head", "" ]
+		],
+		[
+			[ "id", "eng" ],
+			[ "name", "ENGINEERING" ],
+			[
+				"positions",
+				[ "eng_mgr" ]
+			],
+			[ "head", "" ]
+		]
+	]
+	`
 
     ? @@NL( Department("SALES") )
+   #--> [ ] #TODO Is ist correct?
 
-    ViewByDepartment()
+    ViewDepartment(:Sales) #TODO // See why all nodes are white
 }
 
 pf()
-
-#-------------------#
-#  ANALYSIS LAYERS  #
-#-------------------#
-
-/*-- Tests adding and applying analysis layers of different types.
-
-pr()
-
-oOrg = new stzOrgChart("Analysis_Layers")
-oOrg {
-
-    AddPositionXT("ceo", "CEO")
-    AddPositionXT("vp", "VP")
-    ReportsTo("vp", "ceo")
-
-    # Add layers
-    oPerformance = AddAnalysisLayer("Performance", "performance")
-    oRisk = AddAnalysisLayer("Risk", "risk")
-    oCompliance = AddAnalysisLayer("Compliance", "compliance")
-    oSuccession = AddAnalysisLayer("Succession", "succession")
-
-    # Apply individually and all
-    ApplyLayer("Performance")
-    ApplyAllLayers()
-
-    # View after layers applied
-    View()
-
-    #TODO // But what is the impact of those layers and how to check it
-    # by data (calling methods) and in the visualisation?
-}
-
-pf()
+# Executed in 2.22 second(s) in Ring 1.24
 
 /*--- Highlighting path
 
@@ -290,7 +415,7 @@ oOrg {
     ReportsTo("dev1", "vp_eng")
     
     # Highlight just one path
-    HighlightPath("ops1", "ceo") #ERR no effect
+//    HighlightPath("ops1", "ceo") #ERR  Depricated after refacoring
     View()
 }
 
@@ -396,19 +521,19 @@ oOrg {
 	? "BCEAO BANKING GOVERNANCE VALIDATION"
 	? "-----------------------------------" + NL
 	
-	? @@NL( Validate(:BCEAO) ) + NL
+	? @@NL( ValidateXT(:BCEAO) ) + NL
 	
 	
 	? "SPAN OF CONTROL VALIDATION"
 	? "--------------------------" + NL
 	
-	? @@NL( Validate(:SpanOfControl) ) + NL
+	? @@NL( ValidateXT(:SpanOfControl) ) + NL
 	
 	
 	? "SEGREGATION OF DUTIES VALIDATION"
 	? "--------------------------------" + NL
 	
-	? @@NL( Validate(:SegregationOfDuties) ) + NL
+	? @@NL( ValidateXT(:SegregationOfDuties) ) + NL
 	
 	#----------------------------------#
 	#  VALIDATIORS - stzdiagram LEVEL  #
@@ -416,33 +541,38 @@ oOrg {
 
 	? "GDPR VALIDATION"
 	? "---------------"
-	
-	? Validate(:GDPR) + NL #--> TRUE
+#ERR Stack Overflow 
+# In method validatext() in file D:\GitHub\stzlib\libraries\stzlib\base\graph/stzdiagram.ring
+# Called from line 392 In method _validatesingle() in file D:\GitHub\stzlib\libraries\stzlib\base\graph/stzorgchart.ring
+# Called from line 1490 In method validatext() in file D:\GitHub\stzlib\libraries\stzlib\base\graph/stzdiagram.ring
+# Called from line 392 In method _validatesingle()
+
+	? ValidateXT(:GDPR) + NL #--> TRUE
 
 	? "SOX VALIDATION"
 	? "---------------"
 	
-	? @@NL( Validate(:SOX) ) + NL #--> TRUE
+	? @@NL( ValidateXT(:SOX) ) + NL #--> TRUE
 
 	? "BANKING VALIDATION"
 	? "------------------"
 	
-	? @@NL( Validate(:BANKING) ) + NL #--> TRUE
+	? @@NL( ValidateXT(:BANKING) ) + NL #--> TRUE
 
 	? "DAG VALIDATION"
 	? "--------------"
 	
-	? @@NL( Validate(:DAG) ) + NL #--> TRUE
+	? @@NL( ValidateXT(:DAG) ) + NL #--> TRUE
 
 	? "REACHABILITY VALIDATION"
 	? "-----------------------"
 	
-	? @@NL( Validate(:REACHABILITY) ) + NL #--> TRUE
+	? @@NL( ValidateXT(:REACHABILITY) ) + NL #--> TRUE
 
 	? "COMPLETENESS VALIDATION"
 	? "-----------------------"
 	
-	? @@NL( Validate(:COMPLETENESS) ) + NL #--> TRUE
+	? @@NL( ValidateXT(:COMPLETENESS) ) + NL #--> TRUE
 
 	#-----------#
 	#  REPROTS  #
@@ -635,6 +765,7 @@ oOrg {
 }
 
 pf()
+# Executed in 2.18 second(s) in Ring 1.24
 
 #--------------------------#
 # REPORTING AND ANALYTICS  #
@@ -857,7 +988,7 @@ oOrg {
 }
 
 pf()
-# Executed in 0.08 second(s) in Ring 1.24
+# Executed in 2.31 second(s) in Ring 1.24
 
 #-------------------------#
 # ORGANIZATIONAL CHANGES  #
@@ -917,9 +1048,34 @@ oOrg {
 '
     View()
 }
+#-->
+`
+[
+	[
+		[ "id", "pos2" ],
+		[ "title", "Position 2" ],
+		[ "level", 0 ],
+		[ "department", "" ],
+		[ "reportsto", "pos1" ],
+		[ "incumbent", "p1" ],
+		[ "isvacant", 0 ],
+		[ "attributes", [  ] ]
+	],
+	[
+		[ "id", "pos3" ],
+		[ "title", "Position 3" ],
+		[ "level", 0 ],
+		[ "department", "" ],
+		[ "reportsto", "pos2" ],
+		[ "incumbent", "" ],
+		[ "isvacant", 1 ],
+		[ "attributes", [  ] ]
+	]
+]
+`
 
 pf()
-# Executed in 1.59 second(s) in Ring 1.24
+# Executed in 2.27 second(s) in Ring 1.24
 
 #---------------------------#
 # SIMULATIONS AND SNAPSHOTS #
@@ -939,7 +1095,7 @@ oOrg {
     ReportsTo("vp2", "ceo")
 
     # Create snapshot
-    ? @@NL( CreateSnapshot("Initial") )
+    ? @@NL( CreateSnapshot("Initial") ) #ERR Depricated after refactoring (see stzGraphSimulation)
 	#-->
 	'
 	[
@@ -1062,18 +1218,18 @@ oOrg {
     ReportsTo("staff2", "vp2")
 
     # Set departments for coloring
-//    SetPositionDepartment("vp1", "sales")
- //   SetPositionDepartment("vp2", "engineering")
+    SetPositionDepartment("vp1", "sales")
+    SetPositionDepartment("vp2", "engineering")
 
-//    ColorByDepartment()
+    ColorByDepartment()
 
     # Highlight path
-//    HighlightPath("staff1", "ceo") #ERR // No effect!
+ //   HighlightPath("staff1", "ceo") #ERR Depricated after refactoring!
 
     # Different views
-    ViewPopulated()
-//   ViewVacant()
-//    ViewByDepartment() #ERR // the 3 View generate the same visual!
+    ViewPopulated() # Same visual
+    ViewVacant()     "Idem
+    ViewByDepartment() #ERR Undefined after refactoring!
 }
 
 pf()
@@ -1116,6 +1272,7 @@ oOrg {
 }
 
 pf()
+# Executed in 1.76 second(s) in Ring 1.24
 
 #-----------------------------#
 # EDGE CASE: SINGLE POSITION  #
@@ -1132,7 +1289,7 @@ oOrg {
 
     ? @@NL( Positions() ) + NL
 	#-->
-	'
+	`
 	[
 		[
 			[ "id", "ceo" ],
@@ -1150,7 +1307,7 @@ oOrg {
 			]
 		]
 	]
-	'
+	`
 
     ? DirectReportsCount("ceo")  #--> 0
 
@@ -1159,18 +1316,21 @@ oOrg {
     ? AverageSpanOfControl()  # 0
 
     ? @@NL( ValidateSpanOfControl() ) # pass
-	#--> '
+	#-->
+	`
 	[
 		[ "status", "pass" ],
 		[ "domain", "span_of_control" ],
 		[ "issues", [  ] ]
 	]
-	'
+	`
+
     View()
 
 }
 
 pf()
+# Executed in 1.99 second(s) in Ring 1.24
 
 #---------------------------------#
 # EDGE CASE: DUPLICATE POSITIONS  #
@@ -1217,6 +1377,7 @@ oOrg {
 }
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 #-------------------------------#
 # EDGE CASE: INVALID REPORTING  #
@@ -1249,6 +1410,7 @@ digraph "Invalid_Reporting" {
 '
 
 pf()
+# Executed in 2.10 second(s) in Ring 1.24
 
 #---------------------------------#
 #  EDGE CASE: CYCLE IN HIERARCHY  #
@@ -1272,8 +1434,26 @@ oOrg {
     ? Dot()  # Should render, but cycle present
     View()
 }
+#-->
+`
+digraph "Cycle_Hierarchy" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=1, ranksep=1, ordering=out]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#808080", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    a [label="A", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    b [label="B", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    c [label="C", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+
+    a -> b
+    b -> c
+    c -> a
+
+}
+`
 
 pf()
+# Executed in 2.07 second(s) in Ring 1.24
 
 #---------------------------------------#
 #  EDGE CASE: REMOVE ASSIGNED POSITION  #
@@ -1309,6 +1489,7 @@ oOrg {
 }
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 #---------------------------------#
 # EDGE CASE: INVALID ASSIGNMENTS  #
@@ -1339,7 +1520,8 @@ oOrg {
 	'
 
     ? @@NL( Position("pos") ) # ""
-	#--> '
+	#-->
+	'
 	[
 		[ "id", "pos" ],
 		[ "title", "Position" ],
@@ -1354,6 +1536,7 @@ oOrg {
 }
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 #----------------------------#
 # EDGE CASE: WIDE HIERARCHY  #
@@ -1397,6 +1580,7 @@ oOrg {
 }
 
 pf()
+# Executed in 0.10 second(s) in Ring 1.24
 
 #----------------------------#
 # EDGE CASE: DEEP HIERARCHY  #
@@ -1423,30 +1607,51 @@ oOrg {
     View()
 
 }
+#-->
+`
+digraph "Deep_Hierarchy" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=1, ranksep=1, ordering=out]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#808080", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-pf()
+    top [label="Top", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level1 [label="Level 1", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level2 [label="Level 2", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level3 [label="Level 3", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level4 [label="Level 4", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level5 [label="Level 5", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level6 [label="Level 6", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level7 [label="Level 7", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level8 [label="Level 8", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level9 [label="Level 9", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level10 [label="Level 10", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level11 [label="Level 11", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level12 [label="Level 12", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level13 [label="Level 13", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level14 [label="Level 14", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    level15 [label="Level 15", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
 
-#--------------------------------#
-# EDGE CASE: SPECIAL CHARACTERS  #
-#--------------------------------#
+    top -> level1
+    level1 -> level2
+    level2 -> level3
+    level3 -> level4
+    level4 -> level5
+    level5 -> level6
+    level6 -> level7
+    level7 -> level8
+    level8 -> level9
+    level9 -> level10
+    level10 -> level11
+    level11 -> level12
+    level12 -> level13
+    level13 -> level14
+    level14 -> level15
 
-/*-- Tests IDs and titles with special chars.
-
-pr()
-
-oOrg = new stzOrgChart("Special_Characters")
-oOrg {
-
-    AddPositionXT("pos-1@", 'Pos \"1 \n Newline')
-    AddPositionXT("pos2", "Pos 2")
-
-    ReportsTo("pos2", "pos-1@")
-
-    ? Dot()  # Check quoting in DOT
-    View() # Raises an error! #todo check ids before they are used!
 }
+`
 
 pf()
+# Executed in 2.15 second(s) in Ring 1.24
 
 #-----------------------------#
 # EDGE CASE: EMPTY DEPARTMENT #
@@ -1473,8 +1678,17 @@ oOrg {
 '
 
 }
-
+#-->
+`
+[
+	[ "id", "dept1" ],
+	[ "name", "Department 1" ],
+	[ "positions", [  ] ],
+	[ "head", "" ]
+]
+`
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 #------------------------------#
 # EDGE CASE: UNASSIGNED PEOPLE #
@@ -1512,30 +1726,30 @@ oOrg {
     ? VacancyRate()  #--> 0, no positions
 
 }
+#-->
+`
+[
+	[
+		[ "id", "p1" ],
+		[ "name", "Person 1" ],
+		[ "position", "" ],
+		[ "data", [  ] ]
+	],
+	[
+		[ "id", "p2" ],
+		[ "name", "Person 2" ],
+		[ "position", "" ],
+		[ "data", [  ] ]
+	]
+]
+`
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
-#--------------------------#
-# EDGE CASE: INVALID LAYER #
-#--------------------------#
-
-/*-- Tests unknown analysis layer type.
-
-pr()
-
-oOrg = new stzOrgChart("Invalid_Layer")
-oOrg {
-
-    AddAnalysisLayer("test", "unknown")
-    ApplyLayer("test")  # No effect
-    #TODO// How to checki it explicitely??
-}
-
-pf()
-
-#-------------------------------#
-# EDGE CASE: INVALID SIMULATION #
-#-------------------------------#
+#--------------------------------#
+# EDGE CASE: INVALID SIMULATION  #
+#--------------------------------#
 
 /*-- Tests simulation with unknown change type.
 
@@ -1545,7 +1759,7 @@ oOrg = new stzOrgChart("Invalid_Simulation")
 oOrg {
 
     aChanges = [ [:type = "unknown", :param = "x"] ]
-    ? @@NL( SimulateReorganization(aChanges) )
+    ? @@NL( SimulateReorganization(aChanges) ) # Depricated! see stzGraphSimulation
 	#-->
 	'
 	[
@@ -1583,14 +1797,14 @@ pf()
 # EDGE CASE: EMPTY SNAPSHOT #
 #---------------------------#
 
-/*-- Tests snapshot of empty chart.
+/*-- Tests snapshot of empty chart #ERR
 
 pr()
 
 oOrg = new stzOrgChart("Empty_Snapshot")
 oOrg {
 
-    ? @@NL( CreateSnapshot("empty_snap") )
+    ? @@NL( CreateSnapshot("empty_snap") ) #TODO// Moved to stzGraphSimulation!
 	#-->
 	'
 	[
@@ -1647,6 +1861,7 @@ oOrg {
 }
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 #--------------------------------------#
 #  PARENT FEATURES: STZGRAPH ANALYSIS  #
@@ -1705,12 +1920,25 @@ oOrg {
 }
 
 pf()
+# Executed in 0.05 second(s) in Ring 1.24
 
 #---------------------------------------------#
 #  PARENT FEATURES: STZDIAGRAM VISUALIZATION  #
 #---------------------------------------------#
 
 /*-- Tests diagram-specific features like shapes, clusters, validation.
+
+#ERR Infinite call!
+`
+ Stack Overflow 
+In method validatext() in file D:\GitHub\stzlib\libraries\stzlib\base\graph/stzdiagram.ring
+
+Called from line 392 In method _validatesingle() in file D:\GitHub\stzlib\libraries\stzlib\base\graph/stzorgchart.ring
+
+Called from line 1490 In method validatext() in file D:\GitHub\stzlib\libraries\stzlib\base\graph/stzdiagram.ring
+
+Called from line 392 In method _validatesingle()
+`
 
 pr()
 
@@ -1737,7 +1965,7 @@ oOrg {
     AddClusterXT(:group1, "Group 1", [ :process, :decision])
 
     # Validate diagram (from stzDiagram)
-    ? Validate(:DAG)  #--> TRUE
+    ? ValidateXT(:DAG)  #--> TRUE
 
     # Set visual rule
     oRule = new stzVisualRule(:HighlightStart)
@@ -1768,8 +1996,8 @@ pr()
 
 pf()
 
-/*--- Tests rule system from stzGraph.
-
+/*--- Tests rule system from stzGraph #TODO Chekc mismatch after refactoring rules from stzGraph to stzGraphRules
+*
 oOrg = new stzOrgChart("Graph_Rules")
 oOrg {
 
@@ -1783,14 +2011,14 @@ oOrg {
     # Add visual rule
     oRule = new stzGraphRule("high_value")
     oRule.SetRuleType("visual")
-    oRule.When("value", :IsGreaterThan = 15)
-    oRule.Apply("color", "red")
+    oRule.When("value", :IsGreaterThan, 15)
+    oRule.Apply("color", "red") # Chaanged after refactoring! see commented method in stzGraph
     SetRule(oRule)
 
     # Add validation rule
     oValRule = new stzGraphRule("low_value_check")
     oValRule.SetRuleType("validation")
-    oValRule.When("value", :IsLessThan = 10)
+    oValRule.When("value", :IsLessThan, 10)
     oValRule.AddViolation("Value too low")
     SetRule(oValRule)
 
@@ -1939,12 +2167,40 @@ oOrg {
     AssignPerson("p_haroune", "staff_it2")
 
 
- ? ToMermaid()
+    ? ToMermaid()
 }
+#-->
+`
+graph TD
+    ceo["CEO"]
+    hr_mgr["HR Manager"]
+    staff_hr1["Staff HR1"]
+    staff_hr2["Staff HR2"]
+    staff_hr3["Staff HR3"]
+    it_mgr["IT Manager"]
+    staff_it1["Staff IT1"]
+    staff_it2["Staff IT2"]
+    staff_it3["Staff IT3"]
+    vacant1["Vacant Position 1"]
+    vacant2["Vacant Position 2"]
+
+    ceo --> hr_mgr
+    hr_mgr --> staff_hr1
+    hr_mgr --> staff_hr2
+    hr_mgr --> staff_hr3
+    ceo --> it_mgr
+    it_mgr --> staff_it1
+    it_mgr --> staff_it2
+    it_mgr --> staff_it3
+    ceo --> vacant1
+    ceo --> vacant2
+`
+
+#NOTE Paste it in https://mermaid.live/
 
 pf()
 
-/*---
+/*--- TESTING VARIOUS VISUAL ANLYTICS #TODO Use it to illustrate documentation
 
 pr()
 
@@ -2047,6 +2303,18 @@ oOrg {
     ViewNodesWithTag("urgent")
 
 }
+#-->
+`
+[
+	"ceo",
+	"hr_mgr",
+	"staff_hr1",
+	"staff_hr3",
+	"it_mgr",
+	"staff_it1",
+	"staff_it2"
+]
+`
 
 pf()
 
@@ -2054,11 +2322,13 @@ pf()
 # EXAMPLE : Bank Organizational Structure  #
 #------------------------------------------#
 
+/*---
+
 pr()
 
 oBank = new stzOrgChart("Regional Bank Governance")
 oBank {
-	SetTheme("pro")
+	SetSplines("ortho")
 	SetTitleVisibility(TRUE)
 	
 	# Board level
@@ -2123,26 +2393,126 @@ oBank {
 	
 	# Validate BCEAO governance
 	? NL + "=== BCEAO COMPLIANCE CHECK ===" + NL
-	? @@NL( Validate(:BCEAO) ) + NL
+	? @@NL( ValidateXT(:BCEAO) ) + NL
 	
 	# Check segregation of duties
 	? NL + "=== SEGREGATION OF DUTIES CHECK ===" + NL
-	? @@NL( Validate(:SegregationOfDuties) ) + NL
+	? @@NL( ValidateXT(:SegregationOfDuties) ) + NL
 
 	# Generate vacancy report
 	? NL + "=== VACANCY REPORT ===" + NL
-	? @@NL( Validate(:Vacancy) )
+	? @@NL( ValidateXT(:Vacancy) )
 	
 	# View the chart
-	? NL + "=== GENERATING VISUALIZATION ===" + NL
 	View()
 }
+#-->
+`
+=== BANK ORGANIZATION ANALYSIS ===
 
+[
+	[ "type", "Organization Chart" ],
+	[
+		"structure",
+		"Organization 'Regional Bank Governance' has 10 positions, 5 people, and 0 departments."
+	],
+	[
+		"hierarchy",
+		[
+			"executive: 3 positions",
+			"management: 5 positions",
+			"staff: 2 positions",
+			"Average span of control: 1.80"
+		]
+	],
+	[
+		"staffing",
+		[
+			"Vacancy rate: 50%",
+			"Vacant positions: board, cro, it_head, treasury_analyst, ops_analyst"
+		]
+	],
+	[
+		"compliance",
+		[
+			"Found 1 compliance issues",
+			"BCEAO: BCEAO-002: Audit reports to non-board position"
+		]
+	],
+	[
+		"risks",
+		[
+			"Succession risk: 5 positions without successor",
+			"At-risk positions: ceo, cfo, cao, treasury_head, ops_head"
+		]
+	],
+	[
+		"efficiency",
+		[
+			"Span of control may be underutilized (< 3 reports average)",
+			"HIGH vacancy rate - may impact operations"
+		]
+	]
+]
+
+
+=== BCEAO COMPLIANCE CHECK ===
+
+[
+	[ "status", "fail" ],
+	[ "domain", "BCEAO_governance" ],
+	[ "issuecount", 1 ],
+	[
+		"issues",
+		[
+			"BCEAO-002: Audit reports to non-board position"
+		]
+	]
+]
+
+
+=== SEGREGATION OF DUTIES CHECK ===
+
+[
+	[ "status", "pass" ],
+	[ "domain", "segregation_of_duties" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ]
+]
+
+
+=== VACANCY REPORT ===
+
+[
+	[ "status", "fail" ],
+	[ "domain", "vacancy" ],
+	[ "issuecount", 5 ],
+	[
+		"issues",
+		[ "Vacant positions: 5" ]
+	],
+	[
+		"affectednodes",
+		[
+			"board",
+			"cro",
+			"it_head",
+			"treasury_analyst",
+			"ops_analyst"
+		]
+	]
+]
+`
+
+pf()
+# Executed in 2.12 second(s) in Ring 1.24
 
 #---------------------------------------------------------------
 # Example 4: Enhanced Validation - Defaults & XT Forms
 # Demonstrates: Banking vs BCEAO validator distinction
 #---------------------------------------------------------------
+
+/*---
 
 pr()
 
@@ -2290,7 +2660,7 @@ oBank {
 	ok
 }
 #-->
-'
+`
 ╭────────────────────╮
 │ DEFAULT VALIDATORS │
 ╰────────────────────╯
@@ -2550,7 +2920,7 @@ Scenario: Bank in BCEAO region needs both:
 
 Quick compliance check:
 ✓ Compliant with both Banking and BCEAO standards
-'
+`
 
 pf()
 # Executed in 0.10 second(s) in Ring 1.24
@@ -2575,10 +2945,99 @@ oBank {
     ? @@NL( Validate() )
     ? @@NL( ValidateXT(:bceao) )
 
-    View()
+    View() # Check why all nodes are white
 }
+#-->
+`
+0
+[
+	[ "status", "fail" ],
+	[ "validatorsrun", 5 ],
+	[ "validatorsfailed", 2 ],
+	[ "totalissues", 10 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "pass" ],
+				[ "domain", "BCEAO_governance" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "segregation_of_duties" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "span_of_control" ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "vacancy" ],
+				[ "issuecount", 4 ],
+				[
+					"issues",
+					[ "Vacant positions: 4" ]
+				],
+				[
+					"affectednodes",
+					[
+						"board",
+						"cro",
+						"cto",
+						"security_manager"
+					]
+				]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "succession" ],
+				[ "issuecount", 6 ],
+				[
+					"issues",
+					[
+						"No successor: ",
+						"ceo",
+						"No successor: ",
+						"cfo",
+						"No successor: ",
+						"treasury_head"
+					]
+				],
+				[
+					"affectednodes",
+					[ "ceo", "cfo", "treasury_head" ]
+				]
+			]
+		]
+	],
+	[
+		"affectednodes",
+		[
+			"board",
+			"cro",
+			"cto",
+			"security_manager",
+			"ceo",
+			"cfo",
+			"treasury_head"
+		]
+	]
+]
+[
+	[ "status", "pass" ],
+	[ "domain", "BCEAO_governance" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ]
+]
+`
 
 pf()
+# Executed in 2.27 second(s) in Ring 1.24
 
 /*====
 
@@ -2604,9 +3063,109 @@ oBank {
     aResults = oSim.Run()
     ? @@NL( aResults )
 }
+#-->
+`
+structure" ],
+	[ "description", "Move treasury under CFO" ],
+	[ "changecount", 2 ],
+	[
+		"before",
+		[
+			[
+				[ "metric", "span_of_control" ],
+				[ "position", "cfo" ],
+				[ "value", 1 ]
+			],
+			[
+				[ "metric", "compliance" ],
+				[
+					"value",
+					[
+						[ "status", "pass" ],
+						[ "validatorsrun", 2 ],
+						[ "validatorsfailed", 0 ],
+						[ "totalissues", 0 ],
+						[
+							"results",
+							[
+								[
+									[ "status", "pass" ],
+									[ "domain", "BCEAO_governance" ],
+									[ "issuecount", 0 ],
+									[ "issues", [  ] ]
+								],
+								[
+									[ "status", "pass" ],
+									[ "domain", "banking" ],
+									[ "issuecount", 0 ],
+									[ "issues", [  ] ],
+									[ "affectednodes", [  ] ]
+								]
+							]
+						],
+						[ "affectednodes", [  ] ]
+					]
+				]
+			]
+		]
+	],
+	[
+		"after",
+		[
+			[
+				[ "metric", "span_of_control" ],
+				[ "position", "cfo" ],
+				[ "value", 1 ]
+			],
+			[
+				[ "metric", "compliance" ],
+				[
+					"value",
+					[
+						[ "status", "pass" ],
+						[ "validatorsrun", 2 ],
+						[ "validatorsfailed", 0 ],
+						[ "totalissues", 0 ],
+						[
+							"results",
+							[
+								[
+									[ "status", "pass" ],
+									[ "domain", "BCEAO_governance" ],
+									[ "issuecount", 0 ],
+									[ "issues", [  ] ]
+								],
+								[
+									[ "status", "pass" ],
+									[ "domain", "banking" ],
+									[ "issuecount", 0 ],
+									[ "issues", [  ] ],
+									[ "affectednodes", [  ] ]
+								]
+							]
+						],
+						[ "affectednodes", [  ] ]
+					]
+				]
+			]
+		]
+	],
+	[
+		"deltas",
+		[
+			[
+				[ "metric", "span_of_control" ],
+				[ "before", 1 ],
+				[ "after", 1 ],
+				[ "delta", 0 ]
+			]
+		]
+	]
+]
+`
 
 pf()
-
+# Executed in 0.10 second(s) in Ring 1.24
 
 
 #==============================================#
@@ -2614,7 +3173,7 @@ pf()
 #==============================================#
 
 /*--- Example: Complete bank analysis workflow
-*/
+
 pr()
 
 oBank = new stzOrgChart("SOFTANKA")
@@ -2641,6 +3200,101 @@ oBank {
     # 6. Visualize
     View()  # Uses corporate_brand.stzstyl styling
 }
+#-->
+'
+Compliance Status:
+[
+	[ "status", "fail" ],
+	[ "validatorsrun", 5 ],
+	[ "validatorsfailed", 2 ],
+	[ "totalissues", 10 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "pass" ],
+				[ "domain", "BCEAO_governance" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "segregation_of_duties" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "span_of_control" ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "vacancy" ],
+				[ "issuecount", 4 ],
+				[
+					"issues",
+					[ "Vacant positions: 4" ]
+				],
+				[
+					"affectednodes",
+					[
+						"board",
+						"cro",
+						"cto",
+						"security_manager"
+					]
+				]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "succession" ],
+				[ "issuecount", 6 ],
+				[
+					"issues",
+					[
+						"No successor: ",
+						"ceo",
+						"No successor: ",
+						"cfo",
+						"No successor: ",
+						"treasury_head"
+					]
+				],
+				[
+					"affectednodes",
+					[ "ceo", "cfo", "treasury_head" ]
+				]
+			]
+		]
+	],
+	[
+		"affectednodes",
+		[
+			"board",
+			"cro",
+			"cto",
+			"security_manager",
+			"ceo",
+			"cfo",
+			"treasury_head"
+		]
+	]
+]
+
+Restructuring Simulation:
+[
+	[ "simulationid", "Treasury Restructure 2024" ],
+	[
+		"description",
+		'"Consolidate treasury operations under CFO with enhanced risk oversight"'
+	],
+	[ "changecount", 0 ],
+	[ "before", [  ] ],
+	[ "after", [  ] ],
+	[ "deltas", [  ] ]
+]
+'
 
 pf()
 
@@ -2651,27 +3305,29 @@ pf()
 oSystem = new stzDiagram("Enterprise_System")
 oSystem {
     # Import base network topology
-    ImportGraf("infrastructure.stzgraf")
+    ImportGraf("supply.stzgraf") # Check errror!
     
     # Overlay workflow semantics
-    ImportDiag("payment_flow.stzdiag")
+    ImportDiag("test_diagram.stzdiag")
     
     # Apply styling
-    LoadStyle("dark_mode.stzstyl")
+    //LoadStyle("dark_mode.stzstyl") #TODO create file
     
     # Load rules from multiple domains
-    LoadRuleBase("sox_compliance.stzrulz")
+    LoadRuleBase("bceao_compliance.stzrulz")
+    LoadRuleBase("sox_compliance.stzrulz") #TODO Add files before testing
     LoadRuleBase("gdpr_privacy.stzrulz")
     LoadRuleBase("custom_security.stzrulz")
     
     # Validate everything
-    aResult = ValidateXT([:sox, :gdpr, :security])
+? @@NL( ValidateXT(:sox) )
+//    ? @@NL( ValidateXT([:sox, :gdpr, :security]) )
     
-    if aResult[:status] = "fail"
-        ? "Found " + aResult[:issueCount] + " issues"
-        ViewNonCompliant(:sox)  # Visual inspection
-    ok
+ //   ViewNonCompliant(:sox)  # Visual inspection
+
 }
+
+pf()
 
 /*--- Example: Style Variants
 
@@ -2679,13 +3335,15 @@ oSystem {
 
 oOrg = new stzOrgChart("Bank")
 oOrg {
-    ImportOrg("structure.stzorg")
+    ImportOrg("bank_structure.stzorg")
     
     # Corporate presentation
-    LoadStyle("corporate.stzstyl")
-    View()
+    LoadStyle("banking_corporate.stzstyl")
+    View() #TODO //See why nodes are white!
+
+    #TODO Add these styles files before tresting
     
-    # Executive summary (minimal)
+ /*   # Executive summary (minimal)
     LoadStyle("minimal.stzstyl")
     View()
     
@@ -2696,39 +3354,46 @@ oOrg {
     # Accessibility (high contrast)
     LoadStyle("accessible.stzstyl")
     View()
+
 }
 
 /*--- Example: Scenario Comparison
+
+pr()
 
 # Compare multiple restructuring options
 
 oBank = new stzOrgChart("Strategic_Planning")
 oBank {
-    ImportOrg("current_structure.stzorg")
-    LoadRuleBase("governance.stzrulz")
+    ImportOrg("softabank.stzorg")
+    LoadRuleBase("bceao_complete.stzrulz")
     
-    # Run 3 scenarios
-    aScenario1 = RunSimulation("option_a.stzsim")
+    # Run 3 scenarios : #TODO Create the 3 files before running
+    aScenario1 = RunSimulation("option_b.stzsim")
     aScenario2 = RunSimulation("option_b.stzsim")
     aScenario3 = RunSimulation("option_c.stzsim")
     
+
     # Compare results
     ? "Scenario A compliance: " + aScenario1[:deltas][:compliance][:after][:status]
     ? "Scenario B compliance: " + aScenario2[:deltas][:compliance][:after][:status]
     ? "Scenario C compliance: " + aScenario3[:deltas][:compliance][:after][:status]
     
     # Choose best
-    if aScenario2[:deltas][:compliance][:after][:status] = "pass"
-        ? "Scenario B recommended - applying changes"
+    if aScenario1[:deltas][:compliance][:after][:status] = "pass"
+        ? "Scenario A recommended - applying changes"
         # Actually apply scenario B changes permanently
     ok
 }
+
+pf()
 
 #======================#
 #  Format Cheat Sheet  #
 #======================#
 
 /*
+#TODO Add the *.stzknow ffile format for stzKnowledgeGraph class
 ┌──────────────┬─────────────────────────────────────┬──────────────────┐
 │ Format       │ Purpose                             │ Typical Use      │
 ├──────────────┼─────────────────────────────────────┼──────────────────┤
@@ -2747,3 +3412,397 @@ All formats are:
   ✓ Domain-agnostic (except .stzorg)
   ✓ Tool-independent
 */
+
+
+#============================================#
+#  Complete Workflow + OrgChart Example      #
+#  Linking process performance to org       #
+#============================================#
+
+/*--
+
+pr()
+
+# Step 1: Build Organization
+oBank = new stzOrgChart("Regional_Bank")
+oBank {
+    SetTheme("pro")
+    
+    # Positions
+    AddManagementPositionXT("loan_manager", "Loan Manager")
+    AddStaffPositionXT("clerk_pos", "Loan Clerk")
+    AddStaffPositionXT("analyst_pos", "Credit Analyst")
+    
+    ReportsTo("clerk_pos", "loan_manager")
+    ReportsTo("analyst_pos", "loan_manager")
+    
+    # People
+    AddPersonXT("p_alice", "Alice Johnson")
+    AddPersonXT("p_bob", "Bob Smith")
+    AddPersonXT("p_carol", "Carol Davis")
+    
+    AssignPerson("p_alice", "clerk_pos")
+    AssignPerson("p_bob", "analyst_pos")
+    AssignPerson("p_carol", "loan_manager")
+}
+
+# Step 2: Build Workflow
+oLoanFlow = new stzWorkflow("Loan_Approval_Process")
+oLoanFlow {
+    SetWorkflowType("sequential")
+    SetTheme("pro")
+    
+    # Define steps
+    AddStepXT("receive", "Receive Application")
+    SetStepDuration("receive", 1)
+    
+    AddStepXT("verify", "Verify Documents")
+    SetStepDuration("verify", 4)
+    SetStepSLA("verify", 6)
+    
+    AddStepXT("credit_check", "Credit Check")
+    SetStepDuration("credit_check", 2)
+    SetStepSLA("credit_check", 3)
+    
+    AddStepXT("decide", "Approval Decision")
+    SetStepDuration("decide", 1)
+    
+    AddStepXT("approve", "Approve Loan")
+    SetStepDuration("approve", 1)
+    
+    # Connect flow
+    ConnectSteps("receive", "verify")
+    ConnectSteps("verify", "credit_check")
+    ConnectSteps("credit_check", "decide")
+    ConnectSteps("decide", "approve")
+    
+    # Define actors
+    AddActor("clerk_1", "Alice Johnson", "clerk")
+    AddActor("analyst_1", "Bob Smith", "analyst")
+    AddActor("manager_1", "Carol Davis", "manager")
+    
+    # Assign steps to actors
+    AssignStepTo("receive", "clerk_1")
+    AssignStepTo("verify", "clerk_1")
+    AssignStepTo("credit_check", "analyst_1")
+    AssignStepTo("decide", "manager_1")
+    AssignStepTo("approve", "manager_1")
+    
+    # Link to org chart
+    LinkOrgChart(oBank)
+    MapRoleToPosition("clerk", "clerk_pos")
+    MapRoleToPosition("analyst", "analyst_pos")
+    MapRoleToPosition("manager", "loan_manager")
+}
+
+#  ANALYSIS 1: Performance Validation
+#====================================
+
+? BoxRound("WORKFLOW PERFORMANCE ANALYSIS")
+
+# Check SLA compliance
+? "SLA Status:"
+aSLA = oLoanFlow.ValidateSLA()
+? @@NL( aSLA )
+
+if aSLA[:status] = "fail"
+    ? NL + "Violations found:"
+    for cIssue in aSLA[:issues]
+        ? "  • " + cIssue
+    end
+    
+    # Visual inspection
+    oLoanFlow.ViewSLAViolations()
+ok
+
+# Identify bottlenecks
+? NL + "Bottleneck Analysis:"
+aBottlenecks = oLoanFlow.Bottlenecks()
+? @@NL( aBottlenecks )
+
+if len(aBottlenecks) > 0
+    oLoanFlow.ViewBottlenecks()
+ok
+
+# Critical path
+? NL + "Critical Path:"
+aCritical = oLoanFlow.CriticalPath()
+? "  Duration: " + aCritical[:duration] + " hours"
+? "  Path: " + @@( aCritical[:path] )
+
+oLoanFlow.ViewCriticalPath()
+
+#  ANALYSIS 2: Org-Workflow Linking 
+#================================== 
+
+? NL + BoxRound("ORG CHART ↔ WORKFLOW LINKING")
+
+# Workload by position
+aWorkload = oLoanFlow.WorkloadByPosition()
+? "Workload Distribution:"
+for aLoad in aWorkload
+    ? "  " + aLoad[:position] + ":"
+    ? "    Steps: " + aLoad[:stepCount]
+    ? "    Total hours: " + aLoad[:totalDuration]
+end
+
+# Find overloaded positions
+? NL + "Overload Detection:"
+for aLoad in aWorkload
+    if aLoad[:stepCount] > 3
+        ? "  ⚠ " + aLoad[:position] + " handles " + aLoad[:stepCount] + " steps"
+        
+        # Get person in that position
+        aPos = oBank.Position(aLoad[:position])
+        if aPos[:incumbent] != ""
+            aPerson = oBank.PersonData(aPos[:incumbent])
+            ? "    Assigned to: " + aPerson[:name]
+        ok
+    ok
+end
+
+#  ANALYSIS 3: Cross-Domain Rules 
+#================================
+
+? NL + BoxRound("CROSS-DOMAIN VALIDATION")
+
+# Load workflow rules
+oLoanFlow.LoadRuleBase(new stzBPMRuleBase())
+oLoanFlow.LoadRuleBase(new stzSLARuleBase())
+
+# Validate
+? @@NL( oLoanFlow.Validate() )
+
+#  SIMULATION: Process Optimization
+#==================================
+
+? NL + BoxRound("SIMULATION: OPTIMIZE VERIFY STEP")
+
+oSim = new stzWorkflowSimulation("optimize_verify")
+oSim {
+    SetGraph(oLoanFlow)
+    SetDescription("Reduce verify step from 4h to 2h via automation")
+    
+    # Change
+    OptimizeStep("verify", 2)
+    
+    # Track metrics
+    TrackMetric("total_duration", [])
+    TrackMetric("critical_path", [])
+    TrackMetric("sla_violations", [])
+}
+
+? "Simulation Results:"
+? @@NL( oSim.Run() )
+
+#  VISUAL COMPARISON
+#===================
+
+? NL + BoxRound("VISUAL ANALYSIS")
+
+oLoanFlow.ViewByRole("clerk") 	#TODO// Check why focus coloor is not displayed!
+oLoanFlow.ViewByRole("analyst")
+oLoanFlow.ViewByRole("manager")
+
+# Org chart with workflow overlay
+? NL + "Organization with process workload:"
+oBank {
+    # Highlight positions involved in critical path
+    acCriticalPositions = []
+    for cStepId in aCritical[:path]
+        cPos = oLoanFlow.GetPositionForStep(cStepId)
+        if cPos != "" and ring_find(acCriticalPositions, cPos) = 0
+            acCriticalPositions + cPos
+        ok
+    end
+    
+    ApplyFocusTo(acCriticalPositions)
+    SetSubtitle("Positions on Critical Path")
+    View()
+}
+
+#  EXPORT FOR DOCUMENTATION
+#==========================
+
+? NL + BoxRound("EXPORT & DOCUMENTATION")
+
+# Export workflow
+oLoanFlow.WriteToFile("loan_process.stzflow")
+? "Workflow exported to loan_process.stzflow"
+
+# Export org chart
+oBank.WriteToStzOrgFile("bank_structure.stzorg")
+? "Org chart exported to bank_structure.stzorg"
+
+# Generate reports
+? NL + "Performance Report:"
+? "  Total process time: " + oLoanFlow.TotalDuration() + "h"
+? "  Critical path: " + aCritical[:duration] + "h"
+? "  SLA violations: " + len(oLoanFlow.SLAViolations())
+? "  Bottlenecks: " + len(oLoanFlow.Bottlenecks())
+? "  Positions involved: " + len(aWorkload)
+
+#  ADVANCED: State Machine Workflow
+#==================================
+
+? NL + BoxRound("STATE MACHINE EXAMPLE")
+
+oStateMachine = new stzWorkflow("Order_Lifecycle")
+oStateMachine {
+    SetWorkflowType("statemachine")
+    
+    # States
+    AddStateXTT("draft", "Draft", [:isInitial = TRUE])
+    AddState("submitted")
+    AddState("approved")
+    AddState("rejected")
+    AddState("processing")
+    AddState("shipped")
+    AddStateXTT("delivered", "Delivered", [:isFinal = TRUE])
+    AddStateXTT("cancelled", "Cancelled", [:isFinal = TRUE])
+    
+    # Transitions
+    AddTransition("draft", "submitted", "submit")
+    AddTransitionXT("submitted", "approved", "approve", "amount < 1000")
+    AddTransitionXT("submitted", "rejected", "reject", "invalid")
+    AddTransition("approved", "processing", "start_processing")
+    AddTransition("processing", "shipped", "ship")
+    AddTransition("shipped", "delivered", "confirm_delivery")
+    AddTransition("draft", "cancelled", "cancel")
+    AddTransition("submitted", "cancelled", "cancel")
+    
+    # Validate
+    aValidation = ValidateXT(:Reachability)
+    ? "State machine reachability: " + aValidation[:status]
+    
+    View()
+}
+
+pf()
+
+#-->
+`
+╭───────────────────────────────╮
+│ WORKFLOW PERFORMANCE ANALYSIS │
+╰───────────────────────────────╯
+SLA Status:
+[
+	[ "status", "pass" ],
+	[ "domain", "sla" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ],
+	[ "affectednodes", [  ] ]
+]
+
+Bottleneck Analysis:
+[ ]
+
+Critical Path:
+  Duration: 9 hours
+  Path: [ "receive", "verify", "credit_check", "decide", "approve" ]
+
+╭──────────────────────────────╮
+│ ORG CHART ↔ WORKFLOW LINKING │
+╰──────────────────────────────╯
+Workload Distribution:
+  clerk_pos:
+    Steps: 2
+    Total hours: 5
+  analyst_pos:
+    Steps: 1
+    Total hours: 2
+  loan_manager:
+    Steps: 2
+    Total hours: 2
+
+Overload Detection:
+
+╭─────────────────────────╮
+│ CROSS-DOMAIN VALIDATION │
+╰─────────────────────────╯
+[
+	[ "status", "pass" ],
+	[ "validatorsrun", 5 ],
+	[ "validatorsfailed", 0 ],
+	[ "totalissues", 0 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "pass" ],
+				[ "domain", "deadlock" ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "reachability" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "completeness" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "sla" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "bottleneck" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
+			]
+		]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+╭──────────────────────────────────╮
+│ SIMULATION: OPTIMIZE VERIFY STEP │
+╰──────────────────────────────────╯
+Simulation Results:
+[
+	[ "simulationid", "optimize_verify" ],
+	[
+		"description",
+		"Reduce verify step from 4h to 2h via automation"
+	],
+	[ "changecount", 1 ],
+	[ "before", [  ] ],
+	[ "after", [  ] ],
+	[ "deltas", [  ] ]
+]
+
+╭─────────────────╮
+│ VISUAL ANALYSIS │
+╰─────────────────╯
+
+Organization with process workload:
+
+╭────────────────────────╮
+│ EXPORT & DOCUMENTATION │
+╰────────────────────────╯
+Workflow exported to loan_process.stzflow
+Org chart exported to bank_structure.stzorg
+
+Performance Report:
+  Total process time: 9h
+  Critical path: 9h
+  SLA violations: 0
+  Bottlenecks: 0
+  Positions involved: 3
+
+╭───────────────────────╮
+│ STATE MACHINE EXAMPLE │
+╰───────────────────────╯
+State machine reachability: pass
+`

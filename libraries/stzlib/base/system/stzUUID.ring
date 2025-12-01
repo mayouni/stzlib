@@ -3,7 +3,9 @@ stzUUID - Multiplatform UUID Generation Class for Softanza Library
 Provides robust UUID generation using the C++ Uiid extension by Youssef Saeed
 */
 
-load "uuid.ring"
+load "uuid.ring" # The C++ uuid extension should be isntalled
+# Link: https://github.com/ysdragon/uuid
+
 
 #TODO Study the additon of ULID, KSUID, and SnowFlakeID
 

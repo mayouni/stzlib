@@ -1572,7 +1572,7 @@ class stzGraph
 	            return @oRuleEngine.CheckConstraints()
 	        ok
 	        return [ :status = "pass" ]
-/*
+
 	def AddConstraint(pcConstraintType)
 		if NOT HasKey(@aProperties, pcConstraintType)
 			@aProperties = []
@@ -1696,7 +1696,7 @@ class stzGraph
 		end
 		
 		return acViolations
-*/
+
 	#---------------------#
 	#  RULE ENGINE MGMT   #
 	#---------------------#
@@ -2202,7 +2202,7 @@ class stzGraph
 	            return @oRuleEngine.ApplyInference()
 	        ok
 	        return 0
-/*
+
 	def AddInferenceRule(pcRuleType)
 		if NOT HasKey(@aProperties, pcRuleType)
 			@aProperties = []
@@ -2334,7 +2334,7 @@ class stzGraph
 		end
 		
 		return acInferred
-*/
+
 	#--------------#
 	#  VALIDATION  #
 	#--------------#
@@ -2378,7 +2378,6 @@ class stzGraph
 	        aResult = This.ValidateXT(pValidator)
 	        return aResult[:status] = "pass"
 
-/*
 	def _ValidateSingle(pcValidator)
 		switch lower(pcValidator)
 		on "dag"
@@ -2472,7 +2471,7 @@ class stzGraph
 			:issues = aIssues,
 			:affectedNodes = acAffected
 		]
-*/
+
 	#--------------------#
 	#  5. RICH QUERYING  #
 	#--------------------#

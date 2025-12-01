@@ -1143,7 +1143,7 @@ class stzOrgChart from stzDiagram
 		
 		acVacant = This.VacantPositions()
 		if len(acVacant) > 0
-			aExplanation[:staffing] + ("Vacant positions: " + join(acVacant, ", "))
+			aExplanation[:staffing] + ("Vacant positions: " + JoinXT(acVacant, ", "))
 		else
 			aExplanation[:staffing] + "All positions filled"
 		ok
@@ -1152,7 +1152,7 @@ class stzOrgChart from stzDiagram
 		acRisk = This.SuccessionRisk()
 		if len(acRisk) > 0
 			aExplanation[:risks] + ("Succession risk: " + len(acRisk) + " positions without successor")
-			aExplanation[:risks] + ("At-risk positions: " + join(acRisk, ", "))
+			aExplanation[:risks] + ("At-risk positions: " + JoinXT(acRisk, ", "))
 		else
 			aExplanation[:risks] + "No succession risks identified"
 		ok
@@ -1178,13 +1178,13 @@ class stzOrgChart from stzDiagram
 		else
 			aExplanation[:compliance] + ("Found " + nIssues + " compliance issues")
 			if aBCEAO[:status] = "fail"
-				aExplanation[:compliance] + ("BCEAO: " + join(aBCEAO[:issues], "; "))
+				aExplanation[:compliance] + ("BCEAO: " + joinXT(aBCEAO[:issues], "; "))
 			ok
 			if aSOC[:status] = "fail"
-				aExplanation[:compliance] + ("Span of Control: " + join(aSOC[:issues], "; "))
+				aExplanation[:compliance] + ("Span of Control: " + joinXT(aSOC[:issues], "; "))
 			ok
 			if aSOD[:status] = "fail"
-				aExplanation[:compliance] + ("Segregation of Duties: " + join(aSOD[:issues], "; "))
+				aExplanation[:compliance] + ("Segregation of Duties: " + joinXT(aSOD[:issues], "; "))
 			ok
 		ok
 		
@@ -1411,11 +1411,15 @@ class stzOrgChart from stzDiagram
 		def LoadOrg(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
+		def ImportOrg(pcFileName)
+			This.ImportFromStzOrgFile(pcFileName)
+
 		def LoadOrgChart(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
 		def LoadStzOrgFile(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
+
 
 #=====================================================
 #  stzOrgChartBCEAOValidator
