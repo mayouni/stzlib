@@ -296,6 +296,9 @@ class stzSimulationBase
 #============================================#
 
 class stzSimulationParser
+
+	def init()
+
 	def ParseFile(pcFilename)
 		cContent = read(pcFilename)
 		return This.Parse(cContent)

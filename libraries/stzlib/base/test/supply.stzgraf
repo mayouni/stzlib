@@ -1,0 +1,22 @@
+graph "Supply_Chain_Network"
+    type: directed
+    
+nodes
+    warehouse_a
+    warehouse_b
+    factory_1
+    factory_2
+    
+edges
+    warehouse_a -> factory_1
+    warehouse_a -> factory_2
+    warehouse_b -> factory_1
+    
+properties
+    warehouse_a
+        capacity: 10000
+        location: "North"
+    
+    factory_1
+        output: 5000
+        status: "active"

@@ -480,15 +480,15 @@ pf()
 
 
 /*--- Validation Rule
-*/
+
 pr()
 
 oGraph = new stzGraph("ValidationTest")
 
 oRule = new stzGraphRule(:RequireApproval)
 oRule {
-	When(:IsApproved, :Equals = FALSE)
-	SetInvalid()
+	When(:IsApproved, :Equals, FALSE)
+	Setvalid()
 	AddAnomaly("Requires approval")
 
 	? @@(Anomalies())
@@ -1634,7 +1634,7 @@ pf()
 #============================#
 
 /*--- Real-world network analysis
-*/
+
 pr()
 
 oGraph = new stzGraph("SocialNetwork")
@@ -1711,3 +1711,245 @@ oGraph {
 }
 
 pf()
+
+
+#============================================#
+#  Complete Format Suite Examples            #
+#  All 6 formats working together            #
+#============================================#
+
+#--------------------------#
+#  Example 1: supply_chain.stzgraf
+#--------------------------#
+
+/*
+graph "Global_Supply_Chain"
+    type: directed
+
+nodes
+    warehouse_ny
+    warehouse_la
+    factory_cn
+    factory_mx
+    distributor_eu
+
+edges
+    factory_cn -> warehouse_ny
+    factory_cn -> warehouse_la
+    factory_mx -> warehouse_la
+    warehouse_ny -> distributor_eu
+    warehouse_la -> distributor_eu
+
+properties
+    warehouse_ny
+        capacity: 50000
+        location: "New York"
+        status: "active"
+    
+    factory_cn
+        output: 100000
+        location: "Shenzhen"
+        cost_per_unit: 2.5
+    
+    distributor_eu
+        coverage: "Europe"
+        demand: 75000
+*/
+
+#--------------------------#
+#  Example 2: payment_flow.stzdiag
+#--------------------------#
+
+/*
+diagram "Payment_Processing"
+
+metadata
+    theme: pro
+    layout: topdown
+
+nodes
+    receive
+        label: "Receive Payment"
+        type: start
+        color: green
+    
+    validate
+        label: "Validate Amount"
+        type: process
+        color: blue
+    
+    fraud_check
+        label: "Fraud Detection"
+        type: process
+        color: blue
+    
+    approve
+        label: "Manager Approval"
+        type: decision
+        color: yellow
+    
+    process_payment
+        label: "Process Payment"
+        type: process
+        color: blue
+    
+    complete
+        label: "Complete"
+        type: endpoint
+        color: coral
+
+edges
+    receive -> validate
+    validate -> fraud_check
+    fraud_check -> approve
+    approve -> process_payment
+    process_payment -> complete
+*/
+
+#--------------------------#
+#  Example 3: bank_structure.stzorg
+#--------------------------#
+
+/*
+orgchart "Regional_Bank"
+
+metadata
+    theme: pro
+    layout: topdown
+
+positions
+    board
+        title: "Board of Directors"
+        level: executive
+        department: board
+    
+    ceo
+        title: "CEO"
+        level: executive
+        reportsTo: board
+    
+    cfo
+        title: "CFO"
+        level: management
+        department: finance
+        reportsTo: ceo
+
+people
+    p_alice
+        name: "Alice Chen"
+    
+    p_bob
+        name: "Bob Kumar"
+
+assignments
+    p_alice -> ceo
+    p_bob -> cfo
+*/
+
+#--------------------------#
+#  Example 4: banking_compliance.stzrulz
+#--------------------------#
+
+/*
+ruleset "Banking Compliance Rules"
+    domain: banking
+    version: 1.0
+    author: Compliance Team
+
+rules
+
+    rule fraud_before_payment
+        type: validation
+        level: diagram
+        severity: error
+        
+        when
+            operation equals "payment"
+        then
+            fraud_check required TRUE
+        message
+            "Payment must have fraud detection"
+    
+    rule ops_treasury_separation
+        type: validation
+        level: orgchart
+        severity: error
+        
+        when
+            department equals "operations"
+            path exists to="treasury"
+        then
+            violation add "SOD violation: Ops under Treasury"
+*/
+
+#--------------------------#
+#  Example 5: restructure.stzsim
+#--------------------------#
+
+/*
+simulation "Treasury_Restructure"
+    description: "Move treasury under CFO"
+    author: Strategy Team
+    date: 2024-01-15
+
+changes
+
+    move treasury_head
+        from: ceo
+        to: cfo
+    
+    add position risk_officer
+        title: "Risk Officer"
+        level: staff
+        reportsTo: treasury_head
+
+metrics
+
+    track span_of_control
+        for: cfo
+        for: ceo
+    
+    track compliance
+        validators: [bceao, banking]
+
+compare
+
+    before_after: span_of_control
+    delta: compliance.issueCount
+*/
+
+#--------------------------#
+#  Example 6: corporate_brand.stzstyl
+#--------------------------#
+
+/*
+style "Corporate_Banking_Theme"
+    theme: pro
+    layout: topdown
+
+colors
+    executive: gold
+    management: blue+
+    staff: green-
+    focus: magenta+
+
+fonts
+    default: helvetica
+    size: 12
+
+edges
+    style: solid
+    color: gray
+    spline: ortho
+    penwidth: 1
+
+nodes
+    penwidth: 2
+    penstyle: rounded,filled
+    strokecolor: gray
+
+focus
+    color: magenta+
+    penwidth: 3
+*/
+

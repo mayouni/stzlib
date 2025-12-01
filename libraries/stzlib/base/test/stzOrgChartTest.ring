@@ -2581,7 +2581,7 @@ oBank {
 pf()
 
 /*====
-*/
+
 pr()
 
 # Example 1: Programmatic simulation
@@ -2606,3 +2606,144 @@ oBank {
 }
 
 pf()
+
+
+
+#==============================================#
+#  USAGE OF All GRAPH Files Formats Together   #
+#==============================================#
+
+/*--- Example: Complete bank analysis workflow
+*/
+pr()
+
+oBank = new stzOrgChart("SOFTANKA")
+oBank {
+    # 1. Load structure
+    LoadOrgChart("softabank.stzorg")
+    
+    # 2. Load visual theme
+    LoadStyle("banking_corporate.stzstyl")
+    
+    # 3. Load compliance rules
+    LoadRuleBase("bceao_complete.stzrulz")
+ //   LoadRuleBase("bceao_governance.stzrulz")
+    
+    # 4. Validate
+    ? "Compliance Status:"
+    ? @@NL( Validate() )
+    
+    # 5. Run simulation
+    ? NL + "Restructuring Simulation:"
+    aResult = RunSimulation("restructure.stzsim")
+    ? @@NL( aResult )
+    
+    # 6. Visualize
+    View()  # Uses corporate_brand.stzstyl styling
+}
+
+pf()
+
+/*--- Example: Multi-Source Graph
+
+# Combine pure graph + workflow + rules
+
+oSystem = new stzDiagram("Enterprise_System")
+oSystem {
+    # Import base network topology
+    ImportGraf("infrastructure.stzgraf")
+    
+    # Overlay workflow semantics
+    ImportDiag("payment_flow.stzdiag")
+    
+    # Apply styling
+    LoadStyle("dark_mode.stzstyl")
+    
+    # Load rules from multiple domains
+    LoadRuleBase("sox_compliance.stzrulz")
+    LoadRuleBase("gdpr_privacy.stzrulz")
+    LoadRuleBase("custom_security.stzrulz")
+    
+    # Validate everything
+    aResult = ValidateXT([:sox, :gdpr, :security])
+    
+    if aResult[:status] = "fail"
+        ? "Found " + aResult[:issueCount] + " issues"
+        ViewNonCompliant(:sox)  # Visual inspection
+    ok
+}
+
+/*--- Example: Style Variants
+
+# Same structure, multiple presentations
+
+oOrg = new stzOrgChart("Bank")
+oOrg {
+    ImportOrg("structure.stzorg")
+    
+    # Corporate presentation
+    LoadStyle("corporate.stzstyl")
+    View()
+    
+    # Executive summary (minimal)
+    LoadStyle("minimal.stzstyl")
+    View()
+    
+    # Print version (grayscale)
+    LoadStyle("print.stzstyl")
+    View()
+    
+    # Accessibility (high contrast)
+    LoadStyle("accessible.stzstyl")
+    View()
+}
+
+/*--- Example: Scenario Comparison
+
+# Compare multiple restructuring options
+
+oBank = new stzOrgChart("Strategic_Planning")
+oBank {
+    ImportOrg("current_structure.stzorg")
+    LoadRuleBase("governance.stzrulz")
+    
+    # Run 3 scenarios
+    aScenario1 = RunSimulation("option_a.stzsim")
+    aScenario2 = RunSimulation("option_b.stzsim")
+    aScenario3 = RunSimulation("option_c.stzsim")
+    
+    # Compare results
+    ? "Scenario A compliance: " + aScenario1[:deltas][:compliance][:after][:status]
+    ? "Scenario B compliance: " + aScenario2[:deltas][:compliance][:after][:status]
+    ? "Scenario C compliance: " + aScenario3[:deltas][:compliance][:after][:status]
+    
+    # Choose best
+    if aScenario2[:deltas][:compliance][:after][:status] = "pass"
+        ? "Scenario B recommended - applying changes"
+        # Actually apply scenario B changes permanently
+    ok
+}
+
+#======================#
+#  Format Cheat Sheet  #
+#======================#
+
+/*
+┌──────────────┬─────────────────────────────────────┬──────────────────┐
+│ Format       │ Purpose                             │ Typical Use      │
+├──────────────┼─────────────────────────────────────┼──────────────────┤
+│ .stzgraf     │ Pure graph structure                │ Networks, DAGs   │
+│ .stzdiag     │ Workflow/process diagrams           │ Business flows   │
+│ .stzorg      │ Organizational charts               │ Company structure│
+│ .stzrulz     │ Validation/inference rules          │ Compliance       │
+│ .stzsim      │ What-if scenarios                   │ Restructuring    │
+│ .stzstyl     │ Visual themes                       │ Branding         │
+└──────────────┴─────────────────────────────────────┴──────────────────┘
+
+All formats are:
+  ✓ Human-readable text
+  ✓ Version-controllable
+  ✓ Composable
+  ✓ Domain-agnostic (except .stzorg)
+  ✓ Tool-independent
+*/

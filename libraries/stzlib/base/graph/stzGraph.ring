@@ -3353,9 +3353,9 @@ class stzGraph
 		oViz = new stzGraphExplainer(This)
 		return oViz.Explain()
 
-	#------------------------------------------
-	#  GRAPH ALGORITHMS
-	#------------------------------------------
+	#--------------------#
+	#  GRAPH ALGORITHMS  #
+	#--------------------#
 
 	def ShortestPath(pcFrom, pcTo)
 	    if CheckParams()
@@ -3688,6 +3688,88 @@ class stzGraph
 		
 		_nPossible_ = (_nNeighborCount_ * (_nNeighborCount_ - 1)) / 2
 		return _nConnections_ / _nPossible_
+
+
+
+	#-----------------------#
+	#  STZGRAF FILE FORMAT  #
+	#-----------------------#
+
+	def ImportGraf(pSource)
+		if isString(pSource)
+			if right(pSource, 8) = ".stzgraf"
+				oParser = new stzGrafParser()
+				oLoaded = oParser.ParseFile(pSource)
+			else
+				oParser = new stzGrafParser()
+				oLoaded = oParser.Parse(pSource)
+			ok
+			
+			# Merge into this graph
+			This._MergeGraph(oLoaded)
+		ok
+	
+		def LoadGraf(pSource)
+			This.ImportGraf(pSource)
+
+	def _MergeGraph(oOther)
+		# Add all nodes
+		aNodes = oOther.Nodes()
+		for aNode in aNodes
+			This.AddNodeXTT(aNode["id"], aNode["label"], aNode["properties"])
+		end
+		
+		# Add all edges
+		aEdges = oOther.Edges()
+		for aEdge in aEdges
+			This.AddEdgeXTT(aEdge["from"], aEdge["to"], aEdge["label"], aEdge["properties"])
+		end
+	
+	def ExportToGraf()
+		cGraf = 'graph "' + @cId + '"' + NL
+		cGraf += '    type: directed' + NL + NL
+		
+		cGraf += 'nodes' + NL
+		for aNode in @aNodes
+			cGraf += '    ' + aNode["id"] + NL
+		end
+		cGraf += NL
+		
+		cGraf += 'edges' + NL
+		for aEdge in @acEdges
+			cGraf += '    ' + aEdge["from"] + ' -> ' + aEdge["to"] + NL
+		end
+		cGraf += NL
+		
+		# Properties
+		cGraf += 'properties' + NL
+		for aNode in @aNodes
+			if len(aNode["properties"]) > 0
+				cGraf += '    ' + aNode["id"] + NL
+				acKeys = keys(aNode["properties"])
+				for cKey in acKeys
+					pValue = aNode["properties"][cKey]
+					cGraf += '        ' + cKey + ': '
+					if isString(pValue)
+						cGraf += '"' + pValue + '"'
+					else
+						cGraf += pValue
+					ok
+					cGraf += NL
+				end
+			ok
+		end
+		
+		return cGraf
+	
+	def WriteToGrafFile(pcFilename)
+		if right(pcFileName, 8) != ".stzgraf"
+			pcFileName += ".stzgraf"
+		ok
+		write(pcFilename, This.ExportToGraf())
+
+		def WriteGraf(pcFileName)
+			This.WriteToGrafFile(pcFilename)
 
 
 class stzGraphAnalyzer
@@ -4352,6 +4434,116 @@ class stzGraphAsciiVisualizer
 		ok
 		
 		return aoLegend
+
+#============================================#
+#  stzGrafParser - *.stzgraf Format Parser   #
+#  Pure graph structure (no domain semantics)#
+#============================================#
+
+class stzGrafParser
+	
+	def init()
+
+	def ParseFile(pcFilename)
+		cContent = read(pcFilename)
+		return This.Parse(cContent)
+	
+	def Parse(pcContent)
+		oGraph = NULL
+		acLines = split(pcContent, NL)
+		cSection = ""
+		cCurrentNode = ""
+		aCurrentProps = []
+		
+		for cLine in acLines
+			cLine = trim(cLine)
+			
+			if cLine = "" or left(cLine, 1) = "#"
+				loop
+			ok
+			
+			# Graph header
+			if substr(cLine, "graph ")
+				cId = This._ExtractQuoted(cLine)
+				oGraph = new stzGraph(cId)
+				
+			but substr(cLine, "type:")
+				# directed, undirected (ignore for now, assume directed)
+			
+			# Sections
+			but cLine = "nodes"
+				cSection = "nodes"
+				
+			but cLine = "edges"
+				cSection = "edges"
+				
+			but cLine = "properties"
+				cSection = "properties"
+			
+			# Parse nodes (just IDs)
+			but cSection = "nodes" and NOT substr(cLine, ":")
+				oGraph.AddNode(cLine)
+			
+			# Parse edges
+			but cSection = "edges" and substr(cLine, "->")
+				aParts = split(cLine, "->")
+				cFrom = trim(aParts[1])
+				cTo = trim(aParts[2])
+				oGraph.Connect(cFrom, cTo)
+			
+			# Parse properties
+			but cSection = "properties"
+				if NOT substr(cLine, ":")
+					# Node ID
+					if cCurrentNode != "" and len(aCurrentProps) > 0
+						This._ApplyProperties(oGraph, cCurrentNode, aCurrentProps)
+					ok
+					cCurrentNode = cLine
+					aCurrentProps = []
+				else
+					# Property: value
+					aParts = split(cLine, ":")
+					cKey = trim(aParts[1])
+					cValue = trim(aParts[2])
+					aCurrentProps + [cKey, This._ParseValue(cValue)]
+				ok
+			ok
+		end
+		
+		# Apply last node's properties
+		if cCurrentNode != "" and len(aCurrentProps) > 0
+			This._ApplyProperties(oGraph, cCurrentNode, aCurrentProps)
+		ok
+		
+		return oGraph
+	
+	def _ApplyProperties(oGraph, pcNodeId, paProps)
+		nLen = len(paProps)
+		for i = 1 to nLen step 2
+			cKey = paProps[i]
+			pValue = paProps[i + 1]
+			oGraph.SetNodeProperty(pcNodeId, cKey, pValue)
+		end
+	
+	def _ParseValue(cValue)
+		# Try number
+		if isdigit(cValue)
+			return 0 + cValue
+		ok
+		
+		# Remove quotes
+		if left(cValue, 1) = '"' and right(cValue, 1) = '"'
+			return @substr(cValue, 2, len(cValue) - 1)
+		ok
+		
+		return cValue
+	
+	def _ExtractQuoted(cLine)
+		nStart = substr(cLine, '"')
+		if nStart = 0 return "" ok
+		nEnd = @substr(cLine, nStart + 1, len(cLine))
+		nEnd = substr(nEnd, '"')
+		return @substr(cLine, nStart + 1, nStart + nEnd - 1)
 
 /* #TODO Remove it (has been refactord in a dedicated file)
 class stzGraphRule

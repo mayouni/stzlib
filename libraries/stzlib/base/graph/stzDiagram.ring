@@ -807,6 +807,8 @@ class stzDiagram from stzGraph
 
 	@acValidators = $acDiagramDefaultValidators
 
+	@aLoadedStyles = []
+
 	def init(pTitle)
 		super.init(pTitle)
 		@cTitle = pTitle
@@ -2435,6 +2437,166 @@ class stzDiagram from stzGraph
 			This.Connect(aEdgesToAdd[i][1], aEdgesToAdd[i][2])
 		end
 	
+	#-------------------------#
+	#  STYLE FILE MANAGEMENT  #
+	#-------------------------#
+
+	def LoadStyle(pSource)
+		if isString(pSource)
+			if right(pSource, 8) = ".stzstyl"
+				oParser = new stzStylParser()
+				aStyle = oParser.ParseFile(pSource)
+			else
+				oParser = new stzStylParser()
+				aStyle = oParser.Parse(pSource)
+			ok
+			
+			This._ApplyStyle(aStyle)
+			@aLoadedStyles + aStyle[:name]
+		ok
+	
+	def _ApplyStyle(aStyle)
+		# Apply theme
+		if HasKey(aStyle, :theme) and aStyle[:theme] != ""
+			This.SetTheme(aStyle[:theme])
+		ok
+		
+		# Apply layout
+		if HasKey(aStyle, :layout) and aStyle[:layout] != ""
+			This.SetLayout(aStyle[:layout])
+		ok
+		
+		# Apply colors
+		if HasKey(aStyle, :colors) and len(aStyle[:colors]) > 0
+			nLen = len(aStyle[:colors])
+			for i = 1 to nLen step 2
+				cKey = aStyle[:colors][i]
+				cValue = aStyle[:colors][i + 1]
+				
+				# Update color palette
+				if HasKey(@aPalette[@cTheme], cKey)
+					@aPalette[@cTheme][cKey] = cValue
+				ok
+			end
+		ok
+		
+		# Apply fonts
+		if HasKey(aStyle, :fonts) and len(aStyle[:fonts]) > 0
+			nLen = len(aStyle[:fonts])
+			for i = 1 to nLen step 2
+				cKey = aStyle[:fonts][i]
+				pValue = aStyle[:fonts][i + 1]
+				
+				if cKey = "default"
+					This.SetFont(pValue)
+				but cKey = "size"
+					This.SetFontSize(pValue)
+				ok
+			end
+		ok
+		
+		# Apply edge settings
+		if HasKey(aStyle, :edges) and len(aStyle[:edges]) > 0
+			nLen = len(aStyle[:edges])
+			for i = 1 to nLen step 2
+				cKey = aStyle[:edges][i]
+				pValue = aStyle[:edges][i + 1]
+				
+				if cKey = "style"
+					This.SetEdgeStyle(pValue)
+				but cKey = "color"
+					This.SetEdgeColor(pValue)
+				but cKey = "spline"
+					This.SetSplines(pValue)
+				but cKey = "penwidth"
+					This.SetEdgePenWidth(pValue)
+				ok
+			end
+		ok
+		
+		# Apply node settings
+		if HasKey(aStyle, :nodes) and len(aStyle[:nodes]) > 0
+			nLen = len(aStyle[:nodes])
+			for i = 1 to nLen step 2
+				cKey = aStyle[:nodes][i]
+				pValue = aStyle[:nodes][i + 1]
+				
+				if cKey = "penwidth"
+					This.SetNodePenWidth(pValue)
+				but cKey = "penstyle"
+					This.SetNodePenStyle(pValue)
+				but cKey = "color"
+					This.SetNodeColor(pValue)
+				but cKey = "strokecolor"
+					This.SetStrokeColor(pValue)
+				ok
+			end
+		ok
+		
+		# Apply focus settings
+		if HasKey(aStyle, :focus) and len(aStyle[:focus]) > 0
+			nLen = len(aStyle[:focus])
+			for i = 1 to nLen step 2
+				cKey = aStyle[:focus][i]
+				pValue = aStyle[:focus][i + 1]
+				
+				if cKey = "color"
+					This.SetFocusColor(pValue)
+				but cKey = "penwidth"
+					@nFocusPenWidth = pValue
+				ok
+			end
+		ok
+	
+	def LoadedStyles()
+		return @aLoadedStyles
+	
+	def ExportToStyl()
+		cStyl = 'style "' + @cId + '_style"' + NL
+		cStyl += '    theme: ' + @cTheme + NL
+		cStyl += '    layout: ' + @cLayout + NL + NL
+		
+		cStyl += 'colors' + NL
+		if HasKey(@aPalette, @cTheme)
+			acKeys = keys(@aPalette[@cTheme])
+			for cKey in acKeys
+				cStyl += '    ' + cKey + ': ' + @aPalette[@cTheme][cKey] + NL
+			end
+		ok
+		cStyl += NL
+		
+		cStyl += 'fonts' + NL
+		cStyl += '    default: ' + @cFont + NL
+		cStyl += '    size: ' + @nFontSize + NL + NL
+		
+		cStyl += 'edges' + NL
+		cStyl += '    style: ' + @cEdgeStyle + NL
+		cStyl += '    color: ' + @cEdgeColor + NL
+		cStyl += '    spline: ' + @cSplineType + NL
+		cStyl += '    penwidth: ' + @nEdgePenWidth + NL + NL
+		
+		cStyl += 'nodes' + NL
+		cStyl += '    penwidth: ' + @nNodePenWidth + NL
+		cStyl += '    penstyle: ' + @cNodePenStyle + NL
+		cStyl += '    color: ' + @cNodeColor + NL
+		if @cNodeStrokeColor != ""
+			cStyl += '    strokecolor: ' + @cNodeStrokeColor + NL
+		ok
+		cStyl += NL
+		
+		cStyl += 'focus' + NL
+		cStyl += '    color: ' + @cFocusColor + NL
+		
+		return cStyl
+	
+	def WriteToStylFile(pcFilename)
+		if NOT right(pcFileName, 8) = ".stzstyl"
+			pcFileName += ".stzstyl"
+		ok
+		write(pcFilename, This.ExportToStyl())
+
+		def WriteStyl(pcFileName)
+			This.WriteToStylFile(pcFilename)
 
 #==========================================#
 #  stzDiagramAnnotator - METADATA OVERLAY  #
@@ -2474,6 +2636,7 @@ class stzDiagramAnnotator
 			:nodeData = @aNodeData
 		]
 
+/*
 #===============================================#
 #  stzDiagramValidators - PLUGGABLE VALIDATORS  #
 #===============================================#
@@ -2679,6 +2842,7 @@ class stzDiagramBankingValidator from stzDiagramValidator
 	def Result()
 		return @aValidationResult
 
+*/
 
 #=======================================#
 #  stzDiagramToStzDiag - NATIVE FORMAT  #
@@ -3641,3 +3805,107 @@ class stzColorResolver
 		
 		# Use global helper
 		return RGBToHex(nGray, nGray, nGray)
+
+
+#============================================#
+#  stzStylParser - *.stzstyl Format Parser   #
+#  Visual theme and styling definitions      #
+#============================================#
+
+class stzStylParser
+	
+	def init()
+
+	def ParseFile(pcFilename)
+		cContent = read(pcFilename)
+		return This.Parse(cContent)
+	
+	def Parse(pcContent)
+		aStyle = [
+			:name = "",
+			:theme = "light",
+			:layout = "topdown",
+			:colors = [],
+			:fonts = [],
+			:edges = [],
+			:nodes = [],
+			:focus = [],
+			:custom = []
+		]
+		
+		acLines = split(pcContent, NL)
+		cSection = ""
+		
+		for cLine in acLines
+			cLine = trim(cLine)
+			
+			if cLine = "" or left(cLine, 1) = "#"
+				loop
+			ok
+			
+			# Style header
+			if substr(cLine, "style ")
+				aStyle[:name] = This._ExtractQuoted(cLine)
+				
+			but substr(cLine, "theme:")
+				aStyle[:theme] = This._ExtractValue(cLine)
+				
+			but substr(cLine, "layout:")
+				aStyle[:layout] = This._ExtractValue(cLine)
+			
+			# Sections
+			but cLine = "colors"
+				cSection = "colors"
+				
+			but cLine = "fonts"
+				cSection = "fonts"
+				
+			but cLine = "edges"
+				cSection = "edges"
+				
+			but cLine = "nodes"
+				cSection = "nodes"
+				
+			but cLine = "focus"
+				cSection = "focus"
+				
+			but cLine = "custom"
+				cSection = "custom"
+			
+			# Parse section content
+			but cSection != "" and substr(cLine, ":")
+				aParts = split(cLine, ":")
+				cKey = trim(aParts[1])
+				cValue = trim(aParts[2])
+				
+				aStyle[cSection] + [cKey, This._ParseValue(cValue)]
+			ok
+		end
+		
+		return aStyle
+	
+	def _ParseValue(cValue)
+		# Try number
+		if isdigit(cValue)
+			return 0 + cValue
+		ok
+		
+		# Remove quotes
+		if left(cValue, 1) = '"' and right(cValue, 1) = '"'
+			return @substr(cValue, 2, len(cValue) - 1)
+		ok
+		
+		return cValue
+	
+	def _ExtractValue(cLine)
+		nPos = substr(cLine, ":")
+		if nPos = 0 return "" ok
+		cValue = trim(@substr(cLine, nPos + 1, len(cLine)))
+		return This._ParseValue(cValue)
+	
+	def _ExtractQuoted(cLine)
+		nStart = substr(cLine, '"')
+		if nStart = 0 return "" ok
+		nEnd = @substr(cLine, nStart + 1, len(cLine))
+		nEnd = substr(nEnd, '"')
+		return @substr(cLine, nStart + 1, nStart + nEnd - 1)

@@ -641,7 +641,7 @@ class stzOrgChart from stzDiagram
 	#  SCENARIOS & SIMULATIONS  #
 	#===========================#
 
-	def Simulate(paChanges)
+/*	def Simulate(paChanges)
 		oSimulation = new stzOrgChartSimulation(This)
 		oSimulation.ApplyChanges(paChanges)
 		return oSimulation.Results()
@@ -658,7 +658,7 @@ class stzOrgChart from stzDiagram
 			:departments = @aDepartments
 		]
 		return aSnapshot
-
+*/
 	#-------------------------#
 	#  MANAGING VISUAL FOCUS  #
 	#-------------------------#
@@ -1406,6 +1406,12 @@ class stzOrgChart from stzDiagram
 		This.ImportStzOrg(cContent)
 	
 		def LoadStzOrg(pcFileName)
+			This.ImportFromStzOrgFile(pcFileName)
+
+		def LoadOrg(pcFileName)
+			This.ImportFromStzOrgFile(pcFileName)
+
+		def LoadOrgChart(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
 		def LoadStzOrgFile(pcFileName)
