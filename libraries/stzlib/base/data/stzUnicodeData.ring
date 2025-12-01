@@ -73,7 +73,9 @@ $nMaxUnicode = 1_114_112
 
 $nNumberOfLinesInUnicodeDataFile = 34_931
 
-$cUnicodeData = read("../data/unicodedata.txt")
+$cUnicodeDataPath = "../data/unicodedata.txt"
+$cUnicodeData = read($cUnicodeDataPath)
+
 #TODO Read this discussion:
 # https://groups.google.com/g/ring-lang/c/yCGeILp49O4/m/FWC5XWpsAQAJ
 

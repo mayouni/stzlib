@@ -1,4 +1,4 @@
 Python script starting...
-Data before transformation: {'replacements_made': 18}
-Data after transformation: [['replacements_made', 18]]
+Data before transformation: {'total_faces': 1, 'faces': [{'face_id': 1, 'bbox': [36, 87, 198, 198], 'center': [135, 186], 'eyes_detected': 2, 'smile_detected': True}], 'output_file': 'face-color2.jpg'}
+Data after transformation: [['total_faces', 1], ['faces', [[['face_id', 1], ['bbox', [36, 87, 198, 198]], ['center', [135, 186]], ['eyes_detected', 2], ['smile_detected', 'True']]]], ['output_file', 'face-color2.jpg']]
 Data written to file

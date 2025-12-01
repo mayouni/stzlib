@@ -330,6 +330,10 @@ $aThemeFonts = [
 
 $cDefaultOutputFormat = "svg" #TODO Implement it
 
+#-- Visual focus color
+
+$cDefaultFocusColor = "magenta+"
+
 #  VISUAL MAPPINGS
 #------------------
 
@@ -809,10 +813,13 @@ class stzDiagram from stzGraph
 
 	@aLoadedStyles = []
 
+	@cFocusColor = $cDefaultFocusColor
+
 	def init(pTitle)
 		super.init(pTitle)
 		@cTitle = pTitle
 		@cEdgeColor = ResolveColor($cDefaultEdgeColor)
+		@cFocusColor = ResolveColor($cDefaultFocusColor)
 
 	def SetTheme(pTheme)
 	
@@ -892,7 +899,7 @@ class stzDiagram from stzGraph
 
 	    def SetEdgeLineStyle(pcType)
 		This.SetSplines(pcType)
-	
+
 	    def SetEdgeLineType(pcType)
 		This.SetSplines(pcType)
 	
@@ -1539,10 +1546,9 @@ class stzDiagram from stzGraph
 			return oValidator.Result()
 			
 		other
-
+			# Delegate to parent stzGraph
 			return super._ValidateSingle(pcValidator)
 		off
-
 	#-----------#
 	#  METRICS  #
 	#-----------#
@@ -2437,6 +2443,28 @@ class stzDiagram from stzGraph
 			This.Connect(aEdgesToAdd[i][1], aEdgesToAdd[i][2])
 		end
 	
+	#--------------------#
+	#  FOCUS MANAGEMENT  #
+	#--------------------#
+
+	def ApplyFocusTo(acNodeIds)
+	    # Reset all first
+	    This.ResetAllNodeColors()
+	    
+	    # Apply focus to specified nodes
+	    nLen = len(acNodeIds)
+	    for i = 1 to nLen
+	        This.SetNodeProperty(acNodeIds[i], "color", @cFocusColor)
+	    end
+	
+	def ResetAllNodeColors()
+	    aNodes = This.Nodes()
+	    nLen = len(aNodes)
+	    for i = 1 to nLen
+	        cNodeId = aNodes[i]["id"]
+	        This.SetNodeProperty(cNodeId, "color", @cNodeColor)
+	    end
+
 	#-------------------------#
 	#  STYLE FILE MANAGEMENT  #
 	#-------------------------#

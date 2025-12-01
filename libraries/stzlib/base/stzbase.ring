@@ -127,6 +127,8 @@
     load "graph/stzgraphrule.ring"
     load "graph/stzgraphsimulation.ring"
 
+    load "graph/stzworkflow.ring"
+
 # Loading files related to the VISUAL module
 
     #TODO// Put here all visual-oriented functions and classes

@@ -156,8 +156,8 @@ class stzGraphSimulation
 		@aSnapshot = [
 			:nodes = @oGraph.Nodes(),
 			:edges = @oGraph.Edges(),
-			:positions = @oGraph.Positions(),
-			:people = @oGraph.People()
+//			:positions = @oGraph.Positions(),
+//			:people = @oGraph.People()
 		]
 	
 	def _RestoreSnapshot()
