@@ -10,7 +10,6 @@ digraph "SOFTABANK" {
     cto [label="CTO", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
     treasury_head [label="Treasury Head", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
     security_manager [label="Security Manager", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
-    ops_head [label="Operations Head", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
 
     board -> ceo
     ceo -> cfo
@@ -18,6 +17,5 @@ digraph "SOFTABANK" {
     ceo -> cto
     cfo -> treasury_head
     cto -> security_manager
-    ceo -> ops_head
 
 }

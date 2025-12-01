@@ -1,0 +1,81 @@
+simulation "Treasury Restructure 2024"
+    description: "Consolidate treasury operations under CFO with enhanced risk oversight"
+    author: Strategy Team
+    date: 2024-01-15
+    version: 1.0
+
+changes
+
+    # Move treasury head reporting line
+    move treasury_head
+        from: ceo
+        to: cfo
+        reason: "Align with CFO structure"
+    
+    # Add new risk position
+    add position treasury_risk
+        title: "Treasury Risk Officer"
+        level: staff
+        department: treasury
+        reportsTo: treasury_head
+    
+    # Assign person to new role
+    assign person p_sarah
+        name: "Sarah Martinez"
+        position: treasury_risk
+        skills: ["risk", "treasury", "compliance"]
+    
+    # Remove legacy role
+    remove position legacy_treasury_ops
+        reason: "Consolidation"
+    
+    # Update properties
+    set property treasury_head
+        key: riskOversight
+        value: TRUE
+    
+    set property cfo
+        key: scope
+        value: "expanded"
+
+metrics
+
+    # Track span of control changes
+    track span_of_control
+        for: cfo
+        for: treasury_head
+        for: ceo
+    
+    # Track overall vacancy
+    track vacancy_rate
+    
+    # Track compliance impact
+    track compliance
+        validators: [bceao, banking, sod]
+    
+    # Track organizational density
+    track node_density
+    
+    # Custom metric
+    track average_path_length
+
+compare
+
+    # What to compare before/after
+    before_after: span_of_control
+    before_after: vacancy_rate
+    
+    # Show deltas
+    delta: compliance.issueCount
+    delta: node_density
+    
+    # Threshold checks
+    alert_if: span_of_control.cfo > 10
+    alert_if: compliance.status = "fail"
+
+visualize
+
+    # Generate comparison charts
+    before_view: default
+    after_view: default
+    diff_view: highlight_changes

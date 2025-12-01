@@ -1937,7 +1937,7 @@ class stzDiagram from stzGraph
 		nLen = len(acEdgeKeys)
 		
 		for i = 1 to nLen
-			acParts = split(acEdgeKeys[i], "->")
+			acParts = @split(acEdgeKeys[i], "->")
 			aEdge = This.Edge(acParts[1], acParts[2])
 			aContext = This._BuildRuleContext(aEdge)
 			if poRule.Matches(aContext)
@@ -1983,7 +1983,7 @@ class stzDiagram from stzGraph
 		nEdgeLen = len(acEdgeKeys)
 		
 		for i = 1 to nEdgeLen
-			acParts = split(acEdgeKeys[i], "->")
+			acParts = @split(acEdgeKeys[i], "->")
 			aEdge = This.Edge(acParts[1], acParts[2])
 			aContext = This._BuildRuleContext(aEdge)
 			
@@ -2046,7 +2046,7 @@ class stzDiagram from stzGraph
 		
 		for i = 1 to nLen
 			cEdgeKey = acEdgeKeys[i]
-			acParts = split(cEdgeKey, "->")
+			acParts = @split(cEdgeKey, "->")
 			aEdge = This.Edge(acParts[1], acParts[2])
 			aContext = This._BuildRuleContext(aEdge)
 			
@@ -2120,7 +2120,7 @@ class stzDiagram from stzGraph
 		
 		for i = 1 to nLen
 			cEdgeKey = acEdgeKeys[i]
-			acParts = split(cEdgeKey, "->")
+			acParts = @split(cEdgeKey, "->")
 			aEdge = This.Edge(acParts[1], acParts[2])
 			aContext = This._BuildRuleContext(aEdge)
 			
@@ -2382,7 +2382,7 @@ class stzDiagram from stzGraph
 				cCurrentSection = "edges"
 				
 			but cCurrentSection = "metadata" and substr(cLine, ":")
-				aParts = split(cLine, ":")
+				aParts = @split(cLine, ":")
 				cKey = trim(aParts[1])
 				cValue = trim(aParts[2])
 				

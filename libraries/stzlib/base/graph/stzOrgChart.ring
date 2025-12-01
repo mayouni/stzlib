@@ -948,7 +948,7 @@ class stzOrgChart from stzDiagram
 	        # Format: "BCEAO-002: Audit reports to non-board position"
 	        # or: "SOC-001: Position X has excessive span"
 	        
-	        aWords = split(cIssue, " ")
+	        aWords = @split(cIssue, " ")
 	        nWordLen = len(aWords)
 	        for j = 1 to nWordLen
 	            cWord = aWords[j]
@@ -1283,7 +1283,7 @@ class stzOrgChart from stzDiagram
 	
 	def ImportStzOrg(cString)
 
-		acLines = split(cString, NL)
+		acLines = @split(cString, NL)
 		cCurrentSection = ""
 		cCurrentId = ""
 		aCurrent = []
@@ -1292,7 +1292,9 @@ class stzOrgChart from stzDiagram
 		nLen = len(acLines)
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
-			if cLine = "" or left(cLine, 1) = "#" loop ok
+			if cLine = '' or left(cLine, 1) = "#"
+				loop
+			ok
 			
 			if substr(cLine, "orgchart ")
 				cTitle = @substr(cLine, 10, len(cLine)-1)
@@ -1321,7 +1323,12 @@ class stzOrgChart from stzDiagram
 						ok
 					ok
 					cCurrentId = cLine
-					aCurrent = [ :title = "", :level = "", :department = "", :reportsTo = "" ]
+					aCurrent = [
+						:title = "",
+						:level = "",
+						:department = "",
+						:reportsTo = ""
+					]
 					
 				but substr(cLine, "title:")
 					aCurrent[:title] = trim(@substr(cLine, 7, len(cLine)))
@@ -1350,7 +1357,7 @@ class stzOrgChart from stzDiagram
 				
 			but cCurrentSection = "assignments"
 				if substr(cLine, " -> ")
-					aParts = split(cLine, " -> ")
+					aParts = @split(cLine, " -> ")
 					This.AssignPerson(trim(aParts[1]), trim(aParts[2]))
 				ok
 				
@@ -1369,7 +1376,7 @@ class stzOrgChart from stzDiagram
 					cPosStr = trim(@substr(cLine, 11, len(cLine)))
 					cPosStr = replace(cPosStr, "[", "")
 					cPosStr = replace(cPosStr, "]", "")
-					aCurrent[:positions] = split(cPosStr, ",")
+					aCurrent[:positions] = @split(cPosStr, ",")
 					for i = 1 to len(aCurrent[:positions])
 						aCurrent[:positions][i] = trim(aCurrent[:positions][i])
 					end
@@ -1378,7 +1385,7 @@ class stzOrgChart from stzDiagram
 		end
 		
 		# Add last item if needed
-		if cCurrentSection = "positions" and cCurrentId != ""
+		if cCurrentSection = "positions"
 			This.AddPositionXTT(cCurrentId, aCurrent[:title], [ :level = aCurrent[:level] ])
 			if aCurrent[:department] != ""
 				This.SetPositionDepartment(cCurrentId, aCurrent[:department])
@@ -1387,10 +1394,10 @@ class stzOrgChart from stzDiagram
 				This.ReportsTo(cCurrentId, aCurrent[:reportsTo])
 			ok
 
-		but cCurrentSection = "people" and cCurrentId != ""
+		but cCurrentSection = "people"
 			This.AddPersonXT(cCurrentId, aCurrent[:name])
 
-		but cCurrentSection = "departments" and cCurrentId != ""
+		but cCurrentSection = "departments"
 			This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
 		ok
 
