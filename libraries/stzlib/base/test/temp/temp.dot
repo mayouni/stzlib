@@ -1,9 +1,23 @@
-digraph "Imported" {
+digraph "SOFTABANK" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=1, ranksep=1, ordering=out]
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#808080", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
+    board [label="Board of Directors", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
     ceo [label="CEO", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    cfo [label="CFO", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    cro [label="Chief Risk Officer", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    cto [label="CTO", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    treasury_head [label="Treasury Head", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    security_manager [label="Security Manager", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
+    ops_head [label="Operations Head", shape=box, style="rounded,solid,filled", style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", color="#808080"]
 
+    board -> ceo
+    ceo -> cfo
+    ceo -> cro
+    ceo -> cto
+    cfo -> treasury_head
+    cto -> security_manager
+    ceo -> ops_head
 
 }

@@ -1,0 +1,69 @@
+orgchart "SOFTABANK"
+
+positions
+    board
+        title: Board of Directors
+        level: 0
+        department: 
+        reportsTo: 
+
+    ceo
+        title: CEO
+        level: 0
+        department: 
+        reportsTo: board
+
+    cfo
+        title: CFO
+        level: 0
+        department: 
+        reportsTo: ceo
+
+    cro
+        title: Chief Risk Officer
+        level: 0
+        department: risk
+        reportsTo: ceo
+
+    cto
+        title: CTO
+        level: 0
+        department: it
+        reportsTo: ceo
+
+    treasury_head
+        title: Treasury Head
+        level: 0
+        department: treasury
+        reportsTo: cfo
+
+    security_manager
+        title: Security Manager
+        level: 0
+        department: it
+        reportsTo: cto
+
+    ops_head
+        title: Operations Head
+        level: 0
+        department: operations
+        reportsTo: ceo
+
+    any
+
+people
+    p1
+        name: Alice Chen
+
+    p2
+        name: Bob Kumar
+
+    p3
+        name: Carol Martinez
+
+assignments
+    p1 -> ceo
+    p2 -> cfo
+    p3 -> treasury_head
+
+departments

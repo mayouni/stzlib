@@ -438,7 +438,7 @@ pf()
 #-------------------------------------------#
 # Example : Animal Kingdom Knowledge Graph  #
 #-------------------------------------------#
-*/
+
 pr()
 
 oAnimalKG = new stzKnowledgeGraph("Animal Kingdom")
@@ -682,5 +682,28 @@ Entities similar to "Dogs":
 ]
 `
 # Executed in 0.10 second(s) in Ring 1.24
+
+pf()
+
+#====
+*/
+pr()
+
+# Load from file
+oBank = new stzOrgChart("Softabank")
+oBank {
+    LoadOrgChart("softabank.stzorg") #TODO
+    LoadRuleBase("bceao_complete.stzrulz")
+    
+    # Or combine multiple sources
+    LoadRuleBase("banking")   # Pre-built class
+    LoadRuleBase(new stzSOXRuleBase())  # Direct object
+    LoadRuleBase("custom_rules.stzrulz")  # File
+    
+    # Same API works
+    ? IsValid()
+    ? @@NL( Validate() )
+    ? @@NL( ValidateXT(:bceao) )
+}
 
 pf()

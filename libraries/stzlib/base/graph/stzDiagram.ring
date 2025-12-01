@@ -1700,6 +1700,9 @@ class stzDiagram from stzGraph
 		def WriteToStzDiagFile(pcFileName)
 			return This.WriteToDiagFile(pcFileName)
 
+		def WriteStzDiag(pcFileName)
+			This.WriteToDiagFile(pcFileName)
+
 	def WriteToDotFile(pcFileName)
 		oConv = new stzDiagramToDot(This)
 		bSuccess = oConv.WriteToFile(pcFileName)
@@ -2293,7 +2296,7 @@ class stzDiagram from stzGraph
 			# Empty diagram - do normal import
 			This.ParseAndImport(cDiagString)
 		ok
-	
+
 	def ExtractFirstNodeId(cDiagString)
 		acLines = @split(cDiagString, NL)
 		nLen = len(acLines)

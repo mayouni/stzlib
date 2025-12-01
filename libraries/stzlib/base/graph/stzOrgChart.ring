@@ -1264,15 +1264,25 @@ class stzOrgChart from stzDiagram
 		
 		return cResult
 	
+
 	def WriteToStzOrgFile(pcFileName)
+		if right(pcFileName, 7) != ".stzorg"
+			pcFileName += ".stzorg"
+		ok
+
 		write(pcfileName, This.ToStzOrg())
 		return TRUE
 	
+	def WriteStzOrg(pcFileName)
+		write(pcfileName, This.ToStzOrg())
+			return TRUE
+
 	#=====================================================
 	#  IMPORT FROM .STZORG FORMAT
 	#=====================================================
 	
 	def ImportStzOrg(cString)
+
 		acLines = split(cString, NL)
 		cCurrentSection = ""
 		cCurrentId = ""
@@ -1383,11 +1393,16 @@ class stzOrgChart from stzDiagram
 		but cCurrentSection = "departments" and cCurrentId != ""
 			This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
 		ok
-	
+
 	def ImportFromStzOrgFile(pcFileName)
 		cContent = read(pcFileName)
 		This.ImportStzOrg(cContent)
 	
+		def LoadStzOrg(pcFileName)
+			This.ImportFromStzOrgFile(pcFileName)
+
+		def LoadStzOrgFile(pcFileName)
+			This.ImportFromStzOrgFile(pcFileName)
 
 #=====================================================
 #  stzOrgChartBCEAOValidator
