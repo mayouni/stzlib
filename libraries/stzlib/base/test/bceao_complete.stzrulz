@@ -1,0 +1,59 @@
+ruleset "BCEAO Complete Governance"
+    domain: bceao
+    version: 2.0
+    author: Softabank Compliance Team
+    
+rules
+
+    rule board_existence
+        type: validation
+        level: orgchart
+        severity: error
+        
+        when
+            title contains "board"
+        then
+            exists required TRUE
+        message
+            "BCEAO-001: Board of Directors is mandatory for all banks"
+    
+    rule audit_board_reporting
+        type: validation
+        level: orgchart
+        severity: error
+        
+        when
+            department equals "audit"
+        then
+            reportsTo mustBe "board"
+        message
+            "BCEAO-002: Chief Audit Officer must report directly to Board"
+    
+    rule risk_function_required
+        type: validation
+        level: orgchart
+        severity: error
+        
+        when
+            department equals "risk"
+        then
+            exists required TRUE
+        message
+            "BCEAO-003: Dedicated Risk Management function required"
+    
+    rule performance_visual
+        type: visual
+        level: orgchart
+        
+        when
+            performance inSection 0,50
+        then
+            color set "red"
+        when
+            performance inSection 51,75
+        then
+            color set "yellow"
+        when
+            performance inSection 76,100
+        then
+            color set "green"

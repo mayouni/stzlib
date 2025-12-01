@@ -74,6 +74,9 @@ class stzGraph
 
 	@acValidators = $acGraphDefaultValidators
 
+	@oRuleEngine = ""
+	@acLoadedRuleBases = []
+
 	def init(pcId)
 		@cId = pcId
 		@acNodes = []
@@ -82,6 +85,10 @@ class stzGraph
 		@aNodesAffectedByRules = []
 		@aEdgesAffectedByRules = []
 		@aProperties = []
+
+		# Auto-load default structural rules
+		This.LoadRuleBase("graph")
+
 
 	def Id()
 		return @cId
@@ -422,9 +429,9 @@ class stzGraph
 		cOldId = pacPath[nLen]
 		This.ReplaceThisNodeXTT(cOldId, pcNewId, pcNewLabel, paNewProps)
 
-	#------------------------------------------
-	#  NODE REMOVAL
-	#------------------------------------------
+	#---------------#
+	#  NODE REMOVAL #
+	#---------------#
 	
 	# Remove all nodes (and their edges)
 	def RemoveNodes()
@@ -500,9 +507,9 @@ class stzGraph
 		def RemoveNodesAtPositions(paPaths)
 			This.RemoveNodesAt(paPaths)
 	
-	#------------------------------------------
-	#  EDGE REMOVAL
-	#------------------------------------------
+	#----------------#
+	#  EDGE REMOVAL  #
+	#----------------#
 	
 	# Remove all edges
 	def RemoveEdges()
@@ -638,9 +645,9 @@ class stzGraph
 	def EdgeCount()
 		return len(@acEdges)
 
-	#------------------------------------------
-	#  NODE NAVIGATION
-	#------------------------------------------
+	#-------------------#
+	#  NODE NAVIGATION  #
+	#-------------------#
 	
 	def FirstNode()
 		if len(@aNodes) > 0
@@ -676,9 +683,9 @@ class stzGraph
 	def PositionOfNode(pcNodeId)
 		return This.NodePosition(pcNodeId)
 
-	#------------------------------------------
-	#  EDGE NAVIGATION
-	#------------------------------------------
+	#-------------------#
+	#  EDGE NAVIGATION  #
+	#-------------------#
 	
 	def FirstEdge()
 		if len(@acEdges) > 0
@@ -714,9 +721,9 @@ class stzGraph
 		def PositionOfEdge(pcFrom, pcTo)
 			return This.EdgePosition(pcFrom, pcTo)
 
-	#------------------------------------------
-	#  BATCH UPDATE OPERATIONS
-	#------------------------------------------
+	#---------------------------#
+	#  BATCH UPDATE OPERATIONS  #
+	#---------------------------#
 	
 	def UpdateNodes(pFunc)
 		nLen = len(@aNodes)
@@ -730,9 +737,9 @@ class stzGraph
 			call pFunc(@acEdges[i])
 		end
 
-	#------------------------------------------
-	#  COPY OPERATIONS
-	#------------------------------------------
+	#-------------------#
+	#  COPY OPERATIONS  #
+	#-------------------#
 	
 	def CopyNode(pcNodeId)
 		aNode = This.Node(pcNodeId)
@@ -772,9 +779,9 @@ class stzGraph
 			ok
 		end
 
-	#------------------------------------------
-	#  MERGE OPERATIONS
-	#------------------------------------------
+	#--------------------#
+	#  MERGE OPERATIONS  #
+	#--------------------#
 	
 	def MergeNodes(pacNodeIds, pcNewId, pcNewLabel)
 		This.MergeNodesXT(pacNodeIds, pcNewId, pcNewLabel, [])
@@ -1230,9 +1237,9 @@ class stzGraph
 		def IncomingTo(pcNodeId)
 			return This.Incoming(pcNodeId)
 
-	#------------------------------------------
-	#  CYCLE DETECTION
-	#------------------------------------------
+	#-------------------#
+	#  CYCLE DETECTION  #
+	#-------------------#
 
 	def CyclicDependencies()
 		acVisited = []
@@ -1275,9 +1282,9 @@ class stzGraph
 
 		return 0
 
-	#------------------------------------------
-	#  REACHABILITY & CONNECTIVITY
-	#------------------------------------------
+	#-------------------------------#
+	#  REACHABILITY & CONNECTIVITY  #
+	#-------------------------------#
 
 	def ReachableFrom(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
@@ -1334,9 +1341,9 @@ class stzGraph
 			end
 		end
 
-	#------------------------------------------
-	#  ANALYSIS METRICS
-	#------------------------------------------
+	#--------------------#
+	#  ANALYSIS METRICS  #
+	#--------------------#
 
 	def BottleneckNodes()
 		acBottlenecks = []
@@ -1395,9 +1402,9 @@ class stzGraph
 
 		return nMax
 
-	#------------------------------------------
-	#  1. INDEPENDENCE AND PARALLELIZATION
-	#------------------------------------------
+	#---------------------------------------#
+	#  1. INDEPENDENCE AND PARALLELIZATION  #
+	#---------------------------------------#
 
 	def ParallelizableBranches()
 		acBranches = []
@@ -1473,9 +1480,9 @@ class stzGraph
 		
 		return acDependencyFree
 
-	#------------------------------------------
-	#  2. CRITICALITY AND IMPACT
-	#------------------------------------------
+	#-----------------------------#
+	#  2. CRITICALITY AND IMPACT  #
+	#-----------------------------#
 
 	def ImpactOf(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
@@ -1554,10 +1561,16 @@ class stzGraph
 		
 		return acResult
 
-	#------------------------------------------
-	#  3. CONSTRAINTS AND VALIDATION
-	#------------------------------------------
+	#---------------------------------#
+	#  3. CONSTRAINTS AND VALIDATION  #
+	#---------------------------------#
 	
+	def CheckConstraints()
+	        if @oRuleEngine != NULL
+	            return @oRuleEngine.CheckConstraints()
+	        ok
+	        return [ :status = "pass" ]
+/*
 	def AddConstraint(pcConstraintType)
 		if NOT HasKey(@aProperties, pcConstraintType)
 			@aProperties = []
@@ -1681,10 +1694,33 @@ class stzGraph
 		end
 		
 		return acViolations
-
-	#------------------------------------------
-	#  stzGraph - Rule Management
-	#------------------------------------------
+*/
+	#---------------------#
+	#  RULE ENGINE MGMT   #
+	#---------------------#
+    
+	def LoadRuleBase(pRuleBase)
+		if @oRuleEngine = NULL
+			@oRuleEngine = new stzGraphRuleEngine(This)
+		ok
+	
+		@oRuleEngine.AddRuleBase(pRuleBase)
+	
+		if isString(pRuleBase)
+			@acLoadedRuleBases + pRuleBase
+		but isObject(pRuleBase)
+			@acLoadedRuleBases + pRuleBase.Name()
+		ok
+	
+	def RuleEngine()
+		return @oRuleEngine
+	
+	def LoadedRuleBases()
+		return @acLoadedRuleBases
+    
+	#------------------------------#
+	#  stzGraph - Rule Management  #
+	#------------------------------#
 	
 	def SetRule(p)
 		if isString(p)
@@ -2155,10 +2191,16 @@ class stzGraph
 		def UnaffectedElements()
 			return This.ElementsNotAffectedByRules()
 
-	#------------------------------------#
-	#  INFERENCE AND IMPLICIT KNOWLEDGE  #
-	#------------------------------------#
+	#-------------#
+	#  INFERENCE  #
+	#-------------#
 
+	def ApplyInference()
+	        if @oRuleEngine != NULL
+	            return @oRuleEngine.ApplyInference()
+	        ok
+	        return 0
+/*
 	def AddInferenceRule(pcRuleType)
 		if NOT HasKey(@aProperties, pcRuleType)
 			@aProperties = []
@@ -2177,34 +2219,6 @@ class stzGraph
 		
 		@aProperties[:InferenceRules] + aRule
 
-
-	def ApplyInference()
-	    if NOT HasKey(@aProperties, :InferenceRules)
-	        return 0
-	    ok
-
-	    acRules = @aProperties[:InferenceRules]
-	    nRuleLen = len(acRules)
-	    nInferred = 0
-	    
-	    for i = 1 to nRuleLen
-	        aRule = acRules[i]
-	        cType = aRule["type"]
-	        
-	        if cType = "TRANSITIVITY"
-	            nInferred += This._ApplyTransitivity(aRule)
-	        ok
-	        
-	        if cType = "SYMMETRY"
-	            nInferred += This._ApplySymmetry(aRule)
-	        ok
-	        
-	        if cType = "COMPOSITION"
-	            nInferred += This._ApplyComposition(aRule)
-	        ok
-	    end
-	    
-	    return nInferred
 
 	def _ApplyTransitivity(paRule)
 		nInferred = 0
@@ -2318,7 +2332,7 @@ class stzGraph
 		end
 		
 		return acInferred
-
+*/
 	#--------------#
 	#  VALIDATION  #
 	#--------------#
@@ -2330,51 +2344,39 @@ class stzGraph
 		@acValidators = pacValidators
 
 	def Validate()
-		return This.ValidateXT(@acValidators)
-
+	        if @oRuleEngine = NULL
+	            return [ :status = "pass", :issues = [] ]
+	        ok
+	        
+	        return @oRuleEngine.Validate("validation")
+	    
 	def ValidateXT(pValidator)
-		if isString(pValidator)
-			return This._ValidateSingle(pValidator)
-		but isList(pValidator)
-			aResults = []
-			nFailed = 0
-			nTotalIssues = 0
-			acAllAffected = []
-			
-			nLen = len(pValidator)
-			for i = 1 to nLen
-				aResult = This._ValidateSingle(pValidator[i])
-				aResults + aResult
-				if aResult[:status] = "fail"
-					nFailed++
-					nTotalIssues += aResult[:issueCount]
-					nAffLen = len(aResult[:affectedNodes])
-					for j = 1 to nAffLen
-						if ring_find(acAllAffected, aResult[:affectedNodes][j]) = 0
-							acAllAffected + aResult[:affectedNodes][j]
-						ok
-					end
-				ok
-			end
-			
-			return [
-				:status = iif(nFailed = 0, "pass", "fail"),
-				:validatorsRun = len(pValidator),
-				:validatorsFailed = nFailed,
-				:totalIssues = nTotalIssues,
-				:results = aResults,
-				:affectedNodes = acAllAffected
-			]
-		ok
-
+	        if isString(pValidator)
+	            return This.ValidateDomain(pValidator)
+	        but isList(pValidator)
+	            aResults = []
+	            for cDomain in pValidator
+	                aResults + This.ValidateDomain(cDomain)
+	            end
+	            return This._AggregateMultiResults(aResults)
+	        ok
+	    
+	def ValidateDomain(pcDomain)
+	        if @oRuleEngine = NULL
+	            return [ :status = "pass", :domain = pcDomain, :issues = [] ]
+	        ok
+	        
+	        return @oRuleEngine.ValidateDomain(lower(pcDomain))
+	    
 	def IsValid()
-		aResult = This.Validate()
-		return aResult[:status] = "pass"
-
+	        aResult = This.Validate()
+	        return aResult[:status] = "pass"
+	    
 	def IsValidXT(pValidator)
-		aResult = This.ValidateXT(pValidator)
-		return aResult[:status] = "pass"
+	        aResult = This.ValidateXT(pValidator)
+	        return aResult[:status] = "pass"
 
+/*
 	def _ValidateSingle(pcValidator)
 		switch lower(pcValidator)
 		on "dag"
@@ -2468,7 +2470,7 @@ class stzGraph
 			:issues = aIssues,
 			:affectedNodes = acAffected
 		]
-
+*/
 	#------------------------------------------
 	#  5. RICH QUERYING
 	#------------------------------------------
@@ -4318,7 +4320,7 @@ class stzGraphAsciiVisualizer
 		
 		return aoLegend
 
-
+/* #TODO Remove it (has been refactord in a dedicated file)
 class stzGraphRule
 	@cRuleId
 	@cRuleType = ""  # visual, validation, inference, or ''
@@ -4735,3 +4737,4 @@ class stzGraphRule
 	
 	def ConditionParams()
 		return @aConditionParams
+*/

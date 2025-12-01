@@ -2143,7 +2143,7 @@ oBank {
 # Example 4: Enhanced Validation - Defaults & XT Forms
 # Demonstrates: Banking vs BCEAO validator distinction
 #---------------------------------------------------------------
-*/
+
 pr()
 
 oBank = new stzOrgChart("International_Bank")
@@ -2180,6 +2180,8 @@ oBank {
 	AssignPerson("p2", "cfo")
 	AssignPerson("p3", "treasury_head")
 	
+	WriteStzOrg("softabank.stzorg")
+
 	#-------------------------------------------------------
 	# PART 1: Default Validators (No Parameters)
 	#-------------------------------------------------------
@@ -2552,3 +2554,28 @@ Quick compliance check:
 
 pf()
 # Executed in 0.10 second(s) in Ring 1.24
+
+#===========
+*/
+pr()
+
+# Load from file
+oBank = new stzOrgChart("SOFTABANK")
+oBank {
+    LoadStzOrg("softabank.stzorg")
+    LoadRuleBase("bceao_complete.stzrulz")
+    
+    # Or combine multiple sources
+    LoadRuleBase("banking")   # Pre-built class
+    LoadRuleBase(new stzSOXRuleBase())  # Direct object
+    LoadRuleBase("custom_rules.stzrulz")  # File
+    
+    # Same API works
+    ? IsValid()
+    ? @@NL( Validate() )
+    ? @@NL( ValidateXT(:bceao) )
+
+    View()
+}
+
+pf()
