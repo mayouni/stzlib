@@ -297,3 +297,188 @@ class stzOrgChartDefaultRuleBase from stzGraphRuleBase
 			Then("supervisor_department", "mustnotbe", "treasury")
 		}
 		This.AddRule(oRule2)
+
+
+#  Pre-built Domain-Specific Rule Bases
+#======================================
+
+#------------------------------#
+#  BANKING RULES (ALL LEVELS)  #
+#------------------------------#
+
+class stzBankingRuleBase from stzGraphRuleBase
+	def init()
+		super.init("Universal Banking Rules")
+		@cDomain = "banking"
+		This._LoadBankingRules()
+	
+	def _LoadBankingRules()
+		# Graph-level: No approval cycles
+		oRule1 = new stzGraphRule("banking_no_approval_cycles")
+		oRule1 {
+			SetRuleType("constraint")
+			SetLevel("graph")
+			SetDomain("banking")
+			SetMessage("BANK-001: Approval workflows cannot contain cycles")
+			WhenGraph("acyclic", "mustbe")
+		}
+		This.AddRule(oRule1)
+		
+		# Diagram-level: Fraud before payment
+		oRule2 = new stzGraphRule("banking_fraud_detection")
+		oRule2 {
+			SetRuleType("validation")
+			SetLevel("diagram")
+			SetDomain("banking")
+			SetMessage("BANK-002: Payment missing fraud detection")
+			When("operation", "equals", "payment")
+			ThenViolation("Payment node must have fraud_check predecessor")
+		}
+		This.AddRule(oRule2)
+		
+		# OrgChart-level: Ops not under Treasury
+		oRule3 = new stzGraphRule("banking_ops_treasury_separation")
+		oRule3 {
+			SetRuleType("validation")
+			SetLevel("orgchart")
+			SetDomain("banking")
+			SetMessage("BANK-003: Operations reports through Treasury (SOD violation)")
+			When("department", "equals", "operations")
+			Then("supervisor_department", "mustnotbe", "treasury")
+		}
+		This.AddRule(oRule3)
+		
+		# OrgChart-level: Dual approval for large transactions
+		oRule4 = new stzGraphRule("banking_dual_approval")
+		oRule4 {
+			SetRuleType("validation")
+			SetLevel("orgchart")
+			SetDomain("banking")
+			SetMessage("BANK-004: Large transaction position requires 2+ approvers")
+			When("transactionType", "equals", "large")
+			Then("approverCount", "greaterthan", 1)
+		}
+		This.AddRule(oRule4)
+
+#-------------------------------#
+#  BCEAO RULES (WAEMU BANKING)  #
+#-------------------------------#
+
+class stzBCEAORuleBase from stzGraphRuleBase
+	def init()
+		super.init("BCEAO Governance Rules")
+		@cDomain = "bceao"
+		@cLevel = "orgchart"
+		This._LoadBCEAORules()
+	
+	def _LoadBCEAORules()
+		# Board required
+		oRule1 = new stzGraphRule("bceao_board_required")
+		oRule1 {
+			SetRuleType("validation")
+			SetLevel("orgchart")
+			SetDomain("bceao")
+			SetSeverity("error")
+			SetMessage("BCEAO-001: Board of Directors is mandatory")
+			When("title", "contains", "board")
+			Then("exists", "required", TRUE)
+		}
+		This.AddRule(oRule1)
+		
+		# Audit independence
+		oRule2 = new stzGraphRule("bceao_audit_independence")
+		oRule2 {
+			SetRuleType("validation")
+			SetLevel("orgchart")
+			SetDomain("bceao")
+			SetSeverity("error")
+			SetMessage("BCEAO-002: Audit must report directly to Board")
+			When("department", "equals", "audit")
+			Then("reportsTo", "mustbe", "board")
+		}
+		This.AddRule(oRule2)
+		
+		# Risk function required
+		oRule3 = new stzGraphRule("bceao_risk_function")
+		oRule3 {
+			SetRuleType("validation")
+			SetLevel("orgchart")
+			SetDomain("bceao")
+			SetSeverity("error")
+			SetMessage("BCEAO-003: Dedicated Risk Management function required")
+			When("department", "equals", "risk")
+			Then("exists", "required", TRUE)
+		}
+		This.AddRule(oRule3)
+
+#------------------------------#
+#  SOX RULES (SARBANES-OXLEY)  #
+#------------------------------#
+
+class stzSOXRuleBase from stzGraphRuleBase
+	def init()
+		super.init("Sarbanes-Oxley Compliance")
+		@cDomain = "sox"
+		@cLevel = "diagram"
+		This._LoadSOXRules()
+	
+	def _LoadSOXRules()
+		# Financial processes need audit trail
+		oRule1 = new stzGraphRule("sox_audit_trail")
+		oRule1 {
+			SetRuleType("validation")
+			SetLevel("diagram")
+			SetDomain("sox")
+			SetMessage("SOX-001: Financial process missing audit trail")
+			When("domain", "equals", "financial")
+			Then("audittrail", "required", TRUE)
+		}
+		This.AddRule(oRule1)
+		
+		# Decisions need approval
+		oRule2 = new stzGraphRule("sox_approval_required")
+		oRule2 {
+			SetRuleType("validation")
+			SetLevel("diagram")
+			SetDomain("sox")
+			SetMessage("SOX-002: Decision node lacks approval requirement")
+			When("type", "equals", "decision")
+			Then("requiresApproval", "required", TRUE)
+		}
+		This.AddRule(oRule2)
+
+#--------------#
+#  GDPR RULES  #
+#--------------#
+
+class stzGDPRRuleBase from stzGraphRuleBase
+	def init()
+		super.init("GDPR Compliance")
+		@cDomain = "gdpr"
+		@cLevel = "diagram"
+		This._LoadGDPRRules()
+	
+	def _LoadGDPRRules()
+		# Personal data needs consent
+		oRule1 = new stzGraphRule("gdpr_consent")
+		oRule1 {
+			SetRuleType("validation")
+			SetLevel("diagram")
+			SetDomain("gdpr")
+			SetMessage("GDPR-001: Personal data processing missing consent")
+			When("dataType", "equals", "personal")
+			Then("requiresConsent", "required", TRUE)
+		}
+		This.AddRule(oRule1)
+		
+		# Retention policy required
+		oRule2 = new stzGraphRule("gdpr_retention")
+		oRule2 {
+			SetRuleType("validation")
+			SetLevel("diagram")
+			SetDomain("gdpr")
+			SetMessage("GDPR-002: Data node missing retention policy")
+			When("dataType", "equals", "personal")
+			Then("retentionPolicy", "required", TRUE)
+		}
+		This.AddRule(oRule2)
