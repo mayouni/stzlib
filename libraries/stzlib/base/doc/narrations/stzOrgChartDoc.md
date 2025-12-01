@@ -178,215 +178,478 @@ $cDefaultClusterColor = "gray"
 (This will apply the color automatically to all future org charts unless overridden in code.)
 
 
-## The Unified Validation System: Two-Level Intelligence
+## The Unified Validation System: Organizational Intelligence at Scale
 
-One of **stzOrgChart**'s most powerful features is its unified validation system, providing both high-level compliance checks and granular node-level analysis. This dual-level approach serves different needs: executives want quick yes/no answers, while analysts need detailed reports with specific problem nodes identified.
+**stzOrgChart** implements validation as a multi-level intelligence system. At the organizational level, you get HR-specific validators (BCEAO governance, span of control, succession planning). But because stzOrgChart inherits from **stzDiagram** (which inherits from **stzGraph**), you also gain access to domain validators (SOX, GDPR, Banking) and structural validators (DAG, reachability, completeness). This creates a comprehensive validation platform that spans from graph theory to regulatory compliance.
 
-### Level 1: Boolean Validation (Whole-Organization)
+##" Quick Start: Default Organizational Validators
 
-For rapid compliance checks, use `IsValid()` to get immediate boolean answers:
+Every stzOrgChart comes with five organizational validators out of the box. Let's build a simple bank structure to see them in action:
 
 ```ring
-oOrg = new stzOrgChart("Regional_Bank")
-oOrg {
-    # ... build structure ...
+oBank = new stzOrgChart("International_Bank")
+oBank {
+    SetTheme("pro")
     
-    # Quick compliance checks
-    ? "BCEAO compliant? " + IsValid(:BCEAO)           #--> FALSE
-    ? "Span of control OK? " + IsValid(:SOC)          #--> TRUE
-    ? "Succession planning adequate? " + IsValid(:Succession)  #--> FALSE
-    ? "Vacancies acceptable? " + IsValid(:Vacancy)    #--> FALSE
-}
-```
-
-This is perfect for dashboards, automated alerts, or executive summaries where you need instant "red light / green light" indicators.
-
-### Level 2: Detailed Validation (Node-Level Analysis)
-
-When you need to understand *what's wrong* and *where*, use `Validate()` to get comprehensive reports:
-
-```ring
-oOrg {
-    # Detailed validation report
-    ? @@NL( Validate(:BCEAO) )
-}
-```
-
-Output:
-```ring
-[
-    [ "status", "fail" ],
-    [ "domain", "BCEAO_governance" ],
-    [ "issueCount", 2 ],
-    [
-        "issues",
-        [
-            "BCEAO-001: No Board of Directors found",
-            "BCEAO-003: No dedicated Risk Management function"
-        ]
-    ],
-    [ "affectedNodes", [ "audit_head" ] ]
-]
-```
-
-The **`affectedNodes`** field is crucial—it enables visual highlighting of problematic positions in the org chart.
-
-### Built-in Validators
-
-**stzOrgChart** comes with comprehensive validators out of the box:
-
-| Validator | Purpose | Typical Use Case |
-|-----------|---------|------------------|
-| `:BCEAO` | West African Central Bank governance | Financial institutions |
-| `:SOC` / `:SpanOfControl` | Manager overload detection | All organizations |
-| `:SOD` / `:SegregationOfDuties` | Conflict of interest prevention | Banking, finance |
-| `:Vacancy` | Staffing gap analysis | HR planning |
-| `:Succession` | Continuity risk assessment | Executive planning |
-| `:Summary` | All validators combined | Comprehensive audit |
-
-### Visual Validation: Seeing Problems in Context
-
-The real magic happens when you combine validation with visualization. Every validator's `affectedNodes` output can be used to highlight problems directly in the org chart:
-
-```ring
-oOrg {
-    # Show vacant positions in red
-    ViewVacant()
-    
-    # Highlight succession risks
-    ViewAtRisk()
-    
-    # Show non-compliant nodes
-    ViewNonCompliant(:BCEAO)
-    
-    # Or show compliant nodes instead
-    ViewCompliant(:SOC)
-}
-```
-
-Each view method uses the validator's output to apply the focus color (default: magenta) to affected nodes, making problems immediately visible in organizational context.
-
-### Validation Summary: The Complete Picture
-
-For comprehensive audits, use the summary validator:
-
-```ring
-oOrg {
-    aSummary = Validate(:Summary)
-    ? @@NL( aSummary )
-}
-```
-
-Output:
-```ring
-[
-    [ "status", "fail" ],
-    [ "domain", "summary" ],
-    [ "validatorsRun", 5 ],
-    [ "validatorsFailed", 3 ],
-    [ "totalIssues", 8 ],
-    [
-        "results",
-        [
-            # Individual validator results...
-        ]
-    ],
-    [ "affectedNodes", [ "board", "audit_head", "ceo", "cfo", "ops_mgr" ] ]
-]
-```
-
-This gives you:
-- Overall pass/fail status
-- Number of validators run vs failed
-- Total issue count across all validators
-- Complete list of all affected positions
-- Detailed results from each validator
-
-### Custom Validators: Extending the System
-
-The validation system is designed for extension. Add your own validators by following the naming convention:
-
-```ring
-class stzOrgChart
-    # Your custom validator
-    def ValidateMyCustomRule()
-        aIssues = []
-        acAffected = []
-        
-        # Your validation logic...
-        if someCondition
-            aIssues + "CUSTOM-001: Issue description"
-            acAffected + "problem_node_id"
-        ok
-        
-        return [
-            :status = iif(len(aIssues) = 0, "pass", "fail"),
-            :domain = "my_custom_rule",
-            :issueCount = len(aIssues),
-            :issues = aIssues,
-            :affectedNodes = acAffected
-        ]
-    ok
-ok
-```
-
-Once defined, it automatically integrates:
-
-```ring
-oOrg {
-    ? IsValid(:MyCustomRule)              # Boolean check
-    ? @@NL( Validate(:MyCustomRule) )     # Detailed report
-    ViewNonCompliant(:MyCustomRule)       # Visual highlighting
-}
-```
-
-### Real-World Example: Banking Compliance
-
-Here's how a regional bank might use the validation system:
-
-```ring
-oBankOrg = new stzOrgChart("Regional_Bank_Governance")
-oBankOrg {
-    # Build structure...
+    # Build basic structure
     AddExecutivePositionXT("board", "Board of Directors")
     AddExecutivePositionXT("ceo", "CEO")
     AddManagementPositionXT("cfo", "CFO")
+    AddManagementPositionXT("treasury_head", "Treasury Head")
+    
+    ReportsTo("ceo", "board")
+    ReportsTo("cfo", "ceo")
+    ReportsTo("treasury_head", "cfo")
+    
+    # What validators are active?
+    ? "Default validators:"
+    ? @@NL( Validators() )
+}
+```
+
+**Output:**
+```ring
+Default validators:
+[ "bceao", "sod", "soc", "vacancy", "succession" ]
+```
+
+**Reading this:** Your org chart automatically checks for West African banking compliance (BCEAO), segregation of duties (SOD), span of control (SOC), vacant positions, and succession planning. These are organizational concerns—exactly what HR and governance teams need.
+
+### Boolean Validation: Quick Health Checks
+
+The fastest way to check organizational health is with boolean validation. This gives you instant red-light/green-light indicators:
+
+```ring
+oBank {
+    # Quick compliance check
+    ? "Overall organizational health:"
+    ? IsValid()
+}
+```
+
+**Output:**
+```ring
+Overall organizational health:
+0
+```
+
+**Reading this:** `0` means FALSE—at least one validator failed. The organization has issues that need attention. This is perfect for dashboards or automated alerts where you need instant status.
+
+### Detailed Validation: Understanding the Problems
+
+When validation fails, you need to know *what's wrong* and *where*. That's what detailed validation provides:
+
+```ring
+oBank {
+    ? "Detailed analysis:"
+    ? @@NL( Validate() )
+}
+```
+
+**Output (excerpt):**
+```ring
+[
+    [ "status", "fail" ],
+    [ "validatorsrun", 5 ],
+    [ "validatorsfailed", 2 ],
+    [ "totalissues", 10 ],
+    [ "results", [
+        [
+            [ "status", "fail" ],
+            [ "domain", "vacancy" ],
+            [ "issuecount", 4 ],
+            [ "issues", [ "Vacant positions: 4" ] ],
+            [ "affectednodes", [ "board", "cfo", "treasury_head", "ceo" ] ]
+        ],
+        [
+            [ "status", "fail" ],
+            [ "domain", "succession" ],
+            [ "issuecount", 6 ],
+            [ "issues", [
+                "No successor: ceo",
+                "No successor: cfo",
+                "No successor: treasury_head"
+            ]],
+            [ "affectednodes", [ "ceo", "cfo", "treasury_head" ] ]
+        ]
+    ]],
+    [ "affectednodes", [ "board", "cfo", "treasury_head", "ceo" ] ]
+]
+```
+
+**Reading this:** The report tells you:
+- 2 of 5 validators failed
+- 10 total issues found across the organization
+- Vacancy validator found 4 empty positions
+- Succession validator found 3 positions without backups
+- The `affectedNodes` array lists every problematic position
+
+This is what auditors and analysts need—specific problems with evidence.
+
+### Visual Validation: Seeing Problems in Context
+
+The `affectedNodes` array enables direct visualization. Let's add the missing validation→view bridge methods and use them:
+
+```ring
+# stzOrgChart - Add these methods to enable visual validation
+
+def ViewValidation(aValidationResult)
+    # Extract affected nodes and apply focus
+    if HasKey(aValidationResult, :affectedNodes)
+        This.ApplyFocusTo(aValidationResult[:affectedNodes])
+    ok
+    This.View()
+
+def ViewXT(pcValidator)
+    # Validate and view in one action
+    aResult = This.ValidateXT(pcValidator)
+    This.ViewValidation(aResult)
+```
+
+Now validation and visualization become seamless:
+
+```ring
+oBank {
+    # Assign some people to reduce vacancy issues
+    AddPersonXT("p1", "Alice Chen")
+    AddPersonXT("p2", "Bob Kumar")
+    AssignPerson("p1", "ceo")
+    AssignPerson("p2", "cfo")
+    
+    # View succession risks directly
+    ViewXT(:Succession)
+}
+```
+
+This opens your org chart with the three positions lacking successors highlighted in magenta (the default focus color). No intermediate steps—validation flows directly into visualization.
+
+### Single Validator Deep Dive
+
+Sometimes you need to focus on one specific concern. The `XT` suffix (extended) provides both boolean and detailed validation for individual validators:
+
+```ring
+oBank {
+    ? "Is span of control acceptable?"
+    ? IsValidXT(:SOC)
+    
+    ? NL + "Succession planning details:"
+    ? @@NL( ValidateXT(:Succession) )
+}
+```
+
+**Output:**
+```ring
+Is span of control acceptable?
+1
+
+Succession planning details:
+[
+    [ "status", "fail" ],
+    [ "domain", "succession" ],
+    [ "issuecount", 6 ],
+    [ "issues", [
+        "No successor: ceo",
+        "No successor: cfo",
+        "No successor: treasury_head"
+    ]],
+    [ "affectednodes", [ "ceo", "cfo", "treasury_head" ] ]
+]
+```
+
+**Reading this:** Span of control passes (`1` = TRUE)—no manager is overloaded. But succession planning fails—three critical positions have no designated backups. The `affectedNodes` array identifies exactly which positions are at risk.
+
+### Multi-Validator Analysis: Comparative Auditing
+
+For comprehensive audits, run multiple validators simultaneously:
+
+```ring
+oBank {
+    SetPositionDepartment("treasury_head", "treasury")
+    
+    # Compare two compliance frameworks
+    ? "Banking vs BCEAO compliance:"
+    ? @@NL( ValidateXT([ :Banking, :BCEAO ]) )
+}
+```
+
+**Output:**
+```ring
+[
+    [ "status", "pass" ],
+    [ "validatorsrun", 2 ],
+    [ "validatorsfailed", 0 ],
+    [ "totalissues", 0 ],
+    [ "results", [
+        [
+            [ "status", "pass" ],
+            [ "domain", "banking" ],
+            [ "issuecount", 0 ],
+            [ "issues", [  ] ]
+        ],
+        [
+            [ "status", "pass" ],
+            [ "domain", "BCEAO_governance" ],
+            [ "issuecount", 0 ],
+            [ "issues", [  ] ]
+        ]
+    ]]
+]
+```
+
+**Reading this:** Both validators passed. The organization satisfies universal banking controls (fraud prevention, dual control) AND West African regulatory requirements (governance structure, audit independence). The aggregated report shows you passed 2 of 2 validators with zero total issues.
+
+### Understanding Validator Scope: Banking vs BCEAO
+
+These two validators check different concerns:
+
+```ring
+oBank {
+    ? "═══ BANKING VALIDATOR ═══"
+    ? "Scope: Universal operational controls"
+    ? "Focus: Fraud prevention, dual control, IT security"
+    ? @@NL( ValidateXT(:Banking) )
+    
+    ? NL + "═══ BCEAO VALIDATOR ═══"
+    ? "Scope: West African banking zone regulations"
+    ? "Focus: Governance structure, board composition, audit independence"
+    ? @@NL( ValidateXT(:BCEAO) )
+}
+```
+
+**Banking** validates operational controls that apply globally—fraud detection, payment approval processes, IT segregation. **BCEAO** validates governance structures required in the West African Economic and Monetary Union—board presence, audit reporting lines, risk management functions. Both are essential but check different layers of the organization.
+
+### Custom Validator Sets: Regional Compliance
+
+Override the defaults to focus on specific requirements:
+
+```ring
+oBank {
+    ? "Original defaults:"
+    ? @@NL( Validators() )
+    
+    # Bank in BCEAO region needs both governance and operational controls
+    SetValidators([ :BCEAO, :Banking, :SOD, :SOC ])
+    
+    ? NL + "Custom validators for BCEAO region:"
+    ? @@NL( Validators() )
+    
+    ? NL + "Running IsValid() with custom set:"
+    ? IsValid()
+}
+```
+
+**Output:**
+```ring
+Original defaults:
+[ "bceao", "sod", "soc", "vacancy", "succession" ]
+
+Custom validators for BCEAO region:
+[ "bceao", "banking", "sod", "soc" ]
+
+Running IsValid() with custom set:
+1
+```
+
+**Reading this:** You've replaced the default organizational validators with a custom set focused on regulatory compliance. Now `IsValid()` runs only these four validators. The result (`1` = TRUE) means your bank passes all regional requirements.
+
+### Inherited Power: Domain Validators from stzDiagram
+
+Because stzOrgChart inherits from stzDiagram, you can run workflow and compliance validators originally designed for business processes:
+
+```ring
+oBank {
+    # Add operational workflow properties
+    SetNodeProperty("treasury_head", "domain", "financial")
+    SetNodeProperty("treasury_head", "requiresApproval", 1)
+    
+    # Run diagram-level validators on org structure
+    ? "SOX compliance (from stzDiagram):"
+    ? @@NL( ValidateXT(:SOX) )
+    
+    ? NL + "GDPR compliance (from stzDiagram):"
+    ? @@NL( ValidateXT(:GDPR) )
+}
+```
+
+**Output:**
+```ring
+SOX compliance (from stzDiagram):
+[
+    [ "status", "pass" ],
+    [ "domain", "sox" ],
+    [ "issuecount", 0 ],
+    [ "issues", [  ] ]
+]
+
+GDPR compliance (from stzDiagram):
+[
+    [ "status", "pass" ],
+    [ "domain", "gdpr" ],
+    [ "issuecount", 0 ],
+    [ "issues", [  ] ]
+]
+```
+
+**Reading this:** Your org chart passes Sarbanes-Oxley (financial controls) and GDPR (data protection) requirements. These validators come from the parent stzDiagram class but work seamlessly on organizational structures. This is the power of inheritance—you get three validation levels in one object.
+
+### Structural Intelligence: Graph Validators from stzGraph
+
+Go deeper still—validate the mathematical structure of your organization using graph theory validators from stzGraph:
+
+```ring
+oBank {
+    # Check structural integrity
+    ? "DAG validation (from stzGraph):"
+    ? @@NL( ValidateXT(:DAG) )
+    
+    ? NL + "Reachability validation (from stzGraph):"
+    ? @@NL( ValidateXT(:Reachability) )
+}
+```
+
+**Output:**
+```ring
+DAG validation (from stzGraph):
+[
+    [ "status", "pass" ],
+    [ "domain", "dag" ],
+    [ "issuecount", 0 ],
+    [ "issues", [  ] ],
+    [ "affectednodes", [  ] ]
+]
+
+Reachability validation (from stzGraph):
+[
+    [ "status", "pass" ],
+    [ "domain", "reachability" ],
+    [ "issuecount", 0 ],
+    [ "issues", [  ] ],
+    [ "affectednodes", [  ] ]
+]
+```
+
+**Reading this:** Your org chart is a DAG (Directed Acyclic Graph)—no circular reporting relationships exist. All positions are reachable—every employee has a path to the board. These are structural guarantees that prevent organizational pathologies like reporting loops or isolated islands.
+
+### Practical Workflow: Regional Bank Audit
+
+Here's how a real compliance audit might flow:
+
+```ring
+oBank = new stzOrgChart("Regional_Bank_Audit")
+oBank {
+    SetTheme("pro")
+    SetTitleVisibility(TRUE)
+    
+    # Build structure...
+    AddExecutivePositionXT("board", "Board of Directors")
+    AddExecutivePositionXT("ceo", "CEO")
     AddManagementPositionXT("cro", "Chief Risk Officer")
     AddManagementPositionXT("cao", "Chief Audit Officer")
     
     ReportsTo("ceo", "board")
-    ReportsTo("cfo", "ceo")
     ReportsTo("cro", "ceo")
-    ReportsTo("cao", "board")  # Audit reports to board (BCEAO requirement)
+    ReportsTo("cao", "board")  # BCEAO requirement: audit→board
     
-    SetPositionDepartment("cao", "audit")
     SetPositionDepartment("cro", "risk")
+    SetPositionDepartment("cao", "audit")
     
-    # Compliance check
-    ? BoxRound("REGULATORY COMPLIANCE CHECK")
+    # Assign people
+    AddPersonXT("p1", "Alice Chen")
+    AddPersonXT("p2", "Bob Kumar")
+    AssignPerson("p1", "ceo")
+    AssignPerson("p2", "cao")
     
-    if IsValid(:BCEAO)
-        ? "✓ BCEAO governance compliant"
+    # AUDIT WORKFLOW
+    ? BoxRound("REGULATORY COMPLIANCE AUDIT")
+    
+    # Step 1: Quick check
+    if IsValidXT([ :Banking, :BCEAO ])
+        ? "✓ Compliant with both Banking and BCEAO standards"
     else
-        ? "✗ BCEAO governance issues found:"
-        aBCEAO = Validate(:BCEAO)
-        for issue in aBCEAO[:issues]
-            ? "  • " + issue
-        next
+        ? "✗ Non-compliant - running detailed analysis..."
         
-        # Visual inspection
-        ViewNonCompliant(:BCEAO)
+        aAudit = ValidateXT([ :Banking, :BCEAO ])
+        ? @@NL( aAudit )
+        
+        ? NL + "Audit Summary:"
+        ? "  Validators run: " + aAudit[:validatorsRun]
+        ? "  Failed: " + aAudit[:validatorsFailed]
+        ? "  Total issues: " + aAudit[:totalIssues]
+        ? "  Affected positions: " + len(aAudit[:affectedNodes])
+        
+        # Step 2: Visual inspection
+        ? NL + "Generating visual report..."
+        ViewValidation(aAudit)
     ok
 }
 ```
 
-This approach transforms compliance from a checkbox exercise into a strategic tool that:
-- **Prevents** issues through structural validation
-- **Detects** problems before audits
-- **Visualizes** organizational weaknesses
-- **Documents** compliance status with evidence
+This workflow gives you:
+1. **Instant status** (boolean check)
+2. **Detailed evidence** (full report)
+3. **Visual inspection** (highlighted org chart)
 
-The validation system scales from startup governance to enterprise compliance, making **stzOrgChart** not just a diagramming tool, but a strategic organizational intelligence platform.
+All in a few lines of code.
+
+### The Complete API Reference
+
+**Boolean validation (fast status checks):**
+```ring
+IsValid()                    # Run default validators → 0 or 1
+IsValidXT(pcValidator)       # Single validator → 0 or 1
+IsValidXT([v1, v2, ...])     # Multiple validators → 0 or 1
+```
+
+**Detailed validation (analysis & evidence):**
+```ring
+Validate()                   # Full report with defaults → hashlist
+ValidateXT(pcValidator)      # Single detailed report → hashlist
+ValidateXT([v1, ...])        # Aggregated multi-report → hashlist
+```
+
+**Visual validation (immediate visualization):**
+```ring
+ViewValidation(aResult)      # View with pre-computed validation
+ViewXT(pcValidator)          # Validate + view in one action
+```
+
+**Configuration:**
+```ring
+Validators()                 # See current defaults → list
+SetValidators(aList)         # Override defaults
+DefaultValidators()          # See class-level defaults → list
+```
+
+### Available Validators by Level
+
+**Organizational (stzOrgChart):**
+- `:BCEAO` - West African banking governance
+- `:SOD` / `:SegregationOfDuties` - Conflict of interest prevention
+- `:SOC` / `:SpanOfControl` - Manager overload detection
+- `:Vacancy` - Staffing gap analysis
+- `:Succession` - Continuity risk assessment
+
+**Domain (stzDiagram - inherited):**
+- `:SOX` - Sarbanes-Oxley compliance
+- `:GDPR` - Data protection compliance
+- `:Banking` - Universal banking controls
+
+**Structural (stzGraph - inherited):**
+- `:DAG` - Directed acyclic graph validation
+- `:Reachability` - Connectivity analysis
+- `:Completeness` - Decision path validation
+
+### Why This Unifie Validation System Matters
+
+Traditional org chart tools show *structure*. Softanza's stzOrgChart provides *intelligence*:
+
+- **Prevention** - Structural validators catch organizational pathologies before they manifest
+- **Detection** - Domain validators identify compliance gaps before audits
+- **Evidence** - Every validation returns specific affected nodes with issue counts
+- **Visualization** - Problems appear in organizational context, not abstract reports
+- **Scalability** - Same API works for 10-person startups and 10,000-person enterprises
+
+The unified validation system transforms org charts from static diagrams into strategic intelligence platforms that predict, prevent, and document organizational health.
 
 ## Simulation and Scenario Planning
 

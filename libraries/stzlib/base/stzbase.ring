@@ -121,7 +121,7 @@
     load "graph/stzknowledgegraph.ring"
 
     load "graph/stzdiagram.ring"
-    load "graph/stzdiagrambuilder.ring"
+    load "graph/stzdiagrammaker.ring"
     load "graph/stzorgchart.ring"
 
 # Loading files related to the VISUAL module

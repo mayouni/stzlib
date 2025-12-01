@@ -1,5 +1,5 @@
 #======================#
-#  stzDiagramBuilder - Fixed Implementation
+#  stzDiagramMaker - Fixed Implementation
 #  Declarative, Composable Diagram API
 #  Softanza Pattern Implementation
 #======================#
@@ -217,10 +217,10 @@ $gDiagramFonts = [
 ]
 
 #------------------------------------------
-#  stzDiagramBuilder - Main Class
+#  stzDiagramMaker - Main Class
 #------------------------------------------
 
-class stzDiagramBuilder
+class stzDiagramMaker
 
 	@cTitle = ""
 	@aNodes = []
