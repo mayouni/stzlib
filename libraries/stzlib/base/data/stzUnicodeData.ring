@@ -73,9 +73,12 @@ $nMaxUnicode = 1_114_112
 
 $nNumberOfLinesInUnicodeDataFile = 34_931
 
-if ! isGlobal(:$cUnicodeDataPath)
-	$cUnicodeDataPath = "../data/unicodedata.txt"
+if Haskey($aStzLibConfig, :UnicodeDataPath) and $aStzLibConfig[:UnicodeDataPath] != ""
+    $cUnicodeDataPath = $aStzLibConfig[:UnicodeDataPath]
+else
+    $cUnicodeDataPath = "../data/unicodedata.txt"
 ok
+
 $cUnicodeData = read($cUnicodeDataPath)
 
 #TODO Read this discussion:

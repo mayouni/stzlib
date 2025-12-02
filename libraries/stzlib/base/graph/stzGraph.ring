@@ -4509,6 +4509,15 @@ class stzGrafParser
 			ok
 		end
 		
+		# FIX: Add last item that wasn't flushed
+		 if cCurrentSection = "nodes" and cCurrentItem != ""
+		        This._AddNode(oGraph, cCurrentItem, aCurrentProps)
+		ok
+		
+		if cCurrentSection = "positions" and cCurrentId != ""
+		        This._AddPosition(oOrg, cCurrentId, aCurrentProps)
+		ok
+
 		# Apply last node's properties
 		if cCurrentNode != "" and len(aCurrentProps) > 0
 			This._ApplyProperties(oGraph, cCurrentNode, aCurrentProps)
