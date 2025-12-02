@@ -1,7 +1,7 @@
 load "../stzbase.ring"
 
 /*---
-
+*/
 pr()
 
 # Python code  

@@ -1,3 +1,19 @@
+
+#NOTE You should install Graphiz diagram engine to use this class
+
+# Also, you need to specify the path of the dot.exe command line tool
+# in a gloabl hashlist you name $aStzLibConfig that you populate like this:
+#    $aStzLibConfig = [
+#	:DotPath = "...",
+#	...
+# ]
+
+if Haskey($aStzLibConfig, :DotPath) adn $aStzLibConfig[:DotPath] != ""
+    $cDotPath = $aStzLibConfig[:DotPath]
+else
+    $cDotPath = "d:/Graphviz/bin/dot.exe"
+ok
+
 func StzDotCodeQ()
 	return new stzDotCode
 
@@ -11,7 +27,7 @@ func StzDotCodeQ()
 class stzDotCode
 	@cDotCode = ""
 	@cOutputFormat = "svg"
-	@cDotPath = "D:\Graphviz\bin\dot.exe"
+	@cDotPath = $cDotPath
 	@cTempDotFile = "temp.dot"
 	@cLogFile = "dotlog.txt"
 	@cOutputDir = "output"

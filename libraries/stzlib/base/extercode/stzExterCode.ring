@@ -2,6 +2,46 @@ load "stzextercodetransfuncs.ring"
 
 #TODO Ensure temp script and runtime files are all generated in a temp folder
 
+// Check if we have the value by the User code
+
+
+
+if Haskey($aStzLibConfig, :PythonPath) and $aStzLibConfig[:PythonPath] != ""
+    $cPythonPath = $aStzLibConfig[:PythonPath]
+else
+    $cPythonPath = "d:/python/python-3.13.7/python.exe"
+ok
+
+if Haskey($aStzLibConfig, :RPath) and $aStzLibConfig[:RPath] != ""
+    $cRPath = $aStzLibConfig[:RPath]
+else
+    $cRPath = "d:/r/r-4.5.1/bin/rscript.exe"
+ok
+
+if Haskey($aStzLibConfig, :JuliaPath) and $aStzLibConfig[:JuliaPath] != ""
+    $cJuliaPath = $aStzLibConfig[:JuliaPath]
+else
+    $cJuliaPath = "d:/julia/julia-1.11.7/bin/julia.exe"
+ok
+
+if Haskey($aStzLibConfig, :CPath) and $aStzLibConfig[:CPath] != ""
+    $cCPath = $aStzLibConfig[:CPath]
+else
+    $cCPath = "d:/mingw64/bin/gcc.exe"
+ok
+
+if Haskey($aStzLibConfig, :PrologPath) and $aStzLibConfig[:PrologPath] != ""
+    $cPrologPath = $aStzLibConfig[:PrologPath]
+else
+    $cPrologPath = "d:/prolog/swipl-9.9.9/bin/swipl.exe"
+ok
+
+if Haskey($aStzLibConfig, :NodeJsPath) and $aStzLibConfig[:NodeJsPath] != ""
+    $cNodeJsPath = $aStzLibConfig[:NodeJsPath]
+else
+    $cNodeJsPath = "d:/nodejs/nodejs-22.20/node.exe"
+ok
+
 #------------------#
 #  THE MAIN CLASS  #
 #------------------#
@@ -17,7 +57,7 @@ class stzExterCode
             :Runtime = "python",
             :AlternateRuntimes = ["python3", "py"],
             :ResultFile = "pyresult.txt",
-            :CustomPath = "D:/stzexter/python.exe",  # Replace with your Python path
+            :CustomPath = $cPythonPath,
             :TransFunc = $cPyToRingTransFunc,
             :Cleanup = 0,
 	    :ExtraArgs = ""
@@ -30,7 +70,7 @@ class stzExterCode
             :Runtime = "Rscript",
             :AlternateRuntimes = ["r"],
             :ResultFile = "rresult.txt",
-            :CustomPath = "D:/R/R-4.5.1/bin/rscript.exe",  # Replace with your R path
+            :CustomPath = $cRPath,
             :TransFunc = $cRToRingTransFunc,
             :Cleanup = 0,
 	    :ExtraArgs = ""
@@ -43,7 +83,7 @@ class stzExterCode
             :Runtime = "julia",
             :AlternateRuntimes = [],
             :ResultFile = "jlresult.txt",
-            :CustomPath = "d:/julia/julia-1.11.7/bin/julia.exe",  # Replace with your Julia path
+            :CustomPath = $cJuliaPath,
             :TransFunc = $cJuliaToRingTransFunc,
             :Cleanup = 0,
 	    :ExtraArgs = ""
@@ -58,7 +98,7 @@ class stzExterCode
             :ExecutableName = "temp_c",
             :AlternateRuntimes = [],
             :ResultFile = "cresult.txt",
-            :CustomPath = "D:/mingw64/bin/gcc.exe",  # Replace with your Go path
+            :CustomPath = $cCPath,
             :TransFunc = $cCToRingTransFunc,
             :Cleanup = 0,
             :CaptureBuildErrors = 1,
@@ -72,7 +112,7 @@ class stzExterCode
             :Runtime = "swipl",
             :AlternateRuntimes = ["prolog"],
             :ResultFile = "plresult.txt",
-            :CustomPath = "D:/prolog/swipl-9.9.9/bin/swipl.exe",  # Update to your actual path
+            :CustomPath = $cPrologPath,
             :TransFunc = $cPrologToRingTransFunc,
             :Cleanup = 0,
             :ExtraArgs = "-q -g main -t halt"   # Quiet mode, call main/0, halt after execution
@@ -85,7 +125,7 @@ class stzExterCode
 	    :Runtime = "node",
 	    :AlternateRuntimes = ["nodejs"],
 	    :ResultFile = "jsresult.txt",
-	    :CustomPath = "D:/nodejs/nodejs-22.20/node.exe",  # Replace with your Node.js path
+	    :CustomPath = $cNodeJsPath,
 	    :TransFunc = $cJSToRingTransFunc,
 	    :Cleanup = 0,
             :ExtraArgs = ""
