@@ -1,5 +1,6 @@
 # This file loads the BASE layer of SoftanzaLib (along with its CORE layer)
 
+# Giving priority to user code config (suggested by Mahmoud)
 if ! isGlobal(:$aStzLibConfig )
     $aStzLibConfig = []
 ok
