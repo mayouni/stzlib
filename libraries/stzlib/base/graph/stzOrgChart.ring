@@ -389,7 +389,11 @@ class stzOrgChart from stzDiagram
 		on "summary"
 			return This.ValidationSummary()
 		other
-			return super.ValidateXT(pcValidator)
+		        return [
+		            :status = "error",
+		            :domain = pcValidator,
+		            :issues = ["Unknown validator for OrgChart: " + pcValidator]
+		        ]
 		off
 
 	def ValidateBCEAOGovernance()

@@ -3910,6 +3910,7 @@ class stzStylParser
 			ok
 		end
 		
+
 		return aStyle
 	
 	def _ParseValue(cValue)
