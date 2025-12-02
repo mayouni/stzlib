@@ -39,7 +39,12 @@ def transform_to_ring(data):
 
 # Main code
 print("Python script starting...")
-res = 2 + 3
+
+res = {
+    "numbers": [1, 2, 3, 4, 5],
+    "mean": sum([1, 2, 3, 4, 5]) / 5
+}
+
 print("Data before transformation:", res)
 transformed = transform_to_ring(res)
 print("Data after transformation:", transformed)
