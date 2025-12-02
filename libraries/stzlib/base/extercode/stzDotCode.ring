@@ -8,7 +8,7 @@
 #	...
 # ]
 
-if Haskey($aStzLibConfig, :DotPath) adn $aStzLibConfig[:DotPath] != ""
+if Haskey($aStzLibConfig, :DotPath) and $aStzLibConfig[:DotPath] != ""
     $cDotPath = $aStzLibConfig[:DotPath]
 else
     $cDotPath = "d:/Graphviz/bin/dot.exe"
