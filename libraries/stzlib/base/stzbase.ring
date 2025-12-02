@@ -1,5 +1,8 @@
 # This file loads the BASE layer of SoftanzaLib (along with its CORE layer)
 
+if ! isGlobal(:$aStzLibConfig )
+    $aStzLibConfig = []
+ok
 
 # Loding the files related to the CORE layer
 
