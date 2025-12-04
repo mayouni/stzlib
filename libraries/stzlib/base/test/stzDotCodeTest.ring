@@ -5,7 +5,7 @@ load "../stzbase.ring"
 
 
 /*--- Test all DOT shapes
-*/
+
 pr()
 
 oDot = new stzDotCode()
@@ -106,7 +106,7 @@ pf()
 /*------------------
 #  Example 1: Basic
 #-------------------
-
+*/
 pr()
 
 Dot = new stzDotCode()

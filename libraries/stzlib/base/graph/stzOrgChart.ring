@@ -39,18 +39,8 @@ class stzOrgChart from stzDiagram
 	@aPositions = []
 	@aPeople = []
 	@aDepartments = []
-	@aAnalysisLayers = []
-	@bUseInvisibleHelpers = TRUE
 
-	@cEdgeStyle = $cDefaultOrgChartEdgeStyle   # Defined in stzDiagram.ring
-	@cEdgeSpline = $cDefaultOrgChartEdgeSpline # Idem
-	@cEdgeColor = $cDefaultOrgChartEdgeColor  # Idem
-	@cClusterColor = $cDefaultClusterColor	   
-
-	@cFocusColor = $aOrgColors[:focus]  # magenta+
-	@cNodeColor = $cDefaultNodeColor  # from global
-
-	@acValidators = ["bceao", "sod", "soc", "vacancy", "succession"]
+	@acValidators = $acOrgChartDefaultValidators
 
 	def init(pcTitle)
 		super.init(pcTitle)
@@ -69,16 +59,19 @@ class stzOrgChart from stzDiagram
 		This.AddPositionXTT(pcId, pcTitle, [])
 
 	def AddPositionXTT(pcId, pcTitle, paAttributes)
+		if not (islist(paAttributes) and IsHashList(paAttributes))
+			stzraise("Incorrect param type! paAttributes must be a hashlist.")
+		ok
+
 		aPosition = [
 			:id = pcId,
-			:title = pcTitle,
-			:level = 0,
-			:department = "",
-			:reportsTo = "",
-			:incumbent = "",
-			:isVacant = TRUE,
-			:attributes = paAttributes
+			:title = pcTitle
 		]
+		nLen = len(paAttributes)
+		for i = 1 to nLen
+			aPosition + paAttributes[i]
+		next
+
 		@aPositions + aPosition
 		
 		This.AddNodeXTT(pcId, pcTitle, [
@@ -102,23 +95,41 @@ class stzOrgChart from stzDiagram
 	def AddExecutivePosition(pcId)
 		This.AddExecutivePositionXT(pcId, pcId)
 
+		def AddExecutive(pcId)
+			This.AddExecutivePositionXT(pcId, pcId)
+
 	def AddExecutivePositionXT(pcId, pcTitle)
-	    This.AddPositionXTT(pcId, pcTitle, [:level = "executive"])
-	    # Don't set color here - leave as white until person assigned	
+	    	This.AddPositionXTT(pcId, pcTitle, [:level = "executive"])
+	    	# Don't set color here - leave as white until person assigned	
+
+		def AddExecutiveXT(pcId, pcTitle)
+			This.AddPositionXTT(pcId, pcTitle, [:level = "executive"])
 
 	def AddManagementPosition(pcId)
 		This.AddManagementPositionXT(pcId, pcId)
 
+		def AddManager(pcId)
+			This.AddManagementPositionXT(pcId, pcId)
+
 	def AddManagementPositionXT(pcId, pcTitle)
-	    This.AddPositionXTT(pcId, pcTitle, [:level = "management"])
-	    # Don't set color here
+	    	This.AddPositionXTT(pcId, pcTitle, [:level = "management"])
+	    	# Don't set color here
+
+		def AddManagerXT(pcId, pcTitle)
+			This.AddPositionXTT(pcId, pcTitle, [:level = "management"])
 
 	def AddStaffPosition(pcId)
 		This.AddStaffPositionXT(pcIde, pcId)
 
+		def AddStaff(pcId)
+			This.AddStaffPositionXT(pcIde, pcId)
+
 	def AddStaffPositionXT(pcId, pcTitle)
-	    This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
-	    # Don't set color here
+	    	This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
+	    	# Don't set color here
+
+		def AddStaffXT(pcId, pcTitle)
+			This.AddPositionXTT(pcId, pcTitle, [:level = "staff"])
 
 	def AddStaffPositionXTT(pcId, pcTitle, paProp)
 	    if NOT IsHashList(paprop)
@@ -137,6 +148,9 @@ class stzOrgChart from stzDiagram
 	
 	    This.AddPositionXTT(pcId, pcTitle, paProp)
 
+	    def AddStaffXTT(pcId, pcTitle, paProp)
+		This.AddStaffPositionXTT(pcId, pcTitle, paProp)
+
 	#---
 
 	def ReportsTo(pcSubordinate, pcSupervisor)
@@ -150,6 +164,12 @@ class stzOrgChart from stzDiagram
 	    
 	    # Use standard connection - let Graphviz handle layout
 	    This.Connect(pcSupervisor, pcSubordinate)
+
+	    def RelatesTo(pcSubordinate, pcSupervisor)
+		This.ReportsTo(pcSubordinate, pcSupervisor)
+
+	    def SubordinateOf(pcSubordinate, pcSupervisor)
+		This.ReportsTo(pcSubordinate, pcSupervisor)
 
 	#---
 
@@ -174,6 +194,9 @@ class stzOrgChart from stzDiagram
 		end
 		return []
 
+		def Node(pcId)
+			return This.Position(pcId)
+
 	def Positions()
 		return @aPositions
 
@@ -194,6 +217,36 @@ class stzOrgChart from stzDiagram
 			ok
 		end
 		return acVacant
+
+		def Vacant()
+			return This.VacantPositions()
+
+		def VacantNodes()
+			return This.VacantPositions()
+
+	def NonVacantPositions()
+		acNonVacant = []
+		nPosCount = len(@aPositions)
+		for i = 1 to nPosCount
+			aPos = @aPositions[i]
+			bIsVacant = TRUE
+			if HasKey(aPos, :isVacant)
+				bIsVacant = aPos[:isVacant]
+			ok
+			
+			if bIsVacant = FALSE
+				if HasKey(aPos, :id)
+					acNonVacant + aPos[:id]
+				ok
+			ok
+		end
+		return acNonVacant
+
+		def NonVacant()
+			return This.NonVacantPositions()
+
+		def NonVacantNodes()
+			return This.NonVacantPositions()
 
 	#==========================#
 	#  PEOPLE MANAGEMENT       #
@@ -217,6 +270,16 @@ class stzOrgChart from stzDiagram
 	#---
 
 	def AssignPerson(pcPersonId, pcPositionId)
+
+		if CheckParams()
+			if isList(pcPositionId) and StzListQ(pcPositionId).IsToOrToPositionOrToNodeNamedParam()
+				pcPositionId = pcPositionId[2]
+			ok
+			if NOT isString(pcPositionId)
+				stzraise("Incorrect param type! pcPositionId must be a string.")
+			ok
+		ok
+
 		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			if @aPositions[i][:id] = pcPositionId
@@ -255,7 +318,10 @@ class stzOrgChart from stzDiagram
 
 		This.SetNodeProperty(pcPositionId, "color", cLevelColor)
 
-	def PersonData(pcPersonId)
+		def Assign(pcPersonId, pcPositionId)
+			This.AssignPerson(pcPersonId, pcPositionId)
+
+	def Person(pcPersonId)
 		nPplCount = len(@aPeople)
 		for i = 1 to nPplCount
 			if @aPeople[i][:id] = pcPersonId
@@ -263,6 +329,9 @@ class stzOrgChart from stzDiagram
 			ok
 		end
 		return []
+
+		def PersonData(pcPersonId)
+			return This.Person(pcPersonId)
 
 	def People()
 		return @aPeople
@@ -275,7 +344,7 @@ class stzOrgChart from stzDiagram
 	#==========================#
 
 	def AddDepartment(pcId)
-		This.AddDepratmentXTT(pcId, pcId, [])
+		This.AddDepartmentXTT(pcId, pcId, [])
 
 	def AddDepartmentXT(pcId, pcName)
 		This.AddDepartmentXTT(pcId, pcName, [])
@@ -366,28 +435,41 @@ class stzOrgChart from stzDiagram
 
 	def _ValidateSingle(pcValidator)
 		switch lower(pcValidator)
+
 		on "bceao"
 			return This.ValidateBCEAOGovernance()
+
 		on "spanofcontrol"
 			return This.ValidateSpanOfControl()
 		on "soc"
 			return This.ValidateSpanOfControl()
+
 		on "separationofduties"
 			return This.ValidateSegregationOfDuties()
 		on "segregationofduties"
 			return This.ValidateSegregationOfDuties()
 		on "sod"
 			return This.ValidateSegregationOfDuties()
+
 		on "vacancy"
 			return This.ValidateVacancy()
+		on "nonvacancy"
+			return This.ValidateNonVacancy()
+
 		on "succession"
 			return This.ValidateSuccession()
+
 		on "banking"
 			return This.ValidateBanking()
+
 		on "compliance"
 			return This.ValidateCompliance()
+		on "noncompliance"
+			return This.ValidateNonCompliance()
+
 		on "summary"
 			return This.ValidationSummary()
+
 		other
 		        return [
 		            :status = "error",
@@ -408,7 +490,7 @@ class stzOrgChart from stzDiagram
 			nDirectReports = This.DirectReportsCount(cPosId)
 			
 			if nDirectReports > 9
-				aIssues + "Excessive span: " + cPosId + " (" + nDirectReports + " reports)"
+				aIssues + ("Excessive span: " + cPosId + " (" + nDirectReports + " reports)" )
 			ok
 		end
 		
@@ -433,12 +515,23 @@ class stzOrgChart from stzDiagram
 			:affectedNodes = acVacant
 		]
 	
+	def ValidateNonVacancy()
+		acVacant = This.NonVacantPositions()
+		
+		return [
+			:status = iif(len(acVacant) = 0, "pass", "fail"),
+			:domain = "vacancy",
+			:issueCount = len(acVacant),
+			:issues = iif(len(acVacant) > 0, ["Vacant positions: " + len(acVacant)], []),
+			:affectedNodes = acVacant
+		]
+
 	def ValidateSuccession()
 		acRisk = This.SuccessionRisk()
 		aIssues = []
 		nLen = len(acRisk)
 		for i = 1 to nLen
-			aIssues + "No successor: " + acRisk[i]
+			aIssues + ("No successor: " + acRisk[i])
 		end
 		
 		return [
@@ -498,52 +591,53 @@ class stzOrgChart from stzDiagram
 		ok
 		return nTotal / nManagers
 
-	def VacancyRate()
-		nTotal = len(@aPositions)
-		if nTotal = 0
-			return 0
-		ok
-		
-		nVacant = 0
-		nPosCount = len(@aPositions)
-		for i = 1 to nPosCount
-			aPos = @aPositions[i]
-			if HasKey(aPos, :isVacant)
-				if aPos[:isVacant] = TRUE
-					nVacant++
-				ok
-			ok
-		end
-		
-		return (nVacant / nTotal) * 100
+	def VacancyRate()	
+		nResult = ( len(This.Vacant()) / len(This.Positions()) ) * 100
+		return nResult
 
 	def PositionsByLevel()
-		aLevels = []
+		aResult = [
+			:executive = [],
+			:management = [],
+			:staff = []
+		]
+
 		nPosCount = len(@aPositions)
 		for i = 1 to nPosCount
 			cLevel = "staff"
-			if HasKey(@aPositions[i], :attributes)
-				aAttribs = @aPositions[i][:attributes]
-				if isList(aAttribs) and HasKey(aAttribs, :level)
-					cLevel = aAttribs[:level]
+			if HasKey(@aPositions[i], "level")
+				if haskey(aResult, @aPositions[i][:level])
+					aResult[@aPositions[i][:level]] + @aPositions[i][:id]
 				ok
 			ok
 			
-			bFound = FALSE
-			nLvlCount = len(aLevels)
-			for j = 1 to nLvlCount
-				if aLevels[j][1] = cLevel
-					aLevels[j][2]++
-					bFound = TRUE
-					exit
-				ok
-			end
-			
-			if NOT bFound
-				aLevels + [cLevel, 1]
-			ok
 		end
-		return aLevels
+		return aResult
+
+	def NumberOfPositionsByLevel()
+		aResult = [
+			:executive = 0,
+			:management = 0,
+			:staff = 0
+		]
+
+		nPosCount = len(@aPositions)
+		for i = 1 to nPosCount
+			cLevel = "staff"
+			if HasKey(@aPositions[i], "level")
+				if haskey(aResult, @aPositions[i][:level])
+					aResult[@aPositions[i][:level]]++
+				ok
+			ok
+			
+		end
+		return aResult
+
+		def PositionsCountByLevel()
+			return This.NumberOfPositionsByLevel()
+
+		def PositionsByLevelN()
+			return This.NumberOfPositionsByLevel()
 
 	def SuccessionRisk()
 	    acRisk = []
@@ -575,15 +669,111 @@ class stzOrgChart from stzDiagram
 	#  REPORTING & ANALYTICS   #
 	#==========================#
 
-	def GenerateReport(pcType)
+	def GenerateReport()
+		# Reports generated --> [ "summary", "vacancy", "succession", "compliance", "spanofcontrol" ]
+
 		oReporter = new stzOrgChartReporter(This)
-		return oReporter.Generate(pcType)
+		return oReporter.Generate()
+
+		def Report()
+			return This.GenerateReport()
+
+	def GenerateReportXT(pcType)
+		# pcType --> [ "summary", "vacancy", "succession", "compliance", "spanofcontrol" ]
+
+		oReporter = new stzOrgChartReporter(This)
+		return oReporter.GenerateXT(pcType)
+
+		def ReportXT(pcType)
+			return This.GenerateReportXT(pcType)
+
+	def GenerateSummaryReport()
+		return This.GenerateReportXT("summary")
+
+		def GenerateSummary()
+			return This.GenerateReportXT("summary")
+
+		def Summary()
+			return This.GenerateReportXT("summary")
+
+		def SummaryReport()
+			return This.GenerateReportXT("summary")
+
+	def GenerateVacancyReport()
+		return This.GenerateReportXT("Vacancy")
+
+		def GenerateVacancy()
+			return This.GenerateReportXT("vacancy")
+
+		def Vacancy()
+			return This.GenerateReportXT("vacancy")
+
+		def VacancyReport()
+			return This.GenerateReportXT("vacancy")
+
+	def GenerateSuccessionReport()
+		return This.GenerateReportXT("succession")
+
+		def GenerateSuccession()
+			return This.GenerateReportXT("succession")
+
+		def Succession()
+			return This.GenerateReportXT("succession")
+
+		def SuccessionReport()
+			return This.GenerateReportXT("succession")
+
+	def GenerateComplianceReport()
+		return This.GenerateReportXT("compliance")
+
+		def GenerateCompliance()
+			return This.GenerateReportXT("compliance")
+
+		def Compliance()
+			return This.GenerateReportXT("compliance")
+
+		def ComplianceReport()
+			return This.GenerateReportXT("compliance")
+
+	def GenerateSpanOfControlReport()
+		return This.GenerateReportXT("spanofcontrol")
+
+		def GenerateSpanOfControl()
+			return This.GenerateReportXT("spanofcontrol")
+
+		def SpanOfControl()
+			return This.GenerateReportXT("spanofcontrol")
+
+		def GenerateSOCReport()
+			return This.GenerateReportXT("spanofcontrol")
+
+		def GenerateSOC()
+			return This.GenerateReportXT("spanofcontrol")
+
+		def SOC()
+			return This.GenerateReportXT("spanofcontrol")
+
+		def SpanOfControlReport()
+			return This.GenerateReportXT("spanofcontrol")
+
+		def SOCReport()
+			return This.GenerateReportXT("spanofcontrol")
 
 	#==========================#
 	#  ORGANIZATIONAL CHANGES  #
 	#==========================#
 
 	def ReassignPerson(pcPersonId, pcNewPositionId)
+
+		if CheckParams()
+			if isList(pcNewPositionId) and StzListQ(pcNewPositionId).IsToOrToPositionNamedParam()
+				pcNewPositionId = pcNewPositionId[2]
+			ok
+			if NOT isString(pcNewPositionId)
+				stzraise("Incorrect param type! pcNewPositionId must be a string.")
+			ok
+		ok
+
 		aPerson = This.PersonData(pcPersonId)
 		cOldPosition = aPerson[:position]
 		
@@ -599,6 +789,9 @@ class stzOrgChart from stzDiagram
 		ok
 		
 		This.AssignPerson(pcPersonId, pcNewPositionId)
+
+		def Reassign(pcPersonId, pcNewPositionId)
+			This.ReassignPerson(pcPersonId, pcNewPositionId)
 
 	def RemovePosition(pcPositionId)
 		nPosCount = len(@aPositions)
@@ -641,28 +834,6 @@ class stzOrgChart from stzDiagram
 			ok
 		end
 
-	#===========================#
-	#  SCENARIOS & SIMULATIONS  #
-	#===========================#
-
-/*	def Simulate(paChanges)
-		oSimulation = new stzOrgChartSimulation(This)
-		oSimulation.ApplyChanges(paChanges)
-		return oSimulation.Results()
-
-		def SimulateReorganization(paChanges)
-			return This.SimulateReorganization(paChanges)
-
-	def CreateSnapshot(pcSnapshotId)
-		aSnapshot = [
-			:id = pcSnapshotId,
-			:date = Date(),
-			:positions = @aPositions,
-			:people = @aPeople,
-			:departments = @aDepartments
-		]
-		return aSnapshot
-*/
 	#-------------------------#
 	#  MANAGING VISUAL FOCUS  #
 	#-------------------------#
@@ -710,17 +881,8 @@ class stzOrgChart from stzDiagram
 	#  VISUALIZATION  #
 	#=================#
 
-	def SetEdgeStyle(pcStyle)
-		@cEdgeStyle = pcStyle
-
-	def SetEdgeSpline(pcSpline)
-		@cEdgeSpline = pcSpline
-
-	def SetEdgeColor(pcColor)
-		@cEdgeColor = pcColor
-
-	def SetClusterColor(pcColor)
-		@cClusterColor = pcColor
+	def SetDepartmentColor(pcColor)
+		super.SetClusterColor(ResolveColor(pcColor))
 
 	#--
 	
@@ -738,28 +900,7 @@ class stzOrgChart from stzDiagram
 
 	#--
 
-	def ViewPopulated()
 
-	    If @bTitleVisibility = TRUE
-		This.SetSubtitle("Populated Positions")
-	    ok
-
-	    acPopulated = []
-	    nPosCount = len(@aPositions)
-	    for i = 1 to nPosCount
-	        if NOT @aPositions[i][:isVacant]
-	            acPopulated + @aPositions[i][:id]
-	        ok
-	    end
-	    This.ApplyFocusTo(acPopulated)
-	    This.View()
-	
-	    def ViewPeople()
-	        This.ViewPopulated()
-	
-	    def ViewWithPeople()
-	        This.ViewPopulated()
-	
 	def ViewVacant()
 
 	    If @bTitleVisibility = TRUE
@@ -773,7 +914,29 @@ class stzOrgChart from stzDiagram
 	    def ViewVacancies()
 	        This.ViewVacant()
 
+	def ViewNonVacant()
+
+	    If @bTitleVisibility = TRUE
+		This.SetSubtitle("Non-Vacant Positions")
+	    ok
+
+	    acVacant = This.NonVacantPositions()
+	    This.ApplyFocusTo(acVacant)
+	    This.View()
+
+	    def ViewPopulated()
+		This.ViewNonVacant()
+
+	    def ViewPeople()
+	        This.ViewNonVacant()
+	
+	    def ViewWithPeople()
+	        This.ViewNonVacant()
+
 	#--
+
+	#TODO// Add Performant() or PerformantPositions(),
+	# and NonPerformant() or NonPerformantPositions()
 
 	def ViewPerformant()
 
@@ -827,6 +990,8 @@ class stzOrgChart from stzDiagram
 	    def ViewLowPerformers()
 	        This.ViewNonPerformant()
 	
+	#TODO // Add MediumPerformers()
+
 	def ViewMediumPerformers()
 
 	    If @bTitleVisibility = TRUE
@@ -852,13 +1017,16 @@ class stzOrgChart from stzDiagram
 
 	#--
 
+	#TODO // Add Compliant() or CompliantPositions() and
+	# NonCompliant() or NonCompliantPositions()
+
 	def ViewCompliant(pcNorm)
 
 	    If @bTitleVisibility = TRUE
 		This.SetSubtitle("Compliant posisitions")
 	    ok
 
-	    aResult = This.Validate(pcNorm)
+	    aResult = This.ValidateXT(pcNorm)
 	    
 	    if isNumber(aResult)
 	        if aResult = 1
@@ -907,6 +1075,9 @@ class stzOrgChart from stzDiagram
 	    
 	    This.View()
 	
+	    def ViewCompliantXT(pcNorm)
+		This.ViewCompliant(pcNorm)
+
 	def ViewNonCompliant(pcNorm)
 
 	    If @bTitleVisibility = TRUE
@@ -942,6 +1113,9 @@ class stzOrgChart from stzDiagram
 	    
 	    This.View()
 	
+	    def ViewNonCompliantXT(pcNorm)
+		This.ViewNonCompliant(pcNorm)
+
 	def _ExtractNodesFromIssues(acIssues)
 	    acNodes = []
 	    nLen = len(acIssues)
@@ -1043,6 +1217,12 @@ class stzOrgChart from stzDiagram
 	    def ViewReportingPath(pcFromId, pcToId)
 	        This.ViewPath(pcFromId, pcToId)
 
+	    def HilightPath(pcFromId, pcToId)
+		This.ViewPath(pcFromId, pcToId)
+
+	    def FocusOnPath(pcFromId, pcToId)
+		This.ViewPath(pcFromId, pcToId)
+
 	#--
 
 	def ViewNodesWithProperty(pcKey, pValue)
@@ -1135,7 +1315,7 @@ class stzOrgChart from stzDiagram
 		aLevels = This.PositionsByLevel()
 		nLvlLen = len(aLevels)
 		for i = 1 to nLvlLen
-			aExplanation[:hierarchy] + (aLevels[i][1] + ": " + aLevels[i][2] + " positions")
+			aExplanation[:hierarchy] + ( aLevels[i][1] + ": " + len(aLevels[i][2]) + " positions")
 		end
 		
 		nAvgSpan = This.AverageSpanOfControl()
@@ -1424,6 +1604,14 @@ class stzOrgChart from stzDiagram
 		def LoadStzOrgFile(pcFileName)
 			This.ImportFromStzOrgFile(pcFileName)
 
+		def Load_(pcFileName)
+			This.ImportFromStzOrgFile(pcFileName)
+
+		def LoadFile(pcFileName)
+			This.ImportFromStzOrgFile(pcFileName)
+
+		def LoadFrom(pcFileName)
+			This.ImportFromStzOrgFile(pcFileName)
 
 #=====================================================
 #  stzOrgChartBCEAOValidator
@@ -1565,18 +1753,40 @@ class stzOrgChartReporter
 	def init(poOrgChart)
 		@oOrgChart = poOrgChart
 
-	def Generate(pcType)
+	def Generate()
+		aResult = []
+
+		aResult + This.SummaryReport()
+		aResult + This.VacancyReport()
+		aResult + This.SuccessionReport()
+		aResult + This.ComplianceReport()
+		aResult + This.SpanOfControlReport()
+
+		return aResult
+
+	def GenerateXT(pcType)
 		switch lower(pcType)
 		on "summary"
 			return This.SummaryReport()
+
 		on "vacancies"
 			return This.VacancyReport()
+		on "vacancy"
+			return This.VacancyReport()
+		on "vacant"
+			return This.VacancyReport()
+
 		on "succession"
 			return This.SuccessionReport()
+
 		on "compliance"
 			return This.ComplianceReport()
+
 		on "span"
 			return This.SpanOfControlReport()
+		on "spanofcontrol"
+			return This.SpanOfControlReport()
+
 		other
 			return []
 		off

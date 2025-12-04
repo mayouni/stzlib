@@ -14,6 +14,24 @@ else
     $cDotPath = "d:/Graphviz/bin/dot.exe"
 ok
 
+$acDotOutputFormats = [
+	"bmp", "canon", "cmap", "cmapx", "cmapx_np",
+	"dot", "dot_json", "emf", "emfplus", "eps",
+	"fig", "gd", "gd2", "gif", "gv", "imap", "imap_np",
+	"ismap", "jpe", "jpeg", "jpg", "json", "json0",
+	"kitty", "kittyz", "metafile", "pdf", "pic",
+	"plain", "plain-ext", "png", "pov", "ps",
+	"ps2", "svg", "svg_inline", "svgz", "tif",
+	"tiff", "tk", "vrml", "vt", "vt-24bit", "vt-4up",
+	"vt-6up", "vt-8up", "wbmp", "webp", "xdot",
+	"xdot1.2", "xdot1.4", "xdot_json"
+]
+
+$cDefaultDotOutputFormat = "svg"
+
+func DefaultDiagramOutputFormat()
+	return $cDefaultDiagramOutputFormat
+
 func StzDotCodeQ()
 	return new stzDotCode
 
@@ -26,7 +44,7 @@ func StzDotCodeQ()
 
 class stzDotCode
 	@cDotCode = ""
-	@cOutputFormat = "svg"
+	@cOutputFormat = $cDefaultDotOutputFormat
 	@cDotPath = $cDotPath
 	@cTempDotFile = "temp.dot"
 	@cLogFile = "dotlog.txt"
@@ -52,6 +70,16 @@ class stzDotCode
 			This.SetCode(pcDotCode)
 
 	def SetOutputFormat(cFormat)
+
+		cFormat = trim(cFormat)
+		if cFormat = "" or lower(cFormat) = 'null'
+			cFormat = $cDefaultDotOutputFormat
+		else
+			if ring_find($acDotOutputFormats, cFormat) = 0
+				stzraise("Unsupported output formats! Only these are supported: " + @@($acDotOutputFormats) + ".")
+			ok
+		ok
+
 		@cOutputFormat = lower(cFormat)
 
 		def SetOutput(cFormat)
@@ -77,40 +105,58 @@ class stzDotCode
 		if @cDotCode = ""
 			return
 		ok
-
+	
 		@nStartTime = clock()
-
+	
 		# Generate unique filename with timestamp IN OUTPUT FOLDER
 		cTimestamp = "" + clock()
-		cOutputFile = @cOutputDir + "\diagram_" + cTimestamp + "." + @cOutputFormat  # CHANGED
+		cOutputFile = @cOutputDir + "\diagram_" + cTimestamp + "." + @cOutputFormat
 		cTempDotPath = @cTempDir + "\" + @cTempDotFile
-		cLogPath = @cTempDir + "\" + @cLogFile
-
+	
 		# Store for View() to use
 		@cLastOutputFile = cOutputFile
-
+	
 		# Write dot code to temp file
 		This.WriteToFile(cTempDotPath, @cDotCode)
-
-		# Build command
-		cCmd = @cDotPath + " -T" + @cOutputFormat + " " + 
-		       cTempDotPath + " -o " + cOutputFile + 
-		       " > " + cLogPath + " 2>&1"
-
-		# Execute
-		system(cCmd)
+	
+		# Build arguments list
+		aArgs = [
+			"-T" + @cOutputFormat,
+			cTempDotPath,
+			"-o",
+			cOutputFile
+		]
+	
+		# Execute using stzSystemCall
+		_oCall_ = new stzSystemCall(@cDotPath)
+		_oCall_.SetArgs(aArgs)
+		_oCall_.HideConsole()
+		_oCall_.WithTimeout(30000)
+		_oCall_.Run()
+	
 		@nEndTime = clock()
-
+	
 		if @bVerbose
-			? "Command: " + cCmd
+			? "Dot path: " + @cDotPath
+			? "Output format: " + @cOutputFormat
 			? "Output file: " + cOutputFile
-			? "Log: " + @@(This.Log())
+			? "Exit code: " + _oCall_.ExitCode()
+			if _oCall_.HasError()
+				? "Error: " + _oCall_.Error()
+			ok
 		ok
-
-		if NOT fexists(cOutputFile)
-			stzraise("Output file '" + cOutputFile + "' not created. Log: " + This.Log())
+	
+		if NOT _oCall_.Succeeded() or NOT fexists(cOutputFile)
+			cError = "Graphviz dot command failed."
+			if _oCall_.HasError()
+				cError += " Error: " + _oCall_.Error()
+			ok
+			if NOT fexists(cOutputFile)
+				cError += " Output file not created: " + cOutputFile
+			ok
+			stzraise(cError)
 		ok
-
+	
 		@bWasExtecutedAtLeastOnce = 1
 
 		def Run()
@@ -128,7 +174,8 @@ class stzDotCode
 		if @cLastOutputFile = "" or NOT fexists(@cLastOutputFile)
 			stzraise("Output file does not exist: " + @cLastOutputFile)
 		ok
-		system('"' + @cLastOutputFile + '"')
+		oSysCall = new stzSystemCall("")
+		oSysCall.OpenFile(@cLastOutputFile)
 
 		def Display()
 			This.View()
@@ -168,7 +215,7 @@ class stzDotCode
 		return 0
 
 	def Log()
-		cLogPath = @cTempDir + "\" + @cLogFile
+		cLogPath = @cTempDir + "/" + @cLogFile
 		if NOT fexists(cLogPath)
 			return ""
 		ok
@@ -179,8 +226,8 @@ class stzDotCode
 
 	def Cleanup()
 		try
-			cTempDotPath = @cTempDir + "\" + @cTempDotFile
-			cLogPath = @cTempDir + "\" + @cLogFile
+			cTempDotPath = @cTempDir + "/" + @cTempDotFile
+			cLogPath = @cTempDir + "/" + @cLogFile
 			
 			if fexists(cTempDotPath)
 				remove(cTempDotPath)

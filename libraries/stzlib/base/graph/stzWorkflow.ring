@@ -771,7 +771,7 @@ class stzFlowParser
 		for cLine in acLines
 			cLine = trim(cLine)
 			
-			if cLine = "" or left(cLine, 1) = "#"
+			if cLine = '' or left(cLine, 1) = "#"
 				loop
 			ok
 			

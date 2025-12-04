@@ -79,7 +79,7 @@ oPyCode.Run()
 # ]
 
 pf()
-#--> Executed in 0.39 second(s) in Ring 1.23
+#--> Executed in 0.14 second(s) in Ring 1.23
 
 /*--- String variations with proper escaping
 
@@ -108,7 +108,7 @@ oPyCode.Exec()
 # ]
 
 pf()
-# Executed in 0.40 second(s) in Ring 1.23
+# Executed in 0.16 second(s) in Ring 1.23
 
 /*--- Nested lists and mixed types
 
@@ -153,7 +153,7 @@ oPyCode.Execute()
 # ]
 
 pf()
-# Executed in 0.41 second(s) in Ring 1.23
+# Executed in 0.14 second(s) in Ring 1.23
 
 /*--- Complex nested structure
 
@@ -247,14 +247,14 @@ oPyCode.Execute()
 # ]
 
 pf()
-# Executed in 0.44 second(s) in Ring 1.23
+# Executed in 0.14 second(s) in Ring 1.23
 
 /*======================================#
 #  PYTHON EXAMPLES - PART 2 (ADVANCED)  #
 #=======================================#
 
 /*--- Data Analysis with Pandas
-
+*/
 pr()
 
 #WARNING For this sample to work, you must install numpy and pandas mibs on pyhton

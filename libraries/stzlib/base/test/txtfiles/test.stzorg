@@ -1,0 +1,17 @@
+orgchart "TechCo"
+
+positions
+    ceo
+        title: CEO
+        level: executive
+        department: 
+        reportsTo: 
+
+people
+    p1
+        name: Alice
+
+assignments
+    p1 -> ceo
+
+departments

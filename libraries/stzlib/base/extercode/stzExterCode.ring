@@ -5,11 +5,26 @@ load "stzextercodetransfuncs.ring"
 // Check if we have the value by the User code
 
 
+/* #WARNING
+Configure your own external programs paths in a global variable
+named $aStzLibConfig where you store your actual paths for the
+external programs needed. For example you would write:
+
+$aStzLibConfig[
+	:PythonPath = "c:/python/python.exe",
+	:JuliaPath = "c:/julia/julia.exe",
+	...
+]
+
+When Softanza starts, it checks if this gloabl config exists and
+uses it to identify the external tools. Otherwise, you should
+change the value of $cPythonPath hereafter with your actual paths.
+*/
 
 if Haskey($aStzLibConfig, :PythonPath) and $aStzLibConfig[:PythonPath] != ""
     $cPythonPath = $aStzLibConfig[:PythonPath]
 else
-    $cPythonPath = "d:/python/python-3.13.7/python.exe"
+   $cPythonPath = "d:/python/python-3.13.7/python.exe"
 ok
 
 if Haskey($aStzLibConfig, :RPath) and $aStzLibConfig[:RPath] != ""
@@ -257,7 +272,9 @@ class stzExterCode
 	    This.WriteToFile(cScriptFile, cScriptContent)
 	
 	    cCmd = cScriptFile
-	    system(cCmd)
+	    _oSysCall_ = new stzSystemCall(cCmd)
+	    _oSysCall_.DontCaptureOutput()
+	    _oSysCall_.Run()
 	
 	    @nEndTime = clock()
 	

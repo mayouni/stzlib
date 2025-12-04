@@ -50,6 +50,23 @@ func CurrentFolder()
 	func @CurrentFolder()
 		return currentDir()
 
+func ParentFolder()
+	_oFolder_ = new stzFolder(currentDir())
+	_oFolder_.GoUp()
+	return _oFolder_.Path()
+
+	func @ParentFolder()
+		return ParentFolder()
+
+func ParentParentFolder()
+	_oFolder_ = new stzFolder(currentDir())
+	_oFolder_.GoUp()
+	_oFolder_.GoUp()
+	return _oFolder_.Path()
+
+	func @ParentPArentFolder()
+		return ParentPArentFolder()
+
 func @ExeFolder()
 	return exefolder()
 
@@ -710,6 +727,10 @@ class stzFolder from stzObject
 	        return @oQDir.path()
 	    ok
 	
+
+	    def ParentDir()
+		return This.PArentFolder()
+
 	#============================#
 	#  BATCH VALIDATION METHODS  #
 	#============================#
@@ -1672,9 +1693,6 @@ class stzFolder from stzObject
 			return This.GoUp()
 
 		def cdUp()
-			return This.GoUp()
-
-		def ParentDir()
 			return This.GoUp()
 
 	def GoHome()

@@ -89608,6 +89608,18 @@ fdef
 			return 0
 		ok
 
+	def IsInSectionOrBetweenNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find(["insection", "between"], This.Item(1)) )
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IsBetweenOrInSectionNamedParam()
+			return This.IsInSectionOrBetweenNamedParam()
+
 	def IsSectionsNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Sections )
@@ -92886,6 +92898,25 @@ fdef
 
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and This.Item(1) = :Type )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsPersonNamedParam()
+
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = :Person )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsToOrToPositionOrToNodeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([ "to", "toposition", "tonode" ], This.Item(1)) > 0 )
 
 			return 1
 		else

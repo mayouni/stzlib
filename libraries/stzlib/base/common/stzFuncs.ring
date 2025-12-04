@@ -5726,7 +5726,9 @@ func View(cFileName)
 	ok
 
 	if fexists(cFileName)
-		system("start " + cFileName)
+		osysCall = new stzSystemCall("")
+		oSysCall.OpenFile(cFileName)
+
 	else
 		stzraise("Can't proceed! The file you provided does not exist.")
 	ok

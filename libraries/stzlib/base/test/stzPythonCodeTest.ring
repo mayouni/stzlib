@@ -1,7 +1,7 @@
 load "../stzbase.ring"
 
 /*---
-*/
+
 pr()
 
 # Python code  
@@ -344,7 +344,6 @@ pf()
 
 /*--- Face detection with python
 
-
 #TODO ExterLib
 
 View("face.jpg")
@@ -354,8 +353,8 @@ py() { BoxFaceXT("face.jpg", [ :SaveAs = "face2.jpg", :Details = TRUE ]) }
 View("face2.jpg")
 
 /*---
-
-View("face.jpg")
+*/
+View("images/face.jpg")
 
 py() {
 
@@ -367,7 +366,7 @@ import cv2
 face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
 
 # Load image
-image = cv2.imread("face.jpg")
+image = cv2.imread("images/face.jpg")
 
 # Convert to grayscale for detection
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -393,19 +392,19 @@ for i, (x, y, w, h) in enumerate(faces):
     })
 
 # Save the annotated image
-cv2.imwrite("face2.jpg", image)
+cv2.imwrite("images/face2.jpg", image)
 
 res = {
     "total_faces": len(faces),
     "faces": face_results,
-    "output_file": "face2.jpg"
+    "output_file": "images/face2.jpg"
 }
 ')
 # End of Python code
 
 Execute()
 ? @@NL(Result())
-View("face2.jpg")
+View("images/face2.jpg")
 
 }
 
@@ -428,7 +427,7 @@ eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.xml
 smile_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_smile.xml")
 
 # Load image
-image = cv2.imread("face-color.jpg")
+image = cv2.imread("images/face-color.jpg")
 
 # Convert to grayscale for detection
 gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
@@ -485,12 +484,12 @@ for i, (x, y, w, h) in enumerate(faces):
     })
 
 # Save the annotated image
-cv2.imwrite("face-color2.jpg", image)
+cv2.imwrite("images/face-color2.jpg", image)
 
 res = {
     "total_faces": len(faces),
     "faces": face_results,
-    "output_file": "face-color2.jpg"
+    "output_file": "images/face-color2.jpg"
 }
 ')
 # End of Python code
@@ -498,7 +497,7 @@ res = {
 Execute()
 ? @@NL(Result())
 
-? View("face-color2.jpg")
+? View("images/face-color2.jpg")
 
 }
 

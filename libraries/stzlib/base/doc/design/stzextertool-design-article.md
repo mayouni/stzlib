@@ -702,44 +702,44 @@ Workflow.Compose {
 
 ```
 Developer writes intent:
-┌─────────────────────────────────────────────────────┐
+┌────────────────────────────────────────────────┐
 │ Workflow = new stzComposedWorkflow()                │
 │ Workflow.Compose { ... stages ... }                 │
 │ Workflow.Execute()                                  │
-└─────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────┘
                         ↓
 Softanza DSL layer interprets:
-┌─────────────────────────────────────────────────────┐
+┌────────────────────────────────────────────────┐
 │ Parse stage definitions                             │
 │ Build DAG (directed acyclic graph)                  │
 │ Validate semantic types                             │
 │ Optimize execution order                            │
 │ Check cache validity                                │
-└─────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────┘
                         ↓
 Route to appropriate tools:
-┌─────────────────────────────────────────────────────┐
+┌────────────────────────────────────────────────┐
 │ Stage 1 → stzDataTool.Execute()                     │
 │           Result: [TabularData]                     │
 │                        ↓ [Bridge]                   │
 │ Stage 2 → stzStatTool.Execute()                     │
-│           :input = [TabularData]                      │
+│           :input = [TabularData]                    │
 │           Result: [StatisticalModel]                │
 │                        ↓ [Bridge]                   │
 │ Stage 3 → stzVisualizationTool.Execute()            │
-│           :input = [StatisticalModel]                 │
+│           :input = [StatisticalModel]               │
 │           Result: [Image]                           │
 │                        ↓ [Bridge]                   │
 │ Stage 4 → stzDocTool.Execute()                      │
-│           :input = [Image] + metadata                 │
+│           :input = [Image] + metadata               │
 │           Result: [Document]                        │
-└─────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────┘
                         ↓
 Return unified result:
-┌─────────────────────────────────────────────────────┐
+┌────────────────────────────────────────────────┐
 │ Workflow.Result() → [Document]                      │
 │ Ring-native structure ready for further use         │
-└─────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────┘
 ```
 
 ### Ring as Universal Data Currency
