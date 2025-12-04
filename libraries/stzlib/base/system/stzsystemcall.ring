@@ -33,13 +33,40 @@ class stzSystemCall
 	@bExecuted = FALSE
 	@bRunSilentMode = FALSE
 
-	def init(pcProgram)
+	def init(pcProgramOrCommand)
 		if CheckParam()
-			if NOT isString(pcProgram)
+			if NOT isString(pcProgramOrCommand)
 				stzraise("Program must be a string!")
 			ok
 		ok
-		@cProgram = pcProgram
+		
+		# Check if it's a named command from syscmd()
+		if substr(pcProgramOrCommand, 1, 1) = ":"
+			cCommandName = substr(pcProgramOrCommand, 2)
+			This.LoadFromSysCmd(cCommandName)
+		else
+			@cProgram = pcProgramOrCommand
+		ok
+	
+	def LoadFromSysCmd(cCommandName)
+		aCmd = syscmd(":" + cCommandName)
+		
+		# Get platform-specific command
+		aPlatformCmd = NULL
+		if isWindows() and haskey(aCmd, :windows)
+			aPlatformCmd = aCmd[:windows]
+		but isMacOS() and haskey(aCmd, :mac)
+			aPlatformCmd = aCmd[:mac]
+		but haskey(aCmd, :unix)
+			aPlatformCmd = aCmd[:unix]
+		ok
+		
+		if aPlatformCmd = NULL
+			stzraise("Command not supported on this platform: " + cCommandName)
+		ok
+		
+		@cProgram = aPlatformCmd[1]
+		@acArgs = aPlatformCmd[2]
 
 	def Program()
 		return @cProgram
@@ -71,6 +98,32 @@ class stzSystemCall
 
 		def WithArgsQ(pacArgs)
 			return This.SetArgsQ(pacArgs)
+	
+	def SetParam(cParam, cValue)
+		# Replace {param} placeholders in args
+		for i = 1 to len(@acArgs)
+			@acArgs[i] = substr(@acArgs[i], "{" + cParam + "}", cValue)
+		next
+		
+		def SetParamQ(cParam, cValue)
+			This.SetParam(cParam, cValue)
+			return This
+	
+	def SetParams(aParams)
+		# aParams = [[:source, "file.txt"], [:dest, "backup.txt"]]
+		for aParam in aParams
+			This.SetParam(aParam[1], aParam[2])
+		next
+		
+		def WithParams(aParams)
+			This.SetParams(aParams)
+		
+		def SetParamsQ(aParams)
+			This.SetParams(aParams)
+			return This
+		
+		def WithParamsQ(aParams)
+			return This.SetParamsQ(aParams)
 
 	def AddArg(pcArg)
 		@acArgs + pcArg
