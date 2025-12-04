@@ -1,0 +1,34 @@
+orgchart "Regional Bank"
+
+positions
+    board
+        title: "Board of Directors"
+        level: executive
+        reportsTo: 
+
+    ceo
+        title: "Chief Executive Officer"
+        level: executive
+        reportsTo: board
+
+    cfo
+        title: "Chief Financial Officer"
+        level: management
+        department: finance
+        reportsTo: ceo
+
+people
+    p_alice
+        name: "Alice Johnson"
+
+    p_bob
+        name: "Bob Chen"
+
+assignments
+    p_alice -> ceo
+    p_bob -> cfo
+
+departments
+    finance
+        name: "Finance Department"
+        positions: ["cfo"]

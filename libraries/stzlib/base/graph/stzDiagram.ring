@@ -286,7 +286,7 @@ $cDefaultLayout = "topdown"
 
 # LAYOUT ENGINE OPTIONS
 $acSplineTypes = ["ortho", "spline", "polyline", "curved", "line", "none"]
-$cDefaultSplineType = "ortho"
+$cDefaultSplineType = "spline"
 
 $anNodeSeparations = [0.3, 0.5, 0.6, 0.8, 1.0, 1.2, 1.5]
 $nDefaultNodeSep = 0.6
@@ -325,10 +325,6 @@ $aThemeFonts = [
 	:print = [:font = "times", :size = 11],
 	:gray = [:font = "helvetica", :size = 12]
 ]
-
-#-- Output file
-
-$cDefaultOutputFormat = "svg" #TODO Implement it
 
 #-- Visual focus color
 
@@ -528,61 +524,8 @@ func ResolveColor(pColor)
 		$acFullColorPalette = BuildColorPalette()
 	ok
 	
-	if isString(pColor) and substr(pColor, "#")
-		return pColor
-	ok
-	
-	cColorKey = lower("" + pColor)
-	
-	# Extract intensity modifier (++, +, --, -)
-	cIntensity = ""
-	cBaseKey = cColorKey
-	
-	if right(cColorKey, 2) = "++" or right(cColorKey, 2) = "--"
-		cIntensity = right(cColorKey, 2)
-		cBaseKey = left(cColorKey, stzlen(cColorKey) - 2)
-
-	but right(cColorKey, 1) = "+" or right(cColorKey, 1) = "-"
-		cIntensity = right(cColorKey, 1)
-		cBaseKey = left(cColorKey, stzlen(cColorKey) - 1)
-	ok
-	
-	# Try direct palette lookup
-	if HasKey($acFullColorPalette, cColorKey)
-		return $acFullColorPalette[cColorKey]
-	ok
-	
-	# Try semantic meaning
-	if HasKey($acColorsBySemanticMeaning, cBaseKey)
-		cBaseColor = "" + $acColorsBySemanticMeaning[cBaseKey]
-		return ResolveColor(cBaseColor + cIntensity)
-	ok
-	
-	# Try node type
-	if HasKey($acColorsByNodeType, cBaseKey)
-		cBaseColor = "" + $acColorsByNodeType[cBaseKey]
-		return ResolveColor(cBaseColor + cIntensity)
-	ok
-	
-	# Legacy map
-	aLegacyMap = [
-		:lightblue = "blue+",
-		:lightgreen = "green+",
-		:lightyellow = "yellow+",
-		:lightcoral = "coral",
-		:lightgray = "gray+",
-		:lightcyan = "cyan+",
-		:lightpink = "pink+",
-		:darkgreen = "green-",
-		:darkblue = "blue-",
-		:darkred = "red-"
-	]
-	
-	if HasKey(aLegacyMap, cColorKey)
-		return ResolveColor(aLegacyMap[cColorKey])
-	ok
-	
-	return $acFullColorPalette[:blue]
+      oResolver = new stzColorResolver()
+      return oResolver.ResolveWithPalette(pColor, $acFullColorPalette)
 
 func AttenuateColor(cColor)
     # Remove all intensity modifiers
@@ -621,9 +564,7 @@ func ResolveEdgeStyle(pStyle)
 
 func ResolveNodeType(pcType)
 	cTypeKey = lower("" + pcType)
-	
 
-	
 	if ring_find($acDotShapes, cTypeKey) > 0
 		return cTypeKey
 	ok
@@ -633,7 +574,7 @@ func ResolveNodeType(pcType)
 		return cTypeKey
 	ok
 	
-	# Fallback mapping
+	# Fallback mapping #TODO Shoud it be gloabal?
 	aVisualMap = [
 		:box = "process",
 		:diamond = "decision",
@@ -647,7 +588,7 @@ func ResolveNodeType(pcType)
 		return aVisualMap[cTypeKey]
 	ok
 
-	# Map unsupported to supported shapes
+	# Map unsupported to supported shapes #TODO Shoud it be gloable?
 	aShapeMap = [
 		:square = "box",
 		:rect = "box",
@@ -768,6 +709,7 @@ class stzDiagram from stzGraph
 	@cEdgeColor = $cDefaultEdgeColor
 	@cNodeColor = $cDefaultNodeColor
 	@cNodeStrokeColor = $cDefaultNodeStrokeColor
+	@cClusterColor = $cDefaultClusterColor
 
 	@aPalette = $aPalette
 	@aFontColors = $aFontColors
@@ -798,8 +740,6 @@ class stzDiagram from stzGraph
 	@cArrowHead = "normal"
 	@cArrowTail = "none"
 
-	@aVisualRules = []
-
 	@cSplineType = $cDefaultSplineType
 	@nNodeSep = $nDefaultNodeSep
 	@nRankSep = $nDefaultRankSep
@@ -814,6 +754,9 @@ class stzDiagram from stzGraph
 	@aLoadedStyles = []
 
 	@cFocusColor = $cDefaultFocusColor
+	@cOutputFormat = $cDefaultDiagramOutputFormat
+
+	@aVisualRules = []
 
 	def init(pTitle)
 		super.init(pTitle)
@@ -892,9 +835,12 @@ class stzDiagram from stzGraph
 		@cArrowTail = lower(pcStyle)
 	
 	def SetSplines(pcType)
+
 	    cType = lower(pcType)
 	    if ring_find($acSplineTypes, cType) > 0
 	        @cSplineType = cType
+	    else
+		@cSplineType = $cDefaultSplineType
 	    ok
 
 	    def SetEdgeLineStyle(pcType)
@@ -902,7 +848,10 @@ class stzDiagram from stzGraph
 
 	    def SetEdgeLineType(pcType)
 		This.SetSplines(pcType)
-	
+
+	    def SetEdgeSpline(pcType)
+		This.SetSplines(pcType)
+
 	def SetNodeSeparation(pnValue)
 	    if isNumber(pnValue) and pnValue > 0
 	        @nNodeSep = pnValue
@@ -962,6 +911,12 @@ class stzDiagram from stzGraph
 	
 	def SetSubtitle(pcSubtitle)
 	    @cSubtitle = pcSubtitle
+
+	def SetOutputFormat(cFormat)
+		@cOutputFormat = lower(cFormat)
+
+		def SetOutput(cFormat)
+			@cOutputFormat = lower(cFormat)
 
 	# Getters
 	def NodePenWidth()
@@ -1044,6 +999,9 @@ class stzDiagram from stzGraph
 
 	def TitleVisibility()
 		return 	@bTitleVisibility
+
+	def OutputFormat()
+		return @cOutputFormat
 
 	#--------------------#
 	#  COLOR RESOLUTION  #
@@ -1420,11 +1378,14 @@ class stzDiagram from stzGraph
 	#  CLUSTER OPERATIONS  #
 	#----------------------#
 
+	def SetClusterColor(pcColor)
+		@cClusterColor = ResolveColor(pcColor)
+
 	def AddCluster(pClusterId, aNodeIds)
 		This.AddClusterXT(pClusterId, pClusterId, aNodeIds)
 
 	def AddClusterXT(pClusterId, pLabel, aNodeIds)
-		This.AddClusterXTT(pClusterId, pLabel, aNodeIds, $cDefaultClusterColor)
+		This.AddClusterXTT(pClusterId, pLabel, aNodeIds, @cClusterColor)
 
 	def AddClusterXTT(pClusterId, pLabel, aNodeIds, pColor)
 		oCluster = [
@@ -1549,6 +1510,7 @@ class stzDiagram from stzGraph
 			# Delegate to parent stzGraph
 			return super._ValidateSingle(pcValidator)
 		off
+
 	#-----------#
 	#  METRICS  #
 	#-----------#
@@ -1604,7 +1566,7 @@ class stzDiagram from stzGraph
 		# Create stzDotCode instance and execute
 		oDotExec = new stzDotCode()
 		oDotExec.SetCode(cDotCode)
-		oDotExec.SetOutputFormat("svg")
+		oDotExec.SetOutputFormat(@cOutputFormat)
 		oDotExec.ExecuteAndView()
 		
 		def Display()
@@ -1756,8 +1718,6 @@ class stzDiagram from stzGraph
 			@aVisualRules[p.@cRuleId] = NULL
 			This.RemoveRule(p)
 		ok
-	
-
 
 	#-----------------------------------------#
 	# Get diagram overview with rules context #
@@ -3295,6 +3255,16 @@ class stzDiagramToDot
 	        return cOutput
 	    ok
 	    
+ 	    cFillColor = This._GetNodeFillColor(aNode, @oDiagram.@aNodesAffectedByRules, cTheme)
+
+	    # Check if this node was affected by focus/rules
+	    if HasKey(@oDiagram.@aNodesAffectedByRules, aNode["id"])
+	        aRuleEffects = @oDiagram.@aNodesAffectedByRules[aNode["id"]]
+	        if HasKey(aRuleEffects, "color")
+	            cFillColor = ResolveColor(aRuleEffects["color"])
+	        ok
+	    ok
+
 	    if left(cNodeId, 8) = "_helper_"
 	        cOutput = '    ' + cNodeId + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
 	        return cOutput
@@ -3315,21 +3285,21 @@ class stzDiagramToDot
 	    cOutput += ', style="' + cStyle + '"'
 	    
 	    # ORG CHART POSITION NODES
-	if HasKey(aNode["properties"], "positiontype") and 
-	   aNode["properties"]["positiontype"] = "position"
-	    
-	    cFillColor = ResolveColor(aNode["properties"]["color"])
-	    cOutput += ', style="rounded,solid,filled"'
-	    cOutput += ', fillcolor="' + cFillColor + '"'
-	    cOutput += ', fontcolor="' + @oDiagram.ResolveFontColor(cFillColor) + '"'
-	    
-	    # Use diagram's stroke color setting
-	    cStrokeColor = @oDiagram.@cNodeStrokeColor
-	    if cStrokeColor = '' or cStrokeColor = "invisible"
-	        cStrokeColor = cFillColor
+	    if HasKey(aNode["properties"], "positiontype") and 
+			aNode["properties"]["positiontype"] = "position"
+		
+			cFillColor = ResolveColor(aNode["properties"]["color"])
+			cOutput += ', style="rounded,solid,filled"'
+			cOutput += ', fillcolor="' + cFillColor + '"'
+			cOutput += ', fontcolor="' + @oDiagram.ResolveFontColor(cFillColor) + '"'
+		
+			# Use diagram's stroke color setting
+			cStrokeColor = @oDiagram.@cNodeStrokeColor
+			if cStrokeColor = '' or cStrokeColor = "invisible"
+				cStrokeColor = cFillColor
+			ok
+			cOutput += ', color="' + ResolveColor(cStrokeColor) + '"'
 	    ok
-	    cOutput += ', color="' + ResolveColor(cStrokeColor) + '"'
-	ok
 	    
 	    cOutput += ']' + NL
 	    
@@ -3834,6 +3804,63 @@ class stzColorResolver
 		# Use global helper
 		return RGBToHex(nGray, nGray, nGray)
 
+	def ResolveWithPalette(pcColor, pacPalette)
+
+		if isString(pcColor) and substr(pcColor, "#")
+			return pcColor
+		ok
+		
+		cColorKey = lower("" + pcColor)
+		
+		# Extract intensity modifier (++, +, --, -)
+		cIntensity = ""
+		cBaseKey = cColorKey
+		
+		if right(cColorKey, 2) = "++" or right(cColorKey, 2) = "--"
+			cIntensity = right(cColorKey, 2)
+			cBaseKey = left(cColorKey, stzlen(cColorKey) - 2)
+	
+		but right(cColorKey, 1) = "+" or right(cColorKey, 1) = "-"
+			cIntensity = right(cColorKey, 1)
+			cBaseKey = left(cColorKey, stzlen(cColorKey) - 1)
+		ok
+		
+		# Try direct palette lookup
+		if HasKey(pacPalette, cColorKey)
+			return pacPalette[cColorKey]
+		ok
+		
+		# Try semantic meaning
+		if HasKey($acColorsBySemanticMeaning, cBaseKey)
+			cBaseColor = "" + $acColorsBySemanticMeaning[cBaseKey]
+			return ResolveColor(cBaseColor + cIntensity)
+		ok
+		
+		# Try node type
+		if HasKey($acColorsByNodeType, cBaseKey)
+			cBaseColor = "" + $acColorsByNodeType[cBaseKey]
+			return ResolveColor(cBaseColor + cIntensity)
+		ok
+		
+		# Legacy map #TODO Shoud it be global?
+		aLegacyMap = [
+			:lightblue = "blue+",
+			:lightgreen = "green+",
+			:lightyellow = "yellow+",
+			:lightcoral = "coral",
+			:lightgray = "gray+",
+			:lightcyan = "cyan+",
+			:lightpink = "pink+",
+			:darkgreen = "green-",
+			:darkblue = "blue-",
+			:darkred = "red-"
+		]
+		
+		if HasKey(aLegacyMap, cColorKey)
+			return ResolveColor(aLegacyMap[cColorKey])
+		ok
+		
+		return pacPalette[:blue]
 
 #============================================#
 #  stzStylParser - *.stzstyl Format Parser   #

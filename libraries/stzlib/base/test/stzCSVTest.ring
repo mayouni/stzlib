@@ -1,7 +1,6 @@
 load "../stzbase.ring"
-load "../../max/list/stzlist2D.ring"
+//load "../../max/list/stzlist2D.ring"
 
-/*---
 
 pr()
 

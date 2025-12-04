@@ -377,3 +377,92 @@ class stzKnowledgeGraph from stzGraph
 		ok
 		
 		return aExplanation
+
+	#----------------------------------#
+	#  MANAGING *.stzknow file format  #
+	#----------------------------------#
+
+	def ImportKnow(pSource)
+	    if isString(pSource)
+	        if right(pSource, 8) = ".stzknow"
+	            oParser = new stzKnowParser()
+	            oLoaded = oParser.ParseFile(pSource)
+	        else
+	            oParser = new stzKnowParser()
+	            oLoaded = oParser.Parse(pSource)
+	        ok
+	        This._MergeKnowledgeBase(oLoaded)
+	    ok
+	
+	    def LoadKnow(pSource)
+		return This.ImportKnow(pSource)
+
+	def ExportToKnow()
+	    cKnow = 'knowledge "' + @cId + '"' + NL + NL
+	    cKnow += "facts" + NL
+	    aFacts = This.Facts()
+	    for aFact in aFacts
+	        cKnow += "    " + aFact[1] + " | " + aFact[2] + " | " + aFact[3] + NL
+	    end
+	    return cKnow
+	
+	def WriteToKnowFile(pcFilename)
+	    if right(pcFilename, 8) != ".stzknow"
+	        pcFilename += ".stzknow"
+	    ok
+	    write(pcFilename, This.ExportToKnow())
+	
+	    def WriteKnowFile(pcFileName)
+		This.WriteToKnowFile(pcFilename)
+
+	def _MergeKnowledgeBase(oOther)
+	    aFacts = oOther.Facts()
+	    for aFact in aFacts
+	        This.AddFact(aFact[1], aFact[2], aFact[3])
+	    end
+
+class stzKnowParser
+    def ParseFile(pcFilename)
+        cContent = read(pcFilename)
+        return This.Parse(cContent)
+    
+    def Parse(pcContent)
+        oKG = NULL
+        acLines = split(pcContent, NL)
+        cSection = ""
+        
+        for cLine in acLines
+            cLine = trim(cLine)
+            if cLine = "" or left(cLine, 1) = "#"
+                loop
+            ok
+            
+            if substr(cLine, "knowledge ")
+                cId = This._ExtractQuoted(cLine)
+                oKG = new stzKnowledgeGraph(cId)
+            
+            but cLine = "namespaces"
+                cSection = "namespaces"
+            but cLine = "ontology"
+                cSection = "ontology"
+            but cLine = "facts"
+                cSection = "facts"
+            but cLine = "rules"
+                cSection = "rules"
+            
+            but cSection = "facts" and substr(cLine, "|")
+                aParts = split(cLine, "|")
+                if len(aParts) = 3
+                    oKG.AddFact(trim(aParts[1]), trim(aParts[2]), trim(aParts[3]))
+                ok
+            ok
+        end
+        
+        return oKG
+    
+    def _ExtractQuoted(cLine)
+        nStart = substr(cLine, '"')
+        if nStart = 0 return "" ok
+        nEnd = @substr(cLine, nStart + 1, len(cLine))
+        nEnd = substr(nEnd, '"')
+        return @substr(cLine, nStart + 1, nStart + nEnd - 1)

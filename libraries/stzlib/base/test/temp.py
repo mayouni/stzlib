@@ -40,9 +40,14 @@ def transform_to_ring(data):
 # Main code
 print("Python script starting...")
 
+import numpy as np
+import pandas as pd
+
+# Create sample of sales data
 res = {
-    "numbers": [1, 2, 3, 4, 5],
-    "mean": sum([1, 2, 3, 4, 5]) / 5
+    "total_revenue": sum([a*b for a,b in zip([100, 150, 200, 120], [10.5, 8.75, 12.25, 15.00])]),
+    "average_price": np.mean([10.5, 8.75, 12.25, 15.00]),
+    "best_seller": "C"
 }
 
 print("Data before transformation:", res)

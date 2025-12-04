@@ -1,0 +1,23 @@
+ruleset "BCEAO Banking Compliance"
+    domain: bceao
+    version: "2.0"
+    author: "Compliance Team"
+
+rules
+    rule board_required
+        type: validation
+        level: orgchart
+        severity: error
+        message: "Board of Directors mandatory"
+    when
+        graph mustBe "hasBoard"
+    then
+        violation add "BCEAO-001: No board found"
+
+    rule audit_independence
+        type: validation
+        level: orgchart
+    when
+        department equals "audit"
+    then
+        reportsTo mustBe "board"

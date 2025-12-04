@@ -3,43 +3,43 @@ orgchart "International_Bank"
 positions
     board
         title: Board of Directors
-        level: 0
+        level: executive
         department: 
         reportsTo: 
 
     ceo
         title: CEO
-        level: 0
+        level: executive
         department: 
         reportsTo: board
 
     cfo
         title: CFO
-        level: 0
+        level: management
         department: 
         reportsTo: ceo
 
     cro
         title: Chief Risk Officer
-        level: 0
+        level: management
         department: risk
         reportsTo: ceo
 
     cto
         title: CTO
-        level: 0
+        level: management
         department: it
         reportsTo: ceo
 
     treasury_head
         title: Treasury Head
-        level: 0
+        level: management
         department: treasury
         reportsTo: cfo
 
     ops_head
         title: Operations Head
-        level: 0
+        level: management
         department: operations
         reportsTo: ceo
 

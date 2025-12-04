@@ -139,6 +139,8 @@ ok
 
 # Loading files related to SYSTEM module
 
+    load "system/stzsystemcall.ring"
+
     load "system/stzmemoryglobals.ring"
     load "system/stzmemoryconvertors.ring"
     load "system/stzoperatingsystem.ring"
