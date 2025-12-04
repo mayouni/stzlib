@@ -24,36 +24,38 @@ Main thematic sections of this test file:
 #================================#
 
 /*--- Basic Folder Creation and Information
-*/
+
 pr()
 
-o1 = new stzFolder("C:\MyTestFolder")
+o1 = new stzFolder("temp")
 o1 {
 
     ? @@NL( Info() )
     #-->
-	' [
-		[ "name", "MyTestFolder" ],
-		[ "path", "C:/MyTestFolder" ],
-		[ "absolutepath", "C:/MyTestFolder" ],
-		[ "count", 0 ],
-		[ "files", 0 ],
-		[ "folders", 0 ],
-		[ "isempty", 1 ],
-		[ "isreadable", 1 ],
-		[ "isroot", 0 ],
-		[ "exists", 1 ]
-	]'
+    '[
+	[ "name", "temp" ],
+	[ "path", "temp" ],
+	[
+		"absolutepath",
+		"d:/github/stzlib/libraries/stzlib/base/test/temp"
+	],
+	[ "count", 3 ],
+	[ "files", 3 ],
+	[ "folders", 0 ],
+	[ "isempty", 0 ],
+	[ "isreadable", 1 ],
+	[ "isroot", 0 ]
+   ]'
     
 
-	? Name()
-    #--> MyTestFolder
+    ? Name()
+    #--> temp
     
     ? IsEmpty()
-    #--> TRUE
+    #--> FALSE
     
     ? Count() # Or Size()
-    #--> 0
+    #--> 3
 }
 
 pf()
@@ -63,7 +65,7 @@ pf()
 
 pr()
 
-o1 = new stzFolder("C:\MyTestFolder\Documents\Projects")
+o1 = new stzFolder("output")
 o1 {
 
     ? Name()
@@ -687,7 +689,7 @@ pr()
 
 # Here is an example:
 
-o1 = new stzFolder("c:/testarea")
+o1 = new stzFolder("d:/ring124")
 
 # Showing the tree structure (first level folders collapsed by default)
 

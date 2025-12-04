@@ -121,12 +121,12 @@ func CreateIfInexistant(cPath)
 	func @CreateIfInexistant(cPath)
 		CreateIfInexistant(cPath)
 
-def FolderCreateIfInexistant(cFolderPath)
+func FolderCreateIfInexistant(cFolderPath)
     if NOT isdir(cFolderPath)
         if isWindows()
-            system('mkdir "' + cFolderPath + '"')
+            stzsystemSilent("cmd.exe", ["/c", "mkdir", cFolderPath])
         else
-            system('mkdir -p "' + cFolderPath + '"')
+            stzsystemSilent("mkdir", ["-p", cFolderPath])
         ok
     ok
 
@@ -207,7 +207,7 @@ class stzFolder from stzObject
 		
 		# Create directory if it doesn't exist
 		if NOT dirExists(cPath)
-			if NOT QDir_mkpath(cPath)  # Qt's static method - more reliable
+			if NOT @oQDir.mkpath(cPath)  # Qt's static method - more reliable
 				StzRaise("Cannot create directory: " + cPath)
 			ok
 		ok
