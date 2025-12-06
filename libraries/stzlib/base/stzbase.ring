@@ -33,6 +33,7 @@ ok
     load "data/stzlocaledata.ring"
     load "data/stzregexdata.ring"
     load "data/stzrandomdata.ring"
+    load "data/stzsystemcalldata.ring"
 
 # Loading files related to the OBJECT module
 

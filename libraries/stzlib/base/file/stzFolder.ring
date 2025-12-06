@@ -118,6 +118,12 @@ func CreateIfInexistant(cPath)
         CreateFolderIfInexistant(cPath)
     ok
 
+	func CreateFolder(cPath)
+		CreateIfInexistant(cPath)
+
+	func @CreateFolder(cPath)
+		CreateIfInexistant(cPath)
+
 	func @CreateIfInexistant(cPath)
 		CreateIfInexistant(cPath)
 
@@ -139,6 +145,84 @@ func FolderCreateIfInexistant(cFolderPath)
 	func @CreateFolderIfInexistant(cFolderPath)
 		FolderCreateIfInexistant(cFolderPath)
 
+func RemoveFolderRecursive(cPath)
+	_oQDir_ = new QDir(cPath)
+	return _oQDir_.removeRecursively()
+
+	RemoveFolderXT(cPath)
+		return This.RemoveFolderRecursive()
+
+func QMkdir(cPath)
+	_oQDir_ = new QDir()
+	return _oQDir_.mkpath(cPath)
+
+	func mkdir(cPath)
+		return QMkdir(cPath)
+
+func NormalizePath(cPath)
+	if CheckParams()
+		if NOT ( isString(cPath) and trim(cPath) != "" )
+			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+		ok
+	ok
+	
+	if substr(cPath, ".") > 0
+		return NormalizeFilePath(cPath)
+	else
+		return NormalizeFolderPath(cPath)
+	ok
+
+	func NormalisePath(cPath)
+		return NormalizePath(cPath)
+
+func NormalizePathXT(cPath)
+	if CheckParams()
+		if NOT ( isString(cPath) and trim(cPath) != "" )
+			StzRaise("Incorrect param type! cPath must be a non-empty string.")
+		ok
+	ok
+	
+	# Check if it's a file (has extension) or folder
+	if substr(cPath, ".") > 0
+		return NormalizeFilePathXT(cPath)
+	else
+		return NormalizeFolderPathXT(cPath)
+	ok
+
+	func NormalisePathXR(cPath)
+		return NormalizePathXT(cPath)
+
+func NormalizeFolderPath(cName)
+	cName = NormalizeFilePath(cName)
+	
+	if left(cName, 1) != "/"
+		cName = "/" + cName
+	ok
+
+	if right(cName, 1) != "/"
+		cName += "/"
+	ok
+
+	return substr(cName, "//", "/")
+
+	func NormaliseFolderPath(cName)
+		return NormalizeFolderPath(cName) 	
+
+func NormalizeFolderPathXT(cName)
+	cName = NormalizeFilePathXT(cName)
+	
+	if right(cName, 1) != "/"
+		cName += "/"
+	ok
+
+	return substr(cName, "//", "/")
+
+	func NormaliseFolderPathXT(cName)
+		return NormalizeFolderPathXT(cName)
+
+#-------------#
+#  THE CLASS  #
+#-------------#
 
 class stzFolder from stzObject
 
@@ -199,7 +283,7 @@ class stzFolder from stzObject
 		
 		# Determine target path - let Qt handle the heavy lifting
 		cPath = ""
-		if pcDirPath = NULL or pcDirPath = ""
+		if pcDirPath = pcDirPath = ""
 			cPath = QDir_currentPath()  # Get actual current directory path
 		else
 			cPath = QDir_cleanPath(NULL, pcDirPath)

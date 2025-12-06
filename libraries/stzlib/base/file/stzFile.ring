@@ -85,6 +85,59 @@ func FileInfoXT(cFile)
 	func @FileInfoXT(cFile)
 		return FileInfoQ(cFile)
 
+func CopyFileContent(cSource, cDest)
+	if NOT fexists(cSource)
+		stzraise("Source file does not exist: " + cSource)
+	ok
+	
+	# Extract and create destination directory if needed
+	cDestDir = ""
+	for i = len(cDest) to 1 step -1
+		if cDest[i] = "/" or cDest[i] = "\"
+			cDestDir = left(cDest, i - 1)
+			exit
+		ok
+	next
+	
+	if cDestDir != "" and NOT isdir(cDestDir)
+		_oQDir_ = new QDir()
+		if NOT _oQDir_.mkpath(cDestDir)
+			stzraise("Cannot create destination directory: " + cDestDir)
+		ok
+	ok
+	
+	cContent = read(cSource)
+	write(cDest, cContent)
+
+func ListFiles(cDir)
+	aFiles = []
+	_aList_ = @dir(cDir)
+	nLen = len(_aList_)
+	
+	for i = 1 to nLen
+		if _aList_[i][2] = 0  # Files only
+			aFiles + _aList_[i][1]
+		ok
+	next
+	
+	return aFiles
+
+func FileModifTime(cFile)
+	if NOT fexists(cFile)
+		return 0
+	ok
+	
+	_oQFileInfo_ = new QFileInfo()
+	_oQFileInfo_.setFile(cFile)
+	_oQDateTime_ = _oQFileInfo_.lastModified()
+	return _oQDateTime_.toMSecsSinceEpoch()  # Unix timestamp in milliseconds
+
+	func FileModificationTime(cFile)
+		return FileModifTime(cFile)
+
+	func filemtime(cFile)
+		return FileModifTime(cFile)
+
 # Appending an exsistant file
 # Intent to create new - can read + write (fails if file does not exist)
 
@@ -145,6 +198,7 @@ func FileCreate(cFileName)
 	if FileExists(cFileName)
 		StzRaise("Can't proceed! The file already exists: " + cFileName)
 	ok
+
 	oFile = new stzFileCreator(cFileName)
 	oFile.Close()
 	return 1
@@ -510,6 +564,47 @@ func FileCreateIfInexistant(cFilePath)
 	func @CreateFileIfInexistant(cFilePath)
 		FileCreateIfInexistant(cFilePath)
 
+
+#---
+
+# Short form - relative/normalized paths
+func NormalizeFilePath(cName)
+	if CheckParams()
+		if NOT ( isString(cName) and trim(cName) != "" )
+			StzRaise("Incorrect param type! cName must be a non-empty string.")
+		ok
+	ok
+	
+	_oQDir_ = new QDir()
+	cResult = lower(_oQDir_.cleanPath(trim(cName)))
+	cResult = substr(cResult, "//", "/")
+	return cResult
+
+	func NormaliseFilePath(cName)
+		return NormalizeFilePath(cName)
+
+# XT form - absolute paths
+func NormalizeFilePathXT(cName)
+	if CheckParams()
+		if NOT ( isString(cName) and trim(cName) != "" )
+			StzRaise("Incorrect param type! cName must be a non-empty string.")
+		ok
+	ok
+	
+	_oQDir_ = new QDir()
+	cName = trim(cName)
+	
+	# Convert to absolute path
+	if NOT _oQDir_.isAbsolutePath(cName)
+		cName = currentdir() + "/" + cName
+	ok
+	
+	cResult = lower(_oQDir_.cleanPath(cName))
+	cResult = substr(cResult, "//", "/")
+	return cResult
+
+	func NormaliseFilePathXT(cName)
+		return NormalizeFilePathXT(cName)
 
 class stzFileXT from stzObject
 

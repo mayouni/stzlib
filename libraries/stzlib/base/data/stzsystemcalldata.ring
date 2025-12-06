@@ -615,9 +615,54 @@ $aStzSystemCommands = [
 ]
 
 # Get system command data
-func syscmd(cCommandName)
+func SysData(cCommandName)
 	if NOT haskey($aStzSystemCommands, cCommandName)
 		stzraise("Unknown system command: " + cCommandName)
 	ok
 	
 	return $aStzSystemCommands[cCommandName]
+
+	func SysCmdData(cCommandName)
+		return SysData(cCommandName)
+
+	func SystemCommandData(cCommandName)
+		return SysData(cCommandName)
+
+# Pattern-based command definitions (like pat(:Email))
+func Sys(cCommand)
+	if NOT haskey($aStzSystemCommands, cCommand)
+		stzraise("Unknown system command: " + cCommand)
+	ok
+	
+	aCmd = $aStzSystemCommands[cCommand]
+	
+	# Get platform-specific command
+	aPlatformCmd = ""
+	if isWindows() and haskey(aCmd, :windows)
+		aPlatformCmd = aCmd[:windows]
+	but isMacOS() and haskey(aCmd, :mac)
+		aPlatformCmd = aCmd[:mac]
+	but haskey(aCmd, :unix)
+		aPlatformCmd = aCmd[:unix]
+	ok
+	
+	if aPlatformCmd = ""
+		stzraise("Command not supported on this platform: " + cCommand)
+	ok
+	
+	# Return as string "program arg1 arg2 arg3"
+	cProgram = aPlatformCmd[1]
+	acArgs = aPlatformCmd[2]
+	
+	cResult = cProgram
+	for cArg in acArgs
+		cResult += " " + cArg
+	next
+	
+	return cResult
+
+	func SysCmd(cCommand)
+		return Sys(cCommand)
+
+	def SystemCommand(cCommand)
+		return Sys(cCommand)
