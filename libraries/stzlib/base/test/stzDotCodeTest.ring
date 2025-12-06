@@ -78,7 +78,7 @@ Dot.RunAndView()
 pf()
 
 /*--
-*/
+
 pr()
 
 dot = new stzDotCode()
@@ -103,10 +103,10 @@ Dot.RunAndView()
 
 pf()
 
-/*------------------
-#  Example 1: Basic
-#-------------------
-*/
+/*-------------------#
+#  Example 1: Basic  #
+#--------------------#
+
 pr()
 
 Dot = new stzDotCode()
@@ -124,14 +124,14 @@ Dot.ExecuteAndView()
 
 # Duration in seconds
 ? Dot.Duration()
-#--> 0.72 second(s)
+#--> 0.30 second(s)
 
 pf()
-# Executed in 0.73 second(s) in Ring 1.24
+# Executed in 0.44 second(s) in Ring 1.24
 
-/*-------------------------------#
-#  Example 2: Styled Graph
-#-------------------------------#
+/*--------------------------#
+#  Example 2: Styled Graph  #
+#---------------------------#
 
 pr()
 
@@ -164,14 +164,14 @@ Dot.Run()
 Dot.View()
 
 pf()
-# Executed in 1.35 second(s) in Ring 1.24
+# Executed in 0.57 second(s) in Ring 1.24
 
-/*--------------------------------
-#  Example 3: System Architecture
-#---------------------------------
+/*---------------------------------#
+#  Example 3: System Architecture  #
+#----------------------------------#
 
 pr()
-#ERR
+
 Dot = XDot()  # Using the XDot() function
 
 Dot.SetCode('
@@ -220,11 +220,12 @@ Log: ""
 '
 
 pf()
+# Executed in 0.45 second(s) in Ring 1.24
 
-#----------------------------------------
-#  Example 4: Process Flow with Clusters
-#----------------------------------------
-*/
+/*----------------------------------------#
+#  Example 4: Process Flow with Clusters  #
+#-----------------------------------------#
+
 pr()
 
 Dot = GraphvizQ()  # Using the Graphviz() function
@@ -276,19 +277,20 @@ Dot.SetOutputFormat("pdf")
 Dot.Execute()
 
 ? "PDF created: " + Dot.OutputFile()
-? Duration()
+? Dot.Duration()
 #--> PDF created: output\process_flow.pdf
 #--> Duration: 0.78 second(s)
 
 Dot.View()
 
 pf()
-# Executed in 3.38 second(s) in Ring 1.24
+# Executed in 0.53 second(s) in Ring 1.24
+# Executed in 3.38 second(s) in Ring 1.24 (before using stzSystemCall class
 
-/*--------------------------#
-#  Example 5: Modern Design
-#---------------------------#
-*/
+/*---------------------------#
+#  Example 5: Modern Design  #
+#----------------------------#
+
 pr()
 
 Dot = XDot()  # Using the XDot() function
@@ -334,14 +336,12 @@ digraph ModernDesign {
 Dot.SetOutputFormat("svg")
 Dot.RunAndView()
 
-#TODO Check why colors are not printed
-
 pf()
-# Executed in 1.06 second(s) in Ring 1.24
+# Executed in 0.46 second(s) in Ring 1.24
 
-/*-----------------------------------------
-#  Example 6: HTML-like Labels - Enhanced
-#------------------------------------------
+/*------------------------------------------------#
+#  Example 6: HTML-like Table inside the diagram  #
+#-------------------------------------------------#
 
 pr()
 
@@ -390,11 +390,11 @@ Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
-# Executed in 1.55 second(s) in Ring 1.24
+# Executed in 0.49 second(s) in Ring 1.24
 
-#-------------------------------#
-#  Example 7: Error Handling
-#-------------------------------#
+/*----------------------------#
+#  Example 7: Error Handling  #
+#-----------------------------#
 
 pr()
 
@@ -413,7 +413,7 @@ catch
 	? CatchError()
 	? ""
 	? "Log file content:"
-	? Dot.Log()
+	? Dot.Log() #ERR #TODO // See why it is empty!
 done
 
 ? ""
@@ -422,11 +422,14 @@ Dot.CleanupAll()
 ? "Temporary files cleaned up."
 
 pf()
+# Executed in 0.05 second(s) in Ring 1.24 (after using stzsystemCall class)
 # Executed in 0.34 second(s) in Ring 1.24
 
-#---------------------------------
-#  Example 8: Oraganization Chart
-#---------------------------------
+/*---------------------------------#
+#  Example 8: Oraganization Chart  #
+#----------------------------------#
+
+#NOTE Softanza has a dedicated stzOrgChart class, check it.
 
 pr()
 
@@ -494,11 +497,11 @@ Dot.SetOutputformat("svg")
 Dot.RunAndView()
 
 pf()
-# Executed in 1.07 second(s) in Ring 1.24
+# Executed in 0.55 second(s) in Ring 1.24
 
-#------------------------------------
-#  Example 9: Order Processing Flow
-#------------------------------------
+/*---------------------------------------#
+#  Example 9: Order Processing Workflow  #
+#----------------------------------------#
 
 pr()
 
@@ -560,12 +563,12 @@ Dot.SetOutputFormat("png")
 Dot.ExecAndView()
 
 pf()
-# Executed in 1.40 second(s) in Ring 1.24
+# Executed in 0.59 second(s) in Ring 1.24
 
-#-------------------------------------------------
-#  Example 10: BPMN Process (Customer Onboarding)
-#-------------------------------------------------
-*/
+/*----------------------------------------------------------#
+#  Example 10: BPMN Process (Customer Onboarding Workflow)  #
+#-----------------------------------------------------------#
+
 pr()
 
 Dot = new stzDotCode()
@@ -597,13 +600,13 @@ digraph CustomerOnboarding {
     ];
 
     # BPMN-specific shapes
-    StartEvent [shape=circle, label="Start", fillcolor=1, fontcolor=white];
+    StartEvent [shape=circle, label="Start", fillcolor=1, fontcolor=black];
     Register [shape=rect, label=<<TABLE BORDER="0"><TR><TD>Register Account</TD></TR><TR><TD><FONT POINT-SIZE="10">User submits form</FONT></TD></TR></TABLE>>, fillcolor=3];
     VerifyEmail [shape=rect, label=<<TABLE BORDER="0"><TR><TD>Verify Email</TD></TR><TR><TD><FONT POINT-SIZE="10">Send confirmation</FONT></TD></TR></TABLE>>, fillcolor=5];
     Gateway [shape=diamond, label="Approved?", fillcolor=7, fontcolor=white];
     Activate [shape=rect, label="Activate Profile", fillcolor=3];
     Reject [shape=rect, label="Reject & Notify", fillcolor=9, fontcolor=white];
-    EndEvent [shape=doublecircle, label="End", fillcolor=1, fontcolor=white];
+    EndEvent [shape=doublecircle, label="End", fillcolor=1, fontcolor=black];
 
     # Connections
     StartEvent -> Register;
@@ -635,11 +638,11 @@ Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
-# Executed in ~0.95 second(s) in Ring 1.24
+# Executed in 0.46 second(s) in Ring 1.24
 
-#-----------------------------------------------------------------
-#  Example 11: Sales Funnel Decision Tree (Hybrid Analytics Flow)
-#-----------------------------------------------------------------
+/*-----------------------------------------------------------------#
+#  Example 11: Sales Funnel Decision Tree (Hybrid Analytics Flow)  #
+#------------------------------------------------------------------#
 
 pr()
 
@@ -702,11 +705,38 @@ Dot.SetVerbose(1)
 Dot.RunXT()
 
 pf()
-# Executed in ~1.05 second(s) in Ring 1.24
+# Executed in 0.46 second(s) in Ring 1.24
 
-/*--------------------------
-#  Example 12: DSEQUENCE DIAGRAM
-#---------------------------
+/*--------------------------------#
+#  Example 12: DSEQUENCE DIAGRAM  #
+#---------------------------------#
+
+pr()
+
+#NOTE #TODO Use this technique in stzDiagram to fix the messy
+# native "ortho" splines type of Graphiz DOT engine
+
+o1 = new stzDotCode()
+
+o1.SetCode('
+graph {
+  rankdir=TD;
+  A -- B -- C;
+  D -- E -- F;
+  B -- D;
+  {rank = same; B; D;};
+}
+')
+
+o1.Run()
+o1.View()
+
+pf()
+# Executed in 0.47 second(s) in Ring 1.24
+
+/*------------------------------------#
+#  Example 12 bis: DSEQUENCE DIAGRAM  #
+#-------------------------------------#
 
 pr()
 
@@ -756,6 +786,9 @@ digraph SEQ_DIAGRAM {
 Dot.Execute()
 Dot.View()
 
+#NOTE #TODO Use this technique in stzDiagram to fix the messy
+# native "ortho" splines type of Graphiz DOT engine
+
 #NOTE
 # There are some important hints on how this was achieved:
 
@@ -780,19 +813,15 @@ Dot.View()
 # node on the same rank. Otherwise, DOT will bend the line. For instance,
 # connecting a1 to c1 is achieved by connecting a1 to b1 and b1 to c1.
 
+#TODO: Seek wher I found this on the internet and reference the author!
 
 pf()
-# Executed in 1.01 second(s) in Ring 1.24
+# Executed in 1.30 second(s) in Ring 1.24
 
-#===========================================#
-#  Advanced Graphviz DOT Language Examples
-#  Master Graphviz through progressive examples
-#===========================================#
-*
-/*-----------------------------------------
-# EXAMPLE 13: Node Shapes Gallery
-# Learn: Different node shapes, styling basics
-#-----------------------------------------
+/*----------------------------------------------#
+# EXAMPLE 13: Node Shapes Gallery               #
+# Learn: Different node shapes, styling basics  #
+#-----------------------------------------------#
 
 pr()
 
@@ -836,12 +865,12 @@ Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
-# Executed in 1.45 second(s) in Ring 1.24
+# Executed in 0.62 second(s) in Ring 1.24
 
-/*-----------------------------------------
-# EXAMPLE 14: Edge Styles and Arrows
-# Learn: Edge styling, arrow types, labels
-#-----------------------------------------
+/*------------------------------------------#
+# EXAMPLE 14: Edge Styles and Arrows        #
+# Learn: Edge styling, arrow types, labels  #
+#-------------------------------------------#
 
 pr()
 
@@ -885,11 +914,15 @@ Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
+# Executed in 0.46 second(s) in Ring 1.24
 
-/*-----------------------------------------
-# EXAMPLE 15: Rank and Ordering Control
-# Learn: rankdir, rank constraints, subgraph ranking
-#-----------------------------------------
+/*----------------------------------------------------#
+# EXAMPLE 15: Rank and Ordering Control               #
+# Learn: rankdir, rank constraints, subgraph ranking  #
+#-----------------------------------------------------#
+
+#NOTE A good example of how an orgchart should be rendered
+#NOTE See stzDiagram and stzOrgChart classes
 
 pr()
 
@@ -929,12 +962,12 @@ Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
-# Executed in 1.50 second(s) in Ring 1.24
+# Executed in 0.50 second(s) in Ring 1.24
 
-/*-----------------------------------------
-# EXAMPLE 16: Clusters (Subgraphs)
-# Learn: cluster subgraphs, styling, nesting
-#-----------------------------------------
+/*--------------------------------------------#
+# EXAMPLE 16: Clusters (Subgraphs)            #
+# Learn: cluster subgraphs, styling, nesting  #
+#---------------------------------------------#
 
 pr()
 
@@ -988,12 +1021,12 @@ Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
-# Executed in 1.35 second(s) in Ring 1.24
+# Executed in 0.50 second(s) in Ring 1.24
 
-/*-----------------------------------------
-# EXAMPLE 17: Record Shapes (Tables)
-# Learn: Record nodes, ports, complex structures
-#-----------------------------------------
+/*------------------------------------------------#
+# EXAMPLE 17: Record Shapes (Tables)              #
+# Learn: Record nodes, ports, complex structures  #
+#-------------------------------------------------#
 
 pr()
 
@@ -1036,14 +1069,16 @@ digraph Records {
 Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
-
 pf()
-# Executed in 1.56 second(s) in Ring 1.24
+# Executed in 0.47 second(s) in Ring 1.24
 
-/*-----------------------------------------
-# EXAMPLE 18: Color Schemes
-# Learn: Color schemes, gradients, palettes
-#-----------------------------------------
+/*-------------------------------------------#
+# EXAMPLE 18: Color Schemes                  #
+# Learn: Color schemes, gradients, palettes  #
+#--------------------------------------------#
+
+#TODO Use DOR natiuve palettes instead of Softanza-made color themes
+# in stzDiagram class
 
 pr()
 
@@ -1112,10 +1147,12 @@ Dot.ExecuteAndView()
 pf()
 # Executed in 1.48 second(s) in Ring 1.24
 
-/*-----------------------------------------
-# EXAMPLE 19: State Machine
-# Learn: Practical application of shapes and styles
-#-----------------------------------------
+/*---------------------------------------------------#
+# EXAMPLE 19: State Machine                          #
+# Learn: Practical application of shapes and styles  #
+#----------------------------------------------------#
+
+#TODO Learn from this sample in stzWorkflow and stzStateMachineWorkflow
 
 pr()
 
@@ -1159,12 +1196,12 @@ Dot.ExecuteAndView()
 #--> 0.95
 
 pf()
-# Executed in 1.52 second(s) in Ring 1.24
+# Executed in 0.46 second(s) in Ring 1.24
 
-/*-----------------------------------------
-# EXAMPLE 20: Network Topology
-# Learn: Undirected graphs, edge styling
-#-----------------------------------------
+/*-----------------------------------------#
+# EXAMPLE 20: Network Topology             #
+# Learn: Undirected graphs, edge styling   #
+#------------------------------------------#
 
 pr()
 
@@ -1216,12 +1253,12 @@ Dot.ExecuteAndView()
 #--> 0.97
 
 pf()
-# Executed in 1.55 second(s) in Ring 1.24
+# Executed in 0.56 second(s) in Ring 1.24
 
-/*-----------------------------------------
-# EXAMPLE 21: Decision Tree
-# Learn: Tree structures, styling for clarity
-#-----------------------------------------
+/*----------------------------------------------#
+# EXAMPLE 21: Decision Tree                     #
+# Learn: Tree structures, styling for clarity   #
+#-----------------------------------------------#
 
 pr()
 
@@ -1264,14 +1301,16 @@ Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
-# Executed in 1.49 second(s) in Ring 1.24
+# Executed in 1.19 second(s) in Ring 1.24
 
-/*-----------------------------------------
-# EXAMPLE 22: Timeline/Gantt-style
-# Learn: Creative use of ranks and shapes
-#-----------------------------------------
+/*-----------------------------------------#
+# EXAMPLE 22: Timeline/Gantt-style         #
+# Learn: Creative use of ranks and shapes  #
+#------------------------------------------#
 
 pr()
+
+#TODO Review the sample: not so accurate!
 
 Dot = XDot()
 Dot.SetCode('
@@ -1322,9 +1361,9 @@ Dot.ExecuteAndView()
 
 pf()
 
-#===========================================#
-#  Professional BPMN Order Processing Flow
-#===========================================#
+/*==============================================#
+#  Professional BPMN Order Processing Workflow  #
+#===============================================#
 
 pr()
 
@@ -1397,12 +1436,15 @@ Dot.SetOutputFormat("svg")
 Dot.ExecuteAndView()
 
 pf()
+# Executed in 0.44 second(s) in Ring 1.24
 
-#===========================================#
-#  BPMN Order Processing with Lane Colors
-#===========================================#
+/*=========================================#
+#  BPMN Order Processing with Lane Colors  #
+#==========================================#
 */
 pr()
+
+#TODO #ERR No colors displayed!
 
 Dot = XDot()
 

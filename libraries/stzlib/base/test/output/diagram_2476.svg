@@ -24,7 +24,7 @@
 <g id="node1" class="node">
 <title>StartEvent</title>
 <ellipse fill="#fcfbfd" stroke="black" cx="308.78" cy="-186.25" rx="35.42" ry="35.42"/>
-<text xml:space="preserve" text-anchor="middle" x="308.78" y="-181.57" font-family="Verdana" font-size="14.00" fill="white">Start</text>
+<text xml:space="preserve" text-anchor="middle" x="308.78" y="-181.57" font-family="Verdana" font-size="14.00">Start</text>
 </g>
 <!-- Register -->
 <g id="node2" class="node">
@@ -95,7 +95,7 @@
 <title>EndEvent</title>
 <ellipse fill="#fcfbfd" stroke="black" cx="769.72" cy="-130.25" rx="30.16" ry="30.16"/>
 <ellipse fill="none" stroke="black" cx="769.72" cy="-130.25" rx="34.16" ry="34.16"/>
-<text xml:space="preserve" text-anchor="middle" x="769.72" y="-125.58" font-family="Verdana" font-size="14.00" fill="white">End</text>
+<text xml:space="preserve" text-anchor="middle" x="769.72" y="-125.58" font-family="Verdana" font-size="14.00">End</text>
 </g>
 <!-- Activate&#45;&gt;EndEvent -->
 <g id="edge6" class="edge">
