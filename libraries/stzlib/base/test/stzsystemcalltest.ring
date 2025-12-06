@@ -1,5 +1,123 @@
 load "../stzbase.ring"
 
+#==================================#
+#   SANDBOX SAFETY DEMONSTRATION   #
+#==================================#
+
+# By default, ALL system calls execute in an isolated sandbox (./systest/).
+# This prevents accidental damage to your real filesystem.
+
+# How it works:
+# 1. Creates temporary workspace: ./systest/ws_<timestamp>/
+# 2. Copies referenced files into workspace
+# 3. Executes command ONLY in workspace
+# 4. Shows you what changed
+# 5. Asks approval before applying to real system
+# 6. Cleans up workspace
+
+# Try these examples to see it in action:
+# =======================================
+
+/*-- EXAMPLE 1: See sandbox in action with file copy
+*/
+pr()
+
+
+? "=== SANDBOX DEMO: File Copy ==="
+? "Watch how the sandbox protects your filesystem..."
+
+Sy = new stzSystemCall(Sys(:CopyFile)) # Sys() or SysCmdData()
+Sy {
+    //DisableSandbox()
+    # This will execute in ./systest/ws_xxx/, NOT in current directory
+    SetParam(:source, "txtfiles/test.txt")
+    SetParam(:dest, "txtfiles/backup.txt")
+    Run()
+    
+    # After execution, you'll see:
+    # - Files created: backup.txt
+    # - Prompt: "Apply to real system? (y/n/i)"
+    # - Choose 'i' to inspect workspace before deciding
+
+    # y = Apply changes to your real files
+    # n = Discard (delete workspace)
+    # i = Open the workspace folder in File Explorer so
+    # you can manually examine what the command created/modified before deciding
+
+}
+
+pf()
+
+/*-- EXAMPLE 2: Dangerous command made safe
+
+pr()
+
+? "=== SANDBOX DEMO: Directory Removal ==="
+
+Sy = new stzSystemCall(:RemoveDir)
+Sy {
+    SetParam(:path, "important_folder")
+    Run()
+    
+    # The folder is removed ONLY in sandbox
+    # You can inspect and reject if it's wrong
+    # No real damage until you approve with 'y'
+}
+
+pf()
+
+/*-- EXAMPLE 3: Auto-approve for safe commands (CI/CD)
+
+pr()
+
+? "=== AUTO-APPROVE MODE ==="
+
+Sy = new stzSystemCall(:ListFiles)
+Sy {
+    SetAutoApprove(TRUE)  # Skip approval prompt
+    Run()
+    ? Output()
+}
+
+pf()
+
+/*-- EXAMPLE 4: Production mode (disable sandbox)
+
+pr()
+
+? "=== PRODUCTION MODE (DANGEROUS!) ==="
+
+Sy = new stzSystemCall(:MakeDir)
+Sy {
+    DisableSandbox()  # Execute directly - USE WITH CAUTION
+    SetParam(:path, "real_folder")
+    Run()
+}
+
+pf()
+
+/*-- EXAMPLE 5: Inspect workspace before deciding
+
+pr()
+
+Sy = new stzSystemCall(:CopyFile)
+Sy {
+    SetParam(:source, "data.txt")
+    SetParam(:dest, "backup.txt")
+    Run()
+    
+    # When prompted, type 'i' to open File Explorer
+    # Examine the workspace, then decide y/n
+}
+
+pf()
+
+#==============#
+#  OTHE TESTS  #
+#==============#
+
+/*-- Quick command with output
+
 /*-- INTENT 1: Quick command with output
 
 pr()
@@ -207,3 +325,40 @@ stzsystemSilent("cmd.exe", ["/c", "echo", "Silent legacy"])
 
 pf()
 # Executed in 0.08 second(s) in Ring 1.24
+
+/*-- Test sandbox with auto-approve for CI
+
+pr()
+
+StzSystemCallQ("cmd.exe") {
+	SetAutoApprove(TRUE)  # Skip approval for automated tests
+	SetArgs(["/c", "echo", "Test"])
+	Run()
+	? Output()
+}
+
+pf()
+
+/*-- Test with manual approval
+pr()
+
+Sy = new stzSystemCall(:CopyFile)
+Sy {
+	SetParam(:source, "test.txt")
+	SetParam(:dest, "backup.txt")
+	Run()  # Will ask for approval
+}
+
+pf()
+
+/*-- Disable sandbox for production
+pr()
+
+Sy = new stzSystemCall(:MakeDir)
+Sy {
+	DisableSandbox()
+	SetParam(:path, "real_folder")
+	Run()
+}
+
+pf()

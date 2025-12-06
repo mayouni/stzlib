@@ -110,8 +110,8 @@ class stzDotCode
 	
 		# Generate unique filename with timestamp IN OUTPUT FOLDER
 		cTimestamp = "" + clock()
-		cOutputFile = @cOutputDir + "\diagram_" + cTimestamp + "." + @cOutputFormat
-		cTempDotPath = @cTempDir + "\" + @cTempDotFile
+		cOutputFile = NormalizePath(@cOutputDir + "/diagram_" + cTimestamp + "." + @cOutputFormat)
+		cTempDotPath = NormalizePath(@cTempDir + "/" + @cTempDotFile)
 	
 		# Store for View() to use
 		@cLastOutputFile = cOutputFile
@@ -129,6 +129,7 @@ class stzDotCode
 	
 		# Execute using stzSystemCall
 		_oCall_ = new stzSystemCall(@cDotPath)
+		_oCall_.DisableSandbox()
 		_oCall_.SetArgs(aArgs)
 		_oCall_.HideConsole()
 		_oCall_.WithTimeout(30000)
@@ -165,17 +166,18 @@ class stzDotCode
 		def Exec()
 			This.Execute()
 
-	def View()
-		if NOT @bWasExtecutedAtLeastOnce
-			stzraise("Can't view the generated visual! You must Run() the DOT code firts.")
-
-		ok
-
-		if @cLastOutputFile = "" or NOT fexists(@cLastOutputFile)
-			stzraise("Output file does not exist: " + @cLastOutputFile)
-		ok
-		oSysCall = new stzSystemCall("")
-		oSysCall.OpenFile(@cLastOutputFile)
+		def View()
+			if NOT @bWasExtecutedAtLeastOnce
+				stzraise("Can't view the generated visual! You must Run() the DOT code first.")
+			ok
+		
+			if @cLastOutputFile = "" or NOT fexists(@cLastOutputFile)
+				stzraise("Output file does not exist: " + @cLastOutputFile)
+			ok
+			
+			_oSysCal_ = new stzSystemCall("cmd.exe")
+			_oSysCal_.DisableSandbox()
+			_oSysCal_.OpenFile(@cLastOutputFile)
 
 		def Display()
 			This.View()

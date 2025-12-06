@@ -1,8 +1,8 @@
 load "../stzbase.ring"
 
 # System commands are no longer cryptic shell syntax
-# but accessible Softanza objects!
-# named, cross-platform, self-documenting, and immediately useful.
+# but accessible Softanza objects: named, cross-platform,
+# self-documenting, and immediately useful.
 
 /*========================================
    EXAMPLE 1: List Files (Like Rx pattern)
@@ -11,7 +11,8 @@ load "../stzbase.ring"
 pr()
 
 Sy = new stzSystemCall(:ListFiles)
-? Sy.Run()
+Sy.Run()
+? Sy.Output()
 
 pf()
 
@@ -37,8 +38,8 @@ pr()
 
 Sy = new stzSystemCall(:CopyFile)
 Sy {
-	SetParam(:source, "test.txt")
-	SetParam(:dest, "backup.txt")
+	SetParam(:source, "txtfiles/test.txt")
+	SetParam(:dest, "txtfiles/backup.txt")
 	Run()
 	
 	if Succeeded()
@@ -71,8 +72,8 @@ pr()
 Sy = new stzSystemCall(:FindInFile)
 Sy {
 	SetParams([
-		[:text, "function"],
-		[:file, "mycode.ring"]
+		[:text, "ceo"],
+		[:file, "txtfiles/bank_structure.tszorg"]
 	])
 	Run()
 	? Output()
@@ -101,8 +102,8 @@ pf()
 
 pr()
 
-? new stzSystemCall(:CurrentDate).Run()
-? new stzSystemCall(:CurrentTime).Run()
+StzSystemCallQ(:CurrentDate) { ? Run() ? Output() }
+StzSystemCallQ(:CurrentTime) { Run() ? Output() }
 
 pf()
 
