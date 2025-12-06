@@ -192,6 +192,9 @@ class stzDotCode
 		def RunAndView()
 			This.ExecuteAndView()
 
+		def ExecAndView()
+			This.ExecuteAndView()
+
 		def RunXT()
 			This.ExecuteAndView()
 
