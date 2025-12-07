@@ -252,19 +252,19 @@ class stzFolder from stzObject
 	@acCollapseFolders = []
 
 	@acDisplayChars = [
-		:VerticlalChar = "│",
-		:VerticalCharTick = "├",
-		:ClosingChar = "╰",
-		:File = " 🗋",
-		:FileFound = "📄",
-		:FolderRoot = "🗀",
-		:FolderRootXT = "📁",
-		:FolderOpened = "🗁",
-		:FolderOpenedFound = "📂",
-		:FolderClosedEmpty = "🗀",
-		:FolderClosedFull = "🖿",
-		:FolderRootSearchSymbol = "🎯",
-		:FileFoundSymbol = "👉"
+		:VerticlalChar = "â”‚",
+		:VerticalCharTick = "â”œ",
+		:ClosingChar = "â•°",
+		:File = " ðŸ—‹",
+		:FileFound = "ðŸ“„",
+		:FolderRoot = "ðŸ—€",
+		:FolderRootXT = "ðŸ“",
+		:FolderOpened = "ðŸ—",
+		:FolderOpenedFound = "ðŸ“‚",
+		:FolderClosedEmpty = "ðŸ—€",
+		:FolderClosedFull = "ðŸ–¿",
+		:FolderRootSearchSymbol = "ðŸŽ¯",
+		:FileFoundSymbol = "ðŸ‘‰"
 	]
 
 	@bBacthMode = FALSE
@@ -4726,14 +4726,14 @@ class stzFolder from stzObject
 	            
 	            # Add found indicator if file matches
 	            if bFileMatches
-	                cIcon += @acDisplayChars[:FileFoundSymbol]  # Found file gets 👉📄
+	                cIcon += @acDisplayChars[:FileFoundSymbol]  # Found file gets ðŸ‘‰ðŸ“„
 	            end
 	            
 	            # Use correct connector based on position
 	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "─" + cIcon + " " + cItemName + nl
+	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "â”€" + cIcon + " " + cItemName + nl
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "─" + cIcon + " " + cItemName + nl
+	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "â”€" + cIcon + " " + cItemName + nl
 	            end
 	            
 	        else  # folder
@@ -4798,10 +4798,10 @@ class stzFolder from stzObject
 	            
 	            # Build the line - use correct connector based on position
 	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "─" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
+	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "â”€" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
 	                cNewPrefix = cPrefix + "  "  # No vertical line continuation for last item
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "─" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
+	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "â”€" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
 	                cNewPrefix = cPrefix + @acDisplayChars[:VerticlalChar] + " "  # Continue vertical line
 	            end
 	            

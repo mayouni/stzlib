@@ -224,23 +224,19 @@ class stzSystemCall
 		return cPath
 
 
-	def RunInSandbox()
-		? ""
-		? "╔═══════════════════════════════════════╗"
-		? "║   SANDBOX MODE: Safe Execution Zone   ║"
-		? "╚═══════════════════════════════════════╝"
-		? ""
+def RunInSandbox()
+		? BoxRound("SANDBOX MODE: Safe Execution Zone") + NL
 		
 		# Step 1: Create isolated workspace
-		? "→ Creating isolated workspace..."
+		? "-> Creating isolated workspace..."
 		@cWorkspace = This.CreateWorkspace()
-		? "  ✓ Workspace ready: " + @cWorkspace
+		? "  √ Workspace ready: " + @cWorkspace
 		? ""
 		
 		# Step 2: Prepare environment
-		? "→ Preparing workspace environment..."
+		? "-> Preparing workspace environment..."
 		This.PrepareWorkspace()
-		? "  ✓ Files copied to sandbox"
+		? "  √ Files copied to sandbox"
 		? ""
 		
 		# Step 3: Convert paths for platform
@@ -251,7 +247,7 @@ class stzSystemCall
 		ok
 		
 		# Step 4: Execute in sandbox using QProcess
-		? "→ Executing command in sandbox..."
+		? "-> Executing command in sandbox..."
 		? "  Command: " + @cProgram
 		? "  Arguments: " + @@(@acArgs)
 		? ""
@@ -259,9 +255,9 @@ class stzSystemCall
 		This.ExecuteInSandbox()
 		
 		if @nExitCode = 0
-			? "  ✓ Command executed successfully"
+			? "  √ Command executed successfully"
 		else
-			? "  ⚠ Command completed with exit code: " + @nExitCode
+			? "  ! Command completed with exit code: " + @nExitCode
 			if @cError != ""
 				? "  Error: " + @cError
 			ok
@@ -269,34 +265,30 @@ class stzSystemCall
 		? ""
 		
 		# Step 5: Analyze changes
-		? "→ Analyzing workspace changes..."
+		? "-> Analyzing workspace changes..."
 		aChanges = This.CaptureChanges()
 		? ""
 		
 		# Step 6: User approval
 		if NOT This.UserApproves(aChanges)
 			? ""
-			? "✗ Changes discarded, workspace cleaned up"
+			? "X Changes discarded, workspace cleaned up"
 			This.CleanupWorkspace()
 			return FALSE
 		ok
 		
 		# Step 7: Apply to real system
 		? ""
-		? "→ Applying changes to real filesystem..."
+		? "-> Applying changes to real filesystem..."
 		This.ApplyToRealSystem(aChanges)
-		? "  ✓ Changes applied successfully"
+		? "  √ Changes applied successfully"
 		? ""
 		
 		# Step 8: Cleanup
-		? "→ Cleaning up workspace..."
+		? "-> Cleaning up workspace..."
 		This.CleanupWorkspace()
-		? "  ✓ Workspace removed"
-		? ""
-		? "╔═══════════════════════════════════════╗"
-		? "║    Operation Completed Successfully   ║"
-		? "╚═══════════════════════════════════════╝"
-		? ""
+		? "  √ Workspace removed" + NL
+		? BoxRound("Operation Completed Successfully")
 		
 		return TRUE
 
@@ -477,24 +469,20 @@ class stzSystemCall
 			return TRUE
 		ok
 		
-		? "╔════════════════════════════════════╗"
-		? "║   REVIEW CHANGES BEFORE APPLYING   ║"
-		? "╚════════════════════════════════════╝"
-		? ""
+		? BoxRound("REVIEW CHANGES BEFORE APPLYING") + NL
 		? "Workspace: " + @cWorkspace
-		? "Exit code: " + aChanges[:exitcode]
-		? ""
+		? "Exit code: " + aChanges[:exitcode] + NL
 		
 		nTotalChanges = len(aChanges[:created]) + len(aChanges[:modified])
 		
 		if nTotalChanges = 0
-			? "⚠ No file changes detected"
+			? "! No file changes detected"
 			if aChanges[:exitcode] != 0
 				? "  The command may have failed or produced no output"
 			ok
 		else
 			if len(aChanges[:created]) > 0
-				? "✓ Files created (" + len(aChanges[:created]) + "):"
+				? "√ Files created (" + len(aChanges[:created]) + "):"
 				for cFile in aChanges[:created]
 					? "  + " + cFile
 				next
@@ -502,7 +490,7 @@ class stzSystemCall
 			ok
 			
 			if len(aChanges[:modified]) > 0
-				? "✓ Files modified (" + len(aChanges[:modified]) + "):"
+				? "√ Files modified (" + len(aChanges[:modified]) + "):"
 				for cFile in aChanges[:modified]
 					? "  * " + cFile
 				next
@@ -512,9 +500,9 @@ class stzSystemCall
 		
 		if aChanges[:output] != "" and len(aChanges[:output]) > 0
 			cCommandOutput = "(Nothing)"
-			cLEft200 = left(aChanges[:output], 200)
+			cLeft200 = left(aChanges[:output], 200)
 			if cLeft200 != ""
-				cCommandOutput = cLEft200
+				cCommandOutput = cLeft200
 			ok
 
 			? "Command output:"
@@ -525,8 +513,7 @@ class stzSystemCall
 			? ""
 		ok
 		
-		? "───────────────────────────────────────────────"
-		? "Options:"
+		? BoxRound("Options") + NL
 		? "  Y = Yes, Apply changes to real filesystem"
 		? "  N = No, Discard changes and cleanup workspace"
 		? "  I = Inspect workspace contents"
@@ -536,10 +523,7 @@ class stzSystemCall
 		? ""
 		
 		if lower(cAnswer) = "i"
-			? "╔════════════════════════╗"
-			? "║   WORKSPACE CONTENTS   ║"
-			? "╚════════════════════════╝"
-			? ""
+			? BoxRound("WORKSPACE CONTENTS") + NL
 			This.ShowWorkspaceTree(@cWorkspace, "", 0)
 			? ""
 			? "Press Enter to continue..."
@@ -565,14 +549,14 @@ class stzSystemCall
 			ok
 			
 			bIsLast = (i = nLen)
-			cIcon = iff(bIsLast, "└── ", "├── ")
+			cIcon = iff(bIsLast, "+-- ", "|-- ")
 			
 			if aList[i][2] = 1  # Directory
-				? cPrefix + cIcon + "📁 " + aList[i][1]
-				cNewPrefix = cPrefix + iff(bIsLast, "    ", "│   ")
+				? cPrefix + cIcon + "[DIR] " + aList[i][1]
+				cNewPrefix = cPrefix + iff(bIsLast, "    ", "|   ")
 				This.ShowWorkspaceTree(cPath + "/" + aList[i][1], cNewPrefix, nLevel + 1)
 			else  # File
-				? cPrefix + cIcon + "📄 " + aList[i][1]
+				? cPrefix + cIcon + "[FILE] " + aList[i][1]
 			ok
 		next
 

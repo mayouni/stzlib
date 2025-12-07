@@ -1,4 +1,3 @@
-	
 load "ziplib.ring" # A ring library, Required by stzZipFile
 
 /*
@@ -1075,7 +1074,7 @@ class stzFileAppender from stzFileReadingMixin
 #=======================================#
 
 # Purpose: Creates a new file with write methods and
-# read access, ensuring it doesn’t already exists
+# read access, ensuring it doesnâ€™t already exists
 
 # Intent: "I want to create a new file"
 
