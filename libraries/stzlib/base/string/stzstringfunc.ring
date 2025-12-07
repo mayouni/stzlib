@@ -41,6 +41,12 @@ func StzStringClassName()
 
 #--
 
+func StringIsInListCS(str, aList, pCaseSensitive)
+	return StzListQ(aList).ContainsCS(str, pCaseSensitive)
+
+func StringIsInList(str, aList)
+	return StzListQ(aList).Contains(str)
+
 func PadRight(cText, nWidth)
 	return PAdtRightXT(cText, nWidth, " ")
 

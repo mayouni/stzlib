@@ -1,0 +1,27 @@
+style "Banking_Corporate"
+    theme: pro
+    layout: topdown
+    
+colors
+    executive: gold
+    management: blue+
+    staff: green-
+    focus: magenta+
+    
+fonts
+    default: helvetica
+    size: 12
+    
+edges
+    style: solid
+    color: gray
+    spline: ortho
+    penwidth: 1
+    
+nodes
+    penwidth: 2
+    penstyle: rounded,filled
+    
+focus
+    color: magenta+
+    penwidth: 3

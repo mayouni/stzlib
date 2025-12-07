@@ -1,0 +1,11 @@
+digraph "DotFileTest" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#0000FF", style=solid]
+
+    a [label="A", shape=box, style="rounded,filled", fillcolor="#FFFFFF", fontcolor="black"]
+    b [label="B", shape=box, style="rounded,filled", fillcolor="#FFFFFF", fontcolor="black"]
+
+    a -> b
+
+}

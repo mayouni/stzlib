@@ -152,7 +152,7 @@ func RemoveFolderRecursive(cPath)
 	RemoveFolderXT(cPath)
 		return This.RemoveFolderRecursive()
 
-func QMkdir(cPath)
+func QMkdir(cPath) #TODO //Hormonize with CreateFolder!!!
 	_oQDir_ = new QDir()
 	return _oQDir_.mkpath(cPath)
 

@@ -1,0 +1,19 @@
+orgchart "Export_Import_Test"
+
+positions
+    ceo
+        title: CEO
+        level: 0
+        department: 
+        reportsTo: 
+
+    vp_sales
+        title: VP Sales
+        level: 0
+        department: 
+        reportsTo: ceo
+
+people
+assignments
+
+departments

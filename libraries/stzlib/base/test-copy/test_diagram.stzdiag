@@ -1,0 +1,21 @@
+diagram "SaveTest"
+
+metadata
+    theme: light
+    layout: topdown
+
+nodes
+    a
+        label: "Node A"
+        type: process
+        color: primary
+
+    b
+        label: "Node B"
+        type: process
+        color: primary
+
+edges
+    a -> b
+        label: "flows"
+

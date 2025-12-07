@@ -1,0 +1,61 @@
+
+digraph BPMN_OrderProcessing {
+    graph [
+        rankdir=TB
+        bgcolor="white"
+        fontname="Arial"
+        splines=ortho
+        pad=0.4
+        nodesep=0.4
+        ranksep=0.8
+    ]
+    
+    node [fontname="Arial" fontsize=10]
+    edge [fontname="Arial" fontsize=9 penwidth=1.5]
+    
+    # LANE HEADERS
+    lane_sales [shape=plaintext label="Sales" fontsize=11]
+    lane_finance [shape=plaintext label="Finance" fontsize=11]
+    lane_warehouse [shape=plaintext label="Warehouse" fontsize=11]
+    
+    # LANE 1: Sales
+    start [shape=circle label="" fillcolor=black width=0.35 fixedsize=true]
+    receive_order [shape=box style="rounded,filled" fillcolor=white color=black label="Receive Order" width=1.5 height=0.5]
+    {rank=same; lane_sales; start; receive_order}
+    start -> receive_order
+    
+    # Divider 1
+    div1a [shape=plaintext label=""]
+    div1b [shape=plaintext label=""]
+    div1c [shape=plaintext label=""]
+    {rank=same; div1a; div1b; div1c}
+    
+    # LANE 2: Finance  
+    check_credit [shape=box style="rounded,filled" fillcolor=white color=black label="Check Credit" width=1.3 height=0.5]
+    credit_gateway [shape=diamond fillcolor=white color=black label="Credit\nok?" width=1.1 height=1.0]
+    send_invoice [shape=box style="rounded,filled" fillcolor=white color=black label="Send Invoice" width=1.3 height=0.5]
+    {rank=same; lane_finance; check_credit; credit_gateway; send_invoice}
+    check_credit -> credit_gateway
+    credit_gateway -> send_invoice [label="Yes" fontsize=8]
+    
+    # Divider 2
+    div2a [shape=plaintext label=""]
+    div2b [shape=plaintext label=""]
+    div2c [shape=plaintext label=""]
+    {rank=same; div2a; div2b; div2c}
+    
+    # LANE 3: Warehouse
+    failed_end [shape=circle label="" fillcolor=black width=0.35 fixedsize=true]
+    fulfill_order [shape=box style="rounded,filled" fillcolor=white color=black label="Fulfill Order" width=1.3 height=0.5]
+    fulfill_gateway [shape=diamond fillcolor=white color=black label="Fulfilled\nok?" width=1.1 height=1.0]
+    complete_end [shape=circle label="" fillcolor=black width=0.35 fixedsize=true]
+    {rank=same; lane_warehouse; failed_end; fulfill_order; fulfill_gateway; complete_end}
+    fulfill_order -> fulfill_gateway
+    fulfill_gateway -> complete_end [label="Yes" fontsize=8]
+    fulfill_gateway -> failed_end [label="No" fontsize=8 style=dashed]
+    
+    # Cross-lane flows
+    receive_order -> check_credit
+    send_invoice -> fulfill_order
+    credit_gateway -> failed_end [label="No" fontsize=8 style=dashed]
+}
