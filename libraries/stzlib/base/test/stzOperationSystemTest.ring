@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzbase.ring"
 
 profon()
 
@@ -11,7 +11,7 @@ profon()
 ? Is32Bit()
 #--> FALSE
 
-? Is32Or54Bit()
+? Is32Or64Bit()
 #--> "64"
 
 ? IsARM()
