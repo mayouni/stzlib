@@ -1,117 +1,201 @@
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
-#  FUNCTIONS ABOUT THE OPERATING SYSTEM  #
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#  SOFTANZA OPERATING SYSTEM    #
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+
+# GLOBAL FUNCTIONS
+#==================
+
+func StzOperatingSystemQ()
+	return new stzOperatingSystem()
+
+func @isWindows()
+	return iswindows()
+
+func @isWindows64()
+	return iswindows64()
+
+func isWindows32()
+	return iswindows() and not iswindows64()
+
+	func @isWindows32()
+		return isWindows32()
+
+func @isMSDOS()
+	return ismsdos()
+
+func @isUnix()
+	return isunix()
+
+func @isLinux()
+	return islinux()
+
+func @isMacOSX()
+	return ismacosx()
+
+func @isFreeBSD()
+	return isfreebsd()
+
+func @isAndroid()
+	return isAndroid()
+
+func OS()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.Name()
+
+	func OperatingSystem()
+		return OS()
 
 func Arch()
-	return getArch()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.Architecture()
 
 	func Architecture()
-		return getArch()
+		return Arch()
 
 	func SystemArch()
-		return GetArch()
+		return Arch()
 
 	func SystemArchitecture()
-		return GetArch()
+		return Arch()
 
 func Is32Bit()
-	cArch = Arch()
-	if cArch = "x86" or cArch = "arm"
-		return 1
-	else
-		return 0
-	ok
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.Is32Bit()
 
 func Is64Bit()
-	cArch = Arch()
-	if cArch = "x64" or cArch = "arm64"
-		return 1
-	else
-		return 0
-	ok
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.Is64Bit()
 
-func Is32Or54Bit()
-	cArch = Arch()
-	if cArch = "x86" or cArch = "arm"
+func IsARM()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsARM()
+
+func IsARM32()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsARM32()
+
+func IsARM64()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsARM64()
+
+func IsX86()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsX86()
+
+func IsX64()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsX64()
+
+func IsMSDOS32()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsMSDOS32()
+
+	func @IsMSDOS32()
+		return IsMSDOS32()
+
+func IsMSDOS64()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsMSDOS64()
+
+	func @IsMSDOS64()
+		return IsMSDOS64()
+
+func IsUnix32()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsUnix32()
+
+	func @IsUnix32()
+		return IsUnix32()
+
+func IsUnix64()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsUnix64()
+
+	func @IsUnix64()
+		return IsUnix64()
+
+func IsLinux32()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsLinux32()
+
+	func @IsLinux32()
+		return IsLinux32()
+
+func IsLinux64()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsLinux64()
+
+	func @IsLinux64()
+		return IsLinux64()
+
+func IsFreeBSD32()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsFreeBSD32()
+
+	func @IsFreeBSD32()
+		return IsFreeBSD32()
+
+func IsFreeBSD64()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsFreeBSD64()
+
+	func @IsFreeBSD64()
+		return IsFreeBSD64()
+
+func IsMacOSX32()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsMacOS32()
+
+	func @IsMacOSX32()
+		return IsMacOSX32()
+
+	func IsMacOS32()
+		return IsMacOSX32()
+
+func IsMacOSX64()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsMacOS64()
+
+	func @IsMacOSX64()
+		return IsMacOSX64()
+
+	func IsMacOS64()
+		return IsMacOSX64()
+
+	func @IsMacOS64()
+		return IsMacOSX64()
+
+func IsAndroid32()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsAndroid32()
+
+	func @IsAndroid32()
+		return IsAndroid32()
+
+func IsAndroid64()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.IsAndroid64()
+
+	func @IsAndroid64()
+		return IsAndroid64()
+
+func Is32Or64Bit()
+	_oOS_ = new stzOperatingSystem()
+	nBits = _oOS_.BitSize()
+	if nBits = 32
 		return :32
-	but cArch = "x64" or cArch = "arm64"
+	but nBits = 64
 		return :64
 	else
 		return :Unknown
 	ok
 
-func IsARM()
-	cArch = GetArch()
-	if cArch = "arm" or cArch = "arm64"
-		return 1
-	else
-		return 0
-	ok
+	func Is64Or32Bit()
+		return Is32Or64Bit()
 
-func IsARM32()
-	cArch = GetArch()
-	if cArch = "arm"
-		return 1
-	else
-		return 0
-	ok
-
-func IsARM64()
-	cArch = GetArch()
-	if cArch = "arm64"
-		return 1
-	else
-		return 0
-	ok
-
-func IsX86()
-	cArch = GetArch()
-	if cArch = "x86"
-		return 1
-	else
-		return 0
-	ok
-
-func IsX64()
-	cArch = GetArch()
-	if cArch = "x64"
-		return 1
-	else
-		return 0
-	ok
-
-func OperatingSystem()
-	if isWindows() or isWindows64()
-		return "windows"
-
-	but isMSDOS()
-		return "msdos"
-
-	but isUnix()
-		return "unix"
-
-	but isLinux()
-		return "linux"
-
-	but isMacOSX()
-		return "macosx"
-
-	but isFreeBSD()
-		return "freebsd"
-
-	but isAndroid()
-		return "android"
-
-	else
-		retur "unknown"
-	ok
-
-	func OS()
-		return OperatingSystem()
-
-func OperatingSystemXT() // returns the OS and its architecture (32 or 64 bits)
-	aResult = [ OperatingSystem(), Architecture() ]
-	return aResult
+func OperatingSystemXT()
+	_oOS_ = new stzOperatingSystem()
+	return _oOS_.NameAndArchitecture()
 
 	func OSXT()
 		return OperatingSystemXT()
@@ -122,250 +206,308 @@ func OperatingSystemXT() // returns the OS and its architecture (32 or 64 bits)
 	func OSAndArch()
 		return OperatingSystemXT()
 
-func @IsWindows() # Redefines the behaviour of Ring isWindows() returning 32-bit only
-	if OperatingSystem() = "windows"
-		return 1
-	else
-		return 0
-	ok
+# THE CLASS
+#===========
 
-	func StzIsWindows()
-		return @IsWindows()
+class stzOperatingSystem
 
-func IsWindows32()
-	if @IsWindows() and Is32Bit()
-		return 1
-	else
-		return 0
-	ok
+	def init()
 
-func IsWindows64()
-	if @IsWindows() and Is64Bit()
-		return 1
-	else
-		return 0
-	ok
+	#-----------------------#
+	#  ARCHITECTURE INFO    #
+	#-----------------------#
 
-#--
+	def Architecture()
+		return getArch()
 
-func @IsMSDOS()
-	if OperatingSystem() = "dos"
-		return 1
-	else
-		return 0
-	ok
+		def Arch()
+			return This.Architecture()
 
-	func StzIsMSDOS()
-		return @IsMSDOS()
+	def Is32Bit()
+		cArch = This.Arch()
+		return (cArch = "x86" or cArch = "arm")
 
-func IsMSDOS32()
-	if @IsMSDOS() and Is32Bit()
-		return 1
-	else
-		return 0
-	ok
+	def Is64Bit()
+		cArch = This.Arch()
+		return (cArch = "x64" or cArch = "arm64")
 
-	func @IsMOSDOS32()
-		return IsMSDOS32()
+	def BitSize()
+		if This.Is32Bit()
+			return 32
+		but This.Is64Bit()
+			return 64
+		else
+			return 0
+		ok
 
-func IsMSDOS64()
-	if @IsMSDOS() and Is64Bit()
-		return 1
-	else
-		return 0
-	ok
+		def Bits()
+			return This.BitSize()
 
-	func @IsMSDOS64()
-		return IsMSDOS64()
+	def IsARM()
+		cArch = This.Arch()
+		return (cArch = "arm" or cArch = "arm64")
 
-#--
+	def IsARM32()
+		return (This.Arch() = "arm")
 
-func @IsUnix()
-	if OperatingSystem() = "unix"
-		return 1
-	else
-		return 0
-	ok
+	def IsARM64()
+		return (This.Arch() = "arm64")
 
-	func StzUnix()
-		return @IsUnix()
+	def IsX86()
+		return (This.Arch() = "x86")
 
-func IsUnix32()
-	if @IsUnix() and Is32Bit()
-		return 1
-	else
-		return 0
-	ok
+	def IsX64()
+		return (This.Arch() = "x64")
 
-	func @IsUnix32()
-		return IsUnix32()
+	def IsIntel()
+		return (This.IsX86() or This.IsX64())
 
-func IsUnix64()
-	if IsUnix() and Is64Bit()
-		return 1
-	else
-		return 0
-	ok
+	#-----------------------#
+	#  OPERATING SYSTEM     #
+	#-----------------------#
 
-	func @IsUnix64()
-		return IsUnix64()
+	def Name()
+		if @isWindows() or @isWindows64()
+			return "windows"
 
+		but @isMSDOS()
+			return "msdos"
 
-#--
+		but @isUnix()
+			return "unix"
 
-func @IsLinux()
-	if OperatingSystem() = "linux"
-		return 1
-	else
-		return 0
-	ok
+		but @isLinux()
+			return "linux"
 
-	func StzLinux()
-		return @IsLinux()
+		but @isMacOSX()
+			return "macos"
 
-func IsLinux32()
-	if @IsLinux() and Is32Bit()
-		return 1
-	else
-		return 0
-	ok
+		but @isFreeBSD()
+			return "freebsd"
 
-	func @IsLinux32()
-		return IsLinux32()
+		but @isAndroid()
+			return "android"
+		else
+			return "unknown"
+		ok
 
-func IsLinux64()
-	if @IsLinux() and Is64Bit()
-		return 1
-	else
-		return 0
-	ok
+		def OS()
+			return This.Name()
 
-	func @IsLinux64()
-		return IsLinux64()
+		def OperatingSystem()
+			return This.Name()
 
+	def NameAndArchitecture()
+		return [ This.Name(), This.Architecture() ]
 
-#--
+		def NameAndArch()
+			return This.NameAndArchitecture()
 
-func @IsFreeBSD()
-	if OperatingSystem() = "freebsd"
-		return 1
-	else
-		return 0
-	ok
+		def OSAndArch()
+			return This.NameAndArchitecture()
 
-	func StzFreeBSD()
-		return @IsFreeBSD()
+	def FullName()
+		cName = This.Name()
+		nBits = This.BitSize()
+		return cName + " " + nBits + "-bit"
 
-func IsFreeBSD32()
-	if @IsFreeBSD() and Is32Bit()
-		return 1
-	else
-		return 0
-	ok
+		def FullOSName()
+			return This.FullName()
 
-	func @IsFreeBSD32()
-		return IsFreeBSD32()
+	#-----------------------#
+	#  OS TYPE CHECKS       #
+	#-----------------------#
 
-func IsFreeBSD64()
-	if IsFreeBSD() and Is64Bit()
-		return 1
-	else
-		return 0
-	ok
+	def IsWindows()
+		return (This.Name() = "windows")
 
-	func @IsFreeBSD64()
-		return IsFreeBSD64()
+	def IsWindows32()
+		return (This.IsWindows() and This.Is32Bit())
 
+	def IsWindows64()
+		return (This.IsWindows() and This.Is64Bit())
 
-#==
+	def IsMSDOS()
+		return (This.Name() = "msdos")
 
-func @IsMacOSX()
-	if OperatingSystem() = "macosx"
-		return 1
-	else
-		return 0
-	ok
+	def IsMSDOS32()
+		return (This.IsMSDOS() and This.Is32Bit())
 
-	#< @FunctionAlternativeForms
+	def IsMSDOS64()
+		return (This.IsMSDOS() and This.Is64Bit())
 
-	func StzMacOSX()
-		return @IsMacOSX()
+	def IsUnix()
+		return (This.Name() = "unix")
 
-	func IsMacOS()
-		return @IsMacOSX()
+	def IsUnix32()
+		return (This.IsUnix() and This.Is32Bit())
 
-	func @IsMacOS()
-		return @IsMacOSX()
+	def IsUnix64()
+		return (This.IsUnix() and This.Is64Bit())
 
-	#>
+	def IsLinux()
+		return (This.Name() = "linux")
 
-func IsMacOSX32()
-	if @IsMacOSX() and Is32Bit()
-		return 1
-	else
-		return 0
-	ok
+	def IsLinux32()
+		return (This.IsLinux() and This.Is32Bit())
 
-	#< @FunctionAlternativeForms
+	def IsLinux64()
+		return (This.IsLinux() and This.Is64Bit())
 
-	func @IsMacOSX32()
-		return IsMacOSX32()
+	def IsFreeBSD()
+		return (This.Name() = "freebsd")
 
-	func IsMacOS32()
-		return IsMacOSX32()
+	def IsFreeBSD32()
+		return (This.IsFreeBSD() and This.Is32Bit())
 
-	#>
+	def IsFreeBSD64()
+		return (This.IsFreeBSD() and This.Is64Bit())
 
-func IsMacOSX64()
-	if @IsMacOSX() and Is64Bit()
-		return 1
-	else
-		return 0
-	ok
+	def IsMacOS()
+		return (This.Name() = "macos")
 
-	#< @FunctionAlternativeForms
+		def IsMacOSX()
+			return This.IsMacOS()
 
-	func @IsMacOSX64()
-		return IsMacOSX64()
+	def IsMacOS32()
+		return (This.IsMacOS() and This.Is32Bit())
 
-	#--
+		def IsMacOSX32()
+			return This.IsMacOS32()
 
-	func IsMacOS64()
-		return IsMacOSX64()
+	def IsMacOS64()
+		return (This.IsMacOS() and This.Is64Bit())
 
-	func @IsMacOS64()
-		return IsMacOSX64()
+		def IsMacOSX64()
+			return This.IsMacOS64()
 
-	#>
+	def IsAndroid()
+		return (This.Name() = "android")
 
-#==
+	def IsAndroid32()
+		return (This.IsAndroid() and This.Is32Bit())
 
-func @IsAndroid()
-	if OperatingSystem() = "android"
-		return 1
-	else
-		return 0
-	ok
+	def IsAndroid64()
+		return (This.IsAndroid() and This.Is64Bit())
 
-	func StzIsAndroid()
-		return @IsAndroid()
+	#-----------------------#
+	#  OS FAMILY CHECKS     #
+	#-----------------------#
 
-func IsAndroid32()
-	if @IsAndroid() and Is32Bit()
-		return 1
-	else
-		return 0
-	ok
+	def IsUnixLike()
+		return (This.IsUnix() or This.IsLinux() or 
+		        This.IsMacOS() or This.IsFreeBSD())
 
-	func @IsAndroid32()
-		return IsAndroid32()
-		
-func IsAndroid64()
-	if @IsAndroid() and Is64Bit()
-		return 1
-	else
-		return 0
-	ok
+		def IsPOSIX()
+			return This.IsUnixLike()
 
-	func @IsAndroid64()
-		return IsAndroid64()
+	def IsMicrosoft()
+		return (This.IsWindows() or This.IsMSDOS())
+
+	def IsMobile()
+		return This.IsAndroid()
+
+	def IsDesktop()
+		return NOT This.IsMobile()
+
+	#-----------------------#
+	#  SYSTEM INFO          #
+	#-----------------------#
+
+	def Info()
+		aInfo = [
+			:name = This.Name(),
+			:architecture = This.Architecture(),
+			:bits = This.BitSize(),
+			:fullname = This.FullName(),
+			:isUnixLike = This.IsUnixLike(),
+			:isMicrosoft = This.IsMicrosoft(),
+			:isMobile = This.IsMobile()
+		]
+		return aInfo
+
+		def SystemInfo()
+			return This.Info()
+
+		def Details()
+			return This.Info()
+
+	def Show()
+		aInfo = This.Info()
+		? "Operating System Information:"
+		? "  Name: " + aInfo[:name]
+		? "  Architecture: " + aInfo[:architecture]
+		? "  Bits: " + aInfo[:bits]
+		? "  Full Name: " + aInfo[:fullname]
+		? "  Unix-like: " + aInfo[:isUnixLike]
+		? "  Microsoft: " + aInfo[:isMicrosoft]
+		? "  Mobile: " + aInfo[:isMobile]
+
+		def Print()
+			This.Show()
+
+		def Display()
+			This.Show()
+
+	#-----------------------#
+	#  UTILITIES            #
+	#-----------------------#
+
+	def PathSeparator()
+		if This.IsWindows()
+			return "\"
+		else
+			return "/"
+		ok
+
+		def PathSep()
+			return This.PathSeparator()
+
+		def DirectorySeparator()
+			return This.PathSeparator()
+
+	def LineEnding()
+		if This.IsWindows()
+			return "\r\n"
+		else
+			return "\n"
+		ok
+
+		def NewLine()
+			return This.LineEnding()
+
+		def EOL()
+			return This.LineEnding()
+
+	def NormalizePath(cPath)
+		cSep = This.PathSeparator()
+		if This.IsWindows()
+			cPath = substr(cPath, "/", "\")
+		else
+			cPath = substr(cPath, "\", "/")
+		ok
+		return cPath
+
+		def NormalizePathQ(cPath)
+			return This.NormalizePath(cPath)
+
+	def ExecutableExtension()
+		if This.IsWindows()
+			return ".exe"
+		else
+			return ""
+		ok
+
+		def ExeExtension()
+			return This.ExecutableExtension()
+
+	def SupportsColor()
+		# Basic check - can be enhanced
+		if This.IsWindows()
+			return TRUE  # Windows 10+ supports ANSI
+		else
+			return TRUE  # Unix-like systems typically support color
+		ok
+
+		def HasColorSupport()
+			return This.SupportsColor()
