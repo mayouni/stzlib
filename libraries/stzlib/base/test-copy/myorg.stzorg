@@ -1,0 +1,101 @@
+orgchart "MyOrg"
+
+positions
+    ceo
+        title: CEO
+        level: 0
+        department: 
+        reportsTo: 
+
+    hr_mgr
+        title: HR Manager
+        level: 0
+        department: 
+        reportsTo: ceo
+
+    staff_hr1
+        title: Staff HR1
+        level: 0
+        department: 
+        reportsTo: hr_mgr
+
+    staff_hr2
+        title: Staff HR2
+        level: 0
+        department: 
+        reportsTo: hr_mgr
+
+    staff_hr3
+        title: Staff HR3
+        level: 0
+        department: 
+        reportsTo: hr_mgr
+
+    it_mgr
+        title: IT Manager
+        level: 0
+        department: 
+        reportsTo: ceo
+
+    staff_it1
+        title: Staff IT1
+        level: 0
+        department: 
+        reportsTo: it_mgr
+
+    staff_it2
+        title: Staff IT2
+        level: 0
+        department: 
+        reportsTo: it_mgr
+
+    staff_it3
+        title: Staff IT3
+        level: 0
+        department: 
+        reportsTo: it_mgr
+
+    vacant1
+        title: Vacant Position 1
+        level: 0
+        department: 
+        reportsTo: ceo
+
+    vacant2
+        title: Vacant Position 2
+        level: 0
+        department: 
+        reportsTo: ceo
+
+people
+    p_ali
+        name: Ali Daouda
+
+    p_mamane
+        name: Maman Touré
+
+    p_aicha
+        name: Aicha Mouddour
+
+    p_hassane
+        name: Mohamed Hassane
+
+    p_alexis
+        name: Alexis Mbayé
+
+    p_daouda
+        name: Daouda Omarou
+
+    p_haroune
+        name: Haroune Sani
+
+assignments
+    p_ali -> ceo
+    p_mamane -> hr_mgr
+    p_aicha -> staff_hr1
+    p_hassane -> staff_hr3
+    p_alexis -> it_mgr
+    p_daouda -> staff_it1
+    p_haroune -> staff_it2
+
+departments

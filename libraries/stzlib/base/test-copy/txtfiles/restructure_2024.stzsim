@@ -1,0 +1,18 @@
+simulation "Treasury Restructure 2024"
+    description: "Consolidate treasury under CFO"
+    author: "Strategy Team"
+    date: "2024-12-01"
+
+changes
+    move position "treasury_head" from="ceo" to="cfo"
+    add position "risk_officer"
+        title: "Risk Officer"
+        level: staff
+        reportsTo: "treasury_head"
+    
+    assign person "p_carol" to="risk_officer"
+
+metrics
+    track span_of_control position="cfo"
+    track vacancy_rate
+    track compliance validators=["bceao", "banking"]

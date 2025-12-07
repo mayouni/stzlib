@@ -1,0 +1,28 @@
+style "Corporate Banking Theme"
+    theme: pro
+    layout: leftright
+
+colors
+    primary: "#1E3A8A"
+    success: "#059669"
+    warning: "#D97706"
+    danger: "#DC2626"
+
+fonts
+    default: "helvetica"
+    size: 12
+
+edges
+    style: solid
+    color: "#64748B"
+    spline: ortho
+    penwidth: 1
+
+nodes
+    penwidth: 2
+    penstyle: rounded,filled
+    strokecolor: "#1E3A8A"
+
+focus
+    color: "#EC4899"
+    penwidth: 3

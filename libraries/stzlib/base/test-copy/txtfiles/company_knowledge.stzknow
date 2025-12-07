@@ -1,0 +1,37 @@
+knowledge "Corporate Knowledge Base"
+    version: "1.0"
+
+namespaces
+    emp: "http://company.com/employee/"
+    org: "http://company.com/org/"
+
+ontology
+    class "Employee" subclassof "Person"
+    class "Manager" subclassof "Employee"
+    
+    property "reportsTo"
+        domain: "Employee"
+        range: "Manager"
+
+facts
+    Alice | type | Manager
+    Alice | manages | Engineering
+    Alice | worksIn | Building_A
+    
+    Bob | type | Employee
+    Bob | reportsTo | Alice
+    Bob | worksIn | Building_A
+    Bob | hasSkill | Python
+    
+    Carol | type | Employee
+    Carol | reportsTo | Alice
+    Carol | hasSkill | Finance
+
+rules
+    # Transitivity
+    if ?x reportsTo ?y and ?y reportsTo ?z
+    then ?x indirectlyReportsTo ?z
+    
+    # Inference
+    if ?x manages ?dept and ?y worksIn ?dept
+    then ?x supervises ?y

@@ -129,7 +129,6 @@ class stzDotCode
 	
 		# Execute using stzSystemCall
 		_oCall_ = new stzSystemCall(@cDotPath)
-		_oCall_.DisableSandbox()
 		_oCall_.SetArgs(aArgs)
 		_oCall_.HideConsole()
 		_oCall_.WithTimeout(30000)
@@ -176,7 +175,6 @@ class stzDotCode
 			ok
 			
 			_oSysCal_ = new stzSystemCall("cmd.exe")
-			_oSysCal_.DisableSandbox()
 			_oSysCal_.OpenFile(@cLastOutputFile)
 
 		def Display()

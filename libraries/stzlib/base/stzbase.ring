@@ -1,7 +1,7 @@
 # This file loads the BASE layer of SoftanzaLib (along with its CORE layer)
 
 # Giving priority to user code config (suggested by Mahmoud)
-if ! isGlobal(:$aStzLibConfig )
+if NOT isGlobal(:$aStzLibConfig )
     $aStzLibConfig = []
 ok
 
@@ -140,7 +140,6 @@ ok
 
 # Loading files related to SYSTEM module
 
-    load "system/stzfilesandbox.ring"
     load "system/stzsystemcall.ring"
 
     load "system/stzmemoryglobals.ring"

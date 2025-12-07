@@ -1,0 +1,68 @@
+workflow "Loan_Approval"
+    type: sequential
+
+metadata
+    author: Process Team
+    version: 2.0
+
+steps
+    receive
+        label: "Receive Application"
+        type: start
+        assignedTo: clerk_1
+        duration: 1
+    
+    verify
+        label: "Verify Documents"
+        assignedTo: clerk_2
+        duration: 4
+        sla: 6
+    
+    credit_check
+        label: "Credit Check"
+        assignedTo: analyst_1
+        duration: 2
+        sla: 3
+    
+    decide
+        label: "Approval Decision"
+        type: decision
+        assignedTo: manager_1
+        duration: 1
+    
+    approve
+        label: "Approve Loan"
+        type: process
+        assignedTo: manager_1
+        duration: 1
+    
+    reject
+        label: "Reject Application"
+        type: process
+        assignedTo: clerk_1
+        duration: 0.5
+
+flow
+    receive -> verify
+    verify -> credit_check
+    credit_check -> decide
+    decide -> approve
+    decide -> reject
+
+actors
+    clerk_1
+        name: "Alice Johnson"
+        role: "clerk"
+    
+    analyst_1
+        name: "Bob Smith"
+        role: "analyst"
+    
+    manager_1
+        name: "Carol Davis"
+        role: "manager"
+
+roles
+    clerk -> position_clerk
+    analyst -> position_analyst
+    manager -> position_manager

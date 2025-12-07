@@ -1,0 +1,32 @@
+diagram "Loan_Approval_Process"
+
+metadata
+    theme: pro
+    layout: topdown
+
+nodes
+    receive
+        label: "Receive Application"
+        type: start
+        color: green
+
+    verify
+        label: "Verify Documents"
+        type: process
+        color: blue
+
+    decide
+        label: "Credit Decision"
+        type: decision
+        color: yellow
+
+    approve
+        label: "Approve"
+        type: endpoint
+        color: green
+
+edges
+    receive -> verify
+    verify -> decide
+    decide -> approve
+        label: "Approved"

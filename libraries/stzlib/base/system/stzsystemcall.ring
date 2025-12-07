@@ -2,13 +2,66 @@
 #  SOFTANZA SYSTEM CALL CLASS  #
 #------------------------------#
 
-# GLOAB FUNCTIONS
-#=================
+ShellBuiltInCommands = [
+	# Windows built-ins
+	"echo", "cd", "dir", "type", "set", "if", "for", "date", "time",
+	"copy", "move", "del", "ren", "md", "rd", "cls", "exit", "call",
+	"start", "pushd", "popd", "assoc", "ftype", "mklink",
+	
+	# Unix/Linux built-ins
+	"export", "source", "alias", "unalias", "pwd", "test", "read",
+	"eval", "exec", "shift", "wait", "ulimit", "umask", "bg", "fg",
+	"jobs", "kill", "trap", "hash", "getopts"
+]
+
+# GLOBAL FUNCTIONS
+#==================
 
 func StzSystemCallQ(pcProgram)
 	return new stzSystemCall(pcProgram)
 
-func stzsystem(pcProgram, pacArgs)
+func StzSystemCallQXT(pcProgram, cReturnType)
+	oCall = new stzSystemCall(pcProgram)
+	oCall.SetReturnType(cReturnType)
+	return oCall
+
+func stzsystem(pcCommand)
+	pcCommand = NormalizePathsInCommand(pcCommand)
+	
+	_oSysCall_ = new stzSystemCall(pcCommand)
+	_oSysCall_.HideConsole()
+	return _oSysCall_.RunAndGetOutput()
+
+func NormalizePathsInCommand(pcCommand)
+	# Convert slashes in paths only, not in command flags
+	cResult = ""
+	aTokens = split(pcCommand, " ")
+	
+	for i = 1 to len(aTokens)
+		cToken = aTokens[i]
+		
+		if isWindows()
+			# Convert / to \ only if not a flag (doesn't start with /)
+			if substr(cToken, "/") > 0 and cToken[1] != "/"
+				cToken = substr(cToken, "/", "\")
+			ok
+		else
+			# Convert \ to / for Unix paths
+			if substr(cToken, "\") > 0
+				cToken = substr(cToken, "\", "/")
+			ok
+		ok
+		
+		cResult += cToken
+		if i < len(aTokens)
+			cResult += " "
+		ok
+	next
+	
+	return cResult
+
+
+func stzsystemXT(pcProgram, pacArgs)
 	_oSysCall_ = new stzSystemCall(pcProgram)
 	_oSysCall_.SetArgs(pacArgs)
 	_oSysCall_.HideConsole()
@@ -38,13 +91,8 @@ class stzSystemCall
 	@bExecuted = FALSE
 	@bRunSilentMode = FALSE
 	
-	# Sandbox attributes
-	@cSandboxRoot = "./systest"
-	@cWorkspace = ""
-	@bUseSandbox = TRUE
-	@bAutoApprove = FALSE
-	@aFileSnapshot = []
-	@cOriginalDir = ""
+	# Return type control for Sys() commands
+	@cReturnType = "string"  # "string", "number", or "list"
 
 	def init(pcCommandString)
 		if NOT isString(pcCommandString)
@@ -53,77 +101,129 @@ class stzSystemCall
 		
 		@cCommandString = pcCommandString
 		This.ParseCommandString(pcCommandString)
+		This.UseShellIfNeeded()
 
 	def ParseCommandString(cCmd)
-		# Split "program arg1 arg2" into parts
-		aParts = split(cCmd, " ")
-		@cProgram = aParts[1]
+		# Check for return type suffix (@RETURN:type)
+		nReturnPos = substr(cCmd, "@RETURN:")
+		if nReturnPos > 0
+			# Extract return type
+			cReturnPart = substr(cCmd, nReturnPos + 8)  # After "@RETURN:"
+			@cReturnType = trim(cReturnPart)
+			# Remove suffix from command
+			cCmd = trim(left(cCmd, nReturnPos - 1))
+		ok
+		
+		# Handle quoted arguments properly
 		@acArgs = []
-		for i = 2 to len(aParts)
-			@acArgs + aParts[i]
+		cCmd = trim(cCmd)
+		
+		# Extract first token (program name)
+		nPos = substr(cCmd, " ")
+		if nPos = 0
+			@cProgram = cCmd
+			return
+		ok
+		
+		@cProgram = left(cCmd, nPos - 1)
+		cRest = trim(substr(cCmd, nPos + 1))
+		
+		# Parse remaining arguments respecting quotes
+		bInQuote = FALSE
+		cCurrent = ""
+		
+		for i = 1 to len(cRest)
+			c = cRest[i]
+			
+			if c = '"'
+				bInQuote = NOT bInQuote
+			but c = " " and NOT bInQuote
+				if cCurrent != ""
+					@acArgs + cCurrent
+					cCurrent = ""
+				ok
+			else
+				cCurrent += c
+			ok
 		next
-
-	#-----------------#
-	#  SANDBOX MODES  #
-	#-----------------#
-	
-	def EnableSandbox()
-		@bUseSandbox = TRUE
-		return This
-
-	def DisableSandbox()
-		@bUseSandbox = FALSE
-		return This
-	
-	def SetAutoApprove(bAuto)
-		@bAutoApprove = bAuto
-		return This
-	
-	def SetSandboxRoot(cPath)
-		@cSandboxRoot = cPath
-		return This
+		
+		if cCurrent != ""
+			@acArgs + cCurrent
+		ok
 
 	#-------------------#
 	#  MAIN EXECUTION  #
 	#-------------------#
 
 	def Run()
+
 		if @cProgram = ""
 			stzraise("No program specified!")
 		ok
+		
+		# Use shell if command contains shell operators
+		This.UseShellIfNeeded()
 	
-		# Validate all file references in args BEFORE doing anything
-		for cArg in @acArgs
-			# Skip command flags
-			if left(cArg, 1) = "/" or left(cArg, 1) = "-"
-				loop
-			ok
-			
-			# Check if it looks like a file path (has extension)
-			if substr(cArg, ".") > 0
-				# Extract directory if present
-				cPath = substr(cArg, "\", "/")
-				nPos = 0
-				for i = len(cPath) to 1 step -1
-					if cPath[i] = "/"
-						nPos = i
-						exit
-					ok
-				next
-				
-				if nPos > 0
-					cDir = left(cPath, nPos - 1)
-					if NOT isdir(cDir)
-						stzraise("Directory does not exist: " + cDir)
-					ok
+		# Handle silent mode
+		if @bRunSilentMode and isWindows() and NOT (@cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[2] = "start")
+			This.RunWindowsSilent()
+			return NULL
+		ok
+	
+		_oQStrList_ = new QStringList()
+
+		# Special handling for cmd.exe /c - combine everything after /c into single command
+		if @cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[1] = "/c"
+			_oQStrList_.append("/c")
+			# Combine all remaining args into one command string
+			cCommand = ""
+			for i = 2 to len(@acArgs)
+				if i > 2
+					cCommand += " "
 				ok
-			ok
-		next
-	
-		if @bUseSandbox
-			return This.RunInSandbox()
+				cArg = @acArgs[i]
+				# Don't quote shell operators
+				if cArg = "&" or cArg = "&&" or cArg = "|" or cArg = "||"
+					cCommand += cArg
+				# Quote paths with spaces
+				elseif substr(cArg, " ") > 0
+					cCommand += '"' + cArg + '"'
+				else
+					cCommand += cArg
+				ok
+			next
+			_oQStrList_.append(cCommand)
 		else
-			return This.ExecuteDirect()
+			# Normal argument passing
+			for i = 1 to len(@acArgs)
+				_oQStrList_.append(@acArgs[i])
+			next
+		ok
+
+		_oQProcess_ = new QProcess("")
+		_oQProcess_.setProcessChannelMode(0)
+		_oQProcess_.start(@cProgram, _oQStrList_, 3)
+		
+		if NOT _oQProcess_.waitForFinished(@nTimeout)
+			@bExecuted = FALSE
+			@nExitCode = -1
+			return NULL
+		ok
+		
+		@bExecuted = TRUE
+		@nExitCode = _oQProcess_.ExitCode()
+		
+		if @bCaptureOutput
+			@cOutput = QByteArraytoString(_oQProcess_.ReadAllStandardOutput())
+			# Auto-convert output based on return type
+			This.ConvertOutputByType()
+		ok
+		
+		if @bCaptureError
+			@cError = QByteArraytoString(_oQProcess_.ReadAllStandardError())
+			if @cError = "" and @nExitCode != 0 and isString(@cOutput) and @cOutput != ""
+				@cError = @cOutput
+			ok
 		ok
 
 		def RunQ()
@@ -144,447 +244,79 @@ class stzSystemCall
 			This.Exec()
 			return This
 
-	def ExecuteDirect()
-		# Handle silent mode
-		if @bRunSilentMode and isWindows() and NOT (@cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[2] = "start")
-			This.RunWindowsSilent()
-			return NULL
-		ok
-	
-		_oQStrList_ = new QStringList()
-		
-		# Special handling for cmd.exe - combine args after /c into single string
-		if @cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[1] = "/c"
-			_oQStrList_.append("/c")
-			# Combine remaining args into single command string
-			cCommand = ""
-			for i = 2 to len(@acArgs)
-				if i > 2
-					cCommand += " "
-				ok
-				if substr(@acArgs[i], " ") > 0
-					cCommand += '"' + @acArgs[i] + '"'
-				else
-					cCommand += @acArgs[i]
-				ok
-			next
-			_oQStrList_.append(cCommand)
-			
-			# DEBUG
-			//? "DEBUG ExecuteDirect: Final QStringList:"
-			//? "  Arg 0: " + _oQStrList_.at(0)
-			//? "  Arg 1: " + _oQStrList_.at(1)
-		else
-			# Normal argument passing for other programs
-			for i = 1 to len(@acArgs)
-				_oQStrList_.append(@acArgs[i])
-			next
-		ok
-	
-		_oQProcess_ = new QProcess("")
-		_oQProcess_.setProcessChannelMode(0)
-		_oQProcess_.start(@cProgram, _oQStrList_, 3)
-		
-		if NOT _oQProcess_.waitForFinished(@nTimeout)
-			@bExecuted = FALSE
-			@nExitCode = -1
-			return NULL
-		ok
-		
-		@bExecuted = TRUE
-		@nExitCode = _oQProcess_.ExitCode()
-		
-		if @bCaptureOutput
-			@cOutput = QByteArraytoString(_oQProcess_.ReadAllStandardOutput())
-		ok
-		
-		if @bCaptureError
-			@cError = QByteArraytoString(_oQProcess_.ReadAllStandardError())
-			if @cError = "" and @nExitCode != 0 and @cOutput != ""
-				@cError = @cOutput
-			ok
-		ok
+	#-----------------------#
+	#  RETURN TYPE CONTROL  #
+	#-----------------------#
 
-	#---------------------#
-	#  SANDBOX EXECUTION  #
-	#---------------------#
+	def SetReturnType(cType)
+		cType = lower(cType)
+		if NOT (cType = "string" or cType = "number" or cType = "list")
+			stzraise("Return type must be 'string', 'number', or 'list'")
+		ok
+		@cReturnType = cType
+		return This
 
-	def CreateWorkspace()
-		# Create sandbox root
-		if NOT isdir(@cSandboxRoot)
-			QMkdir(@cSandboxRoot)
-		ok
-		
-		# Create workspace
-		cTimestamp = "" + clock()
-		cPath = @cSandboxRoot + "/ws_" + cTimestamp
-		
-		QMkdir(cPath)  # Changed from system('mkdir...')
-		
-		return cPath
+		def SetReturnTypeQ(cType)
+			This.SetReturnType(cType)
+			return This
 
+	def ReturnType()
+		return @cReturnType
 
-def RunInSandbox()
-		? BoxRound("SANDBOX MODE: Safe Execution Zone") + NL
-		
-		# Step 1: Create isolated workspace
-		? "-> Creating isolated workspace..."
-		@cWorkspace = This.CreateWorkspace()
-		? "  √ Workspace ready: " + @cWorkspace
-		? ""
-		
-		# Step 2: Prepare environment
-		? "-> Preparing workspace environment..."
-		This.PrepareWorkspace()
-		? "  √ Files copied to sandbox"
-		? ""
-		
-		# Step 3: Convert paths for platform
-		if isWindows()
-			for i = 1 to len(@acArgs)
-				@acArgs[i] = substr(@acArgs[i], "/", "\")
-			next
+	def ConvertOutputByType()
+		if NOT isString(@cOutput)
+			return  # Already converted or empty
 		ok
 		
-		# Step 4: Execute in sandbox using QProcess
-		? "-> Executing command in sandbox..."
-		? "  Command: " + @cProgram
-		? "  Arguments: " + @@(@acArgs)
-		? ""
-		
-		This.ExecuteInSandbox()
-		
-		if @nExitCode = 0
-			? "  √ Command executed successfully"
-		else
-			? "  ! Command completed with exit code: " + @nExitCode
-			if @cError != ""
-				? "  Error: " + @cError
-			ok
+		if @cReturnType = "list"
+			@cOutput = This.ParseOutputAsLines()
+		but @cReturnType = "number"
+			@cOutput = This.ParseOutputAsNumber()
 		ok
-		? ""
-		
-		# Step 5: Analyze changes
-		? "-> Analyzing workspace changes..."
-		aChanges = This.CaptureChanges()
-		? ""
-		
-		# Step 6: User approval
-		if NOT This.UserApproves(aChanges)
-			? ""
-			? "X Changes discarded, workspace cleaned up"
-			This.CleanupWorkspace()
-			return FALSE
-		ok
-		
-		# Step 7: Apply to real system
-		? ""
-		? "-> Applying changes to real filesystem..."
-		This.ApplyToRealSystem(aChanges)
-		? "  √ Changes applied successfully"
-		? ""
-		
-		# Step 8: Cleanup
-		? "-> Cleaning up workspace..."
-		This.CleanupWorkspace()
-		? "  √ Workspace removed" + NL
-		? BoxRound("Operation Completed Successfully")
-		
-		return TRUE
+		# "string" type needs no conversion
 
-
-	def ExecuteInSandbox()
-		# Use QProcess with working directory set to workspace
-		_oQStrList_ = new QStringList()
-		
-		# Handle cmd.exe specially for Windows
-		if isWindows() and @cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[1] = "\c"
-			_oQStrList_.append("/c")
-			cCommand = ""
-			for i = 2 to len(@acArgs)
-				if i > 2
-					cCommand += " "
-				ok
-				cCommand += @acArgs[i]
-			next
-			_oQStrList_.append(cCommand)
-		else
-			# Normal argument passing
-			for i = 1 to len(@acArgs)
-				_oQStrList_.append(@acArgs[i])
-			next
+	def ParseOutputAsLines()
+		if NOT isString(@cOutput) or @cOutput = ""
+			return []
 		ok
 		
-		_oQProcess_ = new QProcess("")
-		_oQProcess_.setWorkingDirectory(@cWorkspace)
-		_oQProcess_.setProcessChannelMode(0)
-		_oQProcess_.start(@cProgram, _oQStrList_, 3)
-		
-		if NOT _oQProcess_.waitForFinished(@nTimeout)
-			@bExecuted = FALSE
-			@nExitCode = -1
-			@cError = "Command timed out after " + @nTimeout + "ms"
-			return NULL
-		ok
-		
-		@bExecuted = TRUE
-		@nExitCode = _oQProcess_.ExitCode()
-		
-		if @bCaptureOutput
-			@cOutput = QByteArraytoString(_oQProcess_.ReadAllStandardOutput())
-		ok
-		
-		if @bCaptureError
-			@cError = QByteArraytoString(_oQProcess_.ReadAllStandardError())
-			if @cError = "" and @nExitCode != 0 and @cOutput != ""
-				@cError = @cOutput
-			ok
-		ok
-
-	def PrepareWorkspace()
-		aFiles = []
-		for cArg in @acArgs
-			if substr(cArg, ".") > 0 and fexists(cArg)
-				aFiles + cArg  # Keep original relative path
+		aLines = split(@cOutput, NL)
+		aResult = []
+		for cLine in aLines
+			cLine = trim(cLine)
+			if cLine != ""
+				aResult + cLine
 			ok
 		next
-		
-		# Validate files exist
-		for cFile in aFiles
-			if NOT fexists(cFile)
-				This.CleanupWorkspace()
-				stzraise("Source file does not exist: " + cFile)
-			ok
-		next
-		
-		# Copy files preserving structure
-		for cFile in aFiles
-			cPath = NormalizePath(cFile)  # Use short form, not XT
-			nPos = 0
-			for i = len(cPath) to 1 step -1
-				if cPath[i] = "/"
-					nPos = i
-					exit
-				ok
-			next
-			
-			cDest = @cWorkspace + "/" + cFile  # Use original relative path
-			CopyFileContent(cFile, cDest)
-		next
-		
-		@aFileSnapshot = This.GetDirectorySnapshot(@cWorkspace)
+		return aResult
 
-	def ExtractDirectory(cPath)
-		cPath = substr(cPath, "\", "/")
-		nPos = 0
-		for i = len(cPath) to 1 step -1
-			if cPath[i] = "/"
-				nPos = i - 1
-				exit
-			ok
-		next
-		return left(cPath, nPos)
-
-	def ExtractFileReferences()
-		aFiles = []
-		for i = 1 to len(@acArgs)
-			cArg = @acArgs[i]
-			# Simple heuristic: if looks like file and exists
-			if (substr(cArg, ".") > 0) and fexists(cArg)
-				aFiles + cArg
-			ok
-		next
-		return aFiles
-
-	def GetDirectorySnapshot(cDir)
-		aSnapshot = []
+	def ParseOutputAsNumber()
+		if NOT isString(@cOutput) or @cOutput = ""
+			return 0
+		ok
 		
-		# Get all entries recursively
-		aToProcess = [cDir]
-		
-		while len(aToProcess) > 0
-			cCurrentPath = aToProcess[1]
-			del(aToProcess, 1)
-			
-			_aList_ = @dir(cCurrentPath)
-			nLen = len(_aList_)
-			
-			for i = 1 to nLen
-				if _aList_[i][2] = 0  # File
-					cFileName = _aList_[i][1]
-					cFullPath = cCurrentPath + "/" + cFileName
-					cRelativePath = @substr(cFullPath, len(cDir) + 2, len(cFullPath))  # Remove base dir + separator
-					aSnapshot + [cRelativePath, len(cFullPath), filemtime(cFullPath)]
-					
-				but _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."  # Directory
-					aToProcess + (cCurrentPath + "/" + _aList_[i][1])
-				ok
-			next
-		end
-		
-		return aSnapshot
-
-	def CaptureChanges()
-		aAfterSnapshot = This.GetDirectorySnapshot(@cWorkspace)
-		
-		//? "DEBUG CaptureChanges: Before snapshot = " + @@(@aFileSnapshot)
-		//? "DEBUG CaptureChanges: After snapshot = " + @@(aAfterSnapshot)
-		
-		aCreated = []
-		aModified = []
-		
-		# Find new files (in after but not in before)
-		for aFileAfter in aAfterSnapshot
-			cFileName = aFileAfter[1]
-			bFound = FALSE
-			
-			for aFileBefore in @aFileSnapshot
-				if aFileBefore[1] = cFileName
-					bFound = TRUE
-					# Check if modified (size changed)
-					if aFileBefore[2] != aFileAfter[2]
-						aModified + cFileName
+		cOutput = trim(@cOutput)
+		# Try to extract first number from output
+		for i = 1 to len(cOutput)
+			c = cOutput[i]
+			if (c >= "0" and c <= "9") or c = "-" or c = "."
+				# Found start of number, extract it
+				cNum = ""
+				for j = i to len(cOutput)
+					c2 = cOutput[j]
+					if (c2 >= "0" and c2 <= "9") or c2 = "." or c2 = "-"
+						cNum += c2
+					else
+						exit
 					ok
-					exit
-				ok
-			next
-			
-			if NOT bFound
-				aCreated + cFileName
-			ok
-		next
-		
-		//? "DEBUG: Created files = " + @@(aCreated)
-		//? "DEBUG: Modified files = " + @@(aModified)
-		
-		return [
-			:created = aCreated,
-			:modified = aModified,
-			:output = @cOutput,
-			:exitcode = @nExitCode
-		]
-
-	def UserApproves(aChanges)
-		if @bAutoApprove
-			return TRUE
-		ok
-		
-		? BoxRound("REVIEW CHANGES BEFORE APPLYING") + NL
-		? "Workspace: " + @cWorkspace
-		? "Exit code: " + aChanges[:exitcode] + NL
-		
-		nTotalChanges = len(aChanges[:created]) + len(aChanges[:modified])
-		
-		if nTotalChanges = 0
-			? "! No file changes detected"
-			if aChanges[:exitcode] != 0
-				? "  The command may have failed or produced no output"
-			ok
-		else
-			if len(aChanges[:created]) > 0
-				? "√ Files created (" + len(aChanges[:created]) + "):"
-				for cFile in aChanges[:created]
-					? "  + " + cFile
 				next
-				? ""
-			ok
-			
-			if len(aChanges[:modified]) > 0
-				? "√ Files modified (" + len(aChanges[:modified]) + "):"
-				for cFile in aChanges[:modified]
-					? "  * " + cFile
-				next
-				? ""
-			ok
-		ok
-		
-		if aChanges[:output] != "" and len(aChanges[:output]) > 0
-			cCommandOutput = "(Nothing)"
-			cLeft200 = left(aChanges[:output], 200)
-			if cLeft200 != ""
-				cCommandOutput = cLeft200
-			ok
-
-			? "Command output:"
-			? "  " + cCommandOutput
-			if len(aChanges[:output]) > 200
-				? "  ... (truncated)"
-			ok
-			? ""
-		ok
-		
-		? BoxRound("Options") + NL
-		? "  Y = Yes, Apply changes to real filesystem"
-		? "  N = No, Discard changes and cleanup workspace"
-		? "  I = Inspect workspace contents"
-		? ""
-		? "Your choice (Y/N/I): "
-		give cAnswer
-		? ""
-		
-		if lower(cAnswer) = "i"
-			? BoxRound("WORKSPACE CONTENTS") + NL
-			This.ShowWorkspaceTree(@cWorkspace, "", 0)
-			? ""
-			? "Press Enter to continue..."
-			give cDummy
-			return This.UserApproves(aChanges)
-		ok
-		
-		if lower(cAnswer) != "y" and lower(cAnswer) != "n"
-			? "Invalid choice. Please enter y, n, or i"
-			return This.UserApproves(aChanges)
-		ok
-		
-		return lower(cAnswer) = "y"
-
-
-	def ShowWorkspaceTree(cPath, cPrefix, nLevel)
-		aList = dir(cPath)
-		nLen = len(aList)
-		
-		for i = 1 to nLen
-			if aList[i][1] = "." or aList[i][1] = ".."
-				loop
-			ok
-			
-			bIsLast = (i = nLen)
-			cIcon = iff(bIsLast, "+-- ", "|-- ")
-			
-			if aList[i][2] = 1  # Directory
-				? cPrefix + cIcon + "[DIR] " + aList[i][1]
-				cNewPrefix = cPrefix + iff(bIsLast, "    ", "|   ")
-				This.ShowWorkspaceTree(cPath + "/" + aList[i][1], cNewPrefix, nLevel + 1)
-			else  # File
-				? cPrefix + cIcon + "[FILE] " + aList[i][1]
+				return 0 + cNum  # Convert to number
 			ok
 		next
-
-	def ApplyToRealSystem(aChanges)
-		# Copy created/modified files back
-		for cFile in aChanges[:created]
-			cSrc = @cWorkspace + "/" + cFile
-			if fexists(cSrc)
-				CopyFileContent(cSrc, "./" + cFile)
-			ok
-		next
-		
-		for cFile in aChanges[:modified]
-			cSrc = @cWorkspace + "/" + cFile
-			if fexists(cSrc)
-				CopyFileContent(cSrc, "./" + cFile)
-			ok
-		next
-
-	def CleanupWorkspace()
-		if @cWorkspace != "" and isdir(@cWorkspace)
-			_oQDir_ = new QDir()
-			_oQDir_.setPath(@cWorkspace)
-			_oQDir_.removeRecursively()
-		ok
+		return 0
 
 	#-----------------------#
-	#  EXISTING METHODS...  #
+	#  CONFIGURATION        #
 	#-----------------------#
 
 	def Program()
@@ -619,38 +351,15 @@ def RunInSandbox()
 			return This.SetArgsQ(pacArgs)
 	
 	def SetParam(cParam, cValue)
-		// ? "DEBUG before SetParam: " + @@(@acArgs)
-		
-		# Validate file/folder existence
-		if lower(cParam) = "source"
-			if substr(cValue, ".") > 0 and NOT fexists(cValue)
-				stzraise("Source file does not exist: " + cValue)
-			ok
-		ok
-		
-		if lower(cParam) = "dest"
-			# Extract directory from destination path
-			cPath = substr(cValue, "\", "/")
-			nPos = 0
-			for i = len(cPath) to 1 step -1
-				if cPath[i] = "/"
-					nPos = i
-					exit
-				ok
-			next
-			
-			if nPos > 0
-				cDir = left(cPath, nPos - 1)
-				if NOT isdir(cDir)
-					stzraise("Destination directory does not exist: " + cDir)
-				ok
-			ok
+		# Convert forward slashes to backslashes on Windows for any path-like value
+		if isWindows() and (substr(cValue, "/") > 0 or substr(cValue, "\") > 0)
+			# If it looks like a path (contains slashes), convert to backslashes
+			cValue = substr(cValue, "/", "\")
 		ok
 		
 		for i = 1 to len(@acArgs)
 			@acArgs[i] = substr(@acArgs[i], "{" + cParam + "}", cValue)
 		next
-		//? "DEBUG after SetParam: " + @@(@acArgs)
 	
 	def SetParams(aParams)
 		for aParam in aParams
@@ -702,6 +411,10 @@ def RunInSandbox()
 
 	def Timeout()
 		return @nTimeout
+
+	#-----------------------#
+	#  OUTPUT CONTROL       #
+	#-----------------------#
 
 	def CaptureOutput()
 		@bCaptureOutput = TRUE
@@ -757,6 +470,10 @@ def RunInSandbox()
 		def SilentlyQ()
 			return This.HideConsoleQ()
 
+	#-----------------------#
+	#  SILENT EXECUTION     #
+	#-----------------------#
+
 	def RunWindowsSilent()
 		cOriginalProgram = @cProgram
 		aOriginalArgs = @acArgs
@@ -782,6 +499,29 @@ def RunInSandbox()
 		@bExecuted = TRUE
 		@nExitCode = _oQProcess_.ExitCode()
 
+	def RunSilently()
+		@bRunSilentMode = TRUE
+		@bShowConsole = FALSE
+		@bCaptureOutput = FALSE
+		@bCaptureError = FALSE
+		This.Run()
+		@bRunSilentMode = FALSE
+
+		def RunSilentlyQ()
+			This.RunSilently()
+			return This
+
+		def RunSilent()
+			This.RunSilently()
+
+		def RunSilentQ()
+			This.RunSilent()
+			return This
+
+	#-----------------------#
+	#  RESULTS              #
+	#-----------------------#
+
 	def Output()
 		return @cOutput
 
@@ -790,6 +530,31 @@ def RunInSandbox()
 
 		def StdOut()
 			return This.Output()
+
+	def OutputAsLines()
+		if @cOutput = ""
+			return []
+		ok
+		
+		aLines = split(@cOutput, NL)
+		# Remove empty lines
+		aResult = []
+		for cLine in aLines
+			cLine = trim(cLine)
+			if cLine != ""
+				aResult + cLine
+			ok
+		next
+		return aResult
+
+		def OutputAsList()
+			return This.OutputAsLines()
+
+		def ResultAsLines()
+			return This.OutputAsLines()
+
+		def ResultAsList()
+			return This.OutputAsLines()
 
 	def Error()
 		return @cError
@@ -825,24 +590,9 @@ def RunInSandbox()
 		def GetOutput()
 			return This.RunAndGetOutput()
 
-	def RunSilently()
-		@bRunSilentMode = TRUE
-		@bShowConsole = FALSE
-		@bCaptureOutput = FALSE
-		@bCaptureError = FALSE
-		This.Run()
-		@bRunSilentMode = FALSE
-
-		def RunSilentlyQ()
-			This.RunSilently()
-			return This
-
-		def RunSilent()
-			This.RunSilently()
-
-		def RunSilentQ()
-			This.RunSilent()
-			return This
+	#-----------------------#
+	#  UTILITIES            #
+	#-----------------------#
 
 	def OpenFile(cFilePath)
 		if isWindows()
@@ -872,4 +622,46 @@ def RunInSandbox()
 
 		def ResetQ()
 			This.Reset()
+			return This
+
+	def UseShellIfNeeded()
+		# Detect if command needs shell wrapper
+		cCmd = @cCommandString
+		bNeedsShell = FALSE
+		
+		# Check for shell operators (but not command-line flags)
+		# Look for > or < only when followed by space or filename (not part of flag)
+		if substr(cCmd, " > ") > 0 or substr(cCmd, " < ") > 0 or
+		   substr(cCmd, ">") = 1 or substr(cCmd, "<") = 1 or
+		   substr(cCmd, "|") > 0 or substr(cCmd, "&&") > 0 or
+		   substr(cCmd, "||") > 0
+			bNeedsShell = TRUE
+		ok
+		
+		# Check for single & (but not &&)
+		if substr(cCmd, "&") > 0 and substr(cCmd, "&&") = 0
+			bNeedsShell = TRUE
+		ok
+		
+		# Check for shell built-in commands
+		cFirstWord = lower(trim(split(cCmd, " ")[1]))
+		if find(ShellBuiltInCommands, cFirstWord) > 0
+			bNeedsShell = TRUE
+		ok
+		
+		if bNeedsShell
+			# Rebuild command with shell wrapper
+			if isWindows()
+				@cCommandString = "cmd.exe /c " + cCmd
+			else
+				@cCommandString = "sh -c " + cCmd
+			ok
+			# Re-parse with new command string
+			This.ParseCommandString(@cCommandString)
+		ok
+		
+		return This
+	
+		def UseShellIfNeededQ()
+			This.UseShellIfNeeded()
 			return This

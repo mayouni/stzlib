@@ -1,0 +1,20 @@
+graph "Supply_Chain_Network"
+    type: directed
+
+nodes
+    warehouse_a
+    warehouse_b
+    factory_1
+    distributor_x
+
+edges
+    warehouse_a -> factory_1
+    warehouse_b -> factory_1
+    factory_1 -> distributor_x
+
+properties
+    warehouse_a
+        location: "Chicago"
+        capacity: 5000
+    factory_1
+        production_rate: 100

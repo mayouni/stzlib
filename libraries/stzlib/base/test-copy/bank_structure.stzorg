@@ -1,0 +1,37 @@
+orgchart "Regional_Bank"
+
+positions
+    loan_manager
+        title: Loan Manager
+        level: 0
+        department: 
+        reportsTo: 
+
+    clerk_pos
+        title: Loan Clerk
+        level: 0
+        department: 
+        reportsTo: loan_manager
+
+    analyst_pos
+        title: Credit Analyst
+        level: 0
+        department: 
+        reportsTo: loan_manager
+
+people
+    p_alice
+        name: Alice Johnson
+
+    p_bob
+        name: Bob Smith
+
+    p_carol
+        name: Carol Davis
+
+assignments
+    p_carol -> loan_manager
+    p_alice -> clerk_pos
+    p_bob -> analyst_pos
+
+departments
