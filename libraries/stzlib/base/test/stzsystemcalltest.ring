@@ -23,8 +23,7 @@ load "../stzbase.ring"
 pr()
 
 
-? "=== SANDBOX DEMO: File Copy ==="
-? "Watch how the sandbox protects your filesystem..."
+# Watch how the sandbox protects your filesystem...
 
 Sy = new stzSystemCall(Sys(:CopyFile)) # Sys() or SysCmdData()
 Sy {

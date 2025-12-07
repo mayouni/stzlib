@@ -140,6 +140,7 @@ ok
 
 # Loading files related to SYSTEM module
 
+    load "system/stzfilesandbox.ring"
     load "system/stzsystemcall.ring"
 
     load "system/stzmemoryglobals.ring"
