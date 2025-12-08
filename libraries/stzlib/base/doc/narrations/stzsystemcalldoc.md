@@ -1,8 +1,8 @@
-# Softanza's System Call Augmentation: Built on Qt's QProcess
+# Softanza's System Call : Built on Qt's QProcess
 
 ## Motivation
 
-Ring's native `system()` function works well for basic cross-platform command execution. Softanza enhances this foundation through `stzsystem()` function adn `stzSystemCall` class , leveraging RingQt's `QProcess` for:
+Ring's native `system()` function works well for cross-platform command execution. Softanza enhances this foundation through `stzsystem()` function and `stzSystemCall` class , leveraging RingQt's `QProcess` for:
 
 * **Performance**: Qt's optimized process management and I/O handling
 * **Configurability**: Fine-grained control over execution, timeouts, and output capture
@@ -112,7 +112,7 @@ oCall.Run()
 
 ## Cross-Platform Abstraction: Sys() Commands
 
-`stzSystemCallData.ring` provides 30+ unified commands that work identically across Windows, macOS, and Linux, and callable simply by the small `Sys()` function:
+`stzSystemCallData.ring` provides 30+ unified commands that work identically across Windows, macOS, and Linux, and callable simply by the small `Sys(:Command)` function:
 
 ```ring
 # Same code, any OS
@@ -133,7 +133,7 @@ Each `Sys()` command includes:
 
 ## Type-Aware Returns
 
-Sys() commands include `@RETURN:` internally so the output is returned in the correct type:
+Sys() commands include `@RETURN:` internally so the output is returned automatically in the correct type:
 :
 
 ```ring
