@@ -1718,10 +1718,10 @@ class stzGraph
 		def ConstraintAnomalies()
 			return This.ConstraintViolations()
 
-	#---------------------#
-	#  RULE ENGINE MGMT   #
-	#---------------------#
-    
+	#--------------------------#
+	#  RULE ENGINE MANAGEMENT  #
+	#--------------------------#
+
 	def LoadRuleBase(pRuleBase)
 		if @oRuleEngine = NULL
 			@oRuleEngine = new stzGraphRuleEngine(This)
@@ -1744,7 +1744,7 @@ class stzGraph
 	#------------------------------#
 	#  stzGraph - Rule Management  #
 	#------------------------------#
-	
+
 	def SetRule(p)
 		if isString(p)
 			if HasKey(@aRules, p)
@@ -3718,6 +3718,9 @@ class stzGraph
 		return _nConnections_ / _nPossible_
 
 
+
+		def ClusteringCoeff(pcNodeId)
+			return This.ClusteringCoefficient(pcNodeId)
 
 	#-----------------------#
 	#  STZGRAF FILE FORMAT  #
