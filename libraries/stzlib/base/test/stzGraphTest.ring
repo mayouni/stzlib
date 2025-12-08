@@ -290,7 +290,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Batch Update Using Anonymous function
-
+*/
 pr()
 
 oGraph = new stzGraph("BatchTest")
