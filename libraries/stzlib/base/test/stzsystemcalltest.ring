@@ -118,8 +118,6 @@ pf()
 
 pr()
 
-? "=== Error Handling ===" + NL
-
 o1 = StzSystemCallQ("cmd.exe")
 o1.WithArgs(["/c", "type", "systest/nonexistent.txt"])
 o1.Run()
@@ -293,7 +291,7 @@ o1 {
 	? "✓ Directory created: " + isdir("systest/newdir")
 
 	# List files
-	Reset() #TODO// Allow resetting using Sys(:ListFiles)
+	Reset()
 	SetProgram("cmd.exe")
 	SetArgs(["/c", "dir", "/B", "systest"])
 	Run()
@@ -322,23 +320,53 @@ o2 {
 }
 
 pf()
-" Executed in 0.05 second(s) in Ring 1.24
+# Executed in 0.05 second(s) in Ring 1.24
+
+/*---
+
+pr()
+
+o1 = new stzSystemCall("cmd.exe")
+o1 {
+	SetArgs(["/c", "dir", "/B", "{path}"])
+	SetParam(:path, "systest")
+	Run()
+
+	# Files in systest
+
+	? Output()
+	#-->
+	'
+	backup.txt
+	file1_copy.txt
+	file2.txt
+	file3.txt
+	newdir
+	output.txt
+	source.txt
+	test.txt
+	'
+
+}
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.24
+
 
 /*----- TEST 13: Legacy function compatibility
 
 pr()
 
-? "=== Legacy Functions ===" + NL
-
-# Using stzsystem()
-cOutput = stzsystem("cmd.exe", ["/c", "echo", "Legacy call"])
+# Using stzsystemXT()
+cOutput = stzsystemXT("cmd.exe", ["/c", "echo", "Legacy call"])
 ? "stzsystem(): " + cOutput
 
 # Using stzsystemSilent()
-stzsystemSilent("cmd.exe", ["/c", "echo", "Silent legacy"])
+stzsystemSilentXT("cmd.exe", ["/c", "echo", "Silent legacy"])
 ? "✓ stzsystemSilent() executed (no output)"
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.24
 
 /*----- TEST 14: Open file with default app
 
@@ -366,37 +394,34 @@ oCall.Run()
 'D:\GitHub\stzlib\libraries\stzlib\base\test'
 
 pf()
-# Executed in 0.05 second(s) in Ring 1.24
+# Executed in 0.04 second(s) in Ring 1.24
 
 /*--
 
 pr()
 
 # Find files
-oCall = new stzSystemCall(Sys(:FindFiles))
+oCall = new stzSystemCall(Sys(:FindFiles)) 
 oCall.SetParam(:pattern, "*.txt")
 oCall.Run()
 
 # Text files found:
-? oCall.Output()
+? ShowShortNL( oCall.Output() ) # when we use Sys() the type oof output is automatic
 #-->
 '
-D:\GitHub\stzlib\libraries\stzlib\base\test\bigtext.txt
-D:\GitHub\stzlib\libraries\stzlib\base\test\config.txt
-D:\GitHub\stzlib\libraries\stzlib\base\test\log.txt
-D:\GitHub\stzlib\libraries\stzlib\base\test\pyresult.txt
-D:\GitHub\stzlib\libraries\stzlib\base\test\rresult.txt
-D:\GitHub\stzlib\libraries\stzlib\base\test\systest\backup.txt
-D:\GitHub\stzlib\libraries\stzlib\base\test\systest\output.txt
-D:\GitHub\stzlib\libraries\stzlib\base\test\systest\source.txt
-D:\GitHub\stzlib\libraries\stzlib\base\test\systest\test.txt
-D:\GitHub\stzlib\libraries\stzlib\base\test\systest\newdir\moved.txt
-D:\GitHub\stzlib\libraries\stzlib\base\test\txtfiles\test.txt
-D:\GitHub\stzlib\libraries\stzlib\base\test\txtfiles\test_output.txt
+[
+	"D:\GitHub\stzlib\libraries\stzlib\base\test\bigtext.txt", 
+	"D:\GitHub\stzlib\libraries\stzlib\base\test\config.txt", 
+	"D:\GitHub\stzlib\libraries\stzlib\base\test\log.txt", 
+	"...", 
+	"D:\GitHub\stzlib\libraries\stzlib\base\test\systest\newdir\moved.txt", 
+	"D:\GitHub\stzlib\libraries\stzlib\base\test\txtfiles\test.txt", 
+	"D:\GitHub\stzlib\libraries\stzlib\base\test\txtfiles\test_output.txt"
+]
 '
 
 pf()
-# Executed in 0.06 second(s) in Ring 1.24
+# Executed in 0.05 second(s) in Ring 1.24
 
 /*--
 
@@ -417,7 +442,7 @@ Operating System Version:              10.0.26...
 '
 
 pf()
-# Executed in 4.72 second(s) in Ring 1.24
+# Executed in 3.82 second(s) in Ring 1.24
 
 /*----- TEST 16: Error states
 
@@ -438,15 +463,6 @@ oCall.Run()
 ? oCall.HasError()
 #--> TRUE
 
-? left(oCall.Error(), 50)
-#-->
-'
-After reset:
-Succeeded: 1
-Exit code: 0
-Output: OK
-'
-
 # Reset and successful command
 oCall.Reset()
 oCall.SetArgs(["/c", "echo", "OK"])
@@ -458,8 +474,10 @@ oCall.Run()
 #--> TRUE
 
 ? oCall.ExitCode()
-? oCall.Output()
 #--> 0 (Means successin command line standard)
+
+? oCall.Output()
+#--> OK
 
 pf()
 # Executed in 0.06 second(s) in Ring 1.24
@@ -482,7 +500,7 @@ pf()
 #--> Executed in 0.04 second(s) in Ring 1.24
 
 /*----- TEST 18: Complex file operations
-
+*/
 pr()
 
 # Create multiple files
