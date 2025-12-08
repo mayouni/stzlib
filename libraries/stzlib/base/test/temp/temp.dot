@@ -1,11 +1,16 @@
-digraph Linear {
+digraph Star {
   rankdir=TD;
   node [shape=box];
 
-  n1 [label="Start"];
-  n2 [label="Middle"];
-  n3 [label="End"];
+  center [label="center"];
+  n1 [label="n1"];
+  n2 [label="n2"];
+  n3 [label="n3"];
 
-  n1 -> n2;
-  n2 -> n3;
+  n1 -> center;
+  center -> n1;
+  n2 -> center;
+  center -> n2;
+  n3 -> center;
+  center -> n3;
 }

@@ -1538,6 +1538,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Multiple components
 
@@ -1561,6 +1562,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Articulation points
 
@@ -1582,6 +1584,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 #=======================#
 #  CENTRALITY MEASURES  #
@@ -1593,10 +1596,10 @@ pr()
 
 oGraph = new stzGraph("Star")
 oGraph {
-	AddNodeXT(:center, "Center")
-	AddNodeXT(:n1, "N1")
-	AddNodeXT(:n2, "N2")
-	AddNodeXT(:n3, "N3")
+	AddNode(:center)
+	AddNode(:n1)
+	AddNode(:n2)
+	AddNode(:n3)
 	
 	Connect(:n1, :center)
 	Connect(:center, :n2)
@@ -1610,6 +1613,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*---
 
@@ -1617,10 +1621,10 @@ pr()
 
 oGraph = new stzGraph("Star")
 oGraph {
-	AddNodeXT(:center, "Center")
-	AddNodeXT(:n1, "N1")
-	AddNodeXT(:n2, "N2")
-	AddNodeXT(:n3, "N3")
+	AddNode(:center)
+	AddNode(:n1)
+	AddNode(:n2)
+	AddNode(:n3)
 
 	Connect(:n1, :center)
 	Connect(:center, :n1)
@@ -1634,10 +1638,12 @@ oGraph {
 	
 	? BetweennessCentrality(:n1)
 	#--> 0 (no paths go through peripheral nodes)
+
+	// View()
 }
 
 pf()
-
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Closeness centrality
 
@@ -1645,9 +1651,9 @@ pr()
 
 oGraph = new stzGraph("Network")
 oGraph {
-	AddNodeXT(:a, "A")
-	AddNodeXT(:b, "B")
-	AddNodeXT(:c, "C")
+	AddNode(:a)
+	AddNode(:b)
+	AddNode(:c)
 	
 	Connect(:a, :b)
 	Connect(:b, :c)
@@ -1660,6 +1666,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Clustering coefficient
 
@@ -1667,9 +1674,9 @@ pr()
 
 oGraph = new stzGraph("Triangle")
 oGraph {
-	AddNodeXT(:a, "A")
-	AddNodeXT(:b, "B")
-	AddNodeXT(:c, "C")
+	AddNode(:a)
+	AddNode(:b)
+	AddNode(:c)
 	
 	Connect(:a, :b)
 	Connect(:b, :c)
@@ -1680,6 +1687,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Clustering coefficient in incomplete triangle
 
@@ -1687,19 +1695,20 @@ pr()
 
 oGraph = new stzGraph("Incomplete")
 oGraph {
-	AddNodeXT(:x, "X")
-	AddNodeXT(:y, "Y")
-	AddNodeXT(:z, "Z")
+	AddNode(:x)
+	AddNode(:y)
+	AddNode(:z)
 	
 	Connect(:x, :y)
 	Connect(:x, :z)
 	# y and z not connected
 	
-	? ClusteringCoefficient(:x)
+	? ClusteringCoeff(:x)
 	#--> 0 (neighbors not connected)
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 #==================#
 #  GRAPH METRICS   #
@@ -1711,10 +1720,10 @@ pr()
 
 oGraph = new stzGraph("Chain")
 oGraph {
-	AddNodeXT(:n1, "N1")
-	AddNodeXT(:n2, "N2")
-	AddNodeXT(:n3, "N3")
-	AddNodeXT(:n4, "N4")
+	AddNode(:n1)
+	AddNode(:n2)
+	AddNode(:n3)
+	AddNode(:n4)
 	
 	Connect(:n1, :n2)
 	Connect(:n2, :n3)
@@ -1725,6 +1734,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Average path length
 
@@ -1732,9 +1742,9 @@ pr()
 
 oGraph = new stzGraph("Small")
 oGraph {
-	AddNodeXT(:a, "A")
-	AddNodeXT(:b, "B")
-	AddNodeXT(:c, "C")
+	AddNode(:a)
+	AddNode(:b)
+	AddNode(:c)
 	
 	Connect(:a, :b)
 	Connect(:b, :c)
@@ -1744,6 +1754,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 #============================#
 #  COMBINED ALGORITHM TESTS  #
@@ -1755,11 +1766,11 @@ pr()
 
 oGraph = new stzGraph("SocialNetwork")
 oGraph {
-	AddNodeXT(:alice, "Alice")
-	AddNodeXT(:bob, "Bob")
-	AddNodeXT(:charlie, "Charlie")
-	AddNodeXT(:diana, "Diana")
-	AddNodeXT(:eve, "Eve")
+	AddNode(:alice)
+	AddNode(:bob)
+	AddNode(:charlie)
+	AddNode(:diana)
+	AddNode(:eve)
 	
 	Connect(:alice, :bob)
 	Connect(:bob, :charlie)
@@ -1794,6 +1805,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Workflow dependency analysis
 
@@ -1801,11 +1813,11 @@ pr()
 
 oGraph = new stzGraph("Workflow")
 oGraph {
-	AddNodeXT(:start, "Start")
-	AddNodeXT(:validate, "Validate")
-	AddNodeXT(:process, "Process")
-	AddNodeXT(:review, "Review")
-	AddNodeXT(:complete, "Complete")
+	AddNode(:start)
+	AddNode(:validate)
+	AddNode(:process)
+	AddNode(:review)
+	AddNode(:complete)
 	
 	Connect(:start, :validate)
 	Connect(:validate, :process)
@@ -1825,18 +1837,31 @@ oGraph {
 	? "Process: " + BetweennessCentrality(:process)
 	? "Review: " + BetweennessCentrality(:review)
 }
+#-->
+'
+Path from Start to Complete:
+[ "start", "validate", "process", "review", "complete" ]
+
+Bottleneck nodes (articulation points):
+[ "validate", "process", "review" ]
+
+Critical step (highest betweenness):
+Validate: 0.25
+Process: 0.33
+Review: 0.25
+'
 
 pf()
-
+# Executed in 0.02 second(s) in Ring 1.24
 
 #============================================#
 #  Complete Format Suite Examples            #
 #  All 6 formats working together            #
 #============================================#
 
-#--------------------------#
-#  Example 1: supply_chain.stzgraf
-#--------------------------#
+#-----------------------------------#
+#  Example 1: supply_chain.stzgraf  #
+#-----------------------------------#
 
 /*
 graph "Global_Supply_Chain"
@@ -1872,9 +1897,9 @@ properties
         demand: 75000
 */
 
-#--------------------------#
-#  Example 2: payment_flow.stzdiag
-#--------------------------#
+#-----------------------------------#
+#  Example 2: payment_flow.stzdiag  #
+#-----------------------------------#
 
 /*
 diagram "Payment_Processing"
@@ -1922,9 +1947,9 @@ edges
     process_payment -> complete
 */
 
-#--------------------------#
-#  Example 3: bank_structure.stzorg
-#--------------------------#
+#------------------------------------#
+#  Example 3: bank_structure.stzorg  #
+#------------------------------------#
 
 /*
 orgchart "Regional_Bank"
@@ -1962,9 +1987,9 @@ assignments
     p_bob -> cfo
 */
 
-#--------------------------#
-#  Example 4: banking_compliance.stzrulz
-#--------------------------#
+#-----------------------------------------#
+#  Example 4: banking_compliance.stzrulz  #
+#-----------------------------------------#
 
 /*
 ruleset "Banking Compliance Rules"
@@ -1998,9 +2023,9 @@ rules
             violation add "SOD violation: Ops under Treasury"
 */
 
-#--------------------------#
-#  Example 5: restructure.stzsim
-#--------------------------#
+#---------------------------------#
+#  Example 5: restructure.stzsim  #
+#---------------------------------#
 
 /*
 simulation "Treasury_Restructure"
@@ -2034,9 +2059,9 @@ compare
     delta: compliance.issueCount
 */
 
-#--------------------------#
-#  Example 6: corporate_brand.stzstyl
-#--------------------------#
+#--------------------------------------#
+#  Example 6: corporate_brand.stzstyl  #
+#--------------------------------------#
 
 /*
 style "Corporate_Banking_Theme"
