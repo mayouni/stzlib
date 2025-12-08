@@ -290,7 +290,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Batch Update Using Anonymous function
-*/
+
 pr()
 
 oGraph = new stzGraph("BatchTest")
@@ -330,7 +330,7 @@ oGraph {
 	? @@( NodesWithPropertyXT("env", "prod") )
 	#--> ["n1", "n3"]
 	
-	? @@( NodesWithPropertyXT("cost", :InSection = [75, 150]) )
+	? @@( NodesWithPropertyXT("cost", :Between = [75, 150]) )
 	#--> ["n1"]
 }
 
@@ -350,7 +350,7 @@ oGraph {
 	? @@( NodesWithTag("critical") )
 	#--> ["n1", "n3"]
 	
-	? @@( NodesWithAllTags(["critical", "production"]) )
+	? @@( NodesWithTheseTags(["critical", "production"]) )
 	#--> ["n1"]
 	
 	? @@( NodesWithAnyTag(["critical", "monitoring"]) )
@@ -420,7 +420,12 @@ oGraph {
 	Connect("b", "c")
 	Connect("a", "c")
 	
-	? NodeDensity()  #--> 50
+	? NodeDensity() # Or NodeDensity01() ~> coefficient between 0 and 1
+	#--> 0.5
+
+	? NodeDensity100() # Or NodeDensityInPercentage()
+	#--> 50 (%)
+
 	? LongestPath()  #--> 2
 }
 
@@ -444,7 +449,7 @@ oGraph {
 	Connect("pathA", "endA")
 	Connect("pathB", "endB")
 	
-	? @@( ParallelizableBranches() )
+	? @@( ParallelizableBranches() ) # Or ParaBranches()
 	#--> [["pathA", "pathB"]]
 }
 
@@ -475,9 +480,8 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 #============================================#
-#  SECTION 5: UNIFIED RULE SYSTEM
+#  SECTION 5: UNIFIED RULE SYSTEM #TODO Test it
 #============================================#
-
 
 /*--- Validation Rule
 
@@ -624,9 +628,13 @@ oGraph {
 	Connect("a", "b")
 	
 	? BoxRound("DOT FORMAT")
+
 	? Dot()
+
+	Show() # In ascii form in the console
+	View() # In graphiz-generated diagram
 }
-#-->
+#--> DOT CODE
 '
 ╭────────────╮
 │ DOT FORMAT │
@@ -642,8 +650,27 @@ digraph ExportTest {
 }
 '
 
+#--> IN CONSOLE
+'
+          ╭───╮          
+          │ A │          
+          ╰───╯          
+            |            
+            v            
+          ╭───╮          
+          │ B │          
+          ╰───╯ 
+'
+
+#--> (image generated as svg)
+
+# NOTE: If you need more advanced visual diagram features,
+# convert the stzGraph object into an stzDiagram object
+# using the ToStzDiagram() method, and continue from there.
+# TODO: Add an example demonstrating this.
+
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.51 second(s) in Ring 1.24
 
 /*--- JSON Export
 
@@ -678,7 +705,6 @@ oGraph {
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
-
 
 /*--- ASCII Visualization
 
@@ -933,6 +959,8 @@ pf()
 #============================================#
 #  SECTION 11: INFERENCE & KNOWLEDGE
 #============================================#
+# TODO review it's implementation in the light of the
+# abstracted stzGraphRule class and other classes
 
 /*--- Built-in Inference
 
@@ -950,10 +978,10 @@ oGraph {
 	AddInferenceRule("TRANSITIVITY")
 	
 	nInferred = ApplyInference()
-	? nInferred  #--> 1
-	? EdgeCount() #--> 3
+	? nInferred  #--> 1 	#ERR returned 0
+	? EdgeCount() #--> 3	#ERR returned 2
 	
-	? @@NL( InferredEdges() )
+	? @@NL( InferredEdges() ) 	#ERR returned []
 	#--> [[:from = "a", :to = "c", :label = "(inferred)", :properties = []]]
 }
 
@@ -973,8 +1001,8 @@ oGraph {
 	
 	AddInferenceRule("SYMMETRY")
 	
-	? ApplyInference()
-	? EdgeExists("y", "x") #--> TRUE
+	? ApplyInference() #--> TRUE	#ERR returned FALSE
+	? EdgeExists("y", "x") #--> TRUE	#ERR returned FALSE
 }
 
 pf()
@@ -999,18 +1027,54 @@ oGraph {
 	
 	AddConstraint("ACYCLIC")
 	
-	? ValidateConstraints() #--> TRUE
+	? BoxRound("CONSTRAINTS VALIDATION - BEFORE")
+	? @@NL( ValidateConstraints() ) + NL
 	
 	Connect("c", "a")
 	
-	? ValidateConstraints() #--> FALSE
+	? BoxRound("CONSTRAINTS VALIDATION - AFTER")
+
+	? @@NL( ValidateConstraints() ) + NL
 	
+	? BoxRound("CONSTRAINTS ANOMALIES")
 	? @@( ConstraintAnomalies() )
 	#--> [[:type = "ACYCLIC", :count = 1]] #TODO returned []
 }
+#-->
+'
+╭─────────────────────────────────╮
+│ CONSTRAINTS VALIDATION - BEFORE │
+╰─────────────────────────────────╯
+[
+	[ "status", "pass" ],
+	[ "domain", "constraints" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ],
+	[ "affectednodes", [  ] ]
+]
+
+╭────────────────────────────────╮
+│ CONSTRAINTS VALIDATION - AFTER │
+╰────────────────────────────────╯
+[
+	[ "status", "fail" ],
+	[ "domain", "constraints" ],
+	[ "issuecount", 1 ],
+	[
+		"issues",
+		[ "Constraint failed: ACYCLIC" ]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+╭───────────────────────╮
+│ CONSTRAINTS ANOMALIES │
+╰───────────────────────╯
+[ [ [ "type", "ACYCLIC" ], [ "count", 1 ] ] ]
+'
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Connected Constraint
 
@@ -1024,16 +1088,46 @@ oGraph {
 	
 	Connect("a", "b")
 	
+	? BoxRound("CONSTRAINT VALIDATION - BEFORE")
 	AddConstraint("CONNECTED")
 	
-	? ValidateConstraints() #--> FALSE #TODO returned TRUE!
+	? @@NL(ValidateConstraints()) + NL
 	
 	Connect("b", "isolated")
 	
-	? ValidateConstraints() #--> TRUE
+	? BoxRound("CONSTRAINT VALIDATION - AFTER")
+	? @@NL( ValidateConstraints() )
 }
+#-->
+'
+╭────────────────────────────────╮
+│ CONSTRAINT VALIDATION - BEFORE │
+╰────────────────────────────────╯
+[
+	[ "status", "fail" ],
+	[ "domain", "constraints" ],
+	[ "issuecount", 1 ],
+	[
+		"issues",
+		[ "Constraint failed: CONNECTED" ]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+╭───────────────────────────────╮
+│ CONSTRAINT VALIDATION - AFTER │
+╰───────────────────────────────╯
+[
+	[ "status", "pass" ],
+	[ "domain", "constraints" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ],
+	[ "affectednodes", [  ] ]
+]
+'
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 13: EDGE OPERATIONS
@@ -1133,7 +1227,7 @@ oGraph {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Replace All Operations
 
@@ -1156,7 +1250,7 @@ oGraph {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 15: YAML EXPORT
@@ -1202,7 +1296,7 @@ pf()
 #  SECTION 16: COMPLETE WORKFLOW
 #============================================#
 
-/*--- Real-World Scenario
+/*--- Real-World Scenario #TODO #ERR Cchek usage of rules
 
 pr()
 
@@ -1223,7 +1317,7 @@ oGraph {
 	# Add rules
 	oRule = new stzGraphRule("highcost")
 	oRule {
-		When("cost", :InSection = [200, 9999])
+		When("cost", :InSection, [200, 9999])
 		Apply("alert", TRUE)
 	}
 	SetRule(oRule)
@@ -1342,13 +1436,33 @@ oGraph {
 	Connect(:n2, :n3)
 	
 	? @@( ShortestPath(:From = :n1, :To = :n3) )
-	#--> [:n1, :n2, :n3]
+	#--> ["n1", "n2", "n3"]
 	
 	? ShortestPathLength(:From = :n1, :To = :n3)
 	#--> 2
+
+	Show()
+	#-->
+	'
+	        ╭───────╮        
+	        │ Start │        
+	        ╰───────╯        
+	            |            
+	            v            
+	      ╭──────────╮       
+	      │ !Middle! │       
+	      ╰──────────╯       
+	            |            
+	            v            
+	         ╭─────╮         
+	         │ End │         
+	         ╰─────╯     
+	'
+
 }
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 /*--- Shortest path with multiple routes
 
@@ -1356,15 +1470,15 @@ pr()
 
 oGraph = new stzGraph("Network")
 oGraph {
-	AddNodeXT(:a, "A")
-	AddNodeXT(:b, "B")
-	AddNodeXT(:c, "C")
-	AddNodeXT(:d, "D")
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
+	AddNode("d")
 	
-	Connect(:a, :b)
-	Connect(:a, :c)
-	Connect(:b, :d)
-	Connect(:c, :d)
+	Connect("a", :with = "b") # See the named param variations
+	Connect("a", :to = "c")
+	Connect("b", :and = "d")
+	Connect("c", "d")
 	
 	? @@( ShortestPath(:From = "a", :To = "d") )
 	#--> ["a", "b", "d"]
@@ -1374,6 +1488,7 @@ oGraph {
 }
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- No path exists
 
@@ -1381,9 +1496,9 @@ pr()
 
 oGraph = new stzGraph("Disconnected")
 oGraph {
-	AddNodeXT(:x, "X")
-	AddNodeXT(:y, "Y")
-	AddNodeXT(:z, "Z")
+	AddNodeXT(:x, "Node X")
+	AddNodeXT(:y, "Node Y")
+	AddNodeXT(:z, "Node Z")
 	
 	Connect(:x, :y)
 	# z is isolated
@@ -1396,6 +1511,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 
 #=======================#
 #  CONNECTIVITY TESTS   #

@@ -1386,7 +1386,22 @@ class stzGraph
 		ok
 
 		nMaxEdges = nNodes * (nNodes - 1)
-		return (nEdges * 100) / nMaxEdges
+		return nEdges / nMaxEdges
+
+		def NodeDensity01()
+			return This.NodeDensity()
+
+	def NodeDensity100()
+		return This.NodeDensity() * 100
+
+		def NodeDensityPercent()
+			return This.NodeDensity100()
+
+		def NodeDensityInPercentage()				return This.NodeDensity()
+			return This.NodeDensity100()
+
+		def NodeDensityInPercent()
+			return This.NodeDensity100()
 
 	def LongestPath()
 		nMax = 0
@@ -1465,6 +1480,9 @@ class stzGraph
 		end
 		
 		return acBranches
+
+		def ParaBranches()
+			return This.ParallelizableBranches()
 
 	def DependencyFreeNodes()
 		acDependencyFree = []
@@ -1696,6 +1714,9 @@ class stzGraph
 		end
 		
 		return acViolations
+
+		def ConstraintAnomalies()
+			return This.ConstraintViolations()
 
 	#---------------------#
 	#  RULE ENGINE MGMT   #
@@ -3106,6 +3127,9 @@ class stzGraph
 	#  EXPORT AND INTEROPERABILITY  #
 	#-------------------------------#
 
+	def ToStzDiagram()
+		#TODO
+
 	def ToHashlist()
 		return [
 			:id = @cId,
@@ -3116,7 +3140,7 @@ class stzGraph
 
 	def ExportToDOT()
 		cDOT = "digraph " + This.Id() + " {" + nl
-		cDOT += "  rankdir=LR;" + nl
+		cDOT += "  rankdir=TD;" + nl
 		cDOT += "  node [shape=box];" + nl + nl
 		
 		# Export nodes
@@ -3323,8 +3347,13 @@ class stzGraph
 		oViz = new stzGraphAsciiVisualizer(This)
 		oViz.Show()
 
-	def View() #TODO // Make it possible by deleagating to stzDiagram
-		stzraise("Unavailable method for stzGrap! Use Show() instead.")
+		def Shwo()
+			This.Show()
+
+	def View() #TODO // Allow minimal configs like SetHorizontal/Verticlal
+		_oDot_ = new stzDotCode()
+		_oDot_.SetCode(This.Dot())
+		_oDot_.RunAndView()
 
 	def ShowHorizontal()
 		oViz = new stzGraphAsciiVisualizer(This)
