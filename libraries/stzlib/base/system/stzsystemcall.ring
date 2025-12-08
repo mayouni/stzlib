@@ -32,6 +32,13 @@ func stzsystem(pcCommand)
 	_oSysCall_.HideConsole()
 	return _oSysCall_.RunAndGetOutput()
 
+func stzsystemSilent(pcCommand) # Not output!
+	pcCommand = NormalizePathsInCommand(pcCommand)
+	
+	_oSysCall_ = new stzSystemCall(pcCommand)
+	_oSysCall_.HideConsole()
+	_oSysCall_.RunSilently()
+
 func NormalizePathsInCommand(pcCommand)
 	# Convert slashes in paths only, not in command flags
 	cResult = ""
@@ -67,7 +74,7 @@ func stzsystemXT(pcProgram, pacArgs)
 	_oSysCall_.HideConsole()
 	return _oSysCall_.RunAndGetOutput()
 
-func stzsystemSilent(pcProgram, pacArgs)
+func stzsystemSilentXT(pcProgram, pacArgs)
 	_oSysCall_ = new stzSystemCall(pcProgram)
 	_oSysCall_.SetArgs(pacArgs)
 	_oSysCall_.RunSilently()
@@ -156,7 +163,7 @@ class stzSystemCall
 	#-------------------#
 
 	def Run()
-
+	
 		if @cProgram = ""
 			stzraise("No program specified!")
 		ok
@@ -171,24 +178,30 @@ class stzSystemCall
 		ok
 	
 		_oQStrList_ = new QStringList()
-
+	
 		# Special handling for cmd.exe /c - combine everything after /c into single command
 		if @cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[1] = "/c"
 			_oQStrList_.append("/c")
 			# Combine all remaining args into one command string
 			cCommand = ""
 			for i = 2 to len(@acArgs)
+				cArg = @acArgs[i]
+				
+				# Add space before this arg (except at the start)
 				if i > 2
 					cCommand += " "
 				ok
-				cArg = @acArgs[i]
-				# Don't quote shell operators
+				
+				# Shell operators need spaces around them for proper parsing
 				if cArg = "&" or cArg = "&&" or cArg = "|" or cArg = "||"
+					# Ensure space before operator (if not already added)
+					if len(cCommand) > 0 and cCommand[len(cCommand)] != " "
+						cCommand += " "
+					ok
 					cCommand += cArg
-				# Quote paths with spaces
-				elseif substr(cArg, " ") > 0
-					cCommand += '"' + cArg + '"'
+					# Add space after operator (will be handled by next iteration)
 				else
+					# Regular arguments - append as-is
 					cCommand += cArg
 				ok
 			next
@@ -199,7 +212,7 @@ class stzSystemCall
 				_oQStrList_.append(@acArgs[i])
 			next
 		ok
-
+	
 		_oQProcess_ = new QProcess("")
 		_oQProcess_.setProcessChannelMode(0)
 		_oQProcess_.start(@cProgram, _oQStrList_, 3)
@@ -280,10 +293,12 @@ class stzSystemCall
 			return []
 		ok
 		
-		aLines = split(@cOutput, NL)
+		acLines = split(@cOutput, NL)
 		aResult = []
-		for cLine in aLines
-			cLine = trim(cLine)
+		nLen = len(acLines)
+
+		for i = 1 to nLen
+			cLine = trim(acLines[i])
 			if cLine != ""
 				aResult + cLine
 			ok
@@ -362,8 +377,9 @@ class stzSystemCall
 		next
 	
 	def SetParams(aParams)
-		for aParam in aParams
-			This.SetParam(aParam[1], aParam[2])
+		nLen = len(aParams)
+		for i = 1 to nLen
+			This.SetParam(aParams[i][1], aParams[i][2])
 		next
 		
 		def WithParams(aParams)
@@ -479,7 +495,10 @@ class stzSystemCall
 		aOriginalArgs = @acArgs
 		
 		cCmd = '"' + cOriginalProgram + '"'
-		for arg in aOriginalArgs
+		nLen = len(aOriginalArgs)
+
+		for i = 1 to nLen
+			arg = aOriginalArgs[i]
 			if substr(arg, " ") > 0
 				cCmd += ' "' + arg + '"'
 			else
@@ -536,11 +555,13 @@ class stzSystemCall
 			return []
 		ok
 		
-		aLines = split(@cOutput, NL)
+		acLines = split(@cOutput, NL)
 		# Remove empty lines
 		aResult = []
-		for cLine in aLines
-			cLine = trim(cLine)
+		nLen = len(acLines)
+
+		for i = 1 to nLen
+			cLine = trim(acLines[i])
 			if cLine != ""
 				aResult + cLine
 			ok
@@ -627,6 +648,12 @@ class stzSystemCall
 	def UseShellIfNeeded()
 		# Detect if command needs shell wrapper
 		cCmd = @cCommandString
+		
+		# Handle empty command
+		if cCmd = "" or trim(cCmd) = ""
+			return This
+		ok
+		
 		bNeedsShell = FALSE
 		
 		# Check for shell operators (but not command-line flags)
@@ -644,9 +671,12 @@ class stzSystemCall
 		ok
 		
 		# Check for shell built-in commands
-		cFirstWord = lower(trim(split(cCmd, " ")[1]))
-		if find(ShellBuiltInCommands, cFirstWord) > 0
-			bNeedsShell = TRUE
+		aWords = split(cCmd, " ")
+		if len(aWords) > 0
+			cFirstWord = lower(trim(aWords[1]))
+			if find(ShellBuiltInCommands, cFirstWord) > 0
+				bNeedsShell = TRUE
+			ok
 		ok
 		
 		if bNeedsShell
