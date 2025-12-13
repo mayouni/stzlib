@@ -480,7 +480,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*---
-*/
+
 pr()
 
 oGraph = new stzGraph("PathInferTest")
@@ -564,54 +564,12 @@ oGraph {
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
-/*--- #ERR Check result
-*/
-pr()
-
-oGraph = new stzGraph("PathInferTest")
-
-# Rule: when path exists, infer direct edge
-oRule = new stzGraphRule("path_shortcut")
-oRule {
-	SetRuleType("inference")
-	WhenPath("start", "end", "exists")
-	Then("edge", "add", ["start", "end", "shortcut"])
-}
-
-oGraph {
-	AddNodeXT("start", "Start")
-	AddNodeXT("mid", "Middle")
-	AddNodeXT("end", "End")
-	
-	Connect("start", "mid")
-	Connect("mid", "end")
-	
-	SetRule(oRule)
-	? @@(oRule.Effects())  # Add this after SetRule
-
-	? "Direct edge before: " + EdgeExists("start", "end")
-	
-	ApplyInference()
-	? "All edges: " + @@(Edges())
-	? "Direct edge after: " + EdgeExists("start", "end")
-	? "Edge count: " + EdgeCount()
-	
-	if EdgeExists("start", "end")
-		? "Label: " + Edge("start", "end")["label"]
-	ok
-
-
-
-}
-
-pf()
-
 #===============================================#
 #  SECTION 5: UNIFIED RULE SYSTEM #TODO Test it #
 #===============================================#
 
 /*--- Validation Rule
-*/
+
 pr()
 
 oGraph = new stzGraph("ValidationTest")
@@ -619,7 +577,7 @@ oGraph = new stzGraph("ValidationTest")
 oRule = new stzGraphRule(:RequireApproval)
 oRule {
 	When(:IsApproved, :Equals, FALSE)
-	SetValid()
+	MarkAsInValid()
 	AddAnomaly("Requires approval")
 
 	? @@(Anomalies())
@@ -643,7 +601,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Inference Rule
-
+*/
 pr()
 
 oGraph = new stzGraph("InferenceTest")

@@ -3,46 +3,23 @@
 #  Single rule implementation          #
 #======================================#
 
-#NOTE ARCHITECTURE
-# Thies classes are used by stzGeaph class as a rule engine :
-
-# - Single Source of Truth: stzGraphRuleEngine now manages all rule execution
-# - Proper Initialization in stzGraph: @oRuleEngine created on first rule/validation use
-# - Clear Separation: Graph manages structure; RuleEngine manages rule logic
-
-# Rule Application Flow:
-
-# - Rules added via SetRule() → stored in temporary rulebase → added to engine
-# - ApplyRules() calls engine methods in order: inference → validation → visual
-# - Engine collects rules by type and applies them using rule's own logic
-
-# Default rules are packages in stzDefaultRuleBases for each type of class (stzDiagram,
-# stzOrgChar, ..) and each functional domain ( rules for validation, norms, business domains...)
-#~> The beahvoir of the graph (and its inherited classes) can be chahnged by updading those
-# rule bases and without touching to code.
-
-# Rules can be serialised, imported and shared in a dedicated text format : *.stzrulz
-
 func StzGraphRuleQ(pcRuleId)
 	return new stzGraphRule(pcRuleId)
 
 class stzGraphRule
 	@cRuleId
-	@cRuleType = "validation"    # constraint | validation | inference | visual
-	@cLevel = "graph"             # graph | diagram | orgchart
-	@cDomain = ""                 # sox | bceao | banking | dag ...
-	@cSeverity = "error"          # error | warning | info
+	@cRuleType = "validation"
+	@cLevel = "graph"
+	@cDomain = ""
+	@cSeverity = "error"
 	@cMessage = ""
 	
-	# Condition
 	@cConditionType = ""
 	@aConditionParams = []
 	
-	# Effects
 	@aEffects = []
 	@aElseEffects = []
 	
-	# Context
 	@oGraph = NULL
 
 	def init(pcRuleId)
@@ -129,6 +106,19 @@ class stzGraphRule
 		ok
 		return This
 	
+	def WhenPathExists(pcFromNode, pcToNode)
+		if CheckParams()
+			if isList(pcFromNode) and StzListQ(pcFromNode).IsFromOrFromNodeNamedParam()
+				pcFromNode = pcFromNode[2]
+			ok
+			if isList(pcToNode) and StzListQ(pcToNode).IsToOrToNodeNamedParam()
+				pcToNode = pcToNode[2]
+			ok
+
+			@cConditionType = :pathexists
+			@aConditionParams = [pcFromNode, pcToNode]
+		ok
+	
 	def WhenTag(pcTag, pcCondition)
 		if lower(pcCondition) = "exists"
 			@cConditionType = :tagexists
@@ -137,12 +127,10 @@ class stzGraphRule
 			@cConditionType = :tagnotexists
 			@aConditionParams = [pcTag]
 		ok
-		return This
-	
+
 	def WhenGraph(pcProperty, pcCondition)
 		@cConditionType = :graphproperty
 		@aConditionParams = [pcProperty, pcCondition]
-		return This
 	
 	#----------#
 	#  EFFECTS #
@@ -172,20 +160,24 @@ class stzGraphRule
 		but cAction = "required"
 			@aEffects + [:required, pcAspect, pValue]
 		ok
-		
-		return This
 	
 	def Else_(pcAspect, pcAction, pValue)
 		@aElseEffects + [pcAction, pcAspect, pValue]
-		return This
 	
 	def ThenViolation(pcMessage)
 		@aEffects + [:violation, pcMessage]
-		return This
 	
 	def ElseViolation(pcMessage)
 		@aElseEffects + [:violation, pcMessage]
-		return This
+	
+	def AddEdge(pcFrom, pcTo)
+		@aEffects + [:add, "edge", [pcFrom, pcTo, "(inferred)"]]
+	
+	def AddEdgeXT(pcFrom, pcTo, pcLabel)
+		@aEffects + [:add, "edge", [pcFrom, pcTo, pcLabel]]
+	
+	def AddEdgeXTT(pcFrom, pcTo, pcLabel, paProperties)
+		@aEffects + [:add, "edge", [pcFrom, pcTo, pcLabel, paProperties]]
 	
 	#-----------#
 	#  GETTERS  #
@@ -380,20 +372,22 @@ class stzGraphRule
 		off
 	
 	def _ApplyAsConstraint(oGraph)
-		# Check constraint during construction
 		aViolations = []
 		acAffected = []
 		
 		aNodes = oGraph.Nodes()
-		for aNode in aNodes
-			aContext = This._BuildContext(aNode)
+		nLen = len(aNodes)
+
+		for i = 1 to nLen
+			aContext = This._BuildContext(aNodes[i])
 			
 			if This.Matches(aContext)
-				# Check effects
-				for aEffect in @aEffects
-					if aEffect[1] = :forbid
-						aViolations + iff(@cMessage != "", @cMessage, "Constraint violated: " + @cRuleId)
-						acAffected + aNode["id"]
+				nLenEf = len(@aEffects)
+
+				for j = 1 to nLenEf
+					if @aEffects[j][1] = :forbid
+						aViolations + iff(@cMessage != '', @cMessage, "Constraint violated: " + @cRuleId)
+						acAffected + aNodes[i]["id"]
 					ok
 				end
 			ok
@@ -408,18 +402,21 @@ class stzGraphRule
 			:affectedNodes = acAffected
 		]
 	
-
 	def _ApplyAsValidation(oGraph)
 		aViolations = []
 		acAffected = []
 		
 		aNodes = oGraph.Nodes()
-		for aNode in aNodes
+		nLenN = len(aNodes)
+
+		for i = 1 to nLenN
+			aNode = aNodes[i]
 			aContext = This._BuildContext(aNode)
 			
 			if This.Matches(aContext)
-				# Apply property-setting effects first
-				for aEffect in @aEffects
+				nLenEf = len(@aEffects)
+				for j = 1 to nLenEf
+					aEffect = @aEffects[j]
 					if aEffect[1] = :set
 						cAspect = aEffect[2]
 						pValue = aEffect[3]
@@ -450,7 +447,6 @@ class stzGraphRule
 					ok
 				end
 			else
-				# Apply else effects
 				for aEffect in @aElseEffects
 					if aEffect[1] = :set
 						oGraph.SetNodeProperty(aNode["id"], aEffect[2], aEffect[3])
@@ -472,57 +468,60 @@ class stzGraphRule
 			:affectedNodes = acAffected
 		]
 	
-
 	def _ApplyAsInference(oGraph)
-	    aInferredEdges = []
-	    
-	    if @cConditionType = :pathexists
-	        cFrom = @aConditionParams[1]
-	        cTo = @aConditionParams[2]
-	        
-	        # Use the passed oGraph parameter, not @oGraph
-	        if oGraph.PathExists(cFrom, cTo) and NOT oGraph.EdgeExists(cFrom, cTo)
-	            for aEffect in @aEffects
-	                if len(aEffect) >= 3 and aEffect[1] = "add" and aEffect[2] = "edge"
-	                    pValue = aEffect[3]
-	                    
-	                    if isList(pValue) and len(pValue) >= 2
-	                        cEdgeFrom = pValue[1]
-	                        cEdgeTo = pValue[2]
-	                        cLabel = iif(len(pValue) >= 3, pValue[3], "(inferred)")
-	                        
-	                        if NOT oGraph.EdgeExists(cEdgeFrom, cEdgeTo)
-	                            oGraph.AddEdgeXT(cEdgeFrom, cEdgeTo, cLabel)
-	
-	                            aInferredEdges + [cEdgeFrom, cEdgeTo, cLabel]
-	                        ok
-	                    ok
-	                ok
-	            end
-	        ok
-	    ok
-	    
-	    return [
-	        :status = iif(len(aInferredEdges) > 0, "applied", "none"),
-	        :inferredCount = len(aInferredEdges),
-	        :inferredEdges = aInferredEdges
-	    ]
-
-	def _ApplyAsVisual(oGraph)
-		# Apply visual effects
-		aNodes = oGraph.Nodes()
+		aInferredEdges = []
 		
-		for aNode in aNodes
+		if @cConditionType = :pathexists
+			cFrom = @aConditionParams[1]
+			cTo = @aConditionParams[2]
+			
+			if oGraph.PathExists(cFrom, cTo) and NOT oGraph.EdgeExists(cFrom, cTo)
+				for aEffect in @aEffects
+					if len(aEffect) >= 3 and aEffect[1] = "add" and aEffect[2] = "edge"
+						pValue = aEffect[3]
+						
+						if isList(pValue) and len(pValue) >= 2
+							cEdgeFrom = pValue[1]
+							cEdgeTo = pValue[2]
+							cLabel = iif(len(pValue) >= 3, pValue[3], "(inferred)")
+							
+							if NOT oGraph.EdgeExists(cEdgeFrom, cEdgeTo)
+								oGraph.AddEdgeXT(cEdgeFrom, cEdgeTo, cLabel)
+								aInferredEdges + [cEdgeFrom, cEdgeTo, cLabel]
+							ok
+						ok
+					ok
+				end
+			ok
+		ok
+		
+		return [
+			:status = iif(len(aInferredEdges) > 0, "applied", "none"),
+			:inferredCount = len(aInferredEdges),
+			:inferredEdges = aInferredEdges
+		]
+	
+	def _ApplyAsVisual(oGraph)
+		aNodes = oGraph.Nodes()
+		nLenN = len(aNodes)
+
+		for i = 1 to nLenN
+			aNode = aNodes[i]
 			aContext = This._BuildContext(aNode)
 			
 			if This.Matches(aContext)
-				for aEffect in @aEffects
+				nLenEf = len(@aEffects)
+
+				for j = 1 to nLenEf
+					aEffect = @aEffects[j]
 					if aEffect[1] = :set
 						oGraph.SetNodeProperty(aNode["id"], aEffect[2], aEffect[3])
 					ok
 				end
 			else
-				for aEffect in @aElseEffects
+				nLenEf = len(@aElseEffects)
+				for j = 1 to nLenEf
+					aEffect = @aElseEffects[j]
 					if aEffect[1] = :set
 						oGraph.SetNodeProperty(aNode["id"], aEffect[2], aEffect[3])
 					ok
@@ -541,11 +540,36 @@ class stzGraphRule
 		
 		return aContext
 	
+	#---------#
+	#  MISC.  #
+	#---------#
+	
+	def MarkAsValid()
+		@aEffects + [:set, "isvalid", TRUE]
+	
+	def MarkAsInvalid()
+		@aEffects + [:set, "isvalid", FALSE]
+	
+	def AddAnomaly(pcMessage)
+		@aEffects + [:set, "anomaly", pcMessage]
+	
+	def Anomalies()
+		acAnomalies = []
+		nLen = len(@aEffects)
+
+		for i = 1 to nLen
+			aEffect = @aEffects[i]
+			if len(aEffect) >= 3 and aEffect[1] = :set and aEffect[2] = "anomaly"
+				acAnomalies + aEffect[3]
+			ok
+		end
+		return acAnomalies
+	
 	#-----------#
 	#  DISPLAY  #
 	#-----------#
 	
-	def Show()
+	def Show() #TODO // Reveiw this appelation
 		? "Rule: " + @cRuleId
 		? "  Type: " + @cRuleType
 		? "  Level: " + @cLevel
@@ -557,7 +581,6 @@ class stzGraphRule
 
 #============================================#
 #  stzGraphRuleBase - Rule Collection        #
-#  Container for multiple rules              #
 #============================================#
 
 func StzGraphRuleBaseQ(pcName)
@@ -574,10 +597,6 @@ class stzGraphRuleBase
 	def init(pcName)
 		@cName = pcName
 	
-	#-----------------#
-	#  CONFIGURATION  #
-	#-----------------#
-	
 	def SetName(pcName)
 		@cName = pcName
 	
@@ -593,12 +612,7 @@ class stzGraphRuleBase
 	def SetAuthor(pcAuthor)
 		@cAuthor = pcAuthor
 	
-	#---------------#
-	#  RULE MGMT    #
-	#---------------#
-	
 	def AddRule(oRule)
-		# Inherit rulebase properties if rule doesn't have them
 		if oRule.Domain() = ""
 			oRule.SetDomain(@cDomain)
 		ok
@@ -611,17 +625,21 @@ class stzGraphRuleBase
 	
 	def RemoveRule(pcRuleId)
 		aNew = []
-		for oRule in @aoRules
-			if oRule.Id() != pcRuleId
-				aNew + oRule
+		nLen = len(@aoRules)
+
+		for i = 1 to nLen
+			if @aoRules[i].Id() != pcRuleId
+				aNew + @aoRules[i]
 			ok
 		end
+
 		@aoRules = aNew
 	
 	def Rule(pcRuleId)
-		for oRule in @aoRules
-			if oRule.Id() = pcRuleId
-				return oRule
+		nLen = len(@aoRules)
+		for i = 1 to nLen
+			if @aoRules[i].Id() = pcRuleId
+				return @aoRules[i]
 			ok
 		end
 		return NULL
@@ -632,17 +650,14 @@ class stzGraphRuleBase
 	def RuleCount()
 		return len(@aoRules)
 	
-	#-----------#
-	#  FILTERS  #
-	#-----------#
-	
 	def RulesByType(pcType)
 		aoFiltered = []
 		cType = lower(pcType)
 		
-		for oRule in @aoRules
-			if oRule.RuleType() = cType
-				aoFiltered + oRule
+		nLen = len(@aoRules)
+		for i = 1 to nLen
+			if @aoRules[i].RuleType() = cType
+				aoFiltered + @aoRules[i]
 			ok
 		end
 		
@@ -652,9 +667,10 @@ class stzGraphRuleBase
 		aoFiltered = []
 		cLevel = lower(pcLevel)
 		
-		for oRule in @aoRules
-			if oRule.Level() = cLevel
-				aoFiltered + oRule
+		nLen = len(@aoRules)
+		for i = 1 to nLen
+			if @aoRules[i].Level() = cLevel
+				aoFiltered + @aoRules[i]
 			ok
 		end
 		
@@ -663,10 +679,11 @@ class stzGraphRuleBase
 	def RulesByDomain(pcDomain)
 		aoFiltered = []
 		cDomain = lower(pcDomain)
-		
-		for oRule in @aoRules
-			if oRule.Domain() = cDomain
-				aoFiltered + oRule
+
+		nLen = len(@aoRules)
+		for i = 1 to nLen
+			if @aoRules[i].Domain() = cDomain
+				aoFiltered + @aoRules[i]
 			ok
 		end
 		
@@ -675,44 +692,43 @@ class stzGraphRuleBase
 	def RulesBySeverity(pcSeverity)
 		aoFiltered = []
 		cSeverity = lower(pcSeverity)
-		
-		for oRule in @aoRules
-			if oRule.Severity() = cSeverity
-				aoFiltered + oRule
+		nLen = len(@aoRules)
+
+		for i = 1 to nLen
+			if  @aoRules[i].Severity() = cSeverity
+				aoFiltered +  @aoRules[i]
 			ok
 		end
 		
 		return aoFiltered
 	
-	#-----------#
-	#  LOADING  #
-	#-----------#
-	
 	def LoadFromFile(pcFilename)
 		oParser = new stzRuleBaseParser()
 		oLoaded = oParser.ParseFile(pcFilename)
 		
-		# Merge loaded rules
-		for oRule in oLoaded.Rules()
-			This.AddRule(oRule)
+		aoRules = oLoaded.Rules()
+		nLen = aoRules
+		for i = 1 to nRules
+			This.AddRule(aoRules[i])
 		end
 	
 	def LoadFromString(pcContent)
 		oParser = new stzRuleBaseParser()
 		oLoaded = oParser.Parse(pcContent)
 		
-		for oRule in oLoaded.Rules()
-			This.AddRule(oRule)
+		aoRules = oLoaded.Rules()
+		nLen = aoRules
+		for i = 1 to nRules
+			This.AddRule(aoRules[i])
 		end
 	
 	def MergeWith(oOtherRuleBase)
-		for oRule in oOtherRuleBase.Rules()
-			This.AddRule(oRule)
+		aoRules = oOtherRuleBase.Rules()
+		nLen = len(aoRules)
+
+		for i = 1 to nLen
+			This.AddRule(aoRules[i])
 		end
-	
-	#-----------#
-	#  GETTERS  #
-	#-----------#
 	
 	def Name()
 		return @cName
@@ -729,21 +745,18 @@ class stzGraphRuleBase
 	def Author()
 		return @cAuthor
 	
-	#-----------#
-	#  DISPLAY  #
-	#-----------#
-	
-	def Show()
+	def Show() #TODO // Reveiw this appelation
 		? "RuleBase: " + @cName
 		? "  Domain: " + @cDomain
 		? "  Level: " + @cLevel
 		? "  Rules: " + len(@aoRules)
 		
-		for oRule in @aoRules
-			? "    - " + oRule.Id() + " (" + oRule.RuleType() + ")"
+		nLen = len(@aoRules)
+		for i = 1 to nLen
+			? "    - " + @aoRules[i].Id() + " (" + @aoRules[i].RuleType() + ")"
 		end
 	
-	def ToHashlist()
+	def ToHashlist() #TODO // Reveiw this appelation
 		return [
 			:name = @cName,
 			:domain = @cDomain,
@@ -756,17 +769,13 @@ class stzGraphRuleBase
 
 #============================================#
 #  stzGraphRuleEngine - Rule Executor        #
-#  Applies rules to graphs                   #
 #============================================#
 
 class stzGraphRuleEngine
-
 	@aoRuleBases = []
 	@oGraph = NULL
-
 	@nLastInferredCount = 0
 	@aLastInferredEdges = []
-
 
 	def init(poGraph)
 		@oGraph = poGraph
@@ -776,14 +785,9 @@ class stzGraphRuleEngine
 	
 	def SetGraph(poGraph)
 		@oGraph = poGraph
-
-	#-------------------#
-	#  RULEBASE MGMT    #
-	#-------------------#
 	
 	def AddRuleBase(pRuleBase)
 		if isString(pRuleBase)
-			# Load by name
 			oRuleBase = This._LoadNamedRuleBase(pRuleBase)
 			if oRuleBase != NULL
 				@aoRuleBases + oRuleBase
@@ -798,14 +802,19 @@ class stzGraphRuleEngine
 		switch cName
 		on "graph"
 			return new stzGraphDefaultRuleBase()
+
 		on "diagram"
 			return new stzDiagramDefaultRuleBase()
+
 		on "orgchart"
 			return new stzOrgChartDefaultRuleBase()
+
 		on "banking"
 			return new stzBankingRuleBase()
+
 		on "bceao"
 			return new stzBCEAORuleBase()
+
 		off
 		
 		return NULL
@@ -815,22 +824,24 @@ class stzGraphRuleEngine
 	
 	def RuleCount()
 		nCount = 0
-		for oBase in @aoRuleBases
-			nCount += oBase.RuleCount()
+		nLen = len(@aoRuleBases)
+
+		for i = 1 to nLen
+			nCount += @aoRuleBases[i].RuleCount()
 		end
 		return nCount
 	
-	#-------------------#
-	#  RULE COLLECTION  #
-	#-------------------#
-	
 	def CollectRules(pcType, pcLevel)
 		aoCollected = []
-		
-		for oBase in @aoRuleBases
+		nLenRB = len(@aoRuleBases)
+
+		for i = 1 to nLenRB
+			oBase = @aoRuleBases[i]
 			aoRules = oBase.Rules()
-			
-			for oRule in aoRules
+			nLenR = len(aoRules)
+
+			for j = 1 to nLenR
+				oRule = aoRules[j]
 				bMatch = TRUE
 				
 				if pcType != "" and oRule.RuleType() != pcType
@@ -849,10 +860,6 @@ class stzGraphRuleEngine
 		
 		return aoCollected
 	
-	#-------------------#
-	#  VALIDATION       #
-	#-------------------#
-	
 	def Validate(pcType)
 		if pcType = "" or pcType = NULL
 			pcType = "validation"
@@ -860,8 +867,10 @@ class stzGraphRuleEngine
 		
 		aoRules = This.CollectRules(pcType, "")
 		aResults = []
-		
-		for oRule in aoRules
+		nLen = len(aoRules)
+
+		for i = 1 to nLen
+			oRule = aoRules[i]
 			oRule.SetGraph(@oGraph)
 			aResult = oRule.Apply(@oGraph, pcType)
 			
@@ -874,13 +883,18 @@ class stzGraphRuleEngine
 	
 	def ValidateDomain(pcDomain)
 		aoRules = []
-		
-		for oBase in @aoRuleBases
+		nLen = len(@aoRuleBases)
+
+		for i = 1 to nLen
+		 	oBase = @aoRuleBases[i]
 			aoRules + oBase.RulesByDomain(pcDomain)
 		end
 		
 		aResults = []
-		for oRule in aoRules
+		nLen = len(aoRules)
+
+		for i = 1 to nLen
+			oRule = aoRules[i]
 			oRule.SetGraph(@oGraph)
 			aResult = oRule.Apply(@oGraph, "validation")
 			
@@ -892,6 +906,7 @@ class stzGraphRuleEngine
 		return This._AggregateResults(aResults)
 	
 	def _AggregateResults(paResults)
+
 		if len(paResults) = 0
 			return [
 				:status = "pass",
@@ -904,15 +919,21 @@ class stzGraphRuleEngine
 		nTotalIssues = 0
 		acAllIssues = []
 		acAllAffected = []
-		
-		for aResult in paResults
+		nLen = len(paResults)
+
+		for i = 1 to nLen
+			aResult = paResults[i]
 			nTotalIssues += aResult[:issueCount]
-			
-			for cIssue in aResult[:issues]
+			nLenIss = len(aResult[:issues])
+
+			for j = 1 to nLenIss
+				cIssue = aResult[:issues][j]
 				acAllIssues + cIssue
 			end
 			
-			for cNode in aResult[:affectedNodes]
+			nLenAff = len(aResult[:affectedNodes])
+			for j = 1 to nLenAff
+				cNode = aResult[:affectedNodes][j]
 				if ring_find(acAllAffected, cNode) = 0
 					acAllAffected + cNode
 				ok
@@ -927,30 +948,29 @@ class stzGraphRuleEngine
 			:results = paResults
 		]
 	
-	#-------------------#
-	#  INFERENCE        #
-	#-------------------#
-	
 	def ApplyInference()
-	    aoRules = This.CollectRules("inference", "")
-	    nInferred = 0
-	    aInferredEdges = []
-	    
-	    for oRule in aoRules
-	        oRule.SetGraph(@oGraph)
-	        aResult = oRule._ApplyAsInference(@oGraph)
-	        nInferred += aResult[:inferredCount]
-	        
-	        for aEdge in aResult[:inferredEdges]
-	            aInferredEdges + aEdge
-	        end
-	    next
-	    
-	    @nLastInferredCount = nInferred
-	    @aLastInferredEdges = aInferredEdges
-	    
-	    return nInferred
+		aoRules = This.CollectRules("inference", "")
+		nInferred = 0
+		aInferredEdges = []
+		nLen = len(aoRules)
 
+		for i = 1 to nLen
+			oRule = aoRules[i]
+			oRule.SetGraph(@oGraph)
+			aResult = oRule._ApplyAsInference(@oGraph)
+			nInferred += aResult[:inferredCount]
+
+			nLenInf = len(aResult[:inferredEdges])
+			for j = 1 to nLenInf
+				aEdge = aResult[:inferredEdges][j]
+				aInferredEdges + aEdge
+			end
+		next
+		
+		@nLastInferredCount = nInferred
+		@aLastInferredEdges = aInferredEdges
+		
+		return nInferred
 	
 	def InferenceReport()
 		nInitial = @oGraph.EdgeCount() - @nLastInferredCount
@@ -958,25 +978,22 @@ class stzGraphRuleEngine
 		aReport = [
 			[ "edgesBeforeInference", nInitial ],
 			[ "edgesInferred", @nLastInferredCount ],
-			[ "edgesAfterInference", @oGraph.EdgeCount() ]
+			[ "edgesAfterInference", @oGraph.EdgeCount() ],
+			[ "inferrededges", @aLastInferredEdges ]
 		]
 		
-		aReport + [ "inferrededges", @aLastInferredEdges ]
-	
 		return aReport
-
+	
 		def InferReport()
 			return This.InferenceReport()
-
-	#-------------------#
-	#  CONSTRAINTS      #
-	#-------------------#
 	
 	def CheckConstraints()
 		aoRules = This.CollectRules("constraint", "")
 		aViolations = []
-		
-		for oRule in aoRules
+		nLen = len(aoRules)
+
+		for i = 1 to nLen
+			oRule = aoRules[i]
 			oRule.SetGraph(@oGraph)
 			aResult = oRule.Apply(@oGraph, "constraint")
 			
@@ -987,14 +1004,12 @@ class stzGraphRuleEngine
 		
 		return This._AggregateResults(aViolations)
 	
-	#-------------------#
-	#  VISUAL           #
-	#-------------------#
-	
 	def ApplyVisualRules()
 		aoRules = This.CollectRules("visual", "")
-		
-		for oRule in aoRules
+		nLen = len(aoRules)
+
+		for i = 1 to nLen
+			oRule = aoRules[i]
 			oRule.SetGraph(@oGraph)
 			oRule.Apply(@oGraph, "visual")
 		end
@@ -1003,11 +1018,8 @@ class stzGraphRuleEngine
 #  Pre-built Rule Bases                      #
 #============================================#
 
-#--------------------------#
-#  GRAPH STRUCTURAL RULES  #
-#--------------------------#
-
 class stzGraphDefaultRuleBase from stzGraphRuleBase
+
 	def init()
 		super.init("Graph Structural Rules")
 		@cDomain = "structural"
@@ -1015,7 +1027,6 @@ class stzGraphDefaultRuleBase from stzGraphRuleBase
 		This._LoadDefaultRules()
 	
 	def _LoadDefaultRules()
-		# DAG Rule
 		oRule = new stzGraphRule("dag_check")
 		oRule {
 			SetRuleType("validation")
@@ -1025,22 +1036,15 @@ class stzGraphDefaultRuleBase from stzGraphRuleBase
 			ThenViolation("Graph must be acyclic (DAG)")
 		}
 		This.AddRule(oRule)
-		
-		# Reachability (checked elsewhere)
-		# Completeness (decision nodes need 2+ paths)
-
-#--------------------------#
-#  DIAGRAM DEFAULT RULES   #
-#--------------------------#
 
 class stzDiagramDefaultRuleBase from stzGraphRuleBase
+
 	def init()
 		super.init("Diagram Compliance Rules")
 		@cLevel = "diagram"
 		This._LoadDefaultRules()
 	
 	def _LoadDefaultRules()
-		# SOX: Financial processes need audit trail
 		oRule1 = new stzGraphRule("sox_audit_trail")
 		oRule1 {
 			SetRuleType("validation")
@@ -1052,8 +1056,7 @@ class stzDiagramDefaultRuleBase from stzGraphRuleBase
 		}
 		This.AddRule(oRule1)
 		
-		# SOX: Decisions need approval
-		oRule2 = new stzGraphRule("sox_approval")
+		oRule2 = newstzGraphRule("sox_approval")
 		oRule2 {
 			SetRuleType("validation")
 			SetLevel("diagram")
@@ -1064,19 +1067,15 @@ class stzDiagramDefaultRuleBase from stzGraphRuleBase
 		}
 		This.AddRule(oRule2)
 
-#--------------------------#
-#  ORGCHART DEFAULT RULES  #
-#--------------------------#
 
 class stzOrgChartDefaultRuleBase from stzGraphRuleBase
+
 	def init()
 		super.init("OrgChart Governance Rules")
 		@cLevel = "orgchart"
 		This._LoadDefaultRules()
-	
+
 	def _LoadDefaultRules()
-		# BCEAO: Board required (checked separately)
-		# BCEAO: Audit independence
 		oRule = new stzGraphRule("bceao_audit_independence")
 		oRule {
 			SetRuleType("validation")
@@ -1088,7 +1087,6 @@ class stzOrgChartDefaultRuleBase from stzGraphRuleBase
 		}
 		This.AddRule(oRule)
 		
-		# SOD: Ops not under Treasury
 		oRule2 = new stzGraphRule("sod_ops_treasury")
 		oRule2 {
 			SetRuleType("validation")
@@ -1100,22 +1098,14 @@ class stzOrgChartDefaultRuleBase from stzGraphRuleBase
 		}
 		This.AddRule(oRule2)
 
-
-#  Pre-built Domain-Specific Rule Bases
-#======================================
-
-#------------------------------#
-#  BANKING RULES (ALL LEVELS)  #
-#------------------------------#
-
 class stzBankingRuleBase from stzGraphRuleBase
+
 	def init()
 		super.init("Universal Banking Rules")
 		@cDomain = "banking"
 		This._LoadBankingRules()
-	
+
 	def _LoadBankingRules()
-		# Graph-level: No approval cycles
 		oRule1 = new stzGraphRule("banking_no_approval_cycles")
 		oRule1 {
 			SetRuleType("constraint")
@@ -1124,9 +1114,9 @@ class stzBankingRuleBase from stzGraphRuleBase
 			SetMessage("BANK-001: Approval workflows cannot contain cycles")
 			WhenGraph("acyclic", "mustbe")
 		}
+
 		This.AddRule(oRule1)
 		
-		# Diagram-level: Fraud before payment
 		oRule2 = new stzGraphRule("banking_fraud_detection")
 		oRule2 {
 			SetRuleType("validation")
@@ -1136,9 +1126,9 @@ class stzBankingRuleBase from stzGraphRuleBase
 			When("operation", "equals", "payment")
 			ThenViolation("Payment node must have fraud_check predecessor")
 		}
+
 		This.AddRule(oRule2)
 		
-		# OrgChart-level: Ops not under Treasury
 		oRule3 = new stzGraphRule("banking_ops_treasury_separation")
 		oRule3 {
 			SetRuleType("validation")
@@ -1148,9 +1138,9 @@ class stzBankingRuleBase from stzGraphRuleBase
 			When("department", "equals", "operations")
 			Then("supervisor_department", "mustnotbe", "treasury")
 		}
+
 		This.AddRule(oRule3)
 		
-		# OrgChart-level: Dual approval for large transactions
 		oRule4 = new stzGraphRule("banking_dual_approval")
 		oRule4 {
 			SetRuleType("validation")
@@ -1160,21 +1150,19 @@ class stzBankingRuleBase from stzGraphRuleBase
 			When("transactionType", "equals", "large")
 			Then("approverCount", "greaterthan", 1)
 		}
+
 		This.AddRule(oRule4)
 
-#-------------------------------#
-#  BCEAO RULES (WAEMU BANKING)  #
-#-------------------------------#
-
 class stzBCEAORuleBase from stzGraphRuleBase
+
 	def init()
 		super.init("BCEAO Governance Rules")
 		@cDomain = "bceao"
 		@cLevel = "orgchart"
 		This._LoadBCEAORules()
-	
+
 	def _LoadBCEAORules()
-		# Board required
+
 		oRule1 = new stzGraphRule("bceao_board_required")
 		oRule1 {
 			SetRuleType("validation")
@@ -1185,9 +1173,9 @@ class stzBCEAORuleBase from stzGraphRuleBase
 			When("title", "contains", "board")
 			Then("exists", "required", TRUE)
 		}
+
 		This.AddRule(oRule1)
-		
-		# Audit independence
+	
 		oRule2 = new stzGraphRule("bceao_audit_independence")
 		oRule2 {
 			SetRuleType("validation")
@@ -1198,9 +1186,9 @@ class stzBCEAORuleBase from stzGraphRuleBase
 			When("department", "equals", "audit")
 			Then("reportsTo", "mustbe", "board")
 		}
+
 		This.AddRule(oRule2)
-		
-		# Risk function required
+	
 		oRule3 = new stzGraphRule("bceao_risk_function")
 		oRule3 {
 			SetRuleType("validation")
@@ -1211,21 +1199,18 @@ class stzBCEAORuleBase from stzGraphRuleBase
 			When("department", "equals", "risk")
 			Then("exists", "required", TRUE)
 		}
+
 		This.AddRule(oRule3)
 
-#------------------------------#
-#  SOX RULES (SARBANES-OXLEY)  #
-#------------------------------#
-
 class stzSOXRuleBase from stzGraphRuleBase
+
 	def init()
 		super.init("Sarbanes-Oxley Compliance")
 		@cDomain = "sox"
 		@cLevel = "diagram"
 		This._LoadSOXRules()
-	
+
 	def _LoadSOXRules()
-		# Financial processes need audit trail
 		oRule1 = new stzGraphRule("sox_audit_trail")
 		oRule1 {
 			SetRuleType("validation")
@@ -1235,9 +1220,9 @@ class stzSOXRuleBase from stzGraphRuleBase
 			When("domain", "equals", "financial")
 			Then("audittrail", "required", TRUE)
 		}
+
 		This.AddRule(oRule1)
-		
-		# Decisions need approval
+	
 		oRule2 = new stzGraphRule("sox_approval_required")
 		oRule2 {
 			SetRuleType("validation")
@@ -1247,21 +1232,18 @@ class stzSOXRuleBase from stzGraphRuleBase
 			When("type", "equals", "decision")
 			Then("requiresApproval", "required", TRUE)
 		}
+
 		This.AddRule(oRule2)
 
-#--------------#
-#  GDPR RULES  #
-#--------------#
-
 class stzGDPRRuleBase from stzGraphRuleBase
+
 	def init()
 		super.init("GDPR Compliance")
 		@cDomain = "gdpr"
 		@cLevel = "diagram"
 		This._LoadGDPRRules()
-	
+
 	def _LoadGDPRRules()
-		# Personal data needs consent
 		oRule1 = new stzGraphRule("gdpr_consent")
 		oRule1 {
 			SetRuleType("validation")
@@ -1272,8 +1254,7 @@ class stzGDPRRuleBase from stzGraphRuleBase
 			Then("requiresConsent", "required", TRUE)
 		}
 		This.AddRule(oRule1)
-		
-		# Retention policy required
+	
 		oRule2 = new stzGraphRule("gdpr_retention")
 		oRule2 {
 			SetRuleType("validation")
@@ -1283,37 +1264,38 @@ class stzGDPRRuleBase from stzGraphRuleBase
 			When("dataType", "equals", "personal")
 			Then("retentionPolicy", "required", TRUE)
 		}
+
 		This.AddRule(oRule2)
 
-
 #=========================================#
-#  stzRuleBaseParser - *.stzrulz Parser   #
-#  Converts text rules to rule objects    #
+# stzRuleBaseParser - *.stzrulz Parser
 #=========================================#
 
 class stzRuleBaseParser
+
+	def init()
+
 	def ParseFile(pcFilename)
 		cContent = read(pcFilename)
-		return This.Parse(cContent)
-	
+		return This.Parse(pcContent)
+
 	def Parse(pcContent)
 		oRuleBase = new stzGraphRuleBase("Parsed Rules")
 		
-		acLines = split(pcContent, NL)
+		acLines = @split(pcContent, NL)
 		cSection = ""
 		cRuleId = ""
 		oCurrentRule = NULL
-		cWhenSection = "when"  # "when" or "else"
+		cWhenSection = "when"
 		
-		for cLine in acLines
-			cLine = trim(cLine)
+		nLen = len(acLines)
+		for i = 1 to nLen
+			cLine = trim(acLines[i])
 			
-			# Skip empty and comments
-			if cLine = "" or left(cLine, 1) = "#"
+			if cLine = '' or left(cLine, 1) = "#"
 				loop
 			ok
 			
-			# Ruleset metadata
 			if substr(cLine, "ruleset ")
 				cName = This._ExtractQuoted(cLine)
 				oRuleBase.SetName(cName)
@@ -1327,13 +1309,10 @@ class stzRuleBaseParser
 			but substr(cLine, "author:")
 				oRuleBase.SetAuthor(This._ExtractValue(cLine))
 			
-			# Rules section
 			but cLine = "rules"
 				cSection = "rules"
 			
-			# New rule
 			but substr(cLine, "rule ")
-				# Save previous rule
 				if oCurrentRule != NULL
 					oRuleBase.AddRule(oCurrentRule)
 				ok
@@ -1342,7 +1321,6 @@ class stzRuleBaseParser
 				oCurrentRule = new stzGraphRule(cRuleId)
 				cWhenSection = "when"
 			
-			# Rule properties
 			but substr(cLine, "type:")
 				if oCurrentRule != NULL
 					oCurrentRule.SetRuleType(This._ExtractValue(cLine))
@@ -1358,7 +1336,6 @@ class stzRuleBaseParser
 					oCurrentRule.SetSeverity(This._ExtractValue(cLine))
 				ok
 			
-			# Condition/effect markers
 			but cLine = "when"
 				cWhenSection = "when"
 				
@@ -1369,33 +1346,25 @@ class stzRuleBaseParser
 				cWhenSection = "else"
 				
 			but substr(cLine, "message")
-				# Skip to next line for message
+				# Skip
 			
-			# Parse conditions (when section)
 			but cWhenSection = "when" and oCurrentRule != NULL
 				This._ParseCondition(cLine, oCurrentRule)
 			
-			# Parse effects (then section)
 			but cWhenSection = "then" and oCurrentRule != NULL
 				This._ParseEffect(cLine, oCurrentRule, FALSE)
 			
-			# Parse else effects
 			but cWhenSection = "else" and oCurrentRule != NULL
 				This._ParseEffect(cLine, oCurrentRule, TRUE)
 			ok
 		end
 		
-		# Add last rule
 		if oCurrentRule != NULL
 			oRuleBase.AddRule(oCurrentRule)
 		ok
 		
 		return oRuleBase
-	
-	#-----------#
-	#  HELPERS  #
-	#-----------#
-	
+
 	def _ParseCondition(cLine, oRule)
 		aTokens = This._Tokenize(cLine)
 		
@@ -1403,7 +1372,6 @@ class stzRuleBaseParser
 			return
 		ok
 		
-		# path exists from="A" to="B"
 		if aTokens[1] = "path" and len(aTokens) >= 3
 			cCondition = aTokens[2]
 			cFrom = This._ExtractQuotedValue(cLine, 'from="')
@@ -1412,7 +1380,6 @@ class stzRuleBaseParser
 			return
 		ok
 		
-		# tag exists "critical"
 		if aTokens[1] = "tag" and len(aTokens) >= 3
 			cCondition = aTokens[2]
 			cTag = aTokens[3]
@@ -1421,7 +1388,6 @@ class stzRuleBaseParser
 			return
 		ok
 		
-		# graph mustBe "acyclic"
 		if aTokens[1] = "graph" and len(aTokens) >= 3
 			cProp = aTokens[2]
 			cCondition = aTokens[3]
@@ -1429,16 +1395,15 @@ class stzRuleBaseParser
 			return
 		ok
 		
-		# Standard property conditions
-		# department equals "audit"
 		if len(aTokens) >= 3
 			cKey = aTokens[1]
 			cOp = aTokens[2]
 			
-			if len(aTokens) = 3
+			nLenTokens = len(aTokens)
+			if nLenTokens = 3
 				pValue = This._Unquote(aTokens[3])
-			but len(aTokens) = 4
-				# inSection 0,100
+
+			but nLenTokens = 4
 				if cOp = "insection"
 					pValue = [0 + aTokens[3], 0 + aTokens[4]]
 				else
@@ -1458,7 +1423,6 @@ class stzRuleBaseParser
 			return
 		ok
 		
-		# violation add "message"
 		if aTokens[1] = "violation" and len(aTokens) >= 3
 			cAction = aTokens[2]
 			cMessage = This._ExtractQuoted(cLine)
@@ -1471,8 +1435,6 @@ class stzRuleBaseParser
 			return
 		ok
 		
-		# Standard effects: aspect action value
-		# color set "red"
 		if len(aTokens) >= 3
 			cAspect = aTokens[1]
 			cAction = aTokens[2]
@@ -1486,7 +1448,6 @@ class stzRuleBaseParser
 		ok
 	
 	def _Tokenize(cLine)
-		# Split by spaces but preserve quoted strings
 		aTokens = []
 		cCurrent = ""
 		bInQuote = FALSE
@@ -1558,8 +1519,7 @@ class stzRuleBaseParser
 		return @substr(cRest, 1, nEnd - 1)
 	
 	def _Unquote(cValue)
-		if left(cValue, 1) = '"' and
-		   right(cValue, 1) = '"'
+		if left(cValue, 1) = '"' and right(cValue, 1) = '"'
 			return @substr(cValue, 2, len(cValue) - 1)
 		ok
 		return cValue
