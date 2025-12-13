@@ -158,6 +158,16 @@ class stzGraph
 		end
 		stzraise("Node '" + pcNodeId + "' does not exist!")
 
+		def NodeById(pcNodeId)
+			return This.Node(pcNodeId)
+
+	def NodeXT(pcNodeId)
+		aNode = This.Node(pcNodeId)
+		if HasKey(aNode, "properties")
+			return aNode["properties"]
+		ok
+		return []
+
 	def NodeExists(pcNodeId)
 		if ring_find( This.NodesIds(), pcNodeId) > 0
 			return 1
@@ -1763,14 +1773,27 @@ class stzGraph
 		ok
 		
 		if isObject(p) and classname(p) = "stzgraphrule"
-			# Create temporary rulebase for single rule
-			oTempBase = new stzGraphRuleBase("temp")
-			oTempBase.AddRule(p)
-			@oRuleEngine.AddRuleBase(oTempBase)
-			
-			# Track rule
+			# Store in both locations
 			@aRules[p.Id()] = p
+			
+			# Create or get temp rulebase
+			oTempBase = NULL
+			nLen = len(@oRuleEngine.@aoRuleBases)
+			for i = 1 to nLen
+				if @oRuleEngine.@aoRuleBases[i].Name() = "_user_rules_"
+					oTempBase = @oRuleEngine.@aoRuleBases[i]
+					exit
+				ok
+			end
+			
+			if oTempBase = NULL
+				oTempBase = new stzGraphRuleBase("_user_rules_")
+				@oRuleEngine.AddRuleBase(oTempBase)
+			ok
+			
+			oTempBase.AddRule(p)
 		ok
+
 	
 		def SetRuleObject(oRule)
 			This.SetRule(oRule)
@@ -1845,7 +1868,7 @@ class stzGraph
 		This.ApplyInference()     # First: derive new knowledge
 		This.ApplyValidation()    # Then: validate structure
 		This.ApplyVisualRules()   # Finally: visual enhancements (stzDiagram level)
-	
+
 	def ApplyRulesByType(pcType)
 		if @oRuleEngine = NULL
 			return
@@ -1865,6 +1888,7 @@ class stzGraph
 			This.CheckConstraints()
 		off
 
+
 	def ApplyValidation()
 		if @oRuleEngine = NULL
 			return
@@ -1874,9 +1898,30 @@ class stzGraph
 		nLen = len(aoRules)
 	
 		for i = 1 to nLen
-			aoRules[i].SetGraph(This)
-			aoRules[i].Apply(This, "validation")
+			oRule = aoRules[i]
+			oRule.SetGraph(This)
+			
+			# Apply to nodes
+			aNodes = This.Nodes()
+			nNodeLen = len(aNodes)
+			for j = 1 to nNodeLen
+				aNode = aNodes[j]
+				aContext = This._BuildRuleContext(aNode)
+				
+				if oRule.Matches(aContext)
+					# Track affected node
+					cNodeId = aNode["id"]
+					if NOT HasKey(@aNodesAffectedByRules, cNodeId)
+						@aNodesAffectedByRules[cNodeId] = []
+					ok
+					@aNodesAffectedByRules[cNodeId] + oRule.Id()
+					
+					# Apply effects
+					This._ApplyEffects(oRule, "node", cNodeId)
+				ok
+			end
 		end
+
 
 
 	def ApplyVisualRules()
@@ -1885,6 +1930,7 @@ class stzGraph
 		ok
 		@oRuleEngine.ApplyVisualRules()
 
+/*
 	def _ApplyEffects(oRule, cElementType, pElementId)
 		aEffects = oRule.Effects()
 		nLen = len(aEffects)
@@ -1925,7 +1971,29 @@ class stzGraph
 				This.SetEdgeProperty(pElementId[1], pElementId[2], cAspect, pValue)
 			ok
 		end
+*/
+
+def _ApplyEffects(oRule, cElementType, pElementId)
+	aEffects = oRule.Effects()
+	nLen = len(aEffects)
+	
+	for i = 1 to nLen
+		aEffect = aEffects[i]
+		cAction = aEffect[1]
 		
+		if cAction = :set
+			cKey = aEffect[2]
+			pValue = aEffect[3]
+			
+			if cElementType = "node"
+				This.SetNodeProperty(pElementId, cKey, pValue)
+			but cElementType = "edge"
+				This.SetEdgeProperty(pElementId[1], pElementId[2], cKey, pValue)
+			ok
+		ok
+	end
+
+	
 	def _BuildRuleContext(aNodeOrEdge)
 		aContext = aNodeOrEdge
 		
@@ -3788,6 +3856,18 @@ class stzGraph
 
 		def WriteGraf(pcFileName)
 			This.WriteToGrafFile(pcFilename)
+
+
+	#-----------------#
+	#  MISC. METHODS  # #TODO Reorgnaise them
+	#-----------------#
+
+	def NodeRequiresApproval(pcNodeId)
+		aNode = This.Node(pcNodeId)
+		if HasKey(aNode, "properties") and HasKey(aNode["properties"], "requiresapproval")
+			return aNode["properties"]["requiresapproval"]
+		ok
+		return FALSE
 
 
 class stzGraphAnalyzer

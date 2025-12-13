@@ -601,13 +601,14 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Inference Rule
-*/
+
 pr()
 
 oGraph = new stzGraph("InferenceTest")
 
 oRule = new stzGraphRule("transitivity")
 oRule {
+	SetRuleType("inference")
 	WhenPathExists(:FromNode = "a", :ToNode = "c")
 	AddEdge("a", "c")
 }
@@ -633,14 +634,12 @@ pf()
 
 pr()
 
-pr()
-
 oGraph = new stzGraph("PropRuleTest")
 
 oRule = new stzGraphRule("highcost")
 oRule {
 	SetRuleType("validation")
-	When("cost", "insection", [500, 9999])
+	When("cost", "between", [500, 9999])
 	Then("requiresapproval", "set", TRUE)
 	Then("level", "set", "high")
 }
@@ -653,23 +652,85 @@ oGraph {
 	
 	ApplyValidation()
 	
-	? "N1 requires approval: " + 
-		HasKey(Node("n1")["properties"], "requiresapproval")
+	# Does N1 requires approval
+	? NodeRequiresApproval("n1")
 	#--> FALSE
 	
-	? "N2 requires approval: " + 
-		Node("n2")["properties"]["requiresapproval"]
+	? NodeRequiresApproval("n2")
 	#--> TRUE
 	
-	? "N2 level: " + Node("n2")["properties"]["level"]
+	? NodeXT("n2")[:Level]
 	#--> "high"
+
+	? NodeXT("n2")[:Cost]
+	#--> 800
 }
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
-/*--- Rule Analysis
+/*--- Rule Analysis 1
+*/
+pr()
 
+oGraph = new stzGraph("RuleAnalysisTest")
+
+# Create rules
+oRule1 = new stzGraphRule("critical")
+oRule1 {
+	SetRuleType("validation")
+	WhenTagExists("critical")
+	SetProperty("alert", TRUE)
+}
+
+oRule2 = new stzGraphRule("production")
+oRule2 {
+	SetRuleType("validation")
+	When("env", "equals", "prod")
+	SetProperty("monitor", TRUE)
+}
+
+oGraph {
+	# Set rules
+	SetRule(oRule1)
+	SetRule(oRule2)
+	
+	# Add nodes
+	AddNodeXTT("n1", "N1", [:env = "prod", :tags = ["critical"]])
+	AddNodeXTT("n2", "N2", [:env = "test"])
+	
+	# Apply rules
+	ApplyRules()
+	
+	# Check results
+	? "=== Nodes Affected by Rules ==="
+	? @@( NodesAffectedByRules() )
+	#--> ["n1", "n2"]
+	
+	? NL + "=== Nodes Affected by 'critical' Rule ==="
+	? @@( NodesAffectedByRule("critical") )
+	#--> ["n1"]
+	
+	? NL + "=== Nodes Affected by 'production' Rule ==="
+	? @@( NodesAffectedByRule("production") )
+	#--> ["n1"]
+	
+	? NL + "=== Rules Applied Summary ==="
+	aInfo = RulesApplied()
+	? "Has Effects: " + aInfo[:hasEffects]
+	? "Summary: " + aInfo[:summary]
+	? "Rules that matched: " + len(aInfo[:rules])
+	
+	? NL + "=== Node Properties After Rules ==="
+? @@NL(NodeXT("n1"))
+	? "n1 alert: " + NodeProperty("n1", "alert")
+	? "n1 monitor: " + NodeProperty("n1", "monitor")
+}
+
+pf()
+
+/*--- Rule Analysis
+*/
 pr()
 
 oGraph = new stzGraph("RuleAnalysisTest")
@@ -682,7 +743,7 @@ oRule1 {
 
 oRule2 = new stzGraphRule("production")
 oRule2 {
-	When("env", :equals = "prod")
+	When("env", :equals, "prod")
 	SetProperty("monitor", TRUE)
 }
 
