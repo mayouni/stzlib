@@ -479,12 +479,139 @@ oGraph {
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
-#============================================#
-#  SECTION 5: UNIFIED RULE SYSTEM #TODO Test it
-#============================================#
+/*---
+*/
+pr()
+
+oGraph = new stzGraph("PathInferTest")
+
+oRule = new stzGraphRule("path_shortcut")
+oRule {
+	SetRuleType("inference")
+	WhenPath("start", "end", "exists")
+	Then("edge", "add", ["start", "end", "shortcut"])
+}
+
+oGraph {
+	AddNodeXT("start", "Start")
+	AddNodeXT("mid", "Middle")
+	AddNodeXT("end", "End")
+	
+	Connect("start", "mid")
+	Connect("mid", "end")
+	
+	SetRule(oRule)
+
+	? "Direct edge before: " + EdgeExists("start", "end")
+	#--> FALSE
+
+	ApplyInference()
+
+	# Now check AFTER exiting the brace context
+
+	# All edges:
+	? @@NL(oGraph.Edges())
+	#-->
+	'
+	[
+		[
+			[ "from", "start" ],
+			[ "to", "mid" ],
+			[ "label", "" ],
+			[ "properties", [  ] ]
+		],
+		[
+			[ "from", "mid" ],
+			[ "to", "end" ],
+			[ "label", "" ],
+			[ "properties", [  ] ]
+		],
+		[
+			[ "from", "start" ],
+			[ "to", "end" ],
+			[ "label", "shortcut" ],
+			[ "properties", [  ] ]
+		]
+	]
+	'
+
+	# Direct edge after:
+	? oGraph.EdgeExists("start", "end")
+	#--> TRUE
+
+	# Edge count:
+	? oGraph.EdgeCount()
+	#--> 3
+
+	? @@NL( InferenceReport() )
+	#-->
+	'
+	[
+		[ "edgesBeforeInference", 2 ],
+		[ "edgesInferred", 1 ],
+		[ "edgesAfterInference", 3 ],
+		[
+			"inferrededges",
+			[
+				[ "start", "end", "shortcut" ]
+			]
+		]
+	]
+	'
+
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*--- #ERR Check result
+*/
+pr()
+
+oGraph = new stzGraph("PathInferTest")
+
+# Rule: when path exists, infer direct edge
+oRule = new stzGraphRule("path_shortcut")
+oRule {
+	SetRuleType("inference")
+	WhenPath("start", "end", "exists")
+	Then("edge", "add", ["start", "end", "shortcut"])
+}
+
+oGraph {
+	AddNodeXT("start", "Start")
+	AddNodeXT("mid", "Middle")
+	AddNodeXT("end", "End")
+	
+	Connect("start", "mid")
+	Connect("mid", "end")
+	
+	SetRule(oRule)
+	? @@(oRule.Effects())  # Add this after SetRule
+
+	? "Direct edge before: " + EdgeExists("start", "end")
+	
+	ApplyInference()
+	? "All edges: " + @@(Edges())
+	? "Direct edge after: " + EdgeExists("start", "end")
+	? "Edge count: " + EdgeCount()
+	
+	if EdgeExists("start", "end")
+		? "Label: " + Edge("start", "end")["label"]
+	ok
+
+
+
+}
+
+pf()
+
+#===============================================#
+#  SECTION 5: UNIFIED RULE SYSTEM #TODO Test it #
+#===============================================#
 
 /*--- Validation Rule
-
+*/
 pr()
 
 oGraph = new stzGraph("ValidationTest")
@@ -492,7 +619,7 @@ oGraph = new stzGraph("ValidationTest")
 oRule = new stzGraphRule(:RequireApproval)
 oRule {
 	When(:IsApproved, :Equals, FALSE)
-	Setvalid()
+	SetValid()
 	AddAnomaly("Requires approval")
 
 	? @@(Anomalies())
@@ -548,13 +675,16 @@ pf()
 
 pr()
 
+pr()
+
 oGraph = new stzGraph("PropRuleTest")
 
 oRule = new stzGraphRule("highcost")
 oRule {
-	When("cost", :InSection = [500, 9999])
-	SetProperty(:RequiresApproval, :to = TRUE)
-	SetProperty("level", "high")
+	SetRuleType("validation")
+	When("cost", "insection", [500, 9999])
+	Then("requiresapproval", "set", TRUE)
+	Then("level", "set", "high")
 }
 
 oGraph {
@@ -563,11 +693,18 @@ oGraph {
 	AddNodeXTT("n1", "N1", [:cost = 100])
 	AddNodeXTT("n2", "N2", [:cost = 800])
 	
-	ApplyRules()
+	ApplyValidation()
 	
-	? HasKey(Node("n1")["properties"], "requiresapproval") #--> FALSE
-	? Node("n2")["properties"]["requiresapproval"]         #--> TRUE
-	? Node("n2")["properties"]["level"]                    #--> "high"
+	? "N1 requires approval: " + 
+		HasKey(Node("n1")["properties"], "requiresapproval")
+	#--> FALSE
+	
+	? "N2 requires approval: " + 
+		Node("n2")["properties"]["requiresapproval"]
+	#--> TRUE
+	
+	? "N2 level: " + Node("n2")["properties"]["level"]
+	#--> "high"
 }
 
 pf()
@@ -895,6 +1032,61 @@ oGraph {
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
+
+/*--- Chained Rules
+
+pr()
+
+oGraph = new stzGraph("ChainedTest")
+
+# First rule sets a property
+oRule1 = new stzGraphRule("set_category")
+oRule1 {
+	SetRuleType("validation")
+	When("cost", "greaterthan", 1000)
+	Then("category", "set", "expensive")
+}
+
+# Second rule reacts to that property
+oRule2 = new stzGraphRule("expensive_handling")
+oRule2 {
+	SetRuleType("validation")
+	When("category", "equals", "expensive")
+	Then("approval_level", "set", "executive")
+	Then("notification", "set", TRUE)
+}
+
+oGraph {
+	SetRule(oRule1)
+	SetRule(oRule2)
+	
+	AddNodeXTT("item", "Item X", [:cost = 1500])
+	
+	ApplyRules()
+	
+	? @@NL( Node("item") )
+	#-->
+	'
+	[
+		[ "id", "item" ],
+		[ "label", "Item X" ],
+		[
+			"properties",
+			[
+				[ "cost", 1500 ],
+				[ "category", "expensive" ],
+				[ "approval_level", "executive" ],
+				[ "notification", 1 ]
+			]
+		]
+	]
+	'
+
+}
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
+
 
 #============================================#
 #  SECTION 10: METADATA OPERATIONS

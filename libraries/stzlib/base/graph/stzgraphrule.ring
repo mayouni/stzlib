@@ -1,7 +1,27 @@
-#============================================#
-#  stzGraphRule - Core Rule Engine           #
-#  Single rule implementation                #
-#============================================#
+#======================================#
+#  stzGraphRule - Core Rule Engine     #
+#  Single rule implementation          #
+#======================================#
+
+#NOTE ARCHITECTURE
+# Thies classes are used by stzGeaph class as a rule engine :
+
+# - Single Source of Truth: stzGraphRuleEngine now manages all rule execution
+# - Proper Initialization in stzGraph: @oRuleEngine created on first rule/validation use
+# - Clear Separation: Graph manages structure; RuleEngine manages rule logic
+
+# Rule Application Flow:
+
+# - Rules added via SetRule() → stored in temporary rulebase → added to engine
+# - ApplyRules() calls engine methods in order: inference → validation → visual
+# - Engine collects rules by type and applies them using rule's own logic
+
+# Default rules are packages in stzDefaultRuleBases for each type of class (stzDiagram,
+# stzOrgChar, ..) and each functional domain ( rules for validation, norms, business domains...)
+#~> The beahvoir of the graph (and its inherited classes) can be chahnged by updading those
+# rule bases and without touching to code.
+
+# Rules can be serialised, imported and shared in a dedicated text format : *.stzrulz
 
 func StzGraphRuleQ(pcRuleId)
 	return new stzGraphRule(pcRuleId)
@@ -388,6 +408,7 @@ class stzGraphRule
 			:affectedNodes = acAffected
 		]
 	
+
 	def _ApplyAsValidation(oGraph)
 		aViolations = []
 		acAffected = []
@@ -397,9 +418,15 @@ class stzGraphRule
 			aContext = This._BuildContext(aNode)
 			
 			if This.Matches(aContext)
-				# Check validation effects
+				# Apply property-setting effects first
 				for aEffect in @aEffects
-					if aEffect[1] = :validate
+					if aEffect[1] = :set
+						cAspect = aEffect[2]
+						pValue = aEffect[3]
+						oGraph.SetNodeProperty(aNode["id"], cAspect, pValue)
+						acAffected + aNode["id"]
+						
+					but aEffect[1] = :validate
 						cAspect = aEffect[2]
 						pExpected = aEffect[3]
 						cCheck = aEffect[4]
@@ -408,11 +435,11 @@ class stzGraphRule
 							pActual = aNode["properties"][cAspect]
 							
 							if cCheck = "mustbe" and pActual != pExpected
-								aViolations + iff(@cMessage != "", @cMessage, @cRuleId + ": " + cAspect + " must be " + pExpected)
+								aViolations + iif(@cMessage != "", @cMessage, @cRuleId + ": " + cAspect + " must be " + pExpected)
 								acAffected + aNode["id"]
 								
 							but cCheck = "mustnotbe" and pActual = pExpected
-								aViolations + iff(@cMessage != "", @cMessage : @cRuleId + ": " + cAspect + " must not be " + pExpected)
+								aViolations + iif(@cMessage != "", @cMessage, @cRuleId + ": " + cAspect + " must not be " + pExpected)
 								acAffected + aNode["id"]
 							ok
 						ok
@@ -425,7 +452,10 @@ class stzGraphRule
 			else
 				# Apply else effects
 				for aEffect in @aElseEffects
-					if aEffect[1] = :violation
+					if aEffect[1] = :set
+						oGraph.SetNodeProperty(aNode["id"], aEffect[2], aEffect[3])
+						
+					but aEffect[1] = :violation
 						aViolations + aEffect[2]
 						acAffected + aNode["id"]
 					ok
@@ -442,35 +472,42 @@ class stzGraphRule
 			:affectedNodes = acAffected
 		]
 	
+
 	def _ApplyAsInference(oGraph)
-		# Apply inference rules to derive new knowledge
-		nInferred = 0
-		
-		if @cConditionType = :pathexists
-			# Transitivity inference
-			aNodes = oGraph.Nodes()
-			for aNode1 in aNodes
-				for aNode2 in aNodes
-					if aNode1["id"] != aNode2["id"]
-						if oGraph.PathExists(aNode1["id"], aNode2["id"])
-							# Check if direct edge exists
-							if NOT oGraph.EdgeExists(aNode1["id"], aNode2["id"])
-								# Infer edge
-								for aEffect in @aEffects
-									if aEffect[1] = :add and aEffect[2] = "edge"
-										oGraph.AddEdgeXT(aNode1["id"], aNode2["id"], aEffect[3])
-										nInferred++
-									ok
-								end
-							ok
-						ok
-					ok
-				end
-			end
-		ok
-		
-		return nInferred
+	    aInferredEdges = []
+	    
+	    if @cConditionType = :pathexists
+	        cFrom = @aConditionParams[1]
+	        cTo = @aConditionParams[2]
+	        
+	        # Use the passed oGraph parameter, not @oGraph
+	        if oGraph.PathExists(cFrom, cTo) and NOT oGraph.EdgeExists(cFrom, cTo)
+	            for aEffect in @aEffects
+	                if len(aEffect) >= 3 and aEffect[1] = "add" and aEffect[2] = "edge"
+	                    pValue = aEffect[3]
+	                    
+	                    if isList(pValue) and len(pValue) >= 2
+	                        cEdgeFrom = pValue[1]
+	                        cEdgeTo = pValue[2]
+	                        cLabel = iif(len(pValue) >= 3, pValue[3], "(inferred)")
+	                        
+	                        if NOT oGraph.EdgeExists(cEdgeFrom, cEdgeTo)
+	                            oGraph.AddEdgeXT(cEdgeFrom, cEdgeTo, cLabel)
 	
+	                            aInferredEdges + [cEdgeFrom, cEdgeTo, cLabel]
+	                        ok
+	                    ok
+	                ok
+	            end
+	        ok
+	    ok
+	    
+	    return [
+	        :status = iif(len(aInferredEdges) > 0, "applied", "none"),
+	        :inferredCount = len(aInferredEdges),
+	        :inferredEdges = aInferredEdges
+	    ]
+
 	def _ApplyAsVisual(oGraph)
 		# Apply visual effects
 		aNodes = oGraph.Nodes()
@@ -723,12 +760,23 @@ class stzGraphRuleBase
 #============================================#
 
 class stzGraphRuleEngine
+
 	@aoRuleBases = []
 	@oGraph = NULL
 
+	@nLastInferredCount = 0
+	@aLastInferredEdges = []
+
+
 	def init(poGraph)
 		@oGraph = poGraph
+		@aoRuleBases = []
+		@nLastInferredCount = 0
+		@aLastInferredEdges = []
 	
+	def SetGraph(poGraph)
+		@oGraph = poGraph
+
 	#-------------------#
 	#  RULEBASE MGMT    #
 	#-------------------#
@@ -884,16 +932,42 @@ class stzGraphRuleEngine
 	#-------------------#
 	
 	def ApplyInference()
-		aoRules = This.CollectRules("inference", "")
-		nInferred = 0
-		
-		for oRule in aoRules
-			oRule.SetGraph(@oGraph)
-			nInferred += oRule.Apply(@oGraph, "inference")
-		end
-		
-		return nInferred
+	    aoRules = This.CollectRules("inference", "")
+	    nInferred = 0
+	    aInferredEdges = []
+	    
+	    for oRule in aoRules
+	        oRule.SetGraph(@oGraph)
+	        aResult = oRule._ApplyAsInference(@oGraph)
+	        nInferred += aResult[:inferredCount]
+	        
+	        for aEdge in aResult[:inferredEdges]
+	            aInferredEdges + aEdge
+	        end
+	    next
+	    
+	    @nLastInferredCount = nInferred
+	    @aLastInferredEdges = aInferredEdges
+	    
+	    return nInferred
+
 	
+	def InferenceReport()
+		nInitial = @oGraph.EdgeCount() - @nLastInferredCount
+		
+		aReport = [
+			[ "edgesBeforeInference", nInitial ],
+			[ "edgesInferred", @nLastInferredCount ],
+			[ "edgesAfterInference", @oGraph.EdgeCount() ]
+		]
+		
+		aReport + [ "inferrededges", @aLastInferredEdges ]
+	
+		return aReport
+
+		def InferReport()
+			return This.InferenceReport()
+
 	#-------------------#
 	#  CONSTRAINTS      #
 	#-------------------#
@@ -1212,10 +1286,10 @@ class stzGDPRRuleBase from stzGraphRuleBase
 		This.AddRule(oRule2)
 
 
-#============================================#
-#  stzRuleBaseParser - *.stzrulz Parser      #
-#  Converts text rules to rule objects      #
-#============================================#
+#=========================================#
+#  stzRuleBaseParser - *.stzrulz Parser   #
+#  Converts text rules to rule objects    #
+#=========================================#
 
 class stzRuleBaseParser
 	def ParseFile(pcFilename)
@@ -1484,7 +1558,8 @@ class stzRuleBaseParser
 		return @substr(cRest, 1, nEnd - 1)
 	
 	def _Unquote(cValue)
-		if left(cValue, 1) = '"' and right(cValue, 1) = '"'
+		if left(cValue, 1) = '"' and
+		   right(cValue, 1) = '"'
 			return @substr(cValue, 2, len(cValue) - 1)
 		ok
 		return cValue
