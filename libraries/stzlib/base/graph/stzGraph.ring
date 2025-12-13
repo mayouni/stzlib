@@ -63,7 +63,7 @@ class stzGraph
 
 	@cId = ""
 	@aNodes = []
-	@acEdges = []
+	@aEdges = []
 
 	# Rule system
 	@aRules = []
@@ -82,7 +82,7 @@ class stzGraph
 	def init(pcId)
 		@cId = pcId
 		@acNodes = []
-		@acEdges = []
+		@aEdges = []
 		@aRules = []
 		@aNodesAffectedByRules = []
 		@aEdgesAffectedByRules = []
@@ -169,7 +169,7 @@ class stzGraph
 		@aNodes = paNodes
 	
 	def SetEdges(paEdges)
-		@acEdges = paEdges
+		@aEdges = paEdges
 
 	def Nodes()
 		return @aNodes
@@ -197,10 +197,10 @@ class stzGraph
 	def InsertNodeBeforeXT(pcTargetId, pcNewId, pcNewLabel, paProps)
 		# Get incoming edges to target
 		aIncoming = []
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			if @acEdges[i]["to"] = pcTargetId
-				aIncoming + @acEdges[i]["from"]
+			if @aEdges[i]["to"] = pcTargetId
+				aIncoming + @aEdges[i]["from"]
 			ok
 		end
 		
@@ -236,10 +236,10 @@ class stzGraph
 	def InsertNodeAfterXT(pcTargetId, pcNewId, pcNewLabel, paProps)
 		# Get outgoing edges from target
 		aOutgoing = []
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			if @acEdges[i]["from"] = pcTargetId
-				aOutgoing + @acEdges[i]["to"]
+			if @aEdges[i]["from"] = pcTargetId
+				aOutgoing + @aEdges[i]["to"]
 			ok
 		end
 		
@@ -292,7 +292,7 @@ class stzGraph
 	# Replace all nodes with new set
 	def ReplaceNodes(paNewNodes)
 		@aNodes = paNewNodes
-		@acEdges = []
+		@aEdges = []
 		@aNodeEnhancements = []
 		@aEdgeEnhancements = []
 	
@@ -325,9 +325,9 @@ class stzGraph
 		aIncoming = []
 		aOutgoing = []
 		
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if aEdge["from"] = pcOldId
 				aOutgoing + [aEdge["to"], aEdge["label"], aEdge["properties"]]
 			ok
@@ -368,7 +368,7 @@ class stzGraph
 	
 	# Replace all edges
 	def ReplaceEdges(paNewEdges)
-		@acEdges = paNewEdges
+		@aEdges = paNewEdges
 		@aEdgeEnhancements = []
 	
 		def ReplaceAllEdges(paNewEdges)
@@ -438,7 +438,7 @@ class stzGraph
 	# Remove all nodes (and their edges)
 	def RemoveNodes()
 		@acNodes = []
-		@acEdges = []
+		@aEdges = []
 		@aNodesAffectedByRules = []
 		@aEdgesAffectedByRules = []
 	
@@ -515,7 +515,7 @@ class stzGraph
 	
 	# Remove all edges
 	def RemoveEdges()
-		@acEdges = []
+		@aEdges = []
 		@aEdgesAffectedByRules = []
 	
 		def RemoveAllEdges()
@@ -527,14 +527,14 @@ class stzGraph
 	# Remove single edge
 	def RemoveThisEdge(pcFromId, pcToId)
 		acNew = []
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if NOT (aEdge["from"] = pcFromId and aEdge["to"] = pcToId)
 				acNew + aEdge
 			ok
 		end
-		@acEdges = acNew
+		@aEdges = acNew
 	
 		def RemoveEdge(pcFromId, pcToId)
 			This.RemoveThisEdge(pcFromId, pcToId)
@@ -544,16 +544,16 @@ class stzGraph
 
 	def RemoveEdgesConnectedTo(pcNodeId)
 		acNew = []
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if NOT (aEdge["from"] = pcNodeId or aEdge["to"] = pcNodeId)
 				acNew + aEdge
 			ok
 		end
 		
-		@acEdges = acNew
+		@aEdges = acNew
 
 	#-------------------#
 	#  EDGE OPERATIONS  #
@@ -572,36 +572,38 @@ class stzGraph
 			This.AddEdgeXTT(pcFromId, pcToId, pcLabel, [])
 
 	def AddEdgeXTT(pcFromId, pcToId, pcLabel, pacProperties)
-		if CheckParams()
-			if isList(pcFromId) and StzListQ(pcFromId).IsFromNamedParam()
-				pcFromId = pcFromId[2]
-			ok
 
-			if isList(pcToId) and StzListQ(pcToId).IsToNamedParam()
-				pcToId = pcToId[2]
-			ok
-
-			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
-				pcLabel = pcLabel[2]
-			ok		
-		ok
-
-		if NOT This.NodeExists(pcFromId) or NOT This.NodeExists(pcToId)
-			return 0
-		ok
-
-		if This.EdgeExists(pcFromId, pcToId)
-			return 0  # Don't add duplicate
-		ok
-
-		aEdge = [
-			:from = pcFromId,
-			:to = pcToId,
-			:label = pcLabel,
-			:properties = iif(isList(pacProperties), pacProperties, [])
-		]
-		@acEdges + aEdge
-		return 1
+	    if CheckParams()
+	        if isList(pcFromId) and StzListQ(pcFromId).IsFromNamedParam()
+	            pcFromId = pcFromId[2]
+	        ok
+	
+	        if isList(pcToId) and StzListQ(pcToId).IsToNamedParam()
+	            pcToId = pcToId[2]
+	        ok
+	
+	        if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
+	            pcLabel = pcLabel[2]
+	        ok		
+	    ok
+	
+	    if NOT This.NodeExists(pcFromId) or NOT This.NodeExists(pcToId)
+	        return 0
+	    ok
+	
+	    if This.EdgeExists(pcFromId, pcToId)
+	        return 0
+	    ok
+	
+	    aEdge = [
+	        :from = pcFromId,
+	        :to = pcToId,
+	        :label = pcLabel,
+	        :properties = iif(isList(pacProperties), pacProperties, [])
+	    ]
+	    @aEdges + aEdge
+	    
+	    return 1
 
 		def ConnectXTT(pcFromId, pcToId, pcLabel, pacProperties)
 			This.AddEdgeXTT(pcFromId, pcToId, pcLabel, pacProperties)
@@ -622,9 +624,9 @@ class stzGraph
 			ok
 		ok
 
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if aEdge["from"] = pcFromId and aEdge["to"] = pcToId
 				return aEdge
 			ok
@@ -632,9 +634,9 @@ class stzGraph
 		stzraise("Inexistant edge!")
 
 	def EdgeExists(pcFromId, pcToId)
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if aEdge["from"] = pcFromId and aEdge["to"] = pcToId
 				return 1
 			ok
@@ -642,10 +644,10 @@ class stzGraph
 		return 0
 
 	def Edges()
-		return @acEdges
+		return @aEdges
 
 	def EdgeCount()
-		return len(@acEdges)
+		return len(@aEdges)
 
 	#-------------------#
 	#  NODE NAVIGATION  #
@@ -690,21 +692,21 @@ class stzGraph
 	#-------------------#
 	
 	def FirstEdge()
-		if len(@acEdges) > 0
-			return @acEdges[1]
+		if len(@aEdges) > 0
+			return @aEdges[1]
 		ok
 		return []
 	
 	def LastEdge()
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		if nLen > 0
-			return @acEdges[nLen]
+			return @aEdges[nLen]
 		ok
 		return []
 	
 	def EdgeAt(n)
-		if n > 0 and n <= len(@acEdges)
-			return @acEdges[n]
+		if n > 0 and n <= len(@aEdges)
+			return @aEdges[n]
 		ok
 		return []
 	
@@ -712,9 +714,9 @@ class stzGraph
 			return This.EdgeAt(n)
 	
 	def EdgePosition(pcFrom, pcTo)
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			if @acEdges[i]["from"] = pcFrom and @acEdges[i]["to"] = pcTo
+			if @aEdges[i]["from"] = pcFrom and @aEdges[i]["to"] = pcTo
 				return i
 			ok
 		end
@@ -734,9 +736,9 @@ class stzGraph
 		end
 	
 	def UpdateEdges(pFunc)
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			call pFunc(@acEdges[i])
+			call pFunc(@aEdges[i])
 		end
 
 	#-------------------#
@@ -798,13 +800,13 @@ class stzGraph
 		aOutgoing = []
 		
 		nNodeLen = len(pacNodeIds)
-		nEdgeLen = len(@acEdges)
+		nEdgeLen = len(@aEdges)
 		
 		for i = 1 to nNodeLen
 			cNodeId = pacNodeIds[i]
 			
 			for j = 1 to nEdgeLen
-				aEdge = @acEdges[j]
+				aEdge = @aEdges[j]
 				
 				if aEdge["to"] = cNodeId
 					if ring_find(aIncoming, aEdge["from"]) = 0 and ring_find(pacNodeIds, aEdge["from"]) = 0
@@ -1004,13 +1006,13 @@ class stzGraph
 			ok
 		ok
 
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			if @acEdges[i]["from"] = pFromId and @acEdges[i]["to"] = pToId
-				if NOT HasKey(@acEdges[i], "properties")
-					@acEdges[i] + ["properties", []]
+			if @aEdges[i]["from"] = pFromId and @aEdges[i]["to"] = pToId
+				if NOT HasKey(@aEdges[i], "properties")
+					@aEdges[i] + ["properties", []]
 				ok
-				@acEdges[i]["properties"][cProperty] = pValue
+				@aEdges[i]["properties"][cProperty] = pValue
 				return
 			ok
 		end
@@ -1057,18 +1059,18 @@ class stzGraph
 			StzRaise("aProperties must be a hashlist")
 		ok
 		
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			if @acEdges[i]["from"] = pcFrom and @acEdges[i]["to"] = pcTo
-				if NOT HasKey(@acEdges[i], "properties")
-					@acEdges[i] + ["properties", []]
+			if @aEdges[i]["from"] = pcFrom and @aEdges[i]["to"] = pcTo
+				if NOT HasKey(@aEdges[i], "properties")
+					@aEdges[i] + ["properties", []]
 				ok
 				
 				# Directly merge properties
 				acKeys = keys(aProperties)
 				nKeyLen = len(acKeys)
 				for j = 1 to nKeyLen
-					@acEdges[i]["properties"][acKeys[j]] = aProperties[acKeys[j]]
+					@aEdges[i]["properties"][acKeys[j]] = aProperties[acKeys[j]]
 				end
 				return
 			ok
@@ -1119,9 +1121,9 @@ class stzGraph
 
 		pacVisited + pcCurrent
 
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if aEdge["from"] = pcCurrent
 				if This._PathExistsDFS(aEdge["to"], pcTarget, pacVisited)
 					return 1
@@ -1182,9 +1184,9 @@ class stzGraph
 			return
 		ok
 	
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if aEdge["from"] = pcCurrent
 				cNext = aEdge["to"]
 				
@@ -1204,9 +1206,9 @@ class stzGraph
 		ok
 
 		acNeighbors = []
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if aEdge["from"] = pcNodeId
 				acNeighbors + aEdge["to"]
 			ok
@@ -1227,9 +1229,9 @@ class stzGraph
 		ok
 
 		acIncoming = []
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if aEdge["to"] = pcNodeId
 				acIncoming + aEdge["from"]
 			ok
@@ -1263,9 +1265,9 @@ class stzGraph
 		pacVisited + pcNode
 		pacRecStack + pcNode
 
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if aEdge["from"] = pcNode
 				if find(pacVisited, aEdge["to"]) = 0
 					if This._HasCycleDFS(aEdge["to"], pacVisited, pacRecStack)
@@ -1379,7 +1381,7 @@ class stzGraph
 
 	def NodeDensity()
 		nNodes = len(@aNodes)
-		nEdges = len(@acEdges)
+		nEdges = len(@aEdges)
 
 		if nNodes <= 1
 			return 0
@@ -1586,10 +1588,10 @@ class stzGraph
 	#---------------------------------#
 	
 	def CheckConstraints()
-	        if @oRuleEngine != NULL
-	            return @oRuleEngine.CheckConstraints()
-	        ok
-	        return [ :status = "pass" ]
+		if @oRuleEngine = NULL
+			return [ :status = "pass", :issues = [] ]
+		ok
+		return @oRuleEngine.CheckConstraints()
 
 	def AddConstraint(pcConstraintType)
 		if NOT HasKey(@aProperties, pcConstraintType)
@@ -1726,15 +1728,21 @@ class stzGraph
 		if @oRuleEngine = NULL
 			@oRuleEngine = new stzGraphRuleEngine(This)
 		ok
-	
+		
 		@oRuleEngine.AddRuleBase(pRuleBase)
-	
+		
 		if isString(pRuleBase)
-			@acLoadedRuleBases + pRuleBase
+			if ring_find(@acLoadedRuleBases, pRuleBase) = 0
+				@acLoadedRuleBases + pRuleBase
+			ok
+
 		but isObject(pRuleBase)
-			@acLoadedRuleBases + pRuleBase.Name()
+			cName = pRuleBase.Name() #TODO// Check this! pRuleBase should be a stzGraphRule object?
+			if ring_find(@acLoadedRuleBases, cName) = 0
+				@acLoadedRuleBases + cName
+			ok
 		ok
-	
+
 	def RuleEngine()
 		return @oRuleEngine
 	
@@ -1746,40 +1754,52 @@ class stzGraph
 	#------------------------------#
 
 	def SetRule(p)
+		if @oRuleEngine = NULL
+			@oRuleEngine = new stzGraphRuleEngine(This)
+		ok
+		
 		if isString(p)
-			if HasKey(@aRules, p)
-				return
-			else
-				stzraise("Rule '" + p + "' not found")
-			ok
-		but isObject(p) and ring_classname(p) = "stzgraphrule"
-			p.SetGraph(This)  # Pass graph reference to rule
-			@aRules[p.@cRuleId] = p
+			stzraise("Cannot set rule by name - use SetRule(oRuleObject)")
+		ok
+		
+		if isObject(p) and classname(p) = "stzgraphrule"
+			# Create temporary rulebase for single rule
+			oTempBase = new stzGraphRuleBase("temp")
+			oTempBase.AddRule(p)
+			@oRuleEngine.AddRuleBase(oTempBase)
+			
+			# Track rule
+			@aRules[p.Id()] = p
 		ok
 	
 		def SetRuleObject(oRule)
 			This.SetRule(oRule)
 	
 	def SetRuleXT(p, pcType)
-		if isString(p)
-			stzraise("Cannot set type for non-existent rule '" + p + "'")
+		if NOT (isObject(p) and classname(p) = "stzgraphrule")
+			stzraise("First param must be stzGraphRule object")
 		ok
 		
-		if isObject(p) and ring_classname(p) = "stzgraphrule"
-			p.SetRuleType(pcType)
-			p.SetGraph(This)  # Pass graph reference to rule
-			@aRules[p.@cRuleId] = p
-		ok
+		p.SetRuleType(pcType)
+		This.SetRule(p)
 	
 	def RemoveRule(p)
+		cRuleId = ""
 		if isString(p)
-			@aRules[p] = NULL
+			cRuleId = p
 		but isObject(p)
-			@aRules[p.@cRuleId] = NULL
+			cRuleId = p.Id()
+		ok
+		
+		if HasKey(@aRules, cRuleId)
+			del(@aRules, cRuleId)
 		ok
 	
 	def Rule(pcRuleId)
-		return @aRules[pcRuleId]
+		if HasKey(@aRules, pcRuleId)
+			return @aRules[pcRuleId]
+		ok
+		return NULL
 	
 		def RuleObject(pcRuleId)
 			return This.Rule(pcRuleId)
@@ -1791,127 +1811,117 @@ class stzGraph
 			return @aRules
 	
 	def RulesByType(pcType)
-		acResult = []
-		acRuleIds = keys(@aRules)
-		nLen = len(acRuleIds)
+		if @oRuleEngine = NULL
+			return []
+		ok
 		
-		for i = 1 to nLen
-			cRuleId = acRuleIds[i]
-			oRule = @aRules[cRuleId]
-			cRuleType = oRule.RuleType()
-			
-			if pcType = "" or lower(pcType) = cRuleType
-				acResult + cRuleId
-			ok
+		aoRules = @oRuleEngine.CollectRules(pcType, "")
+		acRuleIds = []
+		for oRule in aoRules
+			acRuleIds + oRule.Id()
 		end
-		
-		return acResult
+		return acRuleIds
 	
 	def RulesObjectsByType(pcType)
-		aoResult = []
-		acRuleIds = keys(@aRules)
-		nLen = len(acRuleIds)
-		
-		for i = 1 to nLen
-			cRuleId = acRuleIds[i]
-			oRule = @aRules[cRuleId]
-			cRuleType = oRule.RuleType()
-			
-			if pcType = "" or lower(pcType) = cRuleType
-				aoResult + oRule
-			ok
-		end
-		
-		return aoResult
+		if @oRuleEngine = NULL
+			return []
+		ok
+		return @oRuleEngine.CollectRules(pcType, "")
 	
 	#-------------------------------#
 	#  stzGraph - Rule Application  #
 	#-------------------------------#
 	
 	def ApplyRules()
-		This.ApplyRulesByType("")
+		if @oRuleEngine = NULL
+			return
+		ok
+		
+		# Clear previous results
+		@aNodesAffectedByRules = []
+		@aEdgesAffectedByRules = []
+		
+		# Apply all rule types
+		This.ApplyInference()     # First: derive new knowledge
+		This.ApplyValidation()    # Then: validate structure
+		This.ApplyVisualRules()   # Finally: visual enhancements (stzDiagram level)
 	
 	def ApplyRulesByType(pcType)
-		aNodes = This.Nodes()
-		nLen = len(aNodes)
+		if @oRuleEngine = NULL
+			return
+		ok
 		
-		for i = 1 to nLen
-			aNode = aNodes[i]
-			cNodeId = aNode["id"]
-			aContext = This._BuildRuleContext(aNode)
-			
-			acRuleIds = keys(@aRules)
-			nRuleLen = len(acRuleIds)
-			
-			for j = 1 to nRuleLen
-				oRule = @aRules[acRuleIds[j]]
-				
-				# Filter by type if specified
-				if pcType != ""
-					cRuleType = oRule.RuleType()
-					if lower(pcType) != cRuleType
-						loop
-					ok
-				ok
-				
-				# Special handling for pathexists condition
-				if oRule.ConditionType() = :pathexists
-					aParams = oRule.ConditionParams()
-					if This.PathExists(aParams[1], aParams[2])
-						This._ApplyEffects(oRule, "node", cNodeId)
-					ok
-				else
-					if oRule.Matches(aContext)
-						This._ApplyEffects(oRule, "node", cNodeId)
-					ok
-				ok
-			end
-			
-			if HasKey(aNode, "properties")
-				@aNodesAffectedByRules[cNodeId] = aNode["properties"]
-			ok
-		end
-		
-		# Same for edges
-		aEdges = This.Edges()
-		nLen = len(aEdges)
-		
-		for i = 1 to nLen
-			aEdge = aEdges[i]
-			cEdgeKey = aEdge["from"] + "->" + aEdge["to"]
-			aContext = This._BuildRuleContext(aEdge)
-			
-			acRuleIds = keys(@aRules)
-			nRuleLen = len(acRuleIds)
-			
-			for j = 1 to nRuleLen
-				oRule = @aRules[acRuleIds[j]]
-				
-				if pcType != ""
-					cRuleType = oRule.RuleType()
-					if lower(pcType) != cRuleType
-						loop
-					ok
-				ok
-				
-				# Special handling for pathexists condition
-				if oRule.ConditionType() = :pathexists
-					aParams = oRule.ConditionParams()
-					if This.PathExists(aParams[1], aParams[2])
-						This._ApplyEffects(oRule, "edge", [aEdge["from"], aEdge["to"]])
-					ok
-				else
-					if oRule.Matches(aContext)
-						This._ApplyEffects(oRule, "edge", [aEdge["from"], aEdge["to"]])
-					ok
-				ok
-			end
-			
-			if HasKey(aEdge, "properties")
-				@aEdgesAffectedByRules[cEdgeKey] = aEdge["properties"]
-			ok
-		end
+		switch lower(pcType)
+		on "inference"
+			This.ApplyInference()
+
+		on "validation"
+			This.ApplyValidation()
+
+		on "visual"
+			This.ApplyVisualRules()
+
+		on "constraint"
+			This.CheckConstraints()
+		off
 	
+	def ApplyValidation()
+		if @oRuleEngine = NULL
+			return
+		ok
+		
+		aoRules = @oRuleEngine.CollectRules("validation", "")
+		
+		# Apply rules in multiple passes to handle chaining
+		nMaxPasses = 3
+		nPass = 1
+		
+		while nPass <= nMaxPasses
+			bChanges = FALSE
+			
+			for oRule in aoRules
+				oRule.SetGraph(This)
+				
+				# Track nodes before applying
+				aNodesBefore = []
+				for aNode in This.Nodes()
+					aNodesBefore + [aNode["id"], aNode["properties"]]
+				end
+				
+				aResult = oRule.Apply(This, "validation")
+				
+				# Check if any changes occurred
+				nIdx = 1
+				for aNode in This.Nodes()
+					if aNode["properties"] != aNodesBefore[nIdx][2]
+						bChanges = TRUE
+					ok
+					nIdx++
+				end
+				
+				if aResult[:status] = "fail" or len(aResult[:affectedNodes]) > 0
+					# Track affected nodes
+					for cNodeId in aResult[:affectedNodes]
+						if NOT HasKey(@aNodesAffectedByRules, cNodeId)
+							@aNodesAffectedByRules[cNodeId] = This.Node(cNodeId)["properties"]
+						ok
+					end
+				ok
+			end
+			
+			if NOT bChanges
+				exit
+			ok
+			
+			nPass++
+		end
+
+	def ApplyVisualRules()
+		if @oRuleEngine = NULL
+			return
+		ok
+		@oRuleEngine.ApplyVisualRules()
+
 	def _ApplyEffects(oRule, cElementType, pElementId)
 		aEffects = oRule.Effects()
 		nLen = len(aEffects)
@@ -2219,136 +2229,113 @@ class stzGraph
 	#-------------#
 
 	def ApplyInference()
-	        if @oRuleEngine != NULL
-	            return @oRuleEngine.ApplyInference()
-	        ok
-	        return 0
+	    if @oRuleEngine = NULL
+	        @oRuleEngine = new stzGraphRuleEngine(This)
+	        @oRuleEngine.AddRuleBase("graph")
+	    ok
+	    
+	    @oRuleEngine.@oGraph = This
+	    
+	    return @oRuleEngine.ApplyInference()
+
 
 	def AddInferenceRule(pcRuleType)
-		if NOT HasKey(@aProperties, pcRuleType)
-			@aProperties = []
-		ok
-		
 		cType = upper(pcRuleType)
 		
-		aRule = [
-			:type = cType,
-			:inferredEdges = []
-		]
-		
-		if NOT HasKey(@aProperties, :InferenceRules)
-			@aProperties + ["inferenceRules", []]
-		ok
-		
-		@aProperties[:InferenceRules] + aRule
-
-
+		switch cType
+		on "TRANSITIVITY"
+			oRule = new stzGraphRule("transitivity_infer")
+			oRule.SetRuleType("inference")
+			oRule.SetGraph(This)
+			# Rule will be applied during ApplyInference
+			This.SetRule(oRule)
+			
+		on "SYMMETRY"
+			oRule = new stzGraphRule("symmetry_infer")
+			oRule.SetRuleType("inference")
+			oRule.SetGraph(This)
+			This.SetRule(oRule)
+			
+		on "COMPOSITION"
+			oRule = new stzGraphRule("composition_infer")
+			oRule.SetRuleType("inference")
+			oRule.SetGraph(This)
+			This.SetRule(oRule)
+		off
+	
 	def _ApplyTransitivity(paRule)
 		nInferred = 0
-		nEdgeLen = len(@acEdges)
 		acNewEdges = []
+		nEdgeLen = len(@aEdges)
 		
+		# Find transitive paths
 		for i = 1 to nEdgeLen
-			aEdge1 = @acEdges[i]
-			cMidpoint = aEdge1["to"]
-			
+			aEdge1 = @aEdges[i]
 			for j = 1 to nEdgeLen
-				aEdge2 = @acEdges[j]
-				if aEdge2["from"] = cMidpoint
+				aEdge2 = @aEdges[j]
+				
+				if aEdge1["to"] = aEdge2["from"]
 					cFrom = aEdge1["from"]
 					cTo = aEdge2["to"]
 					
-					if NOT This.EdgeExists(cFrom, cTo)
-						if find(acNewEdges, [cFrom, cTo]) = 0
+					if NOT This.EdgeExists(cFrom, cTo) and cFrom != cTo
+						if ring_find(acNewEdges, [cFrom, cTo]) = 0
 							acNewEdges + [cFrom, cTo]
-							nInferred += 1
+							nInferred++
 						ok
 					ok
 				ok
 			end
 		end
 		
-		nNewLen = len(acNewEdges)
-		for i = 1 to nNewLen
-			aNewEdge = acNewEdges[i]
-			This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred)")
+		# Add inferred edges
+		for aNewEdge in acNewEdges
+			This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred-transitive)")
 		end
 		
 		return nInferred
-
+	
 	def _ApplySymmetry(paRule)
-
-	    _nResult_ = 0
-	    acNewEdges = []
-	    nEdgeLen = len(@acEdges)
-	    
-	    # Only process existing edges (ignore those added during this call)
-	    for i = 1 to nEdgeLen
-	        aEdge = @acEdges[i]
-	        
-	        # Skip already inferred edges
-	        if substr(aEdge["label"], "(inferred") > 0
-	            loop
-	        ok
-	        
-	        cFrom = aEdge["from"]
-	        cTo = aEdge["to"]
-	        
-	        if NOT This.EdgeExists(cTo, cFrom)
-	            if ring_find(acNewEdges, [cTo, cFrom]) = 0
-	                acNewEdges + [cTo, cFrom]
-	                _nResult_ += 1
-	            ok
-	        ok
-	    end
-	    
-	    nNewLen = len(acNewEdges)
-	    for i = 1 to nNewLen
-	        aNewEdge = acNewEdges[i]
-	        This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred-symmetric)")
-	    end
-
-	    return _nResult_
-
-	def _ApplyComposition(paRule)
-		nInferred = 0
+		nResult = 0
 		acNewEdges = []
-		nEdgeLen = len(@acEdges)
+		nEdgeLen = len(@aEdges)
 		
 		for i = 1 to nEdgeLen
-			aEdge1 = @acEdges[i]
-			cMidpoint = aEdge1["to"]
+			aEdge = @aEdges[i]
 			
-			for j = 1 to nEdgeLen
-				aEdge2 = @acEdges[j]
-				if aEdge2["from"] = cMidpoint
-					cFrom = aEdge1["from"]
-					cTo = aEdge2["to"]
-					
-					if NOT This.EdgeExists(cFrom, cTo)
-						if find(acNewEdges, [cFrom, cTo]) = 0
-							acNewEdges + [cFrom, cTo]
-							nInferred += 1
-						ok
-					ok
+			# Skip already inferred
+			if substr(aEdge["label"], "(inferred") > 0
+				loop
+			ok
+			
+			cFrom = aEdge["from"]
+			cTo = aEdge["to"]
+			
+			if NOT This.EdgeExists(cTo, cFrom)
+				if ring_find(acNewEdges, [cTo, cFrom]) = 0
+					acNewEdges + [cTo, cFrom]
+					nResult++
 				ok
-			end
+			ok
 		end
 		
-		nNewLen = len(acNewEdges)
-		for i = 1 to nNewLen
-			aNewEdge = acNewEdges[i]
-			This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred-composed)")
+		for aNewEdge in acNewEdges
+			This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred-symmetric)")
 		end
 		
-		return nInferred
+		return nResult
+	
+	def _ApplyComposition(paRule)
+		# Similar to transitivity
+		return This._ApplyTransitivity(paRule)
+
 
 	def InferredEdges()
 		acInferred = []
-		nEdgeLen = len(@acEdges)
+		nEdgeLen = len(@aEdges)
 		
 		for i = 1 to nEdgeLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if substr(aEdge["label"], "(inferred") > 0
 				acInferred + aEdge
 			ok
@@ -2356,48 +2343,55 @@ class stzGraph
 		
 		return acInferred
 
+	def InferenceReport()
+		if @oRuleEngine = NULL
+			return [
+				[ :status, "No inference engine initialized" ],
+				[ :inferredCount, "0" ]
+			]
+		ok
+		
+		return @oRuleEngine.InferenceReport()
+	
+		def InferReport()
+			return This.InferenceReport()
+
 	#--------------#
 	#  VALIDATION  #
 	#--------------#
 
-	def Validators()
-		return @acValidators
-
-	def SetValidators(pacValidators)
-		@acValidators = pacValidators
-
 	def Validate()
-	        if @oRuleEngine = NULL
-	            return [ :status = "pass", :issues = [] ]
-	        ok
-	        
-	        return @oRuleEngine.Validate("validation")
-	    
+		if @oRuleEngine = NULL
+			@oRuleEngine = new stzGraphRuleEngine(This)
+			@oRuleEngine.AddRuleBase("graph")
+		ok
+		return @oRuleEngine.Validate("validation")
+	
 	def ValidateXT(pValidator)
-	        if isString(pValidator)
-	            return This.ValidateDomain(pValidator)
-	        but isList(pValidator)
-	            aResults = []
-	            for cDomain in pValidator
-	                aResults + This.ValidateDomain(cDomain)
-	            end
-	            return This._AggregateMultiResults(aResults)
-	        ok
-	    
+		if isString(pValidator)
+			return This.ValidateDomain(pValidator)
+		but isList(pValidator)
+			aResults = []
+			for cDomain in pValidator
+				aResults + This.ValidateDomain(cDomain)
+			end
+			return This._AggregateMultiResults(aResults)
+		ok
+	
 	def ValidateDomain(pcDomain)
-	        if @oRuleEngine = NULL
-	            return [ :status = "pass", :domain = pcDomain, :issues = [] ]
-	        ok
-	        
-	        return @oRuleEngine.ValidateDomain(lower(pcDomain))
-	    
+		if @oRuleEngine = NULL
+			@oRuleEngine = new stzGraphRuleEngine(This)
+		ok
+		return @oRuleEngine.ValidateDomain(pcDomain)
+	
 	def IsValid()
-	        aResult = This.Validate()
-	        return aResult[:status] = "pass"
-	    
+		aResult = This.Validate()
+		return aResult[:status] = "pass"
+	
 	def IsValidXT(pValidator)
-	        aResult = This.ValidateXT(pValidator)
-	        return aResult[:status] = "pass"
+		aResult = This.ValidateXT(pValidator)
+		return aResult[:status] = "pass"
+
 
 	def _ValidateSingle(pcValidator)
 		switch lower(pcValidator)
@@ -2491,6 +2485,32 @@ class stzGraph
 			:issueCount = len(aIssues),
 			:issues = aIssues,
 			:affectedNodes = acAffected
+		]
+
+	def _AggregateMultiResults(paResults)
+		if len(paResults) = 0
+			return [ :status = "pass", :issues = [] ]
+		ok
+		
+		nTotalIssues = 0
+		acAllIssues = []
+		
+		for aResult in paResults
+			if HasKey(aResult, :issueCount)
+				nTotalIssues += aResult[:issueCount]
+			ok
+			if HasKey(aResult, :issues)
+				for cIssue in aResult[:issues]
+					acAllIssues + cIssue
+				end
+			ok
+		end
+		
+		return [
+			:status = iif(nTotalIssues = 0, "pass", "fail"),
+			:issueCount = nTotalIssues,
+			:issues = acAllIssues,
+			:results = paResults
 		]
 
 	#--------------------#
@@ -2677,10 +2697,10 @@ class stzGraph
 
 	def _FindEdgesByLabel(pcLabel)
 		acFound = []
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			if aEdge["label"] = pcLabel
 				acFound + aEdge
 			ok
@@ -2849,9 +2869,9 @@ class stzGraph
 		end
 		
 		# Clear edge properties
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			@acEdges[i]["properties"] = []
+			@aEdges[i]["properties"] = []
 		end
 	
 		def ClearAllProperties()
@@ -3134,7 +3154,7 @@ class stzGraph
 		return [
 			:id = @cId,
 			:nodes = @aNodes,
-			:edges = @acEdges,
+			:edges = @aEdges,
 			:properties = This.Properties()
 		]
 
@@ -3161,9 +3181,9 @@ class stzGraph
 		cDOT += nl
 		
 		# Export edges
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			cFrom = aEdge["from"]
 			cTo = aEdge["to"]
 			cLabel = aEdge["label"]
@@ -3223,9 +3243,9 @@ class stzGraph
 		end
 		
 		# Process edges and remove @ prefix
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			cFrom = aEdge["from"]
 			cTo = aEdge["to"]
 			if substr(cFrom, 1, 1) = "@"
@@ -3270,7 +3290,7 @@ class stzGraph
 		cJSON += '  ],' + nl
 		cJSON += '  "metrics": ' + @ToJSON([
 			:nodeCount = len(@aNodes),
-			:edgeCount = len(@acEdges),
+			:edgeCount = len(@aEdges),
 			:density = This.NodeDensity(),
 			:longestPath = This.LongestPath(),
 			:hasCycles = This.CyclicDependencies()
@@ -3312,9 +3332,9 @@ class stzGraph
 		end
 		
 		cYAML += nl + "edges:" + nl
-		nLen = len(@acEdges)
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aEdge = @acEdges[i]
+			aEdge = @aEdges[i]
 			cFrom = aEdge["from"]
 			cTo = aEdge["to"]
 			
@@ -3767,7 +3787,7 @@ class stzGraph
 		cGraf += NL
 		
 		cGraf += 'edges' + NL
-		for aEdge in @acEdges
+		for aEdge in @aEdges
 			cGraf += '    ' + aEdge["from"] + ' -> ' + aEdge["to"] + NL
 		end
 		cGraf += NL

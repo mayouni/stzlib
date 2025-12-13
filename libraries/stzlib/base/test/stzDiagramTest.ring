@@ -27,7 +27,10 @@ oDiag {
 	View()
 }
 
+#ERR Check why all nodes are gray although color is specified "white"!
+
 pf()
+# Executed in 0.50 second(s) in Ring 1.24
 
 /*--- Node forms
 
@@ -74,7 +77,7 @@ oDiag {
 pf()
 
 /*--- Using direct names of forms to create nodes
-
+*/
 pr()
 
 oDiag = new stzDiagram("")
@@ -2670,7 +2673,7 @@ oDiag.ImportDiag(cImported)
 ? oDiag.EdgeCount()
 #--> 2
 
-? oDiag.View()
+? oDiag.View() #ERR // Colors are not displayed
 
 pf()
 #--> Executed in 0.05 second(s) in Ring 1.24
@@ -3552,8 +3555,8 @@ pf()
 #  TESTING VALIDATION SYSTEM  #
 #-----------------------------#
 
-/*---
-*/
+/*--- #ERR
+
 pr()
 
 # Test unified validation system at stzDiagram level

@@ -1032,14 +1032,14 @@ def RangeInfo(pStart, pEnd)
 	next
 	
 	aResult = [
-		[ "startDate", cStart],
-		[ "endDate", cEnd],
-		[ "totalDays", nTotalDays],
-		[ "workingDays", nWorkingDays],
-		[ "weekendDays", nWeekends],
+		[ "startdate", cStart],
+		[ "enddate", cEnd],
+		[ "totaldays", nTotalDays],
+		[ "workingdays", nWorkingDays],
+		[ "weekenddays", nWeekends],
 		[ "holidays", nHolidays],
-		[ "availableHours", nAvailableHours],
-		[ "overlappingEvents", aOverlappingEvents]
+		[ "availablehours", nAvailableHours],
+		[ "overlappingevents", aOverlappingEvents]
 	]
 	
 	return aResult
@@ -1336,9 +1336,9 @@ def RangeInfo(pStart, pEnd)
 		
 		aResult = [
 			[ "date", cDate],
-			[ "isWorkingDay", This.IsWorkingDay(cDate)],
-			[ "isHoliday", This.IsHoliday(cDate)],
-			[ "availableHours", This.AvailableHoursOnN(cDate)]
+			[ "isworkingday", This.IsWorkingDay(cDate)],
+			[ "isholiday", This.IsHoliday(cDate)],
+			[ "availablehours", This.AvailableHoursOnN(cDate)]
 		]
 		
 		return aResult
@@ -1794,116 +1794,116 @@ def CompareWith(oOtherCal)
 	 #  CACHE INVALIDATION  #
 	#----------------------#
 
-def InvalidateCache()
-	@nCachedAvailableHours = -1
-	@nCachedAvailableDays = -1
-	@cCachedStart = ""
-	@cCachedEnd = ""
+	def InvalidateCache()
+		@nCachedAvailableHours = -1
+		@nCachedAvailableDays = -1
+		@cCachedStart = ""
+		@cCachedEnd = ""
 
 
 	  #------------------#
 	 #  EXPORT METHODS  #
 	#------------------#
 
-def ToHash()
-	aHash = [
-		[:startDate, @cStartDate],
-		[:endDate, @cEndDate],
-		[:year, @nYear],
-		[:month, @nMonth],
-		[:quarter, @cQuarter],
-		[:totalDays, This.TotalDays()],
-		[:workingDays, This.AvailableDaysN()],
-		[:availableHours, This.AvailableHoursN()],
-		[:workingDaysList, @aWorkingDays],
-		[:holidays, @aHolidays],
-		[:breaks, @aBreaks],
-		[:businessStart, @cBusinessStart],
-		[:businessEnd, @cBusinessEnd]
-	]
-	return aHash
-
-def ToJSON()
-	aHash = This.ToHash()
-	cJSON = "{"
-	nLen = len(aHash)
+	def ToHash()
+		aHash = [
+			[:startDate, @cStartDate],
+			[:endDate, @cEndDate],
+			[:year, @nYear],
+			[:month, @nMonth],
+			[:quarter, @cQuarter],
+			[:totalDays, This.TotalDays()],
+			[:workingDays, This.AvailableDaysN()],
+			[:availableHours, This.AvailableHoursN()],
+			[:workingDaysList, @aWorkingDays],
+			[:holidays, @aHolidays],
+			[:breaks, @aBreaks],
+			[:businessStart, @cBusinessStart],
+			[:businessEnd, @cBusinessEnd]
+		]
+		return aHash
 	
-	for i = 1 to nLen
-		cKey = "" + aHash[i][1]
-		cValue = aHash[i][2]
+	def ToJSON()
+		aHash = This.ToHash()
+		cJSON = "{"
+		nLen = len(aHash)
 		
-		cJSON += nl + '"' + cKey + '": '
+		for i = 1 to nLen
+			cKey = "" + aHash[i][1]
+			cValue = aHash[i][2]
+			
+			cJSON += nl + '"' + cKey + '": '
+			
+			if isString(cValue)
+				cJSON += '"' + cValue + '"'
+			but isNumber(cValue)
+				cJSON += "" + cValue
+			but isList(cValue)
+				cJSON += _listToJSON(cValue)
+			else
+				cJSON += '""'
+			ok
+			
+			if i < nLen
+				cJSON += ","
+			ok
+		next
 		
-		if isString(cValue)
-			cJSON += '"' + cValue + '"'
-		but isNumber(cValue)
-			cJSON += "" + cValue
-		but isList(cValue)
-			cJSON += _listToJSON(cValue)
-		else
-			cJSON += '""'
-		ok
+		cJSON += nl + "}"
+		return cJSON
+	
+	def _listToJSON(aList)
+		cJSON = "["
+		nLen = len(aList)
 		
-		if i < nLen
-			cJSON += ","
-		ok
-	next
-	
-	cJSON += nl + "}"
-	return cJSON
-
-def _listToJSON(aList)
-	cJSON = "["
-	nLen = len(aList)
-	
-	for i = 1 to nLen
-		cItem = aList[i]
+		for i = 1 to nLen
+			cItem = aList[i]
+			
+			if isString(cItem)
+				cJSON += '"' + cItem + '"'
+			but isNumber(cItem)
+				cJSON += "" + cItem
+			but isList(cItem)
+				cJSON += _listToJSON(cItem)
+			ok
+			
+			if i < nLen
+				cJSON += ","
+			ok
+		next
 		
-		if isString(cItem)
-			cJSON += '"' + cItem + '"'
-		but isNumber(cItem)
-			cJSON += "" + cItem
-		but isList(cItem)
-			cJSON += _listToJSON(cItem)
-		ok
+		cJSON += "]"
+		return cJSON
+	
+	def ToCSV()
+		return This.ToCSVXT(DefaultCSVSeperator())
+	
+	def ToCSVXT(cSep)
+	
+		cCSV = "Metric,Value" + nl
 		
-		if i < nLen
-			cJSON += ","
-		ok
-	next
-	
-	cJSON += "]"
-	return cJSON
-
-def ToCSV()
-	return This.ToCSVXT(DefaultCSVSeperator())
-
-def ToCSVXT(cSep)
-
-	cCSV = "Metric,Value" + nl
-	
-	cCSV += "Start Date" + cSep + @cStartDate + nl
-	cCSV += "End Date" + cSep + @cEndDate + nl
-	cCSV += "Year" + cSep + @nYear + nl
-	cCSV += "Month" + cSep + @nMonth + nl
-	cCSV += "Quarter" + cSep + @cQuarter + nl
-	cCSV += "Total Days" + cSep + This.TotalDays() + nl
-	cCSV += "Working Days" + cSep + This.AvailableDaysN() + nl
-	cCSV += "Available Hours" + cSep + This.AvailableHoursN() + nl
-	cCSV += "Business Start" + cSep + @cBusinessStart + nl
-	cCSV += "Business End" + cSep + @cBusinessEnd + nl
-	
-	nLen = len(@aHolidays)
-	for i = 1 to nLen
-		cCSV += "Holiday" + cSep + @aHolidays[i][1] + cSep + @aHolidays[i][2] + nl
-	next
-	
-	nLen = len(@aBreaks)
-	for i = 1 to nLen
-		cCSV += "Break" + cSep + @aBreaks[i][1] + cSep + @aBreaks[i][2] + cSep + @aBreaks[i][3] + nl
-	next
-	
-	return cCSV
+		cCSV += "Start Date" + cSep + @cStartDate + nl
+		cCSV += "End Date" + cSep + @cEndDate + nl
+		cCSV += "Year" + cSep + @nYear + nl
+		cCSV += "Month" + cSep + @nMonth + nl
+		cCSV += "Quarter" + cSep + @cQuarter + nl
+		cCSV += "Total Days" + cSep + This.TotalDays() + nl
+		cCSV += "Working Days" + cSep + This.AvailableDaysN() + nl
+		cCSV += "Available Hours" + cSep + This.AvailableHoursN() + nl
+		cCSV += "Business Start" + cSep + @cBusinessStart + nl
+		cCSV += "Business End" + cSep + @cBusinessEnd + nl
+		
+		nLen = len(@aHolidays)
+		for i = 1 to nLen
+			cCSV += "Holiday" + cSep + @aHolidays[i][1] + cSep + @aHolidays[i][2] + nl
+		next
+		
+		nLen = len(@aBreaks)
+		for i = 1 to nLen
+			cCSV += "Break" + cSep + @aBreaks[i][1] + cSep + @aBreaks[i][2] + cSep + @aBreaks[i][3] + nl
+		next
+		
+		return cCSV
 
 	  #-----------------------------------------#
 	 #  Visual Display System for stzCalendar  #
@@ -1965,217 +1965,217 @@ def ToCSVXT(cSep)
 
 	# Display Methods
 
-def _drawMonthGrid()
-	cResult = ""
-	
-	if @nMonth = 0
-		return This._drawCompactYear()
-	ok
-	
-	cMonthName = This.MonthName()
-	cResult += RepeatChar(" ", 16) + cMonthName + " " + @nYear + nl
-	
-	aParts = stzStringQ(This.Start()).Split("-")
-	cYear = aParts[1]
-	cMonth = aParts[2]
-	
-	cFirstDay = This.Start()
-	oFirstDay = new stzDate(cFirstDay)
-	nFirstDayOfWeek = oFirstDay.DayOfWeek()
-	nDaysInMonth = This.TotalDays()
-	
-	aTableData = [["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]]
-	
-	nDay = 1
-	while nDay <= nDaysInMonth
-		aWeek = []
-		
-		nStartCol = 1
-		if nDay = 1
-			nStartCol = nFirstDayOfWeek
-		ok
-		
-		for i = 1 to nStartCol - 1
-			aWeek + " "
-		next
-		
-		nCol = nStartCol
-		while nCol <= 7 and nDay <= nDaysInMonth
-			cDate = cYear + "-" + cMonth + "-" + PadLeftXT('' + nDay, 2, "0")
-			cCell = ""
-			cEventSymbol = ""
-			
-			# Check for timeline events
-			if @oTimeline != NULL
-				cEventSymbol = _getTimelineSymbol(cDate)
-			ok
-			
-			if This.IsHoliday(cDate)
-				cCell = "[" + PadLeftXT('' + nDay, 1, " ") + "]"
-			but This.IsWorkingDay(cDate) = FALSE
-				cCell = RepeatChar(@cVizWeekendChar, 2)
-			else
-				cCell = PadLeftXT('' + nDay, 2, " ")
-			ok
-			
-			if cEventSymbol != ""
-				cCell = cEventSymbol + cCell
-			ok
-			
-			aWeek + cCell
-			nCol++
-			nDay++
-		end
-		
-		while len(aWeek) < 7
-			aWeek + " "
-		end
-		
-		aTableData + aWeek
-	end
-	
-	oTable = new stzTable(aTableData)
-	cResult += oTable.ToString()
-	#TODO // Review this solution by adding a configurable ShowXT()
-	# in stzTable (exmple :InterLines = FALSE), because if the
-	# defautl chars used in displaying a stzTable change (become
-	# different from those we use here in this hack), the the result
-	# will be erronous
-
-	cResult = substr(cResult, " │ ", "   ")
-	cResult = substr(cResult, "┬", "─")
-	cResult = substr(cResult, "┼", "─")
-	cResult = substr(cResult, "┴", "─")
-
-	# Drawing the legend
-	cResult += NL + NL + _drawLegend()
-	return cResult
-
-def _drawLegend()
-	cResult = "Legend:" + NL
-
-	aLegend = This.Legend()
-	nLen = len(aLegend)
-
-	for i = 1 to nLen
-		cResult += ("  " + aLegend[i][2] + " = " + Capitalise(aLegend[i][1]) )
-		if i < nLen
-			cResult += NL
-		ok
-	next
-
-	return cResult
-
-def Legend()
-	aResult = []
-
-	if This.ContainsHolidays()
-		aResult + [ "holiday",  @cVizHolidayChar ]
-	ok
-
-	if This.ContainsWeekends()
-		aResult + [ "weekend", @cVizWeekendChar ]
-	ok
-
-	if NOT (isString(@oTimeline) and @oTimeLine = "")
-
-		if This.ContainsTimeLinePoints()
-			aResult + [ "timeline-point", @cVizTimeLineEventChar ]
-		ok
-
-		if This.ContainsTimeLineSpans()
-			aResult + [ "timeline-span", @cVizTimeLineSpanChar ]
-		ok
-	ok
-
-	return aResult
-
-	def LegendQ()
-		return new stzList(This.Legend())
-
-def _getTimelineSymbol(cDate)
-	if @oTimeline = NULL
-		return
-	ok
-
-	aPoints = @oTimeline.Points()
-	aSpans = @oTimeline.Spans()
-	
-	# Check points
-	nLen = len(aPoints)
-	for i = 1 to nLen
-		aParts = stzStringQ(aPoints[i][2]).Split(" ")
-		cPointDate = aParts[1]
-		if cPointDate = cDate
-			return @cVizTimeLineEventChar
-		ok
-	next
-	
-	# Check spans
-	_oDate_ = new stzDate(cDate)
-	nLen = len(aSpans)
-	for i = 1 to nLen
-		cStart = aSpans[i][2]
-		cEnd = aSpans[i][3]
-		
-		aParts = @split(cStart, " ")
-		cStartDate = aParts[1]
-		
-		aParts = @split(cEnd, " ")
-		cEndDate = aParts[1]
-		
-		if _oDate_ >= cStartDate and _oDate_ <= cEndDate
-			return @cVizTimeLineSpanChar
-		ok
-	next
-	
-	return ""
-	
-	def _drawCompactYear()
+	def _drawMonthGrid()
 		cResult = ""
 		
-		if @nYear = 0
-			return "No calendar data to display"
+		if @nMonth = 0
+			return This._drawCompactYear()
 		ok
 		
-		cResult += "                    " + @nYear + " Overview" + nl
-		cResult += nl
+		cMonthName = This.MonthName()
+		cResult += RepeatChar(" ", 16) + cMonthName + " " + @nYear + nl
 		
-		aQuarters = [
-			[1, 3, "Q1"],
-			[4, 6, "Q2"],
-			[7, 9, "Q3"],
-			[10, 12, "Q4"]
-		]
+		aParts = stzStringQ(This.Start()).Split("-")
+		cYear = aParts[1]
+		cMonth = aParts[2]
 		
-		nLen = len(aQuarters)
-		for i = 1 to nLen
-			nStartMonth = aQuarters[i][1]
-			nEndMonth = aQuarters[i][2]
-			cQuarter = aQuarters[i][3]
+		cFirstDay = This.Start()
+		oFirstDay = new stzDate(cFirstDay)
+		nFirstDayOfWeek = oFirstDay.DayOfWeek()
+		nDaysInMonth = This.TotalDays()
+		
+		aTableData = [["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]]
+		
+		nDay = 1
+		while nDay <= nDaysInMonth
+			aWeek = []
 			
-			cResult += cQuarter + " Months: "
+			nStartCol = 1
+			if nDay = 1
+				nStartCol = nFirstDayOfWeek
+			ok
 			
-			for nMonth = nStartMonth to nEndMonth
-				oCalTemp = new stzCalendar([@nYear, nMonth])
-				# Transfer constraints from parent to temp
-				oCalTemp.@aWorkingDays = This.@aWorkingDays
-				oCalTemp.@aHolidays = This.@aHolidays
-				oCalTemp.@aBreaks = This.@aBreaks
-				oCalTemp.@cBusinessStart = This.@cBusinessStart
-				oCalTemp.@cBusinessEnd = This.@cBusinessEnd
-				
-				nDays = oCalTemp.AvailableDays()
-				nHours = oCalTemp.AvailableHours()
-				
-				cMonthName = oCalTemp.MonthName()
-				cResult += cMonthName + "(" + nDays + "d/" + nHours + "h) "
+			for i = 1 to nStartCol - 1
+				aWeek + " "
 			next
 			
-			cResult += nl
+			nCol = nStartCol
+			while nCol <= 7 and nDay <= nDaysInMonth
+				cDate = cYear + "-" + cMonth + "-" + PadLeftXT('' + nDay, 2, "0")
+				cCell = ""
+				cEventSymbol = ""
+				
+				# Check for timeline events
+				if @oTimeline != NULL
+					cEventSymbol = _getTimelineSymbol(cDate)
+				ok
+				
+				if This.IsHoliday(cDate)
+					cCell = "[" + PadLeftXT('' + nDay, 1, " ") + "]"
+				but This.IsWorkingDay(cDate) = FALSE
+					cCell = RepeatChar(@cVizWeekendChar, 2)
+				else
+					cCell = PadLeftXT('' + nDay, 2, " ")
+				ok
+				
+				if cEventSymbol != ""
+					cCell = cEventSymbol + cCell
+				ok
+				
+				aWeek + cCell
+				nCol++
+				nDay++
+			end
+			
+			while len(aWeek) < 7
+				aWeek + " "
+			end
+			
+			aTableData + aWeek
+		end
+		
+		oTable = new stzTable(aTableData)
+		cResult += oTable.ToString()
+		#TODO // Review this solution by adding a configurable ShowXT()
+		# in stzTable (exmple :InterLines = FALSE), because if the
+		# defautl chars used in displaying a stzTable change (become
+		# different from those we use here in this hack), the the result
+		# will be erronous
+	
+		cResult = substr(cResult, " │ ", "   ")
+		cResult = substr(cResult, "┬", "─")
+		cResult = substr(cResult, "┼", "─")
+		cResult = substr(cResult, "┴", "─")
+	
+		# Drawing the legend
+		cResult += NL + NL + _drawLegend()
+		return cResult
+	
+	def _drawLegend()
+		cResult = "Legend:" + NL
+	
+		aLegend = This.Legend()
+		nLen = len(aLegend)
+	
+		for i = 1 to nLen
+			cResult += ("  " + aLegend[i][2] + " = " + Capitalise(aLegend[i][1]) )
+			if i < nLen
+				cResult += NL
+			ok
+		next
+	
+		return cResult
+	
+	def Legend()
+		aResult = []
+	
+		if This.ContainsHolidays()
+			aResult + [ "holiday",  @cVizHolidayChar ]
+		ok
+	
+		if This.ContainsWeekends()
+			aResult + [ "weekend", @cVizWeekendChar ]
+		ok
+	
+		if NOT (isString(@oTimeline) and @oTimeLine = "")
+	
+			if This.ContainsTimeLinePoints()
+				aResult + [ "timeline-point", @cVizTimeLineEventChar ]
+			ok
+	
+			if This.ContainsTimeLineSpans()
+				aResult + [ "timeline-span", @cVizTimeLineSpanChar ]
+			ok
+		ok
+	
+		return aResult
+	
+		def LegendQ()
+			return new stzList(This.Legend())
+	
+	def _getTimelineSymbol(cDate)
+		if @oTimeline = NULL
+			return
+		ok
+	
+		aPoints = @oTimeline.Points()
+		aSpans = @oTimeline.Spans()
+		
+		# Check points
+		nLen = len(aPoints)
+		for i = 1 to nLen
+			aParts = stzStringQ(aPoints[i][2]).Split(" ")
+			cPointDate = aParts[1]
+			if cPointDate = cDate
+				return @cVizTimeLineEventChar
+			ok
 		next
 		
-		return cResult
+		# Check spans
+		_oDate_ = new stzDate(cDate)
+		nLen = len(aSpans)
+		for i = 1 to nLen
+			cStart = aSpans[i][2]
+			cEnd = aSpans[i][3]
+			
+			aParts = @split(cStart, " ")
+			cStartDate = aParts[1]
+			
+			aParts = @split(cEnd, " ")
+			cEndDate = aParts[1]
+			
+			if _oDate_ >= cStartDate and _oDate_ <= cEndDate
+				return @cVizTimeLineSpanChar
+			ok
+		next
+		
+		return ""
+		
+		def _drawCompactYear()
+			cResult = ""
+			
+			if @nYear = 0
+				return "No calendar data to display"
+			ok
+			
+			cResult += "                    " + @nYear + " Overview" + nl
+			cResult += nl
+			
+			aQuarters = [
+				[1, 3, "Q1"],
+				[4, 6, "Q2"],
+				[7, 9, "Q3"],
+				[10, 12, "Q4"]
+			]
+			
+			nLen = len(aQuarters)
+			for i = 1 to nLen
+				nStartMonth = aQuarters[i][1]
+				nEndMonth = aQuarters[i][2]
+				cQuarter = aQuarters[i][3]
+				
+				cResult += cQuarter + " Months: "
+				
+				for nMonth = nStartMonth to nEndMonth
+					oCalTemp = new stzCalendar([@nYear, nMonth])
+					# Transfer constraints from parent to temp
+					oCalTemp.@aWorkingDays = This.@aWorkingDays
+					oCalTemp.@aHolidays = This.@aHolidays
+					oCalTemp.@aBreaks = This.@aBreaks
+					oCalTemp.@cBusinessStart = This.@cBusinessStart
+					oCalTemp.@cBusinessEnd = This.@cBusinessEnd
+					
+					nDays = oCalTemp.AvailableDays()
+					nHours = oCalTemp.AvailableHours()
+					
+					cMonthName = oCalTemp.MonthName()
+					cResult += cMonthName + "(" + nDays + "d/" + nHours + "h) "
+				next
+				
+				cResult += nl
+			next
+			
+			return cResult
 
 
 	def _buildCalendarTable()

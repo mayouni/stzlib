@@ -1,16 +1,49 @@
 
 load "../stzbase.ring"
 
+/*---
+
 pr()
 
+#TODO // This is a special case we should manage
 StzCalendarQ([1528, 10 ]).Show()
+#-->
+'
+                October 1528
+╭─────────────────────────────────────────╮
+│ Mon   Tue   Wed   Thu   Fri   Sat   Sun │
+├─────────────────────────────────────────┤
+│  1     2     3     4     5    ░░    ░░  │
+│  8     9     10    11    12   ░░    ░░  │
+│  15    16    17    18    19   ░░    ░░  │
+│  22    23    24    25    26   ░░    ░░  │
+│  29    30    31                         │
+╰─────────────────────────────────────────╯
+
+Legend:
+  ░ = Weekend
+
+╭───────────────────────┬─────────────────────╮
+│        Metric         │        Value        │
+├───────────────────────┼─────────────────────┤
+│ Total Days            │                  31 │
+│ Working Days          │                  23 │
+│ Weekend Days          │                   8 │
+│ Holidays              │                   0 │
+│ Total Available Hours │                 184 │
+│ Average Hours Per Day │                   8 │
+│ First Working Day     │ 1528-10-01          │
+│ Last Working Day      │ 1528-10-31          │
+│ Business Hours        │ 09:00:00 - 17:00:00 │
+╰───────────────────────┴─────────────────────╯
+'
 
 pf()
 
 /*----------------------------------------#
 #  Test 1: Basic calendar creation        #
 #-----------------------------------------#
-*
+
 pr()
 
 oCal = new stzCalendar([2024, 10])
@@ -149,7 +182,7 @@ oCal {
     #--> 7
 
     ? AvailableHoursBetweenN("2024-10-01", "2024-10-15")
-    #--> 7
+    #--> 77
 
 }
 
@@ -201,9 +234,9 @@ oCal {
 	'
 	[
 		[ "date", "2024-10-03" ],
-		[ "isWorkingDay", 1 ],
-		[ "isHoliday", 0 ],
-		[ "availableHours", 7 ]
+		[ "isWorkingday", 1 ],
+		[ "isholiday", 0 ],
+		[ "availablehours", 7 ]
 	]
 	'
 
@@ -211,14 +244,14 @@ oCal {
     #-->
 	'
 	[
-		[ "startDate", "2024-10-01" ],
-		[ "endDate", "2024-10-15" ],
-		[ "totalDays", 15 ],
-		[ "workingDays", 11 ],
-		[ "weekendDays", 4 ],
+		[ "startdate", "2024-10-01" ],
+		[ "enddate", "2024-10-15" ],
+		[ "totaldays", 15 ],
+		[ "workingdays", 11 ],
+		[ "weekenddays", 4 ],
 		[ "holidays", 0 ],
-		[ "availableHours", 77 ],
-		[ "overlappingEvents", [  ] ]
+		[ "availablehours", 77 ],
+		[ "overlappingevents", [  ] ]
 	]
 	'
 
@@ -686,7 +719,7 @@ oCal {
 '
 
 pf()
-# Executed in 0.22 second(s) in Ring 1.24
+# Executed in 0.20 second(s) in Ring 1.24
 
 /*----------------------------#
 #  Multi-calendar Comparsion  #
@@ -712,7 +745,7 @@ oCal2 = new stzCalendar([ 2029, 2 ])
 '
 
 pf()
-# Executed in 0.31 second(s) in Ring 1.24
+# Executed in 0.28 second(s) in Ring 1.24
 
 /*-----------------------#
 #  TimeLine Integration  #
@@ -793,7 +826,7 @@ pf()
 /*---------------------------------------#
 #  Real world example : sprint planning  #
 #----------------------------------------#
-
+*/
 pr()
 
 oCal = new stzCalendar([2024, 10])
