@@ -81,7 +81,7 @@ class stzGraphRule
 				@cConditionType = :propertycontains
 				@aConditionParams = [pcKey, pValue]
 				
-			but cOp = "insection"
+			but cOp = "insection" or cOp = "between"
 				@cConditionType = :propertyinsection
 				@aConditionParams = [pcKey, pValue[1], pValue[2]]
 				
@@ -120,18 +120,30 @@ class stzGraphRule
 		ok
 	
 	def WhenTag(pcTag, pcCondition)
+
 		if lower(pcCondition) = "exists"
 			@cConditionType = :tagexists
 			@aConditionParams = [pcTag]
+
 		but lower(pcCondition) = "notexists"
 			@cConditionType = :tagnotexists
 			@aConditionParams = [pcTag]
 		ok
 
+	def WhenTagExists(pcTag)
+		return This.WhenTag(pcTag, "exists")
+	
+	def SetProperty(pcProperty, pValue)
+		@aEffects + [:set, pcProperty, pValue]
+		return This
+
 	def WhenGraph(pcProperty, pcCondition)
 		@cConditionType = :graphproperty
 		@aConditionParams = [pcProperty, pcCondition]
 	
+	def WhenGraphExists(pcProperty)
+		return This.WhenGraph(pcProperty, "exists")
+
 	#----------#
 	#  EFFECTS #
 	#----------#
