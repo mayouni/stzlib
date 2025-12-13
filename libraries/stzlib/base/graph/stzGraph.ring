@@ -1864,57 +1864,20 @@ class stzGraph
 		on "constraint"
 			This.CheckConstraints()
 		off
-	
+
 	def ApplyValidation()
 		if @oRuleEngine = NULL
 			return
 		ok
 		
 		aoRules = @oRuleEngine.CollectRules("validation", "")
-		
-		# Apply rules in multiple passes to handle chaining
-		nMaxPasses = 3
-		nPass = 1
-		
-		while nPass <= nMaxPasses
-			bChanges = FALSE
-			
-			for oRule in aoRules
-				oRule.SetGraph(This)
-				
-				# Track nodes before applying
-				aNodesBefore = []
-				for aNode in This.Nodes()
-					aNodesBefore + [aNode["id"], aNode["properties"]]
-				end
-				
-				aResult = oRule.Apply(This, "validation")
-				
-				# Check if any changes occurred
-				nIdx = 1
-				for aNode in This.Nodes()
-					if aNode["properties"] != aNodesBefore[nIdx][2]
-						bChanges = TRUE
-					ok
-					nIdx++
-				end
-				
-				if aResult[:status] = "fail" or len(aResult[:affectedNodes]) > 0
-					# Track affected nodes
-					for cNodeId in aResult[:affectedNodes]
-						if NOT HasKey(@aNodesAffectedByRules, cNodeId)
-							@aNodesAffectedByRules[cNodeId] = This.Node(cNodeId)["properties"]
-						ok
-					end
-				ok
-			end
-			
-			if NOT bChanges
-				exit
-			ok
-			
-			nPass++
+		nLen = len(aoRules)
+	
+		for i = 1 to nLen
+			aoRules[i].SetGraph(This)
+			aoRules[i].Apply(This, "validation")
 		end
+
 
 	def ApplyVisualRules()
 		if @oRuleEngine = NULL
@@ -2235,8 +2198,12 @@ class stzGraph
 	    ok
 	    
 	    @oRuleEngine.@oGraph = This
+	    nResult = @oRuleEngine.ApplyInference()
 	    
-	    return @oRuleEngine.ApplyInference()
+	    # Force sync edges back from engine's graph
+	    @aEdges = @oRuleEngine.@oGraph.@aEdges
+	    
+	    return nResult
 
 
 	def AddInferenceRule(pcRuleType)

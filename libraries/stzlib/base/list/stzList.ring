@@ -83413,9 +83413,29 @@ fdef
 			return 0
 		ok
 
+	def IsToOrToNodeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  ring_find([ "to", "tonode" ], This.Item(1)) )
+
+			return 1
+
+		else
+			return 0
+		ok
+
 	def IsFromNodeNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromNode )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+	def IsFromOrFromNodeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  ring_find([ "from", "fromnode" ], This.Item(1)) )
 
 			return 1
 
