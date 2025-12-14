@@ -625,15 +625,16 @@ class stzGraphRuleBase
 		@cAuthor = pcAuthor
 	
 	def AddRule(oRule)
-		if oRule.Domain() = ""
-			oRule.SetDomain(@cDomain)
-		ok
-		
-		if oRule.Level() = "graph"
-			oRule.SetLevel(@cLevel)
-		ok
-		
-		@aoRules + oRule
+	    
+	    if oRule.Domain() = ""
+	        oRule.SetDomain(@cDomain)
+	    ok
+	    
+	    if oRule.Level() = "graph"
+	        oRule.SetLevel(@cLevel)
+	    ok
+	    
+	    @aoRules + oRule
 	
 	def RemoveRule(pcRuleId)
 		aNew = []
