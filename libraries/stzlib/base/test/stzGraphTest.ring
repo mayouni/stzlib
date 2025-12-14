@@ -792,7 +792,7 @@ pf()
 # Executed in 0.03 second(s) in Ring 1.2
 
 /*--- Rule Analysis
-*/
+
 pr()
 
 oGraph = new stzGraph("RuleAnalysisTest")
@@ -1072,7 +1072,7 @@ pf()
 #============================================#
 
 /*--- Graph Explanation
-*/
+
 pr()
 
 oGraph = new stzGraph("ExplainTest")
@@ -1141,7 +1141,7 @@ oGraph {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Find Node Paths
 
@@ -1175,17 +1175,17 @@ pr()
 
 oGraph = new stzGraph("PathMatchTest")
 oGraph {
-	AddNodeXT("n1", "N1")
-	AddNodeXT("n2", "N2")
-	AddNodeXT("n3", "N3")
-	AddNodeXT("n4", "N4")
+	AddNode("n1")
+	AddNode("n2")
+	AddNode("n3")
+	AddNode("n4")
 	
 	Connect("n1", "n2")
 	Connect("n2", "n3")
 	Connect("n3", "n4")
 	Connect("n1", "n4")
 	
-	aPaths = FindPathsMatching(func(acPath) {
+	aPaths = PathsMatchingF( func(acPath) {
 		return len(acPath) >= 3
 	})
 	
@@ -1201,20 +1201,28 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Edge Property Queries
-
+*/
 pr()
 
 oGraph = new stzGraph("EdgePropTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("c", "C")
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
 	
 	AddEdgeXTT("a", "b", "fast", [:speed = 100])
 	AddEdgeXTT("b", "c", "slow", [:speed = 10])
 	
-	? @@( EdgesByProperty("speed", 100) )
-	#--> [["a", "b"]]
+	? @@( EdgesByProp("speed", 100) ) # Or EdgesByProperty
+	#--> [ [ "a", "b" ] ]
+
+	# Or more expressively:
+	? @@( EdgesWhere("speed", :Equals = 100) )
+	#--> [ [ "a", "b" ] ]
+
+	? @@( EdgesWhere("speed", :Between = [ 80, 120 ]) )
+	#--> [ [ "a", "b" ] ]
+
 }
 
 pf()
