@@ -3962,7 +3962,8 @@ class stzGraphExplainer
 			:general = [],
 			:bottlenecks = [],
 			:cycles = [],
-			:metrics = []
+			:metrics = [],
+			:rules = []
 		]
 		
 		acBottlenecks = @oGraph.BottleneckNodes()
@@ -4051,6 +4052,18 @@ class stzGraphExplainer
 			aoExplanation[:metrics] + "Longest path: 1 hop"
 		else
 			aoExplanation[:metrics] + ("Longest path: " + nLongest + " hops")
+		ok
+		
+		# Rules section
+		acRulesApplied = @oGraph.RulesApplied()
+		if len(acRulesApplied) > 0
+			aoExplanation[:rules] + ("Rules applied: " + len(acRulesApplied))
+			nLen = len(acRulesApplied)
+			for i = 1 to nLen
+				aoExplanation[:rules] + ("  - " + acRulesApplied[i])
+			end
+		else
+			aoExplanation[:rules] + "No rules applied"
 		ok
 		
 		return aoExplanation
