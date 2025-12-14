@@ -83348,6 +83348,19 @@ fdef
 			return 0
 		ok
 
+	def IsEqualsOrIsNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  ring_find([ "equals", "is" ], This.Item(1)) )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+		def IsIsOrEqualsNamedParam()
+			return This.IsEqualsOrIsNamedParam()
+
 	#==
 
 	def IsGreaterThanNamedParam()
@@ -83423,6 +83436,9 @@ fdef
 			return 0
 		ok
 
+		def IsToNodeOrToNamedParam()
+			return This.IsToOrToNodeNamedParam()
+
 	def IsFromNodeNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromNode )
@@ -83442,6 +83458,9 @@ fdef
 		else
 			return 0
 		ok
+
+		def IsFromNodeOrFromNamedParam()
+			return This.IsFromOrFromNodeNamedParam()
 
 	def IsToTheseNamedParam()
 		if This.NumberOfItems() = 2 and

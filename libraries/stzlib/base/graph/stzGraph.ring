@@ -2831,10 +2831,26 @@ class stzGraph
 		return acMatchingPaths
 
 		def PathsMatching(pFunc)
-			return This.PathsMatching(pFunc)
+			return This.FindPathsMatching(pFunc)
 
 		def PathsMatchingF(pFunc)
 			return This.PathsMatching(pFunc)
+
+		def FindPathsMatchingF(pFunc)
+			return This.FindPathsMatching(pFunc)
+
+		def PathsMatchingFunc(pFunc)
+			return This.PathsMatching(pFunc)
+
+		def FindPathsMatchingFunc(pFunc)
+			return This.FindPathsMatching(pFunc)
+
+		def PathsMatchingFunction(pFunc)
+			return This.PathsMatching(pFunc)
+
+		def FindPathsMatchingFunction(pFunc)
+			return This.FindPathsMatching(pFunc)
+
 
 	def NodesByType(pType)
 		aFound = []
@@ -2875,12 +2891,14 @@ class stzGraph
 		def NodesByProp(pProperty, pValue)
 			return This.NodesByProperty(pProperty, pValue)
 	
-	def EdgesByProperty(pProperty, pValue)
+	#---
+
+	def EdgesByProperty(pcProperty, pValue)
 		aFound = []
 		for aEdge in This.Edges()
 			if HasKey(aEdge, "properties") and 
-			   HasKey(aEdge["properties"], pProperty) and
-			   aEdge["properties"][pProperty] = pValue
+			   HasKey(aEdge["properties"], pcProperty) and
+			   aEdge["properties"][pcProperty] = pValue
 				aFound + [aEdge["from"], aEdge["to"]]
 			ok
 		end
@@ -2889,6 +2907,46 @@ class stzGraph
 		def EdgesByProp(pProperty, pValue)
 			return This.EdgesByProperty(pProperty, pValue)
 	
+	def EdgesWithPropertyInSection(pcKey, pnMin, pnMax)
+	    acResult = []
+	    aEdges = This.Edges()
+	    nLen = len(aEdges)
+	    
+	    for i = 1 to nLen
+	        aEdge = aEdges[i]
+	        if HasKey(aEdge, "properties") and 
+	           HasKey(aEdge["properties"], pcKey)
+	            nValue = aEdge["properties"][pcKey]
+	            if isNumber(nValue) and nValue >= pnMin and nValue <= pnMax
+	                acResult + [aEdge["from"], aEdge["to"]]
+	            ok
+	        ok
+	    end
+	    
+	    return acResult
+	
+	def EdgesWhere(pcProp, pValue)
+	    if CheckParams()
+	        if isList(pValue)
+	            _oList_ = StzListQ(pValue)
+	
+	            if _oList_.IsInSectionOrBetweenNamedParam() and
+	               isList(pValue[2]) and isNumber(pValue[2][1]) and isNumber(pValue[2][2])
+	                return This.EdgesWithPropertyInSection(pcProp, pValue[2][1], pValue[2][2])
+	
+	            but _oList_.IsEqualsOrIsNamedParam()
+	                pValue = pValue[2]
+	            ok
+	        ok
+	    ok
+	
+	    return This.EdgesByProperty(pcProp, pValue)
+
+		def EdgesW(pcProp, pValue)
+			return This.EdgesWhere(pcProp, pValue)
+
+	#---
+
 	def RemoveNodeProperties(pcNodeId)
 		nLen = len(@aNodes)
 		for i = 1 to nLen
@@ -2934,8 +2992,12 @@ class stzGraph
 	        switch cOperator
 	        on "equals"
 	            return This.NodesWithPropertyValue(pcKey, pValue[2])
+
 	        on "insection"
 	            return This.NodesWithPropertyInSection(pcKey, pValue[2][1], pValue[2][2])
+	        on "between"
+	            return This.NodesWithPropertyInSection(pcKey, pValue[2][1], pValue[2][2])
+
 	        off
 	    ok
 	
