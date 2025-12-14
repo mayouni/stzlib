@@ -1201,7 +1201,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Edge Property Queries
-*/
+
 pr()
 
 oGraph = new stzGraph("EdgePropTest")
@@ -1280,8 +1280,7 @@ oGraph {
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.24
-
+# Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 10: METADATA OPERATIONS
@@ -1322,8 +1321,8 @@ pr()
 
 oGraph = new stzGraph("EdgeMetaTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
+	AddNode("a")
+	AddNode("b")
 	Connect("a", "b")
 	
 	SetEdgeProperties("a", "b", [:bandwidth = 1000, :protocol = "tcp"])
@@ -1332,7 +1331,7 @@ oGraph {
 	#--> [ "bandwidth", "protocol" ]
 
 	? @@( EdgePropsXT("a", "b") ) + NL
-	#--> [:bandwidth = 1000, :protocol = "tcp"]
+	#--> [ [ "bandwidth", 1000 ], [ "protocol", "tcp" ] ]
 	
 	UpdateEdgeProperty("a", "b", "latency", 5)
 	
@@ -1348,6 +1347,7 @@ pf()
 #============================================#
 # TODO review it's implementation in the light of the
 # abstracted stzGraphRule class and other classes
+#UPDATE Done :D
 
 /*--- Built-in Inference
 
@@ -1365,11 +1365,24 @@ oGraph {
 	AddInferenceRule("TRANSITIVITY")
 	
 	nInferred = ApplyInference()
-	? nInferred  #--> 1 	#ERR returned 0
-	? EdgeCount() #--> 3	#ERR returned 2
+	? nInferred
+	#--> 1
+
+	? EdgeCount()
+	#--> 3
 	
-	? @@NL( InferredEdges() ) 	#ERR returned []
-	#--> [[:from = "a", :to = "c", :label = "(inferred)", :properties = []]]
+	? @@NL( InferredEdges() )
+	#-->
+	'
+	[
+		[
+			[ "from", "a" ],
+			[ "to", "c" ],
+			[ "label", "(inferred-transitive)" ],
+			[ "properties", [  ] ]
+		]
+	]
+	'
 }
 
 pf()
@@ -1381,19 +1394,19 @@ pr()
 
 oGraph = new stzGraph("SymmetryTest")
 oGraph {
-	AddNodeXT("x", "X")
-	AddNodeXT("y", "Y")
+	AddNode("x")
+	AddNode("y")
 	
 	AddEdgeXT("x", "y", "connected")
 	
 	AddInferenceRule("SYMMETRY")
 	
-	? ApplyInference() #--> TRUE	#ERR returned FALSE
-	? EdgeExists("y", "x") #--> TRUE	#ERR returned FALSE
+	? ApplyInference() #--> TRUE
+	? EdgeExists("y", "x") #--> TRUE
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 12: CONSTRAINTS & VALIDATION
@@ -1405,9 +1418,9 @@ pr()
 
 oGraph = new stzGraph("AcyclicTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("c", "C")
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
 	
 	Connect("a", "b")
 	Connect("b", "c")
@@ -1469,9 +1482,9 @@ pr()
 
 oGraph = new stzGraph("ConnectedTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("isolated", "Isolated")
+	AddNode("a")
+	AddNode("b")
+	AddNode("isolated")
 	
 	Connect("a", "b")
 	
@@ -1526,16 +1539,27 @@ pr()
 
 oGraph = new stzGraph("EdgeNavTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("c", "C")
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
 	
 	AddEdgeXT("a", "b", "first")
 	AddEdgeXT("b", "c", "second")
 	
-	? FirstEdge()["label"]  #--> "first"
-	? LastEdge()["label"]   #--> "second"
-	? EdgeAt(1)["label"]    #--> "first"
+	? @@NL( FirstEdge() ) + NL # Or NthEdge(n)
+	#-->
+	'
+	[
+		[ "from", "a" ],
+		[ "to", "b" ],
+		[ "label", "first" ],
+		[ "properties", [  ] ]
+	]
+	'
+
+	? FirstEdge()["label"]   #--> "first"
+	? LastEdge()["label"]    #--> "second"
+	? EdgeAt(1)["label"]     #--> "first"
 	? EdgePosition("b", "c") #--> 2
 }
 
@@ -1543,18 +1567,18 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Edge Replacement
-
+*/
 pr()
 
 oGraph = new stzGraph("EdgeReplaceTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("c", "C")
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
 	
 	AddEdgeXT("a", "b", "old")
 	
-	ReplaceThisEdgeXT("a", "b", "b", "c", "new")
+	ReplaceEdgeXT(["a", "b"], :With = ["b", "c"], :Label = "new")
 	
 	? EdgeExists("a", "b") #--> FALSE
 	? EdgeExists("b", "c") #--> TRUE
