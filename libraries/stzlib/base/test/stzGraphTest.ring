@@ -670,7 +670,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Rule Analysis 1
-*/
+
 pr()
 
 oGraph = new stzGraph("RuleAnalysisTest")
@@ -703,31 +703,93 @@ oGraph {
 	ApplyRules()
 	
 	# Check results
-	? "=== Nodes Affected by Rules ==="
+
 	? @@( NodesAffectedByRules() )
 	#--> ["n1", "n2"]
-	
-	? NL + "=== Nodes Affected by 'critical' Rule ==="
+
 	? @@( NodesAffectedByRule("critical") )
 	#--> ["n1"]
 	
-	? NL + "=== Nodes Affected by 'production' Rule ==="
-	? @@( NodesAffectedByRule("production") )
+	? @@( NodesAffectedByRule("production") ) + NL
 	#--> ["n1"]
 	
-	? NL + "=== Rules Applied Summary ==="
-	aInfo = RulesApplied()
-	? "Has Effects: " + aInfo[:hasEffects]
-	? "Summary: " + aInfo[:summary]
-	? "Rules that matched: " + len(aInfo[:rules])
+	# Summary of applied rules
+
+	? @@( RulesApplied() ) + NL
+	#--> [ "critical", "production" ]
+
+	? @@NL( RulesAppliedXT() ) + NL
+	#-->
+	'
+	[
+		[ "haseffects", 1 ],
+		[
+			"summary",
+			"2 rule(s) defined, 2 element(s) affected"
+		],
+		[
+			"rules",
+			[
+				[
+					[ "id", "critical" ],
+					[ "condition", "tagexists" ],
+					[
+						"conditionparams",
+						[ "critical" ]
+					],
+					[
+						"effects",
+						[
+							[ "set", "alert", 1 ]
+						]
+					],
+					[
+						"affectednodes",
+						[ "n1" ]
+					],
+					[ "affectededges", [  ] ],
+					[ "matchcount", 1 ]
+				],
+				[
+					[ "id", "production" ],
+					[ "condition", "propertyequals" ],
+					[
+						"conditionparams",
+						[ "env", "prod" ]
+					],
+					[
+						"effects",
+						[
+							[ "set", "monitor", 1 ]
+						]
+					],
+					[
+						"affectednodes",
+						[ "n1" ]
+					],
+					[ "affectededges", [  ] ],
+					[ "matchcount", 1 ]
+				]
+			]
+		]
+	]
+	'
+
 	
-	? NL + "=== Node Properties After Rules ==="
-? @@NL(NodeXT("n1"))
-	? "n1 alert: " + NodeProperty("n1", "alert")
-	? "n1 monitor: " + NodeProperty("n1", "monitor")
+	# Node Properties After Rules
+
+	? @@( NodePropertiesXT("n1") )
+	#--> [ [ "env", "prod" ], [ "tags", [ "critical" ] ], [ "alert", 1 ], [ "monitor", 1 ] ]
+
+	? @@( NodeProperty("n1", "alert") ) 	#--> TRUE (1)
+	? @@( NodeProperty("n1", "monitor") ) 	#--> TRUE (1) + NL
+	
+	? @@( NodePropertiesXT("n2") )
+	#--> [ [ "env", "test" ] ]
 }
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.2
 
 /*--- Rule Analysis
 */
@@ -762,12 +824,69 @@ oGraph {
 	? @@( NodesAffectedByRule("critical") )
 	#--> ["n1"]
 	
-	aInfo = RulesApplied()
-	? aInfo[:hasEffects] #--> TRUE
-	? aInfo[:summary]    #--> "2 rule(s) defined, 2 element(s) affected"
+	? @@( RulesApplied() )
+	#--> [ "critical", "production" ]
+
+	? @@NL( RulesAppliedXT() )
+	#-->
+	'
+	[
+		[ "haseffects", 1 ],
+		[
+			"summary",
+			"2 rule(s) defined, 2 element(s) affected"
+		],
+		[
+			"rules",
+			[
+				[
+					[ "id", "critical" ],
+					[ "condition", "tagexists" ],
+					[
+						"conditionparams",
+						[ "critical" ]
+					],
+					[
+						"effects",
+						[
+							[ "set", "alert", 1 ]
+						]
+					],
+					[
+						"affectednodes",
+						[ "n1" ]
+					],
+					[ "affectededges", [  ] ],
+					[ "matchcount", 1 ]
+				],
+				[
+					[ "id", "production" ],
+					[ "condition", "propertyequals" ],
+					[
+						"conditionparams",
+						[ "env", "prod" ]
+					],
+					[
+						"effects",
+						[
+							[ "set", "monitor", 1 ]
+						]
+					],
+					[
+						"affectednodes",
+						[ "n1" ]
+					],
+					[ "affectededges", [  ] ],
+					[ "matchcount", 1 ]
+				]
+			]
+		]
+	]
+	'
 }
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 6: EXPORT & VISUALIZATION

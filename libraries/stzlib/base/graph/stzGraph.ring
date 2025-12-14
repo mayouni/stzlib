@@ -932,10 +932,12 @@ class stzGraph
 	    for i = 1 to nLen
 	        if @aNodes[i]["id"] = pNodeId
 	            if NOT HasKey(@aNodes[i], "properties")
-	                @aNodes[i] + ["properties", []]
+	                @aNodes[i]["properties"] = []
 	            ok
 	            @aNodes[i]["properties"][cProperty] = pValue
-	            @aNodes[i] = @aNodes[i]  # Force write-back
+	            # Critical: Force Ring to update the array
+	            aTemp = @aNodes[i]
+	            @aNodes[i] = aTemp
 	            return
 	        ok
 	    end
@@ -1764,36 +1766,37 @@ class stzGraph
 	#------------------------------#
 
 	def SetRule(p)
-		if @oRuleEngine = NULL
-			@oRuleEngine = new stzGraphRuleEngine(This)
-		ok
-		
-		if isString(p)
-			stzraise("Cannot set rule by name - use SetRule(oRuleObject)")
-		ok
-		
-		if isObject(p) and classname(p) = "stzgraphrule"
-			# Store in both locations
-			@aRules[p.Id()] = p
-			
-			# Create or get temp rulebase
-			oTempBase = NULL
-			nLen = len(@oRuleEngine.@aoRuleBases)
-			for i = 1 to nLen
-				if @oRuleEngine.@aoRuleBases[i].Name() = "_user_rules_"
-					oTempBase = @oRuleEngine.@aoRuleBases[i]
-					exit
-				ok
-			end
-			
-			if oTempBase = NULL
-				oTempBase = new stzGraphRuleBase("_user_rules_")
-				@oRuleEngine.AddRuleBase(oTempBase)
-			ok
-			
-			oTempBase.AddRule(p)
-		ok
-
+	    if @oRuleEngine = NULL
+	        @oRuleEngine = new stzGraphRuleEngine(This)
+	    ok
+	    
+	    if isString(p)
+	        stzraise("Cannot set rule by name - use SetRule(oRuleObject)")
+	    ok
+	    
+	    if isObject(p) and classname(p) = "stzgraphrule"
+	        @aRules[p.Id()] = p
+	        
+	        # Find or create _user_rules_ base IN THE ENGINE'S ARRAY
+	        nBaseIdx = 0
+	        nLen = len(@oRuleEngine.@aoRuleBases)
+	        
+	        for i = 1 to nLen
+	            if @oRuleEngine.@aoRuleBases[i].Name() = "_user_rules_"
+	                nBaseIdx = i
+	                exit
+	            ok
+	        end
+	        
+	        if nBaseIdx = 0
+	            oTempBase = new stzGraphRuleBase("_user_rules_")
+	            @oRuleEngine.@aoRuleBases + oTempBase
+	            nBaseIdx = len(@oRuleEngine.@aoRuleBases)
+	        ok
+	        
+	        # Add directly to the array element
+	        @oRuleEngine.@aoRuleBases[nBaseIdx].AddRule(p)
+	    ok
 	
 		def SetRuleObject(oRule)
 			This.SetRule(oRule)
@@ -1888,41 +1891,55 @@ class stzGraph
 			This.CheckConstraints()
 		off
 
-
 	def ApplyValidation()
-		if @oRuleEngine = NULL
-			return
-		ok
-		
-		aoRules = @oRuleEngine.CollectRules("validation", "")
-		nLen = len(aoRules)
-	
-		for i = 1 to nLen
-			oRule = aoRules[i]
-			oRule.SetGraph(This)
-			
-			# Apply to nodes
-			aNodes = This.Nodes()
-			nNodeLen = len(aNodes)
-			for j = 1 to nNodeLen
-				aNode = aNodes[j]
-				aContext = This._BuildRuleContext(aNode)
-				
-				if oRule.Matches(aContext)
-					# Track affected node
-					cNodeId = aNode["id"]
-					if NOT HasKey(@aNodesAffectedByRules, cNodeId)
-						@aNodesAffectedByRules[cNodeId] = []
-					ok
-					@aNodesAffectedByRules[cNodeId] + oRule.Id()
-					
-					# Apply effects
-					This._ApplyEffects(oRule, "node", cNodeId)
-				ok
-			end
-		end
-
-
+	    if @oRuleEngine = NULL
+	        return
+	    ok
+	    
+	    aoRules = @oRuleEngine.CollectRules("validation", "")
+	    
+	    nLen = len(aoRules)
+	    for i = 1 to nLen
+	        oRule = aoRules[i]
+	        oRule.SetGraph(This)
+	        
+	        nNodeLen = len(@aNodes)
+	        
+	        for j = 1 to nNodeLen
+	            aNode = @aNodes[j]
+	            
+	            aContext = This._BuildRuleContext(aNode)
+	            bMatches = oRule.Matches(aContext)
+	            
+	            if bMatches
+	                cNodeId = aNode["id"]
+	                
+	                if NOT HasKey(@aNodesAffectedByRules, cNodeId)
+	                    @aNodesAffectedByRules[cNodeId] = []
+	                ok
+	                @aNodesAffectedByRules[cNodeId] + oRule.Id()
+	                
+	                aEffects = oRule.Effects()
+	                
+	                nEffLen = len(aEffects)
+	                for k = 1 to nEffLen
+	                    aEffect = aEffects[k]
+	                    
+	                    if aEffect[1] = :set
+	                        
+	                        if NOT HasKey(@aNodes[j], "properties")
+	                            @aNodes[j] + ["properties", []]
+	                        ok
+	                        
+	                        @aNodes[j]["properties"][aEffect[2]] = aEffect[3]
+	                        aTemp = @aNodes[j]
+	                        @aNodes[j] = aTemp
+	                        
+	                    ok
+	                end
+	            ok
+	        end
+	    end
 
 	def ApplyVisualRules()
 		if @oRuleEngine = NULL
@@ -1930,70 +1947,40 @@ class stzGraph
 		ok
 		@oRuleEngine.ApplyVisualRules()
 
-/*
+
 	def _ApplyEffects(oRule, cElementType, pElementId)
-		aEffects = oRule.Effects()
-		nLen = len(aEffects)
-		
-		for i = 1 to nLen
-			cAspect = aEffects[i][1]
-			pValue = aEffects[i][2]
-			
-			# Inference effects
-			if cAspect = "addedge"
-				This.AddEdge(pValue[1], pValue[2])
-				loop
-			ok
-			
-			if cAspect = "addproperty"
-				if cElementType = "node"
-					This.SetNodeProperty(pElementId, pValue[1], pValue[2])
-				but cElementType = "edge"
-					This.SetEdgeProperty(pElementId[1], pElementId[2], pValue[1], pValue[2])
-				ok
-				loop
-			ok
-			
-			# Validation effects
-			if cAspect = "isvalid" or cAspect = "violation"
-				if cElementType = "node"
-					This.SetNodeProperty(pElementId, cAspect, pValue)
-				but cElementType = "edge"
-					This.SetEdgeProperty(pElementId[1], pElementId[2], cAspect, pValue)
-				ok
-				loop
-			ok
-			
-			# Generic property setting
-			if cElementType = "node"
-				This.SetNodeProperty(pElementId, cAspect, pValue)
-			but cElementType = "edge"
-				This.SetEdgeProperty(pElementId[1], pElementId[2], cAspect, pValue)
-			ok
-		end
-*/
+	    aEffects = oRule.Effects()
+	    nLen = len(aEffects)
+	    
+	    for i = 1 to nLen
+	        aEffect = aEffects[i]
+	        cAction = aEffect[1]
+	        
+	        if cAction = :set
+	            cKey = aEffect[2]
+	            pValue = aEffect[3]
+	            
+	            if cElementType = "node"
+	                # Direct array manipulation - bypass SetNodeProperty
+	                nNodeLen = len(@aNodes)
+	                for j = 1 to nNodeLen
+	                    if @aNodes[j]["id"] = pElementId
+	                        if NOT HasKey(@aNodes[j], "properties")
+	                            @aNodes[j] + ["properties", []]
+	                        ok
+	                        @aNodes[j]["properties"][cKey] = pValue
+	                        # Force Ring to update
+	                        aTemp = @aNodes[j]
+	                        @aNodes[j] = aTemp
+	                        exit
+	                    ok
+	                end
+	            but cElementType = "edge"
+	                This.SetEdgeProperty(pElementId[1], pElementId[2], cKey, pValue)
+	            ok
+	        ok
+	    end
 
-def _ApplyEffects(oRule, cElementType, pElementId)
-	aEffects = oRule.Effects()
-	nLen = len(aEffects)
-	
-	for i = 1 to nLen
-		aEffect = aEffects[i]
-		cAction = aEffect[1]
-		
-		if cAction = :set
-			cKey = aEffect[2]
-			pValue = aEffect[3]
-			
-			if cElementType = "node"
-				This.SetNodeProperty(pElementId, cKey, pValue)
-			but cElementType = "edge"
-				This.SetEdgeProperty(pElementId[1], pElementId[2], cKey, pValue)
-			ok
-		ok
-	end
-
-	
 	def _BuildRuleContext(aNodeOrEdge)
 		aContext = aNodeOrEdge
 		
@@ -2012,6 +1999,27 @@ def _ApplyEffects(oRule, cElementType, pElementId)
 	#--------------------------#
 
 	def RulesApplied()
+		acRuleIds = keys(@aRules)
+		acApplied = []
+		
+		nLen = len(acRuleIds)
+		for i = 1 to nLen
+			cRuleId = acRuleIds[i]
+			
+			acAffectedNodes = This.NodesAffectedByRule(cRuleId)
+			acAffectedEdges = This.EdgesAffectedByRule(cRuleId)
+			
+			if len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0
+				acApplied + cRuleId
+			ok
+		end
+		
+		return acApplied
+
+		def AppliedRules()
+			return This.RulesApplied()
+
+	def RulesAppliedXT()
 		aResult = [
 			:hasEffects = FALSE,
 			:summary = "",
@@ -2055,6 +2063,9 @@ def _ApplyEffects(oRule, cElementType, pElementId)
 		end
 		
 		return aResult
+
+		def AppliedRulesXT()
+			return This.RulesAppliedXT()
 
 	# Get all nodes affected by any rule
 	def NodesAffectedByRules()
