@@ -3,8 +3,16 @@
 #  Single rule implementation          #
 #======================================#
 
+@acRuleTypes = [ "constraint", "validation", "inference", "visual" ]
+
 func StzGraphRuleQ(pcRuleId)
 	return new stzGraphRule(pcRuleId)
+
+func RuleTypes()
+	return @acRuleTypes
+
+func DefaultRuleType()
+	return "validation"
 
 class stzGraphRule
 	@cRuleId
@@ -368,19 +376,22 @@ class stzGraphRule
 	#------------#
 	#  EXECUTION #
 	#------------#
-	
+
 	def Apply(oGraph, pcExecutionContext)
 		@oGraph = oGraph
 		
 		switch @cRuleType
 		on "constraint"
 			return This._ApplyAsConstraint(oGraph)
-		on "validation"
-			return This._ApplyAsValidation(oGraph)
+
 		on "inference"
 			return This._ApplyAsInference(oGraph)
+
 		on "visual"
 			return This._ApplyAsVisual(oGraph)
+
+		other // Default type "validation"
+			return This._ApplyAsValidation(oGraph)
 		off
 	
 	def _ApplyAsConstraint(oGraph)

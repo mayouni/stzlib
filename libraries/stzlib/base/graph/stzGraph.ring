@@ -299,195 +299,30 @@ class stzGraph
 	#  NODE REPLACEMENT  #
 	#--------------------#
 	
-	# Replace all nodes with new set
-	def ReplaceNodes(paNewNodes)
-		@aNodes = paNewNodes
-		@aEdges = []
-		@aNodeEnhancements = []
-		@aEdgeEnhancements = []
-	
-		def ReplaceAllNodes(paNewNodes)
-			This.ReplaceNodes(paNewNodes)
-	
-	# Replace specific node (preserve label & properties)
-	def ReplaceThisNode(pcOldId, pcNewId)
-		aNode = This.Node(pcOldId)
-		This.ReplaceThisNodeXTT(pcOldId, pcNewId, aNode["label"], aNode["properties"])
-	
-		def ReplaceNode(pcOldId, pcNewId)
-			This.ReplaceThisNode(pcOldId, pcNewId)
-	
-	# Replace node with new label
-	def ReplaceThisNodeXT(pcOldId, pcNewId, pcNewLabel)
-		aNode = This.Node(pcOldId)
-		This.ReplaceThisNodeXTT(pcOldId, pcNewId, pcNewLabel, aNode["properties"])
-	
-		def ReplaceNodeXT(pcOldId, pcNewId, pcNewLabel)
-			This.ReplaceThisNodeXT(pcOldId, pcNewId, pcNewLabel)
-	
-	# Replace node with everything
-	def ReplaceThisNodeXTT(pcOldId, pcNewId, pcNewLabel, paNewProps)
-		if NOT This.HasNode(pcOldId)
-			stzraise("Node '" + pcOldId + "' does not exist!")
-		ok
-		
-		# Collect edges
-		aIncoming = []
-		aOutgoing = []
-		
-		nLen = len(@aEdges)
-		for i = 1 to nLen
-			aEdge = @aEdges[i]
-			if aEdge["from"] = pcOldId
-				aOutgoing + [aEdge["to"], aEdge["label"], aEdge["properties"]]
-			ok
-			if aEdge["to"] = pcOldId
-				aIncoming + [aEdge["from"], aEdge["label"], aEdge["properties"]]
-			ok
-		end
-		
-		# Replace
-		This.RemoveThisNode(pcOldId)
-		This.AddNodeXTT(pcNewId, pcNewLabel, paNewProps)
-		
-		# Restore edges
-		nLen = len(aIncoming)
-		for i = 1 to nLen
-			This.AddEdgeXTT(aIncoming[i][1], pcNewId, aIncoming[i][2], aIncoming[i][3])
-		end
-		
-		nLen = len(aOutgoing)
-		for i = 1 to nLen
-			This.AddEdgeXTT(pcNewId, aOutgoing[i][1], aOutgoing[i][2], aOutgoing[i][3])
-		end
-	
-		def ReplaceNodeXTT(pcOldId, pcNewId, pcNewLabel, paNewProps)
-			This.ReplaceThisNodeXTT(pcOldId, pcNewId, pcNewLabel, paNewProps)
-	
-	# Replace multiple nodes
-	def ReplaceTheseNodes(paReplacements)
-		# paReplacements = [ ["old1", "new1"], ["old2", "new2"], ... ]
-		nLen = len(paReplacements)
-		for i = 1 to nLen
-			This.ReplaceThisNode(paReplacements[i][1], paReplacements[i][2])
-		end
+	#NOTE
+
+	#  We exclude ReplaceNode(), UpdateNode(), and ReplaceEdge() operations.
+	# These create semantic confusion in graph structures:
+
+	#   - "Replace" rewires connections and changes identity (too implicit)
+	#   - "Update" is ambiguous between modifying data vs structure
+
+	# Clear primitives provided instead:
+	#   - SetNodeProperty() / SetEdgeProperty()  → Modify data (safe)
+	#   - RemoveThisNode() / RemoveThisEdge()    → Delete (explicit)
+	#   - AddNode() / AddEdge()                  → Create (explicit)
+	#   - UpdateNodesF() / UpdateEdgesF()        → Batch modify with function
+
+	# Complex replacements must be composed from primitives, making
+	# structural changes visible and intentional.
+
+	# Principle: Make destructive operations look destructive.
 	
 	#--------------------#
 	#  EDGE REPLACEMENT  #
 	#--------------------#
 	
-	# Replace all edges
-	def ReplaceEdges(paNewEdges)
-		@aEdges = paNewEdges
-		@aEdgeEnhancements = []
-	
-		def ReplaceAllEdges(paNewEdges)
-			This.ReplaceEdges(paNewEdges)
-	
-	# Replace edge (preserve label & properties)
-	def ReplaceThisEdge(paOldEdge, paNewEdge)
-		if CheckParams()
-			if isList(paNewEdge) and StzListQ(paNewEdge).IsWithOrByNamedParam()
-				paNewEdge = paNewEdge[2]
-			ok
-		ok
-		
-		pcOldFrom = paOldEdge[1]
-		pcOldTo = paOldEdge[2]
-		
-		aEdge = This.Edge(pcOldFrom, pcOldTo)
-		This.ReplaceThisEdgeXTT(paOldEdge, paNewEdge, aEdge["label"], aEdge["properties"])
-	
-		def ReplaceEdge(paOldEdge, paNewEdge)
-			This.ReplaceThisEdge(paOldEdge, paNewEdge)
-	
-	# Replace edge with new label
-	def ReplaceThisEdgeXT(paOldEdge, paNewEdge, pcNewLabel)
-		if CheckParams()
-			if isList(paNewEdge) and StzListQ(paNewEdge).IsWithOrByNamedParam()
-				paNewEdge = paNewEdge[2]
-			ok
-			if isList(pcNewLabel) and StzListQ(pcNewLabel).IsLabelNamedParam()
-				pcNewLabel = pcNewLabel[2]
-			ok
-		ok
-		
-		pcOldFrom = paOldEdge[1]
-		pcOldTo = paOldEdge[2]
-		
-		aEdge = This.Edge(pcOldFrom, pcOldTo)
-		This.ReplaceThisEdgeXTT(paOldEdge, paNewEdge, pcNewLabel, aEdge["properties"])
-	
-		def ReplaceEdgeXT(paOldEdge, paNewEdge, pcNewLabel)
-			This.ReplaceThisEdgeXT(paOldEdge, paNewEdge, pcNewLabel)
-	
-	# Replace edge completely
-	def ReplaceThisEdgeXTT(paOldEdge, paNewEdge, pcNewLabel, paNewProps)
-		if CheckParams()
-	
-			if isList(paOldEdge) and len(paOldEdge) = 2
-				if isList(paOldEdge[1]) and StzListQ(paOldEdge[1]).IsFromNamedParam()
-					pcOldFrom = paOldEdge[1][2]
-				ok
-				if isList(paOldEdge[2]) and StzListQ(paOldEdge[2]).IsToNamedParam()
-					pcOldTo = paOldEdge[2][2]
-				ok
-			ok
-			
-			if isList(paNewEdge) and len(paNewEdge) = 2
-				if isList(paNewEdge[1]) and StzListQ(paNewEdge[1]).IsFromNamedParam()
-					pcNewFrom = paNewEdge[1][2]
-				ok
-				if isList(paNewEdge[2]) and StzListQ(paNewEdge[2]).IsToNamedParam()
-					pcNewTo = paNewEdge[2][2]
-				ok
-			ok
-		ok
-		
-		pcOldFrom = paOldEdge[1]
-		pcOldTo = paOldEdge[2]
-
-		pcNewFrom = paNewEdge[1]
-		pcNewTo = paNewEdge[2]
-
-		if NOT This.EdgeExists(pcOldFrom, pcOldTo)
-			stzraise("Edge '" + pcOldFrom + "->" + pcOldTo + "' does not exist!")
-		ok
-		
-		This.RemoveThisEdge(pcOldFrom, pcOldTo)
-		This.AddEdgeXTT(pcNewFrom, pcNewTo, pcNewLabel, paNewProps)
-	
-		def ReplaceEdgeXTT(paOldEdge, paNewEdge, pcNewLabel, paNewProps)
-			This.ReplaceThisEdgeXTT(paOldEdge, paNewEdge, pcNewLabel, paNewProps)
-
-	#--- REPLACE NODE AT PATH
-	
-	def ReplaceNodeAt(pacPath, pcNewId)
-		nLen = len(pacPath)
-		if nLen = 0
-			return
-		ok
-		
-		cOldId = pacPath[nLen]
-		This.ReplaceThisNode(cOldId, pcNewId)
-	
-	def ReplaceNodeAtXT(pacPath, pcNewId, pcNewLabel)
-		nLen = len(pacPath)
-		if nLen = 0
-			return
-		ok
-		
-		cOldId = pacPath[nLen]
-		This.ReplaceThisNodeXT(cOldId, pcNewId, pcNewLabel)
-	
-	def ReplaceNodeAtXTT(pacPath, pcNewId, pcNewLabel, paNewProps)
-		nLen = len(pacPath)
-		if nLen = 0
-			return
-		ok
-		
-		cOldId = pacPath[nLen]
-		This.ReplaceThisNodeXTT(cOldId, pcNewId, pcNewLabel, paNewProps)
+	#NOTE // Idem. Read previous comment.
 
 	#---------------#
 	#  NODE REMOVAL #
@@ -783,17 +618,17 @@ class stzGraph
 		def PositionOfEdge(pcFrom, pcTo)
 			return This.EdgePosition(pcFrom, pcTo)
 
-	#---------------------------#
-	#  BATCH UPDATE OPERATIONS  #
-	#---------------------------#
+	#-------------------------------------------#
+	#  BATCH UPDATE OPERATIONS USING FUNCTIONS  #
+	#-------------------------------------------#
 	
-	def UpdateNodes(pFunc)
+	def UpdateNodesF(pFunc)
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			call pFunc(@aNodes[i])
 		end
 	
-	def UpdateEdges(pFunc)
+	def UpdateEdgesF(pFunc)
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			call pFunc(@aEdges[i])

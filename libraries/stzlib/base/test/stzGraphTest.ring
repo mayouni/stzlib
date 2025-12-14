@@ -1237,7 +1237,7 @@ oGraph = new stzGraph("ChainedTest")
 # First rule sets a property
 oRule1 = new stzGraphRule("set_category")
 oRule1 {
-	SetRuleType("validation")
+	SetRuleType("validation") # Can be commented because "validation" is the default tyoe
 	When("cost", "greaterthan", 1000)
 	Then("category", "set", "expensive")
 }
@@ -1567,7 +1567,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Edge Replacement
-*/
+
 pr()
 
 oGraph = new stzGraph("EdgeReplaceTest")
@@ -1594,8 +1594,8 @@ pr()
 
 oGraph = new stzGraph("EdgePropsTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
+	AddNode("a")
+	AddNode("b")
 	
 	AddEdgeXTT("a", "b", "link", [:weight = 10])
 	
@@ -1620,14 +1620,14 @@ pr()
 
 oGraph = new stzGraph("BatchEdgeTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("c", "C")
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
 	
 	AddEdgeXTT("a", "b", "link1", [:cost = 10])
 	AddEdgeXTT("b", "c", "link2", [:cost = 20])
 	
-	UpdateEdges(func(aEdge) {
+	UpdateEdgesF(func(aEdge) {
 		if HasKey(aEdge["properties"], "cost")
 			aEdge["properties"]["cost"] *= 2
 		ok
@@ -1635,29 +1635,6 @@ oGraph {
 	
 	? EdgeProperty("a", "b", "cost") #--> 20
 	? EdgeProperty("b", "c", "cost") #--> 40
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-/*--- Replace All Operations
-
-pr()
-
-oGraph = new stzGraph("ReplaceAllTest")
-oGraph {
-	AddNodeXT("n1", "N1")
-	AddNodeXT("n2", "N2")
-	Connect("n1", "n2")
-	
-	ReplaceAllNodes([
-		[:id = "new1", :label = "New1", :properties = []],
-		[:id = "new2", :label = "New2", :properties = []]
-	])
-	
-	? NodeCount() #--> 2
-	? EdgeCount() #--> 0
-	? HasNode("new1") #--> TRUE
 }
 
 pf()
@@ -1708,7 +1685,7 @@ pf()
 #============================================#
 
 /*--- Real-World Scenario #TODO #ERR Cchek usage of rules
-
+*/
 pr()
 
 oGraph = new stzGraph("MicroserviceGraph")
