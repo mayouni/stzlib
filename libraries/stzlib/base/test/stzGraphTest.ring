@@ -883,6 +883,48 @@ oGraph {
 		]
 	]
 	'
+
+	? BoxRound("GRAPH EXPLANATION")
+	? @@NL( Explain() )
+#-->
+'
+╭───────────────────╮
+│ GRAPH EXPLANATION │
+╰───────────────────╯
+[
+	[
+		"general",
+		[
+			"Graph: RuleAnalysisTest",
+			"Nodes: 2 | Edges: 0"
+		]
+	],
+	[
+		"bottlenecks",
+		[ "No bottlenecks (average degree = 0)" ]
+	],
+	[
+		"cycles",
+		[ "No cycles - acyclic graph (DAG)" ]
+	],
+	[
+		"metrics",
+		[
+			"Density: 0% (no connections)",
+			"Longest path: 0 hops (isolated)"
+		]
+	],
+	[
+		"rules",
+		[
+			"Rules applied: 2", #TODO صلّح المحتوى
+			"  - critical",
+			"  - production"
+		]
+	]
+]
+'
+
 }
 
 pf()
@@ -945,7 +987,7 @@ digraph ExportTest {
 # TODO: Add an example demonstrating this.
 
 pf()
-# Executed in 0.51 second(s) in Ring 1.24
+# Executed in 0.61 second(s) in Ring 1.24
 
 /*--- JSON Export
 
@@ -1030,7 +1072,7 @@ pf()
 #============================================#
 
 /*--- Graph Explanation
-
+*/
 pr()
 
 oGraph = new stzGraph("ExplainTest")
@@ -1062,7 +1104,14 @@ oGraph {
 	],
 	[
 		"metrics",
-		[ "Density: 50% (dense)", "Longest path: 2 hops" ]
+		[
+			"Density: 0.50% (sparse)",
+			"Longest path: 2 hops"
+		]
+	],
+	[
+		"rules",
+		[ "No rules applied" ]
 	]
 ]
 '

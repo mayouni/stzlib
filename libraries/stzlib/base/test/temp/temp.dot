@@ -1,55 +1,9 @@
-digraph "" {
-    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out]
-    node [fontname="helvetica", fontsize=12]
-    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+digraph ExportTest {
+  rankdir=TD;
+  node [shape=box];
 
-    node1 [label="Circle", shape=circle, style="solid,filled"]
-    node2 [label="Double Circle", shape=doublecircle, style="solid,filled"]
-    node3 [label="Ellipse", shape=ellipse, style="solid,filled"]
-    node4 [label="Egg", shape=egg, style="solid,filled"]
-    node5 [label="Square", shape=square, style="solid,filled"]
-    node6 [label="Rect", shape=rect, style="solid,filled"]
-    node7 [label="Box", shape=box, style="rounded,solid,filled"]
-    node8 [label="Parallelogram", shape=parallelogram, style="solid,filled"]
-    node9 [label="Trapezium", shape=trapezium, style="solid,filled"]
-    node10 [label="Inverted Trapezium", shape=invtrapezium, style="solid,filled"]
-    node11 [label="Diamond", shape=diamond, style="solid,filled"]
-    node12 [label="Triangle", shape=triangle, style="solid,filled"]
-    node13 [label="Inverted Triangle", shape=invtriangle, style="solid,filled"]
-    node14 [label="Pentagon", shape=pentagon, style="solid,filled"]
-    node15 [label="Hexagon", shape=hexagon, style="solid,filled"]
-    node16 [label="Septagon", shape=septagon, style="solid,filled"]
-    node17 [label="Octagon", shape=octagon, style="solid,filled"]
-    node18 [label="Triple Octagon", shape=tripleoctagon, style="solid,filled"]
-    node19 [label="Cylinder", shape=cylinder, style="solid,filled"]
-    node20 [label="House", shape=house, style="solid,filled"]
-    node21 [label="Tab", shape=tab, style="solid,filled"]
-    node22 [label="Folder", shape=folder, style="solid,filled"]
-    node23 [label="Component", shape=component, style="solid,filled"]
-    node24 [label="Note", shape=note, style="solid,filled"]
+  a [label="A"];
+  b [label="B"];
 
-    node1 -> node2 [style=invis]
-    node2 -> node3 [style=invis]
-    node3 -> node4 [style=invis]
-    node4 -> node5 [style=invis]
-    node5 -> node6 [style=invis]
-    node6 -> node7 [style=invis]
-    node7 -> node8 [style=invis]
-    node8 -> node9 [style=invis]
-    node9 -> node10 [style=invis]
-    node10 -> node11 [style=invis]
-    node11 -> node12 [style=invis]
-    node12 -> node13 [style=invis]
-    node13 -> node14 [style=invis]
-    node14 -> node15 [style=invis]
-    node15 -> node16 [style=invis]
-    node16 -> node17 [style=invis]
-    node17 -> node18 [style=invis]
-    node18 -> node19 [style=invis]
-    node19 -> node20 [style=invis]
-    node20 -> node21 [style=invis]
-    node21 -> node22 [style=invis]
-    node22 -> node23 [style=invis]
-    node23 -> node24 [style=invis]
-
+  a -> b;
 }
