@@ -385,23 +385,71 @@ class stzGraph
 			This.ReplaceEdges(paNewEdges)
 	
 	# Replace edge (preserve label & properties)
-	def ReplaceThisEdge(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo)
+	def ReplaceThisEdge(paOldEdge, paNewEdge)
+		if CheckParams()
+			if isList(paNewEdge) and StzListQ(paNewEdge).IsWithOrByNamedParam()
+				paNewEdge = paNewEdge[2]
+			ok
+		ok
+		
+		pcOldFrom = paOldEdge[1]
+		pcOldTo = paOldEdge[2]
+		
 		aEdge = This.Edge(pcOldFrom, pcOldTo)
-		This.ReplaceThisEdgeXTT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, aEdge["label"], aEdge["properties"])
+		This.ReplaceThisEdgeXTT(paOldEdge, paNewEdge, aEdge["label"], aEdge["properties"])
 	
-		def ReplaceEdge(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo)
-			This.ReplaceThisEdge(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo)
+		def ReplaceEdge(paOldEdge, paNewEdge)
+			This.ReplaceThisEdge(paOldEdge, paNewEdge)
 	
 	# Replace edge with new label
-	def ReplaceThisEdgeXT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel)
+	def ReplaceThisEdgeXT(paOldEdge, paNewEdge, pcNewLabel)
+		if CheckParams()
+			if isList(paNewEdge) and StzListQ(paNewEdge).IsWithOrByNamedParam()
+				paNewEdge = paNewEdge[2]
+			ok
+			if isList(pcNewLabel) and StzListQ(pcNewLabel).IsLabelNamedParam()
+				pcNewLabel = pcNewLabel[2]
+			ok
+		ok
+		
+		pcOldFrom = paOldEdge[1]
+		pcOldTo = paOldEdge[2]
+		
 		aEdge = This.Edge(pcOldFrom, pcOldTo)
-		This.ReplaceThisEdgeXTT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel, aEdge["properties"])
+		This.ReplaceThisEdgeXTT(paOldEdge, paNewEdge, pcNewLabel, aEdge["properties"])
 	
-		def ReplaceEdgeXT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel)
-			This.ReplaceThisEdgeXT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel)
+		def ReplaceEdgeXT(paOldEdge, paNewEdge, pcNewLabel)
+			This.ReplaceThisEdgeXT(paOldEdge, paNewEdge, pcNewLabel)
 	
 	# Replace edge completely
-	def ReplaceThisEdgeXTT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel, paNewProps)
+	def ReplaceThisEdgeXTT(paOldEdge, paNewEdge, pcNewLabel, paNewProps)
+		if CheckParams()
+	
+			if isList(paOldEdge) and len(paOldEdge) = 2
+				if isList(paOldEdge[1]) and StzListQ(paOldEdge[1]).IsFromNamedParam()
+					pcOldFrom = paOldEdge[1][2]
+				ok
+				if isList(paOldEdge[2]) and StzListQ(paOldEdge[2]).IsToNamedParam()
+					pcOldTo = paOldEdge[2][2]
+				ok
+			ok
+			
+			if isList(paNewEdge) and len(paNewEdge) = 2
+				if isList(paNewEdge[1]) and StzListQ(paNewEdge[1]).IsFromNamedParam()
+					pcNewFrom = paNewEdge[1][2]
+				ok
+				if isList(paNewEdge[2]) and StzListQ(paNewEdge[2]).IsToNamedParam()
+					pcNewTo = paNewEdge[2][2]
+				ok
+			ok
+		ok
+		
+		pcOldFrom = paOldEdge[1]
+		pcOldTo = paOldEdge[2]
+
+		pcNewFrom = paNewEdge[1]
+		pcNewTo = paNewEdge[2]
+
 		if NOT This.EdgeExists(pcOldFrom, pcOldTo)
 			stzraise("Edge '" + pcOldFrom + "->" + pcOldTo + "' does not exist!")
 		ok
@@ -409,9 +457,9 @@ class stzGraph
 		This.RemoveThisEdge(pcOldFrom, pcOldTo)
 		This.AddEdgeXTT(pcNewFrom, pcNewTo, pcNewLabel, paNewProps)
 	
-		def ReplaceEdgeXTT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel, paNewProps)
-			This.ReplaceThisEdgeXTT(pcOldFrom, pcOldTo, pcNewFrom, pcNewTo, pcNewLabel, paNewProps)
-	
+		def ReplaceEdgeXTT(paOldEdge, paNewEdge, pcNewLabel, paNewProps)
+			This.ReplaceThisEdgeXTT(paOldEdge, paNewEdge, pcNewLabel, paNewProps)
+
 	#--- REPLACE NODE AT PATH
 	
 	def ReplaceNodeAt(pacPath, pcNewId)
@@ -2277,12 +2325,66 @@ class stzGraph
 	    ok
 	    
 	    @oRuleEngine.@oGraph = This
-	    nResult = @oRuleEngine.ApplyInference()
 	    
-	    # Force sync edges back from engine's graph
-	    @aEdges = @oRuleEngine.@oGraph.@aEdges
+	    nInferred = 0
 	    
-	    return nResult
+	    # Check which inference rules are active
+	    acRuleIds = keys(@aRules)
+	    bHasTransitivity = FALSE
+	    bHasSymmetry = FALSE
+	    
+	    nLen = len(acRuleIds)
+	    for i = 1 to nLen
+	        cRuleId = acRuleIds[i]
+	        if cRuleId = "transitivity_infer"
+	            bHasTransitivity = TRUE
+	        but cRuleId = "symmetry_infer"
+	            bHasSymmetry = TRUE
+	        ok
+	    end
+	    
+	    # Apply symmetry: if a->b exists, infer b->a
+	    if bHasSymmetry
+	        aEdges = This.Edges()
+	        nEdgeLen = len(aEdges)
+	        
+	        for i = 1 to nEdgeLen
+	            aEdge = aEdges[i]
+	            
+	            # Skip already inferred edges
+	            if substr(aEdge["label"], "(inferred") > 0
+	                loop
+	            ok
+	            
+	            cFrom = aEdge["from"]
+	            cTo = aEdge["to"]
+	            
+	            if NOT This.EdgeExists(cTo, cFrom)
+	                This.AddEdgeXT(cTo, cFrom, "(inferred-symmetric)")
+	                nInferred++
+	            ok
+	        end
+	    ok
+	    
+	    # Apply transitivity: if a->b and b->c exist, infer a->c
+	    if bHasTransitivity
+	        aNodes = This.Nodes()
+	        nNodeLen = len(aNodes)
+	        
+	        for i = 1 to nNodeLen
+	            for j = 1 to nNodeLen
+	                cFrom = aNodes[i]["id"]
+	                cTo = aNodes[j]["id"]
+	                
+	                if cFrom != cTo and This.PathExists(cFrom, cTo) and NOT This.EdgeExists(cFrom, cTo)
+	                    This.AddEdgeXT(cFrom, cTo, "(inferred-transitive)")
+	                    nInferred++
+	                ok
+	            end
+	        end
+	    ok
+	    
+	    return nInferred
 
 
 	def AddInferenceRule(pcRuleType)
@@ -2293,7 +2395,6 @@ class stzGraph
 			oRule = new stzGraphRule("transitivity_infer")
 			oRule.SetRuleType("inference")
 			oRule.SetGraph(This)
-			# Rule will be applied during ApplyInference
 			This.SetRule(oRule)
 			
 		on "SYMMETRY"
