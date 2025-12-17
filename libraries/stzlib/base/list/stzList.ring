@@ -92953,6 +92953,86 @@ fdef
 			return 0
 		ok
 
+	#--
+
+	def IsNodeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = "node" )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsWithNodeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = "withnode" )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsEdgeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = "edge" )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsWithEdgeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = "withedge" )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsToEdgeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = "toedge" )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsOfNodeNamedPAram()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = "ofnode" )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsOfOrOfNodeNamedPAram()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([ "of", "ofnode" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IsOfNodeOrOfNamedPAram()
+			return This.IsOfOrOfNodeNamedPAram()
+
+	def IsOfOrOfPositionNamedPAram()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([ "of", "ofposition" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IsOfPositionOrOfNamedPAram()
+			return This.IsOfOrOfPositionNamedPAram()
+
 	def IsToOrToPositionOrToNodeNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and ring_find([ "to", "toposition", "tonode" ], This.Item(1)) > 0 )
@@ -92961,6 +93041,39 @@ fdef
 		else
 			return 0
 		ok
+
+		def IsToOrToNodeOrToPositionNamedParam()
+			return This.IsToOrToPositionOrToNodeNamedParam()
+	
+		def IsToNodeOrToOrToPsoitionNamedPAram()
+			return This.IsToOrToPositionOrToNodeNamedParam()
+
+	def IsWithOrWithNodeNamedparam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([ "with", "withnode" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IsWithNodeOrWithNamedPAram()
+			return This.isWithOrWithNodeNamedParam()
+
+	def IsWithOrwithPositionOrwithNodeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([ "with", "withposition", "withnode" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IswithOrWithNodeOrWithPositionNamedParam()
+			return This.IsWithOrwithPositionOrwithNodeNamedParam()
+	
+		def IsWithNodeOrWithOrWithPsoitionNamedPAram()
+			return This.IsWithOrwithPositionOrwithNodeNamedParam()
 
 #WARNING #TODO: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.
