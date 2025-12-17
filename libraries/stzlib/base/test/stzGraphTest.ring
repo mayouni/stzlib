@@ -1,6 +1,5 @@
 load "../stzbase.ring"
 
-
 #============================================#
 #  SECTION 1: BASIC GRAPH OPERATIONS
 #============================================#
@@ -50,8 +49,8 @@ pr()
 
 oGraph = new stzGraph("ExistenceTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
+	AddNode("a")
+	AddNode("b")
 	Connect("a", "b")
 	
 	? HasNode("a")         #--> TRUE
@@ -69,16 +68,16 @@ pr()
 
 oGraph = new stzGraph("PathTest")
 oGraph {
-	AddNodeXT("start", "Start")
-	AddNodeXT("middle", "Middle")
-	AddNodeXT("end", "End")
-	
+	AddNode("start")
+	AddNode("middle")
+	AddNode("end")
+
 	Connect("start", :to = "middle")
 	Connect("middle", :to = "end")
-	
+
 	? PathExists("start", "end")      #--> TRUE
 	? PathExists("start", "isolated") #--> FALSE
-	
+
 	? @@NL( FindAllPaths("start", "end") )
 	#--> [ ["start", "middle", "end"] ]
 }
@@ -92,10 +91,10 @@ pr()
 
 oGraph = new stzGraph("ReachTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("c", "C")
-	AddNodeXT("d", "D")
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
+	AddNode("d")
 	
 	Connect("a", "b")
 	Connect("b", "c")
@@ -109,15 +108,15 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Neighbors and Incoming
-
+*
 pr()
 
 oGraph = new stzGraph("ConnectionsTest")
 oGraph {
-	AddNodeXT("hub", "Hub")
-	AddNodeXT("n1", "N1")
-	AddNodeXT("n2", "N2")
-	AddNodeXT("n3", "N3")
+	AddNode("hub")
+	AddNode("n1")
+	AddNode("n2")
+	AddNode("n3")
 	
 	Connect("n1", "hub")
 	Connect("n2", "hub")
@@ -130,6 +129,201 @@ oGraph {
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
+/*--- Undirected Graph Support (via bidirectional edges)
+
+pr()
+
+oGraph = new stzGraph("UndirectedTest")
+oGraph.AddNode("a")
+oGraph.AddNode("b")
+oGraph.AddNode("c")
+
+oGraph.Connect("a", "b")  # Directed
+oGraph.Connect("b", "a")  # Make bidirectional
+
+? oGraph.IsConnected()   #--> FALSE (because "c" is not connected yet)
+oGraph.Connect("b", "c") #--> TRUE
+? oGraph.IsConnected() + NL
+
+? oGraph.PathExists("a", "b")  #--> TRUE
+? oGraph.PathExists("b", "a")  #--> TRUE
+
+oGraph.Connect("b", "c")
+oGraph.Connect("c", "b")
+? @@( oGraph.ReachableFrom("a") ) #--> [ "a", "b", "c" ]  # Transitively via bidirectional
+
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*---
+
+pr()
+
+oGraph = new stzGraph("DebugTest")
+
+# Build graph
+oGraph.AddNode("a")
+oGraph.AddNode("b") 
+oGraph.AddNode("c")
+
+oGraph.Connect("a", "b")
+oGraph.Connect("b", "a")
+oGraph.Connect("b", "c")
+oGraph.Connect("c", "b")
+
+# GRAPH STATE
+
+? @@( oGraph.NodesIds() )
+#--> [ "a", "b", "c" ]
+
+? @@NL( oGraph.Edges() ) + NL
+#-->
+'
+[
+	[
+		[ "from", "a" ],
+		[ "to", "b" ],
+		[ "label", "" ],
+		[ "properties", [  ] ]
+	],
+	[
+		[ "from", "b" ],
+		[ "to", "a" ],
+		[ "label", "" ],
+		[ "properties", [  ] ]
+	],
+	[
+		[ "from", "b" ],
+		[ "to", "c" ],
+		[ "label", "" ],
+		[ "properties", [  ] ]
+	],
+	[
+		[ "from", "c" ],
+		[ "to", "b" ],
+		[ "label", "" ],
+		[ "properties", [  ] ]
+	]
+]
+'
+
+# Test Neighbors and Incoming
+
+? @@NL( oGraph.Neighbors("a") )
+#--> [ "b" ]
+
+? @@NL( oGraph.Incoming("a") )
+#--> [ "b" ]
+
+? @@NL( oGraph.Neighbors("b") )
+#--> [ "a", "c" ]
+
+? @@NL( oGraph.Incoming("b") )
+#--> [ "a", "c" ]
+
+? @@NL( oGraph.Neighbors("c") )
+#--> [ "b" ]
+
+? @@NL( oGraph.Incoming("c") ) + NL
+#--> [ "b" ]
+
+# Test path existence
+
+? oGraph.PathExists("a", "b")
+#--> TRUE
+
+? oGraph.PathExists("b", "a")
+#--> TRUE
+
+? oGraph.PathExists("a", "c")
+#--> TRUE
+
+? oGraph.PathExists("c", "a") + NL
+#--> TRUE
+
+# Test ReachableFrom
+
+? @@NL( oGraph.ReachableFrom("a") ) + NL
+#--> [ "a", "b", "c" ]
+
+# Test IsConnected
+? oGraph.IsConnected() + NL
+#--> TRUE
+
+# Manual trace of _IsConnected logic
+aNodes = oGraph.Nodes()
+? "Starting from: " + aNodes[1]["id"]
+
+acVisited = []
+acQueue = [aNodes[1]["id"]]
+acVisited + aNodes[1]["id"]
+nIdx = 1
+
+? "Initial queue: " + @@(acQueue)
+
+while nIdx <= len(acQueue)
+    cCurrent = acQueue[nIdx]
+    ? "Processing: " + cCurrent
+    
+    acNeighbors = oGraph.Neighbors(cCurrent)
+    acIncoming = oGraph.Incoming(cCurrent)
+    
+    ? "  Neighbors: " + @@(acNeighbors)
+    ? "  Incoming: " + @@(acIncoming)
+    
+    for i = 1 to len(acNeighbors)
+        cNext = acNeighbors[i]
+        if find(acVisited, cNext) = 0
+            ? "  Adding neighbor: " + cNext
+            acVisited + cNext
+            acQueue + cNext
+        ok
+    end
+    
+    for i = 1 to len(acIncoming)
+        cNext = acIncoming[i]
+        if find(acVisited, cNext) = 0
+            ? "  Adding incoming: " + cNext
+            acVisited + cNext
+            acQueue + cNext
+        ok
+    end
+    
+    ? "  Visited so far: " + @@(acVisited)
+    nIdx += 1
+end
+
+? "Final visited: " + @@(acVisited)
+? "Total nodes: " + len(aNodes)
+? "Should be connected: " + (len(acVisited) = len(aNodes))
+
+#-->
+'
+Starting from: a
+Initial queue: [ "a" ]
+Processing: a
+  Neighbors: [ "b" ]
+  Incoming: [ "b" ]
+  Adding neighbor: b
+  Visited so far: [ "a", "b" ]
+Processing: b
+  Neighbors: [ "a", "c" ]
+  Incoming: [ "a", "c" ]
+  Adding neighbor: c
+  Visited so far: [ "a", "b", "c" ]
+Processing: c
+  Neighbors: [ "b" ]
+  Incoming: [ "b" ]
+  Visited so far: [ "a", "b", "c" ]
+Final visited: [ "a", "b", "c" ]
+Total nodes: 3
+Should be connected: 1
+'
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
 #============================================#
 #  SECTION 2: NODE OPERATIONS
 #============================================#
@@ -140,9 +334,9 @@ pr()
 
 oGraph = new stzGraph("NavTest")
 oGraph {
-	AddNodeXT("first", "First")
-	AddNodeXT("second", "Second")
-	AddNodeXT("third", "Third")
+	AddNode("first")
+	AddNode("second")
+	AddNode("third")
 	
 	? FirstNode()["label"]   #--> "First"
 	? LastNode()["label"]    #--> "Third"
@@ -172,7 +366,23 @@ oGraph {
 	#--> ["priority", "status", "owner"]
 
 	? @@NL( PropertiesXT() )
-	#--> [["priority", [10]], ["status", ["active"]], ["owner", ["alice"]]]
+	#-->
+	'
+	[
+		[
+			"priority",
+			[ 10 ]
+		],
+		[
+			"status",
+			[ "active" ]
+		],
+		[
+			"owner",
+			[ "alice" ]
+		]
+	]
+'
 }
 
 pf()
@@ -310,6 +520,28 @@ oGraph {
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
+/*--- Node Splitting (merge inverse: split one node into two with property division)
+
+pr()
+
+oGraph = new stzGraph("SplitTest")
+oGraph {
+	AddNodeXTT("combined", "Combined", [:tasks = ["t1", "t2"], :priority = 10])
+	AddNodeXT("dependent", "Dependent")
+	Connect("combined", "dependent")
+
+	# Split into two nodes, dividing properties
+	SplitNode("combined", "part1", "part2")
+	SetNodeProperty("part1", :tasks, ["t1"])
+	SetNodeProperty("part2", :tasks, ["t2"])
+
+	? NodeCount()  #--> 3
+	? EdgeExists("part1", "dependent")  #--> TRUE  # Edges duplicated
+	? EdgeExists("part2", "dependent")  #--> TRUE
+}
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
 #============================================#
 #  SECTION 3: PROPERTY & TAG QUERIES
 #============================================#
@@ -356,6 +588,30 @@ oGraph {
 	? @@( NodesWithAnyTag(["critical", "monitoring"]) )
 	#--> ["n1", "n3"]
 }
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*--- Nested Property Queries (e.g., query sub-properties in hashlists)
+
+pr()
+
+oGraph = new stzGraph("NestedPropsTest")
+oGraph {
+	AddNodeXTT("n1", "N1", [:config = [:memory = 1024, :cpu = 4]])
+	AddNodeXTT("n2", "N2", [:config = [:memory = 2048, :cpu = 8]])
+	AddNodeXTT("n3", "N3", [:config = [:memory = 1024, :cpu = 2]])
+
+	? @@( NodesWithPropertyXT("config.memory", :Equals, 1024) )
+	#--> [ "n1", "n3" ]
+
+	? @@( NodesWithPropertyXT("config.cpu", :GreaterThan, 4) )
+	#--> [ "n2" ]
+
+}
+
+#TODO: Review all the simular methods (for nodes and egdges) and
+# unify them functionnaly and semantically
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -564,9 +820,83 @@ oGraph {
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
-#===============================================#
-#  SECTION 5: UNIFIED RULE SYSTEM #TODO Test it #
-#===============================================#
+/*--- Weighted Edges and Operations
+
+pr()
+oGraph = new stzGraph("WeightedTest")
+oGraph {
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
+
+	ConnectXTT("a", "b", "link1", [:weight = 5])
+	ConnectXTT("b", "c", "link2", [:weight = 3])
+
+	? EdgeProperty("a", "b", "weight")  #--> 5
+	SetEdgeProperty("a", "b", "weight", 10)
+	? EdgeProperty("a", "b", "weight")  #--> 10
+
+	# Total weight along path
+	? PathWeight(["a", "b", "c"])  #--> 13  # Sum of weights
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*--- Multi-Edges Between Same Nodes : Raises an error
+
+pr()
+
+oGraph = new stzGraph("MultiEdgeTest")
+oGraph {
+	AddNode("source")
+	AddNode("target")
+
+	ConnectXTT("source", "target", "primary", [:priority = "high"])
+	ConnectXTT("source", "target", "backup", [:priority = "low"])
+	#--> Edge already exists between 'source' and 'target'!
+}
+
+/*---
+
+pr()
+
+oGraph = new stzGraph("EdgeManagementTest")
+oGraph {
+	AddNode("A")
+	AddNode("B")
+	AddNode("C")
+
+	# Create multiple edges to different targets
+	ConnectXTT("A", "B", "route1", [:speed = "fast"])
+	ConnectXTT("A", "C", "route2", [:speed = "slow"])
+	ConnectXTT("B", "C", "route3", [:speed = "medium"])
+
+	? EdgeCountBetween("A", "B")  #--> 1
+	? EdgeCountBetween("A", "C")  #--> 1
+
+	? @@NL( EdgesBetween("A", "B") )
+	#--> [
+	# 	["A", "route1", "B"]
+	# ]
+
+	? @@NL( EdgesBetween("A", "C") )
+	#--> [
+	# 	["A", "route2", "C"]
+	# ]
+
+	# Remove specific edge by label
+	RemoveEdgeByLabel("A", "C", "route2")
+	? EdgeCountBetween("A", "C")  #--> 0
+
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+#===================================#
+#  SECTION 5: UNIFIED RULE SYSTEM   #
+#===================================#
 
 /*--- Validation Rule
 
@@ -624,7 +954,7 @@ oGraph {
 	SetRule(oRule)
 	ApplyRules()
 	
-	? EdgeCount() #--> 3 (original 2 + inferred 1)
+	? EdgeCount() #--> 3 (original 2 + inferred 1) #ERR returned 2!
 }
 
 pf()
@@ -917,9 +1247,9 @@ oGraph {
 	[
 		"rules",
 		[
-			"Rules applied: 2", #TODO صلّح المحتوى
-			"  - critical",
-			"  - production"
+			"Rules applied: 2",
+			"  - critical [validation]",
+			"  - production [validation]"
 		]
 	]
 ]
@@ -929,6 +1259,102 @@ oGraph {
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.24
+
+/*--- Density and Sparsity Metrics
+
+pr()
+
+oGraph = new stzGraph("DensityTest")
+oGraph {
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
+
+	Connect("a", :to = "b")
+	Connect("b", :to = "c")
+
+	? Density() # Direct Graph : 3 nodes, 2 edges → density = 2/(3×2) = 0.33
+	#--> 0.33
+
+	? IsSparse() # Assuming threshold < 0.5 is dense, else sparse
+	#--> TRUE
+}
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*---
+
+pr()
+
+oGraph = new stzGraph("DensityAnalysis")
+oGraph {
+	# Create sparse graph
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
+	AddNode("d")
+	AddNode("e")
+	
+	Connect("a", "b")
+	Connect("b", "c")
+	Connect("c", "d")
+	
+	# SPARSE GRAPH (5 nodes, 3 edges)
+
+	? Density()
+	#--> 0.15
+
+	? Density100()
+	 #--> 15
+
+	? DensityCategory()
+	#--> "very sparse"
+
+	? IsSparse()
+	#--> TRUE
+
+	? IsDense() + NL
+	#--> FALSE
+	
+	# Add more edges to make it denser
+
+	Connect("a", "c")
+	Connect("a", "d")
+	Connect("b", "d")
+	Connect("b", "e")
+	Connect("c", "e")
+	
+	# DENSE GRAPH (5 nodes, 9 edges)
+
+	? Density()
+	#--> 0.40
+
+	? DensityCategory() + NL
+	#--> "sparse" (just below 0.5)
+	
+	# Make it very dense*
+
+	Connect("a", "e")
+	Connect("d", "e")
+	
+	# VERY DENSE GRAPH (5 nodes, 11 edges)
+
+	? Density()
+	#--> 0.50
+
+	? Density100()
+	#--> 50
+
+	? DensityLevel()
+	#--> "dense"
+
+	? IsDense() + NL
+	#--> TRUE
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 6: EXPORT & VISUALIZATION
@@ -1283,6 +1709,141 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
+SECTION 9': RULE ENGINE ADVANCED
+#============================================#
+
+/*--- Inference Rule Chaining #TODO Checl result correctness
+
+pr()
+
+# Rule 1: Mark nodes with outgoing edges as parents
+oRule1 = new stzGraphRule("parent_marker")
+oRule1 {
+    SetRuleType("inference")
+    SetGraph(NULL)  # Will be set by graph
+}
+
+# Rule 2: Add transitive inference for paths
+oRule2 = new stzGraphRule("path_infer")
+oRule2 {
+    SetRuleType("inference")
+    WhenPathExists(:from = "a", :to = "b")
+    AddEdgeXT("a", "b", "(inferred-path)")
+}
+
+# Create graph
+oGraph = new stzGraph("InferenceChain")
+oGraph {
+    # Add nodes
+    AddNodeXTT("a", "Node A", [:type = "parent"])
+    AddNodeXTT("b", "Node B", [:type = "child"])
+    AddNodeXTT("c", "Node C", [:type = "child"])
+    
+    # Add edges
+    Connect("a", "b")
+    Connect("b", "c")
+    
+    # Set rules
+    SetRule(oRule1)
+    SetRule(oRule2)
+    
+    # Apply inference (will add transitive a->c)
+    ApplyInference()
+    
+    # Now set properties based on graph structure
+    SetNodeProperty("a", "hasChild", TRUE)
+    SetNodeProperty("b", "inheritsFrom", "a")
+    SetNodeProperty("c", "inheritsFrom", "b")
+    
+    # Display results
+    ? "=== Nodes ==="
+    ? @@NL( Nodes() ) + NL
+    
+    ? "=== Edges ==="
+    ? @@NL( Edges() ) + NL
+    
+    ? "=== Node Properties ==="
+    ? "Node A hasChild: " + NodeProperty("a", "hasChild")
+    ? "Node B inheritsFrom: " + NodeProperty("b", "inheritsFrom")
+    ? "Node C inheritsFrom: " + NodeProperty("c", "inheritsFrom")
+    ? ""
+    
+    ? "=== Inference Report ==="
+    ? @@NL( InferenceReport() )
+}
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
+
+/*--- Else Effects in Validation
+
+pr()
+
+oRule = new stzGraphRule("status_check")
+oRule {
+	SetRuleType("validation")
+	When("status", "equals", "active")
+	Then("requiredreview", "set", FALSE)
+	Else_("requiredreview", "set", TRUE)
+}
+
+oGraph = new stzGraph("ElseTest")
+oGraph {
+	AddNodeXTT("n1", "N1", [:status = "active"])
+
+	ApplyRules()
+	Validate()  # Apply with else
+
+	? NodeProperty("n1", "requiredreview")  #--> FALSE
+
+	SetNodeProperty("n1", "status", "inactive")
+	Validate()
+
+	? NodeProperty("n1", "requiredreview")  #--> TRUE
+}
+
+#ERR Line 2916 Inexistant node key or/and property!
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Multi-Rule Interactions and Conflicts
+
+pr()
+
+oRule1 = new stzGraphRule("priority_boost")
+oRule1 {
+	SetRuleType("inference")
+	When("priority", "lessthan", 10)
+	Then("priority", "set", 10)
+}
+
+oRule2 = new stzGraphRule("priority_cap")
+oRule2 {
+	SetRuleType("constraint")
+	When("priority", "greaterthan", 8)
+	ThenViolation("Priority exceeds cap")
+}
+
+oGraph = new stzGraph("MultiRuleTest")
+oGraph {
+	AddNodeXTT("n1", "N1", [:priority = 5])
+	
+	ApplyRules()  # Inference first, then constraint
+	
+	? NodeProperty("n1", "priority")  #--> 5
+	? @@( ConstraintViolations() )  #--> [ "Priority exceeds cap" ]  # Conflict detected
+	#ERR returned []
+}
+
+# along with a general Viloations() method that return them all (and ViloationsXT() that
+# return them in a hashlist [ [ "validation", [ .., ... ] ], [ "inference", [ "...", "..."] ], etc ]
+
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+#============================================#
 #  SECTION 10: METADATA OPERATIONS
 #============================================#
 
@@ -1347,7 +1908,7 @@ pf()
 #============================================#
 # TODO review it's implementation in the light of the
 # abstracted stzGraphRule class and other classes
-#UPDATE Done :D
+#UPDATE Done :D بفضل الله
 
 /*--- Built-in Inference
 
@@ -1438,7 +1999,7 @@ oGraph {
 	
 	? BoxRound("CONSTRAINTS ANOMALIES")
 	? @@( ConstraintAnomalies() )
-	#--> [[:type = "ACYCLIC", :count = 1]] #TODO returned []
+	#--> [[:type = "ACYCLIC", :count = 1]] []
 }
 #-->
 '
@@ -1684,8 +2245,8 @@ pf()
 #  SECTION 16: COMPLETE WORKFLOW
 #============================================#
 
-/*--- Real-World Scenario #TODO #ERR Cchek usage of rules
-*/
+/*--- Real-World Scenario
+
 pr()
 
 oGraph = new stzGraph("MicroserviceGraph")
@@ -1706,7 +2267,7 @@ oGraph {
 	oRule = new stzGraphRule("highcost")
 	oRule {
 		When("cost", :InSection, [200, 9999])
-		Apply("alert", TRUE)
+		SetProperty("alert", TRUE)
 	}
 	SetRule(oRule)
 	ApplyRules()
@@ -1717,7 +2278,7 @@ oGraph {
 
 	? "Critical nodes: " + @@( MostCriticalNodes(2) )
 	? "Bottlenecks: " + @@( BottleneckNodes() )
-	? "Density: " + NodeDensity() + "%" + NL
+	? "Density: " + NodeDensity100() + "%" + NL
 	
 	# Visualize
 	? "VISUALIZATION"
@@ -1787,7 +2348,7 @@ EXPORT
 ------
 
 digraph MicroserviceGraph {
-  rankdir=LR;
+  rankdir=TD;
   node [shape=box];
 
   api [label="API Gateway"];
@@ -1899,7 +2460,7 @@ oGraph {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 #=======================#
 #  CONNECTIVITY TESTS   #
@@ -1911,9 +2472,9 @@ pr()
 
 oGraph = new stzGraph("Connected")
 oGraph {
-	AddNodeXT(:a, "A")
-	AddNodeXT(:b, "B")
-	AddNodeXT(:c, "C")
+	AddNode(:a)
+	AddNode(:b)
+	AddNode(:c)
 
 	Connect(:a, :b)
 	Connect(:b, :c)
@@ -1934,17 +2495,17 @@ pr()
 
 oGraph = new stzGraph("TwoComponents")
 oGraph {
-	AddNodeXT(:a, "A")
-	AddNodeXT(:b, "B")
-	AddNodeXT(:c, "C")
-	AddNodeXT(:d, "D")
-	
+	AddNode(:a)
+	AddNode(:b)
+	AddNode(:c)
+	AddNode(:d)
+
 	Connect(:a, :b)
 	Connect(:c, :d)
-	
+
 	? IsConnected()
 	#--> FALSE
-	
+
 	? @@NL( ConnectedComponents() )
 	#--> [["a", "b"], ["c", "d"]]
 }
@@ -1958,10 +2519,10 @@ pr()
 
 oGraph = new stzGraph("Bridge")
 oGraph {
-	AddNodeXT(:n1, "N1")
-	AddNodeXT(:n2, "N2")
-	AddNodeXT(:n3, "N3")
-	AddNodeXT(:n4, "N4")
+	AddNode(:n1)
+	AddNode(:n2)
+	AddNode(:n3)
+	AddNode(:n4)
 	
 	Connect(:n1, :n2)
 	Connect(:n2, :n3)
@@ -1997,7 +2558,7 @@ oGraph {
 	#--> 0.33 (2 out of 6 possible paths go through center in directed graph)
 	
 	? BetweennessCentrality(:n1)
-	#--> 0.0 (no paths go through peripheral nodes)
+	#--> 0 (no paths go through peripheral nodes)
 }
 
 pf()
@@ -2027,7 +2588,7 @@ oGraph {
 	? BetweennessCentrality(:n1)
 	#--> 0 (no paths go through peripheral nodes)
 
-	// View()
+	View()
 }
 
 pf()
@@ -2119,6 +2680,30 @@ oGraph {
 	
 	? Diameter()
 	#--> 3 (longest path: n1 to n4)
+
+	Show()
+	#-->
+	'
+	         ╭────╮          
+	         │ n1 │          
+	         ╰────╯          
+	            |            
+	            v            
+	        ╭──────╮         
+	        │ !n2! │         
+	        ╰──────╯         
+	            |            
+	            v            
+	        ╭──────╮         
+	        │ !n3! │         
+	        ╰──────╯         
+	            |            
+	            v            
+	         ╭────╮          
+	         │ n4 │          
+	         ╰────╯  
+	'
+
 }
 
 pf()
@@ -2174,7 +2759,7 @@ oGraph {
 	? AveragePathLength()
 	#--> 1.60
 
-	? IsConnected() + NL
+	? IsConnected() + NL$
 	#--> TRUE
 
 	# Node Importance
@@ -2189,6 +2774,8 @@ oGraph {
 
 	? @@( ArticulationPoints() )
 	#--> [ "bob", "charlie", "diana" ]
+
+	View()
 
 }
 
@@ -2212,32 +2799,24 @@ oGraph {
 	Connect(:process, :review)
 	Connect(:review, :complete)
 	
-	? "Path from Start to Complete:"
-	? @@( ShortestPath(:From = :start, :To = :complete) )
-	
-	? ""
-	? "Bottleneck nodes (articulation points):"
-	? @@( ArticulationPoints() )
-	
-	? ""
-	? "Critical step (highest betweenness):"
-	? "Validate: " + BetweennessCentrality(:validate)
-	? "Process: " + BetweennessCentrality(:process)
-	? "Review: " + BetweennessCentrality(:review)
+	# Path from Start to Complete:
+	? @@( ShortestPath(:From = :start, :To = :complete) ) + NL
+	#--> [ "start", "validate", "process", "review", "complete" ]
+
+	# Bottleneck nodes (articulation points):
+	? @@( ArticulationPoints() ) + NL
+	#--> [ "validate", "process", "review" ]
+
+	# Critical step (highest betweenness):"
+	? BetweennessCentrality(:validate)
+	#--> 0.25
+
+	? BetweennessCentrality(:process)
+	#--> 0.33
+
+	? BetweennessCentrality(:review)
+	#--> 0.25
 }
-#-->
-'
-Path from Start to Complete:
-[ "start", "validate", "process", "review", "complete" ]
-
-Bottleneck nodes (articulation points):
-[ "validate", "process", "review" ]
-
-Critical step (highest betweenness):
-Validate: 0.25
-Process: 0.33
-Review: 0.25
-'
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.24
@@ -2482,3 +3061,164 @@ focus
     penwidth: 3
 */
 
+#=================================================#
+# SECTION 8: SELF-LOOPS AND REFLEXIVE OPERATIONS  #
+#=================================================#
+
+#NOTE: self-loops are a common graph feature for
+# states or recursive dependencies
+
+/*--- Basic Self-Loop Operations
+
+pr()
+
+oGraph = new stzGraph("SelfLoopTest")
+oGraph {
+	AddNode("node")
+	Connect("node", :to = "node")  # Self-loop
+
+	? EdgeExists(:from = "node", :to = "node")
+	#--> TRUE
+
+	SetEdgeProperty(:from = "node", :to = "node", "type", "recursive")
+	? EdgeProperty(:from = "node", :to = "node", "type")
+	#--> "recursive"
+
+	RemoveEdge(:from = "node", :to = "node")
+	? EdgeExists(:from = "node", :to = "node")
+	#--> FALSE
+}
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Self-Loops in Cycles and Reachability
+
+pr()
+oGraph = new stzGraph("SelfCycleTest")
+oGraph {
+	AddNode("a")
+	AddNode("b")
+
+	Connect(:Node = "a", :WithNode = "a")  # Self-loop
+	Connect(:Node = "a", :ToNode = "b")
+
+	? CyclicDependencies()  #--> TRUE  # Self-loop counts as cycle
+	? ReachableFromNode("a")  #--> [ "a", "b" ]  # Includes self
+}
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+
+#============================================#
+# SECTION 9: RULE ENGINE ADVANCED
+#============================================#
+
+/*--- Inference Rule Chaining
+
+pr()
+
+oRule1 = new stzGraphRule("parent_infer")
+oRule1 {
+	SetRuleType("inference")
+	When("type", "equals", "parent")
+	Then("haschild", "add", TRUE)
+}
+
+oRule2 = new stzGraphRule("child_infer")
+oRule2 {
+	SetRuleType("inference")
+	WhenPathExists("parent", "this")  # Assuming 'this' context
+	Then("inheritsfrom", "add", "parent")
+}
+
+oGraph = new stzGraph("InferenceChain")
+oGraph {
+	AddNodeXTT("a", "A", [:type = "parent"])
+	AddNodeXTT("b", "B", [:type = "child"])
+	Connect("a", "b")
+
+	ApplyRules()
+
+	ApplyInference()  # Chain rules
+	? NodeProperty("a", "haschild")  #--> TRUE
+	? NodeProperty("b", "inheritsfrom")  #--> "parent"
+}
+
+#ERR Line 2916 Inexistant node key or/and property!
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
+
+/*--- Else Effects in Validation
+
+pr()
+
+oRule = new stzGraphRule("status_check")
+oRule {
+	SetRuleType("validation")
+	When("status", "equals", "active")
+	Then("requiredReview", "set", FALSE)
+	Elze("requiredReview", "set", TRUE)
+}
+
+oGraph = new stzGraph("ElseTest")
+oGraph {
+	AddNodeXTT("n1", "N1", [:status = "active"])
+	ApplyRules()
+
+	Validate()  # Apply with else
+
+	? NodeProperty("n1", "requiredReview")  #--> FALSE
+	SetNodeProperty("n1", "status", "inactive")
+	
+	Validate()
+	? NodeProperty("n1", "requiredReview")  #--> TRUE
+}
+pf()
+#ERR Line 2916 Inexistant node key or/and property!
+
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- Multi-Rule Interactions and Conflicts
+*/
+pr()
+
+oRule1 = new stzGraphRule("priority_boost")
+oRule1 {
+	SetRuleType("inference")
+	When("priority", "lessthan", 10)
+	Then("priority", "set", 10)
+}
+
+oRule2 = new stzGraphRule("priority_cap")
+oRule2 {
+	SetRuleType("constraint")
+	When("priority", "greaterthan", 8)
+	ThenViolation("Priority exceeds cap")
+}
+
+oGraph = new stzGraph("MultiRuleTest")
+oGraph {
+	AddNodeXTT("n1", "N1", [:priority = 5])
+	ApplyRules()  # Inference first, then constraint
+
+	? NodeProperty("n1", "priority")
+	#--> 5
+
+	? @@NL( Violations() )  #--> [ "Priority exceeds cap" ]  # Conflict detected
+	#--> #TODO Is this correct:
+	'
+	[
+		[ "constraint", [  ] ],
+		[ "inference", [  ] ],
+		[
+			"validation",
+			[ "Graph must be acyclic (DAG)" ]
+		]
+	]
+	'
+
+}
+pf()
+# Executed in 0.01 second(s) in Ring 1.24

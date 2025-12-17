@@ -465,7 +465,6 @@ class stzGraph
 			This.AddEdgeXTT(pcFromId, pcToId, pcLabel, [])
 
 	def AddEdgeXTT(pcFromId, pcToId, pcLabel, pacProperties)
-
 	    if CheckParams()
 	        if isList(pcFromId) and StzListQ(pcFromId).IsFromNamedParam()
 	            pcFromId = pcFromId[2]
@@ -481,11 +480,11 @@ class stzGraph
 	    ok
 	
 	    if NOT This.NodeExists(pcFromId) or NOT This.NodeExists(pcToId)
-	        return 0
+	        stzraise("Cannot add edge: one or both nodes do not exist!")
 	    ok
 	
 	    if This.EdgeExists(pcFromId, pcToId)
-	        return 0
+	        stzraise("Edge already exists between '" + pcFromId + "' and '" + pcToId + "'!")
 	    ok
 	
 	    aEdge = [
@@ -541,6 +540,116 @@ class stzGraph
 
 	def EdgeCount()
 		return len(@aEdges)
+
+	def EdgeCountBetween(pcFrom, pcTo)
+		if CheckParams()
+			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
+				pcFrom = pcFrom[2]
+			ok
+			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
+				pcTo = pcTo[2]
+			ok
+		ok
+	
+		nCount = 0
+		nLen = len(@aEdges)
+		for i = 1 to nLen
+			aEdge = @aEdges[i]
+			if aEdge["from"] = pcFrom and aEdge["to"] = pcTo
+				nCount++
+			ok
+		end
+		return nCount
+	
+		def EdgesBetweenCount(pcFrom, pcTo)
+			return This.EdgeCountBetween(pcFrom, pcTo)
+	
+	def EdgesBetween(pcFrom, pcTo)
+		if CheckParams()
+			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
+				pcFrom = pcFrom[2]
+			ok
+			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
+				pcTo = pcTo[2]
+			ok
+		ok
+	
+		aResult = []
+		nLen = len(@aEdges)
+		for i = 1 to nLen
+			aEdge = @aEdges[i]
+			if aEdge["from"] = pcFrom and aEdge["to"] = pcTo
+				aResult + [aEdge["from"], aEdge["label"], aEdge["to"]]
+			ok
+		end
+		return aResult
+	
+		def AllEdgesBetween(pcFrom, pcTo)
+			return This.EdgesBetween(pcFrom, pcTo)
+
+	#--- REMOVING EDGES
+
+	def RemoveEdgeByLabel(pcFrom, pcTo, pcLabel)
+		if CheckParams()
+			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
+				pcFrom = pcFrom[2]
+			ok
+			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
+				pcTo = pcTo[2]
+			ok
+			if isList(pcLabel) and StzListQ(pcLabel).IsLabelNamedParam()
+				pcLabel = pcLabel[2]
+			ok
+		ok
+	
+		acNew = []
+		nLen = len(@aEdges)
+		bFound = FALSE
+		
+		for i = 1 to nLen
+			aEdge = @aEdges[i]
+			if aEdge["from"] = pcFrom and aEdge["to"] = pcTo and aEdge["label"] = pcLabel and NOT bFound
+				bFound = TRUE  # Remove only first match
+				loop
+			ok
+			acNew + aEdge
+		end
+		
+		@aEdges = acNew
+	
+		def RemoveEdgeWithLabel(pcFrom, pcTo, pcLabel)
+			This.RemoveEdgeByLabel(pcFrom, pcTo, pcLabel)
+	
+		def DisconnectByLabel(pcFrom, pcTo, pcLabel)
+			This.RemoveEdgeByLabel(pcFrom, pcTo, pcLabel)
+	
+	def RemoveAllEdgesBetween(pcFrom, pcTo)
+		if CheckParams()
+			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
+				pcFrom = pcFrom[2]
+			ok
+			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
+				pcTo = pcTo[2]
+			ok
+		ok
+	
+		acNew = []
+		nLen = len(@aEdges)
+		
+		for i = 1 to nLen
+			aEdge = @aEdges[i]
+			if NOT (aEdge["from"] = pcFrom and aEdge["to"] = pcTo)
+				acNew + aEdge
+			ok
+		end
+		
+		@aEdges = acNew
+	
+		def RemoveEdgesBetween(pcFrom, pcTo)
+			This.RemoveAllEdgesBetween(pcFrom, pcTo)
+	
+		def DisconnectAll(pcFrom, pcTo)
+			This.RemoveAllEdgesBetween(pcFrom, pcTo)
 
 	#-------------------#
 	#  NODE NAVIGATION  #
@@ -1299,6 +1408,53 @@ class stzGraph
 
 		def NodeDensityInPercent()
 			return This.NodeDensity100()
+
+	def Density()
+		nNodes = len(@aNodes)
+		nEdges = len(@aEdges)
+	
+		if nNodes <= 1
+			return 0
+		ok
+	
+		nMaxEdges = nNodes * (nNodes - 1)
+		nDensity = nEdges / nMaxEdges
+		
+		# Round to 2 decimal places
+		return floor(nDensity * 100 + 0.5) / 100
+	
+		def Density01()
+			return This.Density()
+	
+	def Density100()
+		return This.Density() * 100
+
+
+	def IsSparse()
+		return This.Density() < 0.5
+	
+	
+	def IsDense()
+		return This.Density() >= 0.5
+	
+	
+	def DensityCategory()
+		nDensity = This.Density()
+		
+		if nDensity = 0
+			return "empty"
+		but nDensity < 0.25
+			return "very sparse"
+		but nDensity < 0.5
+			return "sparse"
+		but nDensity < 0.75
+			return "dense"
+		else
+			return "very dense"
+		ok
+	
+		def DensityLevel()
+			return This.DensityCategory()
 
 	def LongestPath()
 		nMax = 0
@@ -2495,6 +2651,60 @@ class stzGraph
 			:results = paResults
 		]
 
+	#-------------#
+	#  ANOMALIES  #
+	#-------------#
+
+	def Violations()
+		aViolations = [
+			:constraint = [],
+			:inference = [],
+			:validation = []
+		]
+		
+		if @oRuleEngine = NULL
+			return aViolations
+		ok
+		
+		# Collect constraint violations
+		aConstraintResult = @oRuleEngine.CheckConstraints()
+		if aConstraintResult[:status] = "fail"
+			aViolations[:constraint] = aConstraintResult[:issues]
+		ok
+		
+		# Collect validation violations
+		aValidationResult = @oRuleEngine.Validate("validation")
+		if aValidationResult[:status] = "fail"
+			aViolations[:validation] = aValidationResult[:issues]
+		ok
+		
+		# Collect inference anomalies (edges that couldn't be inferred due to conflicts)
+		# Currently inference doesn't produce violations, but structure is ready
+		
+		return aViolations
+	
+		def Anomalies()
+			return This.Violations()
+	
+	def ViolationCount()
+		aViolations = This.Violations()
+
+		return len(aViolations[:constraint]) + 
+		       len(aViolations[:inference]) + 
+		       len(aViolations[:validation])
+
+		def NumberOfViolations()
+			return This.ViolationCount()
+
+		def NumberOfAnomalies()
+			return This.ViolationCount()
+
+		def HowManyViolation()
+			return This.ViolationCount()
+
+		def HowManyAnomaly()
+			return This.ViolationCount()
+
 	#--------------------#
 	#  5. RICH QUERYING  #
 	#--------------------#
@@ -3572,8 +3782,7 @@ class stzGraph
 		end
 
 	def IsConnected()
-		_aComponents_ = This.ConnectedComponents()
-		return len(_aComponents_) = 1
+	    return This._IsConnected()
 
 	def ArticulationPoints()
 		_acArticulation_ = []

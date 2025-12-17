@@ -1,9 +1,16 @@
-digraph ExportTest {
+digraph SocialNetwork {
   rankdir=TD;
   node [shape=box];
 
-  a [label="A"];
-  b [label="B"];
+  alice [label="alice"];
+  bob [label="bob"];
+  charlie [label="charlie"];
+  diana [label="diana"];
+  eve [label="eve"];
 
-  a -> b;
+  alice -> bob;
+  bob -> charlie;
+  bob -> diana;
+  charlie -> diana;
+  diana -> eve;
 }

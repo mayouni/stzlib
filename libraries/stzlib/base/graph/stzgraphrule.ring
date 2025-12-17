@@ -184,6 +184,9 @@ class stzGraphRule
 	def Else_(pcAspect, pcAction, pValue)
 		@aElseEffects + [pcAction, pcAspect, pValue]
 	
+		def Elze(pcAspect, pcAction, pValue)
+			return This.Else_(pcAspect, pcAction, pValue)
+
 	def ThenViolation(pcMessage)
 		@aEffects + [:violation, pcMessage]
 	
