@@ -2705,393 +2705,23 @@ class stzGraph
 		def HowManyAnomaly()
 			return This.ViolationCount()
 
-	#--------------------#
-	#  5. RICH QUERYING  #
-	#--------------------#
+	#------------------------------------------------#
+	#  RICH QUERYING - BASED ON stzGraphQuery CLASS  #
+	#------------------------------------------------#
 
-	def Query(pcPattern)
-		if isString(pcPattern)
-			return This._QueryByString(pcPattern)
-		ok
-		
-		if isList(pcPattern)
-			return This._QueryByList(pcPattern)
-		ok
-		
-		return []
+	# One method that replace 23 old methods that made
+	# quering semantically complex and hard to rember
+	# Now we have a unique exprssion: Find(What).Where(Condition)
 
-	# Query nodes with property
-	def NodesWithProperty(pcProperty)
-		acResult = []
-		nLen = len(@aNodes)
-		
-		for i = 1 to nLen
-			aNode = @aNodes[i]
-			if HasKey(aNode, "properties") and HasKey(aNode["properties"], pcProperty)
-				acResult + aNode["id"]
-			ok
-		end
-		
-		return acResult
-	
+	def Find(pcWhat)
+		return new stzGraphQuery(This, pcWhat)
 
-	# Query nodes with property value or condition
-	def NodesWithPropertyXT(pcProperty, pValue)
-		acResult = []
-		
-		# Handle named parameters
-		bIsInSection = FALSE
-		nMin = 0
-		nMax = 0
-		pCompareValue = pValue
-		
-		if isList(pValue)
-			oVal = new stzList(pValue)
-			
-			if oVal.IsInSectionOrBetweenNamedParam()
-				bIsInSection = TRUE
-				nMin = pValue[2][1]
-				nMax = pValue[2][2]
-			else
-				pCompareValue = pValue
-			ok
-		ok
-		
-		nLen = len(@aNodes)
-		for i = 1 to nLen
-			aNode = @aNodes[i]
-			
-			if HasKey(aNode, "properties") and HasKey(aNode["properties"], pcProperty)
-				pNodeValue = aNode["properties"][pcProperty]
-				
-				if bIsInSection
-					if isNumber(pNodeValue) and pNodeValue >= nMin and pNodeValue <= nMax
-						acResult + aNode["id"]
-					ok
-				else
-					if pNodeValue = pCompareValue
-						acResult + aNode["id"]
-					ok
-				ok
-			ok
-		end
-		
-		return acResult	
-	
-	# Query nodes with any tag
-	def NodesWithAnyTag(paTags)
-		acResult = []
-		nLen = len(@aNodes)
-		
-		for i = 1 to nLen
-			aNode = @aNodes[i]
-			
-			if HasKey(aNode, "properties") and HasKey(aNode["properties"], "tags")
-				aNodeTags = aNode["properties"]["tags"]
-				
-				nTagLen = len(paTags)
-				for j = 1 to nTagLen
-					if ring_find(aNodeTags, paTags[j]) > 0
-						if ring_find(acResult, aNode["id"]) = 0
-							acResult + aNode["id"]
-						ok
-						exit
-					ok
-				end
-			ok
-		end
-		
-		return acResult
+		def FindQ(pcWhat)
+			return Find(pcWhat)
 
-
-	def _QueryByString(pcPattern)
-		acResults = []
-		
-		if substr(pcPattern, "find_nodes_")
-			cNodeType = substr(pcPattern, "find_nodes_", "")
-			acResults = This._FindNodesByPattern(cNodeType)
-		ok
-		
-		if substr(pcPattern, "find_paths_")
-			acParts = @split(pcPattern, "_to_")
-			if len(acParts) = 2
-				cFrom = trim(acParts[1])
-				cTo = trim(acParts[2])
-				acResults = This.FindAllPaths(cFrom, cTo)
-			ok
-		ok
-		
-		if substr(pcPattern, "connected_to_")
-			cNodeId = substr(pcPattern, "connected_to_", "")
-			acResults = This.Neighbors(cNodeId)
-		ok
-		
-		return acResults
-
-	def _QueryByList(pacPattern)
-		if NOT IsHashList(pacPattern)
-			return []
-		ok
-		
-		acResults = []
-		
-		if HasKey(pacPattern, "nodeType")
-			acResults = This._FindNodesByType(pacPattern["nodeType"])
-		ok
-		
-		if HasKey(pacPattern, "edgeLabel")
-			acResults = This._FindEdgesByLabel(pacPattern["edgeLabel"])
-		ok
-		
-		if HasKey(pacPattern, "pathFrom") and HasKey(pacPattern, "pathTo")
-			acResults = This.FindAllPaths(pacPattern["pathFrom"], pacPattern["pathTo"])
-		ok
-		
-		return acResults
-
-	def _FindNodesByPattern(pcPattern)
-		acFound = []
-		nLen = len(@aNodes)
-		
-		for i = 1 to nLen
-			aNode = @aNodes[i]
-			if HasKey(aNode, "properties")
-				acProps = aNode["properties"]
-				nPropLen = len(acProps)
-				for j = 1 to nPropLen
-					if pcPattern $in acProps[j]
-						acFound + aNode["id"]
-						exit
-					ok
-				end
-			ok
-		end
-		
-		return acFound
-
-	def _FindNodesByType(pcType)
-		acFound = []
-		nLen = len(@aNodes)
-		
-		for i = 1 to nLen
-			aNode = @aNodes[i]
-			if HasKey(aNode, "properties")
-				acProps = aNode["properties"]
-				if HasKey(acProps, "type")
-					if acProps["type"] = pcType
-						acFound + aNode["id"]
-					ok
-				ok
-			ok
-		end
-		
-		return acFound
-
-	def _FindEdgesByLabel(pcLabel)
-		acFound = []
-		nLen = len(@aEdges)
-		
-		for i = 1 to nLen
-			aEdge = @aEdges[i]
-			if aEdge["label"] = pcLabel
-				acFound + aEdge
-			ok
-		next
-		
-		return acFound
-
-	#------------------------------------#
-	#  NODE FINDING AND PATH OPERATIONS  #
-	#------------------------------------#
-	
-	def HasNode(pcNodeId)
-		return This.NodeExists(pcNodeId)
-	
-	def FindNode(pcNodeId)
-		if NOT This.NodeExists(pcNodeId)
-			return []
-		ok
-		
-		# Find all paths leading to this node
-		acAllPaths = []
-		acRoots = This.DependencyFreeNodes()
-		
-		if len(acRoots) = 0
-			# If no root nodes, use all nodes as potential starts
-			acRoots = []
-			nLen = len(@aNodes)
-			for i = 1 to nLen
-				acRoots + @aNodes[i]["id"]
-			end
-		ok
-		
-		# Find paths from each root to target node
-		nLen = len(acRoots)
-		for i = 1 to nLen
-			cRoot = acRoots[i]
-			if cRoot != pcNodeId
-				acPaths = This.FindAllPaths(cRoot, pcNodeId)
-				nPathLen = len(acPaths)
-				for j = 1 to nPathLen
-					acAllPaths + acPaths[j]
-				end
-			ok
-		end
-		
-		# If node is a root itself or isolated, return single-element path
-		if len(acAllPaths) = 0
-			acAllPaths + [pcNodeId]
-		ok
-		
-		return acAllPaths
-	
-		def PathsTo(pcNodeId)
-			return This.FindNode(pcNodeId)
-	
-		def PathsToNode(pcNodeId)
-			return This.FindNode(pcNodeId)
-
-	def FindPathsMatching(pFunc)
-		acMatchingPaths = []
-		nNodeLen = len(@aNodes)
-		
-		for i = 1 to nNodeLen
-			for j = 1 to nNodeLen
-				aNodeI = @aNodes[i]
-				aNodeJ = @aNodes[j]
-				
-				if aNodeI["id"] != aNodeJ["id"]
-					acPaths = This.FindAllPaths(aNodeI["id"], aNodeJ["id"])
-					nPathLen = len(acPaths)
-					
-					for k = 1 to nPathLen
-						acPath = acPaths[k]
-						if call pFunc(acPath)
-							acMatchingPaths + acPath
-						ok
-					end
-				ok
-			end
-		end
-		
-		return acMatchingPaths
-
-		def PathsMatching(pFunc)
-			return This.FindPathsMatching(pFunc)
-
-		def PathsMatchingF(pFunc)
-			return This.PathsMatching(pFunc)
-
-		def FindPathsMatchingF(pFunc)
-			return This.FindPathsMatching(pFunc)
-
-		def PathsMatchingFunc(pFunc)
-			return This.PathsMatching(pFunc)
-
-		def FindPathsMatchingFunc(pFunc)
-			return This.FindPathsMatching(pFunc)
-
-		def PathsMatchingFunction(pFunc)
-			return This.PathsMatching(pFunc)
-
-		def FindPathsMatchingFunction(pFunc)
-			return This.FindPathsMatching(pFunc)
-
-
-	def NodesByType(pType)
-		aFound = []
-		for aNode in This.Nodes()
-			if HasKey(aNode, "properties") and 
-			   HasKey(aNode["properties"], "type") and
-			   aNode["properties"]["type"] = pType
-				aFound + aNode["id"]
-			ok
-		end
-		return aFound
-	
-	def NodesByProperty(pProperty, pValue)
-		aFound = []
-		for aNode in This.Nodes()
-			if HasKey(aNode, "properties") and 
-			   HasKey(aNode["properties"], pProperty)
-				
-				propVal = aNode["properties"][pProperty]
-				
-				# Handle string/symbol comparison
-				bMatch = FALSE
-				if propVal = pValue
-					bMatch = TRUE
-				but isString(propVal) and isString(pValue)
-					if lower(propVal) = lower(pValue)
-						bMatch = TRUE
-					ok
-				ok
-				
-				if bMatch
-					aFound + aNode["id"]
-				ok
-			ok
-		end
-		return aFound
-
-		def NodesByProp(pProperty, pValue)
-			return This.NodesByProperty(pProperty, pValue)
-	
-	#---
-
-	def EdgesByProperty(pcProperty, pValue)
-		aFound = []
-		for aEdge in This.Edges()
-			if HasKey(aEdge, "properties") and 
-			   HasKey(aEdge["properties"], pcProperty) and
-			   aEdge["properties"][pcProperty] = pValue
-				aFound + [aEdge["from"], aEdge["to"]]
-			ok
-		end
-		return aFound
-
-		def EdgesByProp(pProperty, pValue)
-			return This.EdgesByProperty(pProperty, pValue)
-	
-	def EdgesWithPropertyInSection(pcKey, pnMin, pnMax)
-	    acResult = []
-	    aEdges = This.Edges()
-	    nLen = len(aEdges)
-	    
-	    for i = 1 to nLen
-	        aEdge = aEdges[i]
-	        if HasKey(aEdge, "properties") and 
-	           HasKey(aEdge["properties"], pcKey)
-	            nValue = aEdge["properties"][pcKey]
-	            if isNumber(nValue) and nValue >= pnMin and nValue <= pnMax
-	                acResult + [aEdge["from"], aEdge["to"]]
-	            ok
-	        ok
-	    end
-	    
-	    return acResult
-	
-	def EdgesWhere(pcProp, pValue)
-	    if CheckParams()
-	        if isList(pValue)
-	            _oList_ = StzListQ(pValue)
-	
-	            if _oList_.IsInSectionOrBetweenNamedParam() and
-	               isList(pValue[2]) and isNumber(pValue[2][1]) and isNumber(pValue[2][2])
-	                return This.EdgesWithPropertyInSection(pcProp, pValue[2][1], pValue[2][2])
-	
-	            but _oList_.IsEqualsOrIsNamedParam()
-	                pValue = pValue[2]
-	            ok
-	        ok
-	    ok
-	
-	    return This.EdgesByProperty(pcProp, pValue)
-
-		def EdgesW(pcProp, pValue)
-			return This.EdgesWhere(pcProp, pValue)
-
-	#---
+	#------------------#
+	#  REMOVING NODES  #
+	#------------------#
 
 	def RemoveNodeProperties(pcNodeId)
 		nLen = len(@aNodes)
@@ -3127,244 +2757,7 @@ class stzGraph
 		def ClearAllProperties()
 			This.RemoveAllProperties()
 
-	#--------------------------#
-	#  PROPERTY-BASED QUERIES  #
-	#--------------------------#
-	
-	def NodesWith(pcKey, pValue)
-	    if isList(pValue) and len(pValue) = 2 and isString(pValue[1])
-	        cOperator = pValue[1]
-	
-	        switch cOperator
-	        on "equals"
-	            return This.NodesWithPropertyValue(pcKey, pValue[2])
 
-	        on "insection"
-	            return This.NodesWithPropertyInSection(pcKey, pValue[2][1], pValue[2][2])
-	        on "between"
-	            return This.NodesWithPropertyInSection(pcKey, pValue[2][1], pValue[2][2])
-
-	        off
-	    ok
-	
-	    stzraise("Unsupported condition syntax!")
-	
-	def NodesWithPropertyValue(pcKey, pValue)
-	    if CheckParams()
-	        if isList(pValue) and StzListQ(pValue).IsInSectionNamedParam() and
-	           len(pValue) = 2 and isNumber(pValue) and isNumber(pValue)
-	
-	            return This.NodesWithPropertyInSection(pcKey, pValue[1], pValue[2])
-	        ok
-	    ok
-	
-	    acResult = []
-	    aNodes = This.Nodes()
-	    nLen = len(aNodes)
-	
-	    for i = 1 to nLen
-	        aNode = aNodes[i]
-	        if HasKey(aNode, "properties") and 
-	           HasKey(aNode["properties"], pcKey) and
-	           aNode["properties"][pcKey] = pValue
-	
-	            acResult + aNode["id"]
-	        ok
-	    end
-	    
-	    return acResult
-	
-	    def NodesWhereProperty(pcKey, pValue)
-	        return This.NodesWithPropertyValue(pcKey, pValue)
-	
-	def NodesWithPropertyInSection(pcKey, pnMin, pnMax)
-	    acResult = []
-	    aNodes = This.Nodes()
-	    nLen = len(aNodes)
-	    
-	    for i = 1 to nLen
-	        aNode = aNodes[i]
-	        if HasKey(aNode, "properties") and 
-	           HasKey(aNode["properties"], pcKey)
-	            nValue = aNode["properties"][pcKey]
-	            if isNumber(nValue) and nValue >= pnMin and nValue <= pnMax
-	                acResult + aNode["id"]
-	            ok
-	        ok
-	    end
-	    
-	    return acResult
-	
-	    def NodesWherePropertyInSection(pcKey, pnMin, pnMax)
-	        return This.NodesWithPropertyInSection(pcKey, pnMin, pnMax)
-	
-	def EdgesWithProperty(pcKey)
-	    acResult = []
-	    aEdges = This.Edges()
-	    nLen = len(aEdges)
-	    
-	    for i = 1 to nLen
-	        aEdge = aEdges[i]
-	        if HasKey(aEdge, "properties") and 
-	           HasKey(aEdge["properties"], pcKey)
-	            acResult + (aEdge["from"] + "->" + aEdge["to"])
-	        ok
-	    end
-	    
-	    return acResult
-	
-	    def EdgesHavingProperty(pcKey)
-	        return This.EdgesWithProperty(pcKey)
-	
-	def EdgesWithPropertyValue(pcKey, pValue)
-	    acResult = []
-	    aEdges = This.Edges()
-	    nLen = len(aEdges)
-	    
-	    for i = 1 to nLen
-	        aEdge = aEdges[i]
-	        if HasKey(aEdge, "properties") and 
-	           HasKey(aEdge["properties"], pcKey) and
-	           aEdge["properties"][pcKey] = pValue
-	            acResult + (aEdge["from"] + "->" + aEdge["to"])
-	        ok
-	    end
-	    
-	    return acResult
-	
-	    def EdgesWhereProperty(pcKey, pValue)
-	        return This.EdgesWithPropertyValue(pcKey, pValue)
-
-	#---------------------#
-	#  TAG-BASED QUERIES  #
-	#---------------------#
-	
-	def TaggedNodes()
-	    aNodes = This.Nodes()
-	    nLen = len(aNodes)
-	    
-	    for i = 1 to nLen
-	        aNode = aNodes[i]
-	        if HasKey(aNode, "properties") and 
-	           HasKey(aNode["properties"], "tags") and
-	           len(aNode["properties"]["tags"]) > 0
-	            return TRUE
-	        ok
-	    end
-	    
-	    return FALSE
-	
-	    def NodesWithTags()
-	        return This.TaggedNodes()
-	
-	    def NodesTagged()
-	        return This.TaggedNodes()
-	
-	def NodesWithTag(pcTag)
-	    if CheckParams()
-	        if isList(pcTag)
-	            return This.NodesWithTheseTags(pcTag)
-	        ok
-	    ok
-	
-	    acResult = []
-	    aNodes = This.Nodes()
-	    nLen = len(aNodes)
-	    
-	    for i = 1 to nLen
-	        aNode = aNodes[i]
-	        if HasKey(aNode, "properties") and 
-	           HasKey(aNode["properties"], "tags")
-	            aTags = aNode["properties"]["tags"]
-	            if ring_find(aTags, pcTag) > 0
-	                acResult + aNode["id"]
-	            ok
-	        ok
-	    end
-	    
-	    return acResult
-	
-	    def NodesTaggedWith(pcTag)
-	        return This.NodesWithTag(pcTag)
-
-	
-	def NodesWithTheseTags(pacTags)
-	    acResult = []
-	    aNodes = This.Nodes()
-	    nNodeLen = len(aNodes)
-	    
-	    for i = 1 to nNodeLen
-	        aNode = aNodes[i]
-	        if HasKey(aNode, "properties") and 
-	           HasKey(aNode["properties"], "tags")
-	            aTags = aNode["properties"]["tags"]
-	            bHasAll = TRUE
-	            
-	            nTagLen = len(pacTags)
-	            for j = 1 to nTagLen
-	                if ring_find(aTags, pacTags[j]) = 0
-	                    bHasAll = FALSE
-	                    exit
-	                ok
-	            end
-	            
-	            if bHasAll
-	                acResult + aNode["id"]
-	            ok
-	        ok
-	    end
-	    
-	    return acResult
-	
-	def NodesWithAnyOfTheseTags(pacTags)
-	    acResult = []
-	    aNodes = This.Nodes()
-	    nNodeLen = len(aNodes)
-	    
-	    for i = 1 to nNodeLen
-	        aNode = aNodes[i]
-	        if HasKey(aNode, "properties") and 
-	           HasKey(aNode["properties"], "tags")
-	            aTags = aNode["properties"]["tags"]
-	            
-	            nTagLen = len(pacTags)
-	            for j = 1 to nTagLen
-	                if ring_find(aTags, pacTags[j]) > 0
-	                    acResult + aNode["id"]
-	                    exit
-	                ok
-	            end
-	        ok
-	    end
-	    
-	    return acResult
-	
-	    def NodesTaggedWithAnyOfThese(pacTags)
-	        return This.NodesWithAnyOfTheseTags(pacTags)
-	
-	def EdgesWithTag(pcTag)
-	    acResult = []
-	    aEdges = This.Edges()
-	    nLen = len(aEdges)
-	    
-	    for i = 1 to nLen
-	        aEdge = aEdges[i]
-	        if HasKey(aEdge, "properties") and 
-	           HasKey(aEdge["properties"], "tags")
-	            aTags = aEdge["properties"]["tags"]
-	            if ring_find(aTags, pcTag) > 0
-	                acResult + (aEdge["from"] + "->" + aEdge["to"])
-	            ok
-	        ok
-	    end
-	    
-	    return acResult
-	
-	    def EdgesTaggedWith(pcTag)
-	        return This.EdgesWithTag(pcTag)
-	
-	    def EdgesHavingTag(pcTag)
-	        return This.EdgesWithTag(pcTag)
 
 	#--------------#
 	#  SIMULATION  #
@@ -4882,3 +4275,240 @@ class stzGrafParser
 		nEnd = @substr(cLine, nStart + 1, len(cLine))
 		nEnd = substr(nEnd, '"')
 		return @substr(cLine, nStart + 1, nStart + nEnd - 1)
+
+#==================================================#
+# UNIFIED QUERY DSL - ONE METHOD TO RULE THEM ALL  #
+#==================================================#
+
+# Core Principle: Find(what).Where(condition)
+
+class stzGraphQuery
+	@oGraph
+	@cTarget  # "nodes" or "edges"
+	@aFilters = []
+	
+	def init(oGraph, cTarget)
+		@oGraph = oGraph
+		@cTarget = lower(cTarget)
+		@aFilters = []
+	
+	# Chainable filters
+	def WhereQ(pcKey, pCondition, pValue)
+		@aFilters + [:where, pcKey, pCondition, pValue]
+		return This
+	
+	def HavingQ(pcKey, pValue)
+		@aFilters + [:where, pcKey, :equals, pValue]
+		return This
+	
+	def WithTagQ(pcTag)
+		@aFilters + [:tag, pcTag]
+		return This
+	
+	def WithPropertyQ(pcKey)
+		@aFilters + [:hasprop, pcKey]
+		return This
+	
+	def WithAnyTagQ(paTags)
+		@aFilters + [:anytag, paTags]
+		return This
+
+	# Execute query
+	def Run()
+		if @cTarget = "nodes"
+			return This._QueryNodes()
+		but @cTarget = "edges"
+			return This._QueryEdges()
+		ok
+		return []
+
+		def Execute()
+			return This.Run()
+	
+	#-- UTILITY METHODS
+
+	def _QueryNodes()
+		acResult = []
+		aNodes = @oGraph.Nodes()
+		
+		for aNode in aNodes
+			if This._NodeMatches(aNode)
+				acResult + aNode["id"]
+			ok
+		end
+		return acResult
+	
+	def _QueryEdges()
+		acResult = []
+		aEdges = @oGraph.Edges()
+		
+		for aEdge in aEdges
+			if This._EdgeMatches(aEdge)
+				acResult + (aEdge["from"] + "->" + aEdge["to"])
+			ok
+		end
+		return acResult
+	
+	def _NodeMatches(aNode)
+		for aFilter in @aFilters
+			cType = aFilter[1]
+			
+			if cType = :where
+				pcKey = aFilter[2]
+				pCondition = aFilter[3]
+				pValue = aFilter[4]
+				
+				pActual = This._GetNestedValue(aNode, pcKey)
+				if pActual = NULL
+					return FALSE
+				ok
+				
+				if NOT This._Matches(pActual, pCondition, pValue)
+					return FALSE
+				ok
+				
+			but cType = :hasprop
+				pcKey = aFilter[2]
+				if This._GetNestedValue(aNode, pcKey) = NULL
+					return FALSE
+				ok
+				
+			but cType = :tag
+				pcTag = aFilter[2]
+				if NOT HasKey(aNode, "properties") or 
+				   NOT HasKey(aNode["properties"], "tags") or
+				   ring_find(aNode["properties"]["tags"], pcTag) = 0
+					return FALSE
+				ok
+
+			but cType = :anytag
+				pacTags = aFilter[2]
+				if NOT HasKey(aElement, "properties") or 
+				   NOT HasKey(aElement["properties"], "tags")
+					return FALSE
+				ok
+				acTags = aElement["properties"]["tags"]
+				for cTag in pacTags
+					if ring_find(acTags, cTag) > 0
+						return TRUE # Found one match
+					ok
+				end
+				return FALSE
+
+			ok
+		end
+		return TRUE
+	
+	def _EdgeMatches(aEdge)
+		for aFilter in @aFilters
+			cType = aFilter[1]
+			
+			if cType = :where
+				pcKey = aFilter[2]
+				pCondition = aFilter[3]
+				pValue = aFilter[4]
+				
+				pActual = This._GetNestedValue(aEdge, pcKey)
+				if pActual = NULL
+					return FALSE
+				ok
+				
+				if NOT This._Matches(pActual, pCondition, pValue)
+					return FALSE
+				ok
+				
+			but cType = :hasprop
+				pcKey = aFilter[2]
+				if This._GetNestedValue(aEdge, pcKey) = NULL
+					return FALSE
+				ok
+				
+			but cType = :tag
+				pcTag = aFilter[2]
+				if NOT HasKey(aEdge, "properties") or 
+				   NOT HasKey(aEdge["properties"], "tags") or
+				   ring_find(aEdge["properties"]["tags"], pcTag) = 0
+					return FALSE
+				ok
+
+			but cType = :anytag
+				pacTags = aFilter[2]
+				if NOT HasKey(aElement, "properties") or 
+				   NOT HasKey(aElement["properties"], "tags")
+					return FALSE
+				ok
+				acTags = aElement["properties"]["tags"]
+				for cTag in pacTags
+					if ring_find(acTags, cTag) > 0
+						return TRUE # Found one match
+					ok
+				end
+				return FALSE
+
+			ok
+		end
+		return TRUE
+	
+	def _GetNestedValue(aElement, pcKey)
+		bIsNested = (substr(pcKey, ".") > 0)
+		
+		if bIsNested
+			acPath = split(pcKey, ".")
+			pValue = aElement
+			
+			# Check if first part is in element root
+			if HasKey(aElement, acPath[1])
+				pValue = aElement[acPath[1]]
+				for i = 2 to len(acPath)
+					if isList(pValue) and HasKey(pValue, acPath[i])
+						pValue = pValue[acPath[i]]
+					else
+						return NULL
+					ok
+				end
+				return pValue
+				
+			# Check in properties
+			but HasKey(aElement, "properties")
+				pValue = aElement["properties"]
+				for i = 1 to len(acPath)
+					if isList(pValue) and HasKey(pValue, acPath[i])
+						pValue = pValue[acPath[i]]
+					else
+						return NULL
+					ok
+				end
+				return pValue
+			ok
+			return NULL
+		ok
+		
+		# Non-nested: check root then properties
+		if HasKey(aElement, pcKey)
+			return aElement[pcKey]
+		but HasKey(aElement, "properties") and HasKey(aElement["properties"], pcKey)
+			return aElement["properties"][pcKey]
+		ok
+		return NULL
+	
+	def _Matches(pActual, pCondition, pValue)
+		cCond = lower(pCondition)
+		
+		if cCond = "equals" or cCond = ":equals" or cCond = "="
+			return pActual = pValue
+			
+		but cCond = "greaterthan" or cCond = ":greaterthan" or cCond = ">"
+			return isNumber(pActual) and isNumber(pValue) and pActual > pValue
+			
+		but cCond = "lessthan" or cCond = ":lessthan" or cCond = "<"
+			return isNumber(pActual) and isNumber(pValue) and pActual < pValue
+			
+		but cCond = "contains" or cCond = ":contains"
+			return isString(pActual) and isString(pValue) and 
+			       substr(lower(pActual), lower(pValue)) > 0
+			       
+		but cCond = "insection" or cCond = ":insection" or cCond = "between"
+			return isNumber(pActual) and isList(pValue) and len(pValue) = 2 and
+			       pActual >= pValue[1] and pActual <= pValue[2]
+		ok
+		return FALSE
