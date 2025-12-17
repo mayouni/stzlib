@@ -547,13 +547,13 @@ pf()
 #============================================#
 
 # ONE PATTERN - NO CONFUSION
-# Find(what).Where(key, op, val).Q()
-# Find(what).Having(key, val).Q()
-# Find(what).WithProperty(key).Q()
-# Find(what).WithTag(tag).Q()
+# Find(what).Where(key, op, val)
+# Find(what).Having(key, val)
+# Find(what).WithProperty(key)
+# Find(what).WithTag(tag)
 
 /*---
-*/
+
 pr()
 
 oGraph = new stzGraph("UnifiedTest")
@@ -956,7 +956,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Inference Rule
-
+*/
 pr()
 
 oGraph = new stzGraph("InferenceTest")
@@ -969,9 +969,9 @@ oRule {
 }
 
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("c", "C")
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
 	
 	Connect("a", "b")
 	Connect("b", "c")
