@@ -1119,7 +1119,7 @@ class stzGraph
 			return 1
 		ok
 
-		if find(pacVisited, pcCurrent) > 0
+		if ring_find(pacVisited, pcCurrent) > 0
 			return 0
 		ok
 
@@ -1194,7 +1194,7 @@ class stzGraph
 			if aEdge["from"] = pcCurrent
 				cNext = aEdge["to"]
 				
-				if find(pacCurrentPath, cNext) = 0
+				if ring_find(pacCurrentPath, cNext) = 0
 					pacCurrentPath + cNext
 					This._FindAllPathsDFS(cNext, pcTarget, pacCurrentPath, pacAllPaths, pnDepth + 1)
 					pacCurrentPath = stzleft(pacCurrentPath, len(pacCurrentPath) - 1)
@@ -1256,7 +1256,7 @@ class stzGraph
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			aNode = @aNodes[i]
-			if find(acVisited, aNode["id"]) = 0
+			if ring_find(acVisited, aNode["id"]) = 0
 				if This._HasCycleDFS(aNode["id"], acVisited, acRecStack)
 					return 1
 				ok
@@ -1273,11 +1273,13 @@ class stzGraph
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
 			if aEdge["from"] = pcNode
-				if find(pacVisited, aEdge["to"]) = 0
+
+				if ring_find(pacVisited, aEdge["to"]) = 0
 					if This._HasCycleDFS(aEdge["to"], pacVisited, pacRecStack)
 						return 1
 					ok
-				but find(pacRecStack, aEdge["to"]) > 0
+
+				but ring_find(pacRecStack, aEdge["to"]) > 0
 					return 1
 				ok
 			ok
@@ -1313,7 +1315,8 @@ class stzGraph
 			nLen = len(acNeighbors)
 			for i = 1 to nLen
 				cNeighbor = acNeighbors[i]
-				if find(acVisited, cNeighbor) = 0
+
+				if ring_find(acVisited, cNeighbor) = 0
 					acVisited + cNeighbor
 					acQueue + cNeighbor
 				ok
@@ -1342,7 +1345,8 @@ class stzGraph
 			nLen = len(acNeighbors)
 			for i = 1 to nLen
 				cNeighbor = acNeighbors[i]
-				if find(pacVisited, cNeighbor) = 0
+
+				if ring_find(pacVisited, cNeighbor) = 0
 					pacVisited + cNeighbor
 					acQueue + cNeighbor
 				ok
@@ -1518,7 +1522,8 @@ class stzGraph
 						bDisjoint = 1
 						nCheck = len(acReachable1Clean)
 						for m = 1 to nCheck
-							if find(acReachable2Clean, acReachable1Clean[m]) > 0
+
+							if ring_find(acReachable2Clean, acReachable1Clean[m]) > 0
 								bDisjoint = 0
 								exit
 							ok
@@ -1727,7 +1732,8 @@ class stzGraph
 	        
 	        for i = 1 to len(acNeighbors)
 	            cNext = acNeighbors[i]
-	            if find(acVisited, cNext) = 0
+
+	            if ring_find(acVisited, cNext) = 0
 	                acVisited + cNext
 	                acQueue + cNext
 	            ok
@@ -1735,7 +1741,7 @@ class stzGraph
 	        
 	        for i = 1 to len(acIncoming)
 	            cNext = acIncoming[i]
-	            if find(acVisited, cNext) = 0
+	            if ring_find(acVisited, cNext) = 0
 	                acVisited + cNext
 	                acQueue + cNext
 	            ok
@@ -2155,7 +2161,7 @@ class stzGraph
 			nRuleLen = len(paoRules)
 			for j = 1 to nRuleLen
 				if paoRules[j].Matches(aContext)
-					if find(acAffected, acNodeIds[i]) = 0
+					if ring_find(acAffected, acNodeIds[i]) = 0
 						acAffected + acNodeIds[i]
 					ok
 					exit  # Node matched, no need to check more rules
@@ -2183,7 +2189,7 @@ class stzGraph
 		
 		nLen = len(acAllNodes)
 		for i = 1 to nLen
-			if find(acAffected, acAllNodes[i]) = 0
+			if ring_find(acAffected, acAllNodes[i]) = 0
 				acNotAffected + acAllNodes[i]
 			ok
 		end
@@ -2245,7 +2251,7 @@ class stzGraph
 			nRuleLen = len(paoRules)
 			for j = 1 to nRuleLen
 				if paoRules[j].Matches(aContext)
-					if find(acAffected, acEdgeKeys[i]) = 0
+					if ring_find(acAffected, acEdgeKeys[i]) = 0
 						acAffected + acEdgeKeys[i]
 					ok
 					exit
@@ -2272,7 +2278,7 @@ class stzGraph
 		
 		nLen = len(acAllEdges)
 		for i = 1 to nLen
-			if find(acAffected, acAllEdges[i]) = 0
+			if ring_find(acAffected, acAllEdges[i]) = 0
 				acNotAffected + acAllEdges[i]
 			ok
 		end
@@ -2712,6 +2718,12 @@ class stzGraph
 	# One method that replace 23 old methods that made
 	# quering semantically complex and hard to rember
 	# Now we have a unique exprssion: Find(What).Where(Condition)
+
+	#--> ONE PATTERN - NO CONFUSION
+	# Find(what).Where(key, op, val)
+	# Find(what).Having(key, val)
+	# Find(what).WithProperty(key)
+	# Find(what).WithTag(tag)
 
 	def Find(pcWhat)
 		return new stzGraphQuery(This, pcWhat)
@@ -3509,8 +3521,8 @@ class stzGraphAnalyzer
 			end
 			
 			# If the node can reach itself through other nodes, it's in a cycle
-			if find(acReachableWithoutStart, cNodeId) > 0
-				if find(acCyclicNodes, cNodeId) = 0
+			if ring_find(acReachableWithoutStart, cNodeId) > 0
+				if ring_find(acCyclicNodes, cNodeId) = 0
 					acCyclicNodes + cNodeId
 				ok
 			ok
@@ -3540,7 +3552,7 @@ class stzGraphAnalyzer
 				aEdge = acEdges[i]
 				if aEdge["from"] = cCurrent
 					cNext = aEdge["to"]
-					if find(acVisited, cNext) = 0
+					if ring_find(acVisited, cNext) = 0
 						acVisited + cNext
 						acQueue + cNext
 					ok
@@ -3775,8 +3787,8 @@ class stzGraphAsciiVisualizer
 			]
 			
 			cLabel = aNode["label"]
-			bIsBottleneck = find(acBottlenecks, aNode["id"]) > 0
-			bIsCyclic = find(acCyclic, aNode["id"]) > 0
+			bIsBottleneck = ring_find(acBottlenecks, aNode["id"]) > 0
+			bIsCyclic = ring_find(acCyclic, aNode["id"]) > 0
 			
 			if bIsBottleneck and bIsCyclic
 				aDisplayNode["label"] = "!~" + cLabel + "~!"
@@ -3855,7 +3867,7 @@ class stzGraphAsciiVisualizer
 			cNext = acNeighbors[i]
 			nNeighborIdx += 1
 			
-			if find(pacVisitedPath, cNext) = 0
+			if ring_find(pacVisitedPath, cNext) = 0
 				aEdge = @oGraph.Edge(pcNodeId, cNext)
 				
 				if len(acNeighbors) > 1 and nNeighborIdx > 1
@@ -3978,7 +3990,7 @@ class stzGraphAsciiVisualizer
 			cNext = acNeighbors[1]
 			aEdge = @oGraph.Edge(pcNodeId, cNext)
 			
-			if find(pacVisited, cNext) = 0
+			if ring_find(pacVisited, cNext) = 0
 				This._ShowHorizontalBranchWithNodes(cNext, pacVisited, pacBoxLines, pacArrowLines, pacDisplayNodes)
 			else
 				pacArrowLines + [pcNodeId, cNext, aEdge["label"]]
@@ -3992,8 +4004,8 @@ class stzGraphAsciiVisualizer
 		
 		for i = 1 to nLen
 			aEdge = acEdges[i]
-			nToIdx = find(pacVisited, aEdge["to"])
-			nFromIdx = find(pacVisited, aEdge["from"])
+			nToIdx = ring_find(pacVisited, aEdge["to"])
+			nFromIdx = ring_find(pacVisited, aEdge["from"])
 			
 			if nToIdx > 0 and nFromIdx > 0 and nToIdx < nFromIdx
 				if pcOrientation = "horizontal"
