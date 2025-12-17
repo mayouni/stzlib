@@ -546,75 +546,100 @@ pf()
 #  SECTION 3: PROPERTY & TAG QUERIES
 #============================================#
 
-/*--- Property Queries
+# ONE PATTERN - NO CONFUSION
+# Find(what).Where(key, op, val).Q()
+# Find(what).Having(key, val).Q()
+# Find(what).WithProperty(key).Q()
+# Find(what).WithTag(tag).Q()
 
+/*---
+*/
 pr()
 
-oGraph = new stzGraph("PropQueryTest")
+oGraph = new stzGraph("UnifiedTest")
 oGraph {
-	AddNodeXTT("n1", "N1", [:env = "prod", :cost = 100])
-	AddNodeXTT("n2", "N2", [:env = "test", :cost = 50])
-	AddNodeXTT("n3", "N3", [:env = "prod", :cost = 200])
+	AddNodeXTT("n1", "Server1", [
+		:config = [:memory = 1024, :cpu = 4],
+		:status = "active",
+		:tags = ["prod", "web"]
+	])
+	AddNodeXTT("n2", "Server2", [
+		:config = [:memory = 2048, :cpu = 8],
+		:status = "active",
+		:tags = ["prod", "db"]
+	])
+	AddNodeXTT("n3", "Server3", [
+		:config = [:memory = 512, :cpu = 2],
+		:status = "maintenance",
+		:tags = ["dev"]
+	])
 	
-	? @@( NodesWithProperty("env") )
+	ConnectXTT("n1", "n2", "link1", [:bandwidth = 100, :tags = ["critical"]])
+	ConnectXTT("n2", "n3", "link2", [:bandwidth = 50])
+	
+	# NODES - All queries use same pattern
+
+	? @@( FindQ("nodes").
+	      WithPropertyQ("config.memory").
+	      Run()
+	)
 	#--> ["n1", "n2", "n3"]
 	
-	? @@( NodesWithPropertyXT("env", "prod") )
-	#--> ["n1", "n3"]
-	
-	? @@( NodesWithPropertyXT("cost", :Between = [75, 150]) )
-	#--> ["n1"]
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Tag Queries
-
-pr()
-
-oGraph = new stzGraph("TagQueryTest")
-oGraph {
-	AddNodeXTT("n1", "N1", [:tags = ["critical", "production"]])
-	AddNodeXTT("n2", "N2", [:tags = ["production"]])
-	AddNodeXTT("n3", "N3", [:tags = ["critical", "monitoring"]])
-	
-	? @@( NodesWithTag("critical") )
-	#--> ["n1", "n3"]
-	
-	? @@( NodesWithTheseTags(["critical", "production"]) )
+	? @@( FindQ("nodes").
+	      WhereQ("config.memory", "=", 1024).
+	      Run()
+	)
 	#--> ["n1"]
 	
-	? @@( NodesWithAnyTag(["critical", "monitoring"]) )
+	? @@( FindQ("nodes").
+	      WhereQ("config.cpu", ">", 4).
+	      Run()
+	)
+	#--> ["n2"]
+	
+	? @@( FindQ("nodes").
+	      WhereQ("label", :contains, "Server").
+	      Run()
+	)
+	#--> ["n1", "n2", "n3"]
+	
+	? @@( FindQ("nodes").
+	      HavingQ("status", "active").
+	      Run()
+	)
+	#--> ["n1", "n2"]
+	
+	? @@( FindQ("nodes").WithTagQ("prod").Run() )
+	#--> ["n1", "n2"]
+	
+	# CHAINING
+	? @@( FindQ("nodes").
+	      WhereQ("config.cpu", ">", 2).
+	      HavingQ("status", "active").
+	      Run()
+	)
+	#--> ["n1", "n2"]
+	
+	# EDGES - Same syntax
+	? @@( FindQ("edges").WithPropertyQ("bandwidth").Run() )
+	#--> ["n1->n2", "n2->n3"]
+	
+	? @@( FindQ("edges").WhereQ("bandwidth", "=", 100).Run() )
+	#--> ["n1->n2"]
+	
+	? @@( FindQ("edges").WithTagQ("critical").Run() )
+	#--> ["n1->n2"]
+	
+	# RANGES
+	? @@( FindQ("nodes").
+	      WhereQ("config.memory", :between, [500, 1500]).
+	      Run()
+	)
 	#--> ["n1", "n3"]
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Nested Property Queries (e.g., query sub-properties in hashlists)
-
-pr()
-
-oGraph = new stzGraph("NestedPropsTest")
-oGraph {
-	AddNodeXTT("n1", "N1", [:config = [:memory = 1024, :cpu = 4]])
-	AddNodeXTT("n2", "N2", [:config = [:memory = 2048, :cpu = 8]])
-	AddNodeXTT("n3", "N3", [:config = [:memory = 1024, :cpu = 2]])
-
-	? @@( NodesWithPropertyXT("config.memory", :Equals, 1024) )
-	#--> [ "n1", "n3" ]
-
-	? @@( NodesWithPropertyXT("config.cpu", :GreaterThan, 4) )
-	#--> [ "n2" ]
-
-}
-
-#TODO: Review all the simular methods (for nodes and egdges) and
-# unify them functionnaly and semantically
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.08 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 4: GRAPH ANALYSIS
@@ -3181,7 +3206,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Multi-Rule Interactions and Conflicts
-*/
+
 pr()
 
 oRule1 = new stzGraphRule("priority_boost")
