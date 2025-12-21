@@ -1,10 +1,7 @@
 #============================================#
-#  stzGraph - FUNDAMENTAL GRAPH ABSTRACTION  #
-#  Pure computational thinking construct     #
+#  stzGraph - Complete Implementation        #
+#  Simplified rules, all methods preserved   #
 #============================================#
-
-#NOTE Take inspiration from this article:
-# https://medium.com/data-science/graphs-with-python-overview-and-best-libraries-a92aa485c2f8
 
 $acGraphDefaultValidators = ["dag", "reachability", "completeness"]
 
@@ -21,43 +18,11 @@ func IsStzGraph(pObj)
 		return 0
 	ok
 
-	#--
-
 	func IsAStzGraph(pObj)
 		return IsStzGraph(pObj)
 
 	func IsStzGraphObject(pObj)
 		return IsStzGraph(pObj)
-
-	func IsAStzGraphObject(pObj)
-		return IsStzGraph(pObj)
-
-	func IsGraphObject(pObj)
-		return IsStzGraph(pObj)
-
-	func IsAGraphObject(oObj)
-		return IsStzGraph(pObj)
-
-	#--
-
-	func @IsStzGraph(pObj)
-		return IsStzGraph(pObj)
-
-	func @IsAStzGraph(pObj)
-		return IsStzGraph(pObj)
-
-	func @IsStzGraphObject(pObj)
-		return This.IsStzGraph(pObj)
-
-	func @IsAStzGraphObject(pObj)
-		return IsStzGraph(pObj)
-
-	func @IsGraphObject(pObj)
-		return IsStzGraph(pObj)
-
-	func @IsAGraphObject(oObj)
-		return IsStzGraph(pObj)
-
 
 class stzGraph
 
@@ -65,32 +30,21 @@ class stzGraph
 	@aNodes = []
 	@aEdges = []
 
-	# Rule system
-	@aRules = []
-	@aNodesAffectedByRules = []
-	@aEdgesAffectedByRules = []
-
+	# Simplified rule storage - rules as hashlists
+	@aRules = []  # [ [id, type, condition, effects], ... ]
+	@aAffectedNodes = []  # [ [nodeId, [ruleIds]], ... ]
+	@aAffectedEdges = []  # [ [edgeKey, [ruleIds]], ... ]
+	
 	@aProperties = []
-
-	@acValidators = $acGraphDefaultValidators
-
-	@oRuleEngine = ""
-	@acLoadedRuleBases = []
-
-	@oSimulationEngine = ""
 
 	def init(pcId)
 		@cId = pcId
-		@acNodes = []
+		@aNodes = []
 		@aEdges = []
 		@aRules = []
-		@aNodesAffectedByRules = []
-		@aEdgesAffectedByRules = []
+		@aAffectedNodes = []
+		@aAffectedEdges = []
 		@aProperties = []
-
-		# Auto-load default structural rules
-		This.LoadRuleBase("graph")
-
 
 	def Id()
 		return @cId
@@ -116,7 +70,7 @@ class stzGraph
 		def IsGraphObject()
 			return 1
 	
-		def IsAGraphObjec()
+		def IsAGraphObject()
 			return 1
 
 	#-------------------#
@@ -130,7 +84,6 @@ class stzGraph
 		This.AddNodeXTT(pcNodeId, pcLabel, [])
 
 	def AddNodeXTT(pcNodeId, pcLabel, pacProperties)
-
 		if CheckParams()
 			if NOT (isString(pcNodeId) and isString(pcLabel))
 				stzraise("Incorrect param types! pcNodeId and pcLabel must be both strings.")
@@ -142,7 +95,7 @@ class stzGraph
 		ok
 
 		aNode = [
-			:id = pcNodeId,
+			:id = lower(pcNodeId),
 			:label = pcLabel,
 			:properties = iif(isList(pacProperties), pacProperties, [])
 		]
@@ -152,7 +105,7 @@ class stzGraph
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			aNode = @aNodes[i]
-			if aNode["id"] = pcNodeId
+			if aNode["id"] = lower(pcNodeId)
 				return aNode
 			ok
 		end
@@ -169,11 +122,14 @@ class stzGraph
 		return []
 
 	def NodeExists(pcNodeId)
-		if ring_find( This.NodesIds(), pcNodeId) > 0
+		if ring_find(This.NodesIds(), pcNodeId) > 0
 			return 1
 		else
 			return 0
 		ok
+
+		def HasNode(pcNodeId)
+			return This.NodeExists(pcNodeId)
 
 	def SetNodes(paNodes)
 		@aNodes = paNodes
@@ -197,15 +153,25 @@ class stzGraph
 	def NodeCount()
 		return len(@aNodes)
 
+	#--
+
+	def AddNodes(pacNodes)
+		nLen = len(pacNodes)
+		for i = 1 to nLen
+			This.AddNode(pacNodes[i])
+		next
+
 	#----------------------#
 	#  INSERT NODE BEFORE  #
 	#----------------------#
 	
-	def InsertNodeBefore(pcTargetId, pcNewId, pcNewLabel)
-		This.InsertNodeBeforeXT(pcTargetId, pcNewId, pcNewLabel, [])
+	def InsertNodeBefore(pcTargetId, pcNewId)
+		This.InsertNodeBeforeXTT(pcTargetId, pcNewId, pcNewId, [])
+
+	def InsertNodeBeforeXT(pcTargetId, pcNewId, pcNewLabel)
+		This.InsertNodeBeforeXTT(pcTargetId, pcNewId, pcNewLabel, [])
 	
-	def InsertNodeBeforeXT(pcTargetId, pcNewId, pcNewLabel, paProps)
-		# Get incoming edges to target
+	def InsertNodeBeforeXTT(pcTargetId, pcNewId, pcNewLabel, paProps)
 		aIncoming = []
 		nLen = len(@aEdges)
 		for i = 1 to nLen
@@ -214,37 +180,26 @@ class stzGraph
 			ok
 		end
 		
-		# Add new node
 		This.AddNodeXTT(pcNewId, pcNewLabel, paProps)
 		
-		# Reconnect: incoming -> new -> target
 		nLen = len(aIncoming)
 		for i = 1 to nLen
 			This.RemoveThisEdge(aIncoming[i], pcTargetId)
 			This.Connect(aIncoming[i], pcNewId)
 		end
 		This.Connect(pcNewId, pcTargetId)
-	
-	def InsertNodeBeforeAt(pacPath, pcNewId, pcNewLabel)
-		This.InsertNodeBeforeAtXT(pacPath, pcNewId, pcNewLabel, [])
-	
-	def InsertNodeBeforeAtXT(pacPath, pcNewId, pcNewLabel, paProps)
-		nLen = len(pacPath)
-		if nLen = 0
-			return
-		ok
-		cTargetId = pacPath[nLen]
-		This.InsertNodeBeforeXT(cTargetId, pcNewId, pcNewLabel, paProps)
-	
+
 	#---------------------#
 	#  INSERT NODE AFTER  #
 	#---------------------#
 	
-	def InsertNodeAfter(pcTargetId, pcNewId, pcNewLabel)
-		This.InsertNodeAfterXT(pcTargetId, pcNewId, pcNewLabel, [])
+	def InsertNodeAfter(pcTargetId, pcNewId)
+		This.InsertNodeAfterXTT(pcTargetId, pcNewId, pcNewId, [])
+
+	def InsertNodeAfterXT(pcTargetId, pcNewId, pcNewLabel)
+		This.InsertNodeAfterXTT(pcTargetId, pcNewId, pcNewLabel, [])
 	
-	def InsertNodeAfterXT(pcTargetId, pcNewId, pcNewLabel, paProps)
-		# Get outgoing edges from target
+	def InsertNodeAfterXTT(pcTargetId, pcNewId, pcNewLabel, paProps)
 		aOutgoing = []
 		nLen = len(@aEdges)
 		for i = 1 to nLen
@@ -253,10 +208,8 @@ class stzGraph
 			ok
 		end
 		
-		# Add new node
 		This.AddNodeXTT(pcNewId, pcNewLabel, paProps)
 		
-		# Reconnect: target -> new -> outgoing
 		nLen = len(aOutgoing)
 		for i = 1 to nLen
 			This.RemoveThisEdge(pcTargetId, aOutgoing[i])
@@ -264,27 +217,15 @@ class stzGraph
 		end
 		This.Connect(pcTargetId, pcNewId)
 	
-	def InsertNodeAfterAt(pacPath, pcNewId, pcNewLabel)
-		This.InsertNodeAfterAtXT(pacPath, pcNewId, pcNewLabel, [])
-	
-	def InsertNodeAfterAtXT(pacPath, pcNewId, pcNewLabel, paProps)
-		nLen = len(pacPath)
-		if nLen = 0
-			return
-		ok
-		cTargetId = pacPath[nLen]
-		This.InsertNodeAfterXT(cTargetId, pcNewId, pcNewLabel, paProps)
-	
 	#-------------------------#
 	#  INSERT MULTIPLE NODES  #
 	#-------------------------#
 	
 	def InsertNodesBefore(pcTargetId, paNodes)
-		# paNodes = [ ["id1", "label1"], ["id2", "label2"], ... ]
 		nLen = len(paNodes)
 		for i = 1 to nLen
 			This.InsertNodeBefore(pcTargetId, paNodes[i][1], paNodes[i][2])
-			pcTargetId = paNodes[i][1]  # Chain insertions
+			pcTargetId = paNodes[i][1]
 		end
 	
 	def InsertNodesAfter(pcTargetId, paNodes)
@@ -295,45 +236,15 @@ class stzGraph
 			cLastId = paNodes[i][1]
 		end
 
-	#--------------------#
-	#  NODE REPLACEMENT  #
-	#--------------------#
-	
-	#NOTE
-
-	#  We exclude ReplaceNode(), UpdateNode(), and ReplaceEdge() operations.
-	# These create semantic confusion in graph structures:
-
-	#   - "Replace" rewires connections and changes identity (too implicit)
-	#   - "Update" is ambiguous between modifying data vs structure
-
-	# Clear primitives provided instead:
-	#   - SetNodeProperty() / SetEdgeProperty()  → Modify data (safe)
-	#   - RemoveThisNode() / RemoveThisEdge()    → Delete (explicit)
-	#   - AddNode() / AddEdge()                  → Create (explicit)
-	#   - UpdateNodesF() / UpdateEdgesF()        → Batch modify with function
-
-	# Complex replacements must be composed from primitives, making
-	# structural changes visible and intentional.
-
-	# Principle: Make destructive operations look destructive.
-	
-	#--------------------#
-	#  EDGE REPLACEMENT  #
-	#--------------------#
-	
-	#NOTE // Idem. Read previous comment.
-
 	#---------------#
 	#  NODE REMOVAL #
 	#---------------#
 	
-	# Remove all nodes (and their edges)
 	def RemoveNodes()
-		@acNodes = []
+		@aNodes = []
 		@aEdges = []
-		@aNodesAffectedByRules = []
-		@aEdgesAffectedByRules = []
+		@aAffectedNodes = []
+		@aAffectedEdges = []
 	
 		def RemoveAllNodes()
 			This.RemoveNodes()
@@ -341,16 +252,13 @@ class stzGraph
 		def Clear()
 			This.RemoveNodes()
 	
-	# Remove specific nodes
 	def RemoveTheseNodes(pacNodeIds)
 		nLen = len(pacNodeIds)
 		for i = 1 to nLen
 			This.RemoveThisNode(pacNodeIds[i])
 		end
 	
-	# Remove single node
 	def RemoveThisNode(pcNodeId)
-		# Remove from nodes
 		acNew = []
 		nLen = len(@aNodes)
 		for i = 1 to nLen
@@ -360,29 +268,24 @@ class stzGraph
 		end
 		@aNodes = acNew
 		
-		# Remove its edges
 		This.RemoveEdgesConnectedTo(pcNodeId)
 	
 		def RemoveNode(pcNodeId)
 			This.RemoveThisNode(pcNodeId)
 	
-	#--- REMOVE NODE AT PATH
-	
 	def RemoveNodeAt(pacPath)
-		# pacPath = ["n1", "n2", "target"]
 		nLen = len(pacPath)
 		if nLen = 0
 			return
 		ok
 		
-		cNodeId = pacPath[nLen]  # Last node in path
+		cNodeId = pacPath[nLen]
 		This.RemoveThisNode(cNodeId)
 	
-		def RemoveNodeAtPosition(pacPath)
+		def RemoveNodeAtPath(pacPath)
 			This.RemoveNodeAt(pacPath)
 	
 	def RemoveNodesAt(paPaths)
-		# paPaths = [ ["n1", "target1"], ["n2", "n3", "target2"], ... ]
 		acToRemove = []
 		nLenPaths = len(paPaths)
 		
@@ -399,17 +302,16 @@ class stzGraph
 		
 		This.RemoveTheseNodes(acToRemove)
 	
-		def RemoveNodesAtPositions(paPaths)
+		def RemoveNodesAtPaths(paPaths)
 			This.RemoveNodesAt(paPaths)
 	
 	#----------------#
 	#  EDGE REMOVAL  #
 	#----------------#
 	
-	# Remove all edges
 	def RemoveEdges()
 		@aEdges = []
-		@aEdgesAffectedByRules = []
+		@aAffectedEdges = []
 	
 		def RemoveAllEdges()
 			This.RemoveEdges()
@@ -417,8 +319,22 @@ class stzGraph
 		def ClearEdges()
 			This.RemoveEdges()
 	
-	# Remove single edge
 	def RemoveThisEdge(pcFromId, pcToId)
+		if CheckParams()
+			if isList(pcFromId)
+				oList = new stzList(pcFromId)
+				if oList.IsFromNamedParam() or oList.IsFromNodeNamedParam()
+					pcFromId = pcFromId[2]
+				ok
+			ok
+			if isList(pcToId)
+				oList = new stzList(pcToId)
+				if oList.IsToNamedParam() or oList.IsToNodeNamedParam()
+					pcToId = pcToId[2]
+				ok
+			ok
+		ok
+
 		acNew = []
 		nLen = len(@aEdges)
 		for i = 1 to nLen
@@ -465,37 +381,40 @@ class stzGraph
 			This.AddEdgeXTT(pcFromId, pcToId, pcLabel, [])
 
 	def AddEdgeXTT(pcFromId, pcToId, pcLabel, pacProperties)
-	    if CheckParams()
-	        if isList(pcFromId) and StzListQ(pcFromId).IsFromNamedParam()
-	            pcFromId = pcFromId[2]
-	        ok
-	
-	        if isList(pcToId) and StzListQ(pcToId).IsToNamedParam()
-	            pcToId = pcToId[2]
-	        ok
-	
-	        if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
-	            pcLabel = pcLabel[2]
-	        ok		
-	    ok
-	
-	    if NOT This.NodeExists(pcFromId) or NOT This.NodeExists(pcToId)
-	        stzraise("Cannot add edge: one or both nodes do not exist!")
-	    ok
-	
-	    if This.EdgeExists(pcFromId, pcToId)
-	        stzraise("Edge already exists between '" + pcFromId + "' and '" + pcToId + "'!")
-	    ok
-	
-	    aEdge = [
-	        :from = pcFromId,
-	        :to = pcToId,
-	        :label = pcLabel,
-	        :properties = iif(isList(pacProperties), pacProperties, [])
-	    ]
-	    @aEdges + aEdge
-	    
-	    return 1
+		if CheckParams()
+			if isList(pcFromId) and StzListQ(pcFromId).IsNodeOrNodesOrFromOrFromNodeNamedParam()
+				pcFromId = pcFromId[2]
+			ok
+
+			if isList(pcToId) and StzListQ(pcToId).IsAndOrToOrToNodeNamedParam()
+				pcToId = pcToId[2]
+			ok
+
+			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
+				pcLabel = pcLabel[2]
+			ok
+		ok
+
+		pcFromId = lower(pcFromId)
+		pcToId = lower(pcToId)
+
+		if NOT This.NodeExists(pcFromId) or NOT This.NodeExists(pcToId)
+			stzraise("Cannot add edge: one or both nodes do not exist!")
+		ok
+
+		if This.EdgeExists(pcFromId, pcToId)
+			stzraise("Edge already exists between '" + pcFromId + "' and '" + pcToId + "'!")
+		ok
+
+		aEdge = [
+			:from = lower(pcFromId),
+			:to = lower(pcToId),
+			:label = pcLabel,
+			:properties = iif(isList(pacProperties), pacProperties, [])
+		]
+		@aEdges + aEdge
+		
+		return 1
 
 		def ConnectXTT(pcFromId, pcToId, pcLabel, pacProperties)
 			This.AddEdgeXTT(pcFromId, pcToId, pcLabel, pacProperties)
@@ -519,21 +438,39 @@ class stzGraph
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = pcFromId and aEdge["to"] = pcToId
+			if aEdge["from"] = lower(pcFromId) and aEdge["to"] = lower(pcToId)
 				return aEdge
 			ok
 		end
 		stzraise("Inexistant edge!")
 
 	def EdgeExists(pcFromId, pcToId)
+		if CheckParams()
+			if isList(pcFromId)
+				oList = new stzList(pcFromId)
+				if oList.IsFromNamedParam() or oList.IsFromNodeNamedParam()
+					pcFromId = pcFromId[2]
+				ok
+			ok
+			if isList(pcToId)
+				oList = new stzList(pcToId)
+				if oList.IsToNamedParam() or oList.IsToNodeNamedParam()
+					pcToId = pcToId[2]
+				ok
+			ok
+		ok
+
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = pcFromId and aEdge["to"] = pcToId
+			if aEdge["from"] = lower(pcFromId) and aEdge["to"] = lower(pcToId)
 				return 1
 			ok
 		end
 		return 0
+
+		def HasEdge(pcFomId, pcToId)
+			return This.EdgeExists(pcFromId, pcToId)
 
 	def Edges()
 		return @aEdges
@@ -555,7 +492,7 @@ class stzGraph
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = pcFrom and aEdge["to"] = pcTo
+			if aEdge["from"] = lower(pcFrom) and aEdge["to"] = lower(pcTo)
 				nCount++
 			ok
 		end
@@ -578,7 +515,7 @@ class stzGraph
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = pcFrom and aEdge["to"] = pcTo
+			if aEdge["from"] = lower(pcFrom) and aEdge["to"] = lower(pcTo)
 				aResult + [aEdge["from"], aEdge["label"], aEdge["to"]]
 			ok
 		end
@@ -586,8 +523,6 @@ class stzGraph
 	
 		def AllEdgesBetween(pcFrom, pcTo)
 			return This.EdgesBetween(pcFrom, pcTo)
-
-	#--- REMOVING EDGES
 
 	def RemoveEdgeByLabel(pcFrom, pcTo, pcLabel)
 		if CheckParams()
@@ -608,8 +543,8 @@ class stzGraph
 		
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = pcFrom and aEdge["to"] = pcTo and aEdge["label"] = pcLabel and NOT bFound
-				bFound = TRUE  # Remove only first match
+			if aEdge["from"] = lower(pcFrom) and aEdge["to"] = lower(pcTo) and lower(aEdge["label"]) = lower(pcLabel) and NOT bFound
+				bFound = TRUE
 				loop
 			ok
 			acNew + aEdge
@@ -638,7 +573,7 @@ class stzGraph
 		
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if NOT (aEdge["from"] = pcFrom and aEdge["to"] = pcTo)
+			if NOT (aEdge["from"] = lower(pcFrom) and aEdge["to"] = lower(pcTo))
 				acNew + aEdge
 			ok
 		end
@@ -651,82 +586,6 @@ class stzGraph
 		def DisconnectAll(pcFrom, pcTo)
 			This.RemoveAllEdgesBetween(pcFrom, pcTo)
 
-	#-------------------#
-	#  NODE NAVIGATION  #
-	#-------------------#
-	
-	def FirstNode()
-		if len(@aNodes) > 0
-			return @aNodes[1]
-		ok
-		return []
-	
-	def LastNode()
-		nLen = len(@aNodes)
-		if nLen > 0
-			return @aNodes[nLen]
-		ok
-		return []
-	
-	def NodeAt(n)
-		if n > 0 and n <= len(@aNodes)
-			return @aNodes[n]
-		ok
-		return []
-	
-		def NthNode(n)
-			return This.NodeAt(n)
-	
-	def NodePosition(pcNodeId)
-		nLen = len(@aNodes)
-		for i = 1 to nLen
-			if @aNodes[i]["id"] = pcNodeId
-				return i
-			ok
-		end
-		return 0
-
-	def PositionOfNode(pcNodeId)
-		return This.NodePosition(pcNodeId)
-
-	#-------------------#
-	#  EDGE NAVIGATION  #
-	#-------------------#
-	
-	def FirstEdge()
-		if len(@aEdges) > 0
-			return @aEdges[1]
-		ok
-		return []
-	
-	def LastEdge()
-		nLen = len(@aEdges)
-		if nLen > 0
-			return @aEdges[nLen]
-		ok
-		return []
-	
-	def EdgeAt(n)
-		if n > 0 and n <= len(@aEdges)
-			return @aEdges[n]
-		ok
-		return []
-	
-		def NthEdge(n)
-			return This.EdgeAt(n)
-	
-	def EdgePosition(pcFrom, pcTo)
-		nLen = len(@aEdges)
-		for i = 1 to nLen
-			if @aEdges[i]["from"] = pcFrom and @aEdges[i]["to"] = pcTo
-				return i
-			ok
-		end
-		return 0
-	
-		def PositionOfEdge(pcFrom, pcTo)
-			return This.EdgePosition(pcFrom, pcTo)
-
 	#-------------------------------------------#
 	#  BATCH UPDATE OPERATIONS USING FUNCTIONS  #
 	#-------------------------------------------#
@@ -736,12 +595,18 @@ class stzGraph
 		for i = 1 to nLen
 			call pFunc(@aNodes[i])
 		end
+
+		def UpdateNodes(pFunc)
+			This.UpdateNodesF(pFunc)
 	
 	def UpdateEdgesF(pFunc)
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			call pFunc(@aEdges[i])
 		end
+
+		def UpdateEdges(pFunc)
+			This.UpdateEdgesF(pFunc)
 
 	#-------------------#
 	#  COPY OPERATIONS  #
@@ -776,11 +641,10 @@ class stzGraph
 	def DuplicateNodeWithEdges(pcNodeId, pcNewId)
 		This.DuplicateNode(pcNodeId, pcNewId)
 		
-		# Copy outgoing edges
 		aEdges = This.Edges()
 		nLen = len(aEdges)
 		for i = 1 to nLen
-			if aEdges[i]["from"] = pcNodeId
+			if aEdges[i]["from"] = lower(pcNodeId)
 				This.AddEdgeXTT(pcNewId, aEdges[i]["to"], aEdges[i]["label"], aEdges[i]["properties"])
 			ok
 		end
@@ -797,7 +661,6 @@ class stzGraph
 			return
 		ok
 		
-		# Collect all unique incoming and outgoing connections
 		aIncoming = []
 		aOutgoing = []
 		
@@ -824,13 +687,9 @@ class stzGraph
 			end
 		end
 		
-		# Remove old nodes
 		This.RemoveTheseNodes(pacNodeIds)
-		
-		# Add merged node
 		This.AddNodeXTT(pcNewId, pcNewLabel, paNewProps)
 		
-		# Reconnect edges
 		nLen = len(aIncoming)
 		for i = 1 to nLen
 			This.Connect(aIncoming[i], pcNewId)
@@ -843,6 +702,29 @@ class stzGraph
 	
 		def CombineNodes(pacNodeIds, pcNewId, pcNewLabel)
 			This.MergeNodes(pacNodeIds, pcNewId, pcNewLabel)
+
+	def SplitNode(pcNodeId, pcNewId1, pcNewId2)
+		aNode = This.Node(pcNodeId)
+		
+		acIncoming = This.Incoming(pcNodeId)
+		acOutgoing = This.Neighbors(pcNodeId)
+		
+		This.AddNodeXT(pcNewId1, aNode["label"] + " (1)")
+		This.AddNodeXT(pcNewId2, aNode["label"] + " (2)")
+		
+		nLen = len(acIncoming)
+		for i = 1 to nLen
+			This.Connect(acIncoming[i], pcNewId1)
+			This.Connect(acIncoming[i], pcNewId2)
+		end
+		
+		nLen = len(acOutgoing)
+		for i = 1 to nLen
+			This.Connect(pcNewId1, acOutgoing[i])
+			This.Connect(pcNewId2, acOutgoing[i])
+		end
+		
+		This.RemoveThisNode(pcNodeId)
 
 	#----------------------------#
 	#  MANAGING NODE PROPERTIES  #
@@ -888,7 +770,6 @@ class stzGraph
 					cKey = acKeys[j]
 					pValue = aProps[cKey]
 					
-					# Find or create entry
 					nFound = 0
 					nResultLen = len(aResult)
 					for k = 1 to nResultLen
@@ -917,25 +798,28 @@ class stzGraph
 		def PropsAndTheirValues()
 			return This.PropertiesXT()
 
-	#--
-
 	def SetNodeProperty(pNodeId, cProperty, pValue)
-	    nLen = len(@aNodes)
-	    for i = 1 to nLen
-	        if @aNodes[i]["id"] = pNodeId
-	            if NOT HasKey(@aNodes[i], "properties")
-	                @aNodes[i]["properties"] = []
-	            ok
-	            @aNodes[i]["properties"][cProperty] = pValue
-	            # Critical: Force Ring to update the array
-	            aTemp = @aNodes[i]
-	            @aNodes[i] = aTemp
-	            return
-	        ok
-	    end
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			if @aNodes[i]["id"] = pNodeId
+				if NOT HasKey(@aNodes[i], "properties")
+					@aNodes[i]["properties"] = []
+				ok
+				@aNodes[i]["properties"][cProperty] = pValue
+				aTemp = @aNodes[i]
+				@aNodes[i] = aTemp
+				return
+			ok
+		end
 	
 		def SetNodeProp(pNodeId, cProperty, pValue)
 			This.SetNodeProperty(pNodeId, cProperty, pValue)
+
+		def UpdateNodeProperty(pcNodeId, pcKey, pValue)
+			This.SetNodeProperty(pcNodeId, pcKey, pValue)
+		
+		def UpdateNodeProp(pcNodeId, pcKey, pValue)
+			This.SetNodeProperty(pcNodeId, pcKey, pValue)
 
 	def SetNodeProperties(pNodeId, aProperties)
 		if NOT IsHashList(aProperties)
@@ -946,14 +830,8 @@ class stzGraph
 			This.SetNodeProperty(pNodeId, cKey, aProperties[cKey])
 		end
 	
-		def SetNodePropes(pNodeId, aProperties)
+		def SetNodeProps(pNodeId, aProperties)
 			This.SetNodeProperties(pNodeId, aProperties)
-
-		def UpdateNodeProperty(pcNodeId, pcKey, pValue)
-			This.SetNodeProperty(pcNodeId, pcKey, pValue)
-		
-		def UpdateNodeProp(pcNodeId, pcKey, pValue)
-			This.SetNodeProperty(pcNodeId, pcKey, pValue)
 	
 	def NodeProperties(pcNodeId)
 		aNode = This.Node(pcNodeId)
@@ -973,26 +851,57 @@ class stzGraph
 		return []
 	
 		def NodePropertiesAndTheirValues(pcNodeId)
-			return This.NodeProperties(pcNodeId)
+			return This.NodePropertiesXT(pcNodeId)
 
 		def NodePropsXT(pcNodeId)
-			return This.NodeProperties(pcNodeId)
+			return This.NodePropertiesXT(pcNodeId)
 
 		def NodePropsAndTheirValues(pcNodeId)
-			return This.NodeProperties(pcNodeId)
+			return This.NodePropertiesXT(pcNodeId)
 
 	def NodeProperty(pNodeId, cProperty)
 		aNode = This.Node(pNodeId)
 		
 		if HasKey(aNode, "properties") and HasKey(aNode["properties"], cProperty)
 			return aNode["properties"][cProperty]
-	
 		else
-			stzraise("Inexistant node key or/and property!")
+			return NULL
 		ok
 	
 		def NodeProp(pNodeId, cProperty)
 			return This.NodeProperty(pNodeId, cProperty)
+
+	def RemoveNodeProperties(pcNodeId)
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			if @aNodes[i]["id"] = pcNodeId
+				@aNodes[i]["properties"] = []
+				return
+			ok
+		end
+	
+		def ClearNodeProperties(pcNodeId)
+			This.RemoveNodeProperties(pcNodeId)
+	
+		def RemoveNodeProps(pcNodeId)
+			This.RemoveNodeProperties(pcNodeId)
+	
+		def ClearNodeProps(pcNodeId)
+			This.RemoveNodeProperties(pcNodeId)
+
+	def RemoveAllProperties()
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			@aNodes[i]["properties"] = []
+		end
+		
+		nLen = len(@aEdges)
+		for i = 1 to nLen
+			@aEdges[i]["properties"] = []
+		end
+	
+		def ClearAllProperties()
+			This.RemoveAllProperties()
 
 	def SetEdgeProperty(pFromId, pToId, cProperty, pValue)
 		if CheckParams()
@@ -1030,14 +939,13 @@ class stzGraph
 		def UpdateEdgeProp(pcFrom, pcTo, pcKey, pValue)
 			This.SetEdgeProperty(pcFrom, pcTo, pcKey, pValue)
 
-
 	def EdgeProperty(pFromId, pToId, cProperty)
 		aEdge = This.Edge(pFromId, pToId)
 		
 		if HasKey(aEdge, "properties") and HasKey(aEdge["properties"], cProperty)
 			return aEdge["properties"][cProperty]
 		else
-			stzraise("Inexistant node key or/and property!")
+			return NULL
 		ok
 
 		def EdgeProp(pFromId, pToId, cProperty)
@@ -1070,7 +978,6 @@ class stzGraph
 					@aEdges[i] + ["properties", []]
 				ok
 				
-				# Directly merge properties
 				acKeys = keys(aProperties)
 				nKeyLen = len(acKeys)
 				for j = 1 to nKeyLen
@@ -1137,32 +1044,70 @@ class stzGraph
 
 		return 0
 
-	def FindAllPaths(pcFromId, pcToId)
+	#---
+
+	def FirstNode()
+		if len(@aNodes) = 0
+			stzraise("Can't obtain a first node. The graphs contains no nodes at all!")
+		ok
+		return @aNodes[1]
+
+	def FirstNodeId()
+		return This.FirstNode()[:id]
+
+	def LastNode()
+		nLen = len(@aNodes)
+		if nLen = 0
+			stzraise("Can't obtain a first node. The graphs contains no nodes at all!")
+		ok
+		return @aNodes[nLen]
+
+	def LastNodeId()
+		return This.LastNode()[:id]
+
+	#--
+
+	def FindNode(pcNodeId)
+		return This.PathsXT(This.FirstNodeId(), pcNodeId)
+
+		def PathsTo(pcNodeId)
+			if CheCkParams()
+				if isList(pcNodeId) and StzListQ(pcNodeId).IsNodeNamedParam()
+					pcNodeId = pcNodeId[2]
+				ok
+			ok
+
+			return This.FindNode(pcNodeId)
+
+		def PathsToNode(pcNodeId)
+			return This.FindNode(pcNodeId)
+
+	#--
+
+	def Paths() #TODO// Returns all the possible paths in the graph
+		stzraise("Not yet implemented!")
+
+	def PathsXT(pcFromId, pcToId)
 		if CheckParams()
-			if isList(pcFromId) and StzListQ(pcFromId).IsFromNamedParam()
+			if isList(pcFromId) and StzListQ(pcFromId).IsFromOrFromNodeNamedParam()
 				pcFromId = pcFromId[2]
 			ok
-			if isList(pcToId) and StzListQ(pcToId).IsToNamedParam()
+			if isList(pcToId) and StzListQ(pcToId).IsToOrToNodeOrAndNamedParam()
 				pcToId = pcToId[2]
 			ok
-			
 		ok
 
 		acAllPaths = []
 		acCurrentPath = [pcFromId]
 		This._FindAllPathsDFS(pcFromId, pcToId, acCurrentPath, acAllPaths, 0)
 		return acAllPaths
-	
-		def AllPaths(pcFromId, pcToId)
-			return This.FindAllPaths(pcFromId, pcToId)
 
-		def Paths(pcFromId, pcToId)
-			return This.FindAllPaths(pcFromId, pcToId)
+		def PathsBetweenXT(pcFromId, pcToId)
+			return This.PathsXT(pcFromId, pcToId)
 
 	def Path(pcFromId, pcToId)
-		acPaths = This.FindAllPaths(pcFromId, pcToId)
-		_nLenPaths_ = len(acPaths)
-		if _nLenPaths_ > 0
+		acPaths = This.PathsXT(pcFromId, pcToId)
+		if len(acPaths) > 0
 			return acPaths[1]
 		else
 			return []
@@ -1177,8 +1122,10 @@ class stzGraph
 		def PathBetween(pcFromId, pcToId)
 			return This.Path(pcFromId, pcToId)
 
+		def PathXT(pcFromId, pcToId)
+			return This.Path(pcFromId, pcToId)
+
 	def _FindAllPathsDFS(pcCurrent, pcTarget, pacCurrentPath, pacAllPaths, pnDepth)
-		
 		if pnDepth > 10
 			return
 		ok
@@ -1327,31 +1274,8 @@ class stzGraph
 		
 		return acReachable
 
-	
-	def _ReachableBFS(pcNodeId, pacReachable, pacVisited)
-		acQueue = [pcNodeId]
-		pacVisited + pcNodeId
-	
-		while len(acQueue) > 0
-			cCurrent = acQueue[1]
-			if len(acQueue) > 1
-				acQueue = stzright(acQueue, len(acQueue) - 1)
-			else
-				acQueue = []
-			ok
-			pacReachable + cCurrent
-	
-			acNeighbors = This.Neighbors(cCurrent)
-			nLen = len(acNeighbors)
-			for i = 1 to nLen
-				cNeighbor = acNeighbors[i]
-
-				if ring_find(pacVisited, cNeighbor) = 0
-					pacVisited + cNeighbor
-					acQueue + cNeighbor
-				ok
-			end
-		end
+		def ReachableFromNode(pcNodeId)
+			return This.ReachableFrom(pcNodeId)
 
 	#--------------------#
 	#  ANALYSIS METRICS  #
@@ -1361,7 +1285,6 @@ class stzGraph
 		acBottlenecks = []
 		nTotalDegree = 0
 		
-		# Calculate average degree
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			aNode = @aNodes[i]
@@ -1372,7 +1295,6 @@ class stzGraph
 		
 		nAvgDegree = nTotalDegree / len(@aNodes)
 		
-		# Mark nodes above average
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			aNode = @aNodes[i]
@@ -1401,46 +1323,32 @@ class stzGraph
 		def NodeDensity01()
 			return This.NodeDensity()
 
+		def Density()
+			return This.NodeDensity()
+
+		def Density01()
+			return This.NodeDensity()
+
 	def NodeDensity100()
 		return This.NodeDensity() * 100
 
 		def NodeDensityPercent()
 			return This.NodeDensity100()
 
-		def NodeDensityInPercentage()				return This.NodeDensity()
+		def NodeDensityInPercentage()
 			return This.NodeDensity100()
 
 		def NodeDensityInPercent()
 			return This.NodeDensity100()
 
-	def Density()
-		nNodes = len(@aNodes)
-		nEdges = len(@aEdges)
-	
-		if nNodes <= 1
-			return 0
-		ok
-	
-		nMaxEdges = nNodes * (nNodes - 1)
-		nDensity = nEdges / nMaxEdges
-		
-		# Round to 2 decimal places
-		return floor(nDensity * 100 + 0.5) / 100
-	
-		def Density01()
-			return This.Density()
-	
-	def Density100()
-		return This.Density() * 100
-
+		def Density100()
+			return This.NodeDensity100()
 
 	def IsSparse()
 		return This.Density() < 0.5
 	
-	
 	def IsDense()
 		return This.Density() >= 0.5
-	
 	
 	def DensityCategory()
 		nDensity = This.Density()
@@ -1476,6 +1384,38 @@ class stzGraph
 
 		return nMax
 
+	def CyclicNodes()
+		acCyclicNodes = []
+		
+		acNodes = This.Nodes()
+		nLen = len(acNodes)
+
+		for i = 1 to nLen
+			aNode = acNodes[i]
+			cNodeId = aNode["id"]
+			acReachableFromNode = This.ReachableFromNode(cNodeId)
+			
+			# Remove starting node from reachable set
+			acReachableWithoutStart = []
+			nLen2 = len(acReachableFromNode)
+			for j = 1 to nLen2
+				cReachable = acReachableFromNode[j]
+				if cReachable != cNodeId
+					acReachableWithoutStart + cReachable
+				ok
+			next
+			
+			# If the node can reach itself through other nodes, it's in a cycle
+			if ring_find(acReachableWithoutStart, cNodeId) > 0
+				if ring_find(acCyclicNodes, cNodeId) = 0
+					acCyclicNodes + cNodeId
+				ok
+			ok
+		next
+
+		return acCyclicNodes
+
+
 	#---------------------------------------#
 	#  1. INDEPENDENCE AND PARALLELIZATION  #
 	#---------------------------------------#
@@ -1490,7 +1430,6 @@ class stzGraph
 			acNeighbors = This.Neighbors(cNodeId)
 			
 			if len(acNeighbors) > 1
-				# For each pair of neighbors, check if they're independent
 				nNeighborLen = len(acNeighbors)
 				for j = 1 to nNeighborLen
 					cNeighbor1 = acNeighbors[j]
@@ -1500,7 +1439,6 @@ class stzGraph
 						cNeighbor2 = acNeighbors[k]
 						acReachable2 = This.ReachableFrom(cNeighbor2)
 						
-						# Remove starting nodes from comparison
 						acReachable1Clean = []
 						acReachable2Clean = []
 						
@@ -1518,11 +1456,9 @@ class stzGraph
 							ok
 						end
 						
-						# Check if downstream nodes are disjoint
 						bDisjoint = 1
 						nCheck = len(acReachable1Clean)
 						for m = 1 to nCheck
-
 							if ring_find(acReachable2Clean, acReachable1Clean[m]) > 0
 								bDisjoint = 0
 								exit
@@ -1608,7 +1544,6 @@ class stzGraph
 		return acCriticality
 
 	def MostCriticalNodes(pnCount)
-	
 		if isNULL(pnCount)
 			pnCount = 5
 		ok
@@ -1639,840 +1574,190 @@ class stzGraph
 		
 		return acResult
 
-	#---------------------------------#
-	#  3. CONSTRAINTS AND VALIDATION  #
-	#---------------------------------#
-	
-	def CheckConstraints()
-		if @oRuleEngine = NULL
-			return [ :status = "pass", :issues = [] ]
-		ok
-		return @oRuleEngine.CheckConstraints()
+	#================================================#
+	#  SIMPLIFIED RULE SYSTEM - Direct Application   #
+	#================================================#
 
-	def AddConstraint(pcConstraintType)
-		if NOT HasKey(@aProperties, pcConstraintType)
-			@aProperties = []
-		ok
-		
-		cType = upper(pcConstraintType)
-		
-		aConstraint = [
-			:type = cType,
-			:violations = []
+	# Add validation rule as simple data structure
+	def AddValidationRule(pcId, paCondition, paEffects)
+		@aRules + [
+			:id = pcId,
+			:type = "validation",
+			:cond = paCondition,
+			:effects = paEffects
 		]
-		
-		if NOT HasKey(@aProperties, "constraints")
-			@aProperties + ["constraints", []]
-		ok
-		
-		@aProperties["constraints"] + aConstraint
-	
-	def ValidateConstraints()
-	    if NOT HasKey(@aProperties, "constraints")
-	        return [
-	            :status = "pass",
-	            :domain = "constraints",
-	            :issueCount = 0,
-	            :issues = [],
-	            :affectedNodes = []
-	        ]
-	    ok
-	    
-	    aIssues = []
-	    acAffected = []
-	    nLen = len(@aProperties["constraints"])
-	    
-	    for i = 1 to nLen
-	        @aProperties["constraints"][i]["violations"] = []
-	        cType = @aProperties["constraints"][i]["type"]
-	        
-	        bValid = This._EvaluateConstraint(cType)
-	        
-	        if NOT bValid
-	            cIssue = "Constraint failed: " + cType
-	            aIssues + cIssue
-	            @aProperties["constraints"][i]["violations"] + cIssue
-	        ok
-	    end
-	    
-	    return [
-	        :status = iif(len(aIssues) = 0, "pass", "fail"),
-	        :domain = "constraints",
-	        :issueCount = len(aIssues),
-	        :issues = aIssues,
-	        :affectedNodes = acAffected
-	    ]
-	
-	def _EvaluateConstraint(pcType)
-	    if pcType = "ACYCLIC" or pcType = "NO_CYCLES"
-	        return NOT This.CyclicDependencies()
-	    ok
-	    
-	    if pcType = "CONNECTED"
-	        return This._IsConnected()
-	    ok
-	    
-	    return 1
-	
-	def _IsConnected()
-	    if len(@aNodes) <= 1
-	        return 1
-	    ok
-	    
-	    acVisited = []
-	    acQueue = [@aNodes[1]["id"]]
-	    acVisited + @aNodes[1]["id"]
-	    nIdx = 1
-	    
-	    while nIdx <= len(acQueue)
-	        cCurrent = acQueue[nIdx]
-	        
-	        acNeighbors = This.Neighbors(cCurrent)
-	        acIncoming = This.Incoming(cCurrent)
-	        
-	        for i = 1 to len(acNeighbors)
-	            cNext = acNeighbors[i]
 
-	            if ring_find(acVisited, cNext) = 0
-	                acVisited + cNext
-	                acQueue + cNext
-	            ok
-	        end
-	        
-	        for i = 1 to len(acIncoming)
-	            cNext = acIncoming[i]
-	            if ring_find(acVisited, cNext) = 0
-	                acVisited + cNext
-	                acQueue + cNext
-	            ok
-	        end
-	        
-	        nIdx += 1
-	    end
-	    
-	    return len(acVisited) = len(@aNodes)
-	
-	def ConstraintViolations()
-		
-		if NOT HasKey(@aProperties, "constraints")
-			return []
-		ok
-		
-		acViolations = []
-		acConstraints = @aProperties["constraints"]
-		nLen = len(acConstraints)
-		
-		for i = 1 to nLen
-			aConstraint = acConstraints[i]
-			if len(aConstraint["violations"]) > 0
-				acViolations + [
-					:type = aConstraint["type"],
-					:count = len(aConstraint["violations"])
-				]
-			ok
-		end
-		
-		return acViolations
+	# Add inference rule
+	def AddInferenceRule(pcId, paCondition, paEffects)
+		@aRules + [
+			:id = pcId,
+			:type = "inference",
+			:cond = paCondition,
+			:effects = paEffects
+		]
 
-		def ConstraintAnomalies()
-			return This.ConstraintViolations()
-
-	#--------------------------#
-	#  RULE ENGINE MANAGEMENT  #
-	#--------------------------#
-
-	def LoadRuleBase(pRuleBase)
-		if @oRuleEngine = NULL
-			@oRuleEngine = new stzGraphRuleEngine(This)
-		ok
-		
-		@oRuleEngine.AddRuleBase(pRuleBase)
-		
-		if isString(pRuleBase)
-			if ring_find(@acLoadedRuleBases, pRuleBase) = 0
-				@acLoadedRuleBases + pRuleBase
-			ok
-
-		but isObject(pRuleBase)
-			cName = pRuleBase.Name() #TODO// Check this! pRuleBase should be a stzGraphRule object?
-			if ring_find(@acLoadedRuleBases, cName) = 0
-				@acLoadedRuleBases + cName
-			ok
-		ok
-
-	def RuleEngine()
-		return @oRuleEngine
-	
-	def LoadedRuleBases()
-		return @acLoadedRuleBases
-    
-	#------------------------------#
-	#  stzGraph - Rule Management  #
-	#------------------------------#
-
-	def SetRule(p)
-	    if @oRuleEngine = NULL
-	        @oRuleEngine = new stzGraphRuleEngine(This)
-	    ok
-	    
-	    if isString(p)
-	        stzraise("Cannot set rule by name - use SetRule(oRuleObject)")
-	    ok
-	    
-	    if isObject(p) and classname(p) = "stzgraphrule"
-	        @aRules[p.Id()] = p
-	        
-	        # Find or create _user_rules_ base IN THE ENGINE'S ARRAY
-	        nBaseIdx = 0
-	        nLen = len(@oRuleEngine.@aoRuleBases)
-	        
-	        for i = 1 to nLen
-	            if @oRuleEngine.@aoRuleBases[i].Name() = "_user_rules_"
-	                nBaseIdx = i
-	                exit
-	            ok
-	        end
-	        
-	        if nBaseIdx = 0
-	            oTempBase = new stzGraphRuleBase("_user_rules_")
-	            @oRuleEngine.@aoRuleBases + oTempBase
-	            nBaseIdx = len(@oRuleEngine.@aoRuleBases)
-	        ok
-	        
-	        # Add directly to the array element
-	        @oRuleEngine.@aoRuleBases[nBaseIdx].AddRule(p)
-	    ok
-	
-		def SetRuleObject(oRule)
-			This.SetRule(oRule)
-	
-	def SetRuleXT(p, pcType)
-		if NOT (isObject(p) and classname(p) = "stzgraphrule")
-			stzraise("First param must be stzGraphRule object")
-		ok
-		
-		p.SetRuleType(pcType)
-		This.SetRule(p)
-	
-	def RemoveRule(p)
-		cRuleId = ""
-		if isString(p)
-			cRuleId = p
-		but isObject(p)
-			cRuleId = p.Id()
-		ok
-		
-		if HasKey(@aRules, cRuleId)
-			del(@aRules, cRuleId)
-		ok
-	
-	def Rule(pcRuleId)
-		if HasKey(@aRules, pcRuleId)
-			return @aRules[pcRuleId]
-		ok
-		return NULL
-	
-		def RuleObject(pcRuleId)
-			return This.Rule(pcRuleId)
-	
-	def Rules()
-		return @aRules
-	
-		def RuleObjects()
-			return @aRules
-	
-	def RulesByType(pcType)
-		if @oRuleEngine = NULL
-			return []
-		ok
-		
-		aoRules = @oRuleEngine.CollectRules(pcType, "")
-		acRuleIds = []
-		for oRule in aoRules
-			acRuleIds + oRule.Id()
-		end
-		return acRuleIds
-	
-	def RulesObjectsByType(pcType)
-		if @oRuleEngine = NULL
-			return []
-		ok
-		return @oRuleEngine.CollectRules(pcType, "")
-	
-	#-------------------------------#
-	#  stzGraph - Rule Application  #
-	#-------------------------------#
-	
+	# Apply all rules
 	def ApplyRules()
-		if @oRuleEngine = NULL
-			return
-		ok
-		
-		# Clear previous results
-		@aNodesAffectedByRules = []
-		@aEdgesAffectedByRules = []
-		
-		# Apply all rule types
-		This.ApplyInference()     # First: derive new knowledge
-		This.ApplyValidation()    # Then: validate structure
-		This.ApplyVisualRules()   # Finally: visual enhancements (stzDiagram level)
+		This.ApplyValidation()
+		This.ApplyInference()
 
-	def ApplyRulesByType(pcType)
-		if @oRuleEngine = NULL
-			return
-		ok
-		
-		switch lower(pcType)
-		on "inference"
-			This.ApplyInference()
-
-		on "validation"
-			This.ApplyValidation()
-
-		on "visual"
-			This.ApplyVisualRules()
-
-		on "constraint"
-			This.CheckConstraints()
-		off
-
+	# Apply validation rules to nodes
 	def ApplyValidation()
-	    if @oRuleEngine = NULL
-	        return
-	    ok
-	    
-	    aoRules = @oRuleEngine.CollectRules("validation", "")
-	    
-	    nLen = len(aoRules)
-	    for i = 1 to nLen
-	        oRule = aoRules[i]
-	        oRule.SetGraph(This)
-	        
-	        nNodeLen = len(@aNodes)
-	        
-	        for j = 1 to nNodeLen
-	            aNode = @aNodes[j]
-	            
-	            aContext = This._BuildRuleContext(aNode)
-	            bMatches = oRule.Matches(aContext)
-	            
-	            if bMatches
-	                cNodeId = aNode["id"]
-	                
-	                if NOT HasKey(@aNodesAffectedByRules, cNodeId)
-	                    @aNodesAffectedByRules[cNodeId] = []
-	                ok
-	                @aNodesAffectedByRules[cNodeId] + oRule.Id()
-	                
-	                aEffects = oRule.Effects()
-	                
-	                nEffLen = len(aEffects)
-	                for k = 1 to nEffLen
-	                    aEffect = aEffects[k]
-	                    
-	                    if aEffect[1] = :set
-	                        
-	                        if NOT HasKey(@aNodes[j], "properties")
-	                            @aNodes[j] + ["properties", []]
-	                        ok
-	                        
-	                        @aNodes[j]["properties"][aEffect[2]] = aEffect[3]
-	                        aTemp = @aNodes[j]
-	                        @aNodes[j] = aTemp
-	                        
-	                    ok
-	                end
-	            ok
-	        end
-	    end
-
-	def ApplyVisualRules()
-		if @oRuleEngine = NULL
-			return
-		ok
-		@oRuleEngine.ApplyVisualRules()
-
-
-	def _ApplyEffects(oRule, cElementType, pElementId)
-	    aEffects = oRule.Effects()
-	    nLen = len(aEffects)
-	    
-	    for i = 1 to nLen
-	        aEffect = aEffects[i]
-	        cAction = aEffect[1]
-	        
-	        if cAction = :set
-	            cKey = aEffect[2]
-	            pValue = aEffect[3]
-	            
-	            if cElementType = "node"
-	                # Direct array manipulation - bypass SetNodeProperty
-	                nNodeLen = len(@aNodes)
-	                for j = 1 to nNodeLen
-	                    if @aNodes[j]["id"] = pElementId
-	                        if NOT HasKey(@aNodes[j], "properties")
-	                            @aNodes[j] + ["properties", []]
-	                        ok
-	                        @aNodes[j]["properties"][cKey] = pValue
-	                        # Force Ring to update
-	                        aTemp = @aNodes[j]
-	                        @aNodes[j] = aTemp
-	                        exit
-	                    ok
-	                end
-	            but cElementType = "edge"
-	                This.SetEdgeProperty(pElementId[1], pElementId[2], cKey, pValue)
-	            ok
-	        ok
-	    end
-
-	def _BuildRuleContext(aNodeOrEdge)
-		aContext = aNodeOrEdge
-		
-		if HasKey(aNodeOrEdge, "properties") and aNodeOrEdge["properties"] != NULL
-			aContext["metadata"] = aNodeOrEdge["properties"]
-			aContext["tags"] = []
-			if HasKey(aNodeOrEdge["properties"], "tags")
-				aContext["tags"] = aNodeOrEdge["properties"]["tags"]
+		for aRule in @aRules
+			if aRule[:type] != "validation"
+				loop
 			ok
-		ok
-		
-		return aContext
-
-	#--------------------------#
-	#  RULES ANALYSIS METHODS  #
-	#--------------------------#
-
-	def RulesApplied()
-		acRuleIds = keys(@aRules)
-		acApplied = []
-		
-		nLen = len(acRuleIds)
-		for i = 1 to nLen
-			cRuleId = acRuleIds[i]
 			
-			acAffectedNodes = This.NodesAffectedByRule(cRuleId)
-			acAffectedEdges = This.EdgesAffectedByRule(cRuleId)
-			
-			if len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0
-				acApplied + cRuleId
-			ok
-		end
-		
-		return acApplied
-
-		def AppliedRules()
-			return This.RulesApplied()
-
-	def RulesAppliedXT()
-		aResult = [
-			:hasEffects = FALSE,
-			:summary = "",
-			:rules = []
-		]
-		
-		bHasEffects = (len(@aNodesAffectedByRules) > 0 or len(@aEdgesAffectedByRules) > 0)
-		aResult[:hasEffects] = bHasEffects
-		
-		if NOT bHasEffects
-			aResult[:summary] = "No rules matched any elements."
-			return aResult
-		ok
-		
-		acRuleIds = keys(@aRules)
-		aResult[:summary] = ''+ len(acRuleIds) + " rule(s) defined, " + 
-		                     (len(@aNodesAffectedByRules) + len(@aEdgesAffectedByRules)) + " element(s) affected"
-		
-		nLenRules = len(acRuleIds)
-		for i = 1 to nLenRules
-			cRuleId = acRuleIds[i]
-			oRule = @aRules[cRuleId]
-			
-			acAffectedNodes = This.NodesAffectedByRule(cRuleId)
-			acAffectedEdges = This.EdgesAffectedByRule(cRuleId)
-			
-			bRuleMatched = (len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0)
-			
-			if bRuleMatched
-				aRuleInfo = [
-					:id = cRuleId,
-					:condition = oRule.@cConditionType,
-					:conditionParams = oRule.@aConditionParams,
-					:effects = oRule.Effects(),
-					:affectedNodes = acAffectedNodes,
-					:affectedEdges = acAffectedEdges,
-					:matchCount = len(acAffectedNodes) + len(acAffectedEdges)
-				]
-				aResult[:rules] + aRuleInfo
-			ok
-		end
-		
-		return aResult
-
-		def AppliedRulesXT()
-			return This.RulesAppliedXT()
-
-	# Get all nodes affected by any rule
-	def NodesAffectedByRules()
-		return keys(@aNodesAffectedByRules)
-	
-		def NodesAffected()
-			return This.NodesAffectedByRules()
-	
-		def AffectedNodes()
-			return This.NodesAffectedByRules()
-
-	# Get nodes affected by specific rule
-
-	def NodesAffectedByRule(pcRuleId)
-		oRule = This.Rule(pcRuleId)
-		if oRule = NULL
-			return []
-		ok
-		return This.NodesAffectedByRuleObject(oRule)
-	
-	def NodesAffectedByRuleObject(oRule)
-		acAffected = []
-		acNodeIds = keys(@aNodesAffectedByRules)
-		nLen = len(acNodeIds)
-		
-		for i = 1 to nLen
-			aNode = This.Node(acNodeIds[i])
-			aContext = This._BuildRuleContext(aNode)
-			if oRule.Matches(aContext)
-				acAffected + acNodeIds[i]
-			ok
-		end
-		
-		return acAffected
-
-	# Get nodes affected by multiple rules
-	def NodesAffectedByTheseRules(paoRules)
-		
-		acAffected = []
-		acNodeIds = keys(@aNodesAffectedByRules)
-		nNodeLen = len(acNodeIds)
-		
-		for i = 1 to nNodeLen
-			aNode = This.Node(acNodeIds[i])
-			aContext = This._BuildRuleContext(aNode)
-			
-			# Check if any of the provided rules match
-			nRuleLen = len(paoRules)
-			for j = 1 to nRuleLen
-				if paoRules[j].Matches(aContext)
-					if ring_find(acAffected, acNodeIds[i]) = 0
-						acAffected + acNodeIds[i]
-					ok
-					exit  # Node matched, no need to check more rules
+			for aNode in @aNodes
+				if This._MatchesCondition(aNode, aRule[:cond])
+					This._ApplyEffects(aNode[:id], aRule[:effects])
+					This._TrackAffected(aNode[:id], aRule[:id])
 				ok
 			end
 		end
+
+	# Apply inference rules (transitivity, etc.)
+	def ApplyInference()
+		nAdded = 0
 		
-		return acAffected
-	
-		def NodesAffectedByRulesIn(paoRules)
-			return This.NodesAffectedByTheseRules(paoRules)
-	
-	# Get nodes NOT affected by any rule
-	def NodesNotAffectedByRules()
-	
-		acAllNodes = []
-		aNodes = This.Nodes()
-		nLen = len(aNodes)
-		for i = 1 to nLen
-			acAllNodes + aNodes[i]["id"]
-		end
-		
-		acAffected = keys(@aNodesAffectedByRules)
-		acNotAffected = []
-		
-		nLen = len(acAllNodes)
-		for i = 1 to nLen
-			if ring_find(acAffected, acAllNodes[i]) = 0
-				acNotAffected + acAllNodes[i]
+		for aRule in @aRules
+			if aRule[:type] != "inference"
+				loop
+			ok
+			
+			# Check for built-in inference types
+			if aRule[:cond][1] = :transitivity
+				# Add transitive edges: if a->b and b->c exist, add a->c
+				for aEdge1 in @aEdges
+					for aEdge2 in @aEdges
+						if aEdge1[:to] = aEdge2[:from]
+							cFrom = aEdge1[:from]
+							cTo = aEdge2[:to]
+							
+							# Check if edge doesn't already exist
+							bExists = FALSE
+							for aEdge in @aEdges
+								if aEdge[:from] = cFrom and aEdge[:to] = cTo
+									bExists = TRUE
+									exit
+								ok
+							end
+							
+							if not bExists and cFrom != cTo
+								@aEdges + [
+									:from = cFrom,
+									:to = cTo,
+									:label = "(inferred-transitive)",
+									:properties = [:inferred = TRUE]
+								]
+								nAdded++
+							ok
+						ok
+					end
+				end
 			ok
 		end
 		
-		return acNotAffected
-	
-		def NodesNotAffected()
-			return This.NodesNotAffectedByRules()
-	
-		def UnaffectedNodes()
-			return This.NodesNotAffectedByRules()
-	
-	#--- EDGES
-	
-	def EdgesAffectedByRules()
-		return keys(@aEdgesAffectedByRules)
-	
-		def EdgesAffected()
-			return This.EdgesAffectedByRules()
-	
-		def AffectedEdges()
-			return This.EdgesAffectedByRules()
-	
-	def EdgesAffectedByRule(pRule)
-		if isString(pRule)
-			pRule = This.RuleObject(pRule)
+		return nAdded
+
+	# Check if condition matches node
+	def _MatchesCondition(aNode, paCondition)
+		if paCondition[1] = :always
+			return TRUE
+		ok
+		
+		if len(paCondition) = 3
+			cKey = paCondition[1]
+			cOp = paCondition[2]
+			pValue = paCondition[3]
+			
+			if not HasKey(aNode[:properties], cKey)
+				return FALSE
+			ok
+			
+			pActual = aNode[:properties][cKey]
+			
+			switch cOp
+				on :equals
+					return pActual = pValue
+				on :greaterthan
+					return pActual > pValue
+				on :lessthan
+					return pActual < pValue
+			off
+		ok
+		
+		return FALSE
+
+	# Apply effects to node
+	def _ApplyEffects(pcNodeId, paEffects)
+		for aEffect in paEffects
+			cAction = aEffect[1]
+			cTarget = aEffect[2]
+			pValue = aEffect[3]
+			
+			if cAction = :set
+				This.SetNodeProperty(pcNodeId, cTarget, pValue)
+			ok
+		end
+
+	# Track which nodes were affected by which rules
+	def _TrackAffected(pcNodeId, pcRuleId)
+		nPos = 0
+		for i = 1 to len(@aAffectedNodes)
+			if @aAffectedNodes[i][1] = pcNodeId
+				nPos = i
+				exit
+			ok
+		end
+		
+		if nPos = 0
+			@aAffectedNodes + [pcNodeId, [pcRuleId]]
+		else
+			@aAffectedNodes[nPos][2] + pcRuleId
 		ok
 
-		acAffected = []
-		acEdgeKeys = keys(@aEdgesAffectedByRules)
-		nLen = len(acEdgeKeys)
-		
-		for i = 1 to nLen
-			acParts = @split(acEdgeKeys[i], "->")
-			aEdge = This.Edge(acParts[1], acParts[2])
-			aContext = This._BuildRuleContext(aEdge)
-
-			if pRule.Matches(aContext)
-				acAffected + acEdgeKeys[i]
+	# Get nodes affected by specific rule
+	def NodesAffectedByRule(pcRuleId)
+		acResult = []
+		for aEntry in @aAffectedNodes
+			if ring_find(aEntry[2], pcRuleId) > 0
+				acResult + aEntry[1]
 			ok
 		end
-		
-		return acAffected
-	
-		def EdgesAffectedBy(pRule)
-			return This.EdgesAffectedByRule(pRule)
-	
-	def EdgesAffectedByTheseRules(paoRules)
-		
-		acAffected = []
-		acEdgeKeys = keys(@aEdgesAffectedByRules)
-		nEdgeLen = len(acEdgeKeys)
-		
-		for i = 1 to nEdgeLen
-			acParts = @split(acEdgeKeys[i], "->")
-			aEdge = This.Edge(acParts[1], acParts[2])
-			aContext = This._BuildRuleContext(aEdge)
-			
-			nRuleLen = len(paoRules)
-			for j = 1 to nRuleLen
-				if paoRules[j].Matches(aContext)
-					if ring_find(acAffected, acEdgeKeys[i]) = 0
-						acAffected + acEdgeKeys[i]
+		return acResult
+
+	# Get all affected nodes
+	def NodesAffectedByRules()
+		acResult = []
+		for aEntry in @aAffectedNodes
+			acResult + aEntry[1]
+		end
+		return acResult
+
+		def NodesAffected()
+			return This.NodesAffectedByRules()
+
+		def AffectedNodes()
+			return This.NodesAffectedByRules()
+
+	# Get all rules that were applied
+	def RulesApplied()
+		acRuleIds = []
+		for aRule in @aRules
+			for aEntry in @aAffectedNodes
+				if ring_find(aEntry[2], aRule[:id]) > 0
+					if ring_find(acRuleIds, aRule[:id]) = 0
+						acRuleIds + aRule[:id]
 					ok
 					exit
 				ok
 			end
 		end
-		
-		return acAffected
-	
-		def EdgesAffectedByRulesIn(paoRules)
-			return This.EdgesAffectedByTheseRules(paoRules)
-	
-	def EdgesNotAffectedByRules()
-		
-		acAllEdges = []
-		aEdges = This.Edges()
-		nLen = len(aEdges)
-		for i = 1 to nLen
-			acAllEdges + (aEdges[i]["from"] + "->" + aEdges[i]["to"])
-		end
-		
-		acAffected = keys(@aEdgesAffectedByRules)
-		acNotAffected = []
-		
-		nLen = len(acAllEdges)
-		for i = 1 to nLen
-			if ring_find(acAffected, acAllEdges[i]) = 0
-				acNotAffected + acAllEdges[i]
-			ok
-		end
-		
-		return acNotAffected
-	
-		def EdgesNotAffected()
-			return This.EdgesNotAffectedByRules()
-	
-		def UnaffectedEdges()
-			return This.EdgesNotAffectedByRules()
-	
-	#--- COMBINED
-	
-	def ElementsAffectedByRules()
-		return [
-			:nodes = This.NodesAffectedByRules(),
-			:edges = This.EdgesAffectedByRules()
-		]
-	
-		def AffectedElements()
-			return This.ElementsAffectedByRules()
-	
-	def ElementsNotAffectedByRules()
-		return [
-			:nodes = This.NodesNotAffectedByRules(),
-			:edges = This.EdgesNotAffectedByRules()
-		]
-	
-		def UnaffectedElements()
-			return This.ElementsNotAffectedByRules()
+		return acRuleIds
 
-	#-------------#
-	#  INFERENCE  #
-	#-------------#
-
-	def ApplyInference()
-	    if @oRuleEngine = NULL
-	        @oRuleEngine = new stzGraphRuleEngine(This)
-	        @oRuleEngine.AddRuleBase("graph")
-	    ok
-	    
-	    @oRuleEngine.@oGraph = This
-	    
-	    nInferred = 0
-	    
-	    # Check which inference rules are active
-	    acRuleIds = keys(@aRules)
-	    bHasTransitivity = FALSE
-	    bHasSymmetry = FALSE
-	    
-	    nLen = len(acRuleIds)
-	    for i = 1 to nLen
-	        cRuleId = acRuleIds[i]
-	        if cRuleId = "transitivity_infer"
-	            bHasTransitivity = TRUE
-	        but cRuleId = "symmetry_infer"
-	            bHasSymmetry = TRUE
-	        ok
-	    end
-	    
-	    # Apply symmetry: if a->b exists, infer b->a
-	    if bHasSymmetry
-	        aEdges = This.Edges()
-	        nEdgeLen = len(aEdges)
-	        
-	        for i = 1 to nEdgeLen
-	            aEdge = aEdges[i]
-	            
-	            # Skip already inferred edges
-	            if substr(aEdge["label"], "(inferred") > 0
-	                loop
-	            ok
-	            
-	            cFrom = aEdge["from"]
-	            cTo = aEdge["to"]
-	            
-	            if NOT This.EdgeExists(cTo, cFrom)
-	                This.AddEdgeXT(cTo, cFrom, "(inferred-symmetric)")
-	                nInferred++
-	            ok
-	        end
-	    ok
-	    
-	    # Apply transitivity: if a->b and b->c exist, infer a->c
-	    if bHasTransitivity
-	        aNodes = This.Nodes()
-	        nNodeLen = len(aNodes)
-	        
-	        for i = 1 to nNodeLen
-	            for j = 1 to nNodeLen
-	                cFrom = aNodes[i]["id"]
-	                cTo = aNodes[j]["id"]
-	                
-	                if cFrom != cTo and This.PathExists(cFrom, cTo) and NOT This.EdgeExists(cFrom, cTo)
-	                    This.AddEdgeXT(cFrom, cTo, "(inferred-transitive)")
-	                    nInferred++
-	                ok
-	            end
-	        end
-	    ok
-	    
-	    return nInferred
-
-
-	def AddInferenceRule(pcRuleType)
-		cType = upper(pcRuleType)
-		
-		switch cType
-		on "TRANSITIVITY"
-			oRule = new stzGraphRule("transitivity_infer")
-			oRule.SetRuleType("inference")
-			oRule.SetGraph(This)
-			This.SetRule(oRule)
-			
-		on "SYMMETRY"
-			oRule = new stzGraphRule("symmetry_infer")
-			oRule.SetRuleType("inference")
-			oRule.SetGraph(This)
-			This.SetRule(oRule)
-			
-		on "COMPOSITION"
-			oRule = new stzGraphRule("composition_infer")
-			oRule.SetRuleType("inference")
-			oRule.SetGraph(This)
-			This.SetRule(oRule)
-		off
-	
-	def _ApplyTransitivity(paRule)
-		nInferred = 0
-		acNewEdges = []
-		nEdgeLen = len(@aEdges)
-		
-		# Find transitive paths
-		for i = 1 to nEdgeLen
-			aEdge1 = @aEdges[i]
-			for j = 1 to nEdgeLen
-				aEdge2 = @aEdges[j]
-				
-				if aEdge1["to"] = aEdge2["from"]
-					cFrom = aEdge1["from"]
-					cTo = aEdge2["to"]
-					
-					if NOT This.EdgeExists(cFrom, cTo) and cFrom != cTo
-						if ring_find(acNewEdges, [cFrom, cTo]) = 0
-							acNewEdges + [cFrom, cTo]
-							nInferred++
-						ok
-					ok
-				ok
-			end
-		end
-		
-		# Add inferred edges
-		for aNewEdge in acNewEdges
-			This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred-transitive)")
-		end
-		
-		return nInferred
-	
-	def _ApplySymmetry(paRule)
-		nResult = 0
-		acNewEdges = []
-		nEdgeLen = len(@aEdges)
-		
-		for i = 1 to nEdgeLen
-			aEdge = @aEdges[i]
-			
-			# Skip already inferred
-			if substr(aEdge["label"], "(inferred") > 0
-				loop
-			ok
-			
-			cFrom = aEdge["from"]
-			cTo = aEdge["to"]
-			
-			if NOT This.EdgeExists(cTo, cFrom)
-				if ring_find(acNewEdges, [cTo, cFrom]) = 0
-					acNewEdges + [cTo, cFrom]
-					nResult++
-				ok
-			ok
-		end
-		
-		for aNewEdge in acNewEdges
-			This.AddEdgeXT(aNewEdge[1], aNewEdge[2], "(inferred-symmetric)")
-		end
-		
-		return nResult
-	
-	def _ApplyComposition(paRule)
-		# Similar to transitivity
-		return This._ApplyTransitivity(paRule)
-
+		def AppliedRules()
+			return This.RulesApplied()
 
 	def InferredEdges()
 		acInferred = []
@@ -2480,665 +1765,163 @@ class stzGraph
 		
 		for i = 1 to nEdgeLen
 			aEdge = @aEdges[i]
-			if substr(aEdge["label"], "(inferred") > 0
+			if substr(aEdge[:label], "(inferred") > 0
 				acInferred + aEdge
 			ok
 		end
 		
 		return acInferred
 
-	def InferenceReport()
-		if @oRuleEngine = NULL
-			return [
-				[ :status, "No inference engine initialized" ],
-				[ :inferredCount, "0" ]
-			]
-		ok
-		
-		return @oRuleEngine.InferenceReport()
-	
-		def InferReport()
-			return This.InferenceReport()
-
-	#--------------#
-	#  VALIDATION  #
-	#--------------#
-
-	def Validate()
-		if @oRuleEngine = NULL
-			@oRuleEngine = new stzGraphRuleEngine(This)
-			@oRuleEngine.AddRuleBase("graph")
-		ok
-		return @oRuleEngine.Validate("validation")
-	
-	def ValidateXT(pValidator)
-		if isString(pValidator)
-			return This.ValidateDomain(pValidator)
-		but isList(pValidator)
-			aResults = []
-			for cDomain in pValidator
-				aResults + This.ValidateDomain(cDomain)
-			end
-			return This._AggregateMultiResults(aResults)
-		ok
-	
-	def ValidateDomain(pcDomain)
-		if @oRuleEngine = NULL
-			@oRuleEngine = new stzGraphRuleEngine(This)
-		ok
-		return @oRuleEngine.ValidateDomain(pcDomain)
-	
-	def IsValid()
-		aResult = This.Validate()
-		return aResult[:status] = "pass"
-	
-	def IsValidXT(pValidator)
-		aResult = This.ValidateXT(pValidator)
-		return aResult[:status] = "pass"
-
-
-	def _ValidateSingle(pcValidator)
-		switch lower(pcValidator)
-		on "dag"
-			return This._ValidateDAG()
-		on "reachability"
-			return This._ValidateReachability()
-		on "completeness"
-			return This._ValidateCompleteness()
-		on "constraints"
-			return This.ValidateConstraints()
-		other
-			# User-defined validator
-			cMethodName = "Validate" + pcValidator
-			if SystemMethod(This, cMethodName)
-				return call SystemMethod(This, cMethodName)
-			else
-				return [
-					:status = "error",
-					:domain = pcValidator,
-					:issueCount = 0,
-					:issues = ["Unknown validator: " + pcValidator],
-					:affectedNodes = []
-				]
-			ok
-		off
-
-	def _ValidateDAG()
-		bIsDAG = NOT This.CyclicDependencies()
-		acAffected = []
-		
-		if NOT bIsDAG
-			oAnalyzer = new stzGraphAnalyzer(This)
-			acAffected = oAnalyzer.CyclicNodes()
-		ok
-		
-		return [
-			:status = iif(bIsDAG, "pass", "fail"),
-			:domain = "dag",
-			:issueCount = iif(bIsDAG, 0, 1),
-			:issues = iif(bIsDAG, [], ["Graph contains cycles"]),
-			:affectedNodes = acAffected
-		]
-	
-	def _ValidateReachability()
-		acStartNodes = This.NodesByType("start")
-		acEndpointNodes = This.NodesByType("endpoint")
-		aIssues = []
-		acAffected = []
-		
-		nEndLen = len(acEndpointNodes)
-		for i = 1 to nEndLen
-			bReachable = FALSE
-			nStartLen = len(acStartNodes)
-			for j = 1 to nStartLen
-				if This.PathExists(acStartNodes[j], acEndpointNodes[i])
-					bReachable = TRUE
-					exit
-				ok
-			end
-			if NOT bReachable
-				aIssues + "Endpoint unreachable: " + acEndpointNodes[i]
-				acAffected + acEndpointNodes[i]
-			ok
-		end
-	
-		return [
-			:status = iif(len(aIssues) = 0, "pass", "fail"),
-			:domain = "reachability",
-			:issueCount = len(aIssues),
-			:issues = aIssues,
-			:affectedNodes = acAffected
-		]
-	
-	def _ValidateCompleteness()
-		aIssues = []
-		acAffected = []
-		acDecisions = This.NodesByType("decision")
-		nLen = len(acDecisions)
-
-		for i = 1 to nLen
-			if len(This.Neighbors(acDecisions[i])) < 2
-				aIssues + "Decision node has fewer than 2 paths: " + acDecisions[i]
-				acAffected + acDecisions[i]
-			ok
-		end
-	
-		return [
-			:status = iif(len(aIssues) = 0, "pass", "fail"),
-			:domain = "completeness",
-			:issueCount = len(aIssues),
-			:issues = aIssues,
-			:affectedNodes = acAffected
-		]
-
-	def _AggregateMultiResults(paResults)
-		if len(paResults) = 0
-			return [ :status = "pass", :issues = [] ]
-		ok
-		
-		nTotalIssues = 0
-		acAllIssues = []
-		
-		for aResult in paResults
-			if HasKey(aResult, :issueCount)
-				nTotalIssues += aResult[:issueCount]
-			ok
-			if HasKey(aResult, :issues)
-				for cIssue in aResult[:issues]
-					acAllIssues + cIssue
-				end
-			ok
-		end
-		
-		return [
-			:status = iif(nTotalIssues = 0, "pass", "fail"),
-			:issueCount = nTotalIssues,
-			:issues = acAllIssues,
-			:results = paResults
-		]
-
-	#-------------#
-	#  ANOMALIES  #
-	#-------------#
-
-	def Violations()
-		aViolations = [
-			:constraint = [],
-			:inference = [],
-			:validation = []
-		]
-		
-		if @oRuleEngine = NULL
-			return aViolations
-		ok
-		
-		# Collect constraint violations
-		aConstraintResult = @oRuleEngine.CheckConstraints()
-		if aConstraintResult[:status] = "fail"
-			aViolations[:constraint] = aConstraintResult[:issues]
-		ok
-		
-		# Collect validation violations
-		aValidationResult = @oRuleEngine.Validate("validation")
-		if aValidationResult[:status] = "fail"
-			aViolations[:validation] = aValidationResult[:issues]
-		ok
-		
-		# Collect inference anomalies (edges that couldn't be inferred due to conflicts)
-		# Currently inference doesn't produce violations, but structure is ready
-		
-		return aViolations
-	
-		def Anomalies()
-			return This.Violations()
-	
-	def ViolationCount()
-		aViolations = This.Violations()
-
-		return len(aViolations[:constraint]) + 
-		       len(aViolations[:inference]) + 
-		       len(aViolations[:validation])
-
-		def NumberOfViolations()
-			return This.ViolationCount()
-
-		def NumberOfAnomalies()
-			return This.ViolationCount()
-
-		def HowManyViolation()
-			return This.ViolationCount()
-
-		def HowManyAnomaly()
-			return This.ViolationCount()
-
 	#------------------------------------------------#
 	#  RICH QUERYING - BASED ON stzGraphQuery CLASS  #
 	#------------------------------------------------#
-
-	# One method that replace 23 old methods that made
-	# quering semantically complex and hard to rember
-	# Now we have a unique exprssion: Find(What).Where(Condition)
-
-	#--> ONE PATTERN - NO CONFUSION
-	# Find(what).Where(key, op, val)
-	# Find(what).Having(key, val)
-	# Find(what).WithProperty(key)
-	# Find(what).WithTag(tag)
 
 	def Find(pcWhat)
 		return new stzGraphQuery(This, pcWhat)
 
 		def FindQ(pcWhat)
-			return Find(pcWhat)
+			return new stzGraphQuery(This, pcWhat)
 
-	#------------------#
-	#  REMOVING NODES  #
-	#------------------#
+	def NodesByType(pcType)
+		return Find("nodes").Where("type", "=", pcType).Run()
 
-	def RemoveNodeProperties(pcNodeId)
+	#--
+
+	def NodesWhere(pcProp, pcOp, pVal)
+		return This.Find("nodes").Where(pcProp, pcOp, pVal).Run()
+
+		def NodesW(pcProp, pcOp, pVal)
+			return This.NodesWhere(pcProp, pcOp, pVal)
+
+	def EdgesWhere(pcProp, pcOp, pVal)
+		return This.Find("edges").Where(pcProp, pcOp, pVal).Run()
+
+		def EdgesW(pcProp, pcOp, pVal)
+			return This.EdgesWhere(pcProp, pcOp, pVal)
+
+	#--
+
+	def NodesWhereF(pFunc)
+		acResult = []
 		nLen = len(@aNodes)
+
 		for i = 1 to nLen
-			if @aNodes[i]["id"] = pcNodeId
-				@aNodes[i]["properties"] = []
-				return
+			bMatched = call pFunc(@aNodes[i])
+			if bMatched
+				acResult + @aNodes[i][:id]
 			ok
-		end
-	
-		def ClearNodeProperties(pcNodeId)
-			This.RemoveNodeProperties(pcNodeId)
-	
-		def RemoveNodeProps(pcNodeId)
-			This.RemoveNodeProperties(pcNodeId)
-	
-		def ClearNodeProps(pcNodeId)
-			This.RemoveNodeProperties(pcNodeId)
+		next
 
-	def RemoveAllProperties()
-		# Clear node properties
-		nLen = len(@aNodes)
-		for i = 1 to nLen
-			@aNodes[i]["properties"] = []
-		end
-		
-		# Clear edge properties
+		return acResult
+
+		def NodesWF(pFunc)
+			return This.NodesWhereF(pFunc)
+
+	def EdgesWhereF(pFunc)
+		acResult = []
 		nLen = len(@aEdges)
+
 		for i = 1 to nLen
-			@aEdges[i]["properties"] = []
-		end
-	
-		def ClearAllProperties()
-			This.RemoveAllProperties()
+			bMatched = call pFunc(@aEdges[i])
+			if bMatched
+				acResult + [ @aEdges[i][:from], @aEdges[i][:to] ]
+			ok
+		next
+
+		return acResult
+
+		def EdgesWF(pFunc)
+			return This.EdgesWhereF(pFunc)
 
 
+	def PathsWhereF(pFunc)
 
-	#--------------#
-	#  SIMULATION  #
-	#--------------#
+		acResult = []
+		acPaths = This.Paths() #TODO
+		nLen = len(acPaths)
 
-	def CreateSimulation(pcId)
-	        oSim = new stzGraphSimulation(pcId)
-	        oSim.SetGraph(This)
-	        return oSim
-	    
-	def LoadSimulation(pSource)
-	        if isString(pSource)
-	            # Load from file
-	            oParser = new stzSimulationParser()
-	            oSim = oParser.ParseFile(pSource)
-	            oSim.SetGraph(This)
-	            return oSim
-	        but isObject(pSource)
-	            pSource.SetGraph(This)
-	            return pSource
-	        ok
-	    
-	def RunSimulation(pSim)
-	        if isString(pSim)
-	            # Load and run
-	            oSim = This.LoadSimulation(pSim)
-	            return oSim.Run()
-	        but isObject(pSim)
-	            pSim.SetGraph(This)
-	            return pSim.Run()
-	        ok
-
-	#-------------------------------#
-	#  EXPORT AND INTEROPERABILITY  #
-	#-------------------------------#
-
-	def ToStzDiagram()
-		#TODO
-
-	def ToHashlist()
-		return [
-			:id = @cId,
-			:nodes = @aNodes,
-			:edges = @aEdges,
-			:properties = This.Properties()
-		]
-
-	def ExportToDOT()
-		cDOT = "digraph " + This.Id() + " {" + nl
-		cDOT += "  rankdir=TD;" + nl
-		cDOT += "  node [shape=box];" + nl + nl
-		
-		# Export nodes
-		nLen = len(@aNodes)
 		for i = 1 to nLen
-			aNode = @aNodes[i]
-			cId = aNode["id"]
-			cLabel = aNode["label"]
-			
-			# Remove @ prefix if present
-			if left(cId, 1) = "@"
-				cId = @substr(cId, 2, len(cId))
+			bMatched = call pFunc(acPaths[i])
+			if bMatched
+				acResult + acPaths[i]
 			ok
-			
-			cDOT += "  " + cId + " [label=" + '"' + cLabel + '"' + "];" + nl
-		end
-		
-		cDOT += nl
-		
-		# Export edges
-		nLen = len(@aEdges)
-		for i = 1 to nLen
-			aEdge = @aEdges[i]
-			cFrom = aEdge["from"]
-			cTo = aEdge["to"]
-			cLabel = aEdge["label"]
-			
-			# Remove @ prefix if present
-			if left(cFrom, 1) = "@"
-				cFrom = @substr(cFrom, 2, len(cFrom))
-			ok
-			if left(cTo, 1) = "@"
-				cTo = @substr(cTo, 2, len(cTo))
-			ok
-			
-			cDOT += "  " + cFrom + " -> " + cTo
-			if cLabel != ""
-				cDOT += " [label=" + '"' + cLabel + '"' + "]"
-			ok
-			cDOT += ";" + nl
-		end
-		
-		cDOT += "}" + nl
-		return cDOT
-	
-		def ExportToDotQ()
-			oDotCode = new stzDotCode()
-			oDotCode.SetCode(This.ExportToDot())
-			return oDotCode
+		next
 
-		def Dot()
-			return This.ExportToDot()
+		return acResult
 
-			def DotQ()
-				return This.ExportToDotQ()
-
-		def ToDot()
-			return This.ExportToDot()
-
-			def ToDotQ()
-				return This.ExportToDotQ()
-
-	def ExportToJSON()
-		acNodes = []
-		acEdges = []
-		
-		# Process nodes and remove @ prefix
-		nLen = len(@aNodes)
-		for i = 1 to nLen
-			aNode = @aNodes[i]
-			cId = aNode["id"]
-			if substr(cId, 1, 1) = "@"
-				cId = substr(cId, 2, len(cId) - 1)
-			ok
-			acNodes + [
-				:id = cId,
-				:label = aNode["label"],
-				:properties = aNode["properties"]
-			]
-		end
-		
-		# Process edges and remove @ prefix
-		nLen = len(@aEdges)
-		for i = 1 to nLen
-			aEdge = @aEdges[i]
-			cFrom = aEdge["from"]
-			cTo = aEdge["to"]
-			if substr(cFrom, 1, 1) = "@"
-				cFrom = substr(cFrom, 2, len(cFrom) - 1)
-			ok
-			if substr(cTo, 1, 1) = "@"
-				cTo = substr(cTo, 2, len(cTo) - 1)
-			ok
-			acEdges + [
-				:from = cFrom,
-				:to = cTo,
-				:label = aEdge["label"],
-				:properties = aEdge["properties"]
-			]
-		end
-		
-		cJSON = "{" + nl
-		cJSON += '  "id": "' + This.Id() + '",' + nl
-		cJSON += '  "nodes": [' + nl
-		
-		nLen = len(acNodes)
-		for i = 1 to nLen
-			cJSON += '    ' + @ToJSON(acNodes[i])
-			if i < nLen
-				cJSON += ","
-			ok
-			cJSON += nl
-		end
-		
-		cJSON += '  ],' + nl
-		cJSON += '  "edges": [' + nl
-		
-		nLen = len(acEdges)
-		for i = 1 to nLen
-			cJSON += '    ' + @ToJSON(acEdges[i])
-			if i < nLen
-				cJSON += ","
-			ok
-			cJSON += nl
-		end
-		
-		cJSON += '  ],' + nl
-		cJSON += '  "metrics": ' + @ToJSON([
-			:nodeCount = len(@aNodes),
-			:edgeCount = len(@aEdges),
-			:density = This.NodeDensity(),
-			:longestPath = This.LongestPath(),
-			:hasCycles = This.CyclicDependencies()
-		]) + nl
-		cJSON += "}"
-		
-		return cJSON
-
-		def Json()
-			return This.ExportToJson()
-
-		def ToJson()
-			return This.ExportToJson()
-
-	def ExportToYAML()
-		cYAML = "graph: " + This.Id() + nl
-		cYAML += "nodes:" + nl
-		
-		nLen = len(@aNodes)
-		for i = 1 to nLen
-			aNode = @aNodes[i]
-			cId = aNode["id"]
-			
-			# Remove @ prefix if present
-			if left(cId, 1) = "@"
-				cId = @substr(cId, 2, len(cId))
-			ok
-			
-			cYAML += "  - id: " + cId + nl
-			cYAML += "    label: " + aNode["label"] + nl
-			if len(aNode["properties"]) > 0
-				cYAML += "    properties:" + nl
-				acProps = aNode["properties"]
-				nPropLen = len(acProps)
-				for j = 1 to nPropLen
-					cYAML += "      - " + string(acProps[j][1]) + nl
-				end
-			ok
-		end
-		
-		cYAML += nl + "edges:" + nl
-		nLen = len(@aEdges)
-		for i = 1 to nLen
-			aEdge = @aEdges[i]
-			cFrom = aEdge["from"]
-			cTo = aEdge["to"]
-			
-			# Remove @ prefix if present
-			if left(cFrom, 1) = "@"
-				cFrom = @substr(cFrom, 2, len(cFrom))
-			ok
-			if left(cTo, 1) = "@"
-				cTo = @substr(cTo, 2, len(cTo))
-			ok
-			
-			cYAML += "  - from: " + cFrom + nl
-			cYAML += "    to: " + cTo + nl
-			cYAML += "    label: " + aEdge["label"] + nl
-		end
-		
-		return cYAML
-	
-		def Yaml()
-			return This.ExportToYaml()
-
-		def ToYaml()
-			return This.ExportToYaml()
-
-	#------------------------#
-	#  VISUALISING IN ASCII  #
-	#------------------------#
-
-	def Show()
-		oViz = new stzGraphAsciiVisualizer(This)
-		oViz.Show()
-
-		def Shwo()
-			This.Show()
-
-	def View() #TODO // Allow minimal configs like SetHorizontal/Verticlal
-		_oDot_ = new stzDotCode()
-		_oDot_.SetCode(This.Dot())
-		_oDot_.RunAndView()
-
-	def ShowHorizontal()
-		oViz = new stzGraphAsciiVisualizer(This)
-		oViz.ShowHorizontal()
-
-		def ShowH()
-			This.ShowHorizontal()
-
-	def ShowVertical()
-		oViz = new stzGraphAsciiVisualizer(This)
-		oViz.ShowVertical()
-
-		def ShowV()
-			This.ShowVertical()
-
-	def ShowWithLegend()
-		oViz = new stzGraphAsciiVisualizer(This)
-		oViz.ShowWithLegend()
-
-	def ShowXT(paOptions)
-		oViz = new stzGraphAsciiVisualizer(This)
-		oViz.Show(paOptions)
-
-	def Explain()
-		oViz = new stzGraphExplainer(This)
-		return oViz.Explain()
+		def PathsWF(pFunc)
+			return This.PathsWhereF(pFunc)
 
 	#--------------------#
 	#  GRAPH ALGORITHMS  #
 	#--------------------#
 
 	def ShortestPath(pcFrom, pcTo)
-	    if CheckParams()
-	        if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
-	            pcFrom = pcFrom[2]
-	        ok
-	        if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
-	            pcTo = pcTo[2]
-	        ok
-	    ok
-	
-	    if NOT This.NodeExists(pcFrom) or NOT This.NodeExists(pcTo)
-	        return []
-	    ok
-	
-	    if pcFrom = pcTo
-	        return [pcFrom]
-	    ok
-	
-	    _acQueue_ = [pcFrom]
-	    _acVisited_ = [pcFrom]
-	    _aParentMap_ = [ [pcFrom, NULL] ]
-	
-	    while len(_acQueue_) > 0
-	        _cCurrent_ = _acQueue_[1]
-	        del(_acQueue_, 1)
-	        
-	        if _cCurrent_ = pcTo
-	            _acPath_ = []
-	            _cNode_ = pcTo
-	            
-	            while _cNode_ != NULL
-	                _acPath_ + _cNode_
-	                
-	                _cParent_ = NULL
-	                _nMapLen_ = len(_aParentMap_)
-	                for _j_ = 1 to _nMapLen_
-	                    if _aParentMap_[_j_][1] = _cNode_
-	                        _cParent_ = _aParentMap_[_j_][2]
-	                        exit
-	                    ok
-	                end
-	                _cNode_ = _cParent_
-	            end
-	            
-	            _acReversed_ = []
-	            _nPathLen_ = len(_acPath_)
-	            for _k_ = _nPathLen_ to 1 step -1
-	                _acReversed_ + _acPath_[_k_]
-	            end
-	            
-	            return _acReversed_
-	        ok
-	
-	        _acNeighbors_ = This.Neighbors(_cCurrent_)
-	        _nNeighLen_ = len(_acNeighbors_)
-	        for _i_ = 1 to _nNeighLen_
-	            _cNeighbor_ = _acNeighbors_[_i_]
-	            if ring_find(_acVisited_, _cNeighbor_) = 0
-	                _acVisited_ + _cNeighbor_
-	                _acQueue_ + _cNeighbor_
-	                _aParentMap_ + [_cNeighbor_, _cCurrent_]
-	            ok
-	        end
-	    end
-	
-	    return []
-
-	def _GetParent(paParents, pcNode)
-		_nLen_ = len(paParents)
-		for _i_ = 1 to _nLen_
-			if paParents[_i_][1] = pcNode
-				return paParents[_i_][2]
+		if CheckParams()
+			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
+				pcFrom = pcFrom[2]
 			ok
+			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
+				pcTo = pcTo[2]
+			ok
+		ok
+	
+		if NOT This.NodeExists(pcFrom) or NOT This.NodeExists(pcTo)
+			return []
+		ok
+	
+		if pcFrom = pcTo
+			return [pcFrom]
+		ok
+	
+		_acQueue_ = [pcFrom]
+		_acVisited_ = [pcFrom]
+		_aParentMap_ = [ [pcFrom, NULL] ]
+	
+		while len(_acQueue_) > 0
+			_cCurrent_ = _acQueue_[1]
+			del(_acQueue_, 1)
+			
+			if _cCurrent_ = pcTo
+				_acPath_ = []
+				_cNode_ = pcTo
+				
+				while _cNode_ != NULL
+					_acPath_ + _cNode_
+					
+					_cParent_ = NULL
+					_nMapLen_ = len(_aParentMap_)
+					for _j_ = 1 to _nMapLen_
+						if _aParentMap_[_j_][1] = _cNode_
+							_cParent_ = _aParentMap_[_j_][2]
+							exit
+						ok
+					end
+					_cNode_ = _cParent_
+				end
+				
+				_acReversed_ = []
+				_nPathLen_ = len(_acPath_)
+				for _k_ = _nPathLen_ to 1 step -1
+					_acReversed_ + _acPath_[_k_]
+				end
+				
+				return _acReversed_
+			ok
+	
+			_acNeighbors_ = This.Neighbors(_cCurrent_)
+			_nNeighLen_ = len(_acNeighbors_)
+			for _i_ = 1 to _nNeighLen_
+				_cNeighbor_ = _acNeighbors_[_i_]
+				if ring_find(_acVisited_, _cNeighbor_) = 0
+					_acVisited_ + _cNeighbor_
+					_acQueue_ + _cNeighbor_
+					_aParentMap_ + [_cNeighbor_, _cCurrent_]
+				ok
+			end
 		end
-		return NULL
+	
+		return []
 
 	def ShortestPathLength(pcFrom, pcTo)
 		if CheckParams()
@@ -3187,25 +1970,56 @@ class stzGraph
 		end
 
 	def IsConnected()
-	    return This._IsConnected()
+		if len(@aNodes) <= 1
+			return 1
+		ok
+		
+		acVisited = []
+		acQueue = [@aNodes[1][:id]]
+		acVisited + @aNodes[1][:id]
+		nIdx = 1
+		
+		while nIdx <= len(acQueue)
+			cCurrent = acQueue[nIdx]
+			
+			acNeighbors = This.Neighbors(cCurrent)
+			acIncoming = This.Incoming(cCurrent)
+			
+			for i = 1 to len(acNeighbors)
+				cNext = acNeighbors[i]
+				if ring_find(acVisited, cNext) = 0
+					acVisited + cNext
+					acQueue + cNext
+				ok
+			end
+			
+			for i = 1 to len(acIncoming)
+				cNext = acIncoming[i]
+				if ring_find(acVisited, cNext) = 0
+					acVisited + cNext
+					acQueue + cNext
+				ok
+			end
+			
+			nIdx += 1
+		end
+		
+		return len(acVisited) = len(@aNodes)
 
 	def ArticulationPoints()
 		_acArticulation_ = []
 		_aNodes_ = This.Nodes()
 		
-		# Get original component count
 		_nOriginalComponents_ = len(This.ConnectedComponents())
 		
 		_nNodeLen_ = len(_aNodes_)
 		for _i_ = 1 to _nNodeLen_
 			_cNodeId_ = _aNodes_[_i_][:id]
 			
-			# Save edges
 			_aIncoming_ = This.Incoming(_cNodeId_)
 			_aOutgoing_ = This.Neighbors(_cNodeId_)
 			_aSavedEdges_ = []
 			
-			# Save all edges connected to this node
 			_aEdges_ = This.Edges()
 			_nEdgeLen_ = len(_aEdges_)
 			for _j_ = 1 to _nEdgeLen_
@@ -3215,14 +2029,11 @@ class stzGraph
 				ok
 			end
 			
-			# Temporarily remove node
 			_aNode_ = This.Node(_cNodeId_)
 			This.RemoveThisNode(_cNodeId_)
 			
-			# Check if graph is now more fragmented
 			_nNewComponents_ = len(This.ConnectedComponents())
 			
-			# Restore node and edges
 			This.AddNodeXTT(_cNodeId_, _aNode_[:label], _aNode_[:properties])
 			_nSavedLen_ = len(_aSavedEdges_)
 			for _j_ = 1 to _nSavedLen_
@@ -3230,7 +2041,6 @@ class stzGraph
 				This.AddEdgeXTT(_aEdge_[:from], _aEdge_[:to], _aEdge_[:label], _aEdge_[:properties])
 			end
 			
-			# If components increased, it's an articulation point
 			if _nNewComponents_ > _nOriginalComponents_
 				_acArticulation_ + _cNodeId_
 			ok
@@ -3239,54 +2049,54 @@ class stzGraph
 		return _acArticulation_
 
 	def BetweennessCentrality(pcNodeId)
-	    if NOT This.NodeExists(pcNodeId)
-	        return 0
-	    ok
+		if NOT This.NodeExists(pcNodeId)
+			return 0
+		ok
 	
-	    _nCentrality_ = 0
-	    _aNodes_ = This.Nodes()
-	    _nNodeCount_ = len(_aNodes_)
-	    
-	    for _i_ = 1 to _nNodeCount_
-	        _cSource_ = _aNodes_[_i_][:id]
-	        if _cSource_ = pcNodeId
-	            loop
-	        ok
-	        
-	        for _j_ = 1 to _nNodeCount_
-	            _cTarget_ = _aNodes_[_j_][:id]
-	            if _cTarget_ = pcNodeId or _cTarget_ = _cSource_
-	                loop
-	            ok
-	            
-	            _acPath_ = This.ShortestPath(_cSource_, _cTarget_)
-	            
-	            if len(_acPath_) = 0
-	                loop
-	            ok
-	            
-	            _bInPath_ = FALSE
-	            _nPathLen_ = len(_acPath_)
-	            for _k_ = 2 to _nPathLen_ - 1
-	                if _acPath_[_k_] = pcNodeId
-	                    _bInPath_ = TRUE
-	                    exit
-	                ok
-	            end
-	            
-	            if _bInPath_
-	                _nCentrality_++
-	            ok
-	        end
-	    end
-	    
-	    _nTotalPairs_ = (_nNodeCount_ - 1) * (_nNodeCount_ - 2)
-	    
-	    if _nTotalPairs_ = 0
-	        return 0
-	    ok
-	    
-	    return _nCentrality_ / _nTotalPairs_
+		_nCentrality_ = 0
+		_aNodes_ = This.Nodes()
+		_nNodeCount_ = len(_aNodes_)
+		
+		for _i_ = 1 to _nNodeCount_
+			_cSource_ = _aNodes_[_i_][:id]
+			if _cSource_ = pcNodeId
+				loop
+			ok
+			
+			for _j_ = 1 to _nNodeCount_
+				_cTarget_ = _aNodes_[_j_][:id]
+				if _cTarget_ = pcNodeId or _cTarget_ = _cSource_
+					loop
+				ok
+				
+				_acPath_ = This.ShortestPath(_cSource_, _cTarget_)
+				
+				if len(_acPath_) = 0
+					loop
+				ok
+				
+				_bInPath_ = FALSE
+				_nPathLen_ = len(_acPath_)
+				for _k_ = 2 to _nPathLen_ - 1
+					if _acPath_[_k_] = pcNodeId
+						_bInPath_ = TRUE
+						exit
+					ok
+				end
+				
+				if _bInPath_
+					_nCentrality_++
+				ok
+			end
+		end
+		
+		_nTotalPairs_ = (_nNodeCount_ - 1) * (_nNodeCount_ - 2)
+		
+		if _nTotalPairs_ = 0
+			return 0
+		ok
+		
+		return _nCentrality_ / _nTotalPairs_
 	
 	def ClosenessCentrality(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
@@ -3358,12 +2168,10 @@ class stzGraph
 			return 0
 		ok
 
-		# Get all neighbors (both incoming and outgoing)
 		_acOutgoing_ = This.Neighbors(pcNodeId)
 		_acIncoming_ = This.Incoming(pcNodeId)
 		_acAllNeighbors_ = []
 		
-		# Combine and deduplicate
 		_nLen_ = len(_acOutgoing_)
 		for _i_ = 1 to _nLen_
 			_acAllNeighbors_ + _acOutgoing_[_i_]
@@ -3381,7 +2189,6 @@ class stzGraph
 			return 0
 		ok
 
-		# Count connections between neighbors
 		_nConnections_ = 0
 		for _i_ = 1 to _nNeighborCount_
 			for _j_ = _i_ + 1 to _nNeighborCount_
@@ -3395,182 +2202,290 @@ class stzGraph
 		_nPossible_ = (_nNeighborCount_ * (_nNeighborCount_ - 1)) / 2
 		return _nConnections_ / _nPossible_
 
-
-
 		def ClusteringCoeff(pcNodeId)
 			return This.ClusteringCoefficient(pcNodeId)
 
-	#-----------------------#
-	#  STZGRAF FILE FORMAT  #
-	#-----------------------#
+	def PathWeight(pacPath)
+		nTotal = 0
+		nLen = len(pacPath)
+		
+		for i = 1 to nLen - 1
+			cFrom = pacPath[i]
+			cTo = pacPath[i + 1]
+			
+			if This.EdgeExists(cFrom, cTo)
+				pWeight = This.EdgeProperty(cFrom, cTo, "weight")
+				if isNumber(pWeight)
+					nTotal += pWeight
+				ok
+			ok
+		end
+		
+		return nTotal
 
-	def ImportGraf(pSource)
-		if isString(pSource)
-			if right(pSource, 8) = ".stzgraf"
-				oParser = new stzGrafParser()
-				oLoaded = oParser.ParseFile(pSource)
-			else
-				oParser = new stzGrafParser()
-				oLoaded = oParser.Parse(pSource)
+	#-------------------------------#
+	#  EXPORT AND INTEROPERABILITY  #
+	#-------------------------------#
+
+	def ToHashlist()
+		return [
+			:id = @cId,
+			:nodes = @aNodes,
+			:edges = @aEdges,
+			:properties = This.Properties()
+		]
+
+	def ExportToDOT()
+		cDOT = "digraph " + This.Id() + " {" + nl
+		cDOT += "  rankdir=TD;" + nl
+		cDOT += "  node [shape=box];" + nl + nl
+		
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			aNode = @aNodes[i]
+			cId = aNode["id"]
+			cLabel = aNode["label"]
+			
+			if left(cId, 1) = "@"
+				cId = @substr(cId, 2, len(cId))
 			ok
 			
-			# Merge into this graph
-			This._MergeGraph(oLoaded)
-		ok
+			cDOT += "  " + cId + " [label=" + '"' + cLabel + '"' + "];" + nl
+		end
+		
+		cDOT += nl
+		
+		nLen = len(@aEdges)
+		for i = 1 to nLen
+			aEdge = @aEdges[i]
+			cFrom = aEdge["from"]
+			cTo = aEdge["to"]
+			cLabel = aEdge["label"]
+			
+			if left(cFrom, 1) = "@"
+				cFrom = @substr(cFrom, 2, len(cFrom))
+			ok
+			if left(cTo, 1) = "@"
+				cTo = @substr(cTo, 2, len(cTo))
+			ok
+			
+			cDOT += "  " + cFrom + " -> " + cTo
+			if cLabel != ""
+				cDOT += " [label=" + '"' + cLabel + '"' + "]"
+			ok
+			cDOT += ";" + nl
+		end
+		
+		cDOT += "}" + nl
+		return cDOT
 	
-		def LoadGraf(pSource)
-			This.ImportGraf(pSource)
+		def ExportToDotQ()
+			oDotCode = new stzDotCode()
+			oDotCode.SetCode(This.ExportToDot())
+			return oDotCode
 
-	def _MergeGraph(oOther)
-		# Add all nodes
-		aNodes = oOther.Nodes()
-		for aNode in aNodes
-			This.AddNodeXTT(aNode["id"], aNode["label"], aNode["properties"])
+		def Dot()
+			return This.ExportToDot()
+
+			def DotQ()
+				return This.ExportToDotQ()
+
+		def ToDot()
+			return This.ExportToDot()
+
+			def ToDotQ()
+				return This.ExportToDotQ()
+
+	def ExportToJSON()
+		acNodes = []
+		acEdges = []
+		
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			aNode = @aNodes[i]
+			cId = aNode["id"]
+			if substr(cId, 1, 1) = "@"
+				cId = substr(cId, 2, len(cId) - 1)
+			ok
+			acNodes + [
+				:id = cId,
+				:label = aNode["label"],
+				:properties = aNode["properties"]
+			]
 		end
 		
-		# Add all edges
-		aEdges = oOther.Edges()
-		for aEdge in aEdges
-			This.AddEdgeXTT(aEdge["from"], aEdge["to"], aEdge["label"], aEdge["properties"])
+		nLen = len(@aEdges)
+		for i = 1 to nLen
+			aEdge = @aEdges[i]
+			cFrom = aEdge["from"]
+			cTo = aEdge["to"]
+			if substr(cFrom, 1, 1) = "@"
+				cFrom = substr(cFrom, 2, len(cFrom) - 1)
+			ok
+			if substr(cTo, 1, 1) = "@"
+				cTo = substr(cTo, 2, len(cTo) - 1)
+			ok
+			acEdges + [
+				:from = cFrom,
+				:to = cTo,
+				:label = aEdge["label"],
+				:properties = aEdge["properties"]
+			]
 		end
-	
-	def ExportToGraf()
-		cGraf = 'graph "' + @cId + '"' + NL
-		cGraf += '    type: directed' + NL + NL
 		
-		cGraf += 'nodes' + NL
-		for aNode in @aNodes
-			cGraf += '    ' + aNode["id"] + NL
+		cJSON = "{" + nl
+		cJSON += '  "id": "' + This.Id() + '",' + nl
+		cJSON += '  "nodes": [' + nl
+		
+		nLen = len(acNodes)
+		for i = 1 to nLen
+			cJSON += '    ' + @ToJSON(acNodes[i])
+			if i < nLen
+				cJSON += ","
+			ok
+			cJSON += nl
 		end
-		cGraf += NL
 		
-		cGraf += 'edges' + NL
-		for aEdge in @aEdges
-			cGraf += '    ' + aEdge["from"] + ' -> ' + aEdge["to"] + NL
+		cJSON += '  ],' + nl
+		cJSON += '  "edges": [' + nl
+		
+		nLen = len(acEdges)
+		for i = 1 to nLen
+			cJSON += '    ' + @ToJSON(acEdges[i])
+			if i < nLen
+				cJSON += ","
+			ok
+			cJSON += nl
 		end
-		cGraf += NL
 		
-		# Properties
-		cGraf += 'properties' + NL
-		for aNode in @aNodes
+		cJSON += '  ],' + nl
+		cJSON += '  "metrics": ' + @ToJSON([
+			:nodeCount = len(@aNodes),
+			:edgeCount = len(@aEdges),
+			:density = This.NodeDensity(),
+			:longestPath = This.LongestPath(),
+			:hasCycles = This.CyclicDependencies()
+		]) + nl
+		cJSON += "}"
+		
+		return cJSON
+
+		def Json()
+			return This.ExportToJson()
+
+		def ToJson()
+			return This.ExportToJson()
+
+	def ExportToYAML()
+		cYAML = "graph: " + This.Id() + nl
+		cYAML += "nodes:" + nl
+		
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			aNode = @aNodes[i]
+			cId = aNode["id"]
+			
+			if left(cId, 1) = "@"
+				cId = @substr(cId, 2, len(cId))
+			ok
+			
+			cYAML += "  - id: " + cId + nl
+			cYAML += "    label: " + aNode["label"] + nl
 			if len(aNode["properties"]) > 0
-				cGraf += '    ' + aNode["id"] + NL
-				acKeys = keys(aNode["properties"])
-				for cKey in acKeys
-					pValue = aNode["properties"][cKey]
-					cGraf += '        ' + cKey + ': '
-					if isString(pValue)
-						cGraf += '"' + pValue + '"'
-					else
-						cGraf += pValue
-					ok
-					cGraf += NL
+				cYAML += "    properties:" + nl
+				acProps = aNode["properties"]
+				nPropLen = len(acProps)
+				for j = 1 to nPropLen
+					cYAML += "      - " + string(acProps[j][1]) + nl
 				end
 			ok
 		end
 		
-		return cGraf
-	
-	def WriteToGrafFile(pcFilename)
-		if right(pcFileName, 8) != ".stzgraf"
-			pcFileName += ".stzgraf"
-		ok
-		write(pcFilename, This.ExportToGraf())
-
-		def WriteGraf(pcFileName)
-			This.WriteToGrafFile(pcFilename)
-
-
-	#-----------------#
-	#  MISC. METHODS  # #TODO Reorgnaise them
-	#-----------------#
-
-	def NodeRequiresApproval(pcNodeId)
-		aNode = This.Node(pcNodeId)
-		if HasKey(aNode, "properties") and HasKey(aNode["properties"], "requiresapproval")
-			return aNode["properties"]["requiresapproval"]
-		ok
-		return FALSE
-
-
-class stzGraphAnalyzer
-
-	@oGraph
-
-	def init(poGraph)
-		@oGraph = poGraph
-
-	def CyclicNodes()
-		acCyclicNodes = []
-		
-		acNodes = @oGraph.Nodes()
-		nLen = len(acNodes)
+		cYAML += nl + "edges:" + nl
+		nLen = len(@aEdges)
 		for i = 1 to nLen
-			aNode = acNodes[i]
-			cNodeId = aNode["id"]
-			acReachableFromNode = This.ReachableFromNode(cNodeId)
+			aEdge = @aEdges[i]
+			cFrom = aEdge["from"]
+			cTo = aEdge["to"]
 			
-			# Remove starting node from reachable set
-			acReachableWithoutStart = []
-			nLen2 = len(acReachableFromNode)
-			for j = 1 to nLen2
-				cReachable = acReachableFromNode[j]
-				if cReachable != cNodeId
-					acReachableWithoutStart + cReachable
-				ok
-			end
-			
-			# If the node can reach itself through other nodes, it's in a cycle
-			if ring_find(acReachableWithoutStart, cNodeId) > 0
-				if ring_find(acCyclicNodes, cNodeId) = 0
-					acCyclicNodes + cNodeId
-				ok
+			if left(cFrom, 1) = "@"
+				cFrom = @substr(cFrom, 2, len(cFrom))
 			ok
-		end
-
-		return acCyclicNodes
-
-	def ReachableFromNode(pcStartNode)
-		acReachable = []
-		acVisited = []
-		acQueue = [pcStartNode]
-		acVisited + pcStartNode
-		
-		acEdges = @oGraph.Edges()
-		
-		while len(acQueue) > 0
-			cCurrent = acQueue[1]
-			if len(acQueue) > 1
-				acQueue = stzright(acQueue, len(acQueue) - 1)
-			else
-				acQueue = []
+			if left(cTo, 1) = "@"
+				cTo = @substr(cTo, 2, len(cTo))
 			ok
-			acReachable + cCurrent
 			
-			nLen = len(acEdges)
-			for i = 1 to nLen
-				aEdge = acEdges[i]
-				if aEdge["from"] = cCurrent
-					cNext = aEdge["to"]
-					if ring_find(acVisited, cNext) = 0
-						acVisited + cNext
-						acQueue + cNext
-					ok
-				ok
-			end
+			cYAML += "  - from: " + cFrom + nl
+			cYAML += "    to: " + cTo + nl
+			cYAML += "    label: " + aEdge["label"] + nl
 		end
 		
-		return acReachable
+		return cYAML
+	
+		def Yaml()
+			return This.ExportToYaml()
 
-class stzGraphExplainer
+		def ToYaml()
+			return This.ExportToYaml()
 
-	@oGraph
+	#------------------------#
+	#  VISUALISING IN ASCII  #
+	#------------------------#
 
-	def init(poGraph)
-		@oGraph = poGraph
+	def Show()
+		oViz = new stzGraphAsciiVisualizer(This)
+		oViz.Show()
+
+		def Shwo()
+			This.Show()
+
+	def View()
+		_oDot_ = new stzDotCode()
+		_oDot_.SetCode(This.Dot())
+		_oDot_.RunAndView()
+
+	def ShowHorizontal()
+		oViz = new stzGraphAsciiVisualizer(This)
+		oViz.ShowHorizontal()
+
+		def ShowH()
+			This.ShowHorizontal()
+
+	def ShowVertical()
+		oViz = new stzGraphAsciiVisualizer(This)
+		oViz.ShowVertical()
+
+		def ShowV()
+			This.ShowVertical()
+
+/*
+	def Explain()
+		aResult = []
+
+		aResult + "Graph: " + @cId
+		aResult + "Nodes: " + len(@aNodes) + " | Edges: " + len(@aEdges)
+		aResult + ""
+	
+		nDensity = This.NodeDensity() * 100
+		aResult + "Density: " + nDensity + "%"
+	
+		if This.CyclicDependencies()
+			aResult + "WARNING: Contains cycles"
+		else
+			aResult + "Acyclic (DAG)"
+		ok
+	
+		aResult + ""
+		aResult + "Rules: " + len(@aRules)
+		for aRule in @aRules
+			aResult + "  - " + aRule[:id] + " [" + aRule[:type] + "]"
+		end
+	
+		return aResult
+*/
 
 	def Explain()
-		aoExplanation = [
+		aExplanation = [
 			:general = [],
 			:bottlenecks = [],
 			:cycles = [],
@@ -3578,16 +2493,15 @@ class stzGraphExplainer
 			:rules = []
 		]
 		
-		acBottlenecks = @oGraph.BottleneckNodes()
-		oAnalyzer = new stzGraphAnalyzer(@oGraph)
-		acCyclic = oAnalyzer.CyclicNodes()
+		acBottlenecks = This.BottleneckNodes()
+		acCyclic = This.CyclicNodes()
 		
-		acNodes = @oGraph.Nodes()
-		acEdges = @oGraph.Edges()
+		acNodes = This.Nodes()
+		acEdges = This.Edges()
 		
 		# General section
-		aoExplanation[:general] + ("Graph: " + @oGraph.Id())
-		aoExplanation[:general] + ("Nodes: " + len(acNodes) + " | Edges: " + len(acEdges))
+		aExplanation[:general] + ("Graph: " + This.Id())
+		aExplanation[:general] + ("Nodes: " + len(acNodes) + " | Edges: " + len(acEdges))
 		
 		# Bottlenecks section
 		if len(acBottlenecks) > 0
@@ -3595,96 +2509,306 @@ class stzGraphExplainer
 			nLen = len(acNodes)
 			for i = 1 to nLen
 				aNode = acNodes[i]
-				nIncoming = len(@oGraph.Incoming(aNode["id"]))
-				nOutgoing = len(@oGraph.Neighbors(aNode["id"]))
+				nIncoming = len(This.Incoming(aNode["id"]))
+				nOutgoing = len(This.Neighbors(aNode["id"]))
 				nTotalDegree += nIncoming + nOutgoing
 			end
 			nAvgDegree = nTotalDegree / len(acNodes)
 			
-			aoExplanation[:bottlenecks] + ("Bottleneck nodes: " + joinXT(acBottlenecks, ", "))
-			aoExplanation[:bottlenecks] + ("Average degree: " + nAvgDegree)
+			aExplanation[:bottlenecks] + ("Bottleneck nodes: " + joinXT(acBottlenecks, ", "))
+			aExplanation[:bottlenecks] + ("Average degree: " + nAvgDegree)
 			
 			nLen = len(acBottlenecks)
 			for i = 1 to nLen
 				cNode = acBottlenecks[i]
-				nIncoming = len(@oGraph.Incoming(cNode))
-				nOutgoing = len(@oGraph.Neighbors(cNode))
+				nIncoming = len(This.Incoming(cNode))
+				nOutgoing = len(This.Neighbors(cNode))
 				nDegree = nIncoming + nOutgoing
-				aoExplanation[:bottlenecks] + ("  " + cNode + ": degree " + nDegree + " (above average)")
+				aExplanation[:bottlenecks] + ("  " + cNode + ": degree " + nDegree + " (above average)")
 			end
 		else
 			nTotalDegree = 0
 			nLen = len(acNodes)
 			for i = 1 to nLen
 				aNode = acNodes[i]
-				nIncoming = len(@oGraph.Incoming(aNode["id"]))
-				nOutgoing = len(@oGraph.Neighbors(aNode["id"]))
+				nIncoming = len(This.Incoming(aNode["id"]))
+				nOutgoing = len(This.Neighbors(aNode["id"]))
 				nTotalDegree += nIncoming + nOutgoing
 			end
 			nAvgDegree = nTotalDegree / len(acNodes)
-			aoExplanation[:bottlenecks] + ("No bottlenecks (average degree = " + nAvgDegree + ")")
+			aExplanation[:bottlenecks] + ("No bottlenecks (average degree = " + nAvgDegree + ")")
 		ok
 		
 		# Cycles section
 		if len(acCyclic) > 0
-			aoExplanation[:cycles] + ("Cyclic nodes: " + join(acCyclic, ", "))
+			aExplanation[:cycles] + ("Cyclic nodes: " + join(acCyclic, ", "))
 			nLen = len(acCyclic)
 			for i = 1 to nLen
 				cNode = acCyclic[i]
-				aoExplanation[:cycles] + ("  " + cNode + " can reach itself")
+				aExplanation[:cycles] + ("  " + cNode + " can reach itself")
 			end
 		ok
 		
-		if @oGraph.CyclicDependencies()
-			aoExplanation[:cycles] + "WARNING: Circular dependencies detected"
+		if This.CyclicDependencies()
+			aExplanation[:cycles] + "WARNING: Circular dependencies detected"
 		else
 			if len(acCyclic) = 0
-				aoExplanation[:cycles] + "No cycles - acyclic graph (DAG)"
+				aExplanation[:cycles] + "No cycles - acyclic graph (DAG)"
 			ok
 		ok
 		
 		# Metrics section
-		nDensity = @oGraph.NodeDensity()
+		nDensity = This.NodeDensity()
 		if nDensity = 0
 			aoExplanation[:metrics] + "Density: 0% (no connections)"
 		but nDensity < 25
-			aoExplanation[:metrics] + ("Density: " + nDensity + "% (sparse)")
+			aExplanation[:metrics] + ("Density: " + nDensity + "% (sparse)")
 		but nDensity < 50
-			aoExplanation[:metrics] + ("Density: " + nDensity + "% (moderate)")
+			aExplanation[:metrics] + ("Density: " + nDensity + "% (moderate)")
 		but nDensity < 75
-			aoExplanation[:metrics] + ("Density: " + nDensity + "% (dense)")
+			aExplanation[:metrics] + ("Density: " + nDensity + "% (dense)")
 		else
-			aoExplanation[:metrics] + ("Density: " + nDensity + "% (very dense)")
+			aExplanation[:metrics] + ("Density: " + nDensity + "% (very dense)")
 		ok
 		
-		nLongest = @oGraph.LongestPath()
+		nLongest = This.LongestPath()
 		if nLongest = 0
-			aoExplanation[:metrics] + "Longest path: 0 hops (isolated)"
+			aExplanation[:metrics] + "Longest path: 0 hops (isolated)"
 		but nLongest = 1
-			aoExplanation[:metrics] + "Longest path: 1 hop"
+			aExplanation[:metrics] + "Longest path: 1 hop"
 		else
-			aoExplanation[:metrics] + ("Longest path: " + nLongest + " hops")
+			aExplanation[:metrics] + ("Longest path: " + nLongest + " hops")
 		ok
 		
 		# Rules section
-		acRulesApplied = @oGraph.RulesApplied()
+		acRulesApplied = This.RulesApplied()
 		if len(acRulesApplied) > 0
-			aoExplanation[:rules] + ("Rules applied: " + len(acRulesApplied))
+			aExplanation[:rules] + ("Rules applied: " + len(acRulesApplied))
 			nLen = len(acRulesApplied)
 			for i = 1 to nLen
-				aoExplanation[:rules] + ("  - " + acRulesApplied[i])
+				aExplanation[:rules] + ("  - " + acRulesApplied[i])
 			end
 		else
-			aoExplanation[:rules] + "No rules applied"
+			aExplanation[:rules] + "No rules applied"
 		ok
 		
-		return aoExplanation
+		return aExplanation
+
+#========================================#
+# stzGraphQuery - Keep Separate (Works)
+#========================================#
+
+class stzGraphQuery
+	@oGraph
+	@cTarget
+	@aFilters = []
+	
+	def init(oGraph, cTarget)
+		@oGraph = oGraph
+		@cTarget = lower(cTarget)
+		@aFilters = []
+	
+	def Where(pcKey, pCondition, pValue)
+		@aFilters + [:where, pcKey, pCondition, pValue]
+		return This
+	
+		def WhereQ(pcKey, pCondition, pValue)
+			return This.Where(pcKey, pCondition, pValue)
+
+	def Having(pcKey, pValue)
+		@aFilters + [:where, pcKey, :equals, pValue]
+		return This
+	
+		def HavingQ(pcKey, pValue)
+			return This.Having(pcKey, pValue)
+
+	def WithProperty(pcKey)
+		@aFilters + [:hasprop, pcKey]
+		return This
+
+		def WithPropertyQ(pcKey)
+			return This.WithProperty(pcKey)
+
+	def WithTag(pcTag)
+		@aFilters + [:tag, pcTag]
+		return This
+	
+		def WithTagQ(pcTag)
+			return This.WithTag(pcTag)
+
+	def Run()
+		if @cTarget = "nodes"
+			return This._QueryNodes()
+		but @cTarget = "edges"
+			return This._QueryEdges()
+		ok
+		return []
+	
+		def Execute()
+			return This.Run()
+	
+	def _QueryNodes()
+		acResult = []
+		aNodes = @oGraph.Nodes()
+		
+		for aNode in aNodes
+			if This._NodeMatches(aNode)
+				acResult + aNode[:id]
+			ok
+		end
+		
+		return acResult
+	
+	def _QueryEdges()
+		acResult = []
+		aEdges = @oGraph.Edges()
+		
+		for aEdge in aEdges
+			if This._EdgeMatches(aEdge)
+				acResult + [ aEdge[:from], aEdge[:to] ]
+			ok
+		end
+		return acResult
+	
+	def _NodeMatches(aNode)
+		for aFilter in @aFilters
+			cType = aFilter[1]
+			
+			if cType = :where
+				pcKey = aFilter[2]
+				pCondition = aFilter[3]
+				pValue = aFilter[4]
+				
+				pActual = This._GetNestedValue(aNode, pcKey)
+				if pActual = NULL
+					return FALSE
+				ok
+				
+				if NOT This._Matches(pActual, pCondition, pValue)
+					return FALSE
+				ok
+				
+			but cType = :hasprop
+				pcKey = aFilter[2]
+				if This._GetNestedValue(aNode, pcKey) = NULL
+					return FALSE
+				ok
+				
+			but cType = :tag
+				pcTag = aFilter[2]
+				if NOT HasKey(aNode, "properties") or 
+				   NOT HasKey(aNode["properties"], "tags") or
+				   ring_find(aNode["properties"]["tags"], pcTag) = 0
+					return FALSE
+				ok
+			ok
+		end
+		return TRUE
+	
+	def _EdgeMatches(aEdge)
+		for aFilter in @aFilters
+			cType = aFilter[1]
+			
+			if cType = :where
+				pcKey = aFilter[2]
+				pCondition = aFilter[3]
+				pValue = aFilter[4]
+				
+				pActual = This._GetNestedValue(aEdge, pcKey)
+				if pActual = NULL
+					return FALSE
+				ok
+				
+				if NOT This._Matches(pActual, pCondition, pValue)
+					return FALSE
+				ok
+				
+			but cType = :hasprop
+				pcKey = aFilter[2]
+				if This._GetNestedValue(aEdge, pcKey) = NULL
+					return FALSE
+				ok
+				
+			but cType = :tag
+				pcTag = aFilter[2]
+				if NOT HasKey(aEdge, "properties") or 
+				   NOT HasKey(aEdge["properties"], "tags") or
+				   ring_find(aEdge["properties"]["tags"], pcTag) = 0
+					return FALSE
+				ok
+			ok
+		end
+		return TRUE
+	
+	def _GetNestedValue(aElement, pcKey)
+		bIsNested = (substr(pcKey, ".") > 0)
+		
+		if bIsNested
+			acPath = split(pcKey, ".")
+			pValue = aElement
+			
+			if HasKey(aElement, acPath[1])
+				pValue = aElement[acPath[1]]
+				for i = 2 to len(acPath)
+					if isList(pValue) and HasKey(pValue, acPath[i])
+						pValue = pValue[acPath[i]]
+					else
+						return NULL
+					ok
+				end
+				return pValue
+				
+			but HasKey(aElement, "properties")
+				pValue = aElement["properties"]
+				for i = 1 to len(acPath)
+					if isList(pValue) and HasKey(pValue, acPath[i])
+						pValue = pValue[acPath[i]]
+					else
+						return NULL
+					ok
+				end
+				return pValue
+			ok
+			return NULL
+		ok
+		
+		if HasKey(aElement, pcKey)
+			return aElement[pcKey]
+		but HasKey(aElement, "properties") and HasKey(aElement["properties"], pcKey)
+			return aElement["properties"][pcKey]
+		ok
+		return NULL
+	
+	def _Matches(pActual, pCondition, pValue)
+		cCond = lower(pCondition)
+		
+		if cCond = "equals" or cCond = ":equals" or cCond = "="
+			return pActual = pValue
+			
+		but cCond = "greaterthan" or cCond = ":greaterthan" or cCond = ">"
+			return isNumber(pActual) and isNumber(pValue) and pActual > pValue
+			
+		but cCond = "lessthan" or cCond = ":lessthan" or cCond = "<"
+			return isNumber(pActual) and isNumber(pValue) and pActual < pValue
+			
+		but cCond = "contains" or cCond = ":contains"
+			return isString(pActual) and isString(pValue) and 
+			       substr(lower(pActual), lower(pValue)) > 0
+			       
+		but cCond = "insection" or cCond = ":insection" or cCond = "between" or cCond = ":between"
+			return isNumber(pActual) and isList(pValue) and len(pValue) = 2 and
+			       pActual >= pValue[1] and pActual <= pValue[2]
+		ok
+		return FALSE
+
+
+#================================================#
+# stzGraphAsciiVisualizer - Keep Separate
+#================================================#
 
 class stzGraphAsciiVisualizer
+@oGraph
 
-	@oGraph
-	
-	# ASCII Display Characters
 	@cBoxTopLeft = "╭"
 	@cBoxTopRight = "╮"
 	@cBoxBottomLeft = "╰"
@@ -3698,82 +2822,29 @@ class stzGraphAsciiVisualizer
 	@cCycleIndicator = "CYCLE"
 	@cConnectorDash = "-"
 	@cConnectorArrow = ">"
-
+	
 	def init(poGraph)
 		@oGraph = poGraph
-
+	
 	def Show()
 		acDisplayNodes = This._PrepareDisplayNodes()
 		This._ShowVerticalWithNodes(acDisplayNodes)
-
-	def ShowXT(pacOptions)
-		if isString(pacOptions) and pacOptions = ""
-			pacOptions = []
-		ok
-		
-		if NOT isList(pacOptions)
-			StzRaise("Incorrect param type! pacOptions must be a list.")
-		ok
-
-		if len(pacOptions) = 0
-			acDisplayNodes = This._PrepareDisplayNodes()
-			return This._ShowVerticalWithNodes(acDisplayNodes)
-		ok
-
-		if NOT IsHashList(pacOptions)
-			StzRaise("Incorrect param type! pacOptions must be a hashlist.")
-		ok
-
-		cOrientation = "vertical"
-		if HasKey(pacOptions, "orientation")
-			cOrientation = pacOptions["orientation"]
-		ok
-		
-		bShowLegend = FALSE
-		if HasKey(pacOptions, "Legend")
-			bShowLegend = pacOptions["Legend"]
-		ok
-		
-		acDisplayNodes = This._PrepareDisplayNodes()
-		
-		if cOrientation = "vertical"
-			This._ShowVerticalWithNodes(acDisplayNodes)
-		else
-			This._ShowHorizontalWithNodes(acDisplayNodes)
-		ok
-		
-		if bShowLegend
-			acTable = [
-				[ :Sign, :Meaning ]
-			]
-
-			acLegend = This.Legend()
-			nLen = len(acLegend)
-			for i = 1 to nLen
-				acTable + acLegend[i]
-			end
-
-			? ""
-			? "Legend:" + NL
-			StzTableQ(acTable).Show()
-		ok
-
+	
 	def ShowVertical()
 		This.Show()
-
+	
 		def ShowV()
 			This.Show()
-
+	
 	def ShowHorizontal()
-		This.ShowXT([ :orientation = "horizontal" ])
-
+		acDisplayNodes = This._PrepareDisplayNodes()
+		This._ShowHorizontalWithNodes(acDisplayNodes)
+	
 		def ShowH()
-			This.ShowXT([ :orientation = "horizontal" ])
-
+			This.ShowHorizontal()
+	
 	def _PrepareDisplayNodes()
 		acBottlenecks = @oGraph.BottleneckNodes()
-		oAnalyzer = new stzGraphAnalyzer(@oGraph)
-		acCyclic = oAnalyzer.CyclicNodes()
 		acDisplayNodes = []
 		
 		acNodes = @oGraph.Nodes()
@@ -3788,21 +2859,16 @@ class stzGraphAsciiVisualizer
 			
 			cLabel = aNode["label"]
 			bIsBottleneck = ring_find(acBottlenecks, aNode["id"]) > 0
-			bIsCyclic = ring_find(acCyclic, aNode["id"]) > 0
 			
-			if bIsBottleneck and bIsCyclic
-				aDisplayNode["label"] = "!~" + cLabel + "~!"
-			but bIsBottleneck
+			if bIsBottleneck
 				aDisplayNode["label"] = "!" + cLabel + "!"
-			but bIsCyclic
-				aDisplayNode["label"] = "~" + cLabel + "~"
 			ok
 			
 			acDisplayNodes + aDisplayNode
 		end
 		
 		return acDisplayNodes
-
+	
 	def _GetDisplayLabel(pcNodeId, pacDisplayNodes)
 		nLen = len(pacDisplayNodes)
 		for i = 1 to nLen
@@ -3812,7 +2878,7 @@ class stzGraphAsciiVisualizer
 			ok
 		end
 		return ""
-
+	
 	def _ShowVerticalWithNodes(pacDisplayNodes)
 		acRoots = []
 		acNodes = @oGraph.Nodes()
@@ -3842,7 +2908,7 @@ class stzGraphAsciiVisualizer
 				? ""
 			ok
 		end
-
+	
 	def _ShowVerticalBranchWithNodes(pcNodeId, pacVisitedPath, pnBranchDepth, pacDisplayNodes)
 		cDisplayLabel = This._GetDisplayLabel(pcNodeId, pacDisplayNodes)
 		cBoxed = BoxRound(cDisplayLabel)
@@ -3916,10 +2982,10 @@ class stzGraphAsciiVisualizer
 				? "            " + @cBoxBottomLeft + @cBoxHorizontal + @cBoxHorizontal + "> [" + cNodeLabel + "] " + @cBoxHorizontal + @cBoxHorizontal + @cBoxBottomRight
 			ok
 		end
-
+	
 	def _ShowHorizontalWithNodes(pacDisplayNodes)
 		acRoots = []
-
+	
 		acNodes = @oGraph.Nodes()
 		nLen = len(acNodes)
 		for i = 1 to nLen
@@ -3945,13 +3011,8 @@ class stzGraphAsciiVisualizer
 			for j = 1 to nLen2
 				? acBoxLines[j]
 			end
-			
-			cFeedback = This._BuildFeedbackLineWithNodes(acVisited, "horizontal", pacDisplayNodes)
-			if cFeedback != ""
-				? cFeedback
-			ok
 		end
-
+	
 	def _ShowHorizontalBranchWithNodes(pcNodeId, pacVisited, pacBoxLines, pacArrowLines, pacDisplayNodes)
 		cDisplayLabel = This._GetDisplayLabel(pcNodeId, pacDisplayNodes)
 		cBoxed = BoxRound(cDisplayLabel)
@@ -3996,531 +3057,3 @@ class stzGraphAsciiVisualizer
 				pacArrowLines + [pcNodeId, cNext, aEdge["label"]]
 			ok
 		ok
-
-	def _BuildFeedbackLineWithNodes(pacVisited, pcOrientation, pacDisplayNodes)
-		cFeedback = ""
-		acEdges = @oGraph.Edges()
-		nLen = len(acEdges)
-		
-		for i = 1 to nLen
-			aEdge = acEdges[i]
-			nToIdx = ring_find(pacVisited, aEdge["to"])
-			nFromIdx = ring_find(pacVisited, aEdge["from"])
-			
-			if nToIdx > 0 and nFromIdx > 0 and nToIdx < nFromIdx
-				if pcOrientation = "horizontal"
-					cFeedback = This._BuildHorizontalFeedback(pacVisited, nToIdx, nFromIdx, aEdge, pacDisplayNodes)
-				else
-					cFeedback = This._BuildVerticalFeedback(pacVisited, nToIdx, nFromIdx, aEdge, pacDisplayNodes)
-				ok
-			ok
-		end
-
-		return cFeedback
-
-	def _BuildVerticalFeedback(pacVisited, pnToIdx, pnFromIdx, paEdge, pacDisplayNodes)
-		anBoxWidths = []
-		nLen = len(pacVisited)
-		for i = 1 to nLen
-			cDisplayLabel = This._GetDisplayLabel(pacVisited[i], pacDisplayNodes)
-			nBoxW = stzlen(cDisplayLabel) + 4
-			anBoxWidths + nBoxW
-		end
-		
-		nToPos = 0
-		nToIdx_minus_1 = pnToIdx - 1
-		for j = 1 to nToIdx_minus_1
-			nToPos += anBoxWidths[j]
-			if j < nLen
-				cPrev = pacVisited[j]
-				cNext = pacVisited[j + 1]
-				aE = @oGraph.Edge(cPrev, cNext)
-				if aE != ""
-					nConnectorLen = stzlen(@cConnectorDash + @cConnectorDash + aE["label"] + @cConnectorDash + @cConnectorDash + @cConnectorArrow)
-					nToPos += nConnectorLen
-				ok
-			ok
-		end
-		if pnToIdx > 0 and pnToIdx <= len(anBoxWidths)
-			nToPos += floor(anBoxWidths[pnToIdx] / 2)
-		ok
-		
-		nFromPos = 0
-		nFromIdx_minus_1 = pnFromIdx - 1
-		for j = 1 to nFromIdx_minus_1
-			nFromPos += anBoxWidths[j]
-			if j < nLen
-				cPrev = pacVisited[j]
-				cNext = pacVisited[j + 1]
-				aE = @oGraph.Edge(cPrev, cNext)
-				if aE != ""
-					nConnectorLen = stzlen(@cConnectorDash + @cConnectorDash + aE["label"] + @cConnectorDash + @cConnectorDash + @cConnectorArrow)
-					nFromPos += nConnectorLen
-				ok
-			ok
-		end
-		if pnFromIdx > 0 and pnFromIdx <= len(anBoxWidths)
-			nFromPos += floor(anBoxWidths[pnFromIdx] / 2)
-		ok
-		
-		nSpacing = floor(nFromPos - nToPos - 1)
-		
-		cFirstLine = RepeatChar(" ", nToPos) + @cArrowUp + RepeatChar(" ", nSpacing) + @cPipeChar
-		nLineWidth = stzlen(cFirstLine)
-		
-		nLabelLen = stzlen(paEdge["label"])
-		nContentWidth = nLineWidth - nToPos - 2
-		nTotalDashes = nContentWidth - nLabelLen - 4
-		nLeftDashes = floor(nTotalDashes / 2)
-		nRightDashes = nTotalDashes - nLeftDashes						
-		cSecondLine = RepeatChar(" ", nToPos) + @cBoxBottomLeft + RepeatChar(@cBoxHorizontal, nLeftDashes) + @cBoxHorizontal + " " + paEdge["label"] + " " + RepeatChar(@cBoxHorizontal, nRightDashes) + @cBoxBottomRight
-		
-		return cFirstLine + nl + cSecondLine
-
-	def _BuildHorizontalFeedback(pacVisited, pnToIdx, pnFromIdx, paEdge, pacDisplayNodes)
-		nToPos = 0
-		nLen = len(pacVisited)
-		
-		for i = 1 to pnToIdx - 1
-			cLabel = This._GetDisplayLabel(pacVisited[i], pacDisplayNodes)
-			nBoxWidth = stzlen(cLabel) + 4
-			nToPos += nBoxWidth
-			
-			if i < nLen
-				cPrev = pacVisited[i]
-				cNext = pacVisited[i + 1]
-				aE = @oGraph.Edge(cPrev, cNext)
-				if aE != ""
-					nConnectorWidth = stzlen(@cConnectorDash + @cConnectorDash + aE["label"] + @cConnectorDash + @cConnectorDash + @cConnectorArrow)
-					nToPos += nConnectorWidth
-				ok
-			ok
-		end
-		nToPos += floor((stzlen(This._GetDisplayLabel(pacVisited[pnToIdx], pacDisplayNodes)) + 4) / 2)
-		
-		nFromPos = 0
-		for i = 1 to pnFromIdx - 1
-			cLabel = This._GetDisplayLabel(pacVisited[i], pacDisplayNodes)
-			nBoxWidth = stzlen(cLabel) + 4
-			nFromPos += nBoxWidth
-			
-			if i < nLen
-				cPrev = pacVisited[i]
-				cNext = pacVisited[i + 1]
-				aE = @oGraph.Edge(cPrev, cNext)
-				if aE != ""
-					nConnectorWidth = stzlen(@cConnectorDash + @cConnectorDash + aE["label"] + @cConnectorDash + @cConnectorDash + @cConnectorArrow)
-					nFromPos += nConnectorWidth
-				ok
-			ok
-		end
-		nFromPos += floor((stzlen(This._GetDisplayLabel(pacVisited[pnFromIdx], pacDisplayNodes)) + 4) / 2)
-		
-		nSpacing = floor(nFromPos - nToPos - 1)
-		
-		cFirstLine = RepeatChar(" ", nToPos) + @cArrowUp + RepeatChar(" ", nSpacing) + @cPipeChar
-		nLineWidth = stzlen(cFirstLine)
-		
-		nLabelLen = stzlen(paEdge["label"])
-		nContentWidth = nLineWidth - nToPos - 2
-		nTotalDashes = nContentWidth - nLabelLen - 2
-		nLeftDashes = floor(nTotalDashes / 2)
-		nRightDashes = nTotalDashes - nLeftDashes						
-		cSecondLine = RepeatChar(" ", nToPos) + @cBoxBottomLeft + RepeatChar(@cBoxHorizontal, nLeftDashes) + @cBoxHorizontal + paEdge["label"] + @cBoxHorizontal + RepeatChar(@cBoxHorizontal, nRightDashes) + @cBoxBottomRight
-		
-		# Adjust for width mismatch
-		nDiff = stzlen(cSecondLine) - stzlen(cFirstLine)
-		if nDiff > 0
-			cSecondLine = substr(cSecondLine, @cBoxHorizontal + @cBoxBottomRight, @cBoxBottomRight)
-		but nDiff < 0
-			cSecondLine = substr(cSecondLine, @cBoxBottomRight, @cBoxHorizontal + @cBoxBottomRight)
-		ok
-		
-		return cFirstLine + nl + cSecondLine
-
-	def ShowWithLegend()
-		This.ShowXT([ :Lengend = 1 ])
-
-	def Legend()
-		acBottlenecks = @oGraph.BottleneckNodes()
-		acCyclic = This._GetCyclicNodes()
-		aoLegend = []
-		
-		if len(acBottlenecks) > 0
-			aoLegend[:bottleneck] = [ "!label!", "High connectivity hub (bottleneck)" ]
-		ok
-		
-		if len(acCyclic) > 0
-			aoLegend[:cyclic] = [ "~label~", "Participates in cycle" ]
-		ok
-		
-		if len(acBottlenecks) > 0 and len(acCyclic) > 0
-			aoLegend[:both] = [ "!~label~!", "Hub with cyclic dependency" ]
-		ok
-		
-		if @oGraph.CyclicDependencies()
-			aoLegend[:feedback] = [ "[...] ↑", "Feedback loop" ]
-			aoLegend[:branch] = [ "////", "Branch separator (multiple paths)" ]
-		ok
-		
-		if len(aoLegend) = 0
-			aoLegend[:normal] = [ "label", "Regular node" ]
-		ok
-		
-		return aoLegend
-
-#============================================#
-#  stzGrafParser - *.stzgraf Format Parser   #
-#  Pure graph structure (no domain semantics)#
-#============================================#
-
-class stzGrafParser
-	
-	def init()
-
-	def ParseFile(pcFilename)
-		cContent = read(pcFilename)
-		return This.Parse(cContent)
-	
-	def Parse(pcContent)
-		oGraph = NULL
-		acLines = split(pcContent, NL)
-		cSection = ""
-		cCurrentNode = ""
-		aCurrentProps = []
-		
-		for cLine in acLines
-			cLine = trim(cLine)
-			
-			if cLine = "" or left(cLine, 1) = "#"
-				loop
-			ok
-			
-			# Graph header
-			if substr(cLine, "graph ")
-				cId = This._ExtractQuoted(cLine)
-				oGraph = new stzGraph(cId)
-				
-			but substr(cLine, "type:")
-				# directed, undirected (ignore for now, assume directed)
-			
-			# Sections
-			but cLine = "nodes"
-				cSection = "nodes"
-				
-			but cLine = "edges"
-				cSection = "edges"
-				
-			but cLine = "properties"
-				cSection = "properties"
-			
-			# Parse nodes (just IDs)
-			but cSection = "nodes" and NOT substr(cLine, ":")
-				oGraph.AddNode(cLine)
-			
-			# Parse edges
-			but cSection = "edges" and substr(cLine, "->")
-				aParts = split(cLine, "->")
-				cFrom = trim(aParts[1])
-				cTo = trim(aParts[2])
-				oGraph.Connect(cFrom, cTo)
-			
-			# Parse properties
-			but cSection = "properties"
-				if NOT substr(cLine, ":")
-					# Node ID
-					if cCurrentNode != "" and len(aCurrentProps) > 0
-						This._ApplyProperties(oGraph, cCurrentNode, aCurrentProps)
-					ok
-					cCurrentNode = cLine
-					aCurrentProps = []
-				else
-					# Property: value
-					aParts = split(cLine, ":")
-					cKey = trim(aParts[1])
-					cValue = trim(aParts[2])
-					aCurrentProps + [cKey, This._ParseValue(cValue)]
-				ok
-			ok
-		end
-		
-		# Add last item that wasn't flushed
-		 if cCurrentSection = "nodes" and cCurrentItem != ""
-		        This._AddNode(oGraph, cCurrentItem, aCurrentProps)
-		ok
-		
-		if cCurrentSection = "positions" and cCurrentId != ""
-		        This._AddPosition(oOrg, cCurrentId, aCurrentProps)
-		ok
-
-		# Apply last node's properties
-		if cCurrentNode != "" and len(aCurrentProps) > 0
-			This._ApplyProperties(oGraph, cCurrentNode, aCurrentProps)
-		ok
-		
-		return oGraph
-	
-	def _ApplyProperties(oGraph, pcNodeId, paProps)
-		nLen = len(paProps)
-		for i = 1 to nLen step 2
-			cKey = paProps[i]
-			pValue = paProps[i + 1]
-			oGraph.SetNodeProperty(pcNodeId, cKey, pValue)
-		end
-	
-	def _ParseValue(cValue)
-		# Try number
-		if isdigit(cValue)
-			return 0 + cValue
-		ok
-		
-		# Remove quotes
-		if left(cValue, 1) = '"' and right(cValue, 1) = '"'
-			return @substr(cValue, 2, len(cValue) - 1)
-		ok
-		
-		return cValue
-	
-	def _ExtractQuoted(cLine)
-		nStart = substr(cLine, '"')
-		if nStart = 0 return "" ok
-		nEnd = @substr(cLine, nStart + 1, len(cLine))
-		nEnd = substr(nEnd, '"')
-		return @substr(cLine, nStart + 1, nStart + nEnd - 1)
-
-#==================================================#
-# UNIFIED QUERY DSL - ONE METHOD TO RULE THEM ALL  #
-#==================================================#
-
-# Core Principle: Find(what).Where(condition)
-
-class stzGraphQuery
-	@oGraph
-	@cTarget  # "nodes" or "edges"
-	@aFilters = []
-	
-	def init(oGraph, cTarget)
-		@oGraph = oGraph
-		@cTarget = lower(cTarget)
-		@aFilters = []
-	
-	# Chainable filters
-	def WhereQ(pcKey, pCondition, pValue)
-		@aFilters + [:where, pcKey, pCondition, pValue]
-		return This
-	
-	def HavingQ(pcKey, pValue)
-		@aFilters + [:where, pcKey, :equals, pValue]
-		return This
-	
-	def WithTagQ(pcTag)
-		@aFilters + [:tag, pcTag]
-		return This
-	
-	def WithPropertyQ(pcKey)
-		@aFilters + [:hasprop, pcKey]
-		return This
-	
-	def WithAnyTagQ(paTags)
-		@aFilters + [:anytag, paTags]
-		return This
-
-	# Execute query
-	def Run()
-		if @cTarget = "nodes"
-			return This._QueryNodes()
-		but @cTarget = "edges"
-			return This._QueryEdges()
-		ok
-		return []
-
-		def Execute()
-			return This.Run()
-	
-	#-- UTILITY METHODS
-
-	def _QueryNodes()
-		acResult = []
-		aNodes = @oGraph.Nodes()
-		
-		for aNode in aNodes
-			if This._NodeMatches(aNode)
-				acResult + aNode["id"]
-			ok
-		end
-		return acResult
-	
-	def _QueryEdges()
-		acResult = []
-		aEdges = @oGraph.Edges()
-		
-		for aEdge in aEdges
-			if This._EdgeMatches(aEdge)
-				acResult + (aEdge["from"] + "->" + aEdge["to"])
-			ok
-		end
-		return acResult
-	
-	def _NodeMatches(aNode)
-		for aFilter in @aFilters
-			cType = aFilter[1]
-			
-			if cType = :where
-				pcKey = aFilter[2]
-				pCondition = aFilter[3]
-				pValue = aFilter[4]
-				
-				pActual = This._GetNestedValue(aNode, pcKey)
-				if pActual = NULL
-					return FALSE
-				ok
-				
-				if NOT This._Matches(pActual, pCondition, pValue)
-					return FALSE
-				ok
-				
-			but cType = :hasprop
-				pcKey = aFilter[2]
-				if This._GetNestedValue(aNode, pcKey) = NULL
-					return FALSE
-				ok
-				
-			but cType = :tag
-				pcTag = aFilter[2]
-				if NOT HasKey(aNode, "properties") or 
-				   NOT HasKey(aNode["properties"], "tags") or
-				   ring_find(aNode["properties"]["tags"], pcTag) = 0
-					return FALSE
-				ok
-
-			but cType = :anytag
-				pacTags = aFilter[2]
-				if NOT HasKey(aElement, "properties") or 
-				   NOT HasKey(aElement["properties"], "tags")
-					return FALSE
-				ok
-				acTags = aElement["properties"]["tags"]
-				for cTag in pacTags
-					if ring_find(acTags, cTag) > 0
-						return TRUE # Found one match
-					ok
-				end
-				return FALSE
-
-			ok
-		end
-		return TRUE
-	
-	def _EdgeMatches(aEdge)
-		for aFilter in @aFilters
-			cType = aFilter[1]
-			
-			if cType = :where
-				pcKey = aFilter[2]
-				pCondition = aFilter[3]
-				pValue = aFilter[4]
-				
-				pActual = This._GetNestedValue(aEdge, pcKey)
-				if pActual = NULL
-					return FALSE
-				ok
-				
-				if NOT This._Matches(pActual, pCondition, pValue)
-					return FALSE
-				ok
-				
-			but cType = :hasprop
-				pcKey = aFilter[2]
-				if This._GetNestedValue(aEdge, pcKey) = NULL
-					return FALSE
-				ok
-				
-			but cType = :tag
-				pcTag = aFilter[2]
-				if NOT HasKey(aEdge, "properties") or 
-				   NOT HasKey(aEdge["properties"], "tags") or
-				   ring_find(aEdge["properties"]["tags"], pcTag) = 0
-					return FALSE
-				ok
-
-			but cType = :anytag
-				pacTags = aFilter[2]
-				if NOT HasKey(aElement, "properties") or 
-				   NOT HasKey(aElement["properties"], "tags")
-					return FALSE
-				ok
-				acTags = aElement["properties"]["tags"]
-				for cTag in pacTags
-					if ring_find(acTags, cTag) > 0
-						return TRUE # Found one match
-					ok
-				end
-				return FALSE
-
-			ok
-		end
-		return TRUE
-	
-	def _GetNestedValue(aElement, pcKey)
-		bIsNested = (substr(pcKey, ".") > 0)
-		
-		if bIsNested
-			acPath = split(pcKey, ".")
-			pValue = aElement
-			
-			# Check if first part is in element root
-			if HasKey(aElement, acPath[1])
-				pValue = aElement[acPath[1]]
-				for i = 2 to len(acPath)
-					if isList(pValue) and HasKey(pValue, acPath[i])
-						pValue = pValue[acPath[i]]
-					else
-						return NULL
-					ok
-				end
-				return pValue
-				
-			# Check in properties
-			but HasKey(aElement, "properties")
-				pValue = aElement["properties"]
-				for i = 1 to len(acPath)
-					if isList(pValue) and HasKey(pValue, acPath[i])
-						pValue = pValue[acPath[i]]
-					else
-						return NULL
-					ok
-				end
-				return pValue
-			ok
-			return NULL
-		ok
-		
-		# Non-nested: check root then properties
-		if HasKey(aElement, pcKey)
-			return aElement[pcKey]
-		but HasKey(aElement, "properties") and HasKey(aElement["properties"], pcKey)
-			return aElement["properties"][pcKey]
-		ok
-		return NULL
-	
-	def _Matches(pActual, pCondition, pValue)
-		cCond = lower(pCondition)
-		
-		if cCond = "equals" or cCond = ":equals" or cCond = "="
-			return pActual = pValue
-			
-		but cCond = "greaterthan" or cCond = ":greaterthan" or cCond = ">"
-			return isNumber(pActual) and isNumber(pValue) and pActual > pValue
-			
-		but cCond = "lessthan" or cCond = ":lessthan" or cCond = "<"
-			return isNumber(pActual) and isNumber(pValue) and pActual < pValue
-			
-		but cCond = "contains" or cCond = ":contains"
-			return isString(pActual) and isString(pValue) and 
-			       substr(lower(pActual), lower(pValue)) > 0
-			       
-		but cCond = "insection" or cCond = ":insection" or cCond = "between"
-			return isNumber(pActual) and isList(pValue) and len(pValue) = 2 and
-			       pActual >= pValue[1] and pActual <= pValue[2]
-		ok
-		return FALSE

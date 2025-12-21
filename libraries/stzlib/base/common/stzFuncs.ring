@@ -2597,6 +2597,9 @@ func ParamChecking()
 	func ChekingParams()
 		return _bParamCheck
 
+	func ChekcParams()
+		return _bParamCheck
+
 	#>
 
 #--

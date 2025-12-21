@@ -53,8 +53,41 @@ oGraph {
 	AddNode("b")
 	Connect("a", "b")
 	
+	? @@NL( Nodes() )
+	#-->
+	'
+	[
+		[
+			[ "id", "a" ],
+			[ "label", "a" ],
+			[ "props", [  ] ]
+		],
+		[
+			[ "id", "b" ],
+			[ "label", "b" ],
+			[ "properties", [  ] ]
+		]
+	]
+	'
+
 	? HasNode("a")         #--> TRUE
 	? HasNode("missing")   #--> FALSE
+
+	? ""
+
+	? @@NL( Edges() )
+	#-->
+	'
+	[
+		[
+			[ "from", "a" ],
+			[ "to", "b" ],
+			[ "label", "" ],
+			[ "properties", [  ] ]
+		]
+	]
+	'
+
 	? EdgeExists("a", "b") #--> TRUE
 	? EdgeExists("b", "a") #--> FALSE
 }
@@ -105,10 +138,10 @@ oGraph {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Neighbors and Incoming
-*
+
 pr()
 
 oGraph = new stzGraph("ConnectionsTest")
@@ -130,7 +163,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Undirected Graph Support (via bidirectional edges)
-
+*/
 pr()
 
 oGraph = new stzGraph("UndirectedTest")
@@ -141,16 +174,26 @@ oGraph.AddNode("c")
 oGraph.Connect("a", "b")  # Directed
 oGraph.Connect("b", "a")  # Make bidirectional
 
-? oGraph.IsConnected()   #--> FALSE (because "c" is not connected yet)
-oGraph.Connect("b", "c") #--> TRUE
-? oGraph.IsConnected() + NL
-
-? oGraph.PathExists("a", "b")  #--> TRUE
-? oGraph.PathExists("b", "a")  #--> TRUE
+? oGraph.IsConnected()
+#--> FALSE (because "c" is not connected yet)
 
 oGraph.Connect("b", "c")
+#--> TRUE
+
+? oGraph.IsConnected() + NL
+#--> TRUE
+
+? oGraph.PathExists("a", "b")
+#--> TRUE
+? oGraph.PathExists("b", "a")
+#--> TRUE
+
+# If you try to connect "b" and "c" again you get an error:
+# oGraph.Connect("b", "c") #--> ERR: Edge already exists between 'b' and 'c'!
+
 oGraph.Connect("c", "b")
-? @@( oGraph.ReachableFrom("a") ) #--> [ "a", "b", "c" ]  # Transitively via bidirectional
+? @@( oGraph.ReachableFrom("a") )
+#--> [ "a", "b", "c" ]  # Transitively via bidirectional
 
 
 pf()
@@ -386,7 +429,7 @@ oGraph {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Node Removal
 
@@ -406,25 +449,6 @@ oGraph {
 	
 	RemoveTheseNodes(["n1", "n3"])
 	? NodeCount() #--> 0
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-/*--- Node Replacement
-
-pr()
-
-oGraph = new stzGraph("ReplaceTest")
-oGraph {
-	AddNodeXTT("old", "Old", [:type = "test"])
-	AddNodeXT("other", "Other")
-	Connect("old", "other")
-	
-	ReplaceThisNode("old", "new")
-	? HasNode("old")  #--> FALSE
-	? HasNode("new")  #--> TRUE
-	? EdgeExists("new", "other") #--> TRUE
 }
 
 pf()
@@ -450,7 +474,7 @@ oGraph {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Node Merge
 
@@ -484,15 +508,15 @@ pr()
 
 oGraph = new stzGraph("InsertTest")
 oGraph {
-	AddNodeXT("n1", "N1")
-	AddNodeXT("n3", "N3")
+	AddNode("n1")
+	AddNode("n3")
 	Connect("n1", "n3")
 	
-	InsertNodeBefore("n3", "n2", "N2")
+	InsertNodeBefore("n3", "n2")
 	? EdgeExists("n1", "n2") #--> TRUE
 	? EdgeExists("n2", "n3") #--> TRUE
 	
-	InsertNodeAfter("n3", "n4", "N4")
+	InsertNodeAfter("n3", "n4")
 	? EdgeExists("n3", "n4") #--> TRUE
 }
 
@@ -639,7 +663,7 @@ oGraph {
 }
 
 pf()
-# Executed in 0.08 second(s) in Ring 1.24
+# Executed in 0.04 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 4: GRAPH ANALYSIS
@@ -651,9 +675,9 @@ pr()
 
 oGraph = new stzGraph("CycleTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("c", "C")
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
 	
 	Connect("a", "b")
 	Connect("b", "c")
@@ -671,10 +695,10 @@ pr()
 
 oGraph = new stzGraph("BottleneckTest")
 oGraph {
-	AddNodeXT("hub", "Hub")
-	AddNodeXT("n1", "N1")
-	AddNodeXT("n2", "N2")
-	AddNodeXT("n3", "N3")
+	AddNode("hub")
+	AddNode("n1")
+	AddNode("n2")
+	AddNode("n3")
 	
 	Connect("n1", "hub")
 	Connect("n2", "hub")
@@ -685,7 +709,7 @@ oGraph {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Graph Metrics
 
@@ -693,9 +717,9 @@ pr()
 
 oGraph = new stzGraph("MetricsTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("c", "C")
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
 	
 	Connect("a", "b")
 	Connect("b", "c")
@@ -719,11 +743,11 @@ pr()
 
 oGraph = new stzGraph("ParallelTest")
 oGraph {
-	AddNodeXT("start", "Start")
-	AddNodeXT("pathA", "Path A")
-	AddNodeXT("pathB", "Path B")
-	AddNodeXT("endA", "End A")
-	AddNodeXT("endB", "End B")
+	AddNode("start")
+	AddNode("pathA")
+	AddNode("pathB")
+	AddNode("endA")
+	AddNode("endB")
 	
 	Connect("start", "pathA")
 	Connect("start", "pathB")
@@ -743,103 +767,18 @@ pr()
 
 oGraph = new stzGraph("ImpactTest")
 oGraph {
-	AddNodeXT("db", "Database")
-	AddNodeXT("api", "API")
-	AddNodeXT("worker1", "Worker1")
-	AddNodeXT("worker2", "Worker2")
+	AddNode("db")
+	AddNode("api")
+	AddNode("worker1")
+	AddNode("worker2")
 	
 	Connect("db", "api")
 	Connect("api", "worker1")
 	Connect("api", "worker2")
 	
-	? ImpactOf("api")           #--> 2
-	? @@( FailureScope("api") ) #--> ["worker1", "worker2"]
-	? @@( MostCriticalNodes(2) ) #--> ["api", "db"]
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-/*---
-
-pr()
-
-oGraph = new stzGraph("PathInferTest")
-
-oRule = new stzGraphRule("path_shortcut")
-oRule {
-	SetRuleType("inference")
-	WhenPath("start", "end", "exists")
-	Then("edge", "add", ["start", "end", "shortcut"])
-}
-
-oGraph {
-	AddNodeXT("start", "Start")
-	AddNodeXT("mid", "Middle")
-	AddNodeXT("end", "End")
-	
-	Connect("start", "mid")
-	Connect("mid", "end")
-	
-	SetRule(oRule)
-
-	? "Direct edge before: " + EdgeExists("start", "end")
-	#--> FALSE
-
-	ApplyInference()
-
-	# Now check AFTER exiting the brace context
-
-	# All edges:
-	? @@NL(oGraph.Edges())
-	#-->
-	'
-	[
-		[
-			[ "from", "start" ],
-			[ "to", "mid" ],
-			[ "label", "" ],
-			[ "properties", [  ] ]
-		],
-		[
-			[ "from", "mid" ],
-			[ "to", "end" ],
-			[ "label", "" ],
-			[ "properties", [  ] ]
-		],
-		[
-			[ "from", "start" ],
-			[ "to", "end" ],
-			[ "label", "shortcut" ],
-			[ "properties", [  ] ]
-		]
-	]
-	'
-
-	# Direct edge after:
-	? oGraph.EdgeExists("start", "end")
-	#--> TRUE
-
-	# Edge count:
-	? oGraph.EdgeCount()
-	#--> 3
-
-	? @@NL( InferenceReport() )
-	#-->
-	'
-	[
-		[ "edgesBeforeInference", 2 ],
-		[ "edgesInferred", 1 ],
-		[ "edgesAfterInference", 3 ],
-		[
-			"inferrededges",
-			[
-				[ "start", "end", "shortcut" ]
-			]
-		]
-	]
-	'
-
+	? ImpactOf("api")           	#--> 2
+	? @@( FailureScope("api") ) 	#--> ["worker1", "worker2"]
+	? @@( MostCriticalNodes(2) ) 	#--> ["api", "db"]
 }
 
 pf()
@@ -848,6 +787,7 @@ pf()
 /*--- Weighted Edges and Operations
 
 pr()
+
 oGraph = new stzGraph("WeightedTest")
 oGraph {
 	AddNode("a")
@@ -857,20 +797,22 @@ oGraph {
 	ConnectXTT("a", "b", "link1", [:weight = 5])
 	ConnectXTT("b", "c", "link2", [:weight = 3])
 
-	? EdgeProperty("a", "b", "weight")  #--> 5
+	? EdgeProperty("a", "b", "weight")
+	#--> 5
+
 	SetEdgeProperty("a", "b", "weight", 10)
-	? EdgeProperty("a", "b", "weight")  #--> 10
+	? EdgeProperty("a", "b", "weight")
+	#--> 10
 
 	# Total weight along path
-	? PathWeight(["a", "b", "c"])  #--> 13  # Sum of weights
+	? PathWeight(["a", "b", "c"])
+	#--> 13  # Sum of weights
 }
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Multi-Edges Between Same Nodes : Raises an error
-
-pr()
 
 oGraph = new stzGraph("MultiEdgeTest")
 oGraph {
@@ -881,6 +823,7 @@ oGraph {
 	ConnectXTT("source", "target", "backup", [:priority = "low"])
 	#--> Edge already exists between 'source' and 'target'!
 }
+#TODO : Should we support multi-edges?
 
 /*---
 
@@ -918,372 +861,6 @@ oGraph {
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
-
-#===================================#
-#  SECTION 5: UNIFIED RULE SYSTEM   #
-#===================================#
-
-/*--- Validation Rule
-
-pr()
-
-oGraph = new stzGraph("ValidationTest")
-
-oRule = new stzGraphRule(:RequireApproval)
-oRule {
-	When(:IsApproved, :Equals, FALSE)
-	MarkAsInValid()
-	AddAnomaly("Requires approval")
-
-	? @@(Anomalies())
-	#--> [ "Requires approval" ]
-}
-
-oGraph {
-	SetRule(oRule)
-	
-	AddNodeXTT("task1", "Task 1", [:isapproved = FALSE])
-	AddNodeXTT("task2", "Task 2", [:isapproved = TRUE])
-	
-	ApplyRules()
-	
-	? Node("task1")["properties"]["isvalid"]    	#--> FALSE
-	? Node("task1")["properties"]["Anomaly"]  	#--> "Requires approval"
-	? HasKey(Node("task2")["properties"], "isvalid") #--> FALSE
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Inference Rule
-*/
-pr()
-
-oGraph = new stzGraph("InferenceTest")
-
-oRule = new stzGraphRule("transitivity")
-oRule {
-	SetRuleType("inference")
-	WhenPathExists(:FromNode = "a", :ToNode = "c")
-	AddEdge("a", "c")
-}
-
-oGraph {
-	AddNode("a")
-	AddNode("b")
-	AddNode("c")
-	
-	Connect("a", "b")
-	Connect("b", "c")
-	
-	SetRule(oRule)
-	ApplyRules()
-	
-	? EdgeCount() #--> 3 (original 2 + inferred 1) #ERR returned 2!
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Property-based Rule
-
-pr()
-
-oGraph = new stzGraph("PropRuleTest")
-
-oRule = new stzGraphRule("highcost")
-oRule {
-	SetRuleType("validation")
-	When("cost", "between", [500, 9999])
-	Then("requiresapproval", "set", TRUE)
-	Then("level", "set", "high")
-}
-
-oGraph {
-	SetRule(oRule)
-	
-	AddNodeXTT("n1", "N1", [:cost = 100])
-	AddNodeXTT("n2", "N2", [:cost = 800])
-	
-	ApplyValidation()
-	
-	# Does N1 requires approval
-	? NodeRequiresApproval("n1")
-	#--> FALSE
-	
-	? NodeRequiresApproval("n2")
-	#--> TRUE
-	
-	? NodeXT("n2")[:Level]
-	#--> "high"
-
-	? NodeXT("n2")[:Cost]
-	#--> 800
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Rule Analysis 1
-
-pr()
-
-oGraph = new stzGraph("RuleAnalysisTest")
-
-# Create rules
-oRule1 = new stzGraphRule("critical")
-oRule1 {
-	SetRuleType("validation")
-	WhenTagExists("critical")
-	SetProperty("alert", TRUE)
-}
-
-oRule2 = new stzGraphRule("production")
-oRule2 {
-	SetRuleType("validation")
-	When("env", "equals", "prod")
-	SetProperty("monitor", TRUE)
-}
-
-oGraph {
-	# Set rules
-	SetRule(oRule1)
-	SetRule(oRule2)
-	
-	# Add nodes
-	AddNodeXTT("n1", "N1", [:env = "prod", :tags = ["critical"]])
-	AddNodeXTT("n2", "N2", [:env = "test"])
-	
-	# Apply rules
-	ApplyRules()
-	
-	# Check results
-
-	? @@( NodesAffectedByRules() )
-	#--> ["n1", "n2"]
-
-	? @@( NodesAffectedByRule("critical") )
-	#--> ["n1"]
-	
-	? @@( NodesAffectedByRule("production") ) + NL
-	#--> ["n1"]
-	
-	# Summary of applied rules
-
-	? @@( RulesApplied() ) + NL
-	#--> [ "critical", "production" ]
-
-	? @@NL( RulesAppliedXT() ) + NL
-	#-->
-	'
-	[
-		[ "haseffects", 1 ],
-		[
-			"summary",
-			"2 rule(s) defined, 2 element(s) affected"
-		],
-		[
-			"rules",
-			[
-				[
-					[ "id", "critical" ],
-					[ "condition", "tagexists" ],
-					[
-						"conditionparams",
-						[ "critical" ]
-					],
-					[
-						"effects",
-						[
-							[ "set", "alert", 1 ]
-						]
-					],
-					[
-						"affectednodes",
-						[ "n1" ]
-					],
-					[ "affectededges", [  ] ],
-					[ "matchcount", 1 ]
-				],
-				[
-					[ "id", "production" ],
-					[ "condition", "propertyequals" ],
-					[
-						"conditionparams",
-						[ "env", "prod" ]
-					],
-					[
-						"effects",
-						[
-							[ "set", "monitor", 1 ]
-						]
-					],
-					[
-						"affectednodes",
-						[ "n1" ]
-					],
-					[ "affectededges", [  ] ],
-					[ "matchcount", 1 ]
-				]
-			]
-		]
-	]
-	'
-
-	
-	# Node Properties After Rules
-
-	? @@( NodePropertiesXT("n1") )
-	#--> [ [ "env", "prod" ], [ "tags", [ "critical" ] ], [ "alert", 1 ], [ "monitor", 1 ] ]
-
-	? @@( NodeProperty("n1", "alert") ) 	#--> TRUE (1)
-	? @@( NodeProperty("n1", "monitor") ) 	#--> TRUE (1) + NL
-	
-	? @@( NodePropertiesXT("n2") )
-	#--> [ [ "env", "test" ] ]
-}
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.2
-
-/*--- Rule Analysis
-
-pr()
-
-oGraph = new stzGraph("RuleAnalysisTest")
-
-oRule1 = new stzGraphRule("critical")
-oRule1 {
-	WhenTagExists("critical")
-	SetProperty("alert", TRUE)
-}
-
-oRule2 = new stzGraphRule("production")
-oRule2 {
-	When("env", :equals, "prod")
-	SetProperty("monitor", TRUE)
-}
-
-oGraph {
-	SetRule(oRule1)
-	SetRule(oRule2)
-	
-	AddNodeXTT("n1", "N1", [:env = "prod", :tags = ["critical"]])
-	AddNodeXTT("n2", "N2", [:env = "test"])
-	
-	ApplyRules()
-	
-	? @@( NodesAffectedByRules() )
-	#--> ["n1", "n2"]
-	
-	? @@( NodesAffectedByRule("critical") )
-	#--> ["n1"]
-	
-	? @@( RulesApplied() )
-	#--> [ "critical", "production" ]
-
-	? @@NL( RulesAppliedXT() )
-	#-->
-	'
-	[
-		[ "haseffects", 1 ],
-		[
-			"summary",
-			"2 rule(s) defined, 2 element(s) affected"
-		],
-		[
-			"rules",
-			[
-				[
-					[ "id", "critical" ],
-					[ "condition", "tagexists" ],
-					[
-						"conditionparams",
-						[ "critical" ]
-					],
-					[
-						"effects",
-						[
-							[ "set", "alert", 1 ]
-						]
-					],
-					[
-						"affectednodes",
-						[ "n1" ]
-					],
-					[ "affectededges", [  ] ],
-					[ "matchcount", 1 ]
-				],
-				[
-					[ "id", "production" ],
-					[ "condition", "propertyequals" ],
-					[
-						"conditionparams",
-						[ "env", "prod" ]
-					],
-					[
-						"effects",
-						[
-							[ "set", "monitor", 1 ]
-						]
-					],
-					[
-						"affectednodes",
-						[ "n1" ]
-					],
-					[ "affectededges", [  ] ],
-					[ "matchcount", 1 ]
-				]
-			]
-		]
-	]
-	'
-
-	? BoxRound("GRAPH EXPLANATION")
-	? @@NL( Explain() )
-#-->
-'
-╭───────────────────╮
-│ GRAPH EXPLANATION │
-╰───────────────────╯
-[
-	[
-		"general",
-		[
-			"Graph: RuleAnalysisTest",
-			"Nodes: 2 | Edges: 0"
-		]
-	],
-	[
-		"bottlenecks",
-		[ "No bottlenecks (average degree = 0)" ]
-	],
-	[
-		"cycles",
-		[ "No cycles - acyclic graph (DAG)" ]
-	],
-	[
-		"metrics",
-		[
-			"Density: 0% (no connections)",
-			"Longest path: 0 hops (isolated)"
-		]
-	],
-	[
-		"rules",
-		[
-			"Rules applied: 2",
-			"  - critical [validation]",
-			"  - production [validation]"
-		]
-	]
-]
-'
-
-}
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.24
 
 /*--- Density and Sparsity Metrics
 
@@ -1391,9 +968,9 @@ pr()
 
 oGraph = new stzGraph("ExportTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	Connect("a", "b")
+	AddNode("A")
+	AddNode("B")
+	Connect("A", "B")
 	
 	? BoxRound("DOT FORMAT")
 
@@ -1446,9 +1023,9 @@ pr()
 
 oGraph = new stzGraph("JSONTest")
 oGraph {
-	AddNodeXT("input", "Input")
-	AddNodeXT("output", "Output")
-	Connect("input", "output")
+	AddNode("input")
+	AddNode("output")
+	Connect(:node = "input", :tonode = "output")
 	
 	? BoxRound("JSON FORMAT")
 	? Json()
@@ -1480,12 +1057,13 @@ pr()
 
 oGraph = new stzGraph("VisTest")
 oGraph {
-	AddNodeXT("start", "Start")
-	AddNodeXT("middle", "Middle")
-	AddNodeXT("end", "End")
+	AddNode("start")
+	AddNode("middle")
+	AddNode("end")
 	
-	Connect("start", "middle")
-	Connect("middle", "end")
+	Connect(:node = "start", :to = "middle")
+	Connect(:nodes = "middle", :and = "end")
+	#NOTE// how I diversified naming params alternatives
 
 }
 
@@ -1528,13 +1106,13 @@ pr()
 
 oGraph = new stzGraph("ExplainTest")
 oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("c", "C")
+	AddNode("A")
+	AddNode("B")
+	AddNode("C")
 	
-	Connect("a", "b")
-	Connect("b", "c")
-	Connect("c", "a")
+	Connect("A", :and = "B")
+	Connect("B", "C")
+	Connect("c", "a") #NOTE// You can use upper or lower node name
 	
 	? @@NL( Explain() )
 }
@@ -1582,17 +1160,25 @@ oGraph = new stzGraph("QueryTest")
 oGraph {
 	AddNodeXTT("svc1", "Service 1", [:type = "backend"])
 	AddNodeXTT("svc2", "Service 2", [:type = "frontend"])
-	AddNodeXTT("db1", "Database", [:type = "backend"])
-	
-	? @@( NodesByType("backend") )
+	AddNodeXTT("db1", "Database", [:type = "backend", :sql = "yes"])
+
+
+	? NodesByType("backend")
+	#--> ["svc1", "db1"]
+
+	# Internally, the previous query uses a more general expression
+	# nase on the stzGraphQuery class, leading to the same result
+
+	? Find("nodes").Where("type", "=", "backend").Run()
 	#--> ["svc1", "db1"]
 	
-	? @@( NodesByProp("type", "frontend") )
-	#--> ["svc2"]
+	? Find("nodes").Where("sql", "=", "yes").Run()
+	#--> ["db1"]
+
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Find Node Paths
 
@@ -1600,17 +1186,14 @@ pr()
 
 oGraph = new stzGraph("FindTest")
 oGraph {
-	AddNodeXT("start", "Start")
-	AddNodeXT("mid1", "Mid1")
-	AddNodeXT("mid2", "Mid2")
-	AddNodeXT("target", "Target")
+	AddNodes([ "start", "mid1", "mid2", "target" ])
 	
-	Connect("start", "mid1")
-	Connect("mid1", "target")
-	Connect("start", "mid2")
-	Connect("mid2", "target")
+	Connect("start", :to = "mid1")
+	Connect("mid1", :to = "target")
+	Connect("start", :to = "mid2")
+	Connect("mid2", :to = "target")
 	
-	? @@NL( FindNode("target") )
+	? @@NL( PathsTo(:Node = "target") ) # Or FindPath("target")
 	#--> [
 	#   ["start", "mid1", "target"],
 	#   ["start", "mid2", "target"]
@@ -1626,30 +1209,36 @@ pr()
 
 oGraph = new stzGraph("PathMatchTest")
 oGraph {
-	AddNode("n1")
-	AddNode("n2")
-	AddNode("n3")
-	AddNode("n4")
+	AddNodes( L("n1:n4") )
 	
 	Connect("n1", "n2")
 	Connect("n2", "n3")
 	Connect("n3", "n4")
 	Connect("n1", "n4")
 	
-	aPaths = PathsMatchingF( func(acPath) {
-		return len(acPath) >= 3
-	})
-	
-	? @@NL( aPaths )
+	? @@NL( Paths() ) #TODO// All paths in the graph
 	#--> [
 	# 	["n1", "n2", "n3"],
 	# 	["n2", "n3", "n4"],
 	# 	["n1", "n2", "n3", "n4"]
 	# ]
+
+	? @@(
+		PathsWhereF( func(acPath) {
+			return len(acPath) >= 4
+		})
+	)
+	#--> [ ["n1", "n2", "n3", "n4"] ]
+
+	#TODO// Generalise this form to NodesWhereF() and EdgesWhereF()
+
+	#TODO// Use it in all ...W() methods in the library as a function-based
+	# condiditional function that avoids the use of strings and evals!
+
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.06 second(s) in Ring 1.24
 
 /*--- Edge Property Queries
 
@@ -1657,216 +1246,48 @@ pr()
 
 oGraph = new stzGraph("EdgePropTest")
 oGraph {
-	AddNode("a")
-	AddNode("b")
+	AddNodeXTT("a", "Node A", [ :status = "complete" ])
+	AddNodeXTT("b", "Node B", [ :status = "inprogress" ])
 	AddNode("c")
-	
+	AddNodeXTT("d", "Node D", [ :status = "complete" ])
+
 	AddEdgeXTT("a", "b", "fast", [:speed = 100])
 	AddEdgeXTT("b", "c", "slow", [:speed = 10])
-	
-	? @@( EdgesByProp("speed", 100) ) # Or EdgesByProperty
+	AddEdgeXTT("c", "d", "fast-again", [:speed = 120])
+
+	#--
+
+	? BoxRound("PROPERTY QUERY")
+
+	? @@( Find("edges").Where("speed", "=", 100).Run() )
 	#--> [ [ "a", "b" ] ]
 
 	# Or more expressively:
-	? @@( EdgesWhere("speed", :Equals = 100) )
+	# ? @@( EdgesWhere("speed", "=", 100) ) + NL # Or EdgesByProperty
+
+	#--
+
+	? @@( Find("edges").Where("speed", "between", [ 80, 120 ]).Run() ) + NL
 	#--> [ [ "a", "b" ] ]
 
-	? @@( EdgesWhere("speed", :Between = [ 80, 120 ]) )
-	#--> [ [ "a", "b" ] ]
+	# Or more expressively:
+	# ? @@( EdgesWhere("speed", :Between, [ 80, 120 ]) )
 
-}
+	? BoxRound("FUNCTION QUERY")
 
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
+	? @@NL( NodesWF( func(aNode) { return aNode[:properties][:status] = "complete" } ) )
+	#--> [ "a", "d" ]
 
-/*--- Chained Rules
+	? @@NL( EdgesWF( func(aEdge) { return aEdge[:properties][:speed] >= 100 }  ) )
+	#--> [
+	# 	[ "a", "b" ],
+	# 	[ "c", "d" ]
+	# ]
 
-pr()
-
-oGraph = new stzGraph("ChainedTest")
-
-# First rule sets a property
-oRule1 = new stzGraphRule("set_category")
-oRule1 {
-	SetRuleType("validation") # Can be commented because "validation" is the default tyoe
-	When("cost", "greaterthan", 1000)
-	Then("category", "set", "expensive")
-}
-
-# Second rule reacts to that property
-oRule2 = new stzGraphRule("expensive_handling")
-oRule2 {
-	SetRuleType("validation")
-	When("category", "equals", "expensive")
-	Then("approval_level", "set", "executive")
-	Then("notification", "set", TRUE)
-}
-
-oGraph {
-	SetRule(oRule1)
-	SetRule(oRule2)
-	
-	AddNodeXTT("item", "Item X", [:cost = 1500])
-	
-	ApplyRules()
-	
-	? @@NL( Node("item") )
-	#-->
-	'
-	[
-		[ "id", "item" ],
-		[ "label", "Item X" ],
-		[
-			"properties",
-			[
-				[ "cost", 1500 ],
-				[ "category", "expensive" ],
-				[ "approval_level", "executive" ],
-				[ "notification", 1 ]
-			]
-		]
-	]
-	'
-
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-#============================================#
-SECTION 9': RULE ENGINE ADVANCED
-#============================================#
-
-/*--- Inference Rule Chaining #TODO Checl result correctness
-
-pr()
-
-# Rule 1: Mark nodes with outgoing edges as parents
-oRule1 = new stzGraphRule("parent_marker")
-oRule1 {
-    SetRuleType("inference")
-    SetGraph(NULL)  # Will be set by graph
-}
-
-# Rule 2: Add transitive inference for paths
-oRule2 = new stzGraphRule("path_infer")
-oRule2 {
-    SetRuleType("inference")
-    WhenPathExists(:from = "a", :to = "b")
-    AddEdgeXT("a", "b", "(inferred-path)")
-}
-
-# Create graph
-oGraph = new stzGraph("InferenceChain")
-oGraph {
-    # Add nodes
-    AddNodeXTT("a", "Node A", [:type = "parent"])
-    AddNodeXTT("b", "Node B", [:type = "child"])
-    AddNodeXTT("c", "Node C", [:type = "child"])
-    
-    # Add edges
-    Connect("a", "b")
-    Connect("b", "c")
-    
-    # Set rules
-    SetRule(oRule1)
-    SetRule(oRule2)
-    
-    # Apply inference (will add transitive a->c)
-    ApplyInference()
-    
-    # Now set properties based on graph structure
-    SetNodeProperty("a", "hasChild", TRUE)
-    SetNodeProperty("b", "inheritsFrom", "a")
-    SetNodeProperty("c", "inheritsFrom", "b")
-    
-    # Display results
-    ? "=== Nodes ==="
-    ? @@NL( Nodes() ) + NL
-    
-    ? "=== Edges ==="
-    ? @@NL( Edges() ) + NL
-    
-    ? "=== Node Properties ==="
-    ? "Node A hasChild: " + NodeProperty("a", "hasChild")
-    ? "Node B inheritsFrom: " + NodeProperty("b", "inheritsFrom")
-    ? "Node C inheritsFrom: " + NodeProperty("c", "inheritsFrom")
-    ? ""
-    
-    ? "=== Inference Report ==="
-    ? @@NL( InferenceReport() )
 }
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.24
-
-/*--- Else Effects in Validation
-
-pr()
-
-oRule = new stzGraphRule("status_check")
-oRule {
-	SetRuleType("validation")
-	When("status", "equals", "active")
-	Then("requiredreview", "set", FALSE)
-	Else_("requiredreview", "set", TRUE)
-}
-
-oGraph = new stzGraph("ElseTest")
-oGraph {
-	AddNodeXTT("n1", "N1", [:status = "active"])
-
-	ApplyRules()
-	Validate()  # Apply with else
-
-	? NodeProperty("n1", "requiredreview")  #--> FALSE
-
-	SetNodeProperty("n1", "status", "inactive")
-	Validate()
-
-	? NodeProperty("n1", "requiredreview")  #--> TRUE
-}
-
-#ERR Line 2916 Inexistant node key or/and property!
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-/*--- Multi-Rule Interactions and Conflicts
-
-pr()
-
-oRule1 = new stzGraphRule("priority_boost")
-oRule1 {
-	SetRuleType("inference")
-	When("priority", "lessthan", 10)
-	Then("priority", "set", 10)
-}
-
-oRule2 = new stzGraphRule("priority_cap")
-oRule2 {
-	SetRuleType("constraint")
-	When("priority", "greaterthan", 8)
-	ThenViolation("Priority exceeds cap")
-}
-
-oGraph = new stzGraph("MultiRuleTest")
-oGraph {
-	AddNodeXTT("n1", "N1", [:priority = 5])
-	
-	ApplyRules()  # Inference first, then constraint
-	
-	? NodeProperty("n1", "priority")  #--> 5
-	? @@( ConstraintViolations() )  #--> [ "Priority exceeds cap" ]  # Conflict detected
-	#ERR returned []
-}
-
-# along with a general Viloations() method that return them all (and ViloationsXT() that
-# return them in a hashlist [ [ "validation", [ .., ... ] ], [ "inference", [ "...", "..."] ], etc ]
-
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
 #  SECTION 10: METADATA OPERATIONS
@@ -1929,250 +1350,8 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 #============================================#
-#  SECTION 11: INFERENCE & KNOWLEDGE
-#============================================#
-# TODO review it's implementation in the light of the
-# abstracted stzGraphRule class and other classes
-#UPDATE Done :D بفضل الله
-
-/*--- Built-in Inference
-
-pr()
-
-oGraph = new stzGraph("InferTest")
-oGraph {
-	AddNodeXT("a", "A")
-	AddNodeXT("b", "B")
-	AddNodeXT("c", "C")
-	
-	Connect("a", "b")
-	Connect("b", "c")
-	
-	AddInferenceRule("TRANSITIVITY")
-	
-	nInferred = ApplyInference()
-	? nInferred
-	#--> 1
-
-	? EdgeCount()
-	#--> 3
-	
-	? @@NL( InferredEdges() )
-	#-->
-	'
-	[
-		[
-			[ "from", "a" ],
-			[ "to", "c" ],
-			[ "label", "(inferred-transitive)" ],
-			[ "properties", [  ] ]
-		]
-	]
-	'
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-/*--- Symmetry Inference
-
-pr()
-
-oGraph = new stzGraph("SymmetryTest")
-oGraph {
-	AddNode("x")
-	AddNode("y")
-	
-	AddEdgeXT("x", "y", "connected")
-	
-	AddInferenceRule("SYMMETRY")
-	
-	? ApplyInference() #--> TRUE
-	? EdgeExists("y", "x") #--> TRUE
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
-#============================================#
-#  SECTION 12: CONSTRAINTS & VALIDATION
-#============================================#
-
-/*--- Acyclic Constraint
-
-pr()
-
-oGraph = new stzGraph("AcyclicTest")
-oGraph {
-	AddNode("a")
-	AddNode("b")
-	AddNode("c")
-	
-	Connect("a", "b")
-	Connect("b", "c")
-	
-	AddConstraint("ACYCLIC")
-	
-	? BoxRound("CONSTRAINTS VALIDATION - BEFORE")
-	? @@NL( ValidateConstraints() ) + NL
-	
-	Connect("c", "a")
-	
-	? BoxRound("CONSTRAINTS VALIDATION - AFTER")
-
-	? @@NL( ValidateConstraints() ) + NL
-	
-	? BoxRound("CONSTRAINTS ANOMALIES")
-	? @@( ConstraintAnomalies() )
-	#--> [[:type = "ACYCLIC", :count = 1]] []
-}
-#-->
-'
-╭─────────────────────────────────╮
-│ CONSTRAINTS VALIDATION - BEFORE │
-╰─────────────────────────────────╯
-[
-	[ "status", "pass" ],
-	[ "domain", "constraints" ],
-	[ "issuecount", 0 ],
-	[ "issues", [  ] ],
-	[ "affectednodes", [  ] ]
-]
-
-╭────────────────────────────────╮
-│ CONSTRAINTS VALIDATION - AFTER │
-╰────────────────────────────────╯
-[
-	[ "status", "fail" ],
-	[ "domain", "constraints" ],
-	[ "issuecount", 1 ],
-	[
-		"issues",
-		[ "Constraint failed: ACYCLIC" ]
-	],
-	[ "affectednodes", [  ] ]
-]
-
-╭───────────────────────╮
-│ CONSTRAINTS ANOMALIES │
-╰───────────────────────╯
-[ [ [ "type", "ACYCLIC" ], [ "count", 1 ] ] ]
-'
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.24
-
-/*--- Connected Constraint
-
-pr()
-
-oGraph = new stzGraph("ConnectedTest")
-oGraph {
-	AddNode("a")
-	AddNode("b")
-	AddNode("isolated")
-	
-	Connect("a", "b")
-	
-	? BoxRound("CONSTRAINT VALIDATION - BEFORE")
-	AddConstraint("CONNECTED")
-	
-	? @@NL(ValidateConstraints()) + NL
-	
-	Connect("b", "isolated")
-	
-	? BoxRound("CONSTRAINT VALIDATION - AFTER")
-	? @@NL( ValidateConstraints() )
-}
-#-->
-'
-╭────────────────────────────────╮
-│ CONSTRAINT VALIDATION - BEFORE │
-╰────────────────────────────────╯
-[
-	[ "status", "fail" ],
-	[ "domain", "constraints" ],
-	[ "issuecount", 1 ],
-	[
-		"issues",
-		[ "Constraint failed: CONNECTED" ]
-	],
-	[ "affectednodes", [  ] ]
-]
-
-╭───────────────────────────────╮
-│ CONSTRAINT VALIDATION - AFTER │
-╰───────────────────────────────╯
-[
-	[ "status", "pass" ],
-	[ "domain", "constraints" ],
-	[ "issuecount", 0 ],
-	[ "issues", [  ] ],
-	[ "affectednodes", [  ] ]
-]
-'
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.24
-
-#============================================#
 #  SECTION 13: EDGE OPERATIONS
 #============================================#
-
-/*--- Edge Navigation
-
-pr()
-
-oGraph = new stzGraph("EdgeNavTest")
-oGraph {
-	AddNode("a")
-	AddNode("b")
-	AddNode("c")
-	
-	AddEdgeXT("a", "b", "first")
-	AddEdgeXT("b", "c", "second")
-	
-	? @@NL( FirstEdge() ) + NL # Or NthEdge(n)
-	#-->
-	'
-	[
-		[ "from", "a" ],
-		[ "to", "b" ],
-		[ "label", "first" ],
-		[ "properties", [  ] ]
-	]
-	'
-
-	? FirstEdge()["label"]   #--> "first"
-	? LastEdge()["label"]    #--> "second"
-	? EdgeAt(1)["label"]     #--> "first"
-	? EdgePosition("b", "c") #--> 2
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
-
-/*--- Edge Replacement
-
-pr()
-
-oGraph = new stzGraph("EdgeReplaceTest")
-oGraph {
-	AddNode("a")
-	AddNode("b")
-	AddNode("c")
-	
-	AddEdgeXT("a", "b", "old")
-	
-	ReplaceEdgeXT(["a", "b"], :With = ["b", "c"], :Label = "new")
-	
-	? EdgeExists("a", "b") #--> FALSE
-	? EdgeExists("b", "c") #--> TRUE
-	? Edge("b", "c")["label"] #--> "new"
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Edge Properties
 
@@ -2184,7 +1363,8 @@ oGraph {
 	AddNode("b")
 	
 	AddEdgeXTT("a", "b", "link", [:weight = 10])
-	
+	? EdgeExists("a", "b") # Or HasEdge("a", "b")
+
 	? EdgeProperty("a", "b", "weight") #--> 10
 	
 	SetEdgeProperty("a", "b", "status", "active")
@@ -2266,131 +1446,6 @@ edges:
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
-#============================================#
-#  SECTION 16: COMPLETE WORKFLOW
-#============================================#
-
-/*--- Real-World Scenario
-
-pr()
-
-oGraph = new stzGraph("MicroserviceGraph")
-
-# Build service architecture
-oGraph {
-	AddNodeXTT("api", "API Gateway", [:env = "prod", :cost = 100])
-	AddNodeXTT("auth", "Auth Service", [:env = "prod", :cost = 50])
-	AddNodeXTT("user", "User Service", [:env = "prod", :cost = 200])
-	AddNodeXTT("db", "Database", [:env = "prod", :cost = 300])
-	
-	ConnectXT("api", "auth", "authenticates")
-	ConnectXT("api", "user", "routes")
-	ConnectXT("auth", "db", "reads")
-	ConnectXT("user", "db", "writes")
-	
-	# Add rules
-	oRule = new stzGraphRule("highcost")
-	oRule {
-		When("cost", :InSection, [200, 9999])
-		SetProperty("alert", TRUE)
-	}
-	SetRule(oRule)
-	ApplyRules()
-	
-	# Analyze
-	? "ANALYSIS"
-	? "--------" + NL
-
-	? "Critical nodes: " + @@( MostCriticalNodes(2) )
-	? "Bottlenecks: " + @@( BottleneckNodes() )
-	? "Density: " + NodeDensity100() + "%" + NL
-	
-	# Visualize
-	? "VISUALIZATION"
-	? "-------------" + NL
-
-	Show()
-	? ""
-	
-	# Export
-	? "EXPORT"
-	? "------" + NL
-
-	? Dot()
-
-}
-#-->
-'
-ANALYSIS
---------
-
-Critical nodes: [ "api", "auth" ]
-Bottlenecks: [ ]
-Density: 33.33%
-
-VISUALIZATION
--------------
-
-     ╭─────────────╮     
-     │ API Gateway │     
-     ╰─────────────╯     
-            |            
-      authenticates      
-            |            
-            v            
-    ╭──────────────╮     
-    │ Auth Service │     
-    ╰──────────────╯     
-            |            
-          reads          
-            |            
-            v            
-      ╭──────────╮       
-      │ Database │       
-      ╰──────────╯       
-
-          ////
-
-     ╭─────────────╮  ↑
-     │ API Gateway │──╯
-     ╰─────────────╯     
-            |            
-         routes          
-            |            
-            v            
-    ╭──────────────╮     
-    │ User Service │     
-    ╰──────────────╯     
-            |            
-         writes          
-            |            
-            v            
-      ╭──────────╮       
-      │ Database │       
-      ╰──────────╯       
-
-EXPORT
-------
-
-digraph MicroserviceGraph {
-  rankdir=TD;
-  node [shape=box];
-
-  api [label="API Gateway"];
-  auth [label="Auth Service"];
-  user [label="User Service"];
-  db [label="Database"];
-
-  api -> auth [label="authenticates"];
-  api -> user [label="routes"];
-  auth -> db [label="reads"];
-  user -> db [label="writes"];
-}
-'
-
-pf()
-# Executed in 0.06 second(s) in Ring 1.24
-
 
 #===========================#
 #  PATHFINDING ALGORITHMS   #
@@ -2449,7 +1504,7 @@ oGraph {
 	AddNode("c")
 	AddNode("d")
 	
-	Connect("a", :with = "b") # See the named param variations
+	Connect(:node = "a", :tonode = "b") # See the named param variations
 	Connect("a", :to = "c")
 	Connect("b", :and = "d")
 	Connect("c", "d")
@@ -2512,7 +1567,7 @@ oGraph {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Multiple components
 
@@ -2532,11 +1587,11 @@ oGraph {
 	#--> FALSE
 
 	? @@NL( ConnectedComponents() )
-	#--> [["a", "b"], ["c", "d"]]
+	#--> [ ["a", "b"], ["c", "d"] ]
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Articulation points
 
@@ -2554,7 +1609,7 @@ oGraph {
 	Connect(:n3, :n4)
 	
 	? @@( ArticulationPoints() )
-	#--> [:n2, :n3] - Removing either disconnects the graph
+	#--> ["n2", "n3"] - Removing either disconnects the graph
 }
 
 pf()
@@ -2602,8 +1657,10 @@ oGraph {
 
 	Connect(:n1, :center)
 	Connect(:center, :n1)
+
 	Connect(:n2, :center)
 	Connect(:center, :n2)
+
 	Connect(:n3, :center)
 	Connect(:center, :n3)
 
@@ -2732,7 +1789,7 @@ oGraph {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.03 second(s) in Ring 1.24
 
 /*--- Average path length
 
@@ -2784,7 +1841,7 @@ oGraph {
 	? AveragePathLength()
 	#--> 1.60
 
-	? IsConnected() + NL$
+	? IsConnected() + NL
 	#--> TRUE
 
 	# Node Importance
@@ -2850,6 +1907,8 @@ pf()
 #  Complete Format Suite Examples            #
 #  All 6 formats working together            #
 #============================================#
+
+#TODO
 
 #-----------------------------------#
 #  Example 1: supply_chain.stzgraf  #
@@ -3115,7 +2174,7 @@ oGraph {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Self-Loops in Cycles and Reachability
 
@@ -3125,125 +2184,14 @@ oGraph {
 	AddNode("a")
 	AddNode("b")
 
-	Connect(:Node = "a", :WithNode = "a")  # Self-loop
+	Connect(:Node = "a", :ToNode = "a")  # Self-loop
 	Connect(:Node = "a", :ToNode = "b")
 
-	? CyclicDependencies()  #--> TRUE  # Self-loop counts as cycle
-	? ReachableFromNode("a")  #--> [ "a", "b" ]  # Includes self
+	? CyclicDependencies()
+	#--> TRUE  # Self-loop counts as cycle
+
+	? ReachableFromNode("a")
+	#--> [ "a", "b" ]  # Includes self
 }
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
-
-
-#============================================#
-# SECTION 9: RULE ENGINE ADVANCED
-#============================================#
-
-/*--- Inference Rule Chaining
-
-pr()
-
-oRule1 = new stzGraphRule("parent_infer")
-oRule1 {
-	SetRuleType("inference")
-	When("type", "equals", "parent")
-	Then("haschild", "add", TRUE)
-}
-
-oRule2 = new stzGraphRule("child_infer")
-oRule2 {
-	SetRuleType("inference")
-	WhenPathExists("parent", "this")  # Assuming 'this' context
-	Then("inheritsfrom", "add", "parent")
-}
-
-oGraph = new stzGraph("InferenceChain")
-oGraph {
-	AddNodeXTT("a", "A", [:type = "parent"])
-	AddNodeXTT("b", "B", [:type = "child"])
-	Connect("a", "b")
-
-	ApplyRules()
-
-	ApplyInference()  # Chain rules
-	? NodeProperty("a", "haschild")  #--> TRUE
-	? NodeProperty("b", "inheritsfrom")  #--> "parent"
-}
-
-#ERR Line 2916 Inexistant node key or/and property!
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.24
-
-/*--- Else Effects in Validation
-
-pr()
-
-oRule = new stzGraphRule("status_check")
-oRule {
-	SetRuleType("validation")
-	When("status", "equals", "active")
-	Then("requiredReview", "set", FALSE)
-	Elze("requiredReview", "set", TRUE)
-}
-
-oGraph = new stzGraph("ElseTest")
-oGraph {
-	AddNodeXTT("n1", "N1", [:status = "active"])
-	ApplyRules()
-
-	Validate()  # Apply with else
-
-	? NodeProperty("n1", "requiredReview")  #--> FALSE
-	SetNodeProperty("n1", "status", "inactive")
-	
-	Validate()
-	? NodeProperty("n1", "requiredReview")  #--> TRUE
-}
-pf()
-#ERR Line 2916 Inexistant node key or/and property!
-
-# Executed in almost 0 second(s) in Ring 1.24
-
-/*--- Multi-Rule Interactions and Conflicts
-
-pr()
-
-oRule1 = new stzGraphRule("priority_boost")
-oRule1 {
-	SetRuleType("inference")
-	When("priority", "lessthan", 10)
-	Then("priority", "set", 10)
-}
-
-oRule2 = new stzGraphRule("priority_cap")
-oRule2 {
-	SetRuleType("constraint")
-	When("priority", "greaterthan", 8)
-	ThenViolation("Priority exceeds cap")
-}
-
-oGraph = new stzGraph("MultiRuleTest")
-oGraph {
-	AddNodeXTT("n1", "N1", [:priority = 5])
-	ApplyRules()  # Inference first, then constraint
-
-	? NodeProperty("n1", "priority")
-	#--> 5
-
-	? @@NL( Violations() )  #--> [ "Priority exceeds cap" ]  # Conflict detected
-	#--> #TODO Is this correct:
-	'
-	[
-		[ "constraint", [  ] ],
-		[ "inference", [  ] ],
-		[
-			"validation",
-			[ "Graph must be acyclic (DAG)" ]
-		]
-	]
-	'
-
-}
-pf()
-# Executed in 0.01 second(s) in Ring 1.24

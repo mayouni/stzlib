@@ -369,7 +369,7 @@ class stzWorkflow from stzDiagram
 		acAllPaths = []
 		for cStart in acStarts
 			for cEnd in acEnds
-				acPaths = This.FindAllPaths(cStart, cEnd)
+				acPaths = This.PathsXT(cStart, cEnd)
 				for acPath in acPaths
 					acAllPaths + acPath
 				end

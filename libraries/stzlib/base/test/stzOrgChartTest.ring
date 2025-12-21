@@ -97,8 +97,11 @@ oOrg {
     ReportsTo(:@vp1, :@ceo)
     ReportsTo(:@vp2, :@ceo)
     
-    ? @@( DirectReports(:@ceo) ) #--> [ "@vp1", "@vp2" ]
-    ? DirectReportsN(:@ceo) #--> 2
+    ? @@( DirectReports(:@ceo) )
+    #--> [ "@vp1", "@vp2" ]
+
+    ? DirectReportsN(:@ceo)
+    #--> 2
 }
 
 pf()
@@ -127,6 +130,8 @@ oOrg {
 
 pf()
 # Visual: CEO node now shows "CEO\nSarah Chen" in gold
+
+#ERR The name of person is not displayed
 #ERR node is showan in white
 
 /*--- Vacancy tracking
@@ -142,8 +147,11 @@ oOrg {
     AddPersonXT(:@alice, "Alice")
     Assign(:@alice, :ToNode = :@ceo)
     
-    ? @@( VacantPositions() ) #--> ["vp1", "dev1"]
-    ? VacancyRate() #--> 66.67
+    ? @@( VacantPositions() )
+    #--> ["vp1", "dev1"]
+
+    ? VacancyRate()
+    #--> 66.67
 }
 
 pf()
@@ -172,13 +180,14 @@ oOrg {
 }
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 
 #==============#
 #  DEPARTMENTS #
 #==============#
 
 /*--- Department assignment
-
+*/
 pr()
 
 oOrg = new stzOrgChart("TechCo")
@@ -401,7 +410,7 @@ oOrg {
 pf()
 
 /*--- BCEAO governance
-*/
+
 pr()
 
 oOrg = new stzOrgChart("BankOrg")
@@ -503,18 +512,19 @@ oOrg {
     
     AddExecutiveXT(:@ceo, "CEO")
     AddManagerXT(:@vp_eng, "VP Engineering")
-    AddStaffXT(:@dev1, "Senior Dev")
-    AddStaffXT(:@dev2, "Senior Dev")
+    AddStaffXT(:@dev1, "Developer 1")
+    AddStaffXT(:@dev2, "Developer 2")
 
     ReportsTo(:@vp_eng, :@ceo)
     ReportsTo(:@dev1, :@vp_eng)
     ReportsTo(:@dev2, :@vp_eng)
 
-    View()
     # View() displays horizontal tree with curved edges
+    #ERR // Theme is not applied, Splines are not curved!
 }
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.24
 
 /*--- Focus on vacant positions
 
@@ -957,11 +967,11 @@ oOrg {
     }
     
     SetRule(oRule)
-    ApplyVisualRules()
+    ApplyVisualRules() #ERR has no effect!
     
     ? @@( NodesAffectedByRules() ) #--> ["dev1"]
     #ERR returned all the nodes! [ "mgr", "dev1", "dev2" ]
-    View() // shows dev1 in gold, dev2 in default color
+    View() // #ERR Must show dev1 in gold, dev2 in default color
 }
 
 pf()
@@ -1070,7 +1080,7 @@ oOrg {
     ? read("txtfiles/test.stzorg")
     ImportFromStzOrgFile("txtfiles/test.stzorg")
     
-    ? NodeCount() #--> 1 #ERR returned 0
+    ? NodeCount() #--> 1
     ? len(People()) #--> 1
 }
 #-->
@@ -1101,10 +1111,10 @@ pr()
 
 oOrg = new stzOrgChart("Softabank OrgChart 2025")
 oOrg {
-	LoadFrom("txtfiles/bank_structure.stzorg") #ERR No response!
+	LoadFrom("txtfiles/bank_structure.stzorg")
 	? @@NL( Summary() )
 
-//	View()
+	View() #ERR // Split on deparmtmetn names with spaces creates empty nodes!
 }
 
 pf()
@@ -1147,7 +1157,7 @@ pf()
 #===================#
 
 /*--- Natural language analysis
-*/
+
 pr()
 
 oOrg = new stzOrgChart("TechCo")
@@ -1159,7 +1169,7 @@ oOrg {
     ? @@NL( Explain() )
 }
 #-->
-'
+`
 [
 	[ "type", "Organization Chart" ],
 	[
@@ -1201,6 +1211,8 @@ oOrg {
 		]
 	]
 ]
-'
+`
 
 pf()
+
+
