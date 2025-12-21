@@ -100254,6 +100254,17 @@ class stzString from stzObject
 		def @TakeCS(pSubStr, pCaseSensitive)
 			return This.@CS(pSubStr, pCaseSensitive)
 
+		#--
+
+		def @QCSQ(pSubStr, pCaseSensitive)
+			return This.@CS(pSubStr, pCaseSensitive)
+
+		def @AllCSQ(pSubStr, pCaseSensitive)
+			return This.@CS(pSubStr, pCaseSensitive)
+
+		def @TakeCSQ(pSubStr, pCaseSensitive)
+			return This.@CS(pSubStr, pCaseSensitive)
+
 	#-- PARTIAL
 
 	def @(pSubStr)
@@ -100265,6 +100276,16 @@ class stzString from stzObject
 		def @Take(pSubStr)
 			return This.@(pSubStr)
 
+		#--
+
+		def @Q(pSubStr)
+			return This.@(pSubStr)
+
+		def @AllQ(pSubStr)
+			return This.@(pSubStr)
+
+		def @TakeQ(pSubStr)
+			return This.@(pSubStr)
 
 	# NEUTRAL
 

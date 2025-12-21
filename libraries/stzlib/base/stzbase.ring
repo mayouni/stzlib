@@ -129,9 +129,6 @@ ok
     load "graph/stzdiagrammaker.ring"
     load "graph/stzorgchart.ring"
 
-    load "graph/stzgraphrule.ring"
-    load "graph/stzgraphsimulation.ring"
-
     load "graph/stzworkflow.ring"
 
 # Loading files related to the VISUAL module

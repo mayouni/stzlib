@@ -1466,13 +1466,12 @@ class stzOrgChart from stzDiagram
 	#=====================================================
 	
 	def ImportStzOrg(cString)
-
 		acLines = @split(cString, NL)
 		cCurrentSection = ""
 		cCurrentId = ""
 		aCurrent = []
-		cTile = ""
-
+		cTitle = ""
+	
 		nLen = len(acLines)
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
@@ -1484,28 +1483,113 @@ class stzOrgChart from stzDiagram
 				cTitle = @substr(cLine, 10, len(cLine)-1)
 				
 			but cLine = "positions"
+				# Flush previous section
+				if cCurrentSection = "positions" and cCurrentId != ""
+					This.AddPositionXTT(cCurrentId, aCurrent[:title], [ :level = aCurrent[:level] ])
+					if aCurrent[:department] != "" and
+					   trim(aCurrent[:department]) != ""
+						This.SetPositionDepartment(cCurrentId, aCurrent[:department])
+					ok
+					if aCurrent[:reportsTo] != "" and
+					   trim(aCurrent[:reportsTo]) != ""
+						This.ReportsTo(cCurrentId, aCurrent[:reportsTo])
+					ok
+
+				but cCurrentSection = "people" and cCurrentId != ""
+					This.AddPersonXT(cCurrentId, aCurrent[:name])
+
+				but cCurrentSection = "departments" and cCurrentId != ""
+					This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
+				ok
+				
 				cCurrentSection = "positions"
+				cCurrentId = ""
 				
 			but cLine = "people"
+				# Flush previous section
+				if cCurrentSection = "positions" and cCurrentId != ""
+					This.AddPositionXTT(cCurrentId, aCurrent[:title], [ :level = aCurrent[:level] ])
+					if aCurrent[:department] != "" and
+					   trim(aCurrent[:department]) != ""
+						This.SetPositionDepartment(cCurrentId, aCurrent[:department])
+					ok
+					if aCurrent[:reportsTo] != "" and
+					   trim(aCurrent[:reportsTo]) != ""
+						This.ReportsTo(cCurrentId, aCurrent[:reportsTo])
+					ok
+
+				but cCurrentSection = "people" and cCurrentId != ""
+					This.AddPersonXT(cCurrentId, aCurrent[:name])
+
+				but cCurrentSection = "departments" and cCurrentId != ""
+					This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
+				ok
+				
 				cCurrentSection = "people"
+				cCurrentId = ""
 				
 			but cLine = "assignments"
+				# Flush previous section
+				if cCurrentSection = "positions" and cCurrentId != ""
+					This.AddPositionXTT(cCurrentId, aCurrent[:title], [ :level = aCurrent[:level] ])
+					if aCurrent[:department] != "" and
+					   trim(aCurrent[:department]) != ""
+						This.SetPositionDepartment(cCurrentId, aCurrent[:department])
+					ok
+					if aCurrent[:reportsTo] != "" and
+					   trim(aCurrent[:reportsTo]) != ""
+						This.ReportsTo(cCurrentId, aCurrent[:reportsTo])
+					ok
+
+				but cCurrentSection = "people" and cCurrentId != ""
+					This.AddPersonXT(cCurrentId, aCurrent[:name])
+
+				but cCurrentSection = "departments" and cCurrentId != ""
+					This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
+				ok
+				
 				cCurrentSection = "assignments"
+				cCurrentId = ""
 				
 			but cLine = "departments"
+				# Flush previous section
+				if cCurrentSection = "positions" and cCurrentId != ""
+					This.AddPositionXTT(cCurrentId, aCurrent[:title], [ :level = aCurrent[:level] ])
+					if aCurrent[:department] != "" and
+					   trim(aCurrent[:department]) != ""
+						This.SetPositionDepartment(cCurrentId, aCurrent[:department])
+					ok
+					if aCurrent[:reportsTo] != "" and
+					   trim(aCurrent[:reportsTo]) != ""
+						This.ReportsTo(cCurrentId, aCurrent[:reportsTo])
+					ok
+
+				but cCurrentSection = "people" and cCurrentId != ""
+					This.AddPersonXT(cCurrentId, aCurrent[:name])
+
+				but cCurrentSection = "departments" and cCurrentId != ""
+					This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
+				ok
+				
 				cCurrentSection = "departments"
+				cCurrentId = ""
 				
 			but cCurrentSection = "positions"
 				if NOT substr(cLine, ":")
+
+					# Flush previous position
 					if cCurrentId != ""
 						This.AddPositionXTT(cCurrentId, aCurrent[:title], [ :level = aCurrent[:level] ])
-						if aCurrent[:department] != ""
+						if aCurrent[:department] != "" and
+						   trim(aCurrent[:department]) != ""
 							This.SetPositionDepartment(cCurrentId, aCurrent[:department])
 						ok
-						if aCurrent[:reportsTo] != ""
+						if aCurrent[:reportsTo] != "" and
+						   trim(aCurrent[:reportsTo]) != ""
 							This.ReportsTo(cCurrentId, aCurrent[:reportsTo])
 						ok
 					ok
+					
 					cCurrentId = cLine
 					aCurrent = [
 						:title = "",
@@ -1516,6 +1600,11 @@ class stzOrgChart from stzDiagram
 					
 				but substr(cLine, "title:")
 					aCurrent[:title] = trim(@substr(cLine, 7, len(cLine)))
+					# Remove quotes if present
+					if left(aCurrent[:title], 1) = '"' and
+					   right(aCurrent[:title], 1) = '"'
+						aCurrent[:title] = @substr(aCurrent[:title], 2, len(aCurrent[:title]) - 1)
+					ok
 					
 				but substr(cLine, "level:")
 					aCurrent[:level] = trim(@substr(cLine, 7, len(cLine)))
@@ -1529,9 +1618,11 @@ class stzOrgChart from stzDiagram
 				
 			but cCurrentSection = "people"
 				if NOT substr(cLine, ":")
+					# Flush previous person
 					if cCurrentId != ""
 						This.AddPersonXT(cCurrentId, aCurrent[:name])
 					ok
+					
 					cCurrentId = cLine
 					aCurrent = [ :name = "" ]
 					
@@ -1547,9 +1638,11 @@ class stzOrgChart from stzDiagram
 				
 			but cCurrentSection = "departments"
 				if NOT substr(cLine, ":")
+					# Flush previous department
 					if cCurrentId != ""
 						This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
 					ok
+					
 					cCurrentId = cLine
 					aCurrent = [ :name = "", :positions = [] ]
 					
@@ -1561,27 +1654,30 @@ class stzOrgChart from stzDiagram
 					cPosStr = replace(cPosStr, "[", "")
 					cPosStr = replace(cPosStr, "]", "")
 					aCurrent[:positions] = @split(cPosStr, ",")
-					for i = 1 to len(aCurrent[:positions])
-						aCurrent[:positions][i] = trim(aCurrent[:positions][i])
+					nPosLen = len(aCurrent[:positions])
+					for j = 1 to nPosLen
+						aCurrent[:positions][j] = trim(aCurrent[:positions][j])
 					end
 				ok
 			ok
 		end
 		
-		# Add last item if needed
-		if cCurrentSection = "positions"
+		# Flush last item
+		if cCurrentSection = "positions" and cCurrentId != ""
 			This.AddPositionXTT(cCurrentId, aCurrent[:title], [ :level = aCurrent[:level] ])
-			if aCurrent[:department] != ""
+			if aCurrent[:department] != "" and
+			   trim(aCurrent[:department]) != ""
 				This.SetPositionDepartment(cCurrentId, aCurrent[:department])
 			ok
-			if aCurrent[:reportsTo] != ""
+			if aCurrent[:reportsTo] != "" and
+			   trim(aCurrent[:reportsTo]) != ""
 				This.ReportsTo(cCurrentId, aCurrent[:reportsTo])
 			ok
 
-		but cCurrentSection = "people"
+		but cCurrentSection = "people" and cCurrentId != ""
 			This.AddPersonXT(cCurrentId, aCurrent[:name])
 
-		but cCurrentSection = "departments"
+		but cCurrentSection = "departments" and cCurrentId != ""
 			This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
 		ok
 

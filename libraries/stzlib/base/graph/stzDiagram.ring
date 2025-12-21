@@ -1697,10 +1697,10 @@ class stzDiagram from stzGraph
 	
 		def SetVisualRuleObject(oVisualRule)
 			This.SetVisualRule(oVisualRule)
-	
+/*	
 	def ApplyVisualRules()
 		This.ApplyRulesByType("visual")
-	
+*/	
 	def VisualRule(pcRuleId)
 		return This.Rule(pcRuleId)
 	

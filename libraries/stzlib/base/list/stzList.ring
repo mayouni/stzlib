@@ -25,6 +25,11 @@
 func StzListQ(paList)
 	return new stzList(paList)
 
+	#-- @MISPELLED
+
+	func StzLitsQ(paList)
+		return StzListQ(paList)
+
 #===
 
 func ListSection(aList, n1, n2)
@@ -83439,6 +83444,24 @@ fdef
 		def IsToNodeOrToNamedParam()
 			return This.IsToOrToNodeNamedParam()
 
+	def IsToOrToNodeOrAndNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([ "to", "tonode", "and" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IsAndOrToNodeOrToNamedParam()
+			return This.IsToOrToNodeOrAndNamedParam()
+
+		def IsToNodeOrAndOrToNamedParam()
+			return This.IsToOrToNodeOrAndNamedParam()
+
+		def IsAndOrToOrToNodeNamedParam()
+			return This.IsToOrToNodeOrAndNamedParam()
+
 	def IsFromNodeNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromNode )
@@ -83461,6 +83484,38 @@ fdef
 
 		def IsFromNodeOrFromNamedParam()
 			return This.IsFromOrFromNodeNamedParam()
+
+	def IsNodeOrFromOrFromNodeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  ring_find([ "node", "from", "fromnode" ], This.Item(1)) )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+		def IsNodeOrFromNodeOrFromNamedParam()
+			return This.IsNodeOrFromOrFromNodeNamedParam()
+
+		def IsFromNodeOrNodeOrFromNamedParam()
+			return This.IsNodeOrFromOrFromNodeNamedParam()
+
+		def IsFromNodeOrFromOrNodeNamedParam()
+			return This.IsNodeOrFromOrFromNodeNamedParam()
+
+	def IsNodeOrNodesOrFromOrFromNodeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  ring_find([ "from", "fromnode", "node", "nodes" ], This.Item(1)) )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+		def IsFromOrFromNodeOrNodeOrNodesNamedParam()
+			return This.IsNodeOrNodesOrFromOrFromNodeNamedParam()
 
 	def IsToTheseNamedParam()
 		if This.NumberOfItems() = 2 and
@@ -93032,21 +93087,6 @@ fdef
 
 		def IsOfPositionOrOfNamedPAram()
 			return This.IsOfOrOfPositionNamedPAram()
-
-	def IsToOrToPositionOrToNodeNamedParam()
-		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and ring_find([ "to", "toposition", "tonode" ], This.Item(1)) > 0 )
-
-			return 1
-		else
-			return 0
-		ok
-
-		def IsToOrToNodeOrToPositionNamedParam()
-			return This.IsToOrToPositionOrToNodeNamedParam()
-	
-		def IsToNodeOrToOrToPsoitionNamedPAram()
-			return This.IsToOrToPositionOrToNodeNamedParam()
 
 	def IsWithOrWithNodeNamedparam()
 		if This.NumberOfItems() = 2 and
