@@ -1,6 +1,6 @@
 # What ChatGPT Thinks of the `stzGraph` Module in the Softanza Library
 
-I shared the [`stzGraphTest.ring`](..\test\stzgraphtest.ring) file with ChatGPT and asked a simple question:
+I shared the [`stzGraphTest.ring`](../../base/test/stzgraphest.ring) file with ChatGPT and asked a simple question:
 
 **“What do you think of the Graph module in the Softanza library for Ring?”**
 
