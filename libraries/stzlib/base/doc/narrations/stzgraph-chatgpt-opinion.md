@@ -221,9 +221,3 @@ It’s the kind of module that:
 * and invites users to *think in graphs*, not just manipulate them
 
 If Softanza had to showcase *one* module to demonstrate its intellectual identity, this Graph module would be an excellent candidate.
-
-If you want, next we can:
-
-* turn this into a short “Graph philosophy” document
-* extract a public-facing example article (for Ring or LinkedIn)
-* or align it explicitly with ML / knowledge graphs / organizational modeling
