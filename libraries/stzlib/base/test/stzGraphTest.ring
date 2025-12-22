@@ -163,7 +163,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- Undirected Graph Support (via bidirectional edges)
-*/
+
 pr()
 
 oGraph = new stzGraph("UndirectedTest")
@@ -2195,3 +2195,896 @@ oGraph {
 }
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
+
+#==================================#
+#  RULES MANAGEMENT TEST SECTION   #
+#==================================#
+
+/*--- DERIVATION RULES
+*/
+pr()
+
+? BoxRound("DERIVATION RULES - FUNCTION BASED") + NL
+
+# Register derivation rules using built-in functions
+RegisterRule(:workflow, "transitive_access", [
+	:type = :derivation,
+	:function = DerivationFunc_Transitivity(),
+	:message = "Access inherited transitively",
+	:severity = :info
+])
+
+RegisterRule(:security, "symmetric_trust", [
+	:type = :derivation,
+	:function = DerivationFunc_Symmetry(),
+	:message = "Trust is bidirectional",
+	:severity = :info
+])
+
+# Custom derivation function
+RegisterRule(:business, "manager_approval", [
+	:type = :derivation,
+	:function = func(oGraph) {
+		# Managers can approve all subordinate requests
+		aNewEdges = []
+		aNodes = oGraph.Nodes()
+		nLen = len(aNodes)
+		
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			if oGraph.NodeProperty(aNode[:id], "role") = "manager"
+				cManager = aNode[:id]
+				aSubordinates = oGraph.Neighbors(cManager)
+				
+				nSubLen = len(aSubordinates)
+				for j = 1 to nSubLen
+					cSub = aSubordinates[j]
+					# Manager can approve subordinate's work
+					if NOT oGraph.EdgeExists(cSub, cManager + "_approval")
+						aNewEdges + [cSub, cManager + "_approval", "(can-approve)", [:type = "approval"]]
+					ok
+				next
+			ok
+		next
+		
+		return aNewEdges
+	},
+	:message = "Manager approval rights derived",
+	:severity = :info
+])
+
+# Use the rules
+oGraph = new stzGraph("DerivationTest")
+oGraph {
+	AddNodeXTT("alice", "Alice", [:role = "manager"])
+	AddNodeXTT("bob", "Bob", [:role = "developer"])
+	AddNodeXTT("resource", "Database", [:type = "resource"])
+	
+	Connect("alice", "bob")
+	Connect("bob", "resource")
+	
+	? "Before derivation:"
+	? "  Edges: " + EdgeCount() + NL
+	
+	UseRulesFrom(:workflow)
+	nDerived = ApplyDerivations()
+	
+	? "After derivation:"
+	? "  Edges: " + EdgeCount()
+	? "  Derived: " + nDerived + NL
+	
+	? "Alice can reach resource: " + PathExists("alice", "resource")
+	? @@( "  Path: " + @@(Path("alice", "resource")) ) + NL
+	
+	Show()
+}
+#-->
+`
+╭───────────────────────────────────╮
+│ DERIVATION RULES - FUNCTION BASED │
+╰───────────────────────────────────╯
+
+Before derivation:
+  Edges: 2
+
+After derivation:
+  Edges: 3
+  Derived: 1
+
+Alice can reach resource: 1
+'  Path: [ "alice", "bob", "resource" ]'
+
+        ╭───────╮        
+        │ Alice │        
+        ╰───────╯        
+            |            
+            v            
+         ╭─────╮         
+         │ Bob │         
+         ╰─────╯         
+            |            
+            v            
+      ╭──────────╮       
+      │ Database │       
+      ╰──────────╯       
+
+          ////
+
+        ╭───────╮  ↑
+        │ Alice │──╯
+        ╰───────╯        
+            |            
+      (transitive)       
+            |            
+            v            
+      ╭──────────╮       
+      │ Database │       
+      ╰──────────╯   
+`
+
+pf()
+# Executed in 0.05 second(s) in Ring 1.24
+
+/*--- CONSTRAINT RULES
+
+pr()
+
+? BoxRound("CONSTRAINT RULES - FUNCTION BASED") + NL
+
+# Register constraints using built-in functions
+RegisterRule(:compliance, "no_self_loops", [
+	:type = :constraint,
+	:function = ConstraintFunc_NoSelfLoop(),
+	:params = [],  # Add this
+	:message = "Self-approval not allowed",
+	:severity = :error
+])
+
+RegisterRule(:compliance, "max_reports", [
+	:type = :constraint,
+	:function = ConstraintFunc_MaxDegree(),
+	:params = [:max = 5],  # Move param here
+	:message = "Max 5 direct reports",
+	:severity = :warning
+])
+
+RegisterRule(:security, "sep_finance_audit", [
+	:type = :constraint,
+	:function = ConstraintFunc_Separation(),
+	:params = [:property = "department", :values = ["finance", "audit"]],  # Move params here
+	:message = "Finance and Audit must be separated",
+	:severity = :error
+])
+
+# Custom constraint function
+RegisterRule(:business, "approval_hierarchy", [
+	:type = :constraint,
+	:function = func(oGraph, paRuleParams, paOperationParams) {  # Add paRuleParams
+		# Lower level cannot approve higher level
+		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
+			cFrom = paOperationParams[:from]
+			cTo = paOperationParams[:to]
+			# ... rest of code
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Approval hierarchy violated",
+	:severity = :error
+])
+
+# Use constraints
+oGraph = new stzGraph("ConstraintTest")
+oGraph {
+	AddNodeXTT("john", "John", [:department = "finance", :level = 2])
+	AddNodeXTT("mary", "Mary", [:department = "audit", :level = 2])
+	AddNodeXTT("peter", "Peter", [:department = "engineering", :level = 1])
+	
+	UseRulesFrom(:compliance)
+	UseRulesFrom(:security)
+	UseRulesFrom(:business)
+	
+	? "Testing constraints..." + NL
+	
+	# Test 1: Self-loop
+	aResult = CheckConstraints([:from = "john", :to = "john"])
+	? "1. Self-loop allowed: " + iff(aResult[1] = 1, "TRUE", "FALSE")
+	if NOT aResult[1]
+		? "   Blocked: " + aResult[2][1][:message]
+	ok
+	? ""
+	
+	# Test 2: Separation of duties
+	Connect("john", "peter")
+	Connect("mary", "peter")
+	
+	aResult = CheckConstraints([:from = "john", :to = "mary"])
+	? "2. Finance-Audit connection allowed: " + iff(aResult[1] = 1, "TRUE", "FALSE")
+	if NOT aResult[1]
+		? "   Blocked: " + aResult[2][1][:message]
+		? "   Severity: " + aResult[2][1][:severity]
+	ok
+	? ""
+	
+	# Test 3: Approval hierarchy
+	aResult = CheckConstraints([:from = "peter", :to = "john"])
+	? "3. Junior approving senior allowed: " + iff(aResult[1] = 1, "TRUE", "FALSE")
+	if NOT aResult[1]
+		? "   Blocked: " + aResult[2][1][:message]
+	ok
+}
+#-->
+'
+╭───────────────────────────────────╮
+│ CONSTRAINT RULES - FUNCTION BASED │
+╰───────────────────────────────────╯
+
+Testing constraints...
+
+1. Self-loop allowed: FALSE
+   Blocked: Self-loops not allowed		# John cannot connect to himself
+
+2. Finance-Audit connection allowed: FALSE	# Finance (John) and Audit (Mary) cannot connect
+   Blocked: Separation of duties violation
+   Severity: error
+
+3. Junior approving senior allowed: TRUE
+# Peter (level 1) CAN approve John (level 2) because the rule blocks same-or-lower, not higher levels
+
+'
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
+
+/*--- VALIDATION RULES
+*/
+pr()
+
+? BoxRound("VALIDATION RULES - FUNCTION BASED") + NL
+
+# Register validations using built-in functions
+RegisterRule(:workflow, "must_be_dag", [
+	:type = :validation,
+	:function = ValidationFunc_IsAcyclic(),
+	:params = [],  # Add this
+	:message = "Workflow must be acyclic",
+	:severity = :error
+])
+
+RegisterRule(:workflow, "all_connected", [
+	:type = :validation,
+	:function = ValidationFunc_IsConnected(),
+	:params = [],  # Add this
+	:message = "All nodes must be connected",
+	:severity = :warning
+])
+
+RegisterRule(:optimization, "density_check", [
+	:type = :validation,
+	:function = ValidationFunc_DensityRange(),
+	:params = [:min = 0.2, :max = 0.7],  # Move params here
+	:message = "Density should be 20-70%",
+	:severity = :info
+])
+
+# Custom validation function
+RegisterRule(:business, "single_entry_point", [
+	:type = :validation,
+	:function = func(oGraph, paRuleParams) {  # Add paRuleParams parameter
+		# Graph must have exactly one node with no incoming edges (entry point)
+		nEntryPoints = 0
+		aNodes = oGraph.Nodes()
+		nLen = len(aNodes)
+		
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			if len(oGraph.Incoming(aNode[:id])) = 0
+				nEntryPoints++
+			ok
+		next
+		
+		if nEntryPoints != 1
+			return [FALSE, "Must have exactly one entry point (found " + nEntryPoints + ")"]
+		ok
+		return [TRUE, ""]
+	},
+	:params = [],  # Add this
+	:message = "Single entry point required",
+	:severity = :error
+])
+
+# Use validations
+oGraph = new stzGraph("ValidationTest")
+oGraph {
+	AddNode("start")
+	AddNode("process")
+	AddNode("end")
+	
+	Connect("start", "process")
+	Connect("process", "end")
+	
+	UseRulesFrom(:workflow)
+	UseRulesFrom(:optimization)
+	UseRulesFrom(:business)
+	
+	? "Validating graph..." + NL
+	
+	aResult = ValidateGraph()
+	? "Graph valid: " + iff(aResult[1] = 1, "TRUE", "FALSE")
+	
+	if NOT aResult[1]
+		? "Violations found:"
+		nLen = len(aResult[2])
+		for i = 1 to nLen
+			aViolation = aResult[2][i]
+			? "  - " + aViolation[:rule]
+			? "    " + aViolation[:message]
+			? "    Severity: " + aViolation[:severity]
+			? ""
+		next
+	else
+		? "All validations passed!" + NL
+	ok
+	
+	# Add a cycle
+	? "Adding cycle..." + NL
+	Connect("end", "start")
+	
+	aResult = ValidateGraph()
+	? "Graph valid: " + iff(aResult[1] = 1, "TRUE", "FALSE" ) + NL
+	
+	if NOT aResult[1]
+		nLen = len(aResult[2])
+		for i = 1 to nLen
+			aViolation = aResult[2][i]
+			? "  - " + aViolation[:rule] + ": " + aViolation[:message]
+		next
+	ok
+	
+	? ""
+	Show() #ERR
+}
+#-->
+'
+╭───────────────────────────────────╮
+│ VALIDATION RULES - FUNCTION BASED │
+╰───────────────────────────────────╯
+
+Validating graph...
+
+Graph valid: TRUE
+All validations passed!
+
+Adding cycle...
+
+Graph valid: FALSE
+
+  - must_be_dag: Graph contains cycles
+  - single_entry_point: Must have exactly one entry point (found 0)
+'
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
+
+/*------------- VALIDATION RULES
+*/
+pr()
+
+? BoxRound("VALIDATION RULES - FUNCTION BASED") + NL
+
+# Register validations using built-in functions
+RegisterRule(:workflow, "must_be_dag", [
+	:type = :validation,
+	:function = ValidationFunc_IsAcyclic(),
+	:params = [],  # Add this
+	:message = "Workflow must be acyclic",
+	:severity = :error
+])
+
+RegisterRule(:workflow, "all_connected", [
+	:type = :validation,
+	:function = ValidationFunc_IsConnected(),
+	:params = [],  # Add this
+	:message = "All nodes must be connected",
+	:severity = :warning
+])
+
+RegisterRule(:optimization, "density_check", [
+	:type = :validation,
+	:function = ValidationFunc_DensityRange(),
+	:params = [:min = 0.2, :max = 0.7],  # Move params here
+	:message = "Density should be 20-70%",
+	:severity = :info
+])
+
+# Custom validation function
+RegisterRule(:business, "single_entry_point", [
+	:type = :validation,
+	:function = func(oGraph, paRuleParams) {  # Add paRuleParams parameter
+		# Graph must have exactly one node with no incoming edges (entry point)
+		nEntryPoints = 0
+		aNodes = oGraph.Nodes()
+		nLen = len(aNodes)
+		
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			if len(oGraph.Incoming(aNode[:id])) = 0
+				nEntryPoints++
+			ok
+		next
+		
+		if nEntryPoints != 1
+			return [FALSE, "Must have exactly one entry point (found " + nEntryPoints + ")"]
+		ok
+		return [TRUE, ""]
+	},
+	:params = [],  # Add this
+	:message = "Single entry point required",
+	:severity = :error
+])
+
+# Use validations
+oGraph = new stzGraph("ValidationTest")
+oGraph {
+	AddNode("start")
+	AddNode("process")
+	AddNode("end")
+	
+	Connect("start", "process")
+	Connect("process", "end")
+	
+	UseRulesFrom(:workflow)
+	UseRulesFrom(:optimization)
+	UseRulesFrom(:business)
+	
+	? "Validating graph..." + NL
+	
+	aResult = ValidateGraph()
+	? "Graph valid: " + iff(aResult[1] = 1, "TRUE", "FALSE")
+	
+	if NOT aResult[1]
+		? "Violations found:"
+		nLen = len(aResult[2])
+		for i = 1 to nLen
+			aViolation = aResult[2][i]
+			? "  - " + aViolation[:rule]
+			? "    " + aViolation[:message]
+			? "    Severity: " + aViolation[:severity]
+			? ""
+		next
+	else
+		? "All validations passed!" + NL
+	ok
+	
+	# Add a cycle
+	? "Adding cycle..." + NL
+	Connect("end", "start")
+	
+	aResult = ValidateGraph()
+	? "Graph valid: " + iff(aResult[1] = 1, "TRUE", "FALSE" ) + NL
+	
+	if NOT aResult[1]
+		nLen = len(aResult[2])
+		for i = 1 to nLen
+			aViolation = aResult[2][i]
+			? "  - " + aViolation[:rule] + ": " + aViolation[:message]
+		next
+	ok
+	
+	? ""
+	Show() #ERR
+}
+#-->
+'
+Validating graph...
+
+Graph valid: TRUE
+All validations passed!
+
+Adding cycle...
+
+Graph valid: FALSE
+
+  - must_be_dag: Graph contains cycles
+  - single_entry_point: Must have exactly one entry point (found 0)
+'
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
+
+/*------------- CUSTOM RULES - UNLIMITED FLEXIBILITY
+
+pr()
+
+? BoxRound("CUSTOM RULES - PROJECT MANAGEMENT") + NL
+
+# 1. Derivation: Auto-add test tasks for features
+RegisterRule(:project, "auto_testing", [
+	:type = :derivation,
+	:function = func(oGraph, paRuleParams) {
+		aNewEdges = []
+		aNodes = oGraph.Nodes()
+		nLen = len(aNodes)
+		
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			if oGraph.NodeProperty(aNode[:id], "type") = "feature"
+				cFeature = aNode[:id]
+				cTestNode = cFeature + "_test"
+				
+				# Add test node if doesn't exist
+				if NOT oGraph.NodeExists(cTestNode)
+					oGraph.AddNodeXTT(cTestNode, "Test: " + aNode[:label], [:type = "test"])
+				ok
+				
+				# Feature must be done before test
+				if NOT oGraph.EdgeExists(cFeature, cTestNode)
+					aNewEdges + [cFeature, cTestNode, "(test-after)", [:auto = TRUE]]
+				ok
+			ok
+		next
+		
+		return aNewEdges
+	},
+	:params = [],
+	:message = "Auto-generated test tasks",
+	:severity = :info
+])
+
+# 2. Constraint: Features can't depend on tests
+RegisterRule(:project, "no_test_deps", [
+	:type = :constraint,
+	:function = func(oGraph, paRuleParams, paOperationParams) {
+		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
+			cFrom = paOperationParams[:from]
+			cTo = paOperationParams[:to]
+			
+			if oGraph.NodeExists(cFrom) and oGraph.NodeExists(cTo)
+				cFromType = oGraph.NodeProperty(cFrom, "type")
+				cToType = oGraph.NodeProperty(cTo, "type")
+				
+				if cFromType = "feature" and cToType = "test"
+					return [TRUE, "Features cannot depend on tests"]
+				ok
+			ok
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Invalid feature->test dependency",
+	:severity = :error
+])
+
+# 3. Validation: All features must have tests
+RegisterRule(:project, "complete_testing", [
+	:type = :validation,
+	:function = func(oGraph, paRuleParams) {
+		aNodes = oGraph.Nodes()
+		nLen = len(aNodes)
+		nFeatures = 0
+		nTests = 0
+		
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			cType = oGraph.NodeProperty(aNode[:id], "type")
+			if cType = "feature"
+				nFeatures++
+			but cType = "test"
+				nTests++
+			ok
+		next
+		
+		if nTests < nFeatures
+			return [FALSE, "Not all features have tests (" + nTests + "/" + nFeatures + ")"]
+		ok
+		return [TRUE, ""]
+	},
+	:params = [],
+	:message = "Incomplete test coverage",
+	:severity = :warning
+])
+
+# Use all custom rules
+oGraph = new stzGraph("ProjectPlan")
+oGraph {
+	AddNodeXTT("login", "Login Feature", [:type = "feature", :priority = 1])
+	AddNodeXTT("dashboard", "Dashboard Feature", [:type = "feature", :priority = 2])
+	AddNodeXTT("reports", "Reports Feature", [:type = "feature", :priority = 3])
+	
+	Connect("login", "dashboard")
+	Connect("dashboard", "reports")
+	
+	UseRulesFrom(:project)
+	
+	? "Initial project:"
+	? "  Features: 3"
+	? "  Tests: 0" + NL
+	
+	? "Applying derivation rules..."
+	nDerived = ApplyDerivations()
+	? "  Generated: " + nDerived + " test tasks" + NL
+	
+	? "Final project:"
+	? "  Total nodes: " + NodeCount()
+	? "  Total edges: " + EdgeCount() + NL
+	
+	? "Validating project..."
+	aResult = ValidateGraph()
+	? "  Valid: " + iff(aResult[1] = 1, "TRUE", "FALSE")
+	
+	if NOT aResult[1]
+		? "  Issues:"
+		nLen = len(aResult[2])
+		for i = 1 to nLen
+			? "    - " + aResult[2][i][:message]
+		next
+	ok
+	? ""
+	
+	? @@NL( RulesSummary() )
+	
+	Show()
+}
+#-->
+`
+╭───────────────────────────────────╮
+│ CUSTOM RULES - PROJECT MANAGEMENT │
+╰───────────────────────────────────╯
+
+Initial project:
+  Features: 3
+  Tests: 0
+
+Applying derivation rules...
+  Generated: 3 test tasks
+
+Final project:
+  Total nodes: 6
+  Total edges: 5
+
+Validating project...
+  Valid: TRUE
+
+[
+	[
+		"derivations",
+		[ "auto_testing" ]
+	],
+	[
+		"constraints",
+		[ "no_test_deps" ]
+	],
+	[
+		"validations",
+		[ "complete_testing" ]
+	],
+	[
+		"applied",
+		[ "auto_testing" ]
+	],
+	[ "violations", [  ] ]
+]
+   ╭─────────────────╮   
+   │ !Login Feature! │   
+   ╰─────────────────╯   
+            |            
+            v            
+ ╭─────────────────────╮ 
+ │ !Dashboard Feature! │ 
+ ╰─────────────────────╯ 
+            |            
+            v            
+  ╭───────────────────╮  
+  │ !Reports Feature! │  
+  ╰───────────────────╯  
+            |            
+      (test-after)       
+            |            
+            v            
+╭───────────────────────╮
+│ Test: Reports Feature │
+╰───────────────────────╯
+
+          ////
+
+ ╭─────────────────────╮  ↑
+ │ !Dashboard Feature! │──╯
+ ╰─────────────────────╯ 
+            |            
+      (test-after)       
+            |            
+            v            
+╭─────────────────────────╮
+│ Test: Dashboard Feature │
+╰─────────────────────────╯
+
+          ////
+
+   ╭─────────────────╮  ↑
+   │ !Login Feature! │──╯
+   ╰─────────────────╯   
+            |            
+      (test-after)       
+            |            
+            v            
+ ╭─────────────────────╮ 
+ │ Test: Login Feature │ 
+ ╰─────────────────────╯ 
+`
+
+pf()
+# Executed in 0.08 second(s) in Ring 1.24
+
+/*------------- REAL-WORLD: ACCESS CONTROL
+
+pr()
+
+? BoxRound("REAL-WORLD: ACCESS CONTROL SYSTEM") + NL
+
+# Complete access control with function-based rules
+
+RegisterRule(:access, "inherit_permissions", [
+	:type = :derivation,
+	:function = DerivationFunc_Transitivity(),
+	:params = [],
+	:message = "Permissions inherited",
+	:severity = :info
+])
+
+RegisterRule(:access, "no_privilege_escalation", [
+	:type = :constraint,
+	:function = func(oGraph, paRuleParams, paOperationParams) {
+		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
+			cFrom = paOperationParams[:from]
+			cTo = paOperationParams[:to]
+			
+			if oGraph.NodeExists(cFrom) and oGraph.NodeExists(cTo)
+				cFromType = oGraph.NodeProperty(cFrom, "type")
+				cToType = oGraph.NodeProperty(cTo, "type")
+				nFromLevel = oGraph.NodeProperty(cFrom, "security_level")
+				nToLevel = oGraph.NodeProperty(cTo, "security_level")
+				
+				if cFromType = "user" and cToType = "resource"
+					if isNumber(nFromLevel) and isNumber(nToLevel)
+						if nFromLevel < nToLevel
+							return [TRUE, "Insufficient security clearance"]
+						ok
+					ok
+				ok
+			ok
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Privilege escalation blocked",
+	:severity = :error
+])
+
+RegisterRule(:access, "audit_compliance", [
+	:type = :validation,
+	:function = func(oGraph, paRuleParams) {
+		# All sensitive resources must have audit trail
+		aNodes = oGraph.Nodes()
+		nLen = len(aNodes)
+		nSensitive = 0
+		nAudited = 0
+		
+		for i = 1 to nLen
+			aNode = aNodes[i]
+			if oGraph.NodeProperty(aNode[:id], "sensitive") = TRUE
+				nSensitive++
+				if oGraph.NodeProperty(aNode[:id], "audited") = TRUE
+					nAudited++
+				ok
+			ok
+		next
+		
+		if nAudited < nSensitive
+			return [FALSE, "Not all sensitive resources audited (" + nAudited + "/" + nSensitive + ")"]
+		ok
+		return [TRUE, ""]
+	},
+	:params = [],
+	:message = "Audit compliance check",
+	:severity = :error
+])
+
+oGraph = new stzGraph("EnterpriseAccess")
+oGraph {
+	# Users
+	AddNodeXTT("alice", "Alice (Admin)", [:type = "user", :security_level = 3])
+	AddNodeXTT("bob", "Bob (Manager)", [:type = "user", :security_level = 2])
+	AddNodeXTT("charlie", "Charlie (Staff)", [:type = "user", :security_level = 1])
+	
+	# Groups
+	AddNodeXTT("admins", "Administrators", [:type = "group"])
+	AddNodeXTT("managers", "Managers", [:type = "group"])
+	
+	# Resources
+	AddNodeXTT("db_prod", "Production DB", [:type = "resource", :security_level = 3, :sensitive = TRUE, :audited = TRUE])
+	AddNodeXTT("db_dev", "Development DB", [:type = "resource", :security_level = 1, :sensitive = FALSE, :audited = FALSE])
+	
+	UseRulesFrom(:access)
+	
+	? "Setting up access control..."
+	Connect("alice", "admins")
+	Connect("bob", "managers")
+	Connect("admins", "db_prod")
+	Connect("managers", "db_dev")
+	Connect("charlie", "managers")
+	
+	? "  Direct relationships: " + EdgeCount() + NL
+	
+	? "Deriving transitive access..."
+	nDerived = ApplyDerivations()
+	? "  Derived: " + nDerived
+	? "  Total: " + EdgeCount() + NL
+	
+	? "Access check:"
+	? "  Alice -> db_prod: " + PathExists("alice", "db_prod")
+	? "  Bob -> db_dev: " + PathExists("bob", "db_dev")
+	? "  Charlie -> db_dev: " + PathExists("charlie", "db_dev")
+	? "  Charlie -> db_prod: " + PathExists("charlie", "db_prod")
+	? ""
+	
+	? "Testing privilege escalation..."
+	aResult = CheckConstraints([:from = "charlie", :to = "db_prod"])
+	? "  Charlie can access prod: " + aResult[1]
+	if NOT aResult[1]
+		? "  Blocked: " + aResult[2][1][:message]
+	ok
+	? ""
+	
+	? "Compliance validation..."
+	aResult = ValidateGraph()
+	? "  Compliant: " + aResult[1]
+	if NOT aResult[1]
+		nLen = len(aResult[2])
+		for i = 1 to nLen
+			? "  Issue: " + aResult[2][i][:message]
+		next
+	ok
+	
+	? ""
+	ShowH() # For ascii-based visualisation
+//	View() # For sophisticated graphiz-based visualisation
+}
+#-->
+'
+╭───────────────────────────────────╮
+│ REAL-WORLD: ACCESS CONTROL SYSTEM │
+╰───────────────────────────────────╯
+
+Setting up access control...
+  Direct relationships: 5
+
+Deriving transitive access...
+  Derived: 3
+  Total: 8
+
+Access check:
+  Alice -> db_prod: 1
+  Bob -> db_dev: 1
+  Charlie -> db_dev: 1
+  Charlie -> db_prod: 0
+
+Testing privilege escalation...
+  Charlie can access prod: 0
+  Blocked: Insufficient security clearance
+
+Compliance validation...
+  Compliant: 1
+
+╭───────────────╮     ╭────────────────╮     ╭───────────────╮
+│ Alice (Admin) │---->│ Administrators │---->│ Production DB │
+╰───────────────╯     ╰────────────────╯     ╰───────────────╯
+╭───────────────╮     ╭────────────╮     ╭──────────────────╮
+│ Bob (Manager) │---->│ !Managers! │---->│ !Development DB! │
+╰───────────────╯     ╰────────────╯     ╰──────────────────╯
+╭─────────────────╮     ╭────────────╮     ╭──────────────────╮
+│ Charlie (Staff) │---->│ !Managers! │---->│ !Development DB! │
+╰─────────────────╯     ╰────────────╯ 
+'
+
+pf()
+# Executed in 0.08 second(s) in Ring 1.24

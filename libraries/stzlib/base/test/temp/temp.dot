@@ -1,16 +1,21 @@
-digraph SocialNetwork {
+digraph EnterpriseAccess {
   rankdir=TD;
   node [shape=box];
 
-  alice [label="alice"];
-  bob [label="bob"];
-  charlie [label="charlie"];
-  diana [label="diana"];
-  eve [label="eve"];
+  alice [label="Alice (Admin)"];
+  bob [label="Bob (Manager)"];
+  charlie [label="Charlie (Staff)"];
+  admins [label="Administrators"];
+  managers [label="Managers"];
+  db_prod [label="Production DB"];
+  db_dev [label="Development DB"];
 
-  alice -> bob;
-  bob -> charlie;
-  bob -> diana;
-  charlie -> diana;
-  diana -> eve;
+  alice -> admins;
+  bob -> managers;
+  admins -> db_prod;
+  managers -> db_dev;
+  charlie -> managers;
+  alice -> db_prod [label="(transitive)"];
+  bob -> db_dev [label="(transitive)"];
+  charlie -> db_dev [label="(transitive)"];
 }

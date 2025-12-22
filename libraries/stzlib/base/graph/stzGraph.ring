@@ -3,6 +3,8 @@
 #  Simplified rules, all methods preserved   #
 #============================================#
 
+load "stzGraphRule.ring"
+
 $acGraphDefaultValidators = ["dag", "reachability", "completeness"]
 
 func GraphDefaultValidators()
@@ -36,6 +38,8 @@ class stzGraph
 	@aAffectedEdges = []  # [ [edgeKey, [ruleIds]], ... ]
 	
 	@aProperties = []
+
+	@bEnforceConstraints = FALSE
 
 	def init(pcId)
 		@cId = pcId
@@ -1574,204 +1578,6 @@ class stzGraph
 		
 		return acResult
 
-	#================================================#
-	#  SIMPLIFIED RULE SYSTEM - Direct Application   #
-	#================================================#
-
-	# Add validation rule as simple data structure
-	def AddValidationRule(pcId, paCondition, paEffects)
-		@aRules + [
-			:id = pcId,
-			:type = "validation",
-			:cond = paCondition,
-			:effects = paEffects
-		]
-
-	# Add inference rule
-	def AddInferenceRule(pcId, paCondition, paEffects)
-		@aRules + [
-			:id = pcId,
-			:type = "inference",
-			:cond = paCondition,
-			:effects = paEffects
-		]
-
-	# Apply all rules
-	def ApplyRules()
-		This.ApplyValidation()
-		This.ApplyInference()
-
-	# Apply validation rules to nodes
-	def ApplyValidation()
-		for aRule in @aRules
-			if aRule[:type] != "validation"
-				loop
-			ok
-			
-			for aNode in @aNodes
-				if This._MatchesCondition(aNode, aRule[:cond])
-					This._ApplyEffects(aNode[:id], aRule[:effects])
-					This._TrackAffected(aNode[:id], aRule[:id])
-				ok
-			end
-		end
-
-	# Apply inference rules (transitivity, etc.)
-	def ApplyInference()
-		nAdded = 0
-		
-		for aRule in @aRules
-			if aRule[:type] != "inference"
-				loop
-			ok
-			
-			# Check for built-in inference types
-			if aRule[:cond][1] = :transitivity
-				# Add transitive edges: if a->b and b->c exist, add a->c
-				for aEdge1 in @aEdges
-					for aEdge2 in @aEdges
-						if aEdge1[:to] = aEdge2[:from]
-							cFrom = aEdge1[:from]
-							cTo = aEdge2[:to]
-							
-							# Check if edge doesn't already exist
-							bExists = FALSE
-							for aEdge in @aEdges
-								if aEdge[:from] = cFrom and aEdge[:to] = cTo
-									bExists = TRUE
-									exit
-								ok
-							end
-							
-							if not bExists and cFrom != cTo
-								@aEdges + [
-									:from = cFrom,
-									:to = cTo,
-									:label = "(inferred-transitive)",
-									:properties = [:inferred = TRUE]
-								]
-								nAdded++
-							ok
-						ok
-					end
-				end
-			ok
-		end
-		
-		return nAdded
-
-	# Check if condition matches node
-	def _MatchesCondition(aNode, paCondition)
-		if paCondition[1] = :always
-			return TRUE
-		ok
-		
-		if len(paCondition) = 3
-			cKey = paCondition[1]
-			cOp = paCondition[2]
-			pValue = paCondition[3]
-			
-			if not HasKey(aNode[:properties], cKey)
-				return FALSE
-			ok
-			
-			pActual = aNode[:properties][cKey]
-			
-			switch cOp
-				on :equals
-					return pActual = pValue
-				on :greaterthan
-					return pActual > pValue
-				on :lessthan
-					return pActual < pValue
-			off
-		ok
-		
-		return FALSE
-
-	# Apply effects to node
-	def _ApplyEffects(pcNodeId, paEffects)
-		for aEffect in paEffects
-			cAction = aEffect[1]
-			cTarget = aEffect[2]
-			pValue = aEffect[3]
-			
-			if cAction = :set
-				This.SetNodeProperty(pcNodeId, cTarget, pValue)
-			ok
-		end
-
-	# Track which nodes were affected by which rules
-	def _TrackAffected(pcNodeId, pcRuleId)
-		nPos = 0
-		for i = 1 to len(@aAffectedNodes)
-			if @aAffectedNodes[i][1] = pcNodeId
-				nPos = i
-				exit
-			ok
-		end
-		
-		if nPos = 0
-			@aAffectedNodes + [pcNodeId, [pcRuleId]]
-		else
-			@aAffectedNodes[nPos][2] + pcRuleId
-		ok
-
-	# Get nodes affected by specific rule
-	def NodesAffectedByRule(pcRuleId)
-		acResult = []
-		for aEntry in @aAffectedNodes
-			if ring_find(aEntry[2], pcRuleId) > 0
-				acResult + aEntry[1]
-			ok
-		end
-		return acResult
-
-	# Get all affected nodes
-	def NodesAffectedByRules()
-		acResult = []
-		for aEntry in @aAffectedNodes
-			acResult + aEntry[1]
-		end
-		return acResult
-
-		def NodesAffected()
-			return This.NodesAffectedByRules()
-
-		def AffectedNodes()
-			return This.NodesAffectedByRules()
-
-	# Get all rules that were applied
-	def RulesApplied()
-		acRuleIds = []
-		for aRule in @aRules
-			for aEntry in @aAffectedNodes
-				if ring_find(aEntry[2], aRule[:id]) > 0
-					if ring_find(acRuleIds, aRule[:id]) = 0
-						acRuleIds + aRule[:id]
-					ok
-					exit
-				ok
-			end
-		end
-		return acRuleIds
-
-		def AppliedRules()
-			return This.RulesApplied()
-
-	def InferredEdges()
-		acInferred = []
-		nEdgeLen = len(@aEdges)
-		
-		for i = 1 to nEdgeLen
-			aEdge = @aEdges[i]
-			if substr(aEdge[:label], "(inferred") > 0
-				acInferred + aEdge
-			ok
-		end
-		
-		return acInferred
-
 	#------------------------------------------------#
 	#  RICH QUERYING - BASED ON stzGraphQuery CLASS  #
 	#------------------------------------------------#
@@ -2458,32 +2264,6 @@ class stzGraph
 		def ShowV()
 			This.ShowVertical()
 
-/*
-	def Explain()
-		aResult = []
-
-		aResult + "Graph: " + @cId
-		aResult + "Nodes: " + len(@aNodes) + " | Edges: " + len(@aEdges)
-		aResult + ""
-	
-		nDensity = This.NodeDensity() * 100
-		aResult + "Density: " + nDensity + "%"
-	
-		if This.CyclicDependencies()
-			aResult + "WARNING: Contains cycles"
-		else
-			aResult + "Acyclic (DAG)"
-		ok
-	
-		aResult + ""
-		aResult + "Rules: " + len(@aRules)
-		for aRule in @aRules
-			aResult + "  - " + aRule[:id] + " [" + aRule[:type] + "]"
-		end
-	
-		return aResult
-*/
-
 	def Explain()
 		aExplanation = [
 			:general = [],
@@ -2594,8 +2374,257 @@ class stzGraph
 		
 		return aExplanation
 
+	#------------------#
+	#  RULE MANAGEMENT #
+	#------------------#
+	
+	def AddDerivationRule(pcName, pFunc, paParams, pcMessage, pcSeverity)
+		@aRules + [
+			:name = pcName,
+			:type = :derivation,
+			:function = pFunc,
+			:params = paParams,
+			:message = pcMessage,
+			:severity = pcSeverity
+		]
+	
+	def AddConstraintRule(pcName, pFunc, paParams, pcMessage, pcSeverity)
+		@aRules + [
+			:name = pcName,
+			:type = :constraint,
+			:function = pFunc,
+			:params = paParams,
+			:message = pcMessage,
+			:severity = pcSeverity
+		]
+	
+	def AddValidationRule(pcName, pFunc, paParams, pcMessage, pcSeverity)
+		@aRules + [
+			:name = pcName,
+			:type = :validation,
+			:function = pFunc,
+			:params = paParams,
+			:message = pcMessage,
+			:severity = pcSeverity
+		]
+	
+	def UseRules(paRules)
+		nLen = len(paRules)
+		for i = 1 to nLen
+			aRule = paRules[i]
+			cType = aRule[:type]
+			
+			if cType = :derivation
+				This.AddDerivationRule(aRule[:name], aRule[:function], aRule[:params], aRule[:message], aRule[:severity])
+			but cType = :constraint
+				This.AddConstraintRule(aRule[:name], aRule[:function], aRule[:params], aRule[:message], aRule[:severity])
+			but cType = :validation
+				This.AddValidationRule(aRule[:name], aRule[:function], aRule[:params], aRule[:message], aRule[:severity])
+			ok
+		next
+	
+	def UseRulesFrom(pcTheme)
+		if HasKey($GraphRules, pcTheme)
+			This.UseRules($GraphRules[pcTheme])
+		ok
+	
+	def ApplyDerivations()
+		nAdded = 0
+		nLen = len(@aRules)
+		
+		for i = 1 to nLen
+			aRule = @aRules[i]
+			if aRule[:type] != :derivation
+				loop
+			ok
+			
+			# Call derivation function with params
+			pFunc = aRule[:function]
+			paParams = aRule[:params]
+			aNewEdges = call pFunc(This, paParams)
+			
+			# Add derived edges
+			nEdgesLen = len(aNewEdges)
+			for j = 1 to nEdgesLen
+				aEdge = aNewEdges[j]
+				cFrom = aEdge[1]
+				cTo = aEdge[2]
+				cLabel = aEdge[3]
+				aProps = aEdge[4]
+				
+				if NOT This.EdgeExists(cFrom, cTo)
+					This.AddEdgeXTT(cFrom, cTo, cLabel, aProps)
+					nAdded++
+					This._TrackRuleApplication(aRule[:name], :edge, cFrom + "->" + cTo)
+				ok
+			next
+		next
+		
+		return nAdded
+	
+	def CheckConstraints(paOperationParams)
+		aViolations = []
+		nLen = len(@aRules)
+		
+		for i = 1 to nLen
+			aRule = @aRules[i]
+			if aRule[:type] != :constraint
+				loop
+			ok
+			
+			# Call constraint function with both params
+			pFunc = aRule[:function]
+			paRuleParams = aRule[:params]
+			aResult = call pFunc(This, paRuleParams, paOperationParams)
+			
+			bBlocked = aResult[1]
+			cMessage = aResult[2]
+			
+			if bBlocked
+				aViolations + [
+					:rule = aRule[:name],
+					:message = iif(cMessage = "", aRule[:message], cMessage),
+					:severity = aRule[:severity],
+					:params = paOperationParams
+				]
+			ok
+		next
+		
+		bSuccess = (len(aViolations) = 0)
+		return [bSuccess, aViolations]
+	
+	def ValidateGraph()
+		aViolations = []
+		nLen = len(@aRules)
+		
+		for i = 1 to nLen
+			aRule = @aRules[i]
+			if aRule[:type] != :validation
+				loop
+			ok
+			
+			# Call validation function with params
+			pFunc = aRule[:function]
+			paParams = aRule[:params]
+			aResult = call pFunc(This, paParams)
+			
+			bValid = aResult[1]
+			cMessage = aResult[2]
+			
+			if NOT bValid
+				aViolations + [
+					:rule = aRule[:name],
+					:message = iif(cMessage = "", aRule[:message], cMessage),
+					:severity = aRule[:severity]
+				]
+			ok
+		next
+		
+		bValid = (len(aViolations) = 0)
+		return [bValid, aViolations]
+	
+	def RulesApplied()
+		acRuleIds = []
+		nLen = len(@aAffectedNodes)
+		
+		for i = 1 to nLen
+			aEntry = @aAffectedNodes[i]
+			nRulesLen = len(aEntry[2])
+			for j = 1 to nRulesLen
+				cRule = aEntry[2][j]
+				if ring_find(acRuleIds, cRule) = 0
+					acRuleIds + cRule
+				ok
+			next
+		next
+		
+		nLen = len(@aAffectedEdges)
+		for i = 1 to nLen
+			aEntry = @aAffectedEdges[i]
+			nRulesLen = len(aEntry[2])
+			for j = 1 to nRulesLen
+				cRule = aEntry[2][j]
+				if ring_find(acRuleIds, cRule) = 0
+					acRuleIds + cRule
+				ok
+			next
+		next
+		
+		return acRuleIds
+	
+	def EnforceConstraints()
+		@bEnforceConstraints = TRUE
+	
+	def DisableConstraints()
+		@bEnforceConstraints = FALSE
+	
+	def RulesSummary()
+		aSummary = [
+			:derivations = [],
+			:constraints = [],
+			:validations = [],
+			:applied = [],
+			:violations = []
+		]
+		
+		nLen = len(@aRules)
+		for i = 1 to nLen
+			aRule = @aRules[i]
+			cType = aRule[:type]
+			
+			if cType = :derivation
+				aSummary[:derivations] + aRule[:name]
+			but cType = :constraint
+				aSummary[:constraints] + aRule[:name]
+			but cType = :validation
+				aSummary[:validations] + aRule[:name]
+			ok
+		next
+		
+		aSummary[:applied] = This.RulesApplied()
+		
+		return aSummary
+	
+	def _TrackRuleApplication(pcRuleName, pcTargetType, pcTargetId)
+		if pcTargetType = :node
+			nPos = 0
+			nLen = len(@aAffectedNodes)
+			for i = 1 to nLen
+				if @aAffectedNodes[i][1] = pcTargetId
+					nPos = i
+					exit
+				ok
+			next
+			
+			if nPos = 0
+				@aAffectedNodes + [pcTargetId, [pcRuleName]]
+			else
+				if ring_find(@aAffectedNodes[nPos][2], pcRuleName) = 0
+					@aAffectedNodes[nPos][2] + pcRuleName
+				ok
+			ok
+			
+		but pcTargetType = :edge
+			nPos = 0
+			nLen = len(@aAffectedEdges)
+			for i = 1 to nLen
+				if @aAffectedEdges[i][1] = pcTargetId
+					nPos = i
+					exit
+				ok
+			next
+			
+			if nPos = 0
+				@aAffectedEdges + [pcTargetId, [pcRuleName]]
+			else
+				if ring_find(@aAffectedEdges[nPos][2], pcRuleName) = 0
+					@aAffectedEdges[nPos][2] + pcRuleName
+				ok
+			ok
+		ok
+
 #========================================#
-# stzGraphQuery - Keep Separate (Works)
+# stzGraphQuery - Keep Separate (Works)  #
 #========================================#
 
 class stzGraphQuery
@@ -2974,11 +3003,14 @@ class stzGraphAsciiVisualizer
 			else
 				aEdge = @oGraph.Edge(pcNodeId, cNext)
 				cNodeLabel = This._GetDisplayLabel(cNext, pacDisplayNodes)
-				cArrowLine = RepeatChar(" ", 12) + @cPipeChar + RepeatChar(" ", stzlen("[" + cNodeLabel + "]") + 7) + @cArrowUp
+				cEdgeLabel = ""
+				if aEdge != NULL and isString(aEdge["label"])
+					cEdgeLabel = aEdge["label"]
+				ok
 				
 				? "            |            "
-				? "      <" + @cCycleIndicator + ": " + aEdge["label"] + ">   "
-				? cArrowLine
+				? "      <" + @cCycleIndicator + ": " + cEdgeLabel + ">   "
+				? "            |                      " + @cArrowUp
 				? "            " + @cBoxBottomLeft + @cBoxHorizontal + @cBoxHorizontal + "> [" + cNodeLabel + "] " + @cBoxHorizontal + @cBoxHorizontal + @cBoxBottomRight
 			ok
 		end
