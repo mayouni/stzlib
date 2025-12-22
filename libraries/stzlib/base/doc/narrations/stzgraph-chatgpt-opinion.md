@@ -8,7 +8,7 @@ What followed genuinely surprised me.
 
 The analysis went far beyond surface-level feedback: it captured the _design philosophy_, the _architectural intentions_, and even the _foundational role_ I deliberately embedded in this module. It articulated, with remarkable precision, choices that were never explicitly documented—but carefully engineered.
 
-It even surprised me by beeing aware of the partnership Softanza project signed with the ESPA-MT school in Niamey last week !
+What surprised me even more was its awareness of the **Softanza partnership recently signed with the ESPA-MT school in Niamey**, just last week—placing the technical discussion in a broader educational and strategic context.
 
 If you’re curious to see how an AI perceives the depth, coherence, and ambition behind **stzGraph**, read on 👇
 
