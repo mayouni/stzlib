@@ -2201,7 +2201,7 @@ pf()
 #==================================#
 
 /*--- DERIVATION RULES
-*/
+
 pr()
 
 ? BoxRound("DERIVATION RULES - FUNCTION BASED") + NL
@@ -2437,7 +2437,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.24
 
 /*--- VALIDATION RULES
-*/
+
 pr()
 
 ? BoxRound("VALIDATION RULES - FUNCTION BASED") + NL
@@ -2567,7 +2567,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.24
 
 /*------------- VALIDATION RULES
-*/
+
 pr()
 
 ? BoxRound("VALIDATION RULES - FUNCTION BASED") + NL
@@ -2672,7 +2672,8 @@ oGraph {
 	ok
 	
 	? ""
-	Show() #ERR
+	View()
+	// Show() #ERR #TODO fix the error when the graph has cyclic call
 }
 #-->
 '
@@ -3088,3 +3089,95 @@ Compliance validation...
 
 pf()
 # Executed in 0.08 second(s) in Ring 1.24
+
+#============================================#
+#  PRACTICAL USE CASE: Graph Type Controls   #
+#  Behavior and Validation                   #
+#============================================#
+
+/*--- STRUCTURAL graphs forbid cycles (org charts, taxonomies)
+
+pr()
+
+o1 = new stzGraph("company_org")
+o1.SetGraphType("structural")
+
+o1.AddNode("ceo")
+o1.AddNode("cto") 
+o1.AddNode("dev")
+
+o1.Connect("ceo", "cto")
+o1.Connect("cto", "dev")
+
+# This should work
+? o1.GraphType() #--> "structural"
+? o1.CyclesAllowed() #--> FALSE
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- FLOW graphs allow cycles (workflows, state machines)
+
+pr()
+
+o1 = new stzGraph("approval_flow")
+o1.SetGraphType("flow")
+
+o1.AddNodes([ "draft", "review", "approved" ])
+
+o1.Connect("draft", "review")
+o1.Connect("review", "approved")
+o1.Connect("review", "draft")  # rejection loop
+
+? o1.GraphType()
+? o1.CyclesAllowed() #--> TRUE
+? o1.HasCyclicDependencies() #--> TRUE
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*--- SEMANTIC graphs track meaning relationships
+*/
+pr()
+
+o1 = new stzGraph("knowledge")
+o1 {
+	SetGraphType("semantic")
+
+	AddNode("cat")
+	AddNode("mammal")
+	AddNode("animal")
+
+	AddEdgeXT("cat", "mammal", "is_a")
+	AddEdgeXT("mammal", "animal", "is_a")
+
+	# Auto-apply transitivity rule for semantic graphs
+	if ShouldAutoDerive()
+		UseDefaultDerivations()
+		nAdded = ApplyDerivations()
+		? "Semantic graph auto-derived " + nAdded + " edges"
+	ok
+
+	# Cat→Animal edge exists?
+	? EdgeExists("cat", "animal")
+	#--> TRUE
+}
+
+pf()
+
+/*--- Type-aware validation
+
+o4 = new stzGraph("mixed_test")
+o4.SetGraphType("structural")
+
+o4.AddNode("a")
+o4.AddNode("b")
+o4.Connect("a", "b")
+o4.Connect("b", "a")  # Creates cycle
+
+aResult = o4.ValidateGraph()
+? nl + "Structural graph with cycle validation:"
+? "Valid? " + aResult[1]  # → FALSE
+if len(aResult[2]) > 0
+    ? "Violation: " + aResult[2][1][:message]  # "Cycles not allowed in structural graphs"
+ok

@@ -1,21 +1,12 @@
-digraph EnterpriseAccess {
+digraph ValidationTest {
   rankdir=TD;
   node [shape=box];
 
-  alice [label="Alice (Admin)"];
-  bob [label="Bob (Manager)"];
-  charlie [label="Charlie (Staff)"];
-  admins [label="Administrators"];
-  managers [label="Managers"];
-  db_prod [label="Production DB"];
-  db_dev [label="Development DB"];
+  start [label="start"];
+  process [label="process"];
+  end [label="end"];
 
-  alice -> admins;
-  bob -> managers;
-  admins -> db_prod;
-  managers -> db_dev;
-  charlie -> managers;
-  alice -> db_prod [label="(transitive)"];
-  bob -> db_dev [label="(transitive)"];
-  charlie -> db_dev [label="(transitive)"];
+  start -> process;
+  process -> end;
+  end -> start;
 }

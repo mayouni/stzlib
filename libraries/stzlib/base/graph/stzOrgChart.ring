@@ -44,6 +44,7 @@ class stzOrgChart from stzDiagram
 
 	def init(pcTitle)
 		super.init(pcTitle)
+		super.SetGraphType("structural")
 
 	        # Auto-apply orgchart preset
 	        This.SetLayoutPreset("orgchart")
