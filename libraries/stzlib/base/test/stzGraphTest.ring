@@ -44,7 +44,7 @@ pf()
 # Executed in 0.03 second(s) in Ring 1.24
 
 /*--- Label automatic normalization
-*/
+
 pr()
 
 oGraph = new stzGraph("")
@@ -141,12 +141,20 @@ oGraph {
 	? PathExists("start", "end")      #--> TRUE
 	? PathExists("start", "isolated") #--> FALSE
 
-	? @@NL( FindAllPaths("start", "end") )
+	? @@NL( PathsXT("start", "end") )
 	#--> [ ["start", "middle", "end"] ]
 }
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
+
+/*--- enforcing well formed node ids (one string without spaces)
+
+pr()
+
+o1 = new stzGraph("")
+o1.AddNode("no please!")
+#--> ERROR MESSAGE: pcNodeId must be one string without spaces nor new lines..
 
 /*--- Reachability
 

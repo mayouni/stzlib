@@ -92,7 +92,7 @@ class stzGraph
 	#-------------------#
 
 	def AddNode(pcNodeId)
-		This.AddNodeXT(pcNodeId, pcNodeId)
+		This.AddNodeXTT(pcNodeId, pcNodeId, [])
 
 	def AddNodeXT(pcNodeId, pcLabel)
 		This.AddNodeXTT(pcNodeId, pcLabel, [])
@@ -108,6 +108,10 @@ class stzGraph
 			stzraise("Incorrect param type! pacProperties must be a hashlist.")
 		ok
 
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
+		ok
+
 		pcLabel = _NormalizeLabel(pcLabel)
 
 		aNode = [
@@ -118,6 +122,11 @@ class stzGraph
 		@aNodes + aNode
 
 	def Node(pcNodeId)
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
+		ok
+
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			aNode = @aNodes[i]
@@ -138,6 +147,11 @@ class stzGraph
 		return []
 
 	def NodeExists(pcNodeId)
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
+		ok
+
 		if ring_find(This.NodesIds(), pcNodeId) > 0
 			return 1
 		else
@@ -275,6 +289,11 @@ class stzGraph
 		end
 	
 	def RemoveThisNode(pcNodeId)
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
+		ok
+
 		acNew = []
 		nLen = len(@aNodes)
 		for i = 1 to nLen
@@ -335,18 +354,18 @@ class stzGraph
 		def ClearEdges()
 			This.RemoveEdges()
 	
-	def RemoveThisEdge(pcFromId, pcToId)
+	def RemoveThisEdge(pcFromNodeId, pcToNodeId)
 		if CheckParams()
-			if isList(pcFromId)
-				oList = new stzList(pcFromId)
+			if isList(pcFromNodeId)
+				oList = new stzList(pcFromNodeId)
 				if oList.IsFromNamedParam() or oList.IsFromNodeNamedParam()
-					pcFromId = pcFromId[2]
+					pcFromNodeId = pcFromNodeId[2]
 				ok
 			ok
-			if isList(pcToId)
-				oList = new stzList(pcToId)
+			if isList(pcToNodeId)
+				oList = new stzList(pcToNodeId)
 				if oList.IsToNamedParam() or oList.IsToNodeNamedParam()
-					pcToId = pcToId[2]
+					pcToNodeId = pcToNodeId[2]
 				ok
 			ok
 		ok
@@ -355,19 +374,24 @@ class stzGraph
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if NOT (aEdge["from"] = pcFromId and aEdge["to"] = pcToId)
+			if NOT (aEdge["from"] = pcFromNodeId and aEdge["to"] = pcToNodeId)
 				acNew + aEdge
 			ok
 		end
 		@aEdges = acNew
 	
-		def RemoveEdge(pcFromId, pcToId)
-			This.RemoveThisEdge(pcFromId, pcToId)
+		def RemoveEdge(pcFromNodeId, pcToNodeId)
+			This.RemoveThisEdge(pcFromNodeId, pcToNodeId)
 
-		def Disconnect(pcFromId, pcToId)
-			This.RemoveThisEdge(pcFromId, pcToId)
+		def Disconnect(pcFromNodeId, pcToNodeId)
+			This.RemoveThisEdge(pcFromNodeId, pcToNodeId)
 
 	def RemoveEdgesConnectedTo(pcNodeId)
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
+		ok
+
 		acNew = []
 		nLen = len(@aEdges)
 		
@@ -384,26 +408,26 @@ class stzGraph
 	#  EDGE OPERATIONS  #
 	#-------------------#
 
-	def AddEdge(pcFromId, pcToId)
-		This.AddEdgeXTT(pcFromId, pcToId, "", [])
+	def AddEdge(pcFromNodeId, pcToNodeId)
+		This.AddEdgeXTT(pcFromNodeId, pcToNodeId, "", [])
 
-		def Connect(pcFromId, pcToId)
-			This.AddEdgeXTT(pcFromId, pcToId, "", [])
+		def Connect(pcFromNodeId, pcToNodeId)
+			This.AddEdgeXTT(pcFromNodeId, pcToNodeId, "", [])
 
-	def AddEdgeXT(pcFromId, pcToId, pcLabel)
-		This.AddEdgeXTT(pcFromId, pcToId, pcLabel, [])
+	def AddEdgeXT(pcFromNodeId, pcToNodeId, pcLabel)
+		This.AddEdgeXTT(pcFromNodeId, pcToNodeId, pcLabel, [])
 
-		def ConnectXT(pcFromId, pcToId, pcLabel)
-			This.AddEdgeXTT(pcFromId, pcToId, pcLabel, [])
+		def ConnectXT(pcFromNodeId, pcToNodeId, pcLabel)
+			This.AddEdgeXTT(pcFromNodeId, pcToNodeId, pcLabel, [])
 
-	def AddEdgeXTT(pcFromId, pcToId, pcLabel, pacProperties)
+	def AddEdgeXTT(pcFromNodeId, pcToNodeId, pcLabel, pacProperties)
 		if CheckParams()
-			if isList(pcFromId) and StzListQ(pcFromId).IsNodeOrNodesOrFromOrFromNodeNamedParam()
-				pcFromId = pcFromId[2]
+			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsNodeOrNodesOrFromOrFromNodeNamedParam()
+				pcFromNodeId = pcFromNodeId[2]
 			ok
 
-			if isList(pcToId) and StzListQ(pcToId).IsAndOrToOrToNodeNamedParam()
-				pcToId = pcToId[2]
+			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsAndOrToOrToNodeNamedParam()
+				pcToNodeId = pcToNodeId[2]
 			ok
 
 			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
@@ -411,22 +435,22 @@ class stzGraph
 			ok
 		ok
 
-		pcFromId = lower(pcFromId)
-		pcToId = lower(pcToId)
+		pcFromNodeId = lower(pcFromNodeId)
+		pcToNodeId = lower(pcToNodeId)
 
-		if NOT This.NodeExists(pcFromId) or NOT This.NodeExists(pcToId)
+		if NOT This.NodeExists(pcFromNodeId) or NOT This.NodeExists(pcToNodeId)
 			stzraise("Cannot add edge: one or both nodes do not exist!")
 		ok
 
-		if This.EdgeExists(pcFromId, pcToId)
-			stzraise("Edge already exists between '" + pcFromId + "' and '" + pcToId + "'!")
+		if This.EdgeExists(pcFromNodeId, pcToNodeId)
+			stzraise("Edge already exists between '" + pcFromNodeId + "' and '" + pcToNodeId + "'!")
 		ok
 
 		pcLabel = _NormalizeLabel(pcLabel)
 
 		aEdge = [
-			:from = lower(pcFromId),
-			:to = lower(pcToId),
+			:from = lower(pcFromNodeId),
+			:to = lower(pcToNodeId),
 			:label = pcLabel,
 			:properties = iif(isList(pacProperties), pacProperties, [])
 		]
@@ -434,61 +458,77 @@ class stzGraph
 		
 		return 1
 
-		def ConnectXTT(pcFromId, pcToId, pcLabel, pacProperties)
-			This.AddEdgeXTT(pcFromId, pcToId, pcLabel, pacProperties)
+		def ConnectXTT(pcFromNodeId, pcToNodeId, pcLabel, pacProperties)
+			This.AddEdgeXTT(pcFromNodeId, pcToNodeId, pcLabel, pacProperties)
 
-	def Edge(pcFromId, pcToId)
+	def Edge(pcFromNodeId, pcToNodeId)
 		if CheckParams()
-			if isList(pcFromId)
-				oList = new stzList(pcFromId)
+			if isList(pcFromNodeId)
+				oList = new stzList(pcFromNodeId)
 				if oList.IsFromNamedParam() or oList.IsFromNodeNamedParam()
-					pcFromId = pcFromId[2]
+					pcFromNodeId = pcFromNodeId[2]
 				ok
 			ok
-			if isList(pcToId)
-				oList = new stzList(pcToId)
+			if isList(pcToNodeId)
+				oList = new stzList(pcToNodeId)
 				if oList.IsToNamedParam() or oList.IsToNodeNamedParam()
-					pcToId = pcToId[2]
+					pcToNodeId = pcToNodeId[2]
 				ok
 			ok
+		ok
+
+		if NOT _IsWellFormedId(pcFromNodeId)
+			stzraise("Incorrect Id! pcFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pcToNodeId)
+			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
 		ok
 
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = lower(pcFromId) and aEdge["to"] = lower(pcToId)
+			if aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId)
 				return aEdge
 			ok
 		end
 		stzraise("Inexistant edge!")
 
-	def EdgeExists(pcFromId, pcToId)
+	def EdgeExists(pcFromNodeId, pcToNodeId)
 		if CheckParams()
-			if isList(pcFromId)
-				oList = new stzList(pcFromId)
+			if isList(pcFromNodeId)
+				oList = new stzList(pcFromNodeId)
 				if oList.IsFromNamedParam() or oList.IsFromNodeNamedParam()
-					pcFromId = pcFromId[2]
+					pcFromNodeId = pcFromNodeId[2]
 				ok
 			ok
-			if isList(pcToId)
-				oList = new stzList(pcToId)
+			if isList(pcToNodeId)
+				oList = new stzList(pcToNodeId)
 				if oList.IsToNamedParam() or oList.IsToNodeNamedParam()
-					pcToId = pcToId[2]
+					pcToNodeId = pcToNodeId[2]
 				ok
 			ok
+		ok
+
+		if NOT _IsWellFormedId(pcFromNodeId)
+			stzraise("Incorrect Id! pcFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pcToNodeId)
+			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
 		ok
 
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = lower(pcFromId) and aEdge["to"] = lower(pcToId)
+			if aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId)
 				return 1
 			ok
 		end
 		return 0
 
-		def HasEdge(pcFomId, pcToId)
-			return This.EdgeExists(pcFromId, pcToId)
+		def HasEdge(pcFomId, pcToNodeId)
+			return This.EdgeExists(pcFromNodeId, pcToNodeId)
 
 	def Edges()
 		return @aEdges
@@ -496,21 +536,30 @@ class stzGraph
 	def EdgeCount()
 		return len(@aEdges)
 
-	def EdgeCountBetween(pcFrom, pcTo)
+	def EdgeCountBetween(pcFromNodeId, pcToNodeId)
+
 		if CheckParams()
-			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
-				pcFrom = pcFrom[2]
+			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
-				pcTo = pcTo[2]
+			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+				pcToNodeId = pcToNodeId[2]
 			ok
 		ok
 	
+		if NOT _IsWellFormedId(pcFromNodeId)
+			stzraise("Incorrect Id! pcFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pcToNodeId)
+			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
+		ok
+
 		nCount = 0
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = lower(pcFrom) and aEdge["to"] = lower(pcTo)
+			if aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId)
 				nCount++
 			ok
 		end
@@ -519,42 +568,58 @@ class stzGraph
 		def EdgesBetweenCount(pcFrom, pcTo)
 			return This.EdgeCountBetween(pcFrom, pcTo)
 	
-	def EdgesBetween(pcFrom, pcTo)
+	def EdgesBetween(pcFromNodeId, pcToNodeId)
 		if CheckParams()
-			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
-				pcFrom = pcFrom[2]
+			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
-				pcTo = pcTo[2]
+			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+				pcToNodeId = pcToNodeId[2]
 			ok
 		ok
 	
+		if NOT _IsWellFormedId(pcFromNodeId)
+			stzraise("Incorrect Id! pcFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pcToNodeId)
+			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
+		ok
+
 		aResult = []
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = lower(pcFrom) and aEdge["to"] = lower(pcTo)
+			if aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId)
 				aResult + [aEdge["from"], aEdge["label"], aEdge["to"]]
 			ok
 		end
 		return aResult
 	
-		def AllEdgesBetween(pcFrom, pcTo)
-			return This.EdgesBetween(pcFrom, pcTo)
+		def AllEdgesBetween(pcFromNodeId, pcToNodeId)
+			return This.EdgesBetween(pcFromNodeId, pcToNodeId)
 
-	def RemoveEdgeByLabel(pcFrom, pcTo, pcLabel)
+	def RemoveEdgeByLabel(pcFromNodeId, pcToNodeId, pcLabel)
 		if CheckParams()
-			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
-				pcFrom = pcFrom[2]
+			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
-				pcTo = pcTo[2]
+			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+				pcToNodeId = pcToNodeId[2]
 			ok
 			if isList(pcLabel) and StzListQ(pcLabel).IsLabelNamedParam()
 				pcLabel = pcLabel[2]
 			ok
 		ok
 	
+		if NOT _IsWellFormedId(pcFromNodeId)
+			stzraise("Incorrect Id! pcFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pcToNodeId)
+			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
+		ok
+
 		pcLabel = _NormalizeLabel(pcLabel)
 		acNew = []
 		nLen = len(@aEdges)
@@ -562,7 +627,7 @@ class stzGraph
 		
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = lower(pcFrom) and aEdge["to"] = lower(pcTo) and lower(aEdge["label"]) = lower(pcLabel) and NOT bFound
+			if aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId) and lower(aEdge["label"]) = lower(pcLabel) and NOT bFound
 				bFound = TRUE
 				loop
 			ok
@@ -571,39 +636,47 @@ class stzGraph
 		
 		@aEdges = acNew
 	
-		def RemoveEdgeWithLabel(pcFrom, pcTo, pcLabel)
-			This.RemoveEdgeByLabel(pcFrom, pcTo, pcLabel)
+		def RemoveEdgeWithLabel(pcFromNodeId, pcToNodeId, pcLabel)
+			This.RemoveEdgeByLabel(pcFromNodeId, pcToNodeId, pcLabel)
 	
-		def DisconnectByLabel(pcFrom, pcTo, pcLabel)
-			This.RemoveEdgeByLabel(pcFrom, pcTo, pcLabel)
+		def DisconnectByLabel(pcFromNodeId, pcToNodeId, pcLabel)
+			This.RemoveEdgeByLabel(pcFromNodeId, pcToNodeId, pcLabel)
 	
-	def RemoveAllEdgesBetween(pcFrom, pcTo)
+	def RemoveAllEdgesBetween(pcFromNodeId, pcToNodeId)
 		if CheckParams()
-			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
-				pcFrom = pcFrom[2]
+			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
-				pcTo = pcTo[2]
+			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+				pcToNodeId = pcToNodeId[2]
 			ok
 		ok
 	
+		if NOT _IsWellFormedId(pcFromNodeId)
+			stzraise("Incorrect Id! pcFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pcToNodeId)
+			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
+		ok
+
 		acNew = []
 		nLen = len(@aEdges)
 		
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if NOT (aEdge["from"] = lower(pcFrom) and aEdge["to"] = lower(pcTo))
+			if NOT (aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId))
 				acNew + aEdge
 			ok
 		end
 		
 		@aEdges = acNew
 	
-		def RemoveEdgesBetween(pcFrom, pcTo)
-			This.RemoveAllEdgesBetween(pcFrom, pcTo)
+		def RemoveEdgesBetween(pcFromNodeId, pcToNodeId)
+			This.RemoveAllEdgesBetween(pcFromNodeId, pcToNodeId)
 	
-		def DisconnectAll(pcFrom, pcTo)
-			This.RemoveAllEdgesBetween(pcFrom, pcTo)
+		def DisconnectAll(pcFromNodeId, pcToNodeId)
+			This.RemoveAllEdgesBetween(pcFromNodeId, pcToNodeId)
 
 	#-------------------------------------------#
 	#  BATCH UPDATE OPERATIONS USING FUNCTIONS  #
@@ -676,6 +749,13 @@ class stzGraph
 		This.MergeNodesXT(pacNodeIds, pcNewId, pcNewLabel, [])
 	
 	def MergeNodesXT(pacNodeIds, pcNewId, pcNewLabel, paNewProps)
+
+		if NOT _IsWellFormedId(pcNewId)
+			stzraise("Incorrect Id! pcNewId must be one string without spaces.")
+		ok
+
+		pcNewLabel = _NormalizeLabel(pcNewLabel)
+
 		if len(pacNodeIds) < 2
 			return
 		ok
@@ -818,6 +898,11 @@ class stzGraph
 			return This.PropertiesXT()
 
 	def SetNodeProperty(pNodeId, cProperty, pValue)
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
+		ok
+		
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			if @aNodes[i]["id"] = pNodeId
@@ -840,13 +925,19 @@ class stzGraph
 		def UpdateNodeProp(pcNodeId, pcKey, pValue)
 			This.SetNodeProperty(pcNodeId, pcKey, pValue)
 
-	def SetNodeProperties(pNodeId, aProperties)
+	def SetNodeProperties(pcNodeId, aProperties)
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
+		ok
+
 		if NOT IsHashList(aProperties)
 			StzRaise("aProperties must be a hashlist")
 		ok
 		
-		for cKey in keys(aProperties)
-			This.SetNodeProperty(pNodeId, cKey, aProperties[cKey])
+		nLen = len(aProperties)
+		for i = 1 to nLen
+			This.SetNodeProperty(pcNodeId, aProperties[i][1], aProperties[cKey])
 		end
 	
 		def SetNodeProps(pNodeId, aProperties)
@@ -891,6 +982,11 @@ class stzGraph
 			return This.NodeProperty(pNodeId, cProperty)
 
 	def RemoveNodeProperties(pcNodeId)
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
+		ok
+
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			if @aNodes[i]["id"] = pcNodeId
@@ -922,25 +1018,33 @@ class stzGraph
 		def ClearAllProperties()
 			This.RemoveAllProperties()
 
-	def SetEdgeProperty(pFromId, pToId, cProperty, pValue)
+	def SetEdgeProperty(pFromNodeId, pToNodeId, cProperty, pValue)
 		if CheckParams()
-			if isList(pFromId)
-				oList = new stzList(pFromId)
+			if isList(pFromNodeId)
+				oList = new stzList(pFromNodeId)
 				if oList.IsFromNamedParam() or oList.IsFromNodeNamedParam()
-					pFromId = pFromId[2]
+					pFromNodeId = pFromNodeId[2]
 				ok
 			ok
-			if isList(pToId)
-				oList = new stzList(pToId)
+			if isList(pToNodeId)
+				oList = new stzList(pToNodeId)
 				if oList.IsToNamedParam() or oList.IsToNodeNamedParam()
-					pToId = pToId[2]
+					pToNodeId = pToNodeId[2]
 				ok
 			ok
 		ok
 
+		if NOT _IsWellFormedId(pFromNodeId)
+			stzraise("Incorrect Id! pFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pToNodeId)
+			stzraise("Incorrect Id! pToNodeId must be one string without spaces.")
+		ok
+
 		nLen = len(@aEdges)
 		for i = 1 to nLen
-			if @aEdges[i]["from"] = pFromId and @aEdges[i]["to"] = pToId
+			if @aEdges[i]["from"] = pFromNodeId and @aEdges[i]["to"] = pToNodeId
 				if NOT HasKey(@aEdges[i], "properties")
 					@aEdges[i] + ["properties", []]
 				ok
@@ -949,8 +1053,8 @@ class stzGraph
 			ok
 		end
 	
-		def SetEdgeProp(pFromId, pToId, cProperty, pValue)
-			return This.SetEdgeProperty(pFromId, pToId, cProperty, pValue)
+		def SetEdgeProp(pFromNodeId, pToNodeId, cProperty, pValue)
+			return This.SetEdgeProperty(pFromNodeId, pToNodeId, cProperty, pValue)
 
 		def UpdateEdgeProperty(pcFrom, pcTo, pcKey, pValue)
 			This.SetEdgeProperty(pcFrom, pcTo, pcKey, pValue)
@@ -958,8 +1062,8 @@ class stzGraph
 		def UpdateEdgeProp(pcFrom, pcTo, pcKey, pValue)
 			This.SetEdgeProperty(pcFrom, pcTo, pcKey, pValue)
 
-	def EdgeProperty(pFromId, pToId, cProperty)
-		aEdge = This.Edge(pFromId, pToId)
+	def EdgeProperty(pFromNodeId, pToNodeId, cProperty)
+		aEdge = This.Edge(pFromNodeId, pToNodeId)
 		
 		if HasKey(aEdge, "properties") and HasKey(aEdge["properties"], cProperty)
 			return aEdge["properties"][cProperty]
@@ -967,23 +1071,31 @@ class stzGraph
 			return NULL
 		ok
 
-		def EdgeProp(pFromId, pToId, cProperty)
-			return This.EdgeProperty(pFromId, pToId, cProperty)
+		def EdgeProp(pFromNodeId, pToNodeId, cProperty)
+			return This.EdgeProperty(pFromNodeId, pToNodeId, cProperty)
 
-	def SetEdgeProperties(pcFrom, pcTo, aProperties)
+	def SetEdgeProperties(pcFromNodeId, pcToNodeId, aProperties)
 		if CheckParams()
-			if isList(pcFrom)
-				oList = new stzList(pcFrom)
+			if isList(pcFromNodeId)
+				oList = new stzList(pcFromNodeId)
 				if oList.IsFromNamedParam() or oList.IsFromNodeNamedParam()
-					pcFrom = pcFrom[2]
+					pcFromNodeId = pcFromNodeId[2]
 				ok
 			ok
-			if isList(pcTo)
-				oList = new stzList(pcTo)
+			if isList(pcToNodeId)
+				oList = new stzList(pcToNodeId)
 				if oList.IsToNamedParam() or oList.IsToNodeNamedParam()
-					pcTo = pcTo[2]
+					pcToNodeId = pcToNodeId[2]
 				ok
 			ok
+		ok
+
+		if NOT _IsWellFormedId(pcFromNodeId)
+			stzraise("Incorrect Id! pcFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pcToNodeId)
+			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
 		ok
 
 		if NOT IsHashList(aProperties)
@@ -992,7 +1104,7 @@ class stzGraph
 		
 		nLen = len(@aEdges)
 		for i = 1 to nLen
-			if @aEdges[i]["from"] = pcFrom and @aEdges[i]["to"] = pcTo
+			if @aEdges[i]["from"] = pcFromNodeId and @aEdges[i]["to"] = pcToNodeId
 				if NOT HasKey(@aEdges[i], "properties")
 					@aEdges[i] + ["properties", []]
 				ok
@@ -1006,39 +1118,48 @@ class stzGraph
 			ok
 		end
 	
-		def SetEdgeProps(pcFrom, pcTo, aProperties)
-			This.SetEdgeProperties(pcFrom, pcTo, aProperties)
+		def SetEdgeProps(pcFromNodeId, pcToNodeId, aProperties)
+			This.SetEdgeProperties(pcFromNodeId, pcToNodeId, aProperties)
 
-	def EdgeProperties(pcFrom, pcTo)
-		aEdge = This.Edge(pcFrom, pcTo)
+	def EdgeProperties(pcFromNodeId, pcToNodeId)
+		aEdge = This.Edge(pcFromNodeId, pcToNodeId)
 		if HasKey(aEdge, "properties")
 			return keys(aEdge["properties"])
 		ok
 		return []
 	
-		def EdgeProps(pcFrom, pcTo)
-			return This.EdgeProperties(pcFrom, pcTo)
+		def EdgeProps(pcFromNodeId, pcToNodeId)
+			return This.EdgeProperties(pcFromNodeId, pcToNodeId)
 
-	def EdgePropertiesXT(pcFrom, pcTo)
-		aEdge = This.Edge(pcFrom, pcTo)
+	def EdgePropertiesXT(pcFromNodeId, pcToNodeId)
+		aEdge = This.Edge(pcFromNodeId, pcToNodeId)
 		if HasKey(aEdge, "properties")
 			return aEdge["properties"]
 		ok
 		return []
 	
-		def EdgePropsXT(pcFrom, pcTo)
-			return This.EdgePropertiesXT(pcFrom, pcTo)
+		def EdgePropsXT(pcFromNodeId, pcToNodeId)
+			return This.EdgePropertiesXT(pcFromNodeId, pcToNodeId)
 
 	#---------------------------#
 	#  TRAVERSAL & PATHFINDING  #
 	#---------------------------#
 
-	def PathExists(pcFromId, pcToId)
-		if pcFromId = pcToId
+	def PathExists(pcFromNodeId, pcToNodeId)
+
+		if NOT _IsWellFormedId(pcFromNodeId)
+			stzraise("Incorrect Id! pcFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pcToNodeId)
+			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
+		ok
+
+		if pcFromNodeId = pcToNodeId
 			return 1
 		ok
 		acVisited = []
-		return This._PathExistsDFS(pcFromId, pcToId, acVisited)
+		return This._PathExistsDFS(pcFromNodeId, pcToNodeId, acVisited)
 
 	def _PathExistsDFS(pcCurrent, pcTarget, pacVisited)
 		if pcCurrent = pcTarget
@@ -1106,43 +1227,50 @@ class stzGraph
 	def Paths() #TODO// Returns all the possible paths in the graph
 		stzraise("Not yet implemented!")
 
-	def PathsXT(pcFromId, pcToId)
+	def PathsXT(pcFromNodeId, pcToNodeId)
 		if CheckParams()
-			if isList(pcFromId) and StzListQ(pcFromId).IsFromOrFromNodeNamedParam()
-				pcFromId = pcFromId[2]
+			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromOrFromNodeNamedParam()
+				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcToId) and StzListQ(pcToId).IsToOrToNodeOrAndNamedParam()
-				pcToId = pcToId[2]
+			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToOrToNodeOrAndNamedParam()
+				pcToNodeId = pcToNodeId[2]
 			ok
+		ok
+		if NOT _IsWellFormedId(pcFromNodeId)
+			stzraise("Incorrect Id! pcFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pcToNodeId)
+			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
 		ok
 
 		acAllPaths = []
-		acCurrentPath = [pcFromId]
-		This._FindAllPathsDFS(pcFromId, pcToId, acCurrentPath, acAllPaths, 0)
+		acCurrentPath = [pcFromNodeId]
+		This._FindAllPathsDFS(pcFromNodeId, pcToNodeId, acCurrentPath, acAllPaths, 0)
 		return acAllPaths
 
-		def PathsBetweenXT(pcFromId, pcToId)
-			return This.PathsXT(pcFromId, pcToId)
+		def PathsBetweenXT(pcFromNodeId, pcToNodeId)
+			return This.PathsXT(pcFromNodeId, pcToNodeId)
 
-	def Path(pcFromId, pcToId)
-		acPaths = This.PathsXT(pcFromId, pcToId)
+	def Path(pcFromNodeId, pcToNodeId)
+		acPaths = This.PathsXT(pcFromNodeId, pcToNodeId)
 		if len(acPaths) > 0
 			return acPaths[1]
 		else
 			return []
 		ok
 
-		def FirstPath(pcFromId, pcToId)
-			return This.Path(pcFromId, pcToId)
+		def FirstPath(pcFromNodeId, pcToNodeId)
+			return This.Path(pcFromNodeId, pcToNodeId)
 
-		def FirstPathBetween(pcFromId, pcToId)
-			return This.Path(pcFromId, pcToId)
+		def FirstPathBetween(pcFromNodeId, pcToNodeId)
+			return This.Path(pcFromNodeId, pcToNodeId)
 
-		def PathBetween(pcFromId, pcToId)
-			return This.Path(pcFromId, pcToId)
+		def PathBetween(pcFromNodeId, pcToNodeId)
+			return This.Path(pcFromNodeId, pcToNodeId)
 
-		def PathXT(pcFromId, pcToId)
-			return This.Path(pcFromId, pcToId)
+		def PathXT(pcFromNodeId, pcToNodeId)
+			return This.Path(pcFromNodeId, pcToNodeId)
 
 	def _FindAllPathsDFS(pcCurrent, pcTarget, pacCurrentPath, pacAllPaths, pnDepth)
 		if pnDepth > 10
@@ -1169,10 +1297,15 @@ class stzGraph
 		end
 
 	def Neighbors(pcNodeId)
+
 		if CheckParams()
 			if isList(pcNodeId) and StzListQ(pcNodeId).IsOfOrToNamedParam()
 				pcNodeId = pcNodeId[2]
 			ok
+		ok
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
 
 		acNeighbors = []
@@ -1196,6 +1329,10 @@ class stzGraph
 			if isList(pcNodeId) and StzListQ(pcNodeId).IsToNamedParam()
 				pcNodeId = pcNodeId[2]
 			ok
+		ok
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
 
 		acIncoming = []
@@ -1623,6 +1760,11 @@ class stzGraph
 	#--
 
 	def NodesWhereF(pFunc)
+
+		if NOT isFunction(pFunc)
+			stzraise("Can't proceed! pFunc must be a valid function.")
+		ok
+
 		acResult = []
 		nLen = len(@aNodes)
 
@@ -1639,6 +1781,11 @@ class stzGraph
 			return This.NodesWhereF(pFunc)
 
 	def EdgesWhereF(pFunc)
+
+		if NOT isFunction(pFunc)
+			stzraise("Can't proceed! pFunc must be a valid function.")
+		ok
+
 		acResult = []
 		nLen = len(@aEdges)
 
@@ -1656,6 +1803,10 @@ class stzGraph
 
 
 	def PathsWhereF(pFunc)
+
+		if NOT isFunction(pFunc)
+			stzraise("Can't proceed! pFunc must be a valid function.")
+		ok
 
 		acResult = []
 		acPaths = This.Paths() #TODO
@@ -1677,35 +1828,43 @@ class stzGraph
 	#  GRAPH ALGORITHMS  #
 	#--------------------#
 
-	def ShortestPath(pcFrom, pcTo)
+	def ShortestPath(pcFromNodeId, pcToNodeId)
 		if CheckParams()
-			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
-				pcFrom = pcFrom[2]
+			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
-				pcTo = pcTo[2]
+			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+				pcToNodeId = pcToNodeId[2]
 			ok
 		ok
 	
-		if NOT This.NodeExists(pcFrom) or NOT This.NodeExists(pcTo)
+		if NOT _IsWellFormedId(pcFromNodeId)
+			stzraise("Incorrect Id! pcFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pcToNodeId)
+			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
+		ok
+
+		if NOT This.NodeExists(pcFromNodeId) or NOT This.NodeExists(pcTo)
 			return []
 		ok
 	
-		if pcFrom = pcTo
-			return [pcFrom]
+		if pcFromNodeId = pcToNodeId
+			return [ pcFromNodeId ]
 		ok
 	
-		_acQueue_ = [pcFrom]
-		_acVisited_ = [pcFrom]
-		_aParentMap_ = [ [pcFrom, NULL] ]
+		_acQueue_ = [ pcFromNodeId ]
+		_acVisited_ = [ pcFromNodeId ]
+		_aParentMap_ = [ [ pcFromNodeId, "" ] ]
 	
 		while len(_acQueue_) > 0
 			_cCurrent_ = _acQueue_[1]
 			del(_acQueue_, 1)
 			
-			if _cCurrent_ = pcTo
+			if _cCurrent_ = pcToNodeId
 				_acPath_ = []
-				_cNode_ = pcTo
+				_cNode_ = pcToNodeId
 				
 				while _cNode_ != NULL
 					_acPath_ + _cNode_
@@ -1732,8 +1891,11 @@ class stzGraph
 	
 			_acNeighbors_ = This.Neighbors(_cCurrent_)
 			_nNeighLen_ = len(_acNeighbors_)
+
 			for _i_ = 1 to _nNeighLen_
+
 				_cNeighbor_ = _acNeighbors_[_i_]
+
 				if ring_find(_acVisited_, _cNeighbor_) = 0
 					_acVisited_ + _cNeighbor_
 					_acQueue_ + _cNeighbor_
@@ -1744,17 +1906,26 @@ class stzGraph
 	
 		return []
 
-	def ShortestPathLength(pcFrom, pcTo)
+	def ShortestPathLength(pcFromNodeId, pcToNodeId)
+
 		if CheckParams()
-			if isList(pcFrom) and StzListQ(pcFrom).IsFromNamedParam()
-				pcFrom = pcFrom[2]
+			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcTo) and StzListQ(pcTo).IsToNamedParam()
-				pcTo = pcTo[2]
+			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+				pcToNodeId = pcToNodeId[2]
 			ok
 		ok
 
-		_acPath_ = This.ShortestPath(pcFrom, pcTo)
+		if NOT _IsWellFormedId(pcFromNodeId)
+			stzraise("Incorrect Id! pcFromNodeId must be one string without spaces.")
+		ok
+
+		if NOT _IsWellFormedId(pcToNodeId)
+			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
+		ok
+
+		_acPath_ = This.ShortestPath(pcFromNodeId, pcTo)
 		if len(_acPath_) = 0
 			return 0
 		ok
@@ -1874,6 +2045,10 @@ class stzGraph
 			return 0
 		ok
 	
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
+		ok
+
 		_nCentrality_ = 0
 		_aNodes_ = This.Nodes()
 		_nNodeCount_ = len(_aNodes_)
@@ -1922,6 +2097,10 @@ class stzGraph
 	def ClosenessCentrality(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
+		ok
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
 
 		_nTotalDistance_ = 0
@@ -1987,6 +2166,10 @@ class stzGraph
 	def ClusteringCoefficient(pcNodeId)
 		if NOT This.NodeExists(pcNodeId)
 			return 0
+		ok
+
+		if NOT _IsWellFormedId(pcNodeId)
+			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
 
 		_acOutgoing_ = This.Neighbors(pcNodeId)
@@ -2696,10 +2879,26 @@ class stzGraph
 	#--
 
 	def _NormalizeLabel(pcLabel)
-		return substr(pcLabel, " ", "_")
+		pcLabel = substr(pcLabel, " ", "_")
+		pcLabel = substr(pcLabel, NL, "_")
 
 		def  _NormaliseLabel(pcLabel)
 			return substr(pcLabel, " ", "_")
+
+	def _IsWellFormedId(pcId)
+		if NOT isString(pcId)
+			return 0
+		ok
+
+		if substr(pcId, " ") > 0
+			return 0
+		ok
+
+		if substr(pcId, NL) > 0
+			return 0
+		ok
+
+		return 1
 
 #========================================#
 # stzGraphQuery - Keep Separate (Works)  #
