@@ -43,6 +43,36 @@ oGraph {
 pf()
 # Executed in 0.03 second(s) in Ring 1.24
 
+/*--- Label automatic normalization
+*/
+pr()
+
+oGraph = new stzGraph("")
+oGraph {
+	AddNodeXT("@name", "name of person")
+	AddNodeXT("@age", "age of person")
+	Connect("@name", "@age")
+
+	? @@NL( Nodes() )
+}
+#--> Note how lables are normalised using "_" instead of spaces
+'
+[
+	[
+		[ "id", "@name" ],
+		[ "label", "name_of_person" ],
+		[ "properties", [  ] ]
+	],
+	[
+		[ "id", "@age" ],
+		[ "label", "age_of_person" ],
+		[ "properties", [  ] ]
+	]
+]
+'
+
+pf()
+
 /*--- Node and Edge Existence
 
 pr()
@@ -683,7 +713,7 @@ oGraph {
 	Connect("b", "c")
 	Connect("c", "a")
 	
-	? CyclicDependencies() #--> TRUE
+	? HasCyclicDependencies() #--> TRUE
 }
 
 pf()
@@ -776,9 +806,14 @@ oGraph {
 	Connect("api", "worker1")
 	Connect("api", "worker2")
 	
-	? ImpactOf("api")           	#--> 2
-	? @@( FailureScope("api") ) 	#--> ["worker1", "worker2"]
-	? @@( MostCriticalNodes(2) ) 	#--> ["api", "db"]
+	? ImpactOf("api")
+	#--> 2
+
+	? @@( FailureScope("api") )
+	#--> ["worker1", "worker2"]
+
+	? @@( MostCriticalNodes(2) )
+	#--> ["api", "db"]
 }
 
 pf()
@@ -1142,6 +1177,35 @@ oGraph {
 		"rules",
 		[ "No rules applied" ]
 	]
+]
+'
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+*--- Path Explanation
+*/
+pr()
+
+oGraph = new stzGraph("ImpactTest")
+oGraph {
+	AddNode("db")
+	AddNode("api")
+	AddNode("worker1")
+	AddNode("worker2")
+	
+	ConnectXT("db", "api", "exposes")
+	ConnectXT("api", "worker1", "is_used_by")
+	ConnectXT("api", "worker2", "is_used_by")
+
+	? @@NL( ExplainPath("db", "worker2") )
+}
+#-->
+#-->
+'
+[
+	"db → api : because @db exposes @api",
+	"api → worker2 : because @api is used by @worker2"
 ]
 '
 
@@ -2187,7 +2251,7 @@ oGraph {
 	Connect(:Node = "a", :ToNode = "a")  # Self-loop
 	Connect(:Node = "a", :ToNode = "b")
 
-	? CyclicDependencies()
+	? HasCyclicDependencies()
 	#--> TRUE  # Self-loop counts as cycle
 
 	? ReachableFromNode("a")
@@ -3137,7 +3201,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*--- SEMANTIC graphs track meaning relationships
-*/
+
 pr()
 
 o1 = new stzGraph("knowledge")

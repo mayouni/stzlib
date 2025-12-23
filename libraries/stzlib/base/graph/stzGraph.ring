@@ -108,6 +108,8 @@ class stzGraph
 			stzraise("Incorrect param type! pacProperties must be a hashlist.")
 		ok
 
+		pcLabel = _NormalizeLabel(pcLabel)
+
 		aNode = [
 			:id = lower(pcNodeId),
 			:label = pcLabel,
@@ -420,6 +422,8 @@ class stzGraph
 			stzraise("Edge already exists between '" + pcFromId + "' and '" + pcToId + "'!")
 		ok
 
+		pcLabel = _NormalizeLabel(pcLabel)
+
 		aEdge = [
 			:from = lower(pcFromId),
 			:to = lower(pcToId),
@@ -551,6 +555,7 @@ class stzGraph
 			ok
 		ok
 	
+		pcLabel = _NormalizeLabel(pcLabel)
 		acNew = []
 		nLen = len(@aEdges)
 		bFound = FALSE
@@ -2180,7 +2185,7 @@ class stzGraph
 			:edgeCount = len(@aEdges),
 			:density = This.NodeDensity(),
 			:longestPath = This.LongestPath(),
-			:hasCycles = This.CyclicDependencies()
+			:hasCycles = This.HasCyclicDependencies()
 		]) + nl
 		cJSON += "}"
 		
@@ -2274,6 +2279,12 @@ class stzGraph
 		def ShowV()
 			This.ShowVertical()
 
+	#------------------------#
+	#  EXPLAINING THE GRAPH  #
+	#------------------------#
+
+	# Telling the story of the graph
+
 	def Explain()
 		aExplanation = [
 			:general = [],
@@ -2339,7 +2350,7 @@ class stzGraph
 			end
 		ok
 		
-		if This.CyclicDependencies()
+		if This.HasCyclicDependencies()
 			aExplanation[:cycles] + "WARNING: Circular dependencies detected"
 		else
 			if len(acCyclic) = 0
@@ -2383,6 +2394,23 @@ class stzGraph
 		ok
 		
 		return aExplanation
+
+	# Telling the story of a particular path
+
+	def ExplainPath(pcFrom, pcTo)
+	    acPath = This.Path(pcFrom, pcTo)
+	    aStory = []
+	    nLen = len(acPath) - 1
+
+	    for i = 1 to nLen
+	        aEdge = This.Edge(acPath[i], acPath[i+1])
+	        aStory + (acPath[i] + " → " + acPath[i+1])
+		if aEdge[:label] != ""
+			aStory[len(aStory)] +=  (" : because @" + acPath[i] + " " + substr(aEdge[:label], "_", " ") + " @" + acPath[i+1] )
+		ok
+	    next
+	    
+	    return aStory
 
 	#-------------------#
 	#  RULE MANAGEMENT  #
@@ -2649,7 +2677,7 @@ class stzGraph
 	    return @cGraphType = "semantic"
 	
 	def ValidateByType()
-	    if @cGraphType = "structural" and This.CyclicDependencies()
+	    if @cGraphType = "structural" and This.HasCyclicDependencies()
 	        return [FALSE, "Cycles not allowed in structural graphs"]
 	    ok
 	    return [TRUE, ""]
@@ -2665,6 +2693,13 @@ class stzGraph
 	    ])
 	    This.UseRulesFrom("semantic")
 
+	#--
+
+	def _NormalizeLabel(pcLabel)
+		return substr(pcLabel, " ", "_")
+
+		def  _NormaliseLabel(pcLabel)
+			return substr(pcLabel, " ", "_")
 
 #========================================#
 # stzGraphQuery - Keep Separate (Works)  #
