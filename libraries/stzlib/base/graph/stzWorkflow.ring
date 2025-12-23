@@ -27,6 +27,8 @@ class stzWorkflow from stzDiagram
 
 	def init(pcId)
 		super.init(pcId)
+		super.SetGraphType("flow")
+
 		@acValidators = $acWorkflowDefaultValidators
 	
 	#-----------------------#

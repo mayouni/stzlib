@@ -27,6 +27,8 @@ class stzKnowledgeGraph from stzGraph
 
 	def init(pcId)
 		super.init(pcId)
+		super.SetGraphType("semantic")
+
 		@aNamespaces = []
 		@aOntology = []
 

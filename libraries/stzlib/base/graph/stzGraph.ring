@@ -5,7 +5,16 @@
 
 load "stzGraphRule.ring"
 
+$acGraphTypes = ["structural", "flow", "semantic", "dependency"]
+$cDefaultGraphType = "structural"
+
 $acGraphDefaultValidators = ["dag", "reachability", "completeness"]
+
+func GraphTypes()
+	return @acGraphTypes 
+
+func DefaultGraphType()
+	return @cDefaultGraphType
 
 func GraphDefaultValidators()
 	return $acGraphDefaultValidators
@@ -29,6 +38,7 @@ func IsStzGraph(pObj)
 class stzGraph
 
 	@cId = ""
+	@cGraphType = $cDefaultGraphType  # "structural", "flow", "semantic", "dependency"
 	@aNodes = []
 	@aEdges = []
 
@@ -43,15 +53,15 @@ class stzGraph
 
 	def init(pcId)
 		@cId = pcId
-		@aNodes = []
-		@aEdges = []
-		@aRules = []
-		@aAffectedNodes = []
-		@aAffectedEdges = []
-		@aProperties = []
 
 	def Id()
 		return @cId
+
+	def GraphType()
+		return @cGraphType
+
+	def SetGraphType(pcType)
+		@cGraphType = lower(pcType)
 
 	def IsGraph()
 		return 1
@@ -1200,7 +1210,7 @@ class stzGraph
 	#  CYCLE DETECTION  #
 	#-------------------#
 
-	def CyclicDependencies()
+	def HasCyclicDependencies()
 		acVisited = []
 		acRecStack = []
 
@@ -2374,9 +2384,9 @@ class stzGraph
 		
 		return aExplanation
 
-	#------------------#
-	#  RULE MANAGEMENT #
-	#------------------#
+	#-------------------#
+	#  RULE MANAGEMENT  #
+	#-------------------#
 	
 	def AddDerivationRule(pcName, pFunc, paParams, pcMessage, pcSeverity)
 		@aRules + [
@@ -2427,7 +2437,7 @@ class stzGraph
 		if HasKey($GraphRules, pcTheme)
 			This.UseRules($GraphRules[pcTheme])
 		ok
-	
+
 	def ApplyDerivations()
 		nAdded = 0
 		nLen = len(@aRules)
@@ -2622,6 +2632,39 @@ class stzGraph
 				ok
 			ok
 		ok
+
+	#---------#
+	#  MISC.  #
+	#---------#
+
+	#NOTE// I added those methods after including the GraphType attribute
+	# So we can use it in a practical way to enforce the beahvir
+	# of some features depending on the graph type (see examples at
+	# the end of stzGraphTest.ring file)
+
+	def CyclesAllowed()
+	    return @cGraphType = "flow" or @cGraphType = "semantic"
+	
+	def ShouldAutoDerive()
+	    return @cGraphType = "semantic"
+	
+	def ValidateByType()
+	    if @cGraphType = "structural" and This.CyclicDependencies()
+	        return [FALSE, "Cycles not allowed in structural graphs"]
+	    ok
+	    return [TRUE, ""]
+
+	def UseDefaultDerivations()
+	    # Register transitivity rule for semantic graphs
+	    RegisterRule("semantic", "auto_transitivity", [
+	        :type = :derivation,
+	        :function = DerivationFunc_Transitivity(),
+	        :params = [],
+	        :message = "Transitive closure for semantic relations",
+	        :severity = "info"
+	    ])
+	    This.UseRulesFrom("semantic")
+
 
 #========================================#
 # stzGraphQuery - Keep Separate (Works)  #
