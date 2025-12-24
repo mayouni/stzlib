@@ -123,6 +123,8 @@ ok
 # Loading files related to the GRAPH module
 
     load "graph/stzgraph.ring"
+    load "graph/stzgraphrule.ring"
+
     load "graph/stzknowledgegraph.ring"
 
     load "graph/stzdiagram.ring"
