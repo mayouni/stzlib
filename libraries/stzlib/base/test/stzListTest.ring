@@ -12704,7 +12704,7 @@ o1 = new stzList([ "green", "rediness", "bluew" ])
 //? @@( o1.DifferentItemsWith([ "yellow", "red", "blue", "gray" ]) ) # Or DifferenceWith()
 #--> [ "green", "yellow", "gray" ]
 
-? @@NL( o1.DifferenceWithXT([ "yellow", "red", "blue", "gray" ]) ) # Or DifferentItemsWithXT()
+? @@NL( o1.DifferenceWithXTT([ "yellow", "red", "blue", "gray" ]) ) # Or DifferentItemsWithXT()
 #--> [
 #	[ "surplus", [ "green" ] ],
 #	[ "lacking", [ "yellow", "gray" ] ]
