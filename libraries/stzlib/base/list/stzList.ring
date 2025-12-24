@@ -32982,6 +32982,57 @@ class stzList from stzObject
 		def DiffWithXT(paOtherList)
 			return This.DifferentItemsWithXT(paOtherList)
 
+	   #----------------------------------------------------------#
+	  #  GETTING THE LIST OF ITEMS WHICH ARE DIFFERENT BETWEEN   #
+	 #  THE MAIN LIST AND AND OTHER GIVEN LIST   -- XTTended    #
+	#----------------------------------------------------------#
+
+	def DifferentItemsWithCSXTT(paOtherList, pCaseSensitive)
+		/*
+		Returns a list composed of two hashlists:
+			[
+			:ADDED = [ "A", "B", ... ],
+			:REMOVED = [],
+			:MDOFIED = []
+			]
+		*/
+		aResult = [
+				:ADDED = This.AddedItemsComparedToCS(paOtherList, pCaseSensitive),
+				:REMOVED = This.RemovedItemsComparedToCS(paOtherList, pCaseSensitive),
+				:MODIFIED = This.ModifiedItemsComparedToCSXT(paOtherList, pCaseSensitive)
+			  ]
+
+		return aResult
+
+		def DifferentItemsWithCSXTTQ(paOtherList, pCaseSensitive)
+			return new stzList( This.DifferentItemsWithCSXTT(paOtherList, pCaseSensitive) )
+
+		def DifferenceWithCSXTT(paOtherList, pCaseSensitive)
+			return This.DifferentItemsWithXTT(paotherList)
+
+		def DiffCSXTT(paOtherList, pCaseSensitive)
+			return This.DifferentItemsWithCSXTT(paOtherList, pCaseSensitive)
+
+		def DiffWithCSXTT(paOtherList, pCaseSensitive)
+			return This.DifferentItemsWithCSXTT(paOtherList, pCaseSensitive)
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def DifferentItemsWithXTT(paOtherList)
+		return This.DifferentItemsWithCSXTT(paOtherList, 1)
+
+		def DifferentItemsWithXTTQ(paOtherList)
+			return This.DifferentItemsWithCSXTQ(paOtherList, 1)
+
+		def DifferenceWithXTT(paOtherList)
+			return This.DifferentItemsWithXTT(paOtherList)
+
+		def DiffXTT(paOtherListXT)
+			return This.DifferentItemsWithXTT(paOtherList)
+
+		def DiffWithXTT(paOtherList)
+			return This.DifferentItemsWithXTT(paOtherList)
+
 	  #---------------------------------------------------------------------#
 	 #  GETTING THE ADDED-ITEMS IN A GIVEN LIST COMPARED TO THE MAIN LIST  #
 	#---------------------------------------------------------------------#
@@ -33116,6 +33167,48 @@ class stzList from stzObject
 
 		def ModifiedItemsComparedToQ(paOtherList)
 			return new stzList( This.ModifiedItemsComparedTo(paOtherList) )
+
+	  #-----------------------------------------------------------------------------------#
+	 #  GETTING THE Modified-ITEMS IN A GIVEN LIST COMPARED TO THE MAIN LIST -- XTended  #
+	#-----------------------------------------------------------------------------------#
+
+	def ModifiedItemsComparedToCSXT(paOtherList, pCaseSensitive)
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
+		aResult = []
+		
+		aThisListU = @UniqueCS(This.Content(), pCaseSensitive)
+		aoThisListU = @Objectify(aThisListU)
+
+		aOtherListU = @UniqueCS( StzListQ(paOtherList).TheseItemsRemovedCS(aThisListU, pCaseSensitive) , pCaseSensitive)
+		aoOtherListU = @Objectify(aOtherListU)
+
+		nLenThis = len(aThisListU)
+		nLenOther = len(aOtherListU)
+
+		for i = 1 to nLenThis
+			for j = 1 to nLenOther
+				if aoThisListU[i].ContainsCS(aOtherListU[j], pCaseSensitive) or
+				   aoOtherListU[j].ContainsCS(aThisListU[i], pCaseSensitive)
+					aResult + [ aThisListU[i], aOtherListU[j] ]
+				ok
+			next
+		next
+
+		return aResult
+
+		def ModifiedItemsComparedToCSXTQ(paOtherList, pCaseSensitive)
+			return new stzList( This.ModifiedItemsComparedToCSXT(paOtherList, pCaseSensitive) )
+		
+	#-- WITHOUT CASESENSITIVITY
+
+	def ModifiedItemsComparedToXT(paOtherList)
+		return This.ModifiedItemsComparedToCSXT(paOtherList, 1)
+
+		def ModifiedItemsComparedToXTQ(paOtherList)
+			return new stzList( This.ModifiedItemsComparedToXT(paOtherList) )
 
 	  #========================================================================#
 	 #  CHECKING IF THE LIST HAS SAME NUMBER OF ITEMS AS AN OTHER GIVEN LIST  #
