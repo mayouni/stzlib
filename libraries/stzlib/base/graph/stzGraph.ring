@@ -3214,68 +3214,18 @@ class stzGraph
 		]
 
 	def _CompareEdges(oOtherGraph)
-		# Build edge keys for comparison
-		aBaseEdgeKeys = []
+
 		aEdges = This.Edges()
-		nLen = len(aEdges)
-		for i = 1 to nLen
-			aEdge = aEdges[i]
-			cKey = aEdge[:from] + "|" + aEdge[:to] + "|" + aEdge[:label]
-			aBaseEdgeKeys + [cKey, aEdge]
-		next
-		
-		aVarEdgeKeys = []
-		aEdges = oOtherGraph.Edges()
-		nLen = len(aEdges)
-		for i = 1 to nLen
-			aEdge = aEdges[i]
-			cKey = aEdge[:from] + "|" + aEdge[:to] + "|" + aEdge[:label]
-			aVarEdgeKeys + [cKey, aEdge]
-		next
-		
-		# Find added edges
-		aAdded = []
-		nLen = len(aVarEdgeKeys)
-		for i = 1 to nLen step 2
-			cVarKey = aVarEdgeKeys[i]
-			bFound = FALSE
-			nLen2 = len(aBaseEdgeKeys)
-			for j = 1 to nLen2 step 2
-				if aBaseEdgeKeys[j] = cVarKey
-					bFound = TRUE
-					exit
-				ok
-			next
-			if NOT bFound
-				aEdge = aVarEdgeKeys[i+1]
-				aAdded + [aEdge[:from], aEdge[:to], aEdge[:label]]
-			ok
-		next
-		
-		# Find removed edges
-		aRemoved = []
-		nLen = len(aBaseEdgeKeys)
-		for i = 1 to nLen step 2
-			cBaseKey = aBaseEdgeKeys[i]
-			bFound = FALSE
-			nLen2 = len(aVarEdgeKeys)
-			for j = 1 to nLen2 step 2
-				if aVarEdgeKeys[j] = cBaseKey
-					bFound = TRUE
-					exit
-				ok
-			next
-			if NOT bFound
-				aEdge = aBaseEdgeKeys[i+1]
-				aRemoved + [aEdge[:from], aEdge[:to], aEdge[:label]]
-			ok
-		next
-		
-		return [
-			:added = aAdded,
-			:removed = aRemoved,
-			:modified = []
+		oOtherEdges = new stzList(oOtherGraph.Edges())
+		_aDiff_ = oOtherEdges.DifferenceWithXT(aEdges)
+
+		_aResult_ = [
+			:added = _aDiff_[:added],
+			:removed = _aDiff_[:removed],
+			:modified = _aDiff_[:modified]
 		]
+
+		return _aResult_
 
 	def _CompareMetrics(oOtherGraph)
 		# Node count

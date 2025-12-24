@@ -5128,8 +5128,22 @@ func Stringify(p)
 	func @Stringify(p)
 		return Stringify(p)
 
-	func @string(p)
+	func @string(p) #TODO #WARNING // check this name!
 		return Stringify(p)
+
+#--
+
+func ListObjectify(paList)
+	return StzListQ(paList).Objectified()
+
+func Objectify(p)
+	return Q(p).Objectified()
+
+	func @Objectify(p)
+		return Objectify(p)
+
+	func @object(p) #TODO #WARNING // check this name!
+		return Objectify(p)
 
 #===
 
@@ -32865,7 +32879,7 @@ class stzList from stzObject
 
 		else
 			acList = This.Copy().StringifyQ().Lowercased()
-			acOtherList = StzListQ(paOtherList).SringifyQ().Lowercased()
+			acOtherList = StzListQ(paOtherList).StringifyQ().Lowercased()
 		ok
 
 		#-- Doing the job
@@ -32892,10 +32906,13 @@ class stzList from stzObject
 			return new stzList( This.DifferentItemsWithCS(paOtherList, pCaseSensitive) )
 
 		def DifferenceWithCS(paOtherList, pCaseSensitive)
-			return This.DifferentItemsWith(paotherList)
+			return This.DifferentItemsWithCS(paOtherList, pCaseSensitive)
 
-			def DifferenceWithCSQ(paOtherList, pCaseSensitive)
-				return This.DifferentItemsWithCSQ(paOtherList, pCaseSensitive)
+		def DiffCS(paOtherList, pCaseSensitive)
+			return This.DifferentItemsWithCS(paOtherList, pCaseSensitive)
+
+		def DiffWithCS(paOtherList, pCaseSensitive)
+			return This.DifferentItemsWithCS(paOtherList, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -32908,8 +32925,11 @@ class stzList from stzObject
 		def DifferenceWith(paOtherList)
 			return This.DifferentItemsWith(paOtherList)
 
-			def DifferenceWithQ(paOtherList)
-				return This.DifferentItemsWithQ(paOtherList)
+		def Diff(paOtherList)
+			return This.DifferentItemsWith(paOtherList)
+
+		def DiffWith(paOtherList)
+			return This.DifferentItemsWith(paOtherList)
 
 	   #---------------------------------------------------------#
 	  #  GETTING THE LIST OF ITEMS WHICH ARE DIFFERENT BETWEEN  #
@@ -32920,13 +32940,15 @@ class stzList from stzObject
 		/*
 		Returns a list composed of two hashlists:
 			[
-			:SURPLUS = [ "A", "B", ... ],
-			:LACKING = [ "X", "Y", ... ]
+			:ADDED = [ "A", "B", ... ],
+			:REMOVED = [],
+			:MDOFIED = []
 			]
 		*/
 		aResult = [
-				:SURPLUS = This.OverItemsComparedToCS(paOtherList, pCaseSensitive),
-				:LACKING = This.LackingItemsComparedToCS(paOtherList, pCaseSensitive)
+				:ADDED = This.AddedItemsComparedToCS(paOtherList, pCaseSensitive),
+				:REMOVED = This.RemovedItemsComparedToCS(paOtherList, pCaseSensitive),
+				:MODIFIED = This.ModifiedItemsComparedToCS(paOtherList, pCaseSensitive)
 			  ]
 
 		return aResult
@@ -32937,8 +32959,11 @@ class stzList from stzObject
 		def DifferenceWithCSXT(paOtherList, pCaseSensitive)
 			return This.DifferentItemsWithXT(paotherList)
 
-			def DifferenceWithCSXTQ(paOtherList, pCaseSensitive)
-				return This.DifferentItemsWithCSXTQ(paOtherList, pCaseSensitive)
+		def DiffCSXT(paOtherList, pCaseSensitive)
+			return This.DifferentItemsWithCSXT(paOtherList, pCaseSensitive)
+
+		def DiffWithCSXT(paOtherList, pCaseSensitive)
+			return This.DifferentItemsWithCSXT(paOtherList, pCaseSensitive)
 
 	#-- WITHOUT CASESENSITIVITY
 
@@ -32951,14 +32976,62 @@ class stzList from stzObject
 		def DifferenceWithXT(paOtherList)
 			return This.DifferentItemsWithXT(paOtherList)
 
-			def DifferenceWithXTQ(paOtherList)
-				return This.DifferentItemsWithXTQ(paOtherList)
+		def DiffXT(paOtherListXT)
+			return This.DifferentItemsWithXT(paOtherList)
 
-	  #--------------------------------------------------------------------#
-	 #  GETTING THE OVER-ITEMS IN A GIVEN LIST COMPARED TO THE MAIN LIST  #
-	#--------------------------------------------------------------------#
+		def DiffWithXT(paOtherList)
+			return This.DifferentItemsWithXT(paOtherList)
 
-	def OverItemsComparedToCS(paOtherList, pCaseSensitive)
+	  #---------------------------------------------------------------------#
+	 #  GETTING THE ADDED-ITEMS IN A GIVEN LIST COMPARED TO THE MAIN LIST  #
+	#---------------------------------------------------------------------#
+
+	def AddedItemsComparedToCS(paOtherList, pCaseSensitive)
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
+		aResult = []
+		nLen = len(paOtherList)
+
+		for i = 1 to nLen
+
+			if NOT This.ContainsCS(paOtherList[i], pCaseSensitive)
+				aResult + paOtherList[i]
+			ok
+		next
+
+		return aResult
+
+		def AddedItemsComparedToCSQ(paOtherList, pCaseSensitive)
+			return new stzList( This.AddedItemsComparedToCS(paOtherList, pCaseSensitive) )
+
+		def OverItemsComparedToCS(paOtherList, pCaseSensitive)
+			return This.AddedItemsComparedToCS(paOtherList, pCaseSensitive)
+
+			def OverItemsComparedToCSQ(paOtherList, pCaseSensitive)
+				return This.AddedItemsComparedToCSQ(paOtherList, pCaseSensitive)
+	
+
+	#-- WITHOUT CASESENSITIVITY
+
+	def AddedItemsComparedTo(paOtherList)
+		return This.AddedItemsComparedToCS(paOtherList, 1)
+
+		def AddedItemsComparedToQ(paOtherList)
+			return new stzList( This.AddedItemsComparedTo(paOtherList) )
+
+		def OverItemsComparedTo(paOtherList)
+			return This.AddedItemsComparedTo(paOtherList)
+
+			def OverItemsComparedToQ(paOtherList)
+				return This.AddedItemsComparedToCSQ(paOtherList)
+
+	  #---------------------------------------------------------------------#
+	 #  GETTING THE Removed-ITEMS IN A GIVEN LIST COMPARED TO THE MAIN LIST  #
+	#---------------------------------------------------------------------#
+
+	def RemovedItemsComparedToCS(paOtherList, pCaseSensitive)
 		if NOT isList(paOtherList)
 			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
@@ -32979,49 +33052,74 @@ class stzList from stzObject
 
 		return aResult
 
-		def OverItemsComparedToCSQ(paOtherList, pCaseSensitive)
-			return new stzList( This.OverItemsComparedToCS(paOtherList, pCaseSensitive) )
+		def RemovedItemsComparedToCSQ(paOtherList, pCaseSensitive)
+			return new stzList( This.RemovedItemsComparedToCS(paOtherList, pCaseSensitive) )
+	
+		def LackingItemsComparedToCS(paOtherList, pCaseSensitive)
+			return This.RemovedItemsComparedToCS(paOtherList, pCaseSensitive)
 
+			def LackingItemsComparedToCSQ(paOtherList, pCaseSensitive)
+				return This.RemovedItemsComparedToCSQ(paOtherList, pCaseSensitive)
+	
 	#-- WITHOUT CASESENSITIVITY
 
-	def OverItemsComparedTo(paOtherList)
-		return This.OverItemsComparedToCS(paOtherList, 1)
+	def RemovedItemsComparedTo(paOtherList)
+		return This.RemovedItemsComparedToCS(paOtherList, 1)
 
-		def OverItemsComparedToQ(paOtherList)
-			return new stzList( This.OverItemsComparedTo(paOtherList) )
+		def RemovedItemsComparedToQ(paOtherList)
+			return new stzList( This.RemovedItemsComparedTo(paOtherList) )
 
-	  #-------------------------------------------------------------------------#
-	 #  GETTING THE LACKING-ITEMS IN THE LIST COMPARED TO AN OTHER GIVEN LIST  #
-	#-------------------------------------------------------------------------#
+		def LackingItemsComparedTo(paOtherList)
+			return This.RemovedItemsComparedTo(paOtherList)
 
-	def LackingItemsComparedToCS(paOtherList, pCaseSensitive)
+			def LackingItemsComparedToQ(paOtherList)
+				return This.RemovedItemsComparedToQ(paOtherList)
+
+	  #------------------------------------------------------------------------#
+	 #  GETTING THE Modified-ITEMS IN A GIVEN LIST COMPARED TO THE MAIN LIST  #
+	#------------------------------------------------------------------------#
+
+	def ModifiedItemsComparedToCS(paOtherList, pCaseSensitive)
+		if NOT isList(paOtherList)
+			StzRaise("Incorrect param type! paOtherList must be a list.")
+		ok
+
 		aResult = []
-		nLen = len(paOtherList)
+		
+		aThisListU = @UniqueCS(This.Content(), pCaseSensitive)
+		aoThisListU = @Objectify(aThisListU)
 
-		for i = 1 to nLen
-			item = paOtherList[i]
+		aOtherListU = @UniqueCS( StzListQ(paOtherList).TheseItemsRemovedCS(aThisListU, pCaseSensitive) , pCaseSensitive)
+		aoOtherListU = @Objectify(aOtherListU)
 
-			if NOT This.ContainsCS(item, pCaseSensitive)
-				aResult + item
-			ok
+		nLenThis = len(aThisListU)
+		nLenOther = len(aOtherListU)
+
+		for i = 1 to nLenThis
+			for j = 1 to nLenOther
+				if aoThisListU[i].ContainsCS(aOtherListU[j], pCaseSensitive) or
+				   aoOtherListU[j].ContainsCS(aThisListU[i], pCaseSensitive)
+					aResult + aThisListU[i]
+				ok
+			next
 		next
 
 		return aResult
 
-		def LackingItemsComparedToCSQ(paOtherList, pCaseSensitive)
-			return new stzList( This.LackingItemsComparedToCS(paOtherList, pCaseSensitive) )	
-
+		def ModifiedItemsComparedToCSQ(paOtherList, pCaseSensitive)
+			return new stzList( This.ModifiedItemsComparedToCS(paOtherList, pCaseSensitive) )
+		
 	#-- WITHOUT CASESENSITIVITY
 
-	def LackingItemsComparedTo(paOtherList)
-		return This.LackingItemsComparedToCS(paOtherList, 1)
+	def ModifiedItemsComparedTo(paOtherList)
+		return This.ModifiedItemsComparedToCS(paOtherList, 1)
 
-		def LackingItemsComparedToQ(paOtherList)
-			return new stzList( This.LackingItemsComparedTo(paOtherList) )	
+		def ModifiedItemsComparedToQ(paOtherList)
+			return new stzList( This.ModifiedItemsComparedTo(paOtherList) )
 
-	  #------------------------------------------------------------------------#
+	  #========================================================================#
 	 #  CHECKING IF THE LIST HAS SAME NUMBER OF ITEMS AS AN OTHER GIVEN LIST  #
-	#------------------------------------------------------------------------#
+	#========================================================================#
 
 	def HasSameNumberOfItemsAsCS(paOtherList, pCaseSensitive)
 		If len(paOtherList) = This.NumberOfItems()
