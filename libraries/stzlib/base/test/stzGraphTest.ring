@@ -1,3 +1,4 @@
+
 load "../stzbase.ring"
 
 #============================================#
@@ -3262,6 +3263,7 @@ ok
 #  GRAPH COMPARISON - IDENTICAL GRAPHS  #
 #---------------------------------------#
 
+
 /*--- Comparing identical graphs should show no changes
 */
 pr()
@@ -3288,8 +3290,8 @@ aDiff = oGraph.CompareWith(oVariation)
 		[
 			[ "nodesadded", 0 ],
 			[ "nodesremoved", 0 ],
-			[ "edgesadded", 1 ],
-			[ "edgesremoved", 1 ],
+			[ "edgesadded", 0 ],
+			[ "edgesremoved", 0 ],
 			[ "propertieschanged", 0 ]
 		]
 	],
@@ -3304,18 +3306,8 @@ aDiff = oGraph.CompareWith(oVariation)
 	[
 		"edges",
 		[
-			[
-				"added",
-				[
-					[ "", "", "" ]
-				]
-			],
-			[
-				"removed",
-				[
-					[ "", "", "" ]
-				]
-			],
+			[ "added", [  ] ],
+			[ "removed", [  ] ],
 			[ "modified", [  ] ]
 		]
 	],
@@ -3422,16 +3414,16 @@ aDiff = oGraph.CompareWith(oVariation)
 	],
 	[
 		"explanation",
-		[ "Added 1 edge(s)", "Removed 1 edge(s)" ]
+		[ "No significant changes detected" ]
 	]
 ]
 '
 pf()
 # Executed in 0.02 second(s) in Ring 1.24
 
-#---------------------------------#
-#   COMPARING MULTIPLE VARIATIONS #
-#---------------------------------#
+#-----------------------------------#
+#   COMPARING MULTIPLE VARIATIONS   #
+#-----------------------------------#
 
 /*--- Business analyst exploring 3 restructuring options
 
@@ -3501,8 +3493,6 @@ next
 
 pf()
 
-*/
-
 #------------------------------------#
 #   COMPARISON MATRIX AS SZTABLE     #
 #------------------------------------#
@@ -3535,8 +3525,6 @@ aRecommend = oMatrix.Recommend()
 
 pf()
 
-*/
-
 #------------------------------------#
 #   ASCII VISUALIZATION OF COMPARISON #
 #------------------------------------#
@@ -3563,8 +3551,6 @@ oMatrix.Visualize()
 #    - Edges removed per variation
 
 pf()
-
-*/
 
 #------------------------------------#
 #   FILTERING AND SORTING VARIATIONS #
@@ -3594,8 +3580,6 @@ oMatrix = oBaseline.CompareWithManyQ([
 ? oMatrix.ByMetric(:edgesAdded)
 
 pf()
-
-*/
 
 #------------------------------------#
 #   ADVANCED TABLE ANALYSIS          #
@@ -3627,8 +3611,6 @@ oSorted.SortOn(:DensityChange)
 oSorted.Show()
 
 pf()
-
-*/
 
 #------------------------------------#
 #   COMPREHENSIVE WHAT-IF SCENARIO   #
@@ -3731,8 +3713,6 @@ aRecommend = oMatrix.Recommend()
 
 pf()
 
-*/
-
 #-----------------------#
 #   ADD NODES ONLY      #
 #-----------------------#
@@ -3792,8 +3772,6 @@ next
 
 pf()
 
-*/
-
 #-----------------------#
 #   REMOVE NODES        #
 #-----------------------#
@@ -3844,8 +3822,6 @@ for cLine in aDiff[:explanation]
 next
 
 pf()
-
-*/
 
 #-----------------------#
 #   MODIFY PROPERTIES   #
@@ -3899,8 +3875,6 @@ next
 
 pf()
 
-*/
-
 #-----------------------#
 #   BOTTLENECK CHANGES  #
 #-----------------------#
@@ -3953,8 +3927,6 @@ next
 
 pf()
 
-*/
-
 #-----------------------#
 #   CYCLE INTRODUCTION  #
 #-----------------------#
@@ -4000,8 +3972,6 @@ next
 #--> Should include: "Warning: Cycles introduced"
 
 pf()
-
-*/
 
 #-----------------------#
 #   COMPLEX SCENARIO    #
@@ -4090,8 +4060,6 @@ next
 
 pf()
 
-*/
-
 #-----------------------#
 #   GRAPH FRAGMENTATION #
 #-----------------------#
@@ -4148,8 +4116,6 @@ next
 #--> Should warn: "Graph became fragmented"
 
 pf()
-
-*/
 
 #-----------------------#
 #   DENSITY COMPARISON  #
@@ -4209,8 +4175,6 @@ aDiff = oSparse.CompareWith(oDense)
 
 pf()
 
-*/
-
 #-----------------------#
 #   QUICK COMPARISON    #
 #-----------------------#
@@ -4242,5 +4206,3 @@ for cLine in aDiff[:explanation]
 next
 
 pf()
-
-*/

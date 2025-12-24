@@ -310,7 +310,7 @@ func S(p)
 
 #---
 
-func U(p)
+func UCS(p, pCaseSensitive)
 	/* EXAMPLE
 
 	? U([ "♥", 1, 2, 2, "♥", "♥", 3 ]) # Or Unique() or WithoutDuplicates()
@@ -324,8 +324,51 @@ func U(p)
 		ok
 	ok
 
-	result = StzListQ(p).WithoutDuplicates()
+	result = StzListQ(p).WithoutDuplicatesCS(pCaseSensitive)
 	return result
+
+	func WithoutDuplicatesCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func WithoutDupplicatesCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func UniqueCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func @UCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func @WithoutDuplicatesCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func @WithoutDupplicatesCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func @UniqueCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func UniqueItemsCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func @UniqueItemsCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func UniqueItemsInCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func @UniqueItemsInCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func ToSetCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+	func @ToSetCS(p, pCaseSensitive)
+		return UCS(p, pCaseSensitive)
+
+
+func U(p)
+	return UCS(p, 1)
 
 	func WithoutDuplicates(p)
 		return U(p)

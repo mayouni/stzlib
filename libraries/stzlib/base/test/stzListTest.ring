@@ -53,7 +53,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*---
-*/
+
 pr()
 
 o1 = new stzList([ 2, 4, 8 ])
@@ -12432,7 +12432,7 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*==== YIELDER
-*/
+
 pr()
 
 o1 = new stzList([ 1, "ring", 2, "python", 3, "ruby" ])
@@ -12440,6 +12440,7 @@ o1 = new stzList([ 1, "ring", 2, "python", 3, "ruby" ])
 #--> [ "RING", "PYTHON", "RUBY" ]
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 # Executed in 0.06 second(s) in Ring 1.22
 
 /*---
@@ -12692,15 +12693,15 @@ pf()
 # Executed in 0.05 second(s).
 
 #---------
-
+*/
 pr()
 
-o1 = new stzList([ "green", "red", "blue" ])
+o1 = new stzList([ "green", "rediness", "bluew" ])
 
-? o1.CommonItemsWith([ "yellow", "red", "blue", "gray" ]) 
+//? @@( o1.CommonItemsWith([ "yellow", "red", "blue", "gray" ]) )
 #--> [ "red", "blue" ]
 
-? o1.DifferentItemsWith([ "yellow", "red", "blue", "gray" ]) # Or DifferenceWith()
+//? @@( o1.DifferentItemsWith([ "yellow", "red", "blue", "gray" ]) ) # Or DifferenceWith()
 #--> [ "green", "yellow", "gray" ]
 
 ? @@NL( o1.DifferenceWithXT([ "yellow", "red", "blue", "gray" ]) ) # Or DifferentItemsWithXT()
@@ -12794,10 +12795,10 @@ pf()
 pr()
 
 o1 = new stzList([ "a", "b", "b", "b", "c" ])
-? o1 - these([ "b", "b" ])
+//? @@( o1 - these([ "b", "b" ]) )
 #--> [ "a", "c" ]
 
-? o1.DifferenceWith([ "a", "c" ])
+? @@( o1.DifferenceWith([ "a", "c" ]) )
 #--> [ "b", "b", "b" ]
 
 pf()
