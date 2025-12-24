@@ -3,8 +3,6 @@
 #  Simplified rules, all methods preserved   #
 #============================================#
 
-load "stzGraphRule.ring"
-
 $acGraphTypes = ["structural", "flow", "semantic", "dependency"]
 $cDefaultGraphType = "structural"
 
@@ -35,6 +33,17 @@ func IsStzGraph(pObj)
 	func IsStzGraphObject(pObj)
 		return IsStzGraph(pObj)
 
+	#--
+
+	func @IsStzGraph(pObj)
+		return IsStzGraph(pObj)
+
+	func @IsAStzGraph(pObj)
+		return IsStzGraph(pObj)
+
+	func @IsStzGraphObject(pObj)
+		return IsStzGraph(pObj)
+
 class stzGraph
 
 	@cId = ""
@@ -53,6 +62,10 @@ class stzGraph
 
 	def init(pcId)
 		@cId = pcId
+
+	def Copy()
+		_oCopy_ = This
+		return _oCopy_
 
 	def Id()
 		return @cId
@@ -897,7 +910,7 @@ class stzGraph
 		def PropsAndTheirValues()
 			return This.PropertiesXT()
 
-	def SetNodeProperty(pNodeId, cProperty, pValue)
+	def SetNodeProperty(pcNodeId, cProperty, pValue)
 
 		if NOT _IsWellFormedId(pcNodeId)
 			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
@@ -905,7 +918,7 @@ class stzGraph
 		
 		nLen = len(@aNodes)
 		for i = 1 to nLen
-			if @aNodes[i]["id"] = pNodeId
+			if @aNodes[i]["id"] = pcNodeId
 				if NOT HasKey(@aNodes[i], "properties")
 					@aNodes[i]["properties"] = []
 				ok
@@ -916,8 +929,8 @@ class stzGraph
 			ok
 		end
 	
-		def SetNodeProp(pNodeId, cProperty, pValue)
-			This.SetNodeProperty(pNodeId, cProperty, pValue)
+		def SetNodeProp(pcNodeId, cProperty, pValue)
+			This.SetNodeProperty(pcNodeId, cProperty, pValue)
 
 		def UpdateNodeProperty(pcNodeId, pcKey, pValue)
 			This.SetNodeProperty(pcNodeId, pcKey, pValue)
@@ -2589,7 +2602,7 @@ class stzGraph
 	        aEdge = This.Edge(acPath[i], acPath[i+1])
 	        aStory + (acPath[i] + " → " + acPath[i+1])
 		if aEdge[:label] != ""
-			aStory[len(aStory)] +=  (" : because @" + acPath[i] + " " + substr(aEdge[:label], "_", " ") + " @" + acPath[i+1] )
+			aStory[len(aStory)] +=  (" : because {" + acPath[i] + "} " + substr(aEdge[:label], "_", " ") + " {" + acPath[i+1] + "}" )
 		ok
 	    next
 	    
@@ -2844,9 +2857,714 @@ class stzGraph
 			ok
 		ok
 
-	#---------#
+	#====================#
+	#  GRAPH COMPARISON  #
+	#====================#
+
+	def CompareWith(oOtherGraph)
+		if NOT @IsStzGraph(oOtherGraph)
+			stzraise("Parameter must be a stzGraph object!")
+		ok
+		
+		aDiff = [
+			:summary = This._CompareSummary(oOtherGraph),
+			:nodes = This._CompareNodes(oOtherGraph),
+			:edges = This._CompareEdges(oOtherGraph),
+			:metrics = This._CompareMetrics(oOtherGraph),
+			:topology = This._CompareTopology(oOtherGraph),
+			:impact = This._CompareImpact(oOtherGraph),
+			:explanation = This._GenerateExplanation(oOtherGraph)
+		]
+		
+		return aDiff
+
+		def DiffWith(oOtherGraph)
+			return This.CompareWith(oOtherGraph)
+
+		def Diff(oOtherGraph)
+			return This.CompareWith(oOtherGraph)
+
+	#-----------------------------#
+	#  MULTIPLE GRAPH COMPARISON  #
+	#-----------------------------#
+
+	def CompareWithMany(paoGraphs)
+		# Accept either list of graphs or hashlist with names
+		aGraphs = []
+		
+		if isList(paoGraphs) and len(paoGraphs) > 0
+			if isList(paoGraphs[1]) and len(paoGraphs[1]) = 2 and isString(paoGraphs[1][1])
+				# Hashlist format: [ ["name1", oGraph1], ["name2", oGraph2] ]
+				aGraphs = paoGraphs
+			else
+				# Simple list: auto-generate names
+				nLen = len(paoGraphs)
+				for i = 1 to nLen
+					aGraphs + ["Variation_" + i, paoGraphs[i]]
+				next
+			ok
+		ok
+		
+		if len(aGraphs) = 0
+			stzraise("No graphs provided for comparison!")
+		ok
+		
+		# Build comparison matrix
+		aComparisons = []
+		nLen = len(aGraphs)
+		
+		for i = 1 to nLen
+			cName = aGraphs[i][1]
+			oGraph = aGraphs[i][2]
+			
+			if NOT IsStzGraph(oGraph)
+				stzraise("Item " + i + " is not a valid stzGraph object!")
+			ok
+			
+			aDiff = This.CompareWith(oGraph)
+			
+			# Extract key metrics for tabular view
+			aRow = [
+				:name = cName,
+				:nodesAdded = aDiff[:summary][:nodesAdded],
+				:nodesRemoved = aDiff[:summary][:nodesRemoved],
+				:edgesAdded = aDiff[:summary][:edgesAdded],
+				:edgesRemoved = aDiff[:summary][:edgesRemoved],
+				:densityChange = aDiff[:metrics][:density][:change],
+				:hasCycles = aDiff[:metrics][:hasCycles][:to],
+				:bottleneckChange = aDiff[:topology][:bottlenecks][:change],
+				:explanation = aDiff[:explanation][1]  # First explanation line
+			]
+			
+			aComparisons + aRow
+		next
+		
+		return [
+			:comparisons = aComparisons,
+			:baseline = This.Id(),
+			:count = len(aComparisons)
+		]
+
+		def CompareMany(paoGraphs)
+			return This.CompareWithMany(paoGraphs)
+
+		def DiffMany(paoGraphs)
+			return This.CompareWithMany(paoGraphs)
+
+	def CompareWithManyQ(paoGraphs)
+		return new stzGraphComparisonMatrix(This, paoGraphs)
+
+		def CompareManyQ(paoGraphs)
+			return This.CompareWithManyQ(paoGraphs)
+
+	#------------------------------------------#
+	#  GRAPH COMPARISON VISUALIZATION SUPPORT  #
+	#------------------------------------------#
+
+	def ComparisonToStzTable(aComparison)
+		# Convert comparison result to stzTable format
+		if NOT (isList(aComparison) and HasKey(aComparison, :comparisons))
+			stzraise("Invalid comparison format!")
+		ok
+		
+		aRows = []
+		aComparisons = aComparison[:comparisons]
+		nLen = len(aComparisons)
+		
+		for i = 1 to nLen
+			aComp = aComparisons[i]
+			aRow = [
+				aComp[:name],
+				aComp[:nodesAdded],
+				aComp[:nodesRemoved],
+				aComp[:edgesAdded],
+				aComp[:edgesRemoved],
+				aComp[:densityChange],
+				aComp[:hasCycles],
+				aComp[:bottleneckChange]
+			]
+			aRows + aRow
+		next
+		
+		# Build table data
+		aTableData = [
+			[ :Variation, :NodesAdded, :NodesRemoved, :EdgesAdded, 
+			  :EdgesRemoved, :DensityChange, :HasCycles, :BottleneckChange ]
+		]
+		
+		nLen = len(aRows)
+		for i = 1 to nLen
+			aTableData + aRows[i]
+		next
+		
+		return aTableData
+
+	def VisualizeComparison(aComparison)
+		# Generate ASCII visualization of comparison
+		if NOT (isList(aComparison) and HasKey(aComparison, :comparisons))
+			return "Invalid comparison data"
+		ok
+		
+		aComparisons = aComparison[:comparisons]
+		nCount = len(aComparisons)
+		
+		cResult = NL + "=== COMPARISON MATRIX ===" + NL
+		cResult += "Baseline: " + aComparison[:baseline] + NL
+		cResult += "Variations: " + nCount + NL + NL
+		
+		# Nodes change visualization
+		acNames = []
+		anNodesAdded = []
+		anNodesRemoved = []
+		
+		nLen = len(aComparisons)
+		for i = 1 to nLen
+			acNames + aComparisons[i][:name]
+			anNodesAdded + aComparisons[i][:nodesAdded]
+			anNodesRemoved + aComparisons[i][:nodesRemoved]
+		next
+		
+		cResult += "--- NODES ADDED ---" + NL
+		cResult += This._GenerateSimpleBarChart(acNames, anNodesAdded) + NL + NL
+		
+		cResult += "--- NODES REMOVED ---" + NL
+		cResult += This._GenerateSimpleBarChart(acNames, anNodesRemoved) + NL + NL
+		
+		# Edges change visualization
+		anEdgesAdded = []
+		anEdgesRemoved = []
+		
+		nLen = len(aComparisons)
+		for i = 1 to nLen
+			anEdgesAdded + aComparisons[i][:edgesAdded]
+			anEdgesRemoved + aComparisons[i][:edgesRemoved]
+		next
+		
+		cResult += "--- EDGES ADDED ---" + NL
+		cResult += This._GenerateSimpleBarChart(acNames, anEdgesAdded) + NL + NL
+		
+		cResult += "--- EDGES REMOVED ---" + NL
+		cResult += This._GenerateSimpleBarChart(acNames, anEdgesRemoved) + NL
+		
+		return cResult
+
+	def _GenerateSimpleBarChart(acLabels, anValues)
+		if len(acLabels) = 0 or len(anValues) = 0
+			return "(no data)"
+		ok
+		
+		# Find max value for scaling
+		nMax = Max(anValues)
+		if nMax = 0
+			nMax = 1
+		ok
+		
+		nBarWidth = 40
+		cResult = ""
+		
+		nLen = len(acLabels)
+		for i = 1 to nLen
+			cLabel = acLabels[i]
+			nValue = anValues[i]
+			
+			# Pad label to 15 chars
+			cPadded = cLabel
+			while len(cPadded) < 15
+				cPadded += " "
+			end
+			
+			# Calculate bar length
+			nBarLen = floor((nValue / nMax) * nBarWidth)
+			cBar = ""
+			for j = 1 to nBarLen
+				cBar += "█"
+			next
+			
+			cResult += cPadded + " │ " + cBar + " " + nValue + NL
+		next
+		
+		return cResult
+
+	#-----------------------------#
+	#  GRAPH COMPARISON HELPERS   #
+	#-----------------------------#
+
+	def _CompareSummary(oOtherGraph)
+		acBaselineIds = This.NodesIds()
+		acVariationIds = oOtherGraph.NodesIds()
+		
+		acAdded = []
+		acRemoved = []
+		nLen = len(acVariationIds)
+		for i = 1 to nLen
+			if ring_find(acBaselineIds, acVariationIds[i]) = 0
+				acAdded + acVariationIds[i]
+			ok
+		next
+		
+		nLen = len(acBaselineIds)
+		for i = 1 to nLen
+			if ring_find(acVariationIds, acBaselineIds[i]) = 0
+				acRemoved + acBaselineIds[i]
+			ok
+		next
+		
+		# Count edge changes
+		aEdgeDiff = This._CompareEdges(oOtherGraph)
+		
+		# Count property changes
+		nPropsChanged = 0
+		aNodeDiff = This._CompareNodes(oOtherGraph)
+		if HasKey(aNodeDiff, :modified)
+			nPropsChanged = len(aNodeDiff[:modified])
+		ok
+		
+		return [
+			:nodesAdded = len(acAdded),
+			:nodesRemoved = len(acRemoved),
+			:edgesAdded = len(aEdgeDiff[:added]),
+			:edgesRemoved = len(aEdgeDiff[:removed]),
+			:propertiesChanged = nPropsChanged
+		]
+
+	def _CompareNodes(oOtherGraph)
+		acBaselineIds = This.NodesIds()
+		acVariationIds = oOtherGraph.NodesIds()
+		
+		acAdded = []
+		acRemoved = []
+		aModified = []
+		
+		# Find added nodes
+		nLen = len(acVariationIds)
+		for i = 1 to nLen
+			if ring_find(acBaselineIds, acVariationIds[i]) = 0
+				acAdded + acVariationIds[i]
+			ok
+		next
+		
+		# Find removed nodes
+		nLen = len(acBaselineIds)
+		for i = 1 to nLen
+			if ring_find(acVariationIds, acBaselineIds[i]) = 0
+				acRemoved + acBaselineIds[i]
+			ok
+		next
+		
+		# Find modified nodes (common nodes with property changes)
+		nLen = len(acBaselineIds)
+		for i = 1 to nLen
+			cNodeId = acBaselineIds[i]
+			if ring_find(acVariationIds, cNodeId) > 0
+				aBaseNode = This.Node(cNodeId)
+				aVarNode = oOtherGraph.Node(cNodeId)
+				
+				aChanges = []
+				
+				# Compare properties
+				if HasKey(aBaseNode, :properties) or HasKey(aVarNode, :properties)
+					aBaseProps = []
+					aVarProps = []
+					
+					if HasKey(aBaseNode, :properties)
+						aBaseProps = aBaseNode[:properties]
+					ok
+					if HasKey(aVarNode, :properties)
+						aVarProps = aVarNode[:properties]
+					ok
+					
+					# Check for changed/added properties
+					acVarKeys = keys(aVarProps)
+					nKeyLen = len(acVarKeys)
+					for j = 1 to nKeyLen
+						cKey = acVarKeys[j]
+						pVarVal = aVarProps[cKey]
+						
+						if HasKey(aBaseProps, cKey)
+							pBaseVal = aBaseProps[cKey]
+							if pBaseVal != pVarVal
+								aChanges + [:property, cKey, pBaseVal, pVarVal]
+							ok
+						else
+							aChanges + [:property, cKey, NULL, pVarVal]
+						ok
+					next
+					
+					# Check for removed properties
+					acBaseKeys = keys(aBaseProps)
+					nKeyLen = len(acBaseKeys)
+					for j = 1 to nKeyLen
+						cKey = acBaseKeys[j]
+						if NOT HasKey(aVarProps, cKey)
+							aChanges + [:property, cKey, aBaseProps[cKey], NULL]
+						ok
+					next
+				ok
+				
+				if len(aChanges) > 0
+					aModified + [cNodeId, aChanges]
+				ok
+			ok
+		next
+		
+		return [
+			:added = acAdded,
+			:removed = acRemoved,
+			:modified = aModified
+		]
+
+	def _CompareEdges(oOtherGraph)
+		# Build edge keys for comparison
+		aBaseEdgeKeys = []
+		aEdges = This.Edges()
+		nLen = len(aEdges)
+		for i = 1 to nLen
+			aEdge = aEdges[i]
+			cKey = aEdge[:from] + "|" + aEdge[:to] + "|" + aEdge[:label]
+			aBaseEdgeKeys + [cKey, aEdge]
+		next
+		
+		aVarEdgeKeys = []
+		aEdges = oOtherGraph.Edges()
+		nLen = len(aEdges)
+		for i = 1 to nLen
+			aEdge = aEdges[i]
+			cKey = aEdge[:from] + "|" + aEdge[:to] + "|" + aEdge[:label]
+			aVarEdgeKeys + [cKey, aEdge]
+		next
+		
+		# Find added edges
+		aAdded = []
+		nLen = len(aVarEdgeKeys)
+		for i = 1 to nLen step 2
+			cVarKey = aVarEdgeKeys[i]
+			bFound = FALSE
+			nLen2 = len(aBaseEdgeKeys)
+			for j = 1 to nLen2 step 2
+				if aBaseEdgeKeys[j] = cVarKey
+					bFound = TRUE
+					exit
+				ok
+			next
+			if NOT bFound
+				aEdge = aVarEdgeKeys[i+1]
+				aAdded + [aEdge[:from], aEdge[:to], aEdge[:label]]
+			ok
+		next
+		
+		# Find removed edges
+		aRemoved = []
+		nLen = len(aBaseEdgeKeys)
+		for i = 1 to nLen step 2
+			cBaseKey = aBaseEdgeKeys[i]
+			bFound = FALSE
+			nLen2 = len(aVarEdgeKeys)
+			for j = 1 to nLen2 step 2
+				if aVarEdgeKeys[j] = cBaseKey
+					bFound = TRUE
+					exit
+				ok
+			next
+			if NOT bFound
+				aEdge = aBaseEdgeKeys[i+1]
+				aRemoved + [aEdge[:from], aEdge[:to], aEdge[:label]]
+			ok
+		next
+		
+		return [
+			:added = aAdded,
+			:removed = aRemoved,
+			:modified = []
+		]
+
+	def _CompareMetrics(oOtherGraph)
+		# Node count
+		nBaseNodes = This.NodeCount()
+		nVarNodes = oOtherGraph.NodeCount()
+		
+		# Edge count
+		nBaseEdges = This.EdgeCount()
+		nVarEdges = oOtherGraph.EdgeCount()
+		
+		# Density
+		nBaseDensity = This.NodeDensity()
+		nVarDensity = oOtherGraph.NodeDensity()
+		
+		# Longest path
+		nBasePath = This.LongestPath()
+		nVarPath = oOtherGraph.LongestPath()
+		
+		# Cycles
+		bBaseCycles = This.HasCyclicDependencies()
+		bVarCycles = oOtherGraph.HasCyclicDependencies()
+		
+		# Average degree
+		nBaseAvgDegree = 0
+		if nBaseNodes > 0
+			nBaseAvgDegree = (nBaseEdges * 2.0) / nBaseNodes
+		ok
+		nVarAvgDegree = 0
+		if nVarNodes > 0
+			nVarAvgDegree = (nVarEdges * 2.0) / nVarNodes
+		ok
+		
+		return [
+			:nodeCount = This._MetricChange(nBaseNodes, nVarNodes),
+			:edgeCount = This._MetricChange(nBaseEdges, nVarEdges),
+			:density = This._MetricChange(nBaseDensity, nVarDensity),
+			:longestPath = This._MetricChange(nBasePath, nVarPath),
+			:hasCycles = This._BooleanChange(bBaseCycles, bVarCycles),
+			:avgDegree = This._MetricChange(nBaseAvgDegree, nVarAvgDegree)
+		]
+
+	def _CompareTopology(oOtherGraph)
+		# Bottlenecks
+		acBaseBottlenecks = This.BottleneckNodes()
+		acVarBottlenecks = oOtherGraph.BottleneckNodes()
+		cBottleneckChange = "unchanged"
+		nDelta = len(acVarBottlenecks) - len(acBaseBottlenecks)
+		if nDelta > 0
+			cBottleneckChange = "increased"
+		but nDelta < 0
+			cBottleneckChange = "reduced"
+		ok
+		
+		# Connected components
+		nBaseComponents = len(This.ConnectedComponents())
+		nVarComponents = len(oOtherGraph.ConnectedComponents())
+		cComponentChange = "unchanged"
+		if nVarComponents > nBaseComponents
+			cComponentChange = "fragmented"
+		but nVarComponents < nBaseComponents
+			cComponentChange = "merged"
+		ok
+		
+		# Isolated nodes
+		acBaseIsolated = []
+		acBaseIds = This.NodesIds()
+		nLen = len(acBaseIds)
+		for i = 1 to nLen
+			cId = acBaseIds[i]
+			if len(This.Neighbors(cId)) = 0 and len(This.Incoming(cId)) = 0
+				acBaseIsolated + cId
+			ok
+		next
+		
+		acVarIsolated = []
+		acVarIds = oOtherGraph.NodesIds()
+		nLen = len(acVarIds)
+		for i = 1 to nLen
+			cId = acVarIds[i]
+			if len(oOtherGraph.Neighbors(cId)) = 0 and len(oOtherGraph.Incoming(cId)) = 0
+				acVarIsolated + cId
+			ok
+		next
+		
+		cIsolatedChange = "unchanged"
+		if len(acVarIsolated) > len(acBaseIsolated)
+			cIsolatedChange = "increased"
+		but len(acVarIsolated) < len(acBaseIsolated)
+			cIsolatedChange = "reduced"
+		ok
+		
+		return [
+			:bottlenecks = [
+				:from = acBaseBottlenecks,
+				:to = acVarBottlenecks,
+				:change = cBottleneckChange,
+				:delta = nDelta
+			],
+			:connectedComponents = [
+				:from = nBaseComponents,
+				:to = nVarComponents,
+				:change = cComponentChange
+			],
+			:isolatedNodes = [
+				:from = acBaseIsolated,
+				:to = acVarIsolated,
+				:change = cIsolatedChange
+			]
+		]
+
+	def _CompareImpact(oOtherGraph)
+		acReachabilityChanges = []
+		acCriticalityChanges = []
+		
+		# Compare reachability for common nodes
+		acBaseIds = This.NodesIds()
+		acVarIds = oOtherGraph.NodesIds()
+		
+		nLen = len(acBaseIds)
+		for i = 1 to nLen
+			cNodeId = acBaseIds[i]
+			
+			# Only analyze nodes that exist in both graphs
+			if ring_find(acVarIds, cNodeId) > 0
+				# Check reachability changes
+				acBaseReachable = This.ReachableFrom(cNodeId)
+				acVarReachable = oOtherGraph.ReachableFrom(cNodeId)
+				
+				if len(acVarReachable) > len(acBaseReachable)
+					nDiff = len(acVarReachable) - len(acBaseReachable)
+					acReachabilityChanges + [cNodeId, "Can now reach " + nDiff + " more node(s)"]
+				but len(acVarReachable) < len(acBaseReachable)
+					nDiff = len(acBaseReachable) - len(acVarReachable)
+					acReachabilityChanges + [cNodeId, "Can now reach " + nDiff + " fewer node(s)"]
+				ok
+				
+				# Check criticality (degree) changes
+				nBaseDegree = len(This.Neighbors(cNodeId)) + len(This.Incoming(cNodeId))
+				nVarDegree = len(oOtherGraph.Neighbors(cNodeId)) + len(oOtherGraph.Incoming(cNodeId))
+				
+				if nVarDegree > nBaseDegree
+					acCriticalityChanges + [cNodeId, "Criticality increased (degree " + nBaseDegree + " → " + nVarDegree + ")"]
+				but nVarDegree < nBaseDegree
+					acCriticalityChanges + [cNodeId, "Criticality decreased (degree " + nBaseDegree + " → " + nVarDegree + ")"]
+				ok
+			ok
+		next
+		
+		# Check for newly added critical nodes
+		nLen = len(acVarIds)
+		for i = 1 to nLen
+			cNodeId = acVarIds[i]
+			if ring_find(acBaseIds, cNodeId) = 0
+				nDegree = len(oOtherGraph.Neighbors(cNodeId)) + len(oOtherGraph.Incoming(cNodeId))
+				if nDegree >= 3
+					acCriticalityChanges + [cNodeId, "New critical node (degree " + nDegree + ")"]
+				ok
+			ok
+		next
+		
+		return [
+			:reachabilityChanges = acReachabilityChanges,
+			:criticalityChanges = acCriticalityChanges
+		]
+
+	def _GenerateExplanation(oOtherGraph)
+		acExplanation = []
+		
+		aSummary = This._CompareSummary(oOtherGraph)
+		aMetrics = This._CompareMetrics(oOtherGraph)
+		aTopology = This._CompareTopology(oOtherGraph)
+		
+		# Structural changes
+		if aSummary[:nodesAdded] > 0 or aSummary[:edgesAdded] > 0
+			cMsg = ""
+			if aSummary[:nodesAdded] > 0 and aSummary[:edgesAdded] > 0
+				cMsg = "Added " + aSummary[:nodesAdded] + " node(s) and " + aSummary[:edgesAdded] + " edge(s)"
+			but aSummary[:nodesAdded] > 0
+				cMsg = "Added " + aSummary[:nodesAdded] + " node(s)"
+			but aSummary[:edgesAdded] > 0
+				cMsg = "Added " + aSummary[:edgesAdded] + " edge(s)"
+			ok
+			acExplanation + cMsg
+		ok
+		
+		if aSummary[:nodesRemoved] > 0 or aSummary[:edgesRemoved] > 0
+			cMsg = ""
+			if aSummary[:nodesRemoved] > 0 and aSummary[:edgesRemoved] > 0
+				cMsg = "Removed " + aSummary[:nodesRemoved] + " node(s) and " + aSummary[:edgesRemoved] + " edge(s)"
+			but aSummary[:nodesRemoved] > 0
+				cMsg = "Removed " + aSummary[:nodesRemoved] + " node(s)"
+			but aSummary[:edgesRemoved] > 0
+				cMsg = "Removed " + aSummary[:edgesRemoved] + " edge(s)"
+			ok
+			acExplanation + cMsg
+		ok
+		
+		if aSummary[:propertiesChanged] > 0
+			acExplanation + ("Modified " + aSummary[:propertiesChanged] + " node propertie(s)")
+		ok
+		
+		# Metrics changes
+		if aMetrics[:density][:change] != "unchanged"
+			acExplanation + ("Density " + aMetrics[:density][:change])
+		ok
+		
+		# Topology changes
+		if aTopology[:bottlenecks][:change] != "unchanged"
+			if aTopology[:bottlenecks][:change] = "reduced"
+				acExplanation + ("Bottlenecks reduced (improvement)")
+			else
+				acExplanation + ("Bottlenecks " + aTopology[:bottlenecks][:change])
+			ok
+		ok
+		
+		# Cycles
+		if aMetrics[:hasCycles][:from] = FALSE and aMetrics[:hasCycles][:to] = TRUE
+			acExplanation + "Warning: Cycles introduced"
+		but aMetrics[:hasCycles][:from] = TRUE and aMetrics[:hasCycles][:to] = FALSE
+			acExplanation + "Cycles removed (now acyclic)"
+		ok
+		
+		# Connectivity
+		if aTopology[:connectedComponents][:change] = "fragmented"
+			acExplanation + "Warning: Graph became fragmented"
+		but aTopology[:connectedComponents][:change] = "merged"
+			acExplanation + "Components merged (better connectivity)"
+		ok
+		
+		if len(acExplanation) = 0
+			acExplanation + "No significant changes detected"
+		ok
+		
+		return acExplanation
+
+	def _MetricChange(pFrom, pTo)
+		nDelta = pTo - pFrom
+		cChange = This._CalculateChange(pFrom, pTo)
+		
+		return [
+			:from = pFrom,
+			:to = pTo,
+			:change = cChange,
+			:delta = nDelta
+		]
+
+	def _BooleanChange(bFrom, bTo)
+		cChange = "unchanged"
+		if bFrom != bTo
+			if bTo
+				cChange = "now TRUE"
+			else
+				cChange = "now FALSE"
+			ok
+		ok
+		
+		return [
+			:from = bFrom,
+			:to = bTo,
+			:change = cChange
+		]
+
+	def _CalculateChange(pFrom, pTo)
+		if isNumber(pFrom) and isNumber(pTo)
+			if pFrom = 0
+				if pTo = 0
+					return "unchanged"
+				else
+					return "+100%"
+				ok
+			ok
+			
+			nDelta = pTo - pFrom
+			nPercent = (nDelta / pFrom) * 100
+			
+			if nPercent > 0.5
+				return "+" + decimals(nPercent, 1) + "%"
+			but nPercent < -0.5
+				return decimals(nPercent, 1) + "%"
+			else
+				return "unchanged"
+			ok
+		ok
+		
+		return "unchanged"
+		
+	#=========#
 	#  MISC.  #
-	#---------#
+	#=========#
 
 	#NOTE// I added those methods after including the GraphType attribute
 	# So we can use it in a practical way to enforce the beahvir
@@ -2881,6 +3599,7 @@ class stzGraph
 	def _NormalizeLabel(pcLabel)
 		pcLabel = substr(pcLabel, " ", "_")
 		pcLabel = substr(pcLabel, NL, "_")
+		return pcLabel
 
 		def  _NormaliseLabel(pcLabel)
 			return substr(pcLabel, " ", "_")
@@ -3366,3 +4085,227 @@ class stzGraphAsciiVisualizer
 				pacArrowLines + [pcNodeId, cNext, aEdge["label"]]
 			ok
 		ok
+
+
+#================================================#
+# stzGraphComparisonMatrix - Fluent Comparison   #
+#================================================#
+
+class stzGraphComparisonMatrix
+	@oBaselineGraph
+	@aGraphs = []
+	@aComparisonData = []
+	
+	def init(oBaseline, paoGraphs)
+		@oBaselineGraph = oBaseline
+		
+		# Normalize input
+		if isList(paoGraphs) and len(paoGraphs) > 0
+			if isList(paoGraphs[1]) and len(paoGraphs[1]) = 2 and isString(paoGraphs[1][1])
+				@aGraphs = paoGraphs
+			else
+				nLen = len(paoGraphs)
+				for i = 1 to nLen
+					@aGraphs + ["V" + i, paoGraphs[i]]
+				next
+			ok
+		ok
+		
+		# Perform comparisons
+		This._BuildComparisons()
+	
+	def _BuildComparisons()
+		@aComparisonData = @oBaselineGraph.CompareWithMany(@aGraphs)
+	
+	def ToStzTable()
+		aTableData = @oBaselineGraph.ComparisonToStzTable(@aComparisonData)
+		return new stzTable(aTableData)
+	
+		def AsStzTable()
+			return This.ToStzTable()
+	
+		def AsTable()
+			return This.ToStzTable()
+	
+	def Show()
+		oTable = This.ToStzTable()
+		oTable.Show()
+	
+		def Display()
+			This.Show()
+	
+	def Visualize()
+		? @oBaselineGraph.VisualizeComparison(@aComparisonData)
+	
+		def ShowVisual()
+			This.Visualize()
+	
+		def Plot()
+			This.Visualize()
+	
+	def Data()
+		return @aComparisonData
+	
+	def Comparisons()
+		return @aComparisonData[:comparisons]
+	
+	def Summary()
+		cResult = ""
+		cResult += "Baseline: " + @aComparisonData[:baseline] + NL
+		cResult += "Variations compared: " + @aComparisonData[:count] + NL + NL
+		
+		aComps = @aComparisonData[:comparisons]
+		nLen = len(aComps)
+		
+		for i = 1 to nLen
+			aComp = aComps[i]
+			cResult += "• " + aComp[:name] + ": " + aComp[:explanation] + NL
+		next
+		
+		return cResult
+	
+	def MostImpactful()
+		# Returns variation with most total changes
+		aComps = @aComparisonData[:comparisons]
+		nMaxImpact = 0
+		cMaxName = ""
+		
+		nLen = len(aComps)
+		for i = 1 to nLen
+			aComp = aComps[i]
+			nImpact = aComp[:nodesAdded] + aComp[:nodesRemoved] + 
+			          aComp[:edgesAdded] + aComp[:edgesRemoved]
+			
+			if nImpact > nMaxImpact
+				nMaxImpact = nImpact
+				cMaxName = aComp[:name]
+			ok
+		next
+		
+		return cMaxName
+	
+	def LeastImpactful()
+		# Returns variation with fewest total changes
+		aComps = @aComparisonData[:comparisons]
+		nMinImpact = 999999
+		cMinName = ""
+		
+		nLen = len(aComps)
+		for i = 1 to nLen
+			aComp = aComps[i]
+			nImpact = aComp[:nodesAdded] + aComp[:nodesRemoved] + 
+			          aComp[:edgesAdded] + aComp[:edgesRemoved]
+			
+			if nImpact < nMinImpact
+				nMinImpact = nImpact
+				cMinName = aComp[:name]
+			ok
+		next
+		
+		return cMinName
+	
+	def WithCycles()
+		# Returns names of variations that introduce cycles
+		aComps = @aComparisonData[:comparisons]
+		acResult = []
+		
+		nLen = len(aComps)
+		for i = 1 to nLen
+			if aComps[i][:hasCycles] = TRUE
+				acResult + aComps[i][:name]
+			ok
+		next
+		
+		return acResult
+	
+	def WithoutCycles()
+		# Returns names of variations that remain acyclic
+		aComps = @aComparisonData[:comparisons]
+		acResult = []
+		
+		nLen = len(aComps)
+		for i = 1 to nLen
+			if aComps[i][:hasCycles] = FALSE
+				acResult + aComps[i][:name]
+			ok
+		next
+		
+		return acResult
+	
+	def ByMetric(cMetric)
+		# Sort variations by specified metric
+		# Supported: :nodesAdded, :edgesAdded, etc.
+		aComps = @aComparisonData[:comparisons]
+		
+		if NOT HasKey(aComps[1], cMetric)
+			stzraise("Unknown metric: " + cMetric)
+		ok
+		
+		# Simple bubble sort
+		nLen = len(aComps)
+		for i = 1 to nLen - 1
+			for j = i + 1 to nLen
+				if aComps[j][cMetric] > aComps[i][cMetric]
+					aTemp = aComps[i]
+					aComps[i] = aComps[j]
+					aComps[j] = aTemp
+				ok
+			next
+		next
+		
+		acResult = []
+		nLen = len(aComps)
+		for i = 1 to nLen
+			acResult + aComps[i][:name]
+		next
+		
+		return acResult
+	
+	def Recommend()
+		# Simple recommendation logic
+		aComps = @aComparisonData[:comparisons]
+		
+		# Find variation with:
+		# - No cycles
+		# - Positive density change
+		# - Reduced bottlenecks
+		
+		nBestScore = -999
+		cBestName = ""
+		
+		nLen = len(aComps)
+		for i = 1 to nLen
+			aComp = aComps[i]
+			nScore = 0
+			
+			# No cycles: +10
+			if aComp[:hasCycles] = FALSE
+				nScore += 10
+			ok
+			
+			# Reduced bottlenecks: +5
+			if aComp[:bottleneckChange] = "reduced"
+				nScore += 5
+			ok
+			
+			# Positive density change: +3
+			cDensity = aComp[:densityChange]
+			if isString(cDensity) and substr(cDensity, "+") > 0
+				nScore += 3
+			ok
+			
+			# Fewer nodes removed than added: +2
+			if aComp[:nodesRemoved] < aComp[:nodesAdded]
+				nScore += 2
+			ok
+			
+			if nScore > nBestScore
+				nBestScore = nScore
+				cBestName = aComp[:name]
+			ok
+		next
+		
+		return [
+			:recommended = cBestName,
+			:reason = "Best balance of structure, connectivity, and acyclicity"
+		]

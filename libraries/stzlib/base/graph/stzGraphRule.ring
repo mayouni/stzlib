@@ -1,7 +1,6 @@
 #============================================#
 #  FUNCTION-BASED RULES SYSTEM FOR stzGraph
 #  Simple, flexible, unlimited power
-# Loaded by the stzGraph class
 #============================================#
 
 # Three Rule Types:

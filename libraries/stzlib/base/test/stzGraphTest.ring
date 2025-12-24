@@ -1192,7 +1192,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 *--- Path Explanation
-*/
+
 pr()
 
 oGraph = new stzGraph("ImpactTest")
@@ -1209,11 +1209,10 @@ oGraph {
 	? @@NL( ExplainPath("db", "worker2") )
 }
 #-->
-#-->
 '
 [
-	"db → api : because @db exposes @api",
-	"api → worker2 : because @api is used by @worker2"
+	"db → api : because {db} exposes {api}",
+	"api → worker2 : because {api} is used by {worker2}"
 ]
 '
 
@@ -3253,3 +3252,995 @@ aResult = o4.ValidateGraph()
 if len(aResult[2]) > 0
     ? "Violation: " + aResult[2][1][:message]  # "Cycles not allowed in structural graphs"
 ok
+
+
+#=======================================================================#
+#  GRAPH (SINGLE AND MULTIPLE) COMPARAISON, ANALYSIS AND VISUALIZATION  #
+#=======================================================================#
+
+#---------------------------------------#
+#  GRAPH COMPARISON - IDENTICAL GRAPHS  #
+#---------------------------------------#
+
+/*--- Comparing identical graphs should show no changes
+*/
+pr()
+
+oGraph = new stzGraph("org")
+oGraph {
+	AddNode("ceo")
+	AddNode("manager")
+	AddNode("dev")
+	
+	Connect("ceo", "manager")
+	Connect("manager", "dev")
+}
+
+oVariation = oGraph.Copy()
+
+aDiff = oGraph.CompareWith(oVariation)
+? @@NL( aDiff )
+#-->
+'
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 0 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 1 ],
+			[ "edgesremoved", 1 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[ "added", [  ] ],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[
+				"added",
+				[
+					[ "", "", "" ]
+				]
+			],
+			[
+				"removed",
+				[
+					[ "", "", "" ]
+				]
+			],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 3 ],
+					[ "to", 3 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 2 ],
+					[ "to", 2 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.33 ],
+					[ "to", 0.33 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 2 ],
+					[ "to", 2 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", 0 ],
+					[ "to", 0 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 1.33 ],
+					[ "to", 1.33 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[
+						"from",
+						[ "manager" ]
+					],
+					[
+						"to",
+						[ "manager" ]
+					],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[ "reachabilitychanges", [  ] ],
+			[ "criticalitychanges", [  ] ]
+		]
+	],
+	[
+		"explanation",
+		[ "Added 1 edge(s)", "Removed 1 edge(s)" ]
+	]
+]
+'
+pf()
+# Executed in 0.02 second(s) in Ring 1.24
+
+#---------------------------------#
+#   COMPARING MULTIPLE VARIATIONS #
+#---------------------------------#
+
+/*--- Business analyst exploring 3 restructuring options
+
+pr()
+
+oBaseline = new stzGraph("current_structure")
+oBaseline {
+	AddNode("ceo")
+	AddNode("sales")
+	AddNode("engineering")
+	AddNode("marketing")
+	
+	Connect("ceo", "sales")
+	Connect("ceo", "engineering")
+	Connect("ceo", "marketing")
+}
+
+# Option A: Add management layer
+oOptionA = oBaseline.Copy()
+oOptionA {
+	AddNode("coo")
+	RemoveThisEdge("ceo", "sales")
+	RemoveThisEdge("ceo", "marketing")
+	Connect("ceo", "coo")
+	Connect("coo", "sales")
+	Connect("coo", "marketing")
+}
+
+# Option B: Flat structure with more departments
+oOptionB = oBaseline.Copy()
+oOptionB {
+	AddNode("hr")
+	AddNode("finance")
+	Connect("ceo", "hr")
+	Connect("ceo", "finance")
+}
+
+# Option C: Matrix organization
+oOptionC = oBaseline.Copy()
+oOptionC {
+	AddNode("operations")
+	Connect("sales", "operations")
+	Connect("engineering", "operations")
+	Connect("marketing", "operations")
+}
+
+# Compare all at once with named variations
+aComparison = oBaseline.CompareWithMany([
+	["Add_COO_Layer", oOptionA],
+	["Flat_Structure", oOptionB],
+	["Matrix_Org", oOptionC]
+])
+
+? "=== QUICK SUMMARY ==="
+? "Baseline: " + aComparison[:baseline]
+? "Variations: " + aComparison[:count]
+? ""
+
+aComps = aComparison[:comparisons]
+for i = 1 to len(aComps)
+	? aComps[i][:name] + ":"
+	? "  Nodes: +" + aComps[i][:nodesAdded] + " / -" + aComps[i][:nodesRemoved]
+	? "  Edges: +" + aComps[i][:edgesAdded] + " / -" + aComps[i][:edgesRemoved]
+	? "  Density: " + aComps[i][:densityChange]
+	? ""
+next
+
+pf()
+
+*/
+
+#------------------------------------#
+#   COMPARISON MATRIX AS SZTABLE     #
+#------------------------------------#
+
+/*--- Converting comparison to table for further analysis
+
+pr()
+
+# Using same baseline and variations from previous example
+
+oMatrix = oBaseline.CompareWithManyQ([
+	["Add_COO_Layer", oOptionA],
+	["Flat_Structure", oOptionB],
+	["Matrix_Org", oOptionC]
+])
+
+? "=== COMPARISON TABLE ==="
+oMatrix.Show()
+
+? NL + "=== MOST IMPACTFUL ==="
+? oMatrix.MostImpactful()
+#--> "Flat_Structure" (added 2 nodes + 2 edges = 4 changes)
+
+? NL + "=== LEAST IMPACTFUL ==="
+? oMatrix.LeastImpactful()
+
+? NL + "=== RECOMMENDATION ==="
+aRecommend = oMatrix.Recommend()
+? aRecommend[:recommended] + ": " + aRecommend[:reason]
+
+pf()
+
+*/
+
+#------------------------------------#
+#   ASCII VISUALIZATION OF COMPARISON #
+#------------------------------------#
+
+/*--- Visual charts for quick insight
+
+pr()
+
+# Using same variations
+
+oMatrix = oBaseline.CompareWithManyQ([
+	["Add_COO", oOptionA],
+	["Flat", oOptionB],
+	["Matrix", oOptionC]
+])
+
+? "=== VISUAL COMPARISON ==="
+oMatrix.Visualize()
+
+#--> Shows ASCII bar charts for:
+#    - Nodes added per variation
+#    - Nodes removed per variation
+#    - Edges added per variation
+#    - Edges removed per variation
+
+pf()
+
+*/
+
+#------------------------------------#
+#   FILTERING AND SORTING VARIATIONS #
+#------------------------------------#
+
+/*--- Finding best candidates programmatically
+
+pr()
+
+# Using same variations
+
+oMatrix = oBaseline.CompareWithManyQ([
+	["Add_COO_Layer", oOptionA],
+	["Flat_Structure", oOptionB],
+	["Matrix_Org", oOptionC]
+])
+
+? "=== VARIATIONS WITHOUT CYCLES ==="
+? oMatrix.WithoutCycles()
+#--> All three if none introduce cycles
+
+? NL + "=== SORTED BY NODES ADDED ==="
+? oMatrix.ByMetric(:nodesAdded)
+#--> ["Flat_Structure", "Add_COO_Layer", "Matrix_Org"]
+
+? NL + "=== SORTED BY EDGES ADDED ==="
+? oMatrix.ByMetric(:edgesAdded)
+
+pf()
+
+*/
+
+#------------------------------------#
+#   ADVANCED TABLE ANALYSIS          #
+#------------------------------------#
+
+/*--- Using stzTable features on comparison results
+
+pr()
+
+# Get table and filter/sort
+oTable = oBaseline.CompareWithManyQ([
+	["V1", oOptionA],
+	["V2", oOptionB],
+	["V3", oOptionC]
+]).ToStzTable()
+
+? "=== FULL TABLE ==="
+oTable.Show()
+
+? NL + "=== FILTER: VARIATIONS THAT ADD NODES ==="
+oFiltered = oTable.FilterByCQ([ 
+	:NodesAdded = @GT(0)  # Greater than 0
+])
+oFiltered.Show()
+
+? NL + "=== SORT BY DENSITY CHANGE ==="
+oSorted = oTable.Copy()
+oSorted.SortOn(:DensityChange)
+oSorted.Show()
+
+pf()
+
+*/
+
+#------------------------------------#
+#   COMPREHENSIVE WHAT-IF SCENARIO   #
+#------------------------------------#
+
+/*--- Complete business decision workflow
+
+pr()
+
+? "=== SCENARIO: ORGANIZATIONAL RESTRUCTURING ==="
+? ""
+
+# Current structure
+oBaseline = new stzGraph("Q4_2024")
+oBaseline {
+	AddNodeXT("ceo", "CEO")
+	AddNodeXT("vp_sales", "VP Sales")
+	AddNodeXT("vp_eng", "VP Engineering")
+	AddNodeXT("team_a", "Team A")
+	AddNodeXT("team_b", "Team B")
+	
+	Connect("ceo", "vp_sales")
+	Connect("ceo", "vp_eng")
+	Connect("vp_eng", "team_a")
+	Connect("vp_eng", "team_b")
+	
+	SetNodeProperty("vp_eng", "reports", 2)
+	SetNodeProperty("vp_sales", "reports", 0)
+}
+
+? "Current structure:"
+? "  Nodes: " + oBaseline.NodeCount()
+? "  Edges: " + oBaseline.EdgeCount()
+? "  Density: " + oBaseline.NodeDensity()
+? ""
+
+# Create 4 different scenarios
+
+# Scenario 1: Add COO
+oScenario1 = oBaseline.Copy()
+oScenario1 {
+	AddNodeXT("coo", "COO")
+	RemoveThisEdge("ceo", "vp_sales")
+	RemoveThisEdge("ceo", "vp_eng")
+	Connect("ceo", "coo")
+	Connect("coo", "vp_sales")
+	Connect("coo", "vp_eng")
+}
+
+# Scenario 2: Add product team
+oScenario2 = oBaseline.Copy()
+oScenario2 {
+	AddNodeXT("vp_product", "VP Product")
+	AddNodeXT("product_team", "Product Team")
+	Connect("ceo", "vp_product")
+	Connect("vp_product", "product_team")
+}
+
+# Scenario 3: Flatten hierarchy
+oScenario3 = oBaseline.Copy()
+oScenario3 {
+	RemoveThisEdge("vp_eng", "team_a")
+	RemoveThisEdge("vp_eng", "team_b")
+	Connect("ceo", "team_a")
+	Connect("ceo", "team_b")
+}
+
+# Scenario 4: Add cross-functional
+oScenario4 = oBaseline.Copy()
+oScenario4 {
+	Connect("vp_sales", "team_a")  # Cross-functional link
+	Connect("vp_sales", "team_b")
+}
+
+# Compare all scenarios
+oMatrix = oBaseline.CompareWithManyQ([
+	["Add_COO", oScenario1],
+	["Add_Product", oScenario2],
+	["Flatten", oScenario3],
+	["Cross_Functional", oScenario4]
+])
+
+? "=== COMPARISON TABLE ==="
+oMatrix.Show()
+
+? NL + "=== VISUAL COMPARISON ==="
+oMatrix.Visualize()
+
+? NL + "=== ANALYSIS ==="
+? "Most impactful: " + oMatrix.MostImpactful()
+? "Least impactful: " + oMatrix.LeastImpactful()
+? ""
+
+aRecommend = oMatrix.Recommend()
+? "Recommended: " + aRecommend[:recommended]
+? "Reason: " + aRecommend[:reason]
+
+? NL + "=== DETAILED SUMMARY ==="
+? oMatrix.Summary()
+
+pf()
+
+*/
+
+#-----------------------#
+#   ADD NODES ONLY      #
+#-----------------------#
+
+/*--- Business scenario: Adding new departments
+
+pr()
+
+oBaseline = new stzGraph("current_org")
+oBaseline {
+	AddNode("ceo")
+	AddNode("sales")
+	AddNode("engineering")
+	
+	Connect("ceo", "sales")
+	Connect("ceo", "engineering")
+}
+
+oVariation = oBaseline.Copy()
+oVariation {
+	# What if we add new departments?
+	AddNode("marketing")
+	AddNode("hr")
+	AddNode("finance")
+	
+	Connect("ceo", "marketing")
+	Connect("ceo", "hr")
+	Connect("ceo", "finance")
+}
+
+aDiff = oBaseline.CompareWith(oVariation)
+
+? "=== SUMMARY ==="
+? "Nodes added:", aDiff[:summary][:nodesAdded]
+#--> 3
+
+? "Edges added:", aDiff[:summary][:edgesAdded]
+#--> 3
+
+? NL + "=== ADDED NODES ==="
+? aDiff[:nodes][:added]
+#--> ["marketing", "hr", "finance"]
+
+? NL + "=== EXPLANATION ==="
+for cLine in aDiff[:explanation]
+	? "  " + cLine
+next
+#--> Added 3 node(s) and 3 edge(s)
+#--> Density +16.7%
+
+? NL + "=== METRICS CHANGE ==="
+? "Node count:", aDiff[:metrics][:nodeCount][:from], "→", aDiff[:metrics][:nodeCount][:to]
+#--> 3 → 6
+
+? "Density change:", aDiff[:metrics][:density][:change]
+#--> +16.7%
+
+pf()
+
+*/
+
+#-----------------------#
+#   REMOVE NODES        #
+#-----------------------#
+
+/*--- Business scenario: Downsizing
+
+pr()
+
+oBaseline = new stzGraph("full_org")
+oBaseline {
+	AddNode("ceo")
+	AddNode("dept_a")
+	AddNode("dept_b")
+	AddNode("dept_c")
+	AddNode("contractor_1")
+	AddNode("contractor_2")
+	
+	Connect("ceo", "dept_a")
+	Connect("ceo", "dept_b")
+	Connect("ceo", "dept_c")
+	Connect("dept_a", "contractor_1")
+	Connect("dept_b", "contractor_2")
+}
+
+oVariation = oBaseline.Copy()
+oVariation {
+	# What if we remove contractors?
+	RemoveThisNode("contractor_1")
+	RemoveThisNode("contractor_2")
+}
+
+aDiff = oBaseline.CompareWith(oVariation)
+
+? "=== SUMMARY ==="
+? "Nodes removed:", aDiff[:summary][:nodesRemoved]
+#--> 2
+
+? "Edges removed:", aDiff[:summary][:edgesRemoved]
+#--> 2
+
+? NL + "=== REMOVED NODES ==="
+? aDiff[:nodes][:removed]
+#--> ["contractor_1", "contractor_2"]
+
+? NL + "=== EXPLANATION ==="
+for cLine in aDiff[:explanation]
+	? "  " + cLine
+next
+
+pf()
+
+*/
+
+#-----------------------#
+#   MODIFY PROPERTIES   #
+#-----------------------#
+
+/*--- Business scenario: Budget adjustments
+
+pr()
+
+oBaseline = new stzGraph("budget_plan")
+oBaseline {
+	AddNodeXT("sales", "Sales Department")
+	AddNodeXT("engineering", "Engineering")
+	AddNodeXT("marketing", "Marketing")
+	
+	SetNodeProperty("sales", "budget", 100000)
+	SetNodeProperty("sales", "headcount", 5)
+	SetNodeProperty("engineering", "budget", 200000)
+	SetNodeProperty("engineering", "headcount", 10)
+	SetNodeProperty("marketing", "budget", 80000)
+	SetNodeProperty("marketing", "headcount", 3)
+}
+
+oVariation = oBaseline.Copy()
+oVariation {
+	# What if we increase sales budget?
+	SetNodeProperty("sales", "budget", 150000)
+	SetNodeProperty("sales", "headcount", 8)
+	
+	# And reduce marketing?
+	SetNodeProperty("marketing", "budget", 60000)
+}
+
+aDiff = oBaseline.CompareWith(oVariation)
+
+? "=== SUMMARY ==="
+? "Properties changed:", aDiff[:summary][:propertiesChanged]
+#--> 2 (two nodes have property changes)
+
+? NL + "=== MODIFIED NODES ==="
+? aDiff[:nodes][:modified]
+#--> [
+#-->   ["sales", [[:property, "budget", 100000, 150000], [:property, "headcount", 5, 8]]],
+#-->   ["marketing", [[:property, "budget", 80000, 60000]]]
+#--> ]
+
+? NL + "=== EXPLANATION ==="
+for cLine in aDiff[:explanation]
+	? "  " + cLine
+next
+
+pf()
+
+*/
+
+#-----------------------#
+#   BOTTLENECK CHANGES  #
+#-----------------------#
+
+/*--- Business scenario: Relieving bottleneck by adding cache layer
+
+pr()
+
+oBaseline = new stzGraph("api_architecture")
+oBaseline {
+	AddNode("client")
+	AddNode("api")
+	AddNode("db")
+	AddNode("backup_db")
+	
+	Connect("client", "api")
+	Connect("api", "db")
+	Connect("api", "backup_db")
+	Connect("db", "backup_db")
+}
+
+oVariation = oBaseline.Copy()
+oVariation {
+	# What if we add caching layer?
+	AddNode("cache")
+	
+	# Reroute some connections through cache
+	RemoveThisEdge("api", "db")
+	Connect("api", "cache")
+	Connect("cache", "db")
+}
+
+aDiff = oBaseline.CompareWith(oVariation)
+
+? "=== TOPOLOGY CHANGES ==="
+? "Bottlenecks before:", aDiff[:topology][:bottlenecks][:from]
+? "Bottlenecks after:", aDiff[:topology][:bottlenecks][:to]
+? "Change:", aDiff[:topology][:bottlenecks][:change]
+
+? NL + "=== IMPACT ==="
+? "Criticality changes:"
+for aChange in aDiff[:impact][:criticalityChanges]
+	? "  " + aChange[1] + ": " + aChange[2]
+next
+
+? NL + "=== EXPLANATION ==="
+for cLine in aDiff[:explanation]
+	? "  " + cLine
+next
+
+pf()
+
+*/
+
+#-----------------------#
+#   CYCLE INTRODUCTION  #
+#-----------------------#
+
+/*--- Business scenario: Creating circular dependency (warning)
+
+pr()
+
+oBaseline = new stzGraph("workflow")
+oBaseline {
+	AddNode("design")
+	AddNode("develop")
+	AddNode("test")
+	AddNode("deploy")
+	
+	Connect("design", "develop")
+	Connect("develop", "test")
+	Connect("test", "deploy")
+}
+
+oVariation = oBaseline.Copy()
+oVariation {
+	# What if we add feedback loop?
+	Connect("deploy", "design")  # Creates cycle!
+}
+
+aDiff = oBaseline.CompareWith(oVariation)
+
+? "=== CYCLE DETECTION ==="
+? "Had cycles before?", aDiff[:metrics][:hasCycles][:from]
+#--> FALSE
+
+? "Has cycles now?", aDiff[:metrics][:hasCycles][:to]
+#--> TRUE
+
+? "Change:", aDiff[:metrics][:hasCycles][:change]
+#--> "now TRUE"
+
+? NL + "=== EXPLANATION ==="
+for cLine in aDiff[:explanation]
+	? "  " + cLine
+next
+#--> Should include: "Warning: Cycles introduced"
+
+pf()
+
+*/
+
+#-----------------------#
+#   COMPLEX SCENARIO    #
+#-----------------------#
+
+/*--- Business scenario: Organizational restructuring
+
+pr()
+
+oBaseline = new stzGraph("old_structure")
+oBaseline {
+	AddNodeXT("ceo", "CEO")
+	AddNodeXT("vp_eng", "VP Engineering")
+	AddNodeXT("vp_sales", "VP Sales")
+	AddNodeXT("team_a", "Team A")
+	AddNodeXT("team_b", "Team B")
+	AddNodeXT("team_c", "Team C")
+	
+	Connect("ceo", "vp_eng")
+	Connect("ceo", "vp_sales")
+	Connect("vp_eng", "team_a")
+	Connect("vp_eng", "team_b")
+	Connect("vp_sales", "team_c")
+	
+	SetNodeProperty("vp_eng", "reports", 2)
+	SetNodeProperty("vp_sales", "reports", 1)
+}
+
+oVariation = oBaseline.Copy()
+oVariation {
+	# Restructuring: add COO layer
+	AddNodeXT("coo", "Chief Operating Officer")
+	
+	# Reroute reporting
+	RemoveThisEdge("ceo", "vp_eng")
+	RemoveThisEdge("ceo", "vp_sales")
+	Connect("ceo", "coo")
+	Connect("coo", "vp_eng")
+	Connect("coo", "vp_sales")
+	
+	# Add new department
+	AddNodeXT("vp_product", "VP Product")
+	Connect("coo", "vp_product")
+	
+	# Update properties
+	SetNodeProperty("vp_eng", "reports", 2)
+	SetNodeProperty("vp_sales", "reports", 1)
+	SetNodeProperty("vp_product", "reports", 0)
+}
+
+aDiff = oBaseline.CompareWith(oVariation)
+
+? "=== COMPLETE DIFF SUMMARY ==="
+? "Nodes added:", aDiff[:summary][:nodesAdded]
+? "Nodes removed:", aDiff[:summary][:nodesRemoved]
+? "Edges added:", aDiff[:summary][:edgesAdded]
+? "Edges removed:", aDiff[:summary][:edgesRemoved]
+? "Properties changed:", aDiff[:summary][:propertiesChanged]
+
+? NL + "=== STRUCTURAL CHANGES ==="
+? "Added nodes:", aDiff[:nodes][:added]
+? "Removed edges:", aDiff[:edges][:removed]
+? "Added edges:", aDiff[:edges][:added]
+
+? NL + "=== METRICS COMPARISON ==="
+? "Density: " + aDiff[:metrics][:density][:from] + " → " + aDiff[:metrics][:density][:to] + 
+  " (" + aDiff[:metrics][:density][:change] + ")"
+? "Longest path: " + aDiff[:metrics][:longestPath][:from] + " → " + aDiff[:metrics][:longestPath][:to]
+? "Avg degree: " + aDiff[:metrics][:avgDegree][:from] + " → " + aDiff[:metrics][:avgDegree][:to]
+
+? NL + "=== IMPACT ANALYSIS ==="
+? "Reachability changes:"
+for aChange in aDiff[:impact][:reachabilityChanges]
+	? "  " + aChange[1] + ": " + aChange[2]
+next
+
+? NL + "Criticality changes:"
+for aChange in aDiff[:impact][:criticalityChanges]
+	? "  " + aChange[1] + ": " + aChange[2]
+next
+
+? NL + "=== BUSINESS EXPLANATION ==="
+for cLine in aDiff[:explanation]
+	? "  • " + cLine
+next
+
+pf()
+
+*/
+
+#-----------------------#
+#   GRAPH FRAGMENTATION #
+#-----------------------#
+
+/*--- Business scenario: Department becomes isolated
+
+pr()
+
+oBaseline = new stzGraph("connected_org")
+oBaseline {
+	AddNode("hq")
+	AddNode("branch_a")
+	AddNode("branch_b")
+	AddNode("branch_c")
+	
+	Connect("hq", "branch_a")
+	Connect("hq", "branch_b")
+	Connect("hq", "branch_c")
+	Connect("branch_a", "branch_b")
+}
+
+oVariation = oBaseline.Copy()
+oVariation {
+	# What if branch_c disconnects?
+	RemoveThisEdge("hq", "branch_c")
+}
+
+aDiff = oBaseline.CompareWith(oVariation)
+
+? "=== CONNECTIVITY ANALYSIS ==="
+? "Connected components before:", aDiff[:topology][:connectedComponents][:from]
+#--> 1
+
+? "Connected components after:", aDiff[:topology][:connectedComponents][:to]
+#--> 2 (fragmented)
+
+? "Change:", aDiff[:topology][:connectedComponents][:change]
+#--> "fragmented"
+
+? NL + "=== ISOLATED NODES ==="
+? "Before:", aDiff[:topology][:isolatedNodes][:from]
+#--> []
+
+? "After:", aDiff[:topology][:isolatedNodes][:to]
+#--> ["branch_c"]
+
+? "Change:", aDiff[:topology][:isolatedNodes][:change]
+#--> "increased"
+
+? NL + "=== EXPLANATION ==="
+for cLine in aDiff[:explanation]
+	? "  " + cLine
+next
+#--> Should warn: "Graph became fragmented"
+
+pf()
+
+*/
+
+#-----------------------#
+#   DENSITY COMPARISON  #
+#-----------------------#
+
+/*--- Business scenario: Comparing sparse vs dense structure
+
+pr()
+
+oSparse = new stzGraph("sparse_hierarchy")
+oSparse {
+	AddNode("top")
+	AddNode("mid1")
+	AddNode("mid2")
+	AddNode("bot1")
+	AddNode("bot2")
+	
+	Connect("top", "mid1")
+	Connect("top", "mid2")
+	Connect("mid1", "bot1")
+	Connect("mid2", "bot2")
+}
+
+oDense = new stzGraph("dense_mesh")
+oDense {
+	AddNode("top")
+	AddNode("mid1")
+	AddNode("mid2")
+	AddNode("bot1")
+	AddNode("bot2")
+	
+	# Fully connected
+	Connect("top", "mid1")
+	Connect("top", "mid2")
+	Connect("top", "bot1")
+	Connect("top", "bot2")
+	Connect("mid1", "mid2")
+	Connect("mid1", "bot1")
+	Connect("mid1", "bot2")
+	Connect("mid2", "bot1")
+	Connect("mid2", "bot2")
+	Connect("bot1", "bot2")
+}
+
+aDiff = oSparse.CompareWith(oDense)
+
+? "=== DENSITY ANALYSIS ==="
+? "Sparse density:", aDiff[:metrics][:density][:from]
+? "Dense density:", aDiff[:metrics][:density][:to]
+? "Change:", aDiff[:metrics][:density][:change]
+? "Delta:", aDiff[:metrics][:density][:delta]
+
+? NL + "=== EDGE COUNT ==="
+? "Sparse edges:", aDiff[:metrics][:edgeCount][:from]
+? "Dense edges:", aDiff[:metrics][:edgeCount][:to]
+? "Increase:", aDiff[:metrics][:edgeCount][:change]
+
+pf()
+
+*/
+
+#-----------------------#
+#   QUICK COMPARISON    #
+#-----------------------#
+
+/*--- Using DiffWith() alias for brevity
+
+pr()
+
+oA = new stzGraph("simple")
+oA {
+	AddNode("x")
+	AddNode("y")
+	Connect("x", "y")
+}
+
+oB = oA.Copy()
+oB.AddNode("z")
+oB.Connect("y", "z")
+
+aDiff = oA.DiffWith(oB)
+
+? "Quick summary:"
+? "  Nodes: " + aDiff[:summary][:nodesAdded] + " added"
+? "  Edges: " + aDiff[:summary][:edgesAdded] + " added"
+? ""
+? "Impact:"
+for cLine in aDiff[:explanation]
+	? "  " + cLine
+next
+
+pf()
+
+*/
