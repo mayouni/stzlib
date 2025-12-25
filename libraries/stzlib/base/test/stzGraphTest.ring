@@ -3265,7 +3265,7 @@ ok
 
 
 /*--- Comparing identical graphs should show no changes
-*/
+
 pr()
 
 oGraph = new stzGraph("org")
@@ -3426,7 +3426,7 @@ pf()
 #-----------------------------------#
 
 /*--- Business analyst exploring 3 restructuring options
-
+*/
 pr()
 
 oBaseline = new stzGraph("current_structure")
@@ -3477,21 +3477,55 @@ aComparison = oBaseline.CompareWithMany([
 	["Matrix_Org", oOptionC]
 ])
 
-? "=== QUICK SUMMARY ==="
-? "Baseline: " + aComparison[:baseline]
-? "Variations: " + aComparison[:count]
-? ""
-
-aComps = aComparison[:comparisons]
-for i = 1 to len(aComps)
-	? aComps[i][:name] + ":"
-	? "  Nodes: +" + aComps[i][:nodesAdded] + " / -" + aComps[i][:nodesRemoved]
-	? "  Edges: +" + aComps[i][:edgesAdded] + " / -" + aComps[i][:edgesRemoved]
-	? "  Density: " + aComps[i][:densityChange]
-	? ""
-next
+? @@NL( aComparison )
+#-->
+'
+[
+	[
+		"comparisons",
+		[
+			[
+				[ "name", "Add_COO_Layer" ],
+				[ "nodesadded", 1 ],
+				[ "nodesremoved", 0 ],
+				[ "edgesadded", 2 ],
+				[ "edgesremoved", 3 ],
+				[ "densitychange", "-20.00%" ],
+				[ "hascycles", 0 ],
+				[ "bottleneckchange", "increased" ],
+				[ "explanation", "Added 1 node(s) and 2 edge(s)" ]
+			],
+			[
+				[ "name", "Flat_Structure" ],
+				[ "nodesadded", 2 ],
+				[ "nodesremoved", 0 ],
+				[ "edgesadded", 0 ],
+				[ "edgesremoved", 2 ],
+				[ "densitychange", "-33.33%" ],
+				[ "hascycles", 0 ],
+				[ "bottleneckchange", "unchanged" ],
+				[ "explanation", "Added 2 node(s)" ]
+			],
+			[
+				[ "name", "Matrix_Org" ],
+				[ "nodesadded", 1 ],
+				[ "nodesremoved", 0 ],
+				[ "edgesadded", 0 ],
+				[ "edgesremoved", 3 ],
+				[ "densitychange", "+20.00%" ],
+				[ "hascycles", 0 ],
+				[ "bottleneckchange", "increased" ],
+				[ "explanation", "Added 1 node(s)" ]
+			]
+		]
+	],
+	[ "baseline", "current_structure" ],
+	[ "count", 3 ]
+]
+'
 
 pf()
+# Executed in 0.45 second(s) in Ring 1.24
 
 #------------------------------------#
 #   COMPARISON MATRIX AS SZTABLE     #

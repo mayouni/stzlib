@@ -2917,7 +2917,7 @@ class stzGraph
 			cName = aGraphs[i][1]
 			oGraph = aGraphs[i][2]
 			
-			if NOT IsStzGraph(oGraph)
+			if NOT @IsStzGraph(oGraph)
 				stzraise("Item " + i + " is not a valid stzGraph object!")
 			ok
 			
@@ -3502,9 +3502,9 @@ class stzGraph
 			nPercent = (nDelta / pFrom) * 100
 			
 			if nPercent > 0.5
-				return "+" + decimals(nPercent, 1) + "%"
+				return "+" + nPercent + "%"
 			but nPercent < -0.5
-				return decimals(nPercent, 1) + "%"
+				return ""+ nPercent + "%"
 			else
 				return "unchanged"
 			ok
