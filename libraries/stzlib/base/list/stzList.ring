@@ -32976,7 +32976,7 @@ class stzList from stzObject
 		def DifferenceWithXT(paOtherList)
 			return This.DifferentItemsWithXT(paOtherList)
 
-		def DiffXT(paOtherListXT)
+		def DiffXT(paOtherList)
 			return This.DifferentItemsWithXT(paOtherList)
 
 		def DiffWithXT(paOtherList)
@@ -32996,13 +32996,29 @@ class stzList from stzObject
 			:MDOFIED = []
 			]
 		*/
-		aResult = [
-				:ADDED = This.AddedItemsComparedToCS(paOtherList, pCaseSensitive),
-				:REMOVED = This.RemovedItemsComparedToCS(paOtherList, pCaseSensitive),
-				:MODIFIED = This.ModifiedItemsComparedToCSXT(paOtherList, pCaseSensitive)
-			  ]
 
-		return aResult
+		_aAddedItems_ = This.AddedItemsComparedToCS(paOtherList, pCaseSensitive)
+		_aRemovedItems_ = This.RemovedItemsComparedToCS(paOtherList, pCaseSensitive)
+
+		_aModifiedItems_ = This.ModifiedItemsComparedToCSXT(paOtherList, pCaseSensitive)
+		nLen = len(_aModifiedItems_)
+
+		_oAdded_ = new stzList(_aAddedItems_)
+		_oRemoved_ = new stzList(_aRemovedItems_)
+
+		for i = 1 to nLen
+			_oRemoved_.Remove(_aModifiedItems_[i][1])
+			_oAdded_.RemoveAll(_aModifiedItems_[i][2])
+		next
+
+
+		_aResult_ = [
+				[ "added", _oAdded_.Content() ],
+				[ "removed", _oRemoved_.Content() ], 
+				[ "modified", _aModifiedItems_ ]
+		]
+
+		return _aResult_
 
 		def DifferentItemsWithCSXTTQ(paOtherList, pCaseSensitive)
 			return new stzList( This.DifferentItemsWithCSXTT(paOtherList, pCaseSensitive) )
@@ -33027,7 +33043,7 @@ class stzList from stzObject
 		def DifferenceWithXTT(paOtherList)
 			return This.DifferentItemsWithXTT(paOtherList)
 
-		def DiffXTT(paOtherListXT)
+		def DiffXTT(paOtherList)
 			return This.DifferentItemsWithXTT(paOtherList)
 
 		def DiffWithXTT(paOtherList)
@@ -33131,6 +33147,7 @@ class stzList from stzObject
 	#------------------------------------------------------------------------#
 
 	def ModifiedItemsComparedToCS(paOtherList, pCaseSensitive)
+
 		if NOT isList(paOtherList)
 			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
@@ -33147,12 +33164,30 @@ class stzList from stzObject
 		nLenOther = len(aOtherListU)
 
 		for i = 1 to nLenThis
-			for j = 1 to nLenOther
-				if aoThisListU[i].ContainsCS(aOtherListU[j], pCaseSensitive) or
-				   aoOtherListU[j].ContainsCS(aThisListU[i], pCaseSensitive)
-					aResult + aThisListU[i]
-				ok
-			next
+
+			if isString(aThisListU[i])
+
+				for j = 1 to nLenOther
+					 if isString(aOtherListU[j])
+						if aoThisListU[i].ContainsCS(aOtherListU[j], pCaseSensitive) or
+						   aoOtherListU[j].ContainsCS(aThisListU[i], pCaseSensitive)
+							aResult + aThisListU[i]
+						ok
+					ok
+				next
+
+			but isList(aThisListU[i])
+
+				for j = 1 to nLenOther
+					 if isList(aOtherListU[j])
+						if aoThisListU[i].ContainsOneOfTheseCS(aOtherListU[j], pCaseSensitive) or
+						   aoOtherListU[j].ContainsOneOfTheseCS(aThisListU[i], pCaseSensitive)
+							aResult + aThisListU[i]
+						ok
+					ok
+				next
+			ok
+
 		next
 
 		return aResult
@@ -33173,6 +33208,7 @@ class stzList from stzObject
 	#-----------------------------------------------------------------------------------#
 
 	def ModifiedItemsComparedToCSXT(paOtherList, pCaseSensitive)
+
 		if NOT isList(paOtherList)
 			StzRaise("Incorrect param type! paOtherList must be a list.")
 		ok
@@ -33189,12 +33225,30 @@ class stzList from stzObject
 		nLenOther = len(aOtherListU)
 
 		for i = 1 to nLenThis
-			for j = 1 to nLenOther
-				if aoThisListU[i].ContainsCS(aOtherListU[j], pCaseSensitive) or
-				   aoOtherListU[j].ContainsCS(aThisListU[i], pCaseSensitive)
-					aResult + [ aThisListU[i], aOtherListU[j] ]
-				ok
-			next
+
+			if isString(aThisListU[i])
+
+				for j = 1 to nLenOther
+					 if isString(aOtherListU[j])
+						if aoThisListU[i].ContainsCS(aOtherListU[j], pCaseSensitive) or
+						   aoOtherListU[j].ContainsCS(aThisListU[i], pCaseSensitive)
+							aResult + [ aThisListU[i], aOtherListU[j] ]
+						ok
+					ok
+				next
+
+			but isList(aThisListU[i])
+
+				for j = 1 to nLenOther
+					 if isList(aOtherListU[j])
+						if aoThisListU[i].ContainsOneOfTheseCS(aOtherListU[j], pCaseSensitive) or
+						   aoOtherListU[j].ContainsOneOfTheseCS(aThisListU[i], pCaseSensitive)
+							aResult + [ aThisListU[i], aOtherListU[j] ]
+						ok
+					ok
+				next
+			ok
+
 		next
 
 		return aResult
@@ -33332,6 +33386,12 @@ class stzList from stzObject
 			def IntersectionCSQ(paOtherList, pCaseSensitive)
 				return This.CommonItemsWithCSQ(paOtherList, pCaseSensitive)
 
+		def CommonWithCS(paOtherList, pCaseSensitive)
+			return This.CommonItemsWithCS(paOtherList, pCaseSensitive)
+
+		def CommonCS(paOtherList, pCaseSensitive)
+			return This.CommonItemsWithCS(paOtherList, pCaseSensitive)
+
 		#>
 
 	#-- WITHOUT CASESENSITIVITY
@@ -33365,6 +33425,12 @@ class stzList from stzObject
 
 			def IntersectionQ(paOtherList)
 				return This.CommonItemsWithQ(paOtherList)
+
+		def CommonWith(paOtherList)
+			return This.CommonItemsWith(paOtherList)
+
+		def Common(paOtherList)
+			return This.CommonItemsWith(paOtherList)
 
 		#>
 

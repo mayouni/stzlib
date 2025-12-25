@@ -12693,26 +12693,73 @@ pf()
 # Executed in 0.05 second(s).
 
 #---------
-*/
+
 pr()
 
-o1 = new stzList([ "green", "rediness", "bluew" ])
+o1 = new stzList([ "green", "red", "blue" ])
 
-//? @@( o1.CommonItemsWith([ "yellow", "red", "blue", "gray" ]) )
+? @@( o1.Common([ "yellow", "red", "blue", "gray" ]) ) # Or CommonItemsWith()
 #--> [ "red", "blue" ]
 
-//? @@( o1.DifferentItemsWith([ "yellow", "red", "blue", "gray" ]) ) # Or DifferenceWith()
+? @@( o1.Diff([ "yellow", "red", "blue", "gray" ]) ) # Or DifferentItemsWith()
 #--> [ "green", "yellow", "gray" ]
 
-? @@NL( o1.DifferenceWithXTT([ "yellow", "red", "blue", "gray" ]) ) # Or DifferentItemsWithXT()
-#--> [
-#	[ "surplus", [ "green" ] ],
-#	[ "lacking", [ "yellow", "gray" ] ]
-# ]
+? ""
+? @@NL( o1.DiffXT([ "yellow", "red", "blue", "gray" ]) )
+#-->
+'
+[
+	[
+		"added",
+		[ "yellow", "gray" ]
+	],
+	[
+		"removed",
+		[ "green" ]
+	],
+	[ "modified", [  ] ]
+]
+'
 
 pf()
-# Executed in 0.04 second(s).
-                                       
+# Executed in 0.03 second(s) in Ring 1.24
+     
+/*---
+*/
+
+pr()
+
+o1 = new stzList([ "green", [ "A", "B" ], "rediness", "blues" ])
+
+? @@NL( o1.DiffXTT([ "yellow", "red", [ "A" ], "blue", "gray" ]) )
+#-->
+'
+[
+	[
+		"added",
+		[
+			"yellow",
+			"red",
+			"blue",
+			"gray"
+		]
+	],
+	[
+		"removed",
+		[ "green", "rediness", "blues" ]
+	],
+	[
+		"modified",
+		[
+			[ "rediness", "red" ],
+			[ "blues", "blue" ]
+		]
+	]
+]
+'
+
+pf()
+                                  
 /*--------------------------
 
 pr()
