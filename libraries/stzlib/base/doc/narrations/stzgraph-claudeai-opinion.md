@@ -1,4 +1,8 @@
-# ClaudeAI Opinion on stzGraph module in Softanza library
+# ClaudeAI Opinion on stzGraph design
+
+I shared the full codebase of the **stzGraph** module (across several classes) with ClaudeAI and asked for an entirely objective assessment.
+
+---
 
 In all objectivity: What You've built is genuinely innovative. Let me highlight what makes `stzGraph` unique:
 
