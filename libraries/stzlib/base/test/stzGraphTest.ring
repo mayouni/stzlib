@@ -3532,7 +3532,7 @@ pf()
 #------------------------------------#
 
 /*--- Converting comparison to table for further analysis
-*/
+
 pr()
 
 oBaseline = new stzGraph("current_structure")
@@ -3582,47 +3582,45 @@ oMatrix = oBaseline.CompareWithManyQR([
 	["Add_COO_Layer", oOptionA],
 	["Flat_Structure", oOptionB],
 	["Matrix_Org", oOptionC]
-], :stzTable)
+], :stzGraphComparison)
 
 oMatrix.Show()
+#-->
+'
+╭──────────────────┬───────────────┬────────────────┬────────────╮
+│      Metric      │ Add_coo_layer │ Flat_structure │ Matrix_org │
+├──────────────────┼───────────────┼────────────────┼────────────┤
+│ NodesAdded       │             1 │              2 │          1 │
+│ NodesRemoved     │             0 │              0 │          0 │
+│ EdgesAdded       │             2 │              0 │          0 │
+│ EdgesRemoved     │             3 │              2 │          3 │
+│ DensityChange    │ -20.00%       │ -33.33%        │ +20.00%    │
+│ HasCycles        │ FALSE         │ FALSE          │ FALSE      │
+│ BottleneckChange │ increased     │ unchanged      │ increased  │
+╰──────────────────┴───────────────┴────────────────┴────────────╯
+'
 
 ? ""
 ? oMatrix.MostImpactful() + NL
-#--> "Flat_Structure" (added 2 nodes + 2 edges = 4 changes)
-
+#--> Add_COO_Layer
 
 ? oMatrix.LeastImpactful() + NL
+#--> Flat_Structure
 
 ? @@NL( oMatrix.Recommend() )
+#-->
+'
+[
+	[ "recommended", "Matrix_Org" ],
+	[
+		"reason",
+		"Best balance of structure, connectivity, and acyclicity"
+	]
+]
+'
 
 pf()
-
-#------------------------------------#
-#   ASCII VISUALIZATION OF COMPARISON #
-#------------------------------------#
-
-/*--- Visual charts for quick insight
-
-pr()
-
-# Using same variations
-
-oMatrix = oBaseline.CompareWithManyQ([
-	["Add_COO", oOptionA],
-	["Flat", oOptionB],
-	["Matrix", oOptionC]
-])
-
-? "=== VISUAL COMPARISON ==="
-oMatrix.Visualize()
-
-#--> Shows ASCII bar charts for:
-#    - Nodes added per variation
-#    - Nodes removed per variation
-#    - Edges added per variation
-#    - Edges removed per variation
-
-pf()
+# Executed in 0.59 second(s) in Ring 1.24
 
 #------------------------------------#
 #   FILTERING AND SORTING VARIATIONS #
@@ -3632,57 +3630,69 @@ pf()
 
 pr()
 
+oBaseline = new stzGraph("current_structure")
+oBaseline {
+	AddNode("ceo")
+	AddNode("sales")
+	AddNode("engineering")
+	AddNode("marketing")
+	
+	Connect("ceo", "sales")
+	Connect("ceo", "engineering")
+	Connect("ceo", "marketing")
+}
+
+# Option A: Add management layer
+oOptionA = oBaseline.Copy()
+oOptionA {
+	AddNode("coo")
+	RemoveThisEdge("ceo", "sales")
+	RemoveThisEdge("ceo", "marketing")
+	Connect("ceo", "coo")
+	Connect("coo", "sales")
+	Connect("coo", "marketing")
+}
+
+# Option B: Flat structure with more departments
+oOptionB = oBaseline.Copy()
+oOptionB {
+	AddNode("hr")
+	AddNode("finance")
+	Connect("ceo", "hr")
+	Connect("ceo", "finance")
+}
+
+# Option C: Matrix organization
+oOptionC = oBaseline.Copy()
+oOptionC {
+	AddNode("operations")
+	Connect("sales", "operations")
+	Connect("engineering", "operations")
+	Connect("marketing", "operations")
+}
+
 # Using same variations
 
-oMatrix = oBaseline.CompareWithManyQ([
+oMatrix = oBaseline.CompareWithManyQR([
 	["Add_COO_Layer", oOptionA],
 	["Flat_Structure", oOptionB],
 	["Matrix_Org", oOptionC]
-])
+], :stzGraphComparison)
 
-? "=== VARIATIONS WITHOUT CYCLES ==="
-? oMatrix.WithoutCycles()
-#--> All three if none introduce cycles
+# VARIATIONS WITHOUT CYCLES
+? @@( oMatrix.WithoutCycles() ) + NL
+#--> [ ]
 
-? NL + "=== SORTED BY NODES ADDED ==="
-? oMatrix.ByMetric(:nodesAdded)
+# SORTED BY NODES ADDED
+? @@(oMatrix.ByMetric(:NodesAdded)) + NL
 #--> ["Flat_Structure", "Add_COO_Layer", "Matrix_Org"]
 
-? NL + "=== SORTED BY EDGES ADDED ==="
-? oMatrix.ByMetric(:edgesAdded)
+# SORTED BY EDGES ADDED
+? @@(oMatrix.ByMetric(:EdgesAdded))
+#--> [ "Add_COO_Layer", "Flat_Structure", "Matrix_Org" ]
 
 pf()
-
-#------------------------------------#
-#   ADVANCED TABLE ANALYSIS          #
-#------------------------------------#
-
-/*--- Using stzTable features on comparison results
-
-pr()
-
-# Get table and filter/sort
-oTable = oBaseline.CompareWithManyQ([
-	["V1", oOptionA],
-	["V2", oOptionB],
-	["V3", oOptionC]
-]).ToStzTable()
-
-? "=== FULL TABLE ==="
-oTable.Show()
-
-? NL + "=== FILTER: VARIATIONS THAT ADD NODES ==="
-oFiltered = oTable.FilterByCQ([ 
-	:NodesAdded = @GT(0)  # Greater than 0
-])
-oFiltered.Show()
-
-? NL + "=== SORT BY DENSITY CHANGE ==="
-oSorted = oTable.Copy()
-oSorted.SortOn(:DensityChange)
-oSorted.Show()
-
-pf()
+# Executed in 0.52 second(s) in Ring 1.24
 
 #------------------------------------#
 #   COMPREHENSIVE WHAT-IF SCENARIO   #
@@ -3692,8 +3702,7 @@ pf()
 
 pr()
 
-? "=== SCENARIO: ORGANIZATIONAL RESTRUCTURING ==="
-? ""
+? BoxRound("SCENARIO: ORGANIZATIONAL RESTRUCTURING") + NL
 
 # Current structure
 oBaseline = new stzGraph("Q4_2024")
@@ -3758,30 +3767,76 @@ oScenario4 {
 }
 
 # Compare all scenarios
-oMatrix = oBaseline.CompareWithManyQ([
+oMatrix = oBaseline.CompareWithManyQR([
 	["Add_COO", oScenario1],
 	["Add_Product", oScenario2],
 	["Flatten", oScenario3],
 	["Cross_Functional", oScenario4]
-])
+], :stzGraphComparison)
 
-? "=== COMPARISON TABLE ==="
+? "4 scenarios have been added! Let's compare them..."
 oMatrix.Show()
 
-? NL + "=== VISUAL COMPARISON ==="
-oMatrix.Visualize()
-
-? NL + "=== ANALYSIS ==="
 ? "Most impactful: " + oMatrix.MostImpactful()
 ? "Least impactful: " + oMatrix.LeastImpactful()
 ? ""
 
-aRecommend = oMatrix.Recommend()
-? "Recommended: " + aRecommend[:recommended]
-? "Reason: " + aRecommend[:reason]
+? BoxRound("RECOMMENDATION")
 
-? NL + "=== DETAILED SUMMARY ==="
-? oMatrix.Summary()
+? @@NL( oMatrix.Recommend() ) + NL
+
+? BoxRound("DETAILED SUMMARY")
+
+? @@NL( oMatrix.Summary() ) #TODO// listift the string output format
+
+#-->
+`
+╭────────────────────────────────────────╮
+│ SCENARIO: ORGANIZATIONAL RESTRUCTURING │
+╰────────────────────────────────────────╯
+
+Current structure:
+  Nodes: 5
+  Edges: 4
+  Density: 0.20
+
+4 scenarios have been added! Let's compare them...
+╭──────────────────┬───────────┬─────────────┬───────────┬──────────────────╮
+│      Metric      │  Add_coo  │ Add_product │  Flatten  │ Cross_functional │
+├──────────────────┼───────────┼─────────────┼───────────┼──────────────────┤
+│ NodesAdded       │         1 │           2 │         0 │                0 │
+│ NodesRemoved     │         0 │           0 │         0 │                0 │
+│ EdgesAdded       │         2 │           0 │         2 │                0 │
+│ EdgesRemoved     │         3 │           2 │         2 │                2 │
+│ DensityChange    │ -16.67%   │ -28.57%     │ unchanged │ +50.00%          │
+│ HasCycles        │ FALSE     │ FALSE       │ FALSE     │ FALSE            │
+│ BottleneckChange │ unchanged │ increased   │ reduced   │ unchanged        │
+╰──────────────────┴───────────┴─────────────┴───────────┴──────────────────╯
+Most impactful: Add_COO
+Least impactful: Cross_Functional
+
+╭────────────────╮
+│ RECOMMENDATION │
+╰────────────────╯
+[
+	[ "recommended", "Flatten" ],
+	[
+		"reason",
+		"Best balance of structure, connectivity, and acyclicity"
+	]
+]
+
+╭──────────────────╮
+│ DETAILED SUMMARY │
+╰──────────────────╯
+Baseline: Q4_2024
+Variations compared: 4
+
+• Add_COO: Added 1 node(s) and 2 edge(s)
+• Add_Product: Added 2 node(s)
+• Flatten: Added 2 edge(s)
+• Cross_Functional: Removed 2 edge(s)
+`
 
 pf()
 
@@ -3815,38 +3870,193 @@ oVariation {
 	Connect("ceo", "finance")
 }
 
-aDiff = oBaseline.CompareWith(oVariation)
-
-? "=== SUMMARY ==="
-? "Nodes added:", aDiff[:summary][:nodesAdded]
-#--> 3
-
-? "Edges added:", aDiff[:summary][:edgesAdded]
-#--> 3
-
-? NL + "=== ADDED NODES ==="
-? aDiff[:nodes][:added]
-#--> ["marketing", "hr", "finance"]
-
-? NL + "=== EXPLANATION ==="
-for cLine in aDiff[:explanation]
-	? "  " + cLine
-next
-#--> Added 3 node(s) and 3 edge(s)
-#--> Density +16.7%
-
-? NL + "=== METRICS CHANGE ==="
-? "Node count:", aDiff[:metrics][:nodeCount][:from], "→", aDiff[:metrics][:nodeCount][:to]
-#--> 3 → 6
-
-? "Density change:", aDiff[:metrics][:density][:change]
-#--> +16.7%
+aDiff = oBaseline.CompareWith(oVariation) # Or Diff()
+? @@NL( aDiff )
+#-->
+`
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 3 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 0 ],
+			[ "edgesremoved", 3 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[
+				"added",
+				[ "marketing", "hr", "finance" ]
+			],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[ "added", [  ] ],
+			[
+				"removed",
+				[
+					[
+						[ "from", "ceo" ],
+						[ "to", "marketing" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "hr" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "finance" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 3 ],
+					[ "to", 6 ],
+					[ "change", "+100%" ],
+					[ "delta", 3 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 2 ],
+					[ "to", 5 ],
+					[ "change", "+150%" ],
+					[ "delta", 3 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.33 ],
+					[ "to", 0.17 ],
+					[ "change", "-50%" ],
+					[ "delta", -0.17 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 2 ],
+					[ "to", 5 ],
+					[ "change", "+150%" ],
+					[ "delta", 3 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "FALSE" ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 1.33 ],
+					[ "to", 1.67 ],
+					[ "change", "+25.00%" ],
+					[ "delta", 0.33 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[
+						"from",
+						[ "ceo" ]
+					],
+					[
+						"to",
+						[ "ceo" ]
+					],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[
+				"reachabilitychanges",
+				[
+					[ "ceo", "Can now reach 3 more node(s)" ]
+				]
+			],
+			[
+				"criticalitychanges",
+				[
+					[
+						"ceo",
+						"Criticality increased (degree 2 → 5)"
+					]
+				]
+			]
+		]
+	],
+	[
+		"explanation",
+		[
+			"Added 3 node(s)",
+			"Removed 3 edge(s)",
+			"Density -50%"
+		]
+	]
+]
+`
 
 pf()
+# Executed in 0.14 second(s) in Ring 1.24
 
-#-----------------------#
-#   REMOVE NODES        #
-#-----------------------#
+#------------------#
+#   REMOVE NODES   #
+#------------------#
 
 /*--- Business scenario: Downsizing
 
@@ -3876,24 +4086,229 @@ oVariation {
 }
 
 aDiff = oBaseline.CompareWith(oVariation)
-
-? "=== SUMMARY ==="
-? "Nodes removed:", aDiff[:summary][:nodesRemoved]
-#--> 2
-
-? "Edges removed:", aDiff[:summary][:edgesRemoved]
-#--> 2
-
-? NL + "=== REMOVED NODES ==="
-? aDiff[:nodes][:removed]
-#--> ["contractor_1", "contractor_2"]
-
-? NL + "=== EXPLANATION ==="
-for cLine in aDiff[:explanation]
-	? "  " + cLine
-next
+? @@NL( aDiff )
+#-->
+`
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 0 ],
+			[ "nodesremoved", 2 ],
+			[ "edgesadded", 2 ],
+			[ "edgesremoved", 0 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[ "added", [  ] ],
+			[
+				"removed",
+				[ "contractor_1", "contractor_2" ]
+			],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[
+				"added",
+				[
+					[
+						[ "from", "dept_a" ],
+						[ "to", "contractor_1" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "dept_b" ],
+						[ "to", "contractor_2" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[ "removed", [  ] ],
+			[
+				"modified",
+				[
+					[
+						[ "from", "ceo" ],
+						[ "to", "dept_a" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "dept_a" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "dept_b" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "dept_b" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "dept_c" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "dept_c" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 6 ],
+					[ "to", 4 ],
+					[ "change", "-33.33%" ],
+					[ "delta", -2 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 5 ],
+					[ "to", 3 ],
+					[ "change", "-40%" ],
+					[ "delta", -2 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.17 ],
+					[ "to", 0.25 ],
+					[ "change", "+50.00%" ],
+					[ "delta", 0.08 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 5 ],
+					[ "to", 3 ],
+					[ "change", "-40%" ],
+					[ "delta", -2 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "FALSE" ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 1.67 ],
+					[ "to", 1.50 ],
+					[ "change", "-10.00%" ],
+					[ "delta", -0.17 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[
+						"from",
+						[ "ceo", "dept_a", "dept_b" ]
+					],
+					[
+						"to",
+						[ "ceo" ]
+					],
+					[ "change", "reduced" ],
+					[ "delta", -2 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[
+				"reachabilitychanges",
+				[
+					[ "ceo", "Can now reach 2 fewer node(s)" ],
+					[ "dept_a", "Can now reach 1 fewer node(s)" ],
+					[ "dept_b", "Can now reach 1 fewer node(s)" ]
+				]
+			],
+			[
+				"criticalitychanges",
+				[
+					[
+						"dept_a",
+						"Criticality decreased (degree 2 → 1)"
+					],
+					[
+						"dept_b",
+						"Criticality decreased (degree 2 → 1)"
+					]
+				]
+			]
+		]
+	],
+	[
+		"explanation",
+		[
+			"Added 2 edge(s)",
+			"Removed 2 node(s)",
+			"Density +50.00%",
+			"Bottlenecks reduced (improvement)"
+		]
+	]
+]
+`
 
 pf()
+# Executed in 0.26 second(s) in Ring 1.24
 
 #-----------------------#
 #   MODIFY PROPERTIES   #
@@ -3928,24 +4343,178 @@ oVariation {
 }
 
 aDiff = oBaseline.CompareWith(oVariation)
-
-? "=== SUMMARY ==="
-? "Properties changed:", aDiff[:summary][:propertiesChanged]
-#--> 2 (two nodes have property changes)
-
-? NL + "=== MODIFIED NODES ==="
-? aDiff[:nodes][:modified]
-#--> [
-#-->   ["sales", [[:property, "budget", 100000, 150000], [:property, "headcount", 5, 8]]],
-#-->   ["marketing", [[:property, "budget", 80000, 60000]]]
-#--> ]
-
-? NL + "=== EXPLANATION ==="
-for cLine in aDiff[:explanation]
-	? "  " + cLine
-next
+? @@NL( aDiff )
+#-->
+'
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 0 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 0 ],
+			[ "edgesremoved", 0 ],
+			[ "propertieschanged", 2 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[ "added", [  ] ],
+			[ "removed", [  ] ],
+			[
+				"modified",
+				[
+					[
+						"sales",
+						[
+							[
+								"property",
+								"budget",
+								100000,
+								150000
+							],
+							[
+								"property",
+								"headcount",
+								5,
+								8
+							]
+						]
+					],
+					[
+						"marketing",
+						[
+							[
+								"property",
+								"budget",
+								80000,
+								60000
+							]
+						]
+					]
+				]
+			]
+		]
+	],
+	[
+		"edges",
+		[
+			[ "added", [  ] ],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 3 ],
+					[ "to", 3 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 0 ],
+					[ "to", 0 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0 ],
+					[ "to", 0 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 0 ],
+					[ "to", 0 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "FALSE" ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 0 ],
+					[ "to", 0 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 3 ],
+					[ "to", 3 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[
+						"from",
+						[ "sales", "engineering", "marketing" ]
+					],
+					[
+						"to",
+						[ "sales", "engineering", "marketing" ]
+					],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[ "reachabilitychanges", [  ] ],
+			[ "criticalitychanges", [  ] ]
+		]
+	],
+	[
+		"explanation",
+		[ "Modified 2 node propertie(s)" ]
+	]
+]
+'
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.24
 
 #-----------------------#
 #   BOTTLENECK CHANGES  #
@@ -3980,24 +4549,219 @@ oVariation {
 }
 
 aDiff = oBaseline.CompareWith(oVariation)
-
-? "=== TOPOLOGY CHANGES ==="
-? "Bottlenecks before:", aDiff[:topology][:bottlenecks][:from]
-? "Bottlenecks after:", aDiff[:topology][:bottlenecks][:to]
-? "Change:", aDiff[:topology][:bottlenecks][:change]
-
-? NL + "=== IMPACT ==="
-? "Criticality changes:"
-for aChange in aDiff[:impact][:criticalityChanges]
-	? "  " + aChange[1] + ": " + aChange[2]
-next
-
-? NL + "=== EXPLANATION ==="
-for cLine in aDiff[:explanation]
-	? "  " + cLine
-next
+? @@NL( aDiff )
+#-->
+'
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 1 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 1 ],
+			[ "edgesremoved", 2 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[
+				"added",
+				[ "cache" ]
+			],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[
+				"added",
+				[
+					[
+						[ "from", "api" ],
+						[ "to", "db" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[
+				"removed",
+				[
+					[
+						[ "from", "api" ],
+						[ "to", "cache" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "cache" ],
+						[ "to", "db" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[
+				"modified",
+				[
+					[
+						[ "from", "client" ],
+						[ "to", "api" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "api" ],
+						[ "to", "backup_db" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "db" ],
+						[ "to", "backup_db" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "api" ],
+						[ "to", "cache" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "cache" ],
+						[ "to", "db" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 4 ],
+					[ "to", 5 ],
+					[ "change", "+25%" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 4 ],
+					[ "to", 5 ],
+					[ "change", "+25%" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.33 ],
+					[ "to", 0.25 ],
+					[ "change", "-25.00%" ],
+					[ "delta", -0.08 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 3 ],
+					[ "to", 4 ],
+					[ "change", "+33.33%" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "FALSE" ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 2 ],
+					[ "to", 2 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[
+						"from",
+						[ "api" ]
+					],
+					[
+						"to",
+						[ "api" ]
+					],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[
+				"reachabilitychanges",
+				[
+					[ "client", "Can now reach 1 more node(s)" ],
+					[ "api", "Can now reach 1 more node(s)" ]
+				]
+			],
+			[ "criticalitychanges", [  ] ]
+		]
+	],
+	[
+		"explanation",
+		[
+			"Added 1 node(s) and 1 edge(s)",
+			"Removed 2 edge(s)",
+			"Density -25.00%"
+		]
+	]
+]
+'
 
 pf()
+# Executed in 0.25 second(s) in Ring 1.24
 
 #-----------------------#
 #   CYCLE INTRODUCTION  #
@@ -4026,24 +4790,176 @@ oVariation {
 }
 
 aDiff = oBaseline.CompareWith(oVariation)
-
-? "=== CYCLE DETECTION ==="
-? "Had cycles before?", aDiff[:metrics][:hasCycles][:from]
-#--> FALSE
-
-? "Has cycles now?", aDiff[:metrics][:hasCycles][:to]
-#--> TRUE
-
-? "Change:", aDiff[:metrics][:hasCycles][:change]
-#--> "now TRUE"
-
-? NL + "=== EXPLANATION ==="
-for cLine in aDiff[:explanation]
-	? "  " + cLine
-next
-#--> Should include: "Warning: Cycles introduced"
+? @@NL( aDiff )
+#-->
+`
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 0 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 0 ],
+			[ "edgesremoved", 1 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[ "added", [  ] ],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[ "added", [  ] ],
+			[
+				"removed",
+				[
+					[
+						[ "from", "deploy" ],
+						[ "to", "design" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 4 ],
+					[ "to", 4 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 3 ],
+					[ "to", 4 ],
+					[ "change", "+33.33%" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.25 ],
+					[ "to", 0.33 ],
+					[ "change", "+33.33%" ],
+					[ "delta", 0.08 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 3 ],
+					[ "to", 3 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "TRUE" ],
+					[ "change", "now TRUE" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 1.50 ],
+					[ "to", 2 ],
+					[ "change", "+33.33%" ],
+					[ "delta", 0.50 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[
+						"from",
+						[ "develop", "test" ]
+					],
+					[ "to", [  ] ],
+					[ "change", "reduced" ],
+					[ "delta", -2 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[
+				"reachabilitychanges",
+				[
+					[ "develop", "Can now reach 1 more node(s)" ],
+					[ "test", "Can now reach 2 more node(s)" ],
+					[ "deploy", "Can now reach 3 more node(s)" ]
+				]
+			],
+			[
+				"criticalitychanges",
+				[
+					[
+						"design",
+						"Criticality increased (degree 1 → 2)"
+					],
+					[
+						"deploy",
+						"Criticality increased (degree 1 → 2)"
+					]
+				]
+			]
+		]
+	],
+	[
+		"explanation",
+		[
+			"Removed 1 edge(s)",
+			"Density +33.33%",
+			"Bottlenecks reduced (improvement)"
+		]
+	]
+]
+`
 
 pf()
+# Executed in 0.14 second(s) in Ring 1.24
 
 #-----------------------#
 #   COMPLEX SCENARIO    #
@@ -4095,46 +5011,303 @@ oVariation {
 }
 
 aDiff = oBaseline.CompareWith(oVariation)
-
-? "=== COMPLETE DIFF SUMMARY ==="
-? "Nodes added:", aDiff[:summary][:nodesAdded]
-? "Nodes removed:", aDiff[:summary][:nodesRemoved]
-? "Edges added:", aDiff[:summary][:edgesAdded]
-? "Edges removed:", aDiff[:summary][:edgesRemoved]
-? "Properties changed:", aDiff[:summary][:propertiesChanged]
-
-? NL + "=== STRUCTURAL CHANGES ==="
-? "Added nodes:", aDiff[:nodes][:added]
-? "Removed edges:", aDiff[:edges][:removed]
-? "Added edges:", aDiff[:edges][:added]
-
-? NL + "=== METRICS COMPARISON ==="
-? "Density: " + aDiff[:metrics][:density][:from] + " → " + aDiff[:metrics][:density][:to] + 
-  " (" + aDiff[:metrics][:density][:change] + ")"
-? "Longest path: " + aDiff[:metrics][:longestPath][:from] + " → " + aDiff[:metrics][:longestPath][:to]
-? "Avg degree: " + aDiff[:metrics][:avgDegree][:from] + " → " + aDiff[:metrics][:avgDegree][:to]
-
-? NL + "=== IMPACT ANALYSIS ==="
-? "Reachability changes:"
-for aChange in aDiff[:impact][:reachabilityChanges]
-	? "  " + aChange[1] + ": " + aChange[2]
-next
-
-? NL + "Criticality changes:"
-for aChange in aDiff[:impact][:criticalityChanges]
-	? "  " + aChange[1] + ": " + aChange[2]
-next
-
-? NL + "=== BUSINESS EXPLANATION ==="
-for cLine in aDiff[:explanation]
-	? "  • " + cLine
-next
+? @@NL( aDiff )
+#-->
+`
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 2 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 2 ],
+			[ "edgesremoved", 4 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[
+				"added",
+				[ "coo", "vp_product" ]
+			],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[
+				"added",
+				[
+					[
+						[ "from", "ceo" ],
+						[ "to", "vp_eng" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "vp_sales" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[
+				"removed",
+				[
+					[
+						[ "from", "ceo" ],
+						[ "to", "coo" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_eng" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_sales" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_product" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[
+				"modified",
+				[
+					[
+						[ "from", "vp_eng" ],
+						[ "to", "team_a" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "vp_eng" ],
+						[ "to", "team_a" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "vp_eng" ],
+						[ "to", "team_b" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "vp_eng" ],
+						[ "to", "team_b" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "vp_sales" ],
+						[ "to", "team_c" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "vp_sales" ],
+						[ "to", "team_c" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "coo" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "ceo" ],
+						[ "to", "coo" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_eng" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_eng" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_sales" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_sales" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_product" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "coo" ],
+						[ "to", "vp_product" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 6 ],
+					[ "to", 8 ],
+					[ "change", "+33.33%" ],
+					[ "delta", 2 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 5 ],
+					[ "to", 7 ],
+					[ "change", "+40%" ],
+					[ "delta", 2 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.17 ],
+					[ "to", 0.12 ],
+					[ "change", "-25.00%" ],
+					[ "delta", -0.04 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 5 ],
+					[ "to", 7 ],
+					[ "change", "+40%" ],
+					[ "delta", 2 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "FALSE" ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 1.67 ],
+					[ "to", 1.75 ],
+					[ "change", "+5.00%" ],
+					[ "delta", 0.08 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[
+						"from",
+						[ "ceo", "vp_eng", "vp_sales" ]
+					],
+					[
+						"to",
+						[ "vp_eng", "vp_sales", "coo" ]
+					],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[
+				"reachabilitychanges",
+				[
+					[ "ceo", "Can now reach 2 more node(s)" ]
+				]
+			],
+			[
+				"criticalitychanges",
+				[
+					[
+						"ceo",
+						"Criticality decreased (degree 2 → 1)"
+					],
+					[ "coo", "New critical node (degree 4)" ]
+				]
+			]
+		]
+	],
+	[
+		"explanation",
+		[
+			"Added 2 node(s) and 2 edge(s)",
+			"Removed 4 edge(s)",
+			"Density -25.00%"
+		]
+	]
+]
+`
 
 pf()
+# Executed in 0.47 second(s) in Ring 1.24
 
-#-----------------------#
-#   GRAPH FRAGMENTATION #
-#-----------------------#
+#------------------------#
+#   GRAPH FRAGMENTATION  #
+#------------------------#
 
 /*--- Business scenario: Department becomes isolated
 
@@ -4160,34 +5333,200 @@ oVariation {
 }
 
 aDiff = oBaseline.CompareWith(oVariation)
-
-? "=== CONNECTIVITY ANALYSIS ==="
-? "Connected components before:", aDiff[:topology][:connectedComponents][:from]
-#--> 1
-
-? "Connected components after:", aDiff[:topology][:connectedComponents][:to]
-#--> 2 (fragmented)
-
-? "Change:", aDiff[:topology][:connectedComponents][:change]
-#--> "fragmented"
-
-? NL + "=== ISOLATED NODES ==="
-? "Before:", aDiff[:topology][:isolatedNodes][:from]
-#--> []
-
-? "After:", aDiff[:topology][:isolatedNodes][:to]
-#--> ["branch_c"]
-
-? "Change:", aDiff[:topology][:isolatedNodes][:change]
-#--> "increased"
-
-? NL + "=== EXPLANATION ==="
-for cLine in aDiff[:explanation]
-	? "  " + cLine
-next
-#--> Should warn: "Graph became fragmented"
+? @@NL( aDiff )
+#-->
+`
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 0 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 1 ],
+			[ "edgesremoved", 0 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[ "added", [  ] ],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[
+				"added",
+				[
+					[
+						[ "from", "hq" ],
+						[ "to", "branch_c" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[ "removed", [  ] ],
+			[
+				"modified",
+				[
+					[
+						[ "from", "hq" ],
+						[ "to", "branch_a" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "hq" ],
+						[ "to", "branch_b" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "branch_a" ],
+						[ "to", "branch_b" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 4 ],
+					[ "to", 4 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 4 ],
+					[ "to", 3 ],
+					[ "change", "-25%" ],
+					[ "delta", -1 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.33 ],
+					[ "to", 0.25 ],
+					[ "change", "-25.00%" ],
+					[ "delta", -0.08 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 3 ],
+					[ "to", 2 ],
+					[ "change", "-33.33%" ],
+					[ "delta", -1 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "FALSE" ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 2 ],
+					[ "to", 1.50 ],
+					[ "change", "-25%" ],
+					[ "delta", -0.50 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[
+						"from",
+						[ "hq" ]
+					],
+					[
+						"to",
+						[ "hq", "branch_a", "branch_b" ]
+					],
+					[ "change", "increased" ],
+					[ "delta", 2 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 2 ],
+					[ "change", "fragmented" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[
+						"to",
+						[ "branch_c" ]
+					],
+					[ "change", "increased" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[
+				"reachabilitychanges",
+				[
+					[ "hq", "Can now reach 1 fewer node(s)" ]
+				]
+			],
+			[
+				"criticalitychanges",
+				[
+					[ "hq", "Criticality decreased (degree 3 → 2)" ],
+					[
+						"branch_c",
+						"Criticality decreased (degree 1 → 0)"
+					]
+				]
+			]
+		]
+	],
+	[
+		"explanation",
+		[
+			"Added 1 edge(s)",
+			"Density -25.00%",
+			"Bottlenecks increased",
+			"Warning: Graph became fragmented"
+		]
+	]
+]
+`
 
 pf()
+# Executed in 0.17 second(s) in Ring 1.24
 
 #-----------------------#
 #   DENSITY COMPARISON  #
@@ -4233,26 +5572,225 @@ oDense {
 }
 
 aDiff = oSparse.CompareWith(oDense)
-
-? "=== DENSITY ANALYSIS ==="
-? "Sparse density:", aDiff[:metrics][:density][:from]
-? "Dense density:", aDiff[:metrics][:density][:to]
-? "Change:", aDiff[:metrics][:density][:change]
-? "Delta:", aDiff[:metrics][:density][:delta]
-
-? NL + "=== EDGE COUNT ==="
-? "Sparse edges:", aDiff[:metrics][:edgeCount][:from]
-? "Dense edges:", aDiff[:metrics][:edgeCount][:to]
-? "Increase:", aDiff[:metrics][:edgeCount][:change]
+? @@NL( aDiff )
+#-->
+`
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 0 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 0 ],
+			[ "edgesremoved", 6 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[ "added", [  ] ],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[ "added", [  ] ],
+			[
+				"removed",
+				[
+					[
+						[ "from", "top" ],
+						[ "to", "bot1" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "top" ],
+						[ "to", "bot2" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "mid1" ],
+						[ "to", "mid2" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "mid1" ],
+						[ "to", "bot2" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "mid2" ],
+						[ "to", "bot1" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					],
+					[
+						[ "from", "bot1" ],
+						[ "to", "bot2" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 5 ],
+					[ "to", 5 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 4 ],
+					[ "to", 10 ],
+					[ "change", "+150%" ],
+					[ "delta", 6 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.20 ],
+					[ "to", 0.50 ],
+					[ "change", "+150.00%" ],
+					[ "delta", 0.30 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 4 ],
+					[ "to", 4 ],
+					[ "change", "unchanged" ],
+					[ "delta", 0 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "FALSE" ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 1.60 ],
+					[ "to", 4 ],
+					[ "change", "+150.00%" ],
+					[ "delta", 2.40 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[
+						"from",
+						[ "top", "mid1", "mid2" ]
+					],
+					[ "to", [  ] ],
+					[ "change", "reduced" ],
+					[ "delta", -3 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[
+				"reachabilitychanges",
+				[
+					[ "mid1", "Can now reach 2 more node(s)" ],
+					[ "mid2", "Can now reach 1 more node(s)" ],
+					[ "bot1", "Can now reach 1 more node(s)" ]
+				]
+			],
+			[
+				"criticalitychanges",
+				[
+					[
+						"top",
+						"Criticality increased (degree 2 → 4)"
+					],
+					[
+						"mid1",
+						"Criticality increased (degree 2 → 4)"
+					],
+					[
+						"mid2",
+						"Criticality increased (degree 2 → 4)"
+					],
+					[
+						"bot1",
+						"Criticality increased (degree 1 → 4)"
+					],
+					[
+						"bot2",
+						"Criticality increased (degree 1 → 4)"
+					]
+				]
+			]
+		]
+	],
+	[
+		"explanation",
+		[
+			"Removed 6 edge(s)",
+			"Density +150.00%",
+			"Bottlenecks reduced (improvement)"
+		]
+	]
+]
+`
 
 pf()
+# Executed in 0.28 second(s) in Ring 1.24
 
 #-----------------------#
 #   QUICK COMPARISON    #
 #-----------------------#
 
 /*--- Using DiffWith() alias for brevity
-
+*/
 pr()
 
 oA = new stzGraph("simple")
@@ -4267,14 +5805,169 @@ oB.AddNode("z")
 oB.Connect("y", "z")
 
 aDiff = oA.DiffWith(oB)
-
-? "Quick summary:"
-? "  Nodes: " + aDiff[:summary][:nodesAdded] + " added"
-? "  Edges: " + aDiff[:summary][:edgesAdded] + " added"
-? ""
-? "Impact:"
-for cLine in aDiff[:explanation]
-	? "  " + cLine
-next
+? @@NL(aDiff)
+#-->
+`
+[
+	[
+		"summary",
+		[
+			[ "nodesadded", 1 ],
+			[ "nodesremoved", 0 ],
+			[ "edgesadded", 0 ],
+			[ "edgesremoved", 1 ],
+			[ "propertieschanged", 0 ]
+		]
+	],
+	[
+		"nodes",
+		[
+			[
+				"added",
+				[ "z" ]
+			],
+			[ "removed", [  ] ],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"edges",
+		[
+			[ "added", [  ] ],
+			[
+				"removed",
+				[
+					[
+						[ "from", "y" ],
+						[ "to", "z" ],
+						[ "label", "" ],
+						[ "properties", [  ] ]
+					]
+				]
+			],
+			[ "modified", [  ] ]
+		]
+	],
+	[
+		"metrics",
+		[
+			[
+				"nodecount",
+				[
+					[ "from", 2 ],
+					[ "to", 3 ],
+					[ "change", "+50%" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"edgecount",
+				[
+					[ "from", 1 ],
+					[ "to", 2 ],
+					[ "change", "+100%" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"density",
+				[
+					[ "from", 0.50 ],
+					[ "to", 0.33 ],
+					[ "change", "-33.33%" ],
+					[ "delta", -0.17 ]
+				]
+			],
+			[
+				"longestpath",
+				[
+					[ "from", 1 ],
+					[ "to", 2 ],
+					[ "change", "+100%" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"hascycles",
+				[
+					[ "from", "FALSE" ],
+					[ "to", "FALSE" ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"avgdegree",
+				[
+					[ "from", 1 ],
+					[ "to", 1.33 ],
+					[ "change", "+33.33%" ],
+					[ "delta", 0.33 ]
+				]
+			]
+		]
+	],
+	[
+		"topology",
+		[
+			[
+				"bottlenecks",
+				[
+					[ "from", [  ] ],
+					[
+						"to",
+						[ "y" ]
+					],
+					[ "change", "increased" ],
+					[ "delta", 1 ]
+				]
+			],
+			[
+				"connectedcomponents",
+				[
+					[ "from", 1 ],
+					[ "to", 1 ],
+					[ "change", "unchanged" ]
+				]
+			],
+			[
+				"isolatednodes",
+				[
+					[ "from", [  ] ],
+					[ "to", [  ] ],
+					[ "change", "unchanged" ]
+				]
+			]
+		]
+	],
+	[
+		"impact",
+		[
+			[
+				"reachabilitychanges",
+				[
+					[ "x", "Can now reach 1 more node(s)" ],
+					[ "y", "Can now reach 1 more node(s)" ]
+				]
+			],
+			[
+				"criticalitychanges",
+				[
+					[ "y", "Criticality increased (degree 1 → 2)" ]
+				]
+			]
+		]
+	],
+	[
+		"explanation",
+		[
+			"Added 1 node(s)",
+			"Removed 1 edge(s)",
+			"Density -33.33%",
+			"Bottlenecks increased"
+		]
+	]
+]
+`
 
 pf()
+# Executed in 0.12 second(s) in Ring 1.24
