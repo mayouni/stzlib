@@ -2954,12 +2954,15 @@ class stzGraph
 
 		def CompareWithManyQR(paoGraphs, pcReturnType)
 			switch pcReturnType
-			on :stzTable
-				return new stzGraphComparisonMatrix(This, paoGraphs)
+			on :stzGraphComparison
+				return new stzGraphComparison(This, paoGraphs)
+
 			on :stzHashList
 				return new stzHashList(This.CompareWithMany(paoGraphs))
+
 			on :stzListOfLists
 				return new stzListOfLists(This.CompareWithMany(paoGraphs))
+
 			other
 				stzraise("Unsupported return type!")
 			off
@@ -3002,129 +3005,74 @@ class stzGraph
 	#  GRAPH COMPARISON VISUALIZATION SUPPORT  #
 	#------------------------------------------#
 
-	def ComparisonToStzTable(aComparison)
-		# Convert comparison result to stzTable format
+	def _ToStzTableData(aComparison)
+		# Convert comparison result to stzTable format - TRANSPOSED
 		if NOT (isList(aComparison) and HasKey(aComparison, :comparisons))
 			stzraise("Invalid comparison format!")
 		ok
 		
-		aRows = []
 		aComparisons = aComparison[:comparisons]
 		nLen = len(aComparisons)
 		
+		# Build header row with variation names
+		aHeader = ["Metric"]
 		for i = 1 to nLen
-			aComp = aComparisons[i]
-			aRow = [
-				aComp[:name],
-				aComp[:nodesAdded],
-				aComp[:nodesRemoved],
-				aComp[:edgesAdded],
-				aComp[:edgesRemoved],
-				aComp[:densityChange],
-				aComp[:hasCycles],
-				aComp[:bottleneckChange]
-			]
-			aRows + aRow
+			aHeader + aComparisons[i][:name]
 		next
 		
-		# Build table data
-		aTableData = [
-			[ :Variation, :NodesAdded, :NodesRemoved, :EdgesAdded, 
-			  :EdgesRemoved, :DensityChange, :HasCycles, :BottleneckChange ]
-		]
+		# Build metric rows (transposed)
+		aTableData = [aHeader]
 		
-		nLen = len(aRows)
+		# Nodes Added row
+		aRow = ["NodesAdded"]
 		for i = 1 to nLen
-			aTableData + aRows[i]
+			aRow + aComparisons[i][:nodesAdded]
 		next
+		aTableData + aRow
+		
+		# Nodes Removed row
+		aRow = ["NodesRemoved"]
+		for i = 1 to nLen
+			aRow + aComparisons[i][:nodesRemoved]
+		next
+		aTableData + aRow
+		
+		# Edges Added row
+		aRow = ["EdgesAdded"]
+		for i = 1 to nLen
+			aRow + aComparisons[i][:edgesAdded]
+		next
+		aTableData + aRow
+		
+		# Edges Removed row
+		aRow = ["EdgesRemoved"]
+		for i = 1 to nLen
+			aRow + aComparisons[i][:edgesRemoved]
+		next
+		aTableData + aRow
+		
+		# Density Change row
+		aRow = ["DensityChange"]
+		for i = 1 to nLen
+			aRow + aComparisons[i][:densityChange]
+		next
+		aTableData + aRow
+		
+		# Has Cycles row
+		aRow = ["HasCycles"]
+		for i = 1 to nLen
+			aRow + aComparisons[i][:hasCycles]
+		next
+		aTableData + aRow
+		
+		# Bottleneck Change row
+		aRow = ["BottleneckChange"]
+		for i = 1 to nLen
+			aRow + aComparisons[i][:bottleneckChange]
+		next
+		aTableData + aRow
 		
 		return aTableData
-
-	def VisualizeComparison(aComparison)
-		# Generate ASCII visualization of comparison
-		if NOT (isList(aComparison) and HasKey(aComparison, :comparisons))
-			return "Invalid comparison data"
-		ok
-		
-		aComparisons = aComparison[:comparisons]
-		nCount = len(aComparisons)
-		
-		cResult = NL + "=== COMPARISON MATRIX ===" + NL
-		cResult += "Baseline: " + aComparison[:baseline] + NL
-		cResult += "Variations: " + nCount + NL + NL
-		
-		# Nodes change visualization
-		acNames = []
-		anNodesAdded = []
-		anNodesRemoved = []
-		
-		nLen = len(aComparisons)
-		for i = 1 to nLen
-			acNames + aComparisons[i][:name]
-			anNodesAdded + aComparisons[i][:nodesAdded]
-			anNodesRemoved + aComparisons[i][:nodesRemoved]
-		next
-		
-		cResult += "--- NODES ADDED ---" + NL
-		cResult += This._GenerateSimpleBarChart(acNames, anNodesAdded) + NL + NL
-		
-		cResult += "--- NODES REMOVED ---" + NL
-		cResult += This._GenerateSimpleBarChart(acNames, anNodesRemoved) + NL + NL
-		
-		# Edges change visualization
-		anEdgesAdded = []
-		anEdgesRemoved = []
-		
-		nLen = len(aComparisons)
-		for i = 1 to nLen
-			anEdgesAdded + aComparisons[i][:edgesAdded]
-			anEdgesRemoved + aComparisons[i][:edgesRemoved]
-		next
-		
-		cResult += "--- EDGES ADDED ---" + NL
-		cResult += This._GenerateSimpleBarChart(acNames, anEdgesAdded) + NL + NL
-		
-		cResult += "--- EDGES REMOVED ---" + NL
-		cResult += This._GenerateSimpleBarChart(acNames, anEdgesRemoved) + NL
-		
-		return cResult
-
-	def _GenerateSimpleBarChart(acLabels, anValues)
-		if len(acLabels) = 0 or len(anValues) = 0
-			return "(no data)"
-		ok
-		
-		# Find max value for scaling
-		nMax = Max(anValues)
-		if nMax = 0
-			nMax = 1
-		ok
-		
-		nBarWidth = 40
-		cResult = ""
-		
-		nLen = len(acLabels)
-		for i = 1 to nLen
-			cLabel = acLabels[i]
-			nValue = anValues[i]
-			
-			# Pad label to 15 chars
-			cPadded = cLabel
-			while len(cPadded) < 15
-				cPadded += " "
-			end
-			
-			# Calculate bar length
-			nBarLen = floor((nValue / nMax) * nBarWidth)
-			cBar = ""
-			for j = 1 to nBarLen
-				cBar += "█"
-			next
-			
-			cResult += cPadded + " │ " + cBar + " " + nValue + NL
-		next
-		
-		return cResult
 
 	#-----------------------------#
 	#  GRAPH COMPARISON HELPERS   #
@@ -3524,8 +3472,8 @@ class stzGraph
 		ok
 		
 		return [
-			:from = bFrom,
-			:to = bTo,
+			:from = iff(bFrom, "TRUE", "FALSE"),
+			:to = iff(bTo, "TRUE", "FALSE"),
 			:change = cChange
 		]
 
@@ -3818,12 +3766,12 @@ class stzGraphQuery
 		return FALSE
 
 
-#================================================#
-# stzGraphAsciiVisualizer - Keep Separate
-#================================================#
+#==========================#
+# stzGraphAsciiVisualizer
+#==========================#
 
 class stzGraphAsciiVisualizer
-@oGraph
+	@oGraph
 
 	@cBoxTopLeft = "╭"
 	@cBoxTopRight = "╮"
@@ -4079,10 +4027,10 @@ class stzGraphAsciiVisualizer
 
 
 #================================================#
-# stzGraphComparisonMatrix - Fluent Comparison   #
+# stzGraphComparison - Fluent Comparison   #
 #================================================#
 
-class stzGraphComparisonMatrix
+class stzGraphComparison
 	@oBaselineGraph
 	@aGraphs = []
 	@aComparisonData = []
@@ -4109,7 +4057,7 @@ class stzGraphComparisonMatrix
 		@aComparisonData = @oBaselineGraph.CompareWithMany(@aGraphs)
 	
 	def ToStzTable()
-		aTableData = @oBaselineGraph.ComparisonToStzTable(@aComparisonData)
+		aTableData = @oBaselineGraph._ToStzTableData(@aComparisonData)
 		return new stzTable(aTableData)
 	
 		def AsStzTable()
@@ -4125,18 +4073,11 @@ class stzGraphComparisonMatrix
 		def Display()
 			This.Show()
 	
-	def Visualize()
-		? @oBaselineGraph.VisualizeComparison(@aComparisonData)
-	
-		def ShowVisual()
-			This.Visualize()
-	
-		def Plot()
-			This.Visualize()
-	
 	def Data()
 		return @aComparisonData
 	
+		def Content()
+
 	def Comparisons()
 		return @aComparisonData[:comparisons]
 	
