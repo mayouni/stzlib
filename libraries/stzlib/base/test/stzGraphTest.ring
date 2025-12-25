@@ -1,6 +1,16 @@
 
 load "../stzbase.ring"
 
+#FUNNY What ChatGPT thinks of this file:
+
+# The test file is a narrative, not a test ✅
+# stzgraphtest.ring is remarkable because:
+#  - It reads like a story
+#  - Each example introduces a concept
+#  -The output is part of the explanation
+#
+# This is very rare in libraries.
+
 #============================================#
 #  SECTION 1: BASIC GRAPH OPERATIONS
 #============================================#
@@ -2268,9 +2278,561 @@ oGraph {
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
-#==================================#
-#  RULES MANAGEMENT TEST SECTION   #
-#==================================#
+#============================================#
+#  stzGraph RULES - PROGRESSIVE EXAMPLES     #
+#  Building understanding piece by piece     #
+#============================================#
+
+# In this first part of the rules test section, we
+# try to understanding graph rules...
+
+# Rules let you define behaviors that apply automatically.
+# Three types:
+#  1. DERIVATION - Automatically create new edges
+#  2. CONSTRAINT - Block invalid operations
+#  3. VALIDATION - Check graph correctness
+
+pf()
+
+/*===== SIMPLE DERIVATION RULE
+
+pr()
+
+# Example: If A manages B, A should see B's reports
+
+# Register a simple derivation rule
+RegisterRule(:demo, "manager_sees_reports", [
+	:type = :derivation,
+	:function = func(oGraph, paRuleParams) {
+		aNewEdges = []
+		aEdges = oGraph.Edges()
+		
+		for aEdge in aEdges
+			if aEdge[:label] = "manages"
+				cManager = aEdge[:from]
+				cEmployee = aEdge[:to]
+				cReport = cEmployee + "_report"
+				
+				# If report exists, connect manager to it
+				if oGraph.NodeExists(cReport)
+					if NOT oGraph.EdgeExists(cManager, cReport)
+						aNewEdges + [cManager, cReport, "can_view", []]
+					ok
+				ok
+			ok
+		next
+		
+		return aNewEdges
+	},
+	:params = [],
+	:message = "Manager access to reports",
+	:severity = :info
+])
+
+# Use it
+oGraph = new stzGraph("Company")
+oGraph {
+	AddNode("alice")
+	AddNode("bob")
+	AddNode("bob_report")
+	
+	AddEdgeXT("alice", "bob", "manages")
+	
+	? "Before derivation:"
+	? "  Edges: " + EdgeCount()
+	? "  Alice -> bob_report: " + PathExists("alice", "bob_report") + NL
+	
+	UseRulesFrom(:demo)
+	nDerived = ApplyDerivations()
+	
+	? "After derivation:"
+	? "  Edges: " + EdgeCount()
+	? "  Derived: " + nDerived
+	? "  Alice -> bob_report: " + PathExists("alice", "bob_report")
+	? "  (Alice can now view Bob's report!)" + NL
+}
+#-->
+`
+Before derivation:
+  Edges: 1
+  Alice -> bob_report: 0
+
+After derivation:
+  Edges: 2
+  Derived: 1
+  Alice -> bob_report: 1
+  (Alice can now view Bob's report!)
+`
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*===== SIMPLE CONSTRAINT RULE
+
+pr()
+
+# Example: Nobody can approve their own work
+
+# Register a simple constraint
+RegisterRule(:workflow, "no_self_approval", [
+	:type = :constraint,
+	:function = func(oGraph, paRuleParams, paOperationParams) {
+		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
+			if paOperationParams[:from] = paOperationParams[:to]
+				if HasKey(paOperationParams, :label)
+					if paOperationParams[:label] = "approves"
+						return [TRUE, "Cannot approve your own work"]
+					ok
+				ok
+			ok
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Self-approval blocked",
+	:severity = :error
+])
+
+# Use it
+oGraph = new stzGraph("Workflow")
+oGraph {
+	AddNode("john")
+	AddNode("mary")
+	
+	UseRulesFrom(:workflow)
+	
+	? "Test 1: John approves Mary's work"
+	aResult = CheckConstraints([:from = "john", :to = "mary", :label = "approves"])
+	? "  Allowed: " + aResult[1]
+	? ""
+	
+	? "Test 2: John tries to approve his own work"
+	aResult = CheckConstraints([:from = "john", :to = "john", :label = "approves"])
+	? "  Allowed: " + aResult[1]
+	if NOT aResult[1]
+		? "  Reason: " + aResult[2][1][:message]
+	ok
+}
+#-->
+`
+Test 1: John approves Mary's work
+  Allowed: 1
+
+Test 2: John tries to approve his own work
+  Allowed: 0
+  Reason: Cannot approve your own work
+`
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.24
+
+/*=== SIMPLE VALIDATION RULE
+
+pr()
+
+# Example: Every task must have an owner
+
+# Register a simple validation
+RegisterRule(:project, "tasks_have_owners", [
+	:type = :validation,
+	:function = func(oGraph, paRuleParams) {
+		aNodes = oGraph.Nodes()
+		
+		for aNode in aNodes
+			cType = oGraph.NodeProperty(aNode[:id], "type")
+			if cType = "task"
+				# Check if task has incoming "owns" edge
+				aIncoming = oGraph.Incoming(aNode[:id])
+				if len(aIncoming) = 0
+					return [FALSE, "Task '" + aNode[:id] + "' has no owner"]
+				ok
+			ok
+		next
+		
+		return [TRUE, ""]
+	},
+	:params = [],
+	:message = "Orphan tasks found",
+	:severity = :warning
+])
+
+# Use it
+oGraph = new stzGraph("Project")
+oGraph {
+	AddNodeXTT("task1", "Build UI", [:type = "task"])
+	AddNodeXTT("alice", "Alice", [:type = "person"])
+	
+	UseRulesFrom(:project)
+	
+	? "Scenario 1: Task without owner"
+	aResult = ValidateGraph()
+	? "  Valid: " + aResult[1]
+	if NOT aResult[1]
+		? "  Problem: " + aResult[2][1][:message]
+	ok
+	? ""
+	
+	? "Scenario 2: Adding owner..."
+	RemoveEdge("alice", "task1")
+	AddEdgeXT("alice", "task1", "owns")
+	
+	aResult = ValidateGraph()
+	? "  Valid: " + aResult[1]
+	? "  (Task now has owner!)" + NL
+}
+#-->
+`
+Scenario 1: Task without owner
+  Valid: 0
+  Problem: Task 'task1' has no owner
+
+Scenario 2: Adding owner...
+  Valid: 1
+  (Task now has owner!)
+`
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*==== USING BUILT-IN FUNCTIONS
+
+pr()
+
+# Softanza provides ready-to-use rule functions
+
+# Use built-in transitivity
+RegisterRule(:access, "inherit_access", [
+	:type = :derivation,
+	:function = DerivationFunc_Transitivity(),
+	:params = [],
+	:message = "Access inherited",
+	:severity = :info
+])
+
+# Use built-in no-cycles constraint
+RegisterRule(:workflow, "must_be_dag", [
+	:type = :constraint,
+	:function = ConstraintFunc_NoCycles(),
+	:params = [],
+	:message = "Cycles not allowed",
+	:severity = :error
+])
+
+oGraph = new stzGraph("Access")
+oGraph {
+	AddNode("alice")
+	AddNode("folder")
+	AddNode("file")
+	
+	Connect("alice", "folder")
+	Connect("folder", "file")
+	
+	UseRulesFrom(:access)
+	UseRulesFrom(:workflow)
+	
+	? "Access propagation:"
+	? "  Alice -> file (before): " + PathExists("alice", "file")
+	
+	nDerived = ApplyDerivations()
+	? "  Alice -> file (after): " + PathExists("alice", "file")
+	? "  (Access propagated transitively!)" + NL
+	
+	? "Cycle prevention:"
+	aResult = CheckConstraints([:from = "file", :to = "alice"])
+	? "  Can create file->alice edge: " + aResult[1]
+	if NOT aResult[1]
+		? "  Reason: " + aResult[2][1][:message]
+	ok
+
+}
+#-->
+'
+Access propagation:
+  Alice -> file (before): 1
+  Alice -> file (after): 1
+  (Access propagated transitively!)
+
+Cycle prevention:
+  Can create file->alice edge: 0
+  Reason: Would create a cycle
+'
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*=== COMBINING RULES
+
+pr()
+
+# Rules work together to create complex behaviors
+
+# Three rules working together
+RegisterRule(:org, "team_leadership", [
+	:type = :derivation,
+	:function = func(oGraph, paRuleParams) {
+		aNewEdges = []
+		aNodes = oGraph.Nodes()
+		
+		for aNode in aNodes
+			if oGraph.NodeProperty(aNode[:id], "role") = "lead"
+				cLead = aNode[:id]
+				
+				# Lead can assign tasks to team members
+				aMembers = oGraph.Neighbors(cLead)
+				for cMember in aMembers
+					if NOT oGraph.EdgeExists(cLead, cMember + "_tasks")
+						if oGraph.NodeExists(cMember + "_tasks")
+							aNewEdges + [cLead, cMember + "_tasks", "can_assign", []]
+						ok
+					ok
+				next
+			ok
+		next
+		
+		return aNewEdges
+	},
+	:params = [],
+	:message = "Team lead assignment rights",
+	:severity = :info
+])
+
+RegisterRule(:org, "max_team_size", [
+	:type = :constraint,
+	:function = func(oGraph, paRuleParams, paOperationParams) {
+		if HasKey(paOperationParams, :from)
+			cFrom = paOperationParams[:from]
+			if oGraph.NodeExists(cFrom)
+				if oGraph.NodeProperty(cFrom, "role") = "lead"
+					nTeamSize = len(oGraph.Neighbors(cFrom))
+					if nTeamSize >= 5
+						return [TRUE, "Team leads can have max 5 members"]
+					ok
+				ok
+			ok
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Team size limit",
+	:severity = :warning
+])
+
+RegisterRule(:org, "balanced_teams", [
+	:type = :validation,
+	:function = func(oGraph, paRuleParams) {
+		aNodes = oGraph.Nodes()
+		nLeads = 0
+		nMembers = 0
+		
+		for aNode in aNodes
+			cRole = oGraph.NodeProperty(aNode[:id], "role")
+			if cRole = "lead"
+				nLeads++
+			but cRole = "member"
+				nMembers++
+			ok
+		next
+		
+		if nLeads > 0
+			nAvg = nMembers / nLeads
+			if nAvg < 2
+				return [FALSE, "Teams too small (avg " + nAvg + " members per lead)"]
+			ok
+		ok
+		
+		return [TRUE, ""]
+	},
+	:params = [],
+	:message = "Team balance check",
+	:severity = :info
+])
+
+oGraph = new stzGraph("Organization")
+oGraph {
+	AddNodeXTT("alice", "Alice", [:role = "lead"])
+	AddNodeXTT("bob", "Bob", [:role = "member"])
+	AddNodeXTT("charlie", "Charlie", [:role = "member"])
+	AddNodeXTT("bob_tasks", "Bob's Tasks", [:type = "tasklist"])
+	AddNodeXTT("charlie_tasks", "Charlie's Tasks", [:type = "tasklist"])
+	
+	Connect("alice", "bob")
+	Connect("alice", "charlie")
+	
+	UseRulesFrom(:org)
+	
+	? "Initial setup:"
+	? "  Team size: " + len(Neighbors("alice")) + NL
+	
+	? "Applying derivations..."
+	nDerived = ApplyDerivations()
+	? "  Derived edges: " + nDerived
+	? "  Alice can assign tasks: " + PathExists("alice", "bob_tasks") + NL
+	
+	? "Validation:"
+	aResult = ValidateGraph()
+	? "  Balanced: " + aResult[1]
+}
+#-->
+'
+Initial setup:
+  Team size: 2
+
+Applying derivations...
+  Derived edges: 2
+  Alice can assign tasks: 1
+
+Validation:
+  Balanced: 1
+'
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.24
+
+/*=== PRACTICAL WORKFLOW
+
+pr()
+
+# Document approval workflow with rules
+
+# Simple document workflow rules
+RegisterRule(:docflow, "auto_notify", [
+	:type = :derivation,
+	:function = func(oGraph, paRuleParams) {
+		aNewEdges = []
+		aEdges = oGraph.Edges()
+		
+		for aEdge in aEdges
+			if aEdge[:label] = "submits"
+				cAuthor = aEdge[:from]
+				cDoc = aEdge[:to]
+				
+				# Find all approvers
+				aApprovers = oGraph.Neighbors(cDoc)
+				for cApprover in aApprovers
+					if NOT oGraph.EdgeExists(cDoc, cApprover)
+						aNewEdges + [cDoc, cApprover, "notify", []]
+					ok
+				next
+			ok
+		next
+		
+		return aNewEdges
+	},
+	:params = [],
+	:message = "Notification edges created",
+	:severity = :info
+])
+
+RegisterRule(:docflow, "no_author_approval", [
+	:type = :constraint,
+	:function = func(oGraph, paRuleParams, paOperationParams) {
+		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
+			cFrom = paOperationParams[:from]
+			cDoc = paOperationParams[:to]
+			
+			# Check if person submitted this document
+			if oGraph.EdgeExists(cFrom, cDoc)
+				aEdge = oGraph.Edge(cFrom, cDoc)
+				if aEdge[:label] = "submits"
+					return [TRUE, "Authors cannot approve their own documents"]
+				ok
+			ok
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Self-approval blocked",
+	:severity = :error
+])
+
+oGraph = new stzGraph("DocWorkflow")
+oGraph {
+	AddNode("john")
+	AddNode("report")
+	AddNode("mary")
+	AddNode("peter")
+	
+	# John submits report
+	AddEdgeXT("john", "report", "submits")
+	
+	# Mary and Peter are approvers
+	Connect("report", "mary")
+	Connect("report", "peter")
+	
+	UseRulesFrom(:docflow)
+	
+	? "Document submitted by John"
+	? "  Approvers: Mary, Peter" + NL
+	
+	? "Applying notification rules..."
+	nDerived = ApplyDerivations()
+	? "  Notifications sent: " + nDerived + NL
+	
+	? "Approval attempts:"
+	? "  Mary approves: " + CheckConstraints([:from = "mary", :to = "report"])[1]
+	? "  John self-approves: " + CheckConstraints([:from = "john", :to = "report"])[1]
+	? "  (John is blocked!)" + NL
+	
+	Show()
+}
+#-->
+'
+Document submitted by John
+  Approvers: Mary, Peter
+
+Applying notification rules...
+  Notifications sent: 0
+
+Approval attempts:
+  Mary approves: 1
+  John self-approves: 0
+  (John is blocked!)
+
+        ╭──────╮         
+        │ john │         
+        ╰──────╯         
+            |            
+         submits         
+            |            
+            v            
+      ╭──────────╮       
+      │ !report! │       
+      ╰──────────╯       
+            |            
+            v            
+        ╭──────╮         
+        │ mary │         
+        ╰──────╯         
+
+          ////
+
+      ╭──────────╮  ↑
+      │ !report! │──╯
+      ╰──────────╯       
+            |            
+            v            
+        ╭───────╮        
+        │ peter │        
+        ╰───────╯  
+'
+
+pf()
+# Executed in 0.05 second(s) in Ring 1.24
+
+/*===== SUMMARY OF THE PART 1 OF RULES TESTING
+
+# You've learned:
+# 1. DERIVATION - Automatically add edges based on patterns
+# 2. CONSTRAINT - Block operations that violate rules
+# 3. VALIDATION - Check overall graph correctness
+# 4. Built-in functions for common patterns
+# 5. Combining rules for complex behaviors
+
+# Next: Explore advanced examples with real-world scenarios!
+
+#----------------------------------------------------#
+#  RULES MANAGEMENT - PART 2 - ELABORATED EXAMPLES   #
+#====================================================#
 
 /*--- DERIVATION RULES
 
@@ -5790,7 +6352,7 @@ pf()
 #-----------------------#
 
 /*--- Using DiffWith() alias for brevity
-*/
+
 pr()
 
 oA = new stzGraph("simple")

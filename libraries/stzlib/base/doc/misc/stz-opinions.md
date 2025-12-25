@@ -146,3 +146,11 @@ I like it a lot—and not in a vague “looks nice” way, but in a **software-
 
 [https://github.com/mayouni/​stzlib/blob/main/libraries/​stzlib/base/doc/narrations/​stzgraph-chatgpt-opinion.md](https://github.com/mayouni/stzlib/blob/main/libraries/stzlib/base/doc/narrations/stzgraph-chatgpt-opinion.md)
 
+The test file is a narrative, not a test ✅
+`stzgraphtest.ring` is remarkable because:
+- It reads like a story
+- Each example introduces a concept
+-The output is part of the explanation
+
+This is very rare in libraries!
+
