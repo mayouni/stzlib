@@ -2939,23 +2939,64 @@ class stzGraph
 			aComparisons + aRow
 		next
 		
-		return [
+		aResult = [
 			:comparisons = aComparisons,
 			:baseline = This.Id(),
 			:count = len(aComparisons)
 		]
 
+		return aResult
+
+		#< @FunctionFluentForms
+
+		def CompareWithManyQ(paoGraphs)
+			return new stzList(This.CompareWithMany(paoGraphs))
+
+		def CompareWithManyQR(paoGraphs, pcReturnType)
+			switch pcReturnType
+			on :stzTable
+				return new stzGraphComparisonMatrix(This, paoGraphs)
+			on :stzHashList
+				return new stzHashList(This.CompareWithMany(paoGraphs))
+			on :stzListOfLists
+				return new stzListOfLists(This.CompareWithMany(paoGraphs))
+			other
+				stzraise("Unsupported return type!")
+			off
+
+		#>
+
+		#< @FunctionAlternativeForms
+
 		def CompareMany(paoGraphs)
 			return This.CompareWithMany(paoGraphs)
 
+			def CompareManyQ(paoGraphs)
+				return return new stzList(This.CompareWithMany(paoGraphs))
+	
+			def CompareManyQR(paoGraphs, pcReturnType)
+				return This.CompareWithManyQR(paoGraphs, pcReturnType)
+	
 		def DiffMany(paoGraphs)
 			return This.CompareWithMany(paoGraphs)
 
-	def CompareWithManyQ(paoGraphs)
-		return new stzGraphComparisonMatrix(This, paoGraphs)
+			def DiffManyQ(paoGraphs)
+				return return new stzList(This.CompareWithMany(paoGraphs))
+	
+			def DiffManyQR(paoGraphs, pcReturnType)
+				return This.CompareWithManyQR(paoGraphs, pcReturnType)
+	
+		def DiffWithMany(paoGraphs)
+			return This.CompareWithMany(paoGraphs)
 
-		def CompareManyQ(paoGraphs)
-			return This.CompareWithManyQ(paoGraphs)
+			def DiffWithManyQ(paoGraphs)
+				return return new stzList(This.CompareWithMany(paoGraphs))
+
+			def diffManyWithQR(paoGraphs, pcReturnType)
+				return This.CompareWithManyQR(paoGraphs, pcReturnType)
+	
+		#>
+
 
 	#------------------------------------------#
 	#  GRAPH COMPARISON VISUALIZATION SUPPORT  #

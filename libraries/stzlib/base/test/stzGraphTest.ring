@@ -3426,7 +3426,7 @@ pf()
 #-----------------------------------#
 
 /*--- Business analyst exploring 3 restructuring options
-*/
+
 pr()
 
 oBaseline = new stzGraph("current_structure")
@@ -3532,30 +3532,68 @@ pf()
 #------------------------------------#
 
 /*--- Converting comparison to table for further analysis
-
+*/
 pr()
+
+oBaseline = new stzGraph("current_structure")
+oBaseline {
+	AddNode("ceo")
+	AddNode("sales")
+	AddNode("engineering")
+	AddNode("marketing")
+	
+	Connect("ceo", "sales")
+	Connect("ceo", "engineering")
+	Connect("ceo", "marketing")
+}
+
+# Option A: Add management layer
+oOptionA = oBaseline.Copy()
+oOptionA {
+	AddNode("coo")
+	RemoveThisEdge("ceo", "sales")
+	RemoveThisEdge("ceo", "marketing")
+	Connect("ceo", "coo")
+	Connect("coo", "sales")
+	Connect("coo", "marketing")
+}
+
+# Option B: Flat structure with more departments
+oOptionB = oBaseline.Copy()
+oOptionB {
+	AddNode("hr")
+	AddNode("finance")
+	Connect("ceo", "hr")
+	Connect("ceo", "finance")
+}
+
+# Option C: Matrix organization
+oOptionC = oBaseline.Copy()
+oOptionC {
+	AddNode("operations")
+	Connect("sales", "operations")
+	Connect("engineering", "operations")
+	Connect("marketing", "operations")
+}
 
 # Using same baseline and variations from previous example
 
-oMatrix = oBaseline.CompareWithManyQ([
+oMatrix = oBaseline.CompareWithManyQR([
 	["Add_COO_Layer", oOptionA],
 	["Flat_Structure", oOptionB],
 	["Matrix_Org", oOptionC]
-])
+], :stzTable)
 
-? "=== COMPARISON TABLE ==="
 oMatrix.Show()
 
-? NL + "=== MOST IMPACTFUL ==="
-? oMatrix.MostImpactful()
+? ""
+? oMatrix.MostImpactful() + NL
 #--> "Flat_Structure" (added 2 nodes + 2 edges = 4 changes)
 
-? NL + "=== LEAST IMPACTFUL ==="
-? oMatrix.LeastImpactful()
 
-? NL + "=== RECOMMENDATION ==="
-aRecommend = oMatrix.Recommend()
-? aRecommend[:recommended] + ": " + aRecommend[:reason]
+? oMatrix.LeastImpactful() + NL
+
+? @@NL( oMatrix.Recommend() )
 
 pf()
 
