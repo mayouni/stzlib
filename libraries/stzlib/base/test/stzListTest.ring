@@ -12692,7 +12692,7 @@ o1 = new stzList([ "green", "red", "blue" ])
 pf()
 # Executed in 0.05 second(s).
 
-#---------
+#--------- DIFF
 
 pr()
 
@@ -12737,20 +12737,19 @@ o1 = new stzList([ "green", [ "A", "B" ], "rediness", "blues" ])
 [
 	[
 		"added",
-		[
-			"yellow",
-			"red",
-			"blue",
-			"gray"
-		]
+		[ "yellow", "gray" ]
 	],
 	[
 		"removed",
-		[ "green", "rediness", "blues" ]
+		[ "green" ]
 	],
 	[
 		"modified",
 		[
+			[
+				[ "A", "B" ],
+				[ "A" ]
+			],
 			[ "rediness", "red" ],
 			[ "blues", "blue" ]
 		]
@@ -12759,7 +12758,8 @@ o1 = new stzList([ "green", [ "A", "B" ], "rediness", "blues" ])
 '
 
 pf()
-                                  
+# Executed in 0.04 second(s) in Ring 1.24
+                               
 /*--------------------------
 
 pr()

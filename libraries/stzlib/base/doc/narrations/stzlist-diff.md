@@ -74,8 +74,6 @@ The diff now becomes **expressive**:
 * The structure is stable and predictable
 * Even empty categories are explicitly present
 
-At this level, the diff is no longer just data — it is already **a narrative of change**.
-
 
 ## Level 3 — `DiffXTT()`: understanding *why* things differ
 
@@ -124,9 +122,6 @@ Here, the diff exposes **relationships**:
 
 At this level, `DiffXTT()` no longer reports differences —
 it **explains them**.
-
-This is where diffs stop being passive results and become
-**narrators of change**.
 
 
 ## A deliberate progression, not increasing complexity
