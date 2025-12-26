@@ -3500,7 +3500,632 @@ class stzGraph
 		ok
 		
 		return "unchanged"
+	
+	#=======================================#
+	#  SERIALIZATION - FILE FORMAT SUPPORT  #
+	#=======================================#
+	
+	#------------------#
+	#  .stzgraf FORMAT #
+	#------------------#
+	
+	def ExportToStzGraf()
+		cOutput = 'graph "' + @cId + '"' + NL
+		cOutput += '    type: ' + @cGraphType + NL + NL
 		
+		# Nodes section
+		cOutput += "nodes" + NL
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			cOutput += "    " + @aNodes[i][:id] + NL
+		next
+		cOutput += NL
+		
+		# Edges section
+		cOutput += "edges" + NL
+		nLen = len(@aEdges)
+		for i = 1 to nLen
+			aEdge = @aEdges[i]
+			cOutput += "    " + aEdge[:from] + " -> " + aEdge[:to]
+			if aEdge[:label] != ""
+				cOutput += ' "' + aEdge[:label] + '"'
+			ok
+			cOutput += NL
+		next
+		
+		# Properties section
+		if This._HasNodeProperties()
+			cOutput += NL + "properties" + NL
+			nLen = len(@aNodes)
+			for i = 1 to nLen
+				aNode = @aNodes[i]
+				if HasKey(aNode, :properties) and len(aNode[:properties]) > 0
+					cOutput += "    " + aNode[:id] + NL
+					aProps = aNode[:properties]
+					acKeys = keys(aProps)
+					nKeyLen = len(acKeys)
+					for j = 1 to nKeyLen
+						cKey = acKeys[j]
+						pVal = aProps[cKey]
+						cOutput += "        " + cKey + ": " + This._FormatValue(pVal) + NL
+					next
+					cOutput += NL
+				ok
+			next
+		ok
+		
+		return cOutput
+	
+		def ToStzGraf()
+			return This.ExportToStzGraf()
+	
+		def AsStzGraf()
+			return This.ExportToStzGraf()
+	
+	def SaveToStzGraf(pcPath)
+		cContent = This.ExportToStzGraf()
+		write(pcPath, cContent)
+	
+		def SaveAsStzGraf(pcPath)
+			This.SaveToStzGraf(pcPath)
+	
+	def LoadFromStzGraf(pcPath)
+		if NOT fexists(pcPath)
+			stzraise("File not found: " + pcPath)
+		ok
+		
+		cContent = read(pcPath)
+		This._ParseStzGraf(cContent)
+	
+		def LoadStzGraf(pcPath)
+			This.LoadFromStzGraf(pcPath)
+	
+	def _ParseStzGraf(cContent)
+		# Clear current graph
+		@aNodes = []
+		@aEdges = []
+		
+		acLines = split(cContent, NL)
+		cSection = ""
+		cCurrentNode = ""
+		nLen = len(acLines)
+		
+		for i = 1 to nLen
+			cLine = trim(acLines[i])
+			
+			if cLine = "" or left(cLine, 1) = "#"
+				loop
+			ok
+			
+			# Parse graph declaration
+			if left(cLine, 5) = "graph"
+				nPos = substr(cLine, '"')
+				if nPos > 0
+					cQuoted = substr(cLine, nPos + 1)
+					nEnd = substr(cQuoted, '"')
+					if nEnd > 0
+						@cId = substr(cQuoted, 1, nEnd - 1)
+					ok
+				ok
+				loop
+			ok
+			
+			# Parse type
+			if substr(cLine, "type:") > 0
+				nPos = substr(cLine, ":")
+				@cGraphType = trim(substr(cLine, nPos + 1))
+				loop
+			ok
+			
+			# Section headers
+			if cLine = "nodes"
+				cSection = "nodes"
+				loop
+			but cLine = "edges"
+				cSection = "edges"
+				loop
+			but cLine = "properties"
+				cSection = "properties"
+				loop
+			ok
+			
+			# Parse content based on section
+			if cSection = "nodes"
+				cNodeId = trim(cLine)
+				if cNodeId != ""
+					This.AddNode(cNodeId)
+				ok
+				
+			but cSection = "edges"
+				if substr(cLine, "->") > 0
+					acParts = split(cLine, "->")
+					if len(acParts) >= 2
+						cFrom = trim(acParts[1])
+						cRest = trim(acParts[2])
+						
+						# Check for label in quotes
+						nQuote = substr(cRest, '"')
+						if nQuote > 0
+							cTo = trim(substr(cRest, 1, nQuote - 1))
+							cLabel = substr(cRest, nQuote + 1)
+							nEndQuote = substr(cLabel, '"')
+							if nEndQuote > 0
+								cLabel = substr(cLabel, 1, nEndQuote - 1)
+								This.AddEdgeXT(cFrom, cTo, cLabel)
+							else
+								This.AddEdge(cFrom, cTo)
+							ok
+						else
+							cTo = cRest
+							This.AddEdge(cFrom, cTo)
+						ok
+					ok
+				ok
+				
+			but cSection = "properties"
+				# Check if this is a node name (no indentation or single indent)
+				nIndent = 0
+				nLen2 = len(acLines[i])
+				for j = 1 to nLen2
+					if substr(acLines[i], j, 1) = " " or substr(acLines[i], j, 1) = TAB
+						nIndent++
+					else
+						exit
+					ok
+				next
+				
+				if nIndent <= 4
+					cCurrentNode = trim(cLine)
+				else
+					# Property line
+					if substr(cLine, ":") > 0
+						acParts = split(cLine, ":")
+						if len(acParts) >= 2
+							cKey = trim(acParts[1])
+							cVal = trim(acParts[2])
+							pValue = This._ParseValue(cVal)
+							This.SetNodeProperty(cCurrentNode, cKey, pValue)
+						ok
+					ok
+				ok
+			ok
+		next
+	
+	#------------------#
+	#  .stzrulz FORMAT #
+	#------------------#
+	
+	def ExportToStzRulz()
+		cOutput = 'ruleset "' + @cId + ' Rules"' + NL
+		cOutput += '    domain: ' + @cGraphType + NL
+		cOutput += '    version: 1.0' + NL + NL
+		
+		cOutput += "rules" + NL + NL
+		
+		nLen = len(@aRules)
+		for i = 1 to nLen
+			aRule = @aRules[i]
+			
+			cOutput += "    rule " + aRule[:name] + NL
+			cOutput += "        type: " + aRule[:type] + NL
+			cOutput += "        severity: " + aRule[:severity] + NL
+			cOutput += "        function: " + This._GetFunctionName(aRule[:function]) + NL
+			
+			if len(aRule[:params]) > 0
+				cOutput += "        params" + NL
+				aParams = aRule[:params]
+				acKeys = keys(aParams)
+				nKeyLen = len(acKeys)
+				for j = 1 to nKeyLen
+					cKey = acKeys[j]
+					pVal = aParams[cKey]
+					cOutput += "            " + cKey + ": " + This._FormatValue(pVal) + NL
+				next
+			ok
+			
+			cOutput += "        message" + NL
+			cOutput += '            "' + aRule[:message] + '"' + NL
+			cOutput += NL
+		next
+		
+		return cOutput
+	
+		def ToStzRulz()
+			return This.ExportToStzRulz()
+	
+		def AsStzRulz()
+			return This.ExportToStzRulz()
+	
+	def SaveToStzRulz(pcPath)
+		cContent = This.ExportToStzRulz()
+		write(pcPath, cContent)
+	
+		def SaveAsStzRulz(pcPath)
+			This.SaveToStzRulz(pcPath)
+	
+	def LoadFromStzRulz(pcPath)
+		if NOT fexists(pcPath)
+			stzraise("File not found: " + pcPath)
+		ok
+		
+		cContent = read(pcPath)
+		This._ParseStzRulz(cContent)
+	
+		def LoadStzRulz(pcPath)
+			This.LoadFromStzRulz(pcPath)
+	
+	def _ParseStzRulz(cContent)
+		# Loads rule metadata and links to functions from .stzrulf files
+		acLines = split(cContent, NL)
+		cSection = ""
+		aCurrentRule = []
+		cCurrentKey = ""
+		nLen = len(acLines)
+		
+		for i = 1 to nLen
+			cLine = acLines[i]
+			cTrimmed = trim(cLine)
+			
+			if cTrimmed = "" or left(cTrimmed, 1) = "#"
+				loop
+			ok
+			
+			if cTrimmed = "rules"
+				cSection = "rules"
+				loop
+			ok
+			
+			if cSection = "rules"
+				if left(cTrimmed, 4) = "rule"
+					# Save previous rule
+					if len(aCurrentRule) > 0
+						@aRules + aCurrentRule
+					ok
+					
+					# Start new rule
+					cName = trim(substr(cTrimmed, 6))
+					aCurrentRule = [
+						:name = cName,
+						:type = "",
+						:function = NULL,
+						:params = [],
+						:message = "",
+						:severity = ""
+					]
+					
+				but substr(cTrimmed, "type:") = 1
+					aCurrentRule[:type] = trim(substr(cTrimmed, 6))
+					
+				but substr(cTrimmed, "severity:") = 1
+					aCurrentRule[:severity] = trim(substr(cTrimmed, 11))
+					
+				but substr(cTrimmed, "function:") = 1
+					cFuncName = trim(substr(cTrimmed, 11))
+					aCurrentRule[:function] = This._ResolveFunctionName(cFuncName)
+					
+				but cTrimmed = "params"
+					cCurrentKey = "params"
+					
+				but cTrimmed = "message"
+					cCurrentKey = "message"
+					
+				but cCurrentKey = "params" and substr(cTrimmed, ":") > 0
+					acParts = split(cTrimmed, ":")
+					if len(acParts) >= 2
+						cKey = trim(acParts[1])
+						cVal = trim(acParts[2])
+						aCurrentRule[:params][cKey] = This._ParseValue(cVal)
+					ok
+					
+				but cCurrentKey = "message"
+					cMsg = trim(cTrimmed)
+					if left(cMsg, 1) = '"' and right(cMsg, 1) = '"'
+						cMsg = substr(cMsg, 2, len(cMsg) - 2)
+					ok
+					aCurrentRule[:message] = cMsg
+				ok
+			ok
+		next
+		
+		# Save last rule
+		if len(aCurrentRule) > 0
+			@aRules + aCurrentRule
+		ok
+	
+	#------------------#
+	#  .stzrulf FORMAT #
+	#------------------#
+	
+	def LoadRuleFunctionsFrom(pcPath)
+		if NOT fexists(pcPath)
+			stzraise("File not found: " + pcPath)
+		ok
+		
+		# Load and execute the .stzrulf file to register functions
+		load pcPath
+	
+		def LoadStzRulf(pcPath)
+			This.LoadRuleFunctionsFrom(pcPath)
+	
+	def _GetFunctionName(pFunc)
+		# Try to match against known built-in functions
+		if pFunc = DerivationFunc_Transitivity()
+			return "DerivationFunc_Transitivity"
+		but pFunc = DerivationFunc_Symmetry()
+			return "DerivationFunc_Symmetry"
+		but pFunc = DerivationFunc_Hierarchy()
+			return "DerivationFunc_Hierarchy"
+		but pFunc = ConstraintFunc_NoSelfLoop()
+			return "ConstraintFunc_NoSelfLoop"
+		but pFunc = ConstraintFunc_MaxDegree()
+			return "ConstraintFunc_MaxDegree"
+		but pFunc = ConstraintFunc_NoCycles()
+			return "ConstraintFunc_NoCycles"
+		but pFunc = ConstraintFunc_Separation()
+			return "ConstraintFunc_Separation"
+		but pFunc = ConstraintFunc_PropertyMismatch()
+			return "ConstraintFunc_PropertyMismatch"
+		but pFunc = ValidationFunc_IsAcyclic()
+			return "ValidationFunc_IsAcyclic"
+		but pFunc = ValidationFunc_IsConnected()
+			return "ValidationFunc_IsConnected"
+		but pFunc = ValidationFunc_MaxNodes()
+			return "ValidationFunc_MaxNodes"
+		but pFunc = ValidationFunc_DensityRange()
+			return "ValidationFunc_DensityRange"
+		but pFunc = ValidationFunc_NoBottlenecks()
+			return "ValidationFunc_NoBottlenecks"
+		but pFunc = ValidationFunc_AllNodesReachable()
+			return "ValidationFunc_AllNodesReachable"
+		else
+			return "CustomFunction"
+		ok
+	
+	def _ResolveFunctionName(cFuncName)
+		# Resolve function name to actual function object
+		if cFuncName = "DerivationFunc_Transitivity"
+			return DerivationFunc_Transitivity()
+		but cFuncName = "DerivationFunc_Symmetry"
+			return DerivationFunc_Symmetry()
+		but cFuncName = "DerivationFunc_Hierarchy"
+			return DerivationFunc_Hierarchy()
+		but cFuncName = "ConstraintFunc_NoSelfLoop"
+			return ConstraintFunc_NoSelfLoop()
+		but cFuncName = "ConstraintFunc_MaxDegree"
+			return ConstraintFunc_MaxDegree()
+		but cFuncName = "ConstraintFunc_NoCycles"
+			return ConstraintFunc_NoCycles()
+		but cFuncName = "ConstraintFunc_Separation"
+			return ConstraintFunc_Separation()
+		but cFuncName = "ConstraintFunc_PropertyMismatch"
+			return ConstraintFunc_PropertyMismatch()
+		but cFuncName = "ValidationFunc_IsAcyclic"
+			return ValidationFunc_IsAcyclic()
+		but cFuncName = "ValidationFunc_IsConnected"
+			return ValidationFunc_IsConnected()
+		but cFuncName = "ValidationFunc_MaxNodes"
+			return ValidationFunc_MaxNodes()
+		but cFuncName = "ValidationFunc_DensityRange"
+			return ValidationFunc_DensityRange()
+		but cFuncName = "ValidationFunc_NoBottlenecks"
+			return ValidationFunc_NoBottlenecks()
+		but cFuncName = "ValidationFunc_AllNodesReachable"
+			return ValidationFunc_AllNodesReachable()
+		else
+			return NULL
+		ok
+	
+	#------------------#
+	#  .stzsim FORMAT  #
+	#------------------#
+	
+	def ExportToStzSim(oBaselineGraph)
+		cOutput = 'simulation "' + @cId + ' Comparison"' + NL
+		cOutput += '    description: "Changes from baseline"' + NL
+		cOutput += '    date: ' + Date() + NL + NL
+		
+		# Compare and generate changes
+		aDiff = oBaselineGraph.CompareWith(This)
+		
+		cOutput += "changes" + NL + NL
+		
+		# Node changes
+		aNodeDiff = aDiff[:nodes]
+		
+		if len(aNodeDiff[:added]) > 0
+			nLen = len(aNodeDiff[:added])
+			for i = 1 to nLen
+				cNodeId = aNodeDiff[:added][i]
+				aNode = This.Node(cNodeId)
+				cOutput += "    add node " + cNodeId + NL
+				cOutput += '        label: "' + aNode[:label] + '"' + NL
+			next
+			cOutput += NL
+		ok
+		
+		if len(aNodeDiff[:removed]) > 0
+			nLen = len(aNodeDiff[:removed])
+			for i = 1 to nLen
+				cOutput += "    remove node " + aNodeDiff[:removed][i] + NL
+			next
+			cOutput += NL
+		ok
+		
+		# Edge changes
+		aEdgeDiff = aDiff[:edges]
+		
+		if len(aEdgeDiff[:added]) > 0
+			nLen = len(aEdgeDiff[:added])
+			for i = 1 to nLen
+				aEdge = aEdgeDiff[:added][i]
+				cOutput += "    add edge " + aEdge[:from] + " -> " + aEdge[:to] + NL
+			next
+			cOutput += NL
+		ok
+		
+		if len(aEdgeDiff[:removed]) > 0
+			nLen = len(aEdgeDiff[:removed])
+			for i = 1 to nLen
+				aEdge = aEdgeDiff[:removed][i]
+				cOutput += "    remove edge " + aEdge[:from] + " -> " + aEdge[:to] + NL
+			next
+			cOutput += NL
+		ok
+		
+		# Metrics section
+		cOutput += "metrics" + NL + NL
+		aMetrics = aDiff[:metrics]
+		
+		cOutput += "    density: " + aMetrics[:density][:from] + " -> " + aMetrics[:density][:to] + NL
+		cOutput += "    nodeCount: " + aMetrics[:nodeCount][:from] + " -> " + aMetrics[:nodeCount][:to] + NL
+		cOutput += "    edgeCount: " + aMetrics[:edgeCount][:from] + " -> " + aMetrics[:edgeCount][:to] + NL
+		cOutput += "    hasCycles: " + aMetrics[:hasCycles][:from] + " -> " + aMetrics[:hasCycles][:to] + NL
+		
+		return cOutput
+	
+		def ToStzSim(oBaselineGraph)
+			return This.ExportToStzSim(oBaselineGraph)
+	
+		def AsStzSim(oBaselineGraph)
+			return This.ExportToStzSim(oBaselineGraph)
+	
+	def SaveToStzSim(pcPath, oBaselineGraph)
+		cContent = This.ExportToStzSim(oBaselineGraph)
+		write(pcPath, cContent)
+	
+		def SaveAsStzSim(pcPath, oBaselineGraph)
+			This.SaveToStzSim(pcPath, oBaselineGraph)
+	
+	def ApplySimulation(cSimContent)
+		# Parse and apply changes from .stzsim format
+		acLines = split(cSimContent, NL)
+		cSection = ""
+		nLen = len(acLines)
+		
+		for i = 1 to nLen
+			cLine = acLines[i]
+			cTrimmed = trim(cLine)
+			
+			if cTrimmed = "" or left(cTrimmed, 1) = "#"
+				loop
+			ok
+			
+			if cTrimmed = "changes"
+				cSection = "changes"
+				loop
+			but cTrimmed = "metrics"
+				exit  # Stop at metrics section
+			ok
+			
+			if cSection = "changes"
+				if substr(cTrimmed, "add node ") = 1
+					cNodeId = trim(substr(cTrimmed, 10))
+					if NOT This.NodeExists(cNodeId)
+						This.AddNode(cNodeId)
+					ok
+					
+				but substr(cTrimmed, "remove node ") = 1
+					cNodeId = trim(substr(cTrimmed, 13))
+					if This.NodeExists(cNodeId)
+						This.RemoveThisNode(cNodeId)
+					ok
+					
+				but substr(cTrimmed, "add edge ") = 1
+					cRest = trim(substr(cTrimmed, 10))
+					if substr(cRest, "->") > 0
+						acParts = split(cRest, "->")
+						if len(acParts) >= 2
+							cFrom = trim(acParts[1])
+							cTo = trim(acParts[2])
+							if This.NodeExists(cFrom) and This.NodeExists(cTo)
+								This.AddEdge(cFrom, cTo)
+							ok
+						ok
+					ok
+					
+				but substr(cTrimmed, "remove edge ") = 1
+					cRest = trim(substr(cTrimmed, 13))
+					if substr(cRest, "->") > 0
+						acParts = split(cRest, "->")
+						if len(acParts) >= 2
+							cFrom = trim(acParts[1])
+							cTo = trim(acParts[2])
+							This.RemoveThisEdge(cFrom, cTo)
+						ok
+					ok
+				ok
+			ok
+		next
+	
+		def ApplyStzSim(cSimContent)
+			This.ApplySimulation(cSimContent)
+	
+	#--------------------#
+	#  HELPER FUNCTIONS  #
+	#--------------------#
+	
+	def _HasNodeProperties()
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			if HasKey(@aNodes[i], :properties) and len(@aNodes[i][:properties]) > 0
+				return TRUE
+			ok
+		next
+		return FALSE
+	
+	def _FormatValue(pValue)
+		if isString(pValue)
+			if substr(pValue, " ") > 0 or substr(pValue, ":") > 0
+				return '"' + pValue + '"'
+			else
+				return pValue
+			ok
+		but isNumber(pValue)
+			return "" + pValue
+		but isList(pValue)
+			return "[" + JoinXT(pValue, ", ") + "]"
+		else
+			return '""'
+		ok
+	
+	def _ParseValue(cValue)
+		cValue = trim(cValue)
+		
+		# Remove quotes if present
+		if left(cValue, 1) = '"' and right(cValue, 1) = '"'
+			return substr(cValue, 2, len(cValue) - 2)
+		ok
+		
+		# Try to parse as number
+		if isdigit(cValue) or (left(cValue, 1) = "-" and isdigit(substr(cValue, 2, 1)))
+			return 0 + cValue
+		ok
+		
+		# Try to parse as boolean
+		if lower(cValue) = "true"
+			return TRUE
+		but lower(cValue) = "false"
+			return FALSE
+		ok
+		
+		# Try to parse as list
+		if left(cValue, 1) = "[" and right(cValue, 1) = "]"
+			cInner = substr(cValue, 2, len(cValue) - 2)
+			if cInner = ""
+				return []
+			ok
+			acParts = split(cInner, ",")
+			aResult = []
+			nLen = len(acParts)
+			for i = 1 to nLen
+				aResult + This._ParseValue(trim(acParts[i]))
+			next
+			return aResult
+		ok
+		
+		# Default: return as string
+		return cValue
+	
 	#=========#
 	#  MISC.  #
 	#=========#
