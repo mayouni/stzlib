@@ -1,20 +1,41 @@
-graph "Supply_Chain_Network"
+graph "Global_Supply_Chain"
     type: directed
 
 nodes
-    warehouse_a
-    warehouse_b
-    factory_1
-    distributor_x
+    warehouse_ny
+    warehouse_la
+    factory_cn
+    factory_mx
+    distributor_eu
 
 edges
-    warehouse_a -> factory_1
-    warehouse_b -> factory_1
-    factory_1 -> distributor_x
+    factory_cn -> warehouse_ny
+    factory_cn -> warehouse_la
+    factory_mx -> warehouse_la
+    warehouse_ny -> distributor_eu
+    warehouse_la -> distributor_eu
 
 properties
-    warehouse_a
-        location: "Chicago"
-        capacity: 5000
-    factory_1
-        production_rate: 100
+    warehouse_ny
+        capacity: 50000
+        location: "New York"
+        status: active
+
+    warehouse_la
+        capacity: 45000
+        location: "Los Angeles"
+        status: active
+
+    factory_cn
+        output: 100000
+        location: Shenzhen
+        cost_per_unit: 2.5
+
+    factory_mx
+        output: 75000
+        location: Monterrey
+        cost_per_unit: 3.2
+
+    distributor_eu
+        coverage: Europe
+        demand: 75000

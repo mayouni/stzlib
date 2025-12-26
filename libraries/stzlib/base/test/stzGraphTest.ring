@@ -1985,248 +1985,6 @@ oGraph {
 pf()
 # Executed in 0.02 second(s) in Ring 1.24
 
-#============================================#
-#  Complete Format Suite Examples            #
-#  All 6 formats working together            #
-#============================================#
-
-#TODO
-
-#-----------------------------------#
-#  Example 1: supply_chain.stzgraf  #
-#-----------------------------------#
-
-/*
-graph "Global_Supply_Chain"
-    type: directed
-
-nodes
-    warehouse_ny
-    warehouse_la
-    factory_cn
-    factory_mx
-    distributor_eu
-
-edges
-    factory_cn -> warehouse_ny
-    factory_cn -> warehouse_la
-    factory_mx -> warehouse_la
-    warehouse_ny -> distributor_eu
-    warehouse_la -> distributor_eu
-
-properties
-    warehouse_ny
-        capacity: 50000
-        location: "New York"
-        status: "active"
-    
-    factory_cn
-        output: 100000
-        location: "Shenzhen"
-        cost_per_unit: 2.5
-    
-    distributor_eu
-        coverage: "Europe"
-        demand: 75000
-*/
-
-#-----------------------------------#
-#  Example 2: payment_flow.stzdiag  #
-#-----------------------------------#
-
-/*
-diagram "Payment_Processing"
-
-metadata
-    theme: pro
-    layout: topdown
-
-nodes
-    receive
-        label: "Receive Payment"
-        type: start
-        color: green
-    
-    validate
-        label: "Validate Amount"
-        type: process
-        color: blue
-    
-    fraud_check
-        label: "Fraud Detection"
-        type: process
-        color: blue
-    
-    approve
-        label: "Manager Approval"
-        type: decision
-        color: yellow
-    
-    process_payment
-        label: "Process Payment"
-        type: process
-        color: blue
-    
-    complete
-        label: "Complete"
-        type: endpoint
-        color: coral
-
-edges
-    receive -> validate
-    validate -> fraud_check
-    fraud_check -> approve
-    approve -> process_payment
-    process_payment -> complete
-*/
-
-#------------------------------------#
-#  Example 3: bank_structure.stzorg  #
-#------------------------------------#
-
-/*
-orgchart "Regional_Bank"
-
-metadata
-    theme: pro
-    layout: topdown
-
-positions
-    board
-        title: "Board of Directors"
-        level: executive
-        department: board
-    
-    ceo
-        title: "CEO"
-        level: executive
-        reportsTo: board
-    
-    cfo
-        title: "CFO"
-        level: management
-        department: finance
-        reportsTo: ceo
-
-people
-    p_alice
-        name: "Alice Chen"
-    
-    p_bob
-        name: "Bob Kumar"
-
-assignments
-    p_alice -> ceo
-    p_bob -> cfo
-*/
-
-#-----------------------------------------#
-#  Example 4: banking_compliance.stzrulz  #
-#-----------------------------------------#
-
-/*
-ruleset "Banking Compliance Rules"
-    domain: banking
-    version: 1.0
-    author: Compliance Team
-
-rules
-
-    rule fraud_before_payment
-        type: validation
-        level: diagram
-        severity: error
-        
-        when
-            operation equals "payment"
-        then
-            fraud_check required TRUE
-        message
-            "Payment must have fraud detection"
-    
-    rule ops_treasury_separation
-        type: validation
-        level: orgchart
-        severity: error
-        
-        when
-            department equals "operations"
-            path exists to="treasury"
-        then
-            violation add "SOD violation: Ops under Treasury"
-*/
-
-#---------------------------------#
-#  Example 5: restructure.stzsim  #
-#---------------------------------#
-
-/*
-simulation "Treasury_Restructure"
-    description: "Move treasury under CFO"
-    author: Strategy Team
-    date: 2024-01-15
-
-changes
-
-    move treasury_head
-        from: ceo
-        to: cfo
-    
-    add position risk_officer
-        title: "Risk Officer"
-        level: staff
-        reportsTo: treasury_head
-
-metrics
-
-    track span_of_control
-        for: cfo
-        for: ceo
-    
-    track compliance
-        validators: [bceao, banking]
-
-compare
-
-    before_after: span_of_control
-    delta: compliance.issueCount
-*/
-
-#--------------------------------------#
-#  Example 6: corporate_brand.stzstyl  #
-#--------------------------------------#
-
-/*
-style "Corporate_Banking_Theme"
-    theme: pro
-    layout: topdown
-
-colors
-    executive: gold
-    management: blue+
-    staff: green-
-    focus: magenta+
-
-fonts
-    default: helvetica
-    size: 12
-
-edges
-    style: solid
-    color: gray
-    spline: ortho
-    penwidth: 1
-
-nodes
-    penwidth: 2
-    penstyle: rounded,filled
-    strokecolor: gray
-
-focus
-    color: magenta+
-    penwidth: 3
-*/
-
 #=================================================#
 # SECTION 8: SELF-LOOPS AND REFLEXIVE OPERATIONS  #
 #=================================================#
@@ -6533,3 +6291,379 @@ aDiff = oA.DiffWith(oB)
 
 pf()
 # Executed in 0.12 second(s) in Ring 1.24
+
+#============================================#
+#  stzGraph Serialization Format Examples    #
+#  Shows final output of each format         #
+#============================================#
+
+# SUMMARY OF FORMATS
+#-------------------
+
+# .stzgraf  - Graph structure (nodes/edges/properties)
+# .stzrulz  - Rule definitions (metadata)
+# .stzrulf  - Rule functions (Ring code)
+# .stzsim   - Simulations (change sets)
+
+# Usage pattern:
+#  1. Define graph → .stzgraf
+#  2. Define custom functions → .stzrulf
+#  3. Define rules → .stzrulz (references .stzrulf)
+#  4. Apply changes → .stzsim
+
+# Benefits:
+# • Separation of data and logic"
+# • Version control friendly"
+# • Plugin-like extensibility"
+# • Human-readable formats"
+
+#---------------------------#
+#  1. supply_chain.stzgraf  #
+#    Pure graph structure   #
+"===========================#
+
+/*
+graph "Global_Supply_Chain"
+    type: directed
+
+nodes
+    warehouse_ny
+    warehouse_la
+    factory_cn
+    factory_mx
+    distributor_eu
+
+edges
+    factory_cn -> warehouse_ny
+    factory_cn -> warehouse_la
+    factory_mx -> warehouse_la
+    warehouse_ny -> distributor_eu
+    warehouse_la -> distributor_eu
+
+properties
+    warehouse_ny
+        capacity: 50000
+        location: "New York"
+        status: active
+
+    warehouse_la
+        capacity: 45000
+        location: "Los Angeles"
+        status: active
+
+    factory_cn
+        output: 100000
+        location: Shenzhen
+        cost_per_unit: 2.5
+
+    factory_mx
+        output: 75000
+        location: Monterrey
+        cost_per_unit: 3.2
+
+    distributor_eu
+        coverage: Europe
+        demand: 75000
+*/
+pr()
+
+# How to use:
+? "Loading graph from file..."
+oGraph = new stzGraph("supply_chain")
+oGraph.LoadFromStzGraf("txtfiles/supply_chain.stzgraf")
+
+? "Nodes: " + oGraph.NodeCount()
+? "Edges: " + oGraph.EdgeCount()
+? "NY Capacity: " + oGraph.NodeProperty("warehouse_ny", "capacity")
+
+#-->
+'
+Loading graph from file...
+Nodes: 5
+Edges: 5
+NY Capacity: 50000
+'
+
+pf()
+# Executed in 0.11 second(s) in Ring 1.24
+
+/*-----------------------------------------#
+#  2. compliance_rules.stzrulz
+#     Rule metadata (links to functions)
+#=========================================#
+
+`
+ruleset "Banking Compliance Rules"
+    domain: banking
+    version: 1.0
+
+rules
+
+    rule no_cycles
+        type: constraint
+        severity: error
+        function: ConstraintFunc_NoCycles
+        message
+            "Workflows must be acyclic"
+
+    rule separation_of_duties
+        type: constraint
+        severity: error
+        function: ConstraintFunc_Separation
+        params
+            property: department
+            values: ["finance", "audit"]
+        message
+            "Finance and Audit must be separated"
+
+    rule max_span
+        type: constraint
+        severity: warning
+        function: ConstraintFunc_MaxDegree
+        params
+            max: 7
+        message
+            "Maximum 7 direct reports per manager"
+
+    rule all_connected
+        type: validation
+        severity: error
+        function: ValidationFunc_IsConnected
+        message
+            "All positions must be connected"
+
+    rule inherit_permissions
+        type: derivation
+        severity: info
+        function: DerivationFunc_Transitivity
+        message
+            "Permissions inherited through hierarchy"
+`
+
+# How to use:
+? "Loading rules..."
+oGraph = new stzGraph("org")
+oGraph.LoadFromStzRulz("compliance_rules.stzrulz")
+
+? "Rules loaded: " + len(oGraph.RulesSummary()[:constraints])
+
+/*========================================
+#  3. custom_functions.stzrulf
+#     Custom rule function definitions
+#========================================
+
+`
+# Banking-specific custom functions
+# This is pure Ring code that gets loaded
+
+func CustomFunc_ManagerApproval()
+	return func(oGraph, paRuleParams) {
+		aNewEdges = []
+		aNodes = oGraph.Nodes()
+		
+		for aNode in aNodes
+			if oGraph.NodeProperty(aNode[:id], "role") = "manager"
+				cManager = aNode[:id]
+				aSubordinates = oGraph.Neighbors(cManager)
+				
+				for cSub in aSubordinates
+					cApprovalNode = cSub + "_approval"
+					if oGraph.NodeExists(cApprovalNode)
+						if NOT oGraph.EdgeExists(cManager, cApprovalNode)
+							aNewEdges + [cManager, cApprovalNode, "can_approve", []]
+						ok
+					ok
+				next
+			ok
+		next
+		
+		return aNewEdges
+	}
+
+func CustomFunc_NoBackdating()
+	return func(oGraph, paRuleParams, paOperationParams) {
+		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
+			cFrom = paOperationParams[:from]
+			cTo = paOperationParams[:to]
+			
+			if oGraph.NodeExists(cFrom) and oGraph.NodeExists(cTo)
+				dFromDate = oGraph.NodeProperty(cFrom, "date")
+				dToDate = oGraph.NodeProperty(cTo, "date")
+				
+				if isString(dFromDate) and isString(dToDate)
+					if dToDate < dFromDate
+						return [TRUE, "Cannot backdate transactions"]
+					ok
+				ok
+			ok
+		ok
+		return [FALSE, ""]
+	}
+
+func CustomFunc_BalancedTeams()
+	return func(oGraph, paRuleParams) {
+		nMinSize = paRuleParams[:minSize]
+		nMaxSize = paRuleParams[:maxSize]
+		
+		aNodes = oGraph.Nodes()
+		
+		for aNode in aNodes
+			if oGraph.NodeProperty(aNode[:id], "role") = "manager"
+				nTeamSize = len(oGraph.Neighbors(aNode[:id]))
+				
+				if nTeamSize < nMinSize
+					return [FALSE, "Team " + aNode[:id] + " too small (" + nTeamSize + ")"]
+				but nTeamSize > nMaxSize
+					return [FALSE, "Team " + aNode[:id] + " too large (" + nTeamSize + ")"]
+				ok
+			ok
+		next
+		
+		return [TRUE, ""]
+	}
+
+# Register these as built-in style functions
+RegisterRule(:banking, "manager_approval_rights", [
+	:type = :derivation,
+	:function = CustomFunc_ManagerApproval(),
+	:params = [],
+	:message = "Manager approval rights derived",
+	:severity = :info
+])
+
+RegisterRule(:banking, "no_backdating", [
+	:type = :constraint,
+	:function = CustomFunc_NoBackdating(),
+	:params = [],
+	:message = "Backdating not allowed",
+	:severity = :error
+])
+
+RegisterRule(:hr, "balanced_teams", [
+	:type = :validation,
+	:function = CustomFunc_BalancedTeams(),
+	:params = [:minSize = 3, :maxSize = 8],
+	:message = "Teams must be balanced",
+	:severity = :warning
+])
+`
+
+# How to use:
+? "Loading custom functions..."
+oGraph = new stzGraph("banking_system")
+
+# Load the function definitions first
+oGraph.LoadRuleFunctionsFrom("custom_functions.stzrulf")
+
+# Then load the rules that reference them
+oGraph.LoadFromStzRulz("compliance_rules.stzrulz")
+
+# Now the custom functions are available
+oGraph.UseRulesFrom(:banking)
+oGraph.UseRulesFrom(:hr)
+
+/*========================================
+#  4. restructure.stzsim
+#     Simulation (changes between graphs)
+#========================================
+
+`
+simulation "Move Treasury Under CFO Comparison"
+    description: "Changes from baseline"
+    date: 2024-12-26
+
+changes
+
+    add node risk_officer
+        label: "Risk Officer"
+
+    add node compliance_officer
+        label: "Compliance Officer"
+
+    remove edge ceo -> treasury_head
+
+    add edge cfo -> treasury_head
+    add edge treasury_head -> risk_officer
+    add edge treasury_head -> compliance_officer
+
+metrics
+
+    density: 0.25 -> 0.32
+    nodeCount: 8 -> 10
+    edgeCount: 7 -> 9
+    hasCycles: FALSE -> FALSE
+`
+
+# How to use:
+? "Loading baseline..."
+oBaseline = new stzGraph("current_org")
+oBaseline.LoadFromStzGraf("org_current.stzgraf")
+
+? "Applying simulation..."
+cSimulation = read("restructure.stzsim")
+oBaseline.ApplySimulation(cSimulation)
+
+? "After changes:"
+? "  Nodes: " + oBaseline.NodeCount()
+? "  Edges: " + oBaseline.EdgeCount()
+
+#========================================
+# 5. Complete workflow example
+#========================================
+
+pr()
+? "╭─────────────────────────────────────╮"
+? "│ COMPLETE FILE-BASED WORKFLOW       │"
+? "╰─────────────────────────────────────╯" + NL
+
+# Step 1: Create and save a graph
+oCompany = new stzGraph("MyCompany")
+oCompany {
+	AddNodeXTT("ceo", "CEO", [:level = 5])
+	AddNodeXTT("cto", "CTO", [:level = 4, :department = "tech"])
+	AddNodeXTT("cfo", "CFO", [:level = 4, :department = "finance"])
+	AddNodeXTT("eng1", "Engineer 1", [:level = 2, :department = "tech"])
+	
+	Connect("ceo", "cto")
+	Connect("ceo", "cfo")
+	Connect("cto", "eng1")
+	
+	? "Saving graph to supply_chain.stzgraf..."
+	SaveToStzGraf("mycompany.stzgraf")
+}
+
+# Step 2: Load custom functions
+? "Loading custom rule functions..."
+load "custom_functions.stzrulf"
+
+# Step 3: Load rules
+? "Loading compliance rules..."
+oCompany.LoadFromStzRulz("compliance_rules.stzrulz")
+
+# Step 4: Apply rules
+? "Applying rules..."
+oCompany.UseRulesFrom(:banking)
+nDerived = oCompany.ApplyDerivations()
+? "  Derived edges: " + nDerived
+
+# Step 5: Create variation
+oVariation = oCompany.Copy()
+oVariation {
+	AddNodeXTT("coo", "COO", [:level = 4])
+	RemoveThisEdge("ceo", "cto")
+	Connect("ceo", "coo")
+	Connect("coo", "cto")
+}
+
+# Step 6: Export simulation
+? "Exporting simulation..."
+cSim = oVariation.ExportToStzSim(oCompany)
+write("add_coo.stzsim", cSim)
+? "  Saved to add_coo.stzsim"
+
+# Step 7: Validate
+? "Validating structure..."
+aResult = oVariation.ValidateGraph()
+? "  Valid: " + aResult[1]
+
+pf()
