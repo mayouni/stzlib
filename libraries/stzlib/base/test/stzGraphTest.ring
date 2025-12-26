@@ -6384,8 +6384,59 @@ Edges: 5
 NY Capacity: 50000
 '
 
+oGraph.View() #--> See the generated SVG image...
+
+oGraph.Show()
+`
+     ╭────────────╮      
+     │ factory_cn │      
+     ╰────────────╯      
+            |            
+            v            
+    ╭──────────────╮     
+    │ warehouse_ny │     
+    ╰──────────────╯     
+            |            
+            v            
+   ╭────────────────╮    
+   │ distributor_eu │    
+   ╰────────────────╯    
+
+          ////
+
+     ╭────────────╮  ↑
+     │ factory_cn │──╯
+     ╰────────────╯      
+            |            
+            v            
+   ╭────────────────╮    
+   │ !warehouse_la! │    
+   ╰────────────────╯    
+            |            
+            v            
+   ╭────────────────╮    
+   │ distributor_eu │    
+   ╰────────────────╯    
+
+          ////
+
+     ╭────────────╮      
+     │ factory_mx │      
+     ╰────────────╯      
+            |            
+            v            
+   ╭────────────────╮    
+   │ !warehouse_la! │    
+   ╰────────────────╯    
+            |            
+            v            
+   ╭────────────────╮    
+   │ distributor_eu │    
+   ╰────────────────╯  
+`
+
 pf()
-# Executed in 0.11 second(s) in Ring 1.24
+# Executed in 0.09 second(s) in Ring 1.24
 
 /*-----------------------------------------#
 #  2. compliance_rules.stzrulz

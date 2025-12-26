@@ -1,12 +1,16 @@
-digraph ValidationTest {
+digraph Global_Supply_Chain {
   rankdir=TD;
   node [shape=box];
 
-  start [label="start"];
-  process [label="process"];
-  end [label="end"];
+  warehouse_ny [label="warehouse_ny"];
+  warehouse_la [label="warehouse_la"];
+  factory_cn [label="factory_cn"];
+  factory_mx [label="factory_mx"];
+  distributor_eu [label="distributor_eu"];
 
-  start -> process;
-  process -> end;
-  end -> start;
+  factory_cn -> warehouse_ny;
+  factory_cn -> warehouse_la;
+  factory_mx -> warehouse_la;
+  warehouse_ny -> distributor_eu;
+  warehouse_la -> distributor_eu;
 }
