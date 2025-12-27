@@ -3816,6 +3816,40 @@ class stzGraph
 	#  SERIALIZATION - FILE FORMAT SUPPORT  #
 	#=======================================#
 	
+	def LoadFrom(pcPath)
+		cExtension = @split(pcPath, ".")[2]
+
+		switch cExtension
+		on "graf"
+			LoadFromStzGraf(pcPath)
+
+		on "rulz"
+			LoadFromStzRulz(pcPath)
+
+		on "graphml"
+			LoadFromGraphML(pcPath)
+
+		other
+			stzraise("Unsupported file format.")
+		off
+
+	def SaveTo(pcPath)
+		cExtension = @split(pcPath, ".")[2]
+
+		switch cExtension
+		on "graf"
+			SaveToStzGraf(pcPath)
+
+		on "rulz"
+			SaveToStzRulz(pcPath)
+
+		on "graphml"
+			SavetoGraphML(pcPath)
+
+		other
+			stzraise("Unsupported file format.")
+		off
+
 	#------------------#
 	#  .stzgraf FORMAT #
 	#------------------#
@@ -4142,7 +4176,7 @@ class stzGraph
 		if len(aCurrentRule) > 0
 			@aRules + aCurrentRule
 		ok
-	
+
 	#------------------#
 	#  .stzrulf FORMAT #
 	#------------------#
