@@ -8,20 +8,19 @@
 #---------------------------#
 
 class stzGraphPlanner
-
-	@oGraph          	# The underlying stzGraph instance
-	@cStartNode      	# Starting state
-	@cGoalNode       	# Target state (can be NULL for goal-based)
-	@pGoalFunction   	# Function defining goal conditions
-	@aOptimizeCriteria  	# List of properties to optimize
-	@aConstraints    	# Additional planning constraints
-	@aHeuristics     	# Heuristic functions for search guidance
-	@oCurrentPlan    	# The active plan (stzPlan object)
-	@bReactivePlanning  	# Enable reactive replanning
-	@aMonitoredProperties  	# Properties to monitor for replanning
-
+	@oGraph          # The underlying stzGraph instance
+	@cStartNode      # Starting state
+	@cGoalNode       # Target state (can be NULL for goal-based)
+	@pGoalFunction   # Function defining goal conditions
+	@aOptimizeCriteria  # List of properties to optimize
+	@aConstraints    # Additional planning constraints
+	@aHeuristics     # Heuristic functions for search guidance
+	@oCurrentPlan    # The active plan (stzPlan object)
+	@bReactivePlanning  # Enable reactive replanning
+	@aMonitoredProperties  # Properties to monitor for replanning
+	
 	# State management (delta encoding)
-	@aStateCache     	# LRU cache for reconstructed states
+	@aStateCache     # LRU cache for reconstructed states
 	@nMaxCacheSize = 1000
 	@aCheckpoints    # Checkpoint states every 20 nodes
 	@nCheckpointInterval = 20
@@ -62,6 +61,14 @@ class stzGraphPlanner
 		@pGoalFunction = oPlanRequest.GoalFunction()
 		@aOptimizeCriteria = oPlanRequest.OptimizeCriteria()
 		@aConstraints = oPlanRequest.Constraints()
+		
+		# Normalize node IDs to lowercase (stzGraph stores in lowercase)
+		if @cStartNode != NULL
+			@cStartNode = lower(@cStartNode)
+		ok
+		if @cGoalNode != NULL
+			@cGoalNode = lower(@cGoalNode)
+		ok
 		
 		# Validate start node
 		if @cStartNode = NULL or NOT @oGraph.NodeExists(@cStartNode)
