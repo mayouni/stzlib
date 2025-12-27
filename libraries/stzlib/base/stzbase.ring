@@ -124,6 +124,7 @@ ok
 
     load "graph/stzgraph.ring"
     load "graph/stzgraphrule.ring"
+    load "graph/stzgraphplanner.ring"
 
     load "graph/stzknowledgegraph.ring"
 
