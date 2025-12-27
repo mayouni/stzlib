@@ -61,6 +61,16 @@ class stzGraph
 	@bEnforceConstraints = FALSE
 
 	def init(pcId)
+		if CheckParams()
+			if NOT isString(pcId)
+				stzraise("Incorrect param type! pcId must be a string.")
+			ok
+		ok
+
+		if NOT _IsWellFormedId(pcId)
+			stzraise("Inncorrect Id! pcId must be a string without spaces nor new lines.")
+		ok
+
 		@cId = pcId
 
 	def Copy()
@@ -2444,6 +2454,307 @@ class stzGraph
 
 		def ToYaml()
 			return This.ExportToYaml()
+
+	#------------------#
+	#  GRAPHML FORMAT  #
+	#------------------#
+
+	def ExportToGraphML()
+		cXML = '<?xml version="1.0" encoding="UTF-8"?>' + NL
+		cXML += '<graphml xmlns="http://graphml.graphdrawing.org/xmlns"' + NL
+		cXML += '         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"' + NL
+		cXML += '         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns' + NL
+		cXML += '         http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">' + NL + NL
+		
+		# Define keys for properties
+		cXML += '  <key id="label" for="node" attr.name="label" attr.type="string"/>' + NL
+		cXML += '  <key id="type" for="graph" attr.name="type" attr.type="string"/>' + NL
+		cXML += '  <key id="edge_label" for="edge" attr.name="label" attr.type="string"/>' + NL
+		
+		# Add custom property keys
+		aAllProps = This.PropertiesXT()
+		nLen = len(aAllProps)
+		for i = 1 to nLen
+			cPropKey = aAllProps[i][1]
+			cXML += '  <key id="prop_' + cPropKey + '" for="node" attr.name="' + cPropKey + '" attr.type="string"/>' + NL
+		next
+		cXML += NL
+		
+		# Graph element
+		cXML += '  <graph id="' + @cId + '" edgedefault="directed">' + NL
+		cXML += '    <data key="type">' + @cGraphType + '</data>' + NL + NL
+		
+		# Nodes
+		nLen = len(@aNodes)
+		for i = 1 to nLen
+			aNode = @aNodes[i]
+			cXML += '    <node id="' + This._XMLEscape(aNode[:id]) + '">' + NL
+			cXML += '      <data key="label">' + This._XMLEscape(aNode[:label]) + '</data>' + NL
+			
+			if HasKey(aNode, :properties) and len(aNode[:properties]) > 0
+				aProps = aNode[:properties]
+				acKeys = keys(aProps)
+				nKeyLen = len(acKeys)
+				for j = 1 to nKeyLen
+					cKey = acKeys[j]
+					pVal = aProps[cKey]
+					cXML += '      <data key="prop_' + cKey + '">' + This._XMLEscape(This._ValueToString(pVal)) + '</data>' + NL
+				next
+			ok
+			
+			cXML += '    </node>' + NL
+		next
+		cXML += NL
+		
+		# Edges
+		nLen = len(@aEdges)
+		for i = 1 to nLen
+			aEdge = @aEdges[i]
+			cXML += '    <edge id="e' + i + '" source="' + This._XMLEscape(aEdge[:from]) + '" target="' + This._XMLEscape(aEdge[:to]) + '">' + NL
+			
+			if aEdge[:label] != ""
+				cXML += '      <data key="edge_label">' + This._XMLEscape(aEdge[:label]) + '</data>' + NL
+			ok
+			
+			if HasKey(aEdge, :properties) and len(aEdge[:properties]) > 0
+				aProps = aEdge[:properties]
+				acKeys = keys(aProps)
+				nKeyLen = len(acKeys)
+				for j = 1 to nKeyLen
+					cKey = acKeys[j]
+					pVal = aProps[cKey]
+					cXML += '      <data key="prop_' + cKey + '">' + This._XMLEscape(This._ValueToString(pVal)) + '</data>' + NL
+				next
+			ok
+			
+			cXML += '    </edge>' + NL
+		next
+		
+		cXML += '  </graph>' + NL
+		cXML += '</graphml>' + NL
+		
+		return cXML
+	
+		def ToGraphML()
+			return This.ExportToGraphML()
+	
+		def AsGraphML()
+			return This.ExportToGraphML()
+	
+	def SaveToGraphML(pcPath)
+		cContent = This.ExportToGraphML()
+		write(pcPath, cContent)
+	
+		def SaveAsGraphML(pcPath)
+			This.SaveToGraphML(pcPath)
+	
+	def LoadFromGraphML(pcPath)
+		if NOT fexists(pcPath)
+			stzraise("File not found: " + pcPath)
+		ok
+		
+		cContent = read(pcPath)
+		This._ParseGraphML(cContent)
+	
+		def LoadGraphML(pcPath)
+			This.LoadFromGraphML(pcPath)
+	
+		def ImportFromGraphML(pcPath)
+			This.LoadFromGraphML(pcPath)
+	
+		def ImportGraphML(pcPath)
+			This.LoadFromGraphML(pcPath)
+	
+	def _ParseGraphML(cXML)
+		# Clear current graph
+		@aNodes = []
+		@aEdges = []
+		
+		# Extract graph id
+		nPos = substr(cXML, '<graph id="')
+		if nPos > 0
+			cRest = substr(cXML, nPos + 11)
+			nEnd = substr(cRest, '"')
+			if nEnd > 0
+				@cId = substr(cRest, 1, nEnd - 1)
+			ok
+		ok
+		
+		# Extract graph type
+		nPos = substr(cXML, '<data key="type">')
+		if nPos > 0
+			cRest = substr(cXML, nPos + 17)
+			nEnd = substr(cRest, '</data>')
+			if nEnd > 0
+				@cGraphType = trim(substr(cRest, 1, nEnd - 1))
+			ok
+		ok
+		
+		# Parse nodes
+		cRemaining = cXML
+		while TRUE
+			nNodeStart = substr(cRemaining, '<node id="')
+			if nNodeStart = 0
+				exit
+			ok
+			
+			cRemaining = substr(cRemaining, nNodeStart + 10)
+			nIdEnd = substr(cRemaining, '"')
+			cNodeId = substr(cRemaining, 1, nIdEnd - 1)
+			
+			nNodeEnd = substr(cRemaining, '</node>')
+			cNodeBlock = substr(cRemaining, 1, nNodeEnd - 1)
+			
+			# Extract label
+			cLabel = cNodeId
+			nLabelPos = substr(cNodeBlock, '<data key="label">')
+			if nLabelPos > 0
+				cLabelRest = substr(cNodeBlock, nLabelPos + 18)
+				nLabelEnd = substr(cLabelRest, '</data>')
+				if nLabelEnd > 0
+					cLabel = This._XMLUnescape(substr(cLabelRest, 1, nLabelEnd - 1))
+				ok
+			ok
+			
+			# Extract properties
+			aProps = []
+			cPropBlock = cNodeBlock
+			while TRUE
+				nPropPos = substr(cPropBlock, '<data key="prop_')
+				if nPropPos = 0
+					exit
+				ok
+				
+				cPropBlock = substr(cPropBlock, nPropPos + 16)
+				nKeyEnd = substr(cPropBlock, '">')
+				cPropKey = substr(cPropBlock, 1, nKeyEnd - 1)
+				
+				cPropBlock = substr(cPropBlock, nKeyEnd + 2)
+				nValEnd = substr(cPropBlock, '</data>')
+				cPropVal = This._XMLUnescape(substr(cPropBlock, 1, nValEnd - 1))
+				
+				aProps + [cPropKey, This._StringToValue(cPropVal)]
+			end
+			
+			This.AddNodeXTT(cNodeId, cLabel, aProps)
+			cRemaining = substr(cRemaining, nNodeEnd + 7)
+		end
+		
+		# Parse edges
+		cRemaining = cXML
+		while TRUE
+			nEdgeStart = substr(cRemaining, '<edge ')
+			if nEdgeStart = 0
+				exit
+			ok
+			
+			cRemaining = substr(cRemaining, nEdgeStart + 6)
+			
+			# Extract source
+			nSourcePos = substr(cRemaining, 'source="')
+			cRemaining = substr(cRemaining, nSourcePos + 8)
+			nSourceEnd = substr(cRemaining, '"')
+			cSource = substr(cRemaining, 1, nSourceEnd - 1)
+			
+			# Extract target
+			nTargetPos = substr(cRemaining, 'target="')
+			cRemaining = substr(cRemaining, nTargetPos + 8)
+			nTargetEnd = substr(cRemaining, '"')
+			cTarget = substr(cRemaining, 1, nTargetEnd - 1)
+			
+			nEdgeEnd = substr(cRemaining, '</edge>')
+			cEdgeBlock = substr(cRemaining, 1, nEdgeEnd - 1)
+			
+			# Extract edge label
+			cEdgeLabel = ""
+			nLabelPos = substr(cEdgeBlock, '<data key="edge_label">')
+			if nLabelPos > 0
+				cLabelRest = substr(cEdgeBlock, nLabelPos + 23)
+				nLabelEnd = substr(cLabelRest, '</data>')
+				if nLabelEnd > 0
+					cEdgeLabel = This._XMLUnescape(substr(cLabelRest, 1, nLabelEnd - 1))
+				ok
+			ok
+			
+			# Extract edge properties
+			aProps = []
+			cPropBlock = cEdgeBlock
+			while TRUE
+				nPropPos = substr(cPropBlock, '<data key="prop_')
+				if nPropPos = 0
+					exit
+				ok
+				
+				cPropBlock = substr(cPropBlock, nPropPos + 16)
+				nKeyEnd = substr(cPropBlock, '">')
+				cPropKey = substr(cPropBlock, 1, nKeyEnd - 1)
+				
+				cPropBlock = substr(cPropBlock, nKeyEnd + 2)
+				nValEnd = substr(cPropBlock, '</data>')
+				cPropVal = This._XMLUnescape(substr(cPropBlock, 1, nValEnd - 1))
+				
+				aProps + [cPropKey, This._StringToValue(cPropVal)]
+			end
+			
+			This.AddEdgeXTT(cSource, cTarget, cEdgeLabel, aProps)
+			cRemaining = substr(cRemaining, nEdgeEnd + 7)
+		end
+	
+	def _XMLEscape(cText)
+		if NOT isString(cText)
+			return ""
+		ok
+		
+		cText = substr(cText, "&", "&amp;")
+		cText = substr(cText, "<", "&lt;")
+		cText = substr(cText, ">", "&gt;")
+		cText = substr(cText, '"', "&quot;")
+		cText = substr(cText, "'", "&apos;")
+		return cText
+	
+	def _XMLUnescape(cText)
+		if NOT isString(cText)
+			return ""
+		ok
+		
+		cText = substr(cText, "&amp;", "&")
+		cText = substr(cText, "&lt;", "<")
+		cText = substr(cText, "&gt;", ">")
+		cText = substr(cText, "&quot;", '"')
+		cText = substr(cText, "&apos;", "'")
+		return cText
+	
+	def _ValueToString(pValue)
+		if isString(pValue)
+			return pValue
+		but isNumber(pValue)
+			return "" + pValue
+		but isList(pValue)
+			return "[" + JoinXT(pValue, ",") + "]"
+		else
+			return ""
+		ok
+	
+	def _StringToValue(cValue)
+		if left(cValue, 1) = "[" and right(cValue, 1) = "]"
+			cInner = substr(cValue, 2, len(cValue) - 2)
+			if cInner = ""
+				return []
+			ok
+			acParts = split(cInner, ",")
+			aResult = []
+			nLen = len(acParts)
+			for i = 1 to nLen
+				aResult + trim(acParts[i])
+			next
+			return aResult
+		ok
+		
+		if isdigit(cValue) or (left(cValue, 1) = "-" and len(cValue) > 1 and isdigit(substr(cValue, 2, 1)))
+			return 0 + cValue
+		ok
+		
+		return cValue
 
 	#------------------------#
 	#  VISUALISING IN ASCII  #
