@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<graphml xmlns="http://graphml.graphdrawing.org/xmlns"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns
+         http://graphml.graphdrawing.org/xmlns/1.0/graphml.xsd">
+
+  <key id="label" for="node" attr.name="label" attr.type="string"/>
+  <key id="type" for="graph" attr.name="type" attr.type="string"/>
+  <key id="edge_label" for="edge" attr.name="label" attr.type="string"/>
+
+  <graph id="SimpleGraph" edgedefault="directed">
+    <data key="type">structural</data>
+
+    <node id="n1">
+      <data key="label">Node_1</data>
+    </node>
+    <node id="n2">
+      <data key="label">Node_2</data>
+    </node>
+    <node id="n3">
+      <data key="label">Node_3</data>
+    </node>
+
+    <edge id="e1" source="n1" target="n2">
+    </edge>
+    <edge id="e2" source="n2" target="n3">
+    </edge>
+  </graph>
+</graphml>

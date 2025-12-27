@@ -1,16 +1,16 @@
-digraph Global_Supply_Chain {
+digraph Trounées_Niamey {
   rankdir=TD;
   node [shape=box];
 
-  warehouse_ny [label="warehouse_ny"];
-  warehouse_la [label="warehouse_la"];
-  factory_cn [label="factory_cn"];
-  factory_mx [label="factory_mx"];
-  distributor_eu [label="distributor_eu"];
+  depot [label="@depot"];
+  plateau [label="@plateau"];
+  lamorde [label="@lamorde"];
+  yantala [label="@yantala"];
+  aeroport [label="@aeroport"];
 
-  factory_cn -> warehouse_ny;
-  factory_cn -> warehouse_la;
-  factory_mx -> warehouse_la;
-  warehouse_ny -> distributor_eu;
-  warehouse_la -> distributor_eu;
+  depot -> plateau [label="8_km"];
+  depot -> yantala [label="12_km"];
+  plateau -> lamorde [label="10_km"];
+  yantala -> aeroport [label="15_km"];
+  lamorde -> aeroport [label="18_km"];
 }
