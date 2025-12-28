@@ -339,32 +339,33 @@ class stzGraphPlanner
 		return TRUE
 	
 	def _SelectHeuristic(cStart, cGoal)
-		# Auto-select heuristic based on graph properties
-		aStartNode = @oGraph.Node(cStart)
-		aGoalNode = @oGraph.Node(cGoal)
-		
-		# Check if nodes have x,y coordinates
-		if HasKey(aStartNode[:properties], :x) and HasKey(aGoalNode[:properties], :x)
-			# Use Euclidean distance
-			return func(poGraph, cFrom, cTo) {
-				aFrom = poGraph.Node(cFrom)
-				aTo = poGraph.Node(cTo)
-				nX1 = aFrom[:properties][:x]
-				nY1 = aFrom[:properties][:y]
-				nX2 = aTo[:properties][:x]
-				nY2 = aTo[:properties][:y]
-				return sqrt(pow(nX2-nX1, 2) + pow(nY2-nY1, 2))
-			}
-		ok
-		
-		# Default: use shortest path estimate (BFS distance)
-		return func(cFrom, cTo) {
-			# Simple heuristic: assume average degree
-			if cFrom = cTo
-				return 0
+			# Auto-select heuristic based on graph properties
+			aStartNode = @oGraph.Node(cStart)
+			aGoalNode = @oGraph.Node(cGoal)
+			
+			# Check if nodes have x,y coordinates
+			if HasKey(aStartNode[:properties], :x) and HasKey(aGoalNode[:properties], :x)
+				# Use Euclidean distance - capture graph in closure
+				oGraphRef = @oGraph
+				return func(poGraph, cFrom, cTo) {
+					aFrom = poGraph.Node(cFrom)
+					aTo = poGraph.Node(cTo)
+					nX1 = aFrom[:properties][:x]
+					nY1 = aFrom[:properties][:y]
+					nX2 = aTo[:properties][:x]
+					nY2 = aTo[:properties][:y]
+					return sqrt(pow(nX2-nX1, 2) + pow(nY2-nY1, 2))
+				}
 			ok
-			return 1
-		}
+			
+			# Default: use simple heuristic (always return 1)
+			return func(poGraph, cFrom, cTo) {
+				# Simple heuristic: uniform cost
+				if cFrom = cTo
+					return 0
+				ok
+				return 1
+			}
 	
 	def _GenerateExplanation(aActions)
 		if len(aActions) = 0
@@ -481,6 +482,9 @@ class stzPlanningRequest
 	def ToReach(pGoalFunc)
 		@pGoalFunction = pGoalFunc
 		return This
+
+		def ToReachF(pGoalFunc)
+			return This.ToReach(pGoalFunc)
 	
 	def Minimizing(pcProperty)
 		@aOptimizeCriteria + [
