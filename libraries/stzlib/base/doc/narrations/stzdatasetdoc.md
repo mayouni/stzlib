@@ -25,12 +25,7 @@ The analyst asks: _What value best represents this dataset?_
 
 ```ring
 ? oSales.Mean()
-```
-
-**Output:**
-
-```
-144.14
+#--> 144.14
 ```
 
 The **mean** is the arithmetic average: add all values and divide by how many there are.
@@ -39,19 +34,12 @@ Now a second question: _What is the middle value if I sort the data?_
 
 ```ring
 ? oSales.Median()
-```
-
-**Output:**
-
-```
-150
+#--> 150
 ```
 
 The **median** is the central value. When mean and median are close, the data is usually balanced. When they differ, extreme values may be pulling the mean.
 
 Already, the analyst learns something concrete: sales tend to cluster around ~145–150.
-
-***
 
 ## Step 2 — Measuring How Spread the Data Is (Standard Deviation)
 
@@ -59,12 +47,7 @@ Next question: _Are values tightly grouped or widely spread?_
 
 ```ring
 ? oSales.StandardDeviation()
-```
-
-**Output:**
-
-```
-38.62
+#--> 38.62
 ```
 
 **Standard deviation** measures how far values typically are from the mean. Here, sales usually differ by about 39 units from the average.
@@ -73,17 +56,10 @@ To make this easier to interpret, Softanza also offers a relative measure:
 
 ```ring
 ? oSales.CoefficientOfVariation()
-```
-
-**Output:**
-
-```
-26.79
+#--> 26.79
 ```
 
 This means variation is about **27% of the average**, which is moderate for business data.
-
-***
 
 ## Step 3 — Looking at the Data in Chunks (Quartiles & IQR)
 
@@ -91,32 +67,20 @@ The analyst now asks: _How is the data distributed from low to high?_
 
 ```ring
 ? @@(oSales.Quartiles())
-```
-
-**Output:**
-
-```
-[92, 150, 187.5]
+#--> [92, 150, 187.5]
 ```
 
 These are **quartiles**:
 
 * Q1 (92): 25% of values are below this
-
 * Q2 (150): the median
-
 * Q3 (187.5): 75% of values are below this
 
 The analyst then checks how wide the middle of the data is:
 
 ```ring
 ? oSales.IQR()
-```
-
-**Output:**
-
-```
-95.5
+#--> 95.5
 ```
 
 The **Interquartile Range (IQR)** is Q3 − Q1. It represents the spread of the middle 50% of the data — a robust measure that ignores extremes.
@@ -127,20 +91,13 @@ Now a practical question: _Is the data pulled more to one side?_
 
 ```ring
 ? oSales.Skewness()
-```
-
-**Output:**
-
-```
-0.21
+#--> 0.21
 ```
 
 **Skewness** measures asymmetry:
 
 * Near 0 → roughly symmetric
-
 * Positive → longer tail on the right
-
 * Negative → longer tail on the left
 
 Here, 0.21 means the distribution is almost symmetric, with a slight pull toward higher values.
@@ -151,12 +108,7 @@ The analyst wonders: _Are some values unusually far from the rest?_
 
 ```ring
 ? @@(oSales.Outliers())
-```
-
-**Output:**
-
-```
-[]
+#--> []
 ```
 
 No outliers detected. Softanza uses the IQR rule internally and explains the result directly through behavior, not formulas.
@@ -167,20 +119,13 @@ To compare individual values, the analyst asks: _How far is each value from the 
 
 ```ring
 ? @@(oSales.ZScores())
-```
-
-**Output:**
-
-```
-[-0.63, 0.15, -1.43, 1.45, 0.80, -1.27, 0.93]
+#--> [-0.63, 0.15, -1.43, 1.45, 0.80, -1.27, 0.93]
 ```
 
 A **Z-score** tells how many standard deviations a value is away from the mean:
 
 * 0 → exactly average
-
 * ±1 → one standard deviation away
-
 * Large absolute values → unusual observations
 
 Here, none exceed ±2, confirming the absence of extreme values.
