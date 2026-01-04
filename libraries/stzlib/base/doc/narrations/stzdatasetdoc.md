@@ -1,7 +1,5 @@
 # stzDataSet: Statistics as a Language of Thought
 
-## Introduction: The Four-Pillar Cognitive Model
-
 In Softanza, statistics isn't just formulas—it's a way of thinking about data. When a statistician examines data, he doesn't see numbers; he sees questions waiting for answers. His intent shapes which analytical lens he reaches for:
 
 - **Comparison**: How do values compare against each other?
@@ -17,12 +15,6 @@ A data analyst opens a file. No theory, no assumptions — just values.
 
 ```ring
 oSales = new stzDataSet([120, 150, 89, 200, 175, 95, 180])
-```
-
-**Output:**
-
-```
-<stzDataSet: numeric, n=7>
 ```
 
 From the first line, the dataset already knows it is numeric and usable. The analyst’s first reflex is not _"Which formula?"_ but _"What can this data tell me about itself?"_
@@ -319,9 +311,7 @@ Softanza transforms statistics from computation to conversation:
 5. **Learning-friendly**: Methods read like natural questions
 6. **Unified framework**: Same model for statistics and visualization
 
-### Example: Complete Workflow
-
-What in **Python** takes 14 lines of code like this:
+What in **Python** takes 14 lines of code to achive:
 ```python
 import pandas as pd
 import scipy.stats as stats
@@ -342,7 +332,7 @@ kurt = stats.kurtosis(df['value'])
 print(f"Skewness: {skew}, Kurtosis: {kurt}")
 ```
 
-**Softanza** can make it in two lines like this :
+**Softanza** can make it in two lines:
 ```ring
 oData = new stzDataSet(data)
 oData.ExecutePlan(:EDA)
