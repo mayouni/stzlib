@@ -120,7 +120,7 @@ $aRecommendations = [
     # Outlier Management
     [
         :condition = "ContainsOutliers() and len(Outliers()) / Count() > 0.05",
-        :recommendation = "Multiple outliers detected ({len(Outliers())} values) can distort statistics. Apply TrimmedMean(10) and RobustScale(), or investigate data quality."
+        :recommendation = "Outliers detected ({len(Outliers())} values) can distort statistics. Apply TrimmedMean(10) and RobustScale(), or investigate data quality."
     ],
     
     # Normality Violations
@@ -888,6 +888,8 @@ $aPlanGoals = [
     :quality_assessment = :QUALITY
 ]
 
+#TODO Move the data setting to a stzDataSetData.ring file and host it in /data subfolder
+
 # Helper Functions
 func MissingValues()
     return $aSTAT_MISSING_VALUES
@@ -932,6 +934,12 @@ func DataSetTemplatesXT(cType)
     other
         return []
     off
+
+func Trend(panDataSet)
+	return StzDataSetQ(panDataSet).Trend()
+
+	func TrendAnalysis(panDataSet)
+		return Trend(panDataSet)
 
 # Convenience functions
 func GeneratePlanFor(paData, cGoal)
@@ -1119,7 +1127,8 @@ class stzDataSet
 	        bFound = FALSE
 	        
 	        # Search for existing key in frequency list
-	        for j = 1 to len(aFreqHash)
+		nLenFreq = len(aFreqHash)
+	        for j = 1 to nLenFreq
 	            if aFreqHash[j][1] = cItemKey
 	                aFreqHash[j][2]++
 	                bFound = TRUE
@@ -1135,9 +1144,9 @@ class stzDataSet
 	
 	    nMaxFreq = 0
 	    cModeKey = ""
-	    nFreqLen = len(aFreqHash)
+	    nLenFreq = len(aFreqHash)
 	
-	    for i = 1 to nFreqLen
+	    for i = 1 to nLenFreq
 	        if aFreqHash[i][2] > nMaxFreq
 	            nMaxFreq = aFreqHash[i][2]
 	            cModeKey = aFreqHash[i][1]
@@ -1147,6 +1156,8 @@ class stzDataSet
 	    This._SetCache(cKey, cModeKey)
 	    return cModeKey
 
+	    def MostFrequentValue()
+		return This.Mode()
 
     def StandardDeviation()
         if @cDataType != "numeric" or len(@anData) <= 1
@@ -2150,8 +2161,8 @@ class stzDataSet
 	    
 	    return aTrendSegments
 
-		def Trend()
-			return This.TrendAnalysis()
+	    def Trend()
+		return This.TrendAnalysis()
 
 
 	def _SimpleSeriesTrend()
@@ -2678,9 +2689,18 @@ class stzDataSet
 	    
 	    return nMI
 	
-		def MutualInfo(oOtherDataSet)
-			return This.MutualInformation(oOtherDataSet)
+	    #< @FunctionAlternativeForms
 
+	    def MutualInformationWith(oOtherDataSet)
+		return This.MutualInformation(oOtherDataSet)
+
+	    def MutualInfo(oOtherDataSet)
+		return This.MutualInformation(oOtherDataSet)
+
+	    def MutualInfoWith(oOtherDataSet)
+		return This.MutualInformation(oOtherDataSet)
+
+	    #>
 
 	# Helper methods for new functionality
 	
@@ -2918,6 +2938,8 @@ class stzDataSet
         
         return acResults
 
+	def InsightsForDomain(cDomain)
+		return This.InsightsOfDomain(cDomain)
 
     #===============================#
     #  RECOMMENDATIONS SYSTEM       #
@@ -2933,7 +2955,7 @@ class stzDataSet
             if This._EvaluateCondition(aTemplate[:condition])
                 cRecommendation = This._InterpolateTemplate(aTemplate[:recommendation])
                 
-                aResults + [ :recommendation = cRecommendation ]
+                aResults + cRecommendation
             ok
         next
         
@@ -3068,10 +3090,11 @@ class stzDataSet
 	    ok
 	    
 	    if oTempStr.Contains("{Recommendations()}")
-	        aRecommendations = This.Recommendations()
+	        acRecommendations = This.Recommendations()
+		nLen = len(acRecommendations)
 	        cRecommendText = ""
-	        for aRecommend in aRecommendations
-	            cRecommendText += "• " + aRecommend[:recommendation] + NL + NL  # Added extra NL
+	        for i = 1 to nLen
+	            cRecommendText += "• " + acRecommendations[i] + NL + NL  # Added extra NL
 	        next
 	        oTempStr.Replace("{Recommendations()}", cRecommendText)
 	    ok
@@ -3264,7 +3287,7 @@ class stzDataSet
         @return: Plan execution results
         */
 
-		nTime = clock()
+	nTime = clock()
 
         if bVerbose = NULL bVerbose = TRUE ok
         
@@ -3275,15 +3298,9 @@ class stzDataSet
         if bVerbose
             ? BoxRound("Executing Plan: " + aPlan[:title])
 
-		if @bChain = FALSE or
-			(@bChain = TRUE and @bFirstChain)
-
-				? "• Data: " + @@(This.Content())
-			ok
-
-			? "• Name: {" + aPlan[:name] + "}"
-            ? "• Goal: " + aPlan[:description]
-            ? "• Steps: " + aPlan[:total_steps] + NL
+		? "• Name: {" + aPlan[:name] + "}"
+           	? "• Goal: " + aPlan[:description]
+            	? "• Steps: " + aPlan[:total_steps] + NL
         ok
         
         nStepNum = 1
@@ -3311,13 +3328,11 @@ class stzDataSet
                 aErrors + [
                     :step = nStepNum,
                     :function = aStep[:function],
-                    :error = cError,
                     :error = CatchError()
                 ]
                 
                 if bVerbose
-                    ? "❌ Error: " + cError
-                    ? "❌ Error: " + cCatchError + NL
+                    ? "❌ Error: " + CatchError() + NL
                 ok
             done
             
@@ -3325,24 +3340,22 @@ class stzDataSet
         next
         
         if bVerbose
-			nTime = (clock() - nTime) / clockspersecond()
-
-            ? "( Plan completed in " + nTime + "s : " + len(aResults) + " successful steps, " + len(aErrors) + " errors )"
+	    nTime = (clock() - nTime) / clockspersecond()
             ? "( Plan completed in " + nTime + "s : " + len(aResults) + " successful step(s), " + len(aErrors) + " error(s) )"
         ok
         
         return [
-            :Plan = aPlan,
+            :plan = aPlan,
             :results = aResults,
             :errors = aErrors,
             :success_rate = (len(aResults) / aPlan[:total_steps]) * 100
         ]
     
-		def RunPlanXT(cNameOrGoalOrTemplate, bVerbose)
-			This.ExecutePlan(cNameOrGoalOrTemplate, bVerbose)
+	def RunPlanXT(cNameOrGoalOrTemplate, bVerbose)
+		This.ExecutePlan(cNameOrGoalOrTemplate, bVerbose)
 
-		def PerformPlanXT(cNameOrGoalOrTemplate, bVerbose)
-			This.ExecutePlan(cNameOrGoalOrTemplate, bVerbose)
+	def PerformPlanXT(cNameOrGoalOrTemplate, bVerbose)
+		This.ExecutePlan(cNameOrGoalOrTemplate, bVerbose)
 
 
     def PlanSummary(cNameOrGoalOrTemplate)
@@ -3403,30 +3416,104 @@ class stzDataSet
     
 
 	def SuggestPlan()
-	    
 	    cDataType = This.DataType()
 	    nCount = This.Count()
-	    bHasOutliers = This.ContainsOutliers()
 	    
-	    if nCount < 10
-	        return :EDA  # Basic exploration for small samples
+	    if nCount < 3 or cDataType != "numeric"
+	        return :EDA
 	    ok
 	    
-	    if bHasOutliers
-	        return :OUTLIERS  # Focus on outlier analysis
+	    # Zero variance check
+	    if This.StandardDeviation() = 0
+	        return :EDA
 	    ok
 	    
-	    if cDataType = "numeric" and nCount >= 20
-	        nCV = oData.CoefficientOfVariation()
-	        if nCV > 30
-	            return :QUALITY  # Quality control for high variability
-	        else
-	            return :NORMALITY  # Test distribution assumptions
+	    # Check outliers first
+	    if This.ContainsOutliers()
+	        nOutlierPct = (len(This.Outliers()) / nCount) * 100
+	        if nOutlierPct > 5
+	            return :OUTLIERS
 	        ok
 	    ok
 	    
-	    return :EDA  # Default fallback
+	    # High variability
+	    nCV = This.CoefficientOfVariation()
+	    if nCV > 50
+	        return :QUALITY
+	    ok
+	    
+	    # Trending data detection
+	    if nCount >= 5
+	        aTrend = This.TrendAnalysis()
+	        if len(aTrend) = 1 and aTrend[1][1] != "stable"
+	            return :TRENDS
+	        ok
+	    ok
+	    
+	    # Check normality
+	    if nCount >= 8
+	        nSkew = abs(This.Skewness())
+	        nKurt = abs(This.Kurtosis())
+	        
+	        nSkewLimit = iff(nCount < 30, 1.0, 0.75)
+	        nKurtLimit = iff(nCount < 30, 5.0, 2.0)
+	        
+	        if nSkew < nSkewLimit and nKurt < nKurtLimit
+	            return :NORMALITY
+	        ok
+	    ok
+	    
+	    return :EDA
 	
+
+	def AdaptiveAnalysis()
+	    # Multi-stage intelligent analysis workflow
+	    
+	    ? "~> Start with basic exploration..."
+	    ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+	    
+	    # Stage 1: Always start with EDA
+	    This.ExecutePlan("eda")
+	    
+	    # Stage 2: Check for outliers
+	    if This.ContainsOutliers()
+	        ? ""
+	        ? "~> Outliers found, performing detailed outlier analysis..."
+	        ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+	        This.ExecutePlan("outliers")
+	    ok
+	    
+	    # Stage 3: If sufficient data, test normality
+	    if This.Count() >= 20
+	        ? ""
+	        ? "~> Sufficient sample size, testing normality assumptions..."
+	        ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+	        This.ExecutePlan("normality")
+	    ok
+	    
+	    # Stage 4: High variability triggers quality control
+	    if This.CoefficientOfVariation() > 40
+	        ? ""
+	        ? "~> High variability detected, running quality assessment..."
+	        ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~" + NL
+	        This.ExecutePlan("quality")
+	    ok
+	    
+	    # Stage 5: Detect trends if sequential data
+	    if This.Count() >= 5
+	        aTrend = This.TrendAnalysis()
+	        if len(aTrend) >= 2 or (len(aTrend) = 1 and aTrend[1][1] != "stable")
+	            ? ""
+	            ? "~> Trend pattern identified, analyzing temporal behavior..."
+	            ? "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	            This.ExecutePlan("trends")
+	        ok
+	    ok
+	
+	    def AdaptiveAnalysisXT(bVerbose)
+	        # Version with verbosity control
+	        @bAdaptiveVerbose = bVerbose
+	        This.AdaptiveAnalysis()
 
     #===============================#
     #  Plan HELPER METHODS      #

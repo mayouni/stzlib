@@ -1,5 +1,5 @@
 
-load "../stzmax.ring"
+load "../stzbase.ring"
 
 #  stzDataSet Test File
 
@@ -9,7 +9,7 @@ load "../stzmax.ring"
 # knowledgeable and guided Programmer Experience, along with a
 # simple yet powerful data exploration journey for everyone—
 # especially when paired with the charting capabilities provided by
-# the stzChart class.
+# the stzPlot classes.
 
 
 decimals(4) # Precision required in practice in data anlytics scenarios
@@ -42,7 +42,7 @@ o1 {
     ? UniqueCount()     #--> 7 (number of distinct values)
 }
 pf()
-# Executed in 0.0030 second(s) in Ring 1.22
+# Executed in 0.0040 second(s) in Ring 1.24
 
 /*--- Alternative Means
 # Geometric mean (product-based average) and harmonic mean (reciprocal-based average)
@@ -57,7 +57,7 @@ o1 {
 }
 
 pf()
-# Executed in 0.0010 second(s) in Ring 1.22
+# Executed in 0.0010 second(s) in Ring 1.24
 
 /*--- Coefficient of Variation
 # CoVar measures relative variability (standard deviation / mean * 100),
@@ -69,7 +69,7 @@ o1 = new stzDataSet([ 10, 15, 20, 25, 30, 35, 40 ])
 ? o1.CoVar() #--> 43.2049 (percent variability relative to mean)
 
 pf()
-# Executed in 0.0020 second(s) in Ring 1.22
+# Executed in 0.0020 second(s) in Ring 1.24
 
 /*--- Confidence Intervals
 # Confidence intervals estimate the range where the true population mean lies,
@@ -79,13 +79,13 @@ pr()
 
 o1 = new stzDataSet([ 10, 20, 30, 40, 50 ])
 o1 {
-    ? @@(ConfidenceInterval(95)) #--> [16.1407, 43.8593] (95% confidence range)
-    ? @@(ConfidenceInterval(90)) #--> [18.3681, 41.6319] (90% confidence range)
-    ? @@(ConfidenceInterval(99)) #--> [-9.9910, 41.6138] (99% confidence range)
+    ? @@(ConfidenceInterval(95)) #--> [ 16.1407, 43.8593 ] (95% confidence range)
+    ? @@(ConfidenceInterval(90)) #--> [ 18.3681, 41.6319 ] (90% confidence range)
+    ? @@(ConfidenceInterval(99)) #--> [ 11.7849, 48.2151 ] (99% confidence range)
 }
 
 pf()
-# Executed in 0.0020 second(s) in Ring 1.22
+# Executed in 0.0020 second(s) in Ring 1.24
 
 /*--- Weighted Mean Tests
 # Weighted mean assigns different importance (weights) to each value.
@@ -94,24 +94,25 @@ pr()
 
 o1 = new stzDataSet([ 10, 20, 30, 40, 50 ])
 o1 {
-    ? @@(WeightedMean([ 1, 2, 3, 2, 1 ])) #--> 30 (higher weights on middle values)
-    ? @@(WeightedMean([ 5, 1, 1, 1, 5 ])) #--> 30 (higher weights on extremes)
-    ? @@(WeightedMean([ 1, 1, 1, 1, 1 ])) #--> 30 (equal weights = regular mean)
+    ? WeightedMean([ 1, 2, 3, 2, 1 ]) #--> 30 (higher weights on middle values)
+    ? WeightedMean([ 5, 1, 1, 1, 5 ]) #--> 30 (higher weights on extremes)
+    ? WeightedMean([ 1, 1, 1, 1, 1 ]) #--> 30 (equal weights = regular mean)
 }
 
 pf()
-# Executed in 0.0020 second(s) in Ring 1.22
+# Executed in 0.0010 second(s) in Ring 1.24
 
 /*--- Trimmed Mean Tests
 # Trimmed mean removes a percentage of extreme values to reduce outlier impact.
 
 pr()
+
 o1 = new stzDataSet([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 100 ])
 o1 {
-    ? @@(Mean())         	#--> 14.5 (affected by outlier 100)
-    ? @@(TrimmedMean(10)) 	#--> 5.5 (trims 10% from each end)
-    ? @@(TrimmedMean(20)) 	#--> 5.5 (trims 20% from each end)
-    ? @@(Median())       	#--> 5.5 (for comparison, robust to outliers)
+    ? Mean()         	#--> 14.5 (affected by outlier 100)
+    ? TrimmedMean(10) 	#--> 5.5 (trims 10% from each end)
+    ? TrimmedMean(20) 	#--> 5.5 (trims 20% from each end)
+    ? Median()       	#--> 5.5 (for comparison, robust to outliers)
 }
 
 pf()
@@ -124,14 +125,14 @@ pr()
 
 o1 = new stzDataSet([ 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 ])
 o1 {
-    ? @@(PercentileRank(55)) 	#--> 50.0 (55 is between 50 and 60)
-    ? @@(PercentileRank(30)) 	#--> 25.0 (30 is at 25th percentile)
-    ? @@(PercentileRank(5))  	#--> 0.0 (below minimum)
-    ? @@(PercentileRank(105)) 	#--> 100.0 (above maximum)
+    ? PercentileRank(55) 	#--> 50.0 (55 is between 50 and 60)
+    ? PercentileRank(30) 	#--> 25.0 (30 is at 25th percentile)
+    ? PercentileRank(5)  	#--> 0.0 (below minimum)
+    ? PercentileRank(105) 	#--> 100.0 (above maximum)
 }
 
 pf()
-# Executed in 0.0020 second(s) in Ring 1.22
+# Executed in 0.0010 second(s) in Ring 1.24
 
 #======================================================================#
 #  PILLAR 2: COMPOSITION - Frequency & Categorical Analysis            #
@@ -147,17 +148,30 @@ pr()
 
 o1 = new stzDataSet([ "Red", "Blue", "Red", "Green", "Blue", "Red", "Yellow" ])
 o1 {
-    ? Mode()                #--> "Red" (most frequent value)
-    ? @@(FreqTable())       #--> [[ " Red", 3], [ " Blue", 2], [ " Green", 1], [ " Yellow", 1]]
-    ? @@(PercentFreq())     #--> [[ " Red", 42.8571], ...] (percentage of each category)
-    ? @@(RelFreq())         #--> [[ " Red", 0.4286], ...] (proportion of each category)
-    ? @@(UValues())         #--> [ " Red", "Blue", "Green", "Yellow " ] (unique values)
-    ? Diversity()           #--> 0.5714 (diversity index, 0 to 1)
-    ? Entropy()             #--> 1.8424 (information entropy, measure of uncertainty)
+    ? Mode()
+    #--> "Red" (most frequent value)
+
+    ? @@(FreqTable())
+    #--> [[ " Red", 3], [ " Blue", 2], [ " Green", 1], [ " Yellow", 1]]
+
+    ? @@(PercentFreq())
+    #--> [[ " Red", 42.8571], ...] (percentage of each category)
+
+    ? @@(RelFreq())
+    #--> [[ " Red", 0.4286], ...] (proportion of each category)
+
+    ? @@(UValues())
+    #--> [ " Red", "Blue", "Green", "Yellow " ] (unique values)
+
+    ? Diversity()
+    #--> 0.5714 (diversity index, 0 to 1)
+
+    ? Entropy()
+    #--> 1.8424 (information entropy, measure of uncertainty)
 }
 
 pf()
-# Executed in 0.0160 second(s) in Ring 1.22
+# Executed in 0.0100 second(s) in Ring 1.24
 
 /*--- Data Type Detection
 # Identifies the type of data (numeric, categorical, mixed). #TODO Add temporal
@@ -180,10 +194,11 @@ o5 = new stzDataSet([ "X", "Y", "X", "Z", "Y", "X" ])
 
 aTable = o4.ContingencyTable(o5)
 
-? @@(aTable) #--> [[ " X", "Y", "Z " ], [[ " A", [3, 0, 0]], [ " B", [0, 2, 0]], [ " C", [0, 0, 1]]]]
+? @@(aTable)
+#--> [[ " X", "Y", "Z " ], [[ " A", [3, 0, 0]], [ " B", [0, 2, 0]], [ " C", [0, 0, 1]]]]
 
 pf()
-# Executed in 0.0030 second(s) inಸ
+# Executed in 0.0010 second(s) in Ring 1.24
 
 /*--- Mode Count Tests
 # Returns the frequency of the most common value(s).
@@ -192,13 +207,14 @@ pr()
 
 o1 = new stzDataSet([ 1, 2, 2, 3, 2, 4, 2, 5 ])
 o1 {
-    ? @@(Mode())      #--> "2" (most frequent value)
-    ? @@(ModeCount()) #--> 4 (frequency of "2")
-    ? @@(FrequencyTable()) #--> [[ " 1", 1], [ " 2", 4], [ " 3", 1], [ " 4", 1], [ " 5", 1]]
+    ? Mode()		#--> 2
+    ? ModeCount()	#--> 4 (frequency of 2)
+    ? @@(FrequencyTable())
+    #--> [[ " 1", 1], [ " 2", 4], [ " 3", 1], [ " 4", 1], [ " 5", 1]]
 }
 
 pf()
-# Executed in 0.0090 second(s) in Ring 1.22
+# Executed in 0.0060 second(s) in Ring 1.24
 
 #======================================================================#
 #  PILLAR 3: DISTRIBUTION - Shape & Spread Analysis                    #
@@ -213,17 +229,30 @@ pr()
 
 o1 = new stzDataSet([ 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 ])
 o1 {
-    ? Q1()                			#--> 12.5 (first quartile)
-    ? Q2()                			#--> 25 (second quartile, median)
-    ? Q3()                			#--> 37.5 (third quartile)
-    ? IQR()               			#--> 25 (interquartile range, Q3 - Q1)
-    ? @@(Quartiles())     			#--> [12.5, 25, 37.5] (using interpolation)
-    ? @@(QuartilesXT(:Nearest)) 	#--> [10, 25, 40] (using nearest value)
-    ? Percentile(90)      			#--> 45 (90th percentile)
+    ? Q1()
+    #--> 12.5 (first quartile)
+
+    ? Q2()
+    #--> 25 (second quartile, median)
+
+    ? Q3()
+    #--> 37.5 (third quartile)
+
+    ? IQR()
+    #--> 25 (interquartile range, Q3 - Q1)
+
+    ? @@(Quartiles())
+    #--> [12.5, 25, 37.5] (using interpolation)
+
+    ? @@(QuartilesXT(:Nearest))
+    #--> [10, 25, 40] (using nearest value)
+
+    ? Percentile(90)
+    #--> 45 (90th percentile)
 }
 
 pf()
-# Executed in 0.0020 second(s) in Ring 1.22
+# Executed in 0.0020 second(s) in Ring 1.24
 
 /*--- Shape Measures
 # Skewness measures asymmetry; kurtosis measures tailedness.
@@ -232,8 +261,11 @@ pr()
 
 o1 = new stzDataSet([ 1, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50 ])
 o1 {
-    ? Skewness()          #--> 0.0027 (near 0, nearly symmetric)
-    ? Kurtosis()          #--> -3.9006 (negative = flatter than normal distribution)
+    ? Skewness()
+    #--> 0.0027 (near 0, nearly symmetric)
+
+    ? Kurtosis()
+    #--> -3.9006 (negative = flatter than normal distribution)
 }
 
 pf()
@@ -261,9 +293,11 @@ pf()
 pr()
 
 o1 = new stzDataSet([ 30, 10, 20, 50, 40 ])
-? @@(o1.SortedData())    #--> [10, 20, 30, 40, 50]
+? @@(o1.SortedData())
+#--> [10, 20, 30, 40, 50]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.24
 # Executed in 0.0010 second(s) in Ring 1.22
 
 /*--- Time Series and Trend Analysis
@@ -275,7 +309,7 @@ o1 = new stzDataSet([ 1, 3, 5, 7, 9, 11 ])
 ? @@(o1.MovingAverage(3))
 #--> [3, 5, 7, 9] (average of 3 consecutive values)
 
-? @@(StzDataSetQ([ 1, 3, 5, 7, 9 ]).Trend())
+? @@(Trend([ 1, 3, 5, 7, 9 ])) # Or StzDataSetQ([ 1, 3, 5, 7, 9 ]).Trend()
 #--> [[ " up", 5]] (upward trend)
 
 ? @@(StzDataSetQ([ 7, 4, 3, 1 ]).Trend())
@@ -291,7 +325,7 @@ o1 = new stzDataSet([ 1, 3, 5, 7, 9, 11 ])
 #--> [[ " stable", 3], [ " up", 3]]
 
 pf()
-# Executed in 0.0050 second(s) in Ring 1.22
+# Executed in 0.0050 second(s) in Ring 1.24
 
 /*--- Deciles Tests
 # Deciles divide data into ten parts for finer distribution analysis.
@@ -311,6 +345,7 @@ o1 {
 }
 
 pf()
+# Executed in 0.0010 second(s) in Ring 1.24
 # Executed in 0.0020 second(s) in Ring 1.22
 
 /*--- Box Plot Statistics Tests
@@ -338,6 +373,7 @@ o1 {
 }
 
 pf()
+# Executed in 0.0020 second(s) in Ring 1.24
 # Executed in 0.0050 second(s) in Ring 1.22
 
 /*--- Normality Test Tests
@@ -360,7 +396,7 @@ o1 {
 
 o1 = new stzDataSet([ 1, 1, 1, 2, 2, 3, 8, 9, 9, 9 ])
 o1 {
-    aTest = NormalityTest()
+    ? @@NL( NormalityTest() )
 	#--> [
 	# 	[ "test", "heuristic" ],
 	# 	[ "skewness", 0.0413 ],
@@ -371,6 +407,7 @@ o1 {
 }
 
 pf()
+# Executed in 0.0040 second(s) in Ring 1.24
 # Executed in 0.0060 second(s) in Ring 1.22
 
 #======================================================================#
@@ -392,6 +429,7 @@ o2 = new stzDataSet([ 2, 4, 6, 8, 10 ])
 ? o1.RankCorelWith(o2)   #--> 1 (Spearman rank correlation)
 
 pf()
+# Executed in 0.0140 second(s) in Ring 1.24
 # Executed in 0.0240 second(s) in Ring 1.22
 
 /*--- Chi-Square Test for Independence
@@ -404,10 +442,11 @@ aPreference = [ " Like", "Like", "Dislike", "Dislike", "Like", "Like", "Dislike"
 oGend = new stzDataSet(aGender)
 oPref = new stzDataSet(aPreference)
 
-? oGend.ChiSquareWith(oPref) 		#--> 1.6667 (chi-square statistic)
-? @@NL(oGend.CompareWith(oPref)) 	#--> [ " Similar diversity levels " ]
+? oGend.ChiSquareWith(oPref) 		#--> 22.5000 (chi-square statistic)
+? @@NL(oGend.CompareWith(oPref)) 	#--> [ "Similar diversity levels" ]
 
 pf()
+# Executed in 0.0020 second(s) in Ring 1.24
 # Executed in 0.0030 second(s) in Ring 1.22
 
 /*--- Similarity Measures
@@ -417,14 +456,16 @@ pr()
 
 o1 = new stzDataSet([ 1, 2, 3, 4, 5 ])
 ? o1.SimilarityScore(o1) #--> 1 (identical datasets)
-pf()
 
+pf()
+# Executed in 0.0010 second(s) in Ring 1.24
 # Executed in 0.0020 second(s) in Ring 1.22
 
 /*--- Regression Coefficients Tests
 # Fits a linear model and returns slope, intercept, and R-squared.
 
 pr()
+
 oX = new stzDataSet([ 1, 2, 3, 4, 5 ])
 oY = new stzDataSet([ 2, 4, 6, 8, 10 ])
 
@@ -438,6 +479,7 @@ aRegression2 = oX.RegressionCoefficients(oY2)
  #--> [[ " slope", 2.4], [ " intercept", -1.8], [ " r_squared", 0.9730]]
 
 pf()
+# Executed in 0.0020 second(s) in Ring 1.24
 # Executed in 0.0050 second(s) in Ring 1.22
 
 /*--- Partial Correlation Tests
@@ -449,10 +491,11 @@ oX = new stzDataSet([ 1, 2, 3, 4, 5 ])
 oY = new stzDataSet([ 2, 3, 4, 5, 6 ])
 oZ = new stzDataSet([ 1, 1, 2, 2, 3 ])
 
-? @@(oX.CorrelationWith(oY))     	#--> 1
-? @@(oX.PartialCorrelation(oY, oZ)) #--> 1
+? oX.CorrelationWith(oY)        #--> 1
+? oX.PartialCorrelation(oY, oZ) #--> 1
 
 pf()
+# Executed in 0.0020 second(s) in Ring 1.24
 # Executed in 0.0020 second(s) in Ring 1.22
 
 /*--- Mutual Information Tests
@@ -463,12 +506,15 @@ pr()
 oA = new stzDataSet([ "Low", "Low", "High", "High", "Low", "High" ])
 oB = new stzDataSet([ "No", "No", "Yes", "Yes", "No", "Yes" ])
 
-? @@(oA.MutualInformation(oB)) #--> 1 (perfect dependence)
+? oA.MutualInformationWith(oB)
+#--> 1 (perfect dependence)
 
 oC = new stzDataSet([ "X", "Y", "X", "Y", "X", "Y" ])
-? @@(oA.MutualInformation(oC)) #--> 0.0817 (near independence)
+? oA.MutualInfoWith(oC)
+#--> 0.0817 (near independence)
 
 pf()
+# Executed in 0.0080 second(s) in Ring 1.24
 # Executed in 0.0150 second(s) in Ring 1.22
 
 #======================================================================#
@@ -491,6 +537,7 @@ o1 {
 }
 
 pf()
+# Executed in 0.0010 second(s) in Ring 1.24
 # Executed in 0.0030 second(s) in Ring 1.22
 
 /*--- Access to Original Data
@@ -522,14 +569,14 @@ pr()
 
 o1 = new stzDataSet([ 10, 12, 13, 15, 18, 20, 22, 25, 100 ])
 ? @@NL(o1.Insights())
-#--> [
-#	"Data shows positive skew (mean 26.1111 > median 18)",
-#	"High variability (CV = 107.7703%) indicates diverse data points",
-#	"Light-tailed distribution (kurtosis = -3.3076) indicates fewer extreme values",
-#	"Contains 1 outlier(s) (11.1111% of data)",
-#	"High outlier proportion may distort mean-based statistics",
-#	"Small sample size (n = 9) limits statistical reliability"
-# ]
+#-->
+'
+[
+	"High variability (CV = 107.7703%) suggests heterogeneous data with significant spread.",
+	"Extreme kurtosis detected (-3.1492). Distribution has heavy tails and potential extreme values.",
+	"Significant outliers detected (1 outliers, 11.1111% of data). Consider robust statistics."
+]
+'
 
 pf()
 # Executed in 0.0040 second(s) in Ring 1.22
@@ -541,14 +588,17 @@ pr()
 
 o1 = new stzDataSet([ "A", "B", "A", "C", "A", "D" ])
 ? @@NL(o1.Insights())
-#--> [
-#	"Moderate diversity (66.6667%) shows balanced distribution",
-#	"Information entropy (1.7925) indicates balanced category distribution",
-#	"'A' is most common (50%) but distribution remains balanced"
-# ]
+#-->
+'
+[
+	"Low variability (CV = 0%) indicates consistent, homogeneous data.",
+	"Near-normal distribution characteristics (skewness 0, kurtosis 0). Parametric methods appropriate.",
+	"High information content (entropy = 1.7925) indicates balanced categorical distribution."
+]
+'
 
 pf()
-# Executed in 0.0080 second(s) in Ring 1.22
+# Executed in 0.0430 second(s) in Ring 1.24
 
 /*--- Custom Insight Rules
 # Allows user-defined rules for domain-specific insights.
@@ -563,20 +613,23 @@ o1 {
 		"Mean() > 20", "Mean ({Mean()}) exceeds threshold."
 	)
 
-    ? @@NL(InsightsOfDomain(:Finance)) + NL #--> [ " Mean (30) exceeds threshold. " ]
-
+    ? @@NL(InsightsOfDomain(:Finance)) + NL
+    #--> [
+    # 	"High financial volatility (CV = 52.7046%). Risk assessment required.",
+    # 	"Mean (30) exceeds threshold."
+    # ]
 
     ? @@NL(InsightsXT())
-	#--> [
-	# 	"The data is symmetrically distributed with mean 30 and median 30",
-	# 	"High variability (CV = 52.70%) indicates diverse data points",
-	# 	"Light-tailed distribution (kurtosis = -6.26) indicates fewer extreme values",
-	# 	"Small sample size (n = 5) limits statistical reliability",
-	# 	"Financially, Mean (30) exceeds threshold."
-	# ]
-
-	# Note how the "Financially" adverb is generated to show that the insight
-	# belongs to the financial domain as specified when adding the rule.
+    #--> [
+    # 	"High variability (CV = 52.7046%) suggests heterogeneous data with significant spread.",
+    # 	"Extreme kurtosis detected (-6.6400). Distribution has heavy tails and potential extreme values.",
+    # 	"High financial volatility (CV = 52.7046%). Risk assessment required.",
+    # 	"Mean (30) exceeds threshold.",
+    # 	"High variability in health metrics (CV = 52.7046%). Patient stratification needed.",
+    # 	"Below-average performance (median = 30). Curriculum review needed.",
+    # 	"High performance variability (CV = 52.7046%). Differentiated instruction required.",
+    # 	"Wide quality range (Range/Mean = 1.3333). Process capability study needed."
+    # ]
 
 }
 
@@ -604,22 +657,34 @@ o1 {
 	)
 
     ? @@NL(PrioritizedInsights(:Finance))
-	#--> [ " High mean (30).", "High volatility (15.8114). " ]
+	#--> [
+	# 	[ "High mean (30).", 2 ],
+	# 	[
+	# 		"High financial volatility (CV = 52.7046%). Risk assessment required.",
+	# 		1
+	# 	],
+	# 	[ "High volatility (15.8114).", 1 ]
+	# ]
 
 	? @@NL( InsightsForDomain(:Finance) ) + NL
-	#--> [ "High mean (30).", "High volatility (15.81)." ]
+	#--> [
+	# 	"High financial volatility (CV = 52.7046%). Risk assessment required.",
+	# 	"High mean (30).",
+	# 	"High volatility (15.8114)."
+	# ]
 
 	? @@NL( InsightsXT() )
 	#--> [
-	# 	"Data shows negative skew (mean 15.81 < median 30)",
-	# 	"High variability (CV = 141.65%) indicates diverse data points",
-	# 	"Light-tailed distribution (kurtosis = -6.31) indicates fewer extreme values",
-	# 	"Small sample size (n = 5) limits statistical reliability",
-	# 	"Financially, High mean (22.40).",
-	# 	"Financially, High volatility (17.95)."
-	# ]
-
-	#TODO // Check why the values computed for financial insights are not the same
+	# "High variability (CV = 52.7046%) suggests heterogeneous data with significant spread.",
+	# "Extreme kurtosis detected (-6.6400). Distribution has heavy tails and potential extreme values.",
+	# "High financial volatility (CV = 52.7046%). Risk assessment required.",
+	# "High mean (30).",
+	# "High volatility (15.8114).",
+	# "High variability in health metrics (CV = 52.7046%). Patient stratification needed.",
+	# "Below-average performance (median = 30). Curriculum review needed.",
+	# "High performance variability (CV = 52.7046%). Differentiated instruction required.",
+	# "Wide quality range (Range/Mean = 1.3333). Process capability study needed."
+	]
 
 }
 
@@ -643,13 +708,16 @@ pr()
 ? @@(MissingValues())
 #--> ['', "NA", "NULL", "n/a", "#N/A " ]
 
-
 o1 = new stzDataSet([ 1, "NA", 3, "NULL", 5, "#N/A" ])
-? @@(o1.Data())       #--> [ 1, 3, 5 ] (excludes missing values)
-? o1.Count()          #--> 3 (count of valid values)
+
+? @@(o1.Data())
+#--> [ 1, 3, 5 ] (excludes missing values)
+
+? o1.Count()
+#--> 3 (count of valid values)
 
 pf()
-
+# Executed in 0.0010 second(s) in Ring 1.24
 # Executed in 0.0020 second(s) in Ring 1.22
 
 /*--- Data Validation
@@ -668,12 +736,27 @@ o1 = new stzDataSet([ 5, 5, 5, 5, 5 ])
 o1 = new stzDataSet([ 1, 2, 3, 4, 100 ])
 ? @@NL(o1.Recommendations())
 #--> [
-# 	"Small sample size - interpret results cautiously",
-# 	"Outliers detected - consider robust statistics",
-# 	"High variability - segment analysis recommended"
+#	"Small sample size (n=5) prone to outlier influence.
+#	Use non-parametric methods, bootstrap confidence intervals,
+# 	TrimmedMean(), and interpret results cautiously.",
+#
+#	"Outliers detected (1 values) can distort statistics.
+# 	Apply TrimmedMean(10) and RobustScale(), or investigate data quality.",
+# 
+# 	"Non-normal distribution violates test assumptions.
+# 	Use non-parametric tests, percentile-based confidence intervals,
+# 	or apply Normalize()/Standardize().",
+#
+#	"Extremely high variability (CV = 198.2621%) may indicate multiple populations.
+# 	Consider subgroup analysis or use MovingAverage(5) to identify patterns.",
+#
+# 	"Sequential data contains temporal patterns.
+# 	Apply TrendAnalysis() and MovingAverage(5) to smooth fluctuations and identify trends."
+#
 # ]
 
 pf()
+# Executed in 0.0320 second(s) in Ring 1.24
 # Executed in 0.0040 second(s) in Ring 1.22
 
 #======================================================================#
@@ -715,6 +798,7 @@ pr()
 # ]
 
 pf()
+# Executed in 0.0020 second(s) in Ring 1.24
 # Executed in 0.0030 second(s) in Ring 1.22
 
 #======================================================================#
@@ -731,7 +815,7 @@ pr()
 o1 = new stzDataSet([ 10, 20, 30, 40, 50 ])
 
 # Export structured data
-//? @@NL(o1.Export()) + nl
+? @@NL(o1.Export()) + nl
 #--> [
 #	[ "data_type", "numeric" ],
 #	[ "count", 5 ],
@@ -746,8 +830,8 @@ o1 = new stzDataSet([ 10, 20, 30, 40, 50 ])
 #	[ "max", 50 ],
 #	[ "quartiles", [ 20, 30, 40 ] ],
 #	[ "skewness", 0 ],
-#	[ "kurtosis", -6.2609 ],
-#	[ "outliers", [ ] ]
+#	[ "kurtosis", -6.6400 ],
+#	[ "outliers", [  ] ]
 # ]
 
 # Complete summary (XT to include Recommendations)
@@ -771,9 +855,9 @@ o1 = new stzDataSet([ 10, 20, 30, 40, 50 ])
 ╭──────────────────╮
 │ Dataset Insights │
 ╰──────────────────╯
-• High variability (CV = 141.6539%) suggests heterogeneous data with significant spread.
+• High variability (CV = 52.7046%) suggests heterogeneous data with significant spread.
 
-• Extreme kurtosis detected (-6.2609). Distribution has heavy tails and potential extreme values.
+• Extreme kurtosis detected (-6.6400). Distribution has heavy tails and potential extreme values.
 
 ╭─────────────────╮
 │ Recommendations │
@@ -782,13 +866,13 @@ o1 = new stzDataSet([ 10, 20, 30, 40, 50 ])
 
 • Non-normal distribution violates test assumptions. Use non-parametric tests, percentile-based confidence intervals, or apply Normalize()/Standardize().
 
-• Extremely high variability (CV = 80.1488%) may indicate multiple populations. Consider subgroup analysis or use MovingAverage(5) to identify patterns.
+• Extremely high variability (CV = 52.7046%) may indicate multiple populations. Consider subgroup analysis or use MovingAverage(5) to identify patterns.
 
 • Sequential data contains temporal patterns. Apply TrendAnalysis() and MovingAverage(5) to smooth fluctuations and identify trends.
 '
 
 pf()
-# Executed in 0.1280 second(s) in Ring 1.22
+# Executed in 0.0850 second(s) in Ring 1.24
 
 #======================================================================#
 #  Edge Cases and Validation                                           #
@@ -807,11 +891,17 @@ o1 {
     ? Mean()              #--> 0 (default for empty)
     ? Median()            #--> 0
     ? @@(Mode())          #--> ""
-    ? @@(Insights())      #--> [ "Dataset is empty. No analysis possible without data." ]
+
+    ? @@(Insights())
+    #--> [
+    # 	"Dataset is empty - No analysis possible without data.",
+    #   "Low variability (CV = 0%) indicates consistent, homogeneous data.",
+    #   "Near-normal distribution characteristics (skewness 0, kurtosis 0). Parametric methods appropriate."
+    # ]
 }
 
 pf()
-# Executed in 0.0020 second(s) in Ring 1.22
+# Executed in 0.0310 second(s) in Ring 1.24
 
 /*--- Single Value Dataset
 # Tests behavior with minimal data.
@@ -824,15 +914,15 @@ o1 {
     ? StandardDeviation() #--> 0 (no variability)
 
     ? @@NL(o1.Insights())
-	#--> [
-	# "The data is symmetrically distributed with mean 42 and median 42",
-	# "The data shows low variability with a coefficient of variation of 0%, indicating consistent values",
-	# "Small sample size (n = 1) limits statistical reliability"
-	# ]
+    #--> [
+    # "Low variability (CV = 0%) indicates consistent, homogeneous data.",
+    # "Near-normal distribution characteristics (skewness 0, kurtosis 0). Parametric methods appropriate."
+    # ]
 
 }
 
 pf()
+# Executed in 0.0370 second(s) in Ring 1.24
 # Executed in 0.0040 second(s) in Ring 1.22
 
 /*--- Mixed Data Types
@@ -846,14 +936,16 @@ o1 {
     ? DataType() #--> "mixed"
 
     ? @@NL(Insights())
-	#--> [
-	# "Mixed dataset containing both numeric and categorical data (5 unique values from 5 total)",
-	# "Consider separating data types for specialized analysis. Numeric methods apply only to numeric subset"
-	# ]
+    #--> [
+    #  "Low variability (CV = 0%) indicates consistent, homogeneous data.",
+    #  "Near-normal distribution characteristics (skewness 0, kurtosis 0). Parametric methods appropriate.",
+    #  "Mixed dataset containing both numeric and categorical data. Consider separating data types for specialized analysis."
+    # ]
 
 }
 
 pf()
+# Executed in 0.0330 second(s) in Ring 1.24
 # Executed in 0.0040 second(s) in Ring 1.22
 
 /*--- Invalid Correlation Cases
@@ -864,12 +956,14 @@ pr()
 o1 = new stzDataSet([ "A", "B", "C" ])
 o2 = new stzDataSet([ 1, 2, 3, 4, 5 ])
 
-? o1.CorrelationWith(o2) #--> 0 (different lengths)
+? o1.CorrelationWith(o2)
+#--> 0 (different lengths)
 
 o3 = new stzDataSet([ 1, 2, 3 ])
 o4 = new stzDataSet([ "X", "Y" ])
 
-? o3.ChiSquareWith(o4)   #--> 0 (different lengths)
+? o3.ChiSquareWith(o4)
+#--> 0 (different lengths)
 
 pf()
 # Executed in 0.0010 second(s) in Ring 1.22
@@ -878,60 +972,69 @@ pf()
 #  Combined Analysis Example                                           #
 #======================================================================#
 
-# Demonstrates a comprehensive analysis using multiple pillars.
+/*--- Demonstrates a comprehensive analysis using multiple pillars.
 
 pr()
 
 # Setting up sales data for 10 months and their corresponding month numbers
-oSales = new stzDataSet([ 100, 120, 140, 160, 180, 200, 220, 240, 260, 280 ])  // Sales figures from month 1 to 10
-oMonth = new stzDataSet([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])                     // Months numbered 1 to 10
+
+# Sales figures from month 1 to 10
+oSales = new stzDataSet([ 100, 120, 140, 160, 180, 200, 220, 240, 260, 280 ])
+# Months numbered 1 to 10
+oMonth = new stzDataSet([ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 ])
 
 # Showing the average sales across all months
-? oSales.Mean()           			#--> 190  // Average sales is 190 units
+? oSales.Mean()
+#--> 190  // Average sales is 190 units
 
-" Showing the average after removing 20% of extreme values (highs and lows)
-? oSales.TrimmedMean(20)  			#--> 190  // Still 190, meaning no big outliers affect the average
+# Showing the average after removing 20% of extreme values (highs and lows)
+? oSales.TrimmedMean(20)
+#--> 190  // Still 190, meaning no big outliers affect the average
 
 # Showing how much sales vary from the average (higher number = more variation)
-? oSales.StandardDeviation() + NL 	#--> 60.5530  // Sales fluctuate by about 60.55 units
+? oSales.StandardDeviation() + NL
+#--> 60.5530  // Sales fluctuate by about 60.55 units
 
-" Summarizing sales spread (like a snapshot of how sales are distributed)
+
+# Summarizing sales spread (like a snapshot of how sales are distributed)
 ? @@NL( oSales.BoxPlotStats() ) + NL
 #--> [
-#	[ "min", 100 ],         // Lowest sales: 100 units
-#	[ "q1", 145 ],          // 25% of sales are below 145 units
-#	[ "median", 190 ],      // Middle value: half the sales are below 190
-#	[ "q3", 235 ],          // 75% of sales are below 235 units
-#	[ "max", 280 ],         // Highest sales: 280 units
-#	[ "whisker_low", 100 ], // Lower typical range starts at 100
-#	[ "whisker_high", 280 ],// Upper typical range ends at 280
-#	[ "iqr", 90 ]           // Middle 50% of sales range from 145 to 235 (spread of 90 units)
+#	[ "min", 100 ],          ~> Lowest sales: 100 units
+#	[ "q1", 145 ],           ~> 25% of sales are below 145 units
+#	[ "median", 190 ],       ~> Middle value: half the sales are below 190
+#	[ "q3", 235 ],           ~> 75% of sales are below 235 units
+#	[ "max", 280 ],          ~> Highest sales: 280 units
+#	[ "whisker_low", 100 ],  ~> Lower typical range starts at 100
+#	[ "whisker_high", 280 ], ~> Upper typical range ends at 280
+#	[ "iqr", 90 ]            ~> Middle 50% of sales range from 145 to 235 (spread of 90 units)
 # ]
 
 # Showing the sales trend over months (how sales change with time)
 ? @@NL( oMonth.RegressionCoefficients(oSales) ) + NL
 #--> [
-#	[ "slope", 20 ],        // Sales grow by 20 units each month
-#	[ "intercept", 80 ],    // Starting point: sales would be 80 at month 0
-#	[ "r_squared", 1 ]      // Perfect fit: sales follow this trend exactly
+#	[ "slope", 20 ],         ~> Sales grow by 20 units each month
+#	[ "intercept", 80 ],     ~> Starting point: sales would be 80 at month 0
+#	[ "r_squared", 1 ]       ~> Perfect fit: sales follow this trend exactly
 # ]
 
 # Checking if sales follow a normal (bell-shaped) pattern
 ? @@NL( oSales.NormalityTest() )
 #--> [
-#	[ "test", "heuristic" ],  // Method used to test the pattern
-#	[ "skewness", 0 ],        // Symmetry: 0 means perfectly balanced
-#	[ "kurtosis", -4.0616 ],  // Flatness: negative means flatter than a bell curve
-#	[ "p_value", 0.0172 ],    // Statistical check: low value suggests not normal
-#	[ "is_normal", 0 ]        // Result: 0 means sales don’t follow a normal pattern
+#	[ "test", "heuristic" ],   ~> Method used to test the pattern
+#	[ "skewness", 0 ],         ~> Symmetry: 0 means perfectly balanced
+#	[ "kurtosis", -4.0616 ],   ~> Flatness: negative means flatter than a bell curve
+#	[ "p_value", 0.0172 ],     ~> Statistical check: low value suggests not normal
+#	[ "is_normal", 0 ]         ~> Result: 0 means sales don’t follow a normal pattern
 # ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.22
+# Executed in 0.0060 second(s) in Ring 1.24
 
 #=====================================#
 #  TESTING THE ANALYTICS Plan SYSTEM  #
 #=====================================#
+
+/*---
 
 pr()
 
@@ -942,14 +1045,14 @@ aStep = [ [ "function", "ValidateData" ], [ "required", 1 ], [ "description", "C
 ? @@(aStep[:condition])
 #--> ""
 
-? HasKey(aStep, "required")
+? HasKey(aStep, "required") #--> TRUE
 
 ? @@(aStep[:required])
 #--> 1
 
 pf()
+# Executed in 0.0010 second(s) in Ring 1.24
 # Executed in 0.0020 second(s) in Ring 1.22
-
 
 /*--- EXAMPLE 1: Basic Data Exploration
 
@@ -971,7 +1074,7 @@ oPlan = oSales.MakePlan(:Understand) # Or PreparePlan() or GeneratePlan()
 
 ? oSales.PlanSummary(:Understand)
 #-->
-'
+`
 ╭─────────────────────────────────╮
 │ Plan: Exploratory Data Analysis │
 ╰─────────────────────────────────╯
@@ -987,13 +1090,13 @@ oPlan = oSales.MakePlan(:Understand) # Or PreparePlan() or GeneratePlan()
   7. Distribution shape (conditional)
   8. Asymmetry check (conditional)
   9. Outlier detection (conditional)
-'
+`
 
 # Full Plan execution
 
 oResults = oSales.ExecutePlan(:EDA) # Or RunPlan() or PerformPlan()
 #-->
-'
+`
 ╭───────────────────────────────────────────╮
 │ Executing Plan: Exploratory Data Analysis │
 ╰───────────────────────────────────────────╯
@@ -1029,24 +1132,27 @@ oResults = oSales.ExecutePlan(:EDA) # Or RunPlan() or PerformPlan()
 ╰─> Outliers present: 0
 
 ( Plan completed in 0.0980s : 9 successful steps, 0 errors )
-'
+`
 
 pf()
+# Executed in 0.0910 second(s) in Ring 1.24
 # Executed in 0.1990 second(s) in Ring 1.22
 
 /*--- EXAMPLE 2: Quality Control Analysis
 
 # Manufacturing process data (with some issues)
 
-aProcessData = [98.2, 99.1, 97.8, 101.5, 98.9, 99.3, 98.7, 110.2, 99.0, 98.5, 
-                99.4, 97.9, 98.8, 99.2, 98.6, 85.1, 99.1, 98.4, 99.7, 98.3]
+aProcessData = [
+	98.2, 99.1, 97.8, 101.5, 98.9, 99.3, 98.7, 110.2, 99.0, 98.5, 
+	99.4, 97.9, 98.8, 99.2, 98.6, 85.1, 99.1, 98.4, 99.7, 98.3
+]
 
 oProcess = new stzDataSet(aProcessData)
 
 # Quality control Plan
 oQCResults = oProcess.ExecutePlan(:quality)
 #-->
-'
+`
 ╭──────────────────────────────────────────╮
 │ Executing Plan: Quality Control Analysis │
 ╰──────────────────────────────────────────╯
@@ -1078,10 +1184,11 @@ oQCResults = oProcess.ExecutePlan(:quality)
 ✅ Step 8/8: Process drift detection
 ❌ Error: Error (R21) : Using operator with values of incorrect type
 
-( Plan completed in 0.0750s : 8 successful step(s), 1 error(s) )
-'
+( Plan completed in 0.0320s : 8 successful step(s), 1 error(s) )
+`
 
 pf()
+# Executed in 2.4140 second(s) in Ring 1.24
 # Executed in 3.7100 second(s) in Ring 1.22
 
 /*--- EXAMPLE 3: Correlation Analysis Between Variables
@@ -1098,7 +1205,7 @@ oSalesTemp = new stzDataSet(aSales)
 # Correlation Plan (automatically chooses Pearson vs Spearman)
 oCorrelation = oTemp.ExecutePlan(:relation)
 #-->
-'
+`
 ╭───────────────────────────────────────────╮
 │ Executing Plan: Correlation Analysis Plan │
 ╰───────────────────────────────────────────╯
@@ -1121,16 +1228,16 @@ oCorrelation = oTemp.ExecutePlan(:relation)
 ✅ Step 5/5: Covariance analysis
 ❌ Error: Error (R19) : Calling function with less number of parameters
 
-( Plan completed in 0.0740s : 3 successful step(s), 2 error(s) )
-'
+( Plan completed in 0.0290s : 3 successful step(s), 2 error(s) )
+`
 
 ? ""
 # Manual correlation with second dataset
 ? oTemp.CorrelationWith(oSalesTemp)
-#--> 0.1064  #TODO Strong positive correlation expected?
+#--> 0.9942  #TODO Strong positive correlation expected?
 
 pf()
-# Executed in 0.0760 second(s) in Ring 1.22
+# Executed in 0.0300 second(s) in Ring 1.24
 
 /*--- EXAMPLE 4: Outlier Investigation
 
@@ -1145,7 +1252,7 @@ oSatisfaction = new stzDataSet(aSatisfaction)
 # Comprehensive outlier analysis
 oSatisfaction.ExecutePlan(:outliers)
 #-->
-'
+`
 ╭────────────────────────────────────────────────╮
 │ Executing Plan: Outlier Detection and Analysis │
 ╰────────────────────────────────────────────────╯
@@ -1174,9 +1281,10 @@ oSatisfaction.ExecutePlan(:outliers)
 ✅ Step 7/7: Outlier-resistant scaling
 ╰─> RobustScale: 20 value(s)
 
-( Plan completed in 0.0790s : 7 successful step(s), 0 error(s) )
-'
+( Plan completed in 0.0350s : 7 successful step(s), 0 error(s) )
+`
 pf()
+# Executed in 0.0360 second(s) in Ring 1.24
 # Executed in 0.0810 second(s) in Ring 1.22
 
 /*--- EXAMPLE 5: Custom Plan Creation
@@ -1212,7 +1320,7 @@ oReturns.AddPlan(
 # Execute custom Plan
 oReturns.ExecutePlan(:FinRisk)
 #-->
-'
+`
 ╭─────────────────────────────────────────╮
 │ Executing Plan: Financial Risk Analysis │
 ╰─────────────────────────────────────────╯
@@ -1227,10 +1335,10 @@ oReturns.ExecutePlan(:FinRisk)
 ╰─> Std Dev: 0.0815
 
 ✅ Step 3/6: Risk-return ratio
-╰─> CoefficientOfVariation: 100
+╰─> CoefficientOfVariation: 1018.4160
 
 ✅ Step 4/6: Return asymmetry
-╰─> Skewness: -0.0976
+╰─> Skewness: -0.0537
 
 ✅ Step 5/6: Extreme market events
 ╰─> Outliers present: 1
@@ -1238,10 +1346,11 @@ oReturns.ExecutePlan(:FinRisk)
 ✅ Step 6/6: Crisis periods identification
 ╰─> Outliers: 1 value(s)
 
-( Plan completed in 0.0730s : 6 successful step(s), 0 error(s) )
-'
+( Plan completed in 0.0250s : 6 successful step(s), 0 error(s) )
+`
 
 pf()
+# Executed in 0.0260 second(s) in Ring 1.24
 # Executed in 0.0740 second(s) in Ring 1.22
 
 /*--- EXAMPLE 6: Trend Analysis for Time Series
@@ -1254,7 +1363,7 @@ oVisitors = new stzDataSet(aVisitors)
 
 # Trend analysis Plan
 oVisitors.ExecutePlan(:trends)
-'
+`
 ╭────────────────────────────────────────────╮
 │ Executing Plan: Time Series Trend Analysis │
 ╰────────────────────────────────────────────╯
@@ -1281,9 +1390,10 @@ oVisitors.ExecutePlan(:trends)
 ╰─> Range: 1170
 
 ( Plan completed in 0.0690s : 6 successful step(s), 1 error(s) )
-'
+`
 
 pf()
+# Executed in 0.0300 second(s) in Ring 1.24
 # Executed in 0.0700 second(s) in Ring 1.22
 
 /*--- EXAMPLE 7: Comparative Analysis Plan
@@ -1299,12 +1409,23 @@ oAfter = new stzDataSet(aAfter)
 
 # Run EDA on both datasets
 oBefore.ExecutePlan(:EDA)
-#-->
-'
+
+? ""
+oAfter.ExecutePlan(:EDA)
+
+? ""
+# Compare key metrics
+? Boxround("Performance Comparison")
+? "Before - Mean: " + @@(oBefore.Mean()) + ", Std: " + @@(oBefore.StandardDeviation())
+? "After  - Mean: " + @@(oAfter.Mean()) + ", Std: " + @@(oAfter.StandardDeviation())
+nImprovement = ((oAfter.Mean() - oBefore.Mean()) / oBefore.Mean()) * 100
+? "Improvement: " + @@(nImprovement) + "%"
+
+#--> OUTPUT
+`
 ╭───────────────────────────────────────────╮
 │ Executing Plan: Exploratory Data Analysis │
 ╰───────────────────────────────────────────╯
-• Data: [ 78, 82, 75, 80, 77, 83, 79, 81, 76, 84 ]
 • Name: {eda}
 • Goal: Comprehensive data exploration and understanding
 • Steps: 9
@@ -1325,28 +1446,22 @@ oBefore.ExecutePlan(:EDA)
 ╰─> Median: 79.5000
 
 ✅ Step 6/9: Variability
-╰─> Std Dev: 80.6658
+╰─> Std Dev: 3.0277
 
 ✅ Step 7/9: Distribution shape
 ╰─> Quartiles: 3 value(s)
 
 ✅ Step 8/9: Asymmetry check
-╰─> Skewness: 0.1188
+╰─> Skewness: 0.0000
 
 ✅ Step 9/9: Outlier detection
 ╰─> Outliers present: 0
 
-( Plan completed in 0.1060s : 9 successful step(s), 0 error(s) )
-'
+( Plan completed in 0.0400s : 9 successful step(s), 0 error(s) )
 
-? ""
-oAfter.ExecutePlan(:EDA)
-#-->
-'
 ╭───────────────────────────────────────────╮
 │ Executing Plan: Exploratory Data Analysis │
 ╰───────────────────────────────────────────╯
-• Data: [ 85, 88, 84, 87, 89, 91, 86, 90, 87, 93 ]
 • Name: {eda}
 • Goal: Comprehensive data exploration and understanding
 • Steps: 9
@@ -1367,35 +1482,30 @@ oAfter.ExecutePlan(:EDA)
 ╰─> Median: 87.5000
 
 ✅ Step 6/9: Variability
-╰─> Std Dev: 89.8637
+╰─> Std Dev: 2.7889
 
 ✅ Step 7/9: Distribution shape
 ╰─> Quartiles: 3 value(s)
 
 ✅ Step 8/9: Asymmetry check
-╰─> Skewness: 0.1188
+╰─> Skewness: 0.0384
 
 ✅ Step 9/9: Outlier detection
 ╰─> Outliers present: 0
 
-( Plan completed in 0.1050s : 9 successful step(s), 0 error(s) )
-'
+( Plan completed in 0.0390s : 9 successful step(s), 0 error(s) )
 
-? ""
-# Compare key metrics
-? Boxround("Performance Comparison")
-? "Before - Mean: " + @@(oBefore.Mean()) + ", Std: " + @@(oBefore.StandardDeviation())
-? "After  - Mean: " + @@(oAfter.Mean()) + ", Std: " + @@(oAfter.StandardDeviation())
-nImprovement = ((oAfter.Mean() - oBefore.Mean()) / oBefore.Mean()) * 100
-? "Improvement: " + @@(nImprovement) + "%"
-#-->
-'
-Before - Mean: 80.6658, Std: 3.2675
-After  - Mean: 89.8637, Std: 3.4113
-Improvement: 11.4025%
-'
+╭────────────────────────╮
+│ Performance Comparison │
+╰────────────────────────╯
+Before - Mean: 79.5000, Std: 3.0277
+After  - Mean: 88, Std: 2.7889
+Improvement: 10.6918%
+`
+
 
 pf()
+# Executed in 0.0880 second(s) in Ring 1.24
 # Executed in 0.2360 second(s) in Ring 1.22
 
 /*--- EXAMPLE 8: Smart Plan Selection
@@ -1405,46 +1515,54 @@ pr()
 # Function to automatically suggest best Plan based on data characteristics
 
 # Test with different datasets
-oNormalData = new stzDataSet([98, 99, 100, 101, 99, 98, 100, 99, 101, 98])
+# Test all plan suggestions
+oNormalData = new stzDataSet([100, 102, 98, 101, 99, 100, 98, 102, 101, 99, 100, 101])
 oSkewedData = new stzDataSet([10, 11, 12, 11, 10, 45, 12, 11, 10, 11, 9, 12])
 oHighVarData = new stzDataSet([50, 150, 75, 200, 25, 175, 100, 225, 60, 180])
+oTinyData = new stzDataSet([5, 7])
+oTrendData = new stzDataSet([10, 12, 14, 16, 18, 20, 22, 24, 26, 28])
+oStableData = new stzDataSet([100, 100, 100, 100, 100, 100, 100, 100])
 
-? "Normal data → " + oNormalData.SuggestPlan()     # "NORMALITY"
-? "Skewed data → " + oSkewedData.SuggestPlan()     # "OUTLIERS"  
-? "High variance → " + oHighVarData.SuggestPlan()  # "QC"
-? ""
+? "Normal data → " + oNormalData.SuggestPlan()     # normality
+? "Skewed data → " + oSkewedData.SuggestPlan()     # outliers  
+? "High variance → " + oHighVarData.SuggestPlan()  # quality
+? "Tiny sample → " + oTinyData.SuggestPlan()       # eda
+? "Trending → " + oTrendData.SuggestPlan()         # trends
+? "No variance → " + oStableData.SuggestPlan()     # eda
+
+
 # You can run any plan easily using its name
-
-oNormalData.RunPlan(:NORMALITY) # Or ExecutePlan()
+? ""
+oNormalData.RunPlan(:normality) # Or ExecutePlan()
 #-->
-'
+`
 ╭───────────────────────────────────────────╮
 │ Executing Plan: Normality Assessment Plan │
 ╰───────────────────────────────────────────╯
-• Data: [ 98, 99, 100, 101, 99, 98, 100, 99, 101, 98 ]
 • Name: {normality}
 • Goal: Determine if data follows normal distribution
 • Steps: 5
 
 ✅ Step 1/5: Check sample size adequacy
-╰─> Sample size: 10
+╰─> Sample size: 12
 
 ✅ Step 2/5: Formal normality test
-╰─> Normality p-value: [ "skewness", 0.0342 ]
+╰─> Normality p-value: [ "skewness", -0.0147 ]
 
 ✅ Step 3/5: Check asymmetry
-╰─> Skewness: 0.1186
+╰─> Skewness: -0.0147
 
 ✅ Step 4/5: Check tail behavior
-╰─> Kurtosis: -4.1624
+╰─> Kurtosis: -3.7808
 
 ✅ Step 5/5: Visual normality indicators
 ╰─> BoxPlotStats: 8 value(s)
 
-( Plan completed in 0.0580s : 5 successful step(s), 0 error(s) )
-'
+( Plan completed in 0.0270s : 5 successful step(s), 0 error(s) )
+`
 
 pf()
+# Executed in 0.0310 second(s) in Ring 1.24
 # Executed in 0.0600 second(s) in Ring 1.22
 
 /*--- EXAMPLE 9: Plan Chaining
@@ -1459,11 +1577,10 @@ pProductionData = new stzDataSet([
 
 pProductionData.ChainPlans([ "EDA", "QUALITY", "OUTLIERS", "NORMALITY" ])
 #-->
-'
+`
 ╭───────────────────────────────────────────╮
 │ Executing Plan: Exploratory Data Analysis │
 ╰───────────────────────────────────────────╯
-• Data: [ 95.2000, 96.1000, 94.8000, 97.3000, 95.9000, 96.5000, 95.1000, 98.2000, 96, 95.7000, 96.8000, 94.9000, 95.6000, 96.3000, 95.4000, 99.1000, 96.2000, 95.8000, 96.7000, 95.3000 ]
 • Name: {eda}
 • Goal: Comprehensive data exploration and understanding
 • Steps: 9
@@ -1484,18 +1601,18 @@ pProductionData.ChainPlans([ "EDA", "QUALITY", "OUTLIERS", "NORMALITY" ])
 ╰─> Median: 95.9500
 
 ✅ Step 6/9: Variability
-╰─> Std Dev: 97.5325
+╰─> Std Dev: 1.0880
 
 ✅ Step 7/9: Distribution shape
 ╰─> Quartiles: 3 value(s)
 
 ✅ Step 8/9: Asymmetry check
-╰─> Skewness: 0.0542
+╰─> Skewness: 0.0655
 
 ✅ Step 9/9: Outlier detection
 ╰─> Outliers present: 1
 
-( Plan completed in 0.1050s : 9 successful step(s), 0 error(s) )
+( Plan completed in 0.0430s : 9 successful step(s), 0 error(s) )
 
 ╭──────────────────────────────────────────╮
 │ Executing Plan: Quality Control Analysis │
@@ -1508,13 +1625,13 @@ pProductionData.ChainPlans([ "EDA", "QUALITY", "OUTLIERS", "NORMALITY" ])
 ╰─> ValidateData: 1 value(s)
 
 ✅ Step 2/8: Process center
-╰─> Mean: 97.5325
+╰─> Mean: 96.1450
 
 ✅ Step 3/8: Process variation
-╰─> Std Dev: 1.7917
+╰─> Std Dev: 1.0880
 
 ✅ Step 4/8: Process consistency
-╰─> CoefficientOfVariation: 1.8370
+╰─> CoefficientOfVariation: 1.1316
 
 ✅ Step 5/8: Process anomalies
 ╰─> Outliers present: 1
@@ -1528,7 +1645,7 @@ pProductionData.ChainPlans([ "EDA", "QUALITY", "OUTLIERS", "NORMALITY" ])
 ✅ Step 8/8: Process drift detection
 ❌ Error: Error (R21) : Using operator with values of incorrect type
 
-( Plan completed in 0.0730s : 8 successful step(s), 1 error(s) )
+( Plan completed in 0.0300s : 8 successful step(s), 1 error(s) )
 
 ╭────────────────────────────────────────────────╮
 │ Executing Plan: Outlier Detection and Analysis │
@@ -1547,7 +1664,7 @@ pProductionData.ChainPlans([ "EDA", "QUALITY", "OUTLIERS", "NORMALITY" ])
 ╰─> ZScores: 20 value(s)
 
 ✅ Step 4/7: Mean with outliers
-╰─> Mean: 1.7917
+╰─> Mean: 96.1450
 
 ✅ Step 5/7: Robust mean (10% trimmed)
 ╰─> TrimmedMean: 95.9937
@@ -1558,7 +1675,7 @@ pProductionData.ChainPlans([ "EDA", "QUALITY", "OUTLIERS", "NORMALITY" ])
 ✅ Step 7/7: Outlier-resistant scaling
 ╰─> RobustScale: 20 value(s)
 
-( Plan completed in 0.0770s : 7 successful step(s), 0 error(s) )
+( Plan completed in 0.0320s : 7 successful step(s), 0 error(s) )
 
 ╭───────────────────────────────────────────╮
 │ Executing Plan: Normality Assessment Plan │
@@ -1571,13 +1688,13 @@ pProductionData.ChainPlans([ "EDA", "QUALITY", "OUTLIERS", "NORMALITY" ])
 ╰─> Sample size: 20
 
 ✅ Step 2/6: Formal normality test
-╰─> Normality p-value: [ "skewness", 0.0542 ]
+╰─> Normality p-value: [ "skewness", 0.0655 ]
 
 ✅ Step 3/6: Check asymmetry
-╰─> Skewness: 0.0542
+╰─> Skewness: 0.0655
 
 ✅ Step 4/6: Check tail behavior
-╰─> Kurtosis: -3.4740
+╰─> Kurtosis: -3.2691
 
 ✅ Step 5/6: Visual normality indicators
 ╰─> BoxPlotStats: 8 value(s)
@@ -1585,14 +1702,15 @@ pProductionData.ChainPlans([ "EDA", "QUALITY", "OUTLIERS", "NORMALITY" ])
 ✅ Step 6/6: Outlier impact on normality
 ╰─> Outliers: 1 value(s)
 
-( Plan completed in 0.0610s : 6 successful step(s), 0 error(s) )
+( Plan completed in 0.0250s : 6 successful step(s), 0 error(s) )
 '
 
 pf()
+# Executed in 0.1310 second(s) in Ring 1.24
 # Executed in 0.3180 second(s) in Ring 1.22
 
 /*--- EXAMPLE 10: Conditional Plan Execution
-
+*/
 pr()
 
 # Test dataset with various characteristics
@@ -1604,14 +1722,13 @@ oMixedData = new stzDataSet([
 
 oMixedData.AdaptiveAnalysis()
 #-->
-'
+`
 ~> Start with basic exploration...
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ╭───────────────────────────────────────────╮
 │ Executing Plan: Exploratory Data Analysis │
 ╰───────────────────────────────────────────╯
-• Data: [ 100, 98, 102, 99, 101, 97, 103, 95, 105, 99, 98, 101, 96, 104, 100, 180, 99, 102, 98, 101, 97, 103, 100, 99, 102, 98, 101, 97, 104, 100 ]
 • Name: {eda}
 • Goal: Comprehensive data exploration and understanding
 • Steps: 9
@@ -1632,21 +1749,21 @@ oMixedData.AdaptiveAnalysis()
 ╰─> Median: 100
 
 ✅ Step 6/9: Variability
-╰─> Std Dev: 90.5341
+╰─> Std Dev: 14.8219
 
 ✅ Step 7/9: Distribution shape
 ╰─> Quartiles: 3 value(s)
 
 ✅ Step 8/9: Asymmetry check
-╰─> Skewness: 0.0373
+╰─> Skewness: 0.1744
 
 ✅ Step 9/9: Outlier detection
 ╰─> Outliers present: 1
 
-( Plan completed in 0.1030s : 9 successful step(s), 0 error(s) )
+( Plan completed in 0.0460s : 9 successful step(s), 0 error(s) )
 
 ~> Outliers found, performing detailed outlier analysis...
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ╭────────────────────────────────────────────────╮
 │ Executing Plan: Outlier Detection and Analysis │
@@ -1665,7 +1782,7 @@ oMixedData.AdaptiveAnalysis()
 ╰─> ZScores: 30 value(s)
 
 ✅ Step 4/7: Mean with outliers
-╰─> Mean: 0.0373
+╰─> Mean: 102.6333
 
 ✅ Step 5/7: Robust mean (10% trimmed)
 ╰─> TrimmedMean: 100.0833
@@ -1676,10 +1793,10 @@ oMixedData.AdaptiveAnalysis()
 ✅ Step 7/7: Outlier-resistant scaling
 ╰─> RobustScale: 30 value(s)
 
-( Plan completed in 0.0750s : 7 successful step(s), 0 error(s) )
+( Plan completed in 0.0320s : 7 successful step(s), 0 error(s) )
 
 ~> Sufficient sample size, testing normality assumptions...
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 ╭───────────────────────────────────────────╮
 │ Executing Plan: Normality Assessment Plan │
@@ -1692,13 +1809,13 @@ oMixedData.AdaptiveAnalysis()
 ╰─> Sample size: 30
 
 ✅ Step 2/6: Formal normality test
-╰─> Normality p-value: [ "skewness", 0.0375 ]
+╰─> Normality p-value: [ "skewness", 0.1744 ]
 
 ✅ Step 3/6: Check asymmetry
-╰─> Skewness: 0.1462
+╰─> Skewness: 0.1744
 
 ✅ Step 4/6: Check tail behavior
-╰─> Kurtosis: -2.4901
+╰─> Kurtosis: -2.2873
 
 ✅ Step 5/6: Visual normality indicators
 ╰─> BoxPlotStats: 8 value(s)
@@ -1706,10 +1823,40 @@ oMixedData.AdaptiveAnalysis()
 ✅ Step 6/6: Outlier impact on normality
 ╰─> Outliers: 1 value(s)
 
-( Plan completed in 0.0610s : 6 successful step(s), 0 error(s) )
-'
+( Plan completed in 0.0220s : 6 successful step(s), 0 error(s) )
+
+~> Trend pattern identified, analyzing temporal behavior...
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+╭────────────────────────────────────────────╮
+│ Executing Plan: Time Series Trend Analysis │
+╰────────────────────────────────────────────╯
+• Name: {trends}
+• Goal: Analyze temporal patterns and trends
+• Steps: 6
+
+✅ Step 1/6: Check sufficient data points
+╰─> Sample size: 30
+
+✅ Step 2/6: Overall trend direction
+❌ Error: Error (R21) : Using operator with values of incorrect type
+
+✅ Step 3/6: Smooth short-term fluctuations
+╰─> MovingAverage: 26 value(s)
+
+✅ Step 4/6: Long-term trend smoothing
+╰─> MovingAverage: 21 value(s)
+
+✅ Step 5/6: Trend stability assessment
+╰─> Std Dev: 14.8219
+
+✅ Step 6/6: Trend magnitude
+╰─> Range: 85
+
+( Plan completed in 0.0270s : 6 successful step(s), 1 error(s) )
+`
 
 pf()
+# Executed in 0.1220 second(s) in Ring 1.24
 # Executed in 0.2430 second(s) in Ring 1.22
 
 
