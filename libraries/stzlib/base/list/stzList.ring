@@ -399,6 +399,12 @@ func Repeat(value, nTimes)
 	func @RpeatInAList(value, nTimes)
 		return Repeat(value, nTimes)
 
+	func RepeatN(value, nTimes)
+		return Repeat(value, nTimes)
+
+	func @RepeatN(value, nTimes)
+		return Repeat(value, nTimes)
+
 	#>
 
 
@@ -83719,6 +83725,73 @@ fdef
 		def IsAndOrToOrToNodeNamedParam()
 			return This.IsToOrToNodeOrAndNamedParam()
 
+	def IsToOrToNodeOrUntilReachFNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([
+			"to", "tonode", "untilreachf", "untilyoureachf",
+			"untilyoureachf", "untilreachingf" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsOfOrOfPlanNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([
+			"of", "ofplan", "plan" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsInOrInPlanNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([
+			"in", "inplan", "plan" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsOforOfPlanOrInOrInPlanNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([
+			"of", "ofplan", "in", "inplan", "plan" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsPlanOrInPlanNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([
+			"plan", "inplan" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IsInPlanOrPlanNamedParam()
+			return This.IsPlanOrInPlanNamedParam()
+
+	def IsPlanOrOfPlanNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([
+			"plan", "ofplan" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IsOfPlanOrPlanNamedParam()
+			return This.IsPlanOrOfPlanNamedParam()
+
 	def IsFromNodeNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and  This.Item(1) = :FromNode )
@@ -83728,6 +83801,39 @@ fdef
 		else
 			return 0
 		ok
+
+	def IsInPlanNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :InPlan )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+	def IsOfPlanNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  This.Item(1) = :OfPlan )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+	def IsInPlanOrOfPlanNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  ring_find([ "inplan", "ofplan" ], This.Item(1)) )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+		def IsOfPlanOrInPlanNamedParam()
+			return This.IsInPlanOrOfPlanNamedParam()
 
 	def IsFromOrFromNodeNamedParam()
 		if This.NumberOfItems() = 2 and

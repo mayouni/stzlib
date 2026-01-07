@@ -65,41 +65,43 @@ pr()
 
 oGraph = new stzGraph("linear")
 oGraph {
-	# Each node has x,y coordinates for spatial heuristics
 	AddNodeXTT("A", "Start Point", [:x = 0, :y = 0])
 	AddNodeXTT("B", "Middle Point", [:x = 10, :y = 0])
 	AddNodeXTT("C", "End Point", [:x = 20, :y = 0])
 	
-	# Edges have a "distance" property that becomes the cost
 	AddEdgeXTT("A", "B", "road", [:distance = 10])
 	AddEdgeXTT("B", "C", "road", [:distance = 10])
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
 
-# Fluent API: StartingFrom -> To_ -> Minimizing -> Execute
-oPlan = oPlanner.Plan()
-	.StartingFrom("A")      # Where we begin
-	.To_("C")               # Where we want to go
-	.Minimizing("distance") # What property to optimize
-	.Execute()              # Run the planner
+	AddPlan("linear_path") # You can add many plans
+	# The current plan is set automatically to the first plan created
+	# But you can set it explicitely by SetCurrentPlan(cPlanName)
+	# And you can the current plan by CurrentPlan()
 
-? oPlan.Cost()
-#--> 20 (total distance: 10 + 10)
+	WalkFrom("A", :To = "C")
+	Minimizing("distance") # Or MinimizeXT("distance", :InPlan = "linear_path")
 
-? @@( oPlan.States() )
-#--> [ "a", "b", "c" ]
-# Note: Node IDs are normalized to lowercase
+	Execute() # Or ExecuteXT("linear_path")
 
-? oPlan.Explain()
-#--> Step 1: a -> b (cost: 10)
-#    Step 2: b -> c (cost: 10)
+	? Cost()
+	#--> 20
+
+	? @@( States() )
+	#--> [ "a", "b", "c" ]
+
+	? Explain()
+	#--> Step 1: a -> b (cost: 10)
+	#    Step 2: b -> c (cost: 10)
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Example 1.2: Path with Choice - A* Picks Optimal
-  
+
 `
   CONCEPT: When multiple paths exist, A* explores smartly
   
@@ -124,12 +126,11 @@ pf()
 
 pr()
 
+# Create a graph object
+
 oGraph = new stzGraph("diamond")
 oGraph {
-	AddNode("A")
-	AddNode("B")
-	AddNode("C")
-	AddNode("D")
+	AddNodes([ "A", "B", "C", "D" ])
 	
 	# Two routes from A
 	AddEdgeXTT("A", "B", "slow_road", [:distance = 20])
@@ -138,35 +139,46 @@ oGraph {
 	# Both converge at D
 	AddEdgeXTT("B", "D", "road", [:distance = 5])
 	AddEdgeXTT("C", "D", "road", [:distance = 10])
+
 }
 
+# Make some planning on the graph created
+
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("A")
-	.To_("D")
-	.Minimizing("distance")
-	.Execute()
+	# Make a named plan (you can make many)
+	AddPlan('optimal_path')
 
-? oPlan.Cost()
-#--> 15 (not 25! A* found the cheaper route)
+	# Define the path and the planning request
+	Walk(:From = "A", :To = "D")
+	Minimizing("distance")
 
-? @@( oPlan.States() )
-#--> [ "a", "c", "d" ]
-# Took the fast_road to C, then to D
+	# Run the plan
+	Execute()
 
-? @@NL( oPlan.Actions() )
-#--> Full action breakdown showing each transition and its cost
-# [
-# 	[ [ "from", "a" ], [ "to", "c" ], [ "cost", 5 ] ],
-# 	[ [ "from", "c" ], [ "to", "d" ], [ "cost", 10 ] ]
-# ]
+	# Get some insights of the plan
+
+	? Cost() # Or CostXT("optimal_path")
+	#--> 15 (not 25! A* found the cheaper route)
+
+	? @@( States() ) # Or StatesXT("optimal_path")
+	#--> [ "a", "c", "d" ]
+	# Took the fast_road to C, then to D
+
+	? @@NL( Actions() ) # Or ActionsXT("optimal_path")
+	#--> Full action breakdown showing each transition and its cost
+	# [
+	# 	[ [ "from", "a" ], [ "to", "c" ], [ "cost", 5 ] ],
+	# 	[ [ "from", "c" ], [ "to", "d" ], [ "cost", 10 ] ]
+	# ]
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Example 1.3: Complex Grid - Finding Optimal Path in Maze
-  
+
 `
   CONCEPT: A* shines when there are many possible routes
   
@@ -192,25 +204,22 @@ pr()
 
 oGraph = new stzGraph("grid3x3")
 oGraph {
-	# Create 9 nodes in a 3x3 grid
 	for i = 1 to 9
 		AddNodeXTT("n" + i, "Node " + i, [
-			:x = ((i-1) % 3) * 10,      # Column position
-			:y = floor((i-1) / 3) * 10  # Row position
+			:x = ((i-1) % 3) * 10,
+			:y = floor((i-1) / 3) * 10
 		])
 	next
 	
-	# Horizontal edges (most are expensive except middle row)
 	AddEdgeXTT("n1", "n2", "h", [:cost = 10])
 	AddEdgeXTT("n2", "n3", "h", [:cost = 10])
-	AddEdgeXTT("n4", "n5", "h", [:cost = 1])  # Cheap!
-	AddEdgeXTT("n5", "n6", "h", [:cost = 1])  # Cheap!
+	AddEdgeXTT("n4", "n5", "h", [:cost = 1])
+	AddEdgeXTT("n5", "n6", "h", [:cost = 1])
 	AddEdgeXTT("n7", "n8", "h", [:cost = 10])
 	AddEdgeXTT("n8", "n9", "h", [:cost = 10])
 	
-	# Vertical edges (only n2->n5 is cheap)
 	AddEdgeXTT("n1", "n4", "v", [:cost = 10])
-	AddEdgeXTT("n2", "n5", "v", [:cost = 1])  # Cheap!
+	AddEdgeXTT("n2", "n5", "v", [:cost = 1])
 	AddEdgeXTT("n3", "n6", "v", [:cost = 10])
 	AddEdgeXTT("n4", "n7", "v", [:cost = 10])
 	AddEdgeXTT("n5", "n8", "v", [:cost = 10])
@@ -219,19 +228,20 @@ oGraph {
 
 oPlanner = new stzGraphPlanner(oGraph)
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("n1")
-	.To_("n9")
-	.Minimizing("cost")
-	.Execute()
+oPlanner.AddPlan("grid_path")
+oPlanner.Walk("n1", "n9")
+oPlanner.Minimize("cost")
+oPlanner.Execute()
 
-? oPlan.Cost()
-#--> 22 (found the middle corridor strategy!)
+? oPlanner.Cost()
+#--> 22
+# (found the middle corridor strategy!)
 # Breakdown: 10(n1->n2) + 1(n2->n5) + 1(n5->n6) + 10(n6->n9) = 22
 
-? @@( oPlan.States() )
+? @@( oPlanner.States() )
 #--> [ "n1", "n2", "n5", "n6", "n9" ]
-# Path visualization: Goes right, drops to middle row, continues right, drops to bottom
+# Path visualization: Goes right, drops to middle row,
+# continues right, drops to bottom
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.24
@@ -309,37 +319,42 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	
+	AddPlan("rpg_plan")
 
-# ToReach() takes a function that checks if goal is met
-oPlan = oPlanner.Plan()
-	.StartingFrom("village")
-	.ToReachF(func(node) {
-		# Called for each node explored
-		# Return TRUE when this is an acceptable goal
-		return node[:properties][:gold] >= 1000
-	})
-	.Minimizing("danger")  # Still optimize for safety
-	.Execute()
+	Walk(
+		:FromNode = "village",
+		:UntilYouReachF = func(node) {
+			# Called for each node explored
+			# Return TRUE when this is an acceptable goal
+			return node[:properties][:gold] >= 1000
+		}
+	)
 
-? oPlan.Cost()
-#--> 9 (danger: 2 to forest, 7 to dungeon)
+	Minimizing(:for = "danger")  # Still optimize for safety
+	Execute()
 
-? @@( oPlan.States() )
-#--> [ "village", "forest", "dungeon" ]
-# Went to dungeon because it's the closest location with 1000+ gold
+	? Cost()
+	#--> 9 (danger: 2 to forest, 7 to dungeon)
 
-? @@NL( oPlan.Actions() )
-#--> Action sequence showing the quest path
-# [
-# 	[ [ "from", "village" ], [ "to", "forest" ], [ "cost", 2 ] ],
-# 	[ [ "from", "forest" ], [ "to", "dungeon" ], [ "cost", 7 ] ]
-# ]
+	? @@( States() )
+	#--> [ "village", "forest", "dungeon" ]
+	# Went to dungeon because it's the closest location with 1000+ gold
+
+	? @@NL( Actions() )
+	#--> Action sequence showing the quest path
+	# [
+	# 	[ [ "from", "village" ], [ "to", "forest" ], [ "cost", 2 ] ],
+	# 	[ [ "from", "forest" ], [ "to", "dungeon" ], [ "cost", 7 ] ]
+	# ]
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Example 2.2: Treasure Hunt - Multi-Condition Goal
-  
+
 `
   CONCEPT: Goal functions can check complex conditions
   
@@ -394,30 +409,35 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	AddPlan("multi_goal_plan")
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("start")
-	.ToReach(func(node) {
-		# Simplified: just reach treasury
-		return node[:id] = "treasury"
-	})
-	.Minimizing("time")
-	.Execute()
+	Walk(
+		:FromNode = "start",
+		:UntilYouReachF = func(node) {
+			# Simplified: just reach treasury
+			return node[:id] = "treasury"
+		}
+	)
 
-? oPlan.Cost()
-#--> 28 (5 + 8 + 15, via shop route)
+	Minimizing("time")
+	Execute()
 
-? @@( oPlan.States() )
-#--> [ "start", "shop", "vault", "treasury" ]
-# Skipped crypt because shop route is faster
+	? Cost()
+	#--> 28 (5 + 8 + 15, via shop route)
 
-? @@NL( oPlan.Actions() )
-#-->
-# [
-# 	[ [ "from", "start" ], [ "to", "shop" ], [ "cost", 5 ] ],
-# 	[ [ "from", "shop" ], [ "to", "vault" ], [ "cost", 8 ] ],
-# 	[ [ "from", "vault" ], [ "to", "treasury" ], [ "cost", 15 ] ]
-# ]
+	? @@( States() )
+	#--> [ "start", "shop", "vault", "treasury" ]
+	# Skipped crypt because shop route is faster
+
+	? @@NL( Actions() )
+	#-->
+	# [
+	# 	[ [ "from", "start" ], [ "to", "shop" ], [ "cost", 5 ] ],
+	# 	[ [ "from", "shop" ], [ "to", "vault" ], [ "cost", 8 ] ],
+	# 	[ [ "from", "vault" ], [ "to", "treasury" ], [ "cost", 15 ] ]
+	# ]
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -427,7 +447,7 @@ pf()
 #============================================#
 
 /*--- Example 3.1: Warehouse Navigation - Discovering Shortcuts
-  
+ 
 `
   CONCEPT: A* automatically discovers shortcuts you define
   
@@ -501,25 +521,25 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	AddPlan("shortcut")
+	Walk(:FromNode = "entrance", :ToNode = "shelf_42")
+	Minimizing(:for = "distance")
+	Execute()
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("entrance")
-	.To_("shelf_42")
-	.Minimizing("distance")
-	.Execute()
+	? Cost()
+	#--> 45 (used the shortcut!)
 
-? oPlan.Cost()
-#--> 45 (used the shortcut!)
-
-? @@( oPlan.States() )
-#--> [ "entrance", "receiving", "storage", "shelf_42" ]
-# Skipped aisle_a and aisle_b entirely
+	? @@( States() )
+	#--> [ "entrance", "receiving", "storage", "shelf_42" ]
+	# Skipped aisle_a and aisle_b entirely
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Example 3.2: Multi-Stop Delivery
-  
+
 `
   CONCEPT: Simple goal = just reach exit optimally
   
@@ -551,19 +571,19 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
-oPlan = oPlanner.Plan()
-	.StartingFrom("dock")
-	.To_("exit")
-	.Minimizing("time")
-	.Execute()
+oPlanner {
+	AddPlan("multi_stop")
+	Walk(:FromNode = "dock", :ToNode = "exit")
+	Minimizing("time")
+	Execute()
 
-? oPlan.Cost()
-#--> 17 (skipped zone_a!)
+	? Cost()
+	#--> 17 (skipped zone_a!)
 
-? @@( oPlan.States() )
-
-#--> [ "dock", "zone_b", "zone_c", "exit" ]
-# Took shortcut directly to zone_b
+	? @@( States() )
+	#--> [ "dock", "zone_b", "zone_c", "exit" ]
+	# Took shortcut directly to zone_b
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -573,7 +593,7 @@ pf()
 #============================================#
 
 /*--- Example 4.1: Production Line Optimization
-  
+
 `
   CONCEPT: Manufacturing often has optional steps
   
@@ -651,21 +671,22 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	AddPlan("prod_optim")
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("raw")
-	.To_("finished")
-	.Minimizing("time")
-	.Execute()
+	Walk(:FromNode = "raw", :ToNode = "finished")
+	Minimizing("time")
+	Execute()
 
-? oPlan.Cost()
-#--> 32 (skipped polishing!)
-# Breakdown: 10(cut) + 15(shape) + 2(skip_polish) + 5(finish) = 32
-# vs. standard: 10 + 15 + 8 + 20 + 5 = 58
-
-? @@( oPlan.States() )
-#--> [ "raw", "cut", "shape", "assemble", "finished" ]
-# No "polish" in the path
+	? Cost()
+	#--> 32 (skipped polishing!)
+	# Breakdown: 10(cut) + 15(shape) + 2(skip_polish) + 5(finish) = 32
+	# vs. standard: 10 + 15 + 8 + 20 + 5 = 58
+	
+	? @@( States() )
+	#--> [ "raw", "cut", "shape", "assemble", "finished" ]
+	# No "polish" in the path
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -717,18 +738,18 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	AddPlan("optim_cost")
+	Walk(:From = "start", :To = "end")
+	Minimizing("cost")  # Optimize for cost, not quality
+	Execute()
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("start")
-	.To_("end")
-	.Minimizing("cost")  # Optimize for cost, not quality
-	.Execute()
+	? Cost()
+	#--> 75 (chose budget route: 30 + 25 + 20)
 
-? oPlan.Cost()
-#--> 75 (chose budget route: 30 + 25 + 20)
-
-? @@( oPlan.States() )
-#--> [ "start", "process_b", "process_c", "end" ]
+	? @@( States() )
+	#--> [ "start", "process_b", "process_c", "end" ]
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -781,19 +802,19 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	AddPlan("network_route")
+	Walk(:From = "client", :To = "origin")
+	Minimizing("latency")
+	Execute()
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("client")
-	.To_("origin")
-	.Minimizing("latency")
-	.Execute()
+	? Cost()
+	#--> 35 (found fast route through CDN)
 
-? oPlan.Cost()
-#--> 35 (found fast route through CDN)
-
-? @@( oPlan.States() )
-#--> [ "client", "router1", "cdn", "origin" ]
-# Used direct router1->cdn link, saving 3ms vs. going through router2
+	? @@( States() )
+	#--> [ "client", "router1", "cdn", "origin" ]
+	# Used direct router1->cdn link, saving 3ms vs. going through router2
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -862,19 +883,19 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	AddPlan("safe_path")
+	Walk(:From = "spawn", :To = "objective")
+	Minimizing("danger")
+	Execute()
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("spawn")
-	.To_("objective")
-	.Minimizing("danger")
-	.Execute()
+	? Cost()
+	#--> 11 (safer forest route, not 13 from open field)
 
-? oPlan.Cost()
-#--> 11 (safer forest route, not 13 from open field)
-
-? @@( oPlan.States() )
-#--> [ "spawn", "forest", "river", "hill", "objective" ]
-# NPC wisely avoided the dangerous open field
+	? @@( States() )
+	#--> [ "spawn", "forest", "river", "hill", "objective" ]
+	# NPC wisely avoided the dangerous open field
+}
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.24
@@ -884,7 +905,7 @@ pf()
 #============================================#
 
 /*--- Example 7.1: Last-Mile Delivery Optimization
-  
+
 `
   CONCEPT: Real-world routing considers multiple factors
   
@@ -966,18 +987,18 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	AddPlan("delivery_plan")
+	Walk(:From = "warehouse", :To = "customer")
+	Minimizing("time")
+	Execute()
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("warehouse")
-	.To_("customer")
-	.Minimizing("time")
-	.Execute()
+	? Cost()
+	#--> 41
 
-? oPlan.Cost()
-#--> 41
-
-? @@( oPlan.States() )
-#--> [ "warehouse", "suburb_b", "downtown", "customer" ]
+	? @@( States() )
+	#--> [ "warehouse", "suburb_b", "downtown", "customer" ]
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -1062,19 +1083,19 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	AddPlan("emergency_response")
+	Walk(:From = "station", :To = "emergency_site")
+	Minimizing("time")
+	Execute()
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("station")
-	.To_("emergency_site")
-	.Minimizing("time")
-	.Execute()
+	? Cost()
+	#--> 12 (back road route saves 4 minutes!)
 
-? oPlan.Cost()
-#--> 12 (back road route saves 4 minutes!)
-
-? @@( oPlan.States() )
-#--> [ "station", "back_road", "hospital", "emergency_site" ]
-# Avoided congested bridge, potentially saving lives
+	? @@( States() )
+	#--> [ "station", "back_road", "hospital", "emergency_site" ]
+	# Avoided congested bridge, potentially saving lives
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -1132,24 +1153,24 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	# Navigate from bottom-left to top-right
+	AddPlan("spatial_nav")
+	Walk(:From = "p0_0", :To = "p3_3")
+	Minimizing("cost")
+	Execute()
 
-# Navigate from bottom-left to top-right
-oPlan = oPlanner.Plan()
-	.StartingFrom("p0_0")
-	.To_("p3_3")
-	.Minimizing("cost")
-	.Execute()
+	? Cost()
+	#--> 60 (6 moves × 10 cost each)
 
-? oPlan.Cost()
-#--> 60 (6 moves × 10 cost each)
+	? len(States())
+	#--> 7 (start + 6 moves)
 
-? len(oPlan.States())
-#--> 7 (start + 6 moves)
-
-? @@( oPlan.States() )
-#--> [ "p0_0", "p1_0", "p2_0", "p3_0", "p3_1", "p3_2", "p3_3" ]
-# Went right-right-right, then down-down-down
-# Euclidean heuristic guided toward goal efficiently!
+	? @@( States() )
+	#--> [ "p0_0", "p1_0", "p2_0", "p3_0", "p3_1", "p3_2", "p3_3" ]
+	# Went right-right-right, then down-down-down
+	# Euclidean heuristic guided toward goal efficiently!
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -1195,19 +1216,19 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	AddPlan("demo_plan")
+	Walk(:From = "A", :To = "D")
+	Minimizing("cost")
+	Execute()
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("A")
-	.To_("D")
-	.Minimizing("cost")
-	.Execute()
+	? Cost()
+	#--> 5 (A->C->D, not A->B->D which would be 6)
 
-? oPlan.Cost()
-#--> 5 (A->C->D, not A->B->D which would be 6)
-
-? @@( oPlan.States() )
-#--> [ "a", "c", "d" ]
-# A* correctly chose the C route even though B looked cheaper at first
+	? @@( States() )
+	#--> [ "a", "c", "d" ]
+	# A* correctly chose the C route even though B looked cheaper at first
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -1251,24 +1272,24 @@ oGraph {
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+	AddPlan("supply_chain_plan")
+	Walk(:From = "supplier", :To = "retail")
+	Minimizing("cost")
+	Execute()
 
-oPlan = oPlanner.Plan()
-	.StartingFrom("supplier")
-	.To_("retail")
-	.Minimizing("cost")
-	.Execute()
+	? Cost()
+	#--> 1700 	~> (1000 + 500 + 200)
 
-? oPlan.Cost()
-#--> 1700 (1000 + 500 + 200)
+	? Explain()
+	#--> (Human-readable step-by-step explanation):
+	# Step 1: supplier -> factory (cost: 1000)
+	# Step 2: factory -> warehouse (cost: 500)
+	# Step 3: warehouse -> retail (cost: 200)
 
-? oPlan.Explain()
-#--> Human-readable step-by-step explanation
-# Step 1: supplier -> factory (cost: 1000)
-# Step 2: factory -> warehouse (cost: 500)
-# Step 3: warehouse -> retail (cost: 200)
-
-? @@( oPlan.States() )
-#--> [ "supplier", "factory", "warehouse", "retail" ]
+	? @@( States() )
+	#--> [ "supplier", "factory", "warehouse", "retail" ]
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
@@ -1315,33 +1336,38 @@ oGraph {
 oPlanner = new stzGraphPlanner(oGraph)
 
 # Approach 1: A* with exact destination
-oPlan1 = oPlanner.Plan()
-	.StartingFrom("home")
-	.To_("chest")  # Know exact location
-	.Minimizing("distance")
-	.Execute()
+oPlanner {
+	AddPlan("exact_dest")
+	Walk(:From = "home", :To = "chest")  # Know exact location
+	Minimizing("distance")
+	Execute()
 
-? oPlan1.Cost()
-#--> 30
+	? Cost()
+	#--> 30
 
-? @@( oPlan1.States() )
-#--> [ "home", "town", "cave", "chest" ]
+	? @@( States() )
+	#--> [ "home", "town", "cave", "chest" ]
+}
 
 # Approach 2: Goal-based search for condition
-oPlan2 = oPlanner.Plan()
-	.StartingFrom("home")
-	.ToReach(func(node) {
-		return node[:properties][:has_treasure] = TRUE
-	})
-	.Minimizing("distance")
-	.Execute()
+oPlanner {
+	AddPlan("condition_based")
+	Walk(
+		:From = "home",
+		:UntilYouReachF = func(node) {
+			return node[:properties][:has_treasure] = TRUE
+		}
+	)
+	Minimizing("distance")
+	Execute()
 
-? oPlan2.Cost()
-#--> 30 (same result)
+	? Cost()
+	#--> 30 (same result)
 
-? @@( oPlan2.States() )
-#--> [ "home", "town", "cave", "chest" ]
-# Both approaches work! Choose based on whether you know the exact target.
+	? @@( States() )
+	#--> [ "home", "town", "cave", "chest" ]
+	# Both approaches work! Choose based on whether you know the exact target.
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.24

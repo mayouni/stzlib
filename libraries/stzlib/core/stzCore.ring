@@ -2,7 +2,7 @@
 
 # Loading external extensions
 
-    load "lightguilib.ring"
+    //load "lightguilib.ring"
 
 # Loading files in COMMON module
 

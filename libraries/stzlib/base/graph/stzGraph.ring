@@ -175,7 +175,7 @@ class stzGraph
 			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
 
-		if ring_find(This.NodesIds(), pcNodeId) > 0
+		if ring_find(This.NodesIds(), lower(pcNodeId)) > 0
 			return 1
 		else
 			return 0
@@ -351,7 +351,7 @@ class stzGraph
 			acPath = paPaths[i]
 			nLen = len(acPath)
 			if nLen > 0
-				cNodeId = acPath[nLen]
+				cNodeId = lower(acPath[nLen])
 				if ring_find(acToRemove, cNodeId) = 0
 					acToRemove + cNodeId
 				ok
