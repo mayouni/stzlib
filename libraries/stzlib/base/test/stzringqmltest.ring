@@ -17,8 +17,7 @@ load 'stdlibcore.ring'
 
 /*--- Sample 1.1: The Absolute Minimum - Hello RingQML
 # Use case: Basic structure, Window creation, Text display
-
-
+*/
 	new qApp {
 		oQML = new RingQML(NULL)
 		oQML.LoadContent(QML_1_1())
@@ -51,7 +50,6 @@ load 'stdlibcore.ring'
 
 /*--- Sample 1.2: Understanding the Rectangle - The Building Block
 # Use case: Rectangle properties, color, dimensions
-
 
 	new qApp {
 	        oQML = new RingQML(NULL) {
@@ -93,7 +91,6 @@ load 'stdlibcore.ring'
 
 /*--- Sample 1.3: Anchoring System - Relative Positioning
 # Use case: How QML handles layout without hardcoded positions
-
 
 	new qApp {
 		oQML = new RingQML(NULL)
@@ -159,7 +156,6 @@ load 'stdlibcore.ring'
 
 /*--- Sample 2.1: Column Layout - Vertical Organization
 # Use case: Automatic vertical stacking with spacing
-
 
 	new qApp {
 		oQML = new RingQML(NULL)
@@ -235,7 +231,6 @@ load 'stdlibcore.ring'
 /*--- Sample 2.2: Row Layout - Horizontal Organization
 # Use case: Horizontal arrangement of elements
 
-
 	new qApp {
 		oQML = new RingQML(NULL)
 		oQML.LoadContent(QML_2_2())
@@ -289,7 +284,6 @@ load 'stdlibcore.ring'
 /*--- Sample 2.3: Grid Layout - Two-Dimensional Organization
 # Use case: Grid for structured 2D layouts
 
-
 	new qApp {
 		oQML = new RingQML(NULL)
 		oQML.LoadContent(QML_2_3())
@@ -341,7 +335,7 @@ load 'stdlibcore.ring'
 
 /*--- Sample 2.4: Adaptive Layout - Mobile & Desktop Ready
 # Use case: Responsive design based on window dimensions
-
+*/
 
 	new qApp {
 	        oQML = new RingQML(NULL) {

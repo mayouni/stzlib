@@ -1,16 +1,14 @@
-digraph Trounées_Niamey {
+digraph diamond {
   rankdir=TD;
   node [shape=box];
 
-  depot [label="@depot"];
-  plateau [label="@plateau"];
-  lamorde [label="@lamorde"];
-  yantala [label="@yantala"];
-  aeroport [label="@aeroport"];
+  a [label="A"];
+  b [label="B"];
+  c [label="C"];
+  d [label="D"];
 
-  depot -> plateau [label="8_km"];
-  depot -> yantala [label="12_km"];
-  plateau -> lamorde [label="10_km"];
-  yantala -> aeroport [label="15_km"];
-  lamorde -> aeroport [label="18_km"];
+  a -> b [label="slow_road"];
+  a -> c [label="fast_road"];
+  b -> d [label="road"];
+  c -> d [label="road"];
 }

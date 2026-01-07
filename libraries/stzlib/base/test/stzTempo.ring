@@ -336,9 +336,9 @@ Dépôt → Yantala → Aéroport (27km)"
 */
 pr()
 
-Contexte : Le resto doit décider combien de pizzas/salades produire
-Contraintes : temps préparation, personnel, fours disponibles
-Objectif : maximiser profit
+# Contexte : Le resto doit décider combien de pizzas/salades produire
+# Contraintes : temps préparation, personnel, fours disponibles
+# Objectif : maximiser profit
 
 oSolver = new stzLinearSolver()
 oSolver {
@@ -356,7 +356,9 @@ oSolver {
 }
 
 #-->
-📊 Plan de production optimal :
-   - Pizzas : 100
-   - Salades : 100
-💰 Profit attendu : $1800
+# 📊 Plan de production optimal :
+#    - Pizzas : 100
+#    - Salades : 100
+# 💰 Profit attendu : $1800
+
+pf()
