@@ -9,9 +9,14 @@ Softanza's Graph Module already gives you powerful tools for representing connec
 
 But structure alone doesn't make decisions. Once you have a graph—whether it's a warehouse layout, a workflow diagram, or a knowledge network—the next question emerges: **How do I navigate it optimally?**
 
-This is where **stzGraphPlanner** enters. It transforms your static graphs into *decision spaces*. You don't just have a network—you have a reasoning partner that finds optimal paths, explains choices, compares strategies, learns from history, and filters by constraints. Where other graph classes answer "what is the structure?", stzGraphPlanner answers "what should I do?"
+This is where **stzGraphPlanner** enters. It transforms your static graphs into *decision spaces*. You don't just have a network—you have a reasoning partner that finds optimal paths, explains choices, compares strategies, learns from history, and filters by constraints. Where other graph classes answer "what is the structure?", `stzGraphPlanner` answers "what should I do?"
 
----
+### Plans Are More Than Paths
+
+A plan in **stzGraphPlanner** is not just a route—it is a **measurable decision artifact**. Every plan carries structured attributes: total cost, number of steps, and domain-specific metrics you define (energy, risk, time, reliability, score). These attributes are computed during planning and remain attached to the plan object for its entire lifecycle.
+
+This means plans can be inspected, compared, ranked, filtered, and reused without re-executing the graph traversal. A plan behaves like a record of reasoning: *what was chosen, how expensive it was, and why it scored the way it did*.
+
 
 ## The Question That Makes It Real
 
@@ -25,31 +30,134 @@ Traditional answer: Implement complex pathfinding algorithms. Manage data struct
 
 Softanza answer: **Describe what you want. The planner figures out how.**
 
+To see it by code, let's design the warehouse graph object first:
 ```ring
-oPlanner = new stzGraphPlanner(oGraph)
-oPlanner {
-    AddPlan("warehouse_route")
-    Walk(:From = "entrance", :To = "shelf_42")
-    Minimizing("distance")
-    Execute()
-    
-    // Now see the results
-    ? Cost()
-    #--> 45
-    
-    ? Route()
-    #--> [ "entrance", "receiving", "storage", "shelf_42" ]
-    
-    ? Explain()
-    #--> Step 1: entrance -> receiving (cost: 10)
-    #    Step 2: receiving -> storage (cost: 25)
-    #    Step 3: storage -> shelf_42 (cost: 10)
+oGraph = new stzGraph("warehouse")
+oGraph {
+	# Node structure of the warehaouse
+	AddNodes([ "entrance", "receiving", "aisle_a", "aisle_b", "storage", "shelf_42", "packing", "shipping")
+	
+	# The "normal" route through aisles along with a distance tag
+	AddEdgeXTT("entrance", "receiving", "hallway", [ :distance = 10 ])
+	AddEdgeXTT("receiving", "aisle_a", "hallway", [ :distance = 15 ])
+	AddEdgeXTT("aisle_a", "aisle_b", "cross_aisle", [ :distance = 12])
+	AddEdgeXTT("aisle_b", "storage", "hallway", [ :distance = 10 ])
+	AddEdgeXTT("storage", "shelf_42", "aisle", [ :distance = 10 ])
+	AddEdgeXTT("shelf_42", "packing", "hallway", [ :distance = 15 ])
+	AddEdgeXTT("packing", "shipping", "hallway", [ :distance = 12 ])
+	
+	# The SHORTCUT that warehouse workers know about (and that our planner should find)!
+	AddEdgeXTT("receiving", "storage", "shortcut", [ :distance = 25 ]
+	])
+
+    # Get a visual representation of the graph (will fire your borwser or any svg default viewer)
+    View()
 }
 ```
 
-Three lines to plan. Three lines to understand. No algorithm knowledge required. The robot finds its way, and you can ask: *Why this route? What alternatives existed? How does this compare to yesterday?*
+When `View()` is executed, Softanza translates this description into a **visual graph** that mirrors the structure you just declared. Every node becomes a _location box_. Every edge becomes a _corridor_. The diagram is not decorative—it is a faithful projection of your model.
 
-This is stzGraphPlanner—where graph structure meets strategic intelligence.
+The visual graph you get is the following (note how the **SHORTCUT** edge creates a direct link from **receiving** bay to cold **storage**, bypassing **aisle_a** and **aisle_b**):
+
+![srzgraphplanner-img01.png](./images/srzgraphplanner-img01.png)
+
+From the diagram alone, a human can _suspect_ that the **shortcut** might be advantageous. But the fact that a direct link exists does not necessarily mean it is shorter than the two-step route through **aisle_a** and **aisle_b**. The planner must compare the **sum of distances** on the two-step path with the distance of the shortcut, then decide objectively which route is optimal.
+
+To check that, let's do our planning staff by creating a `stzGraphPlanner` object based on the `oGraph` warehouse object we just designed:
+
+```ring
+oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+    // Describing our plan
+    AddPlan("warehouse_route")
+    Walk(:From = "entrance", :To = "shelf_42")
+    Minimizing("distance") # The "distance" tag we attache as a metadat to the grpah edges will define cost
+
+    // Executuing the plan (internal optimisations are made to find the optimal route)
+    Execute()
+    
+    // Now see the results : first what route has been selected by the planner
+    ? Route()
+    #--> [ "entrance", "receiving", "storage", "shelf_42" ]
+
+    // What is the cost of that route (in terms of "distance")
+    ? Cost()
+    #--> 45
+}
+```
+
+We can inspect how the planner reached the selected route while minimizing "distance" by using the `Explain()` method:
+
+```ring
+    ? @@NL( Explain() )
+```
+And so we get:
+```
+[
+	[ "plan", "warehouse_route" ],
+	[
+		"actions",
+		[
+			[
+				[ "from", "entrance" ],
+				[ "to", "receiving" ],
+				[ "cost", 10 ]
+			],
+			[
+				[ "from", "receiving" ],
+				[ "to", "storage" ],
+				[ "cost", 25 ]
+			],
+			[
+				[ "from", "storage" ],
+				[ "to", "shelf_42" ],
+				[ "cost", 10 ]
+			]
+		]
+	],
+	[ "total_cost", 45 ],
+	[
+		"route",
+		[
+			"entrance",
+			"receiving",
+			"storage",
+			"shelf_42"
+		]
+	],
+	[ "steps", 3 ]
+]
+```
+
+The output shows that the planner optimized the route in **three steps**: first from **"entrance"** to **"receiving"** (cost 10), then from **"receiving"** to **"storage"** (cost 25), and finally from **"storage"** to **"shelf\_42"** (cost 10), resulting in a total distance of **10 + 25 + 10 = 45**, and therefore selecting the route **\[ "entrance", "receiving", "storage", "shelf\_42" ]**.
+    
+  Now, we can ask the planner about the alternative routes it did not select by calling the `Alternatives()` method:
+
+```ring
+    ? @@NL( Alternatives() )
+```
+And so we get:
+```
+[
+	[ "plan", "warehouse_route" ],
+	[
+		"decision_points",
+		[
+			[
+				[ "node", "receiving" ],
+				[ "chosen", "aisle_a" ],
+				[ "total_options", 2 ]
+			]
+		]
+	]
+]
+```
+
+The output tells us that at each node with multiple neighbors (in our case, only at the **"receiving"** node), the planner had **two possible options**—as shown in the visual graph above: either going right through the direct **SHORTCUT** edge, or alternatively going left through the **"aisle_a"** node. These alternatives appear in the output precisely because it reports the routes that were considered but not selected.
+
+Three lines to plan. Three lines to understand. No algorithm knowledge required. Hundreds of lines of complex optimization and pathfinding code avoided. The robot finds its way, and you can go further by asking: _Why this route? How does the selected route compare to its alternatives? How does it compare to yesterday?_ And many more.
+
+This is **stzGraphPlanner**—where graph structure meets strategic intelligence.
 
 ### The Journey Ahead
 
@@ -73,7 +181,7 @@ The concepts may be subtle, but the code remains simple. By the end, you'll see 
 
 When you search, you explore until you find something. When you plan, you **reason about the best path** before taking a step. The difference is profound.
 
-Let's start with the fundamental act: getting from point A to point B. You've built a graph representing your warehouse layout—nodes are locations, edges are paths. Now you want to navigate it:
+Let's start with the fundamental act, taking the warehase example we made above as a background: getting from point A to point B. You've built a graph representing your warehouse layout—nodes are locations, edges are paths. Now you want to navigate it:
 
 ```ring
 oPlanner = new stzGraphPlanner(oGraph)
@@ -108,7 +216,54 @@ Your warehouse has a shortcut—a corridor that bypasses two aisles. But it's no
 
 You don't tell the planner about the shortcut. You just say "minimize distance." The planner **discovers** the shortcut by exploring intelligently. It uses smart search algorithms (like A*—a pathfinding algorithm that estimates which direction looks most promising) but you never had to implement them.
 
+```ring
+oGraph = new stzGraph("warehouse")
+oGraph {
+    AddNodeXTT("entrance", "Main Entrance", [:x = 0, :y = 0])
+    AddNodeXTT("receiving", "Receiving Bay", [:x = 10, :y = 0])
+    AddNodeXTT("aisle_a", "Aisle A", [:x = 20, :y = 0])
+    AddNodeXTT("aisle_b", "Aisle B", [:x = 20, :y = 10])
+    AddNodeXTT("storage", "Cold Storage", [:x = 30, :y = 10])
+    AddNodeXTT("shelf_42", "Shelf 42", [:x = 40, :y = 10])
+    
+    AddEdgeXTT("entrance", "receiving", "hallway", [:distance = 10])
+    AddEdgeXTT("receiving", "aisle_a", "hallway", [:distance = 15])
+    AddEdgeXTT("aisle_a", "aisle_b", "cross_aisle", [:distance = 12])
+    AddEdgeXTT("aisle_b", "storage", "hallway", [:distance = 10])
+    AddEdgeXTT("storage", "shelf_42", "aisle", [:distance = 10])
+    
+    // The SHORTCUT
+    AddEdgeXTT("receiving", "storage", "shortcut", [:distance = 25])
+}
+
+oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+    AddPlan("shortcut")
+    Walk(:FromNode = "entrance", :ToNode = "shelf_42")
+    Minimizing(:for = "distance")
+    Execute()
+
+    ? Cost()
+    #--> 45
+
+    ? @@( Route() )
+    #--> [ "entrance", "receiving", "storage", "shelf_42" ]
+}
+```
+
 **Principle**: *Planning is pattern discovery, not path following.*
+
+### Simulation Before Execution
+
+Planning in Softanza is fundamentally **non-destructive**. Evaluating a plan does not mean executing it in the real world. The planner simulates outcomes, computes costs, and explores alternatives entirely in memory.
+
+This allows you to ask powerful questions safely:
+
+- *What would happen if we chose this strategy?*
+- *Is this plan better than yesterday's?*
+- *How sensitive is this decision to cost changes?*
+
+Only after understanding the decision space do you choose whether—and how—to act.
 
 ---
 
@@ -144,6 +299,67 @@ You didn't specify a destination *node*. You specified a destination *condition*
 4. Still respects optimization criteria
 
 Result: `village → forest → dungeon` (cost: 9 danger points). The dungeon was nearest location with sufficient treasure, reached via the safest route.
+
+Here's the complete example:
+
+```ring
+oGraph = new stzGraph("rpg_world")
+oGraph {
+    AddNodeXTT("village", "Starting Village", [
+        :gold = 0, :hasKey = FALSE, :danger = 0
+    ])
+    
+    AddNodeXTT("forest", "Dark Forest", [
+        :gold = 500, :hasKey = FALSE, :danger = 3
+    ])
+    
+    AddNodeXTT("cave", "Mysterious Cave", [
+        :gold = 800, :hasKey = TRUE, :danger = 5
+    ])
+    
+    AddNodeXTT("dungeon", "Ancient Dungeon", [
+        :gold = 1500,  # This qualifies!
+        :hasKey = FALSE, :danger = 8
+    ])
+    
+    AddNodeXTT("castle", "Abandoned Castle", [
+        :gold = 800,  # Less than 1000
+        :hasKey = FALSE, :danger = 6
+    ])
+    
+    AddEdgeXTT("village", "forest", "path", [:danger = 2])
+    AddEdgeXTT("forest", "cave", "path", [:danger = 3])
+    AddEdgeXTT("forest", "dungeon", "path", [:danger = 7])
+    AddEdgeXTT("village", "castle", "path", [:danger = 5])
+}
+
+oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+    AddPlan("rpg_plan")
+    
+    Walk(
+        :FromNode = "village",
+        :UntilYouReachF = func(node) {
+            return node[:properties][:gold] >= 1000
+        }
+    )
+    
+    Minimizing(:for = "danger")
+    Execute()
+
+    ? Cost()
+    #--> 9
+
+    ? @@( Route() )
+    #--> [ "village", "forest", "dungeon" ]
+
+    ? @@NL( Actions() )
+    #--> [
+    #      [ [ "from", "village" ], [ "to", "forest" ], [ "cost", 2 ] ],
+    #      [ [ "from", "forest" ], [ "to", "dungeon" ], [ "cost", 7 ] ]
+    #    ]
+}
+```
 
 This pattern appears everywhere:
 - **Logistics**: "Find warehouse with 500+ units, closest to customer"
@@ -183,6 +399,67 @@ Step 2: suburb_a → downtown
 
 Now you see it: the second leg has heavy traffic (8 points). Not a mystery—just math, explained.
 
+Here's the complete example with code:
+
+```ring
+oGraph = new stzGraph("complex_route")
+oGraph {
+    AddNode("start")
+    AddNode("point_a")
+    AddNode("point_b")
+    AddNode("end")
+    
+    AddEdgeXTT("start", "point_a", "road", [:distance = 10, :traffic = 2])
+    AddEdgeXTT("point_a", "point_b", "road", [:distance = 15, :traffic = 8])
+    AddEdgeXTT("point_b", "end", "road", [:distance = 5, :traffic = 1])
+}
+
+oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+    AddPlan("route_analysis")
+    Walk(:From = "start", :To = "end")
+    Minimize("distance")
+    Minimize("traffic")
+    Execute()
+
+    ? @@NL( CostBreakdown() )
+    #--> [
+    #      [
+    #        [ "step", 1 ], [ "from", "start" ], [ "to", "point_a" ],
+    #        [ "criteria", [
+    #          [ [ "property", "distance" ], [ "value", 10 ], 
+    #            [ "weight", 1 ], [ "direction", "minimize" ], 
+    #            [ "contribution", 10 ] ],
+    #          [ [ "property", "traffic" ], [ "value", 2 ], 
+    #            [ "weight", 1 ], [ "direction", "minimize" ], 
+    #            [ "contribution", 2 ] ]
+    #        ]],
+    #        [ [ "total", 12 ] ]
+    #      ],
+    #      [
+    #        [ "step", 2 ], [ "from", "point_a" ], [ "to", "point_b" ],
+    #        [ "criteria", [
+    #          [ [ "property", "distance" ], [ "value", 15 ], 
+    #            [ "contribution", 15 ] ],
+    #          [ [ "property", "traffic" ], [ "value", 8 ], 
+    #            [ "contribution", 8 ] ]
+    #        ]],
+    #        [ [ "total", 23 ] ]
+    #      ],
+    #      [
+    #        [ "step", 3 ], [ "from", "point_b" ], [ "to", "end" ],
+    #        [ "criteria", [
+    #          [ [ "property", "distance" ], [ "value", 5 ], 
+    #            [ "contribution", 5 ] ],
+    #          [ [ "property", "traffic" ], [ "value", 1 ], 
+    #            [ "contribution", 1 ] ]
+    #        ]],
+    #        [ [ "total", 6 ] ]
+    #      ]
+    #    ]
+}
+```
+
 ### The "Why" Conversation
 
 Want more context?
@@ -210,6 +487,12 @@ Key decisions made:
 • At 'suburb_a', chose 'downtown' (3 options available)
 ```
 
+### Introspection by Design
+
+Every object produced by **stzGraphPlanner** is introspectable. Plans expose their paths, costs, steps, rankings, and comparison results through explicit queries—not logs or debug output.
+
+This is intentional. Instead of hiding intelligence inside algorithms, Softanza surfaces it as structured knowledge you can explore, explain, and audit. Planning becomes something you *reason about*, not something you merely *run*.
+
 In regulated industries (healthcare, finance, transportation), you may be **legally required** to explain automated decisions. With stzGraphPlanner, explanation is built in. The plan *knows* why it was created.
 
 ---
@@ -232,6 +515,14 @@ Using(:fastest)
 
 Six profiles come standard: `:fastest`, `:safest`, `:cheapest`, `:shortest`, `:balanced`, `:efficient`. Each encodes a common optimization strategy.
 
+### Fluent Planning Mirrors Human Reasoning
+
+The planner's fluent interface is not syntactic sugar—it mirrors how humans think about decisions. You start with intent, add constraints, explore alternatives, and only then evaluate outcomes.
+
+Each method returns the planner itself, allowing plans to be constructed progressively and read top-to-bottom like a sentence. The code becomes a narrative of reasoning, not a sequence of commands.
+
+In Softanza, fluency is about **cognitive alignment** between human thought and executable logic.
+
 ### Profiles in Action
 
 An ambulance dispatch system:
@@ -251,6 +542,46 @@ Execute()
 ```
 
 Same graph, same endpoints—different strategies. Profiles make strategy **part of the domain language**, not buried in code.
+
+Here's a complete example showing profile usage:
+
+```ring
+oGraph = new stzGraph("delivery_network")
+oGraph {
+    AddNodeXTT("warehouse", "Main Warehouse", [:x = 0, :y = 0])
+    AddNodeXTT("suburb_a", "Suburb A", [:x = 10, :y = 5])
+    AddNodeXTT("suburb_b", "Suburb B", [:x = 15, :y = 10])
+    AddNodeXTT("customer", "Customer Location", [:x = 25, :y = 20])
+    
+    AddEdgeXTT("warehouse", "suburb_a", "highway", [
+        :distance = 12, :time = 25, :cost = 10
+    ])
+    AddEdgeXTT("suburb_a", "customer", "road", [
+        :distance = 18, :time = 20, :cost = 15
+    ])
+    
+    AddEdgeXTT("warehouse", "suburb_b", "backroad", [
+        :distance = 20, :time = 20, :cost = 8
+    ])
+    AddEdgeXTT("suburb_b", "customer", "highway", [
+        :distance = 15, :time = 15, :cost = 12
+    ])
+}
+
+oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+    AddPlan("fast_delivery")
+    Walk(:From = "warehouse", :To = "customer")
+    Using(:fastest)
+    Execute()
+
+    ? Cost()
+    #--> 35
+    
+    ? @@( Route() )
+    #--> [ "warehouse", "suburb_b", "customer" ]
+}
+```
 
 ---
 
@@ -296,6 +627,59 @@ COST ANALYSIS:
   ✓ Plan 1 is faster, Plan 2 is cheaper
 ```
 
+Here's the complete example:
+
+```ring
+oGraph = new stzGraph("trade_off")
+oGraph {
+    AddNode("factory")
+    AddNode("process_premium")
+    AddNode("process_standard")
+    AddNode("shipping")
+    
+    AddEdgeXTT("factory", "process_premium", "premium", [
+        :cost = 100, :time = 5, :quality = 10
+    ])
+    AddEdgeXTT("process_premium", "shipping", "finish", [
+        :cost = 50, :time = 3, :quality = 10
+    ])
+    
+    AddEdgeXTT("factory", "process_standard", "standard", [
+        :cost = 30, :time = 15, :quality = 7
+    ])
+    AddEdgeXTT("process_standard", "shipping", "finish", [
+        :cost = 20, :time = 10, :quality = 7
+    ])
+}
+
+oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+    AddPlan("budget")
+    Walk(:From = "factory", :To = "shipping")
+    Using(:cheapest)
+    Execute()
+    
+    AddPlan("rush")
+    Walk(:From = "factory", :To = "shipping")
+    Using(:fastest)
+    Execute()
+    
+    SetCurrentPlan("budget")
+    ? @@NL( ExplainDifferenceWith("rush") )
+    #--> [
+    #      [ "plan1", "budget" ],
+    #      [ "plan2", "rush" ],
+    #      [ "same_path", FALSE ],
+    #      [ "route1", [ "factory", "process_standard", "shipping" ] ],
+    #      [ "route2", [ "factory", "process_premium", "shipping" ] ],
+    #      [ "diverge_at_step", 2 ],
+    #      [ "cost1", 40.40 ],
+    #      [ "cost2", 6.20 ],
+    #      [ "cheaper", "rush" ]
+    #    ]
+}
+```
+
 ### Trade-off Analysis
 
 ```ring
@@ -313,6 +697,28 @@ RECOMMENDATION:
 ```
 
 The comparison system doesn't make decisions for you. It **structures the decision** so you can judge intelligently.
+
+Complete trade-off example:
+
+```ring
+SetCurrentPlan("budget")
+? @@NL( ExplainTradeoffsAgainst("rush") )
+#--> [
+#      [ "plan1", "budget" ],
+#      [ "plan2", "rush" ],
+#      [ "cost_winner", "rush" ],
+#      [ "cost_savings", 34.20 ],
+#      [ "length_winner", "tie" ],
+#      [ "length_difference", 0 ],
+#      [ "recommendation", "Choose rush for cost optimization" ]
+#    ]
+
+? WhichIsCheaper("rush")
+#--> rush
+
+? CostSaving("rush")
+#--> 34.20
+```
 
 ---
 
@@ -345,6 +751,12 @@ Execute()
 oMulti = CompareMultiple(["ultra_fast", "budget", "short_distance", "balanced"])
 ```
 
+### Ranking as Structured Data
+
+When multiple plans are compared, **stzGraphPlanner does not produce text—it produces data**. Ranking tables are returned as structured collections that can be consumed programmatically by dashboards, reports, UI components, or analytics pipelines.
+
+This distinction matters. A ranking is not just something to *read*—it is something to *act upon*. The same ranking table can power a console display, a decision widget, an automated rule engine, or a visual comparison chart without transformation.
+
 Get rankings:
 
 ```ring
@@ -374,6 +786,99 @@ Rank | Plan Name      | Cost  | Steps
 
 ? oMulti.WorstBy("cost")
 //→ "ultra_fast"
+```
+
+Complete multi-plan comparison example:
+
+```ring
+oGraph = new stzGraph("multi_strategy")
+oGraph {
+    AddNode("warehouse")
+    AddNode("route_highway")
+    AddNode("route_backroad")
+    AddNode("route_express")
+    AddNode("destination")
+    
+    AddEdgeXTT("warehouse", "route_highway", "path", [
+        :time = 10, :cost = 50, :distance = 20
+    ])
+    AddEdgeXTT("route_highway", "destination", "path", [
+        :time = 8, :cost = 40, :distance = 15
+    ])
+    
+    AddEdgeXTT("warehouse", "route_backroad", "path", [
+        :time = 25, :cost = 15, :distance = 30
+    ])
+    AddEdgeXTT("route_backroad", "destination", "path", [
+        :time = 20, :cost = 10, :distance = 25
+    ])
+    
+    AddEdgeXTT("warehouse", "route_express", "path", [
+        :time = 5, :cost = 80, :distance = 18
+    ])
+    AddEdgeXTT("route_express", "destination", "path", [
+        :time = 4, :cost = 60, :distance = 12
+    ])
+}
+
+oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+    AddPlan("ultra_fast")
+    Walk(:From = "warehouse", :To = "destination")
+    Using(:fastest)
+    Execute()
+    
+    AddPlan("budget")
+    Walk(:From = "warehouse", :To = "destination")
+    Using(:cheapest)
+    Execute()
+    
+    AddPlan("short_distance")
+    Walk(:From = "warehouse", :To = "destination")
+    Using(:shortest)
+    Execute()
+    
+    AddPlan("balanced")
+    Walk(:From = "warehouse", :To = "destination")
+    Using(:balanced)
+    Execute()
+    
+    oMulti = CompareManyQ(["ultra_fast", "budget", "short_distance", "balanced"])
+    
+    ? @@NL( oMulti.CompareAll() )
+    #--> [
+    #      [ "total_plans", 4 ],
+    #      [ "plans", [
+    #        [ [ "plan", "ultra_fast" ], [ "cost", 15.30 ], [ "steps", 3 ],
+    #          [ "route", [ "warehouse", "route_express", "destination" ] ] ],
+    #        [ [ "plan", "budget" ], [ "cost", 31 ], [ "steps", 3 ],
+    #          [ "route", [ "warehouse", "route_backroad", "destination" ] ] ],
+    #        [ [ "plan", "short_distance" ], [ "cost", 30 ], [ "steps", 3 ],
+    #          [ "route", [ "warehouse", "route_express", "destination" ] ] ],
+    #        [ [ "plan", "balanced" ], [ "cost", 42 ], [ "steps", 3 ],
+    #          [ "route", [ "warehouse", "route_backroad", "destination" ] ] ]
+    #      ]],
+    #      [ "best_by_cost", "ultra_fast" ],
+    #      [ "best_by_steps", "ultra_fast" ]
+    #    ]
+    
+    ? @@NL( oMulti.RankBy("cost") )
+    #--> [
+    #      [ "ultra_fast", 15.30 ],
+    #      [ "short_distance", 30 ],
+    #      [ "budget", 31 ],
+    #      [ "balanced", 42 ]
+    #    ]
+    
+    oMulti.ShowRankingTable()
+    #--> Displays formatted table
+    
+    ? oMulti.BestBy("cost")
+    #--> ultra_fast
+    
+    ? oMulti.WorstBy("cost")
+    #--> balanced
+}
 ```
 
 **Pattern**: When you have many options, ranking tables and quick queries help identify the right strategy for your context.
@@ -439,6 +944,96 @@ Methods:
 
 ? oHistComp.ImprovementPercentage()
 //→ 14.3
+```
+
+Complete historical tracking example:
+
+```ring
+oGraph = new stzGraph("evolving_network")
+oGraph {
+    AddNode("start")
+    AddNode("mid1")
+    AddNode("mid2")
+    AddNode("end")
+    
+    AddEdgeXTT("start", "mid1", "path", [:cost = 10])
+    AddEdgeXTT("start", "mid2", "path", [:cost = 15])
+    AddEdgeXTT("mid1", "end", "path", [:cost = 20])
+    AddEdgeXTT("mid2", "end", "path", [:cost = 8])
+}
+
+oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+    // Attempt 1: Initial optimal route
+    AddPlan("attempt1")
+    Walk(:From = "start", :To = "end")
+    Minimize("cost")
+    Execute()
+    ? Cost()
+    #--> 23
+    
+    ? @@( Route() )
+    #--> [ "start", "mid2", "end" ]
+    
+    // Network degrades - mid2 route congested
+    @oGraph.SetEdgeProperty("mid2", "end", "cost", 25)
+    
+    // Attempt 2: Same plan, worse network
+    AddPlan("attempt2")
+    Walk(:From = "start", :To = "end")
+    Minimize("cost")
+    Execute()
+    ? Cost()
+    #--> 30
+    
+    ? @@( Route() )
+    #--> [ "start", "mid1", "end" ]
+    
+    // Network improves - mid1 route optimized
+    @oGraph.SetEdgeProperty("mid1", "end", "cost", 12)
+    
+    // Attempt 3: Same plan, improved network
+    AddPlan("attempt3")
+    Walk(:From = "start", :To = "end")
+    Minimize("cost")
+    Execute()
+    ? Cost()
+    #--> 22
+    
+    ? @@( Route() )
+    #--> [ "start", "mid1", "end" ]
+    
+    // Historical analysis
+    ? HistoryCount()
+    #--> 3
+    
+    ? HistoricalAverage("cost")
+    #--> 25
+    
+    ? BestHistoricalPlan("cost")
+    #--> attempt3
+    
+    // Compare current with history
+    SetCurrentPlan("attempt3")
+    oHistComp = CompareWithHistoryQ()
+    
+    ? @@NL( oHistComp.Explain() )
+    #--> [
+    #      [ "current_plan", "attempt3" ],
+    #      [ "cost", 22 ],
+    #      [ "steps", 3 ],
+    #      [ "historical_average_cost", 25 ],
+    #      [ "historical_average_steps", 3 ],
+    #      [ "observation", "✓ Current plan is 12% better than average" ],
+    #      [ "best_historical_plan", "attempt3" ]
+    #    ]
+    
+    ? oHistComp.IsImprovement()
+    #--> TRUE
+    
+    ? oHistComp.ImprovementPercentage()
+    #--> 12
+}
 ```
 
 **Pattern**: Historical tracking transforms planning from one-off computation to continuous improvement. You learn what works.
@@ -511,6 +1106,144 @@ oFilter = FilterPlans([
 ])
 
 ? "Found " + oFilter.Count() + " plans matching all constraints"
+```
+
+Complete filtering example:
+
+```ring
+oGraph = new stzGraph("filtered_network")
+oGraph {
+    AddNode("origin")
+    AddNode("cheap_route")
+    AddNode("expensive_route")
+    AddNode("medium_route")
+    AddNode("avoid_me")
+    AddNode("destination")
+    
+    // Cheap: 15 total
+    AddEdgeXTT("origin", "cheap_route", "path", [:cost = 10])
+    AddEdgeXTT("cheap_route", "destination", "path", [:cost = 5])
+    
+    // Expensive through avoid_me: 80 total
+    AddEdgeXTT("origin", "expensive_route", "path", [:cost = 50])
+    AddEdgeXTT("expensive_route", "avoid_me", "path", [:cost = 20])
+    AddEdgeXTT("avoid_me", "destination", "path", [:cost = 10])
+    
+    // Medium: 35 total
+    AddEdgeXTT("origin", "medium_route", "path", [:cost = 20])
+    AddEdgeXTT("medium_route", "destination", "path", [:cost = 15])
+}
+
+oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+    AddPlan("plan_cheap")
+    Walk(:From = "origin", :To = "destination")
+    Minimize("cost")
+    Execute()
+    
+    AddPlan("plan_via_avoid")
+    Walk(:From = "origin", :To = "avoid_me")
+    Minimize("cost")
+    Execute()
+    
+    AddPlan("plan_via_medium")
+    Walk(:From = "origin", :To = "medium_route")
+    Minimize("cost")
+    Execute()
+    
+    // Filter: cost <= 50
+    oFilter1 = FilterPlansQ([:maxCost = 50])
+    ? oFilter1.Count()
+    #--> 2
+    
+    ? @@( oFilter1.Plans() )
+    #--> [ "plan_cheap", "plan_via_medium" ]
+    
+    ? @@NL( oFilter1.PlansXT() )
+    #--> [
+    #      [ "constrains_applied", [ [ "maxcost", 50 ] ] ],
+    #      [ "plans_matching_count", 2 ],
+    #      [ "plans_matching_details", [
+    #        [ [ "plan", "plan_cheap" ], [ "cost", 15 ], [ "steps", 3 ],
+    #          [ "route", [ "origin", "cheap_route", "destination" ] ] ],
+    #        [ [ "plan", "plan_via_medium" ], [ "cost", 20 ], [ "steps", 2 ],
+    #          [ "route", [ "origin", "medium_route" ] ] ]
+    #      ]]
+    #    ]
+    
+    // Filter: avoid node
+    oFilter2 = PlansAvoidingQ("avoid_me")
+    ? oFilter2.Count()
+    #--> 2
+    
+    ? @@( oFilter2.Plans() )
+    #--> [ "plan_cheap", "plan_via_medium" ]
+    
+    // Filter: cost >= 20
+    oFilter3 = FilterPlansQ([:minCost = 20])
+    ? oFilter3.Count()
+    #--> 2
+    
+    ? @@( oFilter3.Plans() )
+    #--> [ "plan_via_avoid", "plan_via_medium" ]
+}
+```
+
+Tolerance-based filtering example:
+
+```ring
+oGraph = new stzGraph("tolerance_test")
+oGraph {
+    AddNode("base")
+    AddNode("option_a")
+    AddNode("option_b")
+    AddNode("option_c")
+    AddNode("target")
+    
+    // Optimal: 40
+    AddEdgeXTT("base", "option_a", "path", [:cost = 40])
+    AddEdgeXTT("option_a", "target", "path", [:cost = 60])
+    
+    // Near-optimal: 45 (12.5% worse)
+    AddEdgeXTT("base", "option_b", "path", [:cost = 45])
+    AddEdgeXTT("option_b", "target", "path", [:cost = 60])
+    
+    // Suboptimal: 70 (75% worse)
+    AddEdgeXTT("base", "option_c", "path", [:cost = 70])
+    AddEdgeXTT("option_c", "target", "path", [:cost = 60])
+}
+
+oPlanner = new stzGraphPlanner(oGraph)
+oPlanner {
+    AddPlan("optimal")
+    Walk(:From = "base", :To = "option_a")
+    Minimize("cost")
+    Execute()
+    
+    AddPlan("near_optimal")
+    Walk(:From = "base", :To = "option_b")
+    Minimize("cost")
+    Execute()
+    
+    AddPlan("suboptimal")
+    Walk(:From = "base", :To = "option_c")
+    Minimize("cost")
+    Execute()
+    
+    // Filter within 15% of optimal
+    oFilter = PlansWithinQ(15, :of = "optimal")
+    ? oFilter.Count()
+    #--> 2
+    
+    ? @@( oFilter.Plans() )
+    #--> [ "optimal", "near_optimal" ]
+    
+    ? oFilter.BestBy("cost")
+    #--> optimal
+    
+    oFilter.ShowRankingTable()
+    #--> Displays formatted table
+}
 ```
 
 **Pattern**: Filtering transforms "find the best" into "find the best that meets my requirements"—crucial for real-world constraints.
@@ -624,6 +1357,49 @@ Students learn by *using* and *querying*, not drowning in implementation. They s
 More importantly, they learn **why planning matters**—strategic thinking, not just mechanics. When comparing `:fastest` vs `:safest` and seeing trade-offs quantified, they're learning decision-making. When asking `ExplainWhy()`, they're learning transparency.
 
 **Philosophy**: Tools that teach by being conversational.
+
+---
+
+## Part Twelve: From Planning to Analytics
+
+### Bridging Planning and Analytics
+
+Because plans, rankings, and comparisons are all data, **stzGraphPlanner naturally bridges planning and analytics**. Decisions can be tracked over time, aggregated, visualized, and fed back into higher-level strategic dashboards.
+
+This transforms planning from a one-time computation into a continuous learning loop. Each decision enriches the system's understanding of what works—and why.
+
+Planning becomes not just a way to choose paths, but a way to **build organizational intelligence**.
+
+Example of analytics integration:
+
+```ring
+// Track planning performance over time
+aResults = []
+for i = 1 to 100
+    AddPlan("run_" + i)
+    Walk(:From = "start", :To = "end")
+    Using(:balanced)
+    Execute()
+    
+    aResults + [
+        :run = i,
+        :cost = Cost(),
+        :steps = len(Route()),
+        :timestamp = CurrentTime()
+    ]
+next
+
+// Analyze trends
+? "Average cost: " + Average(aResults, :cost)
+? "Best run: " + MinBy(aResults, :cost)[:run]
+? "Performance trend: " + TrendAnalysis(aResults, :cost)
+
+// Feed insights back into planning strategy
+nAvgCost = Average(aResults, :cost)
+if CurrentPlan().Cost() > nAvgCost * 1.2
+    Alert("Current plan is 20% worse than historical average")
+ok
+```
 
 ---
 
