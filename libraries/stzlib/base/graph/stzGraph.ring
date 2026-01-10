@@ -998,7 +998,7 @@ class stzGraph
 		if HasKey(aNode, "properties") and HasKey(aNode["properties"], cProperty)
 			return aNode["properties"][cProperty]
 		else
-			return NULL
+			stzraise("This property (" + cProperty + ") does not exist!")
 		ok
 	
 		def NodeProp(pNodeId, cProperty)
@@ -1091,7 +1091,7 @@ class stzGraph
 		if HasKey(aEdge, "properties") and HasKey(aEdge["properties"], cProperty)
 			return aEdge["properties"][cProperty]
 		else
-			return NULL
+			stzraise("This edge propert (' + cProperty + ') does not exist!")
 		ok
 
 		def EdgeProp(pFromNodeId, pToNodeId, cProperty)
@@ -4230,34 +4230,48 @@ class stzGraph
 		# Resolve function name to actual function object
 		if cFuncName = "DerivationFunc_Transitivity"
 			return DerivationFunc_Transitivity()
+
 		but cFuncName = "DerivationFunc_Symmetry"
 			return DerivationFunc_Symmetry()
+
 		but cFuncName = "DerivationFunc_Hierarchy"
 			return DerivationFunc_Hierarchy()
+
 		but cFuncName = "ConstraintFunc_NoSelfLoop"
 			return ConstraintFunc_NoSelfLoop()
+
 		but cFuncName = "ConstraintFunc_MaxDegree"
 			return ConstraintFunc_MaxDegree()
+
 		but cFuncName = "ConstraintFunc_NoCycles"
 			return ConstraintFunc_NoCycles()
+
 		but cFuncName = "ConstraintFunc_Separation"
 			return ConstraintFunc_Separation()
+
 		but cFuncName = "ConstraintFunc_PropertyMismatch"
 			return ConstraintFunc_PropertyMismatch()
+
 		but cFuncName = "ValidationFunc_IsAcyclic"
 			return ValidationFunc_IsAcyclic()
+
 		but cFuncName = "ValidationFunc_IsConnected"
 			return ValidationFunc_IsConnected()
+
 		but cFuncName = "ValidationFunc_MaxNodes"
 			return ValidationFunc_MaxNodes()
+
 		but cFuncName = "ValidationFunc_DensityRange"
 			return ValidationFunc_DensityRange()
+
 		but cFuncName = "ValidationFunc_NoBottlenecks"
 			return ValidationFunc_NoBottlenecks()
+
 		but cFuncName = "ValidationFunc_AllNodesReachable"
 			return ValidationFunc_AllNodesReachable()
+
 		else
-			return NULL
+			stzraise("Can't resolve function name!")
 		ok
 	
 	#------------------#
@@ -4687,7 +4701,7 @@ class stzGraphQuery
 					if isList(pValue) and HasKey(pValue, acPath[i])
 						pValue = pValue[acPath[i]]
 					else
-						return NULL
+						return "" # TODO Is it safer to raise an error?
 					ok
 				end
 				return pValue
@@ -4698,20 +4712,21 @@ class stzGraphQuery
 					if isList(pValue) and HasKey(pValue, acPath[i])
 						pValue = pValue[acPath[i]]
 					else
-						return NULL
+						return "" # TODO Is it safer to raise an error?
 					ok
 				end
 				return pValue
 			ok
-			return NULL
+			return "" # TODO Is it safer to raise an error?
 		ok
 		
 		if HasKey(aElement, pcKey)
 			return aElement[pcKey]
+
 		but HasKey(aElement, "properties") and HasKey(aElement["properties"], pcKey)
 			return aElement["properties"][pcKey]
 		ok
-		return NULL
+		return "" # TODO Is it safer to raise an error?
 	
 	def _Matches(pActual, pCondition, pValue)
 		cCond = lower(pCondition)

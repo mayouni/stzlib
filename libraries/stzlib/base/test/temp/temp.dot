@@ -1,14 +1,16 @@
-digraph diamond {
+digraph warehouse_complete {
   rankdir=TD;
   node [shape=box];
 
-  a [label="A"];
-  b [label="B"];
-  c [label="C"];
-  d [label="D"];
+  receiving [label="Receiving_Bay"];
+  aisle_main [label="Main_Aisle"];
+  aisle_side [label="Side_Aisle"];
+  storage [label="Cold_Storage"];
+  shelf_42 [label="Target_Shelf"];
 
-  a -> b [label="slow_road"];
-  a -> c [label="fast_road"];
-  b -> d [label="road"];
-  c -> d [label="road"];
+  receiving -> aisle_main [label="path"];
+  aisle_main -> storage [label="path"];
+  receiving -> aisle_side [label="path"];
+  aisle_side -> storage [label="path"];
+  storage -> shelf_42 [label="path"];
 }

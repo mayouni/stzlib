@@ -50,7 +50,6 @@ REAL-WORLD APPLICATIONS:
 #========================================#
 
 /*-- Example 1.1: Simple Linear Path
-
 `
   CONCEPT: A* guarantees finding the shortest path
   
@@ -92,13 +91,36 @@ oPlanner {
 	? @@( Route() ) # Or States()
 	#--> [ "a", "b", "c" ]
 
-	? Explain()
-	#--> Step 1: a -> b (cost: 10)
-	#    Step 2: b -> c (cost: 10)
+	? @@NL( Explain() )
+	#--> [
+	# 	[ "plan", "linear_path" ],
+	# 	[
+	# 		"actions",
+	# 		[
+	# 			[
+	# 				[ "from", "a" ],
+	# 				[ "to", "b" ],
+	# 				[ "cost", 10 ]
+	# 			],
+	# 			[
+	# 				[ "from", "b" ],
+	# 				[ "to", "c" ],
+	# 				[ "cost", 10 ]
+	# 			]
+	# 		]
+	# 	],
+	# 	[ "total_cost", 20 ],
+	# 	[
+	# 		"route",
+	# 		[ "a", "b", "c" ]
+	# 	],
+	# 	[ "steps", 2 ]
+	# ]
+
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.25
 
 /*--- Example 1.2: Path with Choice - A* Picks Optimal
 
@@ -905,7 +927,6 @@ pf()
 #============================================#
 
 /*--- Example 7.1: Last-Mile Delivery Optimization
-
 `
   CONCEPT: Real-world routing considers multiple factors
   
@@ -917,7 +938,7 @@ pf()
   
   When minimizing time, planner weighs trade-offs automatically.
 `
-
+*/
 pr()
 
 oGraph = new stzGraph("delivery")
@@ -1238,7 +1259,6 @@ pf()
 #============================================#
 
 /*--- Example 9.1: Supply Chain Planning with Explanation
-  
 `
   CONCEPT: Plans include human-readable explanations
   
@@ -1281,25 +1301,55 @@ oPlanner {
 	? Cost()
 	#--> 1700 	~> (1000 + 500 + 200)
 
-	? Explain()
-	#--> (Human-readable step-by-step explanation):
-	# Step 1: supplier -> factory (cost: 1000)
-	# Step 2: factory -> warehouse (cost: 500)
-	# Step 3: warehouse -> retail (cost: 200)
+	? @@NL( Explain() ) + NL
+	#-->
+	# [
+	# 	[ "plan", "supply_chain_plan" ],
+	# 	[
+	# 		"actions",
+	# 		[
+	# 			[
+	# 				[ "from", "supplier" ],
+	# 				[ "to", "factory" ],
+	# 				[ "cost", 1000 ]
+	# 			],
+	# 			[
+	# 				[ "from", "factory" ],
+	# 				[ "to", "warehouse" ],
+	# 				[ "cost", 500 ]
+	# 			],
+	# 			[
+	# 				[ "from", "warehouse" ],
+	# 				[ "to", "retail" ],
+	# 				[ "cost", 200 ]
+	# 			]
+	# 		]
+	# 	],
+	# 	[ "total_cost", 1700 ],
+	# 	[
+	# 		"route",
+	# 		[
+	# 			"supplier",
+	# 			"factory",
+	# 			"warehouse",
+	# 			"retail"
+	# 		]
+	# 	],
+	# 	[ "steps", 3 ]
+	# ]
 
 	? @@( Route() )
 	#--> [ "supplier", "factory", "warehouse", "retail" ]
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.25
 
 #============================================#
 #  SECTION 10: ALGORITHM COMPARISON          #
 #============================================#
 
 /*--- Example 10.1: When to Use A* vs Goal-Based Search
-  
 `
   CONCEPT: Choose the right algorithm for your problem
   
@@ -1366,7 +1416,8 @@ oPlanner {
 
 	? @@( Route() )
 	#--> [ "home", "town", "cave", "chest" ]
-	# Both approaches work! Choose based on whether you know the exact target.
+
+	# ~> Both approaches work! Choose based on whether you know the exact target.
 }
 
 pf()
@@ -1435,13 +1486,36 @@ oPlanner {
 	#--> [ "warehouse", "suburb_b", "customer" ]
 	# Chose suburb_b route (lighter traffic)
 	
-	? Explain()
-	#--> Step 1: warehouse -> suburb_b (cost: 14.0)
-	#    Step 2: suburb_b -> customer (cost: 13.5)
+	? @@NL( Explain() )
+	#--> [
+	# 	[ "plan", "fast_delivery" ],
+	# 	[
+	# 		"actions",
+	# 		[
+	# 			[
+	# 				[ "from", "warehouse" ],
+	# 				[ "to", "suburb_b" ],
+	# 				[ "cost", 20 ]
+	# 			],
+	# 			[
+	# 				[ "from", "suburb_b" ],
+	# 				[ "to", "customer" ],
+	# 				[ "cost", 15 ]
+	# 			]
+	# 		]
+	# 	],
+	# 	[ "total_cost", 35 ],
+	# 	[
+	# 		"route",
+	# 		[ "warehouse", "suburb_b", "customer" ]
+	# 	],
+	# 	[ "steps", 2 ]
+	#  ]
+
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in 0.02 second(s) in Ring 1.25
 
 /*--- Example 11.2: Comparing :fastest vs :cheapest Profiles
 `
@@ -1503,21 +1577,29 @@ oPlanner {
 	
 	# Compare the two strategies
 	SetCurrentPlan("speed_focused")
-	? ExplainDifference("cost_focused")
-	#-->
-	# PATH ANALYSIS:
-	# Plans use SAME route
-	#   [ "warehouse", "suburb_b", "customer" ]
-	# 
-	# COST ANALYSIS:
-	#   Plan 1 cost: 35
-	#   Plan 2 cost: 20
-	#   ✓ Plan 2 is cheaper
+	? @@NL( ExplainDifference("cost_focused") )
+	#--> [
+	# 	[ "plan1", "speed_focused" ],
+	# 	[ "plan2", "cost_focused" ],
+	# 	[ "same_path", TRUE ],
+	# 	[
+	# 		"route1",
+	# 		[ "warehouse", "suburb_b", "customer" ]
+	# 	],
+	# 	[
+	# 		"route2",
+	# 		[ "warehouse", "suburb_b", "customer" ]
+	# 	],
+	# 	[ "diverge_at_step", 0 ],
+	# 	[ "cost1", 35 ],
+	# 	[ "cost2", 23 ],
+	# 	[ "cheaper", "cost_focused" ]
+	# ]
 
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.25
+# Executed in 0.03 second(s) in Ring 1.25
 
 /*--- Example 11.3: The :safest Profile for Emergency Routes
 `
@@ -1577,11 +1659,11 @@ oPlanner {
 	# Avoided dangerous downtown route
 	
 	? Cost()
-	#--> 5 (Lower danger cost)
+	#--> 4.60 (Lower danger cost)
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in 0.04 second(s) in Ring 1.25
 
 /*--- Example 11.4: The :balanced Profile
 `
@@ -1641,7 +1723,7 @@ oPlanner {
 	#--> [ "depot", "hub_a", "destination" ]
 
 	? Cost()
-	#--> 18 (Planner weighs all three factors and chooses best balance)
+	#--> 42.30 (Planner weighs all three factors and chooses best balance)
 }
 
 pf()
@@ -1690,29 +1772,95 @@ oPlanner {
 	Minimize("traffic")
 	Execute()
 
-	? ExplainCostBreakdown()
-	#--> === COST BREAKDOWN ===
-	#    
-	#    Step 1: start -> point_a
-	#      • distance: 10 × 1 (minimize) = 10
-	#      • traffic: 2 × 1 (minimize) = 2
-	#      Total: 12
-	#    
-	#    Step 2: point_a -> point_b
-	#      • distance: 15 × 1 (minimize) = 15
-	#      • traffic: 8 × 1 (minimize) = 8
-	#      Total: 23
-	#    
-	#    Step 3: point_b -> end
-	#      • distance: 5 × 1 (minimize) = 5
-	#      • traffic: 1 × 1 (minimize) = 1
-	#      Total: 6
-	
-	# ~> Now you can see: Step 2 is the bottleneck (traffic = 8)!
+	? @@NL( CostBreakdown() )
+	#--> [
+	# 	[
+	# 		[ "step", 1 ],
+	# 		[ "from", "start" ],
+	# 		[ "to", "point_a" ],
+	# 		[
+	# 			"criteria",
+	# 			[
+	# 				[
+	# 					[ "property", "distance" ],
+	# 					[ "value", 10 ],
+	# 					[ "weight", 1 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 10 ]
+	# 				],
+	# 				[
+	# 					[ "property", "traffic" ],
+	# 					[ "value", 2 ],
+	# 					[ "weight", 1 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 2 ]
+	# 				]
+	# 			]
+	# 		],
+	# 		[
+	# 			[ "total", 12 ]
+	# 		]
+	# 	],
+	# 	[
+	# 		[ "step", 2 ],
+	# 		[ "from", "point_a" ],
+	# 		[ "to", "point_b" ],
+	# 		[
+	# 			"criteria",
+	# 			[
+	# 				[
+	# 					[ "property", "distance" ],
+	# 					[ "value", 15 ],
+	# 					[ "weight", 1 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 15 ]
+	# 				],
+	# 				[
+	# 					[ "property", "traffic" ],
+	# 					[ "value", 8 ],
+	# 					[ "weight", 1 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 8 ]
+	# 				]
+	# 			]
+	# 		],
+	# 		[
+	# 			[ "total", 23 ]
+	# 		]
+	# 	],
+	# 	[
+	# 		[ "step", 3 ],
+	# 		[ "from", "point_b" ],
+	# 		[ "to", "end" ],
+	# 		[
+	# 			"criteria",
+	# 			[
+	# 				[
+	# 					[ "property", "distance" ],
+	# 					[ "value", 5 ],
+	# 					[ "weight", 1 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 5 ]
+	# 				],
+	# 				[
+	# 					[ "property", "traffic" ],
+	# 					[ "value", 1 ],
+	# 					[ "weight", 1 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 1 ]
+	# 				]
+	# 			]
+	# 		],
+	# 		[
+	# 			[ "total", 6 ]
+	# 		]
+	# 	]
+	# ]
+
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in 0.02 second(s) in Ring 1.25
 
 /*--- Example 12.2: Profile Cost Breakdown
 `
@@ -1747,17 +1895,63 @@ oPlanner {
 	Using(:fastest)  # time=0.7, distance=0.3
 	Execute()
 
-	? ExplainCostBreakdown()
-	#-->
-	# Step 1: origin -> waypoint
-	#   • time: 20 × 0.70 (minimize) = 14
-	#   • distance: 10 × 0.30 (minimize) = 3
-	#   Total: 17
-	# 
-	# Step 2: waypoint -> goal
-	#   • time: 15 × 0.70 (minimize) = 10.50
-	#   • distance: 25 × 0.30 (minimize) = 7.50
-	#   Total: 18
+	? @@NL( CostBreakdown() ) # Or ExplainBreakDown()
+	#--> [
+	# 	[
+	# 		[ "step", 1 ],
+	# 		[ "from", "origin" ],
+	# 		[ "to", "waypoint" ],
+	# 		[
+	# 			"criteria",
+	# 			[
+	# 				[
+	# 					[ "property", "time" ],
+	# 					[ "value", 20 ],
+	# 					[ "weight", 0.70 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 14 ]
+	# 				],
+	# 				[
+	# 					[ "property", "distance" ],
+	# 					[ "value", 10 ],
+	# 					[ "weight", 0.30 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 3 ]
+	# 				]
+	# 			]
+	# 		],
+	# 		[
+	# 			[ "total", 17 ]
+	# 		]
+	# 	],
+	# 	[
+	# 		[ "step", 2 ],
+	# 		[ "from", "waypoint" ],
+	# 		[ "to", "goal" ],
+	# 		[
+	# 			"criteria",
+	# 			[
+	# 				[
+	# 					[ "property", "time" ],
+	# 					[ "value", 15 ],
+	# 					[ "weight", 0.70 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 10.50 ]
+	# 				],
+	# 				[
+	# 					[ "property", "distance" ],
+	# 					[ "value", 25 ],
+	# 					[ "weight", 0.30 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 7.50 ]
+	# 				]
+	# 			]
+	# 		],
+	# 		[
+	# 			[ "total", 18 ]
+	# 		]
+	# 	]
+	# ]
 
 }
 
@@ -1800,11 +1994,25 @@ oPlanner {
 	Execute()
 
 	# WHY THIS ROUTE?
-	? ExplainWhy("route") + NL
-	#--> This route was selected because:
-	#    • Total cost: 13
-	#    • Explored 4 nodes to find it
-	#    • Optimized for: minimize cost
+	? @@NL( ExplainWhy("route") ) + NL # Or Why()
+	#--> [
+	# 	[ "plan", "decision_route" ],
+	# 	[ "total_cost", 13 ],
+	# 	[ "nodes_explored", 4 ],
+	# 	[
+	# 		"optimized_for",
+	# 		[
+	# 			[
+	# 				[ "direction", "minimize" ],
+	# 				[ "property", "cost" ]
+	# 			]
+	# 		]
+	# 	],
+	# 	[
+	# 		"route",
+	# 		[ "base", "option_a", "target" ]
+	# 	]
+	# ]
 	
 	# Chosen path:
 	? @@( Route() )
@@ -1815,7 +2023,7 @@ oPlanner {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.25
 
 /*--- Example 13.2: Efficiency Analysis
 `
@@ -1866,8 +2074,14 @@ oPlanner {
 	Execute()
 
 	# EFFICIENCY ANALYSIS
-	? ExplainEfficiency() + NL
-	#--> Explored 9 nodes for 5-node path (1.80:1 ratio - efficient)
+	? @@NL( ExplainEfficiency() ) + NL # Or Efficiency()
+	#--> [
+	# 	[ "plan", "efficient_path" ],
+	# 	[ "nodes_explored", 9 ],
+	# 	[ "path_length", 5 ],
+	# 	[ "ratio", 1.80 ],
+	# 	[ "assessment", "efficient" ]
+	# ]
 	
 	# Path found:
 	? @@( Route() )
@@ -1875,7 +2089,7 @@ oPlanner {
 }
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.25
+# Executed in 0.02 second(s) in Ring 1.25
 
 #=======================================#
 #  SECTION 14: ALTERNATIVE EXPLORATION  #
@@ -1921,10 +2135,25 @@ oPlanner {
 	Execute()
 
 	# ALTERNATIVES EXPLORED
-	? ExplainAlternatives() + NL
-	#--> Key decisions made:
-	#    • At 'start', chose 'fork_left' 		(~> 2 options available)
-	#    • At 'fork_left', chose 'junction_a' 	(~> 2 options available)
+	? @@NL( Alternatives() ) + NL # Or ExplainAlternatives()
+	#--> [
+	# 	[ "plan", "explore_choices" ],
+	# 	[
+	# 		"decision_points",
+	# 		[
+	# 			[
+	# 				[ "node", "start" ],
+	# 				[ "chosen", "fork_left" ],
+	# 				[ "total_options", 2 ]
+	# 			],
+	# 			[
+	# 				[ "node", "fork_left" ],
+	# 				[ "chosen", "junction_a" ],
+	# 				[ "total_options", 2 ]
+	# 			]
+	# 		]
+	# 	]
+	# ]
 	
 	# Final route:
 	? @@( Route() )
@@ -2000,27 +2229,39 @@ oPlanner {
 	
 	# Compare them
 	SetCurrentPlan("budget")
-	? ExplainDifference("rush") + NL
-	#--> PATH ANALYSIS:
-	# Plans use DIFFERENT routes
-	#   Plan 1: [ "factory", "process_standard", "shipping" ]
-	#   Plan 2: [ "factory", "process_premium", "shipping" ]
-	# 
-	#   Paths diverge at step 2
-	# 
-	# COST ANALYSIS:
-	#   Plan 1 cost: 50
-	#   Plan 2 cost: 8
-	#   ✓ Plan 2 is cheaper
+	? @@NL (ExplainDifferenceWith("rush") ) + NL
+	#--> [
+	# 	[ "plan1", "budget" ],
+	# 	[ "plan2", "rush" ],
+	# 	[ "same_path", FALSE ],
+	# 	[
+	# 		"route1",
+	# 		[ "factory", "process_standard", "shipping" ]
+	# 	],
+	# 	[
+			"route2",
+	# 		[ "factory", "process_premium", "shipping" ]
+	# 	],
+	# 	[ "diverge_at_step", 2 ],
+	# 	[ "cost1", 40.40 ],
+	# 	[ "cost2", 6.20 ],
+	# 	[ "cheaper", "rush" ]
+	# ]
 
 	# TRADE-OFF ANALYSIS
-	? ShowTradeoffs("rush")
-	#--> CRITERION COMPARISON:
-	#  Cost:        Plan 2 wins (saves 42)
-	#  Path Length: Tie
-	# 
-	# RECOMMENDATION:
-	#   → Choose Plan 2 for cost optimization
+	? @@NL( ExplainTradeoffsAgainst("rush") ) # Or Tradeoffs("rush") or Compromises("rush")
+	#--> [
+	# 	[ "plan1", "budget" ],
+	# 	[ "plan2", "rush" ],
+	# 	[ "cost_winner", "rush" ],
+	# 	[ "cost_savings", 34.20 ],
+	# 	[ "length_winner", "tie" ],
+	# 	[ "length_difference", 0 ],
+	# 	[
+	# 		"recommendation",
+	# 		"Choose rush for cost optimization"
+	# 	]
+	# ]
 }
 
 pf()
@@ -2065,6 +2306,7 @@ oGraph {
 		:time = 10,
 		:quality = 7
 	])
+
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
@@ -2083,12 +2325,12 @@ oPlanner {
 
 	SetCurrentPlan("budget")
 	? WhichIsCheaper("rush")
-	#--> Plan rush
+	#--> rush
 	
 	# How much cheaper?
-	? CostSavings("rush")
-	#--> 42
-	
+	? CostSaving("rush") # Or HowMutchCheaper()
+	#--> 34.20
+
 	# ~> You can now make informed decisions quickly
 }
 
@@ -2103,8 +2345,7 @@ pf()
 `
   CONCEPT: Putting it all together
   
-  A warehouse robot needs to navigate from receiving to
-  a shelf. We'll explore multiple strategies, compare them,
+  Compare multiple strategies for warehouse robot navigation
   and choose based on the situation.
 `
 
@@ -2153,17 +2394,19 @@ oGraph {
 		:energy = 5,
 		:congestion = 3
 	])
+
+	# You can get a visual diagram using View()
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
-	# Scenario 1: Rush order - need speed
+	# Scenario 1: Rush order
 	AddPlan("urgent")
 	Walk(:From = "receiving", :To = "shelf_42")
 	Using(:fastest)
 	Execute()
 	
-	# Scenario 2: Battery low - need energy efficiency
+	# Scenario 2: Battery low
 	AddPlan("energy_saving")
 	Walk(:From = "receiving", :To = "shelf_42")
 	Using(:efficient)
@@ -2175,63 +2418,58 @@ oPlanner {
 	Using(:balanced)
 	Execute()
 	
-	# CENARIO COMPARISON
-	
 	# Analyze urgent plan
 	SetCurrentPlan("urgent")
-	? "URGENT PLAN (rush order):"
 	? @@( Route() )
+	#--> [ "receiving", "aisle_main", "storage", "shelf_42" ]
+	
 	? Cost()
-	? ExplainEfficiency() + NL
+	#--> 21.90
+	
+	? @@NL( ExplainEfficiency() ) + NL
+	#--> [
+	# 	[ "plan", "urgent" ],
+	# 	[ "nodes_explored", 4 ],
+	# 	[ "path_length", 4 ],
+	# 	[ "ratio", 1 ],
+	# 	[ "assessment", "very efficient" ]
+	# ]
 	
 	# Analyze energy-saving plan
 	SetCurrentPlan("energy_saving")
-	? "ENERGY-SAVING PLAN (low battery):"
 	? @@( Route() )
-	? Cost() + NL
+	#--> [ "receiving", "aisle_main", "storage", "shelf_42" ]
+	
+	? Cost()
+	#--> 18.60
 	
 	# Analyze normal plan
 	SetCurrentPlan("normal")
-	? "NORMAL PLAN (balanced):"
 	? @@( Route() )
+	#--> [ "receiving", "aisle_main", "storage", "shelf_42" ]
+	
 	? Cost() + NL
+	#--> 19.20
 	
-	# Compare urgent vs energy-saving
+	# Compare strategies
 	SetCurrentPlan("urgent")
-	? "=== URGENT vs ENERGY-SAVING ===" + NL
-	? ShowTradeoffs("energy_saving") + NL
-	
-	#-->
-	# URGENT PLAN (rush order):
-	# [ "receiving", "aisle_main", "storage", "shelf_42" ]
-	# 12
-	# Explored 4 nodes for 4-node path (1:1 ratio - very efficient)
-	# 
-	# ENERGY-SAVING PLAN (low battery):
-	# [ "receiving", "aisle_main", "storage", "shelf_42" ]
-	# 23
-	# 
-	# NORMAL PLAN (balanced):
-	# [ "receiving", "aisle_main", "storage", "shelf_42" ]
-	# 12
-	# 
-	# === URGENT vs ENERGY-SAVING ===
-	# 
-	# CRITERION COMPARISON:
-	#   Cost:        Plan 1 wins (saves 11)
-	#   Path Length: Tie
-	# 
-	# RECOMMENDATION:
-	#   → Choose Plan 1 for cost optimization
-
-	# Based on this analysis :
-	# - For rush orders: Use 'urgent' plan
-	# - For routine pickups with low battery: Use 'energy_saving' plan
-	# - For normal operations: Use 'normal' plan
+	? @@NL( TradeoffsAgainst("energy_saving") )
+	#--> [
+	# 	[ "plan1", "urgent" ],
+	# 	[ "plan2", "energy_saving" ],
+	# 	[ "cost_winner", "energy_saving" ],
+	# 	[ "cost_savings", 3.30 ],
+	# 	[ "length_winner", "tie" ],
+	# 	[ "length_difference", 0 ],
+	# 	[
+	# 		"recommendation",
+	# 		"Choose energy_saving for cost optimization"
+	# 	]
+	# ]
 }
 
 pf()
-# Executed in 0.04 second(s) in Ring 1.25
+# Executed in 0.05 second(s) in Ring 1.25
 
 #====================================#
 #  SECTION 17: EDUCATIONAL USE CASE  #
@@ -2241,15 +2479,14 @@ pf()
 `
   CONCEPT: Learn by using, not implementing
   
-  Students can explore pathfinding concepts without
-  getting bogged down in implementation details.
+  Students explore pathfinding concepts without
+  implementation details.
 `
 
 pr()
 
 oGraph = new stzGraph("learning")
 oGraph {
-	# Simple diamond graph
 	AddNode("A")
 	AddNode("B")
 	AddNode("C")
@@ -2268,39 +2505,85 @@ oPlanner {
 	Minimize("cost")
 	Execute()
 
-	# LEARNING A* CONCEPTS
-
-	# 1. What route did A* find?
+	# What route did A* find?
 	? @@( Route() ) + NL
 	#--> [ "a", "c", "d" ] (cost 5, not a->b->d cost 6)
 	
-	# 2. Why did it choose this route?
-	? ExplainWhy("route") + NL
-	#-->
-	# This route was selected because:
-	# • Total cost: 5
-	# • Explored 4 nodes to find it
-	# • Optimized for: minimize cost
+	# Why this route?
+	? @@NL( ExplainWhy("route") ) + NL
+	#--> [
+	# 	[ "plan", "learning_astar" ],
+	# 	[ "total_cost", 5 ],
+	# 	[ "nodes_explored", 4 ],
+	# 	[
+	# 		"optimized_for",
+	# 		[
+	# 			[
+	# 				[ "direction", "minimize" ],
+	# 				[ "property", "cost" ]
+	# 			]
+	# 		]
+	# 	],
+	# 	[
+	# 		"route",
+	# 		[ "a", "c", "d" ]
+	# 	]
+	# ]
 
-	# 3. How efficient was the search?
-	? ExplainEfficiency() + NL
-	#--> Explored 4 nodes for 3-node path (1.33:1 ratio - very efficient)
+	# Search efficiency?
+	? @@NL( ExplainEfficiency() ) + NL
+	#--> [
+	# 	[ "plan", "learning_astar" ],
+	# 	[ "nodes_explored", 4 ],
+	# 	[ "path_length", 3 ],
+	# 	[ "ratio", 1.33 ],
+	# 	[ "assessment", "very efficient" ]
+	# ]
 
-	# 4. What's the cost breakdown?
-	? ExplainCostBreakdown() + NL
-	#--> === COST BREAKDOWN ===
-	# 
-	# Step 1: a -> c
-	#   • cost: 4 × 1 (minimize) = 4
-	#   Total: 4
-	# 
-	# Step 2: c -> d
-	#   • cost: 1 × 1 (minimize) = 1
-	#   Total: 1
-
-	# ~> Key insight: A* found the cheaper route (5) even though
-	# the first edge to C (cost 4) seemed expensive initially.
-	# This demonstrates A*'s ability to reason about total path cost!
+	# Cost breakdown?
+	? @@NL( ExplainCostBreakdown() )
+	#--> [
+	# 	[
+	# 		[ "step", 1 ],
+	# 		[ "from", "a" ],
+	# 		[ "to", "c" ],
+	# 		[
+	# 			"criteria",
+	# 			[
+	# 				[
+	# 					[ "property", "cost" ],
+	# 					[ "value", 4 ],
+	# 					[ "weight", 1 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 4 ]
+	# 				]
+	# 			]
+	# 		],
+	# 		[
+	# 			[ "total", 4 ]
+	# 		]
+	# 	],
+	# 	[
+	# 		[ "step", 2 ],
+	# 		[ "from", "c" ],
+	# 		[ "to", "d" ],
+	# 		[
+	# 			"criteria",
+	# 			[
+	# 				[
+	# 					[ "property", "cost" ],
+	# 					[ "value", 1 ],
+	# 					[ "weight", 1 ],
+	# 					[ "direction", "minimize" ],
+	# 					[ "contribution", 1 ]
+	# 				]
+	# 			]
+	# 		],
+	# 		[
+	# 			[ "total", 1 ]
+	# 		]
+	# 	]
+	# ]
 }
 
 pf()
@@ -2314,9 +2597,8 @@ pf()
 `
   CONCEPT: Compare multiple plans simultaneously
   
-  When you have several alternative strategies, you need
-  to compare them all at once to see which performs best
-  under different criteria.
+  Evaluate several strategies at once to find best
+  performer under different criteria.
 `
 
 pr()
@@ -2329,46 +2611,34 @@ oGraph {
 	AddNode("route_express")
 	AddNode("destination")
 	
-	# Highway route: fast but expensive
+	# Highway: fast but expensive
 	AddEdgeXTT("warehouse", "route_highway", "path", [
-		:time = 10,
-		:cost = 50,
-		:distance = 20
+		:time = 10, :cost = 50, :distance = 20
 	])
 	AddEdgeXTT("route_highway", "destination", "path", [
-		:time = 8,
-		:cost = 40,
-		:distance = 15
+		:time = 8, :cost = 40, :distance = 15
 	])
 	
-	# Backroad route: slow but cheap
+	# Backroad: slow but cheap
 	AddEdgeXTT("warehouse", "route_backroad", "path", [
-		:time = 25,
-		:cost = 15,
-		:distance = 30
+		:time = 25, :cost = 15, :distance = 30
 	])
 	AddEdgeXTT("route_backroad", "destination", "path", [
-		:time = 20,
-		:cost = 10,
-		:distance = 25
+		:time = 20, :cost = 10, :distance = 25
 	])
 	
-	# Express route: very fast, very expensive
+	# Express: very fast, very expensive
 	AddEdgeXTT("warehouse", "route_express", "path", [
-		:time = 5,
-		:cost = 80,
-		:distance = 18
+		:time = 5, :cost = 80, :distance = 18
 	])
 	AddEdgeXTT("route_express", "destination", "path", [
-		:time = 4,
-		:cost = 60,
-		:distance = 12
+		:time = 4, :cost = 60, :distance = 12
 	])
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
-	# Create 4 different strategy plans
+	# Create 4 strategy plans
 	AddPlan("ultra_fast")
 	Walk(:From = "warehouse", :To = "destination")
 	Using(:fastest)
@@ -2389,54 +2659,67 @@ oPlanner {
 	Using(:balanced)
 	Execute()
 	
-	# MULTI-PLAN COMPARISON
+	# Compare all plans (get a comparison object from stzMultiPlanComparison)
+	oMulti = CompareManyQ(["ultra_fast", "budget", "short_distance", "balanced"])
 	
-	# Compare all 4 plans
-	oMulti = CompareMultiple(["ultra_fast", "budget", "short_distance", "balanced"])
-	
-	# All Plans Overview:
-	? oMulti.CompareAll() + NL
-	#-->
-	# === COMPARING 4 PLANS ===
-	# 
-	# Plan: ultra_fast
-	#   Cost: 15.30
-	#   Steps: 3
-	#   Route: [ "warehouse", "route_express", "destination" ]
-	# 
-	# Plan: budget
-	#   Cost: 31
-	#   Steps: 3
-	#   Route: [ "warehouse", "route_backroad", "destination" ]
-	# 
-	# Plan: short_distance
-	#   Cost: 30
-	#   Steps: 3
-	#   Route: [ "warehouse", "route_express", "destination" ]
-	# 
-	# Plan: balanced
-	#   Cost: 42
-	#   Steps: 3
-	#   Route: [ "warehouse", "route_backroad", "destination" ]
-	# 
-	# Best by cost: ultra_fast
-	# Best by steps: ultra_fast
-	
-	# Ranking by Cost:
-	? "---" + NL
-
-	? @@NL( oMulti.RankBy("cost") ) + NL
-	#--> Shows plans ranked from cheapest to most expensive
-	# [
-	# 	[ "ultra_fast", 15.30 ],
-	# 	[ "short_distance", 30 ],
-	# 	[ "budget", 31 ],
-	# 	[ "balanced", 42 ]
+	? @@NL( oMulti.CompareAll() ) + NL
+	#--> [
+	# 	[ "total_plans", 4 ],
+	# 	[
+	# 		"plans",
+	# 		[
+	# 			[
+	# 				[ "plan", "ultra_fast" ],
+	# 				[ "cost", 15.30 ],
+	# 				[ "steps", 3 ],
+	# 				[
+	# 					"route",
+	# 					[ "warehouse", "route_express", "destination" ]
+	# 				]
+	# 			],
+	# 			[
+	# 				[ "plan", "budget" ],
+	# 				[ "cost", 31 ],
+	# 				[ "steps", 3 ],
+	# 				[
+	# 					"route",
+	# 					[ "warehouse", "route_backroad", "destination" ]
+	# 				]
+	# 			],
+	# 			[
+	# 				[ "plan", "short_distance" ],
+	# 				[ "cost", 30 ],
+	# 				[ "steps", 3 ],
+	# 				[
+	# 					"route",
+	# 					[ "warehouse", "route_express", "destination" ]
+	# 				]
+	# 			],
+	# 			[
+	# 				[ "plan", "balanced" ],
+	# 				[ "cost", 42 ],
+	# 				[ "steps", 3 ],
+	# 				[
+	# 					"route",
+	# 					[ "warehouse", "route_backroad", "destination" ]
+	# 				]
+	# 			]
+	# 		]
+	# 	],
+	# 	[ "best_by_cost", "ultra_fast" ],
+	# 	[ "best_by_steps", "ultra_fast" ]
 	# ]
+	
+	# Rank by cost
+	? @@NL( oMulti.RankBy("cost") ) + NL
+	#--> [
+	#      [ "ultra_fast", 15.30 ],
+	#      [ "short_distance", 30 ],
+	#      [ "budget", 31 ],
+	#      [ "balanced", 42 ]
+	#    ]
 
-	# Ranking by Steps:
-	? "---" + NL
-
+	# Rank by steps
 	? @@NL( oMulti.RankBy("steps") ) + NL
 	#--> [
 	# 	[ "ultra_fast", 3 ],
@@ -2445,38 +2728,41 @@ oPlanner {
 	# 	[ "balanced", 3 ]
 	# ]
 
-	# Complete Ranking Table:
-	? "---" + NL
-
+	# Complete ranking
 	oMulti.ShowRankingTable()
-	#--> === PLAN RANKING TABLE ===
-	# 
-	#    Rank | Plan Name      | Cost  | Steps
-	#    -----+----------------+-------+------
-	#    1    | ultra_fast     | 15.30 | 3
-	#    2    | short_distance | 30    | 3
-	#    3    | budget         | 31    | 3
-	#    4    | balanced       | 42    | 3
+	#-->
+	`
+	╭──────┬────────────────┬───────┬───────╮
+	│ Rank │      Plan      │ Cost  │ Steps │
+	├──────┼────────────────┼───────┼───────┤
+	│    1 │ ultra_fast     │ 15.30 │     3 │
+	│    2 │ short_distance │    30 │     3 │
+	│    3 │ budget         │    31 │     3 │
+	│    4 │ balanced       │    42 │     3 │
+	╰──────┴────────────────┴───────┴───────╯
+	`
 	
-	? NL + "---" + NL
-
-	? "Best by cost: " + oMulti.BestBy("cost")
+	? NL + oMulti.BestBy("cost")
 	#--> ultra_fast
 	
-	? "Worst by cost: " + oMulti.WorstBy("cost")
+	? oMulti.WorstBy("cost")
 	#--> balanced
-
 }
 
+#WARNING #TODO Check this:
+# The example creates routes to different intermediate nodes,
+# not truly different paths to the same destination.
+# This may confuse users about what's being compared.
+
 pf()
-# Executed in 0.05 second(s) in Ring 1.25
+# Executed in 0.09 second(s) in Ring 1.25
 
 /*--- Example 18.2: Ranking All Plans
 `
-  CONCEPT: Automatic ranking of all plans in the planner
+  CONCEPT: Automatic ranking of all executed plans
   
-  You don't need to specify which plans to compare -
-  RankPlansBy() automatically ranks all executed plans.
+  RankPlansBy() automatically ranks without specifying
+  which plans to compare.
 `
 
 pr()
@@ -2489,46 +2775,31 @@ oGraph {
 	AddNode("route_express")
 	AddNode("destination")
 	
-	# Highway route: fast but expensive
 	AddEdgeXTT("warehouse", "route_highway", "path", [
-		:time = 10,
-		:cost = 50,
-		:distance = 20
+		:time = 10, :cost = 50, :distance = 20
 	])
 	AddEdgeXTT("route_highway", "destination", "path", [
-		:time = 8,
-		:cost = 40,
-		:distance = 15
+		:time = 8, :cost = 40, :distance = 15
 	])
 	
-	# Backroad route: slow but cheap
 	AddEdgeXTT("warehouse", "route_backroad", "path", [
-		:time = 25,
-		:cost = 15,
-		:distance = 30
+		:time = 25, :cost = 15, :distance = 30
 	])
 	AddEdgeXTT("route_backroad", "destination", "path", [
-		:time = 20,
-		:cost = 10,
-		:distance = 25
+		:time = 20, :cost = 10, :distance = 25
 	])
 	
-	# Express route: very fast, very expensive
 	AddEdgeXTT("warehouse", "route_express", "path", [
-		:time = 5,
-		:cost = 80,
-		:distance = 18
+		:time = 5, :cost = 80, :distance = 18
 	])
 	AddEdgeXTT("route_express", "destination", "path", [
-		:time = 4,
-		:cost = 60,
-		:distance = 12
+		:time = 4, :cost = 60, :distance = 12
 	])
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
-	# Create and execute plans first
+	# Execute plans
 	AddPlan("ultra_fast")
 	Walk(:From = "warehouse", :To = "destination")
 	Using(:fastest)
@@ -2539,17 +2810,12 @@ oPlanner {
 	Using(:cheapest)
 	Execute()
 	
-	# NOW rank them
-	? "=== AUTO-RANKING ALL PLANS ==="
-	
-	aRankedCost = RankPlansBy("cost")
-	? "Plans ranked by cost:"
-	? @@NL( aRankedCost )
+	# Auto-rank all executed plans
+	? @@NL( RankPlansBy("cost") )
 	#--> [
-	# 	[ "ultra_fast", 15.30 ],
-	# 	[ "budget", 31 ]
-	# ]
-
+	#      [ "ultra_fast", 15.30 ],
+	#      [ "budget", 31 ]
+	#    ]
 }
 
 pf()
@@ -2563,9 +2829,8 @@ pf()
 `
   CONCEPT: Compare current plans with historical data
   
-  Every time you execute a plan, it's stored in history.
-  You can then compare new plans against past performance
-  to see if you're improving or degrading.
+  Track performance across executions to identify
+  improvements or degradation.
 `
 
 pr()
@@ -2585,17 +2850,18 @@ oGraph {
 
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
-	? "=== HISTORICAL LEARNING ===" + NL
-	
 	# Attempt 1: Initial optimal route
 	AddPlan("attempt1")
 	Walk(:From = "start", :To = "end")
 	Minimize("cost")
 	Execute()
-	? "Attempt 1 cost: " + Cost() + " via " + @@(Route())
-	#--> 23 via ["start", "mid2", "end"]
+	? Cost()
+	#--> 23
 	
-	# Network degrades - mid2 route becomes congested
+	? @@( Route() )
+	#--> [ "start", "mid2", "end" ]
+	
+	# Network degrades - mid2 route congested
 	@oGraph.SetEdgeProperty("mid2", "end", "cost", 25)
 	
 	# Attempt 2: Same plan, worse network
@@ -2603,8 +2869,11 @@ oPlanner {
 	Walk(:From = "start", :To = "end")
 	Minimize("cost")
 	Execute()
-	? "Attempt 2 cost: " + Cost() + " via " + @@(Route())
-	#--> 30 via ["start", "mid1", "end"] (switched routes!)
+	? Cost()
+	#--> 30
+	
+	? @@( Route() )
+	#--> [ "start", "mid1", "end" ] (switched routes!)
 	
 	# Network improves - mid1 route optimized
 	@oGraph.SetEdgeProperty("mid1", "end", "cost", 12)
@@ -2614,126 +2883,45 @@ oPlanner {
 	Walk(:From = "start", :To = "end")
 	Minimize("cost")
 	Execute()
-	? "Attempt 3 cost: " + Cost() + " via " + @@(Route())
-	#--> 22 via ["start", "mid1", "end"] (best yet!)
+	? Cost()
+	#--> 22 (best yet!)
 	
-	? NL + "Total executions: " + HistoryCount()
-	? "Historical average cost: " + HistoricalAverage("cost")
-	? "Best historical plan: " + BestHistoricalPlan("cost")
+	? @@( Route() )
+	#--> [ "start", "mid1", "end" ]
 	
-	SetCurrentPlan("attempt3")
-	oHistComp = CompareWithHistory()
-	
-	? NL + oHistComp.Explain()
-	#--> Shows attempt3 is better than average (22 vs 25)
-	
-	? NL + "Is this an improvement? " + oHistComp.IsImprovement()
-	#--> TRUE
-	
-	? "Improvement percentage: " + oHistComp.ImprovementPercentage() + "%"
-	#--> ~12% improvement
-}
-#-->
-# === HISTORICAL LEARNING ===
-# 
-# Attempt 1 cost: 23 via [ "start", "mid2", "end" ]
-# Attempt 2 cost: 30 via [ "start", "mid1", "end" ]
-# Attempt 3 cost: 22 via [ "start", "mid1", "end" ]
-# 
-# Total executions: 3
-# Historical average cost: 25
-# Best historical plan: attempt3
-# 
-# === HISTORICAL COMPARISON ===
-# 
-# Current Plan: attempt3
-#   Cost: 22
-#   Steps: 3
-# 
-# Historical Average:
-#   Cost: 25
-#   Steps: 3
-# 
-# ✓ Current plan is 12% better than average
-# 
-# Best historical plan: attempt3
-# 
-# Is this an improvement? 1
-# Improvement percentage: 12%
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.25
-
-/*--- A simular example demonstrating history tracking with identical results
-
-pr()
-
-oGraph = new stzGraph("evolving_network")
-oGraph {
-	AddNode("start")
-	AddNode("mid1")
-	AddNode("mid2")
-	AddNode("end")
-	
-	# Simulate network that changes over time
-	AddEdgeXTT("start", "mid1", "path", [:cost = 10])
-	AddEdgeXTT("start", "mid2", "path", [:cost = 15])
-	AddEdgeXTT("mid1", "end", "path", [:cost = 20])
-	AddEdgeXTT("mid2", "end", "path", [:cost = 8])
-}
-
-oPlanner = new stzGraphPlanner(oGraph)
-oPlanner {
-	? "=== HISTORICAL LEARNING ==="
-	
-	# Execute plan 1 (first attempt)
-	AddPlan("attempt1")
-	Walk(:From = "start", :To = "end")
-	Minimize("cost")
-	Execute()
-	? "Attempt 1 cost: " + Cost()
-	#--> 23 (start->mid2->end)
-	
-	# Execute plan 2 (second attempt with different graph state)
-	AddPlan("attempt2")
-	Walk(:From = "start", :To = "end")
-	Minimize("cost")
-	Execute()
-	? "Attempt 2 cost: " + Cost()
-	
-	# Execute plan 3
-	AddPlan("attempt3")
-	Walk(:From = "start", :To = "end")
-	Minimize("cost")
-	Execute()
-	? "Attempt 3 cost: " + Cost()
-	
-	? NL + "Total executions in history: " + HistoryCount()
+	# Historical analysis
+	? HistoryCount()
 	#--> 3
 	
-	? NL + "Historical average cost: " + HistoricalAverage("cost")
-	? "Historical average steps: " + HistoricalAverage("steps")
+	? HistoricalAverage("cost")
+	#--> 25
 	
-	? NL + "Best historical plan: " + BestHistoricalPlan("cost")
+	? BestHistoricalPlan("cost")
+	#--> attempt3
 	
-	# Compare current plan with history
+	# Compare current with history
 	SetCurrentPlan("attempt3")
-	oHistComp = CompareWithHistory()
+	oHistComp = CompareWithHistoryQ() # Get a stzHistoricalComparison object
 	
-	? NL + oHistComp.Explain()
-	#--> === HISTORICAL COMPARISON ===
-	#    Current Plan: attempt3
-	#    Cost: 23
-	#    Steps: 3
-	#    
-	#    Historical Average:
-	#    Cost: 23
-	#    Steps: 3
-	#    
-	#    = Current plan matches historical average
+	? @@NL( oHistComp.Explain() )
+	#--> [
+	# 	[ "current_plan", "attempt3" ],
+	# 	[ "cost", 22 ],
+	# 	[ "steps", 3 ],
+	# 	[ "historical_average_cost", 25 ],
+	# 	[ "historical_average_steps", 3 ],
+	# 	[
+	# 		"observation",
+	# 		"✓ Current plan is 12% better than average"
+	# 	],
+	# 	[ "best_historical_plan", "attempt3" ]
+	# ]
 	
-	? NL + "Is this an improvement? " + oHistComp.IsImprovement() #--> FALSE
-	? "Improvement percentage: " + oHistComp.ImprovementPercentage() + "%" #--> 0%
+	? oHistComp.IsImprovement()
+	#--> TRUE
+	
+	? oHistComp.ImprovementPercentage() # Or Improvement100()
+	#--> 12
 }
 
 pf()
@@ -2743,8 +2931,7 @@ pf()
 `
   CONCEPT: Identify performance trends and degradation
   
-  Monitor how route performance changes as network conditions
-  fluctuate, helping you detect when intervention is needed.
+  Monitor route performance as network conditions change.
 `
 
 pr()
@@ -2761,63 +2948,51 @@ oGraph {
 
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
-	? "=== PERFORMANCE TRACKING ===" + NL
-	
-	# Simulate 5 delivery runs with increasing congestion
+	# Simulate 5 runs with increasing congestion
 	for i = 1 to 5
-		cPlanName = "delivery_" + i
-		AddPlan(cPlanName)
+		AddPlan("delivery_" + i)
 		Walk(:From = "depot", :To = "customer")
 		Minimize("cost")
 		Execute()
 		
-		? "Run " + i + " cost: " + Cost()
+		? Cost()
+		#--> Run 1: 35, Run 2: 38, Run 3: 41, Run 4: 44, Run 5: 47
 		
-		# Simulate traffic building up
+		# Simulate traffic buildup
 		nCurrentCost = @oGraph.EdgeProperty("depot", "hub", "cost")
 		@oGraph.SetEdgeProperty("depot", "hub", "cost", nCurrentCost + 3)
 	next
 	
-	? NL + "=== HISTORICAL ANALYSIS ==="
-	? "Total runs: " + HistoryCount()
-	? "Average cost: " + HistoricalAverage("cost")
-	? "Best run: " + BestHistoricalPlan("cost")
-	? "Worst run: " + WorstHistoricalPlan("cost")  # Need WorstHistoricalPlan()
+	# Historical analysis
+	? HistoryCount()
+	#--> 5
+	
+	? HistoricalAverage("cost")
+	#--> 41
+	
+	? BestHistoricalPlan("cost")
+	#--> delivery_1
+	
+	? WorstHistoricalPlan("cost")
+	#--> delivery_5
 	
 	# Latest run comparison
 	SetCurrentPlan("delivery_5")
-	oHistComp = CompareWithHistory()
-	? NL + oHistComp.Explain()
-	#--> Shows degradation trend: 35, 38, 41, 44, 47
+	oHistComp = CompareWithHistoryQ() # Get a tzHistoricalComparison object
+	? @@NL( oHistComp.Explain() )
+	#--> [
+	# 	[ "current_plan", "delivery_5" ],
+	# 	[ "cost", 47 ],
+	# 	[ "steps", 3 ],
+	# 	[ "historical_average_cost", 41 ],
+	# 	[ "historical_average_steps", 3 ],
+	# 	[
+	# 		"observation",
+	# 		"✗ Current plan is 14.63% worse than average"
+	# 	],
+	# 	[ "best_historical_plan", "delivery_1" ]
+	# ]
 }
-#-->
-# === PERFORMANCE TRACKING ===
-# 
-# Run 1 cost: 35
-# Run 2 cost: 38
-# Run 3 cost: 41
-# Run 4 cost: 44
-# Run 5 cost: 47
-# 
-# === HISTORICAL ANALYSIS ===
-# Total runs: 5
-# Average cost: 41
-# Best run: delivery_1
-# Worst run: delivery_5
-# 
-# === HISTORICAL COMPARISON ===
-# 
-# Current Plan: delivery_5
-#   Cost: 47
-#   Steps: 3
-# 
-# Historical Average:
-#   Cost: 41
-#   Steps: 3
-# 
-# ✗ Current plan is 14.63% worse than average
-# 
-# Best historical plan: delivery_1
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.25
@@ -2830,8 +3005,8 @@ pf()
 `
   CONCEPT: Filter plans by constraints
   
-  Create plans with genuinely different routes, then filter
-  by cost, avoided nodes, or other criteria.
+  Create genuinely different routes, then filter by
+  cost, avoided nodes, or other criteria.
 `
 
 pr()
@@ -2845,127 +3020,183 @@ oGraph {
 	AddNode("avoid_me")
 	AddNode("destination")
 	
-	# Cheap route: 15 total
+	# Cheap: 15 total
 	AddEdgeXTT("origin", "cheap_route", "path", [:cost = 10])
 	AddEdgeXTT("cheap_route", "destination", "path", [:cost = 5])
 	
-	# Expensive route through avoid_me: 80 total
+	# Expensive through avoid_me: 80 total
 	AddEdgeXTT("origin", "expensive_route", "path", [:cost = 50])
 	AddEdgeXTT("expensive_route", "avoid_me", "path", [:cost = 20])
 	AddEdgeXTT("avoid_me", "destination", "path", [:cost = 10])
 	
-	# Medium route: 35 total
+	# Medium: 35 total
 	AddEdgeXTT("origin", "medium_route", "path", [:cost = 20])
 	AddEdgeXTT("medium_route", "destination", "path", [:cost = 15])
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
-	# Plan 1: Cheap route
+	# Force different routes
 	AddPlan("plan_cheap")
 	Walk(:From = "origin", :To = "destination")
 	Minimize("cost")
 	Execute()
 	
-	# Plan 2: Force expensive route by making it goal
 	AddPlan("plan_via_avoid")
 	Walk(:From = "origin", :To = "avoid_me")
 	Minimize("cost")
 	Execute()
 	
-	# Plan 3: Force medium route
 	AddPlan("plan_via_medium")
 	Walk(:From = "origin", :To = "medium_route")
 	Minimize("cost")
 	Execute()
 	
-	? "=== CONSTRAINT-BASED FILTERING ===" + NL
+	#-------------------------------
+	? BoxRound("Filter: cost <= 50")
+	#-------------------------------
+
+	oFilter1 = FilterPlansQ([:maxCost = 50]) # get a stzPlanFilter object
+	? oFilter1.Count()
+	#--> 2
 	
-	# Filter 1: Plans with max cost of 50
-	? "Plans with cost <= 50:"
-	oFilter1 = FilterPlans([:maxCost = 50])
-	? "Found " + oFilter1.Count() + " plans" + NL
-	oFilter1.Show()
+	? @@( oFilter1.Plans() ) + NL
+	#--> [ "plan_cheap", "plan_via_medium" ]
+
+	? @@NL( oFilter1.PlansXT() ) + NL
+	#--> [
+	# 	[
+	# 		"constrains_applied",
+	# 		[
+	# 			[ "maxcost", 50 ]
+	# 		]
+	# 	],
+	# 	[ "plans_matching_count", 2 ],
+	# 	[
+	# 		"plans_matching_details",
+	# 		[
+	# 			[
+	# 				[ "plan", "plan_cheap" ],
+	# 				[ "cost", 15 ],
+	# 				[ "steps", 3 ],
+	# 				[
+	# 					"route",
+	# 					[ "origin", "cheap_route", "destination" ]
+	# 				]
+	# 			],
+	# 			[
+	# 				[ "plan", "plan_via_medium" ],
+	# 				[ "cost", 20 ],
+	# 				[ "steps", 2 ],
+	# 				[
+	# 					"route",
+	# 					[ "origin", "medium_route" ]
+	# 				]
+	# 			]
+	# 		]
+	# 	]
+	# ]
+
+	#-------------------------------
+	? BoxRound("Filter: avoid node")
+	#-------------------------------
+
+	oFilter2 = PlansAvoidingQ("avoid_me")
+	? oFilter2.Count()
+	#--> 2
 	
-	# Filter 2: Plans avoiding a specific node
-	? NL + "Plans that avoid 'avoid_me' node:"
-	oFilter2 = PlansAvoiding("avoid_me")
-	? "Found " + oFilter2.Count() + " plans" + NL
-	oFilter2.Show()
+	? @@( oFilter2.Plans() ) + NL
+	#--> [ "plan_cheap", "plan_via_medium" ]
 	
-	# Filter 3: Plans with minimum cost
-	? NL + "Plans with cost >= 20:"
-	oFilter3 = FilterPlans([:minCost = 20])
-	? "Found " + oFilter3.Count() + " plans" + NL
-	oFilter3.Show()
+	? @@NL( oFilter2.PlansXT() ) + NL
+	#--> [
+	# 	[
+	# 		"constrains_applied",
+	# 		[
+	# 			[ "avoid", "avoid_me" ]
+	# 		]
+	# 	],
+	# 	[ "plans_matching_count", 2 ],
+	# 	[
+	# 		"plans_matching_details",
+	# 		[
+	# 			[
+	# 				[ "plan", "plan_cheap" ],
+	# 				[ "cost", 15 ],
+	# 				[ "steps", 3 ],
+	# 				[
+	# 					"route",
+	# 					[ "origin", "cheap_route", "destination" ]
+	# 				]
+	# 			],
+	# 			[
+	# 				[ "plan", "plan_via_medium" ],
+	# 				[ "cost", 20 ],
+	# 				[ "steps", 2 ],
+	# 				[
+	# 					"route",
+	# 					[ "origin", "medium_route" ]
+	# 				]
+	# 			]
+	# 		]
+	# 	]
+	# ]
+
+	#-------------------------------
+	? BoxRound("Filter: cost >= 20")
+	#-------------------------------
+
+	oFilter3 = FilterPlansQ([:minCost = 20])
+	? oFilter3.Count()
+	#--> 2
+	
+	? @@(oFilter3.Plans()) + NL
+	#--> [ "plan_via_avoid", "plan_via_medium" ]
+
+	? @@NL(oFilter3.PlansXT())
+	#--> [
+	# 	[
+	# 		"constrains_applied",
+	# 		[
+	# 			[ "mincost", 20 ]
+	# 		]
+	# 	],
+	# 	[ "plans_matching_count", 2 ],
+	# 	[
+	# 		"plans_matching_details",
+	# 		[
+	# 			[
+	# 				[ "plan", "plan_via_avoid" ],
+	# 				[ "cost", 70 ],
+	# 				[ "steps", 3 ],
+	# 				[
+	# 					"route",
+	# 					[ "origin", "expensive_route", "avoid_me" ]
+	# 				]
+	# 			],
+	# 			[
+	# 				[ "plan", "plan_via_medium" ],
+	# 				[ "cost", 20 ],
+	# 				[ "steps", 2 ],
+	# 				[
+	# 					"route",
+	# 					[ "origin", "medium_route" ]
+	# 				]
+	# 			]
+	# 		]
+	# 	]
+	# ]
+
 }
-#-->
-# === CONSTRAINT-BASED FILTERING ===
-# 
-# Plans with cost <= 50:
-# Found 2 plans
-# 
-# === FILTERED PLANS ===
-# 
-# Constraints applied: [ [ "maxcost", 50 ] ]
-# 
-# Plans matching: 2
-# 
-# 1. plan_cheap
-#    Cost: 15
-#    Steps: 3
-#    Route: [ "origin", "cheap_route", "destination" ]
-# 2. plan_via_medium
-#    Cost: 20
-#    Steps: 2
-#    Route: [ "origin", "medium_route" ]
-# 
-# Plans that avoid 'avoid_me' node:
-# Found 2 plans
-# 
-# === FILTERED PLANS ===
-# 
-# Constraints applied: [ [ "avoid", "avoid_me" ] ]
-# 
-# Plans matching: 2
-# 
-# 1. plan_cheap
-#    Cost: 15
-#    Steps: 3
-#    Route: [ "origin", "cheap_route", "destination" ]
-# 2. plan_via_medium
-#    Cost: 20
-#    Steps: 2
-#    Route: [ "origin", "medium_route" ]
-# 
-# Plans with cost >= 20:
-# Found 2 plans
-# 
-# === FILTERED PLANS ===
-# 
-# Constraints applied: [ [ "mincost", 20 ] ]
-# 
-# Plans matching: 2
-#
-# 1. plan_via_avoid
-#    Cost: 70
-#    Steps: 3
-#    Route: [ "origin", "expensive_route", "avoid_me" ]
-# 2. plan_via_medium
-#    Cost: 20
-#    Steps: 2
-#   Route: [ "origin", "medium_route" ]
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.24
+# Executed in 0.05 second(s) in Ring 1.25
 
 /*--- Example 20.2: Finding Plans Within Percentage of Optimal
 `
   CONCEPT: Tolerance-based filtering
   
-  Sometimes you want "good enough" solutions - plans that
-  are within 10% of the optimal cost. This gives you
-  flexibility while maintaining efficiency.
+  Find "good enough" solutions within percentage of optimal.
 `
 
 pr()
@@ -2978,211 +3209,276 @@ oGraph {
 	AddNode("option_c")
 	AddNode("target")
 	
-	# Optimal route: cost 100
+	# Optimal: 40
 	AddEdgeXTT("base", "option_a", "path", [:cost = 40])
 	AddEdgeXTT("option_a", "target", "path", [:cost = 60])
 	
-	# Near-optimal route: cost 105 (5% worse)
+	# Near-optimal: 45 (12.5% worse)
 	AddEdgeXTT("base", "option_b", "path", [:cost = 45])
 	AddEdgeXTT("option_b", "target", "path", [:cost = 60])
 	
-	# Suboptimal route: cost 130 (30% worse)
+	# Suboptimal: 70 (75% worse)
 	AddEdgeXTT("base", "option_c", "path", [:cost = 70])
 	AddEdgeXTT("option_c", "target", "path", [:cost = 60])
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
-	# Create plans via different routes
-	# Plan 1: Optimal via option_a
+	# Force different routes
 	AddPlan("optimal")
 	Walk(:From = "base", :To = "option_a")
 	Minimize("cost")
 	Execute()
 	
-	# Plan 2: Near-optimal via option_b
 	AddPlan("near_optimal")
 	Walk(:From = "base", :To = "option_b")
 	Minimize("cost")
 	Execute()
 	
-	# Plan 3: Suboptimal via option_c
 	AddPlan("suboptimal")
 	Walk(:From = "base", :To = "option_c")
 	Minimize("cost")
 	Execute()
 	
-	? "=== TOLERANCE-BASED FILTERING ==="
+	# Filter within 15% of optimal
+	oFilter = PlansWithinQ(15, :of = "optimal") # get a stzPlanFilter object
+	? oFilter.Count()
+	#--> 2
 	
-	# Find plans within 10% of optimal
-	? NL + "Plans within 15% of optimal:"
-	oFilter = PlansWithin(15, :of = "optimal")
-	? "Found " + oFilter.Count() + " plans"
-	oFilter.Show()
-	#--> Should include optimal and near_optimal, but not suboptimal
+	? @@( oFilter.Plans() ) + NL
+	#--> [ "optimal", "near_optimal" ]
 	
-	? NL + "Best plan from filtered set:"
-	? oFilter.BestBy("cost")
+	? @@NL( oFilter.PlansXT() ) + NL
+	#--> [
+	# 	[
+	# 		"constrains_applied",
+	# 		[
+	# 			[ "maxcost", 46 ]
+	# 		]
+	# 	],
+	# 	[ "plans_matching_count", 2 ],
+	# 	[
+	# 		"plans_matching_details",
+	# 		[
+	# 			[
+	# 				[ "plan", "optimal" ],
+	# 				[ "cost", 40 ],
+	# 				[ "steps", 2 ],
+	# 				[
+	# 					"route",
+	# 					[ "base", "option_a" ]
+	# 				]
+	# 			],
+	# 			[
+	# 				[ "plan", "near_optimal" ],
+	# 				[ "cost", 45 ],
+	# 				[ "steps", 2 ],
+	# 				[
+	# 					"route",
+	# 					[ "base", "option_b" ]
+	# 				]
+	# 			]
+	# 		]
+	# 	]
+	# ]
+
+	? oFilter.BestBy("cost") + NL
+	#--> optimal
 	
-	? NL + "Ranking of filtered plans:"
 	oFilter.ShowRankingTable()
+	#-->
+	`
+	╭──────┬──────────────┬──────┬───────╮
+	│ Rank │     Plan     │ Cost │ Steps │
+	├──────┼──────────────┼──────┼───────┤
+	│    1 │ optimal      │   40 │     2 │
+	│    2 │ near_optimal │   45 │     2 │
+	╰──────┴──────────────┴──────┴───────╯
+	`
 }
-#-->
-# === TOLERANCE-BASED FILTERING ===
-# 
-# Plans within 10% of optimal:
-# Found 2 plans
-# === FILTERED PLANS ===
-# 
-# Constraints applied: [ [ "maxcost", 46 ] ]
-# 
-# Plans matching: 2
-# 
-# 1. optimal
-#    Cost: 40
-#    Steps: 2
-#    Route: [ "base", "option_a" ]
-# 2. near_optimal
-#    Cost: 45
-#    Steps: 2
-#    Route: [ "base", "option_b" ]
-# 
-# Best plan from filtered set:
-# optimal
-# 
-# Ranking of filtered plans:
-# === PLAN RANKING TABLE ===
-# 
-# Rank | Plan Name          | Cost  | Steps
-# -----+--------------------+-------+------
-# 1    | optimal            | 40    | 2
-# 2    | near_optimal       | 45    | 2
-#
+
 pf()
-# Executed in 0.02 second(s) in Ring 1.25
+# Executed in 0.04 second(s) in Ring 1.25
 
 /*--- Example 20.3: Complex Multi-Constraint Filtering
 `
   CONCEPT: Combine multiple constraints
   
-  Real-world scenarios often have multiple constraints:
-  "Find plans under $50 that avoid downtown and have
-  fewer than 5 steps."
+  Real-world: "Find plans under $50 that avoid downtown
+  and have fewer than 5 steps."
 `
-#ERR
 
 pr()
 
 oGraph = new stzGraph("complex_filter")
 oGraph {
 	AddNode("start")
-	AddNode("downtown")  # Want to avoid this
+	AddNode("downtown")
 	AddNode("suburbs")
 	AddNode("industrial")
 	AddNode("end")
 	
-	# Route through downtown: cheap but risky
+	# Downtown: cheap but risky
 	AddEdgeXTT("start", "downtown", "path", [:cost = 15])
 	AddEdgeXTT("downtown", "end", "path", [:cost = 10])
 	
-	# Route through suburbs: moderate
+	# Suburbs: moderate
 	AddEdgeXTT("start", "suburbs", "path", [:cost = 25])
 	AddEdgeXTT("suburbs", "end", "path", [:cost = 20])
 	
-	# Route through industrial: safe but longer
+	# Industrial: safe but longer
 	AddEdgeXTT("start", "industrial", "path", [:cost = 30])
 	AddEdgeXTT("industrial", "suburbs", "path", [:cost = 10])
-
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
-	# Create various route plans
+	# Force different routes
 	AddPlan("through_downtown")
-	Walk(:From = "start", :To = "end")
+	Walk(:From = "start", :To = "downtown")
 	Minimize("cost")
 	Execute()
 	
 	AddPlan("through_suburbs")
-	Walk(:From = "start", :To = "end")
+	Walk(:From = "start", :To = "suburbs")
 	Minimize("cost")
 	Execute()
 	
 	AddPlan("through_industrial")
-	Walk(:From = "start", :To = "end")
+	Walk(:From = "start", :To = "industrial")
 	Minimize("cost")
 	Execute()
 	
-	? "=== MULTI-CONSTRAINT FILTERING ==="
-	
-	# Filter with multiple constraints
-	? NL + "Plans that: cost <= 50 AND avoid downtown AND steps <= 4"
-	oFilter = FilterPlans([
-		:maxCost, 50,
-		:avoid, "downtown",
-		:maxSteps, 4
+	# Multi-constraint filter
+	oFilter = FilterPlansQ([
+		:maxCost = 50,
+		:avoid = "downtown",
+		:maxSteps = 4
 	])
 	
-	? "Found " + oFilter.Count() + " plans matching all constraints"
-	oFilter.Show()
+	? oFilter.Count() + NL
+	#--> 2 (excludes through_downtown)
 	
-	if oFilter.Count() > 0
-		? NL + "Best option from filtered set:"
-		? oFilter.BestBy("cost")
-	ok
+	? @@( oFilter.Plans() ) + NL
+	#--> [ "through_suburbs", "through_industrial" ]
+	
+	? @@NL( oFilter.PlansXT() ) + NL
+	#--> [
+	# 	[
+	# 		"constrains_applied",
+	# 		[
+	# 			[ "maxcost", 50 ],
+	# 			[ "avoid", "downtown" ],
+	# 			[ "maxsteps", 4 ]
+	# 		]
+	# 	],
+	# 	[ "plans_matching_count", 2 ],
+	# 	[
+	# 		"plans_matching_details",
+	# 		[
+	# 			[
+	# 				[ "plan", "through_suburbs" ],
+	# 				[ "cost", 25 ],
+	# 				[ "steps", 2 ],
+	# 				[
+	# 					"route",
+	# 					[ "start", "suburbs" ]
+	# 				]
+	# 			],
+	# 			[
+	# 				[ "plan", "through_industrial" ],
+	# 				[ "cost", 30 ],
+	# 				[ "steps", 2 ],
+	# 				[
+	# 					"route",
+	# 					[ "start", "industrial" ]
+	# 				]
+	# 			]
+	# 		]
+	# 	]
+	# ]
+
+	? oFilter.BestBy("cost")
+	#--> through_suburbs
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.24
+# Executed in 0.02 second(s) in Ring 1.25
 
 /*--- Example 20.4: Requiring Specific Waypoints
 `
   CONCEPT: Plans must pass through certain nodes
   
-  Sometimes you need to ensure a plan visits a specific
-  location - like a delivery truck that must stop at
-  a distribution center.
+  Ensure plan visits specific location (e.g., delivery
+  truck must stop at distribution center).
 `
-*/
-#ERR
+
 pr()
 
 oGraph = new stzGraph("waypoint_test")
 oGraph {
 	AddNode("warehouse")
-	AddNode("distribution_center")  # Must visit this
+	AddNode("distribution_center")
 	AddNode("direct_route")
 	AddNode("customer")
 	
-	# Direct route: skips distribution center
+	# Direct: skips distribution
 	AddEdgeXTT("warehouse", "direct_route", "path", [:cost = 20])
 	AddEdgeXTT("direct_route", "customer", "path", [:cost = 15])
 	
-	# Route via distribution center
+	# Via distribution
 	AddEdgeXTT("warehouse", "distribution_center", "path", [:cost = 25])
 	AddEdgeXTT("distribution_center", "customer", "path", [:cost = 20])
 }
 
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
+	# Direct route
 	AddPlan("direct")
 	Walk(:From = "warehouse", :To = "customer")
 	Minimize("cost")
 	Execute()
 	
+	# Force via distribution
 	AddPlan("via_dc")
-	Walk(:From = "warehouse", :To = "customer")
+	Walk(:From = "warehouse", :To = "distribution_center")
 	Minimize("cost")
 	Execute()
 	
-	? "=== WAYPOINT REQUIREMENT FILTERING ==="
+	# Filter requiring waypoint
+	oFilter = PlansRequiringQ("distribution_center")
+	? oFilter.Count()
+	#--> 1
 	
-	? NL + "Plans that must visit distribution_center:"
-	oFilter = PlansRequiring("distribution_center")
-	? "Found " + oFilter.Count() + " plans"
-	oFilter.Show()
-	#--> Only shows plans that pass through distribution_center
+	? @@( oFilter.Plans() ) + NL
+	#--> [ "via_dc" ]
+
+	? @@NL( oFilter.PlansXT() )
+	#--> [
+	# 	[
+	# 		"constrains_applied",
+	# 		[
+	# 			[ "requires", "distribution_center" ]
+	# 		]
+	# 	],
+	# 	[ "plans_matching_count", 1 ],
+	# 	[
+	# 		"plans_matching_details",
+	# 		[
+	# 			[
+	# 				[ "plan", "via_dc" ],
+	# 				[ "cost", 25 ],
+	# 				[ "steps", 2 ],
+	# 				[
+	# 					"route",
+	# 					[ "warehouse", "distribution_center" ]
+	# 				]
+	# 			]
+	# 		]
+	# 	]
+	# ]
+
 }
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.24
+# Executed in 0.02 second(s) in Ring 1.25
