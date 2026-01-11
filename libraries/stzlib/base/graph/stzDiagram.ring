@@ -11,6 +11,48 @@ $aDiagramValidators = [
 	:Banking
 ]
 
+# Add to stzGraphRule.ring
+
+RegisterRule(:dag, "is_acyclic", [
+	:type = :validation,
+	:function = ValidationFunc_IsAcyclic(),
+	:params = [],
+	:message = "Diagram must be acyclic (DAG)",
+	:severity = :error
+])
+
+RegisterRule(:sox, "audit_trail", [
+	:type = :validation,
+	:function = func(oGraph, paParams) {
+		acFinancial = oGraph.NodesW("domain", "=", "financial")
+		for cId in acFinancial
+			if oGraph.NodeProp(cId, "audittrail") = NULL
+				return [FALSE, "Financial node missing audit: " + cId]
+			ok
+		end
+		return [TRUE, ""]
+	},
+	:params = [],
+	:message = "Financial processes need audit trails",
+	:severity = :error
+])
+
+RegisterRule(:gdpr, "consent", [
+	:type = :validation,
+	:function = func(oGraph, paParams) {
+		acPersonal = oGraph.NodesW("dataType", "=", "personal")
+		for cId in acPersonal
+			if oGraph.NodeProp(cId, "requiresConsent") != 1
+				return [FALSE, "Personal data missing consent: " + cId]
+			ok
+		end
+		return [TRUE, ""]
+	},
+	:params = [],
+	:message = "Personal data needs consent",
+	:severity = :error
+])
+
 #  UNIFIED COLOR SYSTEM	#TODO Abstract it in a stzColor class -> Visual Module
 #-----------------------
 
@@ -757,12 +799,15 @@ class stzDiagram from stzGraph
 	@cOutputFormat = $cDefaultDiagramOutputFormat
 
 	@aVisualRules = []
+	@aNodesAffectedByRules = []
+	@aEdgesAffectedByRules = []
 
 	def init(pTitle)
 		super.init(pTitle)
 		@cTitle = pTitle
 		@cEdgeColor = ResolveColor($cDefaultEdgeColor)
 		@cFocusColor = ResolveColor($cDefaultFocusColor)
+		@cSplineType = $cDefaultSplineType
 
 	def SetTheme(pTheme)
 	
@@ -1448,68 +1493,25 @@ class stzDiagram from stzGraph
 
 	def ValidateXT(pValidator)
 		if isString(pValidator)
-			return This._ValidateSingle(pValidator)
+			# Using parent stzGraph rule system
+			This.UseRulesFrom(pValidator) 
+			return super.Validate()
+
 		but isList(pValidator)
-			aResults = []
-			nFailed = 0
-			nTotalIssues = 0
-			acAllAffected = []
-			
-			nLen = len(pValidator)
-			for i = 1 to nLen
-				aResult = This._ValidateSingle(pValidator[i])
-				aResults + aResult
-				if aResult[:status] = "fail"
-					nFailed++
-					nTotalIssues += aResult[:issueCount]
-					nAffLen = len(aResult[:affectedNodes])
-					for j = 1 to nAffLen
-						if ring_find(acAllAffected, aResult[:affectedNodes][j]) = 0
-							acAllAffected + aResult[:affectedNodes][j]
-						ok
-					end
-				ok
+			# Using parent stzGraph rule system
+			for cValidator in pValidator
+				This.UseRulesFrom(cValidator)
 			end
-			
-			return [
-				:status = iif(nFailed = 0, "pass", "fail"),
-				:validatorsRun = len(pValidator),
-				:validatorsFailed = nFailed,
-				:totalIssues = nTotalIssues,
-				:results = aResults,
-				:affectedNodes = acAllAffected
-			]
+			return super.Validate()
 		ok
 
 	def IsValid()
 		aResult = This.Validate()
-		return aResult[:status] = "pass"
+		return aResult[1] = 1
 
 	def IsValidXT(pValidator)
 		aResult = This.ValidateXT(pValidator)
-		return aResult[:status] = "pass"
-
-	def _ValidateSingle(pcValidator)
-		switch lower(pcValidator)
-		on "sox"
-			oValidator = new stzDiagramSoxValidator()
-			oValidator.Validate(This)
-			return oValidator.Result()
-			
-		on "gdpr"
-			oValidator = new stzDiagramGdprValidator()
-			oValidator.Validate(This)
-			return oValidator.Result()
-			
-		on "banking"
-			oValidator = new stzDiagramBankingValidator()
-			oValidator.Validate(This)
-			return oValidator.Result()
-			
-		other
-			# Delegate to parent stzGraph
-			return super._ValidateSingle(pcValidator)
-		off
+		return aResult[1] = 1
 
 	#-----------#
 	#  METRICS  #
@@ -1697,10 +1699,10 @@ class stzDiagram from stzGraph
 	
 		def SetVisualRuleObject(oVisualRule)
 			This.SetVisualRule(oVisualRule)
-/*	
+	
 	def ApplyVisualRules()
 		This.ApplyRulesByType("visual")
-*/	
+	
 	def VisualRule(pcRuleId)
 		return This.Rule(pcRuleId)
 	
@@ -2624,12 +2626,12 @@ class stzDiagramAnnotator
 			:nodeData = @aNodeData
 		]
 
-/*
+
 #===============================================#
 #  stzDiagramValidators - PLUGGABLE VALIDATORS  #
 #===============================================#
 
-class stzDiagramValidator
+class stzDiagramValidator #TODO Remove it??
 
 	def init()
 		@aValidators = []
@@ -2649,188 +2651,7 @@ class stzDiagramValidator
 		return $acDiagramValidators
 
 
-#===========================================#
-#  stzDiagramSoxValidator - SARBANES-OXLEY  #
-#===========================================#
 
-class stzDiagramSoxValidator from stzDiagramValidator
-	@aValidationResult = []
-
-	def init()
-
-	def Validate(oDiag)
-		aIssues = []
-
-		# Rule 1: Financial processes must have audit trail
-		acFinancialNodes = oDiag.NodesByProperty("domain", "financial")
-		nLenFin = len(acFinancialNodes)
-
-		for i = 1 to nLenFin
-			cNodeId = acFinancialNodes[i]
-			aoAnnPerf = oDiag.AnnotationsByType("performance")
-			bHasAudit = 0
-
-			nLenAnn = len(aoAnnPerf)
-			for j = 1 to nLenAnn
-				aData = aoAnnPerf[j].NodeData(cNodeId)
-				if HasKey(aData, "audittrail")
-					bHasAudit = 1
-					exit
-				ok
-			end
-
-			if NOT bHasAudit
-				aIssues + "SOX-001: Financial process missing audit trail: " + cNodeId
-			ok
-		end
-
-		# Rule 2: Payment/approval decisions must require approval
-		acDec = oDiag.NodesByType("decision")
-		nLen = len(acDec)
-
-		for i = 1 to nLen
-			cNodeId = acDec[i]
-			aNode = oDiag.Node(cNodeId)
-			bHasApprovalReq = 0
-
-			if aNode["properties"]["requiresApproval"] = 1
-				bHasApprovalReq = 1
-			ok
-
-			if NOT bHasApprovalReq
-				aIssues + "SOX-002: Decision node lacks approval requirement: " + cNodeId
-			ok
-		end
-
-		# Rule 5: No cycles in financial workflow
-		if oDiag.CyclicDependencies()
-			aIssues + "SOX-005: Cyclic dependency detected in workflow"
-		ok
-
-		nLen = len(aIssues)
-		@aValidationResult = [
-			:status = iif(nLen = 0, "pass", "fail"),
-			:domain = "sox",
-			:issueCount = nLen,
-			:issues = aIssues
-		]
-
-	def Result()
-		return @aValidationResult
-
-#==================================#
-#  stzDiagramGdprValidator - GDPR  #
-#==================================#
-
-class stzDiagramGdprValidator from stzDiagramValidator
-	@aValidationResult = []
-
-	def init()
-
-	def Validate(oDiag)
-		aIssues = []
-
-		# Rule 1: Personal data processing requires consent
-		aDataNodes = oDiag.NodesByProperty("dataType", "personal")
-		for cNodeId in aDataNodes
-			aNode = oDiag.Node(cNodeId)
-			bHasConsent = 0
-
-			if aNode["properties"]["requiresConsent"] = 1
-				bHasConsent = 1
-			ok
-
-			if NOT bHasConsent
-				aIssues + "GDPR-001: Personal data processing missing consent: " + cNodeId
-			ok
-		end
-
-		# Rule 2: Data retention policy must be defined
-		for cNodeId in aDataNodes
-			aNode = oDiag.Node(cNodeId)
-			bHasRetention = 0
-
-			if aNode["properties"]["retentionPolicy"] != ""
-				bHasRetention = 1
-			ok
-
-			if NOT bHasRetention
-				aIssues + "GDPR-002: Data node missing retention policy: " + cNodeId
-			ok
-		end
-
-		nLen = len(aIssues)
-		@aValidationResult = [
-			:status = iif(nLen = 0, "pass", "fail"),
-			:domain = "gdpr",
-			:issueCount = nLen,
-			:issues = aIssues
-		]
-
-	def Result()
-		return @aValidationResult
-
-#===============================================#
-#  stzDiagramBankingValidator - CUSTOM BANKING  #
-#===============================================#
-
-class stzDiagramBankingValidator from stzDiagramValidator
-	@aValidationResult = []
-
-	def init()
-
-	def Validate(oDiag)
-		aIssues = []
-
-		# Rule 1: Large transactions require multi-level approval
-		aLargeTransactions = oDiag.NodesByProperty("transactionType", "large")
-		for cNodeId in aLargeTransactions
-			aIncoming = oDiag.Incoming(cNodeId)
-			nApprovals = 0
-
-			for cPrev in aIncoming
-				oPrev = oDiag.Node(cPrev)
-				if oPrev["properties"]["role"] = "approver"
-					nApprovals += 1
-				ok
-			end
-
-			if nApprovals < 2
-				aIssues + "BANK-001: Large transaction requires 2+ approvals: " + cNodeId
-			ok
-		end
-
-		# Rule 2: Fraud detection before payment
-		aPaymentNodes = oDiag.NodesByProperty("operation", "payment")
-		for cNodeId in aPaymentNodes
-			aIncoming = oDiag.Incoming(cNodeId)
-			bHasFraudCheck = 0
-
-			for cPrev in aIncoming
-				aPrev = oDiag.Node(cPrev)
-				if aPrev["properties"]["operation"] = "fraud_check"
-					bHasFraudCheck = 1
-					exit
-				ok
-			end
-
-			if NOT bHasFraudCheck
-				aIssues + "BANK-002: Payment missing fraud detection: " + cNodeId
-			ok
-		end
-
-		nLen = len(aIssues)
-		@aValidationResult = [
-			:status = iif(nLen = 0, "pass", "fail"),
-			:domain = "banking",
-			:issueCount = nLen,
-			:issues = aIssues
-		]
-
-	def Result()
-		return @aValidationResult
-
-*/
 
 #=======================================#
 #  stzDiagramToStzDiag - NATIVE FORMAT  #
@@ -3255,16 +3076,6 @@ class stzDiagramToDot
 	        return cOutput
 	    ok
 	    
- 	    cFillColor = This._GetNodeFillColor(aNode, @oDiagram.@aNodesAffectedByRules, cTheme)
-
-	    # Check if this node was affected by focus/rules
-	    if HasKey(@oDiagram.@aNodesAffectedByRules, aNode["id"])
-	        aRuleEffects = @oDiagram.@aNodesAffectedByRules[aNode["id"]]
-	        if HasKey(aRuleEffects, "color")
-	            cFillColor = ResolveColor(aRuleEffects["color"])
-	        ok
-	    ok
-
 	    if left(cNodeId, 8) = "_helper_"
 	        cOutput = '    ' + cNodeId + ' [shape=point, width=0.01, height=0.01, style=invis, fixedsize=true, label=""]' + NL
 	        return cOutput
@@ -3279,33 +3090,37 @@ class stzDiagramToDot
 	    
 	    cShape = This._GetNodeShape(aNode, aAppliedRules)
 	    cStyle = This._GetNodeStyle(aNode, aAppliedRules)
+	    cFillColor = This._GetNodeFillColor(aNode, aAppliedRules, cTheme)
 	    
 	    cOutput = '    ' + cNodeId + ' [label="' + cLabel + '"'
 	    cOutput += ', shape=' + cShape
 	    cOutput += ', style="' + cStyle + '"'
+	    cOutput += ', fillcolor="' + cFillColor + '"'
+	    
+	    # Add contrasting font color
+	    cFontColor = @oDiagram.ResolveFontColor(cFillColor)
+	    cOutput += ', fontcolor="' + cFontColor + '"'
 	    
 	    # ORG CHART POSITION NODES
 	    if HasKey(aNode["properties"], "positiontype") and 
-			aNode["properties"]["positiontype"] = "position"
-		
-			cFillColor = ResolveColor(aNode["properties"]["color"])
-			cOutput += ', style="rounded,solid,filled"'
-			cOutput += ', fillcolor="' + cFillColor + '"'
-			cOutput += ', fontcolor="' + @oDiagram.ResolveFontColor(cFillColor) + '"'
-		
-			# Use diagram's stroke color setting
-			cStrokeColor = @oDiagram.@cNodeStrokeColor
-			if cStrokeColor = '' or cStrokeColor = "invisible"
-				cStrokeColor = cFillColor
-			ok
-			cOutput += ', color="' + ResolveColor(cStrokeColor) + '"'
+	        aNode["properties"]["positiontype"] = "position"
+	        
+	        cFillColor = ResolveColor(aNode["properties"]["color"])
+	        cOutput += ', fillcolor="' + cFillColor + '"'
+	        cOutput += ', fontcolor="' + @oDiagram.ResolveFontColor(cFillColor) + '"'
+	        
+	        # Use diagram's stroke color setting
+	        cStrokeColor = @oDiagram.@cNodeStrokeColor
+	        if cStrokeColor = '' or cStrokeColor = "invisible"
+	            cStrokeColor = cFillColor
+	        ok
+	        cOutput += ', color="' + ResolveColor(cStrokeColor) + '"'
 	    ok
 	    
 	    cOutput += ']' + NL
 	    
 	    return cOutput
 
-	
 	def _SanitizeNodeId(cNodeId)
 		if left(cNodeId, 1) = "@"
 			return @substr(cNodeId, 2, stzlen(cNodeId))
@@ -3399,53 +3214,51 @@ class stzDiagramToDot
 		return cBaseStyle
 	
 	def _GetNodeFillColor(aNode, aEnhancements, cTheme)
-		cColor = ""
-		
-		# Check node properties FIRST (where rules write to)
-		if HasKey(aNode, "properties") and aNode["properties"] != NULL and 
-		   HasKey(aNode["properties"], "color") and aNode["properties"]["color"] != NULL
-			cColor = aNode["properties"]["color"]
-		ok
-
-		if cColor = '' and HasKey(@oDiagram.@aNodesAffectedByRules, "color")
-			cColor = @oDiagram.@aNodesAffectedByRules["color"]
-		ok
-		
-		# Default
-		if cColor = "" or cColor = NULL
-			cColor = $cDefaultNodeColor
-		ok
-		
-		# If already hex, apply theme transforms
-		if substr(cColor, "#")
-			if cTheme = "gray"
-				return @oDiagram.ConvertColorTogray(cColor)
-			but cTheme = "print"
-				return ResolveColor(:white)
-			ok
-			return cColor
-		ok
-		
-		# Apply theme palette for semantic colors
-		cLowerColor = lower(cColor)
-		if HasKey($aPalette, cTheme)
-			aThemePalette = $aPalette[cTheme]
-			if HasKey(aThemePalette, cLowerColor)
-				cColor = aThemePalette[cLowerColor]
-			ok
-		ok
-		
-		# Resolve to hex
-		cColor = ResolveColor(cColor)
-		
-		# Final theme transforms
-		if cTheme = "gray"
-			cColor = @oDiagram.ConvertColorTogray(cColor)
-		but cTheme = "print"
-			cColor = ResolveColor(:white)
-		ok
-		
-		return cColor
+	    cColor = ""
+	    
+	    # Check enhancements from rules FIRST
+	    if HasKey(aEnhancements, "color")
+	        cColor = aEnhancements["color"]
+	    ok
+	    
+	    # Then check node properties
+	    if cColor = "" and HasKey(aNode, "properties") and aNode["properties"] != NULL and 
+	       HasKey(aNode["properties"], "color") and aNode["properties"]["color"] != NULL
+	        cColor = aNode["properties"]["color"]
+	    ok
+	    
+	    # Default
+	    if cColor = "" or cColor = NULL
+	        cColor = "white"
+	    ok
+	    
+	    # If already hex, return after theme transforms
+	    if substr(cColor, "#")
+	        if cTheme = "gray"
+	            return @oDiagram.ConvertColorTogray(cColor)
+	        but cTheme = "print"
+	            return ResolveColor(:white)
+	        ok
+	        return cColor
+	    ok
+	    
+	    # Resolve through theme palette for semantic colors
+	    cLowerColor = lower(cColor)
+	    if HasKey($aPalette, cTheme) and HasKey($aPalette[cTheme], cLowerColor)
+	        cColor = $aPalette[cTheme][cLowerColor]
+	    ok
+	    
+	    # Resolve to hex
+	    cColor = ResolveColor(cColor)
+	    
+	    # Final theme transforms
+	    if cTheme = "gray"
+	        cColor = @oDiagram.ConvertColorTogray(cColor)
+	    but cTheme = "print"
+	        cColor = ResolveColor(:white)
+	    ok
+	    
+	    return cColor
 	
 	def _GetNodeStrokeColor(cTheme)
 		if @oDiagram.@cNodeStrokeColor != "" and @oDiagram.@cNodeStrokeColor != NULL

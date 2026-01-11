@@ -260,7 +260,7 @@ func ConstraintFunc_PropertyMismatch()
 
 func ValidationFunc_IsAcyclic()
 	return func(oGraph, paRuleParams) {
-		if oGraph.CyclicDependencies()
+		if oGraph.HasCyclicDependencies()
 			return [FALSE, "Graph contains cycles"]
 		ok
 		return [TRUE, ""]
