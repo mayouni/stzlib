@@ -84,6 +84,7 @@ oGraph {
 '
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Node and Edge Existence
 
@@ -1151,8 +1152,8 @@ oGraph.ShowH()
 pf()
 # Executed in 0.04 second(s) in Ring 1.24
 
-/*-- GraphML export
-*/
+/*-- GraphML export #TODO Check GraphML correctness
+
 pr()
 
 oGraph = new stzGraph("SimpleGraph")
@@ -1277,7 +1278,7 @@ oGraph {
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
-*--- Path Explanation
+/*--- Path Explanation
 
 pr()
 
@@ -2117,15 +2118,13 @@ pf()
 #============================================#
 
 # In this first part of the rules test section, we
-# try to understanding graph rules...
+# try to understand graph rules...
 
 # Rules let you define behaviors that apply automatically.
 # Three types:
 #  1. DERIVATION - Automatically create new edges
 #  2. CONSTRAINT - Block invalid operations
 #  3. VALIDATION - Check graph correctness
-
-pf()
 
 /*===== SIMPLE DERIVATION RULE
 
@@ -2198,6 +2197,7 @@ After derivation:
 `
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*===== SIMPLE CONSTRAINT RULE
@@ -2298,7 +2298,7 @@ oGraph {
 	UseRulesFrom(:project)
 	
 	? "Scenario 1: Task without owner"
-	aResult = ValidateGraph()
+	aResult = Validate()
 	? "  Valid: " + aResult[1]
 	if NOT aResult[1]
 		? "  Problem: " + aResult[2][1][:message]
@@ -2309,7 +2309,7 @@ oGraph {
 	RemoveEdge("alice", "task1")
 	AddEdgeXT("alice", "task1", "owns")
 	
-	aResult = ValidateGraph()
+	aResult = Validate()
 	? "  Valid: " + aResult[1]
 	? "  (Task now has owner!)" + NL
 }
@@ -2502,7 +2502,7 @@ oGraph {
 	? "  Alice can assign tasks: " + PathExists("alice", "bob_tasks") + NL
 	
 	? "Validation:"
-	aResult = ValidateGraph()
+	aResult = Validate()
 	? "  Balanced: " + aResult[1]
 }
 #-->
@@ -2512,10 +2512,10 @@ Initial setup:
 
 Applying derivations...
   Derived edges: 2
-  Alice can assign tasks: 1
+  Alice can assign tasks: TRUE
 
 Validation:
-  Balanced: 1
+  Balanced: FALSE
 '
 
 pf()
@@ -2650,6 +2650,7 @@ Approval attempts:
 '
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.25
 # Executed in 0.05 second(s) in Ring 1.24
 
 /*===== SUMMARY OF THE PART 1 OF RULES TESTING
@@ -2790,6 +2791,7 @@ Alice can reach resource: 1
 `
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.25
 # Executed in 0.05 second(s) in Ring 1.24
 
 /*--- CONSTRAINT RULES
@@ -2897,7 +2899,6 @@ Testing constraints...
 
 3. Junior approving senior allowed: TRUE
 # Peter (level 1) CAN approve John (level 2) because the rule blocks same-or-lower, not higher levels
-
 '
 
 pf()
@@ -2976,7 +2977,7 @@ oGraph {
 	
 	? "Validating graph..." + NL
 	
-	aResult = ValidateGraph()
+	aResult = Validate()
 	? "Graph valid: " + iff(aResult[1] = 1, "TRUE", "FALSE")
 	
 	if NOT aResult[1]
@@ -2997,7 +2998,7 @@ oGraph {
 	? "Adding cycle..." + NL
 	Connect("end", "start")
 	
-	aResult = ValidateGraph()
+	aResult = Validate()
 	? "Graph valid: " + iff(aResult[1] = 1, "TRUE", "FALSE" ) + NL
 	
 	if NOT aResult[1]
@@ -3009,7 +3010,7 @@ oGraph {
 	ok
 	
 	? ""
-	Show() #ERR
+	# Show() #ERR Check error when graph contains cycled nodes
 }
 #-->
 '
@@ -3031,6 +3032,7 @@ Graph valid: FALSE
 '
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.25
 # Executed in 0.02 second(s) in Ring 1.24
 
 /*------------- VALIDATION RULES
@@ -3106,7 +3108,7 @@ oGraph {
 	
 	? "Validating graph..." + NL
 	
-	aResult = ValidateGraph()
+	aResult = Validate()
 	? "Graph valid: " + iff(aResult[1] = 1, "TRUE", "FALSE")
 	
 	if NOT aResult[1]
@@ -3127,7 +3129,7 @@ oGraph {
 	? "Adding cycle..." + NL
 	Connect("end", "start")
 	
-	aResult = ValidateGraph()
+	aResult = Validate()
 	? "Graph valid: " + iff(aResult[1] = 1, "TRUE", "FALSE" ) + NL
 	
 	if NOT aResult[1]
@@ -3139,7 +3141,7 @@ oGraph {
 	ok
 	
 	? ""
-	View()
+	# View()
 	// Show() #ERR #TODO fix the error when the graph has cyclic call
 }
 #-->
@@ -3277,7 +3279,7 @@ oGraph {
 	? "  Total edges: " + EdgeCount() + NL
 	
 	? "Validating project..."
-	aResult = ValidateGraph()
+	aResult = Validate()
 	? "  Valid: " + iff(aResult[1] = 1, "TRUE", "FALSE")
 	
 	if NOT aResult[1]
@@ -3381,6 +3383,7 @@ Validating project...
 `
 
 pf()
+# Executed in 0.07 second(s) in Ring 1.25
 # Executed in 0.08 second(s) in Ring 1.24
 
 /*------------- REAL-WORLD: ACCESS CONTROL
@@ -3504,7 +3507,7 @@ oGraph {
 	? ""
 	
 	? "Compliance validation..."
-	aResult = ValidateGraph()
+	aResult = Validate()
 	? "  Compliant: " + aResult[1]
 	if NOT aResult[1]
 		nLen = len(aResult[2])
@@ -3550,11 +3553,12 @@ Compliance validation...
 │ Bob (Manager) │---->│ !Managers! │---->│ !Development DB! │
 ╰───────────────╯     ╰────────────╯     ╰──────────────────╯
 ╭─────────────────╮     ╭────────────╮     ╭──────────────────╮
-│ Charlie (Staff) │---->│ !Managers! │---->│ !Development DB! │
-╰─────────────────╯     ╰────────────╯ 
+│ Charlie_(Staff) │---->│ !Managers! │---->│ !Development_DB! │
+╰─────────────────╯     ╰────────────╯     ╰──────────────────╯
 '
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.25
 # Executed in 0.08 second(s) in Ring 1.24
 
 #============================================#
@@ -3577,8 +3581,10 @@ o1.Connect("ceo", "cto")
 o1.Connect("cto", "dev")
 
 # This should work
-? o1.GraphType() #--> "structural"
-? o1.CyclesAllowed() #--> FALSE
+? o1.GraphType()
+#--> "structural"
+? o1.CyclesAllowed()
+#--> FALSE
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.24
@@ -3634,21 +3640,25 @@ pf()
 
 /*--- Type-aware validation
 
-o4 = new stzGraph("mixed_test")
-o4.SetGraphType("structural")
+pr()
 
-o4.AddNode("a")
-o4.AddNode("b")
-o4.Connect("a", "b")
-o4.Connect("b", "a")  # Creates cycle
+o1 = new stzGraph("mixed_test")
+o1.SetGraphType("structural")
 
-aResult = o4.ValidateGraph()
-? nl + "Structural graph with cycle validation:"
-? "Valid? " + aResult[1]  # → FALSE
-if len(aResult[2]) > 0
-    ? "Violation: " + aResult[2][1][:message]  # "Cycles not allowed in structural graphs"
-ok
+o1.AddNode("a")
+o1.AddNode("b")
+o1.Connect("a", "b")
+o1.Connect("b", "a")  # Creates cycle
 
+? @@NL( o1.ValidateBytype() )
+#--> [ FALSE, "Cycles not allowed in structural graphs" ]
+
+# Be careful, Validate alone does not force tyep validation:
+? @@NL( o1.Validate() )
+#--> [ TRUE, [  ] ]
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 #=======================================================================#
 #  GRAPH (SINGLE AND MULTIPLE) COMPARAISON, ANALYSIS AND VISUALIZATION  #
@@ -3657,7 +3667,6 @@ ok
 #---------------------------------------#
 #  GRAPH COMPARISON - IDENTICAL GRAPHS  #
 #---------------------------------------#
-
 
 /*--- Comparing identical graphs should show no changes
 
@@ -4015,6 +4024,7 @@ oMatrix.Show()
 '
 
 pf()
+# Executed in 0.56 second(s) in Ring 1.25
 # Executed in 0.59 second(s) in Ring 1.24
 
 #------------------------------------#
@@ -4087,6 +4097,7 @@ oMatrix = oBaseline.CompareWithManyQR([
 #--> [ "Add_COO_Layer", "Flat_Structure", "Matrix_Org" ]
 
 pf()
+# Executed in 0.49 second(s) in Ring 1.25
 # Executed in 0.52 second(s) in Ring 1.24
 
 #------------------------------------#
@@ -6439,7 +6450,7 @@ properties
     distributor_eu
         coverage: Europe
         demand: 75000
-*/
+
 pr()
 
 # How to use:
@@ -6789,7 +6800,7 @@ write("add_coo.stzsim", cSim)
 
 # Step 7: Validate
 ? "Validating structure..."
-aResult = oVariation.ValidateGraph()
+aResult = oVariation.Validate()
 ? "  Valid: " + aResult[1]
 
 pf()

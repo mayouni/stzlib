@@ -1,22 +1,13 @@
-digraph warehouse {
-  rankdir=TD;
-  node [shape=box];
+digraph "ReachableEndpoints" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-  entrance [label="entrance"];
-  receiving [label="receiving"];
-  aisle_a [label="aisle_a"];
-  aisle_b [label="aisle_b"];
-  storage [label="storage"];
-  shelf_42 [label="shelf_42"];
-  packing [label="packing"];
-  shipping [label="shipping"];
+    start [label="Start", shape=ellipse, style="solid,filled", fillcolor="#4D654D", fontcolor="white"]
+    process [label="Process", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white"]
+    end [label="End", shape=doublecircle, style="solid,filled", fillcolor="#4D654D", fontcolor="white"]
 
-  entrance -> receiving [label="hallway"];
-  receiving -> aisle_a [label="hallway"];
-  aisle_a -> aisle_b [label="cross_aisle"];
-  aisle_b -> storage [label="hallway"];
-  storage -> shelf_42 [label="aisle"];
-  shelf_42 -> packing [label="hallway"];
-  packing -> shipping [label="hallway"];
-  receiving -> storage [label="shortcut"];
+    start -> process
+    process -> end
+
 }

@@ -4,99 +4,6 @@ load "../stzbase.ring"
 #  stzGraphPlanner - AI PLANNING & PATHFINDING
 #============================================#
 
-pr()
-
-oGraph = new stzGraph("warehouse")
-oGraph {
-	# Node structure of the warehaouse
-	AddNodes([
-		"entrance",
-		"receiving",
-		"aisle_a",
-		"aisle_b",
-		"storage",
-		"shelf_42",
-		"packing",
-		"shipping"
-	])
-	
-	# The "normal" route through aisles along with a distance tag
-	AddEdgeXTT("entrance", "receiving", "hallway", [ :distance = 10 ])
-	AddEdgeXTT("receiving", "aisle_a", "hallway", [ :distance = 15 ])
-	AddEdgeXTT("aisle_a", "aisle_b", "cross_aisle", [ :distance = 12])
-	AddEdgeXTT("aisle_b", "storage", "hallway", [ :distance = 10 ])
-	AddEdgeXTT("storage", "shelf_42", "aisle", [ :distance = 10 ])
-	AddEdgeXTT("shelf_42", "packing", "hallway", [ :distance = 15 ])
-	AddEdgeXTT("packing", "shipping", "hallway", [ :distance = 12 ])
-	
-	# The SHORTCUT that warehouse workers know about (and that our planner should find)!
-	AddEdgeXTT("receiving", "storage", "shortcut", [ :distance = 25 ])
-
-    # Get a visual representation of the graph (will fire your borwser or any svg default viewer)
-    //View()
-}
-
-oPlanner = new stzGraphPlanner(oGraph)
-oPlanner {
-    // Describing our plan
-    AddPlan("warehouse_route")
-    Walk(:From = "entrance", :To = "shelf_42")
-    Minimizing("distance")
-
-    // Executuing the plan (internal optimisations are made to find the optimal rouute)
-    Execute()
-    
-    // Now see the results : first what route has been selected by the planner
-    ? Route()
-    #--> [ "entrance", "receiving", "storage", "shelf_42" ]
-
-    // What is the cost of that route
-    ? Cost()
-    #--> 45
-    
-    // How the planner made it's journey to the route it selected while minimizing distance
-    ? @@NL( Explain() ) + NL
-    #--> [
-	# 		[ "plan", "shortcut" ],
-	# 		[
-	# 			"actions",
-	# 			[
-	# 				[
-	# 					[ "from", "entrance" ],
-	# 					[ "to", "receiving" ],
-	# 					[ "cost", 10 ]
-	# 				],
-	# 				[
-	# 					[ "from", "receiving" ],
-	# 					[ "to", "storage" ],
-	# 					[ "cost", 25 ]
-	# 				],
-	# 				[
-	# 					[ "from", "storage" ],
-	# 					[ "to", "shelf_42" ],
-	# 					[ "cost", 10 ]
-	# 				]
-	# 			]
-	# 		],
-	# 		[ "total_cost", 45 ],
-	# 		[
-	# 			"route",
-	# 			[
-	# 				"entrance",
-	# 				"receiving",
-	# 				"storage",
-	# 				"shelf_42"
-	# 			]
-	# 		],
-	# 		[ "steps", 3 ]
-	# 		]
-
-    // What are the existing alternative routes
-    ? @@NL( Alternatives() )
-}
-
-pf()
-
 /*=== WHAT IS GRAPH PLANNING?
 
 `
@@ -391,7 +298,7 @@ pf()
   minimizes danger, so it takes the safest route to
   the first qualifying treasure.
 `
-
+*/
 pr()
 
 oGraph = new stzGraph("rpg_world")

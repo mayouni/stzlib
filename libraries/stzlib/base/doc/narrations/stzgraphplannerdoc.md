@@ -13,14 +13,13 @@ This is where **stzGraphPlanner** enters. It transforms your static graphs into 
 
 ### Plans Are More Than Paths
 
-A plan in **stzGraphPlanner** is not just a route—it is a **measurable decision artifact**. Every plan carries structured attributes: total cost, number of steps, and domain-specific metrics you define (energy, risk, time, reliability, score). These attributes are computed during planning and remain attached to the plan object for its entire lifecycle.
+A plan in **stzGraphPlanner** is not just a route—it is a **measurable decision artifact**. Every plan carries structured attributes: total cost, number of steps, and domain-specific metrics you define (energy, risk, time, reliability, score). These attributes are computed _during planning_ and remain _attached to the plan_ object for its entire lifecycle.
 
 This means plans can be inspected, compared, ranked, filtered, and reused without re-executing the graph traversal. A plan behaves like a record of reasoning: *what was chosen, how expensive it was, and why it scored the way it did*.
 
-
 ## The Question That Makes It Real
 
-You're building a warehouse management system. Using **stzGraph**, you've modeled the facility—loading docks, aisles, storage zones, and shelves as nodes; corridors as edges with distance and congestion properties. The structure is clear.
+You're building a warehouse management system. Using **stzGraph**, you've modeled the facility—loading docks, aisles, storage zones, and shelves _as nodes_; corridors _as edges_ with distance and congestion properties. The structure is clear.
 
 Now a robot needs to move from loading dock to shelf 42. Dozens of paths exist through your graph. Some are shorter. Some avoid congestion. Some use less energy.
 
@@ -47,8 +46,7 @@ oGraph {
 	AddEdgeXTT("packing", "shipping", "hallway", [ :distance = 12 ])
 	
 	# The SHORTCUT that warehouse workers know about (and that our planner should find)!
-	AddEdgeXTT("receiving", "storage", "shortcut", [ :distance = 25 ]
-	])
+	AddEdgeXTT("receiving", "storage", "shortcut", [ :distance = 25 ])
 
     # Get a visual representation of the graph (will fire your borwser or any svg default viewer)
     View()
@@ -57,7 +55,7 @@ oGraph {
 
 When `View()` is executed, Softanza translates this description into a **visual graph** that mirrors the structure you just declared. Every node becomes a _location box_. Every edge becomes a _corridor_. The diagram is not decorative—it is a faithful projection of your model.
 
-The visual graph you get is the following (note how the **SHORTCUT** edge creates a direct link from **receiving** bay to cold **storage**, bypassing **aisle_a** and **aisle_b**):
+The visual graph you get is the following (note how the **shortcut** edge creates a direct link from **receiving** bay to cold **storage**, bypassing **aisle_a** and **aisle_b**):
 
 ![srzgraphplanner-img01.png](./images/srzgraphplanner-img01.png)
 
@@ -71,7 +69,7 @@ oPlanner {
     // Describing our plan
     AddPlan("warehouse_route")
     Walk(:From = "entrance", :To = "shelf_42")
-    Minimizing("distance") # The "distance" tag we attache as a metadat to the grpah edges will define cost
+    Minimizing("distance") # The "distance" tag we attached as a metadata to the grpah edges will define cost
 
     // Executuing the plan (internal optimisations are made to find the optimal route)
     Execute()
@@ -87,8 +85,7 @@ oPlanner {
 ```
 
 We can inspect how the planner reached the selected route while minimizing "distance" by using the `Explain()` method:
-
-```ring
+```
     ? @@NL( Explain() )
 ```
 And so we get:
@@ -129,11 +126,10 @@ And so we get:
 ]
 ```
 
-The output shows that the planner optimized the route in **three steps**: first from **"entrance"** to **"receiving"** (cost 10), then from **"receiving"** to **"storage"** (cost 25), and finally from **"storage"** to **"shelf\_42"** (cost 10), resulting in a total distance of **10 + 25 + 10 = 45**, and therefore selecting the route **\[ "entrance", "receiving", "storage", "shelf\_42" ]**.
+The output shows that the planner optimized the route in **three steps**: first from **"entrance"** to **"receiving"** (cost 10), then from **"receiving"** to **"storage"** (cost 25), and finally from **"storage"** to **"shelf_42"** (cost 10), resulting in a total distance of **10 + 25 + 10 = 45**, and therefore selecting the route **[ "entrance", "receiving", "storage", "shelf_42" ]**.
     
-  Now, we can ask the planner about the alternative routes it did not select by calling the `Alternatives()` method:
-
-```ring
+Now, we can ask the planner about the alternative routes it did not select by calling the `Alternatives()` method:
+```
     ? @@NL( Alternatives() )
 ```
 And so we get:
@@ -153,7 +149,7 @@ And so we get:
 ]
 ```
 
-The output tells us that at each node with multiple neighbors (in our case, only at the **"receiving"** node), the planner had **two possible options**—as shown in the visual graph above: either going right through the direct **SHORTCUT** edge, or alternatively going left through the **"aisle_a"** node. These alternatives appear in the output precisely because it reports the routes that were considered but not selected.
+The output tells us that at each node with multiple neighbors (in our case, only at the **"receiving"** node), the planner had **two possible options**—as shown in the visual graph above: either going right through the direct **shortcut** edge, or alternatively going left through the **"aisle_a"** node. This _alternative_ path appears in the output precisely because it reports the route that was considered but not selected.
 
 Three lines to plan. Three lines to understand. No algorithm knowledge required. Hundreds of lines of complex optimization and pathfinding code avoided. The robot finds its way, and you can go further by asking: _Why this route? How does the selected route compare to its alternatives? How does it compare to yesterday?_ And many more.
 
@@ -195,7 +191,7 @@ oPlanner {
 
 Three things just happened that matter:
 
-**First**, you expressed *intent* ("minimize distance"), not *implementation* ("use A* with Euclidean heuristic"). The planner chose the right algorithm automatically.
+**First**, you expressed *intent* ("minimize distance"), not *implementation* ("use A* algorithm with Euclidean heuristic"). The planner chose the right algorithm automatically.
 
 **Second**, the result isn't just a path—it's a *plan object* you can interrogate:
 
@@ -209,47 +205,12 @@ Three things just happened that matter:
 
 ### The Intelligence: Discovering Hidden Patterns
 
-Your warehouse has a shortcut—a corridor that bypasses two aisles. But it's not obvious from looking at the graph. You have:
+Your warehouse has a **shortcut**—a corridor that bypasses two aisles. But it's not necessary obvious from just looking at the graph. You have:
 
 - Long route: entrance → receiving → aisle_a → aisle_b → storage → shelf_42 (distance: 57)
 - Hidden shortcut: entrance → receiving → storage → shelf_42 (distance: 45)
 
 You don't tell the planner about the shortcut. You just say "minimize distance." The planner **discovers** the shortcut by exploring intelligently. It uses smart search algorithms (like A*—a pathfinding algorithm that estimates which direction looks most promising) but you never had to implement them.
-
-```ring
-oGraph = new stzGraph("warehouse")
-oGraph {
-    AddNodeXTT("entrance", "Main Entrance", [:x = 0, :y = 0])
-    AddNodeXTT("receiving", "Receiving Bay", [:x = 10, :y = 0])
-    AddNodeXTT("aisle_a", "Aisle A", [:x = 20, :y = 0])
-    AddNodeXTT("aisle_b", "Aisle B", [:x = 20, :y = 10])
-    AddNodeXTT("storage", "Cold Storage", [:x = 30, :y = 10])
-    AddNodeXTT("shelf_42", "Shelf 42", [:x = 40, :y = 10])
-    
-    AddEdgeXTT("entrance", "receiving", "hallway", [:distance = 10])
-    AddEdgeXTT("receiving", "aisle_a", "hallway", [:distance = 15])
-    AddEdgeXTT("aisle_a", "aisle_b", "cross_aisle", [:distance = 12])
-    AddEdgeXTT("aisle_b", "storage", "hallway", [:distance = 10])
-    AddEdgeXTT("storage", "shelf_42", "aisle", [:distance = 10])
-    
-    // The SHORTCUT
-    AddEdgeXTT("receiving", "storage", "shortcut", [:distance = 25])
-}
-
-oPlanner = new stzGraphPlanner(oGraph)
-oPlanner {
-    AddPlan("shortcut")
-    Walk(:FromNode = "entrance", :ToNode = "shelf_42")
-    Minimizing(:for = "distance")
-    Execute()
-
-    ? Cost()
-    #--> 45
-
-    ? @@( Route() )
-    #--> [ "entrance", "receiving", "storage", "shelf_42" ]
-}
-```
 
 **Principle**: *Planning is pattern discovery, not path following.*
 
@@ -257,10 +218,10 @@ oPlanner {
 
 Planning in Softanza is fundamentally **non-destructive**. Evaluating a plan does not mean executing it in the real world. The planner simulates outcomes, computes costs, and explores alternatives entirely in memory.
 
-This allows you to ask powerful questions safely:
+This allows you make as many plans as you need and ask powerful questions safely:
 
 - *What would happen if we chose this strategy?*
-- *Is this plan better than yesterday's?*
+- *How this plan performed across time?*
 - *How sensitive is this decision to cost changes?*
 
 Only after understanding the decision space do you choose whether—and how—to act.
@@ -275,32 +236,7 @@ Sometimes you don't know where you want to go. You know what you're looking for.
 
 Imagine a game character needing treasure—any treasure worth at least 1000 gold. You could hardcode "go to the dungeon." But what if game state changes?
 
-**Goal-based planning** thinks differently:
-
-```ring
-oPlanner {
-    AddPlan("treasure_hunt")
-    Walk(
-        :From = "village",
-        :UntilYouReachF = func(node) {
-            return node[:properties][:gold] >= 1000
-        }
-    )
-    Minimizing("danger")
-    Execute()
-}
-```
-
-You didn't specify a destination *node*. You specified a destination *condition*. The planner:
-
-1. Explores from your starting point
-2. Evaluates each node: "Does this satisfy the goal?"
-3. Returns optimal path to first qualifying node
-4. Still respects optimization criteria
-
-Result: `village → forest → dungeon` (cost: 9 danger points). The dungeon was nearest location with sufficient treasure, reached via the safest route.
-
-Here's the complete example:
+**Goal-based planning** thinks differently: Let's start by design the game world as a stzGraph object...
 
 ```ring
 oGraph = new stzGraph("rpg_world")
@@ -332,7 +268,11 @@ oGraph {
     AddEdgeXTT("forest", "dungeon", "path", [:danger = 7])
     AddEdgeXTT("village", "castle", "path", [:danger = 5])
 }
+```
 
+Then, let's make our planning staff inside a stzGraphPlanner object:
+
+```ring
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
     AddPlan("rpg_plan")
@@ -344,7 +284,7 @@ oPlanner {
         }
     )
     
-    Minimizing(:for = "danger")
+    Minimizing("danger")
     Execute()
 
     ? Cost()
@@ -361,6 +301,15 @@ oPlanner {
 }
 ```
 
+You didn't specify a destination *node*. You specified a destination *condition*. The planner:
+
+1. Explores from your starting point
+2. Evaluates each node: "Does this satisfy the goal?"
+3. Returns optimal path to first qualifying node
+4. Still respects optimization criteria
+
+Result: `village → forest → dungeon` (cost: 9 danger points). The dungeon was nearest location with sufficient treasure, reached via the safest route.
+
 This pattern appears everywhere:
 - **Logistics**: "Find warehouse with 500+ units, closest to customer"
 - **Healthcare**: "Route to any hospital with cardiac capability, fastest response"
@@ -376,31 +325,7 @@ You're not routing to a place. You're routing to a **state of the world that sat
 
 Most AI systems are black boxes. You get an answer but no understanding. Softanza believes plans should be *conversational*.
 
-You've generated a delivery route, but the cost seems high:
-
-```ring
-? ExplainCostBreakdown()
-```
-
-Output:
-```
-=== COST BREAKDOWN ===
-
-Step 1: warehouse → suburb_a
-  • distance: 12 × 1 (minimize) = 12
-  • traffic: 2 × 1 (minimize) = 2
-  Total: 14
-
-Step 2: suburb_a → downtown  
-  • distance: 15 × 1 (minimize) = 15
-  • traffic: 8 × 1 (minimize) = 8
-  Total: 23
-```
-
-Now you see it: the second leg has heavy traffic (8 points). Not a mystery—just math, explained.
-
-Here's the complete example with code:
-
+Let's start as ususal with a stzGraph object:
 ```ring
 oGraph = new stzGraph("complex_route")
 oGraph {
@@ -413,7 +338,9 @@ oGraph {
     AddEdgeXTT("point_a", "point_b", "road", [:distance = 15, :traffic = 8])
     AddEdgeXTT("point_b", "end", "road", [:distance = 5, :traffic = 1])
 }
-
+```
+Now we do our planning mission:
+```
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
     AddPlan("route_analysis")
@@ -422,7 +349,17 @@ oPlanner {
     Minimize("traffic")
     Execute()
 
+    ? Rout()
+
+    ? Cost()
+}
+```
+You've generated a delivery route, but the cost seems high: let's check th cost structure genertae from the plan execution: We write...
+```
     ? @@NL( CostBreakdown() )
+```
+and so we get:
+```
     #--> [
     #      [
     #        [ "step", 1 ], [ "from", "start" ], [ "to", "point_a" ],
@@ -459,6 +396,21 @@ oPlanner {
     #    ]
 }
 ```
+
+the detailed output show that the cost has been accumulated from two steps:
+```
+Step 1: warehouse → suburb_a
+  • distance: 12 × 1 (minimize) = 12
+  • traffic: 2 × 1 (minimize) = 2
+  Total: 14
+
+Step 2: suburb_a → downtown  
+  • distance: 15 × 1 (minimize) = 15
+  • traffic: 8 × 1 (minimize) = 8
+  Total: 23
+```
+
+Now you see it: the second leg has heavy traffic (8 points). Not a mystery—just math, explained.
 
 ### The "Why" Conversation
 
@@ -1314,95 +1266,6 @@ Traditional systems have layers 1 and 2. Softanza adds layer 3, transforming fro
 
 **Pattern**: The planner isn't replacing judgment—it's structuring decisions so humans can judge better. This is **augmented intelligence**.
 
----
-
-## Part Eleven: The Educational Dimension
-
-### Learning Planning by Using Planning
-
-Students learning pathfinding traditionally:
-1. Study A* algorithm
-2. Implement from scratch
-3. Debug for weeks
-4. See it work on toy examples
-
-With stzGraphPlanner:
-
-```ring
-// Day 1: Use it
-AddPlan("first_path")
-Walk(:From = "A", :To = "B")
-Execute()
-
-// Day 2: Understand it
-? ExplainEfficiency()
-//→ "Explored 7 nodes for 5-node path (1.4:1 ratio - very efficient)"
-
-// Day 3: Compare approaches
-AddPlan("fastest")
-Using(:fastest)
-Execute()
-
-AddPlan("shortest")
-Using(:shortest)
-Execute()
-
-? ExplainDifference("shortest")
-
-// Day 4: Now you understand pathfinding deeply
-```
-
-Students learn by *using* and *querying*, not drowning in implementation. They see algorithm behavior, understand decisions, compare strategies.
-
-More importantly, they learn **why planning matters**—strategic thinking, not just mechanics. When comparing `:fastest` vs `:safest` and seeing trade-offs quantified, they're learning decision-making. When asking `ExplainWhy()`, they're learning transparency.
-
-**Philosophy**: Tools that teach by being conversational.
-
----
-
-## Part Twelve: From Planning to Analytics
-
-### Bridging Planning and Analytics
-
-Because plans, rankings, and comparisons are all data, **stzGraphPlanner naturally bridges planning and analytics**. Decisions can be tracked over time, aggregated, visualized, and fed back into higher-level strategic dashboards.
-
-This transforms planning from a one-time computation into a continuous learning loop. Each decision enriches the system's understanding of what works—and why.
-
-Planning becomes not just a way to choose paths, but a way to **build organizational intelligence**.
-
-Example of analytics integration:
-
-```ring
-// Track planning performance over time
-aResults = []
-for i = 1 to 100
-    AddPlan("run_" + i)
-    Walk(:From = "start", :To = "end")
-    Using(:balanced)
-    Execute()
-    
-    aResults + [
-        :run = i,
-        :cost = Cost(),
-        :steps = len(Route()),
-        :timestamp = CurrentTime()
-    ]
-next
-
-// Analyze trends
-? "Average cost: " + Average(aResults, :cost)
-? "Best run: " + MinBy(aResults, :cost)[:run]
-? "Performance trend: " + TrendAnalysis(aResults, :cost)
-
-// Feed insights back into planning strategy
-nAvgCost = Average(aResults, :cost)
-if CurrentPlan().Cost() > nAvgCost * 1.2
-    Alert("Current plan is 20% worse than historical average")
-ok
-```
-
----
-
 ## The Softanza Advantage
 
 ### Comparison with Leading Graph Planning Libraries
@@ -1431,6 +1294,13 @@ These are excellent libraries, each powerful in its domain. NetworkX excels at g
 
 The difference isn't in the algorithms (A* is A*). It's in how you interact with them. Traditional libraries speak the language of computer science. Softanza speaks the language of your problem domain.
 
+> DISCLAIMER: **stzGraphPlanner** is a pragmatic planning library optimized for business applications, educational programming, and data analytics. Unlike academic planners focused on worst-case theoretical guarantees, we prioritize:
+> * **Explainability**: Every decision has a `Why()`, `CostBreakdown()`, and `Tradeoffs()` explanation
+> * **Comparison**: Built-in multi-plan ranking, historical analysis, and constraint filtering
+> * **Usability**: Intuitive API with profiles (`:fastest`, `:cheapest`, `:balanced`) for common scenarios
+> * **Real-world focus**: Optimized for graphs with 10-1000 nodes, not academic benchmarks
+> For research-grade features like mutex relations or CSP integration, consider PDDL-based systems. For production planning, route optimization, and decision analytics, stzGraphPlanner delivers enterprise-ready results with minimal complexity.
+
 ---
 
 ## Conclusion
@@ -1440,9 +1310,3 @@ Graph planning in Softanza isn't about mastering algorithms—it's about express
 The transformation is fundamental: from computational tool to reasoning partner. You state what matters (`:fastest`, `:safest`, "within 10%", "avoid downtown"), the planner handles how, and together you explore the decision space through conversation.
 
 This is planning that teaches as it works, explains as it decides, and remembers as it improves. **Not artificial intelligence replacing judgment—augmented intelligence structuring it.**
-
----
-
-*For complete working examples with 20 sections covering basic pathfinding through advanced filtering and comparison, see the test files.*
-
-*Welcome to intelligent planning in Softanza.* 🎯

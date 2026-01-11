@@ -27,8 +27,6 @@ oDiag {
 	View()
 }
 
-#ERR Check why all nodes are gray although color is specified "white"!
-
 pf()
 # Executed in 0.50 second(s) in Ring 1.24
 
@@ -77,7 +75,7 @@ oDiag {
 pf()
 
 /*--- Using direct names of forms to create nodes
-*/
+
 pr()
 
 oDiag = new stzDiagram("")
@@ -125,13 +123,14 @@ pr()
 
 o1 = new stzDiagram("")
 o1 {
-	SetSplines("spline")
+	SetSplines("curved") # or spline, ortho, polyline, line
 	AddNode("a")
 	AddNodeXT("b", "pass")
 	AddNodeXTT("c", "end", [ :type = "endpoint", :color = "green" ]) 
 	Connect("a", "b")
 	ConnectXT("a", "c", "focus")
 	View()
+? Code()
 }
 
 pf()
@@ -262,8 +261,6 @@ oDiag {
 		:type = "endpoint", :color = "success"
 	])
 
-	# Test with .................. :Note,....:Yellow)
-
 	Connect("start", "validate")
 	Connect("validate", "complete")
 
@@ -311,9 +308,12 @@ oDiag.AddNodeXTT("e", "End", [ :type = "endpoint", :color = "success" ])
 oDiag.Connect("s", "p")
 oDiag.Connect("p", "e")
 
-? oDiag.Validate("DAG") #--> TRUE
+? oDiag.ValidateXT("dag") #--> TRUE
+? oDiag.ValidateXT("sox") #--> TRUE
+? oDiag.ValidateXT(["dag", "sox"]) #--> TRUE
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.25
 
 #---------------------------------#
 #  TEST 3: VALIDATE REACHABILITY  #
@@ -333,21 +333,11 @@ oDiag.Connect("start", "process")
 oDiag.Connect("process", "end")
 
 odiag.view()
-? oDiag.Validate("Reachability")
-? @@NL(oDiag.ValidationResult()) # Or simply Resul()
-#-->
-'[
-	[ "status", "pass" ],
-	[ "domain", "reachability" ],
-	[ "issuecount", 0 ],
-	[ "issues", [  ] ]
-]
-'
-
-? oDiag.ValidationStatus() # Or simply Status()
-#--> pass
+? oDiag.ValidateXT("Reachability")
+#--> TRUE
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.25
 
 #---------------------------------#
 #  TEST 4: VALIDATE COMPLETENESS  #
@@ -366,10 +356,11 @@ oDiag.AddNodeXTT("no", "No", [ :type = "endpoint", :color = "danger" ])
 oDiag.ConnectXT("d", "yes", "Yes")
 oDiag.ConnectXT("d", "no", "No")
 
-? oDiag.Validate(:Completeness) #--> TRUE
-? oDiag.Status() #--> pass
+? oDiag.ValidateXT(:Completeness)
+#--> TRUE
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.25
 
 #---------------------------#
 #  TEST 5: COMPUTE METRICS  #
@@ -433,8 +424,6 @@ oDiag.AddAnnotation(oPerf)
 ? len(oDiag.Annotations()) #--> 1
 ? len(oPerf.NodesData()) #--> 1
 
-#TODO How to use annotations in practice? Is it used internally by stzDiagram?
-
 pf()
 # Executed in 0.02 second(s) in Ring 1.24
 
@@ -443,6 +432,13 @@ pf()
 #-------------------------------#
 
 /*--- Retrieving annotations by type
+*/
+#TODO: annotations in stzDiagram must be forced to carry a visual semantic
+# because the diagram is a VISUAL construct. Any logical or functional retlated
+# annotaions must be done at the stzGraph level, or at more specific levels like
+# in stzOrgChart where we can add orgchart-related annotations!
+
+#TODO Review the need of having stzDiagramAnnotator!
 
 pr()
 
@@ -554,7 +550,7 @@ pf()
 #--------------------------------------#
 
 /*--- Validating workflow against SOX rules
-
+*/
 pr()
 
 oDiag = new stzDiagram("SoxPayment")

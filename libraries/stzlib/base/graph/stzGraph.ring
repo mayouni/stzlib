@@ -994,11 +994,9 @@ class stzGraph
 
 	def NodeProperty(pNodeId, cProperty)
 		aNode = This.Node(pNodeId)
-		
+	
 		if HasKey(aNode, "properties") and HasKey(aNode["properties"], cProperty)
 			return aNode["properties"][cProperty]
-		else
-			stzraise("This property (" + cProperty + ") does not exist!")
 		ok
 	
 		def NodeProp(pNodeId, cProperty)
@@ -1593,7 +1591,6 @@ class stzGraph
 		next
 
 		return acCyclicNodes
-
 
 	#---------------------------------------#
 	#  1. INDEPENDENCE AND PARALLELIZATION  #
@@ -3038,7 +3035,7 @@ class stzGraph
 		bSuccess = (len(aViolations) = 0)
 		return [bSuccess, aViolations]
 	
-	def ValidateGraph()
+	def Validate() # See also ValidatByType()
 		aViolations = []
 		nLen = len(@aRules)
 		
