@@ -1,18 +1,11 @@
-digraph "mainflow" {
-    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
-    node [fontname="helvetica", fontsize=12]
-    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+digraph "fonttest" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=24, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
+    node [fontname="helvetica", fontsize=24]
+    edge [fontname="helvetica", fontsize=24, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    start [label="Main_Start", shape=ellipse, style="solid,filled", fillcolor="#A3D1A3", fontcolor="black", tooltip=" "]
-    main [label="Main_Process", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white", tooltip=" "]
-    sub1 [label="Sub_Task_1", shape=box, style="rounded,solid,filled", fillcolor="#FFA500", fontcolor="black", tooltip=" "]
-    sub2 [label="Sub_Task_2", shape=box, style="rounded,solid,filled", fillcolor="#FFA500", fontcolor="black", tooltip=" "]
-    result [label="Result", shape=doublecircle, style="solid,filled", fillcolor="#008000", fontcolor="white", tooltip=" "]
+    n1 [label="Custom_Font", shape=ellipse, style="solid,filled", fillcolor="#A3D1A3", fontcolor="black", tooltip=" "]
+    n2 [label="Arial_24pt", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white", tooltip=" "]
 
-    start -> main
-    main -> sub1
-    main -> sub2
-    sub1 -> result
-    sub2 -> result
+    n1 -> n2 [label=" size"]
 
 }

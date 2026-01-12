@@ -704,6 +704,7 @@ class stzDiagram from stzGraph
 
 	@cFont = $cDefaultFont
 	@nFontSize = $cDefaultFontSize
+	@bFontCustomized = FALSE
 
 	@aMetadataKeys = []
 
@@ -758,19 +759,20 @@ class stzDiagram from stzGraph
 		return super.Id()
 
 	def SetTheme(pTheme)
-	
-		cThemeKey = lower(pTheme)
-		
-		if HasKey($aPalette, cThemeKey)
-			@cTheme = cThemeKey
-			
-			if HasKey($aThemeFonts, cThemeKey)
-				@cFont = $aThemeFonts[cThemeKey][:font]
-				@nFontSize = $aThemeFonts[cThemeKey][:size]
-			ok
-		ok
+	    cThemeKey = lower(pTheme)
+	    
+	    if HasKey($aPalette, cThemeKey)
+	        @cTheme = cThemeKey
+	        
+	        # Only apply theme fonts if not customized by user
+	        if NOT @bFontCustomized and HasKey($aThemeFonts, cThemeKey)
+	            @cFont = $aThemeFonts[cThemeKey][:font]
+	            @nFontSize = $aThemeFonts[cThemeKey][:size]
+	        ok
+	    ok
 	
 	def SetLayout(pLayout)
+		
 		@cLayout = lower(pLayout)
 
 	def SetEdgeStyle(pStyle)
@@ -794,10 +796,13 @@ class stzDiagram from stzGraph
 
 	def SetFont(pFont)
 		@cFont = lower(pFont)
-	
+		@bFontCustomized = TRUE
+
 	def SetFontSize(pSize)
-		@nFontSize = pSize
+	    @nFontSize = pSize
+	    @bFontCustomized = TRUE
 	
+
 	def SetPenWidth(pnWidth)
 		@nNodePenWidth = pnWidth
 
@@ -3264,7 +3269,7 @@ class stzDiagramToDot
 		ok
 		
 		cRankDir = "TB"
-		
+
 		if cLayout = "topdown" or ring_find($acLayouts[:TopDown], cLayout)
 			cRankDir = "TB"
 	
@@ -3277,7 +3282,7 @@ class stzDiagramToDot
 		but cLayout = "rightleft" or ring_find($acLayouts[:RightLeft], cLayout)
 			cRankDir = "RL"
 		ok
-		
+	
 		return cRankDir
 	
 	def _GetFont()
@@ -3582,8 +3587,17 @@ class stzDiagramToDot
 	        aAttrs + 'weight=10'
 	    ok
 	    
+	    # Handle edge label with spacing fix for TB layout
 	    if HasKey(aEdge, "label") and aEdge["label"] != "" and aEdge["label"] != NULL
-	        aAttrs + ('label="' + aEdge["label"] + '"')
+	        cLabel = aEdge["label"]
+	        cRankDir = This._GetRankDir()
+	        
+	        # Add leading space for TB/BT layouts to prevent label collapse
+	        if cRankDir = "TB" or cRankDir = "BT"
+	            cLabel = " " + cLabel
+	        ok
+	        
+	        aAttrs + ('label="' + cLabel + '"')
 	    ok
 	    
 	    # Check edge properties
