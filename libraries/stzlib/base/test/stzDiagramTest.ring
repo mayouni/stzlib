@@ -1562,7 +1562,7 @@ pr()
 oDiag5 = new stzDiagram("CompleteTest")
 oDiag5 {
 	SetTheme(:Light)
-	SetLayout("lr")              # Short form
+	SetLayout("TB")              # Short form of TopBottom
 	SetEdgeStyle(:ErrorFlow)     # Semantic → dotted
 	SetPenWidth(3)
 	SetEdgeColor("gray+")
@@ -1581,6 +1581,8 @@ oDiag5 {
 	? NodeCount() #--> 5
 	? EdgeCount() #--> 4
 	
+? code()
+
 	View()
 }
 
@@ -1595,16 +1597,16 @@ oDiag6 {
 	SetTheme(:vibrant)
 	
 	# Symbolic colors from palette
-	AddNodeXT("n1", "Success", [ :type = "process", :color = "success" ])
-	AddNodeXT("n2", "Warning", :Process, :Warning)
-	AddNodeXT("n3", "Danger", [ :type = "process", :color = "danger" ])
+	AddNodeXTT("n1", "Success", [ :type = "process", :color = "success" ])
+	AddNodeXTT("n2", "Warning", [ :type = "process", :color = "warning" ])
+	AddNodeXTT("n3", "Danger", [ :type = "process", :color = "danger" ])
 	
 	# Direct color names
-	AddNodeXT("n4", "Blue", :Process, "lightblue")
-	AddNodeXT("n5", "Green", :Process, "lightgreen")
+	AddNodeXTT("n4", "Blue", [ :type = "process", :color = "lightblue" ])
+	AddNodeXTT("n5", "Green", [ :type = "process", :color = "lightgreen" ])
 	
 	# Hex colors
-	AddNodeXT("n6", "Custom", :Process, "#FF9900")
+	AddNodeXTT("n6", "Custom", [ :color = "process", :type = "#FF9900" ])
 	
 	Connect("n1", "n2")
 	Connect("n2", "n3")
@@ -1616,25 +1618,27 @@ oDiag6 {
 }
 
 pf()
+# Executed in 0.51 second(s) in Ring 1.25
 
 #----------------#
 #  FONT EXAMPLE  #
 #----------------#
 
 /*---
-
+*/
 pr()
 
 oDiag = new stzDiagram("FontTest")
 oDiag {
+	
 	SetFont("helvetica") 	#ERR // Not applied
 	SetFontSize(24)		#ERR // Idem
+
 	SetTheme(:Pro)
-	
-	AddNodeXT("n1", "Custom Font", [ :type = "start", :color = "success" ])
-	AddNodeXT("n2", "Arial 24pt", [ :type = "process", :color = "primary" ])
+	AddNodeXTT("n1", "Custom Font", [ :type = "start", :color = "success" ])
+	AddNodeXTT("n2", "Arial 24pt", [ :type = "process", :color = "primary" ])
 	ConnectXT("n1", "n2", "size")
-	
+	? Code()
 	View()
 }
 
