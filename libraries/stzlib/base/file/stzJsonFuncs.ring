@@ -66,7 +66,7 @@ func ListToJson(aList)
 	    return "[]"
 	ok
 
-	# Check if it's a HashList (Ring's normal format) or DeepHashList
+	# Check if it is a HashList (Ring's normal format) or DeepHashList
 	if IsHashList(aList) or _IsValidDeepHashList(aList)
 	     return _HashListToJsonString(aList)
 	else
@@ -105,7 +105,7 @@ func ListToJsonXT(aList)
 	    return "[]"
 	ok
     
-	# Check if it's a HashList (Ring's normal format) or DeepHashList
+	# Check if it is a HashList (Ring's normal format) or DeepHashList
 	if IsHashList(aList) or _IsValidDeepHashList(aList)
 	   return _HashListToJsonStringXT(aList, 0)
 	else

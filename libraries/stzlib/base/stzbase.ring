@@ -129,7 +129,6 @@ ok
     load "graph/stzknowledgegraph.ring"
 
     load "graph/stzdiagram.ring"
-    load "graph/stzdiagrammaker.ring"
     load "graph/stzorgchart.ring"
 
     load "graph/stzworkflow.ring"

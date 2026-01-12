@@ -123,6 +123,9 @@ pr()
 
 o1 = new stzDiagram("")
 o1 {
+	SetTitle("HELLO TITLE")
+	SetSubtitle("Curved Splines")
+
 	SetSplines("curved") # or spline, ortho, polyline, line
 	AddNode("a")
 	AddNodeXT("b", "pass")
@@ -130,8 +133,33 @@ o1 {
 	Connect("a", "b")
 	ConnectXT("a", "c", "focus")
 	View()
-? Code()
+	? Code()
 }
+#-->
+`
+digraph "" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=curved, nodesep=0.60, ranksep=0.80, ordering=out]
+    labelloc="t";
+    label="
+HELLO TITLE
+Curved Splines
+
+
+";
+    fontsize=16;
+
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    a [label="a", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
+    b [label="pass", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
+    c [label="end", shape=doublecircle, style="solid,filled", fillcolor="#008000", fontcolor="white"]
+
+    a -> b
+    a -> c [label="focus"]
+
+}
+`
 
 pf()
 
@@ -432,13 +460,6 @@ pf()
 #-------------------------------#
 
 /*--- Retrieving annotations by type
-*/
-#TODO: annotations in stzDiagram must be forced to carry a visual semantic
-# because the diagram is a VISUAL construct. Any logical or functional retlated
-# annotaions must be done at the stzGraph level, or at more specific levels like
-# in stzOrgChart where we can add orgchart-related annotations!
-
-#TODO Review the need of having stzDiagramAnnotator!
 
 pr()
 
@@ -479,6 +500,7 @@ oDiag.AddNodeXTT("order_db", "Order DB", [ :color = "storage", :type = "info" ])
 oDiag.AddClusterXTT("users", "User Domain", ["user_api", "user_db"], :LightGreen)
 oDiag.AddClusterXTT("orders", "Order Domain", ["order_api", "order_db"], :Lightblue)
 
+oDiag.View()
 ? len(oDiag.Clusters()) #--> 2
 
 pf()
@@ -513,19 +535,22 @@ pf()
 
 pr()
 
-oDiag1 = new stzDiagram("LightTheme")
-oDiag1.SetTheme(:Light)
-? oDiag1.Theme() #--> Light
+o1 = new stzDiagram("")
+o1 {
+	SetSplines("curved") # or spline, ortho, polyline, line
+	AddNode("a")
+	AddNodeXT("b", "pass")
+	AddNodeXTT("c", "end", [ :type = "endpoint", :color = "green" ]) 
+	Connect("a", "b")
+	ConnectXT("a", "c", "focus")
 
-oDiag2 = new stzDiagram("DarkTheme")
-oDiag2.SetTheme(:Dark)
-? oDiag2.Theme() #--> Dark
-
-oDiag3 = new stzDiagram("VibrantTheme")
-oDiag3.SetTheme(:Vibrant)
-? oDiag3.Theme() #--> Vibrant
+	SetTheme(:Vibrant) # try with :Dark, :Vibrant
+	? Theme() #--> Light
+	View()
+}
 
 pf()
+# Executed in 0.60 second(s) in Ring 1.25
 
 #-----------------------#
 #  TEST 11: SET LAYOUT  #
@@ -535,22 +560,28 @@ pf()
 
 pr()
 
-oDiag1 = new stzDiagram("MyDiagram")
-oDiag1.SetLayout(:TopDown)
-? oDiag1.Layout() #--> TopDown
+o1 = new stzDiagram("")
+o1 {
+	SetSplines("curved") # or spline, ortho, polyline, line
+	AddNode("a")
+	AddNodeXT("b", "pass")
+	AddNodeXTT("c", "end", [ :type = "endpoint", :color = "green" ]) 
+	Connect("a", "b")
+	ConnectXT("a", "c", "focus")
 
-oDiag2 = new stzDiagram("MyDiagram")
-oDiag2.SetLayout(:LeftRight)
-? oDiag2.Layout() #--> LeftRight
+	SetLayout(:TopDown) # Try with :LeftRight
+	View()
+}
 
 pf()
+# Executed in 0.60 second(s) in Ring 1.25
 
 #--------------------------------------#
 #  TEST 12: SOX COMPLIANCE VALIDATION  #
 #--------------------------------------#
 
 /*--- Validating workflow against SOX rules
-*/
+
 pr()
 
 oDiag = new stzDiagram("SoxPayment")
@@ -611,15 +642,26 @@ oDiag {
 		:retentionPolicy = "1 year"
 	])
 
-	? Validate(:GDPR) 	   #--> TRUE
-	? @@( ValidationIssues() ) #--> []
+	? ValidateXT(:GDPR)  #--> TRUE
+	? @@NL( ValidationSummary() )
+	#--> [
+	# 	[ "status", "pass" ],
+	# 	[
+	# 		"rules_applied",
+	# 		[ "gdpr" ]
+	# 	],
+	# 	[ "violations", [  ] ],
+	# 	[ "violation_count", 0 ],
+	# 	[ "passed", 1 ]
+	#  ]
 }
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.25
 
-#-----------------#
-#  TEST 14: BANKING COMPLIANCE VALIDATION
-#-----------------#
+#------------------------------------------#
+#  TEST 14: BANKING COMPLIANCE VALIDATION  #
+#------------------------------------------#
 
 /*--- Validating transaction against banking rules
 
@@ -627,7 +669,10 @@ pr()
 
 oDiag = new stzDiagram("BankingTx")
 oDiag {
-	SetTheme("lightgray")
+	# Setting the theme (can be one of 9 themes proposed by Softanza)
+	# light, dark, vibrant, pro, access, print, lightgray, gray, or darkgray.
+
+	SetTheme("access")
 
 	AddNodeXTT("init", "Initiate", [ :type = "start", :color = "success" ])
 	AddNodeXTT("fraud", "Fraud Check", [ :type = "process", :color = "info" ])
@@ -645,13 +690,19 @@ oDiag {
 	SetNodeProperty("approve", :role, :approver)
 	SetNodeProperty("execute", :operation, :payment)
 
-	? @@(Validate(:Banking))
-	#--> TRUE #ERR we get FALSE!
+	? @@(ValidateXT(:Banking))
+	#--> TRUE
 
-	? ValidationIssueCount() # Or simply IssueCount()
-	#--> 0
+	? @@NL( ValidationResult() )
+	#--> [
+	# 	[ "status", "pass" ],
+	# 	[ "rules_applied", [  ] ],
+	# 	[ "violations", [  ] ],
+	# 	[ "violation_count", 0 ],
+	# 	[ "passed", 1 ]
+	# ]
 
-View()
+	View()
 
 }
 
@@ -662,19 +713,38 @@ pf()
 #-------------------------------#
 
 /*--- Converting diagram to hashlist representation
-*
+
 pr()
 
 oDiag = new stzDiagram("HashlistExport")
 oDiag.SetTheme(:pro)
 oDiag.AddNodeXT("n1", "Node")
 
-aHashlist = oDiag.ToHashlist()
+? @@NL( oDiag.ToHashlist() )
+#--> [
+# 	[ "id", "HashlistExport" ],
+# 	[
+# 		"nodes",
+# 		[
+# 			[
+# 				[ "id", "n1" ],
+# 				[ "label", "Node" ],
+# 				[ "properties", [  ] ]
+# 			]
+# 		]
+# 	],
+# 	[ "edges", [  ] ],
+# 	[ "properties", [  ] ],
+# 	[ "theme", "pro" ],
+# 	[ "layout", "topdown" ],
+# 	[ "clusters", [  ] ],
+# 	[ "annotations", [  ] ],
+# 	[ "templates", [  ] ]
+# ]
 
-? aHashlist["theme"] #--> pro
-? aHashlist["nodeCount"] >= 0 #--> TRUE
 
 pf()
+# Executed in 0.02 second(s) in Ring 1.25
 
 #-----------------------------------#
 #  TEST 1: GENERATE STZDIAG FORMAT  #
@@ -745,7 +815,7 @@ oDiag.Show()
 oDiag.View()
 
 pf()
-# Executed in 1.52 second(s) in Ring 1.24
+# Executed in 0.49 second(s) in Ring 1.25
 
 #---------------------------------#
 #  TEST 2: WRITE STZDIAG TO FILE  #
@@ -755,16 +825,16 @@ pf()
 
 pr()
 
-oDiag = new stzDiagram("SaveTest")
-oDiag.AddNodeXT("a", "Node A", :Process, :primary)
-oDiag.AddNodeXT("b", "Node B", :Process, :primary)
+oDiag = new stzDiagram("simple")
+? oDiag.Name()
+#--> sample
+
+oDiag.AddNodeXTT("a", "Node A", [ :type = "process", :color = "primary" ])
+oDiag.AddNodeXTT("b", "Node B", [ :type = "process", :color = "primary" ])
 oDiag.ConnectXT("a", "b", "flows")
 
-oConv = new stzDiagramToStzDiag(oDiag)
-bSuccess = oConv.WriteToFile("test_diagram.stzdiag")
-
-? bSuccess #--> TRUE
-? read("test_diagram.stzdiag") #--> TRUE
+? oDiag.SaveInFolder("txtfiles") # or SaveToFile() without param to save it in current folder
+? read("txtfiles/" + oDiag.Name() + ".stzdiag") #--> TRUE
 #-->
 '
 diagram "SaveTest"
@@ -790,6 +860,7 @@ edges
 '
 
 pf()
+# Executed in 0.05 second(s) in Ring 1.25
 
 #---------------------------------#
 #  TEST 3: STZDIAG WITH CLUSTERS  #
@@ -834,6 +905,7 @@ clusters
 oDiag.View()
 
 pf()
+# Executed in 1.10 second(s) in Ring 1.25
 
 #------------------------------------#
 #  TEST 4: STZDIAG WITH ANNOTATIONS  #
@@ -853,7 +925,7 @@ oDiag.AddAnnotation(oPerf)
 ? oDiag.stzdiag()
 #-->
 '
-diagram "AnnotationTest"
+diagram "annotationtest"
 
 metadata
     theme: light
@@ -863,7 +935,7 @@ nodes
     process
         label: "MyProcess"
         type: process
-        color: lightblue
+        color: primary
 
 annotations
     performance
@@ -872,21 +944,24 @@ annotations
 
 pf()
 
-#-----------------#
-#  TEST 5: CONVERT TO DOT
-#-----------------#
+#--------------------------#
+#  TEST 5: CONVERT TO DOT  #
+#--------------------------#
 
 /*--- Converting to Graphviz DOT language
 
 pr()
 
 oDiag = new stzDiagram("DotTest")
-oDiag.AddNodeXT("start", "Start", :Start, :success)
-oDiag.AddNodeXT("end", "End", :Endpoint, :success)
+? oDiag.theme()
+
+oDiag.AddNodeXTT("start", "Start", [ :type = "start", :color = "success" ])
+oDiag.AddNodeXTT("end", "End", [ :type = "endpoint", :color = "success" ])
 oDiag.Connect("start", "end")
 
-? oDiag.stzdiag()
-oDiag.View()
+? @@NL( oDiag.ToHashList() ) + NL
+
+//oDiag.View()
 #-->
 '
 diagram "DotTest"
@@ -912,34 +987,31 @@ edges
 
 pf()
 
-#-----------------#
-#  TEST 6: WRITE DOT FILE
-#-----------------#
+#--------------------------#
+#  TEST 6: WRITE DOT FILE  #
+#--------------------------#
 
 /*--- Saving to DOT file
 
 pr()
 
-oDiag = new stzDiagram("DotFileTest")
-oDiag.AddNodeXT("a", "A", :Process, :white)
-oDiag.AddNodeXT("b", "B", :Process, :white)
+oDiag = new stzDiagram("simple")
+oDiag.AddNodeXTT("a", "Node A", [ :type = "procesd", :Color = "white" ])
+oDiag.AddNodeXTT("b", "Node B", [ :type = "process", :Color = "white" ])
 oDiag.Connect("a", "b")
 
-
-oConv = new stzDiagramToDot(oDiag)
-bSuccess = oConv.WriteToFile("test_diagram.dot")
-
-? bSuccess #--> TRUE
-? read("test_diagram.dot") #--> TRUE
+if  oDiag.SaveDotInFolder("txtfiles")
+	? read("txtfiles/simple.dot")
+ok
 #-->
 '
-digraph "DotFileTest" {
-    graph [rankdir=TB, bgcolor=white, fontname=Helvetica]
-    node [fontname=Helvetica]
-    edge [fontname=Helvetica, color=NULL]
+digraph "simple" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    a [label="A", shape=box, style="rounded,filled", fillcolor="white"]
-    b [label="B", shape=box, style="rounded,filled", fillcolor="white"]
+    a [label="Node_A", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
+    b [label="Node_B", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black"]
 
     a -> b
 
@@ -947,10 +1019,11 @@ digraph "DotFileTest" {
 '
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.25
 
-#-----------------#
-#  TEST 7: DOT NODE SHAPES
-#-----------------#
+#---------------------------#
+#  TEST 7: DOT NODE SHAPES  #
+#---------------------------#
 
 /*--- Verifying DOT node type shapes
 
@@ -958,46 +1031,47 @@ pr()
 
 oDiag = new stzDiagram("DotShapesTest")
 oDiag.SetTheme("vibrant")
-oDiag.AddNodeXT("s", "S", :Start, :success)
-oDiag.AddNodeXT("d", "D", :Decision, :warning)
-oDiag.AddNodeXT("p", "P", :Process, :primary)
-oDiag.AddNodeXT("e", "E", :Endpoint, :success)
+oDiag.AddNodeXTT("s", "Node S", [ :type = "start", :color = "success" ])
+oDiag.AddNodeXTT("d", "Node D", [ :type = "decision", :color = "warning" ])
+oDiag.AddNodeXTT("p", "Node P", [ :type = "process", :color = "primary" ])
+oDiag.AddNodeXTT("e", "Node E", [ :type = "endpoint", :color = "success" ])
 
 ? oDiag.Dot()
 #-->
 '
-digraph "DotShapesTest" {
-    graph [rankdir=TB, bgcolor=white, fontname=Helvetica]
-    node [fontname=Helvetica]
-    edge [fontname=Helvetica, color=black, style=solid]
+digraph "dotshapestest" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    s [label="S", shape=ellipse, style="filled", fillcolor="lightgreen", fontcolor="black"]
-    d [label="D", shape=diamond, style="filled", fillcolor="lightyellow", fontcolor="black"]
-    p [label="P", shape=box, style="rounded,filled", fillcolor="lightblue", fontcolor="black"]
-    e [label="E", shape=doublecircle, style="filled", fillcolor="lightgreen", fontcolor="black"]
+    s [label="Node_S", shape=ellipse, style="solid,filled", fillcolor="#008000", fontcolor="white"]
+    d [label="Node_D", shape=diamond, style="solid,filled", fillcolor="#FFA500", fontcolor="black"]
+    p [label="Node_P", shape=box, style="rounded,solid,filled", fillcolor="#0000FF", fontcolor="white"]
+    e [label="Node_E", shape=doublecircle, style="solid,filled", fillcolor="#008000", fontcolor="white"]
 
+    s -> d [style=invis]
+    d -> p [style=invis]
+    p -> e [style=invis]
 
 }
 '
 
-oDiag.View()
-
-
 pf()
+# Executed in 0.04 second(s) in Ring 1.25
 
-#-----------------#
-#  TEST 8: CONVERT TO MERMAID
-#-----------------#
+#------------------------------#
+#  TEST 8: CONVERT TO MERMAID  #
+#------------------------------#
 
 /*--- Converting to Mermaid.js syntax
 
 pr()
 
 oDiag = new stzDiagram("MermaidTest")
-oDiag.AddNodeXT("start", "Start", :Start, :success)
-oDiag.AddNodeXT("decision", "Check", :Decision, :warning)
-oDiag.AddNodeXT("process", "Process", :Process, :primary)
-oDiag.AddNodeXT("end", "End", :Endpoint, :success)
+oDiag.AddNodeXTT("start", "Start", [ :type = "start", :color = "success" ])
+oDiag.AddNodeXTT("decision", "Check", [ :type = "decision", :color = "warning" ])
+oDiag.AddNodeXTT("process", "Process", [ :type = "process", :color = "primary" ])
+oDiag.AddNodeXTT("end", "End", [ :type = "endpoint", :color = "success" ])
 
 oDiag.Connect("start", "decision")
 oDiag.ConnectXT("decision", "process", "Yes")
@@ -1043,23 +1117,30 @@ oDiag.Show()
 '
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.25
 
-#-----------------#
-#  TEST 9: WRITE MERMAID FILE
-#-----------------#
+#------------------------------#
+#  TEST 9: WRITE MERMAID FILE  #
+#------------------------------#
 
 /*--- Saving to Mermaid file
 
 pr()
 
-oDiag = new stzDiagram("MermaidFileTest")
-oDiag.AddNodeXT("a", "A", :Process, :primary)
-oDiag.AddNodeXT("b", "B", :Process, :primary)
-oDiag.ConnectXT("a", "b", "leads")
+oDiag = new stzDiagram("simple")
+oDiag.AddNodeXTT("start", "Start", [ :type = "start", :color = "success" ])
+oDiag.AddNodeXTT("decision", "Check", [ :type = "decision", :color = "warning" ])
+oDiag.AddNodeXTT("process", "Process", [ :type = "process", :color = "primary" ])
+oDiag.AddNodeXTT("end", "End", [ :type = "endpoint", :color = "success" ])
 
-bSuccess = oDiag.WriteToMermaidFile("test_diagram.mmd") #  # Or just WriteToFile() ~> idenified by .mmd extension
-? bSuccess #--> TRUE
-? read("test_diagram.mmd") #--> TRUE
+oDiag.Connect("start", "decision")
+oDiag.ConnectXT("decision", "process", "Yes")
+oDiag.Connect("process", "end")
+
+if oDiag.WriteToMermaidInFolder("txtfiles")
+	? read("txtfiles/simple.mmd")
+ok
+
 #-->
 '
 graph TD
@@ -1071,33 +1152,33 @@ graph TD
 
 pf()
 
-#-----------------#
-#  TEST 10: MERMAID NODE SHAPES
-#-----------------#
+#--------------------------------#
+#  TEST 10: MERMAID NODE SHAPES  #
+#--------------------------------#
 
 /*--- Verifying Mermaid node type shapes
 
 pr()
 
 oDiag = new stzDiagram("MermaidShapesTest")
-oDiag.AddNodeXT("s", "S", :Start, :success)
-oDiag.AddNodeXT("d", "D", :Decision, :warning)
-oDiag.AddNodeXT("e", "E", :Endpoint, :success)
+oDiag.AddNodeXTT("s", "Node S", [ :type = "start", :color = "success" ])
+oDiag.AddNodeXTT("d", "Node D", [ :type = "decision", :color = "warning" ])
+oDiag.AddNodeXTT("e", "Node E", [ :type = "endpoint", :color = "success" ])
 
 ? oDiag.Mermaid()
 #-->
 '
 graph TD
-    s(["S"])
-    d{{"D"}}
-    e([" E "])
+    s(["Node_S"])
+    d{{"Node_D"}}
+    e(["Node_E"])
 '
 
 pf()
 
-#-----------------#
-#  TEST 11: CONVERT TO JSON
-#-----------------#
+#----------------------------#
+#  TEST 11: CONVERT TO JSON  #
+#----------------------------#
 
 /*--- Converting to JSON format
 
@@ -1105,58 +1186,131 @@ pr()
 
 oDiag = new stzDiagram("JsonTest")
 oDiag.SetTheme(:pro)
-oDiag.AddNodeXT("a", "A", :Process, :primary)
-oDiag.AddNodeXT("b", "B", :Process, :primary)
+oDiag.AddNodeXTT("a", "NodeA", [ :type = "process", :color = "primary" ])
+oDiag.AddNodeXTT("b", "NodeB", [ :type = "process", :color = "primary" ])
 oDiag.Connect("a", "b")
 
 ? oDiag.Json()
 #-->
 '
-{"id":"JsonTest","nodes":[{"id":"a","label":"A","properties":{"type":"process","color":"primary"}},{"id":"b","label":"B","properties":{"type":"process","color":"primary"}}],"edges":[{"from":"a","to":"b","label":"","properties":{}}],"properties":{},"theme":"pro","layout":"NULL","clusters":{},"annotations":{},"templates":{}}
+{
+	"id": "jsontest",
+	"nodes": [
+		{
+			"id": "a",
+			"label": "NodeA",
+			"properties": {
+				"type": "process",
+				"color": "primary"
+			}
+		},
+		{
+			"id": "b",
+			"label": "NodeB",
+			"properties": {
+				"type": "process",
+				"color": "primary"
+			}
+		}
+	],
+	"edges": [
+		{
+			"from": "a",
+			"to": "b",
+			"label": "",
+			"properties": {
+
+			}
+		}
+	],
+	"properties": [
+		"type",
+		"color"
+	],
+	"theme": "pro",
+	"layout": "topdown",
+	"clusters": {
+
+	},
+	"annotations": {
+
+	},
+	"templates": {
+
+	}
+}
 '
 
-#TODO Add JsonXT() --> Indented
-
 pf()
+# Executed in 0.03 second(s) in Ring 1.25
 
-#-----------------#
-#  TEST 12: WRITE JSON FILE
-#-----------------#
+#----------------------------#
+#  TEST 12: WRITE JSON FILE  #
+#----------------------------#
 
 /*--- Saving to JSON file
 
 pr()
 
-oDiag = new stzDiagram("JsonFileTest")
-oDiag.AddNodeXT("x", "X", :Process, :primary)
+oDiag = new stzDiagram("simple")
+oDiag.AddNodeXTT("x", "X Node", [ :type = "process", :color = "primary" ])
 
-bSuccess = oDiag.WriteToJsonFile("test_diagram.json") # Or just WriteToFile() ~> idenified by .json extension
-? bSuccess
-
-? read("test_diagram.json")
-#-->
+if oDiag.WriteToJsonInFolder("txtfiles")
+	? read("txtfiles/simple.json")
+ok
 '
-{"id":"JsonFileTest","nodes":[{"id":"x","label":"X","properties":{"type":"process","color":"primary"}}],"edges":{},"properties":{},"theme":"NULL","layout":"NULL","clusters":{},"annotations":{},"templates":{}}
+{
+	"id": "simple",
+	"nodes": [
+		{
+			"id": "x",
+			"label": "X_Node",
+			"properties": {
+				"type": "process",
+				"color": "primary"
+			}
+		}
+	],
+	"edges": {
+
+	},
+	"properties": [
+		"type",
+		"color"
+	],
+	"theme": "pro",
+	"layout": "topdown",
+	"clusters": {
+
+	},
+	"annotations": {
+
+	},
+	"templates": {
+
+	}
+}
 '
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.25
 
-#-----------------#
-#  TEST 13: JSON STRUCTURE
-#-----------------#
+#---------------------------#
+#  TEST 13: JSON STRUCTURE  #
+#---------------------------#
 
 /*--- Verifying JSON structure fields
 
 pr()
 
 oDiag = new stzDiagram("JsonStructureTest")
-oDiag.AddNodeXT("n", "Node", :Process, :primary)
+oDiag.AddNodeXTT("n", "Node", [ :type = "process", :color = "primary" ])
 
 ? oDiag.Json()
 #-->
-'
+`
 {
-	"id": "JsonStructureTest",
+	"id": "jsonstructuretest",
 	"nodes": [
 		{
 			"id": "n",
@@ -1167,28 +1321,41 @@ oDiag.AddNodeXT("n", "Node", :Process, :primary)
 			}
 		}
 	],
-	"edges": {},
-	"properties": {},
-	"theme": "light",
+	"edges": {
+
+	},
+	"properties": [
+		"type",
+		"color"
+	],
+	"theme": "pro",
 	"layout": "topdown",
-	"clusters": {},
-	"annotations": {},
-	"templates": {}
+	"clusters": {
+
+	},
+	"annotations": {
+
+	},
+	"templates": {
+
+	}
 }
+`
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.25
 
-#-----------------#
-#  TEST 15: EDGE LABELS PRESERVATION
-#-----------------#
+#-------------------------------------#
+#  TEST 15: EDGE LABELS PRESERVATION  #
+#-------------------------------------#
 
 /*--- Verifying edge labels in all formats
 
 pr()
 
 oDiag = new stzDiagram("EdgeLabelTest")
-oDiag.AddNodeXT("a", "A", :Process, :primary)
-oDiag.AddNodeXT("b", "B", :Process, :primary)
+oDiag.AddNodeXTT("a", "A", [ :type = "process", :color = "primary" ])
+oDiag.AddNodeXTT("b", "B", [ :type = "process", :color = "primary" ])
 oDiag.ConnectXT("a", "b", "important")
 
 cStzOutput = oDiag.stzdiag()
@@ -1200,6 +1367,7 @@ cMermaidOutput = oDiag.mermaid()
 ? contains(cMermaidOutput, "important") #--> TRUE
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.25
 
 #-------------------------#
 # TESTING VISUAL OPTIONS  #
@@ -1215,9 +1383,9 @@ oDiag1 {
 	SetLayout(:LeftRight)      # Semantic
 	# SetLayout(:LR)           # Short form
 	
-	AddNodeXT("n1", "Node 1", :Start, :Success)
-	AddNodeXT("n2", "Node 2", :Process, :Primary)
-	AddNodeXT("n3", "Node 3", :Endpoint, :Danger)
+	AddNodeXTT("n1", "Node 1", [ :type = "start", :color = "success" ])
+	AddNodeXTT("n2", "Node 2", [ :type = "process", :color = "primary" ])
+	AddNodeXTT("n3", "Node 3", [ :type = "endpoint", :color = "danger" ])
 	
 	Connect("n1", "n2")
 	Connect("n2", "n3")
@@ -1227,14 +1395,14 @@ oDiag1 {
 }
 #-->
 '
-digraph "LayoutTest" {
-    graph [rankdir=LR, bgcolor=white, fontname=Helvetica]
-    node [fontname=Helvetica]
-    edge [fontname=Helvetica, color=black, style=solid]
+digraph "layouttest" {
+    graph [rankdir=LR, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    n1 [label="Node 1", shape=ellipse, style="filled", fillcolor="lightgreen", fontcolor="black"]
-    n2 [label="Node 2", shape=box, style="rounded,filled", fillcolor="lightblue", fontcolor="black"]
-    n3 [label="Node 3", shape=doublecircle, style="filled", fillcolor="lightcoral", fontcolor="black"]
+    n1 [label="Node_1", shape=ellipse, style="solid,filled", fillcolor="#7F7F7F", fontcolor="white"]
+    n2 [label="Node_2", shape=box, style="rounded,solid,filled", fillcolor="#646464", fontcolor="white"]
+    n3 [label="Node_3", shape=doublecircle, style="solid,filled", fillcolor="#D0D0D0", fontcolor="black"]
 
     n1 -> n2
     n2 -> n3
@@ -1243,6 +1411,7 @@ digraph "LayoutTest" {
 '
 
 pf()
+# Executed in 0.48 second(s) in Ring 1.25
 
 /*-- Test 2: Edge style variations
 
@@ -1256,8 +1425,8 @@ oDiag2 {
 
 	SetEdgeColor("blue")
 	
-	AddNodeXT("a", "Start", :Start, :Success)
-	AddNodeXT("b", "Check", :Decision, :Warning)
+	AddNodeXT("a", "Start", [ :type = "start", :color = "success" ])
+	AddNodeXT("b", "Check", [ :type = "decision", :color = "warning" ])
 	AddNodeXT("c", "End", :Endpoint, :Danger)
 	
 	Connect("a", "b")
@@ -1278,16 +1447,16 @@ oDiag {
 	SetLayout(:TopDown)
 	
 	# Semantic types (shape auto-selected)
-	AddNodeXT("start", "Start", "start", :success)
-	AddNodeXT("validate", "Validate", "process", :primary)
-	AddNodeXT("check", "Valid?", "decision", :warning)
-	AddNodeXT("done", "Done", "endpoint", :success)
+	AddNodeXTT("start", "Start", [ :type = "start", :color = "success" ])
+	AddNodeXTT("validate", "Validate", [ :type = "process", :color = "primary" ])
+	AddNodeXTT("check", "Valid?", [ :type = "decision", :color = "warning" ])
+	AddNodeXTT("done", "Done", [ :type = "endpoint", :color = "success" ])
 	
 	# Direct DOT shapes (explicit control)
-	AddNodeXT("db", "Database", "cylinder", "neutral+") # Note how we made neutral a bit darker with +
-	AddNodeXT("alert", "Alert", "hexagon", :danger)
-	AddNodeXT("backup", "Backup", "parallelogram", :info)
-	AddNodeXT("end", "End", "octagon", :success)
+	AddNodeXTT("db", "Database", [ :type = "cylinder", :color = "neutral+" ]) # Note how we made neutral a bit darker with +
+	AddNodeXTT("alert", "Alert", [ :type = "hexagon", :color = "danger" ])
+	AddNodeXTT("backup", "Backup", [ :type = "parallelogram", :color = "info" ])
+	AddNodeXTT("end", "End", [ :type = "octagon", :color = "success" ])
 	
 	Connect("start", "validate")
 	Connect("validate", "check")
@@ -1302,6 +1471,7 @@ oDiag {
 }
 
 pf()
+# Executed in 0.50 second(s) in Ring 1.25
 
 /*-- Test 4: Theme variations
 
@@ -1310,48 +1480,65 @@ pr()
 # Supported thems: light, dark, vibrant, pro, access,
 # print, gray, lightgray, darkgray
 
-oDiag4 = new stzDiagram("ThemeTest")
-oDiag4 {
+o1 = new stzDiagram("ThemeTest")
+o1 {
 	SetTheme(:light)
 	SetLayout(:RightLeft)
 	SetNodeStrokeColor("navy")
 	
-	AddNodeXT("x", "Alpha", :Start, :Success)
-	AddNodeXT("y", "Beta", :Process, :Primary)
-	AddNodeXT("z", "Gamma", :Endpoint, :Info)
+	AddNodeXTT("x", "Alpha", [ :type = "start", :color = "success" ])
+	AddNodeXTT("y", "Beta", [ :type = "process", :color = "primary" ])
+	AddNodeXTT("z", "Gamma", [ :type = "endpoint", :color = "primary" ])
 	
 	Connect("x", "y")
 	Connect("y", "z")
 	
+	? Dot()
 	View()
 }
+#-->
+`
+digraph "themetest" {
+    graph [rankdir=RL, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    x [label="Alpha", shape=ellipse, style="solid,filled", fillcolor="#4D654D", fontcolor="white", color="#008000"]
+    y [label="Beta", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", fontcolor="white", color="#008000"]
+    z [label="Gamma", shape=doublecircle, style="solid,filled", fillcolor="#4D4DC9", fontcolor="white", color="#008000"]
+
+    x -> y
+    y -> z
+
+}
+`
 
 pf()
+# Executed in 0.61 second(s) in Ring 1.25
 
 /*--- Generating the diagram image in all the supported themes
 
 pr()
 
 # Test all themes with semantic colors
-aThemes = ["light", "dark", "vibrant", "pro", "access", 
+acThemes = ["light", "dark", "vibrant", "pro", "access", 
            "print", "gray", "lightgray", "darkgray"]
 
-aThemes = ["pro"]
-
-for cTheme in aThemes
+for cTheme in acThemes
 	oDiag = new stzDiagram("Theme_" + cTheme)
 	oDiag {
 		SetTheme(cTheme)
 		SetLayout(:LeftRight)
-		
+		SetTitle("THEME " + UPPER(cTheme))
+
 		# All semantic color types
-		AddNodeXT("s", "Start", :Start, :success)
-		AddNodeXT("p1", "Process", :Process, :primary)
-		AddNodeXT("w", "Warning", :Decision, :warning)
-		AddNodeXT("d", "Danger", :Process, :danger)
-		AddNodeXT("i", "Info", :Storage, :info)
-		AddNodeXT("n", "Neutral", :Process, :neutral)
-		AddNodeXT("e", "End", :Endpoint, :success)
+		AddNodeXTT("s", "Start", [ :type = "start", :color = "success" ])
+		AddNodeXTT("p1", "Process", [ :type = "process", :color = "primary" ])
+		AddNodeXTT("w", "Warning", [ :type = "decision", :color = "warning" ])
+		AddNodeXTT("d", "Danger", [ :type = "process", :color = "danger" ])
+		AddNodeXTT("i", "Info", [ :type = "storage", :color = "info" ])
+		AddNodeXTT("n", "Neutral", [ :type = "process", :color = "neutral" ])
+		AddNodeXTT("e", "End", [ :type = "endpoint", :color = "success" ])
 		
 		Connect("s", "p1")
 		Connect("p1", "w")
@@ -1363,11 +1550,11 @@ for cTheme in aThemes
 		
 		? "Theme: " + cTheme
 		View()
-		sleep(2)  # Pause between diagrams
 	}
 next
 
 pf()
+# Executed in 12.69 second(s) in Ring 1.25
 
 /*-- Test 5: Combined options
 
@@ -1381,19 +1568,19 @@ oDiag5 {
 	SetPenWidth(3)
 	SetEdgeColor("gray+")
 	
-	AddNodeXT("start", "Begin", :Start, :Success)
-	AddNodeXT("proc1", "Validate", :Process, :Primary)
-	AddNodeXT("dec1", "Valid?", :Decision, :Warning)
-	AddNodeXT("error", "Error", :Error, :Danger)
-	AddNodeXT("done", "Complete", :Endpoint, :Success)
+	AddNodeXTT("start", "Begin", [ :type = "start", :color = "success" ])
+	AddNodeXTT("proc1", "Validate", [ :type = "process", :color = "primary" ])
+	AddNodeXTT("dec1", "Valid?", [ :type = "decision", :color = "warning" ])
+	AddNodeXTT("error", "Error", [ :type = "error", :color = "danger" ])
+	AddNodeXTT("done", "Complete", [ :type = "endpoint", :color = "success" ])
 	
 	Connect("start", "proc1")
 	ConnectXT("proc1", "dec1", "Check")
 	ConnectXT("dec1", "error", "No")
 	ConnectXT("dec1", "done", "Yes")
 	
-	? "Nodes: " + NodeCount()
-	? "Edges: " + EdgeCount()
+	? NodeCount() #--> 5
+	? EdgeCount() #--> 4
 	
 	View()
 }
@@ -1409,9 +1596,9 @@ oDiag6 {
 	SetTheme(:vibrant)
 	
 	# Symbolic colors from palette
-	AddNodeXT("n1", "Success", :Process, :Success)
+	AddNodeXT("n1", "Success", [ :type = "process", :color = "success" ])
 	AddNodeXT("n2", "Warning", :Process, :Warning)
-	AddNodeXT("n3", "Danger", :Process, :Danger)
+	AddNodeXT("n3", "Danger", [ :type = "process", :color = "danger" ])
 	
 	# Direct color names
 	AddNodeXT("n4", "Blue", :Process, "lightblue")
@@ -1445,8 +1632,8 @@ oDiag {
 	SetFontSize(24)		#ERR // Idem
 	SetTheme(:Pro)
 	
-	AddNodeXT("n1", "Custom Font", :Start, :Success)
-	AddNodeXT("n2", "Arial 24pt", :Process, :Primary)
+	AddNodeXT("n1", "Custom Font", [ :type = "start", :color = "success" ])
+	AddNodeXT("n2", "Arial 24pt", [ :type = "process", :color = "primary" ])
 	ConnectXT("n1", "n2", "size")
 	
 	View()
@@ -1454,10 +1641,50 @@ oDiag {
 
 pf()
 
+#--- CONFIGURING THE DIAGRAM TOOLTIP
+
+pr()
+
+o1 = new stzDiagram("Sales")
+o1 {
+    SetTooltip([ :NodeId, :Type, :Color, "Department", "Budget" ])
+    // DisableTooltip() # Or SetTooltip("")
+
+    AddNodeXTT("a", "Marketing", [ 
+        :type = "process", 
+        :color = "blue",
+        :Department = "Sales",
+        :Budget = "$50K"
+    ])
+    
+    AddNodeXTT("b", "Operations", [ 
+        :type = "process",
+        :color = "green",
+        :Department = "Ops",
+        :Budget = "$100K"
+    ])
+    
+    Connect("a", "b")
+    ? Code()
+    View()
+}
+
+
+# This will show tooltips on hover like:
+`
+ID: a
+Type: process
+Color: blue
+Department: Sales
+Budget: $50K
+`
+
+pf()
+# Executed in 0.60 second(s) in Ring 1.25
+
 #------------------------------#
 #  VISUAL RULES AND SEMANTICS  #
 #------------------------------#
-
 
 /*---  Example 1: Security Risk Visualization
 
@@ -1587,9 +1814,9 @@ oDiag.View()
 pf()
 
 
-/*---------------------------#
-#  TEST 4: Exact Value Matching
-#---------------------------#
+/*-------------------------------#
+#  TEST 4: Exact Value Matching  #
+#--------------------------------#
 
 pr()
 
@@ -2832,7 +3059,7 @@ pf()
 pr()
 
 oDiag = new stzDiagram("MainFlow")
-oDiag.AddNodeXT("start", "Begin", :start, :success)
+oDiag.AddNodeXT("start", "Begin", [ :type = "start", :color = "success" ])
 
 cBadImport = '
 diagram "BadFlow"
@@ -3164,9 +3391,9 @@ pr()
 # Build initial diagram
 oDiag = new stzDiagram("PaymentFlow")
 oDiag.SetTheme(:pro)
-oDiag.AddNodeXT("start", "Request", :start, :success)
-oDiag.AddNodeXT("validate", "Validate", :decision, :warning)
-oDiag.AddNodeXT("approved", "Approved", :endpoint, :success)
+oDiag.AddNodeXT("start", "Request", [ :type = "start", :color = "success" ])
+oDiag.AddNodeXT("validate", "Validate", [ :type = "decision", :color = "warning" ])
+oDiag.AddNodeXT("approved", "Approved", [ :type = "endpoint", :color = "success" ])
 oDiag.Connect("start", "validate")
 oDiag.Connect("validate", "approved")
 

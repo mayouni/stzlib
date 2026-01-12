@@ -3,55 +3,8 @@
 #  Workflows, org charts, semantic diagrams        #
 #==================================================#
 
-#  GLOBAL REGISTRY
-
-$aDiagramValidators = [
-	:SOX,
-	:GDPR,
-	:Banking
-]
-
-# Add to stzGraphRule.ring
-
-RegisterRule(:dag, "is_acyclic", [
-	:type = :validation,
-	:function = ValidationFunc_IsAcyclic(),
-	:params = [],
-	:message = "Diagram must be acyclic (DAG)",
-	:severity = :error
-])
-
-RegisterRule(:sox, "audit_trail", [
-	:type = :validation,
-	:function = func(oGraph, paParams) {
-		acFinancial = oGraph.NodesW("domain", "=", "financial")
-		for cId in acFinancial
-			if oGraph.NodeProp(cId, "audittrail") = NULL
-				return [FALSE, "Financial node missing audit: " + cId]
-			ok
-		end
-		return [TRUE, ""]
-	},
-	:params = [],
-	:message = "Financial processes need audit trails",
-	:severity = :error
-])
-
-RegisterRule(:gdpr, "consent", [
-	:type = :validation,
-	:function = func(oGraph, paParams) {
-		acPersonal = oGraph.NodesW("dataType", "=", "personal")
-		for cId in acPersonal
-			if oGraph.NodeProp(cId, "requiresConsent") != 1
-				return [FALSE, "Personal data missing consent: " + cId]
-			ok
-		end
-		return [TRUE, ""]
-	},
-	:params = [],
-	:message = "Personal data needs consent",
-	:severity = :error
-])
+# NOTE : there some rules related to stzDiagram that are registred in
+# stzGraphRule file, like "dag", "sox", and "gdpr" rules.
 
 #  UNIFIED COLOR SYSTEM	#TODO Abstract it in a stzColor class -> Visual Module
 #-----------------------
@@ -188,6 +141,8 @@ $aPalette = [
 	]
 ]
 
+$cDefaultTheme = "pro"
+
 # Color gradients for numeric metadata (0-100 scale)
 $aMetricColorGradients = [
 	:performance = [
@@ -314,8 +269,6 @@ $acThemes = [
 	"darkgray"
 ]
 
-$cDefaultTheme = "light"
-
 # LAYOUT
 $acLayouts = [
 	:TopDown = [ "tb", "td", "topbottom", "ud", "updown", "ub", "upbottom" ],
@@ -416,10 +369,6 @@ $aPolygonShapes = [
 	"septagon", "trapezium", "invtrapezium", "triangle",
 	"house", "invtriangle", "diamond"
 ]
-
-#---
-
-$bTitleVisibility = FALSE
 
 #---
 
@@ -731,11 +680,6 @@ func StyleForEdgeType(pcType)
 	ok
 	return $cDefaultEdgeStyle
 
-# VALIDATOR FUNCTION
-
-func DiagramValidators()
-	return $acDiagramValidators
-
 #--------------------------------------------------#
 #  stzDiagram Class - Main Diagram Implementation  #
 #--------------------------------------------------#
@@ -789,7 +733,6 @@ class stzDiagram from stzGraph
 
 	@cTitle = ""
 	@cSubtitle = ""
-	@bTitleVisibility = $bTitleVisibility
 
 	@acValidators = $acDiagramDefaultValidators
 
@@ -802,12 +745,17 @@ class stzDiagram from stzGraph
 	@aNodesAffectedByRules = []
 	@aEdgesAffectedByRules = []
 
-	def init(pTitle)
-		super.init(pTitle)
-		@cTitle = pTitle
+	@aTooltipConfig = []
+
+	def init(pcName)
+		super.init(pcName)
 		@cEdgeColor = ResolveColor($cDefaultEdgeColor)
 		@cFocusColor = ResolveColor($cDefaultFocusColor)
 		@cSplineType = $cDefaultSplineType
+
+
+	def Name()
+		return super.Id()
 
 	def SetTheme(pTheme)
 	
@@ -907,7 +855,7 @@ class stzDiagram from stzGraph
 	        @nRankSep = pnValue
 	    ok
 	
-	def SetConcentrate(pbValue)
+	def SetConcentrate(pbValue) #TODO // Check this
 	    @bConcentrate = pbValue
 
 	def SetLayoutPreset(pcPreset)
@@ -944,13 +892,6 @@ class stzDiagram from stzGraph
 	        This.SetConcentrate(FALSE)
 	    off
 
-	def SetTitleVisibility(b)
-		if NOT (isNumber(b) and (b = 1 or b = 0) )
-			stzraise("Incorrect param type! b must be a boolean.")
-		ok
-
-		@bTitleVisibility = b
-
 	def SetTitle(pcTitle)
 	    @cTitle = pcTitle
 	
@@ -962,6 +903,12 @@ class stzDiagram from stzGraph
 
 		def SetOutput(cFormat)
 			@cOutputFormat = lower(cFormat)
+
+	def SetTooltip(paConfig)
+	    @aTooltipConfig = paConfig
+
+	def DisableTooltip()
+		@aTooltipConfig = []
 
 	# Getters
 	def NodePenWidth()
@@ -1042,11 +989,12 @@ class stzDiagram from stzGraph
 	def Subtitle()
 	    return @cSubtitle
 
-	def TitleVisibility()
-		return 	@bTitleVisibility
-
 	def OutputFormat()
 		return @cOutputFormat
+
+	
+	def TooltipConfig()
+	    return @aTooltipConfig
 
 	#--------------------#
 	#  COLOR RESOLUTION  #
@@ -1493,17 +1441,15 @@ class stzDiagram from stzGraph
 
 	def ValidateXT(pValidator)
 		if isString(pValidator)
-			# Using parent stzGraph rule system
-			This.UseRulesFrom(pValidator) 
-			return super.Validate()
-
+			This.UseRulesFrom(pValidator)
 		but isList(pValidator)
-			# Using parent stzGraph rule system
 			for cValidator in pValidator
 				This.UseRulesFrom(cValidator)
 			end
-			return super.Validate()
 		ok
+		
+		aResult = super.Validate()
+		return aResult[1]  # Just return TRUE/FALSE
 
 	def IsValid()
 		aResult = This.Validate()
@@ -1644,51 +1590,402 @@ class stzDiagram from stzGraph
 			return This.Mermaid()
 
 	#-----------------#
-	#  WRITE TO FILE  #
+	#  WRITE TO FILE  # #TODO Shoulmd move to stzGraph level
 	#-----------------#
 
-	def WriteToFile(pcFileName)
-		if right(pcFileName, 7) = "stzdiag"
-			return This.WriteToStzDiagFile(pcFileName)
+	def WriteToFile()
+		oConv = new stzDiagramToStzDiag(This)
+		bSuccess = oConv.WriteToFile(This.Name() + ".stzdiag")
+		return bSuccess
 
-		but right(pcFileName, 3) = "dot"
-			return This.WriteToDotFile(pcFileName)
+		def SaveToFile()
+			return This.WritetoFile()
 
-		but right(pcFileName, 4) = "json"
-			return This.WriteToJsonFile(pcFileName)
+		def SaveFile()
+			return This.WritetoFile()
 
-		but right(pcFileName, 3) = "mmd"
-			return This.WriteToMermaidFile(pcFileName)
+		def SaveInFile()
+			return This.WritetoFile()
 
-		else
-			return 0
+		#--
+
+		def WriteToStzDiagFile()
+			return This.WriteToDiagFile()
+
+		def WriteStzDiag()
+			return This.WriteToDiagFile()
+
+		#--
+
+		def SaveToDiagFile()
+			return This.WriteToDiagFile()
+
+		def SaveToStzDiagFile()
+			return This.WriteToDiagFile()
+
+		def SaveToStzDiag()
+			return This.WriteToDiagFile()
+
+		#--
+
+		def SaveInDiagFile()
+			return This.WriteToDiagFile()
+
+		def SaveInStzDiagFile()
+			return This.WriteToDiagFile()
+
+		def SaveInStzDiag()
+			return This.WriteToDiagFile()
+
+		#--
+
+		def SaveDiagFile()
+			return This.WriteToDiagFile()
+
+		def SaveStzDiagFile()
+			return This.WriteToDiagFile()
+
+		def SaveStzDiag()
+			return This.WriteToDiagFile()
+
+	def WriteToFileXT(pcFolder)
+		if not isstring(pcFolder)
+			stzraise("Incorrect param type! pcFolder must be a string.")
 		ok
 
-	def WriteToDiagFile(pcFileName)
+		if NOT isValidFolder(pcFolder)
+			stzraise("Incorrect folder name!")
+		ok
+
+		pcFolder = substr(pcFolder, "/", "")
+		pcFolder = substr(pcFolder, "\", "")
+
 		oConv = new stzDiagramToStzDiag(This)
-		bSuccess = oConv.WriteToFile(pcFileName)
+		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".stzdiag")
 		return bSuccess
 
-		def WriteToStzDiagFile(pcFileName)
-			return This.WriteToDiagFile(pcFileName)
+		#< @FunctionAlternativeForms
 
-		def WriteStzDiag(pcFileName)
-			This.WriteToDiagFile(pcFileName)
+		def SaveInFolder(pcFolder)
+			return This.WritetoFileXT(pcFolder)
 
-	def WriteToDotFile(pcFileName)
+		def SaveToFileXT(pcFolder)
+			return This.WritetoFileXT(pcFolder)
+
+		def SaveFileXT(pcFolder)
+			return This.WritetoFileXT(pcFolder)
+
+		def SaveInFileXT(pcFolder)
+			return This.WritetoFileXT(pcFolder)
+
+		#--
+
+		def WriteToStzDiagFileXT(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def WriteStzDiagXT(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		#--
+
+		def SaveToDiagFileXT(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def SaveToStzDiagFileXT(pcFolder)
+			return This.WriteToDiagFile(pcFolder)
+
+		def SaveToStzDiagXT()
+			return This.WriteToDiagFileXT(pcFolder)
+
+		#--
+
+		def SaveInDiagFileXT(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def SaveInStzDiagFileXT(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def SaveInStzDiagXT(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		#--
+
+		def SaveDiagFileXT(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def SaveStzDiagFileXT(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def SaveStzDiagXT(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		#===
+
+		def SaveToFileInFolder(pcFolder)
+			return This.WritetoFileXT(pcFolder)
+
+		def SaveFileInFolder(pcFolder)
+			return This.WritetoFileXT(pcFolder)
+
+		def SaveInFileInFolder(pcFolder)
+			return This.WritetoFileXT(pcFolder)
+
+		#--
+
+		def WriteToStzDiagFileInFolder(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def WriteStzDiagInFolder(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		#--
+
+		def SaveToDiagFileInFolder(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def SaveToStzDiagFileInFolder(pcFolder)
+			return This.WriteToDiagFile(pcFolder)
+
+		def SaveToStzDiagInFolder()
+			return This.WriteToDiagFileXT(pcFolder)
+
+		#--
+
+		def SaveInDiagFileInFolder(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def SaveInStzDiagFileInFolder(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def SaveInStzDiagInFolder(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		#--
+
+		def SaveDiagFileInFolder(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def SaveStzDiagFileInFolder(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		def SaveStzDiagInFolder(pcFolder)
+			return This.WriteToDiagFileXT(pcFolder)
+
+		#>
+	#---
+
+	def WriteToDotFile()
 		oConv = new stzDiagramToDot(This)
-		bSuccess = oConv.WriteToFile(pcFileName)
+		bSuccess = oConv.WriteToFile(This.Name() + ".dot")
 		return bSuccess
 
-	def WriteToMermaidFile(pcFileName)
-		oConv = new stzDiagramToMermaid(This)
-		bSuccess = oConv.WriteToFile(pcFileName)
+		def WriteInDotFile()
+			return This.WriteToDotFile()
+
+		def SaveDotFile()
+			return This.WriteToDotFile()
+
+		def SaveInDotFile()
+			return This.WriteToDotFile()
+
+	def WriteToDotFileXT(pcFolder)
+		if not isstring(pcFolder)
+			stzraise("Incorrect param type! pcFolder must be a string.")
+		ok
+
+		if NOT isValidFolder(pcFolder)
+			stzraise("Incorrect folder name!")
+		ok
+
+		pcFolder = substr(pcFolder, "/", "")
+		pcFolder = substr(pcFolder, "\", "")
+
+		oConv = new stzDiagramToDot(This)
+		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".dot")
 		return bSuccess
+
+		#< @FunctionAlternativeForms
+
+		def WriteInDotFileXT(pcFolder)
+			return This.WriteToDotFileXT(pcFolder)
+
+		def WriteToDotFileInFolder(pcFolder)
+			return This.WriteToDotFileXT(pcFolder)
+
+		def WriteDotFileInFolder(pcFolder)
+			return This.WriteToDotFileXT(pcFolder)
+
+		def WriteDotInFolder(pcFolder)
+			return This.WriteToDotFileXT(pcFolder)
+
+		def WriteToDotInFolder(pcFolder)
+			return This.WriteToDotFileXT(pcFolder)
+
+		#--
+
+		def SaveToDotFileXT(pcFolder)
+			return This.WriteToDotFileXT(pcFolder)
+
+		def SaveInDotFileXT(pcFolder)
+			return This.WriteToDotFileXT(pcFolder)
+
+		def SaveToDotFileInFolder(pcFolder)
+			return This.WriteToDotFileXT(pcFolder)
+
+		def SaveDotFileInFolder(pcFolder)
+			return This.WriteToDotFileXT(pcFolder)
+
+		def SaveDotInFolder(pcFolder)
+			return This.WriteToDotFileXT(pcFolder)
+
+		def SaveToDotInFolder(pcFolder)
+			return This.WriteToDotFileXT(pcFolder)
+
+		#>
+
+	#---
+
+	def WriteToMermaidFile()
+		oConv = new stzDiagramToMermaid(This)
+		bSuccess = oConv.WriteToFile(This.Name() + ".mmd")
+		return bSuccess
+
+		def WriteInMermaidFile()
+			return This.WriteToMermaidFile()
+
+		def SaveMermaidFile()
+			return This.WriteToMermaidFile()
+
+		def SaveInMermaidFile()
+			return This.WriteToMermaidFile()
+
+	def WriteToMermaidFileXT(pcFolder)
+		if not isstring(pcFolder)
+			stzraise("Incorrect param type! pcFolder must be a string.")
+		ok
+
+		if NOT isValidFolder(pcFolder)
+			stzraise("Incorrect folder name!")
+		ok
+
+		pcFolder = substr(pcFolder, "/", "")
+		pcFolder = substr(pcFolder, "\", "")
+
+		oConv = new stzDiagramToMermaid(This)
+		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".mmd")
+		return bSuccess
+
+
+		#< @FunctionAlternativeForms
+
+		def WriteInMermaidFileXT(pcFolder)
+			return This.WriteToMermaidFileXT(pcFolder)
+
+		def WriteToMermaidFileInFolder(pcFolder)
+			return This.WriteToMermaidFileXT(pcFolder)
+
+		def WriteMermaidFileInFolder(pcFolder)
+			return This.WriteToMermaidFileXT(pcFolder)
+
+		def WriteMermaidInFolder(pcFolder)
+			return This.WriteToMermaidFileXT(pcFolder)
+
+		def WriteToMermaidInFolder(pcFolder)
+			return This.WriteToMermaidFileXT(pcFolder)
+
+		#--
+
+		def SaveToMermaidFileXT(pcFolder)
+			return This.WriteToMermaidFileXT(pcFolder)
+
+		def SaveInMermaidFileXT(pcFolder)
+			return This.WriteToMermaidFileXT(pcFolder)
+
+		def SaveToMermaidFileInFolder(pcFolder)
+			return This.WriteToMermaidFileXT(pcFolder)
+
+		def SaveMermaidFileInFolder(pcFolder)
+			return This.WriteToMermaidFileXT(pcFolder)
+
+		def SaveMermaidInFolder(pcFolder)
+			return This.WriteToMermaidFileXT(pcFolder)
+
+		def SaveToMermaidInFolder(pcFolder)
+			return This.WriteToMermaidFileXT(pcFolder)
+
+		#>
+
+	#--
 
 	def WriteToJsonFile(pcFileName)
 		oConv = new stzDiagramToJson(This)
-		bSuccess = oConv.WriteToFile(pcFileName)
+		bSuccess = oConv.WriteToFile(This.Name() + ".json")
 		return bSuccess
+
+		def WriteInJsonFile()
+			return This.WriteToJsonFile()
+
+		def SaveJsonFile()
+			return This.WriteToJsonFile()
+
+		def SaveInJsonFile()
+			return This.WriteToJsonFile()
+
+	def WriteToJsonFileXT(pcFolder)
+		if not isstring(pcFolder)
+			stzraise("Incorrect param type! pcFolder must be a string.")
+		ok
+
+		if NOT isValidFolder(pcFolder)
+			stzraise("Incorrect folder name!")
+		ok
+
+		pcFolder = substr(pcFolder, "/", "")
+		pcFolder = substr(pcFolder, "\", "")
+
+		oConv = new stzDiagramToJson(This)
+		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".json")
+		return bSuccess
+
+
+		#< @FunctionAlternativeForms
+
+		def WriteInJsonFileXT(pcFolder)
+			return This.WriteToJsonFileXT(pcFolder)
+
+		def WriteToJsonFileInFolder(pcFolder)
+			return This.WriteToJsonFileXT(pcFolder)
+
+		def WriteJsonFileInFolder(pcFolder)
+			return This.WriteToJsonFileXT(pcFolder)
+
+		def WriteJsonInFolder(pcFolder)
+			return This.WriteToJsonFileXT(pcFolder)
+
+		def WriteToJsonInFolder(pcFolder)
+			return This.WriteToJsonFileXT(pcFolder)
+
+		#--
+
+		def SaveToJsonFileXT(pcFolder)
+			return This.WriteToJsonFileXT(pcFolder)
+
+		def SaveInJsonFileXT(pcFolder)
+			return This.WriteToJsonFileXT(pcFolder)
+
+		def SaveToJsonFileInFolder(pcFolder)
+			return This.WriteToJsonFileXT(pcFolder)
+
+		def SaveJsonFileInFolder(pcFolder)
+			return This.WriteToJsonFileXT(pcFolder)
+
+		def SaveJsonInFolder(pcFolder)
+			return This.WriteToJsonFileXT(pcFolder)
+
+		def SaveToJsonInFolder(pcFolder)
+			return This.WriteToJsonFileXT(pcFolder)
+
+		#>
 
 	#===========================#
 	#  VISUAL RULES MANAGEMENT  #
@@ -1714,10 +2011,10 @@ class stzDiagram from stzGraph
 	
 	def RemoveVisualRule(p)
 		if isString(p)
-			@aVisualRules[p] = NULL
+			@aVisualRules[p] = ""
 			This.RemoveRule(p)
 		but isObject(p)
-			@aVisualRules[p.@cRuleId] = NULL
+			@aVisualRules[p.@cRuleId] = ""
 			This.RemoveRule(p)
 		ok
 
@@ -2627,32 +2924,6 @@ class stzDiagramAnnotator
 		]
 
 
-#===============================================#
-#  stzDiagramValidators - PLUGGABLE VALIDATORS  #
-#===============================================#
-
-class stzDiagramValidator #TODO Remove it??
-
-	def init()
-		@aValidators = []
-
-	def ValidateDiagram(oDiagram, pcDomain)
-		if HasKey($acDiagramValidators, pcDomain)
-			oValidator = nex stzDiagramValidatorXT(pcDomain)
-			return oValidator.Validate(oDiagram)
-		else
-			return [
-				:status = "error",
-				:message = "No validator registered for domain: " + pcDomain
-			]
-		ok
-
-	def Validators()
-		return $acDiagramValidators
-
-
-
-
 #=======================================#
 #  stzDiagramToStzDiag - NATIVE FORMAT  #
 #=======================================#
@@ -2862,7 +3133,7 @@ class stzDiagramToDot
 
 
 	def _Generate()
-
+	
 		cOutput = ""
 		
 		# Apply visual rules if any
@@ -2880,20 +3151,17 @@ class stzDiagramToDot
 		cOutput += This._GenerateGraphAttributes(cTheme)
 		
 		# Add title/subtitle if present
-
-		if @oDiagram.@bTitleVisibility = TRUE
-		    if @oDiagram.Title() != ""
-		        cOutput += '    labelloc="t";'
-		        cTitle =NL +  @oDiagram.Title()
-		        if @oDiagram.Subtitle() != ""
-		            cTitle += NL + @oDiagram.Subtitle() + NL
-		        ok
-			cTitle += NL + NL
-		        cOutput += '    label="' + cTitle + '";' + NL
-		        cOutput += '    fontsize=16;' + NL + NL
+		if @oDiagram.Title() != ""
+		    cOutput += '    labelloc="t";' + NL
+		    cTitle = NL + @oDiagram.Title()
+		    if @oDiagram.Subtitle() != ""
+		        cTitle += NL + @oDiagram.Subtitle() + NL
 		    ok
+		    cTitle += NL + NL
+		    cOutput += '    label="' + cTitle + '";' + NL
+		    cOutput += '    fontsize=16;' + NL + NL
 		ok
-
+	
 		# Node attributes  
 		cOutput += This._GenerateNodeAttributes(cTheme)
 		
@@ -2929,7 +3197,7 @@ class stzDiagramToDot
 				cOutput += '    }' + NL
 			end
 		ok
-
+	
 		# Generate edges
 		cOutput += This._GenerateEdges(cTheme)
 		
@@ -2939,8 +3207,8 @@ class stzDiagramToDot
 	
 	def _GetTheme()
 		cTheme = lower(@oDiagram.@cTheme)
-		if cTheme = "" or cTheme = NULL
-			cTheme = "light"
+		if cTheme = ""
+			cTheme = $cDefaultTheme
 		ok
 		return cTheme
 
@@ -2956,7 +3224,8 @@ class stzDiagramToDot
 	               ', splines=' + @oDiagram.@cSplineType +
 	               ', nodesep=' + @oDiagram.@nNodeSep +
 	               ', ranksep=' + @oDiagram.@nRankSep +
-	               ', ordering=out'  # Preserve edge order
+	               ', ordering=out' +
+	               ', tooltip=" "'  #TODO // Has no effect
 	    
 	    if @oDiagram.@bConcentrate
 	        cResult += ', concentrate=true'
@@ -2991,8 +3260,8 @@ class stzDiagramToDot
 		cLayout = lower(@oDiagram.@cLayout)
 		
 		# Handle empty/null layout
-		if cLayout = "" or cLayout = NULL
-			cLayout = "topdown"
+		if cLayout = ""
+			cLayout = $cDefaultLayout
 		ok
 		
 		cRankDir = "TB"
@@ -3014,7 +3283,7 @@ class stzDiagramToDot
 	
 	def _GetFont()
 		cFont = @oDiagram.@cFont
-		if cFont = "" or cFont = NULL
+		if cFont = ""
 			cFont = $cDefaultFont
 		ok
 
@@ -3022,7 +3291,7 @@ class stzDiagramToDot
 	
 	def _GetFontSize()
 		nFontSize = @oDiagram.@nFontSize
-		if nFontSize = 0 or nFontSize = NULL
+		if nFontSize = 0 or nFontSize = ""
 			nFontSize = $cDefaultFontSize
 		ok
 
@@ -3032,7 +3301,7 @@ class stzDiagramToDot
 		# Use resolved color from diagram, default to black
 		cEdgeColor = @oDiagram.@cEdgeColor
 		
-		if cEdgeColor = "" or cEdgeColor = NULL
+		if cEdgeColor = ""
 			cEdgeColor = ResolveColor("black")  # Changed from using @cDefaultEdgeColor
 		else
 			cEdgeColor = ResolveColor(cEdgeColor)
@@ -3115,6 +3384,15 @@ class stzDiagramToDot
 	            cStrokeColor = cFillColor
 	        ok
 	        cOutput += ', color="' + ResolveColor(cStrokeColor) + '"'
+	    ok
+	    
+	    # Generate tooltip
+	    cTooltip = This._GenerateTooltip(aNode)
+	    if cTooltip != "" and cTooltip != NULL
+	    	cOutput += ', tooltip="' + This._EscapeTooltip(cTooltip) + '"'
+	    else
+	    	# Explicitly disable default tooltip
+	  	  cOutput += ', tooltip=" "'
 	    ok
 	    
 	    cOutput += ']' + NL
@@ -3228,7 +3506,7 @@ class stzDiagramToDot
 	    ok
 	    
 	    # Default
-	    if cColor = "" or cColor = NULL
+	    if cColor = ""
 	        cColor = "white"
 	    ok
 	    
@@ -3344,6 +3622,50 @@ class stzDiagramToDot
 	    cOutput += NL
 	    return cOutput
 	
+	def _GenerateTooltip(aNode)
+	    aConfig = @oDiagram.@aTooltipConfig
+	    
+	    if len(aConfig) = 0
+	        return ""  # Explicitly no tooltip
+	    ok
+	    
+	    cTooltip = ""
+	    
+	    for item in aConfig
+	        cKey = lower("" + item)
+	        
+	        if cKey = "nodeid"
+	            cTooltip += "ID: " + aNode["id"] + "\n"
+	            
+	        but cKey = "label"
+	            cTooltip += "Label: " + aNode["label"] + "\n"
+	            
+	        but cKey = "type"
+	            if HasKey(aNode["properties"], "type")
+	                cTooltip += "Type: " + aNode["properties"]["type"] + "\n"
+	            ok
+	            
+	        but cKey = "color"
+	            if HasKey(aNode["properties"], "color")
+	                cTooltip += "Color: " + aNode["properties"]["color"] + "\n"
+	            ok
+	            
+	        else
+	            # Custom property
+	            if HasKey(aNode["properties"], cKey)
+	                cValue = aNode["properties"][cKey]
+	                cTooltip += cKey + ": " + cValue + "\n"
+	            ok
+	        ok
+	    end
+	    
+	    return cTooltip
+	
+	def _EscapeTooltip(cText)
+	    cText = substr(cText, '"', '\"')
+	    cText = substr(cText, "\n", "&#10;")  # HTML entity for newline
+	    return cText
+
 	def _JoinAttributes(aAttrs)
 		cResult = ""
 		nLen = len(aAttrs)
@@ -3357,7 +3679,6 @@ class stzDiagramToDot
 
 		return cResult
 
-	
 	def DotCode()
 		return @cDotCode
 
@@ -3516,7 +3837,7 @@ class stzDiagramToJSON
 
 
 class stzDiagramRule from stzVisualRule
-class stzVisualRule from stzGraphRule
+class stzVisualRule from stzGraphRule #TODO // Complete
 	
 	def init(pcRuleId)
 		super.init(pcRuleId)
@@ -3691,8 +4012,8 @@ class stzStylParser
 	def Parse(pcContent)
 		aStyle = [
 			:name = "",
-			:theme = "light",
-			:layout = "topdown",
+			:theme = $cDefaultTheme,
+			:layout = $cDefaultLayout,
 			:colors = [],
 			:fonts = [],
 			:edges = [],
