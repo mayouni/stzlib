@@ -187,7 +187,7 @@ pf()
 #==============#
 
 /*--- Department assignment
-*/
+
 pr()
 
 oOrg = new stzOrgChart("TechCo")
@@ -264,7 +264,8 @@ oOrg {
     ReportsTo("vp2", "ceo")
     ReportsTo("staff1", "vp1")
     ReportsTo("staff2", "vp1")
-    
+
+    View()
     ? AverageSpanOfControl() #--> 2.0
 }
 
@@ -519,7 +520,7 @@ oOrg {
     ReportsTo(:@dev1, :@vp_eng)
     ReportsTo(:@dev2, :@vp_eng)
 
-    # View() displays horizontal tree with curved edges
+    View() // should displays horizontal tree with curved edges
     #ERR // Theme is not applied, Splines are not curved!
 }
 
@@ -831,8 +832,11 @@ oOrg {
     ReportsTo("vp1", "ceo")
     ReportsTo("dev1", "vp1")
     
-    ? @@( PathBetween("ceo", "dev1") ) #--> ["ceo", "vp1", "dev1"]
-    ? ShortestPathLength("ceo", "dev1") #--> 2
+    ? @@( PathBetween("ceo", "dev1") )
+    #--> ["ceo", "vp1", "dev1"]
+
+    ? ShortestPathLength("ceo", "dev1")
+    #--> 2
 }
 
 pf()
@@ -866,7 +870,7 @@ oOrg {
     ReportsTo("vp1", "ceo")
     
     ? IsConnected() #--> TRUE
-    ? CyclicDependencies() #--> FALSE
+    ? HasCyclicDependencies() #--> FALSE
 }
 
 pf()
@@ -911,7 +915,7 @@ oOrg {
     SetNodeProperty(:@dev2, "performance", 65)
     SetNodeProperty(:@dev3, "performance", 92)
     
-    acHigh = NodesWithPropertyXT("performance", :Between = [80, 100])
+    acHigh = NodesWithPropertyXT("performance", :Between = [80, 100]) #TODO
     ? @@( acHigh ) #--> ["dev1", "dev3"]
 
     ViewPerformant()
@@ -932,7 +936,7 @@ oOrg {
     ReportsTo("vp1", "ceo")
     ReportsTo("dev1", "vp1")
     
-    ? NodeDensity() #--> 33.33
+    ? NodeDensity() #--> 0.33
     ? Diameter() #--> 2
     ? AveragePathLength() #--> 1.33
 }
@@ -959,7 +963,7 @@ oOrg {
     SetNodeProperty("dev1", "performance", 85)
     SetNodeProperty("dev2", "performance", 65)
     
-    oRule = new stzGraphRule("highlight_high")
+    oRule = new stzGraphRule("highlight_high") #ERR  class not found!
     oRule {
         SetRuleType("visual")
         When("performance", "greaterthan", 80)
@@ -1045,7 +1049,7 @@ oOrg {
     cFormat = ToStzOrg()
     # Returns formatted .stzorg text
     
-    WriteToStzOrgFile("txtfiles/test.stzorg")
+    WriteToStzOrgFile("txtfiles/test.stzorg") # Harmonize with stzDiagram/stzGraph
     ? read("txtfiles/test.stzorg")
 }
 #-->
@@ -1109,7 +1113,7 @@ pf()
 
 pr()
 
-oOrg = new stzOrgChart("Softabank OrgChart 2025")
+oOrg = new stzOrgChart("Softabank_OrgChart_2025")
 oOrg {
 	LoadFrom("txtfiles/bank_structure.stzorg")
 	? @@NL( Summary() )
@@ -1132,8 +1136,8 @@ oOrg {
     cDot = Dot()
     # Returns Graphviz DOT format
     
-    WriteToDotFile("txtfiles/test.dot")
-    ? read("txtfiles/test.dot")
+    WriteToDotFileInFolder("txtfiles")
+    ? read("txtfiles/techco.dot")
 }
 #-->
 '

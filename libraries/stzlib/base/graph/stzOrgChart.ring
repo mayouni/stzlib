@@ -904,7 +904,7 @@ class stzOrgChart from stzDiagram
 
 	def ViewVacant()
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("Vacant Positions")
 	    ok
 
@@ -917,7 +917,7 @@ class stzOrgChart from stzDiagram
 
 	def ViewNonVacant()
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("Non-Vacant Positions")
 	    ok
 
@@ -941,7 +941,7 @@ class stzOrgChart from stzDiagram
 
 	def ViewPerformant()
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("Performant Positions")
 	    ok
 
@@ -967,7 +967,7 @@ class stzOrgChart from stzDiagram
 	
 	def ViewNonPerformant()
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("Non-performant Positions")
 	    ok
 
@@ -995,7 +995,7 @@ class stzOrgChart from stzDiagram
 
 	def ViewMediumPerformers()
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("Medium-performer Positions")
 	    ok
 
@@ -1023,7 +1023,7 @@ class stzOrgChart from stzDiagram
 
 	def ViewCompliant(pcNorm)
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("Compliant posisitions")
 	    ok
 
@@ -1081,7 +1081,7 @@ class stzOrgChart from stzDiagram
 
 	def ViewNonCompliant(pcNorm)
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("Non Compliant posisitions")
 	    ok
 
@@ -1146,7 +1146,7 @@ class stzOrgChart from stzDiagram
 	
 	def ViewAtRisk()
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("At risk posisitions")
 	    ok
 
@@ -1182,7 +1182,7 @@ class stzOrgChart from stzDiagram
 
 	def ViewDepartment(pcDepartmentId)
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("Department '" + @aDepartments[PpcDepartmentId]  + "'")
 	    ok
 
@@ -1207,7 +1207,7 @@ class stzOrgChart from stzDiagram
 
 	def ViewPath(pcFromId, pcToId)
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("Path from '" + @aNodes[pcFromId] + "' to '" + @aNodes[pcFromId] + "'" )
 	    ok
 
@@ -1228,7 +1228,7 @@ class stzOrgChart from stzDiagram
 
 	def ViewNodesWithProperty(pcKey, pValue)
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("Nodes with property " + @@([ pcKey, pValue ]) )
 	    ok
 
@@ -1253,7 +1253,7 @@ class stzOrgChart from stzDiagram
 
 	def ViewNodesWithTag(pcTag)
 
-	    If @bTitleVisibility = TRUE
+	    If This.Title() != ""
 		This.SetSubtitle("Nodes with tag '" + pcTag + "'")
 	    ok
 

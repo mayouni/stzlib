@@ -4,7 +4,6 @@ load "../stzbase.ring"
 #  TESTING COLOR SEMANTIC DESIGN & INFRASTRUCTURE  #
 #--------------------------------------------------#
 
-
 /*---
 
 pr()
@@ -464,7 +463,7 @@ pf()
 pr()
 
 oDiag = new stzDiagram("AnnotationTypes")
-oDiag.AddNodeXTT("n1", "Node 1", [ :color = "process", :type = "primary" ])
+oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :type = "primary" ])
 
 oPerf = new stzDiagramAnnotator(:Performance)
 oPerf.Annotate("n1", ["latency" = 100])
@@ -492,9 +491,9 @@ pr()
 
 oDiag = new stzDiagram("Clustered")
 
-oDiag.AddNodeXTT("user_api", "User API", [ :color = "process", :type = "success" ])
+oDiag.AddNodeXTT("user_api", "User API", [ :type = "process", :type = "success" ])
 oDiag.AddNodeXTT("user_db", "User DB", [ :color = "storage", :type = "success" ])
-oDiag.AddNodeXTT("order_api", "Order API", [ :color = "process", :type = "info" ])
+oDiag.AddNodeXTT("order_api", "Order API", [ :type = "process", :type = "info" ])
 oDiag.AddNodeXTT("order_db", "Order DB", [ :color = "storage", :type = "info" ])
 
 oDiag.AddClusterXTT("users", "User Domain", ["user_api", "user_db"], :LightGreen)
@@ -1682,8 +1681,1360 @@ Budget: $50K
 pf()
 # Executed in 0.60 second(s) in Ring 1.25
 
+#=============================#
+#  DIAGRAM IMPORT & EDITING   #
+#=============================#
+
+/*-- Basic Import on Empty Diagram
+
+pr()
+
+oDiag = new stzDiagram("MainFlow")
+
+cImported = '
+diagram "ProcessFlow"
+
+metadata
+    theme: pro
+    layout: topdown
+
+nodes
+    start
+        label: "Begin"
+        type: start
+        color: green+
+
+    process
+        label: "Work"
+        type: process
+        color: blue+
+
+    end
+        label: "Finish"
+        type: endpoint
+	color: orange
+edges
+    start -> process
+    process -> end
+'
+
+oDiag.ImportDiag(cImported)
+? oDiag.Code() + NL
+? oDiag.NodeCount()
+#--> 3
+
+? oDiag.EdgeCount()
+#--> 2
+
+? oDiag.View()
+
+pf()
+#--> Executed in 0.58 second(s) in Ring 1.25
+
+#=============================#
+#  SEMANTIC COLOR IMPORT      #
+#=============================#
+
+/*-- Import Diagram with Semantic Colors
+
+pr()
+
+oDiag = new stzDiagram("MainFlow")
+
+cImported = '
+diagram "ProcessFlow"
+
+metadata
+    theme: pro
+    layout: topdown
+
+nodes
+    start
+        label: "Begin"
+        type: start
+        color: success
+
+    process
+        label: "Work"
+        type: process
+        color: primary
+
+    validate
+        label: "Work"
+        type: danger
+        color: danger+
+
+    end
+        label: "Finish"
+        type: endpoint
+        color: success
+
+edges
+    start -> process
+    process -> validate
+    validate -> end
+'
+
+oDiag.ImportDiag(cImported)
+oDiag.Show()
+oDiag.View()
+
+#-->
+'
+        ╭───────╮        
+        │ Begin │        
+        ╰───────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ !Work! │        
+       ╰────────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ !Work! │        
+       ╰────────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ Finish │        
+       ╰────────╯   
+'
+
+pf()
+#--> Executed in 0.62 second(s) in Ring 1.25
+
+/*-- Import as Subdiagram
+
+pr()
+
+oDiag = new stzDiagram("MainFlow")
+
+oDiag.AddNodeXTT("start", "Main Start", [
+	:type = "start", :color = "success"
+])
+
+oDiag.AddNodeXTT("main", "Main Process", [
+	:type = "process", :color = "primary"
+])
+
+oDiag.Connect("start", "main")
+
+# Diagram before import (note how it contains a "Main Process" node
+oDiag.Show()
+#-->
+'
+     ╭────────────╮      
+     │ Main Start │      
+     ╰────────────╯      
+            |            
+            v            
+    ╭──────────────╮     
+    │ Main Process │     
+    ╰──────────────╯  
+'
+
+# The stzdiag string to be imported (node that it starts with a "Main Process" node
+
+cSubFlow = '
+diagram "SubFlow"
+
+nodes
+    main
+        label: "Main Process"
+        type: process
+        color: #0000FF
+
+    sub1
+        label: "Sub Task 1"
+        type: process
+        color: #FFA500
+
+    sub2
+        label: "Sub Task 2"
+        type: process
+        color: #FFA500
+
+    result
+        label: "Result"
+        type: endpoint
+        color: #008000
+
+edges
+    main -> sub1
+    main -> sub2
+    sub1 -> result
+    sub2 -> result
+'
+
+# The import will incrust the subflow in the common "Main Process" node
+
+oDiag.ImportDiag(cSubFlow)
+? oDiag.NodeCount()
+#--> 5 (start, main, sub1, sub2, result)
+
+? oDiag.HasNode("sub1")
+#--> TRUE
+
+? oDiag.Code()
+
+# Let's visuaise the actual diagram (not view() ~> image vs show() ~> ascii from stzGraph)
+oDiag.View()
+
+pf()
+#--> Executed in 0.67 second(s) in Ring 1.25
+
+/*-- Import Error - Missing Connection Node
+
+pr()
+
+oDiag = new stzDiagram("MainFlow")
+oDiag.AddNodeXTT("start", "Begin", [ :type = "start", :color = "success" ])
+
+cBadImport = '
+diagram "BadFlow"
+
+nodes
+    process
+        label: "Work"
+        type: process
+        color: #0000FF
+
+    end
+        label: "Finish"
+        type: endpoint
+        color: #008000
+
+edges
+    process -> end
+'
+
+oDiag.ImportDiag(cBadImport)
+#--> ERROR MESSAGE:
+# Import failed: First node 'process' not found in current diagram.
+# Either add node 'process', or clear the diagram with RemoveAllNodes()
+
+pf()
+#--> Executed in 0.03 second(s) in Ring 1.24
+
+#========================#
+#  NODE REMOVAL          #
+#========================#
+
+/*-- Remove Single Node
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n2", "Node 2", [ :type = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n3", "Node 3", [ :type = "process", :color = "blue" ])
+
+oDiag.Connect("n1", "n2")
+oDiag.Connect("n2", "n3")
+
+? oDiag.NodeCount()
+#--> 3
+? oDiag.EdgeCount()
+#--> 2
+
+
+oDiag.Show()
+#-->
+'
+       ╭────────╮        
+       │ Node 1 │        
+       ╰────────╯        
+            |            
+            v            
+      ╭──────────╮       
+      │ !Node 2! │       
+      ╰──────────╯       
+            |            
+            v            
+       ╭────────╮        
+       │ Node 3 │        
+       ╰────────╯ 
+'
+
+? NL + "------------" + NL + NL
+
+oDiag.RemoveNode("n2")
+
+? oDiag.NodeCount()
+#--> 2
+? oDiag.EdgeCount()
+#--> 0 (both edges removed)
+
+oDiag.Show()
+#-->
+'
+       ╭────────╮        
+       │ Node 1 │        
+       ╰────────╯        
+
+          ////
+
+       ╭────────╮        
+       │ Node 3 │        
+       ╰────────╯ 
+'
+
+pf()
+#--> Executed in 0.06 second(s) in Ring 1.25
+
+/*-- Remove Multiple Nodes
+
+pr()
+
+oDiag = new stzDiagram("Test")
+
+oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n2", "Node 2", [ :type = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n3", "Node 3", [ :type = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n4", "Node 4", [ :type = "process", :color = "blue" ])
+
+oDiag.Connect("n1", "n2")
+oDiag.Connect("n3", "n4")
+oDiag.show()
+#♦-->
+'
+       ╭────────╮        
+       │ Node 1 │        
+       ╰────────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ Node 2 │        
+       ╰────────╯        
+
+          ////
+
+       ╭────────╮        
+       │ Node 3 │        
+       ╰────────╯        
+            |            
+            v            
+       ╭────────╮        
+       │ Node 4 │        
+       ╰────────╯ 
+'
+
+? NL + "-----------" + NL + NL
+
+oDiag.RemoveTheseNodes(["n2", "n4"])
+
+? oDiag.NodeCount()
+#--> 2
+
+oDiag.Show()
+#-->
+'
+       ╭────────╮        
+       │ Node 1 │        
+       ╰────────╯        
+
+          ////
+
+       ╭────────╮        
+       │ Node 3 │        
+       ╰────────╯ 
+'
+
+pf()
+#--> Executed in 0.07 second(s) in Ring 1.25
+
+/*--
+
+pr()
+
+? keys([ [ "color", "process" ], [ "color", "blue" ], [ "priority", "high" ] ])
+#--> Incorrect param type! paList must be a hashlist.
+#~> Because "color" is used twice as a key.
+
+pf()
+
+/*-- Clear All Nodes
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n2", "Node 2", [ :type = "decision", :color = "green", :unit = "sales" ])
+
+oDiag.Connect("n1", "n2")
+oDiag.SetNodeProp("n1", :priority, "high")
+
+? @@( oDiag.NodeProps("n1") ) + NL
+#--> [ "type", "color", "priority" ]
+
+? @@( oDiag.NodePropsXT("n1") ) + NL
+#--> [ "type", "color", "priority" ]
+
+? @@(oDiag.Props()) + NL
+#--> [ "type", "color", "priority", "unit" ]
+
+? @@NL(oDiag.PropsXT()) + NL
+#-->
+'
+[
+	[ "type", [ "process" ] ],
+	[ "color", [ "blue" ] ],
+	[ "priority", [ "high" ] ],
+	[ "unit", [ "sales" ] ]
+]
+'
+
+oDiag.RemoveAllNodes()
+
+? oDiag.NodeCount()
+#--> 0
+? oDiag.EdgeCount()
+#--> 0
+
+pf()
+
+#--> Executed in 0.02 second(s) in Ring 1.24
+
+#========================#
+#  METADATA OPERATIONS   #
+#========================#
+
+/*-- Set and Get Node Metadata
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXTT("task", "Task", [ :type = "process", :color = "blue" ])
+
+oDiag.SetNodeProperties("task", [
+    :priority = "high",
+    :owner = "Alice",
+    :duration = 120
+])
+
+? @@NL( oDiag.NodePropertiesXT("task") )
+#--> [
+# 	[ "type", "process" ],
+# 	[ "color", "blue" ],
+# 	[ "priority", "high" ],
+# 	[ "owner", "Alice" ],
+# 	[ "duration", 120 ]
+# ]
+
+pf()
+#--> Executed in 0.02 second(s) in Ring 1.25
+
+/*-- Update Node Metadata
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXTT("task", "Task", [ :type = "process", :color = "blue" ])
+
+oDiag.SetNodeProp(:task, :priority, "low")
+oDiag.UpdateNodeProp(:task, :priority, "critical")
+oDiag.UpdateNodeProp(:task, :status, "active")
+
+aMeta = oDiag.NodePropsXT(:task)
+
+? aMeta[:priority]
+#--> critical
+? aMeta[:status]
+#--> active
+
+pf()
+#--> Executed in 0.02 second(s) in Ring 1.25
+
+/*-- Edge Metadata Operations
+
+pr()
+
+oDiag = new stzDiagram("Test")
+
+oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :color = "blue" ])
+oDiag.AddNodeXTT("n2", "Node 2", [ :type = "process", :color = "blue" ])
+oDiag.Connect("n1", "n2")
+
+oDiag.SetEdgeProps("n1", "n2", [
+    :type = "data_flow",
+    :bandwidth = "high",
+    :encrypted = TRUE
+])
+
+aMeta = oDiag.EdgePropsXT("n1", "n2")
+? aMeta[:type]
+#--> data_flow
+? aMeta[:encrypted]
+#--> TRUE
+
+pf()
+#--> Executed in 0.03 second(s) in Ring 1.24
+
+/*-- Remove Metadata
+
+pr()
+
+oDiag = new stzDiagram("Test")
+oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :color = "blue" ])
+oDiag.SetNodeProps("n1", [:key = "value"])
+
+? @@(oDiag.NodeProps("n1"))
+#--> [ "type", "color", "key" ]
+
+oDiag.RemoveNodeProps("n1")
+
+? @@(oDiag.NodeProps("n1"))
+#--> []
+
+pf()
+#--> Executed in 0.02 second(s) in Ring 1.24
+
+#================================#
+#  COMBINED OPERATIONS           #
+#================================#
+
+/*-- Build, Edit, Import, and Visualize
+
+pr()
+
+# Build initial diagram
+oDiag = new stzDiagram("PaymentFlow")
+oDiag.SetTheme(:pro)
+oDiag.AddNodeXTT("start", "Request", [ :type = "start", :color = "success" ])
+oDiag.AddNodeXTT("validate", "Validate", [ :type = "decision", :color = "warning" ])
+oDiag.AddNodeXTT("approved", "Approved", [ :type = "endpoint", :color = "success" ])
+
+oDiag.Connect("start", "validate")
+oDiag.Connect("validate", "approved")
+
+# Add metadata
+oDiag.SetNodeProps("validate", [
+    :rule = "amount < 10000",
+    :approver = "system"
+])
+
+# Import subflow for manual approval
+cManualFlow = '
+diagram "ManualApproval"
+
+nodes
+    validate
+        label: "Validate"
+        type: decision
+        color: #FFFF00
+
+    manual
+        label: "Manual Review"
+        type: process
+        color: #FFA500
+
+    manager
+        label: "Manager Approval"
+        type: decision
+        color: #FFFF00
+
+    approved
+        label: "Approved"
+        type: endpoint
+        color: #008000
+
+edges
+    validate -> manual
+    manual -> manager
+    manager -> approved
+'
+
+oDiag.ImportDiag(cManualFlow)
+
+? @@( oDiag.NodesNames() )
+#--< [ "start", "validate", "approved", "manual", "manager", "approved" ]
+
+? oDiag.NodeCount()
+#--> 6
+
+? oDiag.HasNode("manager")
+#--> TRUE
+
+# Update metadata
+oDiag.UpdateNodeProp(:validate, "type", "action")
+? @@NL( oDiag.Node(:validate) )
+#--> [
+# 	[ "id", "validate" ],
+# 	[ "label", "Validate" ],
+# 	[
+# 		"properties",
+# 		[
+# 			[ "type", "action" ],  # HAS BEEN AUPDATED!
+# 			[ "color", "warning" ],
+# 			[ "rule", "amount < 10000" ],
+# 			[ "approver", "system" ]
+# 		]
+# 	]
+# ]
+
+# Visualize
+//oDiag.Show()
+#-->
+`
+       ╭─────────╮       
+       │ Request │       
+       ╰─────────╯       
+            |            
+            v            
+     ╭────────────╮      
+     │ !Validate! │      
+     ╰────────────╯      
+            |            
+            v            
+      ╭──────────╮       
+      │ Approved │       
+      ╰──────────╯       
+
+          ////
+
+     ╭────────────╮  ↑
+     │ !Validate! │──╯
+     ╰────────────╯      
+            |            
+            v            
+    ╭───────────────╮    
+    │ Manual_Review │    
+    ╰───────────────╯    
+            |            
+            v            
+  ╭──────────────────╮   
+  │ Manager_Approval │   
+  ╰──────────────────╯   
+            |            
+            v            
+      ╭──────────╮       
+      │ Approved │       
+      ╰──────────╯ 
+`
+
+pf()
+#--> Executed in 0.15 second(s) in Ring 1.24
+
+
+#============================#
+#  TESTING THE COLOR SYSTEM  #
+#============================#
+
+/*--- Base Colors
+
+pr()
+
+? ResolveColor(:red)      #--> #FF0000
+? ResolveColor(:blue)     #--> #0000FF
+? ResolveColor(:green)    #--> #008000
+? ResolveColor(:yellow)   #--> #FFFF00
+? ResolveColor(:white)    #--> #FFFFFF
+? ResolveColor(:black)    #--> #000000
+? ResolveColor(:gray)     #--> #808080
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.25
+
+/*--- Base colors Intensities
+
+pr()
+
+# Grayscale
+? "--- GRAYSCALE ---"
+? "white--    : " + ResolveColor("white--")
+? "white-     : " + ResolveColor("white-")
+? "white      : " + ResolveColor("white")
+? "white+     : " + ResolveColor("white+")
+? "white++    : " + ResolveColor("white++")
+? ""
+
+? "black--    : " + ResolveColor("black--")
+? "black-     : " + ResolveColor("black-")
+? "black      : " + ResolveColor("black")
+? "black+     : " + ResolveColor("black+")
+? "black++    : " + ResolveColor("black++")
+? ""
+
+? "gray--     : " + ResolveColor("gray--")
+? "gray-      : " + ResolveColor("gray-")
+? "gray       : " + ResolveColor("gray")
+? "gray+      : " + ResolveColor("gray+")
+? "gray++     : " + ResolveColor("gray++")
+? NL
+
+# Primary Colors
+? "--- PRIMARY COLORS ---"
+? "red--      : " + ResolveColor("red--")
+? "red-       : " + ResolveColor("red-")
+? "red        : " + ResolveColor("red")
+? "red+       : " + ResolveColor("red+")
+? "red++      : " + ResolveColor("red++")
+? ""
+
+? "green--    : " + ResolveColor("green--")
+? "green-     : " + ResolveColor("green-")
+? "green      : " + ResolveColor("green")
+? "green+     : " + ResolveColor("green+")
+? "green++    : " + ResolveColor("green++")
+? ""
+
+? "blue--     : " + ResolveColor("blue--")
+? "blue-      : " + ResolveColor("blue-")
+? "blue       : " + ResolveColor("blue")
+? "blue+      : " + ResolveColor("blue+")
+? "blue++     : " + ResolveColor("blue++")
+? ""
+
+? "yellow--   : " + ResolveColor("yellow--")
+? "yellow-    : " + ResolveColor("yellow-")
+? "yellow     : " + ResolveColor("yellow")
+? "yellow+    : " + ResolveColor("yellow+")
+? "yellow++   : " + ResolveColor("yellow++")
+? NL
+
+# Secondary Colors
+? "--- SECONDARY COLORS ---"
+
+? "orange--   : " + ResolveColor("orange--")
+? "orange-    : " + ResolveColor("orange-")
+? "orange     : " + ResolveColor("orange")
+? "orange+    : " + ResolveColor("orange+")
+? "orange++   : " + ResolveColor("orange++")
+? ""
+
+? "purple--   : " + ResolveColor("purple--")
+? "purple-    : " + ResolveColor("purple-")
+? "purple     : " + ResolveColor("purple")
+? "purple+    : " + ResolveColor("purple+")
+? "purple++   : " + ResolveColor("purple++")
+? ""
+
+? "cyan--     : " + ResolveColor("cyan--")
+? "cyan-      : " + ResolveColor("cyan-")
+? "cyan       : " + ResolveColor("cyan")
+? "cyan+      : " + ResolveColor("cyan+")
+? "cyan++     : " + ResolveColor("cyan++")
+? ""
+
+? "magenta--  : " + ResolveColor("magenta--")
+? "magenta-   : " + ResolveColor("magenta-")
+? "magenta    : " + ResolveColor("magenta")
+? "magenta+   : " + ResolveColor("magenta+")
+? "magenta++  : " + ResolveColor("magenta++")
+? NL
+
+# Extended Palette
+? "--- EXTENDED PALETTE ---"
+
+? "brown--    : " + ResolveColor("brown--")
+? "brown-     : " + ResolveColor("brown-")
+? "brown      : " + ResolveColor("brown")
+? "brown+     : " + ResolveColor("brown+")
+? "brown++    : " + ResolveColor("brown++")
+? ""
+
+? "pink--     : " + ResolveColor("pink--")
+? "pink-      : " + ResolveColor("pink-")
+? "pink       : " + ResolveColor("pink")
+? "pink+      : " + ResolveColor("pink+")
+? "pink++     : " + ResolveColor("pink++")
+? ""
+
+? "coral--    : " + ResolveColor("coral--")
+? "coral-     : " + ResolveColor("coral-")
+? "coral      : " + ResolveColor("coral")
+? "coral+     : " + ResolveColor("coral+")
+? "coral++    : " + ResolveColor("coral++")
+? ""
+
+? "teal--     : " + ResolveColor("teal--")
+? "teal-      : " + ResolveColor("teal-")
+? "teal       : " + ResolveColor("teal")
+? "teal+      : " + ResolveColor("teal+")
+? "teal++     : " + ResolveColor("teal++")
+? ""
+
+? "lavender-- : " + ResolveColor("lavender--")
+? "lavender-  : " + ResolveColor("lavender-")
+? "lavender   : " + ResolveColor("lavender")
+? "lavender+  : " + ResolveColor("lavender+")
+? "lavender++ : " + ResolveColor("lavender++")
+
+#-->
+'
+--- GRAYSCALE ---
+white--      : #FFFFFF
+white-       : #FFFFFF
+white        : #FFFFFF
+white+       : #333333
+white++      : #0C0C0C
+
+black--      : #E0E0E0
+black-       : #A3A3A3
+black        : #000000
+black+       : #000000
+black++      : #000000
+
+gray--       : #EFEFEF
+gray-        : #D1D1D1
+gray         : #808080
+gray+        : #656565
+gray++       : #333333
+
+
+--- PRIMARY COLORS ---
+red--       : #FFE0E0
+red-        : #FFA3A3
+red         : #FF0000
+red+        : #C94D4D
+red++       : #660000
+
+green--     : #E0EFE0
+green-      : #A3D1A3
+green       : #008000
+green+      : #4D654D
+green++     : #003300
+
+blue--      : #E0E0FF
+blue-       : #A3A3FF
+blue        : #0000FF
+blue+       : #4D4DC9
+blue++      : #000066
+
+yellow--    : #FFFFE0
+yellow-     : #FFFFA3
+yellow      : #FFFF00
+yellow+     : #333300
+yellow++    : #0C0C00
+
+
+--- SECONDARY COLORS ---
+orange--    : #FFF4E0
+orange-     : #FFDEA3
+orange      : #FFA500
+orange+     : #332100
+orange++    : #0C0800
+
+purple--    : #EFE0EF
+purple-     : #D1A3D1
+purple      : #800080
+purple+     : #654D65
+purple++    : #330033
+
+cyan--      : #E0FFFF
+cyan-       : #A3FFFF
+cyan        : #00FFFF
+cyan+       : #003333
+cyan++      : #000C0C
+
+magenta--   : #FFE0FF
+magenta-    : #FFA3FF
+magenta     : #FF00FF
+magenta+    : #C94DC9
+magenta++   : #660066
+
+
+--- EXTENDED PALETTE ---
+brown--    : #F4E5E5
+brown-     : #DEB2B2
+brown      : #A52A2A
+brown+     : #822121
+brown++    : #421010
+
+pink--     : #FFF7F8
+pink-      : #FFE8EC
+pink       : #FFC0CB
+pink+      : #332628
+pink++     : #0C090A
+
+coral--    : #FFEFEA
+coral-     : #FFD0C0
+coral      : #FF7F50
+coral+     : #331910
+coral++    : #0C0604
+
+teal--     : #E0EFEF
+teal-      : #A3D1D1
+teal       : #008080
+teal+      : #4D6565
+teal++     : #003333
+
+lavender-- : #FCFCFE
+lavender-  : #F6F6FD
+lavender   : #E6E6FA
+lavender+  : #2E2E32
+lavender++ : #0B0B0C
+'
+
+pf()
+# Executed in 0.13 second(s) in Ring 1.25
+
+/*--- Semantic Colors
+
+pr()
+
+? ResolveColor(:Success)  # Should resolve to green
+#--> #008000
+
+? ResolveColor(:Warning)  # Should resolve to yellow
+#--> #FFFF00
+
+? ResolveColor(:Danger)   # Should resolve to red
+#--> #FF0000
+
+? ResolveColor(:Info)     # Should resolve to blue
+#--> #0000FF
+
+? ResolveColor(:Primary)  # Should resolve to blue
+#--> #0000FF
+
+? ResolveColor(:Neutral)  # Should resolve to gray
+#--> #808080
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.25
+
+/*--- Node Type Colors
+
+pr()
+
+? ColorForNodeType(:Start)        # Should be green
+#--> #008000
+
+? ColorForNodeType(:Process)      # Should be blue
+#--> #0000FF
+
+? ColorForNodeType(:Decision)     # Should be yellow
+#--> #FFFF00
+
+? ColorForNodeType(:Endpoint)     # Should be coral
+#--> #FF7F50
+
+? ColorForNodeType(:State)        # Should be cyan
+#--> #00FFFF
+
+? ColorForNodeType(:Storage)      # Should be gray
+#--> #808080
+
+? ColorForNodeType(:Data)         # Should be lavender
+#--> #E6E6FA
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.25
+
+/*--- Direct Hex Colors
+
+pr()
+
+? ResolveColor("#FF5733")  #--> #FF5733
+? ResolveColor("#00AAFF")  #--> #00AAFF
+? ResolveColor("#123456")  #--> #123456
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.25
+
+/*--- Extended Palette
+
+pr()
+
+? ResolveColor(:brown)     #--> #A52A2A
+? ResolveColor(:pink)      #--> #FFC0CB
+? ResolveColor(:navy)      #--> #000080
+? ResolveColor(:teal)      #--> #008080
+? ResolveColor(:coral)     #--> #FF7F50
+? ResolveColor(:salmon)    #--> #FA8072
+? ResolveColor(:lavender)  #--> #E6E6FA
+? ResolveColor(:steelblue) #--> #4682B4
+
+pf()
+# Executed in 0.03 second(s) in Ring 1.25
+
+/*--- Full Intensity Chain: Coral
+
+pr()
+
+? ResolveColor("coral--")	#--> #FFEFEA
+? ResolveColor("coral-")	#--> #FFD0C0
+? ResolveColor("coral")		#--> #FF7F50
+? ResolveColor("coral+")	#--> #331910
+? ResolveColor("coral++")	#--> #0C0604
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.25
+
+/*--- Full Intensity Chain: Teal
+
+pr()
+
+? ResolveColor("teal--")	#--> #E0EFEF
+? ResolveColor("teal-")		#--> #A3D1D1
+? ResolveColor("teal")		#--> #008080
+? ResolveColor("teal+")		#--> #4D6565
+? ResolveColor("teal++")	#--> #003333
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.25
+
+/*--- Legacy Color Names
+
+pr()
+
+? ResolveColor(:lightblue)   # Should map to blue+
+#--> #4D4DC9
+
+? ResolveColor(:lightgreen)  # Should map to green+
+#--> #4D654D
+
+? ResolveColor(:lightyellow) # Should map to yellow+
+#--> #333300
+
+? ResolveColor(:darkgreen)   # Should map to green-
+#--> #A3D1A3
+
+? ResolveColor(:darkblue)    # Should map to blue-
+#--> #A3A3FF
+
+? ResolveColor(:darkred)     # Should map to red-
+#--> #FFA3A3
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.25
+
+/*--- Full Palette Count
+
+pr()
+
+aPalette = BuildColorPalette()
+? len(aPalette)
+#--> 125
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.25
+
+#-----------------------------#
+#  TESTING VALIDATION SYSTEM  #
+#-----------------------------#
+
+/*--- #ERR
+
+pr()
+
+# Test unified validation system at stzDiagram level
+
+oDiagram = new stzDiagram("Payment_Processing")
+oDiagram {
+	SetTheme("pro")
+	
+	# Build payment workflow
+	AddNodeXTT("start", "Receive Payment", [:type = "start", :color = "green"])
+	AddNodeXTT("validate", "Validate Amount", [:type = "process", :color = "blue"])
+	AddNodeXTT("fraud_check", "Fraud Detection", [:type = "process", :color = "blue", :operation = "fraud_check"])
+	AddNodeXTT("approve", "Manager Approval", [:type = "decision", :color = "yellow", :role = "approver"])
+	AddNodeXTT("process", "Process Payment", [:type = "process", :color = "blue", :operation = "payment", :domain = "financial"])
+	AddNodeXTT("end", "Complete", [:type = "endpoint", :color = "coral"])
+	
+	Connect("start", "validate")
+	Connect("validate", "fraud_check")
+	Connect("fraud_check", "approve")
+	Connect("approve", "process")
+	Connect("process", "end")
+	
+	# PART 1: Default Validators
+	#---------------------------
+	
+	? BoxRound("DIAGRAM DEFAULT VALIDATORS") + NL
+	
+	? "Default validators for Diagram:"
+	? @@NL( Validators() ) + NL
+	
+	? "IsValid() with defaults:"
+	? IsValid() + NL
+	
+	? "Validate() detailed report:"
+	? @@NL( Validate() )
+	
+	# PART 2: Single Validator
+	#-------------------------
+	
+	? NL + BoxRound("SINGLE VALIDATOR TEST") + NL
+	
+	? "ValidateXT(:SOX) - Sarbanes-Oxley compliance:"
+	? @@NL( ValidateXT(:SOX) )
+	
+	? NL + "ValidateXT(:DAG) - Directed Acyclic Graph:"
+	? @@NL( ValidateXT(:DAG) )
+	
+	# PART 3: Multiple Validators
+	#----------------------------
+	
+	? NL + BoxRound("MULTIPLE VALIDATORS") + NL
+	
+	? "ValidateXT([:SOX, :GDPR, :Banking]):"
+	aMulti = ValidateXT([:SOX, :GDPR, :Banking])
+	? @@NL( aMulti )
+	
+	# PART 4: Custom Validators
+	#--------------------------
+	
+	? NL + BoxRound("CUSTOM VALIDATORS") + NL
+	
+	? "Original defaults:"
+	? @@NL( Validators() )
+	
+	? NL + "Setting custom validators..."
+	SetValidators([:SOX, :Banking, :DAG])
+	
+	? "New validators:"
+	? @@NL( Validators() )
+	
+	? NL + "Validate() with custom set:"
+	? @@NL( Validate() )
+	
+	# PART 5: Inheritance Check
+	#--------------------------
+	
+	? NL + BoxRound("INHERITANCE FROM STZGRAPH") + NL
+	
+	? "Calling graph-level validator from diagram:"
+	? "ValidateXT(:Reachability):"
+	? @@NL( ValidateXT(:Reachability) )
+	
+	? NL + "ValidateXT(:Completeness):"
+	? @@NL( ValidateXT(:Completeness) )
+}
+#-->
+`
+╭────────────────────────────╮
+│ DIAGRAM DEFAULT VALIDATORS │
+╰────────────────────────────╯
+
+Default validators for Diagram:
+[ "sox", "gdpr", "banking" ]
+
+IsValid() with defaults:
+0
+
+Validate() detailed report:
+[
+	[ "status", "fail" ],
+	[ "validatorsrun", 3 ],
+	[ "validatorsfailed", 2 ],
+	[ "totalissues", 6 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "fail" ],
+				[ "domain", "sox" ],
+				[ "issuecount", 4 ],
+				[
+					"issues",
+					[
+						"SOX-001: Financial process missing audit trail: ",
+						"process",
+						"SOX-002: Decision node lacks approval requirement: ",
+						"approve"
+					]
+				]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "gdpr" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "banking" ],
+				[ "issuecount", 2 ],
+				[
+					"issues",
+					[
+						"BANK-002: Payment missing fraud detection: ",
+						"process"
+					]
+				]
+			]
+		]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+╭───────────────────────╮
+│ SINGLE VALIDATOR TEST │
+╰───────────────────────╯
+
+ValidateXT(:SOX) - Sarbanes-Oxley compliance:
+[
+	[ "status", "fail" ],
+	[ "domain", "sox" ],
+	[ "issuecount", 4 ],
+	[
+		"issues",
+		[
+			"SOX-001: Financial process missing audit trail: ",
+			"process",
+			"SOX-002: Decision node lacks approval requirement: ",
+			"approve"
+		]
+	]
+]
+
+ValidateXT(:DAG) - Directed Acyclic Graph:
+[
+	[ "status", "pass" ],
+	[ "domain", "dag" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ],
+	[ "affectednodes", [  ] ]
+]
+
+╭─────────────────────╮
+│ MULTIPLE VALIDATORS │
+╰─────────────────────╯
+
+ValidateXT([:SOX, :GDPR, :Banking]):
+[
+	[ "status", "fail" ],
+	[ "validatorsrun", 3 ],
+	[ "validatorsfailed", 2 ],
+	[ "totalissues", 6 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "fail" ],
+				[ "domain", "sox" ],
+				[ "issuecount", 4 ],
+				[
+					"issues",
+					[
+						"SOX-001: Financial process missing audit trail: ",
+						"process",
+						"SOX-002: Decision node lacks approval requirement: ",
+						"approve"
+					]
+				]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "gdpr" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "banking" ],
+				[ "issuecount", 2 ],
+				[
+					"issues",
+					[
+						"BANK-002: Payment missing fraud detection: ",
+						"process"
+					]
+				]
+			]
+		]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+╭───────────────────╮
+│ CUSTOM VALIDATORS │
+╰───────────────────╯
+
+Original defaults:
+[ "sox", "gdpr", "banking" ]
+
+Setting custom validators...
+New validators:
+[ "sox", "banking", "dag" ]
+
+Validate() with custom set:
+[
+	[ "status", "fail" ],
+	[ "validatorsrun", 3 ],
+	[ "validatorsfailed", 2 ],
+	[ "totalissues", 6 ],
+	[
+		"results",
+		[
+			[
+				[ "status", "fail" ],
+				[ "domain", "sox" ],
+				[ "issuecount", 4 ],
+				[
+					"issues",
+					[
+						"SOX-001: Financial process missing audit trail: ",
+						"process",
+						"SOX-002: Decision node lacks approval requirement: ",
+						"approve"
+					]
+				]
+			],
+			[
+				[ "status", "fail" ],
+				[ "domain", "banking" ],
+				[ "issuecount", 2 ],
+				[
+					"issues",
+					[
+						"BANK-002: Payment missing fraud detection: ",
+						"process"
+					]
+				]
+			],
+			[
+				[ "status", "pass" ],
+				[ "domain", "dag" ],
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
+			]
+		]
+	],
+	[ "affectednodes", [  ] ]
+]
+
+╭───────────────────────────╮
+│ INHERITANCE FROM STZGRAPH │
+╰───────────────────────────╯
+
+Calling graph-level validator from diagram:
+ValidateXT(:Reachability):
+[
+	[ "status", "pass" ],
+	[ "domain", "reachability" ],
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ],
+	[ "affectednodes", [  ] ]
+]
+
+ValidateXT(:Completeness):
+[
+	[ "status", "fail" ],
+	[ "domain", "completeness" ],
+	[ "issuecount", 2 ],
+	[
+		"issues",
+		[
+			"Decision node has fewer than 2 paths: ",
+			"approve"
+		]
+	],
+	[
+		"affectednodes",
+		[ "approve" ]
+	]
+]
+`
+
+pf()
+
 #------------------------------#
-#  VISUAL RULES AND SEMANTICS  #
+#  VISUAL RULES AND SEMANTICS  # #TODO
 #------------------------------#
 
 /*---  Example 1: Security Risk Visualization
@@ -2661,12 +4012,12 @@ oDiag {
 	])
 
 	AddNodeXTT("waf", "WAF", [
-		:color = "process", :color = "warning",
+		:type = "process", :color = "warning",
 		:zone = "dmz", :tags = [:security]
 	])
 
 	AddNodeXTT("lb", "Load Balancer", [
-		:color = "process", :Primary,
+		:type = "process", :Primary,
 		[:zone = "dmz"]
 	])
 
@@ -2848,1249 +4199,5 @@ oDiag {
 	
 	View()
 }
-
-pf()
-
-#=============================#
-#  DIAGRAM IMPORT & EDITING   #
-#=============================#
-
-/*-- Basic Import on Empty Diagram
-
-pr()
-
-oDiag = new stzDiagram("MainFlow")
-
-cImported = '
-diagram "ProcessFlow"
-
-metadata
-    theme: pro
-    layout: topdown
-
-nodes
-    start
-        label: "Begin"
-        type: start
-        color: green+
-
-    process
-        label: "Work"
-        type: process
-        color: blue+
-
-    end
-        label: "Finish"
-        type: endpoint
-	color: orange
-edges
-    start -> process
-    process -> end
-'
-
-oDiag.ImportDiag(cImported)
-? oDiag.Code() + NL
-? oDiag.NodeCount()
-#--> 3
-
-? oDiag.EdgeCount()
-#--> 2
-
-? oDiag.View() #ERR // Colors are not displayed
-
-pf()
-#--> Executed in 0.05 second(s) in Ring 1.24
-
-#=============================#
-#  SEMANTIC COLOR IMPORT      #
-#=============================#
-
-/*-- Import Diagram with Semantic Colors
-
-pr()
-
-oDiag = new stzDiagram("MainFlow")
-
-cImported = '
-diagram "ProcessFlow"
-
-metadata
-    theme: pro
-    layout: topdown
-
-nodes
-    start
-        label: "Begin"
-        type: start
-        color: success
-
-    process
-        label: "Work"
-        type: process
-        color: primary
-
-    validate
-        label: "Work"
-        type: danger
-        color: danger+
-
-    end
-        label: "Finish"
-        type: endpoint
-        color: success
-
-edges
-    start -> process
-    process -> validate
-    validate -> end
-'
-
-oDiag.ImportDiag(cImported)
-oDiag.Show()
-oDiag.View()
-
-#-->
-'
-        ╭───────╮        
-        │ Begin │        
-        ╰───────╯        
-            |            
-            v            
-       ╭────────╮        
-       │ !Work! │        
-       ╰────────╯        
-            |            
-            v            
-       ╭────────╮        
-       │ !Work! │        
-       ╰────────╯        
-            |            
-            v            
-       ╭────────╮        
-       │ Finish │        
-       ╰────────╯   
-'
-
-pf()
-#--> Executed in 0.08 second(s) in Ring 1.24
-
-/*-- Import as Subdiagram
-
-pr()
-
-oDiag = new stzDiagram("MainFlow")
-
-oDiag.AddNodeXTT("start", "Main Start", [
-	:type = "start", :color = "success"
-])
-
-oDiag.AddNodeXTT("main", "Main Process", [
-	:type = "process", :color = "primary"
-])
-
-oDiag.Connect("start", "main")
-
-# Diagram before import (note how it contains a "Main Process" node
-oDiag.Show()
-#-->
-'
-     ╭────────────╮      
-     │ Main Start │      
-     ╰────────────╯      
-            |            
-            v            
-    ╭──────────────╮     
-    │ Main Process │     
-    ╰──────────────╯  
-'
-
-# The stzdiag string to be imported (node that it starts with a "Main Process" node
-
-cSubFlow = '
-diagram "SubFlow"
-
-nodes
-    main
-        label: "Main Process"
-        type: process
-        color: #0000FF
-
-    sub1
-        label: "Sub Task 1"
-        type: process
-        color: #FFA500
-
-    sub2
-        label: "Sub Task 2"
-        type: process
-        color: #FFA500
-
-    result
-        label: "Result"
-        type: endpoint
-        color: #008000
-
-edges
-    main -> sub1
-    main -> sub2
-    sub1 -> result
-    sub2 -> result
-'
-
-# The import will incrust the subflow in the common "Main Process" node
-
-oDiag.ImportDiag(cSubFlow)
-? oDiag.NodeCount()
-#--> 5 (start, main, sub1, sub2, result)
-
-? oDiag.HasNode("sub1")
-#--> TRUE
-
-? oDiag.Code()
-
-# Let's visuaise the actual diagram (not view() ~> image vs show() ~> ascii from stzGraph)
-oDiag.View()
-
-pf()
-#--> Executed in 0.06 second(s) in Ring 1.24
-
-/*-- Import Error - Missing Connection Node
-
-pr()
-
-oDiag = new stzDiagram("MainFlow")
-oDiag.AddNodeXT("start", "Begin", [ :type = "start", :color = "success" ])
-
-cBadImport = '
-diagram "BadFlow"
-
-nodes
-    process
-        label: "Work"
-        type: process
-        color: #0000FF
-
-    end
-        label: "Finish"
-        type: endpoint
-        color: #008000
-
-edges
-    process -> end
-'
-
-oDiag.ImportDiag(cBadImport)
-#--> ERROR MESSAGE:
-# Import failed: First node 'process' not found in current diagram.
-# Either add node 'process' first, or clear the diagram with RemoveAllNodes()
-
-pf()
-#--> Executed in 0.03 second(s) in Ring 1.24
-
-#========================#
-#  NODE REMOVAL          #
-#========================#
-
-/*-- Remove Single Node
-
-pr()
-
-oDiag = new stzDiagram("Test")
-oDiag.AddNodeXTT("n1", "Node 1", [ :color = "process", :color = "blue" ])
-oDiag.AddNodeXTT("n2", "Node 2", [ :color = "process", :color = "blue" ])
-oDiag.AddNodeXTT("n3", "Node 3", [ :color = "process", :color = "blue" ])
-
-oDiag.Connect("n1", "n2")
-oDiag.Connect("n2", "n3")
-
-? oDiag.NodeCount()
-#--> 3
-? oDiag.EdgeCount()
-#--> 2
-
-
-oDiag.Show()
-#-->
-'
-       ╭────────╮        
-       │ Node 1 │        
-       ╰────────╯        
-            |            
-            v            
-      ╭──────────╮       
-      │ !Node 2! │       
-      ╰──────────╯       
-            |            
-            v            
-       ╭────────╮        
-       │ Node 3 │        
-       ╰────────╯ 
-'
-
-? NL + "------------" + NL + NL
-
-oDiag.RemoveNode("n2")
-
-? oDiag.NodeCount()
-#--> 2
-? oDiag.EdgeCount()
-#--> 0 (both edges removed)
-
-oDiag.Show()
-#-->
-'
-       ╭────────╮        
-       │ Node 1 │        
-       ╰────────╯        
-
-          ////
-
-       ╭────────╮        
-       │ Node 3 │        
-       ╰────────╯ 
-'
-
-pf()
-#--> Executed in 0.04 second(s) in Ring 1.24
-
-/*-- Remove Multiple Nodes
-
-pr()
-
-oDiag = new stzDiagram("Test")
-
-oDiag.AddNodeXTT("n1", "Node 1", [ :color = "process", :color = "blue" ])
-oDiag.AddNodeXTT("n2", "Node 2", [ :color = "process", :color = "blue" ])
-oDiag.AddNodeXTT("n3", "Node 3", [ :color = "process", :color = "blue" ])
-oDiag.AddNodeXTT("n4", "Node 4", [ :color = "process", :color = "blue" ])
-
-oDiag.Connect("n1", "n2")
-oDiag.Connect("n3", "n4")
-oDiag.show()
-#♦-->
-'
-       ╭────────╮        
-       │ Node 1 │        
-       ╰────────╯        
-            |            
-            v            
-       ╭────────╮        
-       │ Node 2 │        
-       ╰────────╯        
-
-          ////
-
-       ╭────────╮        
-       │ Node 3 │        
-       ╰────────╯        
-            |            
-            v            
-       ╭────────╮        
-       │ Node 4 │        
-       ╰────────╯ 
-'
-
-? NL + "-----------" + NL + NL
-
-oDiag.RemoveTheseNodes(["n2", "n4"])
-
-? oDiag.NodeCount()
-#--> 2
-
-oDiag.Show()
-#-->
-'
-       ╭────────╮        
-       │ Node 1 │        
-       ╰────────╯        
-
-          ////
-
-       ╭────────╮        
-       │ Node 3 │        
-       ╰────────╯ 
-'
-
-pf()
-#--> Executed in 0.03 second(s) in Ring 1.24
-
-/*--
-
-pr()
-
-? keys([ [ "color", "process" ], [ "color", "blue" ], [ "priority", "high" ] ])
-#--> Incorrect param type! paList must be a hashlist.
-#~> Because "color" is used twice as a key.
-
-pf()
-
-/*-- Clear All Nodes
-
-pr()
-
-oDiag = new stzDiagram("Test")
-oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :color = "blue" ])
-oDiag.AddNodeXTT("n2", "Node 2", [ :type = "decision", :color = "green", :unit = "sales" ])
-
-oDiag.Connect("n1", "n2")
-oDiag.SetNodeProp("n1", :priority, "high")
-
-? @@( oDiag.NodeProps("n1") ) + NL
-#--> [ "type", "color", "priority" ]
-
-? @@( oDiag.NodePropsXT("n1") ) + NL
-#--> [ "type", "color", "priority" ]
-
-? @@(oDiag.Props()) + NL
-#--> [ "type", "color", "priority", "unit" ]
-
-? @@NL(oDiag.PropsXT()) + NL
-#-->
-'
-[
-	[ "type", [ "process" ] ],
-	[ "color", [ "blue" ] ],
-	[ "priority", [ "high" ] ],
-	[ "unit", [ "sales" ] ]
-]
-'
-
-oDiag.RemoveAllNodes()
-
-? oDiag.NodeCount()
-#--> 0
-? oDiag.EdgeCount()
-#--> 0
-
-pf()
-
-#--> Executed in 0.02 second(s) in Ring 1.24
-
-/*-- Replace Node with Edge Preservation
-
-pr()
-
-oDiag = new stzDiagram("Test")
-
-oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :color = "blue" ])
-oDiag.AddNodeXTT("old", "Old Node", [ :type = "process", :color = "yellow" ])
-oDiag.AddNodeXTT("n3", "Node 3", [ :type = "process", :color = "blue" ])
-
-oDiag.Connect("n1", "old")
-oDiag.Connect("old", "n3")
-
-oDiag.ReplaceNodeXT("old", "new", "New Node")
-
-? oDiag.HasNode("old")
-#--> FALSE
-? oDiag.HasNode("new")
-#--> TRUE
-? oDiag.EdgeCount()
-#--> 2 (edges preserved with new node)
-
-pf()
-#--> Executed in 0.02 second(s) in Ring 1.24
-
-#========================#
-#  METADATA OPERATIONS   #
-#========================#
-
-/*-- Set and Get Node Metadata
-
-pr()
-
-oDiag = new stzDiagram("Test")
-oDiag.AddNodeXT("task", "Task", :process, :blue)
-
-oDiag.SetNodeMetadata("task", [
-    :priority = "high",
-    :owner = "Alice",
-    :duration = 120
-])
-
-aMeta = oDiag.GetNodeMetadata("task")
-? aMeta[:priority]
-#--> high
-? aMeta[:owner]
-#--> Alice
-
-pf()
-#--> Executed in 0.03 second(s) in Ring 1.24
-
-/*-- Update Node Metadata
-
-pr()
-
-oDiag = new stzDiagram("Test")
-oDiag.AddNodeXT("task", "Task", :process, :blue)
-
-oDiag.SetNodeMetadata("task", [:priority = "low"])
-oDiag.UpdateNodeMetadata("task", "priority", "critical")
-oDiag.UpdateNodeMetadata("task", "status", "active")
-
-aMeta = oDiag.GetNodeMetadata("task")
-? aMeta[:priority]
-#--> critical
-? aMeta[:status]
-#--> active
-
-pf()
-#--> Executed in 0.03 second(s) in Ring 1.24
-
-/*-- Edge Metadata Operations
-
-pr()
-
-oDiag = new stzDiagram("Test")
-oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
-oDiag.AddNodeXT("n2", "Node 2", :process, :blue)
-oDiag.Connect("n1", "n2")
-
-oDiag.SetEdgeMetadata("n1", "n2", [
-    :type = "data_flow",
-    :bandwidth = "high",
-    :encrypted = TRUE
-])
-
-aMeta = oDiag.GetEdgeMetadata("n1", "n2")
-? aMeta[:type]
-#--> data_flow
-? aMeta[:encrypted]
-#--> TRUE
-
-pf()
-#--> Executed in 0.03 second(s) in Ring 1.24
-
-/*-- Remove Metadata
-
-pr()
-
-oDiag = new stzDiagram("Test")
-oDiag.AddNodeXT("n1", "Node 1", :process, :blue)
-oDiag.SetNodeMetadata("n1", [:key = "value"])
-
-? len(oDiag.GetNodeMetadata("n1"))
-#--> 1
-
-oDiag.RemoveNodeMetadata("n1")
-
-? len(oDiag.GetNodeMetadata("n1"))
-#--> 0
-
-pf()
-#--> Executed in 0.02 second(s) in Ring 1.24
-
-#================================#
-#  COMBINED OPERATIONS           #
-#================================#
-
-/*-- Build, Edit, Import, and Visualize
-
-pr()
-
-# Build initial diagram
-oDiag = new stzDiagram("PaymentFlow")
-oDiag.SetTheme(:pro)
-oDiag.AddNodeXT("start", "Request", [ :type = "start", :color = "success" ])
-oDiag.AddNodeXT("validate", "Validate", [ :type = "decision", :color = "warning" ])
-oDiag.AddNodeXT("approved", "Approved", [ :type = "endpoint", :color = "success" ])
-oDiag.Connect("start", "validate")
-oDiag.Connect("validate", "approved")
-
-# Add metadata
-oDiag.SetNodeMetadata("validate", [
-    :rule = "amount < 10000",
-    :approver = "system"
-])
-
-# Import subflow for manual approval
-cManualFlow = '
-diagram "ManualApproval"
-
-nodes
-    validate
-        label: "Validate"
-        type: decision
-        color: #FFFF00
-
-    manual
-        label: "Manual Review"
-        type: process
-        color: #FFA500
-
-    manager
-        label: "Manager Approval"
-        type: decision
-        color: #FFFF00
-
-    approved
-        label: "Approved"
-        type: endpoint
-        color: #008000
-
-edges
-    validate -> manual
-    manual -> manager
-    manager -> approved
-'
-
-oDiag.ImportDiag(cManualFlow)
-
-? oDiag.NodeCount()
-#--> 5 (start, validate, manual, manager, approved)
-
-? oDiag.HasNode("manager")
-#--> TRUE
-
-# Update metadata
-oDiag.UpdateNodeMetadata("validate", "approver", "system+manual")
-
-# Visualize
-oDiag.Show()
-
-pf()
-#--> Executed in 0.15 second(s) in Ring 1.24
-
-
-#===================
-
-/*--- Base Colors
-
-pr()
-
-? ResolveColor(:red)      #--> #FF0000
-? ResolveColor(:blue)     #--> #0000FF
-? ResolveColor(:green)    #--> #008000
-? ResolveColor(:yellow)   #--> #FFFF00
-? ResolveColor(:white)    #--> #FFFFFF
-? ResolveColor(:black)    #--> #000000
-? ResolveColor(:gray)     #--> #808080
-
-pf()
-
-/*--- Base colors Intensities
-
-pr()
-
-# Grayscale
-? "--- GRAYSCALE ---"
-? "white--  : " + ResolveColor("white--")
-? "white-   : " + ResolveColor("white-")
-? "white    : " + ResolveColor("white")
-? "white+   : " + ResolveColor("white+")
-? "white++  : " + ResolveColor("white++")
-? ""
-
-? "black--  : " + ResolveColor("black--")
-? "black-   : " + ResolveColor("black-")
-? "black    : " + ResolveColor("black")
-? "black+   : " + ResolveColor("black+")
-? "black++  : " + ResolveColor("black++")
-? ""
-
-? "gray--   : " + ResolveColor("gray--")
-? "gray-    : " + ResolveColor("gray-")
-? "gray     : " + ResolveColor("gray")
-? "gray+    : " + ResolveColor("gray+")
-? "gray++   : " + ResolveColor("gray++")
-? NL
-
-# Primary Colors
-? "--- PRIMARY COLORS ---"
-? "red--    : " + ResolveColor("red--")
-? "red-     : " + ResolveColor("red-")
-? "red      : " + ResolveColor("red")
-? "red+     : " + ResolveColor("red+")
-? "red++    : " + ResolveColor("red++")
-? ""
-
-? "green--  : " + ResolveColor("green--")
-? "green-   : " + ResolveColor("green-")
-? "green    : " + ResolveColor("green")
-? "green+   : " + ResolveColor("green+")
-? "green++  : " + ResolveColor("green++")
-? ""
-
-? "blue--   : " + ResolveColor("blue--")
-? "blue-    : " + ResolveColor("blue-")
-? "blue     : " + ResolveColor("blue")
-? "blue+    : " + ResolveColor("blue+")
-? "blue++   : " + ResolveColor("blue++")
-? ""
-
-? "yellow-- : " + ResolveColor("yellow--")
-? "yellow-  : " + ResolveColor("yellow-")
-? "yellow   : " + ResolveColor("yellow")
-? "yellow+  : " + ResolveColor("yellow+")
-? "yellow++ : " + ResolveColor("yellow++")
-? NL
-
-# Secondary Colors
-? "--- SECONDARY COLORS ---"
-? "orange-- : " + ResolveColor("orange--")
-? "orange-  : " + ResolveColor("orange-")
-? "orange   : " + ResolveColor("orange")
-? "orange+  : " + ResolveColor("orange+")
-? "orange++ : " + ResolveColor("orange++")
-? ""
-
-? "purple-- : " + ResolveColor("purple--")
-? "purple-  : " + ResolveColor("purple-")
-? "purple   : " + ResolveColor("purple")
-? "purple+  : " + ResolveColor("purple+")
-? "purple++ : " + ResolveColor("purple++")
-? ""
-
-? "cyan--   : " + ResolveColor("cyan--")
-? "cyan-    : " + ResolveColor("cyan-")
-? "cyan     : " + ResolveColor("cyan")
-? "cyan+    : " + ResolveColor("cyan+")
-? "cyan++   : " + ResolveColor("cyan++")
-? ""
-
-? "magenta--: " + ResolveColor("magenta--")
-? "magenta- : " + ResolveColor("magenta-")
-? "magenta  : " + ResolveColor("magenta")
-? "magenta+ : " + ResolveColor("magenta+")
-? "magenta++: " + ResolveColor("magenta++")
-? NL
-
-# Extended Palette
-? "--- EXTENDED PALETTE ---"
-? "brown--  : " + ResolveColor("brown--")
-? "brown-   : " + ResolveColor("brown-")
-? "brown    : " + ResolveColor("brown")
-? "brown+   : " + ResolveColor("brown+")
-? "brown++  : " + ResolveColor("brown++")
-? ""
-
-? "pink--   : " + ResolveColor("pink--")
-? "pink-    : " + ResolveColor("pink-")
-? "pink     : " + ResolveColor("pink")
-? "pink+    : " + ResolveColor("pink+")
-? "pink++   : " + ResolveColor("pink++")
-? ""
-
-? "coral--  : " + ResolveColor("coral--")
-? "coral-   : " + ResolveColor("coral-")
-? "coral    : " + ResolveColor("coral")
-? "coral+   : " + ResolveColor("coral+")
-? "coral++  : " + ResolveColor("coral++")
-? ""
-
-? "teal--   : " + ResolveColor("teal--")
-? "teal-    : " + ResolveColor("teal-")
-? "teal     : " + ResolveColor("teal")
-? "teal+    : " + ResolveColor("teal+")
-? "teal++   : " + ResolveColor("teal++")
-? ""
-
-? "lavender--: " + ResolveColor("lavender--")
-? "lavender- : " + ResolveColor("lavender-")
-? "lavender  : " + ResolveColor("lavender")
-? "lavender+ : " + ResolveColor("lavender+")
-? "lavender++: " + ResolveColor("lavender++")
-
-#-->
-'
---- GRAYSCALE ---
-white--  : #FFFFFF
-white-   : #FFFFFF
-white    : #FFFFFF
-white+   : #333333
-white++  : #0C0C0C
-
-black--  : #E0E0E0
-black-   : #A3A3A3
-black    : #000000
-black+   : #000000
-black++  : #000000
-
-gray--   : #EFEFEF
-gray-    : #D1D1D1
-gray     : #808080
-gray+    : #656565
-gray++   : #333333
-
-
---- PRIMARY COLORS ---
-red--    : #FFE0E0
-red-     : #FFA3A3
-red      : #FF0000
-red+     : #C94D4D
-red++    : #660000
-
-green--  : #E0EFE0
-green-   : #A3D1A3
-green    : #008000
-green+   : #4D654D
-green++  : #003300
-
-blue--   : #E0E0FF
-blue-    : #A3A3FF
-blue     : #0000FF
-blue+    : #4D4DC9
-blue++   : #000066
-
-yellow-- : #FFFFE0
-yellow-  : #FFFFA3
-yellow   : #FFFF00
-yellow+  : #333300
-yellow++ : #0C0C00
-
-
---- SECONDARY COLORS ---
-orange-- : #FFF4E0
-orange-  : #FFDEA3
-orange   : #FFA500
-orange+  : #332100
-orange++ : #0C0800
-
-purple-- : #EFE0EF
-purple-  : #D1A3D1
-purple   : #800080
-purple+  : #654D65
-purple++ : #330033
-
-cyan--   : #E0FFFF
-cyan-    : #A3FFFF
-cyan     : #00FFFF
-cyan+    : #003333
-cyan++   : #000C0C
-
-magenta--: #FFE0FF
-magenta- : #FFA3FF
-magenta  : #FF00FF
-magenta+ : #C94DC9
-magenta++: #660066
-
-
---- EXTENDED PALETTE ---
-brown--  : #F4E5E5
-brown-   : #DEB2B2
-brown    : #A52A2A
-brown+   : #822121
-brown++  : #421010
-
-pink--   : #FFF7F8
-pink-    : #FFE8EC
-pink     : #FFC0CB
-pink+    : #332628
-pink++   : #0C090A
-
-coral--  : #FFEFEA
-coral-   : #FFD0C0
-coral    : #FF7F50
-coral+   : #331910
-coral++  : #0C0604
-
-teal--   : #E0EFEF
-teal-    : #A3D1D1
-teal     : #008080
-teal+    : #4D6565
-teal++   : #003333
-
-lavender--: #FCFCFE
-lavender- : #F6F6FD
-lavender  : #E6E6FA
-lavender+ : #2E2E32
-lavender++: #0B0B0C
-'
-
-pf()
-
-
-/*--- Semantic Colors
-? ResolveColor(:Success)  # Should resolve to green
-? ResolveColor(:Warning)  # Should resolve to yellow
-? ResolveColor(:Danger)   # Should resolve to red
-? ResolveColor(:Info)     # Should resolve to blue
-? ResolveColor(:Primary)  # Should resolve to blue
-? ResolveColor(:Neutral)  # Should resolve to gray
-
-
-/*--- Node Type Colors
-? ColorForNodeType(:Start)        # Should be green
-? ColorForNodeType(:Process)      # Should be blue
-? ColorForNodeType(:Decision)     # Should be yellow
-? ColorForNodeType(:Endpoint)     # Should be coral
-? ColorForNodeType(:State)        # Should be cyan
-? ColorForNodeType(:Storage)      # Should be gray
-? ColorForNodeType(:Data)         # Should be lavender
-
-
-/*--- Direct Hex Colors
-? ResolveColor("#FF5733")  # Should return: #FF5733
-? ResolveColor("#00AAFF")  # Should return: #00AAFF
-? ResolveColor("#123456")  # Should return: #123456
-
-
-/*--- Extended Palette
-? ResolveColor(:brown)     # #A52A2A
-? ResolveColor(:pink)      # #FFC0CB
-? ResolveColor(:navy)      # #000080
-? ResolveColor(:teal)      # #008080
-? ResolveColor(:coral)     # #FF7F50
-? ResolveColor(:salmon)    # #FA8072
-? ResolveColor(:lavender)  # #E6E6FA
-? ResolveColor(:steelblue) # #4682B4
-
-
-/*--- Full Intensity Chain: Coral
-? ResolveColor("coral--")
-? ResolveColor("coral-")
-? ResolveColor("coral")
-? ResolveColor("coral+")
-? ResolveColor("coral++")
-
-/*--- Full Intensity Chain: Teal
-? ResolveColor("teal--")
-? ResolveColor("teal-")
-? ResolveColor("teal")
-? ResolveColor("teal+")
-? ResolveColor("teal++")
-
-
-/*--- Legacy Color Names
-
-pr()
-
-? ResolveColor(:lightblue)   # Should map to blue+ 	#--> #4D4DC9
-? ResolveColor(:lightgreen)  # Should map to green+	#--> #4D654D
-? ResolveColor(:lightyellow) # Should map to yellow+	#--> #333300
-? ResolveColor(:darkgreen)   # Should map to green-	#--> #A3D1A3
-? ResolveColor(:darkblue)    # Should map to blue-	#--> #A3A3FF
-? ResolveColor(:darkred)     # Should map to red-	#--> #FFA3A3
-
-pf()
-
-/*--- Full Palette Count
-
-pr()
-
-aPalette = BuildColorPalette()
-? len(aPalette) #--> 125
-#--> 24 base + (24 × 4 intensities) = 120
-
-pf()
-
-#-----------------------------#
-#  TESTING VALIDATION SYSTEM  #
-#-----------------------------#
-
-/*--- #ERR
-
-pr()
-
-# Test unified validation system at stzDiagram level
-
-oDiagram = new stzDiagram("Payment_Processing")
-oDiagram {
-	SetTheme("pro")
-	
-	# Build payment workflow
-	AddNodeXTT("start", "Receive Payment", [:type = "start", :color = "green"])
-	AddNodeXTT("validate", "Validate Amount", [:type = "process", :color = "blue"])
-	AddNodeXTT("fraud_check", "Fraud Detection", [:type = "process", :color = "blue", :operation = "fraud_check"])
-	AddNodeXTT("approve", "Manager Approval", [:type = "decision", :color = "yellow", :role = "approver"])
-	AddNodeXTT("process", "Process Payment", [:type = "process", :color = "blue", :operation = "payment", :domain = "financial"])
-	AddNodeXTT("end", "Complete", [:type = "endpoint", :color = "coral"])
-	
-	Connect("start", "validate")
-	Connect("validate", "fraud_check")
-	Connect("fraud_check", "approve")
-	Connect("approve", "process")
-	Connect("process", "end")
-	
-	# PART 1: Default Validators
-	#---------------------------
-	
-	? BoxRound("DIAGRAM DEFAULT VALIDATORS") + NL
-	
-	? "Default validators for Diagram:"
-	? @@NL( Validators() ) + NL
-	
-	? "IsValid() with defaults:"
-	? IsValid() + NL
-	
-	? "Validate() detailed report:"
-	? @@NL( Validate() )
-	
-	# PART 2: Single Validator
-	#-------------------------
-	
-	? NL + BoxRound("SINGLE VALIDATOR TEST") + NL
-	
-	? "ValidateXT(:SOX) - Sarbanes-Oxley compliance:"
-	? @@NL( ValidateXT(:SOX) )
-	
-	? NL + "ValidateXT(:DAG) - Directed Acyclic Graph:"
-	? @@NL( ValidateXT(:DAG) )
-	
-	# PART 3: Multiple Validators
-	#----------------------------
-	
-	? NL + BoxRound("MULTIPLE VALIDATORS") + NL
-	
-	? "ValidateXT([:SOX, :GDPR, :Banking]):"
-	aMulti = ValidateXT([:SOX, :GDPR, :Banking])
-	? @@NL( aMulti )
-	
-	# PART 4: Custom Validators
-	#--------------------------
-	
-	? NL + BoxRound("CUSTOM VALIDATORS") + NL
-	
-	? "Original defaults:"
-	? @@NL( Validators() )
-	
-	? NL + "Setting custom validators..."
-	SetValidators([:SOX, :Banking, :DAG])
-	
-	? "New validators:"
-	? @@NL( Validators() )
-	
-	? NL + "Validate() with custom set:"
-	? @@NL( Validate() )
-	
-	# PART 5: Inheritance Check
-	#--------------------------
-	
-	? NL + BoxRound("INHERITANCE FROM STZGRAPH") + NL
-	
-	? "Calling graph-level validator from diagram:"
-	? "ValidateXT(:Reachability):"
-	? @@NL( ValidateXT(:Reachability) )
-	
-	? NL + "ValidateXT(:Completeness):"
-	? @@NL( ValidateXT(:Completeness) )
-}
-#-->
-`
-╭────────────────────────────╮
-│ DIAGRAM DEFAULT VALIDATORS │
-╰────────────────────────────╯
-
-Default validators for Diagram:
-[ "sox", "gdpr", "banking" ]
-
-IsValid() with defaults:
-0
-
-Validate() detailed report:
-[
-	[ "status", "fail" ],
-	[ "validatorsrun", 3 ],
-	[ "validatorsfailed", 2 ],
-	[ "totalissues", 6 ],
-	[
-		"results",
-		[
-			[
-				[ "status", "fail" ],
-				[ "domain", "sox" ],
-				[ "issuecount", 4 ],
-				[
-					"issues",
-					[
-						"SOX-001: Financial process missing audit trail: ",
-						"process",
-						"SOX-002: Decision node lacks approval requirement: ",
-						"approve"
-					]
-				]
-			],
-			[
-				[ "status", "pass" ],
-				[ "domain", "gdpr" ],
-				[ "issuecount", 0 ],
-				[ "issues", [  ] ]
-			],
-			[
-				[ "status", "fail" ],
-				[ "domain", "banking" ],
-				[ "issuecount", 2 ],
-				[
-					"issues",
-					[
-						"BANK-002: Payment missing fraud detection: ",
-						"process"
-					]
-				]
-			]
-		]
-	],
-	[ "affectednodes", [  ] ]
-]
-
-╭───────────────────────╮
-│ SINGLE VALIDATOR TEST │
-╰───────────────────────╯
-
-ValidateXT(:SOX) - Sarbanes-Oxley compliance:
-[
-	[ "status", "fail" ],
-	[ "domain", "sox" ],
-	[ "issuecount", 4 ],
-	[
-		"issues",
-		[
-			"SOX-001: Financial process missing audit trail: ",
-			"process",
-			"SOX-002: Decision node lacks approval requirement: ",
-			"approve"
-		]
-	]
-]
-
-ValidateXT(:DAG) - Directed Acyclic Graph:
-[
-	[ "status", "pass" ],
-	[ "domain", "dag" ],
-	[ "issuecount", 0 ],
-	[ "issues", [  ] ],
-	[ "affectednodes", [  ] ]
-]
-
-╭─────────────────────╮
-│ MULTIPLE VALIDATORS │
-╰─────────────────────╯
-
-ValidateXT([:SOX, :GDPR, :Banking]):
-[
-	[ "status", "fail" ],
-	[ "validatorsrun", 3 ],
-	[ "validatorsfailed", 2 ],
-	[ "totalissues", 6 ],
-	[
-		"results",
-		[
-			[
-				[ "status", "fail" ],
-				[ "domain", "sox" ],
-				[ "issuecount", 4 ],
-				[
-					"issues",
-					[
-						"SOX-001: Financial process missing audit trail: ",
-						"process",
-						"SOX-002: Decision node lacks approval requirement: ",
-						"approve"
-					]
-				]
-			],
-			[
-				[ "status", "pass" ],
-				[ "domain", "gdpr" ],
-				[ "issuecount", 0 ],
-				[ "issues", [  ] ]
-			],
-			[
-				[ "status", "fail" ],
-				[ "domain", "banking" ],
-				[ "issuecount", 2 ],
-				[
-					"issues",
-					[
-						"BANK-002: Payment missing fraud detection: ",
-						"process"
-					]
-				]
-			]
-		]
-	],
-	[ "affectednodes", [  ] ]
-]
-
-╭───────────────────╮
-│ CUSTOM VALIDATORS │
-╰───────────────────╯
-
-Original defaults:
-[ "sox", "gdpr", "banking" ]
-
-Setting custom validators...
-New validators:
-[ "sox", "banking", "dag" ]
-
-Validate() with custom set:
-[
-	[ "status", "fail" ],
-	[ "validatorsrun", 3 ],
-	[ "validatorsfailed", 2 ],
-	[ "totalissues", 6 ],
-	[
-		"results",
-		[
-			[
-				[ "status", "fail" ],
-				[ "domain", "sox" ],
-				[ "issuecount", 4 ],
-				[
-					"issues",
-					[
-						"SOX-001: Financial process missing audit trail: ",
-						"process",
-						"SOX-002: Decision node lacks approval requirement: ",
-						"approve"
-					]
-				]
-			],
-			[
-				[ "status", "fail" ],
-				[ "domain", "banking" ],
-				[ "issuecount", 2 ],
-				[
-					"issues",
-					[
-						"BANK-002: Payment missing fraud detection: ",
-						"process"
-					]
-				]
-			],
-			[
-				[ "status", "pass" ],
-				[ "domain", "dag" ],
-				[ "issuecount", 0 ],
-				[ "issues", [  ] ],
-				[ "affectednodes", [  ] ]
-			]
-		]
-	],
-	[ "affectednodes", [  ] ]
-]
-
-╭───────────────────────────╮
-│ INHERITANCE FROM STZGRAPH │
-╰───────────────────────────╯
-
-Calling graph-level validator from diagram:
-ValidateXT(:Reachability):
-[
-	[ "status", "pass" ],
-	[ "domain", "reachability" ],
-	[ "issuecount", 0 ],
-	[ "issues", [  ] ],
-	[ "affectednodes", [  ] ]
-]
-
-ValidateXT(:Completeness):
-[
-	[ "status", "fail" ],
-	[ "domain", "completeness" ],
-	[ "issuecount", 2 ],
-	[
-		"issues",
-		[
-			"Decision node has fewer than 2 paths: ",
-			"approve"
-		]
-	],
-	[
-		"affectednodes",
-		[ "approve" ]
-	]
-]
-`
 
 pf()

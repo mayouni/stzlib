@@ -1,0 +1,11 @@
+digraph "techco" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=1, ranksep=1, ordering=out, tooltip=" "]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#808080", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+
+    ceo [label="CEO", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", fillcolor="#FFFFFF", fontcolor="black", color="#808080", tooltip=" "]
+    vp1 [label="VP", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", fontcolor="black", fillcolor="#FFFFFF", fontcolor="black", color="#808080", tooltip=" "]
+
+    ceo -> vp1
+
+}

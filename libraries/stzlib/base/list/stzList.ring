@@ -83707,6 +83707,19 @@ fdef
 		def IsToNodeOrToNamedParam()
 			return This.IsToOrToNodeNamedParam()
 
+	def IsToOrToPositionOrToNodeNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  ring_find([ "to", "tonode", "toposition" ], This.Item(1)) )
+
+			return 1
+
+		else
+			return 0
+		ok
+
+		def IsToOrToNodeOrToPositionNamedParam()
+			return This.IsToOrToPositionOrToNodeNamedParam()
+
 	def IsToOrToNodeOrAndNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and ring_find([ "to", "tonode", "and" ], This.Item(1)) > 0 )
