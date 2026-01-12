@@ -1452,12 +1452,11 @@ class stzDiagram from stzGraph
 		return aResult[1]  # Just return TRUE/FALSE
 
 	def IsValid()
-		aResult = This.Validate()
-		return aResult[1] = 1
+		return This.Validate()
+
 
 	def IsValidXT(pValidator)
-		aResult = This.ValidateXT(pValidator)
-		return aResult[1] = 1
+		return This.ValidateXT(pValidator)
 
 	#-----------#
 	#  METRICS  #
@@ -2557,7 +2556,7 @@ class stzDiagram from stzGraph
 				This.ImportAsSubdiagram(cDiagString, cFirstNodeId)
 			else
 				StzRaise("Import failed: First node '" + cFirstNodeId + "' not found in current diagram. " +
-					"Either add node '" + cFirstNodeId + "' first, or clear the diagram with RemoveAllNodes()")
+					"Either add node '" + cFirstNodeId + "', or clear the diagram with RemoveAllNodes()")
 			ok
 		else
 			# Empty diagram - do normal import

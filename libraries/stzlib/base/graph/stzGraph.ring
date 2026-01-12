@@ -207,6 +207,9 @@ class stzGraph
 
 		return acResult
 
+		def NodesNames()
+			return This.NodesIds()
+
 	def NodeCount()
 		return len(@aNodes)
 
@@ -964,14 +967,15 @@ class stzGraph
 		
 		nLen = len(aProperties)
 		for i = 1 to nLen
-			This.SetNodeProperty(pcNodeId, aProperties[i][1], aProperties[2])
+			This.SetNodeProperty(pcNodeId, aProperties[i][1], aProperties[i][2])
 		end
 	
-		def SetNodeProps(pNodeId, aProperties)
-			This.SetNodeProperties(pNodeId, aProperties)
-	
+		def SetNodeProps(pcNodeId, aProperties)
+			This.SetNodeProperties(pcNodeId, aProperties)
+
 	def NodeProperties(pcNodeId)
 		aNode = This.Node(pcNodeId)
+
 		if HasKey(aNode, "properties")
 			return keys(aNode["properties"])
 		ok
@@ -996,15 +1000,15 @@ class stzGraph
 		def NodePropsAndTheirValues(pcNodeId)
 			return This.NodePropertiesXT(pcNodeId)
 
-	def NodeProperty(pNodeId, cProperty)
-		aNode = This.Node(pNodeId)
+	def NodeProperty(pcNodeId, cProperty)
+		aNode = This.Node(pcNodeId)
 	
 		if HasKey(aNode, "properties") and HasKey(aNode["properties"], cProperty)
 			return aNode["properties"][cProperty]
 		ok
 	
-		def NodeProp(pNodeId, cProperty)
-			return This.NodeProperty(pNodeId, cProperty)
+		def NodeProp(pcNodeId, cProperty)
+			return This.NodeProperty(pcNodeId, cProperty)
 
 	def RemoveNodeProperties(pcNodeId)
 
@@ -1775,11 +1779,17 @@ class stzGraph
 		def NodesW(pcProp, pcOp, pVal)
 			return This.NodesWhere(pcProp, pcOp, pVal)
 
+	def NodesByProperty(pcProp, pVal)
+		return This.Find("nodes").Where(pcProp, "=", pVal).Run()
+
 	def EdgesWhere(pcProp, pcOp, pVal)
 		return This.Find("edges").Where(pcProp, pcOp, pVal).Run()
 
 		def EdgesW(pcProp, pcOp, pVal)
 			return This.EdgesWhere(pcProp, pcOp, pVal)
+
+	def EdgesByProperty(pcProp, pVal)
+		return This.Find("edges").Where(pcProp, "=", pVal).Run()
 
 	#--
 
@@ -1870,7 +1880,7 @@ class stzGraph
 			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
 		ok
 
-		if NOT This.NodeExists(pcFromNodeId) or NOT This.NodeExists(pcTo)
+		if NOT This.NodeExists(pcFromNodeId) or NOT This.NodeExists(pcToNodeId)
 			return []
 		ok
 	
@@ -1949,7 +1959,7 @@ class stzGraph
 			stzraise("Incorrect Id! pcToNodeId must be one string without spaces.")
 		ok
 
-		_acPath_ = This.ShortestPath(pcFromNodeId, pcTo)
+		_acPath_ = This.ShortestPath(pcFromNodeId, pcToNodeId)
 		if len(_acPath_) = 0
 			return 0
 		ok
