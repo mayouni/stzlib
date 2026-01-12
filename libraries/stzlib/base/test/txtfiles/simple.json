@@ -1,0 +1,31 @@
+{
+	"id": "simple",
+	"nodes": [
+		{
+			"id": "x",
+			"label": "X_Node",
+			"properties": {
+				"type": "process",
+				"color": "primary"
+			}
+		}
+	],
+	"edges": {
+
+	},
+	"properties": [
+		"type",
+		"color"
+	],
+	"theme": "pro",
+	"layout": "topdown",
+	"clusters": {
+
+	},
+	"annotations": {
+
+	},
+	"templates": {
+
+	}
+}

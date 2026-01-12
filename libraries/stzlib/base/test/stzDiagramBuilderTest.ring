@@ -1,7 +1,7 @@
 load "../stzbase.ring"
 
 /*===================================================
-#  stzDiagramBuilder - Comprehensive Feature Showcase
+#  stzDiagramMaker - Comprehensive Feature Showcase
 #  Demonstrating all capabilities: themes, layouts,
 #  node types, colors, clusters, and configurations
 #===================================================*/
@@ -14,8 +14,8 @@ load "../stzbase.ring"
 */
 pr()
 
-oDiagBuilder = new stzDiagramBuilder("Order Processing")
-oDiagBuilder {
+oDiagMaker = new stzDiagramMaker("Order Processing")
+oDiagMaker {
 
 	# Configuring Theme, layout and colors
 
@@ -63,7 +63,7 @@ pf()
 
 pr()
 
-oStateLight = new stzDiagramBuilder("State Machine - Light Theme")
+oStateLight = new stzDiagramMaker("State Machine - Light Theme")
 oStateLight {
 	SetTheme(:Light)
 	SetLayout(:TopDown)
@@ -102,7 +102,7 @@ pf()
 
 pr()
 
-oStateDark = new stzDiagramBuilder("State Machine - Dark Theme")
+oStateDark = new stzDiagramMaker("State Machine - Dark Theme")
 oStateDark {
 	SetTheme(:Dark)
 	SetLayout(:TopDown)
@@ -140,7 +140,7 @@ pf()
 
 pr()
 
-oDatabase = new stzDiagramBuilder("Database Architecture")
+oDatabase = new stzDiagramMaker("Database Architecture")
 oDatabase {
 	SetTheme(:Professional)
 	SetLayout(:LeftRight)
@@ -180,7 +180,7 @@ pf()
 
 pr()
 
-oEventSystem = new stzDiagramBuilder("Event-Driven System")
+oEventSystem = new stzDiagramMaker("Event-Driven System")
 oEventSystem {
 	SetTheme(:Vibrant)
 	SetLayout(:Organic)
@@ -221,7 +221,7 @@ pf()
 
 pr()
 
-oDecisionTree = new stzDiagramBuilder("User Authentication Flow")
+oDecisionTree = new stzDiagramMaker("User Authentication Flow")
 oDecisionTree {
 	SetTheme(:Vibrant)
 	SetLayout(:TopDown)
@@ -279,7 +279,7 @@ pf()
 
 pr()
 
-oMicroservices = new stzDiagramBuilder("Microservices Architecture")
+oMicroservices = new stzDiagramMaker("Microservices Architecture")
 oMicroservices {
 	SetTheme(:Dark)
 	SetLayout(:LeftRight)
@@ -339,7 +339,7 @@ pf()
 
 pr()
 
-oDataPipeline = new stzDiagramBuilder("ETL Data Pipeline")
+oDataPipeline = new stzDiagramMaker("ETL Data Pipeline")
 oDataPipeline {
 	SetTheme(:Professional)
 	SetLayout(:LeftRight)
@@ -394,7 +394,7 @@ pf()
 
 pr()
 
-oLayoutTopDown = new stzDiagramBuilder("Process Flow - Top Down")
+oLayoutTopDown = new stzDiagramMaker("Process Flow - Top Down")
 oLayoutTopDown {
 	SetTheme(:Vibrant)
 	SetLayout(:TopDown)
@@ -433,7 +433,7 @@ pf()
 
 pr()
 
-oLayoutLeftRight = new stzDiagramBuilder("Process Flow - Left Right")
+oLayoutLeftRight = new stzDiagramMaker("Process Flow - Left Right")
 oLayoutLeftRight {
 	SetTheme(:Vibrant)
 	SetLayout(:LeftRight)
@@ -472,7 +472,7 @@ pf()
 
 pr()
 
-oOrgChart = new stzDiagramBuilder("Company Organization Chart")
+oOrgChart = new stzDiagramMaker("Company Organization Chart")
 oOrgChart {
 	SetTheme(:Professional)
 	SetLayout(:TopDown)
@@ -540,7 +540,7 @@ pf()
 
 pr()
 
-oMatrixOrg = new stzDiagramBuilder("Matrix Organization Structure")
+oMatrixOrg = new stzDiagramMaker("Matrix Organization Structure")
 oMatrixOrg {
 	SetTheme(:Vibrant)
 	SetLayout(:LeftRight)
@@ -595,7 +595,7 @@ pf()
 
 pr()
 
-oStartupOrg = new stzDiagramBuilder("Lean Startup - Flat Structure")
+oStartupOrg = new stzDiagramMaker("Lean Startup - Flat Structure")
 oStartupOrg {
 	SetTheme(:Vibrant)
 	SetLayout(:Organic)
@@ -647,7 +647,7 @@ pf()
 
 pr()
 
-oOrderWorkflow = new stzDiagramBuilder("Order Processing Workflow")
+oOrderWorkflow = new stzDiagramMaker("Order Processing Workflow")
 oOrderWorkflow {
 	SetTheme(:Professional)
 	SetLayout(:TopDown)
@@ -731,7 +731,7 @@ pf()
 
 pr()
 
-oLoanWorkflow = new stzDiagramBuilder("Loan Application Workflow")
+oLoanWorkflow = new stzDiagramMaker("Loan Application Workflow")
 oLoanWorkflow {
 	SetTheme(:Professional)
 	SetLayout(:TopDown)
@@ -823,7 +823,7 @@ pf()
 */
 pr()
 
-oClaimsWorkflow = new stzDiagramBuilder("Insurance Claims Workflow")
+oClaimsWorkflow = new stzDiagramMaker("Insurance Claims Workflow")
 oClaimsWorkflow {
 	SetTheme(:Dark)
 	SetLayout(:TopDown)
@@ -908,7 +908,7 @@ pf()
 */
 pr()
 
-oLeaveWorkflow = new stzDiagramBuilder("Leave Request Workflow")
+oLeaveWorkflow = new stzDiagramMaker("Leave Request Workflow")
 oLeaveWorkflow {
 	SetTheme(:Vibrant)
 	SetLayout(:TopDown)
@@ -980,7 +980,7 @@ pf()
 */
 pr()
 
-oPublishWorkflow = new stzDiagramBuilder("Editorial Publishing Pipeline")
+oPublishWorkflow = new stzDiagramMaker("Editorial Publishing Pipeline")
 oPublishWorkflow {
 	SetTheme(:Professional)
 	SetLayout(:TopDown)
@@ -1067,7 +1067,7 @@ pf()
 */	
 pr()
 
-oRecruitmentWorkflow = new stzDiagramBuilder("Recruitment Process")
+oRecruitmentWorkflow = new stzDiagramMaker("Recruitment Process")
 oRecruitmentWorkflow {
 	SetTheme(:Vibrant)
 	SetLayout(:TopDown)
@@ -1177,7 +1177,7 @@ pf()
 */
 pr()
 
-oSupportWorkflow = new stzDiagramBuilder("Customer Support Workflow")
+oSupportWorkflow = new stzDiagramMaker("Customer Support Workflow")
 oSupportWorkflow {
 	SetTheme(:Professional)
 	SetLayout(:TopDown)
@@ -1248,7 +1248,7 @@ pr()
 
 ? ""
 ? "============================================================"
-? "  stzDiagramBuilder - Complete Feature Showcase"
+? "  stzDiagramMaker - Complete Feature Showcase"
 ? "============================================================"
 ? ""
 ? "LAYOUT EXAMPLES (1-10):"

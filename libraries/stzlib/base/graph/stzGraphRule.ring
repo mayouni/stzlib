@@ -21,6 +21,10 @@ $GraphRules = [
 	:custom = []
 ]
 
+#-------------#
+#  FUNCTIONS  #
+#-------------#
+
 func GraphRules()
 	return $GraphRules
 
@@ -255,7 +259,9 @@ func ConstraintFunc_PropertyMismatch()
 		return [FALSE, ""]
 	}
 
-# VALIDATION FUNCTIONS
+#------------------------#
+#  VALIDATION FUNCTIONS  #
+#------------------------#
 # Signature: func(oGraph, paRuleParams) -> [valid:BOOL, message:STRING]
 
 func ValidationFunc_IsAcyclic()
@@ -321,3 +327,47 @@ func ValidationFunc_AllNodesReachable()
 		ok
 		return [TRUE, ""]
 	}
+
+#-------------------------------#
+#  RULES RELATED TO stzDiagram  #
+#-------------------------------#
+
+RegisterRule(:dag, "dag", [
+	:type = :validation,
+	:function = ValidationFunc_IsAcyclic(),
+	:params = [],
+	:message = "Diagram must be acyclic (DAG)",
+	:severity = :error
+])
+
+RegisterRule(:sox, "sox", [
+	:type = :validation,
+	:function = func(oGraph, paParams) {
+		acFinancial = oGraph.NodesW("domain", "=", "financial")
+		for cId in acFinancial
+			if oGraph.NodeProp(cId, "audittrail") = NULL
+				return [FALSE, "Financial node missing audit: " + cId]
+			ok
+		end
+		return [TRUE, ""]
+	},
+	:params = [],
+	:message = "Financial processes need audit trails",
+	:severity = :error
+])
+
+RegisterRule(:gdpr, "gdpr", [
+	:type = :validation,
+	:function = func(oGraph, paParams) {
+		acPersonal = oGraph.NodesW("dataType", "=", "personal")
+		for cId in acPersonal
+			if oGraph.NodeProp(cId, "requiresConsent") != 1
+				return [FALSE, "Personal data missing consent: " + cId]
+			ok
+		end
+		return [TRUE, ""]
+	},
+	:params = [],
+	:message = "Personal data needs consent",
+	:severity = :error
+])

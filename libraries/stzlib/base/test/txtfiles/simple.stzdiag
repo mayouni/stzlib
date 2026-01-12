@@ -1,0 +1,21 @@
+diagram "simple"
+
+metadata
+    theme: light
+    layout: topdown
+
+nodes
+    a
+        label: "Node_A"
+        type: process
+        color: primary
+
+    b
+        label: "Node_B"
+        type: process
+        color: primary
+
+edges
+    a -> b
+        label: "flows"
+

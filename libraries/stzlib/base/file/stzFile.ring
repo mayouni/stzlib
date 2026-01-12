@@ -52,6 +52,34 @@ func FileExists(cFullPath)
 	func @IsFile(cFullPath)
 		return FileExists(cFullPath)
 
+	func IsValidFile(cFullPath)
+		return FileExists(cFullPath)
+
+	func @IsValidFile(cFullPath)
+		return FileExists(cFullPath)
+
+	#--
+
+	func FilePathExists(cFullPath)
+		return FileExists(cFullPath)
+
+	func @FilePathExists(cFullPath)
+		return FileExists(cFullPath)
+
+	func IsFilePath(cFullPath)
+		return FileExists(cFullPath)
+
+	func @IsFilePath(cFullPath)
+		return FileExists(cFullPath)
+
+	func IsValidFilePath(cFullPath)
+		return FileExists(cFullPath)
+
+	func @IsValidFilePath(cFullPath)
+		return FileExists(cFullPath)
+
+	#>
+
 func FileReadQ(cFile)
     # Pure reading intent - read-only access
     return new stzFileReader(cFile)

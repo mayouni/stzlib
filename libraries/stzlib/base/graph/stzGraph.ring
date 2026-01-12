@@ -59,19 +59,20 @@ class stzGraph
 	@aProperties = []
 
 	@bEnforceConstraints = FALSE
+	@aLastValidationResult = []
 
-	def init(pcId)
+	def init(pcName)
 		if CheckParams()
-			if NOT isString(pcId)
-				stzraise("Incorrect param type! pcId must be a string.")
+			if NOT isString(pcName)
+				stzraise("Incorrect param type! pcName must be a string.")
 			ok
 		ok
 
-		if NOT _IsWellFormedId(pcId)
-			stzraise("Inncorrect Id! pcId must be a string without spaces nor new lines.")
+		if NOT _IsWellFormedId(pcName)
+			stzraise("Inncorrect Id! pcName must be a string without spaces nor new lines.")
 		ok
 
-		@cId = pcId
+		@cId = lower(pcName)
 
 	def Copy()
 		_oCopy_ = This
@@ -79,6 +80,9 @@ class stzGraph
 
 	def Id()
 		return @cId
+
+		def Name()
+			return @cId
 
 	def GraphType()
 		return @cGraphType
@@ -960,7 +964,7 @@ class stzGraph
 		
 		nLen = len(aProperties)
 		for i = 1 to nLen
-			This.SetNodeProperty(pcNodeId, aProperties[i][1], aProperties[cKey])
+			This.SetNodeProperty(pcNodeId, aProperties[i][1], aProperties[2])
 		end
 	
 		def SetNodeProps(pNodeId, aProperties)
@@ -1886,10 +1890,10 @@ class stzGraph
 				_acPath_ = []
 				_cNode_ = pcToNodeId
 				
-				while _cNode_ != NULL
+				while _cNode_ != ""
 					_acPath_ + _cNode_
 					
-					_cParent_ = NULL
+					_cParent_ = ""
 					_nMapLen_ = len(_aParentMap_)
 					for _j_ = 1 to _nMapLen_
 						if _aParentMap_[_j_][1] = _cNode_
@@ -2267,14 +2271,14 @@ class stzGraph
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			aNode = @aNodes[i]
-			cId = aNode["id"]
+			cName = aNode["id"]
 			cLabel = aNode["label"]
 			
-			if left(cId, 1) = "@"
-				cId = @substr(cId, 2, len(cId))
+			if left(cName, 1) = "@"
+				cName = @substr(cName, 2, stzlen(cName))
 			ok
 			
-			cDOT += "  " + cId + " [label=" + '"' + cLabel + '"' + "];" + nl
+			cDOT += "  " + cName + " [label=" + '"' + cLabel + '"' + "];" + nl
 		end
 		
 		cDOT += nl
@@ -2287,10 +2291,10 @@ class stzGraph
 			cLabel = aEdge["label"]
 			
 			if left(cFrom, 1) = "@"
-				cFrom = @substr(cFrom, 2, len(cFrom))
+				cFrom = @substr(cFrom, 2, stzlen(cFrom))
 			ok
 			if left(cTo, 1) = "@"
-				cTo = @substr(cTo, 2, len(cTo))
+				cTo = @substr(cTo, 2, stzlen(cTo))
 			ok
 			
 			cDOT += "  " + cFrom + " -> " + cTo
@@ -2327,12 +2331,12 @@ class stzGraph
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			aNode = @aNodes[i]
-			cId = aNode["id"]
-			if substr(cId, 1, 1) = "@"
-				cId = substr(cId, 2, len(cId) - 1)
+			cName = aNode["id"]
+			if @substr(cName, 1, 1) = "@"
+				cName = @substr(cName, 2, stzlen(cName) - 1)
 			ok
 			acNodes + [
-				:id = cId,
+				:id = cName,
 				:label = aNode["label"],
 				:properties = aNode["properties"]
 			]
@@ -2343,11 +2347,11 @@ class stzGraph
 			aEdge = @aEdges[i]
 			cFrom = aEdge["from"]
 			cTo = aEdge["to"]
-			if substr(cFrom, 1, 1) = "@"
-				cFrom = substr(cFrom, 2, len(cFrom) - 1)
+			if @substr(cFrom, 1, 1) = "@"
+				cFrom = @substr(cFrom, 2, stzlen(cFrom) - 1)
 			ok
-			if substr(cTo, 1, 1) = "@"
-				cTo = substr(cTo, 2, len(cTo) - 1)
+			if @substr(cTo, 1, 1) = "@"
+				cTo = @substr(cTo, 2, stzlen(cTo) - 1)
 			ok
 			acEdges + [
 				:from = cFrom,
@@ -2407,13 +2411,13 @@ class stzGraph
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			aNode = @aNodes[i]
-			cId = aNode["id"]
+			cName = aNode["id"]
 			
-			if left(cId, 1) = "@"
-				cId = @substr(cId, 2, len(cId))
+			if left(cName, 1) = "@"
+				cName = @substr(cName, 2, stzlen(cName))
 			ok
 			
-			cYAML += "  - id: " + cId + nl
+			cYAML += "  - id: " + cName + nl
 			cYAML += "    label: " + aNode["label"] + nl
 			if len(aNode["properties"]) > 0
 				cYAML += "    properties:" + nl
@@ -2433,10 +2437,10 @@ class stzGraph
 			cTo = aEdge["to"]
 			
 			if left(cFrom, 1) = "@"
-				cFrom = @substr(cFrom, 2, len(cFrom))
+				cFrom = @substr(cFrom, 2, stzlen(cFrom))
 			ok
 			if left(cTo, 1) = "@"
-				cTo = @substr(cTo, 2, len(cTo))
+				cTo = @substr(cTo, 2, stzlen(cTo))
 			ok
 			
 			cYAML += "  - from: " + cFrom + nl
@@ -2570,20 +2574,20 @@ class stzGraph
 		# Extract graph id
 		nPos = substr(cXML, '<graph id="')
 		if nPos > 0
-			cRest = substr(cXML, nPos + 11)
+			cRest = @substr(cXML, 11, stzlen(cXML))
 			nEnd = substr(cRest, '"')
 			if nEnd > 0
-				@cId = substr(cRest, 1, nEnd - 1)
+				@cId = @substr(cRest, 1, nEnd - 1)
 			ok
 		ok
 		
 		# Extract graph type
 		nPos = substr(cXML, '<data key="type">')
 		if nPos > 0
-			cRest = substr(cXML, nPos + 17)
+			cRest = @substr(cXML, 17, stzlen(cXML))
 			nEnd = substr(cRest, '</data>')
 			if nEnd > 0
-				@cGraphType = trim(substr(cRest, 1, nEnd - 1))
+				@cGraphType = trim(@substr(cRest, 1, nEnd - 1))
 			ok
 		ok
 		
@@ -2595,21 +2599,21 @@ class stzGraph
 				exit
 			ok
 			
-			cRemaining = substr(cRemaining, nNodeStart + 10)
+			cRemaining = @substr(cRemaining, 10, stzlen(cRemaining))
 			nIdEnd = substr(cRemaining, '"')
-			cNodeId = substr(cRemaining, 1, nIdEnd - 1)
+			cNodeId = @substr(cRemaining, 1, nIdEnd - 1)
 			
 			nNodeEnd = substr(cRemaining, '</node>')
-			cNodeBlock = substr(cRemaining, 1, nNodeEnd - 1)
+			cNodeBlock = @substr(cRemaining, 1, nNodeEnd - 1)
 			
 			# Extract label
 			cLabel = cNodeId
 			nLabelPos = substr(cNodeBlock, '<data key="label">')
 			if nLabelPos > 0
-				cLabelRest = substr(cNodeBlock, nLabelPos + 18)
+				cLabelRest = @substr(cNodeBlock, 18, stzlen(cNodeBlock))
 				nLabelEnd = substr(cLabelRest, '</data>')
 				if nLabelEnd > 0
-					cLabel = This._XMLUnescape(substr(cLabelRest, 1, nLabelEnd - 1))
+					cLabel = This._XMLUnescape(@substr(cLabelRest, 1, nLabelEnd - 1))
 				ok
 			ok
 			
@@ -2622,19 +2626,19 @@ class stzGraph
 					exit
 				ok
 				
-				cPropBlock = substr(cPropBlock, nPropPos + 16)
+				cPropBlock = @substr(cPropBlock, 16, stzlen(cPropBlock))
 				nKeyEnd = substr(cPropBlock, '">')
-				cPropKey = substr(cPropBlock, 1, nKeyEnd - 1)
+				cPropKey = @substr(cPropBlock, 1, nKeyEnd - 1)
 				
-				cPropBlock = substr(cPropBlock, nKeyEnd + 2)
+				cPropBlock = @substr(cPropBlock, nKeyEnd + 2, stzlen(cPropBlock))
 				nValEnd = substr(cPropBlock, '</data>')
-				cPropVal = This._XMLUnescape(substr(cPropBlock, 1, nValEnd - 1))
+				cPropVal = This._XMLUnescape(@substr(cPropBlock, 1, nValEnd - 1))
 				
 				aProps + [cPropKey, This._StringToValue(cPropVal)]
 			end
 			
 			This.AddNodeXTT(cNodeId, cLabel, aProps)
-			cRemaining = substr(cRemaining, nNodeEnd + 7)
+			cRemaining = @substr(cRemaining, 7, stzlen(cRemaining))
 		end
 		
 		# Parse edges
@@ -2645,31 +2649,31 @@ class stzGraph
 				exit
 			ok
 			
-			cRemaining = substr(cRemaining, nEdgeStart + 6)
+			cRemaining = @substr(cRemaining, 6, stzlen(cRemaining))
 			
 			# Extract source
 			nSourcePos = substr(cRemaining, 'source="')
-			cRemaining = substr(cRemaining, nSourcePos + 8)
+			cRemaining = @substr(cRemaining, 8, stzlen(cRemaining))
 			nSourceEnd = substr(cRemaining, '"')
-			cSource = substr(cRemaining, 1, nSourceEnd - 1)
+			cSource = @substr(cRemaining, 1, nSourceEnd - 1)
 			
 			# Extract target
 			nTargetPos = substr(cRemaining, 'target="')
-			cRemaining = substr(cRemaining, nTargetPos + 8)
+			cRemaining = @substr(cRemaining, 8, stzlen(cRemaining))
 			nTargetEnd = substr(cRemaining, '"')
-			cTarget = substr(cRemaining, 1, nTargetEnd - 1)
+			cTarget = @substr(cRemaining, 1, nTargetEnd - 1)
 			
 			nEdgeEnd = substr(cRemaining, '</edge>')
-			cEdgeBlock = substr(cRemaining, 1, nEdgeEnd - 1)
+			cEdgeBlock = @substr(cRemaining, 1, nEdgeEnd - 1)
 			
 			# Extract edge label
 			cEdgeLabel = ""
 			nLabelPos = substr(cEdgeBlock, '<data key="edge_label">')
 			if nLabelPos > 0
-				cLabelRest = substr(cEdgeBlock, nLabelPos + 23)
+				cLabelRest = @substr(cEdgeBlock, 23, stzlen(cEdgeBlock))
 				nLabelEnd = substr(cLabelRest, '</data>')
 				if nLabelEnd > 0
-					cEdgeLabel = This._XMLUnescape(substr(cLabelRest, 1, nLabelEnd - 1))
+					cEdgeLabel = This._XMLUnescape(@substr(cLabelRest, 1, nLabelEnd - 1))
 				ok
 			ok
 			
@@ -2682,19 +2686,19 @@ class stzGraph
 					exit
 				ok
 				
-				cPropBlock = substr(cPropBlock, nPropPos + 16)
+				cPropBlock = @substr(cPropBlock, 16, stzlen(cPropBlock))
 				nKeyEnd = substr(cPropBlock, '">')
-				cPropKey = substr(cPropBlock, 1, nKeyEnd - 1)
+				cPropKey = @substr(cPropBlock, 1, nKeyEnd - 1)
 				
-				cPropBlock = substr(cPropBlock, nKeyEnd + 2)
+				cPropBlock = @substr(cPropBlock, 2, stzlen(cPropBlock))
 				nValEnd = substr(cPropBlock, '</data>')
-				cPropVal = This._XMLUnescape(substr(cPropBlock, 1, nValEnd - 1))
+				cPropVal = This._XMLUnescape(@substr(cPropBlock, 1, nValEnd - 1))
 				
 				aProps + [cPropKey, This._StringToValue(cPropVal)]
 			end
 			
 			This.AddEdgeXTT(cSource, cTarget, cEdgeLabel, aProps)
-			cRemaining = substr(cRemaining, nEdgeEnd + 7)
+			cRemaining = @substr(cRemaining, 7, stzlen(cRemaining))
 		end
 	
 	def _XMLEscape(cText)
@@ -2724,8 +2728,10 @@ class stzGraph
 	def _ValueToString(pValue)
 		if isString(pValue)
 			return pValue
+
 		but isNumber(pValue)
 			return "" + pValue
+
 		but isList(pValue)
 			return "[" + JoinXT(pValue, ",") + "]"
 		else
@@ -2734,20 +2740,24 @@ class stzGraph
 	
 	def _StringToValue(cValue)
 		if left(cValue, 1) = "[" and right(cValue, 1) = "]"
-			cInner = substr(cValue, 2, len(cValue) - 2)
+
+			cInner = @substr(cValue, 2, stzlen(cValue) - 2)
 			if cInner = ""
 				return []
 			ok
-			acParts = split(cInner, ",")
+
+			acParts = @split(cInner, ",")
 			aResult = []
 			nLen = len(acParts)
+
 			for i = 1 to nLen
 				aResult + trim(acParts[i])
 			next
+
 			return aResult
 		ok
 		
-		if isdigit(cValue) or (left(cValue, 1) = "-" and len(cValue) > 1 and isdigit(substr(cValue, 2, 1)))
+		if isdigit(cValue) or (left(cValue, 1) = "-" and stzlen(cValue) > 1 and isdigit(@substr(cValue, 2, 1)))
 			return 0 + cValue
 		ok
 		
@@ -3035,8 +3045,9 @@ class stzGraph
 		bSuccess = (len(aViolations) = 0)
 		return [bSuccess, aViolations]
 	
-	def Validate() # See also ValidatByType()
+	def Validate()
 		aViolations = []
+		acRulesChecked = []  # Track which validation rules ran
 		nLen = len(@aRules)
 		
 		for i = 1 to nLen
@@ -3045,7 +3056,8 @@ class stzGraph
 				loop
 			ok
 			
-			# Call validation function with params
+			acRulesChecked + aRule[:name]  # Track it
+			
 			pFunc = aRule[:function]
 			paParams = aRule[:params]
 			aResult = call pFunc(This, paParams)
@@ -3063,37 +3075,46 @@ class stzGraph
 		next
 		
 		bValid = (len(aViolations) = 0)
+		@aLastValidationResult = [bValid, aViolations, acRulesChecked]
 		return [bValid, aViolations]
 	
-	def RulesApplied()
-		acRuleIds = []
-		nLen = len(@aAffectedNodes)
+	def ValidationSummary()
+		if len(@aLastValidationResult) = 0
+			return [:status = "not_run", :message = "No validation run yet"]
+		ok
 		
-		for i = 1 to nLen
-			aEntry = @aAffectedNodes[i]
-			nRulesLen = len(aEntry[2])
-			for j = 1 to nRulesLen
-				cRule = aEntry[2][j]
-				if ring_find(acRuleIds, cRule) = 0
-					acRuleIds + cRule
-				ok
-			next
-		next
+		bValid = @aLastValidationResult[1]
+		aViolations = @aLastValidationResult[2]
+		acChecked = @aLastValidationResult[3]
 		
-		nLen = len(@aAffectedEdges)
-		for i = 1 to nLen
-			aEntry = @aAffectedEdges[i]
-			nRulesLen = len(aEntry[2])
-			for j = 1 to nRulesLen
-				cRule = aEntry[2][j]
-				if ring_find(acRuleIds, cRule) = 0
-					acRuleIds + cRule
-				ok
-			next
-		next
-		
-		return acRuleIds
+		return [
+			:status = iif(bValid, "pass", "fail"),
+			:rules_applied = acChecked,
+			:violations = aViolations,
+			:violation_count = len(aViolations),
+			:passed = bValid
+		]
 	
+		def ValidationResult()
+			return This.ValidationSummary()
+
+		def Validation()
+			return This.ValidationSummary()
+
+		def ValidationXT()
+			return This.ValidationSummary()
+
+	def Anomalies()
+		return This.ValidationSummary()[:violations]
+
+		def Issues()
+			return This.Anomalies()
+
+		def Violations()
+			return This.Anomalies()
+
+	#--
+
 	def EnforceConstraints()
 		@bEnforceConstraints = TRUE
 	
@@ -3591,9 +3612,9 @@ class stzGraph
 		acBaseIds = This.NodesIds()
 		nLen = len(acBaseIds)
 		for i = 1 to nLen
-			cId = acBaseIds[i]
-			if len(This.Neighbors(cId)) = 0 and len(This.Incoming(cId)) = 0
-				acBaseIsolated + cId
+			cName = acBaseIds[i]
+			if len(This.Neighbors(cName)) = 0 and len(This.Incoming(cName)) = 0
+				acBaseIsolated + cName
 			ok
 		next
 		
@@ -3601,9 +3622,9 @@ class stzGraph
 		acVarIds = oOtherGraph.NodesIds()
 		nLen = len(acVarIds)
 		for i = 1 to nLen
-			cId = acVarIds[i]
-			if len(oOtherGraph.Neighbors(cId)) = 0 and len(oOtherGraph.Incoming(cId)) = 0
-				acVarIsolated + cId
+			cName = acVarIds[i]
+			if len(oOtherGraph.Neighbors(cName)) = 0 and len(oOtherGraph.Incoming(cName)) = 0
+				acVarIsolated + cName
 			ok
 		next
 		
@@ -3654,6 +3675,7 @@ class stzGraph
 				if len(acVarReachable) > len(acBaseReachable)
 					nDiff = len(acVarReachable) - len(acBaseReachable)
 					acReachabilityChanges + [cNodeId, "Can now reach " + nDiff + " more node(s)"]
+
 				but len(acVarReachable) < len(acBaseReachable)
 					nDiff = len(acBaseReachable) - len(acVarReachable)
 					acReachabilityChanges + [cNodeId, "Can now reach " + nDiff + " fewer node(s)"]
@@ -3943,10 +3965,10 @@ class stzGraph
 			if left(cLine, 5) = "graph"
 				nPos = substr(cLine, '"')
 				if nPos > 0
-					cQuoted = substr(cLine, nPos + 1)
+					cQuoted = @substr(cLine, nPos + 1, stzlen(cLine))
 					nEnd = substr(cQuoted, '"')
 					if nEnd > 0
-						@cId = substr(cQuoted, 1, nEnd - 1)
+						@cId = @substr(cQuoted, 1, nEnd - 1)
 					ok
 				ok
 				loop
@@ -3955,7 +3977,7 @@ class stzGraph
 			# Parse type
 			if substr(cLine, "type:") > 0
 				nPos = substr(cLine, ":")
-				@cGraphType = trim(substr(cLine, nPos + 1))
+				@cGraphType = trim(@substr(cLine, nPos + 1, stzlen(cLine)))
 				loop
 			ok
 			
@@ -3963,9 +3985,11 @@ class stzGraph
 			if cLine = "nodes"
 				cSection = "nodes"
 				loop
+
 			but cLine = "edges"
 				cSection = "edges"
 				loop
+
 			but cLine = "properties"
 				cSection = "properties"
 				loop
@@ -3980,7 +4004,7 @@ class stzGraph
 				
 			but cSection = "edges"
 				if substr(cLine, "->") > 0
-					acParts = split(cLine, "->")
+					acParts = @split(cLine, "->")
 					if len(acParts) >= 2
 						cFrom = trim(acParts[1])
 						cRest = trim(acParts[2])
@@ -3988,11 +4012,11 @@ class stzGraph
 						# Check for label in quotes
 						nQuote = substr(cRest, '"')
 						if nQuote > 0
-							cTo = trim(substr(cRest, 1, nQuote - 1))
-							cLabel = substr(cRest, nQuote + 1)
+							cTo = trim(@substr(cRest, 1, nQuote - 1))
+							cLabel = @substr(cRest, nQuote + 1, stzlen(cRest))
 							nEndQuote = substr(cLabel, '"')
 							if nEndQuote > 0
-								cLabel = substr(cLabel, 1, nEndQuote - 1)
+								cLabel = @substr(cLabel, 1, nEndQuote - 1)
 								This.AddEdgeXT(cFrom, cTo, cLabel)
 							else
 								This.AddEdge(cFrom, cTo)
@@ -4009,7 +4033,8 @@ class stzGraph
 				nIndent = 0
 				nLen2 = len(acLines[i])
 				for j = 1 to nLen2
-					if substr(acLines[i], j, 1) = " " or substr(acLines[i], j, 1) = TAB
+					_c_ = @substr(acLines[i], j, j+1)
+					if _c_ = " " or _c_ = TAB
 						nIndent++
 					else
 						exit
@@ -4021,7 +4046,7 @@ class stzGraph
 				else
 					# Property line
 					if substr(cLine, ":") > 0
-						acParts = split(cLine, ":")
+						acParts = @split(cLine, ":")
 						if len(acParts) >= 2
 							cKey = trim(acParts[1])
 							cVal = trim(acParts[2])
@@ -4125,24 +4150,24 @@ class stzGraph
 					ok
 					
 					# Start new rule
-					cName = trim(substr(cTrimmed, 6))
+					cName = trim(@substr(cTrimmed, 6, stzlen(cTrimmed)))
 					aCurrentRule = [
 						:name = cName,
 						:type = "",
-						:function = NULL,
+						:function = "",
 						:params = [],
 						:message = "",
 						:severity = ""
 					]
 					
 				but substr(cTrimmed, "type:") = 1
-					aCurrentRule[:type] = trim(substr(cTrimmed, 6))
+					aCurrentRule[:type] = trim(@substr(cTrimmed, 6, stzlen(cTrimmed)))
 					
 				but substr(cTrimmed, "severity:") = 1
-					aCurrentRule[:severity] = trim(substr(cTrimmed, 11))
+					aCurrentRule[:severity] = trim(@substr(cTrimmed, 11, stzlen(cTrimmed)))
 					
 				but substr(cTrimmed, "function:") = 1
-					cFuncName = trim(substr(cTrimmed, 11))
+					cFuncName = trim(@substr(cTrimmed, 11, stzlen(cTrimmed)))
 					aCurrentRule[:function] = This._ResolveFunctionName(cFuncName)
 					
 				but cTrimmed = "params"
@@ -4152,7 +4177,7 @@ class stzGraph
 					cCurrentKey = "message"
 					
 				but cCurrentKey = "params" and substr(cTrimmed, ":") > 0
-					acParts = split(cTrimmed, ":")
+					acParts = @split(cTrimmed, ":")
 					if len(acParts) >= 2
 						cKey = trim(acParts[1])
 						cVal = trim(acParts[2])
@@ -4162,7 +4187,7 @@ class stzGraph
 				but cCurrentKey = "message"
 					cMsg = trim(cTrimmed)
 					if left(cMsg, 1) = '"' and right(cMsg, 1) = '"'
-						cMsg = substr(cMsg, 2, len(cMsg) - 2)
+						cMsg = @substr(cMsg, 2, stzlen(cMsg) - 2)
 					ok
 					aCurrentRule[:message] = cMsg
 				ok
@@ -4375,19 +4400,19 @@ class stzGraph
 			
 			if cSection = "changes"
 				if substr(cTrimmed, "add node ") = 1
-					cNodeId = trim(substr(cTrimmed, 10))
+					cNodeId = trim(@substr(cTrimmed, 10, stzlen(cTrimmed)))
 					if NOT This.NodeExists(cNodeId)
 						This.AddNode(cNodeId)
 					ok
 					
 				but substr(cTrimmed, "remove node ") = 1
-					cNodeId = trim(substr(cTrimmed, 13))
+					cNodeId = trim(@substr(cTrimmed, 13, stzlen(cTrimmed)))
 					if This.NodeExists(cNodeId)
 						This.RemoveThisNode(cNodeId)
 					ok
 					
 				but substr(cTrimmed, "add edge ") = 1
-					cRest = trim(substr(cTrimmed, 10))
+					cRest = trim(@substr(cTrimmed, 10, stzlen(cTrimmed)))
 					if substr(cRest, "->") > 0
 						acParts = split(cRest, "->")
 						if len(acParts) >= 2
@@ -4400,9 +4425,9 @@ class stzGraph
 					ok
 					
 				but substr(cTrimmed, "remove edge ") = 1
-					cRest = trim(substr(cTrimmed, 13))
+					cRest = trim(@substr(cTrimmed, 13, stzlen(cTrimmed)))
 					if substr(cRest, "->") > 0
-						acParts = split(cRest, "->")
+						acParts = @split(cRest, "->")
 						if len(acParts) >= 2
 							cFrom = trim(acParts[1])
 							cTo = trim(acParts[2])
@@ -4422,11 +4447,13 @@ class stzGraph
 	
 	def _HasNodeProperties()
 		nLen = len(@aNodes)
+
 		for i = 1 to nLen
 			if HasKey(@aNodes[i], :properties) and len(@aNodes[i][:properties]) > 0
 				return TRUE
 			ok
 		next
+
 		return FALSE
 	
 	def _FormatValue(pValue)
@@ -4436,8 +4463,10 @@ class stzGraph
 			else
 				return pValue
 			ok
+
 		but isNumber(pValue)
 			return "" + pValue
+
 		but isList(pValue)
 			return "[" + JoinXT(pValue, ", ") + "]"
 		else
@@ -4448,29 +4477,36 @@ class stzGraph
 		cValue = trim(cValue)
 		
 		# Remove quotes if present
-		if left(cValue, 1) = '"' and right(cValue, 1) = '"'
-			return substr(cValue, 2, len(cValue) - 2)
+		if left(cValue, 1) = '"' and
+		   right(cValue, 1) = '"'
+
+			return @substr(cValue, 2, stzlen(cValue) - 2)
 		ok
 		
 		# Try to parse as number
-		if isdigit(cValue) or (left(cValue, 1) = "-" and isdigit(substr(cValue, 2, 1)))
+		if isdigit(cValue) or (left(cValue, 1) = "-" and
+					isdigit(@substr(cValue, 2, 3)))
+
 			return 0 + cValue
 		ok
 		
 		# Try to parse as boolean
 		if lower(cValue) = "true"
 			return TRUE
+
 		but lower(cValue) = "false"
 			return FALSE
 		ok
 		
 		# Try to parse as list
 		if left(cValue, 1) = "[" and right(cValue, 1) = "]"
-			cInner = substr(cValue, 2, len(cValue) - 2)
+
+			cInner = @substr(cValue, 2, stzlen(cValue) - 2)
 			if cInner = ""
 				return []
 			ok
-			acParts = split(cInner, ",")
+
+			acParts = @split(cInner, ",")
 			aResult = []
 			nLen = len(acParts)
 			for i = 1 to nLen
@@ -4524,16 +4560,16 @@ class stzGraph
 		def  _NormaliseLabel(pcLabel)
 			return substr(pcLabel, " ", "_")
 
-	def _IsWellFormedId(pcId)
-		if NOT isString(pcId)
+	def _IsWellFormedId(pcName)
+		if NOT isString(pcName)
 			return 0
 		ok
 
-		if substr(pcId, " ") > 0
+		if substr(pcName, " ") > 0
 			return 0
 		ok
 
-		if substr(pcId, NL) > 0
+		if substr(pcName, NL) > 0
 			return 0
 		ok
 
@@ -4625,7 +4661,7 @@ class stzGraphQuery
 				pValue = aFilter[4]
 				
 				pActual = This._GetNestedValue(aNode, pcKey)
-				if pActual = NULL
+				if pActual = ""
 					return FALSE
 				ok
 				
@@ -4635,7 +4671,7 @@ class stzGraphQuery
 				
 			but cType = :hasprop
 				pcKey = aFilter[2]
-				if This._GetNestedValue(aNode, pcKey) = NULL
+				if This._GetNestedValue(aNode, pcKey) = ""
 					return FALSE
 				ok
 				
@@ -4660,7 +4696,7 @@ class stzGraphQuery
 				pValue = aFilter[4]
 				
 				pActual = This._GetNestedValue(aEdge, pcKey)
-				if pActual = NULL
+				if pActual = ""
 					return FALSE
 				ok
 				
@@ -4670,7 +4706,7 @@ class stzGraphQuery
 				
 			but cType = :hasprop
 				pcKey = aFilter[2]
-				if This._GetNestedValue(aEdge, pcKey) = NULL
+				if This._GetNestedValue(aEdge, pcKey) = ""
 					return FALSE
 				ok
 				

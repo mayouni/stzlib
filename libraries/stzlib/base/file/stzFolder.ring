@@ -76,6 +76,8 @@ func @ExeFolder()
 func IsFolder(cPath)
 	return dirExists(cPath)
 
+	#< @FunctionAlternativeForms
+
 	func IsDir(cPath)
 		return dirExists(cPath)
 
@@ -84,6 +86,50 @@ func IsFolder(cPath)
 
 	func @IsDir(cPath)
 		return dirExists(cPath)
+
+	#--
+
+	func IsValidFolder(cPath)
+		return dirExists(cPath)
+
+	func IsValidDir(cPath)
+		return dirExists(cPath)
+
+	func @IsValidFolder(cPath)
+		return dirExists(cPath)
+
+	func @IsValidDir(cPath)
+		return dirExists(cPath)
+
+	#==
+
+	func dirPathExists(cPath)
+		return dirExists(cPath)
+
+	func IsDirPath(cPath)
+		return dirExists(cPath)
+
+	func @IsFolderPath(cPath)
+		return dirExists(cPath)
+
+	func @IsDirPath(cPath)
+		return dirExists(cPath)
+
+	#--
+
+	func IsValidFolderPath(cPath)
+		return dirExists(cPath)
+
+	func IsValidDirPath(cPath)
+		return dirExists(cPath)
+
+	func @IsValidFolderPath(cPath)
+		return dirExists(cPath)
+
+	func @IsValidDirPath(cPath)
+		return dirExists(cPath)
+
+	#>
 
 func StzFolderQ(cPath)
 	return new stzFolder(cPath)
