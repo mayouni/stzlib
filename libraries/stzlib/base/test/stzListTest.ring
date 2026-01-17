@@ -12693,7 +12693,7 @@ pf()
 # Executed in 0.05 second(s).
 
 #--------- DIFF
-
+*/
 pr()
 
 o1 = new stzList([ "green", "red", "blue" ])
@@ -12705,7 +12705,7 @@ o1 = new stzList([ "green", "red", "blue" ])
 #--> [ "green", "yellow", "gray" ]
 
 ? ""
-? @@NL( o1.DiffXT([ "yellow", "red", "blue", "gray" ]) )
+? @@NL( o1.DiffXT([ "yellow", "red", "bluezzz", "gray" ]) )
 #-->
 '
 [

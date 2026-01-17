@@ -1387,7 +1387,7 @@ class stzDiagram from stzGraph
 			ok
 			
 			for aEffect in aEffects
-				acLegend + "  â†’ " + aEffect[1] + ": " + aEffect[2]
+				acLegend + "  Ã¢â€ â€™ " + aEffect[1] + ": " + aEffect[2]
 			next
 			
 			acLegend + ""
@@ -2686,13 +2686,13 @@ class stzDiagramToDot
 		nFontSize = This._GetFontSize()
 		cEdgeColor = This._GetEdgeColor(cTheme)
 		cEdgeStyle = This._GetEdgeStyle()
-		
+
 		cResult = '    edge [fontname="' + cFont + '", fontsize=' + nFontSize + 
-		          ', color="' + cEdgeColor + '", style=' + @oDiagram.@cEdgePenStyle + 
+		          ', color="' + cEdgeColor + '", style=' + cEdgeStyle +
 		          ', penwidth=' + @oDiagram.@nEdgePenWidth + 
 		          ', arrowhead=' + @oDiagram.@cArrowHead + 
 		          ', arrowtail=' + @oDiagram.@cArrowTail + ']' + NL
-	
+
 		return cResult
 	
 	def _GetRankDir()
@@ -3032,7 +3032,7 @@ class stzDiagramToDot
 	    cOutput = '    ' + cFrom + ' -> ' + cTo
 	    aAttrs = []
 	    
-	    # Check if this is a supervisorâ†’helper edge
+	    # Check if this is a supervisorÃ¢â€ â€™helper edge
 	    if left(cTo, 8) = "_helper_"
 	        aAttrs + 'arrowhead=none'
 	        aAttrs + 'weight=10'
