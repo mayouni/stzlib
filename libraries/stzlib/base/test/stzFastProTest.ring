@@ -11,10 +11,14 @@ aMatrix = [
 ]
 
 FastProUpdate(aMatrix, :Raise = [ :Col = 1, :ToPower = 2 ])
-? @@NL(aMatrix)
+# In RinFastPro: updateColumn(aMatrix, :pow, 1, 2)
 
-# In RinFastPro:
-# updateColumn(aMatrix, :pow, 1, 2)
+? @@NL(aMatrix)
+#--> [
+# 	[ 1, 2, 3 ],
+# 	[ 4, 4, 6 ],
+# 	[ 9, 6, 9 ]
+# ]
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -49,13 +53,18 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-
+*/
 pr()
 
-? IsListOfNumbers(1:100_000) #TODO Check #perf regression between Ring 1.22 and 1.24!
+//? IsListOfNumbers(1:100_000) #TODO //Check #perf regression between Ring 1.22 and 1.24!
+#NOTE The issue is not related to Ring but happens only when we write the code wheile loading stz
 #--> TRUE
 
+? IsListOfNumbers(list(100_000))
+
+
 pf()
+# Executed in 10.65 second(s) in Ring 1.25
 # Executed in 9.69 second(s) in Ring 1.24!!
 # Executed in 0.23 second(s) in Ring 1.22
 
@@ -76,6 +85,7 @@ FastProUpdate(myList, :set = [ :All, :with = 1000 ])
 
 
 pf()
+# Executed in 0.37 second(s) in Ring 1.25
 # Executed in 0.34 second(s) in Ring 1.22
 
 /*---
@@ -136,7 +146,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 # Create a matrix and perform multi-row/column operations
@@ -230,7 +240,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*---
-*/
+
 pr()
 
 aMatrix = [
@@ -239,14 +249,14 @@ aMatrix = [
 	[ 7, 8, 9 ]
 ]
 
-FastProUpdate(aMatrix, :Set = [ :Rows = [ :From = 2, :To = 3 ], :With = 5 ])
+FastProUpdate(aMatrix, :Set = [ :RowsFrom = [ 2, :To = 3 ], :With = 5 ])
 ? @@NL(aMatrix)
 #--> [
 #	[ 1, 2, 3 ],
 #	[ 5, 5, 5 ],
 #	[ 5, 5, 5 ]
 # ]
-
+/*
 FastProUpdate(aMatrix, :Set = [ :Cols = [ :From = 2, :To = 3 ], :With = 0 ])
 ? @@NL(aMatrix)
 #--> [
@@ -254,7 +264,7 @@ FastProUpdate(aMatrix, :Set = [ :Cols = [ :From = 2, :To = 3 ], :With = 0 ])
 #	[ 5, 0, 0 ],
 #	[ 5, 0, 0 ]
 # ]
-
+*/
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 

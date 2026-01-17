@@ -1,18 +1,20 @@
 load "../stzbase.ring"
 
-#--------------------------------------------------#
-#  TESTING COLOR SEMANTIC DESIGN & INFRASTRUCTURE  #
-#--------------------------------------------------#
+#---------------------------------#
+#  TEST FILE OF STZDIAGRAM CLASS  #
+#---------------------------------#
 
-/*---
-
-pr()
-
+#NOTE
 # Softanza enhances DOT/Graphviz in several ways:
 # 1. Forces layout respect: Graphviz ignores rankdir for disconnected nodes.
 #    Softanza adds invisible edges to enforce TopDown/LeftRight layouts.
 # 2. Smart defaults: Black edges (not blue), TopDown orientation (not LeftRight).
 # 3. Intuitive behavior: Diagrams "just work" without needing Graphviz expertise.
+
+
+/*--- Simple diagram without edges
+
+pr()
 
 oDiag = new stzDiagram("")
 oDiag {
@@ -109,7 +111,7 @@ oDiag {
 	AddTabXT(:@Node21, "Tab")
 	AddFolderXT(:@Node22, "Folder")
 	AddComponentXT(:@Node23, "Component")
-	AddNoteXTT(:@Node24, "Note", [ :color = "yellow" ])
+	AddNoteXTT(:@Node24, "Note", [ :type = "yellow" ])
 
 	View()
 }
@@ -191,13 +193,15 @@ oDiag {
 
 pf()
 
-/*--- Creating Test Diagram
+/*---
 
 pr()
 
 oDiag = new stzDiagram("ColorSystemTest")
 oDiag {
-	SetPenWidth(5)
+	SetTheme("pro")
+	SetPenWidth(2)
+
 	# Base colors
 	AddNodeXTT("n1", "Red Base", [
 		:type = "process",
@@ -257,15 +261,12 @@ oDiag {
 	Connect("n7", "n8")
 	Connect("n8", "n9")
 	
-	? Code()
 	View()
 }
 
 pf()
+#--> Executed in 0.70 second(s) in Ring 1.25
 
-#-------------------------#
-#  CREATE SIMPLE DIAGRAM  #
-#-------------------------#
 
 /*--- Building workflow diagram with node types and theme
 
@@ -317,81 +318,7 @@ digraph "OrderFlow" {
 '
 
 pf()
-
-#------------------------#
-#  TEST 2: VALIDATE DAG  #
-#------------------------#
-
-/*--- Ensuring workflow is acyclic
-
-pr()
-
-oDiag = new stzDiagram("ValidDAG")
-
-oDiag.AddNodeXTT("s", "Start", [ :type = "start", :color = "success" ])
-oDiag.AddNodeXTT("p", "Process", [ :type = "process", :color = "primary" ])
-oDiag.AddNodeXTT("e", "End", [ :type = "endpoint", :color = "success" ])
-
-oDiag.Connect("s", "p")
-oDiag.Connect("p", "e")
-
-? oDiag.ValidateXT("dag") #--> TRUE
-? oDiag.ValidateXT("sox") #--> TRUE
-? oDiag.ValidateXT(["dag", "sox"]) #--> TRUE
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.25
-
-#---------------------------------#
-#  TEST 3: VALIDATE REACHABILITY  #
-#---------------------------------#
-
-/*--- Checking all endpoints reachable from start
-
-pr()
-
-oDiag = new stzDiagram("ReachableEndpoints")
-
-oDiag.AddNodeXTT("start", "Start", [ :type = "start", :color = "success" ])
-oDiag.AddNodeXTT("process", "Process", [ :type = "process", :color = "primary" ])
-oDiag.AddNodeXTT("end", "End", [ :type = "endpoint", :color = "success" ])
-
-oDiag.Connect("start", "process")
-oDiag.Connect("process", "end")
-
-odiag.view()
-? oDiag.ValidateXT("Reachability")
-#--> TRUE
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.25
-
-#---------------------------------#
-#  TEST 4: VALIDATE COMPLETENESS  #
-#---------------------------------#
-
-/*--- Ensuring decisions have multiple paths
-
-pr()
-
-oDiag = new stzDiagram("Completeness")
-
-oDiag.AddNodeXTT("d", "Approved?", [ :type = "decision", :color = "warning" ])
-oDiag.AddNodeXTT("yes", "Yes", [ :type = "endpoint", :color = "success" ])
-oDiag.AddNodeXTT("no", "No", [ :type = "endpoint", :color = "danger" ])
-
-oDiag.ConnectXT("d", "yes", "Yes")
-oDiag.ConnectXT("d", "no", "No")
-
-? oDiag.ValidateXT(:Completeness)
-#--> TRUE
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.25
-
-#---------------------------#
-#  TEST 5: COMPUTE METRICS  #
-#---------------------------#
+# Executed in 0.53 second(s) in Ring 1.25
 
 /*--- Analyzing workflow path metrics
 
@@ -432,11 +359,7 @@ aMetrics = oDiag.ComputeMetrics()
 pf()
 # Executed in 0.03 second(s) in Ring 1.24
 
-#--------------------------#
-#  TEST 6: ADD ANNOTATION  #
-#--------------------------#
-
-/*--- Adding performance metadata to nodes
+/*--- Adding performance properties to nodes
 
 pr()
 
@@ -454,16 +377,12 @@ oDiag.AddAnnotation(oPerf)
 pf()
 # Executed in 0.02 second(s) in Ring 1.24
 
-#-------------------------------#
-#  TEST 7: ANNOTATIONS BY TYPE  #
-#-------------------------------#
-
 /*--- Retrieving annotations by type
 
 pr()
 
 oDiag = new stzDiagram("AnnotationTypes")
-oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :type = "primary" ])
+oDiag.AddNodeXTT("n1", "Node 1", [ :type = "process", :color = "primary" ])
 
 oPerf = new stzDiagramAnnotator(:Performance)
 oPerf.Annotate("n1", ["latency" = 100])
@@ -480,10 +399,11 @@ aCompliance = oDiag.AnnotationsByType(:Compliance)
 ? len(aCompliance) #--> 1
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.25
 
-#------------------------#
-#  TEST 8: ADD CLUSTERS  #
-#------------------------#
+#--------------------------------#
+#  ORGANIZING NODES IN CLUSTERS  #
+#--------------------------------#
 
 /*--- Grouping nodes into logical domains
 
@@ -491,10 +411,11 @@ pr()
 
 oDiag = new stzDiagram("Clustered")
 
-oDiag.AddNodeXTT("user_api", "User API", [ :type = "process", :type = "success" ])
-oDiag.AddNodeXTT("user_db", "User DB", [ :color = "storage", :type = "success" ])
-oDiag.AddNodeXTT("order_api", "Order API", [ :type = "process", :type = "info" ])
-oDiag.AddNodeXTT("order_db", "Order DB", [ :color = "storage", :type = "info" ])
+odiag.setTheme("light")
+oDiag.AddNodeXTT("user_api", "User API", [ :type = "process", :color = "success" ])
+oDiag.AddNodeXTT("user_db", "User DB", [ :type = "storage", :color = "success" ])
+oDiag.AddNodeXTT("order_api", "Order API", [ :type = "process", :color = "info" ])
+oDiag.AddNodeXTT("order_db", "Order DB", [ :tyoe = "storage", :color = "info" ])
 
 oDiag.AddClusterXTT("users", "User Domain", ["user_api", "user_db"], :LightGreen)
 oDiag.AddClusterXTT("orders", "Order Domain", ["order_api", "order_db"], :Lightblue)
@@ -503,10 +424,7 @@ oDiag.View()
 ? len(oDiag.Clusters()) #--> 2
 
 pf()
-
-#----------------------------#
-#  TEST 9: GET CLUSTER INFO  #
-#----------------------------#
+# Executed in 0.54 second(s) in Ring 1.25
 
 /*--- Retrieving cluster details
 
@@ -525,10 +443,11 @@ aCluster = aClusters[1]
 ? len(aCluster["nodes"]) #--> 2
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.25
 
-#-----------------------#
-#  TEST 10: SET THEMES  #
-#-----------------------#
+#--------------#
+#  SET THEMES  #
+#--------------#
 
 /*--- Testing different theme configurations
 
@@ -543,17 +462,17 @@ o1 {
 	Connect("a", "b")
 	ConnectXT("a", "c", "focus")
 
-	SetTheme(:Vibrant) # try with :Dark, :Vibrant
-	? Theme() #--> Light
+	SetTheme(:dark) # Test with :light or :pro or :neutral...
+	? Theme() #--> dark
 	View()
 }
 
 pf()
-# Executed in 0.60 second(s) in Ring 1.25
+# Executed in 0.52 second(s) in Ring 1.25
 
-#-----------------------#
-#  TEST 11: SET LAYOUT  #
-#-----------------------#
+#--------------#
+#  SET LAYOUT  #
+#--------------#
 
 /*--- Testing different layout configurations
 
@@ -561,155 +480,24 @@ pr()
 
 o1 = new stzDiagram("")
 o1 {
-	SetSplines("curved") # or spline, ortho, polyline, line
 	AddNode("a")
 	AddNodeXT("b", "pass")
 	AddNodeXTT("c", "end", [ :type = "endpoint", :color = "green" ]) 
 	Connect("a", "b")
 	ConnectXT("a", "c", "focus")
 
-	SetLayout(:TopDown) # Try with :LeftRight
+	SetLayout(:LeftRight) # Try with :LeftRight
+	SetSplines("spline") # or curved, ortho, polyline, line
+
 	View()
 }
 
 pf()
 # Executed in 0.60 second(s) in Ring 1.25
 
-#--------------------------------------#
-#  TEST 12: SOX COMPLIANCE VALIDATION  #
-#--------------------------------------#
-
-/*--- Validating workflow against SOX rules
-
-pr()
-
-oDiag = new stzDiagram("SoxPayment")
-oDiag {
-	AddNodeXTT(:@Submit, "Submit", [ :type = "start", :color = "success" ])
-	AddNodeXTT(:@Approve, "Approve?", [ :type = "decision", :color = "warning" ])
-	AddNodeXTT(:@Pay, "Pay", [ :type = "proces", :color = "primary" ])
-	AddNodeXTT(:@Log, "Log", [ :type = "data", :color = "neutral" ])
-	AddNodeXTT(:@Done, "Done", [ :type = "endpoint", :color = "success" ])
-
-	Connect(:@Submit, :@Approve)
-	ConnectXT(:@Approve, :@Pay, "Yes")
-	Connect(:@Pay, :@Log)
-	Connect(:@Log, :@Done)
-
-	? Validate(:SOX) # Or IsValid(:SOX)
-	#--> FALSE
-
-	? @@NL( ValidationIssues() )
-	# [
-	# 	"SOX-002: Decision node lacks approval requirement: ",
-	# 	"@approve"
-	# ]
-
-}
-
-pf()
-
-#---------------------------------------#
-#  TEST 13: GDPR COMPLIANCE VALIDATION  #
-#---------------------------------------#
-
-/*--- Validating data flow against GDPR rules
-
-pr()
-
-oDiag = new stzDiagram("GdprData")
-oDiag {
-	AddNodeXTT("collect", "Collect", [ :type = "process", :color = "primary" ])
-	AddNodeXTT("process", "Process", [ :type = "process", :color = "primary" ])
-	AddNodeXTT("delete", "Delete", [ :type = "process", :color = "info" ])
-
-	Connect("collect", "process")
-	Connect("collect", "delete")
-
-	# Set node properties using the new methods
-	SetNodeProperties("collect", [
-		:dataType = :personal,
-		:requiresConsent = TRUE,
-		:retentionPolicy = "1 year"
-	])
-
-	SetNodeProperty("delete", :operation, :delete)
-
-	SetNodeProperties("process", [
-		:dataType = :personal,
-		:requiresConsent = TRUE,
-		:retentionPolicy = "1 year"
-	])
-
-	? ValidateXT(:GDPR)  #--> TRUE
-	? @@NL( ValidationSummary() )
-	#--> [
-	# 	[ "status", "pass" ],
-	# 	[
-	# 		"rules_applied",
-	# 		[ "gdpr" ]
-	# 	],
-	# 	[ "violations", [  ] ],
-	# 	[ "violation_count", 0 ],
-	# 	[ "passed", 1 ]
-	#  ]
-}
-
-pf()
-# Executed in 0.03 second(s) in Ring 1.25
-
-#------------------------------------------#
-#  TEST 14: BANKING COMPLIANCE VALIDATION  #
-#------------------------------------------#
-
-/*--- Validating transaction against banking rules
-
-pr()
-
-oDiag = new stzDiagram("BankingTx")
-oDiag {
-	# Setting the theme (can be one of 9 themes proposed by Softanza)
-	# light, dark, vibrant, pro, access, print, lightgray, gray, or darkgray.
-
-	SetTheme("access")
-
-	AddNodeXTT("init", "Initiate", [ :type = "start", :color = "success" ])
-	AddNodeXTT("fraud", "Fraud Check", [ :type = "process", :color = "info" ])
-	AddNodeXTT("approve", "Approve?", [ :type = "decision", :color = "warning" ])
-	AddNodeXTT("execute", "Execute", [ :type = "process", :color = "primary" ])
-	AddNodeXTT("done", "Done", [ :type = "endpoint", :color = "success" ])
-
-	Connect("init", "fraud")
-	Connect("fraud", "approve")
-	ConnectXT("approve", "execute", "Yes")
-	Connect("execute", "done")
-
-	SetNodeProperty("init", :transactionType, :large)
-	SetNodeProperty("fraud", :operation, :fraud_check)
-	SetNodeProperty("approve", :role, :approver)
-	SetNodeProperty("execute", :operation, :payment)
-
-	? @@(ValidateXT(:Banking))
-	#--> TRUE
-
-	? @@NL( ValidationResult() )
-	#--> [
-	# 	[ "status", "pass" ],
-	# 	[ "rules_applied", [  ] ],
-	# 	[ "violations", [  ] ],
-	# 	[ "violation_count", 0 ],
-	# 	[ "passed", 1 ]
-	# ]
-
-	View()
-
-}
-
-pf()
-
-#-------------------------------#
-#  TEST 15: EXPORT TO HASHLIST  #
-#-------------------------------#
+#---------------------------#
+#  EXPORT TO OTHER FORMATS  #
+#---------------------------#
 
 /*--- Converting diagram to hashlist representation
 
@@ -745,10 +533,6 @@ oDiag.AddNodeXT("n1", "Node")
 pf()
 # Executed in 0.02 second(s) in Ring 1.25
 
-#-----------------------------------#
-#  TEST 1: GENERATE STZDIAG FORMAT  #
-#-----------------------------------#
-
 /*--- Generating .stzdiag native text format
 
 pr()
@@ -767,7 +551,7 @@ oDiag.Connect("process", "end")
 '
 diagram "FormatTest"
 
-metadata
+properties
     theme: pro
     layout: topdown
 
@@ -816,10 +600,6 @@ oDiag.View()
 pf()
 # Executed in 0.49 second(s) in Ring 1.25
 
-#---------------------------------#
-#  TEST 2: WRITE STZDIAG TO FILE  #
-#---------------------------------#
-
 /*--- Saving diagram to .stzdiagram file
 
 pr()
@@ -838,7 +618,7 @@ oDiag.ConnectXT("a", "b", "flows")
 '
 diagram "SaveTest"
 
-metadata
+properties
     theme: null
     layout: null
 
@@ -861,10 +641,6 @@ edges
 pf()
 # Executed in 0.05 second(s) in Ring 1.25
 
-#---------------------------------#
-#  TEST 3: STZDIAG WITH CLUSTERS  #
-#---------------------------------#
-
 /*--- Converting diagram with cluster definitions
 
 pr()
@@ -879,7 +655,7 @@ oDiag.AddClusterXTT("domain", "Service Domain", ["api", "db"], "lightblue")
 '
 diagram "ClusterTest"
 
-metadata
+properties
     theme: light
     layout: topdown
 
@@ -906,10 +682,6 @@ oDiag.View()
 pf()
 # Executed in 1.10 second(s) in Ring 1.25
 
-#------------------------------------#
-#  TEST 4: STZDIAG WITH ANNOTATIONS  #
-#------------------------------------#
-
 /*--- Converting diagram with annotations
 
 pr()
@@ -926,7 +698,7 @@ oDiag.AddAnnotation(oPerf)
 '
 diagram "annotationtest"
 
-metadata
+properties
     theme: light
     layout: topdown
 
@@ -942,10 +714,6 @@ annotations
 '
 
 pf()
-
-#--------------------------#
-#  TEST 5: CONVERT TO DOT  #
-#--------------------------#
 
 /*--- Converting to Graphviz DOT language
 
@@ -965,7 +733,7 @@ oDiag.Connect("start", "end")
 '
 diagram "DotTest"
 
-metadata
+properties
     theme: light
     layout: topdown
 
@@ -985,10 +753,6 @@ edges
 '
 
 pf()
-
-#--------------------------#
-#  TEST 6: WRITE DOT FILE  #
-#--------------------------#
 
 /*--- Saving to DOT file
 
@@ -1019,10 +783,6 @@ digraph "simple" {
 
 pf()
 # Executed in 0.06 second(s) in Ring 1.25
-
-#---------------------------#
-#  TEST 7: DOT NODE SHAPES  #
-#---------------------------#
 
 /*--- Verifying DOT node type shapes
 
@@ -1057,10 +817,6 @@ digraph "dotshapestest" {
 
 pf()
 # Executed in 0.04 second(s) in Ring 1.25
-
-#------------------------------#
-#  TEST 8: CONVERT TO MERMAID  #
-#------------------------------#
 
 /*--- Converting to Mermaid.js syntax
 
@@ -1118,10 +874,6 @@ oDiag.Show()
 pf()
 # Executed in 0.06 second(s) in Ring 1.25
 
-#------------------------------#
-#  TEST 9: WRITE MERMAID FILE  #
-#------------------------------#
-
 /*--- Saving to Mermaid file
 
 pr()
@@ -1151,10 +903,6 @@ graph TD
 
 pf()
 
-#--------------------------------#
-#  TEST 10: MERMAID NODE SHAPES  #
-#--------------------------------#
-
 /*--- Verifying Mermaid node type shapes
 
 pr()
@@ -1174,10 +922,6 @@ graph TD
 '
 
 pf()
-
-#----------------------------#
-#  TEST 11: CONVERT TO JSON  #
-#----------------------------#
 
 /*--- Converting to JSON format
 
@@ -1243,10 +987,6 @@ oDiag.Connect("a", "b")
 pf()
 # Executed in 0.03 second(s) in Ring 1.25
 
-#----------------------------#
-#  TEST 12: WRITE JSON FILE  #
-#----------------------------#
-
 /*--- Saving to JSON file
 
 pr()
@@ -1294,10 +1034,6 @@ ok
 pf()
 # Executed in 0.03 second(s) in Ring 1.25
 
-#---------------------------#
-#  TEST 13: JSON STRUCTURE  #
-#---------------------------#
-
 /*--- Verifying JSON structure fields
 
 pr()
@@ -1344,10 +1080,6 @@ oDiag.AddNodeXTT("n", "Node", [ :type = "process", :color = "primary" ])
 pf()
 # Executed in 0.03 second(s) in Ring 1.25
 
-#-------------------------------------#
-#  TEST 15: EDGE LABELS PRESERVATION  #
-#-------------------------------------#
-
 /*--- Verifying edge labels in all formats
 
 pr()
@@ -1361,9 +1093,14 @@ cStzOutput = oDiag.stzdiag()
 cDotOutput = odiag.dot()
 cMermaidOutput = oDiag.mermaid()
 
-? contains(cStzOutput, "important") #--> TRUE
-? contains(cDotOutput, "important") #--> TRUE
-? contains(cMermaidOutput, "important") #--> TRUE
+? contains(cStzOutput, "important")
+#--> TRUE
+
+? contains(cDotOutput, "important")
+#--> TRUE
+
+? contains(cMermaidOutput, "important")
+#--> TRUE
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.25
@@ -1372,7 +1109,7 @@ pf()
 # TESTING VISUAL OPTIONS  #
 #-------------------------#
 
-/*-- Test 1: Layout variations
+/*-- Layout variations
 
 pr()
 
@@ -1412,21 +1149,22 @@ digraph "layouttest" {
 pf()
 # Executed in 0.48 second(s) in Ring 1.25
 
-/*-- Test 2: Edge style variations
+/*-- Edge style variations
 
 pr()
 
 oDiag2 = new stzDiagram("EdgeStyleTest")
 oDiag2 {
+	SetTheme(:Neutral)
 	SetLayout(:TopDown)
 	SetEdgeStyle(:Conditional)  # Semantic → dashed
 	# SetEdgeStyle(:Dashed)     # Visual term
 
 	SetEdgeColor("blue")
 	
-	AddNodeXT("a", "Start", [ :type = "start", :color = "success" ])
-	AddNodeXT("b", "Check", [ :type = "decision", :color = "warning" ])
-	AddNodeXT("c", "End", :Endpoint, :Danger)
+	AddNodeXTT("a", "Start", [ :type = "start", :color = "success" ])
+	AddNodeXTT("b", "Check", [ :type = "decision", :color = "warning" ])
+	AddNodeXTT("c", "End", [ :type = "endpoint", :color = "danger" ])
 	
 	Connect("a", "b")
 	ConnectXT("b", "c", "Yes")
@@ -1435,8 +1173,9 @@ oDiag2 {
 }
 
 pf()
+# Executed in 0.53 second(s) in Ring 1.25
 
-/*-- Test 3: Node type variations
+/*-- Node type variations
 
 pr()
 
@@ -1470,9 +1209,9 @@ oDiag {
 }
 
 pf()
-# Executed in 0.50 second(s) in Ring 1.25
+# Executed in 0.65 second(s) in Ring 1.25
 
-/*-- Test 4: Theme variations
+/*-- Theme variations
 
 pr()
 
@@ -1520,8 +1259,8 @@ pf()
 pr()
 
 # Test all themes with semantic colors
-acThemes = ["light", "dark", "vibrant", "pro", "access", 
-           "print", "gray", "lightgray", "darkgray"]
+acThemes = [ "neutral", "light", "dark", "vibrant", "pro",
+	     "access", "print", "gray", "lightgray", "darkgray"]
 
 for cTheme in acThemes
 	oDiag = new stzDiagram("Theme_" + cTheme)
@@ -1553,18 +1292,19 @@ for cTheme in acThemes
 next
 
 pf()
-# Executed in 12.69 second(s) in Ring 1.25
+# Executed in 6.67 second(s) in Ring 1.25
+# Executed in 12.69 second(s) in Ring 1.24
 
-/*-- Test 5: Combined options
+/*-- Combined options
 
 pr()
 
 oDiag5 = new stzDiagram("CompleteTest")
 oDiag5 {
-	SetTheme(:Light)
+	SetTheme(:Dark)
 	SetLayout("TB")              # Short form of TopBottom
-	SetEdgeStyle(:ErrorFlow)     # Semantic → dotted
-	SetPenWidth(3)
+	SetEdgeStyle(:ErrorFlow)     # Semantic → dotted #TODO Does not work!
+	SetPenWidth(2)
 	SetEdgeColor("gray+")
 	
 	AddNodeXTT("start", "Begin", [ :type = "start", :color = "success" ])
@@ -1581,14 +1321,14 @@ oDiag5 {
 	? NodeCount() #--> 5
 	? EdgeCount() #--> 4
 	
-? code()
-
+	? Code()
 	View()
 }
 
 pf()
+# Executed in 0.59 second(s) in Ring 1.25
 
-/*-- Test 6: Color resolution
+/*-- Color resolution
 
 pr()
 
@@ -1606,7 +1346,7 @@ oDiag6 {
 	AddNodeXTT("n5", "Green", [ :type = "process", :color = "lightgreen" ])
 	
 	# Hex colors
-	AddNodeXTT("n6", "Custom", [ :color = "process", :type = "#FF9900" ])
+	AddNodeXTT("n6", "Custom", [ :type = "process", :color = "#FF9900" ])
 	
 	Connect("n1", "n2")
 	Connect("n2", "n3")
@@ -1618,23 +1358,20 @@ oDiag6 {
 }
 
 pf()
-# Executed in 0.51 second(s) in Ring 1.25
+# Executed in 0.66 second(s) in Ring 1.25
 
 #----------------#
 #  FONT EXAMPLE  #
 #----------------#
 
-/*---
-*/
 pr()
 
 oDiag = new stzDiagram("FontTest")
 oDiag {
-	
-	SetFont("helvetica") 	#ERR // Not applied
-	SetFontSize(24)		#ERR // Idem
 
-	SetTheme(:Pro)
+	SetFont("helvetica")
+	SetFontSize(24)
+
 	AddNodeXTT("n1", "Custom Font", [ :type = "start", :color = "success" ])
 	AddNodeXTT("n2", "Arial 24pt", [ :type = "process", :color = "primary" ])
 	ConnectXT("n1", "n2", "size")
@@ -1643,15 +1380,17 @@ oDiag {
 }
 
 pf()
+# Executed in 0.46 second(s) in Ring 1.25
+# Executed in 0.72 second(s) in Ring 1.24
 
-#--- CONFIGURING THE DIAGRAM TOOLTIP
+#-----------------------------------#
+#  CONFIGURING THE DIAGRAM TOOLTIP  #
+#-----------------------------------#
 
 pr()
 
 o1 = new stzDiagram("Sales")
 o1 {
-    SetTooltip([ :NodeId, :Type, :Color, "Department", "Budget" ])
-    // DisableTooltip() # Or SetTooltip("")
 
     AddNodeXTT("a", "Marketing", [ 
         :type = "process", 
@@ -1669,6 +1408,9 @@ o1 {
     
     Connect("a", "b")
     ? Code()
+
+    SetTooltip([ :NodeId, :Type, :Color, :Department, :Budget ])
+    // DisableTooltip() # Or SetTooltip("")
     View()
 }
 
@@ -1683,7 +1425,8 @@ Budget: $50K
 `
 
 pf()
-# Executed in 0.60 second(s) in Ring 1.25
+# Executed in 0.52 second(s) in Ring 1.25
+# Executed in 0.60 second(s) in Ring 1.24
 
 #=============================#
 #  DIAGRAM IMPORT & EDITING   #
@@ -1698,7 +1441,7 @@ oDiag = new stzDiagram("MainFlow")
 cImported = '
 diagram "ProcessFlow"
 
-metadata
+properties
     theme: pro
     layout: topdown
 
@@ -1735,10 +1478,6 @@ oDiag.ImportDiag(cImported)
 pf()
 #--> Executed in 0.58 second(s) in Ring 1.25
 
-#=============================#
-#  SEMANTIC COLOR IMPORT      #
-#=============================#
-
 /*-- Import Diagram with Semantic Colors
 
 pr()
@@ -1748,7 +1487,7 @@ oDiag = new stzDiagram("MainFlow")
 cImported = '
 diagram "ProcessFlow"
 
-metadata
+properties
     theme: pro
     layout: topdown
 
@@ -1921,9 +1660,9 @@ oDiag.ImportDiag(cBadImport)
 pf()
 #--> Executed in 0.03 second(s) in Ring 1.24
 
-#========================#
-#  NODE REMOVAL          #
-#========================#
+#================#
+#  NODE REMOVAL  #
+#================#
 
 /*-- Remove Single Node
 
@@ -2100,11 +1839,11 @@ pf()
 
 #--> Executed in 0.02 second(s) in Ring 1.24
 
-#========================#
-#  METADATA OPERATIONS   #
-#========================#
+#====================================#
+#  PROPERTIES OPERATIONS (METADATA)  #
+#====================================#
 
-/*-- Set and Get Node Metadata
+/*-- Set and Get Node properties
 
 pr()
 
@@ -2129,7 +1868,7 @@ oDiag.SetNodeProperties("task", [
 pf()
 #--> Executed in 0.02 second(s) in Ring 1.25
 
-/*-- Update Node Metadata
+/*-- Update Node properties
 
 pr()
 
@@ -2150,7 +1889,7 @@ aMeta = oDiag.NodePropsXT(:task)
 pf()
 #--> Executed in 0.02 second(s) in Ring 1.25
 
-/*-- Edge Metadata Operations
+/*-- Edge properties Operations
 
 pr()
 
@@ -2175,7 +1914,7 @@ aMeta = oDiag.EdgePropsXT("n1", "n2")
 pf()
 #--> Executed in 0.03 second(s) in Ring 1.24
 
-/*-- Remove Metadata
+/*-- Remove properties
 
 pr()
 
@@ -2194,12 +1933,12 @@ oDiag.RemoveNodeProps("n1")
 pf()
 #--> Executed in 0.02 second(s) in Ring 1.24
 
-#================================#
-#  COMBINED OPERATIONS           #
-#================================#
+#=======================#
+#  COMBINED OPERATIONS  #
+#=======================#
 
 /*-- Build, Edit, Import, and Visualize
-
+*/
 pr()
 
 # Build initial diagram
@@ -2212,7 +1951,7 @@ oDiag.AddNodeXTT("approved", "Approved", [ :type = "endpoint", :color = "success
 oDiag.Connect("start", "validate")
 oDiag.Connect("validate", "approved")
 
-# Add metadata
+# Add properties
 oDiag.SetNodeProps("validate", [
     :rule = "amount < 10000",
     :approver = "system"
@@ -2260,7 +1999,7 @@ oDiag.ImportDiag(cManualFlow)
 ? oDiag.HasNode("manager")
 #--> TRUE
 
-# Update metadata
+# Update properties
 oDiag.UpdateNodeProp(:validate, "type", "action")
 ? @@NL( oDiag.Node(:validate) )
 #--> [
@@ -2278,7 +2017,9 @@ oDiag.UpdateNodeProp(:validate, "type", "action")
 # ]
 
 # Visualize
-//oDiag.Show()
+oDiag.View()
+
+oDiag.Show()
 #-->
 `
        ╭─────────╮       
@@ -2317,414 +2058,535 @@ oDiag.UpdateNodeProp(:validate, "type", "action")
       ╰──────────╯ 
 `
 
+
 pf()
-#--> Executed in 0.15 second(s) in Ring 1.24
+#--> Executed in 0.73 second(s) in Ring 1.25
 
+#======================================#
+#  TESTING stzDiagram RULE SYSTEM      #
+#  Now properly aligned with stzGraph  #
+#======================================#
 
-#============================#
-#  TESTING THE COLOR SYSTEM  #
-#============================#
-
-/*--- Base Colors
+/*--- SOX VALIDATION
 
 pr()
 
-? ResolveColor(:red)      #--> #FF0000
-? ResolveColor(:blue)     #--> #0000FF
-? ResolveColor(:green)    #--> #008000
-? ResolveColor(:yellow)   #--> #FFFF00
-? ResolveColor(:white)    #--> #FFFFFF
-? ResolveColor(:black)    #--> #000000
-? ResolveColor(:gray)     #--> #808080
+oDiag = new stzDiagram("SoxPayment")
+oDiag {
+	SetTheme("pro")
+	# Setup nodes
+	AddNodeXTT(:@Submit, "Submit", [ 
+		:type = "start", 
+		:color = "success" 
+	])
+	
+	# Decision node WITHOUT approval requirement (should fail)
+	AddNodeXTT(:@Approve, "Approve?", [ 
+		:type = "decision", 
+		:color = "warning"
+		# Missing :RequiresApproval = TRUE
+	])
+	
+	AddNodeXTT(:@Pay, "Pay", [ 
+		:type = "process", 
+		:color = "primary" 
+	])
+	
+	AddNodeXTT(:@Log, "Log", [ 
+		:type = "data", 
+		:color = "neutral" 
+	])
+	
+	AddNodeXTT(:@Done, "Done", [ 
+		:type = "endpoint", 
+		:color = "success" 
+	])
+	
+	# Connect
+	Connect(:@Submit, :@Approve)
+	ConnectXT(:@Approve, :@Pay, "Yes")
+	Connect(:@Pay, :@Log)
+	Connect(:@Log, :@Done)
+
+	# Detecting the missing approval requirement
+	aResult = ValidateXT(:SOX)
+	? @@NL(aResult) + NL
+	#--> [
+	# 	[ "status", "fail" ],
+	# 	[ "domain", "sox" ],
+	# 	[ "issuecount", 1 ],
+	# 	[
+	# 		"issues",
+	# 		[
+	# 			"SOX-002: Decision node lacks approval requirement: @approve"
+	# 		]
+	# 	],
+	# 	[
+	# 		"affectednodes",
+	# 		[ "@approve" ]
+	# 	]
+	# ]
+
+	# Fixing the issue...
+	SetNodeProperty(:@Approve, :RequiresApproval, TRUE)
+	SetNodeProperty(:@Approve, :Approver, "finance_manager")
+	
+	? @@NL( ValidateXT(:SOX) )
+	#--> [
+	# 	[ "status", "pass" ],
+	# 	[ "domain", "sox" ],
+	# 	[ "issuecount", 0 ],
+	# 	[ "issues", [  ] ],
+	# 	[ "affectednodes", [  ] ]
+	# ]
+
+
+}
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.25
+# Executed in 0.05 second(s) in Ring 1.25
 
-/*--- Base colors Intensities
+/*--- MULTIPLE DOMAIN VALIDATORS
 
 pr()
 
-# Grayscale
-? "--- GRAYSCALE ---"
-? "white--    : " + ResolveColor("white--")
-? "white-     : " + ResolveColor("white-")
-? "white      : " + ResolveColor("white")
-? "white+     : " + ResolveColor("white+")
-? "white++    : " + ResolveColor("white++")
-? ""
-
-? "black--    : " + ResolveColor("black--")
-? "black-     : " + ResolveColor("black-")
-? "black      : " + ResolveColor("black")
-? "black+     : " + ResolveColor("black+")
-? "black++    : " + ResolveColor("black++")
-? ""
-
-? "gray--     : " + ResolveColor("gray--")
-? "gray-      : " + ResolveColor("gray-")
-? "gray       : " + ResolveColor("gray")
-? "gray+      : " + ResolveColor("gray+")
-? "gray++     : " + ResolveColor("gray++")
-? NL
-
-# Primary Colors
-? "--- PRIMARY COLORS ---"
-? "red--      : " + ResolveColor("red--")
-? "red-       : " + ResolveColor("red-")
-? "red        : " + ResolveColor("red")
-? "red+       : " + ResolveColor("red+")
-? "red++      : " + ResolveColor("red++")
-? ""
-
-? "green--    : " + ResolveColor("green--")
-? "green-     : " + ResolveColor("green-")
-? "green      : " + ResolveColor("green")
-? "green+     : " + ResolveColor("green+")
-? "green++    : " + ResolveColor("green++")
-? ""
-
-? "blue--     : " + ResolveColor("blue--")
-? "blue-      : " + ResolveColor("blue-")
-? "blue       : " + ResolveColor("blue")
-? "blue+      : " + ResolveColor("blue+")
-? "blue++     : " + ResolveColor("blue++")
-? ""
-
-? "yellow--   : " + ResolveColor("yellow--")
-? "yellow-    : " + ResolveColor("yellow-")
-? "yellow     : " + ResolveColor("yellow")
-? "yellow+    : " + ResolveColor("yellow+")
-? "yellow++   : " + ResolveColor("yellow++")
-? NL
-
-# Secondary Colors
-? "--- SECONDARY COLORS ---"
-
-? "orange--   : " + ResolveColor("orange--")
-? "orange-    : " + ResolveColor("orange-")
-? "orange     : " + ResolveColor("orange")
-? "orange+    : " + ResolveColor("orange+")
-? "orange++   : " + ResolveColor("orange++")
-? ""
-
-? "purple--   : " + ResolveColor("purple--")
-? "purple-    : " + ResolveColor("purple-")
-? "purple     : " + ResolveColor("purple")
-? "purple+    : " + ResolveColor("purple+")
-? "purple++   : " + ResolveColor("purple++")
-? ""
-
-? "cyan--     : " + ResolveColor("cyan--")
-? "cyan-      : " + ResolveColor("cyan-")
-? "cyan       : " + ResolveColor("cyan")
-? "cyan+      : " + ResolveColor("cyan+")
-? "cyan++     : " + ResolveColor("cyan++")
-? ""
-
-? "magenta--  : " + ResolveColor("magenta--")
-? "magenta-   : " + ResolveColor("magenta-")
-? "magenta    : " + ResolveColor("magenta")
-? "magenta+   : " + ResolveColor("magenta+")
-? "magenta++  : " + ResolveColor("magenta++")
-? NL
-
-# Extended Palette
-? "--- EXTENDED PALETTE ---"
-
-? "brown--    : " + ResolveColor("brown--")
-? "brown-     : " + ResolveColor("brown-")
-? "brown      : " + ResolveColor("brown")
-? "brown+     : " + ResolveColor("brown+")
-? "brown++    : " + ResolveColor("brown++")
-? ""
-
-? "pink--     : " + ResolveColor("pink--")
-? "pink-      : " + ResolveColor("pink-")
-? "pink       : " + ResolveColor("pink")
-? "pink+      : " + ResolveColor("pink+")
-? "pink++     : " + ResolveColor("pink++")
-? ""
-
-? "coral--    : " + ResolveColor("coral--")
-? "coral-     : " + ResolveColor("coral-")
-? "coral      : " + ResolveColor("coral")
-? "coral+     : " + ResolveColor("coral+")
-? "coral++    : " + ResolveColor("coral++")
-? ""
-
-? "teal--     : " + ResolveColor("teal--")
-? "teal-      : " + ResolveColor("teal-")
-? "teal       : " + ResolveColor("teal")
-? "teal+      : " + ResolveColor("teal+")
-? "teal++     : " + ResolveColor("teal++")
-? ""
-
-? "lavender-- : " + ResolveColor("lavender--")
-? "lavender-  : " + ResolveColor("lavender-")
-? "lavender   : " + ResolveColor("lavender")
-? "lavender+  : " + ResolveColor("lavender+")
-? "lavender++ : " + ResolveColor("lavender++")
-
-#-->
-'
---- GRAYSCALE ---
-white--      : #FFFFFF
-white-       : #FFFFFF
-white        : #FFFFFF
-white+       : #333333
-white++      : #0C0C0C
-
-black--      : #E0E0E0
-black-       : #A3A3A3
-black        : #000000
-black+       : #000000
-black++      : #000000
-
-gray--       : #EFEFEF
-gray-        : #D1D1D1
-gray         : #808080
-gray+        : #656565
-gray++       : #333333
-
-
---- PRIMARY COLORS ---
-red--       : #FFE0E0
-red-        : #FFA3A3
-red         : #FF0000
-red+        : #C94D4D
-red++       : #660000
-
-green--     : #E0EFE0
-green-      : #A3D1A3
-green       : #008000
-green+      : #4D654D
-green++     : #003300
-
-blue--      : #E0E0FF
-blue-       : #A3A3FF
-blue        : #0000FF
-blue+       : #4D4DC9
-blue++      : #000066
-
-yellow--    : #FFFFE0
-yellow-     : #FFFFA3
-yellow      : #FFFF00
-yellow+     : #333300
-yellow++    : #0C0C00
-
-
---- SECONDARY COLORS ---
-orange--    : #FFF4E0
-orange-     : #FFDEA3
-orange      : #FFA500
-orange+     : #332100
-orange++    : #0C0800
-
-purple--    : #EFE0EF
-purple-     : #D1A3D1
-purple      : #800080
-purple+     : #654D65
-purple++    : #330033
-
-cyan--      : #E0FFFF
-cyan-       : #A3FFFF
-cyan        : #00FFFF
-cyan+       : #003333
-cyan++      : #000C0C
-
-magenta--   : #FFE0FF
-magenta-    : #FFA3FF
-magenta     : #FF00FF
-magenta+    : #C94DC9
-magenta++   : #660066
-
-
---- EXTENDED PALETTE ---
-brown--    : #F4E5E5
-brown-     : #DEB2B2
-brown      : #A52A2A
-brown+     : #822121
-brown++    : #421010
-
-pink--     : #FFF7F8
-pink-      : #FFE8EC
-pink       : #FFC0CB
-pink+      : #332628
-pink++     : #0C090A
-
-coral--    : #FFEFEA
-coral-     : #FFD0C0
-coral      : #FF7F50
-coral+     : #331910
-coral++    : #0C0604
-
-teal--     : #E0EFEF
-teal-      : #A3D1D1
-teal       : #008080
-teal+      : #4D6565
-teal++     : #003333
-
-lavender-- : #FCFCFE
-lavender-  : #F6F6FD
-lavender   : #E6E6FA
-lavender+  : #2E2E32
-lavender++ : #0B0B0C
-'
-
-pf()
-# Executed in 0.13 second(s) in Ring 1.25
-
-/*--- Semantic Colors
-
-pr()
-
-? ResolveColor(:Success)  # Should resolve to green
-#--> #008000
-
-? ResolveColor(:Warning)  # Should resolve to yellow
-#--> #FFFF00
-
-? ResolveColor(:Danger)   # Should resolve to red
-#--> #FF0000
-
-? ResolveColor(:Info)     # Should resolve to blue
-#--> #0000FF
-
-? ResolveColor(:Primary)  # Should resolve to blue
-#--> #0000FF
-
-? ResolveColor(:Neutral)  # Should resolve to gray
-#--> #808080
+oDiag = new stzDiagram("ComplianceDemo")
+oDiag {
+	# Node with personal data (GDPR issue)
+	AddNodeXTT("collect", "Collect Data", [
+		:type = "process",
+		:dataType = "personal"
+		# Missing :RequiresConsent = TRUE
+	])
+	
+	# Decision node (SOX issue)
+	AddNodeXTT("approve", "Approve?", [
+		:type = "decision"
+		# Missing :RequiresApproval = TRUE
+	])
+	
+	# High-value payment (Banking issue)
+	AddNodeXTT("pay", "Payment", [
+		:type = "process",
+		:amount = 50000
+		# Missing dual approval (needs 2 decision predecessors)
+	])
+	
+	AddNodeXTT("done", "Done", [:type = "endpoint"])
+	
+	Connect("collect", "approve")
+	Connect("approve", "pay")
+	Connect("pay", "done")
+	
+	# Running multiple validators
+	? @@NL( ValidateXT([ :SOX, :GDPR, :Banking] ) )
+}
+#--> [
+# 	[ "status", "fail" ],
+# 	[ "validatorsrun", 3 ],
+# 	[ "validatorsfailed", 3 ],
+# 	[ "totalissues", 4 ],
+# 	[
+# 		"results",
+# 		[
+# 			[
+# 				[ "status", "fail" ],
+# 				[ "domain", "sox" ],
+# 				[ "issuecount", 2 ],
+# 				[
+# 					"issues",
+# 					[
+# 						"SOX-001: Missing audit trail: collect",
+# 						"SOX-001: Missing audit trail: pay",
+# 						"SOX-002: Decision node lacks approval requirement: approve"
+# 					]
+# 				],
+# 				[
+# 					"affectednodes",
+# 					[ "collect", "pay", "approve" ]
+# 				]
+# 			],
+# 			[
+# 				[ "status", "fail" ],
+# 				[ "domain", "gdpr" ],
+# 				[ "issuecount", 1 ],
+# 				[
+# 					"issues",
+# 					[
+# 						"GDPR-001: Personal data missing consent: collect"
+# 					]
+# 				],
+# 				[
+# 					"affectednodes",
+# 					[ "collect" ]
+# 				]
+# 			],
+# 			[
+# 				[ "status", "fail" ],
+# 				[ "domain", "banking" ],
+# 				[ "issuecount", 1 ],
+# 				[
+# 					"issues",
+# 					[
+# 						"BANKING-001: High-value operation needs dual control: pay"
+# 					]
+# 				],
+# 				[
+# 					"affectednodes",
+# 					[ "pay" ]
+# 				]
+# 			]
+# 		]
+# 	],
+# 	[
+# 		"affectednodes",
+# 		[ "collect", "pay", "approve" ]
+# 	]
+# ]
 
 pf()
 # Executed in 0.04 second(s) in Ring 1.25
 
-/*--- Node Type Colors
+/*--- VISUAL RULES (DATA-DRIVEN)
 
 pr()
 
-? ColorForNodeType(:Start)        # Should be green
-#--> #008000
+oDiag = new stzDiagram("PricingTiers")
+oDiag {
+	# Add pricing nodes
+	AddNodeXTT(:@free, "Free Tier", [ :Price = 0 ])
+	AddNodeXTT(:@basic, "Basic Tier", [ :Price = 10 ])
+	AddNodeXTT(:@pro, "Pro Tier", [ :Price = 50 ])
+	AddNodeXTT(:@enterprise, "Enterprise Tier", [ :price = 200 ])
+	
+	Connect(:@free, :@basic)
+	Connect(:@basic, :@pro)
+	Connect(:@pro, :@enterprise)
+	#todo // Simplify by adding ConnectSequence([ :@free, :@basic, :@pro, :@entreprise ])
 
-? ColorForNodeType(:Process)      # Should be blue
-#--> #0000FF
+	# Register visual rules as pure data
+	RegisterVisualRule("CHEAP_GREEN", [
+	    :ConditionType = "property_range",
+	    :ConditionParams = [ :Price, 0, 30 ],
+	    :Effects = [
+	        :Color = "green-",
+	        :PenWidth = 1
+	    ]
+	])
 
-? ColorForNodeType(:Decision)     # Should be yellow
-#--> #FFFF00
+	RegisterVisualRule("MID_BLUE", [
+	    :ConditionType = "property_range",
+	    :ConditionParams = [ :Price, 31, 99 ],
+	    :Effects = [
+	        :Color = "blue+",
+	        :PenWidth = 1
+	    ]
+	])
 
-? ColorForNodeType(:Endpoint)     # Should be coral
-#--> #FF7F50
+	RegisterVisualRule("EXPENSIVE_GOLD", [
+	    :ConditionType = "property_range",
+	    :ConditionParams = [ :Price, 100, 999999 ],
+	    :Effects = [
+	        :Color = "gold",
+		:PenWidth = 3	#TODO //when we add ["style", "bold"] the shape is lost
+	    ]
+	])
+	
+	ApplyVisualRules()
+	? @@NL( VisualRulesApplied() ) + NL
+	#--> [ "@free", "@basic", "@pro", "@enterprise" ]
 
-? ColorForNodeType(:State)        # Should be cyan
-#--> #00FFFF
+	? @@( NodesAffectedByVisualRules() )
+	#--> [
+	# 	[
+	# 		[ "name", "CHEAP_GREEN" ],
+	# 		[ "conditiontype", "property_range" ],
+	# 		[ "effectscount", 2 ]
+	# 	],
+	# 	[
+	# 		[ "name", "MID_BLUE" ],
+	# 		[ "conditiontype", "property_range" ],
+	# 		[ "effectscount", 2 ]
+	# 	],
+	# 	[
+	# 		[ "name", "EXPENSIVE_GOLD" ],
+	# 		[ "conditiontype", "property_range" ],
+	# 		[ "effectscount", 2 ]
+	# 	]
+	# ]
 
-? ColorForNodeType(:Storage)      # Should be gray
-#--> #808080
-
-? ColorForNodeType(:Data)         # Should be lavender
-#--> #E6E6FA
+	View()
+}
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.25
+# Executed in 0.52 second(s) in Ring 1.25
+# Executed in 0.68 second(s) in Ring 1.24
 
-/*--- Direct Hex Colors
+/*--- COMBINED VALIDATION + VISUAL
 
 pr()
 
-? ResolveColor("#FF5733")  #--> #FF5733
-? ResolveColor("#00AAFF")  #--> #00AAFF
-? ResolveColor("#123456")  #--> #123456
+oDiag = new stzDiagram("SecurePayment")
+oDiag {
+	SetTheme("neutral")
+	# Nodes with security metadata
+	AddNodeXTT(:@input, "User Input", [
+		:Type = "start",
+		:SecurityLevel = 1,
+		:Sensitive = FALSE
+	])
+
+	AddNodeXTT(:@valid, "Validate", [
+		:Type = "decision",
+		:SecurityLevel = 2,
+		:RequiresApproval = TRUE,
+		:Approver = "security_team"
+	])
+
+	AddNodeXTT(:@process, "Process Payment", [
+		:Type = "process",
+		:SecurityLevel = 3,
+		:Amount = 5000
+	])
+
+	AddNodeXTT(:@audit, "Audit Log", [
+		:Type = "data",
+		:SecurityLevel = 3,
+		:Sensitive = TRUE
+	])
+
+	AddNodeXTT(:@done, "Complete", [
+		:Type = "endpoint",
+		:SecurityLevel = 1
+	])
+
+	Connect(:@input, :@valid)
+	Connect(:@valid, :@process)
+	Connect(:@process, :@audit)
+	Connect(:@audit, :@done)
+
+	# Visual rule: Highlight high-security nodes
+	RegisterVisualRule("security_visual", [
+		:ConditionType = "property_range",
+		:ConditionParams = [ "securitylevel", 3, 5 ],
+		:Effects = [
+			:Color = "red",
+			:Penwidth = 3
+		]
+	])
+	
+	# Visual rule: Mark sensitive data
+	RegisterVisualRule("sensitive_marker", [
+		:ConditionType = "property_equals",
+		:ConditionParams = [ "sensitive", TRUE ],
+		:Effects = [
+			:Color = "orange",
+			:Style = "bold,dashed"
+		]
+	])
+	
+	ApplyVisualRules()
+	
+	? @@NL(NodesAffectedByVisualRules()) + NL
+	#--> [ "@process", "@audit" ]
+
+	? @@NL( ValidateXT(:SOX) )
+	#--> [
+	# 	[ "status", "pass" ],
+	# 	[ "domain", "sox" ],
+	# 	[ "issuecount", 0 ],
+	# 	[ "issues", [  ] ],
+	# 	[ "affectednodes", [  ] ]
+	# ]
+
+	View()
+}
+
+#NOTE What's happening:
+# 
+# 1. @process: Matches security_visual rule only
+#  	- Red color, penwidth=3
+#
+# 2. @audit: Matches both rules
+# 	- First rule: security_visual (red, penwidth=3)
+# 	- Second rule: sensitive_marker (orange, bold+dashed style)
+# 	- Final merge: Orange color (overrides red), penwidth=3, bold+dashed style
+#
+# Visual confirmation in diagram:
+# 	- Process_Payment: Red rounded box, thick border
+# 	- Audit_Log: Orange dashed box, thick border ✓
+# 
+# The rule merging logic is working as designed - later rules override earlier
+# ones for the same property (color), while accumulating unique properties
+# (penwidth from first rule, style from second rule).
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.25
+# Executed in 0.66 second(s) in Ring 1.25
 
-/*--- Extended Palette
+/*--- FLUENT VISUAL RULES (WITH CLASS)
 
 pr()
 
-? ResolveColor(:brown)     #--> #A52A2A
-? ResolveColor(:pink)      #--> #FFC0CB
-? ResolveColor(:navy)      #--> #000080
-? ResolveColor(:teal)      #--> #008080
-? ResolveColor(:coral)     #--> #FF7F50
-? ResolveColor(:salmon)    #--> #FA8072
-? ResolveColor(:lavender)  #--> #E6E6FA
-? ResolveColor(:steelblue) #--> #4682B4
+oDiag = new stzDiagram("TaskPriorities")
+oDiag {
+	AddNodeXTT("low", "Low Priority", [:priority = 1])
+	AddNodeXTT("med", "Medium Priority", [:priority = 5])
+	AddNodeXTT("high", "High Priority", [:priority = 10])
+	AddNodeXTT("critical", "CRITICAL", [:priority = 15])
+	
+	Connect("low", "med")
+	Connect("med", "high")
+	Connect("high", "critical")
+	
+	# Option 1: Pure data (as before)
+	RegisterVisualRule("LOW_PRIORITY", [
+		:conditionType = "property_range",
+		:conditionParams = ["priority", 1, 3],
+		:effects = [["color", "green"]]
+	])
+	
+	RegisterVisualRule("CRITICAL_PRIORITY", [
+		:conditionType = "property_range",
+		:conditionParams = ["priority", 10, 99],
+		:effects = [["color", "red"], [	"penwidth", 3 ]]
+	])
+	
+	ApplyVisualRules()
+
+	? @@NL(VisualRulesApplied())
+	
+	View()
+}
 
 pf()
-# Executed in 0.03 second(s) in Ring 1.25
 
-/*--- Full Intensity Chain: Coral
+/*--- REAL-WORLD APPROVAL WORKFLOW
 
 pr()
 
-? ResolveColor("coral--")	#--> #FFEFEA
-? ResolveColor("coral-")	#--> #FFD0C0
-? ResolveColor("coral")		#--> #FF7F50
-? ResolveColor("coral+")	#--> #331910
-? ResolveColor("coral++")	#--> #0C0604
+oDiag = new stzDiagram("ExpenseApproval")
+oDiag {
+	SetTheme(:neutral)
+
+	# Submission
+	AddNodeXTT("submit", "Submit Expense", [
+		:type = "start",
+		:color = "neutral"
+	])
+	
+	# Amount check
+	AddNodeXTT("check_amount", "Amount > $1000?", [
+		:type = "decision",
+		:color = "warning",
+		:requiresApproval = TRUE,
+		:approver = "system"
+	])
+	
+	# Manager approval
+	AddNodeXTT("manager", "Manager Review", [
+		:type = "decision",
+		:color = "warning",
+		:requiresApproval = TRUE,
+		:approver = "manager"
+	])
+	
+	# Finance approval (for high amounts)
+	AddNodeXTT("finance", "Finance Review", [
+		:type = "decision",
+		:color = "warning",
+		:requiresApproval = TRUE,
+		:approver = "finance_director"
+	])
+	
+	# Processing
+	AddNodeXTT("process", "Process Payment", [
+		:type = "process",
+		:color = "primary"
+	])
+	
+	# Audit
+	AddNodeXTT("audit", "Audit Trail", [
+		:type = "data",
+		:color = "neutral"
+	])
+	
+	# Done
+	AddNodeXTT("done", "Complete", [
+		:type = "endpoint",
+		:color = "success"
+	])
+	
+	# Flow
+	Connect("submit", "check_amount")
+	ConnectXT("check_amount", "manager", "< $1000")
+	ConnectXT("check_amount", "finance", "> $1000")
+	Connect("manager", "process")
+	Connect("finance", "process")
+	Connect("process", "audit")
+	Connect("audit", "done")
+	
+	# Visual rules
+	RegisterVisualRule("DECISION_HIGHLIGHT", [
+		:conditionType = "property_equals",
+		:conditionParams = ["type", "decision"],
+		:effects = [
+			["penwidth", 2],
+			["style", "bold"]
+		]
+	])
+	
+	ApplyVisualRules()
+	
+	# WORKFLOW ANALYSIS
+
+	? NodeCount()
+	#--> 7
+
+	? EdgeCount()
+	#--> 7
+
+	? len(NodesByType("decision")) + NL
+	#--> 3
+
+	# COMPLIANCE CHECK
+
+	? @@NL( ValidateXT([:SOX, :banking]) )
+
+	View()
+}
+#--> [
+# 	[ "status", "pass" ],
+# 	[ "validatorsrun", 2 ],
+# 	[ "validatorsfailed", 0 ],
+# 	[ "totalissues", 0 ],
+# 	[
+# 		"results",
+# 		[
+# 			[
+# 				[ "status", "pass" ],
+# 				[ "domain", "sox" ],
+# 				[ "issuecount", 0 ],
+# 				[ "issues", [  ] ],
+# 				[ "affectednodes", [  ] ]
+# 			],
+# 			[
+# 				[ "status", "pass" ],
+# 				[ "domain", "banking" ],
+# 				[ "issuecount", 0 ],
+# 				[ "issues", [  ] ],
+# 				[ "affectednodes", [  ] ]
+# 			]
+# 		]
+# 	],
+# 	[ "affectednodes", [  ] ]
+# ]
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.25
+# Executed in 0.58 second(s) in Ring 1.25
 
-/*--- Full Intensity Chain: Teal
-
-pr()
-
-? ResolveColor("teal--")	#--> #E0EFEF
-? ResolveColor("teal-")		#--> #A3D1D1
-? ResolveColor("teal")		#--> #008080
-? ResolveColor("teal+")		#--> #4D6565
-? ResolveColor("teal++")	#--> #003333
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.25
-
-/*--- Legacy Color Names
+/*--- Test unified validation system at stzDiagram level
 
 pr()
-
-? ResolveColor(:lightblue)   # Should map to blue+
-#--> #4D4DC9
-
-? ResolveColor(:lightgreen)  # Should map to green+
-#--> #4D654D
-
-? ResolveColor(:lightyellow) # Should map to yellow+
-#--> #333300
-
-? ResolveColor(:darkgreen)   # Should map to green-
-#--> #A3D1A3
-
-? ResolveColor(:darkblue)    # Should map to blue-
-#--> #A3A3FF
-
-? ResolveColor(:darkred)     # Should map to red-
-#--> #FFA3A3
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.25
-
-/*--- Full Palette Count
-
-pr()
-
-aPalette = BuildColorPalette()
-? len(aPalette)
-#--> 125
-
-pf()
-# Executed in 0.02 second(s) in Ring 1.25
-
-#-----------------------------#
-#  TESTING VALIDATION SYSTEM  #
-#-----------------------------#
-
-/*--- #ERR
-
-pr()
-
-# Test unified validation system at stzDiagram level
 
 oDiagram = new stzDiagram("Payment_Processing")
 oDiagram {
@@ -2823,21 +2685,30 @@ Validate() detailed report:
 [
 	[ "status", "fail" ],
 	[ "validatorsrun", 3 ],
-	[ "validatorsfailed", 2 ],
-	[ "totalissues", 6 ],
+	[ "validatorsfailed", 1 ],
+	[ "totalissues", 2 ],
 	[
 		"results",
 		[
 			[
 				[ "status", "fail" ],
 				[ "domain", "sox" ],
-				[ "issuecount", 4 ],
+				[ "issuecount", 2 ],
 				[
 					"issues",
 					[
-						"SOX-001: Financial process missing audit trail: ",
+						"SOX-001: Missing audit trail: validate",
+						"SOX-001: Missing audit trail: fraud_check",
+						"SOX-001: Missing audit trail: process",
+						"SOX-002: Decision node lacks approval requirement: approve"
+					]
+				],
+				[
+					"affectednodes",
+					[
+						"validate",
+						"fraud_check",
 						"process",
-						"SOX-002: Decision node lacks approval requirement: ",
 						"approve"
 					]
 				]
@@ -2846,23 +2717,27 @@ Validate() detailed report:
 				[ "status", "pass" ],
 				[ "domain", "gdpr" ],
 				[ "issuecount", 0 ],
-				[ "issues", [  ] ]
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
 			],
 			[
-				[ "status", "fail" ],
+				[ "status", "pass" ],
 				[ "domain", "banking" ],
-				[ "issuecount", 2 ],
-				[
-					"issues",
-					[
-						"BANK-002: Payment missing fraud detection: ",
-						"process"
-					]
-				]
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
 			]
 		]
 	],
-	[ "affectednodes", [  ] ]
+	[
+		"affectednodes",
+		[
+			"validate",
+			"fraud_check",
+			"process",
+			"approve"
+		]
+	]
 ]
 
 ╭───────────────────────╮
@@ -2873,13 +2748,22 @@ ValidateXT(:SOX) - Sarbanes-Oxley compliance:
 [
 	[ "status", "fail" ],
 	[ "domain", "sox" ],
-	[ "issuecount", 4 ],
+	[ "issuecount", 2 ],
 	[
 		"issues",
 		[
-			"SOX-001: Financial process missing audit trail: ",
+			"SOX-001: Missing audit trail: validate",
+			"SOX-001: Missing audit trail: fraud_check",
+			"SOX-001: Missing audit trail: process",
+			"SOX-002: Decision node lacks approval requirement: approve"
+		]
+	],
+	[
+		"affectednodes",
+		[
+			"validate",
+			"fraud_check",
 			"process",
-			"SOX-002: Decision node lacks approval requirement: ",
 			"approve"
 		]
 	]
@@ -2902,21 +2786,30 @@ ValidateXT([:SOX, :GDPR, :Banking]):
 [
 	[ "status", "fail" ],
 	[ "validatorsrun", 3 ],
-	[ "validatorsfailed", 2 ],
-	[ "totalissues", 6 ],
+	[ "validatorsfailed", 1 ],
+	[ "totalissues", 2 ],
 	[
 		"results",
 		[
 			[
 				[ "status", "fail" ],
 				[ "domain", "sox" ],
-				[ "issuecount", 4 ],
+				[ "issuecount", 2 ],
 				[
 					"issues",
 					[
-						"SOX-001: Financial process missing audit trail: ",
+						"SOX-001: Missing audit trail: validate",
+						"SOX-001: Missing audit trail: fraud_check",
+						"SOX-001: Missing audit trail: process",
+						"SOX-002: Decision node lacks approval requirement: approve"
+					]
+				],
+				[
+					"affectednodes",
+					[
+						"validate",
+						"fraud_check",
 						"process",
-						"SOX-002: Decision node lacks approval requirement: ",
 						"approve"
 					]
 				]
@@ -2925,23 +2818,27 @@ ValidateXT([:SOX, :GDPR, :Banking]):
 				[ "status", "pass" ],
 				[ "domain", "gdpr" ],
 				[ "issuecount", 0 ],
-				[ "issues", [  ] ]
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
 			],
 			[
-				[ "status", "fail" ],
+				[ "status", "pass" ],
 				[ "domain", "banking" ],
-				[ "issuecount", 2 ],
-				[
-					"issues",
-					[
-						"BANK-002: Payment missing fraud detection: ",
-						"process"
-					]
-				]
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
 			]
 		]
 	],
-	[ "affectednodes", [  ] ]
+	[
+		"affectednodes",
+		[
+			"validate",
+			"fraud_check",
+			"process",
+			"approve"
+		]
+	]
 ]
 
 ╭───────────────────╮
@@ -2959,36 +2856,40 @@ Validate() with custom set:
 [
 	[ "status", "fail" ],
 	[ "validatorsrun", 3 ],
-	[ "validatorsfailed", 2 ],
-	[ "totalissues", 6 ],
+	[ "validatorsfailed", 1 ],
+	[ "totalissues", 2 ],
 	[
 		"results",
 		[
 			[
 				[ "status", "fail" ],
 				[ "domain", "sox" ],
-				[ "issuecount", 4 ],
+				[ "issuecount", 2 ],
 				[
 					"issues",
 					[
-						"SOX-001: Financial process missing audit trail: ",
+						"SOX-001: Missing audit trail: validate",
+						"SOX-001: Missing audit trail: fraud_check",
+						"SOX-001: Missing audit trail: process",
+						"SOX-002: Decision node lacks approval requirement: approve"
+					]
+				],
+				[
+					"affectednodes",
+					[
+						"validate",
+						"fraud_check",
 						"process",
-						"SOX-002: Decision node lacks approval requirement: ",
 						"approve"
 					]
 				]
 			],
 			[
-				[ "status", "fail" ],
+				[ "status", "pass" ],
 				[ "domain", "banking" ],
-				[ "issuecount", 2 ],
-				[
-					"issues",
-					[
-						"BANK-002: Payment missing fraud detection: ",
-						"process"
-					]
-				]
+				[ "issuecount", 0 ],
+				[ "issues", [  ] ],
+				[ "affectednodes", [  ] ]
 			],
 			[
 				[ "status", "pass" ],
@@ -2999,7 +2900,15 @@ Validate() with custom set:
 			]
 		]
 	],
-	[ "affectednodes", [  ] ]
+	[
+		"affectednodes",
+		[
+			"validate",
+			"fraud_check",
+			"process",
+			"approve"
+		]
+	]
 ]
 
 ╭───────────────────────────╮
@@ -3018,1190 +2927,12 @@ ValidateXT(:Reachability):
 
 ValidateXT(:Completeness):
 [
-	[ "status", "fail" ],
+	[ "status", "pass" ],
 	[ "domain", "completeness" ],
-	[ "issuecount", 2 ],
-	[
-		"issues",
-		[
-			"Decision node has fewer than 2 paths: ",
-			"approve"
-		]
-	],
-	[
-		"affectednodes",
-		[ "approve" ]
-	]
+	[ "issuecount", 0 ],
+	[ "issues", [  ] ],
+	[ "affectednodes", [  ] ]
 ]
 `
-
-pf()
-
-#------------------------------#
-#  VISUAL RULES AND SEMANTICS  # #TODO
-#------------------------------#
-
-/*---  Example 1: Security Risk Visualization
-
-pr()
-
-# Create the diagram object
-
-oDiag = new stzDiagram("SecurityFlow")
-
-# Define visual rules based on metadata
-
-oHighRiskRule = new stzVisualRule("high_risk")
-oHighRiskRule {
-	When("risk_score", :InSection = [70, 100])
-	ApplyColor("#FF4444") 	#NOTE // Possible to use hex but better use semantic names
-				# Try with ApplyColor("green") or "sucess--" etc
-	ApplyPenWidth(3)
-}
-
-oSecureRule = new stzVisualRule("secure")
-oSecureRule {
-	WhenTagExists(:security)
-}
-
-# Crafing the diagram object
-
-oDiag {
-
-	# Use those rules inside the diagram object
-
-	SetVisualRule(oHighRiskRule) #TODO// Make rules definable directly here, if not done yet!
-	SetVisualRule(oSecureRule)
-	ApplyRules()
-
-	# Add nodes with metadata
-
-	AddNodeXTT("auth", "Authentication", [
-		:type = "process",
-		:color = "primary",
-		:risk_score = 85,
-		:sla_ms = 100,
-		:tags = [ :security, :critical ]
-	])
-
-	AddNodeXTT("db", "Database", [
-		:type = "storage",
-		:color = "info",
-		:risk_score = 45,
-		:encrypted = TRUE,
-		:tags = [ :security ]
-	])
-
-	AddEdgeWithXTT("auth", "db", "query", [
-		:type = "requires",
-		:tags = [ :data_flow ]
-	])
-
-	? Code()
-	View()
-}
-
-
-pf()
-
-/*---  Example 2: Performance Monitoring
-
-pr()
-
-oDiag = new stzDiagram("APIFlow")
-
-# Performance-based coloring
-oSlowRule = new stzVisualRule("slow_api")
-oSlowRule.WhenMetadataInSection("latency_ms", 500, 9999)
-oSlowRule.ApplyColor("#FFA500")
-
-oFastRule = new stzVisualRule("fast_api")
-oFastRule.WhenMetadataInSection("latency_ms", 0, 100)
-oFastRule.ApplyColor("#44FF44")
-
-oDiag.SetVisualRule(oSlowRule)
-oDiag.SetVisualRule(oFastRule)
-
-oDiag.AddNodeXTT("api1", "User API", :Process, :Primary,
-	[ :latency_ms = 50, :throughput = 1000], [:api])
-
-oDiag.AddNodeXTT("api2", "Payment API", :Process, :Primary,
-	[ :latency_ms = 800, :throughput = 100], [:api, :critical])
-
-
-oDiag.View()
-
-pf()
-
-/*---  Example 3: Compliance Tagging
-
-pr()
-
-oDiag = new stzDiagram("DataFlow")
-
-# GDPR compliance visualization
-oGdprRule = new stzVisualRule("gdpr")
-oGdprRule {
-	WhenTagExists(:gdpr)
-	ApplyPenWidth(2)
-}
-
-# PCI-DSS compliance
-oPciRule = new stzVisualRule("pci")
-oPciRule.WhenTagExists(:pci)
-oPciRule.ApplyColor("#0066CC")
-
-oDiag.SetVisualRule(oGdprRule)
-oDiag.SetVisualRule(oPciRule)
-
-oDiag.AddNodeXTT("collect", "Data Collection", :Process, :Info,
-	[:retention_days = 90], ["gdpr"])
-
-oDiag.AddNodeXTT("payment", "Payment Processing", :Process, :Warning,
-	[:encryption = TRUE], ["pci"])
-
-? oDiag.code()
-oDiag.View()
-
-#TODO Enricth the tooltip content in svg format
-#TODO Add hyperlinks in svg diagrams for interactive usecases
-
-pf()
-
-
-/*-------------------------------#
-#  TEST 4: Exact Value Matching  #
-#--------------------------------#
-
-pr()
-
-oDiag = new stzDiagram("EnvironmentColors")
-
-# Production systems get red warning color
-oProductionRule = new stzVisualRule("prod_warning")
-oProductionRule {
-//	WhenMetadataEquals("env", "production")
-	# or more elgant:
-	When("env", :equals = "production")
-
-	ApplyColor("green")
-	ApplyPenWidth(3)
-}
-
-oDiag {
-	SetVisualRule(oProductionRule)
-
-	AddNodeXTT("prod_db", "Production DB", [
-		:Type = :Storage,
-		:Color = :Primary,
-
-		:env = "production",
-		:replicas = 3,
-		:tags = ["database"]
-	])
-	
-	AddNodeXTT("dev_db", "Dev DB", [
-		:Type = :Storage,
-		:Color = :Info,
-
-		:env = "development",
-		:tags = [:database]
-	])
-	
-	Connect("prod_db", "dev_db")
-	View()
-	? Code()
-}
-
-pf()
-
-/*---------------------------#
-#  TEST 5: Task Priority
-#---------------------------#
-
-pr()
-
-oDiag = new stzDiagram("TaskPriority")
-
-oLowPrio = new stzVisualRule("low")
-oLowPrio {
-	When("priority", :InSection = [0, 33])
-	ApplyColor(:neutral)
-}
-
-oMedPrio = new stzVisualRule("medium")
-oMedPrio {
-	When("priority", :InSection = [34, 66])
-	ApplyColor(:info)
-}
-
-oHighPrio = new stzVisualRule("high")
-oHighPrio {
-	When("priority", :InSection = [67, 100])
-	ApplyColor(:danger)
-	ApplyPenWidth(3)
-}
-
-oDiag {
-	SetVisualRule(oLowPrio)
-	SetVisualRule(oMedPrio)
-	SetVisualRule(oHighPrio)
-	
-	AddNodeXTT("task1", "Cleanup", [
-		:type = :process,
-		:priority = 20
-	])
-	
-	AddNodeXTT("task2", "Review", [
-		:type = :process,
-		:priority = 50
-	])
-	
-	AddNodeXTT("task3", "Deploy", [
-		:type = :process,
-		:priority = 90,
-		:tags = [:critical]
-	])
-	
-	Connect("task1", "task2")
-	Connect("task2", "task3")
-	
-	View()
-}
-
-pf()
-
-/*---------------------------#
-#  TEST 6: Edge Styling
-#---------------------------#
-
-
-pr()
-
-oDiag = new stzDiagram("ConnectionTypes")
-
-oSyncEdge = new stzVisualRule("sync")
-oSyncEdge {
-	When("type", :equals = "sync")
-	ApplyStyle("bold")
-	ApplyColor(:primary)
-}
-
-oAsyncEdge = new stzVisualRule("async")
-oAsyncEdge {
-	When("type", :equals = "async")
-	ApplyStyle("dashed")
-	ApplyColor(:neutral)
-}
-
-oDiag {
-	SetVisualRule(oSyncEdge)
-	SetVisualRule(oAsyncEdge)
-
-	AddNodeXT("api", "API Gateway")
-	AddNodeXT("service", "Auth Service")
-	AddNodeXT("cache", "Redis Cache")
-
-	AddEdgeXTT("api", "service", "authenticate", [
-		:type = "sync"
-	])
-	
-	AddEdgeXTT("service", "cache", "invalidate", [
-		:type = "async"
-	])
-
-	View()
-	? Code()
-}
-
-pf()
-
-/*---------------------------#
-#  TEST 7: Metadata Presence
-#---------------------------#
-
-pr()
-
-oDiag = new stzDiagram("SlaMonitoring")
-
-oHasSla = new stzVisualRule("sla_defined")
-oHasSla {
-	WhenMetadataExists("sla_ms")  # Use the direct method
-	ApplyPenWidth(2)
-	ApplyColor(:green)
-}
-
-oDiag {
-	SetVisualRule(oHasSla)
-	
-	AddNodeXTT("critical_api", "Payment API", [
-		:type = :process,
-		:sla_ms = 100,
-		:uptime = 99.99
-	])
-	
-	AddNodeXTT("batch_job", "Batch Job", [
-		:type = :process,
-		:schedule = "daily"
-	])
-	
-	Connect("critical_api", "batch_job")
-	View()
-? code()
-}
-
-pf()
-
-/*---------------------------#
-#  TEST 8: Rule Cascading
-#---------------------------#
-
-pr()
-
-oDiag = new stzDiagram("RuleOverride")
-
-oApiBase = new stzVisualRule("api_base")
-oApiBase {
-	WhenTagExists(:api)
-	ApplyColor(:neutral)
-}
-
-oCritical = new stzVisualRule("critical_override")
-oCritical {
-	WhenTagExists(:critical)
-	ApplyColor(:danger)
-	ApplyPenWidth(4)
-}
-
-oDiag {
-	SetVisualRule(oApiBase)
-	SetVisualRule(oCritical)
-	
-	AddNodeXTT("standard", "User API", [
-		:type = :process,
-		:tags = [:api]
-	])
-	
-	AddNodeXTT("vital", "Payment API", [
-		:type = :process,
-		:tags = [:api, :critical]
-	])
-	
-	Connect("standard", "vital")
-	View()
-}
-
-pf()
-
-#---------------------------#
-#  TEST 9: Dynamic Shapes
-#---------------------------#
-
-pr()
-
-oDiag = new stzDiagram("ServiceTypes")
-
-oStorageShape = new stzVisualRule("storage")
-oStorageShape {
-	WhenTagExists(:storage)
-	ApplyShape("cylinder")
-	ApplyColor(:brown)
-}
-
-oQueueShape = new stzVisualRule("queue")
-oQueueShape {
-	WhenTagExists(:messaging)
-	ApplyShape("parallelogram")
-	ApplyColor(:orange)
-}
-
-oDiag {
-	SetVisualRule(oStorageShape)
-	SetVisualRule(oQueueShape)
-	
-	AddNodeXTT("postgres", "PostgreSQL", [
-		:type = "relational",
-		:tags = [:storage, :database]
-	])
-	
-	AddNodeXTT("rabbitmq", "RabbitMQ", [
-		:type = "broker",
-		:tags = [:messaging, :queue]
-	])
-	
-	AddNodeXTT("api", "REST API", [
-		:tags = [:service]
-	])
-	
-	Connect("api", "postgres")
-	Connect("api", "rabbitmq")
-	
-	View()
-}
-
-pf()
-
-/*---------------------------#
-#  TEST 10: Self-Documenting
-#---------------------------#
-
-pr()
-
-oDiag = new stzDiagram("DocumentedRules")
-
-oEncrypted = new stzVisualRule("secure")
-oEncrypted {
-	WhenTagExists(:encrypted)
-	ApplyColor("#00AA00")
-}
-
-oSlow = new stzVisualRule("performance")
-oSlow {
-	When("latency_ms", :InSection = [500, 9999])
-	ApplyColor("#FFA500")
-	ApplyPenWidth(2)
-}
-
-oDiag {
-	SetVisualRule(oEncrypted)
-	SetVisualRule(oSlow)
-	
-	AddNodeXTT("secure_db", "Encrypted DB", [
-		:type = :Storage, :color = :Success, :tags = [:encrypted] ])
-	
-	AddNodeXTT("slow_api", "Legacy API", [
-		:type = :Process, :color = :Warning, :latency_ms = 750 ])
-	
-	# Generate legend showing all rule mappings
-	? "=== Visual Rules Legend ==="
-	? @@NL( MetadataLegend() )
-	
-	View()
-}
-#-->
-'
-=== Visual Rules Legend ===
-[
-	"=== METADATA LEGEND ===",
-	"",
-	"When: tag_exists",
-	"  → ",
-	"color",
-	": ",
-	"#00AA00",
-	"",
-	"When: metadata_range",
-	"  → ",
-	"color",
-	": ",
-	"#FFA500",
-	"  → ",
-	"penwidth",
-	": ",
-	2,
-	""
-]
-'
-
-pf()
-
-/*---------------------------#
-#  TEST 11: Complex Workflow
-#---------------------------#
-
-pr()
-
-oDiag = new stzDiagram("E2EMonitoring")
-
-# Combine multiple rules for realistic monitoring
-oHighLoad = new stzVisualRule("load")
-oHighLoad {
-	When("load_pct", :InSection = [80, 100])
-	ApplyColor("#FF4444")
-	ApplyPenWidth(3)
-}
-
-oEncrypted = new stzVisualRule("secure")
-oEncrypted {
-	WhenTagExists(:encrypted)
-	ApplyStyle("bold,filled")
-}
-
-oDeprecated = new stzVisualRule("legacy")
-oDeprecated {
-	When("status", :Equals = "deprecated")
-	ApplyColor("#888888")
-	ApplyStyle("dotted,filled")
-}
-
-oDiag {
-	SetVisualRule(oHighLoad)
-	SetVisualRule(oEncrypted)
-	SetVisualRule(oDeprecated)
-	
-	AddNodeXTT("lb", "Load Balancer", [
-		:Type = "process", :Color = "primary",
-		:load_pct = 85, :tags = ["critical"] ])
-	
-	AddNodeXTT("db", "Database", [
-		:type = "storage", :color = "primary",
-		:load_pct = 60, :tags = ["encrypted"] ])
-	
-	AddNodeXTT("old_api", "Legacy API", [
-		:type = "process", :color = "neutral",
-		:status = "deprecated" ])
-	
-	Connect("lb", "db")
-	Connect("lb", "old_api")
-	
-	View()
-}
-
-pf()
-
-/*---------------------------#
-#  Microservices Health Dashboard
-#---------------------------#
-
-pr()
-
-oDiag = new stzDiagram("ServiceHealth")
-
-# Health-based coloring: green=healthy, yellow=degraded, red=down
-oHealthy = new stzVisualRule("healthy")
-oHealthy{
-	When("status", :equals = "up")
-	ApplyColor("green")
-}
-
-oDegraded = new stzVisualRule("degraded")
-oDegraded{
-	When("status", :equals = "degraded")
-	ApplyColor("orange")
-	ApplyPenWidth(2)
-}
-
-oDown = new stzVisualRule("down")
-oDown {
-	When("status", :equals = "down")
-	ApplyColor("red")
-	ApplyPenWidth(3)
-}
-
-# Critical services get diamond shape
-oCritical = new stzVisualRule("critical_service")
-oCritical {
-	WhenTagExists(:critical)
-	ApplyShape("diamond")
-}
-
-oDiag {
-	SetTheme(:pro)
-	
-	SetVisualRule(oHealthy)
-	SetVisualRule(oDegraded)
-	SetVisualRule(oDown)
-	SetVisualRule(oCritical)
-	
-	AddNodeXTT("gateway", "API Gateway", [
-		:type = "process", :color = "primary",
-		:status = "up", :latency_ms = 45, :tags = [:critical] ])
-	
-	AddNodeXTT("auth", "Auth Service",  [
-		:type = "process", :color = "primary",
-		:status = "degraded", :latency_ms = 320, :tags = [:critical] ])
-	
-	AddNodeXTT("users", "Users API",  [
-		:type = "process", :color = "primary",
-		:status = "up", :latency_ms = 80 ])
-	
-	AddNodeXTT("orders", "Orders API",  [
-		:type = "process", :color = "primary",
-		:status = "down", :latency_ms = 0, :tags = [:critical] ])
-	
-	AddNodeXTT("db", "PostgreSQL",  [
-		:type = "storage", :type = "info",
-		:status = "up", :replicas = 3, :tags = [:critical] ])
-	
-	Connect("gateway", "auth")
-	Connect("gateway", "users")
-	Connect("gateway", "orders")
-	Connect("users", "db")
-	Connect("orders", "db")
-	
-	View()
-}
-
-pf()
-
-/*---------------------------#
-#  Data Pipeline with Compliance
-#---------------------------#
-
-pr()
-
-oDiag = new stzDiagram("DataCompliance")
-
-oPiiData = new stzVisualRule("pii")
-oPiiData {
-	WhenTagExists(:pii)
-	ApplyPenWidth(3)
-}
-
-oEncrypted = new stzVisualRule("encrypted")
-oEncrypted {
-	When("encrypted", :equals = TRUE)
-	ApplyStyle("bold")
-}
-
-oAudited = new stzVisualRule("audit")
-oAudited {
-	WhenTagExists(:audit)
-	ApplyShape("octagon")
-}
-
-oDiag {
-	SetLayout(:LeftRight)
-	
-	SetVisualRule(oPiiData)
-	SetVisualRule(oEncrypted)
-	SetVisualRule(oAudited)
-	
-	AddNodeXTT("collect", "Data Collector", [
-		:type = "process", :color = "info", :tags = [:audit]
-	])
-	
-	AddNodeXTT("transform", "ETL Pipeline", [
-		:type = "process", :color = "primary"
-	])
-	
-	AddNodeXTT("warehouse", "Data Warehouse", [
-		:type = "storage", :color = "success",
-		:encrypted = TRUE, :tags = [:pii, :audit]
-	])
-	
-	AddNodeXTT("analytics", "Analytics", [
-		:type = "process", :color = "primary"
-	])
-	
-	AddNodeXTT("reports", "Reports", [
-		:type = "endpoint", :color = "info",
-		:tags = [:audit]
-	])
-	
-	AddEdgeXTT("collect", "transform", "raw", [
-		:encrypted = FALSE
-	])
-	
-	AddEdgeXTT("transform", "warehouse", "store", [
-		:encrypted = TRUE
-	])
-	
-	AddEdgeXTT("warehouse", "analytics", "query", [
-		:encrypted = TRUE
-	])
-	
-	AddEdgeXTT("analytics", "reports", "publish", [
-		:encrypted = FALSE
-	])
-	
-	View()
-? Code()
-}
-
-pf()
-
-/*----------------------------#
-#  Cost-Based Infrastructure  #
-#-----------------------------#
-
-pr()
-
-oDiag = new stzDiagram("CloudCosts")
-
-# Color by monthly cost
-oLowCost = new stzVisualRule("cheap")
-oLowCost {
-	When("monthly_usd", :InSection = [0, 100])
-	ApplyColor("#E8F5E9")
-}
-
-oMedCost = new stzVisualRule("moderate")
-oMedCost {
-	When("monthly_usd", :InSection = [101, 500])
-	ApplyColor("#FFF9C4")
-}
-
-oHighCost = new stzVisualRule("expensive")
-oHighCost {
-	When("monthly_usd", :InSection = [501, 9999])
-	ApplyColor("#FFCDD2")
-	ApplyPenWidth(3)
-}
-
-# Production gets thicker borders
-#ERR all nodes are thin!!
-
-oProduction = new stzVisualRule("prod")
-oProduction {
-	WhenTagExists(:production)
-	ApplyPenWidth(2)
-}
-
-oDiag {
-
-	# Presentation
-
-	SetTheme(:light)
-	
-	# Structure
-
-	AddNodeXTT("lb", "Load Balancer", [
-		:type = "process",
-		:color = "primary",
-		:monthly_usd = 50,
-		:env = "prod",
-		:tags = [ "tag1", "tag2", "tag3" ]
-	])
-	
-	AddNodeXTT("app1", "App Server 1",  [
-		:type = "process",
-		:color = "primary",
-		:env = "prod",
-		:monthly_usd = 200,
-		:tags = [ "critical" ]
-	])
-	
-	AddNodeXTT("app2", "App Server 2",  [
-		:type = "process",
-		:color = "primary",
-		:monthly_usd = 200,
-		:env = "preprod"
-	])
-	
-	AddNodeXTT("rds", "RDS Database", [
-		:type = "storage",
-		:color = "info",
-		:monthly_usd = 800,
-		:env = "prod",
-		:tags = [ "critical" ]
-	])
-	
-	AddNodeXTT("cache", "Redis Cache", [
-		:type = "storage",
-		:color = "warning",
-		:monthly_usd = 120,
-		:env = "prod",
-		:tags = [ "critical" ]
-	])
-	
-	AddNodeXTT("s3", "S3 Storage", [
-		:type = "storage",
-		:color = "success",
-		:monthly_usd = 30,
-		:env = "test"
-	])
-	
-	ConnectXTT("lb", "app1", "", [ :encrypted = TRUE ])
-	Connect("lb", "app2")
-	Connect("app1", "rds")
-	Connect("app2", "rds")
-	Connect("app1", "cache")
-	Connect("app2", "cache")
-	ConnectXTT("app1", "s3", "", [ :encrypted = TRUE ])
-	
-	# Logic
-
-	SetVisualRule(oLowCost)
-	SetVisualRule(oMedCost)
-	SetVisualRule(oHighCost)
-	SetVisualRule(oProduction)
-	ApplyVisualRules()
-
-	# Output
-	View()
-}
-
-# Softanza offers a powerful analytics API for visual rules
-
-# Analysis
-
-? @@NL( oDiag.Explain() ) + NL
-#-->
-`
-[
-	[ "diagram", "CloudCosts" ],
-	[
-		"structure",
-		"Diagram 'CloudCosts' contains 6 nodes and 7 edges."
-	],
-	[
-		"rules",
-		"Applied 4 visual rule(s): cheap, moderate, expensive, prod"
-	],
-	[
-		"effects",
-		"6 node(s) enhanced, 7 edge(s) enhanced."
-	]
-]
-`
-
-# All nodes with cost property
-? @@( oDiag.NodesWithProperty("monthly_usd") ) + NL
-#--> [ "lb", "app1", "app2", "rds", "cache", "s3" ]
-
-# Production nodes
-
-? @@( oDiag.NodesWith("env", :equals = "prod") ) + NL
-#--> [ "lb", "app1", "rds", "cache" ]
-
-# Mid-range cost
-? @@( oDiag.NodesWith("monthly_usd", :InSection = [100, 500]) ) + NL
-#--> [ "app1", "app2", "cache" ]
-
-# Edges with encryption property
-? @@( oDiag.EdgesWithProperty("encrypted") ) + NL
-#--> [ "lb->app1", "app1->s3" ]
-
-# Synchronous edges
-? @@( oDiag.EdgesWithPropertyValue("type", "sync") ) + NL
-
-# Nodes affected by visual rules
-
-? @@( oDiag.NodesAffectedByVRules() )+ NL
-#--> [ "lb", "app1", "app2", "rds", "cache", "s3" ]
-
-# Nodes containing a given tag
-
-? @@NL( oDiag.NodesWithTag(:critical) ) + NL
-#--> [ "app1", "rds", "cache" ]
-
-# All the applied rules
-? @@NL( oDiag.VRulesApplied() )
-#-->
-`
-[
-	[ "haseffects", 1 ],
-	[
-		"summary",
-		"4 rule(s) defined, 13 element(s) affected"
-	],
-	[
-		"rules",
-		[
-			[
-				[ "id", "cheap" ],
-				[ "condition", "metadata_range" ],
-				[
-					"conditionparams",
-					[ "monthly_usd", 0, 100 ]
-				],
-				[
-					"effects",
-					[
-						[ "color", "#E8F5E9" ]
-					]
-				],
-				[
-					"affectednodes",
-					[ "lb", "s3" ]
-				],
-				[ "affectededges", [  ] ],
-				[ "matchcount", 2 ]
-			],
-			[
-				[ "id", "moderate" ],
-				[ "condition", "metadata_range" ],
-				[
-					"conditionparams",
-					[ "monthly_usd", 101, 500 ]
-				],
-				[
-					"effects",
-					[
-						[ "color", "#FFF9C4" ]
-					]
-				],
-				[
-					"affectednodes",
-					[ "app1", "app2", "cache" ]
-				],
-				[ "affectededges", [  ] ],
-				[ "matchcount", 3 ]
-			],
-			[
-				[ "id", "expensive" ],
-				[ "condition", "metadata_range" ],
-				[
-					"conditionparams",
-					[ "monthly_usd", 501, 9999 ]
-				],
-				[
-					"effects",
-					[
-						[ "color", "#FFCDD2" ],
-						[ "penwidth", 3 ]
-					]
-				],
-				[
-					"affectednodes",
-					[ "rds" ]
-				],
-				[ "affectededges", [  ] ],
-				[ "matchcount", 1 ]
-			]
-		]
-	]
-]
-`
-
-pf()
-
-#--> #TODO #ERR check correctnes of "effects" string
-
-
-/*---------------------------#
-#  Security Zones
-#---------------------------#
-
-pr()
-
-oDiag = new stzDiagram("SecurityArchitecture")
-
-# Color by security zone
-oPublic = new stzVisualRule("public_zone")
-oPublic {
-	When("zone", :equals = "public")
-	ApplyColor("#FFE0B2")
-}
-
-oDmz = new stzVisualRule("dmz_zone")
-oDmz {
-	When("zone", :equals = "dmz")
-	ApplyColor("#FFF59D")
-}
-
-oPrivate = new stzVisualRule("private_zone")
-oPrivate {
-	When("zone", :equals = "private")
-	ApplyColor("#C8E6C9")
-}
-
-# Firewall edges
-oFirewall = new stzVisualRule("firewall")
-oFirewall {
-	When("firewall", :equals = TRUE)
-	ApplyStyle("bold")
-	ApplyColor("#FF5722")
-	ApplyPenWidth(3)
-}
-
-oDiag {
-
-	SetTheme(:pro)
-	SetLayout(:TopDown)
-	
-	# Rules
-
-	SetVisualRule(oPublic)
-	SetVisualRule(oDmz)
-	SetVisualRule(oPrivate)
-	SetVisualRule(oFirewall)
-	
-	# Nodes
-
-	AddNodeXTT("internet", "Internet", [
-		:tye = "start", :color = "info",
-		:zone = "public"
-	])
-
-	AddNodeXTT("waf", "WAF", [
-		:type = "process", :color = "warning",
-		:zone = "dmz", :tags = [:security]
-	])
-
-	AddNodeXTT("lb", "Load Balancer", [
-		:type = "process", :Primary,
-		[:zone = "dmz"]
-	])
-
-	AddNodeXTT("web", "Web Tier", [
-		:type = "process", :color = "primary",
-		:zone = "private"
-	])
-
-	AddNodeXTT("app", "App Tier", [
-		:type = "process", :color = "primary",
-		:zone = "private"
-	])
-
-	AddNodeXTT("db", "Database", [
-		:type = "storage", :color = "success",
-		:zone = "private", :tags = [:encrypted]
-	])
-	
-	# Edges
-
-	AddEdgeXTT("internet", "waf", "443", [
-		:firewall = TRUE
-	])
-	
-	AddEdgeXTT("waf", "lb", "https",  [
-		:firewall = TRUE
-	])
-	
-	AddEdgeXTT("lb", "web", "internal", [
-		:firewall = FALSE
-	])
-	
-	AddEdgeXTT("web", "app", "api", [ 
-		:firewall = TRUE
-	])
-	
-	AddEdgeXTT("app", "db", "query",  [
-		:firewall = TRUE
-	])
-	
-
-	View()
-	? @@NL( Explain() )
-}
-#-->
-`
-[
-	[ "diagram", "SecurityArchitecture" ],
-	[
-		"structure",
-		"Diagram 'SecurityArchitecture' contains 6 nodes and 5 edges."
-	],
-	[
-		"rules",
-		"Applied 4 visual rule(s): public_zone, dmz_zone, private_zone, firewall"
-	],
-	[ "effects", "No rules matched any elements." ]
-]
-`
-
-pf()
-
-/*---------------------------#
-#  CI/CD Pipeline States
-#---------------------------#
-
-pr()
-
-oDiag = new stzDiagram("DeploymentPipeline")
-
-# Stage status coloring
-oPassed = new stzVisualRule("passed")
-oPassed {
-
-	When(:last_run, :equals = "pass")
-	UseColor("white")
-	# Add UseColorXT("red++", "white") #TODO first is node background, the second is the color of the text
-
-}
-
-oFailed = new stzVisualRule("failed")
-oFailed {
-	When(:last_run, :Equals = "fail")
-	UseColor("orange")
-}
-
-oRunning = new stzVisualRule("running")
-oRunning {
-	When(:last_run, :Equals = "running")
-	UseColor("green")
-	UsePenWidth(2)
-}
-
-# Critical stages
-oCriticalStage = new stzVisualRule("critical_stage")
-oCriticalStage {
-	WhenTag("gate", :exists)
-	ApplyShape("diamond")
-}
-
-oDiag {
-	SetTheme(:LightGray)
-	SetLayout(:TopDown)
-	
-	# Rules can be composed from exitant set of rules,
-	# which is more accurade for clean design and reusable rules
-	SetVisualRule(oPassed)
-	SetVisualRule(oFailed)
-	SetVisualRule(oRunning)
-	SetVisualRule(oCriticalStage)
-	
-	#TODO// But rules should also be defined directly inside the diagram
-	# object, which is more intuitive for quick and focused usage
-#	When(:lastrun, :Equals = "pass")
-#	UseColor("#4CAF50") # Allow resolving color name (like :red), semantic (like :Success)
-
-
-	AddNodeXTT("commit", "Git Commit", [
-		:type = "start",
-		:color = "success",
-		:last_run = "pass"
-	])
-
-	AddNodeXTT("build", "Build", [
-		:type = "process",
-		:color = "primary",
-		:last_run = "pass",
-		:duration_s = 120
-	])
-	
-	AddNodeXTT("unit", "Unit Tests", [
-		:type = "process",
-		:color = "primary",
-		:last_run = "running",
-		:duration_s = 45
-	])
-	
-	AddNodeXTT("security", "Security Scan", [
-		:type = "decision",
-		:color = "warning",
-		:last_run = "pass",
-		:issues = 0,
-		:tags = ["gate"]
-	])
-	
-	AddNodeXTT("deploy_stage", "Deploy Staging", [
-		:type = "process",
-		:color = "info",
-		:last_run = "pass"
-	])
-	
-	AddNodeXTT("integration", "Integration Tests", [
-		:type = "process",
-		:color = "primary",
-		:last_run = "fail",
-		:failed_tests = 3
-	])
-	
-	AddNodeXTT("approval", "Manual Approval", [
-		:type = "decision",
-		:color = "warning",
-		:last_run = "pass",
-		:tags = [:gate]
-	])
-	
-	AddNodeXTT("deploy_prod", "Deploy Production", [
-		:type = "endpoint",
-		:color = "success",
-		:last_run = "pass"
-	])
-	
-	Connect("commit", "build")
-	Connect("build", "unit")
-	Connect("unit", "security")
-	Connect("security", "deploy_stage")
-	Connect("deploy_stage", "integration")
-	Connect("integration", "approval")
-	Connect("approval", "deploy_prod")
-	
-	View()
-}
 
 pf()

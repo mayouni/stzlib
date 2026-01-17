@@ -1,9 +1,11 @@
 # This file loads the BASE layer of SoftanzaLib (along with its CORE layer)
 
 # Giving priority to user code config (suggested by Mahmoud)
-if NOT isGlobal(:$aStzLibConfig )
+if NOT isGlobal(:$aStzLibConfig ) #TODO // Make it a stzlibconfig.ring file
     $aStzLibConfig = []
 ok
+
+// tz0 = clock()
 
 # Loding the files related to the CORE layer
 
@@ -13,7 +15,7 @@ ok
 
     load "common/stzcounter.ring"
     load "common/stzfuncs.ring"
-    load "common/stznamedparams.ring" #TODO Use it instead the equivalent code in stzList
+    load "common/stznamedparams.ring" #TODO //Use it instead the equivalent code in stzList
 
     load "common/stzoccurrences.ring"
     load "common/stzqtfuncs.ring"
@@ -129,6 +131,8 @@ ok
     load "graph/stzknowledgegraph.ring"
 
     load "graph/stzdiagram.ring"
+    load "graph/stzdiagramcolor.ring"
+
     load "graph/stzorgchart.ring"
 
     load "graph/stzworkflow.ring"
@@ -297,3 +301,6 @@ ok
     load "stats/stzcoeffextractor.ring"
     load "stats/stzlinearsolver.ring"
 
+// tz1 = clock()
+// ? "Softanza laoding time:"
+// ? (tz1 - tz0) / clockspersecond() + NL

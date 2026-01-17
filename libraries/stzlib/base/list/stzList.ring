@@ -1220,6 +1220,7 @@ func IsSortedDownListOfPairsOfNumbers(paList)
 
 
 func IsListOfNumbers(paList)
+	t1= clock()
 	if NOT isList(paList)
 		return 0
 	ok
@@ -1231,6 +1232,9 @@ func IsListOfNumbers(paList)
 			return 0
 		ok
 	next
+
+	t2= clock()
+	? (t2-t1)/clockspersecond()
 
 	return 1
 
@@ -83706,6 +83710,16 @@ fdef
 
 		def IsToNodeOrToNamedParam()
 			return This.IsToOrToNodeNamedParam()
+
+	def IsToOrToNodeOrToNodesNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and  ring_find([ "to", "tonode", "tonodes" ], This.Item(1)) )
+
+			return 1
+
+		else
+			return 0
+		ok
 
 	def IsToOrToPositionOrToNodeNamedParam()
 		if This.NumberOfItems() = 2 and

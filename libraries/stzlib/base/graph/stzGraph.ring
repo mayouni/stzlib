@@ -442,7 +442,30 @@ class stzGraph
 		This.AddEdgeXTT(pcFromNodeId, pcToNodeId, "", [])
 
 		def Connect(pcFromNodeId, pcToNodeId)
+			if CheckParams()
+
+				if isList(pcToNodeId) and
+				   StzListQ(pcToNodeId).IsToOrToNodeOrToNodesNamedParam()
+					pcToNodeId = pcToNodeId[2]
+				ok
+
+			ok
+
+			if isList(pcToNodeId)
+				This.AddEdges(pcFromNodeId, pcToNodeId)
+				return
+			ok
+
 			This.AddEdgeXTT(pcFromNodeId, pcToNodeId, "", [])
+
+	def AddEdges(pcFromNodeId, pacToNodesIds)
+		nLen = len(pacToNodesIds)
+		for i = 1 to nLen
+			This.AddEdgeXTT(pcFromNodeId, pacToNodesIds[i], "", [])
+		next
+
+		def ConnectToMany(pcFromNodeId, pacToNodesIds)
+			This.AddEdges(pcFromNodeId, pacToNodesIds)
 
 	def AddEdgeXT(pcFromNodeId, pcToNodeId, pcLabel)
 		This.AddEdgeXTT(pcFromNodeId, pcToNodeId, pcLabel, [])
@@ -456,6 +479,11 @@ class stzGraph
 				pcFromNodeId = pcFromNodeId[2]
 			ok
 
+			if isList(pcToNodeId)
+				This.AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
+				return
+			ok
+
 			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsAndOrToOrToNodeNamedParam()
 				pcToNodeId = pcToNodeId[2]
 			ok
@@ -463,6 +491,8 @@ class stzGraph
 			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
 				pcLabel = pcLabel[2]
 			ok
+
+
 		ok
 
 		pcFromNodeId = lower(pcFromNodeId)
@@ -490,6 +520,15 @@ class stzGraph
 
 		def ConnectXTT(pcFromNodeId, pcToNodeId, pcLabel, pacProperties)
 			This.AddEdgeXTT(pcFromNodeId, pcToNodeId, pcLabel, pacProperties)
+
+	def AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
+		nLen = len(paToNodesIdsAndLabelsAndProps)
+		for i = 1 to nLen
+			This.AddEdgeXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps[i])
+		next
+
+		def ConnectEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
+			This.AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
 
 	def Edge(pcFromNodeId, pcToNodeId)
 		if CheckParams()
@@ -2928,7 +2967,7 @@ class stzGraph
 
 	    for i = 1 to nLen
 	        aEdge = This.Edge(acPath[i], acPath[i+1])
-	        aStory + (acPath[i] + " → " + acPath[i+1])
+	        aStory + (acPath[i] + " â†’ " + acPath[i+1])
 		if aEdge[:label] != ""
 			aStory[len(aStory)] +=  (" : because {" + acPath[i] + "} " + substr(aEdge[:label], "_", " ") + " {" + acPath[i+1] + "}" )
 		ok
@@ -2986,8 +3025,8 @@ class stzGraph
 		next
 	
 	def UseRulesFrom(pcTheme)
-		if HasKey($GraphRules, pcTheme)
-			This.UseRules($GraphRules[pcTheme])
+		if HasKey($aGraphRules, pcTheme)
+			This.UseRules($aGraphRules[pcTheme])
 		ok
 
 	def ApplyDerivations()
@@ -3054,7 +3093,7 @@ class stzGraph
 		
 		bSuccess = (len(aViolations) = 0)
 		return [bSuccess, aViolations]
-	
+
 	def Validate()
 		aViolations = []
 		acRulesChecked = []  # Track which validation rules ran
@@ -3696,9 +3735,9 @@ class stzGraph
 				nVarDegree = len(oOtherGraph.Neighbors(cNodeId)) + len(oOtherGraph.Incoming(cNodeId))
 				
 				if nVarDegree > nBaseDegree
-					acCriticalityChanges + [cNodeId, "Criticality increased (degree " + nBaseDegree + " → " + nVarDegree + ")"]
+					acCriticalityChanges + [cNodeId, "Criticality increased (degree " + nBaseDegree + " â†’ " + nVarDegree + ")"]
 				but nVarDegree < nBaseDegree
-					acCriticalityChanges + [cNodeId, "Criticality decreased (degree " + nBaseDegree + " → " + nVarDegree + ")"]
+					acCriticalityChanges + [cNodeId, "Criticality decreased (degree " + nBaseDegree + " â†’ " + nVarDegree + ")"]
 				ok
 			ok
 		next
@@ -4132,7 +4171,7 @@ class stzGraph
 			This.LoadFromStzRulz(pcPath)
 	
 	def _ParseStzRulz(cContent)
-		# Loads rule metadata and links to functions from .stzrulf files
+		# Loads rule properties and links to functions from .stzrulf files
 		acLines = split(cContent, NL)
 		cSection = ""
 		aCurrentRule = []
@@ -4801,14 +4840,14 @@ class stzGraphQuery
 class stzGraphAsciiVisualizer
 	@oGraph
 
-	@cBoxTopLeft = "╭"
-	@cBoxTopRight = "╮"
-	@cBoxBottomLeft = "╰"
-	@cBoxBottomRight = "╯"
-	@cBoxHorizontal = "─"
-	@cBoxVertical = "│"
+	@cBoxTopLeft = "â•­"
+	@cBoxTopRight = "â•®"
+	@cBoxBottomLeft = "â•°"
+	@cBoxBottomRight = "â•¯"
+	@cBoxHorizontal = "â”€"
+	@cBoxVertical = "â”‚"
 	@cArrowDown = "v"
-	@cArrowUp = "↑"
+	@cArrowUp = "â†‘"
 	@cPipeChar = "|"
 	@cBranchSeparator = "////"
 	@cCycleIndicator = "CYCLE"
@@ -5119,7 +5158,7 @@ class stzGraphComparison
 		
 		for i = 1 to nLen
 			aComp = aComps[i]
-			cResult += "• " + aComp[:name] + ": " + aComp[:explanation] + NL
+			cResult += "â€¢ " + aComp[:name] + ": " + aComp[:explanation] + NL
 		next
 		
 		return cResult

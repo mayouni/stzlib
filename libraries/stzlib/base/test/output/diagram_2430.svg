@@ -16,7 +16,7 @@
 <g id="node1" class="node">
 <title>start</title>
 <g id="a_node1"><a xlink:title=" ">
-<ellipse fill="#4d654d" stroke="black" cx="85" cy="-387.68" rx="30.21" ry="18"/>
+<ellipse fill="#4d654d" stroke="black" stroke-width="3" cx="85" cy="-387.68" rx="30.21" ry="18"/>
 <text xml:space="preserve" text-anchor="middle" x="85" y="-383.41" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Begin</text>
 </a>
 </g>
@@ -25,7 +25,7 @@
 <g id="node2" class="node">
 <title>proc1</title>
 <g id="a_node2"><a xlink:title=" ">
-<path fill="#4d4dc9" stroke="black" d="M102.38,-310.68C102.38,-310.68 67.62,-310.68 67.62,-310.68 61.62,-310.68 55.62,-304.68 55.62,-298.68 55.62,-298.68 55.62,-286.68 55.62,-286.68 55.62,-280.68 61.62,-274.68 67.62,-274.68 67.62,-274.68 102.38,-274.68 102.38,-274.68 108.38,-274.68 114.38,-280.68 114.38,-286.68 114.38,-286.68 114.38,-298.68 114.38,-298.68 114.38,-304.68 108.38,-310.68 102.38,-310.68"/>
+<path fill="#4d4dc9" stroke="black" stroke-width="3" d="M102.38,-310.68C102.38,-310.68 67.62,-310.68 67.62,-310.68 61.62,-310.68 55.62,-304.68 55.62,-298.68 55.62,-298.68 55.62,-286.68 55.62,-286.68 55.62,-280.68 61.62,-274.68 67.62,-274.68 67.62,-274.68 102.38,-274.68 102.38,-274.68 108.38,-274.68 114.38,-280.68 114.38,-286.68 114.38,-286.68 114.38,-298.68 114.38,-298.68 114.38,-304.68 108.38,-310.68 102.38,-310.68"/>
 <text xml:space="preserve" text-anchor="middle" x="85" y="-288.41" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Validate</text>
 </a>
 </g>
@@ -33,14 +33,14 @@
 <!-- start&#45;&gt;proc1 -->
 <g id="edge1" class="edge">
 <title>start&#45;&gt;proc1</title>
-<path fill="none" stroke="#656565" d="M85,-369.19C85,-356.07 85,-337.82 85,-322.55"/>
-<polygon fill="#656565" stroke="#656565" points="88.5,-322.61 85,-312.61 81.5,-322.61 88.5,-322.61"/>
+<path fill="none" stroke="#656565" d="M85,-368.31C85,-355.44 85,-337.98 85,-323.18"/>
+<polygon fill="#656565" stroke="#656565" points="88.5,-323.53 85,-313.53 81.5,-323.53 88.5,-323.53"/>
 </g>
 <!-- dec1 -->
 <g id="node3" class="node">
 <title>dec1</title>
 <g id="a_node3"><a xlink:title=" ">
-<polygon fill="#333300" stroke="black" points="85,-202.43 40.93,-184.43 85,-166.43 129.07,-184.43 85,-202.43"/>
+<polygon fill="#333300" stroke="black" stroke-width="3" points="85,-202.43 40.93,-184.43 85,-166.43 129.07,-184.43 85,-202.43"/>
 <text xml:space="preserve" text-anchor="middle" x="85" y="-180.16" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Valid?</text>
 </a>
 </g>
@@ -48,15 +48,15 @@
 <!-- proc1&#45;&gt;dec1 -->
 <g id="edge2" class="edge">
 <title>proc1&#45;&gt;dec1</title>
-<path fill="none" stroke="#656565" d="M85,-274.61C85,-258.36 85,-233.6 85,-214.29"/>
-<polygon fill="#656565" stroke="#656565" points="88.5,-214.33 85,-204.33 81.5,-214.33 88.5,-214.33"/>
-<text xml:space="preserve" text-anchor="middle" x="102.25" y="-234.28" font-family="Helvetica,sans-Serif" font-size="12.00">Check</text>
+<path fill="none" stroke="#656565" d="M85,-273.66C85,-257.73 85,-234.18 85,-215.41"/>
+<polygon fill="#656565" stroke="#656565" points="88.5,-215.41 85,-205.41 81.5,-215.41 88.5,-215.41"/>
+<text xml:space="preserve" text-anchor="middle" x="103.75" y="-234.28" font-family="Helvetica,sans-Serif" font-size="12.00"> Check</text>
 </g>
 <!-- error -->
 <g id="node4" class="node">
 <title>error</title>
 <g id="a_node4"><a xlink:title=" ">
-<path fill="#ff7f50" stroke="black" d="M42,-65.09C42,-65.09 12,-65.09 12,-65.09 6,-65.09 0,-59.09 0,-53.09 0,-53.09 0,-41.09 0,-41.09 0,-35.09 6,-29.09 12,-29.09 12,-29.09 42,-29.09 42,-29.09 48,-29.09 54,-35.09 54,-41.09 54,-41.09 54,-53.09 54,-53.09 54,-59.09 48,-65.09 42,-65.09"/>
+<path fill="#ff7f50" stroke="black" stroke-width="3" d="M42,-65.09C42,-65.09 12,-65.09 12,-65.09 6,-65.09 0,-59.09 0,-53.09 0,-53.09 0,-41.09 0,-41.09 0,-35.09 6,-29.09 12,-29.09 12,-29.09 42,-29.09 42,-29.09 48,-29.09 54,-35.09 54,-41.09 54,-41.09 54,-53.09 54,-53.09 54,-59.09 48,-65.09 42,-65.09"/>
 <text xml:space="preserve" text-anchor="middle" x="27" y="-42.82" font-family="Helvetica,sans-Serif" font-size="12.00">Error</text>
 </a>
 </g>
@@ -64,16 +64,16 @@
 <!-- dec1&#45;&gt;error -->
 <g id="edge3" class="edge">
 <title>dec1&#45;&gt;error</title>
-<path fill="none" stroke="#656565" d="M78.68,-168.69C69.14,-146.43 50.9,-103.87 38.84,-75.72"/>
-<polygon fill="#656565" stroke="#656565" points="42.15,-74.56 35,-66.75 35.72,-77.32 42.15,-74.56"/>
-<text xml:space="preserve" text-anchor="middle" x="72.46" y="-126.03" font-family="Helvetica,sans-Serif" font-size="12.00">No</text>
+<path fill="none" stroke="#656565" d="M78.23,-167.64C68.68,-145.36 51.09,-104.32 39.22,-76.61"/>
+<polygon fill="#656565" stroke="#656565" points="42.58,-75.57 35.43,-67.75 36.15,-78.32 42.58,-75.57"/>
+<text xml:space="preserve" text-anchor="middle" x="73.96" y="-126.03" font-family="Helvetica,sans-Serif" font-size="12.00"> No</text>
 </g>
 <!-- done -->
 <g id="node5" class="node">
 <title>done</title>
 <g id="a_node5"><a xlink:title=" ">
-<ellipse fill="#4d654d" stroke="black" cx="144" cy="-47.09" rx="43.09" ry="43.09"/>
-<ellipse fill="none" stroke="black" cx="144" cy="-47.09" rx="47.09" ry="47.09"/>
+<ellipse fill="#4d654d" stroke="black" stroke-width="3" cx="144" cy="-47.09" rx="43.09" ry="43.09"/>
+<ellipse fill="none" stroke="black" stroke-width="3" cx="144" cy="-47.09" rx="47.09" ry="47.09"/>
 <text xml:space="preserve" text-anchor="middle" x="144" y="-42.82" font-family="Helvetica,sans-Serif" font-size="12.00" fill="white">Complete</text>
 </a>
 </g>
@@ -81,9 +81,9 @@
 <!-- dec1&#45;&gt;done -->
 <g id="edge4" class="edge">
 <title>dec1&#45;&gt;done</title>
-<path fill="none" stroke="#656565" d="M91.43,-168.69C98.51,-152.44 110.31,-125.38 120.93,-101"/>
-<polygon fill="#656565" stroke="#656565" points="124.01,-102.71 124.8,-92.14 117.59,-99.91 124.01,-102.71"/>
-<text xml:space="preserve" text-anchor="middle" x="120.72" y="-126.03" font-family="Helvetica,sans-Serif" font-size="12.00">Yes</text>
+<path fill="none" stroke="#656565" d="M91.88,-167.64C98.93,-151.48 110.27,-125.47 120.58,-101.82"/>
+<polygon fill="#656565" stroke="#656565" points="123.67,-103.47 124.46,-92.91 117.26,-100.68 123.67,-103.47"/>
+<text xml:space="preserve" text-anchor="middle" x="122.22" y="-126.03" font-family="Helvetica,sans-Serif" font-size="12.00"> Yes</text>
 </g>
 </g>
 </svg>
