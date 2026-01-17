@@ -75,6 +75,61 @@ oDiag {
 
 pf()
 
+/*--- Creating nodes in sequence
+
+pr()
+
+oDiag = new stzDiagram("SequenceDemo")
+oDiag {
+	SetLayout("TB")
+	SetEdgeStyle(:Normal)
+
+	AddNodeXTT("start", "Begin", [ :type = "start", :color = "success" ])
+	AddNodeXTT("proc1", "Step 1", [ :type = "process", :color = "primary" ])
+	AddNodeXTT("proc2", "Step 2", [ :type = "process", :color = "primary" ])
+	AddNodeXTT("proc3", "Step 3", [ :type = "process", :color = "primary" ])
+	AddNodeXTT("done", "Complete", [ :type = "endpoint", :color = "success" ])
+
+	# Instead of using Connect(@nod1, @node2) for each eadge, we write:
+	ConnectSequence([ "start", "proc1", "proc2", "proc3", "done" ])
+
+	View()
+}
+
+pf()
+# Executed in 0.56 second(s) in Ring 1.25
+
+/*--- Creating nodes in sequence with lablels
+*/
+pr()
+
+oDiag = new stzDiagram("SequenceDemoXT")
+oDiag {
+	SetLayout("TB")
+	SetEdgeStyle(:Normal)
+	
+	AddNodeXTT(:@Free, "Free", [ :type = "process", :color = "gray" ])
+	AddNodeXTT(:@Basic, "Basic", [ :type = "process", :color = "primary" ])
+	AddNodeXTT(:@Pro, "Pro", [ :type = "process", :color = "warning" ])
+	AddNodeXTT(:@Enterprise, "Enterprise", [ :type = "process", :color = "success" ])
+	
+	# Sequence with labels between nodes
+	ConnectSequenceXT([
+		:@Free,
+		"Upgrade",
+		:@Basic,
+		"Upgrade",
+		:@Pro,
+		"Upgrade",
+		:@Enterprise
+	])
+	
+	View()
+}
+
+pf()
+# Executed in 0.61 second(s) in Ring 1.25
+
 /*--- Using direct names of forms to create nodes
 
 pr()
@@ -1296,7 +1351,7 @@ pf()
 # Executed in 12.69 second(s) in Ring 1.24
 
 /*-- Combined options
-*/
+
 pr()
 
 oDiag = new stzDiagram("CompleteTest")

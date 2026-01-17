@@ -1,17 +1,15 @@
-digraph "completetest" {
+digraph "sequencedemoxt" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
     node [fontname="helvetica", fontsize=12]
-    edge [fontname="helvetica", fontsize=12, color="#656565", style=dotted, penwidth=2, arrowhead=normal, arrowtail=none]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    start [label="Begin", shape=ellipse, style="solid,filled", fillcolor="#008000", penwidth=2, fontcolor="white", tooltip=" "]
-    proc1 [label="Validate", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", penwidth=2, fontcolor="black", tooltip=" "]
-    dec1 [label="Valid?", shape=diamond, style="solid,filled", fillcolor="#FFA500", penwidth=2, fontcolor="black", tooltip=" "]
-    error [label="Error", shape=box, style="rounded,solid,filled", fillcolor="#FF0000", penwidth=2, fontcolor="white", tooltip=" "]
-    done [label="Complete", shape=doublecircle, style="solid,filled", fillcolor="#008000", penwidth=2, fontcolor="white", tooltip=" "]
+    free [label="Free", shape=box, style="rounded,solid,filled", fillcolor="#808080", penwidth=1, fontcolor="white", tooltip=" "]
+    basic [label="Basic", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", tooltip=" "]
+    pro [label="Pro", shape=box, style="rounded,solid,filled", fillcolor="#FFA500", penwidth=1, fontcolor="black", tooltip=" "]
+    enterprise [label="Enterprise", shape=box, style="rounded,solid,filled", fillcolor="#008000", penwidth=1, fontcolor="white", tooltip=" "]
 
-    start -> proc1
-    proc1 -> dec1 [label=" Check"]
-    dec1 -> error [label=" No"]
-    dec1 -> done [label=" Yes"]
+    free -> basic [label=" Upgrade"]
+    basic -> pro [label=" Upgrade"]
+    pro -> enterprise [label=" Upgrade"]
 
 }
