@@ -458,6 +458,57 @@ class stzGraph
 
 			This.AddEdgeXTT(pcFromNodeId, pcToNodeId, "", [])
 
+	def ConnectSequence(paNodes)
+		if NOT isList(paNodes)
+			StzRaise("Incorrect param! paNodes must be a list.")
+		ok
+		
+		nLen = len(paNodes)
+		if nLen < 2
+			StzRaise("ConnectSequence requires at least 2 nodes.")
+		ok
+		
+		for i = 1 to nLen - 1
+			This.Connect(paNodes[i], paNodes[i + 1])
+		end
+	
+		def ConnectInSequence(paNodes)
+			This.ConnectSequence(paNodes)
+	
+		def ConnectMany(paNodes)
+			This.ConnectSequence(paNodes)
+
+	def ConnectSequenceXT(paNodesAndLabels)
+		if NOT isList(paNodesAndLabels)
+			StzRaise("Incorrect param! paNodesAndLabels must be a list.")
+		ok
+		
+		nLen = len(paNodesAndLabels)
+		
+		# Must be odd number: node1, label1, node2, label2, ..., nodeN
+		if nLen % 2 = 0
+			StzRaise("List must have odd length: [node1, label1, node2, label2, ..., lastNode]")
+		ok
+		
+		if nLen < 3
+			StzRaise("ConnectSequenceXT requires at least 3 items: [node1, label, node2]")
+		ok
+		
+		# Process pairs: node, label, node
+		for i = 1 to nLen - 2 step 2
+			cFrom = paNodesAndLabels[i]
+			cLabel = paNodesAndLabels[i + 1]
+			cTo = paNodesAndLabels[i + 2]
+			
+			This.ConnectXT(cFrom, cTo, cLabel)
+		end
+	
+		def ConnectInSequenceXT(paNodesAndLabels)
+			This.ConnectSequenceXT(paNodesAndLabels)
+	
+		def ConnectManyXT(paNodesAndLabels)
+			This.ConnectSequenceXT(paNodesAndLabels)
+
 	def AddEdges(pcFromNodeId, pacToNodesIds)
 		nLen = len(pacToNodesIds)
 		for i = 1 to nLen
