@@ -12,7 +12,7 @@
 #  RULE CONTAINER  #
 #------------------#
 
-$GraphRules = [
+$aGraphRules = [
 	:security = [],
 	:workflow = [],
 	:compliance = [],
@@ -21,32 +21,224 @@ $GraphRules = [
 	:custom = []
 ]
 
+#-------------------------------#
+#  RULES RELATED TO stzDiagram  #
+#-------------------------------#
+
+RegisterRule(:sox, "sox_audit_trail", [
+    :type = :validation,
+    :function = func(oGraph, paRuleParams) {
+        aNodes = oGraph.Nodes()
+        aViolations = []
+        
+        for aNode in aNodes
+            cNodeId = aNode[:id]
+            cType = ""
+            if HasKey(aNode, :properties) and HasKey(aNode[:properties], :type)
+                cType = aNode[:properties][:type]
+            ok
+            
+	    # Only check process nodes
+	    if cType = "process"
+		    acNeighbors = oGraph.Neighbors(cNodeId)
+		    bHasAudit = FALSE
+		    
+		    for cNeighbor in acNeighbors
+		        aNeighborNode = oGraph.Node(cNeighbor)
+		        if HasKey(aNeighborNode, :properties)
+		            cNeighborType = ""
+		            if HasKey(aNeighborNode[:properties], :type)
+		                cNeighborType = aNeighborNode[:properties][:type]
+		            ok
+		            if cNeighborType = "data"  # Process must connect to data node
+		                bHasAudit = TRUE
+		                exit
+		            ok
+		        ok
+		    next
+		    
+		    if NOT bHasAudit
+		        aViolations + [
+		            :message = "SOX-001: Missing audit trail: " + cNodeId,
+		            :params = [:node = cNodeId]
+		        ]
+		    ok
+	    ok
+        next
+        
+        if len(aViolations) > 0
+            return [FALSE, aViolations]
+        ok
+        
+        return [TRUE, []]
+    },
+    :params = [],
+    :message = "SOX audit compliance",
+    :severity = :error
+])
+
+# SOX Compliance Rules
+RegisterRule(:sox, "sox_approval_required", [
+    :type = :validation,
+    :function = func(oGraph, paRuleParams) {
+        aNodes = oGraph.Nodes()
+        aViolations = []
+        
+        for aNode in aNodes
+            cNodeId = aNode[:id]
+            cType = ""
+            if HasKey(aNode, :properties) and HasKey(aNode[:properties], :type)
+                cType = aNode[:properties][:type]
+            ok
+            
+            # Check decision nodes for approval requirements
+            if cType = "decision"
+                bHasApproval = FALSE
+                if HasKey(aNode, :properties) and 
+                   HasKey(aNode[:properties], :requiresApproval)
+                    bHasApproval = aNode[:properties][:requiresApproval]
+                ok
+                
+                if NOT bHasApproval
+                    aViolations + [
+                        :message = "SOX-002: Decision node lacks approval requirement: " + cNodeId,
+                        :params = [:node = cNodeId]
+                    ]
+                ok
+            ok
+        next
+        
+        if len(aViolations) > 0
+            return [FALSE, aViolations]
+        ok
+        
+        return [TRUE, []]
+    },
+    :params = [],
+    :message = "SOX approval requirements",
+    :severity = :error
+])
+
+# GDPR Compliance Rules
+RegisterRule(:gdpr, "gdpr_consent", [
+    :type = :validation,
+    :function = func(oGraph, paRuleParams) {
+        aNodes = oGraph.Nodes()
+        aViolations = []
+        
+        for aNode in aNodes
+            cNodeId = aNode[:id]
+            cDataType = ""
+            if HasKey(aNode, :properties) and HasKey(aNode[:properties], :dataType)
+                cDataType = aNode[:properties][:dataType]
+            ok
+            
+            if cDataType = "personal"
+                bHasConsent = FALSE
+                if HasKey(aNode, :properties) and HasKey(aNode[:properties], :requiresConsent)
+                    bHasConsent = aNode[:properties][:requiresConsent]
+                ok
+                
+                if NOT bHasConsent
+                    # Return structured violation like SOX
+                    aViolations + [
+                        :message = "GDPR-001: Personal data missing consent: " + cNodeId,
+                        :params = [:node = cNodeId]
+                    ]
+                ok
+            ok
+        next
+        
+        if len(aViolations) > 0
+            return [FALSE, aViolations]
+        ok
+        
+        return [TRUE, []]
+    },
+    :params = [],
+    :message = "GDPR consent requirements",
+    :severity = :error
+])
+
+# Banking Compliance Rules
+RegisterRule(:banking, "banking_dual_control", [
+    :type = :validation,
+    :function = func(oGraph, paRuleParams) {
+        aNodes = oGraph.Nodes()
+        aViolations = []
+        
+        for aNode in aNodes
+            cNodeId = aNode[:id]
+            nAmount = 0
+            if HasKey(aNode, :properties) and HasKey(aNode[:properties], :amount)
+                nAmount = aNode[:properties][:amount]
+            ok
+            
+            if nAmount > 10000
+                acIncoming = oGraph.Incoming(cNodeId)
+                nApprovers = 0
+                
+                for cPred in acIncoming
+                    aPredNode = oGraph.Node(cPred)
+                    if HasKey(aPredNode, :properties)
+                        cType = ""
+                        if HasKey(aPredNode[:properties], :type)
+                            cType = aPredNode[:properties][:type]
+                        ok
+                        if cType = "decision"
+                            nApprovers++
+                        ok
+                    ok
+                next
+                
+                if nApprovers < 2
+                    # Return structured violation
+                    aViolations + [
+                        :message = "BANKING-001: High-value operation needs dual control: " + cNodeId,
+                        :params = [:node = cNodeId]
+                    ]
+                ok
+            ok
+        next
+        
+        if len(aViolations) > 0
+            return [FALSE, aViolations]  # Return array, not string
+        ok
+        
+        return [TRUE, []]
+    },
+    :params = [],
+    :message = "Banking dual control",
+    :severity = :error
+])
+
 #-------------#
 #  FUNCTIONS  #
 #-------------#
 
 func GraphRules()
-	return $GraphRules
+	return $aGraphRules
 
 func RegisterRule(pcTheme, pcRuleName, paRuleDefinition)
-	if NOT HasKey($GraphRules, pcTheme)
-		$GraphRules + [pcTheme, []]
-	ok
-	
-	aRule = [
-		:name = pcRuleName,
-		:type = paRuleDefinition[:type],
-		:function = paRuleDefinition[:function],
-		:params = paRuleDefinition[:params],  # Store params here
-		:message = paRuleDefinition[:message],
-		:severity = paRuleDefinition[:severity]
-	]
-	
-	$GraphRules[pcTheme] + aRule
+    if NOT HasKey($aGraphRules, pcTheme)
+        $aGraphRules[pcTheme] = []  # Initialize as empty list
+    ok
+    
+    aRule = [
+        :name = pcRuleName,
+        :type = paRuleDefinition[:type],
+        :function = paRuleDefinition[:function],
+        :params = paRuleDefinition[:params],
+        :message = paRuleDefinition[:message],
+        :severity = paRuleDefinition[:severity]
+    ]
+    
+    # Append to existing array, don't create new key
+    $aGraphRules[pcTheme] + aRule
 
 func GetRule(pcTheme, pcRuleName)
-	if HasKey($GraphRules, pcTheme)
-		aRules = $GraphRules[pcTheme]
+	if HasKey($aGraphRules, pcTheme)
+		aRules = $aGraphRules[pcTheme]
 		nLen = len(aRules)
 		for i = 1 to nLen
 			if aRules[i][:name] = pcRuleName
@@ -54,7 +246,7 @@ func GetRule(pcTheme, pcRuleName)
 			ok
 		next
 	ok
-	return NULL
+	stzraise("Inexistant rule!")
 
 #---------------------------#
 #  BUILT-IN RULE FUNCTIONS  #
@@ -327,47 +519,3 @@ func ValidationFunc_AllNodesReachable()
 		ok
 		return [TRUE, ""]
 	}
-
-#-------------------------------#
-#  RULES RELATED TO stzDiagram  #
-#-------------------------------#
-
-RegisterRule(:dag, "dag", [
-	:type = :validation,
-	:function = ValidationFunc_IsAcyclic(),
-	:params = [],
-	:message = "Diagram must be acyclic (DAG)",
-	:severity = :error
-])
-
-RegisterRule(:sox, "sox", [
-	:type = :validation,
-	:function = func(oGraph, paParams) {
-		acFinancial = oGraph.NodesW("domain", "=", "financial")
-		for cId in acFinancial
-			if oGraph.NodeProp(cId, "audittrail") = NULL
-				return [FALSE, "Financial node missing audit: " + cId]
-			ok
-		end
-		return [TRUE, ""]
-	},
-	:params = [],
-	:message = "Financial processes need audit trails",
-	:severity = :error
-])
-
-RegisterRule(:gdpr, "gdpr", [
-	:type = :validation,
-	:function = func(oGraph, paParams) {
-		acPersonal = oGraph.NodesW("dataType", "=", "personal")
-		for cId in acPersonal
-			if oGraph.NodeProp(cId, "requiresConsent") != 1
-				return [FALSE, "Personal data missing consent: " + cId]
-			ok
-		end
-		return [TRUE, ""]
-	},
-	:params = [],
-	:message = "Personal data needs consent",
-	:severity = :error
-])

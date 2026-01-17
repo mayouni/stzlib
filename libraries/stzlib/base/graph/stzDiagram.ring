@@ -6,238 +6,7 @@
 # NOTE : there some rules related to stzDiagram that are registred in
 # stzGraphRule file, like "dag", "sox", and "gdpr" rules.
 
-#  UNIFIED COLOR SYSTEM	#TODO Abstract it in a stzColor class -> Visual Module
-#-----------------------
-
-# Base color definitions (single source of truth)
-$acColors = [
-	# Grayscale
-	:white = "#FFFFFF",
-	:black = "#000000",
-	:gray = "#808080",
-	
-	# Primary colors
-	:red = "#FF0000",
-	:green = "#008000",
-	:blue = "#0000FF",
-	:yellow = "#FFFF00",
-	:orange = "#FFA500",
-	:purple = "#800080",
-	:cyan = "#00FFFF",
-	:magenta = "#FF00FF",
-	
-	# Extended palette
-	:brown = "#A52A2A",
-	:pink = "#FFC0CB",
-	:navy = "#000080",
-	:teal = "#008080",
-	:olive = "#808000",
-	:maroon = "#800000",
-	:lime = "#00FF00",
-	:aqua = "#00FFFF",
-	:silver = "#C0C0C0",
-	:gold = "#FFD700",
-	:coral = "#FF7F50",
-	:salmon = "#FA8072",
-	:lavender = "#E6E6FA",
-	:steelblue = "#4682B4"
-]
-
-# Semantic color meanings (abstraction layer)
-$acColorsBySemanticMeaning = [
-	:Success = "green",
-	:Warning = "yellow",
-	:Danger = "red",
-	:Info = "blue",
-	:Primary = "blue",
-	:Neutral = "gray"
-]
-
-# Global color palette - lazy initialization
-$acFullColorPalette = []
-
-# Initialize theme palettes after ResolveColor is defined
-$aPalette = [
-	:light = [
-		:primary = "blue+",
-		:success = "green+",
-		:warning = "yellow+",
-		:danger = "coral",
-		:info = "cyan+",
-		:neutral = "gray+",
-		:background = "white"
-	],
-	:dark = [
-		:primary = "blue--",
-		:success = "green",
-		:warning = "orange",
-		:danger = "red",
-		:info = "blue",
-		:neutral = "gray-",
-		:background = "gray++"
-	],
-	:vibrant = [
-		:primary = "blue",
-		:success = "green",
-		:warning = "orange",
-		:danger = "red",
-		:info = "blue",
-		:neutral = "gray--",
-		:background = "white"
-	],
-	:pro = [
-		:primary = "blue+",
-		:success = "green-",
-		:warning = "orange-",
-		:danger = "red-",
-		:info = "blue",
-		:neutral = "gray",
-		:background = "white"
-	],
-	:access = [
-		:primary = "blue",
-		:success = "green-",
-		:warning = "yellow+",
-		:danger = "red-",
-		:info = "blue",
-		:neutral = "gray-",
-		:background = "#FFFEF7"
-	],
-	:print = [
-		:primary = "white",
-		:success = "white",
-		:warning = "white",
-		:danger = "white",
-		:info = "white",
-		:neutral = "white",
-		:background = "white"
-	],
-	:lightgray = [
-		:primary = "white",
-		:success = "gray--",
-		:warning = "gray-",
-		:danger = "gray++",
-		:info = "gray+",
-		:neutral = "white",
-		:background = "white"
-	],
-	:gray = [
-		:primary = "gray+",
-		:success = "gray",
-		:warning = "gray+",
-		:danger = "gray-",
-		:info = "gray",
-		:neutral = "gray",
-		:background = "white"
-	],
-	:darkgray = [
-		:primary = "gray-",
-		:success = "gray-",
-		:warning = "gray-",
-		:danger = "gray--",
-		:info = "gray-",
-		:neutral = "gray--",
-		:background = "gray--"
-	]
-]
-
-$cDefaultTheme = "pro"
-
-# Color gradients for numeric metadata (0-100 scale)
-$aMetricColorGradients = [
-	:performance = [
-		[0, 50] = "#FF4444",
-		[51, 75] = "#FFA500",
-		[76, 100] = "#44FF44"
-	],
-	:risk = [
-		[0, 33] = "#44FF44",
-		[34, 66] = "#FFA500",
-		[67, 100] = "#FF4444"
-	],
-	:priority = [
-		[0, 33] = "#CCCCCC",
-		[34, 66] = "#4488FF",
-		[67, 100] = "#FF4444"
-	]
-]
-
-
-$aFontColors = [
-	:light = [
-		:primary = "black",
-		:success = "black",
-		:warning = "black",
-		:danger = "black",
-		:info = "black",
-		:neutral = "black"
-	],
-	:dark = [
-		:primary = "white",
-		:success = "white",
-		:warning = "black",
-		:danger = "white",
-		:info = "white",
-		:neutral = "white"
-	],
-	:vibrant = [
-		:primary = "white",
-		:success = "white",
-		:warning = "black",
-		:danger = "white",
-		:info = "white",
-		:neutral = "white"
-	],
-	:pro = [
-		:primary = "black",
-		:success = "white",
-		:warning = "black",
-		:danger = "white",
-		:info = "white",
-		:neutral = "white"
-	]
-]
-
-# Node type color mappings
-$acColorsByNodeType = [
-	:Start = "green",
-	:Process = "blue",
-	:Decision = "yellow",
-	:Endpoint = "coral",
-	:State = "cyan",
-	:Storage = "gray",
-	:Data = "lavender",
-	:Event = "pink",
-	:Gateway = "yellow",
-	:Subprocess = "steelblue",
-	:Timer = "salmon",
-	:Error = "coral",
-	:Compensation = "gold"
-]
-
-# Global node type definitions
-$acNodeTypes = [
-	:Start,
-	:Process,
-	:Decision,
-	:Endpoint,
-	:State,
-	:Storage,
-	:Data,
-	:Event,
-	:Gateway,
-	:Subprocess,
-	:Timer,
-	:Error,
-	:Compensation
-]
-
-# Default node type and color
-$cDefaultNodeType = "process"
-$cDefaultNodeColor = "white"
-$cDefaultNodeStrokeColor = "gray"  # Can be "" or 'invisible' to hide
-
-$cDefaultClusterColor = "blue--"
+$acDiagramDefaultValidators = ["sox", "gdpr", "banking"]
 
 # Edge styles
 $acEdgeStyles = [
@@ -254,20 +23,6 @@ $cDefaultEdgeColor = "black"
 $cDefaultOrgChartEdgeStyle = "normal"
 $cDefaultOrgChartEdgeSpline = "spline"
 $cDefaultOrgChartEdgeColor = "gray"
-
-# THEMES
-
-$acThemes = [
-	"light",
-	"dark",
-	"vibrant",
-	"pro",
-	"access",
-	"print",
-	"gray",
-	"lightgray",
-	"darkgray"
-]
 
 # LAYOUT
 $acLayouts = [
@@ -328,7 +83,7 @@ $cDefaultFocusColor = "magenta+"
 #  VISUAL MAPPINGS
 #------------------
 
-# Shape modifiers for metadata attributes
+# Shape modifiers for properties attributes
 $aShapeModifiers = [
 	:critical = [:penwidth = 3, :style = "bold,filled"],
 	:optional = [:style = "dashed,filled"],
@@ -370,9 +125,6 @@ $aPolygonShapes = [
 	"house", "invtriangle", "diamond"
 ]
 
-#---
-
-$acDiagramDefaultValidators = ["sox", "gdpr", "banking"]
 
 #--------------------#
 #  GLOBAL FUNCTIONS  #
@@ -386,157 +138,6 @@ func IsStzDiagram(pObj)
 		ok
 	ok
 	return FALSE
-
-# Generate color intensities: color--, color-, color, color+, color++
-func GenerateColorIntensities(cColorName, cHexValue)
-	aIntensities = []
-	
-	aRGB = HexToRGB(cHexValue)
-	nR = aRGB[1]
-	nG = aRGB[2]
-	nB = aRGB[3]
-	
-	nLum = 0.299 * nR + 0.587 * nG + 0.114 * nB
-	
-	if nLum < 128  # Dark color
-		# Base is original
-		aIntensities[cColorName] = cHexValue
-		
-		# - : lighter (add ~64% white)
-		aIntensities[cColorName + "-"] = RGBToHex(
-			min([255, nR + floor((255 - nR) * 0.64)]),
-			min([255, nG + floor((255 - nG) * 0.64)]),
-			min([255, nB + floor((255 - nB) * 0.64)])
-		)
-		
-		# -- : much lighter (add ~88% white)
-		aIntensities[cColorName + "--"] = RGBToHex(
-			min([255, nR + floor((255 - nR) * 0.88)]),
-			min([255, nG + floor((255 - nG) * 0.88)]),
-			min([255, nB + floor((255 - nB) * 0.88)])
-		)
-		
-		# + : darker - for pure colors add 77 to zero channels, scale primary to 79%
-		nRedPlus = floor(nR * 0.79)
-		nGreenPlus = floor(nG * 0.79)
-		nBluePlus = floor(nB * 0.79)
-		
-		if nR = 0 and (nG > 0 or nB > 0)
-			nRedPlus = 77
-		ok
-		if nG = 0 and (nR > 0 or nB > 0)
-			nGreenPlus = 77
-		ok
-		if nB = 0 and (nR > 0 or nG > 0)
-			nBluePlus = 77
-		ok
-		
-		aIntensities[cColorName + "+"] = RGBToHex(
-			max([0, nRedPlus]),
-			max([0, nGreenPlus]),
-			max([0, nBluePlus])
-		)
-		
-		# ++ : much darker (scale to 40%)
-		aIntensities[cColorName + "++"] = RGBToHex(
-			max([0, floor(nR * 0.4)]),
-			max([0, floor(nG * 0.4)]),
-			max([0, floor(nB * 0.4)])
-		)
-		
-	else  # Light color
-		# Base is original
-		aIntensities[cColorName] = cHexValue
-		
-		# - : lighter (64% to white)
-		aIntensities[cColorName + "-"] = RGBToHex(
-			min([255, nR + floor((255 - nR) * 0.64)]),
-			min([255, nG + floor((255 - nG) * 0.64)]),
-			min([255, nB + floor((255 - nB) * 0.64)])
-		)
-		
-		# -- : much lighter (88% to white)
-		aIntensities[cColorName + "--"] = RGBToHex(
-			min([255, nR + floor((255 - nR) * 0.88)]),
-			min([255, nG + floor((255 - nG) * 0.88)]),
-			min([255, nB + floor((255 - nB) * 0.88)])
-		)
-		
-		# + : darker (20% of original)
-		aIntensities[cColorName + "+"] = RGBToHex(
-			max([0, floor(nR * 0.2)]),
-			max([0, floor(nG * 0.2)]),
-			max([0, floor(nB * 0.2)])
-		)
-		
-		# ++ : much darker (5% of original)
-		aIntensities[cColorName + "++"] = RGBToHex(
-			max([0, floor(nR * 0.05)]),
-			max([0, floor(nG * 0.05)]),
-			max([0, floor(nB * 0.05)])
-		)
-	ok
-	
-	return aIntensities
-
-# Build complete color palette with all intensities
-func BuildColorPalette()
-	aPalette = []
-	acKeys = keys($acColors)
-	nLen = len(acKeys)
-
-	# Add base colors
-
-	for i = 1 to nLen
-		cHex = $acColors[acKeys[i]]
-		aPalette[acKeys[i]] = cHex
-	end
-	
-	# Add all intensity variations
-
-	for i = 1 to nLen
-		cHex = $acColors[acKeys[i]]
-		cColorName = "" + acKeys[i]
-		aIntensities = GenerateColorIntensities(cColorName, cHex)
-		acKeysInt = keys(aIntensities)
-		nLenInt = len(acKeysInt)
-
-		for j = 1 to nLenInt
-			aPalette[acKeysInt[j]] = aIntensities[acKeysInt[j]]
-		end
-	end
-	
-	return aPalette
-
-
-# Global color resolution function
-func ResolveColor(pColor)
-	if len($acFullColorPalette) = 0
-		$acFullColorPalette = BuildColorPalette()
-	ok
-	
-      oResolver = new stzColorResolver()
-      return oResolver.ResolveWithPalette(pColor, $acFullColorPalette)
-
-func AttenuateColor(cColor)
-    # Remove all intensity modifiers
-    cBase = replace(cColor, "++", "")
-    cBase = replace(cBase, "+", "")
-    cBase = replace(cBase, "--", "")
-    cBase = replace(cBase, "-", "")
-    
-    # Apply maximum attenuation
-    return cBase + "--"
-
-func IntensifyColor(cColor)
-    # Remove all intensity modifiers
-    cBase = replace(cColor, "++", "")
-    cBase = replace(cBase, "+", "")
-    cBase = replace(cBase, "--", "")
-    cBase = replace(cBase, "-", "")
-    
-    # Apply maximum intensification
-    return cBase + "++"
 
 # STYLE RESOLUTION
 
@@ -597,52 +198,6 @@ func ResolveNodeType(pcType)
 	
 	return $cDefaultNodeType
 
-# Helper: Hex to RGB
-func HexToRGB(cHex)
-	# Remove # if present
-	if substr(cHex, "#")
-		cHex = @substr(cHex, 2, len(cHex))
-	ok
-	
-	if len(cHex) != 6
-		return [128, 128, 128] # Gray fallback
-	ok
-	
-	cR = @substr(cHex, 1, 2)
-	cG = @substr(cHex, 3, 4)
-	cB = @substr(cHex, 5, 6)
-	
-	nR = HexToDec(cR)
-	nG = HexToDec(cG)
-	nB = HexToDec(cB)
-	
-	return [nR, nG, nB]
-
-# Helper: RGB to Hex
-func RGBToHex(nR, nG, nB)
-	# Clamp values to 0-255
-	nR = max([ 0, min([ 255, nR ]) ])
-	nG = max([ 0, min([ 255, nG ]) ])
-	nB = max([ 0, min([ 255, nB ]) ])
-	
-	cR = DecToHex(nR)
-	cG = DecToHex(nG)
-	cB = DecToHex(nB)
-	
-	# Pad to 2 digits
-	if len(cR) = 1 cR = "0" + cR ok
-	if len(cG) = 1 cG = "0" + cG ok
-	if len(cB) = 1 cB = "0" + cB ok
-	
-	return "#" + upper(cR) + upper(cG) + upper(cB)
-
-
-func Palette()
-	return $aPalette
-
-func FontColors()
-	return $aFontColors
-
 # NODE TYPE FUNCTIONS
 
 func DefaultNodeType()
@@ -653,15 +208,6 @@ func NodeTypes()
 
 func IsValidNodeType(pcType)
 	return ring_find($acNodeTypes, pcType) > 0
-
-func DefaultNodeColor()
-	return ResolveColor($cDefaultNodeColor)
-
-func ColorForNodeType(pcType)
-	if HasKey($acColorsByNodeType, pcType)
-		return ResolveColor($acColorsByNodeType[pcType])
-	ok
-	return ResolveColor($cDefaultNodeColor)
 
 # EDGE STYLE FUNCTIONS
 
@@ -686,7 +232,7 @@ func StyleForEdgeType(pcType)
 
 class stzDiagram from stzGraph
 
-	@cTheme = $cDefaultTheme
+	@cTheme = $cDefaultColorTheme
 	@cLayout = $cDefaultLayout
 	@aClusters = []
 	@aoAnnotations = []
@@ -706,7 +252,7 @@ class stzDiagram from stzGraph
 	@nFontSize = $cDefaultFontSize
 	@bFontCustomized = FALSE
 
-	@aMetadataKeys = []
+	@apropertiesKeys = []
 
 	# Validation state
 	@cLastValidator = ""
@@ -742,18 +288,26 @@ class stzDiagram from stzGraph
 	@cFocusColor = $cDefaultFocusColor
 	@cOutputFormat = $cDefaultDiagramOutputFormat
 
-	@aVisualRules = []
+	@acDiagramValidators = []  # Diagram-specific validators
+	@aoVisualRules = []
 	@aNodesAffectedByRules = []
 	@aEdgesAffectedByRules = []
+	@aNodeRulesEffects = []    # Track visual rule effects
+	@aEdgesRulesEffects = []
 
 	@aTooltipConfig = []
 
 	def init(pcName)
+
 		super.init(pcName)
+
 		@cEdgeColor = ResolveColor($cDefaultEdgeColor)
 		@cFocusColor = ResolveColor($cDefaultFocusColor)
 		@cSplineType = $cDefaultSplineType
 
+		# Set diagram-specific default validators
+		@acDiagramValidators = $acDiagramDefaultValidators  # ["sox", "gdpr", "banking"]
+		@acValidators = @acDiagramValidators  # Override graph defaults
 
 	def Name()
 		return super.Id()
@@ -1435,33 +989,411 @@ class stzDiagram from stzGraph
 	#  VALIDATION  #
 	#--------------#
 
-	def Validators()
-		return @acValidators
-
-	def SetValidators(pacValidators)
-		@acValidators = pacValidators
-
+	# Override parent to use diagram validators by default
 	def Validate()
 		return This.ValidateXT(@acValidators)
-
-	def ValidateXT(pValidator)
-		if isString(pValidator)
-			This.UseRulesFrom(pValidator)
-		but isList(pValidator)
-			for cValidator in pValidator
-				This.UseRulesFrom(cValidator)
+	
+	# Single or multiple validators
+	def ValidateXT(pValidators)
+		if isString(pValidators)
+			pValidators = lower(pValidators)
+			return This._ValidateSingle(pValidators)
+		but isList(pValidators)
+			return This._ValidateMultiple(pValidators)
+		ok
+	
+	def _ValidateSingle(pcValidator)
+	    cValidator = lower(pcValidator)
+	    
+	    # CRITICAL: Clear previous rules before loading new ones
+	    @aRules = []
+	    
+	    This.UseRulesFrom(cValidator)
+	    
+	    aResult = super.Validate()
+	    
+	    if NOT aResult[1]
+	        aViolations = aResult[2]
+	        acIssues = This._FlattenViolations(aViolations)
+	        acAffected = This._ExtractAffectedNodes(aViolations)
+	        
+	        return [
+	            :status = "fail",
+	            :domain = cValidator,
+	            :issueCount = len(aViolations),
+	            :issues = acIssues,
+	            :affectedNodes = acAffected
+	        ]
+	    ok
+	    
+	    return [
+	        :status = "pass",
+	        :domain = cValidator,
+	        :issueCount = 0,
+	        :issues = [],
+	        :affectedNodes = []
+	    ]
+		
+	def _ValidateMultiple(pacValidators)
+		aResults = []
+		nFailed = 0
+		nTotal = 0
+			
+		for cValidator in pacValidators
+			aResult = This._ValidateSingle(cValidator)
+			aResults + aResult
+				
+			if aResult[:status] = "fail"
+				nFailed++
+			ok
+			nTotal += aResult[:issueCount]
+		end
+			
+		return [
+			:status = iif(nFailed > 0, "fail", "pass"),
+			:validatorsRun = len(pacValidators),
+			:validatorsFailed = nFailed,
+			:totalIssues = nTotal,
+			:results = aResults,
+			:affectedNodes = This._MergeAffectedNodes(aResults)
+		]
+		
+	def _FlattenViolations(aViolations)
+	    acIssues = []
+	    for aViolation in aViolations
+	        if HasKey(aViolation, :message)
+	            pMsg = aViolation[:message]
+	            
+	            # Handle array of violation messages
+	            if isList(pMsg)
+	                for aSubViolation in pMsg
+	                    if isList(aSubViolation) and HasKey(aSubViolation, :message)
+	                        acIssues + aSubViolation[:message]
+	                    but isString(aSubViolation)
+	                        acIssues + aSubViolation
+	                    ok
+	                next
+	            but isString(pMsg)
+	                acIssues + pMsg
+	            ok
+	        ok
+	    end
+	    return acIssues
+	
+	def _ExtractAffectedNodes(aViolations)
+	    acNodes = []
+	    for aViolation in aViolations
+	        if HasKey(aViolation, :message)
+	            pMsg = aViolation[:message]
+	            
+	            # Handle array of nested violations
+	            if isList(pMsg)
+	                for aSubViolation in pMsg
+	                    if isList(aSubViolation) and 
+	                       HasKey(aSubViolation, :params) and 
+	                       HasKey(aSubViolation[:params], :node)
+	                        cNode = aSubViolation[:params][:node]
+	                        if ring_find(acNodes, cNode) = 0
+	                            acNodes + cNode
+	                        ok
+	                    ok
+	                next
+	            ok
+	            
+	            # Also handle direct violations (non-nested)
+	            if HasKey(aViolation, :params) and 
+	               HasKey(aViolation[:params], :node)
+	                cNode = aViolation[:params][:node]
+	                if ring_find(acNodes, cNode) = 0
+	                    acNodes + cNode
+	                ok
+	            ok
+	        ok
+	    end
+	    return acNodes
+		
+		def _MergeAffectedNodes(aResults)
+			acAll = []
+			for aResult in aResults
+				if HasKey(aResult, :affectedNodes)
+					for cNode in aResult[:affectedNodes]
+						if ring_find(acAll, cNode) = 0
+							acAll + cNode
+						ok
+					end
+				ok
 			end
+			return acAll
+	
+	def Validators()
+		return @acValidators
+	
+	def SetValidators(pacValidators)
+		@acValidators = pacValidators
+	
+	def IsValid()
+		return This.Validate()[:status] = "pass"
+	
+	def IsValidXT(pValidator)
+		return This.ValidateXT(pValidator)[:status] = "pass"
+
+	def NodesAffectedByVisualRules()
+	    acResult = []
+	    acKeys = keys(@aNodeRulesEffects)
+	    for cKey in acKeys
+	        acResult + cKey
+	    next
+	    return acResult
+	
+	def VisualRulesApplied()
+	    aResult = []
+	    for aRule in @aoVisualRules
+	        aResult + [
+	            :name = aRule[:name],
+	            :conditionType = aRule[:conditionType],
+	            :effectsCount = len(aRule[:effects])
+	        ]
+	    next
+	    return aResult
+
+	#----------------#
+	#  VISUAL RULES  #
+	#----------------#
+
+	# This section manages visual styling rules that change
+	# diagram appearance based on node/edge properties.
+
+	def RegisterVisualRule(pcRuleName, paDefinition)
+		# Store visual rule as data structure
+		aRule = [
+			:name = pcRuleName,
+			:conditionType = paDefinition[:conditionType],
+			:conditionParams = paDefinition[:conditionParams],
+			:effects = paDefinition[:effects]
+		]
+		@aoVisualRules + aRule
+	
+	def ApplyVisualRules()
+		@aNodeRulesEffects = []
+		@aEdgesRulesEffects = []
+		
+		# Apply to nodes
+		aNodes = This.Nodes()
+		for aNode in aNodes
+			aEnhancements = This._ApplyRulesToElement(aNode, "node")
+			if len(aEnhancements) > 0
+				@aNodeRulesEffects[aNode[:id]] = aEnhancements
+			ok
+		end
+		
+		# Apply to edges
+		aEdges = This.Edges()
+		for aEdge in aEdges
+			aEnhancements = This._ApplyRulesToElement(aEdge, "edge")
+			cKey = aEdge[:from] + "->" + aEdge[:to]
+			if len(aEnhancements) > 0
+				@aEdgesRulesEffects[cKey] = aEnhancements
+			ok
+		end
+	
+	def _ApplyRulesToElement(aElement, cType)
+	    aEnhancements = []
+	    
+	    for aRule in @aoVisualRules
+	        aContext = This._BuildRuleContext(aElement)
+	        
+	        if This._RuleMatches(aRule, aContext)
+	            # DEBUG
+	            # ? "Rule '" + aRule[:name] + "' matched node: " + aElement[:id]
+	            # ? "  Effects: " + @@(aRule[:effects])
+	            
+	            aEffects = aRule[:effects]
+	            
+	            # Merge effects
+	            for aEffect in aEffects
+	                aEnhancements[aEffect[1]] = aEffect[2]
+	            end
+	        ok
+	    end
+	    
+	    # DEBUG
+	    # if len(aEnhancements) > 0
+	    #     ? "Final enhancements for " + aElement[:id] + ": " + @@(aEnhancements)
+	    # ok
+	    
+	    return aEnhancements
+
+	
+	def _RuleMatches(aRule, aContext)
+		cType = aRule[:conditionType]
+		aParams = aRule[:conditionParams]
+		
+		switch cType
+		on "property_range"
+			return This._MatchRange(aContext, aParams)
+		on "property_equals"
+			return This._MatchEquals(aContext, aParams)
+		on "property_exists"
+			return This._MatchExists(aContext, aParams)
+		on "tag_exists"
+			return This._MatchTag(aContext, aParams)
+		off
+		
+		return FALSE
+	
+	def _MatchRange(aContext, aParams)
+		if NOT HasKey(aContext, :properties)
+			return FALSE
 		ok
 		
-		aResult = super.Validate()
-		return aResult[1]  # Just return TRUE/FALSE
-
-	def IsValid()
-		return This.Validate()
-
-
-	def IsValidXT(pValidator)
-		return This.ValidateXT(pValidator)
+		cKey = aParams[1]
+		nMin = aParams[2]
+		nMax = aParams[3]
+		
+		if NOT HasKey(aContext[:properties], cKey)
+			return FALSE
+		ok
+		
+		pValue = aContext[:properties][cKey]
+		if NOT isNumber(pValue)
+			return FALSE
+		ok
+		
+		return (pValue >= nMin and pValue <= nMax)
+	
+	def _MatchEquals(aContext, aParams)
+		if NOT HasKey(aContext, :properties)
+			return FALSE
+		ok
+		
+		cKey = aParams[1]
+		pExpected = aParams[2]
+		
+		if NOT HasKey(aContext[:properties], cKey)
+			return FALSE
+		ok
+		
+		return (aContext[:properties][cKey] = pExpected)
+	
+	def _MatchExists(aContext, aParams)
+		if NOT HasKey(aContext, :properties)
+			return FALSE
+		ok
+		
+		cKey = aParams[1]
+		return HasKey(aContext[:properties], cKey)
+	
+	def _MatchTag(aContext, aParams)
+		if NOT HasKey(aContext, :tags)
+			return FALSE
+		ok
+		
+		cTag = aParams[1]
+		return ring_find(aContext[:tags], cTag) > 0
+	
+	def _BuildRuleContext(aElement)
+		aContext = aElement
+		
+		if HasKey(aElement, :properties) and aElement[:properties] != NULL
+			aContext[:properties] = aElement[:properties]
+			aContext[:tags] = []
+			if HasKey(aElement[:properties], :tags)
+				aContext[:tags] = aElement[:properties][:tags]
+			ok
+		ok
+		
+		return aContext
+	
+	#-----------------#
+	#  QUERY METHODS  #
+	#-----------------#
+	
+	# properties-based queries
+	def NodesWithProperty(pcProp)
+		acResult = []
+		aNodes = This.Nodes()
+		
+		for aNode in aNodes
+			if HasKey(aNode, :properties) and 
+			   HasKey(aNode[:properties], pcProp)
+				acResult + aNode[:id]
+			ok
+		end
+		
+		return acResult
+	
+	def NodesWith(pcProp, pcOp, pValue)
+		# Reuse graph query system
+		oQuery = new stzGraphQuery(This, "nodes")
+		oQuery.Where(pcProp, pcOp, pValue)
+		return oQuery.Run()
+	
+	def NodesWithTag(pcTag)
+		acResult = []
+		aNodes = This.Nodes()
+		
+		for aNode in aNodes
+			if HasKey(aNode, :properties) and 
+			   HasKey(aNode[:properties], :tags) and
+			   ring_find(aNode[:properties][:tags], pcTag) > 0
+				acResult + aNode[:id]
+			ok
+		end
+		
+		return acResult
+	
+	def EdgesWithProperty(pcProp)
+		acResult = []
+		aEdges = This.Edges()
+		
+		for aEdge in aEdges
+			if HasKey(aEdge, :properties) and 
+			   HasKey(aEdge[:properties], pcProp)
+				acResult + (aEdge[:from] + "->" + aEdge[:to])
+			ok
+		end
+		
+		return acResult
+	
+	def EdgesWithPropertyValue(pcProp, pValue)
+		acResult = []
+		aEdges = This.Edges()
+		
+		for aEdge in aEdges
+			if HasKey(aEdge, :properties) and 
+			   HasKey(aEdge[:properties], pcProp) and
+			   aEdge[:properties][pcProp] = pValue
+				acResult + (aEdge[:from] + "->" + aEdge[:to])
+			ok
+		end
+		
+		return acResult
+	
+	#-------------------#
+	#  properties LEGEND  #
+	#-------------------#
+	
+	def propertiesLegend()
+		acLegend = ["=== properties LEGEND ===", ""]
+		
+		for oRule in @aoVisualRules
+			cCondition = oRule.@cConditionType
+			aParams = oRule.@aConditionParams
+			aEffects = oRule.Effects()
+			
+			acLegend + "When: " + cCondition
+			if len(aParams) > 0
+				acLegend + "  Params: " + @@(aParams)
+			ok
+			
+			for aEffect in aEffects
+				acLegend + "  â†’ " + aEffect[1] + ": " + aEffect[2]
+			next
+			
+			acLegend + ""
+		end
+		
+		return acLegend
 
 	#-----------#
 	#  METRICS  #
@@ -1991,37 +1923,6 @@ class stzDiagram from stzGraph
 
 		#>
 
-	#===========================#
-	#  VISUAL RULES MANAGEMENT  #
-	#===========================#
-	
-	def SetVisualRule(p)
-		This.SetRule(p)
-	
-		def SetVisualRuleObject(oVisualRule)
-			This.SetVisualRule(oVisualRule)
-	
-	def ApplyVisualRules()
-		This.ApplyRulesByType("visual")
-	
-	def VisualRule(pcRuleId)
-		return This.Rule(pcRuleId)
-	
-	def VisualRules()
-		return This.RulesByType("visual")
-	
-	def VisualRuleObjects()
-		return This.RulesObjectsByType("visual")
-	
-	def RemoveVisualRule(p)
-		if isString(p)
-			@aVisualRules[p] = ""
-			This.RemoveRule(p)
-		but isObject(p)
-			@aVisualRules[p.@cRuleId] = ""
-			This.RemoveRule(p)
-		ok
-
 	#-----------------------------------------#
 	# Get diagram overview with rules context #
 	#-----------------------------------------#
@@ -2054,8 +1955,8 @@ class stzDiagram from stzGraph
 			aExplanation[:rules] = cRules
 		ok
 		
-		nNodesAffected = len(@aNodeEnhancements)
-		nEdgesAffected = len(@aEdgeEnhancements)
+		nNodesAffected = len(@aNodeRulesEffects)
+		nEdgesAffected = len(@aEdgesRulesEffects)
 		
 		if nNodesAffected = 0 and nEdgesAffected = 0
 			aExplanation[:effects] = "No rules matched any elements."
@@ -2074,472 +1975,6 @@ class stzDiagram from stzGraph
 		ok
 		
 		return aExplanation
-
-	#------------------------------#
-	#  1. BASIC AFFECTED ELEMENTS  #
-	#------------------------------#
-
-	# Get all nodes affected by any rule
-	def NodesAffectedByVisualRules()
-		return keys(@aNodeEnhancements)
-	
-		def NodesAffectedByVRules()
-			return This.NodesAffectedByVisualRules()
-
-	# Get all edges affected by any rule
-	def EdgesAffectedByVisualRules()
-		return keys(@aEdgeEnhancements)
-	
-		def EdgesAffectedByVRules()
-			return This.EdgesAffectedByVisualRules()
-	
-	# Get both nodes and edges affected
-	def ElementsAffectedByVisualRules()
-		return [
-			:nodes = This.NodesAffectedByRules(),
-			:edges = This.EdgesAffectedByRules()
-		]
-	
-		def ElementsAffectedByVRules()
-			return This.ElementsAffectedByVisualRules()
-	
-		def VisualRulesImpact()
-			return This.ElementsAffectedByVisualRules()
-
-		def VRulesImpact()
-			return This.ElementsAffectedByVisualRules()
-
-		def ImpactOfVisualRules()
-			return This.ElementsAffectedByVisualRules()
-
-		def ImpactOfVRules()
-			return This.ElementsAffectedByVisualRules()
-
-	#--------------------------#
-	#  2. UNAFFECTED ELEMENTS  #
-	#--------------------------#
-	
-	# Get nodes NOT affected by any rule
-	def NodesNotAffectedByVisualRules()
-		acAllNodes = []
-		aNodes = This.Nodes()
-		nLen = len(aNodes)
-		for i = 1 to nLen
-			acAllNodes + aNodes[i]["id"]
-		end
-		
-		acAffected = keys(@aNodeEnhancements)
-		acNotAffected = []
-		
-		nLen = len(acAllNodes)
-		for i = 1 to nLen
-			if find(acAffected, acAllNodes[i]) = 0
-				acNotAffected + acAllNodes[i]
-			ok
-		end
-		
-		return acNotAffected
-	
-		def NodesNotAffectedByVRules()
-			return This.NodesNotAffectedByVisualRules()
-
-	
-	# Get edges NOT affected by any rule
-	def EdgesNotAffectedByVisualRules()
-		acAllEdges = []
-		aEdges = This.Edges()
-		nLen = len(aEdges)
-		for i = 1 to nLen
-			acAllEdges + (aEdges[i]["from"] + "->" + aEdges[i]["to"])
-		end
-		
-		acAffected = keys(@aEdgeEnhancements)
-		acNotAffected = []
-		
-		nLen = len(acAllEdges)
-		for i = 1 to nLen
-			if find(acAffected, acAllEdges[i]) = 0
-				acNotAffected + acAllEdges[i]
-			ok
-		end
-		
-		return acNotAffected
-	
-		def EdgesNotAffectedByVRules()
-			return This.EdgesNotAffectedByVisualRules()
-	
-	# Get both unaffected nodes and edges
-	def ElementsNotAffectedByVisualRules()
-		return [
-			:nodes = This.NodesNotAffectedByVisualRules(),
-			:edges = This.EdgesNotAffectedByVisualRules()
-		]
-	
-		def ElementsNotAffectedByVRules()
-			return This.ElementsNotAffectedByVisualRules()
-	
-	#-----------------------------------#
-	#  3. AFFECTED BY SPECIFIC RULE(S)  #
-	#-----------------------------------#
-	
-	# Get nodes affected by a specific rule
-	def NodesAffectedByVisualRule(poRule)
-		acAffected = []
-		acNodeIds = keys(@aNodeEnhancements)
-		nLen = len(acNodeIds)
-		
-		for i = 1 to nLen
-			aNode = This.Node(acNodeIds[i])
-			aContext = This._BuildRuleContext(aNode)
-			if poRule.Matches(aContext)
-				acAffected + acNodeIds[i]
-			ok
-		end
-		
-		return acAffected
-	
-		def NodesAffectedByVRule(poRule)
-			return This.NodesAffectedByVisualRule(poRule)
-	
-	# Get edges affected by a specific rule
-	def EdgesAffectedByVisualRule(poRule)
-		acAffected = []
-		acEdgeKeys = keys(@aEdgeEnhancements)
-		nLen = len(acEdgeKeys)
-		
-		for i = 1 to nLen
-			acParts = @split(acEdgeKeys[i], "->")
-			aEdge = This.Edge(acParts[1], acParts[2])
-			aContext = This._BuildRuleContext(aEdge)
-			if poRule.Matches(aContext)
-				acAffected + acEdgeKeys[i]
-			ok
-		end
-		
-		return acAffected
-	
-		def EdgesAffectedByVRule(poRule)
-			return This.EdgesAffectedByVisualRule(poRule)
-	
-	# Get nodes affected by any of the given rules
-	def NodesAffectedByTheseVisualRules(paoRules)
-		acAffected = []
-		acNodeIds = keys(@aNodeEnhancements)
-		nNodeLen = len(acNodeIds)
-		
-		for i = 1 to nNodeLen
-			aNode = This.Node(acNodeIds[i])
-			aContext = This._BuildRuleContext(aNode)
-			
-			nRuleLen = len(paoRules)
-			for j = 1 to nRuleLen
-				if paoRules[j].Matches(aContext)
-					if find(acAffected, acNodeIds[i]) = 0
-						acAffected + acNodeIds[i]
-					ok
-					exit
-				ok
-			end
-		end
-		
-		return acAffected
-	
-		def NodesAffectedByTheseVRules(paoRules)
-			return This.NodesAffectedByTheseVisualRules(paoRules)
-	
-	# Get edges affected by any of the given rules
-	def EdgesAffectedByTheseVisualRules(paoRules)
-		acAffected = []
-		acEdgeKeys = keys(@aEdgeEnhancements)
-		nEdgeLen = len(acEdgeKeys)
-		
-		for i = 1 to nEdgeLen
-			acParts = @split(acEdgeKeys[i], "->")
-			aEdge = This.Edge(acParts[1], acParts[2])
-			aContext = This._BuildRuleContext(aEdge)
-			
-			nRuleLen = len(paoRules)
-			for j = 1 to nRuleLen
-				if paoRules[j].Matches(aContext)
-					if find(acAffected, acEdgeKeys[i]) = 0
-						acAffected + acEdgeKeys[i]
-					ok
-					exit
-				ok
-			end
-		end
-		
-		return acAffected
-	
-		def EdgesAffectedByTheseVRules(paoRules)
-			return This.EdgesAffectedByTheseVisualRules(paoRules)
-	
-	#-------------------------------------------#
-	#  4. ELEMENTS WITH THEIR RULES (DETAILED)  #
-	#-------------------------------------------#
-	
-	# Get nodes paired with their affecting rules
-	# Returns: [ ["node1", [oRule1, oRule2]], ["node2", [oRule3]], ... ]
-	def NodesAndTheirVisualRulesObjects()
-		aResult = []
-		acNodeIds = keys(@aNodeEnhancements)
-		nLen = len(acNodeIds)
-		
-		for i = 1 to nLen
-			cNodeId = acNodeIds[i]
-			aNode = This.Node(cNodeId)
-			aContext = This._BuildRuleContext(aNode)
-			
-			aoMatchingRules = []
-			nRuleLen = len(@aoVisualRules)
-			for j = 1 to nRuleLen
-				if @aoVisualRules[j].Matches(aContext)
-					aoMatchingRules + @aoVisualRules[j]
-				ok
-			end
-			
-			if len(aoMatchingRules) > 0
-				aResult + [cNodeId, aoMatchingRules]
-			ok
-		end
-		
-		return aResult
-	
-		def NodesAndTheirVRulesObjects()
-			return This.NodesAndTheirVisualRulesObjects()
-	
-	# Get edges paired with their affecting rules
-	# Returns: [ ["node1->node2", [oRule1]], ["node2->node3", [oRule2, oRule3]], ... ]
-	def EdgesAndTheirVisualRulesObjects()
-		aResult = []
-		acEdgeKeys = keys(@aEdgeEnhancements)
-		nLen = len(acEdgeKeys)
-		
-		for i = 1 to nLen
-			cEdgeKey = acEdgeKeys[i]
-			acParts = @split(cEdgeKey, "->")
-			aEdge = This.Edge(acParts[1], acParts[2])
-			aContext = This._BuildRuleContext(aEdge)
-			
-			aoMatchingRules = []
-			nRuleLen = len(@aoVisualRules)
-			for j = 1 to nRuleLen
-				if @aoVisualRules[j].Matches(aContext)
-					aoMatchingRules + @aoVisualRules[j]
-				ok
-			end
-			
-			if len(aoMatchingRules) > 0
-				aResult + [cEdgeKey, aoMatchingRules]
-			ok
-		end
-		
-		return aResult
-	
-		def EdgesAndTheirVRulesObjects()
-			return This.EdgesAndTheirVisualRulesObjects()
-	
-	# Get both nodes and edges with their rules
-	def ElementsAndTheirVisualRulesObjects()
-		return [
-			:nodes = This.ElementsAndTheirVisualRulesObjects(),
-			:edges = This.ElementsAndTheirVisualRulesObjects()
-		]
-	
-		def ElementsAndTheirVRulesObjects()
-			return This.ElementsAndTheirVisualRulesObjects()
-	
-	#--------------------------------------------#
-	#  5. ELEMENTS WITH RULE IDS (STRING-FRIST)  #
-	#--------------------------------------------#
-	
-	# Get nodes paired with rule IDs (not objects)
-	# Returns: [ ["node1", ["cheap", "prod"]], ["node2", ["expensive"]], ... ]
-	def NodesAndTheirVisualRules()
-		aResult = []
-		acNodeIds = keys(@aNodeEnhancements)
-		nLen = len(acNodeIds)
-		
-		for i = 1 to nLen
-			cNodeId = acNodeIds[i]
-			aNode = This.Node(cNodeId)
-			aContext = This._BuildRuleContext(aNode)
-			
-			acRuleIds = []
-			nRuleLen = len(@aoVisualRules)
-			for j = 1 to nRuleLen
-				if @aoVisualRules[j].Matches(aContext)
-					acRuleIds + @aoVisualRules[j].@cRuleId
-				ok
-			end
-			
-			if len(acRuleIds) > 0
-				aResult + [cNodeId, acRuleIds]
-			ok
-		end
-		
-		return aResult
-	
-		def NodesAndTheirVRules()
-			return This.NodesAndTheirVisualRules()
-	
-	# Get edges paired with rule IDs
-	def EdgesAndThirVisualRules()
-		aResult = []
-		acEdgeKeys = keys(@aEdgeEnhancements)
-		nLen = len(acEdgeKeys)
-		
-		for i = 1 to nLen
-			cEdgeKey = acEdgeKeys[i]
-			acParts = @split(cEdgeKey, "->")
-			aEdge = This.Edge(acParts[1], acParts[2])
-			aContext = This._BuildRuleContext(aEdge)
-			
-			acRuleIds = []
-			nRuleLen = len(@aoVisualRules)
-			for j = 1 to nRuleLen
-				if @aoVisualRules[j].Matches(aContext)
-					acRuleIds + @aoVisualRules[j].@cRuleId
-				ok
-			end
-			
-			if len(acRuleIds) > 0
-				aResult + [cEdgeKey, acRuleIds]
-			ok
-		end
-		
-		return aResult
-	
-		def EdgesAndThirVRules()
-			return This.EdgesAndThirVisualRules()
-	
-	# Get both with rule IDs
-	def ElementsAndTheirVisualRules()
-		return [
-			:nodes = This.NodesAndTheirVisualRules(),
-			:edges = This.EdgesAndTheirvisualRules()
-		]
-	
-		def ElementsAndTheirVRules()
-			return This.ElementsAndTheirVisualRules()
-	
-	#------------------------------------------#
-	#  6. RULES WITH THEIR ELEMENTS (INVERSE)  #
-	#------------------------------------------#
-	
-	# Get each rule with the elements it affected
-	# Returns: [ [oRule1, [:nodes = [...], :edges = [...]]], [oRule2, ...], ... ]
-	def VisualRulesObjectsAndTheirElements()
-		aResult = []
-		nRuleLen = len(@aoVisualRules)
-		
-		for i = 1 to nRuleLen
-			oRule = @aoVisualRules[i]
-			
-			acAffectedNodes = This.NodesAffectedByVisualRule(oRule)
-			acAffectedEdges = This.EdgesAffectedByVisualRule(oRule)
-			
-			if len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0
-				aResult + [
-					oRule,
-					[:nodes = acAffectedNodes, :edges = acAffectedEdges]
-				]
-			ok
-		end
-		
-		return aResult
-	
-		def VRulesObjectsAndTheirElements()
-			return This.VisualRulesObjectsAndTheirElements()
-	
-	# Get rule IDs with their elements
-	def VisualRulesAndTheirElements()
-		aResult = []
-		nRuleLen = len(@aoVisualRules)
-		
-		for i = 1 to nRuleLen
-			oRule = @aoVisualRules[i]
-			
-			acAffectedNodes = This.NodesAffectedByVisualRule(oRule)
-			acAffectedEdges = This.EdgesAffectedByVisualRule(oRule)
-			
-			if len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0
-				aResult + [
-					oRule.@cRuleId,
-					[:nodes = acAffectedNodes, :edges = acAffectedEdges]
-				]
-			ok
-		end
-		
-		return aResult
-	
-		def VRulesAndTheirElements()
-			return This.VisualRulesAndTheirElements()
-	
-	# Get complete analysis of rules and their impact
-	def VisualRulesApplied()
-		aResult = [
-			:hasEffects = FALSE,
-			:summary = "",
-			:rules = []
-		]
-		
-		bHasEffects = (len(@aNodeEnhancements) > 0 or len(@aEdgeEnhancements) > 0)
-		aResult[:hasEffects] = bHasEffects
-		
-		if NOT bHasEffects
-			aResult[:summary] = "No rules matched any elements."
-			return aResult
-		ok
-		
-		aResult[:summary] = ""+ len(@aoVisualRules) +
-				    " rule(s) defined, " + 
-		                     (len(@aNodeEnhancements) + len(@aEdgeEnhancements)) + " element(s) affected"
-		
-		nLenRules = len(@aoVisualRules)
-		for i = 1 to nLenRules
-			oRule = @aoVisualRules[i]
-			
-			acAffectedNodes = This.NodesAffectedByVisualRule(oRule)
-			acAffectedEdges = This.EdgesAffectedByVisualRule(oRule)
-			
-			bRuleMatched = (len(acAffectedNodes) > 0 or len(acAffectedEdges) > 0)
-			
-			if bRuleMatched
-				aRuleInfo = [
-					:id = oRule.@cRuleId,
-					:condition = oRule.@cConditionType,
-					:conditionParams = oRule.@aConditionParams,
-					:effects = oRule.Effects(),
-					:affectedNodes = acAffectedNodes,
-					:affectedEdges = acAffectedEdges,
-					:matchCount = len(acAffectedNodes) + len(acAffectedEdges)
-				]
-				aResult[:rules] + aRuleInfo
-			ok
-		end
-		
-		return aResult
-	
-		def VRulesApplied()
-			return This.VisualRulesApplied()
-
-	#---------------------------------------#
-	#  HELPER: Build rule matching context  #
-	#---------------------------------------#
-	
-	def _BuildRuleContext(aNodeOrEdge)
-		aContext = aNodeOrEdge
-		
-		if HasKey(aNodeOrEdge, "properties") and aNodeOrEdge["properties"] != NULL
-			aContext["metadata"] = aNodeOrEdge["properties"]
-			aContext["tags"] = []
-			if HasKey(aNodeOrEdge["properties"], "tags")
-				aContext["tags"] = aNodeOrEdge["properties"]["tags"]
-			ok
-		ok
-		
-		return aContext
 
 	#----------------------------------#
 	#  IMPORT WITH SUBDIAGRAM SUPPORT  #
@@ -2643,8 +2078,8 @@ class stzDiagram from stzGraph
 				cTitle = trim(@substr(cLine, 10, stzlen(cLine)-1))			
 				@cId = cTitle
 				
-			but cLine = "metadata"
-				cCurrentSection = "metadata"
+			but cLine = "properties"
+				cCurrentSection = "properties"
 				
 			but cLine = "nodes"
 				cCurrentSection = "nodes"
@@ -2652,7 +2087,7 @@ class stzDiagram from stzGraph
 			but cLine = "edges"
 				cCurrentSection = "edges"
 				
-			but cCurrentSection = "metadata" and substr(cLine, ":")
+			but cCurrentSection = "properties" and substr(cLine, ":")
 				aParts = @split(cLine, ":")
 				cKey = trim(aParts[1])
 				cValue = trim(aParts[2])
@@ -2890,7 +2325,7 @@ class stzDiagram from stzGraph
 			This.WriteToStylFile(pcFilename)
 
 #==========================================#
-#  stzDiagramAnnotator - METADATA OVERLAY  #
+#  stzDiagramAnnotator - properties OVERLAY  #
 #==========================================#
 
 class stzDiagramAnnotator
@@ -2953,7 +2388,7 @@ class stzDiagramToStzDiag
 		cOutput += 'diagram "' +
 			   @oDiagram.Id() + '"' + NL + NL
 
-		cOutput += "metadata" + NL
+		cOutput += "properties" + NL
 		cOutput += "    theme: " + Lower(@oDiagram.@cTheme) + NL
 		cOutput += "    layout: " + Lower(@oDiagram.@cLayout) + NL + NL
 
@@ -3141,7 +2576,7 @@ class stzDiagramToDot
 		cOutput = ""
 		
 		# Apply visual rules if any
-		if len(@oDiagram.@aVisualRules) > 0
+		if len(@oDiagram.@aoVisualRules) > 0
 			@oDiagram.ApplyVisualRules()
 		ok
 		
@@ -3212,7 +2647,7 @@ class stzDiagramToDot
 	def _GetTheme()
 		cTheme = lower(@oDiagram.@cTheme)
 		if cTheme = ""
-			cTheme = $cDefaultTheme
+			cTheme = $cDefaultColorTheme
 		ok
 		return cTheme
 
@@ -3356,19 +2791,33 @@ class stzDiagramToDot
 	    
 	    cLabel = aNode["label"]
 	    
+	    # Get visual rule effects FIRST
 	    aAppliedRules = []
-	    if HasKey(@oDiagram.@aNodesAffectedByRules, aNode["id"])
-	        aAppliedRules = @oDiagram.@aNodesAffectedByRules[aNode["id"]]
+	    if HasKey(@oDiagram.@aNodeRulesEffects, aNode["id"])
+	        aAppliedRules = @oDiagram.@aNodeRulesEffects[aNode["id"]]
 	    ok
 	    
+	    # Apply effects to override defaults
 	    cShape = This._GetNodeShape(aNode, aAppliedRules)
 	    cStyle = This._GetNodeStyle(aNode, aAppliedRules)
 	    cFillColor = This._GetNodeFillColor(aNode, aAppliedRules, cTheme)
+	    
+	    # Check if visual rules set penwidth
+	    nPenWidth = @oDiagram.@nNodePenWidth
+	    if HasKey(aAppliedRules, "penwidth")
+	        nPenWidth = aAppliedRules["penwidth"]
+	    ok
+	    
+	    # Check if visual rules set style
+	    if HasKey(aAppliedRules, "style")
+	        cStyle = aAppliedRules["style"] + ",filled"
+	    ok
 	    
 	    cOutput = '    ' + cNodeId + ' [label="' + cLabel + '"'
 	    cOutput += ', shape=' + cShape
 	    cOutput += ', style="' + cStyle + '"'
 	    cOutput += ', fillcolor="' + cFillColor + '"'
+	    cOutput += ', penwidth=' + nPenWidth
 	    
 	    # Add contrasting font color
 	    cFontColor = @oDiagram.ResolveFontColor(cFillColor)
@@ -3392,7 +2841,7 @@ class stzDiagramToDot
 	    
 	    # Generate tooltip
 	    cTooltip = This._GenerateTooltip(aNode)
-	    if cTooltip != "" and cTooltip != NULL
+	    if cTooltip != ""
 	    	cOutput += ', tooltip="' + This._EscapeTooltip(cTooltip) + '"'
 	    else
 	    	# Explicitly disable default tooltip
@@ -3498,20 +2947,22 @@ class stzDiagramToDot
 	def _GetNodeFillColor(aNode, aEnhancements, cTheme)
 	    cColor = ""
 	    
-	    # Check enhancements from rules FIRST
 	    if HasKey(aEnhancements, "color")
 	        cColor = aEnhancements["color"]
 	    ok
 	    
-	    # Then check node properties
-	    if cColor = "" and HasKey(aNode, "properties") and aNode["properties"] != NULL and 
-	       HasKey(aNode["properties"], "color") and aNode["properties"]["color"] != NULL
+	    if cColor = "" and HasKey(aNode, "properties") and 
+	       HasKey(aNode["properties"], "color")
 	        cColor = aNode["properties"]["color"]
 	    ok
 	    
-	    # Default
-	    if cColor = ""
-	        cColor = "white"
+	    # Use theme's primary color when no color specified
+	    if cColor = ''
+	        if HasKey($aPalette, cTheme)
+	            cColor = $aPalette[cTheme]["primary"]
+	        else
+	            cColor = $cDefaultNodeColor
+	        ok
 	    ok
 	    
 	    # If already hex, return after theme transforms
@@ -3581,7 +3032,7 @@ class stzDiagramToDot
 	    cOutput = '    ' + cFrom + ' -> ' + cTo
 	    aAttrs = []
 	    
-	    # Check if this is a supervisor→helper edge
+	    # Check if this is a supervisorâ†’helper edge
 	    if left(cTo, 8) = "_helper_"
 	        aAttrs + 'arrowhead=none'
 	        aAttrs + 'weight=10'
@@ -3848,54 +3299,6 @@ class stzDiagramToJSON
 		fclose(oFile)
 		return TRUE
 
-
-class stzDiagramRule from stzVisualRule
-class stzVisualRule from stzGraphRule #TODO // Complete
-	
-	def init(pcRuleId)
-		super.init(pcRuleId)
-		@cRuleType = "visual"
-	
-	#------------------#
-	#  VISUAL EFFECTS  #
-	#------------------#
-	
-	def ApplyColor(pColor)
-		This.Apply("color", pColor)
-	
-	def ApplyShape(pcShape)
-		This.Apply("shape", pcShape)
-	
-	def ApplyStyle(pcStyle)
-		This.Apply("style", pcStyle)
-	
-	def ApplyPenWidth(nWidth)
-		This.Apply("penwidth", nWidth)
-	
-	def ApplyFillColor(pColor)
-		This.Apply("fillcolor", pColor)
-	
-	def ApplyStrokeColor(pColor)
-		This.Apply("strokecolor", pColor)
-	
-	def ApplyFontColor(pColor)
-		This.Apply("fontcolor", pColor)
-	
-	def ApplyFontSize(nSize)
-		This.Apply("fontsize", nSize)
-	
-	def ApplyArrowHead(pcStyle)
-		This.Apply("arrowhead", pcStyle)
-	
-	def ApplyArrowTail(pcStyle)
-		This.Apply("arrowtail", pcStyle)
-	
-	def ApplyLabel(pcLabel)
-		This.Apply("label", pcLabel)
-	
-	def ApplyTooltip(pcTooltip)
-		This.Apply("tooltip", pcTooltip)
-
 #========================#
 #  COLOR RESOLVER CLASS  #
 #========================#
@@ -4025,7 +3428,7 @@ class stzStylParser
 	def Parse(pcContent)
 		aStyle = [
 			:name = "",
-			:theme = $cDefaultTheme,
+			:theme = $cDefaultColorTheme,
 			:layout = $cDefaultLayout,
 			:colors = [],
 			:fonts = [],

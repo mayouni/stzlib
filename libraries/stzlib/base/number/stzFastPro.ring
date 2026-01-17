@@ -21,8 +21,9 @@ func FastProUpdate(paList, paCommand)
 	ok
 
 	# Case : FastProUpdate(myList, :set = [ :All, :with = 1000 ])
-
-	if isList(paList) and IsListOfNumbers(paList) and paCommand = :Set and
+	
+	if isList(paList) and IsListOfNumbers(paList) and
+	   isList(paCommand) and len(paCommand) = 2 and paCommand[1] = :Set and
 	   isList(paCommand[2]) and len(paCommand[2]) = 2 and
 	   isString(paCommand[2][1]) and paCommand[2][1] = :All and
 	   isList(paCommand[2][2]) and len(paCommand[2][2]) = 2 and
@@ -134,26 +135,21 @@ func FastProUpdate(paList, paCommand)
 			updateList(paList, :set, cColOrRow, nColOrRow, nValue)
 			return paList
 
-		# Case: FastProUpdate(aMatrix, :Set = [ :Rows = [ 1, 3 ], :With = 5 ]) or
-		#       FastProUpdate(aMatrix, :Set = [ :Cols = [ 1, 3 ], :With = 5 ])
+		# Case: FastProUpdate(aMatrix, :Set = [ :RowsFrom = [ 1, :To = 3 ], :With = 5 ]) or
+		#       FastProUpdate(aMatrix, :Set = [ :ColsFrom = [ 1, :To = 3 ], :With = 5 ])
 
 		but isList(paCommand[2]) and len(paCommand[2]) = 2 and
 
 		   isList(paCommand[2][1]) and len(paCommand[2][1]) = 2 and
-		   isString(paCommand[2][1][1]) and
-
-		   (paCommand[2][1][1] = :Rows or paCommand[2][1][1] = :Cols) and
-		   isPairOfNumbers(paCommand[2][1][2])
+		   isString(paCommand[2][1][1]) and paCommand[2][1][1] = :ColsFrom and
 
 		   isList(paCommand[2][1][2]) and len(paCommand[2][1][2]) = 2 and
-
-		   isList(paCommand[2][1][2][1]) and len(paCommand[2][1][2][1]) = 2 and
-		   isString(paCommand[2][1][2][1][1]) and paCommand[2][1][2][1][1] = :From and
-		   isNumber(paCommand[2][1][2][1][2]) and
+		   isNumber(paCommand[2][1][2][1]) and
 
 		   isList(paCommand[2][1][2][2]) and len(paCommand[2][1][2][2]) = 2 and
 		   isString(paCommand[2][1][2][2][1]) and paCommand[2][1][2][2][1] = :To and
 		   isNumber(paCommand[2][1][2][2][2])
+
 
 			if paCommand[2][1][1] = :Rows
 
@@ -163,8 +159,6 @@ func FastProUpdate(paList, paCommand)
 
 					nStart = paCommand[2][1][2][1]
 					nEnd   = paCommand[2][1][2][2]
-					nStart = paCommand[2][1][2][1][2]
-					nEnd   = paCommand[2][1][2][2][2]
 					nValue = paCommand[2][2][2]
 
 					updateList(paList, :set, :manyrows, nStart, nEnd, nValue)
@@ -179,8 +173,6 @@ func FastProUpdate(paList, paCommand)
 
 					nStart = paCommand[2][1][2][1]
 					nEnd   = paCommand[2][1][2][2]
-					nStart = paCommand[2][1][2][1][2]
-					nEnd   = paCommand[2][1][2][2][2]
 					nValue = paCommand[2][2][2]
 
 					updateList(paList, :set, :manycols, nStart, nEnd, nValue)

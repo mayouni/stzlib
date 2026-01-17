@@ -1448,14 +1448,14 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.24
 
 #============================================#
-#  SECTION 10: METADATA OPERATIONS
+#  SECTION 10: properties OPERATIONS
 #============================================#
 
 /*--- Node properties
 
 pr()
 
-oGraph = new stzGraph("MetadataTest")
+oGraph = new stzGraph("propertiesTest")
 oGraph {
 	AddNodeXT("n1", "Node 1")
 	
@@ -6387,7 +6387,7 @@ pf()
 #-------------------
 
 # .stzgraf  - Graph structure (nodes/edges/properties)
-# .stzrulz  - Rule definitions (metadata)
+# .stzrulz  - Rule definitions (properties)
 # .stzrulf  - Rule functions (Ring code)
 # .stzsim   - Simulations (change sets)
 
@@ -6526,7 +6526,7 @@ pf()
 
 /*-----------------------------------------#
 #  2. compliance_rules.stzrulz
-#     Rule metadata (links to functions)
+#     Rule properties (links to functions)
 #=========================================#
 
 `
