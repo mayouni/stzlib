@@ -1,19 +1,17 @@
-digraph "paymentflow" {
+digraph "completetest" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
     node [fontname="helvetica", fontsize=12]
-    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+    edge [fontname="helvetica", fontsize=12, color="#656565", style=dotted, penwidth=2, arrowhead=normal, arrowtail=none]
 
-    start [label="Request", shape=ellipse, style="solid,filled", fillcolor="#A3D1A3", penwidth=1, fontcolor="black", tooltip=" "]
-    validate [label="Validate", shape=box, style="rounded,solid,filled", fillcolor="#FFDEA3", penwidth=1, fontcolor="black", tooltip=" "]
-    approved [label="Approved", shape=doublecircle, style="solid,filled", fillcolor="#A3D1A3", penwidth=1, fontcolor="black", tooltip=" "]
-    manual [label="Manual_Review", shape=box, style="rounded,solid,filled", fillcolor="#FFA500", penwidth=1, fontcolor="black", tooltip=" "]
-    manager [label="Manager_Approval", shape=diamond, style="solid,filled", fillcolor="#FFFF00", penwidth=1, fontcolor="black", tooltip=" "]
-    approved [label="Approved", shape=doublecircle, style="solid,filled", fillcolor="#008000", penwidth=1, fontcolor="white", tooltip=" "]
+    start [label="Begin", shape=ellipse, style="solid,filled", fillcolor="#008000", penwidth=2, fontcolor="white", tooltip=" "]
+    proc1 [label="Validate", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", penwidth=2, fontcolor="black", tooltip=" "]
+    dec1 [label="Valid?", shape=diamond, style="solid,filled", fillcolor="#FFA500", penwidth=2, fontcolor="black", tooltip=" "]
+    error [label="Error", shape=box, style="rounded,solid,filled", fillcolor="#FF0000", penwidth=2, fontcolor="white", tooltip=" "]
+    done [label="Complete", shape=doublecircle, style="solid,filled", fillcolor="#008000", penwidth=2, fontcolor="white", tooltip=" "]
 
-    start -> validate
-    validate -> approved
-    validate -> manual
-    manual -> manager
-    manager -> approved
+    start -> proc1
+    proc1 -> dec1 [label=" Check"]
+    dec1 -> error [label=" No"]
+    dec1 -> done [label=" Yes"]
 
 }

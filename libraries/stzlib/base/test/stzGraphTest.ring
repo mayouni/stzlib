@@ -3830,7 +3830,7 @@ pf()
 #-----------------------------------#
 
 /*--- Business analyst exploring 3 restructuring options
-
+*/
 pr()
 
 oBaseline = new stzGraph("current_structure")

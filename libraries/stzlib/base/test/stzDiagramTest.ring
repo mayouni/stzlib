@@ -1296,17 +1296,19 @@ pf()
 # Executed in 12.69 second(s) in Ring 1.24
 
 /*-- Combined options
-
+*/
 pr()
 
-oDiag5 = new stzDiagram("CompleteTest")
-oDiag5 {
-	SetTheme(:Dark)
+oDiag = new stzDiagram("CompleteTest")
+oDiag {
 	SetLayout("TB")              # Short form of TopBottom
-	SetEdgeStyle(:ErrorFlow)     # Semantic → dotted #TODO Does not work!
+
 	SetPenWidth(2)
 	SetEdgeColor("gray+")
 	
+	SetEdgeStyle(:ErrorFlow)
+	SetEdgePenWidth(2)
+
 	AddNodeXTT("start", "Begin", [ :type = "start", :color = "success" ])
 	AddNodeXTT("proc1", "Validate", [ :type = "process", :color = "primary" ])
 	AddNodeXTT("dec1", "Valid?", [ :type = "decision", :color = "warning" ])
@@ -1938,7 +1940,7 @@ pf()
 #=======================#
 
 /*-- Build, Edit, Import, and Visualize
-*/
+
 pr()
 
 # Build initial diagram
@@ -2248,7 +2250,7 @@ pf()
 # Executed in 0.04 second(s) in Ring 1.25
 
 /*--- VISUAL RULES (DATA-DRIVEN)
-
+*/
 pr()
 
 oDiag = new stzDiagram("PricingTiers")
@@ -2323,7 +2325,7 @@ pf()
 # Executed in 0.68 second(s) in Ring 1.24
 
 /*--- COMBINED VALIDATION + VISUAL
-
+*/
 pr()
 
 oDiag = new stzDiagram("SecurePayment")
