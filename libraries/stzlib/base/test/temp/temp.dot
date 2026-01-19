@@ -1,15 +1,17 @@
-digraph "sequencedemoxt" {
+digraph "datapipeline" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
     node [fontname="helvetica", fontsize=12]
-    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
+    edge [fontname="helvetica", fontsize=12, color="#D1D1D1", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    free [label="Free", shape=box, style="rounded,solid,filled", fillcolor="#808080", penwidth=1, fontcolor="white", tooltip=" "]
-    basic [label="Basic", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", tooltip=" "]
-    pro [label="Pro", shape=box, style="rounded,solid,filled", fillcolor="#FFA500", penwidth=1, fontcolor="black", tooltip=" "]
-    enterprise [label="Enterprise", shape=box, style="rounded,solid,filled", fillcolor="#008000", penwidth=1, fontcolor="white", tooltip=" "]
+    ingest [label="Ingest", shape=hexagon, style="solid,filled", fillcolor="#4D654D", penwidth=1, fontcolor="white", tooltip=" "]
+    clean [label="Cleansing", shape=hexagon, style="dashed,filled", fillcolor="#FFA500", penwidth=1, fontcolor="black", tooltip=" "]
+    transform [label="Transform", shape=hexagon, style="solid,filled", fillcolor="#4D654D", penwidth=1, fontcolor="white", tooltip=" "]
+    enrich [label="Enrichment", shape=box, style="rounded,bold,filled", fillcolor="#FF0000", penwidth=3, fontcolor="white", tooltip=" "]
+    load [label="Load_to_DW", shape=hexagon, style="solid,filled", fillcolor="#4D654D", penwidth=1, fontcolor="white", tooltip=" "]
 
-    free -> basic [label=" Upgrade"]
-    basic -> pro [label=" Upgrade"]
-    pro -> enterprise [label=" Upgrade"]
+    ingest -> clean
+    clean -> transform
+    transform -> enrich
+    enrich -> load
 
 }

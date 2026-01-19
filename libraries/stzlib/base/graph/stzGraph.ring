@@ -52,10 +52,14 @@ class stzGraph
 	@aEdges = []
 
 	# Simplified rule storage - rules as hashlists
-	@aRules = []  # [ [id, type, condition, effects], ... ]
-	@aAffectedNodes = []  # [ [nodeId, [ruleIds]], ... ]
-	@aAffectedEdges = []  # [ [edgeKey, [ruleIds]], ... ]
-	
+	@aOnGraphDesignRules = []
+	@aOnGraphConstructionRules = []
+	@aOnGraphFinalStateRules = []
+	@aAffectedNodes = []
+	@aAffectedEdges = []
+
+	@acFinalStateValidators = $acGraphDefaultValidators
+
 	@aProperties = []
 
 	@bEnforceConstraints = FALSE
@@ -3030,72 +3034,58 @@ class stzGraph
 	#  RULE MANAGEMENT  #
 	#-------------------#
 	
-	def AddDerivationRule(pcName, pFunc, paParams, pcMessage, pcSeverity)
-		@aRules + [
-			:name = pcName,
-			:type = :derivation,
-			:function = pFunc,
-			:params = paParams,
-			:message = pcMessage,
-			:severity = pcSeverity
-		]
-	
-	def AddConstraintRule(pcName, pFunc, paParams, pcMessage, pcSeverity)
-		@aRules + [
-			:name = pcName,
-			:type = :constraint,
-			:function = pFunc,
-			:params = paParams,
-			:message = pcMessage,
-			:severity = pcSeverity
-		]
-	
-	def AddValidationRule(pcName, pFunc, paParams, pcMessage, pcSeverity)
-		@aRules + [
-			:name = pcName,
-			:type = :validation,
-			:function = pFunc,
-			:params = paParams,
-			:message = pcMessage,
-			:severity = pcSeverity
-		]
-	
-	def UseRules(paRules)
-		nLen = len(paRules)
-		for i = 1 to nLen
-			aRule = paRules[i]
-			cType = aRule[:type]
-			
-			if cType = :derivation
-				This.AddDerivationRule(aRule[:name], aRule[:function], aRule[:params], aRule[:message], aRule[:severity])
-			but cType = :constraint
-				This.AddConstraintRule(aRule[:name], aRule[:function], aRule[:params], aRule[:message], aRule[:severity])
-			but cType = :validation
-				This.AddValidationRule(aRule[:name], aRule[:function], aRule[:params], aRule[:message], aRule[:severity])
-			ok
-		next
-	
 	def UseRulesFrom(pcTheme)
 		if HasKey($aGraphRules, pcTheme)
-			This.UseRules($aGraphRules[pcTheme])
+			aRules = $aGraphRules[pcTheme]
+			for aRule in aRules
+				This._AddUniqueRule(aRule)
+			next
+		ok
+	
+	def _AddUniqueRule(aRule)
+		# Check if rule already exists
+		cName = aRule[:name]
+		cType = aRule[:type]
+		
+		# Get appropriate rule list
+		aRuleList = NULL
+		if cType = :ongraphdesign
+			aRuleList = @aOnGraphDesignRules
+		but cType = :ongraphconstruction
+			aRuleList = @aOnGraphConstructionRules
+		but cType = :ongraphfinalstate
+			aRuleList = @aOnGraphFinalStateRules
+		ok
+		
+		if aRuleList != NULL
+			# Check if already exists
+			for aExisting in aRuleList
+				if aExisting[:name] = cName
+					return  # Already added
+				ok
+			next
+			
+			# Add to appropriate list
+			if cType = :ongraphdesign
+				@aOnGraphDesignRules + aRule
+			but cType = :ongraphconstruction
+				@aOnGraphConstructionRules + aRule
+			but cType = :ongraphfinalstate
+				@aOnGraphFinalStateRules + aRule
+			ok
 		ok
 
-	def ApplyDerivations()
+	def ApplyConstructionRules()  # Was: ApplyDerivations
 		nAdded = 0
-		nLen = len(@aRules)
+		nLen = len(@aOnGraphConstructionRules)  # Changed
 		
 		for i = 1 to nLen
-			aRule = @aRules[i]
-			if aRule[:type] != :derivation
-				loop
-			ok
+			aRule = @aOnGraphConstructionRules[i]  # Changed
 			
-			# Call derivation function with params
 			pFunc = aRule[:function]
 			paParams = aRule[:params]
 			aNewEdges = call pFunc(This, paParams)
 			
-			# Add derived edges
 			nEdgesLen = len(aNewEdges)
 			for j = 1 to nEdgesLen
 				aEdge = aNewEdges[j]
@@ -3114,17 +3104,13 @@ class stzGraph
 		
 		return nAdded
 	
-	def CheckConstraints(paOperationParams)
+	def CheckDesignRules(paOperationParams)  # Was: CheckConstraints
 		aViolations = []
-		nLen = len(@aRules)
+		nLen = len(@aOnGraphDesignRules)  # Changed
 		
 		for i = 1 to nLen
-			aRule = @aRules[i]
-			if aRule[:type] != :constraint
-				loop
-			ok
+			aRule = @aOnGraphDesignRules[i]  # Changed
 			
-			# Call constraint function with both params
 			pFunc = aRule[:function]
 			paRuleParams = aRule[:params]
 			aResult = call pFunc(This, paRuleParams, paOperationParams)
@@ -3144,104 +3130,28 @@ class stzGraph
 		
 		bSuccess = (len(aViolations) = 0)
 		return [bSuccess, aViolations]
-
-	def Validate()
-		aViolations = []
-		acRulesChecked = []  # Track which validation rules ran
-		nLen = len(@aRules)
-		
-		for i = 1 to nLen
-			aRule = @aRules[i]
-			if aRule[:type] != :validation
-				loop
-			ok
-			
-			acRulesChecked + aRule[:name]  # Track it
-			
-			pFunc = aRule[:function]
-			paParams = aRule[:params]
-			aResult = call pFunc(This, paParams)
-			
-			bValid = aResult[1]
-			cMessage = aResult[2]
-			
-			if NOT bValid
-				aViolations + [
-					:rule = aRule[:name],
-					:message = iif(cMessage = "", aRule[:message], cMessage),
-					:severity = aRule[:severity]
-				]
-			ok
-		next
-		
-		bValid = (len(aViolations) = 0)
-		@aLastValidationResult = [bValid, aViolations, acRulesChecked]
-		return [bValid, aViolations]
-	
-	def ValidationSummary()
-		if len(@aLastValidationResult) = 0
-			return [:status = "not_run", :message = "No validation run yet"]
-		ok
-		
-		bValid = @aLastValidationResult[1]
-		aViolations = @aLastValidationResult[2]
-		acChecked = @aLastValidationResult[3]
-		
-		return [
-			:status = iif(bValid, "pass", "fail"),
-			:rules_applied = acChecked,
-			:violations = aViolations,
-			:violation_count = len(aViolations),
-			:passed = bValid
-		]
-	
-		def ValidationResult()
-			return This.ValidationSummary()
-
-		def Validation()
-			return This.ValidationSummary()
-
-		def ValidationXT()
-			return This.ValidationSummary()
-
-	def Anomalies()
-		return This.ValidationSummary()[:violations]
-
-		def Issues()
-			return This.Anomalies()
-
-		def Violations()
-			return This.Anomalies()
-
-	#--
-
-	def EnforceConstraints()
-		@bEnforceConstraints = TRUE
-	
-	def DisableConstraints()
-		@bEnforceConstraints = FALSE
 	
 	def RulesSummary()
 		aSummary = [
-			:derivations = [],
-			:constraints = [],
-			:validations = [],
-			:applied = [],
-			:violations = []
+			:design = [],
+			:construction = [],
+			:finalstate = [],
+			:applied = []
 		]
 		
-		nLen = len(@aRules)
+		nLen = len(@aOnGraphDesignRules)
 		for i = 1 to nLen
-			aRule = @aRules[i]
-			cType = aRule[:type]
-			
-			if cType = :derivation
-				aSummary[:derivations] + aRule[:name]
-			but cType = :constraint
-				aSummary[:constraints] + aRule[:name]
-			but cType = :validation
-				aSummary[:validations] + aRule[:name]
-			ok
+			aSummary[:design] + @aOnGraphDesignRules[i][:name]
+		next
+		
+		nLen = len(@aOnGraphConstructionRules)
+		for i = 1 to nLen
+			aSummary[:construction] + @aOnGraphConstructionRules[i][:name]
+		next
+		
+		nLen = len(@aOnGraphFinalStateRules)
+		for i = 1 to nLen
+			aSummary[:finalstate] + @aOnGraphFinalStateRules[i][:name]
 		next
 		
 		aSummary[:applied] = This.RulesApplied()
@@ -3285,6 +3195,205 @@ class stzGraph
 				ok
 			ok
 		ok
+
+	#--------------#
+	#  VALIDATION  #
+	#--------------#
+
+	def Validate()
+		return This.ValidateFinalState()
+	
+	def ValidateXT(paValidators)
+		return This.ValidateFinalStateXT(paValidators)
+
+	def ValidateFinalState()
+		return This.ValidateFinalStateXT(@acFinalStateValidators)
+	
+	def ValidateFinalStateXT(paValidators)
+		if isString(paValidators)
+			return This._ValidateSingle(paValidators)
+		but isList(paValidators)
+			return This._ValidateMultiple(paValidators)
+		ok
+	
+	def _ValidateSingle(pcValidator)
+		cValidator = lower(pcValidator)
+		
+		# Load rules from theme (additive)
+		This.UseRulesFrom(cValidator)
+		
+		# Run validation
+		aViolations = []
+		acRulesChecked = []
+		
+		nLen = len(@aOnGraphFinalStateRules)
+		for i = 1 to nLen
+			aRule = @aOnGraphFinalStateRules[i]
+			acRulesChecked + aRule[:name]
+			
+			pFunc = aRule[:function]
+			paParams = aRule[:params]
+			aResult = call pFunc(This, paParams)
+			
+			bValid = aResult[1]
+			cMessage = aResult[2]
+			
+			if NOT bValid
+				aViolations + [
+					:rule = aRule[:name],
+					:message = iif(cMessage = "", aRule[:message], cMessage),
+					:severity = aRule[:severity]
+				]
+			ok
+		next
+		
+		if len(aViolations) > 0
+			acIssues = This._FlattenViolations(aViolations)
+			acAffected = This._ExtractAffectedNodes(aViolations)
+			
+			return [
+				:status = "fail",
+				:domain = cValidator,
+				:issueCount = len(aViolations),
+				:issues = acIssues,
+				:affectedNodes = acAffected
+			]
+		ok
+		
+		# Add before final return in _ValidateSingle:
+		bValid = (len(aViolations) = 0)
+		@aLastValidationResult = [bValid, aViolations, acRulesChecked]
+		
+		return [
+			:status = "pass",
+			:domain = cValidator,
+			:issueCount = 0,
+			:issues = [],
+			:affectedNodes = []
+		]
+	
+	def _ValidateMultiple(pacValidators)
+		aResults = []
+		nFailed = 0
+		nTotal = 0
+		
+		for cValidator in pacValidators
+			aResult = This._ValidateSingle(cValidator)
+			aResults + aResult
+			
+			if aResult[:status] = "fail"
+				nFailed++
+			ok
+			nTotal += aResult[:issueCount]
+		end
+		
+		return [
+			:status = iif(nFailed > 0, "fail", "pass"),
+			:validatorsRun = len(pacValidators),
+			:validatorsFailed = nFailed,
+			:totalIssues = nTotal,
+			:results = aResults,
+			:affectedNodes = This._MergeAffectedNodes(aResults)
+		]
+	
+	def _FlattenViolations(aViolations)
+		acIssues = []
+		for aViolation in aViolations
+			if HasKey(aViolation, :message)
+				pMsg = aViolation[:message]
+				
+				if isList(pMsg)
+					for aSubViolation in pMsg
+						if isList(aSubViolation) and HasKey(aSubViolation, :message)
+							acIssues + aSubViolation[:message]
+						but isString(aSubViolation)
+							acIssues + aSubViolation
+						ok
+					next
+				but isString(pMsg)
+					acIssues + pMsg
+				ok
+			ok
+		end
+		return acIssues
+	
+	def _ExtractAffectedNodes(aViolations)
+		acNodes = []
+		for aViolation in aViolations
+			if HasKey(aViolation, :message)
+				pMsg = aViolation[:message]
+				
+				if isList(pMsg)
+					for aSubViolation in pMsg
+						if isList(aSubViolation) and 
+						   HasKey(aSubViolation, :params) and 
+						   HasKey(aSubViolation[:params], :node)
+							cNode = aSubViolation[:params][:node]
+							if ring_find(acNodes, cNode) = 0
+								acNodes + cNode
+							ok
+						ok
+					next
+				ok
+				
+				if HasKey(aViolation, :params) and 
+				   HasKey(aViolation[:params], :node)
+					cNode = aViolation[:params][:node]
+					if ring_find(acNodes, cNode) = 0
+						acNodes + cNode
+					ok
+				ok
+			ok
+		end
+		return acNodes
+	
+	def _MergeAffectedNodes(aResults)
+		acAll = []
+		for aResult in aResults
+			if HasKey(aResult, :affectedNodes)
+				for cNode in aResult[:affectedNodes]
+					if ring_find(acAll, cNode) = 0
+						acAll + cNode
+					ok
+				end
+			ok
+		end
+		return acAll
+	
+	def ValidationSummary()
+		if len(@aLastValidationResult) = 0
+			return [:status = "not_run", :message = "No validation run yet"]
+		ok
+		
+		bValid = @aLastValidationResult[1]
+		aViolations = @aLastValidationResult[2]
+		acChecked = @aLastValidationResult[3]
+		
+		return [
+			:status = iif(bValid, "pass", "fail"),
+			:rules_applied = acChecked,
+			:violations = aViolations,
+			:violation_count = len(aViolations),
+			:passed = bValid
+		]
+	
+		def ValidationResult()
+			return This.ValidationSummary()
+	
+		def Validation()
+			return This.ValidationSummary()
+	
+		def ValidationXT()
+			return This.ValidationSummary()
+
+	def Anomalies()
+		return This.ValidationSummary()[:violations]
+
+		def Issues()
+			return This.Anomalies()
+
+		def Violations()
+			return This.Anomalies()
 
 	#====================#
 	#  GRAPH COMPARISON  #
