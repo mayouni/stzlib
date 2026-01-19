@@ -1,12 +1,10 @@
 #--------------------------------------------------#
 #  stzDiagram - DOMAIN SPECIALIZATION OF stzGraph  #
 #  Workflows, org charts, semantic diagrams        #
+#--------------------------------------------------#
+#  Part of GRAPH MODULE in StzLib (V0.9)           #
+#  By: Mansour Ayouni (kalidianow@gamil.com)       #
 #==================================================#
-
-# NOTE : there some rules related to stzDiagram that are registred in
-# stzGraphRule file, like "dag", "sox", and "gdpr" rules.
-
-$acDiagramDefaultValidators = ["sox", "gdpr", "banking"]
 
 # Edge styles
 $acEdgeStyles = [
@@ -281,14 +279,11 @@ class stzDiagram from stzGraph
 	@cTitle = ""
 	@cSubtitle = ""
 
-	@acValidators = $acDiagramDefaultValidators
-
 	@aLoadedStyles = []
 
 	@cFocusColor = $cDefaultFocusColor
 	@cOutputFormat = $cDefaultDiagramOutputFormat
 
-	@acDiagramValidators = []  # Diagram-specific validators
 	@aoVisualRules = []
 	@aNodesAffectedByRules = []
 	@aEdgesAffectedByRules = []
@@ -304,10 +299,6 @@ class stzDiagram from stzGraph
 		@cEdgeColor = ResolveColor($cDefaultEdgeColor)
 		@cFocusColor = ResolveColor($cDefaultFocusColor)
 		@cSplineType = $cDefaultSplineType
-
-		# Set diagram-specific default validators
-		@acDiagramValidators = $acDiagramDefaultValidators  # ["sox", "gdpr", "banking"]
-		@acValidators = @acDiagramValidators  # Override graph defaults
 
 	def Name()
 		return super.Id()
@@ -985,177 +976,6 @@ class stzDiagram from stzGraph
 			@aoTemplates[i].Apply(This)
 		end
 
-	#--------------#
-	#  VALIDATION  #
-	#--------------#
-
-	# Override parent to use diagram validators by default
-	def Validate()
-		return This.ValidateXT(@acValidators)
-	
-	# Single or multiple validators
-	def ValidateXT(pValidators)
-		if isString(pValidators)
-			pValidators = lower(pValidators)
-			return This._ValidateSingle(pValidators)
-		but isList(pValidators)
-			return This._ValidateMultiple(pValidators)
-		ok
-	
-	def _ValidateSingle(pcValidator)
-	    cValidator = lower(pcValidator)
-	    
-	    # CRITICAL: Clear previous rules before loading new ones
-	    @aRules = []
-	    
-	    This.UseRulesFrom(cValidator)
-	    
-	    aResult = super.Validate()
-	    
-	    if NOT aResult[1]
-	        aViolations = aResult[2]
-	        acIssues = This._FlattenViolations(aViolations)
-	        acAffected = This._ExtractAffectedNodes(aViolations)
-	        
-	        return [
-	            :status = "fail",
-	            :domain = cValidator,
-	            :issueCount = len(aViolations),
-	            :issues = acIssues,
-	            :affectedNodes = acAffected
-	        ]
-	    ok
-	    
-	    return [
-	        :status = "pass",
-	        :domain = cValidator,
-	        :issueCount = 0,
-	        :issues = [],
-	        :affectedNodes = []
-	    ]
-		
-	def _ValidateMultiple(pacValidators)
-		aResults = []
-		nFailed = 0
-		nTotal = 0
-			
-		for cValidator in pacValidators
-			aResult = This._ValidateSingle(cValidator)
-			aResults + aResult
-				
-			if aResult[:status] = "fail"
-				nFailed++
-			ok
-			nTotal += aResult[:issueCount]
-		end
-			
-		return [
-			:status = iif(nFailed > 0, "fail", "pass"),
-			:validatorsRun = len(pacValidators),
-			:validatorsFailed = nFailed,
-			:totalIssues = nTotal,
-			:results = aResults,
-			:affectedNodes = This._MergeAffectedNodes(aResults)
-		]
-		
-	def _FlattenViolations(aViolations)
-	    acIssues = []
-	    for aViolation in aViolations
-	        if HasKey(aViolation, :message)
-	            pMsg = aViolation[:message]
-	            
-	            # Handle array of violation messages
-	            if isList(pMsg)
-	                for aSubViolation in pMsg
-	                    if isList(aSubViolation) and HasKey(aSubViolation, :message)
-	                        acIssues + aSubViolation[:message]
-	                    but isString(aSubViolation)
-	                        acIssues + aSubViolation
-	                    ok
-	                next
-	            but isString(pMsg)
-	                acIssues + pMsg
-	            ok
-	        ok
-	    end
-	    return acIssues
-	
-	def _ExtractAffectedNodes(aViolations)
-	    acNodes = []
-	    for aViolation in aViolations
-	        if HasKey(aViolation, :message)
-	            pMsg = aViolation[:message]
-	            
-	            # Handle array of nested violations
-	            if isList(pMsg)
-	                for aSubViolation in pMsg
-	                    if isList(aSubViolation) and 
-	                       HasKey(aSubViolation, :params) and 
-	                       HasKey(aSubViolation[:params], :node)
-	                        cNode = aSubViolation[:params][:node]
-	                        if ring_find(acNodes, cNode) = 0
-	                            acNodes + cNode
-	                        ok
-	                    ok
-	                next
-	            ok
-	            
-	            # Also handle direct violations (non-nested)
-	            if HasKey(aViolation, :params) and 
-	               HasKey(aViolation[:params], :node)
-	                cNode = aViolation[:params][:node]
-	                if ring_find(acNodes, cNode) = 0
-	                    acNodes + cNode
-	                ok
-	            ok
-	        ok
-	    end
-	    return acNodes
-		
-		def _MergeAffectedNodes(aResults)
-			acAll = []
-			for aResult in aResults
-				if HasKey(aResult, :affectedNodes)
-					for cNode in aResult[:affectedNodes]
-						if ring_find(acAll, cNode) = 0
-							acAll + cNode
-						ok
-					end
-				ok
-			end
-			return acAll
-	
-	def Validators()
-		return @acValidators
-	
-	def SetValidators(pacValidators)
-		@acValidators = pacValidators
-	
-	def IsValid()
-		return This.Validate()[:status] = "pass"
-	
-	def IsValidXT(pValidator)
-		return This.ValidateXT(pValidator)[:status] = "pass"
-
-	def NodesAffectedByVisualRules()
-	    acResult = []
-	    acKeys = keys(@aNodeRulesEffects)
-	    for cKey in acKeys
-	        acResult + cKey
-	    next
-	    return acResult
-	
-	def VisualRulesApplied()
-	    aResult = []
-	    for aRule in @aoVisualRules
-	        aResult + [
-	            :name = aRule[:name],
-	            :conditionType = aRule[:conditionType],
-	            :effectsCount = len(aRule[:effects])
-	        ]
-	    next
-	    return aResult
-
 	#----------------#
 	#  VISUAL RULES  #
 	#----------------#
@@ -1304,6 +1124,26 @@ class stzDiagram from stzGraph
 		
 		return aContext
 	
+
+	def NodesAffectedByVisualRules()
+	    acResult = []
+	    acKeys = keys(@aNodeRulesEffects)
+	    for cKey in acKeys
+	        acResult + cKey
+	    next
+	    return acResult
+	
+	def VisualRulesApplied()
+	    aResult = []
+	    for aRule in @aoVisualRules
+	        aResult + [
+	            :name = aRule[:name],
+	            :conditionType = aRule[:conditionType],
+	            :effectsCount = len(aRule[:effects])
+	        ]
+	    next
+	    return aResult
+
 	#-----------------#
 	#  QUERY METHODS  #
 	#-----------------#
@@ -1369,9 +1209,9 @@ class stzDiagram from stzGraph
 		
 		return acResult
 	
-	#-------------------#
-	#  properties LEGEND  #
-	#-------------------#
+	#---------------------#
+	#  properties LEGEND  # #TODO Should be abstarcted in stzGraph!!
+	#---------------------#
 	
 	def propertiesLegend()
 		acLegend = ["=== properties LEGEND ===", ""]
@@ -1387,7 +1227,7 @@ class stzDiagram from stzGraph
 			ok
 			
 			for aEffect in aEffects
-				acLegend + "  Ã¢â€ â€™ " + aEffect[1] + ": " + aEffect[2]
+				acLegend + "  ÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢ " + aEffect[1] + ": " + aEffect[2]
 			next
 			
 			acLegend + ""
@@ -1396,7 +1236,7 @@ class stzDiagram from stzGraph
 		return acLegend
 
 	#-----------#
-	#  METRICS  #
+	#  METRICS  # #TODO Should be abstracted in stzGraph!
 	#-----------#
 
 	def ComputeMetrics()
@@ -2808,9 +2648,13 @@ class stzDiagramToDot
 	        nPenWidth = aAppliedRules["penwidth"]
 	    ok
 	    
-	    # Check if visual rules set style
-	    if HasKey(aAppliedRules, "style")
-	        cStyle = aAppliedRules["style"] + ",filled"
+	    # Ensure filled is always present (visual rules already merged in _GetNodeStyle)
+	    if NOT substr(cStyle, "filled")
+	        if cStyle = ""
+	            cStyle = "filled"
+	        else
+	            cStyle += ",filled"
+	        ok
 	    ok
 	    
 	    cOutput = '    ' + cNodeId + ' [label="' + cLabel + '"'
@@ -2842,10 +2686,10 @@ class stzDiagramToDot
 	    # Generate tooltip
 	    cTooltip = This._GenerateTooltip(aNode)
 	    if cTooltip != ""
-	    	cOutput += ', tooltip="' + This._EscapeTooltip(cTooltip) + '"'
+	        cOutput += ', tooltip="' + This._EscapeTooltip(cTooltip) + '"'
 	    else
-	    	# Explicitly disable default tooltip
-	  	  cOutput += ', tooltip=" "'
+	        # Explicitly disable default tooltip
+	        cOutput += ', tooltip=" "'
 	    ok
 	    
 	    cOutput += ']' + NL
@@ -2914,15 +2758,24 @@ class stzDiagramToDot
 		off
 	
 	def _GetNodeStyle(aNode, aEnhancements)
-		if HasKey(aEnhancements, "style")
-			return aEnhancements["style"]
-		ok
-		
 		# Get the actual shape that will be rendered
 		cShape = This._GetNodeShape(aNode, aEnhancements)
 		
 		# Start with global node pen style
 		cBaseStyle = @oDiagram.@cNodePenStyle
+		
+		# If visual rule sets style, merge with base
+		if HasKey(aEnhancements, "style")
+			cRuleStyle = aEnhancements["style"]
+			# Merge: ensure filled + rounded (for boxes) + rule style
+			if NOT substr(cRuleStyle, "filled")
+				cRuleStyle += ",filled"
+			ok
+			if cShape = "box" and NOT substr(cRuleStyle, "rounded")
+				cRuleStyle = "rounded," + cRuleStyle
+			ok
+			return cRuleStyle
+		ok
 		
 		# Polygon shapes don't support rounded
 		
@@ -3032,7 +2885,7 @@ class stzDiagramToDot
 	    cOutput = '    ' + cFrom + ' -> ' + cTo
 	    aAttrs = []
 	    
-	    # Check if this is a supervisorÃ¢â€ â€™helper edge
+	    # Check if this is a supervisorÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢helper edge
 	    if left(cTo, 8) = "_helper_"
 	        aAttrs + 'arrowhead=none'
 	        aAttrs + 'weight=10'

@@ -16,7 +16,7 @@
 <g id="node1" class="node">
 <title>free</title>
 <g id="a_node1"><a xlink:title=" ">
-<path fill="#a3d1a3" stroke="black" stroke-width="0" d="M70.75,-318C70.75,-318 27,-318 27,-318 21,-318 15,-312 15,-306 15,-306 15,-294 15,-294 15,-288 21,-282 27,-282 27,-282 70.75,-282 70.75,-282 76.75,-282 82.75,-288 82.75,-294 82.75,-294 82.75,-306 82.75,-306 82.75,-312 76.75,-318 70.75,-318"/>
+<path fill="#a3d1a3" stroke="black" d="M70.75,-318C70.75,-318 27,-318 27,-318 21,-318 15,-312 15,-306 15,-306 15,-294 15,-294 15,-288 21,-282 27,-282 27,-282 70.75,-282 70.75,-282 76.75,-282 82.75,-288 82.75,-294 82.75,-294 82.75,-306 82.75,-306 82.75,-312 76.75,-318 70.75,-318"/>
 <text xml:space="preserve" text-anchor="middle" x="48.88" y="-295.73" font-family="Helvetica,sans-Serif" font-size="12.00">Free_Tier</text>
 </a>
 </g>
@@ -25,7 +25,7 @@
 <g id="node2" class="node">
 <title>basic</title>
 <g id="a_node2"><a xlink:title=" ">
-<path fill="#a3d1a3" stroke="black" stroke-width="0" d="M73.38,-224C73.38,-224 24.38,-224 24.38,-224 18.38,-224 12.38,-218 12.38,-212 12.38,-212 12.38,-200 12.38,-200 12.38,-194 18.38,-188 24.38,-188 24.38,-188 73.38,-188 73.38,-188 79.38,-188 85.38,-194 85.38,-200 85.38,-200 85.38,-212 85.38,-212 85.38,-218 79.38,-224 73.38,-224"/>
+<path fill="#a3d1a3" stroke="black" d="M73.38,-224C73.38,-224 24.38,-224 24.38,-224 18.38,-224 12.38,-218 12.38,-212 12.38,-212 12.38,-200 12.38,-200 12.38,-194 18.38,-188 24.38,-188 24.38,-188 73.38,-188 73.38,-188 79.38,-188 85.38,-194 85.38,-200 85.38,-200 85.38,-212 85.38,-212 85.38,-218 79.38,-224 73.38,-224"/>
 <text xml:space="preserve" text-anchor="middle" x="48.88" y="-201.72" font-family="Helvetica,sans-Serif" font-size="12.00">Basic_Tier</text>
 </a>
 </g>
@@ -33,8 +33,8 @@
 <!-- free&#45;&gt;basic -->
 <g id="edge1" class="edge">
 <title>free&#45;&gt;basic</title>
-<path fill="none" stroke="#000000" d="M48.88,-282.13C48.88,-269.03 48.88,-250.58 48.88,-235.24"/>
-<polygon fill="#000000" stroke="#000000" points="52.38,-235.28 48.88,-225.28 45.38,-235.28 52.38,-235.28"/>
+<path fill="none" stroke="#000000" d="M48.88,-281.7C48.88,-268.72 48.88,-250.66 48.88,-235.56"/>
+<polygon fill="#000000" stroke="#000000" points="52.38,-235.74 48.88,-225.74 45.38,-235.74 52.38,-235.74"/>
 </g>
 <!-- pro -->
 <g id="node3" class="node">
@@ -48,21 +48,21 @@
 <!-- basic&#45;&gt;pro -->
 <g id="edge2" class="edge">
 <title>basic&#45;&gt;pro</title>
-<path fill="none" stroke="#000000" d="M48.88,-188.13C48.88,-175.19 48.88,-157.04 48.88,-141.82"/>
-<polygon fill="#000000" stroke="#000000" points="52.38,-141.91 48.88,-131.91 45.38,-141.91 52.38,-141.91"/>
+<path fill="none" stroke="#000000" d="M48.88,-187.7C48.88,-174.72 48.88,-156.66 48.88,-141.56"/>
+<polygon fill="#000000" stroke="#000000" points="52.38,-141.74 48.88,-131.74 45.38,-141.74 52.38,-141.74"/>
 </g>
-<!-- enterprise -->
+<!-- entreprise -->
 <g id="node4" class="node">
-<title>enterprise</title>
+<title>entreprise</title>
 <g id="a_node4"><a xlink:title=" ">
 <path fill="#ffd700" stroke="black" stroke-width="3" d="M85.75,-36C85.75,-36 12,-36 12,-36 6,-36 0,-30 0,-24 0,-24 0,-12 0,-12 0,-6 6,0 12,0 12,0 85.75,0 85.75,0 91.75,0 97.75,-6 97.75,-12 97.75,-12 97.75,-24 97.75,-24 97.75,-30 91.75,-36 85.75,-36"/>
 <text xml:space="preserve" text-anchor="middle" x="48.88" y="-13.72" font-family="Helvetica,sans-Serif" font-size="12.00">Enterprise_Tier</text>
 </a>
 </g>
 </g>
-<!-- pro&#45;&gt;enterprise -->
+<!-- pro&#45;&gt;entreprise -->
 <g id="edge3" class="edge">
-<title>pro&#45;&gt;enterprise</title>
+<title>pro&#45;&gt;entreprise</title>
 <path fill="none" stroke="#000000" d="M48.88,-93.7C48.88,-81.05 48.88,-63.57 48.88,-48.71"/>
 <polygon fill="#000000" stroke="#000000" points="52.38,-49 48.88,-39 45.38,-49 52.38,-49"/>
 </g>

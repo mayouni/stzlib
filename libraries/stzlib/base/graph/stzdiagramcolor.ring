@@ -1,6 +1,11 @@
-
-# UNIFIED COLOR SYSTEM	#TODO Abstract it in a stzColor class -> Visual Module
-# Currently used by stzDiagram class
+#----------------------------------------------------------#
+#  stzDiagramColor - UNIFIED COLOR SYSTEM                  #
+#  Used currently by stzDiagram visual themes              #
+#  #TODO Abstract it in a stzColor class -> Visual Module  #
+#----------------------------------------------------------#
+#  Part of GRAPH MODULE in StzLib (V0.9)                   #
+#  By: Mansour Ayouni (kalidianow@gamil.com)               #
+#==========================================================#
 
 # Base color definitions (single source of truth)
 $acColors = [

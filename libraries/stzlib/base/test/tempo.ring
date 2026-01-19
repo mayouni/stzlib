@@ -1,8 +1,10 @@
 load "../stzbase.ring"
 
+/*---
+
 decimals(3)
 t1= clock()
-? _IsListOfNumbers_(1:100_000)
+? _IsListOfNumbers_(list(100_000))
 t2= clock()
 ? (t2-t1)/clockspersecond()
 
@@ -17,3 +19,4 @@ func _IsListOfNumbers_(paList)
         ok
     next
 return 1
+

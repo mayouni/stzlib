@@ -100,7 +100,7 @@ pf()
 # Executed in 0.56 second(s) in Ring 1.25
 
 /*--- Creating nodes in sequence with lablels
-*/
+
 pr()
 
 oDiag = new stzDiagram("SequenceDemoXT")
@@ -2124,188 +2124,8 @@ pf()
 #  Now properly aligned with stzGraph  #
 #======================================#
 
-/*--- SOX VALIDATION
-
-pr()
-
-oDiag = new stzDiagram("SoxPayment")
-oDiag {
-	SetTheme("pro")
-	# Setup nodes
-	AddNodeXTT(:@Submit, "Submit", [ 
-		:type = "start", 
-		:color = "success" 
-	])
-	
-	# Decision node WITHOUT approval requirement (should fail)
-	AddNodeXTT(:@Approve, "Approve?", [ 
-		:type = "decision", 
-		:color = "warning"
-		# Missing :RequiresApproval = TRUE
-	])
-	
-	AddNodeXTT(:@Pay, "Pay", [ 
-		:type = "process", 
-		:color = "primary" 
-	])
-	
-	AddNodeXTT(:@Log, "Log", [ 
-		:type = "data", 
-		:color = "neutral" 
-	])
-	
-	AddNodeXTT(:@Done, "Done", [ 
-		:type = "endpoint", 
-		:color = "success" 
-	])
-	
-	# Connect
-	Connect(:@Submit, :@Approve)
-	ConnectXT(:@Approve, :@Pay, "Yes")
-	Connect(:@Pay, :@Log)
-	Connect(:@Log, :@Done)
-
-	# Detecting the missing approval requirement
-	aResult = ValidateXT(:SOX)
-	? @@NL(aResult) + NL
-	#--> [
-	# 	[ "status", "fail" ],
-	# 	[ "domain", "sox" ],
-	# 	[ "issuecount", 1 ],
-	# 	[
-	# 		"issues",
-	# 		[
-	# 			"SOX-002: Decision node lacks approval requirement: @approve"
-	# 		]
-	# 	],
-	# 	[
-	# 		"affectednodes",
-	# 		[ "@approve" ]
-	# 	]
-	# ]
-
-	# Fixing the issue...
-	SetNodeProperty(:@Approve, :RequiresApproval, TRUE)
-	SetNodeProperty(:@Approve, :Approver, "finance_manager")
-	
-	? @@NL( ValidateXT(:SOX) )
-	#--> [
-	# 	[ "status", "pass" ],
-	# 	[ "domain", "sox" ],
-	# 	[ "issuecount", 0 ],
-	# 	[ "issues", [  ] ],
-	# 	[ "affectednodes", [  ] ]
-	# ]
-
-
-}
-
-pf()
-# Executed in 0.05 second(s) in Ring 1.25
-
-/*--- MULTIPLE DOMAIN VALIDATORS
-
-pr()
-
-oDiag = new stzDiagram("ComplianceDemo")
-oDiag {
-	# Node with personal data (GDPR issue)
-	AddNodeXTT("collect", "Collect Data", [
-		:type = "process",
-		:dataType = "personal"
-		# Missing :RequiresConsent = TRUE
-	])
-	
-	# Decision node (SOX issue)
-	AddNodeXTT("approve", "Approve?", [
-		:type = "decision"
-		# Missing :RequiresApproval = TRUE
-	])
-	
-	# High-value payment (Banking issue)
-	AddNodeXTT("pay", "Payment", [
-		:type = "process",
-		:amount = 50000
-		# Missing dual approval (needs 2 decision predecessors)
-	])
-	
-	AddNodeXTT("done", "Done", [:type = "endpoint"])
-	
-	Connect("collect", "approve")
-	Connect("approve", "pay")
-	Connect("pay", "done")
-	
-	# Running multiple validators
-	? @@NL( ValidateXT([ :SOX, :GDPR, :Banking] ) )
-}
-#--> [
-# 	[ "status", "fail" ],
-# 	[ "validatorsrun", 3 ],
-# 	[ "validatorsfailed", 3 ],
-# 	[ "totalissues", 4 ],
-# 	[
-# 		"results",
-# 		[
-# 			[
-# 				[ "status", "fail" ],
-# 				[ "domain", "sox" ],
-# 				[ "issuecount", 2 ],
-# 				[
-# 					"issues",
-# 					[
-# 						"SOX-001: Missing audit trail: collect",
-# 						"SOX-001: Missing audit trail: pay",
-# 						"SOX-002: Decision node lacks approval requirement: approve"
-# 					]
-# 				],
-# 				[
-# 					"affectednodes",
-# 					[ "collect", "pay", "approve" ]
-# 				]
-# 			],
-# 			[
-# 				[ "status", "fail" ],
-# 				[ "domain", "gdpr" ],
-# 				[ "issuecount", 1 ],
-# 				[
-# 					"issues",
-# 					[
-# 						"GDPR-001: Personal data missing consent: collect"
-# 					]
-# 				],
-# 				[
-# 					"affectednodes",
-# 					[ "collect" ]
-# 				]
-# 			],
-# 			[
-# 				[ "status", "fail" ],
-# 				[ "domain", "banking" ],
-# 				[ "issuecount", 1 ],
-# 				[
-# 					"issues",
-# 					[
-# 						"BANKING-001: High-value operation needs dual control: pay"
-# 					]
-# 				],
-# 				[
-# 					"affectednodes",
-# 					[ "pay" ]
-# 				]
-# 			]
-# 		]
-# 	],
-# 	[
-# 		"affectednodes",
-# 		[ "collect", "pay", "approve" ]
-# 	]
-# ]
-
-pf()
-# Executed in 0.04 second(s) in Ring 1.25
-
 /*--- VISUAL RULES (DATA-DRIVEN)
-*/
+
 pr()
 
 oDiag = new stzDiagram("PricingTiers")
@@ -2314,12 +2134,9 @@ oDiag {
 	AddNodeXTT(:@free, "Free Tier", [ :Price = 0 ])
 	AddNodeXTT(:@basic, "Basic Tier", [ :Price = 10 ])
 	AddNodeXTT(:@pro, "Pro Tier", [ :Price = 50 ])
-	AddNodeXTT(:@enterprise, "Enterprise Tier", [ :price = 200 ])
-	
-	Connect(:@free, :@basic)
-	Connect(:@basic, :@pro)
-	Connect(:@pro, :@enterprise)
-	#todo // Simplify by adding ConnectSequence([ :@free, :@basic, :@pro, :@entreprise ])
+	AddNodeXTT(:@entreprise, "Enterprise Tier", [ :price = 200 ])
+
+	ConnectSequence([ :@free, :@basic, :@pro, :@entreprise ])
 
 	# Register visual rules as pure data
 	RegisterVisualRule("CHEAP_GREEN", [
@@ -2345,13 +2162,13 @@ oDiag {
 	    :ConditionParams = [ :Price, 100, 999999 ],
 	    :Effects = [
 	        :Color = "gold",
-		:PenWidth = 3	#TODO //when we add ["style", "bold"] the shape is lost
+		:PenWidth = 3
 	    ]
 	])
 	
 	ApplyVisualRules()
 	? @@NL( VisualRulesApplied() ) + NL
-	#--> [ "@free", "@basic", "@pro", "@enterprise" ]
+	#--> [ "@free", "@basic", "@pro", "@entreprise" ]
 
 	? @@( NodesAffectedByVisualRules() )
 	#--> [
@@ -2373,6 +2190,7 @@ oDiag {
 	# ]
 
 	View()
+? Dot()
 }
 
 pf()
@@ -2380,7 +2198,7 @@ pf()
 # Executed in 0.68 second(s) in Ring 1.24
 
 /*--- COMBINED VALIDATION + VISUAL
-*/
+
 pr()
 
 oDiag = new stzDiagram("SecurePayment")
@@ -2516,480 +2334,191 @@ oDiag {
 }
 
 pf()
+# Executed in 0.58 second(s) in Ring 1.25
 
-/*--- REAL-WORLD APPROVAL WORKFLOW
+/*--- APPROVAL WORKFLOW VISUALIZATION
 
 pr()
 
 oDiag = new stzDiagram("ExpenseApproval")
 oDiag {
-	SetTheme(:neutral)
-
-	# Submission
-	AddNodeXTT("submit", "Submit Expense", [
-		:type = "start",
-		:color = "neutral"
-	])
-	
-	# Amount check
-	AddNodeXTT("check_amount", "Amount > $1000?", [
-		:type = "decision",
-		:color = "warning",
-		:requiresApproval = TRUE,
-		:approver = "system"
-	])
-	
-	# Manager approval
-	AddNodeXTT("manager", "Manager Review", [
-		:type = "decision",
-		:color = "warning",
-		:requiresApproval = TRUE,
-		:approver = "manager"
-	])
-	
-	# Finance approval (for high amounts)
-	AddNodeXTT("finance", "Finance Review", [
-		:type = "decision",
-		:color = "warning",
-		:requiresApproval = TRUE,
-		:approver = "finance_director"
-	])
-	
-	# Processing
-	AddNodeXTT("process", "Process Payment", [
-		:type = "process",
-		:color = "primary"
-	])
-	
-	# Audit
-	AddNodeXTT("audit", "Audit Trail", [
-		:type = "data",
-		:color = "neutral"
-	])
-	
-	# Done
-	AddNodeXTT("done", "Complete", [
-		:type = "endpoint",
-		:color = "success"
-	])
-	
-	# Flow
-	Connect("submit", "check_amount")
-	ConnectXT("check_amount", "manager", "< $1000")
-	ConnectXT("check_amount", "finance", "> $1000")
-	Connect("manager", "process")
-	Connect("finance", "process")
-	Connect("process", "audit")
-	Connect("audit", "done")
-	
-	# Visual rules
-	RegisterVisualRule("DECISION_HIGHLIGHT", [
-		:conditionType = "property_equals",
-		:conditionParams = ["type", "decision"],
-		:effects = [
-			["penwidth", 2],
-			["style", "bold"]
-		]
-	])
-	
-	ApplyVisualRules()
-	
-	# WORKFLOW ANALYSIS
-
-	? NodeCount()
-	#--> 7
-
-	? EdgeCount()
-	#--> 7
-
-	? len(NodesByType("decision")) + NL
-	#--> 3
-
-	# COMPLIANCE CHECK
-
-	? @@NL( ValidateXT([:SOX, :banking]) )
-
-	View()
+    SetTheme(:neutral)
+    
+    # Build structure
+    AddNodeXTT("submit", "Submit", [:type = "start"])
+    AddNodeXTT("manager", "Manager", [:type = "decision"])
+    AddNodeXTT("process", "Process", [:type = "process"])
+    
+    Connect("submit", "manager")
+    Connect("manager", "process")
+    
+    # VISUAL RULES ONLY
+    RegisterVisualRule("DECISION_HIGHLIGHT", [
+        :conditionType = "property_equals",
+        :conditionParams = ["type", "decision"],
+        :effects = [
+            ["color", "orange"],
+            ["penwidth", 2]
+        ]
+    ])
+    
+    ApplyVisualRules()
+    
+    # Rendering metrics (not validation)
+    ? "Nodes rendered: " + NodeCount()
+    ? "Visual rules applied: " + len(VisualRulesApplied())
+    
+    View()
 }
-#--> [
-# 	[ "status", "pass" ],
-# 	[ "validatorsrun", 2 ],
-# 	[ "validatorsfailed", 0 ],
-# 	[ "totalissues", 0 ],
-# 	[
-# 		"results",
-# 		[
-# 			[
-# 				[ "status", "pass" ],
-# 				[ "domain", "sox" ],
-# 				[ "issuecount", 0 ],
-# 				[ "issues", [  ] ],
-# 				[ "affectednodes", [  ] ]
-# 			],
-# 			[
-# 				[ "status", "pass" ],
-# 				[ "domain", "banking" ],
-# 				[ "issuecount", 0 ],
-# 				[ "issues", [  ] ],
-# 				[ "affectednodes", [  ] ]
-# 			]
-# 		]
-# 	],
-# 	[ "affectednodes", [  ] ]
-# ]
 
 pf()
-# Executed in 0.58 second(s) in Ring 1.25
+# Executed in 0.59 second(s) in Ring 1.25
 
-/*--- Test unified validation system at stzDiagram level
+/*--- Visual rules merging with visual rules
 
 pr()
 
-oDiagram = new stzDiagram("Payment_Processing")
-oDiagram {
-	SetTheme("pro")
-	
-	# Build payment workflow
-	AddNodeXTT("start", "Receive Payment", [:type = "start", :color = "green"])
-	AddNodeXTT("validate", "Validate Amount", [:type = "process", :color = "blue"])
-	AddNodeXTT("fraud_check", "Fraud Detection", [:type = "process", :color = "blue", :operation = "fraud_check"])
-	AddNodeXTT("approve", "Manager Approval", [:type = "decision", :color = "yellow", :role = "approver"])
-	AddNodeXTT("process", "Process Payment", [:type = "process", :color = "blue", :operation = "payment", :domain = "financial"])
-	AddNodeXTT("end", "Complete", [:type = "endpoint", :color = "coral"])
-	
-	Connect("start", "validate")
-	Connect("validate", "fraud_check")
-	Connect("fraud_check", "approve")
-	Connect("approve", "process")
-	Connect("process", "end")
-	
-	# PART 1: Default Validators
-	#---------------------------
-	
-	? BoxRound("DIAGRAM DEFAULT VALIDATORS") + NL
-	
-	? "Default validators for Diagram:"
-	? @@NL( Validators() ) + NL
-	
-	? "IsValid() with defaults:"
-	? IsValid() + NL
-	
-	? "Validate() detailed report:"
-	? @@NL( Validate() )
-	
-	# PART 2: Single Validator
-	#-------------------------
-	
-	? NL + BoxRound("SINGLE VALIDATOR TEST") + NL
-	
-	? "ValidateXT(:SOX) - Sarbanes-Oxley compliance:"
-	? @@NL( ValidateXT(:SOX) )
-	
-	? NL + "ValidateXT(:DAG) - Directed Acyclic Graph:"
-	? @@NL( ValidateXT(:DAG) )
-	
-	# PART 3: Multiple Validators
-	#----------------------------
-	
-	? NL + BoxRound("MULTIPLE VALIDATORS") + NL
-	
-	? "ValidateXT([:SOX, :GDPR, :Banking]):"
-	aMulti = ValidateXT([:SOX, :GDPR, :Banking])
-	? @@NL( aMulti )
-	
-	# PART 4: Custom Validators
-	#--------------------------
-	
-	? NL + BoxRound("CUSTOM VALIDATORS") + NL
-	
-	? "Original defaults:"
-	? @@NL( Validators() )
-	
-	? NL + "Setting custom validators..."
-	SetValidators([:SOX, :Banking, :DAG])
-	
-	? "New validators:"
-	? @@NL( Validators() )
-	
-	? NL + "Validate() with custom set:"
-	? @@NL( Validate() )
-	
-	# PART 5: Inheritance Check
-	#--------------------------
-	
-	? NL + BoxRound("INHERITANCE FROM STZGRAPH") + NL
-	
-	? "Calling graph-level validator from diagram:"
-	? "ValidateXT(:Reachability):"
-	? @@NL( ValidateXT(:Reachability) )
-	
-	? NL + "ValidateXT(:Completeness):"
-	? @@NL( ValidateXT(:Completeness) )
+oDiag = new stzDiagram("RuleMerging")
+oDiag {
+    AddNodeXTT("node1", "Test", [
+        :priority = 10,
+        :sensitive = TRUE
+    ])
+    
+    # Multiple overlapping rules
+    RegisterVisualRule("HIGH_PRIORITY", [
+        :conditionType = "property_range",
+        :conditionParams = ["priority", 8, 15],
+        :effects = [["color", "red"], ["penwidth", 3]]
+    ])
+    
+    RegisterVisualRule("SENSITIVE_DATA", [
+        :conditionType = "property_equals",
+        :conditionParams = ["sensitive", TRUE],
+        :effects = [["color", "orange"], ["style", "dashed"]]
+    ])
+    
+    ApplyVisualRules()
+    
+    ? "Rules applied to node1:"
+    ? @@( NodesAffectedByVisualRules() )
+    
+    # Should show: orange (overrides red), penwidth 3, dashed style
+    View()
 }
-#-->
-`
-╭────────────────────────────╮
-│ DIAGRAM DEFAULT VALIDATORS │
-╰────────────────────────────╯
 
-Default validators for Diagram:
-[ "sox", "gdpr", "banking" ]
+pf()
+# Executed in 0.59 second(s) in Ring 1.25
 
-IsValid() with defaults:
-0
+/*--- Data pipeline health with visual rules
 
-Validate() detailed report:
-[
-	[ "status", "fail" ],
-	[ "validatorsrun", 3 ],
-	[ "validatorsfailed", 1 ],
-	[ "totalissues", 2 ],
-	[
-		"results",
-		[
-			[
-				[ "status", "fail" ],
-				[ "domain", "sox" ],
-				[ "issuecount", 2 ],
-				[
-					"issues",
-					[
-						"SOX-001: Missing audit trail: validate",
-						"SOX-001: Missing audit trail: fraud_check",
-						"SOX-001: Missing audit trail: process",
-						"SOX-002: Decision node lacks approval requirement: approve"
-					]
-				],
-				[
-					"affectednodes",
-					[
-						"validate",
-						"fraud_check",
-						"process",
-						"approve"
-					]
-				]
-			],
-			[
-				[ "status", "pass" ],
-				[ "domain", "gdpr" ],
-				[ "issuecount", 0 ],
-				[ "issues", [  ] ],
-				[ "affectednodes", [  ] ]
-			],
-			[
-				[ "status", "pass" ],
-				[ "domain", "banking" ],
-				[ "issuecount", 0 ],
-				[ "issues", [  ] ],
-				[ "affectednodes", [  ] ]
-			]
-		]
-	],
-	[
-		"affectednodes",
-		[
-			"validate",
-			"fraud_check",
-			"process",
-			"approve"
-		]
-	]
-]
+pr()
 
-╭───────────────────────╮
-│ SINGLE VALIDATOR TEST │
-╰───────────────────────╯
+oDiag = new stzDiagram("DataPipeline")
+oDiag {
+    SetTheme("dark")
+    
+    # Pipeline stages with health status
+    AddNodeXTT("ingest", "Ingest", [:status = "healthy", :recordsPerHour = 50000])
+    AddNodeXTT("clean", "Cleansing", [:status = "degraded", :recordsPerHour = 45000])
+    AddNodeXTT("transform", "Transform", [:status = "healthy", :recordsPerHour = 44000])
+    AddNodeXTT("enrich", "Enrichment", [:status = "down", :recordsPerHour = 0])
+    AddNodeXTT("load", "Load to DW", [:status = "healthy", :recordsPerHour = 40000])
+    
+    ConnectSequence(["ingest", "clean", "transform", "enrich", "load"])
+    
+    # Status colors
+    RegisterVisualRule("HEALTHY", [
+        :conditionType = "property_equals",
+        :conditionParams = ["status", "healthy"],
+        :effects = [["color", "green+"]]
+    ])
+    
+    RegisterVisualRule("DEGRADED", [
+        :conditionType = "property_equals",
+        :conditionParams = ["status", "degraded"],
+        :effects = [["color", "orange"], ["style", "dashed"]]
+    ])
+    
+    RegisterVisualRule("DOWN", [
+        :conditionType = "property_equals",
+        :conditionParams = ["status", "down"],
+        :effects = [["color", "red"], ["penwidth", 3], ["style", "bold"]]
+    ])
+    
+    # High volume stages
+    RegisterVisualRule("HIGH_VOLUME", [
+        :conditionType = "property_range",
+        :conditionParams = ["recordsPerHour", 40000, 999999],
+        :effects = [["shape", "hexagon"]]
+    ])
+    
+    ApplyVisualRules()
+    # Pipeline status
+    ? @@(NodesAffectedByVisualRules())
+    #--> [ "ingest", "clean", "transform", "enrich", "load" ]
 
-ValidateXT(:SOX) - Sarbanes-Oxley compliance:
-[
-	[ "status", "fail" ],
-	[ "domain", "sox" ],
-	[ "issuecount", 2 ],
-	[
-		"issues",
-		[
-			"SOX-001: Missing audit trail: validate",
-			"SOX-001: Missing audit trail: fraud_check",
-			"SOX-001: Missing audit trail: process",
-			"SOX-002: Decision node lacks approval requirement: approve"
-		]
-	],
-	[
-		"affectednodes",
-		[
-			"validate",
-			"fraud_check",
-			"process",
-			"approve"
-		]
-	]
-]
+    View()
+}
 
-ValidateXT(:DAG) - Directed Acyclic Graph:
-[
-	[ "status", "pass" ],
-	[ "domain", "dag" ],
-	[ "issuecount", 0 ],
-	[ "issues", [  ] ],
-	[ "affectednodes", [  ] ]
-]
+pf()
+# Executed in 0.59 second(s) in Ring 1.25
 
-╭─────────────────────╮
-│ MULTIPLE VALIDATORS │
-╰─────────────────────╯
+/*--- 
+*/
+pr()
 
-ValidateXT([:SOX, :GDPR, :Banking]):
-[
-	[ "status", "fail" ],
-	[ "validatorsrun", 3 ],
-	[ "validatorsfailed", 1 ],
-	[ "totalissues", 2 ],
-	[
-		"results",
-		[
-			[
-				[ "status", "fail" ],
-				[ "domain", "sox" ],
-				[ "issuecount", 2 ],
-				[
-					"issues",
-					[
-						"SOX-001: Missing audit trail: validate",
-						"SOX-001: Missing audit trail: fraud_check",
-						"SOX-001: Missing audit trail: process",
-						"SOX-002: Decision node lacks approval requirement: approve"
-					]
-				],
-				[
-					"affectednodes",
-					[
-						"validate",
-						"fraud_check",
-						"process",
-						"approve"
-					]
-				]
-			],
-			[
-				[ "status", "pass" ],
-				[ "domain", "gdpr" ],
-				[ "issuecount", 0 ],
-				[ "issues", [  ] ],
-				[ "affectednodes", [  ] ]
-			],
-			[
-				[ "status", "pass" ],
-				[ "domain", "banking" ],
-				[ "issuecount", 0 ],
-				[ "issues", [  ] ],
-				[ "affectednodes", [  ] ]
-			]
-		]
-	],
-	[
-		"affectednodes",
-		[
-			"validate",
-			"fraud_check",
-			"process",
-			"approve"
-		]
-	]
-]
+pr()
 
-╭───────────────────╮
-│ CUSTOM VALIDATORS │
-╰───────────────────╯
-
-Original defaults:
-[ "sox", "gdpr", "banking" ]
-
-Setting custom validators...
-New validators:
-[ "sox", "banking", "dag" ]
-
-Validate() with custom set:
-[
-	[ "status", "fail" ],
-	[ "validatorsrun", 3 ],
-	[ "validatorsfailed", 1 ],
-	[ "totalissues", 2 ],
-	[
-		"results",
-		[
-			[
-				[ "status", "fail" ],
-				[ "domain", "sox" ],
-				[ "issuecount", 2 ],
-				[
-					"issues",
-					[
-						"SOX-001: Missing audit trail: validate",
-						"SOX-001: Missing audit trail: fraud_check",
-						"SOX-001: Missing audit trail: process",
-						"SOX-002: Decision node lacks approval requirement: approve"
-					]
-				],
-				[
-					"affectednodes",
-					[
-						"validate",
-						"fraud_check",
-						"process",
-						"approve"
-					]
-				]
-			],
-			[
-				[ "status", "pass" ],
-				[ "domain", "banking" ],
-				[ "issuecount", 0 ],
-				[ "issues", [  ] ],
-				[ "affectednodes", [  ] ]
-			],
-			[
-				[ "status", "pass" ],
-				[ "domain", "dag" ],
-				[ "issuecount", 0 ],
-				[ "issues", [  ] ],
-				[ "affectednodes", [  ] ]
-			]
-		]
-	],
-	[
-		"affectednodes",
-		[
-			"validate",
-			"fraud_check",
-			"process",
-			"approve"
-		]
-	]
-]
-
-╭───────────────────────────╮
-│ INHERITANCE FROM STZGRAPH │
-╰───────────────────────────╯
-
-Calling graph-level validator from diagram:
-ValidateXT(:Reachability):
-[
-	[ "status", "pass" ],
-	[ "domain", "reachability" ],
-	[ "issuecount", 0 ],
-	[ "issues", [  ] ],
-	[ "affectednodes", [  ] ]
-]
-
-ValidateXT(:Completeness):
-[
-	[ "status", "pass" ],
-	[ "domain", "completeness" ],
-	[ "issuecount", 0 ],
-	[ "issues", [  ] ],
-	[ "affectednodes", [  ] ]
-]
-`
+oDiag = new stzDiagram("SystemAccess")
+oDiag {
+    
+    # Resources with access levels
+    AddNodeXTT("public_web", "Public Website", [:accessLevel = "public", :encrypted = FALSE])
+    AddNodeXTT("user_portal", "User Portal", [:accessLevel = "authenticated", :encrypted = TRUE])
+    AddNodeXTT("admin_panel", "Admin Panel", [:accessLevel = "admin", :encrypted = TRUE])
+    AddNodeXTT("db_config", "DB Config", [:accessLevel = "system", :encrypted = TRUE])
+    AddNodeXTT("audit_log", "Audit Log", [:accessLevel = "admin", :encrypted = TRUE])
+    
+    Connect("public_web", "user_portal")
+    Connect("user_portal", "admin_panel")
+    Connect("admin_panel", "db_config")
+    Connect("admin_panel", "audit_log")
+    
+    # Access level colors
+    RegisterVisualRule("PUBLIC", [
+        :conditionType = "property_equals",
+        :conditionParams = ["accessLevel", "public"],
+        :effects = [["color", "green"]]
+    ])
+    
+    RegisterVisualRule("AUTHENTICATED", [
+        :conditionType = "property_equals",
+        :conditionParams = ["accessLevel", "authenticated"],
+        :effects = [["color", "blue"]]
+    ])
+    
+    RegisterVisualRule("ADMIN", [
+        :conditionType = "property_equals",
+        :conditionParams = ["accessLevel", "admin"],
+        :effects = [["color", "orange"], ["penwidth", 2]]
+    ])
+    
+    RegisterVisualRule("SYSTEM", [
+        :conditionType = "property_equals",
+        :conditionParams = ["accessLevel", "system"],
+        :effects = [["color", "red"], ["shape", "octagon"], ["penwidth", 3]]
+    ])
+    
+    # Encryption indicator
+    RegisterVisualRule("ENCRYPTED", [
+        :conditionType = "property_equals",
+        :conditionParams = ["encrypted", TRUE],
+        :effects = [["style", "bold,filled"]]
+    ])
+    
+    ApplyVisualRules()
+    View()
+}
 
 pf()
