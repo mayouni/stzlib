@@ -7,5 +7,3 @@ func main
 	zip_extract_allfiles("stzlib.zip","../libraries")
 	remove("stzlib.zip")
 	chdir(cDir)
-	? "All files are extracted successfully"
-	? "See the folder : ring/libraries/stzlib"
