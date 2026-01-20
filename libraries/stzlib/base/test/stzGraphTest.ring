@@ -2116,26 +2116,50 @@ pf()
 #  GRAPH RULES AND VALIDATION  # 
 #==============================#
 
-/*--- SIMPLE DERIVATION RULE
+# Rules System Overview:
+# ----------------------
+# Three rule types control graph behavior at different phases:
+#
+# 1. CheckBeforeActing	- Runs BEFORE operations, blocks invalid changes
+# ~> Can I add this edge without breaking rules?
 
+# 2. ReactAfterActing 	- Runs AFTER changes, auto-derives new edges/nodes
+# ~> Now that I've added this, derive the implications
+
+# 3. ValidateGraphSate	- Runs on-demand, validates the complete graph state
+# ~> s the graph in a consistent state overall?
+
+# Each rule is a hashlist with:
+#   :type     - When it runs (construction/design/finalstate)
+#   :function - What it does (receives graph, returns result)
+#   :params   - Configuration data
+#   :message  - Human-readable description
+#   :severity - :info, :warning, or :error
+
+/*--- ReactAfterActing : Auto-Derivation Example
+*/
 pr()
 
-# Example: If A manages B, A should see B's reports
+# SCENARIO: When alice manages bob, she should automatically 
+# see bob's reports (access propagation)
 
-# Register a simple derivation rule
+# Step 1: Register the construction rule
 RegisterRule(:demo, "manager_sees_reports", [
-	:type = :derivation,
+	:type = :ReactAfterActing,
+
+	# Construction functions receive (graph, params) and return new edges
 	:function = func(oGraph, paRuleParams) {
-		aNewEdges = []
+		aNewEdges = []  # Collect edges to add
 		aEdges = oGraph.Edges()
 		
+		# Find all "manages" relationships
 		for aEdge in aEdges
 			if aEdge[:label] = "manages"
 				cManager = aEdge[:from]
 				cEmployee = aEdge[:to]
 				cReport = cEmployee + "_report"
 				
-				# If report exists, connect manager to it
+				# If employee's report exists, grant manager access
 				if oGraph.NodeExists(cReport)
 					if NOT oGraph.EdgeExists(cManager, cReport)
 						aNewEdges + [cManager, cReport, "can_view", []]
@@ -2144,14 +2168,14 @@ RegisterRule(:demo, "manager_sees_reports", [
 			ok
 		next
 		
-		return aNewEdges
+		return aNewEdges  # System will add these
 	},
 	:params = [],
 	:message = "Manager access to reports",
 	:severity = :info
 ])
 
-# Use it
+# Step 2: Build graph and apply rule
 oGraph = new stzGraph("Company")
 oGraph {
 	AddNode("alice")
@@ -2160,52 +2184,393 @@ oGraph {
 	
 	AddEdgeXT("alice", "bob", "manages")
 	
-	? "Before derivation:"
-	? "  Edges: " + EdgeCount()
-	? "  Alice -> bob_report: " + PathExists("alice", "bob_report") + NL
+	# Before rule: No path exists
+	? PathExists("alice", "bob_report")
+	#--> FALSE
 	
+	# Load and execute construction rule
 	UseRulesFrom(:demo)
-	nDerived = ApplyConstructionRules()
-
-	? "After derivation:"
-	? "  Edges: " + EdgeCount()
-	? "  Derived: " + nDerived
-	? "  Alice -> bob_report: " + PathExists("alice", "bob_report")
-	? "  (Alice can now view Bob's report!)" + NL
+	ApplyConstructionRules()  # Triggers the rule function
+	
+	# After rule: Access auto-granted
+	? PathExists("alice", "bob_report")
+	#--> TRUE
 }
-#-->
-`
-Before derivation:
-  Edges: 1
-  Alice -> bob_report: 0
-
-After derivation:
-  Edges: 2
-  Derived: 1
-  Alice -> bob_report: 1
-  (Alice can now view Bob's report!)
-`
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.25
-# Executed in 0.01 second(s) in Ring 1.24
 
-/*--- SIMPLE CONSTRAINT RULE
+/*--- CheckBeforeActing : Blocking Invalid Operations
 
 pr()
 
-# Example: Nobody can approve their own work
+# SCENARIO: Prevent self-approval in workflows
+# ~> John cannot approve his own work!
 
-# Register a simple constraint
+# Step 1: Register the design rule
 RegisterRule(:workflow, "no_self_approval", [
-	:type = :constraint,
+	:type = :CheckBeforeActing,
+	
+	# Design functions receive (graph, params, operation) 
+	# Return [TRUE, message] to BLOCK, [FALSE, ""] to ALLOW
 	:function = func(oGraph, paRuleParams, paOperationParams) {
 		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
+			# Check if trying to create self-loop with "approves" label
 			if paOperationParams[:from] = paOperationParams[:to]
-				if HasKey(paOperationParams, :label)
-					if paOperationParams[:label] = "approves"
-						return [TRUE, "Cannot approve your own work"]
+				if HasKey(paOperationParams, :label) and paOperationParams[:label] = "approves"
+					return [TRUE, "Cannot approve your own work"]  # BLOCKED
+				ok
+			ok
+		ok
+		return [FALSE, ""]  # ALLOWED
+	},
+	:params = [],
+	:message = "Self-approval blocked",
+	:severity = :error
+])
+
+# Step 2: Test the rule
+oGraph = new stzGraph("Workflow")
+oGraph {
+	AddNode("john")
+	AddNode("mary")
+	UseRulesFrom(:workflow)
+	
+	# Test 1: John approves Mary (different people)
+	? CheckDesignRules([:from = "john", :to = "mary"])[1]
+	#--> TRUE (allowed)
+	
+	# Test 2: John approves John (same person)
+	? CheckDesignRules([:from = "john", :to = "john", :label = "approves"])[1]
+	#--> FALSE (blocked)
+	
+	# Note: CheckDesignRules() doesn't add the edge, just validates if it COULD be added
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.25
+
+/*--- ValidateGraphSate : Validating Complete Structure
+
+pr()
+
+# SCENARIO: All tasks must have an owner
+# ~> Orphan tasks should be detected!
+
+# Step 1: Register the validation rule
+RegisterRule(:project, "tasks_have_owners", [
+	:type = :ValidateGraphSate,
+
+	# FinalState functions receive (graph, params)
+	# Return [TRUE, ""] if valid, [FALSE, message] if violations found
+	:function = func(oGraph, paRuleParams) {
+		aNodes = oGraph.Nodes()
+	
+		# Check each node
+		for aNode in aNodes
+			cType = oGraph.NodeProperty(aNode[:id], "type")
+			if cType = "task"
+				# Tasks need incoming edges (owners point to tasks)
+				aIncoming = oGraph.Incoming(aNode[:id])
+				if len(aIncoming) = 0
+					return [FALSE, "Task '" + aNode[:id] + "' has no owner"]
+				ok
+			ok
+		next
+		
+		return [TRUE, ""]  # All tasks have owners
+	},
+	:params = [],
+	:message = "Orphan tasks found",
+	:severity = :warning
+])
+
+# Step 2: Test validation
+oGraph = new stzGraph("Project")
+oGraph {
+	AddNodeXTT("task1", "Build UI", [:type = "task"])
+	AddNodeXTT("alice", "Alice", [:type = "person"])
+	
+	# Scenario 1: Task without owner
+	? ValidateFinalStateXT(:project)[:status]
+	#--> "fail"
+	
+	# Scenario 2: Add owner
+	AddEdgeXT("alice", "task1", "owns")
+	? ValidateFinalStateXT(:project)[:status]
+	#--> "pass"
+	
+	# Note: ValidateFinalStateXT(cRuleGroup) loads and runs rules for that rule group
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.25
+
+/*--- BUILT-IN Construction Rules : Transitivity
+
+pr()
+
+# Built-in functions handle common patterns
+# No need to write custom logic for standard operations
+
+RegisterRule(:access, "inherit_access", [
+	:type = :ReactAfterActing,
+	# Transitivity: If A→B and B→C exist, create A→C
+	:function = ConstructionFunc_Transitivity(),
+	:params = [],
+	:message = "Access inherited",
+	:severity = :info
+])
+
+oGraph = new stzGraph("Access")
+oGraph {
+	AddNode("alice")
+	AddNode("folder")
+	AddNode("file")
+	
+	# Chain: alice→folder→file
+	Connect("alice", "folder")
+	Connect("folder", "file")
+	
+	? EdgeExists("alice", "file")
+	#--> FALSE (no direct edge)
+	
+	UseRulesFrom(:access)
+	ApplyConstructionRules()  # Creates alice→file automatically
+	
+	? EdgeExists("alice", "file")
+	#--> TRUE (transitive edge added)
+}
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.25
+
+/*--- BUILT-IN Design Rules : No Cycles
+
+pr()
+
+# DAG enforcement: Prevent cycles in directed graphs
+
+RegisterRule(:workflow, "must_be_dag", [
+	:type = :CheckBeforeActing,
+	# Blocks any edge that would create a cycle
+	:function = DesignFunc_NoCycles(),
+	:params = [],
+	:message = "Cycles not allowed",
+	:severity = :error
+])
+
+oGraph = new stzGraph("DAG")
+oGraph {
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
+	
+	# Linear chain: a→b→c
+	Connect("a", "b")
+	Connect("b", "c")
+	
+	UseRulesFrom(:workflow)
+	
+	# Try to close the loop: c→a would create cycle
+	? @@NL( CheckDesignRules([:from = "c", :to = "a"]) )
+	#--> [FALSE, [violations]] - blocked!
+}
+#--> [
+#	FALSE,
+#	[
+#		[
+#			[ "rule", "must_be_dag" ],
+#			[ "message", "Would create a cycle" ],
+#			[ "severity", "error" ],
+#			[
+#				"params",
+#				[
+#					[ "from", "c" ],
+#					[ "to", "a" ]
+#				]
+#			]
+#		]
+#	]
+# ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.25
+
+/*--- Built-in FinalState Functions : Acyclicity Check
+
+pr()
+
+# Validate entire graph structure, not just individual operations
+
+RegisterRule(:dag, "check_acyclic", [
+	:type = :ValidateGraphSate,
+	# Checks if ANY cycles exist in the complete graph
+	:function = FinalStateFunc_IsAcyclic(),
+	:params = [],
+	:message = "Must be DAG",
+	:severity = :error
+])
+
+oGraph = new stzGraph("Test")
+oGraph {
+	AddNode("a")
+	AddNode("b")
+	
+	Connect("a", "b")
+	? ValidateFinalStateXT(:dag)[:status]  #--> "pass" (linear)
+	
+	Connect("b", "a")  # Creates cycle
+	? ValidateFinalStateXT(:dag)[:status]  #--> "fail" (cyclic)
+}
+
+pf()
+
+/*--- Combining All Three Rule Types
+
+pr()
+
+# Real workflow: Construction + Design + FinalState working together
+
+# Rule 1: AUTO-ADD test tasks for features (Construction)
+RegisterRule(:project, "auto_tests", [
+	:type = :ReactAfterActing,
+	:function = func(oGraph, paRuleParams) {
+		aNewEdges = []
+		aNodes = oGraph.Nodes()
+		
+		for aNode in aNodes
+			if oGraph.NodeProperty(aNode[:id], "type") = "feature"
+				cTest = aNode[:id] + "_test"
+				# Create test node if missing
+				if NOT oGraph.NodeExists(cTest)
+					oGraph.AddNodeXTT(cTest, "Test: " + aNode[:label], [:type = "test"])
+				ok
+				# Link feature to test
+				if NOT oGraph.EdgeExists(aNode[:id], cTest)
+					aNewEdges + [aNode[:id], cTest, "requires", []]
+				ok
+			ok
+		next
+		return aNewEdges
+	},
+	:params = [],
+	:message = "Tests auto-added",
+	:severity = :info
+])
+
+# Rule 2: BLOCK reverse dependencies (Design)
+RegisterRule(:project, "no_reverse_deps", [
+	:type = :CheckBeforeActing,
+	:function = func(oGraph, paRuleParams, paOp) {
+		if HasKey(paOp, :from) and oGraph.NodeExists(paOp[:from])
+			if oGraph.NodeProperty(paOp[:from], "type") = "feature"
+				if HasKey(paOp, :to) and oGraph.NodeExists(paOp[:to])
+					if oGraph.NodeProperty(paOp[:to], "type") = "test"
+						return [TRUE, "Features can't depend on tests"]
 					ok
+				ok
+			ok
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Invalid dependency",
+	:severity = :error
+])
+
+# Rule 3: CHECK test coverage (FinalState)
+RegisterRule(:project, "full_coverage", [
+	:type = :ValidateGraphSate,
+	:function = func(oGraph, paRuleParams) {
+		aNodes = oGraph.Nodes()
+		nFeatures = 0
+		nTests = 0
+		
+		for aNode in aNodes
+			cType = oGraph.NodeProperty(aNode[:id], "type")
+			if cType = "feature"
+				nFeatures++
+			but cType = "test"
+				nTests++
+			ok
+		next
+		
+		if nTests < nFeatures
+			return [FALSE, "Incomplete coverage: " + nTests + "/" + nFeatures]
+		ok
+		return [TRUE, ""]
+	},
+	:params = [],
+	:message = "Test coverage check",
+	:severity = :warning
+])
+
+# Execution flow demonstration
+oGraph = new stzGraph("DevProject")
+oGraph {
+	AddNodeXTT("login", "Login", [:type = "feature"])
+	AddNodeXTT("profile", "Profile", [:type = "feature"])
+	
+	? NodeCount()
+	#--> 2 (just features)
+	
+	UseRulesFrom(:project)
+	ApplyConstructionRules()  # Triggers auto_tests → adds 2 test nodes
+	
+	? NodeCount()
+	#--> 4 (features + tests)
+	
+	# Validate final state
+	? ValidateFinalStateXT(:project)[:status]
+	#--> "pass" (1:1 coverage)
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.25
+
+/*--- Real-World: Document Approval Workflow
+
+pr()
+
+# Complete workflow with notifications and security
+
+# Auto-notify approvers when document submitted
+RegisterRule(:docs, "auto_notify", [
+	:type = :ReactAfterActing,
+	:function = func(oGraph, paRuleParams) {
+		aNewEdges = []
+		aEdges = oGraph.Edges()
+		
+		for aEdge in aEdges
+			if aEdge[:label] = "submits"
+				cDoc = aEdge[:to]
+				# Find all approvers (nodes connected FROM document)
+				aApprovers = oGraph.Neighbors(cDoc)
+				for cApprover in aApprovers
+					if NOT oGraph.EdgeExists(cDoc, cApprover)
+						aNewEdges + [cDoc, cApprover, "notify", []]
+					ok
+				next
+			ok
+		next
+		return aNewEdges
+	},
+	:params = [],
+	:message = "Notifications sent",
+	:severity = :info
+])
+
+# Prevent authors from approving their own work
+RegisterRule(:docs, "no_author_approval", [
+	:type = :CheckBeforeActing,
+	:function = func(oGraph, paRuleParams, paOp) {
+		if HasKey(paOp, :from) and HasKey(paOp, :to)
+			# Check if person submitted this document
+			if oGraph.EdgeExists(paOp[:from], paOp[:to])
+				aEdge = oGraph.Edge(paOp[:from], paOp[:to])
+				if aEdge[:label] = "submits"
+					return [TRUE, "Authors can't approve own docs"]
 				ok
 			ok
 		ok
@@ -2216,101 +2581,115 @@ RegisterRule(:workflow, "no_self_approval", [
 	:severity = :error
 ])
 
-# Use it
-oGraph = new stzGraph("Workflow")
+oGraph = new stzGraph("DocFlow")
 oGraph {
 	AddNode("john")
+	AddNode("report")
 	AddNode("mary")
 	
-	UseRulesFrom(:workflow)
+	AddEdgeXT("john", "report", "submits")
+	Connect("report", "mary")  # Mary is approver
 	
-	? "Test 1: John approves Mary's work"
-	aResult = CheckConstraints([:from = "john", :to = "mary", :label = "approves"])
-	? "  Allowed: " + aResult[1]
-	? ""
+	UseRulesFrom(:docs)
+	ApplyConstructionRules()  # Creates report→mary "notify" edge
 	
-	? "Test 2: John tries to approve his own work"
-	aResult = CheckConstraints([:from = "john", :to = "john", :label = "approves"])
-	? "  Allowed: " + aResult[1]
-	if NOT aResult[1]
-		? "  Reason: " + aResult[2][1][:message]
-	ok
-}
-#-->
-`
-Test 1: John approves Mary's work
-  Allowed: 1
+	? EdgeCount()
+	#--> 3 (submit + approver + notify)
+	
+	? CheckDesignRules([:from = "mary", :to = "report"])[1]
+	#--> TRUE (allowed)
 
-Test 2: John tries to approve his own work
-  Allowed: 0
-  Reason: Cannot approve your own work
-`
+	? CheckDesignRules([:from = "john", :to = "report"])[1]
+	#--> FALSE (blocked)
+}
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.24
+# Executed in 0.01 second(s) in Ring 1.25
 
-/*--- SIMPLE VALIDATION RULE
-*/
+/*--- Real-World: Enterprise Security Model
+
 pr()
 
-# Example: Every task must have an owner
+# Multi-level security with transitive access and clearance checks
 
-# Register a simple validation
-RegisterRule(:project, "tasks_have_owners", [
-	:type = :validation,
+# Inherit permissions through hierarchy
+RegisterRule(:security, "inherit_perms", [
+	:type = :ReactAfterActing,
+	:function = ConstructionFunc_Transitivity(),
+	:params = [],
+	:message = "Permissions inherited",
+	:severity = :info
+])
+
+# Block access below clearance level
+RegisterRule(:security, "no_escalation", [
+	:type = :CheckBeforeActing,
+	:function = func(oGraph, paRuleParams, paOp) {
+		if HasKey(paOp, :from) and HasKey(paOp, :to)
+			if oGraph.NodeExists(paOp[:from]) and oGraph.NodeExists(paOp[:to])
+				nFromLevel = oGraph.NodeProperty(paOp[:from], "level")
+				nToLevel = oGraph.NodeProperty(paOp[:to], "level")
+				
+				# User level must be >= resource level
+				if isNumber(nFromLevel) and isNumber(nToLevel)
+					if nFromLevel < nToLevel
+						return [TRUE, "Insufficient clearance"]
+					ok
+				ok
+			ok
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Privilege escalation blocked",
+	:severity = :error
+])
+
+# Ensure sensitive resources are audited
+RegisterRule(:security, "audit_check", [
+	:type = :ValidateGraphSate,
 	:function = func(oGraph, paRuleParams) {
 		aNodes = oGraph.Nodes()
-		
 		for aNode in aNodes
-			cType = oGraph.NodeProperty(aNode[:id], "type")
-			if cType = "task"
-				# Check if task has incoming "owns" edge
-				aIncoming = oGraph.Incoming(aNode[:id])
-				if len(aIncoming) = 0
-					return [FALSE, "Task '" + aNode[:id] + "' has no owner"]
+			if oGraph.NodeProperty(aNode[:id], "sensitive") = TRUE
+				if oGraph.NodeProperty(aNode[:id], "audited") != TRUE
+					return [FALSE, "Sensitive resource not audited: " + aNode[:id]]
 				ok
 			ok
 		next
-		
 		return [TRUE, ""]
 	},
 	:params = [],
-	:message = "Orphan tasks found",
-	:severity = :warning
+	:message = "Audit compliance",
+	:severity = :error
 ])
 
-# Use it
-oGraph = new stzGraph("Project")
+oGraph = new stzGraph("Security")
 oGraph {
-	AddNodeXTT("task1", "Build UI", [:type = "task"])
-	AddNodeXTT("alice", "Alice", [:type = "person"])
+	AddNodeXTT("alice", "Alice", [:level = 3])  # High clearance
+	AddNodeXTT("db", "Database", [:level = 3, :sensitive = TRUE, :audited = TRUE])
+	AddNodeXTT("bob", "Bob", [:level = 1])  # Low clearance
 	
-	UseRulesFrom(:project)
+	Connect("alice", "db")
 	
-	? "Scenario 1: Task without owner"
-	? @@NL( Validate() )
+	UseRulesFrom(:security)
+	ApplyConstructionRules()
 	
-	? "Scenario 2: Adding owner..."
-	RemoveEdge("alice", "task1")
-	AddEdgeXT("alice", "task1", "owns")
+	# Alice (level 3) → db (level 3)
+	? CheckDesignRules([:from = "alice", :to = "db"])[1]
+	#--> TRUE (sufficient clearance)
 	
-	? @@NL( Validate() )
-
+	# Bob (level 1) → db (level 3)
+	? CheckDesignRules([:from = "bob", :to = "db"])[1] 
+	#--> FALSE (blocked)
+	
+	# Final audit compliance
+	? ValidateFinalStateXT(:security)[:status]
+	#--> "pass" (all sensitive resources audited)
 }
-#-->
-`
-Scenario 1: Task without owner
-  Valid: 0
-  Problem: Task 'task1' has no owner
-
-Scenario 2: Adding owner...
-  Valid: 1
-  (Task now has owner!)
-`
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.24
-
+# Executed in 0.01 second(s) in Ring 1.25
 
 #=======================================================================#
 #  GRAPH (SINGLE AND MULTIPLE) COMPARAISON, ANALYSIS AND VISUALIZATION  #
@@ -2475,14 +2854,14 @@ aDiff = oGraph.CompareWith(oVariation)
 ]
 '
 pf()
-# Executed in 0.02 second(s) in Ring 1.24
+# Executed in 0.08 second(s) in Ring 1.24
 
 #-----------------------------------#
 #   COMPARING MULTIPLE VARIATIONS   #
 #-----------------------------------#
 
 /*--- Business analyst exploring 3 restructuring options
-*/
+
 pr()
 
 oBaseline = new stzGraph("current_structure")

@@ -4,9 +4,9 @@
 #=============================================#
 
 # Three Rule Types:
-# 1. OnGraphDesign - Guards operations (blocks invalid changes)
-# 2. OnGraphConstruction - Auto-derives edges/nodes after changes
-# 3. OnGraphFinalState - Validates final graph state
+# 1. CheckBeforeActing - Guards operations (blocks invalid changes)
+# 2. ReactAfterActing - Auto-derives edges/nodes after changes
+# 3. ValidateGraphSate - Validates final graph state
 
 #------------------#
 #  RULE CONTAINER  #
@@ -27,9 +27,9 @@ $aGraphRules = [
 func GraphRules()
 	return $aGraphRules
 
-func RegisterRule(pcTheme, pcRuleName, paRuleDefinition)
-	if NOT HasKey($aGraphRules, pcTheme)
-		$aGraphRules[pcTheme] = []
+func RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
+	if NOT HasKey($aGraphRules, pcRuleGroup)
+		$aGraphRules[pcRuleGroup] = []
 	ok
 	
 	aRule = [
@@ -41,11 +41,11 @@ func RegisterRule(pcTheme, pcRuleName, paRuleDefinition)
 		:severity = paRuleDefinition[:severity]
 	]
 	
-	$aGraphRules[pcTheme] + aRule
+	$aGraphRules[pcRuleGroup] + aRule
 
-func GetRule(pcTheme, pcRuleName)
-	if HasKey($aGraphRules, pcTheme)
-		aRules = $aGraphRules[pcTheme]
+func GetRule(pcRuleGroup, pcRuleName)
+	if HasKey($aGraphRules, pcRuleGroup)
+		aRules = $aGraphRules[pcRuleGroup]
 		nLen = len(aRules)
 		for i = 1 to nLen
 			if aRules[i][:name] = pcRuleName
@@ -56,7 +56,7 @@ func GetRule(pcTheme, pcRuleName)
 	stzraise("Inexistant rule!")
 
 #-------------------------------------------------#
-#  BUILT-IN RULE FUNCTIONS : OnGraphConstruction  #
+#  BUILT-IN RULE FUNCTIONS : ReactAfterActing  #
 #-------------------------------------------------#
 
 func ConstructionFunc_Transitivity()
@@ -147,7 +147,7 @@ func ConstructionFunc_Hierarchy()
 	}
 
 #-------------------------------------------#
-#  BUILT-IN RULE FUNCTIONS : OnGraphDesign  #
+#  BUILT-IN RULE FUNCTIONS : CheckBeforeActing  #
 #-------------------------------------------#
 
 func DesignFunc_NoSelfLoop()
@@ -329,7 +329,7 @@ func FinalStateFunc_AllNodesReachable()
 
 # DAG rules
 RegisterRule(:dag, "no_cycles_design", [
-	:type = :ongraphdesign,
+	:type = :CheckBeforeActing,
 	:function = DesignFunc_NoCycles(),
 	:params = [],
 	:message = "Operation would create a cycle",
@@ -337,7 +337,7 @@ RegisterRule(:dag, "no_cycles_design", [
 ])
 
 RegisterRule(:dag, "acyclic_state", [
-	:type = :ongraphfinalstate,
+	:type = :ValidateGraphSate,
 	:function = FinalStateFunc_IsAcyclic(),
 	:params = [],
 	:message = "Graph must be acyclic",
@@ -346,7 +346,7 @@ RegisterRule(:dag, "acyclic_state", [
 
 # Reachability rules
 RegisterRule(:reachability, "all_connected", [
-	:type = :ongraphfinalstate,
+	:type = :ValidateGraphSate,
 	:function = FinalStateFunc_IsConnected(),
 	:params = [],
 	:message = "Graph must be fully connected",
@@ -355,7 +355,7 @@ RegisterRule(:reachability, "all_connected", [
 
 # Completeness rules
 RegisterRule(:completeness, "no_bottlenecks", [
-	:type = :ongraphfinalstate,
+	:type = :ValidateGraphSate,
 	:function = FinalStateFunc_NoBottlenecks(),
 	:params = [],
 	:message = "Graph contains bottleneck nodes",
