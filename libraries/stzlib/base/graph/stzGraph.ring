@@ -52,13 +52,13 @@ class stzGraph
 	@aEdges = []
 
 	# Simplified rule storage - rules as hashlists
-	@aCheckBeforeActingRules = []
-	@aReactAfterActingRules = []
-	@aValidateGraphSateRules = []
+	@aConstraintRules = []
+	@aDerivationRules = []
+	@aValidationRules = []
 	@aAffectedNodes = []
 	@aAffectedEdges = []
 
-	@acFinalStateValidators = $acGraphDefaultValidators
+	@acValidationValidators = $acGraphDefaultValidators
 
 	@aProperties = []
 
@@ -3049,12 +3049,12 @@ class stzGraph
 		
 		# Get appropriate rule list
 		aRuleList = NULL
-		if cType = :CheckBeforeActing
-			aRuleList = @aCheckBeforeActingRules
-		but cType = :ReactAfterActing
-			aRuleList = @aReactAfterActingRules
-		but cType = :ValidateGraphSate
-			aRuleList = @aValidateGraphSateRules
+		if cType = :Constraint
+			aRuleList = @aConstraintRules
+		but cType = :Derivation
+			aRuleList = @aDerivationRules
+		but cType = :Validation
+			aRuleList = @aValidationRules
 		ok
 		
 		if aRuleList != NULL
@@ -3066,21 +3066,21 @@ class stzGraph
 			next
 			
 			# Add to appropriate list
-			if cType = :CheckBeforeActing
-				@aCheckBeforeActingRules + aRule
-			but cType = :ReactAfterActing
-				@aReactAfterActingRules + aRule
-			but cType = :ValidateGraphSate
-				@aValidateGraphSateRules + aRule
+			if cType = :Constraint
+				@aConstraintRules + aRule
+			but cType = :Derivation
+				@aDerivationRules + aRule
+			but cType = :Validation
+				@aValidationRules + aRule
 			ok
 		ok
 
-	def ApplyConstructionRules()  # Was: ApplyDerivations
+	def ApplyDerivationRules()
 		nAdded = 0
-		nLen = len(@aReactAfterActingRules)  # Changed
+		nLen = len(@aDerivationRules)  # Changed
 		
 		for i = 1 to nLen
-			aRule = @aReactAfterActingRules[i]  # Changed
+			aRule = @aDerivationRules[i]  # Changed
 			
 			pFunc = aRule[:function]
 			paParams = aRule[:params]
@@ -3104,12 +3104,12 @@ class stzGraph
 		
 		return nAdded
 	
-	def CheckDesignRules(paOperationParams)  # Was: CheckConstraints
+	def CheckConstraintRules(paOperationParams)  # Was: CheckConstraints
 		aViolations = []
-		nLen = len(@aCheckBeforeActingRules)  # Changed
+		nLen = len(@aConstraintRules)  # Changed
 		
 		for i = 1 to nLen
-			aRule = @aCheckBeforeActingRules[i]  # Changed
+			aRule = @aConstraintRules[i]  # Changed
 			
 			pFunc = aRule[:function]
 			paRuleParams = aRule[:params]
@@ -3133,25 +3133,25 @@ class stzGraph
 	
 	def RulesSummary()
 		aSummary = [
-			:design = [],
-			:construction = [],
-			:finalstate = [],
+			:Constraint = [],
+			:Derivation = [],
+			:Validation = [],
 			:applied = []
 		]
 		
-		nLen = len(@aCheckBeforeActingRules)
+		nLen = len(@aConstraintRules)
 		for i = 1 to nLen
-			aSummary[:design] + @aCheckBeforeActingRules[i][:name]
+			aSummary[:Constraint] + @aConstraintRules[i][:name]
 		next
 		
-		nLen = len(@aReactAfterActingRules)
+		nLen = len(@aDerivationRules)
 		for i = 1 to nLen
-			aSummary[:construction] + @aReactAfterActingRules[i][:name]
+			aSummary[:Derivation] + @aDerivationRules[i][:name]
 		next
 		
-		nLen = len(@aValidateGraphSateRules)
+		nLen = len(@aValidationRules)
 		for i = 1 to nLen
-			aSummary[:finalstate] + @aValidateGraphSateRules[i][:name]
+			aSummary[:Validation] + @aValidationRules[i][:name]
 		next
 		
 		aSummary[:applied] = This.RulesApplied()
@@ -3201,15 +3201,9 @@ class stzGraph
 	#--------------#
 
 	def Validate()
-		return This.ValidateFinalState()
+		return This.ValidateValidation()
 	
 	def ValidateXT(paValidators)
-		return This.ValidateFinalStateXT(paValidators)
-
-	def ValidateFinalState()
-		return This.ValidateFinalStateXT(@acFinalStateValidators)
-	
-	def ValidateFinalStateXT(paValidators)
 		if isString(paValidators)
 			return This._ValidateSingle(paValidators)
 		but isList(paValidators)
@@ -3226,9 +3220,9 @@ class stzGraph
 		aViolations = []
 		acRulesChecked = []
 		
-		nLen = len(@aValidateGraphSateRules)
+		nLen = len(@aValidationRules)
 		for i = 1 to nLen
-			aRule = @aValidateGraphSateRules[i]
+			aRule = @aValidationRules[i]
 			acRulesChecked + aRule[:name]
 			
 			pFunc = aRule[:function]

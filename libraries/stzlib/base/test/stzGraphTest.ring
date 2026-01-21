@@ -2120,34 +2120,87 @@ pf()
 # ----------------------
 # Three rule types control graph behavior at different phases:
 #
-# 1. CheckBeforeActing	- Runs BEFORE operations, blocks invalid changes
+# 1. Constraint	- Runs BEFORE operations, blocks invalid changes
 # ~> Can I add this edge without breaking rules?
 
-# 2. ReactAfterActing 	- Runs AFTER changes, auto-derives new edges/nodes
+# 2. Derivation - Runs AFTER changes, auto-derives new edges/nodes
 # ~> Now that I've added this, derive the implications
 
-# 3. ValidateGraphSate	- Runs on-demand, validates the complete graph state
-# ~> s the graph in a consistent state overall?
+# 3. Validation	- Runs on-demand, validates the complete graph state
+# ~> Is the graph in a consistent state overall?
 
 # Each rule is a hashlist with:
-#   :type     - When it runs (construction/design/finalstate)
+#   :type     - When it runs (Constraint/Derivation/Validation)
 #   :function - What it does (receives graph, returns result)
 #   :params   - Configuration data
 #   :message  - Human-readable description
 #   :severity - :info, :warning, or :error
 
-/*--- ReactAfterActing : Auto-Derivation Example
-*/
+/*--- Constraint : Blocking Invalid Operations
+
+pr()
+
+# SCENARIO: Prevent self-approval in workflows
+# ~> John cannot approve his own work!
+
+# Step 1: Register the Constraint rule in the :Workflow Rule Group
+RegisterRule(:workflow, "no_self_approval", [
+	:type = :Constraint,
+	
+	# Constraint functions receive (graph, params, operation) 
+	# Return [TRUE, message] to BLOCK, [FALSE, ""] to ALLOW
+	:function = func(oGraph, paRuleParams, paOperationParams) {
+		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
+			# Check if trying to create self-loop with "approves" label
+			if paOperationParams[:from] = paOperationParams[:to]
+				if HasKey(paOperationParams, :label) and paOperationParams[:label] = "approves"
+					return [TRUE, "Cannot approve your own work"]  # BLOCKED
+				ok
+			ok
+		ok
+		return [FALSE, ""]  # ALLOWED
+	},
+	:params = [],
+	:message = "Self-approval blocked",
+	:severity = :error
+])
+
+# Step 2: Test the rule
+oGraph = new stzGraph("Workflow")
+oGraph {
+	AddNode("john")
+	AddNode("mary")
+	UseRulesFrom(:Workflow)
+	
+	# Test 1: John approves Mary (different people)
+	? CheckConstraintRules([:from = "john", :to = "mary"])[1]
+	#--> TRUE (allowed)
+
+#TODO ? @@NL(CheckConstraintRules()) should return [ 1, "Cannot approve your own work" ] right?
+# but it returns only [ 1, [] ]
+
+	# Test 2: John approves John (same person)
+	? CheckConstraintRules([:from = "john", :to = "john", :label = "approves"])[1]
+	#--> FALSE (blocked)
+	
+	# Note: CheckConstraintRules() doesn't add the edge, just checks if it COULD be added
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.25
+
+/*--- Derivation : Auto-Derivation Example
+
 pr()
 
 # SCENARIO: When alice manages bob, she should automatically 
 # see bob's reports (access propagation)
 
-# Step 1: Register the construction rule
-RegisterRule(:demo, "manager_sees_reports", [
-	:type = :ReactAfterActing,
+# Step 1: Register the Derivation rule
+RegisterRule(:Access, "manager_sees_reports", [
+	:type = :Derivation,
 
-	# Construction functions receive (graph, params) and return new edges
+	# Derivation functions receive (graph, params) and return new edges
 	:function = func(oGraph, paRuleParams) {
 		aNewEdges = []  # Collect edges to add
 		aEdges = oGraph.Edges()
@@ -2188,9 +2241,9 @@ oGraph {
 	? PathExists("alice", "bob_report")
 	#--> FALSE
 	
-	# Load and execute construction rule
-	UseRulesFrom(:demo)
-	ApplyConstructionRules()  # Triggers the rule function
+	# Load and execute Derivation rule
+	UseRulesFrom(:Access)
+	ApplyDerivationRules()  # Triggers the rule function
 	
 	# After rule: Access auto-granted
 	? PathExists("alice", "bob_report")
@@ -2198,59 +2251,9 @@ oGraph {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.25
-
-/*--- CheckBeforeActing : Blocking Invalid Operations
-
-pr()
-
-# SCENARIO: Prevent self-approval in workflows
-# ~> John cannot approve his own work!
-
-# Step 1: Register the design rule
-RegisterRule(:workflow, "no_self_approval", [
-	:type = :CheckBeforeActing,
-	
-	# Design functions receive (graph, params, operation) 
-	# Return [TRUE, message] to BLOCK, [FALSE, ""] to ALLOW
-	:function = func(oGraph, paRuleParams, paOperationParams) {
-		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
-			# Check if trying to create self-loop with "approves" label
-			if paOperationParams[:from] = paOperationParams[:to]
-				if HasKey(paOperationParams, :label) and paOperationParams[:label] = "approves"
-					return [TRUE, "Cannot approve your own work"]  # BLOCKED
-				ok
-			ok
-		ok
-		return [FALSE, ""]  # ALLOWED
-	},
-	:params = [],
-	:message = "Self-approval blocked",
-	:severity = :error
-])
-
-# Step 2: Test the rule
-oGraph = new stzGraph("Workflow")
-oGraph {
-	AddNode("john")
-	AddNode("mary")
-	UseRulesFrom(:workflow)
-	
-	# Test 1: John approves Mary (different people)
-	? CheckDesignRules([:from = "john", :to = "mary"])[1]
-	#--> TRUE (allowed)
-	
-	# Test 2: John approves John (same person)
-	? CheckDesignRules([:from = "john", :to = "john", :label = "approves"])[1]
-	#--> FALSE (blocked)
-	
-	# Note: CheckDesignRules() doesn't add the edge, just validates if it COULD be added
-}
-
-pf()
 # Executed in 0.01 second(s) in Ring 1.25
 
-/*--- ValidateGraphSate : Validating Complete Structure
+/*--- Validation : Validating Complete Structure
 
 pr()
 
@@ -2259,9 +2262,9 @@ pr()
 
 # Step 1: Register the validation rule
 RegisterRule(:project, "tasks_have_owners", [
-	:type = :ValidateGraphSate,
+	:type = :Validation,
 
-	# FinalState functions receive (graph, params)
+	# Validation functions receive (graph, params)
 	# Return [TRUE, ""] if valid, [FALSE, message] if violations found
 	:function = func(oGraph, paRuleParams) {
 		aNodes = oGraph.Nodes()
@@ -2292,21 +2295,21 @@ oGraph {
 	AddNodeXTT("alice", "Alice", [:type = "person"])
 	
 	# Scenario 1: Task without owner
-	? ValidateFinalStateXT(:project)[:status]
+	? ValidateXT(:project)[:status]
 	#--> "fail"
 	
 	# Scenario 2: Add owner
 	AddEdgeXT("alice", "task1", "owns")
-	? ValidateFinalStateXT(:project)[:status]
+	? ValidateXT(:project)[:status]
 	#--> "pass"
 	
-	# Note: ValidateFinalStateXT(cRuleGroup) loads and runs rules for that rule group
+	# Note: ValidateXT(cRuleGroup) loads and runs rules for that rule group
 }
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.25
 
-/*--- BUILT-IN Construction Rules : Transitivity
+/*--- BUILT-IN Derivation Rules : Transitivity
 
 pr()
 
@@ -2314,9 +2317,9 @@ pr()
 # No need to write custom logic for standard operations
 
 RegisterRule(:access, "inherit_access", [
-	:type = :ReactAfterActing,
+	:type = :Derivation,
 	# Transitivity: If A→B and B→C exist, create A→C
-	:function = ConstructionFunc_Transitivity(),
+	:function = DerivationFunc_Transitivity(),
 	:params = [],
 	:message = "Access inherited",
 	:severity = :info
@@ -2336,7 +2339,7 @@ oGraph {
 	#--> FALSE (no direct edge)
 	
 	UseRulesFrom(:access)
-	ApplyConstructionRules()  # Creates alice→file automatically
+	ApplyDerivationRules()  # Creates alice→file automatically
 	
 	? EdgeExists("alice", "file")
 	#--> TRUE (transitive edge added)
@@ -2345,16 +2348,16 @@ oGraph {
 pf()
 # Executed in almost 0 second(s) in Ring 1.25
 
-/*--- BUILT-IN Design Rules : No Cycles
+/*--- BUILT-IN Constraint Rules : No Cycles
 
 pr()
 
 # DAG enforcement: Prevent cycles in directed graphs
 
 RegisterRule(:workflow, "must_be_dag", [
-	:type = :CheckBeforeActing,
+	:type = :Constraint,
 	# Blocks any edge that would create a cycle
-	:function = DesignFunc_NoCycles(),
+	:function = ConstraintFunc_NoCycles(),
 	:params = [],
 	:message = "Cycles not allowed",
 	:severity = :error
@@ -2373,7 +2376,7 @@ oGraph {
 	UseRulesFrom(:workflow)
 	
 	# Try to close the loop: c→a would create cycle
-	? @@NL( CheckDesignRules([:from = "c", :to = "a"]) )
+	? @@NL( CheckConstraintRules([:from = "c", :to = "a"]) )
 	#--> [FALSE, [violations]] - blocked!
 }
 #--> [
@@ -2395,18 +2398,18 @@ oGraph {
 # ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in almost 0 second(s) in Ring 1.25
 
-/*--- Built-in FinalState Functions : Acyclicity Check
+/*--- Built-in Validation Functions : Acyclicity Check
 
 pr()
 
 # Validate entire graph structure, not just individual operations
 
 RegisterRule(:dag, "check_acyclic", [
-	:type = :ValidateGraphSate,
+	:type = :Validation,
 	# Checks if ANY cycles exist in the complete graph
-	:function = FinalStateFunc_IsAcyclic(),
+	:function = ValidationFunc_IsAcyclic(),
 	:params = [],
 	:message = "Must be DAG",
 	:severity = :error
@@ -2418,23 +2421,46 @@ oGraph {
 	AddNode("b")
 	
 	Connect("a", "b")
-	? ValidateFinalStateXT(:dag)[:status]  #--> "pass" (linear)
+	? ValidateXT(:dag)[:status]
+	#--> "pass" (linear)
 	
 	Connect("b", "a")  # Creates cycle
-	? ValidateFinalStateXT(:dag)[:status]  #--> "fail" (cyclic)
+	? ValidateXT(:dag)[:status]
+	#--> "fail" (cyclic)
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Combining All Three Rule Types
 
 pr()
 
-# Real workflow: Construction + Design + FinalState working together
+# Real workflow: Constraint + Derivation + Validation working together
 
-# Rule 1: AUTO-ADD test tasks for features (Construction)
+# Rule 1: BLOCK reverse dependencies (Constraint)
+RegisterRule(:project, "no_reverse_deps", [
+	:type = :Constraint,
+	:function = func(oGraph, paRuleParams, paOp) {
+		if HasKey(paOp, :from) and oGraph.NodeExists(paOp[:from])
+			if oGraph.NodeProperty(paOp[:from], "type") = "feature"
+				if HasKey(paOp, :to) and oGraph.NodeExists(paOp[:to])
+					if oGraph.NodeProperty(paOp[:to], "type") = "test"
+						return [TRUE, "Features can't depend on tests"]
+					ok
+				ok
+			ok
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Invalid dependency",
+	:severity = :error
+])
+
+# Rule 2: AUTO-ADD test tasks for features (Derivation)
 RegisterRule(:project, "auto_tests", [
-	:type = :ReactAfterActing,
+	:type = :Derivation,
 	:function = func(oGraph, paRuleParams) {
 		aNewEdges = []
 		aNodes = oGraph.Nodes()
@@ -2459,29 +2485,9 @@ RegisterRule(:project, "auto_tests", [
 	:severity = :info
 ])
 
-# Rule 2: BLOCK reverse dependencies (Design)
-RegisterRule(:project, "no_reverse_deps", [
-	:type = :CheckBeforeActing,
-	:function = func(oGraph, paRuleParams, paOp) {
-		if HasKey(paOp, :from) and oGraph.NodeExists(paOp[:from])
-			if oGraph.NodeProperty(paOp[:from], "type") = "feature"
-				if HasKey(paOp, :to) and oGraph.NodeExists(paOp[:to])
-					if oGraph.NodeProperty(paOp[:to], "type") = "test"
-						return [TRUE, "Features can't depend on tests"]
-					ok
-				ok
-			ok
-		ok
-		return [FALSE, ""]
-	},
-	:params = [],
-	:message = "Invalid dependency",
-	:severity = :error
-])
-
-# Rule 3: CHECK test coverage (FinalState)
+# Rule 3: CHECK test coverage (Validation)
 RegisterRule(:project, "full_coverage", [
-	:type = :ValidateGraphSate,
+	:type = :Validation,
 	:function = func(oGraph, paRuleParams) {
 		aNodes = oGraph.Nodes()
 		nFeatures = 0
@@ -2516,13 +2522,13 @@ oGraph {
 	#--> 2 (just features)
 	
 	UseRulesFrom(:project)
-	ApplyConstructionRules()  # Triggers auto_tests → adds 2 test nodes
+	ApplyDerivationRules()  # Triggers auto_tests → adds 2 test nodes
 	
 	? NodeCount()
 	#--> 4 (features + tests)
 	
 	# Validate final state
-	? ValidateFinalStateXT(:project)[:status]
+	? ValidateXT(:project)[:status]
 	#--> "pass" (1:1 coverage)
 }
 
@@ -2537,7 +2543,7 @@ pr()
 
 # Auto-notify approvers when document submitted
 RegisterRule(:docs, "auto_notify", [
-	:type = :ReactAfterActing,
+	:type = :Derivation,
 	:function = func(oGraph, paRuleParams) {
 		aNewEdges = []
 		aEdges = oGraph.Edges()
@@ -2563,7 +2569,7 @@ RegisterRule(:docs, "auto_notify", [
 
 # Prevent authors from approving their own work
 RegisterRule(:docs, "no_author_approval", [
-	:type = :CheckBeforeActing,
+	:type = :Constraint,
 	:function = func(oGraph, paRuleParams, paOp) {
 		if HasKey(paOp, :from) and HasKey(paOp, :to)
 			# Check if person submitted this document
@@ -2591,15 +2597,16 @@ oGraph {
 	Connect("report", "mary")  # Mary is approver
 	
 	UseRulesFrom(:docs)
-	ApplyConstructionRules()  # Creates report→mary "notify" edge
-	
+	ApplyDerivationRules()  # Creates report→mary "notify" edge
+
 	? EdgeCount()
 	#--> 3 (submit + approver + notify)
+	#ERR // but we got 2
 	
-	? CheckDesignRules([:from = "mary", :to = "report"])[1]
+	? CheckConstraintRules([:from = "mary", :to = "report"])[1]
 	#--> TRUE (allowed)
 
-	? CheckDesignRules([:from = "john", :to = "report"])[1]
+	? CheckConstraintRules([:from = "john", :to = "report"])[1]
 	#--> FALSE (blocked)
 }
 
@@ -2614,8 +2621,8 @@ pr()
 
 # Inherit permissions through hierarchy
 RegisterRule(:security, "inherit_perms", [
-	:type = :ReactAfterActing,
-	:function = ConstructionFunc_Transitivity(),
+	:type = :Derivation,
+	:function = DerivationFunc_Transitivity(),
 	:params = [],
 	:message = "Permissions inherited",
 	:severity = :info
@@ -2623,7 +2630,7 @@ RegisterRule(:security, "inherit_perms", [
 
 # Block access below clearance level
 RegisterRule(:security, "no_escalation", [
-	:type = :CheckBeforeActing,
+	:type = :Constraint,
 	:function = func(oGraph, paRuleParams, paOp) {
 		if HasKey(paOp, :from) and HasKey(paOp, :to)
 			if oGraph.NodeExists(paOp[:from]) and oGraph.NodeExists(paOp[:to])
@@ -2647,7 +2654,7 @@ RegisterRule(:security, "no_escalation", [
 
 # Ensure sensitive resources are audited
 RegisterRule(:security, "audit_check", [
-	:type = :ValidateGraphSate,
+	:type = :Validation,
 	:function = func(oGraph, paRuleParams) {
 		aNodes = oGraph.Nodes()
 		for aNode in aNodes
@@ -2673,18 +2680,18 @@ oGraph {
 	Connect("alice", "db")
 	
 	UseRulesFrom(:security)
-	ApplyConstructionRules()
+	ApplyDerivationRules()
 	
 	# Alice (level 3) → db (level 3)
-	? CheckDesignRules([:from = "alice", :to = "db"])[1]
+	? CheckConstraintRules([:from = "alice", :to = "db"])[1]
 	#--> TRUE (sufficient clearance)
 	
 	# Bob (level 1) → db (level 3)
-	? CheckDesignRules([:from = "bob", :to = "db"])[1] 
+	? CheckConstraintRules([:from = "bob", :to = "db"])[1] 
 	#--> FALSE (blocked)
 	
 	# Final audit compliance
-	? ValidateFinalStateXT(:security)[:status]
+	? ValidateXT(:security)[:status]
 	#--> "pass" (all sensitive resources audited)
 }
 
@@ -4210,12 +4217,12 @@ pr()
 
 oBaseline = new stzGraph("workflow")
 oBaseline {
-	AddNode("design")
+	AddNode("Constraint")
 	AddNode("develop")
 	AddNode("test")
 	AddNode("deploy")
 	
-	Connect("design", "develop")
+	Connect("Constraint", "develop")
 	Connect("develop", "test")
 	Connect("test", "deploy")
 }
@@ -4223,7 +4230,7 @@ oBaseline {
 oVariation = oBaseline.Copy()
 oVariation {
 	# What if we add feedback loop?
-	Connect("deploy", "design")  # Creates cycle!
+	Connect("deploy", "Constraint")  # Creates cycle!
 }
 
 aDiff = oBaseline.CompareWith(oVariation)
@@ -4258,7 +4265,7 @@ aDiff = oBaseline.CompareWith(oVariation)
 				[
 					[
 						[ "from", "deploy" ],
-						[ "to", "design" ],
+						[ "to", "Constraint" ],
 						[ "label", "" ],
 						[ "properties", [  ] ]
 					]
@@ -4373,7 +4380,7 @@ aDiff = oBaseline.CompareWith(oVariation)
 				"criticalitychanges",
 				[
 					[
-						"design",
+						"Constraint",
 						"Criticality increased (degree 1 → 2)"
 					],
 					[
@@ -4989,21 +4996,19 @@ oSparse {
 
 oDense = new stzGraph("dense_mesh")
 oDense {
-	AddNode("top")
-	AddNode("mid1")
-	AddNode("mid2")
-	AddNode("bot1")
-	AddNode("bot2")
+	AddNodes([ "top", "mid1", "mid2", "bot1", "bot2" ])
 	
 	# Fully connected
-	Connect("top", "mid1")
+	Connect("top", "mid1")	#TODO // Add ConnectToMany("top", [ "mid1", ...])
 	Connect("top", "mid2")
 	Connect("top", "bot1")
 	Connect("top", "bot2")
+
 	Connect("mid1", "mid2")
 	Connect("mid1", "bot1")
 	Connect("mid1", "bot2")
 	Connect("mid2", "bot1")
+
 	Connect("mid2", "bot2")
 	Connect("bot1", "bot2")
 }
@@ -5437,9 +5442,11 @@ pf()
 #---------------------------#
 #  1. supply_chain.stzgraf  #
 #    Pure graph structure   #
-"===========================#
+#===========================#
 
-/*
+# EXAMPLE OF .stzgraf file content
+#---------------------------------
+`
 graph "Global_Supply_Chain"
     type: directed
 
@@ -5481,85 +5488,86 @@ properties
     distributor_eu
         coverage: Europe
         demand: 75000
+`
+
+/*--- How to use .stzgraf file format?
 
 pr()
 
-# How to use:
-? "Loading graph from file..."
+# Loading graph from file
+
 oGraph = new stzGraph("supply_chain")
-oGraph.LoadFromStzGraf("txtfiles/supply_chain.stzgraf")
+oGraph {
+	LoadFromStzGraf("txtfiles/supply_chain.stzgraf")
 
-? "Nodes: " + oGraph.NodeCount()
-? "Edges: " + oGraph.EdgeCount()
-? "NY Capacity: " + oGraph.NodeProperty("warehouse_ny", "capacity")
+	? NodeCount() #--> 5
+	? EdgeCount() #--> 5
+	? @@(NodeProperty("warehouse_ny", "capacity")) #ERR
+	#--> Should return 50000
+	# but returned ""
 
-#-->
-'
-Loading graph from file...
-Nodes: 5
-Edges: 5
-NY Capacity: 50000
-'
+//	View() #--> See the generated SVG image...
 
-oGraph.View() #--> See the generated SVG image...
-
-oGraph.Show()
-`
-     ╭────────────╮      
-     │ factory_cn │      
-     ╰────────────╯      
-            |            
-            v            
-    ╭──────────────╮     
-    │ warehouse_ny │     
-    ╰──────────────╯     
-            |            
-            v            
-   ╭────────────────╮    
-   │ distributor_eu │    
-   ╰────────────────╯    
-
-          ////
-
-     ╭────────────╮  ↑
-     │ factory_cn │──╯
-     ╰────────────╯      
-            |            
-            v            
-   ╭────────────────╮    
-   │ !warehouse_la! │    
-   ╰────────────────╯    
-            |            
-            v            
-   ╭────────────────╮    
-   │ distributor_eu │    
-   ╰────────────────╯    
-
-          ////
-
-     ╭────────────╮      
-     │ factory_mx │      
-     ╰────────────╯      
-            |            
-            v            
-   ╭────────────────╮    
-   │ !warehouse_la! │    
-   ╰────────────────╯    
-            |            
-            v            
-   ╭────────────────╮    
-   │ distributor_eu │    
-   ╰────────────────╯  
-`
+//	Show()
+	`
+	     ╭────────────╮      
+	     │ factory_cn │      
+	     ╰────────────╯      
+	            |            
+	            v            
+	    ╭──────────────╮     
+	    │ warehouse_ny │     
+	    ╰──────────────╯     
+	            |            
+	            v            
+	   ╭────────────────╮    
+	   │ distributor_eu │    
+	   ╰────────────────╯    
+	
+	          ////
+	
+	     ╭────────────╮  ↑	#ERR: returns "â†‘" "â”€â”€â•¯"
+	     │ factory_cn │──╯
+	     ╰────────────╯      
+	            |            
+	            v            
+	   ╭────────────────╮    
+	   │ !warehouse_la! │    
+	   ╰────────────────╯    
+	            |            
+	            v            
+	   ╭────────────────╮    
+	   │ distributor_eu │    
+	   ╰────────────────╯    
+	
+	          ////
+	
+	     ╭────────────╮      
+	     │ factory_mx │      
+	     ╰────────────╯      
+	            |            
+	            v            
+	   ╭────────────────╮    
+	   │ !warehouse_la! │    
+	   ╰────────────────╯    
+	            |            
+	            v            
+	   ╭────────────────╮    
+	   │ distributor_eu │    
+	   ╰────────────────╯  
+	`
+}
 
 pf()
-# Executed in 0.09 second(s) in Ring 1.24
+# Executed in 0.04 second(s) in Ring 1.24
 
-/*-----------------------------------------#
-#  2. compliance_rules.stzrulz
-#     Rule properties (links to functions)
-#=========================================#
+#-------------------------------------------#
+#  2. compliance_rules.stzrulz              #
+#     Rule properties (links to functions)  #
+#===========================================#
 
+# EXAMPLE OF .stzrulz file content
+#---------------------------------
 `
 ruleset "Banking Compliance Rules"
     domain: banking
@@ -5608,18 +5616,28 @@ rules
             "Permissions inherited through hierarchy"
 `
 
-# How to use:
-? "Loading rules..."
+/*--- How to use .stzrulz file format?
+
+pr()
+
+#TODO Review the file formats feature to cope with the
+# new design of the rule system!
+
+# Loading rules...
 oGraph = new stzGraph("org")
-oGraph.LoadFromStzRulz("compliance_rules.stzrulz")
+oGraph.LoadFromStzRulz("txtfiles/bceao_banking.stzrulz")
 
 ? "Rules loaded: " + len(oGraph.RulesSummary()[:constraints])
 
-/*========================================
-#  3. custom_functions.stzrulf
-#     Custom rule function definitions
-#========================================
+pf()
 
+#---------------------------------------#
+#  3. custom_functions.stzrulf          #
+#     Custom rule function definitions  #
+#=======================================#
+
+# Example of a .stzrulf file format
+#----------------------------------
 `
 # Banking-specific custom functions
 # This is pure Ring code that gets loaded
@@ -5716,8 +5734,11 @@ RegisterRule(:hr, "balanced_teams", [
 ])
 `
 
-# How to use:
-? "Loading custom functions..."
+/*--- How to use .stzrulf file format?
+
+pr()
+
+# Loading custom functions
 oGraph = new stzGraph("banking_system")
 
 # Load the function definitions first
@@ -5730,11 +5751,14 @@ oGraph.LoadFromStzRulz("compliance_rules.stzrulz")
 oGraph.UseRulesFrom(:banking)
 oGraph.UseRulesFrom(:hr)
 
-/*========================================
-#  4. restructure.stzsim
-#     Simulation (changes between graphs)
-#========================================
+pf()
 
+#-----------------------------------------#
+#  4. restructure.stzsim                  #
+#     Simulation (changes between graphs) #
+#=========================================#
+
+# Example of a .stzsim file format
 `
 simulation "Move Treasury Under CFO Comparison"
     description: "Changes from baseline"
@@ -5762,81 +5786,91 @@ metrics
     hasCycles: FALSE -> FALSE
 `
 
-# How to use:
-? "Loading baseline..."
+pr()
+
+# How to use .stzsim file format?
+
+# Loading baseline
 oBaseline = new stzGraph("current_org")
 oBaseline.LoadFromStzGraf("org_current.stzgraf")
 
-? "Applying simulation..."
+# Applying simulation
 cSimulation = read("restructure.stzsim")
 oBaseline.ApplySimulation(cSimulation)
 
-? "After changes:"
+# After changes
 ? "  Nodes: " + oBaseline.NodeCount()
 ? "  Edges: " + oBaseline.EdgeCount()
 
-#========================================
-# 5. Complete workflow example
-#========================================
+pf()
+
+#--------------------------------------------------#
+# 5. Complete workflow example using file formats  #
+#==================================================#
 
 pr()
-? "╭─────────────────────────────────────╮"
-? "│ COMPLETE FILE-BASED WORKFLOW       │"
-? "╰─────────────────────────────────────╯" + NL
 
 # Step 1: Create and save a graph
-oCompany = new stzGraph("MyCompany")
-oCompany {
-	AddNodeXTT("ceo", "CEO", [:level = 5])
-	AddNodeXTT("cto", "CTO", [:level = 4, :department = "tech"])
-	AddNodeXTT("cfo", "CFO", [:level = 4, :department = "finance"])
-	AddNodeXTT("eng1", "Engineer 1", [:level = 2, :department = "tech"])
-	
-	Connect("ceo", "cto")
-	Connect("ceo", "cfo")
-	Connect("cto", "eng1")
-	
-	? "Saving graph to supply_chain.stzgraf..."
-	SaveToStzGraf("mycompany.stzgraf")
-}
+
+	oCompany = new stzGraph("MyCompany")
+	oCompany {
+		AddNodeXTT("ceo", "CEO", [:level = 5])
+		AddNodeXTT("cto", "CTO", [:level = 4, :department = "tech"])
+		AddNodeXTT("cfo", "CFO", [:level = 4, :department = "finance"])
+		AddNodeXTT("eng1", "Engineer 1", [:level = 2, :department = "tech"])
+		
+		Connect("ceo", "cto")
+		Connect("ceo", "cfo")
+		Connect("cto", "eng1")
+		
+		? "Saving graph to supply_chain.stzgraf..."
+		SaveToStzGraf("mycompany.stzgraf")
+	}
 
 # Step 2: Load custom functions
-? "Loading custom rule functions..."
-load "custom_functions.stzrulf"
+
+	load "custom_functions.stzrulf"
 
 # Step 3: Load rules
-? "Loading compliance rules..."
-oCompany.LoadFromStzRulz("compliance_rules.stzrulz")
+
+	oCompany.LoadFromStzRulz("compliance_rules.stzrulz")
 
 # Step 4: Apply rules
-? "Applying rules..."
-oCompany.UseRulesFrom(:banking)
-nDerived = oCompany.ApplyDerivations()
-? "  Derived edges: " + nDerived
+
+	oCompany.UseRulesFrom(:banking)
+	nDerived = oCompany.ApplyDerivations()
+	? "  Derived edges: " + nDerived
 
 # Step 5: Create variation
-oVariation = oCompany.Copy()
-oVariation {
-	AddNodeXTT("coo", "COO", [:level = 4])
-	RemoveThisEdge("ceo", "cto")
-	Connect("ceo", "coo")
-	Connect("coo", "cto")
-}
+
+	oVariation = oCompany.Copy()
+	oVariation {
+		AddNodeXTT("coo", "COO", [:level = 4])
+		RemoveThisEdge("ceo", "cto")
+		Connect("ceo", "coo")
+		Connect("coo", "cto")
+	}
 
 # Step 6: Export simulation
-? "Exporting simulation..."
-cSim = oVariation.ExportToStzSim(oCompany)
-write("add_coo.stzsim", cSim)
-? "  Saved to add_coo.stzsim"
 
-# Step 7: Validate
-? "Validating structure..."
-aResult = oVariation.Validate()
-? "  Valid: " + aResult[1]
+	cSim = oVariation.ExportToStzSim(oCompany)
+	write("add_coo.stzsim", cSim)
+	? "  Saved to add_coo.stzsim"
+	
+	# Step 7: Validate
+	? "Validating structure..."
+	aResult = oVariation.Validate()
+	? "  Valid: " + aResult[1]
 
 pf()
 
-#======
+#==================#
+#  RAISING ERRORS  #
+#==================#
+
+pr()
 
 oReseau = new stzGraph("Trounées Niamey")
 #--> ERROR MESSAGE: Inncorrect Id! pcId must be a string without spaces nor new lines.
+
+pf()
