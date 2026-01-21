@@ -2433,7 +2433,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Combining All Three Rule Types
-
+*/
 pr()
 
 # Real workflow: Constraint + Derivation + Validation working together

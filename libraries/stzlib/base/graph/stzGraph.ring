@@ -62,7 +62,9 @@ class stzGraph
 
 	@aProperties = []
 
-	@bEnforceConstraints = FALSE
+	@bEnforceConstraints = TRUE
+	@bAutoDerive = FALSE # Default: manual derivation
+
 	@aLastValidationResult = []
 
 	def init(pcName)
@@ -438,6 +440,122 @@ class stzGraph
 		
 		@aEdges = acNew
 
+	#--------------------------------#
+	#  ENABLING OR DISABLING CHECKS  #
+	#--------------------------------#
+
+	 # Control flags
+	 def EnforceConstraints()
+	        @bEnforceConstraints = TRUE
+	        
+	 def DisableConstraints()
+	        @bEnforceConstraints = FALSE
+	        
+	 def EnableAutoDerive()
+	        @bAutoDerive = TRUE
+	        
+	 def DisableAutoDerive()
+	        @bAutoDerive = FALSE
+	    
+	    # Temporarily bypass rules
+	def WithoutConstraints(pFunc)
+		if NOT isFunction(pFunc)
+			stzraise("Parameter must be a function!")
+		ok
+	
+		# Save current state
+		bOldState = @bEnforceConstraints
+		
+		# Disable constraints temporarily
+		@bEnforceConstraints = FALSE
+		
+		# Execute the provided function
+		call pFunc(This)
+		
+		# Restore original state
+		@bEnforceConstraints = bOldState
+
+	
+		def BypassingConstraints(pFunc)
+			This.WithoutConstraints(pFunc)
+	    
+	 # Pre-flight checks (non-mutating)
+	 def CanAddEdge(pcFromNodeId, pcToNodeId, pcLabel)
+		if CheckParams()
+			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromOrFromNodeNamedParam()
+				pcFromNodeId = pcFromNodeId[2]
+			ok
+			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToOrToNodeNamedParam()
+				pcToNodeId = pcToNodeId[2]
+			ok
+			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
+				pcLabel = pcLabel[2]
+			ok
+		ok
+
+	        aCheck = This.CheckConstraintRules([
+	            :from = pcFromNodeId,
+	            :to = pcToNodeId,
+	            :label = pcLabel
+	        ])
+
+	        return aCheck[1]  # TRUE if allowed
+	        
+	def WhyCannotAddEdge(pcFromNodeId, pcToNodeId, pcLabel)
+		if CheckParams()
+			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromOrFromNodeNamedParam()
+				pcFromNodeId = pcFromNodeId[2]
+			ok
+			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToOrToNodeNamedParam()
+				pcToNodeId = pcToNodeId[2]
+			ok
+			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
+				pcLabel = pcLabel[2]
+			ok
+		ok
+	
+		pcFromNodeId = lower(pcFromNodeId)
+		pcToNodeId = lower(pcToNodeId)
+	
+		# Check basic preconditions first
+		if NOT This.NodeExists(pcFromNodeId)
+			return "Node '" + pcFromNodeId + "' does not exist"
+		ok
+	
+		if NOT This.NodeExists(pcToNodeId)
+			return "Node '" + pcToNodeId + "' does not exist"
+		ok
+	
+		if This.EdgeExists(pcFromNodeId, pcToNodeId)
+			return "Edge already exists between '" + pcFromNodeId + "' and '" + pcToNodeId + "'"
+		ok
+	
+		# Check constraints
+		aCheck = This.CheckConstraintRules([
+			:from = pcFromNodeId,
+			:to = pcToNodeId,
+			:label = pcLabel
+		])
+	
+		if aCheck[1]  # Allowed
+			return "Edge can be added"
+		ok
+	
+		# Build detailed explanation of violations
+		aViolations = aCheck[2]
+		cReasons = "Cannot add edge:" + NL
+		
+		nLen = len(aViolations)
+		for i = 1 to nLen
+			aV = aViolations[i]
+			cReasons += "  • [" + aV[:severity] + "] " + aV[:rule] + ": " + aV[:message] + NL
+		next
+	
+		return cReasons
+	
+		def WhyCannotConnect(pcFromNodeId, pcToNodeId, pcLabel)
+			return This.WhyCannotAddEdge(pcFromNodeId, pcToNodeId, pcLabel)
+
 	#-------------------#
 	#  EDGE OPERATIONS  #
 	#-------------------#
@@ -529,40 +647,67 @@ class stzGraph
 			This.AddEdgeXTT(pcFromNodeId, pcToNodeId, pcLabel, [])
 
 	def AddEdgeXTT(pcFromNodeId, pcToNodeId, pcLabel, pacProperties)
+		# Parameter validation
 		if CheckParams()
 			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsNodeOrNodesOrFromOrFromNodeNamedParam()
 				pcFromNodeId = pcFromNodeId[2]
 			ok
-
+	
 			if isList(pcToNodeId)
 				This.AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
 				return
 			ok
-
+	
 			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsAndOrToOrToNodeNamedParam()
 				pcToNodeId = pcToNodeId[2]
 			ok
-
+	
 			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
 				pcLabel = pcLabel[2]
 			ok
-
-
 		ok
-
+	
 		pcFromNodeId = lower(pcFromNodeId)
 		pcToNodeId = lower(pcToNodeId)
-
+	
+		# Validate nodes exist
 		if NOT This.NodeExists(pcFromNodeId) or NOT This.NodeExists(pcToNodeId)
 			stzraise("Cannot add edge: one or both nodes do not exist!")
 		ok
-
+	
+		# Check if edge already exists
 		if This.EdgeExists(pcFromNodeId, pcToNodeId)
 			stzraise("Edge already exists between '" + pcFromNodeId + "' and '" + pcToNodeId + "'!")
 		ok
+		#TODO// Should we support multiple edges between two nodes?
 
+		# CONSTRAINT CHECK - Execute before mutation
+		if @bEnforceConstraints
+			aCheck = This.CheckConstraintRules([
+				:from = pcFromNodeId,
+				:to = pcToNodeId,
+				:label = pcLabel,
+				:properties = pacProperties
+			])
+			
+			if NOT aCheck[1]  # Blocked by constraints
+				aViolations = aCheck[2]
+				cMsg = "Cannot add edge - constraint violation: "
+				nLen = len(aViolations)
+				for i = 1 to nLen
+					cMsg += aViolations[i][:message]
+					if i < nLen
+						cMsg += "; "
+					ok
+				next
+				stzraise(cMsg)
+			ok
+		ok
+	
+		# Normalize label
 		pcLabel = _NormalizeLabel(pcLabel)
-
+	
+		# Add edge
 		aEdge = [
 			:from = lower(pcFromNodeId),
 			:to = lower(pcToNodeId),
@@ -571,11 +716,16 @@ class stzGraph
 		]
 		@aEdges + aEdge
 		
+		# AUTO-DERIVATION - Execute after mutation
+		if @bAutoDerive
+			This.ApplyDerivationRules()
+		ok
+		
 		return 1
-
+	
 		def ConnectXTT(pcFromNodeId, pcToNodeId, pcLabel, pacProperties)
 			This.AddEdgeXTT(pcFromNodeId, pcToNodeId, pcLabel, pacProperties)
-
+	
 	def AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
 		nLen = len(paToNodesIdsAndLabelsAndProps)
 		for i = 1 to nLen
@@ -3201,15 +3351,15 @@ class stzGraph
 	#--------------#
 
 	def Validate()
-		return This.ValidateValidation()
-	
+		return This.ValidateXT(@acValidationValidators)
+
 	def ValidateXT(paValidators)
 		if isString(paValidators)
 			return This._ValidateSingle(paValidators)
 		but isList(paValidators)
 			return This._ValidateMultiple(paValidators)
 		ok
-	
+
 	def _ValidateSingle(pcValidator)
 		cValidator = lower(pcValidator)
 		
@@ -3378,6 +3528,9 @@ class stzGraph
 			return This.ValidationSummary()
 	
 		def ValidationXT()
+			return This.ValidationSummary()
+
+		def LastValidation()
 			return This.ValidationSummary()
 
 	def Anomalies()
