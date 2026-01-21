@@ -36,13 +36,11 @@ While written in Ring and primarily targeting Ring programmers, Softanza's synta
 
 Ultimately, Softanza can even be used without requiring any programming language other than natural language! The next section will show you this not just a promise...
 
-> **NOTE**: In particular, a **JavaScript** port of Softanza is currently being developed to provide the same programming experience for web frontends. The SystemLayer of the library (described in Section 4 hereafter) is intended to be partially implemented in **Julia**. A full port is also planned, to align with a larger ecosystem of data-intensive and AI-driven applications.
-
 ## 3. Softanza as a Programming Framework for Computational Thinking
 
-Computational thinking is the ability to conceptualize, design, and articulate solutions to complex problems through a programming environment that mirrors natural thought processes. Under the motto "What You Think Is What You Write", Softanza fosters this approach.
+Computational thinking is the ability to conceptualize, design, and articulate solutions to complex problems through a programming environment that mirrors natural thought processes.
 
-Softanza fosters computational thinking without enforcing rigid technical constraints. Simply load the library, and you can write pure Ring code like this:
+Under the motto "What You Think Is What You Write", Softanza fosters computational thinking without enforcing rigid technical constraints. Simply load the library, and you can write pure Ring code like this:
 
 ```ring
 load "stzlib.ring"
@@ -60,9 +58,9 @@ ok
 #--> It's me, Softanza!
 ```
 
-This code illustrates Softanza's **natural-coding** paradigm, where *natural* expressions are integrated directly into computer *code*. It utilizes a `stzString` object on the surface, while being empowered internally with advanced classes like `stzChainOfTruth` and `stzChainOfValue`, demonstrating how Softanza’s programming model seamlessly integrates *logical assertions* with *value transformations* to forge a human-centered flow of thought in pure Ring code!
+This code illustrates Softanza's **near-natural-coding** paradigm, where *natural* expressions are integrated directly into computer *code*. It utilizes a `stzString` object on the surface, while being empowered internally with advanced classes like `stzChainOfTruth` and `stzChainOfValue`, demonstrating how Softanza’s programming model seamlessly integrates *logical assertions* with *value transformations* to forge a human-centered flow of thought in pure executable Ring code!
 
-You can even *talk* to Softanza not in pure Ring but in *pure English*, as effortlessly and intuitively as this:
+You can even *talk* to Softanza not in Ring code but in *pure English*, as effortlessly and intuitively as this:
 
 ```ring
 Naturally() {

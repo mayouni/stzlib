@@ -4,9 +4,9 @@ digraph "datapipeline" {
     edge [fontname="helvetica", fontsize=12, color="#D1D1D1", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
     ingest [label="Ingest", shape=hexagon, style="solid,filled", fillcolor="#4D654D", penwidth=1, fontcolor="white", tooltip=" "]
-    clean [label="Cleansing", shape=hexagon, style="dashed,filled", fillcolor="#FFA500", penwidth=1, fontcolor="black", tooltip=" "]
+    clean [label="Cleansing", shape=hexagon, style="bold,filled", fillcolor="#FF0000", penwidth=1, fontcolor="white", tooltip=" "]
     transform [label="Transform", shape=hexagon, style="solid,filled", fillcolor="#4D654D", penwidth=1, fontcolor="white", tooltip=" "]
-    enrich [label="Enrichment", shape=box, style="rounded,bold,filled", fillcolor="#FF0000", penwidth=3, fontcolor="white", tooltip=" "]
+    enrich [label="Enrichment", shape=box, style="rounded,bold,filled", fillcolor="#000000", penwidth=3, fontcolor="white", tooltip=" "]
     load [label="Load_to_DW", shape=hexagon, style="solid,filled", fillcolor="#4D654D", penwidth=1, fontcolor="white", tooltip=" "]
 
     ingest -> clean

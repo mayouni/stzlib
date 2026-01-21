@@ -4,9 +4,9 @@
 #=============================================#
 
 # Three Rule Types:
-# 1. CheckBeforeActing - Guards operations (blocks invalid changes)
-# 2. ReactAfterActing - Auto-derives edges/nodes after changes
-# 3. ValidateGraphSate - Validates final graph state
+# 1. Constraint - Guards operations (blocks invalid changes)
+# 2. Derivation - Auto-derives edges/nodes after changes
+# 3. Validation - Validates final graph state
 
 #------------------#
 #  RULE CONTAINER  #
@@ -56,10 +56,10 @@ func GetRule(pcRuleGroup, pcRuleName)
 	stzraise("Inexistant rule!")
 
 #-------------------------------------------------#
-#  BUILT-IN RULE FUNCTIONS : ReactAfterActing  #
+#  BUILT-IN RULE FUNCTIONS : Derivation  #
 #-------------------------------------------------#
 
-func ConstructionFunc_Transitivity()
+func DerivationFunc_Transitivity()
 	return func(oGraph, paRuleParams) {
 		aNewEdges = []
 		aEdges = oGraph.Edges()
@@ -86,7 +86,7 @@ func ConstructionFunc_Transitivity()
 		return aNewEdges
 	}
 
-func ConstructionFunc_Symmetry()
+func DerivationFunc_Symmetry()
 	return func(oGraph, paRuleParams) {
 		aNewEdges = []
 		aEdges = oGraph.Edges()
@@ -102,7 +102,7 @@ func ConstructionFunc_Symmetry()
 		return aNewEdges
 	}
 
-func ConstructionFunc_Hierarchy()
+func DerivationFunc_Hierarchy()
 	return func(oGraph, paRuleParams) {
 		cProp = paRuleParams[:property]
 		cOrder = paRuleParams[:order]
@@ -147,10 +147,10 @@ func ConstructionFunc_Hierarchy()
 	}
 
 #-------------------------------------------#
-#  BUILT-IN RULE FUNCTIONS : CheckBeforeActing  #
+#  BUILT-IN RULE FUNCTIONS : Constraint  #
 #-------------------------------------------#
 
-func DesignFunc_NoSelfLoop()
+func ConstraintFunc_NoSelfLoop()
 	return func(oGraph, paRuleParams, paOperationParams) {
 		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
 			if paOperationParams[:from] = paOperationParams[:to]
@@ -160,7 +160,7 @@ func DesignFunc_NoSelfLoop()
 		return [FALSE, ""]
 	}
 
-func DesignFunc_MaxDegree()
+func ConstraintFunc_MaxDegree()
 	return func(oGraph, paRuleParams, paOperationParams) {
 		nMax = paRuleParams[:max]
 		
@@ -176,7 +176,7 @@ func DesignFunc_MaxDegree()
 		return [FALSE, ""]
 	}
 
-func DesignFunc_NoCycles()
+func ConstraintFunc_NoCycles()
 	return func(oGraph, paRuleParams, paOperationParams) {
 		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
 			cFrom = paOperationParams[:from]
@@ -189,7 +189,7 @@ func DesignFunc_NoCycles()
 		return [FALSE, ""]
 	}
 
-func DesignFunc_Separation()
+func ConstraintFunc_Separation()
 	return func(oGraph, paRuleParams, paOperationParams) {
 		cProp = paRuleParams[:property]
 		aValues = paRuleParams[:values]
@@ -223,7 +223,7 @@ func DesignFunc_Separation()
 		return [FALSE, ""]
 	}
 
-func DesignFunc_PropertyMismatch()
+func ConstraintFunc_PropertyMismatch()
 	return func(oGraph, paRuleParams, paOperationParams) {
 		cProp = paRuleParams[:property]
 		cOp = paRuleParams[:operator]
@@ -256,10 +256,10 @@ func DesignFunc_PropertyMismatch()
 	}
 
 #------------------------------------------#
-#  BUILT-IN RULE FUNCTIONS : OnFinalState  #
+#  BUILT-IN RULE FUNCTIONS : OnValidation  #
 #------------------------------------------#
 
-func FinalStateFunc_IsAcyclic()
+func ValidationFunc_IsAcyclic()
 	return func(oGraph, paRuleParams) {
 		if oGraph.HasCyclicDependencies()
 			return [FALSE, "Graph contains cycles"]
@@ -267,7 +267,7 @@ func FinalStateFunc_IsAcyclic()
 		return [TRUE, ""]
 	}
 
-func FinalStateFunc_IsConnected()
+func ValidationFunc_IsConnected()
 	return func(oGraph, paRuleParams) {
 		if NOT oGraph.IsConnected()
 			return [FALSE, "Graph is not connected"]
@@ -275,7 +275,7 @@ func FinalStateFunc_IsConnected()
 		return [TRUE, ""]
 	}
 
-func FinalStateFunc_MaxNodes()
+func ValidationFunc_MaxNodes()
 	return func(oGraph, paRuleParams) {
 		nMax = paRuleParams[:max]
 		
@@ -285,7 +285,7 @@ func FinalStateFunc_MaxNodes()
 		return [TRUE, ""]
 	}
 
-func FinalStateFunc_DensityRange()
+func ValidationFunc_DensityRange()
 	return func(oGraph, paRuleParams) {
 		nMin = paRuleParams[:min]
 		nMax = paRuleParams[:max]
@@ -297,7 +297,7 @@ func FinalStateFunc_DensityRange()
 		return [TRUE, ""]
 	}
 
-func FinalStateFunc_NoBottlenecks()
+func ValidationFunc_NoBottlenecks()
 	return func(oGraph, paRuleParams) {
 		aBottlenecks = oGraph.BottleneckNodes()
 		if len(aBottlenecks) > 0
@@ -306,7 +306,7 @@ func FinalStateFunc_NoBottlenecks()
 		return [TRUE, ""]
 	}
 
-func FinalStateFunc_AllNodesReachable()
+func ValidationFunc_AllNodesReachable()
 	return func(oGraph, paRuleParams) {
 		cStart = paRuleParams[:start]
 		
@@ -328,17 +328,17 @@ func FinalStateFunc_AllNodesReachable()
 #=======================#
 
 # DAG rules
-RegisterRule(:dag, "no_cycles_design", [
-	:type = :CheckBeforeActing,
-	:function = DesignFunc_NoCycles(),
+RegisterRule(:dag, "no_cycles_Constraint", [
+	:type = :Constraint,
+	:function = ConstraintFunc_NoCycles(),
 	:params = [],
 	:message = "Operation would create a cycle",
 	:severity = :error
 ])
 
 RegisterRule(:dag, "acyclic_state", [
-	:type = :ValidateGraphSate,
-	:function = FinalStateFunc_IsAcyclic(),
+	:type = :Validation,
+	:function = ValidationFunc_IsAcyclic(),
 	:params = [],
 	:message = "Graph must be acyclic",
 	:severity = :error
@@ -346,8 +346,8 @@ RegisterRule(:dag, "acyclic_state", [
 
 # Reachability rules
 RegisterRule(:reachability, "all_connected", [
-	:type = :ValidateGraphSate,
-	:function = FinalStateFunc_IsConnected(),
+	:type = :Validation,
+	:function = ValidationFunc_IsConnected(),
 	:params = [],
 	:message = "Graph must be fully connected",
 	:severity = :warning
@@ -355,8 +355,8 @@ RegisterRule(:reachability, "all_connected", [
 
 # Completeness rules
 RegisterRule(:completeness, "no_bottlenecks", [
-	:type = :ValidateGraphSate,
-	:function = FinalStateFunc_NoBottlenecks(),
+	:type = :Validation,
+	:function = ValidationFunc_NoBottlenecks(),
 	:params = [],
 	:message = "Graph contains bottleneck nodes",
 	:severity = :warning
