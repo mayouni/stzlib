@@ -167,7 +167,7 @@ class stzDotCode
 
 		def View()
 			if NOT @bWasExtecutedAtLeastOnce
-				stzraise("Can't view the generated visual! You must Run() the DOT code first.")
+				This.Execute()
 			ok
 		
 			if @cLastOutputFile = "" or NOT fexists(@cLastOutputFile)
