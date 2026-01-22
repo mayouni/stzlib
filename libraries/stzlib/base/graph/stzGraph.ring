@@ -3346,6 +3346,91 @@ class stzGraph
 			ok
 		ok
 
+
+	    def ClearRules()
+	        @aConstraintRules = []
+	        @aDerivationRules = []
+	        @aValidationRules = []
+	        @aAffectedNodes = []
+	        @aAffectedEdges = []
+	    
+	    # Clear specific type
+	    def ClearConstraintRules()
+	        @aConstraintRules = []
+	        
+	    def ClearDerivationRules()
+	        @aDerivationRules = []
+	        
+	    def ClearValidationRules()
+	        @aValidationRules = []
+	    
+	    # Remove specific rule
+	    def RemoveRule(cRuleName)
+	        # Search all three lists
+	        @aConstraintRules = This._RemoveRuleFromList(@aConstraintRules, cRuleName)
+	        @aDerivationRules = This._RemoveRuleFromList(@aDerivationRules, cRuleName)
+	        @aValidationRules = This._RemoveRuleFromList(@aValidationRules, cRuleName)
+	    
+	    def _RemoveRuleFromList(aRules, cName)
+	        aNew = []
+	        for aRule in aRules
+	            if aRule[:name] != cName
+	                aNew + aRule
+	            ok
+	        next
+	        return aNew
+	    
+	    # Check if rule loaded
+	def HasRule(pcRuleName)
+		if NOT isString(pcRuleName)
+			stzraise("Rule name must be a string!")
+		ok
+	
+		pcRuleName = lower(pcRuleName)
+	
+		# Check Constraint rules
+		nLen = len(@aConstraintRules)
+		for i = 1 to nLen
+			if lower(@aConstraintRules[i][:name]) = pcRuleName
+				return TRUE
+			ok
+		next
+	
+		# Check Derivation rules
+		nLen = len(@aDerivationRules)
+		for i = 1 to nLen
+			if lower(@aDerivationRules[i][:name]) = pcRuleName
+				return TRUE
+			ok
+		next
+	
+		# Check Validation rules
+		nLen = len(@aValidationRules)
+		for i = 1 to nLen
+			if lower(@aValidationRules[i][:name]) = pcRuleName
+				return TRUE
+			ok
+		next
+	
+		return FALSE
+	
+		def ContainsRule(pcRuleName)
+			return This.HasRule(pcRuleName)
+	    
+	    # List active rules
+	    def ActiveRules()
+	        acAll = []
+	        for aRule in @aConstraintRules
+	            acAll + [:Constraint, aRule[:name]]
+	        next
+	        for aRule in @aDerivationRules
+	            acAll + [:Derivation, aRule[:name]]
+	        next
+	        for aRule in @aValidationRules
+	            acAll + [:Validation, aRule[:name]]
+	        next
+	        return acAll
+
 	#--------------#
 	#  VALIDATION  #
 	#--------------#
