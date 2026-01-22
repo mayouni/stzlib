@@ -445,8 +445,11 @@ class stzGraph
 	#--------------------------------#
 
 	 # Control flags
-	 def EnforceConstraints()
+	 def EnableConstraints()
 	        @bEnforceConstraints = TRUE
+
+		def EnforceConstraints()
+			@bEnforceConstraints = TRUE
 
 	 def DisableConstraints()
 	        @bEnforceConstraints = FALSE
@@ -458,6 +461,9 @@ class stzGraph
 
 	 def EnableAutoDerive()
 	        @bAutoDerive = TRUE
+
+		def EnforceAutoDerive()
+			@bAutoDerive = TRUE
 
 	 def DisableAutoDerive()
 	        @bAutoDerive = FALSE
@@ -3424,6 +3430,7 @@ class stzGraph
 	        @aValidationRules = This._RemoveRuleFromList(@aValidationRules, cRuleName)
 	    
 	    def _RemoveRuleFromList(aRules, cName)
+		cName = cName
 	        aNew = []
 	        for aRule in aRules
 	            if aRule[:name] != cName
