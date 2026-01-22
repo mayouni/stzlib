@@ -1662,10 +1662,11 @@ oGraph {
 	AddNode("c")
 	AddNode("d")
 	
+
 	Connect(:node = "a", :tonode = "b") # See the named param variations
-	Connect("a", :to = "c")
-	Connect("b", :and = "d")
-	Connect("c", "d")
+	Connect("a", :andnode = "c")
+	Connect(:node = "b", :tonode = "d")
+	Connect(:node = "c", :and = "d")
 	
 	? @@( ShortestPath(:From = "a", :To = "d") )
 	#--> ["a", "b", "d"]
@@ -2168,22 +2169,15 @@ oGraph {
 	UseRulesFrom(:WORKFLOW_RULES_GROUP)
 	
 	# Valid: John approves Mary
-	try
-		AddEdgeXT("john", "mary", "approves")
-		? "✓ John → Mary: Allowed"
-	catch
-		? "✗ Blocked: " + cCatchError
-	done
-	#--> ✓ John → Mary: Allowed
+	AddEdgeXT("john", "mary", "approves")
+	? NumberOfEdges()
+	#--> 1
 
 	# Invalid: John approves John
-	try
-		AddEdgeXT("john", "john", "approves")
-		? "✗ Self-approval allowed (BUG)"
-	catch
-		? "✓ Self-approval blocked"
-	done
-	#--> ✓ Self-approval blocked
+	AddEdgeXT("john", "john", "approves")
+	#--> Cannot add edge - constraint violation:
+	# Cannot approve your own work
+
 }
 
 pf()
@@ -2193,7 +2187,7 @@ pf()
 
 pr()
 
-RegisterRuleInGroup(:DAG, "NO_CYCLES", [
+RegisterRuleInGroup(:DAG_RULES_GROUP, "NO_CYCLES", [
 	:type = :Constraint,
 	:function = func(oGraph, paRuleParams, paOp) {
 		if HasKey(paOp, :from) and HasKey(paOp, :to)
@@ -2226,7 +2220,7 @@ oGraph {
 # 	FALSE,
 # 	[
 # 		[
-# 			[ "rule", "no_cycles" ],
+# 			[ "rule", "NO_CYCLES" ],
 # 			[ "message", "Would create a cycle" ], #TODO Not clear!
 # 			[ "severity", "error" ],
 # 			[
@@ -2244,6 +2238,8 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.25
 
 /*--- DERIVATION: Manager Access Rights
+
+pr()
 
 RegisterRuleInGroup(:ACCESS_RULES_GROUP, "MANAGER_SEES_REPORTS", [
 	:type = :Derivation,
@@ -2316,7 +2312,7 @@ oGraph {
 # ]
 
 pf()
-# Executed in 2.43 second(s) in Ring 1.25
+# Executed in 0.01 second(s) in Ring 1.25
 
 /*--- VALIDATION: Orphan Task Detection
 
@@ -2421,10 +2417,10 @@ oGraph {
 	# 	[ "constraint", "NO_SELF_APPROVAL" ]
 	# ]
 
-	? HasRule("no_cycles")
+	? HasRule("NO_CYCLES")
 	#--> TRUE
 
-	RemoveRule("NO_CYCLES") #TODO // Won't work if lowercase!
+	RemoveRule("NO_CYCLES")
 	? HasRule("no_cycles")
 	#--> FALSE
 
@@ -2434,7 +2430,7 @@ oGraph {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.25
+# Executed in 0.01 second(s) in Ring 1.25
 
 /*--- COMPLETE: Dev Project Workflow
 
@@ -2553,13 +2549,8 @@ oGraph {
 	#--> pass
 
 	# Try invalid dependency
-	try
-		Connect("login", "profile_test")
-		? "✗ Invalid dependency allowed (BUG)"
-	catch
-		? "✓ Invalid dependency blocked"
-	done
-	#--> ✓ Invalid dependency blocked
+	Connect("login", "profile_test")
+	#--> ERROR: Cannot add edge: one or both nodes do not exist!
 }
 
 pf()
@@ -2602,7 +2593,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.25
 
 /*--- VALIDATION: History Tracking
-*/
+
 pr()
 
 RegisterRuleInGroup(:DAG_RULES_GROUP, "NO_CYCLES", [
@@ -2647,6 +2638,7 @@ oGraph {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 #=======================================================================#
 #  GRAPH (SINGLE AND MULTIPLE) COMPARAISON, ANALYSIS AND VISUALIZATION  #
@@ -4155,7 +4147,7 @@ aDiff = oBaseline.CompareWith(oVariation)
 '
 
 pf()
-# Executed in 0.25 second(s) in Ring 1.24
+# Executed in 0.21 second(s) in Ring 1.24
 
 #-----------------------#
 #   CYCLE INTRODUCTION  #

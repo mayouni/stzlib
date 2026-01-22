@@ -216,8 +216,20 @@ class stzGraph
 		def NodesNames()
 			return This.NodesIds()
 
-	def NodeCount()
+	def NodesCount()
 		return len(@aNodes)
+
+		def NodeCount()
+			return len(@aNodes)
+
+		def HowManyNodes()
+			return len(@aNodes)
+
+		def HowManyNode()
+			return len(@aNodes)
+
+		def NumberOfNodes()
+			return len(@aNodes)
 
 	#--
 
@@ -596,7 +608,8 @@ class stzGraph
 			if CheckParams()
 
 				if isList(pcToNodeId) and
-				   StzListQ(pcToNodeId).IsToOrToNodeOrToNodesNamedParam()
+				   StzListQ(pcToNodeId).
+				   IsToOrToNodeOrToNodesOrAndOrAndNodeOrAndNodesNamedParam()
 					pcToNodeId = pcToNodeId[2]
 				ok
 
@@ -682,12 +695,7 @@ class stzGraph
 				pcFromNodeId = pcFromNodeId[2]
 			ok
 	
-			if isList(pcToNodeId)
-				This.AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
-				return
-			ok
-	
-			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsAndOrToOrToNodeNamedParam()
+			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToOrToNodeOrAndOrAndNodeNamedParam()
 				pcToNodeId = pcToNodeId[2]
 			ok
 	
@@ -696,9 +704,14 @@ class stzGraph
 			ok
 		ok
 	
+		if isList(pcToNodeId)
+			This.AddEdgesXTT(pcFromNodeId, paToNodesIdsAndLabelsAndProps)
+			return
+		ok
+
 		pcFromNodeId = lower(pcFromNodeId)
 		pcToNodeId = lower(pcToNodeId)
-	
+
 		# Validate nodes exist
 		if NOT This.NodeExists(pcFromNodeId) or NOT This.NodeExists(pcToNodeId)
 			stzraise("Cannot add edge: one or both nodes do not exist!")
@@ -836,8 +849,20 @@ class stzGraph
 	def Edges()
 		return @aEdges
 
-	def EdgeCount()
+	def EdgesCount()
 		return len(@aEdges)
+
+		def EdgeCount()
+			return len(@aEdges)
+
+		def HowManyEdges()
+			return len(@aEdges)
+
+		def HowManyEdge()
+			return len(@aEdges)
+
+		def NumberOfEdges()
+			return len(@aEdges)
 
 	def EdgeCountBetween(pcFromNodeId, pcToNodeId)
 
@@ -3424,13 +3449,14 @@ class stzGraph
 	    
 	    # Remove specific rule
 	    def RemoveRule(cRuleName)
+		cRuleName = UPPER(cRuleName)
 	        # Search all three lists
 	        @aConstraintRules = This._RemoveRuleFromList(@aConstraintRules, cRuleName)
 	        @aDerivationRules = This._RemoveRuleFromList(@aDerivationRules, cRuleName)
 	        @aValidationRules = This._RemoveRuleFromList(@aValidationRules, cRuleName)
 	    
 	    def _RemoveRuleFromList(aRules, cName)
-		cName = cName
+		cName = UPPER(cName)
 	        aNew = []
 	        for aRule in aRules
 	            if aRule[:name] != cName
@@ -3445,12 +3471,12 @@ class stzGraph
 			stzraise("Rule name must be a string!")
 		ok
 	
-		pcRuleName = lower(pcRuleName)
-	
+		pcRuleName = UPPER(pcRuleName)
+
 		# Check Constraint rules
 		nLen = len(@aConstraintRules)
 		for i = 1 to nLen
-			if lower(@aConstraintRules[i][:name]) = pcRuleName
+			if @aConstraintRules[i][:name] = pcRuleName
 				return TRUE
 			ok
 		next

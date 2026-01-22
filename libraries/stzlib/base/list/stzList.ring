@@ -83733,30 +83733,36 @@ fdef
 
 		def IsToOrToNodeOrToPositionNamedParam()
 			return This.IsToOrToPositionOrToNodeNamedParam()
-
-	def IsToOrToNodeOrAndNamedParam()
+	
+	def IsToOrToNodeOrAndOrAndNodeNamedParam()
 		if This.NumberOfItems() = 2 and
-		   ( isString(This.Item(1)) and ring_find([ "to", "tonode", "and" ], This.Item(1)) > 0 )
+		   ( isString(This.Item(1)) and ring_find([ "to", "tonode", "and", "andnode" ], This.Item(1)) > 0 )
 
 			return 1
 		else
 			return 0
 		ok
 
-		def IsAndOrToNodeOrToNamedParam()
-			return This.IsToOrToNodeOrAndNamedParam()
+		def IsAndOrAndNodeOrToOrToNodeNamedParam()
+			return This.IsToOrToNodeOrAndOrAndNodeNamedParam()
 
-		def IsToNodeOrAndOrToNamedParam()
-			return This.IsToOrToNodeOrAndNamedParam()
-
-		def IsAndOrToOrToNodeNamedParam()
-			return This.IsToOrToNodeOrAndNamedParam()
 
 	def IsToOrToNodeOrUntilReachFNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and ring_find([
 			"to", "tonode", "untilreachf", "untilyoureachf",
 			"untilyoureachf", "untilreachingf" ], This.Item(1)) > 0 )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsToOrToNodeOrToNodesOrAndOrAndNodeOrAndNodesNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([
+			"to", "tonode", "tonodes", "and",
+			"andnode", "andnodes" ], This.Item(1)) > 0 )
 
 			return 1
 		else
