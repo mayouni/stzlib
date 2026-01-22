@@ -1311,7 +1311,7 @@ pf()
 #============================================#
 
 /*--- Query by Pattern
-
+*/
 pr()
 
 oGraph = new stzGraph("QueryTest")

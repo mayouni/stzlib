@@ -131,7 +131,7 @@ func @Map(aList, cFunc)
 		if not isList( aList )
 			raise( "Incorrect param type! aList must be a list.")
 		ok
-		If not isFunction(cFunc)
+		If not @IsFunction(cFunc)
 			raise("Incorrect param type! cFunc must be a function.")
 		ok
 	ok
@@ -151,7 +151,7 @@ func @Filter(aList, cFunc)
 		if not isList( aList )
 			raise( "Incorrect param type! aList must be a list.")
 		ok
-		If not isFunction(cFunc)
+		If not @IsFunction(cFunc)
 			raise("Incorrect param type! cFunc must be a function.")
 		ok
 	ok
@@ -178,7 +178,7 @@ func @Reduce(aList, cFunc, xInitial)
 		if not isList( aList )
 			raise( "Incorrect param type! aList must be a list.")
 		ok
-		If not isFunction(cFunc)
+		If not @IsFunction(cFunc)
 			raise("Incorrect param type! cFunc must be a function.")
 		ok
 	ok
