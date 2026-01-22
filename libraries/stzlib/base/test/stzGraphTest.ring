@@ -2432,8 +2432,8 @@ oGraph {
 pf()
 # Executed in almost 0 second(s) in Ring 1.25
 
-/*--- Combining All Three Rule Types
-*/
+/*--- Combining All Three Rule Types #TODO Check result
+
 pr()
 
 # Real workflow: Constraint + Derivation + Validation working together
@@ -2510,7 +2510,7 @@ RegisterRule(:project, "full_coverage", [
 	:params = [],
 	:message = "Test coverage check",
 	:severity = :warning
-])
+ ])
 
 # Execution flow demonstration
 oGraph = new stzGraph("DevProject")
@@ -2601,7 +2601,7 @@ oGraph {
 
 	? EdgeCount()
 	#--> 3 (submit + approver + notify)
-	#ERR // but we got 2
+	#TODO #ERR // but we got 2
 	
 	? CheckConstraintRules([:from = "mary", :to = "report"])[1]
 	#--> TRUE (allowed)
