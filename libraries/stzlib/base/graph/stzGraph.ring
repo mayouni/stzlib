@@ -447,17 +447,26 @@ class stzGraph
 	 # Control flags
 	 def EnforceConstraints()
 	        @bEnforceConstraints = TRUE
-	        
+
 	 def DisableConstraints()
 	        @bEnforceConstraints = FALSE
-	        
+
+	def ConstraintsEnabled()
+		return @bEnforceConstraints
+
+	#--
+
 	 def EnableAutoDerive()
 	        @bAutoDerive = TRUE
-	        
+
 	 def DisableAutoDerive()
 	        @bAutoDerive = FALSE
-	    
-	    # Temporarily bypass rules
+
+	def AutoDeriveEnabled()
+		return @bAutoDerive
+
+	# Temporarily bypass rules
+
 	def WithoutConstraints(pFunc)
 		if NOT isFunction(pFunc)
 			stzraise("Parameter must be a function!")
@@ -479,27 +488,41 @@ class stzGraph
 		def BypassingConstraints(pFunc)
 			This.WithoutConstraints(pFunc)
 	    
+	#----------------------#
+	#  PRE-FLIGHT METHODS  #
+	#----------------------#
+
 	 # Pre-flight checks (non-mutating)
-	 def CanAddEdge(pcFromNodeId, pcToNodeId, pcLabel)
+	def CanAddEdge(pcFrom, pcTo, pcLabel)
 		if CheckParams()
-			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromOrFromNodeNamedParam()
-				pcFromNodeId = pcFromNodeId[2]
+			if isList(pcFrom) and StzListQ(pcFrom).IsFromOrFromNodeNamedParam()
+				pcFrom = pcFrom[2]
 			ok
-			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToOrToNodeNamedParam()
-				pcToNodeId = pcToNodeId[2]
+			if isList(pcTo) and StzListQ(pcTo).IsToOrToNodeNamedParam()
+				pcTo = pcTo[2]
 			ok
 			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
 				pcLabel = pcLabel[2]
 			ok
 		ok
-
-	        aCheck = This.CheckConstraintRules([
-	            :from = pcFromNodeId,
-	            :to = pcToNodeId,
-	            :label = pcLabel
-	        ])
-
-	        return aCheck[1]  # TRUE if allowed
+	
+		# Basic checks
+		if NOT This.NodeExists(pcFrom) or NOT This.NodeExists(pcTo)
+			return FALSE
+		ok
+	
+		if This.EdgeExists(pcFrom, pcTo)
+			return FALSE
+		ok
+	
+		# Constraint checks
+		aCheck = This.CheckConstraintRules([
+			:from = pcFrom,
+			:to = pcTo,
+			:label = pcLabel
+		])
+	
+		return aCheck[1]
 	        
 	def WhyCannotAddEdge(pcFromNodeId, pcToNodeId, pcLabel)
 		if CheckParams()
@@ -3226,12 +3249,18 @@ class stzGraph
 		ok
 
 	def ApplyDerivationRules()
-		nAdded = 0
-		nLen = len(@aDerivationRules)  # Changed
+		This.ApplyDerivationRulesXT()
+
+	def ApplyDerivationRulesXT()
+		# Temporarily disable constraints during derivation
+		bOldState = @bEnforceConstraints
+		@bEnforceConstraints = FALSE  # Bypass constraints during derivation
+		
+		aEdgesAdded = []
+		nLen = len(@aDerivationRules)
 		
 		for i = 1 to nLen
-			aRule = @aDerivationRules[i]  # Changed
-			
+			aRule = @aDerivationRules[i]
 			pFunc = aRule[:function]
 			paParams = aRule[:params]
 			aNewEdges = call pFunc(This, paParams)
@@ -3239,21 +3268,23 @@ class stzGraph
 			nEdgesLen = len(aNewEdges)
 			for j = 1 to nEdgesLen
 				aEdge = aNewEdges[j]
-				cFrom = aEdge[1]
-				cTo = aEdge[2]
-				cLabel = aEdge[3]
-				aProps = aEdge[4]
-				
-				if NOT This.EdgeExists(cFrom, cTo)
-					This.AddEdgeXTT(cFrom, cTo, cLabel, aProps)
-					nAdded++
-					This._TrackRuleApplication(aRule[:name], :edge, cFrom + "->" + cTo)
+				if NOT This.EdgeExists(aEdge[1], aEdge[2])
+					This.AddEdgeXTT(aEdge[1], aEdge[2], aEdge[3], aEdge[4])
+					aEdgesAdded + aEdge
+					This._TrackRuleApplication(aRule[:name], :edge, aEdge[1] + "->" + aEdge[2])
 				ok
 			next
 		next
 		
-		return nAdded
+		@bEnforceConstraints = bOldState
+		
+		aResult = [
+			:edgesAdded = aEdgesAdded,
+			:rulesApplied = @aDerivationRules
+		]
 	
+		return aResult
+
 	def CheckConstraintRules(paOperationParams)  # Was: CheckConstraints
 		aViolations = []
 		nLen = len(@aConstraintRules)  # Changed
@@ -3280,7 +3311,28 @@ class stzGraph
 		
 		bSuccess = (len(aViolations) = 0)
 		return [bSuccess, aViolations]
-	
+
+	def RulesApplied()
+		acResult = []
+		
+		for aAffected in @aAffectedNodes
+			for cRule in aAffected[2]
+				if ring_find(acResult, cRule) = 0
+					acResult + cRule
+				ok
+			next
+		next
+		
+		for aAffected in @aAffectedEdges
+			for cRule in aAffected[2]
+				if ring_find(acResult, cRule) = 0
+					acResult + cRule
+				ok
+			next
+		next
+		
+		return acResult
+
 	def RulesSummary()
 		aSummary = [
 			:Constraint = [],
@@ -3482,7 +3534,7 @@ class stzGraph
 			
 			return [
 				:status = "fail",
-				:domain = cValidator,
+				:ruleGroup = cValidator,
 				:issueCount = len(aViolations),
 				:issues = acIssues,
 				:affectedNodes = acAffected
@@ -3495,7 +3547,7 @@ class stzGraph
 		
 		return [
 			:status = "pass",
-			:domain = cValidator,
+			:ruleGroup = cValidator,
 			:issueCount = 0,
 			:issues = [],
 			:affectedNodes = []
@@ -4505,7 +4557,7 @@ class stzGraph
 	
 	def ExportToStzRulz()
 		cOutput = 'ruleset "' + @cId + ' Rules"' + NL
-		cOutput += '    domain: ' + @cGraphType + NL
+		cOutput += '    ruleGroup: ' + @cGraphType + NL
 		cOutput += '    version: 1.0' + NL + NL
 		
 		cOutput += "rules" + NL + NL

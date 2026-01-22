@@ -28,6 +28,12 @@ func GraphRules()
 	return $aGraphRules
 
 func RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
+	if CheckParams()
+		if isList(pcRuleGroup) and StzListQ(pcRuleGroup).IsInGroupNamedParam()
+			pcRuleGroup = pcRuleGroup[2]
+		ok
+	ok
+
 	if NOT HasKey($aGraphRules, pcRuleGroup)
 		$aGraphRules[pcRuleGroup] = []
 	ok
@@ -42,6 +48,9 @@ func RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 	]
 	
 	$aGraphRules[pcRuleGroup] + aRule
+
+	func RegisterRuleInGroup(pcRuleGroup, pcRuleName, paRuleDefinition)
+		RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 
 func GetRule(pcRuleGroup, pcRuleName)
 	if HasKey($aGraphRules, pcRuleGroup)

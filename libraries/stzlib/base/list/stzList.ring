@@ -93505,6 +93505,37 @@ fdef
 		def IsWithNodeOrWithOrWithPsoitionNamedPAram()
 			return This.IsWithOrwithPositionOrwithNodeNamedParam()
 
+	def IsInGroupNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = "ingroup" )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsInRuleGroupNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and This.Item(1) = "inrulegroup" )
+
+			return 1
+		else
+			return 0
+		ok
+
+	def IsInGroupOrInRuleGroupNamedParam()
+		if This.NumberOfItems() = 2 and
+		   ( isString(This.Item(1)) and ring_find([ "ingroup", "inrulegroup" ], This.Item(1)) > 0 )
+
+
+			return 1
+		else
+			return 0
+		ok
+
+		def IsInRuleGroupOrInGroupNamedParam()
+			return This.IsInGroupOrInRuleGroupNamedParam()
+
 #WARNING #TODO: All the Is...NamedParam() functions will be moved
 # to the dedicated stzNamedParams.ring file.
 
