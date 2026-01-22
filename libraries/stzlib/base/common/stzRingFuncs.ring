@@ -1,5 +1,12 @@
 # Additional functions to stkRingFuncs.ring in CORE layer
 
+func @IsFunction(p)
+	if isList(p) or isNumber(p) or isString(p) or isObject(p)
+		return 0
+	ok
+
+	return isFunction(p) # Ring function
+
 func ceiling(n)
 	return ceil(n)
 

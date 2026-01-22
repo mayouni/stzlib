@@ -162,7 +162,7 @@ class stzGraphPlanner
 				pcTo = pcTo[2]
 			ok
 	
-			if isFunction(pcTo)
+			if @IsFunction(pcTo)
 				This.FromXT(pcPlanName, pcFrom)
 				This.ToReachXTF(pcPlanName, pcTo)
 				return
@@ -205,7 +205,7 @@ class stzGraphPlanner
 			This.To(pcTo)
 
 	def ToXT(pcPlanName, pcTo)
-		if isFunction(pcTo)
+		if @IsFunction(pcTo)
 			This.ToReachFXT(pcPlanName, pcTo)
 			return
 		ok
@@ -236,7 +236,7 @@ class stzGraphPlanner
 
 	def ToFXT(pcPlanName, pGoalFunc)
 		if CheckParams()
-			if NOT isFunction(pGoalFunc)
+			if NOT @IsFunction(pGoalFunc)
 				StzRaise("Incorrect param type! pGoalFunc must be a function.")
 			ok
 		ok

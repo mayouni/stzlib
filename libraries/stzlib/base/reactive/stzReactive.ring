@@ -166,9 +166,9 @@ class stzReactiveSystem
 
 	def Reactivate(p)
 		# Wraps a function or object in a reactive context.
-		if isNull(p) or isObject(p)
+		if IsNull(p) or isObject(p)
 			return new stzReactiveObject(p, self)
-		but isFunction(p)
+		but @IsFunction(p)
 			return ReactivateFunction(p)
 		else
 			raise("Parameter must be either a function name (string) or an object or a null.")
