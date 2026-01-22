@@ -2146,7 +2146,7 @@ pf()
 pr()
 
 # Register: No one approves their own work
-RegisterRule(:WORKFLOW_RG, "NO_SELF_APPROVAL", [
+RegisterRuleInGroup(:WORKFLOW_RULES_GROUP, "NO_SELF_APPROVAL", [
 	:type = :Constraint,
 	:function = func(oGraph, paRuleParams, paOp) {
 		if HasKey(paOp, :from) and HasKey(paOp, :to) and HasKey(paOp, :label)
@@ -2165,7 +2165,7 @@ oGraph = new stzGraph("MyWorkflow")
 oGraph {
 	AddNode("john")
 	AddNode("mary")
-	UseRulesFrom(:workflow)
+	UseRulesFrom(:WORKFLOW_RULES_GROUP)
 	
 	# Valid: John approves Mary
 	try
@@ -2193,7 +2193,7 @@ pf()
 
 pr()
 
-RegisterRule(:DAG, "NO_CYCLES", [
+RegisterRuleInGroup(:DAG, "NO_CYCLES", [
 	:type = :Constraint,
 	:function = func(oGraph, paRuleParams, paOp) {
 		if HasKey(paOp, :from) and HasKey(paOp, :to)
@@ -2214,7 +2214,7 @@ oGraph {
 	AddNode("a")
 	AddNode("b")
 	AddNode("c")
-	UseRulesFrom(:dag)
+	UseRulesFrom(:DAG_RULES_GROUP)
 	
 	# Build chain: a→b→c
 	ConnectInSequence(["a", "b", "c"])
@@ -2245,7 +2245,7 @@ pf()
 
 /*--- DERIVATION: Manager Access Rights
 
-RegisterRule(:ACCESS_RG, "MANAGER_SEES_REPORTS", [
+RegisterRuleInGroup(:ACCESS_RULES_GROUP, "MANAGER_SEES_REPORTS", [
 	:type = :Derivation,
 	:function = func(oGraph, paRuleParams) {
 		aNewEdges = []
@@ -2285,7 +2285,7 @@ oGraph {
 
 	# Let's do the validation
 
-	UseRulesFrom(:access)
+	UseRulesFrom(:ACCESS_RULES_GROUP)
 	? @@NL( ApplyDerivationRulesXT() ) + NL
 }
 #--> [
@@ -2322,7 +2322,7 @@ pf()
 
 pr()
 
-RegisterRuleInGroup(:PROJECT_RG, "TASKS_HAVE_NO_WONERS", [
+RegisterRuleInGroup(:PROJECT_RULES_GROUP, "TASKS_HAVE_NO_WONERS", [
 	:type = :Validation,
 	:function = func(oGraph, paRuleParams) {
 		aNodes = oGraph.Nodes()
@@ -2347,7 +2347,7 @@ oGraph {
 	
 	# Before assigning owner: Orphan exists
 
-	? @@NL( ValidateXT(:project) ) + NL
+	? @@NL( ValidateXT(:PROJECT_RULES_GROUP) ) + NL
 	#--> [
 	# 	[ "status", "fail" ],
 	# 	[ "rulegroup", "project" ],
@@ -2362,45 +2362,86 @@ oGraph {
 	# Assign owner
 
 	AddEdgeXT(:alice, :task1, "owns")
-	? ValidateXT(:project)[:status]
+	? ValidateXT(:PROJECT_RULES_GROUP)[:status]
 	#--> "pass"
 }
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.25
 
-
 /*--- RULE MANAGEMENT & Introspection
-*/
+
 pr()
+
+RegisterRuleInGroup(:DAG_RULES_GROUP, "NO_CYCLES", [
+	:type = :Constraint,
+	:function = func(oGraph, paRuleParams, paOp) {
+		if HasKey(paOp, :from) and HasKey(paOp, :to)
+			# Would create cycle if path exists in reverse
+			if oGraph.PathExists(paOp[:to], paOp[:from])
+				return [TRUE, "Would create a cycle"]
+			ok
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Cycles not allowed",
+	:severity = :error
+])
+
+RegisterRuleInGroup(:WORKFLOW_RULES_GROUP, "NO_SELF_APPROVAL", [
+	:type = :Constraint,
+	:function = func(oGraph, paRuleParams, paOp) {
+		if HasKey(paOp, :from) and HasKey(paOp, :to) and HasKey(paOp, :label)
+			if paOp[:from] = paOp[:to] and paOp[:label] = "approves"
+				return [TRUE, "Cannot approve your own work"]  # BLOCKED
+			ok
+		ok
+		return [FALSE, ""]  # ALLOWED
+	},
+	:params = [],
+	:message = "Self-approval blocked",
+	:severity = :error
+])
 
 oGraph = new stzGraph("Test")
 oGraph {
-	? "Initial: " + len(ActiveRules()) + " rules"
+
+	# Initial: no active rules
+	? len(ActiveRules())
+	#--> 0
 	
-	UseRulesFrom(:dag)
-	UseRulesFrom(:workflow)
-	
-	? "After loading: " + len(ActiveRules()) + " rules"
-	for aRule in ActiveRules()
-		? "  [" + aRule[1] + "] " + aRule[2]
-	next
-	
-	? "Has 'no_cycles'? " + HasRule("no_cycles")
-	
-	RemoveRule("no_cycles")
-	? "After removal: " + HasRule("no_cycles")
-	
+	UseRulesFrom(:DAG_RULES_GROUP)
+	UseRulesFrom(:WORKFLOW_RULES_GROUP)
+
+	# After loading the rules
+	? @@NL( ActiveRules() )
+	#--> [
+	# 	[ "constraint", "NO_CYCLES" ],
+	# 	[ "constraint", "NO_SELF_APPROVAL" ]
+	# ]
+
+	? HasRule("no_cycles")
+	#--> TRUE
+
+	RemoveRule("NO_CYCLES") #TODO // Won't work if lowercase!
+	? HasRule("no_cycles")
+	#--> FALSE
+
 	ClearRules()
-	? "After clear: " + len(ActiveRules()) + " rules"
+	? len(ActiveRules())
+	#--> 0
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- COMPLETE: Dev Project Workflow
 
+pr()
+
 # Constraint: Block invalid dependencies
-RegisterRule(:dev, "no_reverse_deps", [
+RegisterRuleInGroup(:DEV_RULES_GROUP, "NO_REVERSE_DEPS", [
 	:type = :Constraint,
 	:function = func(oGraph, paRuleParams, paOp) {
 		if HasKey(paOp, :from) and HasKey(paOp, :to)
@@ -2419,7 +2460,7 @@ RegisterRule(:dev, "no_reverse_deps", [
 ])
 
 # Derivation: Auto-create test nodes
-RegisterRule(:dev, "auto_tests", [
+RegisterRuleInGroup(:DEV_RULES_GROUP, "AUTO_TESTS", [
 	:type = :Derivation,
 	:function = func(oGraph, paRuleParams) {
 		aNewEdges = []
@@ -2444,7 +2485,7 @@ RegisterRule(:dev, "auto_tests", [
 ])
 
 # Validation: Check coverage
-RegisterRule(:dev, "full_coverage", [
+RegisterRuleInGroup(:DEV_RULES_GROUP, "FULL_COVERAGE", [
 	:type = :Validation,
 	:function = func(oGraph, paRuleParams) {
 		aNodes = oGraph.Nodes()
@@ -2470,21 +2511,47 @@ RegisterRule(:dev, "full_coverage", [
 	:severity = :warning
 ])
 
-oGraph = new stzGraph("DevProject")
+oGraph = new stzGraph("MyDevProject")
 oGraph {
-	AddNodeXTT("login", "Login", [:type = "feature"])
-	AddNodeXTT("profile", "Profile", [:type = "feature"])
+	AddNodeXTT(:@login, "Login", [ :type = "feature" ])
+	AddNodeXTT(:@profile, "Profile", [ :type = "feature" ])
 	
-	? "Initial nodes: " + NodeCount()
+	# Initial nodes
+	#--------------
+
+	? NodeCount()
+	#--> 2
+
+	UseRulesFrom(:DEV_RULES_GROUP)
+	aResult = ApplyDerivationRulesXT()
 	
-	UseRulesFrom(:dev)
-	aResult = ApplyDerivationRules()
-	
-	? "After derivation: " + NodeCount() + " nodes"
-	? "  Tests added: " + aResult[:edgesAdded]
-	
-	? "Validation: " + ValidateXT(:dev)[:status]
-	
+	# After derivation
+	#-----------------
+
+	? NodeCount()
+	#--> 4
+
+	# Tests added
+	? @@NL( aResult[:edgesAdded] )
+	#--> [
+	# 	[
+	# 		"@login",
+	# 		"@login_test",
+	# 		"requires",
+	# 		[  ]
+	# 	],
+	# 	[
+	# 		"@profile",
+	# 		"@profile_test",
+	# 		"requires",
+	# 		[  ]
+	# 	]
+	# ]
+
+	# Validation
+	? ValidateXT(:dev)[:status]
+	#--> pass
+
 	# Try invalid dependency
 	try
 		Connect("login", "profile_test")
@@ -2492,14 +2559,17 @@ oGraph {
 	catch
 		? "✓ Invalid dependency blocked"
 	done
+	#--> ✓ Invalid dependency blocked
 }
+
 pf()
+# Executed in 0.01 second(s) in Ring 1.25
 
 /*--- BUILT-IN: Transitivity Derivation
 
 pr()
 
-RegisterRule(:access2, "transitive", [
+RegisterRuleInGroup(:ACCESS_RULES_GROUP, "TRANSITIVE", [
 	:type = :Derivation,
 	:function = DerivationFunc_Transitivity(),
 	:params = [],
@@ -2507,7 +2577,7 @@ RegisterRule(:access2, "transitive", [
 	:severity = :info
 ])
 
-oGraph = new stzGraph("Access")
+oGraph = new stzGraph("MyAccessSystem")
 oGraph {
 	AddNode("alice")
 	AddNode("folder")
@@ -2516,48 +2586,64 @@ oGraph {
 	Connect("alice", "folder")
 	Connect("folder", "file")
 	
-	? "Before: alice → file? " + EdgeExists("alice", "file")
-	
-	UseRulesFrom(:access2)
+	# Before: alice → file?
+	? EdgeExists("alice", "file")
+	#--> FALSE
+
+	UseRulesFrom(:ACCESS_RULES_GROUP)
 	ApplyDerivationRules()
 	
-	? "After: alice → file? " + EdgeExists("alice", "file")
+	# After: alice → file?
+	? EdgeExists("alice", "file")
+	#--> TRUE
 }
-pf()
 
+pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- VALIDATION: History Tracking
-
+*/
 pr()
 
-oGraph = new stzGraph("History")
+RegisterRuleInGroup(:DAG_RULES_GROUP, "NO_CYCLES", [
+	:type = :Constraint,
+	:function = func(oGraph, paRuleParams, paOp) {
+		if HasKey(paOp, :from) and HasKey(paOp, :to)
+			# Would create cycle if path exists in reverse
+			if oGraph.PathExists(paOp[:to], paOp[:from])
+				return [TRUE, "Would create a cycle"]
+			ok
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Cycles not allowed",
+	:severity = :error
+])
+
+oGraph = new stzGraph("MyHistory")
 oGraph {
 	AddNode("a")
 	AddNode("b")
 	Connect("a", "b")
 	
-	? "First validation:"
-	? "  Status: " + ValidateXT(:dag)[:status]
-	
-	aSummary = LastValidation()
-	? "  Passed? " + aSummary[:passed]
-	? "  Rules checked: " + len(aSummary[:rules_applied])
+	# First validation
+	? ValidateXT(:DAG_RULES_GROUP)[:status]
+	#--> pass
 	
 	# Note: Adding cycle now would be blocked by constraint
 	# so we disable constraints temporarily for demo
+
 	DisableConstraints()
 	Connect("b", "a")
 	EnableConstraints()
 	
-	? "After creating cycle (constraint bypassed):"
-	? "  Status: " + ValidateXT(:dag)[:status]
-	
-	if len(Violations()) > 0
-		? "  Violations:"
-		for aV in Violations()
-			? "    - " + aV[:message]
-		next
-	ok
+	# After creating cycle (constraint bypassed)
+	? ValidateXT(:DAG_RULES_GROUP)[:status]
+	#--> pass
+
+	? @@NL( Violations() )
+	#--> []
 }
 
 pf()
@@ -5573,7 +5659,7 @@ func CustomFunc_BalancedTeams()
 	}
 
 # Register these as built-in style functions
-RegisterRule(:banking, "manager_approval_rights", [
+RegisterRuleInGroup(:banking, "manager_approval_rights", [
 	:type = :derivation,
 	:function = CustomFunc_ManagerApproval(),
 	:params = [],
@@ -5581,7 +5667,7 @@ RegisterRule(:banking, "manager_approval_rights", [
 	:severity = :info
 ])
 
-RegisterRule(:banking, "no_backdating", [
+RegisterRuleInGroup(:banking, "no_backdating", [
 	:type = :constraint,
 	:function = CustomFunc_NoBackdating(),
 	:params = [],
@@ -5589,7 +5675,7 @@ RegisterRule(:banking, "no_backdating", [
 	:severity = :error
 ])
 
-RegisterRule(:hr, "balanced_teams", [
+RegisterRuleInGroup(:hr, "balanced_teams", [
 	:type = :validation,
 	:function = CustomFunc_BalancedTeams(),
 	:params = [:minSize = 3, :maxSize = 8],
