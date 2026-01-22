@@ -39,7 +39,7 @@ func RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 	ok
 	
 	aRule = [
-		:name = pcRuleName,
+		:name = UPPER(pcRuleName),
 		:type = paRuleDefinition[:type],
 		:function = paRuleDefinition[:function],
 		:params = paRuleDefinition[:params],
@@ -53,6 +53,7 @@ func RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 		RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 
 func GetRule(pcRuleGroup, pcRuleName)
+	pcRuleName = UPPER(pcRuleName)
 	if HasKey($aGraphRules, pcRuleGroup)
 		aRules = $aGraphRules[pcRuleGroup]
 		nLen = len(aRules)
