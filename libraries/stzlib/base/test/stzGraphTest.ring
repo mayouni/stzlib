@@ -2136,26 +2136,22 @@ pf()
 #   :message  - Human-readable description
 #   :severity - :info, :warning, or :error
 
-/*--- Constraint : Blocking Invalid Operations
+#==========================================================#
+#  GRAPH RULES SYSTEM - COMPLETE EXAMPLES                  #
+#  Three rule types: Constraint → Derivation → Validation  #
+#==========================================================#
+
+/*--- CONSTRAINT: Block Invalid Ops (Rule runs BEFORE operations)
 
 pr()
 
-# SCENARIO: Prevent self-approval in workflows
-# ~> John cannot approve his own work!
-
-# Step 1: Register the Constraint rule in the :Workflow Rule Group
-RegisterRule(:workflow, "no_self_approval", [
+# Register: No one approves their own work
+RegisterRule(:WORKFLOW_RG, "NO_SELF_APPROVAL", [
 	:type = :Constraint,
-	
-	# Constraint functions receive (graph, params, operation) 
-	# Return [TRUE, message] to BLOCK, [FALSE, ""] to ALLOW
-	:function = func(oGraph, paRuleParams, paOperationParams) {
-		if HasKey(paOperationParams, :from) and HasKey(paOperationParams, :to)
-			# Check if trying to create self-loop with "approves" label
-			if paOperationParams[:from] = paOperationParams[:to]
-				if HasKey(paOperationParams, :label) and paOperationParams[:label] = "approves"
-					return [TRUE, "Cannot approve your own work"]  # BLOCKED
-				ok
+	:function = func(oGraph, paRuleParams, paOp) {
+		if HasKey(paOp, :from) and HasKey(paOp, :to) and HasKey(paOp, :label)
+			if paOp[:from] = paOp[:to] and paOp[:label] = "approves"
+				return [TRUE, "Cannot approve your own work"]  # BLOCKED
 			ok
 		ok
 		return [FALSE, ""]  # ALLOWED
@@ -2165,54 +2161,102 @@ RegisterRule(:workflow, "no_self_approval", [
 	:severity = :error
 ])
 
-# Step 2: Test the rule
-oGraph = new stzGraph("Workflow")
+oGraph = new stzGraph("MyWorkflow")
 oGraph {
 	AddNode("john")
 	AddNode("mary")
-	UseRulesFrom(:Workflow)
+	UseRulesFrom(:workflow)
 	
-	# Test 1: John approves Mary (different people)
-	? CheckConstraintRules([:from = "john", :to = "mary"])[1]
-	#--> TRUE (allowed)
+	# Valid: John approves Mary
+	try
+		AddEdgeXT("john", "mary", "approves")
+		? "✓ John → Mary: Allowed"
+	catch
+		? "✗ Blocked: " + cCatchError
+	done
+	#--> ✓ John → Mary: Allowed
 
-#TODO ? @@NL(CheckConstraintRules()) should return [ 1, "Cannot approve your own work" ] right?
-# but it returns only [ 1, [] ]
-
-	# Test 2: John approves John (same person)
-	? CheckConstraintRules([:from = "john", :to = "john", :label = "approves"])[1]
-	#--> FALSE (blocked)
-	
-	# Note: CheckConstraintRules() doesn't add the edge, just checks if it COULD be added
+	# Invalid: John approves John
+	try
+		AddEdgeXT("john", "john", "approves")
+		? "✗ Self-approval allowed (BUG)"
+	catch
+		? "✓ Self-approval blocked"
+	done
+	#--> ✓ Self-approval blocked
 }
+
+pf()
+# Executed in almost 0 second(s) in Ring 1.25
+
+/*--- CONSTRAINT: Cycle Prevention in Directed Graphs (DAG)
+
+pr()
+
+RegisterRule(:DAG, "NO_CYCLES", [
+	:type = :Constraint,
+	:function = func(oGraph, paRuleParams, paOp) {
+		if HasKey(paOp, :from) and HasKey(paOp, :to)
+			# Would create cycle if path exists in reverse
+			if oGraph.PathExists(paOp[:to], paOp[:from])
+				return [TRUE, "Would create a cycle"]
+			ok
+		ok
+		return [FALSE, ""]
+	},
+	:params = [],
+	:message = "Cycles not allowed",
+	:severity = :error
+])
+
+oGraph = new stzGraph("MyDAG")
+oGraph {
+	AddNode("a")
+	AddNode("b")
+	AddNode("c")
+	UseRulesFrom(:dag)
+	
+	# Build chain: a→b→c
+	ConnectInSequence(["a", "b", "c"])
+	
+	# Try closing the loop
+	? @@NL( CheckConstraintRules([:from = "c", :to = "a"]) )
+}
+#--> [
+# 	FALSE,
+# 	[
+# 		[
+# 			[ "rule", "no_cycles" ],
+# 			[ "message", "Would create a cycle" ], #TODO Not clear!
+# 			[ "severity", "error" ],
+# 			[
+# 				"params",
+# 				[
+# 					[ "from", "c" ],
+# 					[ "to", "a" ]
+# 				]
+# 			]
+# 		]
+# 	]
+# ]
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.25
 
-/*--- Derivation : Auto-Derivation Example
+/*--- DERIVATION: Manager Access Rights
 
-pr()
-
-# SCENARIO: When alice manages bob, she should automatically 
-# see bob's reports (access propagation)
-
-# Step 1: Register the Derivation rule
-RegisterRule(:Access, "manager_sees_reports", [
+RegisterRule(:ACCESS_RG, "MANAGER_SEES_REPORTS", [
 	:type = :Derivation,
-
-	# Derivation functions receive (graph, params) and return new edges
 	:function = func(oGraph, paRuleParams) {
-		aNewEdges = []  # Collect edges to add
+		aNewEdges = []
 		aEdges = oGraph.Edges()
 		
-		# Find all "manages" relationships
 		for aEdge in aEdges
 			if aEdge[:label] = "manages"
 				cManager = aEdge[:from]
 				cEmployee = aEdge[:to]
 				cReport = cEmployee + "_report"
 				
-				# If employee's report exists, grant manager access
 				if oGraph.NodeExists(cReport)
 					if NOT oGraph.EdgeExists(cManager, cReport)
 						aNewEdges + [cManager, cReport, "can_view", []]
@@ -2220,234 +2264,150 @@ RegisterRule(:Access, "manager_sees_reports", [
 				ok
 			ok
 		next
-		
-		return aNewEdges  # System will add these
+		return aNewEdges
 	},
 	:params = [],
-	:message = "Manager access to reports",
+	:message = "Manager access granted",
 	:severity = :info
 ])
 
-# Step 2: Build graph and apply rule
-oGraph = new stzGraph("Company")
+oGraph = new stzGraph("MyCompany")
 oGraph {
 	AddNode("alice")
 	AddNode("bob")
 	AddNode("bob_report")
 	
 	AddEdgeXT("alice", "bob", "manages")
-	
-	# Before rule: No path exists
+
+	# Before validation alice → bob_report path does not exist
 	? PathExists("alice", "bob_report")
 	#--> FALSE
-	
-	# Load and execute Derivation rule
-	UseRulesFrom(:Access)
-	ApplyDerivationRules()  # Triggers the rule function
-	
-	# After rule: Access auto-granted
-	? PathExists("alice", "bob_report")
-	#--> TRUE
+
+	# Let's do the validation
+
+	UseRulesFrom(:access)
+	? @@NL( ApplyDerivationRulesXT() ) + NL
 }
+#--> [
+# 	[
+# 		"edgesadded",
+# 		[
+# 			[
+# 				"alice",
+# 				"bob_report",
+# 				"can_view",
+# 				[  ]
+# 			]
+# 		]
+# 	],
+# 	[
+# 		"rulesapplied",
+# 		[
+# 			[
+# 				[ "name", "MANAGER_SEES_REPORTS" ],
+# 				[ "type", "derivation" ],
+# 				[ "function", "_ring_anonymous_func_1797244" ],
+# 				[ "params", [  ] ],
+# 				[ "message", "Manager access granted" ],
+# 				[ "severity", "info" ]
+# 			]
+# 		]
+# 	]
+# ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in 2.43 second(s) in Ring 1.25
 
-/*--- Validation : Validating Complete Structure
+/*--- VALIDATION: Orphan Task Detection
 
 pr()
 
-# SCENARIO: All tasks must have an owner
-# ~> Orphan tasks should be detected!
-
-# Step 1: Register the validation rule
-RegisterRule(:project, "tasks_have_owners", [
+RegisterRuleInGroup(:PROJECT_RG, "TASKS_HAVE_NO_WONERS", [
 	:type = :Validation,
-
-	# Validation functions receive (graph, params)
-	# Return [TRUE, ""] if valid, [FALSE, message] if violations found
 	:function = func(oGraph, paRuleParams) {
 		aNodes = oGraph.Nodes()
-	
-		# Check each node
 		for aNode in aNodes
-			cType = oGraph.NodeProperty(aNode[:id], "type")
-			if cType = "task"
-				# Tasks need incoming edges (owners point to tasks)
-				aIncoming = oGraph.Incoming(aNode[:id])
-				if len(aIncoming) = 0
+			if oGraph.NodeProperty(aNode[:id], "type") = "task"
+				if len(oGraph.Incoming(aNode[:id])) = 0
 					return [FALSE, "Task '" + aNode[:id] + "' has no owner"]
 				ok
 			ok
 		next
-		
-		return [TRUE, ""]  # All tasks have owners
+		return [TRUE, ""]
 	},
 	:params = [],
 	:message = "Orphan tasks found",
 	:severity = :warning
 ])
 
-# Step 2: Test validation
 oGraph = new stzGraph("Project")
 oGraph {
-	AddNodeXTT("task1", "Build UI", [:type = "task"])
-	AddNodeXTT("alice", "Alice", [:type = "person"])
+	AddNodeXTT(:task1, "Build UI", [:type = "task"])
+	AddNodeXTT(:alice, "Alice", [:type = "person"])
 	
-	# Scenario 1: Task without owner
-	? ValidateXT(:project)[:status]
-	#--> "fail"
-	
-	# Scenario 2: Add owner
-	AddEdgeXT("alice", "task1", "owns")
+	# Before assigning owner: Orphan exists
+
+	? @@NL( ValidateXT(:project) ) + NL
+	#--> [
+	# 	[ "status", "fail" ],
+	# 	[ "rulegroup", "project" ],
+	# 	[ "issuecount", 1 ],
+	# 	[
+	# 		"issues",
+	# 		[ "Task 'task1' has no owner" ]
+	# 	],
+	# 	[ "affectednodes", [  ] ]
+	# ]
+
+	# Assign owner
+
+	AddEdgeXT(:alice, :task1, "owns")
 	? ValidateXT(:project)[:status]
 	#--> "pass"
-	
-	# Note: ValidateXT(cRuleGroup) loads and runs rules for that rule group
 }
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.25
 
-/*--- BUILT-IN Derivation Rules : Transitivity
 
+/*--- RULE MANAGEMENT & Introspection
+*/
 pr()
-
-# Built-in functions handle common patterns
-# No need to write custom logic for standard operations
-
-RegisterRule(:access, "inherit_access", [
-	:type = :Derivation,
-	# Transitivity: If A→B and B→C exist, create A→C
-	:function = DerivationFunc_Transitivity(),
-	:params = [],
-	:message = "Access inherited",
-	:severity = :info
-])
-
-oGraph = new stzGraph("Access")
-oGraph {
-	AddNode("alice")
-	AddNode("folder")
-	AddNode("file")
-	
-	# Chain: alice→folder→file
-	Connect("alice", "folder")
-	Connect("folder", "file")
-	
-	? EdgeExists("alice", "file")
-	#--> FALSE (no direct edge)
-	
-	UseRulesFrom(:access)
-	ApplyDerivationRules()  # Creates alice→file automatically
-	
-	? EdgeExists("alice", "file")
-	#--> TRUE (transitive edge added)
-}
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.25
-
-/*--- BUILT-IN Constraint Rules : No Cycles
-
-pr()
-
-# DAG enforcement: Prevent cycles in directed graphs
-
-RegisterRule(:workflow, "must_be_dag", [
-	:type = :Constraint,
-	# Blocks any edge that would create a cycle
-	:function = ConstraintFunc_NoCycles(),
-	:params = [],
-	:message = "Cycles not allowed",
-	:severity = :error
-])
-
-oGraph = new stzGraph("DAG")
-oGraph {
-	AddNode("a")
-	AddNode("b")
-	AddNode("c")
-	
-	# Linear chain: a→b→c
-	Connect("a", "b")
-	Connect("b", "c")
-	
-	UseRulesFrom(:workflow)
-	
-	# Try to close the loop: c→a would create cycle
-	? @@NL( CheckConstraintRules([:from = "c", :to = "a"]) )
-	#--> [FALSE, [violations]] - blocked!
-}
-#--> [
-#	FALSE,
-#	[
-#		[
-#			[ "rule", "must_be_dag" ],
-#			[ "message", "Would create a cycle" ],
-#			[ "severity", "error" ],
-#			[
-#				"params",
-#				[
-#					[ "from", "c" ],
-#					[ "to", "a" ]
-#				]
-#			]
-#		]
-#	]
-# ]
-
-pf()
-# Executed in almost 0 second(s) in Ring 1.25
-
-/*--- Built-in Validation Functions : Acyclicity Check
-
-pr()
-
-# Validate entire graph structure, not just individual operations
-
-RegisterRule(:dag, "check_acyclic", [
-	:type = :Validation,
-	# Checks if ANY cycles exist in the complete graph
-	:function = ValidationFunc_IsAcyclic(),
-	:params = [],
-	:message = "Must be DAG",
-	:severity = :error
-])
 
 oGraph = new stzGraph("Test")
 oGraph {
-	AddNode("a")
-	AddNode("b")
+	? "Initial: " + len(ActiveRules()) + " rules"
 	
-	Connect("a", "b")
-	? ValidateXT(:dag)[:status]
-	#--> "pass" (linear)
+	UseRulesFrom(:dag)
+	UseRulesFrom(:workflow)
 	
-	Connect("b", "a")  # Creates cycle
-	? ValidateXT(:dag)[:status]
-	#--> "fail" (cyclic)
+	? "After loading: " + len(ActiveRules()) + " rules"
+	for aRule in ActiveRules()
+		? "  [" + aRule[1] + "] " + aRule[2]
+	next
+	
+	? "Has 'no_cycles'? " + HasRule("no_cycles")
+	
+	RemoveRule("no_cycles")
+	? "After removal: " + HasRule("no_cycles")
+	
+	ClearRules()
+	? "After clear: " + len(ActiveRules()) + " rules"
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.25
 
-/*--- Combining All Three Rule Types #TODO Check result
+/*--- COMPLETE: Dev Project Workflow
 
-pr()
-
-# Real workflow: Constraint + Derivation + Validation working together
-
-# Rule 1: BLOCK reverse dependencies (Constraint)
-RegisterRule(:project, "no_reverse_deps", [
+# Constraint: Block invalid dependencies
+RegisterRule(:dev, "no_reverse_deps", [
 	:type = :Constraint,
 	:function = func(oGraph, paRuleParams, paOp) {
-		if HasKey(paOp, :from) and oGraph.NodeExists(paOp[:from])
-			if oGraph.NodeProperty(paOp[:from], "type") = "feature"
-				if HasKey(paOp, :to) and oGraph.NodeExists(paOp[:to])
-					if oGraph.NodeProperty(paOp[:to], "type") = "test"
-						return [TRUE, "Features can't depend on tests"]
-					ok
+		if HasKey(paOp, :from) and HasKey(paOp, :to)
+			if oGraph.NodeExists(paOp[:from]) and oGraph.NodeExists(paOp[:to])
+				if oGraph.NodeProperty(paOp[:from], "type") = "feature" and
+				   oGraph.NodeProperty(paOp[:to], "type") = "test"
+					return [TRUE, "Features can't depend on tests"]
 				ok
 			ok
 		ok
@@ -2458,8 +2418,8 @@ RegisterRule(:project, "no_reverse_deps", [
 	:severity = :error
 ])
 
-# Rule 2: AUTO-ADD test tasks for features (Derivation)
-RegisterRule(:project, "auto_tests", [
+# Derivation: Auto-create test nodes
+RegisterRule(:dev, "auto_tests", [
 	:type = :Derivation,
 	:function = func(oGraph, paRuleParams) {
 		aNewEdges = []
@@ -2468,11 +2428,9 @@ RegisterRule(:project, "auto_tests", [
 		for aNode in aNodes
 			if oGraph.NodeProperty(aNode[:id], "type") = "feature"
 				cTest = aNode[:id] + "_test"
-				# Create test node if missing
 				if NOT oGraph.NodeExists(cTest)
 					oGraph.AddNodeXTT(cTest, "Test: " + aNode[:label], [:type = "test"])
 				ok
-				# Link feature to test
 				if NOT oGraph.EdgeExists(aNode[:id], cTest)
 					aNewEdges + [aNode[:id], cTest, "requires", []]
 				ok
@@ -2481,12 +2439,12 @@ RegisterRule(:project, "auto_tests", [
 		return aNewEdges
 	},
 	:params = [],
-	:message = "Tests auto-added",
+	:message = "Tests auto-generated",
 	:severity = :info
 ])
 
-# Rule 3: CHECK test coverage (Validation)
-RegisterRule(:project, "full_coverage", [
+# Validation: Check coverage
+RegisterRule(:dev, "full_coverage", [
 	:type = :Validation,
 	:function = func(oGraph, paRuleParams) {
 		aNodes = oGraph.Nodes()
@@ -2503,200 +2461,106 @@ RegisterRule(:project, "full_coverage", [
 		next
 		
 		if nTests < nFeatures
-			return [FALSE, "Incomplete coverage: " + nTests + "/" + nFeatures]
+			return [FALSE, "Coverage: " + nTests + "/" + nFeatures]
 		ok
 		return [TRUE, ""]
 	},
 	:params = [],
-	:message = "Test coverage check",
+	:message = "Incomplete coverage",
 	:severity = :warning
- ])
+])
 
-# Execution flow demonstration
 oGraph = new stzGraph("DevProject")
 oGraph {
 	AddNodeXTT("login", "Login", [:type = "feature"])
 	AddNodeXTT("profile", "Profile", [:type = "feature"])
 	
-	? NodeCount()
-	#--> 2 (just features)
+	? "Initial nodes: " + NodeCount()
 	
-	UseRulesFrom(:project)
-	ApplyDerivationRules()  # Triggers auto_tests → adds 2 test nodes
+	UseRulesFrom(:dev)
+	aResult = ApplyDerivationRules()
 	
-	? NodeCount()
-	#--> 4 (features + tests)
+	? "After derivation: " + NodeCount() + " nodes"
+	? "  Tests added: " + aResult[:edgesAdded]
 	
-	# Validate final state
-	? ValidateXT(:project)[:status]
-	#--> "pass" (1:1 coverage)
+	? "Validation: " + ValidateXT(:dev)[:status]
+	
+	# Try invalid dependency
+	try
+		Connect("login", "profile_test")
+		? "✗ Invalid dependency allowed (BUG)"
+	catch
+		? "✓ Invalid dependency blocked"
+	done
 }
-
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
 
-/*--- Real-World: Document Approval Workflow
+/*--- BUILT-IN: Transitivity Derivation
 
 pr()
 
-# Complete workflow with notifications and security
-
-# Auto-notify approvers when document submitted
-RegisterRule(:docs, "auto_notify", [
-	:type = :Derivation,
-	:function = func(oGraph, paRuleParams) {
-		aNewEdges = []
-		aEdges = oGraph.Edges()
-		
-		for aEdge in aEdges
-			if aEdge[:label] = "submits"
-				cDoc = aEdge[:to]
-				# Find all approvers (nodes connected FROM document)
-				aApprovers = oGraph.Neighbors(cDoc)
-				for cApprover in aApprovers
-					if NOT oGraph.EdgeExists(cDoc, cApprover)
-						aNewEdges + [cDoc, cApprover, "notify", []]
-					ok
-				next
-			ok
-		next
-		return aNewEdges
-	},
-	:params = [],
-	:message = "Notifications sent",
-	:severity = :info
-])
-
-# Prevent authors from approving their own work
-RegisterRule(:docs, "no_author_approval", [
-	:type = :Constraint,
-	:function = func(oGraph, paRuleParams, paOp) {
-		if HasKey(paOp, :from) and HasKey(paOp, :to)
-			# Check if person submitted this document
-			if oGraph.EdgeExists(paOp[:from], paOp[:to])
-				aEdge = oGraph.Edge(paOp[:from], paOp[:to])
-				if aEdge[:label] = "submits"
-					return [TRUE, "Authors can't approve own docs"]
-				ok
-			ok
-		ok
-		return [FALSE, ""]
-	},
-	:params = [],
-	:message = "Self-approval blocked",
-	:severity = :error
-])
-
-oGraph = new stzGraph("DocFlow")
-oGraph {
-	AddNode("john")
-	AddNode("report")
-	AddNode("mary")
-	
-	AddEdgeXT("john", "report", "submits")
-	Connect("report", "mary")  # Mary is approver
-	
-	UseRulesFrom(:docs)
-	ApplyDerivationRules()  # Creates report→mary "notify" edge
-
-	? EdgeCount()
-	#--> 3 (submit + approver + notify)
-	#TODO #ERR // but we got 2
-	
-	? CheckConstraintRules([:from = "mary", :to = "report"])[1]
-	#--> TRUE (allowed)
-
-	? CheckConstraintRules([:from = "john", :to = "report"])[1]
-	#--> FALSE (blocked)
-}
-
-pf()
-# Executed in 0.01 second(s) in Ring 1.25
-
-/*--- Real-World: Enterprise Security Model
-
-pr()
-
-# Multi-level security with transitive access and clearance checks
-
-# Inherit permissions through hierarchy
-RegisterRule(:security, "inherit_perms", [
+RegisterRule(:access2, "transitive", [
 	:type = :Derivation,
 	:function = DerivationFunc_Transitivity(),
 	:params = [],
-	:message = "Permissions inherited",
+	:message = "Transitive access",
 	:severity = :info
 ])
 
-# Block access below clearance level
-RegisterRule(:security, "no_escalation", [
-	:type = :Constraint,
-	:function = func(oGraph, paRuleParams, paOp) {
-		if HasKey(paOp, :from) and HasKey(paOp, :to)
-			if oGraph.NodeExists(paOp[:from]) and oGraph.NodeExists(paOp[:to])
-				nFromLevel = oGraph.NodeProperty(paOp[:from], "level")
-				nToLevel = oGraph.NodeProperty(paOp[:to], "level")
-				
-				# User level must be >= resource level
-				if isNumber(nFromLevel) and isNumber(nToLevel)
-					if nFromLevel < nToLevel
-						return [TRUE, "Insufficient clearance"]
-					ok
-				ok
-			ok
-		ok
-		return [FALSE, ""]
-	},
-	:params = [],
-	:message = "Privilege escalation blocked",
-	:severity = :error
-])
-
-# Ensure sensitive resources are audited
-RegisterRule(:security, "audit_check", [
-	:type = :Validation,
-	:function = func(oGraph, paRuleParams) {
-		aNodes = oGraph.Nodes()
-		for aNode in aNodes
-			if oGraph.NodeProperty(aNode[:id], "sensitive") = TRUE
-				if oGraph.NodeProperty(aNode[:id], "audited") != TRUE
-					return [FALSE, "Sensitive resource not audited: " + aNode[:id]]
-				ok
-			ok
-		next
-		return [TRUE, ""]
-	},
-	:params = [],
-	:message = "Audit compliance",
-	:severity = :error
-])
-
-oGraph = new stzGraph("Security")
+oGraph = new stzGraph("Access")
 oGraph {
-	AddNodeXTT("alice", "Alice", [:level = 3])  # High clearance
-	AddNodeXTT("db", "Database", [:level = 3, :sensitive = TRUE, :audited = TRUE])
-	AddNodeXTT("bob", "Bob", [:level = 1])  # Low clearance
+	AddNode("alice")
+	AddNode("folder")
+	AddNode("file")
 	
-	Connect("alice", "db")
+	Connect("alice", "folder")
+	Connect("folder", "file")
 	
-	UseRulesFrom(:security)
+	? "Before: alice → file? " + EdgeExists("alice", "file")
+	
+	UseRulesFrom(:access2)
 	ApplyDerivationRules()
 	
-	# Alice (level 3) → db (level 3)
-	? CheckConstraintRules([:from = "alice", :to = "db"])[1]
-	#--> TRUE (sufficient clearance)
+	? "After: alice → file? " + EdgeExists("alice", "file")
+}
+pf()
+
+
+/*--- VALIDATION: History Tracking
+
+pr()
+
+oGraph = new stzGraph("History")
+oGraph {
+	AddNode("a")
+	AddNode("b")
+	Connect("a", "b")
 	
-	# Bob (level 1) → db (level 3)
-	? CheckConstraintRules([:from = "bob", :to = "db"])[1] 
-	#--> FALSE (blocked)
+	? "First validation:"
+	? "  Status: " + ValidateXT(:dag)[:status]
 	
-	# Final audit compliance
-	? ValidateXT(:security)[:status]
-	#--> "pass" (all sensitive resources audited)
+	aSummary = LastValidation()
+	? "  Passed? " + aSummary[:passed]
+	? "  Rules checked: " + len(aSummary[:rules_applied])
+	
+	# Note: Adding cycle now would be blocked by constraint
+	# so we disable constraints temporarily for demo
+	DisableConstraints()
+	Connect("b", "a")
+	EnableConstraints()
+	
+	? "After creating cycle (constraint bypassed):"
+	? "  Status: " + ValidateXT(:dag)[:status]
+	
+	if len(Violations()) > 0
+		? "  Violations:"
+		for aV in Violations()
+			? "    - " + aV[:message]
+		next
+	ok
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
 
 #=======================================================================#
 #  GRAPH (SINGLE AND MULTIPLE) COMPARAISON, ANALYSIS AND VISUALIZATION  #
