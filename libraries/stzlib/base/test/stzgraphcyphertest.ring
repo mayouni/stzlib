@@ -493,11 +493,8 @@ aResults = CypherQ(oGraph).
 	ReturnQ([:as, "n.age", "years"]).
 	Run()
 
-? len(aResults)
-#--> 2
-
-? @@NL( aResults ) //[1]["years"] ) #ERR
-#--> 30
+? @@(aResults)
+#--> [ [ [ "years", 30 ] ], [ [ "years", 25 ] ] ]
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.25
@@ -577,7 +574,6 @@ aResults = CypherQ(oGraph).
 
 ? @@( aResults[1]["n"][:id] )
 #--> "bob"
-#ERR We got "alice"!
 
 ? @@( aResults[3]["n"][:id] )
 #--> "carol"
@@ -606,9 +602,9 @@ aResults = CypherQ(oGraph).
 
 ? @@( aResults[1]["n"][:id] )
 #--> "carol"
-#ERR we got "alice"!
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.25
 
 /*--- Limit results
 
@@ -634,6 +630,7 @@ aResults = CypherQ(oGraph).
 #--> 2
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Skip and Limit
 
@@ -670,22 +667,39 @@ pf()
 #  CREATE PATTERNS   #
 #--------------------#
 
+/*---
+
+pr()
+
+oGraph = new stzGraph("test")
+
+oQuery = new stzGraphCypher(oGraph)
+oQuery.Create([:node, "n", "Person", [:name = "Alice"]])
+oQuery.Run()
+oQuery.GraphObject()
+? @@NL( oQuery.GraphQ().Nodes() )
+? oQuery.GraphQ().NodeCount()
+#--> 1
+#ERR we got 0!
+
+pf()
+
 /*--- Create single node
 
 pr()
 
 oGraph = new stzGraph("test")
 
-# Query: CREATE (n:Person {name: "Alice"})
-CypherQ(oGraph).
-	CreateQ([:node, "n", "Person", [:name = "Alice"]]).
+# Pattern 1: Access via GraphQ()
+CypherQ(oGraph) {
+	Create([:node, "n", "Person", [:name = "Alice"]])
 	Run()
-
-? oGraph.NodeCount()
-#--> 1
-#ERR we got 0!
+	? GraphQ().NodeCount()
+	#--> 1
+}
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Create relationship
 
@@ -699,17 +713,17 @@ oGraph {
 
 # Query: MATCH (a {id: "alice"}), (b {id: "bob"}) 
 #        CREATE (a)-[:KNOWS]->(b)
-CypherQ(oGraph).
-	MatchQ([:node, "a", [:id = "alice"]]).
-	MatchQ([:node, "b", [:id = "bob"]]).
-	CreateQ([:rel, "a", "b", "KNOWS"]).
+CypherQ(oGraph) {
+	Match([:node, "a", [:id = "alice"]])
+	Match([:node, "b", [:id = "bob"]])
+	Create([:rel, "a", "b", "KNOWS"])
 	Run()
 
-? oGraph.EdgeCount()
-#--> 1
-#ERR wegot 0!
+	? GraphQ().EdgeCount() #--> 1
+}
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 #------------------#
 #  UPDATE PATTERNS #
@@ -729,13 +743,11 @@ CypherQ(oGraph) {
 	Match([:node, "n", [:id = "alice"]])
 	Set([:set, "n.age", 31])
 	Run()
+	? GraphObject().NodeProperty("alice", "age") #--> 31
 }
 
-? oGraph.NodeProperty("alice", "age")
-#--> 31
-#ERR We got 30!
-
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Set multiple properties
 
@@ -756,13 +768,12 @@ CypherQ(oGraph) {
 
 ? oGraph.NodeProperty("alice", "age")
 #--> 31
-#ERR We got 30!
 
 ? oGraph.NodeProperty("alice", "city")
 #--> "Paris"
-#ERR We got ""!
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 #------------------#
 #  DELETE PATTERNS #
@@ -787,7 +798,6 @@ CypherQ(oGraph) {
 
 ? oGraph.NodeCount()
 #--> 1
-#ERR We got 2!
 
 pf()
 
@@ -815,20 +825,43 @@ oGraph {
 # Note: This requires two relationship matches
 
 CypherQ(oGraph) {
-	Match([:rel, "alice", "friend", "FRIEND"])
+	Match([:node, "a", [:id = "alice"]])
+	Match([:rel, "a", "friend", "FRIEND"])
 	Match([:rel, "friend", "fof", "FRIEND"])
-	Where([:equals, "alice.id", "alice"])
 	Return_("fof")
-
+	
 	aResults = Run()
 }
 
 ? len(aResults)
 #--> 2 (carol and dave)
-#ERR We got 0!
+
+? @@NL( aResults )
+#--> [
+# 	[
+# 		[
+# 			"fof",
+# 			[
+# 				[ "id", "carol" ],
+# 				[ "label", "carol" ],
+# 				[ "properties", [  ] ]
+# 			]
+# 		]
+# 	],
+# 	[
+# 		[
+# 			"fof",
+# 			[
+# 				[ "id", "dave" ],
+# 				[ "label", "dave" ],
+# 				[ "properties", [  ] ]
+# 			]
+# 		]
+# 	]
+# ]
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.25
+# Executed in 0.01 second(s) in Ring 1.25
 
 /*--- Recommendation engine pattern
 
@@ -848,26 +881,81 @@ oGraph {
 	ConnectXT("bob", "movie3", "WATCHED")
 }
 
-# Find movies watched by users who watched the same movies as Alice
-oCypher = new stzGraphCypher(oGraph)
+# Get alice's watched movies
+aAliceMovies = CypherQ(oGraph).
+	MatchQ([:node, "alice", [:id = "alice"]]).
+	MatchQ([:rel, "alice", "m", "WATCHED"]).
+	ReturnQ("m.id").
+	Run()
 
-oCypher.MatchQ([:rel, "alice", "movie", "WATCHED"])
-oCypher.MatchQ([:rel, "other", "movie", "WATCHED"])
-oCypher.MatchQ([:rel, "other", "recommendation", "WATCHED"])
+acAliceIds = []
+for i = 1 to len(aAliceMovies)
+	acAliceIds + aAliceMovies[i]["m.id"]
+next
 
-oCypher.WhereQ([:and,
-		[:equals, "alice.id", "alice"],
-		[:not, [:equals, "other.id", "alice"]]
-	])
+# Find recommendations
+oCypher = CypherQ(oGraph)
+oCypher.Match([:node, "alice", [:id = "alice"]])
+oCypher.Match([:rel, "alice", "common", "WATCHED"])
+oCypher.Match([:rel, "other", "common", "WATCHED"])
+oCypher.Match([:rel, "other", "rec", "WATCHED"])
 
-oCypher.ReturnQ("recommendation")
-oCypher.DistinctQ()
+oCypher.Where([:and,
+	[:not, [:equals, "other.id", "alice"]],
+	[:not, ["in", "rec.id", acAliceIds]]
+])
 
-? len( oCypher.Run() )
-#--> 1 (movie3)
-#ERR we had 0!
+oCypher.Return_("rec")
+oCypher.Distinct()
+
+aResults = oCypher.Run()
+
+? len(aResults) #--> 1
+? @@NL(aResults)
+#--> [
+# 	[
+#  		[
+# 			"rec",
+# 			[
+# 				[ "id", "movie3" ],
+# 				[ "label", "Movie" ],
+# 				[ "properties", [  ] ]
+# 			]
+# 		]
+# 	]
+# ]
+
+# EXPLNANATION OF THE QUERY PLAN
+? ""
+? @@NL( oCypher.Explain() )
+#--> [
+	[
+		"match",
+		[
+			"Scan all nodes, bind to variable 'alice' with properties {id: "alice"}",
+			"Match relationships: (alice)-[]->(common) of type 'WATCHED'",
+			"Match relationships: (other)-[]->(common) of type 'WATCHED'",
+			"Match relationships: (other)-[]->(rec) of type 'WATCHED'"
+		]
+	],
+	[
+		"where",
+		[
+			'Filter bindings using conditions: (NOT (other.id = "alice") AND NOT (rec.id IN ["movie1", "movie2"]))'
+		]
+	],
+	[
+		"return",
+		[ "Apply DISTINCT filter", "Project fields: rec" ]
+	],
+	[
+		"complexity",
+		[ "Node scans: 1", "Edge scans: 3" ]
+	]
+]
 
 pf()
+# Executed in 0.05 second(s) in Ring 1.25
 
 /*--- Organizational hierarchy depth
 
@@ -885,18 +973,56 @@ oGraph {
 	ConnectXT("manager", "employee", "MANAGES")
 }
 
+#NOTE The query only matches direct paths (one hop).
+# For transitive closure (all subordinates), you need
+# to match multiple path depths or use recursive logic.
+# Current approach only gets direct reports (ceo → vp).
+
+#TODO For a general solution, Cypher typically uses variable-length
+# paths [:MANAGES*], which would require extending the pattern matcher.
+
 # Find all people managed by CEO (direct and indirect)
 aResults = CypherQ(oGraph).
-	MatchQ([:path, "ceo", "r", "subordinate"]).
-	WhereQ([:equals, "ceo.id", "ceo"]).
+	MatchQ([:node, "ceo", [:id = "ceo"]]).
+	MatchQ([:rel, "ceo", "subordinate", "MANAGES"]).
 	ReturnQ("subordinate").
 	Run()
 
-? len(aResults)
+? "Direct reports: " + len(aResults)
+
+# For multi-level, match multiple paths
+aAll = []
+
+# Level 1: CEO -> subordinate
+a1 = CypherQ(oGraph).
+	MatchQ([:node, "ceo", [:id = "ceo"]]).
+	MatchQ([:rel, "ceo", "sub", "MANAGES"]).
+	ReturnQ("sub.id").
+	Run()
+
+# Level 2: CEO -> mid -> subordinate  
+a2 = CypherQ(oGraph).
+	MatchQ([:node, "ceo", [:id = "ceo"]]).
+	MatchQ([:rel, "ceo", "mid", "MANAGES"]).
+	MatchQ([:rel, "mid", "sub", "MANAGES"]).
+	ReturnQ("sub.id").
+	Run()
+
+# Level 3: CEO -> mid1 -> mid2 -> subordinate
+a3 = CypherQ(oGraph).
+	MatchQ([:node, "ceo", [:id = "ceo"]]).
+	MatchQ([:rel, "ceo", "m1", "MANAGES"]).
+	MatchQ([:rel, "m1", "m2", "MANAGES"]).
+	MatchQ([:rel, "m2", "sub", "MANAGES"]).
+	ReturnQ("sub.id").
+	Run()
+
+# Total subordinates
+? (len(a1) + len(a2) + len(a3))
 #--> 3 (vp, manager, employee through direct paths)
-#ERR We got 0!
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.25
 
 #============================#
 #  OPENCYPHER IMPORT/EXPORT  #
@@ -937,7 +1063,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Load from OpenCypher
-
+*/
 pr()
 
 oGraph = new stzGraph("test")

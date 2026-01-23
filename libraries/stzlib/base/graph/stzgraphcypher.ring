@@ -33,8 +33,14 @@ class stzGraphCypher
 		if NOT @IsStzGraph(oGraph)
 			stzraise("Parameter must be a stzGraph object!")
 		ok
-		@oGraph = oGraph
+		@oGraph = ref(oGraph) # The query could change the graph
 	
+	def GraphObject()
+		return @oGraph
+
+		def GraphQ()
+			return @oGraph
+
 	#------------------#
 	#  MATCH PATTERNS  #
 	#------------------#
@@ -86,8 +92,9 @@ class stzGraphCypher
 			# or a list of field names like ["a", "b"]
 			if len(paFields) > 0
 				pFirst = paFields[1]
-				if isList(pFirst) or (isString(pFirst) and substr(pFirst, ":") = 1)
-					# It's a single special pattern
+				# Check if first element is a keyword (as, count, distinct)
+				if pFirst = "as" or pFirst = "count" or pFirst = "distinct"
+					# It's a single special pattern - add as-is
 					@aReturnFields + paFields
 				else
 					# It's a list of field names - add each one
@@ -259,11 +266,9 @@ class stzGraphCypher
 		return aAllBindings
 	
 	def _MatchNode(aPattern)
-		# Pattern: [:node, "varname", label_or_props]
 		cVarName = aPattern[2]
 		aBindings = []
 		
-		# Get all nodes
 		aNodes = @oGraph.Nodes()
 		nLen = len(aNodes)
 		
@@ -271,14 +276,12 @@ class stzGraphCypher
 			aNode = aNodes[i]
 			bMatch = TRUE
 			
-			# Check label if specified
 			if len(aPattern) >= 3 and isString(aPattern[3])
 				if aNode[:label] != aPattern[3]
 					bMatch = FALSE
 				ok
 			ok
 			
-			# Check properties if specified
 			if len(aPattern) >= 3 and isList(aPattern[3])
 				aProps = aPattern[3]
 				acKeys = keys(aProps)
@@ -286,9 +289,20 @@ class stzGraphCypher
 				
 				for j = 1 to nKeyLen
 					cKey = acKeys[j]
-					if NOT This._NodeHasProperty(aNode, cKey, aProps[cKey])
-						bMatch = FALSE
-						exit
+					pValue = aProps[cKey]
+					
+					# Check if it's matching the node ID (special case)
+					if cKey = "id"
+						if aNode[:id] != pValue
+							bMatch = FALSE
+							exit
+						ok
+					# Otherwise check properties
+					else
+						if NOT This._NodeHasProperty(aNode, cKey, pValue)
+							bMatch = FALSE
+							exit
+						ok
 					ok
 				next
 			ok
@@ -441,6 +455,7 @@ class stzGraphCypher
 	#------------------#
 	
 	def _ApplyWhere(aBindings)
+		
 		aFiltered = []
 		nLen = len(aBindings)
 		
@@ -460,11 +475,11 @@ class stzGraphCypher
 				aFiltered + aBinding
 			ok
 		next
-		
+
 		return aFiltered
 	
 	def _EvaluateCondition(pCondition, aBinding)
-
+	
 		if @IsFunction(pCondition)
 			return call pCondition(aBinding)
 		ok
@@ -477,7 +492,13 @@ class stzGraphCypher
 		
 		if cOp = :equals or cOp = "="
 			pLeft = This._ResolveValue(pCondition[2], aBinding)
-			pRight = This._ResolveValue(pCondition[3], aBinding)
+			pRight = pCondition[3]  # Don't resolve - keep as literal
+			
+			# If right side looks like a property path, resolve it
+			if isString(pRight) and substr(pRight, ".") > 0
+				pRight = This._ResolveValue(pRight, aBinding)
+			ok
+			
 			return pLeft = pRight
 			
 		but cOp = :gt or cOp = ">"
@@ -526,9 +547,9 @@ class stzGraphCypher
 		but cOp = :not
 			return NOT This._EvaluateCondition(pCondition[2], aBinding)
 			
-		but cOp = :in
+		but cOp = "in"
 			pLeft = This._ResolveValue(pCondition[2], aBinding)
-			aRight = This._ResolveValue(pCondition[3], aBinding)
+			aRight = pCondition[3]  # Literal list, don't resolve
 			return isList(aRight) and ring_find(aRight, pLeft) > 0
 		ok
 		
@@ -536,7 +557,7 @@ class stzGraphCypher
 	
 	def _ResolveValue(pValue, aBinding)
 		if isString(pValue)
-			# Check if it's a variable reference like "n.age"
+			# Check if it's a variable reference like "n.age" or "m.id"
 			if substr(pValue, ".") > 0
 				acParts = @split(pValue, ".")
 				cVar = acParts[1]
@@ -544,6 +565,15 @@ class stzGraphCypher
 				
 				if HasKey(aBinding, cVar)
 					aNode = aBinding[cVar]
+					
+					# Special case: accessing .id gets the node's top-level id
+					if cProp = "id"
+						if HasKey(aNode, :id)
+							return aNode[:id]
+						ok
+					ok
+					
+					# Regular property access
 					if HasKey(aNode, :properties) and HasKey(aNode[:properties], cProp)
 						return aNode[:properties][cProp]
 					ok
@@ -639,8 +669,20 @@ class stzGraphCypher
 			if NOT HasKey(aResult2, cKey)
 				return FALSE
 			ok
-			if aResult1[cKey] != aResult2[cKey]
-				return FALSE
+			
+			pVal1 = aResult1[cKey]
+			pVal2 = aResult2[cKey]
+			
+			# If values are nodes, compare by ID
+			if isList(pVal1) and isList(pVal2) and HasKey(pVal1, :id) and HasKey(pVal2, :id)
+				if pVal1[:id] != pVal2[:id]
+					return FALSE
+				ok
+			# Otherwise compare directly
+			else
+				if pVal1 != pVal2
+					return FALSE
+				ok
 			ok
 		next
 		
@@ -651,15 +693,14 @@ class stzGraphCypher
 	#------------------#
 	
 	def _ExecuteCreate(aBindings)
-		nLen = len(@aCreatePatterns)
 		
+		nLen = len(@aCreatePatterns)
 		for i = 1 to nLen
 			aPattern = @aCreatePatterns[i]
 			cPatternType = aPattern[1]
 			
 			if cPatternType = :node
 				This._CreateNode(aPattern)
-				
 			but cPatternType = :rel or cPatternType = :relationship
 				This._CreateRelationship(aPattern, aBindings)
 			ok
@@ -681,9 +722,8 @@ class stzGraphCypher
 		# Generate unique ID
 		cNodeId = "node_" + UUID()
 		@oGraph.AddNodeXTT(cNodeId, cLabel, aProps)
-	
+
 	def _CreateRelationship(aPattern, aBindings)
-		# Pattern: [:rel, "fromVar", "toVar", label, properties]
 		cFromVar = aPattern[2]
 		cToVar = aPattern[3]
 		cLabel = ""
@@ -697,7 +737,6 @@ class stzGraphCypher
 			aProps = aPattern[5]
 		ok
 		
-		# Create relationship for each binding
 		nLen = len(aBindings)
 		for i = 1 to nLen
 			aBinding = aBindings[i]
@@ -705,7 +744,6 @@ class stzGraphCypher
 			if HasKey(aBinding, cFromVar) and HasKey(aBinding, cToVar)
 				cFromId = aBinding[cFromVar][:id]
 				cToId = aBinding[cToVar][:id]
-				
 				@oGraph.AddEdgeXTT(cFromId, cToId, cLabel, aProps)
 			ok
 		next
@@ -812,19 +850,19 @@ class stzGraphCypher
 			for j = i + 1 to nLen
 				pVal1 = This._GetResultValue(aResults[i], cField)
 				pVal2 = This._GetResultValue(aResults[j], cField)
-				
+
 				bSwap = FALSE
-				if cDirection = :asc or cDirection = "asc"
+				if cDirection = "asc"
 					if isNumber(pVal1) and isNumber(pVal2)
-						bSwap = (pVal2 < pVal1)
+						bSwap = (pVal1 > pVal2)
 					but isString(pVal1) and isString(pVal2)
-						bSwap = (pVal2 < pVal1)
+						bSwap = (pVal1 > pVal2)
 					ok
 				else
 					if isNumber(pVal1) and isNumber(pVal2)
-						bSwap = (pVal2 > pVal1)
+						bSwap = (pVal1 < pVal2)
 					but isString(pVal1) and isString(pVal2)
-						bSwap = (pVal2 > pVal1)
+						bSwap = (pVal1 < pVal2)
 					ok
 				ok
 				
@@ -839,24 +877,26 @@ class stzGraphCypher
 		return aResults
 	
 	def _GetResultValue(aResult, cField)
-		if HasKey(aResult, cField)
-			return aResult[cField]
-		ok
-		
-		# Try nested access
+		# Handle nested property access like "n.age"
 		if substr(cField, ".") > 0
 			acParts = @split(cField, ".")
-			pValue = aResult
+			cVar = acParts[1]
+			cProp = acParts[2]
 			
-			nLen = len(acParts)
-			for i = 1 to nLen
-				if isList(pValue) and HasKey(pValue, acParts[i])
-					pValue = pValue[acParts[i]]
-				else
-					return NULL
+			# Get the node/object first
+			if HasKey(aResult, cVar)
+				aNode = aResult[cVar]
+				# Then get the property from it
+				if isList(aNode) and HasKey(aNode, :properties) and HasKey(aNode[:properties], cProp)
+					return aNode[:properties][cProp]
 				ok
-			next
-			return pValue
+			ok
+			return NULL
+		ok
+		
+		# Simple field access
+		if HasKey(aResult, cField)
+			return aResult[cField]
 		ok
 		
 		return NULL
@@ -1137,14 +1177,24 @@ class stzGraphCypher
 		
 		cResult += "}"
 		return cResult
-	
+
 	def _FormatValue(pValue)
 		if isString(pValue)
 			return '"' + pValue + '"'
 		but isNumber(pValue)
 			return "" + pValue
 		but isList(pValue)
-			return "[...]"
+			# Show array contents instead of [...]
+			cResult = "["
+			nLen = len(pValue)
+			for i = 1 to nLen
+				cResult += This._FormatValue(pValue[i])
+				if i < nLen
+					cResult += ", "
+				ok
+			next
+			cResult += "]"
+			return cResult
 		ok
 		return "null"
 
