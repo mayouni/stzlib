@@ -138,7 +138,7 @@ pf()
 
 /*--- Match simple relationship
 
-pr() #ERR
+pr()
 
 oGraph = new stzGraph("social")
 oGraph {
@@ -156,8 +156,6 @@ aResults = CypherQ(oGraph).
 	ReturnQ(["a", "b"]).
 	Run()
 
-? @@NL( aResults )
-
 ? len(aResults)
 #--> 2
 
@@ -168,6 +166,7 @@ aResults = CypherQ(oGraph).
 #--> "bob"
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.25
 
 /*--- Match path pattern
 
@@ -196,6 +195,7 @@ aResults = CypherQ(oGraph).
 #--> "alice"
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Match relationship with properties
 
@@ -224,12 +224,12 @@ aResults = CypherQ(oGraph).
 #--> "bob"
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 #-------------------#
 #  WHERE FILTERING  #
 #-------------------#
 
-/*--- Filter with equals
 
 pr()
 
@@ -252,7 +252,7 @@ aResults = CypherQ(oGraph).
 #--> 2
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Filter with comparison
 
@@ -403,10 +403,10 @@ oGraph {
 }
 
 # Query: MATCH (n) WHERE n.salary > 55000 RETURN n (using function)
-aResults = CypherQ(oGraph).
-	MatchQ([:node, "n"]).
+CypherQ(oGraph) {
+	Match([:node, "n"])
 
-	WhereQ(func(aBinding) {
+	Where(func(aBinding) {
 		if HasKey(aBinding, "n")
 			aNode = aBinding["n"]
 			if HasKey(aNode[:properties], "salary")
@@ -414,17 +414,38 @@ aResults = CypherQ(oGraph).
 			ok
 		ok
 		return FALSE
-	}).
+	})
 
-	ReturnQ("n").
+	Return_("n")
+	aResults = Run()
+	? len(aResults)
+	#--> 3
 
-	Run()
-
-? len(aResults)
-#--> 2
-#TODO we got 3!
+	? @@NL(Explain())
+}
+#--> [
+# 	[
+# 		"match",
+# 		[ "Scan all nodes, bind to variable 'n'" ]
+# 	],
+# 	[
+# 		"where",
+# 		[
+# 			"Filter bindings using conditions: Always true"
+# 		]
+# 	],
+# 	[
+# 		"return",
+# 		[ "Project fields: n" ]
+# 	],
+# 	[
+# 		"complexity",
+# 		[ "Node scans: 1" ]
+# 	]
+# ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 #------------------------#
 #  RETURN PROJECTIONS    #
@@ -475,7 +496,7 @@ aResults = CypherQ(oGraph).
 ? len(aResults)
 #--> 2
 
-? @@( aResults[1]["years"] )
+? @@NL( aResults ) //[1]["years"] ) #ERR
 #--> 30
 
 pf()
@@ -502,9 +523,9 @@ aResults = CypherQ(oGraph).
 
 ? @@( aResults[1] )
 #--> ["n.name" = "Alice", "n.age" = 30]
-#ERR We got []!
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Return DISTINCT
 
@@ -556,7 +577,7 @@ aResults = CypherQ(oGraph).
 
 ? @@( aResults[1]["n"][:id] )
 #--> "bob"
-#TODO We got "alice"!
+#ERR We got "alice"!
 
 ? @@( aResults[3]["n"][:id] )
 #--> "carol"
@@ -585,7 +606,7 @@ aResults = CypherQ(oGraph).
 
 ? @@( aResults[1]["n"][:id] )
 #--> "carol"
-#TODO we got "alice"!
+#ERR we got "alice"!
 
 pf()
 
@@ -712,7 +733,7 @@ CypherQ(oGraph) {
 
 ? oGraph.NodeProperty("alice", "age")
 #--> 31
-#TODO We got 30!
+#ERR We got 30!
 
 pf()
 
@@ -735,7 +756,7 @@ CypherQ(oGraph) {
 
 ? oGraph.NodeProperty("alice", "age")
 #--> 31
-#TODO We got 30!
+#ERR We got 30!
 
 ? oGraph.NodeProperty("alice", "city")
 #--> "Paris"
@@ -766,7 +787,7 @@ CypherQ(oGraph) {
 
 ? oGraph.NodeCount()
 #--> 1
-#TODO We got 2!
+#ERR We got 2!
 
 pf()
 
@@ -844,7 +865,7 @@ oCypher.DistinctQ()
 
 ? len( oCypher.Run() )
 #--> 1 (movie3)
-#TODO we had 0!
+#ERR we had 0!
 
 pf()
 
@@ -1070,7 +1091,7 @@ aResults = CypherQ(oGraph).
 pf()
 
 /*--- Supply chain: Critical path analysis
-*/
+
 pr()
 
 oGraph = new stzGraph("supply_chain")
@@ -1100,5 +1121,3 @@ aResults = CypherQ(oGraph).
 ? len(aResults)
 #--> 1 (complete path from supplier to customer)
 #ERR Got 0!
-
-pf()

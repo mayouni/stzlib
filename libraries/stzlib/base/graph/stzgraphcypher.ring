@@ -80,10 +80,23 @@ class stzGraphCypher
 		
 		if isString(paFields)
 			@aReturnFields + paFields
-
+	
 		but isList(paFields)
-			@aReturnFields + paFields
-
+			# Check if it's a single pattern like [:as, "n.age", "years"]
+			# or a list of field names like ["a", "b"]
+			if len(paFields) > 0
+				pFirst = paFields[1]
+				if isList(pFirst) or (isString(pFirst) and substr(pFirst, ":") = 1)
+					# It's a single special pattern
+					@aReturnFields + paFields
+				else
+					# It's a list of field names - add each one
+					nLen = len(paFields)
+					for i = 1 to nLen
+						@aReturnFields + paFields[i]
+					next
+				ok
+			ok
 		ok
 	
 		def ReturnQ(paFields)
@@ -547,9 +560,9 @@ class stzGraphCypher
 		# Return as-is (literal value)
 		return pValue
 	
-	#-------------------#
-	#  RETURN PROJECTION#
-	#-------------------#
+	#---------------------#
+	#  RETURN PROJECTION  #
+	#---------------------#
 	
 	def _ExecuteReturn(aBindings)
 		aResults = []
@@ -567,7 +580,7 @@ class stzGraphCypher
 					# Simple field: "n" or "n.age"
 					pValue = This._ResolveValue(pField, aBinding)
 					aResult[pField] = pValue
-					
+				
 				but isList(pField) and pField[1] = :as
 					# Aliased field: [:as, "n.age", "years"]
 					pValue = This._ResolveValue(pField[2], aBinding)
@@ -873,6 +886,268 @@ class stzGraphCypher
 		
 		return aLimited
 	
+	#-------------------------------------------#
+	#  EXPLANATION OF THE QUERY EXECUTION PLAN  #
+	#-------------------------------------------#
+	
+	def Explain()
+		# Returns a structured explanation as a hashlist
+		aExplanation = []
+		
+		# Phase 1: MATCH
+		if len(@aMatchPatterns) > 0
+			acMatch = []
+			nLen = len(@aMatchPatterns)
+			for i = 1 to nLen
+				aPattern = @aMatchPatterns[i]
+				cType = aPattern[1]
+				
+				if cType = :node
+					cVar = aPattern[2]
+					cDesc = "Scan all nodes, bind to variable '" + cVar + "'"
+					
+					if len(aPattern) >= 3 and isString(aPattern[3])
+						cDesc += " with label '" + aPattern[3] + "'"
+					ok
+					
+					if len(aPattern) >= 3 and isList(aPattern[3])
+						cDesc += " with properties " + This._FormatProps(aPattern[3])
+					ok
+					
+					acMatch + cDesc
+					
+				but cType = :rel or cType = :relationship
+					cFrom = aPattern[2]
+					cTo = aPattern[3]
+					cDesc = "Match relationships: (" + cFrom + ")-[]->("  + cTo + ")"
+					
+					if len(aPattern) >= 4 and isString(aPattern[4])
+						cDesc += " of type '" + aPattern[4] + "'"
+					ok
+					
+					acMatch + cDesc
+					
+				but cType = :path
+					cStart = aPattern[2]
+					cRel = aPattern[3]
+					cEnd = aPattern[4]
+					acMatch + ( "Match path: (" + cStart + ")-[" + cRel + "]->(" + cEnd + ")" )
+				ok
+			next
+			aExplanation + ["match", acMatch]
+		ok
+		
+		# Phase 2: WHERE
+		if len(@aWhereConditions) > 0
+			acWhere = []
+			nLen = len(@aWhereConditions)
+			for i = 1 to nLen
+				cCondDesc = This._ExplainCondition(@aWhereConditions[i])
+				acWhere + ("Filter bindings using conditions: " + cCondDesc)
+			next
+			aExplanation + ["where", acWhere]
+		ok
+		
+		# Phase 3: CREATE
+		if len(@aCreatePatterns) > 0
+			acCreate = []
+			nLen = len(@aCreatePatterns)
+			for i = 1 to nLen
+				aPattern = @aCreatePatterns[i]
+				cType = aPattern[1]
+				
+				if cType = :node
+					acCreate + "Create new node"
+				but cType = :rel or cType = :relationship
+					acCreate + "Create new relationship"
+				ok
+			next
+			aExplanation + ["create", acCreate]
+		ok
+		
+		# Phase 4: SET
+		if len(@aSetOperations) > 0
+			acSet = []
+			nLen = len(@aSetOperations)
+			for i = 1 to nLen
+				aOp = @aSetOperations[i]
+				cOpType = aOp[1]
+				
+				if cOpType = :set
+					acSet + ( "Set property: " + aOp[2] + " = " + This._FormatValue(aOp[3]) )
+				but cOpType = :remove
+					acSet + ( "Remove property: " + aOp[2] )
+				ok
+			next
+			aExplanation + ["set", acSet]
+		ok
+		
+		# Phase 5: DELETE
+		if len(@aDeleteTargets) > 0
+			acDelete = []
+			nLen = len(@aDeleteTargets)
+			for i = 1 to nLen
+				acDelete + ( "Delete node: " + @aDeleteTargets[i] )
+			next
+			aExplanation + ["delete", acDelete]
+		ok
+		
+		# Phase 6: RETURN
+		if len(@aReturnFields) > 0
+			acReturn = []
+			
+			if @bDistinct
+				acReturn + "Apply DISTINCT filter"
+			ok
+			
+			cFields = "Project fields: "
+			nLen = len(@aReturnFields)
+			for i = 1 to nLen
+				pField = @aReturnFields[i]
+				
+				if isString(pField)
+					cFields += pField
+				but isList(pField) and pField[1] = :as
+					cFields += pField[2] + " AS " + pField[3]
+				ok
+				
+				if i < nLen
+					cFields += ", "
+				ok
+			next
+			acReturn + cFields
+			
+			aExplanation + ["return", acReturn]
+		ok
+		
+		# Phase 7: ORDER BY
+		if len(@aOrderBy) > 0
+			aOrder = @aOrderBy[1]
+			cDir = upper(aOrder[2])
+			aExplanation + ["orderby", [ ("Sort by: " + aOrder[1] + " " + cDir) ]]
+		ok
+		
+		# Phase 8: SKIP
+		if @nSkip > 0
+			aExplanation + ["skip", [ ("Skip first " + @nSkip + " results") ]]
+		ok
+		
+		# Phase 9: LIMIT
+		if @nLimit != ""
+			aExplanation + ["limit", [ ("Return maximum " + @nLimit + " results") ]]
+		ok
+		
+		# Estimated complexity
+		acComplexity = []
+		nNodeScans = 0
+		nEdgeScans = 0
+		
+		nLen = len(@aMatchPatterns)
+		for i = 1 to nLen
+			aPattern = @aMatchPatterns[i]
+			if aPattern[1] = :node
+				nNodeScans++
+			but aPattern[1] = :rel or aPattern[1] = :relationship or aPattern[1] = :path
+				nEdgeScans++
+			ok
+		next
+		
+		if nNodeScans > 0
+			acComplexity + ("Node scans: " + nNodeScans)
+		ok
+		if nEdgeScans > 0
+			acComplexity + ("Edge scans: " + nEdgeScans)
+		ok
+		
+		if len(acComplexity) > 0
+			aExplanation + ["complexity", acComplexity]
+		ok
+		
+		return aExplanation
+	
+	def _ExplainCondition(pCondition)
+		if @IsFunction(pCondition)
+			return "Custom function filter"
+		ok
+		
+		if NOT isList(pCondition)
+			return "Always true"
+		ok
+		
+		cOp = pCondition[1]
+		
+		if cOp = :equals or cOp = "="
+			return pCondition[2] + " = " + This._FormatValue(pCondition[3])
+			
+		but cOp = :gt or cOp = ">"
+			return pCondition[2] + " > " + This._FormatValue(pCondition[3])
+			
+		but cOp = :lt or cOp = "<"
+			return pCondition[2] + " < " + This._FormatValue(pCondition[3])
+			
+		but cOp = :gte or cOp = ">="
+			return pCondition[2] + " >= " + This._FormatValue(pCondition[3])
+			
+		but cOp = :lte or cOp = "<="
+			return pCondition[2] + " <= " + This._FormatValue(pCondition[3])
+			
+		but cOp = :contains
+			return pCondition[2] + " CONTAINS " + This._FormatValue(pCondition[3])
+			
+		but cOp = :startswith
+			return pCondition[2] + " STARTS WITH " + This._FormatValue(pCondition[3])
+			
+		but cOp = :endswith
+			return pCondition[2] + " ENDS WITH " + This._FormatValue(pCondition[3])
+			
+		but cOp = :and
+			return "(" + This._ExplainCondition(pCondition[2]) + " AND " +
+			       This._ExplainCondition(pCondition[3]) + ")"
+			       
+		but cOp = :or
+			return "(" + This._ExplainCondition(pCondition[2]) + " OR " +
+			       This._ExplainCondition(pCondition[3]) + ")"
+			       
+		but cOp = :not
+			return "NOT (" + This._ExplainCondition(pCondition[2]) + ")"
+			
+		but cOp = :in
+			return pCondition[2] + " IN " + This._FormatValue(pCondition[3])
+		ok
+		
+		return "Unknown condition"
+	
+	def _FormatProps(aProps)
+		if NOT isList(aProps)
+			return "{}"
+		ok
+		
+		cResult = "{"
+		acKeys = keys(aProps)
+		nLen = len(acKeys)
+		
+		for i = 1 to nLen
+			cKey = acKeys[i]
+			cResult += cKey + ": " + This._FormatValue(aProps[cKey])
+			
+			if i < nLen
+				cResult += ", "
+			ok
+		next
+		
+		cResult += "}"
+		return cResult
+	
+	def _FormatValue(pValue)
+		if isString(pValue)
+			return '"' + pValue + '"'
+		but isNumber(pValue)
+			return "" + pValue
+		but isList(pValue)
+			return "[...]"
+		ok
+		return "null"
+
 	#------------------#
 	#  HELPER METHODS  #
 	#------------------#
