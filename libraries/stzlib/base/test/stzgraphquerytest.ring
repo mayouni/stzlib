@@ -1,6 +1,6 @@
 load "../stzbase.ring"
 
-# stzGraphCypher - Pattern Matching Tests
+# stzGraphQuery - Pattern Matching Tests
 # OpenCypher-style queries for stzGraph
 
 #-----------------------#
@@ -22,7 +22,7 @@ oGraph {
 }
 
 # Query: MATCH (n) RETURN n
-StzGraphCypherQ(oGraph) {
+stzGraphQueryQ(oGraph) {
 	Match([:node, "n"])
 	Return_("n")
 
@@ -89,7 +89,7 @@ oGraph {
 }
 
 # Query: MATCH (n:Person) RETURN n
-StzGraphCypherQ(oGraph) {
+stzGraphQueryQ(oGraph) {
 	Match([:node, "n", "Person"])
 	Return_("n")
 	aResults = Run()
@@ -116,7 +116,7 @@ oGraph {
 }
 
 # Query: MATCH (n:Person {age: 30}) RETURN n
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n", [:age = 30]]).
 	ReturnQ("n").
 	Run()
@@ -149,7 +149,7 @@ oGraph {
 }
 
 # Query: MATCH (a)-[r:KNOWS]->(b) RETURN a, b
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:rel, "a", "b", "KNOWS"]).
 	ReturnQ(["a", "b"]).
 	Run()
@@ -181,7 +181,7 @@ oGraph {
 }
 
 # Query: MATCH (boss)-[r]->(employee) RETURN boss, employee
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:path, "boss", "r", "employee"]).
 	ReturnQ(["boss", "employee"]).
 	Run()
@@ -210,7 +210,7 @@ oGraph {
 }
 
 # Query: MATCH (a)-[r:KNOWS {since: 2020}]->(b) RETURN a, b
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:rel, "a", "b", [:since = 2020]]).
 	ReturnQ(["a", "b"]).
 	Run()
@@ -238,7 +238,7 @@ oGraph {
 }
 
 # Query: MATCH (n:Employee) WHERE n.salary = 50000 RETURN n
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n", "Employee"]).
 	WhereQ([:equals, "n.salary", 50000]).
 	ReturnQ("n").
@@ -263,7 +263,7 @@ oGraph {
 }
 
 # Query: MATCH (n) WHERE n.salary > 55000 RETURN n
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	WhereQ([:gt, "n.salary", 55000]).
 	ReturnQ("n").
@@ -291,7 +291,7 @@ oGraph {
 }
 
 # Query: MATCH (n) WHERE n.name CONTAINS "Alice" RETURN n
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	WhereQ([:contains, "n.name", "Alice"]).
 	ReturnQ("n").
@@ -316,7 +316,7 @@ oGraph {
 }
 
 # Query: MATCH (n) WHERE n.age = 30 AND n.dept = "Engineering" RETURN n
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	WhereQ([:and, 
 		[:equals, "n.age", 30],
@@ -347,7 +347,7 @@ oGraph {
 }
 
 # Query: MATCH (n) WHERE n.dept = "Sales" OR n.dept = "Engineering" RETURN n
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	WhereQ([:or,
 		[:equals, "n.dept", "Sales"],
@@ -375,7 +375,7 @@ oGraph {
 }
 
 # Query: MATCH (n) WHERE NOT n.active = FALSE RETURN n
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	WhereQ([:not, [:equals, "n.active", FALSE]]).
 	ReturnQ("n").
@@ -400,10 +400,10 @@ oGraph {
 }
 
 # Query: MATCH (n) WHERE n.salary > 55000 RETURN n (using function)
-CypherQ(oGraph) {
+StzGraphQueryQ(oGraph) {
 	Match([:node, "n"])
 
-	Where(func(aBinding) {
+	WhereF( func(aBinding) {
 		if HasKey(aBinding, "n")
 			aNode = aBinding["n"]
 			if HasKey(aNode[:properties], "salary")
@@ -459,7 +459,7 @@ oGraph {
 }
 
 # Query: MATCH (n) RETURN n.name
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	ReturnQ("n.name").
 
@@ -485,7 +485,7 @@ oGraph {
 }
 
 # Query: MATCH (n) RETURN n.age AS years
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	ReturnQ([:as, "n.age", "years"]).
 	Run()
@@ -507,7 +507,7 @@ oGraph {
 }
 
 # Query: MATCH (n) RETURN n.name, n.age
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	ReturnQ(["n.name", "n.age"]).
 	Run()
@@ -533,7 +533,7 @@ oGraph {
 }
 
 # Query: MATCH (n) RETURN DISTINCT n.dept
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	DistinctQ().
 	ReturnQ("n.dept").
@@ -562,7 +562,7 @@ oGraph {
 }
 
 # Query: MATCH (n) RETURN n ORDER BY n.age ASC
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	ReturnQ("n").
 	OrderByQ("n.age", :asc).
@@ -590,7 +590,7 @@ oGraph {
 }
 
 # Query: MATCH (n) RETURN n ORDER BY n.salary DESC
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	ReturnQ("n").
 	OrderByQ("n.salary", :desc).
@@ -616,7 +616,7 @@ oGraph {
 }
 
 # Query: MATCH (n) RETURN n LIMIT 2
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	ReturnQ("n").
 	LimitQ(2).
@@ -642,7 +642,7 @@ oGraph {
 }
 
 # Query: MATCH (n) RETURN n ORDER BY n.rank SKIP 1 LIMIT 2
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "n"]).
 	ReturnQ("n").
 	OrderByQ("n.rank", :asc).
@@ -670,7 +670,7 @@ pr()
 
 oGraph = new stzGraph("test")
 
-oQuery = new stzGraphCypher(oGraph)
+oQuery = new stzGraphQuery(oGraph)
 oQuery.Create([:node, "n", "Person", [:name = "Alice"]])
 oQuery.Run()
 oQuery.GraphObject()
@@ -705,7 +705,7 @@ pr()
 oGraph = new stzGraph("test")
 
 # Pattern 1: Access via GraphQ()
-CypherQ(oGraph) {
+StzGraphQueryQ(oGraph) {
 	Create([:node, "n", "Person", [:name = "Alice"]])
 	Run()
 	? GraphQ().NodeCount()
@@ -727,7 +727,7 @@ oGraph {
 
 # Query: MATCH (a {id: "alice"}), (b {id: "bob"}) 
 #        CREATE (a)-[:KNOWS]->(b)
-CypherQ(oGraph) {
+StzGraphQueryQ(oGraph) {
 	Match([:node, "a", [:id = "alice"]])
 	Match([:node, "b", [:id = "bob"]])
 	Create([:rel, "a", "b", "KNOWS"])
@@ -753,7 +753,7 @@ oGraph {
 }
 
 # Query: MATCH (n {id: "alice"}) SET n.age = 31
-CypherQ(oGraph) {
+StzGraphQueryQ(oGraph) {
 	Match([:node, "n", [:id = "alice"]])
 	Set([:set, "n.age", 31])
 	Run()
@@ -773,7 +773,7 @@ oGraph {
 }
 
 # Query: MATCH (n {id: "alice"}) SET n.age = 31, n.city = "Paris"
-CypherQ(oGraph) {
+StzGraphQueryQ(oGraph) {
 	Match([:node, "n", [:id = "alice"]])
 	Set([:set, "n.age", 31])
 	Set([:set, "n.city", "Paris"])
@@ -804,7 +804,7 @@ oGraph {
 }
 
 # Query: MATCH (n {id: "alice"}) DELETE n
-CypherQ(oGraph) {
+StzGraphQueryQ(oGraph) {
 	Match([:node, "n", [:id = "alice"]])
 	Delete("n")
 	Run()
@@ -838,7 +838,7 @@ oGraph {
 # Query: MATCH (a {id: "alice"})-[:FRIEND]->()-[:FRIEND]->(fof) RETURN fof
 # Note: This requires two relationship matches
 
-CypherQ(oGraph) {
+StzGraphQueryQ(oGraph) {
 	Match([:node, "a", [:id = "alice"]])
 	Match([:rel, "a", "friend", "FRIEND"])
 	Match([:rel, "friend", "fof", "FRIEND"])
@@ -896,7 +896,7 @@ oGraph {
 }
 
 # Get alice's watched movies
-aAliceMovies = CypherQ(oGraph).
+aAliceMovies = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "alice", [:id = "alice"]]).
 	MatchQ([:rel, "alice", "m", "WATCHED"]).
 	ReturnQ("m.id").
@@ -908,21 +908,21 @@ for i = 1 to len(aAliceMovies)
 next
 
 # Find recommendations
-oCypher = CypherQ(oGraph)
-oCypher.Match([:node, "alice", [:id = "alice"]])
-oCypher.Match([:rel, "alice", "common", "WATCHED"])
-oCypher.Match([:rel, "other", "common", "WATCHED"])
-oCypher.Match([:rel, "other", "rec", "WATCHED"])
+oQuery = StzGraphQueryQ(oGraph)
+oQuery.Match([:node, "alice", [:id = "alice"]])
+oQuery.Match([:rel, "alice", "common", "WATCHED"])
+oQuery.Match([:rel, "other", "common", "WATCHED"])
+oQuery.Match([:rel, "other", "rec", "WATCHED"])
 
-oCypher.Where([:and,
+oQuery.Where([:and,
 	[:not, [:equals, "other.id", "alice"]],
 	[:not, ["in", "rec.id", acAliceIds]]
 ])
 
-oCypher.Return_("rec")
-oCypher.Distinct()
+oQuery.Return_("rec")
+oQuery.Distinct()
 
-aResults = oCypher.Run()
+aResults = oQuery.Run()
 
 ? len(aResults) #--> 1
 ? @@NL(aResults)
@@ -941,7 +941,7 @@ aResults = oCypher.Run()
 
 # EXPLNANATION OF THE QUERY PLAN
 ? ""
-? @@NL( oCypher.Explain() )
+? @@NL( oQuery.Explain() )
 #--> [
 # 	[
 # 		"match",
@@ -972,7 +972,7 @@ pf()
 # Executed in 0.05 second(s) in Ring 1.25
 
 /*--- Organizational hierarchy depth
-
+*/
 pr()
 
 oGraph = new stzGraph("org")
@@ -996,7 +996,7 @@ oGraph {
 # paths [:MANAGES*], which would require extending the pattern matcher.
 
 # Find all people managed by CEO (direct and indirect)
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "ceo", [:id = "ceo"]]).
 	MatchQ([:rel, "ceo", "subordinate", "MANAGES"]).
 	ReturnQ("subordinate").
@@ -1008,14 +1008,14 @@ aResults = CypherQ(oGraph).
 aAll = []
 
 # Level 1: CEO -> subordinate
-a1 = CypherQ(oGraph).
+a1 = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "ceo", [:id = "ceo"]]).
 	MatchQ([:rel, "ceo", "sub", "MANAGES"]).
 	ReturnQ("sub.id").
 	Run()
 
 # Level 2: CEO -> mid -> subordinate  
-a2 = CypherQ(oGraph).
+a2 = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "ceo", [:id = "ceo"]]).
 	MatchQ([:rel, "ceo", "mid", "MANAGES"]).
 	MatchQ([:rel, "mid", "sub", "MANAGES"]).
@@ -1023,7 +1023,7 @@ a2 = CypherQ(oGraph).
 	Run()
 
 # Level 3: CEO -> mid1 -> mid2 -> subordinate
-a3 = CypherQ(oGraph).
+a3 = StzGraphQueryQ(oGraph).
 	MatchQ([:node, "ceo", [:id = "ceo"]]).
 	MatchQ([:rel, "ceo", "m1", "MANAGES"]).
 	MatchQ([:rel, "m1", "m2", "MANAGES"]).
@@ -1054,7 +1054,7 @@ oGraph {
 }
 
 # Build query
-oQuery = CypherQ(oGraph)
+oQuery = StzGraphQueryQ(oGraph)
 oQuery {
 	Match([:node, "n", "Person"])
 	Where([:gt, "n.age", 25])
@@ -1094,7 +1094,7 @@ RETURN n
 LIMIT 2
 "
 
-oQuery = new stzGraphCypher(oGraph)
+oQuery = new stzGraphQuery(oGraph)
 oQuery.LoadFromOpenCypher(cCypherQuery)
 aResults = oQuery.Run()
 
@@ -1129,7 +1129,7 @@ oGraph {
 }
 
 # Find mutual friends between Alice and Dave
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 
 	MatchQ([:rel, "alice", "mutual", "FRIEND"]).
 	MatchQ([:rel, "dave", "mutual", "FRIEND"]).
@@ -1167,7 +1167,7 @@ oGraph {
 }
 
 # Find highly-rated products bought by similar users
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 
 	MatchQ([:rel, "user1", "common_prod", "BOUGHT"]).
 	MatchQ([:rel, "user2", "common_prod", "BOUGHT"]).
@@ -1209,7 +1209,7 @@ oGraph {
 }
 
 # Find continent of cities with population > 1M
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 
 	MatchQ([:rel, "city", "country", "LOCATED_IN"]).
 	MatchQ([:rel, "country", "continent", "PART_OF"]).
@@ -1245,7 +1245,7 @@ oGraph {
 }
 
 # Find complete supply chain paths
-aResults = CypherQ(oGraph).
+aResults = StzGraphQueryQ(oGraph).
 
 	MatchQ([:path, "start", "r1", "mid1"]).
 	MatchQ([:path, "mid1", "r2", "mid2"]).

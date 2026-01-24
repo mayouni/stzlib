@@ -128,7 +128,6 @@ ok
     load "graph/stzgraphrule.ring"
 
     load "graph/stzgraphquery.ring"
-    load "graph/stzgraphcypher.ring" # Implements OpenCypher standard
 
     load "graph/stzgraphplanner.ring"
     load "graph/stzknowledgegraph.ring"
