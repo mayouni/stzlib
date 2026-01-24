@@ -1335,6 +1335,8 @@ oGraph {
 
 }
 
+#NODE For more advanced queries use stzGraphQuery
+
 pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
