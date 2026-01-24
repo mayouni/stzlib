@@ -1,9 +1,7 @@
 load "../stzbase.ring"
 
-#============================================#
-#  stzGraphCypher - Pattern Matching Tests  #
-#  OpenCypher-style queries for stzGraph    #
-#============================================#
+# stzGraphCypher - Pattern Matching Tests
+# OpenCypher-style queries for stzGraph
 
 #-----------------------#
 #  BASIC NODE MATCHING  #
@@ -229,7 +227,6 @@ pf()
 #-------------------#
 #  WHERE FILTERING  #
 #-------------------#
-
 
 pr()
 
@@ -677,12 +674,29 @@ oQuery = new stzGraphCypher(oGraph)
 oQuery.Create([:node, "n", "Person", [:name = "Alice"]])
 oQuery.Run()
 oQuery.GraphObject()
-? @@NL( oQuery.GraphQ().Nodes() )
+
 ? oQuery.GraphQ().NodeCount()
 #--> 1
-#ERR we got 0!
+
+? @@NL( oQuery.GraphQ().Nodes() )
+#--> [
+# 	[
+# 		[
+# 			"id",
+# 			"node_96428f85-aa61-49e7-8a91-18e69821be70"
+# 		],
+# 		[ "label", "Person" ],
+# 		[
+# 			"properties",
+# 			[
+# 				[ "name", "Alice" ]
+# 			]
+# 		]
+# 	]
+# ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Create single node
 
@@ -806,7 +820,7 @@ pf()
 #---------------------------#
 
 /*--- Find friends of friends
-
+*/
 pr()
 
 oGraph = new stzGraph("social")
@@ -929,30 +943,30 @@ aResults = oCypher.Run()
 ? ""
 ? @@NL( oCypher.Explain() )
 #--> [
-	[
-		"match",
-		[
-			"Scan all nodes, bind to variable 'alice' with properties {id: "alice"}",
-			"Match relationships: (alice)-[]->(common) of type 'WATCHED'",
-			"Match relationships: (other)-[]->(common) of type 'WATCHED'",
-			"Match relationships: (other)-[]->(rec) of type 'WATCHED'"
-		]
-	],
-	[
-		"where",
-		[
-			'Filter bindings using conditions: (NOT (other.id = "alice") AND NOT (rec.id IN ["movie1", "movie2"]))'
-		]
-	],
-	[
-		"return",
-		[ "Apply DISTINCT filter", "Project fields: rec" ]
-	],
-	[
-		"complexity",
-		[ "Node scans: 1", "Edge scans: 3" ]
-	]
-]
+# 	[
+# 		"match",
+# 		[
+# 			"Scan all nodes, bind to variable 'alice' with properties {id: "alice"}",
+# 			"Match relationships: (alice)-[]->(common) of type 'WATCHED'",
+# 			"Match relationships: (other)-[]->(common) of type 'WATCHED'",
+# 			"Match relationships: (other)-[]->(rec) of type 'WATCHED'"
+# 		]
+# 	],
+# 	[
+# 		"where",
+# 		[
+# 			'Filter bindings using conditions: (NOT (other.id = "alice") AND NOT (rec.id IN ["movie1", "movie2"]))'
+# 		]
+# 	],
+# 	[
+# 		"return",
+# 		[ "Apply DISTINCT filter", "Project fields: rec" ]
+# 	],
+# 	[
+# 		"complexity",
+# 		[ "Node scans: 1", "Edge scans: 3" ]
+# 	]
+# ]
 
 pf()
 # Executed in 0.05 second(s) in Ring 1.25
@@ -1063,14 +1077,14 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.25
 
 /*--- Load from OpenCypher
-*/
+
 pr()
 
 oGraph = new stzGraph("test")
 oGraph {
-	AddNodeXTT("alice", "Person", [:age = 30])
-	AddNodeXTT("bob", "Person", [:age = 25])
-	AddNodeXTT("carol", "Person", [:age = 35])
+    AddNodeXTT("alice", "Person", [:age = 30])
+    AddNodeXTT("bob", "Person", [:age = 25])
+    AddNodeXTT("carol", "Person", [:age = 35])
 }
 
 cCypherQuery = "
@@ -1086,9 +1100,9 @@ aResults = oQuery.Run()
 
 ? len(aResults)
 #--> 2
-#ERR Got 0!
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.25
 
 #========================#
 #  REAL-WORLD USE CASES  #
@@ -1130,9 +1144,9 @@ aResults = CypherQ(oGraph).
 
 ? len(aResults)
 #--> 2 (bob and carol)
-#ERR Got 0!
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.25
 
 /*--- E-commerce: Product recommendations
 
@@ -1174,7 +1188,6 @@ aResults = CypherQ(oGraph).
 
 ? len(aResults)
 #--> 1 (prod_c)
-#ERR Got 0!
 
 pf()
 # Executed in 0.08 second(s) in Ring 1.25
@@ -1212,12 +1225,11 @@ aResults = CypherQ(oGraph).
 ? @@( aResults[1]["continent"][:id] )
 #--> "europe"
 
-#ERR: Can't access the list item, Object is not list
-
 pf()
+# Executed in 0.01 second(s) in Ring 1.25
 
 /*--- Supply chain: Critical path analysis
-
+*/
 pr()
 
 oGraph = new stzGraph("supply_chain")
@@ -1246,4 +1258,3 @@ aResults = CypherQ(oGraph).
 
 ? len(aResults)
 #--> 1 (complete path from supplier to customer)
-#ERR Got 0!

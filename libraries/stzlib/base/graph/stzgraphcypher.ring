@@ -1495,24 +1495,30 @@ class stzGraphCypher
 		ok
 	
 	def _ParseNodePattern(cPattern)
-		# Extract: (varname:Label {props})
 		nStart = substr(cPattern, "(")
 		nEnd = substr(cPattern, ")")
 		
 		if nStart > 0 and nEnd > 0
-			cInner = @substr(cPattern, nStart + 1, nEnd - 2)
+			cInner = substr(cPattern, nStart + 1, nEnd - nStart - 1)
 			
-			# Extract variable name
 			nColon = substr(cInner, ":")
-			cVarName = trim(@substr(cInner, 1, nColon - 1))
+			if nColon = 0
+				# Just variable name
+				This.Match([:node, trim(cInner)])
+				return
+			ok
 			
-			# Extract label
-			nBrace = substr(cInner, "{")
-			cLabel = ""
+			cVarName = trim(substr(cInner, 1, nColon - 1))
+			
+			# Get everything after colon
+			cRest = substr(cInner, nColon + 1)
+			
+			# Check for properties
+			nBrace = substr(cRest, "{")
 			if nBrace > 0
-				cLabel = trim(@substr(cInner, nColon + 1, nBrace - nColon - 2))
+				cLabel = trim(substr(cRest, 1, nBrace - 1))
 			else
-				cLabel = trim(@substr(cInner, nColon + 1, stzlen(cInner)))
+				cLabel = trim(cRest)
 			ok
 			
 			This.Match([:node, cVarName, cLabel])
