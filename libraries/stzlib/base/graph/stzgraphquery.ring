@@ -1,6 +1,5 @@
 #====================================================#
-#  stzGraphQuery - OpenCypher-oriented Query System  #
-#  Elegant graph pattern matching for stzGraph       #
+#  stzGraphQuery - Natural Softanza Query System    #
 #====================================================#
 
 func StzGraphQueryQ(oGraph)
@@ -10,11 +9,11 @@ class stzGraphQuery
 	@oGraph
 	@aMatchPatterns = []
 	@aWhereConditions = []
-	@aReturnFields = []
+	@aSelectFields = []
 	@aCreatePatterns = []
 	@aSetOperations = []
 	@aDeleteTargets = []
-	@nLimit = ""
+	@nLimit = 0
 	@nSkip = 0
 	@aOrderBy = []
 	@bDistinct = FALSE
@@ -23,87 +22,336 @@ class stzGraphQuery
 		if NOT @IsStzGraph(oGraph)
 			stzraise("Parameter must be a stzGraph object!")
 		ok
-		@oGraph = ref(oGraph) # The query could change the graph
+		@oGraph = ref(oGraph)
 	
 	def GraphObject()
 		return @oGraph
-
+		
 		def GraphQ()
 			return @oGraph
 
 	#------------------#
 	#  MATCH PATTERNS  #
 	#------------------#
-	
-	def Match(paPattern)
-		# Pattern formats:
-		# [:node, "varname"]
-		# [:node, "varname", "label"]
-		# [:node, "varname", [:prop = val]]
-		# [:rel, "var1", "var2", "label"]
-		# [:rel, "var1", "var2", [:type = "KNOWS"]]
-		# [:path, "var1", "rel", "var2"]
 		
-		@aMatchPatterns + paPattern
+	def Match(paParams)
+	    # Simple atom - match all nodes
+	    if paParams = :nodes or paParams = :node
+	        @aMatchPatterns + [ ["type", :node], ["alias", "node"], ["label", ""], ["props", []] ]
+	        return
+	    ok
+	    
+	    # Build internal hashlist
+	    aInternal = [ ["type", :node], ["alias", "node"], ["label", ""], ["props", []] ]
+	    
+	    if isList(paParams)
+	        # Check for simple [:nodes] or first element patterns
+	        if len(paParams) > 0 and (paParams[1] = :nodes or paParams[1] = :node)
+	            # Look for :where, :labeled, :props in subsequent elements
+	            for i = 2 to len(paParams)
+	                if isList(paParams[i]) and len(paParams[i]) >= 2
+	                    if paParams[i][1] = :where
+	                        aWhere = paParams[i][2]
+	                        aInternalCond = This._NormalizeCondition(aWhere, aInternal["alias"])
+	                        aInternal["where"] = aInternalCond
+	                    but paParams[i][1] = :labeled
+	                        aInternal["label"] = paParams[i][2]
+	                    but paParams[i][1] = :props or paParams[i][1] = :properties
+	                        aInternal["props"] = paParams[i][2]
+	                    ok
+	                ok
+	            next
+	            
+	            @aMatchPatterns + aInternal
+	            return
+	        ok
+	        
+	        # Extract node alias if specified
+	        if HasKey(paParams, :node)
+	            aInternal["alias"] = paParams[:node]
+	        ok
+	        
+	        # Extract label
+	        if HasKey(paParams, :labeled)
+	            aInternal["label"] = paParams[:labeled]
+	        ok
+	        
+	        # Extract properties
+	        if HasKey(paParams, :props) or HasKey(paParams, :properties)
+	            aProps = paParams[:props]
+	            if aProps = ""
+	                aProps = paParams[:properties]
+	            ok
+	            aInternal["props"] = aProps
+	        ok
+	        
+	        # Auto-add where condition to pattern
+	        if HasKey(paParams, :where)
+	            aWhere = paParams[:where]
+	            aInternalCond = This._NormalizeCondition(aWhere, aInternal["alias"])
+	            aInternal["where"] = aInternalCond
+	        ok
+	    ok
+	    
+	    @aMatchPatterns + aInternal
 	
-		def MatchQ(paPattern)
-			This.Match(paPattern)
+	    def MatchQ(paParams)
+	        This.Match(paParams)
+	        return This
+	
+	def MatchEdge(paParams)
+	    # Natural forms:
+	    # MatchEdge([:from = "alice", :to = "bob"])
+	    # MatchEdge([:from = "a", :to = "b", :labeled = "KNOWS"])
+	    # MatchEdge([:from = "a", :to = "b", :where = [:since, ">", 2020]])
+		
+	    # Build internal hashlist
+	    aInternal = [ 
+	        ["type", :edge], 
+	        ["from", "from_node"], 
+	        ["to", "to_node"], 
+	        ["label", ""], 
+	        ["props", []] 
+	    ]
+	    
+	    if isList(paParams)
+	        # Extract from list format
+	        for i = 1 to len(paParams)
+	            if isList(paParams[i]) and len(paParams[i]) >= 2
+	                if paParams[i][1] = :from
+	                    aInternal["from"] = paParams[i][2]
+	                but paParams[i][1] = :to
+	                    aInternal["to"] = paParams[i][2]
+	                but paParams[i][1] = :labeled
+	                    aInternal["label"] = paParams[i][2]
+	                but paParams[i][1] = :props or paParams[i][1] = :properties
+	                    aInternal["props"] = paParams[i][2]
+	                but paParams[i][1] = :where
+	                    aWhere = paParams[i][2]
+	                    aInternalCond = This._NormalizeCondition(aWhere, aInternal["from"])
+	                    aInternal["where"] = aInternalCond
+	                ok
+	            ok
+	        next
+	    ok
+	    
+	    @aMatchPatterns + aInternal
+	
+		def MatchEdgeQ(paParams)
+			This.MatchEdge(paParams)
 			return This
 
-	def Where(pCondition)
-		# Condition formats:
-		# [:equals, "n.age", 25]
-		# [:gt, "n.salary", 50000]
-		# [:contains, "n.name", "John"]
-		# [:and, cond1, cond2]
-		# [:or, cond1, cond2]
-		# [:not, cond]
-		# Or function: func(aBindings) { ... }
+	def Where(paCondition)
+	    # Natural forms:
+	    # Where([:age, ">", 25])
+	    # Where([:age, ">", 25, :and, :dept, "=", "Sales"])
+	    # Where(func(node) { ... })
 		
-		@aWhereConditions + pCondition
+	    if @IsFunction(paCondition)
+	        # Add to last pattern if exists, otherwise global
+	        if len(@aMatchPatterns) > 0
+	            nLast = len(@aMatchPatterns)
+	            @aMatchPatterns[nLast]["where"] = paCondition
+	        else
+	            @aWhereConditions + paCondition
+	        ok
+	        return
+	    ok
+	    
+	    # Convert natural condition to internal hashlist format
+	    aInternalCond = This._NormalizeCondition(paCondition, "node")
+	    
+	    # Add to last pattern if exists, otherwise global
+	    if len(@aMatchPatterns) > 0
+	        nLast = len(@aMatchPatterns)
+	        # Get variable name from last pattern
+	        cVar = "node"
+	        if HasKey(@aMatchPatterns[nLast], "alias")
+	            cVar = @aMatchPatterns[nLast]["alias"]
+	        ok
+	        aInternalCond = This._NormalizeCondition(paCondition, cVar)
+	        @aMatchPatterns[nLast]["where"] = aInternalCond
+	    else
+	        @aWhereConditions + aInternalCond
+	    ok
 
-		def WhereQ(pCondition)
-			This.Where(pCondition)
+		def WhereQ(paCondition)
+			This.Where(paCondition)
 			return This
 
 		def WhereF(pCondition)
 			This.Where(pCondition)
 
 			def WhereFQ(pCondition)
-				return This.WhereQ(pCondition)
+				This.WhereF(pCondition)
+				return This
 
-	def Return_(paFields)
-		# Field formats:
-		# "n"
-		# "n.name"
-		# [:as, "n.age", "years"]
-		# [:count, "n"]
-		# [:distinct, "n.type"]
-		
-		if isString(paFields)
-			@aReturnFields + paFields
+
+		def _NormalizeCondition(paCondition, pcVarName)
+		# Convert [:age, ">", 25] to [["op", "gt"], ["left", "node.age"], ["right", 25]]
+
+		    if NOT isList(paCondition)
+		        return paCondition
+		    ok
+		    
+		    if pcVarName = ""
+		        pcVarName = "node"
+		    ok
+		    
+		    # Simple condition: [prop, op, value]
+		    if len(paCondition) = 3
+		        cProp = paCondition[1]
+		        cOp = paCondition[2]
+		        pValue = paCondition[3]
+		        
+		        # Convert operator
+		        cInternalOp = This._ConvertOp(cOp)
+		        
+		        # Add implicit variable if needed
+		        if isString(cProp) and NOT substr(cProp, ".")
+		            cProp = pcVarName + "." + cProp
+		        ok
+		        
+		        return [ ["op", cInternalOp], ["left", cProp], ["right", pValue] ]
+		    ok
+		    
+		    # Compound condition logic unchanged...
+		    if len(paCondition) > 3
+		        nLogicPos = 0
+		        nLen = len(paCondition)
+		        for i = 1 to nLen
+		            if paCondition[i] = :and or paCondition[i] = :or
+		                nLogicPos = i
+		                exit
+		            ok
+		        next
+		        
+		        if nLogicPos > 0
+		            aLeft = []
+		            for i = 1 to nLogicPos - 1
+		                aLeft + paCondition[i]
+		            next
+		            
+		            aRight = []
+		            for i = nLogicPos + 1 to nLen
+		                aRight + paCondition[i]
+		            next
+		            
+		            cLogic = paCondition[nLogicPos]
+		            
+		            return [ 
+		                ["op", cLogic],
+		                ["left", This._NormalizeCondition(aLeft, pcVarName)],
+		                ["right", This._NormalizeCondition(aRight, pcVarName)]
+		            ]
+		        ok
+		    ok
+		    
+		    return paCondition
 	
-		but isList(paFields)
-			# Check if it's a single pattern like [:as, "n.age", "years"]
-			# or a list of field names like ["a", "b"]
-			if len(paFields) > 0
-				pFirst = paFields[1]
-				# Check if first element is a keyword (as, count, distinct)
-				if pFirst = "as" or pFirst = "count" or pFirst = "distinct"
-					# It's a single special pattern - add as-is
-					@aReturnFields + paFields
-				else
-					# It's a list of field names - add each one
-					nLen = len(paFields)
-					for i = 1 to nLen
-						@aReturnFields + paFields[i]
-					next
-				ok
-			ok
+	def _ConvertOp(cOp)
+		# Convert natural operators to internal symbols
+		if cOp = ">"
+			return :gt
+		but cOp = "<"
+			return :lt
+		but cOp = ">="
+			return :gte
+		but cOp = "<="
+			return :lte
+		but cOp = "="
+			return :equals
+		but cOp = "!="
+			return :not_equals
+		but cOp = :contains
+			return :contains
+		but cOp = :startswith
+			return :startswith
+		but cOp = :endswith
+			return :endswith
+		but cOp = :in
+			return :in
+		but cOp = :not_in
+			return :not_in
 		ok
+		
+		return cOp
+
+	def Select(paFields)
+	    # Natural forms:
+	    # Select("*")
+	    # Select("name")
+	    # Select(["name", "age"])
+	    # Select(["age", :as = "years"])
+
+	    # Handle "*" for all matched variables
+	    if paFields = "*"
+	        # Collect all variable names from match patterns
+	        acVars = []
+	        nLen = len(@aMatchPatterns)
+	        for i = 1 to nLen
+	            aPattern = @aMatchPatterns[i]
+	            if aPattern["type"] = :node
+	                cVar = aPattern["alias"]
+	                if ring_find(acVars, cVar) = 0
+	                    acVars + cVar
+	                ok
+	            but aPattern["type"] = :edge
+	                cFrom = aPattern["from"]
+	                cTo = aPattern["to"]
+	                if ring_find(acVars, cFrom) = 0
+	                    acVars + cFrom
+	                ok
+	                if ring_find(acVars, cTo) = 0
+	                    acVars + cTo
+	                ok
+	            ok
+	        next
+	        
+	        # Add all variables to select fields
+	        nLen = len(acVars)
+	        for i = 1 to nLen
+	            @aSelectFields + acVars[i]
+	        next
+	        
+	        return This._Execute()
+	    ok
+	    
+	    if isString(paFields)
+	        @aSelectFields + paFields
+	        return This._Execute()
+	    ok
+	    
+	    if NOT isList(paFields)
+	        return This._Execute()
+	    ok
+	    
+	    # Check for :as syntax
+	    if len(paFields) = 2 and isList(paFields[2]) and len(paFields[2]) = 2
+	        if paFields[2][1] = :as
+	            cField = paFields[1]
+	            cAlias = paFields[2][2]
+	            
+	            @aSelectFields + [ ["field", cField], ["alias", cAlias] ]
+	            return This._Execute()
+	        ok
+	    ok
+	    
+	    # List of field names
+	    nLen = len(paFields)
+	    for i = 1 to nLen
+	        pField = paFields[i]
+	        if isString(pField)
+	            @aSelectFields + pField
+	        but isList(pField)
+	            @aSelectFields + pField
+	        ok
+	    next
+	    
+	    return This._Execute()
 	
-		def ReturnQ(paFields)
-			This.Return_(paFields)
+		def SelectQ(paFields)
+			This.Select(paFields)
 			return This
 
 	def Distinct()
@@ -115,9 +363,9 @@ class stzGraphQuery
 
 	def OrderBy(pcField, pcDirection)
 		if NOT isString(pcDirection)
-			pcDirection = :asc
+			pcDirection = "asc"
 		ok
-		@aOrderBy + [pcField, lower(pcDirection)]
+		@aOrderBy + [ ["field", pcField], ["direction", lower(pcDirection)] ]
 	
 		def OrderByQ(pcField, pcDirection)
 			This.OrderBy(pcField, pcDirection)
@@ -137,27 +385,83 @@ class stzGraphQuery
 			This.Skip(pnSkip)
 			return This
 
-	#------------------#
-	#  CREATE/UPDATE   #
-	#------------------#
+	def Set(pcProperty, paValue)
+		# Natural form: Set("n.age", :to = 31)
+		
+		pValue = paValue
+		
+		if isList(paValue) and HasKey(paValue, :to)
+			pValue = paValue[:to]
+		ok
+		
+		@aSetOperations + [ ["op", :set], ["property", pcProperty], ["value", pValue] ]
 	
-	def Create(paPattern)
-		@aCreatePatterns + paPattern
-	
-		def CreateQ(paPattern)
-			This.Create(paPattern)
+		def SetQ(pcProperty, paValue)
+			This.Set(pcProperty, paValue)
 			return This
 
-	def Set(paOperation)
-		# Operation formats:
-		# [:set, "n.age", 26]
-		# [:set, "n", [:status = "active"]]
-		# [:remove, "n.temp"]
+	def Create(paParams)
+		# Natural forms:
+		# Create([:node, :labeled = "Person", :props = [:name = "Alice"]])
+		# Create([:edge, :from = "a", :to = "b", :labeled = "KNOWS"])
 		
-		@aSetOperations + paOperation
+		if NOT isList(paParams)
+			return
+		ok
+		
+		cType = :node
+		if paParams[1] = :node or paParams[1] = :nodes
+			cType = :node
+		but paParams[1] = :edge or paParams[1] = :edges
+			cType = :edge
+		ok
+		
+		if cType = :node
+			aInternal = [ ["type", :node], ["label", ""], ["props", []] ]
+			
+			if HasKey(paParams, :labeled)
+				aInternal["label"] = paParams[:labeled]
+			ok
+			
+			if HasKey(paParams, :props) or HasKey(paParams, :properties)
+				aProps = paParams[:props]
+				if aProps = ""
+					aProps = paParams[:properties]
+				ok
+				aInternal["props"] = aProps
+			ok
+			
+			@aCreatePatterns + aInternal
+		
+		but cType = :edge
+		    aInternal = [ 
+		        ["type", :edge], 
+		        ["from", ""], 
+		        ["to", ""], 
+		        ["label", ""], 
+		        ["props", []] 
+		    ]
+		    
+		    # Extract from list format
+		    for i = 2 to len(paParams)
+		        if isList(paParams[i]) and len(paParams[i]) >= 2
+		            if paParams[i][1] = :from
+		                aInternal["from"] = paParams[i][2]
+		            but paParams[i][1] = :to
+		                aInternal["to"] = paParams[i][2]
+		            but paParams[i][1] = :labeled
+		                aInternal["label"] = paParams[i][2]
+		            but paParams[i][1] = :props or paParams[i][1] = :properties
+		                aInternal["props"] = paParams[i][2]
+		            ok
+		        ok
+		    next
+		    
+		    @aCreatePatterns + aInternal
+		ok
 	
-		def SetQ(paOperation)
-			This.Set(paOperation)
+		def CreateQ(paParams)
+			This.Create(paParams)
 			return This
 
 	def Delete(paTargets)
@@ -179,146 +483,153 @@ class stzGraphQuery
 	#  QUERY EXECUTION  #
 	#-------------------#
 	
-	def Run()
-		# Execute the query and return results
-		aBindings = []
-		
-		# Phase 1: MATCH - Find matching patterns
-		if len(@aMatchPatterns) > 0
-			aBindings = This._ExecuteMatch()
-		ok
-		
-		# Phase 2: WHERE - Filter bindings
-		if len(@aWhereConditions) > 0
-			aBindings = This._ApplyWhere(aBindings)
-		ok
-		
-		# Phase 3: CREATE - Create new elements
-		if len(@aCreatePatterns) > 0
-			This._ExecuteCreate(aBindings)
-		ok
-		
-		# Phase 4: SET - Update properties
-		if len(@aSetOperations) > 0
-			This._ExecuteSet(aBindings)
-		ok
-		
-		# Phase 5: DELETE - Remove elements
-		if len(@aDeleteTargets) > 0
-			This._ExecuteDelete(aBindings)
-		ok
-		
-		# Phase 6: RETURN - Project results
-		if len(@aReturnFields) > 0
-			aBindings = This._ExecuteReturn(aBindings)
-		ok
-		
-		# Phase 7: ORDER BY
-		if len(@aOrderBy) > 0
-			aBindings = This._ApplyOrderBy(aBindings)
-		ok
-		
-		# Phase 8: SKIP
-		if @nSkip > 0
-			aBindings = This._ApplySkip(aBindings)
-		ok
-		
-		# Phase 9: LIMIT
-		if @nLimit != ""
-			aBindings = This._ApplyLimit(aBindings)
-		ok
-		
-		return aBindings
-	
-		def Execute()
-			return This.Run()
+	def _Execute()
+	    aBindings = []
+	    
+	    if len(@aMatchPatterns) > 0
+	        aBindings = This._ExecuteMatch()
+	    ok
+	    
+	    # REMOVE THIS BLOCK - WHERE is now applied per-pattern
+	    # if len(@aWhereConditions) > 0
+	    #     aBindings = This._ApplyWhere(aBindings)
+	    # ok
+	    
+	    if len(@aCreatePatterns) > 0
+	        This._ExecuteCreate(aBindings)
+	    ok
+	    
+	    if len(@aSetOperations) > 0
+	        This._ExecuteSet(aBindings)
+	    ok
+	    
+	    if len(@aDeleteTargets) > 0
+	        This._ExecuteDelete(aBindings)
+	    ok
+	    
+	    if len(@aSelectFields) > 0
+	        aBindings = This._ExecuteSelect(aBindings)
+	    ok
+	    
+	    if len(@aOrderBy) > 0
+	        aBindings = This._ApplyOrderBy(aBindings)
+	    ok
+	    
+	    if @nSkip > 0
+	        aBindings = This._ApplySkip(aBindings)
+	    ok
+	    
+	    if @nLimit > 0
+	        aBindings = This._ApplyLimit(aBindings)
+	    ok
+	    
+	    return aBindings
 	
 	#-----------------------#
 	#  PATTERN MATCHING     #
 	#-----------------------#
 	
 	def _ExecuteMatch()
-		aAllBindings = []
-		
-		nLen = len(@aMatchPatterns)
-		for i = 1 to nLen
-			aPattern = @aMatchPatterns[i]
-			cPatternType = aPattern[1]
-			
-			if cPatternType = :node
-				aNodeBindings = This._MatchNode(aPattern)
-				aAllBindings = This._MergeBindings(aAllBindings, aNodeBindings)
-				
-			but cPatternType = :rel or cPatternType = :relationship
-				aRelBindings = This._MatchRelationship(aPattern)
-				aAllBindings = This._MergeBindings(aAllBindings, aRelBindings)
-				
-			but cPatternType = :path
-				aPathBindings = This._MatchPath(aPattern)
-				aAllBindings = This._MergeBindings(aAllBindings, aPathBindings)
-			ok
-		next
-		
-		return aAllBindings
+	    aAllBindings = []
+	    
+	    nLen = len(@aMatchPatterns)
+	    for i = 1 to nLen
+	        aPattern = @aMatchPatterns[i]
+	        cPatternType = aPattern["type"]
+	        
+	        if cPatternType = :node
+	            aNodeBindings = This._MatchNode(aPattern)
+	            if i = 1
+	                aAllBindings = aNodeBindings
+	            else
+	                aAllBindings = This._MergeBindings(aAllBindings, aNodeBindings)
+	            ok
+	            
+	        but cPatternType = :edge
+	            aEdgeBindings = This._MatchEdge(aPattern)
+	            if i = 1
+	                aAllBindings = aEdgeBindings
+	            else
+	                aAllBindings = This._MergeBindings(aAllBindings, aEdgeBindings)
+	            ok
+	        ok
+	    next
+	    
+	    return aAllBindings
 	
 	def _MatchNode(aPattern)
-		cVarName = aPattern[2]
-		aBindings = []
-		
-		aNodes = @oGraph.Nodes()
-		nLen = len(aNodes)
-		
-		for i = 1 to nLen
-			aNode = aNodes[i]
-			bMatch = TRUE
-			
-			if len(aPattern) >= 3 and isString(aPattern[3])
-				if aNode[:label] != aPattern[3]
-					bMatch = FALSE
-				ok
-			ok
-			
-			if len(aPattern) >= 3 and isList(aPattern[3])
-				aProps = aPattern[3]
-				acKeys = keys(aProps)
-				nKeyLen = len(acKeys)
-				
-				for j = 1 to nKeyLen
-					cKey = acKeys[j]
-					pValue = aProps[cKey]
-					
-					# Check if it's matching the node ID (special case)
-					if cKey = "id"
-						if aNode[:id] != pValue
-							bMatch = FALSE
-							exit
-						ok
-					# Otherwise check properties
-					else
-						if NOT This._NodeHasProperty(aNode, cKey, pValue)
-							bMatch = FALSE
-							exit
-						ok
-					ok
-				next
-			ok
-			
-			if bMatch
-				aBinding = []
-				aBinding[cVarName] = aNode
-				aBindings + aBinding
-			ok
-		next
-		
-		return aBindings
+	    cVarName = aPattern["alias"]
+	    cLabel = aPattern["label"]
+	    aProps = aPattern["props"]
+	    pWhere = NULL
+	    
+	    if HasKey(aPattern, "where")
+	        pWhere = aPattern["where"]
+	    ok
+	    
+	    aBindings = []
+	    aNodes = @oGraph.Nodes()
+	    nLen = len(aNodes)
+	    
+	    for i = 1 to nLen
+	        aNode = aNodes[i]
+	        bMatch = TRUE
+	        
+	        # Check label
+	        if cLabel != "" and HasKey(aNode, :label)
+	            if aNode[:label] != cLabel
+	                bMatch = FALSE
+	            ok
+	        ok
+	        
+	        # Check properties
+	        if isList(aProps) and len(aProps) > 0
+	            acKeys = keys(aProps)
+	            nKeyLen = len(acKeys)
+	            
+	            for j = 1 to nKeyLen
+	                cKey = acKeys[j]
+	                pValue = aProps[cKey]
+	                
+	                if cKey = "id"
+	                    if aNode[:id] != pValue
+	                        bMatch = FALSE
+	                        exit
+	                    ok
+	                else
+	                    if NOT This._NodeHasProperty(aNode, cKey, pValue)
+	                        bMatch = FALSE
+	                        exit
+	                    ok
+	                ok
+	            next
+	        ok
+	        
+	        # Apply pattern-specific WHERE condition
+	        if bMatch and pWhere != NULL
+	            aBinding = [ [cVarName, aNode] ]
+	            bWhereResult = This._EvaluateCondition(pWhere, aBinding)
+
+	            if NOT bWhereResult
+	                bMatch = FALSE
+	            ok
+	        ok
+	        
+	        if bMatch
+	            aBinding = [ [cVarName, aNode] ]
+	            aBindings + aBinding
+	        ok
+	    next
+	    
+	    return aBindings
 	
-	def _MatchRelationship(aPattern)
-		# Pattern: [:rel, "fromVar", "toVar", label_or_props]
-		cFromVar = aPattern[2]
-		cToVar = aPattern[3]
-		aBindings = []
+	def _MatchEdge(aPattern)
+		cFromVar = aPattern["from"]
+		cToVar = aPattern["to"]
+		cLabel = aPattern["label"]
+		aProps = aPattern["props"]
 		
-		# Get all edges
+		aBindings = []
 		aEdges = @oGraph.Edges()
 		nLen = len(aEdges)
 		
@@ -326,16 +637,15 @@ class stzGraphQuery
 			aEdge = aEdges[i]
 			bMatch = TRUE
 			
-			# Check label/type if specified
-			if len(aPattern) >= 4 and isString(aPattern[4])
-				if aEdge[:label] != aPattern[4]
+			# Check label
+			if cLabel != "" and HasKey(aEdge, :label)
+				if aEdge[:label] != cLabel
 					bMatch = FALSE
 				ok
 			ok
 			
-			# Check properties if specified
-			if len(aPattern) >= 4 and isList(aPattern[4])
-				aProps = aPattern[4]
+			# Check properties
+			if isList(aProps) and len(aProps) > 0
 				acKeys = keys(aProps)
 				nKeyLen = len(acKeys)
 				
@@ -349,87 +659,64 @@ class stzGraphQuery
 			ok
 			
 			if bMatch
-				aBinding = []
-				aBinding[cFromVar] = @oGraph.Node(aEdge[:from])
-				aBinding[cToVar] = @oGraph.Node(aEdge[:to])
-				aBinding["_rel_"] = aEdge
+				aBinding = [
+					[cFromVar, @oGraph.Node(aEdge[:from])],
+					[cToVar, @oGraph.Node(aEdge[:to])],
+					["edge_data", aEdge]
+				]
 				aBindings + aBinding
 			ok
 		next
 		
 		return aBindings
 	
-	def _MatchPath(aPattern)
-		# Pattern: [:path, "startVar", "relVar", "endVar"]
-		cStartVar = aPattern[2]
-		cRelVar = aPattern[3]
-		cEndVar = aPattern[4]
-		aBindings = []
-		
-		# Get all edges for path matching
-		aEdges = @oGraph.Edges()
-		nLen = len(aEdges)
-		
-		for i = 1 to nLen
-			aEdge = aEdges[i]
-			aBinding = []
-			aBinding[cStartVar] = @oGraph.Node(aEdge[:from])
-			aBinding[cRelVar] = aEdge
-			aBinding[cEndVar] = @oGraph.Node(aEdge[:to])
-			aBindings + aBinding
-		next
-		
-		return aBindings
-	
 	def _MergeBindings(aExisting, aNew)
-		if len(aExisting) = 0
-			return aNew
-		ok
-		
-		if len(aNew) = 0
-			return aExisting
-		ok
-		
-		# Cross product with compatibility check
-		aMerged = []
-		nExistLen = len(aExisting)
-		nNewLen = len(aNew)
-		
-		for i = 1 to nExistLen
-			aExistBinding = aExisting[i]
-			
-			for j = 1 to nNewLen
-				aNewBinding = aNew[j]
-				
-				# Check if bindings are compatible
-				if This._BindingsCompatible(aExistBinding, aNewBinding)
-					# Merge them
-					aCombined = []
-					acExistKeys = keys(aExistBinding)
-					nKeyLen = len(acExistKeys)
-					
-					for k = 1 to nKeyLen
-						aCombined[acExistKeys[k]] = aExistBinding[acExistKeys[k]]
-					next
-					
-					acNewKeys = keys(aNewBinding)
-					nKeyLen = len(acNewKeys)
-					
-					for k = 1 to nKeyLen
-						if NOT HasKey(aCombined, acNewKeys[k])
-							aCombined[acNewKeys[k]] = aNewBinding[acNewKeys[k]]
-						ok
-					next
-					
-					aMerged + aCombined
-				ok
-			next
-		next
-		
-		return aMerged
+	    if len(aExisting) = 0
+	        return aNew
+	    ok
+	    
+	    if len(aNew) = 0
+	        return aExisting
+	    ok
+	    
+	    aMerged = []
+	    nExistLen = len(aExisting)
+	    nNewLen = len(aNew)
+	    
+	    for i = 1 to nExistLen
+	        aExistBinding = aExisting[i]
+	        
+	        for j = 1 to nNewLen
+	            aNewBinding = aNew[j]
+	            
+	            # Check if bindings are compatible (shared variables must match)
+	            if This._BindingsCompatible(aExistBinding, aNewBinding)
+	                aCombined = []
+	                
+	                # Add existing bindings
+	                acExistKeys = keys(aExistBinding)
+	                nKeyLen = len(acExistKeys)
+	                for k = 1 to nKeyLen
+	                    aCombined + [acExistKeys[k], aExistBinding[acExistKeys[k]]]
+	                next
+	                
+	                # Add new bindings (avoid duplicates)
+	                acNewKeys = keys(aNewBinding)
+	                nKeyLen = len(acNewKeys)
+	                for k = 1 to nKeyLen
+	                    if NOT HasKey(aCombined, acNewKeys[k])
+	                        aCombined + [acNewKeys[k], aNewBinding[acNewKeys[k]]]
+	                    ok
+	                next
+	                
+	                aMerged + aCombined
+	            ok
+	        next
+	    next
+	    
+	    return aMerged
 	
 	def _BindingsCompatible(aBinding1, aBinding2)
-		# Check if two bindings can be merged
 		acKeys1 = keys(aBinding1)
 		acKeys2 = keys(aBinding2)
 		
@@ -437,9 +724,13 @@ class stzGraphQuery
 		for i = 1 to nLen1
 			cKey = acKeys1[i]
 			if HasKey(aBinding2, cKey)
-				# Same variable must bind to same value
-				if aBinding1[cKey][:id] != aBinding2[cKey][:id]
-					return FALSE
+				aVal1 = aBinding1[cKey]
+				aVal2 = aBinding2[cKey]
+				
+				if HasKey(aVal1, :id) and HasKey(aVal2, :id)
+					if aVal1[:id] != aVal2[:id]
+						return FALSE
+					ok
 				ok
 			ok
 		next
@@ -451,7 +742,6 @@ class stzGraphQuery
 	#------------------#
 	
 	def _ApplyWhere(aBindings)
-		
 		aFiltered = []
 		nLen = len(aBindings)
 		
@@ -475,7 +765,7 @@ class stzGraphQuery
 		return aFiltered
 	
 	def _EvaluateCondition(pCondition, aBinding)
-	
+
 		if @IsFunction(pCondition)
 			return call pCondition(aBinding)
 		ok
@@ -484,149 +774,167 @@ class stzGraphQuery
 			return TRUE
 		ok
 		
-		cOp = pCondition[1]
+		cOp = pCondition["op"]
 		
-		if cOp = :equals or cOp = "="
-			pLeft = This._ResolveValue(pCondition[2], aBinding)
-			pRight = pCondition[3]  # Don't resolve - keep as literal
+		if cOp = :equals
+			pLeft = This._ResolveValue(pCondition["left"], aBinding)
+			pRight = pCondition["right"]
 			
-			# If right side looks like a property path, resolve it
 			if isString(pRight) and substr(pRight, ".") > 0
 				pRight = This._ResolveValue(pRight, aBinding)
 			ok
 			
 			return pLeft = pRight
 			
-		but cOp = :gt or cOp = ">"
-			pLeft = This._ResolveValue(pCondition[2], aBinding)
-			pRight = This._ResolveValue(pCondition[3], aBinding)
+		but cOp = :gt
+			pLeft = This._ResolveValue(pCondition["left"], aBinding)
+			pRight = This._ResolveValue(pCondition["right"], aBinding)
 			return isNumber(pLeft) and isNumber(pRight) and pLeft > pRight
 			
-		but cOp = :lt or cOp = "<"
-			pLeft = This._ResolveValue(pCondition[2], aBinding)
-			pRight = This._ResolveValue(pCondition[3], aBinding)
+		but cOp = :lt
+			pLeft = This._ResolveValue(pCondition["left"], aBinding)
+			pRight = This._ResolveValue(pCondition["right"], aBinding)
 			return isNumber(pLeft) and isNumber(pRight) and pLeft < pRight
 			
-		but cOp = :gte or cOp = ">="
-			pLeft = This._ResolveValue(pCondition[2], aBinding)
-			pRight = This._ResolveValue(pCondition[3], aBinding)
+		but cOp = :gte
+			pLeft = This._ResolveValue(pCondition["left"], aBinding)
+			pRight = This._ResolveValue(pCondition["right"], aBinding)
 			return isNumber(pLeft) and isNumber(pRight) and pLeft >= pRight
 			
-		but cOp = :lte or cOp = "<="
-			pLeft = This._ResolveValue(pCondition[2], aBinding)
-			pRight = This._ResolveValue(pCondition[3], aBinding)
+		but cOp = :lte
+			pLeft = This._ResolveValue(pCondition["left"], aBinding)
+			pRight = This._ResolveValue(pCondition["right"], aBinding)
 			return isNumber(pLeft) and isNumber(pRight) and pLeft <= pRight
 			
+		but cOp = :not_equals
+			pLeft = This._ResolveValue(pCondition["left"], aBinding)
+			pRight = This._ResolveValue(pCondition["right"], aBinding)
+			return pLeft != pRight
+			
 		but cOp = :contains
-			pLeft = This._ResolveValue(pCondition[2], aBinding)
-			pRight = This._ResolveValue(pCondition[3], aBinding)
+			pLeft = This._ResolveValue(pCondition["left"], aBinding)
+			pRight = This._ResolveValue(pCondition["right"], aBinding)
 			return isString(pLeft) and isString(pRight) and substr(lower(pLeft), lower(pRight)) > 0
 			
 		but cOp = :startswith
-			pLeft = This._ResolveValue(pCondition[2], aBinding)
-			pRight = This._ResolveValue(pCondition[3], aBinding)
+			pLeft = This._ResolveValue(pCondition["left"], aBinding)
+			pRight = This._ResolveValue(pCondition["right"], aBinding)
 			return isString(pLeft) and isString(pRight) and left(lower(pLeft), len(pRight)) = lower(pRight)
 			
 		but cOp = :endswith
-			pLeft = This._ResolveValue(pCondition[2], aBinding)
-			pRight = This._ResolveValue(pCondition[3], aBinding)
+			pLeft = This._ResolveValue(pCondition["left"], aBinding)
+			pRight = This._ResolveValue(pCondition["right"], aBinding)
 			return isString(pLeft) and isString(pRight) and right(lower(pLeft), len(pRight)) = lower(pRight)
 			
 		but cOp = :and
-			return This._EvaluateCondition(pCondition[2], aBinding) and
-			       This._EvaluateCondition(pCondition[3], aBinding)
+			return This._EvaluateCondition(pCondition["left"], aBinding) and
+			       This._EvaluateCondition(pCondition["right"], aBinding)
 			       
 		but cOp = :or
-			return This._EvaluateCondition(pCondition[2], aBinding) or
-			       This._EvaluateCondition(pCondition[3], aBinding)
+			return This._EvaluateCondition(pCondition["left"], aBinding) or
+			       This._EvaluateCondition(pCondition["right"], aBinding)
 			       
 		but cOp = :not
-			return NOT This._EvaluateCondition(pCondition[2], aBinding)
+			return NOT This._EvaluateCondition(pCondition["left"], aBinding)
 			
-		but cOp = "in"
-			pLeft = This._ResolveValue(pCondition[2], aBinding)
-			aRight = pCondition[3]  # Literal list, don't resolve
+		but cOp = :in
+			pLeft = This._ResolveValue(pCondition["left"], aBinding)
+			aRight = pCondition["right"]
 			return isList(aRight) and ring_find(aRight, pLeft) > 0
+			
+		but cOp = :not_in
+			pLeft = This._ResolveValue(pCondition["left"], aBinding)
+			aRight = pCondition["right"]
+			return isList(aRight) and ring_find(aRight, pLeft) = 0
 		ok
 		
 		return TRUE
 	
 	def _ResolveValue(pValue, aBinding)
-		if isString(pValue)
-			# Check if it's a variable reference like "n.age" or "m.id"
-			if substr(pValue, ".") > 0
-				acParts = @split(pValue, ".")
-				cVar = acParts[1]
-				cProp = acParts[2]
-				
-				if HasKey(aBinding, cVar)
-					aNode = aBinding[cVar]
-					
-					# Special case: accessing .id gets the node's top-level id
-					if cProp = "id"
-						if HasKey(aNode, :id)
-							return aNode[:id]
-						ok
-					ok
-					
-					# Regular property access
-					if HasKey(aNode, :properties) and HasKey(aNode[:properties], cProp)
-						return aNode[:properties][cProp]
-					ok
-				ok
-				return NULL
-			ok
-			
-			# Check if it's just a variable
-			if HasKey(aBinding, pValue)
-				return aBinding[pValue]
-			ok
-		ok
-		
-		# Return as-is (literal value)
-		return pValue
+	    if isString(pValue)
+	        if substr(pValue, ".") > 0
+	            acParts = @split(pValue, ".")
+	            cVar = acParts[1]
+	            cProp = acParts[2]
+	            
+	            if HasKey(aBinding, cVar)
+	                aNode = aBinding[cVar]
+	                
+	                if cProp = "id" and HasKey(aNode, :id)
+	                    return aNode[:id]
+	                ok
+	                
+	                if HasKey(aNode, :properties)
+	                    aProps = aNode[:properties]
+	                    if isList(aProps) and len(aProps) > 0
+	                        if HasKey(aProps, cProp)
+	                            return aProps[cProp]
+	                        ok
+	                    ok
+	                ok
+	            ok
+	            
+	            # Check edge_data for edge properties
+	            if cVar = "node" and HasKey(aBinding, "edge_data")
+	                aEdge = aBinding["edge_data"]
+	                if HasKey(aEdge, :properties)
+	                    aProps = aEdge[:properties]
+	                    if isList(aProps) and len(aProps) > 0
+	                        if HasKey(aProps, cProp)
+	                            return aProps[cProp]
+	                        ok
+	                    ok
+	                ok
+	            ok
+	            
+	            return NULL
+	        ok
+	        
+	        if HasKey(aBinding, pValue)
+	            return aBinding[pValue]
+	        ok
+	    ok
+	    
+	    return pValue
 	
 	#---------------------#
-	#  RETURN PROJECTION  #
+	#  SELECT PROJECTION  #
 	#---------------------#
 	
-	def _ExecuteReturn(aBindings)
-		aResults = []
-		nLen = len(aBindings)
-		
-		for i = 1 to nLen
-			aBinding = aBindings[i]
-			aResult = []
-			
-			nFieldLen = len(@aReturnFields)
-			for j = 1 to nFieldLen
-				pField = @aReturnFields[j]
-				
-				if isString(pField)
-					# Simple field: "n" or "n.age"
-					pValue = This._ResolveValue(pField, aBinding)
-					aResult[pField] = pValue
-				
-				but isList(pField) and pField[1] = :as
-					# Aliased field: [:as, "n.age", "years"]
-					pValue = This._ResolveValue(pField[2], aBinding)
-					aResult[pField[3]] = pValue
-					
-				but isList(pField) and pField[1] = :count
-					# Aggregation handled separately
-					loop
-				ok
-			next
-			
-			aResults + aResult
-		next
-		
-		# Handle DISTINCT
-		if @bDistinct
-			aResults = This._ApplyDistinct(aResults)
-		ok
-		
-		return aResults
+	def _ExecuteSelect(aBindings)
+	    
+	    aResults = []
+	    nLen = len(aBindings)
+	    
+	    for i = 1 to nLen
+	        aBinding = aBindings[i]
+	        aResult = []
+	        
+	        nFieldLen = len(@aSelectFields)
+	        
+	        for j = 1 to nFieldLen
+	            pField = @aSelectFields[j]
+	            
+	            if isString(pField)
+	                pValue = This._ResolveValue(pField, aBinding)
+	                aResult + [pField, pValue]
+	            
+	            but isList(pField) and HasKey(pField, "alias")
+	                cField = pField["field"]
+	                cAlias = pField["alias"]
+	                pValue = This._ResolveValue(cField, aBinding)
+	                aResult + [cAlias, pValue]
+	            ok
+	        next
+
+	        aResults + aResult
+	    next
+	    
+	    if @bDistinct
+	        aResults = This._ApplyDistinct(aResults)
+	    ok
+	    
+	    return aResults
 	
 	def _ApplyDistinct(aResults)
 		aUnique = []
@@ -669,12 +977,10 @@ class stzGraphQuery
 			pVal1 = aResult1[cKey]
 			pVal2 = aResult2[cKey]
 			
-			# If values are nodes, compare by ID
 			if isList(pVal1) and isList(pVal2) and HasKey(pVal1, :id) and HasKey(pVal2, :id)
 				if pVal1[:id] != pVal2[:id]
 					return FALSE
 				ok
-			# Otherwise compare directly
 			else
 				if pVal1 != pVal2
 					return FALSE
@@ -689,80 +995,70 @@ class stzGraphQuery
 	#------------------#
 	
 	def _ExecuteCreate(aBindings)
-		
 		nLen = len(@aCreatePatterns)
 		for i = 1 to nLen
 			aPattern = @aCreatePatterns[i]
-			cPatternType = aPattern[1]
+			cPatternType = aPattern["type"]
 			
 			if cPatternType = :node
 				This._CreateNode(aPattern)
-			but cPatternType = :rel or cPatternType = :relationship
-				This._CreateRelationship(aPattern, aBindings)
+			but cPatternType = :edge
+				This._CreateEdge(aPattern, aBindings)
 			ok
 		next
 	
 	def _CreateNode(aPattern)
-		# Pattern: [:node, "varname", label, properties]
-		cLabel = ""
-		aProps = []
+		cLabel = aPattern["label"]
+		aProps = aPattern["props"]
 		
-		if len(aPattern) >= 3 and isString(aPattern[3])
-			cLabel = aPattern[3]
-		ok
-		
-		if len(aPattern) >= 4 and isList(aPattern[4])
-			aProps = aPattern[4]
-		ok
-		
-		# Generate unique ID
 		cNodeId = "node_" + UUID()
-		@oGraph.AddNodeXTT(cNodeId, cLabel, aProps)
+		
+		if isList(aProps) and len(aProps) > 0
+			@oGraph.AddNodeXTT(cNodeId, cLabel, aProps)
+		else
+			@oGraph.AddNodeXT(cNodeId, cLabel)
+		ok
 
-	def _CreateRelationship(aPattern, aBindings)
-		cFromVar = aPattern[2]
-		cToVar = aPattern[3]
-		cLabel = ""
-		aProps = []
-		
-		if len(aPattern) >= 4 and isString(aPattern[4])
-			cLabel = aPattern[4]
-		ok
-		
-		if len(aPattern) >= 5 and isList(aPattern[5])
-			aProps = aPattern[5]
-		ok
-		
-		nLen = len(aBindings)
-		for i = 1 to nLen
-			aBinding = aBindings[i]
-			
-			if HasKey(aBinding, cFromVar) and HasKey(aBinding, cToVar)
-				cFromId = aBinding[cFromVar][:id]
-				cToId = aBinding[cToVar][:id]
-				@oGraph.AddEdgeXTT(cFromId, cToId, cLabel, aProps)
-			ok
-		next
+	def _CreateEdge(aPattern, aBindings)
+	    cFromVar = aPattern["from"]
+	    cToVar = aPattern["to"]
+	    cLabel = aPattern["label"]
+	    aProps = aPattern["props"]
+	    
+	    nLen = len(aBindings)
+	    for i = 1 to nLen
+	        aBinding = aBindings[i]
+	        
+	        if HasKey(aBinding, cFromVar) and HasKey(aBinding, cToVar)
+	            aFromNode = aBinding[cFromVar]
+	            aToNode = aBinding[cToVar]
+	            
+	            cFromId = aFromNode[:id]
+	            cToId = aToNode[:id]
+	            
+	            if isList(aProps) and len(aProps) > 0
+	                @oGraph.AddEdgeXTT(cFromId, cToId, cLabel, aProps)
+	            else
+	                @oGraph.AddEdgeXT(cFromId, cToId, cLabel)
+	            ok
+	        ok
+	    next
 	
 	def _ExecuteSet(aBindings)
 		nLen = len(@aSetOperations)
 		
 		for i = 1 to nLen
 			aOp = @aSetOperations[i]
-			cOpType = aOp[1]
+			cOpType = aOp["op"]
 			
 			if cOpType = :set
 				This._ExecuteSetProperty(aOp, aBindings)
-				
-			but cOpType = :remove
-				This._ExecuteRemoveProperty(aOp, aBindings)
 			ok
 		next
-	
+
 	def _ExecuteSetProperty(aOp, aBindings)
-		# Operation: [:set, "n.age", 26]
-		cTarget = aOp[2]
-		pValue = aOp[3]
+		cTarget = aOp["property"]
+		pValue = aOp["value"]
 		
 		nLen = len(aBindings)
 		for i = 1 to nLen
@@ -780,27 +1076,6 @@ class stzGraphQuery
 			ok
 		next
 	
-	def _ExecuteRemoveProperty(aOp, aBindings)
-		# Operation: [:remove, "n.temp"]
-		cTarget = aOp[2]
-		
-		nLen = len(aBindings)
-		for i = 1 to nLen
-			aBinding = aBindings[i]
-			
-			if substr(cTarget, ".") > 0
-				acParts = @split(cTarget, ".")
-				cVar = acParts[1]
-				cProp = acParts[2]
-				
-				if HasKey(aBinding, cVar)
-					aNode = aBinding[cVar]
-					# Remove property (set to NULL or empty)
-					@oGraph.SetNodeProperty(aNode[:id], cProp, NULL)
-				ok
-			ok
-		next
-	
 	def _ExecuteDelete(aBindings)
 		acToDelete = []
 		
@@ -814,14 +1089,14 @@ class stzGraphQuery
 				
 				if HasKey(aBinding, cTarget)
 					aNode = aBinding[cTarget]
-					if ring_find(acToDelete, aNode[:id]) = 0
-						acToDelete + aNode[:id]
+					cId = aNode[:id]
+					if ring_find(acToDelete, cId) = 0
+						acToDelete + cId
 					ok
 				ok
 			next
 		next
 		
-		# Delete nodes
 		nLen = len(acToDelete)
 		for i = 1 to nLen
 			@oGraph.RemoveThisNode(acToDelete[i])
@@ -836,17 +1111,16 @@ class stzGraphQuery
 			return aResults
 		ok
 		
-		aOrderField = @aOrderBy[1]
-		cField = aOrderField[1]
-		cDirection = aOrderField[2]
+		aOrderDef = @aOrderBy[1]
+		cField = aOrderDef["field"]
+		cDirection = aOrderDef["direction"]
 		
-		# Simple bubble sort
 		nLen = len(aResults)
 		for i = 1 to nLen - 1
 			for j = i + 1 to nLen
 				pVal1 = This._GetResultValue(aResults[i], cField)
 				pVal2 = This._GetResultValue(aResults[j], cField)
-
+	
 				bSwap = FALSE
 				if cDirection = "asc"
 					if isNumber(pVal1) and isNumber(pVal2)
@@ -873,24 +1147,23 @@ class stzGraphQuery
 		return aResults
 	
 	def _GetResultValue(aResult, cField)
-		# Handle nested property access like "n.age"
 		if substr(cField, ".") > 0
 			acParts = @split(cField, ".")
 			cVar = acParts[1]
 			cProp = acParts[2]
 			
-			# Get the node/object first
 			if HasKey(aResult, cVar)
 				aNode = aResult[cVar]
-				# Then get the property from it
-				if isList(aNode) and HasKey(aNode, :properties) and HasKey(aNode[:properties], cProp)
-					return aNode[:properties][cProp]
+				if isList(aNode) and HasKey(aNode, :properties)
+					aProps = aNode[:properties]
+					if HasKey(aProps, cProp)
+						return aProps[cProp]
+					ok
 				ok
 			ok
 			return NULL
 		ok
 		
-		# Simple field access
 		if HasKey(aResult, cField)
 			return aResult[cField]
 		ok
@@ -911,7 +1184,7 @@ class stzGraphQuery
 		return aSkipped
 	
 	def _ApplyLimit(aResults)
-		if @nLimit = NULL or @nLimit >= len(aResults)
+		if @nLimit = 0 or @nLimit >= len(aResults)
 			return aResults
 		ok
 		
@@ -922,184 +1195,173 @@ class stzGraphQuery
 		
 		return aLimited
 	
+	#------------------#
+	#  HELPER METHODS  #
+	#------------------#
+	
+	def _NodeHasProperty(aNode, cKey, pValue)
+		if NOT HasKey(aNode, :properties)
+			return FALSE
+		ok
+		
+		aProps = aNode[:properties]
+		if NOT HasKey(aProps, cKey)
+			return FALSE
+		ok
+		
+		return aProps[cKey] = pValue
+	
 	#-------------------------------------------#
 	#  EXPLANATION OF THE QUERY EXECUTION PLAN  #
 	#-------------------------------------------#
 	
 	def Explain()
-		# Returns a structured explanation as a hashlist
-		aExplanation = []
-		
-		# Phase 1: MATCH
-		if len(@aMatchPatterns) > 0
-			acMatch = []
-			nLen = len(@aMatchPatterns)
-			for i = 1 to nLen
-				aPattern = @aMatchPatterns[i]
-				cType = aPattern[1]
-				
-				if cType = :node
-					cVar = aPattern[2]
-					cDesc = "Scan all nodes, bind to variable '" + cVar + "'"
-					
-					if len(aPattern) >= 3 and isString(aPattern[3])
-						cDesc += " with label '" + aPattern[3] + "'"
-					ok
-					
-					if len(aPattern) >= 3 and isList(aPattern[3])
-						cDesc += " with properties " + This._FormatProps(aPattern[3])
-					ok
-					
-					acMatch + cDesc
-					
-				but cType = :rel or cType = :relationship
-					cFrom = aPattern[2]
-					cTo = aPattern[3]
-					cDesc = "Match relationships: (" + cFrom + ")-[]->("  + cTo + ")"
-					
-					if len(aPattern) >= 4 and isString(aPattern[4])
-						cDesc += " of type '" + aPattern[4] + "'"
-					ok
-					
-					acMatch + cDesc
-					
-				but cType = :path
-					cStart = aPattern[2]
-					cRel = aPattern[3]
-					cEnd = aPattern[4]
-					acMatch + ( "Match path: (" + cStart + ")-[" + cRel + "]->(" + cEnd + ")" )
-				ok
-			next
-			aExplanation + ["match", acMatch]
-		ok
-		
-		# Phase 2: WHERE
-		if len(@aWhereConditions) > 0
-			acWhere = []
-			nLen = len(@aWhereConditions)
-			for i = 1 to nLen
-				cCondDesc = This._ExplainCondition(@aWhereConditions[i])
-				acWhere + ("Filter bindings using conditions: " + cCondDesc)
-			next
-			aExplanation + ["where", acWhere]
-		ok
-		
-		# Phase 3: CREATE
-		if len(@aCreatePatterns) > 0
-			acCreate = []
-			nLen = len(@aCreatePatterns)
-			for i = 1 to nLen
-				aPattern = @aCreatePatterns[i]
-				cType = aPattern[1]
-				
-				if cType = :node
-					acCreate + "Create new node"
-				but cType = :rel or cType = :relationship
-					acCreate + "Create new relationship"
-				ok
-			next
-			aExplanation + ["create", acCreate]
-		ok
-		
-		# Phase 4: SET
-		if len(@aSetOperations) > 0
-			acSet = []
-			nLen = len(@aSetOperations)
-			for i = 1 to nLen
-				aOp = @aSetOperations[i]
-				cOpType = aOp[1]
-				
-				if cOpType = :set
-					acSet + ( "Set property: " + aOp[2] + " = " + This._FormatValue(aOp[3]) )
-				but cOpType = :remove
-					acSet + ( "Remove property: " + aOp[2] )
-				ok
-			next
-			aExplanation + ["set", acSet]
-		ok
-		
-		# Phase 5: DELETE
-		if len(@aDeleteTargets) > 0
-			acDelete = []
-			nLen = len(@aDeleteTargets)
-			for i = 1 to nLen
-				acDelete + ( "Delete node: " + @aDeleteTargets[i] )
-			next
-			aExplanation + ["delete", acDelete]
-		ok
-		
-		# Phase 6: RETURN
-		if len(@aReturnFields) > 0
-			acReturn = []
-			
-			if @bDistinct
-				acReturn + "Apply DISTINCT filter"
-			ok
-			
-			cFields = "Project fields: "
-			nLen = len(@aReturnFields)
-			for i = 1 to nLen
-				pField = @aReturnFields[i]
-				
-				if isString(pField)
-					cFields += pField
-				but isList(pField) and pField[1] = :as
-					cFields += pField[2] + " AS " + pField[3]
-				ok
-				
-				if i < nLen
-					cFields += ", "
-				ok
-			next
-			acReturn + cFields
-			
-			aExplanation + ["return", acReturn]
-		ok
-		
-		# Phase 7: ORDER BY
-		if len(@aOrderBy) > 0
-			aOrder = @aOrderBy[1]
-			cDir = upper(aOrder[2])
-			aExplanation + ["orderby", [ ("Sort by: " + aOrder[1] + " " + cDir) ]]
-		ok
-		
-		# Phase 8: SKIP
-		if @nSkip > 0
-			aExplanation + ["skip", [ ("Skip first " + @nSkip + " results") ]]
-		ok
-		
-		# Phase 9: LIMIT
-		if @nLimit != ""
-			aExplanation + ["limit", [ ("Return maximum " + @nLimit + " results") ]]
-		ok
-		
-		# Estimated complexity
-		acComplexity = []
-		nNodeScans = 0
-		nEdgeScans = 0
-		
-		nLen = len(@aMatchPatterns)
-		for i = 1 to nLen
-			aPattern = @aMatchPatterns[i]
-			if aPattern[1] = :node
-				nNodeScans++
-			but aPattern[1] = :rel or aPattern[1] = :relationship or aPattern[1] = :path
-				nEdgeScans++
-			ok
-		next
-		
-		if nNodeScans > 0
-			acComplexity + ("Node scans: " + nNodeScans)
-		ok
-		if nEdgeScans > 0
-			acComplexity + ("Edge scans: " + nEdgeScans)
-		ok
-		
-		if len(acComplexity) > 0
-			aExplanation + ["complexity", acComplexity]
-		ok
-		
-		return aExplanation
+	    aExplanation = []
+	    
+	    # Match patterns
+	    if len(@aMatchPatterns) > 0
+	        acMatch = []
+	        nLen = len(@aMatchPatterns)
+	        for i = 1 to nLen
+	            aPattern = @aMatchPatterns[i]
+	            cType = aPattern["type"]
+	            
+	            if cType = :node
+	                cVar = aPattern["alias"]
+	                cLabel = aPattern["label"]
+	                
+	                cDesc = "Scan all nodes, bind to variable '" + cVar + "'"
+	                
+	                if cLabel != ""
+	                    cDesc += " with label '" + cLabel + "'"
+	                ok
+	                
+	                aProps = aPattern["props"]
+	                if isList(aProps) and len(aProps) > 0
+	                    cDesc += " with properties " + This._FormatProps(aProps)
+	                ok
+	                
+	                # Add WHERE condition if present in pattern
+	                if HasKey(aPattern, "where")
+	                    cDesc += " where " + This._ExplainCondition(aPattern["where"])
+	                ok
+	                
+	                acMatch + cDesc
+	                
+	            but cType = :edge
+	                cFrom = aPattern["from"]
+	                cTo = aPattern["to"]
+	                cLabel = aPattern["label"]
+	                
+	                cDesc = "Match edges: (" + cFrom + ")-[]->("  + cTo + ")"
+	                
+	                if cLabel != ""
+	                    cDesc += " of type '" + cLabel + "'"
+	                ok
+	                
+	                # Add WHERE condition if present in pattern
+	                if HasKey(aPattern, "where")
+	                    cDesc += " where " + This._ExplainCondition(aPattern["where"])
+	                ok
+	                
+	                acMatch + cDesc
+	            ok
+	        next
+	        aExplanation + [ ["step", "match"], ["description", acMatch] ]
+	    ok
+	    
+	    # Global Where conditions (only if any exist)
+	    if len(@aWhereConditions) > 0
+	        acWhere = []
+	        nLen = len(@aWhereConditions)
+	        for i = 1 to nLen
+	            cCondDesc = This._ExplainCondition(@aWhereConditions[i])
+	            acWhere + ("Filter bindings using: " + cCondDesc)
+	        next
+	        aExplanation + [ ["step", "where"], ["description", acWhere] ]
+	    ok
+	    
+	    # Rest remains the same...
+	    if len(@aCreatePatterns) > 0
+	        acCreate = []
+	        nLen = len(@aCreatePatterns)
+	        for i = 1 to nLen
+	            aPattern = @aCreatePatterns[i]
+	            cType = aPattern["type"]
+	            
+	            if cType = :node
+	                acCreate + "Create new node"
+	            but cType = :edge
+	                acCreate + "Create new edge"
+	            ok
+	        next
+	        aExplanation + [ ["step", "create"], ["description", acCreate] ]
+	    ok
+	    
+	    if len(@aSetOperations) > 0
+	        acSet = []
+	        nLen = len(@aSetOperations)
+	        for i = 1 to nLen
+	            aOp = @aSetOperations[i]
+	            cProp = aOp["property"]
+	            pVal = aOp["value"]
+	            acSet + ("Set property: " + cProp + " = " + This._FormatValue(pVal))
+	        next
+	        aExplanation + [ ["step", "set"], ["description", acSet] ]
+	    ok
+	    
+	    if len(@aDeleteTargets) > 0
+	        acDelete = []
+	        nLen = len(@aDeleteTargets)
+	        for i = 1 to nLen
+	            acDelete + ("Delete node: " + @aDeleteTargets[i])
+	        next
+	        aExplanation + [ ["step", "delete"], ["description", acDelete] ]
+	    ok
+	    
+	    if len(@aSelectFields) > 0
+	        acSelect = []
+	        
+	        if @bDistinct
+	            acSelect + "Apply DISTINCT filter"
+	        ok
+	        
+	        cFields = "Project fields: "
+	        nLen = len(@aSelectFields)
+	        for i = 1 to nLen
+	            pField = @aSelectFields[i]
+	            
+	            if isString(pField)
+	                cFields += pField
+	            but isList(pField) and HasKey(pField, "alias")
+	                cFields += pField["field"] + " AS " + pField["alias"]
+	            ok
+	            
+	            if i < nLen
+	                cFields += ", "
+	            ok
+	        next
+	        acSelect + cFields
+	        
+	        aExplanation + [ ["step", "select"], ["description", acSelect] ]
+	    ok
+	    
+	    if len(@aOrderBy) > 0
+	        aOrder = @aOrderBy[1]
+	        cField = aOrder["field"]
+	        cDir = upper(aOrder["direction"])
+	        aExplanation + [ ["step", "orderby"], ["description", ["Sort by: " + cField + " " + cDir]] ]
+	    ok
+	    
+	    if @nSkip > 0
+	        aExplanation + [ ["step", "skip"], ["description", ["Skip first " + @nSkip + " results"]] ]
+	    ok
+	    
+	    if @nLimit > 0
+	        aExplanation + [ ["step", "limit"], ["description", ["Return maximum " + @nLimit + " results"]] ]
+	    ok
+	    
+	    return aExplanation
 	
 	def _ExplainCondition(pCondition)
 		if @IsFunction(pCondition)
@@ -1110,51 +1372,59 @@ class stzGraphQuery
 			return "Always true"
 		ok
 		
-		cOp = pCondition[1]
+		cOp = pCondition["op"]
+		cLeft = pCondition["left"]
+		pRight = pCondition["right"]
 		
-		if cOp = :equals or cOp = "="
-			return pCondition[2] + " = " + This._FormatValue(pCondition[3])
+		if cOp = :equals
+			return cLeft + " = " + This._FormatValue(pRight)
 			
-		but cOp = :gt or cOp = ">"
-			return pCondition[2] + " > " + This._FormatValue(pCondition[3])
+		but cOp = :gt
+			return cLeft + " > " + This._FormatValue(pRight)
 			
-		but cOp = :lt or cOp = "<"
-			return pCondition[2] + " < " + This._FormatValue(pCondition[3])
+		but cOp = :lt
+			return cLeft + " < " + This._FormatValue(pRight)
 			
-		but cOp = :gte or cOp = ">="
-			return pCondition[2] + " >= " + This._FormatValue(pCondition[3])
+		but cOp = :gte
+			return cLeft + " >= " + This._FormatValue(pRight)
 			
-		but cOp = :lte or cOp = "<="
-			return pCondition[2] + " <= " + This._FormatValue(pCondition[3])
+		but cOp = :lte
+			return cLeft + " <= " + This._FormatValue(pRight)
+			
+		but cOp = :not_equals
+			return cLeft + " != " + This._FormatValue(pRight)
 			
 		but cOp = :contains
-			return pCondition[2] + " CONTAINS " + This._FormatValue(pCondition[3])
+			return cLeft + " CONTAINS " + This._FormatValue(pRight)
 			
 		but cOp = :startswith
-			return pCondition[2] + " STARTS WITH " + This._FormatValue(pCondition[3])
+			return cLeft + " STARTS WITH " + This._FormatValue(pRight)
 			
 		but cOp = :endswith
-			return pCondition[2] + " ENDS WITH " + This._FormatValue(pCondition[3])
+			return cLeft + " ENDS WITH " + This._FormatValue(pRight)
 			
 		but cOp = :and
-			return "(" + This._ExplainCondition(pCondition[2]) + " AND " +
-			       This._ExplainCondition(pCondition[3]) + ")"
+			return "(" + This._ExplainCondition(cLeft) + " AND " +
+			       This._ExplainCondition(pRight) + ")"
 			       
 		but cOp = :or
-			return "(" + This._ExplainCondition(pCondition[2]) + " OR " +
-			       This._ExplainCondition(pCondition[3]) + ")"
+			return "(" + This._ExplainCondition(cLeft) + " OR " +
+			       This._ExplainCondition(pRight) + ")"
 			       
 		but cOp = :not
-			return "NOT (" + This._ExplainCondition(pCondition[2]) + ")"
+			return "NOT (" + This._ExplainCondition(cLeft) + ")"
 			
 		but cOp = :in
-			return pCondition[2] + " IN " + This._FormatValue(pCondition[3])
+			return cLeft + " IN " + This._FormatValue(pRight)
+			
+		but cOp = :not_in
+			return cLeft + " NOT IN " + This._FormatValue(pRight)
 		ok
 		
 		return "Unknown condition"
 	
 	def _FormatProps(aProps)
-		if NOT isList(aProps)
+		if NOT isList(aProps) or len(aProps) = 0
 			return "{}"
 		ok
 		
@@ -1173,14 +1443,13 @@ class stzGraphQuery
 		
 		cResult += "}"
 		return cResult
-
+	
 	def _FormatValue(pValue)
 		if isString(pValue)
 			return '"' + pValue + '"'
 		but isNumber(pValue)
 			return "" + pValue
 		but isList(pValue)
-			# Show array contents instead of [...]
 			cResult = "["
 			nLen = len(pValue)
 			for i = 1 to nLen
@@ -1193,196 +1462,182 @@ class stzGraphQuery
 			return cResult
 		ok
 		return "null"
-
-	#------------------#
-	#  HELPER METHODS  #
-	#------------------#
-	
-	def _NodeHasProperty(aNode, cKey, pValue)
-		if NOT HasKey(aNode, :properties)
-			return FALSE
-		ok
-		
-		if NOT HasKey(aNode[:properties], cKey)
-			return FALSE
-		ok
-		
-		return aNode[:properties][cKey] = pValue
-	
-	def _EdgeHasProperty(aEdge, cKey, pValue)
-		if NOT HasKey(aEdge, :properties)
-			return FALSE
-		ok
-		
-		if NOT HasKey(aEdge[:properties], cKey)
-			return FALSE
-		ok
-		
-		return aEdge[:properties][cKey] = pValue
 	
 	#----------------------------#
 	#  OPENCYPHER IMPORT/EXPORT  #
 	#----------------------------#
 	
 	def ToOpenCypher()
-		cCypher = ""
-		
-		# MATCH clause
-		if len(@aMatchPatterns) > 0
-			cCypher += "MATCH "
-			nLen = len(@aMatchPatterns)
-			
-			for i = 1 to nLen
-				aPattern = @aMatchPatterns[i]
-				cCypher += This._PatternToCypher(aPattern)
-				
-				if i < nLen
-					cCypher += ", "
-				ok
-			next
-			cCypher += NL
-		ok
-		
-		# WHERE clause
-		if len(@aWhereConditions) > 0
-			cCypher += "WHERE "
-			nLen = len(@aWhereConditions)
-			
-			for i = 1 to nLen
-				cCypher += This._ConditionToCypher(@aWhereConditions[i])
-				
-				if i < nLen
-					cCypher += " AND "
-				ok
-			next
-			cCypher += NL
-		ok
-		
-		# CREATE clause
-		if len(@aCreatePatterns) > 0
-			cCypher += "CREATE "
-			nLen = len(@aCreatePatterns)
-			
-			for i = 1 to nLen
-				aPattern = @aCreatePatterns[i]
-				cCypher += This._PatternToCypher(aPattern)
-				
-				if i < nLen
-					cCypher += ", "
-				ok
-			next
-			cCypher += NL
-		ok
-		
-		# SET clause
-		if len(@aSetOperations) > 0
-			cCypher += "SET "
-			nLen = len(@aSetOperations)
-			
-			for i = 1 to nLen
-				aOp = @aSetOperations[i]
-				cCypher += aOp[2] + " = " + This._ValueToCypher(aOp[3])
-				
-				if i < nLen
-					cCypher += ", "
-				ok
-			next
-			cCypher += NL
-		ok
-		
-		# DELETE clause
-		if len(@aDeleteTargets) > 0
-			cCypher += "DELETE "
-			cCypher += JoinXT(@aDeleteTargets, ", ")
-			cCypher += NL
-		ok
-		
-		# RETURN clause
-		if len(@aReturnFields) > 0
-			cCypher += "RETURN "
-			if @bDistinct
-				cCypher += "DISTINCT "
-			ok
-			
-			nLen = len(@aReturnFields)
-			for i = 1 to nLen
-				pField = @aReturnFields[i]
-				
-				if isString(pField)
-					cCypher += pField
-				but isList(pField) and pField[1] = :as
-					cCypher += pField[2] + " AS " + pField[3]
-				ok
-				
-				if i < nLen
-					cCypher += ", "
-				ok
-			next
-			cCypher += NL
-		ok
-		
-		# ORDER BY clause
-		if len(@aOrderBy) > 0
-			cCypher += "ORDER BY "
-			aOrder = @aOrderBy[1]
-			cCypher += aOrder[1] + " " + UPPER(aOrder[2])
-			cCypher += NL
-		ok
-		
-		# SKIP clause
-		if @nSkip > 0
-			cCypher += "SKIP " + @nSkip + NL
-		ok
-		
-		# LIMIT clause
-		if @nLimit != NULL
-			cCypher += "LIMIT " + @nLimit + NL
-		ok
-		
-		return cCypher
+	    cCypher = ""
+	    
+	    # MATCH clause
+	    if len(@aMatchPatterns) > 0
+	        cCypher += "MATCH "
+	        nLen = len(@aMatchPatterns)
+	        
+	        for i = 1 to nLen
+	            aPattern = @aMatchPatterns[i]
+	            cCypher += This._PatternToCypher(aPattern)
+	            
+	            if i < nLen
+	                cCypher += ", "
+	            ok
+	        next
+	        cCypher += NL
+	    ok
+	    
+	    # WHERE clause - check both pattern-level and global conditions
+	    acWhereConditions = []
+	    
+	    # Collect WHERE from patterns
+	    if len(@aMatchPatterns) > 0
+	        nLen = len(@aMatchPatterns)
+	        for i = 1 to nLen
+	            aPattern = @aMatchPatterns[i]
+	            if HasKey(aPattern, "where")
+	                acWhereConditions + This._ConditionToCypher(aPattern["where"])
+	            ok
+	        next
+	    ok
+	    
+	    # Add global WHERE conditions
+	    nLen = len(@aWhereConditions)
+	    for i = 1 to nLen
+	        acWhereConditions + This._ConditionToCypher(@aWhereConditions[i])
+	    next
+	    
+	    # Output WHERE clause if any conditions exist
+	    if len(acWhereConditions) > 0
+	        cCypher += "WHERE "
+	        nLen = len(acWhereConditions)
+	        for i = 1 to nLen
+	            cCypher += acWhereConditions[i]
+	            if i < nLen
+	                cCypher += " AND "
+	            ok
+	        next
+	        cCypher += NL
+	    ok
+	    
+	    # Rest of the method remains the same...
+	    if len(@aCreatePatterns) > 0
+	        cCypher += "CREATE "
+	        nLen = len(@aCreatePatterns)
+	        
+	        for i = 1 to nLen
+	            aPattern = @aCreatePatterns[i]
+	            cCypher += This._PatternToCypher(aPattern)
+	            
+	            if i < nLen
+	                cCypher += ", "
+	            ok
+	        next
+	        cCypher += NL
+	    ok
+	    
+	    if len(@aSetOperations) > 0
+	        cCypher += "SET "
+	        nLen = len(@aSetOperations)
+	        
+	        for i = 1 to nLen
+	            aOp = @aSetOperations[i]
+	            cProp = aOp["property"]
+	            pVal = aOp["value"]
+	            cCypher += cProp + " = " + This._ValueToCypher(pVal)
+	            
+	            if i < nLen
+	                cCypher += ", "
+	            ok
+	        next
+	        cCypher += NL
+	    ok
+	    
+	    if len(@aDeleteTargets) > 0
+	        cCypher += "DELETE "
+	        cCypher += JoinXT(@aDeleteTargets, ", ")
+	        cCypher += NL
+	    ok
+	    
+	    if len(@aSelectFields) > 0
+	        cCypher += "RETURN "
+	        if @bDistinct
+	            cCypher += "DISTINCT "
+	        ok
+	        
+	        nLen = len(@aSelectFields)
+	        for i = 1 to nLen
+	            pField = @aSelectFields[i]
+	            
+	            if isString(pField)
+	                cCypher += pField
+	            but isList(pField) and HasKey(pField, "alias")
+	                cCypher += pField["field"] + " AS " + pField["alias"]
+	            ok
+	            
+	            if i < nLen
+	                cCypher += ", "
+	            ok
+	        next
+	        cCypher += NL
+	    ok
+	    
+	    if len(@aOrderBy) > 0
+	        cCypher += "ORDER BY "
+	        aOrder = @aOrderBy[1]
+	        cCypher += aOrder["field"] + " " + UPPER(aOrder["direction"])
+	        cCypher += NL
+	    ok
+	    
+	    if @nSkip > 0
+	        cCypher += "SKIP " + @nSkip + NL
+	    ok
+	    
+	    if @nLimit > 0
+	        cCypher += "LIMIT " + @nLimit + NL
+	    ok
+	    
+	    return cCypher
 	
 	def _PatternToCypher(aPattern)
-		cType = aPattern[1]
+		cType = aPattern["type"]
 		
 		if cType = :node
-			cVar = aPattern[2]
+			cVar = aPattern["alias"]
+			cLabel = aPattern["label"]
+			aProps = aPattern["props"]
+			
 			cResult = "(" + cVar
 			
-			if len(aPattern) >= 3 and isString(aPattern[3])
-				cResult += ":" + aPattern[3]
+			if cLabel != ""
+				cResult += ":" + cLabel
 			ok
 			
-			if len(aPattern) >= 3 and isList(aPattern[3])
-				cResult += " " + This._PropsToCypher(aPattern[3])
+			if isList(aProps) and len(aProps) > 0
+				cResult += " " + This._PropsToCypher(aProps)
 			ok
 			
 			cResult += ")"
 			return cResult
 			
-		but cType = :rel or cType = :relationship
-			cFrom = aPattern[2]
-			cTo = aPattern[3]
-			cResult = "(" + cFrom + ")"
+		but cType = :edge
+			cFrom = aPattern["from"]
+			cTo = aPattern["to"]
+			cLabel = aPattern["label"]
+			aProps = aPattern["props"]
 			
-			cResult += "-["
+			cResult = "(" + cFrom + ")-["
 			
-			if len(aPattern) >= 4 and isString(aPattern[4])
-				cResult += ":" + aPattern[4]
+			if cLabel != ""
+				cResult += ":" + cLabel
 			ok
 			
-			if len(aPattern) >= 4 and isList(aPattern[4])
-				cResult += " " + This._PropsToCypher(aPattern[4])
+			if isList(aProps) and len(aProps) > 0
+				cResult += " " + This._PropsToCypher(aProps)
 			ok
 			
-			cResult += "]->"
-			cResult += "(" + cTo + ")"
+			cResult += "]->("
+			cResult += cTo + ")"
 			return cResult
-			
-		but cType = :path
-			cStart = aPattern[2]
-			cRel = aPattern[3]
-			cEnd = aPattern[4]
-			return "(" + cStart + ")-[" + cRel + "]->(" + cEnd + ")"
 		ok
 		
 		return ""
@@ -1392,30 +1647,50 @@ class stzGraphQuery
 			return ""
 		ok
 		
-		cOp = pCondition[1]
+		cOp = pCondition["op"]
+		pLeft = pCondition["left"]
+		pRight = pCondition["right"]
 		
-		if cOp = :equals or cOp = "="
-			return pCondition[2] + " = " + This._ValueToCypher(pCondition[3])
+		if cOp = :equals
+			return pLeft + " = " + This._ValueToCypher(pRight)
 			
-		but cOp = :gt or cOp = ">"
-			return pCondition[2] + " > " + This._ValueToCypher(pCondition[3])
+		but cOp = :gt
+			return pLeft + " > " + This._ValueToCypher(pRight)
 			
-		but cOp = :lt or cOp = "<"
-			return pCondition[2] + " < " + This._ValueToCypher(pCondition[3])
+		but cOp = :lt
+			return pLeft + " < " + This._ValueToCypher(pRight)
+			
+		but cOp = :gte
+			return pLeft + " >= " + This._ValueToCypher(pRight)
+			
+		but cOp = :lte
+			return pLeft + " <= " + This._ValueToCypher(pRight)
+			
+		but cOp = :not_equals
+			return pLeft + " <> " + This._ValueToCypher(pRight)
 			
 		but cOp = :contains
-			return pCondition[2] + " CONTAINS " + This._ValueToCypher(pCondition[3])
+			return pLeft + " CONTAINS " + This._ValueToCypher(pRight)
+			
+		but cOp = :startswith
+			return pLeft + " STARTS WITH " + This._ValueToCypher(pRight)
+			
+		but cOp = :endswith
+			return pLeft + " ENDS WITH " + This._ValueToCypher(pRight)
 			
 		but cOp = :and
-			return "(" + This._ConditionToCypher(pCondition[2]) + " AND " + 
-			       This._ConditionToCypher(pCondition[3]) + ")"
+			return "(" + This._ConditionToCypher(pLeft) + " AND " + 
+			       This._ConditionToCypher(pRight) + ")"
 			       
 		but cOp = :or
-			return "(" + This._ConditionToCypher(pCondition[2]) + " OR " + 
-			       This._ConditionToCypher(pCondition[3]) + ")"
+			return "(" + This._ConditionToCypher(pLeft) + " OR " + 
+			       This._ConditionToCypher(pRight) + ")"
 			       
 		but cOp = :not
-			return "NOT " + This._ConditionToCypher(pCondition[2])
+			return "NOT " + This._ConditionToCypher(pLeft)
+			
+		but cOp = :in
+			return pLeft + " IN " + This._ValueToCypher(pRight)
 		ok
 		
 		return ""
@@ -1443,130 +1718,15 @@ class stzGraphQuery
 		but isNumber(pValue)
 			return "" + pValue
 		but isList(pValue)
-			return "[" + JoinXT(pValue, ", ") + "]"
+			cResult = "["
+			nLen = len(pValue)
+			for i = 1 to nLen
+				cResult += This._ValueToCypher(pValue[i])
+				if i < nLen
+					cResult += ", "
+				ok
+			next
+			cResult += "]"
+			return cResult
 		ok
 		return "null"
-	
-	def LoadFromOpenCypher(cCypherQuery)
-		# Parse OpenCypher query and build internal representation
-		# This is a simplified parser for common patterns
-		
-		cQuery = trim(cCypherQuery)
-		acLines = @split(cQuery, NL)
-		
-		nLen = len(acLines)
-		for i = 1 to nLen
-			cLine = trim(acLines[i])
-			
-			if left(cLine, 5) = "MATCH"
-				This._ParseMatchClause(@substr(cLine, 7, stzlen(cLine)))
-				
-			but left(cLine, 5) = "WHERE"
-				This._ParseWhereClause(@substr(cLine, 7, stzlen(cLine)))
-				
-			but left(cLine, 6) = "CREATE"
-				This._ParseCreateClause(@substr(cLine, 8, stzlen(cLine)))
-				
-			but left(cLine, 6) = "RETURN"
-				This._ParseReturnClause(@substr(cLine, 8, stzlen(cLine)))
-				
-			but left(cLine, 8) = "ORDER BY"
-				This._ParseOrderByClause(@substr(cLine, 10, stzlen(cLine)))
-				
-			but left(cLine, 5) = "LIMIT"
-				@nLimit = 0 + @substr(cLine, 7, stzlen(cLine))
-			ok
-		next
-	
-	def _ParseMatchClause(cClause)
-		# Simple pattern: (n:Label {prop: val})
-		# Or: (a)-[:TYPE]->(b)
-		
-		if substr(cClause, "->") > 0
-			# Relationship pattern
-			This._ParseRelPattern(cClause)
-		else
-			# Node pattern
-			This._ParseNodePattern(cClause)
-		ok
-	
-	def _ParseNodePattern(cPattern)
-		nStart = substr(cPattern, "(")
-		nEnd = substr(cPattern, ")")
-		
-		if nStart > 0 and nEnd > 0
-			cInner = substr(cPattern, nStart + 1, nEnd - nStart - 1)
-			
-			nColon = substr(cInner, ":")
-			if nColon = 0
-				# Just variable name
-				This.Match([:node, trim(cInner)])
-				return
-			ok
-			
-			cVarName = trim(substr(cInner, 1, nColon - 1))
-			
-			# Get everything after colon
-			cRest = substr(cInner, nColon + 1)
-			
-			# Check for properties
-			nBrace = substr(cRest, "{")
-			if nBrace > 0
-				cLabel = trim(substr(cRest, 1, nBrace - 1))
-			else
-				cLabel = trim(cRest)
-			ok
-			
-			This.Match([:node, cVarName, cLabel])
-		ok
-	
-	def _ParseRelPattern(cPattern)
-		# Extract: (a)-[:TYPE]->(b)
-		# This is simplified - full parser would be more complex
-		
-		nArrow = substr(cPattern, "->")
-		if nArrow > 0
-			cLeft = @substr(cPattern, 1, nArrow - 1)
-			cRight = @substr(cPattern, nArrow + 2, stzlen(cPattern))
-			
-			# Extract from variable
-			nStart = substr(cLeft, "(")
-			nEnd = substr(cLeft, ")")
-			cFromVar = trim(@substr(cLeft, nStart + 1, nEnd - 2))
-			
-			# Extract to variable
-			nStart = substr(cRight, "(")
-			nEnd = substr(cRight, ")")
-			cToVar = trim(@substr(cRight, nStart + 1, nEnd - 2))
-			
-			This.Match([:rel, cFromVar, cToVar])
-		ok
-	
-	def _ParseWhereClause(cClause)
-		# Simple: n.age > 25
-		if substr(cClause, ">") > 0
-			acParts = @split(cClause, ">")
-			This.Where([:gt, trim(acParts[1]), 0 + trim(acParts[2])])
-		but substr(cClause, "=") > 0
-			acParts = @split(cClause, "=")
-			This.Where([:equals, trim(acParts[1]), trim(acParts[2])])
-		ok
-	
-	def _ParseReturnClause(cClause)
-		acFields = @split(cClause, ",")
-		nLen = len(acFields)
-		
-		for i = 1 to nLen
-			cField = trim(acFields[i])
-			This.Return_(cField)
-		next
-	
-	def _ParseOrderByClause(cClause)
-		acParts = @split(cClause, " ")
-		if len(acParts) >= 2
-			This.OrderBy(acParts[1], lower(acParts[2]))
-		ok
-	
-	def _ParseCreateClause(cClause)
-		# Similar to Match parsing
-		This._ParseNodePattern(cClause)
