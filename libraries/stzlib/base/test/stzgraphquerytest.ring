@@ -131,7 +131,7 @@ aResults = StzGraphQueryQ(oGraph).
 	Select(["a", "b"])
 
 ? len(aResults) 
-#--> 1 #ERR returned 2
+#--> 1
 
 ? @@( aResults[1]["b"][:id] )
 #--> "bob"
@@ -299,7 +299,7 @@ pf()
 #------------------------#
 
 /*--- Select specific property
-
+*/
 pr()
 
 oGraph = new stzGraph("employees")
@@ -308,15 +308,54 @@ oGraph {
 	AddNodeXTT("bob", "Employee", [:name = "Bob", :age = 25])
 }
 
-aResults = StzGraphQueryQ(oGraph).
-	MatchQ([:node = "n"]).
-	Select("n.name")
+StzGraphQueryQ(oGraph) {
 
-? len(aResults)
-#--> 2
+	# Design the query
+	MatchQ([:node = "n"])
+	SelectQ("n.name")
 
-? @@( aResults[1]["n.name"] )
-#--> "Alice"
+	# Get the query definition
+	? @@NL( Definition() ) + NL # Or Query() or AST()
+	#--> [
+	# 	[
+	# 		"match_patterns",
+	# 		[
+	# 			[
+	# 				[ "type", "node" ],
+	# 				[ "alias", "n" ],
+	# 				[ "label", "" ],
+	# 		
+	# 		[ "props", [  ] ]
+	# 			]
+	# 		]
+	# 	],
+	# 	[ "where_conditions", [  ] ],
+	# 	[
+	# 		"select_fields",
+	# 		[ "n.name" ]
+	# 	],
+	# 	[ "create_patterns", [  ] ],
+	# 	[ "set_operations", [  ] ],
+	# 	[ "delete_targets", [  ] ],
+	# 	[ "order_by", [  ] ],
+	# 	[ "skip", 0 ],
+	# 	[ "limit", 0 ],
+	# 	[ "distinct", 0 ]
+	# ]
+
+	# Execute the query
+	if Executed()
+		aResult = Result()
+
+		? len(aResult)
+		#--> 2
+		
+		? @@( aResult[1]["n.name"] )
+		#--> "Alice"
+	else
+		"Query execution has failed!"
+	ok
+}
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.25
@@ -406,7 +445,7 @@ oGraph {
 
 aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node = "n"]).
-	OrderByQ("n.age", "asc").
+	OrderByQ("n.age", "ASC").
 	Select("n")
 
 ? @@( aResults[1]["n"][:id] )
@@ -432,7 +471,7 @@ oGraph {
 
 aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node = "n"]).
-	OrderByQ("n.rank", "asc").
+	OrderByQ("n.rank", :InAscending).
 	SkipQ(1).
 	LimitQ(2).
 	Select("n")
@@ -442,6 +481,8 @@ aResults = StzGraphQueryQ(oGraph).
 
 ? @@( aResults[1]["n"][:id] )
 #--> "bob"
+
+? @@NL( aResults )
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.25
@@ -613,7 +654,7 @@ oGraph.AddNodeXT("alice", "Person")
 aExplanation = StzGraphQueryQ(oGraph).
 	MatchQ([:nodes, :labeled = "Person"]).
 	WhereQ([:age, ">", 25]).
-	OrderByQ("age", "asc").
+	OrderByQ("age", "ASC").
 	LimitQ(10).
 
 	Explain()
@@ -660,7 +701,7 @@ pf()
 #-------------------------#
 
 /*--- Convert query to OpenCypher
-
+*/
 pr()
 
 oGraph = new stzGraph("test")
@@ -668,7 +709,7 @@ oGraph = new stzGraph("test")
 cCypher = StzGraphQueryQ(oGraph).
 	MatchQ([:node = "n", :labeled = "Person"]).
 	WhereQ([:age, ">", 25]).
-	OrderByQ("n.age", "asc").
+	OrderByQ("n.age", "ASC").
 	LimitQ(10).
 	ToOpenCypher()
 

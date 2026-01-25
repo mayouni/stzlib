@@ -7,17 +7,22 @@ func StzGraphQueryQ(oGraph)
 
 class stzGraphQuery
 	@oGraph
+
 	@aMatchPatterns = []
 	@aWhereConditions = []
 	@aSelectFields = []
+
 	@aCreatePatterns = []
 	@aSetOperations = []
 	@aDeleteTargets = []
+
 	@nLimit = 0
 	@nSkip = 0
 	@aOrderBy = []
 	@bDistinct = FALSE
 	
+	@aResult = []
+
 	def init(oGraph)
 		if NOT @IsStzGraph(oGraph)
 			stzraise("Parameter must be a stzGraph object!")
@@ -126,11 +131,11 @@ class stzGraphQuery
 	                    aInternal["label"] = paParams[i][2]
 	                but paParams[i][1] = :props or paParams[i][1] = :properties
 	                    aInternal["props"] = paParams[i][2]
-	                but paParams[i][1] = :where
-	                    aWhere = paParams[i][2]
-	                    aInternalCond = This._NormalizeCondition(aWhere, aInternal["from"])
-	                    aInternal["where"] = aInternalCond
-	                ok
+			but paParams[i][1] = :where
+			    aWhere = paParams[i][2]
+			    aInternalCond = This._NormalizeCondition(aWhere, "edge_data")
+			    aInternal["where"] = aInternalCond
+			ok
 	            ok
 	        next
 	    ok
@@ -277,6 +282,14 @@ class stzGraphQuery
 		
 		return cOp
 
+	def SelectXT(paFields)
+		This.Select(paFields)
+		return This._Execute()
+
+		def SelectAndExecute(paFiels)
+
+		def SelectAndRun(paFields)
+
 	def Select(paFields)
 	    # Natural forms:
 	    # Select("*")
@@ -314,7 +327,6 @@ class stzGraphQuery
 	            @aSelectFields + acVars[i]
 	        next
 	        
-	        return This._Execute()
 	    ok
 	    
 	    if isString(paFields)
@@ -348,11 +360,10 @@ class stzGraphQuery
 	        ok
 	    next
 	    
-	    return This._Execute()
 	
-		def SelectQ(paFields)
-			This.Select(paFields)
-			return This
+	    def SelectQ(paFields)
+		This.Select(paFields)
+		return This
 
 	def Distinct()
 		@bDistinct = TRUE
@@ -362,10 +373,24 @@ class stzGraphQuery
 			return This
 
 	def OrderBy(pcField, pcDirection)
-		if NOT isString(pcDirection)
+	    	if NOT isString(pcDirection)
+	        	pcDirection = "asc"
+	    	ok
+
+	   	pcDirection = lower(pcDirection)
+
+		if pcDirection = "inascending" or pcDirection = "ascending"
 			pcDirection = "asc"
+		but pcDirection = "indescending" or pcDirection = "descending"
+			pcDirection = "desc"
 		ok
-		@aOrderBy + [ ["field", pcField], ["direction", lower(pcDirection)] ]
+
+		if pcDirection != "asc" and pcDirection != "desc"
+		        pcDirection = "asc"
+		ok
+
+	   	@aOrderBy + [ ["field", pcField], ["direction", pcDirection] ]
+
 	
 		def OrderByQ(pcField, pcDirection)
 			This.OrderBy(pcField, pcDirection)
@@ -483,6 +508,21 @@ class stzGraphQuery
 	#  QUERY EXECUTION  #
 	#-------------------#
 	
+	def Execute()
+		return This._Execute()
+
+		def Run()
+			return This._Execute()
+
+		def Exec()
+			return This._Execute()
+
+		def Executed()
+			return This._Execute()
+
+		def Runned()
+			return This._Execute()
+
 	def _Execute()
 	    aBindings = []
 	    
@@ -523,8 +563,42 @@ class stzGraphQuery
 	        aBindings = This._ApplyLimit(aBindings)
 	    ok
 	    
-	    return aBindings
+	    @aResult = aBindings
+	    return TRUE
+
+	def Result()
+		return @aResult
+
+	#--------------------#
+	#  QUERY DEFINITION  #
+	#--------------------#
+
+	def Query()
+	    # Returns the complete query definition as a structured hashlist
+	    aQueryDef = [
+	        ["match_patterns", @aMatchPatterns],
+	        ["where_conditions", @aWhereConditions],
+	        ["select_fields", @aSelectFields],
+	        ["create_patterns", @aCreatePatterns],
+	        ["set_operations", @aSetOperations],
+	        ["delete_targets", @aDeleteTargets],
+	        ["order_by", @aOrderBy],
+	        ["skip", @nSkip],
+	        ["limit", @nLimit],
+	        ["distinct", @bDistinct]
+	    ]
+	    
+	    return aQueryDef
 	
+	    def Definition()
+	        return This.Query()
+	    
+	    def AST()
+	        return This.Query()
+
+	    def Structure()
+	        return This.Query()
+
 	#-----------------------#
 	#  PATTERN MATCHING     #
 	#-----------------------#
@@ -624,51 +698,69 @@ class stzGraphQuery
 	    return aBindings
 	
 	def _MatchEdge(aPattern)
-		cFromVar = aPattern["from"]
-		cToVar = aPattern["to"]
-		cLabel = aPattern["label"]
-		aProps = aPattern["props"]
-		
-		aBindings = []
-		aEdges = @oGraph.Edges()
-		nLen = len(aEdges)
-		
-		for i = 1 to nLen
-			aEdge = aEdges[i]
-			bMatch = TRUE
-			
-			# Check label
-			if cLabel != "" and HasKey(aEdge, :label)
-				if aEdge[:label] != cLabel
-					bMatch = FALSE
-				ok
-			ok
-			
-			# Check properties
-			if isList(aProps) and len(aProps) > 0
-				acKeys = keys(aProps)
-				nKeyLen = len(acKeys)
-				
-				for j = 1 to nKeyLen
-					cKey = acKeys[j]
-					if NOT This._EdgeHasProperty(aEdge, cKey, aProps[cKey])
-						bMatch = FALSE
-						exit
-					ok
-				next
-			ok
-			
-			if bMatch
-				aBinding = [
-					[cFromVar, @oGraph.Node(aEdge[:from])],
-					[cToVar, @oGraph.Node(aEdge[:to])],
-					["edge_data", aEdge]
-				]
-				aBindings + aBinding
-			ok
-		next
-		
-		return aBindings
+	    cFromVar = aPattern["from"]
+	    cToVar = aPattern["to"]
+	    cLabel = aPattern["label"]
+	    aProps = aPattern["props"]
+	    pWhere = NULL
+	    
+	    if HasKey(aPattern, "where")
+	        pWhere = aPattern["where"]
+	    ok
+	    
+	    aBindings = []
+	    aEdges = @oGraph.Edges()
+	    nLen = len(aEdges)
+	    
+	    for i = 1 to nLen
+	        aEdge = aEdges[i]
+	        bMatch = TRUE
+	        
+	        # Check label
+	        if cLabel != "" and HasKey(aEdge, :label)
+	            if aEdge[:label] != cLabel
+	                bMatch = FALSE
+	            ok
+	        ok
+	        
+	        # Check properties
+	        if isList(aProps) and len(aProps) > 0
+	            acKeys = keys(aProps)
+	            nKeyLen = len(acKeys)
+	            
+	            for j = 1 to nKeyLen
+	                cKey = acKeys[j]
+	                if NOT This._EdgeHasProperty(aEdge, cKey, aProps[cKey])
+	                    bMatch = FALSE
+	                    exit
+	                ok
+	            next
+	        ok
+	        
+	        # Apply pattern-specific WHERE condition
+	        if bMatch and pWhere != NULL
+	            aBinding = [
+	                [cFromVar, @oGraph.Node(aEdge[:from])],
+	                [cToVar, @oGraph.Node(aEdge[:to])],
+	                ["edge_data", aEdge]
+	            ]
+	            bWhereResult = This._EvaluateCondition(pWhere, aBinding)
+	            if NOT bWhereResult
+	                bMatch = FALSE
+	            ok
+	        ok
+	        
+	        if bMatch
+	            aBinding = [
+	                [cFromVar, @oGraph.Node(aEdge[:from])],
+	                [cToVar, @oGraph.Node(aEdge[:to])],
+	                ["edge_data", aEdge]
+	            ]
+	            aBindings + aBinding
+	        ok
+	    next
+	    
+	    return aBindings
 	
 	def _MergeBindings(aExisting, aNew)
 	    if len(aExisting) = 0
@@ -857,6 +949,20 @@ class stzGraphQuery
 	            cVar = acParts[1]
 	            cProp = acParts[2]
 	            
+	            # Handle edge_data specially
+	            if cVar = "edge_data" and HasKey(aBinding, "edge_data")
+	                aEdge = aBinding["edge_data"]
+	                if HasKey(aEdge, :properties)
+	                    aProps = aEdge[:properties]
+	                    if isList(aProps) and len(aProps) > 0
+	                        if HasKey(aProps, cProp)
+	                            return aProps[cProp]
+	                        ok
+	                    ok
+	                ok
+	                return NULL
+	            ok
+	            
 	            if HasKey(aBinding, cVar)
 	                aNode = aBinding[cVar]
 	                
@@ -874,7 +980,7 @@ class stzGraphQuery
 	                ok
 	            ok
 	            
-	            # Check edge_data for edge properties
+	            # Check edge_data for edge properties (fallback)
 	            if cVar = "node" and HasKey(aBinding, "edge_data")
 	                aEdge = aBinding["edge_data"]
 	                if HasKey(aEdge, :properties)
@@ -1105,46 +1211,41 @@ class stzGraphQuery
 	#------------------#
 	#  ORDERING/LIMIT  #
 	#------------------#
-	
+
 	def _ApplyOrderBy(aResults)
-		if len(@aOrderBy) = 0
-			return aResults
-		ok
-		
-		aOrderDef = @aOrderBy[1]
-		cField = aOrderDef["field"]
-		cDirection = aOrderDef["direction"]
-		
-		nLen = len(aResults)
-		for i = 1 to nLen - 1
-			for j = i + 1 to nLen
-				pVal1 = This._GetResultValue(aResults[i], cField)
-				pVal2 = This._GetResultValue(aResults[j], cField)
-	
-				bSwap = FALSE
-				if cDirection = "asc"
-					if isNumber(pVal1) and isNumber(pVal2)
-						bSwap = (pVal1 > pVal2)
-					but isString(pVal1) and isString(pVal2)
-						bSwap = (pVal1 > pVal2)
-					ok
-				else
-					if isNumber(pVal1) and isNumber(pVal2)
-						bSwap = (pVal1 < pVal2)
-					but isString(pVal1) and isString(pVal2)
-						bSwap = (pVal1 < pVal2)
-					ok
-				ok
-				
-				if bSwap
-					aTemp = aResults[i]
-					aResults[i] = aResults[j]
-					aResults[j] = aTemp
-				ok
-			next
-		next
-		
-		return aResults
+	    if len(@aOrderBy) = 0
+	        return aResults
+	    ok
+	    
+	    aOrderDef = @aOrderBy[1]
+	    cField = aOrderDef["field"]
+	    cDirection = aOrderDef["direction"]
+	    
+	    # Extract values for sorting
+	    aValues = []
+	    nLen = len(aResults)
+	    for i = 1 to nLen
+	        pVal = This._GetResultValue(aResults[i], cField)
+	        aValues + [i, pVal]
+	    next
+	    
+	    # Sort using Softanza
+	    @SortOn(aValues, 2)
+	    
+	    # Apply descending if needed
+	    if cDirection = "desc"
+	        @Reverse(aValues)
+	    ok
+	    
+	    # Rebuild results in sorted order
+	    aSorted = []
+	    nLen = len(aValues)
+	    for i = 1 to nLen
+	        nOrigIndex = aValues[i][1]
+	        aSorted + aResults[nOrigIndex]
+	    next
+	    
+	    return aSorted
 	
 	def _GetResultValue(aResult, cField)
 		if substr(cField, ".") > 0
