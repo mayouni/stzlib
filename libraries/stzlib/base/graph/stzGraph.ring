@@ -3,10 +3,18 @@
 #  Simplified rules, all methods preserved   #
 #============================================#
 
+# The file contains some other classes used by the main class:
+# stzGraphFinder, stzGraphAsciiVisualizer, and stzGraphComparison
+
+#TODO Abstract the simulation feature in a distinc stzGraphSimulator class
+
 $acGraphTypes = ["structural", "flow", "semantic", "dependency"]
 $cDefaultGraphType = "structural"
 
 $acGraphDefaultValidators = ["dag", "reachability", "completeness"]
+
+func StzGraphQ(cGraphName)
+	return new stzGraph(cGraphName)
 
 func GraphTypes()
 	return @acGraphTypes 
@@ -1532,6 +1540,22 @@ class stzGraph
 	def LastNodeId()
 		return This.LastNode()[:id]
 
+	def NthNode(n)
+		if not isNumber(n)
+			stzraise("Incorrect param type! n must be a number.")
+		ok
+
+		return @aNodes[n]
+
+		def NodeAt(n)
+			return This.NthNode(n)
+
+		def NodeAtPosition(n)
+			return This.NthNode(n)
+
+	def NodePosition(pcNodeId)
+		return ring_find(This.NodesIds(), lower(pcNodeId) )
+
 	#--
 
 	def FindNode(pcNodeId)
@@ -2056,9 +2080,9 @@ class stzGraph
 		
 		return acResult
 
-	#------------------------------------------------#
+	#-------------------------------------------------#
 	#  RICH QUERYING - BASED ON stzGraphFinder CLASS  #
-	#------------------------------------------------#
+	#-------------------------------------------------#
 
 	def Find(pcWhat)
 		return new stzGraphFinder(This, pcWhat)
@@ -2155,6 +2179,13 @@ class stzGraph
 
 		def PathsWF(pFunc)
 			return This.PathsWhereF(pFunc)
+
+	#---------------------------------------------------#
+	#  ADVANCED QURYIES - BASED ON stzGraphQuery class  #
+	#---------------------------------------------------#
+
+	def QueryQ()
+		return new stzGraphQuery(This)
 
 	#--------------------#
 	#  GRAPH ALGORITHMS  #
@@ -5101,13 +5132,11 @@ class stzGraph
 
 		return 1
 
-#===================================================#
-# stzGraphFinder - Basic Finder of Nodes ane Edges  #
-#===================================================#
-# Used by the Find() method in stzGraph
-# For advanced queries use stzGraphQuery class
-
 class stzGraphFinder
+	# Basic Finder of Nodes ane Edges
+	# Used by the Find() method in stzGraph
+	# For advanced queries use stzGraphQuery class
+
 	@oGraph
 	@cTarget
 	@aFilters = []
@@ -5311,9 +5340,6 @@ class stzGraphFinder
 		ok
 		return FALSE
 
-#==========================#
-# stzGraphAsciiVisualizer
-#==========================#
 
 class stzGraphAsciiVisualizer
 	@oGraph
@@ -5569,11 +5595,6 @@ class stzGraphAsciiVisualizer
 				pacArrowLines + [pcNodeId, cNext, aEdge["label"]]
 			ok
 		ok
-
-
-#================================================#
-# stzGraphComparison - Fluent Comparison   #
-#================================================#
 
 class stzGraphComparison
 	@oBaselineGraph

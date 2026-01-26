@@ -73,7 +73,8 @@ aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:nodes, :where = [:age, "=", 30]]).
 	Select("*")
 
-? len(aResults) #--> 2
+? len(aResults)
+#--> 2
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.25
@@ -299,7 +300,7 @@ pf()
 #------------------------#
 
 /*--- Select specific property
-*/
+
 pr()
 
 oGraph = new stzGraph("employees")
@@ -541,9 +542,7 @@ pf()
 pr()
 
 oGraph = new stzGraph("test")
-oGraph {
-	AddNodeXTT("alice", "Person", [:age = 30])
-}
+oGraph.AddNodeXTT("alice", "Person", [:age = 30])
 
 StzGraphQueryQ(oGraph) {
 	MatchQ([:node = "n", :where = [:id, "=", "alice"]])
@@ -701,7 +700,7 @@ pf()
 #-------------------------#
 
 /*--- Convert query to OpenCypher
-*/
+
 pr()
 
 oGraph = new stzGraph("test")
@@ -722,3 +721,174 @@ cCypher = StzGraphQueryQ(oGraph).
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.25
+
+#-----------------------------------#
+#  THREE STYLES OF USING THE CLASS  #
+#-----------------------------------#
+
+# The class has been refactored fellowing those principles:
+#
+# 1. Single source of truth:
+# `@aDefinition` is now the only state container
+# 
+# 2. All methods modify `@aDefinition`:
+# Every query-building method (`Match`, `Where`, `Select`, etc.)
+# operates on `@aDefinition`
+
+# 3. Execution reads from `@aDefinition`:
+# `_Execute()` and all its helpers read only from `@aDefinition`
+# 
+# 4. Manual modification enabled: `SetDefinition()` allows
+# external definition loading
+
+# 5. State consistency:
+# Changing definition resets execution state
+
+
+/*--- Scenario 1: Normal fluent API
+
+pr()
+
+oGraph = new stzGraph("social")
+oGraph {
+	AddNode("alice")
+	AddNode("bob")
+	AddNode("carol")
+	AddNode("dave")
+	
+	ConnectXT("alice", "bob", "FRIEND")
+	ConnectXT("bob", "carol", "FRIEND")
+	ConnectXT("bob", "dave", "FRIEND")
+}
+
+StzGraphQueryQ(oGraph) {
+    Match([:node = "n"])
+    Select("n.id")
+
+    if Executed()
+        ? @@NL(Result()) #ERR
+    ok
+}
+#--> [
+#	[
+#		[ "n.id", "alice" ]
+#	],
+#	[
+#		[ "n.id", "bob" ]
+#	],
+#	[
+#		[ "n.id", "carol" ]
+#	],
+#	[
+#		[ "n.id", "dave" ]
+#	]
+# ]
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.25
+
+/*--- Scenario 2: Manual definition manipulation
+
+pr()
+
+oGraph = new stzGraph("social")
+oGraph {
+	AddNode("alice")
+	AddNode("bob")
+	AddNode("carol")
+	AddNode("dave")
+	
+	ConnectXT("alice", "bob", "FRIEND")
+	ConnectXT("bob", "carol", "FRIEND")
+	ConnectXT("bob", "dave", "FRIEND")
+}
+
+StzGraphQueryQ(oGraph) {
+	Match([:node = "n"])
+	Select("n.id")
+
+	aDef = Definition()
+	aDef["limit"] = 3  # Modify directly
+	SetDefinition(aDef)
+	? @@NL(aDef)
+	#--> [
+	# 	[
+	# 		"match_patterns",
+	# 		[
+	# 			[
+	# 				[ "type", "node" ],
+	# 				[ "alias", "n" ],
+	# 				[ "label", "" ],
+	# 				[ "props", [  ] ]
+	# 			]
+	# 		]
+	# 	],
+	# 	[ "where_conditions", [  ] ],
+	# 	[
+	# 		"select_fields",
+	# 		[ "n.id" ]
+	# 	],
+	# 	[ "create_patterns", [  ] ],
+	# 	[ "set_operations", [  ] ],
+	# 	[ "delete_targets", [  ] ],
+	# 	[ "order_by", [  ] ],
+	# 	[ "skip", 0 ],
+	# 	[ "limit", 3 ],
+	# 	[ "distinct", 0 ]
+	# ]
+
+	Execute()
+
+	? @@NL(Result())
+	#--> [
+	# 	[
+	# 		[ "n.id", "alice" ]
+	# 	],
+	# 	[
+	# 		[ "n.id", "bob" ]
+	# 	],
+	# 	[
+	# 		[ "n.id", "carol" ]
+	# 	]
+	# ]
+
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.25
+
+/*--- Scenario 3: Serialization (future)
+*/
+pr()
+
+oGraph = new stzGraph("social")
+oGraph {
+	AddNode("alice")
+	AddNode("bob")
+	AddNode("carol")
+	AddNode("dave")
+	
+	ConnectXT("alice", "bob", "FRIEND")
+	ConnectXT("bob", "carol", "FRIEND")
+	ConnectXT("bob", "dave", "FRIEND")
+}
+
+StzGraphQueryQ(oGraph) {
+	Match([:node = "n"])
+	Select("n.id")
+
+	# Serilising the 
+	cJSON = JsonXT(Definition())
+	write("txtfiles/myquery.json", cJSON)
+
+	# Later...
+	cLoaded = read("txtfiles/myquery.json")
+	SetDefinition(JsonToList(cLoaded))
+	Execute()
+	? @@( Result() )
+}
+
+#TODO Add ToJson() and FromJson()
+#TODO Add a specific *.stzqwry file format
+
+pf()

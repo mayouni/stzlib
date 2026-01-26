@@ -1311,7 +1311,7 @@ pf()
 #============================================#
 
 /*--- Query by Pattern
-*/
+
 pr()
 
 oGraph = new stzGraph("QueryTest")
@@ -1325,7 +1325,7 @@ oGraph {
 	#--> ["svc1", "db1"]
 
 	# Internally, the previous query uses a more general expression
-	# nase on the stzGraphQuery class, leading to the same result
+	# bases on the stzGraphFinder class, leading to the same result
 
 	? Find("nodes").Where("type", "=", "backend").Run()
 	#--> ["svc1", "db1"]
@@ -2145,7 +2145,7 @@ pf()
 #==========================================================#
 
 /*--- CONSTRAINT: Block Invalid Ops (Rule runs BEFORE operations)
-
+*
 pr()
 
 # Register: No one approves their own work
@@ -2432,7 +2432,7 @@ oGraph {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in almost 0 second(s) in Ring 1.25
 
 /*--- COMPLETE: Dev Project Workflow
 
@@ -3006,7 +3006,7 @@ oMatrix.Show()
 '
 
 pf()
-# Executed in 0.56 second(s) in Ring 1.25
+# Executed in 0.49 second(s) in Ring 1.25
 # Executed in 0.59 second(s) in Ring 1.24
 
 #------------------------------------#
@@ -3696,6 +3696,7 @@ aDiff = oBaseline.CompareWith(oVariation)
 `
 
 pf()
+# Executed in 0.22 second(s) in Ring 1.25
 # Executed in 0.26 second(s) in Ring 1.24
 
 #-----------------------#
@@ -4347,6 +4348,7 @@ aDiff = oBaseline.CompareWith(oVariation)
 `
 
 pf()
+# Executed in 0.12 second(s) in Ring 1.25
 # Executed in 0.14 second(s) in Ring 1.24
 
 #-----------------------#
@@ -5356,6 +5358,7 @@ aDiff = oA.DiffWith(oB)
 `
 
 pf()
+" Executed in 0.06 second(s) in Ring 1.25
 # Executed in 0.12 second(s) in Ring 1.24
 
 #============================================#
@@ -5818,3 +5821,315 @@ oReseau = new stzGraph("Trounées Niamey")
 #--> ERROR MESSAGE: Inncorrect Id! pcId must be a string without spaces nor new lines.
 
 pf()
+
+#============================================#
+#  Query-Triggered Rules & Graph Projection  #
+#============================================#
+
+#--- Key Concepts explored in those samples:
+
+	# 1. Rules are registered globally, loaded per-graph
+	
+	# 2. Queries match subsets of the graph, rules apply
+	#    only to those matches
+	
+	# 3. ToGraphQ() = independent copy for analysis
+	
+	# 4. ToViewQ() = linked view with commit/rollback
+	
+	# 5. Three rule types: Constraint (guard),
+	#    Derivation (auto-generate), Validation (verify)
+
+/*--- EXAMPLE 1: Query-Triggered Constraint Rules
+# This example show how rules enforce business logic on specific graph subsets
+
+pr()
+
+# Step 1: Register the rule SEPARATION_FINANCE in a rules group called COMPLIANCE
+
+	# Many rules can be registred to the same group using the same command:
+	# RegisterRule(:COMPLIANCE, "AN_OTHER_RULE_NAME", [ ... ])
+	
+	RegisterRule(:COMPLIANCE, "SEPARATION_FINANCE", [
+		:type = :Constraint,
+		:function = ConstraintFunc_Separation(), # Built-in function in stzGraphRule.ring
+		:params = [:property = "department", :values = ["finance", "finance"]],
+		:message = "Separation of duties violation",
+		:severity = :error
+	])
+	# The rule will be used inside the stzGraph object we will creat via UseRulesFrom()
+
+# Step 2: Build the graph with domain data
+
+StzGraphQ("compliance_system") {
+
+	# Employees as nodes with properties
+	AddNodeXTT("alice", "Alice Chen", [:department = "finance", :level = 5])
+	AddNodeXTT("bob", "Bob Smith", [:department = "finance", :level = 3])
+	AddNodeXTT("carol", "Carol Davis", [:department = "engineering", :level = 4])
+	AddNodeXTT("dave", "Dave Wilson", [:department = "finance", :level = 2])
+	
+	# Approval relationships as edges
+	Connect("alice", "bob")
+	Connect("bob", "carol")
+	
+	# Step 3: Activate rules from COMPLIANCE group for this graph
+	UseRulesFrom(:COMPLIANCE) # All the rules registred on this group will apply
+	
+	# Step 4: Make a query that triggers rule on matched subset only
+	try
+		QueryQ() { # A stzGraphQuery object is used internally
+			Match([:nodes, :props = [:department = "finance"]])
+			EnforceRule("SEPARATION_FINANCE")  # Applied only to finance nodes
+			Select("*")
+			Execute()
+		}	
+		? "✔ Finance connections validated"
+		
+	catch
+		? "✗ Query-level validation failed: " + cCatchError
+	done
+	
+	? NL + "Testing constraint at operation level..." + NL
+	
+	# Rules don't just work in queries - they guard ALL graph operations
+	# Once loaded via UseRulesFrom(), every Connect(), AddNode(), etc. 
+	# is automatically checked against constraint rules
+	try
+		Connect("alice", "dave")  # Both finance - should fail
+		? "✔ Connection allowed"
+	catch
+		? "✗ Blocked: " + cCatchError
+	done
+}
+#-->
+` 
+✔ Finance connections validated
+
+Testing constraint at operation level...
+
+✗ Blocked: Cannot add edge - constraint violation: Separation of duties violation
+`
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.25
+
+/*--- EXAMPLE 2: Query-Triggered Derivation Rules
+# Goal : Auto-generate edges from patterns in matched subgraph
+
+pr()
+
+# Register transitive closure rule
+RegisterRule(:SEMANTIC, "AUTO_TRANSITIVITY", [
+	:type = :Derivation,
+	:function = DerivationFunc_Transitivity(),
+	:params = [],
+	:message = "Transitive closure",
+	:severity = :info
+])
+
+StzGraphQ("knowledge_base") {
+
+	# Taxonomy hierarchy
+	AddNodeXT("mammals", "Mammals")
+	AddNodeXT("dogs", "Dogs")
+	AddNodeXT("poodles", "Poodles")
+	AddNodeXT("birds", "Birds")
+	AddNodeXT("sparrows", "Sparrows")
+
+	ConnectXT("poodles", "dogs", "is_a")
+	ConnectXT("dogs", "mammals", "is_a")
+	ConnectXT("sparrows", "birds", "is_a")
+
+	# Edges before derivation
+	? EdgesCount()
+	#--> 3
+
+	UseRulesFrom(:SEMANTIC)
+
+	# Derive transitivity only on is_a edges
+	QueryQ() {
+		MatchEdge([:labeled, "is_a"])
+		DeriveUsing("AUTO_TRANSITIVITY")
+		Execute()
+	}
+
+	# Edges after derivation
+	? EdgesCount()
+	#--> 4
+	
+	# Verify derived edge exists
+	? EdgeExists("poodles", "mammals")
+	#-->  TRUE
+}
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.25
+
+/*--- EXAMPLE 3: Graph Projection (ToGraph)
+# Extract query results as independent graph for analysis
+
+pr()
+
+StzGraphQ("project_tasks") {
+
+	# Tasks with status/priority
+	AddNodeXTT("design", "UI Design", [:status = "complete", :priority = "high"])
+	AddNodeXTT("backend", "Backend API", [:status = "in_progress", :priority = "high"])
+	AddNodeXTT("frontend", "Frontend", [:status = "blocked", :priority = "high"])
+	AddNodeXTT("testing", "Testing", [:status = "not_started", :priority = "medium"])
+	AddNodeXTT("docs", "Documentation", [:status = "not_started", :priority = "low"])
+
+	Connect("design", "frontend")
+	Connect("backend", "frontend")
+	Connect("frontend", "testing")
+	Connect("testing", "docs")
+
+	# How many tasks (nodes) in the full project (graph)?
+	? NodesCount()
+	#--> 5
+
+	# Project to subgraph: high-priority tasks only
+	QueryQ() {
+		Match([:nodes, :props = [:priority = "high"]])
+		Select("*")
+		oHighPriority = ToStzGraph()  # Creates new independent graph
+	}
+
+	# Let's focus on the High-priority subgraph
+	 oHighPriority {
+
+		# Number of tasks
+		? NodesCount()
+		#--> 3
+
+		# Density in %
+		? Density100()
+		#--> 33.33%
+
+		# Any bottlenecks?
+		? @@NL( BottleneckNodes() )
+		#--> [ "frontend" ]
+	}
+
+}
+
+pf()
+
+/*--- EXAMPLE 4: Graph Views (ToView)
+# This example illustrates editable filtered view with commit/rollback
+*/
+pr()
+
+StzGraphQ("organization") {
+
+	AddNodeXTT("eng", "Engineering", [:budget = 500000])
+	AddNodeXTT("sales", "Sales", [:budget = 300000])
+	AddNodeXTT("hr", "HR", [:budget = 150000])
+
+	? "Original budgets:"
+	? "  Engineering: $" + NodeProperty("eng", "budget")
+	? "  Sales: $" + NodeProperty("sales", "budget")
+
+	# Create editable view of high-budget departments
+	QueryQ() {
+		Match([:nodes])
+		Where(["budget", ">", 200000])
+		oView = ToViewQ()  # Linked to parent, supports commit/rollback
+	}
+
+	? NL + "View has " + oView.NodesCount() + " departments"
+
+	# Modify in view (parent unchanged)
+	oView.SetNodeProperty("eng", "budget", 550000)
+	oView.SetNodeProperty("sales", "budget", 330000)
+
+	? "Modified nodes in view: " + len(oView.Changes()[:nodesModified])
+	? "Original graph: Engineering still $" + NodeProperty("eng", "budget")
+
+	# Commit changes to parent
+	oView.Commit()
+
+	? NL + "After commit:"
+	? "  Engineering: $" + NodeProperty("eng", "budget")
+	? "  Sales: $" + NodeProperty("sales", "budget")
+}
+#-->
+`
+Original budgets:
+  Engineering: $500000
+  Sales: $300000
+
+View has 2 departments
+Modified nodes in view: 2
+Original graph: Engineering still $500000
+
+After commit:
+  Engineering: $550000
+  Sales: $330000
+`
+
+pf()
+# Executed in 0.01 second(s) in Ring 1.25
+
+/*--- EXAMPLE 5: Combined Workflow
+# Query → Validate → Project → Analyze
+
+pr()
+
+# Register DAG validation
+StzGraphQ("approval_flow") {
+
+	AddNodeXTT("submit", "Submit Request", [:type = "start"])
+	AddNodeXTT("review", "Peer Review", [:type = "approval"])
+	AddNodeXTT("manager", "Manager Approval", [:type = "approval"])
+	AddNodeXTT("exec", "Executive Approval", [:type = "approval"])
+	AddNodeXTT("complete", "Complete", [:type = "end"])
+
+	Connect("submit", "review")
+	Connect("review", "manager")
+	Connect("manager", "complete")
+
+	UseRulesFrom(:dag)
+
+	# Validate only approval steps
+	QueryQ() {
+		Match([:nodes, :props = [:type = "approval"]])
+		ValidateWith(["dag"])  # Validates matched subgraph only
+		Select("*")
+		Execute()
+
+		aApprovals = Result()
+	}
+
+	# Number of approaval nodes validated?
+	? len(aApprovals)
+	#--> 3
+
+	# Add executive path
+	Connect("manager", "exec")
+	Connect("exec", "complete")
+
+	# Create view for what-if analysis
+	QueryQ() {
+		Match([:nodes, :props = [:type = "approval"]])
+		oView = ToViewQ()
+	}
+
+	# Critical approvals
+	? @@(oView.MostCriticalNodes(2))
+
+	# Simulate removal (doesn't affect original)
+	oView.RemoveThisNode("manager")
+
+	# After removal, view has this number of nodes
+	? oView.NodesCount()
+	#--> 2
+
+	# While origianle graph has
+	? NodesCount()
+	#--> 5
+}
+
+pf()
+# Executed in 0.02 second(s) in Ring 1.25
