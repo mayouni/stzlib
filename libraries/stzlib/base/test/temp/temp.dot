@@ -1,9 +1,12 @@
-digraph exporttest {
+digraph compliance_system {
   rankdir=TD;
   node [shape=box];
 
-  a [label="A"];
-  b [label="B"];
+  alice [label="Alice_Chen"];
+  bob [label="Bob_Smith"];
+  carol [label="Carol_Davis"];
+  dave [label="Dave_Wilson"];
 
-  a -> b;
+  alice -> bob;
+  bob -> carol;
 }

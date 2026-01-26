@@ -128,6 +128,7 @@ ok
     load "graph/stzgraphrule.ring"
 
     load "graph/stzgraphquery.ring"
+    load "graph/stzgraphview.ring"
 
     load "graph/stzgraphplanner.ring"
     load "graph/stzknowledgegraph.ring"
