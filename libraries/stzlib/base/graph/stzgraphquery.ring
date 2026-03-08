@@ -2,6 +2,25 @@
 #  stzGraphQuery - Natural Softanza Query System    #
 #====================================================#
 
+# The class has been refactored fellowing those principles:
+#
+# 1. Single source of truth:
+# `@aDefinition` is now the only state container
+# 
+# 2. All methods modify `@aDefinition`:
+# Every query-building method (`Match`, `Where`, `Select`, etc.)
+# operates on `@aDefinition`
+
+# 3. Execution reads from `@aDefinition`:
+# `_Execute()` and all its helpers read only from `@aDefinition`
+# 
+# 4. Manual modification enabled: `SetDefinition()` allows
+# external definition loading
+
+# 5. State consistency:
+# Changing definition resets execution state
+
+
 $aDefaultQueryDefinition = [
 	["match_patterns", []],
 	["where_conditions", []],

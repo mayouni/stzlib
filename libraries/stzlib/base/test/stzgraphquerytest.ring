@@ -293,6 +293,7 @@ StzGraphQueryQ(oGraph) {
 }
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.26
 # Executed in 0.01 second(s) in Ring 1.25
 
 #------------------------#
@@ -450,13 +451,13 @@ aResults = StzGraphQueryQ(oGraph).
 	Select("n")
 
 ? @@( aResults[1]["n"][:id] )
-#--> "bob"
+#--> "alice"
 
 ? @@( aResults[3]["n"][:id] )
 #--> "carol"
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in 0.02 second(s) in Ring 1.26
 
 /*--- Skip and Limit
 
@@ -470,12 +471,14 @@ oGraph {
 	AddNodeXTT("dave", "Employee", [:rank = 4])
 }
 
-aResults = StzGraphQueryQ(oGraph).
-	MatchQ([:node = "n"]).
-	OrderByQ("n.rank", :InAscending).
-	SkipQ(1).
-	LimitQ(2).
-	Select("n")
+StzGraphQueryQ(oGraph) {
+	Match([:node = "n"])
+	OrderBy("n.rank", :InAscending)
+	Skip(1)
+	LimitQ(2)
+
+	aResults = Select("n")
+}
 
 ? len(aResults)
 #--> 2
@@ -484,9 +487,44 @@ aResults = StzGraphQueryQ(oGraph).
 #--> "bob"
 
 ? @@NL( aResults )
+#-->
+`
+[
+	[
+		[
+			"n",
+			[
+				[ "id", "bob" ],
+				[ "label", "Employee" ],
+				[
+					"properties",
+					[
+						[ "rank", 2 ]
+					]
+				]
+			]
+		]
+	],
+	[
+		[
+			"n",
+			[
+				[ "id", "carol" ],
+				[ "label", "Employee" ],
+				[
+					"properties",
+					[
+						[ "rank", 3 ]
+					]
+				]
+			]
+		]
+	]
+]
+`
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in 0.02 second(s) in Ring 1.26
 
 #-------------------#
 #  CREATE PATTERNS  #
@@ -499,14 +537,14 @@ pr()
 oGraph = new stzGraph("test")
 
 StzGraphQueryQ(oGraph) {
-	CreateQ([:node, :labeled = "Person", :props = [:name = "Alice"]])
+	Create([:node, :labeled = "Person", :props = [:name = "Alice"]])
 	Select("*")
 	? GraphQ().NodeCount()
 	#--> 1
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.25
+# Executed in almost 0 second(s) in Ring 1.26
 
 /*--- Create edge
 
@@ -519,9 +557,9 @@ oGraph {
 }
 
 StzGraphQueryQ(oGraph) {
-	MatchQ([:node = "a", :where = [:id, "=", "alice"]])
-	MatchQ([:node = "b", :where = [:id, "=", "bob"]])
-	CreateQ([:edge, :from = "a", :to = "b", :labeled = "KNOWS"])
+	Match([:node = "a", :where = [:id, "=", "alice"]])
+	Match([:node = "b", :where = [:id, "=", "bob"]])
+	Create([:edge, :from = "a", :to = "b", :labeled = "KNOWS"])
 
 	? len(Select("a"))
 	#--> 1
@@ -531,7 +569,7 @@ StzGraphQueryQ(oGraph) {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in 0.01 second(s) in Ring 1.26
 
 #-------------------#
 #  UPDATE PATTERNS  #
@@ -545,8 +583,8 @@ oGraph = new stzGraph("test")
 oGraph.AddNodeXTT("alice", "Person", [:age = 30])
 
 StzGraphQueryQ(oGraph) {
-	MatchQ([:node = "n", :where = [:id, "=", "alice"]])
-	SetQ("n.age", [:to = 31])
+	Match([:node = "n", :where = [:id, "=", "alice"]])
+	Set("n.age", [:to = 31])
 	Select("n")
 	
 	? GraphObject().NodeProperty("alice", "age")
@@ -554,7 +592,7 @@ StzGraphQueryQ(oGraph) {
 }
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.25
+# Executed in almost 0 second(s) in Ring 1.26
 	
 /*--- Set multiple properties
 
@@ -566,9 +604,9 @@ oGraph {
 }
 
 StzGraphQueryQ(oGraph) {
-	MatchQ([:node = "n", :where = [:id, "=", "alice"]])
-	SetQ("n.age", [:to = 31])
-	SetQ("n.city", [:to = "Paris"])
+	Match([:node = "n", :where = [:id, "=", "alice"]])
+	Set("n.age", [:to = 31])
+	Set("n.city", [:to = "Paris"])
 	Select("n")
 }
 
@@ -579,7 +617,7 @@ StzGraphQueryQ(oGraph) {
 #--> "Paris"
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in 0.01 second(s) in Ring 1.26
 
 #-------------------#
 #  DELETE PATTERNS  #
@@ -596,8 +634,8 @@ oGraph {
 }
 
 StzGraphQueryQ(oGraph) {
-	MatchQ([:node = "n", :where = [:id, "=", "alice"]])
-	DeleteQ("n")
+	Match([:node = "n", :where = [:id, "=", "alice"]])
+	Delete("n")
 	Select("n")
 }
 
@@ -605,7 +643,7 @@ StzGraphQueryQ(oGraph) {
 #--> 1
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.25
+# Executed in almost 0 second(s) in Ring 1.26
 
 #---------------------------#
 #  COMPLEX PATTERN QUERIES  #
@@ -637,7 +675,7 @@ aResults = StzGraphQueryQ(oGraph).
 #--> 2 (carol and dave)
 
 pf()
-# Executed in 0.02 second(s) in Ring 1.25
+# Executed in 0.02 second(s) in Ring 1.26
 
 #----------------------#
 #  EXPLAIN QUERY PLAN  #
@@ -693,7 +731,7 @@ aExplanation = StzGraphQueryQ(oGraph).
 # ]
 
 pf()
-# Executed in almost 0 second(s) in Ring 1.25
+# Executed in almost 0 second(s) in Ring 1.26
 
 #-------------------------#
 #  OPENCYPHER CONVERSION  #
@@ -725,25 +763,6 @@ pf()
 #-----------------------------------#
 #  THREE STYLES OF USING THE CLASS  #
 #-----------------------------------#
-
-# The class has been refactored fellowing those principles:
-#
-# 1. Single source of truth:
-# `@aDefinition` is now the only state container
-# 
-# 2. All methods modify `@aDefinition`:
-# Every query-building method (`Match`, `Where`, `Select`, etc.)
-# operates on `@aDefinition`
-
-# 3. Execution reads from `@aDefinition`:
-# `_Execute()` and all its helpers read only from `@aDefinition`
-# 
-# 4. Manual modification enabled: `SetDefinition()` allows
-# external definition loading
-
-# 5. State consistency:
-# Changing definition resets execution state
-
 
 /*--- Scenario 1: Normal fluent API
 
@@ -785,7 +804,7 @@ StzGraphQueryQ(oGraph) {
 # ]
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in 0.01 second(s) in Ring 1.26
 
 /*--- Scenario 2: Manual definition manipulation
 
@@ -855,10 +874,10 @@ StzGraphQueryQ(oGraph) {
 }
 
 pf()
-# Executed in 0.01 second(s) in Ring 1.25
+# Executed in 0.01 second(s) in Ring 1.26
 
 /*--- Scenario 3: Serialization (future)
-*/
+
 pr()
 
 oGraph = new stzGraph("social")
@@ -887,8 +906,10 @@ StzGraphQueryQ(oGraph) {
 	Execute()
 	? @@( Result() )
 }
+#--> [ [ [ "n.id", "alice" ] ], [ [ "n.id", "bob" ] ], [ [ "n.id", "carol" ] ], [ [ "n.id", "dave" ] ] ]
 
 #TODO Add ToJson() and FromJson()
 #TODO Add a specific *.stzqwry file format
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.26

@@ -1,6 +1,7 @@
 
 load "../stzbase.ring"
 
+
 /*---
 
 pr()
@@ -39,6 +40,7 @@ Legend:
 '
 
 pf()
+# Executed in 0.38 second(s) in Ring 1.26
 
 /*----------------------------------------#
 #  Test 1: Basic calendar creation        #
@@ -76,7 +78,7 @@ pf()
 /*----------------------------------------#
 #  Test 2: Working days configuration     #
 #-----------------------------------------#
-
+*/
 pr()
 
 oCal = new stzCalendar([2024, 10])
@@ -826,7 +828,7 @@ pf()
 /*---------------------------------------#
 #  Real world example : sprint planning  #
 #----------------------------------------#
-*/
+
 pr()
 
 oCal = new stzCalendar([2024, 10])

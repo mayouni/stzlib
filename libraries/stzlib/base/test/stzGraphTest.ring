@@ -6053,6 +6053,12 @@ StzGraphQ("organization") {
 	? NL + "After commit:"
 	? "  Engineering: $" + NodeProperty("eng", "budget")
 	? "  Sales: $" + NodeProperty("sales", "budget")
+
+	# Changes made by the commit
+	? @@NL( oView.Changes() ) #ERR
+
+	oView.Rollback()
+	? NodesCount()
 }
 #-->
 `

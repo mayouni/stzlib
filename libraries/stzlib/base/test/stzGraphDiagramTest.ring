@@ -10,7 +10,7 @@ load "../stzbase.ring"
 #-----------------#
 
 /*--- Creating a simple 3-node linear graph
-
+*/
 pr()
 
 oGraph = new stzGraph("SimpleGraph")
