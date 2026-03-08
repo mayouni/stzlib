@@ -22,7 +22,7 @@ o1 = new stzNumbers([ 8, 12, 14, 18, 20, 24 ])
 pf()
 
 /*---
-
+*/
 pr()
 
 o1 = new stzListOfNumbers([ 1, 2, 12, 20, 13, 25, 7, 14, 8, 5, 9 ])

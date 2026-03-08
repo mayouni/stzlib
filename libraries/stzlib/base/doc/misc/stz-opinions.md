@@ -4,7 +4,7 @@ Softanza, the foundation library for the Ring programming language, has garnered
 
 ---
 
-## Mahmoud Fayed (Ring Designer)
+## Mahmoud Fayed (Ring Creator)
 
 > "I felt that the library is working like magic! 😄"  
 > *(In reaction to [this example](https://bit.ly/3wiI61G))*
@@ -21,6 +21,8 @@ Softanza, the foundation library for the Ring programming language, has garnered
 > "Many of us are interested in Softanza Library and would like to add it to our toolbox ASAP."
 
 > "The table display looks beautiful, and these features will be very nice for generating reports :D"
+
+"Mansour Ayouni has played an extraordinary role in spreading Ring. His creativity, especially through the development of the Softanza library, demonstrates what is possible when talent meets vision”
 
 ---
 

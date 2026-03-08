@@ -18859,6 +18859,7 @@ o1 = new stzString("SOFTANZA")
 
 pf()
 # Executed in 0.14 second(s) in Ring 1.24
+# Executed in 0.08 second(s) in Ring 1.26
 
 /*=====
 
@@ -18880,10 +18881,11 @@ o1 = new stzString("..STZ..STZ..STZ")
 #           3       5           8     10            13     15
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.26
 # Executed in 0.12 second(s) in Ring 1.24
 
 /*-----
-*/
+
 pr()
 
 o1 = new stzListOfChars([ "R", "I", "N", "G" ])
@@ -18925,6 +18927,7 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 # ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
 
 pf()
+# Executed in 0.06 second(s) in Ring 1.26
 # Executed in 0.10 second(s) in Ring 1.24
 
 /*-----
@@ -18948,7 +18951,7 @@ o1 = new stzListOfChars( @Chars("..STZ..StZ..stz") )
 pf()
 # Executed in 0.06 second(s) in Ring 1.24
 
-/*----- #ERR
+/*-----
 
 pr()
 
@@ -18959,9 +18962,10 @@ o1 = new stzString("..STZ..StZ..stz")
 # --^----^----^--
 
 pf()
-# Executed in 0.01 second(s).
+# Executed in almost 0 second(s) in Ring 1.26
+# Executed in 0.01 second(s) in Ring 1.24
 
-/*------ #ERR
+/*------
 
 pr()
 
@@ -18988,9 +18992,10 @@ o1 = new stzString("..STZ..StZ..stz")
 #   3    8    13 
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.26
 # Executed in 0.02 second(s) in Ring 1.21
 
-/*------ #ERR
+/*------
 
 pr()
 
@@ -19005,9 +19010,10 @@ o1 = new stzString("..STZ..StZ..stz...STZ")
 # └───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴───┴─•─┴───┴───┘
 
 pf()
+# Executed in 0..7 second(s) in Ring 1.26
 # Executed in 0.11 second(s) in Ring 1.22
 
-/*----- #ERR
+/*-----
 
 pr()
 
@@ -19017,6 +19023,7 @@ pr()
 # ^-------^---------^-------^------   
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.26
 # Executed in 0.02 second(s) in Ring 1.22
 
 /*------------------
