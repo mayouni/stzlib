@@ -396,7 +396,7 @@ aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node="n"]).
 	Select("n.age")
 
-? @@NL(aResults)
+? @@(aResults)
 ```
 
 Output
