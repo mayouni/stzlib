@@ -551,16 +551,3 @@ Combined with `stzGraph`, `stzGraphQuery` enables powerful applications such as:
 * semantic reasoning systems
 
 All directly inside **Ring and the Softanza ecosystem**.
-
-```
-
----
-
-If you want, I can also produce a **final “Softanza-style” version even closer to your `stzGraph` document** — with sections like:
-
-- **“The Moment You Need to Ask the Graph”**
-- **“Refining the Question”**
-- **“Following Relationships”**
-- **“Turning Queries into Actions”**
-
-That version would make **`stzGraph` and `stzGraphQuery` read like two chapters of the same story**, which would make the documentation **very powerful.**
