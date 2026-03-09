@@ -14,14 +14,16 @@ load "../stzbase.ring"
 pr()
 
 oGraph = new stzGraph("SimpleGraph")
-oGraph.AddNode("n1", "Node 1", [:])
-oGraph.AddNode("n2", "Node 2", [:])
-oGraph.AddNode("n3", "Node 3", [:])
-oGraph.AddEdge("n1", "n2", "connects", [:])
-oGraph.AddEdge("n2", "n3", "flows", [:])
+oGraph.AddNode("n1")
+oGraph.AddNode("n2")
+oGraph.AddNode("n3")
+oGraph.AddEdge("n1", "n2")
+oGraph.AddEdge("n2", "n3")
 
 ? oGraph.NodeCount() #--> 3
 ? oGraph.EdgeCount() #--> 2
+
+oGraph.Veiw()
 
 pf()
 

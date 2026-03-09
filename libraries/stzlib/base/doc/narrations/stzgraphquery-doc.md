@@ -1,42 +1,28 @@
-# stzGraphQuery: The Moment You Need to Ask the Graph
+# stzGraphQuery: Asking Questions to Your Graph
 
-Graphs begin simply.
+When working with graphs, a moment inevitably arrives when the graph stops being just a structure of nodes and edges and starts becoming a **world you want to explore**.
 
-At first, you create a few nodes, connect them with edges, and visualize the structure.  
-The relationships are clear. The system feels transparent.
+You look at it and begin asking questions:
 
-But then something changes.
+- *Who are all the people in this network?*
+- *Which employees earn more than 50k?*
+- *Who knows whom?*
+- *Which relationships connect these two nodes?*
 
-The graph grows.
+Before `stzGraphQuery`, answering such questions meant writing loops, traversals, and filters.
 
-More nodes appear.  
-More relationships accumulate.  
-Properties and metadata enrich the structure.
+With **stzGraphQuery**, the experience changes.
 
-Soon the graph becomes **a living system**.
-
-And a new need emerges:
-
-> *You don't just want to see the graph anymore.  
-> You want to ask it questions.*
-
-This is the moment when **stzGraphQuery** enters the scene.
-
-It transforms a graph from a static structure into something interactive —  
-a **knowledge system that can be interrogated**.
-
-Instead of writing loops and traversals, you simply describe **what you are looking for**.
-
-The graph answers.
+You don't write traversal logic anymore.  
+You **ask the graph directly**.
 
 ---
 
-# The First Question: What Is Inside This Graph?
+# The First Question: What Is Inside My Graph?
 
-Every exploration begins with curiosity.
+Every exploration starts with curiosity.
 
-Let's build a very small graph.
-
+Let's build a small graph.
 ```ring
 oGraph = new stzGraph("social")
 oGraph {
@@ -46,12 +32,9 @@ oGraph {
 }
 ````
 
-Now imagine a programmer encountering this graph for the first time.
+Now the natural question appears:
 
-The most natural question appears immediately:
-
-> *What nodes exist here?*
-
+*"What nodes exist in this graph?"*
 ```ring
 aResults = StzGraphQueryQ(oGraph).
 	MatchQ(:nodes).
@@ -61,40 +44,27 @@ aResults = StzGraphQueryQ(oGraph).
 ```
 
 Output
-
 ```
 3
 ```
 
-The graph contains three nodes.
+Three nodes.
 
 Let's inspect the first one.
-
 ```ring
-? @@(aResults[1]["node"][:id])
+? @@( aResults[1]["node"][:id] )
 ```
-
 Output
-
 ```
 alice
 ```
+Without writing any loops, the graph has already revealed its contents.
 
-The graph has begun to reveal itself.
+# Narrowing the Question: Only Persons
 
----
+Real graphs mix many kinds of nodes. You rarely want **everything**. Often you want something specific. The programmer naturally asks:
 
-# Refining the Question
-
-Very quickly, curiosity becomes more precise.
-
-The graph may contain different types of entities — people, companies, products, tasks.
-
-Often the programmer wants to focus on one category.
-
-The question evolves:
-
-> *Show me only the persons.*
+*"Show me only the persons."*
 
 ```ring
 aResults = StzGraphQueryQ(oGraph).
@@ -105,38 +75,29 @@ aResults = StzGraphQueryQ(oGraph).
 ```
 
 Output
-
 ```
 2
 ```
-
-The graph answers with two nodes:
-
+The graph now responds with:
 ```
 alice
 bob
 ```
 
-The code did not need to iterate through nodes or perform manual filtering.
+What changed?
 
-The programmer simply **described the intention**.
+Only the **intent** of the query.
 
----
+Instead of filtering manually, we simply **described the nodes we wanted**.
 
-# When Properties Begin to Matter
 
-Graphs rarely remain purely structural.
+# Looking for Specific Properties
 
-Soon nodes acquire properties:
+Soon the graph grows richer.
 
-* age
-* location
-* salary
-* status
+Nodes begin to carry **properties**.
 
-These properties add **meaning** to the graph.
-
-Let's enrich the nodes.
+Let's rebuild the graph with a bit more information.
 
 ```ring
 oGraph = new stzGraph("social")
@@ -147,9 +108,9 @@ oGraph {
 }
 ```
 
-Now the question becomes more analytical.
+Now the programmer asks a new question:
 
-> *Who is 30 years old?*
+*"Who is 30 years old?"*
 
 ```ring
 aResults = StzGraphQueryQ(oGraph).
@@ -166,22 +127,23 @@ Output
 2
 ```
 
-Matching nodes:
+The graph answers:
 
 ```
 alice
 carol
 ```
 
-The query reads almost like spoken language.
+The beauty here is subtle but powerful:
+the query reads almost like **spoken language**.
 
 ---
 
-# Following Relationships
+# When Relationships Matter
 
-The true strength of graphs appears when nodes interact.
+Graphs become truly interesting when nodes start **interacting**.
 
-Let's create a small network.
+Let's introduce relationships.
 
 ```ring
 oGraph = new stzGraph("social")
@@ -195,9 +157,9 @@ oGraph {
 }
 ```
 
-Now the programmer asks:
+Now the programmer wonders:
 
-> *Who knows whom?*
+*"Which relationships exist in this network?"*
 
 ```ring
 aResults = StzGraphQueryQ(oGraph).
@@ -213,7 +175,7 @@ Output
 2
 ```
 
-Inspecting the first relationship:
+Let's inspect the first connection.
 
 ```ring
 ? @@(aResults[1]["a"][:id])
@@ -227,15 +189,14 @@ alice
 bob
 ```
 
-The graph is now telling a story of connections.
+The graph just revealed a friendship.
 
----
 
-# Asking Analytical Questions
+# Asking Better Questions with Conditions
 
-As the graph grows, the questions become more analytical.
+Once queries become part of your thinking process, the questions naturally become **more precise**.
 
-Let's imagine an employee network.
+Consider a company graph.
 
 ```ring
 oGraph = new stzGraph("employees")
@@ -248,7 +209,7 @@ oGraph {
 
 A manager might ask:
 
-> *Which employees earn exactly 50k?*
+*"Who earns exactly 50k?"*
 
 ```ring
 aResults = StzGraphQueryQ(oGraph).
@@ -265,20 +226,19 @@ Output
 2
 ```
 
-Results:
+Employees found:
 
 ```
 alice
 carol
 ```
 
----
 
-# Comparing Values
+# Comparison Queries
 
-The next question may involve comparisons.
+Soon the questions become more analytical.
 
-> *Who earns more than 55k?*
+*"Who earns more than 55k?"*
 
 ```ring
 aResults = StzGraphQueryQ(oGraph).
@@ -295,19 +255,18 @@ Output
 1
 ```
 
-The answer is simple:
+The graph answers clearly:
 
 ```
 bob
 ```
 
----
 
-# Searching for Patterns
+# Searching Text
 
-Graphs also contain textual information.
+Queries can also explore **textual information**.
 
-Suppose we store names.
+Let's model names.
 
 ```ring
 oGraph = new stzGraph("people")
@@ -318,9 +277,9 @@ oGraph {
 }
 ```
 
-Now the question becomes intuitive:
+A natural question appears:
 
-> *Show me everyone named Alice.*
+*"Show me everyone named Alice."*
 
 ```ring
 aResults = StzGraphQueryQ(oGraph).
@@ -344,15 +303,14 @@ alice_smith
 alice_brown
 ```
 
----
 
 # Combining Conditions
 
-Real-world questions rarely involve a single condition.
+Real questions often combine multiple criteria.
 
-Consider this scenario:
+Let's imagine we want:
 
-> *Which employees are 30 years old and work in Engineering?*
+*"Employees aged 30 in Engineering."*
 
 ```ring
 oGraph = new stzGraph("employees")
@@ -363,7 +321,7 @@ oGraph {
 }
 ```
 
-The query becomes:
+Now the query becomes:
 
 ```ring
 aResults = StzGraphQueryQ(oGraph).
@@ -386,13 +344,12 @@ Result:
 alice
 ```
 
----
 
-# When Logic Becomes Custom
+# Letting Functions Decide
 
-Sometimes conditions become too complex for simple expressions.
+Sometimes the condition becomes complex.
 
-At this moment the programmer introduces **custom logic**.
+Instead of expressing it declaratively, we simply provide a **function**.
 
 ```ring
 StzGraphQueryQ(oGraph) {
@@ -423,43 +380,42 @@ alice
 carol
 ```
 
----
+The query engine simply delegates the decision to your function.
 
-# Extracting Knowledge
 
-Sometimes the programmer doesn't want nodes.
+# Extracting Only What Matters
 
-They want **information extracted from the graph**.
+Sometimes you don't want nodes — you want **data**.
 
-For example:
+Let's ask the graph:
 
-> *What are the ages of all employees?*
+*"What are the ages of all employees?"*
 
 ```ring
 aResults = StzGraphQueryQ(oGraph).
 	MatchQ([:node="n"]).
 	Select("n.age")
 
-? len(aResults)
+? @@NL(aResults)
 ```
 
 Output
 
 ```
-3
+[ 30, 25, 30 ]
 ```
 
-The graph is now acting as a **data source**.
+The result is now **data extracted from the graph** rather than the nodes themselves.
 
 ---
 
 # Ordering the Answers
 
-Sometimes results must be ordered.
+Questions sometimes require ordering.
 
-The question becomes:
+For example:
 
-> *Who is the youngest employee?*
+*"Who is the youngest?"*
 
 ```ring
 aResults = StzGraphQueryQ(oGraph).
@@ -476,15 +432,13 @@ Output
 bob
 ```
 
-The graph responds immediately.
+The graph answers with the youngest employee.
 
 ---
 
-# Exploring Large Graphs
+# Large Graphs: Skipping and Limiting
 
-Large graphs require **navigation techniques**.
-
-Queries can skip and limit results.
+As graphs grow large, exploration often happens **in slices**.
 
 ```ring
 StzGraphQueryQ(oGraph) {
@@ -506,15 +460,15 @@ Output
 2
 ```
 
-The graph can now be explored **piece by piece**.
+The query now returns only a **window into the graph**.
 
 ---
 
-# When Questions Become Actions
+# Creating Nodes Through Queries
 
-At some point exploration turns into action.
+Eventually, exploration becomes **action**.
 
-Queries can **create nodes**.
+Queries can also **modify the graph**.
 
 ```ring
 oGraph = new stzGraph("test")
@@ -533,7 +487,7 @@ Output
 1
 ```
 
-A new node now exists in the graph.
+A new node has been created.
 
 ---
 
@@ -565,31 +519,48 @@ Output
 1
 ```
 
-The graph has evolved.
+The relationship now exists inside the graph.
 
 ---
 
-# The Experience of Querying a Graph
+# The Experience of Querying Graphs
 
-Using `stzGraphQuery` changes how programmers think about graphs.
+Using `stzGraphQuery` changes how programmers interact with graphs.
 
-Instead of writing algorithms to navigate structures, they begin to **converse with the graph**.
+Instead of:
 
-The workflow becomes natural:
+* traversing nodes manually
+* writing filtering loops
+* managing traversal state
 
-1. Ask a question
-2. Observe the answer
+the workflow becomes **conversational**:
+
+1. Ask the graph a question
+2. Observe the result
 3. Refine the question
 4. Ask again
 
-The graph becomes a **knowledge system**, not just a data structure.
+The graph becomes not just a data structure but a **knowledge system you can interrogate**.
 
-Together, **stzGraph** and **stzGraphQuery** provide a powerful foundation for building:
+Combined with `stzGraph`, `stzGraphQuery` enables powerful applications such as:
 
 * knowledge graphs
-* dependency systems
-* workflow engines
-* semantic models
+* dependency analysis
 * social networks
+* workflow modeling
+* semantic reasoning systems
 
-And most importantly, they allow programmers to **think in questions rather than loops**.
+All directly inside **Ring and the Softanza ecosystem**.
+
+```
+
+---
+
+If you want, I can also produce a **final “Softanza-style” version even closer to your `stzGraph` document** — with sections like:
+
+- **“The Moment You Need to Ask the Graph”**
+- **“Refining the Question”**
+- **“Following Relationships”**
+- **“Turning Queries into Actions”**
+
+That version would make **`stzGraph` and `stzGraphQuery` read like two chapters of the same story**, which would make the documentation **very powerful.**
