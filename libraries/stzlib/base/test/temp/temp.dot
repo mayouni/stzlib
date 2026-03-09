@@ -1,12 +1,11 @@
-digraph compliance_system {
+digraph simplegraph {
   rankdir=TD;
   node [shape=box];
 
-  alice [label="Alice_Chen"];
-  bob [label="Bob_Smith"];
-  carol [label="Carol_Davis"];
-  dave [label="Dave_Wilson"];
+  n1 [label="n1"];
+  n2 [label="n2"];
+  n3 [label="n3"];
 
-  alice -> bob;
-  bob -> carol;
+  n1 -> n2;
+  n2 -> n3;
 }

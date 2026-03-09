@@ -3118,6 +3118,13 @@ class stzGraph
 		_oDot_.SetCode(This.Dot())
 		_oDot_.RunAndView()
 
+		#< @FunctionAlternativeForm
+
+		def Veiw()
+			This.View()
+
+		#>
+
 	def ShowHorizontal()
 		oViz = new stzGraphAsciiVisualizer(This)
 		oViz.ShowHorizontal()
