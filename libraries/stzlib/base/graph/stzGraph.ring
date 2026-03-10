@@ -1816,6 +1816,8 @@ class stzGraph
 		
 		return acBottlenecks
 
+	#---
+
 	def NodeDensity()
 		nNodes = len(@aNodes)
 		nEdges = len(@aEdges)
@@ -1836,6 +1838,20 @@ class stzGraph
 		def Density01()
 			return This.NodeDensity()
 
+		#--
+
+		def DirectedNodeDensity()
+			return This.NodeDensity()
+
+		def DirectedNodeDensity01()
+			return This.NodeDensity()
+
+		def DirectedDensity()
+			return This.NodeDensity()
+
+		def DirectedDensity01()
+			return This.NodeDensity()
+
 	def NodeDensity100()
 		return This.NodeDensity() * 100
 
@@ -1850,6 +1866,62 @@ class stzGraph
 
 		def Density100()
 			return This.NodeDensity100()
+
+		#--
+
+		def DirectedNodeDensity100()
+			return This.NodeDensity100()
+
+		def DirectedNodeDensityPercent()
+			return This.NodeDensity100()
+
+		def DirectedNodeDensityInPercentage()
+			return This.NodeDensity100()
+
+		def DirectedNodeDensityInPercent()
+			return This.NodeDensity100()
+
+		def DirectedDensity100()
+			return This.NodeDensity100()
+
+	#---
+
+	def UndirectedNodeDensity()
+		nNodes = len(@aNodes)
+		nEdges = len(@aEdges)
+
+		if nNodes <= 1
+			return 0
+		ok
+
+		nMaxEdges = (nNodes * (nNodes - 1)) / 2
+		return nEdges / nMaxEdges
+
+		def UndirectedNodeDensity01()
+			return This.UndirectedNodeDensity()
+
+		def UndirectedDensity()
+			return This.UndirectedNodeDensity()
+
+		def UndirectedDensity01()
+			return This.UndirectedNodeDensity()
+
+	def UndirectedNodeDensity100()
+		return This.UndirectedNodeDensity() * 100
+
+		def UndirectedNodeDensityPercent()
+			return This.UndirectedNodeDensity100()
+
+		def UndirectedNodeDensityInPercentage()
+			return This.UndirectedNodeDensity100()
+
+		def UndirectedNodeDensityInPercent()
+			return This.UndirectedNodeDensity100()
+
+		def UndirectedDensity100()
+			return This.UndirectedNodeDensity100()
+
+	#--
 
 	def IsSparse()
 		return This.Density() < 0.5
