@@ -1,16 +1,10 @@
 load "../stzbase.ring"
 
-/*===================================================
 #  stzGraph & stzDiagram - Test Suite
-#  Each test runs independently - execute one at a time
-#===================================================*/
-
-#-----------------#
-#  TEST 1: BASIC GRAPH CREATION
-#-----------------#
+#====================================
 
 /*--- Creating a simple 3-node linear graph
-*/
+
 pr()
 
 oGraph = new stzGraph("SimpleGraph")
@@ -23,158 +17,143 @@ oGraph.AddEdge("n2", "n3")
 ? oGraph.NodeCount() #--> 3
 ? oGraph.EdgeCount() #--> 2
 
-oGraph.Veiw()
-
 pf()
-
-#-----------------#
-#  TEST 2: PATH EXISTS - BASIC CONNECTIVITY
-#-----------------#
+# Executed in almost 0 second(s) in Ring 1.26
 
 /*--- Testing path existence between nodes
 
 pr()
 
 oGraph = new stzGraph("PathTest")
-oGraph.AddNode("start", "Start", [:])
-oGraph.AddNode("middle", "Middle", [:])
-oGraph.AddNode("end", "End", [:])
-oGraph.AddNode("isolated", "Isolated", [:])
-oGraph.AddEdge("start", "middle", "", [:])
-oGraph.AddEdge("middle", "end", "", [:])
+oGraph.AddNode("start")
+oGraph.AddNode("middle")
+oGraph.AddNode("end")
+oGraph.AddNode("isolated")
+oGraph.AddEdge("start", "middle")
+oGraph.AddEdge("middle", "end")
 
 ? oGraph.PathExists("start", "end") #--> TRUE
 ? oGraph.PathExists("start", "isolated") #--> FALSE
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.26
 
-#-----------------#
-#  TEST 3: REACHABLE NODES
-#-----------------#
 
 /*--- Finding all nodes reachable from a given node
 
 pr()
 
 oGraph = new stzGraph("ReachabilityTest")
-oGraph.AddNode("a", "A", [:])
-oGraph.AddNode("b", "B", [:])
-oGraph.AddNode("c", "C", [:])
-oGraph.AddNode("d", "D", [:])
-oGraph.AddEdge("a", "b", "", [:])
-oGraph.AddEdge("b", "c", "", [:])
-oGraph.AddEdge("a", "d", "", [:])
+oGraph.AddNodes([ "a", "b", "c", "d" ])
+
+oGraph.AddEdge("a", "b")
+oGraph.AddEdge("b", "c")
+oGraph.AddEdge("a", "d")
 
 aReachable = oGraph.ReachableFrom("a")
 ? len(aReachable) #--> 4
 
 pf()
-
-#-----------------#
-#  TEST 4: FIND ALL PATHS - DIAMOND SHAPE
-#-----------------#
+# Executed in almost 0 second(s) in Ring 1.26
 
 /*--- Enumerating all routes between two nodes in a diamond graph
 
 pr()
 
 oGraph = new stzGraph("AllPathsTest")
-oGraph.AddNode("a", "A", [:])
-oGraph.AddNode("b", "B", [:])
-oGraph.AddNode("c", "C", [:])
-oGraph.AddNode("d", "D", [:])
-oGraph.AddEdge("a", "b", "", [:])
-oGraph.AddEdge("a", "c", "", [:])
-oGraph.AddEdge("b", "d", "", [:])
-oGraph.AddEdge("c", "d", "", [:])
+oGraph.AddNodes([ "a", "b", "c", "d" ])
 
-aAllPaths = oGraph.FindAllPaths("a", "d")
-? len(aAllPaths) #--> 2
+oGraph.AddEdge("a", "b")
+oGraph.AddEdge("a", "c")
+oGraph.AddEdge("b", "d")
+oGraph.AddEdge("c", "d")
+
+aAllPaths = oGraph.PathsXT("a", "d")
+? @@NL(aAllPaths)
+#--> [
+#	[ "a", "b", "d" ],
+#	[ "a", "c", "d" ]
+# ]
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.26
 
-#-----------------#
-#  TEST 5: ACYCLIC GRAPH DETECTION
-#-----------------#
 
 /*--- Verifying a valid DAG (no cycles)
 
 pr()
 
 oGraph = new stzGraph("AcyclicTest")
-oGraph.AddNode("n1", "N1", [:])
-oGraph.AddNode("n2", "N2", [:])
-oGraph.AddNode("n3", "N3", [:])
-oGraph.AddEdge("n1", "n2", "", [:])
-oGraph.AddEdge("n2", "n3", "", [:])
+oGraph.AddNode("n1")
+oGraph.AddNode("n2")
+oGraph.AddNode("n3")
+oGraph.AddEdge("n1", "n2")
+oGraph.AddEdge("n2", "n3")
 
-? oGraph.CyclicDependencies() #--> FALSE
+? oGraph.HasCyclicDependencies() #--> FALSE
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.26
 
-#-----------------#
-#  TEST 6: CYCLIC GRAPH DETECTION
-#-----------------#
 
 /*--- Identifying cycles in graph (invalid workflow)
 
 pr()
 
 oGraph = new stzGraph("CyclicTest")
-oGraph.AddNode("p1", "P1", [:])
-oGraph.AddNode("p2", "P2", [:])
-oGraph.AddNode("p3", "P3", [:])
-oGraph.AddEdge("p1", "p2", "", [:])
-oGraph.AddEdge("p2", "p3", "", [:])
-oGraph.AddEdge("p3", "p1", "", [:])
 
-? oGraph.CyclicDependencies() #--> TRUE
+oGraph.AddNodes([ "p1", "p2", "p3" ])
+
+oGraph.AddEdge("p2", "p3")
+oGraph.AddEdge("p3", "p1")
+
+? oGraph.HasCyclicDependencies() #--> TRUE
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.26
 
-#-----------------#
-#  TEST 7: BOTTLENECK NODES
-#-----------------#
 
-/*--- Finding highly-connected hub nodes
+/*--- Finding highly-connected hub nodes (bottleneck)
 
 pr()
 
 oGraph = new stzGraph("BottleneckTest")
-oGraph.AddNode("a", "A", [:])
-oGraph.AddNode("b", "B", [:])
-oGraph.AddNode("c", "C", [:])
-oGraph.AddNode("hub", "Hub", [:])
-oGraph.AddEdge("a", "hub", "", [:])
-oGraph.AddEdge("b", "hub", "", [:])
-oGraph.AddEdge("c", "hub", "", [:])
-oGraph.AddEdge("hub", "a", "", [:])
+
+oGraph.AddNodes([ "a", "b", "c", "hub" ])
+
+oGraph.AddEdge("a", "hub")
+oGraph.AddEdge("b", "hub")
+oGraph.AddEdge("c", "hub")
+oGraph.AddEdge("hub", "a")
 
 aBottlenecks = oGraph.BottleneckNodes()
-? aBottlenecks #--> [hub]
+? @@(aBottlenecks)
+#--> [ "hub"]
 
 pf()
+# Executed in 0.01 second(s) in Ring 1.26
 
-#-----------------#
-#  TEST 8: GRAPH DENSITY
-#-----------------#
 
 /*--- Measuring connection density
-
+*/
 pr()
 
 oGraph = new stzGraph("DensityTest")
-oGraph.AddNode("n1", "N1", [:])
-oGraph.AddNode("n2", "N2", [:])
-oGraph.AddNode("n3", "N3", [:])
-oGraph.AddEdge("n1", "n2", "", [:])
-oGraph.AddEdge("n2", "n3", "", [:])
-oGraph.AddEdge("n1", "n3", "", [:])
 
-nDensity = oGraph.NodeDensity()
-? nDensity #--> 100 (fully connected triangle)
+oGraph.AddNodes([ "n1", "n2", "n3" ])
+
+oGraph.AddEdge("n1", "n2")
+oGraph.AddEdge("n2", "n3")
+oGraph.AddEdge("n3", "n1")
+
+? oGraph.NodeDensity() # Or DirectedDensity')
+#--> 50
+
+? oGraph.UndirectedNodeDensity()
+#--> 1 (fully connected triangle)
 
 pf()
+# Executed in almost 0 second(s) in Ring 1.26
 
 #-----------------#
 #  TEST 9: CREATE SIMPLE DIAGRAM
