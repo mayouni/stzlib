@@ -1,13 +1,13 @@
-digraph "ProcessFlow" {
+digraph "expenseapproval" {
     graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
     node [fontname="helvetica", fontsize=12]
     edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-    start [label="Begin", shape=ellipse, style="solid,filled", fillcolor="#4D654D", penwidth=1, fontcolor="white", tooltip=" "]
-    process [label="Work", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", penwidth=1, fontcolor="white", tooltip=" "]
-    end [label="Finish", shape=doublecircle, style="solid,filled", fillcolor="#FFA500", penwidth=1, fontcolor="black", tooltip=" "]
+    submit [label="Submit", shape=ellipse, style="solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", tooltip=" "]
+    manager [label="Manager", shape=diamond, style="solid,filled", fillcolor="#FFA500", penwidth=2, fontcolor="black", tooltip=" "]
+    process [label="Process", shape=box, style="rounded,solid,filled", fillcolor="#FFFFFF", penwidth=1, fontcolor="black", tooltip=" "]
 
-    start -> process
-    process -> end
+    submit -> manager
+    manager -> process
 
 }

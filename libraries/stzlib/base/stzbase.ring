@@ -122,6 +122,17 @@ ok
     load "list/stztable.ring"
     load "list/stzlistoftables.ring"
 
+    load "list/stzgrid.ring"
+    load "list/stzlist2d.ring"
+    load "list/stzlistofgrids.ring"
+    load "list/stzlistparser.ring"
+    load "list/stzlistprovidedasString.ring"
+    load "list/stzpivottable.ring"
+    load "list/stzpivottableShow.ring"
+    load "list/stzsortedlist.ring"
+    load "list/stztile.ring"
+    load "list/stztree.ring"
+
 # Loading files related to the GRAPH module
 
     load "graph/stzgraph.ring"

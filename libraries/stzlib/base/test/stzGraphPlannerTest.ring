@@ -76,8 +76,9 @@ oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
 
 	AddPlan("linear_path") # You can add many plans
-	# The current plan is set automatically to the first plan created
-	# But you can set it explicitely by SetCurrentPlan(cPlanName)
+	# The current stzGraphPlanner object is set automatically to
+	# the first plan created.
+	# But you can set it explicitely by SetCurrentPlan(cPlanName).
 	# And you can the current plan by CurrentPlan()
 
 	WalkFrom("A", :To = "C")
@@ -200,7 +201,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Example 1.3: Complex Grid - Finding Optimal Path in Maze
-
+*/
 `
   CONCEPT: A* shines when there are many possible routes
   
@@ -264,6 +265,8 @@ oPlanner.Execute()
 #--> [ "n1", "n2", "n5", "n6", "n9" ]
 # Path visualization: Goes right, drops to middle row,
 # continues right, drops to bottom
+
+#TODO link with stzGrid for visualisation
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.24

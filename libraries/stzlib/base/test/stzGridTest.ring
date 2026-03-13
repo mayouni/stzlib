@@ -1,4 +1,4 @@
-load "../stzmax.ring"
+load "../stzbase.ring"
 
 
 /*--- Testing basic grid initialization and movement
@@ -389,7 +389,7 @@ o1 = new stzGrid([6, 4])
 #--> [ 6, 4 ]
 
 # Moving right to edge
-o1.MoveToNthNodeToRight(5)
+o1.MoveToNthNextNode(5)
 ? @@(o1.Position())
 #--> [ 6, 1 ]
 
@@ -424,7 +424,7 @@ o1.MoveRightNNodes(3)
 #--> [ 4, 1 ]
 
 # Moving to that position
-o1.MoveToNthNodeUp(2)
+o1.MoveUpNNodes(2)
 ? @@(o1.Position())
 #--> [ 4, 1 ]
 
@@ -615,6 +615,7 @@ o1.ClearObstacles()
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
+# Executed in almost 0 second(s) in Ring 1.26
 
 /*--- Testing path management
 
@@ -630,36 +631,38 @@ StzGridQ([8, 6]) {
 
 	AddPath([
 
-		[1, 1], [2, 1],
-			[2, 2],	   [4, 2],
-			[2, 3],	   [4, 3],
-			[2, 4],	   [4, 4],    [6, 2],
-					      [6, 3],
-					      [6, 4], [7, 4], [8, 4]
+		[1, 1], [2, 1],		[4, 1], [5, 1], [6, 1],
+			[2, 2],	   	[4, 2],		[6, 2],
+			[2, 3],	   	[4, 3],		[6, 3],
+			[2, 4],	   	[4, 4],   	[6, 4], [7, 4], [8, 4], 
+			[2, 5],	[3, 5],	[4, 5]    
+					      	
 	])
 	
 	# Path length
 
 	? PathLength()
-	#--> 13
+	#--> 19
 	
 	# Show the grid with path
 
 	MoveTo(8, 4)
 	Show()
 	#-->
-	#     1 2 3 4 5 6 7 8 
-	#   ╭───────────────v─╮
-	# 1 │ ○ ○ · · · · · · │
-	# 2 │ · ○ ■ · ■ ○ · · │
-	# 3 │ · ○ ■ ○ ■ ○ · · │
-	# 4 > · ○ ■ ○ ■ ○ ○ x │
-	# 5 │ · · · · · · · · │
-	# 6 │ · · · · · · · · │
-	#   ╰─────────────────╯
-	
+	`
+	    1 2 3 4 5 6 7 8 
+	  ╭───────────────v─╮
+	1 │ ○ ○ . ○ ○ ○ . . │
+	2 │ . ○ ■ ○ ■ ○ . . │
+	3 │ . ○ ■ ○ ■ ○ . . │
+	4 > . ○ ■ ○ ■ ○ ○ x │
+	5 │ . ○ ○ ○ . . . . │
+	6 │ . . . . . . . . │
+	  ╰─────────────────╯
+	`
+
 	? PathEfficiency() # in %
-	#--> 83.33
+	#--> 38.89
 
 	# Clear path
 
@@ -673,7 +676,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
 /*--- Testing path finding algorithms
-*/
+
 pr()
 
 StzGridQ([ 10, 6 ]) {
@@ -770,7 +773,7 @@ StzGridQ([ 10, 6 ]) {
 pf()
 # Executed in 0.02 second(s) in Ring 1.22
 
-/*--- Testing path analysis and showing utilities
+/*--- Testing path analysis and display utilities
 
 pr()
 
@@ -943,6 +946,7 @@ o1.ShowRegionsXT([ "A", "B" ])
 #   ╰─────────────────────╯
 
 pf()
+# Executed in 0.04 second(s) in Ring 1.26
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*--- Testing maze generation
@@ -994,10 +998,11 @@ StzGridQ([15, 8]) {
 }
 
 pf()
+# Executed in 0.11 second(s) in Ring 1.26
 # Executed in almost 0.12 second(s) in Ring 1.22
 
 /*--- Testing moving and hitting an obstacle
-
+*/
 pr()
 
 o1 = new stzGrid([10, 6])
