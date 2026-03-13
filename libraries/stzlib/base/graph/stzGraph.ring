@@ -66,7 +66,7 @@ class stzGraph
 	@aAffectedNodes = []
 	@aAffectedEdges = []
 
-	@acValidationValidators = $acGraphDefaultValidators
+	@acValidators = $acGraphDefaultValidators
 
 	@aProperties = []
 
@@ -3630,8 +3630,11 @@ class stzGraph
 	#  VALIDATION  #
 	#--------------#
 
+	def Validators()
+		return @acValidators
+
 	def Validate()
-		return This.ValidateXT(@acValidationValidators)
+		return This.ValidateXT(@acValidators)
 
 	def ValidateXT(paValidators)
 		if isString(paValidators)
@@ -3639,6 +3642,15 @@ class stzGraph
 		but isList(paValidators)
 			return This._ValidateMultiple(paValidators)
 		ok
+
+	def ValidateDAG()
+		return This.ValidateXT(:DAG)
+
+	def ValidateReachability()
+		return This.ValidateXT(:Reachability)
+
+	def ValidateCompleteness()
+		return This.ValidateXT(:Completeness)
 
 	def _ValidateSingle(pcValidator)
 		cValidator = lower(pcValidator)

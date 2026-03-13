@@ -931,13 +931,13 @@ class stzDiagram from stzGraph
 		This.AddClusterXTT(pClusterId, pLabel, aNodeIds, @cClusterColor)
 
 	def AddClusterXTT(pClusterId, pLabel, aNodeIds, pColor)
-		oCluster = [
+		aCluster = [
 			:id = pClusterId,
 			:label = pLabel,
 			:nodes = aNodeIds,
 			:color = ResolveColor(pColor)
 		]
-		@aClusters + oCluster
+		@aClusters + aCluster
 
 	def Clusters()
 		return @aClusters

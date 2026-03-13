@@ -1,12 +1,13 @@
-digraph densitytest {
-  rankdir=TD;
-  node [shape=box];
+digraph "ProcessFlow" {
+    graph [rankdir=TB, bgcolor=white, fontname="helvetica", fontsize=12, splines=spline, nodesep=0.60, ranksep=0.80, ordering=out, tooltip=" "]
+    node [fontname="helvetica", fontsize=12]
+    edge [fontname="helvetica", fontsize=12, color="#000000", style=solid, penwidth=1, arrowhead=normal, arrowtail=none]
 
-  n1 [label="n1"];
-  n2 [label="n2"];
-  n3 [label="n3"];
+    start [label="Begin", shape=ellipse, style="solid,filled", fillcolor="#4D654D", penwidth=1, fontcolor="white", tooltip=" "]
+    process [label="Work", shape=box, style="rounded,solid,filled", fillcolor="#4D4DC9", penwidth=1, fontcolor="white", tooltip=" "]
+    end [label="Finish", shape=doublecircle, style="solid,filled", fillcolor="#FFA500", penwidth=1, fontcolor="black", tooltip=" "]
 
-  n1 -> n2;
-  n2 -> n3;
-  n3 -> n1;
+    start -> process
+    process -> end
+
 }

@@ -1,0 +1,16 @@
+diagram "savetest"
+
+properties
+    theme: neutral
+    layout: topdown
+
+nodes
+    start
+        label: "start"
+
+    end
+        label: "end"
+
+edges
+    start -> end
+
