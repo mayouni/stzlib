@@ -1,7 +1,8 @@
-# Softanza Engine -- File FFI Bridge
+# Softanza Engine -- Base File FFI Bridge
 #
-# Loads stz_file.dll/.so and wraps each C function.
+# Loads stz_file.dll -- full features, superset of Core.
 # Used by: base/file/stzFile.ring, base/file/stzDir.ring
+# Function prefix: StzEngine* (distinct from Core StkEngine*)
 
 if isWindows()
     $cStzFileLib = currentdir() + "/zig-out/bin/stz_file.dll"
@@ -18,19 +19,19 @@ else
     $pStzFileHandle = NULL
 ok
 
-# ── File Functions ──
+# ── File Functions (Core: exists, read, write, delete / Base adds: size, append, copy) ──
 
-func EngineFileExists(cPath)
+func StzEngineFileExists(cPath)
     if $pStzFileHandle = NULL return 0 ok
     return CallCFunc($pStzFileHandle, "stz_file_exists", "i", "pi",
                      cPath, len(cPath))
 
-func EngineFileSize(cPath)
+func StzEngineFileSize(cPath)
     if $pStzFileHandle = NULL return -1 ok
     return CallCFunc($pStzFileHandle, "stz_file_size", "i", "pi",
                      cPath, len(cPath))
 
-func EngineFileRead(cPath)
+func StzEngineFileRead(cPath)
     if $pStzFileHandle = NULL return "" ok
     nLen = 0
     pData = CallCFunc($pStzFileHandle, "stz_file_read", "p", "pip",
@@ -40,75 +41,75 @@ func EngineFileRead(cPath)
     CallCFunc($pStzFileHandle, "stz_file_read_free", "v", "pi", pData, nLen)
     return cResult
 
-func EngineFileWrite(cPath, cData)
+func StzEngineFileWrite(cPath, cData)
     if $pStzFileHandle = NULL return 0 ok
     return CallCFunc($pStzFileHandle, "stz_file_write", "i", "pipi",
                      cPath, len(cPath), cData, len(cData))
 
-func EngineFileAppend(cPath, cData)
+func StzEngineFileAppend(cPath, cData)
     if $pStzFileHandle = NULL return 0 ok
     return CallCFunc($pStzFileHandle, "stz_file_append", "i", "pipi",
                      cPath, len(cPath), cData, len(cData))
 
-func EngineFileDelete(cPath)
+func StzEngineFileDelete(cPath)
     if $pStzFileHandle = NULL return 0 ok
     return CallCFunc($pStzFileHandle, "stz_file_delete", "i", "pi",
                      cPath, len(cPath))
 
-func EngineFileCopy(cSrc, cDst)
+func StzEngineFileCopy(cSrc, cDst)
     if $pStzFileHandle = NULL return 0 ok
     return CallCFunc($pStzFileHandle, "stz_file_copy", "i", "pipi",
                      cSrc, len(cSrc), cDst, len(cDst))
 
-# ── Dir Functions ──
+# ── Dir Functions (Core: exists / Base adds: create, delete, count) ──
 
-func EngineDirExists(cPath)
+func StzEngineDirExists(cPath)
     if $pStzFileHandle = NULL return 0 ok
     return CallCFunc($pStzFileHandle, "stz_dir_exists", "i", "pi",
                      cPath, len(cPath))
 
-func EngineDirCreate(cPath)
+func StzEngineDirCreate(cPath)
     if $pStzFileHandle = NULL return 0 ok
     return CallCFunc($pStzFileHandle, "stz_dir_create", "i", "pi",
                      cPath, len(cPath))
 
-func EngineDirCreatePath(cPath)
+func StzEngineDirCreatePath(cPath)
     if $pStzFileHandle = NULL return 0 ok
     return CallCFunc($pStzFileHandle, "stz_dir_create_path", "i", "pi",
                      cPath, len(cPath))
 
-func EngineDirDelete(cPath)
+func StzEngineDirDelete(cPath)
     if $pStzFileHandle = NULL return 0 ok
     return CallCFunc($pStzFileHandle, "stz_dir_delete", "i", "pi",
                      cPath, len(cPath))
 
-func EngineDirCountFiles(cPath)
+func StzEngineDirCountFiles(cPath)
     if $pStzFileHandle = NULL return -1 ok
     return CallCFunc($pStzFileHandle, "stz_dir_count_files", "i", "pi",
                      cPath, len(cPath))
 
-func EngineDirCountDirs(cPath)
+func StzEngineDirCountDirs(cPath)
     if $pStzFileHandle = NULL return -1 ok
     return CallCFunc($pStzFileHandle, "stz_dir_count_dirs", "i", "pi",
                      cPath, len(cPath))
 
-# ── Path Functions ──
+# ── Path Functions (Base only) ──
 
-func EnginePathExtension(cPath)
+func StzEnginePathExtension(cPath)
     if $pStzFileHandle = NULL return "" ok
     cBuf = space(32)
     nLen = CallCFunc($pStzFileHandle, "stz_path_extension", "i", "pipi",
                      cPath, len(cPath), cBuf, 32)
     return left(cBuf, nLen)
 
-func EnginePathBasename(cPath)
+func StzEnginePathBasename(cPath)
     if $pStzFileHandle = NULL return "" ok
     cBuf = space(256)
     nLen = CallCFunc($pStzFileHandle, "stz_path_basename", "i", "pipi",
                      cPath, len(cPath), cBuf, 256)
     return left(cBuf, nLen)
 
-func EnginePathDirname(cPath)
+func StzEnginePathDirname(cPath)
     if $pStzFileHandle = NULL return "" ok
     cBuf = space(256)
     nLen = CallCFunc($pStzFileHandle, "stz_path_dirname", "i", "pipi",

@@ -2,6 +2,7 @@
 #
 # Loads stk_file.dll -- exists, read, write, delete, dir_exists.
 # Used by: core/file/stkFile.ring
+# Function prefix: StkEngine* (distinct from Base StzEngine*)
 
 if isWindows()
     $cStkFileLib = currentdir() + "/zig-out/bin/stk_file.dll"
@@ -18,12 +19,12 @@ else
     $pStkFileHandle = NULL
 ok
 
-func EngineFileExists(cPath)
+func StkEngineFileExists(cPath)
     if $pStkFileHandle = NULL return 0 ok
     return CallCFunc($pStkFileHandle, "stz_file_exists", "i", "pi",
                      cPath, len(cPath))
 
-func EngineFileRead(cPath)
+func StkEngineFileRead(cPath)
     if $pStkFileHandle = NULL return "" ok
     nLen = 0
     pData = CallCFunc($pStkFileHandle, "stz_file_read", "p", "pip",
@@ -33,17 +34,17 @@ func EngineFileRead(cPath)
     CallCFunc($pStkFileHandle, "stz_file_read_free", "v", "pi", pData, nLen)
     return cResult
 
-func EngineFileWrite(cPath, cData)
+func StkEngineFileWrite(cPath, cData)
     if $pStkFileHandle = NULL return 0 ok
     return CallCFunc($pStkFileHandle, "stz_file_write", "i", "pipi",
                      cPath, len(cPath), cData, len(cData))
 
-func EngineFileDelete(cPath)
+func StkEngineFileDelete(cPath)
     if $pStkFileHandle = NULL return 0 ok
     return CallCFunc($pStkFileHandle, "stz_file_delete", "i", "pi",
                      cPath, len(cPath))
 
-func EngineDirExists(cPath)
+func StkEngineDirExists(cPath)
     if $pStkFileHandle = NULL return 0 ok
     return CallCFunc($pStkFileHandle, "stz_dir_exists", "i", "pi",
                      cPath, len(cPath))

@@ -1,8 +1,8 @@
-# Softanza Engine -- String + Char FFI Bridge
+# Softanza Engine -- Base String + Char FFI Bridge
 #
-# Loads stz_string.dll/.so and wraps each C function.
-# Used by: core/string/stkString.ring, core/string/stkChar.ring,
-#          base/string/stzString.ring
+# Loads stz_string.dll -- full features, superset of Core.
+# Used by: base/string/stzString.ring
+# Function prefix: StzEngine* (distinct from Core StkEngine*)
 
 if isWindows()
     $cStzStringLib = currentdir() + "/zig-out/bin/stz_string.dll"
@@ -19,115 +19,140 @@ else
     $pStzStringHandle = NULL
 ok
 
-# ── String Functions ──
+# ── String Lifecycle (from Core) ──
 
-func EngineStringNew()
+func StzEngineStringNew()
     if $pStzStringHandle = NULL return NULL ok
     return CallCFunc($pStzStringHandle, "stz_string_new", "p", "")
 
-func EngineStringFrom(cStr)
+func StzEngineStringFrom(cStr)
     if $pStzStringHandle = NULL return NULL ok
     return CallCFunc($pStzStringHandle, "stz_string_from", "p", "pi",
                      cStr, len(cStr))
 
-func EngineStringFree(pHandle)
+func StzEngineStringFree(pHandle)
     if $pStzStringHandle = NULL return ok
     CallCFunc($pStzStringHandle, "stz_string_free", "v", "p", pHandle)
 
-func EngineStringData(pHandle)
+# ── String Content (Core: data, size / Base adds: count) ──
+
+func StzEngineStringData(pHandle)
     if $pStzStringHandle = NULL return "" ok
     return CallCFunc($pStzStringHandle, "stz_string_data", "p", "p", pHandle)
 
-func EngineStringSize(pHandle)
+func StzEngineStringSize(pHandle)
     if $pStzStringHandle = NULL return 0 ok
     return CallCFunc($pStzStringHandle, "stz_string_size", "i", "p", pHandle)
 
-func EngineStringCount(pHandle)
+func StzEngineStringCount(pHandle)
     if $pStzStringHandle = NULL return 0 ok
     return CallCFunc($pStzStringHandle, "stz_string_count", "i", "p", pHandle)
 
-func EngineStringAppend(pHandle, cStr)
+# ── String Mutation (Core: append / Base adds: insert) ──
+
+func StzEngineStringAppend(pHandle, cStr)
     if $pStzStringHandle = NULL return ok
     CallCFunc($pStzStringHandle, "stz_string_append", "v", "ppi",
               pHandle, cStr, len(cStr))
 
-func EngineStringIndexOf(pHandle, cNeedle)
-    if $pStzStringHandle = NULL return -1 ok
-    return CallCFunc($pStzStringHandle, "stz_string_index_of", "i", "ppi",
-                     pHandle, cNeedle, len(cNeedle))
+func StzEngineStringInsert(pHandle, nPos, cStr)
+    if $pStzStringHandle = NULL return ok
+    CallCFunc($pStzStringHandle, "stz_string_insert", "v", "pipi",
+              pHandle, nPos, cStr, len(cStr))
 
-func EngineStringContains(pHandle, cNeedle)
-    if $pStzStringHandle = NULL return 0 ok
-    return CallCFunc($pStzStringHandle, "stz_string_contains", "i", "ppi",
-                     pHandle, cNeedle, len(cNeedle))
+# ── String Extraction (Base only) ──
 
-func EngineStringStartsWith(pHandle, cPrefix)
-    if $pStzStringHandle = NULL return 0 ok
-    return CallCFunc($pStzStringHandle, "stz_string_starts_with", "i", "ppi",
-                     pHandle, cPrefix, len(cPrefix))
-
-func EngineStringEndsWith(pHandle, cSuffix)
-    if $pStzStringHandle = NULL return 0 ok
-    return CallCFunc($pStzStringHandle, "stz_string_ends_with", "i", "ppi",
-                     pHandle, cSuffix, len(cSuffix))
-
-func EngineStringMid(pHandle, nStart, nLength)
+func StzEngineStringMid(pHandle, nStart, nLength)
     if $pStzStringHandle = NULL return NULL ok
     return CallCFunc($pStzStringHandle, "stz_string_mid", "p", "pii",
                      pHandle, nStart, nLength)
 
-func EngineStringLeft(pHandle, nLength)
+func StzEngineStringLeft(pHandle, nLength)
     if $pStzStringHandle = NULL return NULL ok
     return CallCFunc($pStzStringHandle, "stz_string_left", "p", "pi",
                      pHandle, nLength)
 
-func EngineStringRight(pHandle, nLength)
+func StzEngineStringRight(pHandle, nLength)
     if $pStzStringHandle = NULL return NULL ok
     return CallCFunc($pStzStringHandle, "stz_string_right", "p", "pi",
                      pHandle, nLength)
 
-func EngineStringTrimmed(pHandle)
+func StzEngineStringTrimmed(pHandle)
     if $pStzStringHandle = NULL return NULL ok
     return CallCFunc($pStzStringHandle, "stz_string_trimmed", "p", "p",
                      pHandle)
 
-func EngineStringReplace(pHandle, cOld, cNew)
+# ── String Search (Core: index_of, contains / Base adds: rest) ──
+
+func StzEngineStringIndexOf(pHandle, cNeedle)
+    if $pStzStringHandle = NULL return -1 ok
+    return CallCFunc($pStzStringHandle, "stz_string_index_of", "i", "ppi",
+                     pHandle, cNeedle, len(cNeedle))
+
+func StzEngineStringLastIndexOf(pHandle, cNeedle)
+    if $pStzStringHandle = NULL return -1 ok
+    return CallCFunc($pStzStringHandle, "stz_string_last_index_of", "i", "ppi",
+                     pHandle, cNeedle, len(cNeedle))
+
+func StzEngineStringContains(pHandle, cNeedle)
+    if $pStzStringHandle = NULL return 0 ok
+    return CallCFunc($pStzStringHandle, "stz_string_contains", "i", "ppi",
+                     pHandle, cNeedle, len(cNeedle))
+
+func StzEngineStringStartsWith(pHandle, cPrefix)
+    if $pStzStringHandle = NULL return 0 ok
+    return CallCFunc($pStzStringHandle, "stz_string_starts_with", "i", "ppi",
+                     pHandle, cPrefix, len(cPrefix))
+
+func StzEngineStringEndsWith(pHandle, cSuffix)
+    if $pStzStringHandle = NULL return 0 ok
+    return CallCFunc($pStzStringHandle, "stz_string_ends_with", "i", "ppi",
+                     pHandle, cSuffix, len(cSuffix))
+
+# ── String Transform (Base only) ──
+
+func StzEngineStringReplace(pHandle, cOld, cNew)
     if $pStzStringHandle = NULL return ok
     CallCFunc($pStzStringHandle, "stz_string_replace", "v", "ppipi",
               pHandle, cOld, len(cOld), cNew, len(cNew))
 
-func EngineStringToUpper(pHandle)
+func StzEngineStringToUpper(pHandle)
     if $pStzStringHandle = NULL return NULL ok
     return CallCFunc($pStzStringHandle, "stz_string_to_upper", "p", "p",
                      pHandle)
 
-func EngineStringToLower(pHandle)
+func StzEngineStringToLower(pHandle)
     if $pStzStringHandle = NULL return NULL ok
     return CallCFunc($pStzStringHandle, "stz_string_to_lower", "p", "p",
                      pHandle)
 
-# ── Char Functions ──
+# ── Char (Core: unicode, to_utf8, is_letter, is_digit / Base adds: is_upper, is_lower) ──
 
-func EngineCharUnicode(cChar)
+func StzEngineCharUnicode(cChar)
     if $pStzStringHandle = NULL return 0 ok
     return CallCFunc($pStzStringHandle, "stz_char_unicode", "i", "p", cChar)
 
-func EngineCharIsLetter(nCodepoint)
+func StzEngineCharToUtf8(nCodepoint, cBuf, nBufLen)
+    if $pStzStringHandle = NULL return 0 ok
+    return CallCFunc($pStzStringHandle, "stz_char_to_utf8", "i", "ipi",
+                     nCodepoint, cBuf, nBufLen)
+
+func StzEngineCharIsLetter(nCodepoint)
     if $pStzStringHandle = NULL return 0 ok
     return CallCFunc($pStzStringHandle, "stz_char_is_letter", "i", "i",
                      nCodepoint)
 
-func EngineCharIsDigit(nCodepoint)
+func StzEngineCharIsDigit(nCodepoint)
     if $pStzStringHandle = NULL return 0 ok
     return CallCFunc($pStzStringHandle, "stz_char_is_digit", "i", "i",
                      nCodepoint)
 
-func EngineCharIsUpper(nCodepoint)
+func StzEngineCharIsUpper(nCodepoint)
     if $pStzStringHandle = NULL return 0 ok
     return CallCFunc($pStzStringHandle, "stz_char_is_upper", "i", "i",
                      nCodepoint)
 
-func EngineCharIsLower(nCodepoint)
+func StzEngineCharIsLower(nCodepoint)
     if $pStzStringHandle = NULL return 0 ok
     return CallCFunc($pStzStringHandle, "stz_char_is_lower", "i", "i",
                      nCodepoint)

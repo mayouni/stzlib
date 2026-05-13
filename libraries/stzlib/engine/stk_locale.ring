@@ -2,6 +2,7 @@
 #
 # Loads stk_locale.dll -- basic case conversion only.
 # Used by: core/locale/stkLocale.ring
+# Function prefix: StkEngine* (distinct from Base StzEngine*)
 
 if isWindows()
     $cStkLocaleLib = currentdir() + "/zig-out/bin/stk_locale.dll"
@@ -18,14 +19,14 @@ else
     $pStkLocaleHandle = NULL
 ok
 
-func EngineLocaleToUpper(cStr)
+func StkEngineLocaleToUpper(cStr)
     if $pStkLocaleHandle = NULL return upper(cStr) ok
     cBuf = space(len(cStr))
     nLen = CallCFunc($pStkLocaleHandle, "stz_locale_to_upper", "i", "pipi",
                      cStr, len(cStr), cBuf, len(cStr))
     return left(cBuf, nLen)
 
-func EngineLocaleToLower(cStr)
+func StkEngineLocaleToLower(cStr)
     if $pStkLocaleHandle = NULL return lower(cStr) ok
     cBuf = space(len(cStr))
     nLen = CallCFunc($pStkLocaleHandle, "stz_locale_to_lower", "i", "pipi",
