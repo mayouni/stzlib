@@ -1,30 +1,40 @@
-#~~~~~~~~~~~~~~~~~~#
-#  IMPORTANT NOTE  #
-#~~~~~~~~~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#            SOFTANZA LIBRARY (V0.9)                  #
+#  An accelerative library for Ring applications,     #
+#  and more!                                          #
+#                                                     #
+#  Author: Mansour Ayouni (kalidianow@gmail.com)      #
+#  300K+ lines of code, handcrafted over 5 years      #
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
-# NOTE: Softanza software design is being refactored according to these 7 principles:
+# Softanza software design follows these 7 principles:
 
-# Layered:
-#~~~~~~~~~
+# 1. LAYERED
+#~~~~~~~~~~~~
 
-#	Structured into SoftanzaCore, SoftanzaBase, and SoftanzaMax.
+#	Structured into SoftanzaCore (stk*), SoftanzaBase (stz*),
+#	and SoftanzaMax (stx*).
 
-#	The three layers have the same fold structure. For example, there is
-#	a class for managing string in each level : stkString, stzString,
-#	and stxString. And so on.
+#	The three layers share the same folder structure. For example,
+#	string management exists at each level: stkString (lean, fast),
+#	stzString (rich, semantic), and stxMultiString (advanced).
 
-#	Each layer uses the one beneath it, and enhancements made to a lower
+#	Each layer builds on the one beneath it. Enhancements to a lower
 #	layer automatically benefit those above.
 
-# Modular:
-#~~~~~~~~~
+#	See: base/doc/internals/softanza-layer-architecture.md
+
+# 2. MODULAR
+#~~~~~~~~~~~~
 
 #	Classes are organized by functional domain, and the codebase's folder
-#	structure clearly reflects these domains. The four main domains are
-# 	the four types supported by Ring : NUMBER, STRING, LIST, and OBJECTS.
+#	structure clearly reflects these domains. The four core domains match
+#	the four types supported by Ring: NUMBER, STRING, LIST, and OBJECTS.
+#	Additional domains: file, datetime, regex, graph, stats, i18n,
+#	natural, reactive, network, and more.
 
-# Granular:
-#~~~~~~~~~~
+# 3. GRANULAR
+#~~~~~~~~~~~~~
 
 #	Programmers can operate at desired abstraction levels:
 
@@ -32,68 +42,64 @@
 
 #		=> SoftanzaCore: for quick features, efficiency, small code,
 #		   or performance-critical development on supported platforms
-# 		   (web, mobile, microcontrollers, MS-DOS).
+#		   (web, mobile, microcontrollers, MS-DOS).
 
-# 		=> SoftanzaBase: for a wide range of functionalities covering
-# 		   number, character, string, and list management.
+#		=> SoftanzaBase: for a wide range of functionalities covering
+#		   number, character, string, list, graph, regex, datetime,
+#		   i18n, stats, reactive, and natural coding.
 
-# 		=> SoftanzaMax: for advanced features enabling innovative,
-#		   industry-grade software solutions (natural coding, knowledge-oriented,
-# 		   plugin-based, memory profiling, workflow processing, etc.).
+#		=> SoftanzaMax: for advanced features enabling innovative,
+#		   industry-grade software solutions (walkers, parsers,
+#		   big numbers, text encoding, wings plugins, testing).
 
-#		=> By using only necessary modules: If only STRING management is needed,
-#		   load STRING-related files from the selected layer.
+#	~> By loading only necessary modules or specific files.
 
-#		=> By loading only specific files: For example, load /core/stzCoreChar.ring
-# 		   for unicode character operations.
+# 4. CONFIGURABLE
+#~~~~~~~~~~~~~~~~~
 
-# Configurable:
-#~~~~~~~~~~~~~~
-
-#	Library gymnastics, that may not be useful to every one, like function alternative
-#	forms, misspelled forms, multilingual forms, and case sensitivity can be dynamically
-#	configured for each object at runtime. Programmers specify tuning using syntax like:
+#	Library gymnastics, that may not be useful to everyone, like function
+#	alternative forms, misspelled forms, multilingual forms, and case
+#	sensitivity can be dynamically configured for each object at runtime.
+#	Programmers specify tuning using syntax like:
 
 #		Use([
 #			:stzStringClass = [
-# 				:@AllAlternativeForms,
+#				:@AllAlternativeForms,
 #				:@TheseMisspelledForms = [ ..., ... ],
 #				:@NFirstMultilingualForms = 10, etc ]
 #			],
-
 #			stzListClass = [ ... ]
-#	        ]
+#		])
 
-# Optimized:
-#~~~~~~~~~~~
+# 5. OPTIMIZED
+#~~~~~~~~~~~~~~
 
 #	A future script will create, based on a codebase that uses Softanza,
-#	a lightweight, dependency-free filz (SoftanzaMine.ring) containing only
-# 	used classes and methods in that particular codebase.
+#	a lightweight, dependency-free file (SoftanzaMine.ring) containing only
+#	used classes and methods in that particular codebase.
 
-
-# APIfied:
-#~~~~~~~~~
+# 6. APIFIED
+#~~~~~~~~~~~~
 
 #	All Softanza classes, modules, or layers can be delivered as
 #	a unified service-oriented API under a dedicated application
 #	server working over HTTP. This allows the use of the library
-#	in a production setting, on the cloud or in promise, in
+#	in production settings, on the cloud or on-premise, for
 #	developing web and mobile backend services, and professional
-#	client server applications.
+#	client-server applications.
 
-# Battle-tested & documented
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# 7. BATTLE-TESTED & DOCUMENTED
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #	All Softanza classes and functions are made hand in hand with
-#	tests crafted at design time, and then enritched, by using
-#	the library in solving several real world algorithmic cases.
+#	tests crafted at design time, then enriched by using the library
+#	in solving real-world algorithmic cases.
 
-#	The library is carefelly documented through comments inside
-#	the code base and a set of narrations prvided as test samples.
-#	A documentation file is made to each class, in a strcutered
-#	format to enable its export to HTML, PDF or other forms.
+#	The library is documented through comments inside the codebase,
+#	narrated test files (executable tutorials), and 97+ narration
+#	markdown files covering every major feature.
+#	See: base/doc/narrations/
 
-#~~~~~~~~~~~~~~~~~~~~~~~~#
-#  END OF THE NOTE NOTE  #
-#~~~~~~~~~~~~~~~~~~~~~~~~#
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+#  END OF THE ARCHITECTURE OVERVIEW   #
+#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#

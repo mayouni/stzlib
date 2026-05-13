@@ -1,6 +1,15 @@
-# This file loads the MAX layer of SoftanzaLib (along with it's CORE and BASE layers)
+# This file loads the MAX layer of SoftanzaLib (along with its CORE and BASE layers)
+#
+# Architecture: Core (stk*) -> Base (stz*) -> Max (stx*)
+#
+# The Max layer extends Base with advanced features: walkers, parsers,
+# big numbers, multi-strings, text encoding, binary files, the testing
+# framework, and the wings plugin system.
+#
+# NOTE: Files already loaded by the Base layer are NOT re-loaded here.
+# Max only adds what is genuinely new at this level.
 
-# Loading the Softanza Base layer (which loads Core layer in behind)
+# Loading the Softanza Base layer (which loads Core layer underneath)
 
     load "../base/stzbase.ring"
 
@@ -20,11 +29,6 @@
 //  load "data/stzstopwordsdata.ring"
     load "data/stzdatamodeldata.ring"
 
-# Loading files related to OBJECT module
-
-    #TODO // Abstract stzTrueObject, stzFalseObject, stzNullObject,
-    # and stzNamedObject here in the MAX layer
-
 # Loading files related to the NUMBER module
 
     load "number/stzbignumber.ring"
@@ -33,28 +37,11 @@
 
     load "number/stznumberlowleveltype.ring"
 
-
 # Loading files related to STRING module
 
     load "string/stzmultistring.ring"
     load "string/stzstringconstraints.ring"
     load "string/stztextencoding.ring"
-
-# Loading files related to the LIST module
-
-    load "list/stzlist2d.ring"
-    load "list/stzlistparser.ring"
-    load "list/stzlistprovidedasstring.ring"
-
-    load "list/stzsortedlist.ring"
-    load "list/stzpivottable.ring"
-    load "list/stzpivottableshow.ring"
-
-    load "list/stztree.ring"
-
-    load "list/stzgrid.ring"
-    load "list/stzlistofgrids.ring"
-    load "list/stztile.ring"
 
 # Loading files related to the SYSTEM module
 
