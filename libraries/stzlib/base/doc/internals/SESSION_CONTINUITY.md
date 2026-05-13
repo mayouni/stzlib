@@ -131,36 +131,93 @@ This means:
   Ring syntax, Ring's interpreter, and Softanza's classes.
   But the backend is 100% Zig Engine.
 
+### Design Decision: Modular Engine
+
+The Engine mirrors the library's granularity. A Ring programmer
+who loads only `stkString.ring` should not pull in a monolithic
+DLL with datetime and locale code. The Engine builds as separate
+per-domain shared libraries:
+
+```
+engine/zig-out/bin/
+  stz_string.dll      # string.zig + char.zig (Core+Base string ops)
+  stz_datetime.dll    # datetime.zig (date, time, datetime)
+  stz_file.dll        # file.zig (file, dir, path)
+  stz_locale.dll      # locale.zig (formatting, names, case)
+  stz_regex.dll       # regex.zig (pattern matching)
+  stz_json.dll        # json.zig (parse/generate)
+```
+
+Three levels of granularity on both Ring side and Engine side:
+
+**Level 1 -- Full library:**
+```ring
+load "stzlib.ring"             # all modules, all engine DLLs
+```
+
+**Level 2 -- One layer:**
+```ring
+$STZ_LAYER = :core
+load "stzlib.ring"             # core modules + stz_string.dll
+```
+
+**Level 3 -- One module:**
+```ring
+load "base/string/stzString.ring"  # stz_string.dll only
+load "base/datetime/stzDate.ring"  # stz_datetime.dll only
+```
+
+Each Ring module file loads only the Engine DLL it needs via
+`LoadLib()`. The build system (`build.zig`) produces all DLLs
+independently. The `softanza build` CLI command can build
+individual modules or everything.
+
+This matters for:
+- **Small apps** that use one Softanza domain: tiny footprint
+- **Embedded/MCU targets**: load only what fits in memory
+- **Distribution**: ship only the DLLs your app actually uses
+- **Build time**: rebuild only the module you changed
+
 ## Phase 4 Plan (Next Session)
 
-### 1. Purge Qt from Core Layer
+### 1. Split Engine into Modular DLLs
+1. Refactor `build.zig`: one shared library per domain
+   (stz_string, stz_datetime, stz_file, stz_locale)
+2. Each .zig file exports its own symbols (no central engine.zig)
+3. Keep a "build all" target that produces every DLL
+4. Keep the static library (links everything for CLI/Zin use)
+5. Update `stzengine.ring`: per-domain LoadLib() calls
+
+### 2. Purge Qt from Core Layer
 1. Remove `load "qtcore.ring"` from stkRingLibs.ring
-2. Make stkRingLibs.ring always load Engine (no conditional)
+2. stkRingLibs.ring loads stz_string.dll directly
 3. Remove `_IsEngine()` method and ALL Qt branches from stkString.ring
 4. Remove ALL Qt branches from stkChar.ring
 5. Engine is the only code path -- no fallback
 
-### 2. Purge Qt from Base Layer
-1. Modify `base/string/stzString.ring`: replace every `new QString2()`
-   with Engine calls (~300 calls, largest file)
-2. Modify `base/datetime/stzDateTime.ring`: replace QDateTime calls
-3. Modify `base/file/stzFile.ring` + `stzFolder.ring`: replace QFile/QDir
-4. Modify `base/i18n/stzLocale.ring`: replace QLocale calls
-5. Grep entire codebase for remaining Qt references and eliminate them
-6. Goal: ZERO Qt references anywhere in Softanza
+### 3. Purge Qt from Base Layer
+1. Each Base module loads its own Engine DLL:
+   - stzString.ring loads stz_string.dll
+   - stzDateTime.ring loads stz_datetime.dll
+   - stzFile.ring loads stz_file.dll
+   - stzLocale.ring loads stz_locale.dll
+2. Replace every `new QString2()` with Engine calls
+3. Replace every QDateTime/QFile/QDir/QLocale call
+4. Grep entire codebase for remaining Qt references
+5. Goal: ZERO Qt references anywhere in Softanza
 
-### 3. Engine Tier 3
-1. `engine/src/regex.zig`: pattern matching (replaces QRegExp)
-2. `engine/src/json.zig`: JSON parse/generate (replaces QJson*)
-3. `engine/src/variant.zig`: type conversion (replaces QVariant)
-4. Any other Qt class still referenced in Base layer
+### 4. Engine Tier 3
+1. `engine/src/regex.zig` -> stz_regex.dll
+2. `engine/src/json.zig` -> stz_json.dll
+3. Any other module needed to cover remaining Qt calls
 
-### 4. CLI Polish
-1. Wire `softanza test` to discover and run narrated test files
-2. Add timing and summary statistics
-3. Wire `softanza doctor` to verify Ring + Engine setup
+### 5. CLI Polish
+1. `softanza build` builds individual or all Engine DLLs
+2. `softanza test` discovers and runs narrated test files
+3. `softanza doctor` verifies Ring + per-module Engine DLLs
 
-### 5. Validation
-1. Run existing Softanza test suite (Engine-only, no Qt)
+### 6. Validation
+1. Run existing test suite (Engine-only, no Qt)
 2. Fix any failures from the Qt removal
 3. Confirm all narrated tests produce expected output
+4. Verify module-level loading works (load one module only)
