@@ -40,15 +40,14 @@ o1 = new stkChar("碳")
 ? o1.Unicode()
 #--> 30899
 
-# Creating a stkChar object from Qt QChar object
+# Creating a stkChar from its unicode codepoint
 
-oQChar = new QChar(30899)
-? classname(oQChar)
-#--> qchar
-
-o1 = new stkChar(oQChar)
+o1 = new stkChar(30899)
 ? o1.Content()
 #--> 碳
+
+? o1.Unicode()
+#--> 30899
 
 pf()
 # Executed in 0.002 second(s) in Ring 1.22
@@ -57,36 +56,17 @@ pf()
 
 pr()
 
-# The stzCoreChar object give you access to all QChar methods
-# supported in RingQt. To call them, use the Qt() small function:
+# The Engine provides char classification via StkEngineChar* functions:
 
 o1 = new stkChar("ض")
-? o1.Qt().category()
-#--> 18
-
-# Unlike the more elaborated Softanza BASE layer, where category()
-# returns an expressive lable (:arabic_char), what we get here
-# is what Qt provides as, a number 18.
-
-# To deal with it, read this Qt documentation entry:
-# List here: https://doc.qt.io/qt-5/qchar.html#Category-enum
-
-# Also, to stay minimalistic, SoftanzaCore won't include its own
-# alternative to an existing Qt method, if this method obyes to
-# semantic style and mental model provided by Softanza.
-
-# Hence, there is no need to inculde an isLetter() method (working
-# directly against the object as o1.IsLetter), because it's quiet	
-# simply to do it in pure Qt:
-
-? o1.Qt().isLetter()
+? o1.IsLetter()
 #--> TRUE
 
-? o1.Qt().IsLetterOrNumber()
-#--> TRUE
+? o1.Unicode()
+#--> 1590
 
 pf()
-# Executed in 0.001 second(s) in Ring 1.22
+# Executed in 0.001 second(s)
 
 /*---
 
@@ -100,16 +80,8 @@ o1 = new stkChar("🞖")
 ? o1.Unicode()
 #--> 55357
 
-# If you would make it in Qt, it will be as tricky as:
-
-	oQStr = new QString2()
-	oQStr.append("🞖")
-	? oQStr.unicode().unicode()
-
-# since we don't have a way do get it directly from QChar object.
-
-# I made this sample to show that, unlike more generous Softanza BASE layer,
-# Softanza CORE invests in enhancing RingQt only when required.
+# The Engine handles this directly via StkEngineCharUnicode(),
+# making unicode access simple and Qt-free.
 
 #NOTE For technical reasons, we permit the parameter to be a string not a char
 o1 = new stkChar("mansour")
@@ -121,71 +93,37 @@ pf()
 
 # In this case, the remaing part is ignored.
 
-/*--- Major Qt() methods ssupported in RingQt QChar class
+/*--- Engine-based char classification tests
 */
 pr()
 
 o1 = new stkChar("r")
-? o1.Qt().isLower()
+? o1.IsLower()
 #--> TRUE
 
-o1 = new stkChar(1617)
-? o1.Qt().isMark() # Arabic shaddah
-#--> TRUE
-
-o1 = new stkChar(65534)
-? o1.Qt().isNonCharacter()
-#--> TRUE
-
-o1 = new stkChar("")
-? o1.Qt().isNull()
-#--> TRUE
-
-o1 = new stkChar("9")
-? o1.Qt().isNumber()
-#--> TRUE
-
-o1 = new stkChar("M")
-? o1.Qt().isPrint()
-#--> TRUE
-
-o1 = new stkChar(65534)
-? o1.Qt().isPrint()
-#--> FALSE
-
-o1 = new stkChar(";")
-? o1.Qt().isPunct()
-#--> TRUE
-
-o1 = new stkChar(" ")
-? o1.Qt().isSpace()
+? o1.IsLetter()
 #--> TRUE
 
 o1 = new stkChar("T")
-? o1.Qt().isUpper()
+? o1.IsUpper()
 #--> TRUE
 
-o1 = new stkChar("༺")
-? o1.Mirrored()
-#--> ༻
-
-o1 = new stkChar("ص")
-? o1.Qt().script()
-#--> 8
-# List of scripts: https://doc.qt.io/qt-5/qchar.html#Script-enum
-
-o1 = new stkChar("༺")
-? o1.Qt().unicodeVersion()
-#--> 2
-
-o1 = new stkChar("༺")
-? o1.Qt().direction()
-#--> 10
-# List of directions: https://doc.qt.io/qt-5/qchar.html#Direction-enumerate
+? o1.IsLetter()
+#--> TRUE
 
 o1 = new stkChar("5")
-? o1.Qt().isdigit()
+? o1.IsDigit()
 #--> TRUE
 
+? o1.IsLetter()
+#--> FALSE
+
+o1 = new stkChar(" ")
+? o1.IsLetter()
+#--> FALSE
+
+? o1.IsDigit()
+#--> FALSE
+
 pf()
-# Executed in 0.004 second(s) in Ring 1.22
+# Executed in 0.001 second(s)
