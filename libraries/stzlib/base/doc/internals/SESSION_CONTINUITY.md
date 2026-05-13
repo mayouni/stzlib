@@ -178,15 +178,44 @@ This matters for:
 - **Distribution**: ship only the DLLs your app actually uses
 - **Build time**: rebuild only the module you changed
 
-## Phase 4 Plan (Next Session)
+## Session 3 (2026-05-14): Phase 4
 
-### 1. Split Engine into Modular DLLs
-1. Refactor `build.zig`: one shared library per domain
-   (stz_string, stz_datetime, stz_file, stz_locale)
-2. Each .zig file exports its own symbols (no central engine.zig)
-3. Keep a "build all" target that produces every DLL
-4. Keep the static library (links everything for CLI/Zin use)
-5. Update `stzengine.ring`: per-domain LoadLib() calls
+### What Was Done
+
+**Phase 4 Task 1: Split Engine into Modular DLLs (DONE)**
+
+1. Created per-domain entry point files in `engine/src/`:
+   - `stz_string_entry.zig`: exports 26 symbols (string + char)
+   - `stz_datetime_entry.zig`: exports 50 symbols (date + time + datetime)
+   - `stz_file_entry.zig`: exports 17 symbols (file + dir + path)
+   - `stz_locale_entry.zig`: exports 10 symbols (locale)
+
+2. Refactored `engine/build.zig`: data-driven domain table produces
+   4 shared libraries + 1 static lib + tests. No monolithic DLL.
+
+3. Created per-domain Ring FFI bridges:
+   - `engine/stz_string.ring`: loads stz_string.dll, 25 wrapper functions
+   - `engine/stz_datetime.ring`: loads stz_datetime.dll, 33 wrapper functions
+   - `engine/stz_file.ring`: loads stz_file.dll, 16 wrapper functions
+   - `engine/stz_locale.ring`: loads stz_locale.dll, 10 wrapper functions
+
+4. `engine/stzengine.ring` becomes convenience "load all" (4 lines).
+
+5. CLI updated: version shows 0.3.0 + module breakdown, doctor
+   checks each DLL individually.
+
+6. Build output after clean build:
+   - stz_string.dll (930 KB)
+   - stz_datetime.dll (932 KB)
+   - stz_file.dll (996 KB)
+   - stz_locale.dll (959 KB)
+   - softanza_engine_static.lib (2440 KB)
+
+7. **40/40 Engine tests passing, 1/1 CLI test passing.**
+
+## Phase 4 Remaining Plan
+
+### ~~1. Split Engine into Modular DLLs~~ (DONE)
 
 ### 2. Purge Qt from Core Layer
 1. Remove `load "qtcore.ring"` from stkRingLibs.ring

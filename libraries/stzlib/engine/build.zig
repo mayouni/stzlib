@@ -1,32 +1,44 @@
 const std = @import("std");
 
+const Domain = struct {
+    name: []const u8,
+    entry: []const u8,
+};
+
+const domains = [_]Domain{
+    .{ .name = "stz_string", .entry = "src/stz_string_entry.zig" },
+    .{ .name = "stz_datetime", .entry = "src/stz_datetime_entry.zig" },
+    .{ .name = "stz_file", .entry = "src/stz_file_entry.zig" },
+    .{ .name = "stz_locale", .entry = "src/stz_locale_entry.zig" },
+};
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    // Shared library for Ring FFI
-    const shared_mod = b.createModule(.{
-        .root_source_file = b.path("src/engine.zig"),
-        .target = target,
-        .optimize = optimize,
-        .link_libc = true,
-    });
+    // Per-domain shared libraries
+    for (domains) |dom| {
+        const mod = b.createModule(.{
+            .root_source_file = b.path(dom.entry),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        const lib = b.addLibrary(.{
+            .name = @constCast(dom.name),
+            .root_module = mod,
+            .linkage = .dynamic,
+        });
+        b.installArtifact(lib);
+    }
 
-    const shared_lib = b.addLibrary(.{
-        .name = "softanza_engine",
-        .root_module = shared_mod,
-        .linkage = .dynamic,
-    });
-    b.installArtifact(shared_lib);
-
-    // Static library for Zin direct linking
+    // Static library linking everything (for Zin direct linking / CLI)
     const static_mod = b.createModule(.{
         .root_source_file = b.path("src/engine.zig"),
         .target = target,
         .optimize = optimize,
         .link_libc = true,
     });
-
     const static_lib = b.addLibrary(.{
         .name = "softanza_engine_static",
         .root_module = static_mod,
@@ -34,7 +46,7 @@ pub fn build(b: *std.Build) void {
     });
     b.installArtifact(static_lib);
 
-    // Tests
+    // Tests run through engine.zig (covers all modules)
     const tests = b.addTest(.{
         .root_module = b.createModule(.{
             .root_source_file = b.path("src/engine.zig"),
