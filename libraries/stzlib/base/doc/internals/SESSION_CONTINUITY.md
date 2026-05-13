@@ -213,9 +213,58 @@ This matters for:
 
 7. **40/40 Engine tests passing, 1/1 CLI test passing.**
 
+**Phase 4 Task 1b: Layered Engine -- Core/Base DLL Tiers (DONE)**
+
+8. Three-layer architecture applied to Engine DLLs:
+   - **Core (stk_*):** minimal subset for speed and constrained envs
+   - **Base (stz_*):** full features, strict superset of Core
+   - Each Base DLL exports ALL Core functions plus additions
+   - A Ring program loads ONE DLL per domain per layer
+
+9. Created Core entry point files in `engine/src/`:
+   - `stk_string_entry.zig`: 12 funcs (lifecycle + data + search + char basics)
+   - `stk_datetime_entry.zig`: 24 funcs (lifecycle + components + compare)
+   - `stk_file_entry.zig`: 6 funcs (exists + read/write/delete + dir_exists)
+   - `stk_locale_entry.zig`: 2 funcs (to_upper + to_lower)
+
+10. Created Core Ring FFI bridges:
+    - `engine/stk_string.ring`, `stk_datetime.ring`, `stk_file.ring`, `stk_locale.ring`
+    - `engine/stkengine.ring`: convenience "load all Core" (4 lines)
+
+11. Build output -- 8 DLLs total:
+    - stk_string.dll (912 KB), stk_datetime.dll (912 KB)
+    - stk_file.dll (920 KB), stk_locale.dll (898 KB)
+    - stz_string.dll (930 KB), stz_datetime.dll (932 KB)
+    - stz_file.dll (996 KB), stz_locale.dll (959 KB)
+
+12. CLI updated: version shows layered architecture, doctor checks
+    all 8 DLLs. **40/40 Engine tests, 1/1 CLI test passing.**
+
+### Design Decision: Layered DLLs
+
+Each class exists in three layers with incremental features:
+
+- **Core (stk_*):** Minimalistic, made for speed, no syntax sugar,
+  works on constrained environments. DLL naming: `stk_<domain>.dll`.
+- **Base (stz_*):** All features. The full Softanza API with ergonomics,
+  rich methods, formatting, arithmetic. DLL: `stz_<domain>.dll`.
+- **Max (stx_*):** Everything in Base plus engine-level advanced
+  facilities (large data optimizations, parallel processing, streaming).
+  DLL: `stx_<domain>.dll`. Future -- no Max DLLs yet.
+
+Each higher-tier DLL is a strict superset: Base exports all Core
+symbols plus its own. Handles created in one tier work seamlessly
+because the same Zig code backs both DLLs.
+
+Loading rules:
+- Core layer loads `stk_*.dll` only
+- Base layer loads `stz_*.dll` (which includes Core functions)
+- Base module automatically gets its Core dependency
+
 ## Phase 4 Remaining Plan
 
 ### ~~1. Split Engine into Modular DLLs~~ (DONE)
+### ~~1b. Layered Engine -- Core/Base DLL Tiers~~ (DONE)
 
 ### 2. Purge Qt from Core Layer
 1. Remove `load "qtcore.ring"` from stkRingLibs.ring
