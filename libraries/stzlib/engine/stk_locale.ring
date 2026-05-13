@@ -1,0 +1,33 @@
+# Softanza Engine -- Core Locale FFI Bridge
+#
+# Loads stk_locale.dll -- basic case conversion only.
+# Used by: core/locale/stkLocale.ring
+
+if isWindows()
+    $cStkLocaleLib = currentdir() + "/zig-out/bin/stk_locale.dll"
+but isLinux()
+    $cStkLocaleLib = currentdir() + "/zig-out/lib/libstk_locale.so"
+but isMacOS()
+    $cStkLocaleLib = currentdir() + "/zig-out/lib/libstk_locale.dylib"
+ok
+
+if fexists($cStkLocaleLib)
+    $pStkLocaleHandle = LoadLib($cStkLocaleLib)
+else
+    ? "WARNING: stk_locale not found at: " + $cStkLocaleLib
+    $pStkLocaleHandle = NULL
+ok
+
+func EngineLocaleToUpper(cStr)
+    if $pStkLocaleHandle = NULL return upper(cStr) ok
+    cBuf = space(len(cStr))
+    nLen = CallCFunc($pStkLocaleHandle, "stz_locale_to_upper", "i", "pipi",
+                     cStr, len(cStr), cBuf, len(cStr))
+    return left(cBuf, nLen)
+
+func EngineLocaleToLower(cStr)
+    if $pStkLocaleHandle = NULL return lower(cStr) ok
+    cBuf = space(len(cStr))
+    nLen = CallCFunc($pStkLocaleHandle, "stz_locale_to_lower", "i", "pipi",
+                     cStr, len(cStr), cBuf, len(cStr))
+    return left(cBuf, nLen)

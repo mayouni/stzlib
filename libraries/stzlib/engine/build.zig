@@ -5,7 +5,16 @@ const Domain = struct {
     entry: []const u8,
 };
 
-const domains = [_]Domain{
+// Core (stk_*): minimal, fast, constrained environments
+const core_domains = [_]Domain{
+    .{ .name = "stk_string", .entry = "src/stk_string_entry.zig" },
+    .{ .name = "stk_datetime", .entry = "src/stk_datetime_entry.zig" },
+    .{ .name = "stk_file", .entry = "src/stk_file_entry.zig" },
+    .{ .name = "stk_locale", .entry = "src/stk_locale_entry.zig" },
+};
+
+// Base (stz_*): full features, superset of Core
+const base_domains = [_]Domain{
     .{ .name = "stz_string", .entry = "src/stz_string_entry.zig" },
     .{ .name = "stz_datetime", .entry = "src/stz_datetime_entry.zig" },
     .{ .name = "stz_file", .entry = "src/stz_file_entry.zig" },
@@ -16,8 +25,24 @@ pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
-    // Per-domain shared libraries
-    for (domains) |dom| {
+    // Core layer DLLs
+    for (core_domains) |dom| {
+        const mod = b.createModule(.{
+            .root_source_file = b.path(dom.entry),
+            .target = target,
+            .optimize = optimize,
+            .link_libc = true,
+        });
+        const lib = b.addLibrary(.{
+            .name = @constCast(dom.name),
+            .root_module = mod,
+            .linkage = .dynamic,
+        });
+        b.installArtifact(lib);
+    }
+
+    // Base layer DLLs
+    for (base_domains) |dom| {
         const mod = b.createModule(.{
             .root_source_file = b.path(dom.entry),
             .target = target,

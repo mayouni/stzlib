@@ -70,11 +70,15 @@ fn printUsage() void {
 fn cmdVersion() u8 {
     w().writeAll(
         \\Softanza CLI    0.3.0
-        \\Softanza Engine 0.3.0 (Zig, modular)
-        \\  stz_string   -- String + Unicode (20 + 6 functions)
-        \\  stz_datetime -- Date + Time + DateTime (19 + 15 + 16 functions)
-        \\  stz_file     -- File + Dir + Path (8 + 6 + 3 functions)
-        \\  stz_locale   -- Locale (10 functions)
+        \\Softanza Engine 0.3.0 (Zig, modular, layered)
+        \\
+        \\Core (stk_*) -- minimal, fast, constrained:
+        \\  stk_string   12 funcs   stk_datetime 24 funcs
+        \\  stk_file      6 funcs   stk_locale    2 funcs
+        \\
+        \\Base (stz_*) -- full features, superset of Core:
+        \\  stz_string   26 funcs   stz_datetime 50 funcs
+        \\  stz_file     17 funcs   stz_locale   10 funcs
         \\
     ) catch {};
     return 0;
@@ -109,21 +113,19 @@ fn cmdDoctor(gpa: std.mem.Allocator) u8 {
 
 fn checkEngine(wr: @TypeOf(w()), ok_in: bool) u8 {
     var ok = ok_in;
-    const dll_names = [_][]const u8{
-        "stz_string",
-        "stz_datetime",
-        "stz_file",
-        "stz_locale",
-    };
-    for (dll_names) |name| {
-        var path_buf: [128]u8 = undefined;
-        const dll_path = std.fmt.bufPrint(&path_buf, "engine/zig-out/bin/{s}.dll", .{name}) catch continue;
-        fs.cwd().access(dll_path, .{}) catch {
-            wr.print("[FAIL] {s}.dll not found (run: softanza build)\n", .{name}) catch {};
-            ok = false;
-            continue;
-        };
-        wr.print("[OK]   {s}.dll\n", .{name}) catch {};
+    const domains = [_][]const u8{ "string", "datetime", "file", "locale" };
+    const layers = [_][]const u8{ "stk", "stz" };
+    for (layers) |layer| {
+        for (domains) |domain| {
+            var path_buf: [128]u8 = undefined;
+            const dll_path = std.fmt.bufPrint(&path_buf, "engine/zig-out/bin/{s}_{s}.dll", .{ layer, domain }) catch continue;
+            fs.cwd().access(dll_path, .{}) catch {
+                wr.print("[FAIL] {s}_{s}.dll not found\n", .{ layer, domain }) catch {};
+                ok = false;
+                continue;
+            };
+            wr.print("[OK]   {s}_{s}.dll\n", .{ layer, domain }) catch {};
+        }
     }
     return if (ok) 0 else 1;
 }
