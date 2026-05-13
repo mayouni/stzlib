@@ -134,9 +134,9 @@ comptime {
     @export(&locale.stz_locale_day_abbr, .{ .name = "stz_locale_day_abbr" });
 }
 
-// Version -- bumped for Tier 2
+// Version -- bumped for modular Engine
 pub export fn stz_engine_version() callconv(.c) u32 {
-    return 0x00_02_00_00; // 0.2.0.0
+    return 0x00_03_00_00; // 0.3.0.0
 }
 
 test {

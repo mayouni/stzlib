@@ -69,10 +69,12 @@ fn printUsage() void {
 
 fn cmdVersion() u8 {
     w().writeAll(
-        \\Softanza CLI    0.2.0
-        \\Softanza Engine 0.2.0 (Zig)
-        \\Tier 1: String + Unicode (20 + 6 functions)
-        \\Tier 2: DateTime + File + Locale (35 + 17 + 10 functions)
+        \\Softanza CLI    0.3.0
+        \\Softanza Engine 0.3.0 (Zig, modular)
+        \\  stz_string   -- String + Unicode (20 + 6 functions)
+        \\  stz_datetime -- Date + Time + DateTime (19 + 15 + 16 functions)
+        \\  stz_file     -- File + Dir + Path (8 + 6 + 3 functions)
+        \\  stz_locale   -- Locale (10 functions)
         \\
     ) catch {};
     return 0;
@@ -107,13 +109,22 @@ fn cmdDoctor(gpa: std.mem.Allocator) u8 {
 
 fn checkEngine(wr: @TypeOf(w()), ok_in: bool) u8 {
     var ok = ok_in;
-    const dll_path = "engine/zig-out/bin/softanza_engine.dll";
-    fs.cwd().access(dll_path, .{}) catch {
-        wr.writeAll("[FAIL] Engine DLL not found (run: softanza build)\n") catch {};
-        ok = false;
-        return if (ok) 0 else 1;
+    const dll_names = [_][]const u8{
+        "stz_string",
+        "stz_datetime",
+        "stz_file",
+        "stz_locale",
     };
-    wr.writeAll("[OK]   Engine DLL found\n") catch {};
+    for (dll_names) |name| {
+        var path_buf: [128]u8 = undefined;
+        const dll_path = std.fmt.bufPrint(&path_buf, "engine/zig-out/bin/{s}.dll", .{name}) catch continue;
+        fs.cwd().access(dll_path, .{}) catch {
+            wr.print("[FAIL] {s}.dll not found (run: softanza build)\n", .{name}) catch {};
+            ok = false;
+            continue;
+        };
+        wr.print("[OK]   {s}.dll\n", .{name}) catch {};
+    }
     return if (ok) 0 else 1;
 }
 
