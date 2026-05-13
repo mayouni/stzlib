@@ -113,54 +113,39 @@
 - 40 Engine tests passing
 - 1 CLI test passing
 
-### Strategic Repositioning: Zing
+### Rollback: Staying in the Ring Ecosystem
 
-At the end of Session 2, the project was repositioned. What we
-built is not "Softanza + an engine helper." It is **Zing** -- a
-self-contained programming platform. Key decisions:
-
-- **Zing is the product.** CLI becomes `zing` (not `softanza`).
-- **Qt is removed entirely.** Not optional -- gone. Engine is the
-  only code path. All `if _IsEngine()` branches become the default.
-- **No Ring ecosystem.** Zing programs cannot load Ring libraries.
-  They use the Zing stdlib (descended from Softanza) and nothing else.
-- **Softanza is the paradigm name.** The coding style, principles,
-  innovations. Zing is where Softanza runs.
-- **Six output types:** notebook, exe, library, API, WASM, MCU.
-- **Zing IDE:** native Zig, notebook-first, narration-aware.
-- **Zin relationship deferred.** Zing stands alone. The Zin
-  connection is architectural, discussed after Zing has identity.
-
-See: `base/doc/design/ZING_PRODUCT_VISION.md`
+A Zing repositioning was explored but rolled back. Softanza is
+a contribution to Ring, not a departure from it. The Engine is
+a backend accelerator -- Ring programmers get it for free when
+they `load "stzlib.ring"`. Qt stays as default. Engine is the
+optional fast path.
 
 ## Phase 4 Plan (Next Session)
 
-### 1. Rename and Purge Qt
-1. Rename CLI from `softanza` to `zing` (cli/src/main.zig)
-2. Remove ALL Qt fallback paths from stkString.ring, stkChar.ring
-3. Remove `load "qtcore.ring"` from stkRingLibs.ring entirely
-4. Remove `$STZ_ENGINE_LOADED` checks -- Engine is always loaded
-5. Remove `_IsEngine()` method and all Qt branches from Core classes
+### 1. Wire Base Layer to Engine (Qt stays, Engine optional)
+1. Modify `base/string/stzString.ring`: add Engine dispatch alongside
+   Qt (same pattern as Core: `if _IsEngine()` -> Engine, else Qt)
+2. Modify `base/datetime/stzDateTime.ring`: Engine dispatch for
+   date/time ops
+3. Modify `base/file/stzFile.ring` + `stzFolder.ring`: Engine dispatch
+   for file/dir ops
+4. Modify `base/i18n/stzLocale.ring`: Engine dispatch for locale ops
+5. Goal: Base layer uses Engine when available, Qt otherwise
 
-### 2. Wire Base Layer (Qt-free)
-1. Modify `base/string/stzString.ring`: replace `new QString2()` calls
-   with Engine calls (3969 methods, ~300 Qt calls -- largest file)
-2. Modify `base/datetime/stzDateTime.ring`: replace QDateTime calls
-3. Modify `base/file/stzFile.ring` + `stzFolder.ring`: replace QFile/QDir
-4. Modify `base/i18n/stzLocale.ring`: replace QLocale calls
-5. Goal: ZERO Qt references in the entire codebase
+### 2. Engine Tier 3
+1. `engine/src/regex.zig`: pattern matching (replaces QRegExp)
+2. `engine/src/json.zig`: JSON parse/generate (replaces QJson*)
+3. `engine/src/variant.zig`: type conversion (replaces QVariant)
 
-### 3. Engine Tier 3
-1. `engine/src/regex.zig`: pattern matching
-2. `engine/src/json.zig`: JSON parse/generate
-3. `engine/src/http.zig`: native HTTP server for `zing serve`
+### 3. CLI Polish
+1. Wire `softanza test` to discover and run narrated test files
+2. Add timing, color output, summary statistics
+3. Wire `softanza doctor` to verify Ring + Engine setup
+4. Support `--filter` for selective test runs
 
-### 4. CLI Completion
-1. Rename all commands to `zing run/test/build/serve/version/doctor`
-2. Test runner: discover and run narrated test files
-3. `zing serve`: start native HTTP server for API mode
-
-### 5. Zing Identity (deferred to after implementation)
-1. Think broadly about Zing-Zin relationship
-2. Consider stdlib scope decisions
-3. Plan the IDE architecture in detail
+### 4. Testing & Validation
+1. Run existing Softanza test suite with Engine active
+2. Compare Engine vs Qt results for correctness
+3. Benchmark Engine vs Qt performance on key operations
+4. Document any behavioral differences
