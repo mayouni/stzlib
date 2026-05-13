@@ -1,9 +1,28 @@
-# Load the BASE layer of the Softanza library
+# Softanza Library Loader
+#
+# Usage:
+#   load "stzlib.ring"              -> Loads BASE layer (default)
+#   $STZ_LAYER = :core  load "..."  -> Loads CORE layer only
+#   $STZ_LAYER = :max   load "..."  -> Loads MAX layer (includes Base + Core)
+#
+# Architecture: Core (stk*) -> Base (stz*) -> Max (stx*)
 
-# NOTE: Currently, we load only the BASE layer,
-# which in turn loads the CORE layer underneath it.
+if NOT isGlobal(:$STZ_LAYER)
+    $STZ_LAYER = :base
+ok
 
-# After completing the architectural refactoring,
-# we will add support for loading the MAX layer.
+switch $STZ_LAYER
 
-load "base/stzbase.ring"
+on :core
+    load "core/stzcore.ring"
+
+on :base
+    load "base/stzbase.ring"
+
+on :max
+    load "max/stzmax.ring"
+
+other
+    load "base/stzbase.ring"
+
+off
