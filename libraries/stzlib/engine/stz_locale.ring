@@ -1,7 +1,8 @@
-# Softanza Engine -- Locale FFI Bridge
+# Softanza Engine -- Base Locale FFI Bridge
 #
-# Loads stz_locale.dll/.so and wraps each C function.
+# Loads stz_locale.dll -- full features, superset of Core.
 # Used by: base/locale/stzLocale.ring
+# Function prefix: StzEngine* (distinct from Core StkEngine*)
 
 if isWindows()
     $cStzLocaleLib = currentdir() + "/zig-out/bin/stz_locale.dll"
@@ -18,70 +19,78 @@ else
     $pStzLocaleHandle = NULL
 ok
 
-func EngineLocaleAMText()
-    if $pStzLocaleHandle = NULL return "AM" ok
-    cBuf = space(4)
-    nLen = CallCFunc($pStzLocaleHandle, "stz_locale_am_text", "i", "pi",
-                     cBuf, 4)
-    return left(cBuf, nLen)
+# ── Case Conversion (Core: to_upper, to_lower / Base adds: to_titlecase) ──
 
-func EngineLocalePMText()
-    if $pStzLocaleHandle = NULL return "PM" ok
-    cBuf = space(4)
-    nLen = CallCFunc($pStzLocaleHandle, "stz_locale_pm_text", "i", "pi",
-                     cBuf, 4)
-    return left(cBuf, nLen)
-
-func EngineLocaleToUpper(cStr)
+func StzEngineLocaleToUpper(cStr)
     if $pStzLocaleHandle = NULL return upper(cStr) ok
     cBuf = space(len(cStr))
     nLen = CallCFunc($pStzLocaleHandle, "stz_locale_to_upper", "i", "pipi",
                      cStr, len(cStr), cBuf, len(cStr))
     return left(cBuf, nLen)
 
-func EngineLocaleToLower(cStr)
+func StzEngineLocaleToLower(cStr)
     if $pStzLocaleHandle = NULL return lower(cStr) ok
     cBuf = space(len(cStr))
     nLen = CallCFunc($pStzLocaleHandle, "stz_locale_to_lower", "i", "pipi",
                      cStr, len(cStr), cBuf, len(cStr))
     return left(cBuf, nLen)
 
-func EngineLocaleToTitlecase(cStr)
+func StzEngineLocaleToTitlecase(cStr)
     if $pStzLocaleHandle = NULL return cStr ok
     cBuf = space(len(cStr))
     nLen = CallCFunc($pStzLocaleHandle, "stz_locale_to_titlecase", "i", "pipi",
                      cStr, len(cStr), cBuf, len(cStr))
     return left(cBuf, nLen)
 
-func EngineLocaleFormatNumber(nValue, nDecimals)
+# ── AM/PM (Base only) ──
+
+func StzEngineLocaleAMText()
+    if $pStzLocaleHandle = NULL return "AM" ok
+    cBuf = space(4)
+    nLen = CallCFunc($pStzLocaleHandle, "stz_locale_am_text", "i", "pi",
+                     cBuf, 4)
+    return left(cBuf, nLen)
+
+func StzEngineLocalePMText()
+    if $pStzLocaleHandle = NULL return "PM" ok
+    cBuf = space(4)
+    nLen = CallCFunc($pStzLocaleHandle, "stz_locale_pm_text", "i", "pi",
+                     cBuf, 4)
+    return left(cBuf, nLen)
+
+# ── Number Formatting (Base only) ──
+
+func StzEngineLocaleFormatNumber(nValue, nDecimals)
     if $pStzLocaleHandle = NULL return "" + nValue ok
     cBuf = space(32)
     nLen = CallCFunc($pStzLocaleHandle, "stz_locale_format_number", "i", "dipi",
                      nValue, nDecimals, cBuf, 32)
     return left(cBuf, nLen)
 
-func EngineLocaleMonthName(nMonth)
+# ── Month/Day Names (Base only) ──
+
+func StzEngineLocaleMonthName(nMonth)
     if $pStzLocaleHandle = NULL return "" ok
     cBuf = space(16)
     nLen = CallCFunc($pStzLocaleHandle, "stz_locale_month_name", "i", "ipi",
                      nMonth, cBuf, 16)
     return left(cBuf, nLen)
 
-func EngineLocaleMonthAbbr(nMonth)
+func StzEngineLocaleMonthAbbr(nMonth)
     if $pStzLocaleHandle = NULL return "" ok
     cBuf = space(8)
     nLen = CallCFunc($pStzLocaleHandle, "stz_locale_month_abbr", "i", "ipi",
                      nMonth, cBuf, 8)
     return left(cBuf, nLen)
 
-func EngineLocaleDayName(nDow)
+func StzEngineLocaleDayName(nDow)
     if $pStzLocaleHandle = NULL return "" ok
     cBuf = space(16)
     nLen = CallCFunc($pStzLocaleHandle, "stz_locale_day_name", "i", "ipi",
                      nDow, cBuf, 16)
     return left(cBuf, nLen)
 
-func EngineLocaleDayAbbr(nDow)
+func StzEngineLocaleDayAbbr(nDow)
     if $pStzLocaleHandle = NULL return "" ok
     cBuf = space(8)
     nLen = CallCFunc($pStzLocaleHandle, "stz_locale_day_abbr", "i", "ipi",
