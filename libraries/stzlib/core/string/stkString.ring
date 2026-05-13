@@ -1,7 +1,6 @@
-# Requires Engine or LightGuiLib
 
 #~~~~~~~~~~~~~~~~~~~#
-#  STZ CORE STRING  #
+#  STK CORE STRING  #
 #~~~~~~~~~~~~~~~~~~~#
 
 func StkReplaceCS(cStr, cSubStr, cNewSubStr, bCase)
@@ -17,31 +16,11 @@ func StkReplaceCS(cStr, cSubStr, cNewSubStr, bCase)
 	return ring_substr2(cStrLow, cSubStrLow, cNewSubStrLow)
 
 func StkReplace(cStr, cSubStr, cNewSubStr)
-	return StzReplaceCS(cStr, cSubStr, cNewSubStr, TRUE)
+	return StkReplaceCS(cStr, cSubStr, cNewSubStr, TRUE)
 
 # Split function
 
 func StkSplitCS(cStr, cSubStr, bCase)
-	if isGlobal(:$STZ_ENGINE_LOADED) and $STZ_ENGINE_LOADED = TRUE
-		# Engine path: use Ring's built-in substr for splitting
-		# (Engine handles the string ops, but split is pure Ring logic)
-		return _StkSplitPure(cStr, cSubStr, bCase)
-	ok
-
-	# Qt fallback
-	oQStr = new QString2()
-	oQStr.append(cStr)
-
-	oQStrList = oQStr.split(cSubStr, 0, bCase)
-
-	acResult = []
-	for i = 0 to oQStrList.size()-1
-		acResult + oQStrList.at(i)
-	next
-
-	return acResult
-
-func _StkSplitPure(cStr, cSubStr, bCase)
 	if cSubStr = "" return [cStr] ok
 
 	cWork = cStr
@@ -70,72 +49,37 @@ func StkSplit(cStr, cSubStr)
 # Trim function
 
 func StkTrim(cStr)
-	if isGlobal(:$STZ_ENGINE_LOADED) and $STZ_ENGINE_LOADED = TRUE
-		return trim(cStr)
-	ok
-
-	oQStr = new QString2()
-	oQStr.append(cStr)
-
-	cResult = oQStr.trimmed()
-	return cResult
+	return trim(cStr)
 
 
 class stkString from stzCoreString
 
 class stzCoreString from stzCoreObject
 
-	# Internal storage: either an Engine handle (pointer) or a Qt object
-	@content
-	@pEngine = NULL  # Engine handle when using Engine mode
+	@pEngine = NULL
 
 	def init(str)
 		if NOT isString(str)
 			return StkError(:IncorrectPramType)
 		ok
-
-		if isGlobal(:$STZ_ENGINE_LOADED) and $STZ_ENGINE_LOADED = TRUE
-			# Engine mode
-			@pEngine = CallCFunc($pEngineHandle, "stz_string_from", "p", "pi", str, len(str))
-			@content = str
-		else
-			# Qt mode
-			@content = new QString2()
-			@content.append(str)
-		ok
-
-	def _IsEngine()
-		return @pEngine != NULL
+		@pEngine = StkEngineStringFrom(str)
 
 	#--
 
 	def Content()
-		if This._IsEngine()
-			nSize = CallCFunc($pEngineHandle, "stz_string_size", "i", "p", @pEngine)
-			if nSize = 0 return "" ok
-			pData = CallCFunc($pEngineHandle, "stz_string_data", "p", "p", @pEngine)
-			return copy(pData, nSize)
-		ok
-		return @content.mid(0, @content.size())
+		nSize = StkEngineStringSize(@pEngine)
+		if nSize = 0 return "" ok
+		pData = StkEngineStringData(@pEngine)
+		return copy(pData, nSize)
 
 	def Update(cStr)
-		if This._IsEngine()
-			# Free old, create new
-			CallCFunc($pEngineHandle, "stz_string_free", "v", "p", @pEngine)
-			@pEngine = CallCFunc($pEngineHandle, "stz_string_from", "p", "pi", cStr, len(cStr))
-			return
-		ok
-		cContent = This.Content()
-		cNewContent = ring_substr2(cContent, cContent, cStr)
-		@content.replace_2(cContent, cNewContent, 1)
+		StkEngineStringFree(@pEngine)
+		@pEngine = StkEngineStringFrom(cStr)
 
 	#--
 
 	def Size()
-		if This._IsEngine()
-			return CallCFunc($pEngineHandle, "stz_string_size", "i", "p", @pEngine)
-		ok
-		return @content.size()
+		return StkEngineStringSize(@pEngine)
 
 		def Count()
 			return This.Size()
@@ -146,15 +90,11 @@ class stzCoreString from stzCoreObject
 	#--
 
 	def At(n)
-		if This._IsEngine()
-			# mid(n-1, 1) equivalent
-			pMid = CallCFunc($pEngineHandle, "stz_string_mid", "p", "pii", @pEngine, n-1, 1)
-			pData = CallCFunc($pEngineHandle, "stz_string_data", "p", "p", pMid)
-			cResult = copy(pData, 1)
-			CallCFunc($pEngineHandle, "stz_string_free", "v", "p", pMid)
-			return cResult
+		cContent = This.Content()
+		if n > 0 and n <= len(cContent)
+			return cContent[n]
 		ok
-		return @content.mid(n-1, 1)
+		return ""
 
 		def CharAt(n)
 			return This.At(n)
@@ -163,22 +103,11 @@ class stzCoreString from stzCoreObject
 
 	def Append(substr)
 		if substr != ""
-			if This._IsEngine()
-				CallCFunc($pEngineHandle, "stz_string_append", "v", "ppi",
-				          @pEngine, substr, len(substr))
-				return
-			ok
-			@content.append(substr)
+			StkEngineStringAppend(@pEngine, substr)
 		ok
 
 		def Add(substr)
 			This.Append(substr)
-
-	def AppendQChar(q)
-		if This._IsEngine()
-			return
-		ok
-		@content.append_2(q)
 
 	#-- FINDING
 
@@ -186,20 +115,15 @@ class stzCoreString from stzCoreObject
 		if substr = ""
 			return 0
 		ok
-		if This._IsEngine()
-			if bCase = TRUE or bCase = 1
-				nPos = CallCFunc($pEngineHandle, "stz_string_index_of", "i", "ppi",
-				                 @pEngine, substr, len(substr))
-				if nPos >= 0 return nPos + 1 ok
-				return 0
-			ok
-			# Case-insensitive: search in lowered copies
-			cContent = lower(This.Content())
-			cNeedle = lower(substr)
-			nPos = substr(cContent, cNeedle)
-			return nPos
+		if bCase = TRUE or bCase = 1
+			nPos = StkEngineStringIndexOf(@pEngine, substr)
+			if nPos >= 0 return nPos + 1 ok
+			return 0
 		ok
-		return @content.indexOf(substr, 0, bCase) + 1
+		cContent = lower(This.Content())
+		cNeedle = lower(substr)
+		nPos = substr(cContent, cNeedle)
+		return nPos
 
 	def FindFirst(substr)
 		if substr = ""
@@ -213,25 +137,19 @@ class stzCoreString from stzCoreObject
 		if substr = ""
 			return 0
 		ok
-		if This._IsEngine()
-			if bCase = TRUE or bCase = 1
-				nPos = CallCFunc($pEngineHandle, "stz_string_last_index_of", "i", "ppi",
-				                 @pEngine, substr, len(substr))
-				if nPos >= 0 return nPos + 1 ok
-				return 0
-			ok
-			# Case-insensitive fallback
-			cContent = lower(This.Content())
+		cContent = This.Content()
+		cNeedle = substr
+		if bCase = FALSE or bCase = 0
+			cContent = lower(cContent)
 			cNeedle = lower(substr)
-			nResult = 0
-			nPos = substr(cContent, cNeedle)
-			while nPos > 0
-				nResult = nPos
-				nPos = substr(cContent, cNeedle, nPos + 1)
-			end
-			return nResult
 		ok
-		return @content.lastIndexOf(substr, @content.size()-1, bCase) + 1
+		nResult = 0
+		nPos = substr(cContent, cNeedle)
+		while nPos > 0
+			nResult = nPos
+			nPos = substr(cContent, cNeedle, nPos + 1)
+		end
+		return nResult
 
 	def FindLast(substr)
 		if substr = ""
@@ -246,45 +164,21 @@ class stzCoreString from stzCoreObject
 			return [0]
 		ok
 
-		if This._IsEngine()
-			cContent = This.Content()
-			cNeedle = substr
-			if bCase = FALSE or bCase = 0
-				cContent = lower(cContent)
-				cNeedle = lower(substr)
-			ok
-
-			nSize = len(cNeedle)
-			anResult = []
-			nPos = substr(cContent, cNeedle)
-			while nPos > 0
-				anResult + nPos
-				nPos = substr(cContent, cNeedle, nPos + nSize)
-			end
-			return anResult
+		cContent = This.Content()
+		cNeedle = substr
+		if bCase = FALSE or bCase = 0
+			cContent = lower(cContent)
+			cNeedle = lower(substr)
 		ok
 
-		@TempQStr = new QString2()
-		@TempQStr.append(substr)
-		nSize = @TempQStr.size()
-
+		nSize = len(cNeedle)
 		anResult = []
-		bContinue = TRUE
-
-		nPos = 0
-
-	   	while bContinue
-			nPos = @content.indexOf(substr, nPos, bCase)
-			if nPos = -1
-				bContinue = FALSE
-			else
-				anResult + (nPos + 1)
-				nPos = nPos + nSize
-			ok
+		nPos = substr(cContent, cNeedle)
+		while nPos > 0
+			anResult + nPos
+			nPos = substr(cContent, cNeedle, nPos + nSize)
 		end
-
 		return anResult
-
 
 		def FindAllCS(substr, bCase)
 			return This.FindCS(substr, bCase)
@@ -301,39 +195,9 @@ class stzCoreString from stzCoreObject
 		if n < 0 or substr = ""
 			return 0
 		ok
-
-		if This._IsEngine()
-			anAll = This.FindCS(substr, bCase)
-			if n <= len(anAll) return anAll[n] ok
-			return 0
-		ok
-
-		@TempQStr = new QString2()
-		@TempQStr.append(substr)
-		nSize = @TempQStr.size()
-
-		nResult = 0
-		bContinue = TRUE
-
-		nPos = 0
-		nTimes = 0
-
-	   	while bContinue
-			nPos = @content.indexOf(substr, nPos, bCase)
-			if nPos = -1
-				bContinue = FALSE
-			else
-				nTimes++
-				if nTimes = n
-					nResult = nPos + 1
-					exit
-				ok
-
-				nPos = nPos + nSize
-			ok
-		end
-
-		return nResult
+		anAll = This.FindCS(substr, bCase)
+		if n <= len(anAll) return anAll[n] ok
+		return 0
 
 	def FindNth(n, substr)
 		return This.FindNthCS(n, substr, TRUE)
@@ -342,12 +206,9 @@ class stzCoreString from stzCoreObject
 
 	def InsertAt(n, substr)
 		if n > 0 and substr != ""
-			if This._IsEngine()
-				CallCFunc($pEngineHandle, "stz_string_insert", "v", "pipi",
-				          @pEngine, n-1, substr, len(substr))
-				return
-			ok
-			@content.insert(n-1, substr)
+			cContent = This.Content()
+			cNew = left(cContent, n-1) + substr + substr(cContent, n)
+			This.Update(cNew)
 		ok
 
 	#== REPLACING
@@ -363,13 +224,9 @@ class stzCoreString from stzCoreObject
 
 	def ReplaceSection(n1, n2, substr)
 		if n1 > 0 and n2 >= n1 and substr != ""
-			if This._IsEngine()
-				cContent = This.Content()
-				cNew = left(cContent, n1 - 1) + substr + substr(cContent, n2 + 1)
-				This.Update(cNew)
-				return
-			ok
-			@content.replace( n1 - 1, n2 - n1 + 1, substr)
+			cContent = This.Content()
+			cNew = left(cContent, n1 - 1) + substr + substr(cContent, n2 + 1)
+			This.Update(cNew)
 		ok
 
 	#== REMOVING
@@ -384,13 +241,9 @@ class stzCoreString from stzCoreObject
 
 	def RemoveSection(n1, n2)
 		if n1 > 0 and n2 >= n1
-			if This._IsEngine()
-				cContent = This.Content()
-				cNew = left(cContent, n1 - 1) + substr(cContent, n2 + 1)
-				This.Update(cNew)
-				return
-			ok
-			@content.replace(n1 - 1, n2 - n1 + 1, "")
+			cContent = This.Content()
+			cNew = left(cContent, n1 - 1) + substr(cContent, n2 + 1)
+			This.Update(cNew)
 		ok
 
 	#== SPLITTING
@@ -406,17 +259,8 @@ class stzCoreString from stzCoreObject
 
 	def Section(n1, n2)
 		if n1 > 0 and n2 >= n1
-			if This._IsEngine()
-				nLen = n2 - n1 + 1
-				pMid = CallCFunc($pEngineHandle, "stz_string_mid", "p", "pii",
-				                 @pEngine, n1-1, nLen)
-				nSize = CallCFunc($pEngineHandle, "stz_string_size", "i", "p", pMid)
-				pData = CallCFunc($pEngineHandle, "stz_string_data", "p", "p", pMid)
-				cResult = copy(pData, nSize)
-				CallCFunc($pEngineHandle, "stz_string_free", "v", "p", pMid)
-				return cResult
-			ok
-			return @content.mid(n1-1, n2 - n1 + 1)
+			cContent = This.Content()
+			return substr(cContent, n1, n2 - n1 + 1)
 		else
 			raise( 'ERR-' + StkError(:IncorrectParamType) )
 		ok
@@ -427,17 +271,10 @@ class stzCoreString from stzCoreObject
 		if substr = ""
 			return FALSE
 		ok
-
-		if This._IsEngine()
-			if bCase = TRUE or bCase = 1
-				nResult = CallCFunc($pEngineHandle, "stz_string_contains", "i", "ppi",
-				                    @pEngine, substr, len(substr))
-				return nResult = 1
-			ok
-			return substr(lower(This.Content()), lower(substr)) > 0
+		if bCase = TRUE or bCase = 1
+			return StkEngineStringContains(@pEngine, substr) = 1
 		ok
-
-		return @content.contains(substr, bCase)
+		return substr(lower(This.Content()), lower(substr)) > 0
 
 	def Contains(substr)
 		if substr = ""
@@ -451,17 +288,10 @@ class stzCoreString from stzCoreObject
 		if substr = ""
 			return FALSE
 		ok
-
-		if This._IsEngine()
-			if bCase = TRUE or bCase = 1
-				nResult = CallCFunc($pEngineHandle, "stz_string_starts_with", "i", "ppi",
-				                    @pEngine, substr, len(substr))
-				return nResult = 1
-			ok
-			return left(lower(This.Content()), len(substr)) = lower(substr)
+		if bCase = TRUE or bCase = 1
+			return left(This.Content(), len(substr)) = substr
 		ok
-
-		return @content.startsWith(substr, bCase)
+		return left(lower(This.Content()), len(substr)) = lower(substr)
 
 	def StartsWith(substr)
 		if substr = ""
@@ -475,17 +305,10 @@ class stzCoreString from stzCoreObject
 		if substr = ""
 			return FALSE
 		ok
-
-		if This._IsEngine()
-			if bCase = TRUE or bCase = 1
-				nResult = CallCFunc($pEngineHandle, "stz_string_ends_with", "i", "ppi",
-				                    @pEngine, substr, len(substr))
-				return nResult = 1
-			ok
-			return right(lower(This.Content()), len(substr)) = lower(substr)
+		if bCase = TRUE or bCase = 1
+			return right(This.Content(), len(substr)) = substr
 		ok
-
-		return @content.endsWith(substr, bCase)
+		return right(lower(This.Content()), len(substr)) = lower(substr)
 
 	def EndsWith(substr)
 		if substr = ""
@@ -495,31 +318,15 @@ class stzCoreString from stzCoreObject
 
 	#--
 
-	def IsRightToLeft()
-		if This._IsEngine()
-			return FALSE
-		ok
-		return @content.IsRighttoLeft()
-
-	#--
-
 	def Simplify()
 		if This.Content() != ""
-			if This._IsEngine()
-				cContent = This.Content()
-				# Replace multiple whitespace with single space and trim
-				while substr(cContent, "  ") > 0
-					cContent = ring_substr2(cContent, "  ", " ")
-				end
-				This.Update(trim(cContent))
-				return
-			ok
-			cSimplified = @content.simplified()
-			oTempQStr = new QString2()
-			oTempQStr.append(cSimplified)
-
-			@content = oTempQStr
+			cContent = This.Content()
+			while substr(cContent, "  ") > 0
+				cContent = ring_substr2(cContent, "  ", " ")
+			end
+			This.Update(trim(cContent))
 		ok
+
 	#==
 
 	def UnicodeAt(n)
@@ -527,21 +334,11 @@ class stzCoreString from stzCoreObject
 		if cContent = ""
 			raise( "Can't proceed! Because the string is empty." )
 		ok
-
 		if n <= 0
 			raise( 'ERR-' + StkError(:IncorrectParamType) )
 		ok
-
-		if This._IsEngine()
-			cChar = This.CharAt(n)
-			nResult = CallCFunc($pEngineHandle, "stz_char_unicode", "i", "p", cChar)
-			return nResult
-		ok
-
-		oTempQStr = new QString2()
-		oTempQStr.append(This.CharAt(n))
-		nResult = oTempQStr.unicode().unicode()
-		return nResult
+		cChar = This.CharAt(n)
+		return StkEngineCharUnicode(cChar)
 
 		def UnicodeOfCharAt(n)
 			return This.UnicodeAt(n)
@@ -550,9 +347,7 @@ class stzCoreString from stzCoreObject
 		nLen = This.Size()
 		if nLen = 0
 			raise( "Can't proceed! Because the string is empty." )
-
 		ok
-
 		if nLen = 1
 			return This.UnicodeAt(1)
 		else
@@ -563,57 +358,23 @@ class stzCoreString from stzCoreObject
 		nLen = This.Size()
 		if nLen = 0
 			raise( "Can't proceed! Because the string is empty." )
-
 		ok
-
 		anResult = []
-
 		for i = 1 to nLen
 			anResult + This.UnicodeAt(i)
 		next
-
 		return anResult
 
 	def Chars()
 		nLen = This.Size()
 		if nLen = 0
 			raise( "Can't proceed! Because the string is empty." )
-
 		ok
-
 		acResult = []
-
 		for i = 1 to nLen
 			acResult + This.CharAt(i)
 		next
-
 		return acResult
-
-	#==
-
-	def QStringObject()
-		if This._IsEngine()
-			return NULL
-		ok
-		return @content
-
-		def Qt()
-			return This.QStringObject()
-
-	def ToQCharObject(n)
-		if This._IsEngine()
-			return NULL
-		ok
-		return new QChar(This.UnicodeAt(n))
-
-		def ToQChar(n)
-			return This.ToQCharObject(n)
-
-		def QCharObject(n)
-			return This.ToQCharObject(n)
-
-		def QChar(n)
-			return This.ToQCharObject(n)
 
 	#==
 

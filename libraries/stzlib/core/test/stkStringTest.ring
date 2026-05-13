@@ -136,9 +136,6 @@ pr()
 
 o1 = new stkString("بسم الله الرّحمان الرّحيم")
 
-? o1.IsRightToLeft()
-#--> TRUE
-
 ? o1.StartsWith("بسم")
 #--> TRUE
 
@@ -288,37 +285,8 @@ pf()
 
 o1 = new stkString("<<<Ring>>>")
 
-# All what ringQt provides is accessible in stzCoreString using
-# the small Qt() small function
-
-? o1.Qt().left(3)
-#--> "<<<"
-
-? o1.Qt().right(3)
-#--> ">>>"
-
-# In these two cases above (left() and right() functions), there is
-# no need to wrapp them in stzCoreString because they natively
-# offer the same semantics and ease of use of Softanza.
-# ~> Minimalism design principle of SoftanzaCore.
-
-# In the contrary, getting a section is tedious in Qt:
-
-? o1.Qt().mid(3, 4)
-#--> ring
-
-# It also obeys to a 0-based indexing and a totally different
-# design of the params (3 is the start position, which is actually 2,
-# and 4 are the range of chars to take).
-
-# That's why in this case, stzStringCore provides:
-
 ? o1.Section(4, 7)
 #--> "Ring"
-
-# Same for Contains(), which makes not difference in Qt between
-# case-sensitive and non case-sensitive variants, like it is the
-# case in Softanza with the CS() prefix:
 
 ? o1.Contains("Ring")
 #--> TRUE
@@ -327,7 +295,7 @@ o1 = new stkString("<<<Ring>>>")
 #--> TRUE
 
 pf()
-# Executed in 0.403 second(s) in Ring 1.22
+# Executed in 0.001 second(s)
 
 /*---
 
@@ -348,29 +316,15 @@ pf()
 
 pr()
 
-# Some Qt QString constructs go against the programming experience
-# we want to offer in Sofantza.
-
-# For example, if you want to get the unicode of the char "R",
-# using QString, you must write:
+# The Engine provides direct unicode access without Qt:
 
 o1 = new stkString("R")
-? o1.Qt().unicode().unicode()
+? o1.Unicode()
 #--> 82
-
-# That's why we offer a more natural option in stzCoreString:
-
-? o1.Unicode() + NL
-#--> 82
-
-# SoftanzaCore will also help you getting the unicodes of all
-# the chars of a string:
 
 o1 = new stkString("Ring")
 ? o1.Unicodes()
 #--> [ 82, 105, 110, 103 ]
-
-# which is, of course, unailable in Qt String.
 
 pf()
 # Executed in 0.001 second(s) in Ring 1.22
@@ -379,27 +333,18 @@ pf()
 */
 pr()
 
-# stzCoreString has a useful bridge to stzCoreChar, so you can
-# start from a string (based on Qt QString class), then continue
-# your exploration with a stzCoreChar (based on Qt QChar class):
-
+# stzCoreString bridges naturally to stzCoreChar via the Engine:
 
 o1 = new stzCoreString("輪")
 ? o1.Unicode()
 #--> 36650
 
-? classname( o1.ToQChar(1) )
-#--> qchar
-
-# If you master how Qt QChar works, then you can directly use it.
-# Otherwise, if you prefer a Softanza experience, use the
-# stzCoreChar class, like this:
-
 o2 = new stkChar( o1.Content() )
 ? o2.Content()
 #--> 輪
 
-# Discover other features of stzCoreChar in "../core/test/stkChar.ring"
+? o2.Unicode()
+#--> 36650
 
 pf()
-# Executed in 0.001 second(s) in Ring 1.22
+# Executed in 0.001 second(s)
