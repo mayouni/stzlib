@@ -113,27 +113,54 @@
 - 40 Engine tests passing
 - 1 CLI test passing
 
+### Strategic Repositioning: Zing
+
+At the end of Session 2, the project was repositioned. What we
+built is not "Softanza + an engine helper." It is **Zing** -- a
+self-contained programming platform. Key decisions:
+
+- **Zing is the product.** CLI becomes `zing` (not `softanza`).
+- **Qt is removed entirely.** Not optional -- gone. Engine is the
+  only code path. All `if _IsEngine()` branches become the default.
+- **No Ring ecosystem.** Zing programs cannot load Ring libraries.
+  They use the Zing stdlib (descended from Softanza) and nothing else.
+- **Softanza is the paradigm name.** The coding style, principles,
+  innovations. Zing is where Softanza runs.
+- **Six output types:** notebook, exe, library, API, WASM, MCU.
+- **Zing IDE:** native Zig, notebook-first, narration-aware.
+- **Zin relationship deferred.** Zing stands alone. The Zin
+  connection is architectural, discussed after Zing has identity.
+
+See: `base/doc/design/ZING_PRODUCT_VISION.md`
+
 ## Phase 4 Plan (Next Session)
 
-### WS-5: Wire Base Layer to Engine
+### 1. Rename and Purge Qt
+1. Rename CLI from `softanza` to `zing` (cli/src/main.zig)
+2. Remove ALL Qt fallback paths from stkString.ring, stkChar.ring
+3. Remove `load "qtcore.ring"` from stkRingLibs.ring entirely
+4. Remove `$STZ_ENGINE_LOADED` checks -- Engine is always loaded
+5. Remove `_IsEngine()` method and all Qt branches from Core classes
+
+### 2. Wire Base Layer (Qt-free)
 1. Modify `base/string/stzString.ring`: replace `new QString2()` calls
    with Engine calls (3969 methods, ~300 Qt calls -- largest file)
 2. Modify `base/datetime/stzDateTime.ring`: replace QDateTime calls
 3. Modify `base/file/stzFile.ring` + `stzFolder.ring`: replace QFile/QDir
 4. Modify `base/i18n/stzLocale.ring`: replace QLocale calls
-5. Goal: Base layer works with Engine; Qt becomes optional
+5. Goal: ZERO Qt references in the entire codebase
 
-### WS-6b: CLI Test Runner
-1. Wire `softanza test` to actually run Ring test files
-2. Add timing, color output, summary statistics
-3. Support `--filter` for selective test runs
+### 3. Engine Tier 3
+1. `engine/src/regex.zig`: pattern matching
+2. `engine/src/json.zig`: JSON parse/generate
+3. `engine/src/http.zig`: native HTTP server for `zing serve`
 
-### WS-9: Engine Tier 3
-1. `engine/src/regex.zig`: replaces QRegExp (1 call, but useful)
-2. `engine/src/json.zig`: replaces QJson* (~5 calls)
-3. `engine/src/variant.zig`: replaces QVariant (42 calls)
+### 4. CLI Completion
+1. Rename all commands to `zing run/test/build/serve/version/doctor`
+2. Test runner: discover and run narrated test files
+3. `zing serve`: start native HTTP server for API mode
 
-### WS-10: Zing Bridge Implementation
-1. Add Engine as build dependency in Zin's build.zig
-2. Wire Zxt pillar to use Engine string functions
-3. Test: `zin build` works with Engine linked
+### 5. Zing Identity (deferred to after implementation)
+1. Think broadly about Zing-Zin relationship
+2. Consider stdlib scope decisions
+3. Plan the IDE architecture in detail
