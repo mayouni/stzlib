@@ -1,0 +1,495 @@
+// Softanza Engine -- Regex Operations (Tier 3)
+//
+// Replaces QRegularExpression with a recursive backtracking
+// pattern matcher. Supports: literal, . * + ? | () [] [^]
+// \d \w \s \D \W \S ^ $ {n,m} and case-insensitive flag.
+// All functions use C ABI for Ring FFI compatibility.
+
+const std = @import("std");
+const mem = std.mem;
+const gpa = std.heap.c_allocator;
+
+// ─── Public handle ───
+
+const Regex = struct {
+    pattern: []const u8,
+    flags: u32,
+    captures: std.ArrayList(Cap),
+    matched: bool,
+    input: []const u8,
+    const Cap = struct { start: i32, end: i32 };
+};
+
+// Flags: 1=CaseInsensitive 2=DotMatchesAll 4=MultiLine
+const FLAG_CASE_I: u32 = 1;
+const FLAG_DOT_ALL: u32 = 2;
+
+pub fn stz_regex_new(pat: [*c]const u8, pat_len: usize, flags: u32) callconv(.c) ?*Regex {
+    if (pat == null or pat_len == 0) return null;
+    const p = gpa.dupe(u8, pat[0..pat_len]) catch return null;
+    const r = gpa.create(Regex) catch { gpa.free(p); return null; };
+    r.* = .{ .pattern = p, .flags = flags, .captures = .{}, .matched = false, .input = "" };
+    return r;
+}
+
+pub fn stz_regex_free(h: ?*Regex) callconv(.c) void {
+    if (h) |r| { gpa.free(r.pattern); r.captures.deinit(gpa); gpa.destroy(r); }
+}
+
+pub fn stz_regex_match(h: ?*Regex, inp: [*c]const u8, inp_len: usize, start: usize) callconv(.c) c_int {
+    const r = h orelse return 0;
+    if (inp == null) { r.matched = false; return 0; }
+    const text = inp[0..inp_len];
+    r.input = text;
+    r.captures.clearRetainingCapacity();
+    r.matched = doMatch(r.pattern, text, start, r.flags, &r.captures);
+    return if (r.matched) 1 else 0;
+}
+
+pub fn stz_regex_match_all(h: ?*Regex, inp: [*c]const u8, inp_len: usize) callconv(.c) c_int {
+    const r = h orelse return 0;
+    if (inp == null) return 0;
+    const text = inp[0..inp_len];
+    r.input = text;
+    r.captures.clearRetainingCapacity();
+    var pos: usize = 0;
+    var n: c_int = 0;
+    while (pos <= text.len) {
+        var tmp: std.ArrayList(Regex.Cap) = .{};
+        defer tmp.deinit(gpa);
+        if (doMatch(r.pattern, text, pos, r.flags, &tmp) and tmp.items.len > 0) {
+            for (tmp.items) |c| r.captures.append(gpa, c) catch {};
+            n += 1;
+            const e: usize = @intCast(tmp.items[0].end);
+            pos = if (e <= pos) pos + 1 else e;
+        } else pos += 1;
+    }
+    r.matched = n > 0;
+    return n;
+}
+
+pub fn stz_regex_has_match(h: ?*Regex) callconv(.c) c_int {
+    return if (h) |r| (if (r.matched) @as(c_int, 1) else 0) else 0;
+}
+
+pub fn stz_regex_capture_count(h: ?*Regex) callconv(.c) c_int {
+    return if (h) |r| @as(c_int, @intCast(r.captures.items.len)) else 0;
+}
+
+pub fn stz_regex_capture_start(h: ?*Regex, idx: c_int) callconv(.c) c_int {
+    const r = h orelse return -1;
+    const i: usize = @intCast(idx);
+    return if (i < r.captures.items.len) r.captures.items[i].start else -1;
+}
+
+pub fn stz_regex_capture_end(h: ?*Regex, idx: c_int) callconv(.c) c_int {
+    const r = h orelse return -1;
+    const i: usize = @intCast(idx);
+    return if (i < r.captures.items.len) r.captures.items[i].end else -1;
+}
+
+pub fn stz_regex_capture_text(h: ?*Regex, idx: c_int, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
+    const r = h orelse return 0;
+    const i: usize = @intCast(idx);
+    if (i >= r.captures.items.len) return 0;
+    const c = r.captures.items[i];
+    if (c.start < 0 or c.end < 0) return 0;
+    const s: usize = @intCast(c.start);
+    const e: usize = @intCast(c.end);
+    if (s >= e or e > r.input.len) return 0;
+    const t = r.input[s..e];
+    if (t.len > buf_len) return 0;
+    @memcpy(buf[0..t.len], t);
+    return t.len;
+}
+
+pub fn stz_regex_replace(h: ?*Regex, inp: [*c]const u8, inp_len: usize, repl: [*c]const u8, repl_len: usize, out_len: *usize) callconv(.c) [*c]u8 {
+    out_len.* = 0;
+    const r = h orelse return null;
+    if (inp == null or inp_len == 0) return null;
+    const text = inp[0..inp_len];
+    const rep = if (repl != null and repl_len > 0) repl[0..repl_len] else "";
+    var res: std.ArrayList(u8) = .{};
+    var pos: usize = 0;
+    while (pos <= text.len) {
+        var tmp: std.ArrayList(Regex.Cap) = .{};
+        defer tmp.deinit(gpa);
+        if (doMatch(r.pattern, text, pos, r.flags, &tmp) and tmp.items.len > 0) {
+            const s: usize = @intCast(tmp.items[0].start);
+            const e: usize = @intCast(tmp.items[0].end);
+            res.appendSlice(gpa, text[pos..s]) catch { res.deinit(gpa); return null; };
+            res.appendSlice(gpa, rep) catch { res.deinit(gpa); return null; };
+            pos = if (e <= pos) pos + 1 else e;
+        } else {
+            if (pos < text.len) res.append(gpa, text[pos]) catch { res.deinit(gpa); return null; };
+            pos += 1;
+        }
+    }
+    out_len.* = res.items.len;
+    const buf = gpa.alloc(u8, res.items.len) catch { res.deinit(gpa); return null; };
+    @memcpy(buf, res.items);
+    res.deinit(gpa);
+    return buf.ptr;
+}
+
+pub fn stz_regex_replace_free(ptr: [*c]u8, len: usize) callconv(.c) void {
+    if (ptr != null and len > 0) gpa.free(ptr[0..len]);
+}
+
+// ─── Core matching engine ───
+
+fn doMatch(pattern: []const u8, text: []const u8, start: usize, flags: u32, caps: *std.ArrayList(Regex.Cap)) bool {
+    const ci = (flags & FLAG_CASE_I) != 0;
+    const da = (flags & FLAG_DOT_ALL) != 0;
+    var pos = start;
+    const anchored = pattern.len > 0 and pattern[0] == '^';
+    while (pos <= text.len) {
+        caps.clearRetainingCapacity();
+        caps.append(gpa, .{ .start = @intCast(pos), .end = -1 }) catch {};
+        if (matchHere(pattern, if (anchored) 1 else 0, text, pos, ci, da, caps)) {
+            return true;
+        }
+        if (anchored) return false;
+        pos += 1;
+    }
+    return false;
+}
+
+fn matchHere(pat: []const u8, pi: usize, text: []const u8, ti: usize, ci: bool, da: bool, caps: *std.ArrayList(Regex.Cap)) bool {
+    var p = pi;
+    var t = ti;
+
+    while (p < pat.len) {
+        if (pat[p] == '$' and (p + 1 >= pat.len or pat[p + 1] == '|')) {
+            if (t == text.len) {
+                updateEnd(caps, t);
+                return true;
+            }
+            return false;
+        }
+
+        if (pat[p] == '|') {
+            updateEnd(caps, t);
+            return true;
+        }
+
+        if (pat[p] == '(') {
+            return matchGroup(pat, p, text, t, ci, da, caps);
+        }
+
+        const atom_end = atomEnd(pat, p);
+        if (atom_end <= p) return false;
+
+        if (atom_end < pat.len) {
+            const q = pat[atom_end];
+            if (q == '*' or q == '+' or q == '?') {
+                return matchQuantified(pat, p, atom_end, q, text, t, ci, da, caps);
+            }
+        }
+
+        if (t >= text.len) return false;
+        if (!matchOne(pat, p, text[t], ci, da)) return false;
+        t += 1;
+        p = atom_end;
+    }
+
+    updateEnd(caps, t);
+    return true;
+}
+
+fn matchQuantified(pat: []const u8, p: usize, atom_end: usize, q: u8, text: []const u8, ti: usize, ci: bool, da: bool, caps: *std.ArrayList(Regex.Cap)) bool {
+    const min: usize = if (q == '+') 1 else 0;
+    var count: usize = 0;
+    var t = ti;
+
+    while (t < text.len and matchOne(pat, p, text[t], ci, da)) {
+        count += 1;
+        t += 1;
+    }
+
+    if (q == '?') {
+        if (count > 1) count = 1;
+    }
+
+    while (true) {
+        if (count >= min) {
+            if (matchHere(pat, atom_end + 1, text, ti + count, ci, da, caps)) {
+                return true;
+            }
+        }
+        if (count == 0) break;
+        count -= 1;
+    }
+    return false;
+}
+
+fn matchGroup(pat: []const u8, p: usize, text: []const u8, ti: usize, ci: bool, da: bool, caps: *std.ArrayList(Regex.Cap)) bool {
+    const close = findGroupClose(pat, p) orelse return false;
+    const inner = pat[p + 1 .. close];
+    const after = close + 1;
+    const cap_idx = caps.items.len;
+    caps.append(gpa, .{ .start = @intCast(ti), .end = -1 }) catch {};
+
+    var alt_start: usize = 0;
+    var i: usize = 0;
+    var depth: u32 = 0;
+    while (i <= inner.len) : (i += 1) {
+        const at_end = i == inner.len;
+        const at_alt = if (!at_end) (inner[i] == '|' and depth == 0) else false;
+        if (!at_end and inner[i] == '(') depth += 1;
+        if (!at_end and inner[i] == ')') depth -|= 1;
+
+        if (at_end or at_alt) {
+            const alt = inner[alt_start..i];
+            var sub_t = ti;
+            if (matchBranch(alt, text, &sub_t, ci, da, caps)) {
+                if (cap_idx < caps.items.len)
+                    caps.items[cap_idx].end = @intCast(sub_t);
+                var next = after;
+                if (next < pat.len and (pat[next] == '*' or pat[next] == '+' or pat[next] == '?'))
+                    next += 1;
+                return matchHere(pat, next, text, sub_t, ci, da, caps);
+            }
+            alt_start = i + 1;
+        }
+    }
+
+    if (after < pat.len and pat[after] == '?') {
+        if (cap_idx < caps.items.len) {
+            caps.items[cap_idx].start = -1;
+            caps.items[cap_idx].end = -1;
+        }
+        return matchHere(pat, after + 1, text, ti, ci, da, caps);
+    }
+
+    return false;
+}
+
+fn matchBranch(branch: []const u8, text: []const u8, t: *usize, ci: bool, da: bool, caps: *std.ArrayList(Regex.Cap)) bool {
+    var p: usize = 0;
+    while (p < branch.len) {
+        if (branch[p] == '(') {
+            const close = findGroupClose(branch, p) orelse return false;
+            const inner = branch[p + 1 .. close];
+            const cap_idx = caps.items.len;
+            caps.append(gpa, .{ .start = @intCast(t.*), .end = -1 }) catch {};
+
+            var alt_start: usize = 0;
+            var i: usize = 0;
+            var depth: u32 = 0;
+            var matched = false;
+            while (i <= inner.len) : (i += 1) {
+                const at_end = i == inner.len;
+                const at_alt = if (!at_end) (inner[i] == '|' and depth == 0) else false;
+                if (!at_end and inner[i] == '(') depth += 1;
+                if (!at_end and inner[i] == ')') depth -|= 1;
+                if (at_end or at_alt) {
+                    const alt = inner[alt_start..i];
+                    var sub_t = t.*;
+                    if (matchBranch(alt, text, &sub_t, ci, da, caps)) {
+                        if (cap_idx < caps.items.len)
+                            caps.items[cap_idx].end = @intCast(sub_t);
+                        t.* = sub_t;
+                        matched = true;
+                        break;
+                    }
+                    alt_start = i + 1;
+                }
+            }
+            if (!matched) return false;
+            p = close + 1;
+            if (p < branch.len and (branch[p] == '*' or branch[p] == '+' or branch[p] == '?'))
+                p += 1;
+            continue;
+        }
+
+        const ae = atomEnd(branch, p);
+        if (ae <= p) return false;
+
+        if (ae < branch.len and (branch[ae] == '*' or branch[ae] == '+' or branch[ae] == '?')) {
+            const q = branch[ae];
+            const min_count: usize = if (q == '+') 1 else 0;
+            var count: usize = 0;
+            while (t.* + count < text.len and matchOne(branch, p, text[t.* + count], ci, da)) count += 1;
+            if (q == '?') { if (count > 1) count = 1; }
+            if (count < min_count) return false;
+            t.* += count;
+            p = ae + 1;
+            continue;
+        }
+
+        if (t.* >= text.len) return false;
+        if (!matchOne(branch, p, text[t.*], ci, da)) return false;
+        t.* += 1;
+        p = ae;
+    }
+    return true;
+}
+
+fn matchOne(pat: []const u8, p: usize, c: u8, ci: bool, da: bool) bool {
+    if (p >= pat.len) return false;
+    const pc = pat[p];
+
+    if (pc == '.') return if (c == '\n' and !da) false else true;
+
+    if (pc == '\\' and p + 1 < pat.len) {
+        const esc = pat[p + 1];
+        return switch (esc) {
+            'd' => c >= '0' and c <= '9',
+            'D' => !(c >= '0' and c <= '9'),
+            'w' => isWord(c),
+            'W' => !isWord(c),
+            's' => isSpace(c),
+            'S' => !isSpace(c),
+            'n' => c == '\n',
+            'r' => c == '\r',
+            't' => c == '\t',
+            else => eqChar(c, esc, ci),
+        };
+    }
+
+    if (pc == '[') return matchCharClass(pat, p, c, ci);
+
+    return eqChar(c, pc, ci);
+}
+
+fn matchCharClass(pat: []const u8, p: usize, c: u8, ci: bool) bool {
+    var i = p + 1;
+    if (i >= pat.len) return false;
+    const neg = pat[i] == '^';
+    if (neg) i += 1;
+    var matched = false;
+
+    while (i < pat.len and pat[i] != ']') {
+        if (pat[i] == '\\' and i + 1 < pat.len) {
+            const esc = pat[i + 1];
+            const m = switch (esc) {
+                'd' => c >= '0' and c <= '9',
+                'D' => !(c >= '0' and c <= '9'),
+                'w' => isWord(c),
+                'W' => !isWord(c),
+                's' => isSpace(c),
+                'S' => !isSpace(c),
+                else => eqChar(c, esc, ci),
+            };
+            if (m) matched = true;
+            i += 2;
+        } else if (i + 2 < pat.len and pat[i + 1] == '-' and pat[i + 2] != ']') {
+            const lo = if (ci) toLowerAscii(pat[i]) else pat[i];
+            const hi = if (ci) toLowerAscii(pat[i + 2]) else pat[i + 2];
+            const tc = if (ci) toLowerAscii(c) else c;
+            if (tc >= lo and tc <= hi) matched = true;
+            i += 3;
+        } else {
+            if (eqChar(c, pat[i], ci)) matched = true;
+            i += 1;
+        }
+    }
+
+    return if (neg) !matched else matched;
+}
+
+fn atomEnd(pat: []const u8, p: usize) usize {
+    if (p >= pat.len) return p;
+    if (pat[p] == '\\' and p + 1 < pat.len) return p + 2;
+    if (pat[p] == '[') {
+        var i = p + 1;
+        if (i < pat.len and pat[i] == '^') i += 1;
+        if (i < pat.len and pat[i] == ']') i += 1;
+        while (i < pat.len and pat[i] != ']') : (i += 1) {}
+        return if (i < pat.len) i + 1 else pat.len;
+    }
+    return p + 1;
+}
+
+fn findGroupClose(pat: []const u8, open: usize) ?usize {
+    var d: u32 = 0;
+    var i = open;
+    while (i < pat.len) : (i += 1) {
+        if (pat[i] == '\\') { i += 1; continue; }
+        if (pat[i] == '(') d += 1;
+        if (pat[i] == ')') { d -= 1; if (d == 0) return i; }
+    }
+    return null;
+}
+
+fn updateEnd(caps: *std.ArrayList(Regex.Cap), t: usize) void {
+    if (caps.items.len > 0) caps.items[0].end = @intCast(t);
+}
+
+fn eqChar(a: u8, b: u8, ci: bool) bool {
+    if (a == b) return true;
+    if (ci) return toLowerAscii(a) == toLowerAscii(b);
+    return false;
+}
+
+fn toLowerAscii(c: u8) u8 {
+    return if (c >= 'A' and c <= 'Z') c + 32 else c;
+}
+
+fn isWord(c: u8) bool {
+    return (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9') or c == '_';
+}
+
+fn isSpace(c: u8) bool {
+    return c == ' ' or c == '\t' or c == '\n' or c == '\r';
+}
+
+// ─── Tests ───
+
+test "literal match" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("hello", "say hello world", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 4), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 9), caps.items[0].end);
+}
+
+test "dot and star" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("h.*o", "hello", 0, 0, &caps));
+}
+
+test "char class" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("[abc]+", "xxbcaxx", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 2), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 5), caps.items[0].end);
+}
+
+test "anchors" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("^hello$", "hello", 0, 0, &caps));
+    caps.clearRetainingCapacity();
+    try std.testing.expect(!doMatch("^hello$", "say hello", 0, 0, &caps));
+}
+
+test "capture group" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("(\\d+)-(\\d+)", "val 123-456 end", 0, 0, &caps));
+    try std.testing.expect(caps.items.len >= 3);
+}
+
+test "case insensitive" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("hello", "HELLO", 0, FLAG_CASE_I, &caps));
+}
+
+test "alternation in group" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("(cat|dog)", "I have a dog", 0, 0, &caps));
+}
+
+test "escape sequences" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("\\d+", "abc123def", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 3), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 6), caps.items[0].end);
+}

@@ -19,6 +19,11 @@ const base_domains = [_]Domain{
     .{ .name = "stz_datetime", .entry = "src/stz_datetime_entry.zig" },
     .{ .name = "stz_file", .entry = "src/stz_file_entry.zig" },
     .{ .name = "stz_locale", .entry = "src/stz_locale_entry.zig" },
+    .{ .name = "stz_regex", .entry = "src/stz_regex_entry.zig" },
+    .{ .name = "stz_bytes", .entry = "src/stz_bytes_entry.zig" },
+    .{ .name = "stz_json", .entry = "src/stz_json_entry.zig" },
+    .{ .name = "stz_url", .entry = "src/stz_url_entry.zig" },
+    .{ .name = "stz_system", .entry = "src/stz_system_entry.zig" },
 };
 
 pub fn build(b: *std.Build) void {

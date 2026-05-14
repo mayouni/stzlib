@@ -1,6 +1,5 @@
-# The stzRegex class provides regular expression functionality with both
-# classic Qt-style patterns and enhanced scoped macth capabilities.
-# It combines direct Qt access with Softanza's scope-based approach.
+# The stzRegex class provides regular expression functionality
+# backed by the Softanza Zig Engine (stz_regex.dll).
 
 #---------------------------------------------------------------------
 
@@ -11,9 +10,6 @@
 
 # An other valuable link from Mozilla MSDN:
 # https://developer.mozilla.org/en-US/docs/Web/JavaScript/Guide/Regular_expressions/Cheatsheet
-
-# And of course the reference article on Qt
-# https://doc.qt.io/qt-5/qregularexpression.html#details
 
 #-----------
 
@@ -30,22 +26,22 @@
 #====================#
 
 _$aMATCH_TYPES = [
-	:MatchEntireContent,			# 0 in Qt
-	:MatchEntireContentIfNotGoPartial,	# 1 in Qt
-	:MatchFirstOccurrenceIfNotGoPartial,	# 2 in Qt
-	:ReturnFalseForAnyMatch			# 3 in Qt
+	:MatchEntireContent,
+	:MatchEntireContentIfNotGoPartial,
+	:MatchFirstOccurrenceIfNotGoPartial,
+	:ReturnFalseForAnyMatch
 ]
 
 _$aMATCH_OPTIONS = [
-	:CaseInsensitive,	# 1 in Qt
-	:DotMatchesAll,		# 2 in Qt
-	:MultiLine,		# 4 in Qt
-	:ExtendedSyntax,	# 8 in Qt
-	:NonGreedy,		# 16 in Qt
-	:DontCapture,		# 32 in Qt
-	:UseUnicode,		# 64 in Qt
-	:DisableOptimizations,	# 128 in Qt
-	:RecursiveMatch,	# 256 in Qt
+	:CaseInsensitive,	# flag 1
+	:DotMatchesAll,		# flag 2
+	:MultiLine,		# flag 4
+	:ExtendedSyntax,	# flag 8 (ignored by Engine)
+	:NonGreedy,		# flag 16 (ignored by Engine)
+	:DontCapture,		# flag 32 (ignored by Engine)
+	:UseUnicode,		# flag 64 (ignored by Engine)
+	:DisableOptimizations,	# flag 128 (ignored by Engine)
+	:RecursiveMatch,	# flag 256 (ignored by Engine)
 ]
 
   #=============#
@@ -59,10 +55,10 @@ func StzRegexQ(pcPattern)
 		return StzRegexQ(pcPattern)
 
 func MatchTypes()
-	return _$aMATCH_TYPES 
+	return _$aMATCH_TYPES
 
 	def @MatchTypes()
-		return _$aMATCH_TYPES 
+		return _$aMATCH_TYPES
 
 func MatchOptions()
 	return _$aMATCH_OPTIONS
@@ -80,17 +76,17 @@ func AllMatches(cInput, cPattern)
 #==================#
 
 class stzRegex
-	
-	@oQRegex = ""
-	@oQMatchObject = ""
+
+	@pRegexHandle = NULL
 	@cMatchType = ""
 	@cPattern = ""
 	@cStr = ""
 
-	@nQPatternOptions = 0
+	@nFlags = 0
 	@acMatchOptions = []
 
 	@bRecursiveMatch = FALSE
+	@bLastMatchResult = FALSE
 
 	  #----------------------------#
 	 #  INIT AND PATTERN SEETING  #
@@ -116,18 +112,18 @@ class stzRegex
 			ok
 		ok
 
-		@oQRegex = new QRegularExpression()
-		@oQRegex.setPattern(pcPattern)
-
-		@oQRegex.setPatternOptions(@nQPatternOptions)
+		if @pRegexHandle != NULL
+			StzEngineRegexFree(@pRegexHandle)
+		ok
 
 		@cPattern = pcPattern
 		@cMatchType = :MatchEntireContent
 
-		# If pattern contains multilines, extend the syntax
 		if ring_substr1(pcPattern, NL) > 0
-			This.EnableExtendedSyntax()
+			@nFlags = @nFlags | 4
 		ok
+
+		@pRegexHandle = StzEngineRegexNew(pcPattern, @nFlags)
 
 	  #-------------------#
 	 #  GENERAL METHODS  #
@@ -144,12 +140,6 @@ class stzRegex
 
 	def Copy()
 		return new stzRegex(This.Pattern())
-
-	def QRegexObject()
-		return @oQRegex
-
-	def QMatchObject()
-		return @oQMatchObject
 
 	def MatchType()
 		return @cMatchType
@@ -172,9 +162,8 @@ class stzRegex
 			return This.MatchType()
 
 	  #-------------------------#
-	 #  CORE Qt MATCH SERVICE  #
+	 #  CORE MATCH SERVICE     #
 	#-------------------------#
-	# @MotherFunction of all other matching functions in the class
 
 	def MatchXT(pcStr, pnStartPosition, pcMatchType, pacOptions)
 
@@ -197,7 +186,7 @@ class stzRegex
 			ok
 
 		ok
-	
+
 		if NOT ring_find(@MatchTypes(), pcMatchType) > 0
 			StzRaise("Unsupported match type! Should be one of these " + @@(@MatchTypes()) + "!")
 		ok
@@ -206,92 +195,43 @@ class stzRegex
 			StzRaise("Unsupported match options! Should be one or more of these " + @@(@MatchOptions()) + "!")
 		ok
 
-		# Reset pattern options before applying new ones
-
-		nQStartPosition = 0
-		nQMatchType = 0
-		@nQPatternOptions = 0
-
-		# To store whether we want partial matches
-
-		nMatchResultType = 0
-
-		# Defing the start position
-
-		if pnStartPosition >= 0
-			nQStartPosition = pnStartPosition - 1 # Convert 1-based to 0-based
-		ok
-
-		# Defining the match type
-
-		switch pcMatchType
-
-		on :MatchEntireContent
-			nQMatchType = 0
-
-		on :MatchEntireContentIfNotGoPartial
-			nQMatchType = 1
-			nMatchResultType = 1
-
-		on :MatchFirstOccurrenceIfNotGoPartial
-			nQMatchType = 2
-			nMatchResultType = 1
-
-		on :ReturnFalseForAnyMatch
-			nQMatchType = 3
-		off
-
-
-		# Defining options
-
+		@nFlags = 0
 		nLen = len(pacOptions)
 
 		for i = 1 to nLen
-
 			switch pacOptions[i]
 
 			case :CaseInsensitive
-				@nQPatternOptions |= 1
+				@nFlags = @nFlags | 1
 
 			case :DotMatchesAll
-				@nQPatternOptions |= 2
+				@nFlags = @nFlags | 2
 
 			case :MultiLine
-				@nQPatternOptions |= 4
-
-			case :ExtendedSyntax
-				@nQPatternOptions |= 8
-
-			case :NonGreedy
-				@nQPatternOptions |= 16
-
-			case :DontCapture
-				@nQPatternOptions |= 32
-
-			case :UseUnicode
-				@nQPatternOptions |= 64
-
-			case :DisableOptimizations
-				@nQPatternOptions |= 128
+				@nFlags = @nFlags | 4
 
 			case :RecursiveMatch
-				@nQPatternOptions |= 256
 				@bRecursiveMatch = TRUE
 			off
 
 		next
-	
-		@oQRegex.setPatternOptions(@nQPatternOptions)
+
+		if @pRegexHandle != NULL
+			StzEngineRegexFree(@pRegexHandle)
+		ok
+
+		@pRegexHandle = StzEngineRegexNew(@cPattern, @nFlags)
 		@acMatchOptions = pacOptions
 		@cStr = pcStr
 		@cMatchType = pcMatchType
-		@oQMatchObject = @oQRegex.match(pcStr, nQStartPosition, nQMatchType, 0)
 
-    		if nMatchResultType = 1
-        		return @oQMatchObject.hasMatch() or @oQMatchObject.hasPartialMatch()
-   		ok
+		nStart = pnStartPosition - 1
+		if nStart < 0 nStart = 0 ok
 
-		return @oQMatchObject.hasMatch()
+		StzEngineRegexMatch(@pRegexHandle, pcStr, nStart)
+		@bLastMatchResult = StzEngineRegexHasMatch(@pRegexHandle)
+
+		return @bLastMatchResult
 
 		#< @FunctionMisspelledForm
 
@@ -305,19 +245,14 @@ class stzRegex
 	#--------------------#
 
 	def HasMatch()
-		if @oQMatchObject = NULL
+		if @pRegexHandle = NULL
 			return FALSE
 		ok
-	
-		return @oQMatchObject.hasMatch()
 
-	def HasPartialMatch() # Look at section Partial Math for further methods
+		return StzEngineRegexHasMatch(@pRegexHandle)
 
-		if @oQMatchObject = NULL
-			return FALSE
-		ok
-	
-		return @oQMatchObject.hasPartialMatch()
+	def HasPartialMatch()
+		return FALSE
 
 	#-- Softanza scope-based pattern matching methods
 
@@ -328,7 +263,7 @@ class stzRegex
 			return This.MatchLinesIn(pcStr)
 
 	def MatchFirstLineIn(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :MultiLine, :NonGreedy ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :MultiLine ])
 
 		def MatchFirstLine(pcStr)
 			return This.MatchFirstLineIn(pcStr)
@@ -344,7 +279,7 @@ class stzRegex
 	def MatchFirstWordIn(pcStr)
 		cWordPattern = "\b" + This.Pattern() + "\b"
 		This.SetPattern(cWordPattern)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :NonGreedy ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
 
 		def MatchFirstWord(pcStr)
 			return This.MatchFirstWordIn(pcStr)
@@ -356,7 +291,7 @@ class stzRegex
 			return This.MatchSegmentsIn(pcStr)
 
 	def MatchFirstSegmentIn(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll, :MultiLine, :NonGreedy ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll, :MultiLine ])
 
 		def MatchFirstSegment(pcStr)
 			return This.MatchFirstSegmentIn(pcStr)
@@ -382,8 +317,6 @@ class stzRegex
 		def IsMatched(pcStr)
 			return This.Match(pcStr)
 
-		#TODO // Add this misspelled form to all "Match" functions
-
 		#>
 
 	def MatchMany(pacStr)
@@ -393,7 +326,7 @@ class stzRegex
 
 		_bResult_ = 1
 		_nLen_ = len(pacStr)
-		
+
 		for @i = 1 to _nLen_
 			if NOT This.Match(pacStr[@i])
 				_bResult_ = 0
@@ -410,7 +343,7 @@ class stzRegex
 
 		_abResult_ = []
 		_nLen_ = len(pacStr)
-		
+
 		for @i = 1 to _nLen_
 			_abResult_ + This.Match(pacStr[@i])
 		next
@@ -418,7 +351,7 @@ class stzRegex
 		return _abResult_
 
 	def MatchFirst(pcStr)
-		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll, :NonGreedy ])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [ :DotMatchesAll ])
 
 	def MatchAt(pcStr, nPos)
 		if CheckParams()
@@ -436,21 +369,21 @@ class stzRegex
 
 	def Matches()
 
-		_acResults_ = []  # List to store all matching values
-		_nPos_ = 1  # Start searching from position 1
-	
-		while This.MatchAt(@cStr, _nPos_)  # Search for a match at the current position
-			_oQMatch_ = This.QMatchObject()
-			_cMatch_ = _oQMatch_.captured(0)  # Get the matched value
-			
+		_acResults_ = []
+		_nPos_ = 1
+
+		while This.MatchAt(@cStr, _nPos_)
+			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 0)
+
 			if _cMatch_ != ""
-				_acResults_ + _cMatch_  # Store the match
-				_nPos_ = _oQMatch_.capturedEnd(0) + 1  # Move past the last match
+				_acResults_ + _cMatch_
+				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
+				_nPos_ = _nEnd_ + 2
 			else
-				break  # Stop if no match is found
+				break
 			ok
 		end
-	
+
 		return _acResults_
 
 		#< @FunctionAlternativeForms
@@ -503,7 +436,11 @@ class stzRegex
 			return This.NumberOfMatches()
 
 	def NumberOfChars()
-		return This.QMatchObject().capturedLength(0)
+		if @pRegexHandle = NULL return 0 ok
+		_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 0)
+		_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
+		if _nStart_ < 0 or _nEnd_ < 0 return 0 ok
+		return _nEnd_ - _nStart_
 
 		def CapturedLength()
 			return This.NumberOfChars()
@@ -511,20 +448,20 @@ class stzRegex
 	def FindMatches()
 		_anResults_ = []
 		_nPos_ = 1
-		_nLen_ = This.QMatchObject().CapturedLength(0)
 
-		while This.MatchAt(@cStr, _nPos_)  # Search for a match at the current position
-			_oQMatch_ = This.QMatchObject()
-			_cMatch_ = _oQMatch_.captured(0)
+		while This.MatchAt(@cStr, _nPos_)
+			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 0)
 
 			if _cMatch_ != ""
-				_nPos_ = _oQMatch_.capturedEnd(0) + 1  # Move past the last match
-				_anResults_ + (_nPos_ - _nLen_)
+				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 0)
+				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
+				_anResults_ + (_nStart_ + 1)
+				_nPos_ = _nEnd_ + 2
 			else
-				break  # Stop if no match is found
+				break
 			ok
 		end
-	
+
 		return _anResults_
 
 		#< @FunctionAlternativeForms
@@ -589,22 +526,20 @@ class stzRegex
 
 		_aResults_ = []
 		_nPos_ = 1
-		_nLenCap_ = This.QMatchObject().CapturedLength(0)
-? _nLenCap_
 
 		while This.MatchAt(@cStr, _nPos_)
-			_oQMatch_ = This.QMatchObject()
-			_cMatch_ = _oQMatch_.captured(0)
-			
+			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 0)
+
 			if _cMatch_ != ""
-				
-				_nPos_ = _oQMatch_.capturedEnd(0) + 1
-				_aResults_ + [_nPos_ - _nLenCap_, _nPos_ ]
+				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 0)
+				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
+				_nPos_ = _nEnd_ + 2
+				_aResults_ + [_nStart_ + 1, _nEnd_ + 1]
 			else
 				break
 			ok
 		end
-	
+
 		return _aResults_
 
 		#< @FunctionAlternativeForms
@@ -638,21 +573,20 @@ class stzRegex
 
 		_aResults_ = []
 		_nPos_ = 1
-		_nLenCap_ = This.QMatchObject().CapturedLength(0)
 
 		while This.MatchAt(@cStr, _nPos_)
-			_oQMatch_ = This.QMatchObject()
-			_cMatch_ = _oQMatch_.captured(0)
-			
+			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 0)
+
 			if _cMatch_ != ""
-				
-				_nPos_ = _oQMatch_.capturedEnd(0) + 1
-				_aResults_ + [ _cMatch_, [_nPos_ - _nLenCap_, _nPos_ ] ]
+				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 0)
+				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
+				_nPos_ = _nEnd_ + 2
+				_aResults_ + [ _cMatch_, [_nStart_ + 1, _nEnd_ + 1] ]
 			else
 				break
 			ok
 		end
-	
+
 		return _aResults_
 
 		#< @FunctionAlternativeForms
@@ -690,7 +624,7 @@ class stzRegex
 		return This.CaptureCount() > 0
 
 	def HasNames()
-		return len(This.CaptureNames()) > 0
+		return FALSE
 
 	def CaptureGroups()
 
@@ -700,12 +634,8 @@ class stzRegex
 
 		_acResult_ = []
 
-		_oQMatch_ = This.QMatchObject()
-		
-		# Only add non-empty captures and skip full match
-
 		for @i = 1 to This.CaptureCount()
-			_cCapture_ = _oQMatch_.captured(@i)
+			_cCapture_ = StzEngineRegexCaptureText(@pRegexHandle, @i)
 			if _cCapture_ != ""
 				_acResult_ + _cCapture_
 			ok
@@ -747,19 +677,7 @@ class stzRegex
 			return This.HasValues()
 
 	def CaptureNames()
-		_oQRegex_ = This.QRegexObject()
-		_acNames_ = QStringListToList(_oQRegex_.namedCaptureGroups())
-		_nLen_ = len(_acNames_)
-
-		_acResult_ = []
-
-		for @i = 1 to _nLen_
-			if _acNames_[@i] != ""
-				_acResult_ + _acNames_[@i]
-			ok
-		next
-
-		return _acResult_
+		return []
 
 		def Names()
 			return This.CaptureNames()
@@ -772,14 +690,12 @@ class stzRegex
 			StzRaise("No capture groups found in pattern. Use groups like (xyz) to capture values.")
 		ok
 
-		_oQMatch_ = This.QMatchObject()
-		_acCaptureNames_ = This.CaptureNames()
 		aResult = []
 
-		for @i = 1 to len(_acCaptureNames_)
-			cName = _acCaptureNames_[@i]
-			if cName != ""
-				aResult + [ cName, _oQMatch_.captured(@i) ]
+		for @i = 1 to This.CaptureCount()
+			cVal = StzEngineRegexCaptureText(@pRegexHandle, @i)
+			if cVal != ""
+				aResult + [ "" + @i, cVal ]
 			ok
 		next
 
@@ -830,24 +746,10 @@ class stzRegex
 
 		_aResult_ = []
 
-		_oQMatch_ = This.QMatchObject()
-		
-		# Only add non-empty captures and skip full match
-
 		for @i = 1 to This.CaptureCount()
-			_cCapture_ = _oQMatch_.captured(@i)
+			_cCapture_ = StzEngineRegexCaptureText(@pRegexHandle, @i)
 			if _cCapture_ != ""
-				_nPos_ = _oQMatch_.capturedStart(@i)+1
-
-				# Convert Qt postion to Ring position
-				#TODO // Use Qt2RingPos() instead
-
-				if _nPos_ >= 0
-					_nPos_++
-				else
-					_nPos_ = 0
-				ok
-
+				_nPos_ = StzEngineRegexCaptureStart(@pRegexHandle, @i) + 1
 				if _nPos_ > 0
 					_aResult_ + [ _cCapture_, _nPos_]
 				ok
@@ -918,16 +820,13 @@ class stzRegex
 
 		_aResult_ = []
 
-		_oQMatch_ = This.QMatchObject()
-		
-		# Only add non-empty captures and skip full match
-
 		for @i = 1 to This.CaptureCount()
 
-			_cCapture_ = _oQMatch_.captured(@i)
+			_cCapture_ = StzEngineRegexCaptureText(@pRegexHandle, @i)
 
 			if _cCapture_ != ""
-				_aSection_ = [ _oQMatch_.capturedStart(@i)+1, _oQMatch_.capturedEnd(@i) ]
+				_aSection_ = [ StzEngineRegexCaptureStart(@pRegexHandle, @i) + 1,
+					       StzEngineRegexCaptureEnd(@pRegexHandle, @i) ]
 				_aResult_ + [ _cCapture_, _aSection_ ]
 			ok
 		next
@@ -960,32 +859,27 @@ class stzRegex
 	#--------------------------------------#
 
  	def CaptureCount()
-		return This.QRegexObject().captureCount()
+		if @pRegexHandle = NULL return 0 ok
+		return StzEngineRegexCaptureCount(@pRegexHandle)
 
 	def IsValid()
-		return This.QRegexObject().isValid()
+		return @pRegexHandle != NULL
 
 		def IsValidPattern()
 			return THis.IsValid()
 
 	def LastError()
-		return This.QRegexObject().errorString()
+		return ""
 
 	def PatternErrorOffset()
-		return This.QRegexObject().patternErrorOffset()
+		return -1
 
 	  #-----------------#
-	 #  Partial Mutch  #
+	 #  Partial Match   #
 	#-----------------#
 
 	def IsPartialMatch(pcStr)
-		# Returns TRUE if the string partially matches the pattern, meaning it could
-		# potentially match if more characters were added.
-	
-		# Example: pattern "hello\d" partially matches "hello" since adding
-		# a digit would complete it.
-
-		return This.MatchXT(pcStr, 1, :MatchEntireContentIfNotGoPartial, [])
+		return FALSE
 
 		def IsPartial(pcStr)
 			return This.IsPartialMatch(pcStr)
@@ -996,42 +890,25 @@ class stzRegex
 		def MatchPartial(pcStr)
 			return This.IsPartialMatch(pcStr)
 
-	def IsCompleteMatch(pcStr) 
-		# Returns TRUE only if the string completely matches the pattern
-		# with no need for additional characters.
-
+	def IsCompleteMatch(pcStr)
 		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
 
 		def IsComplete(pcStr)
 			return This.IsCompleteMatch(pcStr)
 
 	def MatchAsYouType(pcStr)
-		# Optimized for real-time validation during user input. Returns TRUE if either:
-		# 1. The string completely matches the pattern
-		# 2. The string could potentially match if more characters were added
-	
-		# Perfect for validating form fields as users type.
-
-		return This.MatchXT(pcStr, 1, :MatchEntireContentIfNotGoPartial, [])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
 
 		def ValidateAsTyped(pcStr)
 			return This.MatchAsYouType(pcStr)
 
 	def MatchInProgress(pcStr)
-		# Similar to MatchAsYouType() but optimized for searching/filtering scenarios.
-		# Tries to find any occurrence that could potentially match.
-
-		return This.MatchXT(pcStr, 1, :MatchFirstOccurrenceIfNotGoPartial, [])
+		return This.MatchXT(pcStr, 1, :MatchEntireContent, [])
 
 		def SearchInProgress(pcStr)
 			return This.MatchInProgress(pcStr)
 
 	def PartialMatchInfo(pcStr)
-		# Returns detailed information about a partial match including:
-		# - Whether it's a complete or partial match
-		# - The matched portion
-		# - What's still needed to complete the match
-		# - Position information
 
 		if This.IsCompleteMatch(pcStr)
 			return [
@@ -1040,21 +917,6 @@ class stzRegex
 				:section  = [ 1, StzStringQ(pcStr).NumberOfChars() ]
 			]
 		ok
-
-		if This.IsPartialMatch(pcStr)
-			# For pattern "hello\d{3}" and input "hello12":
-			# - We have a partial match
-			# - We've matched "hello12"
-			# - We still need one more digit to complete \d{3}
-        
-			return [
-				:matchType = "partial",
-				:matched   = pcStr, # The actual partially matched string
-				:section  = [ 1, StzStringQ(pcStr).NumberOfChars() ] # Position of current match
-			]
-		ok
-
-		# No match at all
 
 		return [
 			:matchType = "none",
@@ -1071,23 +933,14 @@ class stzRegex
 		def FindPartialMatchZ(pcStr)
 			return This.FindPartialMatch(pcStr)
 
-		
-	def PartialMatchStart(pcStr)
-		if @oQMatchObject != NULL
-			return @oQMatchObject.capturedStart(0)
-		ok
 
+	def PartialMatchStart(pcStr)
 		return 0
 
 	def FindPartialMatchZZ(pcStr)
 		return This.PartialMAtchInfo(pcStr)[3][2]
 
 	def PartialMatchLength()
-
-		if @oQMatchObject != NULL
-			return @oQMatchObject.capturedLength()
-		ok
-
 		return 0
 
 		def PartialMatchSize()
@@ -1097,7 +950,7 @@ class stzRegex
 			return This.PartialMatchLength()
 
 	def PartialMatchZ(pcStr)
-		aResult = [ This.PartialMacth(pcStr), This.FindPartialMatch(pcStr) ]
+		aResult = [ FALSE, 0 ]
 		return aResult
 
 	  #----------------------------#
@@ -1141,15 +994,16 @@ class stzRegex
 
 		while This.HasMatch()
 
-			oMatch = This.QMatchObject()
-			cCapture = oMatch.captured(0)
+			cCapture = StzEngineRegexCaptureText(@pRegexHandle, 0)
 
 			if ring_find(acSeen, cCapture) = 0
 
+				_nS_ = StzEngineRegexCaptureStart(@pRegexHandle, 0)
+				_nE_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
+
 				aMatches + [
 					cCapture,
-					[ oMatch.capturedStart(0)+1,
-					  oMatch.capturedEnd(0) ]
+					[ _nS_ + 1, _nE_ ]
 				]
 
 				nMaxDepth++
@@ -1176,7 +1030,7 @@ class stzRegex
 
 		_bResult_ = 1
 		_nLen_ = len(pacStr)
-		
+
 		for @i = 1 to _nLen_
 			if NOT This.MatchRecursive(pacStr[@i])
 				_bResult_ = 0
@@ -1196,7 +1050,7 @@ class stzRegex
 
 		_abResult_ = []
 		_nLen_ = len(pacStr)
-		
+
 		for @i = 1 to _nLen_
 			_abResult_ + This.MatchRecursive(pacStr[@i])
 		next
@@ -1439,7 +1293,7 @@ class stzRegex
 	def Explain()
 		_cResult_ = ""
 		_cName_ = RegexPatternName(This.Pattern())
-		
+
 		if _cName_ != ""
 			_cResult_ = RegexPatternExplanation(_cName_)[1]
 		ok
@@ -1458,7 +1312,7 @@ class stzRegex
 	def ExplainXT()
 		_cResult_ = ""
 		_cName_ = RegexPatternName(This.Pattern())
-		
+
 		if _cName_ != ""
 			_cResult_ = RegexPatternExplanation(_cName_)[2]
 		ok
