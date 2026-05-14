@@ -57,6 +57,154 @@ or 'unavoidable' Qt feature.
  ///   FUNCTIONS   ///
 /////////////////////
 
+#-- Engine-replacement helpers (replace Qt QChar property lookups)
+
+func _CharIsSpace(nUnicode)
+	if nUnicode = 0x09 or nUnicode = 0x0A or nUnicode = 0x0B or
+	   nUnicode = 0x0C or nUnicode = 0x0D or nUnicode = 0x20 or
+	   nUnicode = 0x85 or nUnicode = 0xA0 or nUnicode = 0x1680 or
+	   nUnicode = 0x2028 or nUnicode = 0x2029 or nUnicode = 0x202F or
+	   nUnicode = 0x205F or nUnicode = 0x3000
+		return 1
+	ok
+	if nUnicode >= 0x2000 and nUnicode <= 0x200A
+		return 1
+	ok
+	return 0
+
+func _CharCategoryNumber(nUnicode)
+	if nUnicode < 0x20 or nUnicode = 0x7F return 9 ok
+	if nUnicode >= 0x80 and nUnicode <= 0x9F return 9 ok
+
+	if nUnicode >= 65 and nUnicode <= 90 return 14 ok
+	if nUnicode >= 97 and nUnicode <= 122 return 15 ok
+	if nUnicode >= 48 and nUnicode <= 57 return 3 ok
+
+	if nUnicode = 0x20 or nUnicode = 0xA0 or nUnicode = 0x1680 or
+	   nUnicode = 0x202F or nUnicode = 0x205F or nUnicode = 0x3000
+		return 6
+	ok
+	if nUnicode >= 0x2000 and nUnicode <= 0x200A return 6 ok
+	if nUnicode = 0x2028 return 7 ok
+	if nUnicode = 0x2029 return 8 ok
+
+	if nUnicode >= 0xC0 and nUnicode <= 0xD6 return 14 ok
+	if nUnicode >= 0xD8 and nUnicode <= 0xDE return 14 ok
+	if nUnicode = 0xDF return 15 ok
+	if nUnicode >= 0xE0 and nUnicode <= 0xF6 return 15 ok
+	if nUnicode >= 0xF8 and nUnicode <= 0xFF return 15 ok
+
+	if nUnicode >= 0x100 and nUnicode <= 0x24F
+		if nUnicode % 2 = 0 return 14 ok
+		return 15
+	ok
+
+	if nUnicode >= 0x0300 and nUnicode <= 0x036F return 0 ok
+
+	if nUnicode >= 0x0370 and nUnicode <= 0x03FF return 18 ok
+	if nUnicode >= 0x0400 and nUnicode <= 0x04FF return 18 ok
+	if nUnicode >= 0x0530 and nUnicode <= 0x058F return 18 ok
+	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 18 ok
+	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 18 ok
+	if nUnicode >= 0x0900 and nUnicode <= 0x097F return 18 ok
+
+	if nUnicode >= 0x4E00 and nUnicode <= 0x9FFF return 18 ok
+	if nUnicode >= 0xAC00 and nUnicode <= 0xD7AF return 18 ok
+
+	if nUnicode >= 0xD800 and nUnicode <= 0xDFFF return 11 ok
+	if nUnicode >= 0xE000 and nUnicode <= 0xF8FF return 12 ok
+	if nUnicode >= 0xFDD0 and nUnicode <= 0xFDEF return 13 ok
+
+	if nUnicode = 0xAD or nUnicode = 0x200B or nUnicode = 0x200C or
+	   nUnicode = 0x200D or nUnicode = 0x200E or nUnicode = 0x200F or
+	   nUnicode = 0x2060 or nUnicode = 0xFEFF
+		return 10
+	ok
+
+	if nUnicode >= 0x2000 and nUnicode <= 0x206F return 25 ok
+	if nUnicode >= 0x2190 and nUnicode <= 0x21FF return 29 ok
+	if nUnicode >= 0x2200 and nUnicode <= 0x22FF return 26 ok
+	if nUnicode >= 0x2500 and nUnicode <= 0x257F return 29 ok
+	if nUnicode >= 0x2600 and nUnicode <= 0x26FF return 29 ok
+	if nUnicode >= 0x20A0 and nUnicode <= 0x20CF return 27 ok
+
+	return 18
+
+func _CharBidiClass(nUnicode)
+	if nUnicode >= 65 and nUnicode <= 90 return 0 ok
+	if nUnicode >= 97 and nUnicode <= 122 return 0 ok
+	if nUnicode >= 48 and nUnicode <= 57 return 5 ok
+	if nUnicode < 0x20 return 18 ok
+	if nUnicode = 0x20 or nUnicode = 0x09 return 12 ok
+
+	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 13 ok
+	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 13 ok
+	if nUnicode >= 0x0700 and nUnicode <= 0x074F return 13 ok
+	if nUnicode >= 0xFB50 and nUnicode <= 0xFDFF return 13 ok
+	if nUnicode >= 0xFE70 and nUnicode <= 0xFEFF return 13 ok
+
+	return 0
+
+func _CharMirrored(nUnicode)
+	switch nUnicode
+	on 0x28 return 0x29
+	on 0x29 return 0x28
+	on 0x3C return 0x3E
+	on 0x3E return 0x3C
+	on 0x5B return 0x5D
+	on 0x5D return 0x5B
+	on 0x7B return 0x7D
+	on 0x7D return 0x7B
+	on 0xAB return 0xBB
+	on 0xBB return 0xAB
+	on 0x2039 return 0x203A
+	on 0x203A return 0x2039
+	on 0x2045 return 0x2046
+	on 0x2046 return 0x2045
+	on 0x207D return 0x207E
+	on 0x207E return 0x207D
+	on 0x208D return 0x208E
+	on 0x208E return 0x208D
+	on 0x0F3A return 0x0F3B
+	on 0x0F3B return 0x0F3A
+	on 0x0F3C return 0x0F3D
+	on 0x0F3D return 0x0F3C
+	off
+	return nUnicode
+
+func _CharUnicodeVersion(nUnicode)
+	if nUnicode <= 0x7F return 1 ok
+	if nUnicode <= 0xFF return 1 ok
+	if nUnicode <= 0x24F return 1 ok
+	if nUnicode >= 0x0300 and nUnicode <= 0x036F return 1 ok
+	if nUnicode >= 0x0370 and nUnicode <= 0x03FF return 1 ok
+	if nUnicode >= 0x0400 and nUnicode <= 0x04FF return 1 ok
+	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 1 ok
+	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 1 ok
+	if nUnicode >= 0x4E00 and nUnicode <= 0x9FFF return 1 ok
+	if nUnicode >= 0xAC00 and nUnicode <= 0xD7AF return 2 ok
+	if nUnicode >= 0x0900 and nUnicode <= 0x097F return 1 ok
+	if nUnicode >= 0x1F600 and nUnicode <= 0x1F64F return 6 ok
+	if nUnicode >= 0x1F300 and nUnicode <= 0x1F5FF return 6 ok
+	return 1
+
+func _CharScriptCode(nUnicode)
+	if nUnicode <= 0x24F return 7 ok
+	if nUnicode >= 0x0370 and nUnicode <= 0x03FF return 8 ok
+	if nUnicode >= 0x0400 and nUnicode <= 0x04FF return 9 ok
+	if nUnicode >= 0x0530 and nUnicode <= 0x058F return 10 ok
+	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 11 ok
+	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 8 ok
+	if nUnicode >= 0x0900 and nUnicode <= 0x097F return 14 ok
+	if nUnicode >= 0x4E00 and nUnicode <= 0x9FFF return 38 ok
+	if nUnicode >= 0xAC00 and nUnicode <= 0xD7AF return 28 ok
+	if nUnicode >= 0x3040 and nUnicode <= 0x309F return 27 ok
+	if nUnicode >= 0x30A0 and nUnicode <= 0x30FF return 26 ok
+	if nUnicode >= 0x0E00 and nUnicode <= 0x0E7F return 33 ok
+	return 0
+
+#-- End of Engine-replacement helpers
+
 func IsDigit(c)
 	If (isNumber(c) and c >= 0 and c <= 9) or
 	   (isString(c) and IsChar(c) and IsNumberInString(c))
@@ -282,15 +430,7 @@ func UnicodeSectionToStzListOfChars(nUnicode1, nUnicode2)
 	return new stzListOfChars( UnicodeSectionToListOfChars(nUnicode1, nUnicode2) )
 
 func CurrentUnicodeVersion()
-	oQchar = new QChar(65)
-	n = oQChar.currentUnicodeVersion()
-
-	if n > 0 and n <= len(_acUnicodeVersions)
-		return _acUnicodeVersions[ n ]
-	else
-		StzRaise("Can not define current unicode version!")
-		#TODO // StzRaise(stzCharError(:CanNotDefineUnicodeVersion))
-	ok
+	return _acUnicodeVersions[ len(_acUnicodeVersions) ]
 
 // Returns the unicode name of the char in the unicode table
 func UnicodeCharName(c)
@@ -610,7 +750,7 @@ func CharByName(cName)
 /////////////////
 
 class stzChar from stzObject
-	@oQChar
+	@nUnicode
 
 	def init(pChar)
 		if isString(pChar)
@@ -621,17 +761,14 @@ class stzChar from stzObject
 			oStr = StzStringQ(pChar)
 
 			if oStr.NumberOfChars() = 1
-				nUnicode = StzStringQ(pChar).UnicodeOfCharN(1)
-				@oQChar = new QChar(nUnicode)
+				@nUnicode = StzEngineCharUnicode(pChar)
 
 			but oStr.RepresentsNumberInHexForm() or
 			    oStr.RepresentsNumberInUnicodeHexForm()
-				nUnicode = StzHexNumberQ(pChar).ToDecimal()
-				@oQChar = new QChar(nUnicode)
+				@nUnicode = StzHexNumberQ(pChar).ToDecimal()
 
 			but oStr.IsCharName()
-				nUnicode = StzUnicodeDataQ().CharUnicodeByName(pChar)
-				@oQChar = new QChar(nUnicode)
+				@nUnicode = StzUnicodeDataQ().CharUnicodeByName(pChar)
 
 			else
 
@@ -640,8 +777,7 @@ class stzChar from stzObject
 
 		but isNumber(pChar)
 
-			nUnicode = pChar
-			@oQChar = new QChar(nUnicode)
+			@nUnicode = pChar
 		else
 			StzRaise(stzCharError(:CanNotCreateCharObjectForThisType))
 		ok
@@ -651,9 +787,9 @@ class stzChar from stzObject
 		ok
 
 	def Content()
-		oStr = new QString2()
-		oStr.append_2(@oQChar)
-		return oStr.ToUtf8().data()
+		cBuf = space(4)
+		nLen = StzEngineCharToUtf8(@nUnicode, cBuf, 4)
+		return left(cBuf, nLen)
 
 		def Char()
 			return This.Content()
@@ -681,7 +817,7 @@ class stzChar from stzObject
 			return This.Number()
 
 	def QCharObject()
-		return @oQChar
+		StzRaise("QCharObject() is no longer available. Qt has been replaced by the Softanza Engine.")
 
 	def IsEmpty()
 		return 0	# stzChar can never host an empty char
@@ -706,14 +842,10 @@ class stzChar from stzObject
 
 		if isString(pChar)
 
-			oStzStr = new stzString(pChar)
-
-			nUnicode = oStzStr.UnicodeOfCharN(1)
-			@oQChar = new QChar(nUnicode)
+			@nUnicode = StzEngineCharUnicode(pChar)
 
 		but ring_Type(pChar) = "NUMBER"
-			nUnicode = pChar
-			@oQChar = new QChar(nUnicode)
+			@nUnicode = pChar
 		else
 			StzRaise("Can't update the char!")
 		ok
@@ -763,9 +895,8 @@ class stzChar from stzObject
 
 	#---
 
-	// Returns the unicode code point of the Char in decimal
 	def Unicode()
-		return @oQChar.unicode()
+		return @nUnicode
 
 		def UnicodeAsNumber()
 			return This.Unicode()
@@ -922,7 +1053,7 @@ class stzChar from stzObject
 		next
 
 	def UnicodeDirectionNumber()
-		cNumber = "" + @oQChar.direction()
+		cNumber = "" + _CharBidiClass(@nUnicode)
 		return cNumber
 
 	def IsVowel()
@@ -1134,7 +1265,7 @@ class stzChar from stzObject
 	#----------------------#
 
 	def UnicodeCategoryNumber()
-		return @oQChar.category()
+		return _CharCategoryNumber(@nUnicode)
 
 	def UnicodeCategory()
 		n = This.UnicodeCategoryNumber()
@@ -1248,10 +1379,11 @@ class stzChar from stzObject
 		ok
 		
 	def IsSpace()
-		return @oQChar.isSpace()
+		return _CharIsSpace(@nUnicode)
 
-	def IsUnicodeNumber()	# Returns 1 for "㊱". For normal numbers, use IsDecimalDigit().
-		if @oQChar.isANumber() or
+	def IsUnicodeNumber()
+		nCat = _CharCategoryNumber(@nUnicode)
+		if nCat = 3 or nCat = 4 or nCat = 5 or
 		This.IsRomanNumber() or
 		This.IsMandarinNumber() or
 		This.IsIndianNumber()
@@ -1373,7 +1505,14 @@ class stzChar from stzObject
 
 
 	def IsNonChar()
-		return @oQChar.isNonCharacter()
+		if @nUnicode >= 0xFDD0 and @nUnicode <= 0xFDEF
+			return 1
+		ok
+		nLow = @nUnicode & 0xFFFF
+		if nLow = 0xFFFE or nLow = 0xFFFF
+			return 1
+		ok
+		return 0
 	
 	def IsMark()
 		oTempStr = new stzString( This.UnicodeCategory() )
@@ -1465,16 +1604,16 @@ class stzChar from stzObject
 			return This.IsLineSeparator()
 
 
-	def IsMirrored() // Like "{", "}", "[", "]", etc.
-		// TODO: implement it by analyzing the output of This.Caregory()
-		return oQChar.mirroredChar()
+	def IsMirrored()
+		nMirror = _CharMirrored(@nUnicode)
+		return nMirror != @nUnicode
 
 	def UnicodeOfMirrored()
-		return @oQChar.mirroredChar().unicode()
+		return _CharMirrored(@nUnicode)
 
 	def Mirrored()
-		nUnicode = @oQChar.mirroredChar().unicode()
-		cChar = CharFromUnicode(nUnicode)
+		nMirrorUnicode = _CharMirrored(@nUnicode)
+		cChar = CharFromUnicode(nMirrorUnicode)
 		return cChar
 	
 	def IsLatin()
@@ -1581,7 +1720,7 @@ class stzChar from stzObject
 	#---------------------#
 
 	def IntroducedInUnicodeVersion()
-		n = QCharObject().unicodeversion()
+		n = _CharUnicodeVersion(@nUnicode)
 
 		if n > 0 and n <= len(_acUnicodeVersions)
 			return _acUnicodeVersions[ n ]
@@ -1597,7 +1736,7 @@ class stzChar from stzObject
 	#---------------#
 
 	def IsLower()
-		return @oQChar.isLower()
+		return StzEngineCharIsLower(@nUnicode) = 1
 
 		def IsLowercase()
 			return This.IsLower()
@@ -1606,21 +1745,21 @@ class stzChar from stzObject
 			return This.IsLower()
 
 	def lowercase()
-		oTempChar = new stzChar(@oQChar.toLower().unicode())
-		return oTempChar.Content()
+		cChar = This.Content()
+		return lower(cChar)
 
 		def Lowercased()
 			return This.Lowercase()
 
 	def IsUPPERcase()
-		return @oQChar.isUpper()
+		return StzEngineCharIsUpper(@nUnicode) = 1
 
 		def IsAnUppercase()
-			return @oQChar.isUpper()
+			return StzEngineCharIsUpper(@nUnicode) = 1
 
 	def UPPERcase()
-		oTempChar = new stzChar(@oQChar.toUPPER().unicode())
-		cUppercased = oTempChar.Content()
+		cChar = This.Content()
+		cUppercased = upper(cChar)
 		This.Update(cUppercased)
 
 		def Uppercased()
@@ -1705,7 +1844,11 @@ class stzChar from stzObject
 	#------------------------------------#
 
 	def IsPrintable()
-		return @oQChar.isPrint()
+		nCat = _CharCategoryNumber(@nUnicode)
+		if nCat = 9 or nCat = 10 or nCat = 11 or nCat = 12 or nCat = 13
+			return 0
+		ok
+		return 1
 
 	def IsNonPrintable()
 		return NOT This.IsPrintable()
@@ -1757,13 +1900,13 @@ class stzChar from stzObject
 	*/
 
 	def Script()
+		nCode = _CharScriptCode(@nUnicode)
 		nLen = len(_aUnicodeScriptsXT)
 
 		cResult = :Undefined
 
 		for i = 1 to nLen
-
-			if _aUnicodeScriptsXT[i][1] = ""+@oQChar.Script()
+			if _aUnicodeScriptsXT[i][1] = ""+nCode
 				cResult = _aUnicodeScriptsXT[i][2]
 				exit
 			ok
@@ -1774,9 +1917,9 @@ class stzChar from stzObject
 
 		def UnicodeScript()
 			return Script()
-	
+
 	def ScriptCode()
-		return @oQChar.Script()
+		return _CharScriptCode(@nUnicode)
 
 	def UnicodeScriptCode()
 		return ScriptCode()
@@ -3202,9 +3345,7 @@ class stzChar from stzObject
 			return new stzString( This.ToHexWithoutPrefix() )
 
 	def FromHex(cHex)
-		oQString = new QString2()
-		oQString.append(hex2str(cHex))
-		This.Update(oQString.data())
+		This.Update(hex2str(cHex))
 
 		def FromHexQ(cHex)
 			This.FromHex(cHex)
