@@ -773,7 +773,7 @@ func StzTrimEnd(cStrOrList)
 #--
 
 func StzStringToQString(oStr)
-	return oStr.QStringObject()
+	return oStr.Content()
 	
 func StringIsLocaleAbbreviation(cStr)
 	oStr = new stzString(cStr)

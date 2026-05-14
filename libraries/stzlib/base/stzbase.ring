@@ -18,7 +18,6 @@ ok
     load "common/stznamedparams.ring" #TODO //Use it instead the equivalent code in stzList
 
     load "common/stzoccurrences.ring"
-    load "common/stzqtfuncs.ring"
     load "common/stzringfuncs.ring"
 
     load "common/stzringlibs.ring"

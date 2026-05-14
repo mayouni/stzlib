@@ -38130,13 +38130,14 @@ class stzString from stzObject
 		# Doing the job
 
 		panPos = ring_sort(panPos)
-		oQCopy = QStringObject()
+		cCopy = @cContent
 
 		for i = nLenPos to 1 step -1
-			oQCopy.insert(panPos[i], pcSubStr)
+			nPos = panPos[i]
+			cCopy = left(cCopy, nPos) + pcSubStr + substr(cCopy, nPos + 1)
 		next
 
-		This.UpdateWith( QStringToString(oQCopy) )
+		This.UpdateWith(cCopy)
 
 		#< @FunctionFluentForm
 
@@ -38237,13 +38238,14 @@ class stzString from stzObject
 
 		# Doing the job
 
-		oQCopy = QStringObject()
+		cCopy = @cContent
 
 		for i = nLenPos to 1 step -1
-			oQCopy.insert(panPos[i]-1, pcSubStr)
+			nPos = panPos[i] - 1
+			cCopy = left(cCopy, nPos) + pcSubStr + substr(cCopy, nPos + 1)
 		next
 
-		This.UpdateWith( QStringToString(oQCopy) )
+		This.UpdateWith(cCopy)
 
 		#< @FunctionFluentForm
 
@@ -88770,14 +88772,13 @@ class stzString from stzObject
 
 		*/
 
-		_oQCopy_ = QStringObject()
-
-		nLen = _oQCopy_.size()
+		cCopy = @cContent
+		nLen = len(cCopy)
 		for i = nLen-1 to 1 step -1
-			_oQCopy_.insert(i, " ")
+			cCopy = left(cCopy, i) + " " + substr(cCopy, i + 1)
 		next
 
-		This.UpdateWith( QStringToString(_oQCopy_) )
+		This.UpdateWith(cCopy)
 
 		def SpacifyCharsQ()
 			This.SpacifyChars()
@@ -88849,14 +88850,14 @@ class stzString from stzObject
 
 		*/
 
-		_oQCopy_ = QStringObject()
-		nLen = _oQCopy_.size()
+		cCopy = @cContent
+		nLen = len(cCopy)
 
 		for i = nLen-1 to 1 step -1
-			_oQCopy_.insert(i, pcSep)
+			cCopy = left(cCopy, i) + pcSep + substr(cCopy, i + 1)
 		next
 
-		This.UpdateWith( QStringToString(_oQCopy_) )
+		This.UpdateWith(cCopy)
 
 		def SpacifyCharsUsingQ(pcSep)
 			This.SpacifyCharsUsing(pcSep)
