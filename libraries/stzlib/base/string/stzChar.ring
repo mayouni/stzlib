@@ -126,19 +126,6 @@ func _CharScriptCode(nUnicode)
 
 #-- End of Engine-replacement helpers
 
-func IsDigit(c)
-	If (isNumber(c) and c >= 0 and c <= 9) or
-	   (isString(c) and IsChar(c) and IsNumberInString(c))
-
-		return TRUE
-	else
-		return FALSE
-	ok
-
-	func @IsDigit(c)
-		return IsDigit(c)
-
-
 func IsInvisibleChar(c)
 
 	if CheckParams()
@@ -256,18 +243,7 @@ func IsChar(pStrOrNbr)
 
 	#>
 
-func IsLetter(pcStr)
-	if NOT isString(pcStr)
-		return 0
-	ok
-
-	oStzChar = new stzChar(pcStr)
-	return oStzChar.IsLetter()
-
 	#< @FunctionAlternativeForms
-
-	func @IsLetter(pcStr)
-		return IsLetter(pcStr)
 
 	func IsALetter(pcStr)
 		return IsLetter(pcStr)

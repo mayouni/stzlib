@@ -7,6 +7,8 @@ const std = @import("std");
 const mem = std.mem;
 const gpa = std.heap.c_allocator;
 
+pub const StzUrlHandle = ?*Url;
+
 const Url = struct {
     raw: []const u8,
     scheme: []const u8,

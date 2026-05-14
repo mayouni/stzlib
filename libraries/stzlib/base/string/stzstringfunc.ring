@@ -257,9 +257,6 @@ func IsNullString(cStr)
 
 	#==
 
-	func StringIsEmpty(pcStr)
-		return isString(pcStr) and pcStr = ""
-
 		func StringIsNull(pcStr)
 			return isString(pcStr) and pcStr = ""
 
@@ -934,20 +931,8 @@ func StringIsScriptNumber(cStr)
 func StringIsLowercase(cStr)
 	return StzStringQ(cStr).IsLowercase()
 
-	func IsLowercase(cStr)
-		return StringIsLowercase(cStr)
-
-	func @IsLowercase(cStr)
-		return StringIsLowercase(cStr)
-
 func StringIsUppercase(cStr)
 	return StzStringQ(cStr).IsUppercase()
-
-	func IsUppercase(cStr)
-		return StringIsUppercase(cStr)
-
-	func @IsUppercase(cStr)
-		return StringIsUppercase(cStr)
 
 func StringLowercased(cStr)
 	oStr = new stzString(cStr)

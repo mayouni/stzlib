@@ -1,5 +1,6 @@
 // Per-domain entry point for stz_regex.dll
 pub const regex = @import("regex.zig");
+pub const ring_bridge = @import("ring_bridge_regex.zig");
 
 comptime {
     @export(&regex.stz_regex_new, .{ .name = "stz_regex_new" });
@@ -14,6 +15,10 @@ comptime {
     @export(&regex.stz_regex_replace, .{ .name = "stz_regex_replace" });
     @export(&regex.stz_regex_replace_free, .{ .name = "stz_regex_replace_free" });
     @export(&regex.stz_regex_set_limits, .{ .name = "stz_regex_set_limits" });
+}
+
+comptime {
+    @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }
 
 test { _ = regex; }

@@ -803,9 +803,6 @@ func IsStzObject(pObject)
 	func ObjectIsStzObject(pObject)
 		return IsStzObject(pObject)
 
-	func @IsStzObject(pObject)
-		return IsStzObject(pObject)
-
 	#--
 
 	func IsAStzObject(pObject)
@@ -1866,20 +1863,11 @@ func IsStzTrueObject(pObject)
 
 #< @EndOfGenCode >
 
-func ObjectClassName(cObjectVarName)
-	return StzObjectQ(cObjectVarName).ObjectClassName()
-
-func ObjectAttributes(cObjectVarName)
-	return StzObjectQ(cObjectVarName).ObjectAttributes()
-
 func ObjectValues(cObjectVarName)
 	return StzObjectQ(cObjectVarName).ObjectValues()
 
 func ObjectAttributesAndValues(cObjectVarName)
 	return StzObjectQ(cObjectVarName).ObjectAttributesAndValues()
-
-func ObjectMethods(cObjectVarName)
-	return StzObjectQ(cObjectVarName).ObjectMethods()
 
 func ObjectToList(cObjectVarName)
 	return StzObjectQ(cObjectVarName).ObjectToList()

@@ -2394,9 +2394,6 @@ func @ForEach(p, pIn)
 # --> In this case, you deactivate param checking inside
 # functions, and if you need it, do it by yourself outside teh loop/
 
-func SetParamCheckingTo(bTrueOrFalse) #TODO // Test it!
-	_bParamCheck = bTrueOrFalse
- 
 	#< @FunctionAlternatives
 
 	func SetCheckParamTo(bTrueOrFalse)
@@ -2553,9 +2550,6 @@ func ParamChecking()
 		return _bParamCheck
 
 	func CheckParams()
-		return _bParamCheck
-
-	func CheckingParams()
 		return _bParamCheck
 
 	#>
@@ -5064,13 +5058,6 @@ func @IsString(str)
 
 	func @IsAString(str)
 		return isString(str)
-
-func @IsObject(obj)
-	if isObject(obj)
-		return 1
-	else
-		return 0
-	ok
 
 	func IsAnObject(obj)
 		return isObject(obj)

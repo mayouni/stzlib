@@ -10,6 +10,8 @@ const gpa = std.heap.c_allocator;
 
 // ─── JSON Handle ───
 
+pub const StzJsonHandle = ?*Json;
+
 const Json = struct {
     source: []const u8,
     tree: ?std.json.Parsed(std.json.Value),

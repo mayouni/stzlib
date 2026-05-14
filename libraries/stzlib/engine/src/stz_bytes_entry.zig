@@ -1,5 +1,6 @@
 // Per-domain entry point for stz_bytes.dll
 pub const bytes = @import("bytes.zig");
+pub const ring_bridge = @import("ring_bridge_bytes.zig");
 
 comptime {
     @export(&bytes.stz_bytes_new, .{ .name = "stz_bytes_new" });
@@ -27,6 +28,10 @@ comptime {
     @export(&bytes.stz_bytes_from_hex, .{ .name = "stz_bytes_from_hex" });
     @export(&bytes.stz_bytes_to_percent, .{ .name = "stz_bytes_to_percent" });
     @export(&bytes.stz_bytes_from_percent, .{ .name = "stz_bytes_from_percent" });
+}
+
+comptime {
+    @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }
 
 test { _ = bytes; }

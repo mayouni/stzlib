@@ -1,6 +1,9 @@
-# Softanza Engine -- Core Locale FFI Bridge
+# Softanza Engine -- Core Locale Ring Bridge
 #
-# Loads stk_locale.dll -- basic case conversion only.
+# Loads stk_locale.dll as a Ring extension.
+# ringlib_init registers all functions natively -- no CallCFunc needed.
+# Ring code calls them directly by name (case-insensitive).
+#
 # Used by: core/locale/stkLocale.ring
 # Function prefix: StkEngine* (distinct from Base StzEngine*)
 
@@ -18,17 +21,3 @@ else
     ? "WARNING: stk_locale not found at: " + $cStkLocaleLib
     $pStkLocaleHandle = NULL
 ok
-
-func StkEngineLocaleToUpper(cStr)
-    if $pStkLocaleHandle = NULL return upper(cStr) ok
-    cBuf = space(len(cStr))
-    nLen = CallCFunc($pStkLocaleHandle, "stz_locale_to_upper", "i", "pipi",
-                     cStr, len(cStr), cBuf, len(cStr))
-    return left(cBuf, nLen)
-
-func StkEngineLocaleToLower(cStr)
-    if $pStkLocaleHandle = NULL return lower(cStr) ok
-    cBuf = space(len(cStr))
-    nLen = CallCFunc($pStkLocaleHandle, "stz_locale_to_lower", "i", "pipi",
-                     cStr, len(cStr), cBuf, len(cStr))
-    return left(cBuf, nLen)

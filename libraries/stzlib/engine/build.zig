@@ -4,28 +4,29 @@ const Domain = struct {
     name: []const u8,
     entry: []const u8,
     needs_utf8proc: bool = false,
+    needs_ring: bool = false,
 };
 
 // Core (stk_*): minimal, fast, constrained environments
 const core_domains = [_]Domain{
-    .{ .name = "stk_string", .entry = "src/stk_string_entry.zig", .needs_utf8proc = true },
-    .{ .name = "stk_datetime", .entry = "src/stk_datetime_entry.zig" },
-    .{ .name = "stk_file", .entry = "src/stk_file_entry.zig" },
-    .{ .name = "stk_locale", .entry = "src/stk_locale_entry.zig" },
+    .{ .name = "stk_string", .entry = "src/stk_string_entry.zig", .needs_utf8proc = true, .needs_ring = true },
+    .{ .name = "stk_datetime", .entry = "src/stk_datetime_entry.zig", .needs_ring = true },
+    .{ .name = "stk_file", .entry = "src/stk_file_entry.zig", .needs_ring = true },
+    .{ .name = "stk_locale", .entry = "src/stk_locale_entry.zig", .needs_ring = true },
 };
 
 // Base (stz_*): full features, superset of Core
 const base_domains = [_]Domain{
-    .{ .name = "stz_string", .entry = "src/stz_string_entry.zig", .needs_utf8proc = true },
-    .{ .name = "stz_datetime", .entry = "src/stz_datetime_entry.zig" },
-    .{ .name = "stz_file", .entry = "src/stz_file_entry.zig" },
-    .{ .name = "stz_locale", .entry = "src/stz_locale_entry.zig" },
-    .{ .name = "stz_regex", .entry = "src/stz_regex_entry.zig", .needs_utf8proc = true },
-    .{ .name = "stz_bytes", .entry = "src/stz_bytes_entry.zig" },
-    .{ .name = "stz_json", .entry = "src/stz_json_entry.zig" },
-    .{ .name = "stz_url", .entry = "src/stz_url_entry.zig" },
-    .{ .name = "stz_system", .entry = "src/stz_system_entry.zig" },
-    .{ .name = "stz_unicode", .entry = "src/stz_unicode_entry.zig", .needs_utf8proc = true },
+    .{ .name = "stz_string", .entry = "src/stz_string_entry.zig", .needs_utf8proc = true, .needs_ring = true },
+    .{ .name = "stz_datetime", .entry = "src/stz_datetime_entry.zig", .needs_ring = true },
+    .{ .name = "stz_file", .entry = "src/stz_file_entry.zig", .needs_ring = true },
+    .{ .name = "stz_locale", .entry = "src/stz_locale_entry.zig", .needs_ring = true },
+    .{ .name = "stz_regex", .entry = "src/stz_regex_entry.zig", .needs_utf8proc = true, .needs_ring = true },
+    .{ .name = "stz_bytes", .entry = "src/stz_bytes_entry.zig", .needs_ring = true },
+    .{ .name = "stz_json", .entry = "src/stz_json_entry.zig", .needs_ring = true },
+    .{ .name = "stz_url", .entry = "src/stz_url_entry.zig", .needs_ring = true },
+    .{ .name = "stz_system", .entry = "src/stz_system_entry.zig", .needs_ring = true },
+    .{ .name = "stz_unicode", .entry = "src/stz_unicode_entry.zig", .needs_utf8proc = true, .needs_ring = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
@@ -34,6 +35,12 @@ fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Bui
         .files = &.{"vendor/utf8proc/utf8proc.c"},
         .flags = &.{"-DUTF8PROC_STATIC"},
     });
+}
+
+fn addRing(mod: *std.Build.Module, lib: *std.Build.Step.Compile) void {
+    mod.addIncludePath(.{ .cwd_relative = "D:/Ring126/language/include" });
+    lib.addLibraryPath(.{ .cwd_relative = "D:/Ring126/lib" });
+    lib.linkSystemLibrary("ring");
 }
 
 pub fn build(b: *std.Build) void {
@@ -54,6 +61,7 @@ pub fn build(b: *std.Build) void {
             .linkage = .dynamic,
         });
         if (dom.needs_utf8proc) addUtf8proc(mod, lib, b);
+        if (dom.needs_ring) addRing(mod, lib);
         b.installArtifact(lib);
     }
 
@@ -71,6 +79,7 @@ pub fn build(b: *std.Build) void {
             .linkage = .dynamic,
         });
         if (dom.needs_utf8proc) addUtf8proc(mod, lib, b);
+        if (dom.needs_ring) addRing(mod, lib);
         b.installArtifact(lib);
     }
 

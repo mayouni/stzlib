@@ -3,6 +3,7 @@
 // Base (stz_datetime.dll) is a strict superset of this.
 
 pub const datetime = @import("datetime.zig");
+pub const ring_bridge = @import("ring_bridge_datetime.zig");
 
 comptime {
     // Date lifecycle + components + compare
@@ -34,6 +35,10 @@ comptime {
     @export(&datetime.stz_datetime_minute, .{ .name = "stz_datetime_minute" });
     @export(&datetime.stz_datetime_second, .{ .name = "stz_datetime_second" });
     @export(&datetime.stz_datetime_compare, .{ .name = "stz_datetime_compare" });
+}
+
+comptime {
+    @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }
 
 test {

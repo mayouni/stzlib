@@ -1,4 +1,5 @@
 pub const unicode = @import("unicode.zig");
+pub const ring_bridge = @import("ring_bridge_unicode.zig");
 
 comptime {
     @export(&unicode.stz_unicode_category, .{ .name = "stz_unicode_category" });
@@ -35,4 +36,8 @@ comptime {
     @export(&unicode.stz_unicode_encode, .{ .name = "stz_unicode_encode" });
     @export(&unicode.stz_unicode_cp_to_byte, .{ .name = "stz_unicode_cp_to_byte" });
     @export(&unicode.stz_unicode_byte_to_cp, .{ .name = "stz_unicode_byte_to_cp" });
+}
+
+comptime {
+    @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }

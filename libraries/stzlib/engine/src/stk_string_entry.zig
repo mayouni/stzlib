@@ -4,6 +4,7 @@
 
 pub const string = @import("string.zig");
 pub const char = @import("char.zig");
+pub const ring_bridge = @import("ring_bridge_string.zig");
 
 comptime {
     // String lifecycle
@@ -27,6 +28,10 @@ comptime {
     @export(&char.stz_char_to_utf8, .{ .name = "stz_char_to_utf8" });
     @export(&char.stz_char_is_letter, .{ .name = "stz_char_is_letter" });
     @export(&char.stz_char_is_digit, .{ .name = "stz_char_is_digit" });
+}
+
+comptime {
+    @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }
 
 test {
