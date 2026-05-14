@@ -1530,8 +1530,7 @@ class stzString from stzObject
 	#===============================#
 
 	def ApplyLowercase() # Understand it as a verb, an action on main string!
-		oQLocale = new QLocale("C")
-		This.Update( oQLocale.toLower(This.String()) )
+		This.Update( lower(This.String()) )
 
 		#< @FunctionFluentForm
 
@@ -1859,8 +1858,7 @@ class stzString from stzObject
 	#===============================#
 
 	def ApplyUppercase()
-		oQLocale = new QLocale("C")
-		This.Update( oQLocale.toUpper(This.String()) )
+		This.Update( upper(This.String()) )
 
 		#< @FunctionFluentForm
 
