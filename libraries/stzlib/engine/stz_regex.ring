@@ -74,3 +74,13 @@ func StzEngineRegexReplace(pHandle, cInput, cReplacement)
     cResult = copy(pData, nLen)
     CallCFunc($pStzRegexHandle, "stz_regex_replace_free", "v", "pi", pData, nLen)
     return cResult
+
+# ── ReDoS Limits ──
+# max_steps: max backtracking steps per match (default 1000000)
+# max_input_len: max input bytes accepted (default 1048576 = 1MB)
+# max_depth: max group nesting depth (default 64)
+
+func StzEngineRegexSetLimits(pHandle, nMaxSteps, nMaxInputLen, nMaxDepth)
+    if $pStzRegexHandle = NULL return ok
+    CallCFunc($pStzRegexHandle, "stz_regex_set_limits", "v", "piii",
+              pHandle, nMaxSteps, nMaxInputLen, nMaxDepth)
