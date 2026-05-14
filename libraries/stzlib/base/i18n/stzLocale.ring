@@ -24,10 +24,404 @@ $aDaysOfWeek = [
 	[ "7", :Sunday ]
 ]
 
-func SystemLocale() # Returned as a string
-	oQLocale = new QLocale("C")
-	cResult = oQLocale.system().name()
-	return cResult
+# ── Locale helper data tables ──
+
+$_aDayNamesPerLang = [
+	[:english,    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]],
+	[:french,     ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]],
+	[:arabic,     ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"]],
+	[:spanish,    ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]],
+	[:german,     ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]],
+	[:portuguese, ["Segunda-feira", "Terca-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sabado", "Domingo"]],
+	[:italian,    ["Lunedi", "Martedi", "Mercoledi", "Giovedi", "Venerdi", "Sabato", "Domenica"]],
+	[:russian,    ["Ponedelnik", "Vtornik", "Sreda", "Chetverg", "Pyatnitsa", "Subbota", "Voskresenie"]],
+	[:turkish,    ["Pazartesi", "Sali", "Carsamba", "Persembe", "Cuma", "Cumartesi", "Pazar"]],
+	[:dutch,      ["Maandag", "Dinsdag", "Woensdag", "Donderdag", "Vrijdag", "Zaterdag", "Zondag"]]
+]
+
+$_aMonthNamesPerLang = [
+	[:english,    ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]],
+	[:french,     ["Janvier", "Fevrier", "Mars", "Avril", "Mai", "Juin", "Juillet", "Aout", "Septembre", "Octobre", "Novembre", "Decembre"]],
+	[:arabic,     ["Yanayir", "Fibrayir", "Maris", "Abril", "Mayu", "Yunyu", "Yulyu", "Aghustus", "Sibtambir", "Uktubar", "Nufambir", "Disambir"]],
+	[:spanish,    ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"]],
+	[:german,     ["Januar", "Februar", "Marz", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"]],
+	[:portuguese, ["Janeiro", "Fevereiro", "Marco", "Abril", "Maio", "Junho", "Julho", "Agosto", "Setembro", "Outubro", "Novembro", "Dezembro"]],
+	[:italian,    ["Gennaio", "Febbraio", "Marzo", "Aprile", "Maggio", "Giugno", "Luglio", "Agosto", "Settembre", "Ottobre", "Novembre", "Dicembre"]],
+	[:russian,    ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentyabr", "Oktyabr", "Noyabr", "Dekabr"]],
+	[:turkish,    ["Ocak", "Subat", "Mart", "Nisan", "Mayis", "Haziran", "Temmuz", "Agustos", "Eylul", "Ekim", "Kasim", "Aralik"]],
+	[:dutch,      ["Januari", "Februari", "Maart", "April", "Mei", "Juni", "Juli", "Augustus", "September", "Oktober", "November", "December"]]
+]
+
+$_aCurrencyISOData = [
+	[:Afghan_afghani, "AFN", "Af"],
+	[:Albanian_lek, "ALL", "L"],
+	[:Algerian_dinar, "DZD", "DA"],
+	[:Argentine_peso, "ARS", "$"],
+	[:Armenian_dram, "AMD", "AMD"],
+	[:Australian_dollar, "AUD", "A$"],
+	[:Azerbaijani_manat, "AZN", "AZN"],
+	[:Bahamian_dollar, "BSD", "B$"],
+	[:Bahraini_dinar, "BHD", "BD"],
+	[:Bangladeshi_taka, "BDT", "Tk"],
+	[:Barbados_dollar, "BBD", "Bds$"],
+	[:Belarusian_ruble, "BYN", "Br"],
+	[:Belize_dollar, "BZD", "BZ$"],
+	[:Bermudian_dollar, "BMD", "BD$"],
+	[:Bhutanese_ngultrum, "BTN", "Nu"],
+	[:Bolivian_boliviano, "BOB", "Bs"],
+	[:Bosnia_and_Herzegovina_convertible_mark, "BAM", "KM"],
+	[:Botswana_pula, "BWP", "P"],
+	[:Brazilian_real, "BRL", "R$"],
+	[:Brunei_dollar, "BND", "B$"],
+	[:Bulgarian_lev, "BGN", "лв"],
+	[:Cambodian_riel, "KHR", "KHR"],
+	[:Canadian_dollar, "CAD", "C$"],
+	[:Cape_Verdean_escudo, "CVE", "Esc"],
+	[:Chilean_peso, "CLP", "CL$"],
+	[:Chinese_yuan, "CNY", "CN¥"],
+	[:Colombian_peso, "COP", "COL$"],
+	[:Comorian_franc, "KMF", "CF"],
+	[:Costa_Rican_colon, "CRC", "CRC"],
+	[:Croatian_kuna, "HRK", "kn"],
+	[:Cuban_peso, "CUP", "$MN"],
+	[:Czech_koruna, "CZK", "Kc"],
+	[:Danish_krone, "DKK", "kr"],
+	[:Dominican_peso, "DOP", "RD$"],
+	[:Eastern_Caribbean_dollar, "XCD", "EC$"],
+	[:Egyptian_pound, "EGP", "EGP"],
+	[:Eritrean_nakfa, "ERN", "Nfk"],
+	[:Ethiopian_birr, "ETB", "Br"],
+	[:Euro, "EUR", "EUR"],
+	[:Fijian_dollar, "FJD", "FJ$"],
+	[:Gambian_dalasi, "GMD", "D"],
+	[:Georgian_lari, "GEL", "GEL"],
+	[:Ghanaian_cedi, "GHS", "GHS"],
+	[:Guatemalan_quetzal, "GTQ", "Q"],
+	[:Guinean_franc, "GNF", "FG"],
+	[:Guyanese_dollar, "GYD", "G$"],
+	[:Haitian_gourde, "HTG", "G"],
+	[:Honduran_lempira, "HNL", "L"],
+	[:Hong_Kong_dollar, "HKD", "HK$"],
+	[:Hungarian_forint, "HUF", "Ft"],
+	[:Icelandic_krona, "ISK", "kr"],
+	[:Indian_rupee, "INR", "Rs"],
+	[:Indonesian_rupiah, "IDR", "Rp"],
+	[:Iranian_rial, "IRR", "IRR"],
+	[:Iraqi_dinar, "IQD", "IQD"],
+	[:Israeli_new_shekel, "ILS", "ILS"],
+	[:Jamaican_dollar, "JMD", "J$"],
+	[:Japanese_yen, "JPY", "JP¥"],
+	[:Jordanian_dinar, "JOD", "JD"],
+	[:Kazakhstani_tenge, "KZT", "KZT"],
+	[:Kenyan_shilling, "KES", "KSh"],
+	[:Kuwaiti_dinar, "KWD", "KD"],
+	[:Kyrgyzstani_som, "KGS", "KGS"],
+	[:Lao_kip, "LAK", "LAK"],
+	[:Lebanese_pound, "LBP", "LBP"],
+	[:Liberian_dollar, "LRD", "L$"],
+	[:Libyan_dinar, "LYD", "LD"],
+	[:Macanese_pataca, "MOP", "MOP$"],
+	[:Malagasy_ariary, "MGA", "Ar"],
+	[:Malawian_kwacha, "MWK", "MK"],
+	[:Malaysian_ringgit, "MYR", "RM"],
+	[:Maldivian_rufiyaa, "MVR", "Rf"],
+	[:Mauritanian_ouguiya, "MRU", "UM"],
+	[:Mauritian_rupee, "MUR", "Rs"],
+	[:Mexican_peso, "MXN", "Mex$"],
+	[:Moldovan_leu, "MDL", "MDL"],
+	[:Mongolian_tugrik, "MNT", "MNT"],
+	[:Moroccan_dirham, "MAD", "MAD"],
+	[:Mozambican_metical, "MZN", "MT"],
+	[:Myanmar_kyat, "MMK", "K"],
+	[:Namibian_dollar, "NAD", "N$"],
+	[:Nepalese_rupee, "NPR", "NRs"],
+	[:New_Zealand_dollar, "NZD", "NZ$"],
+	[:Nicaraguan_cordoba, "NIO", "C$"],
+	[:Nigerian_naira, "NGN", "NGN"],
+	[:North_Korean_won, "KPW", "KPW"],
+	[:Norwegian_krone, "NOK", "kr"],
+	[:Omani_rial, "OMR", "OMR"],
+	[:Pakistani_rupee, "PKR", "Rs"],
+	[:Panamanian_balboa, "PAB", "B/."],
+	[:Papua_New_Guinean_kina, "PGK", "K"],
+	[:Paraguayan_guarani, "PYG", "Gs"],
+	[:Peruvian_sol, "PEN", "S/."],
+	[:Philippine_peso, "PHP", "PHP"],
+	[:Polish_zloty, "PLN", "zl"],
+	[:Pound_sterling, "GBP", "GBP"],
+	[:Qatari_riyal, "QAR", "QR"],
+	[:Romanian_leu, "RON", "lei"],
+	[:Russian_ruble, "RUB", "RUB"],
+	[:Rwandan_franc, "RWF", "RF"],
+	[:Saint_Helena_pound, "SHP", "SHP"],
+	[:Samoan_tala, "WST", "WS$"],
+	[:Saudi_riyal, "SAR", "SR"],
+	[:Serbian_dinar, "RSD", "din."],
+	[:Seychellois_rupee, "SCR", "SRe"],
+	[:Sierra_Leonean_leone, "SLL", "Le"],
+	[:Singapore_dollar, "SGD", "S$"],
+	[:Solomon_Islands_dollar, "SBD", "SI$"],
+	[:Somali_shilling, "SOS", "Sh"],
+	[:South_African_rand, "ZAR", "R"],
+	[:South_Korean_won, "KRW", "KRW"],
+	[:Sri_Lankan_rupee, "LKR", "Rs"],
+	[:Sudanese_pound, "SDG", "SDG"],
+	[:Surinamese_dollar, "SRD", "SRD"],
+	[:Swazi_lilangeni, "SZL", "E"],
+	[:Swedish_krona, "SEK", "kr"],
+	[:Swiss_franc, "CHF", "CHF"],
+	[:Syrian_pound, "SYP", "SYP"],
+	[:New_Taiwan_dollar, "TWD", "NT$"],
+	[:Tajikistani_somoni, "TJS", "SM"],
+	[:Tanzanian_shilling, "TZS", "TSh"],
+	[:Thai_baht, "THB", "THB"],
+	[:Tongan_pa_anga, "TOP", "T$"],
+	[:Trinidad_and_Tobago_dollar, "TTD", "TT$"],
+	[:Tunisian_dinar, "TND", "DT"],
+	[:Turkish_lira, "TRY", "TL"],
+	[:Turkmenistan_manat, "TMT", "T"],
+	[:Ugandan_shilling, "UGX", "USh"],
+	[:Ukrainian_hryvnia, "UAH", "UAH"],
+	[:UAE_dirham, "AED", "AED"],
+	[:United_States_Dollar, "USD", "$"],
+	[:Uruguayan_peso, "UYU", "$U"],
+	[:Uzbekistani_som, "UZS", "UZS"],
+	[:Vanuatu_vatu, "VUV", "VT"],
+	[:Venezuelan_bolivar, "VEF", "Bs.F"],
+	[:Vietnamese_dong, "VND", "VND"],
+	[:West_African_CFA_franc, "XOF", "CFA"],
+	[:Central_African_CFA_franc, "XAF", "FCFA"],
+	[:CFP_franc, "XPF", "F"],
+	[:Yemeni_rial, "YER", "YER"],
+	[:Zambian_kwacha, "ZMW", "ZK"],
+	[:Zimbabwean_dollar, "ZWL", "Z$"],
+	[:Antarctic_dollar, "AAD", "$"]
+]
+
+# ── Pure Ring locale helper functions ──
+
+func _LocaleLangCodeFromAbbr(cLocaleAbbr)
+	cLocaleAbbr = substr(cLocaleAbbr, "-", "_")
+	nPos = substr(cLocaleAbbr, "_")
+	if nPos > 0
+		return lower(left(cLocaleAbbr, nPos - 1))
+	ok
+	return lower(cLocaleAbbr)
+
+func _LocaleCountryCodeFromAbbr(cLocaleAbbr)
+	cLocaleAbbr = substr(cLocaleAbbr, "-", "_")
+	nPos = substr(cLocaleAbbr, "_")
+	if nPos > 0
+		cRest = substr(cLocaleAbbr, nPos + 1)
+		nPos2 = substr(cRest, "_")
+		if nPos2 > 0
+			return upper(substr(cRest, nPos2 + 1))
+		ok
+		if len(cRest) <= 3 and isalpha(left(cRest, 1))
+			return upper(cRest)
+		ok
+	ok
+	return ""
+
+func _LocaleNormalizeAbbr(cInput)
+	if cInput = NULL or cInput = "" or cInput = "C"
+		return "C"
+	ok
+	cInput = substr(cInput, "-", "_")
+	nPos = substr(cInput, "_")
+	if nPos > 0
+		cLang = lower(left(cInput, nPos - 1))
+		cRest = upper(substr(cInput, nPos + 1))
+		return cLang + "_" + cRest
+	ok
+	cLang = lower(cInput)
+	nLen = len($aLocaleLanguagesXT)
+	for i = 1 to nLen
+		if lower($aLocaleLanguagesXT[i][3]) = cLang
+			if $aLocaleLanguagesXT[i][5] != NULL
+				cCountryName = $aLocaleLanguagesXT[i][5]
+				nLen2 = len(_aLocaleCountriesXT)
+				for j = 1 to nLen2
+					if lower(_aLocaleCountriesXT[j][2]) = lower(cCountryName)
+						return cLang + "_" + _aLocaleCountriesXT[j][3]
+					ok
+				next
+			ok
+			return cLang
+		ok
+	next
+	return cInput
+
+func _LocaleQtCountryNumber(cCountryCode)
+	cCode = upper(cCountryCode)
+	nLen = len(_aLocaleCountriesXT)
+	for i = 1 to nLen
+		if upper(_aLocaleCountriesXT[i][3]) = cCode
+			return _aLocaleCountriesXT[i][1]
+		ok
+	next
+	return "0"
+
+func _LocaleQtScriptNumber(cScriptCode)
+	nLen = len(_aLocaleScriptsXT)
+	for i = 1 to nLen
+		if upper(_aLocaleScriptsXT[i][3]) = upper(cScriptCode)
+			return _aLocaleScriptsXT[i][1]
+		ok
+	next
+	return "0"
+
+func _LocaleFirstDayNumber(cLocaleAbbr)
+	cCountry = upper(_LocaleCountryCodeFromAbbr(cLocaleAbbr))
+	aSatFirst = ["AF", "IR"]
+	aSunFirst = ["US", "CA", "JP", "CN", "IL", "KR", "TW", "PH", "BR", "IN",
+	             "CO", "MX", "AU", "NZ", "SG", "ZA", "GT", "HN", "SV", "NI",
+	             "DO", "HT", "PR", "BS", "JM", "TT", "BB", "LC", "VC", "GD",
+	             "AG", "DM", "KN", "BZ", "GY", "PA", "PE", "PY", "VE"]
+	for c in aSatFirst
+		if cCountry = c return 6 ok
+	next
+	for c in aSunFirst
+		if cCountry = c return 7 ok
+	next
+	return 1
+
+func _LocaleDecimalPointChar(cLocaleAbbr)
+	cLang = _LocaleLangCodeFromAbbr(cLocaleAbbr)
+	aCommaDec = ["fr", "de", "es", "pt", "it", "nl", "ru", "pl", "cs", "sk",
+	             "sv", "fi", "da", "nb", "nn", "ro", "hu", "hr", "sr", "sl",
+	             "bg", "uk", "be", "el", "tr", "vi", "id", "ca", "gl", "eu"]
+	for c in aCommaDec
+		if cLang = c return "," ok
+	next
+	return "."
+
+func _LocaleGroupSepChar(cLocaleAbbr)
+	cLang = _LocaleLangCodeFromAbbr(cLocaleAbbr)
+	aSpaceGroup = ["fr", "sv", "fi", "pl", "cs", "sk", "nb", "nn", "da",
+	               "ru", "uk", "be", "bg"]
+	for c in aSpaceGroup
+		if cLang = c return " " ok
+	next
+	aPeriodGroup = ["de", "es", "pt", "it", "nl", "ro", "hu", "hr", "sr",
+	                "sl", "el", "tr", "vi", "id", "ca", "gl", "eu"]
+	for c in aPeriodGroup
+		if cLang = c return "." ok
+	next
+	return ","
+
+func _LocaleMeasurementSysNum(cLocaleAbbr)
+	cCountry = upper(_LocaleCountryCodeFromAbbr(cLocaleAbbr))
+	if cCountry = "US" or cCountry = "LR" or cCountry = "MM"
+		return "1"
+	ok
+	if cCountry = "GB"
+		return "2"
+	ok
+	return "0"
+
+func _LocaleTimeFormatStr(cLocaleAbbr, nType)
+	cCountry = upper(_LocaleCountryCodeFromAbbr(cLocaleAbbr))
+	cLang = _LocaleLangCodeFromAbbr(cLocaleAbbr)
+	if nType = 1 or nType = 2
+		if cCountry = "US" or (cLang = "en" and cCountry = "")
+			return "h:mm AP"
+		ok
+		return "HH:mm"
+	ok
+	if cCountry = "US" or (cLang = "en" and cCountry = "")
+		return "h:mm:ss AP t"
+	ok
+	return "HH:mm:ss t"
+
+func _CurrencyISOCode(cCurrencyName)
+	cName = lower(cCurrencyName)
+	nLen = len($_aCurrencyISOData)
+	for i = 1 to nLen
+		if lower($_aCurrencyISOData[i][1]) = cName
+			return $_aCurrencyISOData[i][2]
+		ok
+	next
+	return ""
+
+func _CurrencyNativeSymbol(cCurrencyName)
+	cName = lower(cCurrencyName)
+	nLen = len($_aCurrencyISOData)
+	for i = 1 to nLen
+		if lower($_aCurrencyISOData[i][1]) = cName
+			return $_aCurrencyISOData[i][3]
+		ok
+	next
+	return ""
+
+func _DayNameInLang(cLangName, nDay)
+	cLang = lower(cLangName)
+	nLen = len($_aDayNamesPerLang)
+	for i = 1 to nLen
+		if lower($_aDayNamesPerLang[i][1]) = cLang
+			if nDay >= 1 and nDay <= 7
+				return $_aDayNamesPerLang[i][2][nDay]
+			ok
+		ok
+	next
+	if nDay >= 1 and nDay <= 7
+		return $_aDayNamesPerLang[1][2][nDay]
+	ok
+	return ""
+
+func _DayAbbrInLang(cLangName, nDay)
+	cFullName = _DayNameInLang(cLangName, nDay)
+	if len(cFullName) >= 3
+		return left(cFullName, 3)
+	ok
+	return cFullName
+
+func _DaySymbolInLang(cLangName, nDay)
+	cFullName = _DayNameInLang(cLangName, nDay)
+	if len(cFullName) >= 1
+		return left(cFullName, 1)
+	ok
+	return ""
+
+func _MonthNameInLang(cLangName, nMonth)
+	cLang = lower(cLangName)
+	nLen = len($_aMonthNamesPerLang)
+	for i = 1 to nLen
+		if lower($_aMonthNamesPerLang[i][1]) = cLang
+			if nMonth >= 1 and nMonth <= 12
+				return $_aMonthNamesPerLang[i][2][nMonth]
+			ok
+		ok
+	next
+	if nMonth >= 1 and nMonth <= 12
+		return $_aMonthNamesPerLang[1][2][nMonth]
+	ok
+	return ""
+
+func _LangNameFromCode(cLangCode)
+	cCode = lower(cLangCode)
+	nLen = len($aLocaleLanguagesXT)
+	for i = 1 to nLen
+		if lower($aLocaleLanguagesXT[i][3]) = cCode
+			return $aLocaleLanguagesXT[i][2]
+		ok
+	next
+	return :english
+
+func _LangNativeNameFromCode(cLangCode)
+	cCode = lower(cLangCode)
+	nLen = len($aLocaleLanguagesXT)
+	for i = 1 to nLen
+		if lower($aLocaleLanguagesXT[i][3]) = cCode
+			return $aLocaleLanguagesXT[i][6]
+		ok
+	next
+	return ""
+
+# ── Top-level functions ──
+
+func SystemLocale()
+	return "C"
 
 	func SystemLocaleAbbreviation()
 		return SystemLocale()
@@ -103,84 +497,69 @@ func NamesOfDays()
 func NamesOfDaysIn(pcLangOrCountry)
 
 	aResult = []
+	cLangName = :english
+
 	if _(pcLangOrCountry).Q.IsLanguageName()
-		oQLocale = StzLocaleQ([ :Language = pcLangOrCountry ]).QLocaleObject()
+		cLangName = pcLangOrCountry
+		oLocale = StzLocaleQ([ :Language = pcLangOrCountry ])
 
 	but _(pcLangOrCountry).Q.IsCountryName()
-
-		cAbbr = StzCountryQ(pcLangOrCountry).LanguageAbbreviation() + "_" +
-			StzCountryQ(pcLangOrCountry).Abbreviation()
-
-		oQLocale = new QLocale(cAbbr)
+		cLangName = StzCountryQ(pcLangOrCountry).Language()
+		oLocale = StzLocaleQ([ :Country = pcLangOrCountry ])
 	else
-		oQLocale = new QLocale("C")
+		oLocale = StzLocaleQ("C")
 	ok
 
-	# Let's define the 1st of week in this locale
-
-	cFirstDayInEnglish = StzLocaleQ(oQLocale).FirstDayOfWeek()
+	cFirstDayInEnglish = oLocale.FirstDayOfWeek()
 
 	aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
 	n = find( aDaysInEnglish, cFirstDayInEnglish )
 
-	# We need to get that 1st day in native language of the locale
-
-	aDaysInLocaleLanguage = [ oQLocale.dayname(n, 0) ]
-
-	# And then compose the days starting from that 1st day
+	aDaysInLocaleLanguage = [ _DayNameInLang(cLangName, n) ]
 
 	for i = n + 1 to 7
-		aDaysInLocaleLanguage + oQLocale.dayname(i, 0)
+		aDaysInLocaleLanguage + _DayNameInLang(cLangName, i)
 	next
 
 	for i = 1 to n - 1
-		aDaysInLocaleLanguage + oQLocale.dayname(i, 0)
+		aDaysInLocaleLanguage + _DayNameInLang(cLangName, i)
 	next
 
-
 	return aDaysInLocaleLanguage
-	
+
 func NamesOfMonths()
 	return NamesOfMonthsIn(:English)
 
 func NamesOfMonthsIn(pcLangOrCountry)
 	oLang = new stzString(pcLangOrCountry)
 	aResult = []
+	cLangName = :english
+
 	if oLang.IsLanguageName()
-		oQLocale = StzLocaleQ([ :Language = pcLangOrCountry ]).QLocaleObject()
+		cLangName = pcLangOrCountry
 
 	but oLang.IsCountryName()
-
-		cAbbr = StzCountryQ(pcLangOrCountry).LanguageAbbreviation() + "_" +
-			StzCountryQ(pcLangOrCountry).Abbreviation()
-
-		oQLocale = new QLocale(cAbbr)
-	else
-		oQLocale = new QLocale("C")
+		cLangName = StzCountryQ(pcLangOrCountry).Language()
 	ok
 
 	for i = 1 to 12
-		aResult + oQLocale.monthname(i, 0)
+		aResult + _MonthNameInLang(cLangName, i)
 	next
 
 	return aResult
 
 class stzLocale from stzObject
-	@oQLocale
 	@cAbbreviation
-
 	@cLangAbbreviation
 	@cScriptAbbreviation
 	@cCountryAbbreviation
-	
+
 	  #---------#
 	 #  INIT   #
 	#---------#
 
 	/*
 	Initializes the stzLocale object using one of these methods:
-
-		* a QLocale object instanciated from Qt using new QLocale()
 
 		* by providing a locale string like "ar_TN" and "ar_Arab_TN"
 		  (dash"-" separator also accepted)
@@ -199,18 +578,13 @@ class stzLocale from stzObject
 
 	def init(pLocale)
 
-		if IsQLocaleObject(pLocale)
-			@oQlocale = pLocale
-	
-		but IsString(pLocale)
+		if IsString(pLocale)
 			if pLocale = :System or pLocale = :SystemLocale
-				@oQLocale = new QLocale("C")
 				@cAbbreviation = "C"
 				return
 
 			but pLocale = :Default or pLocale = :DefaultLocale
-				@oQLocale = new QLocale(DefaultLocaleAbbreviation())
-				@cAbbreviation = @oQLocale.name()
+				@cAbbreviation = _LocaleNormalizeAbbr(DefaultLocaleAbbreviation())
 				return
 
 			but IsCountryName(pLocale)
@@ -226,16 +600,15 @@ class stzLocale from stzObject
 					ReplaceManyQ(["-","_"], "-").
 					Content()
 
-				@oQLocale = new QLocale(pLocale)
-				@cAbbreviation = @oQLocale.name()
-	
+				@cAbbreviation = _LocaleNormalizeAbbr(pLocale)
+
 			ok
 
 			pLocale = StzStringQ(pLocale).ReplaceQ("_", "-").Content()
 			oLocale = new stzString(pLocale)
 
 			if oLocale.ContainsOneOccurrence("-")
-				
+
 				aParts = oLocale.Split("-")
 				oPart1 = StzStringQ(aParts[1])
 				oPart2 = StzStringQ(aParts[2])
@@ -255,7 +628,7 @@ class stzLocale from stzObject
 				ok
 
 			but oLocale.ContainsNTimes(2, "-")
-			    
+
 				aParts =  oLocale.Split("-")
 				oPart1 = StzStringQ(aParts[1])
 				oPart2 = StzStringQ(aParts[2])
@@ -276,10 +649,10 @@ class stzLocale from stzObject
 
 		but IsList(pLocale)
 			if NOT ( isList(pLocale) and StzListQ(pLocale).IsLocaleList() )
-	
+
 				StzRaise("Can't create the stzLocale object!")
 			ok
-	
+
 			cLangName    = pLocale[ :Language ]
 			cScriptName  = pLocale[ :Script   ]
 			cCountryName = pLocale[ :Country  ]
@@ -287,49 +660,48 @@ class stzLocale from stzObject
 			cLangAbbr    = NULL
 			cScriptAbbr  = NULL
 			cCountryAbbr = NULL
-		
+
 			if cLangName != NULL and StzStringQ(cLangName).IsLanguageName()
 				cLangAbbr = StzLanguageQ(cLangName).Abbreviation()
 			ok
-	
+
 			if cScriptName != NULL and StzStringQ(cScriptName).IsScriptName()
 				cScriptAbbr = StzScriptQ(cScriptName).Abbreviation()
 			ok
-	
+
 			if cCountryName != NULL and StzStringQ(cCountryName).IsCountryName()
 				cCountryAbbr = StzCountryQ(cCountryName).Abbreviation()
 			ok
-	
+
 			cAbbr = ""
-	
+
 			if AllOfTheseAreNotNull([ cLangAbbr, cScriptAbbr, cCountryAbbr ])
 				cAbbr = cLangAbbr + "-" + cScriptAbbr + "-" + cCountryAbbr
-	
+
 			but cLangAbbr != NULL and BothAreNull(cScriptAbbr, cCountryAbbr)
 				cAbbr = cLangAbbr
-	
+
 			but cScriptAbbr != NULL and BothAreNull(cLangAbbr, cCountryAbbr)
 				cLangAbbr = StzScriptQ(cScriptAbbr).DefaultLanguageAbbreviation()
 				cAbbr = cLangAbbr + "-" + cScriptAbbr
-	
+
 			but cCountryAbbr != NULL and BothAreNull(cLangAbbr, cScriptAbbr)
 				cLangAbbr = StzCountryQ(cCountryAbbr).LanguageAbbreviation()
 				cAbbr = cLangAbbr + "-" + cCountryAbbr
-	
+
 			but BothAreNotNull(cLangAbbr, cScriptAbbr) and cCountryAbbr = NULL
 				cAbbr = cLangAbbr + "-" + cScriptAbbr
-	
+
 			but BothAreNotNull(cLangAbbr, cCountryAbbr) and cScriptAbbr = NULL
 				cAbbr = cLangAbbr + "-" + cCountryAbbr
-	
+
 			but cLangAbbr = NULL and BothAreNotNull(cScriptAbbr, cCountryAbbr)
 				cLangAbbr = StzCountryQ(cCountryAbbr).LanguageAbbreviation()
 				cAbbr = cLangAbbr + "-" + cScriptAbbr + "-" + cCountryAbbr
-	
+
 			ok
-	
-			@oQLocale = new QLocale(cAbbr)
-			@cAbbreviation = @oQLocale.name()
+
+			@cAbbreviation = _LocaleNormalizeAbbr(cAbbr)
 
 			@cLangAbbreviation = cLangAbbr
 			@cScriptAbbr = cScriptAbbr
@@ -340,15 +712,10 @@ class stzLocale from stzObject
 	 #  INFO   #
 	#---------#
 
-	# LOCALE QOBJECT
-
-	def QLocaleObject()
-		return @oQLocale
-
 	# LOCALE ABBREVIATION
 
 	def QtAbbreviation()
-		return @oQLocale.name()
+		return @cAbbreviation
 
 	def Abbreviation()
 		return @cAbbreviation
@@ -359,26 +726,26 @@ class stzLocale from stzObject
 		def Value()
 			return Content()
 
-	# A scpecific abbreviation notation for those who need it
-	/* Returns the dash-separated language, script and country
-	   (and possibly other BCP47 fields) of this locale as a string. */
-
 	def bcp47Abbreviation()
-		return @oQLocale.bcp47Name()
+		return substr(@cAbbreviation, "_", "-")
 
 	  #---------------#
 	 #    COUNTRY    #
 	#---------------#
-	
+
 	def CountryQtNumber()
-		return ""+ @oQLocale.country()
+		cCode = _LocaleCountryCodeFromAbbr(@cAbbreviation)
+		if cCode != ""
+			return _LocaleQtCountryNumber(cCode)
+		ok
+		return "0"
 
 		def CountryNumber()
 			return This.CountryQtNumber()
 
 	def CountryAbbreviation()
 		return This.CountryShortAbbreviation()
-	
+
 	def CountryShortAbbreviation()
 		cCountryQtNumber = This.CountryQtNumber()
 
@@ -399,7 +766,7 @@ class stzLocale from stzObject
 
 	def CountryPhoneCode()
 		cCountry = This.CountryName()
-		
+
 		for aCountryInfo in LocaleCountriesXT()
 			if lower(aCountryInfo[2]) = lower(cCountry)
 				return aCountryInfo[5]
@@ -417,7 +784,7 @@ class stzLocale from stzObject
 			return This.CountryName()
 
 	def CountryNativeName()
-		return StzLocaleQ([ :Country = This.CountryName() ]).QLocaleObject().nativeCountryName()
+		return This.CountryName()
 
 	  #-------------#
 	 #  LANGUAGE   #
@@ -434,7 +801,7 @@ class stzLocale from stzObject
 
 		def LanguageNumber()
 			return This.LanguageQtNumber()
- 
+
 	def LanguageName()
 		cCountry = This.CountryName()
 		if cCountry != ""
@@ -443,19 +810,24 @@ class stzLocale from stzObject
 
 		def Language()
 			return This.LanguageName()
-	
+
 		#-- @Misspelled
 
 		def Langauge()
 			return This.LanguageName()
 
 	def LanguageNativeName()
-		return StzLocaleQ([ :Country = This.CountryName() ]).QLocaleObject().nativeLanguageName()
+		cLangCode = _LocaleLangCodeFromAbbr(@cAbbreviation)
+		cNative = _LangNativeNameFromCode(cLangCode)
+		if cNative != ""
+			return cNative
+		ok
+		return This.LanguageName()
 
 
 	def LanguageAbbreviation()
 		return StzLanguageQ(This.Language()).Abbreviation()
-		
+
 	def LanguageShortAbbreviation()
 		return StzLanguageQ(This.Language()).ShortAbbreviation()
 
@@ -467,7 +839,16 @@ class stzLocale from stzObject
 	#-----------#
 
 	def ScriptNumber()
-		return ""+ @oQLocale.script()
+		if @cScriptAbbreviation != NULL and @cScriptAbbreviation != ""
+			return _LocaleQtScriptNumber(@cScriptAbbreviation)
+		ok
+		cLang = This.LanguageName()
+		for aScriptInfo in LocaleScriptsXT()
+			if lower(aScriptInfo[4]) = lower(cLang)
+				return aScriptInfo[1]
+			ok
+		next
+		return "0"
 
 		def ScriptCode()
 			return This.ScriptNumber()
@@ -495,7 +876,7 @@ class stzLocale from stzObject
 		cNumber = This.CountryNumber()
 
 		for i = 1 to nLen
-			
+
 			if _aLocaleCountriesXT[i][1] = cNumber
 				cResult = StzStringQ(_aLocaleCountriesXT[i][7]).ReplaceQ("_", " ").Capitalized()
 				return cResult
@@ -518,7 +899,7 @@ class stzLocale from stzObject
 		return This.pvtCurrencyXT(:NativeSymbol)
 
 		def CurrencyNativeSymbol()
-			return This.pvtCurrencyXT(:NativeSymbol)	
+			return This.pvtCurrencyXT(:NativeSymbol)
 
 	def CurrencyFractionalUnit()
 		for aCountryInfo in LocaleCountriesXT()
@@ -561,13 +942,13 @@ class stzLocale from stzObject
 
 	  #-----------------------------#
 	 #  LOCALISED TIME MANAGEMENT  #	#TODO :Should be used by default in
-	#-----------------------------#		# formatting time in stzTime	
+	#-----------------------------#		# formatting time in stzTime
 
 	def amText()
-		return @oQLocale.amText()
+		return StzEngineLocaleAMText()
 
 	def pmText()
-		return @oQLocale.pmText()
+		return StzEngineLocalePMText()
 
 	def TimeShortFormat()
 		return This.TimeFormat(:Short)
@@ -587,18 +968,19 @@ class stzLocale from stzObject
 			:Narrow (2  in Qt)
 		as defined in LocaleTimeFormatTypes()
 		*/
-		return @oQLocale.timeFormat( LocaleTimeFormatTypes()[ cType ])
+		nType = LocaleTimeFormatTypes()[ cType ]
+		return _LocaleTimeFormatStr(@cAbbreviation, nType)
 
 	// Returns a stzTime object from the localised string cTime
 	def ToStzTime(cTime)
-		return new stzTime( @oQLocale.toTime_2(cTime, This.TimeFormat(:Short)) )
+		return new stzTime(cTime)
 		/*
 		TODO: Logical error. Returns a result that is insensitve to the locale
 			o1 = new stzLocale("ru_RU") # Russian locale
 			? o1.ToTimeAsString("05:08:34", :Long)
 
 			Returns :
-			5:08:34  Paris, Madrid (heure d’été)
+			5:08:34  Paris, Madrid (heure d'ete)
 
 			This is sensitive to the system local on my machine ("fr_FR")
 			and not to the russian locale!
@@ -623,7 +1005,7 @@ class stzLocale from stzObject
 		return This.ToStzTime(cTime).ToString(:Default)
 		#       --------v-----------	       ---v---
 		#         stzTime object              "hh:mm:ss"
-	
+
 	def ToTimeAsLongString(cTime)
 		return This.ToTimeAsString(cTime, :Long)
 
@@ -640,22 +1022,22 @@ class stzLocale from stzObject
 	def DaysOfWeek()	# In english
 
 		# Let's define the 1st of week in this locale
-	
+
 		cFirstDayInEnglish = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
 		n = ring_find( aDaysInEnglish, cFirstDayInEnglish )
 
 		# We need to get that 1st day in native language of the locale
-	
+
 		aResult = [ cFirstDayInEnglish ]
-	
+
 		# And then compose the days starting from that 1st day
-	
+
 		for i = n + 1 to 7
 
 			aResult + aDaysInEnglish[i]
 		next
-	
+
 		for i = 1 to n - 1
 			aResult + aDaysInEnglish[i]
 		next
@@ -665,24 +1047,20 @@ class stzLocale from stzObject
 	#---
 
 	def NativeDaysOfWeek()
-		# Let's define the 1st of week in this locale
-	
 		cFirstDayInEnglish = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
 		n = ring_find( aDaysInEnglish, cFirstDayInEnglish )
-	
-		# We need to get that 1st day in native language of the locale
-	
-		aDaysInLocaleLanguage = [ @oQLocale.dayname(n, 0) ]
-	
-		# And then compose the days starting from that 1st day
-	
+
+		cLang = This.LanguageName()
+
+		aDaysInLocaleLanguage = [ _DayNameInLang(cLang, n) ]
+
 		for i = n + 1 to 7
-			aDaysInLocaleLanguage + @oQLocale.dayname(i, 0)
+			aDaysInLocaleLanguage + _DayNameInLang(cLang, i)
 		next
-	
+
 		for i = 1 to n - 1
-			aDaysInLocaleLanguage + @oQLocale.dayname(i, 0)
+			aDaysInLocaleLanguage + _DayNameInLang(cLang, i)
 		next
 
 		return aDaysInLocaleLanguage
@@ -691,27 +1069,16 @@ class stzLocale from stzObject
 		/*
 		FYI: read this discussion about the week having 5 days in Javaneese:
 		https://bit.ly/2U5oTAh
-
-		QLocale.firstDayOfWeek returns a number of week hosted in
-		a pointer like this:
-			0AF913F0
-			Qt::DayOfWeek
-			0
-		--> to read the number we use the softanza function NumberInPointer()
-
-		After that, we search for the day string inside the DefaultDaysOfWeek() list
 		*/
-		
-		//oQLocale = StzLocaleQ([ :Country = This.Country() ]).QLocaleObject()
 
 		nNthDay = 0
 		if 0 < n and n < 8
-			nFirstDayOfWeek = NumberInPointer(@oQLocale.firstDayOfWeek())
+			nFirstDayOfWeek = _LocaleFirstDayNumber(@cAbbreviation)
 			nTemp = nFirstDayOfWeek + (n-1)
 
 			if n != 1
 				for i = nFirstDayOfWeek to nTemp
-					
+
 					nNthDay++
 					if nNthDay = 8
 						nNthDay = 1
@@ -721,7 +1088,7 @@ class stzLocale from stzObject
 			else
 				nNthDay = nFirstDayOfWeek + n - 1
 			ok
-	
+
 			return DefaultDaysOfWeek()[""+ nNthDay ]
 		else
 			StzRaise(stzLocaleError(:CanNotDefineNthDayOfWeek))
@@ -758,12 +1125,14 @@ class stzLocale from stzObject
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
 
 		nFirst = ring_find( aDaysInEnglish, cFirstDay )
-		
-		oQLocale = new QLocale("en-US")
-		return oQLocale.dayname(nFirst + n - 1, 1)
+
+		nDay = nFirst + n - 1
+		if nDay > 7 nDay = nDay - 7 ok
+		return _DayAbbrInLang(:english, nDay)
 
 	def NthDayOfWeekNativeAbbreviation(n)
-		return @oQLocale.dayname(n, 1)
+		cLang = This.LanguageName()
+		return _DayAbbrInLang(cLang, n)
 
 		def NativeNthDayOfWeekAbbreviation(n)
 			return This.NthDayOfWeekNativeAbbreviation(n)
@@ -796,19 +1165,21 @@ class stzLocale from stzObject
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
 
 		nFirst = ring_find( aDaysInEnglish, cFirstDay )
-		
-		oQLocale = new QLocale("en-US")
-		return oQLocale.dayname(nFirst + n - 1, 2)
+
+		nDay = nFirst + n - 1
+		if nDay > 7 nDay = nDay - 7 ok
+		return _DaySymbolInLang(:english, nDay)
 
 	def NthDayOfWeekNativeSymbol(n)
-		return @oQLocale.dayname(n, 2)
+		cLang = This.LanguageName()
+		return _DaySymbolInLang(cLang, n)
 
 		def NativeNthDayOfWeekSymbol(n)
 			return This.NthDayOfWeekNativeSymbol(n)
 
 	def FirstDayOfWeekSymbol()
 		return This.NthDayOfWeekSymbol(1)
-	
+
 	def FirstDayOfWeekNativeSymbol()
 		return This.NthDayOfWeekNativeSymbol(1)
 
@@ -817,7 +1188,7 @@ class stzLocale from stzObject
 
 	def LastDayOfWeekSymbol()
 		return This.NthDayOfWeekSymbol(7)
-	
+
 	def LastDayOfWeekNativeSymbol()
 		return This.NthDayOfWeekNativeSymbol(7)
 
@@ -834,26 +1205,26 @@ class stzLocale from stzObject
 	#----------------#	# formatting numbers in stzNumber
 
 	def DecimalPoint()
-		return QCharToString(@oQLocale.decimalPoint())
+		return _LocaleDecimalPointChar(@cAbbreviation)
 
 	def Exponential()
-		return QCharToString(@oQLocale.exponential())
+		return "e"
 
 	def GroupSeparator()
-		return QCharToString(@oQLocale.groupSeparator())
+		return _LocaleGroupSepChar(@cAbbreviation)
 
 		def GroupSeperator()
 			return This.GroupSeparator()
 
 	def NegativeSign()
-		return QCharToString(@oQLocale.negativeSign())
+		return "-"
 
 	def PositiveSign()
-		return QCharToString(@oQLocale.positiveSign())
+		return "+"
 
 	def Percent()
-		return QCharToString(@oQLocale.percent())
-	
+		return "%"
+
 	  #-----------------------#
 	 #   STRING LOWER CASE   #
 	#-----------------------#
@@ -865,7 +1236,7 @@ class stzLocale from stzObject
 	*/
 
 	def StringLowercased(pcStr)
-		cResult = @oQLocale.toLower(pcStr)
+		cResult = StzEngineLocaleToLower(pcStr)
 		return cResult
 
 		def ToLowercase(pcStr)
@@ -873,7 +1244,7 @@ class stzLocale from stzObject
 
 	def CharLowercased(pcChar)
 		if @IsChar(pcChar)
-			return This.StringLowercased(pcStr)
+			return This.StringLowercased(pcChar)
 		ok
 
 	def StringIsLowercased(pcStr)
@@ -884,7 +1255,7 @@ class stzLocale from stzObject
 
 	def CharIsLowercased(pcChar)
 		if @IsChar(pcChar)
-			return This.StringIsLowercased(pcStr)
+			return This.StringIsLowercased(pcChar)
 		ok
 
 	  #-----------------------#
@@ -892,9 +1263,9 @@ class stzLocale from stzObject
 	#-----------------------#
 	# --? TODO: support the special cases documented in unicode here:
 	# http://unicode.org/Public/UNIDATA/SpecialCasing.txt
-	
+
 	def StringUppercased(pcStr)
-		cResult = QLocaleObject().toUPPER(pcStr)
+		cResult = StzEngineLocaleToUpper(pcStr)
 		return cResult
 
 		def ToUppercase(pcStr)
@@ -902,7 +1273,7 @@ class stzLocale from stzObject
 
 	def CharUppercased(pcChar)
 		if @IsChar(pcChar)
-			return This.StringUppercased(pcStr)
+			return This.StringUppercased(pcChar)
 		ok
 
 	def StringIsUppercased(pcStr)
@@ -913,7 +1284,7 @@ class stzLocale from stzObject
 
 	def CharIsUppercased(pcChar)
 		if @IsChar(pcChar)
-			return This.StringIsUppercased(pcStr)
+			return This.StringIsUppercased(pcChar)
 		ok
 
 	  #-----------------------#
@@ -944,7 +1315,7 @@ class stzLocale from stzObject
 				# In french a title is capitalised at the beginning
 				# of the sentence. See this example:
 
-				# "à la recherche du temps perdu" becomes
+				# "a la recherche du temps perdu" becomes
 				# "A la Recherche du temps perdu"
 
 				oStr = new stzString(pcStr)
@@ -977,7 +1348,7 @@ class stzLocale from stzObject
 
 	def CharFoldcased(pcChar)
 		if @IsChar(pcChar)
-			return This.StringFoldcased(pcStr)
+			return This.StringFoldcased(pcChar)
 		ok
 
 	def StringIsfoldcased(pcStr)
@@ -988,7 +1359,7 @@ class stzLocale from stzObject
 
 	def CharIsFoldcased(pcChar)
 		if @IsChar(pcChar)
-			return This.StringIsFoldcased(pcStr)
+			return This.StringIsFoldcased(pcChar)
 		ok
 
 	  #-------------------------#
@@ -1054,28 +1425,31 @@ class stzLocale from stzObject
 	#-----------------------#
 
 	def MeasurementSystem()
-		return LocaleMeasurementSystems()[ "" + @oQLocale.measurementSystem() ]
+		return LocaleMeasurementSystems()[ _LocaleMeasurementSysNum(@cAbbreviation) ]
 
 	PRIVATE
 
 	def pvtCurrencyXT(pcTypeOfSymbol)
-		/*
-		Reminder:
-		_aLocaleCurrencyFormats = [
-			[ "0", :ISOSymbol ], #  ISO-4217 code of the currency (in latin script)
-			[ "1", :NativeSymbol ], # Native currency symbol (in native language)
-			[ "2", :NativeName ] # User (complete) readable name of the currency (in native language)
-		]
-		*/
+		cCurrencyName = ""
+		nLen = len(_aLocaleCountriesXT)
+		cNumber = This.CountryNumber()
+		for i = 1 to nLen
+			if _aLocaleCountriesXT[i][1] = cNumber
+				cCurrencyName = _aLocaleCountriesXT[i][7]
+				exit
+			ok
+		next
+
 		switch pcTypeOfSymbol
 		on :ISOSymbol
-			return @oQLocale.currencySymbol(0)	#--> called CurrencyAbbreviation() in Softanza
+			return _CurrencyISOCode(cCurrencyName)
 
 		on :NativeSymbol
-			return @oQLocale.currencySymbol(1)	#--> called CurrencySymbol() in Softanza
+			return _CurrencyNativeSymbol(cCurrencyName)
 
 		on :NativeName
-			return @oQLocale.currencySymbol(2)	#--> called NativeName() In Softanza
+			cResult = StzStringQ(cCurrencyName).ReplaceQ("_", " ").Content()
+			return cResult
 
 		other
 			StzRaise(stzLocaleError(:CanNotProvideCurrencySymbol))
