@@ -536,11 +536,23 @@ func StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
 	
 	bCase = CaseSensitive(bCaseSensitive)
 
-	_oQStr_ = new QString2()
-	_oQStr_.append(cStr)
-	_oQStr_.replace_2(cSubStr, cNewSubStr, bCase)
-
-	cResult = _oQStr_.mid(0, _oQStr_.size())
+	if bCase = 1
+		cResult = substr(cStr, cSubStr, cNewSubStr)
+	else
+		cTemp = lower(cStr)
+		cSubLow = lower(cSubStr)
+		cResult = ""
+		nPos = 1
+		while TRUE
+			nFound = substr(cTemp, nPos, cSubLow)
+			if nFound = 0
+				cResult += substr(cStr, nPos)
+				exit
+			ok
+			cResult += substr(cStr, nPos, nFound - nPos) + cNewSubStr
+			nPos = nFound + len(cSubStr)
+		end
+	ok
 	return cResult
 
 	#< @FunctionAlternativeForms
@@ -564,15 +576,23 @@ func StzReplace(cStr, cSubStr, cNewSubStr)
 
 func StzSplitCS(cStr, cSubStr, bCaseSensitive)
 
-	oQStr = new QString2()
-	oQStr.append(cStr)
-	
-	oQStrList = oQStr.split(cSubStr, 0, bCaseSensitive)
-	
-	acResult = []
-	for i = 0 to oQStrList.size()-1
-		acResult + oQStrList.at(i)	
-	next
+	if bCaseSensitive = 1
+		acResult = stksplit(cStr, cSubStr)
+	else
+		acResult = []
+		cTemp = lower(cStr)
+		cSubLow = lower(cSubStr)
+		nPos = 1
+		while TRUE
+			nFound = substr(cTemp, nPos, cSubLow)
+			if nFound = 0
+				acResult + substr(cStr, nPos)
+				exit
+			ok
+			acResult + substr(cStr, nPos, nFound - nPos)
+			nPos = nFound + len(cSubStr)
+		end
+	ok
 
 	return acResult
 
@@ -610,11 +630,7 @@ func TrimString(cStr)
 		ok
 	ok
 
-	oQStr = new QString2()
-	oQStr.append(cStr)
-
-	cResult = oQStr.trimmed()
-	return cResult
+	return trim(cStr)
 
 	func @TrimString(cStr)
 		return TrimString(cStr)
@@ -1643,12 +1659,10 @@ func RepeatInString(pcSubStr, nTimes)
 	#WARING // don't use Ring + concatenation, becuase it shows performance
 	# issues with large unciode strings (tested with an arabic string, 1M times)
 
-	_oQStrList_ = new QStringList()
+	cResult = ""
 	for i = 1 to nTimes
-		_oQStrList_.append(pcSubStr)
+		cResult += pcSubStr
 	next
-
-	cResult = _oQStrList_.join("")
 	return cResult
 
 	#< @FunctionAlternativeForms
@@ -1829,12 +1843,8 @@ func SplitAtCS(cData, cSubStr, pCaseSensitive)
 		StzRaise("Incorrect param type! cData and cSubStr must both be strings.")
 	ok
 
-	_oQString_ = new QString2()
-	_oQString_.append(cData)
 	bCase = CaseSensitive(pCaseSensitive)
-
-	_acResult_ = QStringListToList( _oQString_.split(cSubStr, 0, bCase) )
-	return _acResult_
+	return StzSplitCS(cData, cSubStr, bCase)
 
 	func @SplitAtCS(cData, cSubStr, pCaseSensitive)
 		return SplitAtCS(cData, cSubStr, pCaseSensitive)
@@ -1851,11 +1861,7 @@ func @SplitAt(cData, cSubStr)
 		StzRaise("Incorrect param type! cData and cSubStr must both be strings.")
 	ok
 
-	_oQString_ = new QString2()
-	_oQString_.append(cData)
-
-	_acResult_ = QStringListToList( _oQString_.split(cSubStr, 0, 0) )
-	return _acResult_
+	return StzSplitCS(cData, cSubStr, 0)
 
 	func SplitAt(cData, cSubStr)
 		return @SplitAt(cData, cSubStr)
@@ -2202,9 +2208,7 @@ func @substr(str, p1, p2) #TODO // Move to stzExtCode
 
 	but isString(p1) and isNumber(p2)
 
-		oQStr = new QString2()
-		oQStr.append(str)
-		nLen = oQStr.size()
+		nLen = len(str)
 
 		cStrRight = right(str, nLen-p2+1)
 		nResult = ring_substr1(cStrRight, p1) + p2 - 1
@@ -2271,11 +2275,7 @@ func StringSection(str, n1, n2)
 		ok
 	ok
 
-	oQStr = new QString2()
-	oQStr.append(str)
-	
-	cResult = oQStr.mid( (n1 - 1) , (n2 - n1 + 1) )
-	return cResult
+	return substr(str, n1, (n2 - n1 + 1))
 
 func stzleft(str, n)
 	if isList(str)
@@ -2290,10 +2290,7 @@ func stzRight(str, n)
 		return ListSection(str, nLen+1-n, n)
 	ok
 
-	oQStr = new QString2()
-	oQStr.append(str)
-	nLen = oQStr.size()
-
+	nLen = len(str)
 	return StringSection(str, nLen-n+1, nLen)
 
 
@@ -2302,15 +2299,11 @@ func Chars(str)
 		str = str[2]
 	ok
 
-	oQString = new QString2()
-	oQString.append(str)
-	nLen = oQString.size()
-
+	nLen = len(str)
 	acResult = []
 
 	for i = 1 to nLen
-		n = i - 1
-		acResult + oQString.mid(n, 1)
+		acResult + substr(str, i, 1)
 	next
 
 	return acResult
@@ -2318,6 +2311,12 @@ func Chars(str)
 	func @Chars(str)
 		return Chars(str)
 
+
+func _StrContainsCS(cStr, cSubStr, bCaseSensitive)
+	if bCaseSensitive = 1
+		return substr(cStr, cSubStr) > 0
+	ok
+	return substr(lower(cStr), lower(cSubStr)) > 0
 
 func Lines(str)
 	acResult = @split(str, NL)
