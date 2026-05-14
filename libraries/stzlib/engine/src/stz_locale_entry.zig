@@ -2,6 +2,7 @@
 // Bundles locale operations (Tier 2) into one shared library.
 
 pub const locale = @import("locale.zig");
+pub const ring_bridge = @import("ring_bridge_locale.zig");
 
 comptime {
     @export(&locale.stz_locale_am_text, .{ .name = "stz_locale_am_text" });
@@ -14,6 +15,10 @@ comptime {
     @export(&locale.stz_locale_month_abbr, .{ .name = "stz_locale_month_abbr" });
     @export(&locale.stz_locale_day_name, .{ .name = "stz_locale_day_name" });
     @export(&locale.stz_locale_day_abbr, .{ .name = "stz_locale_day_abbr" });
+}
+
+comptime {
+    @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }
 
 test {

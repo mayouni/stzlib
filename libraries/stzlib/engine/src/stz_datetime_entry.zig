@@ -2,6 +2,7 @@
 // Bundles date + time + datetime (Tier 2) into one shared library.
 
 pub const datetime = @import("datetime.zig");
+pub const ring_bridge = @import("ring_bridge_datetime.zig");
 
 comptime {
     // Date
@@ -59,6 +60,10 @@ comptime {
     @export(&datetime.stz_datetime_to_iso, .{ .name = "stz_datetime_to_iso" });
     @export(&datetime.stz_datetime_compare, .{ .name = "stz_datetime_compare" });
     @export(&datetime.stz_datetime_is_between, .{ .name = "stz_datetime_is_between" });
+}
+
+comptime {
+    @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }
 
 test {

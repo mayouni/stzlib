@@ -274,6 +274,9 @@ comptime {
     @export(&system.stz_system_is_macos, .{ .name = "stz_system_is_macos" });
 }
 
+// Ring extension entry point (no-op -- we use CallCFunc for raw FFI)
+pub export fn ringlib_init(_: ?*anyopaque) callconv(.c) void {}
+
 // Version -- bumped for Unicode
 pub export fn stz_engine_version() callconv(.c) u32 {
     return 0x00_05_00_00; // 0.5.0.0

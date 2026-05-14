@@ -32,38 +32,6 @@ func StzListQ(paList)
 
 #===
 
-func ListSection(aList, n1, n2)
-
-	if CheckParams()
-		if NOT isList(aList)
-			StzRaise("Incorrect param type! aList must be a list.")
-		ok
-		if NOT (isNumber(n1) and isNumber(n2))
-			StzRaise("Incorrect param types! n1 and n2 must be both numbers.")
-		ok
-	ok
-
-	# Early check
-
-	nLen = len(aList)
-	if nLen = 0
-		return []
-	ok
-
-	if n1 > n2
-		nTemp = n1
-		n1 = n2
-		n2 = nTemp
-	ok
-
-	aResult = []
-	for i = n1 to n2
-		aResult + aList[i]
-	next
-	return aResult
-
-#===
-
 func DeepContainsCS(paList, pItem, pCaseSensitive)
 	return StzListQ(paList).DeepContainsCS(pItem, pCaseSensitive)
 
@@ -5242,14 +5210,8 @@ def Flatten(paList)
 
 	return aResult
 
-	func ListFlatten(paList)
-		return Flatten(paList)
-
 	func @Flatten(paList)
 		return Flatten(paList)
-
-func ListReverse(paList)
-	return reverse(paList) # Here we rely on the native Ring reverse() function
 
 	func ListInverse(paList)
 		return reverse(paList)
@@ -6096,12 +6058,6 @@ func ListContainsCS(paList, pItem, pCaseSensitive)
 
 	func @ListContainsCS(paList, pItem, pCaseSensitive)
 		return ListContainsCS(paList, pItem, pCaseSensitive)
-
-func ListContains(paList, pItem)
-	return ListContainsCS(paList, pItem, 1)
-
-	func @ListContains(paList, pItem)
-		return SListContains(paList, pItem)
 
 #--
 

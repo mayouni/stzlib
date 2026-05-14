@@ -15,6 +15,8 @@ const Bytes = struct {
     data: std.ArrayList(u8),
 };
 
+pub const StzBytesHandle = ?*Bytes;
+
 pub fn stz_bytes_new() callconv(.c) ?*Bytes {
     const b = gpa.create(Bytes) catch return null;
     b.* = .{ .data = .{} };

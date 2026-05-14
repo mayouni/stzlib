@@ -2,6 +2,7 @@
 // Bundles file + dir + path operations (Tier 2) into one shared library.
 
 pub const file = @import("file.zig");
+pub const ring_bridge = @import("ring_bridge_file.zig");
 
 comptime {
     @export(&file.stz_file_exists, .{ .name = "stz_file_exists" });
@@ -21,6 +22,10 @@ comptime {
     @export(&file.stz_path_extension, .{ .name = "stz_path_extension" });
     @export(&file.stz_path_basename, .{ .name = "stz_path_basename" });
     @export(&file.stz_path_dirname, .{ .name = "stz_path_dirname" });
+}
+
+comptime {
+    @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }
 
 test {

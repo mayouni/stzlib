@@ -800,7 +800,8 @@ class stzFileInfo from stzObject
                 fclose(pFile)
                 return 1
             ok
-        catch ok
+        catch
+        done
         return 0
 
     def IsReadable()
@@ -810,7 +811,8 @@ class stzFileInfo from stzObject
                 fclose(pFile)
                 return 1
             ok
-        catch ok
+        catch
+        done
         return 0
 
     def IsExecutable()

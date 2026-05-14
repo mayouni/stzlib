@@ -15,6 +15,8 @@ const unicode = @import("unicode.zig");
 
 // ─── Public handle ───
 
+pub const StzRegexHandle = ?*Regex;
+
 const Regex = struct {
     pattern: []const u8,
     flags: u32,

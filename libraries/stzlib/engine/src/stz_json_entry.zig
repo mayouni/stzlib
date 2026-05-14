@@ -1,5 +1,6 @@
 // Per-domain entry point for stz_json.dll
 pub const json = @import("json.zig");
+pub const ring_bridge = @import("ring_bridge_json.zig");
 
 comptime {
     @export(&json.stz_json_parse, .{ .name = "stz_json_parse" });
@@ -18,6 +19,10 @@ comptime {
     @export(&json.stz_json_string_free, .{ .name = "stz_json_string_free" });
     @export(&json.stz_json_keys, .{ .name = "stz_json_keys" });
     @export(&json.stz_json_error, .{ .name = "stz_json_error" });
+}
+
+comptime {
+    @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }
 
 test { _ = json; }
