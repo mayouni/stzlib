@@ -5383,7 +5383,6 @@ func RingQtClasses()
 		:QListView,
 		:QListWidget,
 		:QListWidgetItem,
-		:QLocale,
 		:QLogValueAxis,
 		:QLogicAspect,
 		:QMainWindow,
