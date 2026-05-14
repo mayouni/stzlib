@@ -58,90 +58,13 @@ or 'unavoidable' Qt feature.
 #-- Unicode character property helpers
 
 func _CharIsSpace(nUnicode)
-	if nUnicode = 0x09 or nUnicode = 0x0A or nUnicode = 0x0B or
-	   nUnicode = 0x0C or nUnicode = 0x0D or nUnicode = 0x20 or
-	   nUnicode = 0x85 or nUnicode = 0xA0 or nUnicode = 0x1680 or
-	   nUnicode = 0x2028 or nUnicode = 0x2029 or nUnicode = 0x202F or
-	   nUnicode = 0x205F or nUnicode = 0x3000
-		return 1
-	ok
-	if nUnicode >= 0x2000 and nUnicode <= 0x200A
-		return 1
-	ok
-	return 0
+	return StzEngineUnicodeIsSpace(nUnicode)
 
 func _CharCategoryNumber(nUnicode)
-	if nUnicode < 0x20 or nUnicode = 0x7F return 9 ok
-	if nUnicode >= 0x80 and nUnicode <= 0x9F return 9 ok
-
-	if nUnicode >= 65 and nUnicode <= 90 return 14 ok
-	if nUnicode >= 97 and nUnicode <= 122 return 15 ok
-	if nUnicode >= 48 and nUnicode <= 57 return 3 ok
-
-	if nUnicode = 0x20 or nUnicode = 0xA0 or nUnicode = 0x1680 or
-	   nUnicode = 0x202F or nUnicode = 0x205F or nUnicode = 0x3000
-		return 6
-	ok
-	if nUnicode >= 0x2000 and nUnicode <= 0x200A return 6 ok
-	if nUnicode = 0x2028 return 7 ok
-	if nUnicode = 0x2029 return 8 ok
-
-	if nUnicode >= 0xC0 and nUnicode <= 0xD6 return 14 ok
-	if nUnicode >= 0xD8 and nUnicode <= 0xDE return 14 ok
-	if nUnicode = 0xDF return 15 ok
-	if nUnicode >= 0xE0 and nUnicode <= 0xF6 return 15 ok
-	if nUnicode >= 0xF8 and nUnicode <= 0xFF return 15 ok
-
-	if nUnicode >= 0x100 and nUnicode <= 0x24F
-		if nUnicode % 2 = 0 return 14 ok
-		return 15
-	ok
-
-	if nUnicode >= 0x0300 and nUnicode <= 0x036F return 0 ok
-
-	if nUnicode >= 0x0370 and nUnicode <= 0x03FF return 18 ok
-	if nUnicode >= 0x0400 and nUnicode <= 0x04FF return 18 ok
-	if nUnicode >= 0x0530 and nUnicode <= 0x058F return 18 ok
-	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 18 ok
-	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 18 ok
-	if nUnicode >= 0x0900 and nUnicode <= 0x097F return 18 ok
-
-	if nUnicode >= 0x4E00 and nUnicode <= 0x9FFF return 18 ok
-	if nUnicode >= 0xAC00 and nUnicode <= 0xD7AF return 18 ok
-
-	if nUnicode >= 0xD800 and nUnicode <= 0xDFFF return 11 ok
-	if nUnicode >= 0xE000 and nUnicode <= 0xF8FF return 12 ok
-	if nUnicode >= 0xFDD0 and nUnicode <= 0xFDEF return 13 ok
-
-	if nUnicode = 0xAD or nUnicode = 0x200B or nUnicode = 0x200C or
-	   nUnicode = 0x200D or nUnicode = 0x200E or nUnicode = 0x200F or
-	   nUnicode = 0x2060 or nUnicode = 0xFEFF
-		return 10
-	ok
-
-	if nUnicode >= 0x2000 and nUnicode <= 0x206F return 25 ok
-	if nUnicode >= 0x2190 and nUnicode <= 0x21FF return 29 ok
-	if nUnicode >= 0x2200 and nUnicode <= 0x22FF return 26 ok
-	if nUnicode >= 0x2500 and nUnicode <= 0x257F return 29 ok
-	if nUnicode >= 0x2600 and nUnicode <= 0x26FF return 29 ok
-	if nUnicode >= 0x20A0 and nUnicode <= 0x20CF return 27 ok
-
-	return 18
+	return StzEngineUnicodeCategory(nUnicode)
 
 func _CharBidiClass(nUnicode)
-	if nUnicode >= 65 and nUnicode <= 90 return 0 ok
-	if nUnicode >= 97 and nUnicode <= 122 return 0 ok
-	if nUnicode >= 48 and nUnicode <= 57 return 5 ok
-	if nUnicode < 0x20 return 18 ok
-	if nUnicode = 0x20 or nUnicode = 0x09 return 12 ok
-
-	if nUnicode >= 0x0590 and nUnicode <= 0x05FF return 13 ok
-	if nUnicode >= 0x0600 and nUnicode <= 0x06FF return 13 ok
-	if nUnicode >= 0x0700 and nUnicode <= 0x074F return 13 ok
-	if nUnicode >= 0xFB50 and nUnicode <= 0xFDFF return 13 ok
-	if nUnicode >= 0xFE70 and nUnicode <= 0xFEFF return 13 ok
-
-	return 0
+	return StzEngineUnicodeBidiClass(nUnicode)
 
 func _CharMirrored(nUnicode)
 	switch nUnicode
@@ -654,7 +577,7 @@ func NthChar(n, str)
 		ok
 	ok
 
-	cResult = QStringObjectQ(str).mid(n-1, 1)
+	cResult = substr(str, n, 1)
 	return cResult
 
 	func @NthChar(n, str)

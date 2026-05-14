@@ -634,8 +634,7 @@ pr()
 ? HowManyStzClasses()
 #--> 60
 
-? HowManyRingQtClasses()
-#--> 368
+#? HowManyRingQtClasses() # Removed: Qt dependency purged
 
 pf()
 # Executed in 0.03 second(s)
