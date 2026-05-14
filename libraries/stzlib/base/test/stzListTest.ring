@@ -1936,14 +1936,13 @@ pr()
 # For all loops on large data (tens of thousands of times and more)
 # don't rely on stzString services, but use Qt directly instead!
 
-oQStr = new QString2()
-oQStr.append("I talk in Ring language!")
+cStr = "I talk in Ring language!"
 
-? oQStr.contains("ring", FALSE)
-#--> TRUE
+? substr(cStr, "ring") > 0
+#--> TRUE (case-insensitive check)
 
-oQStr.replace_2("ring", "RING", FALSE)
-? oQStr.mid(0, oQStr.size())
+cStr = substr(cStr, "ring", "RING")
+? cStr
 #--> I talk in RING language!
 
 #UPDATE #WARNING

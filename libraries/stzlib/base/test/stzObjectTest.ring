@@ -615,11 +615,11 @@ pf()
 
 pr()
 
-o1 = new QString2()
-? IsQObject(o1)
+o1 = new stzString("test")
+? IsObject(o1)
 #--> TRUE
 
-? IsQtObject(o1)
+? IsStzObject(o1)
 #--> TRUE
 
 # Both return TRUE --> Flexible syntax!
