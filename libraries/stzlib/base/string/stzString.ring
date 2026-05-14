@@ -21,167 +21,6 @@
 	link: https://ftfy.readthedocs.io
 */
 
-  /////////////////////////////////////
- ///   STRING OPS HELPER (SHIM)   ///
-/////////////////////////////////////
-
-class _StzStrOps
-	_pEngine
-	_oParent
-
-	def init(pEngine, oParent)
-		_pEngine = pEngine
-		_oParent = oParent
-
-	def mid(nStart, nLength)
-		cContent = _oParent.Content()
-		return substr(cContent, nStart + 1, nLength)
-
-	def indexOf(pcSubStr, nStart, pCaseSensitive)
-		cContent = _oParent.Content()
-		cNeedle = pcSubStr
-		if pCaseSensitive = 0
-			cContent = lower(cContent)
-			cNeedle = lower(pcSubStr)
-		ok
-		nPos = substr(cContent, cNeedle, nStart + 1)
-		if nPos > 0 return nPos - 1 ok
-		return -1
-
-	def indexof(pcSubStr, nStart, pCaseSensitive)
-		return This.indexOf(pcSubStr, nStart, pCaseSensitive)
-
-	def lastIndexOf(pcSubStr, nStart, pCaseSensitive)
-		cContent = _oParent.Content()
-		cNeedle = pcSubStr
-		if pCaseSensitive = 0
-			cContent = lower(cContent)
-			cNeedle = lower(pcSubStr)
-		ok
-		nResult = -1
-		nPos = substr(cContent, cNeedle)
-		while nPos > 0
-			nResult = nPos - 1
-			nPos = substr(cContent, cNeedle, nPos + 1)
-		end
-		return nResult
-
-	def startsWith(pcSubStr, pCaseSensitive)
-		cContent = _oParent.Content()
-		nLen = len(pcSubStr)
-		if pCaseSensitive = 0
-			return lower(left(cContent, nLen)) = lower(pcSubStr)
-		ok
-		return left(cContent, nLen) = pcSubStr
-
-	def endsWith(pcSubStr, pCaseSensitive)
-		cContent = _oParent.Content()
-		nLen = len(pcSubStr)
-		if pCaseSensitive = 0
-			return lower(right(cContent, nLen)) = lower(pcSubStr)
-		ok
-		return right(cContent, nLen) = pcSubStr
-
-	def size()
-		return StzEngineStringSize(_pEngine)
-
-	def count()
-		return StzEngineStringCount(_pEngine)
-
-	def left(n)
-		cContent = _oParent.Content()
-		return left(cContent, n)
-
-	def right(n)
-		cContent = _oParent.Content()
-		return right(cContent, n)
-
-	def toCasefolded()
-		return StzEngineUnicodeCaseFold(_oParent.Content())
-
-	def trimmed()
-		return trim(_oParent.Content())
-
-	def isRightToleft()
-		cContent = _oParent.Content()
-		if len(cContent) = 0 return 0 ok
-		nUnicode = StzEngineCharUnicode(cContent)
-		nBidi = StzEngineUnicodeBidiClass(nUnicode)
-		if nBidi = 1 or nBidi = 2 or nBidi = 5
-			return 1
-		ok
-		return 0
-
-	def replace(nStart, nLength, pcNewStr)
-		cContent = _oParent.Content()
-		cNew = left(cContent, nStart) + pcNewStr + substr(cContent, nStart + nLength + 1)
-		_oParent.Update(cNew)
-		return cNew
-
-	def clear()
-		_oParent.Update("")
-
-	def append(pcStr)
-		StzEngineStringAppend(_pEngine, pcStr)
-
-	def append_2(oQChar)
-		return
-
-	def compare(pcOtherStr, pCaseSensitive)
-		cThis = _oParent.Content()
-		cOther = pcOtherStr
-		if pCaseSensitive = 0
-			cThis = lower(cThis)
-			cOther = lower(pcOtherStr)
-		ok
-		if cThis < cOther return -1 ok
-		if cThis > cOther return 1 ok
-		return 0
-
-	def localeAwareCompare(pcOtherStr)
-		return This.compare(pcOtherStr, 1)
-
-	def split(pcSep, nBehavior, pCaseSensitive)
-		cContent = _oParent.Content()
-		cSep = pcSep
-		if pCaseSensitive = 0
-			cContent = lower(cContent)
-			cSep = lower(pcSep)
-		ok
-		acResult = []
-		nSepLen = len(cSep)
-		nPos = substr(cContent, cSep)
-		nStart = 1
-		while nPos > 0
-			acResult + substr(_oParent.Content(), nStart, nPos - nStart)
-			nStart = nPos + nSepLen
-			nPos = substr(cContent, cSep, nStart)
-		end
-		acResult + substr(_oParent.Content(), nStart)
-		return acResult
-
-	def rightJustified(nWidth, oFillChar, bTruncate)
-		cContent = _oParent.Content()
-		nLen = len(cContent)
-		if nLen >= nWidth return cContent ok
-		cFill = " "
-		if isString(oFillChar) cFill = oFillChar ok
-		return copy(cFill, nWidth - nLen) + cContent
-
-	def leftJustified(nWidth, oFillChar, bTruncate)
-		cContent = _oParent.Content()
-		nLen = len(cContent)
-		if nLen >= nWidth return cContent ok
-		cFill = " "
-		if isString(oFillChar) cFill = oFillChar ok
-		return cContent + copy(cFill, nWidth - nLen)
-
-	def ToUtf8()
-		return This
-
-	def data()
-		return _oParent.Content()
-
   /////////////////
  ///   CLASS   ///
 /////////////////
@@ -331,17 +170,61 @@ class stzString from stzObject
 		#>
 
 
-	def _Ops()
-		return new _StzStrOps(@pEngine, This)
+	def _FindSubStr(pcSubStr, nStartAt, bCaseSensitive)
+		cStr = This.Content()
+		nLen = len(cStr)
+		nSubLen = len(pcSubStr)
 
-		def QStringObject()
-			return This._Ops()
+		if nSubLen = 0 or nStartAt > nLen
+			return 0
+		ok
 
-		def ToQStringObject()
-			return This._Ops()
+		if bCaseSensitive
+			cSearch = substr(cStr, nStartAt, nLen - nStartAt + 1)
+			nPos = substr(cSearch, pcSubStr)
+		else
+			cSearch = substr(lower(cStr), nStartAt, nLen - nStartAt + 1)
+			nPos = substr(cSearch, lower(pcSubStr))
+		ok
 
-		def ToQString()
-			return This._Ops()
+		if nPos > 0
+			return nPos + nStartAt - 1
+		else
+			return 0
+		ok
+
+	def _ReplaceRange(n1, nRange, pcNew)
+		cStr = This.Content()
+		cBefore = ""
+		if n1 > 1
+			cBefore = substr(cStr, 1, n1 - 1)
+		ok
+		cAfter = ""
+		nAfterStart = n1 + nRange
+		if nAfterStart <= len(cStr)
+			cAfter = substr(cStr, nAfterStart, len(cStr) - nAfterStart + 1)
+		ok
+		return cBefore + pcNew + cAfter
+
+	def _SplitByStr(cSep)
+		cStr = This.Content()
+		aResult = []
+		cTemp = ""
+		nLen = len(cStr)
+		nSepLen = len(cSep)
+		i = 1
+		while i <= nLen
+			if substr(cStr, i, nSepLen) = cSep
+				aResult + cTemp
+				cTemp = ""
+				i += nSepLen
+			else
+				cTemp += substr(cStr, i, 1)
+				i++
+			ok
+		end
+		aResult + cTemp
+		return aResult
 
 	  #=======================================#
 	 #  GETTING A COPY OF THE STRING OBJECT  #
@@ -3266,7 +3149,7 @@ class stzString from stzObject
 		#>
 
 	def CaseFolded()
-		return _Ops().toCasefolded()
+		return StzEngineUnicodeCaseFold(This.Content())
 
 	def IsCaseFolded()
 		if NOT This.ContainsLatinLetters()
@@ -6159,7 +6042,7 @@ class stzString from stzObject
 			cMarquer = ""
 		
 			for j = n1 to n2
-				char = oCopy._Ops().mid(j-1, 1)
+				char = substr(oCopy.Content(), j, 1)
 		
 				if char = "0" or char = "1" or char = "2" or
 				   char = "3" or char = "4" or char = "5" or
@@ -9472,7 +9355,7 @@ class stzString from stzObject
 		
 			for j = i to nLen step n
 				if j + n - 1 <= nLen
-					acResult + _Ops().mid(j-1, n)
+					acResult + substr(This.Content(), j, n)
 				ok
 			next
 		
@@ -9698,7 +9581,7 @@ class stzString from stzObject
 		
 			for j = i to nLen step n
 				if j + n - 1 <= nLen
-					aResult + [ _Ops().mid(j-1, n), j ]
+					aResult + [ substr(This.Content(), j, n), j ]
 				ok
 			next
 		
@@ -9744,7 +9627,7 @@ class stzString from stzObject
 		
 			for j = i to nLen step n
 				if j + n - 1 <= nLen
-					aResult + [ _Ops().mid(j-1, n), [ j, j+n-1 ] ]
+					aResult + [ substr(This.Content(), j, n), [ j, j+n-1 ] ]
 				ok
 			next
 		
@@ -9935,7 +9818,7 @@ class stzString from stzObject
 			nLenTemp = len(acTemp)
 
 			for j = 1 to nLenTemp
-				aResult + [ _Ops().mid(j-1, j + i - 1), j ]
+				aResult + [ substr(This.Content(), j, j + i - 1), j ]
 			next
 		next
 
@@ -9963,7 +9846,7 @@ class stzString from stzObject
 			nLenTemp = len(acTemp)
 
 			for j = 1 to nLenTemp
-				aResult + [ _Ops().mid(j-1, j + i - 1), [ j, j + i - 1 ] ]
+				aResult + [ substr(This.Content(), j, j + i - 1), [ j, j + i - 1 ] ]
 			next
 		next
 
@@ -23232,10 +23115,10 @@ class stzString from stzObject
 			return []
 		ok
 
-		_oQStr_ = _Ops()
-		nLenStr = _oQStr_.size()
+		cContent = This.Content()
+		nLenStr = len(cContent)
 
-		cLastChar = _oQStr_.mid(nLenStr-1, 1)
+		cLastChar = substr(cContent, nLenStr, 1)
 
 		cResult = ""
 
@@ -23427,9 +23310,9 @@ class stzString from stzObject
 			return []
 		ok
 
-		_oQStr_ = _Ops()
-		nLenStr = _oQStr_.size()
-		cLastChar = _oQStr_.mid(nLenStr-1, 1)
+		cContent = This.Content()
+		nLenStr = len(cContent)
+		cLastChar = substr(cContent, nLenStr, 1)
 
 		acResult = []
 
@@ -23503,8 +23386,8 @@ class stzString from stzObject
 			return ""
 		ok
 
-		_cLastChar_ = This._Ops().mid(_nLen_ - 1, 1)
-		_cBeforeLastChar_ = This._Ops().mid(_nLen_ -2, 1)
+		_cLastChar_ = substr(This.Content(), _nLen_, 1)
+		_cBeforeLastChar_ = substr(This.Content(), _nLen_ - 1, 1)
 
 		if StzStringQ(_cLastChar_).IsEqualToCS(_cBeforeLastChar_, pCaseSensitive)
 			return _cLastChar_
@@ -23635,8 +23518,8 @@ class stzString from stzObject
 			return 0
 		ok
 
-		_cLastChar_ = This._Ops().mid(_nLen_ -1, 1)
-		_cBeforeLastChar_ = This._Ops().mid(_nLen_ -2, 1)
+		_cLastChar_ = substr(This.Content(), _nLen_, 1)
+		_cBeforeLastChar_ = substr(This.Content(), _nLen_ - 1, 1)
 
 		if NOT StzStringQ(_cLastChar_).IsEqualToCS(_cBeforeLastChar_, pCaseSensitive)
 			return 0
@@ -23646,7 +23529,7 @@ class stzString from stzObject
 
 		for @i = _nLen_ to 1 step - 1
 
-			_cChar_ = This._Ops().mid(@i-1, 1)
+			_cChar_ = substr(This.Content(), @i, 1)
 
 			if NOT StzStringQ(_cChar_).IsEqualToCS(_cLastChar_, pCaseSensitive)
 				exit
@@ -23731,8 +23614,8 @@ class stzString from stzObject
 			return 0
 		ok
 
-		_cLastChar_ = This._Ops().mid( _nLen_ - 1, 1)
-		_cBeforeLastChar_ = This._Ops().mid( _nLen_ - 2, 1)
+		_cLastChar_ = substr(This.Content(), _nLen_, 1)
+		_cBeforeLastChar_ = substr(This.Content(), _nLen_ - 1, 1)
 
 		if StzStringQ(_cLastChar_).IsEqualToCS(_cBeforeLastChar_, pCaseSensitive) and
 		   StzStringQ(c).IsEqualToCS(_cLastChar_, pCaseSensitive)
@@ -23780,8 +23663,8 @@ class stzString from stzObject
 			return 0
 		ok
 
-		cLastChar = This._Ops().mid(nLen-1, 1)
-		cBeforeLastChar = this._Ops().mid(nLen-2, 1)
+		cLastChar = substr(This.Content(), nLen, 1)
+		cBeforeLastChar = substr(This.Content(), nLen - 1, 1)
 
 		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
 			return 1
@@ -23899,15 +23782,15 @@ class stzString from stzObject
 
 	def FindRepeatedTrailingCharsCS(pCaseSensitive)
 
-		_oQStr_ = _Ops()
-		nLenStr = _oQStr_.size()
+		cContent = This.Content()
+		nLenStr = len(cContent)
 
 		if nLenStr < 2
 			return []
 		ok
 
-		cLastChar = _oQStr_.mid(nLenStr-1, 1)
-		cBeforeLastChar = _oQStr_.mid(nLenStr-2, 1)
+		cLastChar = substr(cContent, nLenStr, 1)
+		cBeforeLastChar = substr(cContent, nLenStr - 1, 1)
 
 		if NOT StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
 			return []
@@ -23915,7 +23798,7 @@ class stzString from stzObject
 
 		n = 0
 		for i = nLenStr to 1 step -1
-			if StzStringQ(_oQStr_.mid(i-1, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
+			if StzStringQ(substr(cContent, i, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
 				n++
 			else
 				exit
@@ -23963,15 +23846,15 @@ class stzString from stzObject
 
 	def FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
 
-		_oQStr_ = _Ops()
-		nLenStr = _oQStr_.size()
+		cContent = This.Content()
+		nLenStr = len(cContent)
 
 		if nLenStr < 2
 			return []
 		ok
 
-		cLastChar = _oQStr_.mid(nLenStr-1, 1)
-		cBeforeLastChar = _oQStr_.mid(nLenStr-2, 1)
+		cLastChar = substr(cContent, nLenStr, 1)
+		cBeforeLastChar = substr(cContent, nLenStr - 1, 1)
 
 		if NOT StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
 			return []
@@ -23979,7 +23862,7 @@ class stzString from stzObject
 
 		n = 0
 		for i = nLenStr to 1 step -1
-			if StzStringQ(_oQStr_.mid(i-1, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
+			if StzStringQ(substr(cContent, i, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
 				n++
 			else
 				exit
@@ -25051,20 +24934,20 @@ class stzString from stzObject
 	def RemoveThisRepeatedTrailingCharCS(c, pCaseSensitive)
 
 
-		_oQStr_ = _Ops()
-		nLenStr = _oQStr_.size()
+		cContent = This.Content()
+		nLenStr = len(cContent)
 
 		if nLenStr < 2
 			return
 		ok
 
-		cLastChar = _oQStr_.mid(nLenStr-1, 1)
+		cLastChar = substr(cContent, nLenStr, 1)
 
 		if NOT StzStringQ(cLastChar).IsEqualToCS(c, pCaseSensitive)
 			return
 		ok
 
-		cBeforeLastChar = _oQStr_.mid(nLenStr-2, 1)
+		cBeforeLastChar = substr(cContent, nLenStr - 1, 1)
 
 		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
 			aSection = This.FindRepeatedTrailingCharsCSZZ(pCaseSensitive)
@@ -35460,7 +35343,7 @@ class stzString from stzObject
 
 				n2 = nLen
 				for i = 1 to nLen
-					if _Ops().mid(i-1, 1) = "."
+					if substr(This.Content(), i, 1) = "."
 						n2 = i
 						exit
 					ok
@@ -35478,7 +35361,7 @@ class stzString from stzObject
 
 				n2 = nLen-1
 				for i = 1 to nLen
-					if _Ops().mid(i-1, 1) = " "
+					if substr(This.Content(), i, 1) = " "
 						n2 = i-2
 						exit
 					ok
@@ -35526,7 +35409,7 @@ class stzString from stzObject
 			cResult = This.Char(n1)
 			
 		but n1 < n2
-			cResult = This._Ops().mid( (n1 - 1) , (n2 - n1 + 1) )
+			cResult = substr(This.Content(), n1, n2 - n1 + 1)
 
 		else // n2 < n1
 			# Swapping n1 and n2
@@ -35534,7 +35417,7 @@ class stzString from stzObject
 			n1 = n2
 			n2 = nTemp
 
-			cResult = This._Ops().mid( (n1 - 1) , (n2 - n1 + 1) )
+			cResult = substr(This.Content(), n1, n2 - n1 + 1)
 
 		ok
 
@@ -37208,8 +37091,13 @@ class stzString from stzObject
 			ok
 		ok
 
-		oQCopy = _Ops()
-		This.UpdateWith( oQCopy.insert(n-1, cSubStr) )
+		cStr = This.Content()
+		cBefore = ""
+		if n > 1
+			cBefore = substr(cStr, 1, n - 1)
+		ok
+		cAfter = substr(cStr, n, len(cStr) - n + 1)
+		This.UpdateWith( cBefore + cSubStr + cAfter )
 
 		#< @FunctionAlternativeForms
 
@@ -37510,8 +37398,13 @@ class stzString from stzObject
 			ok
 		ok
 
-		oQCopy = _Ops()
-		This.UpdateWith( oQCopy.insert(n, cSubStr) )
+		cStr = This.Content()
+		cBefore = substr(cStr, 1, n)
+		cAfter = ""
+		if n < len(cStr)
+			cAfter = substr(cStr, n + 1, len(cStr) - n)
+		ok
+		This.UpdateWith( cBefore + cSubStr + cAfter )
 
 		#< @FunctionAlternativeForms
 
@@ -44169,7 +44062,17 @@ class stzString from stzObject
 
 		# Doing the job
 
-		_bResult_ = This._Ops().startsWith(pcSubStr, _bCase_)
+		cStr = This.Content()
+		nSubLen = len(pcSubStr)
+		if len(cStr) < nSubLen
+			return 0
+		ok
+		cPrefix = substr(cStr, 1, nSubLen)
+		if _bCase_
+			_bResult_ = (cPrefix = pcSubStr)
+		else
+			_bResult_ = (lower(cPrefix) = lower(pcSubStr))
+		ok
 
 		return _bResult_
 
@@ -44356,7 +44259,19 @@ class stzString from stzObject
 
 		# Doing the job
 
-		_bResult_ = This._Ops().endsWith(pcSubStr, _bCase_)
+		cStr = This.Content()
+		nLen = len(cStr)
+		nSubLen = len(pcSubStr)
+		if nLen < nSubLen
+			_bResult_ = 0
+		else
+			cSuffix = substr(cStr, nLen - nSubLen + 1, nSubLen)
+			if _bCase_
+				_bResult_ = (cSuffix = pcSubStr)
+			else
+				_bResult_ = (lower(cSuffix) = lower(pcSubStr))
+			ok
+		ok
 		return _bResult_
 
 
@@ -44382,7 +44297,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def EndsWith(pcSubStr)
-		return _Ops().endsWith(pcSubStr, 0)
+		return This.EndsWithCS(pcSubStr, 0)
 
 		def EndsWithQ(pcSubStr)
 			return  This.EndsWithCSQ(pcSubStr, 1)
@@ -44601,7 +44516,7 @@ class stzString from stzObject
 		nPos = 1
 		for i = 1 to n
 
-			nResult = This._Ops().indexOf(pcSubStr, nPos - 1, pCaseSensitive) + 1
+			nResult = This._FindSubStr(pcSubStr, nPos, pCaseSensitive)
 
 			if nResult = 0
 				exit
@@ -45787,7 +45702,7 @@ class stzString from stzObject
 		
 		# Doing the job
 		
-		_nResult_ = This._Ops().indexOf(pcSubStr, pnStartingAt - 1, _bCase_) + 1
+		_nResult_ = This._FindSubStr(pcSubStr, pnStartingAt, _bCase_)
 		return _nResult_
 
 
@@ -46548,7 +46463,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		nResult = This._Ops().indexOf(pcSubStr, 0, _bCase_) + 1
+		nResult = This._FindSubStr(pcSubStr, 1, _bCase_)
 
 		#NOTE // If nothing is found, returns 0.
 
@@ -48109,7 +48024,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		nResult = This._Ops().indexof(pcSubStr, nStart, _bCase_) + 1
+		nResult = This._FindSubStr(pcSubStr, nStart + 1, _bCase_)
 
 		return nResult
 		
@@ -48435,16 +48350,17 @@ class stzString from stzObject
 		anResult = []
 
 		bContinue = 1
-		_nPos_ = 0
+		_nPos_ = 1
 
 		while bContinue
-			
-			_nPos_ = This._Ops().indexOf(pcSubStr, _nPos_, pCaseSensitive) + 1
+
+			_nPos_ = This._FindSubStr(pcSubStr, _nPos_, pCaseSensitive)
 
 			if _nPos_ = 0
 				bContinue = 0
 			else
 				anResult + _nPos_
+				_nPos_ = _nPos_ + 1
 			ok
 		end
 
@@ -54774,8 +54690,8 @@ class stzString from stzObject
 
 		# Doing the job
 
-		_nResult_ = This._Ops().indexOf(pcSubStr, 0, _bCase_)
-		if _nResult_ >= 0
+		_nResult_ = This._FindSubStr(pcSubStr, 1, _bCase_)
+		if _nResult_ > 0
 			return TRUE
 		else
 			return FALSE
@@ -79288,11 +79204,17 @@ class stzString from stzObject
 
 		# Doing the job
 
-		nQtValue = This._Ops().compare(pcOtherStr, _bCase_)
+		if _bCase_
+			cA = This.Content()
+			cB = pcOtherStr
+		else
+			cA = lower(This.Content())
+			cB = lower(pcOtherStr)
+		ok
 
-		if nQtValue = 0
+		if cA = cB
 			return :equal
-		but nQtValue < 0
+		but cA < cB
 			return :less
 		else
 			return :greater
@@ -79302,7 +79224,12 @@ class stzString from stzObject
 		return This.CompareWithCS(pcOtherStr, 1)
 
 	def UnicodeCompareWithInSystemLocale(pcOtherStr)
-		_nQtResult_ = This._Ops().localeAwareCompare(pcOtherStr)
+		_nQtResult_ = 0
+		if This.Content() < pcOtherStr
+			_nQtResult_ = -1
+		but This.Content() > pcOtherStr
+			_nQtResult_ = 1
+		ok
 
 		if _nQtResult_ = 0
 			return :equal
@@ -81893,7 +81820,7 @@ class stzString from stzObject
 		# Doing the job
 
 		n = n2 - n1 + 1
-		cResult = This._Ops().replace(n1 - 1, n2 - n1 + 1, RepeatChar(pcChar, n))
+		cResult = This._ReplaceRange(n1, n, RepeatChar(pcChar, n))
 		This.Update(cResult)
 
 		def FillSectionQ(n1, n2, pcChar)
@@ -82035,7 +81962,7 @@ class stzString from stzObject
 		# Doing the job
 
 		n = n2 - n1 + 1
-		cResult = This._Ops().replace(n1 - 1, n2 - n1 + 1, RepeatChar(" ", n))
+		cResult = This._ReplaceRange(n1, n, RepeatChar(" ", n))
 		This.Update(cResult)
 
 		def EraseSectionQ(n1, n2)
@@ -82177,7 +82104,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		cResult = This._Ops().replace(n1 - 1, n2 - n1 + 1, "")
+		cResult = This._ReplaceRange(n1, n2 - n1 + 1, "")
 		This.Update(cResult)
 
 		def RemoveSectionQ(n1, n2)
@@ -82714,10 +82641,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		_nQtStart_ = n1 - 1
-		_nQtRange_ = n2 - n1 + 1
-
-		_cResult_ = This._Ops().replace( _nQtStart_, _nQtRange_, pcNewSubStr)
+		_cResult_ = This._ReplaceRange(n1, n2 - n1 + 1, pcNewSubStr)
 		This.UpdateWith( _cResult_ )
 
 		#< @FunctionFluentForm
@@ -87122,7 +87046,7 @@ class stzString from stzObject
 	#TODO // Add Trim functions to stzList
 
 	def Trim()
-		This.Update( This._Ops().trimmed() )
+		This.Update( trim(This.Content()) )
 
 		def TrimQ()
 			This.Trim()
@@ -88279,8 +88203,22 @@ class stzString from stzObject
 	#==========================================================#
 
 	def Simplify()
-		oQCopy = _Ops()
-		This.UpdateWith( oQCopy.simplified() )
+		cStr = trim(This.Content())
+		cResult = ""
+		bLastWasSpace = 0
+		for i = 1 to len(cStr)
+			c = substr(cStr, i, 1)
+			if c = " " or c = char(9) or c = char(10) or c = char(13)
+				if NOT bLastWasSpace
+					cResult += " "
+					bLastWasSpace = 1
+				ok
+			else
+				cResult += c
+				bLastWasSpace = 0
+			ok
+		next
+		This.UpdateWith( cResult )
 
 		def SimplifyQ()
 			This.Simplify()
@@ -89593,8 +89531,28 @@ class stzString from stzObject
 
 	// Verifies if the string is right-to-left (like arabic) : SEE Orientation()
 	def IsRightToleft()
-		bResult = This._Ops().isRightToleft()
-		return bResult
+		cContent = This.Content()
+		nLen = len(cContent)
+		if nLen = 0 return 0 ok
+		i = 1
+		while i <= nLen
+			nByte = ascii(substr(cContent, i, 1))
+			if nByte < 128
+				if (nByte >= 65 and nByte <= 90) or (nByte >= 97 and nByte <= 122)
+					return 0
+				ok
+				i++
+			but nByte >= 0xD6 and nByte <= 0xD9
+				return 1
+			but nByte >= 0xC0 and nByte < 0xE0
+				i += 2
+			but nByte >= 0xE0 and nByte < 0xF0
+				i += 3
+			else
+				i += 4
+			ok
+		end
+		return 0
 
 	// Verifies if the string is left-to-right (like english)
 	def IsLeftToRight()
@@ -90052,21 +90010,18 @@ class stzString from stzObject
 
 		# Computing the alignment
 
-		oQCopy = _Ops()
-
 		if nWidth > This.NumberOfChars()
-			oChar = new stzChar(cChar)
-			oQChar = oChar.QCharObject()
-
-			// Right-to-left strings (arabic, hebrew) need reversed alignment
+			cPad = ""
+			nPadCount = nWidth - len(This.Content())
+			for _i_ = 1 to nPadCount
+				cPad += cChar
+			next
 
 			if This.IsRightToLeft()
-				cJustified = oQCopy.rightJustified(nWidth, oQChar, 0)
+				This.Update( cPad + This.Content() )
 			else
-				cJustified = oQCopy.leftJustified(nWidth, oQChar, 0)
+				This.Update( This.Content() + cPad )
 			ok
-	
-			This.Update( cJustified )
 		ok
 
 		#< @FunctionFluentForm
@@ -90182,19 +90137,18 @@ class stzString from stzObject
 
 		# Computing the justification
 
-		oQCopy = _Ops()
-
 		if nWidth > This.NumberOfChars()
-			oChar = new stzChar(cChar)
-			oQChar = oChar.QCharObject()
+			cPad = ""
+			nPadCount = nWidth - len(This.Content())
+			for _i_ = 1 to nPadCount
+				cPad += cChar
+			next
 
 			if This.IsRightToLeft()
-				cJustified = oQCopy.leftJustified(nWidth, oQChar, 0)
+				This.Update( This.Content() + cPad )
 			else
-				cJustified = oQCopy.rightJustified(nWidth, oQChar, 0)
+				This.Update( cPad + This.Content() )
 			ok
-	
-			This.Update( cJustified )
 		ok
 
 		#< @FunctionFluentForm
@@ -90501,9 +90455,7 @@ class stzString from stzObject
 
 	//Returns a UTF-8 representation of the string
 	def ToUTF8()
-		oQCopy = _Ops()
-		cResult = QByteArrayToListOfUnicodes(oQCopy.toUtf8())
-		return cResult
+		return This.Content()
 
 	def ToUTF8Q()
 		return new stzString( This.ToUTF8() )
@@ -90512,17 +90464,13 @@ class stzString from stzObject
 		StzRaise("Function non implemented yet!")
 
 	def ToLatin1()
-		oQCopy = _Ops()
-		cResult = oQCopy.toLatin1()
-		return oQCopy.toLatin1()
+		return This.Content()
 
 	def FromLatin1(pcLatin1String)
 		StzRaise("Function non implemented yet!")
 
 	def ToLocal8Bit()
-		oQCopy = _Ops()
-		cResult = oQCopy.toLocal8bit()
-		return cResult
+		return This.Content()
 
 	def ToBase64()
 		cResult = This.ToStzListOfBytes().ToBase64()
@@ -90609,7 +90557,7 @@ class stzString from stzObject
 
 			if _acChars_[@i] = "%" and (@i + 2) <= _nLen_
 
-				_cHexStr_ = This._Ops().mid(@i, 2)
+				_cHexStr_ = substr(This.Content(), @i + 1, 2)
 				_nCharCode_ = @Unicode( hex2str(_cHexStr_) )
 
 				_cResult_ += ( @Char(_nCharCode_) + " " )
@@ -90617,7 +90565,7 @@ class stzString from stzObject
 
 		        else
 
-				_cResult_ += This._Ops().mid(@i-1, 1)
+				_cResult_ += substr(This.Content(), @i, 1)
 		            	@i = @i + 1
 		        end
 		end
@@ -90795,8 +90743,12 @@ class stzString from stzObject
 	#=============================================#
 
 	def EscapeHtml()
-		oQCopy = _Ops()
-		This.UpdateWith( oQCopy.toHtmlEscaped() )
+		cStr = This.Content()
+		cStr = substr(cStr, "&", "&amp;")
+		cStr = substr(cStr, "<", "&lt;")
+		cStr = substr(cStr, ">", "&gt;")
+		cStr = substr(cStr, '"', "&quot;")
+		This.UpdateWith( cStr )
 
 		def EscapeHtmlQ()
 			This.EscapeHtml()
@@ -92762,18 +92714,18 @@ class stzString from stzObject
 	def CharsCS(pCaseSensitive)
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		_oQCopy_ = _Ops()
-		nLen = _oQCopy_.size()
+		cContent = This.Content()
+		nLen = len(cContent)
 		acResult = []
 
 		if bCaseSensitive = 1
 			for i = 1 to nLen
-				acResult + _oQCopy_.mid(i-1, 1)
+				acResult + substr(cContent, i, 1)
 			next
 
 		else
 			for i = 1 to nLen
-				c = lower( _oQCopy_.mid(i-1, 1) )
+				c = lower( substr(cContent, i, 1) )
 				if ring_find(acResult, c) = 0
 					acResult + c
 				ok
@@ -93947,9 +93899,7 @@ class stzString from stzObject
 			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
-		_oQCopy_ = _Ops()
-		nLen = _oQCopy_.size()
-		cResult = _oQCopy_.mid(n-1, 1)
+		cResult = substr(This.Content(), n, 1)
 		return cResult
 
 		#< @FunctionFluentForm
@@ -94103,7 +94053,7 @@ class stzString from stzObject
 	#---------------------------#
 
 	def FirstChar()
- 		return This._Ops().mid(0, 1)
+ 		return substr(This.Content(), 1, 1)
 
 		#< @FunctionFluentForm
 
@@ -94154,7 +94104,7 @@ class stzString from stzObject
 
 	def LastChar()
 		nLen = This.NumberOfChars()
-		cResult = This._Ops().mid(nLen - 1, 1)
+		cResult = substr(This.Content(), nLen, 1)
 		return cResult
 
 		#< @FunctionFluentForm
@@ -94273,7 +94223,7 @@ class stzString from stzObject
 
 		if _bCase_ = 1
 
-			return This._Ops().size()
+			return len(This.Content())
 		else
 			return len( This.UniqueChars() )
 		ok
@@ -95115,7 +95065,7 @@ class stzString from stzObject
 			_nLen_ = this.NumberOfChars()
 
 			for @i = 1 to _nLen_
-				_cTemp_ = This._Ops().mid(@i-1,1) + pValue
+				_cTemp_ = substr(This.Content(), @i, 1) + pValue
 				_cResult_ += _cTemp_
 			next
 		
@@ -95130,7 +95080,7 @@ class stzString from stzObject
 			for @i = 1 to nLen
 				
 				for @v = 1 to _nLenValue_
-					_cTemp_ = This._Ops().mid(i-1,1) + pValue[@v]
+					_cTemp_ = substr(This.Content(), i, 1) + pValue[@v]
 					_cResult_ += _cTemp _
 				next
 										
@@ -97168,7 +97118,7 @@ class stzString from stzObject
 			# The list is in short form, let's analyze it
 			# and tranform it to a normal syntax
 
-			aListMembers = oCopy._Ops().split( ":", 0, 0 )
+			aListMembers = oCopy._SplitByStr(":")
 
 			cMember1 = aListMembers[1]
 			cMember2 = aListMembers[2]
@@ -97351,7 +97301,7 @@ class stzString from stzObject
 				oCopy.Trim()
 				oCopy.RemoveFirstAndLastChars()
 
-				acMembers = oCopy._Ops().split(",", 0, 0)
+				acMembers = oCopy._SplitByStr(",")
 				acMembers = StzListQ(acMembers).FirstAndLastItems()
 
 				/*
@@ -97407,7 +97357,7 @@ class stzString from stzObject
 			# The list is in short form, let's analyze it
 			# and tranform it to a normal syntax
 
-			aListMembers = This._Ops().split( ":", 0, 0 )
+			aListMembers = This._SplitByStr(":")
 					
 			cMember1 = aListMembers[1]
 			cMember2 = aListMembers[2]
@@ -98086,7 +98036,7 @@ class stzString from stzObject
 				_nParts_ = ceil( _nLen_ / pValue )
 
 				for @i = 1 to _nLen_ step _nParts_
-					_cTemp_ = This._Ops().mid(@i-1, _nParts_)
+					_cTemp_ = substr(This.Content(), @i, _nParts_)
 					_aParts_ + _cTemp_	
 				next
 
