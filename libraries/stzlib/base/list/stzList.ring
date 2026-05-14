@@ -59498,8 +59498,7 @@ fdef
 				cItem = @ObjectVarName(aContent[i])
 			ok
 
-			oQLocale = new QLocale("C")
-			cItem = oQLocale.toLower( cItem )
+			cItem = lower( cItem )
 			acResult + cItem
 		next
 
