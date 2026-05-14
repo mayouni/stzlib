@@ -12,6 +12,7 @@
 #   load "engine/stz_json.ring"       # JSON only
 #   load "engine/stz_url.ring"        # URL only
 #   load "engine/stz_system.ring"     # system/process only
+#   load "engine/stz_unicode.ring"    # unicode properties/case/normalize only
 
 load "stz_string.ring"
 load "stz_datetime.ring"
@@ -22,3 +23,4 @@ load "stz_bytes.ring"
 load "stz_json.ring"
 load "stz_url.ring"
 load "stz_system.ring"
+load "stz_unicode.ring"

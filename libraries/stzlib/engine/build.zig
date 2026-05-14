@@ -3,11 +3,12 @@ const std = @import("std");
 const Domain = struct {
     name: []const u8,
     entry: []const u8,
+    needs_utf8proc: bool = false,
 };
 
 // Core (stk_*): minimal, fast, constrained environments
 const core_domains = [_]Domain{
-    .{ .name = "stk_string", .entry = "src/stk_string_entry.zig" },
+    .{ .name = "stk_string", .entry = "src/stk_string_entry.zig", .needs_utf8proc = true },
     .{ .name = "stk_datetime", .entry = "src/stk_datetime_entry.zig" },
     .{ .name = "stk_file", .entry = "src/stk_file_entry.zig" },
     .{ .name = "stk_locale", .entry = "src/stk_locale_entry.zig" },
@@ -15,16 +16,25 @@ const core_domains = [_]Domain{
 
 // Base (stz_*): full features, superset of Core
 const base_domains = [_]Domain{
-    .{ .name = "stz_string", .entry = "src/stz_string_entry.zig" },
+    .{ .name = "stz_string", .entry = "src/stz_string_entry.zig", .needs_utf8proc = true },
     .{ .name = "stz_datetime", .entry = "src/stz_datetime_entry.zig" },
     .{ .name = "stz_file", .entry = "src/stz_file_entry.zig" },
     .{ .name = "stz_locale", .entry = "src/stz_locale_entry.zig" },
-    .{ .name = "stz_regex", .entry = "src/stz_regex_entry.zig" },
+    .{ .name = "stz_regex", .entry = "src/stz_regex_entry.zig", .needs_utf8proc = true },
     .{ .name = "stz_bytes", .entry = "src/stz_bytes_entry.zig" },
     .{ .name = "stz_json", .entry = "src/stz_json_entry.zig" },
     .{ .name = "stz_url", .entry = "src/stz_url_entry.zig" },
     .{ .name = "stz_system", .entry = "src/stz_system_entry.zig" },
+    .{ .name = "stz_unicode", .entry = "src/stz_unicode_entry.zig", .needs_utf8proc = true },
 };
+
+fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/utf8proc"));
+    lib.addCSourceFiles(.{
+        .files = &.{"vendor/utf8proc/utf8proc.c"},
+        .flags = &.{"-DUTF8PROC_STATIC"},
+    });
+}
 
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
@@ -43,6 +53,7 @@ pub fn build(b: *std.Build) void {
             .root_module = mod,
             .linkage = .dynamic,
         });
+        if (dom.needs_utf8proc) addUtf8proc(mod, lib, b);
         b.installArtifact(lib);
     }
 
@@ -59,6 +70,7 @@ pub fn build(b: *std.Build) void {
             .root_module = mod,
             .linkage = .dynamic,
         });
+        if (dom.needs_utf8proc) addUtf8proc(mod, lib, b);
         b.installArtifact(lib);
     }
 
@@ -74,17 +86,18 @@ pub fn build(b: *std.Build) void {
         .root_module = static_mod,
         .linkage = .static,
     });
+    addUtf8proc(static_mod, static_lib, b);
     b.installArtifact(static_lib);
 
     // Tests run through engine.zig (covers all modules)
-    const tests = b.addTest(.{
-        .root_module = b.createModule(.{
-            .root_source_file = b.path("src/engine.zig"),
-            .target = target,
-            .optimize = optimize,
-            .link_libc = true,
-        }),
+    const test_mod = b.createModule(.{
+        .root_source_file = b.path("src/engine.zig"),
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
     });
+    const tests = b.addTest(.{ .root_module = test_mod });
+    addUtf8proc(test_mod, tests, b);
     const run_tests = b.addRunArtifact(tests);
     const test_step = b.step("test", "Run Softanza Engine tests");
     test_step.dependOn(&run_tests.step);

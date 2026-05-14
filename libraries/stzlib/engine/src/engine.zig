@@ -10,6 +10,7 @@
 
 pub const string = @import("string.zig");
 pub const char = @import("char.zig");
+pub const unicode = @import("unicode.zig");
 pub const datetime = @import("datetime.zig");
 pub const file = @import("file.zig");
 pub const locale = @import("locale.zig");
@@ -42,6 +43,15 @@ comptime {
     @export(&string.stz_string_replace, .{ .name = "stz_string_replace" });
     @export(&string.stz_string_to_upper, .{ .name = "stz_string_to_upper" });
     @export(&string.stz_string_to_lower, .{ .name = "stz_string_to_lower" });
+    @export(&string.stz_string_to_title, .{ .name = "stz_string_to_title" });
+    @export(&string.stz_string_char_at, .{ .name = "stz_string_char_at" });
+    @export(&string.stz_string_mid_cp, .{ .name = "stz_string_mid_cp" });
+    @export(&string.stz_string_left_cp, .{ .name = "stz_string_left_cp" });
+    @export(&string.stz_string_right_cp, .{ .name = "stz_string_right_cp" });
+    @export(&string.stz_string_insert_cp, .{ .name = "stz_string_insert_cp" });
+    @export(&string.stz_string_grapheme_count, .{ .name = "stz_string_grapheme_count" });
+    @export(&string.stz_string_normalize, .{ .name = "stz_string_normalize" });
+    @export(&string.stz_string_strip_marks, .{ .name = "stz_string_strip_marks" });
 
     // ─── Tier 1: Unicode character operations ───
     @export(&char.stz_char_unicode, .{ .name = "stz_char_unicode" });
@@ -210,6 +220,42 @@ comptime {
     @export(&url.stz_url_password, .{ .name = "stz_url_password" });
     @export(&url.stz_url_reconstruct, .{ .name = "stz_url_reconstruct" });
 
+    // ─── Tier 1: Unicode operations (utf8proc) ───
+    @export(&unicode.stz_unicode_category, .{ .name = "stz_unicode_category" });
+    @export(&unicode.stz_unicode_category_string, .{ .name = "stz_unicode_category_string" });
+    @export(&unicode.stz_unicode_is_letter, .{ .name = "stz_unicode_is_letter" });
+    @export(&unicode.stz_unicode_is_digit, .{ .name = "stz_unicode_is_digit" });
+    @export(&unicode.stz_unicode_is_number, .{ .name = "stz_unicode_is_number" });
+    @export(&unicode.stz_unicode_is_upper, .{ .name = "stz_unicode_is_upper" });
+    @export(&unicode.stz_unicode_is_lower, .{ .name = "stz_unicode_is_lower" });
+    @export(&unicode.stz_unicode_is_space, .{ .name = "stz_unicode_is_space" });
+    @export(&unicode.stz_unicode_is_punctuation, .{ .name = "stz_unicode_is_punctuation" });
+    @export(&unicode.stz_unicode_is_symbol, .{ .name = "stz_unicode_is_symbol" });
+    @export(&unicode.stz_unicode_is_mark, .{ .name = "stz_unicode_is_mark" });
+    @export(&unicode.stz_unicode_is_control, .{ .name = "stz_unicode_is_control" });
+    @export(&unicode.stz_unicode_is_valid, .{ .name = "stz_unicode_is_valid" });
+    @export(&unicode.stz_unicode_bidi_class, .{ .name = "stz_unicode_bidi_class" });
+    @export(&unicode.stz_unicode_charwidth, .{ .name = "stz_unicode_charwidth" });
+    @export(&unicode.stz_unicode_to_lower, .{ .name = "stz_unicode_to_lower" });
+    @export(&unicode.stz_unicode_to_upper, .{ .name = "stz_unicode_to_upper" });
+    @export(&unicode.stz_unicode_to_title, .{ .name = "stz_unicode_to_title" });
+    @export(&unicode.stz_unicode_to_lower_str, .{ .name = "stz_unicode_to_lower_str" });
+    @export(&unicode.stz_unicode_to_upper_str, .{ .name = "stz_unicode_to_upper_str" });
+    @export(&unicode.stz_unicode_to_title_str, .{ .name = "stz_unicode_to_title_str" });
+    @export(&unicode.stz_unicode_normalize, .{ .name = "stz_unicode_normalize" });
+    @export(&unicode.stz_unicode_normalize_free, .{ .name = "stz_unicode_normalize_free" });
+    @export(&unicode.stz_unicode_casefold, .{ .name = "stz_unicode_casefold" });
+    @export(&unicode.stz_unicode_casefold_free, .{ .name = "stz_unicode_casefold_free" });
+    @export(&unicode.stz_unicode_strip_marks, .{ .name = "stz_unicode_strip_marks" });
+    @export(&unicode.stz_unicode_strip_marks_free, .{ .name = "stz_unicode_strip_marks_free" });
+    @export(&unicode.stz_unicode_grapheme_count, .{ .name = "stz_unicode_grapheme_count" });
+    @export(&unicode.stz_unicode_grapheme_break, .{ .name = "stz_unicode_grapheme_break" });
+    @export(&unicode.stz_unicode_iterate, .{ .name = "stz_unicode_iterate" });
+    @export(&unicode.stz_unicode_cp_byte_len, .{ .name = "stz_unicode_cp_byte_len" });
+    @export(&unicode.stz_unicode_encode, .{ .name = "stz_unicode_encode" });
+    @export(&unicode.stz_unicode_cp_to_byte, .{ .name = "stz_unicode_cp_to_byte" });
+    @export(&unicode.stz_unicode_byte_to_cp, .{ .name = "stz_unicode_byte_to_cp" });
+
     // ─── Tier 3: System operations ───
     @export(&system.stz_system_run, .{ .name = "stz_system_run" });
     @export(&system.stz_system_run_free, .{ .name = "stz_system_run_free" });
@@ -220,14 +266,15 @@ comptime {
     @export(&system.stz_system_is_macos, .{ .name = "stz_system_is_macos" });
 }
 
-// Version -- bumped for Tier 3
+// Version -- bumped for Unicode
 pub export fn stz_engine_version() callconv(.c) u32 {
-    return 0x00_04_00_00; // 0.4.0.0
+    return 0x00_05_00_00; // 0.5.0.0
 }
 
 test {
     _ = string;
     _ = char;
+    _ = unicode;
     _ = datetime;
     _ = file;
     _ = locale;

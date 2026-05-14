@@ -8,6 +8,7 @@ const mem = std.mem;
 const Allocator = std.mem.Allocator;
 
 const gpa = std.heap.c_allocator;
+const unicode = @import("unicode.zig");
 
 pub const StzStringHandle = ?*StzString;
 
@@ -214,9 +215,16 @@ pub fn stz_string_to_upper(handle: StzStringHandle) callconv(.c) StzStringHandle
     if (handle) |s| {
         const src = s.slice();
         const r = stz_string_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len) catch {};
-        for (src) |byte| {
-            r.data.append(gpa, std.ascii.toUpper(byte)) catch {};
+        r.data.ensureTotalCapacity(gpa, src.len * 2) catch {};
+        var buf: [64]u8 = undefined;
+        const len = unicode.stz_unicode_to_upper_str(src.ptr, src.len, &buf, 64);
+        if (len > 0 and len <= 64) {
+            r.data.appendSlice(gpa, buf[0..len]) catch {};
+        } else if (src.len > 0) {
+            const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
+            defer gpa.free(big_buf);
+            const big_len = unicode.stz_unicode_to_upper_str(src.ptr, src.len, big_buf.ptr, big_buf.len);
+            if (big_len > 0) r.data.appendSlice(gpa, big_buf[0..big_len]) catch {};
         }
         return r;
     }
@@ -227,10 +235,107 @@ pub fn stz_string_to_lower(handle: StzStringHandle) callconv(.c) StzStringHandle
     if (handle) |s| {
         const src = s.slice();
         const r = stz_string_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len) catch {};
-        for (src) |byte| {
-            r.data.append(gpa, std.ascii.toLower(byte)) catch {};
+        r.data.ensureTotalCapacity(gpa, src.len * 2) catch {};
+        var buf: [64]u8 = undefined;
+        const len = unicode.stz_unicode_to_lower_str(src.ptr, src.len, &buf, 64);
+        if (len > 0 and len <= 64) {
+            r.data.appendSlice(gpa, buf[0..len]) catch {};
+        } else if (src.len > 0) {
+            const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
+            defer gpa.free(big_buf);
+            const big_len = unicode.stz_unicode_to_lower_str(src.ptr, src.len, big_buf.ptr, big_buf.len);
+            if (big_len > 0) r.data.appendSlice(gpa, big_buf[0..big_len]) catch {};
         }
+        return r;
+    }
+    return stz_string_new();
+}
+
+// ─── Codepoint-aware Operations ───
+
+pub fn stz_string_char_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) i32 {
+    if (handle) |s| {
+        const byte_off = unicode.stz_unicode_cp_to_byte(s.data.items.ptr, s.data.items.len, cp_index);
+        if (byte_off < 0) return -1;
+        return unicode.stz_unicode_iterate(s.data.items.ptr, s.data.items.len, @intCast(byte_off));
+    }
+    return -1;
+}
+
+pub fn stz_string_mid_cp(handle: StzStringHandle, cp_start: c_int, cp_count: c_int) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const src = s.slice();
+        const byte_start = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, cp_start);
+        if (byte_start < 0) return stz_string_new();
+        const byte_end = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, cp_start + cp_count);
+        const end: usize = if (byte_end < 0) src.len else @intCast(byte_end);
+        const start: usize = @intCast(byte_start);
+        return stz_string_from(src[start..end].ptr, end - start);
+    }
+    return stz_string_new();
+}
+
+pub fn stz_string_left_cp(handle: StzStringHandle, cp_count: c_int) callconv(.c) StzStringHandle {
+    return stz_string_mid_cp(handle, 0, cp_count);
+}
+
+pub fn stz_string_right_cp(handle: StzStringHandle, cp_count: c_int) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const src = s.slice();
+        const total_cp = utf8CodepointCount(src);
+        const start_cp: c_int = @intCast(total_cp -| @as(usize, @intCast(@max(cp_count, 0))));
+        return stz_string_mid_cp(handle, start_cp, cp_count);
+    }
+    return stz_string_new();
+}
+
+pub fn stz_string_insert_cp(handle: StzStringHandle, cp_pos: c_int, utf8: [*c]const u8, len: usize) callconv(.c) void {
+    if (handle) |s| {
+        if (utf8 == null or len == 0) return;
+        const byte_pos = unicode.stz_unicode_cp_to_byte(s.data.items.ptr, s.data.items.len, cp_pos);
+        if (byte_pos < 0) return;
+        s.data.insertSlice(gpa, @intCast(byte_pos), utf8[0..len]) catch {};
+    }
+}
+
+pub fn stz_string_grapheme_count(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        return unicode.stz_unicode_grapheme_count(s.data.items.ptr, s.data.items.len);
+    }
+    return 0;
+}
+
+pub fn stz_string_normalize(handle: StzStringHandle, form: c_int) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        var out_len: usize = 0;
+        const result = unicode.stz_unicode_normalize(s.data.items.ptr, s.data.items.len, form, &out_len);
+        if (result == null or out_len == 0) return stz_string_new();
+        defer unicode.stz_unicode_normalize_free(result, out_len);
+        return stz_string_from(result, out_len);
+    }
+    return stz_string_new();
+}
+
+pub fn stz_string_strip_marks(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        var out_len: usize = 0;
+        const result = unicode.stz_unicode_strip_marks(s.data.items.ptr, s.data.items.len, &out_len);
+        if (result == null or out_len == 0) return stz_string_new();
+        defer unicode.stz_unicode_strip_marks_free(result, out_len);
+        return stz_string_from(result, out_len);
+    }
+    return stz_string_new();
+}
+
+pub fn stz_string_to_title(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const src = s.slice();
+        const r = stz_string_new() orelse return null;
+        r.data.ensureTotalCapacity(gpa, src.len * 2) catch {};
+        const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
+        defer gpa.free(big_buf);
+        const len = unicode.stz_unicode_to_title_str(src.ptr, src.len, big_buf.ptr, big_buf.len);
+        if (len > 0) r.data.appendSlice(gpa, big_buf[0..len]) catch {};
         return r;
     }
     return stz_string_new();
@@ -344,6 +449,64 @@ test "string case" {
     try std.testing.expect(mem.eql(u8, stz_string_data(lower)[0..5], "hello"));
     stz_string_free(lower);
 
+    stz_string_free(s);
+}
+
+test "string unicode case" {
+    // Greek lowercase -> uppercase
+    const s = stz_string_from("\xCE\xB1\xCE\xB2\xCE\xB3", 6);
+    const upper = stz_string_to_upper(s);
+    try std.testing.expectEqual(@as(usize, 6), stz_string_size(upper));
+    try std.testing.expect(mem.eql(u8, stz_string_data(upper)[0..6], "\xCE\x91\xCE\x92\xCE\x93"));
+    stz_string_free(upper);
+    stz_string_free(s);
+}
+
+test "string char_at codepoint" {
+    // "cafe\xCC\x81" = c(0x63) a(0x61) f(0x66) e-acute(0xE9 as 2 bytes)
+    const s = stz_string_from("caf\xC3\xA9", 5);
+    try std.testing.expectEqual(@as(i32, 'c'), stz_string_char_at(s, 0));
+    try std.testing.expectEqual(@as(i32, 'a'), stz_string_char_at(s, 1));
+    try std.testing.expectEqual(@as(i32, 'f'), stz_string_char_at(s, 2));
+    try std.testing.expectEqual(@as(i32, 0xE9), stz_string_char_at(s, 3));
+    try std.testing.expectEqual(@as(i32, -1), stz_string_char_at(s, 4));
+    stz_string_free(s);
+}
+
+test "string mid_cp" {
+    // "cafe\xCC\x81" (4 codepoints, 5 bytes)
+    const s = stz_string_from("caf\xC3\xA9", 5);
+    const mid = stz_string_mid_cp(s, 2, 2);
+    try std.testing.expectEqual(@as(usize, 3), stz_string_size(mid));
+    try std.testing.expect(mem.eql(u8, stz_string_data(mid)[0..3], "f\xC3\xA9"));
+    stz_string_free(mid);
+    stz_string_free(s);
+}
+
+test "string grapheme count" {
+    // e + combining acute = 1 grapheme
+    const s = stz_string_from("e\xCC\x81", 3);
+    try std.testing.expectEqual(@as(usize, 2), stz_string_count(s)); // 2 codepoints
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_grapheme_count(s)); // 1 grapheme
+    stz_string_free(s);
+}
+
+test "string normalize" {
+    // NFD: e + combining acute -> NFC: e-acute
+    const s = stz_string_from("e\xCC\x81", 3);
+    const nfc = stz_string_normalize(s, 0);
+    try std.testing.expectEqual(@as(usize, 2), stz_string_size(nfc));
+    try std.testing.expect(mem.eql(u8, stz_string_data(nfc)[0..2], "\xC3\xA9"));
+    stz_string_free(nfc);
+    stz_string_free(s);
+}
+
+test "string strip marks" {
+    const s = stz_string_from("\xC3\xA9", 2); // e-acute
+    const stripped = stz_string_strip_marks(s);
+    try std.testing.expectEqual(@as(usize, 1), stz_string_size(stripped));
+    try std.testing.expect(mem.eql(u8, stz_string_data(stripped)[0..1], "e"));
+    stz_string_free(stripped);
     stz_string_free(s);
 }
 

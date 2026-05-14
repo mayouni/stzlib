@@ -126,6 +126,53 @@ func StzEngineStringToLower(pHandle)
     return CallCFunc($pStzStringHandle, "stz_string_to_lower", "p", "p",
                      pHandle)
 
+func StzEngineStringToTitle(pHandle)
+    if $pStzStringHandle = NULL return NULL ok
+    return CallCFunc($pStzStringHandle, "stz_string_to_title", "p", "p",
+                     pHandle)
+
+# ── Codepoint-Aware Operations (Base only) ──
+
+func StzEngineStringCharAt(pHandle, nCpIndex)
+    if $pStzStringHandle = NULL return 0 ok
+    return CallCFunc($pStzStringHandle, "stz_string_char_at", "i", "pi",
+                     pHandle, nCpIndex)
+
+func StzEngineStringMidCp(pHandle, nCpStart, nCpCount)
+    if $pStzStringHandle = NULL return NULL ok
+    return CallCFunc($pStzStringHandle, "stz_string_mid_cp", "p", "pii",
+                     pHandle, nCpStart, nCpCount)
+
+func StzEngineStringLeftCp(pHandle, nCpCount)
+    if $pStzStringHandle = NULL return NULL ok
+    return CallCFunc($pStzStringHandle, "stz_string_left_cp", "p", "pi",
+                     pHandle, nCpCount)
+
+func StzEngineStringRightCp(pHandle, nCpCount)
+    if $pStzStringHandle = NULL return NULL ok
+    return CallCFunc($pStzStringHandle, "stz_string_right_cp", "p", "pi",
+                     pHandle, nCpCount)
+
+func StzEngineStringInsertCp(pHandle, nCpPos, cStr)
+    if $pStzStringHandle = NULL return ok
+    CallCFunc($pStzStringHandle, "stz_string_insert_cp", "v", "pipi",
+              pHandle, nCpPos, cStr, len(cStr))
+
+func StzEngineStringGraphemeCount(pHandle)
+    if $pStzStringHandle = NULL return 0 ok
+    return CallCFunc($pStzStringHandle, "stz_string_grapheme_count", "i", "p",
+                     pHandle)
+
+func StzEngineStringNormalize(pHandle, nForm)
+    if $pStzStringHandle = NULL return NULL ok
+    return CallCFunc($pStzStringHandle, "stz_string_normalize", "p", "pi",
+                     pHandle, nForm)
+
+func StzEngineStringStripMarks(pHandle)
+    if $pStzStringHandle = NULL return NULL ok
+    return CallCFunc($pStzStringHandle, "stz_string_strip_marks", "p", "p",
+                     pHandle)
+
 # ── Char (Core: unicode, to_utf8, is_letter, is_digit / Base adds: is_upper, is_lower) ──
 
 func StzEngineCharUnicode(cChar)
