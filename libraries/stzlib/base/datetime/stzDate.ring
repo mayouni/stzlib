@@ -8,9 +8,9 @@ $aDayNames = [
     [ :Arabic, [ "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد" ] ]
 ]
 
-# Multi-language month names  
+# Multi-language month names
 $aMonthNames = [
-    [ :English, [ "January", "February", "March", "April", "May", "June", 
+    [ :English, [ "January", "February", "March", "April", "May", "June",
                  "July", "August", "September", "October", "November", "December" ] ],
     [ :French, [ "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
                 "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre" ] ],
@@ -56,6 +56,74 @@ $aRelativeDateKeywords = [
     [ "start of year", "START_OF_YEAR" ]
 ]
 
+func _DaysInMonth(nYear, nMonth)
+    aMonthDays = [31,28,31,30,31,30,31,31,30,31,30,31]
+    if nMonth = 2 and _IsLeapYear(nYear) return 29 ok
+    return aMonthDays[nMonth]
+
+func _IsLeapYear(nYear)
+    if nYear % 400 = 0 return TRUE ok
+    if nYear % 100 = 0 return FALSE ok
+    if nYear % 4 = 0 return TRUE ok
+    return FALSE
+
+func _DateAddMonths(nYear, nMonth, nDay, nMonths)
+    nMonth += nMonths
+    while nMonth > 12
+        nMonth -= 12
+        nYear++
+    end
+    while nMonth < 1
+        nMonth += 12
+        nYear--
+    end
+    nMaxDay = _DaysInMonth(nYear, nMonth)
+    if nDay > nMaxDay nDay = nMaxDay ok
+    return [nYear, nMonth, nDay]
+
+func _DateAddYears(nYear, nMonth, nDay, nYears)
+    nYear += nYears
+    nMaxDay = _DaysInMonth(nYear, nMonth)
+    if nDay > nMaxDay nDay = nMaxDay ok
+    return [nYear, nMonth, nDay]
+
+func _DateFormatString(nYear, nMonth, nDay, cFormat)
+    pHandle = StzEngineDateNew(nYear, nMonth, nDay)
+    cDayName = StzEngineDateDayName(pHandle)
+    cMonthName = StzEngineDateMonthName(pHandle)
+    StzEngineDateFree(pHandle)
+
+    cResult = cFormat
+    cResult = substr(cResult, "dddd", cDayName)
+    cResult = substr(cResult, "ddd", left(cDayName, 3))
+    cResult = substr(cResult, "dd", _PadLeft("" + nDay, 2, "0"))
+    cResult = substr(cResult, "MMMM", cMonthName)
+    cResult = substr(cResult, "MMM", left(cMonthName, 3))
+    cResult = substr(cResult, "MM", _PadLeft("" + nMonth, 2, "0"))
+    cResult = substr(cResult, "yyyy", "" + nYear)
+    nYY = nYear % 100
+    cResult = substr(cResult, "yy", _PadLeft("" + nYY, 2, "0"))
+    return cResult
+
+func _PadLeft(cStr, nWidth, cPadChar)
+    while len(cStr) < nWidth
+        cStr = cPadChar + cStr
+    end
+    return cStr
+
+func _TodayYMD()
+    pHandle = StzEngineDateToday()
+    nY = StzEngineDateYear(pHandle)
+    nM = StzEngineDateMonth(pHandle)
+    nD = StzEngineDateDay(pHandle)
+    StzEngineDateFree(pHandle)
+    return [nY, nM, nD]
+
+func _IsValidDate(nYear, nMonth, nDay)
+    if nMonth < 1 or nMonth > 12 return FALSE ok
+    if nDay < 1 or nDay > _DaysInMonth(nYear, nMonth) return FALSE ok
+    return TRUE
+
 func TimeStamp()
 	return Date() + " " + Time()
 
@@ -97,13 +165,13 @@ func GetDayNameXT(nDayOfWeek, cLanguage)
     if cLanguage = NULL
         cLanguage = $cCurrentLanguage
     ok
-    
+
     for aLang in $aDayNames
         if aLang[1] = cLanguage
             return aLang[2][nDayOfWeek]
         ok
     next
-    
+
     # Fallback to English
     for aLang in $aDayNames
         if aLang[1] = :English
@@ -121,13 +189,13 @@ func GetMonthNameInLanguage(nMonth, cLanguage)
     if cLanguage = NULL
         cLanguage = $cCurrentLanguage
     ok
-    
+
     for aLang in $aMonthNames
         if aLang[1] = cLanguage
             return aLang[2][nMonth]
         ok
     next
-    
+
     # Fallback to English
     for aLang in $aMonthNames
         if aLang[1] = :English
@@ -178,165 +246,293 @@ func DayOrdinalSuffix(nDay)
     ok
 
 class stzDate from stzObject
-   	 oQDate
-    
+    @nYear
+    @nMonth
+    @nDay
+
     	def init(pcDate)
-		oQDate = new QDate()
 		This.SetDate(pcDate)
 
 	def SetDate(pcDate)
 	    if isList(pcDate) and len(pcDate) = 3
 	        if IsListOfNumbers(pcDate)
-		    oQDate.setDate(pcDate[1], pcDate[2], pcDate[3])
+		    @nYear = pcDate[1]
+		    @nMonth = pcDate[2]
+		    @nDay = pcDate[3]
 		    return
 
 	        but IsHashList(pcDate) and HasKeys(pcDate, [ :Year, :Month, :Day ])
-		    oQDate.setDate(pcDate[:Year], pcDate[:Month], pcDate[:Day])
+		    @nYear = pcDate[:Year]
+		    @nMonth = pcDate[:Month]
+		    @nDay = pcDate[:Day]
 		    return
 	        ok
 	    ok
-	
+
 	    if NOT isString(pcDate)
 	        StzRaise("Can't create the stzDate object! You must provide a string.")
 	    ok
-	
-	    oQDate = new QDate()
+
 	    cDate = lower(trim(pcDate))
 	    nLenDate = len(cDate)
-	
-	
+
+
 	    if cDate = ''
-	        oQDate = oQDate.currentDate()
+	        aToday = _TodayYMD()
+	        @nYear = aToday[1]
+	        @nMonth = aToday[2]
+	        @nDay = aToday[3]
 	        return
 
 	    but cDate = "today"
-	        oQDate = oQDate.currentDate()
+	        aToday = _TodayYMD()
+	        @nYear = aToday[1]
+	        @nMonth = aToday[2]
+	        @nDay = aToday[3]
 	        return
-	    
+
 	    but cDate = "yesterday"
-	        oQDate = oQDate.currentDate().addDays(-1)
+	        aToday = _TodayYMD()
+	        pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+	        pNew = StzEngineDateAddDays(pHandle, -1)
+	        @nYear = StzEngineDateYear(pNew)
+	        @nMonth = StzEngineDateMonth(pNew)
+	        @nDay = StzEngineDateDay(pNew)
+	        StzEngineDateFree(pNew)
+	        StzEngineDateFree(pHandle)
 	        return
 
 	    but cDate = "tomorrow"
-	        oQDate = oQDate.currentDate().addDays(1)
+	        aToday = _TodayYMD()
+	        pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+	        pNew = StzEngineDateAddDays(pHandle, 1)
+	        @nYear = StzEngineDateYear(pNew)
+	        @nMonth = StzEngineDateMonth(pNew)
+	        @nDay = StzEngineDateDay(pNew)
+	        StzEngineDateFree(pNew)
+	        StzEngineDateFree(pHandle)
 	        return
 	    ok
-	
+
 	    if left(cDate, 3) = "in "
 	        aValueUnit = ExtractValueAndUnit(substr(cDate, 4))
 	        if aValueUnit != NULL
 	            nValue = aValueUnit[1]
 	            cUnit = aValueUnit[2]
-	            
+
+	            aToday = _TodayYMD()
+
 	            switch cUnit
 	                on "day"
-	                    oQDate = oQDate.currentDate().addDays(nValue)
+	                    pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+	                    pNew = StzEngineDateAddDays(pHandle, nValue)
+	                    @nYear = StzEngineDateYear(pNew)
+	                    @nMonth = StzEngineDateMonth(pNew)
+	                    @nDay = StzEngineDateDay(pNew)
+	                    StzEngineDateFree(pNew)
+	                    StzEngineDateFree(pHandle)
 	                on "days"
-	                    oQDate = oQDate.currentDate().addDays(nValue)
+	                    pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+	                    pNew = StzEngineDateAddDays(pHandle, nValue)
+	                    @nYear = StzEngineDateYear(pNew)
+	                    @nMonth = StzEngineDateMonth(pNew)
+	                    @nDay = StzEngineDateDay(pNew)
+	                    StzEngineDateFree(pNew)
+	                    StzEngineDateFree(pHandle)
 	                on "week"
-	                    oQDate = oQDate.currentDate().addDays(nValue * 7)
+	                    pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+	                    pNew = StzEngineDateAddDays(pHandle, nValue * 7)
+	                    @nYear = StzEngineDateYear(pNew)
+	                    @nMonth = StzEngineDateMonth(pNew)
+	                    @nDay = StzEngineDateDay(pNew)
+	                    StzEngineDateFree(pNew)
+	                    StzEngineDateFree(pHandle)
 	                on "weeks"
-	                    oQDate = oQDate.currentDate().addDays(nValue * 7)
+	                    pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+	                    pNew = StzEngineDateAddDays(pHandle, nValue * 7)
+	                    @nYear = StzEngineDateYear(pNew)
+	                    @nMonth = StzEngineDateMonth(pNew)
+	                    @nDay = StzEngineDateDay(pNew)
+	                    StzEngineDateFree(pNew)
+	                    StzEngineDateFree(pHandle)
 	                on "month"
-	                    oQDate = oQDate.currentDate().addMonths(nValue)
+	                    aResult = _DateAddMonths(aToday[1], aToday[2], aToday[3], nValue)
+	                    @nYear = aResult[1]
+	                    @nMonth = aResult[2]
+	                    @nDay = aResult[3]
 	                on "months"
-	                    oQDate = oQDate.currentDate().addMonths(nValue)
+	                    aResult = _DateAddMonths(aToday[1], aToday[2], aToday[3], nValue)
+	                    @nYear = aResult[1]
+	                    @nMonth = aResult[2]
+	                    @nDay = aResult[3]
 	                on "year"
-	                    oQDate = oQDate.currentDate().addYears(nValue)
+	                    aResult = _DateAddYears(aToday[1], aToday[2], aToday[3], nValue)
+	                    @nYear = aResult[1]
+	                    @nMonth = aResult[2]
+	                    @nDay = aResult[3]
 	                on "years"
-	                    oQDate = oQDate.currentDate().addYears(nValue)
+	                    aResult = _DateAddYears(aToday[1], aToday[2], aToday[3], nValue)
+	                    @nYear = aResult[1]
+	                    @nMonth = aResult[2]
+	                    @nDay = aResult[3]
 	                on "decade"
-	                    oQDate = oQDate.currentDate().addDays(nValue * 3650)
+	                    pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+	                    pNew = StzEngineDateAddDays(pHandle, nValue * 3650)
+	                    @nYear = StzEngineDateYear(pNew)
+	                    @nMonth = StzEngineDateMonth(pNew)
+	                    @nDay = StzEngineDateDay(pNew)
+	                    StzEngineDateFree(pNew)
+	                    StzEngineDateFree(pHandle)
 	                on "decades"
-	                    oQDate = oQDate.currentDate().addDays(nValue * 3650)
+	                    pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+	                    pNew = StzEngineDateAddDays(pHandle, nValue * 3650)
+	                    @nYear = StzEngineDateYear(pNew)
+	                    @nMonth = StzEngineDateMonth(pNew)
+	                    @nDay = StzEngineDateDay(pNew)
+	                    StzEngineDateFree(pNew)
+	                    StzEngineDateFree(pHandle)
 	                on "century"
-	                    oQDate = oQDate.currentDate().addDays(nValue * 36500)
+	                    pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+	                    pNew = StzEngineDateAddDays(pHandle, nValue * 36500)
+	                    @nYear = StzEngineDateYear(pNew)
+	                    @nMonth = StzEngineDateMonth(pNew)
+	                    @nDay = StzEngineDateDay(pNew)
+	                    StzEngineDateFree(pNew)
+	                    StzEngineDateFree(pHandle)
 	                on "centuries"
-	                    oQDate = oQDate.currentDate().addDays(nValue * 36500)
+	                    pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+	                    pNew = StzEngineDateAddDays(pHandle, nValue * 36500)
+	                    @nYear = StzEngineDateYear(pNew)
+	                    @nMonth = StzEngineDateMonth(pNew)
+	                    @nDay = StzEngineDateDay(pNew)
+	                    StzEngineDateFree(pNew)
+	                    StzEngineDateFree(pHandle)
 	            off
 	            return
 	        ok
 	    ok
-	
+
 	    This.ParseStringDate(pcDate)
-	
-	    if not oQDate.isValid()
+
+	    if not _IsValidDate(@nYear, @nMonth, @nDay)
 	        StzRaise("Invalid date provided!")
 	    ok
-	
+
     def ParseStringDate(cDate)
-        # Enhanced parser with more formats
-        aFormats = [ 
-            "dd/MM/yyyy", "MM/dd/yyyy", "yyyy-MM-dd", 
-            "dd-MM-yyyy", "yyyy/MM/dd", "ddMMyyyy",
-            "d/M/yyyy", "M/d/yyyy", "yyyy-M-d",
-            "d-M-yyyy", "dd.MM.yyyy", "MM.dd.yyyy"
-        ]
-        
-        for cFormat in aFormats
-            oTemp = oQDate.fromString(cDate, cFormat)
-            if oTemp.isValid()
-                oQDate = oTemp
-                return
+        cDate = trim(cDate)
+
+        aSeparators = ["/", "-", "."]
+        for cSep in aSeparators
+            if substr(cDate, cSep) > 0
+                aParts = @split(cDate, cSep)
+                if len(aParts) = 3
+                    nA = 0 + aParts[1]
+                    nB = 0 + aParts[2]
+                    nC = 0 + aParts[3]
+
+                    if nA > 100
+                        @nYear = nA
+                        @nMonth = nB
+                        @nDay = nC
+                        return
+                    ok
+
+                    if nC > 100
+                        if nA > 12
+                            @nDay = nA
+                            @nMonth = nB
+                            @nYear = nC
+                        else
+                            @nDay = nA
+                            @nMonth = nB
+                            @nYear = nC
+                        ok
+                        return
+                    ok
+                ok
             ok
         next
-        
+
+        if len(cDate) = 8
+            nA = 0 + left(cDate, 2)
+            nB = 0 + substr(cDate, 3, 2)
+            nC = 0 + right(cDate, 4)
+            if nC > 100
+                @nDay = nA
+                @nMonth = nB
+                @nYear = nC
+                return
+            ok
+        ok
+
         StzRaise("Cannot parse date string: " + cDate)
-    
+
     #--- ENHANCED ARITHMETIC OPERATIONS ---#
-    
+
     def AddDays(nDays)
-        oQDate = oQDate.addDays(nDays)
- 
+        pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
+        pNew = StzEngineDateAddDays(pHandle, nDays)
+        @nYear = StzEngineDateYear(pNew)
+        @nMonth = StzEngineDateMonth(pNew)
+        @nDay = StzEngineDateDay(pNew)
+        StzEngineDateFree(pNew)
+        StzEngineDateFree(pHandle)
+
 	    def AddDaysQ(nDays)
 	        This.AddDays(nDays)
 	        return This
 
     def AddWeeks(nWeeks)
-        oQDate = oQDate.addDays(nWeeks * 7)
+        This.AddDays(nWeeks * 7)
 
 	    def AddWeeksQ(nWeeks)
 	        This.AddWeeks(nWeeks)
 	        return This
 
     def AddMonths(nMonths)
-        oQDate = oQDate.addMonths(nMonths)
+        aResult = _DateAddMonths(@nYear, @nMonth, @nDay, nMonths)
+        @nYear = aResult[1]
+        @nMonth = aResult[2]
+        @nDay = aResult[3]
 
 	    def AddMonthsQ(nMonths)
 	        This.AddMonths(nMonths)
 	        return This
 
     def AddYears(nYears)
-        oQDate = oQDate.addYears(nYears)
+        aResult = _DateAddYears(@nYear, @nMonth, @nDay, nYears)
+        @nYear = aResult[1]
+        @nMonth = aResult[2]
+        @nDay = aResult[3]
 
 	    def AddYearsQ(nYears)
 	        This.AddYears(nYears)
 	        return This
 
     def SubtractDays(nDays)
-        oQDate = oQDate.addDays(-nDays)
+        This.AddDays(-nDays)
 
 	    def SubtractDaysQ(nDays)
 	        This.SubtractDays(nDays)
 	        return This
 
     def SubtractWeeks(nWeeks)
-        oQdate = oQDate.addDays(-nWeeks * 7)
+        This.AddDays(-nWeeks * 7)
 
 	    def SubtractWeeksQ(nWeeks)
 	        This.SubtractWeeks(nWeeks)
 	        return This
 
     def SubtractMonths(nMonths)
-        oQDate = oQDate.addMonths(-nMonths)
-    
+        This.AddMonths(-nMonths)
+
 	    def SubtractMonthsQ(nMonths)
 	        This.SubtractMonths(nMonths)
 	        return This
 
     def SubtractYears(nYears)
-        oQDate = oQDate.addYears(-nYears)
-    
+        This.AddYears(-nYears)
+
 	    def SubtractYearsQ(nYears)
 	        This.SubtractYears(nYears)
 	        return This
@@ -355,29 +551,29 @@ def PreviousDay()
 	return _oCopy_.Date()
 
 def NextWeekday()
-    nCurrentDay = oQDate.dayOfWeek()
+    nCurrentDay = This.DayOfWeek()
     _oCopy_ = This.Copy()
 
-    if nCurrentDay < 5  # Monday-Thursday
+    if nCurrentDay < 5
         _oCopy_.AddDays(1)
-    else  # Friday-Sunday
+    else
         _oCopy_.AddDays(8 - nCurrentDay)
     ok
     return _oCopy_.ToString()
 
 def PreviousWeekday()
-    nCurrentDay = oQDate.dayOfWeek()
+    nCurrentDay = This.DayOfWeek()
     _oCopy_ = This.Copy()
 
-    if nCurrentDay > 1  # Tuesday-Sunday
+    if nCurrentDay > 1
         _oCopy_.SubtractDays(1)
-    else  # Monday
+    else
         _oCopy_.SubtractDays(3)
     ok
     return _oCopy_.ToString()
 
 def NextMonday()
-    nDaysToAdd = 8 - oQDate.dayOfWeek()
+    nDaysToAdd = 8 - This.DayOfWeek()
     if nDaysToAdd = 8
         nDaysToAdd = 7
     ok
@@ -388,99 +584,99 @@ def NextMonday()
 
 def FirstDayOfMonth()
     _oCopy_ = This.Copy()
-    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), 1 ])
+    _oCopy_.SetDate([ @nYear, @nMonth, 1 ])
     return _oCopy_.ToString()
 
 def LastDayOfMonth()
     _oCopy_ = This.Copy()
-    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), oQDate.daysInMonth() ])
+    _oCopy_.SetDate([ @nYear, @nMonth, _DaysInMonth(@nYear, @nMonth) ])
     return _oCopy_.ToString()
 
 def StartOfMonth()
     _oCopy_ = This.Copy()
-    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), 1 ])
+    _oCopy_.SetDate([ @nYear, @nMonth, 1 ])
     return _oCopy_.ToString()
 
     def StartOfMonthQ()
         _oCopy_ = This.Copy()
-        _oCopy_.SetDate([ oQDate.year(), oQDate.month(), 1 ])
+        _oCopy_.SetDate([ @nYear, @nMonth, 1 ])
         return _oCopy_
 
 def EndOfMonth()
     _oCopy_ = This.Copy()
-    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), oQDate.daysInMonth() ])
+    _oCopy_.SetDate([ @nYear, @nMonth, _DaysInMonth(@nYear, @nMonth) ])
     return _oCopy_.ToString()
 
     def EndOfMonthQ()
         _oCopy_ = This.Copy()
-        _oCopy_.SetDate([ oQDate.year(), oQDate.month(), oQDate.daysInMonth() ])
+        _oCopy_.SetDate([ @nYear, @nMonth, _DaysInMonth(@nYear, @nMonth) ])
         return _oCopy_
 
 def StartOfYear()
     _oCopy_ = This.Copy()
-    _oCopy_.SetDate([ oQDate.year(), 1, 1 ])
+    _oCopy_.SetDate([ @nYear, 1, 1 ])
     return _oCopy_.ToString()
 
     def StartOfYearQ()
         _oCopy_ = This.Copy()
-        _oCopy_.SetDate([ oQDate.year(), 1, 1 ])
+        _oCopy_.SetDate([ @nYear, 1, 1 ])
         return _oCopy_
 
 def EndOfYear()
     _oCopy_ = This.Copy()
-    _oCopy_.SetDate([ oQDate.year(), 12, 31 ])
+    _oCopy_.SetDate([ @nYear, 12, 31 ])
     return _oCopy_.ToString()
 
     def EndOfYearQ()
         _oCopy_ = This.Copy()
-        _oCopy_.SetDate([ oQDate.year(), 12, 31 ])
+        _oCopy_.SetDate([ @nYear, 12, 31 ])
         return _oCopy_
 
 def DayAfterMonthEnd()
     _oCopy_ = This.Copy()
-    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), oQDate.daysInMonth() ])
+    _oCopy_.SetDate([ @nYear, @nMonth, _DaysInMonth(@nYear, @nMonth) ])
     _oCopy_.AddDays(1)
     return _oCopy_.ToString()
 
     def DayAfterMonthEndQ()
         _oCopy_ = This.Copy()
-        _oCopy_.SetDate([ oQDate.year(), oQDate.month(), oQDate.daysInMonth() ])
+        _oCopy_.SetDate([ @nYear, @nMonth, _DaysInMonth(@nYear, @nMonth) ])
         _oCopy_.AddDays(1)
         return _oCopy_
 
 def DayBeforeMonthStart()
     _oCopy_ = This.Copy()
-    _oCopy_.SetDate([ oQDate.year(), oQDate.month(), 1 ])
+    _oCopy_.SetDate([ @nYear, @nMonth, 1 ])
     _oCopy_.SubtractDays(1)
     return _oCopy_.ToString()
 
     def DayBeforeMonthStartQ()
         _oCopy_ = This.Copy()
-        _oCopy_.SetDate([ oQDate.year(), oQDate.month(), 1 ])
+        _oCopy_.SetDate([ @nYear, @nMonth, 1 ])
         _oCopy_.SubtractDays(1)
         return _oCopy_
 
 def DayAfterYearEnd()
     _oCopy_ = This.Copy()
-    _oCopy_.SetDate([ oQDate.year(), 12, 31 ])
+    _oCopy_.SetDate([ @nYear, 12, 31 ])
     _oCopy_.AddDays(1)
     return _oCopy_.ToString()
 
     def DayAfterYearEndQ()
         _oCopy_ = This.Copy()
-        _oCopy_.SetDate([ oQDate.year(), 12, 31 ])
+        _oCopy_.SetDate([ @nYear, 12, 31 ])
         _oCopy_.AddDays(1)
         return _oCopy_
 
 def DayBeforeYearStart()
     _oCopy_ = This.Copy()
-    _oCopy_.SetDate([ oQDate.year(), 1, 1 ])
+    _oCopy_.SetDate([ @nYear, 1, 1 ])
     _oCopy_.SubtractDays(1)
     return _oCopy_.ToString()
 
     def DayBeforeYearStartQ()
         _oCopy_ = This.Copy()
-        _oCopy_.SetDate([ oQDate.year(), 1, 1 ])
+        _oCopy_.SetDate([ @nYear, 1, 1 ])
         _oCopy_.SubtractDays(1)
         return _oCopy_
 
@@ -547,45 +743,45 @@ def MidMonth()
 def FirstWeekdayOfMonth()
     _oCopy_ = This.Copy()
     _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), 1 ])
-    
+
     while _oCopy_.IsWeekend()
         _oCopy_.AddDays(1)
     end
-    
+
     return _oCopy_.ToString()
 
     def FirstWeekdayOfMonthQ()
         _oCopy_ = This.Copy()
         _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), 1 ])
-        
+
         while _oCopy_.IsWeekend()
             _oCopy_.AddDays(1)
         end
-        
+
         return _oCopy_
 
 def LastWeekdayOfMonth()
     _oCopy_ = This.Copy()
     _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), _oCopy_.DaysInMonthN() ])
-    
+
     while _oCopy_.IsWeekend()
         _oCopy_.SubtractDays(1)
     end
-    
+
     return _oCopy_.ToString()
 
     def LastWeekdayOfMonthQ()
         _oCopy_ = This.Copy()
         _oCopy_.SetDate([ _oCopy_.Year(), _oCopy_.MonthN(), _oCopy_.DaysInMonthN() ])
-        
+
         while _oCopy_.IsWeekend()
             _oCopy_.SubtractDays(1)
         end
-        
+
         return _oCopy_
 
     #--- ENHANCED OPERATOR OVERLOADING ---#
-    
+
     def operator(op, v)
 
 	    if op = "+"
@@ -597,20 +793,20 @@ def LastWeekdayOfMonth()
 	            This.ParseOperation(v, "+")
 	            return This.Content()
 	        ok
-	
+
 	    but op = "-"
 
 	        if isNumber(v)
 	            This.SubtractDays(v)
 	            return This.Content()
-	
+
 	        but isString(v)
 	            This.ParseOperation(v, "-")
 	            return This.Content()
-	
+
 	        but isObject(v) and v.IsAStzDate()
 	            return abs(This.DaysTo(v))
-	
+
 	        else
 	            StzRaise("Unsupported value! Only a stzDate object or a date in string can be provided.")
 	        ok
@@ -666,22 +862,22 @@ def LastWeekdayOfMonth()
 				StzRaise("Unsupported value! Only a stzDate onject or a date in string can be provided.")
 			ok
         ok
-    
+
 
 	def ParseOperation(cOperation, cOperator)
 	    aValueUnit = ExtractValueAndUnit(cOperation)
-	    
+
 	    if aValueUnit = NULL
 	        StzRaise("Invalid operation format. Use 'n days/weeks/months/years'")
 	    ok
-	    
+
 	    nValue = aValueUnit[1]
 	    cUnit = aValueUnit[2]
-	    
+
 	    if cOperator = "-"
 	        nValue = -nValue
 	    ok
-	    
+
 	    switch cUnit
 	        on "day"
 	            This.AddDays(nValue)
@@ -710,9 +906,9 @@ def LastWeekdayOfMonth()
 	        other
 	            StzRaise("Invalid unit! Use 'days', 'weeks', 'months', or 'years'.")
 	    off
-	    
+
     #--- COMPARISON METHODS ---#
-    
+
     def DaysTo(oOtherDate)
 
 	if isList(oOtherDate) and len(oOtherDate) = 3
@@ -730,12 +926,16 @@ def LastWeekdayOfMonth()
             oTempDate = new stzDate(oOtherDate)
 	    oOtherDate = oTempDate
         ok
-        
+
         if not isObject(oOtherDate) or not ring_classname(oOtherDate) = "stzdate"
             StzRaise("Parameter must be a stzDate object or date string")
         ok
 
-        nResult = oQDate.daysTo(oOtherDate.QDateObject())
+        pHandle1 = StzEngineDateNew(@nYear, @nMonth, @nDay)
+        pHandle2 = StzEngineDateNew(oOtherDate.Year(), oOtherDate.MonthN(), oOtherDate.DayN())
+        nResult = StzEngineDateDiffDays(pHandle1, pHandle2)
+        StzEngineDateFree(pHandle1)
+        StzEngineDateFree(pHandle2)
 	return nResult
 
 	def DaysToN(oOtherDate)
@@ -771,10 +971,10 @@ def LastWeekdayOfMonth()
         if isString(oOtherDate)
             oOtherDate = new stzDate(oOtherDate)
         ok
-        
+
         nYears = oOtherDate.Year() - This.Year()
         nMonths = oOtherDate.MonthN() - This.MonthN()
-        
+
         return (nYears * 12) + nMonths
 
 	def MonthsToN(oOtherDate)
@@ -798,9 +998,9 @@ def LastWeekdayOfMonth()
         if isString(oOtherDate)
             oOtherDate = new stzDate(oOtherDate)
         ok
-        
+
         return oOtherDate.Year() - This.Year()
-    
+
 	def YearsToN(oOtherDate)
 		return This.YearsTo(oOtherDate)
 
@@ -813,10 +1013,10 @@ def LastWeekdayOfMonth()
 
     def IsBefore(oOtherDate)
         return This.DaysTo(oOtherDate) > 0
-    
+
     def IsAfter(oOtherDate)
         return This.DaysTo(oOtherDate) < 0
-    
+
     def IsEqualTo(oOtherDate)
         return This.DaysTo(oOtherDate) = 0
 
@@ -859,42 +1059,50 @@ def LastWeekdayOfMonth()
 	            oOtherDate = new stzDate('' + oOtherDate[:Year] + "-" + oOtherDate[:Month] + "-" + oOtherDate[:Day])
 	        ok
 	    ok
-	
+
         if isString(oOtherDate)
             oOtherDate = new stzDate(oOtherDate)
         ok
         return This.YearN() = oOtherDate.YearN()
 
     #--- UTILITY CHECKS ---#
-    
+
     def IsWeekend()
-        nDay = oQDate.dayOfWeek()
-        return (nDay = 6 or nDay = 7)  # Saturday or Sunday
+        nDay = This.DayOfWeek()
+        return (nDay = 6 or nDay = 7)
 
     def IsWeekday()
         return not This.IsWeekend()
 
     def IsToday()
-        oToday = new QDate()
-        oToday = oToday.currentDate()
-
-        nDays = oQDate.daysTo(oToday)
-
-		if nDays = 0
+        aToday = _TodayYMD()
+        if @nYear = aToday[1] and @nMonth = aToday[2] and @nDay = aToday[3]
 			return 1
 		else
 			return 0
 		ok
 
     def IsYesterday()
-        _oYesterday_ = new QDate()
-        _oYesterday_ = _oYesterday_.currentDate().addDays(-1)
-        return oQDate.daysTo(_oYesterday_) = 0
+        aToday = _TodayYMD()
+        pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+        pYesterday = StzEngineDateAddDays(pHandle, -1)
+        nY = StzEngineDateYear(pYesterday)
+        nM = StzEngineDateMonth(pYesterday)
+        nD = StzEngineDateDay(pYesterday)
+        StzEngineDateFree(pYesterday)
+        StzEngineDateFree(pHandle)
+        return @nYear = nY and @nMonth = nM and @nDay = nD
 
     def IsTomorrow()
-        _oTomorrow_ = new QDate()
-        _oTomorrow_ = _oTomorrow_.currentDate().addDays(1)
-        return oQDate.daysTo(_oTomorrow_) = 0
+        aToday = _TodayYMD()
+        pHandle = StzEngineDateNew(aToday[1], aToday[2], aToday[3])
+        pTomorrow = StzEngineDateAddDays(pHandle, 1)
+        nY = StzEngineDateYear(pTomorrow)
+        nM = StzEngineDateMonth(pTomorrow)
+        nD = StzEngineDateDay(pTomorrow)
+        StzEngineDateFree(pTomorrow)
+        StzEngineDateFree(pHandle)
+        return @nYear = nY and @nMonth = nM and @nDay = nD
 
     def Age()
         _oToday_ = new stzDate("")
@@ -905,28 +1113,31 @@ def LastWeekdayOfMonth()
         return nYears
 
     #--- ENHANCED GETTERS ---#
-    
+
     def Year()
-        return oQDate.year()
-  
+        return @nYear
+
     	def YearN()
-        	return oQDate.year()
+        	return @nYear
 
     def Month()
-        return GetMonthName(oQDate.month())
+        return GetMonthName(@nMonth)
 
 	def MonthName()
-		return GetMonthName(oQDate.month())
+		return GetMonthName(@nMonth)
 
     def MonthN()
-        return oQDate.month()
+        return @nMonth
 
 	    def MonthNumber()
-	        return oQDate.month()
-        
+	        return @nMonth
+
+    def MonthNumberInString()
+        return _PadLeft("" + @nMonth, 2, "0")
+
     def MonthInLanguage(cLanguage)
-        return GetMonthNameXT(oQDate.month(), cLanguage)
-    
+        return GetMonthNameXT(@nMonth, cLanguage)
+
     def MonthIn(cLanguage)
         return This.MonthInLanguage(cLanguage)
 
@@ -935,20 +1146,20 @@ def LastWeekdayOfMonth()
         return left(cMonth, 3)
 
     def Day()
-        return GetDayName(oQDate.dayOfWeek())
-        
+        return GetDayName(This.DayOfWeek())
+
 	def DayName()
 		return This.Day()
 
     def DayN()
-        return oQDate.day()
+        return @nDay
 
    	 	def DayNumber()
-        	return oQDate.day()
-        
+        	return @nDay
+
     def DayInLanguage(cLanguage)
-        return GetDayNameXT(oQDate.dayOfWeek(), cLanguage)
- 
+        return GetDayNameXT(This.DayOfWeek(), cLanguage)
+
     def DayIn(cLanguage)
         return DayInLanguage(cLanguage)
 
@@ -957,83 +1168,87 @@ def LastWeekdayOfMonth()
         return left(cDay, 3)
 
     def DayOfWeek()
-        return oQDate.dayOfWeek()
-        
-    	def DayOfWeekN()
-        	return oQDate.dayOfWeek()
-    
-    def DayOfYear()
-        return oQDate.dayOfYear()
-        
-    	def DayOfYearN()
-       		 return oQDate.dayOfYear()
-    
-    def WeekNumber()
-        nYear = oQDate.year()
-        nMonth = oQDate.month() 
-        nDay = oQDate.day()
-        
-        oQDateTemp = new QDate()
-        oQDateTemp.setDate(nYear, 1, 1)
-        nJan1DayOfWeek = oQDateTemp.dayOfWeek()
+        pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
+        nResult = StzEngineDateDayOfWeek(pHandle)
+        StzEngineDateFree(pHandle)
+        return nResult
 
-        nDayOfYear = oQDate.dayOfYear()
-        
+    	def DayOfWeekN()
+        	return This.DayOfWeek()
+
+    def DayOfYear()
+        pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
+        nResult = StzEngineDateDayOfYear(pHandle)
+        StzEngineDateFree(pHandle)
+        return nResult
+
+    	def DayOfYearN()
+       		 return This.DayOfYear()
+
+    def WeekNumber()
+        pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
+        nDayOfYear = StzEngineDateDayOfYear(pHandle)
+        StzEngineDateFree(pHandle)
+
+        pJan1 = StzEngineDateNew(@nYear, 1, 1)
+        nJan1DayOfWeek = StzEngineDateDayOfWeek(pJan1)
+        StzEngineDateFree(pJan1)
+
         nWeek = floor((nDayOfYear + nJan1DayOfWeek - 2) / 7) + 1
-        
+
         if nWeek = 0
             nWeek = 52
-            oQDateTemp = new QDate()
-            oQDateTemp.setDate(nYear-1, 12, 31)
-            if oQDateTemp.dayOfWeek() = 4
+            pDec31 = StzEngineDateNew(@nYear-1, 12, 31)
+            nDec31Dow = StzEngineDateDayOfWeek(pDec31)
+            StzEngineDateFree(pDec31)
+            if nDec31Dow = 4
                 nWeek = 53
             ok
         ok
-        
+
         return nWeek
-    
+
     def DaysInMonth()
-        return oQDate.daysInMonth()
-        
+        return _DaysInMonth(@nYear, @nMonth)
+
     	def DaysInMonthN()
-        	return oQDate.daysInMonth()
-    
+        	return _DaysInMonth(@nYear, @nMonth)
+
     def DaysInYear()
-        return oQDate.daysInYear()
-        
+        if _IsLeapYear(@nYear) return 366 else return 365 ok
+
     	def DaysInYearN()
-        	return oQDate.daysInYear()
-    
+        	if _IsLeapYear(@nYear) return 366 else return 365 ok
+
     def IsLeapYear()
-        return oQDate.isLeapYear(This.YearN())
+        return _IsLeapYear(@nYear)
 
 		def ISLeap()
-			return oQDate.isLeapYear(This.YearN())
+			return _IsLeapYear(@nYear)
 
     #--- HUMAN-READABLE FORMATTING ---#
-    
+
     def ToHuman()
 	    oToday = new stzDate("")
 	    nDays = This.DaysTo(oToday)
-	    nDays = -nDays  # Invert to get positive for future dates
-	    
+	    nDays = -nDays
+
 	    if nDays = 0
 	        return "today"
-	    
+
 	    but nDays = 1
 	        return "tomorrow"
-	    
+
 	    but nDays = -1
 	        return "yesterday"
-	    
+
 	    but nDays > 0 and nDays <= 7
 	        return "In " + nDays + " day" + Iff(nDays=1, "", "s")
-	    
+
 	    but nDays < 0 and nDays >= -7
 	        return '' + (-nDays) + " day" + Iff(nDays=-1, "", "s") + " ago"
-	    
+
 	    else
-	        # Use the ordinal suffix properly
 	        nDay = This.DayN()
 	        cDaySuffix = DayOrdinalSuffix(nDay)
 	        cHuman = This.Day() + ", " + This.Month() + " " + nDay + cDaySuffix + ", " + This.Year()
@@ -1044,41 +1259,41 @@ def LastWeekdayOfMonth()
     def ToRelative()
 	    oToday = new stzDate("")
 	    nDays = This.DaysTo(oToday)
-	    nDays = -nDays  # Invert to get positive for future dates
-	    
+	    nDays = -nDays
+
 	    if nDays = 0
 	        return "today"
-	    
+
 	    but nDays = 1
 	        return "tomorrow"
-	    
+
 	    but nDays = -1
 	        return "yesterday"
-	    
+
 	    but nDays > 1 and nDays <= 7
 	        return "in " + nDays + " days"
-	    
+
 	    but nDays > 7 and nDays <= 14
 	        return "in 1 week"
-	    
+
 	    but nDays > 14 and nDays <= 30
 	        nWeeks = floor(nDays / 7)
 	        return "in " + nWeeks + " weeks"
-	    
+
 	    but nDays < -1 and nDays >= -7
 	        return '' + (-nDays) + " days ago"
-	    
+
 	    but nDays < -7 and nDays >= -14
 	        return "1 week ago"
-	    
+
 	    but nDays < -14 and nDays >= -30
 	        nWeeks = floor((-nDays) / 7)
 	        return '' + nWeeks + " weeks ago"
-	    
+
 	    else
 	        return This.ToString()
 	    ok
-	
+
 
     def ToString()
         return This.ToStringXT("")
@@ -1093,7 +1308,7 @@ def LastWeekdayOfMonth()
         if cFormat = ""
             cFormat = $cDefaultDateFormat
         ok
-        
+
         cLowerFormat = lower(cFormat)
         for aFormat in $aDateFormats
             if lower(aFormat[1]) = cLowerFormat
@@ -1101,15 +1316,15 @@ def LastWeekdayOfMonth()
                 exit
             ok
         next
-        
-        return oQDate.toString(cFormat)
-    
+
+        return _DateFormatString(@nYear, @nMonth, @nDay, cFormat)
+
     def ToISO8601()
         return This.ToStringXT("yyyy-MM-dd")
-    
+
     def ToEuropean()
         return This.ToStringXT("dd/MM/yyyy")
-    
+
     def ToAmerican()
         return This.ToStringXT("MM/dd/yyyy")
 
@@ -1120,19 +1335,30 @@ def LastWeekdayOfMonth()
         return This.Day() + ", " + This.Month() + " " + This.DayN() + ", " + This.Year()
 
     #--- JULIAN DAY METHODS ---#
-    
+
     def ToJulianDay()
-        return oQDate.toJulianDay()
-    
+        nA = floor((14 - @nMonth) / 12)
+        nY = @nYear + 4800 - nA
+        nM = @nMonth + 12 * nA - 3
+        return @nDay + floor((153 * nM + 2) / 5) + 365 * nY + floor(nY / 4) - floor(nY / 100) + floor(nY / 400) - 32045
+
     def FromJulianDay(nJulianDay)
-        oQDate = oQDate.fromJulianDay(nJulianDay)
-    
+        nA = nJulianDay + 32044
+        nB = floor((4 * nA + 3) / 146097)
+        nC = nA - floor(146097 * nB / 4)
+        nD = floor((4 * nC + 3) / 1461)
+        nE = nC - floor(1461 * nD / 4)
+        nM = floor((5 * nE + 2) / 153)
+        @nDay = nE - floor((153 * nM + 2) / 5) + 1
+        @nMonth = nM + 3 - 12 * floor(nM / 10)
+        @nYear = 100 * nB + nD - 4800 + floor(nM / 10)
+
 	    def FromJulianDayQ(nJulianDay)
 	        This.FromJulianDay(nJulianDay)
 	        return This
 
     #--- BATCH OPERATIONS ---#
-    
+
     def IsBetween(oStartDate, oEndDate)
 	if CheckParams()
 		if isList(oEndDate) and StzListQ(oEndDate).IsAndNamedParam()
@@ -1162,32 +1388,36 @@ def LastWeekdayOfMonth()
         if isString(oEndDate)
             oEndDate = new stzDate(oEndDate)
         ok
-        
+
         return This.IsAfter(oStartDate) and This.IsBefore(oEndDate)
 
     def Copy()
-        oQDateCopy = new stzDate(This.Date())
-        return oQDateCopy
+        oCopy = new stzDate([ @nYear, @nMonth, @nDay ])
+        return oCopy
 
     #--- UTILITY METHODS ---#
-    
-    def SetQDate(oNewQDate)
-        oQDate = oNewQDate
 
-    def SetQDateQ(oNewQDate)
-        This.SetQDate(oNewQDate)
+    def SetQDate(aDate)
+        if isList(aDate) and len(aDate) = 3
+            @nYear = aDate[1]
+            @nMonth = aDate[2]
+            @nDay = aDate[3]
+        ok
+
+    def SetQDateQ(aDate)
+        This.SetQDate(aDate)
         return This
-    
+
     def QDateObject()
-        return oQDate
-    
+        return [ @nYear, @nMonth, @nDay ]
+
     def IsValid()
-        if oQDate.isValid()
+        if _IsValidDate(@nYear, @nMonth, @nDay)
             return 1
         else
             return 0
         ok
-    
+
     def IsAStzDate()
         return TRUE
 
@@ -1195,11 +1425,11 @@ def LastWeekdayOfMonth()
 	    cExpression = lower(trim(cExpression))
 	    acWords = @split(cExpression, " ")
 	    if len(acWords) < 2
-	    
+
 	        return NULL
 	    ok
-	    
+
 	    nValue = 0 + acWords[1]
 	    cUnit = acWords[2]
-	    
+
 	    return [ nValue, cUnit ]
