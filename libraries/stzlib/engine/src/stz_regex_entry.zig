@@ -13,6 +13,7 @@ comptime {
     @export(&regex.stz_regex_capture_text, .{ .name = "stz_regex_capture_text" });
     @export(&regex.stz_regex_replace, .{ .name = "stz_regex_replace" });
     @export(&regex.stz_regex_replace_free, .{ .name = "stz_regex_replace_free" });
+    @export(&regex.stz_regex_set_limits, .{ .name = "stz_regex_set_limits" });
 }
 
 test { _ = regex; }
