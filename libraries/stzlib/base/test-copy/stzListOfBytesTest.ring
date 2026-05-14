@@ -190,18 +190,18 @@ pf()
 
 pr()
 
-o1 = new QChar(65)
+nUnicode = 65	# The char "A"
 
-? o1.Unicode()
+? nUnicode
 #--> 65
 
-? Q( o1.Unicode() ).ToBinary()
+? Q( nUnicode ).ToBinary()
 #--> 0b1000001
 
-? Q( o1.Unicode() ).ToHex()
+? Q( nUnicode ).ToHex()
 #--> 0x41
 
-? Q( o1.Unicode() ).ToOctal()
+? Q( nUnicode ).ToOctal()
 #--> 0o101
 
 pf()

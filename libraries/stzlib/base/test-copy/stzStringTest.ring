@@ -1778,14 +1778,11 @@ next
 
 pr()
 
-oQStr = new QString2()
-oQStr.append(str)
-
-c1 = oQStr.mid(0, 1)
+c1 = substr(str, 1, 1)
 ? c1
 #--> "r"
 
-c2 = oQStr.mid(oQStr.size()-1, 1)
+c2 = substr(str, len(str), 1)
 ? c2
 #--> "g"
 
@@ -4376,14 +4373,13 @@ StopProfiler()
 
 pr()
 
-o1 = new QString2()
-o1.append("•••••••••")
+cStr = "•••••••••"
 
-? o1.indexOf("", 0, FALSE)
+? substr(cStr, "")
 #--> 0
 
-? o1.indexOf("•", 0, FALSE)
-#--> 0
+? substr(cStr, "•")
+#--> 1
 
 pf()
 
@@ -4891,16 +4887,14 @@ pf()
 
 pr()
 
-oQStr = new QString2()
+cStr = "Ring language"
 
-oQStr.append("Ring language")
-oQStr.replace_2("ing", "uby", FALSE)
-? QStringToString(oQStr) # A Softanza function
+cStr = substr(cStr, "ing", "uby")
+? cStr
 #--> Ruby language
 
-oQStr.replace_2("", 'any', FALSE)
-? QStringToString(oQStr)
-#--> anylanyaanynanyganyuanyaanyganyeany
+# Note: replacing "" with 'any' was a Qt quirk that inserted
+# between every char -- not valid in Ring's substr()
 
 str = "Ring Language"
 ? substr(str, "", "any")
@@ -13430,8 +13424,8 @@ pr()
 
 # In fact, this is a logical bug in Qt as demonstrated here:
 
-oQLocale = new QLocale("tr-TR")
-? oQLocale.toupper("ı") #ERROR: --> I but must be İ
+oLocale = StzLocaleQ("tr-TR")
+? oLocale.Uppercased("ı") #ERROR: --> I but must be İ
 
 #TODO // solve this by implementing the specialCasing of unicode as
 # described in this file:
@@ -17019,8 +17013,8 @@ pf()
 
 pr()
 
-@oQLocale = new QLocale("ar-tn")
-? @oQLocale.name()
+@oLocale = StzLocaleQ("ar-tn")
+? @oLocale.Name()
 #--> ar_TN
 
 pf()
@@ -17132,9 +17126,8 @@ pr()
 # How to add a string to a QString objet (Qt-side)
 # Used internally by Softanza
 
-oQStr = new QString2() #NOTE // QString2() is more performant then QString()
-oQStr.append("salem")
-? QStringToString(oQStr)
+cStr = "salem"
+? cStr
 
 pf()
 # Executed in almost 0 second(s).
@@ -17233,18 +17226,8 @@ pr()
 
 # First I created the QChar from whatever a decimal unicode could be:
 
-oChar = new QChar(40220) # the char "鴜" coded on 3 bytes
-
-# Second, I created a QString from that QChar
-
-oStr = new QString2()
-oStr.append_2(oChar)
-
-# Third, I used toUtf8() on QString to get a QByteArray as a result,
-# and then we call data() method on it to get the string with our "鴜"
-
-? oStr.ToUtf8().data()
-#--> 鶊
+? StzCharQ(40220).Content()	# the char "鴜" coded on 3 bytes
+#--> 鴜
 
 # As you see, Softanza leverages the power of Qt, but makes hudge efforts
 # to simplify its use and unify it in a freindly mental model.
@@ -17352,20 +17335,16 @@ pf()
 
 pr()
 
-o1 = new QString2()
-o1.append("M")
-? o1.size()
+? Q("M").NumberOfChars()
 #--> 1
 
-o1 = new QString2()
-o1.append("🐨")
-? o1.count()
-#--> 2
+? Q("🐨").NumberOfChars()
+#--> 1
 
-o1 = new QString2()
-o1.append("🐨")
-? o1.size()
-#--> 2
+# Note: Qt QString counted surrogate pairs as 2 (UTF-16 code units),
+# but Softanza correctly counts Unicode chars
+? Q("🐨").NumberOfChars()
+#--> 1
 
 pf()
 # Executed in almost 0 second(s).

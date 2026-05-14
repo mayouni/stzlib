@@ -201,7 +201,7 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Example 1.3: Complex Grid - Finding Optimal Path in Maze
-*/
+
 `
   CONCEPT: A* shines when there are many possible routes
   
@@ -276,7 +276,6 @@ pf()
 #==================================#
 
 /*--- Example 2.1: RPG Quest - Find ANY Treasure Worth 1000+ Gold
-
 `  
   CONCEPT: Sometimes you don't know the exact destination,
            you just know what conditions it must satisfy.
@@ -301,7 +300,7 @@ pf()
   minimizes danger, so it takes the safest route to
   the first qualifying treasure.
 `
-*/
+
 pr()
 
 oGraph = new stzGraph("rpg_world")
@@ -345,7 +344,7 @@ oGraph {
 
 oPlanner = new stzGraphPlanner(oGraph)
 oPlanner {
-	
+
 	AddPlan("rpg_plan")
 
 	Walk(
@@ -379,7 +378,6 @@ pf()
 # Executed in 0.01 second(s) in Ring 1.24
 
 /*--- Example 2.2: Treasure Hunt - Multi-Condition Goal
-
 `
   CONCEPT: Goal functions can check complex conditions
   
@@ -396,7 +394,7 @@ pf()
   
   Here we simplify: just reach the treasury by fastest route.
 `
-
+*/
 pr()
 
 oGraph = new stzGraph("treasure_hunt")

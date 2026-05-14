@@ -4,8 +4,8 @@ load "../stzbase.ring"
 
 pr()
 
-oQLocale = new QLocale("C")
-? oQLocale.toLower("RING")
+oLocale = StzLocaleQ("C")
+? oLocale.Lowercase("RING")
 #--> "ring"
 
 pf()
@@ -61,8 +61,8 @@ proff()
 
 pr()
 
-o1 = new QLocale("ja-PW")
-? o1.country() #--> 108
+o1 = StzLocaleQ("ja-PW")
+? o1.CountryNumber() #--> 108
 
 ? StzCountryQ("108").Name() #--> japan
 
@@ -232,8 +232,8 @@ pf()
 
 pr()
 
-oQLocale = new QLocale("cmn-CN")
-? oQLocale.name()	# Should return China locale but returns C Locale
+oLocale = StzLocaleQ("cmn-CN")
+? oLocale.Name()	# Should return China locale but returns C Locale
 
 #--> This induces stzLocale in error:
 
@@ -2242,7 +2242,7 @@ pf()
 
 pr()
 
-? QLocaleToStzLocale( new QLocale("ru_RU") ).Country()
+? StzLocaleQ("ru_RU").Country()
 #--> russia
 
 pf()

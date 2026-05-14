@@ -589,7 +589,7 @@ pf()
 # Executed in 0.02 second(s) in Ring 1.24
 
 /*--- Finding spans overlapping a point
-
+*/
 pr()
 
 oTimeLine = new stzTimeLine(
