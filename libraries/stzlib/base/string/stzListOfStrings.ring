@@ -66,12 +66,13 @@ func ConcatenateXT(pacListOfStr, pcSep)
 
 	_nLen_ = len(pacListOfStr)
 
-	_oQStrList_ = new QStringList()
+	_cResult_ = ""
 	for @i = 1 to _nLen_
-		_oQStrList_.append(pacListOfStr[@i])
+		if @i > 1
+			_cResult_ += pcSep
+		ok
+		_cResult_ += pacListOfStr[@i]
 	next
-	
-	_cResult_ = _oQStrList_.join(pcSep)
 
 	return _cResult_
 
@@ -159,36 +160,34 @@ class stzStrings from stzListOfStrings
 
 class stzListOfStrings from stzList
 
-	@oQStrList	# Qt object holding the content of the list
+	@acStrList = []
 
 	  #-----------#
 	 #    INIT   #
 	#-----------#
 
-	// Initiates the object from a QStringList or a normal list of strings
-
 	def init(pList)
 
-		if IsQStringList(pList)
-			@oQStrList = pList
-
+		if isList(pList)
+			nLen = len(pList)
+			for i = 1 to nLen
+				if NOT isString(pList[i])
+					StzRaise([
+						:Where = "stzListOfStrings > Init()",
+						:What = "Can't create the list of strings",
+						:Why  = "Incorrect param type",
+						:Todo = "Provide a list of strings."
+					])
+				ok
+				@acStrList + pList[i]
+			next
 		else
-			try
-				@oQStrList = new QStringList()	
-				nLen = len(pList)
-	
-				for i = 1 to nLen
-					@oQStrList.append(pList[i])	
-				next
-	
-			catch
-				StzRaise([
-					:Where = "stzListOfStrings > Init()",
-					:What = "Can't create the list of strings",
-					:Why  = "Incorrect param type",
-					:Todo = "Provide a QStringList object or a list of strings."
-				])
-			done
+			StzRaise([
+				:Where = "stzListOfStrings > Init()",
+				:What = "Can't create the list of strings",
+				:Why  = "Incorrect param type",
+				:Todo = "Provide a list of strings."
+			])
 		ok
 
 		if KeepingHistory() = 1
@@ -199,19 +198,8 @@ class stzListOfStrings from stzList
 	 #    GENENRAL   #
 	#---------------#
 
-	def QStringListObject()
-		return @oQStrList
-
 	def Content()
-
-		acResult = []
-		nLen = @oQStrList.size()
-
-		for i = 0 to nLen - 1
-			acResult + This.@oQStrList.at(i)	
-		next
-
-		return acResult
+		return @acStrList
 
 		def Strings()
 			return This.Content()
@@ -243,7 +231,7 @@ class stzListOfStrings from stzList
 		return new stzListOfStrings( This.Content() )
 
 	def String(n)
-		return @oQStrList.at(n-1)
+		return @acStrList[n]
 
 
 	  #---------------------------------------------#
@@ -271,7 +259,7 @@ class stzListOfStrings from stzList
 	#--------------------------------------#
 
 	def NthString(n)
-		return @oQStrList.at(n-1)
+		return @acStrList[n]
 
 		def NthStringQ(n)
 			return new stzString(This.NthString(n))
@@ -348,7 +336,7 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param type! pcstr must be string.")
 		ok
 
-		This.QStringListObject().append(pcstr)
+		@acStrList + pcstr
 
 
 		def AddStringQ(pcstr)
@@ -385,7 +373,7 @@ class stzListOfStrings from stzList
 			StzRaise("Incorrect param type! pcstr must be a string.")
 		ok
 
-		This.QStringListObject().prepend(pcstr)
+		insert(@acStrList, 0, pcstr)
 
 		
 		def PrependQ(pcstr)
@@ -410,16 +398,8 @@ class stzListOfStrings from stzList
 			ok
 		ok
 
-		if IsQStringListObject(pNewListOfStr)
-			@oQStrList = pNewListOfStr
-
-		but @IsListOfStrings(pNewListOfStr)
-			This.QStringListObject().clear()
-			nLen = len(pNewListOfStr)
-
-			for i = 1 to nLen
-				This.QStringListObject().append(pNewListOfStr[i])	
-			next
+		if isList(pNewListOfStr) and @IsListOfStrings(pNewListOfStr)
+			@acStrList = pNewListOfStr
 
 		else
 			StzRaise("Param you provided is not a list of strings!")
@@ -453,10 +433,12 @@ class stzListOfStrings from stzList
 	#====================================================#
 
 	def Concatenate()
-		#< @QtBased >
-
-		acResult = This.QStringListObject().join("")
-		return acResult
+		cResult = ""
+		nLen = len(@acStrList)
+		for i = 1 to nLen
+			cResult += @acStrList[i]
+		next
+		return cResult
 
 		def ConcatenateQ()
 			return new stzString( This.Concatenate() )
@@ -478,10 +460,15 @@ class stzListOfStrings from stzList
 	#-----------------------------------------------------#
 
 	def ConcatenateUsing(pcStr)
-		#< @QtBased >
-
-		acResult = This.QStringListObject().join(pcStr)
-		return acResult
+		cResult = ""
+		nLen = len(@acStrList)
+		for i = 1 to nLen
+			if i > 1
+				cResult += pcStr
+			ok
+			cResult += @acStrList[i]
+		next
+		return cResult
 
 		def ConcatenateUsingQ(pcStr)
 			return new stzString( This.ConcatenateUsing(pcStr) )
@@ -503,7 +490,6 @@ class stzListOfStrings from stzList
 	#----------------------------------------------------------------#
 
 	def ConcatenateXT(p)
-		#< @QtBased >
 
 		if isString(p)
 			return This.ConcatenateUsing(p)
@@ -545,7 +531,7 @@ class stzListOfStrings from stzList
 	#====================================#
 
 	def SortInAscending()
-		This.QStringListObject().sort()
+		@acStrList = sort(@acStrList)
 
 		#< @FunctionAlternativeForms
 
@@ -562,10 +548,8 @@ class stzListOfStrings from stzList
 		#>
 
 	def SortedInAscending()
-		oQCopy = This.QStringListObject()
-		oQCopy.sort()
-
-		return QStringListContent(oQCopy)
+		acCopy = @acStrList
+		return sort(acCopy)
 
 		def SortedUp()
 			return This.SortedInAscending()
@@ -575,7 +559,8 @@ class stzListOfStrings from stzList
 	#-------------------------------------#
 
 	def SortInDescending()
-		This.Update( This.QStringListObject().sort() )
+		@acStrList = sort(@acStrList)
+		@acStrList = reverse(@acStrList)
 
 		def SortInDescendingQ()
 			This.SortInDescending()
@@ -588,8 +573,8 @@ class stzListOfStrings from stzList
 				return This.SortInDescendingQ()
 
 	def SortedInDescending()
-		acResult = This.QStringListObject().sort()
-		return acResult
+		acResult = sort(@acStrList)
+		return reverse(acResult)
 
 		def SortedDown()
 			return This.SortedInDescending()
@@ -619,10 +604,21 @@ class stzListOfStrings from stzList
 
 		# Doing the job
 			 
-		oQList = This.QStringListObject().filter(pcSubStr, _bCase_)
-		bResult = QStringListContent(oQList)
+		acResult = []
+		nLen = len(@acStrList)
+		for i = 1 to nLen
+			if _bCase_
+				if substr(@acStrList[i], pcSubStr) > 0
+					acResult + @acStrList[i]
+				ok
+			else
+				if substr(lower(@acStrList[i]), lower(pcSubStr)) > 0
+					acResult + @acStrList[i]
+				ok
+			ok
+		next
 
-		return bResult
+		return acResult
 
 		#< @FunctionfluentForm
 
@@ -1631,7 +1627,7 @@ class stzListOfStrings from stzList
 		nLen = len(oastzStr)
 		
 		for i = 1 to nLen
-			This.@oQStrList.replace(i-1, oastzStr[i].Trimmed())
+			@acStrList[i] = oastzStr[i].Trimmed()
 		next
 
 		#< @FunctionFluentForm
@@ -2067,7 +2063,7 @@ class stzListOfStrings from stzList
 	#==================================#
 
 	def ReplaceAt(n, pcNewStr)
-		@oQStrList.replace(n-1, pcNewStr)
+		@acStrList[n] = pcNewStr
 
 		def ReplaceAtQ(n, pcNewStr)
 			This.ReplaceAt(n, pcNewStr)
