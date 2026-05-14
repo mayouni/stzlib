@@ -5,11 +5,11 @@
 # Function prefix: StkEngine* (distinct from Base StzEngine*)
 
 if isWindows()
-    $cStkFileLib = currentdir() + "/zig-out/bin/stk_file.dll"
+    $cStkFileLib = $cEngineDir + "/zig-out/bin/stk_file.dll"
 but isLinux()
-    $cStkFileLib = currentdir() + "/zig-out/lib/libstk_file.so"
+    $cStkFileLib = $cEngineDir + "/zig-out/lib/libstk_file.so"
 but isMacOS()
-    $cStkFileLib = currentdir() + "/zig-out/lib/libstk_file.dylib"
+    $cStkFileLib = $cEngineDir + "/zig-out/lib/libstk_file.dylib"
 ok
 
 if fexists($cStkFileLib)

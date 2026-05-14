@@ -5,11 +5,11 @@
 # Function prefix: StzEngine*
 
 if isWindows()
-    $cStzJsonLib = currentdir() + "/zig-out/bin/stz_json.dll"
+    $cStzJsonLib = $cEngineDir + "/zig-out/bin/stz_json.dll"
 but isLinux()
-    $cStzJsonLib = currentdir() + "/zig-out/lib/libstz_json.so"
+    $cStzJsonLib = $cEngineDir + "/zig-out/lib/libstz_json.so"
 but isMacOS()
-    $cStzJsonLib = currentdir() + "/zig-out/lib/libstz_json.dylib"
+    $cStzJsonLib = $cEngineDir + "/zig-out/lib/libstz_json.dylib"
 ok
 
 if fexists($cStzJsonLib)

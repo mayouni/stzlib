@@ -40,6 +40,9 @@ comptime {
     @export(&string.stz_string_index_of_ci, .{ .name = "stz_string_index_of_ci" });
     @export(&string.stz_string_byte_to_cp, .{ .name = "stz_string_byte_to_cp" });
     @export(&string.stz_string_count_of, .{ .name = "stz_string_count_of" });
+    @export(&string.stz_string_replace_range, .{ .name = "stz_string_replace_range" });
+    @export(&string.stz_string_split_count, .{ .name = "stz_string_split_count" });
+    @export(&string.stz_string_split_get, .{ .name = "stz_string_split_get" });
     @export(&string.stz_string_last_index_of, .{ .name = "stz_string_last_index_of" });
     @export(&string.stz_string_contains, .{ .name = "stz_string_contains" });
     @export(&string.stz_string_starts_with, .{ .name = "stz_string_starts_with" });

@@ -5,11 +5,11 @@
 # Function prefix: StzEngine* (distinct from Core StkEngine*)
 
 if isWindows()
-    $cStzStringLib = currentdir() + "/zig-out/bin/stz_string.dll"
+    $cStzStringLib = $cEngineDir + "/zig-out/bin/stz_string.dll"
 but isLinux()
-    $cStzStringLib = currentdir() + "/zig-out/lib/libstz_string.so"
+    $cStzStringLib = $cEngineDir + "/zig-out/lib/libstz_string.so"
 but isMacOS()
-    $cStzStringLib = currentdir() + "/zig-out/lib/libstz_string.dylib"
+    $cStzStringLib = $cEngineDir + "/zig-out/lib/libstz_string.dylib"
 ok
 
 if fexists($cStzStringLib)
@@ -108,6 +108,21 @@ func StzEngineStringCountOf(pHandle, cNeedle)
     if $pStzStringHandle = NULL return 0 ok
     return CallCFunc($pStzStringHandle, "stz_string_count_of", "i", "ppi",
                      pHandle, cNeedle, len(cNeedle))
+
+func StzEngineStringReplaceRange(pHandle, nStart, nRange, cNew)
+    if $pStzStringHandle = NULL return NULL ok
+    return CallCFunc($pStzStringHandle, "stz_string_replace_range", "p", "piipi",
+                     pHandle, nStart, nRange, cNew, len(cNew))
+
+func StzEngineStringSplitCount(pHandle, cSep)
+    if $pStzStringHandle = NULL return 0 ok
+    return CallCFunc($pStzStringHandle, "stz_string_split_count", "i", "ppi",
+                     pHandle, cSep, len(cSep))
+
+func StzEngineStringSplitGet(pHandle, cSep, nIndex)
+    if $pStzStringHandle = NULL return NULL ok
+    return CallCFunc($pStzStringHandle, "stz_string_split_get", "p", "ppii",
+                     pHandle, cSep, len(cSep), nIndex)
 
 func StzEngineStringLastIndexOf(pHandle, cNeedle)
     if $pStzStringHandle = NULL return -1 ok

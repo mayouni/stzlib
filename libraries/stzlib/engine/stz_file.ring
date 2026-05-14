@@ -5,11 +5,11 @@
 # Function prefix: StzEngine* (distinct from Core StkEngine*)
 
 if isWindows()
-    $cStzFileLib = currentdir() + "/zig-out/bin/stz_file.dll"
+    $cStzFileLib = $cEngineDir + "/zig-out/bin/stz_file.dll"
 but isLinux()
-    $cStzFileLib = currentdir() + "/zig-out/lib/libstz_file.so"
+    $cStzFileLib = $cEngineDir + "/zig-out/lib/libstz_file.so"
 but isMacOS()
-    $cStzFileLib = currentdir() + "/zig-out/lib/libstz_file.dylib"
+    $cStzFileLib = $cEngineDir + "/zig-out/lib/libstz_file.dylib"
 ok
 
 if fexists($cStzFileLib)

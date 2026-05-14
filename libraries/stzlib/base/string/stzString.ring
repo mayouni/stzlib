@@ -190,36 +190,36 @@ class stzString from stzObject
 		ok
 
 	def _ReplaceRange(n1, nRange, pcNew)
-		cStr = This.Content()
-		cBefore = ""
-		if n1 > 1
-			cBefore = substr(cStr, 1, n1 - 1)
+		pResult = StzEngineStringReplaceRange(@pEngine, n1 - 1, nRange, pcNew)
+		if pResult = NULL
+			return This.Content()
 		ok
-		cAfter = ""
-		nAfterStart = n1 + nRange
-		if nAfterStart <= len(cStr)
-			cAfter = substr(cStr, nAfterStart, len(cStr) - nAfterStart + 1)
+		nSize = StzEngineStringSize(pResult)
+		if nSize = 0
+			StzEngineStringFree(pResult)
+			return ""
 		ok
-		return cBefore + pcNew + cAfter
+		cResult = substr(StzEngineStringData(pResult), 1, nSize)
+		StzEngineStringFree(pResult)
+		return cResult
 
 	def _SplitByStr(cSep)
-		cStr = This.Content()
+		nCount = StzEngineStringSplitCount(@pEngine, cSep)
 		aResult = []
-		cTemp = ""
-		nLen = len(cStr)
-		nSepLen = len(cSep)
-		i = 1
-		while i <= nLen
-			if substr(cStr, i, nSepLen) = cSep
-				aResult + cTemp
-				cTemp = ""
-				i += nSepLen
+		for i = 0 to nCount - 1
+			pPart = StzEngineStringSplitGet(@pEngine, cSep, i)
+			if pPart != NULL
+				nSize = StzEngineStringSize(pPart)
+				if nSize > 0
+					aResult + substr(StzEngineStringData(pPart), 1, nSize)
+				else
+					aResult + ""
+				ok
+				StzEngineStringFree(pPart)
 			else
-				cTemp += substr(cStr, i, 1)
-				i++
+				aResult + ""
 			ok
-		end
-		aResult + cTemp
+		next
 		return aResult
 
 	  #=======================================#
