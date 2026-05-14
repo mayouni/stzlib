@@ -123,10 +123,7 @@ class stzString from stzObject
 	#=======================================#
 
 	def Content()
-		nSize = StzEngineStringSize(@pEngine)
-		if nSize = 0 return "" ok
-		pData = StzEngineStringData(@pEngine)
-		return copy(pData, nSize)
+		return StzEngineStringData(@pEngine)
 
 		#< @FunctionFluentForm
 
@@ -194,12 +191,7 @@ class stzString from stzObject
 		if pResult = NULL
 			return This.Content()
 		ok
-		nSize = StzEngineStringSize(pResult)
-		if nSize = 0
-			StzEngineStringFree(pResult)
-			return ""
-		ok
-		cResult = substr(StzEngineStringData(pResult), 1, nSize)
+		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return cResult
 
@@ -209,12 +201,7 @@ class stzString from stzObject
 		for i = 0 to nCount - 1
 			pPart = StzEngineStringSplitGet(@pEngine, cSep, i)
 			if pPart != NULL
-				nSize = StzEngineStringSize(pPart)
-				if nSize > 0
-					aResult + substr(StzEngineStringData(pPart), 1, nSize)
-				else
-					aResult + ""
-				ok
+				aResult + StzEngineStringData(pPart)
 				StzEngineStringFree(pPart)
 			else
 				aResult + ""
@@ -87042,7 +87029,10 @@ class stzString from stzObject
 	#TODO // Add Trim functions to stzList
 
 	def Trim()
-		This.Update( trim(This.Content()) )
+		pTrimmed = StzEngineStringTrimmed(@pEngine)
+		cResult = StzEngineStringData(pTrimmed)
+		StzEngineStringFree(pTrimmed)
+		This.Update(cResult)
 
 		def TrimQ()
 			This.Trim()
