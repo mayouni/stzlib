@@ -2,16 +2,50 @@
 # ZIP FILE CLASS - ARCHIVE OPERATIONS     #
 #=========================================#
 
+func _DirOfPath(cPath)
+	cPath = substr(cPath, "\", "/")
+	nPos = 0
+	for i = len(cPath) to 1 step -1
+		if cPath[i] = "/"
+			nPos = i
+			exit
+		ok
+	next
+	if nPos > 0
+		return left(cPath, nPos - 1)
+	ok
+	return "."
+
+func _BaseNameOfPath(cPath)
+	cPath = substr(cPath, "\", "/")
+	nSlash = 0
+	for i = len(cPath) to 1 step -1
+		if cPath[i] = "/"
+			nSlash = i
+			exit
+		ok
+	next
+	cName = substr(cPath, nSlash + 1)
+	nDot = 0
+	for i = len(cName) to 1 step -1
+		if cName[i] = "."
+			nDot = i
+			exit
+		ok
+	next
+	if nDot > 1
+		return left(cName, nDot - 1)
+	ok
+	return cName
+
 func ZipFile(cZipFileName)
     return new stzZipFile(cZipFileName)
 
 class stzZipFile from stzObject
     @cZipFileName
-    @oQFileInfo
-    
+
     def init(cZipFileName)
         @cZipFileName = cZipFileName
-        @oQFileInfo = new QFileInfo(cZipFileName)
     
     # CREATION OPERATIONS
     def CreateFrom(aFiles)
@@ -144,8 +178,7 @@ class stzZipFile from stzObject
             return This
     
     def ExtractHere()
-        # Extract to same directory as zip file
-        cDirPath = @oQFileInfo.dir().path()
+        cDirPath = _DirOfPath(@cZipFileName)
         return This.ExtractTo(cDirPath)
     
         def ExtractHereQ()
@@ -153,9 +186,8 @@ class stzZipFile from stzObject
             return This
     
     def ExtractToNewFolder()
-        # Extract to new folder with zip file's base name
-        cBaseName = @oQFileInfo.completeBaseName()
-        cDirPath = @oQFileInfo.dir().path()
+        cBaseName = _BaseNameOfPath(@cZipFileName)
+        cDirPath = _DirOfPath(@cZipFileName)
         cTargetDir = cDirPath + "/" + cBaseName
         
         return This.ExtractTo(cTargetDir)
@@ -220,46 +252,43 @@ class stzZipFile from stzObject
         return (This.FileCount() = 0)
     
     def Size()
-        # Get zip file size
         if not This.Exists()
             return 0
         ok
-        return @oQFileInfo.size()
+        return len(read(@cZipFileName))
     
     # UTILITY OPERATIONS
     def FileName()
         return @cZipFileName
     
     def Exists()
-        return @oQFileInfo.exists()
+        return fexists(@cZipFileName)
     
     def Delete()
-        # Delete zip file
-        oQFile = new QFile(@cZipFileName)
-        return oQFile.remove()
+        return remove(@cZipFileName)
     
         def DeleteQ()
             This.Delete()
             return This
     
     def CopyTo(cDestination)
-        # Copy zip file to destination
-        oQFile = new QFile(@cZipFileName)
-        return oQFile.copy(cDestination)
+        cData = read(@cZipFileName)
+        write(cDestination, cData)
+        return fexists(cDestination)
     
         def CopyToQ(cDestination)
             This.CopyTo(cDestination)
             return This
     
     def MoveTo(cDestination)
-        # Move zip file to destination
-        oQFile = new QFile(@cZipFileName)
-        bResult = oQFile.rename(cDestination)
-        if bResult
+        cData = read(@cZipFileName)
+        write(cDestination, cData)
+        if fexists(cDestination)
+            remove(@cZipFileName)
             @cZipFileName = cDestination
-            @oQFileInfo = new QFileInfo(@cZipFileName)
+            return TRUE
         ok
-        return bResult
+        return FALSE
     
         def MoveToQ(cDestination)
             This.MoveTo(cDestination)

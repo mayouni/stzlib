@@ -177,63 +177,42 @@ class stzSystemCall
 			return NULL
 		ok
 	
-		_oQStrList_ = new QStringList()
-	
-		# Special handling for cmd.exe /c - combine everything after /c into single command
-		if @cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[1] = "/c"
-			_oQStrList_.append("/c")
-			# Combine all remaining args into one command string
-			cCommand = ""
-			for i = 2 to len(@acArgs)
-				cArg = @acArgs[i]
-				
-				# Add space before this arg (except at the start)
-				if i > 2
-					cCommand += " "
-				ok
-				
-				# Shell operators need spaces around them for proper parsing
-				if cArg = "&" or cArg = "&&" or cArg = "|" or cArg = "||"
-					# Ensure space before operator (if not already added)
-					if len(cCommand) > 0 and cCommand[len(cCommand)] != " "
-						cCommand += " "
-					ok
-					cCommand += cArg
-					# Add space after operator (will be handled by next iteration)
-				else
-					# Regular arguments - append as-is
-					cCommand += cArg
-				ok
-			next
-			_oQStrList_.append(cCommand)
-		else
-			# Normal argument passing
-			for i = 1 to len(@acArgs)
-				_oQStrList_.append(@acArgs[i])
-			next
+		cFullCmd = _BuildCommandLine()
+
+		cOutFile = ""
+		cErrFile = ""
+
+		if @bCaptureOutput or @bCaptureError
+			cTmpBase = tempname()
+			cOutFile = cTmpBase + "_out.tmp"
+			cErrFile = cTmpBase + "_err.tmp"
+			if isWindows()
+				cFullCmd += ' >"' + cOutFile + '" 2>"' + cErrFile + '"'
+			else
+				cFullCmd += ' >"' + cOutFile + '" 2>"' + cErrFile + '"'
+			ok
 		ok
-	
-		_oQProcess_ = new QProcess("")
-		_oQProcess_.setProcessChannelMode(0)
-		_oQProcess_.start(@cProgram, _oQStrList_, 3)
-		
-		if NOT _oQProcess_.waitForFinished(@nTimeout)
-			@bExecuted = FALSE
-			@nExitCode = -1
-			return NULL
-		ok
-		
+
+		@nExitCode = system(cFullCmd)
 		@bExecuted = TRUE
-		@nExitCode = _oQProcess_.ExitCode()
-		
-		if @bCaptureOutput
-			@cOutput = QByteArraytoString(_oQProcess_.ReadAllStandardOutput())
-			# Auto-convert output based on return type
+
+		if @bCaptureOutput and cOutFile != ""
+			try
+				@cOutput = read(cOutFile)
+				remove(cOutFile)
+			catch
+				@cOutput = ""
+			done
 			This.ConvertOutputByType()
 		ok
-		
-		if @bCaptureError
-			@cError = QByteArraytoString(_oQProcess_.ReadAllStandardError())
+
+		if @bCaptureError and cErrFile != ""
+			try
+				@cError = read(cErrFile)
+				remove(cErrFile)
+			catch
+				@cError = ""
+			done
 			if @cError = "" and @nExitCode != 0 and isString(@cOutput) and @cOutput != ""
 				@cError = @cOutput
 			ok
@@ -275,6 +254,42 @@ class stzSystemCall
 
 	def ReturnType()
 		return @cReturnType
+
+	def _BuildCommandLine()
+		cCmd = ""
+		if @cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[1] = "/c"
+			cCmd = "cmd.exe /c "
+			cCommand = ""
+			for i = 2 to len(@acArgs)
+				cArg = @acArgs[i]
+				if i > 2
+					cCommand += " "
+				ok
+				if cArg = "&" or cArg = "&&" or cArg = "|" or cArg = "||"
+					if len(cCommand) > 0 and cCommand[len(cCommand)] != " "
+						cCommand += " "
+					ok
+					cCommand += cArg
+				else
+					cCommand += cArg
+				ok
+			next
+			cCmd += cCommand
+		else
+			if substr(@cProgram, " ") > 0
+				cCmd = '"' + @cProgram + '"'
+			else
+				cCmd = @cProgram
+			ok
+			for i = 1 to len(@acArgs)
+				if substr(@acArgs[i], " ") > 0
+					cCmd += ' "' + @acArgs[i] + '"'
+				else
+					cCmd += " " + @acArgs[i]
+				ok
+			next
+		ok
+		return cCmd
 
 	def ConvertOutputByType()
 		if NOT isString(@cOutput)
@@ -491,32 +506,14 @@ class stzSystemCall
 	#-----------------------#
 
 	def RunWindowsSilent()
-		cOriginalProgram = @cProgram
-		aOriginalArgs = @acArgs
-		
-		cCmd = '"' + cOriginalProgram + '"'
-		nLen = len(aOriginalArgs)
-
-		for i = 1 to nLen
-			arg = aOriginalArgs[i]
-			if substr(arg, " ") > 0
-				cCmd += ' "' + arg + '"'
-			else
-				cCmd += " " + arg
-			ok
-		next
-		
-		_oQStrList_ = new QStringList()
-		_oQStrList_.append("/c")
-		_oQStrList_.append(cCmd + " >NUL 2>&1")
-		
-		_oQProcess_ = new QProcess("")
-		_oQProcess_.setProcessChannelMode(2)
-		_oQProcess_.start("cmd.exe", _oQStrList_, 3)
-		_oQProcess_.waitForFinished(@nTimeout)
-		
+		cFullCmd = _BuildCommandLine()
+		if isWindows()
+			cFullCmd += " >NUL 2>&1"
+		else
+			cFullCmd += " >/dev/null 2>&1"
+		ok
+		@nExitCode = system(cFullCmd)
 		@bExecuted = TRUE
-		@nExitCode = _oQProcess_.ExitCode()
 
 	def RunSilently()
 		@bRunSilentMode = TRUE

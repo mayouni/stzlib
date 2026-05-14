@@ -726,17 +726,7 @@ func @NXT(n, pStrOrItem, pcInStrOrList)
 	    pcInStrOrList = :AsString or pcInStrOrList = :AsAString or
 	    pcInStrOrList = :String
 
-		# Using Qt for concatenation because Ring is not performant
-		# in concatenation large unicode strings (tested with 1M
-		# arabic string)
-
-		_@oQStrList_ = new QStringList()
-
-		for @i = 1 to n
-			_@oQStrList_.append(pStrOrItem)
-		next
-
-		_cResult_ = _@oQStrList_.join("")
+		_cResult_ = copy(pStrOrItem, n)
 		return _cResult_
 
 	else

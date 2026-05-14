@@ -58239,9 +58239,6 @@ class stzString from stzObject
 
 		return @SplitCS(This.Content(), pcSubStr, pCaseSensitive)
 
-//		acResult = @TrimList( QStringListToList( This.QStringObject().split(pcSubStr, 0, pCaseSensitive) ) )
-//		return acResult
-
 		#< @FunctionFluentForm
 
 		def SplitAtSubStringCSQ(pcSubStr, pCaseSensitive)
