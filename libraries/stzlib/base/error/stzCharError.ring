@@ -22,10 +22,10 @@ func stzCharError(pcError)
 		cErrorMsg += "   Why  : The number return by Qt does'nt fit in the range of the _acUnicodeVersions global list." + NL
 		cErrorMsg += "   Todo : Verify if that list needs an update. But if Qt returned 0, then even Qt can't help."
 
-	on :CanNotTransformQCharToString
-		cErrorMsg += "   What : Can't transform the QChar object to a Ring string!" + NL
-		cErrorMsg += "   Why  : The value you provided is not an object of type QChar." + NL
-		cErrorMsg += "   Todo : Provide a QChar and it will be fine ;)"
+	on :CanNotTransformCharToString
+		cErrorMsg += "   What : Can't transform the character to a Ring string!" + NL
+		cErrorMsg += "   Why  : The value you provided is not a valid character." + NL
+		cErrorMsg += "   Todo : Provide a valid character value."
 
 	on :CanNotGetAsciiCodeForNonAsciiChar
 		cErrorMsg += "   What : Can't get ASCII code for this character!" + NL
