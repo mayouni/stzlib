@@ -11,9 +11,7 @@
 
 /*
 
-From Qt documentation:
-
-So isNumber() will check if the given QChar is part of the unicode
+isNumber() checks if the given character is part of the unicode
 classes Nd, Nl or No. For example, ㊱ is classified as "Number,
 other", whereas Ⅱ (roman numeral two) is classified as
 "Number, letter".
@@ -57,7 +55,7 @@ or 'unavoidable' Qt feature.
  ///   FUNCTIONS   ///
 /////////////////////
 
-#-- Engine-replacement helpers (replace Qt QChar property lookups)
+#-- Unicode character property helpers
 
 func _CharIsSpace(nUnicode)
 	if nUnicode = 0x09 or nUnicode = 0x0A or nUnicode = 0x0B or

@@ -12,15 +12,8 @@
 
 /*
 	#TODO Add:
-	QStringRef methods
-
-	TODO: use QStringView for read-only operations, and QByteArray
-	for UT8-only string
-	#--> Better performance.
-
 	#TODO Consider using Allegro extension (via Ring GameEngine)
-	# for unicode string manipulation ~> My tests prove it's more
-	# performant the Qt and basic Ring native string management.
+	# for unicode string manipulation.
 
 	#TODO //
 	Get inspiration from the python ftfy library to add Unicode text
@@ -3253,19 +3246,10 @@ class stzString from stzObject
 	WARNING:
 	--------
 
-	Review the Qt behaviour regarding QString.toCaseFolded() method.
-
-	In fact, when writing:
+	Case folding of "ß" to "ss" (German) is not yet implemented.
 
 	? StzStringQ("der Fluß").CaseFolded()
-
-	We should have as result:
-
-	"der fluss"
-
-	since "ß" is casefolded to "ss" in german.
-
-	But, Qt don't do that!
+	# Should return "der fluss" but doesn't yet.
 	
 	*/
 
@@ -7171,7 +7155,7 @@ class stzString from stzObject
 	#--
 
 	def SortMarquersInAscending()
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = 1 #>
+		#< @MotherFunction = This.ReplaceSection() #>
 
 		/* Example
 
@@ -7230,7 +7214,7 @@ class stzString from stzObject
 			return This.StringWithMaquersSortedInAscending()
 
 	def SortMarquersInDescending()
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = 1 #>
+		#< @MotherFunction = This.ReplaceSection() #>
 
 		/* Example
 
@@ -10186,10 +10170,6 @@ class stzString from stzObject
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 
-		# Unfortunately, we don't have a direct function that
-		# returns this in Ring or RingQt. So, we implement it
-		# in our own and pay for the performance tax on sutch
-		# an elementary feature in any language!
 
 		nResult = StringCountCS(This.Content(), pcSubStr, pCaseSensitive)
 		return nResult
@@ -25069,7 +25049,7 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def RemoveThisRepeatedTrailingCharCS(c, pCaseSensitive)
-		#< QtBased >
+
 
 		_oQStr_ = QStringObject()
 		nLenStr = _oQStr_.size()
@@ -25246,7 +25226,7 @@ class stzString from stzObject
 	#==========================================#
 
 	def ReplaceEachRepeatedLeadingCharCS(cNewSubStr, pCaseSensitive)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = 1 #>
+		#< @MotherFunction = This.ReplaceSection() #>
 
 		/* Example:
 
@@ -25363,7 +25343,7 @@ class stzString from stzObject
 	#----------------------------------#
 
 	def ReplaceEachRepeatedTrailingCharCS(cNewSubStr, pCaseSensitive)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = 1 #>
+		#< @MotherFunction = This.ReplaceSection() #>
 
 		/* Example:
 
@@ -26014,7 +25994,7 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def ReplaceThisRepeatedLeadingCharCS(c, cNewSubStr, pCaseSensitive)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = 1 #>
+		#< @MotherFunction = This.ReplaceSection() #>
 
 		if NOT This.HasRepeatedLeadingCharsCS(pCaseSensitive)
 			return
@@ -26195,7 +26175,7 @@ class stzString from stzObject
 	#----------------------------------------------#
 
 	def ReplaceThisRepeatedTrailingCharCS(c, cNewSubStr, pCaseSensitive)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = 1 #>
+		#< @MotherFunction = This.ReplaceSection() #>
 
 		if isList(cNewSubStr) and StzListQ(cNewSubStr).IsWithOrByNamedParam()
 			cNewSubStr = cNewSubStr[2]
@@ -39248,7 +39228,7 @@ class stzString from stzObject
 	#=================================================#
 	
 	def ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		#< @MotherFunction = YES | @QtBased #>
+		#< @MotherFunction = YES #>
 
 		/* Example:
 	
@@ -42436,7 +42416,7 @@ class stzString from stzObject
 	#==============================================================#
 
 	def ReplaceCharAtPosition(n, pcNewSubStr)
-		#< @MotherFunction = ReplaceSection() > @QtBased = 1 #>
+		#< @MotherFunction = ReplaceSection() #>
 
 		This.ReplaceSection(n, n, pcNewSubStr)
 
@@ -42512,7 +42492,7 @@ class stzString from stzObject
 		#>
 
 	def CharReplacedAtPosition(n, pcNewSubStr)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = 1 #>
+		#< @MotherFunction = This.ReplaceSection() #>
 
 		cResult = This.Copy().ReplaceCharAtPositionQ(n, pcNewSubStr).Content()
 		return cResult
@@ -42545,7 +42525,7 @@ class stzString from stzObject
 	#-------------------------------------------------------------#
 
 	def ReplaceCharsAtPositions(panPos, pcNewSubStr)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = 1 #>
+		#< @MotherFunction = This.ReplaceSection() #>
 
 		if CheckParams()
 			if NOT isList(panPos) and IsListOfNumbers(panPos)
@@ -42729,7 +42709,7 @@ class stzString from stzObject
 	def ReplaceCharsWCS(pcCondition, pcNewSubStr, pCaseSensitive)
 		#< @MotherFunctions:
 		#	This.FindCharsW() > @RingBased
-		#	This.ReplaceSection() > @QtBased
+		#	This.ReplaceSection()
 		#>
 
 		/*
@@ -42891,7 +42871,7 @@ class stzString from stzObject
 	#====================================================#
 
 	def ReplaceNthOccurrenceCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = 1 #>
+		#< @MotherFunction = This.ReplaceSection() #>
 
 		if CheckingParams()
 
@@ -43488,7 +43468,7 @@ class stzString from stzObject
 	#========================#
 
 	def ReplaceNthChar(n, pSubStr)
-		#< @MotherFunction = This.ReplaceSection() > @QtBased = 1 #>
+		#< @MotherFunction = This.ReplaceSection() #>
 
 		if n = :LastChar or n = :EndOfString or n = :Last
 			n = This.NumberOfChars()
@@ -44170,7 +44150,6 @@ class stzString from stzObject
 	#=========================================================#
 
 	def StartsWithCS(pcSubStr, pCaseSensitive)
-		#< QtBased | Uses QString.startsWith() >
 
 		if CheckParams()
 			if NOT isString(pcSubStr)
@@ -44358,7 +44337,6 @@ class stzString from stzObject
 	#==========================================================#
 
 	def EndsWithCS(pcSubStr, pCaseSensitive)
-		#< QtBased | Uses oQString.endsWith() >
 
 		if CheckParams()
 			if NOT isString(pcSubStr)
@@ -45771,7 +45749,6 @@ class stzString from stzObject
 	#------------------------------------------------------------------------#
 
 	def FindFirstSTCS(pcSubStr, pnStartingAt, pCaseSensitive)
-		#< QtBased | Uses QString.IndexOf() >
 
 		if CheckingParams()
 
@@ -46551,7 +46528,6 @@ class stzString from stzObject
 	// or returns 0 if nothing is found
 
 	def FindFirstCS(pcSubStr, pCaseSensitive)
-		#< QtBased | Uses QString.IndexOf() >
 
 		
 		if CheckParams()
@@ -46570,11 +46546,11 @@ class stzString from stzObject
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		# Doing the job (using Qt)
+		# Doing the job
 
 		nResult = This.QStringObject().indexOf(pcSubStr, 0, _bCase_) + 1
 
-		#NOTE // If nothing is found, Qt returns -1. With the addition of +1, we get 0.
+		#NOTE // If nothing is found, returns 0.
 
 		return nResult
 
@@ -46993,7 +46969,7 @@ class stzString from stzObject
 	#=================================================#
 
 	def FindLastCS(pcSubStr, pCaseSensitive)
-		#< TODO: @QtBased | Uses QString2.lastIndexOf()
+		#< TODO
 
 		/* EXAMPLE
 
@@ -48092,7 +48068,6 @@ class stzString from stzObject
 	#TODO //Add FindNextW() FindPreviousW()
 
 	def FindNextCS(pcSubStr, nStart, pCaseSensitive)
-		#< QTBased | Uses: QString.IndexOf() >
 
 		if CheckingParams()
 
@@ -48132,7 +48107,7 @@ class stzString from stzObject
 			return 0
 		ok
 
-		# Doing the job (Qt-side)
+		# Doing the job
 
 		nResult = This.QStringObject().indexof(pcSubStr, nStart, _bCase_) + 1
 
@@ -48414,7 +48389,6 @@ class stzString from stzObject
 	#=================================================#
 
 	def FindCS(pcSubStr, pCaseSensitive)
-		#< QtBased | Uses QString.IndexOf() >
 
 		if CheckingParams()
 
@@ -54776,7 +54750,6 @@ class stzString from stzObject
 	#======================================#
 
 	def ContainsCS(pcSubStr, pCaseSensitive)
-		#< QtBased | Uses QString.indexOf() >
 
 		# Checking params
 
@@ -54799,7 +54772,7 @@ class stzString from stzObject
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		# Doing the job (Qt-side)
+		# Doing the job
 
 		_nResult_ = This.QStringObject().indexOf(pcSubStr, 0, _bCase_)
 		if _nResult_ >= 0
@@ -79224,8 +79197,7 @@ class stzString from stzObject
 		# the list is sorted in ascending. Then first in the list is greater.
 
 		# If you want to perform the comparison in a locale-sensitive way,
-		# use CompareInLocale() instead. WARRING: This function needs the
-		# the support of the QCollator class in RingQt.
+		# use CompareInLocale() instead (not yet implemented).
 
 		if CheckingParams()
 			if isList(pcOtherStr) and (pcOtherStr).IsWithOrToNamedParam()
@@ -79312,7 +79284,6 @@ class stzString from stzObject
 	# 
 
 	def UnicodeCompareWithCS(pcOtherStr, pCaseSensitive)
-		#< QtBased | Uses QString.compare() >
 
 		# Resolving pCaseSensitive
 
@@ -79354,16 +79325,10 @@ class stzString from stzObject
 
 		NOTE:
 		This works only for the current system locale.
-
-		To compare for a defined locale, softanza should rely on
-		the QCollator class in RingQt (which is not implemented yet)
-
-		--> TODO: Add QCollator class to RingQt and make CompareWithInLocale()
+		Locale-specific comparison is not yet implemented.
 		*/
 
 	def UnicodeCompareWithInLocale(pcOtherStr, pLocale) #TODO
-		// Needs the implementation of QCollator class in RingQt (read comment
-		// in SystemLocaleCompareWith() methof above
 		StzRaise("Feature unsupported yet!")
 
 	def IsUnicodeEqualTo(pcOtherStr)
@@ -79810,7 +79775,7 @@ class stzString from stzObject
 		
 	#-- WITHOUT CASESENSITIVITY
 
-	def Remove(pcSubStr) # replace with QStringObject().remove() when added to RingQt
+	def Remove(pcSubStr)
 		This.ReplaceAll(pcSubStr , "")
 
 		def RemoveQ(pcSubStr)
@@ -81873,7 +81838,6 @@ class stzString from stzObject
 	
 	// Fills a portion of the string defined by its start and end positions
 	def FillSection(n1, n2, pcChar)
-		#< @QtBased = 1 #>
 
 		if CheckingParams()
 
@@ -82026,7 +81990,6 @@ class stzString from stzObject
 	
 	// Erases a portion of the string defined by its start and end positions
 	def EraseSection(n1, n2)
-		#< @QtBased = 1 #>
 
 		if CheckingParams()
 
@@ -82170,7 +82133,6 @@ class stzString from stzObject
 	
 	// Removes a portion of the string defined by its start and end positions
 	def RemoveSection(n1, n2)
-		#< @QtBased = 1 #>
 
 		if CheckingParams()
 
@@ -82699,7 +82661,7 @@ class stzString from stzObject
 	// Replaces a portion of the string defined by its start and end positions
 
 	def ReplaceSection(n1, n2, pcNewSubStr)
-		#< @MotherFunction = YES | @QtBased #>
+		#< @MotherFunction = YES #>
 
 		if CheckingParams()
 
@@ -90091,7 +90053,7 @@ class stzString from stzObject
 
 		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
 
-		# Computing the alignment using Qt
+		# Computing the alignment
 
 		oQCopy = QStringObject()
 
@@ -90099,8 +90061,7 @@ class stzString from stzObject
 			oChar = new stzChar(cChar)
 			oQChar = oChar.QCharObject()
 
-			// Take in account a logical error of Qt in aligning non
-			// left-to-right strings (like arabic and hebrew)
+			// Right-to-left strings (arabic, hebrew) need reversed alignment
 
 			if This.IsRightToLeft()
 				cJustified = oQCopy.rightJustified(nWidth, oQChar, 0)
@@ -90222,7 +90183,7 @@ class stzString from stzObject
  
 		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
 
-		# Computing the justification using Qt
+		# Computing the justification
 
 		oQCopy = QStringObject()
 
@@ -90541,7 +90502,7 @@ class stzString from stzObject
 	 #    TEXT ENCODING & CONVERTING    #
 	#==================================#
 
-	//Returns a UTF-8 representation of the string (using QByteArray)
+	//Returns a UTF-8 representation of the string
 	def ToUTF8()
 		oQCopy = QStringObject()
 		cResult = QByteArrayToListOfUnicodes(oQCopy.toUtf8())
@@ -90578,7 +90539,6 @@ class stzString from stzObject
 	#---------------------------#
 
 	#TODO // Support Unicode in this function
-	#~> // Use QSrinng.toPercentencoding() when added to RingQt
 
 	def UrlEncode()
 		/* Example:
@@ -90632,7 +90592,6 @@ class stzString from stzObject
 	#---------------------------#
 
 	#TODO // Support Unicode in this function
-	#~> // Use QSrinng.toPercentencoding() when added to RingQt
 
 	def UrlDecode()
 		/* Example:
@@ -93986,7 +93945,6 @@ class stzString from stzObject
 	#---------------------------------------#
 	
 	def NthChar(n)
-		#< QtBased | Uses QString.mid() >
 
 		if NOT isNumber(n)
 			stzRaise("Incorrect param type! n should be a number.")
@@ -94309,7 +94267,6 @@ class stzString from stzObject
 	# https://doc.qt.io/qt-5/qtextboundaryfinder.html#details
 
 	def NumberOfCharsCS(pCaseSensitive)
-		#< QtBased | Uses QString.size() >
 
 		# Resolving pCaseSensitive
 
@@ -96717,7 +96674,6 @@ class stzString from stzObject
 	#========================#
 	
 	# Currently we use the native hashing functions of Ring StdLib
-	#TODO // other algortithms can be added through RingQt
 
 	def Hash(pcHashingAlgo)
 		if isList(pcHashingAlgo) and StzListQ(pcHashingAlgo).IsWithOrUsingOrByNamedParam()

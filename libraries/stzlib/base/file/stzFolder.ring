@@ -10,21 +10,14 @@
 #    - Most users work with visible files/folders only
 #    - System/temp files are typically irrelevant to folder operations
 #
-# 2. DUAL API STRATEGY:
-#    - Qt (QDir): Used for navigation, permissions, path operations, folder creation
-#      * Robust cross-platform path handling
-#      * Reliable folder operations (mkdir, rmdir, exists)
-#      * Navigation methods (cdUp, isRoot, absolutePath)
-#    
-#    - Ring (@dir): Used for file/folder enumeration  
-#      * Overcomes Qt entries bug
-#      * Consistent hidden file filtering
-#      * Direct file system access
+# 2. IMPLEMENTATION:
+#    - Pure Ring path helpers for navigation and path manipulation
+#    - Engine bridge for file/folder operations (create, delete, copy)
+#    - Ring dir() for file/folder enumeration
 #
-# 3. CONSISTENCY RULE: 
-#    Count() = CountFiles() + CountFolders() 
+# 3. CONSISTENCY RULE:
+#    Count() = CountFiles() + CountFolders()
 #    This ensures Count() matches len(Files()) + len(Folders())
-#    Avoids Qt's raw _aEntry_ count that includes "." + ".." + hidden files
 #
 # 4. ABSTRACTION LEVEL: High-level, intuitive behavior
 #    - Users expect empty folder to show Count()=0, IsEmpty()=true

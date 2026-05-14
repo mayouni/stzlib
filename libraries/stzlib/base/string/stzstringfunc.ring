@@ -402,7 +402,7 @@ func StzEndsWith(pStrOrList, pSubStrOrItem) # endsWith() seems to be reserved by
 
 #==
 
-# A Ring-based implementation (#NOTE Internally, stzString uses Qt)
+# A Ring-based implementation
 # This is made as altenartive to show how Softanza enhances Ring
 
 #~> Solves the problem where substr() function in Ring returns 1
