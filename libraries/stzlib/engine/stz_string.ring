@@ -89,6 +89,26 @@ func StzEngineStringIndexOf(pHandle, cNeedle)
     return CallCFunc($pStzStringHandle, "stz_string_index_of", "i", "ppi",
                      pHandle, cNeedle, len(cNeedle))
 
+func StzEngineStringIndexOfFrom(pHandle, cNeedle, nStartByte)
+    if $pStzStringHandle = NULL return -1 ok
+    return CallCFunc($pStzStringHandle, "stz_string_index_of_from", "i", "ppii",
+                     pHandle, cNeedle, len(cNeedle), nStartByte)
+
+func StzEngineStringIndexOfCI(pHandle, cNeedle, nStartByte)
+    if $pStzStringHandle = NULL return -1 ok
+    return CallCFunc($pStzStringHandle, "stz_string_index_of_ci", "i", "ppii",
+                     pHandle, cNeedle, len(cNeedle), nStartByte)
+
+func StzEngineStringByteToCp(pHandle, nBytePos)
+    if $pStzStringHandle = NULL return -1 ok
+    return CallCFunc($pStzStringHandle, "stz_string_byte_to_cp", "i", "pi",
+                     pHandle, nBytePos)
+
+func StzEngineStringCountOf(pHandle, cNeedle)
+    if $pStzStringHandle = NULL return 0 ok
+    return CallCFunc($pStzStringHandle, "stz_string_count_of", "i", "ppi",
+                     pHandle, cNeedle, len(cNeedle))
+
 func StzEngineStringLastIndexOf(pHandle, cNeedle)
     if $pStzStringHandle = NULL return -1 ok
     return CallCFunc($pStzStringHandle, "stz_string_last_index_of", "i", "ppi",
