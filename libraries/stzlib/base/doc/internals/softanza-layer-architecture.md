@@ -99,9 +99,9 @@ stzFunction.
 - stkChar -> QChar, QString2 (unicode operations)
 - stkRingLibs -> loads qtcore.ring
 
-### Base Layer Qt Usage (via Core + direct)
-- stzString -> QStringObject() (5000+ references)
-- stzChar -> QChar operations
+### Base Layer Engine Usage (Qt purged, Zig engine)
+- stzString -> _Ops() shim -> StzEngine* FFI (Qt fully replaced)
+- stzChar -> StzEngineUnicode* FFI (Qt fully replaced)
 - stzFile -> QFile, QFileInfo, QDir
 - stzFolder -> QDir
 - stzDate -> QDate
