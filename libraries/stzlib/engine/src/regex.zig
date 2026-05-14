@@ -1,13 +1,14 @@
 // Softanza Engine -- Regex Operations (Tier 3)
 //
 // Replaces QRegularExpression with a recursive backtracking
-// pattern matcher. Supports: literal, . * + ? | () [] [^]
-// \d \w \s \D \W \S ^ $ {n,m} and case-insensitive flag.
+// pattern matcher. Supports: literal, . * + ? *? +? ?? | () [] [^]
+// \d \w \s \D \W \S \p{L} \P{N} ^ $ and case-insensitive flag.
 // All functions use C ABI for Ring FFI compatibility.
 
 const std = @import("std");
 const mem = std.mem;
 const gpa = std.heap.c_allocator;
+const unicode = @import("unicode.zig");
 
 // ─── Public handle ───
 
@@ -183,7 +184,9 @@ fn matchHere(pat: []const u8, pi: usize, text: []const u8, ti: usize, ci: bool, 
         if (atom_end < pat.len) {
             const q = pat[atom_end];
             if (q == '*' or q == '+' or q == '?') {
-                return matchQuantified(pat, p, atom_end, q, text, t, ci, da, caps);
+                const lazy = (atom_end + 1 < pat.len and pat[atom_end + 1] == '?');
+                const skip = if (lazy) atom_end + 2 else atom_end + 1;
+                return matchQuantifiedEx(pat, p, atom_end, q, lazy, skip, text, t, ci, da, caps);
             }
         }
 
@@ -197,28 +200,35 @@ fn matchHere(pat: []const u8, pi: usize, text: []const u8, ti: usize, ci: bool, 
     return true;
 }
 
-fn matchQuantified(pat: []const u8, p: usize, atom_end: usize, q: u8, text: []const u8, ti: usize, ci: bool, da: bool, caps: *std.ArrayList(Regex.Cap)) bool {
-    const min: usize = if (q == '+') 1 else 0;
-    var count: usize = 0;
+fn matchQuantifiedEx(pat: []const u8, p: usize, _: usize, q: u8, lazy: bool, skip: usize, text: []const u8, ti: usize, ci: bool, da: bool, caps: *std.ArrayList(Regex.Cap)) bool {
+    const min_count: usize = if (q == '+') 1 else 0;
+    var max_count: usize = 0;
     var t = ti;
 
     while (t < text.len and matchOne(pat, p, text[t], ci, da)) {
-        count += 1;
+        max_count += 1;
         t += 1;
     }
 
     if (q == '?') {
-        if (count > 1) count = 1;
+        if (max_count > 1) max_count = 1;
     }
 
-    while (true) {
-        if (count >= min) {
-            if (matchHere(pat, atom_end + 1, text, ti + count, ci, da, caps)) {
-                return true;
-            }
+    if (lazy) {
+        var count: usize = min_count;
+        while (count <= max_count) {
+            if (matchHere(pat, skip, text, ti + count, ci, da, caps)) return true;
+            count += 1;
         }
-        if (count == 0) break;
-        count -= 1;
+    } else {
+        var count: usize = max_count;
+        while (true) {
+            if (count >= min_count) {
+                if (matchHere(pat, skip, text, ti + count, ci, da, caps)) return true;
+            }
+            if (count == 0) break;
+            count -= 1;
+        }
     }
     return false;
 }
@@ -246,8 +256,10 @@ fn matchGroup(pat: []const u8, p: usize, text: []const u8, ti: usize, ci: bool, 
                 if (cap_idx < caps.items.len)
                     caps.items[cap_idx].end = @intCast(sub_t);
                 var next = after;
-                if (next < pat.len and (pat[next] == '*' or pat[next] == '+' or pat[next] == '?'))
+                if (next < pat.len and (pat[next] == '*' or pat[next] == '+' or pat[next] == '?')) {
                     next += 1;
+                    if (next < pat.len and pat[next] == '?') next += 1;
+                }
                 return matchHere(pat, next, text, sub_t, ci, da, caps);
             }
             alt_start = i + 1;
@@ -298,8 +310,10 @@ fn matchBranch(branch: []const u8, text: []const u8, t: *usize, ci: bool, da: bo
             }
             if (!matched) return false;
             p = close + 1;
-            if (p < branch.len and (branch[p] == '*' or branch[p] == '+' or branch[p] == '?'))
+            if (p < branch.len and (branch[p] == '*' or branch[p] == '+' or branch[p] == '?')) {
                 p += 1;
+                if (p < branch.len and branch[p] == '?') p += 1;
+            }
             continue;
         }
 
@@ -315,6 +329,7 @@ fn matchBranch(branch: []const u8, text: []const u8, t: *usize, ci: bool, da: bo
             if (count < min_count) return false;
             t.* += count;
             p = ae + 1;
+            if (p < branch.len and branch[p] == '?') p += 1;
             continue;
         }
 
@@ -334,6 +349,14 @@ fn matchOne(pat: []const u8, p: usize, c: u8, ci: bool, da: bool) bool {
 
     if (pc == '\\' and p + 1 < pat.len) {
         const esc = pat[p + 1];
+        if ((esc == 'p' or esc == 'P') and p + 2 < pat.len and pat[p + 2] == '{') {
+            if (findBrace(pat, p + 2)) |close| {
+                const prop_name = pat[p + 3 .. close];
+                const matches = matchUnicodeProperty(c, prop_name);
+                return if (esc == 'p') matches else !matches;
+            }
+            return false;
+        }
         return switch (esc) {
             'd' => c >= '0' and c <= '9',
             'D' => !(c >= '0' and c <= '9'),
@@ -351,6 +374,74 @@ fn matchOne(pat: []const u8, p: usize, c: u8, ci: bool, da: bool) bool {
     if (pc == '[') return matchCharClass(pat, p, c, ci);
 
     return eqChar(c, pc, ci);
+}
+
+fn matchUnicodeProperty(c: u8, prop: []const u8) bool {
+    const cp: i32 = @intCast(c);
+    if (prop.len == 0) return false;
+    if (prop.len == 1) {
+        return switch (prop[0]) {
+            'L' => unicode.stz_unicode_is_letter(cp) == 1,
+            'N' => unicode.stz_unicode_is_number(cp) == 1,
+            'P' => unicode.stz_unicode_is_punctuation(cp) == 1,
+            'S' => unicode.stz_unicode_is_symbol(cp) == 1,
+            'Z' => unicode.stz_unicode_is_space(cp) == 1,
+            'M' => unicode.stz_unicode_is_mark(cp) == 1,
+            'C' => unicode.stz_unicode_is_control(cp) == 1,
+            else => false,
+        };
+    }
+    if (prop.len == 2) {
+        const cat = unicode.stz_unicode_category(cp);
+        if (mem.eql(u8, prop, "Lu")) return cat == 1;
+        if (mem.eql(u8, prop, "Ll")) return cat == 2;
+        if (mem.eql(u8, prop, "Lt")) return cat == 3;
+        if (mem.eql(u8, prop, "Lm")) return cat == 4;
+        if (mem.eql(u8, prop, "Lo")) return cat == 5;
+        if (mem.eql(u8, prop, "Mn")) return cat == 6;
+        if (mem.eql(u8, prop, "Mc")) return cat == 7;
+        if (mem.eql(u8, prop, "Me")) return cat == 8;
+        if (mem.eql(u8, prop, "Nd")) return cat == 9;
+        if (mem.eql(u8, prop, "Nl")) return cat == 10;
+        if (mem.eql(u8, prop, "No")) return cat == 11;
+        if (mem.eql(u8, prop, "Pc")) return cat == 12;
+        if (mem.eql(u8, prop, "Pd")) return cat == 13;
+        if (mem.eql(u8, prop, "Ps")) return cat == 14;
+        if (mem.eql(u8, prop, "Pe")) return cat == 15;
+        if (mem.eql(u8, prop, "Pi")) return cat == 16;
+        if (mem.eql(u8, prop, "Pf")) return cat == 17;
+        if (mem.eql(u8, prop, "Po")) return cat == 18;
+        if (mem.eql(u8, prop, "Sm")) return cat == 19;
+        if (mem.eql(u8, prop, "Sc")) return cat == 20;
+        if (mem.eql(u8, prop, "Sk")) return cat == 21;
+        if (mem.eql(u8, prop, "So")) return cat == 22;
+        if (mem.eql(u8, prop, "Zs")) return cat == 23;
+        if (mem.eql(u8, prop, "Cc")) return cat == 26;
+        if (mem.eql(u8, prop, "Cf")) return cat == 27;
+    }
+    if (eqlAsciiI(prop, "Letter")) return unicode.stz_unicode_is_letter(cp) == 1;
+    if (eqlAsciiI(prop, "Number")) return unicode.stz_unicode_is_number(cp) == 1;
+    if (eqlAsciiI(prop, "Punctuation")) return unicode.stz_unicode_is_punctuation(cp) == 1;
+    if (eqlAsciiI(prop, "Symbol")) return unicode.stz_unicode_is_symbol(cp) == 1;
+    if (eqlAsciiI(prop, "Separator")) return unicode.stz_unicode_is_space(cp) == 1;
+    if (eqlAsciiI(prop, "Mark")) return unicode.stz_unicode_is_mark(cp) == 1;
+    return false;
+}
+
+fn eqlAsciiI(a: []const u8, b: []const u8) bool {
+    if (a.len != b.len) return false;
+    for (a, b) |ac, bc| {
+        if (toLowerAscii(ac) != toLowerAscii(bc)) return false;
+    }
+    return true;
+}
+
+fn findBrace(pat: []const u8, open: usize) ?usize {
+    var i = open + 1;
+    while (i < pat.len) : (i += 1) {
+        if (pat[i] == '}') return i;
+    }
+    return null;
 }
 
 fn matchCharClass(pat: []const u8, p: usize, c: u8, ci: bool) bool {
@@ -391,7 +482,13 @@ fn matchCharClass(pat: []const u8, p: usize, c: u8, ci: bool) bool {
 
 fn atomEnd(pat: []const u8, p: usize) usize {
     if (p >= pat.len) return p;
-    if (pat[p] == '\\' and p + 1 < pat.len) return p + 2;
+    if (pat[p] == '\\' and p + 1 < pat.len) {
+        const esc = pat[p + 1];
+        if ((esc == 'p' or esc == 'P') and p + 2 < pat.len and pat[p + 2] == '{') {
+            if (findBrace(pat, p + 2)) |close| return close + 1;
+        }
+        return p + 2;
+    }
     if (pat[p] == '[') {
         var i = p + 1;
         if (i < pat.len and pat[i] == '^') i += 1;
@@ -492,4 +589,50 @@ test "escape sequences" {
     try std.testing.expect(doMatch("\\d+", "abc123def", 0, 0, &caps));
     try std.testing.expectEqual(@as(i32, 3), caps.items[0].start);
     try std.testing.expectEqual(@as(i32, 6), caps.items[0].end);
+}
+
+test "lazy quantifier" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    // Greedy: .* matches as much as possible
+    try std.testing.expect(doMatch("<.*>", "<a><b>", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 6), caps.items[0].end);
+
+    // Lazy: .*? matches as little as possible
+    caps.clearRetainingCapacity();
+    try std.testing.expect(doMatch("<.*?>", "<a><b>", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 3), caps.items[0].end);
+}
+
+test "lazy plus" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("a+?", "aaaa", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 1), caps.items[0].end);
+}
+
+test "unicode property \\p{L}" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("\\p{L}+", "abc123", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 3), caps.items[0].end);
+}
+
+test "unicode property \\p{N}" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("\\p{N}+", "abc123", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 3), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 6), caps.items[0].end);
+}
+
+test "unicode property negated \\P{L}" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(doMatch("\\P{L}+", "abc 123", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 3), caps.items[0].start);
 }
