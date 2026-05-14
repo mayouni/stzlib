@@ -572,29 +572,10 @@ func StzReplace(cStr, cSubStr, cNewSubStr)
 		return StzReplace(cStr, cSubStr, cNewSubStr)
 
 func StzSplitCS(cStr, cSubStr, bCaseSensitive)
-
-	if bCaseSensitive = 1
-		acResult = stksplit(cStr, cSubStr)
-	else
-		acResult = []
-		cTemp = lower(cStr)
-		cSubLow = lower(cSubStr)
-		nPos = 1
-		while TRUE
-			nFound = substr(cTemp, nPos, cSubLow)
-			if nFound = 0
-				acResult + substr(cStr, nPos)
-				exit
-			ok
-			acResult + substr(cStr, nPos, nFound - nPos)
-			nPos = nFound + len(cSubStr)
-		end
-	ok
-
-	return acResult
+	return StkSplitCS(cStr, cSubStr, bCaseSensitive)
 
 func StzSplit(cStr, cSubStr)
-	return StzSplitCS(cStr, cSubStr, 0)
+	return StkSplit(cStr, cSubStr)
 
 #--
 
