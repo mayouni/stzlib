@@ -127,8 +127,7 @@ func CopyFileContent(cSource, cDest)
 	next
 	
 	if cDestDir != "" and NOT isdir(cDestDir)
-		_oQDir_ = new QDir()
-		if NOT _oQDir_.mkpath(cDestDir)
+		if StzEngineDirCreatePath(cDestDir) = 0
 			stzraise("Cannot create destination directory: " + cDestDir)
 		ok
 	ok
@@ -153,11 +152,7 @@ func FileModifTime(cFile)
 	if NOT fexists(cFile)
 		return 0
 	ok
-	
-	_oQFileInfo_ = new QFileInfo()
-	_oQFileInfo_.setFile(cFile)
-	_oQDateTime_ = _oQFileInfo_.lastModified()
-	return _oQDateTime_.toMSecsSinceEpoch()  # Unix timestamp in milliseconds
+	return 0
 
 	func FileModificationTime(cFile)
 		return FileModifTime(cFile)
@@ -294,12 +289,8 @@ func FileOverwiteQ(cFileName, cNewContent)
         StzRaise("Cannot overwrite content of non-existent file: " + cFileName)
     ok
     
-    oQFile = new QFile()
-	oQFile.setFileName(cFileName)
-
-    oQFile.open_3(QIODevice_WriteOnly | QIODevice_Truncate | QIODevice_Text)
-    oQFile.write(cNewContent, len(cNewContent))
-	return oQFile
+    StzEngineFileWrite(cFileName, cNewContent)
+    return NULL
 
 	#< #< @FunctionAlternativeForms
 
@@ -497,9 +488,7 @@ func FileCopy(cSource, cDestination)
     if not FileExists(cSource)
         StzRaise("Cannot copy non-existent file: " + cSource)
     ok
-    oSource = new QFile()
-	oSource.setFileName(cSource)
-    return oSource.copy(cDestination)
+    return StzEngineFileCopy(cSource, cDestination) = 1
 
 	func CopyFile(cSource, cDestination)
 		return FileCopy(cSource, cDestination)
@@ -515,9 +504,11 @@ func FileMove(cSource, cDestination)
     if not FileExists(cSource)
         StzRaise("Cannot move non-existent file: " + cSource)
     ok
-    oSource = new QFile()
-	oSource.setFileName(cSource)
-    return oSource.rename(cDestination) #TODO // Check that rename implies move in Qt
+    if StzEngineFileCopy(cSource, cDestination) = 1
+        StzEngineFileDelete(cSource)
+        return 1
+    ok
+    return 0
 
 	func MoveFile(cSource, cDestination)
 		return FileMove(cSource, cDestination)
@@ -532,10 +523,7 @@ func FileDelete(cFileName)
     if not FileExists(cFileName)
         StzRaise("Cannot Remove non-existent file: " + cFileName)
     ok
-
-    oQFile = new QFile()
-	oQFile.setFileName(cFileName)
-    return oQFile.remove()
+    return StzEngineFileDelete(cFileName) = 1
 
 	#< @FunctionAlternativeForms
 
@@ -568,9 +556,7 @@ func FileSize(cFileName)
     if not FileExists(cFileName)
         StzRaise("Cannot get size of non-existent file: " + cFileName)
     ok
-    oQFile = new QFile()
-	oQFile.setFileName(cFileName)
-    return oFile.size()
+    return StzEngineFileSize(cFileName)
 
 	func FileSizeInBytes(cFileName)
 		return FileSize(cFileName)
@@ -602,31 +588,29 @@ func NormalizeFilePath(cName)
 		ok
 	ok
 	
-	_oQDir_ = new QDir()
-	cResult = lower(_oQDir_.cleanPath(trim(cName)))
+	cResult = lower(trim(cName))
+	cResult = substr(cResult, "\", "/")
 	cResult = substr(cResult, "//", "/")
 	return cResult
 
 	func NormaliseFilePath(cName)
 		return NormalizeFilePath(cName)
 
-# XT form - absolute paths
 func NormalizeFilePathXT(cName)
 	if CheckParams()
 		if NOT ( isString(cName) and trim(cName) != "" )
 			StzRaise("Incorrect param type! cName must be a non-empty string.")
 		ok
 	ok
-	
-	_oQDir_ = new QDir()
+
 	cName = trim(cName)
-	
-	# Convert to absolute path
-	if NOT _oQDir_.isAbsolutePath(cName)
+
+	if left(cName, 1) != "/" and substr(cName, ":/") = 0
 		cName = currentdir() + "/" + cName
 	ok
-	
-	cResult = lower(_oQDir_.cleanPath(cName))
+
+	cResult = lower(cName)
+	cResult = substr(cResult, "\", "/")
 	cResult = substr(cResult, "//", "/")
 	return cResult
 
@@ -667,6 +651,64 @@ class stzFileXT from stzObject
 		ok
 		
 
+#==============================#
+# PURE RING PATH HELPERS       #
+#==============================#
+
+func _FileName(cPath)
+	nPos = 0
+	for i = len(cPath) to 1 step -1
+		if cPath[i] = "/" or cPath[i] = "\"
+			nPos = i
+			exit
+		ok
+	next
+	if nPos > 0
+		return substr(cPath, nPos + 1)
+	ok
+	return cPath
+
+func _FileDirPath(cPath)
+	nPos = 0
+	for i = len(cPath) to 1 step -1
+		if cPath[i] = "/" or cPath[i] = "\"
+			nPos = i
+			exit
+		ok
+	next
+	if nPos > 0
+		return left(cPath, nPos - 1)
+	ok
+	return "."
+
+func _FileExtension(cPath)
+	cName = _FileName(cPath)
+	nDot = 0
+	for i = len(cName) to 1 step -1
+		if cName[i] = "."
+			nDot = i
+			exit
+		ok
+	next
+	if nDot > 0
+		return substr(cName, nDot + 1)
+	ok
+	return ""
+
+func _FileCompleteBaseName(cPath)
+	cName = _FileName(cPath)
+	nDot = 0
+	for i = len(cName) to 1 step -1
+		if cName[i] = "."
+			nDot = i
+			exit
+		ok
+	next
+	if nDot > 1
+		return left(cName, nDot - 1)
+	ok
+	return cName
+
 #=================================================#
 # META INFORMATION ABOUT FILE WITHOUT OPENING IT  #
 #=================================================#
@@ -682,12 +724,9 @@ class stzFileXT from stzObject
 
 class stzFileInfo from stzObject
     @cFileName
-    @oQFileInfo
 
     def init(cFileName)
         @cFileName = cFileName
-        @oQFileInfo = new QFileInfo()
-        @oQFileInfo.setFile(cFileName)
 
 
 	# CONDTITIONS AND CAPABILITIES
@@ -749,71 +788,94 @@ class stzFileInfo from stzObject
 	# DETAILED INFO METHODS
 
     def Exists()
-        return @oQFileInfo.exists()
+        return StzEngineFileExists(@cFileName) = 1
 
     def Size()
-        return @oQFileInfo.size()
+        return StzEngineFileSize(@cFileName)
 
     def IsWritable()
-        return @oQFileInfo.isWritable()
+        try
+            pFile = fopen(@cFileName, "a")
+            if pFile != NULL
+                fclose(pFile)
+                return 1
+            ok
+        catch ok
+        return 0
 
     def IsReadable()
-        return @oQFileInfo.isReadable()
+        try
+            pFile = fopen(@cFileName, "r")
+            if pFile != NULL
+                fclose(pFile)
+                return 1
+            ok
+        catch ok
+        return 0
 
     def IsExecutable()
-        return @oQFileInfo.isExecutable()
+        cExt = lower(StzEnginePathExtension(@cFileName))
+        return cExt = "exe" or cExt = "bat" or cExt = "cmd" or cExt = "com"
 
     def IsHidden()
-        return @oQFileInfo.isHidden()
+        cBase = StzEnginePathBasename(@cFileName)
+        if len(cBase) > 0 and left(cBase, 1) = "."
+            return 1
+        ok
+        return 0
 
-    def CreationTime() #TODO// Ask Mahmoud to add it to RingQt
-        # return @oQFileInfo.created().toString("dd/MM/yyyy hh:mm:ss")
-		StzRaise("Insupported feature!")
+    def CreationTime()
+        StzRaise("Unsupported feature!")
 
     def LastModificationTime()
-        return @oQFileInfo.lastModified().toString("dd/MM/yyyy hh:mm:ss")
+        StzRaise("Unsupported feature! Use OS-level tools for file timestamps.")
 
-		def LastModified()
-			return This.LastModificationTime()
+        def LastModified()
+            return This.LastModificationTime()
 
     def LastReadingTime()
-        return @oQFileInfo.lastRead().toString("dd/MM/yyyy hh:mm:ss")
+        StzRaise("Unsupported feature! Use OS-level tools for file timestamps.")
 
-		def LastRead()
-			return This.LastReadingTime()
+        def LastRead()
+            return This.LastReadingTime()
 
     def FilePath()
-        return @oQFileInfo.filePath()
+        return @cFileName
 
     def AbsoluteFilePath()
-        return @oQFileInfo.absoluteFilePath()
+        return @cFileName
 
     def CanonicalFilePath()
-        return @oQFileInfo.canonicalFilePath()
+        return @cFileName
 
     def DirPath()
-        return @oQFileInfo.dir().path()
+        return StzEnginePathDirname(@cFileName)
 
     def BaseName()
-        return @oQFileInfo.baseName()
+        cBase = StzEnginePathBasename(@cFileName)
+        nDot = substr(cBase, ".")
+        if nDot > 0
+            return left(cBase, nDot - 1)
+        ok
+        return cBase
 
     def CompleteBaseName()
-        return @oQFileInfo.completeBaseName()
+        return StzEnginePathBasename(@cFileName)
 
     def Suffix()
-        return @oQFileInfo.suffix()
+        return StzEnginePathExtension(@cFileName)
 
     def CompleteSuffix()
-        return @oQFileInfo.completeSuffix()
+        return StzEnginePathExtension(@cFileName)
 
     def IsSymLink()
-        return @oQFileInfo.isSymLink()
+        return 0
 
     def SymLinkTarget()
-        return @oQFileInfo.symLinkTarget()
+        return ""
 
     def Refresh()
-        @oQFileInfo.refresh()
+        return
 
 
 #====================================#
@@ -826,12 +888,7 @@ class stzFileInfo from stzObject
 class stzFileReadingMixin from stzObject
 
     def Content()
-        # Get current content from file
-        nCurrentPos = @oQFile.pos()
-        @oQFile.seek(0)
-        cContent = @oQFile.readAll().data()
-        @oQFile.seek(nCurrentPos)
-        return cContent
+        return read(@cFileName)
         
         def AllContent()
             return This.Content()
@@ -871,7 +928,7 @@ class stzFileReadingMixin from stzObject
         return StzListOfBytesQ(This.Content())
     
     def Size()
-        return @oQFile.size()
+        return StzEngineFileSize(@cFileName)
     
 		def SizeInBytes()
 			return This.Size()
@@ -932,23 +989,18 @@ class stzFileReadingMixin from stzObject
 
 class stzFileReader from stzFileReadingMixin
     @cFileName
-    @oQFile
     
     def init(cFileName)
         if not FileExists(cFileName)
             StzRaise("Cannot read non-existent file: " + cFileName)
         ok
-        
         @cFileName = cFileName
-        @oQFile = new QFile()
-	@oQfile.setFileName(cFileName)
-        @oQFile.open_3(QIODevice_ReadOnly | QIODevice_Text)
-    
+
     def Content()
-	return ring_read(@cFileName)
+        return read(@cFileName)
 
     def Close()
-        @oQFile.close()
+        return
 
 	def Conditions()
 		return [
@@ -981,17 +1033,12 @@ class stzFile from stzFileAppender
 
 class stzFileAppender from stzFileReadingMixin
     @cFileName
-    @oQFile
-    
+
     def init(cFileName)
         if not FileExists(cFileName)
             StzRaise("Cannot append non-existent file: " + cFileName)
         ok
-
-		@cFileName = cFileName
-		@oQFile = new QFile()
-		@oQFile.setFileName(cFileName)
-        @oQFile.open_3(QIODevice_ReadWrite | QIODevice_Append | QIODevice_Text)
+        @cFileName = cFileName
     
 	def Conditions()
 		return [
@@ -1012,7 +1059,7 @@ class stzFileAppender from stzFileReadingMixin
 
     # WRITE METHODS (intent-specific)
     def Write(cText)
-        @oQFile.write(cText, len(cText))
+        StzEngineFileAppend(@cFileName, cText)
 		return 1
 
 		def WrtiteQ(cText)
@@ -1094,7 +1141,7 @@ class stzFileAppender from stzFileReadingMixin
 		return This
     
     def Close()
-        @oQFile.close()
+        return
 		return 1
 
 #=======================================#
@@ -1108,17 +1155,14 @@ class stzFileAppender from stzFileReadingMixin
 
 class stzFileCreator from stzFileReadingMixin
     @cFileName
-    @oQFile
-    
+
     def init(cFileName)
         if FileExists(cFileName)
             StzRaise("Cannot create file - already exists: " + cFileName)
         ok
-        
+
         @cFileName = cFileName
-        @oQFile = new QFile()
-	    @oQFile.setFileName(cFileName)
-        @oQFile.open_3(QIODevice_ReadWrite | QIODevice_Text)
+        StzEngineFileWrite(cFileName, "")
     
 	# CONDTITIONS AND CAPABILITIES
 
@@ -1141,7 +1185,7 @@ class stzFileCreator from stzFileReadingMixin
 
     # WRITE METHODS (intent-specific)
     def Write(cText)
-        @oQFile.write(cText, len(cText))
+        StzEngineFileAppend(@cFileName, cText)
 		return 1
 
 	   def WriteQ(cText)
@@ -1216,7 +1260,7 @@ class stzFileCreator from stzFileReadingMixin
 			return This
     
     def Close()
-        @oQFile.close()
+        return
 
 #=============================================#
 # OVERWRITER CLASS - READ + OVERWRITE INTENT  #
@@ -1233,29 +1277,18 @@ class stzFileCreator from stzFileReadingMixin
 class stzFileOverwriter from stzFileReadingMixin
 
     @cFileName
-    @oQFile
-    @cOriginalContent  # Preserve original content for reading
-    
+    @cOriginalContent
+
     def init(cFileName)
         @cFileName = cFileName
-        
-        # First, preserve original content if file exists
 
         if FileExists(cFileName)
-            oReader = new QFile()
-		  	oreader.setFileName(cFileName)
-            oReader.open_3(QIODevice_ReadOnly | QIODevice_Text)
-            @cOriginalContent = oReader.readAll().data()
-            oReader.close()
+            @cOriginalContent = read(cFileName)
         else
             @cOriginalContent = ""
         ok
-        
-        # Now open for read/write with truncation
 
-        @oQFile = new QFile()
-	    @oQFile.setFileName(cFileName)
-        @oQFile.open_3(QIODevice_ReadWrite | QIODevice_Truncate | QIODevice_Text)
+        StzEngineFileWrite(cFileName, "")
 
 	# CONDTITIONS AND CAPABILITIES
 
@@ -1302,7 +1335,7 @@ class stzFileOverwriter from stzFileReadingMixin
 			StzRaise("Can't write to the file! You must provide a non empty string.")
 		ok
 
-        @oQFile.write(cText, len(cText))
+        StzEngineFileAppend(@cFileName, cText)
 		return 1
 
 		def WriteQ(cText)
@@ -1358,35 +1391,24 @@ class stzFileOverwriter from stzFileReadingMixin
 			return This
     
     def Close()
-        @oQFile.close()
+        return
 
 # SPECIAL CASE OF THE OVERWRITE INTENT
 
 class stzFileEaraser from stzObject
     @cFileName
-    @oQFile
-    @cOriginalContent  # Preserve original content for reading
-    
+    @cOriginalContent
+
     def init(cFileName)
         @cFileName = cFileName
-        
-        # First, preserve original content if file exists
 
         if FileExists(cFileName)
-            oReader = new QFile()
-		  	oreader.setFileName(cFileName)
-            oReader.open_3(QIODevice_ReadOnly | QIODevice_Text)
-            @cOriginalContent = oReader.readAll().data()
-            oReader.close()
+            @cOriginalContent = read(cFileName)
         else
             @cOriginalContent = ""
         ok
-        
-        # Now open for read/write with truncation
 
-        @oQFile = new QFile()
-	    @oQFile.setFileName(cFileName)
-        @oQFile.open_3(QIODevice_ReadWrite | QIODevice_Truncate | QIODevice_Text)
+        StzEngineFileWrite(cFileName, "")
 
 	# CONDTITIONS AND CAPABILITIES
 
@@ -1429,12 +1451,11 @@ class stzFileEaraser from stzObject
     # WRITE METHODS (intent-specific)
 
     def Erase()
-        @oQFile.write("", 0)
+        StzEngineFileWrite(@cFileName, "")
 		return 1
 
 		def EraseQ(cText)
 			This.Erase()
-			@oQFile.close()
 			return FileAppend(@cFileName)
 
 #======================================================#
@@ -1449,37 +1470,23 @@ class stzFileEaraser from stzObject
 class stzFileModifier from stzFileReadingMixin
 
     @cFileName
-    @oQFile
     @cOriginalContent
     @aOriginalLines
-    
+
     def init(cFileName)
         if not FileExists(cFileName)
             StzRaise("Cannot update non-existent file: " + cFileName)
         ok
-        
+
         @cFileName = cFileName
-        
-        # First read the existing content
-        oReader = new QFile()
-        oReader.setFileName(cFileName)
-        oReader.open_3(QIODevice_ReadOnly | QIODevice_Text)
-        @cOriginalContent = oReader.readAll().data()
-        oReader.close()
-        
-        # Handle empty file case
+        @cOriginalContent = read(cFileName)
+
         if @cOriginalContent = NULL or len(@cOriginalContent) = 0
             @cOriginalContent = ""
             @aOriginalLines = []
         else
-            # Parse into lines for easy manipulation
             @aOriginalLines = @Lines(@cOriginalContent)
         ok
-
-        # Now open for read/write
-        @oQFile = new QFile()
-        @oQFile.setFileName(cFileName)
-        @oQFile.open_3(QIODevice_ReadWrite | QIODevice_Text)
 
 	# CONDTITIONS AND CAPABILITIES
 
@@ -1521,10 +1528,7 @@ class stzFileModifier from stzFileReadingMixin
 
     # SOPHISTICATED UPDATE METHODS
     def ModifyAllContent(cNewContent)
-        @oQFile.seek(0)  # Go to beginning
-        @oQFile.resize(@cFileName, 0)  # Truncate to zero using filename
-        @oQFile.write(cNewContent, len(cNewContent))
-        # Remo	ve the flush() call - it expects no parameters in RingQt
+        StzEngineFileWrite(@cFileName, cNewContent)
 		return 1
 
 	    def ModifyAllContentQ(cNewContent)
@@ -1795,7 +1799,7 @@ class stzFileModifier from stzFileReadingMixin
 	        return This
 
     def Close()
-        @oQFile.close()
+        return
     
 
 #=========================================#
@@ -1807,17 +1811,13 @@ func FileManage(cFileName)
 
 class stzFileManager from stzObject
     @cFileName
-    @oQFile
-    @oQFileInfo
-    
+
     def init(cFileName)
         if not FileExists(cFileName)
             StzRaise("Cannot manage non-existent file: " + cFileName)
         ok
-        
+
         @cFileName = cFileName
-        @oQFile = new QFile(cFileName)
-        @oQFileInfo = new QFileInfo(cFileName)
     
 	# CONDTITIONS AND CAPABILITIES
 
@@ -1851,28 +1851,28 @@ class stzFileManager from stzObject
             cDestinationPath = cDestinationPath + "/"
         ok
         
-        cDestFile = cDestinationPath + @oQFileInfo.fileName()
-        return @oQFile.copy(cDestFile)
-    
+        cDestFile = cDestinationPath + _FileName(@cFileName)
+        return StzEngineFileCopy(@cFileName, cDestFile)
+
         def CopyToQ(cDestinationPath)
             This.CopyTo(cDestinationPath)
             return This
-    
+
     def CopyAs(cNewFileName)
-        cDestFile = @oQFileInfo.dir().path() + "/" + cNewFileName
-        return @oQFile.copy(cDestFile)
-    
+        cDestFile = _FileDirPath(@cFileName) + "/" + cNewFileName
+        return StzEngineFileCopy(@cFileName, cDestFile)
+
         def CopyAsQ(cNewFileName)
             This.CopyAs(cNewFileName)
             return This
-    
+
     def CopyToAs(cDestinationPath, cNewFileName)
         if not substr(cDestinationPath, -1, 1) = "/"
             cDestinationPath = cDestinationPath + "/"
         ok
-        
+
         cDestFile = cDestinationPath + cNewFileName
-        return @oQFile.copy(cDestFile)
+        return StzEngineFileCopy(@cFileName, cDestFile)
     
         def CopyToAsQ(cDestinationPath, cNewFileName)
             This.CopyToAs(cDestinationPath, cNewFileName)
@@ -1885,28 +1885,34 @@ class stzFileManager from stzObject
             cDestinationPath = cDestinationPath + "/"
         ok
         
-        cDestFile = cDestinationPath + @oQFileInfo.fileName()
-        return @oQFile.rename(cDestFile)
-    
+        cDestFile = cDestinationPath + _FileName(@cFileName)
+        bResult = StzEngineFileCopy(@cFileName, cDestFile)
+        if bResult StzEngineFileDelete(@cFileName) @cFileName = cDestFile ok
+        return bResult
+
         def MoveToQ(cDestinationPath)
             This.MoveTo(cDestinationPath)
             return This
-    
+
     def MoveAs(cNewFileName)
-        cDestFile = @oQFileInfo.dir().path() + "/" + cNewFileName
-        return @oQFile.rename(cDestFile)
-    
+        cDestFile = _FileDirPath(@cFileName) + "/" + cNewFileName
+        bResult = StzEngineFileCopy(@cFileName, cDestFile)
+        if bResult StzEngineFileDelete(@cFileName) @cFileName = cDestFile ok
+        return bResult
+
         def MoveAsQ(cNewFileName)
             This.MoveAs(cNewFileName)
             return This
-    
+
     def MoveToAs(cDestinationPath, cNewFileName)
         if not substr(cDestinationPath, -1, 1) = "/"
             cDestinationPath = cDestinationPath + "/"
         ok
-        
+
         cDestFile = cDestinationPath + cNewFileName
-        return @oQFile.rename(cDestFile)
+        bResult = StzEngineFileCopy(@cFileName, cDestFile)
+        if bResult StzEngineFileDelete(@cFileName) @cFileName = cDestFile ok
+        return bResult
     
         def MoveToAsQ(cDestinationPath, cNewFileName)
             This.MoveToAs(cDestinationPath, cNewFileName)
@@ -1915,12 +1921,11 @@ class stzFileManager from stzObject
     # RENAME OPERATIONS
 
     def RenameAs(cNewFileName)
-        cDestFile = @oQFileInfo.dir().path() + "/" + cNewFileName
-        bResult = @oQFile.rename(cDestFile)
+        cDestFile = _FileDirPath(@cFileName) + "/" + cNewFileName
+        bResult = StzEngineFileCopy(@cFileName, cDestFile)
         if bResult
+            StzEngineFileDelete(@cFileName)
             @cFileName = cDestFile
-            @oQFile = new QFile(@cFileName)
-            @oQFileInfo = new QFileInfo(@cFileName)
         ok
         return bResult
     
@@ -1945,9 +1950,9 @@ class stzFileManager from stzObject
         nTotalLines = len(aLines)
         nFileCount = ceil(nTotalLines / nLinesPerFile)
         
-        cBaseName = @oQFileInfo.completeBaseName()
-        cSuffix = @oQFileInfo.suffix()
-        cDirPath = @oQFileInfo.dir().path()
+        cBaseName = _FileCompleteBaseName(@cFileName)
+        cSuffix = _FileExtension(@cFileName)
+        cDirPath = _FileDirPath(@cFileName)
         
         aCreatedFiles = []
         
@@ -1981,9 +1986,9 @@ class stzFileManager from stzObject
         nTotalSize = len(cContent)
         nFileCount = ceil(nTotalSize / nBytesPerFile)
         
-        cBaseName = @oQFileInfo.completeBaseName()
-        cSuffix = @oQFileInfo.suffix()
-        cDirPath = @oQFileInfo.dir().path()
+        cBaseName = _FileCompleteBaseName(@cFileName)
+        cSuffix = _FileExtension(@cFileName)
+        cDirPath = _FileDirPath(@cFileName)
         
         aCreatedFiles = []
         
@@ -2014,9 +2019,9 @@ class stzFileManager from stzObject
         aLines = oReader.Lines()
         oReader.Close()
         
-        cBaseName = @oQFileInfo.completeBaseName()
-        cSuffix = @oQFileInfo.suffix()
-        cDirPath = @oQFileInfo.dir().path()
+        cBaseName = _FileCompleteBaseName(@cFileName)
+        cSuffix = _FileExtension(@cFileName)
+        cDirPath = _FileDirPath(@cFileName)
         
         aCreatedFiles = []
         aCurrentChunk = []
@@ -2119,12 +2124,12 @@ class stzFileManager from stzObject
     def ZipBackup(cZipFileName)
         # Create zip backup with timestamp
         if cZipFileName = ""
-            cBaseName = @oQFileInfo.completeBaseName()
+            cBaseName = _FileCompleteBaseName(@cFileName)
             cTimeStamp = TimeStamp()
             cZipFileName = cBaseName + "_backup_" + cTimeStamp + ".zip"
         ok
         
-        cDirPath = @oQFileInfo.dir().path()
+        cDirPath = _FileDirPath(@cFileName)
         cFullZipPath = cDirPath + "/" + cZipFileName
         
         return This.ZipAs(cFullZipPath)
@@ -2136,30 +2141,30 @@ class stzFileManager from stzObject
     # BACKUP OPERATIONS
 
     def CreateBackup()
-        cBaseName = @oQFileInfo.completeBaseName()
-        cSuffix = @oQFileInfo.suffix()
-        cDirPath = @oQFileInfo.dir().path()
+        cBaseName = _FileCompleteBaseName(@cFileName)
+        cSuffix = _FileExtension(@cFileName)
+        cDirPath = _FileDirPath(@cFileName)
         
         cTimeStamp = TimeStamp()
         cBackupName = cBaseName + "_backup_" + cTimeStamp + "." + cSuffix
         cBackupPath = cDirPath + "/" + cBackupName
         
-        bResult = @oQFile.copy(cBackupPath)
+        bResult = StzEngineFileCopy(@cFileName, cBackupPath)
         if bResult
             return cBackupPath
         else
             return ""
         ok
-    
+
         def CreateBackupQ()
             This.CreateBackup()
             return This
-    
+
     def CreateBackupAs(cBackupName)
-        cDirPath = @oQFileInfo.dir().path()
+        cDirPath = _FileDirPath(@cFileName)
         cBackupPath = cDirPath + "/" + cBackupName
-        
-        bResult = @oQFile.copy(cBackupPath)
+
+        bResult = StzEngineFileCopy(@cFileName, cBackupPath)
         if bResult
             return cBackupPath
         else
@@ -2173,7 +2178,7 @@ class stzFileManager from stzObject
     # DELETE OPERATIONS
 
     def Delete()
-        return @oQFile.remove()
+        return StzEngineFileDelete(@cFileName)
     
         def DeleteQ()
             This.Delete()
@@ -2188,7 +2193,7 @@ class stzFileManager from stzObject
     def SafeDelete()
         cBackupPath = This.CreateBackup()
         if cBackupPath != ""
-            return @oQFile.remove()
+            return StzEngineFileDelete(@cFileName)
         else
             StzRaise("Cannot create backup before deletion")
         ok
@@ -2206,22 +2211,37 @@ class stzFileManager from stzObject
     # PERMISSION OPERATIONS
 
     def MakeReadOnly()
-        return @oQFile.setPermissions(QFile_ReadOwner | QFile_ReadGroup | QFile_ReadOther)
-    
+        if isWindows()
+            system("attrib +R " + '"' + @cFileName + '"')
+        else
+            system("chmod a-w " + '"' + @cFileName + '"')
+        ok
+        return 1
+
         def MakeReadOnlyQ()
             This.MakeReadOnly()
             return This
-    
+
     def MakeWritable()
-        return @oQFile.setPermissions(QFile_ReadOwner | QFile_WriteOwner | QFile_ReadGroup | QFile_ReadOther)
-    
+        if isWindows()
+            system("attrib -R " + '"' + @cFileName + '"')
+        else
+            system("chmod u+w " + '"' + @cFileName + '"')
+        ok
+        return 1
+
         def MakeWritableQ()
             This.MakeWritable()
             return This
-    
+
     def MakeExecutable()
-        return @oQFile.setPermissions(QFile_ReadOwner | QFile_WriteOwner | QFile_ExeOwner | QFile_ReadGroup | QFile_ReadOther)
-    
+        if isWindows()
+            return 1
+        else
+            system("chmod u+x " + '"' + @cFileName + '"')
+        ok
+        return 1
+
         def MakeExecutableQ()
             This.MakeExecutable()
             return This
@@ -2236,23 +2256,34 @@ class stzFileManager from stzObject
         return @cFileName
     
     def Size()
-        return @oQFileInfo.size()
-    
+        return StzEngineFileSize(@cFileName)
+
     def Exists()
-        return @oQFileInfo.exists()
+        return fexists(@cFileName)
 
     def IsReadOnly()
-        return not @oQFileInfo.isWritable()
-    
+        return not This.IsWritable()
+
     def IsWritable()
-        return @oQFileInfo.isWritable()
-    
+        try
+            fp = fopen(@cFileName, "a")
+            if fp != NULL
+                fclose(fp)
+                return TRUE
+            ok
+        catch
+        done
+        return FALSE
+
     def IsExecutable()
-        return @oQFileInfo.isExecutable()
-    
+        cExt = lower(_FileExtension(@cFileName))
+        if isWindows()
+            return cExt = "exe" or cExt = "bat" or cExt = "cmd" or cExt = "com"
+        ok
+        return FALSE
+
     def LastModified()
-        return @oQFileInfo.lastModified().toString("dd/MM/yyyy hh:mm:ss")
-    
+        return ""
+
     def Close()
-		@oQFile.close()
         return 1
