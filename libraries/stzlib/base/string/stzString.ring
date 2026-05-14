@@ -3448,13 +3448,12 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
-		QStringContent = new QString2()
-		QStringContent.append(cContent)
+
 
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
+				cSubStr = substr(cContent, i, (j - i + 1))
 
 				if pCaseSensitive = 1
 					acResult + cSubStr
@@ -3534,12 +3533,11 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
-		QStringContent = new QString2()
-		QStringContent.append(cContent)
+
 
 		for i = 1 to nLen
 			for j = i to nLen
-				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
+				cSubStr = substr(cContent, i, (j - i + 1))
 	
 				if ring_find(acResult, cSubStr) = 0
 					acResult + cSubStr
@@ -3656,13 +3654,12 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
-		QStringContent = new QString2()
-		QStringContent.append(cContent)
+
 
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
+				cSubStr = substr(cContent, i, (j - i + 1))
 				if pCaseSensitive = 1
 					if ring_find(anResult, i) = 0
 						anResult + i
@@ -3845,13 +3842,12 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
-		QStringContent = new QString2()
-		QStringContent.append(cContent)
+
 
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
+				cSubStr = substr(cContent, i, (j - i + 1))
 				if pCaseSensitive = 1
 					aResult + [ i, j ]
 					acSubStr + cSubStr
@@ -4369,13 +4365,12 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
-		QStringContent = new QString2()
-		QStringContent.append(cContent)
+
 
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
+				cSubStr = substr(cContent, i, (j - i + 1))
 				nPos = ring_find(acSubStr, cSubStr)
 				if nPos = 0
 					aResult + [ cSubStr, [ i ] ]
@@ -4547,13 +4542,12 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
-		QStringContent = new QString2()
-		QStringContent.append(cContent)
+
 
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
+				cSubStr = substr(cContent, i, (j - i + 1))
 				nPos = ring_find(acSubStr, cSubStr)
 
 				if nPos = 0
@@ -4728,14 +4722,13 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
-		QStringContent = new QString2()
-		QStringContent.append(cContent)
+
 
 
 		for i = 1 to nLen
 			for j = i to nLen
 				if n = j-i+1
-					cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
+					cSubStr = substr(cContent, i, (j - i + 1))
 					acResult + cSubStr
 				ok
 			next
@@ -4782,13 +4775,12 @@ class stzString from stzObject
 			cContent = ring_lower(cContent)
 		ok
 
-		QStringContent = new QString2()
-		QStringContent.append(cContent)
+
 
 		for i = 1 to nLen
 			for j = i to nLen
 				if n = j-i+1
-					cSubStr = QStringContent.mid( (i - 1) , (j - i + 1) )
+					cSubStr = substr(cContent, i, (j - i + 1))
 				
 					if ring_find(acResult, cSubStr) = 0
 						acResult + cSubStr
