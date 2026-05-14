@@ -336,43 +336,43 @@ Dotless LETTERS
 	# Unicode categories
 
 	_aUnicodeCategoriesXT = [
-		// Spacing mark
-		[ "0", :Mark_NonSpacing ],
-		[ "1", :Mark_SpacingCombining ],
-		[ "2", :Mark_Enclosing ],
-	
-		[ "3", :Number_DecimalDigit ],
-		[ "4", :Number_Letter ],
-		[ "5", :Number_Other ], # ***
-	
-		[ "6", :Separator_Space	],
-		[ "7", :Separator_Line ],
-		[ "8", :Separator_Paragraph ],
-	
-		[ "14", :Letter_Uppercase ],
-		[ "15", :Letter_Lowercase ],
-		[ "16", :Letter_Titlecase ],
-		[ "17", :Letter_Modifier ], # ***
-		[ "18", :Letter_Other ],
-	
-		[ "19", :Punctuation_Connector ], # ***
-		[ "20", :Punctuation_Dash ],
-		[ "21", :Punctuation_Open ],
-		[ "22", :Punctuation_Close ],
-		[ "23", :Punctuation_InitialQuote ],
-		[ "24", :Punctuation_FinalQuote ],
-		[ "25", :Punctuation_Other ],
-	
-		[ "26", :Symbol_Math ],
-		[ "27", :Symbol_Currency ],
-		[ "28", :Symbol_Modifier ],
-		[ "29", :Symbol_Other ],
-	
-		[ "9", :Other_Control ],
-		[ "10", :Other_Format ],
-		[ "11", :Other_Surrogate ], # ***
-		[ "12", :Other_PrivateUse ],
-		[ "13", :Other_NotAssigned ]
+		# utf8proc category numbering (matches Zig engine)
+		[ "1", :Letter_Uppercase ],
+		[ "2", :Letter_Lowercase ],
+		[ "3", :Letter_Titlecase ],
+		[ "4", :Letter_Modifier ],
+		[ "5", :Letter_Other ],
+
+		[ "6", :Mark_NonSpacing ],
+		[ "7", :Mark_SpacingCombining ],
+		[ "8", :Mark_Enclosing ],
+
+		[ "9", :Number_DecimalDigit ],
+		[ "10", :Number_Letter ],
+		[ "11", :Number_Other ],
+
+		[ "12", :Punctuation_Connector ],
+		[ "13", :Punctuation_Dash ],
+		[ "14", :Punctuation_Open ],
+		[ "15", :Punctuation_Close ],
+		[ "16", :Punctuation_InitialQuote ],
+		[ "17", :Punctuation_FinalQuote ],
+		[ "18", :Punctuation_Other ],
+
+		[ "19", :Symbol_Math ],
+		[ "20", :Symbol_Currency ],
+		[ "21", :Symbol_Modifier ],
+		[ "22", :Symbol_Other ],
+
+		[ "23", :Separator_Space ],
+		[ "24", :Separator_Line ],
+		[ "25", :Separator_Paragraph ],
+
+		[ "26", :Other_Control ],
+		[ "27", :Other_Format ],
+		[ "28", :Other_Surrogate ],
+		[ "29", :Other_PrivateUse ],
+		[ "0", :Other_NotAssigned ]
 	]
 	
 	# Unicode versions
