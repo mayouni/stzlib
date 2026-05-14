@@ -6,11 +6,11 @@
 # Function prefix: StzEngine*
 
 if isWindows()
-    $cStzUnicodeLib = currentdir() + "/zig-out/bin/stz_unicode.dll"
+    $cStzUnicodeLib = $cEngineDir + "/zig-out/bin/stz_unicode.dll"
 but isLinux()
-    $cStzUnicodeLib = currentdir() + "/zig-out/lib/libstz_unicode.so"
+    $cStzUnicodeLib = $cEngineDir + "/zig-out/lib/libstz_unicode.so"
 but isMacOS()
-    $cStzUnicodeLib = currentdir() + "/zig-out/lib/libstz_unicode.dylib"
+    $cStzUnicodeLib = $cEngineDir + "/zig-out/lib/libstz_unicode.dylib"
 ok
 
 if fexists($cStzUnicodeLib)

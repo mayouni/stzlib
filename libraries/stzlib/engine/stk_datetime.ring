@@ -5,11 +5,11 @@
 # Function prefix: StkEngine* (distinct from Base StzEngine*)
 
 if isWindows()
-    $cStkDateTimeLib = currentdir() + "/zig-out/bin/stk_datetime.dll"
+    $cStkDateTimeLib = $cEngineDir + "/zig-out/bin/stk_datetime.dll"
 but isLinux()
-    $cStkDateTimeLib = currentdir() + "/zig-out/lib/libstk_datetime.so"
+    $cStkDateTimeLib = $cEngineDir + "/zig-out/lib/libstk_datetime.so"
 but isMacOS()
-    $cStkDateTimeLib = currentdir() + "/zig-out/lib/libstk_datetime.dylib"
+    $cStkDateTimeLib = $cEngineDir + "/zig-out/lib/libstk_datetime.dylib"
 ok
 
 if fexists($cStkDateTimeLib)

@@ -5,11 +5,11 @@
 # Function prefix: StzEngine*
 
 if isWindows()
-    $cStzUrlLib = currentdir() + "/zig-out/bin/stz_url.dll"
+    $cStzUrlLib = $cEngineDir + "/zig-out/bin/stz_url.dll"
 but isLinux()
-    $cStzUrlLib = currentdir() + "/zig-out/lib/libstz_url.so"
+    $cStzUrlLib = $cEngineDir + "/zig-out/lib/libstz_url.so"
 but isMacOS()
-    $cStzUrlLib = currentdir() + "/zig-out/lib/libstz_url.dylib"
+    $cStzUrlLib = $cEngineDir + "/zig-out/lib/libstz_url.dylib"
 ok
 
 if fexists($cStzUrlLib)

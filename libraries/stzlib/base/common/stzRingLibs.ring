@@ -4,11 +4,7 @@
 
 # Load Base Engine bridges (stz_* DLLs -- superset of Core stk_* DLLs)
 
-$cEnginePath = exefolder() + "/../libraries/stzlib/engine"
-
-chdir($cEnginePath)
-load "stz_string.ring"
-load "stz_datetime.ring"
-load "stz_file.ring"
-load "stz_locale.ring"
-chdir(exefolder())
+load "../../engine/stz_string.ring"
+load "../../engine/stz_datetime.ring"
+load "../../engine/stz_file.ring"
+load "../../engine/stz_locale.ring"

@@ -203,6 +203,92 @@ pub fn stz_string_count_of(handle: StzStringHandle, needle: [*c]const u8, needle
     return 0;
 }
 
+pub fn stz_string_replace_range(handle: StzStringHandle, start: usize, range: usize, new: [*c]const u8, new_len: usize) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const hay = s.slice();
+        const end = @min(start + range, hay.len);
+        const result_len = start + new_len + (hay.len - end);
+        const out = gpa.create(StzString) catch return null;
+        out.* = StzString.init();
+        out.data.ensureTotalCapacity(gpa, result_len) catch {
+            out.deinit();
+            gpa.destroy(out);
+            return null;
+        };
+        out.data.appendSlice(gpa, hay[0..start]) catch unreachable;
+        if (new != null and new_len > 0) {
+            out.data.appendSlice(gpa, new[0..new_len]) catch unreachable;
+        }
+        if (end < hay.len) {
+            out.data.appendSlice(gpa, hay[end..]) catch unreachable;
+        }
+        return out;
+    }
+    return null;
+}
+
+pub fn stz_string_split_count(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) c_int {
+    if (handle) |s| {
+        if (sep == null or sep_len == 0) return 1;
+        const hay = s.slice();
+        const d = sep[0..sep_len];
+        var count: c_int = 1;
+        var pos: usize = 0;
+        while (pos + d.len <= hay.len) {
+            if (mem.eql(u8, hay[pos..][0..d.len], d)) {
+                count += 1;
+                pos += d.len;
+            } else {
+                pos += 1;
+            }
+        }
+        return count;
+    }
+    return 0;
+}
+
+pub fn stz_string_split_get(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize, index: c_int) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        if (sep == null or sep_len == 0 or index < 0) return null;
+        const hay = s.slice();
+        const d = sep[0..sep_len];
+        const target: usize = @intCast(index);
+        var part: usize = 0;
+        var start: usize = 0;
+        var pos: usize = 0;
+        while (pos + d.len <= hay.len) {
+            if (mem.eql(u8, hay[pos..][0..d.len], d)) {
+                if (part == target) {
+                    const out = gpa.create(StzString) catch return null;
+                    out.* = StzString.init();
+                    out.data.appendSlice(gpa, hay[start..pos]) catch {
+                        out.deinit();
+                        gpa.destroy(out);
+                        return null;
+                    };
+                    return out;
+                }
+                part += 1;
+                pos += d.len;
+                start = pos;
+            } else {
+                pos += 1;
+            }
+        }
+        if (part == target) {
+            const out = gpa.create(StzString) catch return null;
+            out.* = StzString.init();
+            out.data.appendSlice(gpa, hay[start..]) catch {
+                out.deinit();
+                gpa.destroy(out);
+                return null;
+            };
+            return out;
+        }
+    }
+    return null;
+}
+
 fn toLowerAscii(c: u8) u8 {
     return if (c >= 'A' and c <= 'Z') c + 32 else c;
 }
@@ -612,5 +698,45 @@ test "string byte_to_cp" {
     try std.testing.expectEqual(@as(i64, 1), stz_string_byte_to_cp(s, 1));
     try std.testing.expectEqual(@as(i64, 2), stz_string_byte_to_cp(s, 2));
     try std.testing.expectEqual(@as(i64, 3), stz_string_byte_to_cp(s, 3));
+    stz_string_free(s);
+}
+
+test "string replace_range" {
+    const s = stz_string_from("Hello World", 11);
+    const r = stz_string_replace_range(s, 5, 1, "_beautiful_", 11);
+    try std.testing.expectEqual(@as(usize, 21), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..21], "Hello_beautiful_World"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "string replace_range at edges" {
+    const s = stz_string_from("abc", 3);
+    const r1 = stz_string_replace_range(s, 0, 1, "X", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..3], "Xbc"));
+    stz_string_free(r1);
+    const r2 = stz_string_replace_range(s, 2, 1, "Z", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..3], "abZ"));
+    stz_string_free(r2);
+    stz_string_free(s);
+}
+
+test "string split_count" {
+    const s = stz_string_from("a:b:c", 5);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_split_count(s, ":", 1));
+    stz_string_free(s);
+}
+
+test "string split_get" {
+    const s = stz_string_from("one::two::three", 15);
+    const p0 = stz_string_split_get(s, "::", 2, 0);
+    try std.testing.expect(mem.eql(u8, stz_string_data(p0)[0..stz_string_size(p0)], "one"));
+    stz_string_free(p0);
+    const p1 = stz_string_split_get(s, "::", 2, 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(p1)[0..stz_string_size(p1)], "two"));
+    stz_string_free(p1);
+    const p2 = stz_string_split_get(s, "::", 2, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(p2)[0..stz_string_size(p2)], "three"));
+    stz_string_free(p2);
     stz_string_free(s);
 }

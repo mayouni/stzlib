@@ -5,11 +5,11 @@
 # Function prefix: StzEngine*
 
 if isWindows()
-    $cStzRegexLib = currentdir() + "/zig-out/bin/stz_regex.dll"
+    $cStzRegexLib = $cEngineDir + "/zig-out/bin/stz_regex.dll"
 but isLinux()
-    $cStzRegexLib = currentdir() + "/zig-out/lib/libstz_regex.so"
+    $cStzRegexLib = $cEngineDir + "/zig-out/lib/libstz_regex.so"
 but isMacOS()
-    $cStzRegexLib = currentdir() + "/zig-out/lib/libstz_regex.dylib"
+    $cStzRegexLib = $cEngineDir + "/zig-out/lib/libstz_regex.dylib"
 ok
 
 if fexists($cStzRegexLib)
