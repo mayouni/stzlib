@@ -192,15 +192,25 @@ func FolderCreateIfInexistant(cFolderPath)
 		FolderCreateIfInexistant(cFolderPath)
 
 func RemoveFolderRecursive(cPath)
-	_oQDir_ = new QDir(cPath)
-	return _oQDir_.removeRecursively()
+	aItems = dir(cPath)
+	nLen = len(aItems)
+	for i = 1 to nLen
+		cName = aItems[i][1]
+		if cName = "." or cName = ".." loop ok
+		cFull = cPath + "/" + cName
+		if aItems[i][2] = 0
+			StzEngineFileDelete(cFull)
+		else
+			RemoveFolderRecursive(cFull)
+		ok
+	next
+	return StzEngineDirDelete(cPath)
 
 	RemoveFolderXT(cPath)
 		return This.RemoveFolderRecursive()
 
 func QMkdir(cPath) #TODO //Hormonize with CreateFolder!!!
-	_oQDir_ = new QDir()
-	return _oQDir_.mkpath(cPath)
+	return StzEngineDirCreatePath(cPath)
 
 	func mkdir(cPath)
 		return QMkdir(cPath)
@@ -266,13 +276,83 @@ func NormalizeFolderPathXT(cName)
 	func NormaliseFolderPathXT(cName)
 		return NormalizeFolderPathXT(cName)
 
+#--------------------------#
+#  PURE RING PATH HELPERS  #
+#--------------------------#
+
+func _CleanPath(cPath)
+	cPath = substr(cPath, "\", "/")
+	while substr(cPath, "//") > 0
+		cPath = substr(cPath, "//", "/")
+	end
+	if len(cPath) > 1 and right(cPath, 1) = "/"
+		cPath = left(cPath, len(cPath) - 1)
+	ok
+	return cPath
+
+func _AbsolutePath(cPath)
+	cPath = _CleanPath(cPath)
+	if _IsAbsolutePath(cPath)
+		return cPath
+	ok
+	return _CleanPath(currentDir() + "/" + cPath)
+
+func _IsAbsolutePath(cPath)
+	if len(cPath) = 0 return FALSE ok
+	if left(cPath, 1) = "/" return TRUE ok
+	if len(cPath) >= 2 and isalpha(left(cPath, 1)) and substr(cPath, 2, 1) = ":"
+		return TRUE
+	ok
+	return FALSE
+
+func _IsRootPath(cPath)
+	cPath = _CleanPath(cPath)
+	if cPath = "/" return TRUE ok
+	if len(cPath) = 2 and isalpha(left(cPath, 1)) and right(cPath, 1) = ":"
+		return TRUE
+	ok
+	if len(cPath) = 3 and isalpha(left(cPath, 1)) and substr(cPath, 2, 1) = ":" and right(cPath, 1) = "/"
+		return TRUE
+	ok
+	return FALSE
+
+func _DirName(cPath)
+	cPath = _CleanPath(cPath)
+	nPos = 0
+	for i = len(cPath) to 1 step -1
+		if cPath[i] = "/"
+			nPos = i
+			exit
+		ok
+	next
+	if nPos > 0
+		return substr(cPath, nPos + 1)
+	ok
+	return cPath
+
+func _ParentPath(cPath)
+	cPath = _CleanPath(cPath)
+	nPos = 0
+	for i = len(cPath) to 1 step -1
+		if cPath[i] = "/"
+			nPos = i
+			exit
+		ok
+	next
+	if nPos > 1
+		return left(cPath, nPos - 1)
+	ok
+	if nPos = 1
+		return "/"
+	ok
+	return cPath
+
 #-------------#
 #  THE CLASS  #
 #-------------#
 
 class stzFolder from stzObject
 
-	@oQDir
 	@cOriginalPath
 	@cCurrentPath
 	@acPathHistory = []
@@ -318,39 +398,28 @@ class stzFolder from stzObject
 	#== Initialization ==#
 
 	def init(pcDirPath)
-	
+
 		if CheckParams() and NOT isString(pcDirPath)
 			StzRaise("Incorrect param type! pcDirPath must be a string.")
 		ok
-	
-		# Initialize core attributes
+
 		@acPathHistory = []
-		@oQDir = new QDir()
-		
-		# Determine target path - let Qt handle the heavy lifting
+
 		cPath = ""
-		if pcDirPath = pcDirPath = ""
-			cPath = QDir_currentPath()  # Get actual current directory path
+		if pcDirPath = "" or pcDirPath = NULL
+			cPath = currentDir()
 		else
-			cPath = QDir_cleanPath(NULL, pcDirPath)
+			cPath = _CleanPath(pcDirPath)
 		ok
-		
-		# Create directory if it doesn't exist
+
 		if NOT dirExists(cPath)
-			if NOT @oQDir.mkpath(cPath)  # Qt's static method - more reliable
+			if NOT StzEngineDirCreatePath(cPath)
 				StzRaise("Cannot create directory: " + cPath)
 			ok
 		ok
-		
-		# Set up all paths - let Qt resolve to absolute canonical path
-		@oQDir.setPath(cPath)
-		@cOriginalPath = @oQDir.absolutePath()  # Qt gives us the canonical absolute path
+
+		@cOriginalPath = _AbsolutePath(cPath)
 		@cCurrentPath = @cOriginalPath
-		
-		# Final accessibility check
-		if NOT @oQDir.isReadable()
-			StzRaise("Directory is not accessible: " + @cCurrentPath)
-		ok
 
 	#===============================#
 	#  FILE AND FOLDER VALIDATION   #
@@ -365,7 +434,8 @@ class stzFolder from stzObject
 			return This.Seprator()
 
 	def SystemSeparator()
-		return Char(@oQDir.separator().unicode())
+		if isWindows() return "\" ok
+		return "/"
 	
 		def PathSeparator()
 			return This.Separator()
@@ -384,49 +454,26 @@ class stzFolder from stzObject
 	        raise("Incorrect param type! cPath must be non-empty a string.")
 	    ok
 	
-		# Get the absolute path of the main folder
-		cMainPath = @oQDir.absolutePath()
-		
-		# Create a temporary QDir object for the provided path
-		oTempDir = new QDir
-		oTempDir.setPath(cPath)
-		
-		# Get the absolute path of the provided path
-		cAbsolutePath = oTempDir.absolutePath()
-		
-		# Clean both paths to normalize separators and remove redundant elements
-		cMainPath = @oQDir.cleanPath(cMainPath)
-		cAbsolutePath = @oQDir.cleanPath(cAbsolutePath)
-		
-		# Ensure paths end with separator for proper comparison
-		cSeparator = Char(@oQDir.separator().unicode())
-	
-		if right(cMainPath, 1) != cSeparator
-			cMainPath += cSeparator
+		cMainPath = _CleanPath(@cCurrentPath)
+		cAbsolutePath = _CleanPath(_AbsolutePath(cPath))
+
+		if right(cMainPath, 1) != "/"
+			cMainPath += "/"
 		ok
-		if right(cAbsolutePath, 1) != cSeparator
-			cAbsolutePath += cSeparator
+		if right(cAbsolutePath, 1) != "/"
+			cAbsolutePath += "/"
 		ok
-		
-		# Check if the absolute path starts with the main path
-	
+
 		nMainPathLen = Len(cMainPath)
-	
+
 		if Len(cAbsolutePath) >= nMainPathLen
-	
 			if Left(cAbsolutePath, nMainPathLen) = cMainPath
-	
-				# Additional check: ensure it's not the same path
 				if cAbsolutePath != cMainPath
 					return True
 				ok
-	
 			ok
 		ok
-		
-		# Clean up temporary object
-		oTempDir.delete()
-		
+
 		return False
 	
 		def IsPathInside(cPath)
@@ -697,7 +744,7 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-	    cResult = "/" + lower(@oQDir.cleanPath(trim(cName)))
+	    cResult = "/" + lower(_CleanPath(trim(cName)))
 		cResult = substr(cResult, "//", "/")
 		return cResult
 
@@ -711,18 +758,15 @@ class stzFolder from stzObject
 			ok
 		ok
 	    
-	    cBasePath = @oQDir.absolutePath()
-	    cCleanName = @oQDir.cleanPath(trim(cName))
+	    cBasePath = @cCurrentPath
+	    cCleanName = _CleanPath(trim(cName))
 	    
 	    # If not absolute, make it relative to base path
-	    if NOT @oQDir.isAbsolutePath(cCleanName)
-	        oTempDir = new QDir
-	        oTempDir.setPath(cBasePath)
-	        cCleanName = oTempDir.absoluteFilePath(cCleanName)
-	        oTempDir.delete()
+	    if NOT _IsAbsolutePath(cCleanName)
+	        cCleanName = _CleanPath(cBasePath + "/" + cCleanName)
 	    ok
 	    
-	    cResult = lower(@oQDir.cleanPath(cCleanName))
+	    cResult = lower(_CleanPath(cCleanName))
 		cSeparator = This.Separator()
 		if right(cResult, 1) != cSeparator
 			cResult += cSeparator
@@ -854,7 +898,7 @@ class stzFolder from stzObject
 	    if nLastSep > 0
 	        return left(cNormalizedPath, nLastSep - 1)
 	    else
-	        return @oQDir.path()
+	        return @cCurrentPath
 	    ok
 	
 
@@ -974,25 +1018,25 @@ class stzFolder from stzObject
 	#======================#
 
 	def Name()
-		return lower(@oQDir.dirName())
+		return lower(_DirName(@cCurrentPath))
 
 	def Path()
-		return lower(@oQDir.path())
+		return lower(@cCurrentPath)
 
 	def AbsolutePath()
-		return lower(@oQDir.absolutePath())
+		return lower(@cCurrentPath)
 
 		def FullPath()
 			return This.AbsolutePath()
 
 	def IsReadable()
-		return @oQDir.isReadable()
+		return dirExists(@cCurrentPath)
 
 	def IsRoot()
-		return @oQDir.isRoot()
+		return _IsRootPath(@cCurrentPath)
 
 	def IsAbsolute()
-		return @oQDir.isAbsolute()
+		return _IsAbsolutePath(@cCurrentPath)
 
 	def Root()
 		return @cOriginalPath
@@ -1060,14 +1104,14 @@ class stzFolder from stzObject
 
 	def FilesXT()
 
-		_aList_ = @dir(@oQDir.path())
+		_aList_ = @dir(@cCurrentPath)
 		aResult = []
 
 		nLen = len(_aList_)
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 0
-				aResult + (@oQDir.path() + This.Separator() + lower(_aList_[i][1]))
+				aResult + (@cCurrentPath + This.Separator() + lower(_aList_[i][1]))
 			end
 		next
 
@@ -1075,14 +1119,14 @@ class stzFolder from stzObject
 	
 	def FoldersXT()
 
-		_aList_ = @dir(@oQDir.path())
+		_aList_ = @dir(@cCurrentPath)
 		aResult = []
 
 		nLen = len(_aList_)
 
 		for i = 1 to nLen
 			if _aList_[i][2] = 1 and _aList_[i][1] != "." and _aList_[i][1] != ".."
-				aResult + (@oQDir.path() + This.Separator() + lower(_aList_[i][1]) + This.Separator())
+				aResult + (@cCurrentPath + This.Separator() + lower(_aList_[i][1]) + This.Separator())
 			end
 		next
 
@@ -1090,7 +1134,7 @@ class stzFolder from stzObject
 
 	def Files()
 
-		_aList_ = @dir(@oQDir.path())
+		_aList_ = @dir(@cCurrentPath)
 		aResult = []
 
 		nLen = len(_aList_)
@@ -1105,7 +1149,7 @@ class stzFolder from stzObject
 
 	def Folders()
 
-		_aList_ = @dir(@oQDir.path())
+		_aList_ = @dir(@cCurrentPath)
 		aResult = []
 
 		nLen = len(_aList_)
@@ -1293,8 +1337,8 @@ class stzFolder from stzObject
 	def DeepFiles() # With simplified paths
 
 		aResult = []
-		aToProcess = [@oQDir.path()]
-		cBasePath = @oQDir.path()
+		aToProcess = [@cCurrentPath]
+		cBasePath = @cCurrentPath
 		
 		while len(aToProcess) > 0
 
@@ -1331,8 +1375,8 @@ class stzFolder from stzObject
 	def DeepFolders() # With simplified paths
 
 		aResult = []
-		aToProcess = [@oQDir.path()]
-		cBasePath = @oQDir.path()
+		aToProcess = [@cCurrentPath]
+		cBasePath = @cCurrentPath
 		
 		while len(aToProcess) > 0
 
@@ -1366,7 +1410,7 @@ class stzFolder from stzObject
 	def DeepFilesXT() # With complete long paths
 
 		aResult = []
-		aToProcess = [@oQDir.path()]
+		aToProcess = [@cCurrentPath]
 		
 		while len(aToProcess) > 0
 
@@ -1396,7 +1440,7 @@ class stzFolder from stzObject
 	def DeepFoldersXT() # With complete long paths
 
 		aResult = []
-		aToProcess = [@oQDir.path()]
+		aToProcess = [@cCurrentPath]
 		
 		while len(aToProcess) > 0
 
@@ -1795,7 +1839,6 @@ class stzFolder from stzObject
 		# Save current path to history before changing
 		@acPathHistory + @cCurrentPath
 		
-		@oQDir.setPath(cFullPath)
 		@cCurrentPath = cFullPath
 		
 		return TRUE
@@ -1814,8 +1857,7 @@ class stzFolder from stzObject
 		# Save current path before going up
 		@acPathHistory + @cCurrentPath
 		
-		@oQDir.cdUp()
-		@cCurrentPath = @oQDir.absolutePath()  # Update current path
+		@cCurrentPath = _ParentPath(@cCurrentPath)
 	
 		return TRUE
 
@@ -1829,7 +1871,6 @@ class stzFolder from stzObject
 		# Save current path before going home
 		@acPathHistory + @cCurrentPath
 		
-		@oQDir.setPath(@cOriginalPath)
 		@cCurrentPath = @cOriginalPath
 		
 		return TRUE
@@ -1851,7 +1892,6 @@ class stzFolder from stzObject
 		cPreviousPath = @acPathHistory[len(@acPathHistory)]
 		del(@acPathHistory, len(@acPathHistory))  # Remove last item
 		
-		@oQDir.setPath(cPreviousPath)
 		@cCurrentPath = cPreviousPath
 		
 		return TRUE
@@ -1916,7 +1956,7 @@ class stzFolder from stzObject
 	    end
 	
 	    # Resolve relative paths against current position
-	    if not @oQDir.isAbsolutePath(pcPath)
+	    if not _IsAbsolutePath(pcPath)
 	        pcPath = This.CurrentPath() + pcPath
 	    ok
 	
@@ -1927,7 +1967,7 @@ class stzFolder from stzObject
 	    ok
 	
 	    # Create the folder first
-	    bResult = @oQDir.mkpath(cPath)
+	    bResult = StzEngineDirCreatePath(cPath)
 	
 	    # Then navigate there (intelligent navigation)
 	    if not this.IsBatchMode()
@@ -1949,7 +1989,7 @@ class stzFolder from stzObject
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not @oQDir.isAbsolutePath(cFolder)
+	    if not _IsAbsolutePath(cFolder)
 	        cFolder = This.CurrentPath() + cFolder
 	    ok
 	
@@ -1964,7 +2004,7 @@ class stzFolder from stzObject
 	    ok
 	
 	    # Delete the folder first
-	    bResult = @oQDir.removeRecursively(cFolder)
+	    bResult = RemoveFolderRecursive(cFolder)
 	    
 	    # Then navigate to parent folder (intelligent navigation)
 	    if not this.IsBatchMode()
@@ -1993,23 +2033,18 @@ class stzFolder from stzObject
 			nLen = len(acFiles)
 
 	        for i = 1 to nLen
-	            if NOT @oQDir.remove(acFiles[i])
+	            if NOT StzEngineFileDelete(acFiles[i])
 	                raise("Could not remove file '" + acFiles[i] + "'")
 	            ok
 	        next
-	
-	        # Delete all folders
 
 	        acFolders = This.FoldersXT()
 			nLen = len(acFolders)
 
 	        for i = 1 to nLen
-	            oSubDir = new QDir()
-	            oSubDir.setPath(acFolders[i])
-	            if NOT oSubDir.removeRecursively()
+	            if NOT RemoveFolderRecursive(acFolders[i])
 	                raise("Could not remove subfolder '" + acFolders[i] + "'")
 	            ok
-	            oSubDir.delete()
 	        next
 	
 			# After clearing everything, go home (natural mental position)
@@ -2058,7 +2093,7 @@ class stzFolder from stzObject
 		nLen = len(acFiles)
 
 	    for i = 1 to nLen
-	        if @oQDir.remove(acFiles[i])
+	        if StzEngineFileDelete(acFiles[i])
 	            nDeleted++
 	        ok
 	    next
@@ -2076,7 +2111,7 @@ class stzFolder from stzObject
 	    nLen = len(acFiles)
 
 	    for i = 1 to nLen
-	        if @oQDir.remove(acFiles[i])
+	        if StzEngineFileDelete(acFiles[i])
 	            nDeleted++
 	        ok
 	    next
@@ -2100,7 +2135,7 @@ class stzFolder from stzObject
 	    nDeleted = 0
 	
 	    for i = 1 to nLen
-	        if @oQDir.remove(acFilePaths[i])
+	        if StzEngineFileDelete(acFilePaths[i])
 	            nDeleted++
 	        ok
 	    next
@@ -2148,17 +2183,12 @@ class stzFolder from stzObject
 		for i = 1 to nLen
 	        cFolderPath = aSortedPaths[i][2]
 
-	        oTempDir = new QDir()
-	        oTempDir.setPath(cFolderPath)
-
-	        if oTempDir.exists_2()  # Check if directory exists
-	            if NOT oTempDir.removeRecursively()  # Qt's safe recursive removal
+	        if dirExists(cFolderPath)
+	            if NOT RemoveFolderRecursive(cFolderPath)
 	                bResult = FALSE
 					exit
 	            ok
 	        ok
-
-	        oTempDir.delete()
 	    next
 		
 		# Stay in current folder - deep operation initiated from here
@@ -2186,7 +2216,7 @@ class stzFolder from stzObject
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not @oQDir.isAbsolutePath(cFile)
+	    if not _IsAbsolutePath(cFile)
 	        cFile = This.CurrentPath() + cFile
 	    ok
 	
@@ -2289,7 +2319,7 @@ class stzFolder from stzObject
 	
 	    # Resolve relative paths against current position
 
-	    if not @oQDir.isAbsolutePath(cFile)
+	    if not _IsAbsolutePath(cFile)
 	        cFile = This.CurrentPath() + cFile
 	    ok
 	
@@ -2328,7 +2358,7 @@ class stzFolder from stzObject
 		
 		    # Resolve relative paths against current position
 	
-		    if not @oQDir.isAbsolutePath(cFile)
+		    if not _IsAbsolutePath(cFile)
 		        cFile = This.CurrentPath() + cFile
 		    ok
 		
@@ -2586,7 +2616,7 @@ class stzFolder from stzObject
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not @oQDir.isAbsolutePath(cFile)
+	    if not _IsAbsolutePath(cFile)
 	        cFile = This.CurrentPath() + cFile
 	    ok
 	
@@ -2630,7 +2660,7 @@ class stzFolder from stzObject
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not @oQDir.isAbsolutePath(cFile)
+	    if not _IsAbsolutePath(cFile)
 	        cFile = This.CurrentPath() + cFile
 	    ok
 	
@@ -2732,10 +2762,10 @@ class stzFolder from stzObject
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not @oQDir.isAbsolutePath(cSourceFile)
+	    if not _IsAbsolutePath(cSourceFile)
 	        cSourceFile = This.CurrentPath() + cSourceFile
 	    ok
-	    if not @oQDir.isAbsolutePath(cDestFile)
+	    if not _IsAbsolutePath(cDestFile)
 	        cDestFile = This.CurrentPath() + cDestFile
 	    ok
 	
@@ -2777,10 +2807,10 @@ class stzFolder from stzObject
 	    ok
 	
 	    # Resolve relative paths against current position
-	    if not @oQDir.isAbsolutePath(cSourceFile)
+	    if not _IsAbsolutePath(cSourceFile)
 	        cSourceFile = This.CurrentPath() + cSourceFile
 	    ok
-	    if not @oQDir.isAbsolutePath(cDestFile)
+	    if not _IsAbsolutePath(cDestFile)
 	        cDestFile = This.CurrentPath() + cDestFile
 	    ok
 	
@@ -3237,7 +3267,7 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param types! Both parameters must be strings.")
 		ok
 		acLineNumbers = []
-		cFullPath = @oQDir.path() + This.Separator() + cFile
+		cFullPath = @cCurrentPath + This.Separator() + cFile
 		if fexists(cFullPath)
 			cFileContent = read(cFullPath)
 			acLines = @split(cFileContent, NL)
@@ -3284,7 +3314,7 @@ class stzFolder from stzObject
 		ok
 
 		acResults = []
-		cFolderPath = @oQDir.path() + This.Separator() + cFolder
+		cFolderPath = @cCurrentPath + This.Separator() + cFolder
 
 		if isdir(cFolderPath)
 
@@ -3611,7 +3641,7 @@ class stzFolder from stzObject
 		if NOT isString(cFile) or NOT isString(cContent) or NOT isString(cNewContent)
 			StzRaise("Incorrect param types! All parameters must be strings.")
 		ok
-		cFullPath = @oQDir.path() + This.Separator() + cFile
+		cFullPath = @cCurrentPath + This.Separator() + cFile
 		if fexists(cFullPath)
 			cFileContent = read(cFullPath)
 			cModifiedContent = substr(cFileContent, cContent, cNewContent)
@@ -3645,7 +3675,7 @@ class stzFolder from stzObject
 		ok
 
 		nModified = 0
-		cFolderPath = @oQDir.path() + This.Separator() + cFolder
+		cFolderPath = @cCurrentPath + This.Separator() + cFolder
 
 		if isdir(cFolderPath)
 			aEntries = @dir(cFolderPath)
@@ -4171,7 +4201,7 @@ class stzFolder from stzObject
 			return This.Copy()
 
 	def Refresh()
-		@oQDir.refresh()
+		# no-op: directory listing is always fresh via @dir()
 		return This
 
 	def GetParentDirectory(cPath)
@@ -4257,23 +4287,16 @@ class stzFolder from stzObject
 
 			case "systemorder"
 
-				oQDirTemp = new QDir()
-				oQDirTemp.setPath(cPath)
-				oQDirTemp.setSorting(0)
-				aQtEntries = oQDirTemp.entryList_2(3, 0)
-
-				nLen = aQtEntries.size() - 1
-				for i = 0 to nlen
-					cEntryName = aQtEntries.at(i)
-
+				aRingEntries = dir(cPath)
+				nLen = len(aRingEntries)
+				for i = 1 to nLen
+					cEntryName = aRingEntries[i][1]
 					if cEntryName != "." and cEntryName != ".."
-
 						cFullPath = cPath + This.Separator() + cEntryName
-
 						if isdir(cFullPath)
-							aItems + [cEntryName, "folder"]
+							aItems + [lower(cEntryName), "folder"]
 						else
-							aItems + [cEntryName, "file"]
+							aItems + [lower(cEntryName), "file"]
 						end
 					end
 				next
@@ -4533,7 +4556,7 @@ class stzFolder from stzObject
 
 		# Get stats for a specific subfolder
 
-		cFolderPath = @oQDir.absolutePath() + This.Separator() + cFolderName
+		cFolderPath = @cCurrentPath + This.Separator() + cFolderName
 		
 		if @cDisplayStatPattern = "@count"
 
@@ -4572,7 +4595,7 @@ class stzFolder from stzObject
 		# Format stats for a specific folder
 
 		cResult = cPattern
-		cFolderPath = @oQDir.absolutePath() + This.Separator() + cFolderName
+		cFolderPath = @cCurrentPath + This.Separator() + cFolderName
 		
 		# Get actual counts for this folder
 
