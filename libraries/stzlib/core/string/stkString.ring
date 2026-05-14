@@ -38,9 +38,12 @@ func StkSplitCS(cStr, cSubStr, bCase)
 	while nPos > 0
 		acResult + substr(cStr, nStart, nPos - nStart)
 		nStart = nPos + nSepLen
-		nPos = substr(cWork, cSep, nStart)
+		cWork = substr(cWork, nStart)
+		cStr = substr(cStr, nStart)
+		nStart = 1
+		nPos = substr(cWork, cSep)
 	end
-	acResult + substr(cStr, nStart)
+	acResult + cStr
 	return acResult
 
 func StkSplit(cStr, cSubStr)
@@ -67,10 +70,7 @@ class stzCoreString from stzCoreObject
 	#--
 
 	def Content()
-		nSize = StkEngineStringSize(@pEngine)
-		if nSize = 0 return "" ok
-		pData = StkEngineStringData(@pEngine)
-		return copy(pData, nSize)
+		return StkEngineStringData(@pEngine)
 
 	def Update(cStr)
 		StkEngineStringFree(@pEngine)
@@ -133,21 +133,25 @@ class stzCoreString from stzCoreObject
 
 	#--
 
-	def FindLastCS(substr, bCase)
-		if substr = ""
+	def FindLastCS(cSub, bCase)
+		if cSub = ""
 			return 0
 		ok
 		cContent = This.Content()
-		cNeedle = substr
+		cNeedle = cSub
 		if bCase = FALSE or bCase = 0
 			cContent = lower(cContent)
-			cNeedle = lower(substr)
+			cNeedle = lower(cSub)
 		ok
 		nResult = 0
-		nPos = substr(cContent, cNeedle)
+		nOffset = 0
+		cWork = cContent
+		nPos = substr(cWork, cNeedle)
 		while nPos > 0
-			nResult = nPos
-			nPos = substr(cContent, cNeedle, nPos + 1)
+			nResult = nOffset + nPos
+			cWork = substr(cWork, nPos + 1)
+			nOffset = nResult
+			nPos = substr(cWork, cNeedle)
 		end
 		return nResult
 
@@ -159,24 +163,28 @@ class stzCoreString from stzCoreObject
 
 	#--
 
-	def FindCS(substr, bCase)
-		if substr = ""
+	def FindCS(cSub, bCase)
+		if cSub = ""
 			return [0]
 		ok
 
 		cContent = This.Content()
-		cNeedle = substr
+		cNeedle = cSub
 		if bCase = FALSE or bCase = 0
 			cContent = lower(cContent)
-			cNeedle = lower(substr)
+			cNeedle = lower(cSub)
 		ok
 
 		nSize = len(cNeedle)
 		anResult = []
-		nPos = substr(cContent, cNeedle)
+		nOffset = 0
+		cWork = cContent
+		nPos = substr(cWork, cNeedle)
 		while nPos > 0
-			anResult + nPos
-			nPos = substr(cContent, cNeedle, nPos + nSize)
+			anResult + (nOffset + nPos)
+			cWork = substr(cWork, nPos + nSize)
+			nOffset += (nPos + nSize - 1)
+			nPos = substr(cWork, cNeedle)
 		end
 		return anResult
 
