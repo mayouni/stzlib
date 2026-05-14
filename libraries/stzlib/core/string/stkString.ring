@@ -332,7 +332,7 @@ class stzCoreString from stzCoreObject
 			while substr(cContent, "  ") > 0
 				cContent = ring_substr2(cContent, "  ", " ")
 			end
-			This.Update(trim(cContent))
+			This.Update(StkTrim(cContent))
 		ok
 
 	#==

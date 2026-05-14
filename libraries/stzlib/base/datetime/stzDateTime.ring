@@ -1887,7 +1887,7 @@ class stzDateTime from stzObject
         oNewDateTime.SetQDateTime([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
         return oNewDateTime
 
-    def SetQDateTime(aComponents)
+    def SetComponents(aComponents)
         if isList(aComponents) and len(aComponents) >= 6
             @nYear = aComponents[1]
             @nMonth = aComponents[2]
@@ -1903,12 +1903,21 @@ class stzDateTime from stzObject
         ok
         return This
 
-    def SetQDateTimeQ(aComponents)
-        This.SetQDateTime(aComponents)
+    def SetComponentsQ(aComponents)
+        This.SetComponents(aComponents)
         return This
 
-    def QDateTimeObject()
+    def SetQDateTime(aComponents)
+        return This.SetComponents(aComponents)
+
+    def SetQDateTimeQ(aComponents)
+        return This.SetComponentsQ(aComponents)
+
+    def Components()
         return [@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs]
+
+    def QDateTimeObject()
+        return This.Components()
 
     def IsValid()
         if @nMonth < 1 or @nMonth > 12

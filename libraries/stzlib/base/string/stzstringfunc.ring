@@ -750,8 +750,23 @@ func StzTrimEnd(cStrOrList)
 
 #--
 
-func StzStringToQString(oStr)
+func _StzSimplifyString(cStr)
+	cStr = StkTrim(cStr)
+	cStr = ring_substr2(cStr, char(9), " ")
+	cStr = ring_substr2(cStr, char(10), " ")
+	cStr = ring_substr2(cStr, char(13), " ")
+	while substr(cStr, "  ") > 0
+		cStr = ring_substr2(cStr, "  ", " ")
+	end
+	return cStr
+
+#--
+
+func StzStringContent(oStr)
 	return oStr.Content()
+
+	func StzStringToQString(oStr)
+		return StzStringContent(oStr)
 	
 func StringIsLocaleAbbreviation(cStr)
 	oStr = new stzString(cStr)
