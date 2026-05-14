@@ -46292,9 +46292,11 @@ fdef
 			return 0
 		ok
 
-		_oQStr_ = new QString2()
-		_oQStr_.append(_cList_)
-		_bResult_ = _oQStr_.contains(_cItem_, _bCase_)
+		if _bCase_ = 1
+			_bResult_ = substr(_cList_, _cItem_) > 0
+		else
+			_bResult_ = substr(lower(_cList_), lower(_cItem_)) > 0
+		ok
 
 		return _bResult_
 
@@ -59147,9 +59149,7 @@ fdef
 				cItem = @ObjectVarName(aContent[i])
 			ok
 
-			oQStr = new QString2()
-			oQStr.append(cItem)
-			aoResult + oQStr
+			aoResult + cItem
 		next
 
 		This.UpdateWith( aoResult )
@@ -59243,15 +59243,12 @@ fdef
 
 			but isString(item)
 
-				oQStr = new QString2()
-				oQStr.append(item)
-
 				bExtend = 0
-				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
+				if _StrContainsCS(item, pcOtherSubStr, pCaseSensitive)
 					bExtend = 1
 				ok
 
-				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
+				if NOT _StrContainsCS(item, pcSubStr, pCaseSensitive)
 					cItem = item
 				else
 					cItem = @ReplaceCS(item, pcSubStr, pcOtherSubStr, pCaseSensitive)
@@ -59265,15 +59262,12 @@ fdef
 
 			but isList(item)
 				item = @@(item)
-				oQStr = new QString2()
-				oQStr.append(item)
-
 				bExtend = 0
-				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
+				if _StrContainsCS(item, pcOtherSubStr, pCaseSensitive)
 					bExtend = 1
 				ok
 
-				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
+				if NOT _StrContainsCS(item, pcSubStr, pCaseSensitive)
 					cItem = item
 				else
 					cItem = @ReplaceCS(item, pcSubStr, pcOtherSubStr, pCaseSensitive)
@@ -59465,16 +59459,12 @@ fdef
 
 			but isString(item)
 
-				oQStr = new QString2()
-				oQStr.append(item)
-
-
 				bExtend = 0
-				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
+				if _StrContainsCS(item, pcOtherSubStr, pCaseSensitive)
 					bExtend = 1
 				ok
 
-				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
+				if NOT _StrContainsCS(item, pcSubStr, pCaseSensitive)
 					cItem = item
 				else
 					cItem = @ReplaceCS(item, pcSubStr, pcOtherSubStr, pCaseSensitive)
@@ -59488,15 +59478,12 @@ fdef
 
 			but isList(item)
 				item = @@(item)
-				oQStr = new QString2()
-				oQStr.append(item)
-
 				bExtend = 0
-				if oQStr.contains(pcOtherSubStr, pCaseSensitive)
+				if _StrContainsCS(item, pcOtherSubStr, pCaseSensitive)
 					bExtend = 1
 				ok
 
-				if NOT oQStr.contains(pcSubStr, pCaseSensitive)
+				if NOT _StrContainsCS(item, pcSubStr, pCaseSensitive)
 					cItem = item
 				else
 					cItem = @ReplaceCS(item, pcSubStr, pcOtherSubStr, pCaseSensitive)
