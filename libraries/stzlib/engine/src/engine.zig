@@ -6,13 +6,18 @@
 //
 // Tier 1: Strings + Unicode (replaces QString2 + QChar)
 // Tier 2: DateTime + File + Locale (replaces QDate/QTime/QFile/QDir/QLocale)
-// Tier 3: Regex + JSON (future)
+// Tier 3: Regex + JSON + Bytes + URL + System
 
 pub const string = @import("string.zig");
 pub const char = @import("char.zig");
 pub const datetime = @import("datetime.zig");
 pub const file = @import("file.zig");
 pub const locale = @import("locale.zig");
+pub const regex = @import("regex.zig");
+pub const bytes = @import("bytes.zig");
+pub const json = @import("json.zig");
+pub const url = @import("url.zig");
+pub const system = @import("system.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -132,11 +137,92 @@ comptime {
     @export(&locale.stz_locale_month_abbr, .{ .name = "stz_locale_month_abbr" });
     @export(&locale.stz_locale_day_name, .{ .name = "stz_locale_day_name" });
     @export(&locale.stz_locale_day_abbr, .{ .name = "stz_locale_day_abbr" });
+
+    // ─── Tier 3: Regex operations ───
+    @export(&regex.stz_regex_new, .{ .name = "stz_regex_new" });
+    @export(&regex.stz_regex_free, .{ .name = "stz_regex_free" });
+    @export(&regex.stz_regex_match, .{ .name = "stz_regex_match" });
+    @export(&regex.stz_regex_match_all, .{ .name = "stz_regex_match_all" });
+    @export(&regex.stz_regex_has_match, .{ .name = "stz_regex_has_match" });
+    @export(&regex.stz_regex_capture_count, .{ .name = "stz_regex_capture_count" });
+    @export(&regex.stz_regex_capture_start, .{ .name = "stz_regex_capture_start" });
+    @export(&regex.stz_regex_capture_end, .{ .name = "stz_regex_capture_end" });
+    @export(&regex.stz_regex_capture_text, .{ .name = "stz_regex_capture_text" });
+    @export(&regex.stz_regex_replace, .{ .name = "stz_regex_replace" });
+    @export(&regex.stz_regex_replace_free, .{ .name = "stz_regex_replace_free" });
+
+    // ─── Tier 3: Bytes operations ───
+    @export(&bytes.stz_bytes_new, .{ .name = "stz_bytes_new" });
+    @export(&bytes.stz_bytes_from, .{ .name = "stz_bytes_from" });
+    @export(&bytes.stz_bytes_free, .{ .name = "stz_bytes_free" });
+    @export(&bytes.stz_bytes_data, .{ .name = "stz_bytes_data" });
+    @export(&bytes.stz_bytes_size, .{ .name = "stz_bytes_size" });
+    @export(&bytes.stz_bytes_is_empty, .{ .name = "stz_bytes_is_empty" });
+    @export(&bytes.stz_bytes_clear, .{ .name = "stz_bytes_clear" });
+    @export(&bytes.stz_bytes_append, .{ .name = "stz_bytes_append" });
+    @export(&bytes.stz_bytes_at, .{ .name = "stz_bytes_at" });
+    @export(&bytes.stz_bytes_insert, .{ .name = "stz_bytes_insert" });
+    @export(&bytes.stz_bytes_remove, .{ .name = "stz_bytes_remove" });
+    @export(&bytes.stz_bytes_left, .{ .name = "stz_bytes_left" });
+    @export(&bytes.stz_bytes_right, .{ .name = "stz_bytes_right" });
+    @export(&bytes.stz_bytes_mid, .{ .name = "stz_bytes_mid" });
+    @export(&bytes.stz_bytes_fill, .{ .name = "stz_bytes_fill" });
+    @export(&bytes.stz_bytes_replace, .{ .name = "stz_bytes_replace" });
+    @export(&bytes.stz_bytes_resize, .{ .name = "stz_bytes_resize" });
+    @export(&bytes.stz_bytes_to_lower, .{ .name = "stz_bytes_to_lower" });
+    @export(&bytes.stz_bytes_to_upper, .{ .name = "stz_bytes_to_upper" });
+    @export(&bytes.stz_bytes_to_base64, .{ .name = "stz_bytes_to_base64" });
+    @export(&bytes.stz_bytes_from_base64, .{ .name = "stz_bytes_from_base64" });
+    @export(&bytes.stz_bytes_to_hex, .{ .name = "stz_bytes_to_hex" });
+    @export(&bytes.stz_bytes_from_hex, .{ .name = "stz_bytes_from_hex" });
+    @export(&bytes.stz_bytes_to_percent, .{ .name = "stz_bytes_to_percent" });
+    @export(&bytes.stz_bytes_from_percent, .{ .name = "stz_bytes_from_percent" });
+
+    // ─── Tier 3: JSON operations ───
+    @export(&json.stz_json_parse, .{ .name = "stz_json_parse" });
+    @export(&json.stz_json_free, .{ .name = "stz_json_free" });
+    @export(&json.stz_json_is_valid, .{ .name = "stz_json_is_valid" });
+    @export(&json.stz_json_is_array, .{ .name = "stz_json_is_array" });
+    @export(&json.stz_json_size, .{ .name = "stz_json_size" });
+    @export(&json.stz_json_has_key, .{ .name = "stz_json_has_key" });
+    @export(&json.stz_json_get_string, .{ .name = "stz_json_get_string" });
+    @export(&json.stz_json_get_int, .{ .name = "stz_json_get_int" });
+    @export(&json.stz_json_get_bool, .{ .name = "stz_json_get_bool" });
+    @export(&json.stz_json_array_at_string, .{ .name = "stz_json_array_at_string" });
+    @export(&json.stz_json_array_at_int, .{ .name = "stz_json_array_at_int" });
+    @export(&json.stz_json_to_string, .{ .name = "stz_json_to_string" });
+    @export(&json.stz_json_to_string_pretty, .{ .name = "stz_json_to_string_pretty" });
+    @export(&json.stz_json_string_free, .{ .name = "stz_json_string_free" });
+    @export(&json.stz_json_keys, .{ .name = "stz_json_keys" });
+    @export(&json.stz_json_error, .{ .name = "stz_json_error" });
+
+    // ─── Tier 3: URL operations ───
+    @export(&url.stz_url_parse, .{ .name = "stz_url_parse" });
+    @export(&url.stz_url_free, .{ .name = "stz_url_free" });
+    @export(&url.stz_url_is_valid, .{ .name = "stz_url_is_valid" });
+    @export(&url.stz_url_scheme, .{ .name = "stz_url_scheme" });
+    @export(&url.stz_url_host, .{ .name = "stz_url_host" });
+    @export(&url.stz_url_port, .{ .name = "stz_url_port" });
+    @export(&url.stz_url_path, .{ .name = "stz_url_path" });
+    @export(&url.stz_url_query, .{ .name = "stz_url_query" });
+    @export(&url.stz_url_fragment, .{ .name = "stz_url_fragment" });
+    @export(&url.stz_url_user, .{ .name = "stz_url_user" });
+    @export(&url.stz_url_password, .{ .name = "stz_url_password" });
+    @export(&url.stz_url_reconstruct, .{ .name = "stz_url_reconstruct" });
+
+    // ─── Tier 3: System operations ───
+    @export(&system.stz_system_run, .{ .name = "stz_system_run" });
+    @export(&system.stz_system_run_free, .{ .name = "stz_system_run_free" });
+    @export(&system.stz_system_exec, .{ .name = "stz_system_exec" });
+    @export(&system.stz_system_env, .{ .name = "stz_system_env" });
+    @export(&system.stz_system_is_windows, .{ .name = "stz_system_is_windows" });
+    @export(&system.stz_system_is_linux, .{ .name = "stz_system_is_linux" });
+    @export(&system.stz_system_is_macos, .{ .name = "stz_system_is_macos" });
 }
 
-// Version -- bumped for modular Engine
+// Version -- bumped for Tier 3
 pub export fn stz_engine_version() callconv(.c) u32 {
-    return 0x00_03_00_00; // 0.3.0.0
+    return 0x00_04_00_00; // 0.4.0.0
 }
 
 test {
@@ -145,4 +231,9 @@ test {
     _ = datetime;
     _ = file;
     _ = locale;
+    _ = regex;
+    _ = bytes;
+    _ = json;
+    _ = url;
+    _ = system;
 }
