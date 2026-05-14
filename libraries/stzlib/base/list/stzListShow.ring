@@ -157,9 +157,26 @@ func GetLength(pValue)
     if isList(pValue)
         return len(pValue)
     else
-        oStr = new QString2()
-        oStr.append(pValue)
-        return oStr.size()
+        # Count Unicode codepoints (not bytes) in a UTF-8 string
+        nCount = 0
+        nBytes = len(pValue)
+        i = 1
+        while i <= nBytes
+            c = ascii(pValue[i])
+            if (c & 0x80) = 0        # 1-byte (ASCII)
+                i++
+            but (c & 0xE0) = 0xC0    # 2-byte
+                i += 2
+            but (c & 0xF0) = 0xE0    # 3-byte
+                i += 3
+            but (c & 0xF8) = 0xF0    # 4-byte
+                i += 4
+            else
+                i++                   # invalid byte, skip
+            ok
+            nCount++
+        end
+        return nCount
     ok
 
 # Smart expansion logic - only expand when it truly improves readability
@@ -596,24 +613,46 @@ func FormatShortListNL(aList, nItems)
     return FormatListNL(aShort, " ", "")
 
 func FormatShortString(cStr, nItems)
-    oStr = new QString2()
-    oStr.append(cStr)
-    nLen = oStr.size()
-    
+    # Build a list of Unicode character byte-offsets and lengths
+    aChars = []
+    nBytes = len(cStr)
+    i = 1
+    while i <= nBytes
+        c = ascii(cStr[i])
+        if (c & 0x80) = 0
+            nCharLen = 1
+        but (c & 0xE0) = 0xC0
+            nCharLen = 2
+        but (c & 0xF0) = 0xE0
+            nCharLen = 3
+        but (c & 0xF8) = 0xF0
+            nCharLen = 4
+        else
+            nCharLen = 1
+        ok
+        aChars + [i, nCharLen]
+        i += nCharLen
+    end
+
+    nLen = len(aChars)
     cResult = ""
-    
+
     # Add first nItems characters
-    for i = 0 to nItems - 1
-        cResult += oStr.mid(i, 1)
+    for i = 1 to nItems
+        if i <= nLen
+            cResult += substr(cStr, aChars[i][1], aChars[i][2])
+        ok
     next
-    
+
     cResult += "..."
-    
+
     # Add last nItems characters
-    for i = (nLen - nItems) to nLen - 1
-        cResult += oStr.mid(i, 1)
+    for i = (nLen - nItems + 1) to nLen
+        if i >= 1 and i <= nLen
+            cResult += substr(cStr, aChars[i][1], aChars[i][2])
+        ok
     next
-    
+
     return cResult
 
 #--- Convenient Aliases ---

@@ -62,14 +62,10 @@ func StringArt(str)
 	# Checking if the art painting syntax is used
 	# Example: StringArt("#{Tree}")
 
-	oQStr = new QString2()
-	oQStr.append(str)
-
 	bOk = FALSE
 
-	if oQStr.mid(0, 2) = "#{"
-		nLen = oQStr.size()
-		if oQStr.mid(nLen-1, 1) = "}"
+	if left(str, 2) = "#{"
+		if right(str, 1) = "}"
 			bOk = TRUE
 		ok
 	ok
@@ -89,14 +85,10 @@ func StringArtBoxified(str)
 	# Checking if the art painting syntax is used
 	# Example: StringArt("#{Tree}")
 
-	oQStrArt = new QString2()
-	oQStrArt.append(str)
-
 	bOk = FALSE
 
-	if oQStrArt.mid(0, 2) = "#{"
-		nLen = oQStrArt.size()
-		if oQStrArt.mid(nLen-1, 1) = "}"
+	if left(str, 2) = "#{"
+		if right(str, 1) = "}"
 			bOk = TRUE
 		ok
 	ok
@@ -148,22 +140,19 @@ func CharArtLayers(c)
 
 func StringArtPainting(cPaintingName)
 
-	oQStr = new QString2()
-	oQStr.append(cPaintingName)
-	oQStr.replace_2(" ", "", 0)
-	
+	cClean = substr(cPaintingName, " ", "")
 
 	bOk = FALSE
 
-	if oQStr.mid(0, 2) = "#{"
-		nLen = oQStr.size()
-		if oQStr.mid(nLen-1, 1) = "}"
+	if left(cClean, 2) = "#{"
+		if right(cClean, 1) = "}"
 			bOk = TRUE
 		ok
 	ok
 
 	if bOk
-		str = oQStr.mid(2, nLen-3)
+		# Extract name between #{ and }
+		str = substr(cClean, 3, len(cClean) - 3)
 	ok
 
 	#--
@@ -266,17 +255,11 @@ class stzStringArt
 
 		# First, convert the input string to string art
 
-	    	oQStrArt = new QString2()
-		oQStrArt.append(This.Artify())
+		cArt = This.Artify()
 
 		# Split the string art into lines
 
-		oQStrList = oQStrArt.split(NL, 0, 0)
-				
-		acLines = []
-		for i = 0 to oQStrList.size()-1
-			acLines + oQStrList.at(i)	
-		next
+		acLines = str2list(cArt)
 
 		nLen = len(acLines)
 
@@ -285,9 +268,7 @@ class stzStringArt
 		anLenLines = []
 
 		for i = 1 to nLen
-			oQStr = new QString2()
-			oQStr.append(acLines[i])
-			anLenLines + oQStr.size()
+			anLenLines + len(acLines[i])
 		next
 
 		anLenLines = sort(anLenLines)

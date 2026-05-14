@@ -11,7 +11,6 @@ $bUSE_ALT_FORM 		= 0
 class stzString from stzObject
 
 	@oStringView
-	@oQString
 
 	#--
 
@@ -338,9 +337,6 @@ class stzString from stzObject
 	def init(pcStr)
 
 		@oStzStringView = new stzStringView(pcStr)
-
-		@oQString = new QString2()
-		@oQString.append(pcStr)
 
 		# Adding the first entry in the object history
 
