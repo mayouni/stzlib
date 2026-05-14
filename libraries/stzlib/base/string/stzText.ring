@@ -537,17 +537,14 @@ func SubstringsNotAllowedInEndOfWord()
 /////////////////
 
 class stzText from stzString
-	@oQString
 	@cLanguage
 
 	def init(pcStr)
 		if isString(pcStr)
 			@cContent = pcStr
-			@oQString = new QString2()
-			@oQString.append(pcStr)
 
 		but @IsStzString(pcStr)
-			@oQString = pcStr.QStringObject()
+			@cContent = pcStr.Content()
 
 		else
 			StzRaise("Can't create stzText object! You must provide a string or a stzString object.")
@@ -558,7 +555,7 @@ class stzText from stzString
 	#----------------#
 
 	def Content()
-		return QStringToString( @oQString )
+		return @cContent
 
 	def Text()
 		return This.Content()
@@ -577,8 +574,6 @@ class stzText from stzString
 		ok
 
 		@cContent = pcStr
-		@oQString = new QString2()
-		@oQString.append(pcStr)
 
 		if KeepingHisto() = 1
 			This.AddHistoricValue(This.Content())  # From the parent stzObject
@@ -4825,7 +4820,7 @@ class stzText from stzString
 
 		for i = 1 to nLen
 			nPos = anPos[i]
-			_oCopy_.QStringObject().replace(nPos-1, 1, aoStzChars[nPos].DiacriticRemoved())			
+			_oCopy_.ReplaceCharAtPosition(nPos, aoStzChars[nPos].DiacriticRemoved())			
 		next
 
 		This.UpdateWith(_oCopy_.Content())

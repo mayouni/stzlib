@@ -1,33 +1,27 @@
 
 class stzStringView from stzObject
 
-	@oQString
+	@cContent
 
 	// Initializes the content of the softanza string object
 	def init(pcStr)
 
 		if CheckingParams()
-			if NOT ( isString(pcStr) or @IsQString(pcStr) or
+			if NOT ( isString(pcStr) or
 				 (isList(pcStr) and Q(pcStr).IsPairOfStrings()) )
 
-				StzRaise("Can't create the stzString object! pcStr must be a string, a QString object, or a pair of strings.")
+				StzRaise("Can't create the stzString object! pcStr must be a string or a pair of strings.")
 			ok
 
-			if IsQString(pcStr)
-				QStringObject() = pcStr
-				return
-
-			but isList(pcStr) and Q(pcStr).IsPairOfStrings() # Named string
+			if isList(pcStr) and Q(pcStr).IsPairOfStrings() # Named string
 				@cVarName = pcStr[1] # Inherited from stzObject
-				QStringObject() = new QString2()
-				QStringObject().append(pcStr[2])
+				@cContent = pcStr[2]
 				return
 			ok
 
 		ok
 
-		@oQString = new QString2()
-		@oQString.append(pcStr)
+		@cContent = pcStr
 
 	  #=======================================#
 	 #     GETTING CONTENT OF THE STRING     #
@@ -35,7 +29,7 @@ class stzStringView from stzObject
 
 	def Content()
 
-		return QStringObject().left(QStringObject().size())
+		return @cContent
 
 		#< @FunctionFluentForm
 
@@ -43,9 +37,6 @@ class stzStringView from stzObject
 			return new stzString(This.Content())
 
 		#>
-
-	def QStringObject()
-		return @oQString
 
 	  #=======================================#
 	 #  GETTING A COPY OF THE STRING OBJECT  #
