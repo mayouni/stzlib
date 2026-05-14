@@ -88189,22 +88189,7 @@ class stzString from stzObject
 	#==========================================================#
 
 	def Simplify()
-		cStr = trim(This.Content())
-		cResult = ""
-		bLastWasSpace = 0
-		for i = 1 to len(cStr)
-			c = substr(cStr, i, 1)
-			if c = " " or c = char(9) or c = char(10) or c = char(13)
-				if NOT bLastWasSpace
-					cResult += " "
-					bLastWasSpace = 1
-				ok
-			else
-				cResult += c
-				bLastWasSpace = 0
-			ok
-		next
-		This.UpdateWith( cResult )
+		This.UpdateWith( _StzSimplifyString(This.Content()) )
 
 		def SimplifyQ()
 			This.Simplify()

@@ -331,7 +331,7 @@ func CurrentUnicodeVersion()
 
 // Returns the unicode name of the char in the unicode table
 func UnicodeCharName(c)
-	return stzQChar(c).UnicodeName()
+	return "NOT_AVAILABLE"
 
 func CharScript(c)
 	oTempChar = new stzChar(c)
