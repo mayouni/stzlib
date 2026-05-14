@@ -176,7 +176,12 @@ fn doMatch(pattern: []const u8, text: []const u8, start: usize, flags: u32, caps
             return true;
         }
         if (anchored) return false;
-        pos += 1;
+        if (pos < text.len) {
+            const info = decodeAt(text, pos);
+            pos += info.len;
+        } else {
+            pos += 1;
+        }
     }
     return false;
 }
@@ -220,8 +225,9 @@ fn matchHere(pat: []const u8, pi: usize, text: []const u8, ti: usize, ci: bool, 
         }
 
         if (t >= text.len) return false;
-        if (!matchOne(pat, p, text[t], ci, da)) return false;
-        t += 1;
+        const info = decodeAt(text, t);
+        if (!matchOne(pat, p, info.cp, ci, da)) return false;
+        t += info.len;
         p = atom_end;
     }
 
@@ -231,31 +237,38 @@ fn matchHere(pat: []const u8, pi: usize, text: []const u8, ti: usize, ci: bool, 
 
 fn matchQuantifiedEx(pat: []const u8, p: usize, _: usize, q: u8, lazy: bool, skip: usize, text: []const u8, ti: usize, ci: bool, da: bool, caps: *std.ArrayList(Regex.Cap), budget: *u32, max_depth: u16) bool {
     const min_count: usize = if (q == '+') 1 else 0;
-    var max_count: usize = 0;
+
+    var match_ends: [4096]usize = undefined;
+    var match_count: usize = 0;
     var t = ti;
 
-    while (t < text.len and matchOne(pat, p, text[t], ci, da)) {
-        max_count += 1;
-        t += 1;
+    while (t < text.len and match_count < 4096) {
+        const info = decodeAt(text, t);
+        if (!matchOne(pat, p, info.cp, ci, da)) break;
+        t += info.len;
+        match_ends[match_count] = t;
+        match_count += 1;
     }
 
     if (q == '?') {
-        if (max_count > 1) max_count = 1;
+        if (match_count > 1) match_count = 1;
     }
 
     if (lazy) {
         var count: usize = min_count;
-        while (count <= max_count) {
+        while (count <= match_count) {
             if (budget.* == 0) return false;
-            if (matchHere(pat, skip, text, ti + count, ci, da, caps, budget, max_depth)) return true;
+            const end_pos = if (count == 0) ti else match_ends[count - 1];
+            if (matchHere(pat, skip, text, end_pos, ci, da, caps, budget, max_depth)) return true;
             count += 1;
         }
     } else {
-        var count: usize = max_count;
+        var count: usize = match_count;
         while (true) {
             if (budget.* == 0) return false;
             if (count >= min_count) {
-                if (matchHere(pat, skip, text, ti + count, ci, da, caps, budget, max_depth)) return true;
+                const end_pos = if (count == 0) ti else match_ends[count - 1];
+                if (matchHere(pat, skip, text, end_pos, ci, da, caps, budget, max_depth)) return true;
             }
             if (count == 0) break;
             count -= 1;
@@ -359,60 +372,73 @@ fn matchBranch(branch: []const u8, text: []const u8, t: *usize, ci: bool, da: bo
             const q = branch[ae];
             const min_count: usize = if (q == '+') 1 else 0;
             var count: usize = 0;
-            while (t.* + count < text.len and matchOne(branch, p, text[t.* + count], ci, da)) count += 1;
+            var scan = t.*;
+            while (scan < text.len) {
+                const info = decodeAt(text, scan);
+                if (!matchOne(branch, p, info.cp, ci, da)) break;
+                scan += info.len;
+                count += 1;
+            }
             if (q == '?') { if (count > 1) count = 1; }
             if (count < min_count) return false;
-            t.* += count;
+            // Re-advance t by the matched characters
+            var adv: usize = 0;
+            var pos = t.*;
+            while (adv < count) : (adv += 1) {
+                const info = decodeAt(text, pos);
+                pos += info.len;
+            }
+            t.* = pos;
             p = ae + 1;
             if (p < branch.len and branch[p] == '?') p += 1;
             continue;
         }
 
         if (t.* >= text.len) return false;
-        if (!matchOne(branch, p, text[t.*], ci, da)) return false;
-        t.* += 1;
+        const info = decodeAt(text, t.*);
+        if (!matchOne(branch, p, info.cp, ci, da)) return false;
+        t.* += info.len;
         p = ae;
     }
     return true;
 }
 
-fn matchOne(pat: []const u8, p: usize, c: u8, ci: bool, da: bool) bool {
+fn matchOne(pat: []const u8, p: usize, cp: i32, ci: bool, da: bool) bool {
     if (p >= pat.len) return false;
     const pc = pat[p];
 
-    if (pc == '.') return if (c == '\n' and !da) false else true;
+    if (pc == '.') return if (cp == '\n' and !da) false else true;
 
     if (pc == '\\' and p + 1 < pat.len) {
         const esc = pat[p + 1];
         if ((esc == 'p' or esc == 'P') and p + 2 < pat.len and pat[p + 2] == '{') {
             if (findBrace(pat, p + 2)) |close| {
                 const prop_name = pat[p + 3 .. close];
-                const matches = matchUnicodeProperty(c, prop_name);
+                const matches = matchUnicodeProperty(cp, prop_name);
                 return if (esc == 'p') matches else !matches;
             }
             return false;
         }
         return switch (esc) {
-            'd' => c >= '0' and c <= '9',
-            'D' => !(c >= '0' and c <= '9'),
-            'w' => isWord(c),
-            'W' => !isWord(c),
-            's' => isSpace(c),
-            'S' => !isSpace(c),
-            'n' => c == '\n',
-            'r' => c == '\r',
-            't' => c == '\t',
-            else => eqChar(c, esc, ci),
+            'd' => cp >= '0' and cp <= '9',
+            'D' => !(cp >= '0' and cp <= '9'),
+            'w' => isWordCp(cp),
+            'W' => !isWordCp(cp),
+            's' => isSpaceCp(cp),
+            'S' => !isSpaceCp(cp),
+            'n' => cp == '\n',
+            'r' => cp == '\r',
+            't' => cp == '\t',
+            else => eqCharCp(cp, esc, ci),
         };
     }
 
-    if (pc == '[') return matchCharClass(pat, p, c, ci);
+    if (pc == '[') return matchCharClassCp(pat, p, cp, ci);
 
-    return eqChar(c, pc, ci);
+    return eqCharCp(cp, pc, ci);
 }
 
-fn matchUnicodeProperty(c: u8, prop: []const u8) bool {
-    const cp: i32 = @intCast(c);
+fn matchUnicodeProperty(cp: i32, prop: []const u8) bool {
     if (prop.len == 0) return false;
     if (prop.len == 1) {
         return switch (prop[0]) {
@@ -479,7 +505,7 @@ fn findBrace(pat: []const u8, open: usize) ?usize {
     return null;
 }
 
-fn matchCharClass(pat: []const u8, p: usize, c: u8, ci: bool) bool {
+fn matchCharClassCp(pat: []const u8, p: usize, cp: i32, ci: bool) bool {
     var i = p + 1;
     if (i >= pat.len) return false;
     const neg = pat[i] == '^';
@@ -489,25 +515,34 @@ fn matchCharClass(pat: []const u8, p: usize, c: u8, ci: bool) bool {
     while (i < pat.len and pat[i] != ']') {
         if (pat[i] == '\\' and i + 1 < pat.len) {
             const esc = pat[i + 1];
+            if ((esc == 'p' or esc == 'P') and i + 2 < pat.len and pat[i + 2] == '{') {
+                if (findBrace(pat, i + 2)) |close| {
+                    const prop_name = pat[i + 3 .. close];
+                    const m = matchUnicodeProperty(cp, prop_name);
+                    if (if (esc == 'p') m else !m) matched = true;
+                    i = close + 1;
+                    continue;
+                }
+            }
             const m = switch (esc) {
-                'd' => c >= '0' and c <= '9',
-                'D' => !(c >= '0' and c <= '9'),
-                'w' => isWord(c),
-                'W' => !isWord(c),
-                's' => isSpace(c),
-                'S' => !isSpace(c),
-                else => eqChar(c, esc, ci),
+                'd' => cp >= '0' and cp <= '9',
+                'D' => !(cp >= '0' and cp <= '9'),
+                'w' => isWordCp(cp),
+                'W' => !isWordCp(cp),
+                's' => isSpaceCp(cp),
+                'S' => !isSpaceCp(cp),
+                else => eqCharCp(cp, esc, ci),
             };
             if (m) matched = true;
             i += 2;
         } else if (i + 2 < pat.len and pat[i + 1] == '-' and pat[i + 2] != ']') {
-            const lo = if (ci) toLowerAscii(pat[i]) else pat[i];
-            const hi = if (ci) toLowerAscii(pat[i + 2]) else pat[i + 2];
-            const tc = if (ci) toLowerAscii(c) else c;
+            const lo: i32 = @intCast(if (ci) toLowerAscii(pat[i]) else pat[i]);
+            const hi: i32 = @intCast(if (ci) toLowerAscii(pat[i + 2]) else pat[i + 2]);
+            const tc: i32 = if (ci and cp < 128) @intCast(toLowerAscii(@intCast(@as(u32, @intCast(cp))))) else cp;
             if (tc >= lo and tc <= hi) matched = true;
             i += 3;
         } else {
-            if (eqChar(c, pat[i], ci)) matched = true;
+            if (eqCharCp(cp, pat[i], ci)) matched = true;
             i += 1;
         }
     }
@@ -549,9 +584,21 @@ fn updateEnd(caps: *std.ArrayList(Regex.Cap), t: usize) void {
     if (caps.items.len > 0) caps.items[0].end = @intCast(t);
 }
 
-fn eqChar(a: u8, b: u8, ci: bool) bool {
-    if (a == b) return true;
-    if (ci) return toLowerAscii(a) == toLowerAscii(b);
+const CpInfo = struct { cp: i32, len: usize };
+
+fn decodeAt(text: []const u8, pos: usize) CpInfo {
+    if (pos >= text.len) return .{ .cp = -1, .len = 0 };
+    const byte = text[pos];
+    if (byte < 0x80) return .{ .cp = @intCast(byte), .len = 1 };
+    const seq_len = std.unicode.utf8ByteSequenceLength(byte) catch return .{ .cp = @intCast(byte), .len = 1 };
+    if (pos + seq_len > text.len) return .{ .cp = @intCast(byte), .len = 1 };
+    const cp = std.unicode.utf8Decode(text[pos..][0..seq_len]) catch return .{ .cp = @intCast(byte), .len = 1 };
+    return .{ .cp = @intCast(cp), .len = seq_len };
+}
+
+fn eqCharCp(cp: i32, pat_byte: u8, ci: bool) bool {
+    if (cp == @as(i32, pat_byte)) return true;
+    if (ci and cp < 128) return toLowerAscii(@intCast(@as(u32, @intCast(cp)))) == toLowerAscii(pat_byte);
     return false;
 }
 
@@ -559,12 +606,22 @@ fn toLowerAscii(c: u8) u8 {
     return if (c >= 'A' and c <= 'Z') c + 32 else c;
 }
 
-fn isWord(c: u8) bool {
-    return (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9') or c == '_';
+fn isWordCp(cp: i32) bool {
+    if (cp < 0) return false;
+    if (cp < 128) {
+        const c: u8 = @intCast(@as(u32, @intCast(cp)));
+        return (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9') or c == '_';
+    }
+    return unicode.stz_unicode_is_letter(cp) == 1 or unicode.stz_unicode_is_digit(cp) == 1;
 }
 
-fn isSpace(c: u8) bool {
-    return c == ' ' or c == '\t' or c == '\n' or c == '\r';
+fn isSpaceCp(cp: i32) bool {
+    if (cp < 0) return false;
+    if (cp < 128) {
+        const c: u8 = @intCast(@as(u32, @intCast(cp)));
+        return c == ' ' or c == '\t' or c == '\n' or c == '\r';
+    }
+    return unicode.stz_unicode_is_space(cp) == 1;
 }
 
 // ─── Tests ───
@@ -709,4 +766,57 @@ test "input length limit" {
     const long_input = "a" ** 20;
     const result = stz_regex_match(h, long_input.ptr, long_input.len, 0);
     try std.testing.expectEqual(@as(c_int, 0), result);
+}
+
+test "utf8 dot matches multibyte" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    // "caf\xC3\xA9" = 4 codepoints (c,a,f,e-acute), dot should match each
+    try std.testing.expect(testMatch(".+", "caf\xC3\xA9", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 5), caps.items[0].end);
+}
+
+test "utf8 \\p{L} matches unicode letters" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    // Greek alpha beta gamma: \xCE\xB1\xCE\xB2\xCE\xB3 (6 bytes, 3 codepoints)
+    try std.testing.expect(testMatch("\\p{L}+", "\xCE\xB1\xCE\xB2\xCE\xB3", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 6), caps.items[0].end);
+}
+
+test "utf8 \\w matches unicode word chars" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    // Arabic alef: \xD8\xA7 (2 bytes, 1 codepoint, is_letter = true)
+    try std.testing.expect(testMatch("\\w+", "\xD8\xA7\xD8\xA8\xD8\xAA", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 6), caps.items[0].end);
+}
+
+test "utf8 mixed ascii and unicode" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    // "abc\xC3\xA9def" -- find the e-acute with \p{L}
+    try std.testing.expect(testMatch("\\p{L}+", "abc\xC3\xA9def", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 8), caps.items[0].end);
+}
+
+test "utf8 \\P{L} skips unicode letters" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    // "abc 123" -- \\P{L}+ should match " 123"
+    try std.testing.expect(testMatch("\\P{L}+", "abc 123", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 3), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 7), caps.items[0].end);
+}
+
+test "utf8 category subcategory Lu" {
+    var caps: std.ArrayList(Regex.Cap) = .{};
+    defer caps.deinit(gpa);
+    try std.testing.expect(testMatch("\\p{Lu}+", "ABCdef", 0, 0, &caps));
+    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
+    try std.testing.expectEqual(@as(i32, 3), caps.items[0].end);
 }

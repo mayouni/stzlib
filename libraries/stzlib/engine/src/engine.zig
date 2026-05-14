@@ -36,6 +36,10 @@ comptime {
     @export(&string.stz_string_right, .{ .name = "stz_string_right" });
     @export(&string.stz_string_trimmed, .{ .name = "stz_string_trimmed" });
     @export(&string.stz_string_index_of, .{ .name = "stz_string_index_of" });
+    @export(&string.stz_string_index_of_from, .{ .name = "stz_string_index_of_from" });
+    @export(&string.stz_string_index_of_ci, .{ .name = "stz_string_index_of_ci" });
+    @export(&string.stz_string_byte_to_cp, .{ .name = "stz_string_byte_to_cp" });
+    @export(&string.stz_string_count_of, .{ .name = "stz_string_count_of" });
     @export(&string.stz_string_last_index_of, .{ .name = "stz_string_last_index_of" });
     @export(&string.stz_string_contains, .{ .name = "stz_string_contains" });
     @export(&string.stz_string_starts_with, .{ .name = "stz_string_starts_with" });

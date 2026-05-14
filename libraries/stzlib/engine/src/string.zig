@@ -145,6 +145,68 @@ pub fn stz_string_index_of(handle: StzStringHandle, needle: [*c]const u8, needle
     return -1;
 }
 
+pub fn stz_string_index_of_from(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_byte: usize) callconv(.c) i64 {
+    if (handle) |s| {
+        if (needle == null or needle_len == 0) return -1;
+        const haystack = s.slice();
+        if (start_byte >= haystack.len) return -1;
+        const n = needle[0..needle_len];
+        if (mem.indexOf(u8, haystack[start_byte..], n)) |pos| {
+            return @intCast(start_byte + pos);
+        }
+    }
+    return -1;
+}
+
+pub fn stz_string_index_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_byte: usize) callconv(.c) i64 {
+    if (handle) |s| {
+        if (needle == null or needle_len == 0) return -1;
+        const hay = s.slice();
+        if (start_byte >= hay.len) return -1;
+        const n = needle[0..needle_len];
+
+        var pos = start_byte;
+        outer: while (pos + n.len <= hay.len) : (pos += 1) {
+            for (0..n.len) |j| {
+                if (toLowerAscii(hay[pos + j]) != toLowerAscii(n[j])) continue :outer;
+            }
+            return @intCast(pos);
+        }
+    }
+    return -1;
+}
+
+pub fn stz_string_byte_to_cp(handle: StzStringHandle, byte_pos: usize) callconv(.c) i64 {
+    if (handle) |s| {
+        return unicode.stz_unicode_byte_to_cp(s.data.items.ptr, s.data.items.len, @intCast(byte_pos));
+    }
+    return -1;
+}
+
+pub fn stz_string_count_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
+    if (handle) |s| {
+        if (needle == null or needle_len == 0) return 0;
+        const hay = s.slice();
+        const n = needle[0..needle_len];
+        var count: c_int = 0;
+        var pos: usize = 0;
+        while (pos + n.len <= hay.len) {
+            if (mem.eql(u8, hay[pos..][0..n.len], n)) {
+                count += 1;
+                pos += n.len;
+            } else {
+                pos += 1;
+            }
+        }
+        return count;
+    }
+    return 0;
+}
+
+fn toLowerAscii(c: u8) u8 {
+    return if (c >= 'A' and c <= 'Z') c + 32 else c;
+}
+
 pub fn stz_string_last_index_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
     if (handle) |s| {
         if (needle == null or needle_len == 0) return -1;
@@ -515,5 +577,40 @@ test "string insert" {
     stz_string_insert(s, 2, "l", 1);
     try std.testing.expectEqual(@as(usize, 5), stz_string_size(s));
     try std.testing.expect(mem.eql(u8, stz_string_data(s)[0..5], "Hello"));
+    stz_string_free(s);
+}
+
+test "string index_of_from" {
+    const s = stz_string_from("abcabcabc", 9);
+    try std.testing.expectEqual(@as(i64, 0), stz_string_index_of_from(s, "abc", 3, 0));
+    try std.testing.expectEqual(@as(i64, 3), stz_string_index_of_from(s, "abc", 3, 1));
+    try std.testing.expectEqual(@as(i64, 6), stz_string_index_of_from(s, "abc", 3, 4));
+    try std.testing.expectEqual(@as(i64, -1), stz_string_index_of_from(s, "abc", 3, 7));
+    stz_string_free(s);
+}
+
+test "string index_of_ci" {
+    const s = stz_string_from("Hello WORLD", 11);
+    try std.testing.expectEqual(@as(i64, 0), stz_string_index_of_ci(s, "hello", 5, 0));
+    try std.testing.expectEqual(@as(i64, 6), stz_string_index_of_ci(s, "world", 5, 0));
+    try std.testing.expectEqual(@as(i64, -1), stz_string_index_of_ci(s, "xyz", 3, 0));
+    try std.testing.expectEqual(@as(i64, 6), stz_string_index_of_ci(s, "WORLD", 5, 3));
+    stz_string_free(s);
+}
+
+test "string count_of" {
+    const s = stz_string_from("abcabcabc", 9);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_of(s, "abc", 3));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_count_of(s, "xyz", 3));
+    stz_string_free(s);
+}
+
+test "string byte_to_cp" {
+    // "caf\xC3\xA9" = c(0) a(1) f(2) e-acute(3,4 bytes -> cp 3)
+    const s = stz_string_from("caf\xC3\xA9", 5);
+    try std.testing.expectEqual(@as(i64, 0), stz_string_byte_to_cp(s, 0));
+    try std.testing.expectEqual(@as(i64, 1), stz_string_byte_to_cp(s, 1));
+    try std.testing.expectEqual(@as(i64, 2), stz_string_byte_to_cp(s, 2));
+    try std.testing.expectEqual(@as(i64, 3), stz_string_byte_to_cp(s, 3));
     stz_string_free(s);
 }
