@@ -171,24 +171,20 @@ class stzString from stzObject
 
 
 	def _FindSubStr(pcSubStr, nStartAt, bCaseSensitive)
-		cStr = This.Content()
-		nLen = len(cStr)
-		nSubLen = len(pcSubStr)
-
-		if nSubLen = 0 or nStartAt > nLen
+		if len(pcSubStr) = 0 or nStartAt < 1
 			return 0
 		ok
 
+		nByteStart = nStartAt - 1
+
 		if bCaseSensitive
-			cSearch = substr(cStr, nStartAt, nLen - nStartAt + 1)
-			nPos = substr(cSearch, pcSubStr)
+			nResult = StzEngineStringIndexOfFrom(@pEngine, pcSubStr, nByteStart)
 		else
-			cSearch = substr(lower(cStr), nStartAt, nLen - nStartAt + 1)
-			nPos = substr(cSearch, lower(pcSubStr))
+			nResult = StzEngineStringIndexOfCI(@pEngine, pcSubStr, nByteStart)
 		ok
 
-		if nPos > 0
-			return nPos + nStartAt - 1
+		if nResult >= 0
+			return nResult + 1
 		else
 			return 0
 		ok
