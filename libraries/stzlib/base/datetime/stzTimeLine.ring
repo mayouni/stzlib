@@ -2641,7 +2641,7 @@ class stzTimeLine from stzObject
 	        cDateTime += " 00:00:00"
 	    ok
 	    
-	    # Ensure the string contains valide datetime processable by Qt
+	    # Ensure the string contains a valid datetime
 
 	    try
 		new stzDateTime(cDateTime)

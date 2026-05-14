@@ -102,8 +102,7 @@ func IsStzText(p)
 
 # Useful four finding instances of WORDS (and not substrings!) inside a string
 func PossibleWordInstancesXT(pcWord, cWordPositionInSentence)
-	#INFO # There is a Qt function that does this : QTextBoundaryFinder
-	#TODO # Include it in RingQt and then use it to detect words, sentence, lines etc
+	#TODO # Implement word/sentence boundary detection
 
 	/* REMINDER (from stzCharData.ring)
 
@@ -649,19 +648,11 @@ class stzText from stzString
 
 			cResult = :Hybrid
 
-			# Managing the case of an diacriticized string
-			# like "سَلَامُُ", for which Qt says that it is a :Hybrid script,
-			# while we consider it to be an :Arabic script.
-
-			# In fact, Qt returns [ :Arabic, :Inherited ] scripts for that
-			# word, and if we add any spaces ("سَلَامُُ عَلَيْكُمْ" for example),
-			# it identifies a 3rd script [ :Arabic, :Inherited, :Common ],
-			# because space is a common char in Unicode.
-
-			# Softanza has a different opinion: if one script (say arabic
-			# for example), is identified by Qt with :Inherited and :Common
-			# scripts, then the main script we should return to the user
-			# is :Arabic itself.
+			# Managing the case of a diacriticized string
+			# like "سَلَامُُ" which has [ :Arabic, :Inherited ] scripts.
+			# Adding spaces adds :Common as a 3rd script.
+			# If one main script appears with only :Inherited and :Common,
+			# we return the main script (e.g. :Arabic) instead of :Hybrid.
 
 			# This beeing explained, the following algorithm becomes obvious!
 
@@ -4233,7 +4224,7 @@ class stzText from stzString
 	If they suit for your case, then use them. Otherwise, use Words() and
 	expect yourself to pay for performance.
 
-	TODO: Use QTextBoundaryFinder class when added to RingQt
+	TODO: Implement proper word boundary detection
 
 
 	*/
