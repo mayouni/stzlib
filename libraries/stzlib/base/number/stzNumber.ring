@@ -4787,8 +4787,22 @@ class stzNumber from stzObject
 	// in the specified base n (between 2 and 36)
 	def IntegerPartToBaseNForm(n)
 		if n >= 2 and n <= 36
-			oQString = new QString2()
-			return oQString.number(This.IntegerValue(),n)
+			# Pure Ring integer-to-base-N conversion
+			cDigits = "0123456789abcdefghijklmnopqrstuvwxyz"
+			nVal = abs(This.IntegerValue())
+			if nVal = 0
+				return "0"
+			ok
+			cResult = ""
+			while nVal > 0
+				nRem = nVal % n
+				cResult = cDigits[nRem + 1] + cResult
+				nVal = floor(nVal / n)
+			end
+			if This.IntegerValue() < 0
+				cResult = "-" + cResult
+			ok
+			return cResult
 
 		else
 			StzRaise(stzNumberError(:CanNotConvertNumberToSpecifiedBase))

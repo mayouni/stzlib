@@ -7,10 +7,26 @@ func SizeInChars(str)
 		StzRaise("Incorrect param type! str must be a string.")
 	ok
 
-	oQString = new QString2()
-	oQString.append(str)
-
-	return oQString.size()
+	# Count Unicode codepoints (not bytes) in a UTF-8 string
+	nCount = 0
+	nBytes = len(str)
+	i = 1
+	while i <= nBytes
+		c = ascii(str[i])
+		if (c & 0x80) = 0        # 1-byte (ASCII)
+			i++
+		but (c & 0xE0) = 0xC0    # 2-byte
+			i += 2
+		but (c & 0xF0) = 0xE0    # 3-byte
+			i += 3
+		but (c & 0xF8) = 0xF0    # 4-byte
+			i += 4
+		else
+			i++                   # invalid byte, skip
+		ok
+		nCount++
+	end
+	return nCount
 
 	func @SizeInChars(str)
 		return SizeInChars(str)
