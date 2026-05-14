@@ -15,10 +15,10 @@ HIERARCHICAL DATETIME FORMAT DESIGN
 2. LOCALIZATION
    - ISO: Normalized, locale-independent (YYYY-MM-DD format)
    - Localized: Region-specific (DD/MM/YYYY or MM/DD/YYYY)
-   
+
 3. PRECISION
    - Minute: HH:mm
-   - Second: HH:mm:ss  
+   - Second: HH:mm:ss
    - Millisecond: HH:mm:ss.zzz
 
 4. VERBOSITY
@@ -26,10 +26,10 @@ HIERARCHICAL DATETIME FORMAT DESIGN
    - Standard: Common readable (15/03/2024 14:30:45)
    - Verbose: Full text (Friday, March 15, 2024 at 2:30:45 PM)
 
-Qt Format String Rules:
+Format String Rules:
 - h  = hour 0-23 (or 1-12 if AP present)
 - hh = hour 00-23 (or 01-12 if AP present) with leading zero
-- H  = same as h (Qt doesn't distinguish H from h)
+- H  = same as h
 - HH = same as hh
 - AP = AM/PM marker (makes the format 12-hour automatically)
 - ap = am/pm marker (lowercase)
@@ -43,85 +43,85 @@ $aDateTimeFormats = [
 
     # ===== ISO/NORMALIZED FORMATS (Locale-independent) =====
     # These formats are safe for data interchange and storage
-    
+
     [ :ISO,           "yyyy-MM-dd HH:mm:ss" ],      # 2024-03-15 14:30:45
     [ :ISO24h,        "yyyy-MM-dd HH:mm:ss" ],      # 2024-03-15 14:30:45
     [ :ISOMinute,     "yyyy-MM-dd HH:mm" ],         # 2024-03-15 14:30
     [ :ISOWithMs,     "yyyy-MM-dd HH:mm:ss.zzz" ],  # 2024-03-15 14:30:45.123
     [ :ISO8601,       "yyyy-MM-ddTHH:mm:ss" ],      # 2024-03-15T14:30:45
     [ :ISO8601Ms,     "yyyy-MM-ddTHH:mm:ss.zzz" ],  # 2024-03-15T14:30:45.123
-    
+
     [ :ISO12h,        "yyyy-MM-dd hh:mm:ss AP" ],   # 2024-03-15 02:30:45 PM
     [ :ISO12hMinute,  "yyyy-MM-dd hh:mm AP" ],      # 2024-03-15 02:30 PM
-    
+
     # ===== COMPACT FORMATS =====
     # Short, efficient formats for logs and displays
-    
+
     [ :Compact,       "yyyy-MM-dd HH:mm" ],         # 2024-03-15 14:30
     [ :Compact24h,    "yyyy-MM-dd HH:mm" ],         # 2024-03-15 14:30
     [ :CompactSec,    "yyyy-MM-dd HH:mm:ss" ],      # 2024-03-15 14:30:45
     [ :CompactMs,     "yyyy-MM-dd HH:mm:ss.zzz" ],  # 2024-03-15 14:30:45.123
-    
+
     [ :Compact12h,    "yyyy-MM-dd hh:mm AP" ],      # 2024-03-15 02:30 PM
     [ :Compact12hSec, "yyyy-MM-dd hh:mm:ss AP" ],   # 2024-03-15 02:30:45 PM
-    
+
     # ===== STANDARD FORMATS (Region-aware) =====
     # Common readable formats with slashes
-    
+
     [ :Standard,      "dd/MM/yyyy HH:mm:ss" ],      # 15/03/2024 14:30:45
     [ :Standard24h,   "dd/MM/yyyy HH:mm:ss" ],      # 15/03/2024 14:30:45
     [ :StandardMinute,"dd/MM/yyyy HH:mm" ],         # 15/03/2024 14:30
-    
+
     [ :Standard12h,   "dd/MM/yyyy hh:mm:ss AP" ],   # 15/03/2024 02:30:45 PM
     [ :Standard12hMin,"dd/MM/yyyy hh:mm AP" ],      # 15/03/2024 02:30 PM
-    
+
     # ===== EUROPEAN FORMATS =====
-    
+
     [ :European,      "dd/MM/yyyy HH:mm:ss" ],      # 15/03/2024 14:30:45
     [ :European24h,   "dd/MM/yyyy HH:mm:ss" ],      # 15/03/2024 14:30:45
-    
+
     [ :European12h,   "dd/MM/yyyy hh:mm:ss AP" ],   # 15/03/2024 02:30:45 PM
-    
+
     # ===== AMERICAN FORMATS =====
-    
+
     [ :American,      "MM/dd/yyyy HH:mm:ss" ],      # 03/15/2024 14:30:45
     [ :American24h,   "MM/dd/yyyy HH:mm:ss" ],      # 03/15/2024 14:30:45
-    
+
     [ :American12h,   "MM/dd/yyyy hh:mm:ss AP" ],   # 03/15/2024 02:30:45 PM
-    
+
     # ===== VERBOSE FORMATS (Human-readable) =====
     # Full text representations
-    
+
     [ :Verbose,       "dddd, MMMM d, yyyy HH:mm:ss" ],     # Friday, March 15, 2024 14:30:45
     [ :Verbose24h,    "dddd, MMMM d, yyyy HH:mm:ss" ],     # Friday, March 15, 2024 14:30:45
     [ :VerboseMinute, "dddd, MMMM d, yyyy HH:mm" ],        # Friday, March 15, 2024 14:30
     [ :LongDate,      "dddd, MMMM d, yyyy" ],              # Friday, March 15, 2024
-    
+
     [ :Verbose12h,    "dddd, MMMM d, yyyy hh:mm:ss AP" ],  # Friday, March 15, 2024 02:30:45 PM
     [ :Verbose12hMin, "dddd, MMMM d, yyyy hh:mm AP" ],     # Friday, March 15, 2024 02:30 PM
-    
+
     # ===== NAMED PATTERNS (handled specially in ToStringXT) =====
-    # These are processed with custom logic, not direct Qt format strings
-    
+    # These are processed with custom logic, not direct format strings
+
     [ :Simple,        "dd/MM/yyyy hh:mm AP" ],      # 15/03/2024 2:30 PM (custom 12h logic)
     [ :Simple12h,     "dd/MM/yyyy hh:mm AP" ],      # 15/03/2024 2:30 PM (custom 12h logic)
     [ :Simple24h,     "dd/MM/yyyy HH:mm" ],         # 15/03/2024 14:30
-    
+
     [ :Long,          "dddd, MMMM d, yyyy hh:mm:ss AP" ],  # Friday, March 15, 2024 2:30:45 PM
     [ :Long12h,       "dddd, MMMM d, yyyy hh:mm:ss AP" ],  # Friday, March 15, 2024 2:30:45 PM
     [ :Long24h,       "dddd, MMMM d, yyyy HH:mm:ss" ],     # Friday, March 15, 2024 14:30:45
-    
+
     [ :Short,         "dd/MM hh:mm AP" ],           # 15/03 2:30 PM (custom logic)
     [ :Short12h,      "dd/MM hh:mm AP" ],           # 15/03 2:30 PM (custom logic)
     [ :Short24h,      "dd/MM HH:mm" ],              # 15/03 14:30
-    
+
     [ :Medium,        "ddd, MMM d hh:mm AP" ],      # Fri, Mar 15 2:30 PM (custom logic)
     [ :Medium12h,     "ddd, MMM d hh:mm AP" ],      # Fri, Mar 15 2:30 PM (custom logic)
     [ :Medium24h,     "ddd, MMM d HH:mm" ],         # Fri, Mar 15 14:30
-    
+
     # ===== SPECIAL FORMATS =====
     # Specific use cases
-    
+
     [ :RFC2822,       "dd MMM yyyy HH:mm:ss" ],     # 15 Mar 2024 14:30:45
     [ :RFC282212h,    "dd MMM yyyy hh:mm:ss AP" ],  # 15 Mar 2024 02:30:45 PM
     [ :UnixLog,       "MMM d HH:mm:ss" ],           # Mar 15 14:30:45
@@ -200,17 +200,17 @@ func GetDateTimeFormat(cFormatNameOrString)
 func Is12HourFormat(cFormat)
     # Get actual format string if it's a name
     cActualFormat = GetDateTimeFormat(cFormat)
-    
+
     # Check for AP/ap marker (definitive 12h indicator)
     if substr(upper(cActualFormat), "AP") > 0
         return TRUE
     ok
-    
+
     # Check for explicit 12h suffix in format name
     if isString(cFormat) and right(lower(cFormat), 3) = "12h"
         return TRUE
     ok
-    
+
     return FALSE
 
 func ConvertTo12Hour(nHour)
@@ -228,119 +228,185 @@ func GetAmPmText(nHour)
         return oLocale.amText()
     ok
 
+func _DateTimeFormatString(nYear, nMonth, nDay, nHour, nMinute, nSecond, nMs, cFormat)
+    pHandle = StzEngineDateNew(nYear, nMonth, nDay)
+    cDayName = StzEngineDateDayName(pHandle)
+    cMonthName = StzEngineDateMonthName(pHandle)
+    StzEngineDateFree(pHandle)
+
+    cResult = cFormat
+    cResult = substr(cResult, "dddd", cDayName)
+    cResult = substr(cResult, "ddd", left(cDayName, 3))
+    cResult = substr(cResult, "dd", _PadLeft("" + nDay, 2, "0"))
+    cResult = substr(cResult, "MMMM", cMonthName)
+    cResult = substr(cResult, "MMM", left(cMonthName, 3))
+    cResult = substr(cResult, "MM", _PadLeft("" + nMonth, 2, "0"))
+    cResult = substr(cResult, "yyyy", "" + nYear)
+    nYY = nYear % 100
+    cResult = substr(cResult, "yy", _PadLeft("" + nYY, 2, "0"))
+    cResult = substr(cResult, "zzz", _PadLeft("" + nMs, 3, "0"))
+    cResult = substr(cResult, "HH", _PadLeft("" + nHour, 2, "0"))
+    cResult = substr(cResult, "mm", _PadLeft("" + nMinute, 2, "0"))
+    cResult = substr(cResult, "ss", _PadLeft("" + nSecond, 2, "0"))
+    return cResult
+
+func _SetComponentsFromUnixMs(nMs)
+    nSecs = floor(nMs / 1000)
+    nRemMs = nMs % 1000
+    if nRemMs < 0
+        nRemMs += 1000
+        nSecs -= 1
+    ok
+    pHandle = StzEngineDateTimeFromUnix(nSecs)
+    nY = StzEngineDateTimeYear(pHandle)
+    nMo = StzEngineDateTimeMonth(pHandle)
+    nD = StzEngineDateTimeDay(pHandle)
+    nH = StzEngineDateTimeHour(pHandle)
+    nMi = StzEngineDateTimeMinute(pHandle)
+    nS = StzEngineDateTimeSecond(pHandle)
+    StzEngineDateTimeFree(pHandle)
+    return [nY, nMo, nD, nH, nMi, nS, nRemMs]
+
+func _ToUnixMs(nYear, nMonth, nDay, nHour, nMinute, nSecond, nMs)
+    pHandle = StzEngineDateTimeNew(nYear, nMonth, nDay, nHour, nMinute, nSecond)
+    nUnix = StzEngineDateTimeToUnix(pHandle)
+    StzEngineDateTimeFree(pHandle)
+    return (nUnix * 1000) + nMs
+
 
 class stzDateTime from stzObject
-    @oQDateTime
+    @nYear
+    @nMonth
+    @nDay
+    @nHour
+    @nMinute
+    @nSecond
+    @nMs
     @nTotalSeconds
 
 	def init(pDateTime)
-	    @oQDateTime = new QDateTime()
-	    @oQDateTime.setTimeSpec(0)  # Set to UTC (Qt::UTC = 0)
-	    
+	    @nYear = 2000
+	    @nMonth = 1
+	    @nDay = 1
+	    @nHour = 0
+	    @nMinute = 0
+	    @nSecond = 0
+	    @nMs = 0
+
 	    if IsNull(pDateTime) or pDateTime = ""
-	        @oQDateTime = @oQDateTime.currentDateTime()
-	        @oQDateTime.setTimeSpec(0)
-	        
+	        pHandle = StzEngineDateTimeNow()
+	        @nYear = StzEngineDateTimeYear(pHandle)
+	        @nMonth = StzEngineDateTimeMonth(pHandle)
+	        @nDay = StzEngineDateTimeDay(pHandle)
+	        @nHour = StzEngineDateTimeHour(pHandle)
+	        @nMinute = StzEngineDateTimeMinute(pHandle)
+	        @nSecond = StzEngineDateTimeSecond(pHandle)
+	        @nMs = 0
+	        StzEngineDateTimeFree(pHandle)
+
 	    but isString(pDateTime)
-	        # Check if it's a counting from string
 	        if This.IsCountingFromString(pDateTime)
 	            This.ParseCountingFrom(pDateTime)
 	        else
-	            # Check if it's a natural epoch string (original)
 	            if This.IsNaturalEpochString(pDateTime)
 	                This.ParseNaturalEpoch(pDateTime)
 	            else
 	                This.ParseStringDateTime(pDateTime)
 	            ok
 	        ok
-	        
+
 	    but isNumber(pDateTime)
-	        # Unix timestamp in seconds
-	        @oQDateTime.setMSecsSinceEpoch(pDateTime * 1000)
-	        
+	        aComps = _SetComponentsFromUnixMs(pDateTime * 1000)
+	        @nYear = aComps[1]
+	        @nMonth = aComps[2]
+	        @nDay = aComps[3]
+	        @nHour = aComps[4]
+	        @nMinute = aComps[5]
+	        @nSecond = aComps[6]
+	        @nMs = aComps[7]
+
 	    but isList(pDateTime)
-	        if len(pDateTime) = 2 and 
+	        if len(pDateTime) = 2 and
 	           isObject(pDateTime[1]) and isObject(pDateTime[2])
-	            # [stzDate, stzTime] format
 	            if pDateTime[1].IsAStzDate()
-	                @oQDateTime.setDate(pDateTime[1].QDateObject())
+	                @nYear = pDateTime[1].Year()
+	                @nMonth = pDateTime[1].Month()
+	                @nDay = pDateTime[1].Day()
 	            ok
 	            if pDateTime[2].IsAStzTime()
-	                @oQDateTime.setTime(pDateTime[2].QTimeObject())
+	                @nHour = pDateTime[2].Hours()
+	                @nMinute = pDateTime[2].Minutes()
+	                @nSecond = pDateTime[2].Seconds()
+	                @nMs = pDateTime[2].MilliSeconds()
 	            ok
-	        
+
 	        but IsHashList(pDateTime)
-	            # CountingFrom with explicit origin
 	            if HasKey(pDateTime, :CountingFrom)
 	                This.SetCountingFrom(pDateTime[:CountingFrom], pDateTime[:Origin])
-	                
-	            # CountingFrom specific origins
+
 	            but HasKey(pDateTime, :CountingFromUnixStart)
 	                This.SetCountingFrom(pDateTime[:CountingFromUnixStart], :UnixEpoch)
-	                
+
 	            but HasKey(pDateTime, :CountingFromYearOne)
 	                This.SetCountingFrom(pDateTime[:CountingFromYearOne], :YearOne)
-	                
+
 	            but HasKey(pDateTime, :CountingFromIslamicHijra)
 	                This.SetCountingFrom(pDateTime[:CountingFromIslamicHijra], :IslamicHijra)
-	                
+
 	            but HasKey(pDateTime, :CountingFromUSIndependence)
 	                This.SetCountingFrom(pDateTime[:CountingFromUSIndependence], :USIndependence)
-	                
+
 	            but HasKey(pDateTime, :CountingFromSpaceAge)
 	                This.SetCountingFrom(pDateTime[:CountingFromSpaceAge], :SpaceAge)
-	                
+
 	            but HasKey(pDateTime, :CountingFromAtomicAge)
 	                This.SetCountingFrom(pDateTime[:CountingFromAtomicAge], :AtomicAge)
-	                
-	            # Natural language with origin
+
 	            but HasKey(pDateTime, :NaturalDuration)
 	                cOrigin = :UnixEpoch
 	                if HasKey(pDateTime, :Origin)
 	                    cOrigin = pDateTime[:Origin]
 	                ok
 	                This.SetFromNaturalDuration(pDateTime[:NaturalDuration], cOrigin)
-	                
-	            # Original epoch-based creation
+
 	            but HasKey(pDateTime, :FromEpochSeconds)
-	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochSeconds] * 1000)
-         
+	                This._SetFromMsSinceEpoch(pDateTime[:FromEpochSeconds] * 1000)
+
 	            but HasKey(pDateTime, :FromEpochMilliseconds)
-	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochMilliseconds])
-	                
+	                This._SetFromMsSinceEpoch(pDateTime[:FromEpochMilliseconds])
+
 	            but HasKey(pDateTime, :FromEpochMinutes)
-	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochMinutes] * 60 * 1000)
-	                
+	                This._SetFromMsSinceEpoch(pDateTime[:FromEpochMinutes] * 60 * 1000)
+
 	            but HasKey(pDateTime, :FromEpochHours)
-	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochHours] * 3600 * 1000)
-	                
+	                This._SetFromMsSinceEpoch(pDateTime[:FromEpochHours] * 3600 * 1000)
+
 	            but HasKey(pDateTime, :FromEpochDays)
-	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochDays] * 86400 * 1000)
-	                
+	                This._SetFromMsSinceEpoch(pDateTime[:FromEpochDays] * 86400 * 1000)
+
 	            but HasKey(pDateTime, :FromEpochWeeks)
-	                @oQDateTime.setMSecsSinceEpoch(pDateTime[:FromEpochWeeks] * 604800 * 1000)
-	                
+	                This._SetFromMsSinceEpoch(pDateTime[:FromEpochWeeks] * 604800 * 1000)
+
 	            but HasKey(pDateTime, :FromEpochMonths)
 	                This.SetFromEpochMonths(pDateTime[:FromEpochMonths])
-	                
+
 	            but HasKey(pDateTime, :FromEpochYears)
 	                This.SetFromEpochYears(pDateTime[:FromEpochYears])
-	                
+
 	            but HasKey(pDateTime, :FromNaturalEpoch)
 	                This.ParseNaturalEpoch(pDateTime[:FromNaturalEpoch])
-	                
+
 	            but HasKey(pDateTime, :FromEpochDuration)
 	                This.SetFromEpochDuration(pDateTime[:FromEpochDuration])
-	                
+
 	            else
-	                # Standard hash format: [:Year, :Month, :Day, :Hour, :Minute, :Second]
 	                nYear = 2000
 	                nMonth = 1
 	                nDay = 1
 	                nHour = 0
 	                nMinute = 0
 	                nSecond = 0
-	                
+
 	                if HasKey(pDateTime, :Year)
 	                    nYear = 0+ pDateTime[:Year]
 	                ok
@@ -364,65 +430,143 @@ class stzDateTime from stzObject
 	                if HasKey(pDateTime, :Second)
 	                    nSecond = 0+ pDateTime[:Second]
 	                ok
-	                
-	                _oDate_ = new QDate()
-	                _oDate_.setDate(nYear, nMonth, nDay)
-	                _oTime_ = new QTime()
-	                _oTime_.setHMS(nHour, nMinute, nSecond, 0)
-	                
-	                @oQDateTime.setDate(_oDate_)
-	                @oQDateTime.setTime(_oTime_)
+
+	                @nYear = nYear
+	                @nMonth = nMonth
+	                @nDay = nDay
+	                @nHour = nHour
+	                @nMinute = nMinute
+	                @nSecond = nSecond
+	                @nMs = 0
 	            ok
 	        ok
 	    ok
-	    
-	    if not @oQDateTime.isValid()
+
+	    if not This.IsValid()
 	        StzRaise("Invalid date/time provided!")
 	    ok
-    
+
+    def _SetFromMsSinceEpoch(nMs)
+        aComps = _SetComponentsFromUnixMs(nMs)
+        @nYear = aComps[1]
+        @nMonth = aComps[2]
+        @nDay = aComps[3]
+        @nHour = aComps[4]
+        @nMinute = aComps[5]
+        @nSecond = aComps[6]
+        @nMs = aComps[7]
+
+    def _ToMsSinceEpoch()
+        return _ToUnixMs(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs)
+
     def ParseStringDateTime(cDateTime)
-        # Try Qt built-in formats first (using numeric constants)
-        aQtFormats = [ 1, 0 ] # ISODate=1, TextDate=0
-        
-        for nFormat in aQtFormats
-            oTemp = new QDateTime()
-            oTemp = oTemp.fromString(cDateTime, nFormat)
-            
-            if oTemp.isValid()
-                @oQDateTime = oTemp
+        cDateTime = trim(cDateTime)
+
+        if substr(cDateTime, "T") > 0
+            aParts = split(cDateTime, "T")
+            cDatePart = aParts[1]
+            cTimePart = aParts[2]
+            This._ParseDatePart(cDatePart)
+            This._ParseTimePart(cTimePart)
+            return
+        ok
+
+        nSpacePos = substr(cDateTime, " ")
+        if nSpacePos > 0
+            cDatePart = left(cDateTime, nSpacePos - 1)
+            cRest = substr(cDateTime, nSpacePos + 1)
+
+            if This._LooksLikeDatePart(cDatePart)
+                This._ParseDatePart(cDatePart)
+                This._ParseTimePart(cRest)
                 return
             ok
-        next
-        
-        # Try custom string formats
-        aCustomFormats = [
-            "yyyy-MM-dd h:m:s",
-            "yyyy-MM-dd h:m:s.zzz",  # For milliseconds with space
-            "dd/MM/yyyy h:m:s",
-            "MM/dd/yyyy h:m:s",
-            "dd-MM-yyyy h:m:s",
-            "yyyy-MM-dd h:m",
-            "dd/MM/yyyy h:m",
-            "yyyy-MM-ddTh:m:s",
-            "yyyy-MM-ddTh:m:s.zzz",
-            "dd MMM yyyy h:m:s",
-            "ddd MMM d h:m:s yyyy"
-        ]
-        
-        for cFormat in aCustomFormats
-            oTemp = new QDateTime()
-            oTemp = oTemp.fromString(cDateTime, cFormat)
-            
-            if oTemp.isValid()
-                @oQDateTime = oTemp
-                return
-            ok
-        next
-        
+        ok
+
+        if substr(cDateTime, "-") > 0 or substr(cDateTime, "/") > 0
+            This._ParseDatePart(cDateTime)
+            @nHour = 0
+            @nMinute = 0
+            @nSecond = 0
+            @nMs = 0
+            return
+        ok
+
         StzRaise("Cannot parse date/time string: " + cDateTime)
 
+    def _LooksLikeDatePart(cStr)
+        return (substr(cStr, "-") > 0 or substr(cStr, "/") > 0)
+
+    def _ParseDatePart(cDatePart)
+        aDateParts = []
+        if substr(cDatePart, "/") > 0
+            aDateParts = split(cDatePart, "/")
+        but substr(cDatePart, "-") > 0
+            aDateParts = split(cDatePart, "-")
+        ok
+
+        if len(aDateParts) != 3
+            StzRaise("Cannot parse date part: " + cDatePart)
+        ok
+
+        if len(aDateParts[1]) = 4
+            @nYear = 0+ aDateParts[1]
+            @nMonth = 0+ aDateParts[2]
+            @nDay = 0+ aDateParts[3]
+        else
+            @nDay = 0+ aDateParts[1]
+            @nMonth = 0+ aDateParts[2]
+            @nYear = 0+ aDateParts[3]
+        ok
+
+    def _ParseTimePart(cTimePart)
+        cTimePart = trim(cTimePart)
+        bPM = FALSE
+        bAM = FALSE
+
+        if upper(right(cTimePart, 2)) = "PM"
+            bPM = TRUE
+            cTimePart = trim(left(cTimePart, len(cTimePart) - 2))
+        but upper(right(cTimePart, 2)) = "AM"
+            bAM = TRUE
+            cTimePart = trim(left(cTimePart, len(cTimePart) - 2))
+        ok
+
+        aTimeParts = split(cTimePart, ":")
+        if len(aTimeParts) < 2
+            @nHour = 0
+            @nMinute = 0
+            @nSecond = 0
+            @nMs = 0
+            return
+        ok
+
+        @nHour = 0+ aTimeParts[1]
+        @nMinute = 0+ aTimeParts[2]
+        @nSecond = 0
+        @nMs = 0
+
+        if len(aTimeParts) >= 3
+            cSecPart = aTimeParts[3]
+            if substr(cSecPart, ".") > 0
+                aSecParts = split(cSecPart, ".")
+                @nSecond = 0+ aSecParts[1]
+                if len(aSecParts) >= 2
+                    @nMs = 0+ aSecParts[2]
+                ok
+            else
+                @nSecond = 0+ cSecPart
+            ok
+        ok
+
+        if bPM and @nHour < 12
+            @nHour = @nHour + 12
+        ok
+        if bAM and @nHour = 12
+            @nHour = 0
+        ok
+
 	def GuessDateTimeFormat(cDateTime)
-	    # Check for T separator (ISO 8601)
 	    if substr(cDateTime, "T") > 0
 	        if substr(cDateTime, ".") > 0
 	            return "yyyy-MM-ddTHH:mm:ss.zzz"
@@ -436,90 +580,74 @@ class stzDateTime from stzObject
 	        ok
 	        return "yyyy-MM-dd"
 	    ok
-	    
-	    # Check separator type
+
 	    cDateSep = ""
 	    if substr(cDateTime, "/") > 0
 	        cDateSep = "/"
 	    but substr(cDateTime, "-") > 0 and substr(cDateTime, " ") = 0
-	        return "yyyy-MM-dd" # Date only
+	        return "yyyy-MM-dd"
 	    but substr(cDateTime, "-") > 0
 	        cDateSep = "-"
 	    ok
-	    
+
 	    if cDateSep = ""
 	        return NULL
 	    ok
-	    
-	    # Split by space to separate date and time
+
 	    aParts = split(cDateTime, " ")
 	    cDatePart = aParts[1]
 	    cTimePart = ""
 	    cAMPM = ""
-	    
+
 	    if len(aParts) >= 2
 	        cTimePart = aParts[2]
 	        if len(aParts) >= 3
 	            cAMPM = " AP"
 	        ok
 	    ok
-	    
-	    # Analyze date part
+
 	    aDateParts = split(cDatePart, cDateSep)
 	    if len(aDateParts) != 3
 	        return NULL
 	    ok
-	    
-	    # Determine date format based on first part length
+
 	    cDateFormat = ""
 	    if len(aDateParts[1]) = 4
-	        # Year first: yyyy-MM-dd or yyyy/MM/dd
 	        cDateFormat = "yyyy" + cDateSep + "MM" + cDateSep + "dd"
 	    else
-	        # Day or month first - assume European dd/MM/yyyy for now
-	        # (You can add logic to distinguish MM/dd/yyyy if needed)
 	        cDateFormat = "dd" + cDateSep + "MM" + cDateSep + "yyyy"
 	    ok
-	    
-	    # Analyze time part if present
+
 	    if cTimePart != ""
 	        aTimeParts = split(cTimePart, ":")
 	        cTimeFormat = ""
-	        
+
 	        if len(aTimeParts) >= 3
 	            cTimeFormat = "HH:mm:ss"
 	        but len(aTimeParts) = 2
 	            cTimeFormat = "HH:mm"
 	        ok
-	        
-	        # Check for milliseconds
+
 	        if substr(cTimePart, ".") > 0
 	            cTimeFormat = cTimeFormat + ".zzz"
 	        ok
-	        
+
 	        return cDateFormat + " " + cTimeFormat + cAMPM
 	    ok
-	    
+
 	    return cDateFormat
-	
+
 	def TryManualParse(cDateTime)
-	    # Manual parsing as last resort
-	    # Split by common separators and try to extract components
-	    
 	    cDateTime = trim(cDateTime)
-	    
-	    # Check for space separator between date and time
+
 	    nSpacePos = substr(cDateTime, " ")
 	    if nSpacePos = 0
-	        # Date only
 	        return This.TryManualDateParse(cDateTime)
 	    ok
-	    
-	    # Split into date and time
+
 	    cDatePart = left(cDateTime, nSpacePos - 1)
 	    cRest = substr(cDateTime, nSpacePos + 1)
-	    
-	    # Check for AM/PM
+
 	    cTimePart = cRest
 	    bPM = FALSE
 	    if upper(right(cRest, 2)) = "PM"
@@ -528,8 +656,7 @@ class stzDateTime from stzObject
 	    but upper(right(cRest, 2)) = "AM"
 	        cTimePart = trim(left(cRest, len(cRest) - 2))
 	    ok
-	    
-	    # Parse date part
+
 	    aDateParts = []
 	    if substr(cDatePart, "/") > 0
 	        aDateParts = split(cDatePart, "/")
@@ -538,39 +665,35 @@ class stzDateTime from stzObject
 	    else
 	        return FALSE
 	    ok
-	    
+
 	    if len(aDateParts) != 3
 	        return FALSE
 	    ok
-	    
-	    # Determine year, month, day
+
 	    nYear = 0
 	    nMonth = 0
 	    nDay = 0
-	    
+
 	    if len(aDateParts[1]) = 4
-	        # yyyy-MM-dd format
 	        nYear = 0+ aDateParts[1]
 	        nMonth = 0+ aDateParts[2]
 	        nDay = 0+ aDateParts[3]
 	    else
-	        # Assume dd/MM/yyyy (European) format
 	        nDay = 0+ aDateParts[1]
 	        nMonth = 0+ aDateParts[2]
 	        nYear = 0+ aDateParts[3]
 	    ok
-	    
-	    # Parse time part
+
 	    aTimeParts = split(cTimePart, ":")
 	    if len(aTimeParts) < 2
 	        return FALSE
 	    ok
-	    
+
 	    nHour = 0+ aTimeParts[1]
 	    nMinute = 0+ aTimeParts[2]
 	    nSecond = 0
 	    nMs = 0
-	    
+
 	    if len(aTimeParts) >= 3
 	        cSecPart = aTimeParts[3]
 	        if substr(cSecPart, ".") > 0
@@ -583,36 +706,32 @@ class stzDateTime from stzObject
 	            nSecond = 0+ cSecPart
 	        ok
 	    ok
-	    
-	    # Adjust for PM
+
 	    if bPM and nHour < 12
 	        nHour = nHour + 12
 	    ok
-	    
-	    # Create QDateTime
+
 	    try
-	        oDate = new QDate()
-	        oDate.setDate(nYear, nMonth, nDay)
-	        
-	        oTime = new QTime()
-	        oTime.setHMS(nHour, nMinute, nSecond, nMs)
-	        
-	        @oQDateTime.setDate(oDate)
-	        @oQDateTime.setTime(oTime)
-	        
-	        if @oQDateTime.isValid()
+	        @nYear = nYear
+	        @nMonth = nMonth
+	        @nDay = nDay
+	        @nHour = nHour
+	        @nMinute = nMinute
+	        @nSecond = nSecond
+	        @nMs = nMs
+
+	        if This.IsValid()
 	            return TRUE
 	        ok
 	    catch
 	        return FALSE
 	    done
-	    
+
 	    return FALSE
-	
+
 	def TryManualDateParse(cDate)
-	    # Parse date-only strings
 	    aDateParts = []
-	    
+
 	    if substr(cDate, "/") > 0
 	        aDateParts = split(cDate, "/")
 	    but substr(cDate, "-") > 0
@@ -620,15 +739,15 @@ class stzDateTime from stzObject
 	    else
 	        return FALSE
 	    ok
-	    
+
 	    if len(aDateParts) != 3
 	        return FALSE
 	    ok
-	    
+
 	    nYear = 0
 	    nMonth = 0
 	    nDay = 0
-	    
+
 	    if len(aDateParts[1]) = 4
 	        nYear = 0+ aDateParts[1]
 	        nMonth = 0+ aDateParts[2]
@@ -638,111 +757,110 @@ class stzDateTime from stzObject
 	        nMonth = 0+ aDateParts[2]
 	        nYear = 0+ aDateParts[3]
 	    ok
-	    
+
 	    try
-	        oDate = new QDate()
-	        oDate.setDate(nYear, nMonth, nDay)
-	        
-	        oTime = new QTime()
-	        oTime.setHMS(0, 0, 0, 0)
-	        
-	        @oQDateTime.setDate(oDate)
-	        @oQDateTime.setTime(oTime)
-	        
-	        return @oQDateTime.isValid()
+	        @nYear = nYear
+	        @nMonth = nMonth
+	        @nDay = nDay
+	        @nHour = 0
+	        @nMinute = 0
+	        @nSecond = 0
+	        @nMs = 0
+
+	        return This.IsValid()
 	    catch
 	        return FALSE
 	    done
-	    
+
 	    return FALSE
 
 	#--- EPOCH-BASED CREATION METHODS ---#
-	
+
 	def FromSecondsSinceEpoch(nSeconds)
 	    return This.FromSecondsSinceEpochXT(nSeconds, :UnixEpoch)
-	    
+
 	    def FromSecondsSinceEpochXT(nSeconds, cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 
 	        nBaseMs = This.GetOriginBase(cOrigin)
-	        @oQDateTime.setMSecsSinceEpoch(nBaseMs + (nSeconds * 1000))
-	    
+	        This._SetFromMsSinceEpoch(nBaseMs + (nSeconds * 1000))
+
 	    def FromEpochSeconds(nSeconds)
 	        return This.FromSecondsSinceEpoch(nSeconds)
-	    
+
 	    def FromUnixTimestamp(nSeconds)
 	        return This.FromSecondsSinceEpoch(nSeconds)
-	
+
 	def FromMillisecondsSinceEpoch(nMilliseconds)
 	    return This.FromMillisecondsSinceEpochXT(nMilliseconds, :UnixEpoch)
-	    
+
 	    def FromMillisecondsSinceEpochXT(nMilliseconds, cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        nBaseMs = This.GetOriginBase(cOrigin)
-	        @oQDateTime.setMSecsSinceEpoch(nBaseMs + nMilliseconds)
-	    
+	        This._SetFromMsSinceEpoch(nBaseMs + nMilliseconds)
+
 	    def FromEpochMilliseconds(nMilliseconds)
 	        return This.FromMillisecondsSinceEpoch(nMilliseconds)
-	
+
 	def FromMinutesSinceEpoch(nMinutes)
 	    return This.FromMinutesSinceEpochXT(nMinutes, :UnixEpoch)
-	    
+
 	    def FromMinutesSinceEpochXT(nMinutes, cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        nBaseMs = This.GetOriginBase(cOrigin)
-	        @oQDateTime.setMSecsSinceEpoch(nBaseMs + (nMinutes * 60 * 1000))
-	    
+	        This._SetFromMsSinceEpoch(nBaseMs + (nMinutes * 60 * 1000))
+
 	    def FromEpochMinutes(nMinutes)
 	        return This.FromMinutesSinceEpoch(nMinutes)
-	
+
 	def FromHoursSinceEpoch(nHours)
 	    return This.FromHoursSinceEpochXT(nHours, :UnixEpoch)
-	    
+
 	    def FromHoursSinceEpochXT(nHours, cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        nBaseMs = This.GetOriginBase(cOrigin)
-	        @oQDateTime.setMSecsSinceEpoch(nBaseMs + (nHours * 3600 * 1000))
-	    
+	        This._SetFromMsSinceEpoch(nBaseMs + (nHours * 3600 * 1000))
+
 	    def FromEpochHours(nHours)
 	        return This.FromHoursSinceEpoch(nHours)
-	
+
 	def FromDaysSinceEpoch(nDays)
 	    return This.FromDaysSinceEpochXT(nDays, :UnixEpoch)
-	    
+
 	    def FromDaysSinceEpochXT(nDays, cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        nBaseMs = This.GetOriginBase(cOrigin)
-	        @oQDateTime.setMSecsSinceEpoch(nBaseMs + (nDays * 86400 * 1000))
-	    
+	        This._SetFromMsSinceEpoch(nBaseMs + (nDays * 86400 * 1000))
+
 	    def FromEpochDays(nDays)
 	        return This.FromDaysSinceEpoch(nDays)
-	
+
 	def FromWeeksSinceEpoch(nWeeks)
 	    return This.FromWeeksSinceEpochXT(nWeeks, :UnixEpoch)
-	    
+
 	    def FromWeeksSinceEpochXT(nWeeks, cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        nBaseMs = This.GetOriginBase(cOrigin)
-	        @oQDateTime.setMSecsSinceEpoch(nBaseMs + (nWeeks * 604800 * 1000))
-	    
+	        This._SetFromMsSinceEpoch(nBaseMs + (nWeeks * 604800 * 1000))
+
 	    def FromEpochWeeks(nWeeks)
 	        return This.FromWeeksSinceEpoch(nWeeks)
-	
+
 	def FromMonthsSinceEpoch(nMonths)
 	    return This.FromMonthsSinceEpochXT(nMonths, :UnixEpoch)
-	    
+
 	    def FromMonthsSinceEpochXT(nMonths, cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
@@ -750,181 +868,214 @@ class stzDateTime from stzObject
 	        nBaseMs = This.GetOriginBase(cOrigin)
 	        nYears = floor(nMonths / 12)
 	        nRemainingMonths = nMonths % 12
-	        
-	        _oDate_ = new QDate()
-	        _oDate_.setDate(1970 + nYears, 1 + nRemainingMonths, 1)
-	        _oTime_ = new QTime()
-	        _oTime_.setHMS(0, 0, 0, 0)
-	        
-	        @oQDateTime.setDate(_oDate_)
-	        @oQDateTime.setTime(_oTime_)
-	        @oQDateTime = @oQDateTime.addMSecs(nBaseMs)  # Adjust for origin
-	    
+
+	        @nYear = 1970 + nYears
+	        @nMonth = 1 + nRemainingMonths
+	        @nDay = 1
+	        @nHour = 0
+	        @nMinute = 0
+	        @nSecond = 0
+	        @nMs = 0
+
+	        if nBaseMs != 0
+	            nCurrentMs = This._ToMsSinceEpoch()
+	            This._SetFromMsSinceEpoch(nCurrentMs + nBaseMs)
+	        ok
+
 	    def FromEpochMonths(nMonths)
 	        return This.FromMonthsSinceEpoch(nMonths)
-	
+
 	def FromYearsSinceEpoch(nYears)
 	    return This.FromYearsSinceEpochXT(nYears, :UnixEpoch)
-	    
+
 	    def FromYearsSinceEpochXT(nYears, cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        nBaseMs = This.GetOriginBase(cOrigin)
-	        _oDate_ = new QDate()
-	        _oDate_.setDate(1970 + nYears, 1, 1)
-	        _oTime_ = new QTime()
-	        _oTime_.setHMS(0, 0, 0, 0)
-	        
-	        @oQDateTime.setDate(_oDate_)
-	        @oQDateTime.setTime(_oTime_)
-	        @oQDateTime = @oQDateTime.addMSecs(nBaseMs)  # Adjust for origin
-	    
+
+	        @nYear = 1970 + nYears
+	        @nMonth = 1
+	        @nDay = 1
+	        @nHour = 0
+	        @nMinute = 0
+	        @nSecond = 0
+	        @nMs = 0
+
+	        if nBaseMs != 0
+	            nCurrentMs = This._ToMsSinceEpoch()
+	            This._SetFromMsSinceEpoch(nCurrentMs + nBaseMs)
+	        ok
+
 	    def FromEpochYears(nYears)
 	        return This.FromYearsSinceEpoch(nYears)
 
 	#--- NATURAL LANGUAGE EPOCH CREATION ---#
-	
+
 	def FromNaturalEpoch(cNatural)
 	    return This.FromNaturalEpochXT(cNatural, :UnixEpoch)
-	    
+
 	    def FromNaturalEpochXT(cNatural, cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        nDurationMs = This.ParseNaturalDuration(cNatural)
 	        nBaseMs = This.GetOriginBase(cOrigin)
-	        @oQDateTime.setMSecsSinceEpoch(nBaseMs + nDurationMs)
-	    
+	        This._SetFromMsSinceEpoch(nBaseMs + nDurationMs)
+
 	    def FromNaturalSinceEpoch(cNatural)
 	        return This.FromNaturalEpoch(cNatural)
-	
+
 	#--- COMBINED EPOCH CREATION WITH HASH ---#
-	
+
 	def FromEpochHash(aHash)
 	    return This.FromEpochHashXT(aHash, :UnixEpoch)
-	    
+
 	    def FromEpochHashXT(aHash, cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        nDurationMs = This.HashToMilliseconds(aHash)
 	        nBaseMs = This.GetOriginBase(cOrigin)
-	        @oQDateTime.setMSecsSinceEpoch(nBaseMs + nDurationMs)
-	    
+	        This._SetFromMsSinceEpoch(nBaseMs + nDurationMs)
+
 	    def FromEpochDuration(aHash)
 	        return This.FromEpochHash(aHash)
 
     #--- COMPONENT EXTRACTION ---#
-    
+
     def Date()
-	acDateTime = @split(This.Content(), " ")
-	return acDateTime[1]
+        return _PadLeft("" + @nYear, 4, "0") + "-" + _PadLeft("" + @nMonth, 2, "0") + "-" + _PadLeft("" + @nDay, 2, "0")
 
     def DateQ()
         return new stzDate(This.Date())
-    
+
 	def Time()
-		acDateTime = @split(This.Content(), " ")
-		return acDateTime[2]
+	    return _PadLeft("" + @nHour, 2, "0") + ":" + _PadLeft("" + @nMinute, 2, "0") + ":" + _PadLeft("" + @nSecond, 2, "0")
 
     def TimeQ()
         return new stzTime(This.Time())
-    
+
     #--- ARITHMETIC OPERATIONS ---#
-    
+
     def AddDays(nDays)
-        @oQDateTime = @oQDateTime.addDays(nDays)
+        pHandle = StzEngineDateTimeNew(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond)
+        pNew = StzEngineDateTimeAddDays(pHandle, nDays)
+        @nYear = StzEngineDateTimeYear(pNew)
+        @nMonth = StzEngineDateTimeMonth(pNew)
+        @nDay = StzEngineDateTimeDay(pNew)
+        @nHour = StzEngineDateTimeHour(pNew)
+        @nMinute = StzEngineDateTimeMinute(pNew)
+        @nSecond = StzEngineDateTimeSecond(pNew)
+        StzEngineDateTimeFree(pHandle)
+        StzEngineDateTimeFree(pNew)
         return This.ToString()
-    
+
     def AddDaysQ(nDays)
         This.AddDays(nDays)
         return This
-    
+
     def AddMonths(nMonths)
-        @oQDateTime = @oQDateTime.addMonths(nMonths)
+        aResult = _DateAddMonths(@nYear, @nMonth, @nDay, nMonths)
+        @nYear = aResult[1]
+        @nMonth = aResult[2]
+        @nDay = aResult[3]
         return This.ToString()
-    
+
     def AddMonthsQ(nMonths)
         This.AddMonths(nMonths)
         return This
-    
+
     def AddYears(nYears)
-        @oQDateTime = @oQDateTime.addYears(nYears)
+        aResult = _DateAddYears(@nYear, @nMonth, @nDay, nYears)
+        @nYear = aResult[1]
+        @nMonth = aResult[2]
+        @nDay = aResult[3]
         return This.ToString()
-    
+
     def AddYearsQ(nYears)
         This.AddYears(nYears)
         return This
-    
+
     def AddSeconds(nSeconds)
-        @oQDateTime = @oQDateTime.addSecs(nSeconds)
+        pHandle = StzEngineDateTimeNew(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond)
+        pNew = StzEngineDateTimeAddSeconds(pHandle, nSeconds)
+        @nYear = StzEngineDateTimeYear(pNew)
+        @nMonth = StzEngineDateTimeMonth(pNew)
+        @nDay = StzEngineDateTimeDay(pNew)
+        @nHour = StzEngineDateTimeHour(pNew)
+        @nMinute = StzEngineDateTimeMinute(pNew)
+        @nSecond = StzEngineDateTimeSecond(pNew)
+        StzEngineDateTimeFree(pHandle)
+        StzEngineDateTimeFree(pNew)
         return This.ToString()
-    
+
     def AddSecondsQ(nSeconds)
         This.AddSeconds(nSeconds)
         return This
-    
+
     def AddMinutes(nMinutes)
-        @oQDateTime = @oQDateTime.addSecs(nMinutes * 60)
-        return This.ToString()
-    
+        return This.AddSeconds(nMinutes * 60)
+
     def AddMinutesQ(nMinutes)
         This.AddMinutes(nMinutes)
         return This
-    
+
     def AddHours(nHours)
-        @oQDateTime = @oQDateTime.addSecs(nHours * 3600)
-        return This.ToString()
-    
+        return This.AddSeconds(nHours * 3600)
+
     def AddHoursQ(nHours)
         This.AddHours(nHours)
         return This
-    
-    def AddMilliseconds(nMs)
-        @oQDateTime = @oQDateTime.addMSecs(nMs)
-        return This.ToStringXT("yyyy-MM-dd hh:mm:ss.zzz")
-    
+
+    def AddMilliseconds(nMsToAdd)
+        nTotalMs = @nMs + nMsToAdd
+        nExtraSecs = floor(nTotalMs / 1000)
+        @nMs = nTotalMs % 1000
+        if @nMs < 0
+            @nMs += 1000
+            nExtraSecs -= 1
+        ok
+        if nExtraSecs != 0
+            This.AddSeconds(nExtraSecs)
+        ok
+        return This.ToStringXT("yyyy-MM-dd HH:mm:ss.zzz")
+
     def AddMillisecondsQ(nMs)
         This.AddMilliseconds(nMs)
         return This
 
     def SubtractDays(nDays)
-        @oQDateTime = @oQDateTime.addDays(-nDays)
-        return This.ToString()
-    
+        return This.AddDays(-nDays)
+
     def SubtractDaysQ(nDays)
         This.SubtractDays(nDays)
         return This
 
     def SubtractMonths(nMonths)
-        @oQDateTime = @oQDateTime.addMonths(-nMonths)
-        return This.ToString()
-    
+        return This.AddMonths(-nMonths)
+
     def SubtractMonthsQ(nMonths)
         This.SubtractMonths(nMonths)
         return This
 
     def SubtractYears(nYears)
-        @oQDateTime = @oQDateTime.addYears(-nYears)
-        return This.ToString()
-    
+        return This.AddYears(-nYears)
+
     def SubtractYearsQ(nYears)
         This.SubtractYears(nYears)
         return This
 
     def SubtractSeconds(nSeconds)
-        @oQDateTime = @oQDateTime.addSecs(-nSeconds)
-        return This.ToString()
-    
+        return This.AddSeconds(-nSeconds)
+
     def SubtractSecondsQ(nSeconds)
         This.SubtractSeconds(nSeconds)
         return This
 
     def SubtractMilliSeconds(nMilliSeconds)
-        @oQDateTime = @oQDateTime.addMSecs(-nMilliSeconds)
-        return This.ToStringXT("yyyy-mm-dd hh:mm:ss.zzz")
-    
+        return This.AddMilliseconds(-nMilliSeconds)
+
     def SubtractMilliSecondsQ(nMilliSeconds)
         This.SubtractMilliSeconds(nMilliSeconds)
         return This
@@ -946,22 +1097,20 @@ class stzDateTime from stzObject
 	def AddNatural(cExpr)
 	    cExpr = lower(trim(cExpr))
 
-	    # Don't process if it looks like a datetime string
-
 		Rx = new stzRegex(pat(:DateTime))
 	    if Rx.Match(cExpr)
 	        return
 	    ok
-	    
+
 	    aParts = split(cExpr, " ")
-	    
+
 	    i = 1
 	    while i <= len(aParts)
 	        if isNumber(0+ aParts[i])
 	            nValue = 0+ aParts[i]
 	            if i < len(aParts)
 	                cUnit = lower(aParts[i+1])
-	                
+
 	                if cUnit = "day" or cUnit = "days"
 	                    This.AddDays(nValue)
 
@@ -983,7 +1132,7 @@ class stzDateTime from stzObject
 	                but cUnit = "millisecond" or cUnit = "milliseconds"
 	                    This.AddMilliseconds(nValue)
 	                ok
-	                
+
 	                i += 2
 	            else
 	                i++
@@ -992,24 +1141,23 @@ class stzDateTime from stzObject
 	            i++
 	        ok
 	    end
-	
+
 	def SubtractNatural(cExpr)
 	    cExpr = lower(trim(cExpr))
-	    
-	    # Don't process if it looks like a datetime string
+
 	    if substr(cExpr, "-") > 0 or substr(cExpr, ":") > 0 or substr(cExpr, "T") > 0
 	        return
 	    ok
-	    
+
 	    aParts = split(cExpr, " ")
-	    
+
 	    i = 1
 	    while i <= len(aParts)
 	        if isNumber(0+ aParts[i])
 	            nValue = 0+ aParts[i]
 	            if i < len(aParts)
 	                cUnit = lower(aParts[i+1])
-	                
+
 	                if cUnit = "day" or cUnit = "days"
 	                    This.SubtractDays(nValue)
 
@@ -1031,7 +1179,7 @@ class stzDateTime from stzObject
 	                but cUnit = "millisecond" or cUnit = "milliseconds"
 	                    This.SubtractMilliSeconds(nValue)
 	                ok
-	                
+
 	                i += 2
 	            else
 	                i++
@@ -1042,21 +1190,21 @@ class stzDateTime from stzObject
 	    end
 
      #--- COMPARISON METHODS ---#
-    
+
     def IsBefore(poOtherDateTime)
         if isString(poOtherDateTime)
             _oOtherDateTime_ = new stzDateTime(poOtherDateTime)
 			return This.IsBefore(_oOtherDateTime_)
         ok
         return This.SecsTo(poOtherDateTime) > 0
-    
+
     def IsAfter(poOtherDateTime)
         if isString(poOtherDateTime)
             _oOtherDateTime_ = new stzDateTime(poOtherDateTime)
 			return This.IsAfter(_oOtherDateTime_)
         ok
         return This.SecsTo(poOtherDateTime) < 0
-    
+
     def IsEqualTo(poOtherDateTime)
         if isString(poOtherDateTime)
             _oOtherDateTime_ = new stzDateTime(poOtherDateTime)
@@ -1084,14 +1232,18 @@ class stzDateTime from stzObject
             _oEndDateTime_ = new stzDateTime(poEndDateTime)
 	    return This.ISBetween(poStartDateTime, _oEndDateTime_)
         ok
-        
+
         return This.IsAfter(poStartDateTime) and This.IsBefore(poEndDateTime)
 
     def IsNow()
-        _oNow_ = new QDateTime()
-        _oNow_ = _oNow_.currentDateTime()
-        nDiff = abs(@oQDateTime.secsTo(_oNow_))
-        return nDiff < 60  # Within 1 minute
+        pNow = StzEngineDateTimeNow()
+        nNowUnix = StzEngineDateTimeToUnix(pNow)
+        StzEngineDateTimeFree(pNow)
+        pThis = StzEngineDateTimeNew(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond)
+        nThisUnix = StzEngineDateTimeToUnix(pThis)
+        StzEngineDateTimeFree(pThis)
+        nDiff = abs(nThisUnix - nNowUnix)
+        return nDiff < 60
 
     def IsToday()
         return This.DateQ().IsToday()
@@ -1103,12 +1255,15 @@ class stzDateTime from stzObject
         return This.DateQ().IsYesterday()
 
     #--- UNIX TIMESTAMP ---#
-    
+
     def ToUnixTimeStamp()
-        return @oQDateTime.toMSecsSinceEpoch() / 1000
-    
+        pHandle = StzEngineDateTimeNew(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond)
+        nUnix = StzEngineDateTimeToUnix(pHandle)
+        StzEngineDateTimeFree(pHandle)
+        return nUnix
+
     def ToUnixTimeStampMs()
-        return @oQDateTime.toMSecsSinceEpoch()
+        return This._ToMsSinceEpoch()
 
 	#--- EPOCH CONVERSIONS ---#
 
@@ -1116,77 +1271,79 @@ class stzDateTime from stzObject
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
-	        nCurrentMs = @oQDateTime.toMSecsSinceEpoch()
+	        nCurrentMs = This._ToMsSinceEpoch()
 	        nOriginMs = This.GetOriginBase(cOrigin)
 	        return floor((nCurrentMs - nOriginMs) / 1000)
-	
+
 	def ToMillisecondsSinceEpochXT(cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
-	        nCurrentMs = @oQDateTime.toMSecsSinceEpoch()
+	        nCurrentMs = This._ToMsSinceEpoch()
 	        nOriginMs = This.GetOriginBase(cOrigin)
 	        return nCurrentMs - nOriginMs
-	
+
 	def ToMinutesSinceEpochXT(cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        return floor(This.ToSecondsSinceEpochXT(cOrigin) / 60)
-	
+
 	def ToHoursSinceEpochXT(cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        return floor(This.ToSecondsSinceEpochXT(cOrigin) / 3600)
-	
+
 	def ToDaysSinceEpochXT(cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        return floor(This.ToSecondsSinceEpochXT(cOrigin) / 86400)
-	
+
 	def ToWeeksSinceEpochXT(cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        return floor(This.ToSecondsSinceEpochXT(cOrigin) / 604800)
-    
+
 	def ToMonthsSinceEpochXT(cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
-	        oOrigin = new QDateTime()
-	        oOrigin.setMSecsSinceEpoch(This.GetOriginBase(cOrigin))
-	        
-	        nYears = @oQDateTime.date().year() - oOrigin.date().year()
-	        nMonths = @oQDateTime.date().month() - oOrigin.date().month()
-	        
+	        aOriginComps = _SetComponentsFromUnixMs(This.GetOriginBase(cOrigin))
+	        nOriginYear = aOriginComps[1]
+	        nOriginMonth = aOriginComps[2]
+
+	        nYears = @nYear - nOriginYear
+	        nMonths = @nMonth - nOriginMonth
+
 	        return (nYears * 12) + nMonths
-	
+
 	def ToYearsSinceEpochXT(cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
-	        oOrigin = new QDateTime()
-	        oOrigin.setMSecsSinceEpoch(This.GetOriginBase(cOrigin))
-	        
-	        nYears = @oQDateTime.date().year() - oOrigin.date().year()
-	        
-	        # Adjust if we haven't reached the anniversary date this year
-	        if @oQDateTime.date().month() < oOrigin.date().month() or 
-	           (@oQDateTime.date().month() = oOrigin.date().month() and @oQDateTime.date().day() < oOrigin.date().day())
+	        aOriginComps = _SetComponentsFromUnixMs(This.GetOriginBase(cOrigin))
+	        nOriginYear = aOriginComps[1]
+	        nOriginMonth = aOriginComps[2]
+	        nOriginDay = aOriginComps[3]
+
+	        nYears = @nYear - nOriginYear
+
+	        if @nMonth < nOriginMonth or
+	           (@nMonth = nOriginMonth and @nDay < nOriginDay)
 	            nYears--
 	        ok
-	        
+
 	        return nYears
-	
+
 	def ToDecadesSinceEpochXT(cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
 		ok
 	        return floor(This.ToYearsSinceEpochXT(cOrigin) / 10)
-	
+
 	def ToCenturiesSinceEpochXT(cOrigin)
 		if cOrigin = ""
 			cOrigin = :UnixEpoch
@@ -1194,80 +1351,64 @@ class stzDateTime from stzObject
 	        return floor(This.ToYearsSinceEpochXT(cOrigin) / 100)
 
     #--- TIME ZONE OPERATIONS ---#
-    
+
     def ToUTCQ()
-        oResult = @oQDateTime.toUTC()
         oNewDateTime = new stzDateTime("")
-        oNewDateTime.SetQDateTime(oResult)
+        oNewDateTime.SetQDateTime([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
         return oNewDateTime
 
 		def ToUTC()
 			return This.ToUTCQ().Content()
-    
+
     def ToLocalTimeQ()
-        oResult = @oQDateTime.toLocalTime()
         oNewDateTime = new stzDateTime("")
-        oNewDateTime.SetQDateTime(oResult)
+        oNewDateTime.SetQDateTime([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
         return oNewDateTime
 
 		def ToLocalTime()
 			return This.ToLocalTimeQ().Content()
 
-    
+
 	#--- TIME INFO
 
 	def Year()
-		return This.DateQ().Year()
-	
+		return @nYear
+
 		def YearN()
 			return This.Year()
-	
+
 	def Month()
-		return This.DateQ().Month()
-	
+		return @nMonth
+
 		def MonthN()
-			return This.DateQ().MonthN()
+			return @nMonth
 
 	def Day()
-		return This.DateQ().Day()
-	
+		return @nDay
+
 		def DayN()
-			return This.DateQ().DayN()
+			return @nDay
 
 	def Hours()
-		_cDateTimeStr_ = substr(This.ToString(), ".", ":")
-		nResult = 0+ @split( @split(_cDateTimeStr_, " ")[2], ":")[1]
-		return nResult
+		return @nHour
 
 		def HoursN()
 			return This.Hours()
 
 	def Minutes()
-		_cDateTimeStr_ = substr(This.ToString(), ".", ":")
-		nResult = 0+ @split( @split(_cDateTimeStr_, " ")[2], ":")[2]
-		return nResult
-	
+		return @nMinute
+
 		def MinutesN()
 			return This.Minutes()
 
 	def Seconds()
-		_cDateTimeStr_ = substr(This.ToString(), ".", ":")
-		nResult = 0+ @split( @split(_cDateTimeStr_, " ")[2], ":")[3]
-		return nResult
-	
+		return @nSecond
+
 		def SecondsN()
 			return This.Seconds()
 
 	def MilliSeconds()
-
-		nResult = 0
-		_cDateTimeStr_ = substr(This.ToString(), ".", ":")
-		_acParts_ = @split( @split(_cDateTimeStr_, " ")[2], ":")
-		if len(_acParts_) = 4
-			nResult = 0+ _acParts_[4]
-		ok
-
-		return nResult
+		return @nMs
 
 		def MilliSecondsN()
 			return This.MilliSeconds()
@@ -1294,103 +1435,94 @@ class stzDateTime from stzObject
 	    if NOT isString(cFormat)
 	        StzRaise("Incorrect param type! cFormat must be a string.")
 	    ok
-	
-	    # Handle empty format FIRST (before regex validation)
+
 	    if cFormat = ""
 	        cFormat = $cDefaultDateTimeFormat
-	        if @oQDateTime.time().msec() > 0
+	        if @nMs > 0
 	            cFormat = "yyyy-MM-dd HH:mm:ss.zzz"
 	        ok
 	    ok
-	    
-	    # Handle named patterns
+
 	    acNamedPatterns = [
 	        "simple", "simple12h", "simple24h",
 	        "long", "long12h", "long24h",
 	        "short", "short12h", "short24h",
 	        "medium", "medium12h", "medium24h",
 	    ]
-	
+
 	    if ring_find(acNamedPatterns, cFormat) > 0
-	
-	        # Handle special named formats with 24h/12h variants
-	        # Simple formats (concise, user-friendly)
+
 	        if cFormat = "simple" or cFormat = "simple12h"
-	            return This.ToSimple()  # Default: 12-hour (dd/MM/yyyy h:mm AM/PM)
-	        
+	            return This.ToSimple()
+
 	        but cFormat = "simple24h"
-	            return @oQDateTime.toString("dd/MM/yyyy HH:mm")  # 15/03/2024 14:30
-	        
-	        # Long formats (verbose, fully spelled out)
+	            return _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, "dd/MM/yyyy HH:mm")
+
 	        but cFormat = "long" or cFormat = "long12h"
-	            return This.ToLong()  # Default: 12-hour (dddd, MMMM d, yyyy h:mm:ss AM/PM)
-	        
+	            return This.ToLong()
+
 	        but cFormat = "long24h"
-	            return @oQDateTime.toString("dddd, MMMM d, yyyy HH:mm:ss")  # Friday, March 15, 2024 14:30:45
-	        
-	        # Short formats (minimal, no year sometimes)
+	            return _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, "dddd, MMMM d, yyyy HH:mm:ss")
+
 	        but cFormat = "short" or cFormat = "short12h"
-	            nHour = This.Hours()
-	            nHour12 = ConvertTo12Hour(nHour)
-	            cAmPm = GetAmPmText(nHour)
-	            return @oQDateTime.toString("dd/MM") + " " + nHour12 + ":" + 
-	                   Right("0" + This.Minutes(), 2) + " " + cAmPm  # 15/03 2:30 PM
-	        
+	            nHour12 = ConvertTo12Hour(@nHour)
+	            cAmPm = GetAmPmText(@nHour)
+	            return _PadLeft("" + @nDay, 2, "0") + "/" + _PadLeft("" + @nMonth, 2, "0") + " " + nHour12 + ":" +
+	                   _PadLeft("" + @nMinute, 2, "0") + " " + cAmPm
+
 	        but cFormat = "short24h"
-	            return @oQDateTime.toString("dd/MM HH:mm")  # 15/03 14:30
-	        
-	        # Medium formats (balanced detail)
+	            return _PadLeft("" + @nDay, 2, "0") + "/" + _PadLeft("" + @nMonth, 2, "0") + " " + _PadLeft("" + @nHour, 2, "0") + ":" + _PadLeft("" + @nMinute, 2, "0")
+
 	        but cFormat = "medium" or cFormat = "medium12h"
-	            nHour = This.Hours()
-	            nHour12 = ConvertTo12Hour(nHour)
-	            cAmPm = GetAmPmText(nHour)
-	            return @oQDateTime.toString("ddd, MMM d") + " " + nHour12 + ":" + 
-	                   Right("0" + This.Minutes(), 2) + " " + cAmPm  # Fri, Mar 15 2:30 PM
-	        
+	            nHour12 = ConvertTo12Hour(@nHour)
+	            cAmPm = GetAmPmText(@nHour)
+	            pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
+	            cDayName = StzEngineDateDayName(pHandle)
+	            cMonthName = StzEngineDateMonthName(pHandle)
+	            StzEngineDateFree(pHandle)
+	            return left(cDayName, 3) + ", " + left(cMonthName, 3) + " " + @nDay + " " + nHour12 + ":" +
+	                   _PadLeft("" + @nMinute, 2, "0") + " " + cAmPm
+
 	        but cFormat = "medium24h"
-	            return @oQDateTime.toString("ddd, MMM d HH:mm")  # Fri, Mar 15 14:30
+	            pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
+	            cDayName = StzEngineDateDayName(pHandle)
+	            cMonthName = StzEngineDateMonthName(pHandle)
+	            StzEngineDateFree(pHandle)
+	            return left(cDayName, 3) + ", " + left(cMonthName, 3) + " " + @nDay + " " + _PadLeft("" + @nHour, 2, "0") + ":" + _PadLeft("" + @nMinute, 2, "0")
 	        ok
-	
+
 	    ok
-	
-	    # Get actual Qt format string
+
 	    cQtFormat = GetDateTimeFormat(cFormat)
-	    
-	    # Check if this is a 12-hour format that needs manual AM/PM handling
+
 	    if substr(upper(cQtFormat), "AP") > 0
-	        # Remove AP marker from format and format the datetime
 	        cFormatWithout12h = substr(cQtFormat, "AP", "")
 	        cFormatWithout12h = substr(cFormatWithout12h, "ap", "")
 	        cFormatWithout12h = trim(cFormatWithout12h)
-	        
-	        # Replace HH with actual 12-hour value
-	        nHour = This.Hours()
-	        nHour12 = ConvertTo12Hour(nHour)
-	        
-	        # Replace hh in format with actual hour
-	        cFormatFinal = substr(cFormatWithout12h, "hh", "" + nHour12)
+
+	        nHour12 = ConvertTo12Hour(@nHour)
+
+	        cFormatFinal = substr(cFormatWithout12h, "hh", _PadLeft("" + nHour12, 2, "0"))
 	        if cFormatFinal = cFormatWithout12h
-	            # Try single h
 	            cFormatFinal = substr(cFormatWithout12h, "h", "" + nHour12)
 	        ok
-	        
-	        cResult = @oQDateTime.toString(cFormatFinal)
-	        cAmPm = GetAmPmText(nHour)
-	        
+
+	        cResult = _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, cFormatFinal)
+	        cAmPm = GetAmPmText(@nHour)
+
 	        return cResult + " " + cAmPm
 	    else
-	        # Standard 24-hour format
-	        return @oQDateTime.toString(cQtFormat)
+	        return _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, cQtFormat)
 	    ok
-		
+
 	# Short formats
 
 	def ToShort()
 	    return This.ToStringXT(:Short12h)
-	
+
 		def ToShort12h()
 		    return This.ToStringXT(:Short12h)
-	
+
 		def ToShortAP()
 		    return This.ToStringXT(:Short12h)
 
@@ -1405,7 +1537,7 @@ class stzDateTime from stzObject
 
 	def ToShort24h()
 	    return This.ToStringXT(:Short24h)
-	
+
 		def ToShortWithoutAP()
 		    return This.ToStringXT(:Short24h)
 
@@ -1416,7 +1548,7 @@ class stzDateTime from stzObject
 
 	def ToMedium()
 	    return This.ToStringXT(:Medium12h)
-	
+
 		def ToMedium12h()
 		    return This.ToStringXT(:Medium12h)
 
@@ -1431,24 +1563,24 @@ class stzDateTime from stzObject
 
 		def ToMediumWithAmPm()
 		    return This.ToStringXT(:Medium12h)
-	
+
 	def ToMedium24h()
 	    return This.ToStringXT(:Medium24h)
-	    
+
 		def ToMediumWithoutAP()
 		    return This.ToStringXT(:Medium24h)
 
 		def ToMediumWithoutAmPm()
 		    return This.ToStringXT(:Medium24h)
-	
+
 	#--
 
 	def ToCompact()
 	    return This.ToStringXT(:Compact12h)
-	
+
 		def ToCompact12h()
 		    return This.ToStringXT(:Compact12h)
-	
+
 		def ToCompactAP()
 		    return This.ToStringXT(:Compact12h)
 
@@ -1460,10 +1592,10 @@ class stzDateTime from stzObject
 
 		def ToCompactWithAmPm()
 		    return This.ToStringXT(:Compact12h)
-	
+
 	def ToCompact24h()
 	    return This.ToStringXT(:Compact24h)
-	    
+
 		def ToCompactWithoutAP()
 		    return This.ToStringXT(:Compact24h)
 
@@ -1471,13 +1603,13 @@ class stzDateTime from stzObject
 		    return This.ToStringXT(:Compact24h)
 
 	#--
-	
+
 	def ToStandard()
 	    return This.ToStringXT(:Standard12h)
-	
+
 		def ToStandard12h()
 		    return This.ToStringXT(:Standard12h)
-	
+
 		def ToStandardAP()
 		    return This.ToStringXT(:Standard12h)
 
@@ -1489,10 +1621,10 @@ class stzDateTime from stzObject
 
 		def ToStandardWithAmPm()
 		    return This.ToStringXT(:Standard12h)
-	
+
 	def ToStandard24h()
 	    return This.ToStringXT(:Standard24h)
-	    
+
 		def ToStandardWithoutAP()
 		    return This.ToStringXT(:Standard24h)
 
@@ -1503,10 +1635,10 @@ class stzDateTime from stzObject
 
 	def ToEuropean()
 	    return This.ToStringXT(:European12h)
-	
+
 		def ToEuropean12h()
 		    return This.ToStringXT(:European12h)
-	
+
 		def ToEuropeanAP()
 		    return This.ToStringXT(:European12h)
 
@@ -1518,10 +1650,10 @@ class stzDateTime from stzObject
 
 		def ToEuropeanWithAmPm()
 		    return This.ToStringXT(:European12h)
-	
+
 	def ToEuropean24h()
 	    return This.ToStringXT(:European24h)
-	    
+
 		def ToEuropeanWithoutAP()
 		    return This.ToStringXT(:European24h)
 
@@ -1532,7 +1664,7 @@ class stzDateTime from stzObject
 
 	def ToAmerican()
 	    return This.ToStringXT(:American12h)
-	
+
 		def ToAmerican12h()
 		    return This.ToStringXT(:American12h)
 
@@ -1547,16 +1679,16 @@ class stzDateTime from stzObject
 
 		def ToAmericanWithAmPm()
 		    return This.ToStringXT(:American12h)
-	
+
 	def ToAmerican24h()
 	    return This.ToStringXT(:American24h)
-	    
+
 		def ToAmericanWithoutAP()
 		    return This.ToStringXT(:American24h)
 
 		def ToAmericanWithoutAmPm()
 		    return This.ToStringXT(:American24h)
-	
+
 	#--
 
 	def ToIso()
@@ -1564,18 +1696,18 @@ class stzDateTime from stzObject
 
 	def ToIso8601()
 	    return This.ToStringXT(:ISO8601)
-	
+
 	def ToIsoWithMs()
 	    return This.ToStringXT(:ISOWithMs)
 
 	#--
-	
+
 	def ToVerbose()
 	    return This.ToStringXT(:Verbose12h)
-	
+
 		def ToVerbose12h()
 		    return This.ToStringXT(:Verbose12h)
-	
+
 		def ToVerboseAP()
 		    return This.ToStringXT(:Verbose12h)
 
@@ -1587,10 +1719,10 @@ class stzDateTime from stzObject
 
 		def ToVerboseWithAmPm()
 		    return This.ToStringXT(:Verbose12h)
-	
+
 	def ToVerbose24h()
 	    return This.ToStringXT(:Verbose24h)
-	    
+
 		def ToVerboseWithoutAP()
 		    return This.ToStringXT(:Verbose24h)
 
@@ -1600,29 +1732,28 @@ class stzDateTime from stzObject
 	#----
 
     def ToRFC2822()
-        return This.ToStringXT("dd MMM yyyy hh:mm:ss")
+        return This.ToStringXT("dd MMM yyyy HH:mm:ss")
 
     def ToTextDate()
-        return This.ToStringXT("ddd MMM d hh:mm:ss yyyy")
+        return This.ToStringXT("ddd MMM d HH:mm:ss yyyy")
 
 	def ToSimple()
 	    oLocale = new stzLocale("")
-	    nHour = This.Hours()
-	    nHour12 = nHour % 12
+	    nHour12 = @nHour % 12
 	    if nHour12 = 0
 	        nHour12 = 12
 	    ok
-	    
-	    cResult = @oQDateTime.toString("dd/MM/yyyy") + " " + nHour12 + ":" + 
-	              Right("0" + This.Minutes(), 2)
-	    
-	    if nHour >= 12
+
+	    cResult = _PadLeft("" + @nDay, 2, "0") + "/" + _PadLeft("" + @nMonth, 2, "0") + "/" + "" + @nYear + " " + nHour12 + ":" +
+	              _PadLeft("" + @nMinute, 2, "0")
+
+	    if @nHour >= 12
 	        cResult += " " + oLocale.pmText()
 	    else
 	        cResult += " " + oLocale.amText()
 	    ok
 	    return cResult
-	
+
 
 		def ToSimple12h()
 			return This.ToSimple()
@@ -1632,17 +1763,21 @@ class stzDateTime from stzObject
 
 	def ToLong()
 	    oLocale = new stzLocale("")
-	    nHour = This.Hours()
-	    nHour12 = nHour % 12
+	    nHour12 = @nHour % 12
 	    if nHour12 = 0
 	        nHour12 = 12
 	    ok
-	    
-	    cResult = @oQDateTime.toString("dddd, MMMM d, yyyy") + " " + nHour12 + ":" + 
-	              Right("0" + This.Minutes(), 2) + ":" + 
-	              Right("0" + This.Seconds(), 2)
-	    
-	    if nHour >= 12
+
+	    pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
+	    cDayName = StzEngineDateDayName(pHandle)
+	    cMonthName = StzEngineDateMonthName(pHandle)
+	    StzEngineDateFree(pHandle)
+
+	    cResult = cDayName + ", " + cMonthName + " " + @nDay + ", " + @nYear + " " + nHour12 + ":" +
+	              _PadLeft("" + @nMinute, 2, "0") + ":" +
+	              _PadLeft("" + @nSecond, 2, "0")
+
+	    if @nHour >= 12
 	        cResult += " " + oLocale.pmText()
 	    else
 	        cResult += " " + oLocale.amText()
@@ -1659,85 +1794,88 @@ class stzDateTime from stzObject
 		return This.ToStringXT(:LongDate)
 
 	def ToString12h()
-	    nHour = This.Hours()
-	    nHour12 = ConvertTo12Hour(nHour)
-	    cAmPm = GetAmPmText(nHour)
-	    
-	    return @oQDateTime.toString("yyyy-MM-dd") + " " + nHour12 + ":" +
-	           Right("0" + This.Minutes(), 2) + ":" +
-	           Right("0" + This.Seconds(), 2) + " " + cAmPm
+	    nHour12 = ConvertTo12Hour(@nHour)
+	    cAmPm = GetAmPmText(@nHour)
+
+	    return _PadLeft("" + @nYear, 4, "0") + "-" + _PadLeft("" + @nMonth, 2, "0") + "-" + _PadLeft("" + @nDay, 2, "0") + " " + nHour12 + ":" +
+	           _PadLeft("" + @nMinute, 2, "0") + ":" +
+	           _PadLeft("" + @nSecond, 2, "0") + " " + cAmPm
 
     #--- HUMAN-READABLE ---#
 
     def ToHuman()
 		cDateHuman = This.DateQ().ToHuman()
         cTimeHuman = This.TimeQ().ToHuman()
-        
+
         return cDateHuman + " at " + cTimeHuman
 
 	def ToRelative()
 	    oNow = new stzDateTime("")
-	
-	    # Calculate difference in seconds between Now and This
-	    # If This is in the past, nSeconds will be negative
-	    # If This is in the future, nSeconds will be positive
-	    nSeconds = oNow.QDateTimeObject().secsTo(This.QDateTimeObject())
-	
-	    # Use absolute value for comparison
+
+	    pThis = StzEngineDateTimeNew(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond)
+	    nThisUnix = StzEngineDateTimeToUnix(pThis)
+	    StzEngineDateTimeFree(pThis)
+
+	    pNow = StzEngineDateTimeNew(oNow.Year(), oNow.Month(), oNow.Day(), oNow.Hours(), oNow.Minutes(), oNow.Seconds())
+	    nNowUnix = StzEngineDateTimeToUnix(pNow)
+	    StzEngineDateTimeFree(pNow)
+
+	    nSeconds = nThisUnix - nNowUnix
+
 	    nAbsSecs = abs(nSeconds)
-	    
+
 	    if nAbsSecs < 60
 	        return "just now"
-	    
-	    but nSeconds < 0  # In the past
-	        if nAbsSecs < 3600  # Less than 1 hour
-	            nMinutes = floor(nAbsSecs / 60.0 + 0.5)  # Manual round
+
+	    but nSeconds < 0
+	        if nAbsSecs < 3600
+	            nMinutes = floor(nAbsSecs / 60.0 + 0.5)
 	            return '' + nMinutes + " minute" + Iff(nMinutes=1, "", "s") + " ago"
-	
-	        but nAbsSecs < 86400  # Less than 1 day
-	            nHours = floor(nAbsSecs / 3600.0 + 0.5)  # Manual round
+
+	        but nAbsSecs < 86400
+	            nHours = floor(nAbsSecs / 3600.0 + 0.5)
 	            return '' + nHours + " hour" + Iff(nHours=1, "", "s") + " ago"
-	
-	        but nAbsSecs < 604800  # Less than a week
-	            nDays = floor(nAbsSecs / 86400.0 + 0.5)  # Manual round
+
+	        but nAbsSecs < 604800
+	            nDays = floor(nAbsSecs / 86400.0 + 0.5)
 	            return '' + nDays + " day" + Iff(nDays=1, "", "s") + " ago"
-	
-	        but nAbsSecs < 2592000  # Less than 30 days
-	            nWeeks = floor(nAbsSecs / 604800.0 + 0.5)  # Manual round
+
+	        but nAbsSecs < 2592000
+	            nWeeks = floor(nAbsSecs / 604800.0 + 0.5)
 	            return '' + nWeeks + " week" + Iff(nWeeks=1, "", "s") + " ago"
-	
-	        but nAbsSecs < 31536000  # Less than a year
-	            nMonths = floor(nAbsSecs / 2592000.0 + 0.5)  # Manual round
+
+	        but nAbsSecs < 31536000
+	            nMonths = floor(nAbsSecs / 2592000.0 + 0.5)
 	            return '' + nMonths + " month" + Iff(nMonths=1, "", "s") + " ago"
-	
+
 	        else
-	            nYears = floor(nAbsSecs / 31536000.0 + 0.5)  # Manual round
+	            nYears = floor(nAbsSecs / 31536000.0 + 0.5)
 	            return '' + nYears + " year" + Iff(nYears=1, "", "s") + " ago"
 	        ok
-	    
-	    else  # In the future
-	        if nAbsSecs < 3600  # Less than 1 hour
-	            nMinutes = floor(nAbsSecs / 60.0 + 0.5)  # Manual round
+
+	    else
+	        if nAbsSecs < 3600
+	            nMinutes = floor(nAbsSecs / 60.0 + 0.5)
 	            return "in " + nMinutes + " minute" + Iff(nMinutes=1, "", "s")
-	
-	        but nAbsSecs < 86400  # Less than 1 day
-	            nHours = floor(nAbsSecs / 3600.0 + 0.5)  # Manual round
+
+	        but nAbsSecs < 86400
+	            nHours = floor(nAbsSecs / 3600.0 + 0.5)
 	            return "in " + nHours + " hour" + Iff(nHours=1, "", "s")
-	
-	        but nAbsSecs < 604800  # Less than a week
-	            nDays = floor(nAbsSecs / 86400.0 + 0.5)  # Manual round
+
+	        but nAbsSecs < 604800
+	            nDays = floor(nAbsSecs / 86400.0 + 0.5)
 	            return "in " + nDays + " day" + Iff(nDays=1, "", "s")
-	
-	        but nAbsSecs < 2592000  # Less than 30 days
-	            nWeeks = floor(nAbsSecs / 604800.0 + 0.5)  # Manual round
+
+	        but nAbsSecs < 2592000
+	            nWeeks = floor(nAbsSecs / 604800.0 + 0.5)
 	            return "in " + nWeeks + " week" + Iff(nWeeks=1, "", "s")
-	
-	        but nAbsSecs < 31536000  # Less than a year
-	            nMonths = floor(nAbsSecs / 2592000.0 + 0.5)  # Manual round
+
+	        but nAbsSecs < 31536000
+	            nMonths = floor(nAbsSecs / 2592000.0 + 0.5)
 	            return "in " + nMonths + " month" + Iff(nMonths=1, "", "s")
-	
+
 	        else
-	            nYears = floor(nAbsSecs / 31536000.0 + 0.5)  # Manual round
+	            nYears = floor(nAbsSecs / 31536000.0 + 0.5)
 	            return "in " + nYears + " year" + Iff(nYears=1, "", "s")
 	        ok
 	    ok
@@ -1746,62 +1884,79 @@ class stzDateTime from stzObject
 
     def Copy()
         oNewDateTime = new stzDateTime("")
-        oNewDateTime.SetQDateTime(new QDateTime())
-        oNewDateTime.QDateTimeObject().setDate(This.Date())
-        oNewDateTime.QDateTimeObject().setTime(This.Time())
+        oNewDateTime.SetQDateTime([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
         return oNewDateTime
-    
-    def SetQDateTime(oNewQDateTime)
-        @oQDateTime = oNewQDateTime
+
+    def SetQDateTime(aComponents)
+        if isList(aComponents) and len(aComponents) >= 6
+            @nYear = aComponents[1]
+            @nMonth = aComponents[2]
+            @nDay = aComponents[3]
+            @nHour = aComponents[4]
+            @nMinute = aComponents[5]
+            @nSecond = aComponents[6]
+            if len(aComponents) >= 7
+                @nMs = aComponents[7]
+            else
+                @nMs = 0
+            ok
+        ok
         return This
 
-    def SetQDateTimeQ(oNewQDateTime)
-        This.SetQDateTime(oNewQDateTime)
+    def SetQDateTimeQ(aComponents)
+        This.SetQDateTime(aComponents)
         return This
-    
+
     def QDateTimeObject()
-        return @oQDateTime
-    
+        return [@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs]
+
     def IsValid()
-        if @oQDateTime.isValid()
-            return TRUE
-        else
+        if @nMonth < 1 or @nMonth > 12
             return FALSE
         ok
-    
+        if @nDay < 1 or @nDay > _DaysInMonth(@nYear, @nMonth)
+            return FALSE
+        ok
+        if @nHour < 0 or @nHour > 23
+            return FALSE
+        ok
+        if @nMinute < 0 or @nMinute > 59
+            return FALSE
+        ok
+        if @nSecond < 0 or @nSecond > 59
+            return FALSE
+        ok
+        if @nMs < 0 or @nMs > 999
+            return FALSE
+        ok
+        return TRUE
+
     def IsAStzDateTime()
         return TRUE
 
 	def IsNaturalEpochString(cStr)
-	    # Must contain "from epoch" phrase
 	    cLower = lower(cStr)
-	    
-	    if substr(cLower, "from epoch") > 0 or 
+
+	    if substr(cLower, "from epoch") > 0 or
 	       substr(cLower, "since epoch") > 0
 	        return TRUE
 	    ok
-	    
+
 	    return FALSE
-	
+
 	def ParseNaturalEpoch(cNatural)
-	    # Parse natural language like "5 days 3 hours 20 minutes"
-	    # or "2 years 6 months 15 days" since epoch
-	    
 	    nTotalMilliseconds = 0
-	    
-	    # Convert to lowercase for case-insensitive matching
+
 	    cNatural = lower(cNatural)
-	    
-	    # Remove "from epoch" or "since epoch" phrase
+
 	    cNatural = substr(cNatural, "from epoch", "")
 	    cNatural = substr(cNatural, "since epoch", "")
 	    cNatural = trim(cNatural)
-	    
-	    # Extract and sum all time units
+
 	    aUnits = [
-	        [:years, 31536000000],      # 365 days in ms
+	        [:years, 31536000000],
 	        [:year, 31536000000],
-	        [:months, 2628000000],      # 30.42 days in ms (average)
+	        [:months, 2628000000],
 	        [:month, 2628000000],
 	        [:weeks, 604800000],
 	        [:week, 604800000],
@@ -1823,23 +1978,18 @@ class stzDateTime from stzObject
 	        [:msec, 1],
 	        [:ms, 1]
 	    ]
-	    
+
 	    for aUnit in aUnits
 	        cUnit = aUnit[1]
 	        nMultiplier = aUnit[2]
-	        
-	        # Match pattern: number followed by unit
-	        # e.g., "5 days" or "3.5 hours"
+
 	        cPattern = "(\d+\.?\d*)\s*" + cUnit
-	        
-	        # Simple extraction (in real implementation, use regex)
+
 	        nPos = substr(cNatural, cUnit)
 	        if nPos > 0
-	            # Extract number before unit
 	            cBefore = left(cNatural, nPos - 1)
 	            cBefore = trim(cBefore)
-	            
-	            # Get last token (the number)
+
 	            aTokens = split(cBefore, " ")
 	            if len(aTokens) > 0
 	                cNumber = aTokens[len(aTokens)]
@@ -1848,34 +1998,33 @@ class stzDateTime from stzObject
 	            ok
 	        ok
 	    next
-	    
-	    @oQDateTime.setMSecsSinceEpoch(nTotalMilliseconds)
-	
+
+	    This._SetFromMsSinceEpoch(nTotalMilliseconds)
+
 	def SetFromEpochMonths(nMonths)
 	    nYears = floor(nMonths / 12)
 	    nRemainingMonths = nMonths % 12
-	    
-	    _oDate_ = new QDate()
-	    _oDate_.setDate(1970 + nYears, 1 + nRemainingMonths, 1)
-	    _oTime_ = new QTime()
-	    _oTime_.setHMS(0, 0, 0, 0)
-	    
-	    @oQDateTime.setDate(_oDate_)
-	    @oQDateTime.setTime(_oTime_)
-	
+
+	    @nYear = 1970 + nYears
+	    @nMonth = 1 + nRemainingMonths
+	    @nDay = 1
+	    @nHour = 0
+	    @nMinute = 0
+	    @nSecond = 0
+	    @nMs = 0
+
 	def SetFromEpochYears(nYears)
-	    _oDate_ = new QDate()
-	    _oDate_.setDate(1970 + nYears, 1, 1)
-	    _oTime_ = new QTime()
-	    _oTime_.setHMS(0, 0, 0, 0)
-	    
-	    @oQDateTime.setDate(_oDate_)
-	    @oQDateTime.setTime(_oTime_)
-	
+	    @nYear = 1970 + nYears
+	    @nMonth = 1
+	    @nDay = 1
+	    @nHour = 0
+	    @nMinute = 0
+	    @nSecond = 0
+	    @nMs = 0
+
 	def SetFromEpochDuration(aHash)
-	    # Hash like [:Years = 54, :Months = 3, :Days = 15, :Hours = 10]
 	    nTotalMs = 0
-	    
+
 	    if HasKey(aHash, :Years)
 	        nTotalMs += (aHash[:Years] * 31536000000)
 	    ok
@@ -1907,8 +2056,8 @@ class stzDateTime from stzObject
 	    if HasKey(aHash, :Milliseconds)
 	        nTotalMs += aHash[:Milliseconds]
 	    ok
-	    
-	    @oQDateTime.setMSecsSinceEpoch(nTotalMs)
+
+	    This._SetFromMsSinceEpoch(nTotalMs)
 
     #--- HELPER METHODS FOR COUNTINGFROM ---#
 
@@ -1919,7 +2068,6 @@ class stzDateTime from stzObject
 		(substr(cLower, "since") > 0)
 
     def ParseCountingFrom(cStr)
-        # "5 years 3 months counting from space age"
         cLower = lower(cStr)
 
         nPos = substr(cLower, "counting from")
@@ -1935,15 +2083,14 @@ class stzDateTime from stzObject
             cDuration = substr(cStr, 1, nPos - 1)
             cOrigin = substr(cStr, nPos + 13, len(cStr))
             cOrigin = trim(cOrigin)
-            
-            # Map natural names to origin keys
+
             cOriginKey = This.MapOriginName(cOrigin)
             This.SetFromNaturalDuration(cDuration, cOriginKey)
         ok
 
     def MapOriginName(cName)
         cLower = lower(trim(cName))
-        
+
         if substr(cLower, "unix") > 0
             return :UnixEpoch
 
@@ -1976,16 +2123,13 @@ class stzDateTime from stzObject
 	if cOrigin = ""
 		cOrigin = :UnixEpoch
 	ok
-        # Get origin base time
         nBaseMs = This.GetOriginBase(cOrigin)
-        
-        # If nValue is a hash, parse it
+
         if isList(nValue) and IsHashList(nValue)
             nDurationMs = This.HashToMilliseconds(nValue)
-            @oQDateTime.setMSecsSinceEpoch(nBaseMs + nDurationMs)
+            This._SetFromMsSinceEpoch(nBaseMs + nDurationMs)
         else
-            # Assume seconds
-            @oQDateTime.setMSecsSinceEpoch(nBaseMs + (nValue * 1000))
+            This._SetFromMsSinceEpoch(nBaseMs + (nValue * 1000))
         ok
 
     def GetOriginBase(cOrigin)
@@ -1994,7 +2138,7 @@ class stzDateTime from stzObject
                 return aOrigin[2]
             ok
         next
-        return 0  # Default to UnixEpoch
+        return 0
 
     def SetFromNaturalDuration(cDuration, cOrigin)
 	if cOrigin = ""
@@ -2002,13 +2146,12 @@ class stzDateTime from stzObject
 	ok
         nDurationMs = This.ParseNaturalDuration(cDuration)
         nBaseMs = This.GetOriginBase(cOrigin)
-        @oQDateTime.setMSecsSinceEpoch(nBaseMs + nDurationMs)
+        This._SetFromMsSinceEpoch(nBaseMs + nDurationMs)
 
     def ParseNaturalDuration(cDuration)
-        # Parse "5 years 3 months 20 days" into milliseconds
         nTotalMs = 0
         cDuration = lower(trim(cDuration))
-        
+
         aUnits = [
             ["years", 31536000000],
             ["year", 31536000000],
@@ -2025,13 +2168,13 @@ class stzDateTime from stzObject
             ["seconds", 1000],
             ["second", 1000]
         ]
-        
+
         aTokens = split(cDuration, " ")
-        
+
         for aUnit in aUnits
             cUnit = aUnit[1]
             nMultiplier = aUnit[2]
-            
+
             for i = 1 to len(aTokens)
                 if lower(aTokens[i]) = cUnit and i > 1
                     nValue = 0+ aTokens[i-1]
@@ -2040,12 +2183,12 @@ class stzDateTime from stzObject
                 ok
             next
         next
-        
+
         return nTotalMs
 
     def HashToMilliseconds(aHash)
         nMs = 0
-        
+
         if HasKey(aHash, :Years)
             nMs += (aHash[:Years] * 31536000000)
         ok
@@ -2073,20 +2216,20 @@ class stzDateTime from stzObject
         if HasKey(aHash, :Seconds)
             nMs += (aHash[:Seconds] * 1000)
         ok
-        
+
         return nMs
 
     #--- DURATION CALCULATIONS TO A TARGET DATETIME ---#
 
 	def DurationTo(pTarget, pcUnit)
-	
+
 	    if isList(pcUnit) and StzListQ(pcUnit).IsInNamedParam()
 		pcUnit = pcUnit[2]
 		if NOT isString(pcUnit)
 			StzRaise("Inocrrect param type! pcUnit must be a string.")
 		ok
 	    ok
-	
+
 	    cUnit = lower(pcUnit)
 
 	    if isString(cUnit) and left(cUnit, 2) = "in"
@@ -2102,26 +2245,25 @@ class stzDateTime from stzObject
 	        _oTarget_ = StzDateTimeQ(pTarget)
 		cTarget = _oTarget_.ToIso()
 	    ok
-	    
-	    # Extract Qt object from target for comparison
-	    nMs = @oQDateTime.msecsTo(_oTarget_.QDateTimeObject())
-	    
+
+	    nThisMs = This._ToMsSinceEpoch()
+	    nTargetMs = _ToUnixMs(_oTarget_.Year(), _oTarget_.Month(), _oTarget_.Day(), _oTarget_.Hours(), _oTarget_.Minutes(), _oTarget_.Seconds(), _oTarget_.MilliSeconds())
+	    nMs = nTargetMs - nThisMs
+
 	    if cUnit = NULL
-	        # Return complete breakdown in all units
 	        nSec = nMs / 1000
 	        nMin = nSec / 60
 	        nHour = nMin / 60
-	        nDay = @oQDateTime.daysTo(_oTarget_.QDateTimeObject())
+	        nDay = floor(nMs / 86400000)
 	        nWeek = floor(nDay / 7.0)
-	        
-	        # For months and years, use date-based calculations
+
 	        _oThisDate_ = This.DateQ()
 	        _oTargetDate_ = _oTarget_.DateQ()
-	        nMonth = _oThisDate_.MonthsTo(_oTargetDate_.QDateObject())
-	        nYear = _oThisDate_.YearsTo(_oTargetDate_.QDateObject())
+	        nMonth = _oThisDate_.MonthsTo(_oTargetDate_)
+	        nYear = _oThisDate_.YearsTo(_oTargetDate_)
 	        nDecade = floor(nYear / 10.0)
 	        nCentury = floor(nYear / 100.0)
-	
+
 	        return [
 	            :Milliseconds = nMs,
 	            :Seconds = nSec,
@@ -2134,116 +2276,116 @@ class stzDateTime from stzObject
 	            :Decades = nDecade,
 	            :Centuries = nCentury
 	        ]
-	
+
 	    else
-	
+
 	        switch cUnit
 	        case :milliseconds
 	            return nMs
-	
+
 	        case :seconds
 	            return nMs / 1000
-	
+
 	        case :minutes
 	            return nMs / 60000
-	
+
 	        case :hours
 	            return nMs / 3600000
-	
+
 	        case :days
-	            return @oQDateTime.daysTo(_oTarget_.QDateTimeObject())
-	
+	            return floor(nMs / 86400000)
+
 	        case :weeks
-	            return floor(@oQDateTime.daysTo(_oTarget_.QDateTimeObject()) / 7.0)
-	
+	            return floor(floor(nMs / 86400000) / 7.0)
+
 	        case :months
 	            _oThisDate_ = This.DateQ()
-	            _oTargetDate_ = oTarget.DateQ()
-	            return _oThisDate_.MonthsTo(_oTargetDate_.QDateObject())
-	
+	            _oTargetDate_ = _oTarget_.DateQ()
+	            return _oThisDate_.MonthsTo(_oTargetDate_)
+
 	        case :years
 	            _oThisDate_ = This.DateQ()
 	            _oTargetDate_ = _oTarget_.DateQ()
-	            return _oThisDate_.YearsTo(_oTargetDate_.QDateObject())
-	
+	            return _oThisDate_.YearsTo(_oTargetDate_)
+
 	        case :decades
 	            _oThisDate_ = This.DateQ()
-	            _oTargetDate_ = oTarget.DateQ()
-	            return floor(_oThisDate_.YearsTo(_oTargetDate_.QDateObject()) / 10.0)
-	
+	            _oTargetDate_ = _oTarget_.DateQ()
+	            return floor(_oThisDate_.YearsTo(_oTargetDate_) / 10.0)
+
 	        case :centuries
 	            _oThisDate_ = This.DateQ()
 	            _oTargetDate_ = _oTarget_.DateQ()
-	            return floor(_oThisDate_.YearsTo(_oTargetDate_.QDateObject()) / 100.0)
-	
+	            return floor(_oThisDate_.YearsTo(_oTargetDate_) / 100.0)
+
 	        other
 	            StzRaise("Unsupported unit: " + cUnit + "!")
 	        off
 	    ok
-	
+
 	def DurationInMillisecondsTo(pcUnit)
 	    return This.DurationTo(pcUnit, :In = :Milliseconds)
-	
+
 	    def MillisecondsTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Milliseconds)
-	
+
 	    def MSecsTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Milliseconds)
-	
+
 	def DurationInSecondsTo(pcUnit)
 	    return This.DurationTo(pcUnit, :In = :Seconds)
-	
+
 	    def SecondsTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Seconds)
-	
+
 	    def SecsTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Seconds)
-	
+
 	def DurationInMinutesTo(pcUnit)
 	    return This.DurationTo(pcUnit, :In = :Minutes)
-	
+
 	    def MinutesTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Minutes)
-	
+
 	def DurationInHoursTo(pcUnit)
 	    return This.DurationTo(pcUnit, :In = :Hours)
-	
+
 	    def HoursTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :hours)
-	
+
 	def DurationInDaysTo(pcUnit)
 	    return This.DurationTo(pcUnit, :In = :Days)
-	
+
 	    def DaysTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Days)
-	
+
 	def DurationInWeeksTo(pcUnit)
 	    return This.DurationTo(pcUnit, :In = :Weeks)
-	
+
 	    def WeeksTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Weeks)
-	
+
 	def DurationInMonthsTo(pcUnit)
 	    return This.DurationTo(pcUnit, :In = :Months)
-	
+
 	    def MonthsTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Months)
-	
+
 	def DurationInYearsTo(pcUnit)
 	    return This.DurationTo(pcUnit, :In = :Years)
-	
+
 	    def YearsTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Years)
-	
+
 	def DurationInDecadesTo(cTo)
 	    return This.DurationTo(pcUnit, :In = :Decades)
-	
+
 	    def DecadesTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Decades)
-	
+
 	def DurationInCenturiesTo(pcUnit)
 	    return This.DurationTo(pcUnit, :In = :Centuries)
-	
+
 	    def CenturiesTo(pcUnit)
 	        return This.DurationTo(pcUnit, :In = :Centuries)
 
@@ -2260,7 +2402,7 @@ class stzDateTime from stzObject
 			StzRaise("Incorrect param type! pcUnit must be a string.")
 		ok
 	ok
-        
+
         nMs = This.ToMillisecondsSinceEpochXT(pOrigin)
 
         if pcUnit = ""
@@ -2334,7 +2476,7 @@ class stzDateTime from stzObject
 
 	    def DurationInMillisecondsSince(cFrom)
 	        return This.DurationSince(pOrigin, :In = :Milliseconds)
-	
+
 	def MillisecondsSince(cFrom)
 		return This.DurationSince(pOrigin, :In = :Milliseconds)
 
@@ -2343,10 +2485,10 @@ class stzDateTime from stzObject
 
 	    def SecondsFrom(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Seconds)
-	
+
 	    def DurationInSecondsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Seconds)
-	
+
 	    def SecondsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Seconds)
 
@@ -2358,7 +2500,7 @@ class stzDateTime from stzObject
 
 	    def DurationInMinutesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Minutes)
-	
+
 	    def MinutesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Minutes)
 
@@ -2370,7 +2512,7 @@ class stzDateTime from stzObject
 
 	    def DurationInHoursSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Hours)
-	
+
 	    def HoursSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Hours)
 
@@ -2382,7 +2524,7 @@ class stzDateTime from stzObject
 
 	    def DurationInDaysSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Days)
-	
+
 	    def DaysSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Days)
 
@@ -2394,10 +2536,10 @@ class stzDateTime from stzObject
 
 	    def DurationInWeeksSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Weeks)
-	
+
 	    def WeeksSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Weeks)
-	
+
     def DurationInMonthsFrom(pOrigin)
          return This.DurationSince(pOrigin, :In = :Months)
 
@@ -2406,7 +2548,7 @@ class stzDateTime from stzObject
 
 	    def DurationInMonthsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Months)
-	
+
 	    def MonthsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Months)
 
@@ -2418,7 +2560,7 @@ class stzDateTime from stzObject
 
 	    def DurationInYearsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Years)
-	
+
 	    def YearsSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Years)
 
@@ -2431,7 +2573,7 @@ class stzDateTime from stzObject
 
 	    def DurationInDecadesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Decades)
-	
+
 	    def DecadesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Decades)
 
@@ -2444,22 +2586,20 @@ class stzDateTime from stzObject
 
 	    def DurationInCenturiesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Centuries)
-	
+
 	    def CenturiesSince(pOrigin)
 	        return This.DurationSince(pOrigin, :In = :Centuries)
 
    #===
 
     def SetFromHash(aHash)
-        # Placeholder for original standard hash setting if needed
-        # Already handled in init, but can be called separately
         nYear = 2000
         nMonth = 1
         nDay = 1
         nHour = 0
         nMinute = 0
         nSecond = 0
-        
+
         if HasKey(aHash, :Year)
             nYear = 0+ aHash[:Year]
         ok
@@ -2483,14 +2623,14 @@ class stzDateTime from stzObject
         if HasKey(aHash, :Second)
             nSecond = 0+ aHash[:Second]
         ok
-        
-        _oDate_ = new QDate()
-        _oDate_.setDate(nYear, nMonth, nDay)
-        _oTime_ = new QTime()
-        _oTime_.setHMS(nHour, nMinute, nSecond, 0)
-        
-        @oQDateTime.setDate(_oDate_)
-        @oQDateTime.setTime(_oTime_)
+
+        @nYear = nYear
+        @nMonth = nMonth
+        @nDay = nDay
+        @nHour = nHour
+        @nMinute = nMinute
+        @nSecond = nSecond
+        @nMs = 0
 
 	# Operator overloading
 
@@ -2500,50 +2640,48 @@ class stzDateTime from stzObject
 	        if isNumber(v)
 	            This.AddSeconds(v)
 	            return This
-	        
+
 	        but isString(v)
-	            # Check if it's a natural language expression
 	            cLower = lower(trim(v))
 	            bHasDateTime = (substr(v, "-") > 0 and substr(v, ":") > 0)
-	            bHasUnits = (substr(cLower, " day") > 0 or substr(cLower, " month") > 0 or 
-	                        substr(cLower, " year") > 0 or substr(cLower, " hour") > 0 or 
+	            bHasUnits = (substr(cLower, " day") > 0 or substr(cLower, " month") > 0 or
+	                        substr(cLower, " year") > 0 or substr(cLower, " hour") > 0 or
 	                        substr(cLower, " minute") > 0 or substr(cLower, " second") > 0)
-	            
+
 	            if not bHasDateTime and bHasUnits
 	                This.AddNatural(v)
 	                return This
 	            ok
 	        ok
-	    
+
 		but op = "-"
-		
+
 		    if isNumber(v)
 		        This.SubtractSeconds(v)
 		        return This
-		
+
 		    but isObject(v) and v.IsAStzDateTime()
 		        return This.SecsTo(v)
-		
+
 		    but isString(v)
-		
-		        # Only treat as natural language if it contains time units with spaces
+
 		        cLower = lower(trim(v))
 		        bHasDateTime = (substr(v, "-") > 0 and substr(v, ":") > 0)
-		        bHasUnits = (substr(cLower, " day") > 0 or substr(cLower, " month") > 0 or 
-		                    substr(cLower, " year") > 0 or substr(cLower, " hour") > 0 or 
+		        bHasUnits = (substr(cLower, " day") > 0 or substr(cLower, " month") > 0 or
+		                    substr(cLower, " year") > 0 or substr(cLower, " hour") > 0 or
 		                    substr(cLower, " minute") > 0 or substr(cLower, " second") > 0)
-		        
+
 		        if not bHasDateTime and bHasUnits
 		            This.SubtractNatural(v)
 		            return This
-		
+
 		        else
 		            oOtherDateTime = new stzDateTime(v)
 		            return This.SecsTo(oOtherDateTime)
-		
+
 		        ok
 		    ok
-	    
+
 	    but op = "<"
 	        if isObject(v) and v.IsAStzDateTime()
 	            return This.IsBefore(v)
@@ -2552,7 +2690,7 @@ class stzDateTime from stzObject
 	            return This.IsBefore(new stzDateTime(v))
 
 	        ok
-	    
+
 	    but op = "<="
 
 	        if isObject(v) and v.IsAStzDateTime()
@@ -2562,7 +2700,7 @@ class stzDateTime from stzObject
 	            oTemp = new stzDateTime(v)
 	            return This.IsBefore(oTemp) or This.IsEqualTo(oTemp)
 	        ok
-	    
+
 	    but op = ">"
 	        if isObject(v) and v.IsAStzDateTime()
 	            return This.IsAfter(v)
@@ -2570,7 +2708,7 @@ class stzDateTime from stzObject
 	        but isString(v)
 	            return This.IsAfter(new stzDateTime(v))
 	        ok
-	    
+
 	    but op = ">="
 	        if isObject(v) and v.IsAStzDateTime()
 	            return This.IsAfter(v) or This.IsEqualTo(v)
@@ -2579,7 +2717,7 @@ class stzDateTime from stzObject
 	            oTemp = new stzDateTime(v)
 	            return This.IsAfter(oTemp) or This.IsEqualTo(oTemp)
 	        ok
-	    
+
 	    but op = "="
 	        if isObject(v) and v.IsAStzDateTime()
 	            return This.IsEqualTo(v)
