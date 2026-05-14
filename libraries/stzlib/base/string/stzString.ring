@@ -28,13 +28,177 @@
 	link: https://ftfy.readthedocs.io
 */
 
+  /////////////////////////////////
+ ///   QT COMPATIBILITY SHIM   ///
+/////////////////////////////////
+
+class _EngineStringShim
+	_pEngine
+	_oParent
+
+	def init(pEngine, oParent)
+		_pEngine = pEngine
+		_oParent = oParent
+
+	def mid(nStart, nLength)
+		cContent = _oParent.Content()
+		return substr(cContent, nStart + 1, nLength)
+
+	def indexOf(pcSubStr, nStart, pCaseSensitive)
+		cContent = _oParent.Content()
+		cNeedle = pcSubStr
+		if pCaseSensitive = 0
+			cContent = lower(cContent)
+			cNeedle = lower(pcSubStr)
+		ok
+		nPos = substr(cContent, cNeedle, nStart + 1)
+		if nPos > 0 return nPos - 1 ok
+		return -1
+
+	def indexof(pcSubStr, nStart, pCaseSensitive)
+		return This.indexOf(pcSubStr, nStart, pCaseSensitive)
+
+	def lastIndexOf(pcSubStr, nStart, pCaseSensitive)
+		cContent = _oParent.Content()
+		cNeedle = pcSubStr
+		if pCaseSensitive = 0
+			cContent = lower(cContent)
+			cNeedle = lower(pcSubStr)
+		ok
+		nResult = -1
+		nPos = substr(cContent, cNeedle)
+		while nPos > 0
+			nResult = nPos - 1
+			nPos = substr(cContent, cNeedle, nPos + 1)
+		end
+		return nResult
+
+	def startsWith(pcSubStr, pCaseSensitive)
+		cContent = _oParent.Content()
+		nLen = len(pcSubStr)
+		if pCaseSensitive = 0
+			return lower(left(cContent, nLen)) = lower(pcSubStr)
+		ok
+		return left(cContent, nLen) = pcSubStr
+
+	def endsWith(pcSubStr, pCaseSensitive)
+		cContent = _oParent.Content()
+		nLen = len(pcSubStr)
+		if pCaseSensitive = 0
+			return lower(right(cContent, nLen)) = lower(pcSubStr)
+		ok
+		return right(cContent, nLen) = pcSubStr
+
+	def size()
+		return StzEngineStringSize(_pEngine)
+
+	def count()
+		return StzEngineStringCount(_pEngine)
+
+	def left(n)
+		cContent = _oParent.Content()
+		return left(cContent, n)
+
+	def right(n)
+		cContent = _oParent.Content()
+		return right(cContent, n)
+
+	def toCasefolded()
+		return lower(_oParent.Content())
+
+	def trimmed()
+		return trim(_oParent.Content())
+
+	def isRightToleft()
+		cContent = _oParent.Content()
+		if len(cContent) = 0 return 0 ok
+		nUnicode = StzEngineCharUnicode(cContent)
+		if (nUnicode >= 0x0590 and nUnicode <= 0x05FF) or
+		   (nUnicode >= 0x0600 and nUnicode <= 0x06FF) or
+		   (nUnicode >= 0x0700 and nUnicode <= 0x074F) or
+		   (nUnicode >= 0xFB50 and nUnicode <= 0xFDFF) or
+		   (nUnicode >= 0xFE70 and nUnicode <= 0xFEFF)
+			return 1
+		ok
+		return 0
+
+	def replace(nStart, nLength, pcNewStr)
+		cContent = _oParent.Content()
+		cNew = left(cContent, nStart) + pcNewStr + substr(cContent, nStart + nLength + 1)
+		_oParent.Update(cNew)
+		return cNew
+
+	def clear()
+		_oParent.Update("")
+
+	def append(pcStr)
+		StzEngineStringAppend(_pEngine, pcStr)
+
+	def append_2(oQChar)
+		return
+
+	def compare(pcOtherStr, pCaseSensitive)
+		cThis = _oParent.Content()
+		cOther = pcOtherStr
+		if pCaseSensitive = 0
+			cThis = lower(cThis)
+			cOther = lower(pcOtherStr)
+		ok
+		if cThis < cOther return -1 ok
+		if cThis > cOther return 1 ok
+		return 0
+
+	def localeAwareCompare(pcOtherStr)
+		return This.compare(pcOtherStr, 1)
+
+	def split(pcSep, nBehavior, pCaseSensitive)
+		cContent = _oParent.Content()
+		cSep = pcSep
+		if pCaseSensitive = 0
+			cContent = lower(cContent)
+			cSep = lower(pcSep)
+		ok
+		acResult = []
+		nSepLen = len(cSep)
+		nPos = substr(cContent, cSep)
+		nStart = 1
+		while nPos > 0
+			acResult + substr(_oParent.Content(), nStart, nPos - nStart)
+			nStart = nPos + nSepLen
+			nPos = substr(cContent, cSep, nStart)
+		end
+		acResult + substr(_oParent.Content(), nStart)
+		return acResult
+
+	def rightJustified(nWidth, oFillChar, bTruncate)
+		cContent = _oParent.Content()
+		nLen = len(cContent)
+		if nLen >= nWidth return cContent ok
+		cFill = " "
+		if isString(oFillChar) cFill = oFillChar ok
+		return copy(cFill, nWidth - nLen) + cContent
+
+	def leftJustified(nWidth, oFillChar, bTruncate)
+		cContent = _oParent.Content()
+		nLen = len(cContent)
+		if nLen >= nWidth return cContent ok
+		cFill = " "
+		if isString(oFillChar) cFill = oFillChar ok
+		return cContent + copy(cFill, nWidth - nLen)
+
+	def ToUtf8()
+		return This
+
+	def data()
+		return _oParent.Content()
+
   /////////////////
  ///   CLASS   ///
 /////////////////
 
 class stzString from stzObject
 
-	@oQString
+	@pEngine
 	@cMarquer = DefaultMarquerChar()
 
 	@aConstraints = []
@@ -45,37 +209,28 @@ class stzString from stzObject
 	These
 	Those
 
-	// Initializes the content of the softanza string object
 	def init(pcStr)
 
 		if CheckingParams()
 
-			if NOT ( isString(pcStr) or @IsQString(pcStr) or
+			if NOT ( isString(pcStr) or
 				 (isList(pcStr) and StzListQ(pcStr).IsPairOfStrings()) )
 
-				StzRaise("Can't create the stzString object! pcStr must be a string, a QString object, or a pair of strings.")
+				StzRaise("Can't create the stzString object! pcStr must be a string or a pair of strings.")
 			ok
 
-			if IsQString(pcStr)
-				QStringObject() = pcStr
-				return
-
-			but isList(pcStr) and StzListQ(pcStr).IsPairOfStrings() # Named string
-				@cVarName = pcStr[1] # Inherited from stzObject
-				@oQString = new QString2()
-				@oQString.append(pcStr[2])
+			if isList(pcStr) and StzListQ(pcStr).IsPairOfStrings()
+				@cVarName = pcStr[1]
+				@pEngine = StzEngineStringFrom(pcStr[2])
 				return
 			ok
 
 		ok
 
-		@oQString = new QString2()
-		@oQString.append(pcStr)
+		@pEngine = StzEngineStringFrom(pcStr)
 
 		These = This
 		Those = This
-
-		# Adding the first entry in the object history
 
 		StartObjectTime()
 		TraceObjectHistory(This)
@@ -138,15 +293,11 @@ class stzString from stzObject
 	 #     GETTING CONTENT OF THE STRING     #
 	#=======================================#
 
-	// Returns the string's content
 	def Content()
-
-		return QStringObject().left(QStringObject().size())
-
-		#TODO // Replace with QStringObject().count() with size()
-		# ~> count() returns number of unicode codepoints
-		# ~> size() returns number of chars
-		#UPDATE // Done using Ring 1.22 (thanks @Mahmoud)
+		nSize = StzEngineStringSize(@pEngine)
+		if nSize = 0 return "" ok
+		pData = StzEngineStringData(@pEngine)
+		return copy(pData, nSize)
 
 		#< @FunctionFluentForm
 
@@ -191,7 +342,7 @@ class stzString from stzObject
 
 
 	def QStringObject()
-		return @oQString
+		return new _EngineStringShim(@pEngine, This)
 
 		def ToQStringObject()
 			return This.QStringObject()
@@ -340,10 +491,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcStr must be a string.")
 		ok
 
-		_oQCopy_ = @oQString
-		_oQCopy_.append(pcStr)
-		
-		_cResult_ = _oQCopy_.mid(0, _oQCopy_.size())
+		_cResult_ = This.Content() + pcStr
 		This.UpdateWith(_cResult_)
 
 		#< @FunctionFluentForm
@@ -43784,17 +43932,14 @@ class stzString from stzObject
 	#-----------------------#
 
 	def Update(pcNewStr)
-	    #< QtBased | Uses QString.clear() and QString.append() >
-	
 	    if CheckingParams() = 1
 	        if isList(pcNewStr) and StzListQ(pcNewStr).IsWithOrByOrUsingNamedParam()
 	            pcNewStr = pcNewStr[2]
 	        ok
 	    ok
-	
-	    # Updating the object content
-	    QStringObject().clear()
-	    QStringObject().append(pcNewStr)
+
+	    StzEngineStringFree(@pEngine)
+	    @pEngine = StzEngineStringFrom(pcNewStr)
 	
 	    # Tracing the history of updates (only if not already in history update)
 	    if _bInHistoryUpdate = 0
@@ -90563,8 +90708,7 @@ class stzString from stzObject
 			return new stzString( This.ToHexWithoutPrefix() )
 
 	def FromHex(cHex)
-		oQCode = new QString2()
-		This.UpdateWith( oQCode.append(hex2str(cHex)) )
+		This.UpdateWith( hex2str(cHex) )
 
 		def FromHexQ(cHex)
 			This.FromHex(cHex)
@@ -90897,14 +91041,8 @@ class stzString from stzObject
 	// create a characrer object from text
 
 	def UnicodeOfCharN(n)
-		oTempQStr = new QString2()
-		oTempQStr.append(This[n])
-		return oTempQStr.unicode().unicode()
-		/*
-		The first unicode() on QString returns a QChar,
-		while the seconde unicode() on this QChar returns
-		the actual decimal unicode of the Char
-		*/
+		cChar = This[n]
+		return StzEngineCharUnicode(cChar)
 
 		#< @FunctionAlternativeForms
 
@@ -97086,9 +97224,7 @@ class stzString from stzObject
 			# The list is in short form, let's analyze it
 			# and tranform it to a normal syntax
 
-			aListMembers = QStringListToList( oCopy.QStringObject().split( ":", 0, 0 ) )
-			#NOTE: could be written { aListMembers = oCopy.Split( :Using = ":" ) } after
-			# terminating Split() funtion in Softanza.
+			aListMembers = oCopy.QStringObject().split( ":", 0, 0 )
 
 			cMember1 = aListMembers[1]
 			cMember2 = aListMembers[2]
@@ -97272,7 +97408,6 @@ class stzString from stzObject
 				oCopy.RemoveFirstAndLastChars()
 
 				acMembers = oCopy.QStringObject().split(",", 0, 0)
-				acMembers = QStringListToList(acMembers)
 				acMembers = StzListQ(acMembers).FirstAndLastItems()
 
 				/*
@@ -97328,9 +97463,7 @@ class stzString from stzObject
 			# The list is in short form, let's analyze it
 			# and tranform it to a normal syntax
 
-			aListMembers = QStringListToList( This.QStringObject().split( ":", 0, 0 ) )
-			#NOTE: could be written { aListMembers = This.Split( :Using = ":" ) } after
-			# terminating Split() funtion in Softanza.
+			aListMembers = This.QStringObject().split( ":", 0, 0 )
 					
 			cMember1 = aListMembers[1]
 			cMember2 = aListMembers[2]
