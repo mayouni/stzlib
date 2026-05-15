@@ -1466,7 +1466,7 @@ func FirstNPrimesWXT(n, pcCondition)
 
 	nMax = MaxRingNumber()
 
-	cCode = 'bOk = (' + StzStringQ(pcCondition).SimplifyQ().TheseBoundsRemoved("{", "}") + ' )'
+	cCode = 'bOk = (' + _StzStripBraces(pcCondition) + ' )'
 
 	anResult = []
 

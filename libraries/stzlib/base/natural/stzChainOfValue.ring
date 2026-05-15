@@ -374,7 +374,7 @@ class stzChainOfValue from stzObject
 		return This
 
 	def DoThis(pcCode)
-		@cCode = StzStringQ(pcCode).TrimQ().TheseBoundsRemoved("{","}")
+		@cCode = _StzStripBraces(pcCode)
 
 		@bCodeHasBeenCalled = 1
 		@cCodeCaller = :Dothis

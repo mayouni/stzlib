@@ -97741,7 +97741,7 @@ class stzString from stzObject
 							
 			but isString(pValue)
 				if StzStringQ(pValue).TrimQ().IsBoundedBy(["{","}"])
-					pcCondition = StzStringQ(pValue).TrimQ().TheseBoundsRemoved("{","}")
+					pcCondition = _StzStripBraces(pValue)
 					anResult = []
 
 					@char = ""

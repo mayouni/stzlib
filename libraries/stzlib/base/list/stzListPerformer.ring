@@ -21,7 +21,7 @@ class stzListPerformer from stzList
 	def Perform(pcAction)
 		aContent = This.Content()
 		nLen = len(aContent)
-		_cCode_ = StzStringQ(pcAction).TrimQ().BoundsRemoved("{","}")
+		_cCode_ = _StzStripBraces(pcAction)
 		for @i = 1 to nLen
 			eval(_cCode_)
 		next
@@ -33,7 +33,7 @@ class stzListPerformer from stzList
 	def PerformOn(panPos, pcAction)
 		aContent = This.Content()
 		nLen = len(panPos)
-		_cCode_ = StzStringQ(pcAction).TrimQ().BoundsRemoved("{","}")
+		_cCode_ = _StzStripBraces(pcAction)
 		for i = 1 to nLen
 			@i = panPos[i]
 			eval(_cCode_)
@@ -57,7 +57,7 @@ class stzListPerformer from stzList
 	def Yield(pcYielder)
 		aContent = This.Content()
 		nLen = len(aContent)
-		_cCode_ = StzStringQ(pcYielder).TrimQ().BoundsRemoved("{","}")
+		_cCode_ = _StzStripBraces(pcYielder)
 		aResult = []
 		for @i = 1 to nLen
 			aResult + eval(_cCode_)
@@ -69,7 +69,7 @@ class stzListPerformer from stzList
 
 	def YieldOn(panPos, pcYielder)
 		nLen = len(panPos)
-		_cCode_ = StzStringQ(pcYielder).TrimQ().BoundsRemoved("{","}")
+		_cCode_ = _StzStripBraces(pcYielder)
 		aResult = []
 		for i = 1 to nLen
 			@i = panPos[i]
@@ -98,7 +98,7 @@ class stzListPerformer from stzList
 	def PerformOnEachItemAndItsPosition(pcAction)
 		aContent = This.Content()
 		nLen = len(aContent)
-		_cCode_ = StzStringQ(pcAction).TrimQ().BoundsRemoved("{","}")
+		_cCode_ = _StzStripBraces(pcAction)
 		for @i = 1 to nLen
 			@item = aContent[@i]
 			eval(_cCode_)
@@ -115,7 +115,7 @@ class stzListPerformer from stzList
 	def YieldPairs(pcYielder)
 		aContent = This.Content()
 		nLen = len(aContent)
-		_cCode_ = StzStringQ(pcYielder).TrimQ().BoundsRemoved("{","}")
+		_cCode_ = _StzStripBraces(pcYielder)
 		aResult = []
 		for @i = 1 to nLen
 			@item = aContent[@i]
