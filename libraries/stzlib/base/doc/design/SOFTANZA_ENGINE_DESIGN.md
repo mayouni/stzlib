@@ -3923,8 +3923,12 @@ Each Engine module declares:
    using this module (other Engine modules, general concepts)
 2. **Skills taught** -- what the programmer learns by using this
    module
-3. **Coding examples** -- executable Zig snippets that demonstrate
-   each skill, graded by difficulty (beginner/intermediate/advanced)
+3. **Coding examples** -- executable Ring snippets (using Zing =
+   Ring + Softanza Engine) that demonstrate each skill, graded by
+   difficulty (beginner/intermediate/advanced). Ring is the example
+   language because the Skill Engine targets high-level programmers,
+   not systems programmers. Learners run examples with the Ring
+   interpreter + Engine DLLs -- no Zig toolchain required.
 4. **Skill checks** -- small coding challenges the programmer can
    attempt, with automated verification
 
@@ -3992,11 +3996,14 @@ Module stz_reaxis requires:
   - stz_truth: domain-specific truth evaluation (from Layer 5)
 
 $ stzengine skills check string codepoint_handling
-Challenge: Write a function that counts the number of visible
-characters (grapheme clusters) in a UTF-8 string containing
-combining marks.
+Challenge: Write a Ring function using Softanza that counts the
+number of visible characters (grapheme clusters) in a UTF-8
+string containing combining marks.
 
-Signature: fn solve(input: []const u8) usize
+Signature:
+  load "stzlib.ring"
+  func solve(cStr)
+    # your code here -- return the count
 
 Submit your answer:
 > _
@@ -4054,20 +4061,20 @@ int stz_skill_assess(
 ```
 
 ```
-$ stzengine skills assess src/my_app.zig
-Skills demonstrated in src/my_app.zig:
-  [x] stz_string: basic creation, codepoint indexing
-  [x] stz_list: creation, append, iteration
-  [x] stz_walker: forward traversal
-  [ ] stz_walker: variable step patterns (not used)
-  [ ] stz_reaxis: (not used -- consider for the event handling
+$ stzengine skills assess myapp.ring
+Skills demonstrated in myapp.ring:
+  [x] stzString: basic creation, codepoint indexing, Q() chaining
+  [x] stzList: creation, append, iteration
+  [x] stzWalker: forward traversal
+  [ ] stzWalker: variable step patterns (not used)
+  [ ] stzReactive: (not used -- consider for the event handling
       in lines 45-78, which uses manual polling)
-  [ ] stz_interact: (not used -- the CLI menu in lines 12-30
+  [ ] stzInteract: (not used -- the CLI menu in lines 12-30
       could be declared as an intent flow)
 
 Recommendations:
-  - Learn stz_reaxis to replace the polling loop at line 45
-  - Learn stz_interact to make the CLI menu portable
+  - Learn stzReactive to replace the polling loop at line 45
+  - Learn stzInteract to make the CLI menu portable
 ```
 
 ---
