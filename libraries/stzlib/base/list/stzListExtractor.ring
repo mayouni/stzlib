@@ -68,3 +68,59 @@ class stzListExtractor from stzList
 		aResult = This.ItemsAtPositions(anPos)
 		This.RemoveItemsAtPositions(anPos)
 		return aResult
+
+	  #======================================================#
+	 #   EXTRACT NTH OCCURRENCE                             #
+	#======================================================#
+
+	def ExtractNthOccurrenceCS(n, pItem, pCaseSensitive)
+		nPos = This.FindNthCS(n, pItem, pCaseSensitive)
+		if nPos = 0
+			return NULL
+		ok
+		return This.ExtractNth(nPos)
+
+	def ExtractNthOccurrence(n, pItem)
+		return This.ExtractNthOccurrenceCS(n, pItem, 1)
+
+	  #======================================================#
+	 #   EXTRACT FIRST / LAST OCCURRENCE                    #
+	#======================================================#
+
+	def ExtractFirstOccurrenceCS(pItem, pCaseSensitive)
+		return This.ExtractNthOccurrenceCS(1, pItem, pCaseSensitive)
+
+	def ExtractFirstOccurrence(pItem)
+		return This.ExtractFirstOccurrenceCS(pItem, 1)
+
+	def ExtractLastOccurrenceCS(pItem, pCaseSensitive)
+		nPos = This.FindLastCS(pItem, pCaseSensitive)
+		if nPos = 0
+			return NULL
+		ok
+		return This.ExtractNth(nPos)
+
+	def ExtractLastOccurrence(pItem)
+		return This.ExtractLastOccurrenceCS(pItem, 1)
+
+	  #======================================================#
+	 #   EXTRACT DUPLICATES                                 #
+	#======================================================#
+
+	def ExtractDuplicatesCS(pCaseSensitive)
+		aUnique = []
+		aDups = []
+		aContent = This.Content()
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if StzListQ(aUnique).ContainsCS(aContent[i], pCaseSensitive)
+				aDups + aContent[i]
+			else
+				aUnique + aContent[i]
+			ok
+		next
+		This.UpdateWith(aUnique)
+		return aDups
+
+	def ExtractDuplicates()
+		return This.ExtractDuplicatesCS(1)

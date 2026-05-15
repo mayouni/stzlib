@@ -27,12 +27,22 @@ class stzListGetterXT from stzListGetter
 			_bAliasesLoaded = 1
 
 			aAliases = [
-				[:ItemAt,	:NthItem],
-				[:First,	:FirstItem],
-				[:Last,		:LastItem],
-				[:Central,	:CentralItem],
-				[:TopN,		:NFirstItems],
-				[:BottomN,	:NLastItems]
+				[:ItemAt,		:NthItem],
+				[:ItemAtPosition,	:NthItem],
+				[:First,		:FirstItem],
+				[:Last,			:LastItem],
+				[:Central,		:CentralItem],
+				[:Middle,		:CentralItem],
+				[:TopN,			:NFirstItems],
+				[:HeadItems,		:NFirstItems],
+				[:BottomN,		:NLastItems],
+				[:TailItems,		:NLastItems],
+				[:ItemsAt,		:ItemsAtPositions],
+				[:DistinctItems,	:UniqueItems],
+				[:DistinctItemsCS,	:UniqueItemsCS],
+				[:AnyItem,		:RandomItem],
+				[:PickRandom,		:RandomItem],
+				[:PickNRandom,		:NRandomItems]
 			]
 
 			nLen = len(aAliases)

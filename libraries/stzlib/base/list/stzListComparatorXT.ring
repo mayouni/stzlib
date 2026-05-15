@@ -29,9 +29,22 @@ class stzListComparatorXT from stzListComparator
 			aAliases = [
 				[:IntersectionCS,	:CommonItemsCS],
 				[:Intersection,		:CommonItems],
+				[:SharedItemsCS,	:CommonItemsCS],
+				[:SharedItems,		:CommonItems],
 				[:Diff,			:Difference],
 				[:DiffCS,		:DifferenceCS],
-				[:IsTheSameAs,		:IsEqualTo]
+				[:IsTheSameAs,		:IsEqualTo],
+				[:IsTheSameAsCS,	:IsEqualToCS],
+				[:IsDifferentFrom,	:IsNotEqualTo],
+				[:IsDifferentFromCS,	:IsNotEqualToCS],
+				[:SymDiff,		:SymmetricDifference],
+				[:SymDiffCS,		:SymmetricDifferenceCS],
+				[:Includes,		:Contains],
+				[:IncludesCS,		:ContainsCS],
+				[:IncludesAll,		:ContainsAllOfThese],
+				[:IncludesAllCS,	:ContainsAllOfTheseCS],
+				[:IncludesOne,		:ContainsOneOfThese],
+				[:IncludesOneCS,	:ContainsOneOfTheseCS]
 			]
 
 			nLen = len(aAliases)

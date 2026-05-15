@@ -28,10 +28,17 @@ class stzListMoverXT from stzListMover
 
 			aAliases = [
 				[:MoveItem,		:Move],
+				[:MoveItemQ,		:MoveQ],
 				[:SwapItems,		:Swap],
 				[:SwapPositions,	:Swap],
+				[:SwapItemsQ,		:SwapQ],
 				[:MoveItemToFirst,	:MoveToStart],
-				[:MoveItemToLast,	:MoveToEnd]
+				[:MoveItemToLast,	:MoveToEnd],
+				[:Flip,			:Reverse],
+				[:FlipQ,		:ReverseQ],
+				[:Flipped,		:Reversed],
+				[:MoveManyItems,	:MoveMany],
+				[:SwapEnds,		:SwapFirstAndLast]
 			]
 
 			nLen = len(aAliases)

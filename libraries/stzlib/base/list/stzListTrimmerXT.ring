@@ -27,11 +27,18 @@ class stzListTrimmerXT from stzListTrimmer
 			_bAliasesLoaded = 1
 
 			aAliases = [
-				[:TrimStart,	:TrimLeft],
-				[:TrimEnd,	:TrimRight],
-				[:Strip,	:Trim],
-				[:StripLeft,	:TrimLeft],
-				[:StripRight,	:TrimRight]
+				[:TrimStart,		:TrimLeft],
+				[:TrimEnd,		:TrimRight],
+				[:Strip,		:Trim],
+				[:StripQ,		:TrimQ],
+				[:StripLeft,		:TrimLeft],
+				[:StripRight,		:TrimRight],
+				[:StripItem,		:TrimItem],
+				[:StripItemCS,		:TrimItemCS],
+				[:StripItemFromLeft,	:TrimItemFromLeft],
+				[:StripItemFromLeftCS,	:TrimItemFromLeftCS],
+				[:StripItemFromRight,	:TrimItemFromRight],
+				[:StripItemFromRightCS,	:TrimItemFromRightCS]
 			]
 
 			nLen = len(aAliases)

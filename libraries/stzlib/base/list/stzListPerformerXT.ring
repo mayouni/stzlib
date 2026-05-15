@@ -30,9 +30,17 @@ class stzListPerformerXT from stzListPerformer
 				[:PerformOnEach,	:Perform],
 				[:PerformOnPositions,	:PerformOn],
 				[:ForEach,		:Perform],
+				[:ForEachQ,		:PerformQ],
+				[:ForEachOn,		:PerformOn],
+				[:ForEachW,		:PerformW],
 				[:Harvest,		:Yield],
+				[:Collect,		:Yield],
 				[:HarvestOn,		:YieldOn],
-				[:HarvestW,		:YieldW]
+				[:CollectOn,		:YieldOn],
+				[:HarvestW,		:YieldW],
+				[:CollectW,		:YieldW],
+				[:CollectPairs,		:YieldPairs],
+				[:HarvestPairs,		:YieldPairs]
 			]
 
 			nLen = len(aAliases)
