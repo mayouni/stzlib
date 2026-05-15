@@ -178,6 +178,27 @@ ok
 
     load "list/stzListNamedParams.ring"
 
+    # Modular subclasses (Phase 3)
+
+    load "list/stzListGetter.ring"
+    load "list/stzListGetterXT.ring"
+    load "list/stzListExtractor.ring"
+    load "list/stzListExtractorXT.ring"
+    load "list/stzListTrimmer.ring"
+    load "list/stzListTrimmerXT.ring"
+    load "list/stzListMover.ring"
+    load "list/stzListMoverXT.ring"
+    load "list/stzListClassifier.ring"
+    load "list/stzListClassifierXT.ring"
+    load "list/stzListComparator.ring"
+    load "list/stzListComparatorXT.ring"
+    load "list/stzListLeadTrail.ring"
+    load "list/stzListLeadTrailXT.ring"
+    load "list/stzListPerformer.ring"
+    load "list/stzListPerformerXT.ring"
+    load "list/stzListMerger.ring"
+    load "list/stzListMergerXT.ring"
+
 # Loading files related to the GRAPH module
 
     load "graph/stzgraph.ring"

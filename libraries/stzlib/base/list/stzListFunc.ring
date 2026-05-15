@@ -154,6 +154,62 @@
 	func StzListNamedParamsQ(paList)
 		return new stzListNamedParams(paList)
 
+	# Phase 3 Q-constructors
+
+	func StzListGetterQ(paList)
+		return new stzListGetter(paList)
+
+	func StzListGetterXTQ(paList)
+		return new stzListGetterXT(paList)
+
+	func StzListExtractorQ(paList)
+		return new stzListExtractor(paList)
+
+	func StzListExtractorXTQ(paList)
+		return new stzListExtractorXT(paList)
+
+	func StzListTrimmerQ(paList)
+		return new stzListTrimmer(paList)
+
+	func StzListTrimmerXTQ(paList)
+		return new stzListTrimmerXT(paList)
+
+	func StzListMoverQ(paList)
+		return new stzListMover(paList)
+
+	func StzListMoverXTQ(paList)
+		return new stzListMoverXT(paList)
+
+	func StzListClassifierQ(paList)
+		return new stzListClassifier(paList)
+
+	func StzListClassifierXTQ(paList)
+		return new stzListClassifierXT(paList)
+
+	func StzListComparatorQ(paList)
+		return new stzListComparator(paList)
+
+	func StzListComparatorXTQ(paList)
+		return new stzListComparatorXT(paList)
+
+	func StzListLeadTrailQ(paList)
+		return new stzListLeadTrail(paList)
+
+	func StzListLeadTrailXTQ(paList)
+		return new stzListLeadTrailXT(paList)
+
+	func StzListPerformerQ(paList)
+		return new stzListPerformer(paList)
+
+	func StzListPerformerXTQ(paList)
+		return new stzListPerformerXT(paList)
+
+	func StzListMergerQ(paList)
+		return new stzListMerger(paList)
+
+	func StzListMergerXTQ(paList)
+		return new stzListMergerXT(paList)
+
 	  #============================================#
 	 #  ESSENTIAL UTILITY FUNCTIONS               #
 	#============================================#
