@@ -22,7 +22,7 @@ builds on the one beneath it:
 
 | Layer | Prefix | Example          | Purpose                       |
 |-------|--------|------------------|-------------------------------|
-| Core  | stk*   | stkString        | Lean, fast, Qt-direct         |
+| Core  | stk*   | stkString        | Lean, fast, Engine-direct     |
 | Base  | stz*   | stzString        | Rich, semantic, human-centric |
 | Max   | stx*   | stxMultiString   | Advanced, specialized, wings  |
 
@@ -32,10 +32,10 @@ number/, object/, system/, error/, common/).
 ## Layer Rules
 
 ### Core Layer (stk*)
-- Wraps Qt/Ring primitives directly
+- Delegates all heavy work to the Softanza Engine (Zig)
 - No business logic, no semantic sugar
 - Every method does exactly one thing
-- Dependencies: Ring stdlib + Qt only
+- Dependencies: Ring language + Engine DLLs only
 - Target: fast operations, embedded, constrained platforms
 
 ### Base Layer (stz*)
@@ -43,7 +43,7 @@ number/, object/, system/, error/, common/).
 - Adds: function alternatives, named parameters, Q() chaining
 - Adds: natural coding keywords, conditional code, constraints
 - All 20 functional domains live here
-- Dependencies: Core layer only
+- Dependencies: Core layer + Engine DLLs
 
 ### Max Layer (stx*)
 - Builds on Base
@@ -92,10 +92,17 @@ stzStochasticSolver, stzCobol, stzCache, stzTurboList,
 stzTextStream, stzConstraint, stzFolderWatcher, stzProfiler,
 stzFunction.
 
-## Engine Architecture (Qt fully replaced)
+## Engine Architecture
 
-All layers now use the Zig-based Softanza Engine via C FFI.
-No Qt dependency remains.
+All heavy computation is delegated to the Zig-based Softanza
+Engine via C FFI. Ring provides only the language runtime
+(syntax, OOP, scripting) -- never the algorithms.
+
+**Design principle:** Ring stdlib functions are unreliable for
+Softanza's needs (e.g. `len()` counts bytes not Unicode
+codepoints, list operations are slow, no proper string search).
+Every operation that touches data -- strings, numbers, lists,
+dates, files -- must go through the Engine.
 
 ### Core Layer (stk_* DLLs)
 - stkString -> StkEngine* FFI (string operations)
@@ -105,16 +112,20 @@ No Qt dependency remains.
 - stzString -> StzEngine* FFI (string operations)
 - stzChar -> StzEngineUnicode* FFI (unicode)
 - stzFile -> StzEngineFile* FFI (filesystem)
-- stzFolder -> Ring file ops
+- stzFolder -> StzEngineFile* FFI (directory operations)
 - stzDate -> StzEngineDateTime* FFI
-- stzTime -> Pure Ring implementation
+- stzTime -> StzEngineDateTime* FFI
 - stzDateTime -> StzEngineDateTime* FFI
 - stzRegex -> StzEngineRegex* FFI
 - stzLocale -> StzEngineLocale* FFI
 
-### Engine-Free Domains
-These domains use pure Ring (no engine DLLs):
-- number, list, object, graph, stats, natural
-- network, reactive, appserver, cluster
+### Domains Pending Engine Migration
+These domains currently use Ring but are planned for Engine:
+- number (Engine: arbitrary precision, fast arithmetic)
+- list (Engine: search, sort, replace, stringify)
+- object (Engine: reflection, serialization)
+- graph, stats (Engine: algorithms, computation)
+- natural (Engine: NLP tokenization, parsing)
+- network, reactive, appserver, cluster (Engine: I/O, async)
 
-Softanza is dependency-free: Ring + Engine DLLs only.
+Softanza is dependency-free: Ring language + Engine DLLs only.
