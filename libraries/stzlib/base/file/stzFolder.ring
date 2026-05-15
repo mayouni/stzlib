@@ -21,7 +21,7 @@
 #
 # 4. ABSTRACTION LEVEL: High-level, intuitive behavior
 #    - Users expect empty folder to show Count()=0, IsEmpty()=true
-#    - Technical details (Qt entries, system files) handled internally
+#    - Technical details (system files) handled internally
 #
 
 _nMaxTreeDisplayLevel = 5 #TODO //Move it to stzTree.ring and use it there
@@ -2170,7 +2170,7 @@ class stzFolder from stzObject
 	    aSortedPaths = reverse(aSortedPaths)
 		nLen = len(aSortedPaths)
 
-	    # Delete folders using Qt
+	    # Delete folders
 		bResult = TRUE
 
 		for i = 1 to nLen

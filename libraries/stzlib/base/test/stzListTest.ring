@@ -220,28 +220,13 @@ o1.Stringify()
 
 pf()
 
-/*-------- QStringifying the items of a list
+/*-------- Stringifying the items of a list (HISTORICAL -- Qt removed)
 
-pr()
-
-# QStringifying a list : All items are forced to become QString objects
-o1 = new stzList([ 120, "abc", 1:3 ])
-aQStrings = o1.QStringified()
-#--> A list containing 3 QString objects
-# 	pobject: [This Attribute Contains A List]
-#	pobject: [This Attribute Contains A List]
-#	pobject: [This Attribute Contains A List]
-
-? aQStrings[1].mid(0, 3)
-#--> "120"
-
-? aQStrings[2].mid(0, 3)
-#--> [ 1, 2, 3 ]
-
-? aQStrings[3].mid(0, 11)
-#--> [ 1, 2, 3 ]
-
-pf()
+# This test used Qt's QStringified(). Use Stringify() instead.
+# pr()
+# o1 = new stzList([ 120, "abc", 1:3 ])
+# aStrings = o1.Stringified()
+# pf()
 # Executed in 0.02 second(s)
 
 /*====== @perf
@@ -334,9 +319,9 @@ pr()
 	? o1.Uppercased()
 	#--> HELLO
 
-# 2. From a QString object
+# 2. From a string
 
-	o2 = new stzString( @ToQString("hello") )
+	o2 = new stzString( "hello" )
 	? o2.Uppercased()
 	#--> HELLO
 
@@ -4668,7 +4653,7 @@ pf()
 # Executed in 6.68 second(s) in Ring 1.21
 # Executed in 12.05 second(s) in Ring 1.17
 
-/*--------------- #ringqt draft
+/*--------------- HISTORICAL: Qt-based sorting tests (Qt removed from Softanza)
 
 pr()
 

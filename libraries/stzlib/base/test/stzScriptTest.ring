@@ -21,7 +21,7 @@ StzScriptQ(:Arabic) {
 	? Script()	#--> arabic
 	? Content()	#--> arabic
 
-	? QtNumber()	# "1"
+	? Number()	# "1"
 	
 	? Name()	#--> arabic
 	
@@ -30,11 +30,11 @@ StzScriptQ(:Arabic) {
 	? DefaultLanguage() #--> arabic
 	? DefaultLanguageName() #--> arabic
 	
-	? DefaultLanguageQtNumber() #--> "8"
+	? DefaultLanguageNumber() #--> "8"
 	
 	? DefaultCountry() #--> egypt
 	? DefaultCountryName() #--> egypt
-	? DefaultCountryQtNumber() #--> "64"
+	? DefaultCountryNumber() #--> "64"
 
 }
 

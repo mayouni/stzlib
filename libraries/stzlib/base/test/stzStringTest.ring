@@ -4778,7 +4778,9 @@ StopProfiler()
 pr()
 
 o1 = new stzString("ABC*EF")
-o1.QStringObject().replace(3, 1, "D")
+# NOTE: QStringObject() removed -- Qt purged from Softanza
+# Use engine-based replacement instead:
+o1.ReplaceAt(4, "D")
 ? o1.Content()
 #--> "ABCDEF"
 
@@ -4893,7 +4895,7 @@ cStr = substr(cStr, "ing", "uby")
 ? cStr
 #--> Ruby language
 
-# Replacing "" with 'any' is undefined behavior in Qt
+# Replacing "" with 'any' is undefined behavior
 # In Ring, substr(str, "", "any") raises an error:
 # ? substr(cStr, "", "any")
 
@@ -13417,13 +13419,13 @@ pf()
 
 pr()
 
-# This sample shows a logical error in Qt unicode:
+# This sample shows a locale-specific casing edge case:
 
 ? Q("ı").UppercasedInLocale("tr-TR")	#ERROR: --> I but must be İ
 ? Q("İ").Lowercased()	# i
 ? Q("İ").LowercasedInLocale("tr-TR")	#ERROR: --> i but must be ı
 
-# In fact, this is a logical bug in Qt as demonstrated here:
+# In fact, this is a known Unicode special-casing issue:
 
 oLocale = StzLocaleQ("tr-TR")
 ? oLocale.Uppercase("ı") #ERROR: --> I but must be İ
@@ -17124,8 +17126,7 @@ pf()
 
 pr()
 
-# How to add a string to a QString objet (Qt-side)
-# Used internally by Softanza
+# String concatenation example
 
 cStr = "salem"
 ? cStr
@@ -17223,16 +17224,11 @@ pr()
 ? StzCharQ(40330).Content()
 #--> 鶊
 
-# Qt is used internally to get the Unicode code, but many steps
-# are necessary. Curious to know how I made it?
-
+# The engine is used internally to get the Unicode code.
 # We use StzChar to get the character from a decimal unicode:
 
 ? StzCharQ(:FromUnicode = 40220).Content()
 #--> 鶊
-
-# As you see, Softanza leverages the power of Qt, but makes hudge efforts
-# to simplify its use and unify it in a freindly mental model.
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -19476,44 +19472,11 @@ pr()
 pf()
 # Executed in 5.33 second(s) in Ring 1.22
 
-/*----- #perf qt qstring qstringlist
+/*----- #perf string append (HISTORICAL -- Qt removed, engine-based now)
 
-pr()
-
-# Qt String is not performant for appending a large
-# number of strings (takes a lot of time to append
-# 1000000 arabic strings)
-
-# Check it by yourself (though i don't advise you
-# to run the code):
-
-#	salem = new QString2()
-#	for i = 1 to 1_000_000
-#		salem.append("السّلام عليكم ورحمة الله")
-#	next
-#	? ElapsedTime() + NL
-#	#--> A lot! I cancelled the execution after minutes.
-
-# Instead of QString, use QStringList which does
-# the job very quickly:
-
-	ResetTimer()
-
-	oQStrList = new QStringList()
-	for i = 1 to 1_000_000
-		oQStrList.append("السّلام عليكم ورحمة الله")
-	next
-	
-# In practice, you would need that QStringList to quickly
-# concatenate the list usig the join() method:
-
-	str = oQStrList.join("")
-	# Executed in 0.01 second(s)
-
-# Or better of all use Allegro via GameEngine library.
-#NOTE Softanza will rely on it in string manipulation instead of Qt
-
-pf()
+# This test block used Qt's QStringList for performance testing.
+# Qt has been replaced by the Zig-based Softanza Engine.
+# String operations now go through the engine's native functions.
 # Executed in 2.72 second(s) in Ring 1.22
 
                  ///////////////////////////////////////////////

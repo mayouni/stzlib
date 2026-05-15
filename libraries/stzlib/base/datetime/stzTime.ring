@@ -675,15 +675,6 @@ class stzTime from stzObject
         oNewTime = new stzTime([:Hour = @nHour, :Minute = @nMinute, :Second = @nSecond, :Millisecond = @nMillisecond])
         return oNewTime
 
-    def QTimeObject()
-        StzRaise("QTimeObject() is no longer available. stzTime no longer uses Qt.")
-
-    def SetQTime(oNewQTime)
-        StzRaise("SetQTime() is no longer available. stzTime no longer uses Qt.")
-
-    def SetQTimeQ(oNewQTime)
-        StzRaise("SetQTimeQ() is no longer available. stzTime no longer uses Qt.")
-
     def IsValid()
         return This.pvtIsValidHMS(@nHour, @nMinute, @nSecond, @nMillisecond)
 

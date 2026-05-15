@@ -7,10 +7,10 @@ func stzListOfStringsError(pcError)
 		cErrorMsg += "   Why  : Items of the list you provided are not all strings." + NL
 		cErrorMsg += "   Todo : Provide a list formed exclusively from strings."
 
-	on :CanNotTransformQStringListToRingList
-		cErrorMsg += "   What : Can't transform a QStringList object to a Ring list." + NL
-		cErrorMsg += "   Why  : Parameter you provided is not a QStringList object." + NL
-		cErrorMsg += "   Todo : Provide a QStringList and it will be fine ;)"
+	on :CanNotTransformStringListToRingList
+		cErrorMsg += "   What : Can't transform a string list to a Ring list." + NL
+		cErrorMsg += "   Why  : Parameter you provided is not a valid string list." + NL
+		cErrorMsg += "   Todo : Provide a valid list of strings."
 
 	on :CanNotBoxTheListOfStrings
 		cErrorMsg += "   What : Can't set a box for the list of strings!" + NL

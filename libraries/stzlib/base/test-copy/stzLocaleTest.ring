@@ -5,7 +5,7 @@ load "../stzbase.ring"
 pr()
 
 oLocale = StzLocaleQ("C")
-? oLocale.Lowercased("RING")
+? oLocale.Lowercase("RING")
 #--> "ring"
 
 pf()
@@ -57,7 +57,7 @@ proff()
 # Executed in almost 0 second(s) in Ring 1.23
 # Executed in 0.02 second(s) in Ring 1.18
 
-/*--- Qt
+/*--- HISTORICAL: Qt-based locale tests (Qt removed)
 
 pr()
 
@@ -228,7 +228,7 @@ StzLocaleQ("en_AS") {
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
 
-/*---- #TODO Qt ERROR
+/*---- #TODO locale casing error
 
 pr()
 
@@ -543,18 +543,13 @@ pf()
 
 pr()
 
-#TODO Add these based on the Qt implementation below
+#TODO Add native name methods using the engine
 //DayNativeName()
 //DayNativeShortAbbreviation()
 //DayNativeNarrowAbbreviation()
 //MonthNativeName()
 //MonthNativeShortAbbreviation()
 //MonthNativeNarrowAbbreviation()
-#--> Imagine shoret aliaises, and a general DayNativeXT(:Name or :Month, :Format)
-
-o1 = new Qlocale("fr_FR")
-? o1.dayname(1,0)	# 0: Long format		1: Short format		2: Narrow format
-#--> lundi
 
 ? o1.dayname(1,1)
 #--> lun.
@@ -1872,7 +1867,7 @@ pr()
 o1 = new stzLocale([ :Language = "romanian" ])
 # Or simply: o1 = new stzLocale("romanian")
 
-? o1.QtAbbreviation()		#--> ro_RO
+? o1.Abbreviation()		#--> ro_RO
 ? o1.Abbreviation() + NL	#--> ro_RO
 
 ? o1.LanguageNumber()		#--> 95
@@ -2218,7 +2213,7 @@ pr()
 
 o1 = new stzLocale("en-US")
 ? o1.Abbreviation() #--> en_US
-? o1.QtAbbreviation() #--> en_US
+? o1.Abbreviation() #--> en_US
 ? o1.Country() #--> united_states
 
 pf()

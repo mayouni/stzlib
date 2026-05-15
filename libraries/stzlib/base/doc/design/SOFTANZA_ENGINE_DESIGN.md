@@ -7,7 +7,7 @@ dependencies in Softanza. Ring calls the Engine via C FFI. The result:
 **Softanza depends only on Ring + the Engine binary** -- no Qt, no
 external libraries.
 
-## Current Qt Dependencies (337+ instantiations, 380+ calls)
+## Former Qt Dependencies (now fully replaced by Engine)
 
 | Qt Class         | Calls | Replaced By                    |
 |------------------|------:|--------------------------------|
@@ -199,28 +199,26 @@ stz_string_index_of = GetCFunc("stz_string_index_of", "i", "ppi")
 - Build Ring FFI bridge template
 - Produce DLL/SO for Windows/Linux/macOS
 
-### Phase B: Tier 1 -- Strings + Unicode
-- Implement stz_string_* (replaces 300+ QString2 calls)
-- Implement stz_char_* (replaces 42 QChar calls)
-- Implement stz_bytes_* (replaces QByteArray)
-- Update stkString.ring to use Engine instead of Qt
-- Update stzString.ring to use Engine instead of Qt
+### Phase B: Tier 1 -- Strings + Unicode [DONE]
+- stz_string_* replaces 300+ QString2 calls
+- stz_char_* replaces 42 QChar calls
+- stz_bytes_* replaces QByteArray
+- stkString.ring and stzString.ring use Engine
 
-### Phase C: Tier 2 -- Date/Time + Files + Locale
-- Implement stz_date_*, stz_time_*, stz_datetime_*
-- Implement stz_file_*, stz_dir_*
-- Implement stz_locale_*
-- Update stzDate.ring, stzFile.ring, stzLocale.ring
+### Phase C: Tier 2 -- Date/Time + Files + Locale [DONE]
+- stz_date_*, stz_time_*, stz_datetime_* implemented
+- stz_file_*, stz_dir_* implemented
+- stz_locale_* implemented
 
-### Phase D: Tier 3 -- Regex + JSON + Process
-- Implement stz_regex_* (PCRE2 or Zig regex)
-- Implement stz_json_*
-- Implement stz_process_*
+### Phase D: Tier 3 -- Regex + JSON + Process [DONE]
+- stz_regex_* implemented (Zig regex)
+- stz_json_* implemented
+- stz_process_* implemented
 
-### Phase E: Remove Qt
-- Remove `load "qtcore.ring"` from stkRingLibs.ring
-- Remove all `new QString2()`, `new QChar()`, etc.
-- Test full library without Qt
+### Phase E: Qt Fully Removed [DONE]
+- All Qt classes purged from base layer
+- All bridge files rewritten as LoadLib-only
+- Full e2e verification of 10 base classes passed
 - Ship: Ring + softanza_engine binary = complete Softanza
 
 ## Zig Advantages for the Engine

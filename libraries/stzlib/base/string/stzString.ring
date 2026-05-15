@@ -79224,7 +79224,7 @@ class stzString from stzObject
 			return :greater
 		ok
 		/*
-		From Qt documentation:
+		From Unicode locale documentation:
 	
 		The comparison is performed in a locale- and also
 		platform-dependent manner. Use this function to present
@@ -89948,8 +89948,8 @@ class stzString from stzObject
 		/* NOTE
 
 		Managing the special case of the arabic char (Shaddah)
-		which can alter the justification of text, because Qt
-		treats it as a spearate char with its own position in
+		which can alter the justification of text, because the engine
+		treats it as a separate char with its own position in
 		the resulting string, while it must set on top of chars!
 
 		Note: The same case of arabic diacritics (7araket)
@@ -92876,7 +92876,7 @@ class stzString from stzObject
 	 #  CHECKING IF THE STRING IS THE NAME OF A FUNCTION   #
 	#=====================================================#
 	/*
-	TODO: Distinguish between Ring, Softanza, Qt, and other
+	TODO: Distinguish between Ring, Softanza, and other
 	libraries functions, classes, and attributes.
 	*/
 

@@ -836,7 +836,7 @@ oDateTime = StzDateTimeQ("2024-03-15 14:30:45")
 ? oDateTime.ToStringXT("yyyy.MM.dd HH:mm")
 #--> 2024.03.15 14:30
 
-? oDateTime.ToStringXT("dd-MM-yy hh:mm AP") # Qt does not distinguis h from H
+? oDateTime.ToStringXT("dd-MM-yy hh:mm AP") # h and H both use 12-hour format here
 #--> 15-03-24 02:30 PM
 
 # Named format access

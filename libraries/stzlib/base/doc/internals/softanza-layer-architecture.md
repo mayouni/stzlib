@@ -13,7 +13,7 @@ builds on the one beneath it:
     │       BASE  (stz*)          │  Rich: 20 domains, 6000+ methods
     │  Full Softanza experience   │  semantic API, natural coding
     ├─────────────────────────────┤
-    │       CORE  (stk*)          │  Lean: Qt-direct, minimal wrap
+    │       CORE  (stk*)          │  Lean: Engine-direct, minimal wrap
     │  Performance substrate      │  7 classes, ~300 methods
     └─────────────────────────────┘
 ```
@@ -92,51 +92,29 @@ stzStochasticSolver, stzCobol, stzCache, stzTurboList,
 stzTextStream, stzConstraint, stzFolderWatcher, stzProfiler,
 stzFunction.
 
-## Qt Dependency Map
+## Engine Architecture (Qt fully replaced)
 
-### Core Layer Qt Usage
-- stkString -> QString2 (append, split, replace, trimmed, etc.)
-- stkChar -> QChar, QString2 (unicode operations)
-- stkRingLibs -> loads qtcore.ring
+All layers now use the Zig-based Softanza Engine via C FFI.
+No Qt dependency remains.
 
-### Base Layer Engine Usage (Qt purged, Zig engine)
-- stzString -> _Ops() shim -> StzEngine* FFI (Qt fully replaced)
-- stzChar -> StzEngineUnicode* FFI (Qt fully replaced)
-- stzFile -> QFile, QFileInfo, QDir
-- stzFolder -> QDir
-- stzDate -> QDate
-- stzTime -> QTime
-- stzDateTime -> QDateTime
-- stzRegex -> QRegex, QMatch
-- stzLocale -> QLocale
+### Core Layer (stk_* DLLs)
+- stkString -> StkEngine* FFI (string operations)
+- stkChar -> StkEngine* FFI (unicode operations)
 
-### Max Layer Qt Usage
-- None direct (inherits via Base)
+### Base Layer (stz_* DLLs)
+- stzString -> StzEngine* FFI (string operations)
+- stzChar -> StzEngineUnicode* FFI (unicode)
+- stzFile -> StzEngineFile* FFI (filesystem)
+- stzFolder -> Ring file ops
+- stzDate -> StzEngineDateTime* FFI
+- stzTime -> Pure Ring implementation
+- stzDateTime -> StzEngineDateTime* FFI
+- stzRegex -> StzEngineRegex* FFI
+- stzLocale -> StzEngineLocale* FFI
 
-### Qt-Free Domains
-These domains use NO Qt and are portable as-is:
-- number (pure arithmetic)
-- list (pure Ring lists)
-- object (pure Ring objects)
-- graph (pure algorithms)
-- stats (pure computation)
-- natural (pure parsing)
-- network (Ring networking)
-- reactive (Ring + libuv)
-- appserver, cluster, extincode, extercode
+### Engine-Free Domains
+These domains use pure Ring (no engine DLLs):
+- number, list, object, graph, stats, natural
+- network, reactive, appserver, cluster
 
-## Softanza Engine Strategy
-
-To eliminate Qt dependency, a Softanza Engine (Zig binary)
-will replace Qt operations through C FFI:
-
-| Qt Class     | Engine Replacement          |
-|--------------|-----------------------------|
-| QString2     | UTF-8/UTF-16 string ops     |
-| QChar        | Unicode codepoint ops       |
-| QRegExp      | Regex engine (PCRE2 or Zig) |
-| QDate/QTime  | Date/time arithmetic        |
-| QFile/QDir   | File system operations      |
-| QLocale      | Locale data + formatting    |
-
-This makes Softanza dependency-free: Ring + Engine binary only.
+Softanza is dependency-free: Ring + Engine DLLs only.

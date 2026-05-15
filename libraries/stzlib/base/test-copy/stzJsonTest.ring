@@ -246,7 +246,7 @@ pf()
 pr()
 
 #NOTE: JSON specification does not impose ordering preservation
-# of JSON members, and so does Qt, on witch stzJson is based.
+# of JSON members, and so does stzJson.
 # This ensures parsing of large JSON files is done efficiently.
 
 # From JSON string
