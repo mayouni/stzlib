@@ -149,6 +149,11 @@
 	func StzListStringifyXTQ(paList)
 		return new stzListStringifyXT(paList)
 
+	#-- NamedParams
+
+	func StzListNamedParamsQ(paList)
+		return new stzListNamedParams(paList)
+
 	  #============================================#
 	 #  ESSENTIAL UTILITY FUNCTIONS               #
 	#============================================#
