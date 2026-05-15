@@ -790,7 +790,27 @@ principles -- not a wrapper, but a new computational model.
 | deepops     | stz_deepops        | PLANNED |
 | namedvars   | stz_namedvars      | PLANNED |
 
-### Total: 72 modules (11 done, 61 planned)
+### Layer 6: Universal Computation Concerns (11 modules)
+
+General-purpose concerns every programmer needs, regardless of
+language, domain, or technology. These serve Zin, Python, Rust,
+AI agents, and any future technology equally.
+
+| Module      | DLL                | Status  |
+|-------------|------------------  |---------|
+| provenance  | stz_provenance     | PLANNED |
+| confidence  | stz_confidence     | PLANNED |
+| explain     | stz_explain        | PLANNED |
+| similarity  | stz_similarity     | PLANNED |
+| context     | stz_context        | PLANNED |
+| resource    | stz_resource       | PLANNED |
+| validator   | stz_validator      | PLANNED |
+| schema      | stz_schema         | PLANNED |
+| intent      | stz_intent         | PLANNED |
+| embedding   | stz_embedding      | PLANNED |
+| sequence    | stz_sequence       | PLANNED |
+
+### Total: 83 modules (11 done, 72 planned)
 
 ---
 
@@ -825,3 +845,15 @@ principles -- not a wrapper, but a new computational model.
 12. **Softanzuter as agent substrate.** The trigger-compute-state
     reactive computation model is the canonical way to build
     intelligent agents across any pattern domain.
+13. **Universal concerns are Engine concerns.** Provenance,
+    confidence, explanation, similarity, context propagation,
+    resource awareness, validation, schema evolution, intent
+    resolution, vector math, and sequence windowing belong in the
+    Engine -- not in application code. Every programmer needs them;
+    no standard library provides them.
+14. **Intelligence is geometry + provenance + explanation.** AI is
+    not a special domain -- it is vectors (similarity), provenance
+    (where data came from), confidence (how sure), explanation
+    (why this result), and context (what state carries forward).
+    The Engine provides these as general-purpose modules that
+    happen to make AI natural.
