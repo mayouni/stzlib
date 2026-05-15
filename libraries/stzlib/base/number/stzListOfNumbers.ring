@@ -787,11 +787,11 @@ func NZeros(n)
 		return NZeros(n)
 
 func NumbersXT(n1, n2)
-	if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Between, :From ])
+	if isList(n1) and IsOneOfTheseNamedParamsList(n1, [ :Between, :From ])
 		n1 = n1[2]
 	ok
 
-	if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :And, :To ])
+	if isList(n2) and IsOneOfTheseNamedParamsList(n2, [ :And, :To ])
 		n2 = n2[2]
 	ok
 
@@ -832,11 +832,11 @@ func NumbersXT(n1, n2)
 func NumbersBetween(n1, n2)
 	if CheckingParams()
 
-		if isList(n1) and Q(n1).IsOneOfTheseNamedParams([ :Between, :From ])
+		if isList(n1) and IsOneOfTheseNamedParamsList(n1, [ :Between, :From ])
 			n1 = n1[2]
 		ok
 	
-		if isList(n2) and Q(n2).IsOneOfTheseNamedParams([ :And, :To ])
+		if isList(n2) and IsOneOfTheseNamedParamsList(n2, [ :And, :To ])
 			n2 = n2[2]
 		ok
 	
@@ -3820,7 +3820,7 @@ class stzListOfNumbers from stzList
 			return This.ClipQRT(nMin, nMax, pcReturnType)
 
 		def ClipQRT(nMin, nMax, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3853,7 +3853,7 @@ class stzListOfNumbers from stzList
 			return This.ReplaceSectionWithQRT(n1, n2, n, :stzList)
 
 		def ReplaceSectionWithQRT(n1, n2, n, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3893,7 +3893,7 @@ class stzListOfNumbers from stzList
 			return This.CumulateQRT()
 
 		def CumulateQRT()
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3938,7 +3938,7 @@ class stzListOfNumbers from stzList
 			return This.CumulateQRT(:stzList)
 
 		def OnlyUnicodesQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 	

@@ -32,7 +32,7 @@ class stzStringBounder from stzString
 
 			if isList(n1)
 				oN1 = Q(n1)
-				if oN1.IsOneOfTheseNamedParams([
+				if IsOneOfTheseNamedParamsList(n1, [
 					:From, :FromPosition, :Start, :FromStart,
 					:StartingAt, :StartingAtPosition,
 					:Between, :BetweenPosition ])
@@ -42,7 +42,7 @@ class stzStringBounder from stzString
 
 			if isList(n2)
 				oN2 = Q(n2)
-				if oN2.IsOneOfTheseNamedParams([
+				if IsOneOfTheseNamedParamsList(n2, [
 					:To, :ToPosition, :End, :ToEnd,
 					:Until, :UntilPosition, :UpTo, :UpToPosition, :And ])
 					n2 = n2[2]

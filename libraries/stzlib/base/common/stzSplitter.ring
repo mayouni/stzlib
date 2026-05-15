@@ -96,132 +96,132 @@ class stzSplitter from stzListOfNumbers
 
 		#-- :AtPosition
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:AtPosition, :AtThisPosition ])
 
 			return This.SplitAtPositionIB(p[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:AtPositionIB, :AtThisPositionIB ])
 
 			return This.SplitAtPositionIB(p[2])
 
 		#-- :AtPositions
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:AtPositions, :AtThesePositions, :AtManyPositions ])
 
 			return This.SplitAtPositions(p[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:AtPositionsIB, :AtThesePositionsIB, :AtManyPositionsIB ])
 
 			return This.SplitAtPositionsIB(p[2])
 
 		#-- :BeforePosition
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:Before, :BeforePosition, :BeforeThisPosition ])
 
 			return This.SplitAtPosition(p[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:BeforeIB, :BeforePositionIB, :BeforeThisPositionIB ])
 
 			return This.SplitAtPositionIB(p[2])
 
 		#-- :BeforePositions
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:BeforePositions, :BeforeThesePositions, :BeforeManyPositions ])
 
 			return This.SplitBeforePositions(p[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:BeforePositionsIB, :BeforeThesePositionsIB, :BeforeManyPositionsIB ])
 
 			return This.SplitBeforePositionsIB(p[2])
 
 		#-- :AfterPosition
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:After, :AfterPosition, :AfterThisPosition ])
 
 			return This.SplitAfterPosition(p[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:AfterIB, :AfterPositionIB, :AfterThisPositionIB ])
 
 			return This.SplitAfterPositionIB(p[2])
 
 		# :AfterPositions
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:AfterPositions, :AfterThesePositions, :AfterManyPositions ])
 
 			return This.SplitAfterPositions(p[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:AfterPositionsIB, :AfterThesePositionsIB, :AfterManyPositionsIB ])
 
 			return This.SplitAfterPositionsIB(p[2])
 
 		#-- :AtSection
 
-		but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ])
+		but IsOneOfTheseNamedParamsList(p,[ :AtSection, :AtThisSection ])
 			return This.SplitAtSection(p[2][1], p[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AtSectionIB, :AtThisSectionIB ])
+		but IsOneOfTheseNamedParamsList(p,[ :AtSectionIB, :AtThisSectionIB ])
 			return This.SplitAtSectionIB(p[2][1], p[2][2])
 
 		#-- :AtSections
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:AtSections, :AtTheseSections, :AtManySections ])
 
 			return This.SplitAtSections(p[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:AtSectionsIB, :AtTheseSectionsIB, :AtManySectionsIB ])
 
 			return This.SplitAtSectionsIB(p[2])
 
 		#-- :BeforeSection
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ])
+		but IsOneOfTheseNamedParamsList(p,[ :BeforeSection, :BeforeThisSection ])
 			return This.SplitBeforeSection(p[2][1], p[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSectionIB, :BeforeThisSectionIB ])
+		but IsOneOfTheseNamedParamsList(p,[ :BeforeSectionIB, :BeforeThisSectionIB ])
 			return This.SplitBeforeSectionIB(p[2][1], p[2][2])
 
 		#-- :BeforeSections
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:BeforeSections, :BeforeTheseSections, :BeforeManySections ])
 
 			return This.SplitBeforeSections(p[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:BeforeSectionsIB, :BeforeTheseSectionsIB, :BeforeManySectionsIB ])
 
 			return This.SplitBeforeSectionsIB(p[2])
 
 		#-- :AfterSection
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ])
+		but IsOneOfTheseNamedParamsList(p,[ :AfterSection, :AfterThisSection ])
 			return This.SplitAfterSection(p[2][1], p[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterSectionIB, :AfterThisSectionIB ])
+		but IsOneOfTheseNamedParamsList(p,[ :AfterSectionIB, :AfterThisSectionIB ])
 			return This.SplitAfterSectionIB(p[2][1], p[2][2])
 
 		#-- :AfterSections
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:AfterSections, :AfterTheseSections, :AfterManySections ])
 
 			return This.SplitAfterSections(p[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(p,[
 			:AfterSectionsIB, :AfterTheseSectionsIB, :AfterManySectionsIB ])
 
 			return This.SplitAfterSectionsIB(p[2])
@@ -274,26 +274,26 @@ class stzSplitter from stzListOfNumbers
 
 			#--
 
-			but oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			but IsOneOfTheseNamedParamsList(p,[ :Position, :ThisPosition ])
 				return This.SplitAtPosition(p[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :PositionsIB, :ThesePositionsIB ])
+			but IsOneOfTheseNamedParamsList(p,[ :PositionsIB, :ThesePositionsIB ])
 				return This.SplitAtPositionsIB(p[2])
 
 			#--
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ])
+			but IsOneOfTheseNamedParamsList(p,[ :Section, :ThisSection ])
 				return This.SplitAtSection(p[2][1], p[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ])
+			but IsOneOfTheseNamedParamsList(p,[ :SectionIB, :ThisSectionIB ])
 				return This.SplitAtSectionIB(p[2][1], p[2][2])
 
 			#--
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
+			but IsOneOfTheseNamedParamsList(p,[ :Sections, :TheseSections ])
 				return This.SplitAtSections(p[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ])
+			but IsOneOfTheseNamedParamsList(p,[ :SectionsIB, :TheseSectionsIB ])
 				return This.SplitAtSectionsIB(p[2])
 
 			#==
@@ -491,34 +491,34 @@ class stzSplitter from stzListOfNumbers
 
 			#--
 
-			but oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			but IsOneOfTheseNamedParamsList(p,[ :Position, :ThisPosition ])
 				return This.SplitBeforePosition(p[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :PositionIB, :ThisPositionIB ])
+			but IsOneOfTheseNamedParamsList(p,[ :PositionIB, :ThisPositionIB ])
 				return This.SplitBeforePositionIB(p[2])
 
 			#--
 
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
+			but IsOneOfTheseNamedParamsList(p,[ :Positions, :ThesePositions ])
 				return This.SplitBeforePositions(p[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :PositionsIB, :ThesePositionsIB ])
+			but IsOneOfTheseNamedParamsList(p,[ :PositionsIB, :ThesePositionsIB ])
 				return This.SplitBeforePositionsIB(p[2])
 
 			#--
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ])
+			but IsOneOfTheseNamedParamsList(p,[ :Section, :ThisSection ])
 				return This.SplitBeforeSection(p[2][1], p[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ])
+			but IsOneOfTheseNamedParamsList(p,[ :SectionIB, :ThisSectionIB ])
 				return This.SplitBeforeSectionIB(p[2][1], p[2][2])
 
 			#--
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
+			but IsOneOfTheseNamedParamsList(p,[ :Sections, :TheseSections ])
 				return This.SplitBeforeSections(p[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ])
+			but IsOneOfTheseNamedParamsList(p,[ :SectionsIB, :TheseSectionsIB ])
 				return This.SplitBeforeSectionsIB(p[2])
 
 			ok
@@ -621,34 +621,34 @@ class stzSplitter from stzListOfNumbers
 
 			#--
 
-			but oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			but IsOneOfTheseNamedParamsList(p,[ :Position, :ThisPosition ])
 				return This.SplitAfterPosition(p[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :PositionIB, :ThisPositionIB ])
+			but IsOneOfTheseNamedParamsList(p,[ :PositionIB, :ThisPositionIB ])
 				return This.SplitAfterPositionIB(p[2])
 
 			#--
 
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ])
+			but IsOneOfTheseNamedParamsList(p,[ :Positions, :ThesePositions ])
 				return This.SplitAfterPositions(p[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :PositionsIB, :ThesePositionsIB ])
+			but IsOneOfTheseNamedParamsList(p,[ :PositionsIB, :ThesePositionsIB ])
 				return This.SplitAfterPositionsIB(p[2])
 
 			#--
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ])
+			but IsOneOfTheseNamedParamsList(p,[ :Section, :ThisSection ])
 				return This.SplitAfterSection(p[2][1], p[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ])
+			but IsOneOfTheseNamedParamsList(p,[ :SectionIB, :ThisSectionIB ])
 				return This.SplitAfterSectionIB(p[2][1], p[2][2])
 
 			#--
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ])
+			but IsOneOfTheseNamedParamsList(p,[ :Sections, :TheseSections ])
 				return This.SplitAfterSections(p[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ])
+			but IsOneOfTheseNamedParamsList(p,[ :SectionsIB, :TheseSectionsIB ])
 				return This.SplitAfterSectionsIB(p[2])
 
 			ok
