@@ -21,6 +21,8 @@ ok
     load "common/stzringfuncs.ring"
 
     load "common/stzringlibs.ring"
+    load "common/stznamedparams_engine.ring"
+    load "common/stzerrors_engine.ring"
     load "common/stzsmallfuncs.ring"
     load "common/stzsplitter.ring"
 
