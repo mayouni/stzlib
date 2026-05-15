@@ -911,7 +911,7 @@ class stzListOfStrings from stzList
 			pnWidth = 0
 			anWidths = []
 			for i = 1 to nLen
-				anWidths + StzStringQ(acContent[i]).NumberOfChars()
+				anWidths + len(acContent[i])
 			next
 
 			pnWidth = Max(anWidths)

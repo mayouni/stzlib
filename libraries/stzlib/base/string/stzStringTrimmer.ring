@@ -114,7 +114,7 @@ class stzStringTrimmer from stzString
 		nLen = len(cStr)
 		nStart = 1
 		for i = 1 to nLen
-			if StzStringQ(cStr[i]).IsEqualToCS(c, pCaseSensitive)
+			if BothStringsAreEqualCS(cStr[i], c, pCaseSensitive)
 				nStart = i + 1
 			else
 				exit
@@ -146,7 +146,7 @@ class stzStringTrimmer from stzString
 		nLen = len(cStr)
 		nEnd = nLen
 		for i = nLen to 1 step -1
-			if StzStringQ(cStr[i]).IsEqualToCS(c, pCaseSensitive)
+			if BothStringsAreEqualCS(cStr[i], c, pCaseSensitive)
 				nEnd = i - 1
 			else
 				exit

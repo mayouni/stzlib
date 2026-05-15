@@ -6145,7 +6145,7 @@ func @FindAllCS_NbrOrStr(paList, pItem, pCaseSensitive)
 			pItem = lower(_item_)
 		ok
 
-		_aList_ = StzListQ(_aList_).Lowercased()
+		_aList_ = ListLowercased(_aList_)
 	ok
 
 	#TODO #IMPORTANT // protect all local variables that are modified
@@ -6294,7 +6294,7 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 			pItem = lower(pItem)
 		ok
 
-		paList = StzListQ(paList).Lowercased()
+		paList = ListLowercased(paList)
 
 	ok
 
@@ -6375,7 +6375,7 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 			pItem = lower(pItem)
 		ok
 
-		aList = StzListQ(aList).Lowercased()
+		aList = ListLowercased(aList)
 	ok
 
 	nLen = len(aList)
@@ -31873,7 +31873,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
+			if NOT StringContainsCS(paPartitionExpr, "@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -32074,7 +32074,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
+			if NOT StringContainsCS(paPartitionExpr, "@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -32236,7 +32236,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
+			if NOT StringContainsCS(paPartitionExpr, "@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -32322,7 +32322,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
+			if NOT StringContainsCS(paPartitionExpr, "@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -32409,7 +32409,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
+			if NOT StringContainsCS(paPartitionExpr, "@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -32503,7 +32503,7 @@ class stzList from stzObject
 				StzRaise("Incorrect param type! paPartitionExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(paPartitionExpr).ContainsCS("@item", 0)
+			if NOT StringContainsCS(paPartitionExpr, "@item", 0)
 				stzRaise("Syntax error! paPartitionExpr must contain the @Char keyword.")
 			ok
 		ok
@@ -33891,7 +33891,7 @@ class stzList from stzObject
 
 		*/
 
-		if NOT (isString(pcExpr) and StzStringQ(pcExpr).ContainsCS("@item", 0))
+		if NOT (isString(pcExpr) and StringContainsCS(pcExpr, "@item", 0))
 			StzRaise("Incorrect param! pcExpr must be a string containing @item keyword.")
 		ok
 
@@ -49768,7 +49768,7 @@ fdef
 		cResult = This.ToCodeQ().Simplified()
 		anPos = Q(cResult).FindAllCS( @@(pItem), pCaseSensitive )
 
-		nLen = StzStringQ(cResult).NumberOfChars()
+		nLen = len(cResult)
 
 		cViz = " "
 		for i = 1 to nLen - 2
@@ -54805,7 +54805,7 @@ fdef
 
 	def InsertBeforeW(pcCondition, pNewItem)
 		/*
-		o1.InsertBeforeW( :Where = '{ StzStringQ(item).IsUppercase() }', "*" )
+		o1.InsertBeforeW( :Where = '{ StringIsUppercase(item) }', "*" )
 		*/
 
 		anPos = This.FindItemsW(pcCondition)
@@ -54851,7 +54851,7 @@ fdef
 
 	def InsertBeforeWXT(pcCondition, pNewItem)
 		/*
-		o1.InsertBeforeWXT( :Where = '{ StzStringQ(item).IsUppercase() }', "*" )
+		o1.InsertBeforeWXT( :Where = '{ StringIsUppercase(item) }', "*" )
 		*/
 
 		anPos = This.FindItemsWXT(pcCondition)

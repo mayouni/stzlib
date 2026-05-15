@@ -412,7 +412,7 @@ load "../stzlib.ring"
 	? StzListOfStringsQ([ "h", "e", "l", "l", "o" ]).FindAllCS("L", :CaseSensitive = 0)
 	# both return [3, 4 ]
 
-	? StzStringQ("hello").Uppercased() #--> returns the uppercased string "HELLO"
+	? upper("hello") #--> returns the uppercased string "HELLO"
 	? StzListOfStringsQ([ "h", "e", "l", "l", "o"]).Uppercased()
 	#--> returns the uppercased list of strings [ "H", "E", "L", "L", "O" ]
 
@@ -431,7 +431,7 @@ load "../stzlib.ring"
 	? StzStringQ("ABC").NumberOfItems() #--> 3
 
 /*	Well, it's more prcise to use the "Char" keyword specifically for stzString:
-*/	? StzStringQ("ABC").NumberOfChars() # because the item of a string is actually a char!
+*/	? len("ABC") # because the item of a string is actually a char!
 
 /*	But, in some situations, the generality of the keyword "Item" allows more flexibility.
 	To show that, let's consider using Q() that inferes type from value, and elevates

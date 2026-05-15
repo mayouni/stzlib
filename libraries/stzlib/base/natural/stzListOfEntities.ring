@@ -69,8 +69,8 @@ class stzListOfEntities from stzList
 				   This.ContainsType(paEntity[:type])
 					StzRaise(stzListOfEntitiesError(:CanNotAddThisEntityTwice))
 				else
-					paEntity[:name] = StzStringQ(paEntity[:name]).Lowercased()
-					paEntity[:type] = StzStringQ(paEntity[:type]).Lowercased()
+					paEntity[:name] = lower(paEntity[:name])
+					paEntity[:type] = lower(paEntity[:type])
 					@aListOfEntities + paEntity
 				ok
 
@@ -164,7 +164,7 @@ class stzListOfEntities from stzList
 		n = 0
 		for aEntity in This.Entities()
 			n++
-			if aEntity[:name] = StzStringQ(pcName).Lowercased()
+			if aEntity[:name] = lower(pcName)
 				return n
 			ok
 		next
@@ -175,7 +175,7 @@ class stzListOfEntities from stzList
 		n = 0
 		for aEntity in This.Entities()
 			n++
-			if aEntity[:type] = StzStringQ(pcType).Lowercased()
+			if aEntity[:type] = lower(pcType)
 				aResult + n
 			ok
 		next
@@ -184,7 +184,7 @@ class stzListOfEntities from stzList
 	def EntitiesOfType(pcType)
 		aResult = []
 		for aEntity in This.Entities()
-			if aEntity[:type] = StzStringQ(pcType).Lowercased()
+			if aEntity[:type] = lower(pcType)
 				aResult + aEntity
 			ok
 		next
@@ -199,7 +199,7 @@ class stzListOfEntities from stzList
 	def ContainsName(pcName)
 		bResult = 0
 		for aEntity in This.Entities()
-			if aEntity[:name] = StzStringQ(pcName).Lowercased()
+			if aEntity[:name] = lower(pcName)
 				bResult = 1
 				exit
 			ok
@@ -212,7 +212,7 @@ class stzListOfEntities from stzList
 	def ContainsType(pcType)
 		bResult = 0
 		for aEntity in This.Entities()
-			if aEntity[:type] = StzStringQ(pcType).Lowercased()
+			if aEntity[:type] = lower(pcType)
 				bResult = 1
 				exit
 			ok
@@ -225,7 +225,7 @@ class stzListOfEntities from stzList
 	def CountByType(pcType)
 		nCount = 0
 		for aEntity in This.Entities()
-			if aEntity[:type] = StzStringQ(pcType).Lowercased()
+			if aEntity[:type] = lower(pcType)
 				nCount++
 			ok
 		next

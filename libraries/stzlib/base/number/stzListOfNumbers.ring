@@ -1460,7 +1460,7 @@ func FirstNPrimesWXT(n, pcCondition)
 
 	ok
 
-	if StzStringQ(pcCondition).ContainsCS("@prime", 0) = 0
+	if StringContainsCS(pcCondition, "@prime", 0) = 0
 		StzRaise("Incorrect syntax! pcCondition must be a string containg Ring conditional code.")
 	ok
 

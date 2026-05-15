@@ -914,7 +914,7 @@ class stzRegex
 			return [
 				:matchType = "complete",
 				:matched   = pcStr,
-				:section  = [ 1, StzStringQ(pcStr).NumberOfChars() ]
+				:section  = [ 1, len(pcStr) ]
 			]
 		ok
 

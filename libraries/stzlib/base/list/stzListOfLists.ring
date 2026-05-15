@@ -4117,7 +4117,7 @@ class stzListOfLists from stzList
 				StzRaise("Incorrect param type! pcExpr must be a string.")
 			ok
 
-			if NOT StzStringQ(pcExpr).ContainsCS("@item", 0)
+			if NOT StringContainsCS(pcExpr, "@item", 0)
 				StzRaise("Syntax error! pcExpr must contain the keword @item.")
 			ok
 		ok

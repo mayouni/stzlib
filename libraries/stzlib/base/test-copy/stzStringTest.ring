@@ -13500,7 +13500,7 @@ pr()
 #--> SS
 
 # Which is nice, and we can check it for a hole word
-? StzStringQ("der fluß").Uppercased()
+? upper("der fluß")
 #--> DER FLUSS
 
 # Now, if we check the other way around :
@@ -13523,10 +13523,10 @@ pf()
 
 pr()
 
-? StzStringQ("der fluß").Uppercased()
+? upper("der fluß")
 #--> DER FLUSS
 
-? StzStringQ("der fluß").IsLowercase()
+? StringIsLowercase("der fluß")
 #--> TRUE
 
 pf()
@@ -14437,16 +14437,16 @@ pr()
 ? StzCharQ("ك").IsUppercase()
 #--> FALSE
 
-? StzStringQ("120").IsLowercase()
+? StringIsLowercase("120")
 #--> FALSE
 
-? StzStringQ("120m").IsLowercase()
+? StringIsLowercase("120m")
 #--> TRUE
 
-? StzStringQ("120M").IsUppercase()
+? StringIsUppercase("120M")
 #--> TRUE
 
-? StzStringQ("كلام").IsLowercase()
+? StringIsLowercase("كلام")
 #--> FALSE
 
 pf()
@@ -14670,7 +14670,7 @@ pf()
 
 pr()
 
-? StzStringQ("sAlut").IsLowercase()
+? StringIsLowercase("sAlut")
 #--> FALSE
 
 pf()

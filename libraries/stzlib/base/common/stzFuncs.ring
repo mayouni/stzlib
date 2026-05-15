@@ -2811,9 +2811,9 @@ func StzRaise(paMessage)
 			raise("Error in StzRaise --> Where the error happened!")
 		ok
 	
-		cWhat = StzStringQ(cWhat).Simplified()
-		cwhay = StzStringQ(cWhy).Simplified()
-		cTodo = StzStringQ(cTodo).Simplified()
+		cWhat = StringSimplified(cWhat)
+		cwhay = StringSimplified(cWhy)
+		cTodo = StringSimplified(cTodo)
 	
 		cErrorMsg = "in file " + paMessage[:Where] + ":" + NL
 	

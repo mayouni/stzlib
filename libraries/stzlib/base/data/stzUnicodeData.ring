@@ -706,7 +706,7 @@ class stzUnicodeData
 			ok
 		ok
 
-		pcCharName = StzStringQ(pcCharName).Uppercased()
+		pcCharName = upper(pcCharName)
 		n = This.FindCharName(";"+ pcCharName + ";")
 
 		if n > 0
@@ -813,7 +813,7 @@ class stzUnicodeData
 			ok
 		ok
 
-		cPartOfName = StzStringQ(cPartOfName).Uppercased()
+		cPartOfName = upper(cPartOfName)
 		acLines = @oStzStrUnicodeData.split(NL)
 		nLen = len(acLines)
 

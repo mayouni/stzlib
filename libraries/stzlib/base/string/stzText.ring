@@ -1971,7 +1971,7 @@ class stzText from stzString
 
 		for n in aPositions
 			i++
-			aResult + [ n, n + StzStringQ(aWords[i]).NumberOfChars() - 1 ]
+			aResult + [ n, n + len(aWords[i]) - 1 ]
 		next
 
 		return aResult
@@ -2048,7 +2048,7 @@ class stzText from stzString
 
 			for nPos in aLine[2]
 				n1 = nPos
-				n2 = n1 + StzStringQ(cWord).NumberOfChars() - 1
+				n2 = n1 + len(cWord) - 1
 
 				aPos + [n1, n2]
 			next

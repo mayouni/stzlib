@@ -106,7 +106,7 @@ class stzStringComparator from stzString
 	def DiffWith(pcOtherStr)
 		aResult = []
 		nLen = This.NumberOfChars()
-		nOtherLen = StzStringQ(pcOtherStr).NumberOfChars()
+		nOtherLen = len(pcOtherStr)
 		nMax = nLen
 		if nOtherLen > nMax
 			nMax = nOtherLen

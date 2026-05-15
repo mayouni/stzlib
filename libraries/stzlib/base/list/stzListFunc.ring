@@ -353,7 +353,7 @@
 				pItem = lower(_item_)
 			ok
 
-			_aList_ = StzListQ(_aList_).Lowercased()
+			_aList_ = ListLowercased(_aList_)
 		ok
 
 		_anResult_ = []
@@ -1271,3 +1271,35 @@
 			ok
 		next
 		return 1
+
+	func ListLowercased(paList)
+		aResult = []
+		nLen = len(paList)
+		for i = 1 to nLen
+			if isString(paList[i])
+				aResult + lower(paList[i])
+			else
+				aResult + paList[i]
+			ok
+		next
+		return aResult
+
+	func ListUppercased(paList)
+		aResult = []
+		nLen = len(paList)
+		for i = 1 to nLen
+			if isString(paList[i])
+				aResult + upper(paList[i])
+			else
+				aResult + paList[i]
+			ok
+		next
+		return aResult
+
+	func ListReversed(paList)
+		aResult = []
+		nLen = len(paList)
+		for i = nLen to 1 step -1
+			aResult + paList[i]
+		next
+		return aResult

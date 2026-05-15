@@ -98,7 +98,7 @@ class stzListMover from stzList
 			aItems + This.NthItem(aSorted[i])
 			ring_remove(This.List(), aSorted[i])
 		next
-		aItems = StzListQ(aItems).ReversedQ().Content()
+		aItems = ListReversed(aItems)
 		nInsert = nTo
 		if nInsert > This.NumberOfItems()
 			nInsert = This.NumberOfItems() + 1

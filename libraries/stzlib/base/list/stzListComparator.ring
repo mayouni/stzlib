@@ -78,7 +78,7 @@ class stzListComparator from stzList
 		return This.DifferenceCS(paOtherList, 1)
 
 	def IsReverseOfCS(paOtherList, pCaseSensitive)
-		return This.IsEqualToCS(StzListQ(paOtherList).ReversedQ().Content(), pCaseSensitive)
+		return This.IsEqualToCS(ListReversed(paOtherList), pCaseSensitive)
 
 	def IsReverseOf(paOtherList)
 		return This.IsReverseOfCS(paOtherList, 1)

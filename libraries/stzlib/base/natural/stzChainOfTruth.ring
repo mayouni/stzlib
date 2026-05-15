@@ -222,7 +222,7 @@ class stzChainOfTruth from stzObject
 			bResult = 1
 
 		but BothAreStrings( pThing, This.Value() ) and
-		    StzStringQ(pThing).Lowercased() = StzStringQ(This.Value()).Lowercased()
+		    lower(pThing) = StzStringQ(This.Value()).Lowercased()
 			bResult = 1
 
 		# Case of a string
@@ -459,7 +459,7 @@ class stzChainOfTruth from stzObject
 			return This
 		ok
 
-		pcMethod = StzStringQ(pcMethod).Simplified()
+		pcMethod = StringSimplified(pcMethod)
 
 		cCode = 'bResult = This.StzObject().' + pcMethod
 
@@ -521,7 +521,7 @@ class stzChainOfTruth from stzObject
 			return This
 		ok
 
-		cCondition = StzStringQ(pcCondition).Simplified()
+		cCondition = StringSimplified(pcCondition)
 
 		cCode = "if This.StzObject()." + cCondition + NL +
 			"	" + "bResult = 1" + NL +
@@ -718,7 +718,7 @@ class stzChainOfTruth from stzObject
 
 		if This._Type() = "NUMBER"
 
-			pcThing = StzStringQ(pcThing).Simplified()
+			pcThing = StringSimplified(pcThing)
 
 			cCode = 'result = Nth' + pcThing
 	

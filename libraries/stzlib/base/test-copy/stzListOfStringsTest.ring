@@ -650,7 +650,7 @@ o1.ReplaceInStringNTheLastOccurrence(2, "ring", "♥" )
 
 /*====================
 
-? StzStringQ("salem").IsEqualToCS("SALEM", :CS = FALSE) #--> TRUE
+? BothStringsAreEqualCS("salem", "SALEM", :CS = FALSE) #--> TRUE
 
 /*===================
 

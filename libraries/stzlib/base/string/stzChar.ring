@@ -854,7 +854,7 @@ class stzChar from stzObject
 		ok
 
 		cName = This.Name()
-		return StzStringQ(pcName).IsEqualToCS( cName,  0 )
+		return BothStringsAreEqualCS(pcName, cName, 0)
 
 	def AsciiCode()
 		try
