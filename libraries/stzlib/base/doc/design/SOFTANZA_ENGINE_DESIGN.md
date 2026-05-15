@@ -977,28 +977,43 @@ int           stz_expr_is_valid(const char* expression, size_t len);
 ### Function Registry & Execution Model [PLANNED]
 
 Softanza's 6000+ methods are not hand-coded -- they follow a
-systematic grammar of **13 function forms**, each representing a
+systematic grammar of **23 function forms**, each representing a
 distinct computational semantic. The Engine codifies these forms
 as execution model primitives so ANY language surface reproduces
 the full Softanza experience from a compact base of operations.
 
-**The 13 Function Forms (each is an execution mode, not a name):**
+**The 23 Function Forms (each is an execution mode, not a name):**
 
-| # | Form         | Semantic                | Engine Primitive        |
-|---|--------------|-------------------------|-------------------------|
-| 1 | Active       | `Remove("x")` mutates   | In-place mutation       |
-| 2 | Passive      | `Removed("x")` copies   | Copy-on-write return    |
-| 3 | Fluent       | `Q().A().B().C()`       | Pipeline with COW chain |
-| 4 | Partial      | `@("x").@Removed()`    | Context stack (focus)   |
-| 5 | Plural       | `RemoveMany(["x","y"])` | Array-arg dispatch      |
-| 6 | Exceptional  | `...Except("_")`       | Predicate + exclusions  |
-| 7 | Negative     | `IsNotLetter()`        | Auto-negation           |
-| 8 | Alternative  | `Swap` = `SwapItems`   | Semantic alias table    |
-| 9 | Named Params | `:At = 1, :And = 3`    | Named param binding     |
-|10 | Conditional  | `RemoveW('expr')`      | Expr evaluator as filter|
-|11 | Suffixes     | `CS()`, `XT()`, `Q()`  | Behavior modifiers      |
-|12 | Future       | `UppercasingFQ()`      | Deferred action queue   |
-|13 | Random       | `rndItems()`           | RNG-integrated ops      |
+| # | Form           | Semantic                  | Engine Primitive         |
+|---|----------------|---------------------------|--------------------------|
+| 1 | Active         | `Remove("x")` mutates     | In-place mutation        |
+| 2 | Passive        | `Removed("x")` copies     | Copy-on-write return     |
+| 3 | Fluent         | `Q().A().B().C()`         | Pipeline with COW chain  |
+| 4 | Immutable      | `RemoveQC("x")` safe chain| Clone-then-chain         |
+| 5 | Partial        | `@("x").@Removed()`      | Context stack (focus)    |
+| 6 | Plural         | `RemoveMany(["x","y"])`   | Array-arg dispatch       |
+| 7 | Exceptional    | `...Except("_")`          | Predicate + exclusions   |
+| 8 | Negative       | `IsNotLetter()`           | Auto-negation            |
+| 9 | Alternative    | `Swap` = `SwapItems`      | Semantic alias table     |
+|10 | Named Params   | `:At = 1, :And = 3`       | Named param binding      |
+|11 | Conditional    | `RemoveW('expr')`         | Expr evaluator as filter |
+|12 | Suffixes       | `CS()`, `XT()`, `Q()`     | Behavior modifiers       |
+|13 | Future         | `UppercasingFQ()`         | Deferred action queue    |
+|14 | Random         | `rndItems()`              | RNG-integrated ops       |
+|15 | Deep           | `DeepFind()` -> paths     | Recursive w/ path tracking|
+|16 | Multilingual   | `DernierCaractère()`      | Language-mapped dispatch |
+|17 | Free Form (FF) | `SectionFF([:To=11])`     | Named params, any order  |
+|18 | Default (dft)  | `dftRange()`              | Execute with all defaults|
+|19 | Info (inf)     | `infRange()` -> metadata  | Function introspection   |
+|20 | Free Order     | `FindNth(2,"r")=FindNth("r",2)` | Type-based param reorder|
+|21 | Misspelled     | `WithoutSapces()`         | Fuzzy name matching      |
+|22 | Statement (X)  | `AllInQX([]).AreNegativeX()` | Quantified assertions |
+|23 | Visual (viz)   | `vizFindAll("I")`         | Display Engine dispatch  |
+
+Planned future forms:
+- **Timed**: Functions with lifecycle (birth, TTL, expiry)
+- **Cached**: Per-function result memoization (@CacheStore)
+- **Versioned**: Multiple implementations selectable by version
 
 These are execution model primitives, not naming conventions. The
 Engine implements each as a C ABI facility that any language can
@@ -1057,17 +1072,90 @@ StzValue stz_future_execute(StzFutureHandle h); // runs all queued
 // Random form: randomized variant of any operation
 StzValue stz_op_random(StzValue source, int operation,
                         size_t count); // 0 = random count too
+
+// --- Forms 14-23: Additional Execution Primitives ---
+
+// Immutable chain (QC): clone source THEN chain (original safe)
+StzChainHandle stz_chain_new_immutable(StzValue source);
+// Identical to stz_chain_new but clones source at creation.
+// All chain operations modify the clone, never the original.
+
+// Deep form: recursive operation on nested structures
+// Returns paths as list of position-lists: [[1], [3,2], [3,3,1]]
+StzValue stz_deep_find(StzValue nested, StzValue needle);
+void     stz_deep_replace(StzValue* nested, StzValue old_val,
+                           StzValue new_val);
+void     stz_deep_remove(StzValue* nested, StzValue target);
+StzValue stz_deep_apply(StzValue nested, int operation,
+                         StzValue target,
+                         const StzValue* args, size_t num_args);
+// Deep works on any nested StzValue (lists of lists, trees, etc.)
+// It descends into every STZ_LIST child recursively.
+
+// Free Form (FF): named params in any order, defaults for missing
+StzValue stz_op_freeform(StzValue* target, int operation,
+                          const char** param_names,
+                          const StzValue* param_values,
+                          size_t num_params);
+// Engine resolves param order from names, fills defaults for
+// any missing params. Empty param list = all defaults.
+
+// Default form (dft): execute operation with all default values
+StzValue stz_op_default(StzValue* target, int operation);
+
+// Info form (inf): return function metadata as structured data
+// Returns: list of [name, type, default_value] per parameter
+StzValue stz_op_info(int operation);
+
+// Free Order: resolve params by type when order is ambiguous
+// e.g. FindNth(2, "ring") = FindNth("ring", 2)
+// Engine inspects param types and reorders to match signature.
+StzValue stz_op_free_order(StzValue* target, int operation,
+                            const StzValue* args, size_t num_args);
+
+// Misspelled form: fuzzy function name resolution
+// Uses Levenshtein distance against registry to find closest match
+void* stz_registry_resolve_fuzzy(const char* misspelled_name,
+                                  size_t len,
+                                  char* out_corrected_name,
+                                  size_t out_len);
+
+// Statement form (X): quantified logical assertions
+// "All items in collection satisfy predicate" -> TRUE/FALSE
+int stz_assert_all(StzValue collection,
+                    int (*predicate)(StzValue item, void* ctx),
+                    void* ctx);
+int stz_assert_none(StzValue collection,
+                     int (*predicate)(StzValue item, void* ctx),
+                     void* ctx);
+int stz_assert_some(StzValue collection,
+                     int (*predicate)(StzValue item, void* ctx),
+                     void* ctx);
+// Expression-based variants:
+int stz_assert_all_expr(StzValue collection,
+                         const char* expr, size_t len);
+int stz_assert_none_expr(StzValue collection,
+                          const char* expr, size_t len);
+
+// Visual form (viz): dispatch operation result to Display Engine
+// viz prefix = run operation + render result visually
+size_t stz_op_visual(StzValue source, int operation,
+                      const StzValue* args, size_t num_args,
+                      char* buf, size_t buf_len);
+// e.g. vizFindAll("I") -> "RINGORIALAND\n-^----^-----"
 ```
 
 ```c
 // --- Function Registry ---
 
-// Register a base function with its forms
+// Register a base function with its forms and metadata
 void stz_registry_add(const char* domain,       // "string"
                        const char* base_name,    // "Remove"
-                       int supported_forms,      // bitmask of 13 forms
+                       uint32_t supported_forms, // bitmask of 23 forms
                        void* active_fn,          // mutating version
-                       void* passive_fn);        // copy-on-write version
+                       void* passive_fn,         // copy-on-write version
+                       const char* params_json,  // param metadata for
+                       size_t params_len);       // FF/dft/inf forms
 
 // Expand one base name into all valid form names
 // Remove -> Remove, Removed, RemoveQ, RemoveMany,
@@ -1106,11 +1194,20 @@ size_t stz_registry_list(const char* domain,
 Prefixes:
 - Positional: `FindFirst`, `FindLast`, `FindNth`, `FindAll`
 - Random: `rndFind`, `rndFindN`, `rndRemove`, `rndRemoveN`
+- Visual: `vizFind`, `vizFindAll`, `vizFindBoxed`
+- Default: `dftRange`, `dftSection`, `dftFind`
+- Info: `infRange`, `infSection` (returns param metadata)
+- Deep: `DeepFind`, `DeepReplace`, `DeepRemove`
 
 Suffixes:
 - `CS` (case-sensitive), `XT` (extended params), `Q` (fluent)
+- `QC` (fluent + immutable copy), `QH` (fluent + history trace)
 - `W` (conditional/where), `WXT` (conditional extended)
-- `FQ` (future/deferred + fluent)
+- `FQ` (future/deferred + fluent), `FF` (future double-fire)
+- `FF` also = Free Form (context-dependent: on function names
+  not in a chain, FF means free-form params)
+- `X` (statement/assertion form)
+- `ST` (starting-at position param)
 
 Structural:
 - Active/Passive pairs: `Remove` / `Removed`
@@ -1118,6 +1215,7 @@ Structural:
 - Plural: `RemoveMany`, `FindMany`, `ReplaceMany`
 - Exceptional: `RemoveExcept`, `RemoveNonLettersExcept`
 - Negative: `IsNot*`, `DoesNotContain`, `IsNotIn*`
+- Deep: `DeepFind`, `DeepRemove`, `DeepReplace`
 
 Semantic alternatives:
 - `Swap(1,3)` = `SwapItems(1,3)` = `SwapChars(1,3)`
@@ -1125,17 +1223,39 @@ Semantic alternatives:
 
 Named parameters:
 - `:AtPosition`, `:And`, `:With`, `:In`, `:From`, `:To`
-- `:CaseSensitive = TRUE/FALSE`
+- `:CaseSensitive = TRUE/FALSE`, `:StartingAt`
+- `:Of`, `:By`, `:Except`
 
-The registry generates ~40-80 valid names per base function.
+Parameter metadata (per function, for FF/dft/inf):
+```json
+{
+  "params": [
+    { "name": "pnStart", "label": "from", "type": "NUMBER", "default": 1 },
+    { "name": "pnEnd",   "label": "to",   "type": "NUMBER", "default": -1 }
+  ]
+}
+```
+
+Multilingual aliases:
+- `Find` = `Chercher` (French) = `ابحث` (Arabic) = `查找` (Chinese)
+- Loaded from JSON language definition files
+
+Misspelled tolerance:
+- `WithoutSapces()` resolves to `WithoutSpaces()`
+- Engine uses Levenshtein distance <= 2 against registry
+
+The registry generates ~60-120 valid names per base function.
 With ~150 base functions across all domains, this produces the
 full 6000+ method vocabulary automatically.
 
 **Engine design consequence:** Every base Engine operation (Find,
 Replace, Remove, Insert, Sort, etc.) is implemented ONCE in Zig.
-The 13 forms are compositional wrappers that the registry applies
+The 23 forms are compositional wrappers that the registry applies
 mechanically. A Python client calling `stz_op_passive(s, REMOVE,
 args)` gets the same copy-on-write behavior as Ring's `Removed()`.
+A Rust client calling `stz_deep_find(nested, needle)` gets the
+same recursive path-tracking as Ring's `DeepFind()`. The forms
+are the Engine's gift to every language surface.
 
 ### Small Functions Engine [PLANNED]
 
