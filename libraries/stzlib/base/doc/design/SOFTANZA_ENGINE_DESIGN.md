@@ -2067,6 +2067,432 @@ size_t stz_layout_stack(const char** panels, const size_t* widths,
 - Color-free by default (pure ASCII), optional ANSI escape codes
   via stz_show_xt options
 
+---
+
+## Layer 5: Paradigm Engines
+
+Softanza rethinks every programming concept from first principles.
+These are not wrappers around existing paradigms -- they are NEW
+computational models that the Engine must make available natively.
+
+### Reaxis Engine (Container -> Stream -> Rfunction) [PLANNED]
+
+Softanza's Reaxis model replaces the Observable/Subscriber/
+Backpressure triad with three simpler abstractions: Container
+(data source), Stream (flow channel), and Rfunction (declarative
+function waiting for data). "Reactive programming" becomes
+"programming with functions that react."
+
+**Terminology decisions (Engine-enforced):**
+- Container (not Observable) -- any data source
+- Stream (not Channel/Pipe) -- flow of StzValues
+- Rfunction (not Subscriber/Observer) -- function in waiting state
+- Overflow (not Backpressure) -- when data arrives too fast
+- Feed/FeedMany (not emit/push) -- explicit data routing
+
+```c
+// --- Container: any data source wrapped for reactivity ---
+
+StzContainerHandle stz_container_new(StzValue initial_data);
+void               stz_container_free(StzContainerHandle h);
+void  stz_container_update(StzContainerHandle h, StzValue new_data);
+StzValue stz_container_value(StzContainerHandle h);
+
+// --- Stream: flow channel connecting containers to rfunctions ---
+
+StzStreamHandle stz_stream_new(StzContainerHandle source);
+void            stz_stream_free(StzStreamHandle h);
+
+// Stream optimization hints (Engine tunes buffer/batch behavior)
+void stz_stream_set_hint(StzStreamHandle h, int hint);
+// STZ_STREAM_HINT_NETWORK     -- larger buffers, batch arrival
+// STZ_STREAM_HINT_FILE        -- sequential read, predictable size
+// STZ_STREAM_HINT_SENSOR      -- high frequency, small payloads
+// STZ_STREAM_HINT_USER_INPUT  -- low frequency, immediate dispatch
+// STZ_STREAM_HINT_DATABASE    -- query result sets, typed rows
+// STZ_STREAM_HINT_MEMORY      -- in-process, zero-copy possible
+
+// Overflow strategies (when rfunctions can't keep up)
+void stz_stream_set_overflow(StzStreamHandle h, int strategy);
+// STZ_OVERFLOW_DROP_NEWEST    -- discard incoming when full
+// STZ_OVERFLOW_DROP_OLDEST    -- discard buffered when full
+// STZ_OVERFLOW_BLOCK          -- block producer until consumed
+// STZ_OVERFLOW_BUFFER_ALL     -- unbounded buffer (use with care)
+// STZ_OVERFLOW_SAMPLE         -- keep every Nth item
+
+// Cross-stream data routing
+void stz_stream_feed(StzStreamHandle target, StzValue item);
+void stz_stream_feed_many(StzStreamHandle target,
+                           const StzValue* items, size_t count);
+
+// Stream lifecycle
+void stz_stream_start(StzStreamHandle h);
+void stz_stream_stop(StzStreamHandle h);
+void stz_stream_pause(StzStreamHandle h);
+void stz_stream_resume(StzStreamHandle h);
+
+// --- Rfunction: function in declarative waiting state ---
+
+StzRfunctionHandle stz_rfunction_new(
+    void (*handler)(StzValue item, void* ctx),
+    void* ctx);
+void stz_rfunction_free(StzRfunctionHandle h);
+
+// Attach rfunction to a stream
+void stz_stream_attach(StzStreamHandle stream,
+                        StzRfunctionHandle rfunc);
+void stz_stream_detach(StzStreamHandle stream,
+                        StzRfunctionHandle rfunc);
+
+// Per-rfunction error handling (localized, not global)
+void stz_rfunction_on_error(StzRfunctionHandle h,
+    void (*handler)(StzValue item, const char* error,
+                    size_t len, void* ctx),
+    void* ctx);
+void stz_rfunction_on_success(StzRfunctionHandle h,
+    void (*handler)(StzValue result, void* ctx),
+    void* ctx);
+
+// --- Natural Timing (replaces SetInterval/SetTimeout/debounce) ---
+
+StzTimerHandle stz_run_every(StzStreamHandle stream,
+                              uint64_t interval_ms,
+                              void (*callback)(void* ctx),
+                              void* ctx);
+StzTimerHandle stz_run_after(StzStreamHandle stream,
+                              uint64_t delay_ms,
+                              void (*callback)(void* ctx),
+                              void* ctx);
+void stz_stop_timer(StzTimerHandle h);
+
+// WaitForAttributeToSettle: debounce with semantic name
+StzTimerHandle stz_wait_for_settle(StzStreamHandle stream,
+                                    uint64_t quiet_period_ms,
+                                    void (*callback)(StzValue settled,
+                                                     void* ctx),
+                                    void* ctx);
+```
+
+### Softanzuter (Universal Reactive Computation Medium) [PLANNED]
+
+The stzRegexuter showed that regex can be MORE than pattern
+matching -- it can be a reactive computation medium with triggers,
+computations, state tracking, and dependency chains. The
+Softanzuter generalizes this: ANY pattern language (regex, listex,
+numbrex, graphex, timex, or custom) becomes a computation medium
+where data flows through pattern triggers, each triggering
+computations that update shared state.
+
+This is the foundation for building intelligent agents and
+reactive systems declaratively.
+
+```c
+// --- Softanzuter: universal reactive computation engine ---
+
+StzSoftanzuterHandle stz_softanzuter_new(void);
+void                 stz_softanzuter_free(StzSoftanzuterHandle h);
+
+// Register a trigger (pattern that activates computation)
+void stz_softanzuter_add_trigger(StzSoftanzuterHandle h,
+    const char* name, size_t name_len,
+    int pattern_domain,           // STZ_DOMAIN_REGEX, _LIST, _NUMBER...
+    const char* pattern, size_t pattern_len);
+
+// Register computation code for a trigger
+void stz_softanzuter_add_computation(StzSoftanzuterHandle h,
+    const char* trigger_name, size_t name_len,
+    void (*compute)(StzValue match, StzSoftanzuterHandle ctx,
+                    void* userdata),
+    void* userdata);
+
+// Process input through all triggers
+size_t stz_softanzuter_process(StzSoftanzuterHandle h,
+                                StzValue input);
+// Returns number of triggers that fired
+
+// State management (shared across computations)
+void     stz_softanzuter_set_state(StzSoftanzuterHandle h,
+                                    const char* key, size_t key_len,
+                                    StzValue value);
+StzValue stz_softanzuter_get_state(StzSoftanzuterHandle h,
+                                    const char* key, size_t key_len);
+
+// Dependency tracking (which triggers affect which)
+size_t stz_softanzuter_dependencies(StzSoftanzuterHandle h,
+    const char* trigger_name, size_t name_len,
+    char** out_dependents, size_t max);
+
+// Computation results and match history
+StzValue stz_softanzuter_last_matches(StzSoftanzuterHandle h,
+    const char* trigger_name, size_t name_len);
+StzValue stz_softanzuter_last_result(StzSoftanzuterHandle h,
+    const char* trigger_name, size_t name_len);
+
+// --- Specialized Softanzuter variants ---
+
+// Genetic: evolve trigger patterns toward fitness criteria
+void stz_softanzuter_evolve(StzSoftanzuterHandle h,
+    double (*fitness)(StzSoftanzuterHandle h, void* ctx),
+    void* ctx,
+    size_t generations, size_t population);
+
+// Linguistic: triggers are grammar rules, input is tokenized text
+void stz_softanzuter_set_grammar(StzSoftanzuterHandle h,
+    const char* grammar_json, size_t len);
+
+// Quantic: triggers have probability weights, fire probabilistically
+void stz_softanzuter_set_probability(StzSoftanzuterHandle h,
+    const char* trigger_name, size_t name_len,
+    double probability);
+```
+
+**Why this matters:** A Python developer creates a Softanzuter
+with regex triggers for log analysis. A Zin developer creates one
+with listex triggers for data validation pipelines. A Ring
+developer creates one with graphex triggers for network
+monitoring. Same Engine, same C ABI, different pattern domains.
+The Softanzuter IS the Softanza way of building agents -- declare
+triggers, declare computations, feed data, let the engine react.
+
+### Truth Engine (Configurable Semantic Truth) [PLANNED]
+
+Standard truth (empty = false, zero = false) is too blunt.
+Softanza's IsTrueXT lets programs define what truth means in
+their domain. A medical system might treat "N/A" as false. A
+survey tool might treat ["X"] as false in a checklist.
+
+```c
+StzTruthHandle stz_truth_new(void);
+void           stz_truth_free(StzTruthHandle h);
+
+// Configure what makes a string false
+void stz_truth_add_false_substrings(StzTruthHandle h,
+    const char** substrings, const size_t* lengths, size_t count);
+// e.g. "false", "wrong", "no", "N/A", "null"
+
+// Configure what makes a list item false
+void stz_truth_add_false_items(StzTruthHandle h,
+    const StzValue* items, size_t count);
+// e.g. "X", 0, NULL
+
+// Configure deep falsification (items in nested lists)
+void stz_truth_add_false_inner_items(StzTruthHandle h,
+    const StzValue* items, size_t count);
+
+// Evaluate truth with configuration
+int stz_truth_eval(StzTruthHandle h, StzValue v);
+
+// Standard truth (Ring semantics, no config)
+int stz_truth_standard(StzValue v);
+```
+
+### Quantifier Engine (Probabilistic Natural Proportions) [PLANNED]
+
+Softanza maps natural-language quantifiers to proportional
+operations. "Give me a Few items" means ~10%. "Are Most of
+these numbers positive?" means >90%. The thresholds are
+configurable per application domain.
+
+```c
+StzQuantifierHandle stz_quantifier_new(void);
+void                stz_quantifier_free(StzQuantifierHandle h);
+
+// Configure thresholds (defaults shown)
+void stz_quantifier_set(StzQuantifierHandle h,
+                         int quantifier, double threshold);
+// STZ_QUANT_NONE = 0.0,   STZ_QUANT_FEW  = 0.10,
+// STZ_QUANT_SOME = 0.30,  STZ_QUANT_HALF = 0.50,
+// STZ_QUANT_MOST = 0.90,  STZ_QUANT_ALL  = 1.00
+
+// Sample N% of items from a collection
+StzValue stz_quantifier_sample(StzQuantifierHandle h,
+                                int quantifier,
+                                StzValue collection);
+// Few([1,2,...,100]) -> ~10 random items
+
+// Check if quantifier proportion satisfies predicate
+int stz_quantifier_check(StzQuantifierHandle h,
+                          int quantifier,
+                          StzValue collection,
+                          int (*predicate)(StzValue item, void* ctx),
+                          void* ctx);
+// Most(numbers).ArePositive() -> true if >90% positive
+```
+
+### Polyglot Bridge (EXCIS Multi-Runtime) [PLANNED]
+
+Softanza orchestrates code across language runtimes -- R for
+statistics, Python for ML, Julia for numerics, COBOL for legacy,
+AI models for inference. The Engine handles type marshaling,
+process management, and result conversion.
+
+```c
+StzPolyglotHandle stz_polyglot_new(void);
+void              stz_polyglot_free(StzPolyglotHandle h);
+
+// Register a language runtime
+void stz_polyglot_register(StzPolyglotHandle h,
+    int language,              // STZ_LANG_PYTHON, _R, _JULIA, _COBOL, _AI
+    const char* runtime_path,  // path to interpreter/binary
+    size_t path_len);
+
+// Execute code in a language, marshal result to StzValue
+StzValue stz_polyglot_execute(StzPolyglotHandle h,
+    int language,
+    const char* code, size_t code_len,
+    const StzValue* args, size_t num_args);
+
+// Type marshaling: StzValue <-> language-native format
+size_t stz_polyglot_marshal(int language, StzValue v,
+                             char* buf, size_t buf_len);
+StzValue stz_polyglot_unmarshal(int language,
+                                 const char* data, size_t len);
+
+// AI model integration (LLM prompting)
+StzValue stz_polyglot_ai_prompt(StzPolyglotHandle h,
+    const char* prompt, size_t len,
+    const char* model_config_json, size_t config_len);
+```
+
+### Refinement Engine (PolyCode) [PLANNED]
+
+Code is not written once -- it is refined. Softanza's PolyCode
+marks refinement points in code: parameters, blocks, algorithms,
+and functions that can be swapped without rewriting the whole
+program. The Engine parses and applies refinements.
+
+```c
+StzPolyCodeHandle stz_polycode_new(const char* code, size_t len);
+void              stz_polycode_free(StzPolyCodeHandle h);
+
+// Find refinement points in code
+size_t stz_polycode_points(StzPolyCodeHandle h,
+    StzRefinementPoint* out_points, size_t max);
+
+typedef struct {
+    int kind;           // STZ_REFINE_PARAM, _BLOCK, _ALGO, _FUNC
+    char name[256];     // refinement point name
+    size_t offset;      // position in source
+    size_t length;      // extent of refinable region
+} StzRefinementPoint;
+
+// Apply a refinement
+void stz_polycode_refine(StzPolyCodeHandle h,
+    const char* point_name, size_t name_len,
+    const char* replacement, size_t repl_len);
+
+// Generate refined output
+size_t stz_polycode_render(StzPolyCodeHandle h,
+    char* buf, size_t buf_len);
+```
+
+### Timeline Engine (Temporal Workspace) [PLANNED]
+
+Time is not a scalar -- it is a structured domain with events,
+periods, gaps, overlaps, constraints, and visualization. The
+Timeline Engine treats time as a workspace where temporal
+entities interact.
+
+```c
+StzTimelineHandle stz_timeline_new(const char* start, size_t s_len,
+                                    const char* end, size_t e_len);
+void              stz_timeline_free(StzTimelineHandle h);
+
+// Add temporal entities
+void stz_timeline_add_point(StzTimelineHandle h,
+    const char* name, size_t name_len,
+    const char* datetime, size_t dt_len);
+
+void stz_timeline_add_span(StzTimelineHandle h,
+    const char* name, size_t name_len,
+    const char* start, size_t s_len,
+    const char* end, size_t e_len);
+
+// Block regions (prevent overlap)
+void stz_timeline_block_span(StzTimelineHandle h,
+    const char* start, size_t s_len,
+    const char* end, size_t e_len);
+
+// Query operations
+size_t stz_timeline_overlaps(StzTimelineHandle h,
+    StzValue* out_pairs, size_t max);
+size_t stz_timeline_gaps(StzTimelineHandle h,
+    StzValue* out_gaps, size_t max);
+double stz_timeline_coverage(StzTimelineHandle h); // 0.0-1.0
+
+// Render to ASCII (uses Display Engine)
+size_t stz_timeline_render(StzTimelineHandle h,
+    size_t width, char* buf, size_t buf_len);
+```
+
+### Section Merger (Interval Arithmetic) [PLANNED]
+
+Softanza's section operations use three merging strategies that
+apply to ANY structure with start/end pairs -- string sections,
+list ranges, time spans, table row groups, graph edge sets.
+
+```c
+// Three merging strategies for interval pairs [start, end]
+
+// Inclusive: merge only contained intervals (A inside B -> B)
+size_t stz_sections_merge_inclusive(
+    const size_t* sections, size_t num_pairs,
+    size_t* out_sections, size_t max);
+
+// Overlapping: merge intervals that share any point
+size_t stz_sections_merge_overlapping(
+    const size_t* sections, size_t num_pairs,
+    size_t* out_sections, size_t max);
+
+// Comprehensive: merge everything into minimal cover
+size_t stz_sections_merge_comprehensive(
+    const size_t* sections, size_t num_pairs,
+    size_t* out_sections, size_t max);
+
+// Interval queries
+int stz_sections_overlap(size_t a_start, size_t a_end,
+                          size_t b_start, size_t b_end);
+int stz_sections_contains(size_t outer_start, size_t outer_end,
+                            size_t inner_start, size_t inner_end);
+size_t stz_sections_gap(size_t a_start, size_t a_end,
+                          size_t b_start, size_t b_end);
+```
+
+### Grid Navigator (2D Cursor Intelligence) [PLANNED]
+
+The Grid Navigator moves through 2D structures with direction
+awareness, boundary intelligence, and surrounding context
+queries. It works on matrices, tables, game boards, pixel maps,
+and any 2D structure.
+
+```c
+StzGridNavHandle stz_gridnav_new(size_t rows, size_t cols);
+void             stz_gridnav_free(StzGridNavHandle h);
+
+// Position management
+void stz_gridnav_move_to(StzGridNavHandle h, size_t row, size_t col);
+void stz_gridnav_move(StzGridNavHandle h, int direction);
+// STZ_DIR_UP, STZ_DIR_DOWN, STZ_DIR_LEFT, STZ_DIR_RIGHT
+// STZ_DIR_UP_LEFT, STZ_DIR_UP_RIGHT, STZ_DIR_DOWN_LEFT, STZ_DIR_DOWN_RIGHT
+
+size_t stz_gridnav_row(StzGridNavHandle h);
+size_t stz_gridnav_col(StzGridNavHandle h);
+
+// Boundary intelligence
+int stz_gridnav_can_move(StzGridNavHandle h, int direction);
+int stz_gridnav_is_edge(StzGridNavHandle h);    // any edge
+int stz_gridnav_is_corner(StzGridNavHandle h);
+
+// Context queries
+size_t stz_gridnav_neighbors(StzGridNavHandle h,
+    size_t* out_positions, size_t max); // row,col pairs
+size_t stz_gridnav_path_to(StzGridNavHandle h,
+    size_t target_row, size_t target_col,
+    size_t* out_path, size_t max);
+```
+
+---
+
 ### Generalizable Feature Inventory
 
 Beyond Splitter and Display, these features must generalize:
@@ -2234,6 +2660,42 @@ language-agnostic AND experience-complete:
 
 The Engine IS the product. The language surfaces are thin skins.
 
+### Phase J: Paradigm Engines
+
+Softanza does not merely use programming concepts -- it rethinks
+them from first principles and redesigns them. The Engine must
+codify these paradigm innovations as native modules so every
+language surface inherits them. These were extracted from 60+
+paradigm narration documents and their Ring implementations.
+
+| Priority | Module             | What It Brings                          |
+|----------|--------------------|-----------------------------------------|
+| J.1      | Reaxis Engine      | Container->Stream->Rfunction reactive   |
+|          |                    | model with overflow, Feed/FeedMany,     |
+|          |                    | natural timing, stream optimization     |
+| J.2      | Softanzuter        | Universal reactive computation medium   |
+|          |                    | (triggers, computations, state, deps)   |
+| J.3      | Truth Engine       | Configurable truth (IsTrueXT), semantic |
+|          |                    | falsification by substring/item/deep    |
+| J.4      | Quantifier Engine  | Probabilistic quantifiers (Few/Some/    |
+|          |                    | Most/Half) with configurable thresholds |
+| J.5      | Polyglot Bridge    | EXCIS multi-language runtime (R, Python,|
+|          |                    | Julia, COBOL, AI) with type marshaling  |
+| J.6      | Refinement Engine  | PolyCode refinement points (<R:PARAM>,  |
+|          |                    | <R:BLOCK>, <R:ALGO>, <R:FUNC>)          |
+| J.7      | Adverb Engine      | Morphological rule engine with 5-level  |
+|          |                    | priority (irregular->domain->fallback)  |
+| J.8      | Timeline Engine    | Temporal workspace (points, spans,      |
+|          |                    | blocked regions, constraint reasoning)  |
+| J.9      | Grid Navigator     | 2D cursor with direction intelligence,  |
+|          |                    | boundary awareness, context queries     |
+| J.10     | Section Merger     | Interval arithmetic (inclusive/overlap/ |
+|          |                    | comprehensive merging strategies)       |
+| J.11     | Deep Operations    | Path-based recursive traversal with     |
+|          |                    | endpoint/in-path disambiguation         |
+| J.12     | Named Variables    | Dynamic variable construction and       |
+|          |                    | reference resolution                    |
+
 ### Module Count Summary
 
 | Phase | Modules | Status    | What                      |
@@ -2243,7 +2705,8 @@ The Engine IS the product. The language surfaces are thin skins.
 | F+    | 3       | PLANNED   | Checker/Yielder/Performer |
 | G     | 22      | PLANNED   | Infrastructure + manageability |
 | H     | 11      | PLANNED   | Signature features        |
-| **Total** | **60** | **11 done, 49 planned** |
+| J     | 12      | PLANNED   | Paradigm engines          |
+| **Total** | **72** | **11 done, 61 planned** |
 
 ---
 
