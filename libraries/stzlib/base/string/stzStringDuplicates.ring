@@ -44,9 +44,48 @@ class stzStringDuplicates from stzString
 	def HasDuplicatedChars()
 		return len(This.DuplicatedChars()) > 0
 
+	def NumberOfDuplicatedChars()
+		return len(This.DuplicatedChars())
+
+	  #===============================#
+	 #     UNIQUE CHARS              #
+	#===============================#
+
+	def UniqueChars()
+		cContent = This.Content()
+		nLen = len(cContent)
+		acUnique = []
+
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+			if ring_find(acUnique, c) = 0
+				acUnique + c
+			ok
+		next
+
+		return acUnique
+
+	def NumberOfUniqueChars()
+		return len(This.UniqueChars())
+
 	  #===============================#
 	 #     CONSECUTIVE CHARS         #
 	#===============================#
+
+	def HasConsecutiveDuplicates()
+		cContent = This.Content()
+		nLen = len(cContent)
+		if nLen < 2
+			return 0
+		ok
+
+		for i = 2 to nLen
+			if substr(cContent, i, 1) = substr(cContent, i - 1, 1)
+				return 1
+			ok
+		next
+
+		return 0
 
 	def RemoveConsecutiveDuplicateChars()
 		cContent = This.Content()
@@ -76,6 +115,35 @@ class stzStringDuplicates from stzString
 		return oCopy.Content()
 
 	  #===============================#
+	 #     REMOVE ALL DUPLICATES     #
+	#===============================#
+
+	def RemoveAllDuplicateChars()
+		cContent = This.Content()
+		nLen = len(cContent)
+		acSeen = []
+		cResult = ""
+
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+			if ring_find(acSeen, c) = 0
+				acSeen + c
+				cResult += c
+			ok
+		next
+
+		This.Update(cResult)
+
+		def RemoveAllDuplicateCharsQ()
+			This.RemoveAllDuplicateChars()
+			return This
+
+	def AllDuplicateCharsRemoved()
+		oCopy = new stzStringDuplicates(This.Content())
+		oCopy.RemoveAllDuplicateChars()
+		return oCopy.Content()
+
+	  #===============================#
 	 #     DEDUPLICATE SUBSTRINGS    #
 	#===============================#
 
@@ -101,6 +169,21 @@ class stzStringDuplicates from stzString
 
 		This.Update(cContent)
 
+		def RemoveDuplicateSubStringCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveDuplicateSubStringCS(pcSubStr, pCaseSensitive)
+			return This
+
 	def RemoveDuplicateSubString(pcSubStr)
 		This.RemoveDuplicateSubStringCS(pcSubStr, 1)
 
+		def RemoveDuplicateSubStringQ(pcSubStr)
+			This.RemoveDuplicateSubString(pcSubStr)
+			return This
+
+	def DuplicateSubStringRemovedCS(pcSubStr, pCaseSensitive)
+		oCopy = new stzStringDuplicates(This.Content())
+		oCopy.RemoveDuplicateSubStringCS(pcSubStr, pCaseSensitive)
+		return oCopy.Content()
+
+	def DuplicateSubStringRemoved(pcSubStr)
+		return This.DuplicateSubStringRemovedCS(pcSubStr, 1)

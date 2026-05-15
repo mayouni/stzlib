@@ -73,6 +73,40 @@ class stzStringRandomizer from stzString
 		next
 		return acResult
 
+	def NRandomChars(n)
+		# Returns n unique random chars (no duplicates)
+		cContent = This.Content()
+		nLen = len(cContent)
+
+		# Build list of unique chars in the string
+		acUnique = []
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+			if ring_find(acUnique, c) = 0
+				acUnique + c
+			ok
+		next
+
+		nAvailable = len(acUnique)
+		if n > nAvailable
+			n = nAvailable
+		ok
+
+		# Shuffle unique chars and take first n
+		for i = nAvailable to 2 step -1
+			j = random(i - 1) + 1
+			cTemp = acUnique[i]
+			acUnique[i] = acUnique[j]
+			acUnique[j] = cTemp
+		next
+
+		acResult = []
+		for i = 1 to n
+			acResult + acUnique[i]
+		next
+
+		return acResult
+
 	  #===============================#
 	 #     RANDOM SECTION            #
 	#===============================#
@@ -92,3 +126,139 @@ class stzStringRandomizer from stzString
 		def RandomSubString(nLen)
 			return This.RandomSection(nLen)
 
+	  #===============================#
+	 #     RANDOM WORD               #
+	#===============================#
+
+	def RandomWord()
+		cContent = This.Content()
+		acWords = split(cContent, " ")
+		nLen = len(acWords)
+		if nLen = 0
+			return ""
+		ok
+		n = random(nLen - 1) + 1
+		return acWords[n]
+
+	  #===============================#
+	 #     SHUFFLE WORDS             #
+	#===============================#
+
+	def ShuffleWords()
+		cContent = This.Content()
+		acWords = split(cContent, " ")
+		nLen = len(acWords)
+
+		for i = nLen to 2 step -1
+			j = random(i - 1) + 1
+			cTemp = acWords[i]
+			acWords[i] = acWords[j]
+			acWords[j] = cTemp
+		next
+
+		cResult = ""
+		for i = 1 to nLen
+			if i > 1
+				cResult += " "
+			ok
+			cResult += acWords[i]
+		next
+
+		This.Update(cResult)
+
+		def ShuffleWordsQ()
+			This.ShuffleWords()
+			return This
+
+	def WordsShuffled()
+		oCopy = new stzStringRandomizer(This.Content())
+		oCopy.ShuffleWords()
+		return oCopy.Content()
+
+	  #===============================#
+	 #     RANDOM CASE               #
+	#===============================#
+
+	def RandomCase()
+		cContent = This.Content()
+		nLen = len(cContent)
+		cResult = ""
+
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+			if random(1) = 1
+				cResult += upper(c)
+			else
+				cResult += lower(c)
+			ok
+		next
+
+		This.Update(cResult)
+
+		def RandomCaseQ()
+			This.RandomCase()
+			return This
+
+	def RandomCased()
+		oCopy = new stzStringRandomizer(This.Content())
+		oCopy.RandomCase()
+		return oCopy.Content()
+
+	  #===============================#
+	 #     RANDOM INSERT             #
+	#===============================#
+
+	def RandomInsert(cStr)
+		cContent = This.Content()
+		nLen = len(cContent)
+		nPos = random(nLen) + 1
+
+		if nPos > nLen
+			This.Update(cContent + cStr)
+		else
+			cBefore = substr(cContent, 1, nPos - 1)
+			cAfter = substr(cContent, nPos)
+			This.Update(cBefore + cStr + cAfter)
+		ok
+
+	  #===============================#
+	 #     RANDOM REMOVE             #
+	#===============================#
+
+	def RandomRemove(n)
+		cContent = This.Content()
+		nLen = len(cContent)
+		if n >= nLen
+			This.Update("")
+			return
+		ok
+
+		# Build list of char indices
+		anIndices = []
+		for i = 1 to nLen
+			anIndices + i
+		next
+
+		# Pick n random indices to remove (shuffle and take first n)
+		for i = nLen to 2 step -1
+			j = random(i - 1) + 1
+			nTemp = anIndices[i]
+			anIndices[i] = anIndices[j]
+			anIndices[j] = nTemp
+		next
+
+		# Collect indices to remove
+		anRemove = []
+		for i = 1 to n
+			anRemove + anIndices[i]
+		next
+
+		# Build result keeping chars not in remove list
+		cResult = ""
+		for i = 1 to nLen
+			if ring_find(anRemove, i) = 0
+				cResult += substr(cContent, i, 1)
+			ok
+		next
+
+		This.Update(cResult)
