@@ -146,7 +146,15 @@ func IsNotString(pcStr)
 		return IsNotString(pcStr)
 
 func @IsAlpha(cStr)
-	return StzStringQ(cStr).IsAlpha()
+	nLen = len(cStr)
+	if nLen = 0 return 0 ok
+	for i = 1 to nLen
+		n = ascii(substr(cStr, i, 1))
+		if NOT ((n >= 65 and n <= 90) or (n >= 97 and n <= 122))
+			return 0
+		ok
+	next
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -167,7 +175,15 @@ func @IsAlpha(cStr)
 	#>
 
 func @IsAlnum(cStr)
-	return StzStringQ(cStr).IsAlnum()
+	nLen = len(cStr)
+	if nLen = 0 return 0 ok
+	for i = 1 to nLen
+		n = ascii(substr(cStr, i, 1))
+		if NOT ((n >= 65 and n <= 90) or (n >= 97 and n <= 122) or (n >= 48 and n <= 57))
+			return 0
+		ok
+	next
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -294,7 +310,12 @@ func IsNonNullString(cStr)
 	#>
 
 func IsBlank(pcStr)
-	return StzStringQ(pcStr).IsMadeOfSpaces()
+	nLen = len(pcStr)
+	if nLen = 0 return 0 ok
+	for i = 1 to nLen
+		if substr(pcStr, i, 1) != " " return 0 ok
+	next
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -600,7 +621,7 @@ func StzTrim(cStrOrList)
 		return StzTrim(cStrOrList)
 
 	func Trim(pcStr)
-		return StzStringQ(pcStr).Trimmed()
+		return trim(pcStr)
 
 func TrimString(cStr)
 	if CheckParams()
@@ -662,7 +683,15 @@ func StzTrimLeft(cStrOrList)
 	ok
 
 	if isString(cStrOrList)
-		return StzStringQ(cStrOrList).TrimmedLeft()
+		nLen = len(cStrOrList)
+		nStart = 1
+		for i = 1 to nLen
+			if substr(cStrOrList, i, 1) != " " and substr(cStrOrList, i, 1) != char(9) and substr(cStrOrList, i, 1) != char(10) and substr(cStrOrList, i, 1) != char(13)
+				nStart = i
+				exit
+			ok
+		next
+		return substr(cStrOrList, nStart)
 	else
 		return StzListQ(cStrOrList).TrimmedLeft()
 	ok
@@ -690,7 +719,15 @@ func StzTrimRight(cStrOrList)
 	ok
 
 	if isString(cStrOrList)
-		return StzStringQ(cStrOrList).TrimmedRight()
+		nLen = len(cStrOrList)
+		nEnd = nLen
+		for i = nLen to 1 step -1
+			if substr(cStrOrList, i, 1) != " " and substr(cStrOrList, i, 1) != char(9) and substr(cStrOrList, i, 1) != char(10) and substr(cStrOrList, i, 1) != char(13)
+				nEnd = i
+				exit
+			ok
+		next
+		return substr(cStrOrList, 1, nEnd)
 	else
 		return StzListQ(cStrOrList).Trimmedright()
 	ok
@@ -1543,8 +1580,7 @@ func NCopies(n, p)
 		return NCopies(3, p)
 
 func WithoutSpaces(pcStr)
-	cResult = StzStringQ(pcStr).WithoutSpaces()
-	return cResult
+	return ring_substr2(pcStr, " ", "")
 
 	func @WithoutSpaces(pcStr)
 		return WithoutSpaces(pcStr)
@@ -1760,12 +1796,17 @@ func @IsPalindrome(p)
 		return StzListQ(p).IsPalindrome()
 
 	but isString(p)
-		oStr = new stzString(p)
-		if oStr.NumberOfChars() < 2
+		nLen = len(p)
+		if nLen < 2
 			return 0
 		ok
-
-		return StzStringQ(p).IsPalindrome()
+		cLow = lower(p)
+		for i = 1 to nLen / 2
+			if substr(cLow, i, 1) != substr(cLow, nLen - i + 1, 1)
+				return 0
+			ok
+		next
+		return 1
 	else
 		StzRaise("Incorrect param type! p must be a string or list.")
 	ok
@@ -1784,7 +1825,17 @@ func @IsPalindrome(p)
 
 func @IsPunct(p)
 	if isString(p)
-		return StzStringQ(p).IsPunct()
+		nLen = len(p)
+		if nLen = 0 return 0 ok
+		for i = 1 to nLen
+			n = ascii(substr(p, i, 1))
+			if (n >= 33 and n <= 47) or (n >= 58 and n <= 64) or (n >= 91 and n <= 96) or (n >= 123 and n <= 126)
+				# ok, is punctuation
+			else
+				return 0
+			ok
+		next
+		return 1
 
 	but isList(p) and @IsListOfChars(p)
 		#TODO
