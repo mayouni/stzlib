@@ -324,8 +324,22 @@ func UCS(p, pCaseSensitive)
 		ok
 	ok
 
-	result = StzListQ(p).WithoutDuplicatesCS(pCaseSensitive)
-	return result
+	aResult = []
+	nLen = len(p)
+	for i = 1 to nLen
+		bFound = 0
+		nResLen = len(aResult)
+		for j = 1 to nResLen
+			if BothAreEqualCS(aResult[j], p[i], pCaseSensitive)
+				bFound = 1
+				exit
+			ok
+		next
+		if NOT bFound
+			aResult + p[i]
+		ok
+	next
+	return aResult
 
 	func WithoutDuplicatesCS(p, pCaseSensitive)
 		return UCS(p, pCaseSensitive)
@@ -418,7 +432,12 @@ func L(p)
 
 	but isString(p)
 
-		return StzStringQ(p).ToList()
+		aResult = []
+		nLen = len(p)
+		for i = 1 to nLen
+			aResult + substr(p, i, 1)
+		next
+		return aResult
 
 	but isObject(p)
 		return StzObject(p).ObjectAttributesAndValues()
@@ -451,7 +470,14 @@ func LN(p)
 		return NumbersBetween(p[1][2], p[2][2])
 
 	but isList(p)
-		return StzListQ(p).OnlyNumbers()
+		aResult = []
+		nLen = len(p)
+		for i = 1 to nLen
+			if isNumber(p[i])
+				aResult + p[i]
+			ok
+		next
+		return aResult
 
 	but isString(p) and Q(p).IsListInString()
 		aResult = Q(p).ToListQ().OnlyNumbers()
@@ -481,7 +507,14 @@ func LN(p)
 
 func LC(p)
 	if isList(p)
-		return StzListQ(p).OnlyChars()
+		aResult = []
+		nLen = len(p)
+		for i = 1 to nLen
+			if isString(p[i]) and len(p[i]) = 1
+				aResult + p[i]
+			ok
+		next
+		return aResult
 
 	but isString(p) and Q(p).IsListInString()
 		aResult = Q(p).ToListQ().OnlyChars()
@@ -512,7 +545,14 @@ func LC(p)
 
 func LL(p)
 	if isList(p)
-		return StzListQ(p).OnlyLists()
+		aResult = []
+		nLen = len(p)
+		for i = 1 to nLen
+			if isList(p[i])
+				aResult + p[i]
+			ok
+		next
+		return aResult
 
 	but isString(p) and Q(p).IsListInString()
 		aResult = Q(p).ToListQ().OnlyLists()
@@ -543,7 +583,14 @@ func LL(p)
 
 func LS(p)
 	if isList(p)
-		return StzListQ(p).OnlyStrings()
+		aResult = []
+		nLen = len(p)
+		for i = 1 to nLen
+			if isString(p[i])
+				aResult + p[i]
+			ok
+		next
+		return aResult
 
 	but isString(p) and Q(p).IsListInString()
 		aResult = Q(p).ToListQ().OnlyStrings()

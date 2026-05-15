@@ -2812,7 +2812,7 @@ func StzRaise(paMessage)
 			raise("Error in StzRaise param type!")
 		ok
 	
-		cFile = StzStringQ(cWhere).WithoutSpaces()
+		cFile = ring_substr2(cWhere, " ", "")
 		if isNull(cWhere)
 			raise("Error in StzRaise --> Where the error happened!")
 		ok
