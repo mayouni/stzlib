@@ -1,4 +1,4 @@
-﻿#--------------------------------------------------------------#
+#--------------------------------------------------------------#
 #            SOFTANZA LIBRARY (V0.9) - STZLIST                 #
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
@@ -9060,15 +9060,13 @@ class stzList from stzObject
 
 		if isList(pWhere)
 
-			oParam = Q(pWhere)
-
-			if oParam.IsOneOfTheseNamedParams([
+			if IsOneOfTheseNamedParamsList(pWhere, [
 				:At, :AtPosition, :Before, :BeforePosition ])
 
 				This.InsertBefore(pWhere[2], pItem)
 				return
 
-			but oParam.IsOneOfTheseNamedParams([ :After, :AfterPosition ])
+			but IsOneOfTheseNamedParamsList(pWhere, [ :After, :AfterPosition ])
 
 				This.InsertAfter(pWhere[2], pItem)
 				return
@@ -9130,7 +9128,7 @@ class stzList from stzObject
 		#< @FunctionAlternativeForm
 
 		def InsertAt(n, pItem)
-			if isList(n) and StzListQ(n).IsOneOfTheseNamedParams([ :Position, :ItemAt, :ItemAtPosition ])
+			if isList(n) and IsOneOfTheseNamedParamsList(n, [ :Position, :ItemAt, :ItemAtPosition ])
 				n = n[2]
 			ok
 
@@ -9359,7 +9357,7 @@ class stzList from stzObject
 		if CheckingParams()
 
 			if isList(n1) and
-			   Q(n1).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n1, [
 				:From, :FromPosition,
 				:At, :AtPosition,
 				:Item, :ItemAt, :ItemAtPosition,
@@ -9371,7 +9369,7 @@ class stzList from stzObject
 			ok
 	
 			if isList(n2) and
-			   Q(n2).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n2, [
 				:To, :ToPosition, :ToItem, :ToItemAt,
 				:ToItemAtPosition, :ToPositionOfItem ])
 	
@@ -9470,7 +9468,7 @@ class stzList from stzObject
 		if CheckingParams()
 
 			if isList(n1) and
-			   Q(n1).IsOneOfTheseNamedPArams([
+			   IsOneOfTheseNamedParamsList(n1, [
 				:Between, :BetweenPosition, :BetweenPositions,
 				:BetweenItem, :BetweenItems,
 				:BetweenItemAt, :BetweenItemAtPosition, :BetweenItemAtPositions,
@@ -9486,7 +9484,7 @@ class stzList from stzObject
 			ok
 
 			if isList(n2) and
-			   Q(n2).IsOneOfTheseNamedPArams([
+			   IsOneOfTheseNamedParamsList(n2, [
 				:And, :AndPosition, :AndItemAt, :AndItemAtPosition, :AndItem ])
 	
 				n2 = n2[2]
@@ -9516,12 +9514,12 @@ class stzList from stzObject
 
 		def SwapItems(n1, n2)
 			if isList(n1) and
-			   Q(n1).IsOneOfTheseNamedParams([ :At, :AtPosition, :AtPositions ])
+			   IsOneOfTheseNamedParamsList(n1, [ :At, :AtPosition, :AtPositions ])
 				n1 = n1[2]
 			ok
 	
 			if isList(n2) and
-			   Q(n2).IsOneOfTheseNamedParams([ :And, :AndPosition ])
+			   IsOneOfTheseNamedParamsList(n2, [ :And, :AndPosition ])
 				n2 = n2[2]
 			ok
 	
@@ -9529,12 +9527,12 @@ class stzList from stzObject
 
 		def SwapItem(n1, n2)
 			if isList(n1) and
-			   Q(n1).IsOneOfTheseNamedParams([ :At, :AtPosition ])
+			   IsOneOfTheseNamedParamsList(n1, [ :At, :AtPosition ])
 				n1 = n1[2]
 			ok
 	
 			if isList(n2) and
-			   Q(n2).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n2, [
 				:And, :AndPosition, :AndItemAt, :AndItemAtPosition ])
 
 				n2 = n2[2]
@@ -11700,11 +11698,11 @@ class stzList from stzObject
 
 				oNewItem = StzListQ(pNewItem)
 
-				if oNewItem.IsOneOfTheseNamedParams([ :ByMany, :WithMany, :UsingMany ])
+				if IsOneOfTheseNamedParamsList(pNewItem,[ :ByMany, :WithMany, :UsingMany ])
 					This.ReplaceThisItemAtPositionsByManyCS(panPos, pItem, pNewItem[2], pCaseSensitive)
 					return
 
-				but oNewItem.IsOneOfTheseNamedParams([ :ByManyXT, :WithManyXT, :UsingManyXT ])
+				but IsOneOfTheseNamedParamsList(pNewItem,[ :ByManyXT, :WithManyXT, :UsingManyXT ])
 					This.ReplaceThisItemAtPositionsByManyCSXT(panPos, pItem, pNewItem[2], pCaseSensitive)
 					return
 
@@ -11800,11 +11798,11 @@ class stzList from stzObject
 			if isList(pNewItem)
 				oNewItem = StzListQ(pNewItem)
 
-				if oNewItem.IsOneOfTheseNamedParams([ :ByMany, :WithMany, :UsingMany ])
+				if IsOneOfTheseNamedParamsList(pNewItem,[ :ByMany, :WithMany, :UsingMany ])
 					This.ReplaceTheseItemsAtPositionsByManyCS(panPos, paItems, pNewItem, pCaseSensitive)
 					return
 
-				but oNewItem.IsOneOfTheseNamedParams([ :ByManyXT, :WithManyXT, :UsingManyXT ])
+				but IsOneOfTheseNamedParamsList(pNewItem,[ :ByManyXT, :WithManyXT, :UsingManyXT ])
 					This.ReplaceTheseItemsAtPositionsByManyCSXT(panPos, paItems, pNewItem, pCaseSensitive)
 					return
 
@@ -28149,7 +28147,7 @@ class stzList from stzObject
 			ok
 	
 			if isList(pReturn) and
-			   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+			   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 	
 				pReturn = pReturn[2]
 			ok
@@ -28251,7 +28249,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -28325,11 +28323,11 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([ :Position, :Positions ])
+		if isList(n1) and IsOneOfTheseNamedParamsList(n1, [ :Position, :Positions ])
 			n1 = n1[2]
 		ok
 
-		if isList(n2) and StzListQ(n2).IsOneOfTheseNamedParams([ :Position, :AndPosition, :And ])
+		if isList(n2) and IsOneOfTheseNamedParamsList(n2, [ :Position, :AndPosition, :And ])
 			n2 = n2[2]
 		ok
 
@@ -28338,7 +28336,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -28395,7 +28393,7 @@ class stzList from stzObject
 		# Checking pReturn param
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -28450,7 +28448,7 @@ class stzList from stzObject
 		# Checking pReturn param
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -28524,7 +28522,7 @@ class stzList from stzObject
 			ok
 	
 			if isList(pReturn) and
-			   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+			   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 	
 				pReturn = pReturn[2]
 			ok
@@ -28655,7 +28653,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -28677,7 +28675,7 @@ class stzList from stzObject
 			pReturn = :WalkedPositions
 		ok
 
-		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and IsOneOfTheseNamedParamsList(pcDirection, [ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -28780,7 +28778,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -28802,7 +28800,7 @@ class stzList from stzObject
 			pReturn = :WalkedPositions
 		ok
 
-		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and IsOneOfTheseNamedParamsList(pcDirection, [ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -28876,7 +28874,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -28898,7 +28896,7 @@ class stzList from stzObject
 			pReturn = :WalkedPositions
 		ok
 
-		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and IsOneOfTheseNamedParamsList(pcDirection, [ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -29053,7 +29051,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -29285,7 +29283,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -29458,7 +29456,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -29582,7 +29580,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -29713,7 +29711,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -29839,7 +29837,7 @@ class stzList from stzObject
 		ok
 
 		if isList(pReturn) and
-		   Q(pReturn).IsOneOfTheseNamedParams([ :Return, :AndReturn ])
+		   IsOneOfTheseNamedParamsList(pReturn, [ :Return, :AndReturn ])
 
 			pReturn = pReturn[2]
 		ok
@@ -30997,7 +30995,7 @@ class stzList from stzObject
 			return This.ClassifyQRT(:stzList)
 
 		def ClassifyQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -31043,7 +31041,7 @@ class stzList from stzObject
 			return This.ClassesQRT(:stzList)
 
 		def ClassesQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -31170,7 +31168,7 @@ class stzList from stzObject
 			return This.Classify@CQRT(:stzList)
 
 		def Classify@CQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -31209,7 +31207,7 @@ class stzList from stzObject
 			return This.Classes@CQRT(:stzList)
 
 		def Classes@CQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -36487,7 +36485,7 @@ class stzList from stzObject
 				return This
 
 		def Extend(n)
-			if isList(n) and StzListQ(n).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToNItems ])
+			if isList(n) and IsOneOfTheseNamedParamsList(n, [ :To, :ToPosition, :ToNItems ])
 				n = n[2]
 			ok
 	
@@ -44896,7 +44894,7 @@ fdef
 			return This.FindAllOccurrencesCSQRT(pItem, pCaseSensitive, :stzList)
 
 		def FindAllOccurrencesCSQRT(pItem, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -45621,7 +45619,7 @@ fdef
 			return new stzList(This.FindManyCS(paItems, pCaseSensitive))
 
 		def FindManyCSQRT(paItems, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -45868,7 +45866,7 @@ fdef
 		#< @FunctionFluentForm
 
 		def FindAllExceptFirstCSQRT(pItem, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -46012,7 +46010,7 @@ fdef
 		#< @FunctionFluentForm
 
 		def FindAllExceptLastCSQRT(pItem, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -46065,7 +46063,7 @@ fdef
 		#< @FunctionFluentForm
 
 		def FindAllExceptLastQRT(pItem, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -51615,7 +51613,7 @@ fdef
 			return This.ItemsWQRT(pcCondition, :stzList)
 
 		def ItemsWQRT(pcCondition, pcReturnType)
-			if isList(pcCondition) and StzListQ(pcCondition).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcCondition) and IsOneOfTheseNamedParamsList(pcCondition, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -51801,7 +51799,7 @@ fdef
 			return ItemsWXTQRT(pcCondition, :stzList)
 
 		def ItemsWXTQRT(pcCondition, pcReturnType)
-			if isList(pcCondition) and StzListQ(pcCondition).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcCondition) and IsOneOfTheseNamedParamsList(pcCondition, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -52275,7 +52273,7 @@ fdef
 			return This.NumbersQRT(:stzList)
 
 		def NumbersQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -52301,7 +52299,7 @@ fdef
 				return This.OnlyNumbersQRT(:stzList)
 	
 			def OnlyNumbersQRT(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -52454,7 +52452,7 @@ fdef
 			return This.NonNumbersQRT(:stzList)
 
 		def NonNumbersQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -52476,7 +52474,7 @@ fdef
 				return This.OnlyNonNumbersQRT(:stzList)
 	
 			def OnlyNonNumbersQRT(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -52634,7 +52632,7 @@ fdef
 			return This.StringsQRT(:stzList)
 
 		def StringsQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -52660,7 +52658,7 @@ fdef
 				return This.OnlyStringsQRT(:stzList)
 	
 			def OnlyStringsQRT(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -52858,7 +52856,7 @@ fdef
 			return This.NonStringsQRT(:stzList)
 
 		def NonStringsQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -52880,7 +52878,7 @@ fdef
 				return This.OnlyNonStringsQRT(:stzList)
 	
 			def OnlyNonStringsQRT(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -53437,7 +53435,7 @@ fdef
 			return This.ListsQRT(:stzList)
 
 		def ListsQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -53463,7 +53461,7 @@ fdef
 				return This.OnlyListsQRT(:stzList)
 	
 			def OnlyListsQRT(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -54362,7 +54360,7 @@ fdef
 			return This.NonListsQRT(:stzList)
 
 		def NonListsQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -54384,7 +54382,7 @@ fdef
 				return This.OnlyNonListsQRT(:stzList)
 	
 			def OnlyNonListsQRT(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -55043,7 +55041,7 @@ fdef
 			# Managing the use of :From and :To named params
 	
 			if isList(n1) and
-			   StzListQ(n1).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n1, [
 					:From, :FromPosition, :FromItemAt, :FromItemAtPosition,
 
 					:StartingAt, :StartingAtPosition,
@@ -55059,7 +55057,7 @@ fdef
 			ok
 	
 			if isList(n2) and
-			   StzListQ(n2).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n2, [
 
 					:To, :ToPosition, :ToItemAt, :ToItemAtPosition,
 
@@ -55078,13 +55076,13 @@ fdef
 	
 			# Managing the use of :NthToFirst named param
 	
-			if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([
+			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [
 						:NthToFirst, :NthToFirstItem ])
 	
 				n1 = n1[2] + 1
 			ok
 	
-			if isList(n2) and StzListQ(n2).IsOneOfTheseNamedParams([
+			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [
 						:NthToFirst, :NthToFirstItem ])
 	
 				n2 = n2[2] + 1
@@ -55092,13 +55090,13 @@ fdef
 	
 			# Managing the use of :NthToLast named param
 	
-			if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([
+			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [
 						:NthToLast, :NthToLastItem ])
 	
 				n1 = nLen - n1[2]
 			ok
 	
-			if isList(n2) and StzListQ(n2).IsOneOfTheseNamedParams([
+			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [
 						:NthToLast, :NthToLastItem ])
 	
 				n2 = nLen - n2[2]
@@ -56048,7 +56046,7 @@ fdef
 			return This.RangeQRT(pnStart, pnRange, :stzList)
 
 		def RangeQRT(pnStart, pnRange, pcReturntype)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -57242,7 +57240,7 @@ fdef
 		# Resolving the n1 and n2 params
 
 		if CheckingParams()
-			if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
+			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [ :From, :FromPosition, :FromPositionOf ])
 				n1 = n1[2]
 			ok
 	
@@ -57259,7 +57257,7 @@ fdef
 				StzRaise("Incorrect param type! n1 must be a number.")
 			ok
 	
-			if isList(n2) and StzListQ(n2).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToPositionOf ])
+			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [ :To, :ToPosition, :ToPositionOf ])
 				n2 = n2[2]
 			ok
 	
@@ -57408,7 +57406,7 @@ fdef
 		# Resolving the n1 and n2 params
 
 		if CheckingParams()
-			if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
+			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [ :From, :FromPosition, :FromPositionOf ])
 				n1 = n1[2]
 			ok
 	
@@ -57425,7 +57423,7 @@ fdef
 				StzRaise("Incorrect param type! n1 must be a number.")
 			ok
 	
-			if isList(n2) and StzListQ(n2).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToPositionOf ])
+			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [ :To, :ToPosition, :ToPositionOf ])
 				n2 = n2[2]
 			ok
 	
@@ -59586,11 +59584,11 @@ fdef
 			ok
 
 		but isList(pOption) and
-		    Q(pOption).IsOneOfTheseNamedParams([
+		    IsOneOfTheseNamedParamsList(pOption, [
 			:Concatenated, :ConcatenatedUsing, :ConcatenatedWith ])
 
 			if isList(pOption[2]) and
-			   Q(pOption[2]).IsOneOfTheseNamedParams([ :Using, :With ])
+			   IsOneOfTheseNamedParamsList(pOption[2], [ :Using, :With ])
 
 				pOption[2] = pOption[2][2]
 			ok
@@ -59761,7 +59759,7 @@ fdef
 		if isString(p2) and ( p2 = :Or or p2 = :OrA )
 			cSyntax = "1"
 
-		but isList(p2) and StzListQ(p2).IsOneOfTheseNamedParams([ :Or, :OrA ])
+		but isList(p2) and IsOneOfTheseNamedParamsList(p2, [ :Or, :OrA ])
 			p2 = p2[2]
 			cSyntax = "2"
 		ok
@@ -59943,7 +59941,7 @@ fdef
 		ok
 
 		if isList(paEvalDirection) and
-		   StzListQ(paEvalDirection).IsOneOfTheseNamedParams([
+		   IsOneOfTheseNamedParamsList(paEvalDirection, [
 			:Eval, :Evaluate,
 			:EvalFrom, :EvaluateFrom,
 			:EvalDirection, :EvaluationDirection
@@ -67070,31 +67068,31 @@ fdef
 
 		#-- SPLITTING AT / USING
 
-		if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+		if IsOneOfTheseNamedParamsList(pItem,[ :At, :Using ])
 			return This.FindSplitsAtCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPosition, :AtThisPosition ]) 
 			return This.FindSplitsAtPosition(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPositions, :AtThesePositions ]) 
 			return This.FindSplitsAtPositions(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItem, :AtThisItem,
 					:UsingItem, :UsingThisItem ]) 
 
 			return This.FindSplitsAtItemCS(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItems, :AtTheseItems,
 					:UsingItems, :UsingTheseItems ]) 
 
 			return This.FindSplitsAtItemsCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSection, :AtThisSection ]) 
 			return This.FindSplitsAtSection(pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSections, :AtTheseSections ]) 
 			return This.FindSplitsAtSections(pItem[2])
 
 		#-- SPLITTING BEFORE
@@ -67102,22 +67100,22 @@ fdef
 		but oParam.IsBeforeNamedParam()
 			return This.FindSplitsBeforeCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePosition, :BeforeThisPosition ]) 
 			return This.FindSplitsBeforePosition(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePositions, :BeforeThesePositions ]) 
 			return This.FindSplitsBeforePositions(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItem, :BeforeThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItem, :BeforeThisItem ]) 
 			return This.FindSplitsBeforeItemCS(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItems, :BeforeTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItems, :BeforeTheseItems ]) 
 			return This.SplitBeforeItemsCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSection, :BeforeThisSection ]) 
 			return This.FindSplitsBeforeSection(pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSections, :BeforeTheseSections ]) 
 			return This.FindSplitsBeforeSections(pItem[2])
 
 		#-- SPLITTING AFTER
@@ -67125,22 +67123,22 @@ fdef
 		but oParam.IsAfterNamedParam()
 			return This.FindSplitsAfterCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPosition, :AfterThisPosition ]) 
 			return This.FindSplitsAfterPosition(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPositions, :AfterThesePositions ]) 
 			return This.FindSplitsAfterPositions(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterItem, :AfterThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItem, :AfterThisItem ]) 
 			return This.FindSplitsAfterItemCS(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :AfterItems, :AfterTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItems, :AfterTheseItems ]) 
 			return This.FindSplitsAfterItemsCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSection, :AfterThisSection ]) 
 			return This.FindSplitsAfterSection(pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSections, :AfterTheseSections ]) 
 			return This.FindSplitsAfterSections(pItem[2])
 
 		# SPLITTING BETWEEN
@@ -67220,28 +67218,28 @@ fdef
 
 		#-- Case when named params are provided
 
-		if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 			return This.FindSplitsAtPosition(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindSplitsAtPositions(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindSplitsAtItemCS(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindSplitsAtItemsCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindSplitsAtSection(pItem[2][1], pItem[2][2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindSplitsAtSectionIB(pItem[2][1], pItem[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindSplitsAtSections(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindSplitsAtSectionsIB(pItem[2])
 
 		else
@@ -67707,28 +67705,28 @@ fdef
 
 		oItem = new stzList(pItem)
 
-		if oItem.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 			return This.FindSplitsBeforePosition(pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindSplitsBeforePositions(pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindSplitsBeforeItemCS(pItem[2], pCaseSensitive)
 	
-		but oItem.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindSplitsBeforeItemsCS(pItem[2], pCaseSensitive)
 
-		but oItem.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindSplitsBeforeSection(pItem[2][1], pItem[2][2])
 
-		but oItem.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindSplitsBeforeSectionIB(pItem[2][1], pItem[2][2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindSplitsBeforeSections(pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindSplitsBeforeSectionsIB(pItem[2])
 
 		else
@@ -68141,29 +68139,29 @@ fdef
 
 		oItem = new stzList(pItem)
 
-		if oItem.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ])
 
 			return This.FindSplitsAfterPosition(pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindSplitsAfterPositions(pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindSplitsAfterItemCS(pItem[2], pCaseSensitive)
 	
-		but oItem.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindSplitsAfterItemsCS(pItem[2], pCaseSensitive)
 
-		but oItem.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindSplitsAfterSection(pItem[2][1], pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindSplitsAfterSectionIB(pItem[2][1], pItem[2][2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindSplitsAfterSections(pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindSplitsAfterSectionsIB(pItem[2])
 
 		else
@@ -68864,37 +68862,37 @@ fdef
 
 		#-- SPLITTING AT / USING
 
-		if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+		if IsOneOfTheseNamedParamsList(pItem,[ :At, :Using ])
 			return This.FindSplitsAtCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPosition, :AtThisPosition ]) 
 			return This.FindSplitsAtPositionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPositions, :AtThesePositions ]) 
 			return This.FindSplitsAtPositionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItem, :AtThisItem,
 					:UsingItem, :UsingThisItem ]) 
 
 			return This.FindSplitsAtItemCSZZ(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItems, :AtTheseItems,
 					:UsingItems, :UsingTheseItems ]) 
 
 			return This.FindSplitsAtItemsCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSection, :AtThisSection ]) 
 			return This.FindSplitsAtSectionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AtSectionIB, :AtThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSectionIB, :AtThisSectionIB ]) 
 			return This.FindSplitsAtSectionIBZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSections, :AtTheseSections ]) 
 			return This.FindSplitsAtSectionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AtSectionsIB, :AtTheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSectionsIB, :AtTheseSectionsIB ]) 
 			return This.FindSplitsAtSectionsIBZZ(pItem[2])
 
 		#-- SPLITTING BEFORE
@@ -68902,28 +68900,28 @@ fdef
 		but oParam.IsBeforeNamedParam()
 			return This.FindSplitsBeforeCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePosition, :BeforeThisPosition ]) 
 			return This.FindSplitsBeforePositionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePositions, :BeforeThesePositions ]) 
 			return This.FindSplitsBeforePositionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItem, :BeforeThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItem, :BeforeThisItem ]) 
 			return This.FindSplitsBeforeItemCSZZ(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItems, :BeforeTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItems, :BeforeTheseItems ]) 
 			return This.SplitBeforeItemsCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSection, :BeforeThisSection ]) 
 			return This.FindSplitsBeforeSectionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSectionIB, :BeforeThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSectionIB, :BeforeThisSectionIB ]) 
 			return This.FindSplitsBeforeSectionIBZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSections, :BeforeTheseSections ]) 
 			return This.FindSplitsBeforeSectionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSectionsIB, :BeforeTheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSectionsIB, :BeforeTheseSectionsIB ]) 
 			return This.FindSplitsBeforeSectionsIBZZ(pItem[2])
 
 
@@ -68932,28 +68930,28 @@ fdef
 		but oParam.IsAfterNamedParam()
 			return This.FindSplitsAfterCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPosition, :AfterThisPosition ]) 
 			return This.FindSplitsAfterPositionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPositions, :AfterThesePositions ]) 
 			return This.FindSplitsAfterPositionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterItem, :AfterThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItem, :AfterThisItem ]) 
 			return This.FindSplitsAfterItemCSZZ(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :AfterItems, :AfterTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItems, :AfterTheseItems ]) 
 			return This.FindSplitsAfterItemsCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSection, :AfterThisSection ]) 
 			return This.FindSplitsAfterSectionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterSectionIB, :AfterThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSectionIB, :AfterThisSectionIB ]) 
 			return This.FindSplitsAfterSectionIBZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSections, :AfterTheseSections ]) 
 			return This.FindSplitsAfterSectionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterSectionsIB, :AfterTheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSectionsIB, :AfterTheseSectionsIB ]) 
 			return This.FindSplitsAfterSectionsIBZZ(pItem[2])
 
 
@@ -69034,28 +69032,28 @@ fdef
 
 		#-- Case when named params are provided
 
-		if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 			return This.FindSplitsAtPositionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindSplitsAtPositionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindSplitsAtItemCSZZ(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindSplitsAtItemsCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindSplitsAtSectionZZ(pItem[2][1], pItem[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindSplitsAtSectionIBZZ(pItem[2][1], pItem[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindSplitsAtSectionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindSplitsAtSectionsIBZZ(pItem[2])
 
 		else
@@ -69506,28 +69504,28 @@ fdef
 
 		#-- Case when named params are provided
 
-		if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 			return This.FindSplitsBeforePositionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindSplitsBeforePositionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindSplitsBeforeItemCSZZ(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindSplitsBeforeItemsCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindSplitsBeforeSectionZZ(pItem[2][1], pItem[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindSplitsBeforeSectionIBZZ(pItem[2][1], pItem[2][2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindSplitsBeforeSectionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindSplitsBeforeSectionsIBZZ(pItem[2])
 
 		else
@@ -70051,29 +70049,29 @@ fdef
 
 		#-- Case when named params are provided
 
-		if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ])
 
 			return This.FindSplitsAfterPositionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindSplitsAfterPositionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindSplitsAfterItemCSZZ(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindSplitsAfterItemsCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindSplitsAfterSectionZZ(pItem[2][1], pItem[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindSplitsAfterSectionIBZZ(pItem[2][1], pItem[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindSplitsAfterSectionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindSplitsAfterSectionsIBZZ(pItem[2])
 
 		#-- Providing numbers, strings, or pairs of numbers,
@@ -71154,31 +71152,31 @@ fdef
 
 		#-- SPLITTING AT / USING
 
-		if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+		if IsOneOfTheseNamedParamsList(pItem,[ :At, :Using ])
 			return This.FindNthSplitAtCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPosition, :AtThisPosition ]) 
 			return This.FindNthSplitAtPositionCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPositions, :AtThesePositions ]) 
 			return This.FindNthSplitAtPositionsCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItem, :AtThisItem,
 					:UsingItem, :UsingThisItem ]) 
 
 			return This.FindNthSplitAtItemCS(n, pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItems, :AtTheseItems,
 					:UsingItems, :UsingTheseItems ]) 
 
 			return This.FindNthSplitAtItemsCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSection, :AtThisSection ]) 
 			return This.FindNthSplitAtSectionCS(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSections, :AtTheseSections ]) 
 			return This.FindNthSplitAtSectionsCS(n, pItem[2], pCaseSensitive)
 
 		#-- SPLITTING BEFORE
@@ -71186,22 +71184,22 @@ fdef
 		but oParam.IsBeforeNamedParam()
 			return This.FindNthSplitBeforeCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePosition, :BeforeThisPosition ]) 
 			return This.FindNthSplitBeforePositionCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePositions, :BeforeThesePositions ]) 
 			return This.FindNthSplitBeforePositionsCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItem, :BeforeThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItem, :BeforeThisItem ]) 
 			return This.FindNthSplitBeforeItemCS(n, pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItems, :BeforeTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItems, :BeforeTheseItems ]) 
 			return This.SplitBeforeItemsCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSection, :BeforeThisSection ]) 
 			return This.FindNthSplitBeforeSectionCS(n, pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSections, :BeforeTheseSections ]) 
 			return This.FindNthSplitBeforeSectionsCS(n, pItem[2], pCaseSensitive)
 
 		#-- SPLITTING AFTER
@@ -71209,22 +71207,22 @@ fdef
 		but oParam.IsAfterNamedParam()
 			return This.FindNthSplitAfterCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPosition, :AfterThisPosition ]) 
 			return This.FindNthSplitAfterPositionCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPositions, :AfterThesePositions ]) 
 			return This.FindNthSplitAfterPositionsCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterItem, :AfterThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItem, :AfterThisItem ]) 
 			return This.FindNthSplitAfterItemCS(n, pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :AfterItems, :AfterTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItems, :AfterTheseItems ]) 
 			return This.FindNthSplitAfterItemsCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSection, :AfterThisSection ]) 
 			return This.FindNthSplitAfterSectionCS(n, pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSections, :AfterTheseSections ]) 
 			return This.FindNthSplitAfterSectionsCS(n, pItem[2], pCaseSensitive)
 
 		# SPLITTING BETWEEN
@@ -71304,28 +71302,28 @@ fdef
 
 		#-- Case when named params are provided
 
-		if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 			return This.FindNthSplitAtPositionCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindNthSplitAtPositionsCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindNthSplitAtItemCS(n, pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindNthSplitAtItemsCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindNthSplitAtSectionCS(n, pItem[2][1], pItem[2][2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindNthSplitAtSectionCSIB(n, pItem[2][1], pItem[2][2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindNthSplitAtSectionsCS(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindNthSplitAtSectionsCSIB(n, pItem[2], pCaseSensitive)
 
 		else
@@ -71752,28 +71750,28 @@ fdef
 
 		oItem = StzListQ(pItem)
 
-		if oItem.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 			return This.FindNthSplitBeforePosition(n, pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindNthSplitBeforePositions(n, pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindNthSplitBeforeItemCS(n, pItem[2], pCaseSensitive)
 	
-		but oItem.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindNthSplitBeforeItemsCS(n, pItem[2], pCaseSensitive)
 
-		but oItem.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindNthSplitBeforeSection(n, pItem[2][1], pItem[2][2])
 
-		but oItem.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindNthSplitBeforeSectionIB(n, pItem[2][1], pItem[2][2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindNthSplitBeforeSections(n, pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindNthSplitBeforeSectionsIB(n, pItem[2])
 
 		else
@@ -72124,29 +72122,29 @@ fdef
 
 		oItem = StzListQ(pItem)
 
-		if oItem.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ])
 
 			return This.FindNthSplitAfterPosition(n, pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindNthSplitAfterPositions(n, pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindNthSplitAfterItemCS(n, pItem[2], pCaseSensitive)
 	
-		but oItem.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindNthSplitAfterItemsCS(n, pItem[2], pCaseSensitive)
 
-		but oItem.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindNthSplitAfterSection(n, pItem[2][1], pItem[2][2])
 
-		but oItem.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindNthSplitAfterSectionIB(n, pItem[2][1], pItem[2][2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindNthSplitAfterSections(n, pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindNthSplitAfterSectionsIB(n, pItem[2])
 
 		else
@@ -72862,31 +72860,31 @@ fdef
 
 		#-- SPLITTING AT / USING
 
-		if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+		if IsOneOfTheseNamedParamsList(pItem,[ :At, :Using ])
 			return This.FindNthSplitAtCSZZ(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPosition, :AtThisPosition ]) 
 			return This.FindNthSplitAtPositionZZ(n, pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPositions, :AtThesePositions ]) 
 			return This.FindNthSplitAtPositionsZZ(n, pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItem, :AtThisItem,
 					:UsingItem, :UsingThisItem ]) 
 
 			return This.FindNthSplitAtItemCSZZ(n, pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItems, :AtTheseItems,
 					:UsingItems, :UsingTheseItems ]) 
 
 			return This.FindNthSplitAtItemsCSZZ(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSection, :AtThisSection ]) 
 			return This.FindNthSplitAtSectionZZ(n, pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSections, :AtTheseSections ]) 
 			return This.FindNthSplitAtSectionsZZ(n, pItem[2])
 
 		#-- SPLITTING BEFORE
@@ -72894,22 +72892,22 @@ fdef
 		but oParam.IsBeforeNamedParam()
 			return This.FindNthSplitBeforeCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePosition, :BeforeThisPosition ]) 
 			return This.FindNthSplitBeforePositionZZ(n, pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePositions, :BeforeThesePositions ]) 
 			return This.FindNthSplitBeforePositionsZZ(n, pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItem, :BeforeThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItem, :BeforeThisItem ]) 
 			return This.FindNthSplitBeforeItemCSZZ(n, pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItems, :BeforeTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItems, :BeforeTheseItems ]) 
 			return This.SplitBeforeItemsCSZZ(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSection, :BeforeThisSection ]) 
 			return This.FindNthSplitBeforeSectionZZ(n, pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSections, :BeforeTheseSections ]) 
 			return This.FindNthSplitBeforeSectionsZZ(n, pItem[2])
 
 		#-- SPLITTING AFTER
@@ -72917,22 +72915,22 @@ fdef
 		but oParam.IsAfterNamedParam()
 			return This.FindNthSplitAfterCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPosition, :AfterThisPosition ]) 
 			return This.FindNthSplitAfterPositionZZ(n, pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPositions, :AfterThesePositions ]) 
 			return This.FindNthSplitAfterPositionsZZ(n, pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterItem, :AfterThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItem, :AfterThisItem ]) 
 			return This.FindNthSplitAfterItemCSZZ(n, pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :AfterItems, :AfterTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItems, :AfterTheseItems ]) 
 			return This.FindNthSplitAfterItemsCSZZ(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSection, :AfterThisSection ]) 
 			return This.FindNthSplitAfterSectionZZ(n, pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSections, :AfterTheseSections ]) 
 			return This.FindNthSplitAfterSectionsZZ(n, pItem[2])
 
 		# SPLITTING BETWEEN
@@ -73010,28 +73008,28 @@ fdef
 
 		oParam = new stzList(pItem)
 
-		if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 			return This.FindNthSplitAtPositionZZ(n, pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindNthSplitAtPositionsZZ(n, pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindNthSplitAtItemCSZZ(n, pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindNthSplitAtItemsCSZZ(n, pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindNthSplitAtSectionZZ(n, pItem[2][1], pItem[2][2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindNthSplitAtSectionIBZZ(n, pItem[2][1], pItem[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindNthSplitAtSectionsZZ(n, pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindNthSplitAtSectionsIBZZ(n, pItem[2])
 
 		else
@@ -73357,28 +73355,28 @@ fdef
 
 			oItem = Q(pItem)
 
-			if oItem.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 				return This.FindNthSplitBeforePositionZZ(n, pItem[2])
 	
-			but oItem.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 				return This.FindNthSplitBeforePositionsZZ(n, pItem[2])
 
-			but oItem.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 				return This.FindNthSplitBeforeItemCSZZ(n, pItem[2], pCaseSensitive)
 		
-			but oItem.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 				return This.FindNthSplitBeforeItemsCSZZ(n, pItem[2], pCaseSensitive)
 
-			but oItem.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 				return This.FindNthSplitBeforeSectionZZ(n, pItem[2][1], pItem[2][2])
 		
-			but oItem.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindNthSplitBeforeSectionIBZZ(n, pItem[2][1], pItem[2][2])
 
-			but oItem.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 				return This.FindNthSplitBeforeSectionsZZ(n, pItem[2])
 
-			but oItem.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindNthSplitBeforeSectionsIBZZ(n, pItem[2])
 
 			else
@@ -73735,28 +73733,28 @@ fdef
 
 			oItem = Q(pItem)
 
-			if oItem.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ])
 				return This.FindNthSplitAfterPositionZZ(n, pItem[2])
 	
-			but oItem.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 				return This.FindNthSplitAfterPositionsZZ(n, pItem[2])
 
-			but oItem.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 				return This.FindNthSplitAfterItemCSZZ(n, pItem[2], pCaseSensitive)
 		
-			but oItem.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 				return This.FindNthSplitAfterItemsCSZZ(n, pItem[2], pCaseSensitive)
 
-			but oItem.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 				return This.FindNthSplitAfterSectionZZ(n, pItem[2][1], pItem[2][2])
 
-			but oItem.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindNthSplitAfterSectionIBZZ(n, pItem[2][1], pItem[2][2])
 
-			but oItem.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 				return This.FindNthSplitAfterSectionsZZ(n, pItem[2])
 
-			but oItem.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindNthSplitAfterSectionsIBZZ(n, pItem[2])
 
 			else
@@ -74451,31 +74449,31 @@ fdef
 
 		#-- SPLITTING AT / USING
 
-		if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+		if IsOneOfTheseNamedParamsList(pItem,[ :At, :Using ])
 			return This.FindLastSplitAtCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPosition, :AtThisPosition ]) 
 			return This.FindLastSplitAtPosition(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPositions, :AtThesePositions ]) 
 			return This.FindLastSplitAtPositions(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItem, :AtThisItem,
 					:UsingItem, :UsingThisItem ]) 
 
 			return This.FindLastSplitAtItemCS(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItems, :AtTheseItems,
 					:UsingItems, :UsingTheseItems ]) 
 
 			return This.FindLastSplitAtItemsCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSection, :AtThisSection ]) 
 			return This.FindLastSplitAtSection(pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSections, :AtTheseSections ]) 
 			return This.FindLastSplitAtSections(pItem[2])
 
 		#-- SPLITTING BEFORE
@@ -74483,22 +74481,22 @@ fdef
 		but oParam.IsBeforeNamedParam()
 			return This.FindLastSplitBeforeCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePosition, :BeforeThisPosition ]) 
 			return This.FindLastSplitBeforePosition(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePositions, :BeforeThesePositions ]) 
 			return This.FindLastSplitBeforePositions(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItem, :BeforeThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItem, :BeforeThisItem ]) 
 			return This.FindLastSplitBeforeItemCS(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItems, :BeforeTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItems, :BeforeTheseItems ]) 
 			return This.SplitBeforeItemsCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSection, :BeforeThisSection ]) 
 			return This.FindLastSplitBeforeSection(pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSections, :BeforeTheseSections ]) 
 			return This.FindLastSplitBeforeSections(pItem[2])
 
 		#-- SPLITTING AFTER
@@ -74506,22 +74504,22 @@ fdef
 		but oParam.IsAfterNamedParam()
 			return This.FindLastSplitAfterCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPosition, :AfterThisPosition ]) 
 			return This.FindLastSplitAfterPosition(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPositions, :AfterThesePositions ]) 
 			return This.FindLastSplitAfterPositions(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterItem, :AfterThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItem, :AfterThisItem ]) 
 			return This.FindLastSplitAfterItemCS(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :AfterItems, :AfterTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItems, :AfterTheseItems ]) 
 			return This.FindLastSplitAfterItemsCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSection, :AfterThisSection ]) 
 			return This.FindLastSplitAfterSection(pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSections, :AfterTheseSections ]) 
 			return This.FindLastSplitAfterSections(pItem[2])
 
 		# SPLITTING BETWEEN
@@ -74600,28 +74598,28 @@ fdef
 
 		#-- Case when named params are provided
 
-		if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 			return This.FindLastSplitAtPosition(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindLastSplitAtPositions(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindLastSplitAtItemCS(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindLastSplitAtItemsCS(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindLastSplitAtSection(pItem[2][1], pItem[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindLastSplitAtSectionIB(pItem[2][1], pItem[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindLastSplitAtSections(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindLastSplitAtSectionsIB(pItem[2])
 
 		else
@@ -74988,28 +74986,28 @@ fdef
 
 			oItem = Q(pItem)
 
-			if oItem.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 				return This.FindLastSplitBeforePosition(pItem[2])
 	
-			but oItem.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 				return This.FindLastSplitBeforePositions(pItem[2])
 
-			but oItem.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 				return This.FindLastSplitBeforeItemCS(pItem[2], pCaseSensitive)
 		
-			but oItem.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 				return This.FindLastSplitBeforeItemsCS(pItem[2], pCaseSensitive)
 
-			but oItem.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 				return This.FindLastSplitBeforeSection(pItem[2][1], pItem[2][2])
 
-			but oItem.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindLastSplitBeforeSectionIB(pItem[2][1], pItem[2][2])
 
-			but oItem.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 				return This.FindLastSplitBeforeSections(pItem[2])
 
-			but oItem.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindLastSplitBeforeSectionsIB(pItem[2])
 
 			else
@@ -75366,29 +75364,29 @@ fdef
 
 			oItem = Q(pItem)
 
-			if oItem.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ])
 
 				return This.FindLastSplitAfterPosition(pItem[2])
 	
-			but oItem.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 				return This.FindLastSplitAfterPositions(pItem[2])
 
-			but oItem.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 				return This.FindLastSplitAfterItemCS(pItem[2], pCaseSensitive)
 		
-			but oItem.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 				return This.FindLastSplitAfterItemsCS(pItem[2], pCaseSensitive)
 
-			but oItem.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 				return This.FindLastSplitAfterSection(pItem[2][1], pItem[2][2])
 
-			but oItem.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindLastSplitAfterSectionIB(pItem[2][1], pItem[2][2])
 
-			but oItem.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 				return This.FindLastSplitAfterSections(pItem[2])
 
-			but oItem.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindLastSplitAfterSectionsIB(pItem[2])
 
 			else
@@ -76127,31 +76125,31 @@ fdef
 
 		#-- SPLITTING AT / USING
 
-		if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+		if IsOneOfTheseNamedParamsList(pItem,[ :At, :Using ])
 			return This.FindLastSplitAtCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPosition, :AtThisPosition ]) 
 			return This.FindLastSplitAtPositionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtPositions, :AtThesePositions ]) 
 			return This.FindLastSplitAtPositionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItem, :AtThisItem,
 					:UsingItem, :UsingThisItem ]) 
 
 			return This.FindLastSplitAtItemCSZZ(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([
+		but IsOneOfTheseNamedParamsList(pItem,[
 					:AtItems, :AtTheseItems,
 					:UsingItems, :UsingTheseItems ]) 
 
 			return This.FindLastSplitAtItemsCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSection, :AtThisSection ]) 
 			return This.FindLastSplitAtSectionZZ(pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AtSections, :AtTheseSections ]) 
 			return This.FindLastSplitAtSectionsZZ(pItem[2])
 
 		#-- SPLITTING BEFORE
@@ -76159,22 +76157,22 @@ fdef
 		but oParam.IsBeforeNamedParam()
 			return This.FindLastSplitBeforeCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePosition, :BeforeThisPosition ]) 
 			return This.FindLastSplitBeforePositionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforePositions, :BeforeThesePositions ]) 
 			return This.FindLastSplitBeforePositionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItem, :BeforeThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItem, :BeforeThisItem ]) 
 			return This.FindLastSplitBeforeItemCSZZ(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :BeforeItems, :BeforeTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeItems, :BeforeTheseItems ]) 
 			return This.SplitBeforeItemsCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSection, :BeforeThisSection ]) 
 			return This.FindLastSplitBeforeSectionZZ(pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :BeforeSections, :BeforeTheseSections ]) 
 			return This.FindLastSplitBeforeSectionsZZ(pItem[2])
 
 		#-- SPLITTING AFTER
@@ -76182,22 +76180,22 @@ fdef
 		but oParam.IsAfterNamedParam()
 			return This.FindLastSplitAfterCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPosition, :AfterThisPosition ]) 
 			return This.FindLastSplitAfterPositionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterPositions, :AfterThesePositions ]) 
 			return This.FindLastSplitAfterPositionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterItem, :AfterThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItem, :AfterThisItem ]) 
 			return This.FindLastSplitAfterItemCSZZ(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :AfterItems, :AfterTheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterItems, :AfterTheseItems ]) 
 			return This.FindLastSplitAfterItemsCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSection, :AfterThisSection ]) 
 			return This.FindLastSplitAfterSectionZZ(pItem[2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :AfterSections, :AfterTheseSections ]) 
 			return This.FindLastSplitAfterSectionsZZ(pItem[2])
 
 		# SPLITTING BETWEEN
@@ -76277,28 +76275,28 @@ fdef
 
 		#-- Case when named params are provided
 
-		if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 			return This.FindLastSplitAtPositionZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindLastSplitAtPositionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindLastSplitAtItemCSZZ(pItem[2], pCaseSensitive)
 	
-		but oParam.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindLastSplitAtItemsCSZZ(pItem[2], pCaseSensitive)
 
-		but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindLastSplitAtSectionZZ(pItem[2][1], pItem[2][2])
 	
-		but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindLastSplitAtSectionIBZZ(pItem[2][1], pItem[2][2])
 
-		but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindLastSplitAtSectionsZZ(pItem[2])
 
-		but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindLastSplitAtSectionsIBZZ(pItem[2])
 
 		else
@@ -76624,28 +76622,28 @@ fdef
 
 		oItem = new stzList(pItem)
 
-		if oItem.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+		if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ]) 
 			return This.FindLastSplitBeforePositionZZ(pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 			return This.FindLastSplitBeforePositionsZZ(pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 			return This.FindLastSplitBeforeItemCSZZ(pItem[2], pCaseSensitive)
 	
-		but oItem.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 			return This.FindLastSplitBeforeItemsCSZZ(pItem[2], pCaseSensitive)
 
-		but oItem.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 			return This.FindLastSplitBeforeSectionZZ(pItem[2][1], pItem[2][2])
 
-		but oItem.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 			return This.FindLastSplitBeforeSectionIBZZ(pItem[2][1], pItem[2][2])
 
-		but oItem.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 			return This.FindLastSplitBeforeSectionsZZ(pItem[2])
 
-		but oItem.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+		but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 			return This.FindLastSplitBeforeSectionsIBZZ(pItem[2])
 
 		else
@@ -77002,29 +77000,29 @@ fdef
 
 			oItem = Q(pItem)
 
-			if oItem.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			if IsOneOfTheseNamedParamsList(pItem,[ :Position, :ThisPosition ])
 
 				return This.FindLastSplitAfterPositionZZ(pItem[2])
 	
-			but oItem.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Positions, :ThesePositions ]) 
 				return This.FindLastSplitAfterPositionsZZ(pItem[2])
 
-			but oItem.IsOneOfTheseNamedParams([ :Item, :ThisItem ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Item, :ThisItem ]) 
 				return This.FindLastSplitAfterItemCSZZ(pItem[2], pCaseSensitive)
 
-			but oItem.IsOneOfTheseNamedParams([ :Items, :TheseItems ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Items, :TheseItems ]) 
 				return This.FindLastSplitAfterItemsCSZZ(pItem[2], pCaseSensitive)
 
-			but oItem.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Section, :ThisSection ]) 
 				return This.FindLastSplitAfterSectionZZ(pItem[2][1], pItem[2][2])
 
-			but oItem.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindLastSplitAfterSectionIBZZ(pItem[2][1], pItem[2][2])
 
-			but oItem.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :Sections, :TheseSections ]) 
 				return This.FindLastSplitAfterSectionsZZ(pItem[2])
 
-			but oItem.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pItem,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindLastSplitAfterSectionsIBZZ(pItem[2])
 
 			else
