@@ -3565,7 +3565,8 @@ AI agents, and any future technology equally.
 | H     | 11      | PLANNED   | Signature features        |
 | J     | 12      | PLANNED   | Paradigm engines          |
 | K     | 14      | PLANNED   | Universal computation     |
-| **Total** | **86** | **11 done, 75 planned** |
+| VP    | 2       | PLANNED   | Interaction + Skill engines|
+| **Total** | **88** | **11 done, 77 planned** |
 
 ---
 
@@ -3587,3 +3588,500 @@ The Softanza Engine IS the runtime substrate that powers both:
 - **Zin** (Zig surface): `Zin pillars -> Engine directly`
 
 This is the "Zing" bridge -- the power of Zig, the beauty of Ring.
+
+---
+
+## Three Value Propositions
+
+The Engine provides computational force. But computational force
+alone is not enough. Three cross-cutting concerns make the Engine
+trustworthy, accessible, and teachable:
+
+1. **Testability** -- the Engine hardens itself
+2. **Usability** -- the Engine exposes interaction as a first-class
+   concern, so programmers declare intent and the Engine renders it
+   on any medium
+3. **Learnability** -- the Engine knows what skills it demands and
+   provides material to teach them
+
+These are not optional add-ons. They are value propositions that
+every module participates in.
+
+---
+
+### VP-1: Testability
+
+The Engine applies the same 4-layer testing discipline that hardens
+the Zin compiler. Every module ships with tests at all four layers.
+No module is considered complete without them.
+
+#### The Four Layers
+
+**Layer 1 -- Inline unit tests.**
+Every `.zig` source file contains `test` blocks next to the code
+they verify. These run with `zig build test` and use Zig's
+`std.testing` allocator for leak detection. Target density:
+40+ tests per 1000 lines of code.
+
+```zig
+// Inside stz_string.zig
+test "codepoint_count handles combining marks" {
+    const s = stz_string_from("e\xCC\x81", 3); // é as e + combining acute
+    defer stz_string_free(s);
+    try std.testing.expectEqual(@as(usize, 1), stz_string_codepoint_count(s));
+}
+```
+
+**Layer 2 -- Simulation harness.**
+Multi-module integration tests that exercise cross-module contracts
+without real I/O. These verify that the Walker correctly drives
+List iteration, that the Splitter and Regex cooperate, that the
+Reaxis container-stream-rfunction pipeline works end-to-end.
+
+```zig
+// Inside tests/sim/test_walker_list.zig
+test "walker drives list forward and backward" {
+    const list = stz_list_create(allocator);
+    defer stz_list_free(list);
+    // ... populate list ...
+    const w = stz_walker_create(1, stz_list_len(list), 1);
+    defer stz_walker_free(w);
+    // Walk forward, collect values, walk backward, compare
+}
+```
+
+**Layer 3 -- CLI integration tests.**
+The `stzengine` CLI commands are tested as complete invocations.
+Each test launches the CLI binary with arguments and verifies
+stdout, stderr, and exit code. These use pre-built binaries --
+no child process spawning inside `zig build test`.
+
+```zig
+// Build-time test that checks CLI output was pre-recorded
+test "stzengine info --module string produces valid JSON" {
+    const expected = @embedFile("fixtures/info_string.json");
+    // Compare pre-recorded output against expected schema
+}
+```
+
+**Layer 4 -- Narrated tests.**
+Structured test scenarios with GIVEN/WHEN/THEN blocks and
+EXPLANATION fields that serve as both verification and
+documentation. These are the Engine's equivalent of executable
+specifications.
+
+```zig
+// Inside tests/narrated/test_truth_domain.zig
+test "GIVEN a medical domain truth config WHEN evaluating 'N/A' THEN it is falsy" {
+    // EXPLANATION: Medical systems treat "N/A" as absence of data,
+    // which is semantically false in diagnostic contexts.
+    const cfg = stz_truth_config_create(allocator);
+    defer stz_truth_config_free(cfg);
+    stz_truth_add_falsy_string(cfg, "N/A", 3);
+    const v = stz_value_string("N/A", 3);
+    try std.testing.expect(!stz_truth_is_true(cfg, v));
+}
+```
+
+#### Mechanical Guardrail: L99 -- No Real I/O in Tests
+
+The Engine enforces at build time that no test body reaches
+`std.fs.File` stdout/stdin/stderr or `std.io.getStd*()`. This
+prevents hangs on Windows (where child-process stdio in tests
+deadlocks `zig build test`) and ensures all tests are hermetic.
+
+The guardrail is a compile-time check in the build system:
+
+```zig
+// build.zig -- L99 enforcement
+// If any test file imports std.io.getStdOut, the build fails
+// with: "L99: real stdio is banned in test bodies"
+```
+
+#### Test Discovery and Density Tracking
+
+The build system auto-discovers test files by convention:
+- `src/**/*.zig` -- inline unit tests (Layer 1)
+- `tests/sim/*.zig` -- simulation harness (Layer 2)
+- `tests/cli/*.zig` -- CLI integration (Layer 3)
+- `tests/narrated/*.zig` -- narrated tests (Layer 4)
+
+The CLI reports test density per module:
+
+```
+$ stzengine test --summary
+Module      | L1   | L2  | L3  | L4  | Total | Lines | Density
+------------|------|-----|-----|-----|-------|-------|--------
+stz_string  |  312 |  24 |   8 |  12 |   356 |  8200 |  43.4
+stz_list    |  287 |  31 |   6 |   9 |   333 |  7100 |  46.9
+stz_walker  |  148 |  18 |   4 |   6 |   176 |  3400 |  51.8
+...
+TOTAL       | 3200 | 420 |  90 |  80 |  3790 | 86000 |  44.1
+```
+
+#### C ABI for External Test Harnesses
+
+Language clients can query the Engine's test infrastructure:
+
+```c
+// Test metadata for external harnesses
+size_t    stz_test_module_count(void);
+const char* stz_test_module_name(size_t idx);
+size_t    stz_test_count(const char* module, size_t mod_len);
+size_t    stz_test_layer_count(const char* module, size_t mod_len,
+                               int layer); // 1-4
+int       stz_test_run_module(const char* module, size_t mod_len,
+                              char* report_buf, size_t buf_len);
+```
+
+---
+
+### VP-2: Usability -- The Interaction Engine
+
+The Engine does not just compute -- it exposes a declarative
+interaction layer where programmers define user-facing logic in
+terms of **cognitive intents**, and the Engine projects those
+intents onto any physical medium (web UI, terminal UI, voice
+interface, API endpoint, accessibility device).
+
+This is not a UI framework. It is an **intent grammar** that
+separates WHAT the user wants to do from HOW it appears on screen.
+
+#### Design Source
+
+This design is informed by Zin's Zui pillar, which defines 24
+cognitive verbs across 6 categories. The Engine generalizes this
+into a medium-agnostic interaction substrate.
+
+#### The Six Intent Categories
+
+| Category    | Verbs                              | Semantics                |
+|-------------|-------------------------------------|--------------------------|
+| Orienting   | DISCOVER, ORIENT, OVERVIEW          | User builds mental model |
+| Attention   | FOCUS, ZOOM, FILTER, GROUP          | User narrows scope       |
+| Information | READ, INSPECT, COMPARE, TRACE       | User acquires knowledge  |
+| Selection   | SELECT, MARK, COLLECT, RANK         | User makes choices       |
+| Action      | ACT, CONFIRM, UNDO, RETRY, DELEGATE| User triggers change     |
+| Continuity  | SAVE, RESUME, SHARE, EXPORT         | User preserves state     |
+
+#### Constitutional Laws (Engine-enforced)
+
+The interaction layer enforces safety invariants at the Engine
+level, not at the UI level. These are not guidelines -- they are
+compile-time or runtime checks that reject invalid intent flows:
+
+1. **No SELECT-to-ACT collapse.** Every destructive action MUST
+   pass through CONFIRM. A UI cannot wire a select event directly
+   to a delete operation.
+
+2. **UNDO covenant.** Every ACT that mutates state MUST register
+   an undo operation. If no undo is possible (irreversible action),
+   the Engine forces a CONFIRM with explicit "no undo" disclosure.
+
+3. **DISCOVER before ACT.** A session cannot begin with ACT. The
+   user must have encountered DISCOVER or ORIENT first. This
+   prevents "deep link to delete" attacks.
+
+4. **Accessibility invariant.** Every intent MUST have a text
+   representation. If a rendering projection cannot produce text
+   (e.g., a purely visual control), the Engine rejects the flow
+   at declaration time.
+
+#### C ABI
+
+```c
+// Intent flow declaration
+typedef struct StzIntentFlow StzIntentFlow;
+typedef struct StzIntentStep StzIntentStep;
+
+StzIntentFlow* stz_interact_flow_create(
+    void* allocator, const char* name, size_t name_len);
+void stz_interact_flow_free(StzIntentFlow* flow);
+
+// Add steps to a flow
+StzIntentStep* stz_interact_step_add(
+    StzIntentFlow* flow,
+    int verb,           // STZ_VERB_DISCOVER, STZ_VERB_SELECT, etc.
+    const char* label, size_t label_len,
+    const char* target, size_t target_len);
+
+// Attach data binding to a step
+void stz_interact_step_bind(
+    StzIntentStep* step,
+    const char* source_expr, size_t expr_len);
+
+// Validate the entire flow against constitutional laws
+// Returns 0 on success, error code + message on violation
+int stz_interact_flow_validate(
+    StzIntentFlow* flow,
+    char* error_buf, size_t buf_len);
+
+// Rendering projection
+typedef enum {
+    STZ_MEDIUM_WEB = 0,    // HTML/CSS/JS
+    STZ_MEDIUM_TUI,        // Terminal UI (ANSI)
+    STZ_MEDIUM_VOICE,      // Voice prompt/response
+    STZ_MEDIUM_API,        // REST/GraphQL endpoint
+    STZ_MEDIUM_ACCESS,     // Screen reader / braille
+    STZ_MEDIUM_PRINT,      // PDF / paper
+} StzMedium;
+
+// Project a validated flow to a specific medium
+int stz_interact_project(
+    StzIntentFlow* flow,
+    StzMedium medium,
+    char* output_buf, size_t buf_len,
+    size_t* written);
+
+// Intent verbs (compile-time constants)
+enum {
+    STZ_VERB_DISCOVER = 0,
+    STZ_VERB_ORIENT,
+    STZ_VERB_OVERVIEW,
+    STZ_VERB_FOCUS,
+    STZ_VERB_ZOOM,
+    STZ_VERB_FILTER,
+    STZ_VERB_GROUP,
+    STZ_VERB_READ,
+    STZ_VERB_INSPECT,
+    STZ_VERB_COMPARE,
+    STZ_VERB_TRACE,
+    STZ_VERB_SELECT,
+    STZ_VERB_MARK,
+    STZ_VERB_COLLECT,
+    STZ_VERB_RANK,
+    STZ_VERB_ACT,
+    STZ_VERB_CONFIRM,
+    STZ_VERB_UNDO,
+    STZ_VERB_RETRY,
+    STZ_VERB_DELEGATE,
+    STZ_VERB_SAVE,
+    STZ_VERB_RESUME,
+    STZ_VERB_SHARE,
+    STZ_VERB_EXPORT,
+};
+```
+
+#### Usage Example (Python via C FFI)
+
+```python
+import ctypes
+engine = ctypes.CDLL("softanza_engine.dll")
+
+# Declare an intent flow for "browse products and buy"
+flow = engine.stz_interact_flow_create(None, b"shop", 4)
+
+engine.stz_interact_step_add(flow, 0, b"Browse catalog", 14,
+                             b"products", 8)       # DISCOVER
+engine.stz_interact_step_add(flow, 11, b"Pick item", 9,
+                             b"product", 7)        # SELECT
+engine.stz_interact_step_add(flow, 15, b"Add to cart", 11,
+                             b"cart.add", 8)        # ACT
+engine.stz_interact_step_add(flow, 16, b"Confirm purchase", 16,
+                             b"order.place", 11)    # CONFIRM
+
+# Validate -- Engine checks constitutional laws
+err = ctypes.create_string_buffer(256)
+if engine.stz_interact_flow_validate(flow, err, 256) != 0:
+    print(f"Flow violation: {err.value}")
+
+# Project to web
+html = ctypes.create_string_buffer(8192)
+written = ctypes.c_size_t()
+engine.stz_interact_project(flow, 0, html, 8192,
+                            ctypes.byref(written))
+# html now contains a self-contained web component
+
+# Project same flow to terminal
+tui = ctypes.create_string_buffer(4096)
+engine.stz_interact_project(flow, 1, tui, 4096,
+                            ctypes.byref(written))
+# tui now contains ANSI-formatted interactive prompts
+
+engine.stz_interact_flow_free(flow)
+```
+
+The programmer writes the interaction logic ONCE. The Engine
+renders it on web, terminal, voice, API, accessibility device,
+or paper. The constitutional laws guarantee safety regardless
+of rendering medium.
+
+---
+
+### VP-3: Learnability -- The Skill Engine
+
+Every module in the Engine knows what it demands from the
+programmer and what it can teach. Learnability is not
+documentation -- it is a structured, queryable, machine-readable
+skill graph embedded in the Engine itself.
+
+#### Skill Metadata per Module
+
+Each Engine module declares:
+
+1. **Prerequisites** -- skills the programmer must have before
+   using this module (other Engine modules, general concepts)
+2. **Skills taught** -- what the programmer learns by using this
+   module
+3. **Coding examples** -- executable Zig snippets that demonstrate
+   each skill, graded by difficulty (beginner/intermediate/advanced)
+4. **Skill checks** -- small coding challenges the programmer can
+   attempt, with automated verification
+
+```c
+// Skill graph queries
+typedef struct StzSkillInfo StzSkillInfo;
+
+// How many skills does this module require?
+size_t stz_skill_prereq_count(
+    const char* module, size_t mod_len);
+
+// Get prerequisite skill name and description
+int stz_skill_prereq_get(
+    const char* module, size_t mod_len,
+    size_t idx,
+    char* name_buf, size_t name_len,
+    char* desc_buf, size_t desc_len);
+
+// How many skills does this module teach?
+size_t stz_skill_teaches_count(
+    const char* module, size_t mod_len);
+
+// Get a coding example for a specific skill
+int stz_skill_example_get(
+    const char* module, size_t mod_len,
+    const char* skill, size_t skill_len,
+    int difficulty,  // 0=beginner, 1=intermediate, 2=advanced
+    char* code_buf, size_t code_len,
+    char* explanation_buf, size_t expl_len);
+
+// Get a skill check challenge
+int stz_skill_check_get(
+    const char* module, size_t mod_len,
+    const char* skill, size_t skill_len,
+    char* challenge_buf, size_t chal_len,
+    char* signature_buf, size_t sig_len);
+
+// Verify a skill check answer
+int stz_skill_check_verify(
+    const char* module, size_t mod_len,
+    const char* skill, size_t skill_len,
+    const char* answer_code, size_t code_len,
+    char* feedback_buf, size_t fb_len);
+```
+
+#### CLI Skill Commands
+
+```
+$ stzengine skills list
+Module         | Prerequisites | Skills Taught | Examples | Checks
+---------------|---------------|---------------|----------|-------
+stz_string     | value         | 12            | 36       | 12
+stz_list       | value, string | 15            | 45       | 15
+stz_walker     | (none)        |  8            | 24       |  8
+stz_reaxis     | stream, truth | 10            | 30       | 10
+stz_interact   | intent, state | 14            | 42       | 14
+...
+
+$ stzengine skills prereqs walker
+Module stz_walker has no prerequisites. You can start here.
+
+$ stzengine skills prereqs reaxis
+Module stz_reaxis requires:
+  - stz_stream: data flow and buffering (from Layer 3)
+  - stz_truth: domain-specific truth evaluation (from Layer 5)
+
+$ stzengine skills check string codepoint_handling
+Challenge: Write a function that counts the number of visible
+characters (grapheme clusters) in a UTF-8 string containing
+combining marks.
+
+Signature: fn solve(input: []const u8) usize
+
+Submit your answer:
+> _
+
+$ stzengine skills path "build a reactive pipeline"
+Recommended learning path:
+  1. stz_value    (Layer 0) -- understand the universal value type
+  2. stz_stream   (Layer 3) -- data flow and buffering
+  3. stz_truth    (Layer 5) -- domain-specific truth
+  4. stz_reaxis   (Layer 5) -- reactive container/stream/rfunction
+  5. stz_interact (VP-2)    -- declare user-facing intent flows
+
+Estimated effort: 4-6 hours for intermediate programmers.
+```
+
+#### Skill Graph as Training Platform Material
+
+The skill metadata is not just for CLI use. It is structured
+data that any training platform can consume:
+
+```c
+// Export the full skill graph as JSON
+int stz_skill_graph_export(
+    char* json_buf, size_t buf_len,
+    size_t* written);
+
+// Export learning paths as JSON
+int stz_skill_paths_export(
+    const char* goal, size_t goal_len,
+    char* json_buf, size_t buf_len,
+    size_t* written);
+```
+
+A training platform built on the Engine gets:
+- Prerequisite-ordered curriculum generation
+- Executable coding examples with expected output
+- Automated skill verification with feedback
+- Learning path recommendations based on goals
+- Progress tracking across the skill graph
+
+The Engine does not BUILD the training platform -- it provides
+the structured material that makes building one trivial.
+
+#### Code-Aware Skill Assessment
+
+The Engine can analyze existing code to determine which skills
+the programmer already demonstrates:
+
+```c
+// Analyze source code for demonstrated skills
+int stz_skill_assess(
+    const char* source_code, size_t code_len,
+    const char* language, size_t lang_len,  // "zig", "ring", "python"
+    char* report_buf, size_t report_len);
+```
+
+```
+$ stzengine skills assess src/my_app.zig
+Skills demonstrated in src/my_app.zig:
+  [x] stz_string: basic creation, codepoint indexing
+  [x] stz_list: creation, append, iteration
+  [x] stz_walker: forward traversal
+  [ ] stz_walker: variable step patterns (not used)
+  [ ] stz_reaxis: (not used -- consider for the event handling
+      in lines 45-78, which uses manual polling)
+  [ ] stz_interact: (not used -- the CLI menu in lines 12-30
+      could be declared as an intent flow)
+
+Recommendations:
+  - Learn stz_reaxis to replace the polling loop at line 45
+  - Learn stz_interact to make the CLI menu portable
+```
+
+---
+
+### Module Count Summary (Updated)
+
+| Phase   | Modules | Status    | What                          |
+|---------|---------|-----------|-------------------------------|
+| A-E     | 11      | DONE      | Qt replacement                |
+| F       | 13      | PLANNED   | Ring workaround elimination   |
+| F+      | 3       | PLANNED   | Checker/Yielder/Performer     |
+| G       | 22      | PLANNED   | Infrastructure + manageability|
+| H       | 11      | PLANNED   | Signature features            |
+| J       | 12      | PLANNED   | Paradigm engines              |
+| K       | 14      | PLANNED   | Universal computation         |
+| VP      | 2       | PLANNED   | Interaction + Skill engines   |
+| **Total** | **88** | **11 done, 77 planned** |              |
