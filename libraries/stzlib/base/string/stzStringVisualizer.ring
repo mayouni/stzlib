@@ -1,0 +1,199 @@
+#--------------------------------------------------------------#
+#       SOFTANZA LIBRARY (V0.9) - STZSTRINGVISUALIZER          #
+#   An accelerative library for Ring applications, and more!   #
+#--------------------------------------------------------------#
+#                                                              #
+#   Description  : String visualizer subclass -- Show(),       #
+#                  VizFind(), Boxed(), and visual rendering     #
+#                  operations for console output.                #
+#   Version      : V0.9 (2026)                                 #
+#   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
+#                                                              #
+#--------------------------------------------------------------#
+
+
+  /////////////////////
+ ///   FUNCTIONS   ///
+/////////////////////
+
+func StzStringVisualizerQ(str)
+	return new stzStringVisualizer(str)
+
+
+  /////////////////
+ ///   CLASS   ///
+/////////////////
+
+class stzStringVisualizer from stzStringCore
+
+	  #===============================#
+	 #     SHOW                      #
+	#===============================#
+
+	def Show()
+		? This.Content()
+
+	def ShowShort()
+		nLen = This.NumberOfChars()
+		if nLen <= 50
+			? This.Content()
+		else
+			? substr(This.Content(), 1, 47) + "..."
+		ok
+
+	def ShowNL()
+		? This.Content() + NL
+
+	  #===============================#
+	 #     VIZFIND                   #
+	#===============================#
+
+	def VizFindCharCS(c, pCaseSensitive)
+		if NOT ( isString(c) and len(c) = 1 )
+			return ""
+		ok
+
+		cResult = @@( This.Content() )
+		oFinder = StzStringFinderQ(This.Content())
+		anPos = oFinder.FindCS(c, pCaseSensitive)
+
+		nLen = len(cResult)
+
+		cViz = " "
+		for i = 1 to nLen - 2
+			if ring_find(anPos, i) > 0
+				cViz += "^"
+			else
+				cViz += "-"
+			ok
+		next
+
+		return cResult + NL + cViz
+
+	def VizFindChar(c)
+		return This.VizFindCharCS(c, 1)
+
+	def VizFindCS(pcSubStr, pCaseSensitive)
+		cResult = @@( This.Content() )
+		oFinder = StzStringFinderQ(This.Content())
+		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
+
+		nSubLen = Q(pcSubStr).NumberOfChars()
+		nLen = len(cResult)
+
+		cViz = " "
+		for i = 1 to nLen - 2
+			bMarked = 0
+			nPosLen = len(anPos)
+			for j = 1 to nPosLen
+				if i >= anPos[j] and i < anPos[j] + nSubLen
+					bMarked = 1
+					exit
+				ok
+			next
+
+			if bMarked
+				cViz += "^"
+			else
+				cViz += "-"
+			ok
+		next
+
+		return cResult + NL + cViz
+
+	def VizFind(pcSubStr)
+		return This.VizFindCS(pcSubStr, 1)
+
+	  #===============================#
+	 #     BOXED                     #
+	#===============================#
+
+	def Boxed()
+		return This.BoxedXT([ :Line = :Thin, :AllCorners = :Round ])
+
+	def BoxedXT(paOptions)
+		cContent = This.Content()
+		nLen = This.NumberOfChars()
+
+		cCorner = "+"
+		cHLine = "-"
+		cVLine = "|"
+
+		if isList(paOptions)
+			nOptLen = len(paOptions)
+			for i = 1 to nOptLen
+				if isList(paOptions[i])
+					if len(paOptions[i]) = 2
+						if paOptions[i][1] = :AllCorners
+							if paOptions[i][2] = :Round
+								cCorner = "."
+							ok
+						ok
+						if paOptions[i][1] = :Line
+							if paOptions[i][2] = :Dashed
+								cHLine = "-"
+								cVLine = ":"
+							ok
+						ok
+					ok
+				ok
+			next
+		ok
+
+		cTop = cCorner + ""
+		for i = 1 to nLen + 2
+			cTop += cHLine
+		next
+		cTop += cCorner
+
+		cMid = cVLine + " " + cContent + " " + cVLine
+		cBot = cCorner + ""
+		for i = 1 to nLen + 2
+			cBot += cHLine
+		next
+		cBot += cCorner
+
+		return cTop + NL + cMid + NL + cBot
+
+	def BoxedRounded()
+		return This.BoxedXT([ :Line = :Thin, :AllCorners = :Round ])
+
+	  #===============================#
+	 #     CHARS BOXED               #
+	#===============================#
+
+	def EachCharBoxed()
+		acResult = []
+		cContent = This.Content()
+		nLen = This.NumberOfChars()
+
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+			oViz = new stzStringVisualizer(c)
+			acResult + oViz.Boxed()
+		next
+
+		return acResult
+
+	  #===============================#
+	 #     STRINGIFICATION           #
+	#===============================#
+
+	def Stringify()
+		return @@(This.Content())
+
+		def Stringified()
+			return This.Stringify()
+
+	  #===============================#
+	 #     HIGHLIGHTED               #
+	#===============================#
+
+	def HighlightCS(pcSubStr, pcMarker, pCaseSensitive)
+		cContent = This.Content()
+		cResult = @ReplaceCS(cContent, pcSubStr, pcMarker + pcSubStr + pcMarker, pCaseSensitive)
+		return cResult
+
+	def Highlight(pcSubStr, pcMarker)
+		return This.HighlightCS(pcSubStr, pcMarker, 1)
+
