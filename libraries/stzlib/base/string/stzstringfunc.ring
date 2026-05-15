@@ -2411,6 +2411,89 @@ func StzStringLocaleQ(str)
 func StzStringCryptoQ(str)
 	return new stzStringCrypto(str)
 
+func StzStringViewQ(str)
+	return new stzStringView(str)
+
+# Phase 2 Q-constructors (new subclass pairs)
+
+func StzStringRemoverQ(str)
+	return new stzStringRemover(str)
+
+func StzStringRemoverXTQ(str)
+	return new stzStringRemoverXT(str)
+
+func StzStringInserterQ(str)
+	return new stzStringInserter(str)
+
+func StzStringInserterXTQ(str)
+	return new stzStringInserterXT(str)
+
+func StzStringCounterQ(str)
+	return new stzStringCounter(str)
+
+func StzStringCounterXTQ(str)
+	return new stzStringCounterXT(str)
+
+func StzStringSectionsQ(str)
+	return new stzStringSections(str)
+
+func StzStringSectionsXTQ(str)
+	return new stzStringSectionsXT(str)
+
+func StzStringGetterQ(str)
+	return new stzStringGetter(str)
+
+func StzStringGetterXTQ(str)
+	return new stzStringGetterXT(str)
+
+func StzStringExtractorQ(str)
+	return new stzStringExtractor(str)
+
+func StzStringExtractorXTQ(str)
+	return new stzStringExtractorXT(str)
+
+func StzStringTrimmerQ(str)
+	return new stzStringTrimmer(str)
+
+func StzStringTrimmerXTQ(str)
+	return new stzStringTrimmerXT(str)
+
+func StzStringComparatorQ(str)
+	return new stzStringComparator(str)
+
+func StzStringComparatorXTQ(str)
+	return new stzStringComparatorXT(str)
+
+func StzStringLeadTrailQ(str)
+	return new stzStringLeadTrail(str)
+
+func StzStringLeadTrailXTQ(str)
+	return new stzStringLeadTrailXT(str)
+
+func StzStringPerformerQ(str)
+	return new stzStringPerformer(str)
+
+func StzStringPerformerXTQ(str)
+	return new stzStringPerformerXT(str)
+
+func StzStringConcatQ(str)
+	return new stzStringConcat(str)
+
+func StzStringConcatXTQ(str)
+	return new stzStringConcatXT(str)
+
+func StzStringCaseChangerQ(str)
+	return new stzStringCaseChanger(str)
+
+func StzStringCaseChangerXTQ(str)
+	return new stzStringCaseChangerXT(str)
+
+func StzStringAlignerQ(str)
+	return new stzStringAligner(str)
+
+func StzStringAlignerXTQ(str)
+	return new stzStringAlignerXT(str)
+
 
   ///////////////////////////////////
  ///   LEGACY UTILITY FUNCTIONS  ///
