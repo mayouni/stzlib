@@ -84,6 +84,71 @@ ok
     load "string/stztext.ring"
     load "string/stzstopwords.ring"
 
+    # Modular subclasses (existing)
+
+    load "string/stzStringCore.ring"
+    load "string/stzStringXT.ring"
+
+    load "string/stzStringFinder.ring"
+    load "string/stzStringFinderXT.ring"
+    load "string/stzStringReplacer.ring"
+    load "string/stzStringReplacerXT.ring"
+    load "string/stzStringSplitter.ring"
+    load "string/stzStringSplitterXT.ring"
+
+    load "string/stzStringBounder.ring"
+    load "string/stzStringBounderXT.ring"
+    load "string/stzStringChecker.ring"
+    load "string/stzStringCheckerXT.ring"
+    load "string/stzStringFormatter.ring"
+    load "string/stzStringFormatterXT.ring"
+
+    load "string/stzStringWalker.ring"
+    load "string/stzStringWalkerXT.ring"
+    load "string/stzStringVisualizer.ring"
+    load "string/stzStringVisualizerXT.ring"
+
+    load "string/stzStringLines.ring"
+    load "string/stzStringWords.ring"
+    load "string/stzStringEncoder.ring"
+    load "string/stzStringNumbers.ring"
+    load "string/stzStringDuplicates.ring"
+    load "string/stzStringCode.ring"
+    load "string/stzStringIO.ring"
+    load "string/stzStringRandomizer.ring"
+    load "string/stzStringLocale.ring"
+    load "string/stzStringCrypto.ring"
+    load "string/stzStringView.ring"
+
+    # Modular subclasses (Phase 2 - new)
+
+    load "string/stzStringRemover.ring"
+    load "string/stzStringRemoverXT.ring"
+    load "string/stzStringInserter.ring"
+    load "string/stzStringInserterXT.ring"
+    load "string/stzStringCounter.ring"
+    load "string/stzStringCounterXT.ring"
+    load "string/stzStringSections.ring"
+    load "string/stzStringSectionsXT.ring"
+    load "string/stzStringGetter.ring"
+    load "string/stzStringGetterXT.ring"
+    load "string/stzStringExtractor.ring"
+    load "string/stzStringExtractorXT.ring"
+    load "string/stzStringTrimmer.ring"
+    load "string/stzStringTrimmerXT.ring"
+    load "string/stzStringComparator.ring"
+    load "string/stzStringComparatorXT.ring"
+    load "string/stzStringLeadTrail.ring"
+    load "string/stzStringLeadTrailXT.ring"
+    load "string/stzStringPerformer.ring"
+    load "string/stzStringPerformerXT.ring"
+    load "string/stzStringConcat.ring"
+    load "string/stzStringConcatXT.ring"
+    load "string/stzStringCaseChanger.ring"
+    load "string/stzStringCaseChangerXT.ring"
+    load "string/stzStringAligner.ring"
+    load "string/stzStringAlignerXT.ring"
+
 # Loading files related to REGEX module
 
     load "regex/stzregex.ring"
