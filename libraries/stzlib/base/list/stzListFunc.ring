@@ -301,7 +301,16 @@
 	#-- Comparison
 
 	func ListEqualsCS(paList1, paList2, pCaseSensitive)
-		return StzListQ(paList1).IsEqualToCS(paList2, pCaseSensitive)
+		if len(paList1) != len(paList2)
+			return 0
+		ok
+		nLen = len(paList1)
+		for i = 1 to nLen
+			if NOT BothAreEqualCS(paList1[i], paList2[i], pCaseSensitive)
+				return 0
+			ok
+		next
+		return 1
 
 	#-- Deep operations
 
@@ -427,7 +436,14 @@
 		if isString(pStrOrList)
 			return substr(pStrOrList, n1, n2 - n1 + 1)
 		but isList(pStrOrList)
-			return StzListQ(pStrOrList).Section(n1, n2)
+			nLen = len(pStrOrList)
+			if n1 < 1 n1 = 1 ok
+			if n2 > nLen n2 = nLen ok
+			aResult = []
+			for i = n1 to n2
+				aResult + pStrOrList[i]
+			next
+			return aResult
 		ok
 
 	func Repeat(value, nTimes)
@@ -443,11 +459,23 @@
 	#-- List utility
 
 	func WithoutDuplication(paList)
-		return StzListQ(paList).WithoutDuplication()
+		aResult = []
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT ListContains(aResult, paList[i])
+				aResult + paList[i]
+			ok
+		next
+		return aResult
 
 	func Stringify(p)
 		if isList(p)
-			return StzListQ(p).Stringified()
+			aResult = []
+			nLen = len(p)
+			for i = 1 to nLen
+				aResult + ("" + p[i])
+			next
+			return aResult
 		else
 			return "" + p
 		ok
@@ -1038,19 +1066,51 @@
 	#-- Sorting checks
 
 	func IsSortedList(paList)
-		return StzListQ(paList).IsSorted()
+		return IsSortedListInAscending(paList) or IsSortedListInDescending(paList)
 
 	func IsSortedListInAscending(paList)
-		return StzListQ(paList).IsSortedInAscending()
+		nLen = len(paList)
+		if nLen < 2 return 1 ok
+		for i = 2 to nLen
+			if isString(paList[i]) and isString(paList[i-1])
+				if lower(paList[i]) < lower(paList[i-1])
+					return 0
+				ok
+			but isNumber(paList[i]) and isNumber(paList[i-1])
+				if paList[i] < paList[i-1]
+					return 0
+				ok
+			ok
+		next
+		return 1
 
 	func IsSortedListInDescending(paList)
-		return StzListQ(paList).IsSortedInDescending()
+		nLen = len(paList)
+		if nLen < 2 return 1 ok
+		for i = 2 to nLen
+			if isString(paList[i]) and isString(paList[i-1])
+				if lower(paList[i]) > lower(paList[i-1])
+					return 0
+				ok
+			but isNumber(paList[i]) and isNumber(paList[i-1])
+				if paList[i] > paList[i-1]
+					return 0
+				ok
+			ok
+		next
+		return 1
 
 	func SortingOrder(p)
-		return StzListQ(p).SortingOrder()
+		if IsSortedListInAscending(p)
+			return :Ascending
+		but IsSortedListInDescending(p)
+			return :Descending
+		else
+			return :Unsorted
+		ok
 
 	func HaveSameSortingOrder(p1, p2)
-		return StzListQ(p1).HasSameSortingOrderAs(p2)
+		return SortingOrder(p1) = SortingOrder(p2)
 
 	#-- Comparison functions
 
@@ -1066,7 +1126,7 @@
 			ok
 
 		but isList(p1) and isList(p2)
-			return StzListQ(p1).IsEqualToCS(p2, pCaseSensitive)
+			return ListEqualsCS(p1, p2, pCaseSensitive)
 
 		ok
 		return 0
@@ -1206,7 +1266,14 @@
 		return NULL
 
 	func ListFindAll(paList, p)
-		return StzListQ(paList).FindAll(p)
+		aResult = []
+		nLen = len(paList)
+		for i = 1 to nLen
+			if BothAreEqual(paList[i], p)
+				aResult + i
+			ok
+		next
+		return aResult
 
 	func ListToCode(paList)
 		return @@(paList)
@@ -1232,7 +1299,13 @@
 		return 1
 
 	func FirstN(n, aList)
-		return StzListQ(aList).NFirstItems(n)
+		nLen = len(aList)
+		if n > nLen n = nLen ok
+		aResult = []
+		for i = 1 to n
+			aResult + aList[i]
+		next
+		return aResult
 
 	func ListsHaveSameNumberOfItems(paList)
 		nLen = len(paList)
