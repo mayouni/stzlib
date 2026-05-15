@@ -176,6 +176,8 @@ ok
     load "list/stzListStringify.ring"
     load "list/stzListStringifyXT.ring"
 
+    load "list/stzListNamedParams.ring"
+
 # Loading files related to the GRAPH module
 
     load "graph/stzgraph.ring"
