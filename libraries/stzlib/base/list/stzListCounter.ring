@@ -135,3 +135,107 @@ class stzListCounter from stzList
 
 		def InsertAtWXT(pcCondition, pNewItem)
 			This.InsertBeforeWXT(pcCondition, pNewItem)
+
+	  #======================================================#
+	 #   COUNT ITEMS OF SPECIFIC TYPE                       #
+	#======================================================#
+
+	def CountStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+		nCount = 0
+		for i = 1 to nLen
+			if isString(aContent[i])
+				nCount++
+			ok
+		next
+		return nCount
+
+		def NumberOfStrings()
+			return This.CountStrings()
+
+	def CountNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+		nCount = 0
+		for i = 1 to nLen
+			if isNumber(aContent[i])
+				nCount++
+			ok
+		next
+		return nCount
+
+		def NumberOfNumbers()
+			return This.CountNumbers()
+
+	def CountLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+		nCount = 0
+		for i = 1 to nLen
+			if isList(aContent[i])
+				nCount++
+			ok
+		next
+		return nCount
+
+		def NumberOfLists()
+			return This.CountLists()
+
+	  #======================================================#
+	 #   COUNT OCCURRENCES OF A SPECIFIC ITEM               #
+	#======================================================#
+
+	def CountCS(pItem, pCaseSensitive)
+		aContent = This.Content()
+		nLen = len(aContent)
+		nCount = 0
+		for i = 1 to nLen
+			if BothAreEqualCS(aContent[i], pItem, pCaseSensitive)
+				nCount++
+			ok
+		next
+		return nCount
+
+		def NumberOfOccurrencesOfCS(pItem, pCaseSensitive)
+			return This.CountCS(pItem, pCaseSensitive)
+
+	def Count(pItem)
+		return This.CountCS(pItem, 1)
+
+		def NumberOfOccurrencesOf(pItem)
+			return This.Count(pItem)
+
+	  #======================================================#
+	 #   COUNT ITEMS SATISFYING A PREDICATE                 #
+	#======================================================#
+
+	def CountIf(pcCondition)
+		return This.CountItemsW(pcCondition)
+
+		def HowManyIf(pcCondition)
+			return This.CountIf(pcCondition)
+
+	  #======================================================#
+	 #   COUNT EMPTY / NON-EMPTY ITEMS                      #
+	#======================================================#
+
+	def CountEmptyItems()
+		aContent = This.Content()
+		nLen = len(aContent)
+		nCount = 0
+		for i = 1 to nLen
+			if isString(aContent[i]) and aContent[i] = ""
+				nCount++
+			ok
+		next
+		return nCount
+
+		def NumberOfEmptyItems()
+			return This.CountEmptyItems()
+
+	def CountNonEmptyItems()
+		return This.NumberOfItems() - This.CountEmptyItems()
+
+		def NumberOfNonEmptyItems()
+			return This.CountNonEmptyItems()

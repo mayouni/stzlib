@@ -146,3 +146,138 @@ class stzListMerger from stzList
 
 	def InterleavedWith(paOtherList)
 		return This.Copy().InterleaveWithQ(paOtherList).Content()
+
+	  #======================================================#
+	 #   ZIP -- PAIR ITEMS FROM TWO LISTS                   #
+	#======================================================#
+
+	def ZipWith(paOtherList)
+		aContent = This.Content()
+		nLen1 = len(aContent)
+		nLen2 = len(paOtherList)
+		nMin = nLen1
+		if nLen2 < nMin nMin = nLen2 ok
+		aResult = []
+		for i = 1 to nMin
+			aResult + [aContent[i], paOtherList[i]]
+		next
+		return aResult
+
+		def ZipWithQ(paOtherList)
+			return new stzList(This.ZipWith(paOtherList))
+
+	def ZippedWith(paOtherList)
+		return This.ZipWith(paOtherList)
+
+	  #======================================================#
+	 #   UNZIP -- SPLIT PAIRS INTO TWO LISTS                #
+	#======================================================#
+
+	def Unzip()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aFirst = []
+		aSecond = []
+		for i = 1 to nLen
+			if isList(aContent[i]) and len(aContent[i]) >= 2
+				aFirst + aContent[i][1]
+				aSecond + aContent[i][2]
+			ok
+		next
+		return [aFirst, aSecond]
+
+		def UnzipQ()
+			return new stzList(This.Unzip())
+
+	def Unzipped()
+		return This.Unzip()
+
+	  #======================================================#
+	 #   PREPEND LIST                                       #
+	#======================================================#
+
+	def PrependWith(paOtherList)
+		nLen = len(paOtherList)
+		aContent = This.Content()
+		aResult = []
+		for i = 1 to nLen
+			aResult + paOtherList[i]
+		next
+		nLen2 = len(aContent)
+		for i = 1 to nLen2
+			aResult + aContent[i]
+		next
+		This.UpdateWith(aResult)
+
+		def PrependWithQ(paOtherList)
+			This.PrependWith(paOtherList)
+			return This
+
+	def PrependedWith(paOtherList)
+		return This.Copy().PrependWithQ(paOtherList).Content()
+
+	  #======================================================#
+	 #   DIFF -- ITEMS IN THIS BUT NOT IN OTHER             #
+	#======================================================#
+
+	def DiffWith(paOtherList)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if NOT ListContains(paOtherList, aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+		def DiffWithQ(paOtherList)
+			return new stzList(This.DiffWith(paOtherList))
+
+		def Minus(paOtherList)
+			return This.DiffWith(paOtherList)
+
+	  #======================================================#
+	 #   INTERSECT -- ITEMS IN BOTH LISTS                   #
+	#======================================================#
+
+	def IntersectWith(paOtherList)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if ListContains(paOtherList, aContent[i]) and NOT ListContains(aResult, aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+		def IntersectWithQ(paOtherList)
+			return new stzList(This.IntersectWith(paOtherList))
+
+		def CommonWith(paOtherList)
+			return This.IntersectWith(paOtherList)
+
+	  #======================================================#
+	 #   UNION -- ALL UNIQUE ITEMS FROM BOTH LISTS          #
+	#======================================================#
+
+	def UnionWith(paOtherList)
+		aResult = []
+		aContent = This.Content()
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if NOT ListContains(aResult, aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+		nLen2 = len(paOtherList)
+		for i = 1 to nLen2
+			if NOT ListContains(aResult, paOtherList[i])
+				aResult + paOtherList[i]
+			ok
+		next
+		return aResult
+
+		def UnionWithQ(paOtherList)
+			return new stzList(This.UnionWith(paOtherList))
