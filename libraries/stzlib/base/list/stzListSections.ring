@@ -30,7 +30,7 @@ class stzListSections from stzList
 		if CheckingParams()
 
 			if isList(n1) and
-			   StzListQ(n1).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n1, [
 					:From, :FromPosition, :FromItemAt, :FromItemAtPosition,
 					:StartingAt, :StartingAtPosition,
 					:StartingAtItemAt, :StartingAtItemAtPosition,
@@ -43,7 +43,7 @@ class stzListSections from stzList
 			ok
 
 			if isList(n2) and
-			   StzListQ(n2).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n2, [
 					:To, :ToPosition, :ToItemAt, :ToItemAtPosition,
 					:Until, :UntilPosition, :UntilItemAt, :UntilItemAtPosition,
 					:UpTo, :UpToPosition, :UpToItemAt, :UpToItemAtPosition,

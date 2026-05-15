@@ -3163,7 +3163,7 @@ Class stzTable from stzList
 		if CheckingParams()
 			if isList(n1)
 
-				if StzListQ(n1).IsOneOfTheseNamedParams([
+				if StzListIsOneOfTheseNamedParamsList(n1,[
 					:From, :FromCell, :FromPosition,
 					:FromCellAt, :FromCellAtPosition
 				])
@@ -3173,7 +3173,7 @@ Class stzTable from stzList
 			ok
 	
 			if isList(n2)
-				if StzListQ(n2).IsOneOfTheseNamedParams([
+				if StzListIsOneOfTheseNamedParamsList(n2,[
 					:To, :ToCell, :ToPosition,
 					:ToCellAt, :ToCellAtPosition
 				])
@@ -3277,7 +3277,7 @@ Class stzTable from stzList
 		if CheckingParams()
 
 			if isList(n1)
-				if StzListQ(n1).IsOneoftheseNamedParams([
+				if StzListIsOneOfTheseNamedParamsList(n1,[
 					:From, :FromCell, :FromPosition,
 					:FromCellAt, :FromCellAtPosition
 				])
@@ -3288,7 +3288,7 @@ Class stzTable from stzList
 	
 			if isList(n2)
 
-				if StzListQ(n2).IsOneOfTheseNamedParams([
+				if StzListIsOneOfTheseNamedParamsList(n2,[
 					:To, :ToCell, :ToPosition,
 					:ToCellAt, :ToCellAtPosition
 				])
@@ -3432,14 +3432,14 @@ Class stzTable from stzList
 
 			oParam = new stzList(pCellValueOrSubValue)
 
-			if oParam.IsOneOfTheseNamedParams([
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[
 				:Cell, :OfCell, :Value, :OfValue,
 				:CellValue, :OfCellValue, :Of ])
 
 
 				return This.FindCellCS(pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[
 				:SubValue, :OfSubValue,
 				:Part, :OfPart, :CellPart, :OfCellPart,
 				:SubPart, :OfSubPart ])
@@ -3707,7 +3707,7 @@ Class stzTable from stzList
 
 				return This.FindNthValueCS(n, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[
 				:SubValue, :OfSubValue, :Part, :OfPart,
 				:CellPart, :OfCellPart ])
 
@@ -3861,12 +3861,12 @@ Class stzTable from stzList
 
 			oParam = new stzList(pCellValueOrSubValue)
 
-			if oParam.IsOneOfTheseNamedParams([
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[
 				:Cell, :OfCell, :Value, :OfValue, :Of ])
 
 				return This.FindFirstCellCS(pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[
 				:SubValue, :OfSubValue, :Part, :OfPart,
 				:CellPart, :OfCellPart ])
 
@@ -3962,12 +3962,12 @@ Class stzTable from stzList
 
 			oParam = new stzList(pCellValueOrSubValue)
 
-			if oParam.IsOneOfTheseNamedParams([
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[
 				:Cell, :OfCell, :Value, :OfValue, :Of ])
 
 				return This.FindLastCellCS(pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[
 				:SubValue, :OfSubValue, :Part, :OfPart,
 				:CellPart, :OfCellPart ])
 
@@ -4059,12 +4059,10 @@ Class stzTable from stzList
 		*/
 
 		if isList(pValue)
-			oParam = new stzList(pValue)
-
-			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Cells, :Value, :OfValue, :Of ])
+			if IsOneOfTheseNamedParamsList(pValue, [ :Cell, :OfCell, :Cells, :Value, :OfValue, :Of ])
 				return This.NumberOfOccurrenceOfCellCS(pValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but IsOneOfTheseNamedParamsList(pValue, [ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.NumberOfOccurrenceOfSubValueCS(pValue[2], pCaseSensitive)
 
 			else
@@ -4446,10 +4444,10 @@ Class stzTable from stzList
 
 			oParam = new stzlist(pCellValueOrSubValue)
 
-			if oParam.IsOneOfTheseNamedParams([ :Cell, :Value ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Cell, :Value ])
 				return This.ContainsCellCS(pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SubValue, :Part, :CellPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :Part, :CellPart ])
 				return This.ContainsSubValueCS(pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -4675,12 +4673,12 @@ Class stzTable from stzList
 		if isList(pCellValueOrSubValue)
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Value, :Cell, :CellValue ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
 				bValue = 1
 				bSubValue = 0
 
-			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :CellPart, :SubPart ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
 				bValue = 0
 				bSubValue = 1
@@ -4751,13 +4749,13 @@ Class stzTable from stzList
 
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Value, :Cell, :CellValue ])
 
 				bValue = 1
 				bSubValue = 0
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
 
-			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :CellPart, :SubPart ])
 
 				bValue = 0
 				bSubValue = 1
@@ -4985,10 +4983,10 @@ Class stzTable from stzList
 
 			oParam = new stzList(pCellValueOrSubValue)
 
-			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.FindNthValueInCellsCS(n, paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.FindNthSubValueInCellsCS(n, paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5119,10 +5117,10 @@ Class stzTable from stzList
 
 			oParam = new stzList(pCellValueOrSubValue)
 
-			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.FindFirstValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.FindFirstSubValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5193,10 +5191,10 @@ Class stzTable from stzList
 
 			oParam = new stzList(pCellValueOrSubValue)
 
-			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.FindLastValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfPart ])
 				return This.FindLastSubValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5267,10 +5265,10 @@ Class stzTable from stzList
 
 			oParam = new stzList(pCellValueOrSubValue)
 
-			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.NumberOfOccurrencesOfValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.NumberOfOccurrencesOfSubValueInCellsCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5421,10 +5419,10 @@ Class stzTable from stzList
 
 			oParam = new stzList(pCellValueOrSubValue)
 
-			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.CellsContainValueCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.CellsContainSubValueCS(paCells, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5624,10 +5622,10 @@ Class stzTable from stzList
 
 			oParam = new stzList(pCellValueOrSubValue)
 
-			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				return This.NumberOfOccurrencesOfValueInCellCS( pCellCol, pCellRow, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				return This.NumberOfOccurrencesOfSubValueInCellCS( pCellCol, pCellRow, pCellValueOrSubValue[2], pCaseSensitive)
 
 			else
@@ -5772,12 +5770,12 @@ Class stzTable from stzList
 
 			oParam = new stzList(pCellValueOrSubValue)
 
-			if oParam.IsOneOfTheseNamedParams([ :Cell, :OfCell, :Value, :OfValue, :Of ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Cell, :OfCell, :Value, :OfValue, :Of ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
 				bValue = 1
 				bSubValue = 0
 				
-			but oParam.IsOneOfTheseNamedParams([ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :OfSubValue, :Part, :OfPart, :CellPart, :OfCellPart ])
 				pCellValueOrSubValue = pCellValueOrSubValue[2]
 
 			else
@@ -5887,10 +5885,10 @@ Class stzTable from stzList
 		if isList(pCellValueOrSubValue)
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Value, :Cell, :CellValue ])
 				return This.FindValueInCellsCS(aCellsPos, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :CellPart, :SubPart ])
 				return This.FindSubValueInCellsCS(aCellsPos, pCellValueOrSubValue[2], pCaseSensitive)
 
 			ok
@@ -5925,11 +5923,11 @@ Class stzTable from stzList
 	#=========================================================================================#
 
 	def FindNthInRowCS(n, pRow, pCellValueOrSubValue, pCaseSensitive)
-		if isList(n) and Q(n).IsOneOfTheseNamedParams([ :N, :Nth, :Occurrence ])
+		if isList(n) and IsOneOfTheseNamedParamsList(n,[ :N, :Nth, :Occurrence ])
 			n = n[2]
 		ok
 
-		if isList(pRow) and Q(pRow).IsOneOfTheseNamedParams([ :Row, :InRow ])
+		if isList(pRow) and IsOneOfTheseNamedParamsList(pRow,[ :Row, :InRow ])
 			pRow = pRow[2]
 		ok
 
@@ -6336,10 +6334,10 @@ Class stzTable from stzList
 
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Value, :Cell, :CellValue ])
 				return This.FindValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
 		
-			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :CellPart, :SubPart ])
 				return This.FindInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
 				
 			ok
@@ -6381,7 +6379,7 @@ Class stzTable from stzList
 	#==========================================================================================#
 
 	def FindNthInRowsCS(n, panRows, pCellValueOrSubValue, pCaseSensitive)
-		if isList(n) and Q(n).IsOneOfTheseNamedParams([ :Nth, :N, :Occurrence ])
+		if isList(n) and IsOneOfTheseNamedParamsList(n,[ :Nth, :N, :Occurrence ])
 			n = n[2]
 		ok
 
@@ -6415,7 +6413,7 @@ Class stzTable from stzList
 	def FindNthValueInRowsCS(n, panRows, pCellValue, pCaseSensitive)
 
 		if isList(panRows) and
-		   Q(panRows).IsOneOfTheseNamedParams([ :Rows, :InRows, :OfRows ])
+		   IsOneOfTheseNamedParamsList(panRows,[ :Rows, :InRows, :OfRows ])
 
 			panRows = panRows[2]
 		ok
@@ -6757,7 +6755,7 @@ Class stzTable from stzList
 	def ContainsInRowsCS(panRows, pCellValueOrSubValue, pCaseSensitive)
 
 		if isList(panRows) and
-		   Q(panRows).IsOneOfTheseNamedParams([ :Rows, :InRows, :OfRows ])
+		   IsOneOfTheseNamedParamsList(panRows,[ :Rows, :InRows, :OfRows ])
 			pRow = pRow[2]
 		ok
 
@@ -6767,10 +6765,10 @@ Class stzTable from stzList
 
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Value, :Cell, :CellValue ])
 				return This.ContainsValueInCellsCS(aRowPos, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :CellPart, :SubPart ])
 				return This.ContainsSubValueInCellsCS(aRowPos, pCellValueOrSubValue[2], pCaseSensitive)
 
 			ok
@@ -6908,10 +6906,10 @@ Class stzTable from stzList
 
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Value, :Cell, :CellValue ])
 				return This.FindValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :CellPart, :SubPart ])
 				return This.FindSubValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
 
 			ok
@@ -6968,7 +6966,7 @@ Class stzTable from stzList
 	#============================================================================================#
 
 	def FindNthInColCS(n, pCol, pCellValueOrSubValue, pCaseSensitive)
-		if isList(n) and Q(n).IsOneOfTheseNamedParams([ :Nth, :N, :Occurrence ])
+		if isList(n) and IsOneOfTheseNamedParamsList(n,[ :Nth, :N, :Occurrence ])
 			n = n[2]
 		ok
 
@@ -7013,7 +7011,7 @@ Class stzTable from stzList
 
 	def FindNthValueInColCS(n, pCol, pCellValue, pCaseSensitive)
 
-		if isList(pCol) and Q(pCol).IsOneOfTheseNamedParams([
+		if isList(pCol) and IsOneOfTheseNamedParamsList(pCol,[
 					:Col, :InCol, :OfCol,
 					:Column, :InColumn, :OfColumn
 				    ])
@@ -7785,7 +7783,7 @@ Class stzTable from stzList
 		? o1.ContainsInColCS(2, :SubValue = "AL", 0) #--> TRUE
 		*/
 
-		if isList(pCol) and Q(pCol).IsOneOfTheseNamedParams([
+		if isList(pCol) and IsOneOfTheseNamedParamsList(pCol,[
 					:Col, :Column, :InCol, :InColumn, :OfCol, :OfColumn
 				    ])
 
@@ -7811,10 +7809,10 @@ Class stzTable from stzList
 
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Value, :Cell, :CellValue ])
 				return This.ContainsValueInCellsCS(aCellsPos, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :CellPart, :SubPart ])
 				return This.ContainsSubValueInCellsCS(aCellsPos, pCellValueOrSubValue[2], pCaseSensitive)
 
 			ok
@@ -8014,10 +8012,10 @@ Class stzTable from stzList
 		if isList(pCellValueOrSubValue)
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Value, :Cell, :CellValue ])
 				return This.FindValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
 		
-			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :CellPart, :SubPart ])
 				return This.FindSubValueInCellsCS(aCellsPositions, pCellValueOrSubValue[2], pCaseSensitive)
 		
 			ok
@@ -8074,7 +8072,7 @@ Class stzTable from stzList
 	#=============================================================================================#
 
 	def FindNthInColsCS(n, paCols, pCellValueOrSubValue, pCaseSensitive)
-		if isList(n) and Q(n).IsOneOfTheseNamedParams([ :Nth, :N, :Occurrence ])
+		if isList(n) and IsOneOfTheseNamedParamsList(n,[ :Nth, :N, :Occurrence ])
 			n = n[2]
 		ok
 
@@ -8119,7 +8117,7 @@ Class stzTable from stzList
 
 	def FindNthValueInColsCS(n, paCols, pCellValue, pCaseSensitive)
 
-		if isList(paCols) and Q(paCols).IsOneOfTheseNamedParams([
+		if isList(paCols) and IsOneOfTheseNamedParamsList(paCols,[
 					:Cols, :InCols, :OfCols,
 					:Columns, :InColumns, :OfColumns
 				    ])
@@ -8868,7 +8866,7 @@ Class stzTable from stzList
 
 	def ContainsInColsCS(paCols, pCellValueOrSubValue, pCaseSensitive)
 
-		if isList(paCols) and Q(paCols).IsOneOfTheseNamedParams([
+		if isList(paCols) and IsOneOfTheseNamedParamsList(paCols,[
 					:Cols, :Columns, :InCols, :InColumns, :OfCols, :OfColumns
 				    ])
 
@@ -8880,10 +8878,10 @@ Class stzTable from stzList
 		if isList(pCellValueOrSubValue)
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Value, :Cell, :CellValue ])
 				return This.ContainsValueInCellsCS(aColPos, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :CellPart, :SubPart ])
 				return This.ContainsSubValueInCellsCS(aColPos, pCellValueOrSubValue[2], pCaseSensitive)
 
 			ok
@@ -9077,10 +9075,10 @@ Class stzTable from stzList
 		if isList(pCellValueOrSubValue)
 			oTemp = Q(pCellValueOrSubValue)
 
-			if oTemp.IsOneOfTheseNamedParams([ :Value, :Cell, :CellValue ])
+			if IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :Value, :Cell, :CellValue ])
 				return This.FindValueInSectionCS(paSection1, paSection2, pCellValueOrSubValue[2], pCaseSensitive)
 
-			but oTemp.IsOneOfTheseNamedParams([ :SubValue, :CellPart, :SubPart ])
+			but IsOneOfTheseNamedParamsList(pCellValueOrSubValue,[ :SubValue, :CellPart, :SubPart ])
 				return This.FindSubValueInSectionCS(paSection1, paSection2, pCellValueOrSubValue[2], pCaseSensitive)
 			ok
 		ok
@@ -9113,7 +9111,7 @@ Class stzTable from stzList
 	#=============================================================================================#
 
 	def FindNthInSectionCS(n, paSection1, paSection2, pCellValueOrSubValue, pCaseSensitive)
-		if isList(n) and Q(n).IsOneOfTheseNamedParams([ :N, :Nth, :Occurrence ])
+		if isList(n) and IsOneOfTheseNamedParamsList(n,[ :N, :Nth, :Occurrence ])
 			n = n[2]
 		ok
 
@@ -9566,7 +9564,7 @@ Class stzTable from stzList
 
 	def ReplaceCell(pCol, pnRow, pNewCellValue)
 		if CheckingParams()
-			if isList(pNewCellValue) and Q(pNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
+			if isList(pNewCellValue) and IsOneOfTheseNamedParamsList(pNewCellValue,[ :By, :With, :Using ])
 				pNewCellValue = pNewCellValue[2]
 			ok
 			if NOT isNumber(pnRow)
@@ -9599,7 +9597,7 @@ Class stzTable from stzList
 		if ChekParams() #NOTE this is a misspelled form (c in Check is lacking)
 			        # But Softanza forgives it (PERMISSIVENESS prinicle of the FLEXIBILITY goal)
 
-			if isList(paNewCellValue) and Q(paNewCellValue).IsOneOfTheseNamedParams([ :By, :With, :Using ])
+			if isList(paNewCellValue) and IsOneOfTheseNamedParamsList(paNewCellValue,[ :By, :With, :Using ])
 				paNewCellValue = paNewCellValue[2]
 			ok
 	
@@ -9622,14 +9620,14 @@ Class stzTable from stzList
 		#TODO // Add the fellowing semantics to all simular functions in the library
 
 		def ReplaceEachOne(paCellsPos, paNewCellValue)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 		def ReplaceEachCell(paCellsPos, paNewCellValue)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
@@ -9644,14 +9642,14 @@ Class stzTable from stzList
 		#--
 
 		def ReplaceEveryOne(paCellsPos, paNewCellValue)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCells(paCellsPos, paNewCellValue)
 
 		def ReplaceEveryCell(paCellsPos, paNewCellValue)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
@@ -9814,7 +9812,7 @@ Class stzTable from stzList
 		if CheckingParams()
 
 			if isList(paNewValues) and
-			   Q(paNewValues).IsOneOfTheseNamedParams([ :By, :With, :Using ])
+			   IsOneOfTheseNamedParamsList(paNewValues,[ :By, :With, :Using ])
 				paNewValues = paNewValues[2]
 			ok
 	
@@ -9843,14 +9841,14 @@ Class stzTable from stzList
 		#--
 
 		def ReplaceEachOneByMany(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 		def ReplaceEachCellByMany(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
@@ -9865,14 +9863,14 @@ Class stzTable from stzList
 		#--
 
 		def ReplaceEveryOneByMany(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCellsByMany(paCellsPos, paNewValues)
 
 		def ReplaceEveryCellByMany(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
@@ -10035,7 +10033,7 @@ Class stzTable from stzList
 		if CheckingParams()
 
 			if isList(paNewValues) and
-			   Q(paNewValues).IsOneOfTheseNamedParams([ :By, :With, :Using ])
+			   IsOneOfTheseNamedParamsList(paNewValues,[ :By, :With, :Using ])
 				paNewValues = paNewValues[2]
 			ok
 	
@@ -10068,14 +10066,14 @@ Class stzTable from stzList
 		#--
 
 		def ReplaceEachOneByManyXT(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		def ReplaceEachCellByManyXT(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
@@ -10090,14 +10088,14 @@ Class stzTable from stzList
 		#--
 
 		def ReplaceEveryOneByManyXT(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
 			This.ReplaceCellsByManyXT(paCellsPos, paNewValues)
 
 		def ReplaceEveryCellByManyXT(paCellsPos, paNewValues)
-			if isList(paCellsPos) and Q(paCellsPos).IsOneOfTheseNamedParams([ :Of, :OfThese, :OfTheseCells ])
+			if isList(paCellsPos) and IsOneOfTheseNamedParamsList(paCellsPos,[ :Of, :OfThese, :OfTheseCells ])
 				paCellsPos = paCellsPos[2]
 			ok
 
@@ -10658,7 +10656,7 @@ Class stzTable from stzList
 	#-------------------------------------------------------------------------------------#
 
 	def ReplaceTheseCols(paCols, paNewCol)
-		if Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+		if IsOneOfTheseNamedParamsList(paNewCol,[ :With, :By, :Using ])
 			paNewCol = paNewCol[2]
 		ok
 
@@ -10674,7 +10672,7 @@ Class stzTable from stzList
 	#-------------------------------------------------------------------------------------------------#
 
 	def ReplaceTheseColsXT(paCols, paNewCol)
-		if Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+		if IsOneOfTheseNamedParamsList(paNewCol,[ :With, :By, :Using ])
 			paNewCol = paNewCol[2]
 		ok
 
@@ -10818,7 +10816,7 @@ Class stzTable from stzList
 		if CheckingParams()
 
 			if isList(paNewCol) and
-			   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			   IsOneOfTheseNamedParamsList(paNewCol,[ :With, :By, :Using ])
 				paNewCol = paNewCol[2]
 			ok
 	
@@ -10855,7 +10853,7 @@ Class stzTable from stzList
 		if CheckingParams()
 
 			if isList(paNewCol) and
-			   Q(paNewCol).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			   IsOneOfTheseNamedParamsList(paNewCol,[ :With, :By, :Using ])
 				paNewCol = paNewCol[2]
 			ok
 	
@@ -10903,7 +10901,7 @@ Class stzTable from stzList
 	#-----------------------------------------------------------------------------------#
 
 	def ReplaceTheseColsByMany(paCols, paNewCols)
-		if Q(paNewCols).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+		if IsOneOfTheseNamedParamsList(paNewCols,[ :With, :By, :Using ])
 			paNewCols = paNewCols[2]
 		ok
 
@@ -10954,7 +10952,7 @@ Class stzTable from stzList
 			ok
 	
 			if isList(paNewRow) and
-			   ( Q(paNewRow).IsOneOfTheseNamedParams([ :By, :With, :Using ]) or
+			   ( IsOneOfTheseNamedParamsList(paNewRow,[ :By, :With, :Using ]) or
 			     Q(paNewRow).IsByRowNamedParam() or
 			     Q(paNewRow).IsWithRowNamedParam() )
 	
@@ -11030,7 +11028,7 @@ Class stzTable from stzList
 	def ReplaceAllRows(paNewRow)
 		if CheckingParams()
 			if isList(paNewRow) and
-			   Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+			   IsOneOfTheseNamedParamsList(paNewRow,[ :With, :By, :Using ])
 				paNewRow = paNewRow[2]
 			ok
 	
@@ -11163,7 +11161,7 @@ Class stzTable from stzList
 	#-------------------------------------------------------------------------------#
 
 	def ReplaceTheseRows(panRowsNumbers, paNewRow)
-		if Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+		if IsOneOfTheseNamedParamsList(paNewRow,[ :With, :By, :Using ])
 			paNewRow = paNewRow[2]
 		ok
 
@@ -11177,7 +11175,7 @@ Class stzTable from stzList
 	#-------------------------------------------------------------------------------------------#
 
 	def ReplaceTheseRowsXT(panRowsNumbers, paNewRow)
-		if Q(paNewRow).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+		if IsOneOfTheseNamedParamsList(paNewRow,[ :With, :By, :Using ])
 			paNewRow = paNewRow[2]
 		ok
 
@@ -11191,7 +11189,7 @@ Class stzTable from stzList
 	#===============================================================#
 
 	def ReplaceCellsInTheseRows(paRows, pCell)
-		if Q(paNewrows).IsOneOfTheseNamedParams([ :With, :By, :Using ])
+		if IsOneOfTheseNamedParamsList(paNewrows,[ :With, :By, :Using ])
 			paNewrows = paNewrows[2]
 		ok
 
@@ -12090,7 +12088,7 @@ Class stzTable from stzList
 
 	def InsertCol(n, paColData)
 		if CheckingParams()
-			if isList(n) and Q(n).IsOneOfTheseNamedParams([
+			if isList(n) and IsOneOfTheseNamedParamsList(n,[
 					:At, :Before,
 					:AtPosition, :BeforePosition,
 					:AtPositions, :BeforePositions
@@ -12202,7 +12200,7 @@ Class stzTable from stzList
 
 	def InsertRow(n, paRowData)
 		if CheckingParams()
-			if isList(n) and Q(n).IsOneOfTheseNamedParams([
+			if isList(n) and IsOneOfTheseNamedParamsList(n,[
 					:At, :Before,
 					:AtPosition, :BeforePosition,
 					:AtPositions, :BeforePositions
@@ -14002,7 +14000,7 @@ Class stzTable from stzList
 		cFill = :WithCell
 
 		if isList(pValue) and
-		   Q(pValue).IsOneOfTheseNamedParams([
+		   IsOneOfTheseNamedParamsList(pValue,[
 			:With, :WithCell, :WithCol, :WithColumn, :WithRow,
 			:Using, :UsingCell, :UsingCol, :UsingColumn, :UsingRow ])
 
@@ -14060,7 +14058,7 @@ Class stzTable from stzList
 
 	def ColToColName(p)
 		if isList(p) and
-		   Q(p).IsOneOfTheseNamedParams([
+		   IsOneOfTheseNamedParamsList(p,[
 			:Col, :InCol, :Cols, :InCols,
 			:Column, :InColumn, :Columns, :InColumns	
 		   ])
@@ -14294,7 +14292,7 @@ Class stzTable from stzList
 		#>
 
 	def RowToRowNumber(pRow)
-		if isList(pRow) and Q(pRow).IsOneOfTheseNamedParams([ :Row, :Rows, :InRow, :InRows, :OfRow, :OfRows ])
+		if isList(pRow) and IsOneOfTheseNamedParamsList(pRow,[ :Row, :Rows, :InRow, :InRows, :OfRow, :OfRows ])
 			pRow = pRow[2]
 		ok
 

@@ -1122,7 +1122,7 @@ class stzListOfLists from stzList
 			return This.ItemsAtPositionNQRT(n, :stzList)
 
 		def ItemsAtPositionsNQRT(n, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3992,7 +3992,7 @@ class stzListOfLists from stzList
 			return This.ClassifyQRT(:stzList)
 
 		def ClassifyQRT(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -4031,7 +4031,7 @@ class stzListOfLists from stzList
 			return This.ClassifyOnQRT(pnColNumber, :stzList)
 
 		def ClassifyOnQRT(pnColNumber, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -4082,7 +4082,7 @@ class stzListOfLists from stzList
 			return This.ClassifyByQRT(pcExpr, :stzList)
 
 		def ClassifyByQRT(pcExpr, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -4227,14 +4227,14 @@ class stzListOfLists from stzList
 	def SwapCols(n1, n2)
 		if CheckingParams()
 
-			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [
 				:From, :FromPosition,
 				:Between, :BetweenPosition, :BetweenPositions ])
 				
 				n1 = n1[2]
 			ok
 
-			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [
 				:To, :ToPosition, :And, :AndPosition ])
 				
 				n1 = n2[2]

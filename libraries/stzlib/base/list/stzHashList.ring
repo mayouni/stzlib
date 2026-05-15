@@ -495,7 +495,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.PairsQRT(:stzList)
 
 		def PairsQRT(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -532,7 +532,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.KeysQRT(:stzList)
 
 		def KeysQRT(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -573,7 +573,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.KeysForValueQRT(:stzList)
 
 		def KeysForValueQRT(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -624,7 +624,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.ValuesQRT(:stzList)
 
 		def ValuesQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3031,7 +3031,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.ClassifyQRT(pcReturnType)
 
 		def ClassifyQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 	
@@ -3068,7 +3068,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.ClassesQRT(:stzList)
 
 		def ClassesQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -3210,7 +3210,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.KlassQRT(pClass, :stzList)
 
 		def KlassQRT(pcClass, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -4125,7 +4125,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.ClassesInListsQRT(:stzList)
 
 		def ClassesInListQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -4242,7 +4242,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.ClassifyInListQRT(pcReturnType)
 
 		def ClassifyInListQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 	
@@ -4345,7 +4345,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			return This.KlassInListQRT(pcClass, :stzList)
 
 		def KlassInListQRT(pcClass, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and StzListIsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
