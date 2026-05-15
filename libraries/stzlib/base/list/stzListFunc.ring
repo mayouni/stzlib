@@ -472,6 +472,701 @@
 		ok
 		return 0
 
-	#NOTE: The remaining ~200 type-checking functions (IsListOfPairsOfStrings,
-	# IsListOfStzNumbers, etc.) remain in the monolith stzlist.ring and will
-	# be progressively migrated here as part of M-S1 Phase 2.
+	#-- Pair type checking
+
+	func IsPairOfLists(paPair)
+		if isList(paPair) and len(paPair) = 2 and
+		   isList(paPair[1]) and isList(paPair[2])
+			return 1
+		ok
+		return 0
+
+	func IsPairOfObjects(paPair)
+		if isList(paPair) and len(paPair) = 2 and
+		   isObject(paPair[1]) and isObject(paPair[2])
+			return 1
+		ok
+		return 0
+
+	func IsPairOfNumberAndString(paList)
+		if isList(paList) and len(paList) = 2 and
+		   isNumber(paList[1]) and isString(paList[2])
+			return 1
+		ok
+		return 0
+
+	func IsPairOfStringAndNumber(paList)
+		if isList(paList) and len(paList) = 2 and
+		   isString(paList[1]) and isNumber(paList[2])
+			return 1
+		ok
+		return 0
+
+	func IsPairAndKeyIsString(paList)
+		if isList(paList) and len(paList) = 2 and isString(paList[1])
+			return 1
+		ok
+		return 0
+
+	func IsPairOfChars(paList)
+		if isList(paList) and len(paList) = 2 and
+		   isString(paList[1]) and len(paList[1]) = 1 and
+		   isString(paList[2]) and len(paList[2]) = 1
+			return 1
+		ok
+		return 0
+
+	func IsPairOfEmptyLists(paList)
+		if isList(paList) and len(paList) = 2 and
+		   isList(paList[1]) and len(paList[1]) = 0 and
+		   isList(paList[2]) and len(paList[2]) = 0
+			return 1
+		ok
+		return 0
+
+	func IsPairOfPairs(paList)
+		if isList(paList) and len(paList) = 2 and
+		   isList(paList[1]) and len(paList[1]) = 2 and
+		   isList(paList[2]) and len(paList[2]) = 2
+			return 1
+		ok
+		return 0
+
+	func IsPairOfSections(paPair)
+		if isList(paPair) and len(paPair) = 2 and
+		   isList(paPair[1]) and len(paPair[1]) = 2 and
+		   isNumber(paPair[1][1]) and isNumber(paPair[1][2]) and
+		   isList(paPair[2]) and len(paPair[2]) = 2 and
+		   isNumber(paPair[2][1]) and isNumber(paPair[2][2])
+			return 1
+		ok
+		return 0
+
+	#-- IsListOf* compound types
+
+	func IsListOfPairsOfStrings(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT IsPairOfStrings(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfPairsOfNumbers(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT IsPairOfNumbers(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfPairsOfLists(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT IsPairOfLists(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfPairsOfObjects(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT IsPairOfObjects(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfPairsOfPairs(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT IsPairOfPairs(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfPairsOfSections(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT IsPairOfSections(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfPairsOfChars(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT IsPairOfChars(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfPairsOfNumberAndString(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT IsPairOfNumberAndString(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfPairsOfStringAndNumber(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT IsPairOfStringAndNumber(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	#-- IsListOfListsOf* (nested type checking)
+
+	func IsListOfListsOfNumbers(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isList(paList[i])
+				return 0
+			ok
+			if NOT IsListOfNumbers(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfListsOfStrings(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isList(paList[i])
+				return 0
+			ok
+			if NOT IsListOfStrings(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfListsOfLists(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isList(paList[i])
+				return 0
+			ok
+			if NOT IsListOfLists(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfListsOfObjects(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isList(paList[i])
+				return 0
+			ok
+			if NOT IsListOfObjects(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfListsOfPairs(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isList(paList[i])
+				return 0
+			ok
+			if NOT IsListOfPairs(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfListsOfHashLists(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isList(paList[i])
+				return 0
+			ok
+			if NOT IsListOfHashLists(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfListsOfHybridLists(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isList(paList[i])
+				return 0
+			ok
+			if NOT IsHybridList(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfListsOfPairsOfNumbers(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isList(paList[i])
+				return 0
+			ok
+			if NOT IsListOfPairsOfNumbers(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfListsOfPairsOfStrings(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isList(paList[i])
+				return 0
+			ok
+			if NOT IsListOfPairsOfStrings(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	#-- Special list types
+
+	func IsListOfChars(pacList)
+		nLen = len(pacList)
+		for i = 1 to nLen
+			if NOT (isString(pacList[i]) and len(pacList[i]) = 1)
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfLetters(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isString(paList[i])
+				return 0
+			ok
+			if len(paList[i]) != 1
+				return 0
+			ok
+			c = ascii(paList[i])
+			if NOT ((c >= 65 and c <= 90) or (c >= 97 and c <= 122))
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfBits(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT (isNumber(paList[i]) and (paList[i] = 0 or paList[i] = 1))
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfBoleans(paList)
+		return IsListOfBits(paList)
+
+	func IsListOfSets(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isList(paList[i])
+				return 0
+			ok
+			oTemp = new stzList(paList[i])
+			if oTemp.HasDuplicates()
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfNumbersInStrings(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isString(paList[i])
+				return 0
+			ok
+			if NOT isNumber(0 + paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfNumbersOrStrings(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT (isNumber(paList[i]) or isString(paList[i]))
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfNumbersAndStrings(paList)
+		bHasNumber = 0
+		bHasString = 0
+		nLen = len(paList)
+
+		for i = 1 to nLen
+			if isNumber(paList[i])
+				bHasNumber = 1
+			but isString(paList[i])
+				bHasString = 1
+			else
+				return 0
+			ok
+		next
+
+		return bHasNumber and bHasString
+
+	func IsListOfStringsAndPairsOfStrings(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if isString(paList[i])
+				# ok
+			but isList(paList[i]) and IsPairOfStrings(paList[i])
+				# ok
+			else
+				return 0
+			ok
+		next
+		return 1
+
+	#-- Structure classification
+
+	func IsDeepList(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if isList(paList[i])
+				return 1
+			ok
+		next
+		return 0
+
+	func IsPureList(paList)
+		nLen = len(paList)
+		if nLen <= 1
+			return 1
+		ok
+
+		cFirstType = type(paList[1])
+		for i = 2 to nLen
+			if type(paList[i]) != cFirstType
+				return 0
+			ok
+		next
+		return 1
+
+	func IsOddList(paList)
+		return (len(paList) % 2) = 1
+
+	func IsEvenList(paList)
+		return (len(paList) % 2) = 0
+
+	func IsUniformListCS(paList, pCaseSensitive)
+		nLen = len(paList)
+		if nLen <= 1
+			return 1
+		ok
+
+		cFirst = @@(paList[1])
+		if pCaseSensitive = 0
+			cFirst = ring_lower(cFirst)
+		ok
+
+		for i = 2 to nLen
+			cItem = @@(paList[i])
+			if pCaseSensitive = 0
+				cItem = ring_lower(cItem)
+			ok
+			if cItem != cFirst
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfSameSize(paList)
+		return IsListOfListsOfSameSize(paList)
+
+	func IsListOfListsOfSameSize(paList)
+		nLen = len(paList)
+		if nLen <= 1
+			return 1
+		ok
+
+		if NOT isList(paList[1])
+			return 0
+		ok
+
+		nSize = len(paList[1])
+		for i = 2 to nLen
+			if NOT isList(paList[i])
+				return 0
+			ok
+			if len(paList[i]) != nSize
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListOfSections(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT (isList(paList[i]) and len(paList[i]) = 2 and
+			        isNumber(paList[i][1]) and isNumber(paList[i][2]))
+				return 0
+			ok
+		next
+		return 1
+
+	func IsHashListOrListOfStrings(paList)
+		if IsListOfStrings(paList)
+			return 1
+		ok
+		if IsListOfHashLists(paList)
+			return 1
+		ok
+		return 0
+
+	#-- Sorting checks
+
+	func IsSortedList(paList)
+		return StzListQ(paList).IsSorted()
+
+	func IsSortedListInAscending(paList)
+		return StzListQ(paList).IsSortedInAscending()
+
+	func IsSortedListInDescending(paList)
+		return StzListQ(paList).IsSortedInDescending()
+
+	func SortingOrder(p)
+		return StzListQ(p).SortingOrder()
+
+	func HaveSameSortingOrder(p1, p2)
+		return StzListQ(p1).HasSameSortingOrderAs(p2)
+
+	#-- Comparison functions
+
+	func AreBothEqualCS(p1, p2, pCaseSensitive)
+		if isNumber(p1) and isNumber(p2)
+			return p1 = p2
+
+		but isString(p1) and isString(p2)
+			if pCaseSensitive = 1
+				return p1 = p2
+			else
+				return ring_lower(p1) = ring_lower(p2)
+			ok
+
+		but isList(p1) and isList(p2)
+			return StzListQ(p1).IsEqualToCS(p2, pCaseSensitive)
+
+		ok
+		return 0
+
+	func AreBothEqual(p1, p2)
+		return AreBothEqualCS(p1, p2, 1)
+
+	func HaveSameType(paItems)
+		nLen = len(paItems)
+		if nLen <= 1
+			return 1
+		ok
+
+		cType = type(paItems[1])
+		for i = 2 to nLen
+			if type(paItems[i]) != cType
+				return 0
+			ok
+		next
+		return 1
+
+	func BothHaveSameType(p1, p2)
+		return type(p1) = type(p2)
+
+	func HaveBothSameType(p1, p2)
+		return BothHaveSameType(p1, p2)
+
+	#-- Type extraction
+
+	func AreNumbers(paList)
+		return IsListOfNumbers(paList)
+
+	func AreStrings(paList)
+		return IsListOfStrings(paList)
+
+	func AreLists(paList)
+		return IsListOfLists(paList)
+
+	func AreObjects(paList)
+		return IsListOfObjects(paList)
+
+	func Types(paValues)
+		nLen = len(paValues)
+		acResult = []
+		for i = 1 to nLen
+			acResult + type(paValues[i])
+		next
+		return acResult
+
+	func StringsIn(paList)
+		nLen = len(paList)
+		aResult = []
+		for i = 1 to nLen
+			if isString(paList[i])
+				aResult + paList[i]
+			ok
+		next
+		return aResult
+
+	func ListsIn(paList)
+		nLen = len(paList)
+		aResult = []
+		for i = 1 to nLen
+			if isList(paList[i])
+				aResult + paList[i]
+			ok
+		next
+		return aResult
+
+	func ObjectsIn(paList)
+		nLen = len(paList)
+		aResult = []
+		for i = 1 to nLen
+			if isObject(paList[i])
+				aResult + paList[i]
+			ok
+		next
+		return aResult
+
+	func OnlyNumbers(paList)
+		nLen = len(paList)
+		aResult = []
+		for i = 1 to nLen
+			if isNumber(paList[i])
+				aResult + paList[i]
+			ok
+		next
+		return aResult
+
+	#-- Null checking
+
+	func AllTheseAreNull(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if NOT isNULL(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func AllOfTheseAreNotNull(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if isNULL(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	func BothAreNull(p1, p2)
+		return isNULL(p1) and isNULL(p2)
+
+	func BothAreNotNull(p1, p2)
+		return (NOT isNULL(p1)) and (NOT isNULL(p2))
+
+	func NoOneOfTheseIsAString(paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if isString(paList[i])
+				return 0
+			ok
+		next
+		return 1
+
+	#-- List access helpers
+
+	func ListFirstItem(paList)
+		if isList(paList) and len(paList) > 0
+			return paList[1]
+		ok
+		return NULL
+
+	func ListLastItem(paList)
+		if isList(paList) and len(paList) > 0
+			return paList[len(paList)]
+		ok
+		return NULL
+
+	func ListFindAll(paList, p)
+		return StzListQ(paList).FindAll(p)
+
+	func ListToCode(paList)
+		return @@(paList)
+
+	func Move(paList, n1, n2)
+		oTemp = new stzList(paList)
+		oTemp.MoveItem(n1, n2)
+		return oTemp.Content()
+
+	func IsContiguous(paList)
+		if NOT IsListOfNumbers(paList)
+			return 0
+		ok
+		nLen = len(paList)
+		if nLen <= 1
+			return 1
+		ok
+		for i = 2 to nLen
+			if paList[i] != paList[i-1] + 1
+				return 0
+			ok
+		next
+		return 1
+
+	func FirstN(n, aList)
+		return StzListQ(aList).NFirstItems(n)
+
+	func ListsHaveSameNumberOfItems(paList)
+		nLen = len(paList)
+		if nLen <= 1
+			return 1
+		ok
+		nSize = len(paList[1])
+		for i = 2 to nLen
+			if len(paList[i]) != nSize
+				return 0
+			ok
+		next
+		return 1
+
+	func IsListInString(pcStr)
+		if NOT isString(pcStr)
+			return 0
+		ok
+		pcStr = trim(pcStr)
+		if left(pcStr, 1) = "[" and right(pcStr, 1) = "]"
+			return 1
+		ok
+		return 0
+
+	func IsPairOf(pcType, paPair)
+		if NOT (isList(paPair) and len(paPair) = 2)
+			return 0
+		ok
+		return type(paPair[1]) = upper(pcType) and type(paPair[2]) = upper(pcType)
+
+	func IsListOf(pcType, paList)
+		nLen = len(paList)
+		for i = 1 to nLen
+			if type(paList[i]) != upper(pcType)
+				return 0
+			ok
+		next
+		return 1
