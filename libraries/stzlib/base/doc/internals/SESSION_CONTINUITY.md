@@ -372,3 +372,45 @@ Loading rules:
   confidently.
 - **CLI Polish:** `softanza build`, `softanza test`, `softanza
   doctor` (Phase 4, task 5 -- still pending).
+
+## Session 4b (2026-05-15): Three Value Propositions
+
+### What Was Done
+
+**Three cross-cutting value propositions added to Engine design:**
+
+1. **VP-1 Testability:** 4-layer testing discipline (inline unit,
+   simulation harness, CLI integration, narrated GIVEN/WHEN/THEN).
+   L99 mechanical guardrail (no real I/O in tests). Test density
+   tracking via CLI. C ABI for external test harnesses.
+
+2. **VP-2 Usability -- Interaction Engine:** Intent-based
+   interaction layer with 24 cognitive verbs in 6 categories
+   (Orienting/Attention/Information/Selection/Action/Continuity).
+   Constitutional laws enforced at Engine level (no SELECT-to-ACT
+   collapse, UNDO covenant, DISCOVER-before-ACT, accessibility
+   invariant). Medium-agnostic rendering projections (web, TUI,
+   voice, API, accessibility, print). Full C ABI. New module:
+   `stz_interact`.
+
+3. **VP-3 Learnability -- Skill Engine:** Skill metadata per
+   module (prerequisites, skills taught, graded examples, skill
+   checks). CLI skill commands (list, prereqs, check, path,
+   assess). Code-aware skill assessment. JSON export for training
+   platforms. New module: `stz_skill`.
+
+**Updated files:**
+- `base/doc/design/SOFTANZA_ENGINE_DESIGN.md` -- added VP-1,
+  VP-2, VP-3 sections with full C ABI specs (~400 lines)
+- `base/doc/design/SOFTANZA_ENGINE_ARCHITECTURE.md` -- added
+  2 VP modules, 3 new design principles (17-19), total 88 modules
+
+### Next Steps
+
+- **Phase F (code):** Build StzValue tagged union + List in Zig
+- **CLI Polish:** `softanza build`, `softanza test`, `softanza
+  doctor`
+- **Interaction Engine prototype:** Implement `stz_interact` with
+  at least the flow declaration and validation APIs
+- **Skill metadata format:** Define the `.skill.zig` companion
+  file format for module skill declarations

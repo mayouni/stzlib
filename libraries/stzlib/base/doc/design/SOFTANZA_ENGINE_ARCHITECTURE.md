@@ -814,7 +814,17 @@ AI agents, and any future technology equally.
 | relations   | stz_relations      | PLANNED |
 | statemachine| stz_fsm            | PLANNED |
 
-### Total: 86 modules (11 done, 75 planned)
+### Value Proposition Modules (2 modules)
+
+Cross-cutting modules that implement the Engine's three value
+propositions (Testability is a build-system concern, not a module).
+
+| Module      | DLL                | Status  |
+|-------------|------------------  |---------|
+| interact    | stz_interact       | PLANNED |
+| skill       | stz_skill          | PLANNED |
+
+### Total: 88 modules (11 done, 77 planned)
 
 ---
 
@@ -869,3 +879,21 @@ AI agents, and any future technology equally.
     GPU, edge) is a decision the Engine helps make via operation
     signatures and target capabilities -- not a deployment detail
     baked into application code.
+17. **Testability is structural, not aspirational.** Four test
+    layers (inline unit, simulation harness, CLI integration,
+    narrated tests) are mandatory per module. A mechanical
+    guardrail (L99) prevents real I/O in tests at compile time.
+    No module ships without tests at all four layers.
+18. **Interaction is intent, not pixels.** Programmers declare
+    cognitive intents (DISCOVER, SELECT, ACT, CONFIRM). The
+    Engine validates intent flows against constitutional laws
+    (no SELECT-to-ACT collapse, UNDO covenant, DISCOVER-before-ACT)
+    and projects them to any medium: web, terminal, voice, API,
+    accessibility device, print. Write the logic once, render
+    everywhere.
+19. **The Engine teaches itself.** Every module declares
+    prerequisite skills, skills it teaches, graded coding examples,
+    and verifiable skill checks. The CLI can assess code for
+    demonstrated skills and recommend learning paths. Training
+    platforms built on the Engine inherit structured material --
+    they do not author it.
