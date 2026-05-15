@@ -131,3 +131,82 @@ class stzListMover from stzList
 
 	def Reversed()
 		return This.Copy().ReverseQ().Content()
+
+	  #======================================================#
+	 #   ROTATE -- CIRCULAR SHIFT                           #
+	#======================================================#
+
+	def RotateLeft(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+		if nLen = 0 return ok
+		n = n % nLen
+		if n = 0 return ok
+		aResult = []
+		for i = n + 1 to nLen
+			aResult + aContent[i]
+		next
+		for i = 1 to n
+			aResult + aContent[i]
+		next
+		This.UpdateWith(aResult)
+
+		def RotateLeftQ(n)
+			This.RotateLeft(n)
+			return This
+
+	def RotatedLeft(n)
+		return This.Copy().RotateLeftQ(n).Content()
+
+	def RotateRight(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+		if nLen = 0 return ok
+		n = n % nLen
+		if n = 0 return ok
+		This.RotateLeft(nLen - n)
+
+		def RotateRightQ(n)
+			This.RotateRight(n)
+			return This
+
+	def RotatedRight(n)
+		return This.Copy().RotateRightQ(n).Content()
+
+	  #======================================================#
+	 #   SHUFFLE -- RANDOM REORDER                          #
+	#======================================================#
+
+	def Shuffle()
+		aContent = This.Content()
+		nLen = len(aContent)
+		for i = nLen to 2 step -1
+			j = random(i - 1) + 1
+			temp = aContent[i]
+			aContent[i] = aContent[j]
+			aContent[j] = temp
+		next
+		This.UpdateWith(aContent)
+
+		def ShuffleQ()
+			This.Shuffle()
+			return This
+
+	def Shuffled()
+		return This.Copy().ShuffleQ().Content()
+
+	  #======================================================#
+	 #   MOVE ITEM BY VALUE                                 #
+	#======================================================#
+
+	def MoveItemToStart(pItem)
+		anPos = This.FindAll(pItem)
+		if len(anPos) > 0
+			This.MoveToStart(anPos[1])
+		ok
+
+	def MoveItemToEnd(pItem)
+		anPos = This.FindAll(pItem)
+		if len(anPos) > 0
+			This.MoveToEnd(anPos[1])
+		ok

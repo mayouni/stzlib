@@ -124,3 +124,76 @@ class stzListExtractor from stzList
 
 	def ExtractDuplicates()
 		return This.ExtractDuplicatesCS(1)
+
+	  #======================================================#
+	 #   EXTRACT ITEMS OF TYPE                              #
+	#======================================================#
+
+	def ExtractStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		anPos = []
+		for i = nLen to 1 step -1
+			if isString(aContent[i])
+				aResult + aContent[i]
+				anPos + i
+			ok
+		next
+		for i = 1 to len(anPos)
+			ring_remove(This.List(), anPos[i])
+		next
+		return ListReversed(aResult)
+
+	def ExtractNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		anPos = []
+		for i = nLen to 1 step -1
+			if isNumber(aContent[i])
+				aResult + aContent[i]
+				anPos + i
+			ok
+		next
+		for i = 1 to len(anPos)
+			ring_remove(This.List(), anPos[i])
+		next
+		return ListReversed(aResult)
+
+	def ExtractLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		anPos = []
+		for i = nLen to 1 step -1
+			if isList(aContent[i])
+				aResult + aContent[i]
+				anPos + i
+			ok
+		next
+		for i = 1 to len(anPos)
+			ring_remove(This.List(), anPos[i])
+		next
+		return ListReversed(aResult)
+
+	  #======================================================#
+	 #   POP -- EXTRACT LAST (STACK STYLE)                  #
+	#======================================================#
+
+	def Pop()
+		return This.ExtractLast()
+
+	def PopFirst()
+		return This.ExtractFirst()
+
+	  #======================================================#
+	 #   TAKE -- EXTRACT N FROM START                       #
+	#======================================================#
+
+	def Take(n)
+		return This.ExtractSection(1, n)
+
+	def TakeLast(n)
+		nLen = This.NumberOfItems()
+		return This.ExtractSection(nLen - n + 1, nLen)

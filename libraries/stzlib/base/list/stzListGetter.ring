@@ -141,3 +141,140 @@ class stzListGetter from stzList
 			ok
 		end
 		return aResult
+
+	  #======================================================#
+	 #   ITEMS BETWEEN TWO POSITIONS                        #
+	#======================================================#
+
+	def ItemsBetween(n1, n2)
+		return This.Section(n1, n2)
+
+		def ItemsBetweenQ(n1, n2)
+			return new stzList(This.ItemsBetween(n1, n2))
+
+	  #======================================================#
+	 #   EVERY NTH ITEM                                     #
+	#======================================================#
+
+	def EveryNthItem(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = n to nLen step n
+			aResult + aContent[i]
+		next
+		return aResult
+
+		def EveryNthItemQ(n)
+			return new stzList(This.EveryNthItem(n))
+
+		def EveryNth(n)
+			return This.EveryNthItem(n)
+
+	  #======================================================#
+	 #   HEAD / TAIL                                        #
+	#======================================================#
+
+	def Head(n)
+		return This.NFirstItems(n)
+
+		def HeadQ(n)
+			return new stzList(This.Head(n))
+
+	def Tail(n)
+		return This.NLastItems(n)
+
+		def TailQ(n)
+			return new stzList(This.Tail(n))
+
+	  #======================================================#
+	 #   ITEMS OF TYPE                                      #
+	#======================================================#
+
+	def OnlyStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isString(aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+	def OnlyNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isNumber(aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+	def OnlyLists()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isList(aContent[i])
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+	def OnlyChars()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isString(aContent[i]) and len(aContent[i]) = 1
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+	  #======================================================#
+	 #   PAIRS / TRIPLETS / WINDOWS                         #
+	#======================================================#
+
+	def Pairs()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen - 1
+			aResult + [aContent[i], aContent[i + 1]]
+		next
+		return aResult
+
+		def PairsQ()
+			return new stzList(This.Pairs())
+
+	def Triplets()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen - 2
+			aResult + [aContent[i], aContent[i + 1], aContent[i + 2]]
+		next
+		return aResult
+
+		def TripletsQ()
+			return new stzList(This.Triplets())
+
+	def SlidingWindow(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen - n + 1
+			aWindow = []
+			for j = i to i + n - 1
+				aWindow + aContent[j]
+			next
+			aResult + aWindow
+		next
+		return aResult
+
+		def SlidingWindowQ(n)
+			return new stzList(This.SlidingWindow(n))

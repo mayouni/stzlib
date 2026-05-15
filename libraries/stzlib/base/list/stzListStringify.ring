@@ -166,3 +166,98 @@ class stzListStringify from stzList
 
 		def ToListInShortForm()
 			return This.ToListInStringInShortForm()
+
+	  #======================================================#
+	 #   JOIN -- CONCATENATE ITEMS INTO A STRING            #
+	#======================================================#
+
+	def Join(pcSep)
+		aContent = This.Content()
+		nLen = len(aContent)
+		cResult = ""
+		for i = 1 to nLen
+			if i > 1
+				cResult += pcSep
+			ok
+			if isString(aContent[i])
+				cResult += aContent[i]
+			else
+				cResult += "" + aContent[i]
+			ok
+		next
+		return cResult
+
+		def JoinQ(pcSep)
+			return new stzString(This.Join(pcSep))
+
+		def Joined(pcSep)
+			return This.Join(pcSep)
+
+	def JoinWith(pcSep)
+		return This.Join(pcSep)
+
+	  #======================================================#
+	 #   LOWERCASED / UPPERCASED                            #
+	#======================================================#
+
+	def Lowercased()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isString(aContent[i])
+				aResult + lower(aContent[i])
+			else
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+		def LowercasedQ()
+			return new stzList(This.Lowercased())
+
+	def Uppercased()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isString(aContent[i])
+				aResult + upper(aContent[i])
+			else
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+		def UppercasedQ()
+			return new stzList(This.Uppercased())
+
+	  #======================================================#
+	 #   NUMBERS TO STRINGS / STRINGS TO NUMBERS            #
+	#======================================================#
+
+	def NumbersToStrings()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isNumber(aContent[i])
+				aResult + ("" + aContent[i])
+			else
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
+
+	def StringsToNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = 1 to nLen
+			if isString(aContent[i]) and isNumber(0 + aContent[i])
+				aResult + (0 + aContent[i])
+			else
+				aResult + aContent[i]
+			ok
+		next
+		return aResult
