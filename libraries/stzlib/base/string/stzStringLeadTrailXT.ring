@@ -33,21 +33,35 @@ class stzStringLeadTrailXT from stzStringLeadTrail
 
 		_aAliases_ = [
 
-			# --- HasRepeatedLeadingChars aliases ---
+			# --- Leading aliases ---
 
 			[ "HasLeadingChars",		"HasRepeatedLeadingChars" ],
+			[ "LeadingChars",		"RepeatedLeadingChars" ],
+			[ "FirstChar",			"LeadingChar" ],
 
-			# --- HasRepeatedTrailingChars aliases ---
+			# --- Trailing aliases ---
 
 			[ "HasTrailingChars",		"HasRepeatedTrailingChars" ],
+			[ "TrailingChars",		"RepeatedTrailingChars" ],
+			[ "LastChar",			"TrailingChar" ],
 
-			# --- RepeatedLeadingChars aliases ---
+			# --- Remove leading/trailing aliases ---
 
-			[ "LeadingChars",		"RepeatedLeadingChars" ],
+			[ "StripLeading",		"RemoveThisLeadingChar" ],
+			[ "StripLeadingCS",		"RemoveThisLeadingCharCS" ],
+			[ "StripTrailing",		"RemoveThisTrailingChar" ],
+			[ "StripTrailingCS",		"RemoveThisTrailingCharCS" ],
 
-			# --- RepeatedTrailingChars aliases ---
+			# --- Start/End aliases ---
 
-			[ "TrailingChars",		"RepeatedTrailingChars" ]
+			[ "BeginsWithCS",		"StartsWithCS" ],
+			[ "BeginsWith",			"StartsWith" ],
+			[ "FinishesWithCS",		"EndsWithCS" ],
+			[ "FinishesWith",		"EndsWith" ],
+			[ "RemoveFromBeginningCS",	"RemoveFromStartCS" ],
+			[ "RemoveFromBeginning",	"RemoveFromStart" ],
+			[ "RemoveFromFinishCS",		"RemoveFromEndCS" ],
+			[ "RemoveFromFinish",		"RemoveFromEnd" ]
 		]
 
 		nLen = len(_aAliases_)

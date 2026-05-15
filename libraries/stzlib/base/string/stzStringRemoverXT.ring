@@ -33,26 +33,66 @@ class stzStringRemoverXT from stzStringRemover
 
 		_aAliases_ = [
 
-			# --- Remove aliases ---
+			# --- Remove / Erase aliases ---
 
-			[ "Erase",		"Remove" ],
-			[ "EraseCS",		"RemoveCS" ],
+			[ "Erase",			"Remove" ],
+			[ "EraseCS",			"RemoveCS" ],
+			[ "EraseAll",			"RemoveAll" ],
+			[ "EraseAllCS",			"RemoveAllCS" ],
 
-			# --- RemoveFirst aliases ---
+			# --- RemoveFirst / RemoveLast aliases ---
 
-			[ "EraseFirst",		"RemoveFirst" ],
-
-			# --- RemoveLast aliases ---
-
-			[ "EraseLast",		"RemoveLast" ],
+			[ "EraseFirst",			"RemoveFirst" ],
+			[ "EraseFirstCS",		"RemoveFirstCS" ],
+			[ "EraseLast",			"RemoveLast" ],
+			[ "EraseLastCS",		"RemoveLastCS" ],
 
 			# --- RemoveNth aliases ---
 
-			[ "EraseNth",		"RemoveNth" ],
+			[ "EraseNth",			"RemoveNth" ],
+			[ "EraseNthCS",			"RemoveNthCS" ],
 
-			# --- RemoveSection aliases ---
+			# --- RemoveSection / Range aliases ---
 
-			[ "EraseSection",	"RemoveSection" ]
+			[ "EraseSection",		"RemoveSection" ],
+			[ "EraseRange",			"RemoveRange" ],
+
+			# --- RemoveMany aliases ---
+
+			[ "EraseMany",			"RemoveMany" ],
+			[ "EraseManyCS",		"RemoveManyCS" ],
+			[ "EraseThese",			"RemoveThese" ],
+			[ "EraseTheseCS",		"RemoveTheseCS" ],
+
+			# --- Between aliases ---
+
+			[ "EraseBetween",		"RemoveBetween" ],
+			[ "EraseBetweenCS",		"RemoveBetweenCS" ],
+			[ "EraseBetweenIB",		"RemoveBetweenIB" ],
+			[ "EraseBetweenCSIB",		"RemoveBetweenCSIB" ],
+
+			# --- Duplicates aliases ---
+
+			[ "EraseDuplicates",		"RemoveDuplicates" ],
+			[ "EraseDuplicatesCS",		"RemoveDuplicatesCS" ],
+
+			# --- FromLeft / FromRight aliases ---
+
+			[ "EraseFromLeft",		"RemoveFromLeft" ],
+			[ "EraseFromLeftCS",		"RemoveFromLeftCS" ],
+			[ "EraseFromRight",		"RemoveFromRight" ],
+			[ "EraseFromRightCS",		"RemoveFromRightCS" ],
+
+			# --- Spaces aliases ---
+
+			[ "EraseSpaces",		"RemoveSpaces" ],
+			[ "EraseLeadingSpaces",		"RemoveLeadingSpaces" ],
+			[ "EraseTrailingSpaces",	"RemoveTrailingSpaces" ],
+
+			# --- Char at position aliases ---
+
+			[ "EraseCharAt",		"RemoveCharAt" ],
+			[ "EraseCharsAtPositions",	"RemoveCharsAtPositions" ]
 		]
 
 		nLen = len(_aAliases_)

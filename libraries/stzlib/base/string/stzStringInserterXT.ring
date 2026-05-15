@@ -33,18 +33,37 @@ class stzStringInserterXT from stzStringInserter
 
 		_aAliases_ = [
 
-			# --- InsertBefore aliases ---
+			# --- Position aliases ---
 
-			[ "InsertAt",			"InsertBefore" ],
-			[ "InsertAtQ",			"InsertBeforeQ" ],
+			[ "InsertAt",				"InsertBefore" ],
+			[ "InsertAtQ",				"InsertBeforeQ" ],
+			[ "InsertAtPosition",			"InsertBefore" ],
+			[ "InsertAfterPosition",		"InsertAfter" ],
 
-			# --- InsertBeforeSubStringCS aliases ---
+			# --- SubString aliases ---
 
-			[ "InsertBeforeEachCS",		"InsertBeforeSubStringCS" ],
+			[ "InsertBeforeEachCS",			"InsertBeforeSubStringCS" ],
+			[ "InsertAfterEachCS",			"InsertAfterSubStringCS" ],
+			[ "InsertBeforeEach",			"InsertBeforeSubString" ],
+			[ "InsertAfterEach",			"InsertAfterSubString" ],
 
-			# --- InsertAfterSubStringCS aliases ---
+			# --- Nth occurrence aliases ---
 
-			[ "InsertAfterEachCS",		"InsertAfterSubStringCS" ]
+			[ "InsertAfterNthOccurrenceCS",		"InsertAfterNthCS" ],
+			[ "InsertAfterNthOccurrence",		"InsertAfterNth" ],
+			[ "InsertBeforeNthOccurrenceCS",	"InsertBeforeNthCS" ],
+			[ "InsertBeforeNthOccurrence",		"InsertBeforeNth" ],
+
+			# --- First/Last occurrence aliases ---
+
+			[ "InsertAfterFirstOccurrenceCS",	"InsertAfterFirstCS" ],
+			[ "InsertAfterFirstOccurrence",		"InsertAfterFirst" ],
+			[ "InsertAfterLastOccurrenceCS",	"InsertAfterLastCS" ],
+			[ "InsertAfterLastOccurrence",		"InsertAfterLast" ],
+			[ "InsertBeforeFirstOccurrenceCS",	"InsertBeforeFirstCS" ],
+			[ "InsertBeforeFirstOccurrence",	"InsertBeforeFirst" ],
+			[ "InsertBeforeLastOccurrenceCS",	"InsertBeforeLastCS" ],
+			[ "InsertBeforeLastOccurrence",		"InsertBeforeLast" ]
 		]
 
 		nLen = len(_aAliases_)
