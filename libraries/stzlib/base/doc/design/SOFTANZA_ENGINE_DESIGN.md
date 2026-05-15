@@ -974,34 +974,125 @@ StzValue      stz_expr_eval(StzExprHandle h, const StzValue* vars,
 int           stz_expr_is_valid(const char* expression, size_t len);
 ```
 
-### Function Registry & Alternatives Engine [PLANNED]
+### Function Registry & Execution Model [PLANNED]
 
 Softanza's 6000+ methods are not hand-coded -- they follow a
-systematic naming grammar (prefixes, suffixes, free-form,
-alternatives). The Engine codifies this grammar so ANY language
-surface can auto-generate the full method vocabulary from a
-compact base.
+systematic grammar of **13 function forms**, each representing a
+distinct computational semantic. The Engine codifies these forms
+as execution model primitives so ANY language surface reproduces
+the full Softanza experience from a compact base of operations.
+
+**The 13 Function Forms (each is an execution mode, not a name):**
+
+| # | Form         | Semantic                | Engine Primitive        |
+|---|--------------|-------------------------|-------------------------|
+| 1 | Active       | `Remove("x")` mutates   | In-place mutation       |
+| 2 | Passive      | `Removed("x")` copies   | Copy-on-write return    |
+| 3 | Fluent       | `Q().A().B().C()`       | Pipeline with COW chain |
+| 4 | Partial      | `@("x").@Removed()`    | Context stack (focus)   |
+| 5 | Plural       | `RemoveMany(["x","y"])` | Array-arg dispatch      |
+| 6 | Exceptional  | `...Except("_")`       | Predicate + exclusions  |
+| 7 | Negative     | `IsNotLetter()`        | Auto-negation           |
+| 8 | Alternative  | `Swap` = `SwapItems`   | Semantic alias table    |
+| 9 | Named Params | `:At = 1, :And = 3`    | Named param binding     |
+|10 | Conditional  | `RemoveW('expr')`      | Expr evaluator as filter|
+|11 | Suffixes     | `CS()`, `XT()`, `Q()`  | Behavior modifiers      |
+|12 | Future       | `UppercasingFQ()`      | Deferred action queue   |
+|13 | Random       | `rndItems()`           | RNG-integrated ops      |
+
+These are execution model primitives, not naming conventions. The
+Engine implements each as a C ABI facility that any language can
+compose.
 
 ```c
-// Register a base function
-void stz_registry_add(const char* domain,       // "string"
-                       const char* base_name,    // "Find"
-                       const char* signature,    // "StzValue,StzValue->int64_t"
-                       void* func_ptr);
+// --- Execution Model Primitives ---
 
-// Generate all alternatives for a base function
-// Applies: prefixes (FindFirst, FindLast, FindNth, FindAll)
-//          suffixes (FindCS, FindCSXT, FindXT)
-//          named params (FindW, FindWXT)
-//          semantic alternatives (FindOccurrence, FindPosition)
+// Active: mutate target in-place
+void stz_op_active(StzValue* target, int operation,
+                    const StzValue* args, size_t num_args);
+
+// Passive: copy-on-write, return new value, original untouched
+StzValue stz_op_passive(StzValue source, int operation,
+                         const StzValue* args, size_t num_args);
+
+// Fluent chain: pipeline of operations with COW semantics
+// Each step produces a new value fed to the next step
+StzChainHandle stz_chain_new(StzValue initial);
+void           stz_chain_free(StzChainHandle h);
+StzChainHandle stz_chain_step(StzChainHandle h, int operation,
+                               const StzValue* args, size_t num_args);
+StzValue       stz_chain_result(StzChainHandle h);
+// History: get intermediate values for QH() debugging
+size_t         stz_chain_history(StzChainHandle h,
+                                  StzValue* out_steps, size_t max);
+
+// Partial form: focus on a sub-part of the target
+// Push a context (the part), operate on it, pop back to parent
+StzPartialHandle stz_partial_focus(StzValue parent,
+                                    StzValue selector);
+StzValue  stz_partial_apply(StzPartialHandle h, int operation,
+                             const StzValue* args, size_t num_args);
+StzValue  stz_partial_restore(StzPartialHandle h);
+void      stz_partial_free(StzPartialHandle h);
+
+// Plural: dispatch operation to array of arguments
+size_t stz_op_plural(StzValue* target, int operation,
+                      const StzValue* items, size_t num_items);
+
+// Exceptional: apply operation with exclusion list
+void stz_op_except(StzValue* target, int operation,
+                    const StzValue* exceptions, size_t num_exceptions);
+
+// Conditional (W form): filter by expression, then apply
+void stz_op_conditional(StzValue* target, int operation,
+                         const char* condition_expr, size_t len);
+
+// Future/Deferred: queue operations for later execution
+StzFutureHandle stz_future_new(StzValue initial);
+void            stz_future_free(StzFutureHandle h);
+void  stz_future_queue(StzFutureHandle h, int operation,
+                        const StzValue* args, size_t num_args);
+StzValue stz_future_execute(StzFutureHandle h); // runs all queued
+
+// Random form: randomized variant of any operation
+StzValue stz_op_random(StzValue source, int operation,
+                        size_t count); // 0 = random count too
+```
+
+```c
+// --- Function Registry ---
+
+// Register a base function with its forms
+void stz_registry_add(const char* domain,       // "string"
+                       const char* base_name,    // "Remove"
+                       int supported_forms,      // bitmask of 13 forms
+                       void* active_fn,          // mutating version
+                       void* passive_fn);        // copy-on-write version
+
+// Expand one base name into all valid form names
+// Remove -> Remove, Removed, RemoveQ, RemoveMany,
+//           RemoveManyCS, RemoveW, RemoveWXT, RemoveExcept,
+//           rndRemove, rndRemoveN, RemoveFQ, ...
 size_t stz_registry_expand(const char* base_name,
                             char** out_names, size_t max);
 
-// Lookup function by any alternative name
-void* stz_registry_resolve(const char* name, size_t len);
+// Register semantic alternatives for a base function
+void stz_registry_alias(const char* base_name,
+                         const char** aliases, size_t num_aliases);
+// e.g. "Remove" -> ["RemoveItem", "RemoveChar", "Delete"]
+
+// Register multilingual name mapping
+void stz_registry_translate(const char* base_name,
+                             const char* language,
+                             const char* translated_name);
+// e.g. "Remove", "french", "Supprimer"
+// e.g. "Find", "arabic", "ابحث"
+
+// Lookup function by any form/alias/translation
+void* stz_registry_resolve(const char* name, size_t len,
+                            int* out_form); // which form was used
 
 // Generate bridge code for a target language
-// Languages: "ring", "python", "rust", "go", "csharp"
 size_t stz_registry_generate_bridge(const char* language,
                                      char* buf, size_t buf_len);
 
@@ -1011,11 +1102,74 @@ size_t stz_registry_list(const char* domain,
 ```
 
 **Naming grammar rules (Engine-enforced):**
-- Prefixes: `FindFirst`, `FindLast`, `FindNth`, `FindAll`
-- Suffixes: `CS` (case-sensitive), `XT` (extended), `Q` (chained)
-- Conditionals: `W` (where/when), `WXT` (where extended)
-- Semantic: `NumberOfChars` = `Size` for strings
-- Multilingual: `Chercher` = `Find` (via language mapping JSON)
+
+Prefixes:
+- Positional: `FindFirst`, `FindLast`, `FindNth`, `FindAll`
+- Random: `rndFind`, `rndFindN`, `rndRemove`, `rndRemoveN`
+
+Suffixes:
+- `CS` (case-sensitive), `XT` (extended params), `Q` (fluent)
+- `W` (conditional/where), `WXT` (conditional extended)
+- `FQ` (future/deferred + fluent)
+
+Structural:
+- Active/Passive pairs: `Remove` / `Removed`
+- Partial prefix: `@Remove` operates on focused sub-part
+- Plural: `RemoveMany`, `FindMany`, `ReplaceMany`
+- Exceptional: `RemoveExcept`, `RemoveNonLettersExcept`
+- Negative: `IsNot*`, `DoesNotContain`, `IsNotIn*`
+
+Semantic alternatives:
+- `Swap(1,3)` = `SwapItems(1,3)` = `SwapChars(1,3)`
+- `Size()` = `NumberOfChars()` = `NumberOfItems()`
+
+Named parameters:
+- `:AtPosition`, `:And`, `:With`, `:In`, `:From`, `:To`
+- `:CaseSensitive = TRUE/FALSE`
+
+The registry generates ~40-80 valid names per base function.
+With ~150 base functions across all domains, this produces the
+full 6000+ method vocabulary automatically.
+
+**Engine design consequence:** Every base Engine operation (Find,
+Replace, Remove, Insert, Sort, etc.) is implemented ONCE in Zig.
+The 13 forms are compositional wrappers that the registry applies
+mechanically. A Python client calling `stz_op_passive(s, REMOVE,
+args)` gets the same copy-on-write behavior as Ring's `Removed()`.
+
+### Small Functions Engine [PLANNED]
+
+Softanza's small functions (`Q()`, `@@()`, `@()`, `QH()`, etc.)
+are not syntactic sugar -- they are the ergonomic connective tissue
+that makes fluent coding possible. The Engine must provide them
+natively.
+
+```c
+// Q(): elevate any raw value to a managed StzValue
+// Q(5) -> StzNumber, Q("Hi") -> StzString, Q([1,2]) -> StzList
+StzValue stz_q(StzValue raw);
+
+// @@(): readable string representation of any value
+// Especially for deep nested lists: @@([1,[2,3],4]) -> "[ 1, [ 2, 3 ], 4 ]"
+size_t stz_show_readable(StzValue v, char* buf, size_t buf_len);
+
+// QH(): chain with history -- returns all intermediate steps
+// QH(12500).Add(500).RetrieveQ(1500).DivideByQ(500).MultiplyByQ(2).History()
+// -> [ 13000, 11500, 23, 46 ]
+size_t stz_chain_history(StzChainHandle h,
+                          StzValue* out_steps, size_t max);
+
+// L(), S(), N(): quick creators
+StzValue stz_quick_list(const char* spec, size_t len);
+// L('"v1":"v3"') -> ["v1", "v2", "v3"]
+StzValue stz_quick_string(const char* spec, size_t len);
+// S() -> ""
+StzValue stz_quick_number(int64_t n);
+// N() -> 0
+
+// V(), Vr(), Vl(): value inspection utilities
+size_t stz_inspect(StzValue v, char* buf, size_t buf_len);
+```
 
 ### Cache Engine [PLANNED]
 
@@ -1907,12 +2061,15 @@ Priority order by impact on Softanza experience:
 | G.13     | Geospatial      | stzGeoMap coordinate calculations      |
 | G.14     | Bit/Byte Ops    | stzBit/stzByte/stzListOfBits           |
 | G.15     | Expression Eval | Ring eval(), stzConstraint, stzQEngine |
-| G.16     | Func Registry   | Method naming grammar, alternatives,   |
-|          |                 | multilingual names, bridge generation   |
-| G.17     | Cache Engine    | Function-level caching (mem/file/mmap) |
-| G.18     | Log Engine      | Function-level tracing with context    |
-| G.19     | Profiler Engine | Timing, call counts, call graph        |
-| G.20     | Callstack Viz   | Visual error reporting, execution path |
+| G.16     | Func Registry   | 13-form execution model, naming grammar|
+|          |                 | alternatives, multilingual, bridge gen  |
+| G.17     | Small Functions | Q(), @@(), @(), QH(), L(), S(), N()    |
+| G.18     | Exec Primitives | Chain, Partial, Future, Conditional,   |
+|          |                 | Plural, Exceptional, Random dispatch   |
+| G.19     | Cache Engine    | Function-level caching (mem/file/mmap) |
+| G.20     | Log Engine      | Function-level tracing with context    |
+| G.21     | Profiler Engine | Timing, call counts, call graph        |
+| G.22     | Callstack Viz   | Visual error reporting, execution path |
 
 ### Phase H: Softanza Signature Features
 
@@ -1964,9 +2121,9 @@ The Engine IS the product. The language surfaces are thin skins.
 | A-E   | 11      | DONE      | Qt replacement            |
 | F     | 13      | PLANNED   | Ring workaround elimination|
 | F+    | 3       | PLANNED   | Checker/Yielder/Performer |
-| G     | 20      | PLANNED   | Infrastructure + manageability |
+| G     | 22      | PLANNED   | Infrastructure + manageability |
 | H     | 11      | PLANNED   | Signature features        |
-| **Total** | **58** | **11 done, 47 planned** |
+| **Total** | **60** | **11 done, 49 planned** |
 
 ---
 
