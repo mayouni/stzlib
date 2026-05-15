@@ -96,3 +96,58 @@ class stzListTrimmer from stzList
 
 	def TrimmedRight()
 		return This.Copy().TrimRightCSQ(1).Content()
+
+	  #======================================================#
+	 #   TRIM SPECIFIC ITEM                                 #
+	#======================================================#
+
+	def TrimItemCS(pItem, pCaseSensitive)
+		This.TrimItemFromLeftCS(pItem, pCaseSensitive)
+		This.TrimItemFromRightCS(pItem, pCaseSensitive)
+
+		def TrimItemCSQ(pItem, pCaseSensitive)
+			This.TrimItemCS(pItem, pCaseSensitive)
+			return This
+
+	def TrimItem(pItem)
+		This.TrimItemCS(pItem, 1)
+
+		def TrimItemQ(pItem)
+			This.TrimItem(pItem)
+			return This
+
+	def TrimItemFromLeftCS(pItem, pCaseSensitive)
+		aContent = This.Content()
+		nLen = len(aContent)
+		nStart = 0
+		for i = 1 to nLen
+			if StzListQ([aContent[i], pItem]).BothAreEqualCS(pCaseSensitive)
+				nStart = i
+			else
+				exit
+			ok
+		next
+		if nStart > 0
+			This.RemoveSection(1, nStart)
+		ok
+
+	def TrimItemFromLeft(pItem)
+		This.TrimItemFromLeftCS(pItem, 1)
+
+	def TrimItemFromRightCS(pItem, pCaseSensitive)
+		aContent = This.Content()
+		nLen = len(aContent)
+		nEnd = 0
+		for i = nLen to 1 step -1
+			if StzListQ([aContent[i], pItem]).BothAreEqualCS(pCaseSensitive)
+				nEnd = i
+			else
+				exit
+			ok
+		next
+		if nEnd > 0
+			This.RemoveSection(nEnd, nLen)
+		ok
+
+	def TrimItemFromRight(pItem)
+		This.TrimItemFromRightCS(pItem, 1)

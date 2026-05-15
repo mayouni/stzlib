@@ -27,12 +27,18 @@ class stzListLeadTrailXT from stzListLeadTrail
 			_bAliasesLoaded = 1
 
 			aAliases = [
-				[:HasLeadingItems,	:HasRepeatedLeadingItems],
-				[:HasTrailingItems,	:HasRepeatedTrailingItems],
-				[:LeadingItems,		:RepeatedLeadingItems],
-				[:TrailingItems,	:RepeatedTrailingItems],
-				[:TrimRepeatedLeading,	:RemoveRepeatedLeadingItems],
-				[:TrimRepeatedTrailing,	:RemoveRepeatedTrailingItems]
+				[:HasLeadingItems,		:HasRepeatedLeadingItems],
+				[:HasTrailingItems,		:HasRepeatedTrailingItems],
+				[:LeadingItems,			:RepeatedLeadingItems],
+				[:TrailingItems,		:RepeatedTrailingItems],
+				[:TrimRepeatedLeading,		:RemoveRepeatedLeadingItems],
+				[:TrimRepeatedTrailing,		:RemoveRepeatedTrailingItems],
+				[:StripRepeatedLeading,		:RemoveRepeatedLeadingItems],
+				[:StripRepeatedTrailing,	:RemoveRepeatedTrailingItems],
+				[:BeginsWith,			:StartsWith],
+				[:BeginsWithCS,			:StartsWithCS],
+				[:FinishesWith,			:EndsWith],
+				[:FinishesWithCS,		:EndsWithCS]
 			]
 
 			nLen = len(aAliases)

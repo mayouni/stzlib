@@ -27,10 +27,16 @@ class stzListClassifierXT from stzListClassifier
 			_bAliasesLoaded = 1
 
 			aAliases = [
-				[:Categorize,	:Classify],
-				[:Categorized,	:Classified],
-				[:Categories,	:Classes],
-				[:CategorizeBy,	:ClassifyBy]
+				[:Categorize,		:Classify],
+				[:Categorized,		:Classified],
+				[:Categories,		:Classes],
+				[:CategorizeBy,		:ClassifyBy],
+				[:GroupBy,		:ClassifyBy],
+				[:NumberOfCategories,	:NumberOfClasses],
+				[:Freqs,		:Frequencies],
+				[:ItemFrequencies,	:Frequencies],
+				[:MostCommon,		:MostFrequent],
+				[:LeastCommon,		:LeastFrequent]
 			]
 
 			nLen = len(aAliases)

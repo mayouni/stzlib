@@ -82,3 +82,87 @@ class stzListComparator from stzList
 
 	def IsReverseOf(paOtherList)
 		return This.IsReverseOfCS(paOtherList, 1)
+
+	  #======================================================#
+	 #   NOT EQUAL                                          #
+	#======================================================#
+
+	def IsNotEqualToCS(paOtherList, pCaseSensitive)
+		return NOT This.IsEqualToCS(paOtherList, pCaseSensitive)
+
+	def IsNotEqualTo(paOtherList)
+		return NOT This.IsEqualTo(paOtherList)
+
+	  #======================================================#
+	 #   SYMMETRIC DIFFERENCE                               #
+	#======================================================#
+
+	def SymmetricDifferenceCS(paOtherList, pCaseSensitive)
+		aDiff1 = This.DifferenceCS(paOtherList, pCaseSensitive)
+		aDiff2 = StzListQ(paOtherList).DifferenceCS(This.Content(), pCaseSensitive)
+		aResult = aDiff1
+		nLen = len(aDiff2)
+		for i = 1 to nLen
+			aResult + aDiff2[i]
+		next
+		return aResult
+
+	def SymmetricDifference(paOtherList)
+		return This.SymmetricDifferenceCS(paOtherList, 1)
+
+	  #======================================================#
+	 #   IS SUBSET / SUPERSET                               #
+	#======================================================#
+
+	def IsSubsetOfCS(paOtherList, pCaseSensitive)
+		aContent = This.Content()
+		nLen = len(aContent)
+		for i = 1 to nLen
+			if NOT StzListQ(paOtherList).ContainsCS(aContent[i], pCaseSensitive)
+				return 0
+			ok
+		next
+		return 1
+
+	def IsSubsetOf(paOtherList)
+		return This.IsSubsetOfCS(paOtherList, 1)
+
+	def IsSupersetOfCS(paOtherList, pCaseSensitive)
+		return StzListQ(paOtherList).IsSubsetOfCS(This.Content(), pCaseSensitive)
+
+	def IsSupersetOf(paOtherList)
+		return This.IsSupersetOfCS(paOtherList, 1)
+
+	  #======================================================#
+	 #   CONTAINS                                           #
+	#======================================================#
+
+	def ContainsCS(pItem, pCaseSensitive)
+		return This.FindFirstCS(pItem, pCaseSensitive) > 0
+
+	def Contains(pItem)
+		return This.ContainsCS(pItem, 1)
+
+	def ContainsAllOfTheseCS(paItems, pCaseSensitive)
+		nLen = len(paItems)
+		for i = 1 to nLen
+			if NOT This.ContainsCS(paItems[i], pCaseSensitive)
+				return 0
+			ok
+		next
+		return 1
+
+	def ContainsAllOfThese(paItems)
+		return This.ContainsAllOfTheseCS(paItems, 1)
+
+	def ContainsOneOfTheseCS(paItems, pCaseSensitive)
+		nLen = len(paItems)
+		for i = 1 to nLen
+			if This.ContainsCS(paItems[i], pCaseSensitive)
+				return 1
+			ok
+		next
+		return 0
+
+	def ContainsOneOfThese(paItems)
+		return This.ContainsOneOfTheseCS(paItems, 1)

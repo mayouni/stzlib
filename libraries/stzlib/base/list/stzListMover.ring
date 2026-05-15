@@ -58,5 +58,76 @@ class stzListMover from stzList
 	def MoveToStart(n)
 		This.Move(n, 1)
 
+		def MoveToStartQ(n)
+			This.MoveToStart(n)
+			return This
+
+		def MoveToFirst(n)
+			This.MoveToStart(n)
+
 	def MoveToEnd(n)
 		This.Move(n, This.NumberOfItems())
+
+		def MoveToEndQ(n)
+			This.MoveToEnd(n)
+			return This
+
+		def MoveToLast(n)
+			This.MoveToEnd(n)
+
+	  #======================================================#
+	 #   SWAP FIRST AND LAST                                #
+	#======================================================#
+
+	def SwapFirstAndLast()
+		This.Swap(1, This.NumberOfItems())
+
+		def SwapFirstAndLastQ()
+			This.SwapFirstAndLast()
+			return This
+
+	  #======================================================#
+	 #   MOVE MANY ITEMS                                    #
+	#======================================================#
+
+	def MoveMany(panPositions, nTo)
+		nLen = len(panPositions)
+		aSorted = StzListQ(panPositions).SortedInDescending()
+		aItems = []
+		for i = 1 to nLen
+			aItems + This.NthItem(aSorted[i])
+			ring_remove(This.List(), aSorted[i])
+		next
+		aItems = StzListQ(aItems).ReversedQ().Content()
+		nInsert = nTo
+		if nInsert > This.NumberOfItems()
+			nInsert = This.NumberOfItems() + 1
+		ok
+		for i = 1 to len(aItems)
+			ring_insert(This.List(), nInsert - 1, aItems[i])
+			nInsert++
+		next
+
+		def MoveManyQ(panPositions, nTo)
+			This.MoveMany(panPositions, nTo)
+			return This
+
+	  #======================================================#
+	 #   REVERSE                                            #
+	#======================================================#
+
+	def Reverse()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		for i = nLen to 1 step -1
+			aResult + aContent[i]
+		next
+		This.UpdateWith(aResult)
+
+		def ReverseQ()
+			This.Reverse()
+			return This
+
+	def Reversed()
+		return This.Copy().ReverseQ().Content()

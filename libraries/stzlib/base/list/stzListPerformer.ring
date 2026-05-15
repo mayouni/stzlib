@@ -80,3 +80,45 @@ class stzListPerformer from stzList
 	def YieldW(pcCondition, pcYielder)
 		anPos = This.FindW(pcCondition)
 		return This.YieldOn(anPos, pcYielder)
+
+	  #======================================================#
+	 #   YIELD ON POSITIONS Q                               #
+	#======================================================#
+
+	def YieldOnQ(panPos, pcYielder)
+		return new stzList(This.YieldOn(panPos, pcYielder))
+
+	def YieldWQ(pcCondition, pcYielder)
+		return new stzList(This.YieldW(pcCondition, pcYielder))
+
+	  #======================================================#
+	 #   PERFORM ON EACH WITH INDEX                         #
+	#======================================================#
+
+	def PerformOnEachItemAndItsPosition(pcAction)
+		aContent = This.Content()
+		nLen = len(aContent)
+		_cCode_ = StzStringQ(pcAction).TrimQ().BoundsRemoved("{","}")
+		for @i = 1 to nLen
+			@item = aContent[@i]
+			eval(_cCode_)
+		next
+
+		def PerformOnEachItemAndItsPositionQ(pcAction)
+			This.PerformOnEachItemAndItsPosition(pcAction)
+			return This
+
+	  #======================================================#
+	 #   YIELD PAIRS [POSITION, ITEM]                       #
+	#======================================================#
+
+	def YieldPairs(pcYielder)
+		aContent = This.Content()
+		nLen = len(aContent)
+		_cCode_ = StzStringQ(pcYielder).TrimQ().BoundsRemoved("{","}")
+		aResult = []
+		for @i = 1 to nLen
+			@item = aContent[@i]
+			aResult + eval(_cCode_)
+		next
+		return aResult

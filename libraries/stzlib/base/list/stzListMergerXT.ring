@@ -27,10 +27,18 @@ class stzListMergerXT from stzListMerger
 			_bAliasesLoaded = 1
 
 			aAliases = [
-				[:CombineWith,	:MergeWith],
-				[:CombinedWith,	:MergedWith],
-				[:ZipWith,	:AssociateWith],
-				[:ZippedWith,	:AssociatedWith]
+				[:CombineWith,		:MergeWith],
+				[:CombinedWith,		:MergedWith],
+				[:CombineWithMany,	:MergeWithMany],
+				[:CombinedWithMany,	:MergedWithMany],
+				[:ZipWith,		:AssociateWith],
+				[:ZippedWith,		:AssociatedWith],
+				[:DeepMerge,		:Flatten],
+				[:DeepMergeQ,		:FlattenQ],
+				[:DeepMerged,		:Flattened],
+				[:WeaveWith,		:InterleaveWith],
+				[:WeaveWithQ,		:InterleaveWithQ],
+				[:WovenWith,		:InterleavedWith]
 			]
 
 			nLen = len(aAliases)
