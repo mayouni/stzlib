@@ -13945,7 +13945,7 @@ class stzString from stzObject
 		ok
 
 		cBounded = This.String() + pcSubStr + This.String()
-		bResult = StzStringQ(pcInStr).ContainsCS(cBounded, pCaseSensitive)
+		bResult = StringContainsCS(pcInStr, cBounded, pCaseSensitive)
 
 		return bResult
 
@@ -18166,13 +18166,13 @@ class stzString from stzObject
 		cBound1 = acBounds[1]
 		cBound2 = acBounds[2]
 
-		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
-		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+		nLenBound1 = len(cBound1)
+		nLenBound2 = len(cBound2)
 
 		aSections = This.FindSubStringBoundsCSZZ(pcSubStr, pCaseSensitive)
 		nLen = len(aSections)
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 		anResult = []
 
 		for i = 1 to nLen step 2
@@ -18232,13 +18232,13 @@ class stzString from stzObject
 		cBound1 = acBounds[1]
 		cBound2 = acBounds[2]
 
-		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
-		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+		nLenBound1 = len(cBound1)
+		nLenBound2 = len(cBound2)
 
 		aSections = This.FindSubStringBoundsCSZZ(pcSubStr, pCaseSensitive)
 		nLen = len(aSections)
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 		aResult = []
 
 		for i = 1 to nLen step 2
@@ -18305,8 +18305,8 @@ class stzString from stzObject
 		*/
 
 		nLen = This.NumberOfChars()
-		nLenBound1 = StzStringQ(pcBound1).NumberOfChars()
-		nLenBound2 = StzStringQ(pcBound2).NumberOfChars()
+		nLenBound1 = len(pcBound1)
+		nLenBound2 = len(pcBound2)
 
 		anResult = []
 		nPos = 1
@@ -18360,8 +18360,8 @@ class stzString from stzObject
 	def FindTheseBoundsCSZZ(pcBound1, pcBound2, pCaseSensitive)
 
 		nLen = This.NumberOfChars()
-		nLenBound1 = StzStringQ(pcBound1).NumberOfChars()
-		nLenBound2 = StzStringQ(pcBound2).NumberOfChars()
+		nLenBound1 = len(pcBound1)
+		nLenBound2 = len(pcBound2)
 
 		aResult = []
 		nPos = 1
@@ -21282,7 +21282,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param types! pcBound1 and pcBound2 must be both strings.")
 		ok
 
-		nLen1 = StzStringQ(pcBound1).NumberOfChars()
+		nLen1 = len(pcBound1)
 		n1 = This.FindFirstOccurrenceCS(pcBound1, pCaseSensitive) + nLen1
 		n2 = This.FindLastOccurrenceCS(pcBound2, pCaseSensitive) - 1
 
@@ -21385,8 +21385,8 @@ class stzString from stzObject
 			pcBound2 = pcBound2[2]
 		ok
 
-		nLen1 = StzStringQ(pcBound1).NumberOfChars()
-		nLen2 = StzStringQ(pcBound2).NumberOfChars()
+		nLen1 = len(pcBound1)
+		nLen2 = len(pcBound2)
 
 		aSection[1] = aSection[1] - nLen1
 		aSection[2] = aSection[2] + nLen2
@@ -21450,7 +21450,7 @@ class stzString from stzObject
 
 	def RemoveSubStringLeftBoundCS(pcSubStr, pCaseSensitive)
 	
-		nLenSubStr = StzStringQ( pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 	
 		if This.LeftNChars( nLenSubStr ) = pcSubStr
 			This.ReplaceFirstOccurrenceCS(pcSubStr, "", pCaseSensitive)
@@ -21558,7 +21558,7 @@ class stzString from stzObject
 
 	def RemoveSubStringRightBoundCS(pcSubStr, pCaseSensitive)
 	
-		nLenSubStr = StzStringQ( pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 	
 		if This.RightNChars( nLenSubStr ) = pcSubStr
 			This.ReplaceLastOccurrenceCS(pcSubStr, "", pCaseSensitive)
@@ -23372,7 +23372,7 @@ class stzString from stzObject
 		_cLastChar_ = substr(This.Content(), _nLen_, 1)
 		_cBeforeLastChar_ = substr(This.Content(), _nLen_ - 1, 1)
 
-		if StzStringQ(_cLastChar_).IsEqualToCS(_cBeforeLastChar_, pCaseSensitive)
+		if BothStringsAreEqualCS(_cLastChar_, _cBeforeLastChar_, pCaseSensitive)
 			return _cLastChar_
 		else
 			return ""
@@ -23504,7 +23504,7 @@ class stzString from stzObject
 		_cLastChar_ = substr(This.Content(), _nLen_, 1)
 		_cBeforeLastChar_ = substr(This.Content(), _nLen_ - 1, 1)
 
-		if NOT StzStringQ(_cLastChar_).IsEqualToCS(_cBeforeLastChar_, pCaseSensitive)
+		if NOT BothStringsAreEqualCS(_cLastChar_, _cBeforeLastChar_, pCaseSensitive)
 			return 0
 		ok
 
@@ -23514,7 +23514,7 @@ class stzString from stzObject
 
 			_cChar_ = substr(This.Content(), @i, 1)
 
-			if NOT StzStringQ(_cChar_).IsEqualToCS(_cLastChar_, pCaseSensitive)
+			if NOT BothStringsAreEqualCS(_cChar_, _cLastChar_, pCaseSensitive)
 				exit
 			else
 				_n_++
@@ -23600,8 +23600,8 @@ class stzString from stzObject
 		_cLastChar_ = substr(This.Content(), _nLen_, 1)
 		_cBeforeLastChar_ = substr(This.Content(), _nLen_ - 1, 1)
 
-		if StzStringQ(_cLastChar_).IsEqualToCS(_cBeforeLastChar_, pCaseSensitive) and
-		   StzStringQ(c).IsEqualToCS(_cLastChar_, pCaseSensitive)
+		if BothStringsAreEqualCS(_cLastChar_, _cBeforeLastChar_, pCaseSensitive) and
+		   BothStringsAreEqualCS(c, _cLastChar_, pCaseSensitive)
 
 			return 1
 		else
@@ -23649,7 +23649,7 @@ class stzString from stzObject
 		cLastChar = substr(This.Content(), nLen, 1)
 		cBeforeLastChar = substr(This.Content(), nLen - 1, 1)
 
-		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
+		if BothStringsAreEqualCS(cLastChar, cBeforeLastChar, pCaseSensitive)
 			return 1
 		else
 			return 0
@@ -23775,7 +23775,7 @@ class stzString from stzObject
 		cLastChar = substr(cContent, nLenStr, 1)
 		cBeforeLastChar = substr(cContent, nLenStr - 1, 1)
 
-		if NOT StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
+		if NOT BothStringsAreEqualCS(cLastChar, cBeforeLastChar, pCaseSensitive)
 			return []
 		ok
 
@@ -23839,7 +23839,7 @@ class stzString from stzObject
 		cLastChar = substr(cContent, nLenStr, 1)
 		cBeforeLastChar = substr(cContent, nLenStr - 1, 1)
 
-		if NOT StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
+		if NOT BothStringsAreEqualCS(cLastChar, cBeforeLastChar, pCaseSensitive)
 			return []
 		ok
 
@@ -24926,13 +24926,13 @@ class stzString from stzObject
 
 		cLastChar = substr(cContent, nLenStr, 1)
 
-		if NOT StzStringQ(cLastChar).IsEqualToCS(c, pCaseSensitive)
+		if NOT BothStringsAreEqualCS(cLastChar, c, pCaseSensitive)
 			return
 		ok
 
 		cBeforeLastChar = substr(cContent, nLenStr - 1, 1)
 
-		if StzStringQ(cLastChar).IsEqualToCS(cBeforeLastChar, pCaseSensitive)
+		if BothStringsAreEqualCS(cLastChar, cBeforeLastChar, pCaseSensitive)
 			aSection = This.FindRepeatedTrailingCharsCSZZ(pCaseSensitive)
 			This.RemoveSection(aSection[1], aSection[2])
 		ok
@@ -27107,7 +27107,7 @@ class stzString from stzObject
 				return []
 			ok
 
-			n1 += StzStringQ(pcSubStr1).NumberOfChars()
+			n1 += len(pcSubStr1)
 
 			#--
 
@@ -27245,7 +27245,7 @@ class stzString from stzObject
 			if n1 = 0
 				return ""
 			else
-				n1 += StzStringQ(pSubStrOrPos1).NumberOfChars()
+				n1 += len(pSubStrOrPos1)
 			ok
 
 
@@ -27317,8 +27317,8 @@ class stzString from stzObject
 	def FindSubStringBetweenCSIBZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 		aSection = This.FindSubStringBetweenCSZZ(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 		nLen = len(aSection)
-		nLen1 = StzStringQ(pcSubStr1).NumberOfChars()
-		nLen2 = StzStringQ(pcSubStr2).NumberOfChars()
+		nLen1 = len(pcSubStr1)
+		nLen2 = len(pcSubStr2)
 		aResult = []
 
 		for i = 1 to nLen
@@ -27757,9 +27757,9 @@ class stzString from stzObject
 
 		nLenBound1 = 0
 		if isString(pacBounds)
-			nLenBound1 = StzStringQ(pacBounds).NumberOfChars()
+			nLenBound1 = len(pacBounds)
 		else
-			nLenBound1 = StzStringQ(pacBounds[1]).NumberOfChars()
+			nLenBound1 = len(pacBounds[1])
 		ok
 
 		anResult = []
@@ -27894,7 +27894,7 @@ class stzString from stzObject
 		end
 
 		if nResult > 0
-			nResult -= StzStringQ(cBound1).NumberOfChars()
+			nResult -= len(cBound1)
 		ok
 
 		return nResult
@@ -27965,7 +27965,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		nLenStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenStr = len(pcSubStr)
 		anResult = [ nPos, nPos + nLenStr-1 ]
 
 		return anResult
@@ -28262,7 +28262,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		nLenStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenStr = len(pcSubStr)
 		anResult = [ nPos, nPos + nLenStr-1 ]
 
 		return anResult
@@ -28375,10 +28375,10 @@ class stzString from stzObject
 			nLenBound1 = 0
 
 			if isString(pacBounds)
-				nLenBound1 = StzStringQ(pacBounds).NumberOfChars()
+				nLenBound1 = len(pacBounds)
 
 			else
-				nLenBound1 = StzStringQ(pacBounds[1]).NumberOfChars()
+				nLenBound1 = len(pacBounds[1])
 			ok
 
 			nResult -= nLenBound1
@@ -28453,7 +28453,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		nLenStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenStr = len(pcSubStr)
 		anResult = [ nPos, nPos + nLenStr-1 ]
 
 		return anResult
@@ -28566,10 +28566,10 @@ class stzString from stzObject
 			nLenBound1 = 0
 
 			if isString(pacBounds)
-				nLenBound1 = StzStringQ(pacBounds).NumberOfChars()
+				nLenBound1 = len(pacBounds)
 
 			else
-				nLenBound1 = StzStringQ(pacBounds[1]).NumberOfChars()
+				nLenBound1 = len(pacBounds[1])
 			ok
 
 			nResult -= nLenBound1
@@ -28649,7 +28649,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		nLenStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenStr = len(pcSubStr)
 		anResult = [ nPos, nPos + nLenStr-1 ]
 
 		return anResult
@@ -28859,7 +28859,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+		nLenBound1 = len(cBound1)
 		nResult = This.FindNthCS(n, cBounded, pCaseSensitive) + nLenBound1
 
 		return nResult
@@ -28915,7 +28915,7 @@ class stzString from stzObject
 
 		if n <= len(anPos)
 			cBound1 = @Bounds(pacBounds)[1]
-			nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+			nLenBound1 = len(cBound1)
 			nResult = anPos[n] + nLenBound1
 		ok
 
@@ -29178,7 +29178,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 		aResult = [ nPos, nPos + nLenSubstr - 1 ]
 
 		return aResult
@@ -29231,10 +29231,10 @@ class stzString from stzObject
 			nLenBound1 = 0
 
 			if isString(pacBounds)
-				nLenBound1 = StzStringQ(pacBounds).NumberOfChars()
+				nLenBound1 = len(pacBounds)
 
 			else
-				nLenBound1 = StzStringQ(pacBounds[1]).NumberOfChars()
+				nLenBound1 = len(pacBounds[1])
 			ok
 
 			nResult -= nLenBound1
@@ -29294,10 +29294,10 @@ class stzString from stzObject
 			cBound2 = pacBounds[2]
 		ok
 
-		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
-		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+		nLenBound1 = len(cBound1)
+		nLenBound2 = len(cBound2)
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 
 		n1 = nPos
 		n2 = nPos + nLenBound1 + nLenSubStr + nLenBound2 - 1
@@ -29409,7 +29409,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 		anResult = [ nPos, nPos + nLenSubStr - 1 ]
 
 		return anResult
@@ -29469,7 +29469,7 @@ class stzString from stzObject
 			cBound1 = pacBounds[1]
 		ok
 
-		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+		nLenBound1 = len(cBound1)
 
 		nResult = nPos - nLenBound1
 		return nResult
@@ -29521,7 +29521,7 @@ class stzString from stzObject
 
 		if nPos > 0
 
-			nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+			nLenSubStr = len(pcSubStr)
 			aResult = [ nPos, nPos + nLenSubStr - 1 ]
 
 		ok
@@ -29683,10 +29683,10 @@ class stzString from stzObject
 
 		nLenBound1 = 0
 		if isString(pacBounds)
-			nLenBound1 = StzStringQ(pacBounds).NumberOfChars()
+			nLenBound1 = len(pacBounds)
 
 		else
-			nLenBound1 = StzStringQ(pacBounds[1]).NumberOfChars()
+			nLenBound1 = len(pacBounds[1])
 		ok
 
 		nLenSubStr = Q(pcSubStr).NumberOfChars()
@@ -29745,11 +29745,11 @@ class stzString from stzObject
 		nLenBound2 = 0
 
 		if isString(pacBounds)
-			nLenBound1 = StzStringQ(pacBounds).NumberOfChars()
+			nLenBound1 = len(pacBounds)
 			nLenBound2 = nLenBound1
 		else
-			nLenBound1 = StzStringQ(pacBounds[1]).NumberOfChars()
-			nLenBound2 = StzStringQ(pacBounds[2]).NumberOfChars()
+			nLenBound1 = len(pacBounds[1])
+			nLenBound2 = len(pacBounds[2])
 		ok
 
 		anResult = [ nPos, (nPos + nLenBound1 + nLenSubStr + nLenBound2 - 1) ]
@@ -29850,7 +29850,7 @@ class stzString from stzObject
 
 	def FindNthSubStringBoundedBySTDCSZZ(n, pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 		nPos = This.FindNthSubStringBoundedBySTDCS(n, pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 		anResult = [ nPos, nPos + nLenSubStr - 1 ]
 
 		return anResult
@@ -29904,7 +29904,7 @@ class stzString from stzObject
 			cBound1 = pacBounds[1]
 		ok
 
-		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+		nLenBound1 = len(cBound1)
 
 		nResult = nPos - nLenBound1
 		return nResult
@@ -29951,7 +29951,7 @@ class stzString from stzObject
 
 	def FindNthSubStringBoundedBySTDCSIBZZ(n, pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
 		nPos = This.FindNthSubStringBoundedBySTDCSIB(n, pcSubStr, pacBounds, pnStartingAt, pcDirection, pCaseSensitive)
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 		anResult = [ nPos, nPos + nLenSubStr - 1 ]
 
 		return anResult
@@ -30645,7 +30645,7 @@ class stzString from stzObject
 		if nPos = 0
 			return []
 		else
-			nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+			nLenSubStr = len(pcSubStr)
 
 			if isString(pacBounds)
 				cBound1 = pacBounds
@@ -30655,8 +30655,8 @@ class stzString from stzObject
 				cBound2 = pacBounds[2]
 			ok
 
-			nLenBound1 = StzStringQ(cBound1).NumberOfChars()
-			nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+			nLenBound1 = len(cBound1)
+			nLenBound2 = len(cBound2)
 
 			anResult = [ nPos, nPos + nLenBound1 + nLenSubStr + nLenBound2 - 1 ]
 			return anResult
@@ -31299,7 +31299,7 @@ class stzString from stzObject
 		anResult = []
 
 		if nPos > 0
-			nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+			nLenSubStr = len(pcSubStr)
 			anResult = [ nPos, nPos + nLenSubStr - 1 ]
 		ok
 
@@ -31409,10 +31409,10 @@ class stzString from stzObject
 				cBound2 = pacBounds[2]
 			ok
 
-			nLenBound1 = StzStringQ(cBound1).NumberOfChars()
-			nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+			nLenBound1 = len(cBound1)
+			nLenBound2 = len(cBound2)
 
-			nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+			nLenSubStr = len(pcSubStr)
 
 			anResult = [ nPos, ( nPos + nLenBound1 + nLenSubStr + nLenBound2 - 1 ) ]
 			return anResult
@@ -32273,7 +32273,7 @@ class stzString from stzObject
 		acBounds = @Bounds(pacBounds)
 		cBound1 = acBounds[1]
 
-		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
+		nLenBound1 = len(cBound1)
 
 		anResult = []
 
@@ -32358,8 +32358,8 @@ class stzString from stzObject
 		cBound1 = acBounds[1]
 		cBound2 = acBounds[2]
 
-		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
-		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+		nLenBound1 = len(cBound1)
+		nLenBound2 = len(cBound2)
 
 		aResult = []
 
@@ -32992,8 +32992,8 @@ class stzString from stzObject
 		cBound1 = acBounds[1]
 		cBound2 = acBounds[2]
 
-		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
-		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+		nLenBound1 = len(cBound1)
+		nLenBound2 = len(cBound2)
 		if nLenBound2 > 1
 			nLenBound2++
 		ok
@@ -33097,8 +33097,8 @@ class stzString from stzObject
 		cBound1 = acBounds[1]
 		cBound2 = acBounds[2]
 
-		nLenBound1 = StzStringQ(cBound1).NumberOfChars()
-		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+		nLenBound1 = len(cBound1)
+		nLenBound2 = len(cBound2)
 		if nLenBound2 > 1
 			nLenBound2++
 		ok
@@ -33441,7 +33441,7 @@ class stzString from stzObject
 		cBound1 = acBounds[1]
 		cBound2 = acBounds[2]
 
-		nLenBound2 = StzStringQ(cBound2).NumberOfChars()
+		nLenBound2 = len(cBound2)
 
 		# Doing the job (using a numerical solution based of the bounds positions)
 
@@ -35310,7 +35310,7 @@ class stzString from stzObject
 				but n2 = :EndOfWord or n2 = :EndOfSentence or n2 = :EndOfLine
 					# Do nothing here, will be managed later
 				else
-					nLen2 = StzStringQ(n2).NumberOfChars()
+					nLen2 = len(n2)
 					n2 = This.FindLastCS(n2, pCaseSensitive) + nLen2 - 1
 				ok
 			ok
@@ -35702,7 +35702,7 @@ class stzString from stzObject
 
 		ok
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 		return This.Section(nPos + nLenSubStr, This.NumberOfChars())
 
 		def SubStringAfterCS(pcSubStr, pCaseSensitive)
@@ -37904,7 +37904,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		_nLen_ = StzStringQ(pcSubStr).NumberOfChars()
+		_nLen_ = len(pcSubStr)
 		_nLenStr_ = This.NumberOfChars()
 		_anPos_ = []
 
@@ -38496,7 +38496,7 @@ class stzString from stzObject
 		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
 		nLen = len(anPos)
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 
 		for i = 1 to nLen
 			anPos[i] += (nLenSubStr - 1)
@@ -40339,7 +40339,7 @@ class stzString from stzObject
 
 		# Doing the job
 
-		nLen = StzStringQ(pcSubStr).NumberOfChars()
+		nLen = len(pcSubStr)
 
 		if This.RangeQ(n, nLen).IsEqualToCS(pcSubStr, pCaseSensitive)
 			This.ReplaceRange(n, nLen, pcNewSubStr)
@@ -41232,14 +41232,14 @@ class stzString from stzObject
 			if n1 = 0
 				return
 			else
-				n1 += StzStringQ(pcBound1).NumberOfChars()
+				n1 += len(pcBound1)
 			ok
 
 			n2 = This.FindFirstCS(pcBound2, pCaseSensitive)
 			if n2 = 0
 				return
 			else
-				n2 += StzStringQ(pcBound2).NumberOfChars() - 1
+				n2 += len(pcBound2) - 1
 			ok
 
 		else // @BothAreNumbers
@@ -45298,7 +45298,7 @@ class stzString from stzObject
 	#====================================================#
 
 	def FindNthSTDCSZZ(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 		nPos = FindNthSTDCS(n, pcSubStr, pnStartingAt, pcDirection, pCaseSensitive)
 		anResult = [ nPos, nPos + nLenSubStr - 1 ]
 
@@ -45957,7 +45957,7 @@ class stzString from stzObject
 	def NthSTCSZZ(n, pcSubStr, pnStartingAt, pCaseSensitive)
 
 		nPos = This.FindNthSTCS(n, pcSubStr, pnStartingAt, pCaseSensitive)
-		nLen = StzStringQ(pcSubStr).NumberOfChars()
+		nLen = len(pcSubStr)
 		aSection = [ nPos, nPos + nLen - 1 ]
 
 		aResult = [ pcSubStr, aSection ]
@@ -51749,7 +51749,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		nLenStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenStr = len(pcSubStr)
 		aResult = [ n, n + nLenStr - 1 ]
 
 		return aResult
@@ -51824,7 +51824,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		nLenStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenStr = len(pcSubStr)
 		aResult = [ n, n + nLenStr - 1 ]
 
 		return aResult
@@ -52123,7 +52123,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		nLenStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenStr = len(pcSubStr)
 		aResult = [ n, n + nLenStr - 1 ]
 
 		return aResult
@@ -53303,7 +53303,7 @@ class stzString from stzObject
 
 		aResult = []
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 			
 		for i = 1 to nLen
 			aResult + [ anFirstPos[i], anFirstPos[i] + nLenSubStr - 1 ]
@@ -53890,7 +53890,7 @@ class stzString from stzObject
 		cResult = @@( This.Content() )
 		anPos = This.FindAllCS( c, pCaseSensitive )
 
-		nLen = StzStringQ(cResult).NumberOfChars()
+		nLen = len(cResult)
 
 		cViz = " "
 		for i = 1 to nLen - 2
@@ -54149,7 +54149,7 @@ class stzString from stzObject
 
 			# Second we fabricate the segment
 
-			nLenSegment = StzStringQ(pcSubStr).NumberOfChars()-2
+			nLenSegment = len(pcSubStr)-2
 			cTempSegment = ""
 
 			for i = 1 to nLenSegment
@@ -55831,7 +55831,7 @@ class stzString from stzObject
 		ok
 
 		if This.ContainsSubStringAtPositionCS(n, pcSubStr, pCaseSensitive)
-			nRange = StzStringQ(pcSubStr).NumberOfChars()
+			nRange = len(pcSubStr)
 			This.RemoveRange(n, nRange)
 		ok
 
@@ -69228,7 +69228,7 @@ class stzString from stzObject
 		acSplits = This.SplitsAtPositions(anPos)
 		
 		for i = 1 to n-1
-			nLen = StzStringQ(acSplits[i]).NumberOfChars()
+			nLen = len(acSplits[i])
 			nResult += ( nLen + 1 )
 		next
 
@@ -69281,11 +69281,11 @@ class stzString from stzObject
 			return 1
 		ok
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 		acSplits = This.SplitsAtSubStringCS(pcSubStr, pCaseSensitive)
 		
 		for i = 1 to n-1
-			nLen = StzStringQ(acSplits[i]).NumberOfChars()
+			nLen = len(acSplits[i])
 			nResult += ( nLen + nLenSubStr )
 		next
 
@@ -69382,8 +69382,8 @@ class stzString from stzObject
 		acSplits = This.SplitsAtSubStringCS(pcSubStr, pCaseSensitive)
 		
 		for i = 1 to n-1
-			nLen = StzStringQ(acSplits[i]).NumberOfChars()
-			nLenSubStr = StzStringQ(pacSubStr[i]).NumberOfChars()
+			nLen = len(acSplits[i])
+			nLenSubStr = len(pacSubStr[i])
 			nResult += ( nLen + nLenSubStr )
 		next
 
@@ -78799,7 +78799,7 @@ class stzString from stzObject
 				oTempStr = ( This.Copy() - oTempStr.Content() )
 				nLen = oTempStr.NumberOfChars()
 				if oTempStr.IsEqualTo( This.Section(1, n) )
-					nResult = n + nLen / StzStringQ(pDividor).NumberOfChars()
+					nResult = n + nLen / len(pDividor)
 					return nResult
 				else
 					return n
@@ -79436,7 +79436,7 @@ class stzString from stzObject
 
 		ok
 
-		if This.NumberOfChars() < StzStringQ(pcOtherStr).NumberOfChars()
+		if This.NumberOfChars() < len(pcOtherStr)
 			return 1
 		else
 			return 0
@@ -79483,7 +79483,7 @@ class stzString from stzObject
 
 		ok
 
-		if This.NumberOfChars() > StzStringQ(pcOtherStr).NumberOfChars()
+		if This.NumberOfChars() > len(pcOtherStr)
 			return 1
 		else
 			return 0
@@ -79523,7 +79523,7 @@ class stzString from stzObject
 			return 1
 		ok
 
-		nDif = abs(This.NumberOfChars() - StzStringQ(cOtherStr).NumberOfChars())
+		nDif = abs(This.NumberOfChars() - len(cOtherStr))
 		n = nDif / This.NumberOfChars()
 		
 		if n <= QuietEqualityRatio() # 0.09 by default, can be changed with SetQuietEqualityRatio(n)
@@ -86694,7 +86694,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 
 		if This.NLeftCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
 
@@ -86773,7 +86773,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 
 		if This.NRightCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
 
@@ -95882,7 +95882,7 @@ class stzString from stzObject
 				aLines = StzStringQ(This.Content()).Split(NL)
 				nMaxLineWidth = 0
 				for cLine in aLines
-					nLineWidth = StzStringQ(cLine).NumberOfChars()
+					nLineWidth = len(cLine)
 					if nLineWidth > nMaxLineWidth
 						nMaxLineWidth = nLineWidth
 					ok
@@ -95977,7 +95977,7 @@ class stzString from stzObject
 
 		for i = 1 to nLen
 			item = paList[i]
-			if isString(item) and StzStringQ(item).IsEqualToCS( This.String(), pCaseSensitive )
+			if isString(item) and BothStringsAreEqualCS(item, This.String(), pCaseSensitive)
 				bResult = 1
 				exit
 			ok
@@ -97285,7 +97285,7 @@ class stzString from stzObject
 				*/
 
 						
-				cMember1 = StzStringQ(acMembers[1]).Simplified()
+				cMember1 = StringSimplified(acMembers[1])
 				cMember2 = StzStringQ(acMembers[len(acMembers)]).Simplified()
 
 				cResult = cMember1 + ":" + cMember2
@@ -98215,7 +98215,7 @@ class stzString from stzObject
 			cNumber = ""+ n
 		ok
 
-		nLen = StzStringQ(cNumber).NumberOfChars()
+		nLen = len(cNumber)
 
 		if This.FirstNCharsAsString(nLen) = cNumber
 			return 1
@@ -98391,7 +98391,7 @@ class stzString from stzObject
 			cNumber = ""+ n
 		ok
 
-		nLen = StzStringQ(cNumber).NumberOfChars()
+		nLen = len(cNumber)
 
 		if This.LastNCharsAsString(nLen) = cNumber
 			return 1

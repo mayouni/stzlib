@@ -56,7 +56,7 @@ class stzStringInserter from stzString
 		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
 		nLen = len(anPos)
 		nShift = 0
-		nNewLen = StzStringQ(pcNewSubStr).NumberOfChars()
+		nNewLen = len(pcNewSubStr)
 		for i = 1 to nLen
 			This.InsertBefore(anPos[i] + nShift, pcNewSubStr)
 			nShift += nNewLen
@@ -71,10 +71,10 @@ class stzStringInserter from stzString
 
 	def InsertAfterSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-		nSubLen = StzStringQ(pcSubStr).NumberOfChars()
+		nSubLen = len(pcSubStr)
 		nLen = len(anPos)
 		nShift = 0
-		nNewLen = StzStringQ(pcNewSubStr).NumberOfChars()
+		nNewLen = len(pcNewSubStr)
 		for i = 1 to nLen
 			This.InsertAfter(anPos[i] + nSubLen - 1 + nShift, pcNewSubStr)
 			nShift += nNewLen

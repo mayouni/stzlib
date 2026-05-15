@@ -87,16 +87,17 @@ func Center(text, width) #TODO Use stzString
 
 
 func Capitalize(str)
-		return StzStringQ(str).Capitalized()
+		if len(str) = 0 return str ok
+		return upper(str[1]) + substr(str, 2)
 
 		func Capitalise(str)
-			return StzStringQ(str).Capitalized()
+			return Capitalize(str)
 
 		func @Capitalize(str)
-			return StzStringQ(str).Capitalized()
+			return Capitalize(str)
 
 		func @Capitalise(str)
-			return StzStringQ(str).Capitalized()
+			return Capitalize(str)
 #--
 
 func IsInvisibleString(str)
@@ -922,14 +923,13 @@ func StringIsScriptNumber(cStr)
 		return StringIsScriptNumber(cStr)
 
 func StringIsLowercase(cStr)
-	return StzStringQ(cStr).IsLowercase()
+	return cStr = lower(cStr)
 
 func StringIsUppercase(cStr)
-	return StzStringQ(cStr).IsUppercase()
+	return cStr = upper(cStr)
 
 func StringLowercased(cStr)
-	oStr = new stzString(cStr)
-	return oStr.Lowercased()
+	return lower(cStr)
 	
 	func Lowercased(cStr)
 		return StringLowercased(cStr)
@@ -947,8 +947,7 @@ func StringLowercased(cStr)
 		return StringLowercased(cStr)
 
 func StringUppercased(cStr)
-	oStr = new stzString(cStr)
-	return oStr.Uppercased()
+	return upper(cStr)
 	
 	func Uppercase(cStr)
 		return StringUppercased(cStr)
@@ -1333,11 +1332,11 @@ func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
 
 	# Removing the substring from the string
 
-	nLenBeforeRemove = StzStringQ(_cTempStr_).NumberOfChars()
+	nLenBeforeRemove = len(_cTempStr_)
 	_cTempStr2_ = ring_substr2(_cTempStr_, _cSubStr_, "")
-	nLenAfterRemove = StzStringQ(_cTempStr2_).NumberOfChars()
+	nLenAfterRemove = len(_cTempStr2_)
 
-	nLenSubStr = StzStringQ(_cSubStr_).NumberOfChars()
+	nLenSubStr = len(_cSubStr_)
 	nResult = ( (nLenBeforeRemove - nLenAfterRemove) / nLenSubStr )
 
 	return nResult
@@ -1354,8 +1353,7 @@ func StringCount(pcStr, pcSubStr)
 #--
 
 func StringNumberOfChars(cStr)
-	oString = new stzString(cStr)
-	return oString.NumberOfChars()
+	return len(cStr)
 	
 	func @NumberOfChars(cStr)
 		return StringNumberOfChars(cStr)
@@ -1389,13 +1387,13 @@ func StringToUnicodes(pcStr)
 # Some functions used mainly in natural-code
 
 func UppercaseOf(cStr)
-	return StzStringQ(cStr).Uppercased()
+	return upper(cStr)
 
 	func UppercaseIn(cStr)
 		return UppercaseOf(cStr)
 
 func LowercaseOf(cStr)
-	return StzStringQ(cStr).Lowercased()
+	return lower(cStr)
 
 	func LowercaseIn(cStr)
 		return LowercaseOf(cStr)
@@ -1435,13 +1433,18 @@ func Text(pcStr)
 	ok
 
 func NumberOfCharsOf(pcStr)
-	return StzStringQ(pcStr).NumberOfChars()
+	return len(pcStr)
 
 	func NumberOfCharsIn(pcStr)
 		return NumberOfCharsOf(pcStr)
 
 func BothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
-	return StringsAreEqualCS( [ pcStr1, pcStr2 ], pCaseSensitive )
+	_bCase_ = @CaseSensitive(pCaseSensitive)
+	if _bCase_ = 1
+		return lower(pcStr1) = lower(pcStr2)
+	else
+		return pcStr1 = pcStr2
+	ok
 
 func BothStringsAreEqual(pcStr1, pcStr2)
 	return BothStringsAreEqualCS(pcStr1, pcStr2, 1)
@@ -1469,10 +1472,10 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 
 	if _bCase_ = 1
 		
-		cFirstStr = StzStringQ(pacStr[1]).Lowercased()
+		cFirstStr = lower(pacStr[1])
 		
 		for i = 2 to nLen
-			if StzStringQ(pacStr[i]).Lowercased() != cFirstStr
+			if lower(pacStr[i]) != cFirstStr
 				bResult = 0
 				exit
 			ok 
@@ -1574,13 +1577,24 @@ func WithoutQuotes(cStr)
 		return WithoutQuotes(cStr)
 
 func Simplify(pcStr)
-	return StzStringQ(pcStr).Simplified()
+	return _StzSimplifyString(pcStr)
 
 	func @Simplify(pcStr)
-		return StzStringQ(pcStr).Simplified()
+		return _StzSimplifyString(pcStr)
+
+	func StringSimplified(pcStr)
+		return _StzSimplifyString(pcStr)
+
+	func Simplified(pcStr)
+		return _StzSimplifyString(pcStr)
 
 func Spacify(str)
-	cResult = StzStringQ(str).Spacified()
+	nLen = len(str)
+	if nLen < 2 return str ok
+	cResult = str[1]
+	for i = 2 to nLen
+		cResult += " " + str[i]
+	next
 	return cResult
 
 	func @Spacify(str)

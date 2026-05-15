@@ -318,7 +318,7 @@ class stzHtmlNode
 		if isNull(cClasses)
 			return FALSE
 		ok
-		return StzStringQ(cClasses).ContainsCS(cClass, FALSE)
+		return StringContainsCS(cClasses, cClass, FALSE)
 
 		def HasClass(cClass)
 			return This.HasKlass(cClass)

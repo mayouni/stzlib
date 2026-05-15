@@ -130,7 +130,7 @@ class stzStringRemover from stzString
 	#======================================================#
 
 	def RemoveAtPositionCS(n, pcSubStr, pCaseSensitive)
-		nLen = StzStringQ(pcSubStr).NumberOfChars()
+		nLen = len(pcSubStr)
 		This.RemoveSection(n, n + nLen - 1)
 
 	def RemoveAtPosition(n, pcSubStr)
@@ -254,7 +254,7 @@ class stzStringRemover from stzString
 		for @i = 1 to _nLen_
 			bFound = 0
 			for @j = 1 to len(pacSubStr)
-				if StzStringQ(acAll[@i]).IsEqualToCS(pacSubStr[@j], pCaseSensitive)
+				if BothStringsAreEqualCS(acAll[@i], pacSubStr[@j], pCaseSensitive)
 					bFound = 1
 					exit
 				ok
@@ -327,8 +327,8 @@ class stzStringRemover from stzString
 			pcBound2 = pcBound2[2]
 		ok
 
-		nLen1 = StzStringQ(pcBound1).NumberOfChars()
-		nLen2 = StzStringQ(pcBound2).NumberOfChars()
+		nLen1 = len(pcBound1)
+		nLen2 = len(pcBound2)
 
 		aSection[1] = aSection[1] - nLen1
 		aSection[2] = aSection[2] + nLen2
@@ -403,7 +403,7 @@ class stzStringRemover from stzString
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 
 		if This.NLeftCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
 			if This.IsLeftToRight()
@@ -443,7 +443,7 @@ class stzStringRemover from stzString
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 
 		if This.NRightCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
 			if This.IsRightToLeft()
@@ -550,7 +550,7 @@ class stzStringRemover from stzString
 		if len(anPos) < n
 			n = len(anPos)
 		ok
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 		for i = n to 1 step -1
 			This.RemoveSection(anPos[i], anPos[i] + nLenSubStr - 1)
 		next
@@ -570,7 +570,7 @@ class stzStringRemover from stzString
 		if nLen < n
 			n = nLen
 		ok
-		nLenSubStr = StzStringQ(pcSubStr).NumberOfChars()
+		nLenSubStr = len(pcSubStr)
 		for i = nLen to nLen - n + 1 step -1
 			This.RemoveSection(anPos[i], anPos[i] + nLenSubStr - 1)
 		next

@@ -5432,7 +5432,7 @@ pr()
 ? len("طيبة")
 #--> 8
 
-? StzStringQ("طيبة").NumberOfChars()
+? len("طيبة")
 #--> 4
 
 ? StzStringQ("طيبة").NumberOfBytes()

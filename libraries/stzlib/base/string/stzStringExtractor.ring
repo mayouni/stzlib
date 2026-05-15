@@ -114,7 +114,7 @@ class stzStringExtractor from stzString
 		if nPos = 0
 			return ""
 		ok
-		nLen = StzStringQ(pcSubStr).NumberOfChars()
+		nLen = len(pcSubStr)
 		return This.ExtractSection(nPos, nPos + nLen - 1)
 
 	def ExtractNthOccurrence(n, pcSubStr)
@@ -129,7 +129,7 @@ class stzStringExtractor from stzString
 		if n = 0
 			return ""
 		ok
-		nLen = StzStringQ(pcSubStr).NumberOfChars()
+		nLen = len(pcSubStr)
 		return This.ExtractSection(n, n + nLen - 1)
 
 	def ExtractFirst(pcSubStr)
@@ -140,7 +140,7 @@ class stzStringExtractor from stzString
 		if n = 0
 			return ""
 		ok
-		nLen = StzStringQ(pcSubStr).NumberOfChars()
+		nLen = len(pcSubStr)
 		return This.ExtractSection(n, n + nLen - 1)
 
 	def ExtractLast(pcSubStr)
@@ -156,7 +156,7 @@ class stzStringExtractor from stzString
 		for i = len(anPos) to 1 step -1
 			acResult + This.ExtractAt(anPos[i])
 		next
-		return StzListQ(acResult).Reversed()
+		return ListReversed(acResult)
 
 	def ExtractCharsW(pcCondition)
 		return This.ExtractCharsWCS(pcCondition, 1)

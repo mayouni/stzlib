@@ -6,7 +6,7 @@ load "../stzbase.ring"
 
 /*---
 
-? StzStringQ(`
+? upper(`
 	#<
 	Create a {+fruits:list 1~} using {#1 ["banana", "apple", "cherry"]}.
 	{?how-many} item we've just added?
@@ -16,7 +16,7 @@ load "../stzbase.ring"
 
 	#<
 	#>
-`).Uppercased()
+`)
 
 pf()
 

@@ -163,7 +163,7 @@ class stzStringLeadTrail from stzString
 		nLen = len(cStr)
 		nStart = 1
 		for i = 1 to nLen
-			if StzStringQ(cStr[i]).IsEqualToCS(c, pCaseSensitive)
+			if BothStringsAreEqualCS(cStr[i], c, pCaseSensitive)
 				nStart = i + 1
 			else
 				exit
@@ -195,7 +195,7 @@ class stzStringLeadTrail from stzString
 		nLen = len(cStr)
 		nEnd = nLen
 		for i = nLen to 1 step -1
-			if StzStringQ(cStr[i]).IsEqualToCS(c, pCaseSensitive)
+			if BothStringsAreEqualCS(cStr[i], c, pCaseSensitive)
 				nEnd = i - 1
 			else
 				exit
@@ -244,23 +244,23 @@ class stzStringLeadTrail from stzString
 	#======================================================#
 
 	def StartsWithCS(pcSubStr, pCaseSensitive)
-		nLen = StzStringQ(pcSubStr).NumberOfChars()
+		nLen = len(pcSubStr)
 		if nLen > This.NumberOfChars()
 			return 0
 		ok
 		cLeft = This.NLeftChars(nLen)
-		return StzStringQ(cLeft).IsEqualToCS(pcSubStr, pCaseSensitive)
+		return BothStringsAreEqualCS(cLeft, pcSubStr, pCaseSensitive)
 
 	def StartsWith(pcSubStr)
 		return This.StartsWithCS(pcSubStr, 1)
 
 	def EndsWithCS(pcSubStr, pCaseSensitive)
-		nLen = StzStringQ(pcSubStr).NumberOfChars()
+		nLen = len(pcSubStr)
 		if nLen > This.NumberOfChars()
 			return 0
 		ok
 		cRight = This.NRightChars(nLen)
-		return StzStringQ(cRight).IsEqualToCS(pcSubStr, pCaseSensitive)
+		return BothStringsAreEqualCS(cRight, pcSubStr, pCaseSensitive)
 
 	def EndsWith(pcSubStr)
 		return This.EndsWithCS(pcSubStr, 1)
@@ -271,7 +271,7 @@ class stzStringLeadTrail from stzString
 
 	def RemoveFromStartCS(pcSubStr, pCaseSensitive)
 		if This.StartsWithCS(pcSubStr, pCaseSensitive)
-			nLen = StzStringQ(pcSubStr).NumberOfChars()
+			nLen = len(pcSubStr)
 			This.RemoveSection(1, nLen)
 		ok
 
@@ -296,7 +296,7 @@ class stzStringLeadTrail from stzString
 
 	def RemoveFromEndCS(pcSubStr, pCaseSensitive)
 		if This.EndsWithCS(pcSubStr, pCaseSensitive)
-			nSubLen = StzStringQ(pcSubStr).NumberOfChars()
+			nSubLen = len(pcSubStr)
 			nLen = This.NumberOfChars()
 			This.RemoveSection(nLen - nSubLen + 1, nLen)
 		ok

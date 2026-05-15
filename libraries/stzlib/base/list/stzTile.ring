@@ -31,7 +31,7 @@ Class stzTile From stzGrid
 	
 
 	def SetObstacleCell(cChar)
-		if isString(cChar) and StzStringQ(cChar).NumberOfChars() < 4
+		if isString(cChar) and len(cChar) < 4
 			@cObstacleChar = cChar
 		else
 			StzRaise("Incorrect param value! cChar must be a string of maximum 3 chars.")

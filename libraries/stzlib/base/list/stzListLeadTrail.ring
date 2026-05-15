@@ -98,7 +98,7 @@ class stzListLeadTrail from stzList
 		if len(aResult) < 2
 			return []
 		ok
-		return StzListQ(aResult).ReversedQ().Content()
+		return ListReversed(aResult)
 
 	def RepeatedTrailingItems()
 		return This.RepeatedTrailingItemsCS(1)

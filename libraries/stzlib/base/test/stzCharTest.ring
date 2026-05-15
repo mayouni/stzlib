@@ -792,7 +792,7 @@ pr()
 
 ? StzCharQ("R").UnicodeCategoryNumber() #--> 14
 
-? StzStringQ("RiNG").IsLowercase()	#--> FALSE
+? StringIsLowercase("RiNG")	#--> FALSE
 ? StzCharQ("R").IsLetter() 		#--> TRUE
 
 pf()
