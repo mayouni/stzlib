@@ -92,3 +92,19 @@
 
 	func StzListDuplicatesXTQ(paList)
 		return new stzListDuplicatesXT(paList)
+
+	#-- Bounder
+
+	func StzListBounderQ(paList)
+		return new stzListBounder(paList)
+
+	func StzListBounderXTQ(paList)
+		return new stzListBounderXT(paList)
+
+	#-- Flattener
+
+	func StzListFlattenerQ(paList)
+		return new stzListFlattener(paList)
+
+	func StzListFlattenerXTQ(paList)
+		return new stzListFlattenerXT(paList)
