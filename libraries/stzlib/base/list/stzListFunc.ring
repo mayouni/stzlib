@@ -466,7 +466,7 @@
 		? @@(paList)
 
 	func ListContainsCS(paList, pItem, pCaseSensitive)
-		return StzListQ(paList).ContainsCS(pItem, pCaseSensitive)
+		return ListContainsCS(paList, pItem, pCaseSensitive)
 
 	func ListContainsOneOfTheseCS(paList, paItems, pCaseSensitive)
 		nLen = len(paItems)

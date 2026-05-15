@@ -167,7 +167,7 @@ class stzListRandom from stzList
 		nTries = 0
 		result = This.RandomItem()
 
-		while StzListQ([result, pItem]).BothAreEqualCS(pCaseSensitive)
+		while BothAreEqualCS(result, pItem, pCaseSensitive)
 			result = This.RandomItem()
 			nTries++
 			if nTries > 100

@@ -121,7 +121,7 @@ class stzListTrimmer from stzList
 		nLen = len(aContent)
 		nStart = 0
 		for i = 1 to nLen
-			if StzListQ([aContent[i], pItem]).BothAreEqualCS(pCaseSensitive)
+			if BothAreEqualCS(aContent[i], pItem, pCaseSensitive)
 				nStart = i
 			else
 				exit
@@ -139,7 +139,7 @@ class stzListTrimmer from stzList
 		nLen = len(aContent)
 		nEnd = 0
 		for i = nLen to 1 step -1
-			if StzListQ([aContent[i], pItem]).BothAreEqualCS(pCaseSensitive)
+			if BothAreEqualCS(aContent[i], pItem, pCaseSensitive)
 				nEnd = i
 			else
 				exit

@@ -9155,7 +9155,7 @@ pf()
 
 pr()
 
-? StzListQ([ "A", "A", "A", "B", "B", "C" ]).ContainsCS("a", FALSE)
+? ListContainsCS([ "A", "A", "A", "B", "B", "C" ], "a", FALSE)
 #--> TRUE
 
 pf()

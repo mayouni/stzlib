@@ -1041,7 +1041,7 @@ class stzListOfPairs from stzListOfLists
 		bResult = 0
 		
 		for i = 1 to nLen
-			if StzListQ(aContent[i]).Contains(pItem)
+			if ListContains(aContent[i], pItem)
 				bResult = 1
 				exit
 			ok

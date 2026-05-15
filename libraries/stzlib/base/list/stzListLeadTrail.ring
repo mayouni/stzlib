@@ -38,7 +38,7 @@ class stzListLeadTrail from stzList
 		aResult = []
 		firstItem = aContent[1]
 		for i = 1 to nLen
-			if StzListQ([aContent[i], firstItem]).BothAreEqualCS(pCaseSensitive)
+			if BothAreEqualCS(aContent[i], firstItem, pCaseSensitive)
 				aResult + aContent[i]
 			else
 				exit
@@ -89,7 +89,7 @@ class stzListLeadTrail from stzList
 		aResult = []
 		lastItem = aContent[nLen]
 		for i = nLen to 1 step -1
-			if StzListQ([aContent[i], lastItem]).BothAreEqualCS(pCaseSensitive)
+			if BothAreEqualCS(aContent[i], lastItem, pCaseSensitive)
 				aResult + aContent[i]
 			else
 				exit
@@ -183,7 +183,7 @@ class stzListLeadTrail from stzList
 		if This.NumberOfItems() = 0
 			return 0
 		ok
-		return StzListQ([This.List()[1], pItem]).BothAreEqualCS(pCaseSensitive)
+		return BothAreEqualCS(This.List()[1], pItem, pCaseSensitive)
 
 	def StartsWith(pItem)
 		return This.StartsWithCS(pItem, 1)
@@ -193,7 +193,7 @@ class stzListLeadTrail from stzList
 			return 0
 		ok
 		nLen = This.NumberOfItems()
-		return StzListQ([This.List()[nLen], pItem]).BothAreEqualCS(pCaseSensitive)
+		return BothAreEqualCS(This.List()[nLen], pItem, pCaseSensitive)
 
 	def EndsWith(pItem)
 		return This.EndsWithCS(pItem, 1)

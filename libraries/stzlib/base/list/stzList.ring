@@ -43223,7 +43223,7 @@ class stzList from stzObject
 	#------------------------------------------------------------#
 
 	def IsOneOfTheseCS(paOtherList, pCaseSensitive)
-		bResult = StzListQ(paOtherList).ContainsCS( This.List(), pCaseSensitive )
+		bResult = ListContainsCS(paOtherList,  This.List(), pCaseSensitive )
 		return bResult
 
 		def IsNotOneOfTheseCS(paOtherList, pCaseSensitive)
@@ -60131,7 +60131,7 @@ fdef
 			return This.IsItem()
 
 	def IsItemOf(paList)
-		return StzListQ(paList).Contains(This.Content())
+		return ListContains(paList, This.Content())
 	
 		def AsAnItemOf(paList)
 			return This.IsItemOf(paList)
@@ -60151,7 +60151,7 @@ fdef
 			return This.IsMember()
 
 	def IsMemberOf(paList)
-		return StzListQ(paList).Contains(This.Content())
+		return ListContains(paList, This.Content())
 	
 		def AsAMemberOf(paList)
 			return This.IsMemberOf(paList)

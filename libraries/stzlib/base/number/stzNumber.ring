@@ -5180,7 +5180,7 @@ class stzNumber from stzObject
 		return StzStringQ(This.Content()).Contains(pcDigit)
 
 	def ExistsIn(paList)
-		return StzListQ(paList).Contains(This.NumericValue())
+		return ListContains(paList, This.NumericValue())
 
 		def Inn(paList)
 			return ExistsIn(paList)
@@ -6215,7 +6215,7 @@ class stzNumber from stzObject
 		return 1
 	
 	def IsItemOf(paList)
-		return StzListQ(paList).Contains(This.NumericValue())
+		return ListContains(paList, This.NumericValue())
 		
 		def AsAnItemOf(paList)
 			return This.IsItemOf(paList)
@@ -6232,7 +6232,7 @@ class stzNumber from stzObject
 		return 1
 	
 	def IsMemberOf(paList)
-		return StzListQ(paList).Contains(This.Content())
+		return ListContains(paList, This.Content())
 		
 		def AsAMemberOf(paList)
 			return This.IsMemberOf(paList)
