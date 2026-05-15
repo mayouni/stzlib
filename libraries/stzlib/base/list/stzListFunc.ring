@@ -109,6 +109,46 @@
 	func StzListFlattenerXTQ(paList)
 		return new stzListFlattenerXT(paList)
 
+	#-- Counter
+
+	func StzListCounterQ(paList)
+		return new stzListCounter(paList)
+
+	func StzListCounterXTQ(paList)
+		return new stzListCounterXT(paList)
+
+	#-- Sections
+
+	func StzListSectionsQ(paList)
+		return new stzListSections(paList)
+
+	func StzListSectionsXTQ(paList)
+		return new stzListSectionsXT(paList)
+
+	#-- Random
+
+	func StzListRandomQ(paList)
+		return new stzListRandom(paList)
+
+	func StzListRandomXTQ(paList)
+		return new stzListRandomXT(paList)
+
+	#-- Splits
+
+	func StzListSplitsQ(paList)
+		return new stzListSplits(paList)
+
+	func StzListSplitsXTQ(paList)
+		return new stzListSplitsXT(paList)
+
+	#-- Stringify
+
+	func StzListStringifyQ(paList)
+		return new stzListStringify(paList)
+
+	func StzListStringifyXTQ(paList)
+		return new stzListStringifyXT(paList)
+
 	  #============================================#
 	 #  ESSENTIAL UTILITY FUNCTIONS               #
 	#============================================#
