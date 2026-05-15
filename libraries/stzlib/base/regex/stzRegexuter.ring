@@ -74,11 +74,11 @@ class stzRegexuter
 	#---------------#
 
 	def AddCode(cTriggerName, cCode)
-		if isList(cTriggerName) and StzListQ(cTriggerName).IsWhenOrIfOrForNamedParam()
+		if isList(cTriggerName) and IsWhenOrIfOrForNamedParamList(cTriggerName)
 			cTriggerName = cTriggerName[2]
 		ok
 
-		if isList(cCode) and StzListQ(cCode).IsDoNamedParam()
+		if isList(cCode) and IsDoNamedParamList(cCode)
 			cCode = cCode[2]
 		ok
 

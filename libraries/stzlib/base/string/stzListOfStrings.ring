@@ -750,7 +750,7 @@ class stzListOfStrings from stzList
 			╰───┴───┴───┴───┴───╯	
 			*/
 		
-		if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
+		if IsTextBoxedOptionsNamedParamList(paBoxOptions)
 
 			aResult = []
 
@@ -1373,7 +1373,7 @@ class stzListOfStrings from stzList
 				   #     ]
 		*/
 
-		if isList(cSep) and StzListQ(cSep).IsUsingOrWithOrByNamedParam()
+		if isList(cSep) and IsUsingOrWithOrByNamedParamList(cSep)
 			cSep = cSep[2]
 		ok
 

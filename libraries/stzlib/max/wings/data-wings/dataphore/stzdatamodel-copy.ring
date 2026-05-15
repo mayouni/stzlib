@@ -738,7 +738,7 @@ class stzDataModel from stzObject
 				aOptions = aTemp
 			ok
 	
-			if isList(cFromTable) and StzListQ(cFromTable).IsFromNamedParam()
+			if isList(cFromTable) and IsFromNamedParamList(cFromTable)
 				cFromTable = cFromTable[2]
 			ok
 	
@@ -746,7 +746,7 @@ class stzDataModel from stzObject
 				StzRaise("Incorrect param type! cFromTable must be a string.")
 			ok
 	
-			if isList(cToTable) and StzListQ(cToTable).IsToNamedParam()
+			if isList(cToTable) and IsToNamedParamList(cToTable)
 				cToTable = cToTable[2]
 			ok
 	

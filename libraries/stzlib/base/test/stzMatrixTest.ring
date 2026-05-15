@@ -1296,7 +1296,7 @@ pf()
 
 pr()
 
-? StzListQ(:ToCol = 3 ).IsToOrToColOrToRowNamedParam()
+? IsToOrToColOrToRowNamedParamList(:ToCol = 3 )
 #--> TRUE
 pf()
 

@@ -29,7 +29,7 @@ func GraphRules()
 
 func RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 	if CheckParams()
-		if isList(pcRuleGroup) and StzListQ(pcRuleGroup).IsInGroupNamedParam()
+		if isList(pcRuleGroup) and IsInGroupNamedParamList(pcRuleGroup)
 			pcRuleGroup = pcRuleGroup[2]
 		ok
 	ok

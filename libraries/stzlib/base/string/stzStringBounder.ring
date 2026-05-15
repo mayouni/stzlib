@@ -346,7 +346,7 @@ class stzStringBounder from stzString
 			StzRaise("Incorrect param type! pacBounds must be a pair of strings.")
 		ok
 
-		if isList(pIn) and StzListQ(pIn).IsInOrInsideNamedParam()
+		if isList(pIn) and IsInOrInsideNamedParamList(pIn)
 			pIn = pIn[2]
 		ok
 
@@ -427,7 +427,7 @@ class stzStringBounder from stzString
 	def SubStringIsBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pcSubStr1) and StzListQ(pcSubStr1).IsSubStringsNamedParam()
+			if isList(pcSubStr1) and IsSubStringsNamedParamList(pcSubStr1)
 				pcSubStr1 = pcSubStr1[2]
 			ok
 			if isList(pcSubStr2) and IsAndNamedParamList(pcSubStr2)
@@ -457,7 +457,7 @@ class stzStringBounder from stzString
 	def IsBoundOfCS(pcSubStr, pcInStr, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pcInStr) and StzListQ(pcInStr).IsInNamedParam()
+			if isList(pcInStr) and IsInNamedParamList(pcInStr)
 				pcInStr = pcInStr[2]
 			ok
 			if NOT isString(pcInStr)

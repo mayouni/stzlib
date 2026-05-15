@@ -700,7 +700,7 @@ class stzListOfChars from stzListOfStrings
 
 		# Checking the hashlist of params
 
-		if StzListQ(paBoxOptions).IsTextBoxedOptionsNamedParam()
+		if IsTextBoxedOptionsNamedParamList(paBoxOptions)
 
 			# Reading the type of line (thin or dashed)
 

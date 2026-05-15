@@ -273,7 +273,7 @@ class stzOrgChart from stzDiagram
 	def AssignPerson(pcPersonId, pcPositionId)
 
 		if CheckParams()
-			if isList(pcPositionId) and StzListQ(pcPositionId).IsToOrToPositionOrToNodeNamedParam()
+			if isList(pcPositionId) and IsToOrToPositionOrToNodeNamedParamList(pcPositionId)
 				pcPositionId = pcPositionId[2]
 			ok
 			if NOT isString(pcPositionId)
@@ -767,7 +767,7 @@ class stzOrgChart from stzDiagram
 	def ReassignPerson(pcPersonId, pcNewPositionId)
 
 		if CheckParams()
-			if isList(pcNewPositionId) and StzListQ(pcNewPositionId).IsToOrToPositionNamedParam()
+			if isList(pcNewPositionId) and IsToOrToPositionNamedParamList(pcNewPositionId)
 				pcNewPositionId = pcNewPositionId[2]
 			ok
 			if NOT isString(pcNewPositionId)

@@ -29,7 +29,7 @@ class stzListBounder from stzList
 
 		if CheckingParams()
 
-			if isList(n1) and StzListQ(n1).IsFromNamedParam()
+			if isList(n1) and IsFromNamedParamList(n1)
 				n1 = n1[2]
 			ok
 
@@ -154,7 +154,7 @@ class stzListBounder from stzList
 				StzRaise("Can't check bounds! List must be a pair or a list of pairs.")
 			ok
 
-			if isList(pIn) and StzListQ(pIn).IsInNamedParam()
+			if isList(pIn) and IsInNamedParamList(pIn)
 				pIn = pIn[2]
 			ok
 

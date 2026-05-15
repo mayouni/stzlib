@@ -2181,7 +2181,7 @@ class stzDiagramAnnotator
 
 	def Annotate(pNodeId, aData)
 		if CheckParams()
-			if isList(aData) and StzListQ(aData).IsWithNamedParam()
+			if isList(aData) and IsWithNamedParamList(aData)
 				aData = aData[2]
 			ok
 		ok

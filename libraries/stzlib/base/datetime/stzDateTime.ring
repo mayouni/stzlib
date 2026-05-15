@@ -2223,7 +2223,7 @@ class stzDateTime from stzObject
 
 	def DurationTo(pTarget, pcUnit)
 
-	    if isList(pcUnit) and StzListQ(pcUnit).IsInNamedParam()
+	    if isList(pcUnit) and IsInNamedParamList(pcUnit)
 		pcUnit = pcUnit[2]
 		if NOT isString(pcUnit)
 			StzRaise("Inocrrect param type! pcUnit must be a string.")
@@ -2394,7 +2394,7 @@ class stzDateTime from stzObject
     def DurationSince(pOrigin, pcUnit)
 
 	if CheckParams()
-		if isList(pcUnit) and StzListQ(pcUnit).IsInNamedParam()
+		if isList(pcUnit) and IsInNamedParamList(pcUnit)
 			pcUnit = pcUnit[2]
 		ok
 

@@ -521,13 +521,13 @@ class stzGraph
 	 # Pre-flight checks (non-mutating)
 	def CanAddEdge(pcFrom, pcTo, pcLabel)
 		if CheckParams()
-			if isList(pcFrom) and StzListQ(pcFrom).IsFromOrFromNodeNamedParam()
+			if isList(pcFrom) and IsFromOrFromNodeNamedParamList(pcFrom)
 				pcFrom = pcFrom[2]
 			ok
-			if isList(pcTo) and StzListQ(pcTo).IsToOrToNodeNamedParam()
+			if isList(pcTo) and IsToOrToNodeNamedParamList(pcTo)
 				pcTo = pcTo[2]
 			ok
-			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
+			if isList(pcLabel) and IsWithOrLabelNamedParamList(pcLabel)
 				pcLabel = pcLabel[2]
 			ok
 		ok
@@ -552,13 +552,13 @@ class stzGraph
 	        
 	def WhyCannotAddEdge(pcFromNodeId, pcToNodeId, pcLabel)
 		if CheckParams()
-			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromOrFromNodeNamedParam()
+			if isList(pcFromNodeId) and IsFromOrFromNodeNamedParamList(pcFromNodeId)
 				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToOrToNodeNamedParam()
+			if isList(pcToNodeId) and IsToOrToNodeNamedParamList(pcToNodeId)
 				pcToNodeId = pcToNodeId[2]
 			ok
-			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
+			if isList(pcLabel) and IsWithOrLabelNamedParamList(pcLabel)
 				pcLabel = pcLabel[2]
 			ok
 		ok
@@ -699,15 +699,15 @@ class stzGraph
 	def AddEdgeXTT(pcFromNodeId, pcToNodeId, pcLabel, pacProperties)
 		# Parameter validation
 		if CheckParams()
-			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsNodeOrNodesOrFromOrFromNodeNamedParam()
+			if isList(pcFromNodeId) and IsNodeOrNodesOrFromOrFromNodeNamedParamList(pcFromNodeId)
 				pcFromNodeId = pcFromNodeId[2]
 			ok
 	
-			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToOrToNodeOrAndOrAndNodeNamedParam()
+			if isList(pcToNodeId) and IsToOrToNodeOrAndOrAndNodeNamedParamList(pcToNodeId)
 				pcToNodeId = pcToNodeId[2]
 			ok
 	
-			if isList(pcLabel) and StzListQ(pcLabel).IsWithOrLabelNamedParam()
+			if isList(pcLabel) and IsWithOrLabelNamedParamList(pcLabel)
 				pcLabel = pcLabel[2]
 			ok
 		ok
@@ -875,7 +875,7 @@ class stzGraph
 	def EdgeCountBetween(pcFromNodeId, pcToNodeId)
 
 		if CheckParams()
-			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+			if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
 				pcFromNodeId = pcFromNodeId[2]
 			ok
 			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
@@ -906,7 +906,7 @@ class stzGraph
 	
 	def EdgesBetween(pcFromNodeId, pcToNodeId)
 		if CheckParams()
-			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+			if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
 				pcFromNodeId = pcFromNodeId[2]
 			ok
 			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
@@ -937,13 +937,13 @@ class stzGraph
 
 	def RemoveEdgeByLabel(pcFromNodeId, pcToNodeId, pcLabel)
 		if CheckParams()
-			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+			if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
 				pcFromNodeId = pcFromNodeId[2]
 			ok
 			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
 				pcToNodeId = pcToNodeId[2]
 			ok
-			if isList(pcLabel) and StzListQ(pcLabel).IsLabelNamedParam()
+			if isList(pcLabel) and IsLabelNamedParamList(pcLabel)
 				pcLabel = pcLabel[2]
 			ok
 		ok
@@ -980,7 +980,7 @@ class stzGraph
 	
 	def RemoveAllEdgesBetween(pcFromNodeId, pcToNodeId)
 		if CheckParams()
-			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+			if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
 				pcFromNodeId = pcFromNodeId[2]
 			ok
 			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
@@ -1563,7 +1563,7 @@ class stzGraph
 
 		def PathsTo(pcNodeId)
 			if CheCkParams()
-				if isList(pcNodeId) and StzListQ(pcNodeId).IsNodeNamedParam()
+				if isList(pcNodeId) and IsNodeNamedParamList(pcNodeId)
 					pcNodeId = pcNodeId[2]
 				ok
 			ok
@@ -1580,10 +1580,10 @@ class stzGraph
 
 	def PathsXT(pcFromNodeId, pcToNodeId)
 		if CheckParams()
-			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromOrFromNodeNamedParam()
+			if isList(pcFromNodeId) and IsFromOrFromNodeNamedParamList(pcFromNodeId)
 				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToOrToNodeOrAndNamedParam()
+			if isList(pcToNodeId) and IsToOrToNodeOrAndNamedParamList(pcToNodeId)
 				pcToNodeId = pcToNodeId[2]
 			ok
 		ok
@@ -1650,7 +1650,7 @@ class stzGraph
 	def Neighbors(pcNodeId)
 
 		if CheckParams()
-			if isList(pcNodeId) and StzListQ(pcNodeId).IsOfOrToNamedParam()
+			if isList(pcNodeId) and IsOfOrToNamedParamList(pcNodeId)
 				pcNodeId = pcNodeId[2]
 			ok
 		ok
@@ -2265,7 +2265,7 @@ class stzGraph
 
 	def ShortestPath(pcFromNodeId, pcToNodeId)
 		if CheckParams()
-			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+			if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
 				pcFromNodeId = pcFromNodeId[2]
 			ok
 			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
@@ -2344,7 +2344,7 @@ class stzGraph
 	def ShortestPathLength(pcFromNodeId, pcToNodeId)
 
 		if CheckParams()
-			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
+			if isList(pcFromNodeId) and IsFromNamedParamList(pcFromNodeId)
 				pcFromNodeId = pcFromNodeId[2]
 			ok
 			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)

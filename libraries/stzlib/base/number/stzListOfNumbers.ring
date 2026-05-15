@@ -923,7 +923,7 @@ func NumbersIn(pStrOrList)
 	func Numbers(pStrOrList)
 
 		if CheckParams()
-			if isList(pStrOrList) and StzListQ(pStrOrList).IsInNamedParam()
+			if isList(pStrOrList) and IsInNamedParamList(pStrOrList)
 				pStrOrList = pStrOrList[2]
 			ok
 		ok
@@ -1262,7 +1262,7 @@ func NextNthPrimeST(nth, nbr)
 			StzRaise("Incorrect param type! nth must be a number.")
 		ok
 	
-		if isList(nbr) and StzListQ(nbr).IsStartingAtOrAfterNamedParam()
+		if isList(nbr) and IsStartingAtOrAfterNamedParamList(nbr)
 			nbr = nbr[2]
 		ok
 
@@ -1361,7 +1361,7 @@ func PreviousNthPrimeST(nth, nbr)
 			StzRaise("Incorrect param type! nth must be a number.")
 		ok
 	
-		if isList(nbr) and StzListQ(nbr).IsStartingAtOrBeforeNamedParam()
+		if isList(nbr) and IsStartingAtOrBeforeNamedParamList(nbr)
 			nbr = nbr[2]
 		ok
 
@@ -1450,7 +1450,7 @@ func FirstNPrimesWXT(n, pcCondition)
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if isList(pcCondition) and StzListQ(pcCondition).IsWhereNamedParam()
+		if isList(pcCondition) and IsWhereNamedParamList(pcCondition)
 			pcCondition = pcCondition[2]
 		ok
 

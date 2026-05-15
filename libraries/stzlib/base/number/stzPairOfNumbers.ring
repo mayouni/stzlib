@@ -65,11 +65,11 @@ func GreatestCommonDividor( n1, n2 )
 
 func SpeedUp(n1, n2)
 	if CheckingParams()
-		if isList(n1) and StzListQ(n1).IsFromOrBetweenNamedParam()
+		if isList(n1) and IsFromOrBetweenNamedParamList(n1)
 			n1 = n1[2]
 		ok
 
-		if isList(n2) and StzListQ(n2).IsToOrAndNamedParam()
+		if isList(n2) and IsToOrAndNamedParamList(n2)
 			n2 = n2[2]
 		ok
 	ok

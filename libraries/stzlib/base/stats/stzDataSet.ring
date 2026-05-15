@@ -1425,7 +1425,7 @@ class stzDataSet
 			return This.CompareWith(oOtherStats)
 
 		def Compare(oOtherStats)
-			if isList(oOtherStats) and StzListQ(oOtherStats).IsWithOrToNamedParam()
+			if isList(oOtherStats) and IsWithOrToNamedParamList(oOtherStats)
 				oOtherStats = oOtherStats[2]
 			ok
 

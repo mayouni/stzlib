@@ -895,7 +895,7 @@ class stzCalendar from stzObject
 		return []
 
 	def ConsecutiveWorkingDaysAvailable(pDate)
-		if isList(pDate) and StzListQ(pDate).IsStartingFromNamedParam()
+		if isList(pDate) and IsStartingFromNamedParamList(pDate)
 			pDate = pDate[2]
 		ok
 
@@ -1776,7 +1776,7 @@ def CompareWith(oOtherCal)
 			return This.CompareWithQR(oOtherCal, pcReturnType)
 
 	def Compare(oOtherCal)
-		if isList(oOtherCal) and StzListQ(oOtherCal).IsToOrWithNamedParam()
+		if isList(oOtherCal) and IsToOrWithNamedParamList(oOtherCal)
 			oOtherCal = oOtherCal[2]
 		ok
 

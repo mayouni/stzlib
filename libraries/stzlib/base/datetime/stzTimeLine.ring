@@ -63,10 +63,10 @@ class stzTimeLine from stzObject
 	def init(pStart, pEnd)
 
 		if CheckParams()
-			if isList(pStart) and StzListQ(pStart).IsStartOrFromNamedParam()
+			if isList(pStart) and IsStartOrFromNamedParamList(pStart)
 				pStart = pStart[2]
 			ok
-			if isList(pEnd) and StzListQ(pEnd).IsEndOrToNamedParam()
+			if isList(pEnd) and IsEndOrToNamedParamList(pEnd)
 				pEnd = pEnd[2]
 			ok
 		ok
@@ -506,7 +506,7 @@ class stzTimeLine from stzObject
 	def RenamePointLabel(pcLabel, pcNewLabel)
 	
 		if CheckParams()
-			if isList(pcNewLabel) and StzListQ(pcNewLabel).IsWithOrByOrUsingNamedParam()
+			if isList(pcNewLabel) and IsWithOrByOrUsingNamedParamList(pcNewLabel)
 				pcNewLabel = pcNewLabel[2]
 			ok
 		ok
@@ -539,7 +539,7 @@ class stzTimeLine from stzObject
 	def RenameSpanLabel(pcLabel, pcNewLabel)
 	
 		if CheckParams()
-			if isList(pcNewLabel) and StzListQ(pcNewLabel).IsWithOrByOrUsingNamedParam()
+			if isList(pcNewLabel) and IsWithOrByOrUsingNamedParamList(pcNewLabel)
 				pcNewLabel = pcNewLabel[2]
 			ok
 		ok
@@ -1254,11 +1254,11 @@ class stzTimeLine from stzObject
 	
 	def DurationXT(cLabel1, cLabel2)
 		if CheckParams()
-			if isList(cLabel1) and StzListQ(cLabel1).IsFromOrBetweenNamedParam()
+			if isList(cLabel1) and IsFromOrBetweenNamedParamList(cLabel1)
 				cLabel1 = cLabel1[2]
 			ok
 
-			if isList(cLabel2) and StzListQ(cLabel2).IsToOrAndNamedParam()
+			if isList(cLabel2) and IsToOrAndNamedParamList(cLabel2)
 				cLabel2 = cLabel2[2]
 			ok
 		ok

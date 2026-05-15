@@ -188,7 +188,7 @@ class stzListChecker from stzList
 		return This.IsEqualToCS(paOtherList, 1)
 
 	def HasMoreNumberOfItems(paOtherList)
-		if isList(paOtherList) and StzListQ(paOtherList).IsThanNamedParam()
+		if isList(paOtherList) and IsThanNamedParamList(paOtherList)
 			paOtherList = paOtherList[2]
 		ok
 
@@ -199,7 +199,7 @@ class stzListChecker from stzList
 		return This.NumberOfItems() > len(paOtherList)
 
 	def HasLessNumberOfItems(paOtherList)
-		if isList(paOtherList) and StzListQ(paOtherList).IsThanNamedParam()
+		if isList(paOtherList) and IsThanNamedParamList(paOtherList)
 			paOtherList = paOtherList[2]
 		ok
 
@@ -210,7 +210,7 @@ class stzListChecker from stzList
 		return This.NumberOfItems() < len(paOtherList)
 
 	def HasSameNumberOfItems(paOtherList)
-		if isList(paOtherList) and StzListQ(paOtherList).IsAsNamedParam()
+		if isList(paOtherList) and IsAsNamedParamList(paOtherList)
 			paOtherList = paOtherList[2]
 		ok
 

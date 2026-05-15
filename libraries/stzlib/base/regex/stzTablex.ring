@@ -1480,7 +1480,7 @@ class stzTablex from stzObject
 	#---------------------------#
 	
 	def MatchingTables(paTables)
-		if CheckParams() and isList(paTables) and StzListQ(paTables).IsInNamedParam()
+		if CheckParams() and isList(paTables) and IsInNamedParamList(paTables)
 			paTables = paTables[2]
 		ok
 
@@ -1497,7 +1497,7 @@ class stzTablex from stzObject
 			return This.MatchingTables(paTables)
 
 	def CountMatchingTables(paTables)
-		if CheckParams() and isList(paTables) and StzListQ(paTables).IsInNamedParam()
+		if CheckParams() and isList(paTables) and IsInNamedParamList(paTables)
 			paTables = paTables[2]
 		ok
 

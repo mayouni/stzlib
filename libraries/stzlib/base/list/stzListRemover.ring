@@ -57,7 +57,7 @@ class stzListRemover from stzList
 			return This
 
 		def Remove(pItem)
-			if isList(pItem) and StzListQ(pItem).IsEachNamedParam()
+			if isList(pItem) and IsEachNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 			This.RemoveAll(pItem)

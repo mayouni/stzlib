@@ -3,7 +3,7 @@ $aGlobalHelp = [] # Populated at the start of each class file
 
 func Help(cStzClassOrFunc)
 	if CheckParams()
-		if isList(cStzClassOrFunc) and StzListQ(cStzClassOrFunc).IsForNamedParam()
+		if isList(cStzClassOrFunc) and IsForNamedParamList(cStzClassOrFunc)
 			cStzClassOrFunc = cStzClassOrFunc[2]
 		ok
 	ok
@@ -21,7 +21,7 @@ func Help(cStzClassOrFunc)
 
 func HelpXT(cStzClassOrFunc)
 	if CheckParams()
-		if isList(cStzClassOrFunc) and StzListQ(cStzClassOrFunc).IsForNamedParam()
+		if isList(cStzClassOrFunc) and IsForNamedParamList(cStzClassOrFunc)
 			cStzClassOrFunc = cStzClassOrFunc[2]
 		ok
 	ok

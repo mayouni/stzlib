@@ -94,7 +94,7 @@ class stzSet from stzList
 
 	def Update(paOtherSet)
 		if CheckingParams()
-			if isList(paOtherSet) and StzListQ(paOtherSet).IsWithOrByOrUsingNamedParam()
+			if isList(paOtherSet) and IsWithOrByOrUsingNamedParamList(paOtherSet)
 				paOtherSet = paOtherSet[2]
 			ok
 	

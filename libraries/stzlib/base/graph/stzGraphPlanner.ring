@@ -155,10 +155,10 @@ class stzGraphPlanner
 
 	def WalkXT(pcPlanName, pcFrom, pcTo)
 		if CheckParams()
-			if isList(pcFrom) and StzListQ(pcFrom).IsFromOrFromNodeNamedParam()
+			if isList(pcFrom) and IsFromOrFromNodeNamedParamList(pcFrom)
 				pcFrom = pcFrom[2]
 			ok
-			if isList(pcTo) and StzListQ(pcTo).IsToOrToNodeOrUntilReachFNamedParam()
+			if isList(pcTo) and IsToOrToNodeOrUntilReachFNamedParamList(pcTo)
 				pcTo = pcTo[2]
 			ok
 	
@@ -284,7 +284,7 @@ class stzGraphPlanner
 
 	def UsingXT(pProfile, pcPlanName)
 		if CheckParams()
-			if isList(pcPlanName) and StzListQ(pcPlanName).IsInPlanNamedParam()
+			if isList(pcPlanName) and IsInPlanNamedParamList(pcPlanName)
 				pcPlanName = pcPlanName[2]
 			ok
 		ok
@@ -342,7 +342,7 @@ class stzGraphPlanner
 
 	def MinimizeXT(pcProperty, pcPlanName)
 		if CheckParams()
-			if isList(pcPlanName) and StzListQ(pcPlanName).IsInPlanNamedParam()
+			if isList(pcPlanName) and IsInPlanNamedParamList(pcPlanName)
 				pcPlanName = pcPlanName[2]
 			ok
 		ok
@@ -359,10 +359,10 @@ class stzGraphPlanner
 
 	def MinimizeIn(pcPlanName, pcProperty)
 		if CheckParams()
-			if isList(pcPlanName) and StzListQ(pcPlanName).IsPlanOrInPlanNamedParam()
+			if isList(pcPlanName) and IsPlanOrInPlanNamedParamList(pcPlanName)
 				pcPlanName = pcPlanName[2]
 			ok
-			if isList(pcProperty) and StzListQ(pcProperty).IsForNamedParam()
+			if isList(pcProperty) and IsForNamedParamList(pcProperty)
 				pcProperty = pcProperty[2]
 			ok
 		ok
@@ -420,7 +420,7 @@ class stzGraphPlanner
 
 	def MaximizeXT(pcProperty, pcPlanName)
 		if CheckParams()
-			if isList(pcPlanName) and StzListQ(pcPlanName).IsInPlanNamedParam()
+			if isList(pcPlanName) and IsInPlanNamedParamList(pcPlanName)
 				pcPlanName = pcPlanName[2]
 			ok
 		ok
@@ -437,10 +437,10 @@ class stzGraphPlanner
 
 	def MaximizeIn(pcPlanName, pcProperty)
 		if CheckParams()
-			if isList(pcPlanName) and StzListQ(pcPlanName).IsPlanOrInPlanNamedParam()
+			if isList(pcPlanName) and IsPlanOrInPlanNamedParamList(pcPlanName)
 				pcPlanName = pcPlanName[2]
 			ok
-			if isList(pcProperty) and StzListQ(pcProperty).IsForNamedParam()
+			if isList(pcProperty) and IsForNamedParamList(pcProperty)
 				pcProperty = pcProperty[2]
 			ok
 		ok
@@ -553,7 +553,7 @@ class stzGraphPlanner
 
 		def CostOf(pcPlanName)
 			if CheckParams()
-				if isList(pcPlanName) and StzListQ(pcPlanName).IsOfOrOfPlanNamedParam()
+				if isList(pcPlanName) and IsOfOrOfPlanNamedParamList(pcPlanName)
 					pcPlanName = pcPlanName[2]
 				ok
 			ok
@@ -594,7 +594,7 @@ class stzGraphPlanner
 
 		def RouteOf(pcPlanName)
 			if CheckParams()
-				if isList(pcPlanName) and StzListQ(pcPlanName).IsOfOrOfPlanOrInOrInPlanNamedParam()
+				if isList(pcPlanName) and IsOfOrOfPlanOrInOrInPlanNamedParamList(pcPlanName)
 					pcPlanName = pcPlanName[2]
 				ok
 			ok
@@ -645,7 +645,7 @@ class stzGraphPlanner
 
 		def ActionsOf(pcPlanName)
 			if CheckParams()
-				if isList(pcPlanName) and StzListQ(pcPlanName).IsOfOrOfPlanOrInOrInPlanNamedParam()
+				if isList(pcPlanName) and IsOfOrOfPlanOrInOrInPlanNamedParamList(pcPlanName)
 					pcPlanName = pcPlanName[2]
 				ok
 			ok
@@ -1254,7 +1254,7 @@ class stzGraphPlanner
 
 		def PlansWithinQ(nPercentage, cBasePlan)
 			if CheckParams()
-				if isList(cBasePlan) and StzListQ(cBasePlan).IsOfOrOfPlanNamedParam()
+				if isList(cBasePlan) and IsOfOrOfPlanNamedParamList(cBasePlan)
 					cBasePlan = cBasePlan[2]
 				ok
 			ok

@@ -170,7 +170,7 @@ func FileAppend(cFileName, cAdditionalText)
 	ok
 
 	if CheckParams()
-		if isList(cAdditionalText) and StzListQ(cAdditionalText).IsWithNamedParam()
+		if isList(cAdditionalText) and IsWithNamedParamList(cAdditionalText)
 			cAdditionalText = cAdditionalText[2]
 		ok
 	ok
@@ -1749,7 +1749,7 @@ class stzFileModifier from stzFileReadingMixin
 				StzRaise("Incorrect param type! cOldText must be a string.")
 			ok
 
-			if isList(cNewText) and StzListQ(cNewText).IsWithNamedParam()
+			if isList(cNewText) and IsWithNamedParamList(cNewText)
 				cNexText = cNewText[2]
 			ok
 
