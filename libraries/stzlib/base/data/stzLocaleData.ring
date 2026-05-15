@@ -13,7 +13,7 @@ _aLocaleDataSizeFormats = [
 ]
 
 // Describes the different formats that can be used when
-// converting QDate, QTime, and QDateTime objects, as well as months
+// converting date, time, and datetime values, as well as months
 // and days, to strings specific to the locale
 _aLocaleTimeFormatTypes = [
 	:Long   = 0,
@@ -125,8 +125,7 @@ _aLocaleAbbreviationsXT = [
 		[ :bangla = "bn-BD", :bangla_bengali = "bn-Beng-BD" ],
 
 		[ :chakma = "ccp-BD", :chakma_chakma = "ccp-Cakm-BD" ]
-		# Returns C Locale in Qt!
-		#--> may be a bug in Qt or in the standard itself!
+		# Returns C Locale -- data unavailable in the standard
 		# Provide a solution based on this data :
 		# https://metacpan.org/dist/DateTime-Locale/view/lib/DateTime/Locale/ccp_BD.pod
 	],
@@ -570,7 +569,7 @@ _aLocaleAbbreviationsXT = [
 		[ :bangla = "bn-IN", :bangla_bengali = "bn-Beng-IN" ],
 		[ :tibetan = "bo-IN", :tibetan_tibetan = "bo-tibt-IN" ],
 		[ :bodo = "brx-IN", :bodo_devanagari = "brx-Deva-IN" ],
-		[ :chakma = "ccp-IN", :chakma_chakm = "ccp-Chakm-IN" ], # Returns CLocale -> Data unavailable in Qt!
+		[ :chakma = "ccp-IN", :chakma_chakm = "ccp-Chakm-IN" ], # Data unavailable in standard
 		[ :gujarati = "gu-IN", :gujarati_gujarati = "gu-Gujr-IN" ],
 		[ :kannada = "kn-IN", :kannada_kannada = "kn-Knda-IN" ],
 		[ :konkani = "kok-IN", :konkani_devanagari = "kok-Deva-IN" ],
@@ -1290,8 +1289,8 @@ _aLocaleAbbreviationsXT = [
 ]
 
 # The following string by StzString.IsLocaleAbbreviation()
-# for performance reasons (in fact string parsing by Qt is
-# quicker then parsing the deep Ring list LocaleAbbreviationsXT()
+# for performance reasons (string parsing is
+# quicker than parsing the deep Ring list LocaleAbbreviationsXT()
 
 _cLocaleAbbreviations = trim("
 	fa-AF, fa-Arab-AF, ps-AF, ps-Arab-AF, uz-AF, uz-Arab-AF,
