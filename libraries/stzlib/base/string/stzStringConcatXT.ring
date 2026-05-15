@@ -37,11 +37,17 @@ class stzStringConcatXT from stzStringConcat
 
 			[ "Add",		"Concat" ],
 			[ "AddQ",		"ConcatQ" ],
-			[ "JoinWith",		"Concat" ],
+
+			# --- ConcatMany aliases ---
+
+			[ "AddMany",		"ConcatMany" ],
+			[ "AddManyQ",		"ConcatManyQ" ],
+			[ "ConcatAll",		"ConcatMany" ],
 
 			# --- RepeatNTimes aliases ---
 
 			[ "Multiply",		"RepeatNTimes" ],
+			[ "MultiplyQ",		"RepeatNTimesQ" ],
 
 			# --- RepeatedNTimes aliases ---
 
@@ -50,10 +56,18 @@ class stzStringConcatXT from stzStringConcat
 			# --- Prepend aliases ---
 
 			[ "PrependWith",	"Prepend" ],
+			[ "PrependWithQ",	"PrependQ" ],
 
 			# --- Append aliases ---
 
-			[ "AppendWith",		"Append" ]
+			[ "AppendWith",		"Append" ],
+			[ "AppendWithQ",	"AppendQ" ],
+
+			# --- JoinWith aliases ---
+
+			[ "GlueWith",		"JoinWith" ],
+			[ "GlueWithQ",		"JoinWithQ" ],
+			[ "InterspersedWith",	"JoinedWith" ]
 		]
 
 		nLen = len(_aAliases_)

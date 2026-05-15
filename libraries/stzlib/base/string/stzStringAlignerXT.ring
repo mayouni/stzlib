@@ -36,25 +36,35 @@ class stzStringAlignerXT from stzStringAligner
 			# --- AlignLeft aliases ---
 
 			[ "LeftAlign",		"AlignLeft" ],
+			[ "LeftAlignQ",		"AlignLeftQ" ],
 			[ "JustifyLeft",	"AlignLeft" ],
 
 			# --- AlignRight aliases ---
 
 			[ "RightAlign",		"AlignRight" ],
+			[ "RightAlignQ",	"AlignRightQ" ],
 			[ "JustifyRight",	"AlignRight" ],
 
 			# --- AlignCenter aliases ---
 
 			[ "CenterAlign",	"AlignCenter" ],
+			[ "CenterAlignQ",	"AlignCenterQ" ],
 			[ "JustifyCenter",	"AlignCenter" ],
 
 			# --- PadLeft aliases ---
 
 			[ "PadStart",		"PadLeft" ],
+			[ "PadStartQ",		"PadLeftQ" ],
 
 			# --- PadRight aliases ---
 
-			[ "PadEnd",		"PadRight" ]
+			[ "PadEnd",		"PadRight" ],
+			[ "PadEndQ",		"PadRightQ" ],
+
+			# --- PadBoth aliases ---
+
+			[ "PadAll",		"PadBoth" ],
+			[ "PadAllQ",		"PadBothQ" ]
 		]
 
 		nLen = len(_aAliases_)

@@ -36,22 +36,53 @@ class stzStringTrimmerXT from stzStringTrimmer
 			# --- Trim aliases ---
 
 			[ "Strip",		"Trim" ],
+			[ "StripQ",		"TrimQ" ],
 
 			# --- TrimLeft aliases ---
 
 			[ "StripLeft",		"TrimLeft" ],
+			[ "StripLeftQ",		"TrimLeftQ" ],
 
 			# --- TrimRight aliases ---
 
 			[ "StripRight",		"TrimRight" ],
+			[ "StripRightQ",	"TrimRightQ" ],
 
 			# --- TrimStart aliases ---
 
 			[ "StripStart",		"TrimStart" ],
+			[ "StripStartQ",	"TrimStartQ" ],
 
 			# --- TrimEnd aliases ---
 
-			[ "StripEnd",		"TrimEnd" ]
+			[ "StripEnd",		"TrimEnd" ],
+			[ "StripEndQ",		"TrimEndQ" ],
+
+			# --- TrimChar aliases ---
+
+			[ "StripChar",		"TrimChar" ],
+			[ "StripCharQ",		"TrimCharQ" ],
+			[ "StripCharCS",	"TrimCharCS" ],
+
+			# --- TrimCharFromStart aliases ---
+
+			[ "StripCharFromStart",		"TrimCharFromStart" ],
+			[ "StripCharFromStartCS",	"TrimCharFromStartCS" ],
+
+			# --- TrimCharFromEnd aliases ---
+
+			[ "StripCharFromEnd",		"TrimCharFromEnd" ],
+			[ "StripCharFromEndCS",		"TrimCharFromEndCS" ],
+
+			# --- TrimCharFromLeft aliases ---
+
+			[ "StripCharFromLeft",		"TrimCharFromLeft" ],
+			[ "StripCharFromLeftCS",	"TrimCharFromLeftCS" ],
+
+			# --- TrimCharFromRight aliases ---
+
+			[ "StripCharFromRight",		"TrimCharFromRight" ],
+			[ "StripCharFromRightCS",	"TrimCharFromRightCS" ]
 		]
 
 		nLen = len(_aAliases_)

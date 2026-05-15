@@ -57,8 +57,39 @@ class stzStringCaseChanger from stzString
 		ok
 		This.Update(cStr)
 
+		def CapitalizeQ()
+			This.Capitalize()
+			return This
+
 	def Capitalized()
-		return This.Copy().UppercaseQ().Content()
+		return This.Copy().CapitalizeQ().Content()
+
+	  #======================================================#
+	 #   CAPITALIZE EACH WORD                               #
+	#======================================================#
+
+	def CapitalizeEachWord()
+		cStr = This.Lowercased()
+		nLen = len(cStr)
+		if nLen = 0
+			return
+		ok
+		cResult = upper(cStr[1])
+		for i = 2 to nLen
+			if i > 1 and cStr[i-1] = " "
+				cResult += upper(cStr[i])
+			else
+				cResult += cStr[i]
+			ok
+		next
+		This.Update(cResult)
+
+		def CapitalizeEachWordQ()
+			This.CapitalizeEachWord()
+			return This
+
+	def EachWordCapitalized()
+		return This.Copy().CapitalizeEachWordQ().Content()
 
 	  #======================================================#
 	 #   CASE CHECKING                                      #
@@ -69,6 +100,13 @@ class stzStringCaseChanger from stzString
 
 	def IsLowercase()
 		return This.Content() = lower(This.Content())
+
+	def IsCapitalized()
+		cStr = This.Content()
+		if len(cStr) = 0
+			return 0
+		ok
+		return cStr[1] = upper(cStr[1])
 
 	  #======================================================#
 	 #   TOGGLE CASE                                        #
@@ -87,3 +125,27 @@ class stzStringCaseChanger from stzString
 			ok
 		next
 		This.Update(cResult)
+
+		def ToggleCaseQ()
+			This.ToggleCase()
+			return This
+
+	def CaseToggled()
+		return This.Copy().ToggleCaseQ().Content()
+
+	  #======================================================#
+	 #   FORCE CASE                                         #
+	#======================================================#
+
+	def SetCase(pcCase)
+		if pcCase = :Upper or pcCase = :Uppercase
+			This.Uppercase()
+		but pcCase = :Lower or pcCase = :Lowercase
+			This.Lowercase()
+		but pcCase = :Capitalized or pcCase = :Capital
+			This.Capitalize()
+		ok
+
+		def SetCaseQ(pcCase)
+			This.SetCase(pcCase)
+			return This

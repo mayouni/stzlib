@@ -41,13 +41,53 @@ class stzStringExtractorXT from stzStringExtractor
 
 			[ "PopRange",		"ExtractRange" ],
 
+			# --- Extract aliases ---
+
+			[ "ExtractAllOccurrences",	"Extract" ],
+			[ "ExtractAllOccurrencesCS",	"ExtractCS" ],
+
+			# --- ExtractMany aliases ---
+
+			[ "ExtractSeveral",	"ExtractMany" ],
+			[ "ExtractSeveralCS",	"ExtractManyCS" ],
+
+			# --- ExtractAll aliases ---
+
+			[ "PopAll",		"ExtractAll" ],
+			[ "Drain",		"ExtractAll" ],
+
+			# --- ExtractAt aliases ---
+
+			[ "PopAt",		"ExtractAt" ],
+			[ "PopCharAt",		"ExtractCharAt" ],
+
+			# --- ExtractFirstChar aliases ---
+
+			[ "PopFirstChar",	"ExtractFirstChar" ],
+
+			# --- ExtractLastChar aliases ---
+
+			[ "PopLastChar",	"ExtractLastChar" ],
+
 			# --- ExtractFirst aliases ---
 
 			[ "PopFirst",		"ExtractFirst" ],
+			[ "PopFirstCS",		"ExtractFirstCS" ],
 
 			# --- ExtractLast aliases ---
 
-			[ "PopLast",		"ExtractLast" ]
+			[ "PopLast",		"ExtractLast" ],
+			[ "PopLastCS",		"ExtractLastCS" ],
+
+			# --- ExtractNthOccurrence aliases ---
+
+			[ "PopNth",		"ExtractNthOccurrence" ],
+			[ "PopNthCS",		"ExtractNthOccurrenceCS" ],
+
+			# --- ExtractCharsW aliases ---
+
+			[ "PopCharsW",		"ExtractCharsW" ],
+			[ "PopCharsWCS",	"ExtractCharsWCS" ]
 		]
 
 		nLen = len(_aAliases_)
