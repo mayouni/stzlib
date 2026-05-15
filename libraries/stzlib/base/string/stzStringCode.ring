@@ -72,3 +72,144 @@ class stzStringCode from stzString
 		oFinder = StzStringFinderQ(lower(This.Content()))
 		return oFinder.Contains("class ")
 
+	def NumberOfFunctions()
+		cContent = lower(This.Content())
+		acLines = split(cContent, nl)
+		nCount = 0
+		nLen = len(acLines)
+
+		for i = 1 to nLen
+			cLine = trim(acLines[i])
+			if left(cLine, 5) = "func "
+				nCount++
+			ok
+		next
+
+		return nCount
+
+	def NumberOfClasses()
+		cContent = lower(This.Content())
+		acLines = split(cContent, nl)
+		nCount = 0
+		nLen = len(acLines)
+
+		for i = 1 to nLen
+			cLine = trim(acLines[i])
+			if left(cLine, 6) = "class "
+				nCount++
+			ok
+		next
+
+		return nCount
+
+	def FunctionNames()
+		cContent = This.Content()
+		acLines = split(cContent, nl)
+		acNames = []
+		nLen = len(acLines)
+
+		for i = 1 to nLen
+			cLine = trim(acLines[i])
+			cLineLow = lower(cLine)
+			if left(cLineLow, 5) = "func "
+				cRest = substr(cLine, 6)
+				cRest = trim(cRest)
+				# Extract the function name (first word)
+				cName = ""
+				nRestLen = len(cRest)
+				for j = 1 to nRestLen
+					c = substr(cRest, j, 1)
+					if c = " " or c = "(" or c = nl
+						exit
+					ok
+					cName += c
+				next
+				if len(cName) > 0
+					acNames + cName
+				ok
+			ok
+		next
+
+		return acNames
+
+	def ClassNames()
+		cContent = This.Content()
+		acLines = split(cContent, nl)
+		acNames = []
+		nLen = len(acLines)
+
+		for i = 1 to nLen
+			cLine = trim(acLines[i])
+			cLineLow = lower(cLine)
+			if left(cLineLow, 6) = "class "
+				cRest = substr(cLine, 7)
+				cRest = trim(cRest)
+				# Extract the class name (first word)
+				cName = ""
+				nRestLen = len(cRest)
+				for j = 1 to nRestLen
+					c = substr(cRest, j, 1)
+					if c = " " or c = nl
+						exit
+					ok
+					cName += c
+				next
+				if len(cName) > 0
+					acNames + cName
+				ok
+			ok
+		next
+
+		return acNames
+
+	  #===============================#
+	 #     LINE ANALYSIS             #
+	#===============================#
+
+	def IsComment()
+		cTrimmed = trim(This.Content())
+		if left(cTrimmed, 1) = "#"
+			return 1
+		ok
+		if left(cTrimmed, 2) = "//"
+			return 1
+		ok
+		return 0
+
+	def IsBlankLine()
+		cTrimmed = trim(This.Content())
+		return len(cTrimmed) = 0
+
+	def ContainsComments()
+		cContent = This.Content()
+		if substr(cContent, "#") > 0
+			return 1
+		ok
+		if substr(cContent, "//") > 0
+			return 1
+		ok
+		return 0
+
+	def LinesOfCode()
+		cContent = This.Content()
+		acLines = split(cContent, nl)
+		nCount = 0
+		nLen = len(acLines)
+
+		for i = 1 to nLen
+			cLine = trim(acLines[i])
+			# Skip blank lines
+			if len(cLine) = 0
+				loop
+			ok
+			# Skip comment lines
+			if left(cLine, 1) = "#"
+				loop
+			ok
+			if left(cLine, 2) = "//"
+				loop
+			ok
+			nCount++
+		next
+
+		return nCount

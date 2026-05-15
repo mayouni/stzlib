@@ -2428,6 +2428,27 @@ func StzStringCryptoQ(str)
 func StzStringViewQ(str)
 	return new stzStringView(str)
 
+func StzStringWordsXTQ(str)
+	return new stzStringWordsXT(str)
+
+func StzStringDuplicatesXTQ(str)
+	return new stzStringDuplicatesXT(str)
+
+func StzStringCodeXTQ(str)
+	return new stzStringCodeXT(str)
+
+func StzStringIOXTQ(str)
+	return new stzStringIOXT(str)
+
+func StzStringRandomizerXTQ(str)
+	return new stzStringRandomizerXT(str)
+
+func StzStringLocaleXTQ(str)
+	return new stzStringLocaleXT(str)
+
+func StzStringCryptoXTQ(str)
+	return new stzStringCryptoXT(str)
+
 # Phase 2 Q-constructors (new subclass pairs)
 
 func StzStringRemoverQ(str)

@@ -45,6 +45,49 @@ class stzStringIO from stzString
 		def ExportTo(pcFilePath)
 			This.ToFile(pcFilePath)
 
+	def AppendToFile(pcFilePath)
+		cExisting = ""
+		if fexists(pcFilePath)
+			cExisting = read(pcFilePath)
+		ok
+		write(pcFilePath, cExisting + This.Content())
+
+	def PrependToFile(pcFilePath)
+		cExisting = ""
+		if fexists(pcFilePath)
+			cExisting = read(pcFilePath)
+		ok
+		write(pcFilePath, This.Content() + cExisting)
+
+	def FileExists(pcFilePath)
+		return fexists(pcFilePath)
+
+	def IsFilePath()
+		cContent = This.Content()
+		nLen = len(cContent)
+		if nLen = 0
+			return 0
+		ok
+
+		bHasSep = 0
+		bHasDot = 0
+
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+			if c = "\" or c = "/"
+				bHasSep = 1
+			ok
+			if c = "."
+				bHasDot = 1
+			ok
+		next
+
+		if bHasSep and bHasDot
+			return 1
+		else
+			return 0
+		ok
+
 	  #===============================#
 	 #     URL DETECTION             #
 	#===============================#
@@ -104,3 +147,54 @@ class stzStringIO from stzString
 			return cContent
 		ok
 
+	def ToXML()
+		cContent = This.Content()
+		cResult = ""
+		nLen = len(cContent)
+
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+			if c = "&"
+				cResult += "&amp;"
+			but c = "<"
+				cResult += "&lt;"
+			but c = ">"
+				cResult += "&gt;"
+			but c = '"'
+				cResult += "&quot;"
+			but c = "'"
+				cResult += "&apos;"
+			else
+				cResult += c
+			ok
+		next
+
+		return cResult
+
+	def ToHTML()
+		return "<span>" + This.ToXML() + "</span>"
+
+	def FromClipboard()
+		StzRaise("Clipboard access is not supported in this environment!")
+
+	def IsBase64()
+		cContent = This.Content()
+		nLen = len(cContent)
+		if nLen = 0
+			return 0
+		ok
+
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+			n = ascii(c)
+			if (n >= 65 and n <= 90) or
+			   (n >= 97 and n <= 122) or
+			   (n >= 48 and n <= 57) or
+			   c = "+" or c = "/" or c = "="
+				# valid base64 character
+			else
+				return 0
+			ok
+		next
+
+		return 1
