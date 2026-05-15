@@ -95,7 +95,7 @@ class stzListFinder from stzList
 			return This.FindAllOccurrencesCSQRT(pItem, pCaseSensitive, :stzList)
 
 		def FindAllOccurrencesCSQRT(pItem, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 

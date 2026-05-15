@@ -28,7 +28,7 @@ class stzSection
 	def init(n1, n2, nSize)
 		if CheckingParams()
 
-			if isList(nSize) and Q(nSize).IsOneOfTheseNamedParams([
+			if isList(nSize) and IsOneOfTheseNamedParamsList(nSize, [
 				:Size, :ListSize, :StringSize,
 				:NumberOfItems, :NumberOfChars,
 
@@ -50,7 +50,7 @@ class stzSection
 			# Managing the use of :From and :To named params
 	
 			if isList(n1) and
-			   StzListQ(n1).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n1, [
 				:From, :FromPosition, :FromCharAt, :FromCharAtPosition,
 
 				:Start, :FromStart,
@@ -78,7 +78,7 @@ class stzSection
 			ok
 	
 			if isList(n2) and
-			   StzListQ(n2).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n2, [
 				:To, :ToPosition, :ToCharAt, :ToCharAtPosition,
 
 				:End, :ToEnd,
@@ -108,13 +108,13 @@ class stzSection
 	
 			# Managing the use of :NthToFirst named param
 	
-			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [
 						:NthToFirst, :NthToFirstChar, :NthToFirstItem ])
 	
 				n1 = n1[2] + 1
 			ok
 	
-			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [
 						:NthToFirst, :NthToFirstChar, :NthToFirstItem ])
 	
 				n2 = n2[2] + 1
@@ -122,13 +122,13 @@ class stzSection
 	
 			# Managing the use of :NthToLast named param
 	
-			if isList(n1) and Q(n1).IsOneOfTheseNamedParams([
+			if isList(n1) and IsOneOfTheseNamedParamsList(n1, [
 						:NthToLast, :NthToLastChar, :NthToLastItem ])
 	
 				n1 = nSize - n1[2]
 			ok
 	
-			if isList(n2) and Q(n2).IsOneOfTheseNamedParams([
+			if isList(n2) and IsOneOfTheseNamedParamsList(n2, [
 						:NthToLast, :NthToLastChar, :NthToLastItem ])
 	
 				n2 = nSize - n2[2]

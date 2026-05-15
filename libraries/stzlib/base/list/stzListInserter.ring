@@ -30,15 +30,13 @@ class stzListInserter from stzList
 
 		if isList(pWhere)
 
-			oParam = Q(pWhere)
-
-			if oParam.IsOneOfTheseNamedParams([
+			if IsOneOfTheseNamedParamsList(pWhere, [
 				:At, :AtPosition, :Before, :BeforePosition ])
 
 				This.InsertBefore(pWhere[2], pItem)
 				return
 
-			but oParam.IsOneOfTheseNamedParams([ :After, :AfterPosition ])
+			but IsOneOfTheseNamedParamsList(pWhere, [ :After, :AfterPosition ])
 
 				This.InsertAfter(pWhere[2], pItem)
 				return
@@ -84,7 +82,7 @@ class stzListInserter from stzList
 			This.InsertBeforePosition(n, pItem)
 
 		def InsertAt(n, pItem)
-			if isList(n) and StzListQ(n).IsOneOfTheseNamedParams([ :Position, :ItemAt, :ItemAtPosition ])
+			if isList(n) and IsOneOfTheseNamedParamsList(n, [ :Position, :ItemAt, :ItemAtPosition ])
 				n = n[2]
 			ok
 
