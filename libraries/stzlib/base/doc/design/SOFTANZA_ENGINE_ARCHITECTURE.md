@@ -743,7 +743,23 @@ The Engine will be extracted from stzlib in phases:
 | system   | stz_system       | DONE    |
 | embed    | stz_embed_*      | PLANNED |
 
-### Total: 37 modules (11 done, 26 planned)
+### Layer 4: Signature Features (11 modules)
+
+| Module   | DLL              | Status  |
+|----------|------------------|---------|
+| pattern  | stz_pattern      | PLANNED |
+| numtheory| stz_numtheory    | PLANNED |
+| natlang  | stz_natlang      | PLANNED |
+| ccode    | stz_ccode        | PLANNED |
+| constr   | stz_constraint   | PLANNED |
+| reactive | stz_reactive     | PLANNED |
+| knowgraph| stz_knowgraph    | PLANNED |
+| splitter | stz_splitter     | PLANNED |
+| stringart| stz_stringart    | PLANNED |
+| display  | stz_display      | PLANNED |
+| univops  | stz_univops      | PLANNED |
+
+### Total: 50 modules (11 done, 39 planned)
 
 ---
 
@@ -765,3 +781,9 @@ The Engine will be extracted from stzlib in phases:
 8. **No dependencies.** The Engine depends only on Zig's stdlib
    and vendored sources (utf8proc). No system libraries, no
    package managers, no transitive dependency chains.
+9. **Generalize everything.** If an operation works on one data
+   structure, it works on ALL structures that admit it. One
+   function family, dispatched by type. No per-class silos.
+10. **One display engine.** Every Show(), Boxed(), VizFind(),
+    chart, table, tree, graph rendering goes through the unified
+    canvas-based display engine. No duplicated rendering logic.

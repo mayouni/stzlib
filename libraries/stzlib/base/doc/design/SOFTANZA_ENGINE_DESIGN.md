@@ -23,17 +23,21 @@ types, its numbers cap at 15-digit precision).
        |
   softanza_engine.dll / .so / .dylib  (Zig binary, C ABI)
        |
-  +------------+------------+------------+
-  | LAYER 0    | LAYER 1    | LAYER 2    |
-  | Value      | Collections| Algorithms |
-  | String     | List       | Search     |
-  | Number     | HashMap    | Sort       |
-  | Char       | Set        | Graph      |
-  | Bytes      | Table      | Stats      |
-  |            | Graph      | Text       |
-  |            | Matrix     | Regex      |
-  |            | Tree       | I/O        |
-  +------------+------------+------------+
+  +------------+------------+------------+------------+
+  | LAYER 0    | LAYER 1    | LAYER 2    | LAYER 4    |
+  | Value      | Collections| Algorithms | Signature  |
+  | String     | List       | Search     | PatternEx  |
+  | Number     | HashMap    | Sort       | NatLang    |
+  | Char       | Set        | Graph      | Display    |
+  | Bytes      | Table      | Stats      | UnivOps    |
+  |            | Graph      | Text       | Reactive   |
+  |            | Matrix     | Regex      | Constraint |
+  |            | Tree       | I/O        | KnowGraph  |
+  +------------+------------+------------+------------+
+  |            LAYER 3: Infrastructure               |
+  | Crypto, Codec, Compress, Stream, Watch, Process  |
+  | Async, UUID, URL, HTML, RNG, Solver, Geo, Bits   |
+  +--------------------------------------------------+
 ```
 
 ---
@@ -851,6 +855,100 @@ int           stz_expr_is_valid(const char* expression, size_t len);
 
 ---
 
+## Design Principle: Feature Generalization
+
+Softanza's identity is that operations generalize across data
+structures. A feature does not exist for "strings" or "lists" --
+it exists for ALL structures that admit it. The Engine enforces
+this by routing every generalizable operation through StzValue and
+a domain tag, so the same C ABI serves strings, lists, tables,
+trees, graphs, matrices, and any future structure.
+
+**The rule:** If an operation makes sense on more than one data
+structure, it MUST be implemented as a single Engine function
+family that dispatches on the domain tag. Language surfaces
+(Ring, Python, Rust) call the same function -- the Engine decides
+how to execute it based on the target's type.
+
+### Universal Operation Families
+
+These operations generalize across ALL or MOST data structures:
+
+| Operation   | String | List | Table | Matrix | Tree | Graph | Grid |
+|-------------|:------:|:----:|:-----:|:------:|:----:|:-----:|:----:|
+| Find        |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| FindAll     |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| Replace     |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| ReplaceAll  |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| Contains    |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| Count       |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| Sort        |   Y    |  Y   |   Y   |   -    |  -   |   -   |  -   |
+| Reverse     |   Y    |  Y   |   Y   |   Y    |  -   |   -   |  Y   |
+| Section     |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| Split       |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| Merge       |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| Walk        |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| Show        |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| Boxed       |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| VizFind     |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+| ToCode      |   Y    |  Y   |   Y   |   Y    |  Y   |   Y   |  Y   |
+
+### Universal C ABI
+
+```c
+// Generic operations dispatched on StzValue type
+int64_t   stz_find(StzValue haystack, StzValue needle);
+size_t    stz_find_all(StzValue haystack, StzValue needle,
+                        int64_t* out_positions, size_t max);
+size_t    stz_replace(StzValue target, StzValue old_val,
+                       StzValue new_val);
+int       stz_contains(StzValue container, StzValue item);
+size_t    stz_count(StzValue container, StzValue item);
+StzValue  stz_section(StzValue source, size_t from, size_t to);
+StzValue  stz_reverse(StzValue source);
+StzValue  stz_merge(StzValue a, StzValue b);
+```
+
+Each function inspects `stz_value_type()` and dispatches to the
+type-specific implementation. If a structure does not support the
+operation, the function returns an error code -- never silent
+wrong behavior.
+
+### Walker Generalization
+
+The Walker (Layer 2) does not walk "lists" -- it walks ANY
+indexed structure. The same Walker instance works on strings
+(character positions), lists (item positions), table rows/cols,
+matrix cells, tree levels, and graph traversal orders.
+
+```c
+// Walker targets any indexed structure
+StzWalkerHandle stz_walker_on(StzValue target, int64_t step);
+// Walks characters in a string, items in a list, rows in a
+// table, cells in a matrix, nodes in a tree (level-order),
+// nodes in a graph (BFS/DFS order)
+```
+
+### Splitter Generalization
+
+The Splitter does not split "strings" -- it partitions ANY
+structure into sections. A string splits into substrings, a list
+into sublists, a table into sub-tables (row groups), a matrix
+into sub-matrices (blocks), a tree into subtrees, a graph into
+subgraphs (connected components or cuts).
+
+### Conditional Code Generalization
+
+The @CurrentItem/@NextItem mechanism works on ANY walkable
+structure, not just lists. It adapts to the structure's topology:
+- String: @CurrentChar, @NextChar, @PreviousChar
+- List: @CurrentItem, @NextItem, @PreviousItem
+- Table: @CurrentRow, @NextRow, @CurrentCol
+- Tree: @CurrentNode, @Parent, @FirstChild, @NextSibling
+- Graph: @CurrentNode, @Neighbor(n)
+
+---
+
 ## Layer 4: Softanza Signature Features
 
 These are the features that define Softanza's identity. Without
@@ -1138,21 +1236,59 @@ size_t stz_kg_similar_to(StzKGHandle h,
                           StzKGResult* out_similar, size_t max);
 ```
 
-### Splitter & Counter Engines [PLANNED]
+### Universal Splitter & Counter [PLANNED]
 
-Position-arithmetic and conditional counting at native speed.
+The Splitter operates on ANY data structure, not just strings.
+It partitions the structure into sections based on position
+arithmetic, delimiter matching, or predicate functions.
 
 ```c
-// Splitter: compute section pairs from split points
+// --- Position-arithmetic splitting (works on any indexed structure) ---
+
+// Split a structure of total_size at given positions
 size_t stz_split_at(size_t total_size,
                      const size_t* split_points, size_t num_points,
                      size_t* out_sections, size_t max);
                      // out_sections: pairs [start, end, start, end, ...]
 
+// Split into N equal parts
 size_t stz_split_into(size_t total_size, size_t num_parts,
                        size_t* out_sections, size_t max);
 
-// Counter: generate count sequence with restart/skip rules
+// --- Structure-aware splitting (adapts to topology) ---
+
+// Split any StzValue by a delimiter value
+// String: split by substring -> list of substrings
+// List: split by item -> list of sublists
+// Table: split by column value -> list of sub-tables
+StzValue stz_split_by(StzValue source, StzValue delimiter);
+
+// Split by predicate (items where predicate returns true become boundaries)
+StzValue stz_split_where(StzValue source,
+                          int (*predicate)(StzValue item, void* ctx),
+                          void* ctx);
+
+// --- Deep structure splitting ---
+
+// Tree: split at node -> forest of subtrees
+StzValue stz_tree_split_at_node(StzTreeHandle h, size_t node_id);
+
+// Graph: split into connected components
+StzValue stz_graph_split_components(StzGraphHandle h);
+
+// Graph: split by edge removal (min-cut)
+StzValue stz_graph_split_mincut(StzGraphHandle h,
+                                 size_t source, size_t sink);
+
+// Matrix: split into blocks
+StzValue stz_matrix_split_blocks(StzMatrixHandle h,
+                                  size_t block_rows, size_t block_cols);
+
+// Grid: split into regions (flood-fill based)
+StzValue stz_grid_split_regions(StzValue grid);
+
+// --- Counter: generate count sequences with rules ---
+
 size_t stz_counter(size_t start, size_t step,
                     size_t restart_at, size_t restart_to,
                     size_t skip_every, size_t total,
@@ -1176,6 +1312,204 @@ size_t stz_stringart_styles(const char** out_names, size_t max);
 int stz_stringart_load_style(const char* name,
                               const char* style_json, size_t len);
 ```
+
+### Unified Display Engine [PLANNED]
+
+Every Softanza class has a `Show()` method producing ASCII visual
+output. Currently each class implements its own rendering -- 30+
+independent implementations with duplicated box-drawing, alignment,
+padding, and formatting logic. The Engine unifies ALL visual
+rendering into a single canvas-based display system.
+
+**What it replaces:** stzBoxedString (boxing), stzTable (bordered
+tables), stzGrid/stzTile (2D grids with obstacles), stzTree
+(hierarchical indented trees), stzGraphAsciiVisualizer (graph
+drawings), stzTimeLine (multi-canvas timelines), stzCalendar
+(month grids), stzFolder (directory trees), stzMatrix (bracket
+notation), stzHistogram/stzBarPlot/stzScatterPlot/stzSurfacePlot
+(charts), stzPivotTable (multi-dimensional tables), stzStringArt
+(ASCII art), VizFind (highlight-with-carets).
+
+**Design:** One canvas, one renderer, one box-drawing engine.
+Every data structure serializes its visual intent into a display
+tree, and the display engine renders it to ASCII text.
+
+```c
+// --- Canvas: the universal rendering surface ---
+
+StzCanvasHandle stz_canvas_new(size_t width, size_t height);
+void            stz_canvas_free(StzCanvasHandle h);
+void            stz_canvas_resize(StzCanvasHandle h,
+                                   size_t width, size_t height);
+
+// Place text at position
+void stz_canvas_text(StzCanvasHandle h, size_t x, size_t y,
+                      const char* text, size_t len);
+
+// Draw primitives
+void stz_canvas_hline(StzCanvasHandle h, size_t x, size_t y,
+                       size_t length, char ch);
+void stz_canvas_vline(StzCanvasHandle h, size_t x, size_t y,
+                       size_t length, char ch);
+void stz_canvas_fill(StzCanvasHandle h, size_t x, size_t y,
+                      size_t w, size_t h_size, char ch);
+
+// Render canvas to string
+size_t stz_canvas_render(StzCanvasHandle h, char* buf, size_t buf_len);
+
+// --- Box Drawing Engine ---
+
+// Box styles
+// STZ_BOX_ASCII:   +--+    STZ_BOX_ROUNDED: ╭──╮
+//                  |  |                      │  │
+//                  +--+                      ╰──╯
+// STZ_BOX_HEAVY:   ┏━━┓   STZ_BOX_DOUBLE:  ╔══╗
+//                  ┃  ┃                      ║  ║
+//                  ┗━━┛                      ╚══╝
+
+void stz_canvas_box(StzCanvasHandle h, size_t x, size_t y,
+                     size_t w, size_t h_size, int style);
+
+// Box with title
+void stz_canvas_titled_box(StzCanvasHandle h, size_t x, size_t y,
+                            size_t w, size_t h_size, int style,
+                            const char* title, size_t title_len);
+
+// --- Universal Show(): render any StzValue to ASCII ---
+
+// The single function that replaces 30+ class-specific Show()
+size_t stz_show(StzValue v, int format, char* buf, size_t buf_len);
+
+// Format constants:
+// STZ_SHOW_COMPACT     -> "[ 1, 2, 3 ]"
+// STZ_SHOW_EXPANDED    -> multi-line indented
+// STZ_SHOW_BOXED       -> with box-drawing border
+// STZ_SHOW_TABLE       -> tabular format (for lists of lists, tables)
+// STZ_SHOW_TREE        -> hierarchical indent (for trees, nested lists)
+// STZ_SHOW_GRAPH       -> node-edge ASCII diagram
+// STZ_SHOW_MATRIX      -> bracket notation with alignment
+// STZ_SHOW_CALENDAR    -> month grid (for date ranges)
+// STZ_SHOW_TIMELINE    -> horizontal timeline (for event sequences)
+// STZ_SHOW_CHART       -> histogram/bar/scatter (for numeric data)
+
+// Extended show with options
+size_t stz_show_xt(StzValue v, int format,
+                    const char* options_json, size_t opts_len,
+                    char* buf, size_t buf_len);
+
+// --- VizFind: visual search highlighting ---
+
+// Highlight occurrences of needle in haystack's visual representation
+// Works on ANY data structure: strings (caret under chars),
+// lists (bracket items), tables (highlight cells), trees (mark nodes),
+// graphs (mark nodes/edges), matrices (mark elements)
+size_t stz_vizfind(StzValue haystack, StzValue needle,
+                    char* buf, size_t buf_len);
+
+// --- Table Rendering ---
+
+// Render a table with headers, borders, and alignment
+size_t stz_render_table(const char** headers, size_t num_cols,
+                         const StzValue* data, size_t num_rows,
+                         int style, char* buf, size_t buf_len);
+
+// --- Tree Rendering ---
+
+// Render a tree with configurable connectors
+// Connector styles: "├── └──" (default), "|-- `--", "+-- +--"
+size_t stz_render_tree(StzTreeHandle h, int style,
+                        char* buf, size_t buf_len);
+
+// --- Graph Rendering ---
+
+// Render graph as ASCII diagram
+// Layout algorithms: STZ_LAYOUT_FORCE, STZ_LAYOUT_HIERARCHICAL,
+//                    STZ_LAYOUT_CIRCULAR, STZ_LAYOUT_GRID
+size_t stz_render_graph(StzGraphHandle h, int layout, int style,
+                         char* buf, size_t buf_len);
+
+// --- Chart Rendering ---
+
+// Histogram from numeric data
+size_t stz_render_histogram(const double* data, size_t count,
+                             size_t width, size_t height,
+                             char* buf, size_t buf_len);
+
+// Bar plot (horizontal or vertical)
+size_t stz_render_barplot(const char** labels, const double* values,
+                           size_t count, int horizontal,
+                           size_t width, size_t height,
+                           char* buf, size_t buf_len);
+
+// Scatter plot (2D points)
+size_t stz_render_scatter(const double* x, const double* y,
+                           size_t count,
+                           size_t width, size_t height,
+                           char* buf, size_t buf_len);
+
+// --- Composite Layouts ---
+
+// Stack multiple rendered outputs vertically or horizontally
+size_t stz_layout_stack(const char** panels, const size_t* widths,
+                         size_t count, int direction,
+                         char* buf, size_t buf_len);
+// direction: STZ_LAYOUT_VERTICAL, STZ_LAYOUT_HORIZONTAL
+```
+
+**Engine internals needed:**
+- Unicode-aware column width calculation (CJK = 2 columns)
+- Box-drawing character intersection resolution (when lines cross)
+- Automatic width detection (terminal width query or configurable)
+- Alignment engine (left/right/center per column)
+- Color-free by default (pure ASCII), optional ANSI escape codes
+  via stz_show_xt options
+
+### Generalizable Feature Inventory
+
+Beyond Splitter and Display, these features must generalize:
+
+**Sections/Slicing** -- Extract contiguous sub-structures from
+ANY collection. `stz_section(v, from, to)` returns a substring,
+sublist, sub-table (row range), sub-matrix (block), subtree
+(rooted at node), or subgraph (induced by node set).
+
+**Merge/Concatenate** -- Combine two structures of the same type.
+`stz_merge(a, b)` concatenates strings, appends lists, unions
+tables (append rows), block-diagonal matrices, graft trees,
+union graphs.
+
+**Flatten/Deepen** -- Convert between nested and flat
+representations. `stz_flatten(v)` works on nested lists,
+trees (to list), graphs (to edge list), hierarchical tables
+(to flat rows).
+
+**Sort** -- `stz_sort(v, key, ascending)` sorts strings
+(characters), lists (items), tables (by column), matrices
+(by row sum/column).
+
+**Filter/Select** -- `stz_filter(v, predicate)` filters items
+in lists, rows in tables, nodes in graphs/trees, elements in
+matrices.
+
+**Map/Transform** -- `stz_map(v, transform)` applies a function
+to every element: characters in strings, items in lists, cells
+in tables/matrices, nodes in trees/graphs.
+
+**Reduce/Aggregate** -- `stz_reduce(v, combine, initial)` folds
+over any collection: sum characters (codepoints), reduce list,
+aggregate table column, sum matrix, accumulate tree values.
+
+**Serialize/Deserialize** -- `stz_to_json(v)` and
+`stz_from_json(json)` work on ANY StzValue, preserving type
+information. Every data structure round-trips through JSON.
+
+**Compare/Diff** -- `stz_diff(a, b)` produces a structural diff:
+string diff (character-level), list diff (item-level), table
+diff (row/cell-level), tree diff (node edit distance), graph
+diff (edge additions/removals).
+
+**Copy/Clone** -- `stz_clone(v)` deep-copies any StzValue,
+including nested structures.
 
 ---
 
@@ -1266,9 +1600,13 @@ they get the Softanza experience.
 |          |                  | two-way binding, batch mode             |
 | H.7      | Knowledge Graph  | RDF triples, SPARQL-like queries,       |
 |          |                  | inference rules, ontology               |
-| H.8      | Splitter/Counter | Position-arithmetic splitting,          |
+| H.8      | Splitter/Counter | Universal splitting across all types,   |
 |          |                  | conditional counting with restart/skip  |
 | H.9      | String Art       | Multi-layer ASCII art rendering         |
+| H.10     | Display Engine   | Unified canvas, box-drawing, charts,    |
+|          |                  | table/tree/graph rendering, VizFind     |
+| H.11     | Universal Ops    | Generic Find/Replace/Sort/Filter/Map/   |
+|          |                  | Reduce/Diff/Clone dispatched on StzValue|
 
 ### Phase I: Engine as Universal Substrate
 
@@ -1291,8 +1629,8 @@ The Engine IS the product. The language surfaces are thin skins.
 | A-E   | 11      | DONE      | Qt replacement            |
 | F     | 13      | PLANNED   | Ring workaround elimination|
 | G     | 15      | PLANNED   | Infrastructure services   |
-| H     | 9       | PLANNED   | Signature features        |
-| **Total** | **48** | **11 done, 37 planned** |
+| H     | 11      | PLANNED   | Signature features        |
+| **Total** | **50** | **11 done, 39 planned** |
 
 ---
 
