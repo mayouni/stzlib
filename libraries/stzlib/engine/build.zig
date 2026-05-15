@@ -27,6 +27,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_url", .entry = "src/stz_url_entry.zig", .needs_ring = true },
     .{ .name = "stz_system", .entry = "src/stz_system_entry.zig", .needs_ring = true },
     .{ .name = "stz_unicode", .entry = "src/stz_unicode_entry.zig", .needs_utf8proc = true, .needs_ring = true },
+    .{ .name = "stz_meta", .entry = "src/stz_meta_entry.zig", .needs_ring = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {

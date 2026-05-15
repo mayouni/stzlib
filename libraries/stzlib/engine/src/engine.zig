@@ -19,6 +19,10 @@ pub const bytes = @import("bytes.zig");
 pub const json = @import("json.zig");
 pub const url = @import("url.zig");
 pub const system = @import("system.zig");
+pub const meta = @import("meta.zig");
+pub const named_params = @import("named_params.zig");
+pub const method_gen = @import("method_gen.zig");
+pub const error_catalog = @import("error_catalog.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -294,4 +298,8 @@ test {
     _ = json;
     _ = url;
     _ = system;
+    _ = meta;
+    _ = named_params;
+    _ = method_gen;
+    _ = error_catalog;
 }
