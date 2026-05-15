@@ -25,7 +25,7 @@ class stzStringPerformer from stzString
 	def Perform(pcAction)
 		cStr = This.Content()
 		nLen = This.NumberOfChars()
-		_cCode_ = StzStringQ(pcAction).TrimQ().BoundsRemoved("{","}")
+		_cCode_ = _StzStripBraces(pcAction)
 		for @i = 1 to nLen
 			eval(_cCode_)
 		next
@@ -40,7 +40,7 @@ class stzStringPerformer from stzString
 
 	def PerformOn(panPos, pcAction)
 		nLen = len(panPos)
-		_cCode_ = StzStringQ(pcAction).TrimQ().BoundsRemoved("{","}")
+		_cCode_ = _StzStripBraces(pcAction)
 		for i = 1 to nLen
 			@i = panPos[i]
 			eval(_cCode_)
@@ -69,7 +69,7 @@ class stzStringPerformer from stzString
 	def Yield(pcYielder)
 		cStr = This.Content()
 		nLen = This.NumberOfChars()
-		_cCode_ = StzStringQ(pcYielder).TrimQ().BoundsRemoved("{","}")
+		_cCode_ = _StzStripBraces(pcYielder)
 		aResult = []
 		for @i = 1 to nLen
 			aResult + eval(_cCode_)
@@ -82,7 +82,7 @@ class stzStringPerformer from stzString
 
 	def YieldOn(panPos, pcYielder)
 		nLen = len(panPos)
-		_cCode_ = StzStringQ(pcYielder).TrimQ().BoundsRemoved("{","}")
+		_cCode_ = _StzStripBraces(pcYielder)
 		aResult = []
 		for i = 1 to nLen
 			@i = panPos[i]

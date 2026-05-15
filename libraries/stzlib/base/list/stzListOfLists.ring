@@ -3782,7 +3782,7 @@ class stzListOfLists from stzList
 		aCol = This.Col(nCol)
 		nLenCol = len(aCol)
 
-		cCode = 'value = (' + StzStringQ(pcExpr).TrimQ().TheseBoundsRemoved("{","}") + ')'
+		cCode = 'value = (' + _StzStripBraces(pcExpr) + ')'
 
 		aResult = []
 
@@ -4122,7 +4122,7 @@ class stzListOfLists from stzList
 			ok
 		ok
 
-		cCode = 'value = (' + StzStringQ(pcExpr).TrimQ().TheseBoundsRemoved("{", "}") + ')'
+		cCode = 'value = (' + _StzStripBraces(pcExpr) + ')'
 
 		aContent = This.Content()
 

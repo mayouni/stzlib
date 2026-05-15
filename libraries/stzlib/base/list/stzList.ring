@@ -31912,7 +31912,7 @@ class stzList from stzObject
 		# Computing the values by evaluation the
 		# expression against all the items
 
-		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = _StzStripBraces(paPartitionExpr)
 		cCode = 'value = (' + cCode + ')'
 		acValues = [] # Values stringified (to be used for comparison)
 		aValues = []  # Values in their original types
@@ -32113,7 +32113,7 @@ class stzList from stzObject
 		# Computing the values by evaluation the
 		# expression against all the items
 
-		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = _StzStripBraces(paPartitionExpr)
 		cCode = 'value = (' + cCode + ')'
 		acValues = [] # Values stringified (to be used for comparison)
 		aValues = []  # Values in their original types
@@ -32275,7 +32275,7 @@ class stzList from stzObject
 		# Computing the values by evaluation the
 		# expression against all the items
 
-		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = _StzStripBraces(paPartitionExpr)
 		cCode = 'value = (' + cCode + ')'
 		acValues = [] # Values stringified (to be used for comparison)
 		aValues = []  # Values in their original types
@@ -32361,7 +32361,7 @@ class stzList from stzObject
 		# Computing the values by evaluating the
 		# expression against all the items
 
-		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = _StzStripBraces(paPartitionExpr)
 		cCode = 'value = (' + cCode + ')'
 		acValues = [] # Values stringified (to be used for comparison)
 		aValues = []  # Values in their original types
@@ -32448,7 +32448,7 @@ class stzList from stzObject
 		# Computing the values by evaluation the
 		# expression against all the items
 
-		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = _StzStripBraces(paPartitionExpr)
 		cCode = 'value = (' + cCode + ')'
 		acValues = [] # Values stringified (to be used for comparison)
 		aValues = []  # Values in their original types
@@ -32542,7 +32542,7 @@ class stzList from stzObject
 		# Computing the values by evaluation the
 		# expression against all the items
 
-		cCode = StzStringQ(paPartitionExpr).TrimQ().TheseBoundsRemoved("{", "}")
+		cCode = _StzStripBraces(paPartitionExpr)
 		cCode = 'value = (' + cCode + ')'
 		acValues = [] # Values stringified (to be used for comparison)
 		aValues = []  # Values in their original types
@@ -36037,7 +36037,7 @@ class stzList from stzObject
 
 				but oStr.TrimQ().IsBoundedBy([ "{", "}" ])
 
-					pcCondition = StzStringQ(pValue).TrimQ().TheseBoundsRemoved("{", "}")
+					pcCondition = _StzStripBraces(pValue)
 					anResult = []
 	
 					@i = 0

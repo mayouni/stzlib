@@ -822,6 +822,15 @@ func _StzSimplifyString(cStr)
 	end
 	return cStr
 
+func _StzStripBraces(cStr)
+	cStr = trim(cStr)
+	nLen = len(cStr)
+	if nLen >= 2 and substr(cStr, 1, 1) = "{" and substr(cStr, nLen, 1) = "}"
+		cStr = substr(cStr, 2, nLen - 2)
+		cStr = trim(cStr)
+	ok
+	return cStr
+
 #--
 
 func StzStringContent(oStr)
