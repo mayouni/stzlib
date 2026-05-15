@@ -165,3 +165,283 @@ class stzStringLines from stzString
 		next
 		return 0
 
+	  #===============================#
+	 #     N FIRST / N LAST LINES    #
+	#===============================#
+
+	def NFirstLines(n)
+		acLines = This.Lines()
+		nLen = len(acLines)
+		acResult = []
+
+		nLimit = n
+		if nLimit > nLen
+			nLimit = nLen
+		ok
+
+		for i = 1 to nLimit
+			acResult + acLines[i]
+		next
+
+		return acResult
+
+	def NLastLines(n)
+		acLines = This.Lines()
+		nLen = len(acLines)
+		acResult = []
+
+		nStart = nLen - n + 1
+		if nStart < 1
+			nStart = 1
+		ok
+
+		for i = nStart to nLen
+			acResult + acLines[i]
+		next
+
+		return acResult
+
+	  #===============================#
+	 #     LONGEST / SHORTEST LINE   #
+	#===============================#
+
+	def LongestLine()
+		acLines = This.Lines()
+		nLen = len(acLines)
+		if nLen = 0
+			return ""
+		ok
+
+		cLongest = acLines[1]
+		nMax = len(cLongest)
+
+		for i = 2 to nLen
+			nLineLen = len(acLines[i])
+			if nLineLen > nMax
+				nMax = nLineLen
+				cLongest = acLines[i]
+			ok
+		next
+
+		return cLongest
+
+	def ShortestLine()
+		acLines = This.Lines()
+		nLen = len(acLines)
+		if nLen = 0
+			return ""
+		ok
+
+		cShortest = ""
+		nMin = 0
+		bFirst = 1
+
+		for i = 1 to nLen
+			cLine = acLines[i]
+			if trim(cLine) != ""
+				nLineLen = len(cLine)
+				if bFirst
+					cShortest = cLine
+					nMin = nLineLen
+					bFirst = 0
+				but nLineLen < nMin
+					nMin = nLineLen
+					cShortest = cLine
+				ok
+			ok
+		next
+
+		return cShortest
+
+	  #===============================#
+	 #     AVERAGE LINE LENGTH       #
+	#===============================#
+
+	def AverageLineLength()
+		acLines = This.Lines()
+		nLen = len(acLines)
+		if nLen = 0
+			return 0
+		ok
+
+		nTotal = 0
+		for i = 1 to nLen
+			nTotal += len(acLines[i])
+		next
+
+		return nTotal / nLen
+
+	  #===============================#
+	 #     SORT LINES                #
+	#===============================#
+
+	def SortLines()
+		acLines = This.Lines()
+		nLen = len(acLines)
+
+		# Bubble sort
+		for i = 1 to nLen - 1
+			for j = 1 to nLen - i
+				if acLines[j] > acLines[j + 1]
+					cTemp = acLines[j]
+					acLines[j] = acLines[j + 1]
+					acLines[j + 1] = cTemp
+				ok
+			next
+		next
+
+		cResult = ""
+		for i = 1 to nLen
+			if i > 1
+				cResult += NL
+			ok
+			cResult += acLines[i]
+		next
+
+		This.Update(cResult)
+
+		def SortLinesQ()
+			This.SortLines()
+			return This
+
+	def LinesSorted()
+		oCopy = new stzStringLines(This.Content())
+		oCopy.SortLines()
+		return oCopy.Content()
+
+	  #===============================#
+	 #     REVERSE LINES ORDER       #
+	#===============================#
+
+	def ReverseLinesOrder()
+		acLines = This.Lines()
+		nLen = len(acLines)
+
+		cResult = ""
+		for i = nLen to 1 step -1
+			if i < nLen
+				cResult += NL
+			ok
+			cResult += acLines[i]
+		next
+
+		This.Update(cResult)
+
+		def ReverseLinesOrderQ()
+			This.ReverseLinesOrder()
+			return This
+
+	def LinesOrderReversed()
+		oCopy = new stzStringLines(This.Content())
+		oCopy.ReverseLinesOrder()
+		return oCopy.Content()
+
+	  #===============================#
+	 #     INDENT LINES              #
+	#===============================#
+
+	def IndentLines(n)
+		acLines = This.Lines()
+		nLen = len(acLines)
+
+		cSpaces = ""
+		for s = 1 to n
+			cSpaces += " "
+		next
+
+		cResult = ""
+		for i = 1 to nLen
+			if i > 1
+				cResult += NL
+			ok
+			cResult += cSpaces + acLines[i]
+		next
+
+		This.Update(cResult)
+
+		def IndentLinesQ(n)
+			This.IndentLines(n)
+			return This
+
+	def LinesIndented(n)
+		oCopy = new stzStringLines(This.Content())
+		oCopy.IndentLines(n)
+		return oCopy.Content()
+
+	  #===============================#
+	 #     REMOVE DUPLICATE LINES    #
+	#===============================#
+
+	def RemoveDuplicateLines()
+		acLines = This.Lines()
+		nLen = len(acLines)
+		acResult = []
+
+		for i = 1 to nLen
+			bFound = 0
+			nResLen = len(acResult)
+			for j = 1 to nResLen
+				if acResult[j] = acLines[i]
+					bFound = 1
+					exit
+				ok
+			next
+			if NOT bFound
+				acResult + acLines[i]
+			ok
+		next
+
+		cResult = ""
+		nResLen = len(acResult)
+		for i = 1 to nResLen
+			if i > 1
+				cResult += NL
+			ok
+			cResult += acResult[i]
+		next
+
+		This.Update(cResult)
+
+		def RemoveDuplicateLinesQ()
+			This.RemoveDuplicateLines()
+			return This
+
+	def DuplicateLinesRemoved()
+		oCopy = new stzStringLines(This.Content())
+		oCopy.RemoveDuplicateLines()
+		return oCopy.Content()
+
+	  #===============================#
+	 #     LINES CONTAINING          #
+	#===============================#
+
+	def LineContainingCS(pcSubStr, pCaseSensitive)
+		acLines = This.Lines()
+		nLen = len(acLines)
+
+		for i = 1 to nLen
+			if StringContainsCS(acLines[i], pcSubStr, pCaseSensitive)
+				return acLines[i]
+			ok
+		next
+
+		return ""
+
+	def LinesContainingCS(pcSubStr, pCaseSensitive)
+		acLines = This.Lines()
+		nLen = len(acLines)
+		acResult = []
+
+		for i = 1 to nLen
+			if StringContainsCS(acLines[i], pcSubStr, pCaseSensitive)
+				acResult + acLines[i]
+			ok
+		next
+
+		return acResult
+
+	def LineContaining(pcSubStr)
+		return This.LineContainingCS(pcSubStr, @CaseSensitive(1))
+
+	def LinesContaining(pcSubStr)
+		return This.LinesContainingCS(pcSubStr, @CaseSensitive(1))

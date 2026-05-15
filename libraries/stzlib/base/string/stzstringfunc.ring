@@ -2449,14 +2449,23 @@ func StzStringVisualizerXTQ(str)
 func StzStringLinesQ(str)
 	return new stzStringLines(str)
 
+func StzStringLinesXTQ(str)
+	return new stzStringLinesXT(str)
+
 func StzStringWordsQ(str)
 	return new stzStringWords(str)
 
 func StzStringEncoderQ(str)
 	return new stzStringEncoder(str)
 
+func StzStringEncoderXTQ(str)
+	return new stzStringEncoderXT(str)
+
 func StzStringNumbersQ(str)
 	return new stzStringNumbers(str)
+
+func StzStringNumbersXTQ(str)
+	return new stzStringNumbersXT(str)
 
 func StzStringDuplicatesQ(str)
 	return new stzStringDuplicates(str)

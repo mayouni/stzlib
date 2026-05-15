@@ -146,3 +146,226 @@ class stzStringEncoder from stzString
 
 		return acResult
 
+	  #===============================#
+	 #     BINARY                    #
+	#===============================#
+
+	def ToBinary()
+		cContent = This.Content()
+		nLen = len(cContent)
+		cResult = ""
+
+		for i = 1 to nLen
+			if i > 1
+				cResult += " "
+			ok
+			n = ascii(substr(cContent, i, 1))
+			cBin = ""
+			for b = 7 to 0 step -1
+				if n & pow(2, b)
+					cBin += "1"
+				else
+					cBin += "0"
+				ok
+			next
+			cResult += cBin
+		next
+
+		return cResult
+
+	def FromBinary(cBin)
+		acParts = @Split(cBin, " ")
+		cResult = ""
+		nLen = len(acParts)
+
+		for i = 1 to nLen
+			cByte = acParts[i]
+			nVal = 0
+			nByteLen = len(cByte)
+			for j = 1 to nByteLen
+				c = substr(cByte, j, 1)
+				if c = "1"
+					nVal += pow(2, nByteLen - j)
+				ok
+			next
+			cResult += char(nVal)
+		next
+
+		This.Update(cResult)
+
+		def FromBinaryQ(cBin)
+			This.FromBinary(cBin)
+			return This
+
+	  #===============================#
+	 #     OCTAL                     #
+	#===============================#
+
+	def ToOctal()
+		cContent = This.Content()
+		nLen = len(cContent)
+		cResult = ""
+
+		for i = 1 to nLen
+			if i > 1
+				cResult += " "
+			ok
+			n = ascii(substr(cContent, i, 1))
+			cOct = ""
+			nTemp = n
+			if nTemp = 0
+				cOct = "0"
+			else
+				while nTemp > 0
+					cOct = ("" + (nTemp % 8)) + cOct
+					nTemp = floor(nTemp / 8)
+				end
+			ok
+			# Pad to at least 3 digits
+			while len(cOct) < 3
+				cOct = "0" + cOct
+			end
+			cResult += cOct
+		next
+
+		return cResult
+
+	  #===============================#
+	 #     CHAR CODES (STRING)       #
+	#===============================#
+
+	def ToCharCodes()
+		cContent = This.Content()
+		nLen = len(cContent)
+		cResult = ""
+
+		for i = 1 to nLen
+			if i > 1
+				cResult += " "
+			ok
+			cResult += ("" + ascii(substr(cContent, i, 1)))
+		next
+
+		return cResult
+
+	def FromCharCodes(cCodes)
+		acParts = @Split(cCodes, " ")
+		cResult = ""
+		nLen = len(acParts)
+
+		for i = 1 to nLen
+			cResult += char(0 + acParts[i])
+		next
+
+		This.Update(cResult)
+
+		def FromCharCodesQ(cCodes)
+			This.FromCharCodes(cCodes)
+			return This
+
+	  #===============================#
+	 #     HTML ENCODING             #
+	#===============================#
+
+	def HtmlEncoded()
+		cContent = This.Content()
+		nLen = len(cContent)
+		cResult = ""
+
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+
+			if c = "&"
+				cResult += "&amp;"
+			but c = "<"
+				cResult += "&lt;"
+			but c = ">"
+				cResult += "&gt;"
+			but c = '"'
+				cResult += "&quot;"
+			but c = "'"
+				cResult += "&#39;"
+			else
+				cResult += c
+			ok
+		next
+
+		return cResult
+
+		def HtmlEncode()
+			This.Update(This.HtmlEncoded())
+
+		def HtmlEncodeQ()
+			This.HtmlEncode()
+			return This
+
+	def HtmlDecoded()
+		cContent = This.Content()
+		cResult = cContent
+
+		cResult = ring_substr2(cResult, "&amp;", "&")
+		cResult = ring_substr2(cResult, "&lt;", "<")
+		cResult = ring_substr2(cResult, "&gt;", ">")
+		cResult = ring_substr2(cResult, "&quot;", '"')
+		cResult = ring_substr2(cResult, "&#39;", "'")
+
+		return cResult
+
+		def HtmlDecode()
+			This.Update(This.HtmlDecoded())
+
+		def HtmlDecodeQ()
+			This.HtmlDecode()
+			return This
+
+	  #===============================#
+	 #     REGEX ESCAPING            #
+	#===============================#
+
+	def EscapedForRegex()
+		cContent = This.Content()
+		nLen = len(cContent)
+		cResult = ""
+		cSpecial = ".*+?^${}[]()|\\"
+
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+			if ring_find(cSpecial, c) > 0
+				cResult += "\" + c
+			else
+				cResult += c
+			ok
+		next
+
+		return cResult
+
+		def EscapeForRegex()
+			This.Update(This.EscapedForRegex())
+
+		def EscapeForRegexQ()
+			This.EscapeForRegex()
+			return This
+
+	  #===============================#
+	 #     REVERSE                   #
+	#===============================#
+
+	def Reverse()
+		cContent = This.Content()
+		nLen = len(cContent)
+		cResult = ""
+
+		for i = nLen to 1 step -1
+			cResult += substr(cContent, i, 1)
+		next
+
+		This.Update(cResult)
+
+		def ReverseQ()
+			This.Reverse()
+			return This
+
+	def Reversed()
+		oCopy = new stzStringEncoder(This.Content())
+		oCopy.Reverse()
+		return oCopy.Content()
