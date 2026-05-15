@@ -1361,7 +1361,7 @@ def LastWeekdayOfMonth()
 
     def IsBetween(oStartDate, oEndDate)
 	if CheckParams()
-		if isList(oEndDate) and StzListQ(oEndDate).IsAndNamedParam()
+		if isList(oEndDate) and IsAndNamedParamList(oEndDate)
 			oEndDate = oEndDate[2]
 		ok
 	ok

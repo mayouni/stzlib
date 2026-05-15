@@ -332,7 +332,7 @@ class stzTime from stzObject
 
     def IsBetween(oStartTime, oEndTime)
         if CheckParams()
-            if isList(oEndTime) and StzListQ(oEndTime).IsAndNamedParam()
+            if isList(oEndTime) and IsAndNamedParamList(oEndTime)
                 oEndTime = oEndTime[2]
             ok
         ok

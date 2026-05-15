@@ -933,7 +933,7 @@ func AllNumbers(panList)
 		ok
 
 		aLast = panList[len(panList)]
-		if isList(aList) and StzListQ(aLast).IsAndNamedParam()
+		if isList(aList) and IsAndNamedParamList(aLast)
 			del(panList, len(panList))
 			panList + aLast[2]
 		ok

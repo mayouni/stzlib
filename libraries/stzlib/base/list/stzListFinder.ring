@@ -26,7 +26,7 @@ class stzListFinder from stzList
 
 		if CheckingParams()
 
-			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			if isList(pItem) and IsOfNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 
@@ -34,7 +34,7 @@ class stzListFinder from stzList
 				StzRaise("Can't find an unnamed object!")
 			ok
 
-			if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 				pCaseSensitive = pCaseSensitive[2]
 			ok
 
@@ -203,7 +203,7 @@ class stzListFinder from stzList
 
 	def FindNOccurrencesCS(n, pItem, pCaseSensitive)
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+		if isList(pItem) and IsOfNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 
@@ -260,7 +260,7 @@ class stzListFinder from stzList
 
 	def FindNthCS(n, pItem, pCaseSensitive)
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+		if isList(pItem) and IsOfNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 
@@ -282,7 +282,7 @@ class stzListFinder from stzList
 
 	def FindGivenOccurrencesCS(panOccurrences, pItem, pCaseSensitive)
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+		if isList(pItem) and IsOfNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 

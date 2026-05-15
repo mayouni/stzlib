@@ -207,3 +207,85 @@ func _CheckType(pValue, cExpected)
 	other
 		return 1
 	off
+
+  ///////////////////////////////////////////
+ ///  ENGINE-BACKED NAMED PARAM CHECKS  ///
+///////////////////////////////////////////
+
+# These replace StzListQ(x).IsXxxNamedParam() calls with direct
+# function calls -- no object creation, O(1) check.
+
+# Is this a [:Of, value] pair?
+func IsOfNamedParamList(paList)
+	if NOT isList(paList)
+		return 0
+	ok
+	if len(paList) != 2
+		return 0
+	ok
+	if NOT isString(paList[1])
+		return 0
+	ok
+	return paList[1] = :Of
+
+# Is this a [:CaseSensitive, 0/1] or [:CS, 0/1] pair?
+func IsCaseSensitiveNamedParamList(paList)
+	if NOT isList(paList)
+		return 0
+	ok
+	if len(paList) != 2
+		return 0
+	ok
+	if NOT isString(paList[1])
+		return 0
+	ok
+	if NOT isNumber(paList[2])
+		return 0
+	ok
+	if NOT (paList[1] = :CaseSensitive or paList[1] = :CS)
+		return 0
+	ok
+	if NOT (paList[2] = 0 or paList[2] = 1)
+		return 0
+	ok
+	return 1
+
+# Is this a [:And, value] or [:And@, value] pair?
+func IsAndNamedParamList(paList)
+	if NOT isList(paList)
+		return 0
+	ok
+	if len(paList) != 2
+		return 0
+	ok
+	if NOT isString(paList[1])
+		return 0
+	ok
+	return paList[1] = :And or paList[1] = :And@
+
+# Is this a [:With, value], [:With@, value], [:By, value], or [:By@, value] pair?
+func IsWithOrByNamedParamList(paList)
+	if NOT isList(paList)
+		return 0
+	ok
+	if len(paList) != 2
+		return 0
+	ok
+	if NOT isString(paList[1])
+		return 0
+	ok
+	cKey = paList[1]
+	return cKey = :With or cKey = :With@ or cKey = :By or cKey = :By@
+
+# Is this a [:To, value] pair?
+func IsToNamedParamList(paList)
+	if NOT isList(paList)
+		return 0
+	ok
+	if len(paList) != 2
+		return 0
+	ok
+	if NOT isString(paList[1])
+		return 0
+	ok
+	return paList[1] = :To

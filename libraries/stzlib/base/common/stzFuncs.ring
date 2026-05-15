@@ -2614,7 +2614,7 @@ func Bounds(pBounds)
 	p1 = pBounds[1]
 	p2 = pBounds[2]
 
-	if isList(p2) and StzListQ(p2).IsAndNamedParam()
+	if isList(p2) and IsAndNamedParamList(p2)
 		p2 = p2[2]
 	ok
 
@@ -2688,7 +2688,7 @@ func CaseSensitive(p)
 			return 0
 		ok
 
-	but isList(p) and StzListQ(p).IsCaseSensitiveNamedParam()
+	but isList(p) and IsCaseSensitiveNamedParamList(p)
 		p = p[2]
 
 		if isNumber(p)
@@ -4876,7 +4876,7 @@ func EuclideanDistance(anNumbers1, anNumbers2)
 		if isList(anNumbers1) and StzListQ(anNumbers1).IsBetweenNamedParam()
 			anNumbers1 = anNumbers1[1]
 		ok
-		if isList(anNumbers2) and StzListQ(anNumbers2).IsAndNamedParam()
+		if isList(anNumbers2) and IsAndNamedParamList(anNumbers2)
 			anNumbers2 = anNumbers2[1]
 		ok
 		

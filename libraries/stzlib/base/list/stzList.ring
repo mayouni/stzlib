@@ -5358,7 +5358,7 @@ func AreBothEqualCS(p1, p2, pCaseSensitive)
 		return 0
 	ok
 
-	if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+	if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 		pCaseSensitive = pCaseSensitive[2]
 	ok
 
@@ -5469,7 +5469,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 		return 0
 	ok
 
-	if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+	if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 		pCaseSensitive = pCaseSensitive[2]
 	ok
 
@@ -6122,7 +6122,7 @@ func @FindAllCS_NbrOrStr(paList, pItem, pCaseSensitive)
 			return -1
 		ok
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -6279,7 +6279,7 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 			return -1
 		ok
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -6361,7 +6361,7 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 			StzRaise("Incorrect param type! nStart must be a number.")
 		ok
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -7461,7 +7461,7 @@ class stzList from stzObject
 
 	def ContentCS(pCaseSensitive)
 		
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 	
@@ -9592,7 +9592,7 @@ class stzList from stzObject
 
 		if CheckingParams()
 
-			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			if isList(pItem) and IsOfNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 
@@ -9886,7 +9886,7 @@ class stzList from stzObject
 				stzRaise("Incorrect param type! paItems must be a list.")
 			ok
 	
-			if isList(pNewItem) and StzListQ(pNewItem).IsWithOrByNamedParam()
+			if isList(pNewItem) and IsWithOrByNamedParamList(pNewItem)
 				pNewItem = pNewItem[2]
 			ok
 
@@ -10354,7 +10354,7 @@ class stzList from stzObject
 
 		*/
 
-		if isList(paNewItems) and StzListQ(paNewItems).IsWithOrByNamedParam()
+		if isList(paNewItems) and IsWithOrByNamedParamList(paNewItems)
 			paNewItems = paNewItems[2]
 		ok
 
@@ -10567,7 +10567,7 @@ class stzList from stzObject
 
 		if CheckingParams()
 	
-			if isList(paNewItems) and StzListQ(paNewItems).IsWithOrByNamedParam()
+			if isList(paNewItems) and IsWithOrByNamedParamList(paNewItems)
 				paNewItems = paNewItems[2]
 			ok
 
@@ -10756,7 +10756,7 @@ class stzList from stzObject
 
 		if CheckingParams()
 	
-			if isList(paNewItems) and StzListQ(paNewItems).IsWithOrByNamedParam()
+			if isList(paNewItems) and IsWithOrByNamedParamList(paNewItems)
 				paNewItems = paNewItems[2]
 			ok
 
@@ -13756,7 +13756,7 @@ class stzList from stzObject
 
 		*/
 
-		if isList(pDynamicItem) and StzListQ(pDynamicItem).IsWithOrByNamedParam()
+		if isList(pDynamicItem) and IsWithOrByNamedParamList(pDynamicItem)
 			pDynamicItem = pDynamicItem[2]
 		ok
 
@@ -14073,12 +14073,12 @@ class stzList from stzObject
 	#-----------------------------------------#
 
 	def ReplaceNthOccurrenceCS(n, pItem, pOtherItem, pCaseSensitive)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+		if isList(pItem) and IsOfNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 
 		if isList(pOtherItem) and
-		   StzListQ(pOtherItem).IsWithOrByNamedParam()
+		   IsWithOrByNamedParamList(pOtherItem)
 		
 			pOtherItem = pOtherItem[2]
 		ok
@@ -14345,12 +14345,12 @@ class stzList from stzObject
 			StzRaise("Incorrect param! n must be a number.")
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+		if isList(pItem) and IsOfNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 
 		if isList(pNewItem) and
-		   StzListQ(pNewItem).IsWithOrByNamedParam()
+		   IsWithOrByNamedParamList(pNewItem)
 
 			if Q(pNewItem[1]).LastChar() = "@"
 				
@@ -14684,12 +14684,12 @@ class stzList from stzObject
 	#---------------------------------------------------#
 
 	def ReplacePreviousNthOccurrenceCS(n, pItem, pNewItem, pnStartingAt, pCaseSensitive)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+		if isList(pItem) and IsOfNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 
 		if isList(pNewItem) and
-		   StzListQ(pNewItem).IsWithOrByNamedParam()
+		   IsWithOrByNamedParamList(pNewItem)
 
 			if Q(pNewItem[1]).LastChar() = "@"
 				cCode = 'pNewtItem = ' + pNewItem[2]
@@ -15091,7 +15091,7 @@ class stzList from stzObject
 		*/
 
 		if CheckingParam()
-			if isList(pNewItem) and StzListQ(pNewItem).IsWithOrByNamedParam()
+			if isList(pNewItem) and IsWithOrByNamedParamList(pNewItem)
 				pNewItem = pNewItem[2]
 			ok
 		ok
@@ -16124,7 +16124,7 @@ class stzList from stzObject
 
 	def RemoveAllCS(pItem, pCaseSensitive)
 		if CheckingParams()
-			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			if isList(pItem) and IsOfNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 		ok
@@ -17372,7 +17372,7 @@ class stzList from stzObject
 	#--------------------------------------------------#
 
 	def RemovePreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
-		if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+		if isList(pItem) and IsOfNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 
@@ -30106,7 +30106,7 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def IsEqualCS(paOtherList, pCaseSensitive)
-			if isList(paOtherList) and StzListQ(paOtherList).IsToNamedParam()
+			if isList(paOtherList) and IsToNamedParamList(paOtherList)
 				pOtherList = pOtherList[2]
 			ok
 
@@ -30142,7 +30142,7 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def IsEqual(paOtherList)
-			if isList(paOtherList) and StzListQ(paOtherList).IsToNamedParam()
+			if isList(paOtherList) and IsToNamedParamList(paOtherList)
 				pOtherList = pOtherList[2]
 			ok
 
@@ -30195,7 +30195,7 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def IsStrictlyEqualCS(paOtherList, pCaseSensitive)
-			if isList(paOtherList) and StzListQ(paOtherList).IsToNamedParam()
+			if isList(paOtherList) and IsToNamedParamList(paOtherList)
 				pOtherList = pOtherList[2]
 			ok
 
@@ -30205,7 +30205,7 @@ class stzList from stzObject
 			return This.IsStrictlyEqualToCS(paOtherList, pCaseSensitive)
 
 		def IsIdenticalCS(paOtherList, pCaseSensitive)
-			if isList(paOtherList) and StzListQ(paOtherList).IsToNamedParam()
+			if isList(paOtherList) and IsToNamedParamList(paOtherList)
 				pOtherList = pOtherList[2]
 			ok
 
@@ -30224,7 +30224,7 @@ class stzList from stzObject
 		#< @FunctionAlternativeForms
 
 		def IsStrictlyEqual(paOtherList, pCaseSensitive)
-			if isList(paOtherList) and StzListQ(paOtherList).IsToNamedParam()
+			if isList(paOtherList) and IsToNamedParamList(paOtherList)
 				pOtherList = pOtherList[2]
 			ok
 
@@ -30234,7 +30234,7 @@ class stzList from stzObject
 			return This.IsStrictlyEqualTo(paOtherList)
 
 		def IsIdentical(paOtherList)
-			if isList(paOtherList) and StzListQ(paOtherList).IsToNamedParam()
+			if isList(paOtherList) and IsToNamedParamList(paOtherList)
 				pOtherList = pOtherList[2]
 			ok
 
@@ -30250,7 +30250,7 @@ class stzList from stzObject
 	#--------------------------------------------------------#
 
 	def IsQuietEqualTo(paOtherList)
-		if StzListQ(paOtherList).IsToNamedParam()
+		if IsToNamedParamList(paOtherList)
 			paOtherList = paOtherList[2]
 		ok
 
@@ -35287,7 +35287,7 @@ class stzList from stzObject
 		--> Gives: [ '-', '-', '-', 'V', 'A', 'R', '-', '-', '-' ]
 		*/
 
-		if isList(pItem) and StzListQ(pItem).IsWithOrByNamedParam()
+		if isList(pItem) and IsWithOrByNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 
@@ -35454,7 +35454,7 @@ class stzList from stzObject
 	def ReplaceThisRepeatedLeadingItemCS(pItem, pNewItem, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pNewItem) and StzListQ(pNewItem).IsWithOrByNamedParam()
+			if isList(pNewItem) and IsWithOrByNamedParamList(pNewItem)
 				pNewItem = pNewItem[2]
 			ok
 		ok
@@ -35517,7 +35517,7 @@ class stzList from stzObject
 		#--> [ "_","_","_","V","A","R","_","_","_" ]
 		*/
 
-		if isList(pItem) and StzListQ(pItem).IsWithOrByNamedParam()
+		if isList(pItem) and IsWithOrByNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 
@@ -35687,7 +35687,7 @@ class stzList from stzObject
 	def ReplaceThisRepeatedTrailingItemCS(pItem, pNewItem, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pNewItem) and StzListQ(pNewItem).IsWithOrByNamedParam()
+			if isList(pNewItem) and IsWithOrByNamedParamList(pNewItem)
 				pNewItem = pNewItem[2]
 			ok
 		ok
@@ -37094,7 +37094,7 @@ class stzList from stzObject
 		#TODO // Think of a more robust solution!
 
 		if CheckingParams()
-			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			if isList(pItem) and IsOfNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 		ok
@@ -37835,7 +37835,7 @@ class stzList from stzObject
 	def ItemsAndTheirNumberOfOccurrenceCS(pCaseSensitive)
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -37947,7 +37947,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -38080,7 +38080,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -38669,7 +38669,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -38822,7 +38822,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -38943,7 +38943,7 @@ class stzList from stzObject
 
 		if CheckingParams()
 
-			if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 				pCaseSensitive = pCaseSensitive[2]
 			ok
 	
@@ -39249,7 +39249,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -39421,7 +39421,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -39561,7 +39561,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -39870,7 +39870,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -40204,7 +40204,7 @@ class stzList from stzObject
 	def DuplicatesCS(pCaseSensitive)
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -40516,7 +40516,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -40620,7 +40620,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -40850,7 +40850,7 @@ class stzList from stzObject
 
 		# Checking params
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -43114,7 +43114,7 @@ class stzList from stzObject
 
 	def ContainsBothCS(pItem1, pItem2, pCaseSensitive)
 		if CheckingParams()
-			if isList(pItem2) and StzListQ(pItem2).IsAndNamedParam()
+			if isList(pItem2) and IsAndNamedParamList(pItem2)
 				pItem2 = pItem[2]
 			ok
 		ok
@@ -43573,7 +43573,7 @@ class stzList from stzObject
 			return This.ContainsNCS(n, paItems, pCaseSensitive)
 
 		def ContainsNOccurrencesCS(n, paItems, pCaseSensitive)
-			if isList(n) and StzListQ(n).IsOfNamedParam()
+			if isList(n) and IsOfNamedParamList(n)
 				n = n[2]
 			ok
 			return This.ContainsNCS(n, paItems, pCaseSensitive)
@@ -43585,7 +43585,7 @@ class stzList from stzObject
 			return This.ContainsNCS(n, paItems, pCaseSensitive)
 
 		def ContainsExactlyNOccurrencesCS(n, paItems, pCaseSensitive)
-			if isList(n) and StzListQ(n).IsOfNamedParam()
+			if isList(n) and IsOfNamedParamList(n)
 				n = n[2]
 			ok
 			return This.ContainsNCS(n, paItems, pCaseSensitive)
@@ -43603,7 +43603,7 @@ class stzList from stzObject
 			return This.ContainsN(n, paItems)
 
 		def ContainsNOccurrences(n, paItems)
-			if isList(n) and StzListQ(n).IsOfNamedParam()
+			if isList(n) and IsOfNamedParamList(n)
 				n = n[2]
 			ok
 			return This.ContainsN(n, paItems)
@@ -43615,7 +43615,7 @@ class stzList from stzObject
 			return This.ContainsN(n, paItems)
 
 		def ContainsExactlyNOccurrences(n, paItems)
-			if isList(n) and StzListQ(n).IsOfNamedParam()
+			if isList(n) and IsOfNamedParamList(n)
 				n = n[2]
 			ok
 			return This.ContainsN(n, paItems)
@@ -44811,7 +44811,7 @@ fdef
 
 		if CheckingParams()
 	
-			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			if isList(pItem) and IsOfNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 
@@ -44819,7 +44819,7 @@ fdef
 				StzRaise("Can't find an unnamed object!")
 			ok
 
-			if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 				pCaseSensitive = pCaseSensitive[2]
 			ok
 
@@ -45260,7 +45260,7 @@ fdef
 				StzRaise("Incorrect  param type! n must be a number.")
 			ok
 	
-			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			if isList(pItem) and IsOfNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 
@@ -45268,7 +45268,7 @@ fdef
 				StzRaise("Can't proceed! Objects, unless they are named objects, can not be found yet.")
 			ok
 
-			if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 				pCaseSensitive = pCaseSensitive[2]
 			ok
 
@@ -45544,7 +45544,7 @@ fdef
 
 			nLen = len(panOccurr)
 
-			if isList(panOccurr[nLen]) and StzListQ(panOccurr[nLen]).IsAndNamedParam()
+			if isList(panOccurr[nLen]) and IsAndNamedParamList(panOccurr[nLen])
 				panOccurr[nLen] = panOccurr[nLen][2]
 			ok
 
@@ -46327,7 +46327,7 @@ fdef
 	#-------------------------------------------------------------------------#
 
 	def DeepContainsBothCS(pItem1, pItem2, pCaseSensitive)
-		if isList(pItem2) and StzListQ(pItem2).IsAndNamedParam()
+		if isList(pItem2) and IsAndNamedParamList(pItem2)
 			pItem2 = pItem2[2]
 		ok
 
@@ -50027,7 +50027,7 @@ fdef
 
 		if CheckingParams()
 
-			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			if isList(pItem) and IsOfNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 	
@@ -50160,7 +50160,7 @@ fdef
 
 		if CheckingParams()
 
-			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			if isList(pItem) and IsOfNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 	
@@ -50341,7 +50341,7 @@ fdef
 
 		if CheckingParams()
 
-			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			if isList(pItem) and IsOfNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 	
@@ -55555,7 +55555,7 @@ fdef
 
 		if CheckingParams()
 	
-			if isList(pItem2) and StzListQ(pItem2).IsAndNamedParam()
+			if isList(pItem2) and IsAndNamedParamList(pItem2)
 				pItem2 = pItem2[2]
 			ok
 
@@ -55663,7 +55663,7 @@ fdef
 
 		*/
 
-		if isList(paSections) and StzListQ(paSections).IsOfNamedParam()
+		if isList(paSections) and IsOfNamedParamList(paSections)
 			paSections = paSections[2]
 		ok
 
@@ -55811,7 +55811,7 @@ fdef
 		*/
 
 		if CheckingParams()
-			if isList(paSections) and StzListQ(paSections).IsOfNamedParam()
+			if isList(paSections) and IsOfNamedParamList(paSections)
 				paSections = paSections[2]
 			ok
 	
@@ -59117,7 +59117,7 @@ fdef
 			return
 		ok
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -59332,7 +59332,7 @@ fdef
 			return
 		ok
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -67146,7 +67146,7 @@ fdef
 		but oParam.IsBetweenNamedParam() and
 			isList(pItem) and len(pItem) = 2
 			
-			if isList(pItem[2]) and StzListQ(pItem[2]).IsAndNamedParam()
+			if isList(pItem[2]) and IsAndNamedParamList(pItem[2])
 				pItem[2] = pItem[2][2]
 			ok
 
@@ -68960,7 +68960,7 @@ fdef
 		but oParam.IsBetweenNamedParam() and
 			isList(pItem) and len(pItem) = 2
 			
-			if isList(pItem[2]) and StzListQ(pItem[2]).IsAndNamedParam()
+			if isList(pItem[2]) and IsAndNamedParamList(pItem[2])
 				pItem[2] = pItem[2][2]
 			ok
 
@@ -71230,7 +71230,7 @@ fdef
 		but oParam.IsBetweenNamedParam() and
 			isList(pItem) and len(pItem) = 2
 			
-			if isList(pItem[2]) and StzListQ(pItem[2]).IsAndNamedParam()
+			if isList(pItem[2]) and IsAndNamedParamList(pItem[2])
 				pItem[2] = pItem[2][2]
 			ok
 
@@ -72938,7 +72938,7 @@ fdef
 		but oParam.IsBetweenNamedParam() and
 			isList(pItem) and len(pItem) = 2
 			
-			if isList(pItem[2]) and StzListQ(pItem[2]).IsAndNamedParam()
+			if isList(pItem[2]) and IsAndNamedParamList(pItem[2])
 				pItem[2] = pItem[2][2]
 			ok
 
@@ -74527,7 +74527,7 @@ fdef
 		but oParam.IsBetweenNamedParam() and
 			isList(pItem) and len(pItem) = 2
 			
-			if isList(pItem[2]) and StzListQ(pItem[2]).IsAndNamedParam()
+			if isList(pItem[2]) and IsAndNamedParamList(pItem[2])
 				pItem[2] = pItem[2][2]
 			ok
 
@@ -76203,7 +76203,7 @@ fdef
 		but oParam.IsBetweenNamedParam() and
 			isList(pItem) and len(pItem) = 2
 			
-			if isList(pItem[2]) and StzListQ(pItem[2]).IsAndNamedParam()
+			if isList(pItem[2]) and IsAndNamedParamList(pItem[2])
 				pItem[2] = pItem[2][2]
 			ok
 

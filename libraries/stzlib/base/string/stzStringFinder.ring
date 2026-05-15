@@ -141,7 +141,7 @@ class stzStringFinder from stzString
 
 	def FindNthCS(n, pcSubstr, pCaseSensitive)
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -149,7 +149,7 @@ class stzStringFinder from stzString
 			stzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -223,7 +223,7 @@ class stzStringFinder from stzString
 
 	def FindLastCS(pcSubStr, pCaseSensitive)
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 

@@ -1043,7 +1043,7 @@ class stzMatrix
 				stzraise("Incorrect param type! panStart must be a pair of numbers.")
 			ok
 
-			if isList(panEnd) and StzListQ(panEnd).IsToNamedParam()
+			if isList(panEnd) and IsToNamedParamList(panEnd)
 				panEnd = panEnd[2]
 			ok
 
@@ -1103,7 +1103,7 @@ class stzMatrix
 				stzraise("Incorrect param type! panStart must be a pair of numbers.")
 			ok
 
-			if isList(panEnd) and StzListQ(panEnd).IsToNamedParam()
+			if isList(panEnd) and IsToNamedParamList(panEnd)
 				panEnd = panEnd[2]
 			ok
 
@@ -1160,7 +1160,7 @@ class stzMatrix
 				stzraise("Incorrect param type! panStart must be a pair of numbers.")
 			ok
 
-			if isList(panEnd) and StzListQ(panEnd).IsToNamedParam()
+			if isList(panEnd) and IsToNamedParamList(panEnd)
 				panEnd = panEnd[2]
 			ok
 
@@ -1206,7 +1206,7 @@ class stzMatrix
 				stzraise("Incorrect param type! panStart must be a pair of numbers.")
 			ok
 
-			if isList(panEnd) and StzListQ(panEnd).IsToNamedParam()
+			if isList(panEnd) and IsToNamedParamList(panEnd)
 				panEnd = panEnd[2]
 			ok
 

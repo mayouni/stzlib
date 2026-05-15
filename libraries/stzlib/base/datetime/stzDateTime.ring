@@ -1217,7 +1217,7 @@ class stzDateTime from stzObject
 
     def IsBetween(poStartDateTime, poEndDateTime)
         if CheckParams()
-            if isList(poEndDateTime) and StzListQ(poEndDateTime).IsAndNamedParam()
+            if isList(poEndDateTime) and IsAndNamedParamList(poEndDateTime)
                 _oEndDateTime_ = poEndDateTime[2]
 		poEndDateTime = _oEndDateTime_
             ok

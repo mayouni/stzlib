@@ -74,7 +74,7 @@ class stzListParser from stzParser
 			
 		ok
 
-		if isList(pnEnd) and StzListQ(pnEnd).IsToNamedParam()
+		if isList(pnEnd) and IsToNamedParamList(pnEnd)
 
 			if pnEnd[2] = :Last or pnEnd[2] = :End
 				pnEnd = len(This.List())

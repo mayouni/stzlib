@@ -878,7 +878,7 @@ class stzGraph
 			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
 				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
 				pcToNodeId = pcToNodeId[2]
 			ok
 		ok
@@ -909,7 +909,7 @@ class stzGraph
 			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
 				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
 				pcToNodeId = pcToNodeId[2]
 			ok
 		ok
@@ -940,7 +940,7 @@ class stzGraph
 			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
 				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
 				pcToNodeId = pcToNodeId[2]
 			ok
 			if isList(pcLabel) and StzListQ(pcLabel).IsLabelNamedParam()
@@ -983,7 +983,7 @@ class stzGraph
 			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
 				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
 				pcToNodeId = pcToNodeId[2]
 			ok
 		ok
@@ -1677,7 +1677,7 @@ class stzGraph
 
 	def Incoming(pcNodeId)
 		if CheckParams()
-			if isList(pcNodeId) and StzListQ(pcNodeId).IsToNamedParam()
+			if isList(pcNodeId) and IsToNamedParamList(pcNodeId)
 				pcNodeId = pcNodeId[2]
 			ok
 		ok
@@ -2268,7 +2268,7 @@ class stzGraph
 			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
 				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
 				pcToNodeId = pcToNodeId[2]
 			ok
 		ok
@@ -2347,7 +2347,7 @@ class stzGraph
 			if isList(pcFromNodeId) and StzListQ(pcFromNodeId).IsFromNamedParam()
 				pcFromNodeId = pcFromNodeId[2]
 			ok
-			if isList(pcToNodeId) and StzListQ(pcToNodeId).IsToNamedParam()
+			if isList(pcToNodeId) and IsToNamedParamList(pcToNodeId)
 				pcToNodeId = pcToNodeId[2]
 			ok
 		ok

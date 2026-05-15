@@ -2800,7 +2800,7 @@ class stzObject
 
 		item1 = This.Content()[1]
 		item2 = This.Content()[2]
-		if isList(item2) and StzListQ(item2).IsAndNamedParam()
+		if isList(item2) and IsAndNamedParamList(item2)
 
 			item2 = item2[2]
 		ok
@@ -2819,7 +2819,7 @@ class stzObject
 	
 			item1 = This.Content()[1]
 			item2 = This.Content()[2]
-			if isList(item2) and StzListQ(item2).IsAndNamedParam()
+			if isList(item2) and IsAndNamedParamList(item2)
 	
 				item2 = item2[2]
 			ok

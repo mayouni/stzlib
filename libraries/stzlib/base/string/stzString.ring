@@ -364,7 +364,7 @@ class stzString from stzObject
 		#< @FunctionAlternative
 
 		def Append(pcStr)
-			if isList(pcStr) and StzListQ(pcStr).IsWithOrByNamedParam()
+			if isList(pcStr) and IsWithOrByNamedParamList(pcStr)
 				pcStr = pcStr[2]
 			ok
 
@@ -389,7 +389,7 @@ class stzString from stzObject
 	#-------------------------------------#
 
 	def Prepend(pcOtherStr)
-		if isList(pcOtherStr) and StzListQ(pcOtherStr).IsWithOrByNamedParam()
+		if isList(pcOtherStr) and IsWithOrByNamedParamList(pcOtherStr)
 			pcOtherStr = pcOtherStr[2]
 		ok
 
@@ -7140,7 +7140,7 @@ class stzString from stzObject
 
 	def ReplaceMarquers(pacSubStr)
 		if CheckingParams()
-			if isList(pacSubStr) and StzListQ(pacSubStr).IsWithOrByNamedParam()
+			if isList(pacSubStr) and IsWithOrByNamedParamList(pacSubStr)
 				pacSubStr = pacSubStr[2]
 			ok
 		ok
@@ -14043,7 +14043,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pacBounds must be a string or a pair.")
 		ok
 
-		if isList(pacBounds[2]) and StzListQ(pacBounds[2]).IsAndNamedParam()
+		if isList(pacBounds[2]) and IsAndNamedParamList(pacBounds[2])
 			pacBounds[2] = pacBounds[2][2]
 		ok
 
@@ -14121,7 +14121,7 @@ class stzString from stzObject
 
 			if isList(pacBounds) and StzListQ(pacBounds).IsWithOrUsingOrByNamedParam()
 				pacBounds = pacBounds[2]
-				if isList(pacBounds[2]) and StzListQ(pacBounds[2]).IsAndNamedParam()
+				if isList(pacBounds[2]) and IsAndNamedParamList(pacBounds[2])
 					pacBounds[2] = pacBounds[2][2]
 				ok
 			ok
@@ -14209,7 +14209,7 @@ class stzString from stzObject
 
 			if isList(pacBounds) and StzListQ(pacBounds).IsWithOrUsingOrByNamedParam()
 				pacBounds = pacBounds[2]
-				if isList(pacBounds[2]) and StzListQ(pacBounds[2]).IsAndNamedParam()
+				if isList(pacBounds[2]) and IsAndNamedParamList(pacBounds[2])
 					pacBounds[2] = pacBounds[2][2]
 				ok
 			ok
@@ -14894,14 +14894,14 @@ class stzString from stzObject
 		if isList(p1)
 			oP1 = Q(p1)
 			if oP1.IsPositionsNamedParam()
-				if isList(p2) and StzListQ(p2).IsAndNamedParam()
+				if isList(p2) and IsAndNamedParamList(p2)
 					p2 = p2[2]
 				ok
 
 				return This.SubStringIsBetweenPositionsCS(pcSubStr, p1[2], p2, pCaseSensitive)
 
 			but oP1.IsSubStringsNamedParam()
-				if isList(p2) and StzListQ(p2).IsAndNamedParam()
+				if isList(p2) and IsAndNamedParamList(p2)
 					p2 = p2[2]
 				ok
 
@@ -15001,7 +15001,7 @@ class stzString from stzObject
 				pcSubStr1 = pcSubStr1[2]
 			ok
 	
-			if isList(pcSubStr2) and StzListQ(pcSubStr2).IsAndNamedParam()
+			if isList(pcSubStr2) and IsAndNamedParamList(pcSubStr2)
 				pcSubStr2 = pcSubStr2[2]
 			ok
 		ok
@@ -21381,7 +21381,7 @@ class stzString from stzObject
 
 		aSection = This.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 
-		if isList(pcBound2) and StzListQ(pcBound2).IsAndNamedParam()
+		if isList(pcBound2) and IsAndNamedParamList(pcBound2)
 			pcBound2 = pcBound2[2]
 		ok
 
@@ -25106,7 +25106,7 @@ class stzString from stzObject
 
 		*/
 
-		if isList(cNewSubStr) and StzListQ(cNewSubStr).IsWithOrByNamedParam()
+		if isList(cNewSubStr) and IsWithOrByNamedParamList(cNewSubStr)
 			cNewSubStr = cNewSubStr[2]
 		ok
 
@@ -25223,7 +25223,7 @@ class stzString from stzObject
 
 		*/
 
-		if isList(cNewSubStr) and StzListQ(cNewSubStr).IsWithOrByNamedParam()
+		if isList(cNewSubStr) and IsWithOrByNamedParamList(cNewSubStr)
 			cNewSubStr = cNewSubStr[2]
 		ok
 
@@ -25866,7 +25866,7 @@ class stzString from stzObject
 			return
 		ok
 
-		if isList(cNewSubStr) and StzListQ(cNewSubStr).IsWithOrByNamedParam()
+		if isList(cNewSubStr) and IsWithOrByNamedParamList(cNewSubStr)
 			cNewSubStr = cNewSubStr[2]
 		ok
 
@@ -26043,7 +26043,7 @@ class stzString from stzObject
 	def ReplaceThisRepeatedTrailingCharCS(c, cNewSubStr, pCaseSensitive)
 		#< @MotherFunction = This.ReplaceSection() #>
 
-		if isList(cNewSubStr) and StzListQ(cNewSubStr).IsWithOrByNamedParam()
+		if isList(cNewSubStr) and IsWithOrByNamedParamList(cNewSubStr)
 			cNewSubStr = cNewSubStr[2]
 		ok
 
@@ -27229,7 +27229,7 @@ class stzString from stzObject
 	def BetweenCS(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pSubStrOrPos2) and StzListQ(pSubStrOrPos2).IsAndNamedParam()
+			if isList(pSubStrOrPos2) and IsAndNamedParamList(pSubStrOrPos2)
 				pSubStrOrPos2 = pSubStrOrPos2[2]
 			ok
 		ok
@@ -36403,7 +36403,7 @@ class stzString from stzObject
 			pcSubStr1 = pcSubStr1[2]
 		ok
 
-		if isList(pcSubStr2) and StzListQ(pcSubStr2).IsToNamedParam()
+		if isList(pcSubStr2) and IsToNamedParamList(pcSubStr2)
 			pcSubStr2 = pcSubStr2[2]
 		ok
 
@@ -36784,7 +36784,7 @@ class stzString from stzObject
 				n1 = n1[2]
 			ok
 
-			if isList(n2) and StzListQ(n2).IsAndNamedParam()
+			if isList(n2) and IsAndNamedParamList(n2)
 				n2 = n2[2]
 			ok
 
@@ -39386,7 +39386,7 @@ class stzString from stzObject
 				stzRaise("Incorrect param type! pacSubStr must be a list of strings.")
 			ok
 	
-			if isList(pNewSubStr) and StzListQ(pNewSubStr).IsWithOrByNamedParam()
+			if isList(pNewSubStr) and IsWithOrByNamedParamList(pNewSubStr)
 				pNewSubStr = pNewSubStr[2]
 			ok
 	
@@ -39561,7 +39561,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pacNewSubStr) and StzListQ(pacNewSubStr).IsWithOrByNamedParam()
+			if isList(pacNewSubStr) and IsWithOrByNamedParamList(pacNewSubStr)
 				pacNewSubStr = pacNewSubStr[2]
 			ok
 	
@@ -39804,7 +39804,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pacNewSubStr) and StzListQ(pacNewSubStr).IsWithOrByNamedParam()
+			if isList(pacNewSubStr) and IsWithOrByNamedParamList(pacNewSubStr)
 				pacNewSubStr = pacNewSubStr[2]
 			ok
 	
@@ -40042,7 +40042,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 	
-			if isList(pacNewSubStr) and StzListQ(pacNewSubStr).IsWithOrByNamedParam()
+			if isList(pacNewSubStr) and IsWithOrByNamedParamList(pacNewSubStr)
 				pacNewSubStr = pacNewSubStr[2]
 			ok
 	
@@ -40208,7 +40208,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 	
-			if isList(pacNewSubStr) and StzListQ(pacNewSubStr).IsWithOrByNamedParam()
+			if isList(pacNewSubStr) and IsWithOrByNamedParamList(pacNewSubStr)
 				pacNewSubStr = pacNewSubStr[2]
 			ok
 	
@@ -40588,7 +40588,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! panPos must be a list of numbers sorted in ascending.")
 			ok
 
-			if isList(pacNewSubStr) and StzListQ(pacNewSubStr).IsWithOrByNamedParam()
+			if isList(pacNewSubStr) and IsWithOrByNamedParamList(pacNewSubStr)
 				pacNewSubStr = pacNewSubStr[2]
 			ok
 	
@@ -40990,7 +40990,7 @@ class stzString from stzObject
 
 		*/
 
-		if isList(pcDynamicStr) and StzListQ(pcDynamicStr).IsWithOrByNamedParam()
+		if isList(pcDynamicStr) and IsWithOrByNamedParamList(pcDynamicStr)
 			pcDynamicStr = pcDynamicStr[2]
 		ok
 
@@ -41548,7 +41548,7 @@ class stzString from stzObject
 		     ( isString(p2) and p2 = "") or
 		     (isNumber(p2) and p2 = 0) ) ) AND
 
-		   ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam() ) )
+		   ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3) ) )
 
 			This.ReplaceCS(p1, p3, pCaseSensitive)
 			return
@@ -41556,7 +41556,7 @@ class stzString from stzObject
 		#  Q("*** rin* ***").ReplaceXT("*", :In = "rin*", :With = "g")
 		but ( isString(p1) or ( isList(p1) and StzListQ(p1).IsEachNamedParam()) ) and
 		    ( isList(p2) and StzListQ(p2).IsInOrInSideNamedParam() )
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam() ) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3) ) )
 
 			if isList(p1)
 				p1 = p1[2] // "*"
@@ -41577,7 +41577,7 @@ class stzString from stzObject
 		# Q("/♥♥♥\__/♥\/♥♥\__/♥\__").ReplaceXT("♥", :With = "*", [])
 		but ( isString(p1) or ( isList(p1) and StzListQ(p1).IsEachNamedParam()) ) and
 
-		    ( isString(p2) or (isList(p2) and StzListQ(p2).IsWithOrByNamedParam() ) ) AND
+		    ( isString(p2) or (isList(p2) and IsWithOrByNamedParamList(p2) ) ) AND
 
 		    ( ( (isList(p3)   and len(p3) = 0) or
 		      (isString(p3) and p3 = "") or
@@ -41592,7 +41592,7 @@ class stzString from stzObject
 
 		    ( isString(p2) or ( isList(p2) and StzListQ(p2).IsEachNamedParam()) ) and
 
-		    ( isString(p3) or ( isList(p3) and StzListQ(p3).IsWithOrByNamedParam() ) )
+		    ( isString(p3) or ( isList(p3) and IsWithOrByNamedParamList(p3) ) )
 
 			if isList(p1) and StzListQ(p1).IsNthNamedParam()
 				p1 = p1[2]
@@ -41603,14 +41603,14 @@ class stzString from stzObject
 		# Q("_/♥\__/♥\__/♥♥__/♥\_").ReplaceXT(:First, "♥", :With = "\")
 		but ( isString(p1) and p1 = :First) and
 		    ( isString(p2) or ( isList(p2) and StzListQ(p2).IsEachNamedParam()) ) and
-		    ( isString(p3) or ( isList(p3) and StzListQ(p3).IsWithOrByNamedParam() ) )
+		    ( isString(p3) or ( isList(p3) and IsWithOrByNamedParamList(p3) ) )
 
 			This.ReplaceCSXT(1, p2, p3, pCaseSensitive)
 
 		# Q("_/♥\__/♥\__/♥♥__/♥\_").ReplaceXT(:Last, "♥", :With = "\")
 		but ( isString(p1) and p1 = :Last) and
 		    ( isString(p2) or ( isList(p2) and StzListQ(p2).IsEachNamedParam()) ) and
-		    ( isString(p3) or ( isList(p3) and StzListQ(p3).IsWithOrByNamedParam() ) )
+		    ( isString(p3) or ( isList(p3) and IsWithOrByNamedParamList(p3) ) )
 
 			n = This.NumberOfOccurrenceCS(p2, pCaseSensitive)
 			This.ReplaceCSXT(n, p2, p3, pCaseSensitive)
@@ -41618,7 +41618,7 @@ class stzString from stzObject
 		# Q("_♥/♥\__").ReplaceXT("♥", :AtPosition = 2, :With = "_")
 		but ( isString(p1) ) and
 		    ( isNumber(p2) or (isList(p2) and StzListQ(p2).IsAtPositionNamedParam()) ) and
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			if isList(p2) and StzListQ(p2).IsAtPositionNamedParam()
 				p2 = p2[2]
@@ -41632,7 +41632,7 @@ class stzString from stzObject
 		    ( (isList(p2) and StzListQ(p2).IsListOfNumbers() ) or
 		      (isList(p2) and StzListQ(p2).IsAtPositionsNamedParam()) ) and
 
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			if isList(p2) and StzListQ(p2).IsAtPositionsNamedParam()
 				p2 = p2[2]
@@ -41643,7 +41643,7 @@ class stzString from stzObject
 		# Q("_♥/♥\__").ReplaceXT("♥", :At = [2, 7], :With = "~")
 		but ( isString(p1) ) and
 		    ( isNumber(p2) or (isList(p2) and StzListQ(p2).IsAtNamedParam()) ) and
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			if isList(p2) and StzListQ(p2).IsAtNamedParam()
 				p2 = p2[2]
@@ -41659,7 +41659,7 @@ class stzString from stzObject
 		# Q("Bla bla <<♥♥♥>>, and bla!").ReplaceXT([], :Between = ["<<",">>"], :With = "bla")
 		but ( (isList(p1) and len(p1) = 0) or (isString(p1) and p1 = "") or (isNumber(p1) and p1 = 0) ) and
 		    ( isList(p2) and StzListQ(p2).IsBetweenNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			p2 = p2[2]
 			
@@ -41676,7 +41676,7 @@ class stzString from stzObject
 		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT([], :BoundedBy = "/", :With = "bla")
 		but ( (isList(p1) and len(p1) = 0) or (isString(p1) and p1 = "") or (isNumber(p1) and p1 = 0) ) and
 		    ( isList(p2) and StzListQ(p2).IsBoundedByNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			p2 = p2[2]
 			
@@ -41685,7 +41685,7 @@ class stzString from stzObject
 		# Q("Bla bla <<♥♥♥>>, and bla!").ReplaceXT([], :BetweenIB = ["<<",">>"], :With = "bla")
 		but ( (isList(p1) and len(p1) = 0) or (isString(p1) and p1 = "") or (isNumber(p1) and p1 = 0) ) and
 		    ( isList(p2) and StzListQ(p2).IsBetweenIBNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			p2 = p2[2]
 			
@@ -41702,7 +41702,7 @@ class stzString from stzObject
 		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT([], :BoundedByIB = "/", :With = "bla")
 		but ( (isList(p1) and len(p1) = 0) or (isString(p1) and p1 = "") or (isNumber(p1) and p1 = 0) ) and
 		    ( isList(p2) and StzListQ(p2).IsBoundedByIBNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			p2 = p2[2]
 			
@@ -41711,7 +41711,7 @@ class stzString from stzObject
 		# Q("Bla bla <<♥♥♥>>, and bla!").ReplaceXT("♥♥♥", :Between = ["<<",">>"], :With = "bla")
 		but isString(p1) and
 		    ( isList(p2) and StzListQ(p2).IsBetweenNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			p2 = p2[2]
 			
@@ -41725,7 +41725,7 @@ class stzString from stzObject
 		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT("♥♥♥", :BoundedBy = "/", :With = "bla")
 		but isString(p1) and
 		    ( isList(p2) and StzListQ(p2).IsBoundedByNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			p2 = p2[2]
 			
@@ -41734,7 +41734,7 @@ class stzString from stzObject
 		# Q("Bla bla <<♥♥♥>>, and bla!").ReplaceXT([], :BetweenIB = ["<<",">>"], :With = "bla")
 		but isString(p1) and
 		    ( isList(p2) and StzListQ(p2).IsBetweenIBNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			p2 = p2[2]
 			
@@ -41748,7 +41748,7 @@ class stzString from stzObject
 		# Q("Bla bla /♥♥♥/, and bla!").ReplaceXT([], :BoundedByIB = "/", :With = "bla")
 		but isString(p1) and
 		    ( isList(p2) and StzListQ(p2).IsBoundedByIBNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			p2 = p2[2]
 			
@@ -41756,7 +41756,7 @@ class stzString from stzObject
 
 		#--
 		but ( (isList(p1) and StzListQ(p1).IsBetweenNamedParam() ) and
-		      (isString(p2) or (isList(p2) and StzListQ(p2).IsWithOrByNamedParam())) and
+		      (isString(p2) or (isList(p2) and IsWithOrByNamedParamList(p2))) and
 		      ((isList(p3) and len(p3) = 0) or (isString(p3) and p3 = "") or (isNumber(p3) and p3 = 0)) )
 
 			p1 = p1[2]
@@ -41773,7 +41773,7 @@ class stzString from stzObject
 	
 		but ( (isList(p1) and StzListQ(p1).IsBetweenNamedParam()) and
 		      ((isList(p2) and len(p2) = 0) or (isString(p2) and p2 = "") or (isNumber(p2) and p2 = 0))) and
-		      (isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		      (isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			p1 = p1[2]
 
@@ -41791,7 +41791,7 @@ class stzString from stzObject
 
 		but ( (isList(p1) and len(p1) = 0) or (isString(p1) and p1 = "") or (isNumber(p1) and p1 = 0) ) and
 		    ( isList(p2) and StzListQ(p2).IsBoundedByNamedParam() ) and
-		    ( isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		    ( isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			p2 = p2[2]
 			
@@ -41810,7 +41810,7 @@ class stzString from stzObject
 			ok
 			
 		but ( (isList(p1) and StzListQ(p1).IsBoundedByNamedParam() ) and
-		      (isString(p2) or (isList(p2) and StzListQ(p2).IsWithOrByNamedParam())) and
+		      (isString(p2) or (isList(p2) and IsWithOrByNamedParamList(p2))) and
 		      ((isList(p3) and len(p3) = 0) or (isString(p3) and p3 = "") or (isNumber(p3) and p3 = 0)) )
 
 			p1 = p1[2]
@@ -41830,7 +41830,7 @@ class stzString from stzObject
 	
 		but ( (isList(p1) and StzListQ(p1).IsBoundedByNamedParam()) and
 		      ((isList(p2) and len(p2) = 0) or (isString(p2) and p2 = "") or (isNumber(p2) and p2 = 0))) and
-		      (isString(p3) or (isList(p3) and StzListQ(p3).IsWithOrByNamedParam()) )
+		      (isString(p3) or (isList(p3) and IsWithOrByNamedParamList(p3)) )
 
 			p1 = p1[2]
 
@@ -42751,11 +42751,11 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 	
-			if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithOrByNamedParam()
+			if isList(pcNewSubStr) and IsWithOrByNamedParamList(pcNewSubStr)
 				pcNewSubStr = pcNewSubStr[2]
 			ok
 		
@@ -42964,7 +42964,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -42972,7 +42972,7 @@ class stzString from stzObject
 				stzRaise("Incorrect param! pcSubStr must be a string.")
 			ok
 	
-			if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithOrByNamedParam()
+			if isList(pcNewSubStr) and IsWithOrByNamedParamList(pcNewSubStr)
 				pcNewSubStr = pcNewSubStr[2]
 			ok
 	
@@ -43083,7 +43083,7 @@ class stzString from stzObject
 		*/
 
 		if CheckingParams()
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -43091,7 +43091,7 @@ class stzString from stzObject
 				stzRaise("Incorrect param! pcSubStr must be a string.")
 			ok
 	
-			if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithOrByNamedParam()
+			if isList(pcNewSubStr) and IsWithOrByNamedParamList(pcNewSubStr)
 				pcNewSubStr = pcNewSubStr[2]
 			ok
 	
@@ -43515,7 +43515,7 @@ class stzString from stzObject
 	def ReplaceAllChars(pcSubStr)
 
 		if CheckingParam()
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsWithOrByNamedParam()
+			if isList(pcSubStr) and IsWithOrByNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 		ok
@@ -44453,7 +44453,7 @@ class stzString from stzObject
 
 		# Resolving the pcSubStr param
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -44463,7 +44463,7 @@ class stzString from stzObject
 
 		# Resolving pCaseSensitive
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -45650,7 +45650,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -46878,7 +46878,7 @@ class stzString from stzObject
 
 		*/
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -47106,7 +47106,7 @@ class stzString from stzObject
 
 			nLen = len(panOccurr)
 
-			if isList(panOccurr[nLen]) and StzListQ(panOccurr[nLen]).IsAndNamedParam()
+			if isList(panOccurr[nLen]) and IsAndNamedParamList(panOccurr[nLen])
 				panOccurr[nLen] = panOccurr[nLen][2]
 			ok
 
@@ -47587,7 +47587,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -47739,7 +47739,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -47971,7 +47971,7 @@ class stzString from stzObject
 
 			# Resolving pcSubStr param
 
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -48411,7 +48411,7 @@ class stzString from stzObject
 	#===========================================#
 
 	def SubStringCSZ(pcSubStr, pCaseSensitive)
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -48438,7 +48438,7 @@ class stzString from stzObject
 
 	def SubStringCSZZ(pcSubStr, pCaseSensitive)
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -48609,7 +48609,7 @@ class stzString from stzObject
 
 	def SubStringDCSZ(pcSubStr, pcDirection, pCaseSensitive)
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -48673,7 +48673,7 @@ class stzString from stzObject
 
 		# Checking params
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -48861,7 +48861,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -48925,7 +48925,7 @@ class stzString from stzObject
 
 	def SubStringSTCSZZ(pcSubStr, pnStartingAt, pCaseSensitive)
 		if CheckingParams()
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -55403,7 +55403,7 @@ class stzString from stzObject
 	#================================================#
 
 	def ContainsBothCS(pcSubStr1, pcSubStr2, pCaseSensitive)
-		if isList(pcSubStr2) and StzListQ(pcSubStr2).IsAndNamedParam()
+		if isList(pcSubStr2) and IsAndNamedParamList(pcSubStr2)
 			pcSubStr2 = pcSubStr2[2]
 		ok
 
@@ -55762,7 +55762,7 @@ class stzString from stzObject
 	#----------------------------------------------------------------------#
 
 	def ContainsNOccurrencesCS(n, pcSubStr, pCaseSensitive)
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -56817,7 +56817,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pSubStrOrPos) and len(pSubStrOrPos) = 2
 				
-				if isList(pSubStrOrPos[2]) and StzListQ(pSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pSubStrOrPos[2]) and IsAndNamedParamList(pSubStrOrPos[2])
 					pSubStrOrPos[2] = pSubStrOrPos[2][2]
 				ok
 
@@ -57067,7 +57067,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and IsAndNamedParamList(pcSubStrOrPos[2])
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -57248,7 +57248,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and IsAndNamedParamList(pcSubStrOrPos[2])
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -58128,7 +58128,7 @@ class stzString from stzObject
 	
 		ok
 
-		if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
@@ -64364,7 +64364,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and IsAndNamedParamList(pcSubStrOrPos[2])
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -66538,7 +66538,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and IsAndNamedParamList(pcSubStrOrPos[2])
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -68992,7 +68992,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and IsAndNamedParamList(pcSubStrOrPos[2])
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -70638,7 +70638,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and IsAndNamedParamList(pcSubStrOrPos[2])
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -72151,7 +72151,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and IsAndNamedParamList(pcSubStrOrPos[2])
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -73849,7 +73849,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and IsAndNamedParamList(pcSubStrOrPos[2])
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -75476,7 +75476,7 @@ class stzString from stzObject
 			but oParam.IsBetweenNamedParam() and
 				isList(pcSubStrOrPos) and len(pcSubStrOrPos) = 2
 				
-				if isList(pcSubStrOrPos[2]) and StzListQ(pcSubStrOrPos[2]).IsAndNamedParam()
+				if isList(pcSubStrOrPos[2]) and IsAndNamedParamList(pcSubStrOrPos[2])
 					pcSubStrOrPos[2] = pcSubStrOrPos[2][2]
 				ok
 
@@ -80686,7 +80686,7 @@ class stzString from stzObject
 
 				but isList(p2[2]) and len(p2[2]) = 2 and
 				    isString(p2[2][1]) and
-				    isList(p2[2][2]) and StzListQ(p2[2][2]).IsAndNamedParam()
+				    isList(p2[2][2]) and IsAndNamedParamList(p2[2][2])
 
 					cBound1 = p2[2][1]
 					cBound2 = p2[2][2][2]
@@ -82576,7 +82576,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n1 must be a number or string.")
 			ok
 
-			if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsWithOrByNamedParam()
+			if isList(pcNewSubStr) and IsWithOrByNamedParamList(pcNewSubStr)
 				pcNewSubStr = pcNewSubStr[2]
 			ok
 
@@ -83478,7 +83478,7 @@ class stzString from stzObject
 	def RemoveNextNthOccurrenceCS(n, pcSubStr, nStart, pCaseSensitive)
 		
 		if CheckingParams()
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -83679,7 +83679,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+			if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
 
@@ -101719,7 +101719,7 @@ class stzString from stzObject
 			return This
 
 	def ReplaceAllOccurrencesCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -101753,7 +101753,7 @@ class stzString from stzObject
 			return This
 
 	def ReplaceAllOccurrences(pcSubStr, pcNewSubStr)
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 

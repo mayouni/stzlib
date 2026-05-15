@@ -24,7 +24,7 @@ class stzListRemover from stzList
 
 	def RemoveAllCS(pItem, pCaseSensitive)
 		if CheckingParams()
-			if isList(pItem) and StzListQ(pItem).IsOfNamedParam()
+			if isList(pItem) and IsOfNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 		ok
