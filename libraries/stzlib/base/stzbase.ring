@@ -110,14 +110,21 @@ ok
 
     load "string/stzStringLines.ring"
     load "string/stzStringWords.ring"
+    load "string/stzStringWordsXT.ring"
     load "string/stzStringEncoder.ring"
     load "string/stzStringNumbers.ring"
     load "string/stzStringDuplicates.ring"
+    load "string/stzStringDuplicatesXT.ring"
     load "string/stzStringCode.ring"
+    load "string/stzStringCodeXT.ring"
     load "string/stzStringIO.ring"
+    load "string/stzStringIOXT.ring"
     load "string/stzStringRandomizer.ring"
+    load "string/stzStringRandomizerXT.ring"
     load "string/stzStringLocale.ring"
+    load "string/stzStringLocaleXT.ring"
     load "string/stzStringCrypto.ring"
+    load "string/stzStringCryptoXT.ring"
     load "string/stzStringView.ring"
 
     # Modular subclasses (Phase 2 - new)
