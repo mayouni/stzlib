@@ -2493,6 +2493,614 @@ size_t stz_gridnav_path_to(StzGridNavHandle h,
 
 ---
 
+---
+
+## Layer 6: Universal Computation Concerns
+
+Every programmer, in every domain, in every language, eventually
+hits the same walls. Standard libraries give you data structures
+and I/O. They don't give you provenance, explanation, confidence,
+similarity, context propagation, or resource awareness. These are
+not "nice to have" -- they are the concerns that consume 40-60%
+of real application code because no engine provides them.
+
+Layer 6 modules are domain-agnostic. They serve a Rust systems
+programmer, a Python data scientist, an AI agent builder, and
+any future technology equally. They emerged from studying 60+
+Softanza paradigm narrations and asking: "What do programmers
+universally struggle with that no standard library solves?"
+
+### Provenance Engine (Data Lineage) [PLANNED]
+
+Every value in a running program came from somewhere. A column
+was loaded from a CSV. A number was computed from two other
+numbers. A decision was made because three conditions were true.
+Standard libraries lose this history the moment the value exists.
+
+The Provenance Engine attaches origin metadata to any StzValue
+without changing its behavior. Any language surface can ask
+"where did this come from?" at any point.
+
+```c
+StzProvenanceHandle stz_provenance_new(void);
+void                stz_provenance_free(StzProvenanceHandle h);
+
+// Tag a value with its origin
+StzValue stz_provenance_tag(StzProvenanceHandle h,
+    StzValue v,
+    int origin_kind,           // STZ_ORIGIN_LITERAL, _FILE,
+                               // _COMPUTATION, _USER_INPUT,
+                               // _NETWORK, _EXTERNAL_TOOL
+    const char* source, size_t source_len);
+
+// Record a derivation (this value was computed from these inputs)
+void stz_provenance_derive(StzProvenanceHandle h,
+    StzValue result,
+    const StzValue* inputs, size_t num_inputs,
+    const char* operation, size_t op_len);
+
+// Query lineage
+size_t stz_provenance_trace(StzProvenanceHandle h,
+    StzValue v,
+    StzProvenanceEntry* out_chain, size_t max);
+
+typedef struct {
+    int origin_kind;
+    char source[512];
+    char operation[256];
+    uint64_t timestamp;
+} StzProvenanceEntry;
+
+// "Where did the value in cell [3,5] come from?"
+// -> loaded from sales.csv, row 3, column "revenue"
+//    -> multiplied by exchange_rate (from api.forex.com)
+//    -> rounded to 2 decimals
+```
+
+**Why this matters universally:** Regulatory compliance (GDPR,
+financial auditing), debugging ("why is this NaN?"), AI
+explainability ("what data influenced this prediction"),
+reproducibility ("can I regenerate this result?").
+
+### Confidence Engine (Values with Uncertainty) [PLANNED]
+
+Real-world data is never perfectly certain. A sensor reading
+has a margin of error. An AI prediction has a confidence score.
+A user input might be approximate. A merged record from two
+sources might conflict. Yet every programming language treats
+values as absolute.
+
+The Confidence Engine wraps StzValue with a confidence level
+(0.0 to 1.0) and propagation rules. When you multiply two
+uncertain values, the result's confidence is derived
+automatically.
+
+```c
+// Create a confident value (value + confidence level)
+StzValue stz_confidence_wrap(StzValue v, double confidence);
+// confidence: 0.0 (unknown) to 1.0 (certain)
+
+// Query confidence
+double stz_confidence_level(StzValue v);
+int    stz_confidence_is_certain(StzValue v);  // >= threshold
+
+// Propagation: when computing with uncertain values
+void stz_confidence_set_rule(int rule);
+// STZ_CONF_PROPAGATE_MIN     -- result = min(input confidences)
+// STZ_CONF_PROPAGATE_PRODUCT -- result = product (independence)
+// STZ_CONF_PROPAGATE_AVG     -- result = average
+// STZ_CONF_PROPAGATE_CUSTOM  -- user function
+
+// Conflict resolution: when two sources disagree
+StzValue stz_confidence_merge(StzValue a, StzValue b, int strategy);
+// STZ_MERGE_HIGHER_CONFIDENCE  -- keep the more confident value
+// STZ_MERGE_AVERAGE            -- average the values
+// STZ_MERGE_FLAG_CONFLICT      -- tag as conflicting
+
+// Threshold-based filtering
+StzValue stz_confidence_filter(StzValue collection,
+                                double min_confidence);
+```
+
+**Why this matters universally:** Sensor fusion (IoT), AI/ML
+probability outputs, data quality management, scientific
+computing with error bars, any system where "how sure are we?"
+is as important as "what is the value?"
+
+### Explanation Engine (Auditable Computation) [PLANNED]
+
+"Why did the program produce this result?" is the most common
+question in debugging, compliance, and AI. Yet no engine
+provides explanation as a first-class concern. The Explanation
+Engine records the reasoning chain behind any computation and
+can render it in human-readable form.
+
+```c
+StzExplainHandle stz_explain_new(void);
+void             stz_explain_free(StzExplainHandle h);
+
+// Start recording explanations for a computation
+void stz_explain_begin(StzExplainHandle h,
+    const char* goal, size_t goal_len);
+
+// Record a reasoning step
+void stz_explain_step(StzExplainHandle h,
+    const char* action, size_t action_len,
+    const char* reason, size_t reason_len,
+    StzValue evidence);
+
+// Record a decision point (branch taken)
+void stz_explain_decision(StzExplainHandle h,
+    const char* question, size_t q_len,
+    const char* answer, size_t a_len,
+    StzValue condition_value);
+
+// End recording
+void stz_explain_end(StzExplainHandle h, StzValue final_result);
+
+// Render explanation as human-readable text
+size_t stz_explain_render(StzExplainHandle h,
+    int format,             // STZ_EXPLAIN_PROSE,
+                            // STZ_EXPLAIN_TREE,
+                            // STZ_EXPLAIN_CHAIN
+    char* buf, size_t buf_len);
+
+// Query: "Why was this decision made?"
+size_t stz_explain_why(StzExplainHandle h,
+    const char* decision, size_t len,
+    char* buf, size_t buf_len);
+```
+
+**Why this matters universally:** AI explainability (XAI),
+regulatory auditing, debugging complex logic, teaching/learning
+("show your work"), any system where humans need to trust or
+verify automated decisions.
+
+### Similarity Engine (Beyond Equality) [PLANNED]
+
+Equality is the wrong question for most real-world comparisons.
+"Are these the same?" matters less than "How similar are these?"
+and "What are the differences?" Standard libraries give you
+`==` and nothing else. The Similarity Engine provides graduated
+comparison across all data types.
+
+```c
+// Scalar similarity (0.0 = completely different, 1.0 = identical)
+double stz_similarity(StzValue a, StzValue b);
+
+// Type-specific similarity with configurable weights
+double stz_similarity_xt(StzValue a, StzValue b,
+    const char* options_json, size_t len);
+
+// String similarity (multiple algorithms)
+double stz_similarity_string(const char* a, size_t a_len,
+    const char* b, size_t b_len, int algorithm);
+// STZ_SIM_LEVENSHTEIN, STZ_SIM_JARO_WINKLER,
+// STZ_SIM_COSINE, STZ_SIM_JACCARD, STZ_SIM_NGRAM,
+// STZ_SIM_SOUNDEX, STZ_SIM_METAPHONE
+
+// Structural similarity (lists, trees, graphs)
+double stz_similarity_structural(StzValue a, StzValue b);
+// Compares shape and content; tolerates reordering
+
+// Semantic similarity (via embeddings -- Engine provides
+// the vector math, caller provides the embeddings)
+double stz_similarity_vector(const double* a, const double* b,
+    size_t dimensions, int metric);
+// STZ_METRIC_COSINE, STZ_METRIC_EUCLIDEAN,
+// STZ_METRIC_MANHATTAN, STZ_METRIC_DOT_PRODUCT
+
+// Find N most similar items in a collection
+size_t stz_similarity_nearest(StzValue collection, StzValue query,
+    size_t n, StzValue* out_items, double* out_scores,
+    size_t max);
+
+// Diff: structured difference report between two values
+StzValue stz_diff(StzValue a, StzValue b);
+// Returns structured diff: additions, removals, changes
+// Works on strings, lists, tables, trees, graphs
+```
+
+**Why this matters universally:** Search and retrieval (fuzzy
+matching), deduplication, recommendation systems, AI embedding
+operations (RAG, semantic search), data reconciliation, any
+system where "close enough" is more useful than "exactly equal."
+
+### Context Engine (Propagating State Through Chains) [PLANNED]
+
+Every non-trivial program has implicit context: the current user,
+the active locale, the transaction ID, the request trace, the
+security principal. This context must flow through every function
+call without being passed as an explicit parameter everywhere.
+Most languages solve this with globals (unsafe), thread-locals
+(fragile), or explicit parameters (verbose).
+
+The Context Engine provides structured, scoped, inheritable
+context that any computation can read without coupling to it.
+
+```c
+StzContextHandle stz_context_new(void);
+void             stz_context_free(StzContextHandle h);
+
+// Set context values (key-value, scoped)
+void stz_context_set(StzContextHandle h,
+    const char* key, size_t key_len, StzValue value);
+StzValue stz_context_get(StzContextHandle h,
+    const char* key, size_t key_len);
+int stz_context_has(StzContextHandle h,
+    const char* key, size_t key_len);
+
+// Scoped context: push/pop layers (inner scope inherits outer)
+void stz_context_push(StzContextHandle h);
+void stz_context_pop(StzContextHandle h);
+// Values set in inner scope don't leak to outer scope
+// Values from outer scope are visible in inner scope
+
+// Fork: create a child context that inherits but doesn't
+// pollute the parent (for parallel/concurrent work)
+StzContextHandle stz_context_fork(StzContextHandle parent);
+
+// Merge: combine two contexts with conflict resolution
+void stz_context_merge(StzContextHandle target,
+    StzContextHandle source, int strategy);
+// STZ_CONTEXT_PREFER_TARGET, STZ_CONTEXT_PREFER_SOURCE,
+// STZ_CONTEXT_FAIL_ON_CONFLICT
+
+// Snapshot: serialize context for transmission/storage
+size_t stz_context_serialize(StzContextHandle h,
+    char* buf, size_t buf_len);
+StzContextHandle stz_context_deserialize(
+    const char* data, size_t len);
+```
+
+**Why this matters universally:** Web request context (user,
+locale, permissions), distributed tracing (span IDs), AI agent
+memory (conversation state), transaction management, any system
+where "ambient state" must flow through computation without
+explicit threading.
+
+### Resource Awareness Engine (Cost-Conscious Computation) [PLANNED]
+
+Every operation has a cost: time, memory, network calls, API
+tokens, money. Yet no engine lets programmers reason about cost
+before committing to an operation. You call a function, it runs,
+and you find out afterward that it was expensive.
+
+The Resource Awareness Engine lets any operation declare its
+cost profile and lets callers make informed decisions.
+
+```c
+StzResourceHandle stz_resource_new(void);
+void              stz_resource_free(StzResourceHandle h);
+
+// Estimate cost before execution
+StzCostEstimate stz_resource_estimate(StzResourceHandle h,
+    int operation,
+    const StzValue* args, size_t num_args);
+
+typedef struct {
+    uint64_t time_us;          // estimated microseconds
+    size_t   memory_bytes;     // estimated memory
+    size_t   io_operations;    // estimated I/O calls
+    double   monetary_cost;    // estimated money (API calls)
+    int      confidence;       // how reliable this estimate is
+} StzCostEstimate;
+
+// Budget: set limits on resource consumption
+void stz_resource_set_budget(StzResourceHandle h,
+    int resource_kind, double limit);
+// STZ_BUDGET_TIME_MS, STZ_BUDGET_MEMORY_MB,
+// STZ_BUDGET_IO_COUNT, STZ_BUDGET_MONEY
+
+// Check if operation fits within budget
+int stz_resource_can_afford(StzResourceHandle h,
+    StzCostEstimate estimate);
+
+// Track actual consumption
+void stz_resource_record(StzResourceHandle h,
+    int operation,
+    uint64_t actual_time_us,
+    size_t actual_memory);
+
+// Query consumption history
+StzCostEstimate stz_resource_total(StzResourceHandle h);
+StzCostEstimate stz_resource_per_operation(StzResourceHandle h,
+    int operation);
+```
+
+**Why this matters universally:** AI/LLM token budgets (critical
+for cost control), cloud computing (pay-per-use), embedded
+systems (memory/CPU constraints), mobile apps (battery/network),
+any system where resources are finite and decisions should be
+cost-aware.
+
+### Validation Pipeline Engine (Multi-Stage Checking) [PLANNED]
+
+Real validation is never a single check. An email address must
+be syntactically valid, then DNS-resolvable, then not blacklisted.
+A financial transaction must pass format checks, then business
+rules, then compliance rules, then fraud detection. Each stage
+can fail with a different explanation.
+
+The Validation Pipeline Engine chains validation stages with
+explanatory failure reports, short-circuit evaluation, and
+configurable severity.
+
+```c
+StzValidatorHandle stz_validator_new(void);
+void               stz_validator_free(StzValidatorHandle h);
+
+// Add validation stages (executed in order)
+void stz_validator_add_stage(StzValidatorHandle h,
+    const char* name, size_t name_len,
+    int severity,              // STZ_SEVERITY_ERROR,
+                               // STZ_SEVERITY_WARNING,
+                               // STZ_SEVERITY_INFO
+    int (*check)(StzValue v, char* msg, size_t msg_len,
+                 void* ctx),
+    void* ctx);
+
+// Validate a value through all stages
+StzValidationResult stz_validator_run(StzValidatorHandle h,
+    StzValue v);
+
+typedef struct {
+    int passed;                // overall pass/fail
+    size_t num_failures;
+    size_t num_warnings;
+    StzValidationEntry entries[64];
+} StzValidationResult;
+
+typedef struct {
+    char stage_name[128];
+    int severity;
+    int passed;
+    char message[512];
+} StzValidationEntry;
+
+// Short-circuit: stop at first error, or run all stages
+void stz_validator_set_mode(StzValidatorHandle h, int mode);
+// STZ_VALIDATE_FAIL_FAST, STZ_VALIDATE_COLLECT_ALL
+
+// Render validation report (uses Display Engine)
+size_t stz_validator_report(StzValidationResult* result,
+    char* buf, size_t buf_len);
+```
+
+**Why this matters universally:** Form validation (web/mobile),
+data pipeline quality gates, API request validation, CI/CD
+checks, compliance verification, AI input sanitization, any
+system where "is this valid?" has multiple dimensions.
+
+### Schema Evolution Engine (Structural Change Over Time) [PLANNED]
+
+Data structures change. A table gains a column. A message format
+adds a field. An API response changes shape. Most systems handle
+this with ad-hoc migration scripts or version-specific code
+paths. The Schema Evolution Engine treats structural change as
+a first-class concern.
+
+```c
+StzSchemaHandle stz_schema_new(const char* name, size_t len,
+    int version);
+void            stz_schema_free(StzSchemaHandle h);
+
+// Define structure (fields with types and constraints)
+void stz_schema_add_field(StzSchemaHandle h,
+    const char* field, size_t field_len,
+    int field_type,            // STZ_FIELD_STRING, _NUMBER,
+                               // _BOOL, _LIST, _OBJECT
+    int required,
+    const char* default_json, size_t default_len);
+
+// Register a migration from version N to N+1
+void stz_schema_add_migration(StzSchemaHandle h,
+    int from_version, int to_version,
+    StzValue (*migrate)(StzValue old_data, void* ctx),
+    void* ctx);
+
+// Validate data against schema
+int stz_schema_validate(StzSchemaHandle h, StzValue data);
+
+// Migrate data from old version to current
+StzValue stz_schema_migrate(StzSchemaHandle h,
+    StzValue data, int from_version);
+
+// Diff two schema versions
+size_t stz_schema_diff(StzSchemaHandle old_schema,
+    StzSchemaHandle new_schema,
+    StzSchemaDiff* out_diffs, size_t max);
+
+typedef struct {
+    int kind;              // FIELD_ADDED, FIELD_REMOVED,
+                           // FIELD_TYPE_CHANGED, FIELD_RENAMED
+    char field[256];
+    char detail[512];
+} StzSchemaDiff;
+```
+
+**Why this matters universally:** Database migrations, API
+versioning, configuration file evolution, serialization format
+changes, AI model input/output schema changes, any system where
+data outlives the code that created it.
+
+### Intent Resolution Engine (What, Not How) [PLANNED]
+
+The deepest lesson from Softanza's paradigm narrations is that
+programmers think in INTENT ("remove duplicates", "find similar
+items", "validate this data") but code in MECHANISM (loops,
+conditionals, index arithmetic). The gap between intent and
+mechanism is where bugs, verbosity, and cognitive load live.
+
+The Intent Resolution Engine maps high-level intent descriptions
+to concrete Engine operations, choosing the best implementation
+based on context (data type, data size, available resources).
+
+```c
+StzIntentHandle stz_intent_new(void);
+void            stz_intent_free(StzIntentHandle h);
+
+// Register an intent with multiple implementations
+void stz_intent_register(StzIntentHandle h,
+    const char* intent, size_t intent_len,
+    int (*can_handle)(StzValue target, void* ctx),
+    StzValue (*execute)(StzValue target,
+                        const StzValue* args, size_t num_args,
+                        void* ctx),
+    void* ctx,
+    StzCostEstimate estimated_cost);
+
+// Resolve and execute an intent
+StzValue stz_intent_resolve(StzIntentHandle h,
+    const char* intent, size_t intent_len,
+    StzValue target,
+    const StzValue* args, size_t num_args);
+// Engine picks the best implementation based on:
+// 1. Can this implementation handle this data type?
+// 2. Which implementation has the lowest estimated cost?
+// 3. Does the implementation fit within the resource budget?
+
+// List available intents for a data type
+size_t stz_intent_list(StzIntentHandle h, StzValue target,
+    char** out_intents, size_t max);
+
+// Explain resolution: "Why was this implementation chosen?"
+size_t stz_intent_explain(StzIntentHandle h,
+    const char* intent, size_t intent_len,
+    StzValue target,
+    char* buf, size_t buf_len);
+```
+
+**Why this matters universally:** AI agent tool selection ("I
+need to analyze this data" -> choose pandas/SQL/custom based on
+data shape), plugin architectures, self-optimizing systems, any
+system where the best approach depends on runtime context.
+
+### Embedding & Vector Engine (Geometric Computation) [PLANNED]
+
+Intelligence -- whether human or artificial -- reasons about
+similarity, proximity, and relationships in high-dimensional
+space. The Embedding Engine provides the mathematical substrate
+for any system that works with vectors: AI embeddings, sensor
+fusion, recommendation, dimensionality reduction, clustering.
+
+This is NOT an AI module. It is a geometric computation engine
+that happens to be essential for AI but equally serves signal
+processing, physics simulation, and statistical analysis.
+
+```c
+// --- Dense vector operations ---
+
+StzVectorHandle stz_vector_new(size_t dimensions);
+StzVectorHandle stz_vector_from(const double* data,
+                                 size_t dimensions);
+void            stz_vector_free(StzVectorHandle h);
+
+double stz_vector_dot(StzVectorHandle a, StzVectorHandle b);
+double stz_vector_cosine(StzVectorHandle a, StzVectorHandle b);
+double stz_vector_euclidean(StzVectorHandle a, StzVectorHandle b);
+double stz_vector_magnitude(StzVectorHandle h);
+StzVectorHandle stz_vector_normalize(StzVectorHandle h);
+
+StzVectorHandle stz_vector_add(StzVectorHandle a,
+                                StzVectorHandle b);
+StzVectorHandle stz_vector_scale(StzVectorHandle h, double s);
+StzVectorHandle stz_vector_lerp(StzVectorHandle a,
+                                 StzVectorHandle b, double t);
+
+// --- Vector store (nearest-neighbor search) ---
+
+StzVectorStoreHandle stz_vecstore_new(size_t dimensions);
+void                 stz_vecstore_free(StzVectorStoreHandle h);
+
+void stz_vecstore_add(StzVectorStoreHandle h,
+    const char* id, size_t id_len,
+    StzVectorHandle vector);
+
+// Find K nearest neighbors
+size_t stz_vecstore_nearest(StzVectorStoreHandle h,
+    StzVectorHandle query, size_t k,
+    char** out_ids, double* out_distances, size_t max);
+
+// Find all within radius
+size_t stz_vecstore_within_radius(StzVectorStoreHandle h,
+    StzVectorHandle center, double radius,
+    char** out_ids, double* out_distances, size_t max);
+
+size_t stz_vecstore_count(StzVectorStoreHandle h);
+
+// --- Clustering ---
+
+size_t stz_cluster_kmeans(const StzVectorHandle* vectors,
+    size_t count, size_t k,
+    size_t* out_labels, size_t max);
+
+// --- Dimensionality reduction ---
+
+void stz_reduce_pca(const StzVectorHandle* vectors,
+    size_t count, size_t target_dims,
+    StzVectorHandle* out_reduced, size_t max);
+```
+
+**Why this matters universally:** AI/RAG systems need embedding
+similarity. Recommendation engines need nearest neighbors.
+Signal processing needs vector operations. Physics simulations
+need geometric math. Clustering and dimensionality reduction
+are domain-agnostic tools. The Engine provides the math -- the
+caller decides what the vectors represent.
+
+### Sequence Engine (Windowing, Chunking, Overlap) [PLANNED]
+
+Any ordered data -- text, time series, audio samples, event
+logs, token streams -- needs to be sliced into overlapping or
+non-overlapping windows for processing. This is the fundamental
+operation behind AI tokenization, signal processing, streaming
+analytics, and batch processing. Yet every programmer
+reimplements windowing from scratch.
+
+```c
+// Sliding window over any sequence (string or list)
+size_t stz_window_sliding(StzValue sequence,
+    size_t window_size, size_t stride,
+    StzValue* out_windows, size_t max);
+
+// Tumbling window (non-overlapping)
+size_t stz_window_tumbling(StzValue sequence,
+    size_t window_size,
+    StzValue* out_windows, size_t max);
+
+// Session window (gap-based: new window when gap > threshold)
+size_t stz_window_session(StzValue sequence,
+    size_t max_gap,
+    StzValue* out_windows, size_t max);
+
+// Chunk by predicate (start new chunk when condition changes)
+size_t stz_chunk_by(StzValue sequence,
+    int (*boundary)(StzValue prev, StzValue curr, void* ctx),
+    void* ctx,
+    StzValue* out_chunks, size_t max);
+
+// Overlap management: merge overlapping chunks
+StzValue stz_chunks_merge_overlap(const StzValue* chunks,
+    size_t count, size_t overlap_size);
+
+// Token-aware chunking (for text: respect word/sentence bounds)
+size_t stz_chunk_text(const char* text, size_t len,
+    size_t max_chunk_size,
+    int boundary_mode,         // STZ_BOUNDARY_CHAR,
+                               // STZ_BOUNDARY_WORD,
+                               // STZ_BOUNDARY_SENTENCE,
+                               // STZ_BOUNDARY_PARAGRAPH
+    StzStringHandle* out_chunks, size_t max);
+```
+
+**Why this matters universally:** AI tokenization and context
+windows, time-series analysis (financial, IoT), log processing,
+audio/video frame extraction, streaming data analytics, any
+system that processes ordered data in pieces.
+
+---
+
 ### Generalizable Feature Inventory
 
 Beyond Splitter and Display, these features must generalize:
@@ -2696,6 +3304,39 @@ paradigm narration documents and their Ring implementations.
 | J.12     | Named Variables    | Dynamic variable construction and       |
 |          |                    | reference resolution                    |
 
+### Phase K: Universal Computation Concerns
+
+These modules address the concerns EVERY programmer hits
+regardless of language, domain, or era. They emerged from
+asking: "What do programmers universally struggle with that
+no standard library solves?" They serve Zin, Python, Rust,
+AI agents, and any future technology equally.
+
+| Priority | Module             | What It Brings                          |
+|----------|--------------------|-----------------------------------------|
+| K.1      | Provenance         | Data lineage: where did this value come |
+|          |                    | from? How was it derived? Full trace.   |
+| K.2      | Confidence         | Values with uncertainty (0.0-1.0),      |
+|          |                    | automatic propagation, conflict merge   |
+| K.3      | Explanation        | Auditable computation: record reasoning |
+|          |                    | chains, render as prose/tree/chain      |
+| K.4      | Similarity         | Beyond equality: graduated comparison,  |
+|          |                    | structural diff, nearest neighbors      |
+| K.5      | Context            | Scoped state propagation: push/pop/fork |
+|          |                    | /merge without globals or explicit args |
+| K.6      | Resource Awareness | Cost estimation before execution, budget|
+|          |                    | limits, consumption tracking            |
+| K.7      | Validation Pipeline| Multi-stage checking with severity,     |
+|          |                    | explanatory failures, short-circuit     |
+| K.8      | Schema Evolution   | Structural change over time: migrations,|
+|          |                    | version diffs, forward compatibility    |
+| K.9      | Intent Resolution  | Map "what" to "how": pick best impl    |
+|          |                    | based on data type, size, resources     |
+| K.10     | Embedding/Vector   | Geometric computation: dot/cosine/      |
+|          |                    | nearest-neighbor, clustering, PCA       |
+| K.11     | Sequence/Windowing | Sliding/tumbling/session windows,       |
+|          |                    | text chunking, overlap management       |
+
 ### Module Count Summary
 
 | Phase | Modules | Status    | What                      |
@@ -2706,7 +3347,8 @@ paradigm narration documents and their Ring implementations.
 | G     | 22      | PLANNED   | Infrastructure + manageability |
 | H     | 11      | PLANNED   | Signature features        |
 | J     | 12      | PLANNED   | Paradigm engines          |
-| **Total** | **72** | **11 done, 61 planned** |
+| K     | 11      | PLANNED   | Universal computation     |
+| **Total** | **83** | **11 done, 72 planned** |
 
 ---
 
