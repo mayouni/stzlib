@@ -62,6 +62,12 @@ class stzStringLeadTrail from stzString
 	def NumberOfRepeatedLeadingChars()
 		return len(This.RepeatedLeadingChars())
 
+	def LeadingChar()
+		if This.NumberOfChars() > 0
+			return This.Content()[1]
+		ok
+		return ""
+
 	  #======================================================#
 	 #   REPEATED TRAILING CHARS                            #
 	#======================================================#
@@ -95,6 +101,24 @@ class stzStringLeadTrail from stzString
 	def RepeatedTrailingChars()
 		return This.RepeatedTrailingCharsCS(1)
 
+	def RepeatedTrailingChar()
+		cTrail = This.RepeatedTrailingChars()
+		if len(cTrail) > 0
+			return cTrail[len(cTrail)]
+		else
+			return ""
+		ok
+
+	def NumberOfRepeatedTrailingChars()
+		return len(This.RepeatedTrailingChars())
+
+	def TrailingChar()
+		nLen = This.NumberOfChars()
+		if nLen > 0
+			return This.Content()[nLen]
+		ok
+		return ""
+
 	  #======================================================#
 	 #   REMOVING REPEATED LEADING / TRAILING CHARS         #
 	#======================================================#
@@ -106,6 +130,15 @@ class stzStringLeadTrail from stzString
 			This.RemoveSection(1, nToRemove)
 		ok
 
+		def RemoveRepeatedLeadingCharsQ()
+			This.RemoveRepeatedLeadingChars()
+			return This
+
+	def RepeatedLeadingCharsRemoved()
+		return This.Copy().RemoveRepeatedLeadingCharsQ().Content()
+
+	#--
+
 	def RemoveRepeatedTrailingChars()
 		cTrail = This.RepeatedTrailingChars()
 		nToRemove = len(cTrail) - 1
@@ -113,3 +146,174 @@ class stzStringLeadTrail from stzString
 		if nToRemove > 0
 			This.RemoveSection(nLen - nToRemove + 1, nLen)
 		ok
+
+		def RemoveRepeatedTrailingCharsQ()
+			This.RemoveRepeatedTrailingChars()
+			return This
+
+	def RepeatedTrailingCharsRemoved()
+		return This.Copy().RemoveRepeatedTrailingCharsQ().Content()
+
+	  #======================================================#
+	 #   REMOVING A SPECIFIC LEADING / TRAILING CHAR        #
+	#======================================================#
+
+	def RemoveThisLeadingCharCS(c, pCaseSensitive)
+		cStr = This.Content()
+		nLen = len(cStr)
+		nStart = 1
+		for i = 1 to nLen
+			if StzStringQ(cStr[i]).IsEqualToCS(c, pCaseSensitive)
+				nStart = i + 1
+			else
+				exit
+			ok
+		next
+		if nStart > nLen
+			This.Update("")
+		else
+			This.Update(StzStringQ(cStr).Section(nStart, nLen))
+		ok
+
+		def RemoveThisLeadingCharCSQ(c, pCaseSensitive)
+			This.RemoveThisLeadingCharCS(c, pCaseSensitive)
+			return This
+
+		def RemoveLeadingCharCS(c, pCaseSensitive)
+			This.RemoveThisLeadingCharCS(c, pCaseSensitive)
+
+	def RemoveThisLeadingChar(c)
+		This.RemoveThisLeadingCharCS(c, 1)
+
+		def RemoveLeadingChar(c)
+			This.RemoveThisLeadingChar(c)
+
+	#--
+
+	def RemoveThisTrailingCharCS(c, pCaseSensitive)
+		cStr = This.Content()
+		nLen = len(cStr)
+		nEnd = nLen
+		for i = nLen to 1 step -1
+			if StzStringQ(cStr[i]).IsEqualToCS(c, pCaseSensitive)
+				nEnd = i - 1
+			else
+				exit
+			ok
+		next
+		if nEnd < 1
+			This.Update("")
+		else
+			This.Update(StzStringQ(cStr).Section(1, nEnd))
+		ok
+
+		def RemoveThisTrailingCharCSQ(c, pCaseSensitive)
+			This.RemoveThisTrailingCharCS(c, pCaseSensitive)
+			return This
+
+		def RemoveTrailingCharCS(c, pCaseSensitive)
+			This.RemoveThisTrailingCharCS(c, pCaseSensitive)
+
+	def RemoveThisTrailingChar(c)
+		This.RemoveThisTrailingCharCS(c, 1)
+
+		def RemoveTrailingChar(c)
+			This.RemoveThisTrailingChar(c)
+
+	  #======================================================#
+	 #   REMOVING LEADING AND TRAILING AT ONCE              #
+	#======================================================#
+
+	def RemoveThisLeadingAndTrailingCharCS(c, pCaseSensitive)
+		This.RemoveThisLeadingCharCS(c, pCaseSensitive)
+		This.RemoveThisTrailingCharCS(c, pCaseSensitive)
+
+		def RemoveThisLeadingAndTrailingCharCSQ(c, pCaseSensitive)
+			This.RemoveThisLeadingAndTrailingCharCS(c, pCaseSensitive)
+			return This
+
+	def RemoveThisLeadingAndTrailingChar(c)
+		This.RemoveThisLeadingAndTrailingCharCS(c, 1)
+
+		def RemoveThisLeadingAndTrailingCharQ(c)
+			This.RemoveThisLeadingAndTrailingChar(c)
+			return This
+
+	  #======================================================#
+	 #   CHECKING STARTS WITH / ENDS WITH                   #
+	#======================================================#
+
+	def StartsWithCS(pcSubStr, pCaseSensitive)
+		nLen = StzStringQ(pcSubStr).NumberOfChars()
+		if nLen > This.NumberOfChars()
+			return 0
+		ok
+		cLeft = This.NLeftChars(nLen)
+		return StzStringQ(cLeft).IsEqualToCS(pcSubStr, pCaseSensitive)
+
+	def StartsWith(pcSubStr)
+		return This.StartsWithCS(pcSubStr, 1)
+
+	def EndsWithCS(pcSubStr, pCaseSensitive)
+		nLen = StzStringQ(pcSubStr).NumberOfChars()
+		if nLen > This.NumberOfChars()
+			return 0
+		ok
+		cRight = This.NRightChars(nLen)
+		return StzStringQ(cRight).IsEqualToCS(pcSubStr, pCaseSensitive)
+
+	def EndsWith(pcSubStr)
+		return This.EndsWithCS(pcSubStr, 1)
+
+	  #======================================================#
+	 #   REMOVING FROM START / END                          #
+	#======================================================#
+
+	def RemoveFromStartCS(pcSubStr, pCaseSensitive)
+		if This.StartsWithCS(pcSubStr, pCaseSensitive)
+			nLen = StzStringQ(pcSubStr).NumberOfChars()
+			This.RemoveSection(1, nLen)
+		ok
+
+		def RemoveFromStartCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveFromStartCS(pcSubStr, pCaseSensitive)
+			return This
+
+	def RemoveFromStart(pcSubStr)
+		This.RemoveFromStartCS(pcSubStr, 1)
+
+		def RemoveFromStartQ(pcSubStr)
+			This.RemoveFromStart(pcSubStr)
+			return This
+
+	def RemovedFromStartCS(pcSubStr, pCaseSensitive)
+		return This.Copy().RemoveFromStartCSQ(pcSubStr, pCaseSensitive).Content()
+
+	def RemovedFromStart(pcSubStr)
+		return This.RemovedFromStartCS(pcSubStr, 1)
+
+	#--
+
+	def RemoveFromEndCS(pcSubStr, pCaseSensitive)
+		if This.EndsWithCS(pcSubStr, pCaseSensitive)
+			nSubLen = StzStringQ(pcSubStr).NumberOfChars()
+			nLen = This.NumberOfChars()
+			This.RemoveSection(nLen - nSubLen + 1, nLen)
+		ok
+
+		def RemoveFromEndCSQ(pcSubStr, pCaseSensitive)
+			This.RemoveFromEndCS(pcSubStr, pCaseSensitive)
+			return This
+
+	def RemoveFromEnd(pcSubStr)
+		This.RemoveFromEndCS(pcSubStr, 1)
+
+		def RemoveFromEndQ(pcSubStr)
+			This.RemoveFromEnd(pcSubStr)
+			return This
+
+	def RemovedFromEndCS(pcSubStr, pCaseSensitive)
+		return This.Copy().RemoveFromEndCSQ(pcSubStr, pCaseSensitive).Content()
+
+	def RemovedFromEnd(pcSubStr)
+		return This.RemovedFromEndCS(pcSubStr, 1)

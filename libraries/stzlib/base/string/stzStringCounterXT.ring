@@ -40,8 +40,27 @@ class stzStringCounterXT from stzStringCounter
 
 			# --- NumberOfOccurrence aliases ---
 
-			[ "NumberOfOccurrences",		"NumberOfOccurrence" ],
-			[ "NumberOfOccurrencesCS",	"NumberOfOccurrenceCS" ]
+			[ "HowManyOccurrencesCS",	"NumberOfOccurrenceCS" ],
+			[ "HowManyOccurrences",		"NumberOfOccurrence" ],
+
+			# --- NumberOfChars aliases ---
+
+			[ "Size",			"NumberOfChars" ],
+			[ "Length",			"NumberOfChars" ],
+
+			# --- NumberOfSubStrings aliases ---
+
+			[ "CountSubStringsCS",		"NumberOfSubStringsCS" ],
+			[ "CountSubStrings",		"NumberOfSubStrings" ],
+
+			# --- NumberOfLines aliases ---
+
+			[ "CountLinesCS",		"NumberOfLinesCS" ],
+
+			# --- NumberOfDuplicates aliases ---
+
+			[ "CountDuplicatesCS",		"NumberOfDuplicatesCS" ],
+			[ "CountDuplicates",		"NumberOfDuplicates" ]
 		]
 
 		nLen = len(_aAliases_)
