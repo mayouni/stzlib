@@ -2326,6 +2326,96 @@ func IsLatin(p)
 
 #--
 
+  //////////////////////////////////////////////
+ ///   Q-CONSTRUCTORS FOR MODULAR CLASSES   ///
+//////////////////////////////////////////////
+
+func StzStringXTQ(str)
+	return new stzStringXT(str)
+
+func StzStringFinderQ(str)
+	return new stzStringFinder(str)
+
+func StzStringFinderXTQ(str)
+	return new stzStringFinderXT(str)
+
+func StzStringReplacerQ(str)
+	return new stzStringReplacer(str)
+
+func StzStringReplacerXTQ(str)
+	return new stzStringReplacerXT(str)
+
+func StzStringSplitterQ(str)
+	return new stzStringSplitter(str)
+
+func StzStringSplitterXTQ(str)
+	return new stzStringSplitterXT(str)
+
+func StzStringBounderQ(str)
+	return new stzStringBounder(str)
+
+func StzStringBounderXTQ(str)
+	return new stzStringBounderXT(str)
+
+func StzStringCheckerQ(str)
+	return new stzStringChecker(str)
+
+func StzStringCheckerXTQ(str)
+	return new stzStringCheckerXT(str)
+
+func StzStringFormatterQ(str)
+	return new stzStringFormatter(str)
+
+func StzStringFormatterXTQ(str)
+	return new stzStringFormatterXT(str)
+
+func StzStringWalkerQ(str)
+	return new stzStringWalker(str)
+
+func StzStringWalkerXTQ(str)
+	return new stzStringWalkerXT(str)
+
+func StzStringVisualizerQ(str)
+	return new stzStringVisualizer(str)
+
+func StzStringVisualizerXTQ(str)
+	return new stzStringVisualizerXT(str)
+
+func StzStringLinesQ(str)
+	return new stzStringLines(str)
+
+func StzStringWordsQ(str)
+	return new stzStringWords(str)
+
+func StzStringEncoderQ(str)
+	return new stzStringEncoder(str)
+
+func StzStringNumbersQ(str)
+	return new stzStringNumbers(str)
+
+func StzStringDuplicatesQ(str)
+	return new stzStringDuplicates(str)
+
+func StzStringCodeQ(str)
+	return new stzStringCode(str)
+
+func StzStringIOQ(str)
+	return new stzStringIO(str)
+
+func StzStringRandomizerQ(str)
+	return new stzStringRandomizer(str)
+
+func StzStringLocaleQ(str)
+	return new stzStringLocale(str)
+
+func StzStringCryptoQ(str)
+	return new stzStringCrypto(str)
+
+
+  ///////////////////////////////////
+ ///   LEGACY UTILITY FUNCTIONS  ///
+///////////////////////////////////
+
 func @Section(pStrOrList, n1, n2) #TODO // Review the naming of Section() in stzSection
 
 	if CheckParams()
