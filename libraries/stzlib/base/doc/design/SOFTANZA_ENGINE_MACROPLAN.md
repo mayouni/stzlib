@@ -189,21 +189,238 @@ three promises.
 
 ---
 
-## Dependency Graph
+## STZLIB REDESIGN TRACKS
+
+Three parallel tracks that harden the Ring-side library while
+Engine milestones progress. These can start immediately -- they
+do not depend on Engine completion.
+
+### M-S1: Class Modularization [ ]
+
+> Break monolithic classes into granular, purpose-focused
+> subclasses. Each subclass handles one concern and can be
+> loaded independently.
+
+**Why:** stzString is 100K+ LOC in a single file. A programmer
+who needs string splitting loads the entire finder, replacer,
+bounder, formatter, and visual engine. Modularization gives
+smaller files, faster loading, and clearer API boundaries.
+It also makes designing solutions more agile -- a programmer
+picks exactly the subclass that fits the need, without overcode.
+
+**Target classes and proposed decomposition:**
 
 ```
-M-E1 (StzValue + Number)
-  |
-  v
-M-E2 (List + HashMap + Set)
-  |
-  v
-M-E3 (Table + Graph + Matrix + Tree)
+stzString (100K+ LOC) -->
+  stzString           # core: creation, content, size, comparison
+  stzStringFinder     # FindFirst, FindLast, FindAll, FindNth, ...
+  stzStringSplitter   # Split, SplitAt, SplitBefore, SplitAfter, ...
+  stzStringReplacer   # Replace, ReplaceAll, ReplaceSection, ...
+  stzStringBounder    # Section, Range, Between, BoundedBy, ...
+  stzStringFormatter  # Align, Pad, Trim, Simplify, Case, ...
+  stzStringVisual     # Show, Boxed, VizFind, Highlight, ...
+  stzStringWalker     # Walk, WalkW, Each, EachW, ...
+  stzStringChecker    # Contains, StartsWith, EndsWith, IsXxx, ...
+
+stzList (large) -->
+  stzList             # core: creation, content, size, access
+  stzListFinder       # Find, FindAll, FindW, ...
+  stzListSorter       # Sort, SortBy, SortXT, Reverse, ...
+  stzListSplitter     # Split, Partition, Classify, ...
+  stzListReplacer     # Replace, ReplaceAll, ReplaceAt, ...
+  stzListWalker       # Walk, WalkW, Each, ...
+  stzListChecker      # Contains, AllAre, AnyIs, ...
+  stzListMath         # Sum, Mean, Min, Max, Stats, ...
+
+(Other classes audited case-by-case: stzNumber, stzTable,
+stzGrid, stzGraph -- split only when the file exceeds
+manageable size or mixes unrelated concerns.)
+```
+
+**Design rules:**
+- The root class (stzString) loads all subclasses by default
+  for backward compatibility -- existing code keeps working.
+- Each subclass can be loaded independently for minimal footprint.
+- Subclasses share state through the root object -- no data
+  duplication, no cross-subclass dependencies.
+- Engine C ABI stays flat (stz_string_find_*, stz_string_split_*).
+  The modularization is a Ring-side concern only.
+- The 23 function forms (Active/Passive/Fluent/etc.) apply
+  uniformly across all subclasses.
+
+**Deliverables:**
+- Audit all classes for size and concern mixing
+- Decomposition map (which methods go to which subclass)
+- Migrated code with backward-compatible root loaders
+- Updated Ring FFI bridges per subclass
+
+### M-S2: Ring-Side Test Hardening [ ]
+
+> Audit all existing stzlib tests, fix broken ones, and write
+> new tests to cover all aspects and scenarios of the library.
+
+**Why:** Engine-side testing is designed with 4-layer strength.
+But the Ring surface -- where programmers actually work -- needs
+its own comprehensive test coverage. Ring tests verify that FFI
+bridges work, that function forms behave correctly, that the
+23 execution modes compose, and that edge cases (empty strings,
+mixed-type lists, Unicode boundaries) are handled.
+
+**Scope:**
+
+1. **Audit existing tests.**
+   - Inventory all test files across Core/Base/Max layers
+   - Run each one, classify: PASS / FAIL / STALE / INCOMPLETE
+   - Fix all FAIL and STALE tests
+   - Remove tests that test removed Qt code paths
+
+2. **Coverage analysis per class.**
+   - For each class, list public methods
+   - Map which methods have tests and which do not
+   - Priority: high-frequency methods first (Find, Replace,
+     Contains, Split, Sort, Walk, Show)
+
+3. **New test categories.**
+   - **Function form tests:** For each of the 23 forms, verify
+     that the form works on at least string and list (Active vs
+     Passive, Q() chaining, QC() clone, QH() history, etc.)
+   - **Edge case tests:** Empty input, single element, Unicode
+     boundaries, very large inputs, mixed types in lists
+   - **Cross-class tests:** Operations that span multiple classes
+     (e.g., Split a string then Sort the resulting list)
+   - **Narrated tests:** GIVEN/WHEN/THEN scenarios for the most
+     important workflows, serving as executable documentation
+
+4. **Test runner integration.**
+   - `softanza test` discovers and runs all Ring tests
+   - Reports per-class coverage summary
+   - Fails on regression (any previously-passing test that breaks)
+
+**Deliverables:**
+- Test inventory with PASS/FAIL/STALE classification
+- Coverage map (class x method x tested?)
+- New tests for uncovered methods and all 23 function forms
+- Narrated test suite for top 20 programmer workflows
+
+### M-S3: Documentation Reimagining [ ]
+
+> Redesign documentation for both stzlib and the Engine with
+> clear organization, realistic document types, and complete
+> reference material.
+
+**Why:** The current 60+ paradigm narrations are brilliant as
+design exploration but do not serve as reference material. A
+programmer looking for "how do I split a string?" should not
+read a 20-page philosophical narration. Documentation needs
+distinct types serving distinct audiences.
+
+**Document types (both stzlib and Engine):**
+
+1. **API Reference** (per class / per module)
+   - Every public method with signature, parameters, return type
+   - One-line description + one minimal example
+   - Grouped by concern (finding, replacing, splitting, etc.)
+   - Generated from code where possible, hand-written where needed
+
+2. **How-To Guides** (task-oriented)
+   - "How to find and replace in strings"
+   - "How to walk a list with variable steps"
+   - "How to build a reactive pipeline"
+   - Short, goal-focused, copy-paste-ready code
+   - 20-30 guides covering the most common tasks
+
+3. **Tutorials** (learning-oriented)
+   - Progressive, building on prior knowledge
+   - "Your first Softanza program"
+   - "From loops to walkers"
+   - "Building a data pipeline with Reaxis"
+   - 5-10 tutorials for the beginner-to-intermediate path
+
+4. **Paradigm Narrations** (understanding-oriented)
+   - The existing 60+ documents, curated and organized
+   - These explain WHY, not HOW -- the philosophy behind each
+     innovation
+   - Indexed by concept, cross-referenced to API Reference
+
+5. **Architecture Documents** (contributor-oriented)
+   - Engine Architecture, Engine Design, Zing Bridge Design
+   - Layer contracts, module inventories, C ABI specs
+   - For contributors and language-bridge authors
+
+6. **Quick Reference Cards** (cheat sheets)
+   - One-page per class: most-used methods with signatures
+   - 23 function forms quick reference
+   - Walker patterns, PatternEx syntax, Reaxis flow
+
+**Organization:**
+
+```
+doc/
+  reference/          # API Reference (per class)
+    stzString.md
+    stzList.md
+    stzWalker.md
+    ...
+  howto/              # How-To Guides (task-oriented)
+    find-and-replace.md
+    walk-with-steps.md
+    reactive-pipeline.md
+    ...
+  tutorials/          # Tutorials (progressive learning)
+    01-first-program.md
+    02-strings-and-lists.md
+    03-loops-to-walkers.md
+    ...
+  narrations/         # Paradigm Narrations (philosophy)
+    truth-rethought.md
+    regex-beyond-strings.md
+    reactive-reaxis.md
+    ...
+  architecture/       # Architecture (contributors)
+    ENGINE_DESIGN.md
+    ENGINE_ARCHITECTURE.md
+    ZING_BRIDGE.md
+    ...
+  quickref/           # Quick Reference Cards
+    stzString-card.md
+    function-forms.md
+    walker-patterns.md
+    ...
+```
+
+**Deliverables:**
+- Documentation type taxonomy (the 6 types above)
+- Directory restructure
+- API Reference for the top 10 classes (generated + hand-edited)
+- 10 How-To Guides for the most common tasks
+- 3 Tutorials for the beginner path
+- Curated index of existing paradigm narrations
+- Quick reference cards for String, List, Walker, function forms
+
+---
+
+## Dependency Graph
+
+Two parallel tracks: Engine (M-E) and stzlib Redesign (M-S).
+The S-track can start immediately and feeds into the E-track
+as modularized classes map cleanly to Engine submodules.
+
+```
+ENGINE TRACK (Zig)              STZLIB TRACK (Ring)
+================                ==================
+
+M-E1 (StzValue + Number)       M-S1 (Class Modularization)
+  |                               |
+  v                               v
+M-E2 (List + HashMap + Set)     M-S2 (Ring-Side Test Hardening)
+  |                               |
+  v                               v
+M-E3 (Table + Graph + Matrix)   M-S3 (Documentation Reimagining)
   |          \
   v           v
-M-E4         M-E5
-(Algorithms) (Infrastructure)
-  |           |
+M-E4         M-E5                 M-S1 informs M-E* decomposition
+(Algorithms) (Infrastructure)     M-S2 validates Engine bridges
+  |           |                   M-S3 documents both sides
   +-----+-----+
         |
         v
