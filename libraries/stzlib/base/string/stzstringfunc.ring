@@ -693,7 +693,23 @@ func StzTrimLeft(cStrOrList)
 		next
 		return substr(cStrOrList, nStart)
 	else
-		return StzListQ(cStrOrList).TrimmedLeft()
+		nLen = len(cStrOrList)
+		nStart = 1
+		for i = 1 to nLen
+			if isString(cStrOrList[i]) and trim(cStrOrList[i]) = ""
+				nStart = i + 1
+			else
+				exit
+			ok
+		next
+		if nStart > nLen
+			return []
+		ok
+		aResult = []
+		for i = nStart to nLen
+			aResult + cStrOrList[i]
+		next
+		return aResult
 	ok
 
 	func @TrimLeft(cStrOrList)
@@ -729,7 +745,23 @@ func StzTrimRight(cStrOrList)
 		next
 		return substr(cStrOrList, 1, nEnd)
 	else
-		return StzListQ(cStrOrList).Trimmedright()
+		nLen = len(cStrOrList)
+		nEnd = nLen
+		for i = nLen to 1 step -1
+			if isString(cStrOrList[i]) and trim(cStrOrList[i]) = ""
+				nEnd = i - 1
+			else
+				exit
+			ok
+		next
+		if nEnd < 1
+			return []
+		ok
+		aResult = []
+		for i = 1 to nEnd
+			aResult + cStrOrList[i]
+		next
+		return aResult
 	ok
 
 	func @TrimRight(cStrOrList)
@@ -754,11 +786,7 @@ func StzTrimStart(cStrOrList)
 		ok
 	ok
 
-	if isString(cStrOrList)
-		return StzStringQ(cStrOrList).TrimmedStart()
-	else
-		return StzListQ(cStrOrList).TrimmedStart()
-	ok
+	return StzTrimLeft(cStrOrList)
 
 	func @TrimStart(cStrOrList)
 		return StzTrimStart(cStrOrList)
@@ -773,11 +801,7 @@ func StzTrimEnd(cStrOrList)
 		ok
 	ok
 
-	if isString(cStrOrList)
-		return StzStringQ(cStrOrList).TrimmedEnd()
-	else
-		return StzListQ(cStrOrList).Trimmedright()
-	ok
+	return StzTrimRight(cStrOrList)
 
 	func @TrimEnd(cStrOrList)
 		return StzTrimEnd(cStrOrList)
@@ -1103,7 +1127,16 @@ func IsSortedStringInAscending(pcStr)
 		return 0
 	ok
 
-	return StzStringQ(pcStr).IsSortedInAscending()
+	nLen = len(pcStr)
+	if nLen < 2
+		return 1
+	ok
+	for i = 1 to nLen - 1
+		if ascii(substr(pcStr, i, 1)) > ascii(substr(pcStr, i + 1, 1))
+			return 0
+		ok
+	next
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -1148,7 +1181,16 @@ func IsSortedStringInDescending(pcStr)
 		return 0
 	ok
 
-	return StzStringQ(pcStr).IsSortedInDescending()
+	nLen = len(pcStr)
+	if nLen < 2
+		return 1
+	ok
+	for i = 1 to nLen - 1
+		if ascii(substr(pcStr, i, 1)) < ascii(substr(pcStr, i + 1, 1))
+			return 0
+		ok
+	next
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -1410,7 +1452,19 @@ func StringIsWord(cStr)
 		return StringIsWord(cStr)
 
 func StringNumberOfOccurrence(pcStr, pcSubStr)
-	return StzStringQ(pcStr).NumberOfOccurrence(pcSubStr)
+	nCount = 0
+	nSubLen = len(pcSubStr)
+	nLen = len(pcStr)
+	nPos = 1
+	while nPos <= nLen - nSubLen + 1
+		if substr(pcStr, nPos, nSubLen) = pcSubStr
+			nCount++
+			nPos += nSubLen
+		else
+			nPos++
+		ok
+	end
+	return nCount
 	
 	func @NumberOfOccurrence(pcStr, pcSubStr)
 		return StringNumberOfOccurrence(pcStr, pcSubStr)
@@ -1793,7 +1847,13 @@ func @IsPalindrome(p)
 			return 0
 		ok
 
-		return StzListQ(p).IsPalindrome()
+		nLen = len(p)
+		for i = 1 to nLen / 2
+			if NOT BothAreEqual(p[i], p[nLen - i + 1])
+				return 0
+			ok
+		next
+		return 1
 
 	but isString(p)
 		nLen = len(p)
