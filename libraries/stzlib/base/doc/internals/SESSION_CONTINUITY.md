@@ -1,5 +1,9 @@
 # Softanza Strategic Work -- Session Continuity
 
+> **Macro plan:** `base/doc/design/SOFTANZA_ENGINE_MACROPLAN.md`
+> tracks milestones M-E1 through M-E11 with dependency graph
+> and progress log. Update it at every milestone completion.
+
 ## Session 1 (2026-05-13): Phase 1 + Phase 2
 
 ### What Was Done
@@ -414,3 +418,6 @@ Loading rules:
   at least the flow declaration and validation APIs
 - **Skill metadata format:** Define the `.skill.zig` companion
   file format for module skill declarations
+
+> **Next session:** start with M-E1 from
+> `base/doc/design/SOFTANZA_ENGINE_MACROPLAN.md`
