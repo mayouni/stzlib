@@ -6,6 +6,8 @@
 #   Description  : String formatter subclass -- case           #
 #                  conversion, alignment, padding, spacing,     #
 #                  simplification, and repeating.                #
+#                  Canonical methods only. For full Softanza    #
+#                  fluency (aliases), use stzStringFormatterXT. #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -37,21 +39,11 @@ class stzStringFormatter from stzString
 			This.ApplyLowercase()
 			return This
 
-		def Lowercase()
-			This.ApplyLowercase()
-
-			def LowercaseQ()
-				This.Lowercase()
-				return This
-
 	def Lowercased()
 		return lower(This.Content())
 
 		def LowercasedQ()
 			return new stzStringFormatter(This.Lowercased())
-
-		def ToLowercase()
-			return This.Lowercased()
 
 	  #===============================#
 	 #     UPPERCASE                 #
@@ -64,21 +56,11 @@ class stzStringFormatter from stzString
 			This.ApplyUppercase()
 			return This
 
-		def Uppercase()
-			This.ApplyUppercase()
-
-			def UppercaseQ()
-				This.Uppercase()
-				return This
-
 	def Uppercased()
 		return upper(This.Content())
 
 		def UppercasedQ()
 			return new stzStringFormatter(This.Uppercased())
-
-		def ToUppercase()
-			return This.Uppercased()
 
 	  #===============================#
 	 #     CAPITALIZE                #
@@ -102,13 +84,6 @@ class stzStringFormatter from stzString
 		def ApplyCapitalcaseQ()
 			This.ApplyCapitalcase()
 			return This
-
-		def Capitalize()
-			This.ApplyCapitalcase()
-
-			def CapitalizeQ()
-				This.Capitalize()
-				return This
 
 	def Capitalized()
 		cContent = This.Content()
@@ -158,13 +133,6 @@ class stzStringFormatter from stzString
 			This.ApplyTitlecase()
 			return This
 
-		def Titlecase()
-			This.ApplyTitlecase()
-
-			def TitlecaseQ()
-				This.Titlecase()
-				return This
-
 	def Titlecased()
 		oCopy = new stzStringFormatter(This.Content())
 		oCopy.ApplyTitlecase()
@@ -180,9 +148,6 @@ class stzStringFormatter from stzString
 	def ApplyCaseFold()
 		This.Update( lower(This.Content()) )
 
-		def CaseFold()
-			This.ApplyCaseFold()
-
 	def CaseFolded()
 		return lower(This.Content())
 
@@ -196,13 +161,6 @@ class stzStringFormatter from stzString
 		def ApplyReverseQ()
 			This.ApplyReverse()
 			return This
-
-		def Reverse()
-			This.ApplyReverse()
-
-			def ReverseQ()
-				This.Reverse()
-				return This
 
 	def Reversed()
 		return ring_reverse(This.Content())
@@ -220,9 +178,6 @@ class stzStringFormatter from stzString
 		def LeftAlignQ(nWidth)
 			This.LeftAlign(nWidth)
 			return This
-
-		def AlignLeft(nWidth)
-			This.LeftAlign(nWidth)
 
 	def LeftAlignXT(nWidth, cChar)
 		if CheckingParams()
@@ -247,16 +202,10 @@ class stzStringFormatter from stzString
 			This.LeftAlignXT(nWidth, cChar)
 			return This
 
-		def AlignLeftXT(nWidth, cChar)
-			This.LeftAlignXT(nWidth, cChar)
-
 	def LeftAligned(nWidth)
 		oCopy = new stzStringFormatter(This.Content())
 		oCopy.LeftAlign(nWidth)
 		return oCopy.Content()
-
-		def AlignedToLeft(nWidth)
-			return This.LeftAligned(nWidth)
 
 	  #===============================#
 	 #     RIGHT ALIGN               #
@@ -268,9 +217,6 @@ class stzStringFormatter from stzString
 		def RightAlignQ(nWidth)
 			This.RightAlign(nWidth)
 			return This
-
-		def AlignRight(nWidth)
-			This.RightAlign(nWidth)
 
 	def RightAlignXT(nWidth, cChar)
 		if CheckingParams()
@@ -295,16 +241,10 @@ class stzStringFormatter from stzString
 			This.RightAlignXT(nWidth, cChar)
 			return This
 
-		def AlignRightXT(nWidth, cChar)
-			This.RightAlignXT(nWidth, cChar)
-
 	def RightAligned(nWidth)
 		oCopy = new stzStringFormatter(This.Content())
 		oCopy.RightAlign(nWidth)
 		return oCopy.Content()
-
-		def AlignedToRight(nWidth)
-			return This.RightAligned(nWidth)
 
 	  #===============================#
 	 #     CENTER ALIGN              #
@@ -316,9 +256,6 @@ class stzStringFormatter from stzString
 		def CenterAlignQ(nWidth)
 			This.CenterAlign(nWidth)
 			return This
-
-		def AlignCenter(nWidth)
-			This.CenterAlign(nWidth)
 
 	def CenterAlignXT(nWidth, cChar)
 		if CheckingParams()
@@ -353,19 +290,10 @@ class stzStringFormatter from stzString
 			This.CenterAlignXT(nWidth, cChar)
 			return This
 
-		def AlignCenterXT(nWidth, cChar)
-			This.CenterAlignXT(nWidth, cChar)
-
 	def CenterAligned(nWidth)
 		oCopy = new stzStringFormatter(This.Content())
 		oCopy.CenterAlign(nWidth)
 		return oCopy.Content()
-
-		def AlignedToCenter(nWidth)
-			return This.CenterAligned(nWidth)
-
-		def Centered(nWidth)
-			return This.CenterAligned(nWidth)
 
 	  #===============================#
 	 #     PADDING                   #
@@ -521,7 +449,3 @@ class stzStringFormatter from stzString
 			cResult += cContent
 		next
 		return cResult
-
-		def Repeated(n)
-			return This.RepeatedNTimes(n)
-
