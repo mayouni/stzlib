@@ -292,3 +292,83 @@ Loading rules:
 2. ~~Fix any failures from the Qt removal~~
 3. Confirm all narrated tests produce expected output
 4. Verify module-level loading works (load one module only)
+
+## Session 4 (2026-05-15): Phase 5 -- Deep Design from Paradigm Audit
+
+### What Was Done
+
+**Phase 5: Complete Paradigm Audit + Engine Design Deepening**
+
+1. Scanned entire Softanza documentation tree. Found **60+
+   paradigm-rethinking documents** across narrations/, deepdives/,
+   design/, and internals/ directories.
+
+2. Read and analyzed **10 source code implementations**:
+   stzWalker, stzReactive, stzReactiveObject, stzReactiveTask,
+   stzRegexuter, stzListex, stzGraphex, stzTimeLine, stzNatural,
+   stzConstraint.
+
+3. **Layer 5: Paradigm Engines (12 modules)** added to Engine
+   design. Reaxis (Container->Stream->Rfunction), Softanzuter
+   (universal reactive computation medium for agents), Truth
+   Engine, Quantifier Engine, Polyglot Bridge, Refinement Engine,
+   Adverb Engine, Timeline Engine, Grid Navigator, Section
+   Merger, Deep Operations, Named Variables.
+
+4. **Layer 6: Universal Computation Concerns (14 modules)** added.
+   Provenance (data lineage), Confidence (values with uncertainty),
+   Explanation (auditable reasoning), Similarity (beyond equality),
+   Context (scoped state propagation), Resource Awareness (cost
+   before execution), Validation Pipeline (multi-stage checking),
+   Schema Evolution (structural change over time), Intent
+   Resolution (what-not-how dispatch), Embedding/Vector (geometric
+   computation), Sequence/Windowing (sliding/tumbling/session),
+   Computation Topology (local/remote fission), Relationships
+   (entity connections), State Machine (declared transitions).
+
+5. **Enhancement notes** added to existing modules from deep doc
+   audit: regex (scope context, hierarchical captures), pattern
+   matching (table metadata, temporal intervals), walker (N-D
+   extension), reaxis (change batching), serialization (structural
+   encoding).
+
+6. **"Softanza Through Claude's Eyes"** document written --
+   reflection on how understanding evolved from "a rich Ring
+   library" to "a programming philosophy that has been implemented."
+
+7. **16 design principles** now in Architecture doc (was 10).
+
+### Key Decisions
+
+- **Intelligence is not a special domain.** AI needs vectors
+  (similarity), provenance (where data came from), confidence
+  (how sure), explanation (why this result), and context (what
+  carries forward). These are general-purpose modules that happen
+  to make AI natural. No AI-specific modules needed.
+- **Softanzuter is the agent substrate.** The trigger-compute-
+  state model from stzRegexuter, generalized across any pattern
+  domain, is the canonical way to build intelligent agents.
+- **Every agent is a state machine.** Declared transitions with
+  guards, history, and validation replace ad-hoc switch-case
+  state trackers everywhere.
+- **Computation has topology.** Where code runs is an Engine
+  decision based on operation signatures, not a deployment
+  detail baked into application code.
+
+### Repository State
+
+- Repo: `D:\GitHub\stzlib` (GitHub + Codeberg remotes)
+- Engine design: 86 modules (11 done, 75 planned) across 7 layers
+- Architecture: 16 design principles
+- All 60+ paradigm documents, 8 deepdives, 5 internals, 7 design
+  docs fully audited. No unread documents remain.
+- Commits: 41f8443d, d99fd2c5, 4c36c4be, 626aae22
+
+### Next Steps
+
+- **Phase F (code):** Build StzValue tagged union + List in Zig.
+  These two modules unlock heterogeneous operations and kill the
+  Stringify trick. The design is now complete enough to code
+  confidently.
+- **CLI Polish:** `softanza build`, `softanza test`, `softanza
+  doctor` (Phase 4, task 5 -- still pending).
