@@ -851,6 +851,334 @@ int           stz_expr_is_valid(const char* expression, size_t len);
 
 ---
 
+## Layer 4: Softanza Signature Features
+
+These are the features that define Softanza's identity. Without
+them in the Engine, a Python or Rust client gets data structures
+but NOT the Softanza experience. These must be Engine-native so
+every language surface inherits them automatically.
+
+### Domain-Specific Pattern Matching (the *-ex family) [PLANNED]
+
+Softanza invented regex-like pattern matching for non-string
+domains: lists, matrices, numbers, tables, graphs, and time.
+The backtracking engine, constraint solver, and pattern compiler
+are the same across all domains -- only the token vocabulary
+changes.
+
+```c
+// Universal pattern matching engine
+StzPatternHandle stz_pattern_compile(int domain, const char* pattern,
+                                      size_t len);
+void             stz_pattern_free(StzPatternHandle h);
+
+// Domain constants
+// STZ_DOMAIN_LIST, STZ_DOMAIN_MATRIX, STZ_DOMAIN_NUMBER,
+// STZ_DOMAIN_TABLE, STZ_DOMAIN_GRAPH, STZ_DOMAIN_TIME
+
+// Match against domain-specific data
+int       stz_pattern_match(StzPatternHandle h, StzValue target);
+size_t    stz_pattern_find_all(StzPatternHandle h, StzValue target,
+                                StzValue* out_matches, size_t max);
+double    stz_pattern_similarity(StzPatternHandle h, StzValue target);
+```
+
+**Listex tokens:** `@N` (number), `@S` (string), `@L` (list),
+`@$` (any), quantifiers `+*?{n}{n-m}`, uniqueness `{...}U`,
+negation `@!`, alternation `|`.
+
+**Numbrex tokens:** `@digit`, `@factor`, `@property(prime|even|
+fibonacci|palindrome|perfect|square|triangular|abundant)`,
+`@part(integer|fractional)`, `@relation(mod:N=R)`, `@approx`.
+
+**Matrex tokens:** `@size(RxC)`, `@shape(square|wide|tall)`,
+`@element(range)`, `@property(symmetric|diagonal|identity|
+upper|lower)`, `@determinant`, `@row`, `@col`, `@diagonal`.
+
+**Tablex tokens:** `@rows`, `@cols`, `@coltype`, `@sorted`,
+`@unique`, `@duplicates`, `@completeness`, `@sumcol`, `@avgcol`.
+
+**Graphex tokens:** `@Node(label)`, `@Edge(label)`, `@Cycle`,
+`@Path`, with quantifiers and alternation.
+
+**Timex tokens:** `@Instant`, `@Duration(1h30min)`, `@Event`,
+`@Sequence`, `@Frame`, cyclic `~` suffix.
+
+**Engine internals needed:**
+- Backtracking engine with constraint propagation
+- Number theory: primality, factorization, Fibonacci check
+- Matrix property detection (symmetry, triangularity)
+- Graph substructure matching
+- Duration arithmetic and temporal reasoning
+
+```c
+// Number theory (used by Numbrex, stzNumber)
+int       stz_math_is_prime(int64_t n);
+int64_t*  stz_math_factorize(int64_t n, size_t* out_count);
+int       stz_math_is_fibonacci(int64_t n);
+int       stz_math_is_perfect(int64_t n);
+int       stz_math_is_palindrome(int64_t n);
+int64_t   stz_math_gcd(int64_t a, int64_t b);
+int64_t   stz_math_lcm(int64_t a, int64_t b);
+```
+
+### Natural Language Programming [PLANNED]
+
+Softanza lets users write code in human language. The Engine
+provides the parsing, tokenization, and semantic mapping so ANY
+language surface can offer natural coding -- not just Ring.
+
+```c
+// Language definition loading
+StzNatLangHandle stz_natlang_new(void);
+void             stz_natlang_free(StzNatLangHandle h);
+int  stz_natlang_load_language(StzNatLangHandle h,
+                                const char* lang_id,
+                                const char* definitions_json,
+                                size_t len);
+
+// Parsing natural code to structured operations
+size_t stz_natlang_parse(StzNatLangHandle h,
+                          const char* natural_code, size_t len,
+                          StzNatOp* out_operations, size_t max);
+
+typedef struct {
+    int kind;             // CREATE, CALL, OUTPUT, ASSIGN, ...
+    char target[256];     // object or variable name
+    char method[256];     // method to call
+    char args[1024];      // serialized arguments
+} StzNatOp;
+
+// Context interpolation
+size_t stz_natlang_interpolate(const char* template_str, size_t len,
+                                const char** keys,
+                                const StzValue* values,
+                                size_t num_vars,
+                                char* output, size_t out_len);
+
+// Smart tokenization (protects strings and lists)
+size_t stz_natlang_tokenize(const char* input, size_t len,
+                             StzStringHandle* out_tokens,
+                             size_t max);
+```
+
+**Language definition format (JSON):**
+```json
+{
+  "lang": "english",
+  "ignored_words": ["the", "a", "an", "to", "of"],
+  "mappings": {
+    "create": "CREATE_OBJECT",
+    "uppercase": "METHOD_UPPERCASE",
+    "show": "OUTPUT_DISPLAY",
+    "reverse": "METHOD_REVERSE"
+  }
+}
+```
+
+Any language can load definitions for English, French, Hausa,
+Arabic, or any other human language and get natural coding.
+
+### Conditional Code Transpiler [PLANNED]
+
+The W()/WXT() mechanism transpiles rich keywords like
+`@CurrentItem`, `@NextItem`, `@PreviousItem` into executable
+indexing operations. The transpiler handles boundary detection
+(no @NextItem at list end) and performance optimization.
+
+```c
+// Transpile conditional code keywords
+size_t stz_ccode_transpile(const char* expression, size_t len,
+                            size_t collection_size,
+                            size_t current_index,
+                            char* output, size_t out_len);
+
+// Keyword table:
+// @CurrentItem    -> collection[current_index]
+// @NextItem       -> collection[current_index + 1]
+// @PreviousItem   -> collection[current_index - 1]
+// @i              -> current_index
+// @NumberOfItems  -> collection_size
+// @FirstItem      -> collection[1]
+// @LastItem       -> collection[collection_size]
+
+// Boundary-safe evaluation
+int stz_ccode_has_next(size_t current_index, size_t collection_size);
+int stz_ccode_has_previous(size_t current_index);
+
+// Compiled conditional for repeated evaluation (avoids re-parsing)
+StzCCodeHandle stz_ccode_compile(const char* expression, size_t len);
+void           stz_ccode_free(StzCCodeHandle h);
+StzValue       stz_ccode_eval(StzCCodeHandle h,
+                               StzListHandle collection,
+                               size_t current_index);
+```
+
+### Constraint Engine [PLANNED]
+
+Declarative constraints on any StzValue. The Engine validates
+constraints so every language surface gets the same guarantees.
+
+```c
+StzConstraintHandle stz_constraint_new(void);
+void                stz_constraint_free(StzConstraintHandle h);
+
+// Add rules
+void stz_constraint_add_rule(StzConstraintHandle h,
+                              const char* expression, size_t len);
+// e.g. "@.IsLowercase", "@.NumberOfChars > 3", "@.IsNotEmpty"
+
+// Validate a value against all rules
+int  stz_constraint_check(StzConstraintHandle h, StzValue v);
+
+// Get violation details
+size_t stz_constraint_violations(StzConstraintHandle h, StzValue v,
+                                  char* out_messages, size_t out_len);
+```
+
+### Reactive Attribute System [PLANNED]
+
+Engine-level attribute change detection and callback dispatch.
+Any language surface can build reactive objects on top.
+
+```c
+StzReactiveHandle stz_reactive_new(void);
+void              stz_reactive_free(StzReactiveHandle h);
+
+// Define watched attributes
+void stz_reactive_watch(StzReactiveHandle h,
+                         const char* attr_name,
+                         void (*callback)(const char* attr,
+                                          StzValue old_val,
+                                          StzValue new_val,
+                                          void* userdata),
+                         void* userdata);
+
+// Set attribute (triggers watchers)
+void stz_reactive_set(StzReactiveHandle h,
+                       const char* attr_name, StzValue value);
+
+// Get attribute
+StzValue stz_reactive_get(StzReactiveHandle h,
+                           const char* attr_name);
+
+// Computed attributes (auto-recalculate on dependency change)
+void stz_reactive_computed(StzReactiveHandle h,
+                            const char* attr_name,
+                            const char** dependencies,
+                            size_t num_deps,
+                            StzValue (*compute)(StzReactiveHandle h,
+                                                void* userdata),
+                            void* userdata);
+
+// Batch mode (accumulate changes, fire callbacks once)
+void stz_reactive_batch_start(StzReactiveHandle h);
+void stz_reactive_batch_end(StzReactiveHandle h);
+
+// Two-way binding between reactive objects
+void stz_reactive_bind(StzReactiveHandle source,
+                        const char* source_attr,
+                        StzReactiveHandle target,
+                        const char* target_attr);
+```
+
+### Knowledge Graph Engine [PLANNED]
+
+RDF-style semantic graph with inference and SPARQL-like queries.
+Distinct from the structural graph (Layer 1) because it adds
+semantic reasoning, ontology, and inference rules.
+
+```c
+StzKGHandle stz_kg_new(void);
+void        stz_kg_free(StzKGHandle h);
+
+// Facts (triples)
+void stz_kg_add_fact(StzKGHandle h,
+                      const char* subject, size_t s_len,
+                      const char* predicate, size_t p_len,
+                      const char* object, size_t o_len);
+size_t stz_kg_fact_count(StzKGHandle h);
+
+// Query with variable binding (?x, ?y)
+size_t stz_kg_query(StzKGHandle h,
+                     const char* subject,   // or "?x"
+                     const char* predicate,  // or "?p"
+                     const char* object,     // or "?o"
+                     StzKGResult* out_results, size_t max);
+
+typedef struct {
+    char subject[256];
+    char predicate[256];
+    char object[256];
+} StzKGResult;
+
+// Multi-hop query (reasoning chain)
+size_t stz_kg_query_path(StzKGHandle h,
+                          const StzKGResult* patterns,
+                          size_t num_patterns,
+                          StzKGResult* out_results, size_t max);
+
+// Inference rules
+void stz_kg_add_rule(StzKGHandle h,
+                      const char* rule_json, size_t len);
+size_t stz_kg_infer(StzKGHandle h); // returns new facts derived
+
+// Ontology
+void stz_kg_define_class(StzKGHandle h,
+                          const char* class_name, size_t len,
+                          const char* parent_class, size_t p_len);
+void stz_kg_define_property(StzKGHandle h,
+                             const char* prop_name, size_t len,
+                             const char* domain, size_t d_len,
+                             const char* range, size_t r_len);
+
+// Analysis
+size_t stz_kg_similar_to(StzKGHandle h,
+                          const char* entity, size_t len,
+                          StzKGResult* out_similar, size_t max);
+```
+
+### Splitter & Counter Engines [PLANNED]
+
+Position-arithmetic and conditional counting at native speed.
+
+```c
+// Splitter: compute section pairs from split points
+size_t stz_split_at(size_t total_size,
+                     const size_t* split_points, size_t num_points,
+                     size_t* out_sections, size_t max);
+                     // out_sections: pairs [start, end, start, end, ...]
+
+size_t stz_split_into(size_t total_size, size_t num_parts,
+                       size_t* out_sections, size_t max);
+
+// Counter: generate count sequence with restart/skip rules
+size_t stz_counter(size_t start, size_t step,
+                    size_t restart_at, size_t restart_to,
+                    size_t skip_every, size_t total,
+                    size_t* out_counts, size_t max);
+```
+
+### String Art Renderer [PLANNED]
+
+Multi-layer ASCII art generation at native speed.
+
+```c
+// Render text to ASCII art
+size_t stz_stringart_render(const char* text, size_t len,
+                             const char* style,
+                             char* output, size_t out_len);
+
+// Get available styles
+size_t stz_stringart_styles(const char** out_names, size_t max);
+
+// Load custom style (JSON character map)
+int stz_stringart_load_style(const char* name,
+                              const char* style_json, size_t len);
+```
+
+---
+
 ## Ring FFI Bridge (stzengine.ring)
 
 The bridge translates Ring calls to Engine C functions:
@@ -917,9 +1245,35 @@ Priority order by impact on Softanza experience:
 | G.14     | Bit/Byte Ops    | stzBit/stzByte/stzListOfBits           |
 | G.15     | Expression Eval | Ring eval(), stzConstraint, stzQEngine |
 
-### Phase H: Engine as Universal Substrate
+### Phase H: Softanza Signature Features
 
-Once Phases F+G are complete, the Engine becomes language-agnostic:
+These are what make the Engine more than a utility library.
+Without them, foreign languages get data structures; WITH them,
+they get the Softanza experience.
+
+| Priority | Module           | What It Brings                          |
+|----------|------------------|-----------------------------------------|
+| H.1      | Pattern Matching | Universal *-ex engine (list/matrix/     |
+|          |                  | number/table/graph/time patterns)       |
+| H.2      | Number Theory    | Primality, factorization, Fibonacci,    |
+|          |                  | perfect numbers (used by Numbrex)       |
+| H.3      | Natural Language | Parse human-language code to operations, |
+|          |                  | multi-language definitions, interpolation|
+| H.4      | CCode Transpiler | Compile @CurrentItem/@NextItem keywords |
+|          |                  | to boundary-safe indexed access         |
+| H.5      | Constraint Engine| Declarative rule validation on any value |
+| H.6      | Reactive System  | Attribute watching, computed properties, |
+|          |                  | two-way binding, batch mode             |
+| H.7      | Knowledge Graph  | RDF triples, SPARQL-like queries,       |
+|          |                  | inference rules, ontology               |
+| H.8      | Splitter/Counter | Position-arithmetic splitting,          |
+|          |                  | conditional counting with restart/skip  |
+| H.9      | String Art       | Multi-layer ASCII art rendering         |
+
+### Phase I: Engine as Universal Substrate
+
+Once Phases F+G+H are complete, the Engine becomes
+language-agnostic AND experience-complete:
 
 - **Ring** binds via `stzengine.ring` (LoadLib + GetCFunc)
 - **Zin** (Zig) calls Engine modules directly (no FFI overhead)
@@ -932,12 +1286,13 @@ The Engine IS the product. The language surfaces are thin skins.
 
 ### Module Count Summary
 
-| Phase | Modules | Status    |
-|-------|---------|-----------|
-| A-E   | 9       | DONE      |
-| F     | 13      | PLANNED   |
-| G     | 15      | PLANNED   |
-| **Total** | **37** | **9 done, 28 planned** |
+| Phase | Modules | Status    | What                      |
+|-------|---------|-----------|---------------------------|
+| A-E   | 11      | DONE      | Qt replacement            |
+| F     | 13      | PLANNED   | Ring workaround elimination|
+| G     | 15      | PLANNED   | Infrastructure services   |
+| H     | 9       | PLANNED   | Signature features        |
+| **Total** | **48** | **11 done, 37 planned** |
 
 ---
 
