@@ -221,6 +221,69 @@ stz_string_index_of = GetCFunc("stz_string_index_of", "i", "ppi")
 - Full e2e verification of 10 base classes passed
 - Ship: Ring + softanza_engine binary = complete Softanza
 
+### Phase F: Ring Workaround Elimination [PLANNED]
+
+Ring stdlib workarounds that must migrate to Engine:
+
+1. **List operations** (stzList Stringify trick):
+   - `Stringify()` converts lists to strings for search/replace
+     because Ring `find()` only works on numbers/strings
+   - Engine: native list search, replace, deduplicate in Zig
+   - Functions: `stz_list_find`, `stz_list_replace`,
+     `stz_list_sort`, `stz_list_unique`, `stz_list_stringify`
+
+2. **Number precision** (stzNumber string storage):
+   - Numbers stored as strings to preserve decimal precision
+     because Ring uses IEEE 754 doubles (15-digit limit)
+   - Engine: arbitrary-precision arithmetic via Zig
+   - Functions: `stz_number_add`, `stz_number_mul`,
+     `stz_number_format`, `stz_number_round`
+
+3. **Sort operations** (stzList mixed-type sort):
+   - Ring `sort()` fails on non-homogeneous lists
+   - Workaround: stringify column, sort, then map back
+   - Engine: heterogeneous sort with type-aware comparison
+
+4. **Time operations** (stzTime pure Ring):
+   - Currently implemented in pure Ring
+   - Engine: `stz_time_*` functions for consistency
+
+5. **String utilities** (stzLen, @substr):
+   - `StzLen()` reimplements UTF-8 codepoint counting in Ring
+     because `len()` counts bytes
+   - `@substr()` adds positional extraction Ring lacks
+   - Engine: already covered by `stz_string_count`,
+     `stz_string_mid` -- wire remaining Ring callers
+
+6. **Folder operations** (stzFolder):
+   - Currently uses Ring file ops
+   - Engine: `stz_dir_*` functions already exist, wire them
+
+## Why the Engine Does Everything
+
+Ring provides a scripting runtime -- syntax, OOP, dynamic typing,
+and an interactive REPL. But Ring's stdlib is not reliable for
+production data operations:
+
+| Ring Limitation              | Engine Solution                    |
+|------------------------------|------------------------------------|
+| `len()` counts bytes, not    | `stz_string_count()` counts        |
+| Unicode codepoints           | codepoints correctly               |
+| `find()` only finds numbers  | Engine find handles any type,      |
+| and strings in lists         | with O(n log n) sorted paths       |
+| `sort()` fails on mixed-type | Engine sort handles heterogeneous  |
+| or nested lists              | lists natively                     |
+| `substr()` lacks positional  | Engine slice/section operations    |
+| extraction form              | with Unicode-aware indexing        |
+| Number precision limited to  | Engine arbitrary-precision         |
+| IEEE 754 doubles (15 digits) | arithmetic via Zig big integers    |
+| List operations too slow for | Engine list ops in Zig (search,    |
+| >1K items (Stringify trick)  | sort, replace, deduplicate)        |
+| No built-in sleep, no async  | Engine async I/O, timers           |
+
+**Design rule:** Ring is the scripting surface. The Engine is the
+computation substrate. Every data operation goes through the Engine.
+
 ## Zig Advantages for the Engine
 
 - Compiles to a single static binary (no runtime dependencies)
