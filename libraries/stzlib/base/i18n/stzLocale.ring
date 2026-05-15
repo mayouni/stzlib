@@ -648,7 +648,7 @@ class stzLocale from stzObject
 			ok
 
 		but IsList(pLocale)
-			if NOT ( isList(pLocale) and StzListQ(pLocale).IsLocaleList() )
+			if NOT ( isList(pLocale) and IsLocaleList(pLocale) )
 
 				StzRaise("Can't create the stzLocale object!")
 			ok

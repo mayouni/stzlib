@@ -814,7 +814,7 @@ class stzListOfChars from stzListOfStrings
 
 			if isList(paBoxOptions[ :Hilighted ]) and
 			   # len( paBoxOptions[ :Hilighted ] ) <= This.NumberOfChars() and
-			   StzListQ(paBoxOptions[ :Hilighted ]).IsListOfNumbers()
+			   IsListOfNumbers(paBoxOptions[ :Hilighted ])
 
 				paBoxOptions[ :Hilighted ] = U(paBoxOptions[ :Hilighted ])
 

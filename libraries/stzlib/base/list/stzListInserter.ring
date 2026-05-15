@@ -57,7 +57,7 @@ class stzListInserter from stzList
 			n = n[2]
 		ok
 
-		if isList(n) and StzListQ(n).IsListOfNumbers()
+		if isList(n) and IsListOfNumbers(n)
 			This.InsertBeforePositions(n, pItem)
 			return
 		ok
@@ -100,7 +100,7 @@ class stzListInserter from stzList
 
 	def InsertAfterPosition(n, pItem)
 
-		if isList(n) and StzListQ(n).IsListOfNumbers()
+		if isList(n) and IsListOfNumbers(n)
 			This.InsertAfterPositions(n, pItem)
 			return
 		ok

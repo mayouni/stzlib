@@ -295,8 +295,8 @@ class stzStringBounder from stzString
 
 	def IsBoundedByCS(pacBounds, pCaseSensitive)
 
-		if isList(pacBounds) and StzListQ(pacBounds).IsPair() and
-		   isList(pacBounds[2]) and StzListQ(pacBounds[2]).IsPair()
+		if isList(pacBounds) and IsPair(pacBounds) and
+		   isList(pacBounds[2]) and IsPair(pacBounds[2])
 
 			oParam = new stzList(pacBounds[2])
 			if oParam.IsInNamedParam()
@@ -310,7 +310,7 @@ class stzStringBounder from stzString
 			cBound1 = pacBounds
 			cBound2 = pacBounds
 
-		but isList(pacBounds) and StzListQ(pacBounds).IsPairOfStrings()
+		but isList(pacBounds) and IsPairOfStrings(pacBounds)
 			cBound1 = pacBounds[1]
 			cBound2 = pacBounds[2]
 
@@ -342,7 +342,7 @@ class stzStringBounder from stzString
 			pacBounds = aTemp
 		ok
 
-		if NOT ( isList(pacBounds) and StzListQ(pacBounds).IsPairOfStrings() )
+		if NOT ( isList(pacBounds) and IsPairOfStrings(pacBounds) )
 			StzRaise("Incorrect param type! pacBounds must be a pair of strings.")
 		ok
 
@@ -371,7 +371,7 @@ class stzStringBounder from stzString
 		if isString(pacBounds)
 			cBound1 = pacBounds
 			cBound2 = pacBounds
-		but isList(pacBounds) and StzListQ(pacBounds).IsPairOfStrings()
+		but isList(pacBounds) and IsPairOfStrings(pacBounds)
 			cBound1 = pacBounds[1]
 			cBound2 = pacBounds[2]
 		else

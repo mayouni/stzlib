@@ -10778,8 +10778,8 @@ pr()
 	# or contiguous chars (based on their unicode numbers).
 	# And you can identify them using the stzList.IsContiguous():
 
-	? StzListQ(1:3).IsContiguous()			#--> TRUE
-	? StzListQ("A":"E").IsContiguous() + NL	#--> TRUE
+	? IsContiguous(1:3)			#--> TRUE
+	? IsContiguous("A":"E") + NL	#--> TRUE
 
 # Back to list IN STRINGS!
 

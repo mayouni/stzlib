@@ -12,7 +12,7 @@ class stzListOfListsOfNumbers from stzListOfLists
 
 	def init(paListOfListsOfNumbers)
 		if isList(paListOfListsOfNumbers) and
-		   StzListQ(paListOfListsOfNumbers).IsListOfListsOfNumbers()
+		   IsListOfListsOfNumbers(paListOfListsOfNumbers)
 			
 			@aContent = paListOfListsOfNumbers
 

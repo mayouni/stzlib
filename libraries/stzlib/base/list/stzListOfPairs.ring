@@ -119,7 +119,7 @@ class stzListOfPairs from stzListOfLists
 		return This.Content()
 
 	def UpdateWith(paListOfPairs)
-		if isList(paListOfPairs) and StzListQ(paListOfPairs).IsListOfPairs()
+		if isList(paListOfPairs) and IsListOfPairs(paListOfPairs)
 			@aContent = paListOfPairs
 
 		else
@@ -524,7 +524,7 @@ class stzListOfPairs from stzListOfLists
 	#====================#
 
 	def ReplacePair(n, paNewPair)
-		if isList(paNewPair) and StzListQ(paNewPair).IsPair()
+		if isList(paNewPair) and IsPair(paNewPair)
 			This.UpdateNthPairWith(n, paNewPair)
 		ok
 

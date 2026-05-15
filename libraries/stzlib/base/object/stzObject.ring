@@ -387,7 +387,7 @@ func IsFalseXT(p)
 
 func StzNamedObject(paNamed)
 	if CheckingParams()
-		if NOT (isList(paNamed) and StzListQ(paNamed).IsPairOfStringAndObject())
+		if NOT (isList(paNamed) and IsPairOfStringAndObject(paNamed))
 			StzRaise("Incorrect param type! paNamed must be a pair of string and object.")
 		ok
 	ok
@@ -4389,7 +4389,7 @@ class stzObject
 			pnSize = pnSize[2]
 		ok
 
-		if NOT ( isNumber(pnSize) or (isList(pnSize) and StzListQ(pnSize).IsPairOfNumbers()) )
+		if NOT ( isNumber(pnSize) or (isList(pnSize) and IsPairOfNumbers(pnSize)) )
 			StzRaise("Incorrect param type! pnSize must be a number.")
 		ok
 

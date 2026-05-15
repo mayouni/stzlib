@@ -404,4 +404,4 @@ load "../stzlib.ring"
 
 	def ReplaceSubStringsW(pcCondition, pcNewStr)
 
-? StzListQ([ [2,5], [7, 10], [12, 15] ]).IsListOfPairsOfNumbers() #--> TRUE
+? IsListOfPairsOfNumbers([ [2,5], [7, 10], [12, 15] ]) #--> TRUE
