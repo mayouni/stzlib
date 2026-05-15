@@ -4801,7 +4801,7 @@ class stzObject
 	def FindFirstNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
 
 		if isList(pStrOrItem) and
-		   Q(pStrOrItem).IsOneOfTheseNamedParams([ :Of, :OfSubString, :OfItem ])
+		   IsOneOfTheseNamedParamsList(pStrOrItem, [ :Of, :OfSubString, :OfItem ])
 
 			pStrOrItem = pStrOrItem[2]
 		ok
@@ -5003,7 +5003,7 @@ class stzObject
 	def FindLastNOccurrencesSTCS(n, pStrOrItem, pnStartingAt, pCaseSensitive)
 		if CheckingParams()
 			if isList(pStrOrItem) and
-			   Q(pStrOrItem).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
+			   IsOneOfTheseNamedParamsList(pStrOrItem, [ :Of, :OfSubString ])
 	
 				pStrOrItem = pStrOrItem[2]
 			ok

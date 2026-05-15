@@ -4446,7 +4446,7 @@ class stzNumber from stzObject
 
 	def Multiples(pOtherNumber)
 		if isList(pOtherNumber) and
-		   Q(pOtherNumber).IsOneOfTheseNamedParams([ :Until, :UpTo, :Under ])
+		   IsOneOfTheseNamedParamsList(pOtherNumber, [ :Until, :UpTo, :Under ])
 			pOtherNumber = pOtherNumber[2]
 		ok
 

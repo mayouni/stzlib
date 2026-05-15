@@ -627,7 +627,7 @@ class stzListOfStrings from stzList
 			return This
 
 		def FilterCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -656,7 +656,7 @@ class stzListOfStrings from stzList
 			return This
 
 		def FilterQRT(pcSubStr, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -789,7 +789,7 @@ class stzListOfStrings from stzList
 	#===============================================#
 
 	def Align( pcDirection )
-		if isList(pcDirection) and ( Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ]) or
+		if isList(pcDirection) and ( IsOneOfTheseNamedParamsList(pcDirection, [ :Direction, :Going ]) or
 			Q(pcDirection).IsToNamedParam() )
 
 			pcDirection = pcDirection[2]
@@ -896,7 +896,7 @@ class stzListOfStrings from stzList
 			pcChar = pcChar[2]
 		ok
 
-		if isList(pcDirection) and ( Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ]) or
+		if isList(pcDirection) and ( IsOneOfTheseNamedParamsList(pcDirection, [ :Direction, :Going ]) or
 			Q(pcDirection).IsToNamedParam() )
 
 			pcDirection = pcDirection[2]
@@ -1395,7 +1395,7 @@ class stzListOfStrings from stzList
 			return new stzListOfLists( This.Split(cSep) )
 
 		def SplitQRT(cSep, pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -1590,7 +1590,7 @@ class stzListOfStrings from stzList
 			return This.ScriptsQRT(:stzList)
 
 		def ScriptsQRT(pcReturnType)
-			if isList(pcReturnType) and Q(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType, [ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
