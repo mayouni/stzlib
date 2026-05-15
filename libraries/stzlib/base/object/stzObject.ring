@@ -5108,7 +5108,7 @@ class stzObject
 	#===========#
 
 	def IsOneOfThese(paList)
-		return StzListQ(paList).Contains(This.Object())
+		return ListContains(paList, This.Object())
 
 		def IsNotOneOfThese(paList)
 			return NOT This.IsOneOfThese(paList)
@@ -6101,7 +6101,7 @@ class stzObject
 			This.AddTimeValue()
 
 	def ExistsIn(paList)
-		return StzListQ(paList).Contains(This.Content())
+		return ListContains(paList, This.Content())
 
 		def Inn(paList)
 			return This.ExistsIn(paList)

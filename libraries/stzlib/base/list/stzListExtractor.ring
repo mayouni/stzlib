@@ -113,7 +113,7 @@ class stzListExtractor from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 		for i = 1 to nLen
-			if StzListQ(aUnique).ContainsCS(aContent[i], pCaseSensitive)
+			if ListContainsCS(aUnique, aContent[i], pCaseSensitive)
 				aDups + aContent[i]
 			else
 				aUnique + aContent[i]

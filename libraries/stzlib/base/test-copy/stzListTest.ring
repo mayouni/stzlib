@@ -8975,7 +8975,7 @@ pf()
 
 pr()
 
-? StzListQ([ "q", "r", [ 2, 1 ] ]).Contains([ 2, 1 ])
+? ListContains([ "q", "r", [ 2, 1 ] ], [ 2, 1 ])
 #--> TRUE
 
 ? StzListQ([ "q", "r", [ 2, 1] ]).HasSameContentAs([ "r", [ 2, 1], "q" ])
@@ -8994,10 +8994,10 @@ pf()
 
 pr()
 
-? StzListQ([]).Contains(NULL)
+? ListContains([], NULL)
 #--> FALSE
 
-? StzListQ([NULL]).Contains(NULL)
+? ListContains([NULL], NULL)
 #--> TRUE
 
 ? IsListOfStrings([])

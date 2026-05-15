@@ -40,8 +40,8 @@ class stzListComparator from stzList
 		nLen = len(aContent)
 		for i = 1 to nLen
 			item = aContent[i]
-			if StzListQ(paOtherList).ContainsCS(item, pCaseSensitive) and
-			   NOT StzListQ(aResult).ContainsCS(item, pCaseSensitive)
+			if ListContainsCS(paOtherList, item, pCaseSensitive) and
+			   NOT ListContainsCS(aResult, item, pCaseSensitive)
 				aResult + item
 			ok
 		next
@@ -54,7 +54,7 @@ class stzListComparator from stzList
 		aResult = This.Content()
 		nLen = len(paOtherList)
 		for i = 1 to nLen
-			if NOT StzListQ(aResult).ContainsCS(paOtherList[i], pCaseSensitive)
+			if NOT ListContainsCS(aResult, paOtherList[i], pCaseSensitive)
 				aResult + paOtherList[i]
 			ok
 		next
@@ -68,7 +68,7 @@ class stzListComparator from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 		for i = 1 to nLen
-			if NOT StzListQ(paOtherList).ContainsCS(aContent[i], pCaseSensitive)
+			if NOT ListContainsCS(paOtherList, aContent[i], pCaseSensitive)
 				aResult + aContent[i]
 			ok
 		next
@@ -118,7 +118,7 @@ class stzListComparator from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 		for i = 1 to nLen
-			if NOT StzListQ(paOtherList).ContainsCS(aContent[i], pCaseSensitive)
+			if NOT ListContainsCS(paOtherList, aContent[i], pCaseSensitive)
 				return 0
 			ok
 		next

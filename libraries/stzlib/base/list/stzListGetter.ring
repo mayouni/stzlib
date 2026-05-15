@@ -109,7 +109,7 @@ class stzListGetter from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 		for i = 1 to nLen
-			if NOT StzListQ(aResult).ContainsCS(aContent[i], pCaseSensitive)
+			if NOT ListContainsCS(aResult, aContent[i], pCaseSensitive)
 				aResult + aContent[i]
 			ok
 		next

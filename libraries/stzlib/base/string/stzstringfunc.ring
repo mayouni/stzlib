@@ -42,10 +42,10 @@ func StzStringClassName()
 #--
 
 func StringIsInListCS(str, aList, pCaseSensitive)
-	return StzListQ(aList).ContainsCS(str, pCaseSensitive)
+	return ListContainsCS(aList, str, pCaseSensitive)
 
 func StringIsInList(str, aList)
-	return StzListQ(aList).Contains(str)
+	return ListContains(aList, str)
 
 func PadRight(cText, nWidth)
 	return PAdtRightXT(cText, nWidth, " ")
