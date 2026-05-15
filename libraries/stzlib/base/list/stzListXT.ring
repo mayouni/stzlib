@@ -177,3 +177,63 @@ class stzListXT from stzList
 			next
 
 		ok
+
+	  #================================================#
+	 #  NUMBERED-SPECIFIC FORMS (First2..10, Last2..10) #
+	#================================================#
+
+	def First2Items()
+		return This.NFirstItems(2)
+
+	def First3Items()
+		return This.NFirstItems(3)
+
+	def First4Items()
+		return This.NFirstItems(4)
+
+	def First5Items()
+		return This.NFirstItems(5)
+
+	def First6Items()
+		return This.NFirstItems(6)
+
+	def First7Items()
+		return This.NFirstItems(7)
+
+	def First8Items()
+		return This.NFirstItems(8)
+
+	def First9Items()
+		return This.NFirstItems(9)
+
+	def First10Items()
+		return This.NFirstItems(10)
+
+	#--
+
+	def Last2Items()
+		return This.NLastItems(2)
+
+	def Last3Items()
+		return This.NLastItems(3)
+
+	def Last4Items()
+		return This.NLastItems(4)
+
+	def Last5Items()
+		return This.NLastItems(5)
+
+	def Last6Items()
+		return This.NLastItems(6)
+
+	def Last7Items()
+		return This.NLastItems(7)
+
+	def Last8Items()
+		return This.NLastItems(8)
+
+	def Last9Items()
+		return This.NLastItems(9)
+
+	def Last10Items()
+		return This.NLastItems(10)
