@@ -3099,6 +3099,217 @@ windows, time-series analysis (financial, IoT), log processing,
 audio/video frame extraction, streaming data analytics, any
 system that processes ordered data in pieces.
 
+### Computation Topology Engine (Local/Remote Fission) [PLANNED]
+
+As computation scales beyond a single machine, every program
+faces the same question: what runs here, what runs there? Cloud
+offloading, edge computing, distributed pipelines, and GPU
+dispatch all need the same primitive -- the ability to describe
+WHERE computation should happen based on operation characteristics,
+not hardcoded deployment topology.
+
+The Computation Topology Engine lets any operation declare its
+resource signature. The runtime then decides placement.
+
+```c
+StzTopoHandle stz_topo_new(void);
+void          stz_topo_free(StzTopoHandle h);
+
+// Register a computation target (local, cloud, GPU, edge...)
+void stz_topo_register_target(StzTopoHandle h,
+    const char* name, size_t name_len,
+    int capabilities,          // STZ_CAP_HIGH_MEMORY,
+                               // STZ_CAP_HIGH_CPU,
+                               // STZ_CAP_GPU,
+                               // STZ_CAP_LOW_LATENCY,
+                               // STZ_CAP_PERSISTENT_STORAGE
+    StzCostEstimate base_cost);
+
+// Tag an operation with its resource signature
+void stz_topo_tag_operation(StzTopoHandle h,
+    int operation,
+    int requirements,          // bitmask of STZ_CAP_*
+    size_t estimated_data_bytes);
+
+// Ask: where should this operation run?
+const char* stz_topo_resolve(StzTopoHandle h,
+    int operation,
+    StzValue input);
+// Returns target name based on requirements vs capabilities
+
+// Serialize a computation stage for remote execution
+size_t stz_topo_serialize_stage(StzTopoHandle h,
+    int operation,
+    const StzValue* args, size_t num_args,
+    char* buf, size_t buf_len);
+
+// Deserialize and execute a received stage
+StzValue stz_topo_execute_stage(StzTopoHandle h,
+    const char* serialized, size_t len);
+```
+
+**Why this matters universally:** Cloud functions (AWS Lambda,
+Cloudflare Workers), edge AI (run inference locally, train
+remotely), distributed data pipelines, GPU offloading, any
+system where computation placement is a decision, not a given.
+
+### Relationship Engine (Structural Connections) [PLANNED]
+
+Data never exists in isolation. Tables have foreign keys. Objects
+have owners. Events have causes. Files have dependencies. Yet
+standard libraries treat each data structure as standalone.
+
+The Relationship Engine makes connections between entities
+first-class, enabling referential integrity, join optimization,
+and impact analysis across any data domain.
+
+```c
+StzRelHandle stz_rel_new(void);
+void         stz_rel_free(StzRelHandle h);
+
+// Define entity types
+void stz_rel_define_entity(StzRelHandle h,
+    const char* entity_type, size_t len,
+    const char* fields_json, size_t fields_len);
+
+// Define relationships between entity types
+void stz_rel_define_relationship(StzRelHandle h,
+    const char* from_type, size_t from_len,
+    const char* to_type, size_t to_len,
+    const char* rel_name, size_t name_len,
+    int cardinality);          // STZ_REL_ONE_TO_ONE,
+                               // STZ_REL_ONE_TO_MANY,
+                               // STZ_REL_MANY_TO_MANY
+
+// Check referential integrity
+int stz_rel_validate(StzRelHandle h,
+    const char* entity_type, size_t len,
+    StzValue data);
+
+// Query related entities
+size_t stz_rel_related(StzRelHandle h,
+    const char* entity_type, size_t type_len,
+    StzValue entity_id,
+    const char* relationship, size_t rel_len,
+    StzValue* out_related, size_t max);
+
+// Impact analysis: what would be affected if this entity changes?
+size_t stz_rel_impact(StzRelHandle h,
+    const char* entity_type, size_t type_len,
+    StzValue entity_id,
+    StzValue* out_affected, size_t max);
+```
+
+**Why this matters universally:** Database design, dependency
+management (packages, modules, builds), organizational modeling,
+workflow dependency tracking, AI knowledge bases, any system
+where entities are connected and changes cascade.
+
+### State Machine Engine (Declared Transitions) [PLANNED]
+
+Every agent, every protocol, every workflow, every UI, every
+game is a state machine. Yet programmers implement them ad-hoc
+every time -- switch statements, flag variables, nested
+conditionals. The State Machine Engine makes transitions
+declarative and the current state queryable.
+
+```c
+StzStateMachineHandle stz_fsm_new(
+    const char* initial_state, size_t len);
+void stz_fsm_free(StzStateMachineHandle h);
+
+// Declare states
+void stz_fsm_add_state(StzStateMachineHandle h,
+    const char* state, size_t len,
+    int kind);                 // STZ_STATE_NORMAL,
+                               // STZ_STATE_INITIAL,
+                               // STZ_STATE_FINAL,
+                               // STZ_STATE_ERROR
+
+// Declare transitions
+void stz_fsm_add_transition(StzStateMachineHandle h,
+    const char* from_state, size_t from_len,
+    const char* event, size_t event_len,
+    const char* to_state, size_t to_len,
+    int (*guard)(StzValue context, void* userdata),
+    void* userdata);
+
+// Fire an event (attempt transition)
+int stz_fsm_fire(StzStateMachineHandle h,
+    const char* event, size_t event_len,
+    StzValue context);
+// Returns 1 if transition occurred, 0 if no valid transition
+
+// Query current state
+size_t stz_fsm_current_state(StzStateMachineHandle h,
+    char* buf, size_t buf_len);
+int stz_fsm_is_final(StzStateMachineHandle h);
+
+// Query available transitions from current state
+size_t stz_fsm_available_events(StzStateMachineHandle h,
+    char** out_events, size_t max);
+
+// Transition history
+size_t stz_fsm_history(StzStateMachineHandle h,
+    StzFsmEntry* out_entries, size_t max);
+
+typedef struct {
+    char from_state[128];
+    char event[128];
+    char to_state[128];
+    uint64_t timestamp;
+} StzFsmEntry;
+
+// Render state machine as graph (uses Display Engine)
+size_t stz_fsm_render(StzStateMachineHandle h,
+    char* buf, size_t buf_len);
+
+// Validate: check for unreachable states, dead ends, etc.
+size_t stz_fsm_validate(StzStateMachineHandle h,
+    char* out_warnings, size_t buf_len);
+```
+
+**Why this matters universally:** Protocol implementations
+(HTTP, WebSocket, MQTT), UI navigation flows, game logic,
+agent behavior (idle/planning/acting/waiting), workflow engines,
+approval chains, any system with discrete states and events.
+
+---
+
+### Enhancement Notes (Deepened from Full Document Audit)
+
+The following existing modules gain depth from the remaining
+35 documents studied:
+
+**Regex module (done):** Add scope-based metacharacter behavior
+(`STZ_MATCH_SCOPE_LINE`, `_WORD`, `_SEGMENT`), deferred pattern
+compilation (lazy builder accumulator), and hierarchical capture
+groups (recursive match tree returning depth + group names +
+positions, not just flat strings).
+
+**Pattern matching (H.1):** Add table metadata inspection
+primitives for Tablex patterns -- lazy evaluation of column
+types, cardinality, uniqueness, and aggregate ranges without
+full data scans. Add temporal interval algebra for Timex
+patterns -- point matching, duration range validation, event
+ordering assertions, and gap constraints.
+
+**Walker (F.12):** Extend to N-dimensional position state.
+The 2D Walker (stzWalker2D) shows that walkers naturally
+generalize beyond 1D. Engine should support `stz_walker_nd_new(
+dimensions, bounds, steps)` with direction detection, rollback
+history, and boundary awareness in any number of dimensions.
+
+**Reaxis (J.1):** Add change batching/coalescing. When multiple
+reactive data sources change rapidly, the Engine should defer
+dependent recomputation until all sources settle, then flush
+once. This prevents cascading recomputation storms.
+
+**Serialization (across modules):** Add structural encoding/
+decoding primitives -- converting nested structures to bracket-
+comma strings and back in O(n) single-pass processing, as shown
+by the path generation deepdive.
+
 ---
 
 ### Generalizable Feature Inventory
@@ -3336,6 +3547,12 @@ AI agents, and any future technology equally.
 |          |                    | nearest-neighbor, clustering, PCA       |
 | K.11     | Sequence/Windowing | Sliding/tumbling/session windows,       |
 |          |                    | text chunking, overlap management       |
+| K.12     | Comp. Topology     | Local/remote/GPU fission: operation     |
+|          |                    | signatures, placement, serialization    |
+| K.13     | Relationships      | Entity connections, referential integrity|
+|          |                    | impact analysis, join optimization      |
+| K.14     | State Machine      | Declared states/transitions/guards,     |
+|          |                    | history, validation, graph rendering    |
 
 ### Module Count Summary
 
@@ -3347,8 +3564,8 @@ AI agents, and any future technology equally.
 | G     | 22      | PLANNED   | Infrastructure + manageability |
 | H     | 11      | PLANNED   | Signature features        |
 | J     | 12      | PLANNED   | Paradigm engines          |
-| K     | 11      | PLANNED   | Universal computation     |
-| **Total** | **83** | **11 done, 72 planned** |
+| K     | 14      | PLANNED   | Universal computation     |
+| **Total** | **86** | **11 done, 75 planned** |
 
 ---
 
