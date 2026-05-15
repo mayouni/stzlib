@@ -869,7 +869,7 @@ o1 = new stzString("blablabla")
 ? Stz(:Char, :Methods)		#--> [ ... ]
 
 # or if you want to have the attributes:
-? Stz(:String, :Attributes) 	#--> [ :@oObject, :@cVarName, :@oQChar ]
+? Stz(:String, :Attributes) 	#--> [ :@oObject, :@cVarName ]
 
 # You can even make a filter on the list of methods to return only those
 # that verify a given condition:

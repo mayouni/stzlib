@@ -183,7 +183,7 @@ Here's a detailed explanation of what happened in the code execution:
 - Added spaces between characters `"L I F E"`, inside the same `stzString` object, taking almost `0s`, and maintaining the same size of `435 bytes`
 - Replaced the `"I"` in `"LIFE"` with a heart character, taking taking almost `0s`, and maintaining the same size of `435 bytes`
 
-The operations alternated between `stzstring` and `stzlist` objects, with strings opeations beeing faster (due to the use of Qt C++ internally), while lists generally having smaller memory footprints. Most operations completed very quickly, with only a few taking measurable time.
+The operations alternated between `stzstring` and `stzlist` objects, with strings opeations beeing faster (due to the use of the native Zig engine internally), while lists generally having smaller memory footprints. Most operations completed very quickly, with only a few taking measurable time.
 
 >**NOTE**: The `@@NL()` small function generates a readable string representation of the list, just like `@@()`, but with the added distinction of displaying each item on a separate line.
 

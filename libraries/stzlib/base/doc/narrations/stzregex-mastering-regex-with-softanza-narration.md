@@ -1,13 +1,13 @@
 # Mastering Regular Expressions with Softanza: A Modern Approach to Pattern Matching
 
-Regular expressions are a powerful tool for pattern matching and text processing, but their traditional syntax and behavior can be complex and unintuitive. Softanza's stzRegex class reimagines regex programming with a more semantic, scope-oriented approach while leveraging the robust Qt regular expression engine underneath. Let's explore how Softanza makes regex programming more accessible and maintainable.
+Regular expressions are a powerful tool for pattern matching and text processing, but their traditional syntax and behavior can be complex and unintuitive. Softanza's stzRegex class reimagines regex programming with a more semantic, scope-oriented approach while leveraging the robust Softanza Engine's regular expression capabilities underneath. Let's explore how Softanza makes regex programming more accessible and maintainable.
 
 ## Core Concepts and Basic Pattern Matching
 
-At the heart of Softanza's regex implementation is a more intuitive approach to pattern matching. Let's compare the traditional Qt approach with Softanza's semantic style:
+At the heart of Softanza's regex implementation is a more intuitive approach to pattern matching. Let's compare the traditional low-level approach with Softanza's semantic style:
 
 ```ring
-# Qt-style pattern matching
+# Low-level style pattern matching (originally Qt-based)
 oQRegex = new QRegularExpression("pattern")
 oMatch = oQRegex.match(cStr, 0, 0)
 bMatched = oMatch.hasMatch()
@@ -54,10 +54,10 @@ bValid = oRegex.MatchAsYouType(cUserInput)
 bPotentialMatch = oRegex.MatchInProgress(cSearchText)
 ```
 
-The `MatchAsYouType()` function is specifically designed for form validation, returning true for both complete matches and partial matches that could become valid. This is a significant improvement over Qt's more complex partial match handling:
+The `MatchAsYouType()` function is specifically designed for form validation, returning true for both complete matches and partial matches that could become valid. This is a significant improvement over a more complex low-level partial match handling:
 
 ```ring
-# Qt approach to partial matching
+# Low-level approach to partial matching (originally Qt-based)
 oQRegex = new QRegularExpression(pattern)
 oMatch = oQRegex.match(text, 0, QRegularExpression.PartialPreferComplete)
 bValid = oMatch.hasMatch() or oMatch.hasPartialMatch()
@@ -115,4 +115,4 @@ This self-documentation feature helps developers understand complex patterns and
 
 ## Conclusion
 
-Softanza's stzRegex class represents a fundamental reimagining of how developers interact with regular expressions. By providing semantic, scope-oriented methods and handling common use cases elegantly, it makes regex programming more accessible and maintainable. The combination of Qt's powerful regex engine with Softanza's intuitive interface creates a robust foundation for pattern matching in modern applications.
+Softanza's stzRegex class represents a fundamental reimagining of how developers interact with regular expressions. By providing semantic, scope-oriented methods and handling common use cases elegantly, it makes regex programming more accessible and maintainable. The combination of the Softanza Engine's powerful regex capabilities with Softanza's intuitive interface creates a robust foundation for pattern matching in modern applications.

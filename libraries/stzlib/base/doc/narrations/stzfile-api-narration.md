@@ -502,9 +502,9 @@ Softanza enables:
 3. Trust built-in safety
 4. Write expressive, maintainable code
 
-## Implementation Foundation: RingQt Integration
+## Implementation Foundation: Engine Integration
 
-Softanza’s intent-based file API is built on RingQt, leveraging Qt’s robust file handling system for production-ready applications. Each of the seven intentions is implemented as a dedicated class:
+Softanza’s intent-based file API is built on the Softanza Engine, leveraging its robust file handling system for production-ready applications. Each of the seven intentions is implemented as a dedicated class:
 
 - **stzFileInfo**: Retrieves metadata (e.g., `Exists()`, `IsWritable()`, `Size()`) without opening the file, enabling informed decisions about file operations.
 - **stzFileReader**: Facilitates content reading with methods like `Lines()`, `FirstLine()`, and `ContainsText()` for efficient querying.
@@ -514,14 +514,14 @@ Softanza’s intent-based file API is built on RingQt, leveraging Qt’s robust 
 - **stzFileModifier**: Enables targeted modifications (e.g., `UpdateLineMatching()`, `InsertAfterLine()`) with read access to the original state.
 - **stzFileManager**: Handles file system operations (e.g., `CopyTo()`, `MoveTo()`, `SplitByLines()`, `ZipAs()`) for disk-level management.
 
-This RingQt foundation delivers:
-- **Battle-tested reliability** through Qt’s mature file handling system
+This engine foundation delivers:
+- **Battle-tested reliability** through the Softanza Engine’s mature file handling system
 - **Comprehensive Unicode support** for filenames and content across platforms
 - **Seamless cross-platform behavior**, eliminating manual handling of platform-specific details
 - **High-performance operations** on large files via efficient buffering
 - **TextStream integration** for future cloud-oriented file management
 
-This class-based architecture, combined with RingQt, prepares Softanza for future extensions like remote file access, network streams, and cloud storage APIs, making it an enterprise-ready file handling system for both local and distributed environments.
+This class-based architecture, combined with the Softanza Engine, prepares Softanza for future extensions like remote file access, network streams, and cloud storage APIs, making it an enterprise-ready file handling system for both local and distributed environments.
 
 ## Conclusion
 

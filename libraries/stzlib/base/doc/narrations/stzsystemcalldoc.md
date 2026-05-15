@@ -1,10 +1,10 @@
-# Softanza's System Call : Built on Qt's QProcess
+# Softanza's System Call : Built on the System Process API
 
 ## Motivation
 
-Ring's native `system()` function works well for cross-platform command execution. Softanza enhances this foundation through `stzsystem()` function and `stzSystemCall` class , leveraging RingQt's `QProcess` for:
+Ring's native `system()` function works well for cross-platform command execution. Softanza enhances this foundation through `stzsystem()` function and `stzSystemCall` class , leveraging the Softanza Engine's system process API for:
 
-* **Performance**: Qt's optimized process management and I/O handling
+* **Performance**: Optimized process management and I/O handling
 * **Configurability**: Fine-grained control over execution, timeouts, and output capture
 * **Programmer Experience**: Natural syntax, automatic shell handling, and rich error information
 
@@ -177,7 +177,7 @@ oCall.Run()
 * Preserves command flags (`/t`, `/s`, `/b`)
 * OS-aware transformation
 
-**Qt's QProcess Benefits**
+**System Process API Benefits**
 
 * Efficient process lifecycle management
 * Asynchronous I/O with timeout control
@@ -251,6 +251,6 @@ Softanza augments Ring's system interaction with:
 * Comprehensive execution control and configuration
 * Type-safe, cross-platform command abstractions
 * Rich error handling and output management
-* Qt-powered performance and reliability
+* Engine-powered performance and reliability
 
 The three-layer approach serves different needs: `stzsystem()` for simplicity, `stzSystemCall` for control, and `Sys()` for portability.

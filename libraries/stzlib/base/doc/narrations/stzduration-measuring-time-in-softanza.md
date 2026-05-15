@@ -155,7 +155,7 @@ oDuration = new stzDuration("3 hours 25 minutes 42 seconds")
 ? oDuration.ToString()
 #--> 3:25:42
 
-# Custom Qt format patterns
+# Custom format patterns
 ? oDuration.ToStringXT("HH:mm:ss")
 #--> 03:25:42
 
@@ -469,9 +469,9 @@ oTimeLeft = oEvent.DurationTo(oDeadline)
 
 All three classes speak the same arithmetic dialect—natural language parsing, operator overloading, human-readable output.
 
-## Built on Qt's Foundation
+## Built on the Softanza Engine
 
-Like `stzTime` and `stzDateTime`, durations leverage Qt's C++ engine through RingQt. You get microsecond-level performance with Ring's expressive syntax.
+Like `stzTime` and `stzDateTime`, durations leverage the Softanza Engine (Zig-based) through the Ring FFI bridge. You get microsecond-level performance with Ring's expressive syntax.
 
 ## Conclusion
 

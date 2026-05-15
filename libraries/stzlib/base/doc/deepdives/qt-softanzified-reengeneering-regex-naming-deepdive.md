@@ -1,8 +1,14 @@
-# Qt Softanzified: A Step-by-Step Naming Engineering Journey
+# Softanzified Regex Naming: A Step-by-Step Naming Engineering Journey
+
+> **HISTORICAL NOTE:** This document describes Softanza's original regex naming
+> redesign when the library was built on Qt's QRegularExpression. Softanza now
+> uses the Zig-based Softanza Engine for all regex operations. The naming
+> engineering principles below remain valid and are preserved for educational value.
+
 ![A grandfather sculpting clay art while his granddaughter watches in contemplation](../images/stz-qt-softanzified.png)
 *A grandfather sculpting clay art while his granddaughter watches in contemplation*
 
-Naming is crucial for code usability. This case study follows the evolution of naming while working on Softanza's `stzRegex` class, based on `QRegularExpression` offered by `RingQt`, showing how careful naming engineering can make complex features more accessible while maintaining their full power.
+Naming is crucial for code usability. This case study follows the evolution of naming while working on Softanza's `stzRegex` class, originally based on `QRegularExpression`, showing how careful naming engineering can make complex features more accessible while maintaining their full power.
 
 ## The Starting Point: Qt's Original Model
 
@@ -143,8 +149,8 @@ This naming scheme is superior because:
 4. Clearly distinguishes between entire string matching and from-start matching
 5. Uses consistent terminology across all options
 
-> **NOTE**: When using Softanza, you won't need to worry about these complexities or their solutions, as the library provides higher-level functions and constructs that are easy to use. However, for those who prefer to tweak Qt's backend, this can be done using the improved naming conventions implemented internally by Softanza.
+> **NOTE**: When using Softanza, you won't need to worry about these complexities or their solutions, as the library provides higher-level functions and constructs that are easy to use. The improved naming conventions shown here are implemented internally by Softanza's regex engine.
 
 ## Conclusion
 
-This journey shows how iterative refinement of names can significantly improve API clarity. Each step revealed new challenges that weren't immediately obvious, and solving each one brought us closer to names that are both technically precise and intuitively understandable. The final result makes Qt's powerful pattern matching features more accessible through Softanza's carefully engineered naming system, while maintaining their full functionality.
+This journey shows how iterative refinement of names can significantly improve API clarity. Each step revealed new challenges that weren't immediately obvious, and solving each one brought us closer to names that are both technically precise and intuitively understandable. The final result makes powerful pattern matching features more accessible through Softanza's carefully engineered naming system, while maintaining their full functionality.

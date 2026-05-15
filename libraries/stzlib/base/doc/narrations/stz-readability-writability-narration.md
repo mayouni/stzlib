@@ -535,7 +535,7 @@ Developers often ask:
 - What behavior does the boolean flag control?
 
 ```cpp
-// In C++ Qt
+// In C++ (originally via Qt, now handled by the Softanza Engine)
 QString str = "example";
 int position = str.indexOf("e", 0, 3, 0);
 ```

@@ -1,7 +1,7 @@
 # Software Global Reach: Locale Management the Softanza Way
 
 
-The Softanza library for Ring brings a refreshingly intuitive approach to locale management, wrapping Qt's powerful internationalization engine in an API that feels natural and expressive.
+The Softanza library for Ring brings a refreshingly intuitive approach to locale management, wrapping the Softanza Engine's powerful internationalization capabilities in an API that feels natural and expressive.
 
 ## The Core: `stzLocale` object
 
@@ -199,13 +199,13 @@ Softanza's approach to locale management stands out in the landscape of programm
 - **Discovery APIs**: Query functions like `LanguagesForWhichDefaultCountryIs(:France)` have no equivalent in other frameworks
 - **Conversational Syntax**: The `StzLocaleQ` block pattern reads like natural language
 - **Comprehensive Currency**: Currency fraction units and base values built-in (most frameworks require additional lookups)
-- **Qt Foundation**: Performance and stability inherited from decades of Qt development
+- **Engine Foundation**: Performance and stability inherited from the Softanza Engine's mature design
 
 ## The Softanza Philosophy
 
 What makes Softanza's locale management special is its commitment to three principles:
 
-1. **Efficiency**: Built on Qt, leveraging battle-tested internationalization infrastructure
+1. **Efficiency**: Built on the Softanza Engine, leveraging battle-tested internationalization infrastructure
 2. **Beauty**: Expressive syntax that reads like natural language
 3. **Practicality**: Comprehensive coverage of real-world locale needs—from currency fractions to native symbols
 

@@ -1,6 +1,6 @@
 # stzDateTime: Elegant DateTime Operations in Softanza
 
-DateTime manipulation is a universal programming challenge—combining date and time logic while handling formats, timezones, and arithmetic. The `stzDateTime` class from Softanza transforms this complexity into an intuitive, expressive experience built on Qt's robust foundation.
+DateTime manipulation is a universal programming challenge—combining date and time logic while handling formats, timezones, and arithmetic. The `stzDateTime` class from Softanza transforms this complexity into an intuitive, expressive experience built on the Softanza Engine's robust foundation.
 
 ## The Temporal Class Suite: stzDate, stzTime, stzDateTime, stzDuration, stzTimeline, and stzCalendar
 
@@ -227,12 +227,12 @@ These formats automatically use 12-hour time because they're designed for user-f
 #--> ERROR: The pattern name you provided does not exist in stzRegexData file.
 ```
 
-### Custom Patterns: Qt's Power, Simplified
+### Custom Patterns: Engine Power, Simplified
 
-When presets don't fit, Qt's format string syntax or symbolic names give unlimited control:
+When presets don't fit, the engine's format string syntax or symbolic names give unlimited control:
 
 ```ring
-# Qt format string - leverage the full power
+# Engine format string - leverage the full power
 ? oEvent.ToStringXT("yyyy-MM-dd HH:mm:ss.zzz")
 #--> 2024-03-15 14:30:45.000
 
@@ -589,7 +589,7 @@ This example demonstrates the API's coherence—creation, arithmetic, formatting
 | **Relative Formatting** | `ToRelative()` | `.fromNow()` | `.toRelative()` | Manual | Manual |
 | **Historical Origins** | Built-in (:YearOne, :IslamicHijra, etc.) | No | Limited | No | No |
 | **Immutability** | Mutable | Mutable (Luxon fixes) | Immutable | Immutable | Immutable |
-| **Underlying Engine** | Qt (via RingQt) | Native JS Date | Native JS Intl | C implementation | Java Time API |
+| **Underlying Engine** | Softanza Engine (Zig) | Native JS Date | Native JS Intl | C implementation | Java Time API |
 | **Learning Curve** | Low (intuitive syntax) | Medium | Medium | Low-Medium | High |
 
 **Key Differentiators:**
@@ -597,8 +597,8 @@ This example demonstrates the API's coherence—creation, arithmetic, formatting
 - **Natural language**: `+ "2 days"` is unique to Softanza's parsing
 - **Format suffix pattern**: The `12h` convention is more systematic than other libraries' multiple method names
 - **Historical epochs**: Unique support for origin-based creation and queries
-- **Qt foundation**: Inherits Qt's maturity and cross-platform consistency
+- **Native engine**: Inherits the Softanza Engine's maturity and cross-platform consistency
 
 ## Conclusion
 
-The `stzDateTime` class exemplifies Softanza's philosophy: make common operations effortless while keeping advanced capabilities accessible. By leveraging Qt's robust foundation through RingQt and wrapping it in Ring's expressive syntax, Softanza delivers datetime handling that feels natural yet powerful. With new historical epoch features, it's now even better suited for global and timeline-based applications.
+The `stzDateTime` class exemplifies Softanza's philosophy: make common operations effortless while keeping advanced capabilities accessible. By leveraging the Softanza Engine's robust foundation through the Ring FFI bridge and wrapping it in Ring's expressive syntax, Softanza delivers datetime handling that feels natural yet powerful. With new historical epoch features, it's now even better suited for global and timeline-based applications.
