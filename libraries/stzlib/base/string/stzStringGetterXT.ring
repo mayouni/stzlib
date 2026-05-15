@@ -36,6 +36,7 @@ class stzStringGetterXT from stzStringGetter
 			# --- NthChar aliases ---
 
 			[ "CharAt",		"NthChar" ],
+			[ "CharAtPosition",	"NthChar" ],
 
 			# --- FirstChar aliases ---
 
@@ -48,10 +49,27 @@ class stzStringGetterXT from stzStringGetter
 			# --- NFirstChars aliases ---
 
 			[ "TopN",		"NFirstChars" ],
+			[ "NFirstCharsQ",	"NFirstCharsQ" ],
+			[ "HeadChars",		"NFirstChars" ],
 
 			# --- NLastChars aliases ---
 
 			[ "BottomN",		"NLastChars" ],
+			[ "NLastCharsQ",	"NLastCharsQ" ],
+			[ "TailChars",		"NLastChars" ],
+
+			# --- NLeftChars aliases ---
+
+			[ "LeftChars",		"NLeftChars" ],
+
+			# --- NRightChars aliases ---
+
+			[ "RightChars",		"NRightChars" ],
+
+			# --- UniqueChars aliases ---
+
+			[ "DistinctChars",	"UniqueChars" ],
+			[ "DistinctCharsCS",	"UniqueCharsCS" ],
 
 			# --- MiddleChar aliases ---
 

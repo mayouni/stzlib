@@ -38,13 +38,30 @@ class stzStringPerformerXT from stzStringPerformer
 			[ "ForEach",		"Perform" ],
 			[ "ForEachQ",		"PerformQ" ],
 
+			# --- PerformOn aliases ---
+
+			[ "ForEachOn",		"PerformOn" ],
+			[ "ForEachOnQ",		"PerformOnQ" ],
+
+			# --- PerformW aliases ---
+
+			[ "ForEachW",		"PerformW" ],
+			[ "ForEachWQ",		"PerformWQ" ],
+
 			# --- Yield aliases ---
 
 			[ "Harvest",		"Yield" ],
+			[ "Collect",		"Yield" ],
 
 			# --- YieldOn aliases ---
 
-			[ "HarvestOn",		"YieldOn" ]
+			[ "HarvestOn",		"YieldOn" ],
+			[ "CollectOn",		"YieldOn" ],
+
+			# --- YieldW aliases ---
+
+			[ "HarvestW",		"YieldW" ],
+			[ "CollectW",		"YieldW" ]
 		]
 
 		nLen = len(_aAliases_)

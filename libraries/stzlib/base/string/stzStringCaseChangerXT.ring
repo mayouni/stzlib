@@ -37,22 +37,39 @@ class stzStringCaseChangerXT from stzStringCaseChanger
 			# --- Uppercase aliases ---
 
 			[ "ToUpper",		"Uppercase" ],
+			[ "ToUpperQ",		"UppercaseQ" ],
+			[ "ToUppercase",	"Uppercase" ],
 
 			# --- Lowercase aliases ---
 
 			[ "ToLower",		"Lowercase" ],
+			[ "ToLowerQ",		"LowercaseQ" ],
+			[ "ToLowercase",	"Lowercase" ],
 
 			# --- Capitalize aliases ---
 
 			[ "TitleCase",		"Capitalize" ],
+			[ "TitleCaseQ",		"CapitalizeQ" ],
 
 			# --- Capitalized aliases ---
 
 			[ "Titled",		"Capitalized" ],
 
+			# --- CapitalizeEachWord aliases ---
+
+			[ "TitleCaseWords",	"CapitalizeEachWord" ],
+			[ "TitleCaseWordsQ",	"CapitalizeEachWordQ" ],
+
 			# --- ToggleCase aliases ---
 
-			[ "SwapCase",		"ToggleCase" ]
+			[ "SwapCase",		"ToggleCase" ],
+			[ "SwapCaseQ",		"ToggleCaseQ" ],
+			[ "InvertCase",		"ToggleCase" ],
+
+			# --- SetCase aliases ---
+
+			[ "ApplyCase",		"SetCase" ],
+			[ "ApplyCaseQ",		"SetCaseQ" ]
 		]
 
 		nLen = len(_aAliases_)

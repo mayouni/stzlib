@@ -96,5 +96,53 @@ class stzStringAligner from stzString
 	def PadLeft(n, pcChar)
 		This.AlignRight(n, pcChar)
 
+		def PadLeftQ(n, pcChar)
+			This.PadLeft(n, pcChar)
+			return This
+
+	def PaddedLeft(n, pcChar)
+		return This.AlignedRight(n, pcChar)
+
 	def PadRight(n, pcChar)
 		This.AlignLeft(n, pcChar)
+
+		def PadRightQ(n, pcChar)
+			This.PadRight(n, pcChar)
+			return This
+
+	def PaddedRight(n, pcChar)
+		return This.AlignedLeft(n, pcChar)
+
+	  #======================================================#
+	 #   PAD BOTH SIDES                                     #
+	#======================================================#
+
+	def PadBoth(n, pcChar)
+		This.AlignCenter(n, pcChar)
+
+		def PadBothQ(n, pcChar)
+			This.PadBoth(n, pcChar)
+			return This
+
+	def PaddedBoth(n, pcChar)
+		return This.AlignedCenter(n, pcChar)
+
+	  #======================================================#
+	 #   ALIGNMENT CHECKING                                 #
+	#======================================================#
+
+	def IsAlignedLeft(n, pcChar)
+		cStr = This.Content()
+		nLen = This.NumberOfChars()
+		if nLen >= n
+			return 1
+		ok
+		return right(cStr, n - nLen) = ring_copy(pcChar, n - nLen)
+
+	def IsAlignedRight(n, pcChar)
+		cStr = This.Content()
+		nLen = This.NumberOfChars()
+		if nLen >= n
+			return 1
+		ok
+		return left(cStr, n - nLen) = ring_copy(pcChar, n - nLen)

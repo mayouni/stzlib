@@ -37,14 +37,43 @@ class stzStringComparatorXT from stzStringComparator
 
 			[ "IsTheSameAs",	"IsEqualTo" ],
 			[ "IsTheSameAsCS",	"IsEqualToCS" ],
+			[ "Equals",		"IsEqualTo" ],
+			[ "EqualsCS",		"IsEqualToCS" ],
+
+			# --- IsNotEqualTo aliases ---
+
+			[ "IsDifferentFrom",	"IsNotEqualTo" ],
+			[ "IsDifferentFromCS",	"IsNotEqualToCS" ],
 
 			# --- IsLessThan aliases ---
 
 			[ "IsSmallerThan",	"IsLessThan" ],
+			[ "IsBefore",		"IsLessThan" ],
 
 			# --- IsGreaterThan aliases ---
 
-			[ "IsBiggerThan",	"IsGreaterThan" ]
+			[ "IsBiggerThan",	"IsGreaterThan" ],
+			[ "IsAfter",		"IsGreaterThan" ],
+
+			# --- Compare aliases ---
+
+			[ "CompareTo",		"Compare" ],
+			[ "CompareToCS",	"CompareCS" ],
+
+			# --- Contains aliases ---
+
+			[ "Includes",		"Contains" ],
+			[ "IncludesCS",		"ContainsCS" ],
+
+			# --- ContainsOneOfThese aliases ---
+
+			[ "IncludesOneOfThese",		"ContainsOneOfThese" ],
+			[ "IncludesOneOfTheseCS",	"ContainsOneOfTheseCS" ],
+
+			# --- ContainsAllOfThese aliases ---
+
+			[ "IncludesAllOfThese",		"ContainsAllOfThese" ],
+			[ "IncludesAllOfTheseCS",	"ContainsAllOfTheseCS" ]
 		]
 
 		nLen = len(_aAliases_)

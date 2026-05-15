@@ -25,6 +25,12 @@ class stzStringGetter from stzString
 	def NthChar(n)
 		return This.Content()[n]
 
+		def CharAt(n)
+			return This.NthChar(n)
+
+		def CharAtPosition(n)
+			return This.NthChar(n)
+
 	  #======================================================#
 	 #   FIRST / LAST / MIDDLE CHAR                         #
 	#======================================================#
@@ -46,9 +52,51 @@ class stzStringGetter from stzString
 	def NFirstChars(n)
 		return This.Section(1, n)
 
+		def NFirstCharsQ(n)
+			return StzStringQ(This.NFirstChars(n))
+
 	def NLastChars(n)
 		nLen = This.NumberOfChars()
 		return This.Section(nLen - n + 1, nLen)
+
+		def NLastCharsQ(n)
+			return StzStringQ(This.NLastChars(n))
+
+	  #======================================================#
+	 #   N LEFT / N RIGHT CHARS                             #
+	#======================================================#
+
+	def NLeftChars(n)
+		if This.IsLeftToRight()
+			return This.NFirstChars(n)
+		else
+			return This.NLastChars(n)
+		ok
+
+		def NLeftCharsQ(n)
+			return StzStringQ(This.NLeftChars(n))
+
+		def NLeftCharsAsString(n)
+			return This.NLeftChars(n)
+
+		def NLeftCharsAsStringQ(n)
+			return StzStringQ(This.NLeftChars(n))
+
+	def NRightChars(n)
+		if This.IsLeftToRight()
+			return This.NLastChars(n)
+		else
+			return This.NFirstChars(n)
+		ok
+
+		def NRightCharsQ(n)
+			return StzStringQ(This.NRightChars(n))
+
+		def NRightCharsAsString(n)
+			return This.NRightChars(n)
+
+		def NRightCharsAsStringQ(n)
+			return StzStringQ(This.NRightChars(n))
 
 	  #======================================================#
 	 #   ALL CHARS AS LIST                                  #
@@ -62,3 +110,36 @@ class stzStringGetter from stzString
 			aResult + cStr[i]
 		next
 		return aResult
+
+	  #======================================================#
+	 #   UNIQUE CHARS                                       #
+	#======================================================#
+
+	def UniqueCharsCS(pCaseSensitive)
+		aChars = This.Chars()
+		return StzListQ(aChars).UniqueItemsCS(pCaseSensitive)
+
+	def UniqueChars()
+		return This.UniqueCharsCS(1)
+
+	  #======================================================#
+	 #   SECTION / RANGE ACCESS                             #
+	#======================================================#
+
+	def Section(n1, n2)
+		nLen = This.NumberOfChars()
+		if n1 < 1
+			n1 = 1
+		ok
+		if n2 > nLen
+			n2 = nLen
+		ok
+		if n1 > n2
+			temp = n1
+			n1 = n2
+			n2 = temp
+		ok
+		return substr(This.Content(), n1, n2 - n1 + 1)
+
+	def Range(nStart, nRange)
+		return This.Section(nStart, nStart + nRange - 1)

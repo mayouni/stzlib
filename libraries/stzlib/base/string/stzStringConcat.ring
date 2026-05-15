@@ -44,6 +44,37 @@ class stzStringConcat from stzString
 		next
 		This.Update(cResult)
 
+		def ConcatManyQ(pacStrings)
+			This.ConcatMany(pacStrings)
+			return This
+
+	def ConcatenatedWithMany(pacStrings)
+		return This.Copy().ConcatManyQ(pacStrings).Content()
+
+	  #======================================================#
+	 #   PREPEND / APPEND                                   #
+	#======================================================#
+
+	def Prepend(pcStr)
+		This.Update(pcStr + This.Content())
+
+		def PrependQ(pcStr)
+			This.Prepend(pcStr)
+			return This
+
+	def Prepended(pcStr)
+		return pcStr + This.Content()
+
+	def Append(pcStr)
+		This.Concat(pcStr)
+
+		def AppendQ(pcStr)
+			This.Append(pcStr)
+			return This
+
+	def Appended(pcStr)
+		return This.Concatenated(pcStr)
+
 	  #======================================================#
 	 #   REPETITION                                         #
 	#======================================================#
@@ -60,15 +91,34 @@ class stzStringConcat from stzString
 			This.RepeatNTimes(n)
 			return This
 
+		def Repeat(n)
+			This.RepeatNTimes(n)
+
 	def RepeatedNTimes(n)
 		return This.Copy().RepeatNTimesQ(n).Content()
 
+		def Repeated(n)
+			return This.RepeatedNTimes(n)
+
 	  #======================================================#
-	 #   PREPEND / APPEND                                   #
+	 #   JOIN WITH SEPARATOR                                #
 	#======================================================#
 
-	def Prepend(pcStr)
-		This.Update(pcStr + This.Content())
+	def JoinWith(pcSep)
+		aChars = This.Chars()
+		cResult = ""
+		nLen = len(aChars)
+		for i = 1 to nLen
+			cResult += aChars[i]
+			if i < nLen
+				cResult += pcSep
+			ok
+		next
+		This.Update(cResult)
 
-	def Append(pcStr)
-		This.Concat(pcStr)
+		def JoinWithQ(pcSep)
+			This.JoinWith(pcSep)
+			return This
+
+	def JoinedWith(pcSep)
+		return This.Copy().JoinWithQ(pcSep).Content()

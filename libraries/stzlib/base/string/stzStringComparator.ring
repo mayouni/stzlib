@@ -32,6 +32,28 @@ class stzStringComparator from stzString
 	def IsEqualTo(pcOtherStr)
 		return This.IsEqualToCS(pcOtherStr, 1)
 
+	def IsNotEqualToCS(pcOtherStr, pCaseSensitive)
+		return NOT This.IsEqualToCS(pcOtherStr, pCaseSensitive)
+
+	def IsNotEqualTo(pcOtherStr)
+		return NOT This.IsEqualTo(pcOtherStr)
+
+	  #======================================================#
+	 #   EQUALITY WITH MULTIPLE STRINGS                     #
+	#======================================================#
+
+	def IsEqualToOneOfTheseCS(pacOtherStr, pCaseSensitive)
+		nLen = len(pacOtherStr)
+		for i = 1 to nLen
+			if This.IsEqualToCS(pacOtherStr[i], pCaseSensitive)
+				return 1
+			ok
+		next
+		return 0
+
+	def IsEqualToOneOfThese(pacOtherStr)
+		return This.IsEqualToOneOfTheseCS(pacOtherStr, 1)
+
 	  #======================================================#
 	 #   ORDERING                                           #
 	#======================================================#
@@ -41,6 +63,41 @@ class stzStringComparator from stzString
 
 	def IsGreaterThan(pcOtherStr)
 		return strcmp(This.Content(), pcOtherStr) > 0
+
+	def IsBetweenCS(pcStr1, pcStr2, pCaseSensitive)
+		if pCaseSensitive = 1
+			cSelf = This.Content()
+		else
+			cSelf = lower(This.Content())
+			pcStr1 = lower(pcStr1)
+			pcStr2 = lower(pcStr2)
+		ok
+		return strcmp(cSelf, pcStr1) >= 0 and strcmp(cSelf, pcStr2) <= 0
+
+	def IsBetween(pcStr1, pcStr2)
+		return This.IsBetweenCS(pcStr1, pcStr2, 1)
+
+	  #======================================================#
+	 #   COMPARE (RETURNS -1, 0, 1)                         #
+	#======================================================#
+
+	def CompareCS(pcOtherStr, pCaseSensitive)
+		if pCaseSensitive = 0
+			n = strcmp(lower(This.Content()), lower(pcOtherStr))
+		else
+			n = strcmp(This.Content(), pcOtherStr)
+		ok
+
+		if n < 0
+			return -1
+		but n > 0
+			return 1
+		else
+			return 0
+		ok
+
+	def Compare(pcOtherStr)
+		return This.CompareCS(pcOtherStr, 1)
 
 	  #======================================================#
 	 #   DIFF                                               #
@@ -62,3 +119,37 @@ class stzStringComparator from stzString
 			ok
 		next
 		return aResult
+
+	  #======================================================#
+	 #   CONTAINS CHECKS                                    #
+	#======================================================#
+
+	def ContainsCS(pcSubStr, pCaseSensitive)
+		return This.FindFirstCS(pcSubStr, pCaseSensitive) > 0
+
+	def Contains(pcSubStr)
+		return This.ContainsCS(pcSubStr, 1)
+
+	def ContainsOneOfTheseCS(pacSubStr, pCaseSensitive)
+		nLen = len(pacSubStr)
+		for i = 1 to nLen
+			if This.ContainsCS(pacSubStr[i], pCaseSensitive)
+				return 1
+			ok
+		next
+		return 0
+
+	def ContainsOneOfThese(pacSubStr)
+		return This.ContainsOneOfTheseCS(pacSubStr, 1)
+
+	def ContainsAllOfTheseCS(pacSubStr, pCaseSensitive)
+		nLen = len(pacSubStr)
+		for i = 1 to nLen
+			if NOT This.ContainsCS(pacSubStr[i], pCaseSensitive)
+				return 0
+			ok
+		next
+		return 1
+
+	def ContainsAllOfThese(pacSubStr)
+		return This.ContainsAllOfTheseCS(pacSubStr, 1)

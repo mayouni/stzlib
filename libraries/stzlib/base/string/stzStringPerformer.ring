@@ -46,6 +46,22 @@ class stzStringPerformer from stzString
 			eval(_cCode_)
 		next
 
+		def PerformOnQ(panPos, pcAction)
+			This.PerformOn(panPos, pcAction)
+			return This
+
+	  #======================================================#
+	 #   PERFORM WITH CONDITION                             #
+	#======================================================#
+
+	def PerformW(pcCondition, pcAction)
+		anPos = This.FindCharsW(pcCondition)
+		This.PerformOn(anPos, pcAction)
+
+		def PerformWQ(pcCondition, pcAction)
+			This.PerformW(pcCondition, pcAction)
+			return This
+
 	  #======================================================#
 	 #   YIELD (COLLECT) FROM EACH CHAR                     #
 	#======================================================#
@@ -73,3 +89,11 @@ class stzStringPerformer from stzString
 			aResult + eval(_cCode_)
 		next
 		return aResult
+
+	  #======================================================#
+	 #   YIELD WITH CONDITION                               #
+	#======================================================#
+
+	def YieldW(pcCondition, pcYielder)
+		anPos = This.FindCharsW(pcCondition)
+		return This.YieldOn(anPos, pcYielder)

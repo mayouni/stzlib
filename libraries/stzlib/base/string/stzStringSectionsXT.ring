@@ -36,7 +36,34 @@ class stzStringSectionsXT from stzStringSections
 			# --- Section aliases ---
 
 			[ "Slice",		"Section" ],
-			[ "SliceCS",		"SectionCS" ]
+			[ "SliceCS",		"SectionCS" ],
+
+			# --- Sections aliases ---
+
+			[ "Slices",		"Sections" ],
+			[ "ManySections",	"Sections" ],
+
+			# --- SectionBetween aliases ---
+
+			[ "SliceBetween",	"SectionBetween" ],
+
+			# --- RemoveSection aliases ---
+
+			[ "DeleteSection",	"RemoveSection" ],
+			[ "DeleteSectionQ",	"RemoveSectionQ" ],
+			[ "EraseSection",	"RemoveSection" ],
+
+			# --- RemoveSections aliases ---
+
+			[ "DeleteSections",	"RemoveSections" ],
+			[ "DeleteSectionsQ",	"RemoveSectionsQ" ],
+			[ "EraseSections",	"RemoveSections" ],
+
+			# --- RemoveRange aliases ---
+
+			[ "DeleteRange",	"RemoveRange" ],
+			[ "DeleteRangeQ",	"RemoveRangeQ" ],
+			[ "EraseRange",		"RemoveRange" ]
 		]
 
 		nLen = len(_aAliases_)
