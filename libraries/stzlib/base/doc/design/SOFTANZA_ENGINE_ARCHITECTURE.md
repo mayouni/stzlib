@@ -810,7 +810,11 @@ AI agents, and any future technology equally.
 | embedding   | stz_embedding      | PLANNED |
 | sequence    | stz_sequence       | PLANNED |
 
-### Total: 83 modules (11 done, 72 planned)
+| topology    | stz_topology       | PLANNED |
+| relations   | stz_relations      | PLANNED |
+| statemachine| stz_fsm            | PLANNED |
+
+### Total: 86 modules (11 done, 75 planned)
 
 ---
 
@@ -857,3 +861,11 @@ AI agents, and any future technology equally.
     (why this result), and context (what state carries forward).
     The Engine provides these as general-purpose modules that
     happen to make AI natural.
+15. **Every agent is a state machine.** Protocols, workflows, UIs,
+    games, and AI agents all transition between discrete states on
+    events. The Engine provides declared state machines so no
+    programmer ever implements a switch-case state tracker again.
+16. **Computation has topology.** Where code runs (local, cloud,
+    GPU, edge) is a decision the Engine helps make via operation
+    signatures and target capabilities -- not a deployment detail
+    baked into application code.
