@@ -723,7 +723,7 @@ The Engine will be extracted from stzlib in phases:
 | regex    | stz_regex        | DONE    |
 | json     | stz_json         | DONE    |
 
-### Layer 3: Infrastructure Services (23 modules)
+### Layer 3: Infrastructure Services (25 modules)
 
 | Module   | DLL              | Status  |
 |----------|------------------|---------|
@@ -746,6 +746,8 @@ The Engine will be extracted from stzlib in phases:
 | system   | stz_system       | DONE    |
 | embed    | stz_embed_*      | PLANNED |
 | registry | stz_registry     | PLANNED |
+| smallfn  | stz_smallfn      | PLANNED |
+| execmodel| stz_exec         | PLANNED |
 | cache    | stz_cache        | PLANNED |
 | log      | stz_log          | PLANNED |
 | profiler | stz_profiler     | PLANNED |
@@ -767,7 +769,7 @@ The Engine will be extracted from stzlib in phases:
 | display  | stz_display      | PLANNED |
 | univops  | stz_univops      | PLANNED |
 
-### Total: 58 modules (11 done, 47 planned)
+### Total: 60 modules (11 done, 49 planned)
 
 ---
 
