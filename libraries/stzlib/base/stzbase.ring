@@ -109,10 +109,13 @@ ok
     load "string/stzStringVisualizerXT.ring"
 
     load "string/stzStringLines.ring"
+    load "string/stzStringLinesXT.ring"
     load "string/stzStringWords.ring"
     load "string/stzStringWordsXT.ring"
     load "string/stzStringEncoder.ring"
+    load "string/stzStringEncoderXT.ring"
     load "string/stzStringNumbers.ring"
+    load "string/stzStringNumbersXT.ring"
     load "string/stzStringDuplicates.ring"
     load "string/stzStringDuplicatesXT.ring"
     load "string/stzStringCode.ring"

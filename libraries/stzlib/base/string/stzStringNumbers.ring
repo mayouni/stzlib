@@ -146,3 +146,142 @@ class stzStringNumbers from stzString
 		next
 		return nSum
 
+	  #===============================#
+	 #     MAX / MIN / AVERAGE       #
+	#===============================#
+
+	def MaxNumber()
+		anNums = This.Numbers()
+		nLen = len(anNums)
+		if nLen = 0
+			StzRaise("No numbers found in the string!")
+		ok
+
+		nMax = anNums[1]
+		for i = 2 to nLen
+			if anNums[i] > nMax
+				nMax = anNums[i]
+			ok
+		next
+		return nMax
+
+	def MinNumber()
+		anNums = This.Numbers()
+		nLen = len(anNums)
+		if nLen = 0
+			StzRaise("No numbers found in the string!")
+		ok
+
+		nMin = anNums[1]
+		for i = 2 to nLen
+			if anNums[i] < nMin
+				nMin = anNums[i]
+			ok
+		next
+		return nMin
+
+	def AverageOfNumbers()
+		anNums = This.Numbers()
+		nLen = len(anNums)
+		if nLen = 0
+			StzRaise("No numbers found in the string!")
+		ok
+
+		nSum = 0
+		for i = 1 to nLen
+			nSum += anNums[i]
+		next
+		return nSum / nLen
+
+	  #===============================#
+	 #     NTH / FIRST / LAST       #
+	#===============================#
+
+	def NthNumber(n)
+		anNums = This.Numbers()
+		if n >= 1 and n <= len(anNums)
+			return anNums[n]
+		ok
+		StzRaise("Index out of range!")
+
+	def FirstNumber()
+		return This.NthNumber(1)
+
+	def LastNumber()
+		return This.NthNumber(This.NumberOfNumbers())
+
+	  #===============================#
+	 #     REPLACE NUMBERS           #
+	#===============================#
+
+	def ReplaceNumbers(nNewValue)
+		cContent = This.Content()
+		cResult = ""
+		nLen = len(cContent)
+		cNewStr = "" + nNewValue
+		bInNum = 0
+
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+
+			if isDigit(c)
+				if NOT bInNum
+					cResult += cNewStr
+					bInNum = 1
+				ok
+			else
+				bInNum = 0
+				cResult += c
+			ok
+		next
+
+		This.Update(cResult)
+
+		def ReplaceNumbersQ(nNewValue)
+			This.ReplaceNumbers(nNewValue)
+			return This
+
+	def NumbersReplaced(nNewValue)
+		oCopy = new stzStringNumbers(This.Content())
+		oCopy.ReplaceNumbers(nNewValue)
+		return oCopy.Content()
+
+	  #===============================#
+	 #     NUMBERS AS STRINGS        #
+	#===============================#
+
+	def NumbersAsStrings()
+		anNums = This.Numbers()
+		acResult = []
+		nLen = len(anNums)
+
+		for i = 1 to nLen
+			acResult + ("" + anNums[i])
+		next
+
+		return acResult
+
+	  #===============================#
+	 #     POSITIONS OF NUMBERS      #
+	#===============================#
+
+	def PositionsOfNumbers()
+		cContent = This.Content()
+		nLen = len(cContent)
+		anPositions = []
+		bInNum = 0
+
+		for i = 1 to nLen
+			c = substr(cContent, i, 1)
+
+			if isDigit(c)
+				if NOT bInNum
+					anPositions + i
+					bInNum = 1
+				ok
+			else
+				bInNum = 0
+			ok
+		next
+
+		return anPositions
