@@ -450,8 +450,14 @@ func FindCS(pContainer, pVal, pCaseSensitive)
 		return StzStringQ(pContainer).FindCS(pVal, pCaseSensitive)
 
 	else
-
-		return StzListQ(pContainer).FindCS(pVal, pCaseSensitive)
+		aResult = []
+		nLen = len(pContainer)
+		for i = 1 to nLen
+			if BothAreEqualCS(pContainer[i], pVal, pCaseSensitive)
+				aResult + i
+			ok
+		next
+		return aResult
 	ok
 
 	#< @FunctionAlternativeForms
