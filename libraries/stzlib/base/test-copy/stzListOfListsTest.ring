@@ -103,7 +103,7 @@ pf()
 
 pr()
 
-# In Ring and Qt and other programming languages, sort is made
+# In Ring and other programming languages, sort is made
 # based on asscii (or unicode) values of the chars. And hance,
 # "X" comes before "x" because UPPER chars come before
 # lower chars in ascci range
@@ -116,7 +116,7 @@ pr()
 ? ascii("X") #--> 88
 ? ascii("a") #--> 97
 
-# And in Qt via a stzListOfStrings object (base on QStringList)
+# And via a stzListOfStrings object
 
 oQList = new stzListOfStrings([ "X", "x" ])
 oQList.sort()

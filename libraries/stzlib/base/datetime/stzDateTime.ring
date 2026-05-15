@@ -1354,7 +1354,7 @@ class stzDateTime from stzObject
 
     def ToUTCQ()
         oNewDateTime = new stzDateTime("")
-        oNewDateTime.SetQDateTime([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
+        oNewDateTime.SetComponents([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
         return oNewDateTime
 
 		def ToUTC()
@@ -1362,7 +1362,7 @@ class stzDateTime from stzObject
 
     def ToLocalTimeQ()
         oNewDateTime = new stzDateTime("")
-        oNewDateTime.SetQDateTime([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
+        oNewDateTime.SetComponents([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
         return oNewDateTime
 
 		def ToLocalTime()
@@ -1884,7 +1884,7 @@ class stzDateTime from stzObject
 
     def Copy()
         oNewDateTime = new stzDateTime("")
-        oNewDateTime.SetQDateTime([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
+        oNewDateTime.SetComponents([@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs])
         return oNewDateTime
 
     def SetComponents(aComponents)
@@ -1907,17 +1907,8 @@ class stzDateTime from stzObject
         This.SetComponents(aComponents)
         return This
 
-    def SetQDateTime(aComponents)
-        return This.SetComponents(aComponents)
-
-    def SetQDateTimeQ(aComponents)
-        return This.SetComponentsQ(aComponents)
-
     def Components()
         return [@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs]
-
-    def QDateTimeObject()
-        return This.Components()
 
     def IsValid()
         if @nMonth < 1 or @nMonth > 12

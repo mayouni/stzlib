@@ -1408,17 +1408,8 @@ def LastWeekdayOfMonth()
         This.SetComponents(aDate)
         return This
 
-    def SetQDate(aDate)
-        return This.SetComponents(aDate)
-
-    def SetQDateQ(aDate)
-        return This.SetComponentsQ(aDate)
-
     def Components()
         return [ @nYear, @nMonth, @nDay ]
-
-    def QDateObject()
-        return This.Components()
 
     def IsValid()
         if _IsValidDate(@nYear, @nMonth, @nDay)

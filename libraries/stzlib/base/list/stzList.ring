@@ -59081,54 +59081,6 @@ fdef
 	 #  STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME STRINGS)  #
 	#----------------------------------------------------------------#
 
-	def QStringify()
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		aoResult = []
-		cItem = ""
-
-		for i = 1 to nLen
-			item = aContent[i]
-			if isNumber(item)
-				cItem = ""+ item
-
-			but isString(item)
-				cItem = item
-
-			but isList(item)
-				cItem = @@(item)
-
-			but isObject(item)
-				cItem = @ObjectVarName(aContent[i])
-			ok
-
-			aoResult + cItem
-		next
-
-		This.UpdateWith( aoResult )
-
-		def QStringifyQ()
-			This.Stringify()
-			return This
-
-	def QStringified()
-		aResult = This.Copy().QStringfyQ().Content()
-		return aResult
-
-
-		#< @FunctionAlternativeForms
-
-		def ToListOfQStrings()
-			return This.QStringified()
-
-		def ToListOfQStringifiedItems()
-			return This.QStringified()
-
-		def ItemsQStringified()
-			return This.QStringified()
-
-		#>
 
 	  #---------------------------------------------------------------------------------------#
 	 #  STRINGIFYING ITEMS AND REPLACING A SUBSTRING BY AN OTHER IN EACH STRING -- EXTENDED  #
@@ -59138,7 +59090,7 @@ fdef
 	#--> Used internally in some places to boost performance
 
 	def StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
-		#< EngineBased #>
+
 
 		#NOTE // General note on performance of code written here in SoftanzaLib
 
@@ -59295,7 +59247,7 @@ fdef
 	#-------------------------------------------------------------------------------#
 
 	def StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
-		#< EngineBased #>
+
 
 		aResult = This.Copy().StringifyAndReplaceCSXTQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()[1]
 		This.Update(aResult)
@@ -59358,7 +59310,7 @@ fdef
 	# A special function used internally by Softanza to boost its performance
 
 	def StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
-		#< EngineBased #>
+
 
 		# Resolving params
 
@@ -59513,7 +59465,7 @@ fdef
 	# A special function used internally by Softanza to boost its performance
 
 	def StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
-		#< EngineBased #>
+
 
 		aResult = This.Copy().StringifyLowercaseAndReplaceCSXTQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()[1]
 		This.Update(aResult)

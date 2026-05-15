@@ -252,7 +252,7 @@ func _LocaleNormalizeAbbr(cInput)
 	next
 	return cInput
 
-func _LocaleQtCountryNumber(cCountryCode)
+func _LocaleCountryNumber(cCountryCode)
 	cCode = upper(cCountryCode)
 	nLen = len(_aLocaleCountriesXT)
 	for i = 1 to nLen
@@ -714,9 +714,6 @@ class stzLocale from stzObject
 
 	# LOCALE ABBREVIATION
 
-	def QtAbbreviation()
-		return @cAbbreviation
-
 	def Abbreviation()
 		return @cAbbreviation
 
@@ -733,21 +730,18 @@ class stzLocale from stzObject
 	 #    COUNTRY    #
 	#---------------#
 
-	def CountryQtNumber()
+	def CountryNumber()
 		cCode = _LocaleCountryCodeFromAbbr(@cAbbreviation)
 		if cCode != ""
-			return _LocaleQtCountryNumber(cCode)
+			return _LocaleCountryNumber(cCode)
 		ok
 		return "0"
-
-		def CountryNumber()
-			return This.CountryQtNumber()
 
 	def CountryAbbreviation()
 		return This.CountryShortAbbreviation()
 
 	def CountryShortAbbreviation()
-		cCountryQtNumber = This.CountryQtNumber()
+		cCountryQtNumber = This.CountryNumber()
 
 		for aCountryInfo in LocaleCountriesXT()
 			if aCountryInfo[1] = cCountryQtNumber
@@ -756,7 +750,7 @@ class stzLocale from stzObject
 		next
 
 	def CountryLongAbbreviation()
-		cCountryQtNumber = This.CountryQtNumber()
+		cCountryQtNumber = This.CountryNumber()
 
 		for aCountryInfo in LocaleCountriesXT()
 			if aCountryInfo[1] = cCountryQtNumber
@@ -775,7 +769,7 @@ class stzLocale from stzObject
 
 	def CountryName()
 		for aCountryInfo in LocaleCountriesXT()
-			if aCountryInfo[1] = This.CountryQtNumber()
+			if aCountryInfo[1] = This.CountryNumber()
 				return aCountryInfo[2]
 			ok
 		next
@@ -790,7 +784,7 @@ class stzLocale from stzObject
 	 #  LANGUAGE   #
 	#-------------#
 
-	def LanguageQtNumber()
+	def LanguageNumber()
 		cLangName = This.LanguageName()
 
 		for aLangInfo in LocaleLanguagesXT()
@@ -798,9 +792,6 @@ class stzLocale from stzObject
 				return aLangInfo[1]
 			ok
 		next
-
-		def LanguageNumber()
-			return This.LanguageQtNumber()
 
 	def LanguageName()
 		cCountry = This.CountryName()
@@ -963,9 +954,9 @@ class stzLocale from stzObject
 	def TimeFormat(cType)
 		/*
 		cType can be:
-			:Long (0 in Qt)
-			:Short (1 in Qt)
-			:Narrow (2  in Qt)
+			:Long (0)
+			:Short (1)
+			:Narrow (2)
 		as defined in LocaleTimeFormatTypes()
 		*/
 		nType = LocaleTimeFormatTypes()[ cType ]
@@ -1231,7 +1222,7 @@ class stzLocale from stzObject
 
 	/*
 	TODO: Check if these special cases documented by Unicode standard
-	are already supported by Qt:
+	are already supported by the engine:
 	--> http://unicode.org/Public/UNIDATA/SpecialCasing.txt
 	*/
 

@@ -5081,8 +5081,6 @@ func IsStzFindable(p)
 
 #----
 
-# RingQtClasses() removed -- Qt dependency purged from Softanza.
-# Unicode operations now provided by the Zig-based Softanza Engine.
 
 func StzClasses()
 	aResult = []

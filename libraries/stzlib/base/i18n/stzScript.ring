@@ -4,7 +4,7 @@ _aLocaleScriptsXT = [
 	The unicode abreviations are documented here:
 	https://unicode.org/iso15924/iso15924-codes.html
 
-	NOTE: we include here only the languages included in Qt Unicode
+	NOTE: we include here only the scripts included in Unicode
 	--> that we can use to define a locale
 
 	TODO: It seems there is a duplication of data about scripts in two files:
@@ -22,7 +22,7 @@ _aLocaleScriptsXT = [
 
 	*/
 	#     1		    2				3		      4
-	#  QtNumber 	ScriptName 		ScriptAbbreviation 	DefaultLanguage
+	#  Number 	ScriptName 		ScriptAbbreviation 	DefaultLanguage
 
 	[ "0" ,		:Common,		"Zyyy",			:undefined				],	
 	[ "1" , 	:Arabic, 		"Arab", 		:arabic 			],
@@ -68,7 +68,7 @@ _aLocaleScriptsXT = [
 	[ "41" , 	:Brahmi, 		"Brah", 		:sanskrit 			],
 	[ "42" , 	:Buginese, 		"Bugi", 		:buginese 			],
 	[ "43" , 	:Buhid , 		"Buhd", 		NULL 				], # ! note that the default language here is :buhid
-					 							  	   # but we didn't include it because Qt unicode
+					 							  	   # but we didn't include it because Unicode locale data
 					  							  	   # don't support it
 	[ "44" , 	:Canadian_Aboriginal, 	"Cans", 		:cree 				], # or :inuktitut or :cree or :ojibwa
 	[ "45" , 	:Carian, 		"Cari", 		:undefined 				],
@@ -94,7 +94,7 @@ _aLocaleScriptsXT = [
 	[ "64" , 	:Kharoshthi, 		"Khar", 		:undefined			],
 	[ "65" , 	:Lanna, 		"Lana", 		:undefined			], # Called also :Tai_Tham
 	[ "66" , 	:Lepcha, 		"Lepc", 		:undefined			], # Called also :Róng. Note that the default language is
-					  							           # called :lepcha but we don't include it because Qt Unicode
+					  							           # called :lepcha but we don't include it because Unicode locale data
 					  							           # does not recognize it!
 	[ "67" , 	:Limbu, 		"Limb", 		:undefined			], # The default language is called :limbu but we don't include it
 	[ "68" , 	:Linear_B, 		"Linb", 		:ancient_greek 			],
@@ -105,43 +105,43 @@ _aLocaleScriptsXT = [
 	[ "72" , 	:Meitei_Mayek, 		"Mtei", 		:manipuri 			], # Called also :Meithei and :Meetei
 	[ "73" , 	:Meroitic_Hieroglyphs, 	"Mero", 		:undefined			],
 	[ "74" , 	:Meroitic_Cursive, 	"Merc", 		:undefined			], # The default language is called :Meroitic_Cursive but
-						    						           # we don't include it beceause Qt Unicode does not know it
+						    						           # we don't include it beceause Unicode locale data does not know it
 	[ "75" , 	:Nko, 			"Nkoo", 		:nko 				], # Spelled N’Ko
 	[ "76" , 	:New_Tai_Lue, 		"Talu", 		:undefined			], # The default language for this script is Lü, but
-					      							           # we don't include it beceause Qt Unicode does not know it
+					      							           # we don't include it beceause Unicode locale data does not know it
 	[ "77" , 	:Ogham, 		"Ogam", 		:old_irish 			],
 	[ "78" , 	:Ol_Chiki, 		"Olck", 		:santali 			],
 	[ "79" , 	:Old_Italic, 		"Ital", 		:undefined			], # This script is used in these languages: Umbrian, Oscan and Etruscan
-					      							           # we don't include them beceause Qt Unicode does not know them
+					      							           # we don't include them beceause Unicode locale data does not know them
 	[ "80" , 	:Old_Persian, 		"Xpeo", 		:old_persian 			],
 	[ "81" , 	:Old_South_Arabian, 	"Sarb", 		:undefined			], # This script is used for language Sabaean, but
-						     						           # we don't include it beceause Qt Unicode does not know it
+						     						           # we don't include it beceause Unicode locale data does not know it
 	[ "82" , 	:Orkhon, 		"Orkh", 		:undefined			], # Called also :Old_Turkic and :Orkhon_Runic
 												           #NOTE that the language corresponding to this script
-												           # is :Old_Turkish, but we don't include it because Qt Unicode										   # does not knowt it
+												           # is :Old_Turkish, but we don't include it because Unicode locale data										   # does not knowt it
 	[ "83" , 	:Osmanya, 		"Osma", 		:somali 			],
 	[ "84" , 	:Phags_Pa, 		"Phag", 		:literary_chinese 		], # may also be :mandarin_chineese ?
 	[ "85" , 	:Phoenician, 		"Phnx", 		:phoenician 			],
 	[ "86" , 	:Pollard_Phonetic, 	"Plrd", 		:undefined			], # Called also :Pollard and :Miao
 												           # This script corresponds to this language :Large_Flowery_Miao
-												           # but we don't include it beceause Qt Unicode does not know it
+												           # but we don't include it beceause Unicode locale data does not know it
 	[ "87" , 	:Rejang, 		"Rjng", 		:undefined			], # Called also :Redjang and :Kaganga
 												           # This script corresponds to the  language of the same name :Rejang
-												           # but we don't include it beceause Qt Unicode does not know it
+												           # but we don't include it beceause Unicode locale data does not know it
 	[ "88" , 	:Runic, 		"Runr", 		:german 			], # can also be :old_norse
 	[ "89" , 	:Samaritan, 		"Samr", 		:aramaic 			],
 	[ "90" , 	:Saurashtra, 		"Saur", 		:saurashtra 			],
 	[ "91" , 	:Sharada, 		"Shrd", 		:sanskrit 			], # Called also :Śāradā
 	[ "92" , 	:Shavian, 		"Shaw", 		:english 			], # Called also :Shaw
 	[ "93" , 	:Sora_Sompeng, 		"Sora", 		:undefined			], # The script is used in :Sora language
-												           # but we don't include it beceause Qt Unicode does not know it
+												           # but we don't include it beceause Unicode locale data does not know it
 	[ "94" , 	:Cuneiform, 		"Xsux", 		:Akkadian 			], # Called also :Sumero_Akkadian
 	[ "95" , 	:Sundanese, 		"Sund", 		:sundanese 			],
 	[ "96" , 	:Syloti_Nagri, 		"Sylo", 		:undefined			], # This script is used in :Sylheti language
-												           # but we don't include it beceause Qt Unicode does not know it
+												           # but we don't include it beceause Unicode locale data does not know it
 	[ "97" , 	:Tagalog, 		"Tglg", 		:filipino 			], # Called also :Baybayin and :Alibata
 	[ "98" , 	:Tagbanwa, 		"Tagb", 		:undefined			], # This script is used in :Tagbanwa language
-												           # but we don't include it beceause Qt Unicode does not know it
+												           # but we don't include it beceause Unicode locale data does not know it
 	[ "99" , 	:Tai_Le, 		"Tale", 		:tai_nua 			],
 	[ "100" , 	:Tai_Viet, 		"Tavt", 		:tai_dam 			],
 	[ "101" , 	:Takri, 		"Takr", 		:dogri 				], # Called also :Ṭākrī and :Ṭāṅkrī
@@ -149,26 +149,26 @@ _aLocaleScriptsXT = [
 	[ "103" , 	:Braille, 		"Brai", 		:undefined 			],
 	[ "104" , 	:Hiragana, 		"Hira", 		:undefined 			],
 	[ "105" , 	:Caucasian_Albanian, 	"Aghb", 		:undefined 			], # This script is used in :Lezghian language
-												           # but we don't include it beceause Qt Unicode does not know it
+												           # but we don't include it beceause Unicode locale data does not know it
 	[ "106" , 	:Bassa_Vah, 		"Bass", 		:undefined			],
 	[ "107" , 	:Duployan, 		"Dupl", 		:french 			], # Called also :Duployan_Shorthand and :Duployan_Stenography
 	[ "108" , 	:Elbasan, 		"Elba", 		:albanian 			],
 	[ "109" , 	:Grantha, 		"Gran", 		:sanskrit 			],
 	[ "110" , 	:Pahawh_Hmong, 		"Hmng", 		:undefined			], # This script is used in :Hmong language
-												           # but we don't include it beceause Qt Unicode does not know it
+												           # but we don't include it beceause Unicode locale data does not know it
 	[ "111" , 	:Khojki, 		"Khoj", 		:sindhi 			],
 	[ "112" , 	:Linear_A, 		"Lina", 		:undefined			], # This script is used in :Linear_A language
-												           # but we don't include it beceause Qt Unicode does not know it
+												           # but we don't include it beceause Unicode locale data does not know it
 	[ "113" , 	:Mahajani, 		"Mahj", 		:hindi 				],
 	[ "114" , 	:Manichaean, 		"Mani", 		:persian 			],
 	[ "115" , 	:Mende_Kikakui, 	"Mend", 		:undefined			],
 	[ "116" , 	:Modi, 			"Modi", 		:marathi 			], # Spelled also :Moḍī
 	[ "117" , 	:Mro, 			"Mroo", 		:undefined			], # Spelled also :Mru
 												           # This script is used in :Mru language
-												           # but we don't include it beceause Qt Unicode does not know it
+												           # but we don't include it beceause Unicode locale data does not know it
 	[ "118" , 	:Old_North_Arabian, 	"Narb", 		:undefined			], # Called also :Ancient_North_Arabian
 												           # This script is used in :Ancient_North_Arabian language
-												           # but we don't include it beceause Qt Unicode does not know it
+												           # but we don't include it beceause Unicode locale data does not know it
 	[ "119" , 	:Nabataean, 		"Nbat", 		:aramaic 			],
 	[ "120" , 	:Palmyrene, 		"Palm", 		:aramaic 			],
 	[ "121" , 	:Pau_Cin_Hau, 		"Pauc", 		:undefined			],
@@ -179,7 +179,7 @@ _aLocaleScriptsXT = [
 	[ "126" , 	:Tirhuta, 		"Tirh", 		:maithili 			],
 	[ "127" , 	:Varang_Kshiti, 	"Wara", 		:undefined			], # Called also :Warang_Citi
 												           # This script is used in :Ho language
-												           # but we don't include it beceause Qt Unicode does not know it
+												           # but we don't include it beceause Unicode locale data does not know it
 	[ "128" , 	:Ahom, 			"Ahom", 		:undefined			], # Called also :Tai_Ahom
 	[ "129" , 	:Anatolian_Hieroglyphs, "Hluw", 		:undefined			], # Called also :Luwian_Hieroglyphs and Hittite_Hieroglyphs
 	[ "130" , 	:Hatran, 		"Hatr", 		:undefined			],
@@ -332,11 +332,8 @@ class stzScript
 		def Value()
 			return Content()
 
-	def QtNumber()
+	def Number()
 		return @aScriptInfo@[1]
-
-		def Number()
-			return This.QtNumber()
 
 	def Name()
 		return @aScriptInfo@[2]
@@ -372,14 +369,7 @@ class stzScript
 		def LangaugeName()
 			return This.DefaultLanguage()
 
-	def DefaultLanguageQtNumber()
-		/* We could solve it expressively like this:
-
-		return StzLanguageQ(This.DefaultLanguage()).QtNumber()
-
-		But the following is more performant...
-		*/
-
+	def DefaultLanguageNumber()
 		cLanguage = This.DefaultLanguage()
 
 		for aLanguageInfo in LocaleLanguagesXT()
@@ -390,28 +380,16 @@ class stzScript
 
 		#-- @Alternatives
 
-		def DefaultLanguageNumber()
-			return This.DefaultLanguageQtNumber()
-
-		def LanguageQtNumber()
-			return This.DefaultLanguageQtNumber()
-
 		def LanguageNumber()
-			return This.DefaultLanguageQtNumber()
+			return This.DefaultLanguageNumber()
 
 		#-- @Misspelled
 
-		def DefaultLangaugeQtNumber()
-			return This.DefaultLanguageQtNumber()
-
 		def DefaultLangaugeNumber()
-			return This.DefaultLanguageQtNumber()
-
-		def LangaugeQtNumber()
-			return This.DefaultLanguageQtNumber()
+			return This.DefaultLanguageNumber()
 
 		def LangaugeNumber()
-			return This.DefaultLanguageQtNumber()
+			return This.DefaultLanguageNumber()
 
 	def DefaultLanguageAbbreviation()
 		cLanguage = This.DefaultLanguage()
@@ -460,7 +438,7 @@ class stzScript
 		def CountryName()
 			return This.DefaultCountry()
 	
-	def DefaultCountryQtNumber()
+	def DefaultCountryNumber()
 
 		cCountry = This.DefaultCountry()
 
@@ -470,14 +448,8 @@ class stzScript
 			ok
 		next
 
-		def DefaultCountryNumber()
-			return This.DefaultCountryQtNumber()
-
-		def CountryQtNumber()
-			return This.DefaultCountryQtNumber()
-
 		def CountryNumber()
-			return This.DefaultCountryQtNumber()
+			return This.DefaultCountryNumber()
 
 	def Languages()
 		return LanguagesInScript(This.Script())

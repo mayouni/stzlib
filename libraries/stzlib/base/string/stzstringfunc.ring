@@ -765,9 +765,6 @@ func _StzSimplifyString(cStr)
 func StzStringContent(oStr)
 	return oStr.Content()
 
-	func StzStringToQString(oStr)
-		return StzStringContent(oStr)
-	
 func StringIsLocaleAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLocaleAbbreviation()

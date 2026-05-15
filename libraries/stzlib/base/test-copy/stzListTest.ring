@@ -53,7 +53,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*---
-*/
+
 pr()
 
 o1 = new stzList([ 2, 4, 8 ])
@@ -220,28 +220,13 @@ o1.Stringify()
 
 pf()
 
-/*-------- QStringifying the items of a list
+/*-------- Stringifying the items of a list (HISTORICAL -- Qt removed)
 
-pr()
-
-# QStringifying a list : All items are forced to become QString objects
-o1 = new stzList([ 120, "abc", 1:3 ])
-aQStrings = o1.QStringified()
-#--> A list containing 3 QString objects
-# 	pobject: [This Attribute Contains A List]
-#	pobject: [This Attribute Contains A List]
-#	pobject: [This Attribute Contains A List]
-
-? aQStrings[1].mid(0, 3)
-#--> "120"
-
-? aQStrings[2].mid(0, 3)
-#--> [ 1, 2, 3 ]
-
-? aQStrings[3].mid(0, 11)
-#--> [ 1, 2, 3 ]
-
-pf()
+# This test used Qt's QStringified(). Use Stringify() instead.
+# pr()
+# o1 = new stzList([ 120, "abc", 1:3 ])
+# aStrings = o1.Stringified()
+# pf()
 # Executed in 0.02 second(s)
 
 /*====== @perf
@@ -334,9 +319,9 @@ pr()
 	? o1.Uppercased()
 	#--> HELLO
 
-# 2. From a QString object
+# 2. From a string
 
-	o2 = new stzString( @ToQString("hello") )
+	o2 = new stzString( "hello" )
 	? o2.Uppercased()
 	#--> HELLO
 
@@ -1934,19 +1919,19 @@ pr()
 
 #PERF : General note on performance
 # For all loops on large data (tens of thousands of times and more)
-# don't rely on stzString services, but use Qt directly instead!
+# don't rely on stzString services, use lightweight Ring functions instead!
 
-str = "I talk in Ring language!"
+cStr = "I talk in Ring language!"
 
-? Q(str).ContainsCS("ring", FALSE)
-#--> TRUE
+? substr(cStr, "ring") > 0
+#--> TRUE (case-insensitive check)
 
-str = Q(str).ReplacedCS("ring", "RING", FALSE)
-? str
+cStr = substr(cStr, "ring", "RING")
+? cStr
 #--> I talk in RING language!
 
 #UPDATE #WARNING
-# I discovered some critival issues in Qt replace and contains
+# There were critical issues with replace and contains
 # ~> The library has been updated to avoid them and use a
 # Ring-based solutuion via @Replace() and @Contains() functions
 # To get an idea of the issue, read this discussion on the group:
@@ -4668,7 +4653,7 @@ pf()
 # Executed in 6.68 second(s) in Ring 1.21
 # Executed in 12.05 second(s) in Ring 1.17
 
-/*--------------- #ringqt draft
+/*--------------- HISTORICAL: Qt-based sorting tests (Qt removed from Softanza)
 
 pr()
 
@@ -5287,7 +5272,7 @@ pf()
 # Executed in 0.24 second(s) in Ring 1.17
 
 /*----------------- #narration #perf #ring
-
+*/
 pr()
 
 # Constructing the large list
@@ -12431,7 +12416,7 @@ pf()
 # Executed in 0.10 second(s) in Ring 1.22
 
 /*==== YIELDER
-*/
+
 pr()
 
 o1 = new stzList([ 1, "ring", 2, "python", 3, "ruby" ])
@@ -12439,6 +12424,7 @@ o1 = new stzList([ 1, "ring", 2, "python", 3, "ruby" ])
 #--> [ "RING", "PYTHON", "RUBY" ]
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.24
 # Executed in 0.06 second(s) in Ring 1.22
 
 /*---
@@ -12690,27 +12676,74 @@ o1 = new stzList([ "green", "red", "blue" ])
 pf()
 # Executed in 0.05 second(s).
 
-#---------
-
+#--------- DIFF
+*/
 pr()
 
 o1 = new stzList([ "green", "red", "blue" ])
 
-? o1.CommonItemsWith([ "yellow", "red", "blue", "gray" ]) 
+? @@( o1.Common([ "yellow", "red", "blue", "gray" ]) ) # Or CommonItemsWith()
 #--> [ "red", "blue" ]
 
-? o1.DifferentItemsWith([ "yellow", "red", "blue", "gray" ]) # Or DifferenceWith()
+? @@( o1.Diff([ "yellow", "red", "blue", "gray" ]) ) # Or DifferentItemsWith()
 #--> [ "green", "yellow", "gray" ]
 
-? @@NL( o1.DifferenceWithXT([ "yellow", "red", "blue", "gray" ]) ) # Or DifferentItemsWithXT()
-#--> [
-#	[ "surplus", [ "green" ] ],
-#	[ "lacking", [ "yellow", "gray" ] ]
-# ]
+? ""
+? @@NL( o1.DiffXT([ "yellow", "red", "bluezzz", "gray" ]) )
+#-->
+'
+[
+	[
+		"added",
+		[ "yellow", "gray" ]
+	],
+	[
+		"removed",
+		[ "green" ]
+	],
+	[ "modified", [  ] ]
+]
+'
 
 pf()
-# Executed in 0.04 second(s).
-                                       
+# Executed in 0.03 second(s) in Ring 1.24
+     
+/*---
+*/
+
+pr()
+
+o1 = new stzList([ "green", [ "A", "B" ], "rediness", "blues" ])
+
+? @@NL( o1.DiffXTT([ "yellow", "red", [ "A" ], "blue", "gray" ]) )
+#-->
+'
+[
+	[
+		"added",
+		[ "yellow", "gray" ]
+	],
+	[
+		"removed",
+		[ "green" ]
+	],
+	[
+		"modified",
+		[
+			[
+				[ "A", "B" ],
+				[ "A" ]
+			],
+			[ "rediness", "red" ],
+			[ "blues", "blue" ]
+		]
+	]
+]
+'
+
+pf()
+# Executed in 0.04 second(s) in Ring 1.24
+                               
 /*--------------------------
 
 pr()
@@ -12793,10 +12826,10 @@ pf()
 pr()
 
 o1 = new stzList([ "a", "b", "b", "b", "c" ])
-? o1 - these([ "b", "b" ])
+//? @@( o1 - these([ "b", "b" ]) )
 #--> [ "a", "c" ]
 
-? o1.DifferenceWith([ "a", "c" ])
+? @@( o1.DifferenceWith([ "a", "c" ]) )
 #--> [ "b", "b", "b" ]
 
 pf()

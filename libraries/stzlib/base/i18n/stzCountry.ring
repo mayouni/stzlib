@@ -26,7 +26,7 @@
 
 _aLocaleCountriesXT = [
     #    1            2                     3           4         5            6            7                         8             9           10
-    # QtNumber     Name                  ShortAbbreviation   LongAbbreviation   PhoneCode   DefaultLanguage   Currency                  CurrencyFractionalUnit   CurrencyBase   EmojiFlag
+    # Number       Name                  ShortAbbreviation   LongAbbreviation   PhoneCode   DefaultLanguage   Currency                  CurrencyFractionalUnit   CurrencyBase   EmojiFlag
 
     [ "1",         :Afghanistan,         "AF",         "AFG",         "+93",       :persian,         :Afghan_afghani,          "Pul",          100,         "🇦🇫"        ],
     [ "2",         :Albania,             "AL",         "ALB",         "+355",      :albanian,        :Albanian_lek,            "Qindarkë",     100,         "🇦🇱"        ],
@@ -283,7 +283,7 @@ _aLocaleCountriesXT = [
     [ "243",       :Serbia,              "RS",         "SRB",         "+381",      :serbian,         :Serbian_dinar,           "Para",         100,         "🇷🇸"        ],
     [ "244",       :Saint_Barthelemy,    "BL",         "BLM",         "+590",      :french,          :Euro,                    "Cent",         100,         "🇧🇱"        ], # Same phone code as :Saint_Martin
     [ "245",       :Saint_Martin,        "MF",         "MAF",         "+590",      :dutch,           :Netherlands_Antillean_guilder, "Cent" ,   100,         "🇲🇫"        ],
-    //[ "246",     :Latin_America,       NULL,         NULL,          NULL,        :spanish,         NULL,                     NULL,           NULL,        NULL         ], # Exists in Qt but removed because it isn't a country
+    //[ "246",     :Latin_America,       NULL,         NULL,          NULL,        :spanish,         NULL,                     NULL,           NULL,        NULL         ], # Removed because it isn't a country
     [ "247",       :Ascension_Island,    "AC",         "ASC",         "+247",      :english,         :Saint_Helena_pound,      "Penny",        100,         "🇦🇨"        ],
     [ "248",       :Aland_Islands,       "AX",         "ALA",         "+358",      :swedish,         :Euro,                    "Cent",         100,         "🇦🇽"        ],
     [ "249",       :Diego_Garcia,        "DG",         "DGA",         "+246",      :french,          :United_States_dollar,     "Cent",         100,         "🇩🇬"        ],
@@ -296,13 +296,13 @@ _aLocaleCountriesXT = [
     [ "255",       :Bonaire,             "BQ",         "BES",         "+599",      :papiamento,      :United_States_dollar,     "Cent" ,        100,         ""           ], # dutch is the official language
     [ "256",       :Sint_Maarten,        "SX",         "SXM",         "+590",      :french,          :Netherlands_Antillean_guilder, "Cent" ,   100,         "🇸🇽"        ],
     [ "257",       :Kosovo,              "XK",         "XKX",         "+383",      :albanian,        :Euro,                    "Cent",         100,         "🇽🇰"        ],
-    //[ "258",     :European_Union,      "EU",         "???",         NULL,        :english,         :Euro,                    "Cent",         100,         "🇪🇺"        ], # Exists in Qt but removed because it isn't a country
+    //[ "258",     :European_Union,      "EU",         "???",         NULL,        :english,         :Euro,                    "Cent",         100,         "🇪🇺"        ], # Removed because it isn't a country
     [ "259",       :Outlying_Oceania,    "UM",         "UMI",         "???",       :malay,           :Australian_dollar,       "Cent",         100,         ""           ],
     [ "260",       :Scottland,           "SC",         "SCT",         "+44",       :scottish_gaelic, :Pound,                   "Penny",        100,         NULL         ], # Emoji flag unavailable for this country
-    [ NULL,        :England,             "EN",         "ENG",         "+44",       :english,         :Pound,                   "Penny",        100,         NULL         ], # Idem. Doesn't exist in Qt (and Unicode) but we add it because some people consider it a country
+    [ NULL,        :England,             "EN",         "ENG",         "+44",       :english,         :Pound,                   "Penny",        100,         NULL         ], # Idem. Not in standard Unicode data but we add it because some people consider it a country
     [ NULL,        :Wales,               "WLS",        "WS",          "+44",       :welsh,           :Pound,                   "Penny",        100,         NULL         ], # Idem
     [ NuLL,        :Norther_Ireland,     "NIR",        "NI",          "+44",       :irish,           :Pound,                   "Penny",        100,         NULL         ]  # Check: norther or northern?
-    //[ NULL,      :United_nations,      NULL,         NULL,          NULL,        NULL,             NULL,                     NULL,           NULL,        "🇺🇳"        ]  # Exists in Qt but removed because it isn't a country
+    //[ NULL,      :United_nations,      NULL,         NULL,          NULL,        NULL,             NULL,                     NULL,           NULL,        "🇺🇳"        ]  # Removed because it isn't a country
 
 ]
 
@@ -440,11 +440,8 @@ class stzCountry
 			StzRaise(stzCountryError(:UnsupportedCountryIdentifier))
 		ok
 
-	def QtNumber()
+	def Number()
 		return @aCountryInfo[1]
-
-		def Number()
-			return This.QtNumber()
 
 	def Name()
 		return @aCountryInfo[2]
@@ -480,7 +477,7 @@ class stzCountry
 	def PhoneCode()
 		return @aCountryInfo[5]
 
-	def DefaultLanguageQtNumber()
+	def DefaultLanguageNumber()
 
 		cLanguage = This.DefaultLanguage()
 
@@ -490,14 +487,8 @@ class stzCountry
 			ok
 		next
 
-		def DefaultLanguageNumber()
-			return This.DefaultLanguageQtNumber()
-
-		def LanguageQtNumber()
-			return This.DefaultLanguageQtNumber()
-
 		def LanguageNumber()
-			return This.DefaultLanguageQtNumber()
+			return This.DefaultLanguageNumber()
 
 	def DefaultLanguageAbbreviation()
 		return StzLanguageQ(This.Language()).Abbreviation()
@@ -606,7 +597,7 @@ class stzCountry
 		def ScriptName()
 			return This.Script()
 
-	def ScriptQtNumber()
+	def ScriptNumber()
 		cLanguage = This.DefaultLanguage()
 
 		for aScriptInfo in LocaleScriptsXT()
@@ -614,9 +605,6 @@ class stzCountry
 				return aScriptInfo[1]
 			ok
 		next
-
-		def ScriptNumber()
-			return This.ScriptQtNumber()
 
 	def Currency()
 		return @aCountryInfo[7]

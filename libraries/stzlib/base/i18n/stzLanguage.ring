@@ -23,7 +23,7 @@ $aLocaleLanguagesXT = [
 	[ "14",	 	:basque, 		"eu", 			"eus", 			:spain, 			"Euskara" 		],
 	[ "15",	 	:bengali, 		"bn", 			"ben", 			:bangladesh, 			"বাংলা" 			],
 	[ "16",		:dzongkha, 		"dz", 			"dzo", 			:bhutan, 			"རྫོང་ཁ" 		],
-	# "17" 	--> Bihari language --> Obsolete : no locale data available for it in Qt
+	# "17" 	--> Bihari language --> Obsolete : no locale data available
 	[ "18", 	:bislama, 		"bi", 			"bis", 			:vanuatu,			"Bislama" 		],
 	[ "19", 	:breton, 		"br", 			"bre", 			:france, 			"Brezhoneg" 		],
 	[ "20", 	:bulgarian, 		"bg", 			"bul", 			:bulgaria, 			"Български" 		],
@@ -455,11 +455,8 @@ class stzLanguage
 		def Value()
 			return Content()
 
-	def QtNumber()
+	def Number()
 		return @aLanguageInfo@[1]
-
-		def Number()
-			return This.QtNumber()
 
 	def Name()
 		return @aLanguageInfo@[2]
@@ -496,14 +493,7 @@ class stzLanguage
 		def CountryName()
 			return This.DefaultCountry()
 
-	def DefaultCountryQtNumber()
-		/* We could solve it expressively like this:
-
-		return StzCountryQ(This.DefaultCountry()).QtNumber()
-
-		But the following is more performant...
-		*/
-
+	def DefaultCountryNumber()
 		cCountry = This.DefaultCountry()
 
 		for aCountryInfo in LocaleCountriesXT()
@@ -511,9 +501,6 @@ class stzLanguage
 				return aCountryInfo[1]
 			ok
 		next
-
-		def DefaultCountryNumber()
-			return This.DefaultCountryQtNumber()
 
 	def DefaultCountryLocaleAbbreviation()
 		return LocaleAbbreviationsXT()[ This.DefaultCountry() ][1][1][2]
@@ -547,14 +534,7 @@ class stzLanguage
 		def ScriptName()
 			return This.DefaultScript()
 
-	def DefaultScriptQtNumber()
-		/* We could solve it expressively like this:
-
-		return StzCountryQ(This.DefaultCountry()).ScriptQtNumber()
-
-		But the following is more performant...
-		*/
-
+	def DefaultScriptNumber()
 		cThisLanguage = This.Language()
 
 		for aScriptInfo in LocaleScriptsXT()
@@ -562,9 +542,6 @@ class stzLanguage
 				return aScriptInfo[1]
 			ok
 		next
-
-		def DefaultScriptNumber()
-			return This.DefaultScriptNumber()
 
 	def Scripts()
 		

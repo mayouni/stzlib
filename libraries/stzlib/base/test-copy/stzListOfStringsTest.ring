@@ -1483,7 +1483,7 @@ o1.RemoveDuplicates()
 #--> [ "tunis", "gatfsa", "gabes", "regueb", "sfax", "Tunis" ]
 
 pf()
-# Executed in 0.03 second(s): so fast because it uses Qt
+# Executed in 0.03 second(s)
 
 /*--------------
 
@@ -1499,7 +1499,7 @@ o1.RemoveDuplicatesCS(FALSE)
 #--> [ "tunis", "gatfsa", "gabes", "regueb", "sfax" ]
 
 pf()
-# Executed in 0.49 second(s): takes a while because it's not based on Qt
+# Executed in 0.49 second(s)
 
 /*===============
 

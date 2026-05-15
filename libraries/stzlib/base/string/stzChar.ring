@@ -42,7 +42,7 @@ General note:
 
 A the Char level, SoftanzaLib uses the term Digit and not Number
 except when this is required to refer to a standard unicode feature
-or 'unavoidable' Qt feature.
+or 'unavoidable' Unicode standard feature.
 
 
 */
@@ -712,9 +712,6 @@ class stzChar from stzObject
 
 		def Value() #TODO // Generalize it to infere other values then number
 			return This.Number()
-
-	def QCharObject()
-		StzRaise("QCharObject() is no longer available. Qt has been replaced by the Softanza Engine.")
 
 	def IsEmpty()
 		return 0	# stzChar can never host an empty char

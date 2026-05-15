@@ -22,17 +22,15 @@
 	strategies in including this data. Hence, some of them prefer not including
 	it and relying on its presence on the hosting OS where the application runs.
 
-	Qt, includes it internallay, which enables us to have most of the data
-	we need (via RingQt). This is really helpful, and it's done, of course, with
-	a good performance.
+	The Softanza Engine (Zig-based) includes Unicode support via utf8proc,
+	which enables us to have most of the data we need with good performance.
 
-	Unfortunately, some features provided by Softanza are not supported in Qt,
-	like for example the fact of getting chars names, or finding chars by their
-	names (and not their Unicode codes).
+	Some features, like getting character names or finding chars by their
+	names (and not their Unicode codes), require additional data.
 
 	That's why Softanza included its own copy of the Unicode database.
 
-	In practice, Softanza will use RingQt for any available Unicode feature,
+	In practice, Softanza will use the Engine for available Unicode features,
 	otherwise its own text file is used (called stzUnicodeData.txt).
 
 	The current file contains a class (stzUnicodeData) with the functions

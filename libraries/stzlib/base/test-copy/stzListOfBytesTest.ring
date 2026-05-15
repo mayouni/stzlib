@@ -1,7 +1,6 @@
 load "../stzbase.ring"
 
-#TODO // Add use cases from Qt documentation:
-# https://doc.qt.io/qt-6/qbytearray.html()
+#TODO // Add more byte manipulation use cases
 
 /*--------------------
 
