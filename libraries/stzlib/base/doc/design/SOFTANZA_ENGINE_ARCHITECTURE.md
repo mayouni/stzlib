@@ -708,19 +708,22 @@ The Engine will be extracted from stzlib in phases:
 | matrix   | stz_matrix       | PLANNED |
 | tree     | stz_tree         | PLANNED |
 
-### Layer 2: Algorithms (7 modules)
+### Layer 2: Algorithms (10 modules)
 
 | Module   | DLL              | Status  |
 |----------|------------------|---------|
 | stats    | stz_stats        | PLANNED |
 | text     | stz_text         | PLANNED |
 | walker   | stz_walker       | PLANNED |
+| checker  | stz_checker      | PLANNED |
+| yielder  | stz_yielder      | PLANNED |
+| performer| stz_performer    | PLANNED |
 | datetime | stz_datetime     | DONE    |
 | file     | stz_file         | DONE    |
 | regex    | stz_regex        | DONE    |
 | json     | stz_json         | DONE    |
 
-### Layer 3: Infrastructure Services (18 modules)
+### Layer 3: Infrastructure Services (23 modules)
 
 | Module   | DLL              | Status  |
 |----------|------------------|---------|
@@ -742,6 +745,11 @@ The Engine will be extracted from stzlib in phases:
 | locale   | stz_locale       | DONE    |
 | system   | stz_system       | DONE    |
 | embed    | stz_embed_*      | PLANNED |
+| registry | stz_registry     | PLANNED |
+| cache    | stz_cache        | PLANNED |
+| log      | stz_log          | PLANNED |
+| profiler | stz_profiler     | PLANNED |
+| callstack| stz_callstack    | PLANNED |
 
 ### Layer 4: Signature Features (11 modules)
 
@@ -759,7 +767,7 @@ The Engine will be extracted from stzlib in phases:
 | display  | stz_display      | PLANNED |
 | univops  | stz_univops      | PLANNED |
 
-### Total: 50 modules (11 done, 39 planned)
+### Total: 58 modules (11 done, 47 planned)
 
 ---
 

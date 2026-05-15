@@ -493,6 +493,127 @@ size_t    stz_walker_positions(StzWalkerHandle h,
                                 size_t* out_positions, size_t max);
 ```
 
+### Checker [PLANNED]
+
+The Checker metaphor: test a condition across every item in a
+collection and return the boolean result. The Engine implements
+the iteration and predicate dispatch natively -- no Ring loop.
+
+```c
+// Check if ALL items satisfy a condition
+int stz_check_all(StzValue collection,
+                   int (*predicate)(StzValue item, void* ctx),
+                   void* ctx);
+
+// Check if ANY item satisfies a condition
+int stz_check_any(StzValue collection,
+                   int (*predicate)(StzValue item, void* ctx),
+                   void* ctx);
+
+// Check if NO item satisfies a condition
+int stz_check_none(StzValue collection,
+                    int (*predicate)(StzValue item, void* ctx),
+                    void* ctx);
+
+// Check with named condition string (uses expression evaluator)
+int stz_check_all_expr(StzValue collection,
+                        const char* condition, size_t len);
+int stz_check_any_expr(StzValue collection,
+                        const char* condition, size_t len);
+
+// Count how many items satisfy the condition
+size_t stz_check_count(StzValue collection,
+                        int (*predicate)(StzValue item, void* ctx),
+                        void* ctx);
+
+// Return positions of items that satisfy the condition
+size_t stz_check_where(StzValue collection,
+                        int (*predicate)(StzValue item, void* ctx),
+                        void* ctx,
+                        size_t* out_positions, size_t max);
+```
+
+### Yielder [PLANNED]
+
+The Yielder metaphor: apply a transformation to each item and
+yield the results into a new collection. This is map/filter/reduce
+but with Softanza's semantic richness -- it works on ANY structure,
+not just lists.
+
+```c
+// Yield: apply transform to each item, return new collection
+StzValue stz_yield(StzValue collection,
+                    StzValue (*transform)(StzValue item, void* ctx),
+                    void* ctx);
+
+// Yield with expression string (uses expression evaluator)
+StzValue stz_yield_expr(StzValue collection,
+                         const char* expression, size_t len);
+
+// YieldW: yield only items satisfying a condition
+StzValue stz_yield_where(StzValue collection,
+                          int (*predicate)(StzValue item, void* ctx),
+                          StzValue (*transform)(StzValue item, void* ctx),
+                          void* ctx);
+
+// YieldXT: yield with access to index, previous, next
+StzValue stz_yield_xt(StzValue collection,
+                       StzValue (*transform)(StzValue item,
+                                             size_t index,
+                                             StzValue prev,
+                                             StzValue next,
+                                             void* ctx),
+                       void* ctx);
+
+// Accumulate: fold/reduce with initial value
+StzValue stz_yield_accumulate(StzValue collection,
+                               StzValue initial,
+                               StzValue (*combine)(StzValue acc,
+                                                    StzValue item,
+                                                    void* ctx),
+                               void* ctx);
+```
+
+### Performer [PLANNED]
+
+The Performer metaphor: execute an action on each item in-place,
+modifying the collection. Unlike Yielder (which produces a new
+collection), Performer mutates.
+
+```c
+// Perform: execute action on each item (mutating)
+void stz_perform(StzValue collection,
+                  void (*action)(StzValue* item, void* ctx),
+                  void* ctx);
+
+// Perform with expression string
+void stz_perform_expr(StzValue collection,
+                       const char* expression, size_t len);
+
+// PerformW: perform only on items satisfying condition
+void stz_perform_where(StzValue collection,
+                        int (*predicate)(StzValue item, void* ctx),
+                        void (*action)(StzValue* item, void* ctx),
+                        void* ctx);
+
+// PerformXT: perform with access to index, neighbors
+void stz_perform_xt(StzValue collection,
+                     void (*action)(StzValue* item,
+                                    size_t index,
+                                    StzValue prev,
+                                    StzValue next,
+                                    void* ctx),
+                     void* ctx);
+```
+
+**The four metaphors form a complete interaction vocabulary:**
+- **Walker** -- traverse (navigate positions)
+- **Checker** -- test (ask yes/no questions)
+- **Yielder** -- transform (produce new data)
+- **Performer** -- act (modify in place)
+
+Every metaphor works on ANY StzValue collection via type dispatch.
+
 ### Date/Time [DONE]
 
 ```c
@@ -852,6 +973,214 @@ StzValue      stz_expr_eval(StzExprHandle h, const StzValue* vars,
                              const char** var_names, size_t num_vars);
 int           stz_expr_is_valid(const char* expression, size_t len);
 ```
+
+### Function Registry & Alternatives Engine [PLANNED]
+
+Softanza's 6000+ methods are not hand-coded -- they follow a
+systematic naming grammar (prefixes, suffixes, free-form,
+alternatives). The Engine codifies this grammar so ANY language
+surface can auto-generate the full method vocabulary from a
+compact base.
+
+```c
+// Register a base function
+void stz_registry_add(const char* domain,       // "string"
+                       const char* base_name,    // "Find"
+                       const char* signature,    // "StzValue,StzValue->int64_t"
+                       void* func_ptr);
+
+// Generate all alternatives for a base function
+// Applies: prefixes (FindFirst, FindLast, FindNth, FindAll)
+//          suffixes (FindCS, FindCSXT, FindXT)
+//          named params (FindW, FindWXT)
+//          semantic alternatives (FindOccurrence, FindPosition)
+size_t stz_registry_expand(const char* base_name,
+                            char** out_names, size_t max);
+
+// Lookup function by any alternative name
+void* stz_registry_resolve(const char* name, size_t len);
+
+// Generate bridge code for a target language
+// Languages: "ring", "python", "rust", "go", "csharp"
+size_t stz_registry_generate_bridge(const char* language,
+                                     char* buf, size_t buf_len);
+
+// List all registered functions for a domain
+size_t stz_registry_list(const char* domain,
+                          char** out_names, size_t max);
+```
+
+**Naming grammar rules (Engine-enforced):**
+- Prefixes: `FindFirst`, `FindLast`, `FindNth`, `FindAll`
+- Suffixes: `CS` (case-sensitive), `XT` (extended), `Q` (chained)
+- Conditionals: `W` (where/when), `WXT` (where extended)
+- Semantic: `NumberOfChars` = `Size` for strings
+- Multilingual: `Chercher` = `Find` (via language mapping JSON)
+
+### Cache Engine [PLANNED]
+
+Function-level caching with pluggable stores. Enables the
+`@ActivateCache` decorator pattern at Engine speed.
+
+```c
+StzCacheHandle stz_cache_new(int store_type);
+// STZ_CACHE_MEMORY, STZ_CACHE_FILE, STZ_CACHE_MMAP
+void           stz_cache_free(StzCacheHandle h);
+
+// Cache a function result keyed by arguments hash
+void stz_cache_put(StzCacheHandle h,
+                    const char* func_name, size_t name_len,
+                    const StzValue* args, size_t num_args,
+                    StzValue result);
+
+// Lookup cached result (returns 1 if hit, 0 if miss)
+int  stz_cache_get(StzCacheHandle h,
+                    const char* func_name, size_t name_len,
+                    const StzValue* args, size_t num_args,
+                    StzValue* out_result);
+
+// Invalidate entries for a function or all
+void stz_cache_invalidate(StzCacheHandle h,
+                           const char* func_name, size_t name_len);
+void stz_cache_clear(StzCacheHandle h);
+
+// Stats
+size_t stz_cache_hits(StzCacheHandle h);
+size_t stz_cache_misses(StzCacheHandle h);
+size_t stz_cache_size_bytes(StzCacheHandle h);
+```
+
+### Log Engine [PLANNED]
+
+Function-level tracing with structured context. Enables the
+`@ActivateLog` decorator pattern.
+
+```c
+StzLogHandle stz_log_new(int store_type, const char* config_json,
+                          size_t len);
+// STZ_LOG_FILE, STZ_LOG_MEMORY, STZ_LOG_CALLBACK
+void         stz_log_free(StzLogHandle h);
+
+// Log a function call with context
+void stz_log_call(StzLogHandle h,
+                   const char* func_name, size_t name_len,
+                   const char* caller_name, size_t caller_len,
+                   const StzValue* args, size_t num_args,
+                   StzValue result,
+                   uint64_t duration_ns);
+
+// Query logs
+size_t stz_log_query(StzLogHandle h,
+                      const char* func_name,  // NULL for all
+                      uint64_t from_timestamp, // 0 for start
+                      uint64_t to_timestamp,   // 0 for now
+                      StzLogEntry* out_entries, size_t max);
+
+typedef struct {
+    char func_name[256];
+    char caller_name[256];
+    uint64_t timestamp;
+    uint64_t duration_ns;
+} StzLogEntry;
+
+// Log level control
+void stz_log_set_level(StzLogHandle h, int level);
+// STZ_LOG_TRACE, STZ_LOG_DEBUG, STZ_LOG_INFO,
+// STZ_LOG_WARN, STZ_LOG_ERROR
+```
+
+### Profiler Engine [PLANNED]
+
+Measurable performance at function granularity. Enables the
+`@MeasurePerformance` decorator pattern.
+
+```c
+StzProfilerHandle stz_profiler_new(void);
+void              stz_profiler_free(StzProfilerHandle h);
+
+// Start/stop timing a function
+void stz_profiler_enter(StzProfilerHandle h,
+                         const char* func_name, size_t len);
+void stz_profiler_exit(StzProfilerHandle h,
+                        const char* func_name, size_t len);
+
+// Get timing stats for a function
+uint64_t stz_profiler_total_ns(StzProfilerHandle h,
+                                const char* func_name, size_t len);
+uint64_t stz_profiler_avg_ns(StzProfilerHandle h,
+                              const char* func_name, size_t len);
+size_t   stz_profiler_call_count(StzProfilerHandle h,
+                                  const char* func_name, size_t len);
+
+// Get call graph (who called whom)
+size_t stz_profiler_callgraph(StzProfilerHandle h,
+                               StzProfilerEdge* out_edges,
+                               size_t max);
+
+typedef struct {
+    char caller[256];
+    char callee[256];
+    size_t call_count;
+    uint64_t total_ns;
+} StzProfilerEdge;
+
+// Render profile as visual callstack (uses Display Engine)
+size_t stz_profiler_show(StzProfilerHandle h,
+                          char* buf, size_t buf_len);
+```
+
+### Callstack Visualizer [PLANNED]
+
+Visual error reporting with execution path rendering. Powers
+Softanza's informative error messages.
+
+```c
+// Capture current callstack
+StzCallstackHandle stz_callstack_capture(void);
+void               stz_callstack_free(StzCallstackHandle h);
+
+// Push/pop frames manually (for interpreted languages)
+void stz_callstack_push(StzCallstackHandle h,
+                         const char* func_name, size_t len,
+                         const char* file_name, size_t file_len,
+                         size_t line_number);
+void stz_callstack_pop(StzCallstackHandle h);
+
+// Render callstack as ASCII tree (uses Display Engine)
+size_t stz_callstack_show(StzCallstackHandle h,
+                           char* buf, size_t buf_len);
+
+// Render with error context
+size_t stz_callstack_show_error(StzCallstackHandle h,
+                                 const char* error_msg, size_t len,
+                                 char* buf, size_t buf_len);
+```
+
+---
+
+## Design Principle: Seven Design Goals
+
+The Engine must enable ALL seven of Softanza's design goals.
+Each goal maps to Engine capabilities:
+
+| Goal                   | Engine Capabilities                      |
+|------------------------|------------------------------------------|
+| **Expressiveness**     | Fluent chaining (StzValue returns),      |
+|                        | semantic precision (type-specific ops),  |
+|                        | multilingual function names (registry)   |
+| **Flexibility**        | Function registry (prefix/suffix/alt),   |
+|                        | free-form params, default values         |
+| **Reliability**        | Unicode-correct ops, arbitrary precision,|
+|                        | type-safe collections, 20+ domains       |
+| **Consistency**        | Universal ops (Find/Replace/Show on ALL  |
+|                        | types), consistent naming grammar        |
+| **Human-Centric**      | 4 metaphors (Walker/Checker/Yielder/     |
+|                        | Performer) as native Engine modules      |
+| **Practical Abstractions** | Constraint engine, natural language,  |
+|                        | knowledge programming, conditional code, |
+|                        | visual orientation (display engine)      |
+| **Manageability**      | Cache, log, profiler, callstack viz,     |
+|                        | error context -- all Engine-native       |
 
 ---
 
@@ -1578,6 +1907,12 @@ Priority order by impact on Softanza experience:
 | G.13     | Geospatial      | stzGeoMap coordinate calculations      |
 | G.14     | Bit/Byte Ops    | stzBit/stzByte/stzListOfBits           |
 | G.15     | Expression Eval | Ring eval(), stzConstraint, stzQEngine |
+| G.16     | Func Registry   | Method naming grammar, alternatives,   |
+|          |                 | multilingual names, bridge generation   |
+| G.17     | Cache Engine    | Function-level caching (mem/file/mmap) |
+| G.18     | Log Engine      | Function-level tracing with context    |
+| G.19     | Profiler Engine | Timing, call counts, call graph        |
+| G.20     | Callstack Viz   | Visual error reporting, execution path |
 
 ### Phase H: Softanza Signature Features
 
@@ -1628,9 +1963,10 @@ The Engine IS the product. The language surfaces are thin skins.
 |-------|---------|-----------|---------------------------|
 | A-E   | 11      | DONE      | Qt replacement            |
 | F     | 13      | PLANNED   | Ring workaround elimination|
-| G     | 15      | PLANNED   | Infrastructure services   |
+| F+    | 3       | PLANNED   | Checker/Yielder/Performer |
+| G     | 20      | PLANNED   | Infrastructure + manageability |
 | H     | 11      | PLANNED   | Signature features        |
-| **Total** | **50** | **11 done, 39 planned** |
+| **Total** | **58** | **11 done, 47 planned** |
 
 ---
 
