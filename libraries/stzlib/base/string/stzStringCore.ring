@@ -1,9 +1,9 @@
 #--------------------------------------------------------------#
-#            SOFTANZA LIBRARY (V0.9) - STZSTRINGCORE           #
+#              SOFTANZA LIBRARY (V0.9) - STZSTRING             #
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : Core string class -- engine handle,         #
+#   Description  : Root string class -- engine handle,         #
 #                  content access, and shared primitives.       #
 #                  All stzString subclasses inherit from this.  #
 #   Version      : V0.9 (2026)                                 #
@@ -16,7 +16,7 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringCore from stzObject
+class stzString from stzObject
 
 	@pEngine
 
@@ -34,7 +34,7 @@ class stzStringCore from stzObject
 			if NOT ( isString(pcStr) or
 				 (isList(pcStr) and StzListQ(pcStr).IsPairOfStrings()) )
 
-				StzRaise("Can't create the stzStringCore object! pcStr must be a string or a pair of strings.")
+				StzRaise("Can't create the stzString object! pcStr must be a string or a pair of strings.")
 			ok
 
 			if isList(pcStr) and StzListQ(pcStr).IsPairOfStrings()
@@ -60,7 +60,7 @@ class stzStringCore from stzObject
 		#< @FunctionFluentForm
 
 		def ContentQ()
-			return new stzStringCore(This.Content())
+			return new stzString(This.Content())
 
 		#>
 
@@ -122,7 +122,7 @@ class stzStringCore from stzObject
 	#=======================================#
 
 	def Copy()
-		return new stzStringCore( This.String() )
+		return new stzString( This.String() )
 
 	  #=======================================#
 	 #     UPDATING THE STRING CONTENT       #
