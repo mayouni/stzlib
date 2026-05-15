@@ -653,8 +653,8 @@ pf()
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*---------------------------------#
-#  Understanding Qt Regex Options  #
-#----------------------------------#
+#  Understanding Regex Options  #
+#-------------------------------#
 
 # Test 1: Basic dot behavior
 
@@ -926,7 +926,7 @@ o1 = new stzRegex("(unclosed group")
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
 
-/*-- Test 8: Qt Options via MatchXT
+/*-- Test 8: Options via MatchXT
 
 pr()
 

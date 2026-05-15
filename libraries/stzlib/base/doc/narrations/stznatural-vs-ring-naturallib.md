@@ -75,7 +75,7 @@ Naturally("
 **Performance Impact: 10X faster** by:
 
 * Eliminating Ring's `braceExprEval()` overhead
-* Using Qt's optimized `QString` backend via `stzString`
+* Using the Softanza Engine's optimized native string backend via `stzString`
 * Direct string tokenization vs dynamic attribute evaluation
 * No reflection during token capture
 

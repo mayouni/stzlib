@@ -47,9 +47,9 @@ Also, finding the first position of `""` always returns `0`, which means it does
 #--> 0
 ```
 
-This contrasts with languages like **Qt C++** or **Python**, or even the `substr()` function in **Ring**, where finding `""` may return the first position, misleadingly implying its presence.
+This contrasts with languages like **C++** or **Python**, or even the `substr()` function in **Ring**, where finding `""` may return the first position, misleadingly implying its presence.
 
-> NOTE: We focus on **Qt** here because it is integrated into Ring through the **RingQt** library, which serves as the primary option for managing Unicode strings in the Ring language.
+> NOTE: Softanza originally used Qt for Unicode string management via the RingQt library. It now uses the Zig-based Softanza Engine for all string operations.
 
 ## Rule 3: Emptiness Is Uncontainable
 
@@ -99,7 +99,7 @@ However, replacing emptiness with a non-empty string stretches the empty string 
 
 Softanza enforces this by ensuring replacements involving `""` either return the original string or logically adjust to accommodate the replacement.
 
-This avoids surprising behaviors like those in **Qt C++**, where replacing `""` inserts the replacement string between every character (`"tXeXtX"`).
+This avoids surprising behaviors like those in **C++**, where replacing `""` inserts the replacement string between every character (`"tXeXtX"`).
 
 > NOTE: The `@@(val)` function (resembling two glasses one puts on to improve sight) returns a readable, string-based representation of the value `val`, regardless of its type.
 
@@ -124,7 +124,7 @@ This ensures logical consistency and avoids unintended alterations.
 
 Softanza’s rules for handling emptiness prevent common errors and make programs more predictable.
 
-In many languages, methods like `QString.indexOf("")` in **RingQt** or `substr("text", "")` in **Ring** return `0` and `1`, respectively, when searching for an empty string—positions corresponding to the first character in the string. Using these results can lead to unintended modifications, such as removing the first character.
+In many languages, methods like `String.indexOf("")` or `substr("text", "")` in **Ring** return `0` and `1`, respectively, when searching for an empty string—positions corresponding to the first character in the string. Using these results can lead to unintended modifications, such as removing the first character.
 
 **Illustrating the Case Ring Induces Softanza in Error:**
 

@@ -1,6 +1,6 @@
 # Mastering URL Manipulation with stzUrl: A Complete Guide
 
-The `stzUrl` class is part of the **web-wings module** in the MAX layer of the **Softanza library** for Ring. Alongside other web-focused classes like `stzJson` and `stzHtml`, it provides sophisticated URL manipulation capabilities built on top of RingQt's binding of the C++ Qt library. `stzUrl` delivers an intuitive, object-oriented approach to parsing, building, and manipulating URLs with precision and ease.
+The `stzUrl` class is part of the **web-wings module** in the MAX layer of the **Softanza library** for Ring. Alongside other web-focused classes like `stzJson` and `stzHtml`, it provides sophisticated URL manipulation capabilities built on top of the Softanza Engine's native capabilities. `stzUrl` delivers an intuitive, object-oriented approach to parsing, building, and manipulating URLs with precision and ease.
 
 ## Core Concepts
 

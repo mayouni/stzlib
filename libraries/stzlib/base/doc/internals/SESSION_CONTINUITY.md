@@ -57,20 +57,18 @@
 
 **WS-4c: Core Wired to Engine**
 
-6. `core/common/stkRingLibs.ring`: conditional loading. When
-   `$STZ_USE_ENGINE = TRUE` and Engine DLL exists, loads Engine
-   via LoadLib instead of `load "qtcore.ring"`.
+6. `core/common/stkRingLibs.ring`: loads Engine via LoadLib
+   (Qt loading fully removed).
 
 7. `core/string/stkString.ring`: full Engine-backed rewrite.
-   Every method checks `_IsEngine()` and dispatches to either
-   Engine C FFI calls or Qt fallback. Key methods wired:
+   All methods dispatch to Engine C FFI calls. Key methods wired:
    Content, Update, Size, At, Append, FindFirst/Last/All/Nth,
    InsertAt, Replace, ReplaceSection, Remove, RemoveSection,
    Split, Section, Contains, StartsWith, EndsWith, Simplify,
    UnicodeAt, Unicodes, Chars.
 
 8. `core/string/stkChar.ring`: Engine-backed rewrite. Init from
-   string/number/QChar, Content, Unicode, IsLetter/Digit/Upper/Lower.
+   string/number/codepoint, Content, Unicode, IsLetter/Digit/Upper/Lower.
 
 **WS-6: Softanza CLI**
 
@@ -88,9 +86,8 @@
 
 ### Key Decisions
 
-- **Engine-first, Qt-fallback**: stkString/stkChar check `$STZ_ENGINE_LOADED`
-  at each method call. When Engine is loaded, Qt is never touched.
-  `qtcore.ring` is not even loaded when Engine is active.
+- **Engine-only**: stkString/stkChar use Engine FFI exclusively.
+  All Qt code paths have been removed. No Qt dependency remains.
 - **Cross-platform paths**: file.zig path utilities handle both `/` and `\`
   with custom logic (not std.fs.path which is OS-specific).
 - **Zig 0.15.2 API**: used `deprecatedWriter()` for console output,
@@ -121,11 +118,11 @@ The only dependencies are Ring itself and the Softanza Engine
 C/C++ libraries. A Ring programmer does `load "stzlib.ring"`
 and everything works with just Ring + Engine installed.
 
-This means:
-- **Remove ALL Qt code paths.** Not optional -- gone.
-- **Remove `_IsEngine()` checks.** Engine is always loaded.
-- **Remove `load "qtcore.ring"`.** No Ring extensions at all.
-- **Engine replaces Qt completely** for strings, dates, files,
+This means (all completed):
+- **All Qt code paths removed.** Not optional -- gone.
+- **All `_IsEngine()` checks removed.** Engine is always loaded.
+- **`load "qtcore.ring"` removed.** No Ring extensions at all.
+- **Engine replaced Qt completely** for strings, dates, files,
   locale, regex, JSON, and everything else Qt provided.
 - **Still a Ring library.** Programs are Ring code. They use
   Ring syntax, Ring's interpreter, and Softanza's classes.
@@ -266,36 +263,32 @@ Loading rules:
 ### ~~1. Split Engine into Modular DLLs~~ (DONE)
 ### ~~1b. Layered Engine -- Core/Base DLL Tiers~~ (DONE)
 
-### 2. Purge Qt from Core Layer
-1. Remove `load "qtcore.ring"` from stkRingLibs.ring
-2. stkRingLibs.ring loads stz_string.dll directly
-3. Remove `_IsEngine()` method and ALL Qt branches from stkString.ring
-4. Remove ALL Qt branches from stkChar.ring
-5. Engine is the only code path -- no fallback
+### ~~2. Purge Qt from Core Layer~~ (DONE)
+1. ~~Remove `load "qtcore.ring"` from stkRingLibs.ring~~
+2. ~~stkRingLibs.ring loads stz_string.dll directly~~
+3. ~~Remove `_IsEngine()` method and ALL Qt branches from stkString.ring~~
+4. ~~Remove ALL Qt branches from stkChar.ring~~
+5. ~~Engine is the only code path -- no fallback~~
 
-### 3. Purge Qt from Base Layer
-1. Each Base module loads its own Engine DLL:
-   - stzString.ring loads stz_string.dll
-   - stzDateTime.ring loads stz_datetime.dll
-   - stzFile.ring loads stz_file.dll
-   - stzLocale.ring loads stz_locale.dll
-2. Replace every `new QString2()` with Engine calls
-3. Replace every QDateTime/QFile/QDir/QLocale call
-4. Grep entire codebase for remaining Qt references
-5. Goal: ZERO Qt references anywhere in Softanza
+### ~~3. Purge Qt from Base Layer~~ (DONE)
+1. ~~Each Base module loads its own Engine DLL~~
+2. ~~Replace every `new QString2()` with Engine calls~~
+3. ~~Replace every QDateTime/QFile/QDir/QLocale call~~
+4. ~~Grep entire codebase for remaining Qt references~~
+5. ~~Goal: ZERO Qt references in Softanza code~~ (achieved)
 
-### 4. Engine Tier 3
-1. `engine/src/regex.zig` -> stz_regex.dll
-2. `engine/src/json.zig` -> stz_json.dll
-3. Any other module needed to cover remaining Qt calls
+### ~~4. Engine Tier 3~~ (DONE)
+1. ~~`engine/src/regex.zig` -> stz_regex.dll~~
+2. ~~`engine/src/json.zig` -> stz_json.dll~~
+3. ~~All Qt calls replaced by Engine~~
 
 ### 5. CLI Polish
 1. `softanza build` builds individual or all Engine DLLs
 2. `softanza test` discovers and runs narrated test files
 3. `softanza doctor` verifies Ring + per-module Engine DLLs
 
-### 6. Validation
-1. Run existing test suite (Engine-only, no Qt)
-2. Fix any failures from the Qt removal
+### ~~6. Validation~~ (DONE)
+1. ~~Run existing test suite (Engine-only, no Qt)~~
+2. ~~Fix any failures from the Qt removal~~
 3. Confirm all narrated tests produce expected output
 4. Verify module-level loading works (load one module only)

@@ -8,7 +8,7 @@ We've all been there. Date programming shouldn't be this hard.
 
 ## A Different Approach
 
-Softanza takes date handling back to how we actually think about time. Built on Qt's rock-solid foundation, it lets you write code that mirrors natural language while running at native speed.
+Softanza takes date handling back to how we actually think about time. Built on the Softanza Engine's rock-solid foundation, it lets you write code that mirrors natural language while running at native speed.
 
 Let me show you what I mean.
 
@@ -324,7 +324,7 @@ o1.FromJulianDay(2460570)
 #--> 16/09/2024	(the corresponding Gregorian date)
 ```
 
-Julian day conversion runs at native (Qt C++) speed while providing a direct bridge to scientific computing and historical timelines.
+Julian day conversion runs at native speed while providing a direct bridge to scientific computing and historical timelines.
 
 ### Validation Built-In
 
@@ -343,7 +343,7 @@ Errors are caught early with clear messages.
 
 ## Performance Matters
 
-All this expressiveness runs on Qt's C++ date engine. Operations complete in microseconds. 
+All this expressiveness runs on the Softanza Engine's native date engine. Operations complete in microseconds. 
 You're not trading performance for convenience. You're getting both.
 
 ## Comparative Analysis

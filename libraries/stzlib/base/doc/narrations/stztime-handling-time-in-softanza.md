@@ -6,7 +6,7 @@ Softanza addresses these issues by providing a streamlined way to work with time
 
 ## Softanza's Approach
 
-At its core, Softanza leverages Qt's robust C++ engine for accurate and performant time operations. However, it goes further by layering a natural-oriented API that prioritizes developer intuition and readability. This design emphasizes feature-rich methods that align with everyday language—such as adding "20 minutes" directly or describing time in human terms like "quarter past 2"—while keeping the interface simple and extensible. The result is an API that reduces cognitive load, allowing focus on application logic rather than low-level details.
+At its core, Softanza leverages the Softanza Engine (Zig-based) for accurate and performant time operations. However, it goes further by layering a natural-oriented API that prioritizes developer intuition and readability. This design emphasizes feature-rich methods that align with everyday language—such as adding "20 minutes" directly or describing time in human terms like "quarter past 2"—while keeping the interface simple and extensible. The result is an API that reduces cognitive load, allowing focus on application logic rather than low-level details.
 
 Let's explore this through practical examples, starting with basic retrieval and building toward more advanced usage.
 
@@ -101,7 +101,7 @@ oPast = oNow - 60  # Subtract 1 hour
 ? oPast.ToHuman()  #--> 1 o'clock PM
 ```
 
-This API layer, built atop Qt's precision, makes output suitable for emails, notifications, or dashboards, enhancing usability without external libraries.
+This API layer, built atop the engine's precision, makes output suitable for emails, notifications, or dashboards, enhancing usability without external libraries.
 
 ### Example: Calculating Shift Duration
 
@@ -173,7 +173,7 @@ This early detection aligns with the API's easy-to-use philosophy, catching erro
 
 ## Performance Considerations
 
-Thanks to Qt's optimized C++ implementation, all these operations— from arithmetic to formatting—execute in microseconds, balancing the rich feature set with high efficiency suitable for real-time applications.
+Thanks to the Softanza Engine's optimized implementation, all these operations— from arithmetic to formatting—execute in microseconds, balancing the rich feature set with high efficiency suitable for real-time applications.
 
 ## Comparison Table
 
@@ -192,4 +192,4 @@ To highlight how Softanza streamlines common time-handling tasks relative to app
 
 ## Conclusion
 
-By building on Qt's foundation and investing in a natural-oriented, feature-rich API, Softanza's stzTime class transforms time handling from a tedious chore into an intuitive process. This is particularly valuable for time-centric applications like calendars, event trackers, or analytics tools, where clarity and reliability directly impact development speed and user experience.
+By building on the Softanza Engine's foundation and investing in a natural-oriented, feature-rich API, Softanza's stzTime class transforms time handling from a tedious chore into an intuitive process. This is particularly valuable for time-centric applications like calendars, event trackers, or analytics tools, where clarity and reliability directly impact development speed and user experience.

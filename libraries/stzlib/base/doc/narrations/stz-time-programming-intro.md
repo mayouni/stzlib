@@ -80,7 +80,7 @@ See how they interoperate? `DateQ()` and `TimeQ()` methods let you extract compo
 
 ## Built on Solid Ground
 
-Behind the expressive syntax lies Qt's battle-tested C++ engine. Operations execute in microseconds. You get both elegance and performance.
+Behind the expressive syntax lies the Softanza Engine (Zig-based). Operations execute in microseconds. You get both elegance and performance.
 
 ## Dive Deeper
 

@@ -11,7 +11,7 @@ Regular expressions are a powerful tool for text processing, yet their classic s
 
 Softanza’s regular expression framework is built upon four fundamental pillars, each addressing a specific aspect of regex programming:
 
-1. **stzRegex**: A semantic wrapper around Qt's regex engine that simplifies pattern matching and extraction.
+1. **stzRegex**: A semantic wrapper around the native regex engine that simplifies pattern matching and extraction.
 2. **stzRegexMaker**: A declarative system for constructing regex patterns, transforming how patterns are built.
 3. **stzRegexData**: A comprehensive library of pre-built patterns for common use cases (to be detailed in a future article).
 4. **stzRegexAnalyzer**: A tool for analyzing pattern complexity and optimization (to be detailed in a future article).
@@ -48,7 +48,7 @@ Softanza takes a fundamentally different approach by providing a high-level API 
 
 ### 3.1. Abstraction of Complexity
 
-Softanza wraps the underlying Qt regex engine so developers can build patterns using clear, method-chained calls with descriptive names. Consider the following transformation:
+Softanza wraps the underlying regex engine so developers can build patterns using clear, method-chained calls with descriptive names. Consider the following transformation:
 
 **Classic Regex**:
 

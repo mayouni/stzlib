@@ -49,7 +49,7 @@ Let's dissect our recursive matching pattern:
 
 ## Matching Logic Explained
 
-When Softanza (and its underlining Qt Regex Engine) performs recursive named matching, it:
+When Softanza's regex engine performs recursive named matching, it:
 1. Scans the input text systematically
 2. Identifies nested matching structures
 3. Extracts named groups at each hierarchical level

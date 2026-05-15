@@ -6,7 +6,7 @@ This analysis provides a static code overview of the StringArt() function, relat
 
 ## Function Statistics
 
-| Name | Type | Size | Occurr. | Loops | InLoops | InCalls | QtBased | TestLevel | Occurr. |
+| Name | Type | Size | Occurr. | Loops | InLoops | InCalls | EngineBased | TestLevel | Occurr. |
 |------|------|------|---------|-------|---------|---------|---------|-----------|---------|
 | StringArt(str) | Function | Small | 6 | 1 | 0 | 4 | YES | 2 | 93 |
 | StringArtXT(str, cStyle) | Function | Small | 1 | 0 | 0 | 3 | NO | 2 | 1 |
@@ -18,12 +18,12 @@ This analysis provides a static code overview of the StringArt() function, relat
 ### Key Observations
 - All functions are small-sized (<20 LOC), indicating focused functionality.
 - Low complexity across all functions (0-1 loops, 0 nested loops).
-- Only StringArt() is Qt-based and heavily used in the test samples s(93 occurrences).
+- Only StringArt() is engine-based and heavily used in the test samples (93 occurrences).
 - Varying test levels: StringArt() and StringArtStyles() at TestLevel 2, others untested.
 
 ## stzStringArt Class Statistics
 
-| Name | Type | Size | Occurr. | Loops | InLoops | InCalls | QtBased | TestLevel | Occurr. |
+| Name | Type | Size | Occurr. | Loops | InLoops | InCalls | EngineBased | TestLevel | Occurr. |
 |------|------|------|---------|-------|---------|---------|---------|-----------|---------|
 | stzStringArt | Class | Small | 5 | 5 | 1 | 42 | YES | 2 | 7 |
 | Content() | Method | Small| 2 | 0 | 0 | 0 | NO | 1 | 0 |
@@ -128,15 +128,13 @@ This section presents a comprehensive analysis of the statistics related to the 
   - eval(): 1 occurrence
   - upper(): 3 occurrences
 
-### Use of Qt Functions
-- Qt classes used:
-  - QString2: 6 instances
-- Qt methods used:
-  - append(): 5 occurrences
-  - mid(): 4 occurrences
-  - count(): 3 occurrences
-  - replace_2(): 1 occurrence
-  - split(): 1 occurrence
+### Use of Engine Functions
+- Engine operations used:
+  - string append: 5 occurrences
+  - string mid: 4 occurrences
+  - string count: 3 occurrences
+  - string replace: 1 occurrence
+  - string split: 1 occurrence
   - at(): 1 occurrence
   - size(): 1 occurrence
 

@@ -140,8 +140,8 @@ This string is then fed to the `GeneratePaths()` function for further processing
 This implementation benefits from several optimizations:
 
 1. **Efficient String Processing**
-   - Softanza's `stzString` class is based on Qt's `QString`, providing optimized string operations
-   - Qt's implicit sharing reduces memory overhead
+   - Softanza's `stzString` class uses the Softanza Engine for optimized string operations
+   - Efficient native memory management reduces overhead
    - Fast character-by-character iteration
 
 2. **Minimal Memory Usage**
@@ -173,4 +173,4 @@ This implementation benefits from several optimizations:
 
 ## Conclusion
 
-The string-based approach to path generation offers an elegant balance of efficiency and simplicity. By leveraging Qt's optimized String implementation and avoiding recursive calls, we achieve a solution that is both performant and maintainable.
+The string-based approach to path generation offers an elegant balance of efficiency and simplicity. By leveraging the Softanza Engine's optimized string implementation and avoiding recursive calls, we achieve a solution that is both performant and maintainable.
