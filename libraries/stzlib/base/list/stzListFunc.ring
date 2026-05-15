@@ -330,7 +330,7 @@
 				return -1
 			ok
 
-			if isList(pCaseSensitive) and StzListQ(pCaseSensitive).IsCaseSensitiveNamedParam()
+			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
 				pCaseSensitive = pCaseSensitive[2]
 			ok
 

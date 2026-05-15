@@ -626,7 +626,7 @@ func OctalDigits()
 	return _anOctalDigits
 
 func Double(n)
-	if isList(n) and StzListQ(n).IsOfNamedParam()
+	if isList(n) and IsOfNamedParamList(n)
 		n = n[2]
 	ok
 			
@@ -650,7 +650,7 @@ func Double(n)
 	*/
 
 func Triple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParam()
+	if isList(n) and IsOfNamedParamList(n)
 		n = n[2]
 	ok
 			
@@ -666,7 +666,7 @@ func Triple(n)
 		ok
 
 func Quadruple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParam()
+	if isList(n) and IsOfNamedParamList(n)
 		n = n[2]
 	ok
 
@@ -682,7 +682,7 @@ func Quadruple(n)
 		ok
 
 func Quintuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParam()
+	if isList(n) and IsOfNamedParamList(n)
 		n = n[2]
 	ok
 
@@ -698,7 +698,7 @@ func Quintuple(n)
 		ok
 
 func Sextuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParam()
+	if isList(n) and IsOfNamedParamList(n)
 		n = n[2]
 	ok
 
@@ -714,7 +714,7 @@ func Sextuple(n)
 		ok
 
 func Septuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParam()
+	if isList(n) and IsOfNamedParamList(n)
 		n = n[2]
 	ok
 
@@ -730,7 +730,7 @@ func Septuple(n)
 		ok
 
 func Octuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParam()
+	if isList(n) and IsOfNamedParamList(n)
 		n = n[2]
 	ok
 
@@ -746,7 +746,7 @@ func Octuple(n)
 		ok
 
 func Nonuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParam()
+	if isList(n) and IsOfNamedParamList(n)
 		n = n[2]
 	ok
 
@@ -762,7 +762,7 @@ func Nonuple(n)
 		ok
 
 func Decuple(n)
-	if isList(n) and StzListQ(n).IsOfNamedParam()
+	if isList(n) and IsOfNamedParamList(n)
 		n = n[2]
 	ok
 

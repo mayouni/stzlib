@@ -146,7 +146,7 @@ class stzListInserter from stzList
 			n1 = n1[2]
 		ok
 
-		if isList(n2) and StzListQ(n2).IsToNamedParam()
+		if isList(n2) and IsToNamedParamList(n2)
 			n2 = n2[2]
 		ok
 
@@ -182,7 +182,7 @@ class stzListInserter from stzList
 			n1 = n1[2]
 		ok
 
-		if isList(n2) and StzListQ(n2).IsAndNamedParam()
+		if isList(n2) and IsAndNamedParamList(n2)
 			n2 = n2[2]
 		ok
 

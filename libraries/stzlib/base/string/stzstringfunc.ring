@@ -1304,7 +1304,7 @@ func Count(pStrOrList, pSubStrOrItem)
 func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
 	if CheckingParams()
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOfNamedParam()
+		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
 			pcSubStr = pcSubStr[2]
 		ok
 

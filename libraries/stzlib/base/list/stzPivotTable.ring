@@ -88,7 +88,7 @@ class stzPivotTable from stzList
 
 	def By(paRows, paCols)
 
-		if isList(paCols) and StzListQ(paCols).IsAndNamedParam()
+		if isList(paCols) and IsAndNamedParamList(paCols)
 				paCols = paCols[2]
 		ok
 

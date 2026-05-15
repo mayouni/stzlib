@@ -182,7 +182,7 @@ class stzStringBounder from stzString
 	def BetweenCS(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pSubStrOrPos2) and StzListQ(pSubStrOrPos2).IsAndNamedParam()
+			if isList(pSubStrOrPos2) and IsAndNamedParamList(pSubStrOrPos2)
 				pSubStrOrPos2 = pSubStrOrPos2[2]
 			ok
 		ok
@@ -430,7 +430,7 @@ class stzStringBounder from stzString
 			if isList(pcSubStr1) and StzListQ(pcSubStr1).IsSubStringsNamedParam()
 				pcSubStr1 = pcSubStr1[2]
 			ok
-			if isList(pcSubStr2) and StzListQ(pcSubStr2).IsAndNamedParam()
+			if isList(pcSubStr2) and IsAndNamedParamList(pcSubStr2)
 				pcSubStr2 = pcSubStr2[2]
 			ok
 		ok

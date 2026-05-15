@@ -969,7 +969,7 @@ class stzTimeLine from stzObject
 	def PointsBetween(pStart, pEnd)
 
 		if CheckParams()
-			if isList(pEnd) and StzListQ(pEnd).IsAndNamedParam()
+			if isList(pEnd) and IsAndNamedParamList(pEnd)
 				pEnd = pEnd[2]
 			ok
 		ok
