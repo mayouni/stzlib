@@ -6,6 +6,8 @@
 #   Description  : String checker subclass -- type checking,   #
 #                  content validation, palindrome, anagram,     #
 #                  composition, and structural checks.           #
+#                  Canonical methods only. For full Softanza    #
+#                  fluency (aliases), use stzStringCheckerXT.   #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -52,14 +54,8 @@ class stzStringChecker from stzString
 			ok
 		ok
 
-		def IsMirroredCS(pCaseSensitive)
-			return This.IsPalindromeCS(pCaseSensitive)
-
 	def IsPalindrome()
 		return This.IsPalindromeCS(1)
-
-		def IsMirrored()
-			return This.IsPalindrome()
 
 	  #===============================#
 	 #     ANAGRAM                   #
@@ -130,9 +126,6 @@ class stzStringChecker from stzString
 
 		return 0
 
-		def IsMixedcase()
-			return This.IsHybridcase()
-
 	  #===============================#
 	 #     CONTENT COMPOSITION       #
 	#===============================#
@@ -144,12 +137,6 @@ class stzStringChecker from stzString
 		else
 			return 0
 		ok
-
-		def IsMadeOfSpaces()
-			return This.ContainsOnlySpaces()
-
-		def IsBlank()
-			return This.ContainsOnlySpaces()
 
 	def ContainsOnlyLetters()
 		cContent = This.Content()
@@ -163,15 +150,6 @@ class stzStringChecker from stzString
 		next
 		return 1
 
-		def IsAlpha()
-			return This.ContainsOnlyLetters()
-
-		def IsAlphabetic()
-			return This.ContainsOnlyLetters()
-
-		def IsMadeOfLetters()
-			return This.ContainsOnlyLetters()
-
 	def ContainsOnlyNumbers()
 		cContent = This.Content()
 		nLen = len(cContent)
@@ -183,12 +161,6 @@ class stzStringChecker from stzString
 			ok
 		next
 		return 1
-
-		def IsMadeOfNumbers()
-			return This.ContainsOnlyNumbers()
-
-		def IsNumeric()
-			return This.ContainsOnlyNumbers()
 
 	def ContainsOnlyDigits()
 		cContent = This.Content()
@@ -202,12 +174,6 @@ class stzStringChecker from stzString
 		next
 		return 1
 
-		def IsDigit()
-			return This.ContainsOnlyDigits()
-
-		def IsMadeOfDigits()
-			return This.ContainsOnlyDigits()
-
 	def ContainsOnlyLettersAndNumbers()
 		cContent = This.Content()
 		nLen = len(cContent)
@@ -219,18 +185,6 @@ class stzStringChecker from stzString
 			ok
 		next
 		return 1
-
-		def IsAlphaNum()
-			return This.ContainsOnlyLettersAndNumbers()
-
-		def IsAlphaNumeric()
-			return This.ContainsOnlyLettersAndNumbers()
-
-		def IsAlNum()
-			return This.ContainsOnlyLettersAndNumbers()
-
-		def IsMadeOfLettersAndNumbers()
-			return This.ContainsOnlyLettersAndNumbers()
 
 	  #===============================#
 	 #     IS MADE OF                #
@@ -256,14 +210,8 @@ class stzStringChecker from stzString
 			return 0
 		ok
 
-		def IsMadeOfTheseCS(acSubStr, pCaseSensitive)
-			return This.IsMadeOfCS(acSubStr, pCaseSensitive)
-
 	def IsMadeOf(acSubStr)
 		return This.IsMadeOfCS(acSubStr, 1)
-
-		def IsMadeOfThese(acSubStr)
-			return This.IsMadeOf(acSubStr)
 
 	def IsMadeOfCharCS(c, pCaseSensitive)
 		if isString(c) and @IsChar(c)
@@ -298,14 +246,8 @@ class stzStringChecker from stzString
 			return 0
 		ok
 
-		def IsMadeOfSomeOfTheseCS(acSubStr, pCaseSensitive)
-			return This.IsMadeOfSomeCS(acSubStr, pCaseSensitive)
-
 	def IsMadeOfSome(acSubStr)
 		return This.IsMadeOfSomeCS(acSubStr, 1)
-
-		def IsMadeOfSomeOfThese(acSubStr)
-			return This.IsMadeOfSome(acSubStr)
 
 	  #===============================#
 	 #     NUMBER REPRESENTATION     #
@@ -337,12 +279,6 @@ class stzStringChecker from stzString
 
 		return 1
 
-		def IsInteger()
-			return This.RepresentsInteger()
-
-		def IsAnInteger()
-			return This.RepresentsInteger()
-
 	def RepresentsSignedInteger()
 		if This.RepresentsInteger()
 			c1 = substr(This.Content(), 1, 1)
@@ -352,18 +288,12 @@ class stzStringChecker from stzString
 		ok
 		return 0
 
-		def IsSignedInteger()
-			return This.RepresentsSignedInteger()
-
 	def RepresentsUnsignedInteger()
 		if This.RepresentsInteger() and NOT This.RepresentsSignedInteger()
 			return 1
 		else
 			return 0
 		ok
-
-		def IsUnsignedInteger()
-			return This.RepresentsUnsignedInteger()
 
 	def RepresentsNumber()
 		cContent = This.Content()
@@ -397,12 +327,6 @@ class stzStringChecker from stzString
 
 		return 1
 
-		def IsANumber()
-			return This.RepresentsNumber()
-
-		def IsNumberInString()
-			return This.RepresentsNumber()
-
 	def RepresentsDecimalNumber()
 		if This.RepresentsNumber()
 			oFinder = StzStringFinderQ(This.Content())
@@ -411,9 +335,6 @@ class stzStringChecker from stzString
 			ok
 		ok
 		return 0
-
-		def IsDecimalNumber()
-			return This.RepresentsDecimalNumber()
 
 	def RepresentsBinaryNumber()
 		cContent = This.Content()
@@ -435,9 +356,6 @@ class stzStringChecker from stzString
 		next
 		return 1
 
-		def IsBinaryNumber()
-			return This.RepresentsBinaryNumber()
-
 	def RepresentsHexNumber()
 		cContent = This.Content()
 		nLen = len(cContent)
@@ -457,9 +375,6 @@ class stzStringChecker from stzString
 			ok
 		next
 		return 1
-
-		def IsHexNumber()
-			return This.RepresentsHexNumber()
 
 	  #===============================#
 	 #     REVERSED COPY             #
@@ -492,17 +407,11 @@ class stzStringChecker from stzString
 	def IsChar()
 		return This.NumberOfChars() = 1
 
-		def IsAChar()
-			return This.IsChar()
-
 	def IsLetter()
 		if This.NumberOfChars() != 1
 			return 0
 		ok
 		return isAlpha(This.Content())
-
-		def IsALetter()
-			return This.IsLetter()
 
 	def IsADigit()
 		if This.NumberOfChars() != 1
@@ -517,9 +426,6 @@ class stzStringChecker from stzString
 		else
 			return 1
 		ok
-
-	def IsAWord()
-		return This.IsWord()
 
 	  #===============================#
 	 #     LEADING/TRAILING CHARS    #
@@ -588,4 +494,3 @@ class stzStringChecker from stzString
 			return ""
 		ok
 		return substr(cContent, 1, nEnd)
-

@@ -6,6 +6,8 @@
 #   Description  : String splitter subclass -- splitting       #
 #                  operations at positions, substrings,         #
 #                  sections, before/after/around.               #
+#                  Canonical methods only. For full Softanza    #
+#                  fluency (aliases), use stzStringSplitterXT.  #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -62,23 +64,11 @@ class stzStringSplitter from stzString
 
 		return This.SplitAtCS(pSubStrOrPos, pCaseSensitive)
 
-		#< @FunctionAlternativeForm
-
-		def SplitsCS(pSubStrOrPos, pCaseSensitive)
-			return This.SplitCS(pSubStrOrPos, pCaseSensitive)
-
-		#>
-
 	def SplittedCS(pSubStrOrPos, pCaseSensitive)
 		return This.SplitCS(pSubStrOrPos, pCaseSensitive)
 
-	#-- WITHOUT CASESENSITIVITY
-
 	def Split(pSubStrOrPos)
 		return This.SplitCS(pSubStrOrPos, 1)
-
-		def Splits(pSubStrOrPos)
-			return This.Split(pSubStrOrPos)
 
 	def Splitted(pSubStrOrPos)
 		return This.Split(pSubStrOrPos)
@@ -108,24 +98,8 @@ class stzStringSplitter from stzString
 			StzRaise("Incorrect param type! pSubStrOrPos must be position(s) or string(s).")
 		ok
 
-		#< @FunctionAlternativeForm
-
-		def SplitsAtCS(pSubStrOrPos, pCaseSensitive)
-			return This.SplitAtCS(pSubStrOrPos, pCaseSensitive)
-
-		def SeparatedByCS(pSubStrOrPos, pCaseSensitive)
-			return This.SplitAtCS(pSubStrOrPos, pCaseSensitive)
-
-		#>
-
 	def SplitAt(pSubStrOrPos)
 		return This.SplitAtCS(pSubStrOrPos, 1)
-
-		def SplitsAt(pSubStrOrPos)
-			return This.SplitAt(pSubStrOrPos)
-
-		def SeparatedBy(pSubStrOrPos)
-			return This.SplitAt(pSubStrOrPos)
 
 	  #=================================#
 	 #     SPLIT AT SUBSTRING          #
@@ -154,18 +128,8 @@ class stzStringSplitter from stzString
 
 		return @SplitCS(This.Content(), pcSubStr, pCaseSensitive)
 
-		#< @FunctionAlternativeForm
-
-		def SplitsAtSubStringCS(pcSubStr, pCaseSensitive)
-			return This.SplitAtSubStringCS(pcSubStr, pCaseSensitive)
-
-		#>
-
 	def SplitAtSubString(pcSubStr)
 		return This.SplitAtSubStringCS(pcSubStr, 1)
-
-		def SplitsAtSubString(pcSubStr)
-			return This.SplitAtSubString(pcSubStr)
 
 	  #===================================#
 	 #     SPLIT AT MULTIPLE SUBSTRINGS  #
@@ -186,14 +150,8 @@ class stzStringSplitter from stzString
 
 		return @SplitCS(cResult, cSep, 1)
 
-		def SplitsAtSubStringsCS(pacSubStrings, pCaseSensitive)
-			return This.SplitAtSubStringsCS(pacSubStrings, pCaseSensitive)
-
 	def SplitAtSubStrings(pacSubStrings)
 		return This.SplitAtSubStringsCS(pacSubStrings, 1)
-
-		def SplitsAtSubStrings(pacSubStrings)
-			return This.SplitAtSubStrings(pacSubStrings)
 
 	  #===============================#
 	 #     SPLIT AT POSITION         #
@@ -218,13 +176,6 @@ class stzStringSplitter from stzString
 
 		return acResult
 
-		#< @FunctionAlternativeForm
-
-		def SplitAtThisPosition(n)
-			return This.SplitAtPosition(n)
-
-		#>
-
 	  #=================================#
 	 #     SPLIT AT POSITIONS          #
 	#=================================#
@@ -244,13 +195,6 @@ class stzStringSplitter from stzString
 
 		return acResult
 
-		#< @FunctionAlternativeForm
-
-		def SplitAtThesePositions(anPos)
-			return This.SplitAtPositions(anPos)
-
-		#>
-
 	  #===============================#
 	 #     SPLIT BEFORE              #
 	#===============================#
@@ -267,14 +211,8 @@ class stzStringSplitter from stzString
 
 		StzRaise("Incorrect param type!")
 
-		def SplitsBeforeCS(pSubStrOrPos, pCaseSensitive)
-			return This.SplitBeforeCS(pSubStrOrPos, pCaseSensitive)
-
 	def SplitBefore(pSubStrOrPos)
 		return This.SplitBeforeCS(pSubStrOrPos, 1)
-
-		def SplitsBefore(pSubStrOrPos)
-			return This.SplitBefore(pSubStrOrPos)
 
 	def SplitBeforePosition(n)
 		if This.IsEmpty()
@@ -325,14 +263,8 @@ class stzStringSplitter from stzString
 
 		StzRaise("Incorrect param type!")
 
-		def SplitsAfterCS(pSubStrOrPos, pCaseSensitive)
-			return This.SplitAfterCS(pSubStrOrPos, pCaseSensitive)
-
 	def SplitAfter(pSubStrOrPos)
 		return This.SplitAfterCS(pSubStrOrPos, 1)
-
-		def SplitsAfter(pSubStrOrPos)
-			return This.SplitAfter(pSubStrOrPos)
 
 	def SplitAfterPosition(n)
 		if This.IsEmpty()

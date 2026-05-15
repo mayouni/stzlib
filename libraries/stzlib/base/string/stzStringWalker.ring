@@ -6,6 +6,8 @@
 #   Description  : String walker subclass -- walking the       #
 #                  string forward/backward with steps,          #
 #                  yielding values, performing operations.       #
+#                  Canonical methods only. For full Softanza    #
+#                  fluency (aliases), use stzStringWalkerXT.    #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -47,12 +49,6 @@ class stzStringWalker from stzString
 			ok
 		next
 		StzRaise("Incorrect param value! pcWalkerName must be a valid walker name.")
-
-		def WalkerPositions(pcWalkerName)
-			return This.Walker(pcWalkerName)
-
-		def WalkedPositionsBy(pcWalkerName)
-			return This.Walker(pcWalkerName)
 
 	def WalkerQ(pcWalkerName)
 		nLen = len(@aWalkers)
@@ -131,12 +127,6 @@ class stzStringWalker from stzString
 		ok
 		return substr(This.Content(), n, 1)
 
-		def NthChar(n)
-			return This.CharAt(n)
-
-		def Char(n)
-			return This.CharAt(n)
-
 	def FirstChar()
 		return This.CharAt(1)
 
@@ -214,4 +204,3 @@ class stzStringWalker from stzString
 		end
 
 		return acResult
-

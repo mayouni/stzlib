@@ -6,6 +6,8 @@
 #   Description  : String bounder subclass -- sections,        #
 #                  ranges, between, bounding, and bounds        #
 #                  checking operations.                          #
+#                  Canonical methods only. For full Softanza    #
+#                  fluency (aliases), use stzStringBounderXT.   #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -92,30 +94,14 @@ class stzStringBounder from stzString
 		cResult = substr(This.Content(), n1, n2 - n1 + 1)
 		return cResult
 
-		#< @FunctionFluentForm
-
 		def SectionCSQ(n1, n2, pCaseSensitive)
 			return new stzStringBounder( This.SectionCS(n1, n2, pCaseSensitive) )
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def SliceCS(n1, n2, pCaseSensitive)
-			return This.SectionCS(n1, n2, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
 
 	def Section(n1, n2)
 		return This.SectionCS(n1, n2, 1)
 
 		def SectionQ(n1, n2)
 			return new stzStringBounder(This.Section(n1, n2))
-
-		def Slice(n1, n2)
-			return This.Section(n1, n2)
 
 	  #===============================#
 	 #     MULTIPLE SECTIONS         #
@@ -191,8 +177,6 @@ class stzStringBounder from stzString
 		def RangeCSQ(nStartPos, nRange, pCaseSensitive)
 			return new stzStringBounder( This.RangeCS(nStartPos, nRange, pCaseSensitive) )
 
-	#-- WITHOUT CASESENSITIVITY
-
 	def Range(nStartPos, nRange)
 		return This.RangeCS(nStartPos, nRange, 1)
 
@@ -239,20 +223,8 @@ class stzStringBounder from stzString
 		cResult = This.Section(n1, n2)
 		return cResult
 
-		#< @FunctionAlternativeForm
-
-		def SubStringBetweenCS(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
-			return This.BetweenCS(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
-
-		#>
-
-	#-- WITHOUT CASESENSITIVITY
-
 	def Between(pSubStrOrPos1, pSubStrOrPos2)
 		return This.BetweenCS(pSubStrOrPos1, pSubStrOrPos2, 1)
-
-		def SubStringBetween(pSubStrOrPos1, pSubStrOrPos2)
-			return This.Between(pSubStrOrPos1, pSubStrOrPos2)
 
 	  #=======================================#
 	 #     BETWEEN -- INCLUDING BOUNDS       #
@@ -267,9 +239,6 @@ class stzStringBounder from stzString
 		n1 = oFinder.FindFirstCS(pSubStrOrPos1, pCaseSensitive)
 		n2 = oFinder.FindLastCS(pSubStrOrPos2, pCaseSensitive) + Q(pSubStrOrPos2).NumberOfChars() - 1
 		return This.Section(n1, n2)
-
-		def BetweenIBCS(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
-			return This.BetweenCSIB(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
 
 	def BetweenIB(pSubStrOrPos1, pSubStrOrPos2)
 		return This.BetweenCSIB(pSubStrOrPos1, pSubStrOrPos2, 1)
@@ -311,9 +280,6 @@ class stzStringBounder from stzString
 		ok
 
 		return [ anSectionBefore, anSectionAfter ]
-
-		def FindSectionBoundsAsSections(n1, n2, nCharsBefore, nCharsAfter)
-			return This.FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter)
 
 	def FindSectionBoundsIBZZ(n1, n2, nCharsBefore, nCharsAfter)
 		aSections = This.FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter)
@@ -369,8 +335,6 @@ class stzStringBounder from stzString
 			return 0
 		ok
 
-	#-- WITHOUT CASESENSITIVITY
-
 	def IsBoundedBy(pacBounds)
 		return This.IsBoundedByCS(pacBounds, 1)
 
@@ -403,16 +367,8 @@ class stzStringBounder from stzString
 
 		return bResult
 
-		def IsBoundedByCSIB(pacBounds, pIn, pCaseSensitive)
-			return This.IsBoundedByInCS(pacBounds, pIn, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
 	def IsBoundedByIn(pacBounds, pIn)
 		return This.IsBoundedByInCS(pacBounds, pIn, 1)
-
-		def IsBoundedByIB(pacBounds, pIn)
-			return This.IsBoundedByIn(pacBounds, pIn)
 
 	  #============================================#
 	 #     SUBSTRING IS BOUNDED BY               #
@@ -457,16 +413,8 @@ class stzStringBounder from stzString
 			StzRaise("Incorrect params types! p1 and p2 must be both numbers or both strings.")
 		ok
 
-		def SubStringComesBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
-			return This.SubStringIsBetweenCS(pcSubStr, p1, p2, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
 	def SubStringIsBetween(pcSubStr, p1, p2)
 		return This.SubStringIsBetweenCS(pcSubStr, p1, p2, 1)
-
-		def SubStringComesBetween(pcSubStr, p1, p2)
-			return This.SubStringIsBetween(pcSubStr, p1, p2)
 
 	  #============================================#
 	 #     SUBSTRING IS BETWEEN POSITIONS         #
@@ -477,14 +425,8 @@ class stzStringBounder from stzString
 		oFinder = StzStringFinderQ(cSection)
 		return oFinder.ContainsCS(pcSubStr, pCaseSensitive)
 
-		def SubStringComesBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
-			return This.SubStringIsBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
-
 	def SubStringIsBetweenPositions(pcSubStr, n1, n2)
 		return This.SubStringIsBetweenPositionsCS(pcSubStr, n1, n2, 1)
-
-		def SubStringComesBetweenPositions(pcSubStr, n1, n2)
-			return This.SubStringIsBetweenPositions(pcSubStr, n1, n2)
 
 	  #============================================#
 	 #     SUBSTRING IS BETWEEN SUBSTRINGS        #
@@ -513,14 +455,8 @@ class stzStringBounder from stzString
 
 		return bOk1 or bOk2
 
-		def SubStringComesBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
-			return This.SubStringIsBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)
-
 	def SubStringIsBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
 		return This.SubStringIsBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, 1)
-
-		def SubStringComesBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
-			return This.SubStringIsBetweenSubStrings(pcSubStr, pcSubStr1, pcSubStr2)
 
 	  #===============================#
 	 #     IS BOUND OF              #
@@ -541,16 +477,8 @@ class stzStringBounder from stzString
 		oFinder = StzStringFinderQ(pcInStr)
 		return oFinder.ContainsCS(cBounded, pCaseSensitive)
 
-		def IsBoundOfInCS(pcSubStr, pcInStr, pCaseSensitive)
-			return This.IsBoundOfCS(pcSubStr, pcInStr, pCaseSensitive)
-
-	#-- WITHOUT CASESENSITIVITY
-
 	def IsBoundOf(pcSubStr, pcInStr)
 		return This.IsBoundOfCS(pcSubStr, pcInStr, 1)
-
-		def IsBoundOfIn(pcSubStr, pcInStr)
-			return This.IsBoundOf(pcSubStr, pcInStr)
 
 	  #===============================#
 	 #     CHAR AT                   #
@@ -562,15 +490,8 @@ class stzStringBounder from stzString
 		ok
 		return substr(This.Content(), n, 1)
 
-		def CharAt(n)
-			return This.Char(n)
-
-		def NthChar(n)
-			return This.Char(n)
-
 	def FirstChar()
 		return This.Char(1)
 
 	def LastChar()
 		return This.Char(This.NumberOfChars())
-

@@ -6,6 +6,8 @@
 #   Description  : String visualizer subclass -- Show(),       #
 #                  VizFind(), Boxed(), and visual rendering     #
 #                  operations for console output.                #
+#                  Canonical methods only. For full Softanza    #
+#                  fluency (aliases), use stzStringVisualizerXT.#
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -182,9 +184,6 @@ class stzStringVisualizer from stzString
 	def Stringify()
 		return @@(This.Content())
 
-		def Stringified()
-			return This.Stringify()
-
 	  #===============================#
 	 #     HIGHLIGHTED               #
 	#===============================#
@@ -196,4 +195,3 @@ class stzStringVisualizer from stzString
 
 	def Highlight(pcSubStr, pcMarker)
 		return This.HighlightCS(pcSubStr, pcMarker, 1)
-
