@@ -769,7 +769,28 @@ The Engine will be extracted from stzlib in phases:
 | display  | stz_display      | PLANNED |
 | univops  | stz_univops      | PLANNED |
 
-### Total: 60 modules (11 done, 49 planned)
+### Layer 5: Paradigm Engines (12 modules)
+
+Softanza's paradigm innovations codified as Engine-native modules.
+Each represents a programming concept rethought from first
+principles -- not a wrapper, but a new computational model.
+
+| Module      | DLL                | Status  |
+|-------------|------------------  |---------|
+| reaxis      | stz_reaxis         | PLANNED |
+| softanzuter | stz_softanzuter    | PLANNED |
+| truth       | stz_truth          | PLANNED |
+| quantifier  | stz_quantifier     | PLANNED |
+| polyglot    | stz_polyglot       | PLANNED |
+| polycode    | stz_polycode       | PLANNED |
+| adverb      | stz_adverb         | PLANNED |
+| timeline    | stz_timeline       | PLANNED |
+| gridnav     | stz_gridnav        | PLANNED |
+| sectmerge   | stz_sectmerge      | PLANNED |
+| deepops     | stz_deepops        | PLANNED |
+| namedvars   | stz_namedvars      | PLANNED |
+
+### Total: 72 modules (11 done, 61 planned)
 
 ---
 
@@ -797,3 +818,10 @@ The Engine will be extracted from stzlib in phases:
 10. **One display engine.** Every Show(), Boxed(), VizFind(),
     chart, table, tree, graph rendering goes through the unified
     canvas-based display engine. No duplicated rendering logic.
+11. **Paradigm-native.** Every concept Softanza rethinks (reactive,
+    truth, quantifiers, refinement, temporal, grid navigation)
+    becomes an Engine module. Language surfaces inherit the
+    paradigm -- they don't reinvent it.
+12. **Softanzuter as agent substrate.** The trigger-compute-state
+    reactive computation model is the canonical way to build
+    intelligent agents across any pattern domain.
