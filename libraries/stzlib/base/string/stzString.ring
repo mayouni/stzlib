@@ -429,32 +429,32 @@ class stzString from stzObject
 
 			# Adding after
 
-			if oSubStr.IsOneOfTheseNamedParams([ :After, :AfterEach, :To, :ToEach  ])
+			if IsOneOfTheseNamedParamsList(pcSubStr,[ :After, :AfterEach, :To, :ToEach  ])
 				pcSubStr = pcSubStr[2]
 				This.ReplaceCS(pcSubStr, (pcSubStr + pcNewSubStr), pCaseSensitive)
 
 			# Adding after nth
 
-			but oSubStr.IsOneOfTheseNamedParams([ :AfterNth, :ToNth ])
+			but IsOneOfTheseNamedParamsList(pcSubStr,[ :AfterNth, :ToNth ])
 				n = pcSubStr[2][1]
 				pcSubStr = pcSubStr[2][2]
 				This.ReplaceNthCS(n, pcSubStr, (pcSubStr + pcNewSubStr), pCaseSensitive)
 
 			# Adding after first
 
-			but oSubStr.IsOneOfTheseNamedParams([ :AfterFirst, :ToFirst ])
+			but IsOneOfTheseNamedParamsList(pcSubStr,[ :AfterFirst, :ToFirst ])
 				pcSubStr = pcSubStr[2]
 				This.ReplaceFirstCS(pcSubStr, (pcSubStr + pcNewSubStr), pCaseSensitive)
 
 			# Adding after last
 
-			but oSubStr.IsOneOfTheseNamedParams([ :AfterLast, :ToLast ])
+			but IsOneOfTheseNamedParamsList(pcSubStr,[ :AfterLast, :ToLast ])
 				pcSubStr = pcSubStr[2]
 				This.ReplaceLastCS(pcSubStr, (pcSubStr + pcNewSubStr), pCaseSensitive)
 
 			# Adding after these/many
 
-			but oSubStr.IsOneOfTheseNamedParams([ :AfterThese, :ToThese, :AfterMany, :toMany ])
+			but IsOneOfTheseNamedParamsList(pcSubStr,[ :AfterThese, :ToThese, :AfterMany, :toMany ])
 				pcSubStr = pcSubStr[2]
 				if NOT isList(pcSubStr)
 					StzRaise("Incorrect param type! pcSubStr must be a list.")
@@ -472,7 +472,7 @@ class stzString from stzObject
 
 			# Adding before
 
-			but oSubStr.IsOneOfTheseNamedParams([ :Before, :BeforeEach ])
+			but IsOneOfTheseNamedParamsList(pcSubStr,[ :Before, :BeforeEach ])
 				pcSubStr = pcSubStr[2]
 				This.ReplaceCS(pcSubStr, (pcNewSubStr + pcSubStr), pCaseSensitive)
 
@@ -502,7 +502,7 @@ class stzString from stzObject
 
 			# Adding around
 
-			but oSubStr.IsOneOfTheseNamedParams([ :Around, :AroundEach ])
+			but IsOneOfTheseNamedParamsList(pcSubStr,[ :Around, :AroundEach ])
 				pcSubStr = pcSubStr[2]
 
 				if isList(pcNewSubStr) and StzListQ(pcNewSubStr).IsPairOfStrings()
@@ -798,7 +798,7 @@ class stzString from stzObject
 
 		def Extend(n)
 			if CheckingParams()
-				if isList(n) and StzListQ(n).IsOneOfTheseNamedParams([ :To, :ToPosition, :ToNChars ])
+				if isList(n) and IsOneOfTheseNamedParamsList(n,[ :To, :ToPosition, :ToNChars ])
 					n = n[2]
 				ok
 			ok
@@ -6047,7 +6047,7 @@ class stzString from stzObject
 		return acResult
 
 		def MarquersQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6076,7 +6076,7 @@ class stzString from stzObject
 			return This.UniqueMarquersQRT(:stzList)
 
 		def UniqueMarquersQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6337,7 +6337,7 @@ class stzString from stzObject
 			return This.OccurrencesOfMarquerQRT(pcMarquer, :stzList)
 
 		def OccurrencesOfMarquerQRT(pcMarquer, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6517,7 +6517,7 @@ class stzString from stzObject
 			return This.MarquersAndSectionsQRT(:stzList)
 
 		def MarquersAndSectionsQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -6593,7 +6593,7 @@ class stzString from stzObject
 			return new stzList(This.UniqueMarquersAndSections())
 
 		def UniqueMarquersAndSectionsQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -7401,7 +7401,7 @@ class stzString from stzObject
 			return This.NextMarquersQRT(pnstartingAt, :stzList)
 
 		def NextMarquersQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -7614,7 +7614,7 @@ class stzString from stzObject
 			return This.NthNextMarquerAndItsPositionQRT(n, pnStartingAt,  :stzList)
 
 		def NthNextMarquerAndItsPositionQRT(n, pnStartingAt,  pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -7791,7 +7791,7 @@ class stzString from stzObject
 			return This.PreviousMarquersQRT(pnstartingAt, :stzList)
 
 		def PreviousMarquersQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -7964,7 +7964,7 @@ class stzString from stzObject
 			return This.NthPreviousMarquerAndItsPositionQRT(n, pnStartingAt, pcReturnType)
 
 		def NthPreviousMarquerAndItsPositionQRT(n, pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11390,7 +11390,7 @@ class stzString from stzObject
 			return This.NextNthCharQRT(n, pnStartingAt, :stzString)
 
 		def NextNthCharQRT(n, pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11550,7 +11550,7 @@ class stzString from stzObject
 			return This.PreviousNthCharQRT(n, pnStartingAt, :stzString)
 
 		def PreviousNthCharQRT(n, pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -11636,7 +11636,7 @@ class stzString from stzObject
 			return This.PreviousCharQRT(pnStartingAt, :stzString)
 
 		def PreviousCharQRT(pnStartingAt, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -12927,7 +12927,7 @@ class stzString from stzObject
 	def InfereMethod(pcFromStzClass)
 
 		if isList(pcFromStzClass) and
-		   Q(pcFromStzClass).IsOneOfTheseNamedParams([ :From, :In, :Of ])
+		   IsOneOfTheseNamedParamsList(pcFromStzClass,[ :From, :In, :Of ])
 			pcFromStzClass = pcFromStzClass[2]
 		ok
 
@@ -13342,7 +13342,7 @@ class stzString from stzObject
 		if CheckingParams()
 
 			if isList(paPositionOrSection) and
-				Q(paPositionOrSection).IsOneOfTheseNamedParams([
+				IsOneOfTheseNamedParamsList(paPositionOrSection,[
 					:On, :OnPosition, :OnSection,
 					:In, :InPosition, :InSection,
 					:Position, :Section
@@ -13370,7 +13370,7 @@ class stzString from stzObject
 			bReturnSections = 0
 	
 			if isList(paHarvest) and
-			   Q(paHarvest).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(paHarvest,[
 	
 					:Harvest, :AndHarvest,
 					:AndThenHarvest, :ThenHarvest,
@@ -22339,7 +22339,7 @@ class stzString from stzObject
 			return This.RepeatedLeadingCharCSQRT(pCaseSensitive, :stzChar)
 
 		def RepeatedLeadingCharCSQRT(pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -22361,7 +22361,7 @@ class stzString from stzObject
 			return This.RepeatedLeadingCharCS(pCaseSensitive)
 
 			def LeadingRepeatedCharCSQRT(pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -22374,7 +22374,7 @@ class stzString from stzObject
 			return This.RepeatedLeadingCharCS(pCaseSensitive)
 
 			def LeadingCharCSQRT(pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -22397,7 +22397,7 @@ class stzString from stzObject
 			return This.RepeatedLeadingCharQRT(:stzString)
 
 		def RepeatedLeadingCharQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -22419,7 +22419,7 @@ class stzString from stzObject
 			return This.RepeatedLeadingChar()
 
 			def LeadingRepeatedCharQRT(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -22432,7 +22432,7 @@ class stzString from stzObject
 			return This.RepeatedLeadingChar()
 
 			def LeadingCharQRT(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -23385,7 +23385,7 @@ class stzString from stzObject
 			return This.RepeatedTrailingCharCSQRT(pCaseSensitive, :stzChar)
 
 		def RepeatedTrailingCharCSQRT(pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -23407,7 +23407,7 @@ class stzString from stzObject
 			return This.RepeatedTrailingCharCS(pCaseSensitive)
 
 			def TrailingRepeatedCharCSQRT(pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -23420,7 +23420,7 @@ class stzString from stzObject
 			return This.RepeatedTrailingCharCS(pCaseSensitive)
 
 			def TrailingCharCSQRT(pCaseSensitive, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -23443,7 +23443,7 @@ class stzString from stzObject
 			return This.RepeatedTrailingCharQRT(:stzString)
 
 		def RepeatedTrailingCharQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -23465,7 +23465,7 @@ class stzString from stzObject
 			return This.RepeatedTrailingChar()
 
 			def TrailingRepeatedCharQRT(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -23478,7 +23478,7 @@ class stzString from stzObject
 			return This.RepeatedTrailingChar()
 
 			def TrailingCharQRT(pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -35203,7 +35203,7 @@ class stzString from stzObject
 			oN2Param = Q(n2)
 
 			if isList(n1) and
-			   oN1Param.IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n1,[
 				:From, :FromPosition, :FromCharAt, :FromCharAtPosition,
 
 				:Start, :FromStart,
@@ -35219,7 +35219,7 @@ class stzString from stzObject
 			ok
 	
 			if isList(n2) and
-			   oN2Param.IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n2,[
 				:To, :ToPosition, :ToCharAt, :ToCharAtPosition,
 				:ToEndOfWord, :ToEndOfLine, :ToEndOfSentence,
 
@@ -35239,24 +35239,24 @@ class stzString from stzObject
 	
 			# Managing the use of :NthToFirst named param
 	
-			if isList(n1) and oN1Param.IsOneOfTheseNamedParams([ :NthToFirst, :NthToFirstChar ])
+			if isList(n1) and IsOneOfTheseNamedParamsList(n1,[ :NthToFirst, :NthToFirstChar ])
 	
 				n1 = n1[2] + 1
 			ok
 	
-			if isList(n2) and oN2Param.IsOneOfTheseNamedParams([ :NthToFirst, :NthToFirstChar ])
+			if isList(n2) and IsOneOfTheseNamedParamsList(n2,[ :NthToFirst, :NthToFirstChar ])
 	
 				n2 = n2[2] + 1
 			ok
 	
 			# Managing the use of :NthToLast named param
 	
-			if isList(n1) and oN1Param.IsOneOfTheseNamedParams([ :NthToLast, :NthToLastChar ])
+			if isList(n1) and IsOneOfTheseNamedParamsList(n1,[ :NthToLast, :NthToLastChar ])
 	
 				n1 = nLen - n1[2]
 			ok
 	
-			if isList(n2) and oN2Param.IsOneOfTheseNamedParams([ :NthToLast, :NthToLastChar ])
+			if isList(n2) and IsOneOfTheseNamedParamsList(n2,[ :NthToLast, :NthToLastChar ])
 	
 				n2 = nLen - n2[2]
 	
@@ -36514,7 +36514,7 @@ class stzString from stzObject
 			oOptions = new stzList(paOptions)
 
 			# Case : Q("999999").InsertXT("-", :EachNChars = 2) --> 99-99-99
-			if oOptions.IsOneOfTheseNamedParams([ :Step, :EachNChars ])
+			if IsOneOfTheseNamedParamsList(paOptions,[ :Step, :EachNChars ])
 
 				This.SpacifyXT(
 					:Using = pcSubStr,
@@ -36889,13 +36889,13 @@ class stzString from stzObject
 
 			oParam = new stzList(pWhere)
 
-			if oParam.IsOneOfTheseNamedParams([
+			if IsOneOfTheseNamedParamsList(pWhere,[
 				:At, :AtPosition, :Before, :BeforePosition ])
 
 				This.InsertBefore(pcSubStr, pWhere[2])
 				return
 
-			but oParam.IsOneOfTheseNamedParams([ :After, :AfterPosition ])
+			but IsOneOfTheseNamedParamsList(pWhere,[ :After, :AfterPosition ])
 
 				This.InsertAfter(pcSubStr, pWhere[2])
 				return
@@ -45162,7 +45162,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and IsOneOfTheseNamedParamsList(pcDirection,[ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -45748,7 +45748,7 @@ class stzString from stzObject
 			ok
 	
 			if isList(pcDirection) and
-			   Q(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+			   IsOneOfTheseNamedParamsList(pcDirection,[ :Direction, :Going ])
 				pcDirection = pcDirection[2]
 			ok
 	
@@ -46714,7 +46714,7 @@ class stzString from stzObject
 	#TODO // Add other alternatives
 
 	def FindNthDCS(n, pcSubStr, pcDirection, pCaseSensitive)
-		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and IsOneOfTheseNamedParamsList(pcDirection,[ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -47234,7 +47234,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
+			if isList(pcSubStr) and IsOneOfTheseNamedParamsList(pcSubStr,[ :Of, :OfSubString ])
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -47246,7 +47246,7 @@ class stzString from stzObject
 				pnStartingAt = pnStartingAt[2]
 			ok
 	
-			if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+			if isList(pcDirection) and IsOneOfTheseNamedParamsList(pcDirection,[ :Direction, :Going ])
 				pcDirection = pcDirection[2]
 			ok
 
@@ -47448,7 +47448,7 @@ class stzString from stzObject
 	#-----------------------------------------------------------------------------#
 
 	def FindTheseOccurrencesAsSectionsDCS(panOccurr, pcSubStr, pcDirection, pCaseSensitive)
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOneOfTheseNamedParams([ :Of, :OfSubString ])
+		if isList(pcSubStr) and IsOneOfTheseNamedParamsList(pcSubStr,[ :Of, :OfSubString ])
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -48495,7 +48495,7 @@ class stzString from stzObject
 
 	def FindDCS(pcSubStr, pcDirection, pCaseSensitive)
 		
-		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and IsOneOfTheseNamedParamsList(pcDirection,[ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -48681,7 +48681,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and IsOneOfTheseNamedParamsList(pcDirection,[ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -48990,7 +48990,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+			if isList(pcDirection) and IsOneOfTheseNamedParamsList(pcDirection,[ :Direction, :Going ])
 				pcDirection = pcDirection[2]
 			ok
 	
@@ -50571,7 +50571,7 @@ class stzString from stzObject
 
 		if CheckingParams()
 
-			if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
+			if isList(n1) and IsOneOfTheseNamedParamsList(n1,[ :From, :FromPosition, :FromPositionOf ])
 				n1 = n1[2]
 			ok
 	
@@ -50591,7 +50591,7 @@ class stzString from stzObject
 
 			oN2Param = Q(n2)
 
-			if isList(n2) and oN2Param.IsOneOfTheseNamedParams([ :To, :ToPosition, :ToPositionOf, :And, :AndPosition ])
+			if isList(n2) and IsOneOfTheseNamedParamsList(n2,[ :To, :ToPosition, :ToPositionOf, :And, :AndPosition ])
 				n2 = n2[2]
 			ok
 
@@ -52345,7 +52345,7 @@ class stzString from stzObject
 		# Resolving the n1 and n2 params
 
 		if CheckingParams()
-			if isList(n1) and StzListQ(n1).IsOneOfTheseNamedParams([ :From, :FromPosition, :FromPositionOf ])
+			if isList(n1) and IsOneOfTheseNamedParamsList(n1,[ :From, :FromPosition, :FromPositionOf ])
 				n1 = n1[2]
 			ok
 	
@@ -52364,7 +52364,7 @@ class stzString from stzObject
 	
 			oN2Param = Q(n2)
 
-			if isList(n2) and oN2Param.IsOneOfTheseNamedParams([ :To, :ToPosition, :ToPositionOf ])
+			if isList(n2) and IsOneOfTheseNamedParamsList(n2,[ :To, :ToPosition, :ToPositionOf ])
 				n2 = n2[2]
 			ok
 	
@@ -53317,7 +53317,7 @@ class stzString from stzObject
 			return This.FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
 		def FindAsSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -53510,7 +53510,7 @@ class stzString from stzObject
 
 		# Checking the pcDirection param
 
-		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and IsOneOfTheseNamedParamsList(pcDirection,[ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -53713,7 +53713,7 @@ class stzString from stzObject
 			return This.FindAsAntiSectionsCSQRT(pcSubStr, pCaseSensitive, :stzList)
 
 		def FindAsAntiSectionsCSQRT(pcSubStr, pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -53819,7 +53819,7 @@ class stzString from stzObject
 		pOption = []
 
 		if isList(paOption) and
-		   Q(paOption).IsOneOfTheseNamedParams([ :Between, :BetweenCS, :Where ])
+		   IsOneOfTheseNamedParamsList(paOption,[ :Between, :BetweenCS, :Where ])
 
 			cOption = paOption[1]
 			pOption = paOption[2]
@@ -54934,7 +54934,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		if isList(p) and StzListQ(p).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(p) and IsOneOfTheseNamedParamsList(p,[ :Position, :SubString ])
 			p = p[2]
 		ok
 
@@ -54966,7 +54966,7 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		if isList(p) and StzListQ(p).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(p) and IsOneOfTheseNamedParamsList(p,[ :Position, :SubString ])
 			p = p[2]
 		ok
 
@@ -55236,11 +55236,11 @@ class stzString from stzObject
 				cString = p1
 			ok
 	
-			if oP2.IsOneOfTheseNamedParams([ :At, :AtPosition ]) and isNumber(p2[2])
+			if IsOneOfTheseNamedParamsList(p2,[ :At, :AtPosition ]) and isNumber(p2[2])
 				return This.ContainsAt(p2[2], cString)
 			ok
 	
-			if oP2.IsOneOfTheseNamedParams([ :At, :AtPositions ]) and
+			if IsOneOfTheseNamedParamsList(p2,[ :At, :AtPositions ]) and
 			   isList(p2[2]) and StzListQ(p2[2]).IsListOfNumbers()
 	
 				return This.ContainsAtPositions(p2[2], cString)
@@ -55964,11 +55964,11 @@ class stzString from stzObject
 
 	def ContainsAtCS(n, pcSubStr, pCaseSensitive)
 
-		if isList(n) and StzListQ(n).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(n) and IsOneOfTheseNamedParamsList(n,[ :Position, :SubString ])
 			n = n[2]
 		ok
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(pcSubStr) and IsOneOfTheseNamedParamsList(pcSubStr,[ :Position, :SubString ])
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -56001,11 +56001,11 @@ class stzString from stzObject
 
 	def ContainsAtPositionCS(n, pcSubStr, pCaseSensitive)
 
-		if isList(n) and StzListQ(n).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(n) and IsOneOfTheseNamedParamsList(n,[ :Position, :SubString ])
 			n = n[2]
 		ok
 
-		if isList(pcSubStr) and StzListQ(pcSubStr).IsOneOfTheseNamedParams([ :Position, :SubString ])
+		if isList(pcSubStr) and IsOneOfTheseNamedParamsList(pcSubStr,[ :Position, :SubString ])
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -56066,12 +56066,12 @@ class stzString from stzObject
 	def ContainsAtPositionsCS(panPos, pcSubStr, pCaseSensitive)
 
 		if isList(panPos) and
-		   Q(panPos).IsOneOfTheseNamedParams([ :Positions, :SubString ])
+		   IsOneOfTheseNamedParamsList(panPos,[ :Positions, :SubString ])
 			panPos = panPos[2]
 		ok
 
 		if isList(pcSubStr) and
-		   Q(pcSubStr).IsOneOfTheseNamedParams([ :Positions, :SubString ])
+		   IsOneOfTheseNamedParamsList(pcSubStr,[ :Positions, :SubString ])
 			pcSubStr = pcSubStr[2]
 		ok
 
@@ -56414,7 +56414,7 @@ class stzString from stzObject
 
 		def ContainsEachCS(pacSubStr, pCaseSensitive)
 			if isList(pacSubStr) and
-			   Q(pacSubStr).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(pacSubStr,[
 				:Of, :OfThese, :OfTheseSubStrings ])
 
 				pacSubStr = pacSubStr[2]
@@ -56433,7 +56433,7 @@ class stzString from stzObject
 
 		def ContainsEachOneCS(pacSubStr, pCaseSensitive)
 			if isList(pacSubStr) and
-			   Q(pacSubStr).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(pacSubStr,[
 				:Of, :OfThese, :OfTheseSubStrings ])
 
 				pacSubStr = pacSubStr[2]
@@ -56467,7 +56467,7 @@ class stzString from stzObject
 
 		def ContainsNoneCS(pacSubStr, pCaseSensitive)
 			if isList(pacSubStr) and
-			   Q(pacSubStr).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(pacSubStr,[
 				:Of, :OfThese, :OfTheseSubStrings ])
 
 				pacSubStr = pacSubStr[2]
@@ -56477,7 +56477,7 @@ class stzString from stzObject
 
 		def ContainsNoOneOfCS(pacSubStr, pCaseSensitive)
 			if isList(pacSubStr) and
-			   Q(pacSubStr).IsOneOfTheseNamedParams([ :These, :TheseSubStrings ])
+			   IsOneOfTheseNamedParamsList(pacSubStr,[ :These, :TheseSubStrings ])
 
 				pacSubStr = pacSubStr[2]
 			ok
@@ -56489,7 +56489,7 @@ class stzString from stzObject
 
 		def ContainsNoSubStringCS(pacSubStr, pCaseSensitive)
 			if isList(pacSubStr) and
-			   Q(pacSubStr).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(pacSubStr,[
 				:Of, :OfThese, :OfTheseSubStrings ])
 
 				pacSubStr = pacSubStr[2]
@@ -56739,31 +56739,31 @@ class stzString from stzObject
 
 			#-- SPLITTING AT / USING
 
-			if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :At, :Using ])
 				return This.SplitAtCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPosition, :AtThisPosition ]) 
 				return This.SplitAtPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPositions, :AtThesePositions ]) 
 				return This.SplitAtPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubString, :AtThisSubString,
 						:UsingSubString, :UsingThisSubString ]) 
 
 				return This.SplitAtSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubStrings, :AtTheseSubStrings,
 						:UsingSubStrings, :UsingTheseSubStrings ]) 
 
 				return This.SplitAtSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSection, :AtThisSection ]) 
 				return This.SplitAtSection(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSections, :AtTheseSections ]) 
 				return This.SplitAtSections(pSubStrOrPos[2])
 
 			#-- SPLITTING BEFORE
@@ -56771,22 +56771,22 @@ class stzString from stzObject
 			but oParam.IsBeforeNamedParam()
 				return This.SplitBeforeCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePosition, :BeforeThisPosition ]) 
 				return This.SplitBeforePosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePositions, :BeforeThesePositions ]) 
 				return This.SplitBeforePositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubString, :BeforeThisSubString ]) 
 				return This.SplitBeforeSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSection, :BeforeThisSection ]) 
 				return This.SplitBeforeSection(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSections, :BeforeTheseSections ]) 
 				return This.SplitBeforeSections(pSubStrOrPos[2])
 
 			#-- SPLITTING AFTER
@@ -56794,22 +56794,22 @@ class stzString from stzObject
 			but oParam.IsAfterNamedParam()
 				return This.SplitAfterCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPosition, :AfterThisPosition ]) 
 				return This.SplitAfterPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPositions, :AfterThesePositions ]) 
 				return This.SplitAfterPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubString, :AfterThisSubString ]) 
 				return This.SplitAfterSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubStrings, :AfterTheseSubStrings ]) 
 				return This.SplitAfterSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSection, :AfterThisSection ]) 
 				return This.SplitAfterSection(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSections, :AfterTheseSections ]) 
 				return This.SplitAfterSections(pSubStrOrPos[2])
 
 			# SPLITTING BETWEEN
@@ -56989,31 +56989,31 @@ class stzString from stzObject
 
 			#-- SPLITTING AT / USING
 
-			if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :At, :Using ])
 				return This.SplitAtCSZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPosition, :AtThisPosition ]) 
 				return This.SplitAtPositionZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPositions, :AtThesePositions ]) 
 				return This.SplitAtPositionsZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubString, :AtThisSubString,
 						:UsingSubString, :UsingThisSubString ]) 
 
 				return This.SplitAtSubStringCSZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubStrings, :AtTheseSubStrings,
 						:UsingSubStrings, :UsingTheseSubStrings ]) 
 
 				return This.SplitAtSubStringsCSZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSection, :AtThisSection ]) 
 				return This.SplitAtSectionZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSections, :AtTheseSections ]) 
 				return This.SplitAtSectionsZ(pSubStrOrPos[2])
 
 			#-- SPLITTING BEFORE
@@ -57021,22 +57021,22 @@ class stzString from stzObject
 			but oParam.IsBeforeNamedParam()
 				return This.SplitBeforeCSZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePosition, :BeforeThisPosition ]) 
 				return This.SplitBeforePositionZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePositions, :BeforeThesePositions ]) 
 				return This.SplitBeforePositionsZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubString, :BeforeThisSubString ]) 
 				return This.SplitBeforeSubStringCSZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSection, :BeforeThisSection ]) 
 				return This.SplitBeforeSectionZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSections, :BeforeTheseSections ]) 
 				return This.SplitBeforeSectionsZ(pSubStrOrPos[2])
 
 			#-- SPLITTING AFTER
@@ -57044,22 +57044,22 @@ class stzString from stzObject
 			but oParam.IsAfterNamedParam()
 				return This.SplitAfterCSZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPosition, :AfterThisPosition ]) 
 				return This.SplitAfterPositionZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPositions, :AfterThesePositions ]) 
 				return This.SplitAfterPositionsZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubString, :AfterThisSubString ]) 
 				return This.SplitAfterSubStringCSZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubStrings, :AfterTheseSubStrings ]) 
 				return This.SplitAfterSubStringsCSZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSection, :AfterThisSection ]) 
 				return This.SplitAfterSectionZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSections, :AfterTheseSections ]) 
 				return This.SplitAfterSectionsZ(pSubStrOrPos[2])
 
 			# SPLITTING BETWEEN
@@ -57170,31 +57170,31 @@ class stzString from stzObject
 
 			#-- SPLITTING AT / USING
 
-			if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :At, :Using ])
 				return This.SplitAtCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPosition, :AtThisPosition ]) 
 				return This.SplitAtPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPositions, :AtThesePositions ]) 
 				return This.SplitAtPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubString, :AtThisSubString,
 						:UsingSubString, :UsingThisSubString ]) 
 
 				return This.SplitAtSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubStrings, :AtTheseSubStrings,
 						:UsingSubStrings, :UsingTheseSubStrings ]) 
 
 				return This.SplitAtSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSection, :AtThisSection ]) 
 				return This.SplitAtSectionZZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSections, :AtTheseSections ]) 
 				return This.SplitAtSectionsZZ(pSubStrOrPos[2])
 
 			#-- SPLITTING BEFORE
@@ -57202,22 +57202,22 @@ class stzString from stzObject
 			but oParam.IsBeforeNamedParam()
 				return This.SplitBeforeCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePosition, :BeforeThisPosition ]) 
 				return This.SplitBeforePositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePositions, :BeforeThesePositions ]) 
 				return This.SplitBeforePositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubString, :BeforeThisSubString ]) 
 				return This.SplitBeforeSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSection, :BeforeThisSection ]) 
 				return This.SplitBeforeSectionZZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSections, :BeforeTheseSections ]) 
 				return This.SplitBeforeSectionsZZ(pSubStrOrPos[2])
 
 			#-- SPLITTING AFTER
@@ -57225,22 +57225,22 @@ class stzString from stzObject
 			but oParam.IsAfterNamedParam()
 				return This.SplitAfterCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPosition, :AfterThisPosition ]) 
 				return This.SplitAfterPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPositions, :AfterThesePositions ]) 
 				return This.SplitAfterPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubString, :AfterThisSubString ]) 
 				return This.SplitAfterSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubStrings, :AfterTheseSubStrings ]) 
 				return This.SplitAfterSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSection, :AfterThisSection ]) 
 				return This.SplitAfterSectionZZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSections, :AfterTheseSections ]) 
 				return This.SplitAfterSectionsZZ(pSubStrOrPos[2])
 
 			# SPLITTING BETWEEN
@@ -57533,28 +57533,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.SplitAtPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.SplitAtPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.SplitAtSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.SplitAtSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.SplitAtSection(pSubStrOrPos[2][1],pSubStrOrPos[2][2])
 
 			but oParam.IsOneOfTheseNamedIBParams([ :SectionIB, :ThisSectionIB ]) 
 				return This.SplitAtSectionIB(pSubStrOrPos[2][1],pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.SplitAtSections(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.SplitAtSectionsIB(pSubStrOrPos[2])
 
 			ok
@@ -59040,28 +59040,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.SplitBeforePosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.SplitBeforePositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.SplitBeforeSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.SplitBeforeSection(pSubStrOrPos[2][1], pSubStrOrPos[2][1])
 	
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.SplitBeforeSectionIB(pSubStrOrPos[2][1], pSubStrOrPos[2][1])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.SplitBeforeSections(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.SplitBeforeSectionsIB(pSubStrOrPos[2])
 
 			ok
@@ -60002,29 +60002,29 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ])
 
 				return This.SplitAfterPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.SplitAfterPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.SplitAfterSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.SplitAfterSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.SplitAfterSection(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.SplitAfterSectionIB(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.SplitAfterSections(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.SplitAfterSectionsIB(pSubStrOrPos[2])
 
 			#-- Providing numbers, strings, or pairs of numbers,
@@ -64286,31 +64286,31 @@ class stzString from stzObject
 
 			#-- SPLITTING AT / USING
 
-			if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :At, :Using ])
 				return This.FindSplitsAtCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPosition, :AtThisPosition ]) 
 				return This.FindSplitsAtPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPositions, :AtThesePositions ]) 
 				return This.FindSplitsAtPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubString, :AtThisSubString,
 						:UsingSubString, :UsingThisSubString ]) 
 
 				return This.FindSplitsAtSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubStrings, :AtTheseSubStrings,
 						:UsingSubStrings, :UsingTheseSubStrings ]) 
 
 				return This.FindSplitsAtSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSection, :AtThisSection ]) 
 				return This.FindSplitsAtSection(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSections, :AtTheseSections ]) 
 				return This.FindSplitsAtSections(pSubStrOrPos[2])
 
 			#-- SPLITTING BEFORE
@@ -64318,22 +64318,22 @@ class stzString from stzObject
 			but oParam.IsBeforeNamedParam()
 				return This.FindSplitsBeforeCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePosition, :BeforeThisPosition ]) 
 				return This.FindSplitsBeforePosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePositions, :BeforeThesePositions ]) 
 				return This.FindSplitsBeforePositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubString, :BeforeThisSubString ]) 
 				return This.FindSplitsBeforeSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSection, :BeforeThisSection ]) 
 				return This.FindSplitsBeforeSection(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSections, :BeforeTheseSections ]) 
 				return This.FindSplitsBeforeSections(pSubStrOrPos[2])
 
 			#-- SPLITTING AFTER
@@ -64341,22 +64341,22 @@ class stzString from stzObject
 			but oParam.IsAfterNamedParam()
 				return This.FindSplitsAfterCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPosition, :AfterThisPosition ]) 
 				return This.FindSplitsAfterPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPositions, :AfterThesePositions ]) 
 				return This.FindSplitsAfterPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubString, :AfterThisSubString ]) 
 				return This.FindSplitsAfterSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubStrings, :AfterTheseSubStrings ]) 
 				return This.FindSplitsAfterSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSection, :AfterThisSection ]) 
 				return This.FindSplitsAfterSection(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSections, :AfterTheseSections ]) 
 				return This.FindSplitsAfterSections(pSubStrOrPos[2])
 
 			# SPLITTING BETWEEN
@@ -64478,28 +64478,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindSplitsAtPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindSplitsAtPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindSplitsAtSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindSplitsAtSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindSplitsAtSection(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindSplitsAtSectionIB(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindSplitsAtSections(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindSplitsAtSectionsIB(pSubStrOrPos[2])
 
 			ok
@@ -65081,28 +65081,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindSplitsBeforePosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindSplitsBeforePositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindSplitsBeforeSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindSplitsBeforeSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindSplitsBeforeSection(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindSplitsBeforeSectionIB(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindSplitsBeforeSections(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindSplitsBeforeSectionsIB(pSubStrOrPos[2])
 
 			ok
@@ -65520,29 +65520,29 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			if IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :Position, :ThisPosition ])
 
 				return This.FindSplitsAfterPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindSplitsAfterPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindSplitsAfterSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindSplitsAfterSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindSplitsAfterSection(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindSplitsAfterSectionIB(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindSplitsAfterSections(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindSplitsAfterSectionsIB(pSubStrOrPos[2])
 
 			#-- Providing numbers, strings, or pairs of numbers,
@@ -66439,37 +66439,37 @@ class stzString from stzObject
 
 			#-- SPLITTING AT / USING
 
-			if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :At, :Using ])
 				return This.FindSplitsAtCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPosition, :AtThisPosition ]) 
 				return This.FindSplitsAtPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPositions, :AtThesePositions ]) 
 				return This.FindSplitsAtPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubString, :AtThisSubString,
 						:UsingSubString, :UsingThisSubString ]) 
 
 				return This.FindSplitsAtSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubStrings, :AtTheseSubStrings,
 						:UsingSubStrings, :UsingTheseSubStrings ]) 
 
 				return This.FindSplitsAtSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSection, :AtThisSection ]) 
 				return This.FindSplitsAtSectionZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSections, :AtTheseSections ]) 
 				return This.FindSplitsAtSectionsZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AtSectionIB, :AtThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSectionIB, :AtThisSectionIB ]) 
 				return This.FindSplitsAtSectionIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AtSectionsIB, :AtTheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSectionsIB, :AtTheseSectionsIB ]) 
 				return This.FindSplitsAtSectionsIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
 			#-- SPLITTING BEFORE
@@ -66477,28 +66477,28 @@ class stzString from stzObject
 			but oParam.IsBeforeNamedParam()
 				return This.FindSplitsBeforeCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePosition, :BeforeThisPosition ]) 
 				return This.FindSplitsBeforePositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePositions, :BeforeThesePositions ]) 
 				return This.FindSplitsBeforePositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubString, :BeforeThisSubString ]) 
 				return This.FindSplitsBeforeSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSection, :BeforeThisSection ]) 
 				return This.FindSplitsBeforeSectionZZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSections, :BeforeTheseSections ]) 
 				return This.FindSplitsBeforeSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSectionIB, :BeforeThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSectionIB, :BeforeThisSection ]) 
 				return This.FindSplitsBeforeSectionIBZZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSectionsIB, :BeforeTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSectionsIB, :BeforeTheseSections ]) 
 				return This.FindSplitsBeforeSectionsIBZZ(pSubStrOrPos[2])
 
 			#-- SPLITTING AFTER
@@ -66506,31 +66506,31 @@ class stzString from stzObject
 			but oParam.IsAfterNamedParam()
 				return This.FindSplitsAfterCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPosition, :AfterThisPosition ]) 
 				return This.FindSplitsAfterPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPositions, :AfterThesePositions ]) 
 				return This.FindSplitsAfterPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubString, :AfterThisSubString ]) 
 				return This.FindSplitsAfterSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubStrings, :AfterTheseSubStrings ]) 
 				return This.FindSplitsAfterSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSection, :AfterThisSection ]) 
 				return This.FindSplitsAfterSectionZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSections, :AfterTheseSections ]) 
 				return This.FindSplitsAfterSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSectionIB, :AfterThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSectionIB, :AfterThisSectionIB ]) 
 				return This.FindSplitsAfterSectionIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSections, :AfterTheseSections ]) 
 				return This.FindSplitsAfterSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSectionsIB, :AfterTheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSectionsIB, :AfterTheseSectionsIB ]) 
 				return This.FindSplitsAfterSectionsIBZZ(pSubStrOrPos[2])
 
 			# SPLITTING BETWEEN
@@ -66646,28 +66646,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindSplitsAtPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindSplitsAtPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindSplitsAtSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindSplitsAtSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindSplitsAtSectionZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindSplitsAtSectionIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindSplitsAtSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindSplitsAtSectionsIBZZ(pSubStrOrPos[2])
 
 			ok
@@ -67237,25 +67237,25 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindSplitsBeforePositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindSplitsBeforePositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindSplitsBeforeSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindSplitsBeforeSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindSplitsBeforeSectionIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindSplitsBeforeSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pcSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindSplitsBeforeSectionsIBZZ(pSubStrOrPos[2])
 
 			ok
@@ -67800,29 +67800,29 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ])
 
 				return This.FindSplitsAfterPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindSplitsAfterPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindSplitsAfterSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindSplitsAfterSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindSplitsAfterSectionZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindSplitsAfterSectionIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindSplitsAfterSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindSplitsAfterSectionsIBZZ(pSubStrOrPos[2])
 
 			#-- Providing numbers, strings, or pairs of numbers,
@@ -68914,31 +68914,31 @@ class stzString from stzObject
 
 			#-- SPLITTING AT / USING
 
-			if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :At, :Using ])
 				return This.FindNthSplitAtCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPosition, :AtThisPosition ]) 
 				return This.FindNthSplitAtPositionCS(n, pSubStrOrPos[2], pCaseSensitive)
 	
-			but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPositions, :AtThesePositions ]) 
 				return This.FindNthSplitAtPositionsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubString, :AtThisSubString,
 						:UsingSubString, :UsingThisSubString ]) 
 
 				return This.FindNthSplitAtSubStringCS(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubStrings, :AtTheseSubStrings,
 						:UsingSubStrings, :UsingTheseSubStrings ]) 
 
 				return This.FindNthSplitAtSubStringsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSection, :AtThisSection ]) 
 				return This.FindNthSplitAtSectionCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSections, :AtTheseSections ]) 
 				return This.FindNthSplitAtSectionsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
 			#-- SPLITTING BEFORE
@@ -68946,22 +68946,22 @@ class stzString from stzObject
 			but oParam.IsBeforeNamedParam()
 				return This.FindNthSplitBeforeCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePosition, :BeforeThisPosition ]) 
 				return This.FindNthSplitBeforePositionCS(n, pSubStrOrPos[2], pCaseSensitive)
 	
-			but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePositions, :BeforeThesePositions ]) 
 				return This.FindNthSplitBeforePositionsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubString, :BeforeThisSubString ]) 
 				return This.FindNthSplitBeforeSubStringCS(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSection, :BeforeThisSection ]) 
 				return This.FindNthSplitBeforeSectionCS(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSections, :BeforeTheseSections ]) 
 				return This.FindNthSplitBeforeSectionsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
 			#-- SPLITTING AFTER
@@ -68969,22 +68969,22 @@ class stzString from stzObject
 			but oParam.IsAfterNamedParam()
 				return This.FindNthSplitAfterCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPosition, :AfterThisPosition ]) 
 				return This.FindNthSplitAfterPositionCS(n, pSubStrOrPos[2], pCaseSensitive)
 	
-			but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPositions, :AfterThesePositions ]) 
 				return This.FindNthSplitAfterPositionsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubString, :AfterThisSubString ]) 
 				return This.FindNthSplitAfterSubStringCS(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubStrings, :AfterTheseSubStrings ]) 
 				return This.FindNthSplitAfterSubStringsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSection, :AfterThisSection ]) 
 				return This.FindNthSplitAfterSectionCS(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSections, :AfterTheseSections ]) 
 				return This.FindNthSplitAfterSectionsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
 			# SPLITTING BETWEEN
@@ -69106,28 +69106,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindNthSplitAtPositionCS(n, pSubStrOrPos[2], pCaseSensitive)
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindNthSplitAtPositionsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindNthSplitAtSubStringCS(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindNthSplitAtSubStringsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindNthSplitAtSectionCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindNthSplitAtSectionCSIB(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindNthSplitAtSectionsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindNthSplitAtSectionsCSIB(n, pSubStrOrPos[2], pCaseSensitive)
 
 			ok
@@ -69569,28 +69569,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindNthSplitBeforePosition(n, pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindNthSplitBeforePositions(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindNthSplitBeforeSubStringCS(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindNthSplitBeforeSubStringsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindNthSplitBeforeSection(n, pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindNthSplitBeforeSectionIB(n, pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindNthSplitBeforeSections(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindNthSplitBeforeSectionsIB(n, pSubStrOrPos[2])
 
 			ok
@@ -69952,29 +69952,29 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ])
 
 				return This.FindNthSplitAfterPosition(n, pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindNthSplitAfterPositions(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindNthSplitAfterSubStringCS(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindNthSplitAfterSubStringsCS(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindNthSplitAfterSection(n, pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindNthSplitAfterSectionIB(n, pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindNthSplitAfterSections(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindNthSplitAfterSectionsIB(n, pSubStrOrPos[2])
 
 			#-- Providing numbers, strings, or pairs of numbers,
@@ -70560,31 +70560,31 @@ class stzString from stzObject
 
 			#-- SPLITTING AT / USING
 
-			if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :At, :Using ])
 				return This.FindNthSplitAtCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPosition, :AtThisPosition ]) 
 				return This.FindNthSplitAtPositionZZ(n, pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPositions, :AtThesePositions ]) 
 				return This.FindNthSplitAtPositionsZZ(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubString, :AtThisSubString,
 						:UsingSubString, :UsingThisSubString ]) 
 
 				return This.FindNthSplitAtSubStringCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubStrings, :AtTheseSubStrings,
 						:UsingSubStrings, :UsingTheseSubStrings ]) 
 
 				return This.FindNthSplitAtSubStringsCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSection, :AtThisSection ]) 
 				return This.FindNthSplitAtSectionZZ(n, pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSections, :AtTheseSections ]) 
 				return This.FindNthSplitAtSectionsZZ(n, pSubStrOrPos[2])
 
 			#-- SPLITTING BEFORE
@@ -70592,22 +70592,22 @@ class stzString from stzObject
 			but oParam.IsBeforeNamedParam()
 				return This.FindNthSplitBeforeCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePosition, :BeforeThisPosition ]) 
 				return This.FindNthSplitBeforePositionZZ(n, pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePositions, :BeforeThesePositions ]) 
 				return This.FindNthSplitBeforePositionsZZ(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubString, :BeforeThisSubString ]) 
 				return This.FindNthSplitBeforeSubStringCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSection, :BeforeThisSection ]) 
 				return This.FindNthSplitBeforeSectionZZ(n, pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSections, :BeforeTheseSections ]) 
 				return This.FindNthSplitBeforeSectionsZZ(n, pSubStrOrPos[2])
 
 			#-- SPLITTING AFTER
@@ -70615,22 +70615,22 @@ class stzString from stzObject
 			but oParam.IsAfterNamedParam()
 				return This.FindNthSplitAfterCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPosition, :AfterThisPosition ]) 
 				return This.FindNthSplitAfterPositionZZ(n, pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPositions, :AfterThesePositions ]) 
 				return This.FindNthSplitAfterPositionsZZ(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubString, :AfterThisSubString ]) 
 				return This.FindNthSplitAfterSubStringCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubStrings, :AfterTheseSubStrings ]) 
 				return This.FindNthSplitAfterSubStringsCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSection, :AfterThisSection ]) 
 				return This.FindNthSplitAfterSectionZZ(n, pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSections, :AfterTheseSections ]) 
 				return This.FindNthSplitAfterSectionsZZ(n, pSubStrOrPos[2])
 
 			# SPLITTING BETWEEN
@@ -70723,28 +70723,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindNthSplitAtPositionZZ(n, pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindNthSplitAtPositionsZZ(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindNthSplitAtSubStringCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindNthSplitAtSubStringsCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindNthSplitAtSectionZZ(n, pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindNthSplitAtSectionIBZZ(n, pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindNthSplitAtSectionsZZ(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindNthSplitAtSectionsIBZZ(n, pSubStrOrPos[2])
 
 			ok
@@ -71089,28 +71089,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindNthSplitBeforePositionZZ(n, pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindNthSplitBeforePositionsZZ(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindNthSplitBeforeSubStringCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindNthSplitBeforeSubStringsCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindNthSplitBeforeSectionZZ(n, pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindNthSplitBeforeSectionIBZZ(n, pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindNthSplitBeforeSectionsZZ(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindNthSplitBeforeSectionsIBZZ(n, pSubStrOrPos[2])
 
 			ok
@@ -71472,29 +71472,29 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ])
 
 				return This.FindNthSplitAfterPositionZZ(n, pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindNthSplitAfterPositionsZZ(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindNthSplitAfterSubStringCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindNthSplitAfterSubStringsCSZZ(n, pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindNthSplitAfterSectionZZ(n, pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindNthSplitAfterSectionIBZZ(n, pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindNthSplitAfterSectionsZZ(n, pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindNthSplitAfterSectionsIBZZ(n, pSubStrOrPos[2])
 
 			#-- Providing numbers, strings, or pairs of numbers,
@@ -72073,31 +72073,31 @@ class stzString from stzObject
 
 			#-- SPLITTING AT / USING
 
-			if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :At, :Using ])
 				return This.FindLastSplitAtCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPosition, :AtThisPosition ]) 
 				return This.FindLastSplitAtPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPositions, :AtThesePositions ]) 
 				return This.FindLastSplitAtPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubString, :AtThisSubString,
 						:UsingSubString, :UsingThisSubString ]) 
 
 				return This.FindLastSplitAtSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubStrings, :AtTheseSubStrings,
 						:UsingSubStrings, :UsingTheseSubStrings ]) 
 
 				return This.FindLastSplitAtSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSection, :AtThisSection ]) 
 				return This.FindLastSplitAtSection(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSections, :AtTheseSections ]) 
 				return This.FindLastSplitAtSections(pSubStrOrPos[2])
 
 			#-- SPLITTING BEFORE
@@ -72105,22 +72105,22 @@ class stzString from stzObject
 			but oParam.IsBeforeNamedParam()
 				return This.FindLastSplitBeforeCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePosition, :BeforeThisPosition ]) 
 				return This.FindLastSplitBeforePosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePositions, :BeforeThesePositions ]) 
 				return This.FindLastSplitBeforePositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubString, :BeforeThisSubString ]) 
 				return This.FindLastSplitBeforeSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSection, :BeforeThisSection ]) 
 				return This.FindLastSplitBeforeSection(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSections, :BeforeTheseSections ]) 
 				return This.FindLastSplitBeforeSections(pSubStrOrPos[2])
 
 			#-- SPLITTING AFTER
@@ -72128,22 +72128,22 @@ class stzString from stzObject
 			but oParam.IsAfterNamedParam()
 				return This.FindLastSplitAfterCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPosition, :AfterThisPosition ]) 
 				return This.FindLastSplitAfterPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPositions, :AfterThesePositions ]) 
 				return This.FindLastSplitAfterPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubString, :AfterThisSubString ]) 
 				return This.FindLastSplitAfterSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubStrings, :AfterTheseSubStrings ]) 
 				return This.FindLastSplitAfterSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSection, :AfterThisSection ]) 
 				return This.FindLastSplitAfterSection(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSections, :AfterTheseSections ]) 
 				return This.FindLastSplitAfterSections(pSubStrOrPos[2])
 
 			# SPLITTING BETWEEN
@@ -72265,28 +72265,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindLastSplitAtPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindLastSplitAtPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindLastSplitAtSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindLastSplitAtSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindLastSplitAtSection(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindLastSplitAtSectionIB(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindLastSplitAtSections(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindLastSplitAtSectionsIB(pSubStrOrPos[2])
 
 			ok
@@ -72668,28 +72668,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindLastSplitBeforePosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindLastSplitBeforePositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindLastSplitBeforeSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindLastSplitBeforeSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindLastSplitBeforeSection(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindLastSplitBeforeSectionIB(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindLastSplitBeforeSections(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindLastSplitBeforeSectionsIB(pSubStrOrPos[2])
 
 			ok
@@ -73051,29 +73051,29 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ])
 
 				return This.FindLastSplitAfterPosition(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindLastSplitAfterPositions(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindLastSplitAfterSubStringCS(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindLastSplitAfterSubStringsCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindLastSplitAfterSection(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindLastSplitAfterSectionIB(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindLastSplitAfterSections(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindLastSplitAfterSectionsIB(pSubStrOrPos[2])
 
 			#-- Providing numbers, strings, or pairs of numbers,
@@ -73771,31 +73771,31 @@ class stzString from stzObject
 
 			#-- SPLITTING AT / USING
 
-			if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :At, :Using ])
 				return This.FindFirstSplitAtCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPosition, :AtThisPosition ]) 
 				return This.FindFirstSplitAtPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPositions, :AtThesePositions ]) 
 				return This.FindFirstSplitAtPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubString, :AtThisSubString,
 						:UsingSubString, :UsingThisSubString ]) 
 
 				return This.FindFirstSplitAtSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubStrings, :AtTheseSubStrings,
 						:UsingSubStrings, :UsingTheseSubStrings ]) 
 
 				return This.FindFirstSplitAtSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSection, :AtThisSection ]) 
 				return This.FindFirstSplitAtSectionZZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSections, :AtTheseSections ]) 
 				return This.FindFirstSplitAtSectionsZZ(pSubStrOrPos[2])
 
 			#-- SPLITTING BEFORE
@@ -73803,22 +73803,22 @@ class stzString from stzObject
 			but oParam.IsBeforeNamedParam()
 				return This.FindFirstSplitBeforeCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePosition, :BeforeThisPosition ]) 
 				return This.FindFirstSplitBeforePositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePositions, :BeforeThesePositions ]) 
 				return This.FindFirstSplitBeforePositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubString, :BeforeThisSubString ]) 
 				return This.FindFirstSplitBeforeSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSection, :BeforeThisSection ]) 
 				return This.FindFirstSplitBeforeSectionZZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSections, :BeforeTheseSections ]) 
 				return This.FindFirstSplitBeforeSectionsZZ(pSubStrOrPos[2])
 
 			#-- SPLITTING AFTER
@@ -73826,22 +73826,22 @@ class stzString from stzObject
 			but oParam.IsAfterNamedParam()
 				return This.FindFirstSplitAfterCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPosition, :AfterThisPosition ]) 
 				return This.FindFirstSplitAfterPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPositions, :AfterThesePositions ]) 
 				return This.FindFirstSplitAfterPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubString, :AfterThisSubString ]) 
 				return This.FindFirstSplitAfterSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubStrings, :AfterTheseSubStrings ]) 
 				return This.FindFirstSplitAfterSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSection, :AfterThisSection ]) 
 				return This.FindFirstSplitAfterSectionZZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSections, :AfterTheseSections ]) 
 				return This.FindFirstSplitAfterSectionsZZ(pSubStrOrPos[2])
 
 			# SPLITTING BETWEEN
@@ -73963,28 +73963,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindFirstSplitAtPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindFirstSplitAtPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindFirstSplitAtSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindFirstSplitAtSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindFirstSplitAtSectionZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindFirstSplitAtSectionIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindFirstSplitAtSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindFirstSplitAtSectionsIBZZ(pSubStrOrPos[2])
 
 			ok
@@ -74329,28 +74329,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindFirstSplitBeforePositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindFirstSplitBeforePositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindFirstSplitBeforeSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindFirstSplitBeforeSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindFirstSplitBeforeSectionZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindFirstSplitBeforeSectionIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindFirstSplitBeforeSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindFirstSplitBeforeSectionsIBZZ(pSubStrOrPos[2])
 
 			ok
@@ -74712,29 +74712,29 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ])
 
 				return This.FindFirstSplitAfterPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindFirstSplitAfterPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindFirstSplitAfterSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindFirstSplitAfterSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindFirstSplitAfterSectionZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindFirstSplitAfterSectionIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindFirstSplitAfterSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindFirstSplitAfterSectionsIBZZ(pSubStrOrPos[2])
 
 			#-- Providing numbers, strings, or pairs of numbers,
@@ -75398,31 +75398,31 @@ class stzString from stzObject
 
 			#-- SPLITTING AT / USING
 
-			if oParam.IsOneOfTheseNamedParams([ :At, :Using ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :At, :Using ])
 				return This.FindLastSplitAtCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtPosition, :AtThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPosition, :AtThisPosition ]) 
 				return This.FindLastSplitAtPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AtPositions, :AtThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtPositions, :AtThesePositions ]) 
 				return This.FindLastSplitAtPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubString, :AtThisSubString,
 						:UsingSubString, :UsingThisSubString ]) 
 
 				return This.FindLastSplitAtSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[
 						:AtSubStrings, :AtTheseSubStrings,
 						:UsingSubStrings, :UsingTheseSubStrings ]) 
 
 				return This.FindLastSplitAtSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AtSection, :AtThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSection, :AtThisSection ]) 
 				return This.FindLastSplitAtSectionZZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AtSections, :AtTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AtSections, :AtTheseSections ]) 
 				return This.FindLastSplitAtSectionsZZ(pSubStrOrPos[2])
 
 			#-- SPLITTING BEFORE
@@ -75430,22 +75430,22 @@ class stzString from stzObject
 			but oParam.IsBeforeNamedParam()
 				return This.FindLastSplitBeforeCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforePosition, :BeforeThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePosition, :BeforeThisPosition ]) 
 				return This.FindLastSplitBeforePositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :BeforePositions, :BeforeThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforePositions, :BeforeThesePositions ]) 
 				return This.FindLastSplitBeforePositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubString, :BeforeThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubString, :BeforeThisSubString ]) 
 				return This.FindLastSplitBeforeSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSubStrings, :BeforeTheseSubStrings ]) 
 				return This.SplitBeforeSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSection, :BeforeThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSection, :BeforeThisSection ]) 
 				return This.FindLastSplitBeforeSectionZZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :BeforeSections, :BeforeTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :BeforeSections, :BeforeTheseSections ]) 
 				return This.FindLastSplitBeforeSectionsZZ(pSubStrOrPos[2])
 
 			#-- SPLITTING AFTER
@@ -75453,22 +75453,22 @@ class stzString from stzObject
 			but oParam.IsAfterNamedParam()
 				return This.FindLastSplitAfterCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterPosition, :AfterThisPosition ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPosition, :AfterThisPosition ]) 
 				return This.FindLastSplitAfterPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :AfterPositions, :AfterThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterPositions, :AfterThesePositions ]) 
 				return This.FindLastSplitAfterPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubString, :AfterThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubString, :AfterThisSubString ]) 
 				return This.FindLastSplitAfterSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSubStrings, :AfterTheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSubStrings, :AfterTheseSubStrings ]) 
 				return This.FindLastSplitAfterSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :AfterSection, :AfterThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSection, :AfterThisSection ]) 
 				return This.FindLastSplitAfterSectionZZ(pSubStrOrPos[2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :AfterSections, :AfterTheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :AfterSections, :AfterTheseSections ]) 
 				return This.FindLastSplitAfterSectionsZZ(pSubStrOrPos[2])
 
 			# SPLITTING BETWEEN
@@ -75590,28 +75590,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindLastSplitAtPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindLastSplitAtPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindLastSplitAtSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindLastSplitAtSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindLastSplitAtSectionZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindLastSplitAtSectionIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindLastSplitAtSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindLastSplitAtSectionsIBZZ(pSubStrOrPos[2])
 
 			ok
@@ -75956,28 +75956,28 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ]) 
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ]) 
 				return This.FindLastSplitBeforePositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindLastSplitBeforePositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindLastSplitBeforeSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 		
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindLastSplitBeforeSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindLastSplitBeforeSectionZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindLastSplitBeforeSectionIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 		
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindLastSplitBeforeSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindLastSplitBeforeSectionsIBZZ(pSubStrOrPos[2])
 
 			ok
@@ -76339,29 +76339,29 @@ class stzString from stzObject
 
 			#-- Case when named params are provided
 
-			if oParam.IsOneOfTheseNamedParams([ :Position, :ThisPosition ])
+			if IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Position, :ThisPosition ])
 
 				return This.FindLastSplitAfterPositionZZ(pSubStrOrPos[2])
 	
-			but oParam.IsOneOfTheseNamedParams([ :Positions, :ThesePositions ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Positions, :ThesePositions ]) 
 				return This.FindLastSplitAfterPositionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SubString, :ThisSubString ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubString, :ThisSubString ]) 
 				return This.FindLastSplitAfterSubStringCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :SubStrings, :TheseSubStrings ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SubStrings, :TheseSubStrings ]) 
 				return This.FindLastSplitAfterSubStringsCSZZ(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsOneOfTheseNamedParams([ :Section, :ThisSection ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Section, :ThisSection ]) 
 				return This.FindLastSplitAfterSectionZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionIB, :ThisSectionIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionIB, :ThisSectionIB ]) 
 				return This.FindLastSplitAfterSectionIBZZ(pSubStrOrPos[2][1], pSubStrOrPos[2][2])
 
-			but oParam.IsOneOfTheseNamedParams([ :Sections, :TheseSections ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :Sections, :TheseSections ]) 
 				return This.FindLastSplitAfterSectionsZZ(pSubStrOrPos[2])
 
-			but oParam.IsOneOfTheseNamedParams([ :SectionsIB, :TheseSectionsIB ]) 
+			but IsOneOfTheseNamedParamsList(pSubStrOrPos,[ :SectionsIB, :TheseSectionsIB ]) 
 				return This.FindLastSplitAfterSectionsIBZZ(pSubStrOrPos[2])
 
 			#-- Providing numbers, strings, or pairs of numbers,
@@ -80468,7 +80468,7 @@ class stzString from stzObject
 
 			# Removing after
 			#TODO // Add example here for better readability
-			but oP2.IsOneOfTheseNamedParams([ :After, :AfterEach  ])
+			but IsOneOfTheseNamedParamsList(p2,[ :After, :AfterEach  ])
 
 				p2 = p2[2] + p1
 				cNewSubStr = Q(p2).RemoveFromEndQ(p1).Content()
@@ -80477,7 +80477,7 @@ class stzString from stzObject
 
 			# Removing after nth
 			#TODO // Add example here for better readability
-			but oP2.IsOneOfTheseNamedParams([ :AfterNth ])
+			but IsOneOfTheseNamedParamsList(p2,[ :AfterNth ])
 				n = p2[2][1]
 				p2 = p2[2][2] + p1
 				cNewSubStr = Q(p2).RemoveFromEndQ(p1).Content()
@@ -80486,7 +80486,7 @@ class stzString from stzObject
 
 			# Removeing after first
 			#TODO // Add example here for better readability
-			but oP2.IsOneOfTheseNamedParams([ :AfterFirst, :ToFirst ])
+			but IsOneOfTheseNamedParamsList(p2,[ :AfterFirst, :ToFirst ])
 				p2 = p2[2] + p1
 				cNewSubStr = Q(p2).RemoveFromEndQ(p1).Content()
 
@@ -80494,7 +80494,7 @@ class stzString from stzObject
 
 			# Removeing after last
 			#TODO // Add example here for better readability
-			but oP2.IsOneOfTheseNamedParams([ :AfterLast, :ToLast ])
+			but IsOneOfTheseNamedParamsList(p2,[ :AfterLast, :ToLast ])
 				p2 = p2[2] + p1
 				cNewSubStr = Q(p2).RemoveFromEndQ(p1).Content()
 
@@ -80504,7 +80504,7 @@ class stzString from stzObject
 
 			# Removing Before
 			#TODO // Add example here for better readability
-			but oP2.IsOneOfTheseNamedParams([ :Before, :BeforeEach  ])
+			but IsOneOfTheseNamedParamsList(p2,[ :Before, :BeforeEach  ])
 
 				p2 = p1 + p2[2]
 				cNewSubStr = Q(p2).RemoveFromStartQ(p1).Content()
@@ -80513,7 +80513,7 @@ class stzString from stzObject
 
 			# Removing before nth
 			#TODO // Add example here for better readability
-			but oP2.IsOneOfTheseNamedParams([ :BeforeNth ])
+			but IsOneOfTheseNamedParamsList(p2,[ :BeforeNth ])
 				n = p2[2][1]
 				p2 = p1 + p2[2][2]
 				
@@ -80523,7 +80523,7 @@ class stzString from stzObject
 
 			# Removeing before first
 			#TODO // Add example here for better readability
-			but oP2.IsOneOfTheseNamedParams([ :BeforeFirst, :ToFirst ])
+			but IsOneOfTheseNamedParamsList(p2,[ :BeforeFirst, :ToFirst ])
 				p2 = p1 + p2[2]
 				cNewSubStr = Q(p2).RemoveFromStartQ(p1).Content()
 
@@ -80531,7 +80531,7 @@ class stzString from stzObject
 
 			# Removing before last
 			#TODO // Add example here for better readability
-			but oP2.IsOneOfTheseNamedParams([ :BeforeLast, :ToLast ])
+			but IsOneOfTheseNamedParamsList(p2,[ :BeforeLast, :ToLast ])
 				p2 = p1 + p2[2]
 				cNewSubStr = Q(p2).RemoveFromStartQ(p1).Content()
 
@@ -80541,7 +80541,7 @@ class stzString from stzObject
 
 			# Removing around
 			#TODO // Add example here for better readability
-			but oP2.IsOneOfTheseNamedParams([ :Around, :AroundEach ])
+			but IsOneOfTheseNamedParamsList(p2,[ :Around, :AroundEach ])
 				p2 = p2[2]
 
 				if isList(p1) and StzListQ(p1).IsPairOfStrings()
@@ -80626,7 +80626,7 @@ class stzString from stzObject
 
 			# Q("__/\/\__/♥\__").RemoveXT("♥", :Between = ["/","\"])
 			# Q("__/\/\__/♥\__").RemoveXT("♥", :BetweenIB = ["/","\"])
-			but oP2.IsOneOfTheseNamedParams([
+			but IsOneOfTheseNamedParamsList(p2,[
 				:Between, :BetweenIB, :BetweenS, :BetweenIBS ])
 
 				cBetween = p2[1]
@@ -88299,15 +88299,15 @@ class stzString from stzObject
 
 		# Checking params
 
-		if isList(pcSeparator) and StzListQ(pcSeparator).IsOneOfTheseNamedParams([ :Using, :Separator ])
+		if isList(pcSeparator) and IsOneOfTheseNamedParamsList(pcSeparator,[ :Using, :Separator ])
 			pcSeparator = pcSeparator[2]
 		ok
 
-		if isList(pnStep) and StzListQ(pnStep).IsOneOfTheseNamedParams([ :Step, :Stepping, :EachNChars ])
+		if isList(pnStep) and IsOneOfTheseNamedParamsList(pnStep,[ :Step, :Stepping, :EachNChars ])
 			pnStep = pnStep[2]
 		ok
 
-		if isList(pcDirection) and StzListQ(pcDirection).IsOneOfTheseNamedParams([ :Direction, :Going ])
+		if isList(pcDirection) and IsOneOfTheseNamedParamsList(pcDirection,[ :Direction, :Going ])
 			pcDirection = pcDirection[2]
 		ok
 
@@ -89272,7 +89272,7 @@ class stzString from stzObject
 			return This.CentralCharQRT(:stzChar)
 	
 		def CentralCharQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -89824,7 +89824,7 @@ class stzString from stzObject
 			cChar = " "
 		ok
 
-		if isList(cDirection) and ( Q(cDirection).IsOneOfTheseNamedParams([ :Direction, :Going ]) or
+		if isList(cDirection) and ( IsOneOfTheseNamedParamsList(cDirection,[ :Direction, :Going ]) or
 			Q(cDirection).IsToNamedParam() )
 
 			cDirection = cDirection[2]
@@ -91056,7 +91056,7 @@ class stzString from stzObject
 			return This.CharNamesQRT(:stzList)
 
 		def CharNamesQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -92714,7 +92714,7 @@ class stzString from stzObject
 		def CharsCSQRT(pCaseSensitive, pcReturnType)
 			if CheckingParams()
 
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -93043,7 +93043,7 @@ class stzString from stzObject
 		oEvalDir = Q(paEvalDirection)
 
 		if isList(paEvalDirection) and
-		   oEvalDir.IsOneOfTheseNamedParams([
+		   IsOneOfTheseNamedParamsList(paEvalDirection,[
 			:Eval, :Evaluate,
 			:EvalFrom, :EvaluateFrom,
 			:EvalDirection, :EvaluationDirection
@@ -93716,7 +93716,7 @@ class stzString from stzObject
 			return This.UniqueCharsCSQRT(pCaseSensitive, :stzList)
 
 		def UniqueCharsCSQRT(pCaseSensitive, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -93879,7 +93879,7 @@ class stzString from stzObject
 			return new stzString(This.NthChar(n))
 
 		def NthCharQRT(n, pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -93901,7 +93901,7 @@ class stzString from stzObject
 			return This.NthChar(n)
 
 			def CharAtQRT(n, pcReturnType)
-				if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+				if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 					pcReturnType = pcReturnType[2]
 				ok
 
@@ -94032,7 +94032,7 @@ class stzString from stzObject
 			return This.FirstCharQRT(:stzString)
 
 		def FirstCharQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -94084,7 +94084,7 @@ class stzString from stzObject
 			return This.LastCharQRT(:stzString)
 
 		def LastCharQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -94133,7 +94133,7 @@ class stzString from stzObject
 			return This.LeftCharQRT(:stzString)
 
 		def LeftCharQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -94161,7 +94161,7 @@ class stzString from stzObject
 			return This.RightCharQRT(:stzString)
 
 		def RightCharQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsOneOfTheseNamedParams([ :ReturnedAs, :ReturnAs ])
+			if isList(pcReturnType) and IsOneOfTheseNamedParamsList(pcReturnType,[ :ReturnedAs, :ReturnAs ])
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -96041,7 +96041,7 @@ class stzString from stzObject
 		# Checking params correctness
 
 		if isList(n1) and
-		   Q(n1).IsOneOfTheseNamedParams([
+		   IsOneOfTheseNamedParamsList(n1,[
 			:From, :FromPosition,
 			:At, :AtPosition,
 			:Char, :CharAt, :CharAtPosition,
@@ -96053,7 +96053,7 @@ class stzString from stzObject
 		ok
 
 		if isList(n2) and
-		   Q(n2).IsOneOfTheseNamedParams([
+		   IsOneOfTheseNamedParamsList(n2,[
 				:To, :ToChar, :ToPosition, :ToPositionOfChar,
 				:ToCharAt, :ToCharAtPosition ])
 
@@ -96128,7 +96128,7 @@ class stzString from stzObject
 		ok
 
 		if isList(n1) and
-		   Q(n1).IsOneOfTheseNamedPArams([
+		   IsOneOfTheseNamedParamsList(n1,[
 			:Between, :BetweenPosition, :BetweenPositions,
 			:BetweenChar, :BetweenChars,
 			:BetweenCharAt, :BetweenCharAtPosition, :BetweenCharAtPositions,
@@ -96140,7 +96140,7 @@ class stzString from stzObject
 		ok
 
 		if isList(n2) and
-		   Q(n2).IsOneOfTheseNamedPArams([
+		   IsOneOfTheseNamedParamsList(n2,[
 			:And, :AndPosition, :AndCharAt, :AndCharAtPosition, :AndChar ])
 
 			n2 = n2[2]
@@ -96181,12 +96181,12 @@ class stzString from stzObject
 
 		def SwapItems(n1, n2)
 			if isList(n1) and
-			   Q(n1).IsOneOfTheseNamedParams([ :At, :AtPosition, :AtPositions ])
+			   IsOneOfTheseNamedParamsList(n1,[ :At, :AtPosition, :AtPositions ])
 				n1 = n1[2]
 			ok
 	
 			if isList(n2) and
-			   Q(n2).IsOneOfTheseNamedParams([ :And, :AndPosition ])
+			   IsOneOfTheseNamedParamsList(n2,[ :And, :AndPosition ])
 				n2 = n2[2]
 			ok
 	
@@ -96198,12 +96198,12 @@ class stzString from stzObject
 
 		def SwapChar(n1, n2)
 			if isList(n1) and
-			   Q(n1).IsOneOfTheseNamedParams([ :At, :AtPosition ])
+			   IsOneOfTheseNamedParamsList(n1,[ :At, :AtPosition ])
 				n1 = n1[2]
 			ok
 	
 			if isList(n2) and
-			   Q(n2).IsOneOfTheseNamedParams([
+			   IsOneOfTheseNamedParamsList(n2,[
 				:And, :AndPosition, :AndCharAt, :AndCharAtPosition ])
 
 				n2 = n2[2]
@@ -96246,7 +96246,7 @@ class stzString from stzObject
 
 		*/
 
-		if isList(pcSubStr2) and StzListQ(pcSubStr2).IsOneOfTheseNamedParams([ :And, :With, :By ])
+		if isList(pcSubStr2) and IsOneOfTheseNamedParamsList(pcSubStr2,[ :And, :With, :By ])
 			pcSubStr2 = pcSubStr2[2]
 		ok
 
