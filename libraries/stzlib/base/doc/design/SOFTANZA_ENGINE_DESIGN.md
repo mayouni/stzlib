@@ -561,6 +561,296 @@ size_t        stz_json_stringify(StzJsonHandle h, char* buf, size_t buf_len);
 
 ---
 
+## Layer 3: Infrastructure Services
+
+These modules provide system-level capabilities that multiple
+Softanza classes need. Without them in the Engine, Ring falls
+back to slow external process calls or incomplete stdlib wrappers.
+
+### Cryptography & Hashing [PLANNED]
+
+Replaces stzCrypto's external library calls. Constant-time
+implementations for security.
+
+```c
+// Hashing
+size_t    stz_hash_md5(const char* data, size_t len, char* out, size_t out_len);
+size_t    stz_hash_sha1(const char* data, size_t len, char* out, size_t out_len);
+size_t    stz_hash_sha256(const char* data, size_t len, char* out, size_t out_len);
+size_t    stz_hash_sha512(const char* data, size_t len, char* out, size_t out_len);
+
+// Incremental hashing
+StzHashHandle stz_hash_init(int algorithm);
+void      stz_hash_update(StzHashHandle h, const char* data, size_t len);
+size_t    stz_hash_final(StzHashHandle h, char* out, size_t out_len);
+
+// Symmetric encryption
+size_t    stz_cipher_encrypt(int algorithm, const char* key, size_t key_len,
+                              const char* plaintext, size_t pt_len,
+                              char* ciphertext, size_t ct_len);
+size_t    stz_cipher_decrypt(int algorithm, const char* key, size_t key_len,
+                              const char* ciphertext, size_t ct_len,
+                              char* plaintext, size_t pt_len);
+
+// Algorithms: STZ_AES_128, STZ_AES_256, STZ_BLOWFISH, STZ_DES3
+```
+
+### Text Encoding / Codecs [PLANNED]
+
+Replaces stzTextEncoding's 38+ codec support. Streaming codec
+conversion for I/O pipelines.
+
+```c
+// Codec conversion
+size_t    stz_codec_convert(const char* from_encoding,
+                             const char* to_encoding,
+                             const char* input, size_t input_len,
+                             char* output, size_t output_len);
+
+// Encoding detection
+const char* stz_codec_detect(const char* data, size_t len);
+
+// BOM handling
+size_t    stz_codec_bom_size(const char* encoding);
+int       stz_codec_has_bom(const char* data, size_t len);
+
+// Supported: utf-8, utf-16le, utf-16be, utf-32le, utf-32be,
+// iso-8859-1..16, windows-1250..1258, shift-jis, euc-jp,
+// euc-kr, gb18030, big5, koi8-r, koi8-u, iscii-*
+```
+
+### Compression [PLANNED]
+
+Replaces stzZipFile's external zip library dependency.
+
+```c
+// Deflate/Inflate (raw)
+size_t    stz_compress(const char* input, size_t input_len,
+                        char* output, size_t output_len, int level);
+size_t    stz_decompress(const char* input, size_t input_len,
+                          char* output, size_t output_len);
+
+// ZIP archive
+StzZipHandle stz_zip_open(const char* path, int mode); // READ or WRITE
+void      stz_zip_close(StzZipHandle h);
+int       stz_zip_add_file(StzZipHandle h, const char* name,
+                            const char* data, size_t len);
+size_t    stz_zip_entry_count(StzZipHandle h);
+size_t    stz_zip_read_entry(StzZipHandle h, size_t index,
+                              char* out, size_t out_len);
+```
+
+### Streaming I/O [PLANNED]
+
+Replaces stzTextStream. Buffered streams with codec chains for
+efficient file/network I/O.
+
+```c
+StzStreamHandle stz_stream_open_file(const char* path, const char* mode,
+                                      const char* encoding);
+StzStreamHandle stz_stream_from_buffer(const char* data, size_t len);
+void            stz_stream_close(StzStreamHandle h);
+
+size_t    stz_stream_read(StzStreamHandle h, char* buf, size_t buf_len);
+size_t    stz_stream_read_line(StzStreamHandle h, char* buf, size_t buf_len);
+int       stz_stream_write(StzStreamHandle h, const char* data, size_t len);
+int       stz_stream_eof(StzStreamHandle h);
+void      stz_stream_flush(StzStreamHandle h);
+```
+
+### File System Events [PLANNED]
+
+Replaces stzFolderWatcher's libuv dependency. Native OS-level
+file watching (inotify / FSEvents / ReadDirectoryChangesW).
+
+```c
+StzWatchHandle stz_watch_dir(const char* path, int recursive);
+void           stz_watch_stop(StzWatchHandle h);
+int            stz_watch_poll(StzWatchHandle h, StzWatchEvent* out_event);
+
+typedef struct {
+    int kind;          // CREATED, MODIFIED, DELETED, RENAMED
+    char path[1024];
+} StzWatchEvent;
+```
+
+### Process Management [PLANNED]
+
+Replaces stzExterCode's manual process spawning. Needed for
+multi-language integration (Python, R, Julia, COBOL).
+
+```c
+StzProcessHandle stz_process_start(const char* command,
+                                    const char** args, size_t num_args);
+int       stz_process_wait(StzProcessHandle h);
+int       stz_process_exit_code(StzProcessHandle h);
+size_t    stz_process_read_stdout(StzProcessHandle h, char* buf, size_t len);
+size_t    stz_process_read_stderr(StzProcessHandle h, char* buf, size_t len);
+int       stz_process_write_stdin(StzProcessHandle h,
+                                   const char* data, size_t len);
+void      stz_process_kill(StzProcessHandle h);
+```
+
+### Async / Event Loop [PLANNED]
+
+Replaces stzReactive's libuv dependency. Provides timers, task
+scheduling, and I/O multiplexing for reactive programming.
+
+```c
+StzLoopHandle stz_loop_new(void);
+void          stz_loop_free(StzLoopHandle h);
+int           stz_loop_run(StzLoopHandle h);  // blocks until empty
+void          stz_loop_stop(StzLoopHandle h);
+
+// Timers
+StzTimerHandle stz_timer_start(StzLoopHandle loop, uint64_t ms,
+                                int repeat, void (*callback)(void*),
+                                void* userdata);
+void           stz_timer_stop(StzTimerHandle h);
+
+// Task queue
+void      stz_loop_queue_task(StzLoopHandle loop,
+                               void (*task)(void*), void* userdata);
+```
+
+### UUID [PLANNED]
+
+```c
+size_t    stz_uuid_v4(char* buf, size_t buf_len);  // random
+size_t    stz_uuid_v5(const char* namespace_uuid, const char* name,
+                       size_t name_len, char* buf, size_t buf_len);
+int       stz_uuid_is_valid(const char* uuid, size_t len);
+```
+
+### URL Parsing [PLANNED]
+
+```c
+typedef struct {
+    char scheme[16];
+    char host[256];
+    uint16_t port;
+    char path[1024];
+    char query[1024];
+    char fragment[256];
+} StzUrl;
+
+int       stz_url_parse(const char* url, size_t len, StzUrl* out);
+size_t    stz_url_encode(const char* input, size_t len,
+                          char* output, size_t out_len);
+size_t    stz_url_decode(const char* input, size_t len,
+                          char* output, size_t out_len);
+```
+
+### HTML/XML Parsing [PLANNED]
+
+Replaces stzHtml's manual string parsing with a proper DOM.
+
+```c
+StzDomHandle stz_html_parse(const char* html, size_t len);
+void         stz_html_free(StzDomHandle h);
+
+size_t    stz_html_query(StzDomHandle h, const char* selector,
+                          size_t* out_node_ids, size_t max);
+size_t    stz_html_text(StzDomHandle h, size_t node_id,
+                         char* buf, size_t buf_len);
+size_t    stz_html_attr(StzDomHandle h, size_t node_id,
+                         const char* attr_name,
+                         char* buf, size_t buf_len);
+size_t    stz_html_children(StzDomHandle h, size_t node_id,
+                             size_t* out_children, size_t max);
+```
+
+### Random Number Generation [PLANNED]
+
+Needed by solvers, crypto, Monte Carlo simulations.
+
+```c
+void      stz_rng_seed(uint64_t seed);
+uint64_t  stz_rng_next(void);
+double    stz_rng_float(void);                // [0, 1)
+int64_t   stz_rng_range(int64_t min, int64_t max);
+void      stz_rng_shuffle(StzListHandle h);   // Fisher-Yates
+```
+
+### Optimization Solvers [PLANNED]
+
+Replaces stzMultiObjectiveSolver (NSGA-II), stzStochasticSolver
+(Monte Carlo), stzLinearSolver (Gaussian elimination).
+
+```c
+// Linear system solver (Ax = b)
+int       stz_solve_linear(StzMatrixHandle A, const double* b,
+                            double* x, size_t n);
+
+// Multi-objective optimizer (NSGA-II)
+StzSolverHandle stz_solver_nsga2(size_t num_objectives,
+                                  size_t population_size,
+                                  size_t generations);
+void      stz_solver_set_bounds(StzSolverHandle h,
+                                 const double* lower, const double* upper,
+                                 size_t dimensions);
+size_t    stz_solver_pareto_front(StzSolverHandle h,
+                                   double* out_solutions,
+                                   size_t max_solutions,
+                                   size_t dimensions);
+void      stz_solver_free(StzSolverHandle h);
+```
+
+### Geospatial [PLANNED]
+
+Replaces stzGeoMap's coordinate calculations.
+
+```c
+double    stz_geo_haversine(double lat1, double lon1,
+                             double lat2, double lon2);
+void      stz_geo_destination(double lat, double lon,
+                               double bearing, double distance,
+                               double* out_lat, double* out_lon);
+int       stz_geo_point_in_polygon(double lat, double lon,
+                                    const double* polygon_lats,
+                                    const double* polygon_lons,
+                                    size_t num_points);
+```
+
+### Bit & Byte Operations [PLANNED]
+
+Replaces stzBit/stzByte/stzListOfBits manual operations.
+
+```c
+StzBytesHandle stz_bytes_new(size_t capacity);
+void           stz_bytes_free(StzBytesHandle h);
+
+void      stz_bytes_append(StzBytesHandle h, uint8_t byte);
+uint8_t   stz_bytes_get(StzBytesHandle h, size_t index);
+size_t    stz_bytes_count(StzBytesHandle h);
+
+// Bitwise
+int       stz_bytes_bit_get(StzBytesHandle h, size_t bit_index);
+void      stz_bytes_bit_set(StzBytesHandle h, size_t bit_index, int value);
+size_t    stz_bytes_popcount(StzBytesHandle h);
+
+// Encoding
+size_t    stz_bytes_to_hex(StzBytesHandle h, char* buf, size_t buf_len);
+size_t    stz_bytes_to_base64(StzBytesHandle h, char* buf, size_t buf_len);
+StzBytesHandle stz_bytes_from_hex(const char* hex, size_t len);
+StzBytesHandle stz_bytes_from_base64(const char* b64, size_t len);
+```
+
+### Expression Evaluator [PLANNED]
+
+Replaces Ring's slow `eval()` for stzConstraint, stzQEngine,
+and conditional code (W()/WXT() transpilation).
+
+```c
+StzExprHandle stz_expr_compile(const char* expression, size_t len);
+void          stz_expr_free(StzExprHandle h);
+StzValue      stz_expr_eval(StzExprHandle h, const StzValue* vars,
+                             const char** var_names, size_t num_vars);
+int           stz_expr_is_valid(const char* expression, size_t len);
+```
+
+---
+
 ## Ring FFI Bridge (stzengine.ring)
 
 The bridge translates Ring calls to Engine C functions:
@@ -607,9 +897,29 @@ Priority order by impact on Softanza experience:
 | F.12     | Walker      | Step-pattern iteration                  |
 | F.13     | Time        | Wire to Engine for consistency          |
 
-### Phase G: Engine as Universal Substrate
+### Phase G: Infrastructure Services
 
-Once Phase F is complete, the Engine becomes language-agnostic:
+| Priority | Module          | Replaces                               |
+|----------|-----------------|----------------------------------------|
+| G.1      | Crypto/Hash     | stzCrypto external libs (SHA/AES/RSA)  |
+| G.2      | Text Encoding   | stzTextEncoding 38+ codecs             |
+| G.3      | Compression     | stzZipFile external zip library        |
+| G.4      | Streaming I/O   | stzTextStream buffered codec chains    |
+| G.5      | File Events     | stzFolderWatcher libuv dependency      |
+| G.6      | Process Mgmt    | stzExterCode manual process spawning   |
+| G.7      | Async/Event Loop| stzReactive libuv dependency           |
+| G.8      | UUID            | stzUUID manual generation              |
+| G.9      | URL Parsing     | stzUrl manual string parsing           |
+| G.10     | HTML/XML DOM    | stzHtml manual string parsing          |
+| G.11     | RNG             | Solvers, crypto, Monte Carlo needs     |
+| G.12     | Solvers         | NSGA-II, Monte Carlo, linear systems   |
+| G.13     | Geospatial      | stzGeoMap coordinate calculations      |
+| G.14     | Bit/Byte Ops    | stzBit/stzByte/stzListOfBits           |
+| G.15     | Expression Eval | Ring eval(), stzConstraint, stzQEngine |
+
+### Phase H: Engine as Universal Substrate
+
+Once Phases F+G are complete, the Engine becomes language-agnostic:
 
 - **Ring** binds via `stzengine.ring` (LoadLib + GetCFunc)
 - **Zin** (Zig) calls Engine modules directly (no FFI overhead)
@@ -619,6 +929,15 @@ Once Phase F is complete, the Engine becomes language-agnostic:
 - **Any C-compatible language** gets the full Softanza experience
 
 The Engine IS the product. The language surfaces are thin skins.
+
+### Module Count Summary
+
+| Phase | Modules | Status    |
+|-------|---------|-----------|
+| A-E   | 9       | DONE      |
+| F     | 13      | PLANNED   |
+| G     | 15      | PLANNED   |
+| **Total** | **37** | **9 done, 28 planned** |
 
 ---
 
