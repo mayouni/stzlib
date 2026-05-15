@@ -8119,10 +8119,10 @@ pf()
 
 pr()
 
-? StzListQ([]).IsListOfStrings()
+? IsListOfStrings([])
 #--> FALSE
 
-? StzListQ([]).IsListOfNumbers()
+? IsListOfNumbers([])
 #--> FALSE
 
 pf()
@@ -8133,17 +8133,17 @@ pr()
 
 # In Ring, this is how we can declare a hashlist using the :key = value syntax
 
-? StzListQ([ :name = "Mansour", :age = 45 ]).IsHashList()
+? IsHashList([ :name = "Mansour", :age = 45 ])
 #--> TRUE
 
 # Which is equivalent to the fellowing normal list declaration:
 
-? StzListQ([ [ "name", "Mansour"], [ "age", 45] ]).IsHashList()
+? IsHashList([ [ "name", "Mansour"], [ "age", 45] ])
 #--> TRUE
 
 # But, becareful when using a normal string with =, it won't lead to a hashlist
 
-? StzListQ([ "name" = "Mansour", "age" = 45 ]).IsHashList() + NL
+? IsHashList([ "name" = "Mansour", "age" = 45 ]) + NL
 #--> FALSE
 
 # In fact, what we wrote are two FALSE expressions, since "name" is different
@@ -9000,10 +9000,10 @@ pr()
 ? StzListQ([NULL]).Contains(NULL)
 #--> TRUE
 
-? StzListQ([]).IsListOfStrings()
+? IsListOfStrings([])
 #--> FALSE
 
-? StzListQ([ NULL, NULL, NULL]).IsListOfStrings()
+? IsListOfStrings([ NULL, NULL, NULL])
 #--> TRUE
 
 pf()
@@ -10264,22 +10264,22 @@ pr()
 
 # All these return TRUE
 
-? StzListQ([ :DefaultLocale ]).IsLocaleList()
+? IsLocaleList([ :DefaultLocale ])
 #--> TRUE
 
-? StzListQ([ :SystemLocale ]).IsLocaleList()
+? IsLocaleList([ :SystemLocale ])
 #--> TRUE
 
-? StzListQ([ :CLocale ]).IsLocaleList()
+? IsLocaleList([ :CLocale ])
 #--> TRUE
 
-? StzListQ([ :Language = :Arabic, :Script = :Arabic, :Country = :Tunisia ]).IsLocaleList()
+? IsLocaleList([ :Language = :Arabic, :Script = :Arabic, :Country = :Tunisia ])
 #--> TRUE
 
-? StzListQ([ :Language = :Arabic, :Country = :Tunisia ]).IsLocaleList()
+? IsLocaleList([ :Language = :Arabic, :Country = :Tunisia ])
 #--> TRUE
 
-? StzListQ([ :Country = :Tunisia ]).IsLocaleList()
+? IsLocaleList([ :Country = :Tunisia ])
 #--> TRUE
 
 pf()
@@ -12587,7 +12587,7 @@ pr()
 ? IsHashList([ :Language = "arabic", :Country = "tn", :Script = "arabic" ])
 #--> TRUE
 
-? StzListQ([ :Language = "arabic", :Country = "tn", :Script = "arabic" ]).IsHashList()
+? IsHashList([ :Language = "arabic", :Country = "tn", :Script = "arabic" ])
 #--> TRUE
 
 pf()

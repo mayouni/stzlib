@@ -599,7 +599,7 @@ pf()
 
 pr()
 
-? StzListQ([ :Country = :Tunisia ]).IsLocaleList()		#--> TRUE
+? IsLocaleList([ :Country = :Tunisia ])		#--> TRUE
 ? StzLocaleQ([ :Country = :Tunisia ]).Abbreviation()	#--> ar_TN
 
 pf()

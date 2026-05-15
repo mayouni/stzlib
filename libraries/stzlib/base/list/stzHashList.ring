@@ -984,7 +984,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 				paNewHashList = paNewHashList[2]
 			ok
 
-			if NOT( isList(paNewHashList) and StzListQ(paNewHashList).IsHashList() )
+			if NOT( isList(paNewHashList) and IsHashList(paNewHashList) )
 				StzRaise("Incorrect param type! paNewHashList must be a hashlist.")
 			ok
 		ok

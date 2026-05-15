@@ -193,7 +193,7 @@ class stzListBounder from stzList
 	#----------------------------------------------------------#
 
 	def IsBoundedByCS(paBounds, pCaseSensitive)
-		if isList(paBounds) and StzListQ(paBounds).IsPair()
+		if isList(paBounds) and IsPair(paBounds)
 			pItem1 = paBounds[1]
 			pItem2 = paBounds[2]
 		else

@@ -34,12 +34,12 @@ class stzString from stzObject
 		if CheckingParams()
 
 			if NOT ( isString(pcStr) or
-				 (isList(pcStr) and StzListQ(pcStr).IsPairOfStrings()) )
+				 (isList(pcStr) and IsPairOfStrings(pcStr)) )
 
 				StzRaise("Can't create the stzString object! pcStr must be a string or a pair of strings.")
 			ok
 
-			if isList(pcStr) and StzListQ(pcStr).IsPairOfStrings()
+			if isList(pcStr) and IsPairOfStrings(pcStr)
 				@cVarName = pcStr[1]
 				@pEngine = StzEngineStringFrom(pcStr[2])
 				return

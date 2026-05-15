@@ -2909,7 +2909,7 @@ class stzText from stzString
 
 		# Controlling the type of the options list
 
-		if NOT ( isList(paOptions) and StzListQ(paOptions).IsHashList() )
+		if NOT ( isList(paOptions) and IsHashList(paOptions) )
 
 			StzRaise("Incorrect type of the option list!")
 		ok

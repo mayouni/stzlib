@@ -2802,7 +2802,7 @@ func StzRaise(paMessage)
 
 	
 
-		if NOT StzListQ([ cWhere, cWhat, cWhy, cTodo ]).IsListOfStrings()
+		if NOT IsListOfStrings([ cWhere, cWhat, cWhy, cTodo ])
 			raise("Error in StzRaise param type!")
 		ok
 	
@@ -5280,7 +5280,7 @@ class stzForEachObjectOld
 		if isList(p)
 			nLen = len(p)
 			
-			if NOT StzListQ(pIn).IsListOfLists()
+			if NOT IsListOfLists(pIn)
 				StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
 			ok
 	
@@ -5402,7 +5402,7 @@ class stzForEachObject
 		if isList(p)
 			nLen = len(p)
 
-			if NOT StzListQ(pIn).IsListOfLists()
+			if NOT IsListOfLists(pIn)
 				StzRaise("Incorrect param! pIn must be a list of lists containing " + nLen + " items in each list.")
 			ok
 	

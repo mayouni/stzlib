@@ -1604,7 +1604,7 @@ class stzListOfNumbers from stzList
 		but isString(paList)
 			try
 				aList = Q(paList).ToList()
-				if StzListQ(aList).IsListOfNumbers()
+				if IsListOfNumbers(aList)
 					@aContent = aList
 				else
 					StzRaise("The list in the string you provided is not a list of numbers!")

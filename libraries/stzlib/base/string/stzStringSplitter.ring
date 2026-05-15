@@ -80,10 +80,10 @@ class stzStringSplitter from stzString
 		but isNumber(pSubStrOrPos)
 			return This.SplitAtPosition(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfNumbers()
+		but isList(pSubStrOrPos) and IsListOfNumbers(pSubStrOrPos)
 			return This.SplitAtPositions(pSubStrOrPos)
 
-		but isList(pSubStrOrPos) and StzListQ(pSubStrOrPos).IsListOfStrings()
+		but isList(pSubStrOrPos) and IsListOfStrings(pSubStrOrPos)
 			return This.SplitAtSubStringsCS(pSubStrOrPos, pCaseSensitive)
 
 		else
@@ -104,7 +104,7 @@ class stzStringSplitter from stzString
 				return []
 			ok
 
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsListOfStrings()
+			if isList(pcSubStr) and IsListOfStrings(pcSubStr)
 				return This.SplitAtSubStringsCS(pcSubStr, pCaseSensitive)
 			ok
 
@@ -178,7 +178,7 @@ class stzStringSplitter from stzString
 			return []
 		ok
 
-		if NOT ( isList(anPos) and StzListQ(anPos).IsListOfNumbers() )
+		if NOT ( isList(anPos) and IsListOfNumbers(anPos) )
 			StzRaise("Incorrect param type! anPos must be a list of numbers.")
 		ok
 
