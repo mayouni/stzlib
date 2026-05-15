@@ -24,7 +24,7 @@ func StzStringBounderQ(str)
  ///   CLASS   ///
 /////////////////
 
-class stzStringBounder from stzStringCore
+class stzStringBounder from stzString
 
 	  #===============================#
 	 #     SECTION (SLICE)           #

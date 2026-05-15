@@ -24,7 +24,7 @@ func StzStringCheckerQ(str)
  ///   CLASS   ///
 /////////////////
 
-class stzStringChecker from stzStringCore
+class stzStringChecker from stzString
 
 	  #===============================#
 	 #     PALINDROME                #

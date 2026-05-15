@@ -24,7 +24,7 @@ func StzStringVisualizerQ(str)
  ///   CLASS   ///
 /////////////////
 
-class stzStringVisualizer from stzStringCore
+class stzStringVisualizer from stzString
 
 	  #===============================#
 	 #     SHOW                      #

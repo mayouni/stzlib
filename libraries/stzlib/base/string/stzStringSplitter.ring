@@ -24,7 +24,7 @@ func StzStringSplitterQ(str)
  ///   CLASS   ///
 /////////////////
 
-class stzStringSplitter from stzStringCore
+class stzStringSplitter from stzString
 
 	  #====================================#
 	 #     SPLIT -- MAIN ENTRY POINT      #

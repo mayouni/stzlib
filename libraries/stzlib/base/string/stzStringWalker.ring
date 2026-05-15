@@ -24,7 +24,7 @@ func StzStringWalkerQ(str)
  ///   CLASS   ///
 /////////////////
 
-class stzStringWalker from stzStringCore
+class stzStringWalker from stzString
 
 	@aWalkers = []
 

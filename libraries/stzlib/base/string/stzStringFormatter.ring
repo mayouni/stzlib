@@ -24,7 +24,7 @@ func StzStringFormatterQ(str)
  ///   CLASS   ///
 /////////////////
 
-class stzStringFormatter from stzStringCore
+class stzStringFormatter from stzString
 
 	  #===============================#
 	 #     LOWERCASE                 #

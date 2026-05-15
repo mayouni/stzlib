@@ -23,7 +23,7 @@ func StzStringReplacerQ(str)
  ///   CLASS   ///
 /////////////////
 
-class stzStringReplacer from stzStringCore
+class stzStringReplacer from stzString
 
 	  #========================================#
 	 #     REPLACE -- ALL OCCURRENCES         #

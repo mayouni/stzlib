@@ -11,8 +11,8 @@
 ## Mechanism
 
 ```ring
-# stzStringCore.ring -- shared base
-class stzStringCore from stzObject
+# stzString.ring -- shared base
+class stzString from stzObject
     @pEngine
     def init(pcStr)
         @pEngine = StzEngineStringFrom(pcStr)
@@ -21,19 +21,19 @@ class stzStringCore from stzObject
     def Size()
         return StzEngineStringLen(@pEngine)
     def Copy()
-        return new stzStringCore(This.Content())
+        return new stzString(This.Content())
     def Engine()
         return @pEngine
 
 # stzStringFinder.ring -- standalone, usable alone
-class stzStringFinder from stzStringCore
+class stzStringFinder from stzString
     def FindFirst(pcSubStr)
         ...
     def FindAll(pcSubStr)
         ...
 
 # stzString.ring -- full class, loads everything
-load "stzStringCore.ring"
+load "stzString.ring"
 load "stzStringFinder.ring"
 load "stzStringSplitter.ring"
 ...
@@ -45,7 +45,7 @@ class stzString from stzObject
     ...
 
     def init(pcStr)
-        @oCore = new stzStringCore(pcStr)
+        @oCore = new stzString(pcStr)
         @oFinder = new stzStringFinder(pcStr)
         @oSplitter = new stzStringSplitter(pcStr)
         ...
@@ -73,7 +73,7 @@ o1 = new stzString("hello world")
 
 ## The 9 Subclasses
 
-### 1. stzStringCore (root)
+### 1. stzString (root)
 
 **LOC estimate:** ~2,000
 **stzString2 delegates:** @oStringView, @oConstraint, @oLanguage,
@@ -249,7 +249,7 @@ the 9 main subclasses:
 
 ## Migration Strategy
 
-1. **Phase A:** Create stzStringCore with engine handle and
+1. **Phase A:** Create stzString with engine handle and
    core methods. Verify it works standalone.
 
 2. **Phase B:** Extract stzStringFinder (biggest subclass,
@@ -270,7 +270,7 @@ the 9 main subclasses:
 
 | Subclass | Methods | % of Total |
 |----------|--------:|----------:|
-| stzStringCore | ~500 | 3% |
+| stzString | ~500 | 3% |
 | stzStringFinder | ~2,500 | 16% |
 | stzStringSplitter | ~1,500 | 9% |
 | stzStringReplacer | ~1,800 | 11% |

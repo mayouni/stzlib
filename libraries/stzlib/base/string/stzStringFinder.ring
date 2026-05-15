@@ -24,7 +24,7 @@ func StzStringFinderQ(str)
  ///   CLASS   ///
 /////////////////
 
-class stzStringFinder from stzStringCore
+class stzStringFinder from stzString
 
 	  #===============================#
 	 #     CONTAINS -- CORE CHECK    #
