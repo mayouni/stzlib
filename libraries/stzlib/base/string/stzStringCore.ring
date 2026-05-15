@@ -6,6 +6,8 @@
 #   Description  : Root string class -- engine handle,         #
 #                  content access, and shared primitives.       #
 #                  All stzString subclasses inherit from this.  #
+#                  Canonical methods only. For full Softanza    #
+#                  fluency (aliases), use stzStringXT.          #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -57,28 +59,8 @@ class stzString from stzObject
 	def Content()
 		return StzEngineStringData(@pEngine)
 
-		#< @FunctionFluentForm
-
 		def ContentQ()
 			return new stzString(This.Content())
-
-		#>
-
-		#< @FunctionAlternativeForm
-
-		def Value()
-			return This.Content()
-
-		def String()
-			return This.Content()
-
-		def TheString()
-			return This.Content()
-
-		def R()
-			return This.Content()
-
-		#>
 
 	  #=======================================#
 	 #     GETTING THE ENGINE HANDLE         #
@@ -93,22 +75,6 @@ class stzString from stzObject
 
 	def NumberOfChars()
 		return len(This.Content())
-
-		#< @FunctionAlternativeForm
-
-		def Size()
-			return This.NumberOfChars()
-
-		def Len()
-			return This.NumberOfChars()
-
-		def Length()
-			return This.NumberOfChars()
-
-		def NChars()
-			return This.NumberOfChars()
-
-		#>
 
 	  #=======================================#
 	 #  CHECKING IF THE STRING IS EMPTY      #
@@ -146,12 +112,6 @@ class stzString from stzObject
 
 		#>
 
-		#< @FunctionAlternativeForm
-
-		def SetContent(pcNewStr)
-			This.Update(pcNewStr)
-
-		#>
 
 	  #========================================#
 	 #     INTERNAL ENGINE PRIMITIVES         #
