@@ -26,15 +26,15 @@ func iif(pCondition, pTrue, pFalse)
 			StzRaise("Incorrect param type! pCondition must be a number, a string, or a list of strings.")
 		ok
 
-		if isList(pCondition) and StzListQ(pcondition).IsItNamedParam()
+		if isList(pCondition) and IsItNamedParamList(pcondition)
 			cCondition = cCondition[2]
 		ok
 
-		if isList(pTrue) and StzListQ(pTrue).IsSayOrReturnNamedParam()
+		if isList(pTrue) and IsSayOrReturnNamedParamList(pTrue)
 			pTrue = pTrue[2]
 		ok
 
-		if isList(pFalse) and StzListQ(pFalse).IsElseOrOtherwiseNamedParam()
+		if isList(pFalse) and IsElseOrOtherwiseNamedParamList(pFalse)
 			pFalse = pFalse[2]
 		ok
 

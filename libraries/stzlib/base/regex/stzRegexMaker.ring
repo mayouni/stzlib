@@ -1382,7 +1382,7 @@ class stzConditionalRegexMaker
 	#------------------#
 
 	def IfStartsWith(pcPattern)
-		if isList(pcPattern) and StzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and IsPatternNamedParamList(pcPattern)
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1393,7 +1393,7 @@ class stzConditionalRegexMaker
 		return This.IfMatch("^" + pcPattern)
 
 	def IfEndsWith(pcPattern)
-		if isList(pcPattern) and StzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and IsPatternNamedParamList(pcPattern)
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1404,7 +1404,7 @@ class stzConditionalRegexMaker
 		return This.IfMatch(pcPattern + "$")
 
 	def IfContains(pcPattern)
-		if isList(pcPattern) and StzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and IsPatternNamedParamList(pcPattern)
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1415,7 +1415,7 @@ class stzConditionalRegexMaker
 		return This.IfMatch(".*" + pcPattern + ".*")
 
 	def IfPrecededBy(pcPattern)
-		if isList(pcPattern) and StzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and IsPatternNamedParamList(pcPattern)
 			pPattern = pPattern[2]
 		ok
 
@@ -1426,7 +1426,7 @@ class stzConditionalRegexMaker
 		return This.IfMatch("(?<=" + pcPattern + ")")
 
 	def IfFollowedBy(pcPattern)
-		if isList(pcPattern) and StzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and IsPatternNamedParamList(pcPattern)
 			pcPattern = pcPattern[2]
 		ok
 

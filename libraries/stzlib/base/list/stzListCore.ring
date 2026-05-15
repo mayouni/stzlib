@@ -389,7 +389,7 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtOrStartingAtPositionNamedParam()
+		if isList(pnStartingAt) and IsStartingAtOrStartingAtPositionNamedParamList(pnStartingAt)
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -431,7 +431,7 @@ class stzList from stzObject
 
 	def Update(paNewList)
 		if CheckingParams() = 1
-			if isList(paNewList) and StzListQ(paNewList).IsWithOrByOrUsingNamedParam()
+			if isList(paNewList) and IsWithOrByOrUsingNamedParamList(paNewList)
 				paNewList = paNewList[2]
 			ok
 
@@ -492,7 +492,7 @@ class stzList from stzObject
 				return This
 
 		def Append(pItem)
-			if isList(pItem) and StzListQ(pItem).IsWithOrUsingOrByNamedParam()
+			if isList(pItem) and IsWithOrUsingOrByNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 

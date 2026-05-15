@@ -25,7 +25,7 @@ class stzListWalker from stzList
 	def AddWalker(pcName, pnStart, pnEnd, pnStep)
 
 		if CheckingParams()
-			if isList(pcName) and StzListQ(pcName).IsNameOrNamedNamedParam()
+			if isList(pcName) and IsNameOrNamedNamedParamList(pcName)
 				pcName = pcName[2]
 			ok
 

@@ -167,7 +167,7 @@ func ExecuteActions(pActions, pStzObj)
 			StzRaise("Incorrect param type! pActions must be a hashlist.")
 		ok
 
-		if isList(pStzObj) and StzListQ(pStzObj).IsOnOrOfNamedParam()
+		if isList(pStzObj) and IsOnOrOfNamedParamList(pStzObj)
 			pStzObj = pStzObj[2]
 		ok
 

@@ -249,7 +249,7 @@ class stzMatrix
 	def Add(p)
 
 		if isList(p) and len(p) = 2 and
-		   isList(p[2]) and StzListQ(p[2]).IsToOrToColOrToRowNamedParam()
+		   isList(p[2]) and IsToOrToColOrToRowNamedParamList(p[2])
 
 			_aTemp_ = []
 			_aTemp_ = [ p[1], p[2][2] ]
@@ -479,7 +479,7 @@ class stzMatrix
 
 	def Multiply(p)
 
-		if isList(p) and StzListQ(p).IsByNamedParam()
+		if isList(p) and IsByNamedParamList(p)
 			p = p[2]
 		ok
 
@@ -550,7 +550,7 @@ class stzMatrix
 				stzraise("Incorrect param type! pnCol must be a number.")
 			ok
 	
-			if isList(pnValue) and StzListQ(pnValue).IsByOrInColNamedParam()
+			if isList(pnValue) and IsByOrInColNamedParamList(pnValue)
 				pnValue = pnValue[2]
 	
 				if NOT isNumber(pnValue)
@@ -576,7 +576,7 @@ class stzMatrix
 	def MultiplyCols(panCols, pnValue)
 
 		if CheckParams()
-			if isList(pnValue) and StzListQ(pnValue).IsByOrInColNamedParam()
+			if isList(pnValue) and IsByOrInColNamedParamList(pnValue)
 				pnValue = pnValue[2]
 	
 				if NOT isNumber(pnValue)
@@ -641,7 +641,7 @@ class stzMatrix
 				stzraise("Incorrect param type! pnRow must be a number.")
 			ok
 	
-			if isList(pnValue) and StzListQ(pnValue).IsByOrInRowNamedParam()
+			if isList(pnValue) and IsByOrInRowNamedParamList(pnValue)
 				pnValue = pnValue[2]
 	
 				if NOT isNumber(pnValue)
@@ -667,7 +667,7 @@ class stzMatrix
 	def MultiplyRows(panRows, pnValue)
 
 		if CheckParams()
-			if isList(pnValue) and StzListQ(pnValue).IsByOrInColNamedParam()
+			if isList(pnValue) and IsByOrInColNamedParamList(pnValue)
 				pnValue = pnValue[2]
 	
 				if NOT isNumber(pnValue)
@@ -713,7 +713,7 @@ class stzMatrix
 	def MultiplyDiagonal1(pnValue)
 
 		if CheckParams()
-			if isList(pnValue) and StzListQ(pnValue).IsByNamedParam()
+			if isList(pnValue) and IsByNamedParamList(pnValue)
 				pnValue = pnValue[2]
 			ok
 		ok
@@ -742,7 +742,7 @@ class stzMatrix
 	def MultiplyDiagonal2(pnValue)
 
 		if CheckParams()
-			if isList(pnValue) and StzListQ(pnValue).IsByNamedParam()
+			if isList(pnValue) and IsByNamedParamList(pnValue)
 				pnValue = pnValue[2]
 			ok
 		ok
@@ -1033,7 +1033,7 @@ class stzMatrix
 	def FindElementsInSection(panStart, panEnd)
 		if CheckParams()
 
-			if isList(panStart) and StzListQ(panStart).IsFromNamedParam()
+			if isList(panStart) and IsFromNamedParamList(panStart)
 				panStart = panStart[2]
 			ok
 
@@ -1093,7 +1093,7 @@ class stzMatrix
 				stzraise("Incorrect param type! pnElm must be a number.")
 			ok
 
-			if isList(panStart) and StzListQ(panStart).IsFromNamedParam()
+			if isList(panStart) and IsFromNamedParamList(panStart)
 				panStart = panStart[2]
 			ok
 
@@ -1150,7 +1150,7 @@ class stzMatrix
 				stzraise("Incorrect param type! panElms must be a list of numbers.")
 			ok
 
-			if isList(panStart) and StzListQ(panStart).IsFromNamedParam()
+			if isList(panStart) and IsFromNamedParamList(panStart)
 				panStart = panStart[2]
 			ok
 
@@ -1196,7 +1196,7 @@ class stzMatrix
 
 		if CheckParams()
 
-			if isList(panStart) and StzListQ(panStart).IsFromNamedParam()
+			if isList(panStart) and IsFromNamedParamList(panStart)
 				panStart = panStart[2]
 			ok
 
@@ -1322,7 +1322,7 @@ class stzMatrix
 				stzraise("Incorrect param type! pnCol must be a number.")
 			ok
 
-			if isList(panNewCol) and StzListQ(panNewCol).IsByNamedParam()
+			if isList(panNewCol) and IsByNamedParamList(panNewCol)
 				panNewCol = panNewCol[2]
 			ok
 
@@ -1349,7 +1349,7 @@ class stzMatrix
 				stzraise("Incorrect param type! panCols must be a list of strictictly positive numbers.")
 			ok
 
-			if isList(panNewCols) and StzListQ(panNewCols).IsByNamedParam()
+			if isList(panNewCols) and IsByNamedParamList(panNewCols)
 				panNewCols = panNewCols[2]
 			ok
 
@@ -1396,7 +1396,7 @@ class stzMatrix
 				stzraise("Incorrect param value! pnRow must be a NonZero positive number.")
 			ok
 
-			if isList(panNewRow) and StzListQ(panNewRow).IsByNamedParam()
+			if isList(panNewRow) and IsByNamedParamList(panNewRow)
 				panNewRow = panNewRow[2]
 			ok
 
@@ -1420,7 +1420,7 @@ class stzMatrix
 				stzraise("Incorrect param type! panRows must be a list of strictictly positive numbers.")
 			ok
 
-			if isList(paNewRows) and StzListQ(paNewRows).IsByOrWithNamedParam()
+			if isList(paNewRows) and IsByOrWithNamedParamList(paNewRows)
 				paNewRows = paNewRows[2]
 			ok
 
@@ -1477,7 +1477,7 @@ class stzMatrix
 			ok
 
 
-			if StzListQ(pnNewElm).IsByNamedParam()
+			if IsByNamedParamList(pnNewElm)
 				pnNEwElm = pnNewElm[2]
 			ok
 
@@ -1497,7 +1497,7 @@ class stzMatrix
 		ok
 
 		if CheckParams()
-			if isList(pnNewElm) and StzListQ(pnNewElm).IsByNamedParam()
+			if isList(pnNewElm) and IsByNamedParamList(pnNewElm)
 				pnNewElm = pnNewElm[2]
 			ok
 
@@ -1532,7 +1532,7 @@ class stzMatrix
 				stzraise("Incorrect param types! panRowCol must be a pair of numbers.")
 			ok
 
-			if isList(pnNewElm) and StzListQ(pnNewElm).IsByNamedParam()
+			if isList(pnNewElm) and IsByNamedParamList(pnNewElm)
 				pnNewElm = pnNewElm[2]
 			ok
 
@@ -1563,7 +1563,7 @@ class stzMatrix
 				stzraise("Incorrect param types! panRowCol must be a pair of numbers.")
 			ok
 
-			if isList(pnNewElm) and StzListQ(pnNewElm).IsByNamedParam()
+			if isList(pnNewElm) and IsByNamedParamList(pnNewElm)
 				pnNewElm = pnNewElm[2]
 			ok
 
@@ -1599,7 +1599,7 @@ class stzMatrix
 				stzraise("Incorrect param type! panPos must be a list of position pairs.")
 			ok
 
-			if isList(pnNewElm) and StzListQ(pnNewElm).IsByNamedParam()
+			if isList(pnNewElm) and IsByNamedParamList(pnNewElm)
 				pnNewElm = pnNewElm[2]
 			ok
 

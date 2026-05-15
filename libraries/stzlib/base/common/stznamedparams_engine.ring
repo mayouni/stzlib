@@ -212,7 +212,7 @@ func _CheckType(pValue, cExpected)
  ///  ENGINE-BACKED NAMED PARAM CHECKS  ///
 ///////////////////////////////////////////
 
-# These replace StzListQ(x).IsXxxNamedParam() calls with direct
+# These replace IsXxxNamedParamList(x) calls with direct
 # function calls -- no object creation, O(1) check.
 
 # Is this a [:Of, value] pair?
@@ -289,3 +289,487 @@ func IsToNamedParamList(paList)
 		return 0
 	ok
 	return paList[1] = :To
+
+func IsStartingAtNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :StartingAt
+
+func IsStartingAtOrStartingAtPositionNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :StartingAt or paList[1] = :StartingAtPosition
+
+func IsAtNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :At
+
+func IsAtOrAtSubStringNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :At or paList[1] = :AtSubString
+
+func IsAtOrAtItemNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :At or paList[1] = :AtItem
+
+func IsInNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :In
+
+func IsBoundedByNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :BoundedBy
+
+func IsBoundedByOrBoundsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :BoundedBy or paList[1] = :Bounds
+
+func IsBoundsOrBoundedByNamedParamList(paList)
+	return IsBoundedByOrBoundsNamedParamList(paList)
+
+func IsPatternNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Pattern
+
+func IsWithOrByOrUsingNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :With or paList[1] = :By or paList[1] = :Using
+
+func IsWhereNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Where
+
+func IsFromNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :From or paList[1] = :FromPosition
+
+func IsByNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :By or paList[1] = :By@
+
+func IsEachNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Each or paList[1] = :Each@
+
+func IsReturnedAsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :ReturnedAs
+
+func IsBetweenNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Between
+
+func IsItemNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Item
+
+func IsWithNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :With or paList[1] = :With@
+
+func IsOfOrOfSubStringNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Of or paList[1] = :OfSubString
+
+func IsOrNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Or
+
+func IsUsingOrWithOrByOrWhereNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Using or paList[1] = :With or paList[1] = :By or paList[1] = :Where
+
+func IsPositionNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Position
+
+func IsNorNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Nor
+
+func IsInSectionNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :InSection
+
+func IsThanNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Than
+
+func IsToOrToPositionNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :To or paList[1] = :ToPosition
+
+func IsWithOrUsingOrByNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :With or paList[1] = :Using or paList[1] = :By
+
+func IsPositionOrPositionsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Position or paList[1] = :Positions
+
+func IsPositionOrSubStringNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Position or paList[1] = :SubString
+
+func IsAndThenNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :AndThen
+
+func IsForNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :For
+
+func IsSubStringNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :SubString
+
+func IsUpToNCharsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :UpToNChars
+
+func IsAsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :As
+
+func IsNthNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Nth
+
+func IsBeforeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Before
+
+func IsUsingNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Using
+
+func IsAfterNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :After
+
+func IsAtOrAtPositionNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :At or paList[1] = :AtPosition
+
+func IsAtPositionNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :AtPosition
+
+func IsAtPositionsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :AtPositions
+
+func IsBeforePositionNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :BeforePosition
+
+func IsAfterPositionNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :AfterPosition
+
+func IsBeforeOrAfterNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Before or paList[1] = :After
+
+func IsBetweenIBNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :BetweenIB
+
+func IsBoundedByIBNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :BoundedByIB
+
+func IsByOrWithNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :By or paList[1] = :With
+
+func IsDirectionNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Direction
+
+func IsDirectionOrGoingNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Direction or paList[1] = :Going
+
+func IsEqualToNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :EqualTo
+
+func IsFirstNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :First
+
+func IsLastNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Last
+
+func IsListNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :List
+
+func IsRangeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Range
+
+func IsRespectivelyNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Respectively
+
+func IsReturnTypeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :ReturnType
+
+func IsSectionsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Sections
+
+func IsStringNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :String
+
+func IsStringOrSubStringNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :String or paList[1] = :SubString
+
+func IsSubStringsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :SubStrings
+
+func IsSubStringOrSubStringsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :SubString or paList[1] = :SubStrings
+
+func IsUsingOrByOrWithNamedParamList(paList)
+	return IsWithOrByOrUsingNamedParamList(paList)
+
+func IsUsingOrWithOrByNamedParamList(paList)
+	return IsWithOrByOrUsingNamedParamList(paList)
+
+func IsWithOrUsingNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :With or paList[1] = :Using
+
+func IsWithOrUsingOrInNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :With or paList[1] = :Using or paList[1] = :In
+
+func IsInOrInsideNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :In or paList[1] = :Inside
+
+func IsOfTypeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :OfType
+
+func IsOrOrAndNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Or or paList[1] = :And
+
+func IsStartingAtOrAfterNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :StartingAt or paList[1] = :After
+
+func IsStartingAtOrBeforeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :StartingAt or paList[1] = :Before
+
+func IsStoppingAtNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :StoppingAt
+
+func IsANamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :A
+
+func IsNameOrNamedNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Name or paList[1] = :Named
+
+func IsNCharsAfterNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :NCharsAfter
+
+func IsNCharsBeforeNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :NCharsBefore
+
+func IsLastCharsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :LastChars
+
+func IsLastNCharsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :LastNChars
+
+func IsNLastCharsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :NLastChars
+
+func IsUpToOrUpToNItemsNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :UpTo or paList[1] = :UpToNItems
+
+func IsAndOrAndPositionOrAndSubStringNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :And or paList[1] = :AndPosition or paList[1] = :AndSubString
+
+func IsOfOrToNamedParamList(paList)
+	if NOT isList(paList) return 0 ok
+	if len(paList) != 2 return 0 ok
+	if NOT isString(paList[1]) return 0 ok
+	return paList[1] = :Of or paList[1] = :To
+

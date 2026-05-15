@@ -96,7 +96,7 @@ class stzString from stzObject
 
 	def Update(pcNewStr)
 		if CheckingParams() = 1
-			if isList(pcNewStr) and StzListQ(pcNewStr).IsWithOrByOrUsingNamedParam()
+			if isList(pcNewStr) and IsWithOrByOrUsingNamedParamList(pcNewStr)
 				pcNewStr = pcNewStr[2]
 			ok
 		ok

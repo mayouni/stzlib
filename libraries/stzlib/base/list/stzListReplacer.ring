@@ -64,7 +64,7 @@ class stzListReplacer from stzList
 			This.ReplaceAllOccurrencesCS(pItem, pNewItem, pCaseSensitive)
 
 		def ReplaceCS(pItem, pNewItem, pCaseSensitive)
-			if isList(pItem) and StzListQ(pItem).IsEachNamedParam()
+			if isList(pItem) and IsEachNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 			This.ReplaceAllOccurrencesCS(pItem, pNewItem, pCaseSensitive)
@@ -82,7 +82,7 @@ class stzListReplacer from stzList
 			This.ReplaceAllOccurrences(pItem, pNewItem)
 
 		def Replace(pItem, pNewItem)
-			if isList(pItem) and StzListQ(pItem).IsEachNamedParam()
+			if isList(pItem) and IsEachNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 			This.ReplaceAllOccurrences(pItem, pNewItem)

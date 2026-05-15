@@ -2794,7 +2794,7 @@ func StzRaise(paMessage)
 		raise(paMessage + NL)
 	ok
 
-	if isList(paMessage) and StzListQ(paMessage).IsRaiseNamedParam()
+	if isList(paMessage) and IsRaiseNamedParamList(paMessage)
 		cWhere = paMessage[ :Where  ]
 		cWhat  = paMessage[ :What   ]
 		cWhy   = paMessage[ :Why    ]
@@ -4873,7 +4873,7 @@ func AreBothListsOfObjects(aList1, aList2)
 func EuclideanDistance(anNumbers1, anNumbers2)
 
 	if CheckParams()
-		if isList(anNumbers1) and StzListQ(anNumbers1).IsBetweenNamedParam()
+		if isList(anNumbers1) and IsBetweenNamedParamList(anNumbers1)
 			anNumbers1 = anNumbers1[1]
 		ok
 		if isList(anNumbers2) and IsAndNamedParamList(anNumbers2)

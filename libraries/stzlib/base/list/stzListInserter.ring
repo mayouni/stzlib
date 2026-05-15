@@ -24,7 +24,7 @@ class stzListInserter from stzList
 
 	def Insert(pItem, pWhere)
 
-		if isList(pItem) and StzListQ(pItem).IsItemNamedParam()
+		if isList(pItem) and IsItemNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 
@@ -53,7 +53,7 @@ class stzListInserter from stzList
 			This.Insert(pItem, pWhere)
 
 	def InsertBeforePosition(n, pItem)
-		if isList(n) and StzListQ(n).IsPositionNamedParam()
+		if isList(n) and IsPositionNamedParamList(n)
 			n = n[2]
 		ok
 
@@ -62,7 +62,7 @@ class stzListInserter from stzList
 			return
 		ok
 
-		if isList(pItem) and StzListQ(pItem).IsItemNamedParam()
+		if isList(pItem) and IsItemNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 
@@ -121,7 +121,7 @@ class stzListInserter from stzList
 	#---------------------------------------------#
 
 	def InsertBeforePositions(panPositions, pItem)
-		if isList(pItem) and StzListQ(pItem).IsItemNamedParam()
+		if isList(pItem) and IsItemNamedParamList(pItem)
 			pItem = pItem[2]
 		ok
 
@@ -142,7 +142,7 @@ class stzListInserter from stzList
 
 	def MoveItem(n1, n2)
 
-		if isList(n1) and StzListQ(n1).IsFromNamedParam()
+		if isList(n1) and IsFromNamedParamList(n1)
 			n1 = n1[2]
 		ok
 
@@ -178,7 +178,7 @@ class stzListInserter from stzList
 
 	def SwapItems(n1, n2)
 
-		if isList(n1) and StzListQ(n1).IsBetweenNamedParam()
+		if isList(n1) and IsBetweenNamedParamList(n1)
 			n1 = n1[2]
 		ok
 

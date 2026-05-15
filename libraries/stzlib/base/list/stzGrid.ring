@@ -1553,7 +1553,7 @@ class stzGrid From stzObject
 				StzRaise("Incorrect param type! panStartNode must be a pair of numbers.")
 			ok
 
-			if isList(nRings) and StzListQ(nRings).IsRingsNamedParam()
+			if isList(nRings) and IsRingsNamedParamList(nRings)
 				nRings = nRings[2]
 			ok
 
@@ -1653,7 +1653,7 @@ class stzGrid From stzObject
 
 			ok
 
-			if isList(nZigZagWidth) and StzListQ(nZigZagWidth).IsWidthNamedParam()
+			if isList(nZigZagWidth) and IsWidthNamedParamList(nZigZagWidth)
 				nZigZagWidth = nZigZagWidth[2]
 			ok
 

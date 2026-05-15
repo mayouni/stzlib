@@ -112,7 +112,7 @@ class stzListFinder from stzList
 			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
 
 		def FindCS(pItem, pCaseSensitive)
-			if isList(pItem) and StzListQ(pItem).IsItemNamedParam()
+			if isList(pItem) and IsItemNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
@@ -133,7 +133,7 @@ class stzListFinder from stzList
 			return This.FindAllOccurrences(pItem)
 
 		def Find(pItem)
-			if isList(pItem) and StzListQ(pItem).IsItemNamedParam()
+			if isList(pItem) and IsItemNamedParamList(pItem)
 				pItem = pItem[2]
 			ok
 			return This.FindAllOccurrences(pItem)
@@ -385,7 +385,7 @@ class stzListFinder from stzList
 
 	def FindNextNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
+		if isList(pnStartingAt) and IsStartingAtNamedParamList(pnStartingAt)
 			pnStartingAt = pnStartingAt[2]
 		ok
 
@@ -431,7 +431,7 @@ class stzListFinder from stzList
 
 	def FindPreviousNthOccurrenceCS(n, pItem, pnStartingAt, pCaseSensitive)
 
-		if isList(pnStartingAt) and StzListQ(pnStartingAt).IsStartingAtNamedParam()
+		if isList(pnStartingAt) and IsStartingAtNamedParamList(pnStartingAt)
 			pnStartingAt = pnStartingAt[2]
 		ok
 

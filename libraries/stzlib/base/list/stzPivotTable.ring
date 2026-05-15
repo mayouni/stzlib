@@ -76,7 +76,7 @@ class stzPivotTable from stzList
 
 	def Analyze(paValues, pcFunc)
 		if CheckParams()
-			if isList(pcFunc) and StzListQ(pcFunc).IsWithOrUsingOrInNamedParam()
+			if isList(pcFunc) and IsWithOrUsingOrInNamedParamList(pcFunc)
 				pcFunc = pcFunc[2]
 			ok
 		ok
@@ -1808,11 +1808,11 @@ class stzPivotTable from stzList
 	def _showFormattedPivotTable2DXT(pSubTotal, pGrandTotal)
 		if CheckParams()
 	
-			if isList(pSubTotal) and StzListQ(pSubTotal).IsSubTotalNamedParam()
+			if isList(pSubTotal) and IsSubTotalNamedParamList(pSubTotal)
 				pSubTotal = pSubTotal[2]
 			ok
 	
-			if isList(pGrandTotal) and StzListQ(pGrandTotal).IsGrandTotalNamedParam()
+			if isList(pGrandTotal) and IsGrandTotalNamedParamList(pGrandTotal)
 				pGrandTotal = pGrandTotal[2]
 			ok
 	
