@@ -19,8 +19,8 @@ func stzCharError(pcError)
 
 	on :CanNotDefineUnicodeVersion
 		cErrorMsg += "   What : Can't define the unicode version of this character!" + NL
-		cErrorMsg += "   Why  : The number return by Qt does'nt fit in the range of the _acUnicodeVersions global list." + NL
-		cErrorMsg += "   Todo : Verify if that list needs an update. But if Qt returned 0, then even Qt can't help."
+		cErrorMsg += "   Why  : The number returned by the engine does not fit in the range of the _acUnicodeVersions global list." + NL
+		cErrorMsg += "   Todo : Verify if that list needs an update. If the engine returned 0, the data is unavailable."
 
 	on :CanNotTransformCharToString
 		cErrorMsg += "   What : Can't transform the character to a Ring string!" + NL

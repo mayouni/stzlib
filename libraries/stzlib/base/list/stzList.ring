@@ -56884,9 +56884,7 @@ fdef
 					StringValueQ().NumberOfChars()
 
 			but isString(@aContent[i])
-				oQString = new qstring2()
-				oQString.append(@aContent[i])
-				nSize = oQString.size()
+				nSize = StzEngineUnicodeGraphemeCount(@aContent[i])
 
 			but isList(@aContent[i])
 				nSize = len(@aContent[i])
@@ -59079,9 +59077,9 @@ fdef
 		_aResult_ = This.Copy().StringifyNamedObjectsQ().Content()
 		return _aResult_
 
-	  #---------------------------------------------------------------------#
-	 #  Q-STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME QSTRINGS)  #
-	#---------------------------------------------------------------------#
+	  #----------------------------------------------------------------#
+	 #  STRINGIFYING THE LIST (ALL ITEMS ARE FORCED TO BECOME STRINGS)  #
+	#----------------------------------------------------------------#
 
 	def QStringify()
 		aContent = This.Content()
@@ -59140,15 +59138,12 @@ fdef
 	#--> Used internally in some places to boost performance
 
 	def StringifyAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
-		#< QtBased | Uses QString2() #>
+		#< EngineBased #>
 
 		#NOTE // General note on performance of code written here in SoftanzaLib
 
 		# For all loops running on large data (tens of thousands of times and more), we
-		# don't rely on softanza objects services (stzString and alike), we use Qt directly instead!
-
-		# In fact the problem comes, not from Softanza objects themselves, but from
-		# going back and forth between Ring and Qt
+		# use lightweight Ring functions directly instead of Softanza object services.
 
 		# Resolving params
 
@@ -59300,7 +59295,7 @@ fdef
 	#-------------------------------------------------------------------------------#
 
 	def StringifyAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
-		#< QtBased | Uses QString2() #>
+		#< EngineBased #>
 
 		aResult = This.Copy().StringifyAndReplaceCSXTQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()[1]
 		This.Update(aResult)
@@ -59363,7 +59358,7 @@ fdef
 	# A special function used internally by Softanza to boost its performance
 
 	def StringifyLowercaseAndReplaceCSXT(pcSubStr, pcOtherSubStr, pCaseSensitive)
-		#< QtBased | Uses QString2() #>
+		#< EngineBased #>
 
 		# Resolving params
 
@@ -59518,7 +59513,7 @@ fdef
 	# A special function used internally by Softanza to boost its performance
 
 	def StringifyLowercaseAndReplaceCS(pcSubStr, pcOtherSubStr, pCaseSensitive)
-		#< QtBased | Uses QString2() #>
+		#< EngineBased #>
 
 		aResult = This.Copy().StringifyLowercaseAndReplaceCSXTQ(pcSubStr, pcOtherSubStr, pCaseSensitive).Content()[1]
 		This.Update(aResult)

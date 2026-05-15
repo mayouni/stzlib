@@ -2,9 +2,9 @@
 Softanza Library
 
 This file contains data used with the stzChar class, that
-is not made available in Qt
+is not made available in the Unicode standard directly.
 
-Or that are available in Qt but we simplify it, or enrich it
+Or that are available but we simplify it, or enrich it
 here for our own use.
 
 Author: Mansour Ayouni (kalidianow@gmail.com)
@@ -307,7 +307,7 @@ Dotless LETTERS
 	# Unicode directions
 
 	_aUnicodeDirectionsXT = [
-		# QtNbr >  QtName  > StzName > Description
+		# Nbr > ShortName > StzName > Description
 		[ "0", :DirL, :LeftToRight, "Left-to-right" ],
 		[ "1", :DirR, :RightToLeft, "Right-to-left" ],
 		[ "2", :DirEN, :EuropeanNumber, "European Number" ],

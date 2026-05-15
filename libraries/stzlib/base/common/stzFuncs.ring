@@ -1574,60 +1574,6 @@ func TheseStzObjects(p)
 
 	#>
 
-func TheseQtObjects(p)
-	_bThese = 1
-	_bTheseQ = 0
-
-	if CheckingParams()
-		if NOT isList(p)
-			StzRaise("Incorrect param type! p must be a list.")
-		ok
-	ok
-
-	nLen = len(p)
-	aoResult = []
-
-	for i = 1 to nLen
-		if isObject(p[i]) and IsQtObject(p[i])
-			aoResult + p[i]
-		ok
-	next
-
-	return aoResult
-	# Must be reset to FALSE everytime TheseStzObjects() is used.
-
-	#< @FunctionAlternativeForms
-
-	func EachOfTheseQtObjects(p)
-		return TheseQtObjects(p)
-
-	func EachOneOfTheseQtObjects(p)
-		return TheseStzObjects(p)
-
-	func AllTheseQtObjects(p)
-		return TheseQtObjects(p)
-
-	func AllOfTheseQtObjects(p)
-		return TheseQtObjects(p)
-
-	#==
-
-	func @TheseQtObjects(p)
-		return TheseQtObjects()
-
-	func @EachOfTheseQtObjects(p)
-		return TheseQtObjects(p)
-
-	func @EachOneOfTheseQtObjects(p)
-		return TheseQtObjects(p)
-
-	func @AllTheseQtObjects(p)
-		return TheseQtObjects(p)
-
-	func @AllOfTheseQtObjects(p)
-		return TheseQtObjects(p)
-
-	#>
 #---
 
 func TheseQ(p)
@@ -2297,61 +2243,6 @@ func TheseStzObjectsQ(p)
 
 	#>
 
-func TheseQtObjectsQ(p)
-	
-	if CheckingParams()
-		if NOT isList(p)
-			StzRaise("Incorrect param type! p must be a list.")
-		ok
-	ok
-
-	_bTheseQ = 1
-	_bThese = 0
-
-	nLen = len(p)
-	aoResult = []
-
-	for i = 1 to nLen
-		if isObject(p[i]) and IsQtObject(p[i])
-			aoResult + p[i]
-		ok
-	next
-
-	return new stzListOfObjects(aoResult)
-	# _bTheseQ Must be reset to FALSE everytime TheseStzObjects() is used.
-
-	#< @FunctionAlternativeForms
-
-	func EachOfTheseQtObjectsQ(p)
-		return TheseQtObjectsQ(p)
-
-	func EachOneOfTheseQtObjectsQ(p)
-		return TheseStzObjectsQ(p)
-
-	func AllTheseQtObjectsQ(p)
-		return TheseQtObjectsQ(p)
-
-	func AllOfTheseQtObjectsQ(p)
-		return TheseQtObjectsQ(p)
-
-	#==
-
-	func @TheseQtObjectsQ(p)
-		return TheseQtObjectsQ()
-
-	func @EachOfTheseQtObjectsQ(p)
-		return TheseQtObjectsQ(p)
-
-	func @EachOneOfTheseQtObjectsQ(p)
-		return TheseQtObjectsQ(p)
-
-	func @AllTheseQtObjectsQ(p)
-		return TheseQtObjectsQ(p)
-
-	func @AllOfTheseQtObjectsQ(p)
-		return TheseQtObjectsQ(p)
-
-	#>
 
 #===
 
