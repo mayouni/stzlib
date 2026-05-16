@@ -35411,9 +35411,12 @@ class stzString from stzObject
 
 		if n1 = n2
 			cResult = This.Char(n1)
-			
+
 		but n1 < n2
-			cResult = substr(This.Content(), n1, n2 - n1 + 1)
+			# Engine: 0-based start, count of codepoints
+			pSlice = StzEngineStringSlice(@pEngine, n1 - 1, n2 - n1 + 1)
+			cResult = StzEngineStringData(pSlice)
+			StzEngineStringFree(pSlice)
 
 		else // n2 < n1
 			# Swapping n1 and n2
@@ -35421,7 +35424,9 @@ class stzString from stzObject
 			n1 = n2
 			n2 = nTemp
 
-			cResult = substr(This.Content(), n1, n2 - n1 + 1)
+			pSlice = StzEngineStringSlice(@pEngine, n1 - 1, n2 - n1 + 1)
+			cResult = StzEngineStringData(pSlice)
+			StzEngineStringFree(pSlice)
 
 		ok
 
@@ -93970,7 +93975,10 @@ class stzString from stzObject
 			stzRaise("Incorrect param type! n should be a number.")
 		ok
 
-		cResult = substr(This.Content(), n, 1)
+		# Engine: 0-based codepoint index, returns handle
+		pChar = StzEngineStringNthChar(@pEngine, n - 1)
+		cResult = StzEngineStringData(pChar)
+		StzEngineStringFree(pChar)
 		return cResult
 
 		#< @FunctionFluentForm
