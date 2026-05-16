@@ -389,6 +389,84 @@ class stzString from stzObject
 		StzEngineStringFree(pResult)
 		return cResult
 
+	  #=========================#
+	 #  SQUEEZE                #
+	#=========================#
+
+	def Squeeze()
+		pResult = StzEngineStringSqueeze(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def SqueezeQ()
+			This.Squeeze()
+			return This
+
+	def Squeezed()
+		pResult = StzEngineStringSqueeze(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  IS DIGIT               #
+	#=========================#
+
+	def IsDigit()
+		return StzEngineStringIsDigit(@pEngine)
+
+		def IsAllDigits()
+			return This.IsDigit()
+
+	  #=========================#
+	 #  INTERLEAVE             #
+	#=========================#
+
+	def Interleave(cSep)
+		pResult = StzEngineStringInterleave(@pEngine, cSep)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def InterleaveQ(cSep)
+			This.Interleave(cSep)
+			return This
+
+	def Interleaved(cSep)
+		pResult = StzEngineStringInterleave(@pEngine, cSep)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  PARTITION AT           #
+	#=========================#
+
+	def PartitionedAt(cSep)
+		pBefore = StzEngineStringPartition(@pEngine, cSep)
+		pAfter = StzEngineStringPartitionAfter(@pEngine, cSep)
+		cBefore = StzEngineStringData(pBefore)
+		cAfter = StzEngineStringData(pAfter)
+		StzEngineStringFree(pAfter)
+		StzEngineStringFree(pBefore)
+		return [cBefore, cSep, cAfter]
+
+		def SplitAt3(cSep)
+			return This.PartitionedAt(cSep)
+
+	def RPartitionedAt(cSep)
+		pBefore = StzEngineStringRpartition(@pEngine, cSep)
+		pAfter = StzEngineStringRpartitionAfter(@pEngine, cSep)
+		cBefore = StzEngineStringData(pBefore)
+		cAfter = StzEngineStringData(pAfter)
+		StzEngineStringFree(pAfter)
+		StzEngineStringFree(pBefore)
+		return [cBefore, cSep, cAfter]
+
+		def RSplitAt3(cSep)
+			return This.RPartitionedAt(cSep)
+
 	  #==================================#
 	 #  GETTING THE CASE OF THE STRING  #
 	#==================================#

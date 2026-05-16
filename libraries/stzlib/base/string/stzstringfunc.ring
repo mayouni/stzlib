@@ -1485,9 +1485,13 @@ func StringReverseChars(cStr)
 		return StringReverseChars(cStr)
 
 func StringIsWord(cStr)
-	oString = new stzString(cStr)
-	return oString.IsWord()
-	
+	# Engine-backed: a word has no whitespace and is non-empty
+	if len(cStr) = 0 return 0 ok
+	pStr = StzEngineStringFrom(cStr)
+	nResult = StzEngineStringIsWord(pStr)
+	StzEngineStringFree(pStr)
+	return nResult
+
 	func @IsWord(cStr)
 		return StringIsWord(cStr)
 
@@ -1648,7 +1652,13 @@ func StringsAreEqual(paStr)
 	return StringsAreEqualCS(paStr, 1)
 
 func RemoveDiacritics(pcStr)
-	return StzStringQ(pcStr).DiacriticsRemoved()
+	# Engine-backed: strip combining marks (diacritics)
+	pStr = StzEngineStringFrom(pcStr)
+	pR = StzEngineStringStripMarks(pStr)
+	cResult = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pStr)
+	return cResult
 
 func StringCases()
 	return [ :Lowercase, :Uppercase, :Capitalcase, :Titlecase, :Foldercase ]
