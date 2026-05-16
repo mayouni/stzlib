@@ -57,9 +57,9 @@ class stzStringReplacer from stzString
 			return
 		ok
 
-		_cResult_ = This.Content()
-		_cResult_ = @ReplaceCS(_cResult_, pcSubStr, pcNewSubStr, _bCase_)
-		This.Update(_cResult_)
+		# Case-insensitive: use Engine CI function
+		StzEngineStringReplaceCI(@pEngine, pcSubStr, pcNewSubStr)
+		@TraceObjectHistory(This)
 
 		def ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceCS(pcSubStr, pcNewSubStr, pCaseSensitive)

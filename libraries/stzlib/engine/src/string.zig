@@ -305,6 +305,55 @@ pub fn stz_string_last_index_of(handle: StzStringHandle, needle: [*c]const u8, n
     return -1;
 }
 
+pub fn stz_string_count_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
+    if (handle) |s| {
+        if (needle == null or needle_len == 0) return 0;
+        const hay = s.slice();
+        const n = needle[0..needle_len];
+        var count: c_int = 0;
+        var pos: usize = 0;
+        outer: while (pos + n.len <= hay.len) {
+            for (0..n.len) |j| {
+                if (toLowerAscii(hay[pos + j]) != toLowerAscii(n[j])) {
+                    pos += 1;
+                    continue :outer;
+                }
+            }
+            count += 1;
+            pos += n.len;
+        }
+        return count;
+    }
+    return 0;
+}
+
+pub fn stz_string_last_index_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
+    if (handle) |s| {
+        if (needle == null or needle_len == 0) return -1;
+        const hay = s.slice();
+        const n = needle[0..needle_len];
+        if (n.len > hay.len) return -1;
+        var pos: usize = hay.len - n.len;
+        while (true) {
+            var match = true;
+            for (0..n.len) |j| {
+                if (toLowerAscii(hay[pos + j]) != toLowerAscii(n[j])) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) return @intCast(pos);
+            if (pos == 0) break;
+            pos -= 1;
+        }
+    }
+    return -1;
+}
+
+pub fn stz_string_contains_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
+    return if (stz_string_index_of_ci(handle, needle, needle_len, 0) >= 0) 1 else 0;
+}
+
 pub fn stz_string_contains(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
     return if (stz_string_index_of(handle, needle, needle_len) >= 0) 1 else 0;
 }
@@ -315,6 +364,35 @@ pub fn stz_string_starts_with(handle: StzStringHandle, prefix: [*c]const u8, pre
         const sl = s.slice();
         if (prefix_len > sl.len) return 0;
         return if (mem.eql(u8, sl[0..prefix_len], prefix[0..prefix_len])) 1 else 0;
+    }
+    return 0;
+}
+
+pub fn stz_string_starts_with_ci(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) c_int {
+    if (handle) |s| {
+        if (prefix == null or prefix_len == 0) return 1;
+        const sl = s.slice();
+        if (prefix_len > sl.len) return 0;
+        const p = prefix[0..prefix_len];
+        for (0..prefix_len) |i| {
+            if (toLowerAscii(sl[i]) != toLowerAscii(p[i])) return 0;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+pub fn stz_string_ends_with_ci(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize) callconv(.c) c_int {
+    if (handle) |s| {
+        if (suffix == null or suffix_len == 0) return 1;
+        const sl = s.slice();
+        if (suffix_len > sl.len) return 0;
+        const start = sl.len - suffix_len;
+        const sf = suffix[0..suffix_len];
+        for (0..suffix_len) |i| {
+            if (toLowerAscii(sl[start + i]) != toLowerAscii(sf[i])) return 0;
+        }
+        return 1;
     }
     return 0;
 }
@@ -347,6 +425,45 @@ pub fn stz_string_replace(handle: StzStringHandle, old: [*c]const u8, old_len: u
                 result.appendSlice(gpa, new_slice) catch return;
                 pos += old_len;
             } else if (pos < src.len) {
+                result.append(gpa, src[pos]) catch return;
+                pos += 1;
+            } else {
+                break;
+            }
+        }
+
+        s.data.deinit(gpa);
+        s.data = result;
+    }
+}
+
+pub fn stz_string_replace_ci(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new: [*c]const u8, new_len: usize) callconv(.c) void {
+    if (handle) |s| {
+        if (old == null or old_len == 0) return;
+        const old_slice = old[0..old_len];
+        const new_slice = if (new != null and new_len > 0) new[0..new_len] else "";
+
+        var result: std.ArrayList(u8) = .{};
+        var pos: usize = 0;
+        const src = s.slice();
+
+        outer: while (pos <= src.len) {
+            if (pos + old_len <= src.len) {
+                // Case-insensitive comparison
+                var matched = true;
+                for (0..old_len) |j| {
+                    if (toLowerAscii(src[pos + j]) != toLowerAscii(old_slice[j])) {
+                        matched = false;
+                        break;
+                    }
+                }
+                if (matched) {
+                    result.appendSlice(gpa, new_slice) catch return;
+                    pos += old_len;
+                    continue :outer;
+                }
+            }
+            if (pos < src.len) {
                 result.append(gpa, src[pos]) catch return;
                 pos += 1;
             } else {
@@ -681,6 +798,52 @@ test "string index_of_ci" {
     try std.testing.expectEqual(@as(i64, 6), stz_string_index_of_ci(s, "world", 5, 0));
     try std.testing.expectEqual(@as(i64, -1), stz_string_index_of_ci(s, "xyz", 3, 0));
     try std.testing.expectEqual(@as(i64, 6), stz_string_index_of_ci(s, "WORLD", 5, 3));
+    stz_string_free(s);
+}
+
+test "string count_of_ci" {
+    const s = stz_string_from("Hello hello HELLO hElLo", 23);
+    try std.testing.expectEqual(@as(c_int, 4), stz_string_count_of_ci(s, "hello", 5));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_count_of_ci(s, "xyz", 3));
+    stz_string_free(s);
+}
+
+test "string last_index_of_ci" {
+    const s = stz_string_from("abc-ABC-Abc", 11);
+    try std.testing.expectEqual(@as(i64, 8), stz_string_last_index_of_ci(s, "abc", 3));
+    try std.testing.expectEqual(@as(i64, -1), stz_string_last_index_of_ci(s, "xyz", 3));
+    stz_string_free(s);
+}
+
+test "string starts_with_ci" {
+    const s = stz_string_from("Hello World", 11);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_starts_with_ci(s, "hello", 5));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_starts_with_ci(s, "HELLO", 5));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_starts_with_ci(s, "world", 5));
+    stz_string_free(s);
+}
+
+test "string ends_with_ci" {
+    const s = stz_string_from("Hello World", 11);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_ends_with_ci(s, "world", 5));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_ends_with_ci(s, "WORLD", 5));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_ends_with_ci(s, "hello", 5));
+    stz_string_free(s);
+}
+
+test "string contains_ci" {
+    const s = stz_string_from("Hello World", 11);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_ci(s, "WORLD", 5));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_ci(s, "hello", 5));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_contains_ci(s, "xyz", 3));
+    stz_string_free(s);
+}
+
+test "string replace_ci" {
+    const s = stz_string_from("Hello hello HELLO", 17);
+    stz_string_replace_ci(s, "hello", 5, "hi", 2);
+    try std.testing.expectEqual(@as(usize, 8), stz_string_size(s));
+    try std.testing.expect(mem.eql(u8, stz_string_data(s)[0..8], "hi hi hi"));
     stz_string_free(s);
 }
 
