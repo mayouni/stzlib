@@ -588,6 +588,18 @@ fn ring_StringIsOnlyType(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_only_type(h, char_type)));
 }
 
+fn ring_StringTrim(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_trim(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringSwapCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_swap_case(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -679,6 +691,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringiswhitespace", .func = &ring_StringIsWhitespace },
     .{ .name = "stzenginestringwordcount", .func = &ring_StringWordCount },
     .{ .name = "stzenginestringisonlytype", .func = &ring_StringIsOnlyType },
+    .{ .name = "stzenginestringtrim", .func = &ring_StringTrim },
+    .{ .name = "stzenginestringswapcase", .func = &ring_StringSwapCase },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

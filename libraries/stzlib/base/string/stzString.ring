@@ -54659,13 +54659,12 @@ class stzString from stzObject
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		# Doing the job
+		# Engine direct contains check (faster than _FindSubStr)
 
-		_nResult_ = This._FindSubStr(pcSubStr, 1, _bCase_)
-		if _nResult_ > 0
-			return TRUE
+		if _bCase_
+			return StzEngineStringContains(@pEngine, pcSubStr)
 		else
-			return FALSE
+			return StzEngineStringContainsCI(@pEngine, pcSubStr)
 		ok
 
 		#< @FunctionAlternativeForm

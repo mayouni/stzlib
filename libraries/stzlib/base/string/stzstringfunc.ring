@@ -1444,29 +1444,14 @@ func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
 
 	bCase = @CaseSensitive(pCaseSensitive)
 
-	_cTempStr_ = pcStr
-	_cSubStr_ = pcSubStr
-
-	if bCase = 0
-		_cTempStr_ = ring_lower(_cTempStr_)
-		_cSubStr_  = ring_lower(_cSubStr_)
+	# Engine-backed count
+	pStr = StzEngineStringFrom(pcStr)
+	if bCase
+		nResult = StzEngineStringCountOf(pStr, pcSubStr)
+	else
+		nResult = StzEngineStringCountOfCI(pStr, pcSubStr)
 	ok
-
-	# Early check
-
-	n = ring_substr1(_cTempStr_, _cSubStr_)
-	if n = 0
-		return 0
-	ok
-
-	# Removing the substring from the string
-
-	nLenBeforeRemove = len(_cTempStr_)
-	_cTempStr2_ = ring_substr2(_cTempStr_, _cSubStr_, "")
-	nLenAfterRemove = len(_cTempStr2_)
-
-	nLenSubStr = len(_cSubStr_)
-	nResult = ( (nLenBeforeRemove - nLenAfterRemove) / nLenSubStr )
+	StzEngineStringFree(pStr)
 
 	return nResult
 

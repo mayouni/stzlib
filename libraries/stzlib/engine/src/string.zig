@@ -1580,6 +1580,73 @@ pub fn stz_string_is_only_type(handle: StzStringHandle, char_type: c_int) callco
     return 1;
 }
 
+/// Trim whitespace from both ends. Returns new handle.
+pub fn stz_string_trim(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    // Find start
+    var start: usize = 0;
+    while (start < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[start]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, start, cp_len);
+        if (unicode.stz_unicode_is_space(cp_val) == 0) break;
+        start += cp_len;
+    }
+    // Find end
+    var end: usize = bytes.len;
+    while (end > start) {
+        // Walk backward to find start of last codepoint
+        var back: usize = end - 1;
+        while (back > start and (bytes[back] & 0xC0) == 0x80) back -= 1;
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[back]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, back, cp_len);
+        if (unicode.stz_unicode_is_space(cp_val) == 0) break;
+        end = back;
+    }
+    return stz_string_from(bytes[start..end].ptr, end - start);
+}
+
+/// Swap case of all letter codepoints. Returns new handle.
+pub fn stz_string_swap_case(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    const result = stz_string_new() orelse return null;
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_end = @min(i + cp_len, bytes.len);
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_upper(cp_val) != 0) {
+            // Convert to lower via Engine to_lower on single char
+            const tmp = stz_string_from(bytes[i..cp_end].ptr, cp_end - i) orelse {
+                i += cp_len;
+                continue;
+            };
+            const lower = stz_string_to_lower(tmp);
+            if (lower) |l| {
+                result.data.appendSlice(gpa, l.slice()) catch break;
+                stz_string_free(lower);
+            }
+            stz_string_free(tmp);
+        } else if (unicode.stz_unicode_is_lower(cp_val) != 0) {
+            const tmp = stz_string_from(bytes[i..cp_end].ptr, cp_end - i) orelse {
+                i += cp_len;
+                continue;
+            };
+            const upper = stz_string_to_upper(tmp);
+            if (upper) |u| {
+                result.data.appendSlice(gpa, u.slice()) catch break;
+                stz_string_free(upper);
+            }
+            stz_string_free(tmp);
+        } else {
+            result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
+        }
+        i += cp_len;
+    }
+    return result;
+}
+
 /// Decode a codepoint from UTF-8 bytes at a given position.
 fn decodeCodepoint(bytes: []const u8, pos: usize, cp_len: usize) i32 {
     if (cp_len == 1) return @intCast(bytes[pos]);
@@ -2566,4 +2633,42 @@ test "is_only_type" {
     const s3 = stz_string_from("   ", 3);
     try std.testing.expectEqual(@as(c_int, 1), stz_string_is_only_type(s3, 2)); // space
     stz_string_free(s3);
+}
+
+test "trim" {
+    const s1 = stz_string_from("  hello  ", 9);
+    const r1 = stz_string_trim(s1);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r1));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..5], "hello"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("hello", 5);
+    const r2 = stz_string_trim(s2);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r2));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..5], "hello"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("   ", 3);
+    const r3 = stz_string_trim(s3);
+    try std.testing.expectEqual(@as(usize, 0), stz_string_size(r3));
+    stz_string_free(r3);
+    stz_string_free(s3);
+}
+
+test "swap_case" {
+    const s1 = stz_string_from("Hello World", 11);
+    const r1 = stz_string_swap_case(s1);
+    try std.testing.expectEqual(@as(usize, 11), stz_string_size(r1));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..11], "hELLO wORLD"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("123", 3);
+    const r2 = stz_string_swap_case(s2);
+    try std.testing.expectEqual(@as(usize, 3), stz_string_size(r2));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..3], "123"));
+    stz_string_free(r2);
+    stz_string_free(s2);
 }
