@@ -430,6 +430,24 @@ fn ring_StringConcat(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+fn ring_StringIsAscii(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_ascii(h)));
+}
+
+fn ring_StringRemoveCharAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp_index: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const result = string.stz_string_remove_char_at(h, cp_index);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringCharTypeAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp_index: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_char_type_at(h, cp_index)));
+}
+
 fn ring_StringReplaceFirst(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const old = ring_vm_api_getstring(p, 2);
@@ -611,6 +629,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringlinescount", .func = &ring_StringLinesCount },
     .{ .name = "stzenginestringispalindrome", .func = &ring_StringIsPalindrome },
     .{ .name = "stzenginestringconcat", .func = &ring_StringConcat },
+    .{ .name = "stzenginestringisascii", .func = &ring_StringIsAscii },
+    .{ .name = "stzenginestringremovecharat", .func = &ring_StringRemoveCharAt },
+    .{ .name = "stzenginestringchartypeat", .func = &ring_StringCharTypeAt },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
