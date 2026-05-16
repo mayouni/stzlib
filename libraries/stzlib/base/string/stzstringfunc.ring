@@ -166,20 +166,9 @@ func IsNotString(pcStr)
 
 func @IsAlpha(cStr)
 	pStr = StzEngineStringFrom(cStr)
-	nLen = StzEngineStringCount(pStr)
-	if nLen = 0
-		StzEngineStringFree(pStr)
-		return 0
-	ok
-	for i = 0 to nLen - 1
-		nCp = StzEngineStringCharAt(pStr, i)
-		if NOT StzEngineCharIsLetter(nCp)
-			StzEngineStringFree(pStr)
-			return 0
-		ok
-	next
+	nResult = StzEngineStringIsAlpha(pStr)
 	StzEngineStringFree(pStr)
-	return 1
+	return nResult
 
 	#< @FunctionAlternativeForms
 
@@ -206,15 +195,10 @@ func @IsAlnum(cStr)
 		StzEngineStringFree(pStr)
 		return 0
 	ok
-	for i = 0 to nLen - 1
-		nCp = StzEngineStringCharAt(pStr, i)
-		if NOT (StzEngineCharIsLetter(nCp) or StzEngineCharIsDigit(nCp))
-			StzEngineStringFree(pStr)
-			return 0
-		ok
-	next
+	nLetters = StzEngineStringCountCharsOfType(pStr, 0)
+	nDigits = StzEngineStringCountCharsOfType(pStr, 1)
 	StzEngineStringFree(pStr)
-	return 1
+	return (nLetters + nDigits) = nLen
 
 	#< @FunctionAlternativeForms
 
