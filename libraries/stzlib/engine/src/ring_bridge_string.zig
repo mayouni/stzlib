@@ -607,6 +607,61 @@ fn ring_StringSwapCase(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+fn ring_StringUniqueChars(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_unique_chars(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringUniqueCharCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_unique_char_count(h)));
+}
+
+fn ring_StringRemoveAllCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const needle = ring_vm_api_getstring(p, 2);
+    const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const result = string.stz_string_remove_all_ci(h, needle, needle_len);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringIsAlphaOnly(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_alpha_only(h)));
+}
+
+fn ring_StringIsAlnum(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_alnum(h)));
+}
+
+fn ring_StringContainsChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp: i32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_char(h, cp)));
+}
+
+fn ring_StringBetweenNth(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const nth: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    const result = string.stz_string_between_nth(h, open, open_len, close, close_len, nth);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringCountBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_between(h, open, open_len, close, close_len)));
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -701,6 +756,14 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringremovecharsoftype", .func = &ring_StringRemoveCharsOfType },
     .{ .name = "stzenginestringtrim", .func = &ring_StringTrim },
     .{ .name = "stzenginestringswapcase", .func = &ring_StringSwapCase },
+    .{ .name = "stzenginestringuniquechars", .func = &ring_StringUniqueChars },
+    .{ .name = "stzenginestringuniquecharscount", .func = &ring_StringUniqueCharCount },
+    .{ .name = "stzenginestringremoveallci", .func = &ring_StringRemoveAllCI },
+    .{ .name = "stzenginestringisalphaonly", .func = &ring_StringIsAlphaOnly },
+    .{ .name = "stzenginestringisalnum", .func = &ring_StringIsAlnum },
+    .{ .name = "stzenginestringcontainschar", .func = &ring_StringContainsChar },
+    .{ .name = "stzenginestringbetweennth", .func = &ring_StringBetweenNth },
+    .{ .name = "stzenginestringcountbetween", .func = &ring_StringCountBetween },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

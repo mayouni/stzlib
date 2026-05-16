@@ -1680,6 +1680,157 @@ pub fn stz_string_swap_case(handle: StzStringHandle) callconv(.c) StzStringHandl
     return result;
 }
 
+/// Return a new string with duplicate codepoints removed (preserves first occurrence order).
+pub fn stz_string_unique_chars(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    // Track seen codepoints with a simple array (works for BMP + beyond)
+    var seen = std.AutoHashMap(i32, void).init(gpa);
+    defer seen.deinit();
+
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_end = @min(i + cp_len, bytes.len);
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (!seen.contains(cp_val)) {
+            seen.put(cp_val, {}) catch break;
+            result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
+        }
+        i += cp_len;
+    }
+    return result;
+}
+
+/// Remove all occurrences of needle (case-insensitive). Returns new handle.
+pub fn stz_string_remove_all_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
+    // Replace all occurrences with empty string (case-insensitive)
+    const s = (handle orelse return null);
+    _ = s;
+    const result = stz_string_new() orelse return null;
+    if (handle) |src| {
+        result.data.appendSlice(gpa, src.slice()) catch return null;
+    }
+    stz_string_replace_ci(result, needle, needle_len, "".ptr, 0);
+    return result;
+}
+
+/// Check if string contains only letters (Unicode-aware). Returns 1 or 0.
+pub fn stz_string_is_alpha_only(handle: StzStringHandle) callconv(.c) c_int {
+    return stz_string_is_only_type(handle, 0); // type 0 = letter
+}
+
+/// Check if string is alphanumeric (letters + digits only). Returns 1 or 0.
+pub fn stz_string_is_alnum(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0) return 0;
+        i += cp_len;
+    }
+    return 1;
+}
+
+/// Return number of unique codepoints.
+pub fn stz_string_unique_char_count(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    var seen = std.AutoHashMap(i32, void).init(gpa);
+    defer seen.deinit();
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        seen.put(cp_val, {}) catch break;
+        i += cp_len;
+    }
+    return @intCast(seen.count());
+}
+
+/// Check if string contains char (codepoint). Returns 1 or 0.
+pub fn stz_string_contains_char(handle: StzStringHandle, codepoint: i32) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (cp_val == codepoint) return 1;
+        i += cp_len;
+    }
+    return 0;
+}
+
+/// Return a substring between two delimiters, searching from a given occurrence.
+/// nth=0 means first occurrence of open delimiter. Returns new handle.
+pub fn stz_string_between_nth(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, nth: c_int) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    if (open_len == 0 or close_len == 0) return null;
+    const open_s = open[0..open_len];
+    const close_s = close[0..close_len];
+
+    var occurrence: c_int = 0;
+    var i: usize = 0;
+    while (i + open_len <= bytes.len) {
+        if (std.mem.eql(u8, bytes[i..][0..open_len], open_s)) {
+            if (occurrence == nth) {
+                const after_open = i + open_len;
+                var j = after_open;
+                while (j + close_len <= bytes.len) {
+                    if (std.mem.eql(u8, bytes[j..][0..close_len], close_s)) {
+                        return stz_string_from(bytes[after_open..j].ptr, j - after_open);
+                    }
+                    j += 1;
+                }
+                return null;
+            }
+            occurrence += 1;
+            i += open_len;
+        } else {
+            i += 1;
+        }
+    }
+    return null;
+}
+
+/// Count occurrences of a substring between two delimiters.
+pub fn stz_string_count_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (open_len == 0 or close_len == 0) return 0;
+    const open_s = open[0..open_len];
+    const close_s = close[0..close_len];
+
+    var count: c_int = 0;
+    var i: usize = 0;
+    while (i + open_len <= bytes.len) {
+        if (std.mem.eql(u8, bytes[i..][0..open_len], open_s)) {
+            const after_open = i + open_len;
+            var j = after_open;
+            while (j + close_len <= bytes.len) {
+                if (std.mem.eql(u8, bytes[j..][0..close_len], close_s)) {
+                    count += 1;
+                    i = j + close_len;
+                    break;
+                }
+                j += 1;
+            } else {
+                break;
+            }
+            continue;
+        }
+        i += 1;
+    }
+    return count;
+}
+
 /// Decode a codepoint from UTF-8 bytes at a given position.
 fn decodeCodepoint(bytes: []const u8, pos: usize, cp_len: usize) i32 {
     if (cp_len == 1) return @intCast(bytes[pos]);
@@ -2724,4 +2875,103 @@ test "remove_chars_of_type" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r3)[0..15], "Hello 123 World"));
     stz_string_free(r3);
     stz_string_free(s1);
+}
+
+test "unique_chars" {
+    const s = stz_string_from("aabbcc", 6);
+    const u = stz_string_unique_chars(s);
+    try std.testing.expectEqual(@as(usize, 3), stz_string_size(u));
+    try std.testing.expect(mem.eql(u8, stz_string_data(u)[0..3], "abc"));
+    stz_string_free(u);
+    stz_string_free(s);
+
+    const s_hello = stz_string_from("Hello", 5);
+    const u_hello = stz_string_unique_chars(s_hello);
+    try std.testing.expectEqual(@as(usize, 4), stz_string_size(u_hello));
+    try std.testing.expect(mem.eql(u8, stz_string_data(u_hello)[0..4], "Helo"));
+    stz_string_free(u_hello);
+    stz_string_free(s_hello);
+}
+
+test "unique_char_count" {
+    const s = stz_string_from("aabbcc", 6);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_unique_char_count(s));
+    stz_string_free(s);
+
+    const s_hello = stz_string_from("Hello", 5);
+    try std.testing.expectEqual(@as(c_int, 4), stz_string_unique_char_count(s_hello));
+    stz_string_free(s_hello);
+}
+
+test "remove_all_ci" {
+    const s = stz_string_from("Hello HELLO hello", 17);
+    const r = stz_string_remove_all_ci(s, "hello", 5);
+    try std.testing.expectEqual(@as(usize, 2), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..2], "  "));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "is_alpha_only" {
+    const s1 = stz_string_from("Hello", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_alpha_only(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("Hello123", 8);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_alpha_only(s2));
+    stz_string_free(s2);
+}
+
+test "is_alnum" {
+    const s1 = stz_string_from("Hello123", 8);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_alnum(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("Hello 123", 9);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_alnum(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("abc", 3);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_alnum(s3));
+    stz_string_free(s3);
+}
+
+test "contains_char" {
+    const s = stz_string_from("Hello", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_char(s, 'H'));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_char(s, 'o'));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_contains_char(s, 'Z'));
+    stz_string_free(s);
+}
+
+test "between_nth" {
+    const s = stz_string_from("[a] [b] [c]", 11);
+    const r0 = stz_string_between_nth(s, "[", 1, "]", 1, 0);
+    try std.testing.expect(r0 != null);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r0)[0..1], "a"));
+    stz_string_free(r0);
+
+    const r1 = stz_string_between_nth(s, "[", 1, "]", 1, 1);
+    try std.testing.expect(r1 != null);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..1], "b"));
+    stz_string_free(r1);
+
+    const r2 = stz_string_between_nth(s, "[", 1, "]", 1, 2);
+    try std.testing.expect(r2 != null);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..1], "c"));
+    stz_string_free(r2);
+
+    const r3 = stz_string_between_nth(s, "[", 1, "]", 1, 3);
+    try std.testing.expect(r3 == null);
+    stz_string_free(s);
+}
+
+test "count_between" {
+    const s = stz_string_from("[a] [b] [c]", 11);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_between(s, "[", 1, "]", 1));
+    stz_string_free(s);
+
+    const s2 = stz_string_from("no brackets", 11);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_count_between(s2, "[", 1, "]", 1));
+    stz_string_free(s2);
 }
