@@ -4040,3 +4040,269 @@ test "remove_consecutive_duplicates" {
     stz_string_free(r2);
     stz_string_free(s2);
 }
+
+// ─── Substring: extract between two 0-based codepoint positions (inclusive) ───
+
+pub fn stz_string_substring(handle: StzStringHandle, from_cp: c_int, to_cp: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    const from: usize = if (from_cp >= 0) @intCast(from_cp) else return null;
+    const to: usize = if (to_cp >= 0) @intCast(to_cp) else return null;
+    if (to < from) return null;
+
+    var off: usize = 0;
+    var cp_i: usize = 0;
+    var start_byte: usize = 0;
+    var end_byte: usize = 0;
+    var found_start = false;
+
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        if (cp_i == from) {
+            start_byte = off;
+            found_start = true;
+        }
+        if (cp_i == to) {
+            end_byte = off + cp_len;
+            break;
+        }
+        off += cp_len;
+        cp_i += 1;
+    }
+
+    if (!found_start) return null;
+    // Handle case where to_cp is the last codepoint
+    if (end_byte == 0 and cp_i == to) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return null;
+        end_byte = off + cp_len;
+    }
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    result.data.appendSlice(gpa, buf[start_byte..end_byte]) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    return result;
+}
+
+// ─── ReplaceSubstring: replace codepoint range [from..to] with new string ───
+
+pub fn stz_string_replace_substring(handle: StzStringHandle, from_cp: c_int, to_cp: c_int, replacement: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    const from: usize = if (from_cp >= 0) @intCast(from_cp) else return null;
+    const to: usize = if (to_cp >= 0) @intCast(to_cp) else return null;
+    if (to < from) return null;
+
+    var off: usize = 0;
+    var cp_i: usize = 0;
+    var start_byte: usize = 0;
+    var end_byte: usize = buf.len;
+    var found_start = false;
+
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        if (cp_i == from) {
+            start_byte = off;
+            found_start = true;
+        }
+        if (cp_i == to) {
+            end_byte = off + cp_len;
+            break;
+        }
+        off += cp_len;
+        cp_i += 1;
+    }
+
+    if (!found_start) return null;
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    // Before range
+    result.data.appendSlice(gpa, buf[0..start_byte]) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    // Replacement
+    if (replacement != null and rep_len > 0) {
+        result.data.appendSlice(gpa, replacement[0..rep_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    // After range
+    if (end_byte < buf.len) {
+        result.data.appendSlice(gpa, buf[end_byte..]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+// ─── HasPrefix / HasSuffix with count (how many times a prefix/suffix repeats) ───
+
+pub fn stz_string_prefix_count(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (prefix == null or prefix_len == 0 or buf.len == 0) return 0;
+    const pref = prefix[0..prefix_len];
+
+    var count: c_int = 0;
+    var off: usize = 0;
+    while (off + prefix_len <= buf.len) {
+        if (mem.eql(u8, buf[off .. off + prefix_len], pref)) {
+            count += 1;
+            off += prefix_len;
+        } else {
+            break;
+        }
+    }
+    return count;
+}
+
+pub fn stz_string_suffix_count(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (suffix == null or suffix_len == 0 or buf.len == 0) return 0;
+    const suf = suffix[0..suffix_len];
+
+    var count: c_int = 0;
+    var pos: usize = buf.len;
+    while (pos >= suffix_len) {
+        if (mem.eql(u8, buf[pos - suffix_len .. pos], suf)) {
+            count += 1;
+            pos -= suffix_len;
+        } else {
+            break;
+        }
+    }
+    return count;
+}
+
+// ─── CommonPrefix / CommonSuffix between two strings ───
+
+pub fn stz_string_common_prefix(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) StzStringHandle {
+    const s1 = h1 orelse return null;
+    const s2 = h2 orelse return null;
+    const b1 = s1.slice();
+    const b2 = s2.slice();
+
+    var off: usize = 0;
+    var last_cp_end: usize = 0;
+    while (off < b1.len and off < b2.len) {
+        const len1 = std.unicode.utf8ByteSequenceLength(b1[off]) catch break;
+        const len2 = std.unicode.utf8ByteSequenceLength(b2[off]) catch break;
+        if (len1 != len2 or off + len1 > b1.len or off + len2 > b2.len) break;
+        if (!mem.eql(u8, b1[off .. off + len1], b2[off .. off + len2])) break;
+        off += len1;
+        last_cp_end = off;
+    }
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    if (last_cp_end > 0) {
+        result.data.appendSlice(gpa, b1[0..last_cp_end]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+pub fn stz_string_common_suffix(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) StzStringHandle {
+    const s1 = h1 orelse return null;
+    const s2 = h2 orelse return null;
+    const b1 = s1.slice();
+    const b2 = s2.slice();
+
+    if (b1.len == 0 or b2.len == 0) {
+        const result = gpa.create(StzString) catch return null;
+        result.* = StzString.init();
+        return result;
+    }
+
+    // Walk backwards byte by byte, but verify codepoint boundaries
+    var i: usize = 0;
+    const min_len = @min(b1.len, b2.len);
+    while (i < min_len) {
+        if (b1[b1.len - 1 - i] != b2[b2.len - 1 - i]) break;
+        i += 1;
+    }
+
+    // Adjust to codepoint boundary
+    const start = b1.len - i;
+    var adjusted_start = start;
+    while (adjusted_start < b1.len and (b1[adjusted_start] & 0xC0) == 0x80) {
+        adjusted_start += 1;
+    }
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    if (adjusted_start < b1.len) {
+        result.data.appendSlice(gpa, b1[adjusted_start..]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+// ─── Tests for new batch ───
+
+test "substring" {
+    const s1 = stz_string_from("Hello World", 11);
+    const sub = stz_string_substring(s1, 0, 4);
+    try std.testing.expect(mem.eql(u8, stz_string_data(sub)[0..@intCast(stz_string_size(sub))], "Hello"));
+    stz_string_free(sub);
+
+    const sub2 = stz_string_substring(s1, 6, 10);
+    try std.testing.expect(mem.eql(u8, stz_string_data(sub2)[0..@intCast(stz_string_size(sub2))], "World"));
+    stz_string_free(sub2);
+    stz_string_free(s1);
+}
+
+test "replace_substring" {
+    const s1 = stz_string_from("Hello World", 11);
+    const r1 = stz_string_replace_substring(s1, 6, 10, "Zig", 3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "Hello Zig"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+}
+
+test "prefix_suffix_count" {
+    const s1 = stz_string_from("ababab", 6);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_prefix_count(s1, "ab", 2));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("xyzxyzxyz", 9);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_suffix_count(s2, "xyz", 3));
+    stz_string_free(s2);
+}
+
+test "common_prefix_suffix" {
+    const s1 = stz_string_from("hello world", 11);
+    const s2 = stz_string_from("hello there", 11);
+    const cp = stz_string_common_prefix(s1, s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(cp)[0..@intCast(stz_string_size(cp))], "hello "));
+    stz_string_free(cp);
+    stz_string_free(s2);
+    stz_string_free(s1);
+
+    const s3 = stz_string_from("testing", 7);
+    const s4 = stz_string_from("working", 7);
+    const cs = stz_string_common_suffix(s3, s4);
+    try std.testing.expect(mem.eql(u8, stz_string_data(cs)[0..@intCast(stz_string_size(cs))], "ing"));
+    stz_string_free(cs);
+    stz_string_free(s4);
+    stz_string_free(s3);
+}

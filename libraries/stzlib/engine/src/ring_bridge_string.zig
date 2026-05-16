@@ -831,6 +831,60 @@ fn ring_StringRemoveConsecutiveDuplicates(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+// ─── Substring ───
+
+fn ring_StringSubstring(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const from: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const to: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const result = string.stz_string_substring(h, from, to);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+// ─── ReplaceSubstring ───
+
+fn ring_StringReplaceSubstring(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const from: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const to: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const rep_ptr = ring_vm_api_getstring(p, 4);
+    const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
+    const result = string.stz_string_replace_substring(h, from, to, rep_ptr, rep_len);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+// ─── PrefixCount / SuffixCount ───
+
+fn ring_StringPrefixCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pref_ptr = ring_vm_api_getstring(p, 2);
+    const pref_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_prefix_count(h, pref_ptr, pref_len)));
+}
+
+fn ring_StringSuffixCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const suf_ptr = ring_vm_api_getstring(p, 2);
+    const suf_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_suffix_count(h, suf_ptr, suf_len)));
+}
+
+// ─── CommonPrefix / CommonSuffix ───
+
+fn ring_StringCommonPrefix(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    const result = string.stz_string_common_prefix(h1, h2);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringCommonSuffix(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    const result = string.stz_string_common_suffix(h1, h2);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -958,6 +1012,12 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringwordat", .func = &ring_StringWordAt },
     .{ .name = "stzenginestringcenter", .func = &ring_StringCenter },
     .{ .name = "stzenginestringremoveconsecutiveduplicates", .func = &ring_StringRemoveConsecutiveDuplicates },
+    .{ .name = "stzenginestringsubstring", .func = &ring_StringSubstring },
+    .{ .name = "stzenginestringreplacesubstring", .func = &ring_StringReplaceSubstring },
+    .{ .name = "stzenginestringprefixcount", .func = &ring_StringPrefixCount },
+    .{ .name = "stzenginestringsuffixcount", .func = &ring_StringSuffixCount },
+    .{ .name = "stzenginestringcommonprefix", .func = &ring_StringCommonPrefix },
+    .{ .name = "stzenginestringcommonsuffix", .func = &ring_StringCommonSuffix },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
