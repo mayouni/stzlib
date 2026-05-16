@@ -797,12 +797,16 @@ class stzString from stzObject
 		#>
 
 	def AppendedWith(pcStr)
-		cResult = This.Copy().AppendWithQ(pcStr).Content()
+		# Engine-backed: concat without Copy()
+		pOther = StzEngineStringFrom(pcStr)
+		pResult = StzEngineStringConcat(@pEngine, pOther)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		StzEngineStringFree(pOther)
 		return cResult
 
 		def Appended(pcStr)
-			cResult = This.Copy().AppendQ(pcStr).Content()
-			return cResult
+			return This.AppendedWith(pcStr)
 
 	  #-------------------------------------#
 	 #   APPENDING THE STRING FROM START   #
@@ -829,7 +833,13 @@ class stzString from stzObject
 		#>
 
 	def Prepended(pcOtherStr)
-		return This.Copy().PrependQ(pcOtherStr).Content()
+		# Engine-backed: prepend = concat other + this
+		pOther = StzEngineStringFrom(pcOtherStr)
+		pResult = StzEngineStringConcat(pOther, @pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		StzEngineStringFree(pOther)
+		return cResult
 
 	  #=================================#
 	 #  ADDING A SUBSTRING --EXTENDED  #
@@ -96685,7 +96695,9 @@ class stzString from stzObject
 		#>
 
 	def CharsOrderReversed()
-		_cResult_ = This.Copy().ReverseCharsOrderQ().Content()
+		pResult = StzEngineStringReverse(@pEngine)
+		_cResult_ = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 		return _cResult_
 
 		#< @FunctionAlternativeForm
