@@ -488,13 +488,13 @@ func RomanNumber@(pcChar)
 	ok
 
 func FirstCharOf(pcStr)
-	return StzStringQ(pcStr).FirstChar()
+	return substr(pcStr, 1, 1)
 
 	func FirstCharIn(pcStr)
 		return FirstCharOf(pcStr)
 
 func LastCharOf(pcStr)
-	return StzStringQ(pcStr).LastChar()
+	return substr(pcStr, len(pcStr), 1)
 
 	func LastCharIn(pcStr)
 		return LastCharOf(pcStr)
@@ -1607,7 +1607,7 @@ class stzChar from stzObject
 	# Verifies if the char is among those that we can find in a word
 	# like '_" and '_' for example
 	def IsWordNonLetterChar()
-		return StzStringQ( This.Content() ).ExistsIn( WordNonLetterChars() )
+		return ring_find( WordNonLetterChars(), This.Content() ) > 0
 
 	  #---------------------#
 	 #   UNICODE VERSION   #
@@ -1728,7 +1728,7 @@ class stzChar from stzObject
 	#--------------------------------#
 
 	def IsInvisible()
-		return StzListQ( InvisibleUnicodes() ).Contains( This.Unicode() )
+		return ring_find( InvisibleUnicodes(), This.Unicode() ) > 0
 
 	def IsVisible()
 		return NOT This.IsInvisible()
@@ -2955,16 +2955,16 @@ class stzChar from stzObject
 	#-------------------------#
 
 	def IsLatinDiacritic()
-		return StzListQ( LatinDiacriticsUnicodes() ).Contains( This.Unicode() )
+		return ring_find( LatinDiacriticsUnicodes(), This.Unicode() ) > 0
 
 	def IsArabicDiacritic()
-		return StzListQ( ArabicDiacriticsUnicodes() ).Contains( This.Unicode() )
+		return ring_find( ArabicDiacriticsUnicodes(), This.Unicode() ) > 0
 
 	def IsDiacritic()
-		return StzListQ( DiacriticsUnicodes() ).Contains( This.Unicode() )
+		return ring_find( DiacriticsUnicodes(), This.Unicode() ) > 0
 
 	def IsDiacricised()
-		return StzListQ( DiacricizedUnicodes() ).Contains( This.Unicode() )
+		return ring_find( DiacricizedUnicodes(), This.Unicode() ) > 0
 
 	def RemoveLatinDiacritic()
 
@@ -3025,7 +3025,7 @@ class stzChar from stzObject
 	*/
 
 	def IsInvertible()
-		return StzListQ( InvertibleUnicodes() ).Contains( This.Unicode() )
+		return ring_find( InvertibleUnicodes(), This.Unicode() ) > 0
 
 		def IsTurnable()
 			return IsInvertible()
@@ -3160,7 +3160,7 @@ class stzChar from stzObject
 		return 1
 
 	def IsCharOf(pcString)
-		return StzStringQ(pcString).Contains(This.Content())
+		return substr(pcString, This.Content()) > 0
 
 	def IsLetterOf(pcString)
 		return This.IsLetter() and This.IsCharOf(pcString)
