@@ -99,7 +99,15 @@ class stzListComparator from stzList
 
 	def SymmetricDifferenceCS(paOtherList, pCaseSensitive)
 		aDiff1 = This.DifferenceCS(paOtherList, pCaseSensitive)
-		aDiff2 = StzListQ(paOtherList).DifferenceCS(This.Content(), pCaseSensitive)
+		# Items in other but not in this
+		aContent = This.Content()
+		nLen2 = len(paOtherList)
+		aDiff2 = []
+		for i = 1 to nLen2
+			if NOT ListContainsCS(aContent, paOtherList[i], pCaseSensitive)
+				aDiff2 + paOtherList[i]
+			ok
+		next
 		aResult = aDiff1
 		nLen = len(aDiff2)
 		for i = 1 to nLen
@@ -128,7 +136,14 @@ class stzListComparator from stzList
 		return This.IsSubsetOfCS(paOtherList, 1)
 
 	def IsSupersetOfCS(paOtherList, pCaseSensitive)
-		return StzListQ(paOtherList).IsSubsetOfCS(This.Content(), pCaseSensitive)
+		nLen = len(paOtherList)
+		aContent = This.Content()
+		for i = 1 to nLen
+			if NOT ListContainsCS(aContent, paOtherList[i], pCaseSensitive)
+				return 0
+			ok
+		next
+		return 1
 
 	def IsSupersetOf(paOtherList)
 		return This.IsSupersetOfCS(paOtherList, 1)
@@ -166,3 +181,112 @@ class stzListComparator from stzList
 
 	def ContainsOneOfThese(paItems)
 		return This.ContainsOneOfTheseCS(paItems, 1)
+
+	  #======================================================#
+	 #   IS SAME SIZE AS                                    #
+	#======================================================#
+
+	def IsSameSizeAs(paOtherList)
+		return This.NumberOfItems() = len(paOtherList)
+
+		def HasSameLengthAs(paOtherList)
+			return This.IsSameSizeAs(paOtherList)
+
+	  #======================================================#
+	 #   IS SORTED LIKE                                     #
+	#======================================================#
+
+	def IsSortedLike(paOtherList)
+		aContent = This.Content()
+		nLen = len(aContent)
+		nLen2 = len(paOtherList)
+		if nLen != nLen2
+			return 0
+		ok
+		if nLen < 2
+			return 1
+		ok
+		for i = 1 to nLen - 1
+			bThisAsc = BothAreEqual(aContent[i], aContent[i+1]) or ring_find([""+aContent[i]], ""+aContent[i+1]) >= 0
+			bOtherAsc = BothAreEqual(paOtherList[i], paOtherList[i+1]) or ring_find([""+paOtherList[i]], ""+paOtherList[i+1]) >= 0
+			if bThisAsc != bOtherAsc
+				return 0
+			ok
+		next
+		return 1
+
+	  #======================================================#
+	 #   STARTS WITH / ENDS WITH                            #
+	#======================================================#
+
+	def StartsWithCS(paItems, pCaseSensitive)
+		nLen = len(paItems)
+		if nLen > This.NumberOfItems()
+			return 0
+		ok
+		aContent = This.Content()
+		for i = 1 to nLen
+			if NOT BothAreEqualCS(aContent[i], paItems[i], pCaseSensitive)
+				return 0
+			ok
+		next
+		return 1
+
+	def StartsWith(paItems)
+		return This.StartsWithCS(paItems, 1)
+
+	def EndsWithCS(paItems, pCaseSensitive)
+		nLen = len(paItems)
+		nTotal = This.NumberOfItems()
+		if nLen > nTotal
+			return 0
+		ok
+		aContent = This.Content()
+		nStart = nTotal - nLen + 1
+		j = 1
+		for i = nStart to nTotal
+			if NOT BothAreEqualCS(aContent[i], paItems[j], pCaseSensitive)
+				return 0
+			ok
+			j++
+		next
+		return 1
+
+	def EndsWith(paItems)
+		return This.EndsWithCS(paItems, 1)
+
+	  #======================================================#
+	 #   ITEMS NOT IN OTHER                                 #
+	#======================================================#
+
+	def ItemsNotInCS(paOtherList, pCaseSensitive)
+		return This.DifferenceCS(paOtherList, pCaseSensitive)
+
+	def ItemsNotIn(paOtherList)
+		return This.Difference(paOtherList)
+
+	  #======================================================#
+	 #   IS PERMUTATION OF                                  #
+	#======================================================#
+
+	def IsPermutationOfCS(paOtherList, pCaseSensitive)
+		if This.NumberOfItems() != len(paOtherList)
+			return 0
+		ok
+		aSorted1 = This.Content()
+		aSorted2 = paOtherList
+		# Simple approach: check both have same items
+		for i = 1 to len(aSorted1)
+			if NOT ListContainsCS(aSorted2, aSorted1[i], pCaseSensitive)
+				return 0
+			ok
+		next
+		for i = 1 to len(aSorted2)
+			if NOT ListContainsCS(aSorted1, aSorted2[i], pCaseSensitive)
+				return 0
+			ok
+		next
+		return 1
+
+	def IsPermutationOf(paOtherList)
+		return This.IsPermutationOfCS(paOtherList, 1)
