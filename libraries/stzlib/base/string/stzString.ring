@@ -5946,19 +5946,10 @@ class stzString from stzObject
 	#===========================================#
 
 	def ContainsNumbers()
-		acDigits = "0" : "9"
-		nLen = len(acDigits)
-
-		cContent = This.Content()
-		bResult = 0
-
-		for i = 1 to nLen
-			n = This.FindFirst(acDigits[i])
-			if n > 0
-				bResult = 1
-				exit
-			ok
-		next
+		hStr = StzEngineStringFrom(This.Content())
+		nDigits = StzEngineStringCountCharsOfType(hStr, 1)
+		StzEngineStringFree(hStr)
+		bResult = nDigits > 0
 
 		return bResult
 
@@ -56613,18 +56604,10 @@ class stzString from stzObject
 		ok
 
 	def ContainsLetters()
-		aoChars = This.TolistOfStzChars()
-		nLen = len(aoChars)
-
-		bResult = 0
-
-		for i = 1 to nLen
-			if aoChars[i].IsLetter()
-				bResult = 1
-				exit
-			ok
-		next
-		return bResult
+		hStr = StzEngineStringFrom(This.Content())
+		nLetters = StzEngineStringCountCharsOfType(hStr, 0)
+		StzEngineStringFree(hStr)
+		return nLetters > 0
 
 		#< @FunctionNegativeForm
 
