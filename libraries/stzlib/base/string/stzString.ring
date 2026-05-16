@@ -269,6 +269,126 @@ class stzString from stzObject
 		def IsMirrored()
 			return This.ISPalindrome()
 
+	  #==========================================#
+	 #  CAMEL CASE / SNAKE CASE / KEBAB CASE   #
+	#==========================================#
+
+	def ToCamelCase()
+		pResult = StzEngineStringToCamelCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToCamelCaseQ()
+			This.ToCamelCase()
+			return This
+
+	def CamelCased()
+		pResult = StzEngineStringToCamelCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def InCamelCase()
+			return This.CamelCased()
+
+	def ToSnakeCase()
+		pResult = StzEngineStringToSnakeCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToSnakeCaseQ()
+			This.ToSnakeCase()
+			return This
+
+	def SnakeCased()
+		pResult = StzEngineStringToSnakeCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def InSnakeCase()
+			return This.SnakeCased()
+
+	def ToKebabCase()
+		pResult = StzEngineStringToKebabCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToKebabCaseQ()
+			This.ToKebabCase()
+			return This
+
+	def KebabCased()
+		pResult = StzEngineStringToKebabCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def InKebabCase()
+			return This.KebabCased()
+
+	  #==================================#
+	 #  SWAP CASE (UPPER <-> LOWER)     #
+	#==================================#
+
+	def SwapCase()
+		pResult = StzEngineStringSwapCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def SwapCaseQ()
+			This.SwapCase()
+			return This
+
+	def CaseSwapped()
+		pResult = StzEngineStringSwapCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def SwapCased()
+			return This.CaseSwapped()
+
+	  #=========================#
+	 #  INDENT / DEDENT        #
+	#=========================#
+
+	def Indent(nSpaces)
+		pResult = StzEngineStringIndent(@pEngine, nSpaces)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def IndentQ(nSpaces)
+			This.Indent(nSpaces)
+			return This
+
+	def Indented(nSpaces)
+		pResult = StzEngineStringIndent(@pEngine, nSpaces)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	def Dedent()
+		pResult = StzEngineStringDedent(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def DedentQ()
+			This.Dedent()
+			return This
+
+	def Dedented()
+		pResult = StzEngineStringDedent(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
 	  #==================================#
 	 #  GETTING THE CASE OF THE STRING  #
 	#==================================#
