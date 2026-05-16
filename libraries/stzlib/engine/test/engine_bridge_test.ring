@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 133 Registered Functions"
+? "Engine Full Bridge Test -- All 139 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1158,6 +1158,61 @@ Assert("CommonSuffix", StzEngineStringData(pCS), "ing")
 StzEngineStringFree(pCS)
 StzEngineStringFree(pStr2)
 StzEngineStringFree(pStr1)
+
+# --- Group 54: SortCharsAsc, SortCharsDesc ---
+? "--- Group 54: SortCharsAsc, SortCharsDesc ---"
+pStr = StzEngineStringFrom("dcba", 4)
+pR = StzEngineStringSortCharsAsc(pStr)
+Assert("SortCharsAsc dcba", StzEngineStringData(pR), "abcd")
+StzEngineStringFree(pR)
+pR = StzEngineStringSortCharsDesc(pStr)
+Assert("SortCharsDesc dcba", StzEngineStringData(pR), "dcba")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello", 5)
+pR = StzEngineStringSortCharsAsc(pStr)
+Assert("SortCharsAsc hello", StzEngineStringData(pR), "ehllo")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 55: FindAllChar ---
+? "--- Group 55: FindAllChar ---"
+pStr = StzEngineStringFrom("abcabc", 6)
+pFR = StzEngineStringFindAllChar(pStr, 97)
+Assert("FindAllChar a count", StzEngineFindResultCount(pFR), 2)
+Assert("FindAllChar a pos0", StzEngineFindResultGet(pFR, 0), 0)
+Assert("FindAllChar a pos1", StzEngineFindResultGet(pFR, 1), 3)
+StzEngineFindResultFree(pFR)
+StzEngineStringFree(pStr)
+
+# --- Group 56: Hash ---
+? "--- Group 56: Hash ---"
+pStr1 = StzEngineStringFrom("hello", 5)
+pStr2 = StzEngineStringFrom("hello", 5)
+Assert("Hash same strings", StzEngineStringHash(pStr1), StzEngineStringHash(pStr2))
+StzEngineStringFree(pStr2)
+pStr2 = StzEngineStringFrom("world", 5)
+Assert("Hash diff strings", StzEngineStringHash(pStr1) != StzEngineStringHash(pStr2), 1)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr1)
+
+# --- Group 57: CountChar ---
+? "--- Group 57: CountChar ---"
+pStr = StzEngineStringFrom("mississippi", 11)
+Assert("CountChar s", StzEngineStringCountChar(pStr, 115), 4)
+Assert("CountChar p", StzEngineStringCountChar(pStr, 112), 2)
+Assert("CountChar i", StzEngineStringCountChar(pStr, 105), 4)
+Assert("CountChar z", StzEngineStringCountChar(pStr, 122), 0)
+StzEngineStringFree(pStr)
+
+# --- Group 58: ReplaceChar ---
+? "--- Group 58: ReplaceChar ---"
+pStr = StzEngineStringFrom("hello", 5)
+pR = StzEngineStringReplaceChar(pStr, 108, 114)
+Assert("ReplaceChar l->r", StzEngineStringData(pR), "herro")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
 
 # ==============================================================
 #  SUMMARY

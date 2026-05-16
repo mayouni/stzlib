@@ -4306,3 +4306,228 @@ test "common_prefix_suffix" {
     stz_string_free(s4);
     stz_string_free(s3);
 }
+
+// ─── SortChars: sort codepoints ascending/descending ───
+
+pub fn stz_string_sort_chars_asc(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (buf.len == 0) {
+        const result = gpa.create(StzString) catch return null;
+        result.* = StzString.init();
+        return result;
+    }
+
+    // Collect codepoints
+    var cps: std.ArrayList(u21) = .{};
+    defer cps.deinit(gpa);
+    var off: usize = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        cps.append(gpa, cp_val) catch return null;
+        off += cp_len;
+    }
+
+    // Sort ascending
+    std.mem.sort(u21, cps.items, {}, std.sort.asc(u21));
+
+    // Rebuild UTF-8
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    var enc_buf: [4]u8 = undefined;
+    for (cps.items) |cp| {
+        const enc_len = std.unicode.utf8Encode(cp, &enc_buf) catch continue;
+        result.data.appendSlice(gpa, enc_buf[0..enc_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+pub fn stz_string_sort_chars_desc(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (buf.len == 0) {
+        const result = gpa.create(StzString) catch return null;
+        result.* = StzString.init();
+        return result;
+    }
+
+    var cps: std.ArrayList(u21) = .{};
+    defer cps.deinit(gpa);
+    var off: usize = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        cps.append(gpa, cp_val) catch return null;
+        off += cp_len;
+    }
+
+    // Sort descending
+    std.mem.sort(u21, cps.items, {}, std.sort.desc(u21));
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    var enc_buf: [4]u8 = undefined;
+    for (cps.items) |cp| {
+        const enc_len = std.unicode.utf8Encode(cp, &enc_buf) catch continue;
+        result.data.appendSlice(gpa, enc_buf[0..enc_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+// ─── FindAllChar: find all positions of a codepoint ───
+
+pub fn stz_string_find_all_char(handle: StzStringHandle, codepoint: u32) callconv(.c) StzFindResultHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+
+    var positions: std.ArrayList(i64) = .{};
+    var off: usize = 0;
+    var cp_i: i64 = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        if (cp_val == codepoint) {
+            positions.append(gpa, cp_i) catch return null;
+        }
+        off += cp_len;
+        cp_i += 1;
+    }
+
+    const fr = gpa.create(StzFindResult) catch return null;
+    fr.* = .{ .positions = positions };
+    return fr;
+}
+
+// ─── Hash: simple FNV-1a hash of the string bytes ───
+
+pub fn stz_string_hash(handle: StzStringHandle) callconv(.c) u64 {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    var hash: u64 = 0xcbf29ce484222325; // FNV offset basis
+    for (buf) |byte| {
+        hash ^= byte;
+        hash *%= 0x100000001b3; // FNV prime
+    }
+    return hash;
+}
+
+// ─── CountChar: count occurrences of a specific codepoint ───
+
+pub fn stz_string_count_char(handle: StzStringHandle, codepoint: u32) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    var count: c_int = 0;
+    var off: usize = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        if (cp_val == codepoint) count += 1;
+        off += cp_len;
+    }
+    return count;
+}
+
+// ─── ReplaceChar: replace all occurrences of one codepoint with another ───
+
+pub fn stz_string_replace_char(handle: StzStringHandle, old_cp: u32, new_cp: u32) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    var new_bytes: [4]u8 = undefined;
+    const new_cp21: u21 = @intCast(new_cp);
+    const new_len = std.unicode.utf8Encode(new_cp21, &new_bytes) catch return null;
+
+    var off: usize = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        if (cp_val == old_cp) {
+            result.data.appendSlice(gpa, new_bytes[0..new_len]) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+        } else {
+            result.data.appendSlice(gpa, buf[off .. off + cp_len]) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+        }
+        off += cp_len;
+    }
+    return result;
+}
+
+// ─── Tests ───
+
+test "sort_chars" {
+    const s1 = stz_string_from("dcba", 4);
+    const asc = stz_string_sort_chars_asc(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(asc)[0..@intCast(stz_string_size(asc))], "abcd"));
+    stz_string_free(asc);
+
+    const desc = stz_string_sort_chars_desc(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(desc)[0..@intCast(stz_string_size(desc))], "dcba"));
+    stz_string_free(desc);
+    stz_string_free(s1);
+}
+
+test "find_all_char" {
+    const s1 = stz_string_from("abcabc", 6);
+    const fr = stz_string_find_all_char(s1, 'a');
+    try std.testing.expect(fr != null);
+    try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(fr));
+    try std.testing.expectEqual(@as(c_int, 0), stz_find_result_get(fr, 0));
+    try std.testing.expectEqual(@as(c_int, 3), stz_find_result_get(fr, 1));
+    stz_find_result_free(fr);
+    stz_string_free(s1);
+}
+
+test "hash" {
+    const s1 = stz_string_from("hello", 5);
+    const h1 = stz_string_hash(s1);
+    const s2 = stz_string_from("hello", 5);
+    const h2 = stz_string_hash(s2);
+    try std.testing.expectEqual(h1, h2);
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("world", 5);
+    const h3 = stz_string_hash(s3);
+    try std.testing.expect(h1 != h3);
+    stz_string_free(s3);
+    stz_string_free(s1);
+}
+
+test "count_char" {
+    const s1 = stz_string_from("mississippi", 11);
+    try std.testing.expectEqual(@as(c_int, 4), stz_string_count_char(s1, 's'));
+    try std.testing.expectEqual(@as(c_int, 2), stz_string_count_char(s1, 'p'));
+    try std.testing.expectEqual(@as(c_int, 4), stz_string_count_char(s1, 'i'));
+    stz_string_free(s1);
+}
+
+test "replace_char" {
+    const s1 = stz_string_from("hello", 5);
+    const r1 = stz_string_replace_char(s1, 'l', 'r');
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "herro"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+}
