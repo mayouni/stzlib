@@ -375,6 +375,120 @@ fn ring_StringPadRight(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+fn ring_StringRemoveRange(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const start_cp: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const cp_count: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const result = string.stz_string_remove_range(h, start_cp, cp_count);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringTrimLeft(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_trim_left(h)), STZ_HANDLE);
+}
+
+fn ring_StringTrimRight(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_trim_right(h)), STZ_HANDLE);
+}
+
+fn ring_StringEquals(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_equals(h1, h2)));
+}
+
+fn ring_StringEqualsCI(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_equals_ci(h1, h2)));
+}
+
+fn ring_StringReplaceFirst(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const old = ring_vm_api_getstring(p, 2);
+    const old_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const new_str = ring_vm_api_getstring(p, 3);
+    const new_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const result = string.stz_string_replace_first(h, old, old_len, new_str, new_len);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringReplaceLast(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const old = ring_vm_api_getstring(p, 2);
+    const old_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const new_str = ring_vm_api_getstring(p, 3);
+    const new_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const result = string.stz_string_replace_last(h, old, old_len, new_str, new_len);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringReplaceNth(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const old = ring_vm_api_getstring(p, 2);
+    const old_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const new_str = ring_vm_api_getstring(p, 3);
+    const new_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    const result = string.stz_string_replace_nth(h, old, old_len, new_str, new_len, n);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringIsEmpty(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_empty(h)));
+}
+
+fn ring_StringBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const result = string.stz_string_between(h, open, open_len, close, close_len);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringCountCharsOfType(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const char_type: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_chars_of_type(h, char_type)));
+}
+
+fn ring_StringIsNumeric(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_numeric(h)));
+}
+
+fn ring_StringIsAlpha(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_alpha(h)));
+}
+
+fn ring_StringInsertCp(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp_pos: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const s = ring_vm_api_getstring(p, 3);
+    const len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    string.stz_string_insert_cp(h, cp_pos, s, len);
+}
+
+fn ring_StringLeftCp(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp_count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const result = string.stz_string_left_cp(h, cp_count);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringRightCp(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp_count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const result = string.stz_string_right_cp(h, cp_count);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -434,6 +548,22 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringrepeat", .func = &ring_StringRepeat },
     .{ .name = "stzenginestringpadleft", .func = &ring_StringPadLeft },
     .{ .name = "stzenginestringpadright", .func = &ring_StringPadRight },
+    .{ .name = "stzenginestringremoverange", .func = &ring_StringRemoveRange },
+    .{ .name = "stzenginestringtrimleft", .func = &ring_StringTrimLeft },
+    .{ .name = "stzenginestringtrimright", .func = &ring_StringTrimRight },
+    .{ .name = "stzenginestringequals", .func = &ring_StringEquals },
+    .{ .name = "stzenginestringequalsci", .func = &ring_StringEqualsCI },
+    .{ .name = "stzenginestringreplacefirst", .func = &ring_StringReplaceFirst },
+    .{ .name = "stzenginestringreplacelast", .func = &ring_StringReplaceLast },
+    .{ .name = "stzenginestringreplacenth", .func = &ring_StringReplaceNth },
+    .{ .name = "stzenginestringisempty", .func = &ring_StringIsEmpty },
+    .{ .name = "stzenginestringbetween", .func = &ring_StringBetween },
+    .{ .name = "stzenginestringcountcharsoftype", .func = &ring_StringCountCharsOfType },
+    .{ .name = "stzenginestringisnumeric", .func = &ring_StringIsNumeric },
+    .{ .name = "stzenginestringisalpha", .func = &ring_StringIsAlpha },
+    .{ .name = "stzenginestringinsertcp", .func = &ring_StringInsertCp },
+    .{ .name = "stzenginestingleftcp", .func = &ring_StringLeftCp },
+    .{ .name = "stzenginestringrightcp", .func = &ring_StringRightCp },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

@@ -983,6 +983,281 @@ pub fn stz_string_pad_right(handle: StzStringHandle, target_cp_count: c_int, pad
     return stz_string_new();
 }
 
+/// Remove a range of codepoints from the string. Returns a new handle.
+/// `start_cp` is 0-based, `cp_count` is the number of codepoints to remove.
+pub fn stz_string_remove_range(handle: StzStringHandle, start_cp: usize, cp_count: usize) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const src = s.slice();
+        if (src.len == 0 or cp_count == 0) return stz_string_from(src.ptr, src.len);
+
+        // Find byte boundaries for the range to remove
+        var byte_pos: usize = 0;
+        var cp: usize = 0;
+        while (byte_pos < src.len and cp < start_cp) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(src[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            cp += 1;
+        }
+        const remove_start = byte_pos;
+
+        var removed: usize = 0;
+        while (byte_pos < src.len and removed < cp_count) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(src[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            removed += 1;
+        }
+        const remove_end = byte_pos;
+
+        const r = stz_string_new() orelse return null;
+        r.data.ensureTotalCapacity(gpa, src.len - (remove_end - remove_start)) catch {};
+        if (remove_start > 0) r.data.appendSlice(gpa, src[0..remove_start]) catch {};
+        if (remove_end < src.len) r.data.appendSlice(gpa, src[remove_end..]) catch {};
+        return r;
+    }
+    return stz_string_new();
+}
+
+/// Trim whitespace from the left. Returns a new handle.
+pub fn stz_string_trim_left(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const src = s.slice();
+        var i: usize = 0;
+        while (i < src.len) {
+            const byte = src[i];
+            // Only ASCII whitespace (space, tab, newline, CR)
+            if (byte == ' ' or byte == '\t' or byte == '\n' or byte == '\r') {
+                i += 1;
+            } else break;
+        }
+        return stz_string_from(src[i..].ptr, src.len - i);
+    }
+    return stz_string_new();
+}
+
+/// Trim whitespace from the right. Returns a new handle.
+pub fn stz_string_trim_right(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const src = s.slice();
+        var end: usize = src.len;
+        while (end > 0) {
+            const byte = src[end - 1];
+            if (byte == ' ' or byte == '\t' or byte == '\n' or byte == '\r') {
+                end -= 1;
+            } else break;
+        }
+        return stz_string_from(src[0..end].ptr, end);
+    }
+    return stz_string_new();
+}
+
+/// Check if two strings are equal (case-sensitive). Returns 1 or 0.
+pub fn stz_string_equals(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
+    if (h1) |s1| {
+        if (h2) |s2| {
+            return if (mem.eql(u8, s1.slice(), s2.slice())) 1 else 0;
+        }
+    }
+    return 0;
+}
+
+/// Check if two strings are equal (case-insensitive). Returns 1 or 0.
+pub fn stz_string_equals_ci(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
+    if (h1) |s1| {
+        if (h2) |s2| {
+            const a = s1.slice();
+            const b = s2.slice();
+            // Quick check: if byte lengths differ after lowering, not equal
+            // Do full Unicode casefold comparison
+            const la = stz_string_to_lower(h1);
+            const lb = stz_string_to_lower(h2);
+            defer if (la) |p| { _ = gpa.resize(p.data.allocatedSlice(), 0); };
+            defer if (lb) |p| { _ = gpa.resize(p.data.allocatedSlice(), 0); };
+            if (la) |pa| {
+                if (lb) |pb| {
+                    return if (mem.eql(u8, pa.slice(), pb.slice())) 1 else 0;
+                }
+            }
+            // Fallback: byte compare
+            return if (mem.eql(u8, a, b)) 1 else 0;
+        }
+    }
+    return 0;
+}
+
+// ─── Replace First / Last / Nth ───
+
+/// Replace only the first occurrence of `old` with `new_str`. Returns new handle.
+pub fn stz_string_replace_first(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const haystack = s.slice();
+        const needle = old[0..old_len];
+        const replacement = new_str[0..new_len];
+        if (mem.indexOf(u8, haystack, needle)) |pos| {
+            const result = stz_string_new() orelse return null;
+            result.data.appendSlice(gpa, haystack[0..pos]) catch return null;
+            result.data.appendSlice(gpa, replacement) catch return null;
+            result.data.appendSlice(gpa, haystack[pos + old_len ..]) catch return null;
+            return result;
+        }
+        // No match: return copy
+        return stz_string_from(s.data.items.ptr, haystack.len);
+    }
+    return null;
+}
+
+/// Replace only the last occurrence of `old` with `new_str`. Returns new handle.
+pub fn stz_string_replace_last(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const haystack = s.slice();
+        const needle = old[0..old_len];
+        const replacement = new_str[0..new_len];
+        // Find last occurrence by scanning forward
+        var last_pos: ?usize = null;
+        var search_from: usize = 0;
+        while (search_from <= haystack.len) {
+            if (mem.indexOfPos(u8, haystack, search_from, needle)) |pos| {
+                last_pos = pos;
+                search_from = pos + 1;
+            } else break;
+        }
+        if (last_pos) |pos| {
+            const result = stz_string_new() orelse return null;
+            result.data.appendSlice(gpa, haystack[0..pos]) catch return null;
+            result.data.appendSlice(gpa, replacement) catch return null;
+            result.data.appendSlice(gpa, haystack[pos + old_len ..]) catch return null;
+            return result;
+        }
+        return stz_string_from(s.data.items.ptr, haystack.len);
+    }
+    return null;
+}
+
+/// Replace the Nth occurrence (1-based) of `old` with `new_str`. Returns new handle.
+pub fn stz_string_replace_nth(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize, n: c_int) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        if (n < 1) return stz_string_from(s.data.items.ptr, s.slice().len);
+        const haystack = s.slice();
+        const needle = old[0..old_len];
+        const replacement = new_str[0..new_len];
+        var occurrence: c_int = 0;
+        var search_from: usize = 0;
+        while (search_from <= haystack.len) {
+            if (mem.indexOfPos(u8, haystack, search_from, needle)) |pos| {
+                occurrence += 1;
+                if (occurrence == n) {
+                    const result = stz_string_new() orelse return null;
+                    result.data.appendSlice(gpa, haystack[0..pos]) catch return null;
+                    result.data.appendSlice(gpa, replacement) catch return null;
+                    result.data.appendSlice(gpa, haystack[pos + old_len ..]) catch return null;
+                    return result;
+                }
+                search_from = pos + 1;
+            } else break;
+        }
+        return stz_string_from(s.data.items.ptr, haystack.len);
+    }
+    return null;
+}
+
+// ─── String Queries ───
+
+/// Returns 1 if string is empty (0 codepoints), 0 otherwise.
+pub fn stz_string_is_empty(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        return if (s.slice().len == 0) 1 else 0;
+    }
+    return 1; // null handle considered empty
+}
+
+/// Extract the substring between the first occurrence of `open` and the first
+/// subsequent occurrence of `close`. Returns new handle, or null if not found.
+pub fn stz_string_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const haystack = s.slice();
+        const open_needle = open[0..open_len];
+        const close_needle = close[0..close_len];
+        if (mem.indexOf(u8, haystack, open_needle)) |open_pos| {
+            const after_open = open_pos + open_len;
+            if (mem.indexOfPos(u8, haystack, after_open, close_needle)) |close_pos| {
+                const between = haystack[after_open..close_pos];
+                return stz_string_from(@ptrCast(between.ptr), between.len);
+            }
+        }
+    }
+    return null;
+}
+
+/// Count how many codepoints match a predicate class.
+/// Classes: 0=letter, 1=digit, 2=whitespace, 3=uppercase, 4=lowercase, 5=punctuation
+pub fn stz_string_count_chars_of_type(handle: StzStringHandle, char_type: c_int) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        var i: usize = 0;
+        var count: c_int = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_slice = bytes[i..@min(i + cp_len, bytes.len)];
+            const cp_val: i32 = blk: {
+                if (cp_len == 1) break :blk @intCast(cp_slice[0]);
+                if (cp_len == 2 and cp_slice.len >= 2) break :blk @intCast((@as(u21, cp_slice[0] & 0x1F) << 6) | (cp_slice[1] & 0x3F));
+                if (cp_len == 3 and cp_slice.len >= 3) break :blk @intCast((@as(u21, cp_slice[0] & 0x0F) << 12) | (@as(u21, cp_slice[1] & 0x3F) << 6) | (cp_slice[2] & 0x3F));
+                if (cp_len == 4 and cp_slice.len >= 4) break :blk @intCast((@as(u21, cp_slice[0] & 0x07) << 18) | (@as(u21, cp_slice[1] & 0x3F) << 12) | (@as(u21, cp_slice[2] & 0x3F) << 6) | (cp_slice[3] & 0x3F));
+                break :blk 0;
+            };
+            const matches: bool = switch (char_type) {
+                0 => unicode.stz_unicode_is_letter(cp_val) == 1,
+                1 => unicode.stz_unicode_is_digit(cp_val) == 1,
+                2 => unicode.stz_unicode_is_space(cp_val) == 1,
+                3 => unicode.stz_unicode_is_upper(cp_val) == 1,
+                4 => unicode.stz_unicode_is_lower(cp_val) == 1,
+                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
+                else => false,
+            };
+            if (matches) count += 1;
+            i += cp_len;
+        }
+        return count;
+    }
+    return 0;
+}
+
+/// Check if the string contains only digits. Returns 1 or 0.
+pub fn stz_string_is_numeric(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        if (bytes.len == 0) return 0;
+        for (bytes) |b| {
+            if (b < '0' or b > '9') return 0;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+/// Check if the string contains only letters. Returns 1 or 0.
+pub fn stz_string_is_alpha(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        if (bytes.len == 0) return 0;
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_slice = bytes[i..@min(i + cp_len, bytes.len)];
+            const cp_val: i32 = blk: {
+                if (cp_len == 1) break :blk @intCast(cp_slice[0]);
+                if (cp_len == 2 and cp_slice.len >= 2) break :blk @intCast((@as(u21, cp_slice[0] & 0x1F) << 6) | (cp_slice[1] & 0x3F));
+                if (cp_len == 3 and cp_slice.len >= 3) break :blk @intCast((@as(u21, cp_slice[0] & 0x0F) << 12) | (@as(u21, cp_slice[1] & 0x3F) << 6) | (cp_slice[2] & 0x3F));
+                if (cp_len == 4 and cp_slice.len >= 4) break :blk @intCast((@as(u21, cp_slice[0] & 0x07) << 18) | (@as(u21, cp_slice[1] & 0x3F) << 12) | (@as(u21, cp_slice[2] & 0x3F) << 6) | (cp_slice[3] & 0x3F));
+                break :blk 0;
+            };
+            if (unicode.stz_unicode_is_letter(cp_val) != 1) return 0;
+            i += cp_len;
+        }
+        return 1;
+    }
+    return 0;
+}
+
 // ─── Helpers ───
 
 fn utf8CodepointCount(bytes: []const u8) usize {
@@ -1541,5 +1816,179 @@ test "pad_right unicode content" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..3], "\xe2\x99\xa5"));
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[3..6], "   "));
     stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "remove_range ascii" {
+    const s = stz_string_from("hello world", 11);
+    // Remove "lo " (codepoints 3,4,5 = 0-based)
+    const r = stz_string_remove_range(s, 3, 3);
+    try std.testing.expectEqual(@as(usize, 8), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..8], "helworld"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "remove_range unicode" {
+    // "a heart b" = a(1b) heart(3b) b(1b) = 3 codepoints
+    const s = stz_string_from("a\xe2\x99\xa5b", 5);
+    // Remove heart (codepoint 1, count 1)
+    const r = stz_string_remove_range(s, 1, 1);
+    try std.testing.expectEqual(@as(usize, 2), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..2], "ab"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "trim_left" {
+    const s = stz_string_from("  \thello", 8);
+    const r = stz_string_trim_left(s);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "hello"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "trim_right" {
+    const s = stz_string_from("hello  \t", 8);
+    const r = stz_string_trim_right(s);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "hello"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "trim_left preserves unicode" {
+    // spaces + heart
+    const s = stz_string_from("  \xe2\x99\xa5", 5);
+    const r = stz_string_trim_left(s);
+    try std.testing.expectEqual(@as(usize, 3), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..3], "\xe2\x99\xa5"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "equals" {
+    const a = stz_string_from("hello", 5);
+    const b = stz_string_from("hello", 5);
+    const c = stz_string_from("world", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_equals(a, b));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_equals(a, c));
+    stz_string_free(a);
+    stz_string_free(b);
+    stz_string_free(c);
+}
+
+test "replace_first" {
+    const s = stz_string_from("aXbXc", 5);
+    const r = stz_string_replace_first(s, "X", 1, "YY", 2);
+    try std.testing.expectEqual(@as(usize, 6), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..6], "aYYbXc"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "replace_last" {
+    const s = stz_string_from("aXbXc", 5);
+    const r = stz_string_replace_last(s, "X", 1, "ZZ", 2);
+    try std.testing.expectEqual(@as(usize, 6), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..6], "aXbZZc"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "replace_nth" {
+    const s = stz_string_from("aXbXcXd", 7);
+    // Replace 2nd occurrence
+    const r = stz_string_replace_nth(s, "X", 1, "**", 2, 2);
+    try std.testing.expectEqual(@as(usize, 8), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..8], "aXb**cXd"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "replace_first no match" {
+    const s = stz_string_from("hello", 5);
+    const r = stz_string_replace_first(s, "Z", 1, "X", 1);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "hello"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "is_empty" {
+    const empty = stz_string_new();
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_empty(empty));
+    stz_string_free(empty);
+
+    const nonempty = stz_string_from("x", 1);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_empty(nonempty));
+    stz_string_free(nonempty);
+}
+
+test "between" {
+    const s = stz_string_from("hello [world] end", 17);
+    const r = stz_string_between(s, "[", 1, "]", 1);
+    try std.testing.expect(r != null);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "world"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "between multi-char delimiters" {
+    const s = stz_string_from("start<<content>>end", 19);
+    const r = stz_string_between(s, "<<", 2, ">>", 2);
+    try std.testing.expect(r != null);
+    try std.testing.expectEqual(@as(usize, 7), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..7], "content"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "between not found" {
+    const s = stz_string_from("hello world", 11);
+    const r = stz_string_between(s, "[", 1, "]", 1);
+    try std.testing.expect(r == null);
+    stz_string_free(s);
+}
+
+test "is_numeric" {
+    const num = stz_string_from("12345", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_numeric(num));
+    stz_string_free(num);
+
+    const mixed = stz_string_from("12a45", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_numeric(mixed));
+    stz_string_free(mixed);
+
+    const empty = stz_string_new();
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_numeric(empty));
+    stz_string_free(empty);
+}
+
+test "is_alpha" {
+    const alpha = stz_string_from("Hello", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_alpha(alpha));
+    stz_string_free(alpha);
+
+    const mixed = stz_string_from("Hello1", 6);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_alpha(mixed));
+    stz_string_free(mixed);
+
+    // Unicode letters
+    const uni = stz_string_from("caf\xC3\xA9", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_alpha(uni));
+    stz_string_free(uni);
+}
+
+test "count_chars_of_type letters" {
+    const s = stz_string_from("Hello 123!", 10);
+    // Type 0 = letters: H,e,l,l,o = 5
+    try std.testing.expectEqual(@as(c_int, 5), stz_string_count_chars_of_type(s, 0));
+    // Type 1 = digits: 1,2,3 = 3
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_chars_of_type(s, 1));
+    // Type 2 = whitespace: 1 space
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_count_chars_of_type(s, 2));
     stz_string_free(s);
 }
