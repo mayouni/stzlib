@@ -67,7 +67,12 @@ class stzListFinder from stzList
 
 			ok
 
-			acContent = StzListQ(This.Content()).Stringified()
+			aRawContent = This.Content()
+			_nLenRaw = len(aRawContent)
+			acContent = []
+			for _k = 1 to _nLenRaw
+				acContent + ("" + aRawContent[_k])
+			next
 			nLen = len(acContent)
 
 			if pCaseSensitive = 0
