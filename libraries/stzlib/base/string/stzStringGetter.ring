@@ -117,7 +117,7 @@ class stzStringGetter from stzString
 
 	def UniqueCharsCS(pCaseSensitive)
 		aChars = This.Chars()
-		return StzListQ(aChars).UniqueItemsCS(pCaseSensitive)
+		return UCS(aChars, pCaseSensitive)
 
 	def UniqueChars()
 		return This.UniqueCharsCS(1)

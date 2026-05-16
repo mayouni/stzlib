@@ -1651,8 +1651,8 @@ class stzNumber from stzObject
 
 			# Case where the user provides a number in string
 			# with a dot "." at the end (a "0" is then added)
-			but StzStringQ(pNumber).LastChar() = "." and
-			   StzStringQ(pNumber).RemoveLastCharQ().RepresentsNumberInDecimalForm()
+			but right(pNumber, 1) = "." and
+			   StringRepresentsNumberInDecimalForm(substr(pNumber, 1, len(pNumber) - 1))
 
 				pNumber += "0"
 	
@@ -5177,7 +5177,7 @@ class stzNumber from stzObject
 		return 1
 
 	def Contains(pcDigit)
-		return StzStringQ(This.Content()).Contains(pcDigit)
+		return substr(This.Content(), pcDigit) > 0
 
 	def ExistsIn(paList)
 		return ListContains(paList, This.NumericValue())
@@ -5198,7 +5198,7 @@ class stzNumber from stzObject
 			return This.ContainsOnes()
 
 	def ContainsSeveral(pcDigit)
-		return StzStringQ(This.Content()).NumberOfOccurrence(pcDigit) > 1
+		return StringNumberOfOccurrence(This.Content(), pcDigit) > 1
 
 		def ContainsMany(pcDigit)
 			return This.ContainsSeveral(pcDigit)

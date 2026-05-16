@@ -222,7 +222,7 @@ class stzChainOfTruth from stzObject
 			bResult = 1
 
 		but BothAreStrings( pThing, This.Value() ) and
-		    lower(pThing) = StzStringQ(This.Value()).Lowercased()
+		    lower(pThing) = lower(This.Value())
 			bResult = 1
 
 		# Case of a string
@@ -242,7 +242,7 @@ class stzChainOfTruth from stzObject
 				bResult = 1
 
 			# Case of a stz object method
-			but StzStringQ("is" + pThing).ExistsIn( methods(This.StzObject()) )
+			but ring_find( methods(This.StzObject()), "is" + pThing ) > 0
 				# Example: _("A").Is( :Uppercase )
 	
 				cCode = 'bResult = StzObject().Is' + pThing + '()'
@@ -272,7 +272,7 @@ class stzChainOfTruth from stzObject
 
 			bIsListOfMethods = 1
 			for str in pThing
-				if NOT StzStringQ("is" + str).ExistsIn( methods(This.StzObject()) )
+				if NOT ( ring_find( methods(This.StzObject()), "is" + str ) > 0 )
 					bIsListOfMethods = 0
 					exit
 				ok
@@ -680,21 +680,21 @@ class stzChainOfTruth from stzObject
 
 	def st(pcThing)
 		if This._Type() = "NUMBER" and
-		   StzStringQ(''+ This.Value()).LastChar() = "1"
+		   right(''+ This.Value(), 1) = "1"
 
 			return This.Nth(pcThing)
 		ok
 
 	def nd(pcThing)
 		if This._Type() = "NUMBER" and
-		   StzStringQ(''+ This.Value()).LastChar() = "2"
+		   right(''+ This.Value(), 1) = "2"
 
 			return This.nth(pcThing)
 		ok
 
 	def rd(pcThing)
 		if This._Type() = "NUMBER" and
-		   StzStringQ(''+ This.Value()).LastChar() = "3"
+		   right(''+ This.Value(), 1) = "3"
 
 			return This.nth(pcThing)
 		ok
@@ -706,7 +706,7 @@ class stzChainOfTruth from stzObject
 	
 		*/
 		if This._Type() = "NUMBER" and
-		   (0+ StzStringQ(''+ This.Value()).LastChar()) > 1
+		   (0+ right(''+ This.Value(), 1)) > 1
 
 			return This.nth(pcThing)
 
@@ -837,4 +837,4 @@ class stzChainOfTruth from stzObject
 
 	def pvtFunctionParamTypeIsOneOfThese( pcFunctionCall, paSubStr )
 		cType = pvtFunctionParamType(pcFunctionCall)
-		return StzStringQ(cType).IsOneOfThese(paSubStr)
+		return ring_find(paSubStr, cType) > 0

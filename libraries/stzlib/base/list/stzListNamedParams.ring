@@ -8916,70 +8916,56 @@ class stzListNamedParams from stzList
 
 	def IsReturningNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and stzStringQ(This.Item(1)).IsEqualToCS(:Returning, 0)
-
+		   isString(This.Item(1)) and lower(This.Item(1)) = "returning"
 			return 1
-
 		else
 			return 0
 		ok
 
 	def IsAndReturnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturn, 0)
-
+		   isString(This.Item(1)) and lower(This.Item(1)) = "andreturn"
 			return 1
-
 		else
 			return 0
 		ok
 
 	def IsAndReturningNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturning, 0)
-
+		   isString(This.Item(1)) and lower(This.Item(1)) = "andreturning"
 			return 1
-
 		else
 			return 0
 		ok
 
 	def IsReturnNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and stzStringQ(This.Item(1)).IsEqualToCS(:ReturnNth, 0)
-
+		   isString(This.Item(1)) and lower(This.Item(1)) = "returnnth"
 			return 1
-
 		else
 			return 0
 		ok
 
 	def IsReturningNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:ReturningNth, 0)
-
+		   isString(This.Item(1)) and lower(This.Item(1)) = "returningnth"
 			return 1
-
 		else
 			return 0
 		ok
 
 	def IsAndReturnNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturnNth, 0)
-
+		   isString(This.Item(1)) and lower(This.Item(1)) = "andreturnnth"
 			return 1
-
 		else
 			return 0
 		ok
 
 	def IsAndReturningNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and StzStringQ(This.Item(1)).IsEqualToCS(:AndReturningNth, 0)
-
+		   isString(This.Item(1)) and lower(This.Item(1)) = "andreturningnth"
 			return 1
-
 		else
 			return 0
 		ok
