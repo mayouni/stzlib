@@ -10040,9 +10040,16 @@ class stzString from stzObject
 	#===============================================#
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+		if pcSubStr = ""
+			return 0
+		ok
 
-
-		nResult = StringCountCS(This.Content(), pcSubStr, pCaseSensitive)
+		bCase = CaseSensitive(pCaseSensitive)
+		if bCase
+			nResult = StzEngineStringCountOf(@pEngine, pcSubStr)
+		else
+			nResult = StzEngineStringCountOfCI(@pEngine, pcSubStr)
+		ok
 		return nResult
 
 		#< @FunctionFluentForm
@@ -39152,12 +39159,17 @@ class stzString from stzObject
 
 		ok
 
-		# Doing the job
+		# Doing the job (Engine-backed, using persistent handle)
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		_cResult_ = This.Content()
 
-		_cResult_ = @ReplaceCS(_cResult_, pcSubStr, pcNewSubStr, _bCase_)
+		if _bCase_
+			pResult = StzEngineStringReplace(@pEngine, pcSubStr, pcNewSubStr)
+		else
+			pResult = StzEngineStringReplaceCI(@pEngine, pcSubStr, pcNewSubStr)
+		ok
+		_cResult_ = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 		This.UpdateWith(_cResult_)
 
 		#< @FunctionFluentForm
@@ -58082,7 +58094,31 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pCaseSensitive must be a boolean (1 or 0).")
 		ok
 
-		return @SplitCS(This.Content(), pcSubStr, pCaseSensitive)
+		# Engine-backed split using persistent handle
+		_bCase_ = pCaseSensitive
+		if isList(_bCase_) and IsCaseSensitiveNamedParamList(_bCase_)
+			_bCase_ = _bCase_[2]
+		ok
+
+		if _bCase_
+			nCount = StzEngineStringSplitCount(@pEngine, pcSubStr)
+		else
+			nCount = StzEngineStringSplitCountCI(@pEngine, pcSubStr)
+		ok
+
+		acResult = []
+		for i = 0 to nCount - 1
+			if _bCase_
+				pPart = StzEngineStringSplitGet(@pEngine, pcSubStr, i)
+			else
+				pPart = StzEngineStringSplitGetCI(@pEngine, pcSubStr, i)
+			ok
+			if pPart != NULL
+				acResult + StzEngineStringData(pPart)
+				StzEngineStringFree(pPart)
+			ok
+		next
+		return acResult
 
 		#< @FunctionFluentForm
 
