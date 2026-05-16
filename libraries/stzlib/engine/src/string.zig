@@ -3398,3 +3398,363 @@ test "ends_with_digit_letter" {
     try std.testing.expectEqual(@as(c_int, 1), stz_string_ends_with_letter(s2));
     stz_string_free(s2);
 }
+
+// ─── IsWord: letters, digits, underscore, hyphen ───
+
+pub fn stz_string_is_word(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (buf.len == 0) return 0;
+
+    var off: usize = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return 0;
+        if (off + cp_len > buf.len) return 0;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch return 0;
+        // underscore=95, hyphen=45
+        if (cp_val != 95 and cp_val != 45 and
+            unicode.stz_unicode_is_letter(cp_val) == 0 and
+            unicode.stz_unicode_is_digit(cp_val) == 0)
+        {
+            return 0;
+        }
+        off += cp_len;
+    }
+    return 1;
+}
+
+// ─── CountLeadingChar / CountTrailingChar ───
+
+pub fn stz_string_count_leading_char(handle: StzStringHandle, codepoint: u32) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    var off: usize = 0;
+    var count: c_int = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        if (cp_val != codepoint) break;
+        count += 1;
+        off += cp_len;
+    }
+    return count;
+}
+
+pub fn stz_string_count_trailing_char(handle: StzStringHandle, codepoint: u32) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (buf.len == 0) return 0;
+
+    // Walk from the end backwards through UTF-8 sequences
+    var count: c_int = 0;
+    var pos: usize = buf.len;
+    while (pos > 0) {
+        // Find start of previous codepoint
+        var start = pos - 1;
+        while (start > 0 and (buf[start] & 0xC0) == 0x80) {
+            start -= 1;
+        }
+        const cp_len = pos - start;
+        const cp_val = std.unicode.utf8Decode(buf[start..pos]) catch break;
+        _ = cp_len;
+        if (cp_val != codepoint) break;
+        count += 1;
+        pos = start;
+    }
+    return count;
+}
+
+// ─── IsNumericString: all digits, optional leading +/- ───
+
+pub fn stz_string_is_numeric_string(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (buf.len == 0) return 0;
+
+    var off: usize = 0;
+    // Allow optional leading sign
+    if (buf[0] == '+' or buf[0] == '-') {
+        off = 1;
+        if (off >= buf.len) return 0; // sign alone is not numeric
+    }
+
+    var has_digit = false;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return 0;
+        if (off + cp_len > buf.len) return 0;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch return 0;
+        if (unicode.stz_unicode_is_digit(cp_val) == 0) return 0;
+        has_digit = true;
+        off += cp_len;
+    }
+    return if (has_digit) @as(c_int, 1) else @as(c_int, 0);
+}
+
+// ─── URLEncode ───
+
+pub fn stz_string_url_encode(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    const hex = "0123456789ABCDEF";
+    for (buf) |byte| {
+        if (isUnreserved(byte)) {
+            result.data.append(gpa, byte) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{
+                '%',
+                hex[byte >> 4],
+                hex[byte & 0x0F],
+            }) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+        }
+    }
+    return result;
+}
+
+fn isUnreserved(c: u8) bool {
+    return (c >= 'A' and c <= 'Z') or
+        (c >= 'a' and c <= 'z') or
+        (c >= '0' and c <= '9') or
+        c == '-' or c == '_' or c == '.' or c == '~';
+}
+
+// ─── URLDecode ───
+
+pub fn stz_string_url_decode(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    var i: usize = 0;
+    while (i < buf.len) {
+        if (buf[i] == '%' and i + 2 < buf.len) {
+            const hi = hexVal(buf[i + 1]);
+            const lo = hexVal(buf[i + 2]);
+            if (hi != null and lo != null) {
+                result.data.append(gpa, (hi.? << 4) | lo.?) catch {
+                    result.deinit();
+                    gpa.destroy(result);
+                    return null;
+                };
+                i += 3;
+                continue;
+            }
+        }
+        result.data.append(gpa, buf[i]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+        i += 1;
+    }
+    return result;
+}
+
+fn hexVal(c: u8) ?u8 {
+    if (c >= '0' and c <= '9') return c - '0';
+    if (c >= 'A' and c <= 'F') return c - 'A' + 10;
+    if (c >= 'a' and c <= 'f') return c - 'a' + 10;
+    return null;
+}
+
+// ─── CharAtToString: return codepoint at cp-index as UTF-8 string handle ───
+
+pub fn stz_string_char_at_to_string(handle: StzStringHandle, cp_index: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    const idx: usize = if (cp_index >= 0) @intCast(cp_index) else return null;
+
+    var off: usize = 0;
+    var cp_i: usize = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return null;
+        if (off + cp_len > buf.len) return null;
+        if (cp_i == idx) {
+            const result = gpa.create(StzString) catch return null;
+            result.* = StzString.init();
+            result.data.appendSlice(gpa, buf[off .. off + cp_len]) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+            return result;
+        }
+        off += cp_len;
+        cp_i += 1;
+    }
+    return null;
+}
+
+// ─── SpacifyChars: "abc" → "a b c" (codepoint-aware) ───
+
+pub fn stz_string_spacify(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (buf.len == 0) {
+        const result = gpa.create(StzString) catch return null;
+        result.* = StzString.init();
+        return result;
+    }
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    var off: usize = 0;
+    var first = true;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        if (!first) {
+            result.data.append(gpa, ' ') catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+        }
+        result.data.appendSlice(gpa, buf[off .. off + cp_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+        first = false;
+        off += cp_len;
+    }
+    return result;
+}
+
+// ─── NumberOfBytesPerChar: returns list as "1 1 2 3" for mixed-byte chars ───
+
+pub fn stz_string_bytes_per_char(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    var off: usize = 0;
+    var first = true;
+    var num_buf: [4]u8 = undefined;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        if (!first) {
+            result.data.append(gpa, ' ') catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+        }
+        // cp_len is 1..4, write as ASCII digit
+        num_buf[0] = '0' + @as(u8, @intCast(cp_len));
+        result.data.append(gpa, num_buf[0]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+        first = false;
+        off += cp_len;
+    }
+    return result;
+}
+
+// ─── Tests for new functions ───
+
+test "is_word" {
+    const s1 = stz_string_from("hello-world_123", 15);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_word(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("hello world", 11);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_word(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("", 0);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_word(s3));
+    stz_string_free(s3);
+}
+
+test "count_leading_trailing_char" {
+    const s1 = stz_string_from("   hello", 8);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_leading_char(s1, ' '));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_count_trailing_char(s1, ' '));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("hello...", 8);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_count_leading_char(s2, '.'));
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_trailing_char(s2, '.'));
+    stz_string_free(s2);
+}
+
+test "is_numeric_string" {
+    const s1 = stz_string_from("12345", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_numeric_string(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("+42", 3);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_numeric_string(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("-7", 2);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_numeric_string(s3));
+    stz_string_free(s3);
+
+    const s4 = stz_string_from("12.5", 4);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_numeric_string(s4));
+    stz_string_free(s4);
+
+    const s5 = stz_string_from("", 0);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_numeric_string(s5));
+    stz_string_free(s5);
+}
+
+test "url_encode_decode" {
+    const s1 = stz_string_from("hello world", 11);
+    const enc = stz_string_url_encode(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(enc)[0..@intCast(stz_string_size(enc))], "hello%20world"));
+
+    const dec = stz_string_url_decode(enc);
+    try std.testing.expect(mem.eql(u8, stz_string_data(dec)[0..@intCast(stz_string_size(dec))], "hello world"));
+
+    stz_string_free(dec);
+    stz_string_free(enc);
+    stz_string_free(s1);
+}
+
+test "char_at_to_string" {
+    const s1 = stz_string_from("Hello", 5);
+    const ch = stz_string_char_at_to_string(s1, 0);
+    try std.testing.expect(ch != null);
+    try std.testing.expect(mem.eql(u8, stz_string_data(ch)[0..@intCast(stz_string_size(ch))], "H"));
+    stz_string_free(ch);
+    stz_string_free(s1);
+}
+
+test "spacify" {
+    const s1 = stz_string_from("abc", 3);
+    const sp = stz_string_spacify(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(sp)[0..@intCast(stz_string_size(sp))], "a b c"));
+    stz_string_free(sp);
+    stz_string_free(s1);
+}
+
+test "bytes_per_char" {
+    const s1 = stz_string_from("ab", 2);
+    const bp = stz_string_bytes_per_char(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(bp)[0..@intCast(stz_string_size(bp))], "1 1"));
+    stz_string_free(bp);
+    stz_string_free(s1);
+}

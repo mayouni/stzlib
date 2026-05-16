@@ -88598,23 +88598,9 @@ class stzString from stzObject
 	#--
 
 	def SpacifyChars()
-		/* EXAMPLE
-
-		? StzStringQ("RINGORIALAND").Spacified()
-		#--> R I N G O R I A L A N D
-
-		*/
-
-		acChars = This.Chars()
-		cResult = ""
-		nLen = len(acChars)
-		for i = 1 to nLen
-			if i > 1
-				cResult += " "
-			ok
-			cResult += acChars[i]
-		next
-
+		pResult = StzEngineStringSpacify(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 		This.UpdateWith(cResult)
 
 		def SpacifyCharsQ()
@@ -90393,40 +90379,10 @@ class stzString from stzObject
 	#TODO // Support Unicode in this function
 
 	def UrlEncode()
-		/* Example:
-		o1 = new stzString("{a fishy string?}")
-		? o1.ToPercentEncoding( "{}", "s" )
-
-		--> {a%20fi%73hy%20%73tring%3F}
-		*/
-
-		result = ""
-		acChars = This.Chars()
-		nLen = len(acChars)
-
-		for i = 1 to nLen
-
-			char = acChars[i]
-			charCode = @Unicode(char)
-
-			if (charCode >= ascii('a') and charCode <= ascii('z')) or
-				(charCode >= ascii('A') and charCode <= ascii('Z')) or
-				(charCode >= ascii('0') and charCode <= ascii('9')) or
-				char = '-' or char = '_' or char = '.' or char = '~'
-
-				result = result + char
-			else
-				hexStr = hex(charCode)
-
-				if len(hexStr) = 1
-					hexStr = "0" + hexStr
-				ok
-
-				result = result + "%" + hexStr
-			end
-		end
-
-		This.UpdateWith( result )
+		pResult = StzEngineStringURLEncode(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith( cResult )
 
 		def UrlEncodeQ()
 			This.UrlEncode()
@@ -90446,38 +90402,10 @@ class stzString from stzObject
 	#TODO // Support Unicode in this function
 
 	def UrlDecode()
-		/* Example:
-		o1 = new stzString("")
-		o1.FromPercentEncoding( "{a%20fi%73hy%20%73tring%3F}", "%" )
-		o1.Content()
-
-		--> {a fishy string?}
-		*/
-
-		_cResult_ = ""
-		@i = 1
-
-		_acChars_ = This.Chars()
-		_nLen_ = len( _acChars_ )
-
-		while @i <= _nLen_
-
-			if _acChars_[@i] = "%" and (@i + 2) <= _nLen_
-
-				_cHexStr_ = _acChars_[@i + 1] + _acChars_[@i + 2]
-				_nCharCode_ = @Unicode( hex2str(_cHexStr_) )
-
-				_cResult_ += ( @Char(_nCharCode_) + " " )
-				@i += 3
-
-		        else
-
-				_cResult_ += _acChars_[@i]
-		            	@i = @i + 1
-		        end
-		end
-
-		This.UpdateWith( _cResult_ )
+		pResult = StzEngineStringURLDecode(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith( cResult )
 
 		def UrlDecodeQ()
 			This.UrlDecode()
