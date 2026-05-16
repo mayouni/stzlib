@@ -3403,7 +3403,7 @@ class stzString from stzObject
 
 		for i = 1 to nLen
 			for j = i to nLen
-				cSubStr = substr(cContent, i, (j - i + 1))
+				cSubStr = This.Section(i, j)
 	
 				if ring_find(acResult, cSubStr) = 0
 					acResult + cSubStr
@@ -3525,7 +3525,7 @@ class stzString from stzObject
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = substr(cContent, i, (j - i + 1))
+				cSubStr = This.Section(i, j)
 				if pCaseSensitive = 1
 					if ring_find(anResult, i) = 0
 						anResult + i
@@ -3713,7 +3713,7 @@ class stzString from stzObject
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = substr(cContent, i, (j - i + 1))
+				cSubStr = This.Section(i, j)
 				if pCaseSensitive = 1
 					aResult + [ i, j ]
 					acSubStr + cSubStr
@@ -4236,7 +4236,7 @@ class stzString from stzObject
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = substr(cContent, i, (j - i + 1))
+				cSubStr = This.Section(i, j)
 				nPos = ring_find(acSubStr, cSubStr)
 				if nPos = 0
 					aResult + [ cSubStr, [ i ] ]
@@ -4413,7 +4413,7 @@ class stzString from stzObject
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = substr(cContent, i, (j - i + 1))
+				cSubStr = This.Section(i, j)
 				nPos = ring_find(acSubStr, cSubStr)
 
 				if nPos = 0
@@ -4594,7 +4594,7 @@ class stzString from stzObject
 		for i = 1 to nLen
 			for j = i to nLen
 				if n = j-i+1
-					cSubStr = substr(cContent, i, (j - i + 1))
+					cSubStr = This.Section(i, j)
 					acResult + cSubStr
 				ok
 			next
@@ -4646,7 +4646,7 @@ class stzString from stzObject
 		for i = 1 to nLen
 			for j = i to nLen
 				if n = j-i+1
-					cSubStr = substr(cContent, i, (j - i + 1))
+					cSubStr = This.Section(i, j)
 				
 					if ring_find(acResult, cSubStr) = 0
 						acResult + cSubStr
@@ -6045,13 +6045,13 @@ class stzString from stzObject
 			cMarquer = ""
 		
 			for j = n1 to n2
-				char = substr(oCopy.Content(), j, 1)
-		
+				char = oCopy.NthChar(j)
+
 				if char = "0" or char = "1" or char = "2" or
 				   char = "3" or char = "4" or char = "5" or
 				   char = "6" or char = "7" or char = "8" or
 				   char = "9"
-		
+
 					cMarquer += char
 				else
 					exit
@@ -23119,10 +23119,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		cContent = This.Content()
-		nLenStr = len(cContent)
-
-		cLastChar = substr(cContent, nLenStr, 1)
+		cLastChar = This.LastChar()
 
 		cResult = ""
 
@@ -23314,9 +23311,7 @@ class stzString from stzObject
 			return []
 		ok
 
-		cContent = This.Content()
-		nLenStr = len(cContent)
-		cLastChar = substr(cContent, nLenStr, 1)
+		cLastChar = This.LastChar()
 
 		acResult = []
 
@@ -23786,15 +23781,14 @@ class stzString from stzObject
 
 	def FindRepeatedTrailingCharsCS(pCaseSensitive)
 
-		cContent = This.Content()
-		nLenStr = len(cContent)
+		nLenStr = This.NumberOfChars()
 
 		if nLenStr < 2
 			return []
 		ok
 
-		cLastChar = substr(cContent, nLenStr, 1)
-		cBeforeLastChar = substr(cContent, nLenStr - 1, 1)
+		cLastChar = This.LastChar()
+		cBeforeLastChar = This.NthChar(nLenStr - 1)
 
 		if NOT BothStringsAreEqualCS(cLastChar, cBeforeLastChar, pCaseSensitive)
 			return []
@@ -23802,7 +23796,7 @@ class stzString from stzObject
 
 		n = 0
 		for i = nLenStr to 1 step -1
-			if BothStringsAreEqualCS(substr(cContent, i, 1), cLastChar, pCaseSensitive)
+			if BothStringsAreEqualCS(This.NthChar(i), cLastChar, pCaseSensitive)
 				n++
 			else
 				exit
@@ -23850,15 +23844,14 @@ class stzString from stzObject
 
 	def FindRepeatedTrailingCharsAsSectionCS(pCaseSensitive)
 
-		cContent = This.Content()
-		nLenStr = len(cContent)
+		nLenStr = This.NumberOfChars()
 
 		if nLenStr < 2
 			return []
 		ok
 
-		cLastChar = substr(cContent, nLenStr, 1)
-		cBeforeLastChar = substr(cContent, nLenStr - 1, 1)
+		cLastChar = This.LastChar()
+		cBeforeLastChar = This.NthChar(nLenStr - 1)
 
 		if NOT BothStringsAreEqualCS(cLastChar, cBeforeLastChar, pCaseSensitive)
 			return []
@@ -23866,7 +23859,7 @@ class stzString from stzObject
 
 		n = 0
 		for i = nLenStr to 1 step -1
-			if BothStringsAreEqualCS(substr(cContent, i, 1), cLastChar, pCaseSensitive)
+			if BothStringsAreEqualCS(This.NthChar(i), cLastChar, pCaseSensitive)
 				n++
 			else
 				exit
@@ -24938,20 +24931,19 @@ class stzString from stzObject
 	def RemoveThisRepeatedTrailingCharCS(c, pCaseSensitive)
 
 
-		cContent = This.Content()
-		nLenStr = len(cContent)
+		nLenStr = This.NumberOfChars()
 
 		if nLenStr < 2
 			return
 		ok
 
-		cLastChar = substr(cContent, nLenStr, 1)
+		cLastChar = This.LastChar()
 
 		if NOT BothStringsAreEqualCS(cLastChar, c, pCaseSensitive)
 			return
 		ok
 
-		cBeforeLastChar = substr(cContent, nLenStr - 1, 1)
+		cBeforeLastChar = This.NthChar(nLenStr - 1)
 
 		if BothStringsAreEqualCS(cLastChar, cBeforeLastChar, pCaseSensitive)
 			aSection = This.FindRepeatedTrailingCharsCSZZ(pCaseSensitive)
@@ -37100,12 +37092,12 @@ class stzString from stzObject
 			ok
 		ok
 
-		cStr = This.Content()
+		nLen = This.NumberOfChars()
 		cBefore = ""
 		if n > 1
-			cBefore = substr(cStr, 1, n - 1)
+			cBefore = This.Section(1, n - 1)
 		ok
-		cAfter = substr(cStr, n, len(cStr) - n + 1)
+		cAfter = This.Section(n, nLen)
 		This.UpdateWith( cBefore + cSubStr + cAfter )
 
 		#< @FunctionAlternativeForms
@@ -37407,11 +37399,11 @@ class stzString from stzObject
 			ok
 		ok
 
-		cStr = This.Content()
-		cBefore = substr(cStr, 1, n)
+		nLen = This.NumberOfChars()
+		cBefore = This.Section(1, n)
 		cAfter = ""
-		if n < len(cStr)
-			cAfter = substr(cStr, n + 1, len(cStr) - n)
+		if n < nLen
+			cAfter = This.Section(n + 1, nLen)
 		ok
 		This.UpdateWith( cBefore + cSubStr + cAfter )
 
@@ -38012,14 +38004,14 @@ class stzString from stzObject
 		# Doing the job
 
 		panPos = ring_sort(panPos)
-		cCopy = @cContent
 
+		# Work in reverse to preserve positions
+		oTemp = new stzString(This.Content())
 		for i = nLenPos to 1 step -1
-			nPos = panPos[i]
-			cCopy = left(cCopy, nPos) + pcSubStr + substr(cCopy, nPos + 1)
+			oTemp.InsertAfterPosition(panPos[i], pcSubStr)
 		next
 
-		This.UpdateWith(cCopy)
+		This.UpdateWith(oTemp.Content())
 
 		#< @FunctionFluentForm
 
@@ -38118,16 +38110,14 @@ class stzString from stzObject
 
 		panPos = ring_sort(panPos)
 
-		# Doing the job
+		# Doing the job -- delegate to codepoint-safe InsertBeforePosition
 
-		cCopy = @cContent
-
+		oTemp = new stzString(This.Content())
 		for i = nLenPos to 1 step -1
-			nPos = panPos[i] - 1
-			cCopy = left(cCopy, nPos) + pcSubStr + substr(cCopy, nPos + 1)
+			oTemp.InsertBeforePosition(panPos[i], pcSubStr)
 		next
 
-		This.UpdateWith(cCopy)
+		This.UpdateWith(oTemp.Content())
 
 		#< @FunctionFluentForm
 
@@ -44088,21 +44078,13 @@ class stzString from stzObject
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		# Doing the job
+		# Doing the job (Engine-backed)
 
-		cStr = This.Content()
-		nSubLen = len(pcSubStr)
-		if len(cStr) < nSubLen
-			return 0
-		ok
-		cPrefix = substr(cStr, 1, nSubLen)
 		if _bCase_
-			_bResult_ = (cPrefix = pcSubStr)
+			return StzEngineStringStartsWith(@pEngine, pcSubStr)
 		else
-			_bResult_ = (lower(cPrefix) = lower(pcSubStr))
+			return StzEngineStringStartsWithCI(@pEngine, pcSubStr)
 		ok
-
-		return _bResult_
 
 		#< @FunctionFluentForm
 
@@ -44285,23 +44267,13 @@ class stzString from stzObject
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		# Doing the job
+		# Doing the job (Engine-backed)
 
-		cStr = This.Content()
-		nLen = len(cStr)
-		nSubLen = len(pcSubStr)
-		if nLen < nSubLen
-			_bResult_ = 0
+		if _bCase_
+			return StzEngineStringEndsWith(@pEngine, pcSubStr)
 		else
-			cSuffix = substr(cStr, nLen - nSubLen + 1, nSubLen)
-			if _bCase_
-				_bResult_ = (cSuffix = pcSubStr)
-			else
-				_bResult_ = (lower(cSuffix) = lower(pcSubStr))
-			ok
+			return StzEngineStringEndsWithCI(@pEngine, pcSubStr)
 		ok
-		return _bResult_
-
 
 		#< @FunctionFluentForm
 
@@ -88718,13 +88690,17 @@ class stzString from stzObject
 
 		*/
 
-		cCopy = @cContent
-		nLen = len(cCopy)
-		for i = nLen-1 to 1 step -1
-			cCopy = left(cCopy, i) + " " + substr(cCopy, i + 1)
+		acChars = This.Chars()
+		cResult = ""
+		nLen = len(acChars)
+		for i = 1 to nLen
+			if i > 1
+				cResult += " "
+			ok
+			cResult += acChars[i]
 		next
 
-		This.UpdateWith(cCopy)
+		This.UpdateWith(cResult)
 
 		def SpacifyCharsQ()
 			This.SpacifyChars()
@@ -88796,14 +88772,17 @@ class stzString from stzObject
 
 		*/
 
-		cCopy = @cContent
-		nLen = len(cCopy)
-
-		for i = nLen-1 to 1 step -1
-			cCopy = left(cCopy, i) + pcSep + substr(cCopy, i + 1)
+		acChars = This.Chars()
+		cResult = ""
+		nLen = len(acChars)
+		for i = 1 to nLen
+			if i > 1
+				cResult += pcSep
+			ok
+			cResult += acChars[i]
 		next
 
-		This.UpdateWith(cCopy)
+		This.UpdateWith(cResult)
 
 		def SpacifyCharsUsingQ(pcSep)
 			This.SpacifyCharsUsing(pcSep)
