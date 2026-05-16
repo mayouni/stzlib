@@ -88153,7 +88153,8 @@ class stzString from stzObject
 	#==========================================================#
 
 	def Simplify()
-		This.UpdateWith( _StzSimplifyString(This.Content()) )
+		cResult = StzEngineStringSimplify(@pEngine)
+		This.UpdateWith( cResult )
 
 		def SimplifyQ()
 			This.Simplify()
@@ -98221,6 +98222,53 @@ class stzString from stzObject
 
 		#>
 		
+	  #-------------------------------------------------------#
+	 #  CHECKING IF THE STRING STARTS/ENDS WITH A LETTER    #
+	 #  OR A DIGIT (CODEPOINT-LEVEL, ENGINE-BACKED)         #
+	#-------------------------------------------------------#
+
+	def StartsWithALetter()
+		return StzEngineStringStartsWithLetter(@pEngine)
+
+		def StartsWithLetter()
+			return This.StartsWithALetter()
+
+		def BeginsWithALetter()
+			return This.StartsWithALetter()
+
+		def FirstCharIsALetter()
+			return This.StartsWithALetter()
+
+	def StartsWithADigit()
+		return StzEngineStringStartsWithDigit(@pEngine)
+
+		def StartsWithDigit()
+			return This.StartsWithADigit()
+
+		def BeginsWithADigit()
+			return This.StartsWithADigit()
+
+		def FirstCharIsADigit()
+			return This.StartsWithADigit()
+
+	def EndsWithALetter()
+		return StzEngineStringEndsWithLetter(@pEngine)
+
+		def EndsWithLetter()
+			return This.EndsWithALetter()
+
+		def LastCharIsALetter()
+			return This.EndsWithALetter()
+
+	def EndsWithADigit()
+		return StzEngineStringEndsWithDigit(@pEngine)
+
+		def EndsWithDigit()
+			return This.EndsWithADigit()
+
+		def LastCharIsADigit()
+			return This.EndsWithADigit()
+
 	  #-------------------------------------------------#
 	 #  CHECKING IF THE STRING STARTS WITH ANY NUMBER  #
 	#-------------------------------------------------#

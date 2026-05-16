@@ -662,6 +662,32 @@ fn ring_StringCountBetween(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_between(h, open, open_len, close, close_len)));
 }
 
+fn ring_StringSimplify(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_simplify(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringStartsWithDigit(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_starts_with_digit(h)));
+}
+
+fn ring_StringStartsWithLetter(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_starts_with_letter(h)));
+}
+
+fn ring_StringEndsWithDigit(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with_digit(h)));
+}
+
+fn ring_StringEndsWithLetter(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with_letter(h)));
+}
+
 fn ring_StringReplaceCharAt(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp_index: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
@@ -797,6 +823,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringbetweennth", .func = &ring_StringBetweenNth },
     .{ .name = "stzenginestringcountbetween", .func = &ring_StringCountBetween },
     .{ .name = "stzenginestringreplacecharat", .func = &ring_StringReplaceCharAt },
+    .{ .name = "stzenginestringsimplify", .func = &ring_StringSimplify },
+    .{ .name = "stzenginestringstartswithletter", .func = &ring_StringStartsWithLetter },
+    .{ .name = "stzenginestringstartswithdigit", .func = &ring_StringStartsWithDigit },
+    .{ .name = "stzenginestringendswithletter", .func = &ring_StringEndsWithLetter },
+    .{ .name = "stzenginestringendswithdigit", .func = &ring_StringEndsWithDigit },
     .{ .name = "stzenginestringlevenshteindistance", .func = &ring_StringLevenshtein },
     .{ .name = "stzenginestringistitlecase", .func = &ring_StringIsTitleCase },
     .{ .name = "stzenginestringlinessplitcount", .func = &ring_StringLinesSplitCount },
