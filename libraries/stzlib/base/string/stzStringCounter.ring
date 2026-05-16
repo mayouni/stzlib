@@ -23,6 +23,10 @@ class stzStringCounter from stzString
 	#======================================================#
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		if _bCase_
+			return StzEngineStringCountOf(@pEngine, pcSubStr)
+		ok
 		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
 		return len(anPos)
 

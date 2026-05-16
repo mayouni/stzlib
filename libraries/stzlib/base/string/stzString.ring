@@ -87088,7 +87088,9 @@ class stzString from stzObject
 			return This
 
 	def Trimmed()
-		cResult = This.Copy().TrimQ().Content()
+		pTrimmed = StzEngineStringTrimmed(@pEngine)
+		cResult = StzEngineStringData(pTrimmed)
+		StzEngineStringFree(pTrimmed)
 		return cResult
 
 		def WithoutLeadingAndTrailingSpaces()
