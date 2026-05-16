@@ -562,6 +562,32 @@ fn ring_StringRightCp(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+fn ring_StringIsUppercase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_uppercase(h)));
+}
+
+fn ring_StringIsLowercase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_lowercase(h)));
+}
+
+fn ring_StringIsWhitespace(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_whitespace(h)));
+}
+
+fn ring_StringWordCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_word_count(h)));
+}
+
+fn ring_StringIsOnlyType(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const char_type: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_only_type(h, char_type)));
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -637,7 +663,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringfindnth", .func = &ring_StringFindNth },
     .{ .name = "stzenginestringfindnthci", .func = &ring_StringFindNthCI },
     .{ .name = "stzenginestringinsertcp", .func = &ring_StringInsertCp },
-    .{ .name = "stzenginestingleftcp", .func = &ring_StringLeftCp },
+    .{ .name = "stzenginestringleftcp", .func = &ring_StringLeftCp },
     .{ .name = "stzenginestringrightcp", .func = &ring_StringRightCp },
     .{ .name = "stzenginestringremoveall", .func = &ring_StringRemoveAll },
     .{ .name = "stzenginestringlinescount", .func = &ring_StringLinesCount },
@@ -648,6 +674,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringchartypeat", .func = &ring_StringCharTypeAt },
     .{ .name = "stzenginestringfindcharsoftype", .func = &ring_StringFindCharsOfType },
     .{ .name = "stzenginestringextractcharsoftype", .func = &ring_StringExtractCharsOfType },
+    .{ .name = "stzenginestringisuppercase", .func = &ring_StringIsUppercase },
+    .{ .name = "stzenginestringislowercase", .func = &ring_StringIsLowercase },
+    .{ .name = "stzenginestringiswhitespace", .func = &ring_StringIsWhitespace },
+    .{ .name = "stzenginestringwordcount", .func = &ring_StringWordCount },
+    .{ .name = "stzenginestringisonlytype", .func = &ring_StringIsOnlyType },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

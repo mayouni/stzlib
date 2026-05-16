@@ -1249,14 +1249,7 @@ pub fn stz_string_count_chars_of_type(handle: StzStringHandle, char_type: c_int)
         var count: c_int = 0;
         while (i < bytes.len) {
             const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-            const cp_slice = bytes[i..@min(i + cp_len, bytes.len)];
-            const cp_val: i32 = blk: {
-                if (cp_len == 1) break :blk @intCast(cp_slice[0]);
-                if (cp_len == 2 and cp_slice.len >= 2) break :blk @intCast((@as(u21, cp_slice[0] & 0x1F) << 6) | (cp_slice[1] & 0x3F));
-                if (cp_len == 3 and cp_slice.len >= 3) break :blk @intCast((@as(u21, cp_slice[0] & 0x0F) << 12) | (@as(u21, cp_slice[1] & 0x3F) << 6) | (cp_slice[2] & 0x3F));
-                if (cp_len == 4 and cp_slice.len >= 4) break :blk @intCast((@as(u21, cp_slice[0] & 0x07) << 18) | (@as(u21, cp_slice[1] & 0x3F) << 12) | (@as(u21, cp_slice[2] & 0x3F) << 6) | (cp_slice[3] & 0x3F));
-                break :blk 0;
-            };
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
             const matches: bool = switch (char_type) {
                 0 => unicode.stz_unicode_is_letter(cp_val) == 1,
                 1 => unicode.stz_unicode_is_digit(cp_val) == 1,
@@ -1295,14 +1288,7 @@ pub fn stz_string_is_alpha(handle: StzStringHandle) callconv(.c) c_int {
         var i: usize = 0;
         while (i < bytes.len) {
             const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-            const cp_slice = bytes[i..@min(i + cp_len, bytes.len)];
-            const cp_val: i32 = blk: {
-                if (cp_len == 1) break :blk @intCast(cp_slice[0]);
-                if (cp_len == 2 and cp_slice.len >= 2) break :blk @intCast((@as(u21, cp_slice[0] & 0x1F) << 6) | (cp_slice[1] & 0x3F));
-                if (cp_len == 3 and cp_slice.len >= 3) break :blk @intCast((@as(u21, cp_slice[0] & 0x0F) << 12) | (@as(u21, cp_slice[1] & 0x3F) << 6) | (cp_slice[2] & 0x3F));
-                if (cp_len == 4 and cp_slice.len >= 4) break :blk @intCast((@as(u21, cp_slice[0] & 0x07) << 18) | (@as(u21, cp_slice[1] & 0x3F) << 12) | (@as(u21, cp_slice[2] & 0x3F) << 6) | (cp_slice[3] & 0x3F));
-                break :blk 0;
-            };
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
             if (unicode.stz_unicode_is_letter(cp_val) != 1) return 0;
             i += cp_len;
         }
@@ -1382,14 +1368,7 @@ pub fn stz_string_find_chars_of_type(handle: StzStringHandle, char_type: c_int) 
         var cp_idx: usize = 0;
         while (i < bytes.len) {
             const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-            const cp_slice = bytes[i..@min(i + cp_len, bytes.len)];
-            const cp_val: i32 = blk: {
-                if (cp_len == 1) break :blk @intCast(cp_slice[0]);
-                if (cp_len == 2 and cp_slice.len >= 2) break :blk @intCast((@as(u21, cp_slice[0] & 0x1F) << 6) | (cp_slice[1] & 0x3F));
-                if (cp_len == 3 and cp_slice.len >= 3) break :blk @intCast((@as(u21, cp_slice[0] & 0x0F) << 12) | (@as(u21, cp_slice[1] & 0x3F) << 6) | (cp_slice[2] & 0x3F));
-                if (cp_len == 4 and cp_slice.len >= 4) break :blk @intCast((@as(u21, cp_slice[0] & 0x07) << 18) | (@as(u21, cp_slice[1] & 0x3F) << 12) | (@as(u21, cp_slice[2] & 0x3F) << 6) | (cp_slice[3] & 0x3F));
-                break :blk 0;
-            };
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
             const matches: bool = switch (char_type) {
                 0 => unicode.stz_unicode_is_letter(cp_val) == 1,
                 1 => unicode.stz_unicode_is_digit(cp_val) == 1,
@@ -1418,14 +1397,8 @@ pub fn stz_string_extract_chars_of_type(handle: StzStringHandle, char_type: c_in
         var i: usize = 0;
         while (i < bytes.len) {
             const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-            const cp_slice = bytes[i..@min(i + cp_len, bytes.len)];
-            const cp_val: i32 = blk: {
-                if (cp_len == 1) break :blk @intCast(cp_slice[0]);
-                if (cp_len == 2 and cp_slice.len >= 2) break :blk @intCast((@as(u21, cp_slice[0] & 0x1F) << 6) | (cp_slice[1] & 0x3F));
-                if (cp_len == 3 and cp_slice.len >= 3) break :blk @intCast((@as(u21, cp_slice[0] & 0x0F) << 12) | (@as(u21, cp_slice[1] & 0x3F) << 6) | (cp_slice[2] & 0x3F));
-                if (cp_len == 4 and cp_slice.len >= 4) break :blk @intCast((@as(u21, cp_slice[0] & 0x07) << 18) | (@as(u21, cp_slice[1] & 0x3F) << 12) | (@as(u21, cp_slice[2] & 0x3F) << 6) | (cp_slice[3] & 0x3F));
-                break :blk 0;
-            };
+            const cp_end = @min(i + cp_len, bytes.len);
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
             const matches: bool = switch (char_type) {
                 0 => unicode.stz_unicode_is_letter(cp_val) == 1,
                 1 => unicode.stz_unicode_is_digit(cp_val) == 1,
@@ -1436,7 +1409,7 @@ pub fn stz_string_extract_chars_of_type(handle: StzStringHandle, char_type: c_in
                 else => false,
             };
             if (matches) {
-                result.data.appendSlice(gpa, cp_slice) catch break;
+                result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
             }
             i += cp_len;
         }
@@ -1473,14 +1446,7 @@ pub fn stz_string_char_type_at(handle: StzStringHandle, cp_index: c_int) callcon
         const byte_offset = codepointIndexToByteOffset(src, idx);
         if (byte_offset >= src.len) return -1;
         const cp_len = std.unicode.utf8ByteSequenceLength(src[byte_offset]) catch return -1;
-        const cp_slice = src[byte_offset..@min(byte_offset + cp_len, src.len)];
-        const cp_val: i32 = blk: {
-            if (cp_len == 1) break :blk @intCast(cp_slice[0]);
-            if (cp_len == 2 and cp_slice.len >= 2) break :blk @intCast((@as(u21, cp_slice[0] & 0x1F) << 6) | (cp_slice[1] & 0x3F));
-            if (cp_len == 3 and cp_slice.len >= 3) break :blk @intCast((@as(u21, cp_slice[0] & 0x0F) << 12) | (@as(u21, cp_slice[1] & 0x3F) << 6) | (cp_slice[2] & 0x3F));
-            if (cp_len == 4 and cp_slice.len >= 4) break :blk @intCast((@as(u21, cp_slice[0] & 0x07) << 18) | (@as(u21, cp_slice[1] & 0x3F) << 12) | (@as(u21, cp_slice[2] & 0x3F) << 6) | (cp_slice[3] & 0x3F));
-            break :blk -1;
-        };
+        const cp_val: i32 = decodeCodepoint(src, byte_offset, cp_len);
         if (cp_val < 0) return -1;
         if (unicode.stz_unicode_is_upper(cp_val) == 1) return 3;
         if (unicode.stz_unicode_is_lower(cp_val) == 1) return 4;
@@ -1498,6 +1464,132 @@ pub fn stz_string_concat(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) 
     if (h1) |s1| result.data.appendSlice(gpa, s1.slice()) catch return null;
     if (h2) |s2| result.data.appendSlice(gpa, s2.slice()) catch return null;
     return result;
+}
+
+/// Check if all letter codepoints are uppercase. Returns 1 if true, 0 if false.
+/// Non-letter characters are ignored. Empty string or no letters returns 0.
+pub fn stz_string_is_uppercase(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+
+    var i: usize = 0;
+    var has_letter = false;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_letter(cp_val) != 0) {
+            has_letter = true;
+            if (unicode.stz_unicode_is_upper(cp_val) == 0) return 0;
+        }
+        i += cp_len;
+    }
+    return if (has_letter) 1 else 0;
+}
+
+/// Check if all letter codepoints are lowercase. Returns 1 if true, 0 if false.
+/// Non-letter characters are ignored. Empty string or no letters returns 0.
+pub fn stz_string_is_lowercase(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+
+    var i: usize = 0;
+    var has_letter = false;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_letter(cp_val) != 0) {
+            has_letter = true;
+            if (unicode.stz_unicode_is_lower(cp_val) == 0) return 0;
+        }
+        i += cp_len;
+    }
+    return if (has_letter) 1 else 0;
+}
+
+/// Check if the string contains only whitespace. Returns 1 if true, 0 if false.
+/// Empty string returns 0.
+pub fn stz_string_is_whitespace(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_space(cp_val) == 0) return 0;
+        i += cp_len;
+    }
+    return 1;
+}
+
+/// Count words (sequences of non-whitespace separated by whitespace).
+pub fn stz_string_word_count(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+
+    var count: c_int = 0;
+    var in_word = false;
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        const is_space = unicode.stz_unicode_is_space(cp_val) != 0;
+        if (!is_space and !in_word) {
+            count += 1;
+            in_word = true;
+        } else if (is_space) {
+            in_word = false;
+        }
+        i += cp_len;
+    }
+    return count;
+}
+
+/// Check if string contains only characters of a given type.
+/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct
+pub fn stz_string_is_only_type(handle: StzStringHandle, char_type: c_int) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        const matches = switch (char_type) {
+            0 => unicode.stz_unicode_is_letter(cp_val) != 0,
+            1 => unicode.stz_unicode_is_digit(cp_val) != 0,
+            2 => unicode.stz_unicode_is_space(cp_val) != 0,
+            3 => unicode.stz_unicode_is_upper(cp_val) != 0,
+            4 => unicode.stz_unicode_is_lower(cp_val) != 0,
+            5 => blk: {
+                const is_letter = unicode.stz_unicode_is_letter(cp_val) != 0;
+                const is_digit = unicode.stz_unicode_is_digit(cp_val) != 0;
+                const is_space = unicode.stz_unicode_is_space(cp_val) != 0;
+                break :blk !is_letter and !is_digit and !is_space;
+            },
+            else => false,
+        };
+        if (!matches) return 0;
+        i += cp_len;
+    }
+    return 1;
+}
+
+/// Decode a codepoint from UTF-8 bytes at a given position.
+fn decodeCodepoint(bytes: []const u8, pos: usize, cp_len: usize) i32 {
+    if (cp_len == 1) return @intCast(bytes[pos]);
+    if (cp_len == 2 and pos + 1 < bytes.len)
+        return @intCast((@as(u21, bytes[pos] & 0x1F) << 6) | (bytes[pos + 1] & 0x3F));
+    if (cp_len == 3 and pos + 2 < bytes.len)
+        return @intCast((@as(u21, bytes[pos] & 0x0F) << 12) | (@as(u21, bytes[pos + 1] & 0x3F) << 6) | (bytes[pos + 2] & 0x3F));
+    if (cp_len == 4 and pos + 3 < bytes.len)
+        return @intCast((@as(u21, bytes[pos] & 0x07) << 18) | (@as(u21, bytes[pos + 1] & 0x3F) << 12) | (@as(u21, bytes[pos + 2] & 0x3F) << 6) | (bytes[pos + 3] & 0x3F));
+    return 0;
 }
 
 // ─── Helpers ───
@@ -2394,4 +2486,84 @@ test "extract_chars_of_type digits" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..6], "123456"));
     stz_string_free(r);
     stz_string_free(s);
+}
+
+test "is_uppercase" {
+    const s1 = stz_string_from("HELLO", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_uppercase(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("Hello", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_uppercase(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("HELLO 123!", 10);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_uppercase(s3));
+    stz_string_free(s3);
+
+    const s4 = stz_string_from("123", 3);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_uppercase(s4));
+    stz_string_free(s4);
+}
+
+test "is_lowercase" {
+    const s1 = stz_string_from("hello", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_lowercase(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("Hello", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_lowercase(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("hello 123!", 10);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_lowercase(s3));
+    stz_string_free(s3);
+}
+
+test "is_whitespace" {
+    const s1 = stz_string_from("   ", 3);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_whitespace(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from(" a ", 3);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_whitespace(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("", 0);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_whitespace(s3));
+    stz_string_free(s3);
+}
+
+test "word_count" {
+    const s1 = stz_string_from("hello world", 11);
+    try std.testing.expectEqual(@as(c_int, 2), stz_string_word_count(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("  hello   world  ", 17);
+    try std.testing.expectEqual(@as(c_int, 2), stz_string_word_count(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("one", 3);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_word_count(s3));
+    stz_string_free(s3);
+
+    const s4 = stz_string_from("", 0);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_word_count(s4));
+    stz_string_free(s4);
+}
+
+test "is_only_type" {
+    const s1 = stz_string_from("abc", 3);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_only_type(s1, 0)); // letters
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_only_type(s1, 1)); // digits
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("123", 3);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_only_type(s2, 1)); // digits
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_only_type(s2, 0)); // letters
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("   ", 3);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_only_type(s3, 2)); // space
+    stz_string_free(s3);
 }
