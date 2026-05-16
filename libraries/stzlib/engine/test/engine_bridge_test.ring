@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 177 Registered Functions"
+? "Engine Full Bridge Test -- All 184 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1542,6 +1542,79 @@ StzEngineStringFree(pR)
 
 pR = StzEngineStringToKebabCase(pStr)
 Assert("KebabCase MyClassName", StzEngineStringData(pR), "my-class-name")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 84: Partition, RPartition
+# ==============================================================
+
+? "--- Group 84: Partition/RPartition ---"
+
+pStr = StzEngineStringFrom("hello:world:foo")
+pBefore = StzEngineStringPartition(pStr, ":")
+Assert("Partition before", StzEngineStringData(pBefore), "hello")
+StzEngineStringFree(pBefore)
+
+pAfter = StzEngineStringPartitionAfter(pStr, ":")
+Assert("Partition after", StzEngineStringData(pAfter), "world:foo")
+StzEngineStringFree(pAfter)
+
+pRBefore = StzEngineStringRpartition(pStr, ":")
+Assert("RPartition before", StzEngineStringData(pRBefore), "hello:world")
+StzEngineStringFree(pRBefore)
+
+pRAfter = StzEngineStringRpartitionAfter(pStr, ":")
+Assert("RPartition after", StzEngineStringData(pRAfter), "foo")
+StzEngineStringFree(pRAfter)
+
+# Not found case
+pBefore2 = StzEngineStringPartition(pStr, "xyz")
+Assert("Partition not found returns full", StzEngineStringData(pBefore2), "hello:world:foo")
+StzEngineStringFree(pBefore2)
+
+pAfter2 = StzEngineStringPartitionAfter(pStr, "xyz")
+Assert("Partition after not found returns empty", StzEngineStringData(pAfter2), "")
+StzEngineStringFree(pAfter2)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 85: Squeeze, IsDigit, Interleave
+# ==============================================================
+
+? "--- Group 85: Squeeze/IsDigit/Interleave ---"
+
+pStr = StzEngineStringFrom("heeellooo")
+pR = StzEngineStringSqueeze(pStr)
+Assert("Squeeze heeellooo", StzEngineStringData(pR), "helo")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("aabbcc")
+pR = StzEngineStringSqueeze(pStr)
+Assert("Squeeze aabbcc", StzEngineStringData(pR), "abc")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("12345")
+Assert("IsDigit 12345", StzEngineStringIsDigit(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("123a5")
+Assert("IsDigit 123a5", StzEngineStringIsDigit(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("")
+Assert("IsDigit empty", StzEngineStringIsDigit(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc")
+pR = StzEngineStringInterleave(pStr, ",")
+Assert("Interleave abc with comma", StzEngineStringData(pR), "a,b,c")
+StzEngineStringFree(pR)
+
+pR = StzEngineStringInterleave(pStr, " - ")
+Assert("Interleave abc with dash", StzEngineStringData(pR), "a - b - c")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 

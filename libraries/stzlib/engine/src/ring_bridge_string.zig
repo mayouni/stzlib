@@ -1277,6 +1277,59 @@ fn ring_StringIsCharsSortedDesc(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_chars_sorted_desc(h)));
 }
 
+// ─── Partition ───
+
+fn ring_StringPartition(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const sep = ring_vm_api_getstring(p, 2);
+    const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_partition(h, sep, sep_len)), STZ_HANDLE);
+}
+
+fn ring_StringPartitionAfter(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const sep = ring_vm_api_getstring(p, 2);
+    const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_partition_after(h, sep, sep_len)), STZ_HANDLE);
+}
+
+fn ring_StringRpartition(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const sep = ring_vm_api_getstring(p, 2);
+    const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_rpartition(h, sep, sep_len)), STZ_HANDLE);
+}
+
+fn ring_StringRpartitionAfter(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const sep = ring_vm_api_getstring(p, 2);
+    const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_rpartition_after(h, sep, sep_len)), STZ_HANDLE);
+}
+
+// ─── Squeeze ───
+
+fn ring_StringSqueeze(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_squeeze(h)), STZ_HANDLE);
+}
+
+// ─── IsDigit ───
+
+fn ring_StringIsDigit(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_digit(h)));
+}
+
+// ─── Interleave ───
+
+fn ring_StringInterleave(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const sep = ring_vm_api_getstring(p, 2);
+    const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_interleave(h, sep, sep_len)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1458,6 +1511,13 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringtocamelcase", .func = &ring_StringToCamelCase },
     .{ .name = "stzenginestringtosnakecase", .func = &ring_StringToSnakeCase },
     .{ .name = "stzenginestringtokebabcase", .func = &ring_StringToKebabCase },
+    .{ .name = "stzenginestringpartition", .func = &ring_StringPartition },
+    .{ .name = "stzenginestringpartitionafter", .func = &ring_StringPartitionAfter },
+    .{ .name = "stzenginestringrpartition", .func = &ring_StringRpartition },
+    .{ .name = "stzenginestringrpartitionafter", .func = &ring_StringRpartitionAfter },
+    .{ .name = "stzenginestringsqueeze", .func = &ring_StringSqueeze },
+    .{ .name = "stzenginestringisdigit", .func = &ring_StringIsDigit },
+    .{ .name = "stzenginestringinterleave", .func = &ring_StringInterleave },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

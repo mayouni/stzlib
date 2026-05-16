@@ -5780,6 +5780,141 @@ pub fn stz_string_to_kebab_case(handle: StzStringHandle) callconv(.c) StzStringH
     return r;
 }
 
+// ─── Partition ───
+
+/// Split string at first occurrence of separator into [before, separator, after].
+/// Returns a handle to the "before" part. Caller must also get sep and after via
+/// stz_string_partition_sep and stz_string_partition_after.
+pub fn stz_string_partition(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    const needle = if (sep_len > 0) sep[0..sep_len] else return stz_string_from(src.ptr, src.len);
+
+    // Find first occurrence
+    if (mem.indexOf(u8, src, needle)) |pos| {
+        return stz_string_from(src.ptr, pos);
+    }
+    // Not found: return full string
+    return stz_string_from(src.ptr, src.len);
+}
+
+/// Get the "after" part of a partition (everything after first occurrence of separator).
+/// If separator not found, returns empty string.
+pub fn stz_string_partition_after(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    const needle = if (sep_len > 0) sep[0..sep_len] else return stz_string_new();
+
+    if (mem.indexOf(u8, src, needle)) |pos| {
+        const after_start = pos + needle.len;
+        return stz_string_from(src.ptr + after_start, src.len - after_start);
+    }
+    return stz_string_new();
+}
+
+/// Split string at LAST occurrence of separator.
+/// Returns the "before" part. Use rpartition_after for the rest.
+pub fn stz_string_rpartition(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    const needle = if (sep_len > 0) sep[0..sep_len] else return stz_string_new();
+
+    // Find last occurrence
+    if (mem.lastIndexOf(u8, src, needle)) |pos| {
+        return stz_string_from(src.ptr, pos);
+    }
+    return stz_string_new();
+}
+
+/// Get the "after" part of a rpartition (everything after last occurrence of separator).
+pub fn stz_string_rpartition_after(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    const needle = if (sep_len > 0) sep[0..sep_len] else return stz_string_from(src.ptr, src.len);
+
+    if (mem.lastIndexOf(u8, src, needle)) |pos| {
+        const after_start = pos + needle.len;
+        return stz_string_from(src.ptr + after_start, src.len - after_start);
+    }
+    // Not found: return full string
+    return stz_string_from(src.ptr, src.len);
+}
+
+// ─── Squeeze (all consecutive duplicates) ───
+
+/// Reduce all runs of consecutive identical codepoints to a single codepoint.
+pub fn stz_string_squeeze(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (src.len == 0) return stz_string_new();
+
+    const r = stz_string_new() orelse return null;
+    var prev_cp: u32 = 0;
+    var off: usize = 0;
+    var first = true;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+
+        if (first or cp != prev_cp) {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            prev_cp = cp;
+            first = false;
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+// ─── IsDigit (all chars are digits) ───
+
+/// Returns 1 if all codepoints in the string are digits, 0 otherwise.
+/// Empty string returns 0.
+pub fn stz_string_is_digit(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 0;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch return 0;
+        if (off + cp_len > src.len) return 0;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch return 0;
+        if (unicode.stz_unicode_is_digit(cp) == 0) return 0;
+        off += cp_len;
+    }
+    return 1;
+}
+
+// ─── StringMultiply (interleave) ───
+
+/// Interleave: place separator between each codepoint. "abc" with "," => "a,b,c"
+pub fn stz_string_interleave(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (src.len == 0) return stz_string_new();
+
+    const separator = if (sep_len > 0) sep[0..sep_len] else return stz_string_from(src.ptr, src.len);
+    const r = stz_string_new() orelse return null;
+    var first = true;
+    var off: usize = 0;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+
+        if (!first) {
+            r.data.appendSlice(gpa, separator) catch {};
+        }
+        r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+        first = false;
+        off += cp_len;
+    }
+    return r;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -6229,4 +6364,77 @@ test "camel_snake_kebab" {
     try std.testing.expect(mem.eql(u8, stz_string_data(kebab)[0..@intCast(stz_string_size(kebab))], "hello-world"));
     stz_string_free(kebab);
     stz_string_free(s2);
+}
+
+test "partition" {
+    const s1 = stz_string_from("hello:world:foo", 15);
+    const before = stz_string_partition(s1, ":", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(before)[0..@intCast(stz_string_size(before))], "hello"));
+    stz_string_free(before);
+
+    const after = stz_string_partition_after(s1, ":", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(after)[0..@intCast(stz_string_size(after))], "world:foo"));
+    stz_string_free(after);
+
+    // Not found
+    const before2 = stz_string_partition(s1, "xyz", 3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(before2)[0..@intCast(stz_string_size(before2))], "hello:world:foo"));
+    stz_string_free(before2);
+
+    const after2 = stz_string_partition_after(s1, "xyz", 3);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_size(after2));
+    stz_string_free(after2);
+    stz_string_free(s1);
+}
+
+test "rpartition" {
+    const s1 = stz_string_from("hello:world:foo", 15);
+    const before = stz_string_rpartition(s1, ":", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(before)[0..@intCast(stz_string_size(before))], "hello:world"));
+    stz_string_free(before);
+
+    const after = stz_string_rpartition_after(s1, ":", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(after)[0..@intCast(stz_string_size(after))], "foo"));
+    stz_string_free(after);
+    stz_string_free(s1);
+}
+
+test "squeeze" {
+    const s1 = stz_string_from("heeellooo", 9);
+    const r1 = stz_string_squeeze(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "helo"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("aabbcc", 6);
+    const r2 = stz_string_squeeze(s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "abc"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+}
+
+test "is_digit" {
+    const s1 = stz_string_from("12345", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_digit(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("123a5", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_digit(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("", 0);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_digit(s3));
+    stz_string_free(s3);
+}
+
+test "interleave" {
+    const s1 = stz_string_from("abc", 3);
+    const r1 = stz_string_interleave(s1, ",", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "a,b,c"));
+    stz_string_free(r1);
+
+    const r2 = stz_string_interleave(s1, " - ", 3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "a - b - c"));
+    stz_string_free(r2);
+    stz_string_free(s1);
 }
