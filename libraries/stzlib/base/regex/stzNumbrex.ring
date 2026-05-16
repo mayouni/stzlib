@@ -1239,7 +1239,7 @@ def CheckDigits(aToken, nNum)
 				StzRaise("Incorrect param type! nStart mustr be a number.")
 			ok
 
-			if isList(nEnd) and StzListQ(nEnd).IsAndNamedPAram()
+			if isList(nEnd) and len(nEnd) = 2 and isString(nEnd[1]) and lower(nEnd[1]) = "and"
 				nEnd = nEnd[2]
 			ok
 
@@ -1267,7 +1267,7 @@ def CheckDigits(aToken, nNum)
 				StzRaise("Incorrect param type! nStart mustr be a number.")
 			ok
 
-			if isList(nEnd) and StzListQ(nEnd).IsAndNamedPAram()
+			if isList(nEnd) and len(nEnd) = 2 and isString(nEnd[1]) and lower(nEnd[1]) = "and"
 				nEnd = nEnd[2]
 			ok
 

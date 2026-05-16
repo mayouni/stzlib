@@ -20,7 +20,14 @@ func OctalPrefix()
 		return OctalPrefix()
 
 func SetOctalPrefix(cPrefix)
-	if StzListQ( OctalPrefixes() ).ContainsCS(cPrefix, 0)
+	bFound = 0
+	for _item in OctalPrefixes()
+		if lower(_item) = lower(cPrefix)
+			bFound = 1
+			exit
+		ok
+	next
+	if bFound
 		_cOctalPrefix = cPrefix
 	else
 		StzRaise("Incorrect octal prefix!")
@@ -36,7 +43,7 @@ class stzOctalNumber from stzString
 	@cOctalNumber
 
 	def init(pNumber)
-		if isString(pNumber) and StzStringQ(pNumber).RepresentsNumberInOctalForm()
+		if isString(pNumber) and StringRepresentsNumberInOctalForm(pNumber)
 				@cOctalNumber = pNumber
 
 		else

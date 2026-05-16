@@ -150,7 +150,7 @@ class stzStringCounter from stzString
 
 	def CountBetweenCS(pcSubStr, n1, n2, pCaseSensitive)
 		cSection = This.Section(n1, n2)
-		return StzStringQ(cSection).CountCS(pcSubStr, pCaseSensitive)
+		return StringNumberOfOccurrenceCS(cSection, pcSubStr, pCaseSensitive)
 
 	def CountBetween(pcSubStr, n1, n2)
 		return This.CountBetweenCS(pcSubStr, n1, n2, 1)

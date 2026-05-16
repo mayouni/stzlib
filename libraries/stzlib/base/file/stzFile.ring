@@ -950,7 +950,7 @@ class stzFileReadingMixin from stzObject
         return This.FindText(cSearchText) > 0
     
     def CountOccurrences(cSearchText)
-        return StzStringQ(This.Content()).NumberOfOccurrences(cSearchText)
+        return StringNumberOfOccurrence(This.Content(), cSearchText)
     
 		def NumberOfOccurrences(cSearchText)
 			return This.CountOccurrences(cSearchText)
