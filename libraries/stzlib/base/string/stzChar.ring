@@ -512,7 +512,10 @@ func FirstLetterOf(pcStr)
 		return FirstLetterOf(pcStr)
 
 func LastLetterOf(pcStr)
-	cReversed = StzStringQ(pcStr).Reversed()
+	cReversed = ""
+	for _i = len(pcStr) to 1 step -1
+		cReversed += pcStr[_i]
+	next
 	return FirstLetterOf(cReversed)
 
 	func LastLetterIn(pcStr)

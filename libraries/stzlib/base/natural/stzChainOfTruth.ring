@@ -794,7 +794,7 @@ class stzChainOfTruth from stzObject
 		n1 = oStzStr.FindFirstOccurrence("(") + 1
 		n2 = oStzStr.FindFirstOccurrence(")") - 1
 
-		return StzStringQ(pcFunctionCall).SectionQ(n1, n2).Content()
+		return substr(pcFunctionCall, n1, n2 - n1 + 1)
 
 
 	def pvtFunctionName( pcFunctionCall )
@@ -802,14 +802,15 @@ class stzChainOfTruth from stzObject
 
 		n = oStzStr.FindFirstOccurrence("(") - 1
 
-		return StzStringQ(pcFunctionCall).SectionQ(1, n).Content()
+		return left(pcFunctionCall, n)
 
 	def pvtFunctionNameFinishesWithOneOfThese( pcFunctionCall, paSubStr )
 		/*
 		pvtFunctionNameContainsOneOfThese( pThing, [ "in", "of" ], :AtTheEnd )
 		*/
 
-		cLast2Chars = StzStringQ(pvtFunctionName(pcFunctionCall)).NLastCharsQ(2).Lowercased()
+		cFuncName = pvtFunctionName(pcFunctionCall)
+		cLast2Chars = lower(right(cFuncName, 2))
 
 		if cLast2Chars = "in" or cLast2Chars = "of"
 			return 1
@@ -820,13 +821,13 @@ class stzChainOfTruth from stzObject
 	def pvtFunctionParamType( pcFunctionCall )
 		cParam = pvtFunctionParam(pcFunctionCall)
 
-		if StzStringQ( cParam ).IsBoundedBy('"')
+		if len(cParam) >= 2 and left(cParam, 1) = '"' and right(cParam, 1) = '"'
 			cType = "STRING"
-	
-		but StzStringQ( cParam ).IsBoundedBy([ "[","]" ])
+
+		but len(cParam) >= 2 and left(cParam, 1) = "[" and right(cParam, 1) = "]"
 			cType = "LIST"
-	
-		but StzStringQ( cParam).IsNumberInString()
+
+		but isNumber(0+ cParam) and cParam != ""
 			cType = "NUMBER"
 	
 		else

@@ -3938,8 +3938,10 @@ func BothAreCharsInComputableForm(p1, p2)
 		c1 = '"'
 		c2 = "'"
 
-		bOk1 = StzStringQ(p1).RemoveManyQ([ c1, c2 ]).IsAChar()
-		bOk2 = StzStringQ(p2).RemoveManyQ([ c1, c2 ]).IsAChar()
+		cClean1 = ring_substr2(ring_substr2(p1, c1, ""), c2, "")
+		bOk1 = (len(cClean1) = 1)
+		cClean2 = ring_substr2(ring_substr2(p2, c1, ""), c2, "")
+		bOk2 = (len(cClean2) = 1)
 
 		if bOk1 and bOk2
 			bResult = 1
