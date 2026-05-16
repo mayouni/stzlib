@@ -5892,11 +5892,17 @@ func IsRangeNamedParamList(paList)
 		return IsRangeNamedParamList(paList)
 
 func ListToCode(paList)
-	return StzListQ(paList).ToCode()
+	return @@(paList)
 
 
 func AllTheseAreNull(paList)
-	return StzListQ(paList).AllItemsAreNull()
+	nLen = len(paList)
+	for i = 1 to nLen
+		if NOT isNull(paList[i])
+			return 0
+		ok
+	next
+	return 1
 
 	func AllOfTheseAreNull(paList)
 		return AllTheseAreNull(paList)
@@ -5975,7 +5981,14 @@ func List@(paList)
 	ok
 
 func ListFindAll(paList, p)
-	return StzListQ(paList).FindAll(p)
+	aResult = []
+	nLen = len(paList)
+	for i = 1 to nLen
+		if BothAreEqual(paList[i], p)
+			aResult + i
+		ok
+	next
+	return aResult
 
 func ListOfNTimes(n, pItem)
 	aResult = []
@@ -5987,7 +6000,7 @@ func ListOfNTimes(n, pItem)
 #--
 
 func WithoutDuplication(paList)
-	return StzListQ(paList).WithoutDuplication()
+	return UCS(paList, 1)
 
 	func @WithoutDuplication(paList)
 		return WithoutDuplication(paList)
