@@ -596,53 +596,44 @@ class stzLocale from stzObject
 				return
 
 			else
-				pLocale = StzStringQ(pLocale).
-					ReplaceManyQ(["-","_"], "-").
-					Content()
+				pLocale = ring_substr2(pLocale, "_", "-")
 
 				@cAbbreviation = _LocaleNormalizeAbbr(pLocale)
 
 			ok
 
-			pLocale = StzStringQ(pLocale).ReplaceQ("_", "-").Content()
+			pLocale = ring_substr2(pLocale, "_", "-")
 			oLocale = new stzString(pLocale)
 
 			if oLocale.ContainsOneOccurrence("-")
 
 				aParts = oLocale.Split("-")
-				oPart1 = StzStringQ(aParts[1])
-				oPart2 = StzStringQ(aParts[2])
-
-				if oPart1.IsLanguageAbbreviation()
+				if IsLanguageAbbreviation(aParts[1])
 					@cLangAbbreviation = aParts[1]
 
-				but oPart1.IsScriptAbbreviation()
+				but IsScriptAbbreviation(aParts[1])
 					@cScriptAbbreviation = aParts[1]
 				ok
 
-				if oPart2.IsScriptAbbreviation()
+				if IsScriptAbbreviation(aParts[2])
 					@cScriptAbbreviation = aParts[2]
 
-				but oPart2.IsCountryAbbreviation()
+				but IsCountryAbbreviation(aParts[2])
 					@cCountryAbbreviation = aParts[2]
 				ok
 
 			but oLocale.ContainsNTimes(2, "-")
 
 				aParts =  oLocale.Split("-")
-				oPart1 = StzStringQ(aParts[1])
-				oPart2 = StzStringQ(aParts[2])
-				oPart3 = StzStringQ(aParts[3])
-
-				if oPart1.IsLanguageAbbreviation()
+				if IsLanguageAbbreviation(aParts[1])
 					@cLangAbbreviation = aParts[1]
 				ok
 
-				if oPart2.IsScriptAbbreviation()
+				if IsScriptAbbreviation(aParts[2])
 					@cScriptAbbreviation = aParts[2]
 				ok
 
-				if oPart3.IsCountryAbbreviation()
+				if IsCountryAbbreviation(aParts[3])
 					@cCountryAbbreviation = aParts[3]
 				ok
 			ok
@@ -661,15 +652,15 @@ class stzLocale from stzObject
 			cScriptAbbr  = NULL
 			cCountryAbbr = NULL
 
-			if cLangName != NULL and StzStringQ(cLangName).IsLanguageName()
+			if cLangName != NULL and IsLanguageName(cLangName)
 				cLangAbbr = StzLanguageQ(cLangName).Abbreviation()
 			ok
 
-			if cScriptName != NULL and StzStringQ(cScriptName).IsScriptName()
+			if cScriptName != NULL and IsScriptName(cScriptName)
 				cScriptAbbr = StzScriptQ(cScriptName).Abbreviation()
 			ok
 
-			if cCountryName != NULL and StzStringQ(cCountryName).IsCountryName()
+			if cCountryName != NULL and IsCountryName(cCountryName)
 				cCountryAbbr = StzCountryQ(cCountryName).Abbreviation()
 			ok
 
@@ -869,7 +860,8 @@ class stzLocale from stzObject
 		for i = 1 to nLen
 
 			if _aLocaleCountriesXT[i][1] = cNumber
-				cResult = StzStringQ(_aLocaleCountriesXT[i][7]).ReplaceQ("_", " ").Capitalized()
+				cTemp = ring_substr2(_aLocaleCountriesXT[i][7], "_", " ")
+				cResult = upper(left(cTemp, 1)) + substr(cTemp, 2)
 				return cResult
 			ok
 		next
@@ -1439,7 +1431,7 @@ class stzLocale from stzObject
 			return _CurrencyNativeSymbol(cCurrencyName)
 
 		on :NativeName
-			cResult = StzStringQ(cCurrencyName).ReplaceQ("_", " ").Content()
+			cResult = ring_substr2(cCurrencyName, "_", " ")
 			return cResult
 
 		other

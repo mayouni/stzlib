@@ -24,7 +24,7 @@ func HexToDecimalForm(cHex)
 
 func UnicodeHexToDecimalForm(cUnicodeHex)
 	if IsUnicodeHex(cUnicodeHex)
-		cHex = StzStringQ(cUnicodeHex).RemoveFirstNCharsQ(2).Content()
+		cHex = substr(cUnicodeHex, 3)
 		cHex = HexPrefix() + cHex
 		return HexToDecimal(cHex).ToDecimalForm()
 	ok
@@ -49,7 +49,7 @@ func IsHexNumber(cNumber)
 		return IsHexNumber(cNumber)
 
 func IsUnicodeHexNumber(cNumber)
-	return StzStringQ(cNumber).RepresentsNumberInUnicodeHexForm()
+	return StringRepresentsNumberInUnicodeHexForm(cNumber)
 
 	#< @FunctionAlternativeForm
 
@@ -121,20 +121,23 @@ class stzHexNumber from stzObject
 		if cNumber = ""
 			@cHexNumber = ""
 
-		but StzStringQ(cNumber).RepresentsNumberInHexForm()
+		but StringRepresentsNumberInHexForm(cNumber)
 
-			oHexNumber = StzStringQ(cNumber)
+			cTemp = cNumber
 			acHexPrefix = HexPrefixes()
 			nLen = len(acHexPrefix)
 
 			for i = 1 to nLen
-				oHexNumber.RemoveFromLeft(acHexPrefix[i])
+				nPrefLen = len(acHexPrefix[i])
+				if left(cTemp, nPrefLen) = acHexPrefix[i]
+					cTemp = substr(cTemp, nPrefLen + 1)
+				ok
 			next
-				
-			@cHexNumber = oHexNumber.Content()
+
+			@cHexNumber = cTemp
 
 		but StringRepresentsNumberInUnicodeHexForm(cNumber)
-			@cHexNumber = StzStringQ(cNumber).RemoveCSQ( "U+", 0 ).Content()
+			@cHexNumber = ring_substr2(ring_substr2(cNumber, "U+", ""), "u+", "")
 
 		else
 			StzRaise(stzHexNumberError(:CanNotCreateHexNumber))

@@ -145,7 +145,7 @@ class stzBinaryNumber from stzObject
 	#--------------------------------#
 		
 	def IntegerPart()
-		n = StzStringQ(This.BinaryNumber()).FindFirstOccurrence(".")
+		n = ring_substr1(This.BinaryNumber(), ".")
 
 		if n = 0
 			return This.BinaryNumber()
@@ -185,10 +185,20 @@ class stzBinaryNumber from stzObject
 			return This.HasFractionalPart()
 
 	def FractionalPartReversed()
-		return StzStringQ(This.FractionalPart()).Reversed()
+		cStr = This.FractionalPart()
+		cRev = ""
+		for i = len(cStr) to 1 step -1
+			cRev += cStr[i]
+		next
+		return cRev
 
 	def IntegerPartReversed()
-		return StzStringQ(This.IntegerPart()).Reversed()
+		cStr = This.IntegerPart()
+		cRev = ""
+		for i = len(cStr) to 1 step -1
+			cRev += cStr[i]
+		next
+		return cRev
 		
 	  #------------------#
 	 #    CONVERSION    #
@@ -236,7 +246,11 @@ class stzBinaryNumber from stzObject
 			nCurrentTotal = ( nCurrentTotal + (0+ bit) ) / 2
 		next
 
-		return StzStringQ( ""+ nCurrentTotal ).RemoveThisTrailingRepeatedCharQ('0').Content()
+		cStr = "" + nCurrentTotal
+		while len(cStr) > 1 and right(cStr, 1) = "0"
+			cStr = left(cStr, len(cStr) - 1)
+		end
+		return cStr
 
 		def FractionalPartToDecimal()
 			return This.FractionalPartToDecimalForm()

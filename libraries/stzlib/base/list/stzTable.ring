@@ -3552,7 +3552,7 @@ Class stzTable from stzList
 			ok
 		ok
 
-		paValues = StzListQ(paValues).WithoutDuplicationCS(pCaseSensitive)
+		paValues = UCS(paValues, pCaseSensitive)
 		nLen = len(paValues)
 
 		aResult = []
@@ -12564,7 +12564,14 @@ Class stzTable from stzList
 
 		nCols = This.NumberOfCols()
 
-		if NOT StzListQ(1:nCols).ContainsEach(panColNumbers)
+		bAllValid = 1
+		for _i = 1 to len(panColNumbers)
+			if panColNumbers[_i] < 1 or panColNumbers[_i] > nCols
+				bAllValid = 0
+				exit
+			ok
+		next
+		if NOT bAllValid
 			StzRaise("Incorrect param type! numbers in panColNumbers must all be between 1 and " + nCols + ".")
 		ok
 
@@ -13497,7 +13504,7 @@ Class stzTable from stzList
 
 		nCol = This.ColToColNumber(pCol)
 		oLoL = new stzListOfLists( This.Rows() )
-		pcExpr = StzStringQ(pcExpr).ReplaceCSQ("@cell", "@item", 0).Content()
+		pcExpr = ring_substr2(ring_substr2(pcExpr, "@cell", "@item"), "@CELL", "@item")
 
 		oLoL.SortOnBy(nCol, pcExpr)
 
@@ -13609,7 +13616,7 @@ Class stzTable from stzList
 		nCol = This.ColToColNumber(pCol)
 
 		oLoL = new stzListOfLists( This.Rows() )
-		pcExpr = StzStringQ(pcExpr).ReplaceCSQ("@cell", "@item", 0).Content()
+		pcExpr = ring_substr2(ring_substr2(pcExpr, "@cell", "@item"), "@CELL", "@item")
 		oLoL.SortDownOnBy(nCol, pcExpr)
 
 		aRowsSorted = oLol.Content()
