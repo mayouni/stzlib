@@ -2024,7 +2024,7 @@ class stzObject
 		#>
 
 	def SetVarName(pcVarName)
-		if isList(pcVarName) and StzListQ(pcVarName).IsToOrAsNamedParams()
+		if isList(pcVarName) and len(pcVarName) = 2 and isString(pcVarName[1]) and (pcVarName[1] = "to" or pcVarName[1] = "as")
 			pcVarName = pcVarName[2]
 		ok
 
@@ -4553,7 +4553,7 @@ class stzObject
 
 		but This.IsAString()
 			if This.IsNumberInString()
-				cNumber = StzStringQ(This.Content()).RemoveQ("_").Content()
+				cNumber = ring_substr2(This.Content(), "_", "")
 				return 0+ cNumber
 
 			else
@@ -4570,7 +4570,7 @@ class stzObject
 
 		but This.IsAString()
 			if This.IsNumberInString()
-				cNumber = StzStringQ(This.Content()).RemoveQ("_").Content()
+				cNumber = ring_substr2(This.Content(), "_", "")
 				return 0+ cNumber
 
 			else
@@ -5669,10 +5669,10 @@ class stzObject
 			nResult = StzNumberQ(aContent).Size()
 
 		but isString(aContent)
-			nResult = StzStringQ(aContent).Size()
+			nResult = len(aContent)
 
 		but isList(aContent)
-			nResult = StzListQ(aContent).Size()
+			nResult = len(aContent)
 
 		ok
 

@@ -109,7 +109,7 @@ func AreBothLetters(p1, p2)
 func CharsBetween(c1, c2)
 
 	if CheckingParams()
-		if isList(c2) and StzlistQ(c2).IsAndNamedParam()
+		if isList(c2) and len(c2) = 2 and isString(c2[1]) and c2[1] = "and"
 			c2 = c2[2]
 		ok
 
@@ -1174,7 +1174,10 @@ class stzListOfChars from stzListOfStrings
 
 			# Returning the result
 
-			cResult = StzStringQ(cResult).ThisLastCharRemoved(NL)
+			# Remove trailing newline
+			if len(cResult) > 0 and right(cResult, len(NL)) = NL
+				cResult = substr(cResult, 1, len(cResult) - len(NL))
+			ok
 			return cResult
 			
 
