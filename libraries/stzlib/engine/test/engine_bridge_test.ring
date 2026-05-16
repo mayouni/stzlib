@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 204 Registered Functions"
+? "Engine Full Bridge Test -- All 208 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1805,6 +1805,38 @@ pR = StzEngineStringCollapseSpaces(pStr)
 Assert("CollapseSpaces", StzEngineStringData(pR), "hello world")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 91: IsAnagram / Mask / CountRuns / HammingDistance
+# ==============================================================
+
+? ""
+? "--- Group 91: IsAnagram / Mask / CountRuns / HammingDistance ---"
+
+pStr1 = StzEngineStringFrom("listen")
+pStr2 = StzEngineStringFrom("silent")
+Assert("IsAnagram listen/silent", StzEngineStringIsAnagram(pStr1, pStr2), 1)
+StzEngineStringFree(pStr2)
+pStr2 = StzEngineStringFrom("hello")
+Assert("IsAnagram listen/hello", StzEngineStringIsAnagram(pStr1, pStr2), 0)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr1)
+
+pStr = StzEngineStringFrom("hello@mail.com")
+pR = StzEngineStringMask(pStr, "*", 2)
+Assert("Mask keep 2", StzEngineStringData(pR), "he**********om")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("aabbbcc")
+Assert("CountRuns aabbbcc", StzEngineStringCountRuns(pStr), 3)
+StzEngineStringFree(pStr)
+
+pStr1 = StzEngineStringFrom("karolin")
+pStr2 = StzEngineStringFrom("kathrin")
+Assert("HammingDistance", StzEngineStringHammingDistance(pStr1, pStr2), 3)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr1)
 
 # ==============================================================
 #  SUMMARY

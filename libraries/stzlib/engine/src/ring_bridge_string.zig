@@ -1480,6 +1480,31 @@ fn ring_StringCollapseSpaces(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_collapse_spaces(h)), STZ_HANDLE);
 }
 
+fn ring_StringIsAnagram(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_anagram(h1, h2)));
+}
+
+fn ring_StringMask(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const mask = ring_vm_api_getstring(p, 2);
+    const mask_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const keep: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_mask(h, mask, mask_len, keep)), STZ_HANDLE);
+}
+
+fn ring_StringCountRuns(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_runs(h)));
+}
+
+fn ring_StringHammingDistance(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_hamming_distance(h1, h2)));
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1688,6 +1713,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringdecodehex", .func = &ring_StringDecodeHex },
     .{ .name = "stzenginestringreversewords", .func = &ring_StringReverseWords },
     .{ .name = "stzenginestringcollapsespaces", .func = &ring_StringCollapseSpaces },
+    .{ .name = "stzenginestringisanagram", .func = &ring_StringIsAnagram },
+    .{ .name = "stzenginestringmask", .func = &ring_StringMask },
+    .{ .name = "stzenginestringcountruns", .func = &ring_StringCountRuns },
+    .{ .name = "stzenginestringhammingdistance", .func = &ring_StringHammingDistance },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
