@@ -32,6 +32,48 @@ func StzListQ(paList)
 
 #===
 
+func _ListSortingOrder(paList)
+	nLen = len(paList)
+	if nLen < 2
+		return :Unsorted
+	ok
+
+	bAsc = 1
+	bDesc = 1
+
+	for i = 1 to nLen - 1
+		if isNumber(paList[i]) and isNumber(paList[i+1])
+			if paList[i] > paList[i+1]
+				bAsc = 0
+			ok
+			if paList[i] < paList[i+1]
+				bDesc = 0
+			ok
+		but isString(paList[i]) and isString(paList[i+1])
+			if strcmp(paList[i], paList[i+1]) > 0
+				bAsc = 0
+			ok
+			if strcmp(paList[i], paList[i+1]) < 0
+				bDesc = 0
+			ok
+		else
+			return :Unsorted
+		ok
+		if bAsc = 0 and bDesc = 0
+			return :Unsorted
+		ok
+	next
+
+	if bAsc = 1
+		return :Ascending
+	ok
+	if bDesc = 1
+		return :Descending
+	ok
+	return :Unsorted
+
+#===
+
 func DeepContainsCS(paList, pItem, pCaseSensitive)
 	return StzListQ(paList).DeepContainsCS(pItem, pCaseSensitive)
 
@@ -5452,17 +5494,25 @@ func AreEqualCS(paValues, pCaseSensitive)
 		StzRaise("Incorrect param type! paValues must be a list.")
 	ok
 
-	#NOTE
-	# A beautiful way to solve it the Softanza way:
-
-	if StzListQ(paValues).
-	   RemoveDuplicatesCSQ(pCaseSensitive).
-	   NumberOfItems() = 1
-
+	# Check if all items are equal (inline without allocation)
+	nLen = len(paValues)
+	if nLen < 2
 		return 1
-	else
-		return 0
 	ok
+
+	bCaseSensitive = CaseSensitive(pCaseSensitive)
+	for _k = 2 to nLen
+		if bCaseSensitive
+			if NOT BothAreEqual(paValues[1], paValues[_k])
+				return 0
+			ok
+		else
+			if NOT BothAreEqualCS(paValues[1], paValues[_k], 0)
+				return 0
+			ok
+		ok
+	next
+	return 1
 
 	#NOTE //~> I left the old code commented so you can see
 	# how mutch Softanza can optimise the codebase
@@ -10617,7 +10667,7 @@ class stzList from stzObject
 
 		# Doing the job
 
-		paItems = StzListQ(paItems).WithoutDuplication()	
+		paItems = UCS(paItems, 1)
 		nLenItems = len(paItems)
 		nLenNewItems = len(paNewItems)
 
@@ -10806,7 +10856,7 @@ class stzList from stzObject
 
 		# Doing the job
 
-		aItems = StzListQ(paItems).WithoutDupplication()
+		aItems = UCS(paItems, 1)
 		nLenItems = len(paItems)
 		nLenNewItems = len(paNewItems)
 
@@ -13849,8 +13899,15 @@ class stzList from stzObject
 
 		next
 
-		aItems = StzListQ(aItems).SortedInDescending()
-	
+		aItems = sort(aItems)
+		# Reverse to get descending
+		nLenItems = len(aItems)
+		aDesc = []
+		for _k = nLenItems to 1 step -1
+			aDesc + aItems[_k]
+		next
+		aItems = aDesc
+
 		i = 0
 		for @Position in anPos
 			i++
@@ -30300,7 +30357,7 @@ class stzList from stzObject
 			return 1
 		ok
 
-		nDif = abs(This.NumberOfItems() - StzListQ(paOtherList).NumberOfItems())
+		nDif = abs(This.NumberOfItems() - len(paOtherList))
 		n = nDif / This.NumberOfItems()
 		
 		if n < QuietEqualityRatio() # 0.09 by default, can be changed with SetQuietEqualityRatio(n)
@@ -30377,7 +30434,7 @@ class stzList from stzObject
 			ok
 		ok
 
-		if This.SortingOrder() = StzListQ(paOtherList).SortingOrder()
+		if This.SortingOrder() = _ListSortingOrder(paOtherList)
 			return 1
 		else
 			return 0
@@ -30904,13 +30961,23 @@ class stzList from stzObject
 
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
+		# Stringify paOtherList inline
+		_nOLen = len(paOtherList)
+		_acOther = []
+		for _k = 1 to _nOLen
+			_acOther + ("" + paOtherList[_k])
+		next
+
 		if bCaseSensitive = 0
 			acList1 = This.StringifyQ().SortQ().Lowercased()
-			acList2 = StzListQ(paOtherList).StringifyQ().SortQ().Lowercased()
+			acList2 = sort(_acOther)
+			for _k = 1 to len(acList2)
+				acList2[_k] = lower(acList2[_k])
+			next
 
 		else
 			acList1 = This.StringifyQ().Sorted()
-			acList2 = StzListQ(paOtherList).StringifyQ().Sorted()
+			acList2 = sort(_acOther)
 		ok
 
 		bresult = 1
@@ -31934,13 +32001,15 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(paPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(paPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ @aContent ] ]
+			ok
 		ok
 
 		# Preparing the data for case sensitivity
@@ -32470,13 +32539,15 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(paPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(paPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ @aContent ] ]
+			ok
 		ok
 
 		# Preparing the data for case sensitivity
@@ -33168,7 +33239,21 @@ class stzList from stzObject
 		aThisListU = @UniqueCS(This.Content(), pCaseSensitive)
 		aoThisListU = @Objectify(aThisListU)
 
-		aOtherListU = @UniqueCS( StzListQ(paOtherList).TheseItemsRemovedCS(aThisListU, pCaseSensitive) , pCaseSensitive)
+		# Inline: items in paOtherList that are not in aThisListU
+			_aFiltered = []
+			for _k = 1 to len(paOtherList)
+				_bInThis = 0
+				for _j = 1 to len(aThisListU)
+					if BothAreEqualCS(paOtherList[_k], aThisListU[_j], pCaseSensitive)
+						_bInThis = 1
+						exit
+					ok
+				next
+				if _bInThis = 0
+					_aFiltered + paOtherList[_k]
+				ok
+			next
+			aOtherListU = @UniqueCS(_aFiltered, pCaseSensitive)
 		aoOtherListU = @Objectify(aOtherListU)
 
 		nLenThis = len(aThisListU)
@@ -33229,7 +33314,21 @@ class stzList from stzObject
 		aThisListU = @UniqueCS(This.Content(), pCaseSensitive)
 		aoThisListU = @Objectify(aThisListU)
 
-		aOtherListU = @UniqueCS( StzListQ(paOtherList).TheseItemsRemovedCS(aThisListU, pCaseSensitive) , pCaseSensitive)
+		# Inline: items in paOtherList that are not in aThisListU
+			_aFiltered = []
+			for _k = 1 to len(paOtherList)
+				_bInThis = 0
+				for _j = 1 to len(aThisListU)
+					if BothAreEqualCS(paOtherList[_k], aThisListU[_j], pCaseSensitive)
+						_bInThis = 1
+						exit
+					ok
+				next
+				if _bInThis = 0
+					_aFiltered + paOtherList[_k]
+				ok
+			next
+			aOtherListU = @UniqueCS(_aFiltered, pCaseSensitive)
 		aoOtherListU = @Objectify(aOtherListU)
 
 		nLenThis = len(aThisListU)
@@ -43210,7 +43309,23 @@ class stzList from stzObject
 	
 	def EachItemExistsInCS(paOtherList, pCaseSensitive)
 
-		bResult = StzListQ(paOtherList).ContainsEachCS(This.List(), pCaseSensitive)
+		# Inline: check that paOtherList contains each item in This
+		bResult = 1
+		aContent = This.List()
+		nLen = len(aContent)
+		for _k = 1 to nLen
+			bFound = 0
+			for _j = 1 to len(paOtherList)
+				if BothAreEqualCS(aContent[_k], paOtherList[_j], pCaseSensitive)
+					bFound = 1
+					exit
+				ok
+			next
+			if bFound = 0
+				bResult = 0
+				exit
+			ok
+		next
 
 		return bResult
 
@@ -44911,7 +45026,11 @@ fdef
 	
 			ok
 	
-			acContent = StzListQ(This.Content()).Stringified()
+			aContent = This.Content()
+			acContent = []
+			for _k = 1 to len(aContent)
+				acContent + ("" + aContent[_k])
+			next
 			nLen = len(acContent)
 	
 			# Managing case sensitivity
@@ -45350,7 +45469,11 @@ fdef
 				cItem = Q(pItem).Stringified()
 			ok
 	
-			acContent = StzListQ(This.Content()).Stringified()
+			aContent = This.Content()
+			acContent = []
+			for _k = 1 to len(aContent)
+				acContent + ("" + aContent[_k])
+			next
 			nLen = len(acContent)
 	
 			# Managing case sensitivity
@@ -55193,7 +55316,7 @@ fdef
 					n2 = n1
 
 				else
-					nLen2 = StzStringQ(n2).NumberOfItems()
+					nLen2 = len(n2)
 					n2 = This.FindLastCS(n2, pCaseSensitive) + nLen2 - 1
 				ok
 			ok
@@ -64681,7 +64804,7 @@ fdef
 				aResult + n
 
 			but isString(aContent[i])
-				cNumber = StzStringQ(acontent[i]).RemoveQ("_").Content()
+				cNumber = ring_substr2(aContent[i], "_", "")
 				n = 0+ cNumber
 				aResult + n
 				
@@ -71041,7 +71164,7 @@ fdef
 
 		aResult = []
 
-		pcCondition = StzStringQ(pcCondition).TrimQ().TheseBoundsRemoved( "{","}" )
+		pcCondition = _StzStripBraces(pcCondition)
 
 		if Q(pcCondition).ContainsCS("@Item", 0)
 
@@ -71477,9 +71600,9 @@ fdef
 		ok
 
 		acSplits = This.SplitsAtPositions(anPos)
-		
+
 		for i = 1 to n-1
-			nLen = StzStringQ(acSplits[i]).NumberOfItems()
+			nLen = len(acSplits[i])
 			nResult += ( nLen + 1 )
 		next
 
@@ -71530,11 +71653,11 @@ fdef
 			return 1
 		ok
 
-		nLenSubStr = StzStringQ(pItem).NumberOfItems()
+		nLenSubStr = len(pItem)
 		acSplits = This.SplitsAtItemCS(pItem, pCaseSensitive)
-		
+
 		for i = 1 to n-1
-			nLen = StzStringQ(acSplits[i]).NumberOfItems()
+			nLen = len(acSplits[i])
 			nResult += ( nLen + nLenSubStr )
 		next
 
@@ -71629,10 +71752,10 @@ fdef
 		ok
 
 		acSplits = This.SplitsAtItemCS(pItem, pCaseSensitive)
-		
+
 		for i = 1 to n-1
-			nLen = StzStringQ(acSplits[i]).NumberOfItems()
-			nLenSubStr = StzStringQ(paItems[i]).NumberOfItems()
+			nLen = len(acSplits[i])
+			nLenSubStr = len(paItems[i])
 			nResult += ( nLen + nLenSubStr )
 		next
 
