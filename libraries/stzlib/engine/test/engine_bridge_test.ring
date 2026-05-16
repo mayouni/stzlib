@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 127 Registered Functions"
+? "Engine Full Bridge Test -- All 133 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1106,6 +1106,58 @@ pR = StzEngineStringRemoveConsecutiveDuplicates(pStr)
 Assert("RemoveConsecDups hello", StzEngineStringData(pR), "helo")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
+
+# --- Group 50: Substring ---
+? "--- Group 50: Substring ---"
+pStr = StzEngineStringFrom("Hello World", 11)
+pSub = StzEngineStringSubstring(pStr, 0, 4)
+Assert("Substring 0-4", StzEngineStringData(pSub), "Hello")
+StzEngineStringFree(pSub)
+pSub = StzEngineStringSubstring(pStr, 6, 10)
+Assert("Substring 6-10", StzEngineStringData(pSub), "World")
+StzEngineStringFree(pSub)
+StzEngineStringFree(pStr)
+
+# --- Group 51: ReplaceSubstring ---
+? "--- Group 51: ReplaceSubstring ---"
+pStr = StzEngineStringFrom("Hello World", 11)
+pR = StzEngineStringReplaceSubstring(pStr, 6, 10, "Zig", 3)
+Assert("ReplaceSubstring", StzEngineStringData(pR), "Hello Zig")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 52: PrefixCount, SuffixCount ---
+? "--- Group 52: PrefixCount, SuffixCount ---"
+pStr = StzEngineStringFrom("ababab", 6)
+Assert("PrefixCount ab", StzEngineStringPrefixCount(pStr, "ab"), 3)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("xyzxyzxyz", 9)
+Assert("SuffixCount xyz", StzEngineStringSuffixCount(pStr, "xyz"), 3)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello", 5)
+Assert("PrefixCount h", StzEngineStringPrefixCount(pStr, "h"), 1)
+Assert("SuffixCount o", StzEngineStringSuffixCount(pStr, "o"), 1)
+StzEngineStringFree(pStr)
+
+# --- Group 53: CommonPrefix, CommonSuffix ---
+? "--- Group 53: CommonPrefix, CommonSuffix ---"
+pStr1 = StzEngineStringFrom("hello world", 11)
+pStr2 = StzEngineStringFrom("hello there", 11)
+pCP = StzEngineStringCommonPrefix(pStr1, pStr2)
+Assert("CommonPrefix", StzEngineStringData(pCP), "hello ")
+StzEngineStringFree(pCP)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr1)
+
+pStr1 = StzEngineStringFrom("testing", 7)
+pStr2 = StzEngineStringFrom("working", 7)
+pCS = StzEngineStringCommonSuffix(pStr1, pStr2)
+Assert("CommonSuffix", StzEngineStringData(pCS), "ing")
+StzEngineStringFree(pCS)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr1)
 
 # ==============================================================
 #  SUMMARY
