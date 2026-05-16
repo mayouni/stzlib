@@ -50,7 +50,29 @@ class stzListSorterXT from stzListSorter
 
 				# Classify aliases
 				[:Categorize,			:Classify],
-				[:Categorise,			:Classify]
+				[:Categorise,			:Classify],
+
+				# Min/Max aliases
+				[:Minimum,			:Min],
+				[:Maximum,			:Max],
+				[:SmallestItem,			:Min],
+				[:LargestItem,			:Max],
+				[:MinAndMax,			:MinMax],
+
+				# Ranked aliases
+				[:Ranks,			:Ranked],
+				[:OrdinalPositions,		:Ranked],
+
+				# NthSmallest/Largest aliases
+				[:NthMin,			:NthSmallest],
+				[:NthMax,			:NthLargest],
+
+				# SortedBy aliases
+				[:OrderedBy,			:SortedBy],
+				[:ArrangedBy,			:SortedBy],
+
+				# Median alias
+				[:MiddleValue,			:Median]
 			]
 
 			nLen = len(aAliases)
