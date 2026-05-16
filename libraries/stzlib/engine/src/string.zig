@@ -1371,6 +1371,53 @@ pub fn stz_string_is_palindrome(handle: StzStringHandle) callconv(.c) c_int {
     return 0;
 }
 
+/// Check if string contains only ASCII characters (bytes 0-127). Returns 1 or 0.
+pub fn stz_string_is_ascii(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        if (bytes.len == 0) return 1;
+        for (bytes) |b| {
+            if (b > 127) return 0;
+        }
+        return 1;
+    }
+    return 1;
+}
+
+/// Remove a single codepoint at the given 0-based codepoint index. Returns new handle.
+pub fn stz_string_remove_char_at(handle: StzStringHandle, cp_index: usize) callconv(.c) StzStringHandle {
+    return stz_string_remove_range(handle, cp_index, 1);
+}
+
+/// Return the character type at a 0-based codepoint index.
+/// Returns: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct, -1=invalid
+pub fn stz_string_char_type_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
+    if (handle) |s| {
+        const src = s.slice();
+        if (cp_index < 0) return -1;
+        const idx: usize = @intCast(cp_index);
+        const byte_offset = codepointIndexToByteOffset(src, idx);
+        if (byte_offset >= src.len) return -1;
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[byte_offset]) catch return -1;
+        const cp_slice = src[byte_offset..@min(byte_offset + cp_len, src.len)];
+        const cp_val: i32 = blk: {
+            if (cp_len == 1) break :blk @intCast(cp_slice[0]);
+            if (cp_len == 2 and cp_slice.len >= 2) break :blk @intCast((@as(u21, cp_slice[0] & 0x1F) << 6) | (cp_slice[1] & 0x3F));
+            if (cp_len == 3 and cp_slice.len >= 3) break :blk @intCast((@as(u21, cp_slice[0] & 0x0F) << 12) | (@as(u21, cp_slice[1] & 0x3F) << 6) | (cp_slice[2] & 0x3F));
+            if (cp_len == 4 and cp_slice.len >= 4) break :blk @intCast((@as(u21, cp_slice[0] & 0x07) << 18) | (@as(u21, cp_slice[1] & 0x3F) << 12) | (@as(u21, cp_slice[2] & 0x3F) << 6) | (cp_slice[3] & 0x3F));
+            break :blk -1;
+        };
+        if (cp_val < 0) return -1;
+        if (unicode.stz_unicode_is_upper(cp_val) == 1) return 3;
+        if (unicode.stz_unicode_is_lower(cp_val) == 1) return 4;
+        if (unicode.stz_unicode_is_letter(cp_val) == 1) return 0;
+        if (unicode.stz_unicode_is_digit(cp_val) == 1) return 1;
+        if (unicode.stz_unicode_is_space(cp_val) == 1) return 2;
+        return 5; // punctuation/other
+    }
+    return -1;
+}
+
 /// Concatenate two strings, returning a new handle.
 pub fn stz_string_concat(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) StzStringHandle {
     const result = stz_string_new() orelse return null;
@@ -2204,4 +2251,34 @@ test "concat" {
     stz_string_free(r);
     stz_string_free(h1);
     stz_string_free(h2);
+}
+
+test "is_ascii" {
+    const ascii = stz_string_from("Hello 123!", 10);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_ascii(ascii));
+    stz_string_free(ascii);
+
+    const uni = stz_string_from("caf\xC3\xA9", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_ascii(uni));
+    stz_string_free(uni);
+}
+
+test "remove_char_at" {
+    const s = stz_string_from("abcde", 5);
+    // Remove 'c' at index 2
+    const r = stz_string_remove_char_at(s, 2);
+    try std.testing.expectEqual(@as(usize, 4), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..4], "abde"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "char_type_at" {
+    const s = stz_string_from("A1 z!", 5);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_char_type_at(s, 0)); // 'A' = upper
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_char_type_at(s, 1)); // '1' = digit
+    try std.testing.expectEqual(@as(c_int, 2), stz_string_char_type_at(s, 2)); // ' ' = space
+    try std.testing.expectEqual(@as(c_int, 4), stz_string_char_type_at(s, 3)); // 'z' = lower
+    try std.testing.expectEqual(@as(c_int, 5), stz_string_char_type_at(s, 4)); // '!' = punct
+    stz_string_free(s);
 }
