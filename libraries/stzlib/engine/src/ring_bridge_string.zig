@@ -932,6 +932,80 @@ fn ring_StringReplaceChar(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+// ─── RemovePrefix ───
+
+fn ring_StringRemovePrefix(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pfx = ring_vm_api_getstring(p, 2);
+    const pfx_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_prefix(h, pfx, pfx_len)), STZ_HANDLE);
+}
+
+// ─── RemoveSuffix ───
+
+fn ring_StringRemoveSuffix(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const sfx = ring_vm_api_getstring(p, 2);
+    const sfx_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_suffix(h, sfx, sfx_len)), STZ_HANDLE);
+}
+
+// ─── EnsurePrefix ───
+
+fn ring_StringEnsurePrefix(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pfx = ring_vm_api_getstring(p, 2);
+    const pfx_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_ensure_prefix(h, pfx, pfx_len)), STZ_HANDLE);
+}
+
+// ─── EnsureSuffix ───
+
+fn ring_StringEnsureSuffix(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const sfx = ring_vm_api_getstring(p, 2);
+    const sfx_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_ensure_suffix(h, sfx, sfx_len)), STZ_HANDLE);
+}
+
+// ─── SqueezeChar ───
+
+fn ring_StringSqueezeChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_squeeze_char(h, cp)), STZ_HANDLE);
+}
+
+// ─── CapitalizeFirst ───
+
+fn ring_StringCapitalizeFirst(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_capitalize_first(h)), STZ_HANDLE);
+}
+
+// ─── DecapitalizeFirst ───
+
+fn ring_StringDecapitalizeFirst(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_decapitalize_first(h)), STZ_HANDLE);
+}
+
+// ─── ZFill ───
+
+fn ring_StringZFill(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_zfill(h, width)), STZ_HANDLE);
+}
+
+// ─── TabExpand ───
+
+fn ring_StringTabExpand(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const tw: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_tab_expand(h, tw)), STZ_HANDLE);
+}
+
 // ─── RepeatChar ───
 
 fn ring_StringRepeatChar(p: *anyopaque) callconv(.c) void {
@@ -1189,6 +1263,15 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringinsertaftereach", .func = &ring_StringInsertAfterEach },
     .{ .name = "stzenginestringtruncate", .func = &ring_StringTruncate },
     .{ .name = "stzenginestringwrapat", .func = &ring_StringWrapAt },
+    .{ .name = "stzenginestringremoveprefix", .func = &ring_StringRemovePrefix },
+    .{ .name = "stzenginestringremovesuffix", .func = &ring_StringRemoveSuffix },
+    .{ .name = "stzenginestringensureprefix", .func = &ring_StringEnsurePrefix },
+    .{ .name = "stzenginestringensuresuffix", .func = &ring_StringEnsureSuffix },
+    .{ .name = "stzenginestringsqueezechar", .func = &ring_StringSqueezeChar },
+    .{ .name = "stzenginestringcapitalizefirst", .func = &ring_StringCapitalizeFirst },
+    .{ .name = "stzenginestringdecapitalizefirst", .func = &ring_StringDecapitalizeFirst },
+    .{ .name = "stzenginestringzfill", .func = &ring_StringZFill },
+    .{ .name = "stzenginestringtabexpand", .func = &ring_StringTabExpand },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
