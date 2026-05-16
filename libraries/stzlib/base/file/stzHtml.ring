@@ -36,7 +36,7 @@ func HtmlQ(pcHtmlOrFile)
 		return HtmlQ(pcHtmlOrFile)
 
 func IsHtml(pcStr)
-	return StzStringQ(pcStr).Contains("<html") or StzStringQ(pcStr).Contains("<!DOCTYPE html")
+	return substr(pcStr, "<html") > 0 or substr(pcStr, "<!DOCTYPE html") > 0
 
 	func @IsHtml(pcStr)
 		return IsHtml(pcStr)

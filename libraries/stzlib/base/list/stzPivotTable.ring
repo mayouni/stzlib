@@ -1155,8 +1155,7 @@ class stzPivotTable from stzList
 		for i = 1 to nDataColsLen
 			colIdx = aDataCols[i]
 			colHeader = aHeaderRow[colIdx]
-			oDim = StzStringQ(colHeader)
-			capitalized = Upper(Left(colHeader, 1)) + oDim.Section(2, oDim.NumberOfChars())
+			capitalized = Upper(Left(colHeader, 1)) + substr(colHeader, 2)
 			cLine += CenterText(capitalized, aDataColWidths[i])
 		
 			if i < nDataColsLen
@@ -1531,8 +1530,7 @@ class stzPivotTable from stzList
 		
 		for i = 1 to nRowDimsLen
 			dim = aRowDims[i]
-			oDim = StzStringQ(dim)
-			capitalized = Upper(Left(dim, 1)) + oDim.Section(2, oDim.NumberOfChars())
+			capitalized = Upper(Left(dim, 1)) + substr(dim, 2)
 			cLine += CenterText(capitalized, aRowLabelWidths[i])
 			
 			if i < nRowDimsLen
@@ -1799,7 +1797,8 @@ class stzPivotTable from stzList
 			cOutput += cLine
 		ok
 
-		? StzStringQ(trim(cOutput)).LastCharRemoved() + NL
+		cTrimmed = trim(cOutput)
+		? left(cTrimmed, len(cTrimmed) - 1) + NL
 
 	#-------------------------------------#
 	#  2D PIVOT TABLE DISPLAY - eXTended  #
@@ -2148,8 +2147,7 @@ class stzPivotTable from stzList
 		
 		for i = 1 to nRowDimsLen
 			dim = aRowDims[i]
-			oDim = StzStringQ(dim)
-			capitalized = Upper(Left(dim, 1)) + oDim.Section(2, oDim.NumberOfChars())
+			capitalized = Upper(Left(dim, 1)) + substr(dim, 2)
 			cLine += CenterText(capitalized, aRowLabelWidths[i])
 			
 			if i < nRowDimsLen
@@ -2489,7 +2487,8 @@ class stzPivotTable from stzList
 			cOutput += cLine
 		ok
 	
-		? StzStringQ(trim(cOutput)).LastCharRemoved() + NL
+		cTrimmed = trim(cOutput)
+		? left(cTrimmed, len(cTrimmed) - 1) + NL
 	
 	  #------------------------------------------#
 	 #  1D Rows 2D Columns Pivot Table Display  #
@@ -2965,7 +2964,8 @@ class stzPivotTable from stzList
 			# No final bottom border after totals
 		ok
 
-		? StzStringQ(trim(cOutput)).LastCharRemoved() + NL
+		cTrimmed = trim(cOutput)
+		? left(cTrimmed, len(cTrimmed) - 1) + NL
 
 	  #------------------------------------------#
 	 #  2D Rows 1D Columns Pivot Table Display  #

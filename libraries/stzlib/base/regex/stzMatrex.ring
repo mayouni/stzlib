@@ -1032,7 +1032,7 @@ def ParseConjunction(cTokenStr)
 	#---------------------------#
 	
 	def MatchingMatrices(paMatrices)
-		if CheckParams() and isList(paMatrices) and StzListQ(paMatrices).IsInNamedPAram()
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1059,7 +1059,7 @@ def ParseConjunction(cTokenStr)
 		# Find all matrices in a list that match the pattern
 		# and retyurning their positions in paMatrices
 
-		if CheckParams() and isList(paMatrices) and StzListQ(paMatrices).IsInNamedPAram()
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1083,7 +1083,7 @@ def ParseConjunction(cTokenStr)
 
 	def CountMatchingMatrices(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and StzListQ(paMatrices).IsInNamedPAram()
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1107,7 +1107,7 @@ def ParseConjunction(cTokenStr)
 
 	def FirstMatchingMatrix(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and StzListQ(paMatrices).IsInNamedPAram()
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1130,7 +1130,7 @@ def ParseConjunction(cTokenStr)
 
 	def FindFirstMatchingMatrix(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and StzListQ(paMatrices).IsInNamedPAram()
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1153,7 +1153,7 @@ def ParseConjunction(cTokenStr)
 
 	def MatchesNone(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and StzListQ(paMatrices).IsInNamedPAram()
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1176,7 +1176,7 @@ def ParseConjunction(cTokenStr)
 
 	def MatchesAll(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and StzListQ(paMatrices).IsInNamedPAram()
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1225,10 +1225,10 @@ def ParseConjunction(cTokenStr)
 	def SimilarityScore(aMatrix1, aMatrix2)
 
 		if CheckParams()
-			if isList(aMatrix1) and StzListQ(aMatrix1).IsBetweenNamedPAram()
+			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and lower(aMatrix1[1]) = "between"
 				aMatix1 = aMatrix1[2]
 			ok
-			if isList(aMatrix1) and StzListQ(aMatrix1).IsAndNamedPAram()
+			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and lower(aMatrix1[1]) = "and"
 				aMatix1 = aMatrix1[2]
 			ok
 		ok
@@ -1270,10 +1270,10 @@ def ParseConjunction(cTokenStr)
 		# Get the matrix in the list most similar to target
 		
 		if CheckParams()
-			if isList(aTargetMatrix) and StzListQ(aTargetMatrix).IsToNamedPAram()
+			if isList(aTargetMatrix) and len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and lower(aTargetMatrix[1]) = "to"
 				aTargetMatrix = aTargetMatrix[2]
 			ok
-			if isList(paMatrices) and StzListQ(paMatrices).IsInNamedPAram()
+			if isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
 				paMatrices = paMatrices[2]
 			ok
 		ok
@@ -1309,10 +1309,10 @@ def ParseConjunction(cTokenStr)
 		# and return its position in paMatrices
 		
 		if CheckParams()
-			if isList(aTargetMatrix) and StzListQ(aTargetMatrix).IsToNamedPAram()
+			if isList(aTargetMatrix) and len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and lower(aTargetMatrix[1]) = "to"
 				aTargetMatrix = aTargetMatrix[2]
 			ok
-			if isList(paMatrices) and StzListQ(paMatrices).IsInNamedPAram()
+			if isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
 				paMatrices = paMatrices[2]
 			ok
 		ok
