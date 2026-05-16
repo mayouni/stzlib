@@ -43,7 +43,33 @@ class stzListFlattenerXT from stzListFlattener
 				[:ContainsRepeatedLeadingItems,		:HasRepeatedLeadingItemsCS],
 
 				# Stringify aliases
-				[:StringifyList,	:Stringify]
+				[:StringifyList,	:Stringify],
+
+				# DeepFlatten aliases
+				[:DeepFlat,		:DeepFlatten],
+				[:FullyFlattened,	:DeepFlattened],
+				[:FullyFlatten,		:DeepFlatten],
+
+				# FlattenToDepth aliases
+				[:FlattenDepth,		:FlattenToDepth],
+				[:FlattenLevel,		:FlattenToDepth],
+				[:FlattenedDepth,	:FlattenedToDepth],
+				[:FlattenedLevel,	:FlattenedToDepth],
+
+				# Paired aliases
+				[:AsPairs,		:Paired],
+				[:ToPairs,		:Paired],
+				[:GroupedInPairs,	:Paired],
+
+				# Chunked aliases
+				[:GroupedInto,		:Chunked],
+				[:SplitInto,		:Chunked],
+				[:InGroupsOf,		:Chunked],
+
+				# Interleave aliases
+				[:MergedWith,		:InterleavedWith],
+				[:InterlacedWith,	:InterleavedWith],
+				[:ZippedWith,		:InterleavedWith]
 			]
 
 			nLen = len(aAliases)

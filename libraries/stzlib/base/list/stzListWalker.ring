@@ -196,3 +196,116 @@ class stzListWalker from stzList
 		next
 
 		return anResult
+
+	  #=================================#
+	 #  WALKING IN ZIGZAG PATTERN      #
+	#=================================#
+
+	def WalkZigZag(nStep)
+		nLen = This.NumberOfItems()
+		anResult = []
+		bForward = 1
+		i = 1
+
+		while i >= 1 and i <= nLen
+			anResult + i
+			if bForward
+				i += nStep
+				if i > nLen
+					i = nLen
+					bForward = 0
+				ok
+			else
+				i -= nStep
+				if i < 1
+					exit
+				ok
+			ok
+		end
+
+		return anResult
+
+	  #==================================#
+	 #  WALKING EVERY NTH POSITION      #
+	#==================================#
+
+	def WalkEveryNth(n)
+		nLen = This.NumberOfItems()
+		anResult = []
+
+		for i = n to nLen step n
+			anResult + i
+		next
+
+		return anResult
+
+		def WalkEach(n)
+			return This.WalkEveryNth(n)
+
+	  #======================================#
+	 #  POSITIONS WHERE CONDITION IS TRUE   #
+	#======================================#
+
+	def PositionsWhere(pcCondition)
+		return This.WalkW(pcCondition)
+
+		def PositionsW(pcCondition)
+			return This.PositionsWhere(pcCondition)
+
+	  #==============================#
+	 #  WALK BETWEEN TWO VALUES     #
+	#==============================#
+
+	def WalkFromTo(nFrom, nTo)
+		anResult = []
+		if nFrom <= nTo
+			for i = nFrom to nTo
+				anResult + i
+			next
+		else
+			for i = nFrom to nTo step -1
+				anResult + i
+			next
+		ok
+		return anResult
+
+	  #==============================#
+	 #  WALK SKIPPING N ITEMS       #
+	#==============================#
+
+	def WalkSkipping(n)
+		nLen = This.NumberOfItems()
+		anResult = []
+
+		i = 1
+		while i <= nLen
+			anResult + i
+			i += (n + 1)
+		end
+
+		return anResult
+
+		def WalkSkip(n)
+			return This.WalkSkipping(n)
+
+	  #=================================#
+	 #  WALK WITH CUSTOM ACCUMULATOR   #
+	#=================================#
+
+	def WalkAccumulating(pcExpr)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+		@Acc = 0
+
+		for @i = 1 to nLen
+			@item = aContent[@i]
+			cCode = '@Acc = (' + pcExpr + ')'
+			eval(cCode)
+			aResult + @Acc
+		next
+
+		return aResult
+
+		def WalkAccumulate(pcExpr)
+			return This.WalkAccumulating(pcExpr)
