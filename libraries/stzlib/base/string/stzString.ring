@@ -330,6 +330,25 @@ class stzString from stzObject
 		def InKebabCase()
 			return This.KebabCased()
 
+	def ToPascalCase()
+		pResult = StzEngineStringToPascalCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToPascalCaseQ()
+			This.ToPascalCase()
+			return This
+
+	def PascalCased()
+		pResult = StzEngineStringToPascalCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def InPascalCase()
+			return This.PascalCased()
+
 	  #==================================#
 	 #  SWAP CASE (UPPER <-> LOWER)     #
 	#==================================#
@@ -486,6 +505,78 @@ class stzString from stzObject
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return cResult
+
+	  #=========================#
+	 #  ROTATE                 #
+	#=========================#
+
+	def Rotate(n)
+		pResult = StzEngineStringRotate(@pEngine, n)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RotateQ(n)
+			This.Rotate(n)
+			return This
+
+	def Rotated(n)
+		pResult = StzEngineStringRotate(@pEngine, n)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def RotatedLeft(n)
+			return This.Rotated(n)
+
+		def RotatedRight(n)
+			return This.Rotated(-n)
+
+	  #==============================#
+	 #  REPEAT TO LENGTH            #
+	#==============================#
+
+	def RepeatToLength(nLen)
+		pResult = StzEngineStringRepeatToLength(@pEngine, nLen)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RepeatToLengthQ(nLen)
+			This.RepeatToLength(nLen)
+			return This
+
+	def RepeatedToLength(nLen)
+		pResult = StzEngineStringRepeatToLength(@pEngine, nLen)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def FilledToLength(nLen)
+			return This.RepeatedToLength(nLen)
+
+	  #==============================#
+	 #  REMOVE BETWEEN              #
+	#==============================#
+
+	def RemoveBetweenDelimiters(cOpen, cClose)
+		pResult = StzEngineStringRemoveBetween(@pEngine, cOpen, cClose)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RemoveBetweenDelimitersQ(cOpen, cClose)
+			This.RemoveBetweenDelimiters(cOpen, cClose)
+			return This
+
+	def BetweenDelimitersRemoved(cOpen, cClose)
+		pResult = StzEngineStringRemoveBetween(@pEngine, cOpen, cClose)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WithoutContentBetween(cOpen, cClose)
+			return This.BetweenDelimitersRemoved(cOpen, cClose)
 
 	  #=========================#
 	 #  ZFILL                  #
