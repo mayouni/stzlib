@@ -38247,7 +38247,10 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertBeforeSubstring(pcSubStr, pcNewSubStr)
-		This.InsertBeforeSubstringCS(pcSubStr, pcNewSubStr, 1)
+		pResult = StzEngineStringInsertBeforeEach(@pEngine, pcSubStr, pcNewSubStr)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
 
 		#< @FunctionFluentForm
 
@@ -38579,7 +38582,10 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def InsertAfterSubstring(pcSubStr, pcNewSubStr)
-		This.InsertAfterSubstringCS(pcSubStr, pcNewSubStr, 1)
+		pResult = StzEngineStringInsertAfterEach(@pEngine, pcSubStr, pcNewSubStr)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
 
 		#< @FunctionFluentForm
 
@@ -78875,11 +78881,7 @@ class stzString from stzObject
 	#---------------------------------------------------------------#
 
 	def CharsAreSortedInAscending()
-		if @IsListSortedInAscending(This.Chars())
-			return 1
-		else
-			return 0
-		ok
+		return StzEngineStringIsCharsSortedAsc(@pEngine)
 
 		#< @FunctionAlternativeForms
 
@@ -78899,11 +78901,7 @@ class stzString from stzObject
 	#----------------------------------------------------------------#
 
 	def CharsAreSortedInDescending()
-		if @IsListSortedInDescending(This.Chars())
-			return 1
-		else
-			return 0
-		ok
+		return StzEngineStringIsCharsSortedDesc(@pEngine)
 
 		#< @FunctionAlternativeForms
 

@@ -4476,6 +4476,392 @@ pub fn stz_string_replace_char(handle: StzStringHandle, old_cp: u32, new_cp: u32
     return result;
 }
 
+// ─── Copy ───
+
+pub fn stz_string_copy(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    result.data.appendSlice(gpa, buf) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    return result;
+}
+
+// ─── Compare ───
+
+pub fn stz_string_compare(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
+    const s1 = h1 orelse return -2;
+    const s2 = h2 orelse return -2;
+    const buf1 = s1.slice();
+    const buf2 = s2.slice();
+
+    // Codepoint-by-codepoint comparison
+    var off1: usize = 0;
+    var off2: usize = 0;
+    while (off1 < buf1.len and off2 < buf2.len) {
+        const len1 = std.unicode.utf8ByteSequenceLength(buf1[off1]) catch return -2;
+        const len2 = std.unicode.utf8ByteSequenceLength(buf2[off2]) catch return -2;
+        if (off1 + len1 > buf1.len or off2 + len2 > buf2.len) return -2;
+        const cp1 = std.unicode.utf8Decode(buf1[off1..][0..len1]) catch return -2;
+        const cp2 = std.unicode.utf8Decode(buf2[off2..][0..len2]) catch return -2;
+        if (cp1 < cp2) return -1;
+        if (cp1 > cp2) return 1;
+        off1 += len1;
+        off2 += len2;
+    }
+    if (off1 < buf1.len) return 1; // s1 longer
+    if (off2 < buf2.len) return -1; // s2 longer
+    return 0;
+}
+
+// ─── RemoveFirstOccurrence ───
+
+pub fn stz_string_remove_first_occurrence(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (needle == null or needle_len == 0 or needle_len > buf.len) {
+        // Return copy of original
+        return stz_string_copy(handle);
+    }
+    const n: []const u8 = needle[0..needle_len];
+
+    if (mem.indexOf(u8, buf, n)) |pos| {
+        const result = gpa.create(StzString) catch return null;
+        result.* = StzString.init();
+        result.data.appendSlice(gpa, buf[0..pos]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+        result.data.appendSlice(gpa, buf[pos + needle_len ..]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+        return result;
+    }
+    return stz_string_copy(handle);
+}
+
+// ─── RemoveLastOccurrence ───
+
+pub fn stz_string_remove_last_occurrence(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (needle == null or needle_len == 0 or needle_len > buf.len) {
+        return stz_string_copy(handle);
+    }
+    const n: []const u8 = needle[0..needle_len];
+
+    // Find last occurrence by scanning all
+    var last_pos: ?usize = null;
+    var search_start: usize = 0;
+    while (search_start + needle_len <= buf.len) {
+        if (mem.indexOf(u8, buf[search_start..], n)) |rel_pos| {
+            last_pos = search_start + rel_pos;
+            search_start = search_start + rel_pos + 1;
+        } else break;
+    }
+
+    if (last_pos) |pos| {
+        const result = gpa.create(StzString) catch return null;
+        result.* = StzString.init();
+        result.data.appendSlice(gpa, buf[0..pos]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+        result.data.appendSlice(gpa, buf[pos + needle_len ..]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+        return result;
+    }
+    return stz_string_copy(handle);
+}
+
+// ─── IsCharsSortedAsc ───
+
+pub fn stz_string_is_chars_sorted_asc(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (buf.len == 0) return 1;
+
+    var off: usize = 0;
+    var prev_cp: u21 = 0;
+    var first = true;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return 0;
+        if (off + cp_len > buf.len) return 0;
+        const cp = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch return 0;
+        if (!first and cp < prev_cp) return 0;
+        prev_cp = cp;
+        first = false;
+        off += cp_len;
+    }
+    return 1;
+}
+
+// ─── IsCharsSortedDesc ───
+
+pub fn stz_string_is_chars_sorted_desc(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (buf.len == 0) return 1;
+
+    var off: usize = 0;
+    var prev_cp: u21 = 0;
+    var first = true;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return 0;
+        if (off + cp_len > buf.len) return 0;
+        const cp = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch return 0;
+        if (!first and cp > prev_cp) return 0;
+        prev_cp = cp;
+        first = false;
+        off += cp_len;
+    }
+    return 1;
+}
+
+// ─── RemoveNthOccurrence ───
+
+pub fn stz_string_remove_nth_occurrence(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (needle == null or needle_len == 0 or n < 0 or needle_len > buf.len) {
+        return stz_string_copy(handle);
+    }
+    const ndl: []const u8 = needle[0..needle_len];
+
+    var count: c_int = 0;
+    var search_start: usize = 0;
+    while (search_start + needle_len <= buf.len) {
+        if (mem.indexOf(u8, buf[search_start..], ndl)) |rel_pos| {
+            if (count == n) {
+                const pos = search_start + rel_pos;
+                const result = gpa.create(StzString) catch return null;
+                result.* = StzString.init();
+                result.data.appendSlice(gpa, buf[0..pos]) catch {
+                    result.deinit();
+                    gpa.destroy(result);
+                    return null;
+                };
+                result.data.appendSlice(gpa, buf[pos + needle_len ..]) catch {
+                    result.deinit();
+                    gpa.destroy(result);
+                    return null;
+                };
+                return result;
+            }
+            count += 1;
+            search_start = search_start + rel_pos + 1;
+        } else break;
+    }
+    return stz_string_copy(handle);
+}
+
+// ─── RepeatChar ───
+
+pub fn stz_string_repeat_char(cp: u32, count: c_int) callconv(.c) StzStringHandle {
+    if (count <= 0) return stz_string_new();
+
+    var char_bytes: [4]u8 = undefined;
+    const cp21: u21 = @intCast(cp);
+    const char_len = std.unicode.utf8Encode(cp21, &char_bytes) catch return null;
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    const n: usize = @intCast(count);
+    result.data.ensureTotalCapacity(gpa, n * char_len) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    for (0..n) |_| {
+        result.data.appendSlice(gpa, char_bytes[0..char_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+// ─── InsertBeforeEach ───
+
+pub fn stz_string_insert_before_each(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, ins: [*c]const u8, ins_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (needle == null or ins == null or needle_len == 0) return stz_string_copy(handle);
+    const ndl: []const u8 = needle[0..needle_len];
+    const insert: []const u8 = ins[0..ins_len];
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    var pos: usize = 0;
+    while (pos < buf.len) {
+        if (pos + needle_len <= buf.len and mem.eql(u8, buf[pos..][0..needle_len], ndl)) {
+            result.data.appendSlice(gpa, insert) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+            result.data.appendSlice(gpa, ndl) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+            pos += needle_len;
+        } else {
+            result.data.append(gpa, buf[pos]) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+            pos += 1;
+        }
+    }
+    return result;
+}
+
+// ─── InsertAfterEach ───
+
+pub fn stz_string_insert_after_each(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, ins: [*c]const u8, ins_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (needle == null or ins == null or needle_len == 0) return stz_string_copy(handle);
+    const ndl: []const u8 = needle[0..needle_len];
+    const insert: []const u8 = ins[0..ins_len];
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    var pos: usize = 0;
+    while (pos < buf.len) {
+        if (pos + needle_len <= buf.len and mem.eql(u8, buf[pos..][0..needle_len], ndl)) {
+            result.data.appendSlice(gpa, ndl) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+            result.data.appendSlice(gpa, insert) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+            pos += needle_len;
+        } else {
+            result.data.append(gpa, buf[pos]) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+            pos += 1;
+        }
+    }
+    return result;
+}
+
+// ─── Truncate ───
+
+pub fn stz_string_truncate(handle: StzStringHandle, max_cp: c_int, ellipsis: [*c]const u8, ell_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (max_cp <= 0) return stz_string_new();
+
+    // Count codepoints
+    var cp_count: usize = 0;
+    var off: usize = 0;
+    var cut_off: usize = 0;
+    const max: usize = @intCast(max_cp);
+    while (off < buf.len) {
+        if (cp_count == max) {
+            cut_off = off;
+            break;
+        }
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        off += cp_len;
+        cp_count += 1;
+    }
+
+    // If string fits, return copy
+    if (cp_count <= max and off >= buf.len) return stz_string_copy(handle);
+
+    // Need truncation
+    if (cut_off == 0) cut_off = off;
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    result.data.appendSlice(gpa, buf[0..cut_off]) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    if (ellipsis != null and ell_len > 0) {
+        result.data.appendSlice(gpa, ellipsis[0..ell_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+// ─── WrapAt ───
+
+pub fn stz_string_wrap_at(handle: StzStringHandle, width: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (width <= 0) return stz_string_copy(handle);
+    const w: usize = @intCast(width);
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    var line_cp: usize = 0;
+    var last_space_result_pos: ?usize = null;
+    var off: usize = 0;
+
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+
+        if (cp_val == '\n') {
+            result.data.append(gpa, '\n') catch break;
+            off += cp_len;
+            line_cp = 0;
+            last_space_result_pos = null;
+            continue;
+        }
+
+        if (cp_val == ' ') {
+            last_space_result_pos = result.data.items.len;
+        }
+
+        result.data.appendSlice(gpa, buf[off .. off + cp_len]) catch break;
+        off += cp_len;
+        line_cp += 1;
+
+        if (line_cp >= w and last_space_result_pos != null) {
+            // Replace last space with newline
+            result.data.items[last_space_result_pos.?] = '\n';
+            line_cp = result.data.items.len - last_space_result_pos.? - 1;
+            last_space_result_pos = null;
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -4530,4 +4916,122 @@ test "replace_char" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "herro"));
     stz_string_free(r1);
     stz_string_free(s1);
+}
+
+test "copy" {
+    const s1 = stz_string_from("hello", 5);
+    const s2 = stz_string_copy(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(s2)[0..@intCast(stz_string_size(s2))], "hello"));
+    stz_string_free(s2);
+    stz_string_free(s1);
+}
+
+test "compare" {
+    const s1 = stz_string_from("abc", 3);
+    const s2 = stz_string_from("abc", 3);
+    const s3 = stz_string_from("abd", 3);
+    const s4 = stz_string_from("ab", 2);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_compare(s1, s2));
+    try std.testing.expectEqual(@as(c_int, -1), stz_string_compare(s1, s3));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_compare(s3, s1));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_compare(s1, s4));
+    try std.testing.expectEqual(@as(c_int, -1), stz_string_compare(s4, s1));
+    stz_string_free(s4);
+    stz_string_free(s3);
+    stz_string_free(s2);
+    stz_string_free(s1);
+}
+
+test "remove_first_occurrence" {
+    const s1 = stz_string_from("hello world hello", 17);
+    const r1 = stz_string_remove_first_occurrence(s1, "hello", 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], " world hello"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+}
+
+test "remove_last_occurrence" {
+    const s1 = stz_string_from("hello world hello", 17);
+    const r1 = stz_string_remove_last_occurrence(s1, "hello", 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "hello world "));
+    stz_string_free(r1);
+    stz_string_free(s1);
+}
+
+test "remove_nth_occurrence" {
+    const s1 = stz_string_from("abcabcabc", 9);
+    const r0 = stz_string_remove_nth_occurrence(s1, "abc", 3, 0);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r0)[0..@intCast(stz_string_size(r0))], "abcabc"));
+    stz_string_free(r0);
+    const r1 = stz_string_remove_nth_occurrence(s1, "abc", 3, 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "abcabc"));
+    stz_string_free(r1);
+    const r2 = stz_string_remove_nth_occurrence(s1, "abc", 3, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "abcabc"));
+    stz_string_free(r2);
+    stz_string_free(s1);
+}
+
+test "repeat_char" {
+    const r1 = stz_string_repeat_char('*', 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "*****"));
+    stz_string_free(r1);
+
+    const r2 = stz_string_repeat_char('-', 0);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_size(r2));
+    stz_string_free(r2);
+}
+
+test "insert_before_each" {
+    const s1 = stz_string_from("abcabc", 6);
+    const r1 = stz_string_insert_before_each(s1, "abc", 3, "[", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "[abc[abc"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+}
+
+test "insert_after_each" {
+    const s1 = stz_string_from("abcabc", 6);
+    const r1 = stz_string_insert_after_each(s1, "abc", 3, "]", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "abc]abc]"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+}
+
+test "truncate" {
+    const s1 = stz_string_from("Hello World", 11);
+    const r1 = stz_string_truncate(s1, 5, "...", 3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "Hello..."));
+    stz_string_free(r1);
+
+    // String shorter than max - no truncation
+    const r2 = stz_string_truncate(s1, 20, "...", 3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "Hello World"));
+    stz_string_free(r2);
+    stz_string_free(s1);
+}
+
+test "wrap_at" {
+    const s1 = stz_string_from("hello world foo bar", 19);
+    const r1 = stz_string_wrap_at(s1, 10);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "hello\nworld foo\nbar"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+}
+
+test "is_chars_sorted" {
+    const s1 = stz_string_from("abcd", 4);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_chars_sorted_asc(s1));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_chars_sorted_desc(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("dcba", 4);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_chars_sorted_asc(s2));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_chars_sorted_desc(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("a", 1);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_chars_sorted_asc(s3));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_chars_sorted_desc(s3));
+    stz_string_free(s3);
 }

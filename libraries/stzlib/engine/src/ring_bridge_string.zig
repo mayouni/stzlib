@@ -932,6 +932,112 @@ fn ring_StringReplaceChar(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+// ─── RepeatChar ───
+
+fn ring_StringRepeatChar(p: *anyopaque) callconv(.c) void {
+    const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 1));
+    const count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_repeat_char(cp, count)), STZ_HANDLE);
+}
+
+// ─── InsertBeforeEach ───
+
+fn ring_StringInsertBeforeEach(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const needle = ring_vm_api_getstring(p, 2);
+    const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const ins = ring_vm_api_getstring(p, 3);
+    const ins_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_insert_before_each(h, needle, needle_len, ins, ins_len)), STZ_HANDLE);
+}
+
+// ─── InsertAfterEach ───
+
+fn ring_StringInsertAfterEach(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const needle = ring_vm_api_getstring(p, 2);
+    const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const ins = ring_vm_api_getstring(p, 3);
+    const ins_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_insert_after_each(h, needle, needle_len, ins, ins_len)), STZ_HANDLE);
+}
+
+// ─── Truncate ───
+
+fn ring_StringTruncate(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const max_cp: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const ell = ring_vm_api_getstring(p, 3);
+    const ell_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_truncate(h, max_cp, ell, ell_len)), STZ_HANDLE);
+}
+
+// ─── WrapAt ───
+
+fn ring_StringWrapAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_wrap_at(h, width)), STZ_HANDLE);
+}
+
+// ─── Copy ───
+
+fn ring_StringCopy(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_copy(h)), STZ_HANDLE);
+}
+
+// ─── Compare ───
+
+fn ring_StringCompare(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const ptr2 = ring_vm_api_getcpointer(p, 2, STZ_HANDLE);
+    const h2: string.StzStringHandle = if (ptr2) |raw| @ptrCast(@alignCast(raw)) else null;
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_compare(h1, h2)));
+}
+
+// ─── RemoveFirstOccurrence ───
+
+fn ring_StringRemoveFirstOccurrence(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const needle = ring_vm_api_getstring(p, 2);
+    const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_first_occurrence(h, needle, needle_len)), STZ_HANDLE);
+}
+
+// ─── RemoveLastOccurrence ───
+
+fn ring_StringRemoveLastOccurrence(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const needle = ring_vm_api_getstring(p, 2);
+    const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_last_occurrence(h, needle, needle_len)), STZ_HANDLE);
+}
+
+// ─── RemoveNthOccurrence ───
+
+fn ring_StringRemoveNthOccurrence(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const needle = ring_vm_api_getstring(p, 2);
+    const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_nth_occurrence(h, needle, needle_len, n)), STZ_HANDLE);
+}
+
+// ─── IsCharsSortedAsc ───
+
+fn ring_StringIsCharsSortedAsc(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_chars_sorted_asc(h)));
+}
+
+// ─── IsCharsSortedDesc ───
+
+fn ring_StringIsCharsSortedDesc(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_chars_sorted_desc(h)));
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1071,6 +1177,18 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringhash", .func = &ring_StringHash },
     .{ .name = "stzenginestringcountchar", .func = &ring_StringCountChar },
     .{ .name = "stzenginestringreplacechar", .func = &ring_StringReplaceChar },
+    .{ .name = "stzenginestringcopy", .func = &ring_StringCopy },
+    .{ .name = "stzenginestringcompare", .func = &ring_StringCompare },
+    .{ .name = "stzenginestringremovefirstoccurrence", .func = &ring_StringRemoveFirstOccurrence },
+    .{ .name = "stzenginestringremovelastoccurrence", .func = &ring_StringRemoveLastOccurrence },
+    .{ .name = "stzenginestringremoventhoccurrence", .func = &ring_StringRemoveNthOccurrence },
+    .{ .name = "stzenginestringischarssortedasc", .func = &ring_StringIsCharsSortedAsc },
+    .{ .name = "stzenginestringischarssorteddesc", .func = &ring_StringIsCharsSortedDesc },
+    .{ .name = "stzenginestringrepeatchar", .func = &ring_StringRepeatChar },
+    .{ .name = "stzenginestringinsertbeforeeach", .func = &ring_StringInsertBeforeEach },
+    .{ .name = "stzenginestringinsertaftereach", .func = &ring_StringInsertAfterEach },
+    .{ .name = "stzenginestringtruncate", .func = &ring_StringTruncate },
+    .{ .name = "stzenginestringwrapat", .func = &ring_StringWrapAt },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
