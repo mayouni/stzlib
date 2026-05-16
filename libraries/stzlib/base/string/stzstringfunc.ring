@@ -88,7 +88,26 @@ func Center(text, width) #TODO Use stzString
 
 func Capitalize(str)
 		if len(str) = 0 return str ok
-		return upper(str[1]) + substr(str, 2)
+		pStr = StzEngineStringFrom(str)
+		nCount = StzEngineStringCount(pStr)
+		if nCount = 0
+			StzEngineStringFree(pStr)
+			return str
+		ok
+		pFirst = StzEngineStringNthChar(pStr, 0)
+		pUpper = StzEngineStringToUpper(pFirst)
+		cFirst = StzEngineStringData(pUpper)
+		StzEngineStringFree(pUpper)
+		StzEngineStringFree(pFirst)
+		if nCount = 1
+			StzEngineStringFree(pStr)
+			return cFirst
+		ok
+		pRest = StzEngineStringSlice(pStr, 1, nCount - 1)
+		cRest = StzEngineStringData(pRest)
+		StzEngineStringFree(pRest)
+		StzEngineStringFree(pStr)
+		return cFirst + cRest
 
 		func Capitalise(str)
 			return Capitalize(str)
@@ -146,14 +165,20 @@ func IsNotString(pcStr)
 		return IsNotString(pcStr)
 
 func @IsAlpha(cStr)
-	nLen = len(cStr)
-	if nLen = 0 return 0 ok
-	for i = 1 to nLen
-		n = ascii(substr(cStr, i, 1))
-		if NOT ((n >= 65 and n <= 90) or (n >= 97 and n <= 122))
+	pStr = StzEngineStringFrom(cStr)
+	nLen = StzEngineStringCount(pStr)
+	if nLen = 0
+		StzEngineStringFree(pStr)
+		return 0
+	ok
+	for i = 0 to nLen - 1
+		nCp = StzEngineStringCharAt(pStr, i)
+		if NOT StzEngineCharIsLetter(nCp)
+			StzEngineStringFree(pStr)
 			return 0
 		ok
 	next
+	StzEngineStringFree(pStr)
 	return 1
 
 	#< @FunctionAlternativeForms
@@ -175,14 +200,20 @@ func @IsAlpha(cStr)
 	#>
 
 func @IsAlnum(cStr)
-	nLen = len(cStr)
-	if nLen = 0 return 0 ok
-	for i = 1 to nLen
-		n = ascii(substr(cStr, i, 1))
-		if NOT ((n >= 65 and n <= 90) or (n >= 97 and n <= 122) or (n >= 48 and n <= 57))
+	pStr = StzEngineStringFrom(cStr)
+	nLen = StzEngineStringCount(pStr)
+	if nLen = 0
+		StzEngineStringFree(pStr)
+		return 0
+	ok
+	for i = 0 to nLen - 1
+		nCp = StzEngineStringCharAt(pStr, i)
+		if NOT (StzEngineCharIsLetter(nCp) or StzEngineCharIsDigit(nCp))
+			StzEngineStringFree(pStr)
 			return 0
 		ok
 	next
+	StzEngineStringFree(pStr)
 	return 1
 
 	#< @FunctionAlternativeForms
@@ -1154,15 +1185,19 @@ func IsSortedStringInAscending(pcStr)
 		return 0
 	ok
 
-	nLen = len(pcStr)
+	pStr = StzEngineStringFrom(pcStr)
+	nLen = StzEngineStringCount(pStr)
 	if nLen < 2
+		StzEngineStringFree(pStr)
 		return 1
 	ok
-	for i = 1 to nLen - 1
-		if ascii(substr(pcStr, i, 1)) > ascii(substr(pcStr, i + 1, 1))
+	for i = 0 to nLen - 2
+		if StzEngineStringCharAt(pStr, i) > StzEngineStringCharAt(pStr, i + 1)
+			StzEngineStringFree(pStr)
 			return 0
 		ok
 	next
+	StzEngineStringFree(pStr)
 	return 1
 
 	#< @FunctionAlternativeForms
@@ -1208,15 +1243,19 @@ func IsSortedStringInDescending(pcStr)
 		return 0
 	ok
 
-	nLen = len(pcStr)
+	pStr = StzEngineStringFrom(pcStr)
+	nLen = StzEngineStringCount(pStr)
 	if nLen < 2
+		StzEngineStringFree(pStr)
 		return 1
 	ok
-	for i = 1 to nLen - 1
-		if ascii(substr(pcStr, i, 1)) < ascii(substr(pcStr, i + 1, 1))
+	for i = 0 to nLen - 2
+		if StzEngineStringCharAt(pStr, i) < StzEngineStringCharAt(pStr, i + 1)
+			StzEngineStringFree(pStr)
 			return 0
 		ok
 	next
+	StzEngineStringFree(pStr)
 	return 1
 
 	#< @FunctionAlternativeForms
@@ -1459,8 +1498,11 @@ func StringCount(pcStr, pcSubStr)
 #--
 
 func StringNumberOfChars(cStr)
-	return len(cStr)
-	
+	pStr = StzEngineStringFrom(cStr)
+	nResult = StzEngineStringCount(pStr)
+	StzEngineStringFree(pStr)
+	return nResult
+
 	func @NumberOfChars(cStr)
 		return StringNumberOfChars(cStr)
 
@@ -1479,19 +1521,10 @@ func StringIsWord(cStr)
 		return StringIsWord(cStr)
 
 func StringNumberOfOccurrence(pcStr, pcSubStr)
-	nCount = 0
-	nSubLen = len(pcSubStr)
-	nLen = len(pcStr)
-	nPos = 1
-	while nPos <= nLen - nSubLen + 1
-		if substr(pcStr, nPos, nSubLen) = pcSubStr
-			nCount++
-			nPos += nSubLen
-		else
-			nPos++
-		ok
-	end
-	return nCount
+	pStr = StzEngineStringFrom(pcStr)
+	nResult = StzEngineStringCountOf(pStr, pcSubStr)
+	StzEngineStringFree(pStr)
+	return nResult
 	
 	func @NumberOfOccurrence(pcStr, pcSubStr)
 		return StringNumberOfOccurrence(pcStr, pcSubStr)
@@ -1883,16 +1916,25 @@ func @IsPalindrome(p)
 		return 1
 
 	but isString(p)
-		nLen = len(p)
+		pStr = StzEngineStringFrom(lower(p))
+		nLen = StzEngineStringCount(pStr)
 		if nLen < 2
+			StzEngineStringFree(pStr)
 			return 0
 		ok
-		cLow = lower(p)
 		for i = 1 to nLen / 2
-			if substr(cLow, i, 1) != substr(cLow, nLen - i + 1, 1)
+			pLeft = StzEngineStringNthChar(pStr, i - 1)
+			pRight = StzEngineStringNthChar(pStr, nLen - i)
+			cLeft = StzEngineStringData(pLeft)
+			cRight = StzEngineStringData(pRight)
+			StzEngineStringFree(pLeft)
+			StzEngineStringFree(pRight)
+			if cLeft != cRight
+				StzEngineStringFree(pStr)
 				return 0
 			ok
 		next
+		StzEngineStringFree(pStr)
 		return 1
 	else
 		StzRaise("Incorrect param type! p must be a string or list.")
@@ -2456,10 +2498,14 @@ func Chars(str)
 
 
 func _StrContainsCS(cStr, cSubStr, bCaseSensitive)
+	pStr = StzEngineStringFrom(cStr)
 	if bCaseSensitive = 1
-		return substr(cStr, cSubStr) > 0
+		nResult = StzEngineStringContains(pStr, cSubStr)
+	else
+		nResult = StzEngineStringContainsCI(pStr, cSubStr)
 	ok
-	return substr(lower(cStr), lower(cSubStr)) > 0
+	StzEngineStringFree(pStr)
+	return nResult
 
 func Lines(str)
 	acResult = @split(str, NL)
