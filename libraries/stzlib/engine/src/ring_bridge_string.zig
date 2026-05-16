@@ -588,6 +588,13 @@ fn ring_StringIsOnlyType(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_only_type(h, char_type)));
 }
 
+fn ring_StringRemoveCharsOfType(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const char_type: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const result = string.stz_string_remove_chars_of_type(h, char_type);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 fn ring_StringTrim(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const result = string.stz_string_trim(h);
@@ -691,6 +698,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringiswhitespace", .func = &ring_StringIsWhitespace },
     .{ .name = "stzenginestringwordcount", .func = &ring_StringWordCount },
     .{ .name = "stzenginestringisonlytype", .func = &ring_StringIsOnlyType },
+    .{ .name = "stzenginestringremovecharsoftype", .func = &ring_StringRemoveCharsOfType },
     .{ .name = "stzenginestringtrim", .func = &ring_StringTrim },
     .{ .name = "stzenginestringswapcase", .func = &ring_StringSwapCase },
 };

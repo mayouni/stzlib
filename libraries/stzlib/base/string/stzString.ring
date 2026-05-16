@@ -97703,8 +97703,12 @@ class stzString from stzObject
 	#------------------------------#
 
 	def RemovePunctuations()
-		anPos = This.FindPunctuations()
-		This.RemoveCharsAtPositions(anPos)
+		pResult = StzEngineStringRemoveCharsOfType(@pEngine, 5)
+		if pResult != NULL
+			cResult = StzEngineStringData(pResult)
+			StzEngineStringFree(pResult)
+			This.UpdateWith(cResult)
+		ok
 
 		#< @FunctionFluentForm
 
