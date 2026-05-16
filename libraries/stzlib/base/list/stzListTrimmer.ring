@@ -151,3 +151,155 @@ class stzListTrimmer from stzList
 
 	def TrimItemFromRight(pItem)
 		This.TrimItemFromRightCS(pItem, 1)
+
+	  #======================================================#
+	 #   COMPACT (REMOVE ALL EMPTY ITEMS)                    #
+	#======================================================#
+
+	def Compact()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isString(aContent[i])
+				if ring_trim(aContent[i]) != ""
+					aResult + aContent[i]
+				ok
+			but isList(aContent[i])
+				if len(aContent[i]) > 0
+					aResult + aContent[i]
+				ok
+			else
+				aResult + aContent[i]
+			ok
+		next
+
+		This.Update(aResult)
+
+		def CompactQ()
+			This.Compact()
+			return This
+
+	def Compacted()
+		return This.Copy().CompactQ().Content()
+
+	  #======================================================#
+	 #   SQUEEZE (REMOVE CONSECUTIVE DUPLICATE EMPTY ITEMS) #
+	#======================================================#
+
+	def Squeeze()
+		aContent = This.Content()
+		nLen = len(aContent)
+		if nLen < 2
+			return
+		ok
+
+		aResult = [ aContent[1] ]
+		for i = 2 to nLen
+			bEmpty1 = (isString(aContent[i-1]) and ring_trim(aContent[i-1]) = "")
+			bEmpty2 = (isString(aContent[i]) and ring_trim(aContent[i]) = "")
+			if NOT (bEmpty1 and bEmpty2)
+				aResult + aContent[i]
+			ok
+		next
+
+		This.Update(aResult)
+
+		def SqueezeQ()
+			This.Squeeze()
+			return This
+
+	def Squeezed()
+		return This.Copy().SqueezeQ().Content()
+
+	  #======================================================#
+	 #   STRIP NULLS (REMOVE NULLS AND EMPTY STRINGS)      #
+	#======================================================#
+
+	def StripNulls()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isString(aContent[i])
+				if aContent[i] != "" and aContent[i] != NULL
+					aResult + aContent[i]
+				ok
+			but isNull(aContent[i])
+				# skip
+			else
+				aResult + aContent[i]
+			ok
+		next
+
+		This.Update(aResult)
+
+		def StripNullsQ()
+			This.StripNulls()
+			return This
+
+	def NullsStripped()
+		return This.Copy().StripNullsQ().Content()
+
+	  #======================================================#
+	 #   TRIM TO SIZE (KEEP ONLY FIRST N ITEMS)            #
+	#======================================================#
+
+	def TrimToSize(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+		if n >= nLen
+			return
+		ok
+
+		aResult = []
+		for i = 1 to n
+			aResult + aContent[i]
+		next
+
+		This.Update(aResult)
+
+		def TrimToSizeQ(n)
+			This.TrimToSize(n)
+			return This
+
+	def TrimmedToSize(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+		if n >= nLen
+			return aContent
+		ok
+		aResult = []
+		for i = 1 to n
+			aResult + aContent[i]
+		next
+		return aResult
+
+	  #======================================================#
+	 #   TRIM WHERE (REMOVE ITEMS MATCHING CONDITION)       #
+	#======================================================#
+
+	def TrimW(pcCondition)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for @i = 1 to nLen
+			@item = aContent[@i]
+			cCode = 'bRemove = (' + pcCondition + ')'
+			eval(cCode)
+			if NOT bRemove
+				aResult + aContent[@i]
+			ok
+		next
+
+		This.Update(aResult)
+
+		def TrimWQ(pcCondition)
+			This.TrimW(pcCondition)
+			return This
+
+	def TrimmedW(pcCondition)
+		return This.Copy().TrimWQ(pcCondition).Content()
