@@ -6617,6 +6617,143 @@ pub fn stz_string_collapse_spaces(handle: StzStringHandle) callconv(.c) StzStrin
     return result;
 }
 
+/// Check if two strings are anagrams (same chars, different order).
+/// Case-sensitive. Returns 1 if anagram, 0 otherwise.
+pub fn stz_string_is_anagram(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
+    const s1 = h1 orelse return 0;
+    const s2 = h2 orelse return 0;
+    const src1 = s1.slice();
+    const src2 = s2.slice();
+    if (src1.len != src2.len) return 0;
+    if (src1.len == 0) return 1;
+
+    // Count codepoints in both and compare sorted
+    var counts = std.AutoHashMap(i32, i32).init(gpa);
+    defer counts.deinit();
+
+    var off: usize = 0;
+    while (off < src1.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src1[off]) catch break;
+        if (off + cp_len > src1.len) break;
+        const cp: i32 = decodeCodepoint(src1, off, cp_len);
+        const entry = counts.getOrPut(cp) catch break;
+        if (!entry.found_existing) entry.value_ptr.* = 0;
+        entry.value_ptr.* += 1;
+        off += cp_len;
+    }
+
+    off = 0;
+    while (off < src2.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src2[off]) catch break;
+        if (off + cp_len > src2.len) break;
+        const cp: i32 = decodeCodepoint(src2, off, cp_len);
+        const entry = counts.getOrPut(cp) catch break;
+        if (!entry.found_existing) entry.value_ptr.* = 0;
+        entry.value_ptr.* -= 1;
+        off += cp_len;
+    }
+
+    var iter = counts.iterator();
+    while (iter.next()) |entry| {
+        if (entry.value_ptr.* != 0) return 0;
+    }
+    return 1;
+}
+
+/// Mask the string: replace middle characters with mask_char, keeping `keep` chars visible
+/// at start and end. E.g. mask("hello@mail.com", '*', 2) -> "he*********om"
+/// Returns new handle.
+pub fn stz_string_mask(handle: StzStringHandle, mask_char: [*c]const u8, mask_len: usize, keep: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0 or mask_len == 0) return stz_string_from(src.ptr, src.len);
+
+    const keep_n: usize = if (keep >= 0) @intCast(keep) else 0;
+    const mask_s = mask_char[0..mask_len];
+
+    // Count codepoints
+    var cp_count: usize = 0;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        cp_count += 1;
+        off += cp_len;
+    }
+
+    if (cp_count <= keep_n * 2) return stz_string_from(src.ptr, src.len);
+
+    const result = stz_string_new() orelse return null;
+    off = 0;
+    var idx: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+
+        if (idx < keep_n or idx >= cp_count - keep_n) {
+            result.data.appendSlice(gpa, src[off..][0..cp_len]) catch break;
+        } else {
+            result.data.appendSlice(gpa, mask_s) catch break;
+        }
+        idx += 1;
+        off += cp_len;
+    }
+    return result;
+}
+
+/// Count consecutive character runs (groups of identical adjacent chars).
+/// E.g. "aabbbcc" has 3 runs: "aa", "bbb", "cc".
+pub fn stz_string_count_runs(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 0;
+
+    var runs: c_int = 1;
+    var off: usize = 0;
+    var prev_cp: i32 = -1;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp: i32 = decodeCodepoint(src, off, cp_len);
+        if (prev_cp >= 0 and cp != prev_cp) {
+            runs += 1;
+        }
+        prev_cp = cp;
+        off += cp_len;
+    }
+    return runs;
+}
+
+/// Hamming distance: count positions where corresponding codepoints differ.
+/// Strings must be same codepoint length; returns -1 if different lengths.
+pub fn stz_string_hamming_distance(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
+    const s1 = h1 orelse return -1;
+    const s2 = h2 orelse return -1;
+    const src1 = s1.slice();
+    const src2 = s2.slice();
+
+    var off1: usize = 0;
+    var off2: usize = 0;
+    var dist: c_int = 0;
+
+    while (off1 < src1.len and off2 < src2.len) {
+        const len1 = std.unicode.utf8ByteSequenceLength(src1[off1]) catch break;
+        const len2 = std.unicode.utf8ByteSequenceLength(src2[off2]) catch break;
+        if (off1 + len1 > src1.len or off2 + len2 > src2.len) break;
+
+        if (len1 != len2 or !mem.eql(u8, src1[off1..][0..len1], src2[off2..][0..len2])) {
+            dist += 1;
+        }
+        off1 += len1;
+        off2 += len2;
+    }
+
+    // If one string has remaining chars, lengths differ
+    if (off1 < src1.len or off2 < src2.len) return -1;
+    return dist;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -7371,4 +7508,59 @@ test "collapse_spaces" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "no extra spaces"));
     stz_string_free(r2);
     stz_string_free(s2);
+}
+
+test "is_anagram" {
+    const s1 = stz_string_from("listen", 6);
+    const s2 = stz_string_from("silent", 6);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_anagram(s1, s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("hello", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_anagram(s1, s3));
+    stz_string_free(s3);
+    stz_string_free(s1);
+}
+
+test "mask" {
+    const s1 = stz_string_from("hello@mail.com", 14);
+    const r1 = stz_string_mask(s1, "*", 1, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "he**********om"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("ab", 2);
+    const r2 = stz_string_mask(s2, "*", 1, 2);
+    // Too short to mask (2 chars, keep 2+2=4), returns as-is
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "ab"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+}
+
+test "count_runs" {
+    const s1 = stz_string_from("aabbbcc", 7);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_runs(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("abcde", 5);
+    try std.testing.expectEqual(@as(c_int, 5), stz_string_count_runs(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("aaaa", 4);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_count_runs(s3));
+    stz_string_free(s3);
+}
+
+test "hamming_distance" {
+    const s1 = stz_string_from("karolin", 7);
+    const s2 = stz_string_from("kathrin", 7);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_hamming_distance(s1, s2));
+    stz_string_free(s2);
+    stz_string_free(s1);
+
+    const s3 = stz_string_from("abc", 3);
+    const s4 = stz_string_from("abcd", 4);
+    try std.testing.expectEqual(@as(c_int, -1), stz_string_hamming_distance(s3, s4));
+    stz_string_free(s4);
+    stz_string_free(s3);
 }

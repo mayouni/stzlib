@@ -684,6 +684,59 @@ class stzString from stzObject
 		def HexDecoded()
 			return This.FromHex()
 
+	  #==============================#
+	 #  MASK                        #
+	#==============================#
+
+	def Mask(cMaskChar, nKeep)
+		pResult = StzEngineStringMask(@pEngine, cMaskChar, nKeep)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def MaskQ(cMaskChar, nKeep)
+			This.Mask(cMaskChar, nKeep)
+			return This
+
+	def Masked(cMaskChar, nKeep)
+		pResult = StzEngineStringMask(@pEngine, cMaskChar, nKeep)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #==============================#
+	 #  IS ANAGRAM                  #
+	#==============================#
+
+	def IsAnagramOf(pcOther)
+		pOther = StzEngineStringFrom(pcOther)
+		nResult = StzEngineStringIsAnagram(@pEngine, pOther)
+		StzEngineStringFree(pOther)
+		return nResult
+
+	  #==============================#
+	 #  HAMMING DISTANCE            #
+	#==============================#
+
+	def HammingDistanceWith(pcOther)
+		pOther = StzEngineStringFrom(pcOther)
+		nResult = StzEngineStringHammingDistance(@pEngine, pOther)
+		StzEngineStringFree(pOther)
+		return nResult
+
+		def HammingDistance(pcOther)
+			return This.HammingDistanceWith(pcOther)
+
+	  #==============================#
+	 #  COUNT RUNS                  #
+	#==============================#
+
+	def CountRuns()
+		return StzEngineStringCountRuns(@pEngine)
+
+		def NumberOfRuns()
+			return This.CountRuns()
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
