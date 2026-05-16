@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 161 Registered Functions"
+? "Engine Full Bridge Test -- All 166 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1362,6 +1362,42 @@ pStr = StzEngineStringFrom("a" + char(9) + "b")
 pR = StzEngineStringTabExpand(pStr, 4)
 Assert("TabExpand 4", StzEngineStringData(pR), "a    b")
 StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 70: CountOverlapping ---
+? "--- Group 70: CountOverlapping ---"
+pStr = StzEngineStringFrom("aaaa")
+Assert("CountOverlapping aa in aaaa", StzEngineStringCountOverlapping(pStr, "aa"), 3)
+StzEngineStringFree(pStr)
+pStr = StzEngineStringFrom("abcabc")
+Assert("CountOverlapping abc", StzEngineStringCountOverlapping(pStr, "abc"), 2)
+StzEngineStringFree(pStr)
+
+# --- Group 71: ReplaceAt ---
+? "--- Group 71: ReplaceAt ---"
+pStr = StzEngineStringFrom("Hello World")
+pR = StzEngineStringReplaceAt(pStr, 5, 1, "-")
+Assert("ReplaceAt space->dash", StzEngineStringData(pR), "Hello-World")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 72: CharFrequency ---
+? "--- Group 72: CharFrequency ---"
+pStr = StzEngineStringFrom("aab")
+pR = StzEngineStringCharFrequency(pStr)
+cFreq = StzEngineStringData(pR)
+Assert("CharFrequency contains a:2", substr(cFreq, "a:2") > 0, true)
+Assert("CharFrequency contains b:1", substr(cFreq, "b:1") > 0, true)
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 73: ContainsAnyOf, ContainsAllOf ---
+? "--- Group 73: ContainsAnyOf, ContainsAllOf ---"
+pStr = StzEngineStringFrom("hello")
+Assert("ContainsAnyOf vowels", StzEngineStringContainsAnyOf(pStr, "aeiou"), 1)
+Assert("ContainsAnyOf xyz", StzEngineStringContainsAnyOf(pStr, "xyz"), 0)
+Assert("ContainsAllOf helo", StzEngineStringContainsAllOf(pStr, "helo"), 1)
+Assert("ContainsAllOf heloz", StzEngineStringContainsAllOf(pStr, "heloz"), 0)
 StzEngineStringFree(pStr)
 
 # ==============================================================

@@ -5117,6 +5117,217 @@ pub fn stz_string_tab_expand(handle: StzStringHandle, tab_width: c_int) callconv
     return result;
 }
 
+// ─── CountOverlapping ───
+// Count overlapping occurrences of needle in string
+
+pub fn stz_string_count_overlapping(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (needle == null or needle_len == 0 or needle_len > buf.len) return 0;
+    const ndl: []const u8 = needle[0..needle_len];
+
+    var count: c_int = 0;
+    var pos: usize = 0;
+    while (pos + needle_len <= buf.len) {
+        if (mem.eql(u8, buf[pos..][0..needle_len], ndl)) {
+            count += 1;
+            // Move by 1 byte for overlapping (not by needle_len)
+            pos += 1;
+        } else {
+            pos += 1;
+        }
+    }
+    return count;
+}
+
+// ─── ReplaceAt ───
+// Replace a specific codepoint position range with a new string
+
+pub fn stz_string_replace_at(handle: StzStringHandle, cp_pos: c_int, cp_count: c_int, rep: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (cp_pos < 0 or cp_count <= 0) return stz_string_copy(handle);
+
+    const target_start: usize = @intCast(cp_pos);
+    const target_count: usize = @intCast(cp_count);
+
+    // Find byte offsets for codepoint positions
+    var off: usize = 0;
+    var cp_idx: usize = 0;
+    var start_byte: usize = 0;
+    var end_byte: usize = 0;
+    var found_start = false;
+
+    while (off < buf.len) {
+        if (cp_idx == target_start) {
+            start_byte = off;
+            found_start = true;
+        }
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        off += cp_len;
+        cp_idx += 1;
+        if (found_start and cp_idx == target_start + target_count) {
+            end_byte = off;
+            break;
+        }
+    }
+    if (!found_start) return stz_string_copy(handle);
+    if (end_byte == 0) end_byte = off; // To end of string
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    result.data.appendSlice(gpa, buf[0..start_byte]) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    if (rep != null and rep_len > 0) {
+        result.data.appendSlice(gpa, rep[0..rep_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    if (end_byte < buf.len) {
+        result.data.appendSlice(gpa, buf[end_byte..]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+// ─── CharFrequency ───
+// Returns "char:count" pairs separated by newlines, e.g. "a:3\nb:2\n"
+
+pub fn stz_string_char_frequency(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (buf.len == 0) return stz_string_new();
+
+    // Collect codepoints and count them
+    var cps: std.ArrayList(u21) = .{};
+    defer cps.deinit(gpa);
+    var counts: std.ArrayList(usize) = .{};
+    defer counts.deinit(gpa);
+
+    var off: usize = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        off += cp_len;
+
+        // Find if already tracked
+        var found = false;
+        for (cps.items, 0..) |existing, i| {
+            if (existing == cp_val) {
+                counts.items[i] += 1;
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            cps.append(gpa, cp_val) catch break;
+            counts.append(gpa, 1) catch break;
+        }
+    }
+
+    // Build result string
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    for (cps.items, 0..) |cp_val, i| {
+        var cp_bytes: [4]u8 = undefined;
+        const cp_byte_len = std.unicode.utf8Encode(cp_val, &cp_bytes) catch continue;
+        result.data.appendSlice(gpa, cp_bytes[0..cp_byte_len]) catch break;
+        result.data.append(gpa, ':') catch break;
+
+        // Number to string
+        var num_buf: [20]u8 = undefined;
+        const num_str = std.fmt.bufPrint(&num_buf, "{d}", .{counts.items[i]}) catch break;
+        result.data.appendSlice(gpa, num_str) catch break;
+        result.data.append(gpa, '\n') catch break;
+    }
+    return result;
+}
+
+// ─── ContainsAnyOf ───
+// Check if string contains any of the characters in the given string
+
+pub fn stz_string_contains_any_of(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (chars == null or chars_len == 0) return 0;
+    const char_set: []const u8 = chars[0..chars_len];
+
+    // Parse char_set into codepoints
+    var set_cps: std.ArrayList(u21) = .{};
+    defer set_cps.deinit(gpa);
+    var coff: usize = 0;
+    while (coff < char_set.len) {
+        const cl = std.unicode.utf8ByteSequenceLength(char_set[coff]) catch break;
+        if (coff + cl > char_set.len) break;
+        const cv = std.unicode.utf8Decode(char_set[coff..][0..cl]) catch break;
+        set_cps.append(gpa, cv) catch break;
+        coff += cl;
+    }
+
+    // Check if any char in buf matches
+    var off: usize = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        for (set_cps.items) |set_cp| {
+            if (cp_val == set_cp) return 1;
+        }
+        off += cp_len;
+    }
+    return 0;
+}
+
+// ─── ContainsAllOf ───
+
+pub fn stz_string_contains_all_of(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (chars == null or chars_len == 0) return 1;
+    const char_set: []const u8 = chars[0..chars_len];
+
+    // Parse char_set into codepoints
+    var set_cps: std.ArrayList(u21) = .{};
+    defer set_cps.deinit(gpa);
+    var coff: usize = 0;
+    while (coff < char_set.len) {
+        const cl = std.unicode.utf8ByteSequenceLength(char_set[coff]) catch break;
+        if (coff + cl > char_set.len) break;
+        const cv = std.unicode.utf8Decode(char_set[coff..][0..cl]) catch break;
+        set_cps.append(gpa, cv) catch break;
+        coff += cl;
+    }
+
+    // For each set char, check it exists in buf
+    for (set_cps.items) |set_cp| {
+        var found = false;
+        var off: usize = 0;
+        while (off < buf.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+            if (off + cp_len > buf.len) break;
+            const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+            if (cp_val == set_cp) {
+                found = true;
+                break;
+            }
+            off += cp_len;
+        }
+        if (!found) return 0;
+    }
+    return 1;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -5369,5 +5580,37 @@ test "tab_expand" {
     const r1 = stz_string_tab_expand(s1, 4);
     try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "a    b    c"));
     stz_string_free(r1);
+    stz_string_free(s1);
+}
+
+test "count_overlapping" {
+    const s1 = stz_string_from("aaaa", 4);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_overlapping(s1, "aa", 2));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("abcabc", 6);
+    try std.testing.expectEqual(@as(c_int, 2), stz_string_count_overlapping(s2, "abc", 3));
+    stz_string_free(s2);
+}
+
+test "replace_at" {
+    const s1 = stz_string_from("Hello World", 11);
+    const r1 = stz_string_replace_at(s1, 5, 1, "-", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "Hello-World"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+}
+
+test "contains_any_of" {
+    const s1 = stz_string_from("hello", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_any_of(s1, "aeiou", 5));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_contains_any_of(s1, "xyz", 3));
+    stz_string_free(s1);
+}
+
+test "contains_all_of" {
+    const s1 = stz_string_from("hello", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_all_of(s1, "helo", 4));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_contains_all_of(s1, "heloz", 5));
     stz_string_free(s1);
 }
