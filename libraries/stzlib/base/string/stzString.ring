@@ -43948,19 +43948,10 @@ class stzString from stzObject
 		#>
 
 	def ContainsOnlyLetters() #NOTE # this is different from ContainsLetters()
-		aoChars = This.CharsQ().ToListOfStzChars() #NOTE # this is different from ToStzListOfChars()
-		nLen = len(aoChars)
-
-		bResult = 1
-
-		for i = 1 to nLen
-			if NOT aoChars[i].IsLetter()
-				bResult = 0
-				exit
-			ok
-		next
-
-		return bResult
+		hStr = StzEngineStringFrom(This.Content())
+		nResult = StzEngineStringIsAlpha(hStr)
+		StzEngineStringFree(hStr)
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -44017,19 +44008,16 @@ class stzString from stzObject
 			return This.ContainsOnlyLettersOrNumbers()
 
 	def ContainsOnlyLettersAndNumbers()
-		aoChars = This.CharsQ().ToListOfStzChars()
-		nLen = len(aoChars)
-
-		bResult = 1
-
-		for i = 1 to nLen
-			if NOT aoChars[i].IsLetterOrNumber()
-				bResult = 0
-				exit
-			ok
-		next
-
-		return bResult
+		hStr = StzEngineStringFrom(This.Content())
+		nTotal = StzEngineStringCount(hStr)
+		if nTotal = 0
+			StzEngineStringFree(hStr)
+			return 0
+		ok
+		nLetters = StzEngineStringCountCharsOfType(hStr, 0)
+		nDigits = StzEngineStringCountCharsOfType(hStr, 1)
+		StzEngineStringFree(hStr)
+		return (nLetters + nDigits) = nTotal
 
 		#<@ FunctionAlternativeForms
 
@@ -94680,7 +94668,10 @@ class stzString from stzObject
 	#-----------------------#
 
 	def NumberOfLetters()
-		return len(This.OnlyLetters())
+		hStr = StzEngineStringFrom(This.Content())
+		nResult = StzEngineStringCountCharsOfType(hStr, 0)
+		StzEngineStringFree(hStr)
+		return nResult
 	
 		#< @FunctionFluentForm
 
