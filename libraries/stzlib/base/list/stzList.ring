@@ -18910,7 +18910,7 @@ class stzList from stzObject
 	#========================================#
 
 	def SwapSections( panSection1, panSection2 )
-		if isList(panSection2) and StzListQ(panSection2).IsWithOrAndNamedParams()
+		if isList(panSection2) and len(panSection2) = 2 and isString(panSection2[1]) and (lower(panSection2[1]) = "with" or lower(panSection2[1]) = "and")
 			panSection2 = panSection2[2]
 		ok
 
@@ -20216,7 +20216,7 @@ class stzList from stzObject
 	def BoundsCS(pItem, pUpTo, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pItem) and StzListQ(pItem).isOfNamedParam()
+			if isList(pItem) and len(pItem) = 2 and isString(pItem[1]) and lower(pItem[1]) = "of"
 				pItem = pItem[2]
 			ok
 	
@@ -45328,7 +45328,7 @@ fdef
 	def AntiPositions(anPos)
 
 		if CheckingParams()
-			if isList(anPos) and stzListQ(anPos).IsOfNamedParam()
+			if isList(anPos) and len(anPos) = 2 and isString(anPos[1]) and lower(anPos[1]) = "of"
 				anPos = anPos[2]
 			ok
 
@@ -52253,7 +52253,7 @@ fdef
 
 		aPairs = StzListQ( aItems ).AssociatedWith( anPos )
 	
-		aUniqueItems = StzListQ(aItems).ToSet()
+		aUniqueItems = UCS(aItems, 1)
 
 		aResult = []
 		anItemPositions = []
@@ -52317,7 +52317,7 @@ fdef
 
 		aPairs = StzListQ( aItems ).AssociatedWith( anPos )
 	
-		aUniqueItems = StzListQ(aItems).ToSet()
+		aUniqueItems = UCS(aItems, 1)
 
 		aResult = []
 		anItemPositions = []
@@ -64558,7 +64558,7 @@ fdef
 
 		for i = 1 to nLen
 			item = aContent[i]
-			if isList(item) and StzListQ(item).IsSingle()
+			if isList(item) and len(item) = 1
 				bResult = 1
 				exit
 			ok
@@ -64583,7 +64583,7 @@ fdef
 
 		for i = 1 to nLen
 			item = aContent[i]
-			if isList(item) and StzListQ(item).IsSingle()
+			if isList(item) and len(item) = 1
 				anResult + i
 			ok
 		next
@@ -64598,7 +64598,7 @@ fdef
 
 		for i = 1 to nLen
 			item = aContent[i]
-			if isList(item) and StzListQ(item).IsSingle()
+			if isList(item) and len(item) = 1
 				aResult + item
 			ok
 		next
@@ -64616,7 +64616,7 @@ fdef
 
 			item = aContent[i]
 
-			if NOT (isList(item) and StzListQ(item).IsSingle())
+			if NOT (isList(item) and len(item) = 1)
 				loop
 			ok
 
@@ -64642,7 +64642,7 @@ fdef
 
 			item = acontent[i]
 
-			if NOT (isList(item) and StzListQ(item).IsSingle())
+			if NOT (isList(item) and len(item) = 1)
 				loop
 			ok
 
