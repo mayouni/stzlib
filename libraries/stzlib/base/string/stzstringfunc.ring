@@ -1546,11 +1546,16 @@ func NumberOfCharsOf(pcStr)
 
 func BothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
 	_bCase_ = @CaseSensitive(pCaseSensitive)
+	pStr1 = StzEngineStringFrom(pcStr1)
+	pStr2 = StzEngineStringFrom(pcStr2)
 	if _bCase_ = 1
-		return lower(pcStr1) = lower(pcStr2)
+		nResult = StzEngineStringEqualsCI(pStr1, pStr2)
 	else
-		return pcStr1 = pcStr2
+		nResult = StzEngineStringEquals(pStr1, pStr2)
 	ok
+	StzEngineStringFree(pStr2)
+	StzEngineStringFree(pStr1)
+	return nResult
 
 func BothStringsAreEqual(pcStr1, pcStr2)
 	return BothStringsAreEqualCS(pcStr1, pcStr2, 1)
@@ -1671,15 +1676,28 @@ func WithoutSpaces(pcStr)
 func WithoutQuotes(cStr)
 
 	cStr = @trim(cStr)
-	oStr = new stzString(cStr)
+	if len(cStr) < 2 return cStr ok
 
-	if oStr.IsBoundedBy('"') or
-	   oStr.IsBoundedBy("'")
-
-		oStr.RemoveFirstAndLastChars()
-		return oStr.Content()
+	pStr = StzEngineStringFrom(cStr)
+	nLen = StzEngineStringCount(pStr)
+	if nLen < 2
+		StzEngineStringFree(pStr)
+		return cStr
 	ok
 
+	# Check if bounded by " or '
+	if (StzEngineStringStartsWith(pStr, '"') and StzEngineStringEndsWith(pStr, '"')) or
+	   (StzEngineStringStartsWith(pStr, "'") and StzEngineStringEndsWith(pStr, "'"))
+
+		# Remove first and last chars (slice from 1 to nLen-2)
+		pSliced = StzEngineStringSlice(pStr, 1, nLen - 2)
+		cResult = StzEngineStringData(pSliced)
+		StzEngineStringFree(pSliced)
+		StzEngineStringFree(pStr)
+		return cResult
+	ok
+
+	StzEngineStringFree(pStr)
 	return cStr
 
 	func @WithoutQuotes(cStr)
@@ -1698,12 +1716,11 @@ func Simplify(pcStr)
 		return _StzSimplifyString(pcStr)
 
 func Spacify(str)
-	nLen = len(str)
-	if nLen < 2 return str ok
-	cResult = str[1]
-	for i = 2 to nLen
-		cResult += " " + str[i]
-	next
+	pStr = StzEngineStringFrom(str)
+	pResult = StzEngineStringSpacify(pStr)
+	cResult = StzEngineStringData(pResult)
+	StzEngineStringFree(pResult)
+	StzEngineStringFree(pStr)
 	return cResult
 
 	func @Spacify(str)
