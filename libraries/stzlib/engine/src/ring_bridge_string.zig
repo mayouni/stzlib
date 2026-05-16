@@ -1067,6 +1067,36 @@ fn ring_StringRjust(p: *anyopaque) callconv(.c) void {
 
 // (ring_StringCommonPrefix already defined above)
 
+// ─── Indent / Dedent ───
+
+fn ring_StringIndent(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const spaces: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_indent(h, spaces)), STZ_HANDLE);
+}
+
+fn ring_StringDedent(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_dedent(h)), STZ_HANDLE);
+}
+
+// ─── CamelCase / SnakeCase / KebabCase ───
+
+fn ring_StringToCamelCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_camel_case(h)), STZ_HANDLE);
+}
+
+fn ring_StringToSnakeCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_snake_case(h)), STZ_HANDLE);
+}
+
+fn ring_StringToKebabCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_kebab_case(h)), STZ_HANDLE);
+}
+
 // ─── RemovePrefix ───
 
 fn ring_StringRemovePrefix(p: *anyopaque) callconv(.c) void {
@@ -1423,6 +1453,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringisalphanumeric", .func = &ring_StringIsAlphanumeric },
     .{ .name = "stzenginestringljust", .func = &ring_StringLjust },
     .{ .name = "stzenginestringrjust", .func = &ring_StringRjust },
+    .{ .name = "stzenginestringindent", .func = &ring_StringIndent },
+    .{ .name = "stzenginestringdedent", .func = &ring_StringDedent },
+    .{ .name = "stzenginestringtocamelcase", .func = &ring_StringToCamelCase },
+    .{ .name = "stzenginestringtosnakecase", .func = &ring_StringToSnakeCase },
+    .{ .name = "stzenginestringtokebabcase", .func = &ring_StringToKebabCase },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

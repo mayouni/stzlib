@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 172 Registered Functions"
+? "Engine Full Bridge Test -- All 177 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1495,6 +1495,53 @@ StzEngineStringFree(pR)
 
 pR = StzEngineStringLjust(pStr, 2, ".")
 Assert("Ljust no pad needed", StzEngineStringData(pR), "hi")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 82: Indent, Dedent ---
+? "--- Group 82: Indent, Dedent ---"
+pStr = StzEngineStringFrom("line1" + char(10) + "line2")
+pR = StzEngineStringIndent(pStr, 4)
+cIndented = StzEngineStringData(pR)
+Assert("Indent starts with spaces", left(cIndented, 4), "    ")
+Assert("Indent contains indented line2", substr(cIndented, "    line2") > 0, true)
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("    hello" + char(10) + "    world")
+pR = StzEngineStringDedent(pStr)
+cDedented = StzEngineStringData(pR)
+Assert("Dedent removes common indent", left(cDedented, 5), "hello")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 83: CamelCase, SnakeCase, KebabCase ---
+? "--- Group 83: CamelCase, SnakeCase, KebabCase ---"
+pStr = StzEngineStringFrom("hello world")
+pR = StzEngineStringToCamelCase(pStr)
+Assert("CamelCase hello world", StzEngineStringData(pR), "helloWorld")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("helloWorld")
+pR = StzEngineStringToSnakeCase(pStr)
+Assert("SnakeCase helloWorld", StzEngineStringData(pR), "hello_world")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello_world")
+pR = StzEngineStringToKebabCase(pStr)
+Assert("KebabCase hello_world", StzEngineStringData(pR), "hello-world")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("MyClassName")
+pR = StzEngineStringToSnakeCase(pStr)
+Assert("SnakeCase MyClassName", StzEngineStringData(pR), "my_class_name")
+StzEngineStringFree(pR)
+
+pR = StzEngineStringToKebabCase(pStr)
+Assert("KebabCase MyClassName", StzEngineStringData(pR), "my-class-name")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 

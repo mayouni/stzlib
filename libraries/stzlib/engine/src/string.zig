@@ -5590,6 +5590,196 @@ pub fn stz_string_chars_between(handle: StzStringHandle, cp_from: c_int, cp_to: 
     return stz_string_from(src[start..end].ptr, end - start);
 }
 
+// ─── Indent / Dedent ───
+
+pub fn stz_string_indent(handle: StzStringHandle, spaces: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    const n: usize = if (spaces > 0) @intCast(spaces) else return stz_string_from(src.ptr, src.len);
+
+    const r = stz_string_new() orelse return null;
+    r.data.ensureTotalCapacity(gpa, src.len + src.len / 10 * n) catch {};
+
+    // Add indent before first line
+    for (0..n) |_| {
+        r.data.append(gpa, ' ') catch {};
+    }
+
+    for (src) |byte| {
+        r.data.append(gpa, byte) catch {};
+        if (byte == '\n') {
+            // Add indent after each newline
+            for (0..n) |_| {
+                r.data.append(gpa, ' ') catch {};
+            }
+        }
+    }
+    return r;
+}
+
+pub fn stz_string_dedent(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    // Remove common leading whitespace from all lines
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (src.len == 0) return stz_string_new();
+
+    // Find minimum indentation across non-empty lines
+    var min_indent: usize = std.math.maxInt(usize);
+    var line_start: usize = 0;
+    var i: usize = 0;
+    while (i <= src.len) : (i += 1) {
+        if (i == src.len or src[i] == '\n') {
+            const line = src[line_start..i];
+            if (line.len > 0) {
+                var indent: usize = 0;
+                for (line) |c| {
+                    if (c == ' ' or c == '\t') {
+                        indent += 1;
+                    } else break;
+                }
+                if (indent < line.len) { // non-whitespace-only line
+                    min_indent = @min(min_indent, indent);
+                }
+            }
+            line_start = i + 1;
+        }
+    }
+
+    if (min_indent == std.math.maxInt(usize) or min_indent == 0) {
+        return stz_string_from(src.ptr, src.len);
+    }
+
+    // Rebuild with indentation removed
+    const r = stz_string_new() orelse return null;
+    line_start = 0;
+    i = 0;
+    while (i <= src.len) : (i += 1) {
+        if (i == src.len or src[i] == '\n') {
+            const line = src[line_start..i];
+            if (line.len > min_indent) {
+                r.data.appendSlice(gpa, line[min_indent..]) catch {};
+            }
+            if (i < src.len) {
+                r.data.append(gpa, '\n') catch {};
+            }
+            line_start = i + 1;
+        }
+    }
+    return r;
+}
+
+// ─── CamelCase / SnakeCase / KebabCase ───
+
+pub fn stz_string_to_camel_case(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (src.len == 0) return stz_string_new();
+
+    const r = stz_string_new() orelse return null;
+    var capitalize_next = false;
+    var first = true;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+
+        if (cp == ' ' or cp == '_' or cp == '-' or cp == '\t') {
+            capitalize_next = true;
+        } else {
+            if (first) {
+                // First char: lowercase
+                const lc = unicode.stz_unicode_to_lower(cp);
+                var buf: [4]u8 = undefined;
+                const enc_len = std.unicode.utf8Encode(@intCast(lc), &buf) catch break;
+                r.data.appendSlice(gpa, buf[0..enc_len]) catch {};
+                first = false;
+            } else if (capitalize_next) {
+                const uc = unicode.stz_unicode_to_upper(cp);
+                var buf: [4]u8 = undefined;
+                const enc_len = std.unicode.utf8Encode(@intCast(uc), &buf) catch break;
+                r.data.appendSlice(gpa, buf[0..enc_len]) catch {};
+                capitalize_next = false;
+            } else {
+                r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            }
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+pub fn stz_string_to_snake_case(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (src.len == 0) return stz_string_new();
+
+    const r = stz_string_new() orelse return null;
+    var prev_was_lower = false;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+
+        if (cp == ' ' or cp == '-' or cp == '\t') {
+            r.data.append(gpa, '_') catch {};
+            prev_was_lower = false;
+        } else if (unicode.stz_unicode_is_upper(cp) != 0) {
+            if (prev_was_lower) {
+                r.data.append(gpa, '_') catch {};
+            }
+            const lc = unicode.stz_unicode_to_lower(cp);
+            var buf: [4]u8 = undefined;
+            const enc_len = std.unicode.utf8Encode(@intCast(lc), &buf) catch break;
+            r.data.appendSlice(gpa, buf[0..enc_len]) catch {};
+            prev_was_lower = false;
+        } else {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            prev_was_lower = unicode.stz_unicode_is_lower(cp) != 0;
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+pub fn stz_string_to_kebab_case(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (src.len == 0) return stz_string_new();
+
+    const r = stz_string_new() orelse return null;
+    var prev_was_lower = false;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+
+        if (cp == ' ' or cp == '_' or cp == '\t') {
+            r.data.append(gpa, '-') catch {};
+            prev_was_lower = false;
+        } else if (unicode.stz_unicode_is_upper(cp) != 0) {
+            if (prev_was_lower) {
+                r.data.append(gpa, '-') catch {};
+            }
+            const lc = unicode.stz_unicode_to_lower(cp);
+            var buf: [4]u8 = undefined;
+            const enc_len = std.unicode.utf8Encode(@intCast(lc), &buf) catch break;
+            r.data.appendSlice(gpa, buf[0..enc_len]) catch {};
+            prev_was_lower = false;
+        } else {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            prev_was_lower = unicode.stz_unicode_is_lower(cp) != 0;
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -6007,4 +6197,36 @@ test "common_prefix" {
     stz_string_free(cp);
     stz_string_free(s2);
     stz_string_free(s1);
+}
+
+test "indent_dedent" {
+    const s1 = stz_string_from("line1\nline2", 11);
+    const indented = stz_string_indent(s1, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(indented)[0..@intCast(stz_string_size(indented))], "  line1\n  line2"));
+    stz_string_free(indented);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("    hello\n    world", 19);
+    const dedented = stz_string_dedent(s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(dedented)[0..@intCast(stz_string_size(dedented))], "hello\nworld"));
+    stz_string_free(dedented);
+    stz_string_free(s2);
+}
+
+test "camel_snake_kebab" {
+    const s1 = stz_string_from("hello world", 11);
+    const camel = stz_string_to_camel_case(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(camel)[0..@intCast(stz_string_size(camel))], "helloWorld"));
+    stz_string_free(camel);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("helloWorld", 10);
+    const snake = stz_string_to_snake_case(s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(snake)[0..@intCast(stz_string_size(snake))], "hello_world"));
+    stz_string_free(snake);
+
+    const kebab = stz_string_to_kebab_case(s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(kebab)[0..@intCast(stz_string_size(kebab))], "hello-world"));
+    stz_string_free(kebab);
+    stz_string_free(s2);
 }
