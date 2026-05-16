@@ -932,6 +932,51 @@ fn ring_StringReplaceChar(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+// ─── CountOverlapping ───
+
+fn ring_StringCountOverlapping(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const needle = ring_vm_api_getstring(p, 2);
+    const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_overlapping(h, needle, needle_len)));
+}
+
+// ─── ReplaceAt ───
+
+fn ring_StringReplaceAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp_pos: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const cp_count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const rep = ring_vm_api_getstring(p, 4);
+    const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_replace_at(h, cp_pos, cp_count, rep, rep_len)), STZ_HANDLE);
+}
+
+// ─── CharFrequency ───
+
+fn ring_StringCharFrequency(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_char_frequency(h)), STZ_HANDLE);
+}
+
+// ─── ContainsAnyOf ───
+
+fn ring_StringContainsAnyOf(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const chars = ring_vm_api_getstring(p, 2);
+    const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_any_of(h, chars, chars_len)));
+}
+
+// ─── ContainsAllOf ───
+
+fn ring_StringContainsAllOf(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const chars = ring_vm_api_getstring(p, 2);
+    const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_all_of(h, chars, chars_len)));
+}
+
 // ─── RemovePrefix ───
 
 fn ring_StringRemovePrefix(p: *anyopaque) callconv(.c) void {
@@ -1272,6 +1317,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringdecapitalizefirst", .func = &ring_StringDecapitalizeFirst },
     .{ .name = "stzenginestringzfill", .func = &ring_StringZFill },
     .{ .name = "stzenginestringtabexpand", .func = &ring_StringTabExpand },
+    .{ .name = "stzenginestringcountoverlapping", .func = &ring_StringCountOverlapping },
+    .{ .name = "stzenginestringreplaceat", .func = &ring_StringReplaceAt },
+    .{ .name = "stzenginestringcharfrequency", .func = &ring_StringCharFrequency },
+    .{ .name = "stzenginestringcontainsanyof", .func = &ring_StringContainsAnyOf },
+    .{ .name = "stzenginestringcontainsallof", .func = &ring_StringContainsAllOf },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
