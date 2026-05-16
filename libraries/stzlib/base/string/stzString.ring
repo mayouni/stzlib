@@ -3307,25 +3307,21 @@ class stzString from stzObject
 			return []
 		ok
 
-		# Doing the job
+		# Doing the job -- uses char-level (codepoint) access
 
 		acResult = []
-		nLen = This.NumberOfChars()
-
-		cContent = This.Content()
-
-		if IsCaseSensitive(pCaseSensitive) = 0
-			cContent = ring_lower(cContent)
-		ok
-
-
+		acChars = This.CharsCS(pCaseSensitive)
+		nLen = len(acChars)
 
 		for i = 1 to nLen
 			for j = i to nLen
 
-				cSubStr = substr(cContent, i, (j - i + 1))
+				cSubStr = ""
+				for k = i to j
+					cSubStr += acChars[k]
+				next
 
-				if pCaseSensitive = 1
+				if @CaseSensitive(pCaseSensitive) = 1
 					acResult + cSubStr
 
 				else
@@ -3336,7 +3332,7 @@ class stzString from stzObject
 				ok
 			next
 		next
-		
+
 		 return acResult
 
 
@@ -94297,8 +94293,8 @@ class stzString from stzObject
 		# Doing the job
 
 		if _bCase_ = 1
-
-			return len(This.Content())
+			# Engine-backed: counts Unicode codepoints, not bytes
+			return StzEngineStringCount(@pEngine)
 		else
 			return len( This.UniqueChars() )
 		ok

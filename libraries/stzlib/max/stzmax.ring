@@ -40,7 +40,7 @@
 # Loading files related to STRING module
 
     load "string/stzmultistring.ring"
-    load "string/stzstringconstraints.ring"
+    load "string/stzSringConstraints.ring"
     load "string/stztextencoding.ring"
 
 # Loading files related to the SYSTEM module

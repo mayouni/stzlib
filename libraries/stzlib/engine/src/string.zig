@@ -131,46 +131,161 @@ pub fn stz_string_trimmed(handle: StzStringHandle) callconv(.c) StzStringHandle 
     return stz_string_new();
 }
 
+// ─── Codepoint-aware Extraction ───
+
+/// Get nth char (0-based codepoint index). Returns new handle with that single codepoint.
+pub fn stz_string_nth_char(handle: StzStringHandle, cp_index: usize) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const hay = s.slice();
+        var byte_pos: usize = 0;
+        var cp: usize = 0;
+        while (byte_pos < hay.len and cp < cp_index) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            cp += 1;
+        }
+        if (byte_pos < hay.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            return stz_string_from(hay[byte_pos..].ptr, cp_len);
+        }
+    }
+    return stz_string_new();
+}
+
+/// Extract substring by codepoint range [start_cp, start_cp + cp_count).
+/// Both parameters are 0-based codepoint indices.
+pub fn stz_string_slice(handle: StzStringHandle, start_cp: usize, cp_count: usize) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const hay = s.slice();
+        // Find byte start
+        var byte_pos: usize = 0;
+        var cp: usize = 0;
+        while (byte_pos < hay.len and cp < start_cp) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            cp += 1;
+        }
+        const byte_start = byte_pos;
+        // Find byte end
+        var count: usize = 0;
+        while (byte_pos < hay.len and count < cp_count) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            count += 1;
+        }
+        return stz_string_from(hay[byte_start..byte_pos].ptr, byte_pos - byte_start);
+    }
+    return stz_string_new();
+}
+
+/// Get all chars as an array of handles. Caller must free each handle and the array.
+/// Returns count via out parameter. Array allocated with c_allocator.
+pub fn stz_string_chars(handle: StzStringHandle, out_count: *usize) callconv(.c) [*c]StzStringHandle {
+    if (handle) |s| {
+        const hay = s.slice();
+        const n = utf8CodepointCount(hay);
+        out_count.* = n;
+        if (n == 0) return null;
+        const arr = gpa.alloc(StzStringHandle, n) catch return null;
+        var byte_pos: usize = 0;
+        var i: usize = 0;
+        while (byte_pos < hay.len and i < n) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            arr[i] = stz_string_from(hay[byte_pos..].ptr, cp_len);
+            byte_pos += cp_len;
+            i += 1;
+        }
+        return arr.ptr;
+    }
+    out_count.* = 0;
+    return null;
+}
+
+/// Free an array of string handles returned by stz_string_chars.
+pub fn stz_string_chars_free(arr: [*c]StzStringHandle, count: usize) callconv(.c) void {
+    if (arr == null) return;
+    for (0..count) |i| {
+        stz_string_free(arr[i]);
+    }
+    gpa.free(arr[0..count]);
+}
+
 // ─── Search ───
 
 pub fn stz_string_index_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
     if (handle) |s| {
         if (needle == null or needle_len == 0) return -1;
-        const haystack = s.slice();
+        const hay = s.slice();
         const n = needle[0..needle_len];
-        if (mem.indexOf(u8, haystack, n)) |pos| {
-            return @intCast(pos);
+        // Walk by codepoints, return codepoint index (0-based)
+        var byte_pos: usize = 0;
+        var cp_pos: usize = 0;
+        while (byte_pos + n.len <= hay.len) {
+            if (mem.eql(u8, hay[byte_pos..][0..n.len], n)) {
+                return @intCast(cp_pos);
+            }
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            cp_pos += 1;
         }
     }
     return -1;
 }
 
-pub fn stz_string_index_of_from(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_byte: usize) callconv(.c) i64 {
-    if (handle) |s| {
-        if (needle == null or needle_len == 0) return -1;
-        const haystack = s.slice();
-        if (start_byte >= haystack.len) return -1;
-        const n = needle[0..needle_len];
-        if (mem.indexOf(u8, haystack[start_byte..], n)) |pos| {
-            return @intCast(start_byte + pos);
-        }
-    }
-    return -1;
-}
-
-pub fn stz_string_index_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_byte: usize) callconv(.c) i64 {
+pub fn stz_string_index_of_from(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize) callconv(.c) i64 {
+    // start_cp is a 0-based codepoint index
     if (handle) |s| {
         if (needle == null or needle_len == 0) return -1;
         const hay = s.slice();
-        if (start_byte >= hay.len) return -1;
         const n = needle[0..needle_len];
-
-        var pos = start_byte;
-        outer: while (pos + n.len <= hay.len) : (pos += 1) {
-            for (0..n.len) |j| {
-                if (toLowerAscii(hay[pos + j]) != toLowerAscii(n[j])) continue :outer;
+        // Skip to start_cp codepoint
+        var byte_pos: usize = 0;
+        var cp_pos: usize = 0;
+        while (cp_pos < start_cp and byte_pos < hay.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            cp_pos += 1;
+        }
+        // Search from here
+        while (byte_pos + n.len <= hay.len) {
+            if (mem.eql(u8, hay[byte_pos..][0..n.len], n)) {
+                return @intCast(cp_pos);
             }
-            return @intCast(pos);
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            cp_pos += 1;
+        }
+    }
+    return -1;
+}
+
+pub fn stz_string_index_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize) callconv(.c) i64 {
+    // start_cp is a 0-based codepoint index
+    if (handle) |s| {
+        if (needle == null or needle_len == 0) return -1;
+        const hay = s.slice();
+        const n = needle[0..needle_len];
+        // Skip to start_cp codepoint
+        var byte_pos: usize = 0;
+        var cp_pos: usize = 0;
+        while (cp_pos < start_cp and byte_pos < hay.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            cp_pos += 1;
+        }
+        // Search from here (case-insensitive)
+        while (byte_pos + n.len <= hay.len) {
+            var match = true;
+            for (0..n.len) |j| {
+                if (toLowerAscii(hay[byte_pos + j]) != toLowerAscii(n[j])) {
+                    match = false;
+                    break;
+                }
+            }
+            if (match) return @intCast(cp_pos);
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            cp_pos += 1;
         }
     }
     return -1;
@@ -316,14 +431,17 @@ pub fn stz_string_find_all(handle: StzStringHandle, needle: [*c]const u8, needle
         if (needle == null or needle_len == 0) return r;
         const hay = s.slice();
         const n = needle[0..needle_len];
-        var pos: usize = 0;
-        while (pos + n.len <= hay.len) {
-            if (mem.eql(u8, hay[pos..][0..n.len], n)) {
-                r.positions.append(gpa, @intCast(pos)) catch break;
-                pos += 1; // overlapping matches allowed (Ring semantics)
-            } else {
-                pos += 1;
+        // Walk by codepoints to return codepoint-based positions
+        var byte_pos: usize = 0;
+        var cp_pos: usize = 0;
+        while (byte_pos + n.len <= hay.len) {
+            if (mem.eql(u8, hay[byte_pos..][0..n.len], n)) {
+                r.positions.append(gpa, @intCast(cp_pos)) catch break;
             }
+            // Advance by one codepoint
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            cp_pos += 1;
         }
     }
     return r;
@@ -336,16 +454,24 @@ pub fn stz_string_find_all_ci(handle: StzStringHandle, needle: [*c]const u8, nee
         if (needle == null or needle_len == 0) return r;
         const hay = s.slice();
         const n = needle[0..needle_len];
-        var pos: usize = 0;
-        outer: while (pos + n.len <= hay.len) {
+        // Walk by codepoints to return codepoint-based positions
+        var byte_pos: usize = 0;
+        var cp_pos: usize = 0;
+        while (byte_pos + n.len <= hay.len) {
+            var match = true;
             for (0..n.len) |j| {
-                if (toLowerAscii(hay[pos + j]) != toLowerAscii(n[j])) {
-                    pos += 1;
-                    continue :outer;
+                if (toLowerAscii(hay[byte_pos + j]) != toLowerAscii(n[j])) {
+                    match = false;
+                    break;
                 }
             }
-            r.positions.append(gpa, @intCast(pos)) catch break;
-            pos += 1; // overlapping matches allowed
+            if (match) {
+                r.positions.append(gpa, @intCast(cp_pos)) catch break;
+            }
+            // Advance by one codepoint
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            cp_pos += 1;
         }
     }
     return r;
@@ -374,10 +500,10 @@ pub fn stz_find_result_free(result: StzFindResultHandle) callconv(.c) void {
 pub fn stz_string_last_index_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
     if (handle) |s| {
         if (needle == null or needle_len == 0) return -1;
-        const haystack = s.slice();
+        const hay = s.slice();
         const n = needle[0..needle_len];
-        if (mem.lastIndexOf(u8, haystack, n)) |pos| {
-            return @intCast(pos);
+        if (mem.lastIndexOf(u8, hay, n)) |byte_pos| {
+            return @intCast(byteOffsetToCodepointIndex(hay, byte_pos));
         }
     }
     return -1;
@@ -411,6 +537,7 @@ pub fn stz_string_last_index_of_ci(handle: StzStringHandle, needle: [*c]const u8
         const hay = s.slice();
         const n = needle[0..needle_len];
         if (n.len > hay.len) return -1;
+        // Find last byte match, then convert to codepoint index
         var pos: usize = hay.len - n.len;
         while (true) {
             var match = true;
@@ -420,7 +547,7 @@ pub fn stz_string_last_index_of_ci(handle: StzStringHandle, needle: [*c]const u8
                     break;
                 }
             }
-            if (match) return @intCast(pos);
+            if (match) return @intCast(byteOffsetToCodepointIndex(hay, pos));
             if (pos == 0) break;
             pos -= 1;
         }
@@ -770,6 +897,32 @@ fn utf8CodepointCount(bytes: []const u8) usize {
     return count;
 }
 
+/// Convert a byte offset to a 0-based codepoint index.
+fn byteOffsetToCodepointIndex(bytes: []const u8, byte_offset: usize) usize {
+    var cp_idx: usize = 0;
+    var i: usize = 0;
+    while (i < byte_offset and i < bytes.len) {
+        const byte = bytes[i];
+        const cp_len = std.unicode.utf8ByteSequenceLength(byte) catch 1;
+        cp_idx += 1;
+        i += cp_len;
+    }
+    return cp_idx;
+}
+
+/// Convert a 0-based codepoint index to a byte offset.
+fn codepointIndexToByteOffset(bytes: []const u8, cp_index: usize) usize {
+    var cp_count: usize = 0;
+    var i: usize = 0;
+    while (i < bytes.len and cp_count < cp_index) {
+        const byte = bytes[i];
+        const cp_len = std.unicode.utf8ByteSequenceLength(byte) catch 1;
+        cp_count += 1;
+        i += cp_len;
+    }
+    return i;
+}
+
 // ─── Tests ───
 
 test "string lifecycle" {
@@ -1098,5 +1251,75 @@ test "string split_get" {
     const p2 = stz_string_split_get(s, "::", 2, 2);
     try std.testing.expect(mem.eql(u8, stz_string_data(p2)[0..stz_string_size(p2)], "three"));
     stz_string_free(p2);
+    stz_string_free(s);
+}
+
+// ─── Unicode codepoint-position tests ───
+
+test "find_all unicode codepoint positions" {
+    // "bullet heart bullet bullet bullet bullet heart bullet bullet"
+    // Each char is 3 bytes (U+2022=E2 80 A2, U+2665=E2 99 A5)
+    // String: bullet(0) heart(1) bullet(2) bullet(3) bullet(4) bullet(5) heart(6) bullet(7) bullet(8)
+    const str = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2\xe2\x80\xa2\xe2\x80\xa2\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2\xe2\x80\xa2";
+    const s = stz_string_from(str, 27);
+    try std.testing.expectEqual(@as(usize, 9), stz_string_count(s));
+
+    // Find heart (E2 99 A5) -- should be at codepoint positions 1 and 6
+    const r = stz_string_find_all(s, "\xe2\x99\xa5", 3);
+    try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r));
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0));
+    try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r, 1));
+    stz_find_result_free(r);
+
+    // Find "bullet heart bullet" (9 bytes) -- at codepoint positions 0 and 5
+    const sub = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2";
+    const r2 = stz_string_find_all(s, sub, 9);
+    try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r2));
+    try std.testing.expectEqual(@as(i64, 0), stz_find_result_get(r2, 0));
+    try std.testing.expectEqual(@as(i64, 5), stz_find_result_get(r2, 1));
+    stz_find_result_free(r2);
+
+    stz_string_free(s);
+}
+
+test "index_of unicode codepoint position" {
+    // "cafe" with e-acute: "caf\xC3\xA9X" -- 5 bytes, 4 codepoints + X
+    const s = stz_string_from("caf\xC3\xA9X", 6);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_count(s));
+    // 'X' is at byte 5 but codepoint index 4
+    try std.testing.expectEqual(@as(i64, 4), stz_string_index_of(s, "X", 1));
+    stz_string_free(s);
+}
+
+test "last_index_of unicode" {
+    // Two hearts in multibyte string
+    const str = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2\xe2\x99\xa5";
+    const s = stz_string_from(str, 12); // 4 chars, 12 bytes
+    try std.testing.expectEqual(@as(usize, 4), stz_string_count(s));
+    // Last heart at codepoint 3
+    try std.testing.expectEqual(@as(i64, 3), stz_string_last_index_of(s, "\xe2\x99\xa5", 3));
+    stz_string_free(s);
+}
+
+test "nth_char unicode" {
+    const str = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2";
+    const s = stz_string_from(str, 9); // 3 chars
+    // nth_char(1) should be heart
+    const ch = stz_string_nth_char(s, 1);
+    try std.testing.expectEqual(@as(usize, 3), stz_string_size(ch));
+    try std.testing.expect(mem.eql(u8, stz_string_data(ch)[0..3], "\xe2\x99\xa5"));
+    stz_string_free(ch);
+    stz_string_free(s);
+}
+
+test "slice unicode" {
+    // "bullet heart bullet bullet heart" = 5 chars
+    const str = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2\xe2\x80\xa2\xe2\x99\xa5";
+    const s = stz_string_from(str, 15);
+    // slice(1, 3) = chars 1,2,3 = heart bullet bullet
+    const sl = stz_string_slice(s, 1, 3);
+    try std.testing.expectEqual(@as(usize, 9), stz_string_size(sl));
+    try std.testing.expect(mem.eql(u8, stz_string_data(sl)[0..3], "\xe2\x99\xa5"));
+    stz_string_free(sl);
     stz_string_free(s);
 }

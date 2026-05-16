@@ -11,18 +11,13 @@ if NOT isGlobal(:$STZ_LAYER)
     $STZ_LAYER = :base
 ok
 
-switch $STZ_LAYER
-
-on :core
+if $STZ_LAYER = :core
     load "core/stzcore.ring"
 
-on :base
-    load "base/stzbase.ring"
-
-on :max
+but $STZ_LAYER = :max
     load "max/stzmax.ring"
 
-other
+else
     load "base/stzbase.ring"
 
-off
+ok
