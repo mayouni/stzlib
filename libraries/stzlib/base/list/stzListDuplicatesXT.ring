@@ -49,7 +49,21 @@ class stzListDuplicatesXT from stzListDuplicates
 				[:DistinctCS,			:UniqueItemsCS],
 				[:Distinct,			:UniqueItems],
 				[:DistinctItemsCS,		:UniqueItemsCS],
-				[:DistinctItems,		:UniqueItems]
+				[:DistinctItems,		:UniqueItems],
+
+				# NonDuplicated aliases
+				[:SingleItems,			:NonDuplicatedItems],
+				[:SingleItemsCS,		:NonDuplicatedItemsCS],
+
+				# Frequency-based aliases
+				[:ItemsAppearingNTimes,		:ItemsDuplicatedNTimes],
+				[:ItemsAppearingNTimesCS,	:ItemsDuplicatedNTimesCS],
+				[:MostRepeated,			:MostDuplicatedItem],
+				[:MostRepeatedCS,		:MostDuplicatedItemCS],
+
+				# RemoveNth aliases
+				[:RemoveNthDup,			:RemoveNthDuplicate],
+				[:RemoveNthDupCS,		:RemoveNthDuplicateCS]
 			]
 
 			nLen = len(aAliases)

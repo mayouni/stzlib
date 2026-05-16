@@ -37,7 +37,21 @@ class stzListStringifyXT from stzListStringify
 				[:ToListInAString,		:ComputableForm],
 
 				# Singlify aliases
-				[:RemoveConsecutiveDuplicates,	:Singlify]
+				[:RemoveConsecutiveDuplicates,	:Singlify],
+
+				# Join aliases
+				[:Concatenate,			:Join],
+				[:ConcatenateWith,		:JoinWith],
+				[:Implode,			:Join],
+				[:Glue,				:Join],
+
+				# Case conversion aliases
+				[:AllLowercased,		:Lowercased],
+				[:AllUppercased,		:Uppercased],
+
+				# Type conversion aliases
+				[:NumsToStrings,		:NumbersToStrings],
+				[:StringsToNums,		:StringsToNumbers]
 			]
 
 			nLen = len(aAliases)
