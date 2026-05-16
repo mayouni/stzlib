@@ -44,7 +44,17 @@ class stzListComparatorXT from stzListComparator
 				[:IncludesAll,		:ContainsAllOfThese],
 				[:IncludesAllCS,	:ContainsAllOfTheseCS],
 				[:IncludesOne,		:ContainsOneOfThese],
-				[:IncludesOneCS,	:ContainsOneOfTheseCS]
+				[:IncludesOneCS,	:ContainsOneOfTheseCS],
+				[:HasSameLengthAs,	:IsSameSizeAs],
+				[:HasSameCountAs,	:IsSameSizeAs],
+				[:BeginsWithCS,		:StartsWithCS],
+				[:BeginsWith,		:StartsWith],
+				[:FinishesWithCS,	:EndsWithCS],
+				[:FinishesWith,		:EndsWith],
+				[:ExclusiveItems,	:ItemsNotIn],
+				[:ExclusiveItemsCS,	:ItemsNotInCS],
+				[:IsAnagramOfCS,	:IsPermutationOfCS],
+				[:IsAnagramOf,		:IsPermutationOf]
 			]
 
 			nLen = len(aAliases)

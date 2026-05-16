@@ -27,14 +27,11 @@ class stzListExtractorXT from stzListExtractor
 			_bAliasesLoaded = 1
 
 			aAliases = [
-				[:Pop,			:Extract],
 				[:PopCS,		:ExtractCS],
 				[:PopMany,		:ExtractMany],
 				[:PopManyCS,		:ExtractManyCS],
 				[:PopAll,		:ExtractAll],
 				[:Drain,		:ExtractAll],
-				[:PopFirst,		:ExtractFirst],
-				[:PopLast,		:ExtractLast],
 				[:PopNth,		:ExtractNth],
 				[:PopSection,		:ExtractSection],
 				[:PopRange,		:ExtractRange],
@@ -44,7 +41,13 @@ class stzListExtractorXT from stzListExtractor
 				[:PopFirstOccurrence,	:ExtractFirstOccurrence],
 				[:PopLastOccurrence,	:ExtractLastOccurrence],
 				[:PopDuplicates,	:ExtractDuplicates],
-				[:PopDuplicatesCS,	:ExtractDuplicatesCS]
+				[:PopDuplicatesCS,	:ExtractDuplicatesCS],
+				[:PopStrings,		:ExtractStrings],
+				[:PopNumbers,		:ExtractNumbers],
+				[:PopLists,		:ExtractLists],
+				[:TakeFirst,		:Take],
+				[:TakeFromStart,	:Take],
+				[:TakeFromEnd,		:TakeLast]
 			]
 
 			nLen = len(aAliases)

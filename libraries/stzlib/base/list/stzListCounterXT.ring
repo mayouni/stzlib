@@ -48,7 +48,26 @@ class stzListCounterXT from stzListCounter
 
 				# InsertWXT aliases
 				[:InsertAfterWhereXTQ,		:InsertAfterWXTQ],
-				[:InsertAtWXTQ,			:InsertBeforeWXTQ]
+				[:InsertAtWXTQ,			:InsertBeforeWXTQ],
+
+				# Type counting aliases
+				[:HowManyStrings,		:CountStrings],
+				[:HowManyNumbers,		:CountNumbers],
+				[:HowManyLists,			:CountLists],
+
+				# Count specific item aliases
+				[:NumberOfOccurrencesOfCS,	:CountCS],
+				[:NumberOfOccurrencesOf,		:Count],
+				[:Occurrences,			:Count],
+				[:OccurrencesCS,		:CountCS],
+
+				# Conditional aliases
+				[:HowManyIf,			:CountIf],
+				[:CountWhere,			:CountIf],
+
+				# Empty item aliases
+				[:HowManyEmpty,			:CountEmptyItems],
+				[:HowManyNonEmpty,		:CountNonEmptyItems]
 			]
 
 			nLen = len(aAliases)

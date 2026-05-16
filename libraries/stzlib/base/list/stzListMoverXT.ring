@@ -38,7 +38,16 @@ class stzListMoverXT from stzListMover
 				[:FlipQ,		:ReverseQ],
 				[:Flipped,		:Reversed],
 				[:MoveManyItems,	:MoveMany],
-				[:SwapEnds,		:SwapFirstAndLast]
+				[:SwapEnds,		:SwapFirstAndLast],
+				[:CircularShiftLeft,	:RotateLeft],
+				[:CircularShiftRight,	:RotateRight],
+				[:ShiftedLeft,		:RotatedLeft],
+				[:ShiftedRight,		:RotatedRight],
+				[:Randomize,		:Shuffle],
+				[:RandomizeQ,		:ShuffleQ],
+				[:Randomized,		:Shuffled],
+				[:BringToFront,		:MoveItemToStart],
+				[:SendToBack,		:MoveItemToEnd]
 			]
 
 			nLen = len(aAliases)

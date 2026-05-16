@@ -31,14 +31,20 @@ class stzListMergerXT from stzListMerger
 				[:CombinedWith,		:MergedWith],
 				[:CombineWithMany,	:MergeWithMany],
 				[:CombinedWithMany,	:MergedWithMany],
-				[:ZipWith,		:AssociateWith],
-				[:ZippedWith,		:AssociatedWith],
+				[:PairWith,		:ZipWith],
+				[:PairedWith,		:ZippedWith],
+				[:Unpair,		:Unzip],
+				[:Unpaired,		:Unzipped],
 				[:DeepMerge,		:Flatten],
 				[:DeepMergeQ,		:FlattenQ],
 				[:DeepMerged,		:Flattened],
 				[:WeaveWith,		:InterleaveWith],
 				[:WeaveWithQ,		:InterleaveWithQ],
-				[:WovenWith,		:InterleavedWith]
+				[:WovenWith,		:InterleavedWith],
+				[:SubtractFrom,		:DiffWith],
+				[:CommonWith,		:IntersectWith],
+				[:SharedWith,		:IntersectWith],
+				[:CombineUniqueWith,	:UnionWith]
 			]
 
 			nLen = len(aAliases)

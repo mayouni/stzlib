@@ -42,7 +42,19 @@ class stzListGetterXT from stzListGetter
 				[:DistinctItemsCS,	:UniqueItemsCS],
 				[:AnyItem,		:RandomItem],
 				[:PickRandom,		:RandomItem],
-				[:PickNRandom,		:NRandomItems]
+				[:PickNRandom,		:NRandomItems],
+				[:TakeFirst,		:Head],
+				[:TakeLast,		:Tail],
+				[:Stride,		:EveryNthItem],
+				[:Step,			:EveryNthItem],
+				[:ConsecutivePairs,	:Pairs],
+				[:ConsecutiveTriplets,	:Triplets],
+				[:Windows,		:SlidingWindow],
+				[:NGrams,		:SlidingWindow],
+				[:StringItems,		:OnlyStrings],
+				[:NumberItems,		:OnlyNumbers],
+				[:ListItems,		:OnlyLists],
+				[:CharItems,		:OnlyChars]
 			]
 
 			nLen = len(aAliases)

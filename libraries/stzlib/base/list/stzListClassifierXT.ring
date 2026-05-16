@@ -31,12 +31,20 @@ class stzListClassifierXT from stzListClassifier
 				[:Categorized,		:Classified],
 				[:Categories,		:Classes],
 				[:CategorizeBy,		:ClassifyBy],
-				[:GroupBy,		:ClassifyBy],
 				[:NumberOfCategories,	:NumberOfClasses],
 				[:Freqs,		:Frequencies],
 				[:ItemFrequencies,	:Frequencies],
 				[:MostCommon,		:MostFrequent],
-				[:LeastCommon,		:LeastFrequent]
+				[:LeastCommon,		:LeastFrequent],
+				[:SplitInto,		:Partition],
+				[:Partitioned,		:Partition],
+				[:FrequencyChart,	:Histogram],
+				[:ItemsWithCount,	:ItemsAppearingNTimes],
+				[:ItemsAppearingExactly,	:ItemsAppearingNTimes],
+				[:ItemsMoreThan,	:ItemsAppearingMoreThanNTimes],
+				[:ItemsLessThan,	:ItemsAppearingLessThanNTimes],
+				[:CountOf,		:FrequencyOf],
+				[:Modes,		:Mode]
 			]
 
 			nLen = len(aAliases)
