@@ -12,7 +12,7 @@ func Q(p)
 		oResult = new stzNumber(p)
 
 	but isList(p)
-		oResult = new stzList(p)
+		oResult = new stzListNamedParams(p)
 
 	but isObject(p)
 		oResult = new stzObject(p)
