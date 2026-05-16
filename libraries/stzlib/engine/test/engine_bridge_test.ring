@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 190 Registered Functions"
+? "Engine Full Bridge Test -- All 195 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1675,6 +1675,61 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("hello world!")
 Assert("CountAnyChar aeiou", StzEngineStringCountAnyChar(pStr, "aeiou"), 3)
 Assert("CountAnyChar lo", StzEngineStringCountAnyChar(pStr, "lo"), 5)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 88: Rotate / RepeatToLength / RemoveBetween / IsBlank / ToPascalCase
+# ==============================================================
+
+? ""
+? "--- Group 88: Rotate / RepeatToLength / RemoveBetween / IsBlank / ToPascalCase ---"
+
+pStr = StzEngineStringFrom("abcde")
+pR = StzEngineStringRotate(pStr, 2)
+Assert("Rotate left 2", StzEngineStringData(pR), "cdeab")
+StzEngineStringFree(pR)
+pR = StzEngineStringRotate(pStr, -1)
+Assert("Rotate right 1", StzEngineStringData(pR), "eabcd")
+StzEngineStringFree(pR)
+pR = StzEngineStringRotate(pStr, 5)
+Assert("Rotate by length=noop", StzEngineStringData(pR), "abcde")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc")
+pR = StzEngineStringRepeatToLength(pStr, 7)
+Assert("RepeatToLength 7", StzEngineStringData(pR), "abcabca")
+StzEngineStringFree(pR)
+pR = StzEngineStringRepeatToLength(pStr, 1)
+Assert("RepeatToLength 1", StzEngineStringData(pR), "a")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello [world] end")
+pR = StzEngineStringRemoveBetween(pStr, "[", "]")
+Assert("RemoveBetween []", StzEngineStringData(pR), "hello  end")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("   ")
+Assert("IsBlank spaces", StzEngineStringIsBlank(pStr), 1)
+StzEngineStringFree(pStr)
+pStr = StzEngineStringFrom("")
+Assert("IsBlank empty", StzEngineStringIsBlank(pStr), 1)
+StzEngineStringFree(pStr)
+pStr = StzEngineStringFrom(" a ")
+Assert("IsBlank not blank", StzEngineStringIsBlank(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello_world")
+pR = StzEngineStringToPascalCase(pStr)
+Assert("ToPascalCase snake", StzEngineStringData(pR), "HelloWorld")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+pStr = StzEngineStringFrom("my-kebab-case")
+pR = StzEngineStringToPascalCase(pStr)
+Assert("ToPascalCase kebab", StzEngineStringData(pR), "MyKebabCase")
+StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # ==============================================================

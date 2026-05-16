@@ -1394,6 +1394,37 @@ fn ring_StringCountAnyChar(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_any_char(h, chars, chars_len)));
 }
 
+fn ring_StringRotate(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_rotate(h, n)), STZ_HANDLE);
+}
+
+fn ring_StringRepeatToLength(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const target: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_repeat_to_length(h, target)), STZ_HANDLE);
+}
+
+fn ring_StringRemoveBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open = ring_vm_api_getstring(p, 2);
+    const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close = ring_vm_api_getstring(p, 3);
+    const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_between(h, open, open_len, close, close_len)), STZ_HANDLE);
+}
+
+fn ring_StringIsBlank(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_blank(h)));
+}
+
+fn ring_StringToPascalCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_pascal_case(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1588,6 +1619,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsurround", .func = &ring_StringSurround },
     .{ .name = "stzenginestringreplaceanychar", .func = &ring_StringReplaceAnyChar },
     .{ .name = "stzenginestringcountanychar", .func = &ring_StringCountAnyChar },
+    .{ .name = "stzenginestringrotate", .func = &ring_StringRotate },
+    .{ .name = "stzenginestringrepeattolength", .func = &ring_StringRepeatToLength },
+    .{ .name = "stzenginestringremovebetween", .func = &ring_StringRemoveBetween },
+    .{ .name = "stzenginestringisblank", .func = &ring_StringIsBlank },
+    .{ .name = "stzenginestringtopascalcase", .func = &ring_StringToPascalCase },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

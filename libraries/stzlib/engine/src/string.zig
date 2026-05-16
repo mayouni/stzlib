@@ -6113,6 +6113,208 @@ pub fn stz_string_count_any_char(handle: StzStringHandle, chars: [*c]const u8, c
     return count;
 }
 
+/// Rotate codepoints left by `n` positions. Negative n rotates right.
+/// Returns new handle with rotated string.
+pub fn stz_string_rotate(handle: StzStringHandle, n: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, src.len);
+
+    // Count codepoints
+    var cp_count: usize = 0;
+    var i: usize = 0;
+    while (i < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[i]) catch break;
+        if (i + cp_len > src.len) break;
+        cp_count += 1;
+        i += cp_len;
+    }
+    if (cp_count == 0) return stz_string_from(src.ptr, src.len);
+
+    // Normalize rotation amount
+    const cpi: i64 = @intCast(cp_count);
+    var rot: i64 = @rem(@as(i64, n), cpi);
+    if (rot < 0) rot += cpi;
+    if (rot == 0) return stz_string_from(src.ptr, src.len);
+
+    // Find byte offset of rotation point
+    var off: usize = 0;
+    var cp_idx: usize = 0;
+    while (cp_idx < @as(usize, @intCast(rot)) and off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        off += cp_len;
+        cp_idx += 1;
+    }
+
+    const result = stz_string_new() orelse return null;
+    result.data.appendSlice(gpa, src[off..]) catch {
+        stz_string_free(result);
+        return null;
+    };
+    result.data.appendSlice(gpa, src[0..off]) catch {
+        stz_string_free(result);
+        return null;
+    };
+    return result;
+}
+
+/// Repeat string to fill exactly `target_len` codepoints.
+/// Returns new handle.
+pub fn stz_string_repeat_to_length(handle: StzStringHandle, target_len: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0 or target_len <= 0) return stz_string_new();
+
+    const target: usize = @intCast(target_len);
+
+    // Count codepoints in source
+    var cp_count: usize = 0;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        cp_count += 1;
+        off += cp_len;
+    }
+    if (cp_count == 0) return stz_string_new();
+
+    const result = stz_string_new() orelse return null;
+    var written: usize = 0;
+    while (written < target) {
+        const remaining = target - written;
+        if (remaining >= cp_count) {
+            // Append full copy
+            result.data.appendSlice(gpa, src) catch break;
+            written += cp_count;
+        } else {
+            // Append partial: walk `remaining` codepoints
+            var poff: usize = 0;
+            var pidx: usize = 0;
+            while (pidx < remaining and poff < src.len) {
+                const plen = std.unicode.utf8ByteSequenceLength(src[poff]) catch break;
+                if (poff + plen > src.len) break;
+                poff += plen;
+                pidx += 1;
+            }
+            result.data.appendSlice(gpa, src[0..poff]) catch break;
+            written += remaining;
+        }
+    }
+    return result;
+}
+
+/// Remove text between first occurrence of `open` and matching `close` (inclusive of delimiters).
+/// Returns new handle.
+pub fn stz_string_remove_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0 or open_len == 0 or close_len == 0) return stz_string_from(src.ptr, src.len);
+
+    const open_s = open[0..open_len];
+    const close_s = close[0..close_len];
+
+    // Find first open
+    const open_pos = mem.indexOf(u8, src, open_s) orelse return stz_string_from(src.ptr, src.len);
+    // Find first close after open
+    const search_start = open_pos + open_len;
+    if (search_start > src.len) return stz_string_from(src.ptr, src.len);
+    const close_rel = mem.indexOf(u8, src[search_start..], close_s) orelse return stz_string_from(src.ptr, src.len);
+    const close_end = search_start + close_rel + close_len;
+
+    const result = stz_string_new() orelse return null;
+    result.data.appendSlice(gpa, src[0..open_pos]) catch {
+        stz_string_free(result);
+        return null;
+    };
+    if (close_end < src.len) {
+        result.data.appendSlice(gpa, src[close_end..]) catch {
+            stz_string_free(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+/// Check if string is blank (empty or contains only whitespace).
+/// Returns 1 if blank, 0 otherwise.
+pub fn stz_string_is_blank(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 1; // null = blank
+    const src = s.slice();
+    if (src.len == 0) return 1;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp_val: i32 = decodeCodepoint(src, off, cp_len);
+        if (unicode.stz_unicode_is_space(cp_val) == 0) return 0;
+        off += cp_len;
+    }
+    return 1;
+}
+
+/// Convert to PascalCase: first letter of each word uppercase, rest lowercase.
+/// Word boundaries: spaces, underscores, hyphens, camelCase transitions.
+/// Returns new handle.
+pub fn stz_string_to_pascal_case(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var capitalize_next = true;
+    var prev_was_lower = false;
+    var off: usize = 0;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp_val: i32 = decodeCodepoint(src, off, cp_len);
+
+        // Check if this is a word separator
+        if (unicode.stz_unicode_is_space(cp_val) != 0 or cp_val == '_' or cp_val == '-') {
+            capitalize_next = true;
+            prev_was_lower = false;
+            off += cp_len;
+            continue;
+        }
+
+        // camelCase boundary: lowercase followed by uppercase
+        const is_upper = unicode.stz_unicode_is_upper(cp_val) != 0;
+        if (prev_was_lower and is_upper) {
+            capitalize_next = true;
+        }
+
+        if (capitalize_next) {
+            // Uppercase this char
+            var upper_buf: [4]u8 = undefined;
+            const upper_cp = unicode.stz_unicode_to_upper(cp_val);
+            const upper_u21: u21 = if (upper_cp >= 0) @intCast(@as(u32, @intCast(upper_cp))) else @intCast(@as(u32, @intCast(cp_val)));
+            const enc_len = std.unicode.utf8Encode(upper_u21, &upper_buf) catch {
+                off += cp_len;
+                continue;
+            };
+            result.data.appendSlice(gpa, upper_buf[0..enc_len]) catch break;
+            capitalize_next = false;
+            prev_was_lower = !is_upper;
+        } else {
+            // Lowercase this char
+            var lower_buf: [4]u8 = undefined;
+            const lower_cp = unicode.stz_unicode_to_lower(cp_val);
+            const lower_u21: u21 = if (lower_cp >= 0) @intCast(@as(u32, @intCast(lower_cp))) else @intCast(@as(u32, @intCast(cp_val)));
+            const enc_len = std.unicode.utf8Encode(lower_u21, &lower_buf) catch {
+                off += cp_len;
+                continue;
+            };
+            result.data.appendSlice(gpa, lower_buf[0..enc_len]) catch break;
+            prev_was_lower = !is_upper;
+        }
+        off += cp_len;
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -6666,4 +6868,87 @@ test "replace2" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "hi earth"));
     stz_string_free(r1);
     stz_string_free(s1);
+}
+
+test "rotate" {
+    const s1 = stz_string_from("abcde", 5);
+    const r1 = stz_string_rotate(s1, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "cdeab"));
+    stz_string_free(r1);
+
+    // Rotate right (negative)
+    const r2 = stz_string_rotate(s1, -1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "eabcd"));
+    stz_string_free(r2);
+
+    // Rotate by length = no change
+    const r3 = stz_string_rotate(s1, 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r3)[0..@intCast(stz_string_size(r3))], "abcde"));
+    stz_string_free(r3);
+    stz_string_free(s1);
+}
+
+test "repeat_to_length" {
+    const s1 = stz_string_from("abc", 3);
+    const r1 = stz_string_repeat_to_length(s1, 7);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "abcabca"));
+    stz_string_free(r1);
+
+    const r2 = stz_string_repeat_to_length(s1, 3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "abc"));
+    stz_string_free(r2);
+
+    const r3 = stz_string_repeat_to_length(s1, 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r3)[0..@intCast(stz_string_size(r3))], "a"));
+    stz_string_free(r3);
+    stz_string_free(s1);
+}
+
+test "remove_between" {
+    const s1 = stz_string_from("hello [world] end", 17);
+    const r1 = stz_string_remove_between(s1, "[", 1, "]", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "hello  end"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    // HTML tags
+    const s2 = stz_string_from("before<tag>inside</tag>after", 28);
+    const r2 = stz_string_remove_between(s2, "<tag>", 5, "</tag>", 6);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "beforeafter"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+}
+
+test "is_blank" {
+    const s1 = stz_string_from("   ", 3);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_blank(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("", 0);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_blank(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from(" a ", 3);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_blank(s3));
+    stz_string_free(s3);
+}
+
+test "to_pascal_case" {
+    const s1 = stz_string_from("hello_world", 11);
+    const r1 = stz_string_to_pascal_case(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "HelloWorld"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("my-kebab-case", 13);
+    const r2 = stz_string_to_pascal_case(s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "MyKebabCase"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("already PascalCase", 18);
+    const r3 = stz_string_to_pascal_case(s3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r3)[0..@intCast(stz_string_size(r3))], "AlreadyPascalCase"));
+    stz_string_free(r3);
+    stz_string_free(s3);
 }
