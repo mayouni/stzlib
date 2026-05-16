@@ -9356,15 +9356,15 @@ class stzString from stzObject
 		acResult = []
 		
 		for i = 1 to n
-		
+
 			for j = i to nLen step n
 				if j + n - 1 <= nLen
-					acResult + substr(This.Content(), j, n)
+					acResult + This.Section(j, j + n - 1)
 				ok
 			next
-		
+
 		next
-		
+
 		return acResult
 
 		#< @FunctionFluentForm
@@ -9582,15 +9582,15 @@ class stzString from stzObject
 		aResult = []
 		
 		for i = 1 to n
-		
+
 			for j = i to nLen step n
 				if j + n - 1 <= nLen
-					aResult + [ substr(This.Content(), j, n), j ]
+					aResult + [ This.Section(j, j + n - 1), j ]
 				ok
 			next
-		
+
 		next
-		
+
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -9628,15 +9628,15 @@ class stzString from stzObject
 		aResult = []
 		
 		for i = 1 to n
-		
+
 			for j = i to nLen step n
 				if j + n - 1 <= nLen
-					aResult + [ substr(This.Content(), j, n), [ j, j+n-1 ] ]
+					aResult + [ This.Section(j, j + n - 1), [ j, j+n-1 ] ]
 				ok
 			next
-		
+
 		next
-		
+
 		return aResult
 
 		#< @FunctionAlternativeForms
@@ -9822,7 +9822,7 @@ class stzString from stzObject
 			nLenTemp = len(acTemp)
 
 			for j = 1 to nLenTemp
-				aResult + [ substr(This.Content(), j, j + i - 1), j ]
+				aResult + [ This.Section(j, j + i - 1), j ]
 			next
 		next
 
@@ -9850,7 +9850,7 @@ class stzString from stzObject
 			nLenTemp = len(acTemp)
 
 			for j = 1 to nLenTemp
-				aResult + [ substr(This.Content(), j, j + i - 1), [ j, j + i - 1 ] ]
+				aResult + [ This.Section(j, j + i - 1), [ j, j + i - 1 ] ]
 			next
 		next
 
@@ -23390,8 +23390,8 @@ class stzString from stzObject
 			return ""
 		ok
 
-		_cLastChar_ = substr(This.Content(), _nLen_, 1)
-		_cBeforeLastChar_ = substr(This.Content(), _nLen_ - 1, 1)
+		_cLastChar_ = This.NthChar(_nLen_)
+		_cBeforeLastChar_ = This.NthChar(_nLen_ - 1)
 
 		if BothStringsAreEqualCS(_cLastChar_, _cBeforeLastChar_, pCaseSensitive)
 			return _cLastChar_
@@ -23522,8 +23522,8 @@ class stzString from stzObject
 			return 0
 		ok
 
-		_cLastChar_ = substr(This.Content(), _nLen_, 1)
-		_cBeforeLastChar_ = substr(This.Content(), _nLen_ - 1, 1)
+		_cLastChar_ = This.NthChar(_nLen_)
+		_cBeforeLastChar_ = This.NthChar(_nLen_ - 1)
 
 		if NOT BothStringsAreEqualCS(_cLastChar_, _cBeforeLastChar_, pCaseSensitive)
 			return 0
@@ -23533,7 +23533,7 @@ class stzString from stzObject
 
 		for @i = _nLen_ to 1 step - 1
 
-			_cChar_ = substr(This.Content(), @i, 1)
+			_cChar_ = This.NthChar(@i)
 
 			if NOT BothStringsAreEqualCS(_cChar_, _cLastChar_, pCaseSensitive)
 				exit
@@ -23618,8 +23618,8 @@ class stzString from stzObject
 			return 0
 		ok
 
-		_cLastChar_ = substr(This.Content(), _nLen_, 1)
-		_cBeforeLastChar_ = substr(This.Content(), _nLen_ - 1, 1)
+		_cLastChar_ = This.NthChar(_nLen_)
+		_cBeforeLastChar_ = This.NthChar(_nLen_ - 1)
 
 		if BothStringsAreEqualCS(_cLastChar_, _cBeforeLastChar_, pCaseSensitive) and
 		   BothStringsAreEqualCS(c, _cLastChar_, pCaseSensitive)
@@ -23667,8 +23667,8 @@ class stzString from stzObject
 			return 0
 		ok
 
-		cLastChar = substr(This.Content(), nLen, 1)
-		cBeforeLastChar = substr(This.Content(), nLen - 1, 1)
+		cLastChar = This.NthChar(nLen)
+		cBeforeLastChar = This.NthChar(nLen - 1)
 
 		if BothStringsAreEqualCS(cLastChar, cBeforeLastChar, pCaseSensitive)
 			return 1
@@ -35347,7 +35347,7 @@ class stzString from stzObject
 
 				n2 = nLen
 				for i = 1 to nLen
-					if substr(This.Content(), i, 1) = "."
+					if This.NthChar(i) = "."
 						n2 = i
 						exit
 					ok
@@ -35355,17 +35355,17 @@ class stzString from stzObject
 
 				return This.Section(n1, n2)
 			ok
-	
+
 			if n1 > 0 and isString(n2) and n2 = :EndOfLine
 				n2 = This.FindFirst(NL)
-				return This.Section(n1, n2-1)		
+				return This.Section(n1, n2-1)
 			ok
 
 			if n1 > 0 and isString(n2) and n2 = :EndOfWord #TODO // should move to stzText?
 
 				n2 = nLen-1
 				for i = 1 to nLen
-					if substr(This.Content(), i, 1) = " "
+					if This.NthChar(i) = " "
 						n2 = i-2
 						exit
 					ok
@@ -90606,7 +90606,7 @@ class stzString from stzObject
 
 			if _acChars_[@i] = "%" and (@i + 2) <= _nLen_
 
-				_cHexStr_ = substr(This.Content(), @i + 1, 2)
+				_cHexStr_ = _acChars_[@i + 1] + _acChars_[@i + 2]
 				_nCharCode_ = @Unicode( hex2str(_cHexStr_) )
 
 				_cResult_ += ( @Char(_nCharCode_) + " " )
@@ -90614,7 +90614,7 @@ class stzString from stzObject
 
 		        else
 
-				_cResult_ += substr(This.Content(), @i, 1)
+				_cResult_ += _acChars_[@i]
 		            	@i = @i + 1
 		        end
 		end
@@ -95142,10 +95142,10 @@ class stzString from stzObject
 			_nLen_ = this.NumberOfChars()
 
 			for @i = 1 to _nLen_
-				_cTemp_ = substr(This.Content(), @i, 1) + pValue
+				_cTemp_ = This.NthChar(@i) + pValue
 				_cResult_ += _cTemp_
 			next
-		
+
 		but ring_type(pValue) = "LIST"
 
 			_nLenValue_ = len(pValue)
@@ -95153,11 +95153,11 @@ class stzString from stzObject
 
 			_cResult_ = ""
 			_cTemp_ = ""
-				
+
 			for @i = 1 to nLen
-				
+
 				for @v = 1 to _nLenValue_
-					_cTemp_ = substr(This.Content(), i, 1) + pValue[@v]
+					_cTemp_ = This.NthChar(@i) + pValue[@v]
 					_cResult_ += _cTemp _
 				next
 										
@@ -98127,8 +98127,12 @@ class stzString from stzObject
 				_nParts_ = ceil( _nLen_ / pValue )
 
 				for @i = 1 to _nLen_ step _nParts_
-					_cTemp_ = substr(This.Content(), @i, _nParts_)
-					_aParts_ + _cTemp_	
+					_nEnd_ = @i + _nParts_ - 1
+					if _nEnd_ > _nLen_
+						_nEnd_ = _nLen_
+					ok
+					_cTemp_ = This.Section(@i, _nEnd_)
+					_aParts_ + _cTemp_
 				next
 
 				_nLenParts_ = len(_aParts_)
