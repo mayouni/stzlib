@@ -119,7 +119,7 @@ class stzListOfPairs from stzListOfLists
 		return This.Content()
 
 	def UpdateWith(paListOfPairs)
-		if isList(paListOfPairs) and IsListOfPairs(paListOfPairs)
+		if isList(paListOfPairs) and @IsListOfPairs(paListOfPairs)
 			@aContent = paListOfPairs
 
 		else
