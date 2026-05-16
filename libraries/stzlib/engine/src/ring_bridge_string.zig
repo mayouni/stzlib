@@ -405,6 +405,31 @@ fn ring_StringEqualsCI(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_equals_ci(h1, h2)));
 }
 
+fn ring_StringRemoveAll(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const result = string.stz_string_remove_all(h, s, len);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringLinesCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_lines_count(h)));
+}
+
+fn ring_StringIsPalindrome(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_palindrome(h)));
+}
+
+fn ring_StringConcat(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    const result = string.stz_string_concat(h1, h2);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 fn ring_StringReplaceFirst(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const old = ring_vm_api_getstring(p, 2);
@@ -582,6 +607,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringinsertcp", .func = &ring_StringInsertCp },
     .{ .name = "stzenginestingleftcp", .func = &ring_StringLeftCp },
     .{ .name = "stzenginestringrightcp", .func = &ring_StringRightCp },
+    .{ .name = "stzenginestringremoveall", .func = &ring_StringRemoveAll },
+    .{ .name = "stzenginestringlinescount", .func = &ring_StringLinesCount },
+    .{ .name = "stzenginestringispalindrome", .func = &ring_StringIsPalindrome },
+    .{ .name = "stzenginestringconcat", .func = &ring_StringConcat },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

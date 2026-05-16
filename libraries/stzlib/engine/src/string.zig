@@ -1311,6 +1311,74 @@ pub fn stz_string_is_alpha(handle: StzStringHandle) callconv(.c) c_int {
     return 0;
 }
 
+// ─── Remove / Lines / Palindrome ───
+
+/// Remove all occurrences of `needle` from the string. Returns new handle.
+pub fn stz_string_remove_all(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const hay = s.slice();
+        const ndl = needle[0..needle_len];
+        if (ndl.len == 0) return stz_string_from(hay.ptr, hay.len);
+        const result = stz_string_new() orelse return null;
+        var start: usize = 0;
+        while (mem.indexOfPos(u8, hay, start, ndl)) |pos| {
+            result.data.appendSlice(gpa, hay[start..pos]) catch return null;
+            start = pos + ndl.len;
+        }
+        result.data.appendSlice(gpa, hay[start..]) catch return null;
+        return result;
+    }
+    return null;
+}
+
+/// Count lines (splits by \n). A string with no newlines = 1 line.
+pub fn stz_string_lines_count(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const hay = s.slice();
+        if (hay.len == 0) return 0;
+        var count: c_int = 1;
+        for (hay) |byte| {
+            if (byte == '\n') count += 1;
+        }
+        return count;
+    }
+    return 0;
+}
+
+/// Check if the string is a palindrome (codepoint-level). Returns 1 or 0.
+pub fn stz_string_is_palindrome(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const src = s.slice();
+        if (src.len == 0) return 1;
+        // Count codepoints and build byte offset array
+        const cp_count = utf8CodepointCount(src);
+        if (cp_count <= 1) return 1;
+        // Compare first with last, etc.
+        var left: usize = 0;
+        var right: usize = cp_count - 1;
+        while (left < right) {
+            const left_offset = codepointIndexToByteOffset(src, left);
+            const right_offset = codepointIndexToByteOffset(src, right);
+            const left_len = std.unicode.utf8ByteSequenceLength(src[left_offset]) catch 1;
+            const right_len = std.unicode.utf8ByteSequenceLength(src[right_offset]) catch 1;
+            if (left_len != right_len) return 0;
+            if (!mem.eql(u8, src[left_offset .. left_offset + left_len], src[right_offset .. right_offset + right_len])) return 0;
+            left += 1;
+            right -= 1;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+/// Concatenate two strings, returning a new handle.
+pub fn stz_string_concat(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) StzStringHandle {
+    const result = stz_string_new() orelse return null;
+    if (h1) |s1| result.data.appendSlice(gpa, s1.slice()) catch return null;
+    if (h2) |s2| result.data.appendSlice(gpa, s2.slice()) catch return null;
+    return result;
+}
+
 // ─── Helpers ───
 
 fn utf8CodepointCount(bytes: []const u8) usize {
@@ -2070,4 +2138,70 @@ test "find_nth unicode" {
     // 3rd heart at codepoint 4
     try std.testing.expectEqual(@as(i64, 4), stz_string_find_nth(s, "\xe2\x99\xa5", 3, 3));
     stz_string_free(s);
+}
+
+test "remove_all" {
+    const s = stz_string_from("aXbXcXd", 7);
+    const r = stz_string_remove_all(s, "X", 1);
+    try std.testing.expectEqual(@as(usize, 4), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..4], "abcd"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "remove_all multi-byte" {
+    // Remove heart from "a heart b heart c"
+    const s = stz_string_from("a\xe2\x99\xa5b\xe2\x99\xa5c", 9);
+    const r = stz_string_remove_all(s, "\xe2\x99\xa5", 3);
+    try std.testing.expectEqual(@as(usize, 3), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..3], "abc"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "lines_count" {
+    const s1 = stz_string_from("hello", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_lines_count(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("a\nb\nc", 5);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_lines_count(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_new();
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_lines_count(s3));
+    stz_string_free(s3);
+}
+
+test "is_palindrome ascii" {
+    const s1 = stz_string_from("racecar", 7);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_palindrome(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("hello", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_palindrome(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("a", 1);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_palindrome(s3));
+    stz_string_free(s3);
+}
+
+test "is_palindrome unicode" {
+    // heart bullet heart = palindrome
+    const str = "\xe2\x99\xa5\xe2\x80\xa2\xe2\x99\xa5";
+    const s = stz_string_from(str, 9);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_palindrome(s));
+    stz_string_free(s);
+}
+
+test "concat" {
+    const h1 = stz_string_from("Hello", 5);
+    const h2 = stz_string_from(" World", 6);
+    const r = stz_string_concat(h1, h2);
+    try std.testing.expectEqual(@as(usize, 11), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..11], "Hello World"));
+    stz_string_free(r);
+    stz_string_free(h1);
+    stz_string_free(h2);
 }

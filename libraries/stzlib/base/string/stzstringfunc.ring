@@ -1901,25 +1901,9 @@ func @IsPalindrome(p)
 
 	but isString(p)
 		pStr = StzEngineStringFrom(lower(p))
-		nLen = StzEngineStringCount(pStr)
-		if nLen < 2
-			StzEngineStringFree(pStr)
-			return 0
-		ok
-		for i = 1 to nLen / 2
-			pLeft = StzEngineStringNthChar(pStr, i - 1)
-			pRight = StzEngineStringNthChar(pStr, nLen - i)
-			cLeft = StzEngineStringData(pLeft)
-			cRight = StzEngineStringData(pRight)
-			StzEngineStringFree(pLeft)
-			StzEngineStringFree(pRight)
-			if cLeft != cRight
-				StzEngineStringFree(pStr)
-				return 0
-			ok
-		next
+		nResult = StzEngineStringIsPalindrome(pStr)
 		StzEngineStringFree(pStr)
-		return 1
+		return nResult
 	else
 		StzRaise("Incorrect param type! p must be a string or list.")
 	ok
