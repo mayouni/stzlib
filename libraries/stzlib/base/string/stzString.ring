@@ -5379,7 +5379,17 @@ class stzString from stzObject
 	#-- WIHTOUT CASESENSITIVITY
 
 	def Lines()
-		return This.LinesCS(1)
+		# Engine-backed line splitting
+		nCount = StzEngineStringLinesSplitCount(@pEngine)
+		acResult = []
+		for i = 0 to nCount - 1
+			pLine = StzEngineStringLineAt(@pEngine, i)
+			if pLine != NULL
+				acResult + StzEngineStringData(pLine)
+				StzEngineStringFree(pLine)
+			ok
+		next
+		return acResult
 
 		#< @FunctionFluentForms
 
@@ -5396,7 +5406,7 @@ class stzString from stzObject
 	#---------------------------------------------#
 
 	def NumberOfLinesCS(pCaseSensitive)
-		return len(This.LinesCS(pCaseSensitive))
+		return StzEngineStringLinesSplitCount(@pEngine)
 
 		def HowManyLinesCS(pCaseSensitive)
 			return This.NumberOfLinesCS(pCaseSensitive)
@@ -78913,18 +78923,9 @@ class stzString from stzObject
 	#------------------------------------------------#
 
 	def SortCharsInAscending()
-		
-		acChars = This.Chars()
-		nLen = len(acChars)
-
-		acChars = ring_sort(acChars)
-
-		cResult = ""
-
-		for i = 1 to nLen
-			cResult += acChars[i]
-		next
-
+		pResult = StzEngineStringSortCharsAsc(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 		This.UpdateWith( cResult )
 
 		#< @FunctionFluentForm
@@ -79007,18 +79008,9 @@ class stzString from stzObject
 	#-------------------------------------------------#
 
 	def SortCharsInDescending()
-
-		acChars = This.Chars()
-		nLen = len(acChars)
-
-		acChars = ring_sort(acChars)
-
-		cResult = ""
-
-		for i = nLen to 1 step - 1
-			cResult += acChars[i]
-		next
-
+		pResult = StzEngineStringSortCharsDesc(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 		This.UpdateWith( cResult )
 
 		#< @FunctionFluentForm
@@ -99642,7 +99634,17 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def Words()
-		return This.WordsCS(1)
+		# Engine-backed word extraction
+		nCount = StzEngineStringWordCount(@pEngine)
+		acResult = []
+		for i = 0 to nCount - 1
+			pWord = StzEngineStringWordAt(@pEngine, i)
+			if pWord != NULL
+				acResult + StzEngineStringData(pWord)
+				StzEngineStringFree(pWord)
+			ok
+		next
+		return acResult
 
 		def WordsQ()
 			return This.WordsQRT(:stzList)

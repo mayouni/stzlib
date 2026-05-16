@@ -885,6 +885,53 @@ fn ring_StringCommonSuffix(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+// ─── SortChars ───
+
+fn ring_StringSortCharsAsc(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_sort_chars_asc(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringSortCharsDesc(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_sort_chars_desc(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+// ─── FindAllChar ───
+
+fn ring_StringFindAllChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_find_all_char(h, cp)), FIND_HANDLE);
+}
+
+// ─── Hash ───
+
+fn ring_StringHash(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_hash(h)));
+}
+
+// ─── CountChar ───
+
+fn ring_StringCountChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_char(h, cp)));
+}
+
+// ─── ReplaceChar ───
+
+fn ring_StringReplaceChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const old_cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const new_cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const result = string.stz_string_replace_char(h, old_cp, new_cp);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1018,6 +1065,12 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsuffixcount", .func = &ring_StringSuffixCount },
     .{ .name = "stzenginestringcommonprefix", .func = &ring_StringCommonPrefix },
     .{ .name = "stzenginestringcommonsuffix", .func = &ring_StringCommonSuffix },
+    .{ .name = "stzenginestringsortcharsasc", .func = &ring_StringSortCharsAsc },
+    .{ .name = "stzenginestringsortcharsdesc", .func = &ring_StringSortCharsDesc },
+    .{ .name = "stzenginestringfindallchar", .func = &ring_StringFindAllChar },
+    .{ .name = "stzenginestringhash", .func = &ring_StringHash },
+    .{ .name = "stzenginestringcountchar", .func = &ring_StringCountChar },
+    .{ .name = "stzenginestringreplacechar", .func = &ring_StringReplaceChar },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
