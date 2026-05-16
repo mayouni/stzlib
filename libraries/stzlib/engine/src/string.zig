@@ -1256,7 +1256,7 @@ pub fn stz_string_count_chars_of_type(handle: StzStringHandle, char_type: c_int)
                 2 => unicode.stz_unicode_is_space(cp_val) == 1,
                 3 => unicode.stz_unicode_is_upper(cp_val) == 1,
                 4 => unicode.stz_unicode_is_lower(cp_val) == 1,
-                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
+                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
                 else => false,
             };
             if (matches) count += 1;
@@ -1375,7 +1375,7 @@ pub fn stz_string_find_chars_of_type(handle: StzStringHandle, char_type: c_int) 
                 2 => unicode.stz_unicode_is_space(cp_val) == 1,
                 3 => unicode.stz_unicode_is_upper(cp_val) == 1,
                 4 => unicode.stz_unicode_is_lower(cp_val) == 1,
-                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
+                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
                 else => false,
             };
             if (matches) {
@@ -1405,7 +1405,7 @@ pub fn stz_string_extract_chars_of_type(handle: StzStringHandle, char_type: c_in
                 2 => unicode.stz_unicode_is_space(cp_val) == 1,
                 3 => unicode.stz_unicode_is_upper(cp_val) == 1,
                 4 => unicode.stz_unicode_is_lower(cp_val) == 1,
-                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
+                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
                 else => false,
             };
             if (matches) {
