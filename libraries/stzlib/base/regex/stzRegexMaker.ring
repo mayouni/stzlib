@@ -101,7 +101,7 @@ class stzRegexMaker
 
 		# case of named param like :And = [3, :Times]
 
-		but isList(nTimes2) and stzListQ(nTimes2).IsAndNamedParam()
+		but isList(nTimes2) and len(nTimes2) = 2 and isString(nTimes2[1]) and nTimes2[1] = "and"
 			if isNumber(nTimes2[2])
 				nTimes2 = nTimes2[2]
 
@@ -1310,7 +1310,7 @@ class stzConditionalRegexMaker
 	#------------------#
 
 	def IfMatch(pcPattern)
-		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1322,7 +1322,7 @@ class stzConditionalRegexMaker
 		return This
 
 	def IfNotMatch(pcPattern)
-		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1334,7 +1334,7 @@ class stzConditionalRegexMaker
 		return This
 
 	def IfCaptured(pcGroupName)
-		if isList(pcGroupName) and stzListQ(pcGroupName).IsGroupNamedParam()
+		if isList(pcGroupName) and len(pcGroupName) = 2 and isString(pcGroupName[1]) and pcGroupName[1] = "group"
 			cGroupName = pGroupName[2]
 		ok
 
@@ -1350,7 +1350,7 @@ class stzConditionalRegexMaker
 	#------------------#
 
 	def ThenMatch(pcPattern)
-		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1366,7 +1366,7 @@ class stzConditionalRegexMaker
 	#------------------#
 
 	def ElseMatch(pcPattern)
-		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1488,7 +1488,7 @@ class stzRegexLookaroundMaker
 	#--------------------------#
 
 	def MustBeFollowedBy(pcPattern)
-		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1509,7 +1509,7 @@ class stzRegexLookaroundMaker
 		#>
 
 	def MustBePrecededBy(pcPattern)
-		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1534,7 +1534,7 @@ class stzRegexLookaroundMaker
 	#--------------------------#
 
 	def CantBeFollowedBy(pcPattern)
-		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1555,7 +1555,7 @@ class stzRegexLookaroundMaker
 		#>
 
 	def CantBePrecededBy(pcPattern)
-		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1580,7 +1580,7 @@ class stzRegexLookaroundMaker
 	#------------------#
 
 	def ThenMatch(pcPattern)
-		if isList(pcPattern) and stzListQ(pcPattern).IsPatternNamedParam()
+		if isList(pcPattern) and len(pcPattern) = 2 and isString(pcPattern[1]) and pcPattern[1] = "pattern"
 			pcPattern = pcPattern[2]
 		ok
 
@@ -1596,7 +1596,7 @@ class stzRegexLookaroundMaker
 	#------------------#
 
 	def MustBeFollowedByWord(pcWord)
-		if isList(pcWord) and stzListQ(pcWord).IsPatternNamedParam()
+		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
 		ok
 
@@ -1614,7 +1614,7 @@ class stzRegexLookaroundMaker
 		#>
 
 	def MustBePrecededByWord(pcWord)
-		if isList(pcWord) and stzListQ(pcWord).IsPatternNamedParam()
+		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
 		ok
 
@@ -1632,7 +1632,7 @@ class stzRegexLookaroundMaker
 		#>
 
 	def CantBeFollowedByWord(pcWord)
-		if isList(pcWord) and stzListQ(pcWord).IsPatternNamedParam()
+		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
 		ok
 
@@ -1650,7 +1650,7 @@ class stzRegexLookaroundMaker
 		#>
 
 	def CantBePrecededByWord(pcWord)
-		if isList(pcWord) and stzListQ(pcWord).IsPatternNamedParam()
+		if isList(pcWord) and len(pcWord) = 2 and isString(pcWord[1]) and pcWord[1] = "pattern"
 			pcWord = pcWord[2]
 		ok
 
