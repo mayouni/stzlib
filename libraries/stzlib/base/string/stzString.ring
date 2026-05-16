@@ -89607,34 +89607,22 @@ class stzString from stzObject
 	*/
 
 	def OnlyNumbers()
-		cResult = ""
-		nLen = This.NumberOfChars()
-
-		for i = 1 to nLen
-			c = This.NthChar(i)
-
-			oChar = new stzChar(c)
-			if oChar.IsANumber()
-				cResult += c
-			ok
-		next
+		hStr = StzEngineStringFrom(This.Content())
+		pExtracted = StzEngineStringExtractCharsOfType(hStr, 1)
+		cResult = StzEngineStringData(pExtracted)
+		StzEngineStringFree(pExtracted)
+		StzEngineStringFree(hStr)
 		return cResult
 
 		def OnlyNumbersQ()
 			return new stzString( This.OnlyNumbers() )
 
 	def OnlyDecimalDigits()
-		cResult = ""
-		nLen = This.NumberOfChars()
-
-		for i = 1 to nLen
-			c = This.NthChar(i)
-
-			oChar = new stzChar(c)
-			if oChar.IsDecimalDigit()
-				cResult += c
-			ok
-		next
+		hStr = StzEngineStringFrom(This.Content())
+		pExtracted = StzEngineStringExtractCharsOfType(hStr, 1)
+		cResult = StzEngineStringData(pExtracted)
+		StzEngineStringFree(pExtracted)
+		StzEngineStringFree(hStr)
 		return cResult
 
 	def OnlyDecimalDigitsQ()
@@ -89659,18 +89647,14 @@ class stzString from stzObject
 	#----
 
 	def OnlyLettersAndSpaces()
-		cResult = ""
-		nLen = This.NumberOfChars()
-
-		for i = 1 to nLen
-			c = This.NthChar(i)
-
-			if StzCharQ(c).IsLetterOrSpace()
-
-				cResult += c
-			ok
-		next
-
+		# Remove digits (type 1) then punctuation (type 5) — leaves only letters and spaces
+		hStr = StzEngineStringFrom(This.Content())
+		pNoDigits = StzEngineStringRemoveCharsOfType(hStr, 1)
+		pResult = StzEngineStringRemoveCharsOfType(pNoDigits, 5)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		StzEngineStringFree(pNoDigits)
+		StzEngineStringFree(hStr)
 		return cResult
 
 	def OnlyLettersAndSpacesQ()
@@ -89679,23 +89663,23 @@ class stzString from stzObject
 	#----
 
 	def OnlyLettersAndSpacesAndChar(pcChar)
-
-		# t0 = clock() # Takes almost 0.62s
-
+		# Keep letters, spaces, and the specified char
+		cContent = This.Content()
+		hStr = StzEngineStringFrom(cContent)
+		nLen = StzEngineStringCount(hStr)
 		cResult = ""
-		nLen = This.NumberOfChars()
 
-		for i = 1 to nLen
-			c = This.NthChar(i)
-			oChar = new stzChar(c)
-
-			if oChar.IsLetterOrSpaceOrChar(pcChar)
-				cResult += c
+		for i = 0 to nLen - 1
+			pCh = StzEngineStringNthChar(hStr, i)
+			cCh = StzEngineStringData(pCh)
+			nType = StzEngineStringCharTypeAt(hStr, i)
+			StzEngineStringFree(pCh)
+			# type 0=letter, 2=space, or matches the specific char
+			if nType = 0 or nType = 2 or cCh = pcChar
+				cResult += cCh
 			ok
 		next
-
-		# ? ( clock() - t0 ) / clockspersecond()
-
+		StzEngineStringFree(hStr)
 		return cResult
 
 		def OnlyLettersAndSpacesAndThisChar(pcChar)
