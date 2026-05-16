@@ -22,7 +22,7 @@ ok
 if fexists($cStzMetaLib)
     $pStzMetaHandle = LoadLib($cStzMetaLib)
 else
-    ? "WARNING: stz_meta not found at: " + $cStzMetaLib
+    # stz_meta is optional -- all functions have NULL-handle fallbacks
     $pStzMetaHandle = NULL
 ok
 
