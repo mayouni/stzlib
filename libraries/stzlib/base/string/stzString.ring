@@ -2718,23 +2718,9 @@ class stzString from stzObject
 	#================================#
 
 	def ApplyCapitalcase()
-
-		if This.IsEmpty()
-			return
-		ok
-
-		cContent = This.Content()
-		acWords = @split(cContent, " ")
-		nLen = len(acWords)
-
-		cResult = ""
-		for i = 1 to nLen
-			cResult += Upper(acWords[i][1]) + ring_right(acWords[i], len(acWords[i])-1)
-			if i < nLen
-				cResult += " "
-			ok
-		next
-
+		pResult = StzEngineStringToTitle(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 		This.UpdateWith(cResult)
 
 		#< @FunctionFluentForm
@@ -86737,7 +86723,10 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFromLeft(pcSubStr)
-		This.RemoveFromLeftCS(pcSubStr, 1)
+		pResult = StzEngineStringRemovePrefix(@pEngine, pcSubStr)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
 
 		def RemoveFromLeftQ(pcSubStr)
 			This.RemoveFromLeft(pcSubStr)
@@ -86813,7 +86802,10 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVITY
 
 	def RemoveFromRight(pcSubStr)
-		This.RemoveFromRightCS(pcSubStr, 1)
+		pResult = StzEngineStringRemoveSuffix(@pEngine, pcSubStr)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
 
 		def RemoveFromRightQ(pcSubStr)
 			This.RemoveFromRight(pcSubStr)
