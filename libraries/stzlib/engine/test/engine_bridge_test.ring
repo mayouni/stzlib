@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 169 Registered Functions"
+? "Engine Full Bridge Test -- All 172 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1465,6 +1465,36 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("abcdef")
 pR = StzEngineStringCharsBetween(pStr, 1, 4)
 Assert("CharsBetween 1..4 = cd", StzEngineStringData(pR), "cd")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 80: IsAlphanumeric ---
+? "--- Group 80: IsAlphanumeric ---"
+pStr = StzEngineStringFrom("hello123")
+Assert("IsAlphanumeric hello123", StzEngineStringIsAlphanumeric(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello 123")
+Assert("IsAlphanumeric with space", StzEngineStringIsAlphanumeric(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello!")
+Assert("IsAlphanumeric with punct", StzEngineStringIsAlphanumeric(pStr), 0)
+StzEngineStringFree(pStr)
+
+# --- Group 81: Ljust, Rjust ---
+? "--- Group 81: Ljust, Rjust ---"
+pStr = StzEngineStringFrom("hi")
+pR = StzEngineStringLjust(pStr, 5, ".")
+Assert("Ljust hi to 5 with .", StzEngineStringData(pR), "hi...")
+StzEngineStringFree(pR)
+
+pR = StzEngineStringRjust(pStr, 5, ".")
+Assert("Rjust hi to 5 with .", StzEngineStringData(pR), "...hi")
+StzEngineStringFree(pR)
+
+pR = StzEngineStringLjust(pStr, 2, ".")
+Assert("Ljust no pad needed", StzEngineStringData(pR), "hi")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 

@@ -1236,8 +1236,18 @@ func IsSortedStringInDescending(pcStr)
 #TODO: Review if the String...() functions are necessary
 
 func StringAlignXT(cStr, nWidth, cChar, cDirection)
-	oString = new stzString(cStr)
-	return oString.AlignXTQ(nWidth, cChar, cDirection).Content()
+	pStr = StzEngineStringFrom(cStr)
+	if cDirection = :Left
+		pResult = StzEngineStringLjust(pStr, nWidth, cChar)
+	but cDirection = :Right
+		pResult = StzEngineStringRjust(pStr, nWidth, cChar)
+	else  # :Center
+		pResult = StzEngineStringCenterPad(pStr, nWidth, cChar)
+	ok
+	cResult = StzEngineStringData(pResult)
+	StzEngineStringFree(pResult)
+	StzEngineStringFree(pStr)
+	return cResult
 	
 	func @AlignXT(cStr, nWidth, cChar, cDirection)
 		return StringAlignXT(cStr, nWidth, cChar, cDirection)
