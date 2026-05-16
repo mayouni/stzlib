@@ -50,7 +50,32 @@ class stzListCheckerXT from stzListChecker
 				# Named param aliases
 				[:IsWithNamedParam,		:IsWithOrByOrUsingNamedParam],
 				[:IsByNamedParam,		:IsWithOrByOrUsingNamedParam],
-				[:IsUsingNamedParam,		:IsWithOrByOrUsingNamedParam]
+				[:IsUsingNamedParam,		:IsWithOrByOrUsingNamedParam],
+
+				# Emptiness aliases
+				[:IsVoid,			:IsEmpty],
+				[:IsPopulated,			:IsNonEmpty],
+				[:IsSingleton,			:IsSingle],
+
+				# Pattern aliases
+				[:ItemsAreAllEqual,		:AllItemsAreEqual],
+				[:IsUniform,			:AllItemsAreEqual],
+				[:ItemsAreAllUnique,		:AllItemsAreUnique],
+				[:HasNoDuplicates,		:AllItemsAreUnique],
+				[:IsMonotonous,			:IsMonotonic],
+
+				# Containment aliases
+				[:Has,				:ContainsItem],
+				[:HasCS,			:ContainsItemCS],
+				[:IncludesAll,			:ContainsAllOfThese],
+				[:IncludesAllCS,		:ContainsAllOfTheseCS],
+				[:IncludesOne,			:ContainsOneOfThese],
+				[:IncludesOneCS,		:ContainsOneOfTheseCS],
+
+				# Numeric aliases
+				[:IsContiguous,			:IsContinuous],
+				[:IsConsecutive,		:IsContinuous],
+				[:IsSequential,			:IsContinuous]
 			]
 
 			nLen = len(aAliases)

@@ -280,3 +280,191 @@ class stzListChecker from stzList
 		else
 			return 0
 		ok
+
+	  #==============================#
+	 #  EMPTINESS CHECKING         #
+	#==============================#
+
+	def IsEmpty()
+		return This.NumberOfItems() = 0
+
+	def IsNonEmpty()
+		return This.NumberOfItems() > 0
+
+		def IsNotEmpty()
+			return This.IsNonEmpty()
+
+	def IsSingle()
+		return This.NumberOfItems() = 1
+
+		def IsSingleton()
+			return This.IsSingle()
+
+	  #==============================#
+	 #  CONTENT PATTERN CHECKING   #
+	#==============================#
+
+	def AllItemsAreEqual()
+		aContent = This.Content()
+		nLen = len(aContent)
+		if nLen < 2
+			return 1
+		ok
+
+		cFirst = @@(aContent[1])
+		for i = 2 to nLen
+			if @@(aContent[i]) != cFirst
+				return 0
+			ok
+		next
+		return 1
+
+		def ItemsAreAllEqual()
+			return This.AllItemsAreEqual()
+
+	def AllItemsAreUnique()
+		aContent = This.Content()
+		nLen = len(aContent)
+		for i = 1 to nLen - 1
+			for j = i + 1 to nLen
+				if BothAreEqual(aContent[i], aContent[j])
+					return 0
+				ok
+			next
+		next
+		return 1
+
+		def ItemsAreAllUnique()
+			return This.AllItemsAreUnique()
+
+		def HasNoDuplicates()
+			return This.AllItemsAreUnique()
+
+	def ContainsOnly(pType)
+		return This.AllItemsAreOfType(pType)
+
+	def IsMonotonic()
+		aContent = This.Content()
+		nLen = len(aContent)
+		if nLen < 2
+			return 1
+		ok
+
+		bAsc = 1
+		bDesc = 1
+		for i = 1 to nLen - 1
+			if NOT (isNumber(aContent[i]) and isNumber(aContent[i+1]))
+				return 0
+			ok
+			if aContent[i] > aContent[i+1]
+				bAsc = 0
+			ok
+			if aContent[i] < aContent[i+1]
+				bDesc = 0
+			ok
+		next
+
+		return (bAsc or bDesc)
+
+		def IsMonotonous()
+			return This.IsMonotonic()
+
+	def IsStrictlyIncreasing()
+		aContent = This.Content()
+		nLen = len(aContent)
+		for i = 1 to nLen - 1
+			if NOT (isNumber(aContent[i]) and isNumber(aContent[i+1]))
+				return 0
+			ok
+			if aContent[i] >= aContent[i+1]
+				return 0
+			ok
+		next
+		return 1
+
+	def IsStrictlyDecreasing()
+		aContent = This.Content()
+		nLen = len(aContent)
+		for i = 1 to nLen - 1
+			if NOT (isNumber(aContent[i]) and isNumber(aContent[i+1]))
+				return 0
+			ok
+			if aContent[i] <= aContent[i+1]
+				return 0
+			ok
+		next
+		return 1
+
+	  #==============================#
+	 #  CONTAINMENT CHECKING       #
+	#==============================#
+
+	def ContainsOnlyStringsCS(pCaseSensitive)
+		return This.IsListOfStrings()
+
+	def ContainsItemCS(pItem, pCaseSensitive)
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		for i = 1 to nLen
+			if BothAreEqualCS(aContent[i], pItem, pCaseSensitive)
+				return 1
+			ok
+		next
+
+		return 0
+
+	def ContainsItem(pItem)
+		return This.ContainsItemCS(pItem, 1)
+
+	def ContainsAllOfTheseCS(paItems, pCaseSensitive)
+		nLen = len(paItems)
+		for i = 1 to nLen
+			if NOT This.ContainsItemCS(paItems[i], pCaseSensitive)
+				return 0
+			ok
+		next
+		return 1
+
+	def ContainsAllOfThese(paItems)
+		return This.ContainsAllOfTheseCS(paItems, 1)
+
+	def ContainsOneOfTheseCS(paItems, pCaseSensitive)
+		nLen = len(paItems)
+		for i = 1 to nLen
+			if This.ContainsItemCS(paItems[i], pCaseSensitive)
+				return 1
+			ok
+		next
+		return 0
+
+	def ContainsOneOfThese(paItems)
+		return This.ContainsOneOfTheseCS(paItems, 1)
+
+	  #============================#
+	 #  NUMERIC LIST CHECKING    #
+	#============================#
+
+	def IsContinuous()
+		aContent = This.Content()
+		nLen = len(aContent)
+		if nLen < 2
+			return 1
+		ok
+
+		aSorted = sort(aContent)
+		for i = 1 to nLen - 1
+			if NOT isNumber(aSorted[i])
+				return 0
+			ok
+			if aSorted[i+1] - aSorted[i] != 1
+				return 0
+			ok
+		next
+		return 1
+
+		def IsContiguous()
+			return This.IsContinuous()
+
+		def IsConsecutive()
+			return This.IsContinuous()

@@ -38,7 +38,33 @@ class stzListTrimmerXT from stzListTrimmer
 				[:StripItemFromLeft,	:TrimItemFromLeft],
 				[:StripItemFromLeftCS,	:TrimItemFromLeftCS],
 				[:StripItemFromRight,	:TrimItemFromRight],
-				[:StripItemFromRightCS,	:TrimItemFromRightCS]
+				[:StripItemFromRightCS,	:TrimItemFromRightCS],
+
+				# Compact aliases
+				[:RemoveEmpty,		:Compact],
+				[:RemoveEmpties,	:Compact],
+				[:WithoutEmpty,		:Compacted],
+				[:WithoutEmpties,	:Compacted],
+
+				# Squeeze aliases
+				[:SqueezeEmpty,		:Squeeze],
+				[:Condensed,		:Squeezed],
+				[:Condense,		:Squeeze],
+
+				# StripNulls aliases
+				[:RemoveNulls,		:StripNulls],
+				[:WithoutNulls,		:NullsStripped],
+
+				# TrimToSize aliases
+				[:Truncate,		:TrimToSize],
+				[:Truncated,		:TrimmedToSize],
+				[:LimitTo,		:TrimToSize],
+
+				# TrimW aliases
+				[:TrimWhere,		:TrimW],
+				[:TrimmedWhere,		:TrimmedW],
+				[:RemoveWhere,		:TrimW],
+				[:RemovedW,		:TrimmedW]
 			]
 
 			nLen = len(aAliases)
