@@ -243,10 +243,7 @@ class stzString from stzObject
 		ok
 
 		if pCaseSensitive
-			hStr = StzEngineStringFrom(This.Content())
-			nResult = StzEngineStringIsPalindrome(hStr)
-			StzEngineStringFree(hStr)
-			return nResult
+			return StzEngineStringIsPalindrome(@pEngine)
 		else
 			hStr = StzEngineStringFrom(This.Lowercased())
 			nResult = StzEngineStringIsPalindrome(hStr)
@@ -1554,9 +1551,7 @@ class stzString from stzObject
 	#----------------------------------------#
 
 	def IsLowercase()
-		hStr = StzEngineStringFrom(This.Content())
-		nResult = StzEngineStringIsLowercase(hStr)
-		StzEngineStringFree(hStr)
+		nResult = StzEngineStringIsLowercase(@pEngine)
 		if nResult = 0 and NOT This.ContainsLetters()
 			return ""
 		ok
@@ -1902,9 +1897,7 @@ class stzString from stzObject
 		#>
 
 	def IsUppercase()
-		hStr = StzEngineStringFrom(This.Content())
-		nResult = StzEngineStringIsUppercase(hStr)
-		StzEngineStringFree(hStr)
+		nResult = StzEngineStringIsUppercase(@pEngine)
 		if nResult = 0 and NOT This.ContainsLetters()
 			return ""
 		ok
@@ -5408,10 +5401,7 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def NumberOfLines()
-		hStr = StzEngineStringFrom(This.Content())
-		nResult = StzEngineStringLinesCount(hStr)
-		StzEngineStringFree(hStr)
-		return nResult
+		return StzEngineStringLinesCount(@pEngine)
 
 		def HowManyLines()
 			return This.NumberOfLines()
@@ -5940,12 +5930,7 @@ class stzString from stzObject
 	#===========================================#
 
 	def ContainsNumbers()
-		hStr = StzEngineStringFrom(This.Content())
-		nDigits = StzEngineStringCountCharsOfType(hStr, 1)
-		StzEngineStringFree(hStr)
-		bResult = nDigits > 0
-
-		return bResult
+		return StzEngineStringCountCharsOfType(@pEngine, 1) > 0
 
 	#TODO
 	# Add ContainsNumbersXT() that finds other types of numbers other then decimal
@@ -43920,10 +43905,7 @@ class stzString from stzObject
 
 
 	def ContainsOnlySpaces() #NOTE # this is different from ContainsSpaces()
-		hStr = StzEngineStringFrom(This.Content())
-		nResult = StzEngineStringIsWhitespace(hStr)
-		StzEngineStringFree(hStr)
-		return nResult
+		return StzEngineStringIsWhitespace(@pEngine)
 
 		#< @FunctionAlternativeForms
 
@@ -43939,10 +43921,7 @@ class stzString from stzObject
 		#>
 
 	def ContainsOnlyLetters() #NOTE # this is different from ContainsLetters()
-		hStr = StzEngineStringFrom(This.Content())
-		nResult = StzEngineStringIsAlpha(hStr)
-		StzEngineStringFree(hStr)
-		return nResult
+		return StzEngineStringIsAlphaOnly(@pEngine)
 
 		#< @FunctionAlternativeForms
 
@@ -49781,15 +49760,13 @@ class stzString from stzObject
 	#======================================================#
 
 	def FindUppercaseChars()
-		hStr = StzEngineStringFrom(This.Content())
-		pResult = StzEngineStringFindCharsOfType(hStr, 3)
+		pResult = StzEngineStringFindCharsOfType(@pEngine, 3)
 		nCount = StzEngineFindResultCount(pResult)
 		anResult = []
 		for i = 1 to nCount
 			anResult + (StzEngineFindResultGet(pResult, i - 1) + 1)
 		next
 		StzEngineFindResultFree(pResult)
-		StzEngineStringFree(hStr)
 		return anResult
 
 	def UppercaseChars()
@@ -49801,15 +49778,13 @@ class stzString from stzObject
 	#--
 
 	def FindLowercaseChars()
-		hStr = StzEngineStringFrom(This.Content())
-		pResult = StzEngineStringFindCharsOfType(hStr, 4)
+		pResult = StzEngineStringFindCharsOfType(@pEngine, 4)
 		nCount = StzEngineFindResultCount(pResult)
 		anResult = []
 		for i = 1 to nCount
 			anResult + (StzEngineFindResultGet(pResult, i - 1) + 1)
 		next
 		StzEngineFindResultFree(pResult)
-		StzEngineStringFree(hStr)
 		return anResult
 
 	def LowercaseChars()
@@ -56573,10 +56548,7 @@ class stzString from stzObject
 		ok
 
 	def ContainsLetters()
-		hStr = StzEngineStringFrom(This.Content())
-		nLetters = StzEngineStringCountCharsOfType(hStr, 0)
-		StzEngineStringFree(hStr)
-		return nLetters > 0
+		return StzEngineStringCountCharsOfType(@pEngine, 0) > 0
 
 		#< @FunctionNegativeForm
 
@@ -89596,22 +89568,18 @@ class stzString from stzObject
 	*/
 
 	def OnlyNumbers()
-		hStr = StzEngineStringFrom(This.Content())
-		pExtracted = StzEngineStringExtractCharsOfType(hStr, 1)
+		pExtracted = StzEngineStringExtractCharsOfType(@pEngine, 1)
 		cResult = StzEngineStringData(pExtracted)
 		StzEngineStringFree(pExtracted)
-		StzEngineStringFree(hStr)
 		return cResult
 
 		def OnlyNumbersQ()
 			return new stzString( This.OnlyNumbers() )
 
 	def OnlyDecimalDigits()
-		hStr = StzEngineStringFrom(This.Content())
-		pExtracted = StzEngineStringExtractCharsOfType(hStr, 1)
+		pExtracted = StzEngineStringExtractCharsOfType(@pEngine, 1)
 		cResult = StzEngineStringData(pExtracted)
 		StzEngineStringFree(pExtracted)
-		StzEngineStringFree(hStr)
 		return cResult
 
 	def OnlyDecimalDigitsQ()
@@ -89623,11 +89591,9 @@ class stzString from stzObject
 
 	// Returns (as a string) only the letters contained in the string
 	def OnlyLetters()
-		hStr = StzEngineStringFrom(This.Content())
-		pExtracted = StzEngineStringExtractCharsOfType(hStr, 0)
+		pExtracted = StzEngineStringExtractCharsOfType(@pEngine, 0)
 		cResult = StzEngineStringData(pExtracted)
 		StzEngineStringFree(pExtracted)
-		StzEngineStringFree(hStr)
 		return cResult
 
 	def OnlyLettersQ()
@@ -89637,13 +89603,11 @@ class stzString from stzObject
 
 	def OnlyLettersAndSpaces()
 		# Remove digits (type 1) then punctuation (type 5) — leaves only letters and spaces
-		hStr = StzEngineStringFrom(This.Content())
-		pNoDigits = StzEngineStringRemoveCharsOfType(hStr, 1)
+		pNoDigits = StzEngineStringRemoveCharsOfType(@pEngine, 1)
 		pResult = StzEngineStringRemoveCharsOfType(pNoDigits, 5)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		StzEngineStringFree(pNoDigits)
-		StzEngineStringFree(hStr)
 		return cResult
 
 	def OnlyLettersAndSpacesQ()
@@ -94605,10 +94569,7 @@ class stzString from stzObject
 	#-----------------------#
 
 	def NumberOfLetters()
-		hStr = StzEngineStringFrom(This.Content())
-		nResult = StzEngineStringCountCharsOfType(hStr, 0)
-		StzEngineStringFree(hStr)
-		return nResult
+		return StzEngineStringCountCharsOfType(@pEngine, 0)
 	
 		#< @FunctionFluentForm
 
@@ -94680,10 +94641,7 @@ class stzString from stzObject
 	#-----------------------#
 
 	def NumberOfSpaces()
-		hStr = StzEngineStringFrom(This.Content())
-		nResult = StzEngineStringCountCharsOfType(hStr, 2)
-		StzEngineStringFree(hStr)
-		return nResult
+		return StzEngineStringCountCharsOfType(@pEngine, 2)
 
 		#< @FunctionAlternativeForms
 
@@ -94751,26 +94709,22 @@ class stzString from stzObject
 	#-----------------------------------------------#
 
 	def FindLetters()
-		hStr = StzEngineStringFrom(This.Content())
-		pResult = StzEngineStringFindCharsOfType(hStr, 0)
+		pResult = StzEngineStringFindCharsOfType(@pEngine, 0)
 		nCount = StzEngineFindResultCount(pResult)
 		anResult = []
 		for i = 1 to nCount
 			anResult + (StzEngineFindResultGet(pResult, i - 1) + 1)
 		next
 		StzEngineFindResultFree(pResult)
-		StzEngineStringFree(hStr)
 		return anResult
 
 		def FindLettersZ()
 			return This.FindLetters()
 
 	def Letters()
-		hStr = StzEngineStringFrom(This.Content())
-		pExtracted = StzEngineStringExtractCharsOfType(hStr, 0)
+		pExtracted = StzEngineStringExtractCharsOfType(@pEngine, 0)
 		cExtracted = StzEngineStringData(pExtracted)
 		StzEngineStringFree(pExtracted)
-		StzEngineStringFree(hStr)
 		# Split extracted letters into individual characters
 		oExtracted = new stzString(cExtracted)
 		return oExtracted.Chars()
@@ -97601,10 +97555,7 @@ class stzString from stzObject
 	#==================================================#
 
 	def IsPunctuation()
-		hStr = StzEngineStringFrom(This.Content())
-		nResult = StzEngineStringIsOnlyType(hStr, 5)
-		StzEngineStringFree(hStr)
-		return nResult
+		return StzEngineStringIsOnlyType(@pEngine, 5)
 
 		#< @FunctionAlternativeForms
 
@@ -97638,15 +97589,13 @@ class stzString from stzObject
 	#===============================#
 
 	def FindPunctuations()
-		hStr = StzEngineStringFrom(This.Content())
-		pResult = StzEngineStringFindCharsOfType(hStr, 5)
+		pResult = StzEngineStringFindCharsOfType(@pEngine, 5)
 		nCount = StzEngineFindResultCount(pResult)
 		anResult = []
 		for i = 1 to nCount
 			anResult + (StzEngineFindResultGet(pResult, i - 1) + 1)
 		next
 		StzEngineFindResultFree(pResult)
-		StzEngineStringFree(hStr)
 		return anResult
 
 		#< @FunctionAlternativeForms
