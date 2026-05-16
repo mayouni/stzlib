@@ -44497,23 +44497,19 @@ class stzString from stzObject
 			ok
 		ok
 
-		# Doing the job
+		# Doing the job (Engine-backed: single call finds Nth occurrence)
 
-		nResult = 0
+		if pCaseSensitive
+			nResult = StzEngineStringFindNth(@pEngine, pcSubStr, n)
+		else
+			nResult = StzEngineStringFindNthCI(@pEngine, pcSubStr, n)
+		ok
 
-		nPos = 1
-		for i = 1 to n
-
-			nResult = This._FindSubStr(pcSubStr, nPos, pCaseSensitive)
-
-			if nResult = 0
-				exit
-			ok
-
-			nPos = nResult + 1
-		next
-
-		return nResult
+		if nResult >= 0
+			return nResult + 1
+		else
+			return 0
+		ok
 
 		#< @FunctionAlternativeForm
 

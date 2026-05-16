@@ -467,6 +467,22 @@ fn ring_StringIsAlpha(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_alpha(h)));
 }
 
+fn ring_StringFindNth(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_find_nth(h, s, len, n)));
+}
+
+fn ring_StringFindNthCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_find_nth_ci(h, s, len, n)));
+}
+
 fn ring_StringInsertCp(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp_pos: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
@@ -561,6 +577,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcountcharsoftype", .func = &ring_StringCountCharsOfType },
     .{ .name = "stzenginestringisnumeric", .func = &ring_StringIsNumeric },
     .{ .name = "stzenginestringisalpha", .func = &ring_StringIsAlpha },
+    .{ .name = "stzenginestringfindnth", .func = &ring_StringFindNth },
+    .{ .name = "stzenginestringfindnthci", .func = &ring_StringFindNthCI },
     .{ .name = "stzenginestringinsertcp", .func = &ring_StringInsertCp },
     .{ .name = "stzenginestingleftcp", .func = &ring_StringLeftCp },
     .{ .name = "stzenginestringrightcp", .func = &ring_StringRightCp },

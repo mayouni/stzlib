@@ -1084,6 +1084,59 @@ pub fn stz_string_equals_ci(h1: StzStringHandle, h2: StzStringHandle) callconv(.
     return 0;
 }
 
+// ─── Find Nth ───
+
+/// Find the Nth occurrence (1-based) of needle. Returns 0-based codepoint index, or -1 if not found.
+pub fn stz_string_find_nth(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) i64 {
+    if (handle) |s| {
+        if (n < 1) return -1;
+        const hay = s.slice();
+        const ndl = needle[0..needle_len];
+        var occurrence: c_int = 0;
+        var byte_pos: usize = 0;
+        while (mem.indexOfPos(u8, hay, byte_pos, ndl)) |pos| {
+            occurrence += 1;
+            if (occurrence == n) {
+                // Convert byte pos to codepoint index
+                return @intCast(byteOffsetToCodepointIndex(hay, pos));
+            }
+            byte_pos = pos + 1;
+        }
+    }
+    return -1;
+}
+
+/// Find the Nth occurrence case-insensitively. Returns 0-based codepoint index, or -1.
+pub fn stz_string_find_nth_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) i64 {
+    if (handle) |s| {
+        if (n < 1) return -1;
+        const hay = s.slice();
+        const ndl = needle[0..needle_len];
+        // Lowercase both
+        const hay_lower = stz_string_from(hay.ptr, hay.len);
+        defer stz_string_free(hay_lower);
+        const ndl_handle = stz_string_from(ndl.ptr, ndl.len);
+        defer stz_string_free(ndl_handle);
+        const hay_lc = stz_string_to_lower(hay_lower);
+        defer stz_string_free(hay_lc);
+        const ndl_lc = stz_string_to_lower(ndl_handle);
+        defer stz_string_free(ndl_lc);
+        if (hay_lc == null or ndl_lc == null) return -1;
+        const hay_lc_data = hay_lc.?.slice();
+        const ndl_lc_data = ndl_lc.?.slice();
+        var occurrence: c_int = 0;
+        var byte_pos: usize = 0;
+        while (mem.indexOfPos(u8, hay_lc_data, byte_pos, ndl_lc_data)) |pos| {
+            occurrence += 1;
+            if (occurrence == n) {
+                return @intCast(byteOffsetToCodepointIndex(hay, pos));
+            }
+            byte_pos = pos + 1;
+        }
+    }
+    return -1;
+}
+
 // ─── Replace First / Last / Nth ───
 
 /// Replace only the first occurrence of `old` with `new_str`. Returns new handle.
@@ -1990,5 +2043,31 @@ test "count_chars_of_type letters" {
     try std.testing.expectEqual(@as(c_int, 3), stz_string_count_chars_of_type(s, 1));
     // Type 2 = whitespace: 1 space
     try std.testing.expectEqual(@as(c_int, 1), stz_string_count_chars_of_type(s, 2));
+    stz_string_free(s);
+}
+
+test "find_nth" {
+    const s = stz_string_from("aXbXcXd", 7);
+    // 1st X at codepoint 1
+    try std.testing.expectEqual(@as(i64, 1), stz_string_find_nth(s, "X", 1, 1));
+    // 2nd X at codepoint 3
+    try std.testing.expectEqual(@as(i64, 3), stz_string_find_nth(s, "X", 1, 2));
+    // 3rd X at codepoint 5
+    try std.testing.expectEqual(@as(i64, 5), stz_string_find_nth(s, "X", 1, 3));
+    // 4th X doesn't exist
+    try std.testing.expectEqual(@as(i64, -1), stz_string_find_nth(s, "X", 1, 4));
+    stz_string_free(s);
+}
+
+test "find_nth unicode" {
+    // "heart bullet heart bullet heart" = 5 chars
+    const str = "\xe2\x99\xa5\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2\xe2\x99\xa5";
+    const s = stz_string_from(str, 15);
+    // 1st heart at codepoint 0
+    try std.testing.expectEqual(@as(i64, 0), stz_string_find_nth(s, "\xe2\x99\xa5", 3, 1));
+    // 2nd heart at codepoint 2
+    try std.testing.expectEqual(@as(i64, 2), stz_string_find_nth(s, "\xe2\x99\xa5", 3, 2));
+    // 3rd heart at codepoint 4
+    try std.testing.expectEqual(@as(i64, 4), stz_string_find_nth(s, "\xe2\x99\xa5", 3, 3));
     stz_string_free(s);
 }
