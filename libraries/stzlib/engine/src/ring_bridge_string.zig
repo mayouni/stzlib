@@ -720,6 +720,73 @@ fn ring_StringLineAt(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+// ─── IsWord ───
+
+fn ring_StringIsWord(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_word(h)));
+}
+
+// ─── CountLeadingChar / CountTrailingChar ───
+
+fn ring_StringCountLeadingChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_leading_char(h, cp)));
+}
+
+fn ring_StringCountTrailingChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_trailing_char(h, cp)));
+}
+
+// ─── IsNumericString ───
+
+fn ring_StringIsNumericString(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_numeric_string(h)));
+}
+
+// ─── URLEncode / URLDecode ───
+
+fn ring_StringURLEncode(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_url_encode(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringURLDecode(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_url_decode(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+// ─── CharAtToString ───
+
+fn ring_StringCharAtToString(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const result = string.stz_string_char_at_to_string(h, idx);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+// ─── Spacify ───
+
+fn ring_StringSpacify(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_spacify(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+// ─── BytesPerChar ───
+
+fn ring_StringBytesPerChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_bytes_per_char(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -832,6 +899,15 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringistitlecase", .func = &ring_StringIsTitleCase },
     .{ .name = "stzenginestringlinessplitcount", .func = &ring_StringLinesSplitCount },
     .{ .name = "stzenginestringlineat", .func = &ring_StringLineAt },
+    .{ .name = "stzenginestringisword", .func = &ring_StringIsWord },
+    .{ .name = "stzenginestringcountleadingchar", .func = &ring_StringCountLeadingChar },
+    .{ .name = "stzenginestringcounttrailingchar", .func = &ring_StringCountTrailingChar },
+    .{ .name = "stzenginestringisnumericstring", .func = &ring_StringIsNumericString },
+    .{ .name = "stzenginestringurlencode", .func = &ring_StringURLEncode },
+    .{ .name = "stzenginestringurldecode", .func = &ring_StringURLDecode },
+    .{ .name = "stzenginestringcharattostring", .func = &ring_StringCharAtToString },
+    .{ .name = "stzenginestringspacify", .func = &ring_StringSpacify },
+    .{ .name = "stzenginestringbytesperchar", .func = &ring_StringBytesPerChar },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

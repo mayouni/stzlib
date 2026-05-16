@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 94 Registered Functions"
+? "Engine Full Bridge Test -- All 121 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -919,6 +919,113 @@ Assert("StartsWithDigit yes", StzEngineStringStartsWithDigit(pStr), 1)
 Assert("StartsWithLetter no", StzEngineStringStartsWithLetter(pStr), 0)
 Assert("EndsWithLetter yes", StzEngineStringEndsWithLetter(pStr), 1)
 Assert("EndsWithDigit no", StzEngineStringEndsWithDigit(pStr), 0)
+StzEngineStringFree(pStr)
+
+# --- Group 39: IsWord ---
+? "--- Group 39: IsWord ---"
+pStr = StzEngineStringFrom("hello-world_123", 15)
+Assert("IsWord yes", StzEngineStringIsWord(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world", 11)
+Assert("IsWord no (space)", StzEngineStringIsWord(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello!", 6)
+Assert("IsWord no (punct)", StzEngineStringIsWord(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("", 0)
+Assert("IsWord empty", StzEngineStringIsWord(pStr), 0)
+StzEngineStringFree(pStr)
+
+# --- Group 40: CountLeadingChar, CountTrailingChar ---
+? "--- Group 40: CountLeadingChar, CountTrailingChar ---"
+pStr = StzEngineStringFrom("   hello", 8)
+Assert("CountLeadingChar 3 spaces", StzEngineStringCountLeadingChar(pStr, 32), 3)
+Assert("CountTrailingChar 0 spaces", StzEngineStringCountTrailingChar(pStr, 32), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello...", 8)
+Assert("CountLeadingChar 0 dots", StzEngineStringCountLeadingChar(pStr, 46), 0)
+Assert("CountTrailingChar 3 dots", StzEngineStringCountTrailingChar(pStr, 46), 3)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("aaabbb", 6)
+Assert("CountLeadingChar 3 a's", StzEngineStringCountLeadingChar(pStr, 97), 3)
+Assert("CountTrailingChar 3 b's", StzEngineStringCountTrailingChar(pStr, 98), 3)
+StzEngineStringFree(pStr)
+
+# --- Group 41: IsNumericString ---
+? "--- Group 41: IsNumericString ---"
+pStr = StzEngineStringFrom("12345", 5)
+Assert("IsNumericString digits", StzEngineStringIsNumericString(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("+42", 3)
+Assert("IsNumericString +42", StzEngineStringIsNumericString(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("-7", 2)
+Assert("IsNumericString -7", StzEngineStringIsNumericString(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("12.5", 4)
+Assert("IsNumericString no (dot)", StzEngineStringIsNumericString(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc", 3)
+Assert("IsNumericString no (letters)", StzEngineStringIsNumericString(pStr), 0)
+StzEngineStringFree(pStr)
+
+# --- Group 42: URLEncode, URLDecode ---
+? "--- Group 42: URLEncode, URLDecode ---"
+pStr = StzEngineStringFrom("hello world", 11)
+pEnc = StzEngineStringURLEncode(pStr)
+Assert("URLEncode spaces", StzEngineStringData(pEnc), "hello%20world")
+pDec = StzEngineStringURLDecode(pEnc)
+Assert("URLDecode roundtrip", StzEngineStringData(pDec), "hello world")
+StzEngineStringFree(pDec)
+StzEngineStringFree(pEnc)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("a+b=c&d", 7)
+pEnc = StzEngineStringURLEncode(pStr)
+Assert("URLEncode special", StzEngineStringData(pEnc), "a%2Bb%3Dc%26d")
+StzEngineStringFree(pEnc)
+StzEngineStringFree(pStr)
+
+# --- Group 43: CharAtToString ---
+? "--- Group 43: CharAtToString ---"
+pStr = StzEngineStringFrom("Hello", 5)
+pCh = StzEngineStringCharAtToString(pStr, 0)
+Assert("CharAtToString 0=H", StzEngineStringData(pCh), "H")
+StzEngineStringFree(pCh)
+pCh = StzEngineStringCharAtToString(pStr, 4)
+Assert("CharAtToString 4=o", StzEngineStringData(pCh), "o")
+StzEngineStringFree(pCh)
+StzEngineStringFree(pStr)
+
+# --- Group 44: Spacify ---
+? "--- Group 44: Spacify ---"
+pStr = StzEngineStringFrom("abc", 3)
+pR = StzEngineStringSpacify(pStr)
+Assert("Spacify abc", StzEngineStringData(pR), "a b c")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("X", 1)
+pR = StzEngineStringSpacify(pStr)
+Assert("Spacify single", StzEngineStringData(pR), "X")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 45: BytesPerChar ---
+? "--- Group 45: BytesPerChar ---"
+pStr = StzEngineStringFrom("ab", 2)
+pR = StzEngineStringBytesPerChar(pStr)
+Assert("BytesPerChar ASCII", StzEngineStringData(pR), "1 1")
+StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # ==============================================================
