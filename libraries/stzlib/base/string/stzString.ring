@@ -2757,7 +2757,9 @@ class stzString from stzObject
 		#>	
 	
 	def CapitalCased()
-		cResult = This.Copy().ApplyCapitalCaseQ().Content()
+		pResult = StzEngineStringToTitle(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 		return cResult
 
 		def CapitalCaseApplied()
@@ -78957,7 +78959,9 @@ class stzString from stzObject
 	#--
 
 	def StringWithCharsSortedInAscending()
-		cResult = This.Copy().SortCharsInAscendingQ().Content()
+		pResult = StzEngineStringSortCharsAsc(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 		return cResult
 
 		#< @FunctionAlternativeForms
@@ -79029,7 +79033,9 @@ class stzString from stzObject
 	#--
 
 	def StringWithCharsSortedInDescending()
-		cResult = This.Copy().SortInDescendingQ().Content()
+		pResult = StzEngineStringSortCharsDesc(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 		return cResult
 
 		#< @FunctionAlternativeForms
