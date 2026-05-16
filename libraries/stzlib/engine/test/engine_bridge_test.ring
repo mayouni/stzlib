@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 195 Registered Functions"
+? "Engine Full Bridge Test -- All 200 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1729,6 +1729,49 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("my-kebab-case")
 pR = StzEngineStringToPascalCase(pStr)
 Assert("ToPascalCase kebab", StzEngineStringData(pR), "MyKebabCase")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 89: IsIdentifier / ReplaceBetween / ContainsOnly / CapitalizeWords / SwapChars
+# ==============================================================
+
+? ""
+? "--- Group 89: IsIdentifier / ReplaceBetween / ContainsOnly / CapitalizeWords / SwapChars ---"
+
+pStr = StzEngineStringFrom("hello_world")
+Assert("IsIdentifier valid", StzEngineStringIsIdentifier(pStr), 1)
+StzEngineStringFree(pStr)
+pStr = StzEngineStringFrom("_private")
+Assert("IsIdentifier underscore start", StzEngineStringIsIdentifier(pStr), 1)
+StzEngineStringFree(pStr)
+pStr = StzEngineStringFrom("3invalid")
+Assert("IsIdentifier digit start", StzEngineStringIsIdentifier(pStr), 0)
+StzEngineStringFree(pStr)
+pStr = StzEngineStringFrom("has space")
+Assert("IsIdentifier space", StzEngineStringIsIdentifier(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello [world] end")
+pR = StzEngineStringReplaceBetween(pStr, "[", "]", "REPLACED")
+Assert("ReplaceBetween []", StzEngineStringData(pR), "hello REPLACED end")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("aabbcc")
+Assert("ContainsOnly abc", StzEngineStringContainsOnly(pStr, "abc"), 1)
+Assert("ContainsOnly ab", StzEngineStringContainsOnly(pStr, "ab"), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world")
+pR = StzEngineStringCapitalizeWords(pStr)
+Assert("CapitalizeWords", StzEngineStringData(pR), "Hello World")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abcde")
+pR = StzEngineStringSwapChars(pStr, 0, 4)
+Assert("SwapChars 0,4", StzEngineStringData(pR), "ebcda")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 

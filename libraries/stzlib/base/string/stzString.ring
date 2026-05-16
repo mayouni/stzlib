@@ -349,6 +349,29 @@ class stzString from stzObject
 		def InPascalCase()
 			return This.PascalCased()
 
+	  #====================================#
+	 #  CAPITALIZE WORDS (FIRST LETTERS)  #
+	#====================================#
+
+	def CapitalizeWords()
+		pResult = StzEngineStringCapitalizeWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def CapitalizeWordsQ()
+			This.CapitalizeWords()
+			return This
+
+	def WordsCapitalized()
+		pResult = StzEngineStringCapitalizeWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def EachWordCapitalized()
+			return This.WordsCapitalized()
+
 	  #==================================#
 	 #  SWAP CASE (UPPER <-> LOWER)     #
 	#==================================#
@@ -437,6 +460,21 @@ class stzString from stzObject
 
 		def IsAllDigits()
 			return This.IsDigit()
+
+	def IsIdentifier()
+		return StzEngineStringIsIdentifier(@pEngine)
+
+		def IsValidIdentifier()
+			return This.IsIdentifier()
+
+	def ContainsOnly(cChars)
+		return StzEngineStringContainsOnly(@pEngine, cChars)
+
+		def IsMadeOfOnly(cChars)
+			return This.ContainsOnly(cChars)
+
+		def ContainsOnlyCharsIn(cChars)
+			return This.ContainsOnly(cChars)
 
 	  #=========================#
 	 #  INTERLEAVE             #
@@ -763,6 +801,30 @@ class stzString from stzObject
 
 		def OnlyTheseChars(cCharsToKeep)
 			return This.CharsKept(cCharsToKeep)
+
+	  #=========================#
+	 #  SWAP CHARS AT          #
+	#=========================#
+
+	def SwapCharsAt(n1, n2)
+		# Engine uses 0-based positions
+		pResult = StzEngineStringSwapChars(@pEngine, n1 - 1, n2 - 1)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def SwapCharsAtQ(n1, n2)
+			This.SwapCharsAt(n1, n2)
+			return This
+
+	def CharsSwappedAt(n1, n2)
+		pResult = StzEngineStringSwapChars(@pEngine, n1 - 1, n2 - 1)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WithCharsSwappedAt(n1, n2)
+			return This.CharsSwappedAt(n1, n2)
 
 	  #==================================#
 	 #  GETTING THE CASE OF THE STRING  #
