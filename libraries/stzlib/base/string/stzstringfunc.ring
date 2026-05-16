@@ -48,40 +48,37 @@ func StringIsInList(str, aList)
 	return ListContains(aList, str)
 
 func PadRight(cText, nWidth)
-	return PAdtRightXT(cText, nWidth, " ")
+	return PadRightXT(cText, nWidth, " ")
 
 func PadRightXT(text, width, c)
-    cStr = "" + text
-    nPad = width - len(cStr)
-    if nPad > 0
-        return cStr + copy(c, nPad)
-    else
-        return cStr
-    ok
+	# Engine-backed: codepoint-aware left-justify (pad right)
+	pStr = StzEngineStringFrom("" + text)
+	pResult = StzEngineStringLjust(pStr, width, c)
+	cResult = StzEngineStringData(pResult)
+	StzEngineStringFree(pResult)
+	StzEngineStringFree(pStr)
+	return cResult
 
 func PadLeft(cText, nWidth)
 	return PadLeftXT(cText, nWidth, " ")
 
-func PadLeftXT(text, width, c) #TODO Use stzString
-    cStr = "" + text
-    nPad = width - len(cStr)
-    if nPad > 0
-        return copy(c, nPad) + cStr
-    else
-        return cStr
-    ok
+func PadLeftXT(text, width, c)
+	# Engine-backed: codepoint-aware right-justify (pad left)
+	pStr = StzEngineStringFrom("" + text)
+	pResult = StzEngineStringRjust(pStr, width, c)
+	cResult = StzEngineStringData(pResult)
+	StzEngineStringFree(pResult)
+	StzEngineStringFree(pStr)
+	return cResult
 
-func Center(text, width) #TODO Use stzString
-    cStr = "" + text
-    nPadTotal = width - len(cStr)
-    if nPadTotal <= 0
-        return cStr
-    ok
-    
-    nPadLeft = floor(nPadTotal / 2)
-    nPadRight = nPadTotal - nPadLeft
-    
-    return copy(" ", nPadLeft) + cStr + copy(" ", nPadRight)
+func Center(text, width)
+	# Engine-backed: codepoint-aware center padding
+	pStr = StzEngineStringFrom("" + text)
+	pResult = StzEngineStringCenterPad(pStr, width, " ")
+	cResult = StzEngineStringData(pResult)
+	StzEngineStringFree(pResult)
+	StzEngineStringFree(pStr)
+	return cResult
 
 #---
 
@@ -382,6 +379,17 @@ func ContainsOneOfThese(pStrOrList, pSubStrOrItem)
 #==
 
 func StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+	if isString(pStrOrList) and isString(pSubStrOrItem)
+		bCase = CaseSensitive(bCaseSensitive)
+		pStr = StzEngineStringFrom(pStrOrList)
+		if bCase
+			nResult = StzEngineStringStartsWith(pStr, pSubStrOrItem)
+		else
+			nResult = StzEngineStringStartsWithCI(pStr, pSubStrOrItem)
+		ok
+		StzEngineStringFree(pStr)
+		return nResult
+	ok
 	return Q(pStrOrList).StartsWithCS(pSubStrOrItem, bCaseSensitive)
 
 	func BeginsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
@@ -394,6 +402,12 @@ func StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 		return StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 func StzStartsWith(pStrOrList, pSubStrOrItem) # startsWith() seems to be reserved by Ring StdLib
+	if isString(pStrOrList) and isString(pSubStrOrItem)
+		pStr = StzEngineStringFrom(pStrOrList)
+		nResult = StzEngineStringStartsWith(pStr, pSubStrOrItem)
+		StzEngineStringFree(pStr)
+		return nResult
+	ok
 	return Q(pStrOrList).StartsWith(pSubStrOrItem)
 
 	func @StartsWith(pStrOrList, pSubStrOrItem)
@@ -408,12 +422,29 @@ func StzStartsWith(pStrOrList, pSubStrOrItem) # startsWith() seems to be reserve
 #--
 
 func EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+	if isString(pStrOrList) and isString(pSubStrOrItem)
+		bCase = CaseSensitive(bCaseSensitive)
+		pStr = StzEngineStringFrom(pStrOrList)
+		if bCase
+			nResult = StzEngineStringEndsWith(pStr, pSubStrOrItem)
+		else
+			nResult = StzEngineStringEndsWithCI(pStr, pSubStrOrItem)
+		ok
+		StzEngineStringFree(pStr)
+		return nResult
+	ok
 	return Q(pStrOrList).EndsWithCS(pSubStrOrItem, bCaseSensitive)
 
 	func @EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 		return EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 func StzEndsWith(pStrOrList, pSubStrOrItem) # endsWith() seems to be reserved by Ring StdLib
+	if isString(pStrOrList) and isString(pSubStrOrItem)
+		pStr = StzEngineStringFrom(pStrOrList)
+		nResult = StzEngineStringEndsWith(pStr, pSubStrOrItem)
+		StzEngineStringFree(pStr)
+		return nResult
+	ok
 	return Q(pStrOrList).EndsWith(pSubStrOrItem)
 
 	func @EndsWith(pStrOrList, pSubStrOrItem)
@@ -808,12 +839,17 @@ func _StzSimplifyString(cStr)
 	return cResult
 
 func _StzStripBraces(cStr)
-	cStr = trim(cStr)
-	nLen = len(cStr)
-	if nLen >= 2 and substr(cStr, 1, 1) = "{" and substr(cStr, nLen, 1) = "}"
-		cStr = substr(cStr, 2, nLen - 2)
-		cStr = trim(cStr)
+	cStr = @trim(cStr)
+	if len(cStr) < 2 return cStr ok
+	pStr = StzEngineStringFrom(cStr)
+	nLen = StzEngineStringCount(pStr)
+	if nLen >= 2 and StzEngineStringStartsWith(pStr, "{") and StzEngineStringEndsWith(pStr, "}")
+		pSliced = StzEngineStringSlice(pStr, 1, nLen - 2)
+		cStr = StzEngineStringData(pSliced)
+		StzEngineStringFree(pSliced)
+		cStr = @trim(cStr)
 	ok
+	StzEngineStringFree(pStr)
 	return cStr
 
 #--
@@ -1517,8 +1553,15 @@ func NthCharOf(n, cStr)
 		return NthCharOf(n, cStr)
 
 func NthLetterOf(n, cStr)
-		aOnlyLetters = StzStringQ(cStr).OnlyLetters()
-		return aOnlyLetters[n]
+		# Engine-backed: get only letters, then pick nth
+		pStr = StzEngineStringFrom(cStr)
+		pLetters = StzEngineStringOnlyLetters(pStr)
+		pChar = StzEngineStringNthChar(pLetters, n - 1)  # Engine 0-based
+		cResult = StzEngineStringData(pChar)
+		StzEngineStringFree(pChar)
+		StzEngineStringFree(pLetters)
+		StzEngineStringFree(pStr)
+		return cResult
 
 	func NthLetterIn(n, cStr)
 		return NthLetterOf(n, cStr)
@@ -1539,7 +1582,11 @@ func Text(pcStr)
 	ok
 
 func NumberOfCharsOf(pcStr)
-	return len(pcStr)
+	# Engine-backed: codepoint count (not byte count)
+	pStr = StzEngineStringFrom(pcStr)
+	nResult = StzEngineStringCount(pStr)
+	StzEngineStringFree(pStr)
+	return nResult
 
 	func NumberOfCharsIn(pcStr)
 		return NumberOfCharsOf(pcStr)
@@ -1566,7 +1613,7 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 		if NOT @IsListOfStrings(pacStr)
 			stzRaise("Incorrect param type! pacStr must b a list of strings!")
 		ok
-	
+
 		if NOT len(pacStr) > 1
 			stzRaise("You must provide at least two strings pacStr!")
 		ok
@@ -1576,36 +1623,25 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 
 	_bCase_ = @CaseSensitive(pCaseSensitive)
 
-	# Doing the job
-
-	bResult = 1
+	# Engine-backed equality check
 	nLen = len(pacStr)
+	bResult = 1
 
-	if _bCase_ = 1
-		
-		cFirstStr = lower(pacStr[1])
-		
-		for i = 2 to nLen
-			if lower(pacStr[i]) != cFirstStr
-				bResult = 0
-				exit
-			ok 
-		next
-
-		return bResult
-	else
-
-		cFirstStr = pacStr[1]
-		
-		for i = 1 to nLen
-			if pacStr[i] != cFirstStr
-				bResult = 0
-				exit
-			ok
-		next
-
-	ok
-
+	pFirst = StzEngineStringFrom(pacStr[1])
+	for i = 2 to nLen
+		pOther = StzEngineStringFrom(pacStr[i])
+		if _bCase_ = 1
+			nEq = StzEngineStringEqualsCI(pFirst, pOther)
+		else
+			nEq = StzEngineStringEquals(pFirst, pOther)
+		ok
+		StzEngineStringFree(pOther)
+		if nEq = 0
+			bResult = 0
+			exit
+		ok
+	next
+	StzEngineStringFree(pFirst)
 	return bResult
 
 func StringsAreEqual(paStr)
@@ -1774,13 +1810,12 @@ func RepeatInString(pcSubStr, nTimes)
 		ok
 	ok
 
-	#WARING // don't use Ring + concatenation, becuase it shows performance
-	# issues with large unciode strings (tested with an arabic string, 1M times)
-
-	cResult = ""
-	for i = 1 to nTimes
-		cResult += pcSubStr
-	next
+	# Engine-backed: much faster than Ring loop for large repetitions
+	pStr = StzEngineStringFrom(pcSubStr)
+	pResult = StzEngineStringRepeat(pStr, nTimes)
+	cResult = StzEngineStringData(pResult)
+	StzEngineStringFree(pResult)
+	StzEngineStringFree(pStr)
 	return cResult
 
 	#< @FunctionAlternativeForms
@@ -1914,17 +1949,13 @@ func @IsPalindrome(p)
 
 func @IsPunct(p)
 	if isString(p)
-		nLen = len(p)
-		if nLen = 0 return 0 ok
-		for i = 1 to nLen
-			n = ascii(substr(p, i, 1))
-			if (n >= 33 and n <= 47) or (n >= 58 and n <= 64) or (n >= 91 and n <= 96) or (n >= 123 and n <= 126)
-				# ok, is punctuation
-			else
-				return 0
-			ok
-		next
-		return 1
+		if len(p) = 0 return 0 ok
+		# Engine-backed: check all chars are punctuation (type 5)
+		pStr = StzEngineStringFrom(p)
+		nCount = StzEngineStringCount(pStr)
+		nPunct = StzEngineStringCountCharsOfType(pStr, 5)
+		StzEngineStringFree(pStr)
+		return nPunct = nCount
 
 	but isList(p) and @IsListOfChars(p)
 		#TODO
