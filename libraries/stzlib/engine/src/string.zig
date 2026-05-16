@@ -1371,6 +1371,80 @@ pub fn stz_string_is_palindrome(handle: StzStringHandle) callconv(.c) c_int {
     return 0;
 }
 
+/// Find positions (0-based codepoint indices) of characters matching a type.
+/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct
+pub fn stz_string_find_chars_of_type(handle: StzStringHandle, char_type: c_int) callconv(.c) StzFindResultHandle {
+    const r = gpa.create(StzFindResult) catch return null;
+    r.* = StzFindResult.init();
+    if (handle) |s| {
+        const bytes = s.slice();
+        var i: usize = 0;
+        var cp_idx: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_slice = bytes[i..@min(i + cp_len, bytes.len)];
+            const cp_val: i32 = blk: {
+                if (cp_len == 1) break :blk @intCast(cp_slice[0]);
+                if (cp_len == 2 and cp_slice.len >= 2) break :blk @intCast((@as(u21, cp_slice[0] & 0x1F) << 6) | (cp_slice[1] & 0x3F));
+                if (cp_len == 3 and cp_slice.len >= 3) break :blk @intCast((@as(u21, cp_slice[0] & 0x0F) << 12) | (@as(u21, cp_slice[1] & 0x3F) << 6) | (cp_slice[2] & 0x3F));
+                if (cp_len == 4 and cp_slice.len >= 4) break :blk @intCast((@as(u21, cp_slice[0] & 0x07) << 18) | (@as(u21, cp_slice[1] & 0x3F) << 12) | (@as(u21, cp_slice[2] & 0x3F) << 6) | (cp_slice[3] & 0x3F));
+                break :blk 0;
+            };
+            const matches: bool = switch (char_type) {
+                0 => unicode.stz_unicode_is_letter(cp_val) == 1,
+                1 => unicode.stz_unicode_is_digit(cp_val) == 1,
+                2 => unicode.stz_unicode_is_space(cp_val) == 1,
+                3 => unicode.stz_unicode_is_upper(cp_val) == 1,
+                4 => unicode.stz_unicode_is_lower(cp_val) == 1,
+                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
+                else => false,
+            };
+            if (matches) {
+                r.positions.append(gpa, @intCast(cp_idx)) catch break;
+            }
+            cp_idx += 1;
+            i += cp_len;
+        }
+    }
+    return r;
+}
+
+/// Extract characters matching a type as a new string (letters only, digits only, etc).
+/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower
+pub fn stz_string_extract_chars_of_type(handle: StzStringHandle, char_type: c_int) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const bytes = s.slice();
+        const result = stz_string_new() orelse return null;
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_slice = bytes[i..@min(i + cp_len, bytes.len)];
+            const cp_val: i32 = blk: {
+                if (cp_len == 1) break :blk @intCast(cp_slice[0]);
+                if (cp_len == 2 and cp_slice.len >= 2) break :blk @intCast((@as(u21, cp_slice[0] & 0x1F) << 6) | (cp_slice[1] & 0x3F));
+                if (cp_len == 3 and cp_slice.len >= 3) break :blk @intCast((@as(u21, cp_slice[0] & 0x0F) << 12) | (@as(u21, cp_slice[1] & 0x3F) << 6) | (cp_slice[2] & 0x3F));
+                if (cp_len == 4 and cp_slice.len >= 4) break :blk @intCast((@as(u21, cp_slice[0] & 0x07) << 18) | (@as(u21, cp_slice[1] & 0x3F) << 12) | (@as(u21, cp_slice[2] & 0x3F) << 6) | (cp_slice[3] & 0x3F));
+                break :blk 0;
+            };
+            const matches: bool = switch (char_type) {
+                0 => unicode.stz_unicode_is_letter(cp_val) == 1,
+                1 => unicode.stz_unicode_is_digit(cp_val) == 1,
+                2 => unicode.stz_unicode_is_space(cp_val) == 1,
+                3 => unicode.stz_unicode_is_upper(cp_val) == 1,
+                4 => unicode.stz_unicode_is_lower(cp_val) == 1,
+                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
+                else => false,
+            };
+            if (matches) {
+                result.data.appendSlice(gpa, cp_slice) catch break;
+            }
+            i += cp_len;
+        }
+        return result;
+    }
+    return null;
+}
+
 /// Check if string contains only ASCII characters (bytes 0-127). Returns 1 or 0.
 pub fn stz_string_is_ascii(handle: StzStringHandle) callconv(.c) c_int {
     if (handle) |s| {
@@ -2280,5 +2354,44 @@ test "char_type_at" {
     try std.testing.expectEqual(@as(c_int, 2), stz_string_char_type_at(s, 2)); // ' ' = space
     try std.testing.expectEqual(@as(c_int, 4), stz_string_char_type_at(s, 3)); // 'z' = lower
     try std.testing.expectEqual(@as(c_int, 5), stz_string_char_type_at(s, 4)); // '!' = punct
+    stz_string_free(s);
+}
+
+test "find_chars_of_type letters" {
+    const s = stz_string_from("a1b2c", 5);
+    const r = stz_string_find_chars_of_type(s, 0); // letters
+    try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
+    try std.testing.expectEqual(@as(i64, 0), stz_find_result_get(r, 0)); // 'a'
+    try std.testing.expectEqual(@as(i64, 2), stz_find_result_get(r, 1)); // 'b'
+    try std.testing.expectEqual(@as(i64, 4), stz_find_result_get(r, 2)); // 'c'
+    stz_find_result_free(r);
+    stz_string_free(s);
+}
+
+test "find_chars_of_type digits" {
+    const s = stz_string_from("a1b2c", 5);
+    const r = stz_string_find_chars_of_type(s, 1); // digits
+    try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r));
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0)); // '1'
+    try std.testing.expectEqual(@as(i64, 3), stz_find_result_get(r, 1)); // '2'
+    stz_find_result_free(r);
+    stz_string_free(s);
+}
+
+test "extract_chars_of_type letters" {
+    const s = stz_string_from("H3ll0 W0rld!", 12);
+    const r = stz_string_extract_chars_of_type(s, 0); // letters
+    try std.testing.expectEqual(@as(usize, 6), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..6], "HllWrl"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "extract_chars_of_type digits" {
+    const s = stz_string_from("abc123def456", 12);
+    const r = stz_string_extract_chars_of_type(s, 1); // digits
+    try std.testing.expectEqual(@as(usize, 6), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..6], "123456"));
+    stz_string_free(r);
     stz_string_free(s);
 }
