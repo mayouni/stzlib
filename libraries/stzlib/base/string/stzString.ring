@@ -1431,7 +1431,9 @@ class stzString from stzObject
 		#>
 
 	def Lowercased()
-		cResult = This.Copy().LowercaseQ().Content()
+		pLower = StzEngineStringToLower(@pEngine)
+		cResult = StzEngineStringData(pLower)
+		StzEngineStringFree(pLower)
 		return cResult
 
 		#< @FunctionFluentForm
@@ -1788,7 +1790,10 @@ class stzString from stzObject
 		#>
 
 	def Uppercased()
-		return This.Copy().UppercaseQ().Content()
+		pUpper = StzEngineStringToUpper(@pEngine)
+		cResult = StzEngineStringData(pUpper)
+		StzEngineStringFree(pUpper)
+		return cResult
 
 		#< @FunctionFluentForm
 
@@ -2969,7 +2974,10 @@ class stzString from stzObject
 		#>	
 
 	def TitleCased()
-		return This.Copy().ApplyTitleCaseQ().Content()
+		pTitle = StzEngineStringToTitle(@pEngine)
+		cResult = StzEngineStringData(pTitle)
+		StzEngineStringFree(pTitle)
+		return cResult
 
 		def Titelised()
 			return This.TitleCased()

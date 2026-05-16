@@ -50,8 +50,14 @@ class stzStringReplacer from stzString
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		_cResult_ = This.Content()
 
+		if _bCase_
+			StzEngineStringReplace(@pEngine, pcSubStr, pcNewSubStr)
+			@TraceObjectHistory(This)
+			return
+		ok
+
+		_cResult_ = This.Content()
 		_cResult_ = @ReplaceCS(_cResult_, pcSubStr, pcNewSubStr, _bCase_)
 		This.Update(_cResult_)
 
