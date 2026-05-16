@@ -363,7 +363,7 @@ class stzSystemCall
 		return @acArgs
 
 	def SetArgs(pacArgs)
-		if CheckParam()
+		if CheckingParams()
 			if NOT (isList(pacArgs) and IsListOfStrings(pacArgs))
 				stzraise("Args must be a list of strings!")
 			ok

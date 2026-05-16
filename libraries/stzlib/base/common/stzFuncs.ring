@@ -2440,8 +2440,8 @@ func ParamChecking()
 	func ParamsCheck()
 		return _bParamCheck
 
-	func CheckParam()
-		return _bParamCheck
+	# NOTE: CheckParam(pValue, p2, p3) is defined in stznamedparams_engine.ring
+	# The 0-arg alias was removed to avoid Ring's redefinition error.
 
 	func CheckingParam()
 		return _bParamCheck

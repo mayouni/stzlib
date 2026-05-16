@@ -86,7 +86,6 @@ ok
 
     # Modular subclasses (existing)
 
-    load "string/stzStringCore.ring"
     load "string/stzStringXT.ring"
 
     load "string/stzStringFinder.ring"
@@ -211,7 +210,6 @@ ok
 
     # Modular subclasses (Phase 1)
 
-    load "list/stzListCore.ring"
     load "list/stzListXT.ring"
     load "list/stzListFunc.ring"
 

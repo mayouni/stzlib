@@ -621,7 +621,7 @@ func StzTrim(cStrOrList)
 		return StzTrim(cStrOrList)
 
 	func Trim(pcStr)
-		return trim(pcStr)
+		return StzTrim(pcStr)
 
 func TrimString(cStr)
 	if CheckParams()
@@ -630,7 +630,31 @@ func TrimString(cStr)
 		ok
 	ok
 
-	return trim(cStr)
+	# Inline trim to avoid Ring's late-binding recursion
+	# (user-defined Trim shadows the built-in trim)
+	nLen = len(cStr)
+	if nLen = 0 return "" ok
+
+	n1 = 1
+	while n1 <= nLen
+		c = cStr[n1]
+		if c != " " and c != char(9) and c != char(10) and c != char(13)
+			exit
+		ok
+		n1++
+	end
+
+	n2 = nLen
+	while n2 >= n1
+		c = cStr[n2]
+		if c != " " and c != char(9) and c != char(10) and c != char(13)
+			exit
+		ok
+		n2--
+	end
+
+	if n1 > n2 return "" ok
+	return substr(cStr, n1, n2 - n1 + 1)
 
 	func @TrimString(cStr)
 		return TrimString(cStr)

@@ -28,11 +28,11 @@ class stzListNamedParams from stzList
 	def IsANamedParam()
 		return IsNamedParamList(This.Content())
 
-	def IsThisNamedParam(cKeyword)
+	def IsNamedParamWith(cKeyword)
 		return IsThisNamedParam(This.Content(), cKeyword)
 
-	def IsOneOfTheseNamedParams(pacKeywords)
-		return IsOneOfTheseNamedParamsList(This.Content(), pacKeywords)
+	# NOTE: IsOneOfTheseNamedParams is defined further below (line ~916)
+	# with the full eval-based implementation. Removed duplicate here.
 
 	  #=================================================================#
 	  #  LEGACY NAMED PARAM METHODS (1500+)                             #
