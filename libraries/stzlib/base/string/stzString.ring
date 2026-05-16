@@ -5603,7 +5603,9 @@ class stzString from stzObject
 			ok
 		next
 
-		cResult = StzStringQ(cResult).LastCharRemoved()
+		if len(cResult) > 0
+			cResult = substr(cResult, 1, len(cResult) - 1)
+		ok
 		This.UpdateWith(cResult)
 
 
@@ -23781,7 +23783,7 @@ class stzString from stzObject
 
 		n = 0
 		for i = nLenStr to 1 step -1
-			if StzStringQ(substr(cContent, i, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
+			if BothStringsAreEqualCS(substr(cContent, i, 1), cLastChar, pCaseSensitive)
 				n++
 			else
 				exit
@@ -23845,7 +23847,7 @@ class stzString from stzObject
 
 		n = 0
 		for i = nLenStr to 1 step -1
-			if StzStringQ(substr(cContent, i, 1)).IsEqualToCS(cLastChar, pCaseSensitive)
+			if BothStringsAreEqualCS(substr(cContent, i, 1), cLastChar, pCaseSensitive)
 				n++
 			else
 				exit
@@ -25115,7 +25117,7 @@ class stzString from stzObject
 		if n > 0
 			This.ReplaceSection(
 				1, n,
-				StzStringQ(cNewSubStr).RepeatedNTimes(n)
+				copy(cNewSubStr, n)
 			)
 		ok
 
@@ -25233,7 +25235,7 @@ class stzString from stzObject
 			nStart = This.NumberOfChars() - n + 1
 			This.ReplaceSection(
 				nStart, This.NumberOfChars(),
-				StzStringQ(cNewSubStr).RepeatedNTimes(n)
+				copy(cNewSubStr, n)
 			)
 		ok
 
