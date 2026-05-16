@@ -94132,7 +94132,7 @@ class stzString from stzObject
 	#---------------------------#
 
 	def FirstChar()
- 		return substr(This.Content(), 1, 1)
+ 		return This.NthChar(1)
 
 		#< @FunctionFluentForm
 
@@ -94182,9 +94182,7 @@ class stzString from stzObject
 			off
 
 	def LastChar()
-		nLen = This.NumberOfChars()
-		cResult = substr(This.Content(), nLen, 1)
-		return cResult
+		return This.NthChar(This.NumberOfChars())
 
 		#< @FunctionFluentForm
 
