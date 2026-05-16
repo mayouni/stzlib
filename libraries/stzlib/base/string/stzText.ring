@@ -640,7 +640,7 @@ class stzText from stzString
 		but This.NumberOfScripts() = 1
 			return This.Scripts()[1]
 
-		but This.NumberOfScripts() = 2 and StzStringQ(:Common).ExistsIn( This.Scripts() )
+		but This.NumberOfScripts() = 2 and ring_find( This.Scripts(), :Common ) > 0
 			cResult = StzListQ( This.Scripts() ).AllItemsExcept(:Common)[1]
 			return cResult
 
@@ -719,7 +719,7 @@ class stzText from stzString
 		return This.Script() = cScript
 
 	def ContainsScript(cScript)
-		return StzStringQ(cScript).ExistsIn( This.Scripts() )
+		return ring_find( This.Scripts(), cScript ) > 0
 
 	def ContainsArabicScript()
 		return This.ContainsScript(:Arabic)
@@ -1402,7 +1402,7 @@ class stzText from stzString
 	#-------------------------------------------------------#
 
 	def SetOfWords()
-		acResult = StzListQ( This.Words() ).DuplicatesRemoved()
+		acResult = UCS( This.Words(), 1 )
 		return acResult
 
 		#< @FunctionFluentForm
@@ -2276,7 +2276,7 @@ class stzText from stzString
 	def TheseWordsAndTheirFrequencies(pacWords)
 		aResult = []
 
-		acWords = StzListQ(pacWords).DuplicatesRemoved()
+		acWords = UCS(pacWords, 1)
 		anWordFreqs = This.TheseWordsFrequencies(acWords)
 		aResult = StzListQ( acWords ).AssociatedWith( anWordFreqs )
 
@@ -2378,7 +2378,7 @@ class stzText from stzString
 
 		next
 
-		acResult = StzListQ(acResult).DuplicatesRemoved()
+		acResult = UCS(acResult, 1)
 		return acResult
 
 		#< @FunctionAlternativeForms
@@ -2399,7 +2399,7 @@ class stzText from stzString
 	#------------------------------------------------------------------#
 
 	def WordsHavingTheseFrequencies(panFreq)
-		panFreq = StzListQ(panFreq).DuplicatesRemoved()
+		panFreq = UCS(panFreq, 1)
 
 		aResult = []
 
@@ -2427,7 +2427,7 @@ class stzText from stzString
 	#--------------------------------------------------------------------------#
 
 	def FequenciesAndTheirWords(panFreq)
-		panFreq = StzListQ(panFreq).DuplicatesRemoved()
+		panFreq = UCS(panFreq, 1)
 
 		aResult = []
 
@@ -2483,7 +2483,15 @@ class stzText from stzString
 
 		# STEP 4: Finally, we take the first n words of it
 
-		aResult = StzListQ(acWords).Section(1, n)
+		# Take first n items
+		aResult = []
+		nMax = n
+		if nMax > len(acWords)
+			nMax = len(acWords)
+		ok
+		for _k = 1 to nMax
+			aResult + acWords[_k]
+		next
 
 		return aResult
 
@@ -4025,7 +4033,10 @@ class stzText from stzString
 		# start of the sentence..
 
 		cResult = StringReverse( cResult ) + cSentenceSep
-		cResult = StzStringQ( cResult ).TrimmedFromStart()
+		# Trim leading whitespace
+		while len(cResult) > 0 and (left(cResult, 1) = " " or left(cResult, 1) = char(9) or left(cResult, 1) = char(10) or left(cResult, 1) = char(13))
+			cResult = substr(cResult, 2, len(cResult) - 1)
+		end
 
 		return cResult
 
