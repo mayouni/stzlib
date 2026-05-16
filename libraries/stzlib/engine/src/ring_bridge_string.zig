@@ -327,6 +327,23 @@ fn ring_CharIsLower(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(char_mod.stz_char_is_lower(cp)));
 }
 
+// ─── Codepoint-aware Extraction ───
+
+fn ring_StringNthChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp_idx: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const result = string.stz_string_nth_char(h, cp_idx);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringSlice(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const start_cp: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const cp_count: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const result = string.stz_string_slice(h, start_cp, cp_count);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -380,6 +397,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginecharisdigit", .func = &ring_CharIsDigit },
     .{ .name = "stzenginecharisupper", .func = &ring_CharIsUpper },
     .{ .name = "stzenginecharislower", .func = &ring_CharIsLower },
+    .{ .name = "stzenginestringnthchar", .func = &ring_StringNthChar },
+    .{ .name = "stzenginestringslice", .func = &ring_StringSlice },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

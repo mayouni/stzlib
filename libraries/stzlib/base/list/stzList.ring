@@ -51040,18 +51040,15 @@ fdef
 			_oCopy_ = This.Copy().LowercaseQ()
 		ok
 
-		cCode = StzStringQ(cCode).ReplaceCSQ("This", "_oCopy_", 0).Content()
+		# Use direct list access (not object operator) for eval safety
+		_aItems_ = _oCopy_.Content()
+		cCode = StzStringQ(cCode).ReplaceCSQ("This[", "_aItems_[", 0).ReplaceCSQ("This.Content()", "_aItems_", 0).Content()
 
 		# 5) ~>  Doing the job
 
 		anResult = []
 
 		for @i = nStart to nEnd
-
-			#WARNING
-			# You don't need to use any sophisticated keywords
-			# like @item = @aContent[@i], since the code is
-			# supposed to contain only @ and This[@i]-like keywords
 
 			eval(cCode)
 
@@ -51240,18 +51237,16 @@ fdef
 			_oCopy_ = This.Copy().LowercaseQ()
 		ok
 
-		cCode = @ReplaceCS(cCode, "This", "_oCopy_", 0)
+		# Use direct list access (not object operator) for eval safety
+		_aItems_ = _oCopy_.Content()
+		cCode = @ReplaceCS(cCode, "This[", "_aItems_[", 0)
+		cCode = @ReplaceCS(cCode, "This.Content()", "_aItems_", 0)
+
 		# 5) ~>  Doing the job
 
 		anResult = []
 
 		for @i = nStart to nEnd
-
-			#WARNING
-			# You don't need to use any sophisticated keywords
-			# like @item = @aContent[@i], since the code has been
-			# transpiled above and hence is garanteed to containing
-			# only @ and This[@i]-like keywords
 
 			eval(cCode)
 

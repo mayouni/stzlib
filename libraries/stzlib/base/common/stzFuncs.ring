@@ -4293,25 +4293,10 @@ func IsRingOrStzType(pcStr)
 
 func StzLen(p)
 	if isString(p)
-		# Count Unicode codepoints (not bytes) in a UTF-8 string
-		nCount = 0
-		nBytes = len(p)
-		i = 1
-		while i <= nBytes
-			c = ascii(p[i])
-			if (c & 0x80) = 0        # 1-byte (ASCII)
-				i++
-			but (c & 0xE0) = 0xC0    # 2-byte
-				i += 2
-			but (c & 0xF0) = 0xE0    # 3-byte
-				i += 3
-			but (c & 0xF8) = 0xF0    # 4-byte
-				i += 4
-			else
-				i++                   # invalid byte, skip
-			ok
-			nCount++
-		end
+		# Engine-backed: count Unicode codepoints (not bytes)
+		pHandle = StzEngineStringFrom(p)
+		nCount = StzEngineStringCount(pHandle)
+		StzEngineStringFree(pHandle)
 		return nCount
 
 	but IsStzString(p)
