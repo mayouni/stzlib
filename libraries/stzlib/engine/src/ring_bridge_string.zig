@@ -1363,6 +1363,37 @@ fn ring_StringReplace2(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_replace2(h, old1, old1_len, new1, new1_len, old2, old2_len, new2, new2_len)), STZ_HANDLE);
 }
 
+// ─── Surround ───
+
+fn ring_StringSurround(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const prefix = ring_vm_api_getstring(p, 2);
+    const prefix_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const suffix = ring_vm_api_getstring(p, 3);
+    const suffix_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_surround(h, prefix, prefix_len, suffix, suffix_len)), STZ_HANDLE);
+}
+
+// ─── ReplaceAnyChar ───
+
+fn ring_StringReplaceAnyChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const chars = ring_vm_api_getstring(p, 2);
+    const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const repl = ring_vm_api_getstring(p, 3);
+    const repl_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_replace_any_char(h, chars, chars_len, repl, repl_len)), STZ_HANDLE);
+}
+
+// ─── CountAnyChar ───
+
+fn ring_StringCountAnyChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const chars = ring_vm_api_getstring(p, 2);
+    const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_any_char(h, chars, chars_len)));
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1554,6 +1585,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringstripchars", .func = &ring_StringStripChars },
     .{ .name = "stzenginestringkeepchars", .func = &ring_StringKeepChars },
     .{ .name = "stzenginestringreplace2", .func = &ring_StringReplace2 },
+    .{ .name = "stzenginestringsurround", .func = &ring_StringSurround },
+    .{ .name = "stzenginestringreplaceanychar", .func = &ring_StringReplaceAnyChar },
+    .{ .name = "stzenginestringcountanychar", .func = &ring_StringCountAnyChar },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
