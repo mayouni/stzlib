@@ -1702,7 +1702,7 @@ class stzString from stzObject
 			stzRaise("Incorrect format!")
 		ok
 	
-		if isString(paLocale[2]) and NOT StzStringQ(paLocale[2]).IsLocaleAbbreviation()
+		if isString(paLocale[2]) and NOT IsLocaleAbbreviation(paLocale[2])
 			stzRaise("Incorrect format!")
 		ok
 	
@@ -21961,7 +21961,7 @@ class stzString from stzObject
 	#------------------------------------------------------#
 
 	def ContainsTheseBoundsCS(pacBounds, pCaseSensitive)
-		if NOT ( isList(pacBounds) and StzListQ(pacBounds).IsAPairOfStrings() )
+		if NOT ( isList(pacBounds) and len(pacBounds) = 2 and isString(pacBounds[1]) and isString(pacBounds[2]) )
 			StzRaise("Incorrect param type! pacBounds must be a pair of strings.")
 		ok
 
@@ -47142,7 +47142,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! panOccurr must be a list of numbers.")
 			ok
 
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOneTheseNamedParams([ :Of, :OfSubString ])
+			if isList(pcSubStr) and len(pcSubStr) = 2 and isString(pcSubStr[1]) and (lower(pcSubStr[1]) = "of" or lower(pcSubStr[1]) = "ofsubstring")
 				#NOTE
 				# that IsOneTheseNamedParams() is a misspelled form of
 				# IsOneOfTheseNamedParams(). I forgot "These" but hopefully
@@ -47422,7 +47422,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! pabOccurr must be a list of numbers.")
 			ok
 	
-			if isList(pcSubStr) and StzListQ(pcSubStr).IsOfOrOfSubString()
+			if isList(pcSubStr) and len(pcSubStr) = 2 and isString(pcSubStr[1]) and (lower(pcSubStr[1]) = "of" or lower(pcSubStr[1]) = "ofsubstring")
 				pcSubStr = pcSubStr[2]
 			ok
 	
@@ -54135,7 +54135,16 @@ class stzString from stzObject
 
 		if bSectioned
 			aSections = This.FindCSZZ(pcSubStr, bCaseSensitive)
-			anPos = StzListQ(aSections).Flattened()
+			anPos = []
+			for _sect in aSections
+				if isList(_sect)
+					for _n in _sect
+						anPos + _n
+					next
+				else
+					anPos + _sect
+				ok
+			next
 			cPositionSign = "'"
 		ok
 
@@ -55264,11 +55273,11 @@ class stzString from stzObject
 				return This.ContainsAtPositions(p2[2], cString)
 			ok
 	
-			if oP2.IsBeforeNamedParam() and StzListQ(p2[2]).IsStringOrNumber()
+			if oP2.IsBeforeNamedParam() and (isString(p2[2]) or isNumber(p2[2]))
 				return This.ContainsBefore(cString, p2[2])
 			ok
-	
-			if oP2.IsAfterNamedParam() and StzListQ(p2[2]).IsStringOrNumber()
+
+			if oP2.IsAfterNamedParam() and (isString(p2[2]) or isNumber(p2[2]))
 				return This.ContainsAfter(cString, p2[2])
 			ok
 	
@@ -82154,7 +82163,13 @@ class stzString from stzObject
 		*/
 
 		if isList(paSections)
-			paSections = StzListQ(paSections).ItemRemoved([])
+			aTemp = []
+			for _item in paSections
+				if NOT (isList(_item) and len(_item) = 0)
+					aTemp + _item
+				ok
+			next
+			paSections = aTemp
 		ok
 
 		if NOT ( isList(paSections) and @IsListOfPairsOfNumbers(paSections) )
@@ -83194,7 +83209,7 @@ class stzString from stzObject
 	def SwapSections( panSection1, panSection2 )
 
 		if CheckingParam() = 1
-			if isList(panSection2) and StzListQ(panSection2).IsWithOrAndNamedParams()
+			if isList(panSection2) and len(panSection2) = 2 and isString(panSection2[1]) and (lower(panSection2[1]) = "with" or lower(panSection2[1]) = "and")
 				panSection2 = panSection2[2]
 			ok
 	
@@ -88131,7 +88146,7 @@ class stzString from stzObject
 		return cResult
 	
 	def ReplaceOverSpaces(c)
-		if isList(c) and StzListQ(c).IsWithOrByNamedParams()
+		if isList(c) and len(c) = 2 and isString(c[1]) and (lower(c[1]) = "with" or lower(c[1]) = "by")
 			c = c[2]
 		ok
 	
@@ -88425,7 +88440,7 @@ class stzString from stzObject
 						nLastChars = pcSeparator[3]
 
 					but isList(pcSeparator[3]) and
-					    ( StzListQ(pcSeparator[3]).isNLastCharsNamedParam() or
+					    ( (isList(pcSeparator[3]) and len(pcSeparator[3]) = 2 and isString(pcSeparator[3][1]) and lower(pcSeparator[3][1]) = "nlastchars") or
 					      IsLastCharsNamedParamList(pcSeparator[3]) )					     						
 
 						if isNumber(pcSeparator[3][2])
@@ -92497,7 +92512,7 @@ class stzString from stzObject
 	
 		cNumber = This.Section(3, nLen)
 	
-		if StzStringQ( HexPrefix() + cNumber ).RepresentsNumberInHexForm()
+		if StringRepresentsNumberInHexForm( HexPrefix() + cNumber )
 			return 1
 		else
 			return 0
@@ -94089,7 +94104,7 @@ class stzString from stzObject
 			return This.SecondCharQRT(:stzString)
 
 		def SecondCharQRT(pcReturnType)
-			if isList(pcReturnType) and StzListQ(pcReturnType).IsReturnedAsNameSpace()
+			if isList(pcReturnType) and len(pcReturnType) = 2 and isString(pcReturnType[1]) and lower(pcReturnType[1]) = "returnedas"
 				pcReturnType = pcReturnType[2]
 			ok
 
@@ -97313,7 +97328,9 @@ class stzString from stzObject
 				oCopy.RemoveFirstAndLastChars()
 
 				acMembers = oCopy._SplitByStr(",")
-				acMembers = StzListQ(acMembers).FirstAndLastItems()
+				if len(acMembers) >= 2
+					acMembers = [ acMembers[1], acMembers[len(acMembers)] ]
+				ok
 
 				/*
 				TODO : replace with this when Split() is finished.
