@@ -467,6 +467,170 @@ class stzString from stzObject
 		def RSplitAt3(cSep)
 			return This.RPartitionedAt(cSep)
 
+	  #=========================#
+	 #  TRUNCATE               #
+	#=========================#
+
+	def Truncate(nMaxChars, cEllipsis)
+		pResult = StzEngineStringTruncate(@pEngine, nMaxChars, cEllipsis)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def TruncateQ(nMaxChars, cEllipsis)
+			This.Truncate(nMaxChars, cEllipsis)
+			return This
+
+	def Truncated(nMaxChars, cEllipsis)
+		pResult = StzEngineStringTruncate(@pEngine, nMaxChars, cEllipsis)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  ZFILL                  #
+	#=========================#
+
+	def ZFill(nWidth)
+		pResult = StzEngineStringZFill(@pEngine, nWidth)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ZFillQ(nWidth)
+			This.ZFill(nWidth)
+			return This
+
+	def ZFilled(nWidth)
+		pResult = StzEngineStringZFill(@pEngine, nWidth)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def PaddedWithZeros(nWidth)
+			return This.ZFilled(nWidth)
+
+	  #=========================#
+	 #  WRAP AT (WORD WRAP)    #
+	#=========================#
+
+	def WrapAt(nWidth)
+		pResult = StzEngineStringWrapAt(@pEngine, nWidth)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def WrapAtQ(nWidth)
+			This.WrapAt(nWidth)
+			return This
+
+	def WrappedAt(nWidth)
+		pResult = StzEngineStringWrapAt(@pEngine, nWidth)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WordWrapped(nWidth)
+			return This.WrappedAt(nWidth)
+
+	  #=========================#
+	 #  TAB EXPAND             #
+	#=========================#
+
+	def ExpandTabs(nTabSize)
+		pResult = StzEngineStringTabExpand(@pEngine, nTabSize)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ExpandTabsQ(nTabSize)
+			This.ExpandTabs(nTabSize)
+			return This
+
+	def TabsExpanded(nTabSize)
+		pResult = StzEngineStringTabExpand(@pEngine, nTabSize)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  ENSURE PREFIX/SUFFIX   #
+	#=========================#
+
+	def EnsurePrefix(cPrefix)
+		pResult = StzEngineStringEnsurePrefix(@pEngine, cPrefix)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def EnsurePrefixQ(cPrefix)
+			This.EnsurePrefix(cPrefix)
+			return This
+
+	def WithPrefix(cPrefix)
+		pResult = StzEngineStringEnsurePrefix(@pEngine, cPrefix)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	def EnsureSuffix(cSuffix)
+		pResult = StzEngineStringEnsureSuffix(@pEngine, cSuffix)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def EnsureSuffixQ(cSuffix)
+			This.EnsureSuffix(cSuffix)
+			return This
+
+	def WithSuffix(cSuffix)
+		pResult = StzEngineStringEnsureSuffix(@pEngine, cSuffix)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  REMOVE PREFIX/SUFFIX   #
+	#=========================#
+
+	def RemoveThisPrefix(cPrefix)
+		pResult = StzEngineStringRemovePrefix(@pEngine, cPrefix)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RemoveThisPrefixQ(cPrefix)
+			This.RemoveThisPrefix(cPrefix)
+			return This
+
+	def WithoutThisPrefix(cPrefix)
+		pResult = StzEngineStringRemovePrefix(@pEngine, cPrefix)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def PrefixRemoved(cPrefix)
+			return This.WithoutThisPrefix(cPrefix)
+
+	def RemoveThisSuffix(cSuffix)
+		pResult = StzEngineStringRemoveSuffix(@pEngine, cSuffix)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RemoveThisSuffixQ(cSuffix)
+			This.RemoveThisSuffix(cSuffix)
+			return This
+
+	def WithoutThisSuffix(cSuffix)
+		pResult = StzEngineStringRemoveSuffix(@pEngine, cSuffix)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def SuffixRemoved(cSuffix)
+			return This.WithoutThisSuffix(cSuffix)
+
 	  #==================================#
 	 #  GETTING THE CASE OF THE STRING  #
 	#==================================#
