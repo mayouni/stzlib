@@ -5935,8 +5935,8 @@ func AreObjects(paList)
 
 	#>
 
-func IsRangeNamedParamList(paList)
-	return IsRangeNamedParamList(paList)
+	# NOTE: IsRangeNamedParamList is defined in stznamedparams_engine.ring
+	# The duplicate was removed to avoid Ring's redefinition error.
 
 	func @IsRangeNamedParamList(paList)
 		return IsRangeNamedParamList(paList)
