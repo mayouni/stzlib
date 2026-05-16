@@ -89,25 +89,11 @@ func Center(text, width) #TODO Use stzString
 func Capitalize(str)
 		if len(str) = 0 return str ok
 		pStr = StzEngineStringFrom(str)
-		nCount = StzEngineStringCount(pStr)
-		if nCount = 0
-			StzEngineStringFree(pStr)
-			return str
-		ok
-		pFirst = StzEngineStringNthChar(pStr, 0)
-		pUpper = StzEngineStringToUpper(pFirst)
-		cFirst = StzEngineStringData(pUpper)
-		StzEngineStringFree(pUpper)
-		StzEngineStringFree(pFirst)
-		if nCount = 1
-			StzEngineStringFree(pStr)
-			return cFirst
-		ok
-		pRest = StzEngineStringSlice(pStr, 1, nCount - 1)
-		cRest = StzEngineStringData(pRest)
-		StzEngineStringFree(pRest)
+		pResult = StzEngineStringCapitalizeFirst(pStr)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 		StzEngineStringFree(pStr)
-		return cFirst + cRest
+		return cResult
 
 		func Capitalise(str)
 			return Capitalize(str)
@@ -325,12 +311,11 @@ func IsNonNullString(cStr)
 	#>
 
 func IsBlank(pcStr)
-	nLen = len(pcStr)
-	if nLen = 0 return 0 ok
-	for i = 1 to nLen
-		if substr(pcStr, i, 1) != " " return 0 ok
-	next
-	return 1
+	if len(pcStr) = 0 return 0 ok
+	pStr = StzEngineStringFrom(pcStr)
+	nResult = StzEngineStringIsWhitespace(pStr)
+	StzEngineStringFree(pStr)
+	return nResult
 
 	#< @FunctionAlternativeForms
 
@@ -631,31 +616,14 @@ func TrimString(cStr)
 		ok
 	ok
 
-	# Inline trim to avoid Ring's late-binding recursion
-	# (user-defined Trim shadows the built-in trim)
-	nLen = len(cStr)
-	if nLen = 0 return "" ok
+	if len(cStr) = 0 return "" ok
 
-	n1 = 1
-	while n1 <= nLen
-		c = cStr[n1]
-		if c != " " and c != char(9) and c != char(10) and c != char(13)
-			exit
-		ok
-		n1++
-	end
-
-	n2 = nLen
-	while n2 >= n1
-		c = cStr[n2]
-		if c != " " and c != char(9) and c != char(10) and c != char(13)
-			exit
-		ok
-		n2--
-	end
-
-	if n1 > n2 return "" ok
-	return substr(cStr, n1, n2 - n1 + 1)
+	pStr = StzEngineStringFrom(cStr)
+	pTrimmed = StzEngineStringTrimmed(pStr)
+	cResult = StzEngineStringData(pTrimmed)
+	StzEngineStringFree(pTrimmed)
+	StzEngineStringFree(pStr)
+	return cResult
 
 	func @TrimString(cStr)
 		return TrimString(cStr)
@@ -708,15 +676,12 @@ func StzTrimLeft(cStrOrList)
 	ok
 
 	if isString(cStrOrList)
-		nLen = len(cStrOrList)
-		nStart = 1
-		for i = 1 to nLen
-			if substr(cStrOrList, i, 1) != " " and substr(cStrOrList, i, 1) != char(9) and substr(cStrOrList, i, 1) != char(10) and substr(cStrOrList, i, 1) != char(13)
-				nStart = i
-				exit
-			ok
-		next
-		return substr(cStrOrList, nStart)
+		pStr = StzEngineStringFrom(cStrOrList)
+		pResult = StzEngineStringTrimLeft(pStr)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		StzEngineStringFree(pStr)
+		return cResult
 	else
 		nLen = len(cStrOrList)
 		nStart = 1
@@ -760,15 +725,12 @@ func StzTrimRight(cStrOrList)
 	ok
 
 	if isString(cStrOrList)
-		nLen = len(cStrOrList)
-		nEnd = nLen
-		for i = nLen to 1 step -1
-			if substr(cStrOrList, i, 1) != " " and substr(cStrOrList, i, 1) != char(9) and substr(cStrOrList, i, 1) != char(10) and substr(cStrOrList, i, 1) != char(13)
-				nEnd = i
-				exit
-			ok
-		next
-		return substr(cStrOrList, 1, nEnd)
+		pStr = StzEngineStringFrom(cStrOrList)
+		pResult = StzEngineStringTrimRight(pStr)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		StzEngineStringFree(pStr)
+		return cResult
 	else
 		nLen = len(cStrOrList)
 		nEnd = nLen
@@ -838,14 +800,12 @@ func StzTrimEnd(cStrOrList)
 #--
 
 func _StzSimplifyString(cStr)
-	cStr = StkTrim(cStr)
-	cStr = ring_substr2(cStr, char(9), " ")
-	cStr = ring_substr2(cStr, char(10), " ")
-	cStr = ring_substr2(cStr, char(13), " ")
-	while substr(cStr, "  ") > 0
-		cStr = ring_substr2(cStr, "  ", " ")
-	end
-	return cStr
+	pStr = StzEngineStringFrom(cStr)
+	pResult = StzEngineStringSimplify(pStr)
+	cResult = StzEngineStringData(pResult)
+	StzEngineStringFree(pResult)
+	StzEngineStringFree(pStr)
+	return cResult
 
 func _StzStripBraces(cStr)
 	cStr = trim(cStr)
