@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 166 Registered Functions"
+? "Engine Full Bridge Test -- All 169 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1398,6 +1398,74 @@ Assert("ContainsAnyOf vowels", StzEngineStringContainsAnyOf(pStr, "aeiou"), 1)
 Assert("ContainsAnyOf xyz", StzEngineStringContainsAnyOf(pStr, "xyz"), 0)
 Assert("ContainsAllOf helo", StzEngineStringContainsAllOf(pStr, "helo"), 1)
 Assert("ContainsAllOf heloz", StzEngineStringContainsAllOf(pStr, "heloz"), 0)
+StzEngineStringFree(pStr)
+
+# --- Group 74: Foldcase ---
+? "--- Group 74: Foldcase ---"
+pStr = StzEngineStringFrom("Hello WORLD")
+pR = StzEngineStringFoldcase(pStr)
+Assert("Foldcase Hello WORLD", StzEngineStringData(pR), "hello world")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 75: CenterPad ---
+? "--- Group 75: CenterPad ---"
+pStr = StzEngineStringFrom("hi")
+pR = StzEngineStringCenterPad(pStr, 6, "-")
+Assert("CenterPad hi to 6 with -", StzEngineStringData(pR), "--hi--")
+StzEngineStringFree(pR)
+pR2 = StzEngineStringCenterPad(pStr, 7, "*")
+Assert("CenterPad hi to 7 with *", StzEngineStringData(pR2), "**hi***")
+StzEngineStringFree(pR2)
+StzEngineStringFree(pStr)
+
+# --- Group 76: OnlyLetters, OnlyDigits ---
+? "--- Group 76: OnlyLetters, OnlyDigits ---"
+pStr = StzEngineStringFrom("h3ll0 w0rld!")
+pR = StzEngineStringOnlyLetters(pStr)
+Assert("OnlyLetters from h3ll0 w0rld!", StzEngineStringData(pR), "hllwrld")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("a1b2c3")
+pR = StzEngineStringOnlyDigits(pStr)
+Assert("OnlyDigits from a1b2c3", StzEngineStringData(pR), "123")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 77: RemoveWhitespace ---
+? "--- Group 77: RemoveWhitespace ---"
+pStr = StzEngineStringFrom("h e l l o")
+pR = StzEngineStringRemoveWhitespace(pStr)
+Assert("RemoveWhitespace", StzEngineStringData(pR), "hello")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 78: CountWords, NthWord ---
+? "--- Group 78: CountWords, NthWord ---"
+pStr = StzEngineStringFrom("hello world foo")
+Assert("CountWords 3", StzEngineStringCountWords(pStr), 3)
+pW = StzEngineStringNthWord(pStr, 0)
+Assert("NthWord 0 = hello", StzEngineStringData(pW), "hello")
+StzEngineStringFree(pW)
+pW = StzEngineStringNthWord(pStr, 1)
+Assert("NthWord 1 = world", StzEngineStringData(pW), "world")
+StzEngineStringFree(pW)
+pW = StzEngineStringNthWord(pStr, 2)
+Assert("NthWord 2 = foo", StzEngineStringData(pW), "foo")
+StzEngineStringFree(pW)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("  hello  ")
+Assert("CountWords leading/trailing spaces", StzEngineStringCountWords(pStr), 1)
+StzEngineStringFree(pStr)
+
+# --- Group 79: CharsBetween ---
+? "--- Group 79: CharsBetween ---"
+pStr = StzEngineStringFrom("abcdef")
+pR = StzEngineStringCharsBetween(pStr, 1, 4)
+Assert("CharsBetween 1..4 = cd", StzEngineStringData(pR), "cd")
+StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # ==============================================================

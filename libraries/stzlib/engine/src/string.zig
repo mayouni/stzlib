@@ -793,6 +793,13 @@ pub fn stz_string_to_lower(handle: StzStringHandle) callconv(.c) StzStringHandle
     return stz_string_new();
 }
 
+pub fn stz_string_foldcase(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    // Simple case folding is equivalent to lowercasing for most Unicode text.
+    // Full case folding (e.g. sharp-s -> "ss") would require multi-codepoint expansion,
+    // which we defer to a future enhancement.
+    return stz_string_to_lower(handle);
+}
+
 // ─── Codepoint-aware Operations ───
 
 pub fn stz_string_char_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) i32 {
@@ -5328,6 +5335,197 @@ pub fn stz_string_contains_all_of(handle: StzStringHandle, chars: [*c]const u8, 
     return 1;
 }
 
+// ─── Center Pad ───
+
+pub fn stz_string_center_pad(handle: StzStringHandle, width: c_int, pad_char: [*c]const u8, pad_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    const w: usize = if (width > 0) @intCast(width) else return stz_string_from(src.ptr, src.len);
+
+    // Get codepoint count of source
+    const cp_count = utf8CodepointCount(src);
+    if (cp_count >= w) return stz_string_from(src.ptr, src.len);
+
+    // Get pad codepoint (first codepoint from pad_char)
+    if (pad_char == null or pad_len == 0) return stz_string_from(src.ptr, src.len);
+    const pad_bytes: []const u8 = pad_char[0..pad_len];
+
+    const total_pad = w - cp_count;
+    const left_pad = total_pad / 2;
+    const right_pad = total_pad - left_pad;
+
+    const r = stz_string_new() orelse return null;
+    r.data.ensureTotalCapacity(gpa, src.len + total_pad * pad_len) catch {};
+
+    // Add left padding
+    for (0..left_pad) |_| {
+        r.data.appendSlice(gpa, pad_bytes) catch {};
+    }
+    // Add source
+    r.data.appendSlice(gpa, src) catch {};
+    // Add right padding
+    for (0..right_pad) |_| {
+        r.data.appendSlice(gpa, pad_bytes) catch {};
+    }
+
+    return r;
+}
+
+// ─── Only Letters / Digits ───
+
+pub fn stz_string_only_letters(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    const r = stz_string_new() orelse return null;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+        if (unicode.stz_unicode_is_letter(cp) != 0) {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+pub fn stz_string_only_digits(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    const r = stz_string_new() orelse return null;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+        if (unicode.stz_unicode_is_digit(cp) != 0) {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+// ─── Remove Whitespace ───
+
+pub fn stz_string_remove_whitespace(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    const r = stz_string_new() orelse return null;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+        if (unicode.stz_unicode_is_space(cp) == 0) {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+// (stz_string_is_palindrome already defined above)
+
+// ─── Count Words ───
+
+pub fn stz_string_count_words(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 0;
+
+    var count: c_int = 0;
+    var in_word = false;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+        if (unicode.stz_unicode_is_space(cp) != 0) {
+            if (in_word) {
+                in_word = false;
+            }
+        } else {
+            if (!in_word) {
+                in_word = true;
+                count += 1;
+            }
+        }
+        off += cp_len;
+    }
+    return count;
+}
+
+// ─── Nth Word ───
+
+pub fn stz_string_nth_word(handle: StzStringHandle, n: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (n < 0) return stz_string_new();
+    const target: usize = @intCast(n);
+
+    var word_idx: usize = 0;
+    var in_word = false;
+    var word_start: usize = 0;
+    var off: usize = 0;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+        const is_ws = unicode.stz_unicode_is_space(cp) != 0;
+
+        if (is_ws) {
+            if (in_word) {
+                if (word_idx == target) {
+                    return stz_string_from(src[word_start..off].ptr, off - word_start);
+                }
+                word_idx += 1;
+                in_word = false;
+            }
+        } else {
+            if (!in_word) {
+                word_start = off;
+                in_word = true;
+            }
+        }
+        off += cp_len;
+    }
+
+    // Handle last word
+    if (in_word and word_idx == target) {
+        return stz_string_from(src[word_start..off].ptr, off - word_start);
+    }
+
+    return stz_string_new();
+}
+
+// ─── Chars Between Positions ───
+
+pub fn stz_string_chars_between(handle: StzStringHandle, cp_from: c_int, cp_to: c_int) callconv(.c) StzStringHandle {
+    // Extract characters between two 0-based codepoint positions (exclusive on both ends)
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (cp_from < 0 or cp_to < 0 or cp_to <= cp_from + 1) return stz_string_new();
+
+    const start_cp = cp_from + 1;
+    const count_cp = cp_to - cp_from - 1;
+    if (count_cp <= 0) return stz_string_new();
+
+    const byte_start = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, start_cp);
+    if (byte_start < 0) return stz_string_new();
+    const byte_end = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, start_cp + count_cp);
+    const end: usize = if (byte_end < 0) src.len else @intCast(byte_end);
+    const start: usize = @intCast(byte_start);
+    if (start >= end) return stz_string_new();
+
+    return stz_string_from(src[start..end].ptr, end - start);
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -5612,5 +5810,101 @@ test "contains_all_of" {
     const s1 = stz_string_from("hello", 5);
     try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_all_of(s1, "helo", 4));
     try std.testing.expectEqual(@as(c_int, 0), stz_string_contains_all_of(s1, "heloz", 5));
+    stz_string_free(s1);
+}
+
+test "foldcase" {
+    const s1 = stz_string_from("Hello WORLD", 11);
+    const folded = stz_string_foldcase(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(folded)[0..@intCast(stz_string_size(folded))], "hello world"));
+    stz_string_free(folded);
+    stz_string_free(s1);
+}
+
+test "center_pad" {
+    const s1 = stz_string_from("hi", 2);
+    const padded = stz_string_center_pad(s1, 6, "-", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(padded)[0..@intCast(stz_string_size(padded))], "--hi--"));
+    stz_string_free(padded);
+
+    const padded_odd = stz_string_center_pad(s1, 7, "*", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(padded_odd)[0..@intCast(stz_string_size(padded_odd))], "**hi***"));
+    stz_string_free(padded_odd);
+    stz_string_free(s1);
+}
+
+test "only_letters" {
+    const s1 = stz_string_from("h3ll0 w0rld!", 12);
+    const letters = stz_string_only_letters(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(letters)[0..@intCast(stz_string_size(letters))], "hllwrld"));
+    stz_string_free(letters);
+    stz_string_free(s1);
+}
+
+test "only_digits" {
+    const s1 = stz_string_from("a1b2c3", 6);
+    const digits = stz_string_only_digits(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(digits)[0..@intCast(stz_string_size(digits))], "123"));
+    stz_string_free(digits);
+    stz_string_free(s1);
+}
+
+test "remove_whitespace" {
+    const s1 = stz_string_from("h e l l o", 9);
+    const nows = stz_string_remove_whitespace(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(nows)[0..@intCast(stz_string_size(nows))], "hello"));
+    stz_string_free(nows);
+    stz_string_free(s1);
+}
+
+test "is_palindrome" {
+    const s1 = stz_string_from("abcba", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_palindrome(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("abcd", 4);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_palindrome(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("a", 1);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_palindrome(s3));
+    stz_string_free(s3);
+}
+
+test "count_words" {
+    const s1 = stz_string_from("hello world foo", 15);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_words(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("  hello  ", 9);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_count_words(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("", 0);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_count_words(s3));
+    stz_string_free(s3);
+}
+
+test "nth_word" {
+    const s1 = stz_string_from("hello world foo", 15);
+    const w0 = stz_string_nth_word(s1, 0);
+    try std.testing.expect(mem.eql(u8, stz_string_data(w0)[0..@intCast(stz_string_size(w0))], "hello"));
+    stz_string_free(w0);
+
+    const w1 = stz_string_nth_word(s1, 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(w1)[0..@intCast(stz_string_size(w1))], "world"));
+    stz_string_free(w1);
+
+    const w2 = stz_string_nth_word(s1, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(w2)[0..@intCast(stz_string_size(w2))], "foo"));
+    stz_string_free(w2);
+    stz_string_free(s1);
+}
+
+test "chars_between" {
+    const s1 = stz_string_from("abcdef", 6);
+    const between = stz_string_chars_between(s1, 1, 4);
+    try std.testing.expect(mem.eql(u8, stz_string_data(between)[0..@intCast(stz_string_size(between))], "cd"));
+    stz_string_free(between);
     stz_string_free(s1);
 }

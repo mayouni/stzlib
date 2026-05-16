@@ -350,6 +350,12 @@ fn ring_StringReverse(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+fn ring_StringFoldcase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_foldcase(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 fn ring_StringRepeat(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
@@ -977,6 +983,63 @@ fn ring_StringContainsAllOf(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_all_of(h, chars, chars_len)));
 }
 
+// ─── CenterPad ───
+
+fn ring_StringCenterPad(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const pad = ring_vm_api_getstring(p, 3);
+    const pad_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_center_pad(h, width, pad, pad_len)), STZ_HANDLE);
+}
+
+// ─── OnlyLetters ───
+
+fn ring_StringOnlyLetters(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_only_letters(h)), STZ_HANDLE);
+}
+
+// ─── OnlyDigits ───
+
+fn ring_StringOnlyDigits(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_only_digits(h)), STZ_HANDLE);
+}
+
+// ─── RemoveWhitespace ───
+
+fn ring_StringRemoveWhitespace(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_whitespace(h)), STZ_HANDLE);
+}
+
+// (ring_StringIsPalindrome already defined above)
+
+// ─── CountWords ───
+
+fn ring_StringCountWords(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_words(h)));
+}
+
+// ─── NthWord ───
+
+fn ring_StringNthWord(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_nth_word(h, n)), STZ_HANDLE);
+}
+
+// ─── CharsBetween ───
+
+fn ring_StringCharsBetween(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const from: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const to: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_chars_between(h, from, to)), STZ_HANDLE);
+}
+
 // ─── RemovePrefix ───
 
 fn ring_StringRemovePrefix(p: *anyopaque) callconv(.c) void {
@@ -1213,6 +1276,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringnthchar", .func = &ring_StringNthChar },
     .{ .name = "stzenginestringslice", .func = &ring_StringSlice },
     .{ .name = "stzenginestringreverse", .func = &ring_StringReverse },
+    .{ .name = "stzenginestringfoldcase", .func = &ring_StringFoldcase },
     .{ .name = "stzenginestringrepeat", .func = &ring_StringRepeat },
     .{ .name = "stzenginestringpadleft", .func = &ring_StringPadLeft },
     .{ .name = "stzenginestringpadright", .func = &ring_StringPadRight },
@@ -1322,6 +1386,13 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcharfrequency", .func = &ring_StringCharFrequency },
     .{ .name = "stzenginestringcontainsanyof", .func = &ring_StringContainsAnyOf },
     .{ .name = "stzenginestringcontainsallof", .func = &ring_StringContainsAllOf },
+    .{ .name = "stzenginestringcenterpad", .func = &ring_StringCenterPad },
+    .{ .name = "stzenginestringonlyletters", .func = &ring_StringOnlyLetters },
+    .{ .name = "stzenginestringonlydigits", .func = &ring_StringOnlyDigits },
+    .{ .name = "stzenginestringremovewhitespace", .func = &ring_StringRemoveWhitespace },
+    .{ .name = "stzenginestringcountwords", .func = &ring_StringCountWords },
+    .{ .name = "stzenginestringnthword", .func = &ring_StringNthWord },
+    .{ .name = "stzenginestringcharsbetween", .func = &ring_StringCharsBetween },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
