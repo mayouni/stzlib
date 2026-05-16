@@ -43999,16 +43999,7 @@ class stzString from stzObject
 			return This.ContainsOnlyLettersOrNumbers()
 
 	def ContainsOnlyLettersAndNumbers()
-		hStr = StzEngineStringFrom(This.Content())
-		nTotal = StzEngineStringCount(hStr)
-		if nTotal = 0
-			StzEngineStringFree(hStr)
-			return 0
-		ok
-		nLetters = StzEngineStringCountCharsOfType(hStr, 0)
-		nDigits = StzEngineStringCountCharsOfType(hStr, 1)
-		StzEngineStringFree(hStr)
-		return (nLetters + nDigits) = nTotal
+		return StzEngineStringIsAlnum(@pEngine)
 
 		#<@ FunctionAlternativeForms
 
@@ -93663,7 +93654,12 @@ class stzString from stzObject
 	#----------------------------#
 
 	def NumberOfCharsCSU(pCaseSensitive)
-		nResult = len( This.CharsCSU(pCaseSensitive) )
+		bCase = CaseSensitive(pCaseSensitive)
+		if bCase
+			return StzEngineStringUniqueCharsCount(@pEngine)
+		ok
+		# CI: fall back to full list
+		nResult = len( This.CharsCSU(0) )
 		return nResult
 
 		#< @FunctionAlternativeForms

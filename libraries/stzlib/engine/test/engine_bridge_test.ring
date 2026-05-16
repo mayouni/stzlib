@@ -704,6 +704,100 @@ StzEngineStringFree(pSwapped)
 StzEngineStringFree(pStr)
 
 # ==============================================================
+#  GROUP 28: UniqueChars, UniqueCharsCount
+# ==============================================================
+
+? "--- Group 28: UniqueChars, UniqueCharsCount ---"
+
+pStr = StzEngineStringFrom("aabbcc")
+pUniq = StzEngineStringUniqueChars(pStr)
+Assert("UniqueChars aabbcc", StzEngineStringData(pUniq), "abc")
+StzEngineStringFree(pUniq)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello")
+pUniq = StzEngineStringUniqueChars(pStr)
+Assert("UniqueChars Hello", StzEngineStringData(pUniq), "Helo")
+StzEngineStringFree(pUniq)
+
+Assert("UniqueCharsCount Hello", StzEngineStringUniqueCharsCount(pStr), 4)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abcabc")
+Assert("UniqueCharsCount abcabc", StzEngineStringUniqueCharsCount(pStr), 3)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 29: RemoveAllCI
+# ==============================================================
+
+? "--- Group 29: RemoveAllCI ---"
+
+pStr = StzEngineStringFrom("Hello HELLO hello world")
+pResult = StzEngineStringRemoveAllCI(pStr, "hello")
+Assert("RemoveAllCI", StzEngineStringData(pResult), "   world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 30: IsAlphaOnly, IsAlnum
+# ==============================================================
+
+? "--- Group 30: IsAlphaOnly, IsAlnum ---"
+
+pStr = StzEngineStringFrom("Hello")
+Assert("IsAlphaOnly yes", StzEngineStringIsAlphaOnly(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello123")
+Assert("IsAlphaOnly no", StzEngineStringIsAlphaOnly(pStr), 0)
+Assert("IsAlnum yes", StzEngineStringIsAlnum(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello 123")
+Assert("IsAlnum no (space)", StzEngineStringIsAlnum(pStr), 0)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 31: ContainsChar
+# ==============================================================
+
+? "--- Group 31: ContainsChar ---"
+
+pStr = StzEngineStringFrom("Hello")
+Assert("ContainsChar H", StzEngineStringContainsChar(pStr, 72), 1)
+Assert("ContainsChar o", StzEngineStringContainsChar(pStr, 111), 1)
+Assert("ContainsChar Z", StzEngineStringContainsChar(pStr, 90), 0)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 32: BetweenNth, CountBetween
+# ==============================================================
+
+? "--- Group 32: BetweenNth, CountBetween ---"
+
+pStr = StzEngineStringFrom("[a] [b] [c]")
+Assert("CountBetween", StzEngineStringCountBetween(pStr, "[", "]"), 3)
+
+pR0 = StzEngineStringBetweenNth(pStr, "[", "]", 0)
+Assert("BetweenNth 0", StzEngineStringData(pR0), "a")
+StzEngineStringFree(pR0)
+
+pR1 = StzEngineStringBetweenNth(pStr, "[", "]", 1)
+Assert("BetweenNth 1", StzEngineStringData(pR1), "b")
+StzEngineStringFree(pR1)
+
+pR2 = StzEngineStringBetweenNth(pStr, "[", "]", 2)
+Assert("BetweenNth 2", StzEngineStringData(pR2), "c")
+StzEngineStringFree(pR2)
+
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("no brackets")
+Assert("CountBetween none", StzEngineStringCountBetween(pStr, "[", "]"), 0)
+StzEngineStringFree(pStr)
+
+# ==============================================================
 #  SUMMARY
 # ==============================================================
 
