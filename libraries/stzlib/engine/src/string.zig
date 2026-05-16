@@ -515,6 +515,78 @@ pub fn stz_string_replace(handle: StzStringHandle, old: [*c]const u8, old_len: u
     }
 }
 
+// ─── Split CI ───
+
+fn ciMatch(a: []const u8, b: []const u8) bool {
+    if (a.len != b.len) return false;
+    for (0..a.len) |i| {
+        if (toLowerAscii(a[i]) != toLowerAscii(b[i])) return false;
+    }
+    return true;
+}
+
+pub fn stz_string_split_count_ci(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) c_int {
+    if (handle) |s| {
+        if (sep == null or sep_len == 0) return 1;
+        const hay = s.slice();
+        const d = sep[0..sep_len];
+        var count: c_int = 1;
+        var pos: usize = 0;
+        while (pos + d.len <= hay.len) {
+            if (ciMatch(hay[pos..][0..d.len], d)) {
+                count += 1;
+                pos += d.len;
+            } else {
+                pos += 1;
+            }
+        }
+        return count;
+    }
+    return 0;
+}
+
+pub fn stz_string_split_get_ci(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize, index: c_int) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        if (sep == null or sep_len == 0 or index < 0) return null;
+        const hay = s.slice();
+        const d = sep[0..sep_len];
+        const target: usize = @intCast(index);
+        var part: usize = 0;
+        var start: usize = 0;
+        var pos: usize = 0;
+        while (pos + d.len <= hay.len) {
+            if (ciMatch(hay[pos..][0..d.len], d)) {
+                if (part == target) {
+                    const out = gpa.create(StzString) catch return null;
+                    out.* = StzString.init();
+                    out.data.appendSlice(gpa, hay[start..pos]) catch {
+                        out.deinit();
+                        gpa.destroy(out);
+                        return null;
+                    };
+                    return out;
+                }
+                part += 1;
+                pos += d.len;
+                start = pos;
+            } else {
+                pos += 1;
+            }
+        }
+        if (part == target) {
+            const out = gpa.create(StzString) catch return null;
+            out.* = StzString.init();
+            out.data.appendSlice(gpa, hay[start..]) catch {
+                out.deinit();
+                gpa.destroy(out);
+                return null;
+            };
+            return out;
+        }
+    }
+    return null;
+}
+
 pub fn stz_string_replace_ci(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new: [*c]const u8, new_len: usize) callconv(.c) void {
     if (handle) |s| {
         if (old == null or old_len == 0) return;
@@ -941,6 +1013,26 @@ test "string contains_ci" {
     try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_ci(s, "WORLD", 5));
     try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_ci(s, "hello", 5));
     try std.testing.expectEqual(@as(c_int, 0), stz_string_contains_ci(s, "xyz", 3));
+    stz_string_free(s);
+}
+
+test "string split_count_ci" {
+    const s = stz_string_from("oneABCtwoabcthree", 17);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_split_count_ci(s, "abc", 3));
+    stz_string_free(s);
+}
+
+test "string split_get_ci" {
+    const s = stz_string_from("oneABCtwoAbCthree", 17);
+    const p0 = stz_string_split_get_ci(s, "abc", 3, 0);
+    try std.testing.expect(mem.eql(u8, stz_string_data(p0)[0..stz_string_size(p0)], "one"));
+    stz_string_free(p0);
+    const p1 = stz_string_split_get_ci(s, "abc", 3, 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(p1)[0..stz_string_size(p1)], "two"));
+    stz_string_free(p1);
+    const p2 = stz_string_split_get_ci(s, "abc", 3, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(p2)[0..stz_string_size(p2)], "three"));
+    stz_string_free(p2);
     stz_string_free(s);
 }
 

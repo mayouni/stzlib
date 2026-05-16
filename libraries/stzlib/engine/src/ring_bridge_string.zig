@@ -209,6 +209,20 @@ fn ring_StringEndsWithCI(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
+fn ring_StringSplitCountCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_split_count_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+}
+
+fn ring_StringSplitGetCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_split_get_ci(h, s, len, idx)), STZ_HANDLE);
+}
+
 fn ring_StringReplaceCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const old_s = ring_vm_api_getstring(p, 2);
@@ -346,6 +360,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcontainsci", .func = &ring_StringContainsCI },
     .{ .name = "stzenginestringstartswithci", .func = &ring_StringStartsWithCI },
     .{ .name = "stzenginestringendswithci", .func = &ring_StringEndsWithCI },
+    .{ .name = "stzenginestringsplitcountci", .func = &ring_StringSplitCountCI },
+    .{ .name = "stzenginestringsplitgetci", .func = &ring_StringSplitGetCI },
     .{ .name = "stzenginestringreplaceci", .func = &ring_StringReplaceCI },
     .{ .name = "stzenginestringreplace", .func = &ring_StringReplace },
     .{ .name = "stzenginestringreplacerange", .func = &ring_StringReplaceRange },
