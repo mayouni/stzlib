@@ -456,23 +456,15 @@ func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
 
 	bCase = CaseSensitive(pCaseSensitive)
 
-	if bCase = 1
-		if ring_substr1(pcStr, pcSubStr) > 0
-			return 1
-		else
-			return 0
-		ok
+	# Engine-backed contains check
+	pStr = StzEngineStringFrom(pcStr)
+	if bCase
+		nResult = StzEngineStringContains(pStr, pcSubStr)
 	else
-		cStrLow = lower(pcStr)
-		cSubStrLow = lower(pcSubStr)
-
-		if ring_substr1(cStrLow, cSubStrLow) > 0
-			return 1
-		else
-			return 0
-		ok
-
+		nResult = StzEngineStringContainsCI(pStr, pcSubStr)
 	ok
+	StzEngineStringFree(pStr)
+	return nResult
 
 	#< @FunctionAlternativeForms
 

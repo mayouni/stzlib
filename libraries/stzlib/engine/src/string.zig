@@ -1580,6 +1580,39 @@ pub fn stz_string_is_only_type(handle: StzStringHandle, char_type: c_int) callco
     return 1;
 }
 
+/// Remove all characters of a given type. Returns new handle.
+/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct
+pub fn stz_string_remove_chars_of_type(handle: StzStringHandle, char_type: c_int) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    const result = stz_string_new() orelse return null;
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_end = @min(i + cp_len, bytes.len);
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        const is_type = switch (char_type) {
+            0 => unicode.stz_unicode_is_letter(cp_val) != 0,
+            1 => unicode.stz_unicode_is_digit(cp_val) != 0,
+            2 => unicode.stz_unicode_is_space(cp_val) != 0,
+            3 => unicode.stz_unicode_is_upper(cp_val) != 0,
+            4 => unicode.stz_unicode_is_lower(cp_val) != 0,
+            5 => blk: {
+                const is_letter = unicode.stz_unicode_is_letter(cp_val) != 0;
+                const is_digit = unicode.stz_unicode_is_digit(cp_val) != 0;
+                const is_space = unicode.stz_unicode_is_space(cp_val) != 0;
+                break :blk !is_letter and !is_digit and !is_space;
+            },
+            else => false,
+        };
+        if (!is_type) {
+            result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
+        }
+        i += cp_len;
+    }
+    return result;
+}
+
 /// Trim whitespace from both ends. Returns new handle.
 pub fn stz_string_trim(handle: StzStringHandle) callconv(.c) StzStringHandle {
     const s = (handle orelse return null);
@@ -2671,4 +2704,24 @@ test "swap_case" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..3], "123"));
     stz_string_free(r2);
     stz_string_free(s2);
+}
+
+test "remove_chars_of_type" {
+    const s1 = stz_string_from("Hello 123 World!", 16);
+    // Remove digits
+    const r1 = stz_string_remove_chars_of_type(s1, 1);
+    try std.testing.expectEqual(@as(usize, 13), stz_string_size(r1));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..13], "Hello  World!"));
+    stz_string_free(r1);
+    // Remove spaces
+    const r2 = stz_string_remove_chars_of_type(s1, 2);
+    try std.testing.expectEqual(@as(usize, 14), stz_string_size(r2));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..14], "Hello123World!"));
+    stz_string_free(r2);
+    // Remove punctuation
+    const r3 = stz_string_remove_chars_of_type(s1, 5);
+    try std.testing.expectEqual(@as(usize, 15), stz_string_size(r3));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r3)[0..15], "Hello 123 World"));
+    stz_string_free(r3);
+    stz_string_free(s1);
 }
