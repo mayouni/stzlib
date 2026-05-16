@@ -1984,7 +1984,29 @@ func SplitAtCS(cData, cSubStr, pCaseSensitive)
 	ok
 
 	bCase = CaseSensitive(pCaseSensitive)
-	return StzSplitCS(cData, cSubStr, bCase)
+
+	# Engine-backed split for codepoint safety
+	pStr = StzEngineStringFrom(cData)
+	if bCase
+		nCount = StzEngineStringSplitCount(pStr, cSubStr)
+	else
+		nCount = StzEngineStringSplitCountCI(pStr, cSubStr)
+	ok
+
+	acResult = []
+	for i = 0 to nCount - 1
+		if bCase
+			pPart = StzEngineStringSplitGet(pStr, cSubStr, i)
+		else
+			pPart = StzEngineStringSplitGetCI(pStr, cSubStr, i)
+		ok
+		if pPart != NULL
+			acResult + StzEngineStringData(pPart)
+			StzEngineStringFree(pPart)
+		ok
+	next
+	StzEngineStringFree(pStr)
+	return acResult
 
 	func @SplitAtCS(cData, cSubStr, pCaseSensitive)
 		return SplitAtCS(cData, cSubStr, pCaseSensitive)
