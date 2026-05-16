@@ -5915,6 +5915,118 @@ pub fn stz_string_interleave(handle: StzStringHandle, sep: [*c]const u8, sep_len
     return r;
 }
 
+// ─── StripChars ───
+
+/// Remove all codepoints that appear in the `chars` set string.
+/// E.g., strip_chars("hello world!", "lo") => "he wrd!"
+pub fn stz_string_strip_chars(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (src.len == 0 or chars_len == 0) return stz_string_from(src.ptr, src.len);
+
+    const charset = if (chars_len > 0) chars[0..chars_len] else return stz_string_from(src.ptr, src.len);
+
+    // Build set of codepoints to strip
+    const r = stz_string_new() orelse return null;
+    var off: usize = 0;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+
+        // Check if this char appears in the charset
+        var found = false;
+        var coff: usize = 0;
+        while (coff < charset.len) {
+            const c_len = std.unicode.utf8ByteSequenceLength(charset[coff]) catch break;
+            if (coff + c_len > charset.len) break;
+            if (c_len == cp_len and mem.eql(u8, src[off..][0..cp_len], charset[coff..][0..c_len])) {
+                found = true;
+                break;
+            }
+            coff += c_len;
+        }
+
+        if (!found) {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+// ─── KeepChars ───
+
+/// Keep only codepoints that appear in the `chars` set string.
+/// E.g., keep_chars("hello world!", "lo") => "llool"
+pub fn stz_string_keep_chars(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (src.len == 0 or chars_len == 0) return stz_string_new();
+
+    const charset = if (chars_len > 0) chars[0..chars_len] else return stz_string_new();
+
+    const r = stz_string_new() orelse return null;
+    var off: usize = 0;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+
+        // Check if this char appears in the charset
+        var coff: usize = 0;
+        while (coff < charset.len) {
+            const c_len = std.unicode.utf8ByteSequenceLength(charset[coff]) catch break;
+            if (coff + c_len > charset.len) break;
+            if (c_len == cp_len and mem.eql(u8, src[off..][0..cp_len], charset[coff..][0..c_len])) {
+                r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+                break;
+            }
+            coff += c_len;
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+// ─── ReplaceMultiple ───
+
+/// Replace first occurrence of old1 with new1, old2 with new2, etc.
+/// Takes alternating old/new pairs as a single concatenated buffer with lengths.
+/// Simpler interface: replace two substrings in one pass.
+pub fn stz_string_replace2(handle: StzStringHandle, old1: [*c]const u8, old1_len: usize, new1: [*c]const u8, new1_len: usize, old2: [*c]const u8, old2_len: usize, new2: [*c]const u8, new2_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (src.len == 0) return stz_string_new();
+
+    // First replace old1 with new1
+    const needle1 = if (old1_len > 0) old1[0..old1_len] else "";
+    const repl1 = if (new1_len > 0) new1[0..new1_len] else "";
+    const needle2 = if (old2_len > 0) old2[0..old2_len] else "";
+    const repl2 = if (new2_len > 0) new2[0..new2_len] else "";
+
+    const r = stz_string_new() orelse return null;
+    var off: usize = 0;
+
+    while (off < src.len) {
+        // Try needle1
+        if (needle1.len > 0 and off + needle1.len <= src.len and mem.eql(u8, src[off..][0..needle1.len], needle1)) {
+            r.data.appendSlice(gpa, repl1) catch {};
+            off += needle1.len;
+            continue;
+        }
+        // Try needle2
+        if (needle2.len > 0 and off + needle2.len <= src.len and mem.eql(u8, src[off..][0..needle2.len], needle2)) {
+            r.data.appendSlice(gpa, repl2) catch {};
+            off += needle2.len;
+            continue;
+        }
+        r.data.append(gpa, src[off]) catch {};
+        off += 1;
+    }
+    return r;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -6436,5 +6548,36 @@ test "interleave" {
     const r2 = stz_string_interleave(s1, " - ", 3);
     try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "a - b - c"));
     stz_string_free(r2);
+    stz_string_free(s1);
+}
+
+test "strip_chars" {
+    const s1 = stz_string_from("hello world!", 12);
+    const r1 = stz_string_strip_chars(s1, "lo", 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "he wrd!"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    // Strip vowels
+    const s2 = stz_string_from("programming", 11);
+    const r2 = stz_string_strip_chars(s2, "aeiou", 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "prgrmmng"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+}
+
+test "keep_chars" {
+    const s1 = stz_string_from("hello world!", 12);
+    const r1 = stz_string_keep_chars(s1, "lo", 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "llool"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+}
+
+test "replace2" {
+    const s1 = stz_string_from("hello world", 11);
+    const r1 = stz_string_replace2(s1, "hello", 5, "hi", 2, "world", 5, "earth", 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "hi earth"));
+    stz_string_free(r1);
     stz_string_free(s1);
 }
