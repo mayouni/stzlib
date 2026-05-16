@@ -1371,11 +1371,13 @@ func IsStzlistofchars(pObject)
 		return IsStzlistofchars(pObject)
 
 func IsStzlist(pObject)
-	if isObject(pObject) and classname(pObject) = "stzlist"
-		return 1
-	else
-		return 0
+	if isObject(pObject)
+		cName = classname(pObject)
+		if cName = "stzlist" or cName = "stzlistnamedparams"
+			return 1
+		ok
 	ok
+	return 0
 
 	func ObjectIsStzlist(pObject)
 		return IsStzlist(pObject)
