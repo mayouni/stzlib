@@ -48321,31 +48321,20 @@ class stzString from stzObject
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		# Doing the job
+		# Doing the job (Engine-backed: single call finds all positions)
 
-		nLenString = This.NumberOfChars()
-		nLenSubStr = Q(pcSubStr).NumberOfChars()
-
-		if nLenString < nLenSubStr
-			return []
+		if _bCase_
+			pResult = StzEngineStringFindAll(@pEngine, pcSubStr)
+		else
+			pResult = StzEngineStringFindAllCI(@pEngine, pcSubStr)
 		ok
 
+		nCount = StzEngineFindResultCount(pResult)
 		anResult = []
-
-		bContinue = 1
-		_nPos_ = 1
-
-		while bContinue
-
-			_nPos_ = This._FindSubStr(pcSubStr, _nPos_, pCaseSensitive)
-
-			if _nPos_ = 0
-				bContinue = 0
-			else
-				anResult + _nPos_
-				_nPos_ = _nPos_ + 1
-			ok
-		end
+		for i = 1 to nCount
+			anResult + (StzEngineFindResultGet(pResult, i - 1) + 1)
+		next
+		StzEngineFindResultFree(pResult)
 
 		return anResult
 
@@ -49809,16 +49798,15 @@ class stzString from stzObject
 	#======================================================#
 
 	def FindUppercaseChars()
+		hStr = StzEngineStringFrom(This.Content())
+		pResult = StzEngineStringFindCharsOfType(hStr, 3)
+		nCount = StzEngineFindResultCount(pResult)
 		anResult = []
-		acChars = This.Chars()
-		nLen = len(acChars)
-
-		for i = 1 to nLen
-			if ring_isupper(acChars[i])
-				anResult + i
-			ok
+		for i = 1 to nCount
+			anResult + (StzEngineFindResultGet(pResult, i - 1) + 1)
 		next
-
+		StzEngineFindResultFree(pResult)
+		StzEngineStringFree(hStr)
 		return anResult
 
 	def UppercaseChars()
@@ -49830,16 +49818,15 @@ class stzString from stzObject
 	#--
 
 	def FindLowercaseChars()
+		hStr = StzEngineStringFrom(This.Content())
+		pResult = StzEngineStringFindCharsOfType(hStr, 4)
+		nCount = StzEngineFindResultCount(pResult)
 		anResult = []
-		acChars = This.Chars()
-		nLen = len(acChars)
-
-		for i = 1 to nLen
-			if ring_isupper(acChars[i])
-				anResult + i
-			ok
+		for i = 1 to nCount
+			anResult + (StzEngineFindResultGet(pResult, i - 1) + 1)
 		next
-
+		StzEngineFindResultFree(pResult)
+		StzEngineStringFree(hStr)
 		return anResult
 
 	def LowercaseChars()
