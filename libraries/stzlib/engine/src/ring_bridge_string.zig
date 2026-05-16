@@ -141,6 +141,45 @@ fn ring_StringEndsWith(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
+fn ring_StringCountOfCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_of_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+}
+
+fn ring_StringLastIndexOfCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_last_index_of_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+}
+
+fn ring_StringContainsCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+}
+
+fn ring_StringStartsWithCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_starts_with_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+}
+
+fn ring_StringEndsWithCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+}
+
+fn ring_StringReplaceCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const old_s = ring_vm_api_getstring(p, 2);
+    const old_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const new_s = ring_vm_api_getstring(p, 3);
+    const new_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    string.stz_string_replace_ci(h, old_s, old_len, new_s, new_len);
+}
+
 fn ring_StringReplace(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const old_s = ring_vm_api_getstring(p, 2);
@@ -259,6 +298,12 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcontains", .func = &ring_StringContains },
     .{ .name = "stzenginestringstartswith", .func = &ring_StringStartsWith },
     .{ .name = "stzenginestringendswith", .func = &ring_StringEndsWith },
+    .{ .name = "stzenginestringcountofci", .func = &ring_StringCountOfCI },
+    .{ .name = "stzenginestringlastindexofci", .func = &ring_StringLastIndexOfCI },
+    .{ .name = "stzenginestringcontainsci", .func = &ring_StringContainsCI },
+    .{ .name = "stzenginestringstartswithci", .func = &ring_StringStartsWithCI },
+    .{ .name = "stzenginestringendswithci", .func = &ring_StringEndsWithCI },
+    .{ .name = "stzenginestringreplaceci", .func = &ring_StringReplaceCI },
     .{ .name = "stzenginestringreplace", .func = &ring_StringReplace },
     .{ .name = "stzenginestringreplacerange", .func = &ring_StringReplaceRange },
     .{ .name = "stzenginestringsplitcount", .func = &ring_StringSplitCount },

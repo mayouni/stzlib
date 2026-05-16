@@ -27,8 +27,8 @@ class stzStringCounter from stzString
 		if _bCase_
 			return StzEngineStringCountOf(@pEngine, pcSubStr)
 		ok
-		anPos = This.FindAllCS(pcSubStr, pCaseSensitive)
-		return len(anPos)
+		# Case-insensitive: use Engine CI function
+		return StzEngineStringCountOfCI(@pEngine, pcSubStr)
 
 		def NumberOfOccurrencesCS(pcSubStr, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)

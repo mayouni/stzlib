@@ -237,13 +237,13 @@ class stzStringFinder from stzString
 			ok
 		ok
 
-		if NOT This.ContainsCS(pcSubstr, pCaseSensitive)
+		# Case-insensitive: use Engine CI function
+		nResult = StzEngineStringLastIndexOfCI(@pEngine, pcSubStr)
+		if nResult >= 0
+			return nResult + 1
+		else
 			return 0
 		ok
-
-		n = This.NumberOfOccurrenceCS(pcSubstr, pCaseSensitive)
-		nResult = This.FindNthCS(n, pcsubStr, pCaseSensitive)
-		return nResult
 
 	def FindLast(pcSubStr)
 		return This.FindLastCS(pcSubStr, 1)
@@ -257,8 +257,8 @@ class stzStringFinder from stzString
 		if _bCase_
 			return StzEngineStringCountOf(@pEngine, pcSubStr)
 		ok
-		nResult = StringCountCS(This.Content(), pcSubStr, pCaseSensitive)
-		return nResult
+		# Case-insensitive: use Engine CI function
+		return StzEngineStringCountOfCI(@pEngine, pcSubStr)
 
 	def NumberOfOccurrence(pcSubStr)
 		return This.NumberOfOccurrenceCS(pcSubStr, 1)
@@ -299,8 +299,8 @@ class stzStringFinder from stzString
 			return StzEngineStringStartsWith(@pEngine, pcSubStr)
 		ok
 
-		nResult = This.FindFirstCS(pcSubStr, pCaseSensitive)
-		return nResult = 1
+		# Case-insensitive: use Engine CI function
+		return StzEngineStringStartsWithCI(@pEngine, pcSubStr)
 
 	def StartsWith(pcSubStr)
 		return This.StartsWithCS(pcSubStr, 1)
@@ -315,15 +315,8 @@ class stzStringFinder from stzString
 			return StzEngineStringEndsWith(@pEngine, pcSubStr)
 		ok
 
-		nLen = len(pcSubStr)
-		nStart = len(This.Content()) - nLen + 1
-
-		if nStart < 1
-			return 0
-		ok
-
-		cEnd = substr(This.Content(), nStart, nLen)
-		return ring_lower(cEnd) = ring_lower(pcSubStr)
+		# Case-insensitive: use Engine CI function
+		return StzEngineStringEndsWithCI(@pEngine, pcSubStr)
 
 	def EndsWith(pcSubStr)
 		return This.EndsWithCS(pcSubStr, 1)
