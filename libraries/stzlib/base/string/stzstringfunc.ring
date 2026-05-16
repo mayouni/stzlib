@@ -978,14 +978,25 @@ func StringIsScriptNumber(cStr)
 		return StringIsScriptNumber(cStr)
 
 func StringIsLowercase(cStr)
-	return cStr = lower(cStr)
+	pStr = StzEngineStringFrom(cStr)
+	nResult = StzEngineStringIsLowercase(pStr)
+	StzEngineStringFree(pStr)
+	return nResult
 
 func StringIsUppercase(cStr)
-	return cStr = upper(cStr)
+	pStr = StzEngineStringFrom(cStr)
+	nResult = StzEngineStringIsUppercase(pStr)
+	StzEngineStringFree(pStr)
+	return nResult
 
 func StringLowercased(cStr)
-	return lower(cStr)
-	
+	pStr = StzEngineStringFrom(cStr)
+	pLower = StzEngineStringToLower(pStr)
+	cResult = StzEngineStringData(pLower)
+	StzEngineStringFree(pLower)
+	StzEngineStringFree(pStr)
+	return cResult
+
 	func Lowercased(cStr)
 		return StringLowercased(cStr)
 
@@ -1002,8 +1013,13 @@ func StringLowercased(cStr)
 		return StringLowercased(cStr)
 
 func StringUppercased(cStr)
-	return upper(cStr)
-	
+	pStr = StzEngineStringFrom(cStr)
+	pUpper = StzEngineStringToUpper(pStr)
+	cResult = StzEngineStringData(pUpper)
+	StzEngineStringFree(pUpper)
+	StzEngineStringFree(pStr)
+	return cResult
+
 	func Uppercase(cStr)
 		return StringUppercased(cStr)
 
@@ -1020,8 +1036,12 @@ func StringUppercased(cStr)
 		return StringUppercased(cStr)
 
 func StringTitlecased(cStr)
-	oStr = new stzString(cStr)
-	return oStr.Titlecased()
+	pStr = StzEngineStringFrom(cStr)
+	pTitle = StzEngineStringToTitle(pStr)
+	cResult = StzEngineStringData(pTitle)
+	StzEngineStringFree(pTitle)
+	StzEngineStringFree(pStr)
+	return cResult
 	
 	func Titlecase(cStr)
 		return StringTitlecased(cStr)
@@ -1122,19 +1142,9 @@ func IsSortedStringInAscending(pcStr)
 	ok
 
 	pStr = StzEngineStringFrom(pcStr)
-	nLen = StzEngineStringCount(pStr)
-	if nLen < 2
-		StzEngineStringFree(pStr)
-		return 1
-	ok
-	for i = 0 to nLen - 2
-		if StzEngineStringCharAt(pStr, i) > StzEngineStringCharAt(pStr, i + 1)
-			StzEngineStringFree(pStr)
-			return 0
-		ok
-	next
+	nResult = StzEngineStringIsCharsSortedAsc(pStr)
 	StzEngineStringFree(pStr)
-	return 1
+	return nResult
 
 	#< @FunctionAlternativeForms
 
@@ -1180,19 +1190,9 @@ func IsSortedStringInDescending(pcStr)
 	ok
 
 	pStr = StzEngineStringFrom(pcStr)
-	nLen = StzEngineStringCount(pStr)
-	if nLen < 2
-		StzEngineStringFree(pStr)
-		return 1
-	ok
-	for i = 0 to nLen - 2
-		if StzEngineStringCharAt(pStr, i) < StzEngineStringCharAt(pStr, i + 1)
-			StzEngineStringFree(pStr)
-			return 0
-		ok
-	next
+	nResult = StzEngineStringIsCharsSortedDesc(pStr)
 	StzEngineStringFree(pStr)
-	return 1
+	return nResult
 
 	#< @FunctionAlternativeForms
 
@@ -1428,9 +1428,13 @@ func StringNumberOfChars(cStr)
 		return StringNumberOfChars(cStr)
 
 func StringReverseChars(cStr)
-	oString = new stzString(cStr)
-	return oString.CharsReversed()
-	
+	pStr = StzEngineStringFrom(cStr)
+	pReversed = StzEngineStringReverse(pStr)
+	cResult = StzEngineStringData(pReversed)
+	StzEngineStringFree(pReversed)
+	StzEngineStringFree(pStr)
+	return cResult
+
 	func @ReverseChars(cStr)
 		return StringReverseChars(cStr)
 
@@ -1459,25 +1463,45 @@ func StringToUnicodes(pcStr)
 # Some functions used mainly in natural-code
 
 func UppercaseOf(cStr)
-	return upper(cStr)
+	pStr = StzEngineStringFrom(cStr)
+	pUpper = StzEngineStringToUpper(pStr)
+	cResult = StzEngineStringData(pUpper)
+	StzEngineStringFree(pUpper)
+	StzEngineStringFree(pStr)
+	return cResult
 
 	func UppercaseIn(cStr)
 		return UppercaseOf(cStr)
 
 func LowercaseOf(cStr)
-	return lower(cStr)
+	pStr = StzEngineStringFrom(cStr)
+	pLower = StzEngineStringToLower(pStr)
+	cResult = StzEngineStringData(pLower)
+	StzEngineStringFree(pLower)
+	StzEngineStringFree(pStr)
+	return cResult
 
 	func LowercaseIn(cStr)
 		return LowercaseOf(cStr)
 
 func FoldcaseOf(cStr)
-	return StzStringQ(cStr).Foldcase()
+	pStr = StzEngineStringFrom(cStr)
+	pFolded = StzEngineStringFoldcase(pStr)
+	cResult = StzEngineStringData(pFolded)
+	StzEngineStringFree(pFolded)
+	StzEngineStringFree(pStr)
+	return cResult
 
 	func FoldcaseIn(cStr)
 		return FoldcaseOf(cStr)
 
 func NthCharOf(n, cStr)
-	return StzStringQ(cStr)[n]
+	pStr = StzEngineStringFrom(cStr)
+	pChar = StzEngineStringNthChar(pStr, n - 1)  # Engine uses 0-based
+	cResult = StzEngineStringData(pChar)
+	StzEngineStringFree(pChar)
+	StzEngineStringFree(pStr)
+	return cResult
 
 	func NthCharIn(n, cStr)
 		return NthCharOf(n, cStr)
@@ -1615,7 +1639,11 @@ func NCopies(n, p)
 		return NCopies(3, p)
 
 func WithoutSpaces(pcStr)
-	return ring_substr2(pcStr, " ", "")
+	pStr = StzEngineStringFrom(pcStr)
+	StzEngineStringReplace(pStr, " ", "")
+	cResult = StzEngineStringData(pStr)
+	StzEngineStringFree(pStr)
+	return cResult
 
 	func @WithoutSpaces(pcStr)
 		return WithoutSpaces(pcStr)
