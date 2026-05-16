@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 139 Registered Functions"
+? "Engine Full Bridge Test -- All 152 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1161,7 +1161,7 @@ StzEngineStringFree(pStr1)
 
 # --- Group 54: SortCharsAsc, SortCharsDesc ---
 ? "--- Group 54: SortCharsAsc, SortCharsDesc ---"
-pStr = StzEngineStringFrom("dcba", 4)
+pStr = StzEngineStringFrom("dcba")
 pR = StzEngineStringSortCharsAsc(pStr)
 Assert("SortCharsAsc dcba", StzEngineStringData(pR), "abcd")
 StzEngineStringFree(pR)
@@ -1170,7 +1170,7 @@ Assert("SortCharsDesc dcba", StzEngineStringData(pR), "dcba")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
-pStr = StzEngineStringFrom("hello", 5)
+pStr = StzEngineStringFrom("hello")
 pR = StzEngineStringSortCharsAsc(pStr)
 Assert("SortCharsAsc hello", StzEngineStringData(pR), "ehllo")
 StzEngineStringFree(pR)
@@ -1178,7 +1178,7 @@ StzEngineStringFree(pStr)
 
 # --- Group 55: FindAllChar ---
 ? "--- Group 55: FindAllChar ---"
-pStr = StzEngineStringFrom("abcabc", 6)
+pStr = StzEngineStringFrom("abcabc")
 pFR = StzEngineStringFindAllChar(pStr, 97)
 Assert("FindAllChar a count", StzEngineFindResultCount(pFR), 2)
 Assert("FindAllChar a pos0", StzEngineFindResultGet(pFR, 0), 0)
@@ -1188,18 +1188,18 @@ StzEngineStringFree(pStr)
 
 # --- Group 56: Hash ---
 ? "--- Group 56: Hash ---"
-pStr1 = StzEngineStringFrom("hello", 5)
-pStr2 = StzEngineStringFrom("hello", 5)
+pStr1 = StzEngineStringFrom("hello")
+pStr2 = StzEngineStringFrom("hello")
 Assert("Hash same strings", StzEngineStringHash(pStr1), StzEngineStringHash(pStr2))
 StzEngineStringFree(pStr2)
-pStr2 = StzEngineStringFrom("world", 5)
+pStr2 = StzEngineStringFrom("world")
 Assert("Hash diff strings", StzEngineStringHash(pStr1) != StzEngineStringHash(pStr2), 1)
 StzEngineStringFree(pStr2)
 StzEngineStringFree(pStr1)
 
 # --- Group 57: CountChar ---
 ? "--- Group 57: CountChar ---"
-pStr = StzEngineStringFrom("mississippi", 11)
+pStr = StzEngineStringFrom("mississippi")
 Assert("CountChar s", StzEngineStringCountChar(pStr, 115), 4)
 Assert("CountChar p", StzEngineStringCountChar(pStr, 112), 2)
 Assert("CountChar i", StzEngineStringCountChar(pStr, 105), 4)
@@ -1208,9 +1208,134 @@ StzEngineStringFree(pStr)
 
 # --- Group 58: ReplaceChar ---
 ? "--- Group 58: ReplaceChar ---"
-pStr = StzEngineStringFrom("hello", 5)
+pStr = StzEngineStringFrom("hello")
 pR = StzEngineStringReplaceChar(pStr, 108, 114)
 Assert("ReplaceChar l->r", StzEngineStringData(pR), "herro")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 59: Copy ---
+? "--- Group 59: Copy ---"
+pStr = StzEngineStringFrom("Hello World")
+pCopy = StzEngineStringCopy(pStr)
+Assert("Copy data", StzEngineStringData(pCopy), "Hello World")
+Assert("Copy size", StzEngineStringSize(pCopy), 11)
+StzEngineStringFree(pCopy)
+StzEngineStringFree(pStr)
+
+# --- Group 60: Compare ---
+? "--- Group 60: Compare ---"
+pA = StzEngineStringFrom("abc")
+pB = StzEngineStringFrom("abc")
+pC = StzEngineStringFrom("abd")
+pD = StzEngineStringFrom("ab")
+Assert("Compare equal", StzEngineStringCompare(pA, pB), 0)
+Assert("Compare less", StzEngineStringCompare(pA, pC), -1)
+Assert("Compare greater", StzEngineStringCompare(pC, pA), 1)
+Assert("Compare shorter", StzEngineStringCompare(pD, pA), -1)
+Assert("Compare longer", StzEngineStringCompare(pA, pD), 1)
+StzEngineStringFree(pD)
+StzEngineStringFree(pC)
+StzEngineStringFree(pB)
+StzEngineStringFree(pA)
+
+# --- Group 61: RemoveFirstOccurrence ---
+? "--- Group 61: RemoveFirstOccurrence ---"
+pStr = StzEngineStringFrom("hello world hello")
+pR = StzEngineStringRemoveFirstOccurrence(pStr, "hello")
+Assert("RemoveFirst hello", StzEngineStringData(pR), " world hello")
+StzEngineStringFree(pR)
+pR = StzEngineStringRemoveFirstOccurrence(pStr, "xyz")
+Assert("RemoveFirst notfound", StzEngineStringData(pR), "hello world hello")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 62: RemoveLastOccurrence ---
+? "--- Group 62: RemoveLastOccurrence ---"
+pStr = StzEngineStringFrom("hello world hello")
+pR = StzEngineStringRemoveLastOccurrence(pStr, "hello")
+Assert("RemoveLast hello", StzEngineStringData(pR), "hello world ")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 63: RemoveNthOccurrence ---
+? "--- Group 63: RemoveNthOccurrence ---"
+pStr = StzEngineStringFrom("abcabcabc")
+pR = StzEngineStringRemoveNthOccurrence(pStr, "abc", 0)
+Assert("RemoveNth 0", StzEngineStringData(pR), "abcabc")
+StzEngineStringFree(pR)
+pR = StzEngineStringRemoveNthOccurrence(pStr, "abc", 1)
+Assert("RemoveNth 1", StzEngineStringData(pR), "abcabc")
+StzEngineStringFree(pR)
+pR = StzEngineStringRemoveNthOccurrence(pStr, "abc", 2)
+Assert("RemoveNth 2", StzEngineStringData(pR), "abcabc")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 64: IsCharsSortedAsc, IsCharsSortedDesc ---
+? "--- Group 64: IsCharsSortedAsc, IsCharsSortedDesc ---"
+pStr = StzEngineStringFrom("abcd")
+Assert("SortedAsc abcd", StzEngineStringIsCharsSortedAsc(pStr), 1)
+Assert("SortedDesc abcd", StzEngineStringIsCharsSortedDesc(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("dcba")
+Assert("SortedAsc dcba", StzEngineStringIsCharsSortedAsc(pStr), 0)
+Assert("SortedDesc dcba", StzEngineStringIsCharsSortedDesc(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("aabb")
+Assert("SortedAsc aabb", StzEngineStringIsCharsSortedAsc(pStr), 1)
+Assert("SortedDesc aabb", StzEngineStringIsCharsSortedDesc(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("a")
+Assert("SortedAsc single", StzEngineStringIsCharsSortedAsc(pStr), 1)
+Assert("SortedDesc single", StzEngineStringIsCharsSortedDesc(pStr), 1)
+StzEngineStringFree(pStr)
+
+# --- Group 65: RepeatChar ---
+? "--- Group 65: RepeatChar ---"
+pR = StzEngineStringRepeatChar(42, 5)
+Assert("RepeatChar * x5", StzEngineStringData(pR), "*****")
+StzEngineStringFree(pR)
+
+pR = StzEngineStringRepeatChar(45, 3)
+Assert("RepeatChar - x3", StzEngineStringData(pR), "---")
+StzEngineStringFree(pR)
+
+# --- Group 66: InsertBeforeEach ---
+? "--- Group 66: InsertBeforeEach ---"
+pStr = StzEngineStringFrom("abcabc")
+pR = StzEngineStringInsertBeforeEach(pStr, "abc", "[")
+Assert("InsertBeforeEach", StzEngineStringData(pR), "[abc[abc")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 67: InsertAfterEach ---
+? "--- Group 67: InsertAfterEach ---"
+pStr = StzEngineStringFrom("abcabc")
+pR = StzEngineStringInsertAfterEach(pStr, "abc", "]")
+Assert("InsertAfterEach", StzEngineStringData(pR), "abc]abc]")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 68: Truncate ---
+? "--- Group 68: Truncate ---"
+pStr = StzEngineStringFrom("Hello World")
+pR = StzEngineStringTruncate(pStr, 5, "...")
+Assert("Truncate 5", StzEngineStringData(pR), "Hello...")
+StzEngineStringFree(pR)
+pR = StzEngineStringTruncate(pStr, 20, "...")
+Assert("Truncate no-op", StzEngineStringData(pR), "Hello World")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 69: WrapAt ---
+? "--- Group 69: WrapAt ---"
+pStr = StzEngineStringFrom("hello world foo bar")
+pR = StzEngineStringWrapAt(pStr, 10)
+Assert("WrapAt 10", StzEngineStringData(pR), "hello" + nl + "world foo" + nl + "bar")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
