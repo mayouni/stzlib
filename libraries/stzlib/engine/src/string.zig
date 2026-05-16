@@ -5431,6 +5431,70 @@ pub fn stz_string_remove_whitespace(handle: StzStringHandle) callconv(.c) StzStr
 
 // (stz_string_is_palindrome already defined above)
 
+// ─── IsAlphanumeric ───
+
+pub fn stz_string_is_alphanumeric(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 0;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch return 0;
+        if (off + cp_len > src.len) return 0;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch return 0;
+        if (unicode.stz_unicode_is_letter(cp) == 0 and unicode.stz_unicode_is_digit(cp) == 0) return 0;
+        off += cp_len;
+    }
+    return 1;
+}
+
+// ─── Left/Right Justify (pad to width) ───
+
+pub fn stz_string_ljust(handle: StzStringHandle, width: c_int, pad_char: [*c]const u8, pad_len: usize) callconv(.c) StzStringHandle {
+    // Left-justify: content on left, padding on right
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    const w: usize = if (width > 0) @intCast(width) else return stz_string_from(src.ptr, src.len);
+
+    const cp_count = utf8CodepointCount(src);
+    if (cp_count >= w) return stz_string_from(src.ptr, src.len);
+
+    if (pad_char == null or pad_len == 0) return stz_string_from(src.ptr, src.len);
+    const pad_bytes: []const u8 = pad_char[0..pad_len];
+
+    const r = stz_string_new() orelse return null;
+    r.data.appendSlice(gpa, src) catch {};
+    const needed = w - cp_count;
+    for (0..needed) |_| {
+        r.data.appendSlice(gpa, pad_bytes) catch {};
+    }
+    return r;
+}
+
+pub fn stz_string_rjust(handle: StzStringHandle, width: c_int, pad_char: [*c]const u8, pad_len: usize) callconv(.c) StzStringHandle {
+    // Right-justify: padding on left, content on right
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    const w: usize = if (width > 0) @intCast(width) else return stz_string_from(src.ptr, src.len);
+
+    const cp_count = utf8CodepointCount(src);
+    if (cp_count >= w) return stz_string_from(src.ptr, src.len);
+
+    if (pad_char == null or pad_len == 0) return stz_string_from(src.ptr, src.len);
+    const pad_bytes: []const u8 = pad_char[0..pad_len];
+
+    const r = stz_string_new() orelse return null;
+    const needed = w - cp_count;
+    for (0..needed) |_| {
+        r.data.appendSlice(gpa, pad_bytes) catch {};
+    }
+    r.data.appendSlice(gpa, src) catch {};
+    return r;
+}
+
+// (stz_string_common_prefix already defined above)
+
 // ─── Count Words ───
 
 pub fn stz_string_count_words(handle: StzStringHandle) callconv(.c) c_int {
@@ -5906,5 +5970,41 @@ test "chars_between" {
     const between = stz_string_chars_between(s1, 1, 4);
     try std.testing.expect(mem.eql(u8, stz_string_data(between)[0..@intCast(stz_string_size(between))], "cd"));
     stz_string_free(between);
+    stz_string_free(s1);
+}
+
+test "is_alphanumeric" {
+    const s1 = stz_string_from("hello123", 8);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_alphanumeric(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("hello 123", 9);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_alphanumeric(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("", 0);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_alphanumeric(s3));
+    stz_string_free(s3);
+}
+
+test "ljust_rjust" {
+    const s1 = stz_string_from("hi", 2);
+    const lj = stz_string_ljust(s1, 5, ".", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(lj)[0..@intCast(stz_string_size(lj))], "hi..."));
+    stz_string_free(lj);
+
+    const rj = stz_string_rjust(s1, 5, ".", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(rj)[0..@intCast(stz_string_size(rj))], "...hi"));
+    stz_string_free(rj);
+    stz_string_free(s1);
+}
+
+test "common_prefix" {
+    const s1 = stz_string_from("hello world", 11);
+    const s2 = stz_string_from("hello there", 11);
+    const cp = stz_string_common_prefix(s1, s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(cp)[0..@intCast(stz_string_size(cp))], "hello "));
+    stz_string_free(cp);
+    stz_string_free(s2);
     stz_string_free(s1);
 }

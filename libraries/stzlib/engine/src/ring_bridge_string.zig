@@ -1040,6 +1040,33 @@ fn ring_StringCharsBetween(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_chars_between(h, from, to)), STZ_HANDLE);
 }
 
+// ─── IsAlphanumeric ───
+
+fn ring_StringIsAlphanumeric(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_alphanumeric(h)));
+}
+
+// ─── Ljust / Rjust ───
+
+fn ring_StringLjust(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const pad = ring_vm_api_getstring(p, 3);
+    const pad_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_ljust(h, width, pad, pad_len)), STZ_HANDLE);
+}
+
+fn ring_StringRjust(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const pad = ring_vm_api_getstring(p, 3);
+    const pad_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_rjust(h, width, pad, pad_len)), STZ_HANDLE);
+}
+
+// (ring_StringCommonPrefix already defined above)
+
 // ─── RemovePrefix ───
 
 fn ring_StringRemovePrefix(p: *anyopaque) callconv(.c) void {
@@ -1393,6 +1420,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcountwords", .func = &ring_StringCountWords },
     .{ .name = "stzenginestringnthword", .func = &ring_StringNthWord },
     .{ .name = "stzenginestringcharsbetween", .func = &ring_StringCharsBetween },
+    .{ .name = "stzenginestringisalphanumeric", .func = &ring_StringIsAlphanumeric },
+    .{ .name = "stzenginestringljust", .func = &ring_StringLjust },
+    .{ .name = "stzenginestringrjust", .func = &ring_StringRjust },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
