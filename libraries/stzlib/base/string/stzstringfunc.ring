@@ -562,15 +562,24 @@ func StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
 		cSubLow = lower(cSubStr)
 		cResult = ""
 		nPos = 1
-		while TRUE
-			nFound = substr(cTemp, nPos, cSubLow)
+		nLen = len(cStr)
+		nSubLen = len(cSubStr)
+		while nPos <= nLen
+			nFound = substr(substr(cTemp, nPos), cSubLow)
 			if nFound = 0
 				cResult += substr(cStr, nPos)
 				exit
 			ok
-			cResult += substr(cStr, nPos, nFound - nPos) + cNewSubStr
-			nPos = nFound + len(cSubStr)
+			nFound = nPos + nFound - 1
+			if nFound > nPos
+				cResult += substr(cStr, nPos, nFound - nPos)
+			ok
+			cResult += cNewSubStr
+			nPos = nFound + nSubLen
 		end
+		if nPos > nLen and cResult = ""
+			cResult = cStr
+		ok
 	ok
 	return cResult
 
