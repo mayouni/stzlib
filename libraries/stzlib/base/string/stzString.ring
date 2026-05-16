@@ -96402,14 +96402,9 @@ class stzString from stzObject
 
 	def ReverseCharsOrder()
 
-		_acChars_ = This.Chars()
-		_nLen_ = len(_acChars_)
-
-		_cInversed_ = ""
-
-		for @i = _nLen_ to 1 step -1
-			_cInversed_ += _acChars_[@i]
-		next
+		pReversed = StzEngineStringReverse(@pEngine)
+		_cInversed_ = StzEngineStringData(pReversed)
+		StzEngineStringFree(pReversed)
 
 		This.UpdateWith(_cInversed_)
 

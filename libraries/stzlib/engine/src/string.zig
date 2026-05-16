@@ -883,6 +883,44 @@ pub fn stz_string_to_title(handle: StzStringHandle) callconv(.c) StzStringHandle
     return stz_string_new();
 }
 
+/// Reverse the codepoints in the string. Returns a new handle.
+pub fn stz_string_reverse(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const src = s.slice();
+        if (src.len == 0) return stz_string_new();
+
+        // Count codepoints to allocate offset array
+        const cp_count = utf8CodepointCount(src);
+        const offsets = gpa.alloc(usize, cp_count + 1) catch return stz_string_new();
+        defer gpa.free(offsets);
+
+        // Fill offset array with byte positions of each codepoint
+        var i: usize = 0;
+        var idx: usize = 0;
+        while (i < src.len) {
+            offsets[idx] = i;
+            idx += 1;
+            const cp_len = std.unicode.utf8ByteSequenceLength(src[i]) catch 1;
+            i += cp_len;
+        }
+        offsets[idx] = src.len;
+
+        const r = stz_string_new() orelse return null;
+        r.data.ensureTotalCapacity(gpa, src.len) catch {};
+
+        // Walk codepoints in reverse order
+        var k: usize = cp_count;
+        while (k > 0) {
+            k -= 1;
+            const start = offsets[k];
+            const end = offsets[k + 1];
+            r.data.appendSlice(gpa, src[start..end]) catch {};
+        }
+        return r;
+    }
+    return stz_string_new();
+}
+
 // ─── Helpers ───
 
 fn utf8CodepointCount(bytes: []const u8) usize {
@@ -1321,5 +1359,44 @@ test "slice unicode" {
     try std.testing.expectEqual(@as(usize, 9), stz_string_size(sl));
     try std.testing.expect(mem.eql(u8, stz_string_data(sl)[0..3], "\xe2\x99\xa5"));
     stz_string_free(sl);
+    stz_string_free(s);
+}
+
+test "reverse ascii" {
+    const s = stz_string_from("hello", 5);
+    const r = stz_string_reverse(s);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "olleh"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "reverse unicode" {
+    // ABC where A=bullet(3b), B=heart(3b), C=bullet(3b)
+    const str = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2";
+    const s = stz_string_from(str, 9);
+    const r = stz_string_reverse(s);
+    // reversed = C B A = bullet heart bullet (same bytes, different order)
+    try std.testing.expectEqual(@as(usize, 9), stz_string_size(r));
+    // First char should be the LAST original char (bullet)
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..3], "\xe2\x80\xa2"));
+    // Second char should be heart
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[3..6], "\xe2\x99\xa5"));
+    // Third char should be bullet
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[6..9], "\xe2\x80\xa2"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "reverse mixed ascii unicode" {
+    // "aBC" where a='a'(1b), B=heart(3b), C='z'(1b)
+    const s = stz_string_from("a\xe2\x99\xa5z", 5);
+    const r = stz_string_reverse(s);
+    // reversed = "z heart a"
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..1], "z"));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[1..4], "\xe2\x99\xa5"));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[4..5], "a"));
+    stz_string_free(r);
     stz_string_free(s);
 }

@@ -344,6 +344,12 @@ fn ring_StringSlice(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+fn ring_StringReverse(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_reverse(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -399,6 +405,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginecharislower", .func = &ring_CharIsLower },
     .{ .name = "stzenginestringnthchar", .func = &ring_StringNthChar },
     .{ .name = "stzenginestringslice", .func = &ring_StringSlice },
+    .{ .name = "stzenginestringreverse", .func = &ring_StringReverse },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
