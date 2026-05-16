@@ -293,6 +293,84 @@ fn toLowerAscii(c: u8) u8 {
     return if (c >= 'A' and c <= 'Z') c + 32 else c;
 }
 
+// ─── Bulk Find (returns all positions in one call) ───
+
+const StzFindResult = struct {
+    positions: std.ArrayList(i64),
+
+    fn init() StzFindResult {
+        return .{ .positions = .{} };
+    }
+
+    fn deinit(self: *StzFindResult) void {
+        self.positions.deinit(gpa);
+    }
+};
+
+pub const StzFindResultHandle = ?*StzFindResult;
+
+pub fn stz_string_find_all(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzFindResultHandle {
+    const r = gpa.create(StzFindResult) catch return null;
+    r.* = StzFindResult.init();
+    if (handle) |s| {
+        if (needle == null or needle_len == 0) return r;
+        const hay = s.slice();
+        const n = needle[0..needle_len];
+        var pos: usize = 0;
+        while (pos + n.len <= hay.len) {
+            if (mem.eql(u8, hay[pos..][0..n.len], n)) {
+                r.positions.append(gpa, @intCast(pos)) catch break;
+                pos += 1; // overlapping matches allowed (Ring semantics)
+            } else {
+                pos += 1;
+            }
+        }
+    }
+    return r;
+}
+
+pub fn stz_string_find_all_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzFindResultHandle {
+    const r = gpa.create(StzFindResult) catch return null;
+    r.* = StzFindResult.init();
+    if (handle) |s| {
+        if (needle == null or needle_len == 0) return r;
+        const hay = s.slice();
+        const n = needle[0..needle_len];
+        var pos: usize = 0;
+        outer: while (pos + n.len <= hay.len) {
+            for (0..n.len) |j| {
+                if (toLowerAscii(hay[pos + j]) != toLowerAscii(n[j])) {
+                    pos += 1;
+                    continue :outer;
+                }
+            }
+            r.positions.append(gpa, @intCast(pos)) catch break;
+            pos += 1; // overlapping matches allowed
+        }
+    }
+    return r;
+}
+
+pub fn stz_find_result_count(result: StzFindResultHandle) callconv(.c) c_int {
+    if (result) |r| return @intCast(r.positions.items.len);
+    return 0;
+}
+
+pub fn stz_find_result_get(result: StzFindResultHandle, index: c_int) callconv(.c) i64 {
+    if (result) |r| {
+        const i: usize = @intCast(@max(index, 0));
+        if (i < r.positions.items.len) return r.positions.items[i];
+    }
+    return -1;
+}
+
+pub fn stz_find_result_free(result: StzFindResultHandle) callconv(.c) void {
+    if (result) |r| {
+        r.deinit();
+        gpa.destroy(r);
+    }
+}
+
 pub fn stz_string_last_index_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
     if (handle) |s| {
         if (needle == null or needle_len == 0) return -1;
@@ -798,6 +876,33 @@ test "string index_of_ci" {
     try std.testing.expectEqual(@as(i64, 6), stz_string_index_of_ci(s, "world", 5, 0));
     try std.testing.expectEqual(@as(i64, -1), stz_string_index_of_ci(s, "xyz", 3, 0));
     try std.testing.expectEqual(@as(i64, 6), stz_string_index_of_ci(s, "WORLD", 5, 3));
+    stz_string_free(s);
+}
+
+test "string find_all" {
+    const s = stz_string_from("ring is ring and ring", 21);
+    const r = stz_string_find_all(s, "ring", 4);
+    try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
+    try std.testing.expectEqual(@as(i64, 0), stz_find_result_get(r, 0));
+    try std.testing.expectEqual(@as(i64, 8), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 17), stz_find_result_get(r, 2));
+    stz_find_result_free(r);
+
+    // Not found
+    const r2 = stz_string_find_all(s, "xyz", 3);
+    try std.testing.expectEqual(@as(c_int, 0), stz_find_result_count(r2));
+    stz_find_result_free(r2);
+    stz_string_free(s);
+}
+
+test "string find_all_ci" {
+    const s = stz_string_from("Ring RING ring", 14);
+    const r = stz_string_find_all_ci(s, "ring", 4);
+    try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
+    try std.testing.expectEqual(@as(i64, 0), stz_find_result_get(r, 0));
+    try std.testing.expectEqual(@as(i64, 5), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 10), stz_find_result_get(r, 2));
+    stz_find_result_free(r);
     stz_string_free(s);
 }
 

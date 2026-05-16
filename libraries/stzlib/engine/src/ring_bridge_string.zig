@@ -141,6 +141,44 @@ fn ring_StringEndsWith(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
+// ─── Find Result ───
+
+const FIND_HANDLE: [*:0]const u8 = "StzFindResultHandle";
+
+fn getFindHandle(p: *anyopaque, n: c_int) string.StzFindResultHandle {
+    const ptr = ring_vm_api_getcpointer(p, n, FIND_HANDLE);
+    if (ptr) |raw| return @ptrCast(@alignCast(raw));
+    return null;
+}
+
+fn ring_StringFindAll(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_find_all(h, s, len)), FIND_HANDLE);
+}
+
+fn ring_StringFindAllCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_find_all_ci(h, s, len)), FIND_HANDLE);
+}
+
+fn ring_FindResultCount(p: *anyopaque) callconv(.c) void {
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_find_result_count(getFindHandle(p, 1))));
+}
+
+fn ring_FindResultGet(p: *anyopaque) callconv(.c) void {
+    const h = getFindHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_find_result_get(h, idx)));
+}
+
+fn ring_FindResultFree(p: *anyopaque) callconv(.c) void {
+    string.stz_find_result_free(getFindHandle(p, 1));
+}
+
 fn ring_StringCountOfCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
@@ -298,6 +336,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcontains", .func = &ring_StringContains },
     .{ .name = "stzenginestringstartswith", .func = &ring_StringStartsWith },
     .{ .name = "stzenginestringendswith", .func = &ring_StringEndsWith },
+    .{ .name = "stzenginestringfindall", .func = &ring_StringFindAll },
+    .{ .name = "stzenginestringfindallci", .func = &ring_StringFindAllCI },
+    .{ .name = "stzenginefindresultcount", .func = &ring_FindResultCount },
+    .{ .name = "stzenginefindresultget", .func = &ring_FindResultGet },
+    .{ .name = "stzenginefindresultfree", .func = &ring_FindResultFree },
     .{ .name = "stzenginestringcountofci", .func = &ring_StringCountOfCI },
     .{ .name = "stzenginestringlastindexofci", .func = &ring_StringLastIndexOfCI },
     .{ .name = "stzenginestringcontainsci", .func = &ring_StringContainsCI },
