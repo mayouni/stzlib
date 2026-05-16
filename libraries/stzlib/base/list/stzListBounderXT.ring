@@ -46,7 +46,40 @@ class stzListBounderXT from stzListBounder
 
 				# RemoveBounds aliases
 				[:UnBound,		:RemoveBounds],
-				[:Unbounded,		:BoundsRemoved]
+				[:Unbounded,		:BoundsRemoved],
+
+				# Middle aliases
+				[:WithoutBounds,	:Middle],
+				[:InnerItems,		:Middle],
+				[:Core,			:Middle],
+
+				# Range aliases
+				[:SubRange,		:Range],
+				[:ItemsFromFor,		:Range],
+
+				# ClampedTo aliases
+				[:Clamped,		:ClampedTo],
+				[:BoundedTo,		:ClampedTo],
+				[:ConstrainedTo,	:ClampedTo],
+
+				# IsWithinBounds aliases
+				[:PositionExists,	:IsWithinBounds],
+				[:HasPosition,		:IsWithinBounds],
+				[:InBounds,		:IsWithinBounds],
+
+				# NFirstItems aliases
+				[:FirstNItems,		:NFirstItems],
+				[:Take,			:NFirstItems],
+				[:Head,			:NFirstItems],
+
+				# NLastItems aliases
+				[:LastNItems,		:NLastItems],
+				[:TakeLast,		:NLastItems],
+				[:Tail,			:NLastItems],
+
+				# ItemsBetweenPositions aliases
+				[:Between,		:ItemsBetweenPositions],
+				[:From_To,		:ItemsBetweenPositions]
 			]
 
 			nLen = len(aAliases)

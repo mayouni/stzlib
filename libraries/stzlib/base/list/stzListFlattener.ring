@@ -13,6 +13,44 @@
 
 
   /////////////////
+ ///  FUNCTIONS ///
+/////////////////
+
+func _DeepFlattenHelper(paList)
+	aResult = []
+	nLen = len(paList)
+	for i = 1 to nLen
+		if isList(paList[i])
+			aTemp = _DeepFlattenHelper(paList[i])
+			for j = 1 to len(aTemp)
+				aResult + aTemp[j]
+			next
+		else
+			aResult + paList[i]
+		ok
+	next
+	return aResult
+
+func _FlattenDepthHelper(paList, nDepth)
+	if nDepth = 0
+		return paList
+	ok
+	aResult = []
+	nLen = len(paList)
+	for i = 1 to nLen
+		if isList(paList[i])
+			aTemp = _FlattenDepthHelper(paList[i], nDepth - 1)
+			for j = 1 to len(aTemp)
+				aResult + aTemp[j]
+			next
+		else
+			aResult + paList[i]
+		ok
+	next
+	return aResult
+
+
+  /////////////////
  ///   CLASS   ///
 /////////////////
 
@@ -223,3 +261,130 @@ class stzListFlattener from stzList
 
 	def RepeatedTrailingItems()
 		return This.RepeatedTrailingItemsCS(1)
+
+	  #=======================================#
+	 #     DEEP FLATTENING THE LIST          #
+	#=======================================#
+
+	def DeepFlatten()
+		aResult = _DeepFlattenHelper(This.Content())
+		This.Update(aResult)
+
+		def DeepFlattenQ()
+			This.DeepFlatten()
+			return This
+
+	def DeepFlattened()
+		return _DeepFlattenHelper(This.Content())
+
+	  #=======================================#
+	 #     FLATTENING TO A GIVEN DEPTH       #
+	#=======================================#
+
+	def FlattenToDepth(n)
+		aResult = _FlattenDepthHelper(This.Content(), n)
+		This.Update(aResult)
+
+		def FlattenToDepthQ(n)
+			This.FlattenToDepth(n)
+			return This
+
+	def FlattenedToDepth(n)
+		return _FlattenDepthHelper(This.Content(), n)
+
+	  #=======================================#
+	 #     TO SET (REMOVE DUPLICATES)        #
+	#=======================================#
+
+	def ToSet()
+		return UCS(This.Content(), 1)
+
+	  #=======================================#
+	 #     PAIRED (GROUP INTO PAIRS)         #
+	#=======================================#
+
+	def Paired()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen step 2
+			if i + 1 <= nLen
+				aResult + [ aContent[i], aContent[i+1] ]
+			else
+				aResult + [ aContent[i], NULL ]
+			ok
+		next
+
+		return aResult
+
+	  #=======================================#
+	 #     CHUNKED (GROUP INTO N-SIZE)       #
+	#=======================================#
+
+	def Chunked(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		i = 1
+		while i <= nLen
+			aChunk = []
+			for j = 0 to n - 1
+				if i + j <= nLen
+					aChunk + aContent[i + j]
+				ok
+			next
+			aResult + [aChunk]
+			i += n
+		end
+
+		return aResult
+
+	  #=======================================#
+	 #     INTERLEAVE WITH ANOTHER LIST      #
+	#=======================================#
+
+	def InterleavedWith(paOther)
+		aContent = This.Content()
+		nLen1 = len(aContent)
+		nLen2 = len(paOther)
+		nMax = nLen1
+		if nLen2 > nMax
+			nMax = nLen2
+		ok
+
+		aResult = []
+		for i = 1 to nMax
+			if i <= nLen1
+				aResult + aContent[i]
+			ok
+			if i <= nLen2
+				aResult + paOther[i]
+			ok
+		next
+
+		return aResult
+
+	  #=======================================#
+	 #     OBJECTIFIED (ITEMS AS OBJECTS)    #
+	#=======================================#
+
+	def Objectified()
+		aContent = This.Content()
+		nLen = len(aContent)
+		aoResult = []
+
+		for i = 1 to nLen
+			if isString(aContent[i])
+				aoResult + new stzString(aContent[i])
+			but isNumber(aContent[i])
+				aoResult + new stzNumber(aContent[i])
+			but isList(aContent[i])
+				aoResult + new stzList(aContent[i])
+			else
+				aoResult + aContent[i]
+			ok
+		next
+
+		return aoResult

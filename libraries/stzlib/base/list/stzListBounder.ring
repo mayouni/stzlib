@@ -276,3 +276,155 @@ class stzListBounder from stzList
 		next
 
 		return 1
+
+	  #=======================================#
+	 #     GETTING THE MIDDLE OF THE LIST    #
+	#=======================================#
+
+	def Middle()
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen < 3
+			return []
+		ok
+
+		aResult = []
+		for i = 2 to nLen - 1
+			aResult + aContent[i]
+		next
+
+		return aResult
+
+		def WithoutBounds()
+			return This.Middle()
+
+	  #=======================================#
+	 #     RANGE (START, COUNT)              #
+	#=======================================#
+
+	def Range(nStart, nCount)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		nEnd = nStart + nCount - 1
+		if nEnd > nLen
+			nEnd = nLen
+		ok
+
+		for i = nStart to nEnd
+			aResult + aContent[i]
+		next
+
+		return aResult
+
+		def RangeQ(nStart, nCount)
+			return new stzList(This.Range(nStart, nCount))
+
+	  #==========================================#
+	 #     CLAMPED TO MIN/MAX VALUES            #
+	#==========================================#
+
+	def ClampedTo(nMin, nMax)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		for i = 1 to nLen
+			if isNumber(aContent[i])
+				n = aContent[i]
+				if n < nMin
+					n = nMin
+				ok
+				if n > nMax
+					n = nMax
+				ok
+				aResult + n
+			else
+				aResult + aContent[i]
+			ok
+		next
+
+		return aResult
+
+	def ClampTo(nMin, nMax)
+		This.Update(This.ClampedTo(nMin, nMax))
+
+		def ClampToQ(nMin, nMax)
+			This.ClampTo(nMin, nMax)
+			return This
+
+	  #==========================================#
+	 #     CHECK IF POSITION IS WITHIN BOUNDS   #
+	#==========================================#
+
+	def IsWithinBounds(n)
+		if n >= 1 and n <= This.NumberOfItems()
+			return 1
+		else
+			return 0
+		ok
+
+		def PositionExists(n)
+			return This.IsWithinBounds(n)
+
+		def HasPosition(n)
+			return This.IsWithinBounds(n)
+
+	  #=======================================#
+	 #     FIRST N AND LAST N ITEMS          #
+	#=======================================#
+
+	def NFirstItems(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		if n > nLen
+			n = nLen
+		ok
+
+		for i = 1 to n
+			aResult + aContent[i]
+		next
+
+		return aResult
+
+		def FirstNItems(n)
+			return This.NFirstItems(n)
+
+		def Take(n)
+			return This.NFirstItems(n)
+
+	def NLastItems(n)
+		aContent = This.Content()
+		nLen = len(aContent)
+		aResult = []
+
+		if n > nLen
+			n = nLen
+		ok
+
+		nStart = nLen - n + 1
+		for i = nStart to nLen
+			aResult + aContent[i]
+		next
+
+		return aResult
+
+		def LastNItems(n)
+			return This.NLastItems(n)
+
+		def TakeLast(n)
+			return This.NLastItems(n)
+
+	  #=======================================#
+	 #     ITEMS BETWEEN TWO POSITIONS       #
+	#=======================================#
+
+	def ItemsBetweenPositions(n1, n2)
+		return This.Section(n1, n2)
+
+		def Between(n1, n2)
+			return This.ItemsBetweenPositions(n1, n2)

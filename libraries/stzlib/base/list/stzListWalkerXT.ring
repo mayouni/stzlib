@@ -40,7 +40,32 @@ class stzListWalkerXT from stzListWalker
 				[:WalkWhere,		:WalkW],
 
 				# WalkForthAndBack aliases
-				[:WalkBackAndForth,	:WalkForthAndBack]
+				[:WalkBackAndForth,	:WalkForthAndBack],
+
+				# WalkZigZag aliases
+				[:WalkZigZagN,		:WalkZigZag],
+				[:ZigZagWalk,		:WalkZigZag],
+
+				# WalkEveryNth aliases
+				[:WalkEachNth,		:WalkEveryNth],
+				[:WalkEach,		:WalkEveryNth],
+
+				# PositionsWhere aliases
+				[:PositionsW,		:PositionsWhere],
+				[:FindWhere,		:PositionsWhere],
+				[:FindW,		:PositionsWhere],
+
+				# WalkFromTo aliases
+				[:WalkRange,		:WalkFromTo],
+
+				# WalkSkipping aliases
+				[:WalkSkip,		:WalkSkipping],
+				[:WalkEvery,		:WalkSkipping],
+
+				# WalkAccumulating aliases
+				[:WalkAccumulate,	:WalkAccumulating],
+				[:Accumulate,		:WalkAccumulating],
+				[:RunningTotal,		:WalkAccumulating]
 			]
 
 			nLen = len(aAliases)
