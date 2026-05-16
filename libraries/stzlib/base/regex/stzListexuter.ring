@@ -168,7 +168,10 @@ class stzListexuter
             # Check for matching sublists at this level
             for i = 1 to len(aList)
                 for j = i to len(aList)
-                    aSubList = StzListQ(aList).Section(i, j)
+                    aSubList = []
+                    for _k = i to j
+                        aSubList + aList[_k]
+                    next
                     if oListex.Match(aSubList) and len(aSubList) > 0
                         aResult + aSubList
                     ok

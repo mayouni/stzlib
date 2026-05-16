@@ -1096,7 +1096,7 @@ func StringRepresentsNumberInUnicodeHexForm(pcNumber)
 		ok
 	ok
 
-	return StzStringQ(pcNumber).RepresentsNumberInUnicodeHexForm()
+	return StringRepresentsNumberInUnicodeHexForm(pcNumber)
 
 # Octal form
 

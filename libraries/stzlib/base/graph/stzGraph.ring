@@ -615,9 +615,7 @@ class stzGraph
 		def Connect(pcFromNodeId, pcToNodeId)
 			if CheckParams()
 
-				if isList(pcToNodeId) and
-				   StzListQ(pcToNodeId).
-				   IsToOrToNodeOrToNodesOrAndOrAndNodeOrAndNodesNamedParam()
+				if isList(pcToNodeId) and len(pcToNodeId) = 2 and isString(pcToNodeId[1]) and ring_find(["to","tonode","tonodes","and","andnode","andnodes"], lower(pcToNodeId[1])) > 0
 					pcToNodeId = pcToNodeId[2]
 				ok
 

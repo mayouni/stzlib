@@ -601,7 +601,7 @@ class stzStringRemover from stzString
 	#======================================================#
 
 	def RemoveCharsAtPositions(panPos)
-		aSorted = StzListQ(panPos).Sorted()
+		aSorted = sort(panPos)
 		for i = len(aSorted) to 1 step -1
 			This.RemoveCharAt(aSorted[i])
 		next

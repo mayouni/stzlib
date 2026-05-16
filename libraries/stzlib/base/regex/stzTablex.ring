@@ -874,11 +874,11 @@ class stzTablex from stzObject
 
 					if isString(xCurrent) and isString(xNext)
 						if bCaseSensitive
-							if StzStringQ(xCurrent) > xNext
+							if strcmp(xCurrent, xNext) > 0
 								return FALSE
 							ok
 						else
-							if StzStringQ(lower(xCurrent)) > lower(xNext)
+							if strcmp(lower(xCurrent), lower(xNext)) > 0
 								return FALSE
 							ok
 						ok

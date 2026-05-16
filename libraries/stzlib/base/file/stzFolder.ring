@@ -597,7 +597,7 @@ class stzFolder from stzObject
 			return 0
 		ok
 	
-		if StzStringQ(cpath).NumberOfOccurrence(cSep) > 1
+		if StringNumberOfOccurrence(cpath, cSep) > 1
 			return 1
 		else
 			return 0
@@ -614,7 +614,7 @@ class stzFolder from stzObject
 			return 0
 		ok
 	
-		if StzStringQ(cpath).NumberOfOccurrence(cSep) > 2
+		if StringNumberOfOccurrence(cpath, cSep) > 2
 			return 1
 		else
 			return 0

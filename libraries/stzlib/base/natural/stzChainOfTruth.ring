@@ -249,7 +249,7 @@ class stzChainOfTruth from stzObject
 				eval(cCode)
 	
 			# Case of a function call
-			but StzStringQ(pThing).IsAlmostAFunctionCall()
+			but (substr(pThing, "(") > 1 and substr(pThing, ")") > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and substr(pThing, "(") < substr(pThing, ")") and right(pThing, 1) = ")")
 				# Example: _("H").Is('LetterOf("HUSSEIN")')._
 
 				cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + pThing
@@ -322,7 +322,7 @@ class stzChainOfTruth from stzObject
 
 		# Managing the special semantic meaning of IsA()
 		if isString(pThing) and
-		   StzStringQ(pThing).IsAlmostAFunctionCall() and
+		   (substr(pThing, "(") > 1 and substr(pThing, ")") > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and substr(pThing, "(") < substr(pThing, ")") and right(pThing, 1) = ")") and
 		   FunctionNameFinishesWithOneOfThese( pThing, [ "in", "of" ] ) and
 		   FunctionParamTypeIsOneOfThese( pThing, [ "STRING", "LIST" ] )
 
@@ -359,11 +359,11 @@ class stzChainOfTruth from stzObject
 
 			cFuncName = FunctionName(pThing)
 
-			oTempType = StzStringQ(cFuncName).SectionQ(1, -3).UppercaseQ()
-			if oTempType.IsOneOfThese([ "NUMBER", "STRING", "LIST" ])
+			cTempType = upper(left(cFuncName, len(cFuncName) - 2))
+			if cTempType = "NUMBER" or cTempType = "STRING" or cTempType = "LIST"
 				cFuncName = "A" + cFuncName
 
-			but oTempType.Content() = "OBJECT"
+			but cTempType = "OBJECT"
 				cFuncName = "An" + cFuncName
 			
 			ok
@@ -385,7 +385,7 @@ class stzChainOfTruth from stzObject
 			# semantics of IsA() as explained above
 
 			cValue = FunctionParam(pThing)
-			cMethod = StzStringQ(cFuncName).Section(1, -3)
+			cMethod = left(cFuncName, len(cFuncName) - 2)
 			cIsMethod = "is" + cMethod
 			cIsMethodCall = cIsMethod + "()"
 			cCode = "bPass = _(" + ComputableForm(cValue) + ").Q.NumberOfItemsW('{ _(@item).Q." + cIsMethodCall + " }') > 1"
@@ -463,7 +463,7 @@ class stzChainOfTruth from stzObject
 
 		cCode = 'bResult = This.StzObject().' + pcMethod
 
-		if NOT StzStringQ(pcMethod).IsAlmostAFunctionCall()
+		if NOT (substr(pcMethod, "(") > 1 and substr(pcMethod, ")") > 0 and StringNumberOfOccurrence(pcMethod, "(") = 1 and StringNumberOfOccurrence(pcMethod, ")") = 1 and substr(pcMethod, "(") < substr(pcMethod, ")") and right(pcMethod, 1) = ")")
 			cCode += "()"
 		ok
 
@@ -725,7 +725,7 @@ class stzChainOfTruth from stzObject
 			oStzString = new stzString(cCode)
 			n = oStzString.FindFirst("(")
 	
-			cCode = StzStringQ(cCode).InsertAfterQ( n, ""+ This.Value() + ", ").Content()
+			cCode = left(cCode, n) + "" + This.Value() + ", " + substr(cCode, n + 1)
 
 			eval(cCode)
 

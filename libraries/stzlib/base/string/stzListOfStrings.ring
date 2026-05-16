@@ -51,7 +51,7 @@ func Concatenate(acListOfStr)
 func ConcatenateXT(pacListOfStr, pcSep)
 	if CheckingParams()
 
-		if isList(pcSep) and StzListQ(pcSep).IsWithOrUsingNamedPAram()
+		if isList(pcSep) and len(pcSep) = 2 and isString(pcSep[1]) and (lower(pcSep[1]) = "with" or lower(pcSep[1]) = "using")
 			pcSep = pcSep[2]
 		ok
 

@@ -26,29 +26,28 @@ class stzStringSplitter from stzString
 
 	def SplitCS(pSubStrOrPos, pCaseSensitive)
 
-		if isList(pSubStrOrPos)
+		if isList(pSubStrOrPos) and len(pSubStrOrPos) = 2 and isString(pSubStrOrPos[1])
+			cParamName = lower(pSubStrOrPos[1])
 
-			oParam = StzListQ(pSubStrOrPos)
-
-			if oParam.IsWithOrByOrUsingNamedParam()
+			if cParamName = "with" or cParamName = "by" or cParamName = "using"
 				return This.SplitAtCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsAtNamedParam()
+			but cParamName = "at"
 				return This.SplitAtCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsAtPositionNamedParam()
+			but cParamName = "atposition"
 				return This.SplitAtPosition(pSubStrOrPos[2])
 
-			but oParam.IsAtPositionsNamedParam()
+			but cParamName = "atpositions"
 				return This.SplitAtPositions(pSubStrOrPos[2])
 
-			but oParam.IsBeforeNamedParam()
+			but cParamName = "before"
 				return This.SplitBeforeCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsAfterNamedParam()
+			but cParamName = "after"
 				return This.SplitAfterCS(pSubStrOrPos[2], pCaseSensitive)
 
-			but oParam.IsAroundNamedParam()
+			but cParamName = "around"
 				return This.SplitAroundCS(pSubStrOrPos[2], pCaseSensitive)
 
 			ok

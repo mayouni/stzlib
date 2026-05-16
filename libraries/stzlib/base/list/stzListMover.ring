@@ -92,7 +92,7 @@ class stzListMover from stzList
 
 	def MoveMany(panPositions, nTo)
 		nLen = len(panPositions)
-		aSorted = StzListQ(panPositions).SortedInDescending()
+		aSorted = ring_reverse(sort(panPositions))
 		aItems = []
 		for i = 1 to nLen
 			aItems + This.NthItem(aSorted[i])

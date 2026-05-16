@@ -1750,11 +1750,11 @@ class stzSplitter from stzListOfNumbers
 		panPos + nLen
 
 		# Eliminating doubble positions
-		aPos = StzListQ(panPos).ToSet()
+		aPos = UCS(panPos, 1)
 
 		# Doing the job
 
-		if StzListQ(aPos).IsEmpty()
+		if len(aPos) = 0
 			return [ [] ]
 		ok
 		

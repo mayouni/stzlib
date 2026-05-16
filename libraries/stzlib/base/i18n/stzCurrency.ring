@@ -61,7 +61,7 @@ class stzCurrency
 
 	def init(pcCurrencyIdentifier)
 
-		if StzStringQ(pcCurrencyIdentifier).IsCountryName()
+		if IsCountryName(pcCurrencyIdentifier)
 
 			for aCountryInfo in CountriesOrRegionsAndTheirCurrenciesXT()
 				if lower(aCountryInfo[1]) = lower(pcCurrencyIdentifier)
@@ -83,7 +83,7 @@ class stzCurrency
 		but StzStringQ(pcCurrencyIdentifier).IsCurrencySymbol()
 			// TODO
 
-		but StzStringQ(pcCurrencyIdentifier).IsLocaleAbbreviation()
+		but IsLocaleAbbreviation(pcCurrencyIdentifier)
 			// TODO
 
 		else

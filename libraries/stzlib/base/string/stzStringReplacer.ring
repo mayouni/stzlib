@@ -36,12 +36,9 @@ class stzStringReplacer from stzString
 				stzRaise("Incorrect param type! pcSubstr must be a string.")
 			ok
 
-			if isList(pcNewSubStr)
-				_oList_ = StzListQ(pcNewSubStr)
-
-				if _oList_.IsWithOrUsingOrByNamedParam() or
-				   _oList_.IsWithManyOrUsingManyOrByManyNamedParam()
-
+			if isList(pcNewSubStr) and len(pcNewSubStr) = 2 and isString(pcNewSubStr[1])
+				cPN = lower(pcNewSubStr[1])
+				if cPN = "with" or cPN = "using" or cPN = "by" or cPN = "withmany" or cPN = "usingmany" or cPN = "bymany"
 					pcNewSubStr = pcNewSubStr[2]
 				ok
 			ok
