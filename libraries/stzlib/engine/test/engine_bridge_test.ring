@@ -798,6 +798,92 @@ Assert("CountBetween none", StzEngineStringCountBetween(pStr, "[", "]"), 0)
 StzEngineStringFree(pStr)
 
 # ==============================================================
+#  GROUP 33: ReplaceCharAt
+# ==============================================================
+
+? "--- Group 33: ReplaceCharAt ---"
+
+pStr = StzEngineStringFrom("Hello")
+pR = StzEngineStringReplaceCharAt(pStr, 0, "J")
+Assert("ReplaceCharAt 0->J", StzEngineStringData(pR), "Jello")
+StzEngineStringFree(pR)
+
+pR2 = StzEngineStringReplaceCharAt(pStr, 4, "!")
+Assert("ReplaceCharAt 4->!", StzEngineStringData(pR2), "Hell!")
+StzEngineStringFree(pR2)
+
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 34: LevenshteinDistance
+# ==============================================================
+
+? "--- Group 34: LevenshteinDistance ---"
+
+pS1 = StzEngineStringFrom("kitten")
+pS2 = StzEngineStringFrom("sitting")
+Assert("Levenshtein kitten/sitting", StzEngineStringLevenshteinDistance(pS1, pS2), 3)
+StzEngineStringFree(pS1)
+StzEngineStringFree(pS2)
+
+pS1 = StzEngineStringFrom("hello")
+pS2 = StzEngineStringFrom("hello")
+Assert("Levenshtein same", StzEngineStringLevenshteinDistance(pS1, pS2), 0)
+StzEngineStringFree(pS1)
+StzEngineStringFree(pS2)
+
+pS1 = StzEngineStringFrom("")
+pS2 = StzEngineStringFrom("abc")
+Assert("Levenshtein empty/abc", StzEngineStringLevenshteinDistance(pS1, pS2), 3)
+StzEngineStringFree(pS1)
+StzEngineStringFree(pS2)
+
+# ==============================================================
+#  GROUP 35: IsTitleCase
+# ==============================================================
+
+? "--- Group 35: IsTitleCase ---"
+
+pStr = StzEngineStringFrom("Hello World")
+Assert("IsTitleCase yes", StzEngineStringIsTitleCase(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world")
+Assert("IsTitleCase no", StzEngineStringIsTitleCase(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("HELLO")
+Assert("IsTitleCase HELLO no", StzEngineStringIsTitleCase(pStr), 0)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 36: LinesSplitCount, LineAt
+# ==============================================================
+
+? "--- Group 36: LinesSplitCount, LineAt ---"
+
+pStr = StzEngineStringFrom("line1" + char(10) + "line2" + char(10) + "line3")
+Assert("LinesSplitCount 3", StzEngineStringLinesSplitCount(pStr), 3)
+
+pL0 = StzEngineStringLineAt(pStr, 0)
+Assert("LineAt 0", StzEngineStringData(pL0), "line1")
+StzEngineStringFree(pL0)
+
+pL1 = StzEngineStringLineAt(pStr, 1)
+Assert("LineAt 1", StzEngineStringData(pL1), "line2")
+StzEngineStringFree(pL1)
+
+pL2 = StzEngineStringLineAt(pStr, 2)
+Assert("LineAt 2", StzEngineStringData(pL2), "line3")
+StzEngineStringFree(pL2)
+
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("single line")
+Assert("LinesSplitCount 1", StzEngineStringLinesSplitCount(pStr), 1)
+StzEngineStringFree(pStr)
+
+# ==============================================================
 #  SUMMARY
 # ==============================================================
 

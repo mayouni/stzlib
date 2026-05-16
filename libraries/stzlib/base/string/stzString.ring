@@ -98127,8 +98127,7 @@ class stzString from stzObject
 		
 		# Simple similarity calculation based on common characters
 
-		oThis = new stzString(pcOtherString)
-		oThis.Lowercase()
+		oThis = This.LowercaseQ()
 		cThis = oThis.Content()
 		acThisChars = oThis.Chars()
 		nLenThis = len(acThisChars)
