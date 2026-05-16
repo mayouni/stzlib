@@ -121,7 +121,8 @@ class stzStringSplitter from stzString
 			return This._SplitByStr(pcSubStr)
 		ok
 
-		return @SplitCS(This.Content(), pcSubStr, pCaseSensitive)
+		# Case-insensitive: use Engine CI split
+		return This._SplitByStrCI(pcSubStr)
 
 	def SplitAtSubString(pcSubStr)
 		return This.SplitAtSubStringCS(pcSubStr, 1)

@@ -209,6 +209,20 @@ class stzString from stzObject
 		next
 		return aResult
 
+	def _SplitByStrCI(cSep)
+		nCount = StzEngineStringSplitCountCI(@pEngine, cSep)
+		aResult = []
+		for i = 0 to nCount - 1
+			pPart = StzEngineStringSplitGetCI(@pEngine, cSep, i)
+			if pPart != NULL
+				aResult + StzEngineStringData(pPart)
+				StzEngineStringFree(pPart)
+			else
+				aResult + ""
+			ok
+		next
+		return aResult
+
 	  #=======================================#
 	 #  GETTING A COPY OF THE STRING OBJECT  #
 	#=======================================#
@@ -39142,17 +39156,24 @@ class stzString from stzObject
 			ok
 	
 			# Checking the correctness of pcNewSubStr param
-	
+? @@(pcNewSubStr)
+sdfdksdfk
 			if isList(pcNewSubStr)
 				_oList_ = StzListQ(pcNewSubStr)
 
-				if _oList_.IsWithOrUsingOrByNamedParam() or
-				   _oList_.IsWithManyOrUsingManyOrByManyNamedParam()
+				if len(pcNewSubStr) = 2 and
+				   isString(pcNewSubStr[1]) and
+
+				   ring_find([ "with", "using", "by", "withmany", "usingmany", "bymany" ],
+					lower(pcNewSubStr[1])
+				   )
 
 					pcNewSubStr = pcNewSubStr[2]
 				ok
+				
 			ok
-
+? @@(pcNewSubStr)
+fsdf
 			if isList(pcNewSubStr)
 				return This.ReplaceByManyCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			ok
