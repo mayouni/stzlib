@@ -13,6 +13,7 @@ o1.RemoveTheseBounds("[", "]")
 #--> ' @$2{"a";1;[1}U ]'
 
 pf()
+# Executed in 0.03 second(s) in Ring 1.26
 # Executed in 0.05 second(s) in Ring 1.22
 
 /*---
@@ -3072,7 +3073,7 @@ pf()
 # Executed in 0.65 second(s) in Ring 1.22
 
 /*---------- #narration
-
+*/
 pr()
 
 o1 = new stzString("RINGORIALAND")
@@ -4668,6 +4669,7 @@ oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 #--> 1718401
 
 StopProfiler()
+# Executed in 0.18 second(s) in Ring 1.26 (SoftanzaEngine Zig-based backend, no Qt anymore!)
 # Executed in 0.16 second(s) in Ring 1.21
 
 /*----------- #perf
@@ -4692,10 +4694,11 @@ oLargeStr = new stzString( UnicodeData() ) # Contains 1_897_793 chars
 #--> 1914047
 
 StopProfiler()
-#--> Executed in 0.12 second(s) in Ring 1.21
+# Executed in 0.04 second(s) in Ring 1.26
+# Executed in 0.12 second(s) in Ring 1.21
 
 /*----------- #perf
-
+*/
 StartProfiler()
 
 #                    2    7
