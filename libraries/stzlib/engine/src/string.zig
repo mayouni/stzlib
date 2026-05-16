@@ -6315,6 +6315,177 @@ pub fn stz_string_to_pascal_case(handle: StzStringHandle) callconv(.c) StzString
     return result;
 }
 
+/// Check if string is a valid programming identifier (starts with letter/underscore,
+/// rest are letters/digits/underscores). Returns 1 if valid, 0 otherwise.
+pub fn stz_string_is_identifier(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 0;
+
+    var off: usize = 0;
+    var first = true;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp_val: i32 = decodeCodepoint(src, off, cp_len);
+
+        if (first) {
+            // First char must be letter or underscore
+            if (cp_val != '_' and unicode.stz_unicode_is_letter(cp_val) == 0) return 0;
+            first = false;
+        } else {
+            // Rest must be letter, digit, or underscore
+            if (cp_val != '_' and unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0) return 0;
+        }
+        off += cp_len;
+    }
+    return 1;
+}
+
+/// Replace content between first `open` and matching `close` (inclusive of delimiters)
+/// with `replacement`. Returns new handle.
+pub fn stz_string_replace_between(handle: StzStringHandle, open: [*c]const u8, open_len: usize, close: [*c]const u8, close_len: usize, rep: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0 or open_len == 0 or close_len == 0) return stz_string_from(src.ptr, src.len);
+
+    const open_s = open[0..open_len];
+    const close_s = close[0..close_len];
+
+    // Find first open
+    const open_pos = mem.indexOf(u8, src, open_s) orelse return stz_string_from(src.ptr, src.len);
+    const search_start = open_pos + open_len;
+    if (search_start > src.len) return stz_string_from(src.ptr, src.len);
+    const close_rel = mem.indexOf(u8, src[search_start..], close_s) orelse return stz_string_from(src.ptr, src.len);
+    const close_end = search_start + close_rel + close_len;
+
+    const result = stz_string_new() orelse return null;
+    result.data.appendSlice(gpa, src[0..open_pos]) catch {
+        stz_string_free(result);
+        return null;
+    };
+    if (rep_len > 0) {
+        result.data.appendSlice(gpa, rep[0..rep_len]) catch {
+            stz_string_free(result);
+            return null;
+        };
+    }
+    if (close_end < src.len) {
+        result.data.appendSlice(gpa, src[close_end..]) catch {
+            stz_string_free(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+/// Check if string contains only characters from the given set.
+/// Returns 1 if all chars are in set, 0 otherwise. Empty string returns 1.
+pub fn stz_string_contains_only(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
+    const s = handle orelse return 1;
+    const src = s.slice();
+    if (src.len == 0) return 1;
+    if (chars_len == 0) return 0;
+
+    const charset = chars[0..chars_len];
+    var off: usize = 0;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+
+        var found = false;
+        var coff: usize = 0;
+        while (coff < charset.len) {
+            const c_len = std.unicode.utf8ByteSequenceLength(charset[coff]) catch break;
+            if (coff + c_len > charset.len) break;
+            if (c_len == cp_len and mem.eql(u8, src[off..][0..cp_len], charset[coff..][0..c_len])) {
+                found = true;
+                break;
+            }
+            coff += c_len;
+        }
+        if (!found) return 0;
+        off += cp_len;
+    }
+    return 1;
+}
+
+/// Capitalize first letter of each whitespace-delimited word.
+/// Unlike to_title (Unicode titlecase), this simply uppercases the first char of each word.
+/// Returns new handle.
+pub fn stz_string_capitalize_words(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var capitalize_next = true;
+    var off: usize = 0;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp_val: i32 = decodeCodepoint(src, off, cp_len);
+
+        if (unicode.stz_unicode_is_space(cp_val) != 0) {
+            // Copy space as-is
+            result.data.appendSlice(gpa, src[off..][0..cp_len]) catch break;
+            capitalize_next = true;
+        } else if (capitalize_next) {
+            // Uppercase this char
+            var upper_buf: [4]u8 = undefined;
+            const upper_cp = unicode.stz_unicode_to_upper(cp_val);
+            const upper_u21: u21 = if (upper_cp >= 0) @intCast(@as(u32, @intCast(upper_cp))) else @intCast(@as(u32, @intCast(cp_val)));
+            const enc_len = std.unicode.utf8Encode(upper_u21, &upper_buf) catch {
+                off += cp_len;
+                continue;
+            };
+            result.data.appendSlice(gpa, upper_buf[0..enc_len]) catch break;
+            capitalize_next = false;
+        } else {
+            // Copy as-is (don't lowercase)
+            result.data.appendSlice(gpa, src[off..][0..cp_len]) catch break;
+        }
+        off += cp_len;
+    }
+    return result;
+}
+
+/// Swap characters at two codepoint positions (0-based). Returns new handle.
+pub fn stz_string_swap_chars(handle: StzStringHandle, pos1: c_int, pos2: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0 or pos1 < 0 or pos2 < 0 or pos1 == pos2) return stz_string_from(src.ptr, src.len);
+
+    const p1: usize = @intCast(pos1);
+    const p2: usize = @intCast(pos2);
+
+    // Build array of byte-offset ranges for each codepoint
+    var offsets: [32768]struct { start: usize, len: usize } = undefined;
+    var cp_count: usize = 0;
+    var off: usize = 0;
+    while (off < src.len and cp_count < 32768) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        offsets[cp_count] = .{ .start = off, .len = cp_len };
+        cp_count += 1;
+        off += cp_len;
+    }
+
+    if (p1 >= cp_count or p2 >= cp_count) return stz_string_from(src.ptr, src.len);
+
+    const result = stz_string_new() orelse return null;
+    var idx: usize = 0;
+    while (idx < cp_count) {
+        const actual = if (idx == p1) p2 else if (idx == p2) p1 else idx;
+        const o = offsets[actual];
+        result.data.appendSlice(gpa, src[o.start..][0..o.len]) catch break;
+        idx += 1;
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -6951,4 +7122,78 @@ test "to_pascal_case" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r3)[0..@intCast(stz_string_size(r3))], "AlreadyPascalCase"));
     stz_string_free(r3);
     stz_string_free(s3);
+}
+
+test "is_identifier" {
+    const s1 = stz_string_from("hello_world", 11);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_identifier(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("_private", 8);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_identifier(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("3invalid", 8);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_identifier(s3));
+    stz_string_free(s3);
+
+    const s4 = stz_string_from("has space", 9);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_identifier(s4));
+    stz_string_free(s4);
+
+    const s5 = stz_string_from("CamelCase123", 12);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_identifier(s5));
+    stz_string_free(s5);
+}
+
+test "replace_between" {
+    const s1 = stz_string_from("hello [world] end", 17);
+    const r1 = stz_string_replace_between(s1, "[", 1, "]", 1, "REPLACED", 8);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "hello REPLACED end"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    // Replace with empty
+    const s2 = stz_string_from("a<b>c", 5);
+    const r2 = stz_string_replace_between(s2, "<", 1, ">", 1, "", 0);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "ac"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+}
+
+test "contains_only" {
+    const s1 = stz_string_from("aabbcc", 6);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_only(s1, "abc", 3));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_contains_only(s1, "ab", 2));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("12345", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_only(s2, "0123456789", 10));
+    stz_string_free(s2);
+}
+
+test "capitalize_words" {
+    const s1 = stz_string_from("hello world", 11);
+    const r1 = stz_string_capitalize_words(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "Hello World"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("already OK here", 15);
+    const r2 = stz_string_capitalize_words(s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "Already OK Here"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+}
+
+test "swap_chars" {
+    const s1 = stz_string_from("abcde", 5);
+    const r1 = stz_string_swap_chars(s1, 0, 4);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "ebcda"));
+    stz_string_free(r1);
+
+    const r2 = stz_string_swap_chars(s1, 1, 3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "adcbe"));
+    stz_string_free(r2);
+    stz_string_free(s1);
 }
