@@ -3758,3 +3758,285 @@ test "bytes_per_char" {
     stz_string_free(bp);
     stz_string_free(s1);
 }
+
+// ─── IsHexString: all chars are 0-9, a-f, A-F, optional 0x prefix ───
+
+pub fn stz_string_is_hex_string(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (buf.len == 0) return 0;
+
+    var off: usize = 0;
+    // Skip optional 0x or 0X prefix
+    if (buf.len >= 2 and buf[0] == '0' and (buf[1] == 'x' or buf[1] == 'X')) {
+        off = 2;
+        if (off >= buf.len) return 0;
+    }
+
+    var has_hex = false;
+    while (off < buf.len) {
+        const b = buf[off];
+        if ((b >= '0' and b <= '9') or (b >= 'a' and b <= 'f') or (b >= 'A' and b <= 'F')) {
+            has_hex = true;
+        } else {
+            return 0;
+        }
+        off += 1;
+    }
+    return if (has_hex) @as(c_int, 1) else @as(c_int, 0);
+}
+
+// ─── IsBinaryString: all chars are 0 or 1, optional 0b prefix ───
+
+pub fn stz_string_is_binary_string(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (buf.len == 0) return 0;
+
+    var off: usize = 0;
+    if (buf.len >= 2 and buf[0] == '0' and (buf[1] == 'b' or buf[1] == 'B')) {
+        off = 2;
+        if (off >= buf.len) return 0;
+    }
+
+    var has_bit = false;
+    while (off < buf.len) {
+        if (buf[off] != '0' and buf[off] != '1') return 0;
+        has_bit = true;
+        off += 1;
+    }
+    return if (has_bit) @as(c_int, 1) else @as(c_int, 0);
+}
+
+// ─── IsOctalString: all chars are 0-7, optional 0o prefix ───
+
+pub fn stz_string_is_octal_string(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const buf = s.slice();
+    if (buf.len == 0) return 0;
+
+    var off: usize = 0;
+    if (buf.len >= 2 and buf[0] == '0' and (buf[1] == 'o' or buf[1] == 'O')) {
+        off = 2;
+        if (off >= buf.len) return 0;
+    }
+
+    var has_oct = false;
+    while (off < buf.len) {
+        if (buf[off] < '0' or buf[off] > '7') return 0;
+        has_oct = true;
+        off += 1;
+    }
+    return if (has_oct) @as(c_int, 1) else @as(c_int, 0);
+}
+
+// ─── WordAt: get nth word (0-based), words separated by whitespace ───
+
+pub fn stz_string_word_at(handle: StzStringHandle, word_index: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    const target: usize = if (word_index >= 0) @intCast(word_index) else return null;
+
+    var wi: usize = 0;
+    var i: usize = 0;
+
+    // Skip leading whitespace
+    while (i < buf.len and isWhitespace(buf[i])) : (i += 1) {}
+
+    while (i < buf.len) {
+        // Find word start (already at non-space)
+        const start = i;
+        // Find word end
+        while (i < buf.len and !isWhitespace(buf[i])) : (i += 1) {}
+        if (wi == target) {
+            const result = gpa.create(StzString) catch return null;
+            result.* = StzString.init();
+            result.data.appendSlice(gpa, buf[start..i]) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+            return result;
+        }
+        wi += 1;
+        // Skip whitespace between words
+        while (i < buf.len and isWhitespace(buf[i])) : (i += 1) {}
+    }
+    return null;
+}
+
+fn isWhitespace(c: u8) bool {
+    return c == ' ' or c == '\t' or c == '\n' or c == '\r';
+}
+
+// ─── CenterPad: pad string to target width, centering content ───
+
+pub fn stz_string_center(handle: StzStringHandle, target_width: c_int, pad_char: u32) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    const tw: usize = if (target_width >= 0) @intCast(target_width) else return null;
+
+    // Count codepoints
+    var cp_count: usize = 0;
+    var off: usize = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        cp_count += 1;
+        off += cp_len;
+    }
+
+    if (cp_count >= tw) {
+        // Already wide enough, return copy
+        const result = gpa.create(StzString) catch return null;
+        result.* = StzString.init();
+        result.data.appendSlice(gpa, buf) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+        return result;
+    }
+
+    const total_pad = tw - cp_count;
+    const left_pad = total_pad / 2;
+    const right_pad = total_pad - left_pad;
+
+    var pad_bytes: [4]u8 = undefined;
+    const pad_cp: u21 = @intCast(pad_char);
+    const pad_len = std.unicode.utf8Encode(pad_cp, &pad_bytes) catch return null;
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    // Left padding
+    for (0..left_pad) |_| {
+        result.data.appendSlice(gpa, pad_bytes[0..pad_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    // Content
+    result.data.appendSlice(gpa, buf) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    // Right padding
+    for (0..right_pad) |_| {
+        result.data.appendSlice(gpa, pad_bytes[0..pad_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+// ─── RemoveConsecutiveDuplicates: "aabbcc" → "abc" ───
+
+pub fn stz_string_remove_consecutive_duplicates(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    if (buf.len == 0) return result;
+
+    var off: usize = 0;
+    var prev_cp: u21 = 0x10FFFF; // max valid codepoint, used as sentinel
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        if (cp_val != prev_cp) {
+            result.data.appendSlice(gpa, buf[off .. off + cp_len]) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+            prev_cp = cp_val;
+        }
+        off += cp_len;
+    }
+    return result;
+}
+
+// ─── Tests for new batch ───
+
+test "is_hex_string" {
+    const s1 = stz_string_from("0xFF", 4);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_hex_string(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("deadBEEF", 8);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_hex_string(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("0xGG", 4);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_hex_string(s3));
+    stz_string_free(s3);
+}
+
+test "is_binary_string" {
+    const s1 = stz_string_from("0b1010", 6);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_binary_string(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("1100", 4);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_binary_string(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("1020", 4);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_binary_string(s3));
+    stz_string_free(s3);
+}
+
+test "is_octal_string" {
+    const s1 = stz_string_from("0o777", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_octal_string(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("0o89", 4);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_octal_string(s2));
+    stz_string_free(s2);
+}
+
+test "word_at" {
+    const s1 = stz_string_from("hello world foo", 15);
+    const w0 = stz_string_word_at(s1, 0);
+    try std.testing.expect(mem.eql(u8, stz_string_data(w0)[0..@intCast(stz_string_size(w0))], "hello"));
+    stz_string_free(w0);
+
+    const w2 = stz_string_word_at(s1, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(w2)[0..@intCast(stz_string_size(w2))], "foo"));
+    stz_string_free(w2);
+
+    const w3 = stz_string_word_at(s1, 3);
+    try std.testing.expectEqual(@as(StzStringHandle, null), w3);
+    stz_string_free(s1);
+}
+
+test "center" {
+    const s1 = stz_string_from("hi", 2);
+    const c1 = stz_string_center(s1, 6, ' ');
+    try std.testing.expect(mem.eql(u8, stz_string_data(c1)[0..@intCast(stz_string_size(c1))], "  hi  "));
+    stz_string_free(c1);
+    stz_string_free(s1);
+}
+
+test "remove_consecutive_duplicates" {
+    const s1 = stz_string_from("aabbcc", 6);
+    const r1 = stz_string_remove_consecutive_duplicates(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "abc"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("mississippi", 11);
+    const r2 = stz_string_remove_consecutive_duplicates(s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "misisipi"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+}

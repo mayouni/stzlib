@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 121 Registered Functions"
+? "Engine Full Bridge Test -- All 127 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1025,6 +1025,85 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("ab", 2)
 pR = StzEngineStringBytesPerChar(pStr)
 Assert("BytesPerChar ASCII", StzEngineStringData(pR), "1 1")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 46: IsHexString, IsBinaryString, IsOctalString ---
+? "--- Group 46: IsHexString, IsBinaryString, IsOctalString ---"
+pStr = StzEngineStringFrom("0xFF", 4)
+Assert("IsHexString 0xFF", StzEngineStringIsHexString(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("deadBEEF", 8)
+Assert("IsHexString deadBEEF", StzEngineStringIsHexString(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("GHIJ", 4)
+Assert("IsHexString no", StzEngineStringIsHexString(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("0b1010", 6)
+Assert("IsBinaryString 0b1010", StzEngineStringIsBinaryString(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("1100", 4)
+Assert("IsBinaryString 1100", StzEngineStringIsBinaryString(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("1020", 4)
+Assert("IsBinaryString no", StzEngineStringIsBinaryString(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("0o777", 5)
+Assert("IsOctalString 0o777", StzEngineStringIsOctalString(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("0o89", 4)
+Assert("IsOctalString no", StzEngineStringIsOctalString(pStr), 0)
+StzEngineStringFree(pStr)
+
+# --- Group 47: WordAt ---
+? "--- Group 47: WordAt ---"
+pStr = StzEngineStringFrom("hello world foo", 15)
+pW = StzEngineStringWordAt(pStr, 0)
+Assert("WordAt 0", StzEngineStringData(pW), "hello")
+StzEngineStringFree(pW)
+pW = StzEngineStringWordAt(pStr, 1)
+Assert("WordAt 1", StzEngineStringData(pW), "world")
+StzEngineStringFree(pW)
+pW = StzEngineStringWordAt(pStr, 2)
+Assert("WordAt 2", StzEngineStringData(pW), "foo")
+StzEngineStringFree(pW)
+StzEngineStringFree(pStr)
+
+# --- Group 48: Center ---
+? "--- Group 48: Center ---"
+pStr = StzEngineStringFrom("hi", 2)
+pR = StzEngineStringCenter(pStr, 6, 32)
+Assert("Center hi in 6", StzEngineStringData(pR), "  hi  ")
+StzEngineStringFree(pR)
+pR = StzEngineStringCenter(pStr, 7, 32)
+Assert("Center hi in 7", StzEngineStringData(pR), "  hi   ")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# --- Group 49: RemoveConsecutiveDuplicates ---
+? "--- Group 49: RemoveConsecutiveDuplicates ---"
+pStr = StzEngineStringFrom("aabbcc", 6)
+pR = StzEngineStringRemoveConsecutiveDuplicates(pStr)
+Assert("RemoveConsecDups aabbcc", StzEngineStringData(pR), "abc")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("mississippi", 11)
+pR = StzEngineStringRemoveConsecutiveDuplicates(pStr)
+Assert("RemoveConsecDups mississippi", StzEngineStringData(pR), "misisipi")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello", 5)
+pR = StzEngineStringRemoveConsecutiveDuplicates(pStr)
+Assert("RemoveConsecDups hello", StzEngineStringData(pR), "helo")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 

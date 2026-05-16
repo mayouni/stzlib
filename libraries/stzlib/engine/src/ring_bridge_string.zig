@@ -787,6 +787,50 @@ fn ring_StringBytesPerChar(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+// ─── IsHexString / IsBinaryString / IsOctalString ───
+
+fn ring_StringIsHexString(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_hex_string(h)));
+}
+
+fn ring_StringIsBinaryString(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_binary_string(h)));
+}
+
+fn ring_StringIsOctalString(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_octal_string(h)));
+}
+
+// ─── WordAt ───
+
+fn ring_StringWordAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const result = string.stz_string_word_at(h, idx);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+// ─── Center ───
+
+fn ring_StringCenter(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const pad_char: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const result = string.stz_string_center(h, width, pad_char);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+// ─── RemoveConsecutiveDuplicates ───
+
+fn ring_StringRemoveConsecutiveDuplicates(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.stz_string_remove_consecutive_duplicates(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -908,6 +952,12 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcharattostring", .func = &ring_StringCharAtToString },
     .{ .name = "stzenginestringspacify", .func = &ring_StringSpacify },
     .{ .name = "stzenginestringbytesperchar", .func = &ring_StringBytesPerChar },
+    .{ .name = "stzenginestringishexstring", .func = &ring_StringIsHexString },
+    .{ .name = "stzenginestringisbinarystring", .func = &ring_StringIsBinaryString },
+    .{ .name = "stzenginestringisoctalstring", .func = &ring_StringIsOctalString },
+    .{ .name = "stzenginestringwordat", .func = &ring_StringWordAt },
+    .{ .name = "stzenginestringcenter", .func = &ring_StringCenter },
+    .{ .name = "stzenginestringremoveconsecutiveduplicates", .func = &ring_StringRemoveConsecutiveDuplicates },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

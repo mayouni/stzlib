@@ -1405,7 +1405,10 @@ class stzString from stzObject
 	#===============================#
 
 	def ApplyLowercase() # Understand it as a verb, an action on main string!
-		This.Update( lower(This.String()) )
+		pResult = StzEngineStringToLower(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.Update( cResult )
 
 		#< @FunctionFluentForm
 
@@ -1730,7 +1733,10 @@ class stzString from stzObject
 	#===============================#
 
 	def ApplyUppercase()
-		This.Update( upper(This.String()) )
+		pResult = StzEngineStringToUpper(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.Update( cResult )
 
 		#< @FunctionFluentForm
 
@@ -87010,13 +87016,10 @@ class stzString from stzObject
 			return This.Trimmed()
 
 	def TrimStart()
-		if This.HasRepeatedLeadingChars()	
-			This.RemoveThisRepeatedLeadingChar(" ")
-		ok
-
-		if This.FirstChar() = " "
-			This.RemoveFirst(" ")
-		ok
+		pResult = StzEngineStringTrimLeft(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith( cResult )
 
 		def TrimStartQ()
 			This.TrimStart()
@@ -87043,12 +87046,10 @@ class stzString from stzObject
 			return This.TrimmedFromStart()
 
 	def TrimEnd()
-
-		This.RemoveThisRepeatedTrailingChar(" ")
-
-		if This.LastChar() = " "
-			This.RemoveLast(" ")
-		ok
+		pResult = StzEngineStringTrimRight(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith( cResult )
 
 		def TrimEndQ()
 			This.TrimEnd()
