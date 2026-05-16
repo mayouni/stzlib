@@ -56633,18 +56633,16 @@ class stzString from stzObject
 		#>
 
 	def ContainsLatinLetters()
-		aoChars = This.TolistOfStzChars()
-		nLen = len(aoChars)
-
-		bResult = 0
-
+		# Fast byte scan: Latin letters are in ASCII A-Z (65-90) and a-z (97-122)
+		cContent = This.Content()
+		nLen = len(cContent)
 		for i = 1 to nLen
-			if aoChars[i].IsLatinLetter()
-				bResult = 1
-				exit
+			nByte = ascii(substr(cContent, i, 1))
+			if (nByte >= 65 and nByte <= 90) or (nByte >= 97 and nByte <= 122)
+				return 1
 			ok
 		next
-		return bResult
+		return 0
 
 		#< @FunctionNegativeForm
 
@@ -100810,17 +100808,29 @@ class stzString from stzObject
 	# Add case sensitivity
 
 	def Vowels()
-		nLen = This.NumberOfChars()
-		aoChars = This.ToListOfStzChars()
-		
+		# Fast byte scan for ASCII vowels (most common case)
+		cContent = This.Content()
+		nLen = len(cContent)
 		acResult = []
+		cVowels = "aeiouAEIOU"
 
-		for i = 1 to nLen
-			if aoChars[i].IsVowel()
-				acResult + aoChars[i].Content()
+		i = 1
+		while i <= nLen
+			nByte = ascii(substr(cContent, i, 1))
+			if nByte < 128
+				c = substr(cContent, i, 1)
+				if ring_substr1(cVowels, c) > 0
+					acResult + c
+				ok
+				i += 1
+			but nByte < 224
+				i += 2
+			but nByte < 240
+				i += 3
+			else
+				i += 4
 			ok
-		next
-
+		end
 		return acResult
 
 		def VowelsQ()
