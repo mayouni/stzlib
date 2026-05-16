@@ -1680,6 +1680,185 @@ pub fn stz_string_swap_case(handle: StzStringHandle) callconv(.c) StzStringHandl
     return result;
 }
 
+/// Replace codepoint at a given index with a new string. Returns new handle.
+pub fn stz_string_replace_char_at(handle: StzStringHandle, cp_index: c_int, replacement: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (cp_index < 0) {
+        result.data.appendSlice(gpa, bytes) catch {};
+        return result;
+    }
+    const idx: usize = @intCast(cp_index);
+    var cp_count: usize = 0;
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_end = @min(i + cp_len, bytes.len);
+        if (cp_count == idx) {
+            // Insert replacement instead of this codepoint
+            if (rep_len > 0) {
+                result.data.appendSlice(gpa, replacement[0..rep_len]) catch break;
+            }
+        } else {
+            result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
+        }
+        cp_count += 1;
+        i += cp_len;
+    }
+    return result;
+}
+
+/// Compute Levenshtein edit distance between two strings (codepoint-level).
+pub fn stz_string_levenshtein(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
+    const s1 = (h1 orelse return 0);
+    const s2 = (h2 orelse return 0);
+    const b1 = s1.slice();
+    const b2 = s2.slice();
+
+    // Decode codepoints from both strings
+    var cp1_buf: [4096]i32 = undefined;
+    var cp2_buf: [4096]i32 = undefined;
+    var len1: usize = 0;
+    var len2: usize = 0;
+
+    var i: usize = 0;
+    while (i < b1.len and len1 < 4096) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(b1[i]) catch 1;
+        cp1_buf[len1] = decodeCodepoint(b1, i, cp_len);
+        len1 += 1;
+        i += cp_len;
+    }
+    i = 0;
+    while (i < b2.len and len2 < 4096) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(b2[i]) catch 1;
+        cp2_buf[len2] = decodeCodepoint(b2, i, cp_len);
+        len2 += 1;
+        i += cp_len;
+    }
+
+    if (len1 == 0) return @intCast(len2);
+    if (len2 == 0) return @intCast(len1);
+
+    // Use two rows for space efficiency
+    const row_alloc = gpa.alloc(c_int, len2 + 1) catch return -1;
+    defer gpa.free(row_alloc);
+    const prev_alloc = gpa.alloc(c_int, len2 + 1) catch return -1;
+    defer gpa.free(prev_alloc);
+    var prev = prev_alloc;
+    var curr = row_alloc;
+
+    for (0..len2 + 1) |j| {
+        prev[j] = @intCast(j);
+    }
+
+    for (0..len1) |r| {
+        curr[0] = @as(c_int, @intCast(r)) + 1;
+        for (0..len2) |c| {
+            const cost: c_int = if (cp1_buf[r] == cp2_buf[c]) 0 else 1;
+            const del = prev[c + 1] + 1;
+            const ins = curr[c] + 1;
+            const sub = prev[c] + cost;
+            curr[c + 1] = @min(del, @min(ins, sub));
+        }
+        const tmp = prev;
+        prev = curr;
+        curr = tmp;
+    }
+
+    return prev[len2];
+}
+
+/// Check if string matches another string with case-insensitive comparison. Returns 1 or 0.
+pub fn stz_string_is_title_case(handle: StzStringHandle) callconv(.c) c_int {
+    // Title case: first letter of each word is uppercase, rest lowercase
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+
+    var after_space = true; // start of string counts as word boundary
+    var has_letter = false;
+    var i_pos: usize = 0;
+    while (i_pos < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i_pos]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i_pos, cp_len);
+
+        if (unicode.stz_unicode_is_letter(cp_val) != 0) {
+            has_letter = true;
+            if (after_space) {
+                // First letter of word must be uppercase
+                if (unicode.stz_unicode_is_upper(cp_val) == 0) return 0;
+            } else {
+                // Other letters in word must be lowercase
+                if (unicode.stz_unicode_is_lower(cp_val) == 0) return 0;
+            }
+            after_space = false;
+        } else {
+            if (unicode.stz_unicode_is_space(cp_val) != 0) {
+                after_space = true;
+            } else {
+                after_space = false;
+            }
+        }
+        i_pos += cp_len;
+    }
+    return if (has_letter) @as(c_int, 1) else @as(c_int, 0);
+}
+
+/// Split string by lines (LF, CR, CRLF). Returns count of lines.
+pub fn stz_string_lines_split_count(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+
+    var count: c_int = 1;
+    var i_pos: usize = 0;
+    while (i_pos < bytes.len) {
+        if (bytes[i_pos] == '\r') {
+            count += 1;
+            if (i_pos + 1 < bytes.len and bytes[i_pos + 1] == '\n') {
+                i_pos += 1; // skip LF of CRLF
+            }
+        } else if (bytes[i_pos] == '\n') {
+            count += 1;
+        }
+        i_pos += 1;
+    }
+    return count;
+}
+
+/// Get nth line (0-based). Returns new handle. Splits by LF/CR/CRLF.
+pub fn stz_string_line_at(handle: StzStringHandle, line_index: c_int) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    if (line_index < 0) return null;
+    const target: usize = @intCast(line_index);
+
+    var line_num: usize = 0;
+    var line_start: usize = 0;
+    var i_pos: usize = 0;
+    while (i_pos <= bytes.len) {
+        const at_end = (i_pos == bytes.len);
+        const is_cr = (!at_end and bytes[i_pos] == '\r');
+        const is_lf = (!at_end and bytes[i_pos] == '\n');
+        const is_eol = is_cr or is_lf or at_end;
+
+        if (is_eol) {
+            if (line_num == target) {
+                return stz_string_from(bytes[line_start..i_pos].ptr, i_pos - line_start);
+            }
+            line_num += 1;
+            if (is_cr and i_pos + 1 < bytes.len and bytes[i_pos + 1] == '\n') {
+                i_pos += 1; // skip LF of CRLF
+            }
+            line_start = i_pos + 1;
+            if (at_end) break;
+        }
+        i_pos += 1;
+    }
+    return null;
+}
+
 /// Return a new string with duplicate codepoints removed (preserves first occurrence order).
 pub fn stz_string_unique_chars(handle: StzStringHandle) callconv(.c) StzStringHandle {
     const s = (handle orelse return null);
@@ -2973,5 +3152,89 @@ test "count_between" {
 
     const s2 = stz_string_from("no brackets", 11);
     try std.testing.expectEqual(@as(c_int, 0), stz_string_count_between(s2, "[", 1, "]", 1));
+    stz_string_free(s2);
+}
+
+test "replace_char_at" {
+    const s = stz_string_from("Hello", 5);
+    const r = stz_string_replace_char_at(s, 0, "J", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "Jello"));
+    stz_string_free(r);
+
+    // Replace with multi-byte
+    const r2 = stz_string_replace_char_at(s, 4, "!", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..5], "Hell!"));
+    stz_string_free(r2);
+
+    // Replace with empty (deletion)
+    const r3 = stz_string_replace_char_at(s, 0, "", 0);
+    try std.testing.expectEqual(@as(usize, 4), stz_string_size(r3));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r3)[0..4], "ello"));
+    stz_string_free(r3);
+
+    stz_string_free(s);
+}
+
+test "levenshtein" {
+    const s1 = stz_string_from("kitten", 6);
+    const s2 = stz_string_from("sitting", 7);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_levenshtein(s1, s2));
+    stz_string_free(s1);
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("hello", 5);
+    const s4 = stz_string_from("hello", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_levenshtein(s3, s4));
+    stz_string_free(s3);
+    stz_string_free(s4);
+
+    const s5 = stz_string_from("", 0);
+    const s6 = stz_string_from("abc", 3);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_levenshtein(s5, s6));
+    stz_string_free(s5);
+    stz_string_free(s6);
+}
+
+test "is_title_case" {
+    const s1 = stz_string_from("Hello World", 11);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_title_case(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("hello world", 11);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_title_case(s2));
+    stz_string_free(s2);
+
+    const s3 = stz_string_from("HELLO", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_title_case(s3));
+    stz_string_free(s3);
+
+    const s4 = stz_string_from("A", 1);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_title_case(s4));
+    stz_string_free(s4);
+}
+
+test "line_at" {
+    const s = stz_string_from("line1\nline2\nline3", 17);
+    const l0 = stz_string_line_at(s, 0);
+    try std.testing.expect(mem.eql(u8, stz_string_data(l0)[0..5], "line1"));
+    stz_string_free(l0);
+
+    const l1 = stz_string_line_at(s, 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(l1)[0..5], "line2"));
+    stz_string_free(l1);
+
+    const l2 = stz_string_line_at(s, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(l2)[0..5], "line3"));
+    stz_string_free(l2);
+
+    try std.testing.expect(stz_string_line_at(s, 3) == null);
+    stz_string_free(s);
+
+    // CRLF
+    const s2 = stz_string_from("a\r\nb\r\nc", 7);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_lines_split_count(s2));
+    const la = stz_string_line_at(s2, 0);
+    try std.testing.expect(mem.eql(u8, stz_string_data(la)[0..1], "a"));
+    stz_string_free(la);
     stz_string_free(s2);
 }

@@ -662,6 +662,38 @@ fn ring_StringCountBetween(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_between(h, open, open_len, close, close_len)));
 }
 
+fn ring_StringReplaceCharAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const cp_index: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const replacement = ring_vm_api_getstring(p, 3);
+    const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const result = string.stz_string_replace_char_at(h, cp_index, replacement, rep_len);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringLevenshtein(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_levenshtein(h1, h2)));
+}
+
+fn ring_StringIsTitleCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_title_case(h)));
+}
+
+fn ring_StringLinesSplitCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_lines_split_count(h)));
+}
+
+fn ring_StringLineAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const result = string.stz_string_line_at(h, idx);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -764,6 +796,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcontainschar", .func = &ring_StringContainsChar },
     .{ .name = "stzenginestringbetweennth", .func = &ring_StringBetweenNth },
     .{ .name = "stzenginestringcountbetween", .func = &ring_StringCountBetween },
+    .{ .name = "stzenginestringreplacecharat", .func = &ring_StringReplaceCharAt },
+    .{ .name = "stzenginestringlevenshteindistance", .func = &ring_StringLevenshtein },
+    .{ .name = "stzenginestringistitlecase", .func = &ring_StringIsTitleCase },
+    .{ .name = "stzenginestringlinessplitcount", .func = &ring_StringLinesSplitCount },
+    .{ .name = "stzenginestringlineat", .func = &ring_StringLineAt },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
