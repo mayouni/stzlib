@@ -6027,6 +6027,92 @@ pub fn stz_string_replace2(handle: StzStringHandle, old1: [*c]const u8, old1_len
     return r;
 }
 
+// ─── Surround ───
+
+/// Wrap string with prefix and suffix: surround("hello", "[", "]") => "[hello]"
+pub fn stz_string_surround(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize, suffix: [*c]const u8, suffix_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+
+    const r = stz_string_new() orelse return null;
+    if (prefix_len > 0) r.data.appendSlice(gpa, prefix[0..prefix_len]) catch {};
+    r.data.appendSlice(gpa, src) catch {};
+    if (suffix_len > 0) r.data.appendSlice(gpa, suffix[0..suffix_len]) catch {};
+    return r;
+}
+
+// ─── ReplaceAnyChar ───
+
+/// Replace any codepoint found in `chars` set with `replacement`.
+/// E.g., replace_any_char("hello", "lo", "*") => "he***"
+pub fn stz_string_replace_any_char(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize, repl: [*c]const u8, repl_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return stz_string_new();
+    const src = s.slice();
+    if (src.len == 0) return stz_string_new();
+
+    const charset = if (chars_len > 0) chars[0..chars_len] else return stz_string_from(src.ptr, src.len);
+    const replacement = if (repl_len > 0) repl[0..repl_len] else "";
+
+    const r = stz_string_new() orelse return null;
+    var off: usize = 0;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+
+        var found = false;
+        var coff: usize = 0;
+        while (coff < charset.len) {
+            const c_len = std.unicode.utf8ByteSequenceLength(charset[coff]) catch break;
+            if (coff + c_len > charset.len) break;
+            if (c_len == cp_len and mem.eql(u8, src[off..][0..cp_len], charset[coff..][0..c_len])) {
+                found = true;
+                break;
+            }
+            coff += c_len;
+        }
+
+        if (found) {
+            r.data.appendSlice(gpa, replacement) catch {};
+        } else {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+// ─── CountMatches ───
+
+/// Count how many codepoints in the string match any char in the `chars` set.
+pub fn stz_string_count_any_char(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0 or chars_len == 0) return 0;
+
+    const charset = chars[0..chars_len];
+    var count: c_int = 0;
+    var off: usize = 0;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+
+        var coff: usize = 0;
+        while (coff < charset.len) {
+            const c_len = std.unicode.utf8ByteSequenceLength(charset[coff]) catch break;
+            if (coff + c_len > charset.len) break;
+            if (c_len == cp_len and mem.eql(u8, src[off..][0..cp_len], charset[coff..][0..c_len])) {
+                count += 1;
+                break;
+            }
+            coff += c_len;
+        }
+        off += cp_len;
+    }
+    return count;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {

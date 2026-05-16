@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 187 Registered Functions"
+? "Engine Full Bridge Test -- All 190 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1646,6 +1646,35 @@ pStr = StzEngineStringFrom("hello world")
 pR = StzEngineStringReplace2(pStr, "hello", "hi", "world", "earth")
 Assert("Replace2 two subs", StzEngineStringData(pR), "hi earth")
 StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 87: Surround, ReplaceAnyChar, CountAnyChar
+# ==============================================================
+
+? "--- Group 87: Surround/ReplaceAnyChar/CountAnyChar ---"
+
+pStr = StzEngineStringFrom("hello")
+pR = StzEngineStringSurround(pStr, "[", "]")
+Assert("Surround hello", StzEngineStringData(pR), "[hello]")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+pR = StzEngineStringSurround(pStr, "<<", ">>")
+Assert("Surround hello <<>>", StzEngineStringData(pR), "<<hello>>")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+pR = StzEngineStringReplaceAnyChar(pStr, "lo", "*")
+Assert("ReplaceAnyChar lo->*", StzEngineStringData(pR), "he***")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world!")
+Assert("CountAnyChar aeiou", StzEngineStringCountAnyChar(pStr, "aeiou"), 3)
+Assert("CountAnyChar lo", StzEngineStringCountAnyChar(pStr, "lo"), 5)
 StzEngineStringFree(pStr)
 
 # ==============================================================
