@@ -40,12 +40,10 @@ class stzStringFinder from stzString
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		_nResult_ = This._FindSubStr(pcSubStr, 1, _bCase_)
-		if _nResult_ > 0
-			return TRUE
-		else
-			return FALSE
+		if _bCase_
+			return StzEngineStringContains(@pEngine, pcSubStr)
 		ok
+		return StzEngineStringContainsCI(@pEngine, pcSubStr)
 
 	def Contains(pcSubStr)
 		return This.ContainsCS(pcSubStr, 1)
@@ -100,35 +98,26 @@ class stzStringFinder from stzString
 			return []
 		ok
 
-		if NOT This.ContainsCS(pcSubStr, pCaseSensitive)
-			return []
-		ok
-
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		nLenString = len(This.Content())
-		nLenSubStr = len(pcSubStr)
+		# Bulk find via Engine: one call returns all positions
+		if _bCase_
+			pResult = StzEngineStringFindAll(@pEngine, pcSubStr)
+		else
+			pResult = StzEngineStringFindAllCI(@pEngine, pcSubStr)
+		ok
 
-		if nLenString < nLenSubStr
+		nCount = StzEngineFindResultCount(pResult)
+		if nCount = 0
+			StzEngineFindResultFree(pResult)
 			return []
 		ok
 
 		anResult = []
-
-		bContinue = 1
-		_nPos_ = 1
-
-		while bContinue
-
-			_nPos_ = This._FindSubStr(pcSubStr, _nPos_, pCaseSensitive)
-
-			if _nPos_ = 0
-				bContinue = 0
-			else
-				anResult + _nPos_
-				_nPos_ = _nPos_ + 1
-			ok
-		end
+		for i = 0 to nCount - 1
+			anResult + (StzEngineFindResultGet(pResult, i) + 1)
+		next
+		StzEngineFindResultFree(pResult)
 
 		return anResult
 
