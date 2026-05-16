@@ -616,6 +616,74 @@ class stzString from stzObject
 		def WithoutContentBetween(cOpen, cClose)
 			return This.BetweenDelimitersRemoved(cOpen, cClose)
 
+	  #==============================#
+	 #  REVERSE WORDS               #
+	#==============================#
+
+	def ReverseWords()
+		pResult = StzEngineStringReverseWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ReverseWordsQ()
+			This.ReverseWords()
+			return This
+
+	def WordsReversed()
+		pResult = StzEngineStringReverseWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WordsInReversedOrder()
+			return This.WordsReversed()
+
+	  #==============================#
+	 #  COLLAPSE SPACES             #
+	#==============================#
+
+	def CollapseSpaces()
+		pResult = StzEngineStringCollapseSpaces(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def CollapseSpacesQ()
+			This.CollapseSpaces()
+			return This
+
+	def SpacesCollapsed()
+		pResult = StzEngineStringCollapseSpaces(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WithCollapsedSpaces()
+			return This.SpacesCollapsed()
+
+	  #==============================#
+	 #  HEX ENCODE / DECODE         #
+	#==============================#
+
+	def ToHex()
+		pResult = StzEngineStringEncodeHex(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def HexEncoded()
+			return This.ToHex()
+
+	def FromHex()
+		pResult = StzEngineStringDecodeHex(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def HexDecoded()
+			return This.FromHex()
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#

@@ -1460,6 +1460,26 @@ fn ring_StringSwapChars(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_swap_chars(h, pos1, pos2)), STZ_HANDLE);
 }
 
+fn ring_StringEncodeHex(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_encode_hex(h)), STZ_HANDLE);
+}
+
+fn ring_StringDecodeHex(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_decode_hex(h)), STZ_HANDLE);
+}
+
+fn ring_StringReverseWords(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_reverse_words(h)), STZ_HANDLE);
+}
+
+fn ring_StringCollapseSpaces(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_collapse_spaces(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1664,6 +1684,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcontainsonly", .func = &ring_StringContainsOnly },
     .{ .name = "stzenginestringcapitalizewords", .func = &ring_StringCapitalizeWords },
     .{ .name = "stzenginestringswapchars", .func = &ring_StringSwapChars },
+    .{ .name = "stzenginestringencodehex", .func = &ring_StringEncodeHex },
+    .{ .name = "stzenginestringdecodehex", .func = &ring_StringDecodeHex },
+    .{ .name = "stzenginestringreversewords", .func = &ring_StringReverseWords },
+    .{ .name = "stzenginestringcollapsespaces", .func = &ring_StringCollapseSpaces },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
