@@ -6070,7 +6070,7 @@ class stzString from stzObject
 	#=====================================================================#
 
 	def UniqueMarquers()
-		return StzListQ(This.Marquers()).UniqueItems()
+		return UCS(This.Marquers(), 1)
 
 		#< @FunctionFluentForms
 
@@ -6444,7 +6444,15 @@ class stzString from stzObject
 
 		cResult = ""
 
-		if StzListQ(panPos).IsIncludedIn(anPos)
+		# Check if panPos is included in anPos (all items exist)
+		_bIncluded = 1
+		for _k = 1 to len(panPos)
+			if ring_find(anPos, panPos[_k]) = 0
+				_bIncluded = 0
+				exit
+			ok
+		next
+		if _bIncluded
 			cResult = cMarquer
 		ok
 
@@ -6667,40 +6675,34 @@ class stzString from stzObject
 	#=========================================#
 
 	def MarquersAreSorted()
-		bResult = StzListQ(This.Marquers()).ItemsAreSorted()
-		return bResult
+		cOrder = _ListSortingOrder(This.Marquers())
+		return (cOrder = :Ascending or cOrder = :Descending)
 
 	def MarquersSortingOrder()
-		bResult = StzListQ(This.Marquers()).SortingOrder()
-		return bResult
+		return _ListSortingOrder(This.Marquers())
 
 	def MarquersAreUnsorted()
-		bResult = StzListQ(This.Marquers()).ItemsAreUnsorted()
-		return bResult
+		return NOT This.MarquersAreSorted()
 
 		def MarquersAreNotSorted()
 			return This.MarquersAreUnsorted()
 
 	def MarquersAreSortedInAscending()
-		bResult = StzListQ(This.Marquers()).ItemsAreSortedInAscending()
-		return bResult
+		return _ListSortingOrder(This.Marquers()) = :Ascending
 
 	def MarquersAreSortedInDescending()
-		bResult = StzListQ(This.Marquers()).ItemsAreSortedInDescending()
-		return bResult
+		return _ListSortingOrder(This.Marquers()) = :Descending
 
 	#--
 
 	def MarquersSortedInAscending()
-		aResult = StzListQ(This.Marquers()).SortedInAscending()
-		return aResult
+		return sort(This.Marquers())
 
 		def MarquersSorted()
 			return This.MarquersSortedInAscending()
-	
+
 	def UniqueMarquersSortedInAscending()
-		aResult = StzListQ(This.UniqueMarquers()).SortedInAscending()
-		return aResult
+		return sort(This.UniqueMarquers())
 
 		def UniqueMarquersSorted()
 			return This.UniqueMarquersSortedInAscending()
@@ -6714,12 +6716,12 @@ class stzString from stzObject
 	#--
 
 	def MarquersSortedInDescending()
-		aResult = StzListQ(This.Marquers()).SortedInDescending()
-		return aResult
+		aResult = sort(This.Marquers())
+		return ring_reverse(aResult)
 
 	def UniqueMarquersSortedInDescending()
-		aResult = StzListQ(This.UniqueMarquers()).SortedInDescending()
-		return aResult
+		aResult = sort(This.UniqueMarquers())
+		return ring_reverse(aResult)
 
 		def MarquersSortedInDescendingU()
 			return This.UniqueMarquersSortedInDescending()
@@ -6727,8 +6729,7 @@ class stzString from stzObject
 	#--
 
 	def MarquersPositionsSortedInAscending()
-		aResult = StzListQ(This.MarquersPositions()).SortedInAscending()
-		return aResult
+		return sort(This.MarquersPositions())
 
 		def MarquersPositionsSorted()
 			return This.MarquersPositionsSortedInAscending()
@@ -6736,8 +6737,8 @@ class stzString from stzObject
 	#--
 
 	def MarquersPositionsSortedInDescending()
-		aResult = StzListQ(This.MarquersPositions()).SortedInDescending()
-		return aResult
+		aResult = sort(This.MarquersPositions())
+		return ring_reverse(aResult)
 
 	#--
 
@@ -7183,7 +7184,7 @@ class stzString from stzObject
 
 	def ReplaceSubstringsWithMarquersCS(pacSubStr, pCaseSensitive)
 
-		acSubStr = StzListQ(pacSubStr).DuplicatesRemovedCS(pCaseSensitive)
+		acSubStr = UCS(pacSubStr, pCaseSensitive)
 		nLen = len(acSubStr)
 
 		acMarquers = []
@@ -39821,7 +39822,8 @@ class stzString from stzObject
 		anPos = This.FindCSQ(pcSubStr, pCaseSensitive).SortedInDescending()
 		nLen = len(anPos)
 
-		acNewSubStrings = StzListQ(pacNewSubStr).SortedInDescending()
+		acNewSubStrings = sort(pacNewSubStr)
+		acNewSubStrings = ring_reverse(acNewSubStrings)
 		nLen2 = len(acNewSubStrings)
 	
 		n = 0
@@ -40491,7 +40493,8 @@ class stzString from stzObject
 		#--> "♥♥♥ ruby ring php ♥♥♥"
 		*/
 
-		anPos = StzListQ(panPos).SortedInDescending()
+		anPos = sort(panPos)
+		anPos = ring_reverse(anPos)
 		nLen = len(anPos)
 
 		for i = 1 to nLen
@@ -41047,7 +41050,8 @@ class stzString from stzObject
 
 		next
 
-		acNewSubStr = StzListQ(acNewSubStr).SortedInDescending()
+		acNewSubStr = sort(acNewSubStr)
+		acNewSubStr = ring_reverse(acNewSubStr)
 	
 		i = 0
 		for @Position in anPos
@@ -42512,8 +42516,20 @@ class stzString from stzObject
 		ok
 
 		nMin = Min([ len(panPos), len(pacNewSubStr) ])
-		anPos = StzListQ(panPos).SectionQ(1, nMin).SortedInDescending()
-		acNewSubStrings = StzListQ(pacNewSubStr).SectionQ(1, nMin).SortedInDescending()
+		# Take first nMin items, sort descending
+		_aPosSlice = []
+		for _k = 1 to nMin
+			_aPosSlice + panPos[_k]
+		next
+		anPos = sort(_aPosSlice)
+		anPos = ring_reverse(anPos)
+
+		_aSubSlice = []
+		for _k = 1 to nMin
+			_aSubSlice + pacNewSubStr[_k]
+		next
+		acNewSubStrings = sort(_aSubSlice)
+		acNewSubStrings = ring_reverse(acNewSubStrings)
 
 		i = 0
 
