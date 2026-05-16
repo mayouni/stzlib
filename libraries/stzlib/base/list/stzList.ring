@@ -5098,7 +5098,12 @@ func IsListInString(pcStr)
 #===
 
 func ListStringify(paList)
-	return StzListQ(paList).Stringified()
+	_nLen_ = len(paList)
+	_aResult_ = []
+	for _i_ = 1 to _nLen_
+		_aResult_ + ("" + paList[_i_])
+	next
+	return _aResult_
 
 func Stringify(p)
 	return Q(p).Stringified()
@@ -5695,7 +5700,7 @@ func HaveBothSameType(p1, p2)
 		return HaveBothSameType(p1, p2)
 
 func IsEmptyList(paList)
-	return StzListQ(paList).IsEmpty()
+	return isList(paList) and len(paList) = 0
 		
 	func IsAnEmptyList(paList)
 		return IsEmptyList(paList)
@@ -5712,7 +5717,13 @@ func ListShow(paList)
 	StzListQ(paList).Show()
 
 func AreNumbers(paList)
-	return StzListQ(paList).ContainsOnlyNumbers()
+	nLen = len(paList)
+	for i = 1 to nLen
+		if NOT isNumber(paList[i])
+			return 0
+		ok
+	next
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -5773,7 +5784,13 @@ func AreNumbers(paList)
 	#>
 
 func AreStrings(paList)
-	return StzListQ(paList).ContainsOnlyStrings()
+	nLen = len(paList)
+	for i = 1 to nLen
+		if NOT isString(paList[i])
+			return 0
+		ok
+	next
+	return 1
 
 	#< @FuncctionAlternativeForms
 
@@ -5803,7 +5820,13 @@ func AreStrings(paList)
 	#>
 
 func AreLists(paList)
-	return StzListQ(paList).ContainsOnlyLists()
+	nLen = len(paList)
+	for i = 1 to nLen
+		if NOT isList(paList[i])
+			return 0
+		ok
+	next
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -5830,7 +5853,13 @@ func AreLists(paList)
 	#>
 
 func AreObjects(paList)
-	return StzListQ(paList).ContainsOnlyObjects()
+	nLen = len(paList)
+	for i = 1 to nLen
+		if NOT isObject(paList[i])
+			return 0
+		ok
+	next
+	return 1
 
 	#< @FunctionAlternativeForms
 
@@ -32837,13 +32866,18 @@ class stzList from stzObject
 		acList = []
 		acOtherList = []
 
+		_nLenOther_ = len(paOtherList)
 		if bCaseSensitive = 1
 			acList = This.Stringified()
-			acOtherList = StzListQ(paOtherList).Stringified()
+			for _k_ = 1 to _nLenOther_
+				acOtherList + ("" + paOtherList[_k_])
+			next
 
 		else
 			acList = This.Copy().StringifyQ().Lowercased()
-			acOtherList = StzListQ(paOtherList).StringifyQ().Lowercased()
+			for _k_ = 1 to _nLenOther_
+				acOtherList + lower("" + paOtherList[_k_])
+			next
 		ok
 
 		#-- Doing the job
@@ -33289,11 +33323,15 @@ class stzList from stzObject
 
 		if bCaseSensitive
 			acList = This.Stringified()
-			acOther = StzListQ(paOtherList).Stringified()
+			for _k_ = 1 to nLenOther
+				acOther + ("" + paOtherList[_k_])
+			next
 
 		else
 			acList = This.Copy().StringifyQ().Lowercased()
-			acOther = StzListQ(paOtherList).StringifyQ().Lowercased()
+			for _k_ = 1 to nLenOther
+				acOther + lower("" + paOtherList[_k_])
+			next
 		ok
 
 		# Doing the job
