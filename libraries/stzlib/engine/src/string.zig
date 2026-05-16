@@ -4862,6 +4862,261 @@ pub fn stz_string_wrap_at(handle: StzStringHandle, width: c_int) callconv(.c) St
     return result;
 }
 
+// ─── RemovePrefix ───
+
+pub fn stz_string_remove_prefix(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (prefix == null or prefix_len == 0 or prefix_len > buf.len) return stz_string_copy(handle);
+    const pfx: []const u8 = prefix[0..prefix_len];
+    if (mem.startsWith(u8, buf, pfx)) {
+        return stz_string_from(buf[prefix_len..].ptr, buf.len - prefix_len);
+    }
+    return stz_string_copy(handle);
+}
+
+// ─── RemoveSuffix ───
+
+pub fn stz_string_remove_suffix(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (suffix == null or suffix_len == 0 or suffix_len > buf.len) return stz_string_copy(handle);
+    const sfx: []const u8 = suffix[0..suffix_len];
+    if (mem.endsWith(u8, buf, sfx)) {
+        return stz_string_from(buf.ptr, buf.len - suffix_len);
+    }
+    return stz_string_copy(handle);
+}
+
+// ─── EnsurePrefix ───
+
+pub fn stz_string_ensure_prefix(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (prefix == null or prefix_len == 0) return stz_string_copy(handle);
+    const pfx: []const u8 = prefix[0..prefix_len];
+    if (mem.startsWith(u8, buf, pfx)) return stz_string_copy(handle);
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    result.data.appendSlice(gpa, pfx) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    result.data.appendSlice(gpa, buf) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    return result;
+}
+
+// ─── EnsureSuffix ───
+
+pub fn stz_string_ensure_suffix(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (suffix == null or suffix_len == 0) return stz_string_copy(handle);
+    const sfx: []const u8 = suffix[0..suffix_len];
+    if (mem.endsWith(u8, buf, sfx)) return stz_string_copy(handle);
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    result.data.appendSlice(gpa, buf) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    result.data.appendSlice(gpa, sfx) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    return result;
+}
+
+// ─── SqueezeChar ───
+
+pub fn stz_string_squeeze_char(handle: StzStringHandle, cp: u32) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    var off: usize = 0;
+    var prev_was_target = false;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        if (cp_val == cp) {
+            if (!prev_was_target) {
+                result.data.appendSlice(gpa, buf[off .. off + cp_len]) catch break;
+                prev_was_target = true;
+            }
+        } else {
+            result.data.appendSlice(gpa, buf[off .. off + cp_len]) catch break;
+            prev_was_target = false;
+        }
+        off += cp_len;
+    }
+    return result;
+}
+
+// ─── CapitalizeFirst ───
+
+pub fn stz_string_capitalize_first(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (buf.len == 0) return stz_string_new();
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    const first_len = std.unicode.utf8ByteSequenceLength(buf[0]) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return stz_string_copy(handle);
+    };
+    if (first_len > buf.len) return stz_string_copy(handle);
+    const first_cp = std.unicode.utf8Decode(buf[0..first_len]) catch return stz_string_copy(handle);
+
+    if (first_cp >= 'a' and first_cp <= 'z') {
+        const upper_cp: u21 = @intCast(first_cp - 32);
+        var upper_bytes: [4]u8 = undefined;
+        const upper_len = std.unicode.utf8Encode(upper_cp, &upper_bytes) catch return stz_string_copy(handle);
+        result.data.appendSlice(gpa, upper_bytes[0..upper_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    } else {
+        result.data.appendSlice(gpa, buf[0..first_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    if (first_len < buf.len) {
+        result.data.appendSlice(gpa, buf[first_len..]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+// ─── DecapitalizeFirst ───
+
+pub fn stz_string_decapitalize_first(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (buf.len == 0) return stz_string_new();
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    const first_len = std.unicode.utf8ByteSequenceLength(buf[0]) catch return stz_string_copy(handle);
+    if (first_len > buf.len) return stz_string_copy(handle);
+    const first_cp = std.unicode.utf8Decode(buf[0..first_len]) catch return stz_string_copy(handle);
+
+    if (first_cp >= 'A' and first_cp <= 'Z') {
+        const lower_cp: u21 = @intCast(first_cp + 32);
+        var lower_bytes: [4]u8 = undefined;
+        const lower_len = std.unicode.utf8Encode(lower_cp, &lower_bytes) catch return stz_string_copy(handle);
+        result.data.appendSlice(gpa, lower_bytes[0..lower_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    } else {
+        result.data.appendSlice(gpa, buf[0..first_len]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    if (first_len < buf.len) {
+        result.data.appendSlice(gpa, buf[first_len..]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    return result;
+}
+
+// ─── ZFill ───
+
+pub fn stz_string_zfill(handle: StzStringHandle, width: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (width <= 0) return stz_string_copy(handle);
+    const w: usize = @intCast(width);
+
+    var cp_count: usize = 0;
+    var off: usize = 0;
+    while (off < buf.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
+        if (off + cp_len > buf.len) break;
+        off += cp_len;
+        cp_count += 1;
+    }
+
+    if (cp_count >= w) return stz_string_copy(handle);
+
+    const pad_count = w - cp_count;
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    for (0..pad_count) |_| {
+        result.data.append(gpa, '0') catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+    }
+    result.data.appendSlice(gpa, buf) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    return result;
+}
+
+// ─── TabExpand ───
+
+pub fn stz_string_tab_expand(handle: StzStringHandle, tab_width: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (tab_width <= 0) return stz_string_copy(handle);
+    const tw: usize = @intCast(tab_width);
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    for (buf) |byte| {
+        if (byte == '\t') {
+            for (0..tw) |_| {
+                result.data.append(gpa, ' ') catch {
+                    result.deinit();
+                    gpa.destroy(result);
+                    return null;
+                };
+            }
+        } else {
+            result.data.append(gpa, byte) catch {
+                result.deinit();
+                gpa.destroy(result);
+                return null;
+            };
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -5034,4 +5289,85 @@ test "is_chars_sorted" {
     try std.testing.expectEqual(@as(c_int, 1), stz_string_is_chars_sorted_asc(s3));
     try std.testing.expectEqual(@as(c_int, 1), stz_string_is_chars_sorted_desc(s3));
     stz_string_free(s3);
+}
+
+test "remove_prefix_suffix" {
+    const s1 = stz_string_from("Hello World", 11);
+    const r1 = stz_string_remove_prefix(s1, "Hello ", 6);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "World"));
+    stz_string_free(r1);
+
+    const r2 = stz_string_remove_suffix(s1, " World", 6);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "Hello"));
+    stz_string_free(r2);
+
+    // No match - returns copy
+    const r3 = stz_string_remove_prefix(s1, "xyz", 3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r3)[0..@intCast(stz_string_size(r3))], "Hello World"));
+    stz_string_free(r3);
+    stz_string_free(s1);
+}
+
+test "ensure_prefix_suffix" {
+    const s1 = stz_string_from("world", 5);
+    const r1 = stz_string_ensure_prefix(s1, "hello ", 6);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "hello world"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("hello world", 11);
+    const r2 = stz_string_ensure_prefix(s2, "hello", 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "hello world"));
+    stz_string_free(r2);
+
+    const r3 = stz_string_ensure_suffix(s2, ".txt", 4);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r3)[0..@intCast(stz_string_size(r3))], "hello world.txt"));
+    stz_string_free(r3);
+    stz_string_free(s2);
+}
+
+test "squeeze_char" {
+    const s1 = stz_string_from("heeellooo", 9);
+    const r1 = stz_string_squeeze_char(s1, 'e');
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "hellooo"));
+    stz_string_free(r1);
+
+    const r2 = stz_string_squeeze_char(s1, 'o');
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "heeello"));
+    stz_string_free(r2);
+    stz_string_free(s1);
+}
+
+test "capitalize_decapitalize_first" {
+    const s1 = stz_string_from("hello world", 11);
+    const r1 = stz_string_capitalize_first(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "Hello world"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("Hello", 5);
+    const r2 = stz_string_decapitalize_first(s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "hello"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+}
+
+test "zfill" {
+    const s1 = stz_string_from("42", 2);
+    const r1 = stz_string_zfill(s1, 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "00042"));
+    stz_string_free(r1);
+
+    const r2 = stz_string_zfill(s1, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "42"));
+    stz_string_free(r2);
+    stz_string_free(s1);
+}
+
+test "tab_expand" {
+    const s1 = stz_string_from("a\tb\tc", 5);
+    const r1 = stz_string_tab_expand(s1, 4);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "a    b    c"));
+    stz_string_free(r1);
+    stz_string_free(s1);
 }
