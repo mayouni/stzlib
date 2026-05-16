@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 200 Registered Functions"
+? "Engine Full Bridge Test -- All 204 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1772,6 +1772,37 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("abcde")
 pR = StzEngineStringSwapChars(pStr, 0, 4)
 Assert("SwapChars 0,4", StzEngineStringData(pR), "ebcda")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 90: EncodeHex / DecodeHex / ReverseWords / CollapseSpaces
+# ==============================================================
+
+? ""
+? "--- Group 90: EncodeHex / DecodeHex / ReverseWords / CollapseSpaces ---"
+
+pStr = StzEngineStringFrom("Hi")
+pR = StzEngineStringEncodeHex(pStr)
+Assert("EncodeHex Hi", StzEngineStringData(pR), "4869")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("4869")
+pR = StzEngineStringDecodeHex(pStr)
+Assert("DecodeHex 4869", StzEngineStringData(pR), "Hi")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world foo")
+pR = StzEngineStringReverseWords(pStr)
+Assert("ReverseWords", StzEngineStringData(pR), "foo world hello")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("  hello   world  ")
+pR = StzEngineStringCollapseSpaces(pStr)
+Assert("CollapseSpaces", StzEngineStringData(pR), "hello world")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 

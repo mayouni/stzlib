@@ -6486,6 +6486,137 @@ pub fn stz_string_swap_chars(handle: StzStringHandle, pos1: c_int, pos2: c_int) 
     return result;
 }
 
+/// Encode each byte of the string as two hex characters (lowercase). Returns new handle.
+pub fn stz_string_encode_hex(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const hex_chars = "0123456789abcdef";
+
+    for (src) |byte| {
+        const hi: u8 = hex_chars[byte >> 4];
+        const lo: u8 = hex_chars[byte & 0x0F];
+        result.data.appendSlice(gpa, &[_]u8{ hi, lo }) catch break;
+    }
+    return result;
+}
+
+/// Decode a hex string (pairs of hex digits) back to bytes. Returns new handle.
+/// Invalid hex chars are skipped.
+pub fn stz_string_decode_hex(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    var i: usize = 0;
+    while (i + 1 < src.len) {
+        const hi = hexDigitValue(src[i]);
+        const lo = hexDigitValue(src[i + 1]);
+        if (hi != null and lo != null) {
+            const byte: u8 = (@as(u8, hi.?) << 4) | @as(u8, lo.?);
+            result.data.appendSlice(gpa, &[_]u8{byte}) catch break;
+        }
+        i += 2;
+    }
+    return result;
+}
+
+fn hexDigitValue(c: u8) ?u4 {
+    if (c >= '0' and c <= '9') return @intCast(c - '0');
+    if (c >= 'a' and c <= 'f') return @intCast(c - 'a' + 10);
+    if (c >= 'A' and c <= 'F') return @intCast(c - 'A' + 10);
+    return null;
+}
+
+/// Reverse the order of words in the string. Words are whitespace-delimited.
+/// Returns new handle.
+pub fn stz_string_reverse_words(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    // Collect word boundaries (start, end byte offsets)
+    var words: [8192]struct { start: usize, end: usize } = undefined;
+    var word_count: usize = 0;
+    var off: usize = 0;
+    var in_word = false;
+    var word_start: usize = 0;
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp_val: i32 = decodeCodepoint(src, off, cp_len);
+        const is_space = unicode.stz_unicode_is_space(cp_val) != 0;
+
+        if (!is_space and !in_word) {
+            word_start = off;
+            in_word = true;
+        } else if (is_space and in_word) {
+            if (word_count < 8192) {
+                words[word_count] = .{ .start = word_start, .end = off };
+                word_count += 1;
+            }
+            in_word = false;
+        }
+        off += cp_len;
+    }
+    if (in_word and word_count < 8192) {
+        words[word_count] = .{ .start = word_start, .end = off };
+        word_count += 1;
+    }
+
+    if (word_count == 0) return stz_string_from(src.ptr, src.len);
+
+    const result = stz_string_new() orelse return null;
+    var i: usize = word_count;
+    while (i > 0) {
+        i -= 1;
+        if (i < word_count - 1) {
+            result.data.appendSlice(gpa, " ") catch break;
+        }
+        const w = words[i];
+        result.data.appendSlice(gpa, src[w.start..w.end]) catch break;
+    }
+    return result;
+}
+
+/// Collapse multiple consecutive spaces/whitespace to a single space.
+/// Also trims leading/trailing whitespace. Returns new handle.
+pub fn stz_string_collapse_spaces(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var off: usize = 0;
+    var prev_was_space = true; // treat start as space to trim leading
+
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp_val: i32 = decodeCodepoint(src, off, cp_len);
+        const is_space = unicode.stz_unicode_is_space(cp_val) != 0;
+
+        if (is_space) {
+            if (!prev_was_space) {
+                result.data.appendSlice(gpa, " ") catch break;
+            }
+            prev_was_space = true;
+        } else {
+            result.data.appendSlice(gpa, src[off..][0..cp_len]) catch break;
+            prev_was_space = false;
+        }
+        off += cp_len;
+    }
+
+    // Trim trailing space
+    const rslice = result.slice();
+    if (rslice.len > 0 and rslice[rslice.len - 1] == ' ') {
+        _ = result.data.pop();
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -7196,4 +7327,48 @@ test "swap_chars" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "adcbe"));
     stz_string_free(r2);
     stz_string_free(s1);
+}
+
+test "encode_hex" {
+    const s1 = stz_string_from("Hi", 2);
+    const r1 = stz_string_encode_hex(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "4869"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+}
+
+test "decode_hex" {
+    const s1 = stz_string_from("4869", 4);
+    const r1 = stz_string_decode_hex(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "Hi"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+}
+
+test "reverse_words" {
+    const s1 = stz_string_from("hello world foo", 15);
+    const r1 = stz_string_reverse_words(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "foo world hello"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("single", 6);
+    const r2 = stz_string_reverse_words(s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "single"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+}
+
+test "collapse_spaces" {
+    const s1 = stz_string_from("  hello   world  ", 17);
+    const r1 = stz_string_collapse_spaces(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "hello world"));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("no extra spaces", 15);
+    const r2 = stz_string_collapse_spaces(s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "no extra spaces"));
+    stz_string_free(r2);
+    stz_string_free(s2);
 }
