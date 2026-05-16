@@ -242,11 +242,16 @@ class stzString from stzObject
 			return 0
 		ok
 
-		cReversed = This.Reversed()
-		if This.IsEqualtToCS( cReversed, pCaseSensitive) = 1
-			return 1
+		if pCaseSensitive
+			hStr = StzEngineStringFrom(This.Content())
+			nResult = StzEngineStringIsPalindrome(hStr)
+			StzEngineStringFree(hStr)
+			return nResult
 		else
-			return 0
+			hStr = StzEngineStringFrom(This.Lowercased())
+			nResult = StzEngineStringIsPalindrome(hStr)
+			StzEngineStringFree(hStr)
+			return nResult
 		ok
 
 
@@ -5409,7 +5414,10 @@ class stzString from stzObject
 	#-- WITHOUT CASESENSITIVE
 
 	def NumberOfLines()
-		return This.NumberOfLinesCS(1)
+		hStr = StzEngineStringFrom(This.Content())
+		nResult = StzEngineStringLinesCount(hStr)
+		StzEngineStringFree(hStr)
+		return nResult
 
 		def HowManyLines()
 			return This.NumberOfLines()
