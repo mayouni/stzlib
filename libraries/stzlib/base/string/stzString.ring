@@ -89668,17 +89668,11 @@ class stzString from stzObject
 
 	// Returns (as a string) only the letters contained in the string
 	def OnlyLetters()
-		cResult = ""
-		nLen = This.NumberOfChars()
-
-		for i = 1 to nLen
-			c = This.NthChar(i)
-
-			oChar = new stzChar(c)
-			if oChar.isLetter()
-				cResult += c
-			ok
-		next
+		hStr = StzEngineStringFrom(This.Content())
+		pExtracted = StzEngineStringExtractCharsOfType(hStr, 0)
+		cResult = StzEngineStringData(pExtracted)
+		StzEngineStringFree(pExtracted)
+		StzEngineStringFree(hStr)
 		return cResult
 
 	def OnlyLettersQ()
@@ -94798,33 +94792,29 @@ class stzString from stzObject
 	#-----------------------------------------------#
 
 	def FindLetters()
-		aoChars = This.CharsQ().ToListOfStzChars()
-		nLen = len(aoChars)
+		hStr = StzEngineStringFrom(This.Content())
+		pResult = StzEngineStringFindCharsOfType(hStr, 0)
+		nCount = StzEngineFindResultCount(pResult)
 		anResult = []
-		
-		for i = 1 to nLen
-			if aoChars[i].IsALetter()
-				anResult + i
-			ok
+		for i = 1 to nCount
+			anResult + (StzEngineFindResultGet(pResult, i - 1) + 1)
 		next
-
+		StzEngineFindResultFree(pResult)
+		StzEngineStringFree(hStr)
 		return anResult
 
 		def FindLettersZ()
 			return This.FindLetters()
 
 	def Letters()
-		aoChars = This.CharsQ().ToListOfStzChars()
-		nLen = len(aoChars)
-		aResult = []
-		
-		for i = 1 to nLen
-			if aoChars[i].IsALetter()
-				aResult + aoChars[i].Content()
-			ok
-		next
-
-		return aResult
+		hStr = StzEngineStringFrom(This.Content())
+		pExtracted = StzEngineStringExtractCharsOfType(hStr, 0)
+		cExtracted = StzEngineStringData(pExtracted)
+		StzEngineStringFree(pExtracted)
+		StzEngineStringFree(hStr)
+		# Split extracted letters into individual characters
+		oExtracted = new stzString(cExtracted)
+		return oExtracted.Chars()
 
 		def LettersQ()
 			return This.LettersQRT(:stzList)
@@ -97652,19 +97642,15 @@ class stzString from stzObject
 	#==================================================#
 
 	def IsPunctuation()
-		aoChars = U( This.ToListOfStzChars() )
-		nLen = len(aoChars)
-
-		bResult = 1
-
-		for i = 1 to nLen
-			if NOT aoChars[i].IsPunct()
-				bResult = 0
-				exit
-			ok
-		next
-
-		return bResult
+		hStr = StzEngineStringFrom(This.Content())
+		nTotal = StzEngineStringCount(hStr)
+		if nTotal = 0
+			StzEngineStringFree(hStr)
+			return 0
+		ok
+		nPunct = StzEngineStringCountCharsOfType(hStr, 5)
+		StzEngineStringFree(hStr)
+		return nPunct = nTotal
 
 		#< @FunctionAlternativeForms
 
@@ -97698,17 +97684,15 @@ class stzString from stzObject
 	#===============================#
 
 	def FindPunctuations()
-		aoChars = This.CharsQ().ToListOfStzChars()
-		nLen = len(aoChars)
-
+		hStr = StzEngineStringFrom(This.Content())
+		pResult = StzEngineStringFindCharsOfType(hStr, 5)
+		nCount = StzEngineFindResultCount(pResult)
 		anResult = []
-
-		for i = 1 to nLen
-			if aoChars[i].IsPunctuation()
-				anResult + i
-			ok
+		for i = 1 to nCount
+			anResult + (StzEngineFindResultGet(pResult, i - 1) + 1)
 		next
-
+		StzEngineFindResultFree(pResult)
+		StzEngineStringFree(hStr)
 		return anResult
 
 		#< @FunctionAlternativeForms

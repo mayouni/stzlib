@@ -430,6 +430,20 @@ fn ring_StringConcat(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+fn ring_StringFindCharsOfType(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const char_type: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const result = string.stz_string_find_chars_of_type(h, char_type);
+    ring_vm_api_retcpointer(p, @ptrCast(result), "StzFindResultHandle");
+}
+
+fn ring_StringExtractCharsOfType(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const char_type: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const result = string.stz_string_extract_chars_of_type(h, char_type);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 fn ring_StringIsAscii(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_ascii(h)));
@@ -632,6 +646,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringisascii", .func = &ring_StringIsAscii },
     .{ .name = "stzenginestringremovecharat", .func = &ring_StringRemoveCharAt },
     .{ .name = "stzenginestringchartypeat", .func = &ring_StringCharTypeAt },
+    .{ .name = "stzenginestringfindcharsoftype", .func = &ring_StringFindCharsOfType },
+    .{ .name = "stzenginestringextractcharsoftype", .func = &ring_StringExtractCharsOfType },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
