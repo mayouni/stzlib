@@ -39156,10 +39156,8 @@ class stzString from stzObject
 			ok
 	
 			# Checking the correctness of pcNewSubStr param
-? @@(pcNewSubStr)
-sdfdksdfk
+
 			if isList(pcNewSubStr)
-				_oList_ = StzListQ(pcNewSubStr)
 
 				if len(pcNewSubStr) = 2 and
 				   isString(pcNewSubStr[1]) and
@@ -39172,8 +39170,7 @@ sdfdksdfk
 				ok
 				
 			ok
-? @@(pcNewSubStr)
-fsdf
+
 			if isList(pcNewSubStr)
 				return This.ReplaceByManyCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 			ok
@@ -92770,17 +92767,43 @@ fsdf
 		acResult = []
 
 		if bCaseSensitive = 1
-			for i = 1 to nLen
-				acResult + substr(cContent, i, 1)
-			next
+			# Split by UTF-8 codepoints (not bytes)
+			i = 1
+			while i <= nLen
+				nByte = ascii(substr(cContent, i, 1))
+				if nByte < 128
+					nCpLen = 1
+				but nByte < 224
+					nCpLen = 2
+				but nByte < 240
+					nCpLen = 3
+				else
+					nCpLen = 4
+				ok
+				acResult + substr(cContent, i, nCpLen)
+				i += nCpLen
+			end
 
 		else
-			for i = 1 to nLen
-				c = lower( substr(cContent, i, 1) )
+			# CI: unique chars (lowercased), UTF-8 aware
+			i = 1
+			while i <= nLen
+				nByte = ascii(substr(cContent, i, 1))
+				if nByte < 128
+					nCpLen = 1
+				but nByte < 224
+					nCpLen = 2
+				but nByte < 240
+					nCpLen = 3
+				else
+					nCpLen = 4
+				ok
+				c = lower( substr(cContent, i, nCpLen) )
 				if ring_find(acResult, c) = 0
 					acResult + c
 				ok
-			next
+				i += nCpLen
+			end
 
 		ok
 
