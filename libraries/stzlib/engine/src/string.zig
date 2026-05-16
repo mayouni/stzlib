@@ -921,6 +921,68 @@ pub fn stz_string_reverse(handle: StzStringHandle) callconv(.c) StzStringHandle 
     return stz_string_new();
 }
 
+/// Repeat the string `count` times. Returns a new handle.
+pub fn stz_string_repeat(handle: StzStringHandle, count: c_int) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const src = s.slice();
+        if (src.len == 0 or count <= 0) return stz_string_new();
+        const n: usize = @intCast(count);
+        const r = stz_string_new() orelse return null;
+        r.data.ensureTotalCapacity(gpa, src.len * n) catch {};
+        for (0..n) |_| {
+            r.data.appendSlice(gpa, src) catch {};
+        }
+        return r;
+    }
+    return stz_string_new();
+}
+
+/// Pad the string on the left to reach `target_cp_count` codepoints,
+/// using `pad_char` (a UTF-8 encoded codepoint) as fill.
+pub fn stz_string_pad_left(handle: StzStringHandle, target_cp_count: c_int, pad_char: [*c]const u8, pad_len: usize) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const src = s.slice();
+        const current_cp = utf8CodepointCount(src);
+        const target: usize = if (target_cp_count > 0) @intCast(target_cp_count) else 0;
+        if (current_cp >= target) {
+            return stz_string_from(src.ptr, src.len);
+        }
+        const pad_needed = target - current_cp;
+        const pad_slice = if (pad_char != null and pad_len > 0) pad_char[0..pad_len] else " ";
+        const r = stz_string_new() orelse return null;
+        r.data.ensureTotalCapacity(gpa, src.len + pad_needed * pad_slice.len) catch {};
+        for (0..pad_needed) |_| {
+            r.data.appendSlice(gpa, pad_slice) catch {};
+        }
+        r.data.appendSlice(gpa, src) catch {};
+        return r;
+    }
+    return stz_string_new();
+}
+
+/// Pad the string on the right to reach `target_cp_count` codepoints,
+/// using `pad_char` (a UTF-8 encoded codepoint) as fill.
+pub fn stz_string_pad_right(handle: StzStringHandle, target_cp_count: c_int, pad_char: [*c]const u8, pad_len: usize) callconv(.c) StzStringHandle {
+    if (handle) |s| {
+        const src = s.slice();
+        const current_cp = utf8CodepointCount(src);
+        const target: usize = if (target_cp_count > 0) @intCast(target_cp_count) else 0;
+        if (current_cp >= target) {
+            return stz_string_from(src.ptr, src.len);
+        }
+        const pad_needed = target - current_cp;
+        const pad_slice = if (pad_char != null and pad_len > 0) pad_char[0..pad_len] else " ";
+        const r = stz_string_new() orelse return null;
+        r.data.ensureTotalCapacity(gpa, src.len + pad_needed * pad_slice.len) catch {};
+        r.data.appendSlice(gpa, src) catch {};
+        for (0..pad_needed) |_| {
+            r.data.appendSlice(gpa, pad_slice) catch {};
+        }
+        return r;
+    }
+    return stz_string_new();
+}
+
 // ─── Helpers ───
 
 fn utf8CodepointCount(bytes: []const u8) usize {
@@ -1397,6 +1459,87 @@ test "reverse mixed ascii unicode" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..1], "z"));
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[1..4], "\xe2\x99\xa5"));
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[4..5], "a"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "repeat" {
+    const s = stz_string_from("ab", 2);
+    const r = stz_string_repeat(s, 3);
+    try std.testing.expectEqual(@as(usize, 6), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..6], "ababab"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "repeat unicode" {
+    // heart = 3 bytes
+    const s = stz_string_from("\xe2\x99\xa5", 3);
+    const r = stz_string_repeat(s, 4);
+    try std.testing.expectEqual(@as(usize, 12), stz_string_size(r));
+    try std.testing.expectEqual(@as(usize, 4), stz_string_count(r));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "repeat zero" {
+    const s = stz_string_from("hello", 5);
+    const r = stz_string_repeat(s, 0);
+    try std.testing.expectEqual(@as(usize, 0), stz_string_size(r));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "pad_left ascii" {
+    const s = stz_string_from("hi", 2);
+    const r = stz_string_pad_left(s, 5, ".", 1);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "...hi"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "pad_left unicode fill" {
+    // Pad "ab" to 5 codepoints using heart (3 bytes each)
+    const s = stz_string_from("ab", 2);
+    const r = stz_string_pad_left(s, 5, "\xe2\x99\xa5", 3);
+    // Result: heart heart heart a b = 3*3 + 2 = 11 bytes, 5 codepoints
+    try std.testing.expectEqual(@as(usize, 11), stz_string_size(r));
+    try std.testing.expectEqual(@as(usize, 5), stz_string_count(r));
+    // First 9 bytes = 3 hearts
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..3], "\xe2\x99\xa5"));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[9..11], "ab"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "pad_left no padding needed" {
+    const s = stz_string_from("hello", 5);
+    const r = stz_string_pad_left(s, 3, " ", 1);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "hello"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "pad_right ascii" {
+    const s = stz_string_from("hi", 2);
+    const r = stz_string_pad_right(s, 5, ".", 1);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "hi..."));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "pad_right unicode content" {
+    // heart(3b) padded right to 4 codepoints with spaces
+    const s = stz_string_from("\xe2\x99\xa5", 3);
+    const r = stz_string_pad_right(s, 4, " ", 1);
+    // Result: heart + 3 spaces = 3 + 3 = 6 bytes, 4 codepoints
+    try std.testing.expectEqual(@as(usize, 6), stz_string_size(r));
+    try std.testing.expectEqual(@as(usize, 4), stz_string_count(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..3], "\xe2\x99\xa5"));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[3..6], "   "));
     stz_string_free(r);
     stz_string_free(s);
 }
