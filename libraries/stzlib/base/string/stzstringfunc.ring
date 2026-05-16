@@ -552,35 +552,20 @@ func StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
 	if cStr = "" or cSubStr = ''
 		return cStr
 	ok
-	
+
 	bCase = CaseSensitive(bCaseSensitive)
 
+	# Use Engine for codepoint-safe replace
+	pStr = StzEngineStringFrom(cStr)
+
 	if bCase = 1
-		cResult = substr(cStr, cSubStr, cNewSubStr)
+		StzEngineStringReplace(pStr, cSubStr, cNewSubStr)
 	else
-		cTemp = lower(cStr)
-		cSubLow = lower(cSubStr)
-		cResult = ""
-		nPos = 1
-		nLen = len(cStr)
-		nSubLen = len(cSubStr)
-		while nPos <= nLen
-			nFound = substr(substr(cTemp, nPos), cSubLow)
-			if nFound = 0
-				cResult += substr(cStr, nPos)
-				exit
-			ok
-			nFound = nPos + nFound - 1
-			if nFound > nPos
-				cResult += substr(cStr, nPos, nFound - nPos)
-			ok
-			cResult += cNewSubStr
-			nPos = nFound + nSubLen
-		end
-		if nPos > nLen and cResult = ""
-			cResult = cStr
-		ok
+		StzEngineStringReplaceCI(pStr, cSubStr, cNewSubStr)
 	ok
+
+	cResult = StzEngineStringData(pStr)
+	StzEngineStringFree(pStr)
 	return cResult
 
 	#< @FunctionAlternativeForms
@@ -2420,7 +2405,13 @@ func StringSection(str, n1, n2)
 		ok
 	ok
 
-	return substr(str, n1, (n2 - n1 + 1))
+	# Use Engine for codepoint-safe section extraction
+	pStr = StzEngineStringFrom(str)
+	pSlice = StzEngineStringSlice(pStr, n1 - 1, n2 - n1 + 1)
+	cResult = StzEngineStringData(pSlice)
+	StzEngineStringFree(pSlice)
+	StzEngineStringFree(pStr)
+	return cResult
 
 func stzleft(str, n)
 	if isList(str)
@@ -2435,7 +2426,9 @@ func stzRight(str, n)
 		return ListSection(str, nLen+1-n, n)
 	ok
 
-	nLen = len(str)
+	pStr = StzEngineStringFrom(str)
+	nLen = StzEngineStringCount(pStr)
+	StzEngineStringFree(pStr)
 	return StringSection(str, nLen-n+1, nLen)
 
 
@@ -2444,13 +2437,18 @@ func Chars(str)
 		str = str[2]
 	ok
 
-	nLen = len(str)
+	# Use Engine for codepoint-safe character splitting
+	pStr = StzEngineStringFrom(str)
+	nLen = StzEngineStringCount(pStr)
 	acResult = []
 
 	for i = 1 to nLen
-		acResult + substr(str, i, 1)
+		pChar = StzEngineStringNthChar(pStr, i - 1)
+		acResult + StzEngineStringData(pChar)
+		StzEngineStringFree(pChar)
 	next
 
+	StzEngineStringFree(pStr)
 	return acResult
 
 	func @Chars(str)
