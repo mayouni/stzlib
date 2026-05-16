@@ -846,7 +846,7 @@ class stzString from stzObject
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
 	
-			if NOT ( isString(pcChar) and StzStringQ(pcChar).IsChar() )
+			if NOT ( isString(pcChar) and len(pcChar) = 1 )
 				StzRaise("Incorrect param type! pcChar must be a char.")
 			ok
 		ok
@@ -27302,7 +27302,7 @@ class stzString from stzObject
 		ok
 
 		n1 = This.FindFirstCS(pSubStrOrPos1, pCaseSensitive)
-		n2 = This.FindLastCS(pSubStrOrPos2, pCaseSensitive) + StzStringQ(pSubStrOrPos2) - 1
+		n2 = This.FindLastCS(pSubStrOrPos2, pCaseSensitive) + len(pSubStrOrPos2) - 1
 		cResult = This.Section(n1, n2)
 
 		return cResult
@@ -77643,13 +77643,15 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(pcPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ 1, nLen ] ]
+			ok
 		ok
 
 		# Getting the list of chars and preparing
@@ -77739,13 +77741,15 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(pcPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ 1, nLen ] ]
+			ok
 		ok
 
 		# Getting the list of chars and preparing
@@ -77836,13 +77840,15 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(pcPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ 1, nLen ] ]
+			ok
 		ok
 
 		# Getting the list of chars and preparing
@@ -77933,13 +77939,15 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(pcPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ 1, nLen ] ]
+			ok
 		ok
 
 		# Getting the list of chars and preparing
@@ -78029,13 +78037,15 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(pcPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ 1, nLen ] ]
+			ok
 		ok
 
 		# Getting the list of chars and preparing
@@ -78133,13 +78143,15 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(pcPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ 1, nLen ] ]
+			ok
 		ok
 
 		# Getting the list of chars and preparing
@@ -78237,13 +78249,15 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(pcPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ 1, nLen ] ]
+			ok
 		ok
 
 		# Getting the list of chars and preparing
@@ -78341,13 +78355,15 @@ class stzString from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(pcPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(pcPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ 1, nLen ] ]
+			ok
 		ok
 
 		# Getting the list of chars and preparing
@@ -79618,7 +79634,7 @@ class stzString from stzObject
 			return 0
 		ok
 
-		bResult = StzStringQ(pcOtherStr).NumberOfOccurrenceCS( This.String(), pCaseSensitive ) > 1
+		bResult = StringNumberOfOccurrenceCS(pcOtherStr, This.String(), pCaseSensitive) > 1
 		return bResult
 
 	def IsSplitterOf(pcOtherStr)
@@ -89150,7 +89166,7 @@ class stzString from stzObject
 
 	def UnSpacifySubStringCS(pcSubStr, pCaseSensitive)
 
-		if NOT ( isString(pcSubStr) and StzStringQ(pcSubStr).ContainsSpaces() )
+		if NOT ( isString(pcSubStr) and substr(pcSubStr, " ") )
 			StzRaise("Incorrect param! pcSubStr must be a string containing spaces.")
 		ok
 
@@ -93664,7 +93680,8 @@ class stzString from stzObject
 		if This.NumberOfChars() = 3 and
 		   (This.IsBoundedBy("'", "'") or
 		   This.IsBoundedBy('"', '"'))
-			return StzStringQ(This.Char(2)).IsAsciiChar()
+			cChar2 = This.Char(2)
+			return (len(cChar2) = 1 and ascii(cChar2) <= 127)
 		else
 			return 0
 		ok
@@ -95077,7 +95094,10 @@ class stzString from stzObject
 
 			next
 
-			_cResult_ = StzStringQ(_cResult_).RemovedFromEnd(" ")
+			# Remove trailing space
+			if len(_cResult_) > 0 and substr(_cResult_, len(_cResult_), 1) = " "
+				_cResult_ = substr(_cResult_, 1, len(_cResult_) - 1)
+			ok
 		ok
 
 		This.UpdateWith( _cResult_ )
@@ -95897,7 +95917,7 @@ class stzString from stzObject
 	
 			if bIsBoxed
 				# Split the content into lines to determine the max width
-				aLines = StzStringQ(This.Content()).Split(NL)
+				aLines = str2list(This.Content())
 				nMaxLineWidth = 0
 				for cLine in aLines
 					nLineWidth = len(cLine)
@@ -95921,7 +95941,7 @@ class stzString from stzObject
 				cCorner4 = iff(aCorners[4] = :Round, "╰", "└")
 	
 				# Construct the box
-				cUpLine = cCorner1 + StzStringQ(cHTrait).RepeatedNTimes(nWidth - 2) + cCorner2 + NL
+				cUpLine = cCorner1 + copy(cHTrait, nWidth - 2) + cCorner2 + NL
 	
 				# Adjust each line of the content
 				cMidLines = ""
@@ -95930,7 +95950,7 @@ class stzString from stzObject
 					cMidLines += cVTrait + " " + cAdjustedLine + " " + cVTrait + NL
 				next
 	
-				cDownLine = cCorner4 + StzStringQ(cHTrait).RepeatedNTimes(nWidth - 2) + cCorner3
+				cDownLine = cCorner4 + copy(cHTrait, nWidth - 2) + cCorner3
 	
 				This.UpdateWith(cUpLine + cMidLines + cDownLine)
 
@@ -95945,9 +95965,9 @@ class stzString from stzObject
 				cCorner4 = iff(aCorners[4] = :Round, "╰", "└")
 	
 				# Construct the box
-				cUpLine = cCorner1 + StzStringQ(cHTrait).RepeatedNTimes(nWidth) + cCorner2
+				cUpLine = cCorner1 + copy(cHTrait, nWidth) + cCorner2
 				cMidLine = cVTrait + " " + This.AlignXTQ(nWidth - 2, " ", cTextAdjustedTo).Content() + " " + cVTrait
-				cDownLine = cCorner4 + StzStringQ(cHTrait).RepeatedNTimes(nWidth) + cCorner3
+				cDownLine = cCorner4 + copy(cHTrait, nWidth) + cCorner3
 	
 				This.UpdateWith(cUpLine + NL + cMidLine + NL + cDownLine)
 			ok
@@ -97172,7 +97192,9 @@ class stzString from stzObject
 	
 			ok
 
-			cNormalSyntax = StzStringQ(cNormalSyntax).RemoveFromEndQ(", ").Content()
+			if len(cNormalSyntax) >= 2 and right(cNormalSyntax, 2) = ", "
+				cNormalSyntax = substr(cNormalSyntax, 1, len(cNormalSyntax) - 2)
+			ok
 
 			if Q(cNormalSyntax).LastChar() != "]"
 				cNormalSyntax += " ]"
@@ -97304,7 +97326,7 @@ class stzString from stzObject
 
 						
 				cMember1 = StringSimplified(acMembers[1])
-				cMember2 = StzStringQ(acMembers[len(acMembers)]).Simplified()
+				cMember2 = StringSimplified(acMembers[len(acMembers)])
 
 				cResult = cMember1 + ":" + cMember2
 
@@ -97382,7 +97404,10 @@ class stzString from stzObject
 					next
 				ok
 		
-				cNormalSystax = stzStringQ(cNormalSyntax).RemoveFromEndQ(", ").Content()
+				if len(cNormalSyntax) >= 2 and right(cNormalSyntax, 2) = ", "
+					cNormalSyntax = substr(cNormalSyntax, 1, len(cNormalSyntax) - 2)
+				ok
+				cNormalSystax = cNormalSyntax
 				cNormalSyntax += " ]"
 		
 			but isNumber(pMember1) and isNumber(pMember2)
@@ -97410,7 +97435,10 @@ class stzString from stzObject
 		
 				ok
 		
-				cNormalSystax = StzStringQ(cNormalSyntax).RemoveFromEndQ(", ").Content()
+				if len(cNormalSyntax) >= 2 and right(cNormalSyntax, 2) = ", "
+					cNormalSyntax = substr(cNormalSyntax, 1, len(cNormalSyntax) - 2)
+				ok
+				cNormalSystax = cNormalSyntax
 				cNormalSyntax += " ]"
 			ok
 
@@ -97758,7 +97786,8 @@ class stzString from stzObject
 				return This.NthChar(pValue)
 							
 			but isString(pValue)
-				if StzStringQ(pValue).TrimQ().IsBoundedBy(["{","}"])
+				_cTrimmed = trim(pValue)
+			if len(_cTrimmed) >= 2 and substr(_cTrimmed, 1, 1) = "{" and substr(_cTrimmed, len(_cTrimmed), 1) = "}"
 					pcCondition = _StzStripBraces(pValue)
 					anResult = []
 
@@ -100160,7 +100189,7 @@ class stzString from stzObject
 		return This.IsAnagramOfCS(pcOtherStr, 1)
 
 	def UpTo(pcChar)
-		if This.IsChar() and ( isString(pcChar) and StzStringQ(pcChar).IsChar() ) and
+		if This.IsChar() and ( isString(pcChar) and len(pcChar) = 1 ) and
 		   This.Unicode() < CharUnicode(pcChar)
 
 			acResult = []
@@ -100171,7 +100200,7 @@ class stzString from stzObject
 		ok
 
 	def DownTo(pcChar)
-		if This.IsChar() and ( isString(pcChar) and StzStringQ(pcChar).IsChar() ) and
+		if This.IsChar() and ( isString(pcChar) and len(pcChar) = 1 ) and
 		   This.Unicode() > CharUnicode(pcChar)
 
 			acResult = []
