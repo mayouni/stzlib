@@ -1680,6 +1680,126 @@ pub fn stz_string_swap_case(handle: StzStringHandle) callconv(.c) StzStringHandl
     return result;
 }
 
+/// Simplify: trim whitespace from both ends, collapse internal whitespace runs to single space.
+/// Also replaces tabs, CR, LF with spaces. Returns new handle.
+pub fn stz_string_simplify(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    // Skip leading whitespace
+    var start: usize = 0;
+    while (start < bytes.len) {
+        const b = bytes[start];
+        if (b == ' ' or b == '\t' or b == '\n' or b == '\r') {
+            start += 1;
+        } else if (b < 128) {
+            break;
+        } else {
+            // Check Unicode whitespace
+            const cp_len = std.unicode.utf8ByteSequenceLength(b) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, start, cp_len);
+            if (unicode.stz_unicode_is_space(cp_val) != 0) {
+                start += cp_len;
+            } else break;
+        }
+    }
+
+    // Find end (skip trailing whitespace)
+    var end: usize = bytes.len;
+    while (end > start) {
+        const b = bytes[end - 1];
+        if (b == ' ' or b == '\t' or b == '\n' or b == '\r') {
+            end -= 1;
+        } else break;
+    }
+
+    // Process content: collapse whitespace runs to single space
+    var i: usize = start;
+    var in_space = false;
+    while (i < end) {
+        const b = bytes[i];
+        const is_ws = (b == ' ' or b == '\t' or b == '\n' or b == '\r');
+        if (is_ws) {
+            if (!in_space) {
+                result.data.appendSlice(gpa, " ") catch break;
+                in_space = true;
+            }
+            i += 1;
+        } else if (b >= 128) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(b) catch 1;
+            const cp_end = @min(i + cp_len, end);
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (unicode.stz_unicode_is_space(cp_val) != 0) {
+                if (!in_space) {
+                    result.data.appendSlice(gpa, " ") catch break;
+                    in_space = true;
+                }
+            } else {
+                result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
+                in_space = false;
+            }
+            i += cp_len;
+        } else {
+            result.data.appendSlice(gpa, bytes[i .. i + 1]) catch break;
+            in_space = false;
+            i += 1;
+        }
+    }
+    return result;
+}
+
+/// Check if string starts with a digit. Returns 1 or 0.
+pub fn stz_string_starts_with_digit(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+    const cp_len = std.unicode.utf8ByteSequenceLength(bytes[0]) catch 1;
+    const cp_val: i32 = decodeCodepoint(bytes, 0, cp_len);
+    return if (unicode.stz_unicode_is_digit(cp_val) != 0) @as(c_int, 1) else @as(c_int, 0);
+}
+
+/// Check if string starts with a letter. Returns 1 or 0.
+pub fn stz_string_starts_with_letter(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+    const cp_len = std.unicode.utf8ByteSequenceLength(bytes[0]) catch 1;
+    const cp_val: i32 = decodeCodepoint(bytes, 0, cp_len);
+    return if (unicode.stz_unicode_is_letter(cp_val) != 0) @as(c_int, 1) else @as(c_int, 0);
+}
+
+/// Check if string ends with a digit. Returns 1 or 0.
+pub fn stz_string_ends_with_digit(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+    // Walk to last codepoint
+    var i: usize = 0;
+    var last_cp: i32 = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        last_cp = decodeCodepoint(bytes, i, cp_len);
+        i += cp_len;
+    }
+    return if (unicode.stz_unicode_is_digit(last_cp) != 0) @as(c_int, 1) else @as(c_int, 0);
+}
+
+/// Check if string ends with a letter. Returns 1 or 0.
+pub fn stz_string_ends_with_letter(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+    var i: usize = 0;
+    var last_cp: i32 = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        last_cp = decodeCodepoint(bytes, i, cp_len);
+        i += cp_len;
+    }
+    return if (unicode.stz_unicode_is_letter(last_cp) != 0) @as(c_int, 1) else @as(c_int, 0);
+}
+
 /// Replace codepoint at a given index with a new string. Returns new handle.
 pub fn stz_string_replace_char_at(handle: StzStringHandle, cp_index: c_int, replacement: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
     const s = (handle orelse return null);
@@ -3236,5 +3356,45 @@ test "line_at" {
     const la = stz_string_line_at(s2, 0);
     try std.testing.expect(mem.eql(u8, stz_string_data(la)[0..1], "a"));
     stz_string_free(la);
+    stz_string_free(s2);
+}
+
+test "simplify" {
+    const s1 = stz_string_from("  hello   world  ", 17);
+    const r1 = stz_string_simplify(s1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..11], "hello world"));
+    try std.testing.expectEqual(@as(usize, 11), stz_string_size(r1));
+    stz_string_free(r1);
+    stz_string_free(s1);
+
+    // Tabs and newlines
+    const s2 = stz_string_from("\thello\n\n  world\r\n", 18);
+    const r2 = stz_string_simplify(s2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..11], "hello world"));
+    stz_string_free(r2);
+    stz_string_free(s2);
+}
+
+test "starts_with_digit_letter" {
+    const s1 = stz_string_from("123abc", 6);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_starts_with_digit(s1));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_starts_with_letter(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("Hello", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_starts_with_digit(s2));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_starts_with_letter(s2));
+    stz_string_free(s2);
+}
+
+test "ends_with_digit_letter" {
+    const s1 = stz_string_from("abc123", 6);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_ends_with_digit(s1));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_ends_with_letter(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("Hello", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_ends_with_digit(s2));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_ends_with_letter(s2));
     stz_string_free(s2);
 }

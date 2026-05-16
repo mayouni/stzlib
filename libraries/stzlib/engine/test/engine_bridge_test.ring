@@ -884,6 +884,44 @@ Assert("LinesSplitCount 1", StzEngineStringLinesSplitCount(pStr), 1)
 StzEngineStringFree(pStr)
 
 # ==============================================================
+#  GROUP 37: Simplify
+# ==============================================================
+
+? "--- Group 37: Simplify ---"
+
+pStr = StzEngineStringFrom("  hello   world  ")
+pR = StzEngineStringSimplify(pStr)
+Assert("Simplify spaces", StzEngineStringData(pR), "hello world")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom(char(9) + "hello" + char(10) + char(10) + "  world" + char(13) + char(10))
+pR = StzEngineStringSimplify(pStr)
+Assert("Simplify tabs/nl", StzEngineStringData(pR), "hello world")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 38: StartsWithLetter/Digit, EndsWithLetter/Digit
+# ==============================================================
+
+? "--- Group 38: StartsWithLetter/Digit, EndsWithLetter/Digit ---"
+
+pStr = StzEngineStringFrom("Hello123")
+Assert("StartsWithLetter yes", StzEngineStringStartsWithLetter(pStr), 1)
+Assert("StartsWithDigit no", StzEngineStringStartsWithDigit(pStr), 0)
+Assert("EndsWithDigit yes", StzEngineStringEndsWithDigit(pStr), 1)
+Assert("EndsWithLetter no", StzEngineStringEndsWithLetter(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("123Hello")
+Assert("StartsWithDigit yes", StzEngineStringStartsWithDigit(pStr), 1)
+Assert("StartsWithLetter no", StzEngineStringStartsWithLetter(pStr), 0)
+Assert("EndsWithLetter yes", StzEngineStringEndsWithLetter(pStr), 1)
+Assert("EndsWithDigit no", StzEngineStringEndsWithDigit(pStr), 0)
+StzEngineStringFree(pStr)
+
+# ==============================================================
 #  SUMMARY
 # ==============================================================
 
