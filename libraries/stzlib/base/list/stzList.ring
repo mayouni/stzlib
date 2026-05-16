@@ -32204,13 +32204,15 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(paPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(paPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ @aContent, "" ] ]
+			ok
 		ok
 
 		# Preparing the data for case sensitivity
@@ -32366,13 +32368,15 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(paPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(paPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ 1 ]
+			ok
 		ok
 
 		# Preparing the data for case sensitivity
@@ -32452,13 +32456,15 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(paPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(paPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ 1, nLen ] ]
+			ok
 		ok
 
 		# Preparing the data for case sensitivity
@@ -32635,13 +32641,15 @@ class stzList from stzObject
 
 		# Special case
 
-		if bCaseSensitive = 0 and
-			StzStringQ(paPartitionExpr).
-			ContainsOneOfTheseCS([
-				"charcase(", "isuppercase",
-				"islowercase", "lower(", "upper(" ], 0)
-
+		if bCaseSensitive = 0
+			_cLowExpr = lower(paPartitionExpr)
+			if substr(_cLowExpr, "charcase(") or
+			   substr(_cLowExpr, "isuppercase") or
+			   substr(_cLowExpr, "islowercase") or
+			   substr(_cLowExpr, "lower(") or
+			   substr(_cLowExpr, "upper(")
 				return [ [ @aContent, [1, nLen] ] ]
+			ok
 		ok
 
 		# Preparing the data for case sensitivity
