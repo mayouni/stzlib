@@ -631,6 +631,48 @@ class stzString from stzObject
 		def SuffixRemoved(cSuffix)
 			return This.WithoutThisSuffix(cSuffix)
 
+	  #=========================#
+	 #  STRIP / KEEP CHARS     #
+	#=========================#
+
+	def StripChars(cCharsToRemove)
+		pResult = StzEngineStringStripChars(@pEngine, cCharsToRemove)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def StripCharsQ(cCharsToRemove)
+			This.StripChars(cCharsToRemove)
+			return This
+
+	def CharsStripped(cCharsToRemove)
+		pResult = StzEngineStringStripChars(@pEngine, cCharsToRemove)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WithoutChars(cCharsToRemove)
+			return This.CharsStripped(cCharsToRemove)
+
+	def KeepChars(cCharsToKeep)
+		pResult = StzEngineStringKeepChars(@pEngine, cCharsToKeep)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def KeepCharsQ(cCharsToKeep)
+			This.KeepChars(cCharsToKeep)
+			return This
+
+	def CharsKept(cCharsToKeep)
+		pResult = StzEngineStringKeepChars(@pEngine, cCharsToKeep)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def OnlyTheseChars(cCharsToKeep)
+			return This.CharsKept(cCharsToKeep)
+
 	  #==================================#
 	 #  GETTING THE CASE OF THE STRING  #
 	#==================================#

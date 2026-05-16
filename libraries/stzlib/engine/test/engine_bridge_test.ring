@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 184 Registered Functions"
+? "Engine Full Bridge Test -- All 187 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1615,6 +1615,36 @@ StzEngineStringFree(pR)
 
 pR = StzEngineStringInterleave(pStr, " - ")
 Assert("Interleave abc with dash", StzEngineStringData(pR), "a - b - c")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 86: StripChars, KeepChars, Replace2
+# ==============================================================
+
+? "--- Group 86: StripChars/KeepChars/Replace2 ---"
+
+pStr = StzEngineStringFrom("hello world!")
+pR = StzEngineStringStripChars(pStr, "lo")
+Assert("StripChars remove lo", StzEngineStringData(pR), "he wrd!")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("programming")
+pR = StzEngineStringStripChars(pStr, "aeiou")
+Assert("StripChars vowels", StzEngineStringData(pR), "prgrmmng")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world!")
+pR = StzEngineStringKeepChars(pStr, "lo")
+Assert("KeepChars lo", StzEngineStringData(pR), "llool")
+StzEngineStringFree(pR)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world")
+pR = StzEngineStringReplace2(pStr, "hello", "hi", "world", "earth")
+Assert("Replace2 two subs", StzEngineStringData(pR), "hi earth")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 

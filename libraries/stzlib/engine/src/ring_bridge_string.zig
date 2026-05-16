@@ -1330,6 +1330,39 @@ fn ring_StringInterleave(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_interleave(h, sep, sep_len)), STZ_HANDLE);
 }
 
+// ─── StripChars ───
+
+fn ring_StringStripChars(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const chars = ring_vm_api_getstring(p, 2);
+    const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_strip_chars(h, chars, chars_len)), STZ_HANDLE);
+}
+
+// ─── KeepChars ───
+
+fn ring_StringKeepChars(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const chars = ring_vm_api_getstring(p, 2);
+    const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_keep_chars(h, chars, chars_len)), STZ_HANDLE);
+}
+
+// ─── Replace2 ───
+
+fn ring_StringReplace2(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const old1 = ring_vm_api_getstring(p, 2);
+    const old1_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const new1 = ring_vm_api_getstring(p, 3);
+    const new1_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const old2 = ring_vm_api_getstring(p, 4);
+    const old2_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
+    const new2 = ring_vm_api_getstring(p, 5);
+    const new2_len: usize = @intCast(ring_vm_api_getstringsize(p, 5));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_replace2(h, old1, old1_len, new1, new1_len, old2, old2_len, new2, new2_len)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1518,6 +1551,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsqueeze", .func = &ring_StringSqueeze },
     .{ .name = "stzenginestringisdigit", .func = &ring_StringIsDigit },
     .{ .name = "stzenginestringinterleave", .func = &ring_StringInterleave },
+    .{ .name = "stzenginestringstripchars", .func = &ring_StringStripChars },
+    .{ .name = "stzenginestringkeepchars", .func = &ring_StringKeepChars },
+    .{ .name = "stzenginestringreplace2", .func = &ring_StringReplace2 },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
