@@ -90057,20 +90057,17 @@ class stzString from stzObject
 
 		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
 
-		# Computing the alignment
+		# Computing the alignment using Engine pad operations
 
 		if nWidth > This.NumberOfChars()
-			cPad = ""
-			nPadCount = nWidth - len(This.Content())
-			for _i_ = 1 to nPadCount
-				cPad += cChar
-			next
-
 			if This.IsRightToLeft()
-				This.Update( cPad + This.Content() )
+				pPadded = StzEngineStringPadLeft(@pEngine, nWidth, cChar)
 			else
-				This.Update( This.Content() + cPad )
+				pPadded = StzEngineStringPadRight(@pEngine, nWidth, cChar)
 			ok
+			cResult = StzEngineStringData(pPadded)
+			StzEngineStringFree(pPadded)
+			This.Update( cResult )
 		ok
 
 		#< @FunctionFluentForm
@@ -90184,26 +90181,23 @@ class stzString from stzObject
  
 		nWidth += This.NumberOfOccurrence( ArabicShaddah() )
 
-		# Computing the justification
+		# Computing the justification using Engine pad operations
 
 		if nWidth > This.NumberOfChars()
-			cPad = ""
-			nPadCount = nWidth - len(This.Content())
-			for _i_ = 1 to nPadCount
-				cPad += cChar
-			next
-
 			if This.IsRightToLeft()
-				This.Update( This.Content() + cPad )
+				pPadded = StzEngineStringPadRight(@pEngine, nWidth, cChar)
 			else
-				This.Update( cPad + This.Content() )
+				pPadded = StzEngineStringPadLeft(@pEngine, nWidth, cChar)
 			ok
+			cResult = StzEngineStringData(pPadded)
+			StzEngineStringFree(pPadded)
+			This.Update( cResult )
 		ok
 
 		#< @FunctionFluentForm
 
 		def RightAlignXTQ(nWidth, cChar)
-			
+
 			This.RightAlignXT(nWidth, cChar)
 			return This
 
@@ -96954,10 +96948,9 @@ class stzString from stzObject
 
 		# Doing the job
 
-		cResult = ""
-		for i = 1 to n
-			cResult += This.Content()
-		next
+		pRepeated = StzEngineStringRepeat(@pEngine, n)
+		cResult = StzEngineStringData(pRepeated)
+		StzEngineStringFree(pRepeated)
 		This.Update( cResult )
 
 		#< @FunctionFluentForms

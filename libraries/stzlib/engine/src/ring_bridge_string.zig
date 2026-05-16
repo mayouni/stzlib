@@ -350,6 +350,31 @@ fn ring_StringReverse(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
+fn ring_StringRepeat(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const result = string.stz_string_repeat(h, count);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringPadLeft(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const target: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const pad_s = ring_vm_api_getstring(p, 3);
+    const pad_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const result = string.stz_string_pad_left(h, target, pad_s, pad_len);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
+fn ring_StringPadRight(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const target: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const pad_s = ring_vm_api_getstring(p, 3);
+    const pad_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const result = string.stz_string_pad_right(h, target, pad_s, pad_len);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -406,6 +431,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringnthchar", .func = &ring_StringNthChar },
     .{ .name = "stzenginestringslice", .func = &ring_StringSlice },
     .{ .name = "stzenginestringreverse", .func = &ring_StringReverse },
+    .{ .name = "stzenginestringrepeat", .func = &ring_StringRepeat },
+    .{ .name = "stzenginestringpadleft", .func = &ring_StringPadLeft },
+    .{ .name = "stzenginestringpadright", .func = &ring_StringPadRight },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
