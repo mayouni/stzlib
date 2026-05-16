@@ -117,6 +117,10 @@ class stzStringSplitter from stzString
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
+		if pCaseSensitive = 1
+			return This._SplitByStr(pcSubStr)
+		ok
+
 		return @SplitCS(This.Content(), pcSubStr, pCaseSensitive)
 
 	def SplitAtSubString(pcSubStr)

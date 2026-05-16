@@ -83,11 +83,11 @@ class stzStringFinder from stzString
 				return This.FindManyCS(pcSubStr, pCaseSensitive)
 			ok
 
-			if isList(pcSubStr) and
-				( Q(pcSubStr).IsOfNamedParam() or
-				  Q(pcSubStr).IsOfSubStringNamedParam() )
-
-				pcSubStr = pcSubStr[2]
+			if isList(pcSubStr) and len(pcSubStr) = 2 and isString(pcSubStr[1])
+				cPN = lower(pcSubStr[1])
+				if cPN = "of" or cPN = "ofsubstring"
+					pcSubStr = pcSubStr[2]
+				ok
 			ok
 
 			if NOT isString(pcSubStr)
@@ -106,8 +106,8 @@ class stzStringFinder from stzString
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		nLenString = This.NumberOfChars()
-		nLenSubStr = Q(pcSubStr).NumberOfChars()
+		nLenString = len(This.Content())
+		nLenSubStr = len(pcSubStr)
 
 		if nLenString < nLenSubStr
 			return []
@@ -162,7 +162,7 @@ class stzStringFinder from stzString
 		ok
 
 		if isString(n)
-			cNLowercased = Q(n).Lowercased()
+			cNLowercased = lower(n)
 			if cNLowercased = :First or cNLowercased = :FirstOccurrence
 				n = 1
 
@@ -227,6 +227,16 @@ class stzStringFinder from stzString
 			pcSubStr = pcSubStr[2]
 		ok
 
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		if _bCase_
+			nResult = StzEngineStringLastIndexOf(@pEngine, pcSubStr)
+			if nResult >= 0
+				return nResult + 1
+			else
+				return 0
+			ok
+		ok
+
 		if NOT This.ContainsCS(pcSubstr, pCaseSensitive)
 			return 0
 		ok
@@ -243,6 +253,10 @@ class stzStringFinder from stzString
 	#===============================#
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		if _bCase_
+			return StzEngineStringCountOf(@pEngine, pcSubStr)
+		ok
 		nResult = StringCountCS(This.Content(), pcSubStr, pCaseSensitive)
 		return nResult
 
@@ -280,6 +294,11 @@ class stzStringFinder from stzString
 			return 0
 		ok
 
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		if _bCase_
+			return StzEngineStringStartsWith(@pEngine, pcSubStr)
+		ok
+
 		nResult = This.FindFirstCS(pcSubStr, pCaseSensitive)
 		return nResult = 1
 
@@ -291,20 +310,20 @@ class stzStringFinder from stzString
 			return 0
 		ok
 
-		nLen = Q(pcSubStr).NumberOfChars()
-		nStart = This.NumberOfChars() - nLen + 1
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		if _bCase_
+			return StzEngineStringEndsWith(@pEngine, pcSubStr)
+		ok
+
+		nLen = len(pcSubStr)
+		nStart = len(This.Content()) - nLen + 1
 
 		if nStart < 1
 			return 0
 		ok
 
 		cEnd = substr(This.Content(), nStart, nLen)
-
-		if pCaseSensitive = 1
-			return cEnd = pcSubStr
-		else
-			return ring_lower(cEnd) = ring_lower(pcSubStr)
-		ok
+		return ring_lower(cEnd) = ring_lower(pcSubStr)
 
 	def EndsWith(pcSubStr)
 		return This.EndsWithCS(pcSubStr, 1)
