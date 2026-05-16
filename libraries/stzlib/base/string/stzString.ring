@@ -1554,16 +1554,13 @@ class stzString from stzObject
 	#----------------------------------------#
 
 	def IsLowercase()
-		if NOT This.ContainsLatinLetters()
+		hStr = StzEngineStringFrom(This.Content())
+		nResult = StzEngineStringIsLowercase(hStr)
+		StzEngineStringFree(hStr)
+		if nResult = 0 and NOT This.ContainsLetters()
 			return ""
-
 		ok
-
-		if This.Lowercased() = This.String()
-			return 1
-		else
-			return 0
-		ok
+		return nResult
 
 
 		#< @FunctionFluentForm
@@ -1905,16 +1902,13 @@ class stzString from stzObject
 		#>
 
 	def IsUppercase()
-		if NOT This.ContainsLatinLetters()
+		hStr = StzEngineStringFrom(This.Content())
+		nResult = StzEngineStringIsUppercase(hStr)
+		StzEngineStringFree(hStr)
+		if nResult = 0 and NOT This.ContainsLetters()
 			return ""
-
 		ok
-
-		if This.Uppercased() = This.String()
-			return 1
-		else
-			return 0
-		ok
+		return nResult
 
 		#< @FunctionFluentForm
 		# Useful in Natural-Coding, like for example:
@@ -43926,12 +43920,10 @@ class stzString from stzObject
 
 
 	def ContainsOnlySpaces() #NOTE # this is different from ContainsSpaces()
-		
-		if This.Trimmed() = ""
-			return 1
-		else
-			return 0
-		ok
+		hStr = StzEngineStringFrom(This.Content())
+		nResult = StzEngineStringIsWhitespace(hStr)
+		StzEngineStringFree(hStr)
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -94711,7 +94703,10 @@ class stzString from stzObject
 	#-----------------------#
 
 	def NumberOfSpaces()
-		return len(This.FindAll(" "))
+		hStr = StzEngineStringFrom(This.Content())
+		nResult = StzEngineStringCountCharsOfType(hStr, 2)
+		StzEngineStringFree(hStr)
+		return nResult
 
 		#< @FunctionAlternativeForms
 
@@ -97630,14 +97625,9 @@ class stzString from stzObject
 
 	def IsPunctuation()
 		hStr = StzEngineStringFrom(This.Content())
-		nTotal = StzEngineStringCount(hStr)
-		if nTotal = 0
-			StzEngineStringFree(hStr)
-			return 0
-		ok
-		nPunct = StzEngineStringCountCharsOfType(hStr, 5)
+		nResult = StzEngineStringIsOnlyType(hStr, 5)
 		StzEngineStringFree(hStr)
-		return nPunct = nTotal
+		return nResult
 
 		#< @FunctionAlternativeForms
 
