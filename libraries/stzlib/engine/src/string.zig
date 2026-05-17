@@ -7519,6 +7519,114 @@ pub fn stz_string_digit_sum(handle: StzStringHandle) callconv(.c) c_int {
     return sum;
 }
 
+/// Convert to alternating case: first letter lower, second upper, etc.
+/// E.g. "hello world" -> "hElLo wOrLd". Non-letters don't count.
+/// Returns new handle.
+pub fn stz_string_to_alternating_case(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var letter_idx: usize = 0;
+    for (src) |c| {
+        if ((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z')) {
+            if (letter_idx % 2 == 0) {
+                // lowercase
+                const lower = if (c >= 'A' and c <= 'Z') c + 32 else c;
+                result.data.appendSlice(gpa, &[_]u8{lower}) catch break;
+            } else {
+                // uppercase
+                const upper = if (c >= 'a' and c <= 'z') c - 32 else c;
+                result.data.appendSlice(gpa, &[_]u8{upper}) catch break;
+            }
+            letter_idx += 1;
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+        }
+    }
+    return result;
+}
+
+/// Count uppercase ASCII letters.
+pub fn stz_string_count_upper(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var count: c_int = 0;
+    for (src) |c| {
+        if (c >= 'A' and c <= 'Z') count += 1;
+    }
+    return count;
+}
+
+/// Count lowercase ASCII letters.
+pub fn stz_string_count_lower(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var count: c_int = 0;
+    for (src) |c| {
+        if (c >= 'a' and c <= 'z') count += 1;
+    }
+    return count;
+}
+
+/// Check if string is in camelCase format (starts lowercase, has at least one uppercase).
+/// Returns 1 if camelCase, 0 otherwise.
+pub fn stz_string_is_camel_case(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len < 2) return 0;
+
+    // First char must be lowercase letter
+    if (!(src[0] >= 'a' and src[0] <= 'z')) return 0;
+
+    // Must contain at least one uppercase
+    var has_upper = false;
+    for (src[1..]) |c| {
+        if (c >= 'A' and c <= 'Z') { has_upper = true; break; }
+    }
+    if (!has_upper) return 0;
+
+    // Must only contain letters and digits
+    for (src) |c| {
+        if (!((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9'))) return 0;
+    }
+    return 1;
+}
+
+/// Return characters common to both strings (unique, in order of appearance in h1).
+/// Returns new handle.
+pub fn stz_string_common_chars(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) StzStringHandle {
+    const s1 = h1 orelse return null;
+    const s2 = h2 orelse return null;
+    const src1 = s1.slice();
+    const src2 = s2.slice();
+
+    const result = stz_string_new() orelse return null;
+    var seen: [256]bool = [_]bool{false} ** 256;
+
+    var off: usize = 0;
+    while (off < src1.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src1[off]) catch break;
+        if (off + cp_len > src1.len) break;
+        if (cp_len == 1) {
+            const c = src1[off];
+            if (!seen[c]) {
+                // Check if this char exists in src2
+                for (src2) |c2| {
+                    if (c2 == c) {
+                        result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+                        seen[c] = true;
+                        break;
+                    }
+                }
+            }
+        }
+        off += cp_len;
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -8645,5 +8753,48 @@ test "digit_sum" {
     const h3 = stz_string_from("abc", 3);
     try std.testing.expectEqual(@as(c_int, 0), stz_string_digit_sum(h3));
     stz_string_free(h3);
+}
+
+test "to_alternating_case" {
+    const h = stz_string_from("hello world", 11);
+    const r = stz_string_to_alternating_case(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hElLo WoRlD"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "count_upper_lower" {
+    const h = stz_string_from("Hello World", 11);
+    try std.testing.expectEqual(@as(c_int, 2), stz_string_count_upper(h));
+    try std.testing.expectEqual(@as(c_int, 8), stz_string_count_lower(h));
+    stz_string_free(h);
+}
+
+test "is_camel_case" {
+    const h1 = stz_string_from("camelCase", 9);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_camel_case(h1));
+    stz_string_free(h1);
+
+    const h2 = stz_string_from("PascalCase", 10);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_camel_case(h2));
+    stz_string_free(h2);
+
+    const h3 = stz_string_from("lowercase", 9);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_camel_case(h3));
+    stz_string_free(h3);
+
+    const h4 = stz_string_from("has space", 9);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_camel_case(h4));
+    stz_string_free(h4);
+}
+
+test "common_chars" {
+    const h1 = stz_string_from("hello", 5);
+    const h2 = stz_string_from("world", 5);
+    const r = stz_string_common_chars(h1, h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "lo"));
+    stz_string_free(r);
+    stz_string_free(h2);
+    stz_string_free(h1);
 }
 
