@@ -50,6 +50,35 @@ const bmhSearch = core.bmhSearch;
 const formatUsize = core.formatUsize;
 const isVowelAscii = core.isVowelAscii;
 
+// ─── Encode submodule imports ───
+const encode = @import("string/encode.zig");
+
+// Re-export encode public API
+pub const str_url_encode = encode.str_url_encode;
+pub const str_url_decode = encode.str_url_decode;
+pub const str_encode_hex = encode.str_encode_hex;
+pub const str_decode_hex = encode.str_decode_hex;
+pub const str_to_hex = encode.str_to_hex;
+pub const str_from_hex = encode.str_from_hex;
+pub const str_escape_html = encode.str_escape_html;
+pub const str_unescape_html = encode.str_unescape_html;
+pub const str_to_base64 = encode.str_to_base64;
+pub const str_from_base64 = encode.str_from_base64;
+pub const str_to_binary = encode.str_to_binary;
+pub const str_from_binary = encode.str_from_binary;
+pub const str_to_morse = encode.str_to_morse;
+pub const str_quote = encode.str_quote;
+pub const str_unquote = encode.str_unquote;
+pub const str_to_csv_field = encode.str_to_csv_field;
+pub const str_caesar = encode.str_caesar;
+pub const str_xor_cipher = encode.str_xor_cipher;
+pub const str_vigenere_encrypt = encode.str_vigenere_encrypt;
+pub const str_atbash = encode.str_atbash;
+pub const str_rot47 = encode.str_rot47;
+pub const str_zigzag = encode.str_zigzag;
+pub const str_hash = encode.str_hash;
+pub const str_entropy = encode.str_entropy;
+
 // ─── Extraction ───
 
 pub fn str_mid(handle: StzStringHandle, start: usize, length: usize) callconv(.c) StzStringHandle {
@@ -3377,85 +3406,7 @@ pub fn str_is_numeric_string(handle: StzStringHandle) callconv(.c) c_int {
     return if (has_digit) @as(c_int, 1) else @as(c_int, 0);
 }
 
-// ─── URLEncode ───
-
-pub fn str_url_encode(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-
-    const hex = "0123456789ABCDEF";
-    for (buf) |byte| {
-        if (isUnreserved(byte)) {
-            result.data.append(gpa, byte) catch {
-                result.deinit();
-                gpa.destroy(result);
-                return null;
-            };
-        } else {
-            result.data.appendSlice(gpa, &[_]u8{
-                '%',
-                hex[byte >> 4],
-                hex[byte & 0x0F],
-            }) catch {
-                result.deinit();
-                gpa.destroy(result);
-                return null;
-            };
-        }
-    }
-    return result;
-}
-
-fn isUnreserved(c: u8) bool {
-    return (c >= 'A' and c <= 'Z') or
-        (c >= 'a' and c <= 'z') or
-        (c >= '0' and c <= '9') or
-        c == '-' or c == '_' or c == '.' or c == '~';
-}
-
-// ─── URLDecode ───
-
-pub fn str_url_decode(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-
-    var i: usize = 0;
-    while (i < buf.len) {
-        if (buf[i] == '%' and i + 2 < buf.len) {
-            const hi = hexVal(buf[i + 1]);
-            const lo = hexVal(buf[i + 2]);
-            if (hi != null and lo != null) {
-                result.data.append(gpa, (hi.? << 4) | lo.?) catch {
-                    result.deinit();
-                    gpa.destroy(result);
-                    return null;
-                };
-                i += 3;
-                continue;
-            }
-        }
-        result.data.append(gpa, buf[i]) catch {
-            result.deinit();
-            gpa.destroy(result);
-            return null;
-        };
-        i += 1;
-    }
-    return result;
-}
-
-fn hexVal(c: u8) ?u8 {
-    if (c >= '0' and c <= '9') return c - '0';
-    if (c >= 'A' and c <= 'F') return c - 'A' + 10;
-    if (c >= 'a' and c <= 'f') return c - 'a' + 10;
-    return null;
-}
+// URL encode/decode -> string/encode.zig
 
 // ─── CharAtToString: return codepoint at cp-index as UTF-8 string handle ───
 
@@ -4296,18 +4247,7 @@ pub fn str_find_all_char(handle: StzStringHandle, codepoint: u32) callconv(.c) S
     return fr;
 }
 
-// ─── Hash: simple FNV-1a hash of the string bytes ───
-
-pub fn str_hash(handle: StzStringHandle) callconv(.c) u64 {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    var hash: u64 = 0xcbf29ce484222325; // FNV offset basis
-    for (buf) |byte| {
-        hash ^= byte;
-        hash *%= 0x100000001b3; // FNV prime
-    }
-    return hash;
-}
+// Hash -> string/encode.zig
 
 // ─── CountChar: count occurrences of a specific codepoint ───
 
@@ -6368,47 +6308,7 @@ pub fn str_swap_chars(handle: StzStringHandle, pos1: c_int, pos2: c_int) callcon
     return result;
 }
 
-/// Encode each byte of the string as two hex characters (lowercase). Returns new handle.
-pub fn str_encode_hex(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    const hex_chars = "0123456789abcdef";
-
-    for (src) |byte| {
-        const hi: u8 = hex_chars[byte >> 4];
-        const lo: u8 = hex_chars[byte & 0x0F];
-        result.data.appendSlice(gpa, &[_]u8{ hi, lo }) catch break;
-    }
-    return result;
-}
-
-/// Decode a hex string (pairs of hex digits) back to bytes. Returns new handle.
-/// Invalid hex chars are skipped.
-pub fn str_decode_hex(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-
-    var i: usize = 0;
-    while (i + 1 < src.len) {
-        const hi = hexDigitValue(src[i]);
-        const lo = hexDigitValue(src[i + 1]);
-        if (hi != null and lo != null) {
-            const byte: u8 = (@as(u8, hi.?) << 4) | @as(u8, lo.?);
-            result.data.appendSlice(gpa, &[_]u8{byte}) catch break;
-        }
-        i += 2;
-    }
-    return result;
-}
-
-fn hexDigitValue(c: u8) ?u4 {
-    if (c >= '0' and c <= '9') return @intCast(c - '0');
-    if (c >= 'a' and c <= 'f') return @intCast(c - 'a' + 10);
-    if (c >= 'A' and c <= 'F') return @intCast(c - 'A' + 10);
-    return null;
-}
+// Hex encode/decode -> string/encode.zig
 
 /// Reverse the order of words in the string. Words are whitespace-delimited.
 /// Returns new handle.
@@ -7203,64 +7103,7 @@ pub fn str_is_url_like(handle: StzStringHandle) callconv(.c) c_int {
     return 0;
 }
 
-/// Escape HTML special characters: & -> &amp; < -> &lt; > -> &gt; " -> &quot; ' -> &#39;
-/// Returns new handle.
-pub fn str_escape_html(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0) return str_from(src.ptr, 0);
-
-    const result = str_new() orelse return null;
-    for (src) |c| {
-        switch (c) {
-            '&' => result.data.appendSlice(gpa, "&amp;") catch break,
-            '<' => result.data.appendSlice(gpa, "&lt;") catch break,
-            '>' => result.data.appendSlice(gpa, "&gt;") catch break,
-            '"' => result.data.appendSlice(gpa, "&quot;") catch break,
-            '\'' => result.data.appendSlice(gpa, "&#39;") catch break,
-            else => result.data.appendSlice(gpa, &[_]u8{c}) catch break,
-        }
-    }
-    return result;
-}
-
-/// Unescape HTML entities: &amp; &lt; &gt; &quot; &#39; back to their characters.
-/// Returns new handle.
-pub fn str_unescape_html(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0) return str_from(src.ptr, 0);
-
-    const result = str_new() orelse return null;
-    var off: usize = 0;
-    while (off < src.len) {
-        if (src[off] == '&') {
-            if (off + 4 <= src.len and mem.eql(u8, src[off..][0..4], "&lt;")) {
-                result.data.appendSlice(gpa, "<") catch break;
-                off += 4;
-            } else if (off + 4 <= src.len and mem.eql(u8, src[off..][0..4], "&gt;")) {
-                result.data.appendSlice(gpa, ">") catch break;
-                off += 4;
-            } else if (off + 5 <= src.len and mem.eql(u8, src[off..][0..5], "&amp;")) {
-                result.data.appendSlice(gpa, "&") catch break;
-                off += 5;
-            } else if (off + 6 <= src.len and mem.eql(u8, src[off..][0..6], "&quot;")) {
-                result.data.appendSlice(gpa, "\"") catch break;
-                off += 6;
-            } else if (off + 5 <= src.len and mem.eql(u8, src[off..][0..5], "&#39;")) {
-                result.data.appendSlice(gpa, "'") catch break;
-                off += 5;
-            } else {
-                result.data.appendSlice(gpa, &[_]u8{src[off]}) catch break;
-                off += 1;
-            }
-        } else {
-            result.data.appendSlice(gpa, &[_]u8{src[off]}) catch break;
-            off += 1;
-        }
-    }
-    return result;
-}
+// HTML escape/unescape -> string/encode.zig
 
 /// Count sentences (terminated by '.', '!', or '?').
 pub fn str_count_sentences(handle: StzStringHandle) callconv(.c) c_int {
@@ -7612,28 +7455,7 @@ pub export fn str_count_unique_chars(handle: ?*StzString) callconv(.c) c_int {
     return count + multi_byte_count;
 }
 
-/// Caesar cipher: shift each ASCII letter by n positions (wrapping). Non-letters unchanged.
-pub export fn str_caesar(handle: ?*StzString, shift: c_int) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-
-    // Normalize shift to 0-25 range
-    const n: u8 = @intCast(@mod(shift, 26));
-
-    for (src) |c| {
-        if (c >= 'a' and c <= 'z') {
-            const shifted: u8 = 'a' + @as(u8, @intCast((@as(u16, c - 'a') + n) % 26));
-            result.data.appendSlice(gpa, &[_]u8{shifted}) catch break;
-        } else if (c >= 'A' and c <= 'Z') {
-            const shifted: u8 = 'A' + @as(u8, @intCast((@as(u16, c - 'A') + n) % 26));
-            result.data.appendSlice(gpa, &[_]u8{shifted}) catch break;
-        } else {
-            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-        }
-    }
-    return result;
-}
+// Caesar cipher -> string/encode.zig
 
 // batch 8 ─────────────────────────────────────────────────────────
 
@@ -7724,22 +7546,7 @@ pub export fn str_ends_with_any(handle: ?*StzString, suffixes: [*c]const u8, suf
     return 0;
 }
 
-/// Convert string to binary representation: each byte as 8 binary digits, space-separated.
-pub export fn str_to_binary(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-
-    for (src, 0..) |byte, idx| {
-        if (idx > 0) result.data.appendSlice(gpa, " ") catch break;
-        var buf: [8]u8 = undefined;
-        for (0..8) |bit| {
-            buf[bit] = if ((byte >> @intCast(7 - bit)) & 1 == 1) '1' else '0';
-        }
-        result.data.appendSlice(gpa, &buf) catch break;
-    }
-    return result;
-}
+// Binary encode -> string/encode.zig
 
 // batch 9 ─────────────────────────────────────────────────────────
 
@@ -7829,35 +7636,7 @@ pub export fn str_unique_words(handle: ?*StzString) callconv(.c) ?*StzString {
     return result;
 }
 
-/// Decode binary representation (space-separated 8-bit groups) back to string.
-pub export fn str_from_binary(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-
-    var ii: usize = 0;
-    while (ii < src.len) {
-        // Skip spaces
-        while (ii < src.len and src[ii] == ' ') : (ii += 1) {}
-        if (ii >= src.len) break;
-        // Read 8 binary digits
-        if (ii + 8 > src.len) break;
-        var byte: u8 = 0;
-        var valid = true;
-        for (0..8) |bit| {
-            if (src[ii + bit] == '1') {
-                byte |= @as(u8, 1) << @intCast(7 - bit);
-            } else if (src[ii + bit] != '0') {
-                valid = false;
-                break;
-            }
-        }
-        if (!valid) break;
-        result.data.appendSlice(gpa, &[_]u8{byte}) catch break;
-        ii += 8;
-    }
-    return result;
-}
+// Binary decode -> string/encode.zig
 
 /// Swap two words at given 0-based indices. Words separated by spaces.
 pub export fn str_swap_words(handle: ?*StzString, idx1: c_int, idx2: c_int) callconv(.c) ?*StzString {
@@ -8039,189 +7818,7 @@ pub export fn str_count_paragraphs(handle: ?*StzString) callconv(.c) c_int {
     return count;
 }
 
-/// Zigzag cipher encode with n rails.
-pub export fn str_zigzag(handle: ?*StzString, rails: c_int) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    const n: usize = if (rails >= 2) @intCast(rails) else {
-        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
-        return result;
-    };
-    if (src.len == 0) return result;
-
-    // Build rail contents
-    const cycle = 2 * (n - 1);
-    var rail: usize = 0;
-    while (rail < n) : (rail += 1) {
-        var i: usize = 0;
-        while (i < src.len) {
-            // Determine which rail this index belongs to
-            const pos_in_cycle = i % cycle;
-            const r = if (pos_in_cycle < n) pos_in_cycle else cycle - pos_in_cycle;
-            if (r == rail) {
-                result.data.appendSlice(gpa, &[_]u8{src[i]}) catch break;
-            }
-            i += 1;
-        }
-    }
-    return result;
-}
-
-/// Convert text to Morse code (ASCII letters and digits only, space-separated, / for word breaks).
-pub export fn str_to_morse(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-
-    const morse_table = [_][]const u8{
-        ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", // a-i
-        ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", // j-r
-        "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--..", // s-z
-    };
-    const digit_table = [_][]const u8{
-        "-----", ".----", "..---", "...--", "....-", // 0-4
-        ".....", "-....", "--...", "---..", "----.", // 5-9
-    };
-
-    var first = true;
-    for (src) |c| {
-        if (c == ' ') {
-            result.data.appendSlice(gpa, " / ") catch break;
-            first = true;
-            continue;
-        }
-        const code: ?[]const u8 = if (c >= 'a' and c <= 'z')
-            morse_table[c - 'a']
-        else if (c >= 'A' and c <= 'Z')
-            morse_table[c - 'A']
-        else if (c >= '0' and c <= '9')
-            digit_table[c - '0']
-        else
-            null;
-
-        if (code) |morse| {
-            if (!first) result.data.appendSlice(gpa, " ") catch break;
-            result.data.appendSlice(gpa, morse) catch break;
-            first = false;
-        }
-    }
-    return result;
-}
-
-// batch 11 ────────────────────────────────────────────────────────
-
-const base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
-
-/// Base64 encode.
-pub export fn str_to_base64(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-
-    var i: usize = 0;
-    while (i < src.len) {
-        const b0: u32 = src[i];
-        const b1: u32 = if (i + 1 < src.len) src[i + 1] else 0;
-        const b2: u32 = if (i + 2 < src.len) src[i + 2] else 0;
-        const triple = (b0 << 16) | (b1 << 8) | b2;
-
-        result.data.appendSlice(gpa, &[_]u8{base64_chars[@intCast((triple >> 18) & 0x3F)]}) catch break;
-        result.data.appendSlice(gpa, &[_]u8{base64_chars[@intCast((triple >> 12) & 0x3F)]}) catch break;
-        if (i + 1 < src.len) {
-            result.data.appendSlice(gpa, &[_]u8{base64_chars[@intCast((triple >> 6) & 0x3F)]}) catch break;
-        } else {
-            result.data.appendSlice(gpa, "=") catch break;
-        }
-        if (i + 2 < src.len) {
-            result.data.appendSlice(gpa, &[_]u8{base64_chars[@intCast(triple & 0x3F)]}) catch break;
-        } else {
-            result.data.appendSlice(gpa, "=") catch break;
-        }
-        i += 3;
-    }
-    return result;
-}
-
-/// Base64 decode.
-pub export fn str_from_base64(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-
-    var i: usize = 0;
-    while (i + 3 < src.len) {
-        const c0 = base64Decode(src[i]);
-        const c1 = base64Decode(src[i + 1]);
-        const c2 = base64Decode(src[i + 2]);
-        const c3 = base64Decode(src[i + 3]);
-        if (c0 == 255 or c1 == 255) break;
-
-        const byte0: u8 = @intCast((c0 << 2) | (c1 >> 4));
-        result.data.appendSlice(gpa, &[_]u8{byte0}) catch break;
-
-        if (c2 != 255) {
-            const byte1: u8 = @intCast(((c1 & 0x0F) << 4) | (c2 >> 2));
-            result.data.appendSlice(gpa, &[_]u8{byte1}) catch break;
-        }
-        if (c3 != 255) {
-            const byte2: u8 = @intCast(((c2 & 0x03) << 6) | c3);
-            result.data.appendSlice(gpa, &[_]u8{byte2}) catch break;
-        }
-        i += 4;
-    }
-    return result;
-}
-
-fn base64Decode(c: u8) u8 {
-    if (c >= 'A' and c <= 'Z') return c - 'A';
-    if (c >= 'a' and c <= 'z') return c - 'a' + 26;
-    if (c >= '0' and c <= '9') return c - '0' + 52;
-    if (c == '+') return 62;
-    if (c == '/') return 63;
-    return 255; // padding or invalid
-}
-
-/// XOR cipher: XOR each byte with key byte.
-pub export fn str_xor_cipher(handle: ?*StzString, key: c_int) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    const k: u8 = @intCast(key & 0xFF);
-
-    for (src) |c| {
-        result.data.appendSlice(gpa, &[_]u8{c ^ k}) catch break;
-    }
-    return result;
-}
-
-/// Shannon entropy * 100 (integer, to avoid floating point in C API). 0 for empty.
-pub export fn str_entropy(handle: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-
-    // Count frequencies
-    var freq: [256]u32 = [_]u32{0} ** 256;
-    for (src) |c| {
-        freq[c] += 1;
-    }
-
-    // Calculate entropy: -sum(p * log2(p)) where p = freq/len
-    // Use integer math: entropy*100 = -100 * sum(freq/len * log2(freq/len))
-    // Approximation using integer log2 table
-    var entropy_x1000: i64 = 0;
-    const len_f: f64 = @floatFromInt(src.len);
-    for (freq) |f| {
-        if (f > 0) {
-            const p: f64 = @as(f64, @floatFromInt(f)) / len_f;
-            const log2p: f64 = @log2(p);
-            entropy_x1000 -= @intFromFloat(p * log2p * 1000.0);
-        }
-    }
-    // Return entropy * 100 (divide by 10 from *1000)
-    return @intCast(@divTrunc(entropy_x1000, 10));
-}
+// Zigzag, Morse, Base64, XOR, Entropy -> string/encode.zig
 
 /// Return the most frequent character as a single-char string. Ties: first in byte order.
 pub export fn str_char_frequency_top(handle: ?*StzString) callconv(.c) ?*StzString {
@@ -8673,36 +8270,7 @@ pub export fn str_right_pad(handle: ?*StzString, width: c_int, pad_char: u8) cal
     return result;
 }
 
-pub export fn str_to_hex(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    const hex_chars = "0123456789abcdef";
-    for (src) |c| {
-        result.data.appendSlice(gpa, &[_]u8{ hex_chars[c >> 4], hex_chars[c & 0x0f] }) catch break;
-    }
-    return result;
-}
-
-pub export fn str_from_hex(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    var i: usize = 0;
-    while (i + 1 < src.len) : (i += 2) {
-        const hi = hexCharToVal(src[i]) orelse break;
-        const lo = hexCharToVal(src[i + 1]) orelse break;
-        result.data.appendSlice(gpa, &[_]u8{(hi << 4) | lo}) catch break;
-    }
-    return result;
-}
-
-fn hexCharToVal(c: u8) ?u8 {
-    if (c >= '0' and c <= '9') return c - '0';
-    if (c >= 'a' and c <= 'f') return c - 'a' + 10;
-    if (c >= 'A' and c <= 'F') return c - 'A' + 10;
-    return null;
-}
+// to_hex, from_hex -> string/encode.zig
 
 pub export fn str_soundex(handle: ?*StzString) callconv(.c) ?*StzString {
     const s = handle orelse return null;
@@ -8739,58 +8307,7 @@ fn soundexCode(c: u8, map: *const [26]u8) u8 {
 
 // ─── Batch 16: vigenere_encrypt, atbash, count_words_matching, truncate_words, to_constant_case ───
 
-pub export fn str_vigenere_encrypt(handle: ?*StzString, key_ptr: [*c]const u8, key_len: c_int) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const klen: usize = if (key_len < 1) return null else @intCast(key_len);
-    const key = key_ptr[0..klen];
-    const result = str_new() orelse return null;
-    var ki: usize = 0;
-    for (src) |c| {
-        if (c >= 'a' and c <= 'z') {
-            var k = key[ki % klen];
-            if (k >= 'A' and k <= 'Z') k += 32;
-            if (k >= 'a' and k <= 'z') {
-                const shift: u8 = k - 'a';
-                const enc: u8 = 'a' + @as(u8, @intCast((@as(u16, c - 'a') + shift) % 26));
-                result.data.appendSlice(gpa, &[_]u8{enc}) catch break;
-            } else {
-                result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-            }
-            ki += 1;
-        } else if (c >= 'A' and c <= 'Z') {
-            var k = key[ki % klen];
-            if (k >= 'A' and k <= 'Z') k += 32;
-            if (k >= 'a' and k <= 'z') {
-                const shift: u8 = k - 'a';
-                const enc: u8 = 'A' + @as(u8, @intCast((@as(u16, c - 'A') + shift) % 26));
-                result.data.appendSlice(gpa, &[_]u8{enc}) catch break;
-            } else {
-                result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-            }
-            ki += 1;
-        } else {
-            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-        }
-    }
-    return result;
-}
-
-pub export fn str_atbash(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    for (src) |c| {
-        if (c >= 'a' and c <= 'z') {
-            result.data.appendSlice(gpa, &[_]u8{'z' - (c - 'a')}) catch break;
-        } else if (c >= 'A' and c <= 'Z') {
-            result.data.appendSlice(gpa, &[_]u8{'Z' - (c - 'A')}) catch break;
-        } else {
-            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-        }
-    }
-    return result;
-}
+// Vigenere, Atbash -> string/encode.zig
 
 pub export fn str_count_words_matching(handle: ?*StzString, pattern_ptr: [*c]const u8, pattern_len: c_int) callconv(.c) c_int {
     const s = handle orelse return 0;
@@ -8966,20 +8483,7 @@ pub export fn str_diff_chars(handle: ?*StzString, other: ?*StzString) callconv(.
 
 // ─── Batch 18: rot47, is_isogram, reverse_each_word, count_digits, strip_tags ───
 
-pub export fn str_rot47(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    for (src) |c| {
-        if (c >= 33 and c <= 126) {
-            const rotated: u8 = 33 + ((c - 33 + 47) % 94);
-            result.data.appendSlice(gpa, &[_]u8{rotated}) catch break;
-        } else {
-            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-        }
-    }
-    return result;
-}
+// ROT47 -> string/encode.zig
 
 pub export fn str_is_isogram(handle: ?*StzString) callconv(.c) c_int {
     const s = handle orelse return 0;
@@ -9299,63 +8803,9 @@ pub export fn str_extract_emails(handle: ?*StzString) callconv(.c) ?*StzString {
     return result;
 }
 
-pub export fn str_quote(handle: ?*StzString, quote_char: u8) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    result.data.appendSlice(gpa, &[_]u8{quote_char}) catch { setError(.out_of_memory); };
-    result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
-    result.data.appendSlice(gpa, &[_]u8{quote_char}) catch { setError(.out_of_memory); };
-    return result;
-}
+// Quote, Unquote, CSV field -> string/encode.zig
 
-// ─── Batch 21: unquote, to_csv_field, number_lines, hide, extract_words ───
-
-pub export fn str_unquote(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    if (src.len < 2) {
-        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
-        return result;
-    }
-    const first = src[0];
-    const last = src[src.len - 1];
-    if ((first == '"' and last == '"') or (first == '\'' and last == '\'') or (first == '`' and last == '`')) {
-        result.data.appendSlice(gpa, src[1 .. src.len - 1]) catch { setError(.out_of_memory); };
-    } else {
-        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
-    }
-    return result;
-}
-
-pub export fn str_to_csv_field(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    // Check if quoting needed (contains comma, quote, or newline)
-    var needs_quote = false;
-    for (src) |c| {
-        if (c == ',' or c == '"' or c == '\n' or c == '\r') {
-            needs_quote = true;
-            break;
-        }
-    }
-    if (!needs_quote) {
-        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
-        return result;
-    }
-    result.data.appendSlice(gpa, "\"") catch { setError(.out_of_memory); };
-    for (src) |c| {
-        if (c == '"') {
-            result.data.appendSlice(gpa, "\"\"") catch break;
-        } else {
-            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-        }
-    }
-    result.data.appendSlice(gpa, "\"") catch { setError(.out_of_memory); };
-    return result;
-}
+// ─── Batch 21: number_lines, hide, extract_words ───
 
 pub export fn str_number_lines(handle: ?*StzString) callconv(.c) ?*StzString {
     const s = handle orelse return null;
