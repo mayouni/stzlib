@@ -58992,18 +58992,7 @@ class stzString from stzObject
 			return This.ContainsTheseLetters(pacLetters)
 
 	def ContainsArabicLetters()
-		aoChars = This.TolistOfStzChars()
-		nLen = len(aoChars)
-
-		bResult = 0
-
-		for i = 1 to nLen
-			if aoChars[i].IsArabicLetter()
-				bResult = 1
-				exit
-			ok
-		next
-		return bResult
+		return StzEngineStringContainsArabic(@pEngine) = 1
 
 		#< @FunctionNegativeForm
 
@@ -59013,16 +59002,7 @@ class stzString from stzObject
 		#>
 
 	def ContainsLatinLetters()
-		# Fast byte scan: Latin letters are in ASCII A-Z (65-90) and a-z (97-122)
-		cContent = This.Content()
-		nLen = len(cContent)
-		for i = 1 to nLen
-			nByte = ascii(substr(cContent, i, 1))
-			if (nByte >= 65 and nByte <= 90) or (nByte >= 97 and nByte <= 122)
-				return 1
-			ok
-		next
-		return 0
+		return StzEngineStringContainsLatin(@pEngine) = 1
 
 		#< @FunctionNegativeForm
 
