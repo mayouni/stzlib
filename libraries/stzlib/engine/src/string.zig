@@ -124,11 +124,8 @@ pub fn stz_string_right(handle: StzStringHandle, length: usize) callconv(.c) Stz
 }
 
 pub fn stz_string_trimmed(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    if (handle) |s| {
-        const trimmed = mem.trim(u8, s.slice(), " \t\n\r");
-        return stz_string_from(trimmed.ptr, trimmed.len);
-    }
-    return stz_string_new();
+    // Delegate to the Unicode-aware trim implementation
+    return stz_string_trim(handle);
 }
 
 // ─── Codepoint-aware Extraction ───
@@ -1058,33 +1055,37 @@ pub fn stz_string_remove_range(handle: StzStringHandle, start_cp: usize, cp_coun
     return stz_string_new();
 }
 
-/// Trim whitespace from the left. Returns a new handle.
+/// Trim whitespace from the left (Unicode-aware). Returns a new handle.
+/// Handles all Unicode whitespace: U+00A0, U+2003, U+3000, etc.
 pub fn stz_string_trim_left(handle: StzStringHandle) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
         var i: usize = 0;
         while (i < src.len) {
-            const byte = src[i];
-            // Only ASCII whitespace (space, tab, newline, CR)
-            if (byte == ' ' or byte == '\t' or byte == '\n' or byte == '\r') {
-                i += 1;
-            } else break;
+            const cp_len = std.unicode.utf8ByteSequenceLength(src[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(src, i, cp_len);
+            if (unicode.stz_unicode_is_space(cp_val) == 0) break;
+            i += cp_len;
         }
         return stz_string_from(src[i..].ptr, src.len - i);
     }
     return stz_string_new();
 }
 
-/// Trim whitespace from the right. Returns a new handle.
+/// Trim whitespace from the right (Unicode-aware). Returns a new handle.
+/// Handles all Unicode whitespace: U+00A0, U+2003, U+3000, etc.
 pub fn stz_string_trim_right(handle: StzStringHandle) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
         var end: usize = src.len;
         while (end > 0) {
-            const byte = src[end - 1];
-            if (byte == ' ' or byte == '\t' or byte == '\n' or byte == '\r') {
-                end -= 1;
-            } else break;
+            // Walk backwards to find codepoint start
+            var back = end - 1;
+            while (back > 0 and (src[back] & 0xC0) == 0x80) back -= 1;
+            const cp_len = std.unicode.utf8ByteSequenceLength(src[back]) catch 1;
+            const cp_val: i32 = decodeCodepoint(src, back, cp_len);
+            if (unicode.stz_unicode_is_space(cp_val) == 0) break;
+            end = back;
         }
         return stz_string_from(src[0..end].ptr, end);
     }
@@ -11789,6 +11790,104 @@ test "nth_char" {
     try std.testing.expect(mem.eql(u8, stz_string_data(c4.?)[0..1], "!"));
     stz_string_free(c4);
 
+    stz_string_free(s);
+}
+
+// ─── Unicode CI Tests ───
+
+test "equals_ci unicode" {
+    // German sharp-s: "strasse" should equal "STRASSE" case-insensitively
+    const a = stz_string_from("hello", 5);
+    const b = stz_string_from("HELLO", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_equals_ci(a, b));
+    stz_string_free(a);
+    stz_string_free(b);
+
+    // French accented: "cafe" vs "CAFE" (basic)
+    const c = stz_string_from("caf\xC3\xA9", 5);
+    const d = stz_string_from("CAF\xC3\x89", 5);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_equals_ci(c, d));
+    stz_string_free(c);
+    stz_string_free(d);
+}
+
+test "contains_ci unicode" {
+    const s = stz_string_from("Hello World", 11);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_ci(s, "WORLD", 5));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_contains_ci(s, "hello", 5));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_contains_ci(s, "xyz", 3));
+    stz_string_free(s);
+}
+
+test "starts_with_ci unicode" {
+    const s = stz_string_from("Hello World", 11);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_starts_with_ci(s, "HELLO", 5));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_starts_with_ci(s, "hello", 5));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_starts_with_ci(s, "world", 5));
+    stz_string_free(s);
+}
+
+test "ends_with_ci unicode" {
+    const s = stz_string_from("Hello World", 11);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_ends_with_ci(s, "WORLD", 5));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_ends_with_ci(s, "world", 5));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_ends_with_ci(s, "hello", 5));
+    stz_string_free(s);
+}
+
+test "find_all_ci unicode" {
+    const s = stz_string_from("abcABCabc", 9);
+    const r = stz_string_find_all_ci(s, "abc", 3);
+    try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
+    try std.testing.expectEqual(@as(i64, 0), stz_find_result_get(r, 0));
+    try std.testing.expectEqual(@as(i64, 3), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r, 2));
+    stz_find_result_free(r);
+    stz_string_free(s);
+}
+
+test "count_of_ci unicode" {
+    const s = stz_string_from("abcABCabc", 9);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_of_ci(s, "abc", 3));
+    stz_string_free(s);
+}
+
+test "foldcase unicode" {
+    const s = stz_string_from("Hello WORLD", 11);
+    const r = stz_string_foldcase(s);
+    const data = stz_string_data(r);
+    try std.testing.expect(mem.eql(u8, data[0..11], "hello world"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "trim_left unicode whitespace" {
+    // U+00A0 (no-break space) = C2 A0 in UTF-8
+    const s = stz_string_from("\xC2\xA0 hello", 8);
+    const r = stz_string_trim_left(s);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "hello"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "trim_right unicode whitespace" {
+    // U+00A0 (no-break space) = C2 A0 in UTF-8
+    const s = stz_string_from("hello \xC2\xA0", 8);
+    const r = stz_string_trim_right(s);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "hello"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "trimmed delegates to unicode trim" {
+    // U+00A0 on both sides
+    const s = stz_string_from("\xC2\xA0hello\xC2\xA0", 9);
+    const r = stz_string_trimmed(s);
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "hello"));
+    stz_string_free(r);
     stz_string_free(s);
 }
 
