@@ -239,6 +239,48 @@ pub const str_to_dot_case = transform.str_to_dot_case;
 pub const str_to_path_case = transform.str_to_path_case;
 pub const str_to_constant_case = transform.str_to_constant_case;
 
+// ─── Inspect submodule imports ───
+const inspect = @import("string/inspect.zig");
+
+pub const str_is_empty = inspect.str_is_empty;
+pub const str_is_numeric = inspect.str_is_numeric;
+pub const str_is_alpha = inspect.str_is_alpha;
+pub const str_is_palindrome = inspect.str_is_palindrome;
+pub const str_is_ascii = inspect.str_is_ascii;
+pub const str_is_uppercase = inspect.str_is_uppercase;
+pub const str_is_lowercase = inspect.str_is_lowercase;
+pub const str_is_whitespace = inspect.str_is_whitespace;
+pub const str_is_only_type = inspect.str_is_only_type;
+pub const str_is_title_case = inspect.str_is_title_case;
+pub const str_is_alpha_only = inspect.str_is_alpha_only;
+pub const str_is_alnum = inspect.str_is_alnum;
+pub const str_contains_char = inspect.str_contains_char;
+pub const str_is_word = inspect.str_is_word;
+pub const str_is_numeric_string = inspect.str_is_numeric_string;
+pub const str_is_hex_string = inspect.str_is_hex_string;
+pub const str_is_binary_string = inspect.str_is_binary_string;
+pub const str_is_octal_string = inspect.str_is_octal_string;
+pub const str_is_chars_sorted_asc = inspect.str_is_chars_sorted_asc;
+pub const str_is_chars_sorted_desc = inspect.str_is_chars_sorted_desc;
+pub const str_contains_any_of = inspect.str_contains_any_of;
+pub const str_contains_all_of = inspect.str_contains_all_of;
+pub const str_is_alphanumeric = inspect.str_is_alphanumeric;
+pub const str_is_digit = inspect.str_is_digit;
+pub const str_is_blank = inspect.str_is_blank;
+pub const str_is_identifier = inspect.str_is_identifier;
+pub const str_contains_only = inspect.str_contains_only;
+pub const str_is_anagram = inspect.str_is_anagram;
+pub const str_is_pangram = inspect.str_is_pangram;
+pub const str_is_balanced = inspect.str_is_balanced;
+pub const str_is_email_like = inspect.str_is_email_like;
+pub const str_is_url_like = inspect.str_is_url_like;
+pub const str_is_float = inspect.str_is_float;
+pub const str_is_camel_case = inspect.str_is_camel_case;
+pub const str_is_snake_case = inspect.str_is_snake_case;
+pub const str_is_kebab_case = inspect.str_is_kebab_case;
+pub const str_is_palindrome_words = inspect.str_is_palindrome_words;
+pub const str_is_isogram = inspect.str_is_isogram;
+
 // ─── Extraction ───
 
 pub fn str_mid(handle: StzStringHandle, start: usize, length: usize) callconv(.c) StzStringHandle {
@@ -611,13 +653,7 @@ pub fn str_trim_right(handle: StzStringHandle) callconv(.c) StzStringHandle {
 
 // ─── String Queries ───
 
-/// Returns 1 if string is empty (0 codepoints), 0 otherwise.
-pub fn str_is_empty(handle: StzStringHandle) callconv(.c) c_int {
-    if (handle) |s| {
-        return if (s.slice().len == 0) 1 else 0;
-    }
-    return 1; // null handle considered empty
-}
+// str_is_empty -> string/inspect.zig
 
 /// Extract the substring between the first occurrence of `open` and the first
 /// subsequent occurrence of `close`. Returns new handle, or null if not found.
@@ -664,35 +700,9 @@ pub fn str_count_chars_of_type(handle: StzStringHandle, char_type: c_int) callco
     return 0;
 }
 
-/// Check if the string contains only digits. Returns 1 or 0.
-pub fn str_is_numeric(handle: StzStringHandle) callconv(.c) c_int {
-    if (handle) |s| {
-        const bytes = s.slice();
-        if (bytes.len == 0) return 0;
-        for (bytes) |b| {
-            if (b < '0' or b > '9') return 0;
-        }
-        return 1;
-    }
-    return 0;
-}
+// str_is_numeric -> string/inspect.zig
 
-/// Check if the string contains only letters. Returns 1 or 0.
-pub fn str_is_alpha(handle: StzStringHandle) callconv(.c) c_int {
-    if (handle) |s| {
-        const bytes = s.slice();
-        if (bytes.len == 0) return 0;
-        var i: usize = 0;
-        while (i < bytes.len) {
-            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-            if (unicode.stz_unicode_is_letter(cp_val) != 1) return 0;
-            i += cp_len;
-        }
-        return 1;
-    }
-    return 0;
-}
+// str_is_alpha -> string/inspect.zig
 
 // ─── Remove / Lines / Palindrome ───
 
@@ -702,31 +712,7 @@ pub fn str_is_alpha(handle: StzStringHandle) callconv(.c) c_int {
 
 // str_lines_count -> string/split.zig
 
-/// Check if the string is a palindrome (codepoint-level). Returns 1 or 0.
-pub fn str_is_palindrome(handle: StzStringHandle) callconv(.c) c_int {
-    if (handle) |s| {
-        const src = s.slice();
-        if (src.len == 0) return 1;
-        // Count codepoints and build byte offset array
-        const cp_count = utf8CodepointCount(src);
-        if (cp_count <= 1) return 1;
-        // Compare first with last, etc.
-        var left: usize = 0;
-        var right: usize = cp_count - 1;
-        while (left < right) {
-            const left_offset = codepointIndexToByteOffset(src, left);
-            const right_offset = codepointIndexToByteOffset(src, right);
-            const left_len = std.unicode.utf8ByteSequenceLength(src[left_offset]) catch 1;
-            const right_len = std.unicode.utf8ByteSequenceLength(src[right_offset]) catch 1;
-            if (left_len != right_len) return 0;
-            if (!mem.eql(u8, src[left_offset .. left_offset + left_len], src[right_offset .. right_offset + right_len])) return 0;
-            left += 1;
-            right -= 1;
-        }
-        return 1;
-    }
-    return 0;
-}
+// str_is_palindrome -> string/inspect.zig
 
 /// Find positions (0-based codepoint indices) of characters matching a type.
 /// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct
@@ -789,14 +775,7 @@ pub fn str_extract_chars_of_type(handle: StzStringHandle, char_type: c_int) call
     return null;
 }
 
-/// Check if string contains only ASCII characters (bytes 0-127). Returns 1 or 0.
-/// Uses cached result when available (Phase C optimization).
-pub fn str_is_ascii(handle: StzStringHandle) callconv(.c) c_int {
-    if (handle) |s| {
-        return if (s.isAscii()) @as(c_int, 1) else @as(c_int, 0);
-    }
-    return 1;
-}
+// str_is_ascii -> string/inspect.zig
 
 // str_remove_char_at -> string/replace.zig
 
@@ -830,97 +809,15 @@ pub fn str_concat(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) StzStri
     return result;
 }
 
-/// Check if all letter codepoints are uppercase. Returns 1 if true, 0 if false.
-/// Non-letter characters are ignored. Empty string or no letters returns 0.
-pub fn str_is_uppercase(handle: StzStringHandle) callconv(.c) c_int {
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    if (bytes.len == 0) return 0;
+// str_is_uppercase -> string/inspect.zig
 
-    var i: usize = 0;
-    var has_letter = false;
-    while (i < bytes.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-        if (unicode.stz_unicode_is_letter(cp_val) != 0) {
-            has_letter = true;
-            if (unicode.stz_unicode_is_upper(cp_val) == 0) return 0;
-        }
-        i += cp_len;
-    }
-    return if (has_letter) 1 else 0;
-}
+// str_is_lowercase -> string/inspect.zig
 
-/// Check if all letter codepoints are lowercase. Returns 1 if true, 0 if false.
-/// Non-letter characters are ignored. Empty string or no letters returns 0.
-pub fn str_is_lowercase(handle: StzStringHandle) callconv(.c) c_int {
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    if (bytes.len == 0) return 0;
-
-    var i: usize = 0;
-    var has_letter = false;
-    while (i < bytes.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-        if (unicode.stz_unicode_is_letter(cp_val) != 0) {
-            has_letter = true;
-            if (unicode.stz_unicode_is_lower(cp_val) == 0) return 0;
-        }
-        i += cp_len;
-    }
-    return if (has_letter) 1 else 0;
-}
-
-/// Check if the string contains only whitespace. Returns 1 if true, 0 if false.
-/// Empty string returns 0.
-pub fn str_is_whitespace(handle: StzStringHandle) callconv(.c) c_int {
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    if (bytes.len == 0) return 0;
-
-    var i: usize = 0;
-    while (i < bytes.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-        if (unicode.stz_unicode_is_space(cp_val) == 0) return 0;
-        i += cp_len;
-    }
-    return 1;
-}
+// str_is_whitespace -> string/inspect.zig
 
 // str_word_count -> string/split.zig
 
-/// Check if string contains only characters of a given type.
-/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct
-pub fn str_is_only_type(handle: StzStringHandle, char_type: c_int) callconv(.c) c_int {
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    if (bytes.len == 0) return 0;
-
-    var i: usize = 0;
-    while (i < bytes.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-        const matches = switch (char_type) {
-            0 => unicode.stz_unicode_is_letter(cp_val) != 0,
-            1 => unicode.stz_unicode_is_digit(cp_val) != 0,
-            2 => unicode.stz_unicode_is_space(cp_val) != 0,
-            3 => unicode.stz_unicode_is_upper(cp_val) != 0,
-            4 => unicode.stz_unicode_is_lower(cp_val) != 0,
-            5 => blk: {
-                const is_letter = unicode.stz_unicode_is_letter(cp_val) != 0;
-                const is_digit = unicode.stz_unicode_is_digit(cp_val) != 0;
-                const is_space = unicode.stz_unicode_is_space(cp_val) != 0;
-                break :blk !is_letter and !is_digit and !is_space;
-            },
-            else => false,
-        };
-        if (!matches) return 0;
-        i += cp_len;
-    }
-    return 1;
-}
+// str_is_only_type -> string/inspect.zig
 
 // str_remove_chars_of_type -> string/replace.zig
 
@@ -1028,41 +925,7 @@ pub fn str_simplify(handle: StzStringHandle) callconv(.c) StzStringHandle {
 /// Compute Levenshtein edit distance between two strings (codepoint-level).
 // Levenshtein -> string/nlp.zig
 
-/// Check if string matches another string with case-insensitive comparison. Returns 1 or 0.
-pub fn str_is_title_case(handle: StzStringHandle) callconv(.c) c_int {
-    // Title case: first letter of each word is uppercase, rest lowercase
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    if (bytes.len == 0) return 0;
-
-    var after_space = true; // start of string counts as word boundary
-    var has_letter = false;
-    var i_pos: usize = 0;
-    while (i_pos < bytes.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i_pos]) catch 1;
-        const cp_val: i32 = decodeCodepoint(bytes, i_pos, cp_len);
-
-        if (unicode.stz_unicode_is_letter(cp_val) != 0) {
-            has_letter = true;
-            if (after_space) {
-                // First letter of word must be uppercase
-                if (unicode.stz_unicode_is_upper(cp_val) == 0) return 0;
-            } else {
-                // Other letters in word must be lowercase
-                if (unicode.stz_unicode_is_lower(cp_val) == 0) return 0;
-            }
-            after_space = false;
-        } else {
-            if (unicode.stz_unicode_is_space(cp_val) != 0) {
-                after_space = true;
-            } else {
-                after_space = false;
-            }
-        }
-        i_pos += cp_len;
-    }
-    return if (has_letter) @as(c_int, 1) else @as(c_int, 0);
-}
+// str_is_title_case -> string/inspect.zig
 
 // str_lines_split_count, str_line_at -> string/split.zig
 
@@ -1092,25 +955,9 @@ pub fn str_unique_chars(handle: StzStringHandle) callconv(.c) StzStringHandle {
 
 // str_remove_all_ci -> string/replace.zig
 
-/// Check if string contains only letters (Unicode-aware). Returns 1 or 0.
-pub fn str_is_alpha_only(handle: StzStringHandle) callconv(.c) c_int {
-    return str_is_only_type(handle, 0); // type 0 = letter
-}
+// str_is_alpha_only -> string/inspect.zig
 
-/// Check if string is alphanumeric (letters + digits only). Returns 1 or 0.
-pub fn str_is_alnum(handle: StzStringHandle) callconv(.c) c_int {
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    if (bytes.len == 0) return 0;
-    var i: usize = 0;
-    while (i < bytes.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-        if (unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0) return 0;
-        i += cp_len;
-    }
-    return 1;
-}
+// str_is_alnum -> string/inspect.zig
 
 /// Return number of unique codepoints.
 pub fn str_unique_char_count(handle: StzStringHandle) callconv(.c) c_int {
@@ -1128,19 +975,7 @@ pub fn str_unique_char_count(handle: StzStringHandle) callconv(.c) c_int {
     return @intCast(seen.count());
 }
 
-/// Check if string contains char (codepoint). Returns 1 or 0.
-pub fn str_contains_char(handle: StzStringHandle, codepoint: i32) callconv(.c) c_int {
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    var i: usize = 0;
-    while (i < bytes.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-        if (cp_val == codepoint) return 1;
-        i += cp_len;
-    }
-    return 0;
-}
+// str_contains_char -> string/inspect.zig
 
 /// Return a substring between two delimiters, searching from a given occurrence.
 /// nth=0 means first occurrence of open delimiter. Returns new handle.
@@ -2426,27 +2261,7 @@ test "ends_with_digit_letter" {
 
 // ─── IsWord: letters, digits, underscore, hyphen ───
 
-pub fn str_is_word(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (buf.len == 0) return 0;
-
-    var off: usize = 0;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return 0;
-        if (off + cp_len > buf.len) return 0;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch return 0;
-        // underscore=95, hyphen=45
-        if (cp_val != 95 and cp_val != 45 and
-            unicode.stz_unicode_is_letter(cp_val) == 0 and
-            unicode.stz_unicode_is_digit(cp_val) == 0)
-        {
-            return 0;
-        }
-        off += cp_len;
-    }
-    return 1;
-}
+// str_is_word -> string/inspect.zig
 
 // ─── CountLeadingChar / CountTrailingChar ───
 
@@ -2492,29 +2307,7 @@ pub fn str_count_trailing_char(handle: StzStringHandle, codepoint: u32) callconv
 
 // ─── IsNumericString: all digits, optional leading +/- ───
 
-pub fn str_is_numeric_string(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (buf.len == 0) return 0;
-
-    var off: usize = 0;
-    // Allow optional leading sign
-    if (buf[0] == '+' or buf[0] == '-') {
-        off = 1;
-        if (off >= buf.len) return 0; // sign alone is not numeric
-    }
-
-    var has_digit = false;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return 0;
-        if (off + cp_len > buf.len) return 0;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch return 0;
-        if (unicode.stz_unicode_is_digit(cp_val) == 0) return 0;
-        has_digit = true;
-        off += cp_len;
-    }
-    return if (has_digit) @as(c_int, 1) else @as(c_int, 0);
-}
+// str_is_numeric_string -> string/inspect.zig
 
 // URL encode/decode -> string/encode.zig
 
@@ -2708,74 +2501,15 @@ test "bytes_per_char" {
 
 // ─── IsHexString: all chars are 0-9, a-f, A-F, optional 0x prefix ───
 
-pub fn str_is_hex_string(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (buf.len == 0) return 0;
-
-    var off: usize = 0;
-    // Skip optional 0x or 0X prefix
-    if (buf.len >= 2 and buf[0] == '0' and (buf[1] == 'x' or buf[1] == 'X')) {
-        off = 2;
-        if (off >= buf.len) return 0;
-    }
-
-    var has_hex = false;
-    while (off < buf.len) {
-        const b = buf[off];
-        if ((b >= '0' and b <= '9') or (b >= 'a' and b <= 'f') or (b >= 'A' and b <= 'F')) {
-            has_hex = true;
-        } else {
-            return 0;
-        }
-        off += 1;
-    }
-    return if (has_hex) @as(c_int, 1) else @as(c_int, 0);
-}
+// str_is_hex_string -> string/inspect.zig
 
 // ─── IsBinaryString: all chars are 0 or 1, optional 0b prefix ───
 
-pub fn str_is_binary_string(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (buf.len == 0) return 0;
-
-    var off: usize = 0;
-    if (buf.len >= 2 and buf[0] == '0' and (buf[1] == 'b' or buf[1] == 'B')) {
-        off = 2;
-        if (off >= buf.len) return 0;
-    }
-
-    var has_bit = false;
-    while (off < buf.len) {
-        if (buf[off] != '0' and buf[off] != '1') return 0;
-        has_bit = true;
-        off += 1;
-    }
-    return if (has_bit) @as(c_int, 1) else @as(c_int, 0);
-}
+// str_is_binary_string -> string/inspect.zig
 
 // ─── IsOctalString: all chars are 0-7, optional 0o prefix ───
 
-pub fn str_is_octal_string(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (buf.len == 0) return 0;
-
-    var off: usize = 0;
-    if (buf.len >= 2 and buf[0] == '0' and (buf[1] == 'o' or buf[1] == 'O')) {
-        off = 2;
-        if (off >= buf.len) return 0;
-    }
-
-    var has_oct = false;
-    while (off < buf.len) {
-        if (buf[off] < '0' or buf[off] > '7') return 0;
-        has_oct = true;
-        off += 1;
-    }
-    return if (has_oct) @as(c_int, 1) else @as(c_int, 0);
-}
+// str_is_octal_string -> string/inspect.zig
 
 // str_word_at, isWhitespace -> string/split.zig
 
@@ -3282,47 +3016,11 @@ pub fn str_compare(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int 
 
 // ─── IsCharsSortedAsc ───
 
-pub fn str_is_chars_sorted_asc(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (buf.len == 0) return 1;
-
-    var off: usize = 0;
-    var prev_cp: u21 = 0;
-    var first = true;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return 0;
-        if (off + cp_len > buf.len) return 0;
-        const cp = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch return 0;
-        if (!first and cp < prev_cp) return 0;
-        prev_cp = cp;
-        first = false;
-        off += cp_len;
-    }
-    return 1;
-}
+// str_is_chars_sorted_asc -> string/inspect.zig
 
 // ─── IsCharsSortedDesc ───
 
-pub fn str_is_chars_sorted_desc(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (buf.len == 0) return 1;
-
-    var off: usize = 0;
-    var prev_cp: u21 = 0;
-    var first = true;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return 0;
-        if (off + cp_len > buf.len) return 0;
-        const cp = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch return 0;
-        if (!first and cp > prev_cp) return 0;
-        prev_cp = cp;
-        first = false;
-        off += cp_len;
-    }
-    return 1;
-}
+// str_is_chars_sorted_desc -> string/inspect.zig
 
 // str_remove_nth_occurrence -> string/replace.zig
 
@@ -3685,76 +3383,11 @@ pub fn str_char_frequency(handle: StzStringHandle) callconv(.c) StzStringHandle 
 // ─── ContainsAnyOf ───
 // Check if string contains any of the characters in the given string
 
-pub fn str_contains_any_of(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (chars == null or chars_len == 0) return 0;
-    const char_set: []const u8 = chars[0..chars_len];
-
-    // Parse char_set into codepoints
-    var set_cps: std.ArrayList(u21) = .{};
-    defer set_cps.deinit(gpa);
-    var coff: usize = 0;
-    while (coff < char_set.len) {
-        const cl = std.unicode.utf8ByteSequenceLength(char_set[coff]) catch break;
-        if (coff + cl > char_set.len) break;
-        const cv = std.unicode.utf8Decode(char_set[coff..][0..cl]) catch break;
-        set_cps.append(gpa, cv) catch break;
-        coff += cl;
-    }
-
-    // Check if any char in buf matches
-    var off: usize = 0;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-        if (off + cp_len > buf.len) break;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
-        for (set_cps.items) |set_cp| {
-            if (cp_val == set_cp) return 1;
-        }
-        off += cp_len;
-    }
-    return 0;
-}
+// str_contains_any_of -> string/inspect.zig
 
 // ─── ContainsAllOf ───
 
-pub fn str_contains_all_of(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (chars == null or chars_len == 0) return 1;
-    const char_set: []const u8 = chars[0..chars_len];
-
-    // Parse char_set into codepoints
-    var set_cps: std.ArrayList(u21) = .{};
-    defer set_cps.deinit(gpa);
-    var coff: usize = 0;
-    while (coff < char_set.len) {
-        const cl = std.unicode.utf8ByteSequenceLength(char_set[coff]) catch break;
-        if (coff + cl > char_set.len) break;
-        const cv = std.unicode.utf8Decode(char_set[coff..][0..cl]) catch break;
-        set_cps.append(gpa, cv) catch break;
-        coff += cl;
-    }
-
-    // For each set char, check it exists in buf
-    for (set_cps.items) |set_cp| {
-        var found = false;
-        var off: usize = 0;
-        while (off < buf.len) {
-            const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-            if (off + cp_len > buf.len) break;
-            const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
-            if (cp_val == set_cp) {
-                found = true;
-                break;
-            }
-            off += cp_len;
-        }
-        if (!found) return 0;
-    }
-    return 1;
-}
+// str_contains_all_of -> string/inspect.zig
 
 // ─── Center Pad ───
 
@@ -3836,21 +3469,7 @@ pub fn str_only_digits(handle: StzStringHandle) callconv(.c) StzStringHandle {
 
 // ─── IsAlphanumeric ───
 
-pub fn str_is_alphanumeric(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch return 0;
-        if (off + cp_len > src.len) return 0;
-        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch return 0;
-        if (unicode.stz_unicode_is_letter(cp) == 0 and unicode.stz_unicode_is_digit(cp) == 0) return 0;
-        off += cp_len;
-    }
-    return 1;
-}
+// str_is_alphanumeric -> string/inspect.zig
 
 // ─── Left/Right Justify (pad to width) ───
 
@@ -4043,23 +3662,7 @@ pub fn str_squeeze(handle: StzStringHandle) callconv(.c) StzStringHandle {
 
 // ─── IsDigit (all chars are digits) ───
 
-/// Returns 1 if all codepoints in the string are digits, 0 otherwise.
-/// Empty string returns 0.
-pub fn str_is_digit(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch return 0;
-        if (off + cp_len > src.len) return 0;
-        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch return 0;
-        if (unicode.stz_unicode_is_digit(cp) == 0) return 0;
-        off += cp_len;
-    }
-    return 1;
-}
+// str_is_digit -> string/inspect.zig
 
 // ─── StringMultiply (interleave) ───
 
@@ -4234,86 +3837,15 @@ pub fn str_repeat_to_length(handle: StzStringHandle, target_len: c_int) callconv
 
 // str_remove_between -> string/replace.zig
 
-/// Check if string is blank (empty or contains only whitespace).
-/// Returns 1 if blank, 0 otherwise.
-pub fn str_is_blank(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 1; // null = blank
-    const src = s.slice();
-    if (src.len == 0) return 1;
-
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        const cp_val: i32 = decodeCodepoint(src, off, cp_len);
-        if (unicode.stz_unicode_is_space(cp_val) == 0) return 0;
-        off += cp_len;
-    }
-    return 1;
-}
+// str_is_blank -> string/inspect.zig
 
 // str_to_pascal_case -> string/transform.zig
 
-/// Check if string is a valid programming identifier (starts with letter/underscore,
-/// rest are letters/digits/underscores). Returns 1 if valid, 0 otherwise.
-pub fn str_is_identifier(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-
-    var off: usize = 0;
-    var first = true;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        const cp_val: i32 = decodeCodepoint(src, off, cp_len);
-
-        if (first) {
-            // First char must be letter or underscore
-            if (cp_val != '_' and unicode.stz_unicode_is_letter(cp_val) == 0) return 0;
-            first = false;
-        } else {
-            // Rest must be letter, digit, or underscore
-            if (cp_val != '_' and unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0) return 0;
-        }
-        off += cp_len;
-    }
-    return 1;
-}
+// str_is_identifier -> string/inspect.zig
 
 // str_replace_between -> string/replace.zig
 
-/// Check if string contains only characters from the given set.
-/// Returns 1 if all chars are in set, 0 otherwise. Empty string returns 1.
-pub fn str_contains_only(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
-    const s = handle orelse return 1;
-    const src = s.slice();
-    if (src.len == 0) return 1;
-    if (chars_len == 0) return 0;
-
-    const charset = chars[0..chars_len];
-    var off: usize = 0;
-
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-
-        var found = false;
-        var coff: usize = 0;
-        while (coff < charset.len) {
-            const c_len = std.unicode.utf8ByteSequenceLength(charset[coff]) catch break;
-            if (coff + c_len > charset.len) break;
-            if (c_len == cp_len and mem.eql(u8, src[off..][0..cp_len], charset[coff..][0..c_len])) {
-                found = true;
-                break;
-            }
-            coff += c_len;
-        }
-        if (!found) return 0;
-        off += cp_len;
-    }
-    return 1;
-}
+// str_contains_only -> string/inspect.zig
 
 // str_capitalize_words -> string/transform.zig
 
@@ -4442,48 +3974,7 @@ pub fn str_collapse_spaces(handle: StzStringHandle) callconv(.c) StzStringHandle
     return result;
 }
 
-/// Check if two strings are anagrams (same chars, different order).
-/// Case-sensitive. Returns 1 if anagram, 0 otherwise.
-pub fn str_is_anagram(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
-    const s1 = h1 orelse return 0;
-    const s2 = h2 orelse return 0;
-    const src1 = s1.slice();
-    const src2 = s2.slice();
-    if (src1.len != src2.len) return 0;
-    if (src1.len == 0) return 1;
-
-    // Count codepoints in both and compare sorted
-    var counts = std.AutoHashMap(i32, i32).init(gpa);
-    defer counts.deinit();
-
-    var off: usize = 0;
-    while (off < src1.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src1[off]) catch break;
-        if (off + cp_len > src1.len) break;
-        const cp: i32 = decodeCodepoint(src1, off, cp_len);
-        const entry = counts.getOrPut(cp) catch break;
-        if (!entry.found_existing) entry.value_ptr.* = 0;
-        entry.value_ptr.* += 1;
-        off += cp_len;
-    }
-
-    off = 0;
-    while (off < src2.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src2[off]) catch break;
-        if (off + cp_len > src2.len) break;
-        const cp: i32 = decodeCodepoint(src2, off, cp_len);
-        const entry = counts.getOrPut(cp) catch break;
-        if (!entry.found_existing) entry.value_ptr.* = 0;
-        entry.value_ptr.* -= 1;
-        off += cp_len;
-    }
-
-    var iter = counts.iterator();
-    while (iter.next()) |entry| {
-        if (entry.value_ptr.* != 0) return 0;
-    }
-    return 1;
-}
+// str_is_anagram -> string/inspect.zig
 
 /// Mask the string: replace middle characters with mask_char, keeping `keep` chars visible
 /// at start and end. E.g. mask("hello@mail.com", '*', 2) -> "he*********om"
@@ -4580,31 +4071,7 @@ pub fn str_only_vowels(handle: StzStringHandle) callconv(.c) StzStringHandle {
     return result;
 }
 
-/// Check if string is a pangram (contains every letter a-z at least once, case-insensitive).
-/// Returns 1 if pangram, 0 otherwise.
-pub fn str_is_pangram(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len < 26) return 0;
-
-    var seen: [26]bool = [_]bool{false} ** 26;
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        if (cp_len == 1) {
-            const c = src[off];
-            if (c >= 'a' and c <= 'z') seen[c - 'a'] = true
-            else if (c >= 'A' and c <= 'Z') seen[c - 'A'] = true;
-        }
-        off += cp_len;
-    }
-
-    for (seen) |s2| {
-        if (!s2) return 0;
-    }
-    return 1;
-}
+// str_is_pangram -> string/inspect.zig
 
 // ngram -> string/nlp.zig
 
@@ -4633,39 +4100,7 @@ pub fn str_count_consonants(handle: StzStringHandle) callconv(.c) c_int {
 
 // str_to_sentence_case -> string/transform.zig
 
-/// Check if brackets/parentheses/braces are balanced.
-/// Returns 1 if balanced, 0 otherwise.
-pub fn str_is_balanced(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 1;
-    const src = s.slice();
-    var stack: [1024]u8 = undefined;
-    var depth: usize = 0;
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        if (cp_len == 1) {
-            const c = src[off];
-            if (c == '(' or c == '[' or c == '{') {
-                if (depth >= 1024) return 0;
-                stack[depth] = c;
-                depth += 1;
-            } else if (c == ')' or c == ']' or c == '}') {
-                if (depth == 0) return 0;
-                depth -= 1;
-                const expected: u8 = switch (c) {
-                    ')' => '(',
-                    ']' => '[',
-                    '}' => '{',
-                    else => 0,
-                };
-                if (stack[depth] != expected) return 0;
-            }
-        }
-        off += cp_len;
-    }
-    return if (depth == 0) @as(c_int, 1) else @as(c_int, 0);
-}
+// str_is_balanced -> string/inspect.zig
 
 /// Convert to URL-friendly slug: lowercase, spaces/underscores to hyphens,
 /// remove non-alphanumeric (except hyphens), collapse consecutive hyphens.
@@ -4812,39 +4247,7 @@ fn isInCharSet(cp_slice: []const u8, char_set: []const u8) bool {
     return false;
 }
 
-/// Basic email format check: contains exactly one @, has text before and after @,
-/// has at least one dot after @. Returns 1 if email-like, 0 otherwise.
-pub fn str_is_email_like(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len < 5) return 0; // minimum: a@b.c
-
-    var at_pos: ?usize = null;
-    var at_count: usize = 0;
-    for (src, 0..) |c, i| {
-        if (c == '@') {
-            at_count += 1;
-            at_pos = i;
-        }
-    }
-    if (at_count != 1) return 0;
-    const atp = at_pos.?;
-    if (atp == 0) return 0; // nothing before @
-    if (atp >= src.len - 1) return 0; // nothing after @
-
-    // Check for dot after @
-    const domain = src[atp + 1 ..];
-    var has_dot = false;
-    for (domain) |c| {
-        if (c == '.') { has_dot = true; break; }
-    }
-    if (!has_dot) return 0;
-
-    // Dot shouldn't be first or last in domain
-    if (domain[0] == '.' or domain[domain.len - 1] == '.') return 0;
-
-    return 1;
-}
+// str_is_email_like -> string/inspect.zig
 
 /// Split camelCase/PascalCase into space-separated words.
 /// E.g. "camelCaseString" -> "camel Case String"
@@ -4903,15 +4306,7 @@ pub fn str_initials(handle: StzStringHandle) callconv(.c) StzStringHandle {
 
 // str_remove_duplicate_words -> string/replace.zig
 
-/// Basic URL format check: starts with "http://" or "https://".
-/// Returns 1 if URL-like, 0 otherwise.
-pub fn str_is_url_like(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len >= 8 and mem.eql(u8, src[0..8], "https://")) return 1;
-    if (src.len >= 7 and mem.eql(u8, src[0..7], "http://")) return 1;
-    return 0;
-}
+// str_is_url_like -> string/inspect.zig
 
 // HTML escape/unescape -> string/encode.zig
 
@@ -4986,38 +4381,7 @@ fn isSmallWord(word: []const u8, small_words: []const []const u8) bool {
 
 // str_remove_punctuation -> string/replace.zig
 
-/// Check if string is a valid float format (optional sign, digits, one dot, digits).
-/// E.g. "3.14", "-0.5", "+123.456" are valid. Returns 1 if valid, 0 otherwise.
-pub fn str_is_float(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-
-    var off: usize = 0;
-    // Optional sign
-    if (off < src.len and (src[off] == '+' or src[off] == '-')) off += 1;
-    if (off >= src.len) return 0;
-
-    var has_digits_before = false;
-    while (off < src.len and src[off] >= '0' and src[off] <= '9') {
-        has_digits_before = true;
-        off += 1;
-    }
-
-    // Must have dot
-    if (off >= src.len or src[off] != '.') return 0;
-    off += 1;
-
-    var has_digits_after = false;
-    while (off < src.len and src[off] >= '0' and src[off] <= '9') {
-        has_digits_after = true;
-        off += 1;
-    }
-
-    if (off != src.len) return 0; // trailing chars
-    if (!has_digits_before and !has_digits_after) return 0;
-    return 1;
-}
+// str_is_float -> string/inspect.zig
 
 /// Sum of all digit characters in the string. E.g. "a1b2c3" -> 6.
 pub fn str_digit_sum(handle: StzStringHandle) callconv(.c) c_int {
@@ -5054,29 +4418,7 @@ pub fn str_count_lower(handle: StzStringHandle) callconv(.c) c_int {
     return count;
 }
 
-/// Check if string is in camelCase format (starts lowercase, has at least one uppercase).
-/// Returns 1 if camelCase, 0 otherwise.
-pub fn str_is_camel_case(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len < 2) return 0;
-
-    // First char must be lowercase letter
-    if (!(src[0] >= 'a' and src[0] <= 'z')) return 0;
-
-    // Must contain at least one uppercase
-    var has_upper = false;
-    for (src[1..]) |c| {
-        if (c >= 'A' and c <= 'Z') { has_upper = true; break; }
-    }
-    if (!has_upper) return 0;
-
-    // Must only contain letters and digits
-    for (src) |c| {
-        if (!((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9'))) return 0;
-    }
-    return 1;
-}
+// str_is_camel_case -> string/inspect.zig
 
 /// Return characters common to both strings (unique, in order of appearance in h1).
 /// Returns new handle.
@@ -5115,62 +4457,9 @@ pub fn str_common_chars(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) S
 
 // str_count_lines -> string/split.zig
 
-/// Check if string is in snake_case format: lowercase + underscores, starts with letter, no consecutive underscores.
-pub export fn str_is_snake_case(handle: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-    // Must start with lowercase letter
-    if (src[0] < 'a' or src[0] > 'z') return 0;
-    var prev_underscore = false;
-    for (src) |c| {
-        if (c >= 'a' and c <= 'z') {
-            prev_underscore = false;
-        } else if (c >= '0' and c <= '9') {
-            prev_underscore = false;
-        } else if (c == '_') {
-            if (prev_underscore) return 0; // consecutive underscores
-            prev_underscore = true;
-        } else {
-            return 0; // invalid character
-        }
-    }
-    // Must not end with underscore
-    if (src[src.len - 1] == '_') return 0;
-    // Must have at least one underscore to be snake_case
-    for (src) |c| {
-        if (c == '_') return 1;
-    }
-    return 0; // single word, no underscore
-}
+// str_is_snake_case -> string/inspect.zig
 
-/// Check if string is in kebab-case format: lowercase + hyphens, starts with letter, no consecutive hyphens.
-pub export fn str_is_kebab_case(handle: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-    // Must start with lowercase letter
-    if (src[0] < 'a' or src[0] > 'z') return 0;
-    var prev_hyphen = false;
-    for (src) |c| {
-        if (c >= 'a' and c <= 'z') {
-            prev_hyphen = false;
-        } else if (c >= '0' and c <= '9') {
-            prev_hyphen = false;
-        } else if (c == '-') {
-            if (prev_hyphen) return 0;
-            prev_hyphen = true;
-        } else {
-            return 0;
-        }
-    }
-    if (src[src.len - 1] == '-') return 0;
-    // Must have at least one hyphen
-    for (src) |c| {
-        if (c == '-') return 1;
-    }
-    return 0;
-}
+// str_is_kebab_case -> string/inspect.zig
 
 /// Count unique (distinct) characters in the string.
 pub export fn str_count_unique_chars(handle: ?*StzString) callconv(.c) c_int {
@@ -5523,37 +4812,7 @@ pub export fn str_hamming_weight(handle: ?*StzString) callconv(.c) c_int {
     return count;
 }
 
-/// Is palindrome at word level: "dog cat dog" -> true (words reversed = same sequence).
-pub export fn str_is_palindrome_words(handle: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 1;
-
-    // Collect word boundaries
-    var starts: [256]usize = undefined;
-    var ends: [256]usize = undefined;
-    var wc: usize = 0;
-
-    var i: usize = 0;
-    while (i < src.len and wc < 256) {
-        while (i < src.len and src[i] == ' ') : (i += 1) {}
-        if (i >= src.len) break;
-        starts[wc] = i;
-        while (i < src.len and src[i] != ' ') : (i += 1) {}
-        ends[wc] = i;
-        wc += 1;
-    }
-    if (wc <= 1) return 1;
-
-    // Compare word[j] with word[wc-1-j]
-    var j: usize = 0;
-    while (j < wc / 2) : (j += 1) {
-        const w1 = src[starts[j]..ends[j]];
-        const w2 = src[starts[wc - 1 - j]..ends[wc - 1 - j]];
-        if (!mem.eql(u8, w1, w2)) return 0;
-    }
-    return 1;
-}
+// str_is_palindrome_words -> string/inspect.zig
 
 // str_remove_nth_word -> string/replace.zig
 
@@ -5791,21 +5050,7 @@ pub export fn str_diff_chars(handle: ?*StzString, other: ?*StzString) callconv(.
 
 // ROT47 -> string/encode.zig
 
-pub export fn str_is_isogram(handle: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 1;
-    var seen = [_]bool{false} ** 256;
-    for (src) |c| {
-        var ch = c;
-        if (ch >= 'A' and ch <= 'Z') ch += 32;
-        if (ch >= 'a' and ch <= 'z') {
-            if (seen[ch]) return 0;
-            seen[ch] = true;
-        }
-    }
-    return 1;
-}
+// str_is_isogram -> string/inspect.zig
 
 pub export fn str_reverse_each_word(handle: ?*StzString) callconv(.c) ?*StzString {
     const s = handle orelse return null;
