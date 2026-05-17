@@ -1744,6 +1744,86 @@ class stzString from stzObject
 			return This.SpongebobCased()
 
 	  #=========================#
+	 #  BETWEEN FIRST          #
+	#=========================#
+
+	def BetweenFirst(cOpen, cClose)
+		pResult = StzEngineStringBetweenFirst(@pEngine, cOpen, cClose)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  TO DOT CASE            #
+	#=========================#
+
+	def ToDotCase()
+		pResult = StzEngineStringToDotCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToDotCaseQ()
+			This.ToDotCase()
+			return This
+
+	def DotCased()
+		pResult = StzEngineStringToDotCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  ABBREVIATE             #
+	#=========================#
+
+	def Abbreviate(nMaxLen)
+		pResult = StzEngineStringAbbreviate(@pEngine, nMaxLen)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def AbbreviateQ(nMaxLen)
+			This.Abbreviate(nMaxLen)
+			return This
+
+	def Abbreviated(nMaxLen)
+		pResult = StzEngineStringAbbreviate(@pEngine, nMaxLen)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  COUNT SUBSTRING        #
+	#=========================#
+
+	def CountSubstring(cSub)
+		return StzEngineStringCountSubstring(@pEngine, cSub)
+
+		def NumberOfOccurrences(cSub)
+			return This.CountSubstring(cSub)
+
+	  #=========================#
+	 #  TO PATH CASE           #
+	#=========================#
+
+	def ToPathCase()
+		pResult = StzEngineStringToPathCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToPathCaseQ()
+			This.ToPathCase()
+			return This
+
+	def PathCased()
+		pResult = StzEngineStringToPathCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
 

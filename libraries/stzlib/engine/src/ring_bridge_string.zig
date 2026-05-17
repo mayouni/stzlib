@@ -1859,6 +1859,38 @@ fn ring_StringToSpongebobCase(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_spongebob_case(h)), STZ_HANDLE);
 }
 
+fn ring_StringBetweenFirst(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const open: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const open_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    const close: [*c]const u8 = ring_vm_api_getstring(p, 3);
+    const close_len: c_int = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_between_first(h, open, open_len, close, close_len)), STZ_HANDLE);
+}
+
+fn ring_StringToDotCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_dot_case(h)), STZ_HANDLE);
+}
+
+fn ring_StringAbbreviate(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const max_len: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_abbreviate(h, max_len)), STZ_HANDLE);
+}
+
+fn ring_StringCountSubstring(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const needle: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const nlen: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_substring(h, needle, nlen)));
+}
+
+fn ring_StringToPathCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_path_case(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2136,6 +2168,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringremoventhword", .func = &ring_StringRemoveNthWord },
     .{ .name = "stzenginestringinsertwordat", .func = &ring_StringInsertWordAt },
     .{ .name = "stzenginestringtospongebobcase", .func = &ring_StringToSpongebobCase },
+    .{ .name = "stzenginestringbetweenfirst", .func = &ring_StringBetweenFirst },
+    .{ .name = "stzenginestringtodotcase", .func = &ring_StringToDotCase },
+    .{ .name = "stzenginestringabbreviate", .func = &ring_StringAbbreviate },
+    .{ .name = "stzenginestringcountsubstring", .func = &ring_StringCountSubstring },
+    .{ .name = "stzenginestringtopathcase", .func = &ring_StringToPathCase },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

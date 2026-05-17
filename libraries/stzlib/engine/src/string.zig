@@ -8627,6 +8627,124 @@ pub export fn stz_string_to_spongebob_case(handle: ?*StzString) callconv(.c) ?*S
     return result;
 }
 
+// batch 14 ────────────────────────────────────────────────────────
+
+/// Extract text between first occurrence of open and close delimiters.
+pub export fn stz_string_between_first(handle: ?*StzString, open: [*c]const u8, open_len: c_int, close: [*c]const u8, close_len: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const olen: usize = if (open_len >= 0) @intCast(open_len) else return result;
+    const clen: usize = if (close_len >= 0) @intCast(close_len) else return result;
+    if (olen == 0 or clen == 0) return result;
+
+    // Find first open
+    var i: usize = 0;
+    while (i + olen <= src.len) {
+        if (mem.eql(u8, src[i .. i + olen], open[0..olen])) {
+            const start = i + olen;
+            // Find close after open
+            var j: usize = start;
+            while (j + clen <= src.len) {
+                if (mem.eql(u8, src[j .. j + clen], close[0..clen])) {
+                    result.data.appendSlice(gpa, src[start..j]) catch {};
+                    return result;
+                }
+                j += 1;
+            }
+            return result; // no close found
+        }
+        i += 1;
+    }
+    return result;
+}
+
+/// Convert camelCase/PascalCase to dot.case.
+pub export fn stz_string_to_dot_case(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    for (src, 0..) |c, idx| {
+        if (c >= 'A' and c <= 'Z') {
+            if (idx > 0) result.data.appendSlice(gpa, ".") catch break;
+            result.data.appendSlice(gpa, &[_]u8{c + 32}) catch break;
+        } else if (c == '_' or c == '-') {
+            result.data.appendSlice(gpa, ".") catch break;
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+        }
+    }
+    return result;
+}
+
+/// Abbreviate: truncate to n characters + "..." if longer. If shorter, return as-is.
+pub export fn stz_string_abbreviate(handle: ?*StzString, max_len: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const limit: usize = if (max_len >= 0) @intCast(max_len) else return result;
+
+    // Count codepoints
+    var cp_count: usize = 0;
+    var byte_at_limit: usize = 0;
+    var off: usize = 0;
+    while (off < src.len) {
+        if (cp_count == limit) byte_at_limit = off;
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        off += cp_len;
+        cp_count += 1;
+    }
+
+    if (cp_count <= limit) {
+        result.data.appendSlice(gpa, src) catch {};
+    } else {
+        result.data.appendSlice(gpa, src[0..byte_at_limit]) catch {};
+        result.data.appendSlice(gpa, "...") catch {};
+    }
+    return result;
+}
+
+/// Count non-overlapping occurrences of a substring.
+pub export fn stz_string_count_substring(handle: ?*StzString, needle: [*c]const u8, needle_len: c_int) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    const nlen: usize = if (needle_len > 0) @intCast(needle_len) else return 0;
+    const ndl = needle[0..nlen];
+
+    var count: c_int = 0;
+    var i: usize = 0;
+    while (i + nlen <= src.len) {
+        if (mem.eql(u8, src[i .. i + nlen], ndl)) {
+            count += 1;
+            i += nlen;
+        } else {
+            i += 1;
+        }
+    }
+    return count;
+}
+
+/// Convert camelCase/PascalCase to path/case (slash-separated).
+pub export fn stz_string_to_path_case(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    for (src, 0..) |c, idx| {
+        if (c >= 'A' and c <= 'Z') {
+            if (idx > 0) result.data.appendSlice(gpa, "/") catch break;
+            result.data.appendSlice(gpa, &[_]u8{c + 32}) catch break;
+        } else if (c == '_' or c == '-') {
+            result.data.appendSlice(gpa, "/") catch break;
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -10221,6 +10339,66 @@ test "to_spongebob_case" {
     const r = stz_string_to_spongebob_case(h);
     // H(0)e(1)L(2)l(3)O(4) W(5)o(6)R(7)l(8)D(9) -> "HeLlO wOrLd"
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "HeLlO wOrLd"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "between_first" {
+    const h = stz_string_from("say [hello] world [bye]", 23);
+    const r = stz_string_between_first(h, "[", 1, "]", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hello"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("<b>hi</b>", 9);
+    const r2 = stz_string_between_first(h2, "<b>", 3, "</b>", 4);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "hi"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "to_dot_case" {
+    const h = stz_string_from("helloWorld", 10);
+    const r = stz_string_to_dot_case(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hello.world"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("MyVarName", 9);
+    const r2 = stz_string_to_dot_case(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "my.var.name"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "abbreviate" {
+    const h = stz_string_from("hello world", 11);
+    const r = stz_string_abbreviate(h, 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hello..."));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("hi", 2);
+    const r2 = stz_string_abbreviate(h2, 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "hi"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "count_substring" {
+    const h = stz_string_from("abcabcabc", 9);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_substring(h, "abc", 3));
+    stz_string_free(h);
+
+    const h2 = stz_string_from("aaa", 3);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_count_substring(h2, "aa", 2));
+    stz_string_free(h2);
+}
+
+test "to_path_case" {
+    const h = stz_string_from("helloWorld", 10);
+    const r = stz_string_to_path_case(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hello/world"));
     stz_string_free(r);
     stz_string_free(h);
 }
