@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 288 Registered Functions"
+? "Engine Full Bridge Test -- All 293 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -3103,6 +3103,41 @@ pResult = StzEngineStringToConstantCase(pStr)
 Assert("ToConstantCase", StzEngineStringData(pResult), "HELLO_WORLD")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
+
+? ""
+? "--- Group 109: FirstWord / LastWord / ToNato / Commonality / DiffChars ---"
+
+pStr = StzEngineStringFrom("hello world foo")
+pResult = StzEngineStringFirstWord(pStr)
+Assert("FirstWord", StzEngineStringData(pResult), "hello")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world foo")
+pResult = StzEngineStringLastWord(pStr)
+Assert("LastWord", StzEngineStringData(pResult), "foo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("AB")
+pResult = StzEngineStringToNato(pStr)
+Assert("ToNato AB", StzEngineStringData(pResult), "Alfa Bravo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr1 = StzEngineStringFrom("abc")
+pStr2 = StzEngineStringFrom("bcd")
+Assert("Commonality abc/bcd", StzEngineStringCommonality(pStr1, pStr2), 2)
+StzEngineStringFree(pStr1)
+StzEngineStringFree(pStr2)
+
+pStr1 = StzEngineStringFrom("abcd")
+pStr2 = StzEngineStringFrom("bc")
+pResult = StzEngineStringDiffChars(pStr1, pStr2)
+Assert("DiffChars abcd-bc", StzEngineStringData(pResult), "ad")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr1)
+StzEngineStringFree(pStr2)
 
 # ==============================================================
 #  SUMMARY

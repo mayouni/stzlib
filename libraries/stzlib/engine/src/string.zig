@@ -8981,6 +8981,96 @@ pub export fn stz_string_to_constant_case(handle: ?*StzString) callconv(.c) ?*St
     return result;
 }
 
+// ─── Batch 17: first_word, last_word, to_nato, commonality, diff_chars ───
+
+pub export fn stz_string_first_word(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var pos: usize = 0;
+    while (pos < src.len and src[pos] == ' ') pos += 1;
+    while (pos < src.len and src[pos] != ' ') {
+        result.data.appendSlice(gpa, &[_]u8{src[pos]}) catch break;
+        pos += 1;
+    }
+    return result;
+}
+
+pub export fn stz_string_last_word(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (src.len == 0) return result;
+    var end: usize = src.len;
+    while (end > 0 and src[end - 1] == ' ') end -= 1;
+    if (end == 0) return result;
+    var start: usize = end;
+    while (start > 0 and src[start - 1] != ' ') start -= 1;
+    result.data.appendSlice(gpa, src[start..end]) catch {};
+    return result;
+}
+
+pub export fn stz_string_to_nato(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const nato = [26][]const u8{ "Alfa", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-ray", "Yankee", "Zulu" };
+    var first = true;
+    for (src) |c| {
+        var idx: ?usize = null;
+        if (c >= 'a' and c <= 'z') idx = c - 'a';
+        if (c >= 'A' and c <= 'Z') idx = c - 'A';
+        if (idx) |i| {
+            if (!first) result.data.appendSlice(gpa, " ") catch {};
+            result.data.appendSlice(gpa, nato[i]) catch {};
+            first = false;
+        } else if (c == ' ') {
+            if (!first) result.data.appendSlice(gpa, " ") catch {};
+            result.data.appendSlice(gpa, "[space]") catch {};
+            first = false;
+        }
+    }
+    return result;
+}
+
+pub export fn stz_string_commonality(handle: ?*StzString, other: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const o = other orelse return 0;
+    const src = s.slice();
+    const oth = o.slice();
+    // Count chars present in both (based on set intersection)
+    var seen_src = [_]bool{false} ** 256;
+    for (src) |c| seen_src[c] = true;
+    var count: c_int = 0;
+    var seen_counted = [_]bool{false} ** 256;
+    for (oth) |c| {
+        if (seen_src[c] and !seen_counted[c]) {
+            count += 1;
+            seen_counted[c] = true;
+        }
+    }
+    return count;
+}
+
+pub export fn stz_string_diff_chars(handle: ?*StzString, other: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const o = other orelse return null;
+    const src = s.slice();
+    const oth = o.slice();
+    const result = stz_string_new() orelse return null;
+    // Chars in src not in other (unique set)
+    var in_other = [_]bool{false} ** 256;
+    for (oth) |c| in_other[c] = true;
+    var added = [_]bool{false} ** 256;
+    for (src) |c| {
+        if (!in_other[c] and !added[c]) {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            added[c] = true;
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -10740,6 +10830,48 @@ test "to_constant_case" {
     const r2 = stz_string_to_constant_case(h2);
     try std.testing.expect(mem.eql(u8, stz_string_data(r2.?)[0..@intCast(stz_string_size(r2.?))], "CAMEL_CASE"));
     stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "first_word" {
+    const h = stz_string_from("hello world foo", 15);
+    const r = stz_string_first_word(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "hello"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "last_word" {
+    const h = stz_string_from("hello world foo", 15);
+    const r = stz_string_last_word(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "foo"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "to_nato" {
+    const h = stz_string_from("AB", 2);
+    const r = stz_string_to_nato(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "Alfa Bravo"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "commonality" {
+    const h1 = stz_string_from("abc", 3);
+    const h2 = stz_string_from("bcd", 3);
+    try std.testing.expectEqual(@as(c_int, 2), stz_string_commonality(h1, h2));
+    stz_string_free(h1);
+    stz_string_free(h2);
+}
+
+test "diff_chars" {
+    const h1 = stz_string_from("abcd", 4);
+    const h2 = stz_string_from("bc", 2);
+    const r = stz_string_diff_chars(h1, h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "ad"));
+    stz_string_free(r);
+    stz_string_free(h1);
     stz_string_free(h2);
 }
 
