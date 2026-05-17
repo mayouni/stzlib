@@ -2390,6 +2390,76 @@ class stzString from stzObject
 			return This.ExtractWords()
 
 	  #=========================#
+	 #  EXPAND TABS            #
+	#=========================#
+
+	def ExpandTabs(nSize)
+		pResult = StzEngineStringExpandTabs(@pEngine, nSize)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ExpandTabsQ(nSize)
+			This.ExpandTabs(nSize)
+			return This
+
+	def TabsExpanded(nSize)
+		pResult = StzEngineStringExpandTabs(@pEngine, nSize)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  SENTENCE COUNT         #
+	#=========================#
+
+	def SentenceCount()
+		return StzEngineStringSentenceCount(@pEngine)
+
+		def NumberOfSentences()
+			return This.SentenceCount()
+
+	  #=========================#
+	 #  CHOP                   #
+	#=========================#
+
+	def Chop()
+		pResult = StzEngineStringChop(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ChopQ()
+			This.Chop()
+			return This
+
+	def Chopped()
+		pResult = StzEngineStringChop(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  SCAN INT               #
+	#=========================#
+
+	def ScanInt()
+		return StzEngineStingScanInt(@pEngine)
+
+		def ToNumber()
+			return This.ScanInt()
+
+	  #=========================#
+	 #  TO ORDINAL             #
+	#=========================#
+
+	def ToOrdinal()
+		pResult = StzEngineStringToOrdinal(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
 

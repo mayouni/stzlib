@@ -9545,6 +9545,88 @@ pub export fn stz_string_extract_words(handle: ?*StzString) callconv(.c) ?*StzSt
     return result;
 }
 
+// ─── Batch 22: expand_tabs, sentence_count, chop, scan_int, to_ordinal ───
+
+pub export fn stz_string_expand_tabs(handle: ?*StzString, tab_size: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const ts: usize = if (tab_size < 1) 4 else @intCast(tab_size);
+    const result = stz_string_new() orelse return null;
+    for (src) |c| {
+        if (c == '\t') {
+            var i: usize = 0;
+            while (i < ts) : (i += 1) {
+                result.data.appendSlice(gpa, " ") catch break;
+            }
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+        }
+    }
+    return result;
+}
+
+pub export fn stz_string_sentence_count(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var count: c_int = 0;
+    for (src) |c| {
+        if (c == '.' or c == '!' or c == '?') count += 1;
+    }
+    return count;
+}
+
+pub export fn stz_string_chop(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (src.len > 0) {
+        result.data.appendSlice(gpa, src[0 .. src.len - 1]) catch {};
+    }
+    return result;
+}
+
+pub export fn stz_string_scan_int(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var val: c_int = 0;
+    var neg = false;
+    var started = false;
+    for (src) |c| {
+        if (!started and c == '-') {
+            neg = true;
+            started = true;
+        } else if (c >= '0' and c <= '9') {
+            val = val * 10 + @as(c_int, c - '0');
+            started = true;
+        } else if (started) break;
+    }
+    return if (neg) -val else val;
+}
+
+pub export fn stz_string_to_ordinal(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    result.data.appendSlice(gpa, src) catch return result;
+    // Parse the number to determine suffix
+    const num = stz_string_scan_int(s);
+    const abs_num: u32 = if (num < 0) @intCast(-num) else @intCast(num);
+    const last_two = abs_num % 100;
+    const last_one = abs_num % 10;
+    if (last_two >= 11 and last_two <= 13) {
+        result.data.appendSlice(gpa, "th") catch {};
+    } else if (last_one == 1) {
+        result.data.appendSlice(gpa, "st") catch {};
+    } else if (last_one == 2) {
+        result.data.appendSlice(gpa, "nd") catch {};
+    } else if (last_one == 3) {
+        result.data.appendSlice(gpa, "rd") catch {};
+    } else {
+        result.data.appendSlice(gpa, "th") catch {};
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -11532,5 +11614,57 @@ test "extract_words" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "hello world foo bar"));
     stz_string_free(r);
     stz_string_free(h);
+}
+
+test "expand_tabs" {
+    const h = stz_string_from("a\tb", 3);
+    const r = stz_string_expand_tabs(h, 4);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "a    b"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "sentence_count" {
+    const h = stz_string_from("Hello. How are you? Fine!", 25);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_sentence_count(h));
+    stz_string_free(h);
+}
+
+test "chop" {
+    const h = stz_string_from("hello", 5);
+    const r = stz_string_chop(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "hell"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "scan_int" {
+    const h = stz_string_from("42abc", 5);
+    try std.testing.expectEqual(@as(c_int, 42), stz_string_scan_int(h));
+    stz_string_free(h);
+
+    const h2 = stz_string_from("-7", 2);
+    try std.testing.expectEqual(@as(c_int, -7), stz_string_scan_int(h2));
+    stz_string_free(h2);
+}
+
+test "to_ordinal" {
+    const h1 = stz_string_from("1", 1);
+    const r1 = stz_string_to_ordinal(h1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1.?)[0..@intCast(stz_string_size(r1.?))], "1st"));
+    stz_string_free(r1);
+    stz_string_free(h1);
+
+    const h2 = stz_string_from("12", 2);
+    const r2 = stz_string_to_ordinal(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2.?)[0..@intCast(stz_string_size(r2.?))], "12th"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+
+    const h3 = stz_string_from("23", 2);
+    const r3 = stz_string_to_ordinal(h3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r3.?)[0..@intCast(stz_string_size(r3.?))], "23rd"));
+    stz_string_free(r3);
+    stz_string_free(h3);
 }
 
