@@ -1119,6 +1119,78 @@ class stzString from stzObject
 		def SumOfDigits()
 			return This.DigitSum()
 
+	  #==============================#
+	 #  TO ALTERNATING CASE        #
+	#==============================#
+
+	def ToAlternatingCase()
+		pResult = StzEngineStringToAlternatingCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToAlternatingCaseQ()
+			This.ToAlternatingCase()
+			return This
+
+	def AlternatingCased()
+		pResult = StzEngineStringToAlternatingCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def InAlternatingCase()
+			return This.AlternatingCased()
+
+	  #==============================#
+	 #  COUNT UPPER                #
+	#==============================#
+
+	def CountUpper()
+		return StzEngineStringCountUpper(@pEngine)
+
+		def NumberOfUppercaseLetters()
+			return This.CountUpper()
+
+		def CountUppercase()
+			return This.CountUpper()
+
+	  #==============================#
+	 #  COUNT LOWER                #
+	#==============================#
+
+	def CountLower()
+		return StzEngineStringCountLower(@pEngine)
+
+		def NumberOfLowercaseLetters()
+			return This.CountLower()
+
+		def CountLowercase()
+			return This.CountLower()
+
+	  #==============================#
+	 #  IS CAMEL CASE              #
+	#==============================#
+
+	def IsCamelCase()
+		return StzEngineStringIsCamelCase(@pEngine) = 1
+
+		def IsCamelCased()
+			return This.IsCamelCase()
+
+	  #==============================#
+	 #  COMMON CHARS               #
+	#==============================#
+
+	def CommonCharsWith(poOtherStr)
+		pResult = StzEngineStringCommonChars(@pEngine, poOtherStr.EngineHandle())
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def CharsInCommonWith(poOtherStr)
+			return This.CommonCharsWith(poOtherStr)
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#

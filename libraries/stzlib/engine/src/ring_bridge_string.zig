@@ -1637,6 +1637,32 @@ fn ring_StringDigitSum(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_digit_sum(h)));
 }
 
+fn ring_StringToAlternatingCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_alternating_case(h)), STZ_HANDLE);
+}
+
+fn ring_StringCountUpper(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_upper(h)));
+}
+
+fn ring_StringCountLower(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_lower(h)));
+}
+
+fn ring_StringIsCamelCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_camel_case(h)));
+}
+
+fn ring_StringCommonChars(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_common_chars(h1, h2)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1874,6 +1900,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringremovepunctuation", .func = &ring_StringRemovePunctuation },
     .{ .name = "stzenginestringisfloat", .func = &ring_StringIsFloat },
     .{ .name = "stzenginestringdigitsum", .func = &ring_StringDigitSum },
+    .{ .name = "stzenginestringtoalternatingcase", .func = &ring_StringToAlternatingCase },
+    .{ .name = "stzenginestringcountupper", .func = &ring_StringCountUpper },
+    .{ .name = "stzenginestringcountlower", .func = &ring_StringCountLower },
+    .{ .name = "stzenginestringiscamelcase", .func = &ring_StringIsCamelCase },
+    .{ .name = "stzenginestringcommonchars", .func = &ring_StringCommonChars },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

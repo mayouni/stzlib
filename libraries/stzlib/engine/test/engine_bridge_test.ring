@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 233 Registered Functions"
+? "Engine Full Bridge Test -- All 238 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -2533,6 +2533,95 @@ StzEngineStringFree(pStr)
 
 pStr = StzEngineStringFrom("abc")
 Assert("DigitSum no digits", StzEngineStringDigitSum(pStr), 0)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 98: ToAlternatingCase / CountUpper / CountLower / IsCamelCase / CommonChars
+# ==============================================================
+
+? ""
+? "--- Group 98: ToAlternatingCase / CountUpper / CountLower / IsCamelCase / CommonChars ---"
+
+pStr = StzEngineStringFrom("hello world")
+pResult = StzEngineStringToAlternatingCase(pStr)
+Assert("AlternatingCase hello world", StzEngineStringData(pResult), "hElLo WoRlD")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("ABC")
+pResult = StzEngineStringToAlternatingCase(pStr)
+Assert("AlternatingCase ABC", StzEngineStringData(pResult), "aBc")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("a")
+pResult = StzEngineStringToAlternatingCase(pStr)
+Assert("AlternatingCase single", StzEngineStringData(pResult), "a")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello World")
+Assert("CountUpper Hello World", StzEngineStringCountUpper(pStr), 2)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("ABC")
+Assert("CountUpper ABC", StzEngineStringCountUpper(pStr), 3)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc 123")
+Assert("CountUpper none", StzEngineStringCountUpper(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello World")
+Assert("CountLower Hello World", StzEngineStringCountLower(pStr), 8)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("ABC")
+Assert("CountLower ABC", StzEngineStringCountLower(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc 123")
+Assert("CountLower abc 123", StzEngineStringCountLower(pStr), 3)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("camelCase")
+Assert("IsCamelCase camelCase", StzEngineStringIsCamelCase(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("myVariableName")
+Assert("IsCamelCase myVariableName", StzEngineStringIsCamelCase(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("PascalCase")
+Assert("IsCamelCase PascalCase (no)", StzEngineStringIsCamelCase(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("lowercase")
+Assert("IsCamelCase lowercase (no)", StzEngineStringIsCamelCase(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+pStr2 = StzEngineStringFrom("world")
+pResult = StzEngineStringCommonChars(pStr, pStr2)
+Assert("CommonChars hello/world", StzEngineStringData(pResult), "lo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc")
+pStr2 = StzEngineStringFrom("xyz")
+pResult = StzEngineStringCommonChars(pStr, pStr2)
+Assert("CommonChars abc/xyz (none)", StzEngineStringData(pResult), "")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("aabbcc")
+pStr2 = StzEngineStringFrom("abcdef")
+pResult = StzEngineStringCommonChars(pStr, pStr2)
+Assert("CommonChars aabbcc/abcdef", StzEngineStringData(pResult), "abc")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr2)
 StzEngineStringFree(pStr)
 
 # ==============================================================
