@@ -2121,6 +2121,37 @@ fn ring_StringCharsSplit(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_chars_split(h)), STZ_HANDLE);
 }
 
+// ─── NLP: Jaro-Winkler, Metaphone, N-grams ───
+
+fn ring_StringJaro(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_jaro(h1, h2)));
+}
+
+fn ring_StringJaroWinkler(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_jaro_winkler(h1, h2)));
+}
+
+fn ring_StringMetaphone(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_metaphone(h)), STZ_HANDLE);
+}
+
+fn ring_StringCharNgrams(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_char_ngrams(h, n)), STZ_HANDLE);
+}
+
+fn ring_StringWordNgrams(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_word_ngrams(h, n)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2445,6 +2476,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringtoordinal", .func = &ring_StringToOrdinal },
     .{ .name = "stzenginestringcpcount", .func = &ring_StringCpCount },
     .{ .name = "stzenginestringcharssplit", .func = &ring_StringCharsSplit },
+    .{ .name = "stzenginestringjaro", .func = &ring_StringJaro },
+    .{ .name = "stzenginestringjarowinkler", .func = &ring_StringJaroWinkler },
+    .{ .name = "stzenginestringmetaphone", .func = &ring_StringMetaphone },
+    .{ .name = "stzenginestringcharngrams", .func = &ring_StringCharNgrams },
+    .{ .name = "stzenginestringwordngrams", .func = &ring_StringWordNgrams },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
