@@ -1191,6 +1191,75 @@ class stzString from stzObject
 		def CharsInCommonWith(poOtherStr)
 			return This.CommonCharsWith(poOtherStr)
 
+	  #==============================#
+	 #  COUNT LINES                #
+	#==============================#
+
+	def CountLines()
+		return StzEngineStringCountLines(@pEngine)
+
+		def NumberOfLines()
+			return This.CountLines()
+
+	  #==============================#
+	 #  IS SNAKE CASE              #
+	#==============================#
+
+	def IsSnakeCase()
+		return StzEngineStringIsSnakeCase(@pEngine) = 1
+
+		def IsSnakeCased()
+			return This.IsSnakeCase()
+
+	  #==============================#
+	 #  IS KEBAB CASE              #
+	#==============================#
+
+	def IsKebabCase()
+		return StzEngineStringIsKebabCase(@pEngine) = 1
+
+		def IsKebabCased()
+			return This.IsKebabCase()
+
+	  #==============================#
+	 #  COUNT UNIQUE CHARS         #
+	#==============================#
+
+	def CountUniqueChars()
+		return StzEngineStringCountUniqueChars(@pEngine)
+
+		def NumberOfUniqueChars()
+			return This.CountUniqueChars()
+
+		def NumberOfDistinctChars()
+			return This.CountUniqueChars()
+
+	  #==============================#
+	 #  CAESAR CIPHER              #
+	#==============================#
+
+	def Caesar(nShift)
+		pResult = StzEngineStringCaesar(@pEngine, nShift)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def CaesarQ(nShift)
+			This.Caesar(nShift)
+			return This
+
+	def Caesared(nShift)
+		pResult = StzEngineStringCaesar(@pEngine, nShift)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def CaesarCipher(nShift)
+			return This.Caesared(nShift)
+
+		def ROT13()
+			return This.Caesared(13)
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#

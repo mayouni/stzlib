@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 238 Registered Functions"
+? "Engine Full Bridge Test -- All 243 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -2622,6 +2622,87 @@ pResult = StzEngineStringCommonChars(pStr, pStr2)
 Assert("CommonChars aabbcc/abcdef", StzEngineStringData(pResult), "abc")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 99: CountLines / IsSnakeCase / IsKebabCase / CountUniqueChars / Caesar
+# ==============================================================
+
+? ""
+? "--- Group 99: CountLines / IsSnakeCase / IsKebabCase / CountUniqueChars / Caesar ---"
+
+pStr = StzEngineStringFrom("hello" + nl + "world" + nl + "foo")
+Assert("CountLines 3", StzEngineStringCountLines(pStr), 3)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("single line")
+Assert("CountLines 1", StzEngineStringCountLines(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("")
+Assert("CountLines empty", StzEngineStringCountLines(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello_world")
+Assert("IsSnakeCase hello_world", StzEngineStringIsSnakeCase(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("my_var_name")
+Assert("IsSnakeCase my_var_name", StzEngineStringIsSnakeCase(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("camelCase")
+Assert("IsSnakeCase camelCase (no)", StzEngineStringIsSnakeCase(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello__world")
+Assert("IsSnakeCase double__ (no)", StzEngineStringIsSnakeCase(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello-world")
+Assert("IsKebabCase hello-world", StzEngineStringIsKebabCase(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("my-var-name")
+Assert("IsKebabCase my-var-name", StzEngineStringIsKebabCase(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("camelCase")
+Assert("IsKebabCase camelCase (no)", StzEngineStringIsKebabCase(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello--world")
+Assert("IsKebabCase double-- (no)", StzEngineStringIsKebabCase(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+Assert("CountUniqueChars hello", StzEngineStringCountUniqueChars(pStr), 4)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("aaa")
+Assert("CountUniqueChars aaa", StzEngineStringCountUniqueChars(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abcdef")
+Assert("CountUniqueChars abcdef", StzEngineStringCountUniqueChars(pStr), 6)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc")
+pResult = StzEngineStringCaesar(pStr, 1)
+Assert("Caesar abc+1", StzEngineStringData(pResult), "bcd")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("xyz")
+pResult = StzEngineStringCaesar(pStr, 3)
+Assert("Caesar xyz+3 (wrap)", StzEngineStringData(pResult), "abc")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello, World!")
+pResult = StzEngineStringCaesar(pStr, 13)
+Assert("Caesar ROT13", StzEngineStringData(pResult), "Uryyb, Jbeyq!")
+StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
 # ==============================================================
