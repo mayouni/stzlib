@@ -1260,6 +1260,78 @@ class stzString from stzObject
 		def ROT13()
 			return This.Caesared(13)
 
+	  #==============================#
+	 #  MIRROR                     #
+	#==============================#
+
+	def Mirror()
+		pResult = StzEngineStringMirror(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def MirrorQ()
+			This.Mirror()
+			return This
+
+	def Mirrored()
+		pResult = StzEngineStringMirror(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def Reflected()
+			return This.Mirrored()
+
+	  #==============================#
+	 #  REPEAT EACH CHAR           #
+	#==============================#
+
+	def RepeatEachChar(n)
+		pResult = StzEngineStringRepeatEachChar(@pEngine, n)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RepeatEachCharQ(n)
+			This.RepeatEachChar(n)
+			return This
+
+	def EachCharRepeated(n)
+		pResult = StzEngineStringRepeatEachChar(@pEngine, n)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #==============================#
+	 #  STARTS/ENDS WITH ANY       #
+	#==============================#
+
+	def StartsWithAny(cPipeSeparated)
+		return StzEngineStringBeginsWithAnyX(@pEngine, cPipeSeparated) = 1
+
+		def BeginsWithAny(cPipeSeparated)
+			return This.StartsWithAny(cPipeSeparated)
+
+	def EndsWithAny(cPipeSeparated)
+		return StzEngineStringFinishesWithAnyX(@pEngine, cPipeSeparated) = 1
+
+		def FinishesWithAny(cPipeSeparated)
+			return This.EndsWithAny(cPipeSeparated)
+
+	  #==============================#
+	 #  TO BINARY                  #
+	#==============================#
+
+	def ToBinary()
+		pResult = StzEngineStringToBinary(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def BinaryRepresentation()
+			return This.ToBinary()
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#

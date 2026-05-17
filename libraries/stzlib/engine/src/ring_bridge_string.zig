@@ -1689,6 +1689,36 @@ fn ring_StringCaesar(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_caesar(h, shift)), STZ_HANDLE);
 }
 
+fn ring_StringMirror(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_mirror(h)), STZ_HANDLE);
+}
+
+fn ring_StringRepeatEachChar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_repeat_each_char(h, n)), STZ_HANDLE);
+}
+
+fn ring_StringStartsWithAny(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const prefixes: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const plen: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_starts_with_any(h, prefixes, plen)));
+}
+
+fn ring_StringEndsWithAny(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const suffixes: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const slen: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with_any(h, suffixes, slen)));
+}
+
+fn ring_StringToBinary(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_binary(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1936,6 +1966,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringiskebabcase", .func = &ring_StringIsKebabCase },
     .{ .name = "stzenginestringcountuniquechars", .func = &ring_StringCountUniqueChars },
     .{ .name = "stzenginestringcaesar", .func = &ring_StringCaesar },
+    .{ .name = "stzenginestringmirror", .func = &ring_StringMirror },
+    .{ .name = "stzenginestringrepeateachchar", .func = &ring_StringRepeatEachChar },
+    .{ .name = "stzenginestringbeginswithanyx", .func = &ring_StringStartsWithAny },
+    .{ .name = "stzenginestringfinisheswithanyx", .func = &ring_StringEndsWithAny },
+    .{ .name = "stzenginestringtobinary", .func = &ring_StringToBinary },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

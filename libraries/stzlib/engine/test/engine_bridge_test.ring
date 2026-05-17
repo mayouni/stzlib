@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 243 Registered Functions"
+? "Engine Full Bridge Test -- All 248 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -2702,6 +2702,53 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("Hello, World!")
 pResult = StzEngineStringCaesar(pStr, 13)
 Assert("Caesar ROT13", StzEngineStringData(pResult), "Uryyb, Jbeyq!")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 100: Mirror / RepeatEachChar / BeginsWithAnyX / FinishesWithAnyX / ToBinary
+# ==============================================================
+
+? ""
+? "--- Group 100: Mirror / RepeatEachChar / BeginsWithAnyX / FinishesWithAnyX / ToBinary ---"
+
+pStr = StzEngineStringFrom("abc")
+pResult = StzEngineStringMirror(pStr)
+Assert("Mirror abc", StzEngineStringData(pResult), "abccba")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("a")
+pResult = StzEngineStringMirror(pStr)
+Assert("Mirror single", StzEngineStringData(pResult), "aa")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc")
+pResult = StzEngineStringRepeatEachChar(pStr, 2)
+Assert("RepeatEachChar abc*2", StzEngineStringData(pResult), "aabbcc")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hi")
+pResult = StzEngineStringRepeatEachChar(pStr, 3)
+Assert("RepeatEachChar hi*3", StzEngineStringData(pResult), "hhhiii")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("https://example.com")
+Assert("BeginsWithAnyX http|ftp", StzEngineStringBeginsWithAnyX(pStr, "http|ftp|ssh"), 1)
+Assert("BeginsWithAnyX ftp|ssh (no)", StzEngineStringBeginsWithAnyX(pStr, "ftp|ssh"), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("file.zig")
+Assert("FinishesWithAnyX .zig", StzEngineStringFinishesWithAnyX(pStr, ".txt|.zig|.rs"), 1)
+Assert("FinishesWithAnyX .rs (no)", StzEngineStringFinishesWithAnyX(pStr, ".txt|.rs|.go"), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hi")
+pResult = StzEngineStringToBinary(pStr)
+Assert("ToBinary Hi", StzEngineStringData(pResult), "01001000 01101001")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
