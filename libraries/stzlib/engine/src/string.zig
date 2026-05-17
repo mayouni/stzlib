@@ -334,10 +334,105 @@ pub const str_normalize_spaces = trim.str_normalize_spaces;
 pub const str_squeeze = trim.str_squeeze;
 pub const str_squeeze_char = trim.str_squeeze_char;
 
+const compare = @import("string/compare.zig");
+
+pub const str_compare = compare.str_compare;
+pub const str_prefix_count = compare.str_prefix_count;
+pub const str_suffix_count = compare.str_suffix_count;
+pub const str_common_prefix = compare.str_common_prefix;
+pub const str_common_suffix = compare.str_common_suffix;
+pub const str_common_chars = compare.str_common_chars;
+pub const str_longest_common_prefix = compare.str_longest_common_prefix;
+pub const str_longest_common_suffix = compare.str_longest_common_suffix;
+pub const str_hamming_weight = compare.str_hamming_weight;
+pub const str_commonality = compare.str_commonality;
+pub const str_diff_chars = compare.str_diff_chars;
+
+const counting = @import("string/count.zig");
+
+pub const str_count_chars_of_type = counting.str_count_chars_of_type;
+pub const str_find_chars_of_type = counting.str_find_chars_of_type;
+pub const str_extract_chars_of_type = counting.str_extract_chars_of_type;
+pub const str_char_type_at = counting.str_char_type_at;
+pub const str_unique_chars = counting.str_unique_chars;
+pub const str_unique_char_count = counting.str_unique_char_count;
+pub const str_count_leading_char = counting.str_count_leading_char;
+pub const str_count_trailing_char = counting.str_count_trailing_char;
+pub const str_count_char = counting.str_count_char;
+pub const str_count_overlapping = counting.str_count_overlapping;
+pub const str_count_any_char = counting.str_count_any_char;
+pub const str_count_runs = counting.str_count_runs;
+pub const str_count_vowels = counting.str_count_vowels;
+pub const str_count_consonants = counting.str_count_consonants;
+pub const str_longest_run = counting.str_longest_run;
+pub const str_count_sentences = counting.str_count_sentences;
+pub const str_digit_sum = counting.str_digit_sum;
+pub const str_count_upper = counting.str_count_upper;
+pub const str_count_lower = counting.str_count_lower;
+pub const str_count_unique_chars = counting.str_count_unique_chars;
+pub const str_count_paragraphs = counting.str_count_paragraphs;
+pub const str_count_substring = counting.str_count_substring;
+pub const str_count_words_matching = counting.str_count_words_matching;
+pub const str_count_digits = counting.str_count_digits;
+pub const str_count_spaces = counting.str_count_spaces;
+
+const format = @import("string/format.zig");
+
+// Structural transforms
+pub const str_reverse = format.str_reverse;
+pub const str_repeat = format.str_repeat;
+pub const str_concat = format.str_concat;
+pub const str_copy = format.str_copy;
+pub const str_sort_chars_asc = format.str_sort_chars_asc;
+pub const str_sort_chars_desc = format.str_sort_chars_desc;
+pub const str_repeat_char = format.str_repeat_char;
+pub const str_rotate = format.str_rotate;
+pub const str_repeat_to_length = format.str_repeat_to_length;
+pub const str_swap_chars = format.str_swap_chars;
+pub const str_mirror = format.str_mirror;
+pub const str_repeat_each_char = format.str_repeat_each_char;
+
+// Formatting / presentation
+pub const str_spacify = format.str_spacify;
+pub const str_bytes_per_char = format.str_bytes_per_char;
+pub const str_char_frequency = format.str_char_frequency;
+pub const str_truncate = format.str_truncate;
+pub const str_wrap_at = format.str_wrap_at;
+pub const str_ensure_prefix = format.str_ensure_prefix;
+pub const str_ensure_suffix = format.str_ensure_suffix;
+pub const str_only_letters = format.str_only_letters;
+pub const str_only_digits = format.str_only_digits;
+pub const str_only_vowels = format.str_only_vowels;
+pub const str_interleave = format.str_interleave;
+pub const str_surround = format.str_surround;
+pub const str_mask = format.str_mask;
+pub const str_slug = format.str_slug;
+pub const str_camel_to_words = format.str_camel_to_words;
+pub const str_initials = format.str_initials;
+pub const str_title_smart = format.str_title_smart;
+pub const str_char_frequency_top = format.str_char_frequency_top;
+pub const str_wrap_with = format.str_wrap_with;
+pub const str_abbreviate = format.str_abbreviate;
+pub const str_strip_tags = format.str_strip_tags;
+pub const str_to_slug = format.str_to_slug;
+pub const str_deduplicate_lines = format.str_deduplicate_lines;
+pub const str_number_lines = format.str_number_lines;
+pub const str_hide = format.str_hide;
+pub const str_chop = format.str_chop;
+pub const str_scan_int = format.str_scan_int;
+pub const str_to_ordinal = format.str_to_ordinal;
+pub const str_truncate_words = format.str_truncate_words;
+
+// Word-level operations
+pub const str_reverse_words = format.str_reverse_words;
+pub const str_sort_words = format.str_sort_words;
+pub const str_unique_words = format.str_unique_words;
+pub const str_run_length_encode = format.str_run_length_encode;
+pub const str_run_length_decode = format.str_run_length_decode;
+pub const str_reverse_each_word = format.str_reverse_each_word;
+
 // ─── Search ───
 
-/// Unified index_of with case sensitivity parameter.
-/// case=1: case-sensitive, case=0: case-insensitive (Unicode casefold).
 // str_index_of_cs, str_index_of, str_index_of_from_cs, str_index_of_from, str_index_of_ci -> string/find.zig
 // str_byte_to_cp, str_count_of -> string/find.zig
 
@@ -378,59 +473,9 @@ pub const str_squeeze_char = trim.str_squeeze_char;
 
 // str_to_title -> string/transform.zig
 
-/// Reverse the codepoints in the string. Returns a new handle.
-pub fn str_reverse(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    if (handle) |s| {
-        const src = s.slice();
-        if (src.len == 0) return str_new();
+// str_reverse -> string/format.zig
 
-        // Count codepoints to allocate offset array
-        const cp_count = utf8CodepointCount(src);
-        const offsets = gpa.alloc(usize, cp_count + 1) catch return str_new();
-        defer gpa.free(offsets);
-
-        // Fill offset array with byte positions of each codepoint
-        var i: usize = 0;
-        var idx: usize = 0;
-        while (i < src.len) {
-            offsets[idx] = i;
-            idx += 1;
-            const cp_len = std.unicode.utf8ByteSequenceLength(src[i]) catch 1;
-            i += cp_len;
-        }
-        offsets[idx] = src.len;
-
-        const r = str_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len) catch { setError(.out_of_memory); };
-
-        // Walk codepoints in reverse order
-        var k: usize = cp_count;
-        while (k > 0) {
-            k -= 1;
-            const start = offsets[k];
-            const end = offsets[k + 1];
-            r.data.appendSlice(gpa, src[start..end]) catch { setError(.out_of_memory); };
-        }
-        return r;
-    }
-    return str_new();
-}
-
-/// Repeat the string `count` times. Returns a new handle.
-pub fn str_repeat(handle: StzStringHandle, count: c_int) callconv(.c) StzStringHandle {
-    if (handle) |s| {
-        const src = s.slice();
-        if (src.len == 0 or count <= 0) return str_new();
-        const n: usize = @intCast(count);
-        const r = str_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len * n) catch { setError(.out_of_memory); };
-        for (0..n) |_| {
-            r.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
-        }
-        return r;
-    }
-    return str_new();
-}
+// str_repeat -> string/format.zig
 
 // str_pad_left -> string/trim.zig
 // str_pad_right -> string/trim.zig
@@ -440,8 +485,6 @@ pub fn str_repeat(handle: StzStringHandle, count: c_int) callconv(.c) StzStringH
 // str_trim_left -> string/trim.zig
 // str_trim_right -> string/trim.zig
 
-/// Check if two strings are equal (case-sensitive). Returns 1 or 0.
-/// Unified equals with case sensitivity parameter.
 // str_equals_cs, str_equals, str_equals_ci -> string/find.zig
 // str_find_nth_cs, str_find_nth, str_find_nth_ci -> string/find.zig
 
@@ -457,36 +500,9 @@ pub fn str_repeat(handle: StzStringHandle, count: c_int) callconv(.c) StzStringH
 
 // str_is_empty -> string/inspect.zig
 
-/// Extract the substring between the first occurrence of `open` and the first
-/// subsequent occurrence of `close`. Returns new handle, or null if not found.
 // str_between -> string/extract.zig
 
-/// Count how many codepoints match a predicate class.
-/// Classes: 0=letter, 1=digit, 2=whitespace, 3=uppercase, 4=lowercase, 5=punctuation
-pub fn str_count_chars_of_type(handle: StzStringHandle, char_type: c_int) callconv(.c) c_int {
-    if (handle) |s| {
-        const bytes = s.slice();
-        var i: usize = 0;
-        var count: c_int = 0;
-        while (i < bytes.len) {
-            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-            const matches: bool = switch (char_type) {
-                0 => unicode.stz_unicode_is_letter(cp_val) == 1,
-                1 => unicode.stz_unicode_is_digit(cp_val) == 1,
-                2 => unicode.stz_unicode_is_space(cp_val) == 1,
-                3 => unicode.stz_unicode_is_upper(cp_val) == 1,
-                4 => unicode.stz_unicode_is_lower(cp_val) == 1,
-                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
-                else => false,
-            };
-            if (matches) count += 1;
-            i += cp_len;
-        }
-        return count;
-    }
-    return 0;
-}
+// str_count_chars_of_type -> string/count.zig
 
 // str_is_numeric -> string/inspect.zig
 
@@ -502,100 +518,17 @@ pub fn str_count_chars_of_type(handle: StzStringHandle, char_type: c_int) callco
 
 // str_is_palindrome -> string/inspect.zig
 
-/// Find positions (0-based codepoint indices) of characters matching a type.
-/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct
-pub fn str_find_chars_of_type(handle: StzStringHandle, char_type: c_int) callconv(.c) StzFindResultHandle {
-    const r = gpa.create(StzFindResult) catch return null;
-    r.* = StzFindResult.init();
-    if (handle) |s| {
-        const bytes = s.slice();
-        var i: usize = 0;
-        var cp_idx: usize = 0;
-        while (i < bytes.len) {
-            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-            const matches: bool = switch (char_type) {
-                0 => unicode.stz_unicode_is_letter(cp_val) == 1,
-                1 => unicode.stz_unicode_is_digit(cp_val) == 1,
-                2 => unicode.stz_unicode_is_space(cp_val) == 1,
-                3 => unicode.stz_unicode_is_upper(cp_val) == 1,
-                4 => unicode.stz_unicode_is_lower(cp_val) == 1,
-                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
-                else => false,
-            };
-            if (matches) {
-                r.positions.append(gpa, toExternal(cp_idx)) catch break;
-            }
-            cp_idx += 1;
-            i += cp_len;
-        }
-    }
-    return r;
-}
+// str_find_chars_of_type -> string/count.zig
 
-/// Extract characters matching a type as a new string (letters only, digits only, etc).
-/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower
-pub fn str_extract_chars_of_type(handle: StzStringHandle, char_type: c_int) callconv(.c) StzStringHandle {
-    if (handle) |s| {
-        const bytes = s.slice();
-        const result = str_new() orelse return null;
-        var i: usize = 0;
-        while (i < bytes.len) {
-            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-            const cp_end = @min(i + cp_len, bytes.len);
-            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-            const matches: bool = switch (char_type) {
-                0 => unicode.stz_unicode_is_letter(cp_val) == 1,
-                1 => unicode.stz_unicode_is_digit(cp_val) == 1,
-                2 => unicode.stz_unicode_is_space(cp_val) == 1,
-                3 => unicode.stz_unicode_is_upper(cp_val) == 1,
-                4 => unicode.stz_unicode_is_lower(cp_val) == 1,
-                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
-                else => false,
-            };
-            if (matches) {
-                result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
-            }
-            i += cp_len;
-        }
-        return result;
-    }
-    return null;
-}
+// str_extract_chars_of_type -> string/count.zig
 
 // str_is_ascii -> string/inspect.zig
 
 // str_remove_char_at -> string/replace.zig
 
-/// Return the character type at a codepoint index (INDEX_BASE convention).
-/// Returns: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct, -1=invalid
-pub fn str_char_type_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
-    if (handle) |s| {
-        const src = s.slice();
-        if (cp_index < INDEX_BASE) return -1;
-        const idx: usize = toInternal(@intCast(cp_index));
-        const byte_offset = codepointIndexToByteOffset(src, idx);
-        if (byte_offset >= src.len) return -1;
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[byte_offset]) catch return -1;
-        const cp_val: i32 = decodeCodepoint(src, byte_offset, cp_len);
-        if (cp_val < 0) return -1;
-        if (unicode.stz_unicode_is_upper(cp_val) == 1) return 3;
-        if (unicode.stz_unicode_is_lower(cp_val) == 1) return 4;
-        if (unicode.stz_unicode_is_letter(cp_val) == 1) return 0;
-        if (unicode.stz_unicode_is_digit(cp_val) == 1) return 1;
-        if (unicode.stz_unicode_is_space(cp_val) == 1) return 2;
-        return 5; // punctuation/other
-    }
-    return -1;
-}
+// str_char_type_at -> string/count.zig
 
-/// Concatenate two strings, returning a new handle.
-pub fn str_concat(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) StzStringHandle {
-    const result = str_new() orelse return null;
-    if (h1) |s1| result.data.appendSlice(gpa, s1.slice()) catch return null;
-    if (h2) |s2| result.data.appendSlice(gpa, s2.slice()) catch return null;
-    return result;
-}
+// str_concat -> string/format.zig
 
 // str_is_uppercase -> string/inspect.zig
 
@@ -619,36 +552,13 @@ pub fn str_concat(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) StzStri
 
 // str_replace_char_at -> string/replace.zig
 
-/// Compute Levenshtein edit distance between two strings (codepoint-level).
 // Levenshtein -> string/nlp.zig
 
 // str_is_title_case -> string/inspect.zig
 
 // str_lines_split_count, str_line_at -> string/split.zig
 
-/// Return a new string with duplicate codepoints removed (preserves first occurrence order).
-pub fn str_unique_chars(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = (handle orelse return null);
-    const bytes = s.slice();
-    const result = str_new() orelse return null;
-
-    // Track seen codepoints with a simple array (works for BMP + beyond)
-    var seen = std.AutoHashMap(i32, void).init(gpa);
-    defer seen.deinit();
-
-    var i: usize = 0;
-    while (i < bytes.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-        const cp_end = @min(i + cp_len, bytes.len);
-        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-        if (!seen.contains(cp_val)) {
-            seen.put(cp_val, {}) catch break;
-            result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
-        }
-        i += cp_len;
-    }
-    return result;
-}
+// str_unique_chars -> string/count.zig
 
 // str_remove_all_ci -> string/replace.zig
 
@@ -656,21 +566,7 @@ pub fn str_unique_chars(handle: StzStringHandle) callconv(.c) StzStringHandle {
 
 // str_is_alnum -> string/inspect.zig
 
-/// Return number of unique codepoints.
-pub fn str_unique_char_count(handle: StzStringHandle) callconv(.c) c_int {
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    var seen = std.AutoHashMap(i32, void).init(gpa);
-    defer seen.deinit();
-    var i: usize = 0;
-    while (i < bytes.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-        seen.put(cp_val, {}) catch break;
-        i += cp_len;
-    }
-    return @intCast(seen.count());
-}
+// str_unique_char_count -> string/count.zig
 
 // str_contains_char -> string/inspect.zig
 
@@ -1901,45 +1797,7 @@ test "ends_with_digit_letter" {
 
 // ─── CountLeadingChar / CountTrailingChar ───
 
-pub fn str_count_leading_char(handle: StzStringHandle, codepoint: u32) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    var off: usize = 0;
-    var count: c_int = 0;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-        if (off + cp_len > buf.len) break;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
-        if (cp_val != codepoint) break;
-        count += 1;
-        off += cp_len;
-    }
-    return count;
-}
-
-pub fn str_count_trailing_char(handle: StzStringHandle, codepoint: u32) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (buf.len == 0) return 0;
-
-    // Walk from the end backwards through UTF-8 sequences
-    var count: c_int = 0;
-    var pos: usize = buf.len;
-    while (pos > 0) {
-        // Find start of previous codepoint
-        var start = pos - 1;
-        while (start > 0 and (buf[start] & 0xC0) == 0x80) {
-            start -= 1;
-        }
-        const cp_len = pos - start;
-        const cp_val = std.unicode.utf8Decode(buf[start..pos]) catch break;
-        _ = cp_len;
-        if (cp_val != codepoint) break;
-        count += 1;
-        pos = start;
-    }
-    return count;
-}
+// str_count_leading_char, str_count_trailing_char -> string/count.zig
 
 // ─── IsNumericString: all digits, optional leading +/- ───
 
@@ -1951,75 +1809,11 @@ pub fn str_count_trailing_char(handle: StzStringHandle, codepoint: u32) callconv
 
 // ─── SpacifyChars: "abc" → "a b c" (codepoint-aware) ───
 
-pub fn str_spacify(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-    if (buf.len == 0) {
-        const result = gpa.create(StzString) catch return null;
-        result.* = StzString.init();
-        return result;
-    }
-
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-
-    var off: usize = 0;
-    var first = true;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-        if (off + cp_len > buf.len) break;
-        if (!first) {
-            result.data.append(gpa, ' ') catch {
-                result.deinit();
-                gpa.destroy(result);
-                return null;
-            };
-        }
-        result.data.appendSlice(gpa, buf[off .. off + cp_len]) catch {
-            result.deinit();
-            gpa.destroy(result);
-            return null;
-        };
-        first = false;
-        off += cp_len;
-    }
-    return result;
-}
+// str_spacify -> string/format.zig
 
 // ─── NumberOfBytesPerChar: returns list as "1 1 2 3" for mixed-byte chars ───
 
-pub fn str_bytes_per_char(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-
-    var off: usize = 0;
-    var first = true;
-    var num_buf: [4]u8 = undefined;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-        if (off + cp_len > buf.len) break;
-        if (!first) {
-            result.data.append(gpa, ' ') catch {
-                result.deinit();
-                gpa.destroy(result);
-                return null;
-            };
-        }
-        // cp_len is 1..4, write as ASCII digit
-        num_buf[0] = '0' + @as(u8, @intCast(cp_len));
-        result.data.append(gpa, num_buf[0]) catch {
-            result.deinit();
-            gpa.destroy(result);
-            return null;
-        };
-        first = false;
-        off += cp_len;
-    }
-    return result;
-}
+// str_bytes_per_char -> string/format.zig
 
 // ─── Tests for new functions ───
 
@@ -2208,115 +2002,10 @@ test "remove_consecutive_duplicates" {
 
 // str_replace_substring -> string/replace.zig
 
-// ─── HasPrefix / HasSuffix with count (how many times a prefix/suffix repeats) ───
-
-pub fn str_prefix_count(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (prefix == null or prefix_len == 0 or buf.len == 0) return 0;
-    const pref = prefix[0..prefix_len];
-
-    var count: c_int = 0;
-    var off: usize = 0;
-    while (off + prefix_len <= buf.len) {
-        if (mem.eql(u8, buf[off .. off + prefix_len], pref)) {
-            count += 1;
-            off += prefix_len;
-        } else {
-            break;
-        }
-    }
-    return count;
-}
-
-pub fn str_suffix_count(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (suffix == null or suffix_len == 0 or buf.len == 0) return 0;
-    const suf = suffix[0..suffix_len];
-
-    var count: c_int = 0;
-    var pos: usize = buf.len;
-    while (pos >= suffix_len) {
-        if (mem.eql(u8, buf[pos - suffix_len .. pos], suf)) {
-            count += 1;
-            pos -= suffix_len;
-        } else {
-            break;
-        }
-    }
-    return count;
-}
-
-// ─── CommonPrefix / CommonSuffix between two strings ───
-
-pub fn str_common_prefix(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) StzStringHandle {
-    const s1 = h1 orelse return null;
-    const s2 = h2 orelse return null;
-    const b1 = s1.slice();
-    const b2 = s2.slice();
-
-    var off: usize = 0;
-    var last_cp_end: usize = 0;
-    while (off < b1.len and off < b2.len) {
-        const len1 = std.unicode.utf8ByteSequenceLength(b1[off]) catch break;
-        const len2 = std.unicode.utf8ByteSequenceLength(b2[off]) catch break;
-        if (len1 != len2 or off + len1 > b1.len or off + len2 > b2.len) break;
-        if (!mem.eql(u8, b1[off .. off + len1], b2[off .. off + len2])) break;
-        off += len1;
-        last_cp_end = off;
-    }
-
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-    if (last_cp_end > 0) {
-        result.data.appendSlice(gpa, b1[0..last_cp_end]) catch {
-            result.deinit();
-            gpa.destroy(result);
-            return null;
-        };
-    }
-    return result;
-}
-
-pub fn str_common_suffix(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) StzStringHandle {
-    const s1 = h1 orelse return null;
-    const s2 = h2 orelse return null;
-    const b1 = s1.slice();
-    const b2 = s2.slice();
-
-    if (b1.len == 0 or b2.len == 0) {
-        const result = gpa.create(StzString) catch return null;
-        result.* = StzString.init();
-        return result;
-    }
-
-    // Walk backwards byte by byte, but verify codepoint boundaries
-    var i: usize = 0;
-    const min_len = @min(b1.len, b2.len);
-    while (i < min_len) {
-        if (b1[b1.len - 1 - i] != b2[b2.len - 1 - i]) break;
-        i += 1;
-    }
-
-    // Adjust to codepoint boundary
-    const start = b1.len - i;
-    var adjusted_start = start;
-    while (adjusted_start < b1.len and (b1[adjusted_start] & 0xC0) == 0x80) {
-        adjusted_start += 1;
-    }
-
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-    if (adjusted_start < b1.len) {
-        result.data.appendSlice(gpa, b1[adjusted_start..]) catch {
-            result.deinit();
-            gpa.destroy(result);
-            return null;
-        };
-    }
-    return result;
-}
+// str_prefix_count -> string/compare.zig
+// str_suffix_count -> string/compare.zig
+// str_common_prefix -> string/compare.zig
+// str_common_suffix -> string/compare.zig
 
 // ─── Tests for new batch ───
 
@@ -2370,81 +2059,9 @@ test "common_prefix_suffix" {
 
 // ─── SortChars: sort codepoints ascending/descending ───
 
-pub fn str_sort_chars_asc(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-    if (buf.len == 0) {
-        const result = gpa.create(StzString) catch return null;
-        result.* = StzString.init();
-        return result;
-    }
+// str_sort_chars_asc -> string/format.zig
 
-    // Collect codepoints
-    var cps: std.ArrayList(u21) = .{};
-    defer cps.deinit(gpa);
-    var off: usize = 0;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-        if (off + cp_len > buf.len) break;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
-        cps.append(gpa, cp_val) catch return null;
-        off += cp_len;
-    }
-
-    // Sort ascending
-    std.mem.sort(u21, cps.items, {}, std.sort.asc(u21));
-
-    // Rebuild UTF-8
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-    var enc_buf: [4]u8 = undefined;
-    for (cps.items) |cp| {
-        const enc_len = std.unicode.utf8Encode(cp, &enc_buf) catch continue;
-        result.data.appendSlice(gpa, enc_buf[0..enc_len]) catch {
-            result.deinit();
-            gpa.destroy(result);
-            return null;
-        };
-    }
-    return result;
-}
-
-pub fn str_sort_chars_desc(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-    if (buf.len == 0) {
-        const result = gpa.create(StzString) catch return null;
-        result.* = StzString.init();
-        return result;
-    }
-
-    var cps: std.ArrayList(u21) = .{};
-    defer cps.deinit(gpa);
-    var off: usize = 0;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-        if (off + cp_len > buf.len) break;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
-        cps.append(gpa, cp_val) catch return null;
-        off += cp_len;
-    }
-
-    // Sort descending
-    std.mem.sort(u21, cps.items, {}, std.sort.desc(u21));
-
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-    var enc_buf: [4]u8 = undefined;
-    for (cps.items) |cp| {
-        const enc_len = std.unicode.utf8Encode(cp, &enc_buf) catch continue;
-        result.data.appendSlice(gpa, enc_buf[0..enc_len]) catch {
-            result.deinit();
-            gpa.destroy(result);
-            return null;
-        };
-    }
-    return result;
-}
+// str_sort_chars_desc -> string/format.zig
 
 // str_find_all_char -> string/find.zig
 
@@ -2452,65 +2069,15 @@ pub fn str_sort_chars_desc(handle: StzStringHandle) callconv(.c) StzStringHandle
 
 // ─── CountChar: count occurrences of a specific codepoint ───
 
-pub fn str_count_char(handle: StzStringHandle, codepoint: u32) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    var count: c_int = 0;
-    var off: usize = 0;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-        if (off + cp_len > buf.len) break;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
-        if (cp_val == codepoint) count += 1;
-        off += cp_len;
-    }
-    return count;
-}
+// str_count_char -> string/count.zig
 
 // str_replace_char -> string/replace.zig
 
 // ─── Copy ───
 
-pub fn str_copy(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
+// str_copy -> string/format.zig
 
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-    result.data.appendSlice(gpa, buf) catch {
-        result.deinit();
-        gpa.destroy(result);
-        return null;
-    };
-    return result;
-}
-
-// ─── Compare ───
-
-pub fn str_compare(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
-    const s1 = h1 orelse return -2;
-    const s2 = h2 orelse return -2;
-    const buf1 = s1.slice();
-    const buf2 = s2.slice();
-
-    // Codepoint-by-codepoint comparison
-    var off1: usize = 0;
-    var off2: usize = 0;
-    while (off1 < buf1.len and off2 < buf2.len) {
-        const len1 = std.unicode.utf8ByteSequenceLength(buf1[off1]) catch return -2;
-        const len2 = std.unicode.utf8ByteSequenceLength(buf2[off2]) catch return -2;
-        if (off1 + len1 > buf1.len or off2 + len2 > buf2.len) return -2;
-        const cp1 = std.unicode.utf8Decode(buf1[off1..][0..len1]) catch return -2;
-        const cp2 = std.unicode.utf8Decode(buf2[off2..][0..len2]) catch return -2;
-        if (cp1 < cp2) return -1;
-        if (cp1 > cp2) return 1;
-        off1 += len1;
-        off2 += len2;
-    }
-    if (off1 < buf1.len) return 1; // s1 longer
-    if (off2 < buf2.len) return -1; // s2 longer
-    return 0;
-}
+// str_compare -> string/compare.zig
 
 // str_remove_first_occurrence -> string/replace.zig
 
@@ -2528,31 +2095,7 @@ pub fn str_compare(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int 
 
 // ─── RepeatChar ───
 
-pub fn str_repeat_char(cp: u32, count: c_int) callconv(.c) StzStringHandle {
-    if (count <= 0) return str_new();
-
-    var char_bytes: [4]u8 = undefined;
-    const cp21: u21 = @intCast(cp);
-    const char_len = std.unicode.utf8Encode(cp21, &char_bytes) catch return null;
-
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-
-    const n: usize = @intCast(count);
-    result.data.ensureTotalCapacity(gpa, n * char_len) catch {
-        result.deinit();
-        gpa.destroy(result);
-        return null;
-    };
-    for (0..n) |_| {
-        result.data.appendSlice(gpa, char_bytes[0..char_len]) catch {
-            result.deinit();
-            gpa.destroy(result);
-            return null;
-        };
-    }
-    return result;
-}
+// str_repeat_char -> string/format.zig
 
 // str_insert_before_each -> string/replace.zig
 
@@ -2560,94 +2103,11 @@ pub fn str_repeat_char(cp: u32, count: c_int) callconv(.c) StzStringHandle {
 
 // ─── Truncate ───
 
-pub fn str_truncate(handle: StzStringHandle, max_cp: c_int, ellipsis: [*c]const u8, ell_len: usize) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-    if (max_cp <= 0) return str_new();
-
-    // Count codepoints
-    var cp_count: usize = 0;
-    var off: usize = 0;
-    var cut_off: usize = 0;
-    const max: usize = @intCast(max_cp);
-    while (off < buf.len) {
-        if (cp_count == max) {
-            cut_off = off;
-            break;
-        }
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-        if (off + cp_len > buf.len) break;
-        off += cp_len;
-        cp_count += 1;
-    }
-
-    // If string fits, return copy
-    if (cp_count <= max and off >= buf.len) return str_copy(handle);
-
-    // Need truncation
-    if (cut_off == 0) cut_off = off;
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-    result.data.appendSlice(gpa, buf[0..cut_off]) catch {
-        result.deinit();
-        gpa.destroy(result);
-        return null;
-    };
-    if (ellipsis != null and ell_len > 0) {
-        result.data.appendSlice(gpa, ellipsis[0..ell_len]) catch {
-            result.deinit();
-            gpa.destroy(result);
-            return null;
-        };
-    }
-    return result;
-}
+// str_truncate -> string/format.zig
 
 // ─── WrapAt ───
 
-pub fn str_wrap_at(handle: StzStringHandle, width: c_int) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-    if (width <= 0) return str_copy(handle);
-    const w: usize = @intCast(width);
-
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-
-    var line_cp: usize = 0;
-    var last_space_result_pos: ?usize = null;
-    var off: usize = 0;
-
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-        if (off + cp_len > buf.len) break;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
-
-        if (cp_val == '\n') {
-            result.data.append(gpa, '\n') catch break;
-            off += cp_len;
-            line_cp = 0;
-            last_space_result_pos = null;
-            continue;
-        }
-
-        if (cp_val == ' ') {
-            last_space_result_pos = result.data.items.len;
-        }
-
-        result.data.appendSlice(gpa, buf[off .. off + cp_len]) catch break;
-        off += cp_len;
-        line_cp += 1;
-
-        if (line_cp >= w and last_space_result_pos != null) {
-            // Replace last space with newline
-            result.data.items[last_space_result_pos.?] = '\n';
-            line_cp = result.data.items.len - last_space_result_pos.? - 1;
-            last_space_result_pos = null;
-        }
-    }
-    return result;
-}
+// str_wrap_at -> string/format.zig
 
 // str_remove_prefix -> string/replace.zig
 
@@ -2655,51 +2115,11 @@ pub fn str_wrap_at(handle: StzStringHandle, width: c_int) callconv(.c) StzString
 
 // ─── EnsurePrefix ───
 
-pub fn str_ensure_prefix(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-    if (prefix == null or prefix_len == 0) return str_copy(handle);
-    const pfx: []const u8 = prefix[0..prefix_len];
-    if (mem.startsWith(u8, buf, pfx)) return str_copy(handle);
-
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-    result.data.appendSlice(gpa, pfx) catch {
-        result.deinit();
-        gpa.destroy(result);
-        return null;
-    };
-    result.data.appendSlice(gpa, buf) catch {
-        result.deinit();
-        gpa.destroy(result);
-        return null;
-    };
-    return result;
-}
+// str_ensure_prefix -> string/format.zig
 
 // ─── EnsureSuffix ───
 
-pub fn str_ensure_suffix(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-    if (suffix == null or suffix_len == 0) return str_copy(handle);
-    const sfx: []const u8 = suffix[0..suffix_len];
-    if (mem.endsWith(u8, buf, sfx)) return str_copy(handle);
-
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-    result.data.appendSlice(gpa, buf) catch {
-        result.deinit();
-        gpa.destroy(result);
-        return null;
-    };
-    result.data.appendSlice(gpa, sfx) catch {
-        result.deinit();
-        gpa.destroy(result);
-        return null;
-    };
-    return result;
-}
+// str_ensure_suffix -> string/format.zig
 
 // str_squeeze_char -> string/trim.zig
 
@@ -2711,85 +2131,14 @@ pub fn str_ensure_suffix(handle: StzStringHandle, suffix: [*c]const u8, suffix_l
 
 // str_tab_expand -> string/trim.zig
 
-// ─── CountOverlapping ───
-// Count overlapping occurrences of needle in string
-
-pub fn str_count_overlapping(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const buf = s.slice();
-    if (needle == null or needle_len == 0 or needle_len > buf.len) return 0;
-    const ndl: []const u8 = needle[0..needle_len];
-
-    var count: c_int = 0;
-    var pos: usize = 0;
-    while (pos + needle_len <= buf.len) {
-        if (mem.eql(u8, buf[pos..][0..needle_len], ndl)) {
-            count += 1;
-            // Move by 1 byte for overlapping (not by needle_len)
-            pos += 1;
-        } else {
-            pos += 1;
-        }
-    }
-    return count;
-}
+// str_count_overlapping -> string/count.zig
 
 // str_replace_at -> string/replace.zig
 
 // ─── CharFrequency ───
 // Returns "char:count" pairs separated by newlines, e.g. "a:3\nb:2\n"
 
-pub fn str_char_frequency(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-    if (buf.len == 0) return str_new();
-
-    // Collect codepoints and count them
-    var cps: std.ArrayList(u21) = .{};
-    defer cps.deinit(gpa);
-    var counts: std.ArrayList(usize) = .{};
-    defer counts.deinit(gpa);
-
-    var off: usize = 0;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-        if (off + cp_len > buf.len) break;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
-        off += cp_len;
-
-        // Find if already tracked
-        var found = false;
-        for (cps.items, 0..) |existing, i| {
-            if (existing == cp_val) {
-                counts.items[i] += 1;
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            cps.append(gpa, cp_val) catch break;
-            counts.append(gpa, 1) catch break;
-        }
-    }
-
-    // Build result string
-    const result = gpa.create(StzString) catch return null;
-    result.* = StzString.init();
-
-    for (cps.items, 0..) |cp_val, i| {
-        var cp_bytes: [4]u8 = undefined;
-        const cp_byte_len = std.unicode.utf8Encode(cp_val, &cp_bytes) catch continue;
-        result.data.appendSlice(gpa, cp_bytes[0..cp_byte_len]) catch break;
-        result.data.append(gpa, ':') catch break;
-
-        // Number to string
-        var num_buf: [20]u8 = undefined;
-        const num_str = std.fmt.bufPrint(&num_buf, "{d}", .{counts.items[i]}) catch break;
-        result.data.appendSlice(gpa, num_str) catch break;
-        result.data.append(gpa, '\n') catch break;
-    }
-    return result;
-}
+// str_char_frequency -> string/format.zig
 
 // ─── ContainsAnyOf ───
 // Check if string contains any of the characters in the given string
@@ -2804,41 +2153,9 @@ pub fn str_char_frequency(handle: StzStringHandle) callconv(.c) StzStringHandle 
 
 // ─── Only Letters / Digits ───
 
-pub fn str_only_letters(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return str_new();
-    const src = s.slice();
-    const r = str_new() orelse return null;
+// str_only_letters -> string/format.zig
 
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
-        if (unicode.stz_unicode_is_letter(cp) != 0) {
-            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
-        }
-        off += cp_len;
-    }
-    return r;
-}
-
-pub fn str_only_digits(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return str_new();
-    const src = s.slice();
-    const r = str_new() orelse return null;
-
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
-        if (unicode.stz_unicode_is_digit(cp) != 0) {
-            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
-        }
-        off += cp_len;
-    }
-    return r;
-}
+// str_only_digits -> string/format.zig
 
 // str_remove_whitespace -> string/replace.zig
 
@@ -2878,30 +2195,8 @@ pub fn str_only_digits(handle: StzStringHandle) callconv(.c) StzStringHandle {
 
 // ─── StringMultiply (interleave) ───
 
-/// Interleave: place separator between each codepoint. "abc" with "," => "a,b,c"
-pub fn str_interleave(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
-    const s = handle orelse return str_new();
-    const src = s.slice();
-    if (src.len == 0) return str_new();
-
-    const separator = if (sep_len > 0) sep[0..sep_len] else return str_from(src.ptr, src.len);
-    const r = str_new() orelse return null;
-    var first = true;
-    var off: usize = 0;
-
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-
-        if (!first) {
-            r.data.appendSlice(gpa, separator) catch { setError(.out_of_memory); };
-        }
-        r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
-        first = false;
-        off += cp_len;
-    }
-    return r;
-}
+// Interleave: place separator between each codepoint. "abc" with "," => "a,b,c"
+// str_interleave -> string/format.zig
 
 // str_strip_chars -> string/replace.zig
 
@@ -2911,141 +2206,20 @@ pub fn str_interleave(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize
 
 // ─── Surround ───
 
-/// Wrap string with prefix and suffix: surround("hello", "[", "]") => "[hello]"
-pub fn str_surround(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize, suffix: [*c]const u8, suffix_len: usize) callconv(.c) StzStringHandle {
-    const s = handle orelse return str_new();
-    const src = s.slice();
-
-    const r = str_new() orelse return null;
-    if (prefix_len > 0) r.data.appendSlice(gpa, prefix[0..prefix_len]) catch { setError(.out_of_memory); };
-    r.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
-    if (suffix_len > 0) r.data.appendSlice(gpa, suffix[0..suffix_len]) catch { setError(.out_of_memory); };
-    return r;
-}
+// Wrap string with prefix and suffix: surround("hello", "[", "]") => "[hello]"
+// str_surround -> string/format.zig
 
 // str_replace_any_char -> string/replace.zig
 
-// ─── CountMatches ───
+// str_count_any_char -> string/count.zig
 
-/// Count how many codepoints in the string match any char in the `chars` set.
-pub fn str_count_any_char(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0 or chars_len == 0) return 0;
+// Rotate codepoints left by `n` positions. Negative n rotates right.
+// Returns new handle with rotated string.
+// str_rotate -> string/format.zig
 
-    const charset = chars[0..chars_len];
-    var count: c_int = 0;
-    var off: usize = 0;
-
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-
-        var coff: usize = 0;
-        while (coff < charset.len) {
-            const c_len = std.unicode.utf8ByteSequenceLength(charset[coff]) catch break;
-            if (coff + c_len > charset.len) break;
-            if (c_len == cp_len and mem.eql(u8, src[off..][0..cp_len], charset[coff..][0..c_len])) {
-                count += 1;
-                break;
-            }
-            coff += c_len;
-        }
-        off += cp_len;
-    }
-    return count;
-}
-
-/// Rotate codepoints left by `n` positions. Negative n rotates right.
-/// Returns new handle with rotated string.
-pub fn str_rotate(handle: StzStringHandle, n: c_int) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0) return str_from(src.ptr, src.len);
-
-    // Count codepoints
-    var cp_count: usize = 0;
-    var i: usize = 0;
-    while (i < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[i]) catch break;
-        if (i + cp_len > src.len) break;
-        cp_count += 1;
-        i += cp_len;
-    }
-    if (cp_count == 0) return str_from(src.ptr, src.len);
-
-    // Normalize rotation amount
-    const cpi: i64 = @intCast(cp_count);
-    var rot: i64 = @rem(@as(i64, n), cpi);
-    if (rot < 0) rot += cpi;
-    if (rot == 0) return str_from(src.ptr, src.len);
-
-    // Find byte offset of rotation point
-    var off: usize = 0;
-    var cp_idx: usize = 0;
-    while (cp_idx < @as(usize, @intCast(rot)) and off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        off += cp_len;
-        cp_idx += 1;
-    }
-
-    const result = str_new() orelse return null;
-    result.data.appendSlice(gpa, src[off..]) catch {
-        str_free(result);
-        return null;
-    };
-    result.data.appendSlice(gpa, src[0..off]) catch {
-        str_free(result);
-        return null;
-    };
-    return result;
-}
-
-/// Repeat string to fill exactly `target_len` codepoints.
-/// Returns new handle.
-pub fn str_repeat_to_length(handle: StzStringHandle, target_len: c_int) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0 or target_len <= 0) return str_new();
-
-    const target: usize = @intCast(target_len);
-
-    // Count codepoints in source
-    var cp_count: usize = 0;
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        cp_count += 1;
-        off += cp_len;
-    }
-    if (cp_count == 0) return str_new();
-
-    const result = str_new() orelse return null;
-    var written: usize = 0;
-    while (written < target) {
-        const remaining = target - written;
-        if (remaining >= cp_count) {
-            // Append full copy
-            result.data.appendSlice(gpa, src) catch break;
-            written += cp_count;
-        } else {
-            // Append partial: walk `remaining` codepoints
-            var poff: usize = 0;
-            var pidx: usize = 0;
-            while (pidx < remaining and poff < src.len) {
-                const plen = std.unicode.utf8ByteSequenceLength(src[poff]) catch break;
-                if (poff + plen > src.len) break;
-                poff += plen;
-                pidx += 1;
-            }
-            result.data.appendSlice(gpa, src[0..poff]) catch break;
-            written += remaining;
-        }
-    }
-    return result;
-}
+// Repeat string to fill exactly `target_len` codepoints.
+// Returns new handle.
+// str_repeat_to_length -> string/format.zig
 
 // str_remove_between -> string/replace.zig
 
@@ -3061,379 +2235,67 @@ pub fn str_repeat_to_length(handle: StzStringHandle, target_len: c_int) callconv
 
 // str_capitalize_words -> string/transform.zig
 
-/// Swap characters at two codepoint positions (INDEX_BASE convention). Returns new handle.
-pub fn str_swap_chars(handle: StzStringHandle, pos1: c_int, pos2: c_int) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0 or pos1 < INDEX_BASE or pos2 < INDEX_BASE or pos1 == pos2) return str_from(src.ptr, src.len);
-
-    const p1: usize = toInternal(@intCast(pos1));
-    const p2: usize = toInternal(@intCast(pos2));
-
-    // Build array of byte-offset ranges for each codepoint
-    var offsets: [32768]struct { start: usize, len: usize } = undefined;
-    var cp_count: usize = 0;
-    var off: usize = 0;
-    while (off < src.len and cp_count < 32768) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        offsets[cp_count] = .{ .start = off, .len = cp_len };
-        cp_count += 1;
-        off += cp_len;
-    }
-
-    if (p1 >= cp_count or p2 >= cp_count) return str_from(src.ptr, src.len);
-
-    const result = str_new() orelse return null;
-    var idx: usize = 0;
-    while (idx < cp_count) {
-        const actual = if (idx == p1) p2 else if (idx == p2) p1 else idx;
-        const o = offsets[actual];
-        result.data.appendSlice(gpa, src[o.start..][0..o.len]) catch break;
-        idx += 1;
-    }
-    return result;
-}
+// Swap characters at two codepoint positions (INDEX_BASE convention). Returns new handle.
+// str_swap_chars -> string/format.zig
 
 // Hex encode/decode -> string/encode.zig
 
-/// Reverse the order of words in the string. Words are whitespace-delimited.
-/// Returns new handle.
-pub fn str_reverse_words(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0) return str_from(src.ptr, 0);
-
-    // Collect word boundaries (start, end byte offsets)
-    var words: [8192]struct { start: usize, end: usize } = undefined;
-    var word_count: usize = 0;
-    var off: usize = 0;
-    var in_word = false;
-    var word_start: usize = 0;
-
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        const cp_val: i32 = decodeCodepoint(src, off, cp_len);
-        const is_space = unicode.stz_unicode_is_space(cp_val) != 0;
-
-        if (!is_space and !in_word) {
-            word_start = off;
-            in_word = true;
-        } else if (is_space and in_word) {
-            if (word_count < 8192) {
-                words[word_count] = .{ .start = word_start, .end = off };
-                word_count += 1;
-            }
-            in_word = false;
-        }
-        off += cp_len;
-    }
-    if (in_word and word_count < 8192) {
-        words[word_count] = .{ .start = word_start, .end = off };
-        word_count += 1;
-    }
-
-    if (word_count == 0) return str_from(src.ptr, src.len);
-
-    const result = str_new() orelse return null;
-    var i: usize = word_count;
-    while (i > 0) {
-        i -= 1;
-        if (i < word_count - 1) {
-            result.data.appendSlice(gpa, " ") catch break;
-        }
-        const w = words[i];
-        result.data.appendSlice(gpa, src[w.start..w.end]) catch break;
-    }
-    return result;
-}
+// Reverse the order of words in the string. Words are whitespace-delimited.
+// Returns new handle.
+// str_reverse_words -> string/format.zig
 
 // str_collapse_spaces -> string/trim.zig
 
 // str_is_anagram -> string/inspect.zig
 
-/// Mask the string: replace middle characters with mask_char, keeping `keep` chars visible
-/// at start and end. E.g. mask("hello@mail.com", '*', 2) -> "he*********om"
-/// Returns new handle.
-pub fn str_mask(handle: StzStringHandle, mask_char: [*c]const u8, mask_len: usize, keep: c_int) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0 or mask_len == 0) return str_from(src.ptr, src.len);
+// Mask the string: replace middle characters with mask_char, keeping `keep` chars visible
+// at start and end. E.g. mask("hello@mail.com", '*', 2) -> "he*********om"
+// Returns new handle.
+// str_mask -> string/format.zig
 
-    const keep_n: usize = if (keep >= 0) @intCast(keep) else 0;
-    const mask_s = mask_char[0..mask_len];
+// str_count_runs -> string/count.zig
 
-    // Count codepoints
-    var cp_count: usize = 0;
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        cp_count += 1;
-        off += cp_len;
-    }
-
-    if (cp_count <= keep_n * 2) return str_from(src.ptr, src.len);
-
-    const result = str_new() orelse return null;
-    off = 0;
-    var idx: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-
-        if (idx < keep_n or idx >= cp_count - keep_n) {
-            result.data.appendSlice(gpa, src[off..][0..cp_len]) catch break;
-        } else {
-            result.data.appendSlice(gpa, mask_s) catch break;
-        }
-        idx += 1;
-        off += cp_len;
-    }
-    return result;
-}
-
-/// Count consecutive character runs (groups of identical adjacent chars).
-/// E.g. "aabbbcc" has 3 runs: "aa", "bbb", "cc".
-pub fn str_count_runs(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-
-    var runs: c_int = 1;
-    var off: usize = 0;
-    var prev_cp: i32 = -1;
-
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        const cp: i32 = decodeCodepoint(src, off, cp_len);
-        if (prev_cp >= 0 and cp != prev_cp) {
-            runs += 1;
-        }
-        prev_cp = cp;
-        off += cp_len;
-    }
-    return runs;
-}
-
-/// Hamming distance: count positions where corresponding codepoints differ.
-/// Strings must be same codepoint length; returns -1 if different lengths.
 // Hamming distance -> string/nlp.zig
 
 // str_remove_vowels -> string/replace.zig
 
-/// Keep only ASCII vowels (a,e,i,o,u both cases). Returns new handle.
-pub fn str_only_vowels(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0) return str_from(src.ptr, 0);
-
-    const result = str_new() orelse return null;
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        if (cp_len == 1) {
-            const c = src[off];
-            if (c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u' or
-                c == 'A' or c == 'E' or c == 'I' or c == 'O' or c == 'U')
-            {
-                result.data.appendSlice(gpa, src[off..][0..1]) catch break;
-            }
-        }
-        off += cp_len;
-    }
-    return result;
-}
+// Keep only ASCII vowels (a,e,i,o,u both cases). Returns new handle.
+// str_only_vowels -> string/format.zig
 
 // str_is_pangram -> string/inspect.zig
 
 // ngram -> string/nlp.zig
 
-/// Count ASCII consonants (letters that are not vowels). Case-insensitive.
-pub fn str_count_consonants(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    var count: c_int = 0;
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        if (cp_len == 1) {
-            const c = src[off];
-            const lower = if (c >= 'A' and c <= 'Z') c + 32 else c;
-            if (lower >= 'a' and lower <= 'z') {
-                if (lower != 'a' and lower != 'e' and lower != 'i' and lower != 'o' and lower != 'u') {
-                    count += 1;
-                }
-            }
-        }
-        off += cp_len;
-    }
-    return count;
-}
+// str_count_consonants -> string/count.zig
 
 // str_to_sentence_case -> string/transform.zig
 
 // str_is_balanced -> string/inspect.zig
 
-/// Convert to URL-friendly slug: lowercase, spaces/underscores to hyphens,
-/// remove non-alphanumeric (except hyphens), collapse consecutive hyphens.
-/// Returns new handle.
-pub fn str_slug(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0) return str_from(src.ptr, 0);
-
-    const result = str_new() orelse return null;
-    var prev_hyphen = true; // suppress leading hyphen
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        if (cp_len == 1) {
-            const c = src[off];
-            if (c >= 'A' and c <= 'Z') {
-                result.data.appendSlice(gpa, &[_]u8{c + 32}) catch break;
-                prev_hyphen = false;
-            } else if ((c >= 'a' and c <= 'z') or (c >= '0' and c <= '9')) {
-                result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-                prev_hyphen = false;
-            } else if (c == ' ' or c == '_' or c == '-' or c == '\t') {
-                if (!prev_hyphen) {
-                    result.data.appendSlice(gpa, "-") catch break;
-                    prev_hyphen = true;
-                }
-            }
-            // else: skip non-alnum
-        }
-        // skip multi-byte codepoints for slug
-        off += cp_len;
-    }
-    // Remove trailing hyphen
-    const rsl = result.slice();
-    if (rsl.len > 0 and rsl[rsl.len - 1] == '-') {
-        _ = result.data.pop();
-    }
-    return result;
-}
+// Convert to URL-friendly slug: lowercase, spaces/underscores to hyphens,
+// remove non-alphanumeric (except hyphens), collapse consecutive hyphens.
+// Returns new handle.
+// str_slug -> string/format.zig
 
 // str_chunk -> string/split.zig
 
-/// Count ASCII vowels (a,e,i,o,u both cases).
-pub fn str_count_vowels(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    var count: c_int = 0;
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        if (cp_len == 1) {
-            const c = src[off];
-            if (c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u' or
-                c == 'A' or c == 'E' or c == 'I' or c == 'O' or c == 'U')
-            {
-                count += 1;
-            }
-        }
-        off += cp_len;
-    }
-    return count;
-}
+// str_count_vowels -> string/count.zig
 
-/// Return the length of the longest run of consecutive identical codepoints.
-pub fn str_longest_run(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-
-    var max_run: c_int = 1;
-    var cur_run: c_int = 1;
-    var prev_start: usize = 0;
-    var prev_len: usize = 0;
-    var off: usize = 0;
-    var first = true;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        if (first) {
-            first = false;
-        } else {
-            if (cp_len == prev_len and mem.eql(u8, src[off..][0..cp_len], src[prev_start..][0..prev_len])) {
-                cur_run += 1;
-                if (cur_run > max_run) max_run = cur_run;
-            } else {
-                cur_run = 1;
-            }
-        }
-        prev_start = off;
-        prev_len = cp_len;
-        off += cp_len;
-    }
-    return max_run;
-}
+// str_longest_run -> string/count.zig
 
 // str_trim_chars -> string/trim.zig
 
 // str_is_email_like -> string/inspect.zig
 
-/// Split camelCase/PascalCase into space-separated words.
-/// E.g. "camelCaseString" -> "camel Case String"
-/// Returns new handle.
-pub fn str_camel_to_words(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0) return str_from(src.ptr, 0);
+// Split camelCase/PascalCase into space-separated words.
+// E.g. "camelCaseString" -> "camel Case String"
+// Returns new handle.
+// str_camel_to_words -> string/format.zig
 
-    const result = str_new() orelse return null;
-    var i: usize = 0;
-    while (i < src.len) {
-        const c = src[i];
-        // Insert space before uppercase that follows lowercase
-        if (i > 0 and c >= 'A' and c <= 'Z') {
-            const prev = src[i - 1];
-            if (prev >= 'a' and prev <= 'z') {
-                result.data.appendSlice(gpa, " ") catch break;
-            } else if (prev >= 'A' and prev <= 'Z' and i + 1 < src.len and src[i + 1] >= 'a' and src[i + 1] <= 'z') {
-                // ABCdef -> AB Cdef
-                result.data.appendSlice(gpa, " ") catch break;
-            }
-        }
-        result.data.appendSlice(gpa, src[i..][0..1]) catch break;
-        i += 1;
-    }
-    return result;
-}
-
-/// Extract initials (first letter of each word). Words separated by spaces.
-/// E.g. "Hello World" -> "HW", "united states of america" -> "usoa"
-/// Returns new handle.
-pub fn str_initials(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0) return str_from(src.ptr, 0);
-
-    const result = str_new() orelse return null;
-    var in_word = false;
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        if (cp_len == 1 and (src[off] == ' ' or src[off] == '\t' or src[off] == '\n' or src[off] == '\r')) {
-            in_word = false;
-        } else {
-            if (!in_word) {
-                result.data.appendSlice(gpa, src[off..][0..cp_len]) catch break;
-                in_word = true;
-            }
-        }
-        off += cp_len;
-    }
-    return result;
-}
+// Extract initials (first letter of each word). Words separated by spaces.
+// E.g. "Hello World" -> "HW", "united states of america" -> "usoa"
+// Returns new handle.
+// str_initials -> string/format.zig
 
 // str_remove_duplicate_words -> string/replace.zig
 
@@ -3441,148 +2303,29 @@ pub fn str_initials(handle: StzStringHandle) callconv(.c) StzStringHandle {
 
 // HTML escape/unescape -> string/encode.zig
 
-/// Count sentences (terminated by '.', '!', or '?').
-pub fn str_count_sentences(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
+// str_count_sentences -> string/count.zig
 
-    var count: c_int = 0;
-    for (src) |c| {
-        if (c == '.' or c == '!' or c == '?') count += 1;
-    }
-    return count;
-}
+// Smart titlecase: capitalize words except small words (the, a, an, of, in, on, at, to, for, and, but, or, is).
+// First word is always capitalized. Returns new handle.
+// str_title_smart -> string/format.zig
 
-/// Smart titlecase: capitalize words except small words (the, a, an, of, in, on, at, to, for, and, but, or, is).
-/// First word is always capitalized. Returns new handle.
-pub fn str_title_smart(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0) return str_from(src.ptr, 0);
-
-    const small_words = [_][]const u8{ "the", "a", "an", "of", "in", "on", "at", "to", "for", "and", "but", "or", "is" };
-
-    const result = str_new() orelse return null;
-    var off: usize = 0;
-    var first_word = true;
-
-    while (off < src.len) {
-        // Skip spaces
-        while (off < src.len and (src[off] == ' ' or src[off] == '\t')) {
-            result.data.appendSlice(gpa, src[off..][0..1]) catch break;
-            off += 1;
-        }
-        if (off >= src.len) break;
-
-        // Find word end
-        const word_start = off;
-        while (off < src.len and src[off] != ' ' and src[off] != '\t') off += 1;
-        const word = src[word_start..off];
-
-        if (first_word or !isSmallWord(word, &small_words)) {
-            // Capitalize first letter
-            if (word.len > 0 and word[0] >= 'a' and word[0] <= 'z') {
-                result.data.appendSlice(gpa, &[_]u8{word[0] - 32}) catch break;
-                if (word.len > 1) result.data.appendSlice(gpa, word[1..]) catch break;
-            } else {
-                result.data.appendSlice(gpa, word) catch break;
-            }
-        } else {
-            result.data.appendSlice(gpa, word) catch break;
-        }
-        first_word = false;
-    }
-    return result;
-}
-
-fn isSmallWord(word: []const u8, small_words: []const []const u8) bool {
-    // Compare lowercase
-    var buf: [16]u8 = undefined;
-    if (word.len > 16) return false;
-    for (word, 0..) |c, i| {
-        buf[i] = if (c >= 'A' and c <= 'Z') c + 32 else c;
-    }
-    const lower = buf[0..word.len];
-    for (small_words) |sw| {
-        if (mem.eql(u8, lower, sw)) return true;
-    }
-    return false;
-}
+// isSmallWord -> string/format.zig
 
 // str_remove_punctuation -> string/replace.zig
 
 // str_is_float -> string/inspect.zig
 
-/// Sum of all digit characters in the string. E.g. "a1b2c3" -> 6.
-pub fn str_digit_sum(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    var sum: c_int = 0;
-    for (src) |c| {
-        if (c >= '0' and c <= '9') sum += @as(c_int, c - '0');
-    }
-    return sum;
-}
+// str_digit_sum -> string/count.zig
 
 // str_to_alternating_case -> string/transform.zig
 
-/// Count uppercase ASCII letters.
-pub fn str_count_upper(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    var count: c_int = 0;
-    for (src) |c| {
-        if (c >= 'A' and c <= 'Z') count += 1;
-    }
-    return count;
-}
+// str_count_upper -> string/count.zig
 
-/// Count lowercase ASCII letters.
-pub fn str_count_lower(handle: StzStringHandle) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    var count: c_int = 0;
-    for (src) |c| {
-        if (c >= 'a' and c <= 'z') count += 1;
-    }
-    return count;
-}
+// str_count_lower -> string/count.zig
 
 // str_is_camel_case -> string/inspect.zig
 
-/// Return characters common to both strings (unique, in order of appearance in h1).
-/// Returns new handle.
-pub fn str_common_chars(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) StzStringHandle {
-    const s1 = h1 orelse return null;
-    const s2 = h2 orelse return null;
-    const src1 = s1.slice();
-    const src2 = s2.slice();
-
-    const result = str_new() orelse return null;
-    var seen: [256]bool = [_]bool{false} ** 256;
-
-    var off: usize = 0;
-    while (off < src1.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src1[off]) catch break;
-        if (off + cp_len > src1.len) break;
-        if (cp_len == 1) {
-            const c = src1[off];
-            if (!seen[c]) {
-                // Check if this char exists in src2
-                for (src2) |c2| {
-                    if (c2 == c) {
-                        result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-                        seen[c] = true;
-                        break;
-                    }
-                }
-            }
-        }
-        off += cp_len;
-    }
-    return result;
-}
+// str_common_chars -> string/compare.zig
 
 // batch 7 ─────────────────────────────────────────────────────────
 
@@ -3592,178 +2335,29 @@ pub fn str_common_chars(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) S
 
 // str_is_kebab_case -> string/inspect.zig
 
-/// Count unique (distinct) characters in the string.
-pub export fn str_count_unique_chars(handle: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-
-    // For ASCII, use a 256-entry seen table; for multi-byte, count them separately
-    var seen: [256]bool = [_]bool{false} ** 256;
-    var count: c_int = 0;
-    var multi_byte_count: c_int = 0;
-
-    // Simple approach: for single-byte chars use the table, for multi-byte just count unique sequences
-    // (limited to ASCII uniqueness for performance; multi-byte chars each counted as unique)
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        if (cp_len == 1) {
-            if (!seen[src[off]]) {
-                seen[src[off]] = true;
-                count += 1;
-            }
-        } else {
-            // For multi-byte, do a naive check against previously seen multi-byte sequences
-            // Simple: just count all multi-byte codepoints (approximation for ASCII-heavy use)
-            multi_byte_count += 1;
-        }
-        off += cp_len;
-    }
-    return count + multi_byte_count;
-}
+// str_count_unique_chars -> string/count.zig
 
 // Caesar cipher -> string/encode.zig
 
 // batch 8 ─────────────────────────────────────────────────────────
 
-/// Mirror/reflect: "abc" -> "abccba"
-pub export fn str_mirror(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
+// Mirror/reflect: "abc" -> "abccba"
+// str_mirror -> string/format.zig
 
-    // Append original
-    result.data.appendSlice(gpa, src) catch return result;
-    // Append reversed
-    var off: usize = src.len;
-    while (off > 0) {
-        // Walk backwards to find start of previous codepoint
-        off -= 1;
-        while (off > 0 and (src[off] & 0xC0) == 0x80) {
-            off -= 1;
-        }
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        result.data.appendSlice(gpa, src[off .. off + cp_len]) catch break;
-        if (off == 0) break;
-    }
-    return result;
-}
+// Repeat each character n times: "abc", 2 -> "aabbcc"
+// str_repeat_each_char -> string/format.zig
 
-/// Repeat each character n times: "abc", 2 -> "aabbcc"
-pub export fn str_repeat_each_char(handle: ?*StzString, n: c_int) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    if (n <= 0) return result;
-    const count: usize = @intCast(n);
-
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        const ch = src[off .. off + cp_len];
-        for (0..count) |_| {
-            result.data.appendSlice(gpa, ch) catch break;
-        }
-        off += cp_len;
-    }
-    return result;
-}
-
-/// Check if string starts with any of the given prefixes (pipe-separated: "http|ftp|ssh")
 // str_starts_with_any, str_ends_with_any -> string/find.zig
 
 // Binary encode -> string/encode.zig
 
 // batch 9 ─────────────────────────────────────────────────────────
 
-/// Sort words alphabetically (case-sensitive). Words separated by spaces.
-pub export fn str_sort_words(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
+// Sort words alphabetically (case-sensitive). Words separated by spaces.
+// str_sort_words -> string/format.zig
 
-    // Collect word boundaries
-    var words: [256][2]usize = undefined; // [start, end] pairs, max 256 words
-    var word_count: usize = 0;
-    var i: usize = 0;
-    while (i < src.len and word_count < 256) {
-        // Skip spaces
-        while (i < src.len and src[i] == ' ') : (i += 1) {}
-        if (i >= src.len) break;
-        const start = i;
-        while (i < src.len and src[i] != ' ') : (i += 1) {}
-        words[word_count] = .{ start, i };
-        word_count += 1;
-    }
-
-    // Simple insertion sort on words
-    var j: usize = 1;
-    while (j < word_count) : (j += 1) {
-        const key = words[j];
-        var k: usize = j;
-        while (k > 0) {
-            const w_k = src[words[k - 1][0]..words[k - 1][1]];
-            const w_key = src[key[0]..key[1]];
-            if (mem.order(u8, w_k, w_key) == .gt) {
-                words[k] = words[k - 1];
-                k -= 1;
-            } else break;
-        }
-        words[k] = key;
-    }
-
-    // Build result
-    for (0..word_count) |idx| {
-        if (idx > 0) result.data.appendSlice(gpa, " ") catch break;
-        result.data.appendSlice(gpa, src[words[idx][0]..words[idx][1]]) catch break;
-    }
-    return result;
-}
-
-/// Keep only unique words (first occurrence preserved). Words separated by spaces.
-pub export fn str_unique_words(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-
-    // Collect words and track seen
-    var seen_starts: [256]usize = undefined;
-    var seen_ends: [256]usize = undefined;
-    var seen_count: usize = 0;
-    var first = true;
-
-    var ii: usize = 0;
-    while (ii < src.len) {
-        while (ii < src.len and src[ii] == ' ') : (ii += 1) {}
-        if (ii >= src.len) break;
-        const start = ii;
-        while (ii < src.len and src[ii] != ' ') : (ii += 1) {}
-        const word = src[start..ii];
-
-        // Check if already seen
-        var found = false;
-        for (0..seen_count) |si| {
-            if (mem.eql(u8, src[seen_starts[si]..seen_ends[si]], word)) {
-                found = true;
-                break;
-            }
-        }
-        if (!found) {
-            if (!first) result.data.appendSlice(gpa, " ") catch break;
-            result.data.appendSlice(gpa, word) catch break;
-            if (seen_count < 256) {
-                seen_starts[seen_count] = start;
-                seen_ends[seen_count] = ii;
-                seen_count += 1;
-            }
-            first = false;
-        }
-    }
-    return result;
-}
+// Keep only unique words (first occurrence preserved). Words separated by spaces.
+// str_unique_words -> string/format.zig
 
 // Binary decode -> string/encode.zig
 
@@ -3773,175 +2367,34 @@ pub export fn str_unique_words(handle: ?*StzString) callconv(.c) ?*StzString {
 
 // batch 10 ────────────────────────────────────────────────────────
 
-/// Run-length encode: "aaabbc" -> "3a2b1c"
-pub export fn str_run_length_encode(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    if (src.len == 0) return result;
+// Run-length encode: "aaabbc" -> "3a2b1c"
+// str_run_length_encode -> string/format.zig
 
-    var i: usize = 0;
-    while (i < src.len) {
-        const ch = src[i];
-        var count: usize = 1;
-        while (i + count < src.len and src[i + count] == ch) : (count += 1) {}
-        // Write count as digits
-        var buf: [20]u8 = undefined;
-        var digits: usize = 0;
-        var n = count;
-        while (n > 0) {
-            buf[digits] = @intCast('0' + (n % 10));
-            digits += 1;
-            n /= 10;
-        }
-        // Reverse digits into result
-        var d: usize = digits;
-        while (d > 0) {
-            d -= 1;
-            result.data.appendSlice(gpa, &[_]u8{buf[d]}) catch break;
-        }
-        result.data.appendSlice(gpa, &[_]u8{ch}) catch break;
-        i += count;
-    }
-    return result;
-}
+// Run-length decode: "3a2b1c" -> "aaabbc"
+// str_run_length_decode -> string/format.zig
 
-/// Run-length decode: "3a2b1c" -> "aaabbc"
-pub export fn str_run_length_decode(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-
-    var i: usize = 0;
-    while (i < src.len) {
-        // Parse number
-        var count: usize = 0;
-        while (i < src.len and src[i] >= '0' and src[i] <= '9') {
-            count = count * 10 + (src[i] - '0');
-            i += 1;
-        }
-        if (count == 0) count = 1;
-        if (i >= src.len) break;
-        const ch = src[i];
-        i += 1;
-        for (0..count) |_| {
-            result.data.appendSlice(gpa, &[_]u8{ch}) catch break;
-        }
-    }
-    return result;
-}
-
-/// Count paragraphs (separated by double newlines \n\n).
-pub export fn str_count_paragraphs(handle: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0) return 0;
-
-    var count: c_int = 1;
-    var i: usize = 0;
-    while (i + 1 < src.len) {
-        if (src[i] == '\n' and src[i + 1] == '\n') {
-            count += 1;
-            // Skip any additional consecutive newlines
-            while (i + 1 < src.len and src[i + 1] == '\n') : (i += 1) {}
-        }
-        i += 1;
-    }
-    return count;
-}
+// str_count_paragraphs -> string/count.zig
 
 // Zigzag, Morse, Base64, XOR, Entropy -> string/encode.zig
 
-/// Return the most frequent character as a single-char string. Ties: first in byte order.
-pub export fn str_char_frequency_top(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    if (src.len == 0) return result;
-
-    var freq: [256]u32 = [_]u32{0} ** 256;
-    for (src) |c| {
-        freq[c] += 1;
-    }
-
-    var max_idx: u8 = 0;
-    var max_count: u32 = 0;
-    for (0..256) |idx| {
-        if (freq[idx] > max_count) {
-            max_count = freq[idx];
-            max_idx = @intCast(idx);
-        }
-    }
-    result.data.appendSlice(gpa, &[_]u8{max_idx}) catch { setError(.out_of_memory); };
-    return result;
-}
+// Return the most frequent character as a single-char string. Ties: first in byte order.
+// str_char_frequency_top -> string/format.zig
 
 // batch 12 ────────────────────────────────────────────────────────
 
 // Jaccard similarity -> string/nlp.zig
 
-/// Longest common prefix between two handles.
-pub export fn str_longest_common_prefix(h1: ?*StzString, h2: ?*StzString) callconv(.c) ?*StzString {
-    const s1 = h1 orelse return null;
-    const s2 = h2 orelse return null;
-    const src1 = s1.slice();
-    const src2 = s2.slice();
-    const result = str_new() orelse return null;
+// str_longest_common_prefix -> string/compare.zig
+// str_longest_common_suffix -> string/compare.zig
 
-    const min_len = if (src1.len < src2.len) src1.len else src2.len;
-    var i: usize = 0;
-    while (i < min_len and src1[i] == src2[i]) : (i += 1) {}
-    result.data.appendSlice(gpa, src1[0..i]) catch { setError(.out_of_memory); };
-    return result;
-}
-
-/// Longest common suffix between two handles.
-pub export fn str_longest_common_suffix(h1: ?*StzString, h2: ?*StzString) callconv(.c) ?*StzString {
-    const s1 = h1 orelse return null;
-    const s2 = h2 orelse return null;
-    const src1 = s1.slice();
-    const src2 = s2.slice();
-    const result = str_new() orelse return null;
-
-    const min_len = if (src1.len < src2.len) src1.len else src2.len;
-    var i: usize = 0;
-    while (i < min_len and src1[src1.len - 1 - i] == src2[src2.len - 1 - i]) : (i += 1) {}
-    if (i > 0) result.data.appendSlice(gpa, src1[src1.len - i ..]) catch { setError(.out_of_memory); };
-    return result;
-}
-
-/// Wrap string with prefix and suffix: wrap("hello", "[", "]") -> "[hello]"
-pub export fn str_wrap_with(handle: ?*StzString, prefix: [*c]const u8, prefix_len: c_int, suffix: [*c]const u8, suffix_len: c_int) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    const plen: usize = if (prefix_len >= 0) @intCast(prefix_len) else 0;
-    const slen: usize = if (suffix_len >= 0) @intCast(suffix_len) else 0;
-
-    result.data.appendSlice(gpa, prefix[0..plen]) catch { setError(.out_of_memory); };
-    result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
-    result.data.appendSlice(gpa, suffix[0..slen]) catch { setError(.out_of_memory); };
-    return result;
-}
+// Wrap string with prefix and suffix: wrap("hello", "[", "]") -> "[hello]"
+// str_wrap_with -> string/format.zig
 
 // str_to_title_case_strict -> string/transform.zig
 
 // batch 13 ────────────────────────────────────────────────────────
 
-/// Hamming weight: count of 1-bits across all bytes.
-pub export fn str_hamming_weight(handle: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    var count: c_int = 0;
-    for (src) |byte| {
-        var b = byte;
-        while (b != 0) {
-            count += 1;
-            b &= b - 1; // clear lowest set bit
-        }
-    }
-    return count;
-}
+// str_hamming_weight -> string/compare.zig
 
 // str_is_palindrome_words -> string/inspect.zig
 
@@ -3957,56 +2410,12 @@ pub export fn str_hamming_weight(handle: ?*StzString) callconv(.c) c_int {
 
 // str_to_dot_case -> string/transform.zig
 
-/// Abbreviate: produce a string of at most max_len total characters.
-/// If the string is longer, truncate to (max_len - 3) characters + "...".
-/// If max_len <= 3, just return "..." truncated to max_len.
-pub export fn str_abbreviate(handle: ?*StzString, max_len: c_int) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    const limit: usize = if (max_len >= 0) @intCast(max_len) else return result;
+// Abbreviate: produce a string of at most max_len total characters.
+// If the string is longer, truncate to (max_len - 3) characters + "...".
+// If max_len <= 3, just return "..." truncated to max_len.
+// str_abbreviate -> string/format.zig
 
-    // Count total codepoints
-    const cp_count = utf8CodepointCount(src);
-
-    if (cp_count <= limit) {
-        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
-    } else {
-        // Truncate to (limit - 3) codepoints + "..."
-        const text_len: usize = if (limit >= 3) limit - 3 else 0;
-        var off: usize = 0;
-        var cp_idx: usize = 0;
-        while (off < src.len and cp_idx < text_len) {
-            const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-            if (off + cp_len > src.len) break;
-            off += cp_len;
-            cp_idx += 1;
-        }
-        result.data.appendSlice(gpa, src[0..off]) catch { setError(.out_of_memory); };
-        result.data.appendSlice(gpa, "...") catch { setError(.out_of_memory); };
-    }
-    return result;
-}
-
-/// Count non-overlapping occurrences of a substring.
-pub export fn str_count_substring(handle: ?*StzString, needle: [*c]const u8, needle_len: c_int) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    const nlen: usize = if (needle_len > 0) @intCast(needle_len) else return 0;
-    const ndl = needle[0..nlen];
-
-    var count: c_int = 0;
-    var i: usize = 0;
-    while (i + nlen <= src.len) {
-        if (mem.eql(u8, src[i .. i + nlen], ndl)) {
-            count += 1;
-            i += nlen;
-        } else {
-            i += 1;
-        }
-    }
-    return count;
-}
+// str_count_substring -> string/count.zig
 
 // str_to_path_case -> string/transform.zig
 
@@ -4023,55 +2432,9 @@ pub export fn str_count_substring(handle: ?*StzString, needle: [*c]const u8, nee
 
 // Vigenere, Atbash -> string/encode.zig
 
-pub export fn str_count_words_matching(handle: ?*StzString, pattern_ptr: [*c]const u8, pattern_len: c_int) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    const plen: usize = if (pattern_len < 1) return 0 else @intCast(pattern_len);
-    const pattern = pattern_ptr[0..plen];
-    var count: c_int = 0;
-    var pos: usize = 0;
-    while (pos < src.len) {
-        // skip spaces
-        while (pos < src.len and src[pos] == ' ') pos += 1;
-        if (pos >= src.len) break;
-        const start = pos;
-        while (pos < src.len and src[pos] != ' ') pos += 1;
-        const word = src[start..pos];
-        if (word.len == plen and mem.eql(u8, word, pattern)) count += 1;
-    }
-    return count;
-}
+// str_count_words_matching -> string/count.zig
 
-pub export fn str_truncate_words(handle: ?*StzString, max_words: c_int) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const max: usize = if (max_words < 1) 0 else @intCast(max_words);
-    const result = str_new() orelse return null;
-    if (max == 0) return result;
-    var word_count: usize = 0;
-    var pos: usize = 0;
-    var last_end: usize = 0;
-    while (pos < src.len) {
-        while (pos < src.len and src[pos] == ' ') pos += 1;
-        if (pos >= src.len) break;
-        if (word_count > 0) {
-            // include the space before this word
-        }
-        const word_start = pos;
-        _ = word_start;
-        while (pos < src.len and src[pos] != ' ') pos += 1;
-        word_count += 1;
-        last_end = pos;
-        if (word_count >= max) break;
-    }
-    if (last_end > 0) {
-        // Find start: skip leading spaces
-        var start: usize = 0;
-        while (start < src.len and src[start] == ' ') start += 1;
-        result.data.appendSlice(gpa, src[start..last_end]) catch { setError(.out_of_memory); };
-    }
-    return result;
-}
+// str_truncate_words -> string/format.zig
 
 // str_to_constant_case -> string/transform.zig
 
@@ -4081,43 +2444,8 @@ pub export fn str_truncate_words(handle: ?*StzString, max_words: c_int) callconv
 
 // NATO -> string/nlp.zig
 
-pub export fn str_commonality(handle: ?*StzString, other: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const o = other orelse return 0;
-    const src = s.slice();
-    const oth = o.slice();
-    // Count chars present in both (based on set intersection)
-    var seen_src = [_]bool{false} ** 256;
-    for (src) |c| seen_src[c] = true;
-    var count: c_int = 0;
-    var seen_counted = [_]bool{false} ** 256;
-    for (oth) |c| {
-        if (seen_src[c] and !seen_counted[c]) {
-            count += 1;
-            seen_counted[c] = true;
-        }
-    }
-    return count;
-}
-
-pub export fn str_diff_chars(handle: ?*StzString, other: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const o = other orelse return null;
-    const src = s.slice();
-    const oth = o.slice();
-    const result = str_new() orelse return null;
-    // Chars in src not in other (unique set)
-    var in_other = [_]bool{false} ** 256;
-    for (oth) |c| in_other[c] = true;
-    var added = [_]bool{false} ** 256;
-    for (src) |c| {
-        if (!in_other[c] and !added[c]) {
-            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-            added[c] = true;
-        }
-    }
-    return result;
-}
+// str_commonality -> string/compare.zig
+// str_diff_chars -> string/compare.zig
 
 // ─── Batch 18: rot47, is_isogram, reverse_each_word, count_digits, strip_tags ───
 
@@ -4125,95 +2453,17 @@ pub export fn str_diff_chars(handle: ?*StzString, other: ?*StzString) callconv(.
 
 // str_is_isogram -> string/inspect.zig
 
-pub export fn str_reverse_each_word(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    var pos: usize = 0;
-    while (pos < src.len) {
-        if (src[pos] == ' ') {
-            result.data.appendSlice(gpa, &[_]u8{' '}) catch break;
-            pos += 1;
-        } else {
-            const start = pos;
-            while (pos < src.len and src[pos] != ' ') pos += 1;
-            // Reverse the word
-            var j: usize = pos;
-            while (j > start) {
-                j -= 1;
-                result.data.appendSlice(gpa, &[_]u8{src[j]}) catch break;
-            }
-        }
-    }
-    return result;
-}
+// str_reverse_each_word -> string/format.zig
 
-pub export fn str_count_digits(handle: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    var count: c_int = 0;
-    for (src) |c| {
-        if (c >= '0' and c <= '9') count += 1;
-    }
-    return count;
-}
+// str_count_digits -> string/count.zig
 
-pub export fn str_strip_tags(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    var in_tag = false;
-    for (src) |c| {
-        if (c == '<') {
-            in_tag = true;
-        } else if (c == '>') {
-            in_tag = false;
-        } else if (!in_tag) {
-            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-        }
-    }
-    return result;
-}
+// str_strip_tags -> string/format.zig
 
 // ─── Batch 19: to_slug, count_spaces, normalize_spaces, mask_email, pluralize ───
 
-pub export fn str_to_slug(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    var prev_was_dash = false;
-    for (src) |c| {
-        if (c >= 'A' and c <= 'Z') {
-            result.data.appendSlice(gpa, &[_]u8{c + 32}) catch break;
-            prev_was_dash = false;
-        } else if ((c >= 'a' and c <= 'z') or (c >= '0' and c <= '9')) {
-            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
-            prev_was_dash = false;
-        } else if (c == ' ' or c == '_' or c == '-' or c == '\t') {
-            if (!prev_was_dash) {
-                result.data.appendSlice(gpa, &[_]u8{'-'}) catch break;
-                prev_was_dash = true;
-            }
-        }
-        // skip other chars
-    }
-    // Remove trailing dash
-    const rslice = result.slice();
-    if (rslice.len > 0 and rslice[rslice.len - 1] == '-') {
-        _ = result.data.pop();
-    }
-    return result;
-}
+// str_to_slug -> string/format.zig
 
-pub export fn str_count_spaces(handle: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    var count: c_int = 0;
-    for (src) |c| {
-        if (c == ' ') count += 1;
-    }
-    return count;
-}
+// str_count_spaces -> string/count.zig
 
 // str_normalize_spaces -> string/trim.zig
 
@@ -4221,43 +2471,7 @@ pub export fn str_count_spaces(handle: ?*StzString) callconv(.c) c_int {
 
 // ─── Batch 20: deduplicate_lines, remove_blank_lines, extract_numbers, extract_emails, quote ───
 
-pub export fn str_deduplicate_lines(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    // Track seen lines — simple O(n^2) for correctness
-    var line_starts: [1024]usize = undefined;
-    var line_ends: [1024]usize = undefined;
-    var line_count: usize = 0;
-    // Parse lines
-    var pos: usize = 0;
-    var first = true;
-    while (pos <= src.len and line_count < 1024) {
-        const start = pos;
-        while (pos < src.len and src[pos] != '\n') pos += 1;
-        const end = pos;
-        // Check if this line is a duplicate
-        var is_dup = false;
-        const line = src[start..end];
-        for (0..line_count) |li| {
-            const prev = src[line_starts[li]..line_ends[li]];
-            if (prev.len == line.len and mem.eql(u8, prev, line)) {
-                is_dup = true;
-                break;
-            }
-        }
-        if (!is_dup) {
-            if (!first) result.data.appendSlice(gpa, "\n") catch { setError(.out_of_memory); };
-            result.data.appendSlice(gpa, line) catch { setError(.out_of_memory); };
-            line_starts[line_count] = start;
-            line_ends[line_count] = end;
-            line_count += 1;
-            first = false;
-        }
-        if (pos < src.len) pos += 1 else break; // skip \n
-    }
-    return result;
-}
+// str_deduplicate_lines -> string/format.zig
 
 // str_remove_blank_lines -> string/replace.zig
 
@@ -4267,49 +2481,9 @@ pub export fn str_deduplicate_lines(handle: ?*StzString) callconv(.c) ?*StzStrin
 
 // ─── Batch 21: number_lines, hide, extract_words ───
 
-pub export fn str_number_lines(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    var line_num: usize = 1;
-    var pos: usize = 0;
-    while (pos <= src.len) {
-        // Write line number
-        var buf: [12]u8 = undefined;
-        const num_len = formatUsize(line_num, &buf);
-        result.data.appendSlice(gpa, buf[0..num_len]) catch { setError(.out_of_memory); };
-        result.data.appendSlice(gpa, ": ") catch { setError(.out_of_memory); };
-        // Write line content
-        const start = pos;
-        while (pos < src.len and src[pos] != '\n') pos += 1;
-        result.data.appendSlice(gpa, src[start..pos]) catch { setError(.out_of_memory); };
-        if (pos < src.len) {
-            result.data.appendSlice(gpa, "\n") catch { setError(.out_of_memory); };
-            pos += 1;
-            line_num += 1;
-        } else break;
-    }
-    return result;
-}
+// str_number_lines -> string/format.zig
 
-pub export fn str_hide(handle: ?*StzString, mask_char: u8, keep_first: c_int, keep_last: c_int) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    const kf: usize = if (keep_first < 0) 0 else @intCast(keep_first);
-    const kl: usize = if (keep_last < 0) 0 else @intCast(keep_last);
-    if (kf + kl >= src.len) {
-        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
-        return result;
-    }
-    result.data.appendSlice(gpa, src[0..kf]) catch { setError(.out_of_memory); };
-    var i: usize = kf;
-    while (i < src.len - kl) : (i += 1) {
-        result.data.appendSlice(gpa, &[_]u8{mask_char}) catch break;
-    }
-    result.data.appendSlice(gpa, src[src.len - kl ..]) catch { setError(.out_of_memory); };
-    return result;
-}
+// str_hide -> string/format.zig
 
 // extract_words -> string/nlp.zig
 
@@ -4319,57 +2493,11 @@ pub export fn str_hide(handle: ?*StzString, mask_char: u8, keep_first: c_int, ke
 
 // str_sentence_count -> string/split.zig
 
-pub export fn str_chop(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    if (src.len > 0) {
-        result.data.appendSlice(gpa, src[0 .. src.len - 1]) catch { setError(.out_of_memory); };
-    }
-    return result;
-}
+// str_chop -> string/format.zig
 
-pub export fn str_scan_int(handle: ?*StzString) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    var val: c_int = 0;
-    var neg = false;
-    var started = false;
-    for (src) |c| {
-        if (!started and c == '-') {
-            neg = true;
-            started = true;
-        } else if (c >= '0' and c <= '9') {
-            val = val * 10 + @as(c_int, c - '0');
-            started = true;
-        } else if (started) break;
-    }
-    return if (neg) -val else val;
-}
+// str_scan_int -> string/format.zig
 
-pub export fn str_to_ordinal(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    result.data.appendSlice(gpa, src) catch return result;
-    // Parse the number to determine suffix
-    const num = str_scan_int(s);
-    const abs_num: u32 = if (num < 0) @intCast(-num) else @intCast(num);
-    const last_two = abs_num % 100;
-    const last_one = abs_num % 10;
-    if (last_two >= 11 and last_two <= 13) {
-        result.data.appendSlice(gpa, "th") catch { setError(.out_of_memory); };
-    } else if (last_one == 1) {
-        result.data.appendSlice(gpa, "st") catch { setError(.out_of_memory); };
-    } else if (last_one == 2) {
-        result.data.appendSlice(gpa, "nd") catch { setError(.out_of_memory); };
-    } else if (last_one == 3) {
-        result.data.appendSlice(gpa, "rd") catch { setError(.out_of_memory); };
-    } else {
-        result.data.appendSlice(gpa, "th") catch { setError(.out_of_memory); };
-    }
-    return result;
-}
+// str_to_ordinal -> string/format.zig
 
 // str_cp_count -> string/extract.zig
 
