@@ -79,6 +79,28 @@ pub const str_zigzag = encode.str_zigzag;
 pub const str_hash = encode.str_hash;
 pub const str_entropy = encode.str_entropy;
 
+// ─── NLP submodule imports ───
+const nlp = @import("string/nlp.zig");
+
+pub const str_levenshtein = nlp.str_levenshtein;
+pub const str_hamming_distance = nlp.str_hamming_distance;
+pub const str_jaro = nlp.str_jaro;
+pub const str_jaro_winkler = nlp.str_jaro_winkler;
+pub const str_jaccard_similarity = nlp.str_jaccard_similarity;
+pub const str_soundex = nlp.str_soundex;
+pub const str_metaphone = nlp.str_metaphone;
+pub const str_ngram = nlp.str_ngram;
+pub const str_ngram_count = nlp.str_ngram_count;
+pub const str_char_ngrams = nlp.str_char_ngrams;
+pub const str_word_ngrams = nlp.str_word_ngrams;
+pub const str_extract_numbers = nlp.str_extract_numbers;
+pub const str_extract_emails = nlp.str_extract_emails;
+pub const str_extract_words = nlp.str_extract_words;
+pub const str_pluralize = nlp.str_pluralize;
+pub const str_to_pig_latin = nlp.str_to_pig_latin;
+pub const str_to_nato = nlp.str_to_nato;
+pub const str_mask_email = nlp.str_mask_email;
+
 // ─── Extraction ───
 
 pub fn str_mid(handle: StzStringHandle, start: usize, length: usize) callconv(.c) StzStringHandle {
@@ -1804,64 +1826,7 @@ pub fn str_replace_char_at(handle: StzStringHandle, cp_index: c_int, replacement
 }
 
 /// Compute Levenshtein edit distance between two strings (codepoint-level).
-pub fn str_levenshtein(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
-    const s1 = (h1 orelse return 0);
-    const s2 = (h2 orelse return 0);
-    const b1 = s1.slice();
-    const b2 = s2.slice();
-
-    // Decode codepoints from both strings
-    var cp1_buf: [4096]i32 = undefined;
-    var cp2_buf: [4096]i32 = undefined;
-    var len1: usize = 0;
-    var len2: usize = 0;
-
-    var i: usize = 0;
-    while (i < b1.len and len1 < 4096) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(b1[i]) catch 1;
-        cp1_buf[len1] = decodeCodepoint(b1, i, cp_len);
-        len1 += 1;
-        i += cp_len;
-    }
-    i = 0;
-    while (i < b2.len and len2 < 4096) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(b2[i]) catch 1;
-        cp2_buf[len2] = decodeCodepoint(b2, i, cp_len);
-        len2 += 1;
-        i += cp_len;
-    }
-
-    if (len1 == 0) return @intCast(len2);
-    if (len2 == 0) return @intCast(len1);
-
-    // Use two rows for space efficiency
-    const row_alloc = gpa.alloc(c_int, len2 + 1) catch return -1;
-    defer gpa.free(row_alloc);
-    const prev_alloc = gpa.alloc(c_int, len2 + 1) catch return -1;
-    defer gpa.free(prev_alloc);
-    var prev = prev_alloc;
-    var curr = row_alloc;
-
-    for (0..len2 + 1) |j| {
-        prev[j] = @intCast(j);
-    }
-
-    for (0..len1) |r| {
-        curr[0] = @as(c_int, @intCast(r)) + 1;
-        for (0..len2) |c| {
-            const cost: c_int = if (cp1_buf[r] == cp2_buf[c]) 0 else 1;
-            const del = prev[c + 1] + 1;
-            const ins = curr[c] + 1;
-            const sub = prev[c] + cost;
-            curr[c + 1] = @min(del, @min(ins, sub));
-        }
-        const tmp = prev;
-        prev = curr;
-        curr = tmp;
-    }
-
-    return prev[len2];
-}
+// Levenshtein -> string/nlp.zig
 
 /// Check if string matches another string with case-insensitive comparison. Returns 1 or 0.
 pub fn str_is_title_case(handle: StzStringHandle) callconv(.c) c_int {
@@ -6509,32 +6474,7 @@ pub fn str_count_runs(handle: StzStringHandle) callconv(.c) c_int {
 
 /// Hamming distance: count positions where corresponding codepoints differ.
 /// Strings must be same codepoint length; returns -1 if different lengths.
-pub fn str_hamming_distance(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
-    const s1 = h1 orelse return -1;
-    const s2 = h2 orelse return -1;
-    const src1 = s1.slice();
-    const src2 = s2.slice();
-
-    var off1: usize = 0;
-    var off2: usize = 0;
-    var dist: c_int = 0;
-
-    while (off1 < src1.len and off2 < src2.len) {
-        const len1 = std.unicode.utf8ByteSequenceLength(src1[off1]) catch break;
-        const len2 = std.unicode.utf8ByteSequenceLength(src2[off2]) catch break;
-        if (off1 + len1 > src1.len or off2 + len2 > src2.len) break;
-
-        if (len1 != len2 or !mem.eql(u8, src1[off1..][0..len1], src2[off2..][0..len2])) {
-            dist += 1;
-        }
-        off1 += len1;
-        off2 += len2;
-    }
-
-    // If one string has remaining chars, lengths differ
-    if (off1 < src1.len or off2 < src2.len) return -1;
-    return dist;
-}
+// Hamming distance -> string/nlp.zig
 
 /// Remove ASCII vowels (a,e,i,o,u both cases) from the string. Returns new handle.
 pub fn str_remove_vowels(handle: StzStringHandle) callconv(.c) StzStringHandle {
@@ -6612,64 +6552,7 @@ pub fn str_is_pangram(handle: StzStringHandle) callconv(.c) c_int {
     return 1;
 }
 
-/// Return the nth n-gram (0-based) of `size` codepoints from the string.
-/// E.g. ngram("hello", 2, 0) = "he", ngram("hello", 2, 1) = "el", etc.
-/// Returns new handle, or null if out of range.
-pub fn str_ngram(handle: StzStringHandle, size: c_int, n: c_int) callconv(.c) StzStringHandle {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0 or size <= 0 or n < 0) return null;
-
-    const sz: usize = @intCast(size);
-    const idx: usize = @intCast(n);
-
-    // Walk to start position (codepoint idx)
-    var off: usize = 0;
-    var cp_idx: usize = 0;
-    while (cp_idx < idx and off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        off += cp_len;
-        cp_idx += 1;
-    }
-    if (cp_idx != idx) return null;
-
-    const start = off;
-    // Walk `size` codepoints
-    var count: usize = 0;
-    while (count < sz and off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        off += cp_len;
-        count += 1;
-    }
-    if (count != sz) return null;
-
-    return str_from(src[start..].ptr, off - start);
-}
-
-/// Count the number of n-grams of given size in the string.
-/// E.g. ngram_count("hello", 2) = 4 (he, el, ll, lo).
-pub fn str_ngram_count(handle: StzStringHandle, size: c_int) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    if (src.len == 0 or size <= 0) return 0;
-
-    const sz: usize = @intCast(size);
-
-    // Count codepoints
-    var cp_count: usize = 0;
-    var off: usize = 0;
-    while (off < src.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        cp_count += 1;
-        off += cp_len;
-    }
-
-    if (cp_count < sz) return 0;
-    return @intCast(cp_count - sz + 1);
-}
+// ngram -> string/nlp.zig
 
 /// Count ASCII consonants (letters that are not vowels). Case-insensitive.
 pub fn str_count_consonants(handle: StzStringHandle) callconv(.c) c_int {
@@ -7676,68 +7559,7 @@ pub export fn str_swap_words(handle: ?*StzString, idx1: c_int, idx2: c_int) call
     return result;
 }
 
-/// Simple pig latin: move leading consonants to end + "ay". Vowel-starting words get "yay".
-pub export fn str_to_pig_latin(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    const vowels = "aeiouAEIOU";
-
-    var first_word = true;
-    var ii: usize = 0;
-    while (ii < src.len) {
-        // Skip/copy spaces
-        if (src[ii] == ' ') {
-            result.data.appendSlice(gpa, " ") catch break;
-            ii += 1;
-            continue;
-        }
-
-        if (!first_word) {} // spaces already handled
-        first_word = false;
-
-        // Find word boundaries
-        const word_start = ii;
-        while (ii < src.len and src[ii] != ' ') : (ii += 1) {}
-        const word = src[word_start..ii];
-
-        // Check if first char is vowel
-        var is_vowel_start = false;
-        for (vowels) |v| {
-            if (word[0] == v) {
-                is_vowel_start = true;
-                break;
-            }
-        }
-
-        if (is_vowel_start) {
-            result.data.appendSlice(gpa, word) catch break;
-            result.data.appendSlice(gpa, "yay") catch break;
-        } else {
-            // Find first vowel position
-            var vowel_pos: usize = word.len;
-            for (word, 0..) |c, ci| {
-                for (vowels) |v| {
-                    if (c == v) {
-                        vowel_pos = ci;
-                        break;
-                    }
-                }
-                if (vowel_pos != word.len) break;
-            }
-            if (vowel_pos == word.len) {
-                // No vowel, just append + "ay"
-                result.data.appendSlice(gpa, word) catch break;
-                result.data.appendSlice(gpa, "ay") catch break;
-            } else {
-                result.data.appendSlice(gpa, word[vowel_pos..]) catch break;
-                result.data.appendSlice(gpa, word[0..vowel_pos]) catch break;
-                result.data.appendSlice(gpa, "ay") catch break;
-            }
-        }
-    }
-    return result;
-}
+// Pig latin -> string/nlp.zig
 
 // batch 10 ────────────────────────────────────────────────────────
 
@@ -7846,28 +7668,7 @@ pub export fn str_char_frequency_top(handle: ?*StzString) callconv(.c) ?*StzStri
 
 // batch 12 ────────────────────────────────────────────────────────
 
-/// Jaccard similarity of character sets (unique chars) * 100. Two handles.
-pub export fn str_jaccard_similarity(h1: ?*StzString, h2: ?*StzString) callconv(.c) c_int {
-    const s1 = h1 orelse return 0;
-    const s2 = h2 orelse return 0;
-    const src1 = s1.slice();
-    const src2 = s2.slice();
-
-    // Build char sets (ASCII only for speed)
-    var set1: [256]bool = [_]bool{false} ** 256;
-    var set2: [256]bool = [_]bool{false} ** 256;
-    for (src1) |c| set1[c] = true;
-    for (src2) |c| set2[c] = true;
-
-    var intersection: u32 = 0;
-    var union_count: u32 = 0;
-    for (0..256) |i| {
-        if (set1[i] or set2[i]) union_count += 1;
-        if (set1[i] and set2[i]) intersection += 1;
-    }
-    if (union_count == 0) return 100; // both empty = identical
-    return @intCast((intersection * 100) / union_count);
-}
+// Jaccard similarity -> string/nlp.zig
 
 /// Longest common prefix between two handles.
 pub export fn str_longest_common_prefix(h1: ?*StzString, h2: ?*StzString) callconv(.c) ?*StzString {
@@ -8272,38 +8073,7 @@ pub export fn str_right_pad(handle: ?*StzString, width: c_int, pad_char: u8) cal
 
 // to_hex, from_hex -> string/encode.zig
 
-pub export fn str_soundex(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    if (src.len == 0) return result;
-    // First letter uppercase
-    const first: u8 = if (src[0] >= 'a' and src[0] <= 'z') src[0] - 32 else src[0];
-    result.data.appendSlice(gpa, &[_]u8{first}) catch return result;
-    const map = [26]u8{ '0', '1', '2', '3', '0', '1', '2', '0', '0', '2', '2', '4', '5', '5', '0', '1', '2', '6', '2', '3', '0', '1', '0', '2', '0', '2' };
-    var count: usize = 1;
-    var last_code: u8 = soundexCode(first, &map);
-    var idx: usize = 1;
-    while (idx < src.len and count < 4) : (idx += 1) {
-        const c = src[idx];
-        const code = soundexCode(c, &map);
-        if (code != '0' and code != last_code) {
-            result.data.appendSlice(gpa, &[_]u8{code}) catch break;
-            count += 1;
-        }
-        if (code != '0') last_code = code;
-    }
-    while (count < 4) : (count += 1) {
-        result.data.appendSlice(gpa, &[_]u8{'0'}) catch break;
-    }
-    return result;
-}
-
-fn soundexCode(c: u8, map: *const [26]u8) u8 {
-    if (c >= 'a' and c <= 'z') return map[c - 'a'];
-    if (c >= 'A' and c <= 'Z') return map[c - 'A'];
-    return '0';
-}
+// Soundex -> string/nlp.zig
 
 // ─── Batch 16: vigenere_encrypt, atbash, count_words_matching, truncate_words, to_constant_case ───
 
@@ -8420,28 +8190,7 @@ pub export fn str_last_word(handle: ?*StzString) callconv(.c) ?*StzString {
     return result;
 }
 
-pub export fn str_to_nato(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    const nato = [26][]const u8{ "Alfa", "Bravo", "Charlie", "Delta", "Echo", "Foxtrot", "Golf", "Hotel", "India", "Juliet", "Kilo", "Lima", "Mike", "November", "Oscar", "Papa", "Quebec", "Romeo", "Sierra", "Tango", "Uniform", "Victor", "Whiskey", "X-ray", "Yankee", "Zulu" };
-    var first = true;
-    for (src) |c| {
-        var idx: ?usize = null;
-        if (c >= 'a' and c <= 'z') idx = c - 'a';
-        if (c >= 'A' and c <= 'Z') idx = c - 'A';
-        if (idx) |i| {
-            if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
-            result.data.appendSlice(gpa, nato[i]) catch { setError(.out_of_memory); };
-            first = false;
-        } else if (c == ' ') {
-            if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
-            result.data.appendSlice(gpa, "[space]") catch { setError(.out_of_memory); };
-            first = false;
-        }
-    }
-    return result;
-}
+// NATO -> string/nlp.zig
 
 pub export fn str_commonality(handle: ?*StzString, other: ?*StzString) callconv(.c) c_int {
     const s = handle orelse return 0;
@@ -8615,63 +8364,7 @@ pub export fn str_normalize_spaces(handle: ?*StzString) callconv(.c) ?*StzString
     return result;
 }
 
-pub export fn str_mask_email(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    // Find @ position
-    var at_pos: ?usize = null;
-    for (src, 0..) |c, idx| {
-        if (c == '@') {
-            at_pos = idx;
-            break;
-        }
-    }
-    if (at_pos) |ap| {
-        if (ap > 0) {
-            // Show first char, mask rest of local part
-            result.data.appendSlice(gpa, &[_]u8{src[0]}) catch { setError(.out_of_memory); };
-            var i: usize = 1;
-            while (i < ap) : (i += 1) {
-                result.data.appendSlice(gpa, &[_]u8{'*'}) catch break;
-            }
-        }
-        // Append @domain
-        result.data.appendSlice(gpa, src[ap..]) catch { setError(.out_of_memory); };
-    } else {
-        // No @, just copy
-        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
-    }
-    return result;
-}
-
-pub export fn str_pluralize(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    if (src.len == 0) return result;
-    result.data.appendSlice(gpa, src) catch return result;
-    const last = src[src.len - 1];
-    if (last == 's' or last == 'x' or last == 'z') {
-        result.data.appendSlice(gpa, "es") catch { setError(.out_of_memory); };
-    } else if (last == 'y' and src.len > 1) {
-        const prev = src[src.len - 2];
-        if (!(prev == 'a' or prev == 'e' or prev == 'i' or prev == 'o' or prev == 'u')) {
-            // Replace y with ies
-            _ = result.data.pop();
-            result.data.appendSlice(gpa, "ies") catch { setError(.out_of_memory); };
-        } else {
-            result.data.appendSlice(gpa, "s") catch { setError(.out_of_memory); };
-        }
-    } else if (src.len >= 2 and src[src.len - 2] == 'c' and last == 'h') {
-        result.data.appendSlice(gpa, "es") catch { setError(.out_of_memory); };
-    } else if (src.len >= 2 and src[src.len - 2] == 's' and last == 'h') {
-        result.data.appendSlice(gpa, "es") catch { setError(.out_of_memory); };
-    } else {
-        result.data.appendSlice(gpa, "s") catch { setError(.out_of_memory); };
-    }
-    return result;
-}
+// mask_email, pluralize -> string/nlp.zig
 
 // ─── Batch 20: deduplicate_lines, remove_blank_lines, extract_numbers, extract_emails, quote ───
 
@@ -8741,67 +8434,7 @@ pub export fn str_remove_blank_lines(handle: ?*StzString) callconv(.c) ?*StzStri
     return result;
 }
 
-pub export fn str_extract_numbers(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    var pos: usize = 0;
-    var first = true;
-    while (pos < src.len) {
-        if (src[pos] >= '0' and src[pos] <= '9') {
-            const start = pos;
-            while (pos < src.len and ((src[pos] >= '0' and src[pos] <= '9') or src[pos] == '.')) pos += 1;
-            if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
-            result.data.appendSlice(gpa, src[start..pos]) catch { setError(.out_of_memory); };
-            first = false;
-        } else {
-            pos += 1;
-        }
-    }
-    return result;
-}
-
-pub export fn str_extract_emails(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    // Simple extraction: find @ then scan backwards/forwards for valid chars
-    var pos: usize = 0;
-    var first = true;
-    while (pos < src.len) {
-        if (src[pos] == '@' and pos > 0) {
-            // Scan back for local part
-            var local_start = pos;
-            while (local_start > 0) {
-                const c = src[local_start - 1];
-                if ((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9') or c == '.' or c == '_' or c == '-' or c == '+') {
-                    local_start -= 1;
-                } else break;
-            }
-            // Scan forward for domain
-            var domain_end = pos + 1;
-            var has_dot = false;
-            while (domain_end < src.len) {
-                const c = src[domain_end];
-                if ((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9') or c == '.' or c == '-') {
-                    if (c == '.') has_dot = true;
-                    domain_end += 1;
-                } else break;
-            }
-            if (local_start < pos and domain_end > pos + 1 and has_dot) {
-                if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
-                result.data.appendSlice(gpa, src[local_start..domain_end]) catch { setError(.out_of_memory); };
-                first = false;
-                pos = domain_end;
-            } else {
-                pos += 1;
-            }
-        } else {
-            pos += 1;
-        }
-    }
-    return result;
-}
+// extract_numbers, extract_emails -> string/nlp.zig
 
 // Quote, Unquote, CSV field -> string/encode.zig
 
@@ -8851,24 +8484,7 @@ pub export fn str_hide(handle: ?*StzString, mask_char: u8, keep_first: c_int, ke
     return result;
 }
 
-pub export fn str_extract_words(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    var pos: usize = 0;
-    var first = true;
-    while (pos < src.len) {
-        // Skip non-alpha
-        while (pos < src.len and !((src[pos] >= 'a' and src[pos] <= 'z') or (src[pos] >= 'A' and src[pos] <= 'Z'))) pos += 1;
-        if (pos >= src.len) break;
-        const start = pos;
-        while (pos < src.len and ((src[pos] >= 'a' and src[pos] <= 'z') or (src[pos] >= 'A' and src[pos] <= 'Z') or src[pos] == '\'')) pos += 1;
-        if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
-        result.data.appendSlice(gpa, src[start..pos]) catch { setError(.out_of_memory); };
-        first = false;
-    }
-    return result;
-}
+// extract_words -> string/nlp.zig
 
 // ─── Batch 22: expand_tabs, sentence_count, chop, scan_int, to_ordinal ───
 
@@ -8984,336 +8600,11 @@ pub export fn str_chars_split(handle: ?*StzString) callconv(.c) ?*StzString {
 
 // batch 17 ─── NLP: Jaro-Winkler, Metaphone, N-grams ───
 
-/// Jaro similarity between two strings. Returns value * 1000 (integer scaled).
-/// Jaro similarity is a measure of similarity between two strings, useful for
-/// fuzzy name matching in multilingual contexts.
-pub export fn str_jaro(h1: ?*StzString, h2: ?*StzString) callconv(.c) c_int {
-    const s1 = h1 orelse return 0;
-    const s2 = h2 orelse return 0;
-    const a = s1.slice();
-    const b = s2.slice();
-    if (a.len == 0 and b.len == 0) return 1000; // identical empty
-    if (a.len == 0 or b.len == 0) return 0;
+// Jaro, Jaro-Winkler -> string/nlp.zig
 
-    // Count codepoints
-    const len_a = utf8CodepointCount(a);
-    const len_b = utf8CodepointCount(b);
-    if (len_a == 0 or len_b == 0) return 0;
+// Metaphone -> string/nlp.zig
 
-    // Match window
-    const max_len = if (len_a > len_b) len_a else len_b;
-    const match_dist = if (max_len > 1) max_len / 2 - 1 else 0;
-
-    // Collect codepoints from both strings
-    var cps_a: [1024]i32 = undefined;
-    var cps_b: [1024]i32 = undefined;
-    const ca = @min(len_a, 1024);
-    const cb = @min(len_b, 1024);
-
-    var idx: usize = 0;
-    var pos: usize = 0;
-    while (idx < ca and pos < a.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(a[pos]) catch 1;
-        cps_a[idx] = decodeCodepoint(a, pos, cp_len);
-        pos += cp_len;
-        idx += 1;
-    }
-    idx = 0;
-    pos = 0;
-    while (idx < cb and pos < b.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(b[pos]) catch 1;
-        cps_b[idx] = decodeCodepoint(b, pos, cp_len);
-        pos += cp_len;
-        idx += 1;
-    }
-
-    // Find matches
-    var matched_a: [1024]bool = [_]bool{false} ** 1024;
-    var matched_b: [1024]bool = [_]bool{false} ** 1024;
-    var matches: usize = 0;
-
-    var i: usize = 0;
-    while (i < ca) : (i += 1) {
-        const lo = if (i > match_dist) i - match_dist else 0;
-        const hi = @min(i + match_dist + 1, cb);
-        var j: usize = lo;
-        while (j < hi) : (j += 1) {
-            if (!matched_b[j] and cps_a[i] == cps_b[j]) {
-                matched_a[i] = true;
-                matched_b[j] = true;
-                matches += 1;
-                break;
-            }
-        }
-    }
-
-    if (matches == 0) return 0;
-
-    // Count transpositions
-    var transpositions: usize = 0;
-    var k: usize = 0;
-    i = 0;
-    while (i < ca) : (i += 1) {
-        if (matched_a[i]) {
-            while (k < cb and !matched_b[k]) k += 1;
-            if (k < cb and cps_a[i] != cps_b[k]) transpositions += 1;
-            k += 1;
-        }
-    }
-
-    // Jaro = (m/|a| + m/|b| + (m-t/2)/m) / 3
-    const m_f: f64 = @floatFromInt(matches);
-    const la_f: f64 = @floatFromInt(ca);
-    const lb_f: f64 = @floatFromInt(cb);
-    const t_f: f64 = @floatFromInt(transpositions / 2);
-    const jaro = (m_f / la_f + m_f / lb_f + (m_f - t_f) / m_f) / 3.0;
-    return @intFromFloat(jaro * 1000.0);
-}
-
-/// Jaro-Winkler similarity. Returns value * 1000. Boosts for common prefix.
-pub export fn str_jaro_winkler(h1: ?*StzString, h2: ?*StzString) callconv(.c) c_int {
-    const jaro = str_jaro(h1, h2);
-    if (jaro == 0) return 0;
-    const jaro_f: f64 = @as(f64, @floatFromInt(jaro)) / 1000.0;
-
-    // Common prefix (up to 4 chars)
-    const s1 = h1 orelse return jaro;
-    const s2 = h2 orelse return jaro;
-    const a = s1.slice();
-    const b = s2.slice();
-    var prefix: usize = 0;
-    var pa: usize = 0;
-    var pb: usize = 0;
-    while (prefix < 4 and pa < a.len and pb < b.len) {
-        const cpa_len = std.unicode.utf8ByteSequenceLength(a[pa]) catch break;
-        const cpb_len = std.unicode.utf8ByteSequenceLength(b[pb]) catch break;
-        if (cpa_len != cpb_len) break;
-        if (!mem.eql(u8, a[pa..pa + cpa_len], b[pb..pb + cpb_len])) break;
-        pa += cpa_len;
-        pb += cpb_len;
-        prefix += 1;
-    }
-
-    const p_f: f64 = @floatFromInt(prefix);
-    const jw = jaro_f + p_f * 0.1 * (1.0 - jaro_f);
-    return @intFromFloat(jw * 1000.0);
-}
-
-/// Metaphone phonetic encoding. Returns new handle with metaphone code.
-/// Implements basic metaphone algorithm for English pronunciation matching.
-pub export fn str_metaphone(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    if (src.len == 0) return result;
-
-    // Work with uppercase ASCII
-    var buf: [256]u8 = undefined;
-    const wlen = @min(src.len, 256);
-    for (0..wlen) |i| {
-        buf[i] = if (src[i] >= 'a' and src[i] <= 'z') src[i] - 32 else src[i];
-    }
-    const word = buf[0..wlen];
-
-    // Drop initial silent consonant pairs
-    var start: usize = 0;
-    if (wlen >= 2) {
-        const pair = [2]u8{ word[0], word[1] };
-        if (mem.eql(u8, &pair, "AE") or mem.eql(u8, &pair, "GN") or
-            mem.eql(u8, &pair, "KN") or mem.eql(u8, &pair, "PN") or
-            mem.eql(u8, &pair, "WR"))
-        {
-            start = 1;
-        }
-    }
-
-    var code_len: usize = 0;
-    var prev: u8 = 0;
-    var i: usize = start;
-    while (i < wlen and code_len < 6) {
-        const c = word[i];
-        const next: u8 = if (i + 1 < wlen) word[i + 1] else 0;
-
-        if (c == prev and c != 'C') {
-            i += 1;
-            continue;
-        }
-
-        var out: u8 = 0;
-        var skip: usize = 1;
-
-        switch (c) {
-            'B' => {
-                if (i == 0 or word[i - 1] != 'M') out = 'B';
-            },
-            'C' => {
-                if (next == 'H') {
-                    out = 'X';
-                    skip = 2;
-                } else if (next == 'I' or next == 'E' or next == 'Y') {
-                    out = 'S';
-                } else {
-                    out = 'K';
-                }
-            },
-            'D' => {
-                if (next == 'G' and i + 2 < wlen and
-                    (word[i + 2] == 'I' or word[i + 2] == 'E' or word[i + 2] == 'Y'))
-                {
-                    out = 'J';
-                } else {
-                    out = 'T';
-                }
-            },
-            'F' => out = 'F',
-            'G' => {
-                if (next == 'H' and i + 2 < wlen and !isVowelAscii(word[i + 2])) {
-                    i += 2;
-                    continue;
-                } else if (i > 0 and (next == 'N' or (next == 0))) {
-                    // silent G at end
-                } else if (next == 'N' and i + 2 < wlen and word[i + 2] == 'E' and i + 3 >= wlen) {
-                    // silent GNE
-                } else {
-                    out = if (next == 'I' or next == 'E' or next == 'Y') 'J' else 'K';
-                }
-            },
-            'H' => {
-                if (isVowelAscii(next) and (i == 0 or !isVowelAscii(word[i - 1]))) out = 'H';
-            },
-            'J' => out = 'J',
-            'K' => {
-                if (i == 0 or word[i - 1] != 'C') out = 'K';
-            },
-            'L' => out = 'L',
-            'M' => out = 'M',
-            'N' => out = 'N',
-            'P' => {
-                if (next == 'H') {
-                    out = 'F';
-                    skip = 2;
-                } else {
-                    out = 'P';
-                }
-            },
-            'Q' => out = 'K',
-            'R' => out = 'R',
-            'S' => {
-                if (next == 'H') {
-                    out = 'X';
-                    skip = 2;
-                } else if (next == 'I' and i + 2 < wlen and (word[i + 2] == 'O' or word[i + 2] == 'A')) {
-                    out = 'X';
-                    skip = 3;
-                } else {
-                    out = 'S';
-                }
-            },
-            'T' => {
-                if (next == 'H') {
-                    out = '0'; // theta
-                    skip = 2;
-                } else if (next == 'I' and i + 2 < wlen and (word[i + 2] == 'O' or word[i + 2] == 'A')) {
-                    out = 'X';
-                } else {
-                    out = 'T';
-                }
-            },
-            'V' => out = 'F',
-            'W', 'Y' => {
-                if (isVowelAscii(next)) out = c;
-            },
-            'X' => {
-                result.data.appendSlice(gpa, "KS") catch break;
-                code_len += 2;
-                prev = 'S';
-                i += 1;
-                continue;
-            },
-            'Z' => out = 'S',
-            else => {},
-        }
-
-        if (out != 0) {
-            result.data.appendSlice(gpa, &[_]u8{out}) catch break;
-            code_len += 1;
-        }
-        prev = c;
-        i += skip;
-    }
-    return result;
-}
-
-/// Generate character n-grams. Returns joined result with separator "|".
-/// For "hello" with n=2: "he|el|ll|lo"
-pub export fn str_char_ngrams(handle: ?*StzString, n: c_int) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    if (n < 1) return result;
-    const ng: usize = @intCast(n);
-
-    // Collect codepoint byte offsets
-    var offsets: [4096]usize = undefined;
-    var num_cps: usize = 0;
-    var pos: usize = 0;
-    while (pos < src.len and num_cps < 4096) {
-        offsets[num_cps] = pos;
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
-        pos += cp_len;
-        num_cps += 1;
-    }
-    if (num_cps < ng) return result;
-
-    var first = true;
-    var i: usize = 0;
-    while (i + ng <= num_cps) : (i += 1) {
-        if (!first) result.data.appendSlice(gpa, "|") catch break;
-        const start = offsets[i];
-        const end = if (i + ng < num_cps) offsets[i + ng] else src.len;
-        result.data.appendSlice(gpa, src[start..end]) catch break;
-        first = false;
-    }
-    return result;
-}
-
-/// Generate word n-grams. Returns joined result with separator "|".
-/// For "the quick brown fox" with n=2: "the quick|quick brown|brown fox"
-pub export fn str_word_ngrams(handle: ?*StzString, n: c_int) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    const result = str_new() orelse return null;
-    if (n < 1) return result;
-    const ng: usize = @intCast(n);
-
-    // Collect word boundaries
-    var word_starts: [1024]usize = undefined;
-    var word_ends: [1024]usize = undefined;
-    var num_words: usize = 0;
-    var i: usize = 0;
-    while (i < src.len and num_words < 1024) {
-        // Skip whitespace
-        while (i < src.len and (src[i] == ' ' or src[i] == '\t' or src[i] == '\n' or src[i] == '\r')) i += 1;
-        if (i >= src.len) break;
-        word_starts[num_words] = i;
-        // Find word end
-        while (i < src.len and src[i] != ' ' and src[i] != '\t' and src[i] != '\n' and src[i] != '\r') i += 1;
-        word_ends[num_words] = i;
-        num_words += 1;
-    }
-    if (num_words < ng) return result;
-
-    var first = true;
-    i = 0;
-    while (i + ng <= num_words) : (i += 1) {
-        if (!first) result.data.appendSlice(gpa, "|") catch break;
-        const start = word_starts[i];
-        const end = word_ends[i + ng - 1];
-        result.data.appendSlice(gpa, src[start..end]) catch break;
-        first = false;
-    }
-    return result;
-}
+// char_ngrams, word_ngrams -> string/nlp.zig
 
 // ─── Tests ───
 
