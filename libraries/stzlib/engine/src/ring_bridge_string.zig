@@ -2029,6 +2029,33 @@ fn ring_StringPluralize(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_pluralize(h)), STZ_HANDLE);
 }
 
+fn ring_StringDeduplicateLines(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_deduplicate_lines(h)), STZ_HANDLE);
+}
+
+fn ring_StringRemoveBlankLines(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_blank_lines(h)), STZ_HANDLE);
+}
+
+fn ring_StringExtractNumbers(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_extract_numbers(h)), STZ_HANDLE);
+}
+
+fn ring_StringExtractEmails(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_extract_emails(h)), STZ_HANDLE);
+}
+
+fn ring_StringQuote(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const ch_str: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const qchar: u8 = if (ch_str != null) ch_str[0] else '"';
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_quote(h, qchar)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2336,6 +2363,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringnormalizespaces", .func = &ring_StringNormalizeSpaces },
     .{ .name = "stzenginestringmaskemail", .func = &ring_StringMaskEmail },
     .{ .name = "stzenginestringpluralize", .func = &ring_StringPluralize },
+    .{ .name = "stzenginestringdeduplicatelines", .func = &ring_StringDeduplicateLines },
+    .{ .name = "stzenginestringremoveblanklines", .func = &ring_StringRemoveBlankLines },
+    .{ .name = "stzenginestringextractnumbers", .func = &ring_StringExtractNumbers },
+    .{ .name = "stzenginestringextractemails", .func = &ring_StringExtractEmails },
+    .{ .name = "stzenginestringquote", .func = &ring_StringQuote },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 303 Registered Functions"
+? "Engine Full Bridge Test -- All 308 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -3206,6 +3206,39 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("city")
 pResult = StzEngineStringPluralize(pStr)
 Assert("Pluralize city", StzEngineStringData(pResult), "cities")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+? ""
+? "--- Group 112: DeduplicateLines / RemoveBlankLines / ExtractNumbers / ExtractEmails / Quote ---"
+
+pStr = StzEngineStringFrom("hello" + nl + "world" + nl + "hello" + nl + "foo")
+pResult = StzEngineStringDeduplicateLines(pStr)
+Assert("DeduplicateLines", StzEngineStringData(pResult), "hello" + nl + "world" + nl + "foo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello" + nl + nl + "world")
+pResult = StzEngineStringRemoveBlankLines(pStr)
+Assert("RemoveBlankLines", StzEngineStringData(pResult), "hello" + nl + "world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("price is 42.5 and qty 10")
+pResult = StzEngineStringExtractNumbers(pStr)
+Assert("ExtractNumbers", StzEngineStringData(pResult), "42.5 10")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("contact john@example.com or jane@test.org")
+pResult = StzEngineStringExtractEmails(pStr)
+Assert("ExtractEmails", StzEngineStringData(pResult), "john@example.com jane@test.org")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringQuote(pStr, "'")
+Assert("Quote single", StzEngineStringData(pResult), "'hello'")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 

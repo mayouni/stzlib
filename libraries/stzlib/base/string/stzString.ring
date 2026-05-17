@@ -2224,6 +2224,86 @@ class stzString from stzObject
 		return cResult
 
 	  #=========================#
+	 #  DEDUPLICATE LINES      #
+	#=========================#
+
+	def DeduplicateLines()
+		pResult = StzEngineStringDeduplicateLines(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def DeduplicateLinesQ()
+			This.DeduplicateLines()
+			return This
+
+	def LinesDeduplicated()
+		pResult = StzEngineStringDeduplicateLines(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  REMOVE BLANK LINES     #
+	#=========================#
+
+	def RemoveBlankLines()
+		pResult = StzEngineStringRemoveBlankLines(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RemoveBlankLinesQ()
+			This.RemoveBlankLines()
+			return This
+
+	def BlankLinesRemoved()
+		pResult = StzEngineStringRemoveBlankLines(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  EXTRACT NUMBERS        #
+	#=========================#
+
+	def ExtractNumbers()
+		pResult = StzEngineStringExtractNumbers(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  EXTRACT EMAILS         #
+	#=========================#
+
+	def ExtractEmails()
+		pResult = StzEngineStringExtractEmails(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  QUOTE                  #
+	#=========================#
+
+	def Quote(cChar)
+		pResult = StzEngineStringQuote(@pEngine, cChar)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def QuoteQ(cChar)
+			This.Quote(cChar)
+			return This
+
+	def Quoted(cChar)
+		pResult = StzEngineStringQuote(@pEngine, cChar)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
 
