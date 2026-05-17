@@ -16,7 +16,7 @@
 | Engine tests      | 40 passing               |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Last updated      | 2026-05-17 (Session 6)   |
+| Last updated      | 2026-05-17 (Session 7)   |
 
 ---
 
@@ -79,6 +79,18 @@
 - 14 stzString methods already Engine-backed, 630 Ring tests pass
 - Naming convention: `str_` prefix, verb/noun discipline, CS pattern
 - 1-based indexing by default with compile-time config flag
+
+### Phase 6+ -- String Engine v2 Phase A Implementation (Session 7)
+
+- **1-based indexing**: INDEX_BASE=1, toInternal/toExternal helpers,
+  ~30 functions converted (all codepoint position I/O)
+- **Unicode CI**: 9 toLowerAscii call sites -> casefold, equals_ci
+  leak fixed, foldcase + trim_left/right Unicode-aware
+- **NLP primitives**: Jaro-Winkler, Metaphone, char/word n-grams
+- **CS merge**: 13 unified _cs functions (case parameter), old
+  CS/CI names become thin wrappers
+- 411 Zig tests, 652 Ring bridge tests, 339 registered functions
+- str_ prefix rename deferred (cosmetic, not blocking)
 
 ---
 
@@ -484,3 +496,4 @@ M-E11 (Repo Split)
 | 2026-05-15 | 4b      | Phase 5+  | 88 modules, 19 principles, 3 VPs |
 | 2026-05-16 | 5       | Phase 5++ | 14 stzString methods Engine-backed, 630 Ring tests |
 | 2026-05-17 | 6       | Phase 6   | String Engine v2 design doc + 8-phase plan |
+| 2026-05-17 | 7       | Phase A   | 1-based indexing + CS merge (Phase A complete) |
