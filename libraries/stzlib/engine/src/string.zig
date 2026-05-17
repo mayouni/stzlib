@@ -8844,6 +8844,143 @@ fn soundexCode(c: u8, map: *const [26]u8) u8 {
     return '0';
 }
 
+// ─── Batch 16: vigenere_encrypt, atbash, count_words_matching, truncate_words, to_constant_case ───
+
+pub export fn stz_string_vigenere_encrypt(handle: ?*StzString, key_ptr: [*c]const u8, key_len: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const klen: usize = if (key_len < 1) return null else @intCast(key_len);
+    const key = key_ptr[0..klen];
+    const result = stz_string_new() orelse return null;
+    var ki: usize = 0;
+    for (src) |c| {
+        if (c >= 'a' and c <= 'z') {
+            var k = key[ki % klen];
+            if (k >= 'A' and k <= 'Z') k += 32;
+            if (k >= 'a' and k <= 'z') {
+                const shift: u8 = k - 'a';
+                const enc: u8 = 'a' + @as(u8, @intCast((@as(u16, c - 'a') + shift) % 26));
+                result.data.appendSlice(gpa, &[_]u8{enc}) catch break;
+            } else {
+                result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            }
+            ki += 1;
+        } else if (c >= 'A' and c <= 'Z') {
+            var k = key[ki % klen];
+            if (k >= 'A' and k <= 'Z') k += 32;
+            if (k >= 'a' and k <= 'z') {
+                const shift: u8 = k - 'a';
+                const enc: u8 = 'A' + @as(u8, @intCast((@as(u16, c - 'A') + shift) % 26));
+                result.data.appendSlice(gpa, &[_]u8{enc}) catch break;
+            } else {
+                result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            }
+            ki += 1;
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+        }
+    }
+    return result;
+}
+
+pub export fn stz_string_atbash(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    for (src) |c| {
+        if (c >= 'a' and c <= 'z') {
+            result.data.appendSlice(gpa, &[_]u8{'z' - (c - 'a')}) catch break;
+        } else if (c >= 'A' and c <= 'Z') {
+            result.data.appendSlice(gpa, &[_]u8{'Z' - (c - 'A')}) catch break;
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+        }
+    }
+    return result;
+}
+
+pub export fn stz_string_count_words_matching(handle: ?*StzString, pattern_ptr: [*c]const u8, pattern_len: c_int) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    const plen: usize = if (pattern_len < 1) return 0 else @intCast(pattern_len);
+    const pattern = pattern_ptr[0..plen];
+    var count: c_int = 0;
+    var pos: usize = 0;
+    while (pos < src.len) {
+        // skip spaces
+        while (pos < src.len and src[pos] == ' ') pos += 1;
+        if (pos >= src.len) break;
+        const start = pos;
+        while (pos < src.len and src[pos] != ' ') pos += 1;
+        const word = src[start..pos];
+        if (word.len == plen and mem.eql(u8, word, pattern)) count += 1;
+    }
+    return count;
+}
+
+pub export fn stz_string_truncate_words(handle: ?*StzString, max_words: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const max: usize = if (max_words < 1) 0 else @intCast(max_words);
+    const result = stz_string_new() orelse return null;
+    if (max == 0) return result;
+    var word_count: usize = 0;
+    var pos: usize = 0;
+    var last_end: usize = 0;
+    while (pos < src.len) {
+        while (pos < src.len and src[pos] == ' ') pos += 1;
+        if (pos >= src.len) break;
+        if (word_count > 0) {
+            // include the space before this word
+        }
+        const word_start = pos;
+        _ = word_start;
+        while (pos < src.len and src[pos] != ' ') pos += 1;
+        word_count += 1;
+        last_end = pos;
+        if (word_count >= max) break;
+    }
+    if (last_end > 0) {
+        // Find start: skip leading spaces
+        var start: usize = 0;
+        while (start < src.len and src[start] == ' ') start += 1;
+        result.data.appendSlice(gpa, src[start..last_end]) catch {};
+    }
+    return result;
+}
+
+pub export fn stz_string_to_constant_case(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var prev_was_sep = false;
+    for (src, 0..) |c, idx| {
+        if (c == ' ' or c == '-' or c == '\t') {
+            if (!prev_was_sep and idx > 0) {
+                result.data.appendSlice(gpa, &[_]u8{'_'}) catch break;
+            }
+            prev_was_sep = true;
+        } else if (c >= 'a' and c <= 'z') {
+            result.data.appendSlice(gpa, &[_]u8{c - 32}) catch break;
+            prev_was_sep = false;
+        } else if (c >= 'A' and c <= 'Z') {
+            // Insert underscore before uppercase if preceded by lowercase
+            if (idx > 0 and !prev_was_sep) {
+                const prev = src[idx - 1];
+                if (prev >= 'a' and prev <= 'z') {
+                    result.data.appendSlice(gpa, &[_]u8{'_'}) catch break;
+                }
+            }
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            prev_was_sep = false;
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            prev_was_sep = false;
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -10551,6 +10688,57 @@ test "soundex" {
     const h2 = stz_string_from("Ashcraft", 8);
     const r2 = stz_string_soundex(h2);
     try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "A261"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "vigenere_encrypt" {
+    const h = stz_string_from("hello", 5);
+    const r = stz_string_vigenere_encrypt(h, "key", 3);
+    // h+k=r, e+e=i, l+y=j, l+k=v, o+e=s
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "rijvs"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "atbash" {
+    const h = stz_string_from("abc", 3);
+    const r = stz_string_atbash(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "zyx"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("Hello", 5);
+    const r2 = stz_string_atbash(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2.?)[0..@intCast(stz_string_size(r2.?))], "Svool"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "count_words_matching" {
+    const h = stz_string_from("the cat and the dog", 19);
+    try std.testing.expectEqual(@as(c_int, 2), stz_string_count_words_matching(h, "the", 3));
+    stz_string_free(h);
+}
+
+test "truncate_words" {
+    const h = stz_string_from("one two three four five", 23);
+    const r = stz_string_truncate_words(h, 3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "one two three"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "to_constant_case" {
+    const h = stz_string_from("hello world", 11);
+    const r = stz_string_to_constant_case(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "HELLO_WORLD"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("camelCase", 9);
+    const r2 = stz_string_to_constant_case(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2.?)[0..@intCast(stz_string_size(r2.?))], "CAMEL_CASE"));
     stz_string_free(r2);
     stz_string_free(h2);
 }
