@@ -43,8 +43,7 @@ The `stz_` prefix was useful when the engine had multiple modules
 sharing a namespace. At the C ABI boundary, `str_` is shorter,
 unambiguous, and directly maps to the domain.
 
-**Migration:** The old names become `@export` aliases during a
-transition period, then are removed in a future version.
+No migration aliases needed -- there is no external user base yet.
 
 ### 2.2 Verb/Noun Discipline
 

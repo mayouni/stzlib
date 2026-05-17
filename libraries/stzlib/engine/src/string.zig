@@ -2,6 +2,10 @@
 //
 // Replaces QString2 with pure Zig UTF-8 string handling.
 // All functions use C ABI for Ring FFI compatibility.
+//
+// Indexing convention: 1-based by default (INDEX_BASE = 1).
+// All codepoint positions accepted and returned by public functions
+// use this base. Internally, arrays remain 0-based.
 
 const std = @import("std");
 const mem = std.mem;
@@ -9,6 +13,24 @@ const Allocator = std.mem.Allocator;
 
 const gpa = std.heap.c_allocator;
 const unicode = @import("unicode.zig");
+
+// ─── Indexing Configuration ───
+
+/// Index base for codepoint positions in the public API.
+/// 1 = 1-based (Softanza/Ring convention, default)
+/// 0 = 0-based (C/Python convention)
+pub const INDEX_BASE: c_int = 1;
+
+/// Convert a public API position to internal 0-based index.
+fn toInternal(pos: i64) usize {
+    const adjusted = pos - INDEX_BASE;
+    return if (adjusted < 0) 0 else @intCast(adjusted);
+}
+
+/// Convert an internal 0-based index to public API position.
+fn toExternal(pos: usize) i64 {
+    return @as(i64, @intCast(pos)) + INDEX_BASE;
+}
 
 pub const StzStringHandle = ?*StzString;
 
@@ -130,13 +152,14 @@ pub fn stz_string_trimmed(handle: StzStringHandle) callconv(.c) StzStringHandle 
 
 // ─── Codepoint-aware Extraction ───
 
-/// Get nth char (0-based codepoint index). Returns new handle with that single codepoint.
+/// Get nth char (INDEX_BASE-based codepoint position). Returns new handle with that single codepoint.
 pub fn stz_string_nth_char(handle: StzStringHandle, cp_index: usize) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const hay = s.slice();
+        const internal_idx = toInternal(@intCast(cp_index));
         var byte_pos: usize = 0;
         var cp: usize = 0;
-        while (byte_pos < hay.len and cp < cp_index) {
+        while (byte_pos < hay.len and cp < internal_idx) {
             const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
             byte_pos += cp_len;
             cp += 1;
@@ -150,14 +173,15 @@ pub fn stz_string_nth_char(handle: StzStringHandle, cp_index: usize) callconv(.c
 }
 
 /// Extract substring by codepoint range [start_cp, start_cp + cp_count).
-/// Both parameters are 0-based codepoint indices.
+/// start_cp uses INDEX_BASE convention. cp_count is a length (not a position).
 pub fn stz_string_slice(handle: StzStringHandle, start_cp: usize, cp_count: usize) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const hay = s.slice();
+        const internal_start = toInternal(@intCast(start_cp));
         // Find byte start
         var byte_pos: usize = 0;
         var cp: usize = 0;
-        while (byte_pos < hay.len and cp < start_cp) {
+        while (byte_pos < hay.len and cp < internal_start) {
             const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
             byte_pos += cp_len;
             cp += 1;
@@ -214,12 +238,12 @@ pub fn stz_string_index_of(handle: StzStringHandle, needle: [*c]const u8, needle
         if (needle == null or needle_len == 0) return -1;
         const hay = s.slice();
         const n = needle[0..needle_len];
-        // Walk by codepoints, return codepoint index (0-based)
+        // Walk by codepoints, return codepoint position (INDEX_BASE-based)
         var byte_pos: usize = 0;
         var cp_pos: usize = 0;
         while (byte_pos + n.len <= hay.len) {
             if (mem.eql(u8, hay[byte_pos..][0..n.len], n)) {
-                return @intCast(cp_pos);
+                return toExternal(cp_pos);
             }
             const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
             byte_pos += cp_len;
@@ -230,15 +254,16 @@ pub fn stz_string_index_of(handle: StzStringHandle, needle: [*c]const u8, needle
 }
 
 pub fn stz_string_index_of_from(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize) callconv(.c) i64 {
-    // start_cp is a 0-based codepoint index
+    // start_cp uses INDEX_BASE convention
     if (handle) |s| {
         if (needle == null or needle_len == 0) return -1;
         const hay = s.slice();
         const n = needle[0..needle_len];
-        // Skip to start_cp codepoint
+        const internal_start = toInternal(@intCast(start_cp));
+        // Skip to internal_start codepoint
         var byte_pos: usize = 0;
         var cp_pos: usize = 0;
-        while (cp_pos < start_cp and byte_pos < hay.len) {
+        while (cp_pos < internal_start and byte_pos < hay.len) {
             const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
             byte_pos += cp_len;
             cp_pos += 1;
@@ -246,7 +271,7 @@ pub fn stz_string_index_of_from(handle: StzStringHandle, needle: [*c]const u8, n
         // Search from here
         while (byte_pos + n.len <= hay.len) {
             if (mem.eql(u8, hay[byte_pos..][0..n.len], n)) {
-                return @intCast(cp_pos);
+                return toExternal(cp_pos);
             }
             const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
             byte_pos += cp_len;
@@ -257,28 +282,29 @@ pub fn stz_string_index_of_from(handle: StzStringHandle, needle: [*c]const u8, n
 }
 
 pub fn stz_string_index_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize) callconv(.c) i64 {
-    // start_cp is a 0-based codepoint index
+    // start_cp uses INDEX_BASE convention
     if (handle) |s| {
         if (needle == null or needle_len == 0) return -1;
         const hay = s.slice();
         const n = needle[0..needle_len];
+        const internal_start = toInternal(@intCast(start_cp));
         // Case-fold both haystack and needle (Unicode-correct)
         const hay_folded = casefoldAlloc(hay) orelse return -1;
         defer gpa.free(hay_folded);
         const n_folded = casefoldAlloc(n) orelse return -1;
         defer gpa.free(n_folded);
-        // Skip to start_cp codepoint in the folded haystack
+        // Skip to internal_start codepoint in the folded haystack
         var byte_pos: usize = 0;
         var cp_pos: usize = 0;
-        while (cp_pos < start_cp and byte_pos < hay_folded.len) {
+        while (cp_pos < internal_start and byte_pos < hay_folded.len) {
             const cp_len = std.unicode.utf8ByteSequenceLength(hay_folded[byte_pos]) catch 1;
             byte_pos += cp_len;
             cp_pos += 1;
         }
         // Search in folded haystack for folded needle
         if (mem.indexOfPos(u8, hay_folded, byte_pos, n_folded)) |pos| {
-            // Convert byte offset in folded string to codepoint index
-            return @intCast(byteOffsetToCodepointIndex(hay_folded, pos));
+            // Convert byte offset in folded string to codepoint position
+            return toExternal(byteOffsetToCodepointIndex(hay_folded, pos));
         }
     }
     return -1;
@@ -286,7 +312,9 @@ pub fn stz_string_index_of_ci(handle: StzStringHandle, needle: [*c]const u8, nee
 
 pub fn stz_string_byte_to_cp(handle: StzStringHandle, byte_pos: usize) callconv(.c) i64 {
     if (handle) |s| {
-        return unicode.stz_unicode_byte_to_cp(s.data.items.ptr, s.data.items.len, @intCast(byte_pos));
+        const internal = unicode.stz_unicode_byte_to_cp(s.data.items.ptr, s.data.items.len, @intCast(byte_pos));
+        if (internal < 0) return -1;
+        return toExternal(@intCast(internal));
     }
     return -1;
 }
@@ -451,7 +479,7 @@ pub fn stz_string_find_all(handle: StzStringHandle, needle: [*c]const u8, needle
         var cp_pos: usize = 0;
         while (byte_pos + n.len <= hay.len) {
             if (mem.eql(u8, hay[byte_pos..][0..n.len], n)) {
-                r.positions.append(gpa, @intCast(cp_pos)) catch break;
+                r.positions.append(gpa, toExternal(cp_pos)) catch break;
             }
             // Advance by one codepoint
             const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
@@ -479,7 +507,7 @@ pub fn stz_string_find_all_ci(handle: StzStringHandle, needle: [*c]const u8, nee
         var cp_pos: usize = 0;
         while (byte_pos + n_folded.len <= hay_folded.len) {
             if (mem.eql(u8, hay_folded[byte_pos..][0..n_folded.len], n_folded)) {
-                r.positions.append(gpa, @intCast(cp_pos)) catch break;
+                r.positions.append(gpa, toExternal(cp_pos)) catch break;
             }
             const cp_len = std.unicode.utf8ByteSequenceLength(hay_folded[byte_pos]) catch 1;
             byte_pos += cp_len;
@@ -515,7 +543,7 @@ pub fn stz_string_last_index_of(handle: StzStringHandle, needle: [*c]const u8, n
         const hay = s.slice();
         const n = needle[0..needle_len];
         if (mem.lastIndexOf(u8, hay, n)) |byte_pos| {
-            return @intCast(byteOffsetToCodepointIndex(hay, byte_pos));
+            return toExternal(byteOffsetToCodepointIndex(hay, byte_pos));
         }
     }
     return -1;
@@ -559,7 +587,7 @@ pub fn stz_string_last_index_of_ci(handle: StzStringHandle, needle: [*c]const u8
         if (n_folded.len > hay_folded.len) return -1;
         // Search backwards in folded haystack
         if (mem.lastIndexOf(u8, hay_folded, n_folded)) |pos| {
-            return @intCast(byteOffsetToCodepointIndex(hay_folded, pos));
+            return toExternal(byteOffsetToCodepointIndex(hay_folded, pos));
         }
     }
     return -1;
@@ -835,7 +863,8 @@ pub fn stz_string_foldcase(handle: StzStringHandle) callconv(.c) StzStringHandle
 
 pub fn stz_string_char_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) i32 {
     if (handle) |s| {
-        const byte_off = unicode.stz_unicode_cp_to_byte(s.data.items.ptr, s.data.items.len, cp_index);
+        const internal: c_int = @intCast(toInternal(cp_index));
+        const byte_off = unicode.stz_unicode_cp_to_byte(s.data.items.ptr, s.data.items.len, internal);
         if (byte_off < 0) return -1;
         return unicode.stz_unicode_iterate(s.data.items.ptr, s.data.items.len, @intCast(byte_off));
     }
@@ -845,9 +874,10 @@ pub fn stz_string_char_at(handle: StzStringHandle, cp_index: c_int) callconv(.c)
 pub fn stz_string_mid_cp(handle: StzStringHandle, cp_start: c_int, cp_count: c_int) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
-        const byte_start = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, cp_start);
+        const internal_start: c_int = @intCast(toInternal(cp_start));
+        const byte_start = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, internal_start);
         if (byte_start < 0) return stz_string_new();
-        const byte_end = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, cp_start + cp_count);
+        const byte_end = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, internal_start + cp_count);
         const end: usize = if (byte_end < 0) src.len else @intCast(byte_end);
         const start: usize = @intCast(byte_start);
         return stz_string_from(src[start..end].ptr, end - start);
@@ -856,15 +886,17 @@ pub fn stz_string_mid_cp(handle: StzStringHandle, cp_start: c_int, cp_count: c_i
 }
 
 pub fn stz_string_left_cp(handle: StzStringHandle, cp_count: c_int) callconv(.c) StzStringHandle {
-    return stz_string_mid_cp(handle, 0, cp_count);
+    // left_cp takes a COUNT, not a position -- pass internal 0 as start
+    return stz_string_mid_cp(handle, INDEX_BASE, cp_count);
 }
 
 pub fn stz_string_right_cp(handle: StzStringHandle, cp_count: c_int) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
         const total_cp = utf8CodepointCount(src);
+        // right_cp: start from (total - count), expressed in INDEX_BASE convention
         const start_cp: c_int = @intCast(total_cp -| @as(usize, @intCast(@max(cp_count, 0))));
-        return stz_string_mid_cp(handle, start_cp, cp_count);
+        return stz_string_mid_cp(handle, start_cp + INDEX_BASE, cp_count);
     }
     return stz_string_new();
 }
@@ -872,7 +904,8 @@ pub fn stz_string_right_cp(handle: StzStringHandle, cp_count: c_int) callconv(.c
 pub fn stz_string_insert_cp(handle: StzStringHandle, cp_pos: c_int, utf8: [*c]const u8, len: usize) callconv(.c) void {
     if (handle) |s| {
         if (utf8 == null or len == 0) return;
-        const byte_pos = unicode.stz_unicode_cp_to_byte(s.data.items.ptr, s.data.items.len, cp_pos);
+        const internal: c_int = @intCast(toInternal(cp_pos));
+        const byte_pos = unicode.stz_unicode_cp_to_byte(s.data.items.ptr, s.data.items.len, internal);
         if (byte_pos < 0) return;
         s.data.insertSlice(gpa, @intCast(byte_pos), utf8[0..len]) catch {};
     }
@@ -1022,16 +1055,17 @@ pub fn stz_string_pad_right(handle: StzStringHandle, target_cp_count: c_int, pad
 }
 
 /// Remove a range of codepoints from the string. Returns a new handle.
-/// `start_cp` is 0-based, `cp_count` is the number of codepoints to remove.
+/// `start_cp` uses INDEX_BASE convention, `cp_count` is the number of codepoints to remove.
 pub fn stz_string_remove_range(handle: StzStringHandle, start_cp: usize, cp_count: usize) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
         if (src.len == 0 or cp_count == 0) return stz_string_from(src.ptr, src.len);
+        const internal_start = toInternal(@intCast(start_cp));
 
         // Find byte boundaries for the range to remove
         var byte_pos: usize = 0;
         var cp: usize = 0;
-        while (byte_pos < src.len and cp < start_cp) {
+        while (byte_pos < src.len and cp < internal_start) {
             const cp_len = std.unicode.utf8ByteSequenceLength(src[byte_pos]) catch 1;
             byte_pos += cp_len;
             cp += 1;
@@ -1115,7 +1149,7 @@ pub fn stz_string_equals_ci(h1: StzStringHandle, h2: StzStringHandle) callconv(.
 
 // ─── Find Nth ───
 
-/// Find the Nth occurrence (1-based) of needle. Returns 0-based codepoint index, or -1 if not found.
+/// Find the Nth occurrence (1-based N) of needle. Returns INDEX_BASE-based codepoint position, or -1 if not found.
 pub fn stz_string_find_nth(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) i64 {
     if (handle) |s| {
         if (n < 1) return -1;
@@ -1126,8 +1160,7 @@ pub fn stz_string_find_nth(handle: StzStringHandle, needle: [*c]const u8, needle
         while (mem.indexOfPos(u8, hay, byte_pos, ndl)) |pos| {
             occurrence += 1;
             if (occurrence == n) {
-                // Convert byte pos to codepoint index
-                return @intCast(byteOffsetToCodepointIndex(hay, pos));
+                return toExternal(byteOffsetToCodepointIndex(hay, pos));
             }
             byte_pos = pos + 1;
         }
@@ -1135,7 +1168,7 @@ pub fn stz_string_find_nth(handle: StzStringHandle, needle: [*c]const u8, needle
     return -1;
 }
 
-/// Find the Nth occurrence case-insensitively. Returns 0-based codepoint index, or -1.
+/// Find the Nth occurrence case-insensitively. Returns INDEX_BASE-based codepoint position, or -1.
 /// Uses Unicode case folding via utf8proc for correctness.
 pub fn stz_string_find_nth_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) i64 {
     if (handle) |s| {
@@ -1152,7 +1185,7 @@ pub fn stz_string_find_nth_ci(handle: StzStringHandle, needle: [*c]const u8, nee
         while (mem.indexOfPos(u8, hay_folded, byte_pos, ndl_folded)) |pos| {
             occurrence += 1;
             if (occurrence == n) {
-                return @intCast(byteOffsetToCodepointIndex(hay_folded, pos));
+                return toExternal(byteOffsetToCodepointIndex(hay_folded, pos));
             }
             byte_pos = pos + 1;
         }
@@ -1402,7 +1435,7 @@ pub fn stz_string_find_chars_of_type(handle: StzStringHandle, char_type: c_int) 
                 else => false,
             };
             if (matches) {
-                r.positions.append(gpa, @intCast(cp_idx)) catch break;
+                r.positions.append(gpa, toExternal(cp_idx)) catch break;
             }
             cp_idx += 1;
             i += cp_len;
@@ -1454,18 +1487,18 @@ pub fn stz_string_is_ascii(handle: StzStringHandle) callconv(.c) c_int {
     return 1;
 }
 
-/// Remove a single codepoint at the given 0-based codepoint index. Returns new handle.
+/// Remove a single codepoint at the given codepoint index (INDEX_BASE convention). Returns new handle.
 pub fn stz_string_remove_char_at(handle: StzStringHandle, cp_index: usize) callconv(.c) StzStringHandle {
     return stz_string_remove_range(handle, cp_index, 1);
 }
 
-/// Return the character type at a 0-based codepoint index.
+/// Return the character type at a codepoint index (INDEX_BASE convention).
 /// Returns: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct, -1=invalid
 pub fn stz_string_char_type_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
     if (handle) |s| {
         const src = s.slice();
-        if (cp_index < 0) return -1;
-        const idx: usize = @intCast(cp_index);
+        if (cp_index < INDEX_BASE) return -1;
+        const idx: usize = toInternal(@intCast(cp_index));
         const byte_offset = codepointIndexToByteOffset(src, idx);
         if (byte_offset >= src.len) return -1;
         const cp_len = std.unicode.utf8ByteSequenceLength(src[byte_offset]) catch return -1;
@@ -1823,16 +1856,16 @@ pub fn stz_string_ends_with_letter(handle: StzStringHandle) callconv(.c) c_int {
     return if (unicode.stz_unicode_is_letter(last_cp) != 0) @as(c_int, 1) else @as(c_int, 0);
 }
 
-/// Replace codepoint at a given index with a new string. Returns new handle.
+/// Replace codepoint at a given index (INDEX_BASE convention) with a new string. Returns new handle.
 pub fn stz_string_replace_char_at(handle: StzStringHandle, cp_index: c_int, replacement: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
     const s = (handle orelse return null);
     const bytes = s.slice();
     const result = stz_string_new() orelse return null;
-    if (cp_index < 0) {
+    if (cp_index < INDEX_BASE) {
         result.data.appendSlice(gpa, bytes) catch {};
         return result;
     }
-    const idx: usize = @intCast(cp_index);
+    const idx: usize = toInternal(@intCast(cp_index));
     var cp_count: usize = 0;
     var i: usize = 0;
     while (i < bytes.len) {
@@ -2243,7 +2276,7 @@ test "string unicode count" {
 test "string search" {
     const s = stz_string_from("Hello Ring World", 16);
 
-    try std.testing.expectEqual(@as(i64, 6), stz_string_index_of(s, "Ring", 4));
+    try std.testing.expectEqual(@as(i64, 7), stz_string_index_of(s, "Ring", 4));
     try std.testing.expectEqual(@as(i64, -1), stz_string_index_of(s, "Zig", 3));
     try std.testing.expectEqual(@as(c_int, 1), stz_string_contains(s, "World", 5));
     try std.testing.expectEqual(@as(c_int, 1), stz_string_starts_with(s, "Hello", 5));
@@ -2315,18 +2348,18 @@ test "string unicode case" {
 test "string char_at codepoint" {
     // "cafe\xCC\x81" = c(0x63) a(0x61) f(0x66) e-acute(0xE9 as 2 bytes)
     const s = stz_string_from("caf\xC3\xA9", 5);
-    try std.testing.expectEqual(@as(i32, 'c'), stz_string_char_at(s, 0));
-    try std.testing.expectEqual(@as(i32, 'a'), stz_string_char_at(s, 1));
-    try std.testing.expectEqual(@as(i32, 'f'), stz_string_char_at(s, 2));
-    try std.testing.expectEqual(@as(i32, 0xE9), stz_string_char_at(s, 3));
-    try std.testing.expectEqual(@as(i32, -1), stz_string_char_at(s, 4));
+    try std.testing.expectEqual(@as(i32, 'c'), stz_string_char_at(s, 1));
+    try std.testing.expectEqual(@as(i32, 'a'), stz_string_char_at(s, 2));
+    try std.testing.expectEqual(@as(i32, 'f'), stz_string_char_at(s, 3));
+    try std.testing.expectEqual(@as(i32, 0xE9), stz_string_char_at(s, 4));
+    try std.testing.expectEqual(@as(i32, -1), stz_string_char_at(s, 5));
     stz_string_free(s);
 }
 
 test "string mid_cp" {
     // "cafe\xCC\x81" (4 codepoints, 5 bytes)
     const s = stz_string_from("caf\xC3\xA9", 5);
-    const mid = stz_string_mid_cp(s, 2, 2);
+    const mid = stz_string_mid_cp(s, 3, 2);
     try std.testing.expectEqual(@as(usize, 3), stz_string_size(mid));
     try std.testing.expect(mem.eql(u8, stz_string_data(mid)[0..3], "f\xC3\xA9"));
     stz_string_free(mid);
@@ -2370,19 +2403,19 @@ test "string insert" {
 
 test "string index_of_from" {
     const s = stz_string_from("abcabcabc", 9);
-    try std.testing.expectEqual(@as(i64, 0), stz_string_index_of_from(s, "abc", 3, 0));
-    try std.testing.expectEqual(@as(i64, 3), stz_string_index_of_from(s, "abc", 3, 1));
-    try std.testing.expectEqual(@as(i64, 6), stz_string_index_of_from(s, "abc", 3, 4));
-    try std.testing.expectEqual(@as(i64, -1), stz_string_index_of_from(s, "abc", 3, 7));
+    try std.testing.expectEqual(@as(i64, 1), stz_string_index_of_from(s, "abc", 3, 1));
+    try std.testing.expectEqual(@as(i64, 4), stz_string_index_of_from(s, "abc", 3, 2));
+    try std.testing.expectEqual(@as(i64, 7), stz_string_index_of_from(s, "abc", 3, 5));
+    try std.testing.expectEqual(@as(i64, -1), stz_string_index_of_from(s, "abc", 3, 8));
     stz_string_free(s);
 }
 
 test "string index_of_ci" {
     const s = stz_string_from("Hello WORLD", 11);
-    try std.testing.expectEqual(@as(i64, 0), stz_string_index_of_ci(s, "hello", 5, 0));
-    try std.testing.expectEqual(@as(i64, 6), stz_string_index_of_ci(s, "world", 5, 0));
-    try std.testing.expectEqual(@as(i64, -1), stz_string_index_of_ci(s, "xyz", 3, 0));
-    try std.testing.expectEqual(@as(i64, 6), stz_string_index_of_ci(s, "WORLD", 5, 3));
+    try std.testing.expectEqual(@as(i64, 1), stz_string_index_of_ci(s, "hello", 5, 1));
+    try std.testing.expectEqual(@as(i64, 7), stz_string_index_of_ci(s, "world", 5, 1));
+    try std.testing.expectEqual(@as(i64, -1), stz_string_index_of_ci(s, "xyz", 3, 1));
+    try std.testing.expectEqual(@as(i64, 7), stz_string_index_of_ci(s, "WORLD", 5, 4));
     stz_string_free(s);
 }
 
@@ -2390,9 +2423,9 @@ test "string find_all" {
     const s = stz_string_from("ring is ring and ring", 21);
     const r = stz_string_find_all(s, "ring", 4);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 0), stz_find_result_get(r, 0));
-    try std.testing.expectEqual(@as(i64, 8), stz_find_result_get(r, 1));
-    try std.testing.expectEqual(@as(i64, 17), stz_find_result_get(r, 2));
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0));
+    try std.testing.expectEqual(@as(i64, 9), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 18), stz_find_result_get(r, 2));
     stz_find_result_free(r);
 
     // Not found
@@ -2406,9 +2439,9 @@ test "string find_all_ci" {
     const s = stz_string_from("Ring RING ring", 14);
     const r = stz_string_find_all_ci(s, "ring", 4);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 0), stz_find_result_get(r, 0));
-    try std.testing.expectEqual(@as(i64, 5), stz_find_result_get(r, 1));
-    try std.testing.expectEqual(@as(i64, 10), stz_find_result_get(r, 2));
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0));
+    try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 11), stz_find_result_get(r, 2));
     stz_find_result_free(r);
     stz_string_free(s);
 }
@@ -2422,7 +2455,7 @@ test "string count_of_ci" {
 
 test "string last_index_of_ci" {
     const s = stz_string_from("abc-ABC-Abc", 11);
-    try std.testing.expectEqual(@as(i64, 8), stz_string_last_index_of_ci(s, "abc", 3));
+    try std.testing.expectEqual(@as(i64, 9), stz_string_last_index_of_ci(s, "abc", 3));
     try std.testing.expectEqual(@as(i64, -1), stz_string_last_index_of_ci(s, "xyz", 3));
     stz_string_free(s);
 }
@@ -2489,10 +2522,10 @@ test "string count_of" {
 test "string byte_to_cp" {
     // "caf\xC3\xA9" = c(0) a(1) f(2) e-acute(3,4 bytes -> cp 3)
     const s = stz_string_from("caf\xC3\xA9", 5);
-    try std.testing.expectEqual(@as(i64, 0), stz_string_byte_to_cp(s, 0));
-    try std.testing.expectEqual(@as(i64, 1), stz_string_byte_to_cp(s, 1));
-    try std.testing.expectEqual(@as(i64, 2), stz_string_byte_to_cp(s, 2));
-    try std.testing.expectEqual(@as(i64, 3), stz_string_byte_to_cp(s, 3));
+    try std.testing.expectEqual(@as(i64, 1), stz_string_byte_to_cp(s, 0));
+    try std.testing.expectEqual(@as(i64, 2), stz_string_byte_to_cp(s, 1));
+    try std.testing.expectEqual(@as(i64, 3), stz_string_byte_to_cp(s, 2));
+    try std.testing.expectEqual(@as(i64, 4), stz_string_byte_to_cp(s, 3));
     stz_string_free(s);
 }
 
@@ -2546,19 +2579,19 @@ test "find_all unicode codepoint positions" {
     const s = stz_string_from(str, 27);
     try std.testing.expectEqual(@as(usize, 9), stz_string_count(s));
 
-    // Find heart (E2 99 A5) -- should be at codepoint positions 1 and 6
+    // Find heart (E2 99 A5) -- should be at codepoint positions 2 and 7 (1-based)
     const r = stz_string_find_all(s, "\xe2\x99\xa5", 3);
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0));
-    try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 2), stz_find_result_get(r, 0));
+    try std.testing.expectEqual(@as(i64, 7), stz_find_result_get(r, 1));
     stz_find_result_free(r);
 
-    // Find "bullet heart bullet" (9 bytes) -- at codepoint positions 0 and 5
+    // Find "bullet heart bullet" (9 bytes) -- at codepoint positions 1 and 6 (1-based)
     const sub = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2";
     const r2 = stz_string_find_all(s, sub, 9);
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r2));
-    try std.testing.expectEqual(@as(i64, 0), stz_find_result_get(r2, 0));
-    try std.testing.expectEqual(@as(i64, 5), stz_find_result_get(r2, 1));
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r2, 0));
+    try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r2, 1));
     stz_find_result_free(r2);
 
     stz_string_free(s);
@@ -2568,8 +2601,8 @@ test "index_of unicode codepoint position" {
     // "cafe" with e-acute: "caf\xC3\xA9X" -- 5 bytes, 4 codepoints + X
     const s = stz_string_from("caf\xC3\xA9X", 6);
     try std.testing.expectEqual(@as(usize, 5), stz_string_count(s));
-    // 'X' is at byte 5 but codepoint index 4
-    try std.testing.expectEqual(@as(i64, 4), stz_string_index_of(s, "X", 1));
+    // 'X' is at byte 5 but codepoint position 5 (1-based)
+    try std.testing.expectEqual(@as(i64, 5), stz_string_index_of(s, "X", 1));
     stz_string_free(s);
 }
 
@@ -2578,16 +2611,16 @@ test "last_index_of unicode" {
     const str = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2\xe2\x99\xa5";
     const s = stz_string_from(str, 12); // 4 chars, 12 bytes
     try std.testing.expectEqual(@as(usize, 4), stz_string_count(s));
-    // Last heart at codepoint 3
-    try std.testing.expectEqual(@as(i64, 3), stz_string_last_index_of(s, "\xe2\x99\xa5", 3));
+    // Last heart at codepoint position 4 (1-based)
+    try std.testing.expectEqual(@as(i64, 4), stz_string_last_index_of(s, "\xe2\x99\xa5", 3));
     stz_string_free(s);
 }
 
 test "nth_char unicode" {
     const str = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2";
     const s = stz_string_from(str, 9); // 3 chars
-    // nth_char(1) should be heart
-    const ch = stz_string_nth_char(s, 1);
+    // nth_char(2) should be heart (1-based: position 2)
+    const ch = stz_string_nth_char(s, 2);
     try std.testing.expectEqual(@as(usize, 3), stz_string_size(ch));
     try std.testing.expect(mem.eql(u8, stz_string_data(ch)[0..3], "\xe2\x99\xa5"));
     stz_string_free(ch);
@@ -2598,8 +2631,8 @@ test "slice unicode" {
     // "bullet heart bullet bullet heart" = 5 chars
     const str = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2\xe2\x80\xa2\xe2\x99\xa5";
     const s = stz_string_from(str, 15);
-    // slice(1, 3) = chars 1,2,3 = heart bullet bullet
-    const sl = stz_string_slice(s, 1, 3);
+    // slice(2, 3) = chars at positions 2,3,4 = heart bullet bullet (1-based start)
+    const sl = stz_string_slice(s, 2, 3);
     try std.testing.expectEqual(@as(usize, 9), stz_string_size(sl));
     try std.testing.expect(mem.eql(u8, stz_string_data(sl)[0..3], "\xe2\x99\xa5"));
     stz_string_free(sl);
@@ -2728,8 +2761,8 @@ test "pad_right unicode content" {
 
 test "remove_range ascii" {
     const s = stz_string_from("hello world", 11);
-    // Remove "lo " (codepoints 3,4,5 = 0-based)
-    const r = stz_string_remove_range(s, 3, 3);
+    // Remove "lo " (codepoints at positions 4,5,6 = 1-based)
+    const r = stz_string_remove_range(s, 4, 3);
     try std.testing.expectEqual(@as(usize, 8), stz_string_size(r));
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..8], "helworld"));
     stz_string_free(r);
@@ -2739,8 +2772,8 @@ test "remove_range ascii" {
 test "remove_range unicode" {
     // "a heart b" = a(1b) heart(3b) b(1b) = 3 codepoints
     const s = stz_string_from("a\xe2\x99\xa5b", 5);
-    // Remove heart (codepoint 1, count 1)
-    const r = stz_string_remove_range(s, 1, 1);
+    // Remove heart (position 2, count 1) -- 1-based
+    const r = stz_string_remove_range(s, 2, 1);
     try std.testing.expectEqual(@as(usize, 2), stz_string_size(r));
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..2], "ab"));
     stz_string_free(r);
@@ -2902,12 +2935,12 @@ test "count_chars_of_type letters" {
 
 test "find_nth" {
     const s = stz_string_from("aXbXcXd", 7);
-    // 1st X at codepoint 1
-    try std.testing.expectEqual(@as(i64, 1), stz_string_find_nth(s, "X", 1, 1));
-    // 2nd X at codepoint 3
-    try std.testing.expectEqual(@as(i64, 3), stz_string_find_nth(s, "X", 1, 2));
-    // 3rd X at codepoint 5
-    try std.testing.expectEqual(@as(i64, 5), stz_string_find_nth(s, "X", 1, 3));
+    // 1st X at position 2 (1-based)
+    try std.testing.expectEqual(@as(i64, 2), stz_string_find_nth(s, "X", 1, 1));
+    // 2nd X at position 4
+    try std.testing.expectEqual(@as(i64, 4), stz_string_find_nth(s, "X", 1, 2));
+    // 3rd X at position 6
+    try std.testing.expectEqual(@as(i64, 6), stz_string_find_nth(s, "X", 1, 3));
     // 4th X doesn't exist
     try std.testing.expectEqual(@as(i64, -1), stz_string_find_nth(s, "X", 1, 4));
     stz_string_free(s);
@@ -2917,12 +2950,12 @@ test "find_nth unicode" {
     // "heart bullet heart bullet heart" = 5 chars
     const str = "\xe2\x99\xa5\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2\xe2\x99\xa5";
     const s = stz_string_from(str, 15);
-    // 1st heart at codepoint 0
-    try std.testing.expectEqual(@as(i64, 0), stz_string_find_nth(s, "\xe2\x99\xa5", 3, 1));
-    // 2nd heart at codepoint 2
-    try std.testing.expectEqual(@as(i64, 2), stz_string_find_nth(s, "\xe2\x99\xa5", 3, 2));
-    // 3rd heart at codepoint 4
-    try std.testing.expectEqual(@as(i64, 4), stz_string_find_nth(s, "\xe2\x99\xa5", 3, 3));
+    // 1st heart at position 1 (1-based)
+    try std.testing.expectEqual(@as(i64, 1), stz_string_find_nth(s, "\xe2\x99\xa5", 3, 1));
+    // 2nd heart at position 3
+    try std.testing.expectEqual(@as(i64, 3), stz_string_find_nth(s, "\xe2\x99\xa5", 3, 2));
+    // 3rd heart at position 5
+    try std.testing.expectEqual(@as(i64, 5), stz_string_find_nth(s, "\xe2\x99\xa5", 3, 3));
     stz_string_free(s);
 }
 
@@ -3004,8 +3037,8 @@ test "is_ascii" {
 
 test "remove_char_at" {
     const s = stz_string_from("abcde", 5);
-    // Remove 'c' at index 2
-    const r = stz_string_remove_char_at(s, 2);
+    // Remove 'c' at position 3 (1-based)
+    const r = stz_string_remove_char_at(s, 3);
     try std.testing.expectEqual(@as(usize, 4), stz_string_size(r));
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..4], "abde"));
     stz_string_free(r);
@@ -3014,11 +3047,11 @@ test "remove_char_at" {
 
 test "char_type_at" {
     const s = stz_string_from("A1 z!", 5);
-    try std.testing.expectEqual(@as(c_int, 3), stz_string_char_type_at(s, 0)); // 'A' = upper
-    try std.testing.expectEqual(@as(c_int, 1), stz_string_char_type_at(s, 1)); // '1' = digit
-    try std.testing.expectEqual(@as(c_int, 2), stz_string_char_type_at(s, 2)); // ' ' = space
-    try std.testing.expectEqual(@as(c_int, 4), stz_string_char_type_at(s, 3)); // 'z' = lower
-    try std.testing.expectEqual(@as(c_int, 5), stz_string_char_type_at(s, 4)); // '!' = punct
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_char_type_at(s, 1)); // 'A' = upper
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_char_type_at(s, 2)); // '1' = digit
+    try std.testing.expectEqual(@as(c_int, 2), stz_string_char_type_at(s, 3)); // ' ' = space
+    try std.testing.expectEqual(@as(c_int, 4), stz_string_char_type_at(s, 4)); // 'z' = lower
+    try std.testing.expectEqual(@as(c_int, 5), stz_string_char_type_at(s, 5)); // '!' = punct
     stz_string_free(s);
 }
 
@@ -3026,9 +3059,9 @@ test "find_chars_of_type letters" {
     const s = stz_string_from("a1b2c", 5);
     const r = stz_string_find_chars_of_type(s, 0); // letters
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 0), stz_find_result_get(r, 0)); // 'a'
-    try std.testing.expectEqual(@as(i64, 2), stz_find_result_get(r, 1)); // 'b'
-    try std.testing.expectEqual(@as(i64, 4), stz_find_result_get(r, 2)); // 'c'
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0)); // 'a'
+    try std.testing.expectEqual(@as(i64, 3), stz_find_result_get(r, 1)); // 'b'
+    try std.testing.expectEqual(@as(i64, 5), stz_find_result_get(r, 2)); // 'c'
     stz_find_result_free(r);
     stz_string_free(s);
 }
@@ -3037,8 +3070,8 @@ test "find_chars_of_type digits" {
     const s = stz_string_from("a1b2c", 5);
     const r = stz_string_find_chars_of_type(s, 1); // digits
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0)); // '1'
-    try std.testing.expectEqual(@as(i64, 3), stz_find_result_get(r, 1)); // '2'
+    try std.testing.expectEqual(@as(i64, 2), stz_find_result_get(r, 0)); // '1'
+    try std.testing.expectEqual(@as(i64, 4), stz_find_result_get(r, 1)); // '2'
     stz_find_result_free(r);
     stz_string_free(s);
 }
@@ -3301,17 +3334,17 @@ test "count_between" {
 
 test "replace_char_at" {
     const s = stz_string_from("Hello", 5);
-    const r = stz_string_replace_char_at(s, 0, "J", 1);
+    const r = stz_string_replace_char_at(s, 1, "J", 1);
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..5], "Jello"));
     stz_string_free(r);
 
     // Replace with multi-byte
-    const r2 = stz_string_replace_char_at(s, 4, "!", 1);
+    const r2 = stz_string_replace_char_at(s, 5, "!", 1);
     try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..5], "Hell!"));
     stz_string_free(r2);
 
     // Replace with empty (deletion)
-    const r3 = stz_string_replace_char_at(s, 0, "", 0);
+    const r3 = stz_string_replace_char_at(s, 1, "", 0);
     try std.testing.expectEqual(@as(usize, 4), stz_string_size(r3));
     try std.testing.expect(mem.eql(u8, stz_string_data(r3)[0..4], "ello"));
     stz_string_free(r3);
@@ -3600,7 +3633,7 @@ fn hexVal(c: u8) ?u8 {
 pub fn stz_string_char_at_to_string(handle: StzStringHandle, cp_index: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
-    const idx: usize = if (cp_index >= 0) @intCast(cp_index) else return null;
+    const idx: usize = if (cp_index >= INDEX_BASE) toInternal(@intCast(cp_index)) else return null;
 
     var off: usize = 0;
     var cp_i: usize = 0;
@@ -3760,7 +3793,7 @@ test "url_encode_decode" {
 
 test "char_at_to_string" {
     const s1 = stz_string_from("Hello", 5);
-    const ch = stz_string_char_at_to_string(s1, 0);
+    const ch = stz_string_char_at_to_string(s1, 1);
     try std.testing.expect(ch != null);
     try std.testing.expect(mem.eql(u8, stz_string_data(ch)[0..@intCast(stz_string_size(ch))], "H"));
     stz_string_free(ch);
@@ -4065,13 +4098,13 @@ test "remove_consecutive_duplicates" {
     stz_string_free(s2);
 }
 
-// ─── Substring: extract between two 0-based codepoint positions (inclusive) ───
+// ─── Substring: extract between two codepoint positions (inclusive, INDEX_BASE convention) ───
 
 pub fn stz_string_substring(handle: StzStringHandle, from_cp: c_int, to_cp: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
-    const from: usize = if (from_cp >= 0) @intCast(from_cp) else return null;
-    const to: usize = if (to_cp >= 0) @intCast(to_cp) else return null;
+    const from: usize = if (from_cp >= INDEX_BASE) toInternal(@intCast(from_cp)) else return null;
+    const to: usize = if (to_cp >= INDEX_BASE) toInternal(@intCast(to_cp)) else return null;
     if (to < from) return null;
 
     var off: usize = 0;
@@ -4112,13 +4145,13 @@ pub fn stz_string_substring(handle: StzStringHandle, from_cp: c_int, to_cp: c_in
     return result;
 }
 
-// ─── ReplaceSubstring: replace codepoint range [from..to] with new string ───
+// ─── ReplaceSubstring: replace codepoint range [from..to] with new string (INDEX_BASE convention) ───
 
 pub fn stz_string_replace_substring(handle: StzStringHandle, from_cp: c_int, to_cp: c_int, replacement: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
-    const from: usize = if (from_cp >= 0) @intCast(from_cp) else return null;
-    const to: usize = if (to_cp >= 0) @intCast(to_cp) else return null;
+    const from: usize = if (from_cp >= INDEX_BASE) toInternal(@intCast(from_cp)) else return null;
+    const to: usize = if (to_cp >= INDEX_BASE) toInternal(@intCast(to_cp)) else return null;
     if (to < from) return null;
 
     var off: usize = 0;
@@ -4285,11 +4318,11 @@ pub fn stz_string_common_suffix(h1: StzStringHandle, h2: StzStringHandle) callco
 
 test "substring" {
     const s1 = stz_string_from("Hello World", 11);
-    const sub = stz_string_substring(s1, 0, 4);
+    const sub = stz_string_substring(s1, 1, 5);
     try std.testing.expect(mem.eql(u8, stz_string_data(sub)[0..@intCast(stz_string_size(sub))], "Hello"));
     stz_string_free(sub);
 
-    const sub2 = stz_string_substring(s1, 6, 10);
+    const sub2 = stz_string_substring(s1, 7, 11);
     try std.testing.expect(mem.eql(u8, stz_string_data(sub2)[0..@intCast(stz_string_size(sub2))], "World"));
     stz_string_free(sub2);
     stz_string_free(s1);
@@ -4297,7 +4330,7 @@ test "substring" {
 
 test "replace_substring" {
     const s1 = stz_string_from("Hello World", 11);
-    const r1 = stz_string_replace_substring(s1, 6, 10, "Zig", 3);
+    const r1 = stz_string_replace_substring(s1, 7, 11, "Zig", 3);
     try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "Hello Zig"));
     stz_string_free(r1);
     stz_string_free(s1);
@@ -4423,7 +4456,7 @@ pub fn stz_string_find_all_char(handle: StzStringHandle, codepoint: u32) callcon
         if (off + cp_len > buf.len) break;
         const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
         if (cp_val == codepoint) {
-            positions.append(gpa, cp_i) catch return null;
+            positions.append(gpa, toExternal(@intCast(cp_i))) catch return null;
         }
         off += cp_len;
         cp_i += 1;
@@ -5170,9 +5203,9 @@ pub fn stz_string_count_overlapping(handle: StzStringHandle, needle: [*c]const u
 pub fn stz_string_replace_at(handle: StzStringHandle, cp_pos: c_int, cp_count: c_int, rep: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
-    if (cp_pos < 0 or cp_count <= 0) return stz_string_copy(handle);
+    if (cp_pos < INDEX_BASE or cp_count <= 0) return stz_string_copy(handle);
 
-    const target_start: usize = @intCast(cp_pos);
+    const target_start: usize = toInternal(@intCast(cp_pos));
     const target_count: usize = @intCast(cp_count);
 
     // Find byte offsets for codepoint positions
@@ -5588,13 +5621,16 @@ pub fn stz_string_nth_word(handle: StzStringHandle, n: c_int) callconv(.c) StzSt
 // ─── Chars Between Positions ───
 
 pub fn stz_string_chars_between(handle: StzStringHandle, cp_from: c_int, cp_to: c_int) callconv(.c) StzStringHandle {
-    // Extract characters between two 0-based codepoint positions (exclusive on both ends)
+    // Extract characters between two codepoint positions (exclusive on both ends, INDEX_BASE convention)
     const s = handle orelse return stz_string_new();
     const src = s.slice();
-    if (cp_from < 0 or cp_to < 0 or cp_to <= cp_from + 1) return stz_string_new();
+    if (cp_from < INDEX_BASE or cp_to < INDEX_BASE or cp_to <= cp_from + 1) return stz_string_new();
 
-    const start_cp = cp_from + 1;
-    const count_cp = cp_to - cp_from - 1;
+    // Convert to internal 0-based, then get the range between (exclusive)
+    const from_internal: c_int = @intCast(toInternal(@intCast(cp_from)));
+    const to_internal: c_int = @intCast(toInternal(@intCast(cp_to)));
+    const start_cp = from_internal + 1;
+    const count_cp = to_internal - from_internal - 1;
     if (count_cp <= 0) return stz_string_new();
 
     const byte_start = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, start_cp);
@@ -6469,14 +6505,14 @@ pub fn stz_string_capitalize_words(handle: StzStringHandle) callconv(.c) StzStri
     return result;
 }
 
-/// Swap characters at two codepoint positions (0-based). Returns new handle.
+/// Swap characters at two codepoint positions (INDEX_BASE convention). Returns new handle.
 pub fn stz_string_swap_chars(handle: StzStringHandle, pos1: c_int, pos2: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const src = s.slice();
-    if (src.len == 0 or pos1 < 0 or pos2 < 0 or pos1 == pos2) return stz_string_from(src.ptr, src.len);
+    if (src.len == 0 or pos1 < INDEX_BASE or pos2 < INDEX_BASE or pos1 == pos2) return stz_string_from(src.ptr, src.len);
 
-    const p1: usize = @intCast(pos1);
-    const p2: usize = @intCast(pos2);
+    const p1: usize = toInternal(@intCast(pos1));
+    const p2: usize = toInternal(@intCast(pos2));
 
     // Build array of byte-offset ranges for each codepoint
     var offsets: [32768]struct { start: usize, len: usize } = undefined;
@@ -10041,8 +10077,8 @@ test "find_all_char" {
     const fr = stz_string_find_all_char(s1, 'a');
     try std.testing.expect(fr != null);
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(fr));
-    try std.testing.expectEqual(@as(c_int, 0), stz_find_result_get(fr, 0));
-    try std.testing.expectEqual(@as(c_int, 3), stz_find_result_get(fr, 1));
+    try std.testing.expectEqual(@as(c_int, 1), stz_find_result_get(fr, 0));
+    try std.testing.expectEqual(@as(c_int, 4), stz_find_result_get(fr, 1));
     stz_find_result_free(fr);
     stz_string_free(s1);
 }
@@ -10289,7 +10325,7 @@ test "count_overlapping" {
 
 test "replace_at" {
     const s1 = stz_string_from("Hello World", 11);
-    const r1 = stz_string_replace_at(s1, 5, 1, "-", 1);
+    const r1 = stz_string_replace_at(s1, 6, 1, "-", 1);
     try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "Hello-World"));
     stz_string_free(r1);
     stz_string_free(s1);
@@ -10399,7 +10435,7 @@ test "nth_word" {
 
 test "chars_between" {
     const s1 = stz_string_from("abcdef", 6);
-    const between = stz_string_chars_between(s1, 1, 4);
+    const between = stz_string_chars_between(s1, 2, 5);
     try std.testing.expect(mem.eql(u8, stz_string_data(between)[0..@intCast(stz_string_size(between))], "cd"));
     stz_string_free(between);
     stz_string_free(s1);
@@ -10724,11 +10760,11 @@ test "capitalize_words" {
 
 test "swap_chars" {
     const s1 = stz_string_from("abcde", 5);
-    const r1 = stz_string_swap_chars(s1, 0, 4);
+    const r1 = stz_string_swap_chars(s1, 1, 5);
     try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "ebcda"));
     stz_string_free(r1);
 
-    const r2 = stz_string_swap_chars(s1, 1, 3);
+    const r2 = stz_string_swap_chars(s1, 2, 4);
     try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "adcbe"));
     stz_string_free(r2);
     stz_string_free(s1);
@@ -12112,17 +12148,17 @@ test "cp_count" {
 
 test "nth_char" {
     const s = stz_string_from("caf\xC3\xA9!", 6); // café! = 5 codepoints
-    const c0 = stz_string_nth_char(s, 0); // 'c'
+    const c0 = stz_string_nth_char(s, 1); // 'c' (1-based)
     try std.testing.expectEqual(@as(usize, 1), stz_string_size(c0));
     try std.testing.expect(mem.eql(u8, stz_string_data(c0.?)[0..1], "c"));
     stz_string_free(c0);
 
-    const c3 = stz_string_nth_char(s, 3); // 'é'
+    const c3 = stz_string_nth_char(s, 4); // 'é' (1-based)
     try std.testing.expectEqual(@as(usize, 2), stz_string_size(c3));
     try std.testing.expect(mem.eql(u8, stz_string_data(c3.?)[0..2], "\xC3\xA9"));
     stz_string_free(c3);
 
-    const c4 = stz_string_nth_char(s, 4); // '!'
+    const c4 = stz_string_nth_char(s, 5); // '!' (1-based)
     try std.testing.expectEqual(@as(usize, 1), stz_string_size(c4));
     try std.testing.expect(mem.eql(u8, stz_string_data(c4.?)[0..1], "!"));
     stz_string_free(c4);
@@ -12176,9 +12212,9 @@ test "find_all_ci unicode" {
     const s = stz_string_from("abcABCabc", 9);
     const r = stz_string_find_all_ci(s, "abc", 3);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 0), stz_find_result_get(r, 0));
-    try std.testing.expectEqual(@as(i64, 3), stz_find_result_get(r, 1));
-    try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r, 2));
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0));
+    try std.testing.expectEqual(@as(i64, 4), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 7), stz_find_result_get(r, 2));
     stz_find_result_free(r);
     stz_string_free(s);
 }
