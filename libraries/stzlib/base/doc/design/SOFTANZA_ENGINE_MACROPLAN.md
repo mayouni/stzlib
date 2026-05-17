@@ -13,10 +13,10 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 40 passing               |
+| Engine tests      | 496 passing              |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Last updated      | 2026-05-17 (Session 8)   |
+| Last updated      | 2026-05-17 (Session 9)   |
 
 ---
 
@@ -102,11 +102,15 @@
   ASCII fast-paths for codepointIndexToByteOffset, utf8CodepointCount.
   Boyer-Moore-Horspool search for needles > 4 bytes on ASCII strings.
   434 Zig tests, 658 Ring bridge tests, 341 registered functions.
-- **Phase D module separation** (Session 8): Extracted `string/core.zig`
-  with shared infrastructure (StzString struct, lifecycle, error reporting,
-  indexing helpers, casefold, INDEX_BASE). `string.zig` re-exports from
-  core and contains ~240 domain functions. 26 core tests + 434 domain
-  tests. 460 Zig tests, 658 Ring bridge tests, 341 registered functions.
+- **Phase D module separation** (Sessions 8-9): Three submodules extracted:
+  `string/core.zig` (StzString, lifecycle, error, indexing, helpers),
+  `string/encode.zig` (25 fns: URL/hex/base64/binary/HTML/morse/CSV/
+  quote/ciphers/hash/entropy), `string/nlp.zig` (18 fns: Levenshtein/
+  Hamming/Jaro/JW/Jaccard/Soundex/Metaphone/n-grams/extraction/
+  pluralize/pig-latin/NATO/mask-email). `string.zig` re-exports all
+  submodule APIs and holds remaining find/replace/transform/inspect/split
+  domain functions (~200). 496 Zig tests, 658 Ring bridge tests,
+  341 registered functions.
 
 ---
 
@@ -513,4 +517,5 @@ M-E11 (Repo Split)
 | 2026-05-16 | 5       | Phase 5++ | 14 stzString methods Engine-backed, 630 Ring tests |
 | 2026-05-17 | 6       | Phase 6   | String Engine v2 design doc + 8-phase plan |
 | 2026-05-17 | 7       | Phase A   | 1-based indexing + CS merge (Phase A complete) |
-| 2026-05-17 | 8       | Phase A-D | str_ rename, safety audit, perf, module separation |
+| 2026-05-17 | 8       | Phase A-D | str_ rename, safety audit, perf, core.zig extraction |
+| 2026-05-17 | 9       | Phase D+  | encode.zig (25 fns) + nlp.zig (18 fns) extraction |
