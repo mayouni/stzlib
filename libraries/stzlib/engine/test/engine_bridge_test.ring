@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 218 Registered Functions"
+? "Engine Full Bridge Test -- All 223 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1918,6 +1918,41 @@ Assert("Chunk(abcdefgh,3,0)", StzEngineStringData(pResult), "abc")
 StzEngineStringFree(pResult)
 pResult = StzEngineStringChunk(pStr, 3, 2)
 Assert("Chunk(abcdefgh,3,2)", StzEngineStringData(pResult), "gh")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 94: CountVowels / LongestRun / TrimChars / IsEmailLike / CamelToWords
+# ==============================================================
+
+? ""
+? "--- Group 94: CountVowels / LongestRun / TrimChars / IsEmailLike / CamelToWords ---"
+
+pStr = StzEngineStringFrom("Hello World")
+Assert("CountVowels Hello World", StzEngineStringCountVowels(pStr), 3)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("aabbbcccc")
+Assert("LongestRun aabbbcccc", StzEngineStringLongestRun(pStr), 4)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("***hello***")
+pResult = StzEngineStringTrimChars(pStr, "*")
+Assert("TrimChars ***hello***", StzEngineStringData(pResult), "hello")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("user@example.com")
+Assert("IsEmailLike valid", StzEngineStringIsEmailLike(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("not-an-email")
+Assert("IsEmailLike invalid", StzEngineStringIsEmailLike(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("camelCaseString")
+pResult = StzEngineStringCamelToWords(pStr)
+Assert("CamelToWords", StzEngineStringData(pResult), "camel Case String")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 

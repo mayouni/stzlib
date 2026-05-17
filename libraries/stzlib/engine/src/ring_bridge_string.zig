@@ -1560,6 +1560,33 @@ fn ring_StringChunk(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_chunk(h, size, n)), STZ_HANDLE);
 }
 
+fn ring_StringCountVowels(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_vowels(h)));
+}
+
+fn ring_StringLongestRun(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_longest_run(h)));
+}
+
+fn ring_StringTrimChars(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const chars: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_trim_chars(h, chars, chars_len)), STZ_HANDLE);
+}
+
+fn ring_StringIsEmailLike(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_email_like(h)));
+}
+
+fn ring_StringCamelToWords(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_camel_to_words(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1782,6 +1809,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringisbalanced", .func = &ring_StringIsBalanced },
     .{ .name = "stzenginestringslug", .func = &ring_StringSlug },
     .{ .name = "stzenginestringchunk", .func = &ring_StringChunk },
+    .{ .name = "stzenginestringcountvowels", .func = &ring_StringCountVowels },
+    .{ .name = "stzenginestringlongestrun", .func = &ring_StringLongestRun },
+    .{ .name = "stzenginestringtrimchars", .func = &ring_StringTrimChars },
+    .{ .name = "stzenginestringisemaillike", .func = &ring_StringIsEmailLike },
+    .{ .name = "stzenginestringcameltowords", .func = &ring_StringCamelToWords },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

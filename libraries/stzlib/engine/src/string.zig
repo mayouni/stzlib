@@ -7064,6 +7064,170 @@ pub fn stz_string_chunk(handle: StzStringHandle, size: c_int, n: c_int) callconv
     return stz_string_from(src[start..].ptr, off - start);
 }
 
+/// Count ASCII vowels (a,e,i,o,u both cases).
+pub fn stz_string_count_vowels(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var count: c_int = 0;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        if (cp_len == 1) {
+            const c = src[off];
+            if (c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u' or
+                c == 'A' or c == 'E' or c == 'I' or c == 'O' or c == 'U')
+            {
+                count += 1;
+            }
+        }
+        off += cp_len;
+    }
+    return count;
+}
+
+/// Return the length of the longest run of consecutive identical codepoints.
+pub fn stz_string_longest_run(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 0;
+
+    var max_run: c_int = 1;
+    var cur_run: c_int = 1;
+    var prev_start: usize = 0;
+    var prev_len: usize = 0;
+    var off: usize = 0;
+    var first = true;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        if (first) {
+            first = false;
+        } else {
+            if (cp_len == prev_len and mem.eql(u8, src[off..][0..cp_len], src[prev_start..][0..prev_len])) {
+                cur_run += 1;
+                if (cur_run > max_run) max_run = cur_run;
+            } else {
+                cur_run = 1;
+            }
+        }
+        prev_start = off;
+        prev_len = cp_len;
+        off += cp_len;
+    }
+    return max_run;
+}
+
+/// Trim specific characters from both ends of the string.
+/// `chars` is a UTF-8 string of characters to trim.
+/// Returns new handle.
+pub fn stz_string_trim_chars(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+    if (chars_len == 0) return stz_string_from(src.ptr, @intCast(src.len));
+
+    const trim_set = chars[0..chars_len];
+
+    // Find start (skip leading chars in set)
+    var start: usize = 0;
+    while (start < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[start]) catch break;
+        if (start + cp_len > src.len) break;
+        const cp_slice = src[start..][0..cp_len];
+        if (!isInCharSet(cp_slice, trim_set)) break;
+        start += cp_len;
+    }
+
+    // Find end (skip trailing chars in set)
+    var end: usize = src.len;
+    while (end > start) {
+        // Walk backwards to find start of last codepoint
+        var back: usize = end - 1;
+        while (back > start and (src[back] & 0xC0) == 0x80) back -= 1;
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[back]) catch break;
+        if (back + cp_len != end) break;
+        const cp_slice = src[back..][0..cp_len];
+        if (!isInCharSet(cp_slice, trim_set)) break;
+        end = back;
+    }
+
+    return stz_string_from(src[start..].ptr, end - start);
+}
+
+fn isInCharSet(cp_slice: []const u8, char_set: []const u8) bool {
+    var off: usize = 0;
+    while (off < char_set.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(char_set[off]) catch return false;
+        if (off + cp_len > char_set.len) return false;
+        if (cp_len == cp_slice.len and mem.eql(u8, char_set[off..][0..cp_len], cp_slice)) return true;
+        off += cp_len;
+    }
+    return false;
+}
+
+/// Basic email format check: contains exactly one @, has text before and after @,
+/// has at least one dot after @. Returns 1 if email-like, 0 otherwise.
+pub fn stz_string_is_email_like(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len < 5) return 0; // minimum: a@b.c
+
+    var at_pos: ?usize = null;
+    var at_count: usize = 0;
+    for (src, 0..) |c, i| {
+        if (c == '@') {
+            at_count += 1;
+            at_pos = i;
+        }
+    }
+    if (at_count != 1) return 0;
+    const atp = at_pos.?;
+    if (atp == 0) return 0; // nothing before @
+    if (atp >= src.len - 1) return 0; // nothing after @
+
+    // Check for dot after @
+    const domain = src[atp + 1 ..];
+    var has_dot = false;
+    for (domain) |c| {
+        if (c == '.') { has_dot = true; break; }
+    }
+    if (!has_dot) return 0;
+
+    // Dot shouldn't be first or last in domain
+    if (domain[0] == '.' or domain[domain.len - 1] == '.') return 0;
+
+    return 1;
+}
+
+/// Split camelCase/PascalCase into space-separated words.
+/// E.g. "camelCaseString" -> "camel Case String"
+/// Returns new handle.
+pub fn stz_string_camel_to_words(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var i: usize = 0;
+    while (i < src.len) {
+        const c = src[i];
+        // Insert space before uppercase that follows lowercase
+        if (i > 0 and c >= 'A' and c <= 'Z') {
+            const prev = src[i - 1];
+            if (prev >= 'a' and prev <= 'z') {
+                result.data.appendSlice(gpa, " ") catch break;
+            } else if (prev >= 'A' and prev <= 'Z' and i + 1 < src.len and src[i + 1] >= 'a' and src[i + 1] <= 'z') {
+                // ABCdef -> AB Cdef
+                result.data.appendSlice(gpa, " ") catch break;
+            }
+        }
+        result.data.appendSlice(gpa, src[i..][0..1]) catch break;
+        i += 1;
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -8006,4 +8170,66 @@ test "chunk" {
     const r3 = stz_string_chunk(h, 3, 3);
     try std.testing.expectEqual(@as(StzStringHandle, null), r3);
     stz_string_free(h);
+}
+
+test "count_vowels" {
+    const h = stz_string_from("Hello World", 11);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_vowels(h));
+    stz_string_free(h);
+
+    const h2 = stz_string_from("bcdfg", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_count_vowels(h2));
+    stz_string_free(h2);
+}
+
+test "longest_run" {
+    const h = stz_string_from("aabbbcccc", 9);
+    try std.testing.expectEqual(@as(c_int, 4), stz_string_longest_run(h));
+    stz_string_free(h);
+
+    const h2 = stz_string_from("abc", 3);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_longest_run(h2));
+    stz_string_free(h2);
+}
+
+test "trim_chars" {
+    const h = stz_string_from("***hello***", 11);
+    const r = stz_string_trim_chars(h, "*", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hello"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("--=hello=--", 11);
+    const r2 = stz_string_trim_chars(h2, "-=", 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "hello"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "is_email_like" {
+    const h1 = stz_string_from("user@example.com", 16);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_email_like(h1));
+    stz_string_free(h1);
+
+    const h2 = stz_string_from("no-at-sign.com", 14);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_email_like(h2));
+    stz_string_free(h2);
+
+    const h3 = stz_string_from("@nodomain", 9);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_email_like(h3));
+    stz_string_free(h3);
+}
+
+test "camel_to_words" {
+    const h = stz_string_from("camelCaseString", 15);
+    const r = stz_string_camel_to_words(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "camel Case String"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("HTMLParser", 10);
+    const r2 = stz_string_camel_to_words(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "HTML Parser"));
+    stz_string_free(r2);
+    stz_string_free(h2);
 }
