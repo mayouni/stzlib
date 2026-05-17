@@ -265,27 +265,23 @@ pub fn stz_string_index_of_ci(handle: StzStringHandle, needle: [*c]const u8, nee
         if (needle == null or needle_len == 0) return -1;
         const hay = s.slice();
         const n = needle[0..needle_len];
-        // Skip to start_cp codepoint
+        // Case-fold both haystack and needle (Unicode-correct)
+        const hay_folded = casefoldAlloc(hay) orelse return -1;
+        defer gpa.free(hay_folded);
+        const n_folded = casefoldAlloc(n) orelse return -1;
+        defer gpa.free(n_folded);
+        // Skip to start_cp codepoint in the folded haystack
         var byte_pos: usize = 0;
         var cp_pos: usize = 0;
-        while (cp_pos < start_cp and byte_pos < hay.len) {
-            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+        while (cp_pos < start_cp and byte_pos < hay_folded.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay_folded[byte_pos]) catch 1;
             byte_pos += cp_len;
             cp_pos += 1;
         }
-        // Search from here (case-insensitive)
-        while (byte_pos + n.len <= hay.len) {
-            var match = true;
-            for (0..n.len) |j| {
-                if (toLowerAscii(hay[byte_pos + j]) != toLowerAscii(n[j])) {
-                    match = false;
-                    break;
-                }
-            }
-            if (match) return @intCast(cp_pos);
-            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
-            byte_pos += cp_len;
-            cp_pos += 1;
+        // Search in folded haystack for folded needle
+        if (mem.indexOfPos(u8, hay_folded, byte_pos, n_folded)) |pos| {
+            // Convert byte offset in folded string to codepoint index
+            return @intCast(byteOffsetToCodepointIndex(hay_folded, pos));
         }
     }
     return -1;
@@ -408,6 +404,28 @@ fn toLowerAscii(c: u8) u8 {
     return if (c >= 'A' and c <= 'Z') c + 32 else c;
 }
 
+/// Case-fold a UTF-8 slice using utf8proc (Unicode-correct).
+/// Caller must free the returned slice with gpa.free().
+/// Returns null on allocation failure or empty input.
+fn casefoldAlloc(input: []const u8) ?[]u8 {
+    if (input.len == 0) return null;
+    var out_len: usize = 0;
+    const ptr = unicode.stz_unicode_casefold(input.ptr, input.len, &out_len);
+    if (ptr == null or out_len == 0) return null;
+    // ptr was allocated by casefold using gpa -- we own it
+    return @as([*]u8, @ptrCast(ptr))[0..out_len];
+}
+
+/// Case-insensitive byte-slice comparison using Unicode case folding.
+/// Both slices are case-folded and compared. Returns true if equal.
+fn ciEqlUnicode(a: []const u8, b: []const u8) bool {
+    const fa = casefoldAlloc(a) orelse return mem.eql(u8, a, b);
+    defer gpa.free(fa);
+    const fb = casefoldAlloc(b) orelse return mem.eql(u8, a, b);
+    defer gpa.free(fb);
+    return mem.eql(u8, fa, fb);
+}
+
 // ─── Bulk Find (returns all positions in one call) ───
 
 const StzFindResult = struct {
@@ -454,22 +472,19 @@ pub fn stz_string_find_all_ci(handle: StzStringHandle, needle: [*c]const u8, nee
         if (needle == null or needle_len == 0) return r;
         const hay = s.slice();
         const n = needle[0..needle_len];
-        // Walk by codepoints to return codepoint-based positions
+        // Case-fold both (Unicode-correct)
+        const hay_folded = casefoldAlloc(hay) orelse return r;
+        defer gpa.free(hay_folded);
+        const n_folded = casefoldAlloc(n) orelse return r;
+        defer gpa.free(n_folded);
+        // Walk folded haystack by codepoints for codepoint-based positions
         var byte_pos: usize = 0;
         var cp_pos: usize = 0;
-        while (byte_pos + n.len <= hay.len) {
-            var match = true;
-            for (0..n.len) |j| {
-                if (toLowerAscii(hay[byte_pos + j]) != toLowerAscii(n[j])) {
-                    match = false;
-                    break;
-                }
-            }
-            if (match) {
+        while (byte_pos + n_folded.len <= hay_folded.len) {
+            if (mem.eql(u8, hay_folded[byte_pos..][0..n_folded.len], n_folded)) {
                 r.positions.append(gpa, @intCast(cp_pos)) catch break;
             }
-            // Advance by one codepoint
-            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay_folded[byte_pos]) catch 1;
             byte_pos += cp_len;
             cp_pos += 1;
         }
@@ -514,17 +529,20 @@ pub fn stz_string_count_of_ci(handle: StzStringHandle, needle: [*c]const u8, nee
         if (needle == null or needle_len == 0) return 0;
         const hay = s.slice();
         const n = needle[0..needle_len];
+        // Case-fold both (Unicode-correct)
+        const hay_folded = casefoldAlloc(hay) orelse return 0;
+        defer gpa.free(hay_folded);
+        const n_folded = casefoldAlloc(n) orelse return 0;
+        defer gpa.free(n_folded);
         var count: c_int = 0;
         var pos: usize = 0;
-        outer: while (pos + n.len <= hay.len) {
-            for (0..n.len) |j| {
-                if (toLowerAscii(hay[pos + j]) != toLowerAscii(n[j])) {
-                    pos += 1;
-                    continue :outer;
-                }
+        while (pos + n_folded.len <= hay_folded.len) {
+            if (mem.eql(u8, hay_folded[pos..][0..n_folded.len], n_folded)) {
+                count += 1;
+                pos += n_folded.len;
+            } else {
+                pos += 1;
             }
-            count += 1;
-            pos += n.len;
         }
         return count;
     }
@@ -536,20 +554,15 @@ pub fn stz_string_last_index_of_ci(handle: StzStringHandle, needle: [*c]const u8
         if (needle == null or needle_len == 0) return -1;
         const hay = s.slice();
         const n = needle[0..needle_len];
-        if (n.len > hay.len) return -1;
-        // Find last byte match, then convert to codepoint index
-        var pos: usize = hay.len - n.len;
-        while (true) {
-            var match = true;
-            for (0..n.len) |j| {
-                if (toLowerAscii(hay[pos + j]) != toLowerAscii(n[j])) {
-                    match = false;
-                    break;
-                }
-            }
-            if (match) return @intCast(byteOffsetToCodepointIndex(hay, pos));
-            if (pos == 0) break;
-            pos -= 1;
+        // Case-fold both (Unicode-correct)
+        const hay_folded = casefoldAlloc(hay) orelse return -1;
+        defer gpa.free(hay_folded);
+        const n_folded = casefoldAlloc(n) orelse return -1;
+        defer gpa.free(n_folded);
+        if (n_folded.len > hay_folded.len) return -1;
+        // Search backwards in folded haystack
+        if (mem.lastIndexOf(u8, hay_folded, n_folded)) |pos| {
+            return @intCast(byteOffsetToCodepointIndex(hay_folded, pos));
         }
     }
     return -1;
@@ -578,11 +591,12 @@ pub fn stz_string_starts_with_ci(handle: StzStringHandle, prefix: [*c]const u8, 
         if (prefix == null or prefix_len == 0) return 1;
         const sl = s.slice();
         if (prefix_len > sl.len) return 0;
-        const p = prefix[0..prefix_len];
-        for (0..prefix_len) |i| {
-            if (toLowerAscii(sl[i]) != toLowerAscii(p[i])) return 0;
-        }
-        return 1;
+        // Case-fold both the prefix-length portion and the prefix
+        const hay_prefix = casefoldAlloc(sl[0..prefix_len]) orelse return 0;
+        defer gpa.free(hay_prefix);
+        const pfx_folded = casefoldAlloc(prefix[0..prefix_len]) orelse return 0;
+        defer gpa.free(pfx_folded);
+        return if (mem.eql(u8, hay_prefix, pfx_folded)) 1 else 0;
     }
     return 0;
 }
@@ -593,11 +607,12 @@ pub fn stz_string_ends_with_ci(handle: StzStringHandle, suffix: [*c]const u8, su
         const sl = s.slice();
         if (suffix_len > sl.len) return 0;
         const start = sl.len - suffix_len;
-        const sf = suffix[0..suffix_len];
-        for (0..suffix_len) |i| {
-            if (toLowerAscii(sl[start + i]) != toLowerAscii(sf[i])) return 0;
-        }
-        return 1;
+        // Case-fold both the suffix-length tail and the suffix
+        const hay_suffix = casefoldAlloc(sl[start..]) orelse return 0;
+        defer gpa.free(hay_suffix);
+        const sfx_folded = casefoldAlloc(suffix[0..suffix_len]) orelse return 0;
+        defer gpa.free(sfx_folded);
+        return if (mem.eql(u8, hay_suffix, sfx_folded)) 1 else 0;
     }
     return 0;
 }
@@ -645,11 +660,7 @@ pub fn stz_string_replace(handle: StzStringHandle, old: [*c]const u8, old_len: u
 // ─── Split CI ───
 
 fn ciMatch(a: []const u8, b: []const u8) bool {
-    if (a.len != b.len) return false;
-    for (0..a.len) |i| {
-        if (toLowerAscii(a[i]) != toLowerAscii(b[i])) return false;
-    }
-    return true;
+    return ciEqlUnicode(a, b);
 }
 
 pub fn stz_string_split_count_ci(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) c_int {
@@ -719,30 +730,36 @@ pub fn stz_string_replace_ci(handle: StzStringHandle, old: [*c]const u8, old_len
         if (old == null or old_len == 0) return;
         const old_slice = old[0..old_len];
         const new_slice = if (new != null and new_len > 0) new[0..new_len] else "";
-
-        var result: std.ArrayList(u8) = .{};
-        var pos: usize = 0;
         const src = s.slice();
 
-        outer: while (pos <= src.len) {
-            if (pos + old_len <= src.len) {
-                // Case-insensitive comparison
-                var matched = true;
-                for (0..old_len) |j| {
-                    if (toLowerAscii(src[pos + j]) != toLowerAscii(old_slice[j])) {
-                        matched = false;
-                        break;
-                    }
-                }
-                if (matched) {
-                    result.appendSlice(gpa, new_slice) catch return;
-                    pos += old_len;
-                    continue :outer;
-                }
-            }
-            if (pos < src.len) {
-                result.append(gpa, src[pos]) catch return;
-                pos += 1;
+        // Case-fold both source and pattern for matching
+        const src_folded = casefoldAlloc(src) orelse return;
+        defer gpa.free(src_folded);
+        const old_folded = casefoldAlloc(old_slice) orelse return;
+        defer gpa.free(old_folded);
+
+        var result: std.ArrayList(u8) = .{};
+        var pos: usize = 0;      // position in original src
+        var fpos: usize = 0;     // position in folded src
+
+        while (pos <= src.len and fpos <= src_folded.len) {
+            if (fpos + old_folded.len <= src_folded.len and
+                mem.eql(u8, src_folded[fpos..][0..old_folded.len], old_folded))
+            {
+                result.appendSlice(gpa, new_slice) catch return;
+                // Advance both positions by the original match length
+                pos += old_len;
+                fpos += old_folded.len;
+            } else if (pos < src.len) {
+                // Copy one codepoint from the original (not folded)
+                const cp_len = std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
+                const fcp_len = if (fpos < src_folded.len)
+                    std.unicode.utf8ByteSequenceLength(src_folded[fpos]) catch 1
+                else
+                    1;
+                result.appendSlice(gpa, src[pos..@min(pos + cp_len, src.len)]) catch return;
+                pos += cp_len;
+                fpos += fcp_len;
             } else {
                 break;
             }
@@ -794,10 +811,27 @@ pub fn stz_string_to_lower(handle: StzStringHandle) callconv(.c) StzStringHandle
 }
 
 pub fn stz_string_foldcase(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    // Simple case folding is equivalent to lowercasing for most Unicode text.
-    // Full case folding (e.g. sharp-s -> "ss") would require multi-codepoint expansion,
-    // which we defer to a future enhancement.
-    return stz_string_to_lower(handle);
+    // Full Unicode case folding via utf8proc (handles sharp-s -> "ss", etc.)
+    if (handle) |s| {
+        const src = s.slice();
+        if (src.len == 0) return stz_string_new();
+        const folded = casefoldAlloc(src) orelse return stz_string_new();
+        // casefoldAlloc returns gpa-allocated memory, wrap it in a StzString
+        const r = gpa.create(StzString) catch {
+            gpa.free(folded);
+            return null;
+        };
+        r.* = StzString.init();
+        r.data.appendSlice(gpa, folded) catch {
+            gpa.free(folded);
+            r.deinit();
+            gpa.destroy(r);
+            return null;
+        };
+        gpa.free(folded);
+        return r;
+    }
+    return stz_string_new();
 }
 
 // ─── Codepoint-aware Operations ───
@@ -1068,24 +1102,11 @@ pub fn stz_string_equals(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) 
 }
 
 /// Check if two strings are equal (case-insensitive). Returns 1 or 0.
+/// Uses Unicode case folding via utf8proc for correctness.
 pub fn stz_string_equals_ci(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
     if (h1) |s1| {
         if (h2) |s2| {
-            const a = s1.slice();
-            const b = s2.slice();
-            // Quick check: if byte lengths differ after lowering, not equal
-            // Do full Unicode casefold comparison
-            const la = stz_string_to_lower(h1);
-            const lb = stz_string_to_lower(h2);
-            defer if (la) |p| { _ = gpa.resize(p.data.allocatedSlice(), 0); };
-            defer if (lb) |p| { _ = gpa.resize(p.data.allocatedSlice(), 0); };
-            if (la) |pa| {
-                if (lb) |pb| {
-                    return if (mem.eql(u8, pa.slice(), pb.slice())) 1 else 0;
-                }
-            }
-            // Fallback: byte compare
-            return if (mem.eql(u8, a, b)) 1 else 0;
+            return if (ciEqlUnicode(s1.slice(), s2.slice())) 1 else 0;
         }
     }
     return 0;
@@ -1114,29 +1135,23 @@ pub fn stz_string_find_nth(handle: StzStringHandle, needle: [*c]const u8, needle
 }
 
 /// Find the Nth occurrence case-insensitively. Returns 0-based codepoint index, or -1.
+/// Uses Unicode case folding via utf8proc for correctness.
 pub fn stz_string_find_nth_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) i64 {
     if (handle) |s| {
         if (n < 1) return -1;
         const hay = s.slice();
         const ndl = needle[0..needle_len];
-        // Lowercase both
-        const hay_lower = stz_string_from(hay.ptr, hay.len);
-        defer stz_string_free(hay_lower);
-        const ndl_handle = stz_string_from(ndl.ptr, ndl.len);
-        defer stz_string_free(ndl_handle);
-        const hay_lc = stz_string_to_lower(hay_lower);
-        defer stz_string_free(hay_lc);
-        const ndl_lc = stz_string_to_lower(ndl_handle);
-        defer stz_string_free(ndl_lc);
-        if (hay_lc == null or ndl_lc == null) return -1;
-        const hay_lc_data = hay_lc.?.slice();
-        const ndl_lc_data = ndl_lc.?.slice();
+        // Case-fold both (Unicode-correct)
+        const hay_folded = casefoldAlloc(hay) orelse return -1;
+        defer gpa.free(hay_folded);
+        const ndl_folded = casefoldAlloc(ndl) orelse return -1;
+        defer gpa.free(ndl_folded);
         var occurrence: c_int = 0;
         var byte_pos: usize = 0;
-        while (mem.indexOfPos(u8, hay_lc_data, byte_pos, ndl_lc_data)) |pos| {
+        while (mem.indexOfPos(u8, hay_folded, byte_pos, ndl_folded)) |pos| {
             occurrence += 1;
             if (occurrence == n) {
-                return @intCast(byteOffsetToCodepointIndex(hay, pos));
+                return @intCast(byteOffsetToCodepointIndex(hay_folded, pos));
             }
             byte_pos = pos + 1;
         }

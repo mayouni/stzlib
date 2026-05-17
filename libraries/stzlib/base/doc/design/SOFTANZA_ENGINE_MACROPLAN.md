@@ -16,7 +16,7 @@
 | Engine tests      | 40 passing               |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Last updated      | 2026-05-15 (Session 4b)  |
+| Last updated      | 2026-05-17 (Session 6)   |
 
 ---
 
@@ -67,9 +67,38 @@
 - 2 VP modules added: stz_interact, stz_skill
 - 19 design principles in Architecture doc
 
+### Phase 6 -- String Engine v2 Design (Session 6)
+
+- Critical audit: ASCII-only CI ops, memory leak, 206 catch {},
+  no UTF-8 validation, O(n^2) iteration identified
+- Deep research: Softanza DSL suffix system (Z/ZZ/CS/XT/Q/IB/W),
+  stzRegex/stzListex/stzGraphex, i18n subsystem
+- Design document: `STRING_ENGINE_DESIGN_v2.md` created
+- 8-phase implementation plan (Naming, Safety, Performance,
+  Modules, Regex, Locale, NLP, Crypto)
+- 14 stzString methods already Engine-backed, 630 Ring tests pass
+- Naming convention: `str_` prefix, verb/noun discipline, CS pattern
+- 1-based indexing by default with compile-time config flag
+
 ---
 
 ## MILESTONES AHEAD
+
+### M-E0.5: String Engine v2 [ ]
+
+> Redesign the string engine for Unicode correctness, Softanza
+> naming, 1-based indexing, and modern domain coverage.
+> See `STRING_ENGINE_DESIGN_v2.md` for full design.
+
+**8 phases:** A (Naming & Indexing) -> B (Safety) ->
+C (Performance) -> D (Module Separation) -> E (Regex) ->
+F (Locale) -> G (NLP/AI) -> H (Crypto)
+
+**Why before M-E1:** The string module is the most-used Engine
+component. Fixing its naming, safety, and Unicode correctness
+now prevents all downstream modules from inheriting the same
+patterns. The CS merge and 1-based indexing set conventions
+that StzValue and StzList will follow.
 
 ### M-E1: Foundation Types [ ]
 
@@ -453,3 +482,5 @@ M-E11 (Repo Split)
 | 2026-05-14 | 3       | Phase 4   | Modular DLLs + layered tiers + CLI|
 | 2026-05-15 | 4       | Phase 5   | 86 modules designed, 16 principles|
 | 2026-05-15 | 4b      | Phase 5+  | 88 modules, 19 principles, 3 VPs |
+| 2026-05-16 | 5       | Phase 5++ | 14 stzString methods Engine-backed, 630 Ring tests |
+| 2026-05-17 | 6       | Phase 6   | String Engine v2 design doc + 8-phase plan |
