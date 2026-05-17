@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 258 Registered Functions"
+? "Engine Full Bridge Test -- All 263 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -2843,6 +2843,51 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("HI")
 pResult = StzEngineStringToMorse(pStr)
 Assert("Morse HI", StzEngineStringData(pResult), ".... ..")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 103: ToBase64 / FromBase64 / XorCipher / Entropy / CharFrequencyTop
+# ==============================================================
+
+? ""
+? "--- Group 103: ToBase64 / FromBase64 / XorCipher / Entropy / CharFrequencyTop ---"
+
+pStr = StzEngineStringFrom("Hello")
+pResult = StzEngineStringToBase64(pStr)
+Assert("ToBase64 Hello", StzEngineStringData(pResult), "SGVsbG8=")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hi")
+pResult = StzEngineStringToBase64(pStr)
+Assert("ToBase64 Hi", StzEngineStringData(pResult), "SGk=")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("SGVsbG8=")
+pResult = StzEngineStringFromBase64(pStr)
+Assert("FromBase64 Hello", StzEngineStringData(pResult), "Hello")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("ABC")
+pResult = StzEngineStringXorCipher(pStr, 32)
+Assert("XorCipher ABC^32", StzEngineStringData(pResult), "abc")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("aaaa")
+Assert("Entropy aaaa (0)", StzEngineStringEntropy(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("ab")
+Assert("Entropy ab (100)", StzEngineStringEntropy(pStr), 100)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("aabbbcc")
+pResult = StzEngineStringCharFrequencyTop(pStr)
+Assert("CharFreqTop aabbbcc", StzEngineStringData(pResult), "b")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 

@@ -1772,6 +1772,32 @@ fn ring_StringToMorse(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_morse(h)), STZ_HANDLE);
 }
 
+fn ring_StringToBase64(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_base64(h)), STZ_HANDLE);
+}
+
+fn ring_StringFromBase64(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_from_base64(h)), STZ_HANDLE);
+}
+
+fn ring_StringXorCipher(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const key: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_xor_cipher(h, key)), STZ_HANDLE);
+}
+
+fn ring_StringEntropy(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_entropy(h)));
+}
+
+fn ring_StringCharFrequencyTop(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_char_frequency_top(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2034,6 +2060,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcountparagraphs", .func = &ring_StringCountParagraphs },
     .{ .name = "stzenginestringzigzag", .func = &ring_StringZigzag },
     .{ .name = "stzenginestringtomorse", .func = &ring_StringToMorse },
+    .{ .name = "stzenginestringtobase64", .func = &ring_StringToBase64 },
+    .{ .name = "stzenginestringfrombase64", .func = &ring_StringFromBase64 },
+    .{ .name = "stzenginestringxorcipher", .func = &ring_StringXorCipher },
+    .{ .name = "stzenginestringentropy", .func = &ring_StringEntropy },
+    .{ .name = "stzenginestringcharfrequencytop", .func = &ring_StringCharFrequencyTop },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

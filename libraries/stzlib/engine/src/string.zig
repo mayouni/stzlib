@@ -8227,6 +8227,144 @@ pub export fn stz_string_to_morse(handle: ?*StzString) callconv(.c) ?*StzString 
     return result;
 }
 
+// batch 11 ────────────────────────────────────────────────────────
+
+const base64_chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+
+/// Base64 encode.
+pub export fn stz_string_to_base64(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    var i: usize = 0;
+    while (i < src.len) {
+        const b0: u32 = src[i];
+        const b1: u32 = if (i + 1 < src.len) src[i + 1] else 0;
+        const b2: u32 = if (i + 2 < src.len) src[i + 2] else 0;
+        const triple = (b0 << 16) | (b1 << 8) | b2;
+
+        result.data.appendSlice(gpa, &[_]u8{base64_chars[@intCast((triple >> 18) & 0x3F)]}) catch break;
+        result.data.appendSlice(gpa, &[_]u8{base64_chars[@intCast((triple >> 12) & 0x3F)]}) catch break;
+        if (i + 1 < src.len) {
+            result.data.appendSlice(gpa, &[_]u8{base64_chars[@intCast((triple >> 6) & 0x3F)]}) catch break;
+        } else {
+            result.data.appendSlice(gpa, "=") catch break;
+        }
+        if (i + 2 < src.len) {
+            result.data.appendSlice(gpa, &[_]u8{base64_chars[@intCast(triple & 0x3F)]}) catch break;
+        } else {
+            result.data.appendSlice(gpa, "=") catch break;
+        }
+        i += 3;
+    }
+    return result;
+}
+
+/// Base64 decode.
+pub export fn stz_string_from_base64(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    var i: usize = 0;
+    while (i + 3 < src.len) {
+        const c0 = base64Decode(src[i]);
+        const c1 = base64Decode(src[i + 1]);
+        const c2 = base64Decode(src[i + 2]);
+        const c3 = base64Decode(src[i + 3]);
+        if (c0 == 255 or c1 == 255) break;
+
+        const byte0: u8 = @intCast((c0 << 2) | (c1 >> 4));
+        result.data.appendSlice(gpa, &[_]u8{byte0}) catch break;
+
+        if (c2 != 255) {
+            const byte1: u8 = @intCast(((c1 & 0x0F) << 4) | (c2 >> 2));
+            result.data.appendSlice(gpa, &[_]u8{byte1}) catch break;
+        }
+        if (c3 != 255) {
+            const byte2: u8 = @intCast(((c2 & 0x03) << 6) | c3);
+            result.data.appendSlice(gpa, &[_]u8{byte2}) catch break;
+        }
+        i += 4;
+    }
+    return result;
+}
+
+fn base64Decode(c: u8) u8 {
+    if (c >= 'A' and c <= 'Z') return c - 'A';
+    if (c >= 'a' and c <= 'z') return c - 'a' + 26;
+    if (c >= '0' and c <= '9') return c - '0' + 52;
+    if (c == '+') return 62;
+    if (c == '/') return 63;
+    return 255; // padding or invalid
+}
+
+/// XOR cipher: XOR each byte with key byte.
+pub export fn stz_string_xor_cipher(handle: ?*StzString, key: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const k: u8 = @intCast(key & 0xFF);
+
+    for (src) |c| {
+        result.data.appendSlice(gpa, &[_]u8{c ^ k}) catch break;
+    }
+    return result;
+}
+
+/// Shannon entropy * 100 (integer, to avoid floating point in C API). 0 for empty.
+pub export fn stz_string_entropy(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 0;
+
+    // Count frequencies
+    var freq: [256]u32 = [_]u32{0} ** 256;
+    for (src) |c| {
+        freq[c] += 1;
+    }
+
+    // Calculate entropy: -sum(p * log2(p)) where p = freq/len
+    // Use integer math: entropy*100 = -100 * sum(freq/len * log2(freq/len))
+    // Approximation using integer log2 table
+    var entropy_x1000: i64 = 0;
+    const len_f: f64 = @floatFromInt(src.len);
+    for (freq) |f| {
+        if (f > 0) {
+            const p: f64 = @as(f64, @floatFromInt(f)) / len_f;
+            const log2p: f64 = @log2(p);
+            entropy_x1000 -= @intFromFloat(p * log2p * 1000.0);
+        }
+    }
+    // Return entropy * 100 (divide by 10 from *1000)
+    return @intCast(@divTrunc(entropy_x1000, 10));
+}
+
+/// Return the most frequent character as a single-char string. Ties: first in byte order.
+pub export fn stz_string_char_frequency_top(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (src.len == 0) return result;
+
+    var freq: [256]u32 = [_]u32{0} ** 256;
+    for (src) |c| {
+        freq[c] += 1;
+    }
+
+    var max_idx: u8 = 0;
+    var max_count: u32 = 0;
+    for (0..256) |idx| {
+        if (freq[idx] > max_count) {
+            max_count = freq[idx];
+            max_idx = @intCast(idx);
+        }
+    }
+    result.data.appendSlice(gpa, &[_]u8{max_idx}) catch {};
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -9644,5 +9782,59 @@ test "to_morse" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], ".... .."));
     stz_string_free(r2);
     stz_string_free(h2);
+}
+
+test "to_base64" {
+    const h = stz_string_from("Hello", 5);
+    const r = stz_string_to_base64(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "SGVsbG8="));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("Hi", 2);
+    const r2 = stz_string_to_base64(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "SGk="));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "from_base64" {
+    const h = stz_string_from("SGVsbG8=", 8);
+    const r = stz_string_from_base64(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "Hello"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "xor_cipher" {
+    const h = stz_string_from("ABC", 3);
+    const r = stz_string_xor_cipher(h, 0x20);
+    // A(65)^32=97='a', B(66)^32=98='b', C(67)^32=99='c'
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "abc"));
+    // XOR again to get back original
+    const r2 = stz_string_xor_cipher(r, 0x20);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "ABC"));
+    stz_string_free(r2);
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "entropy" {
+    const h1 = stz_string_from("aaaa", 4);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_entropy(h1));
+    stz_string_free(h1);
+
+    // "ab" has entropy of 1.0 bit -> *100 = 100
+    const h2 = stz_string_from("ab", 2);
+    try std.testing.expectEqual(@as(c_int, 100), stz_string_entropy(h2));
+    stz_string_free(h2);
+}
+
+test "char_frequency_top" {
+    const h = stz_string_from("aabbbcc", 7);
+    const r = stz_string_char_frequency_top(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "b"));
+    stz_string_free(r);
+    stz_string_free(h);
 }
 
