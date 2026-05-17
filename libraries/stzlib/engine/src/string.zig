@@ -7753,6 +7753,112 @@ pub export fn stz_string_caesar(handle: ?*StzString, shift: c_int) callconv(.c) 
     return result;
 }
 
+// batch 8 ─────────────────────────────────────────────────────────
+
+/// Mirror/reflect: "abc" -> "abccba"
+pub export fn stz_string_mirror(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    // Append original
+    result.data.appendSlice(gpa, src) catch return result;
+    // Append reversed
+    var off: usize = src.len;
+    while (off > 0) {
+        // Walk backwards to find start of previous codepoint
+        off -= 1;
+        while (off > 0 and (src[off] & 0xC0) == 0x80) {
+            off -= 1;
+        }
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        result.data.appendSlice(gpa, src[off .. off + cp_len]) catch break;
+        if (off == 0) break;
+    }
+    return result;
+}
+
+/// Repeat each character n times: "abc", 2 -> "aabbcc"
+pub export fn stz_string_repeat_each_char(handle: ?*StzString, n: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (n <= 0) return result;
+    const count: usize = @intCast(n);
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const ch = src[off .. off + cp_len];
+        for (0..count) |_| {
+            result.data.appendSlice(gpa, ch) catch break;
+        }
+        off += cp_len;
+    }
+    return result;
+}
+
+/// Check if string starts with any of the given prefixes (pipe-separated: "http|ftp|ssh")
+pub export fn stz_string_starts_with_any(handle: ?*StzString, prefixes: [*c]const u8, prefixes_len: c_int) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    const plen: usize = if (prefixes_len >= 0) @intCast(prefixes_len) else return 0;
+    const pstr = prefixes[0..plen];
+
+    // Split by pipe and check each
+    var start: usize = 0;
+    var i: usize = 0;
+    while (i <= pstr.len) : (i += 1) {
+        if (i == pstr.len or pstr[i] == '|') {
+            const prefix = pstr[start..i];
+            if (prefix.len > 0 and prefix.len <= src.len) {
+                if (mem.eql(u8, src[0..prefix.len], prefix)) return 1;
+            }
+            start = i + 1;
+        }
+    }
+    return 0;
+}
+
+/// Check if string ends with any of the given suffixes (pipe-separated: ".txt|.md|.zig")
+pub export fn stz_string_ends_with_any(handle: ?*StzString, suffixes: [*c]const u8, suffixes_len: c_int) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    const slen: usize = if (suffixes_len >= 0) @intCast(suffixes_len) else return 0;
+    const sstr = suffixes[0..slen];
+
+    var start: usize = 0;
+    var i: usize = 0;
+    while (i <= sstr.len) : (i += 1) {
+        if (i == sstr.len or sstr[i] == '|') {
+            const suffix = sstr[start..i];
+            if (suffix.len > 0 and suffix.len <= src.len) {
+                if (mem.eql(u8, src[src.len - suffix.len ..], suffix)) return 1;
+            }
+            start = i + 1;
+        }
+    }
+    return 0;
+}
+
+/// Convert string to binary representation: each byte as 8 binary digits, space-separated.
+pub export fn stz_string_to_binary(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    for (src, 0..) |byte, idx| {
+        if (idx > 0) result.data.appendSlice(gpa, " ") catch break;
+        var buf: [8]u8 = undefined;
+        for (0..8) |bit| {
+            buf[bit] = if ((byte >> @intCast(7 - bit)) & 1 == 1) '1' else '0';
+        }
+        result.data.appendSlice(gpa, &buf) catch break;
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -9010,5 +9116,56 @@ test "caesar" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r3)[0..@intCast(stz_string_size(r3))], "Uryyb, Jbeyq!"));
     stz_string_free(r3);
     stz_string_free(h3);
+}
+
+test "mirror" {
+    const h = stz_string_from("abc", 3);
+    const r = stz_string_mirror(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "abccba"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("a", 1);
+    const r2 = stz_string_mirror(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "aa"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "repeat_each_char" {
+    const h = stz_string_from("abc", 3);
+    const r = stz_string_repeat_each_char(h, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "aabbcc"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("hi", 2);
+    const r2 = stz_string_repeat_each_char(h2, 3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "hhhiii"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "starts_with_any" {
+    const h = stz_string_from("https://example.com", 19);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_starts_with_any(h, "http|ftp|ssh", 12));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_starts_with_any(h, "ftp|ssh", 7));
+    stz_string_free(h);
+}
+
+test "ends_with_any" {
+    const h = stz_string_from("file.zig", 8);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_ends_with_any(h, ".txt|.zig|.rs", 13));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_ends_with_any(h, ".txt|.rs|.go", 12));
+    stz_string_free(h);
+}
+
+test "to_binary" {
+    const h = stz_string_from("Hi", 2);
+    const r = stz_string_to_binary(h);
+    // H = 72 = 01001000, i = 105 = 01101001
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "01001000 01101001"));
+    stz_string_free(r);
+    stz_string_free(h);
 }
 
