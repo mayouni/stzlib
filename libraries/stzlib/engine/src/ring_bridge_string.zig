@@ -2131,6 +2131,20 @@ fn ring_StringCharsSplit(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_chars_split(h)), STZ_HANDLE);
 }
 
+// ─── Byte-level extraction (str_left, str_right) ───
+
+fn ring_StringLeft(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const length: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_left(h, length)), STZ_HANDLE);
+}
+
+fn ring_StringRight(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const length: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_right(h, length)), STZ_HANDLE);
+}
+
 // ─── NLP: Jaro-Winkler, Metaphone, N-grams ───
 
 fn ring_StringJaro(p: *anyopaque) callconv(.c) void {
@@ -2608,6 +2622,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringtoordinal", .func = &ring_StringToOrdinal },
     .{ .name = "stzenginestringcpcount", .func = &ring_StringCpCount },
     .{ .name = "stzenginestringcharssplit", .func = &ring_StringCharsSplit },
+    .{ .name = "stzenginestingleft", .func = &ring_StringLeft },
+    .{ .name = "stzenginestringright", .func = &ring_StringRight },
     .{ .name = "stzenginestringjaro", .func = &ring_StringJaro },
     .{ .name = "stzenginestringjarowinkler", .func = &ring_StringJaroWinkler },
     .{ .name = "stzenginestringmetaphone", .func = &ring_StringMetaphone },
