@@ -7859,6 +7859,225 @@ pub export fn stz_string_to_binary(handle: ?*StzString) callconv(.c) ?*StzString
     return result;
 }
 
+// batch 9 ─────────────────────────────────────────────────────────
+
+/// Sort words alphabetically (case-sensitive). Words separated by spaces.
+pub export fn stz_string_sort_words(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    // Collect word boundaries
+    var words: [256][2]usize = undefined; // [start, end] pairs, max 256 words
+    var word_count: usize = 0;
+    var i: usize = 0;
+    while (i < src.len and word_count < 256) {
+        // Skip spaces
+        while (i < src.len and src[i] == ' ') : (i += 1) {}
+        if (i >= src.len) break;
+        const start = i;
+        while (i < src.len and src[i] != ' ') : (i += 1) {}
+        words[word_count] = .{ start, i };
+        word_count += 1;
+    }
+
+    // Simple insertion sort on words
+    var j: usize = 1;
+    while (j < word_count) : (j += 1) {
+        const key = words[j];
+        var k: usize = j;
+        while (k > 0) {
+            const w_k = src[words[k - 1][0]..words[k - 1][1]];
+            const w_key = src[key[0]..key[1]];
+            if (mem.order(u8, w_k, w_key) == .gt) {
+                words[k] = words[k - 1];
+                k -= 1;
+            } else break;
+        }
+        words[k] = key;
+    }
+
+    // Build result
+    for (0..word_count) |idx| {
+        if (idx > 0) result.data.appendSlice(gpa, " ") catch break;
+        result.data.appendSlice(gpa, src[words[idx][0]..words[idx][1]]) catch break;
+    }
+    return result;
+}
+
+/// Keep only unique words (first occurrence preserved). Words separated by spaces.
+pub export fn stz_string_unique_words(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    // Collect words and track seen
+    var seen_starts: [256]usize = undefined;
+    var seen_ends: [256]usize = undefined;
+    var seen_count: usize = 0;
+    var first = true;
+
+    var ii: usize = 0;
+    while (ii < src.len) {
+        while (ii < src.len and src[ii] == ' ') : (ii += 1) {}
+        if (ii >= src.len) break;
+        const start = ii;
+        while (ii < src.len and src[ii] != ' ') : (ii += 1) {}
+        const word = src[start..ii];
+
+        // Check if already seen
+        var found = false;
+        for (0..seen_count) |si| {
+            if (mem.eql(u8, src[seen_starts[si]..seen_ends[si]], word)) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            if (!first) result.data.appendSlice(gpa, " ") catch break;
+            result.data.appendSlice(gpa, word) catch break;
+            if (seen_count < 256) {
+                seen_starts[seen_count] = start;
+                seen_ends[seen_count] = ii;
+                seen_count += 1;
+            }
+            first = false;
+        }
+    }
+    return result;
+}
+
+/// Decode binary representation (space-separated 8-bit groups) back to string.
+pub export fn stz_string_from_binary(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    var ii: usize = 0;
+    while (ii < src.len) {
+        // Skip spaces
+        while (ii < src.len and src[ii] == ' ') : (ii += 1) {}
+        if (ii >= src.len) break;
+        // Read 8 binary digits
+        if (ii + 8 > src.len) break;
+        var byte: u8 = 0;
+        var valid = true;
+        for (0..8) |bit| {
+            if (src[ii + bit] == '1') {
+                byte |= @as(u8, 1) << @intCast(7 - bit);
+            } else if (src[ii + bit] != '0') {
+                valid = false;
+                break;
+            }
+        }
+        if (!valid) break;
+        result.data.appendSlice(gpa, &[_]u8{byte}) catch break;
+        ii += 8;
+    }
+    return result;
+}
+
+/// Swap two words at given 0-based indices. Words separated by spaces.
+pub export fn stz_string_swap_words(handle: ?*StzString, idx1: c_int, idx2: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const pos1: usize = if (idx1 >= 0) @intCast(idx1) else return result;
+    const pos2: usize = if (idx2 >= 0) @intCast(idx2) else return result;
+
+    // Collect words
+    var word_starts: [256]usize = undefined;
+    var word_ends: [256]usize = undefined;
+    var word_count: usize = 0;
+
+    var ii: usize = 0;
+    while (ii < src.len and word_count < 256) {
+        while (ii < src.len and src[ii] == ' ') : (ii += 1) {}
+        if (ii >= src.len) break;
+        word_starts[word_count] = ii;
+        while (ii < src.len and src[ii] != ' ') : (ii += 1) {}
+        word_ends[word_count] = ii;
+        word_count += 1;
+    }
+
+    if (pos1 >= word_count or pos2 >= word_count) {
+        // Out of bounds, return original
+        result.data.appendSlice(gpa, src) catch {};
+        return result;
+    }
+
+    // Build result with swapped words
+    for (0..word_count) |idx| {
+        if (idx > 0) result.data.appendSlice(gpa, " ") catch break;
+        const w_idx = if (idx == pos1) pos2 else if (idx == pos2) pos1 else idx;
+        result.data.appendSlice(gpa, src[word_starts[w_idx]..word_ends[w_idx]]) catch break;
+    }
+    return result;
+}
+
+/// Simple pig latin: move leading consonants to end + "ay". Vowel-starting words get "yay".
+pub export fn stz_string_to_pig_latin(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const vowels = "aeiouAEIOU";
+
+    var first_word = true;
+    var ii: usize = 0;
+    while (ii < src.len) {
+        // Skip/copy spaces
+        if (src[ii] == ' ') {
+            result.data.appendSlice(gpa, " ") catch break;
+            ii += 1;
+            continue;
+        }
+
+        if (!first_word) {} // spaces already handled
+        first_word = false;
+
+        // Find word boundaries
+        const word_start = ii;
+        while (ii < src.len and src[ii] != ' ') : (ii += 1) {}
+        const word = src[word_start..ii];
+
+        // Check if first char is vowel
+        var is_vowel_start = false;
+        for (vowels) |v| {
+            if (word[0] == v) {
+                is_vowel_start = true;
+                break;
+            }
+        }
+
+        if (is_vowel_start) {
+            result.data.appendSlice(gpa, word) catch break;
+            result.data.appendSlice(gpa, "yay") catch break;
+        } else {
+            // Find first vowel position
+            var vowel_pos: usize = word.len;
+            for (word, 0..) |c, ci| {
+                for (vowels) |v| {
+                    if (c == v) {
+                        vowel_pos = ci;
+                        break;
+                    }
+                }
+                if (vowel_pos != word.len) break;
+            }
+            if (vowel_pos == word.len) {
+                // No vowel, just append + "ay"
+                result.data.appendSlice(gpa, word) catch break;
+                result.data.appendSlice(gpa, "ay") catch break;
+            } else {
+                result.data.appendSlice(gpa, word[vowel_pos..]) catch break;
+                result.data.appendSlice(gpa, word[0..vowel_pos]) catch break;
+                result.data.appendSlice(gpa, "ay") catch break;
+            }
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -9167,5 +9386,57 @@ test "to_binary" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "01001000 01101001"));
     stz_string_free(r);
     stz_string_free(h);
+}
+
+test "sort_words" {
+    const h = stz_string_from("banana apple cherry", 19);
+    const r = stz_string_sort_words(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "apple banana cherry"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("zig is fun", 10);
+    const r2 = stz_string_sort_words(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "fun is zig"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "unique_words" {
+    const h = stz_string_from("the cat and the dog and cat", 27);
+    const r = stz_string_unique_words(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "the cat and dog"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "from_binary" {
+    const h = stz_string_from("01001000 01101001", 17);
+    const r = stz_string_from_binary(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "Hi"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "swap_words" {
+    const h = stz_string_from("hello world foo", 15);
+    const r = stz_string_swap_words(h, 0, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "foo world hello"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "to_pig_latin" {
+    const h = stz_string_from("hello world", 11);
+    const r = stz_string_to_pig_latin(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "ellohay orldway"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("apple is", 8);
+    const r2 = stz_string_to_pig_latin(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "appleyay isyay"));
+    stz_string_free(r2);
+    stz_string_free(h2);
 }
 
