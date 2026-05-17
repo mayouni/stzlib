@@ -1506,6 +1506,81 @@ class stzString from stzObject
 		def MorseCode()
 			return This.ToMorse()
 
+	  #==============================#
+	 #  BASE64 ENCODE/DECODE       #
+	#==============================#
+
+	def ToBase64()
+		pResult = StzEngineStringToBase64(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def Base64Encoded()
+			return This.ToBase64()
+
+	def FromBase64()
+		pResult = StzEngineStringFromBase64(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def FromBase64Q()
+			This.FromBase64()
+			return This
+
+	def Base64Decoded()
+		pResult = StzEngineStringFromBase64(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #==============================#
+	 #  XOR CIPHER                 #
+	#==============================#
+
+	def XorCipher(nKey)
+		pResult = StzEngineStringXorCipher(@pEngine, nKey)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def XorCipherQ(nKey)
+			This.XorCipher(nKey)
+			return This
+
+	def XorCiphered(nKey)
+		pResult = StzEngineStringXorCipher(@pEngine, nKey)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #==============================#
+	 #  ENTROPY                    #
+	#==============================#
+
+	def Entropy()
+		return StzEngineStringEntropy(@pEngine)
+
+		def ShannonEntropy()
+			return This.Entropy()
+
+	  #==============================#
+	 #  CHAR FREQUENCY TOP         #
+	#==============================#
+
+	def MostFrequentChar()
+		pResult = StzEngineStringCharFrequencyTop(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def TopChar()
+			return This.MostFrequentChar()
+
+		def CharFrequencyTop()
+			return This.MostFrequentChar()
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
