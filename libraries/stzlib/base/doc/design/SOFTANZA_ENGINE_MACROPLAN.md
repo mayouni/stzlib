@@ -102,6 +102,11 @@
   ASCII fast-paths for codepointIndexToByteOffset, utf8CodepointCount.
   Boyer-Moore-Horspool search for needles > 4 bytes on ASCII strings.
   434 Zig tests, 658 Ring bridge tests, 341 registered functions.
+- **Phase D module separation** (Session 8): Extracted `string/core.zig`
+  with shared infrastructure (StzString struct, lifecycle, error reporting,
+  indexing helpers, casefold, INDEX_BASE). `string.zig` re-exports from
+  core and contains ~240 domain functions. 26 core tests + 434 domain
+  tests. 460 Zig tests, 658 Ring bridge tests, 341 registered functions.
 
 ---
 
@@ -508,3 +513,4 @@ M-E11 (Repo Split)
 | 2026-05-16 | 5       | Phase 5++ | 14 stzString methods Engine-backed, 630 Ring tests |
 | 2026-05-17 | 6       | Phase 6   | String Engine v2 design doc + 8-phase plan |
 | 2026-05-17 | 7       | Phase A   | 1-based indexing + CS merge (Phase A complete) |
+| 2026-05-17 | 8       | Phase A-D | str_ rename, safety audit, perf, module separation |
