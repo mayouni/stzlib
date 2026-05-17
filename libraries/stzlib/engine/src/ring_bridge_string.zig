@@ -1,4 +1,4 @@
-// Ring Extension Bridge for stz_string
+// Ring Extension Bridge for str_ (string engine)
 //
 // Wraps Softanza Engine string+char functions as Ring extension
 // functions. Ring calls these by name after ringlib_init registers them.
@@ -27,23 +27,23 @@ fn getHandle(p: *anyopaque, n: c_int) string.StzStringHandle {
 // ─── String Lifecycle ───
 
 fn ring_StringNew(p: *anyopaque) callconv(.c) void {
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_new()), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_new()), STZ_HANDLE);
 }
 
 fn ring_StringFrom(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 1);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 1));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_from(s, len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_from(s, len)), STZ_HANDLE);
 }
 
 fn ring_StringFree(p: *anyopaque) callconv(.c) void {
-    string.stz_string_free(getHandle(p, 1));
+    string.str_free(getHandle(p, 1));
 }
 
 fn ring_StringData(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const data = string.stz_string_data(h);
-    const size = string.stz_string_size(h);
+    const data = string.str_data(h);
+    const size = string.str_size(h);
     if (data != null and size > 0) {
         ring_vm_api_retstring2(p, data, @intCast(size));
     } else {
@@ -52,41 +52,41 @@ fn ring_StringData(p: *anyopaque) callconv(.c) void {
 }
 
 fn ring_StringSize(p: *anyopaque) callconv(.c) void {
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_size(getHandle(p, 1))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_size(getHandle(p, 1))));
 }
 
 fn ring_StringCount(p: *anyopaque) callconv(.c) void {
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count(getHandle(p, 1))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count(getHandle(p, 1))));
 }
 
 fn ring_StringAppend(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    string.stz_string_append(h, s, @intCast(ring_vm_api_getstringsize(p, 2)));
+    string.str_append(h, s, @intCast(ring_vm_api_getstringsize(p, 2)));
 }
 
 fn ring_StringInsert(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const pos: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const s = ring_vm_api_getstring(p, 3);
-    string.stz_string_insert(h, pos, s, @intCast(ring_vm_api_getstringsize(p, 3)));
+    string.str_insert(h, pos, s, @intCast(ring_vm_api_getstringsize(p, 3)));
 }
 
 fn ring_StringMid(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const start: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const length: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_mid(h, start, length)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_mid(h, start, length)), STZ_HANDLE);
 }
 
 fn ring_StringTrimmed(p: *anyopaque) callconv(.c) void {
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_trimmed(getHandle(p, 1))), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_trimmed(getHandle(p, 1))), STZ_HANDLE);
 }
 
 fn ring_StringIndexOf(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_index_of(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_index_of(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringIndexOfFrom(p: *anyopaque) callconv(.c) void {
@@ -94,7 +94,7 @@ fn ring_StringIndexOfFrom(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const start: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_index_of_from(h, s, len, start)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_index_of_from(h, s, len, start)));
 }
 
 fn ring_StringIndexOfCI(p: *anyopaque) callconv(.c) void {
@@ -102,43 +102,43 @@ fn ring_StringIndexOfCI(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const start: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_index_of_ci(h, s, len, start)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_index_of_ci(h, s, len, start)));
 }
 
 fn ring_StringByteToCp(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const pos: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_byte_to_cp(h, pos)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_byte_to_cp(h, pos)));
 }
 
 fn ring_StringCountOf(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_of(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_of(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringLastIndexOf(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_last_index_of(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_last_index_of(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringContains(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_contains(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringStartsWith(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_starts_with(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_starts_with(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringEndsWith(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_ends_with(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 // ─── Find Result ───
@@ -155,14 +155,14 @@ fn ring_StringFindAll(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_find_all(h, s, len)), FIND_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_all(h, s, len)), FIND_HANDLE);
 }
 
 fn ring_StringFindAllCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_find_all_ci(h, s, len)), FIND_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_all_ci(h, s, len)), FIND_HANDLE);
 }
 
 fn ring_FindResultCount(p: *anyopaque) callconv(.c) void {
@@ -182,37 +182,37 @@ fn ring_FindResultFree(p: *anyopaque) callconv(.c) void {
 fn ring_StringCountOfCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_of_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_of_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringLastIndexOfCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_last_index_of_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_last_index_of_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringContainsCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_contains_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringStartsWithCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_starts_with_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_starts_with_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringEndsWithCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_ends_with_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringSplitCountCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_split_count_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_split_count_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringSplitGetCI(p: *anyopaque) callconv(.c) void {
@@ -220,7 +220,7 @@ fn ring_StringSplitGetCI(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_split_get_ci(h, s, len, idx)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_split_get_ci(h, s, len, idx)), STZ_HANDLE);
 }
 
 fn ring_StringReplaceCI(p: *anyopaque) callconv(.c) void {
@@ -229,7 +229,7 @@ fn ring_StringReplaceCI(p: *anyopaque) callconv(.c) void {
     const old_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const new_s = ring_vm_api_getstring(p, 3);
     const new_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    string.stz_string_replace_ci(h, old_s, old_len, new_s, new_len);
+    string.str_replace_ci(h, old_s, old_len, new_s, new_len);
 }
 
 fn ring_StringReplace(p: *anyopaque) callconv(.c) void {
@@ -238,7 +238,7 @@ fn ring_StringReplace(p: *anyopaque) callconv(.c) void {
     const old_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const new_s = ring_vm_api_getstring(p, 3);
     const new_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    string.stz_string_replace(h, old_s, old_len, new_s, new_len);
+    string.str_replace(h, old_s, old_len, new_s, new_len);
 }
 
 fn ring_StringReplaceRange(p: *anyopaque) callconv(.c) void {
@@ -247,13 +247,13 @@ fn ring_StringReplaceRange(p: *anyopaque) callconv(.c) void {
     const range: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
     const s = ring_vm_api_getstring(p, 4);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_replace_range(h, start, range, s, len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_range(h, start, range, s, len)), STZ_HANDLE);
 }
 
 fn ring_StringSplitCount(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_split_count(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_split_count(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
 }
 
 fn ring_StringSplitGet(p: *anyopaque) callconv(.c) void {
@@ -261,46 +261,46 @@ fn ring_StringSplitGet(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_split_get(h, s, len, idx)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_split_get(h, s, len, idx)), STZ_HANDLE);
 }
 
 fn ring_StringToUpper(p: *anyopaque) callconv(.c) void {
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_upper(getHandle(p, 1))), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_upper(getHandle(p, 1))), STZ_HANDLE);
 }
 
 fn ring_StringToLower(p: *anyopaque) callconv(.c) void {
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_lower(getHandle(p, 1))), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_lower(getHandle(p, 1))), STZ_HANDLE);
 }
 
 fn ring_StringToTitle(p: *anyopaque) callconv(.c) void {
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_title(getHandle(p, 1))), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_title(getHandle(p, 1))), STZ_HANDLE);
 }
 
 fn ring_StringCharAt(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_char_at(h, idx)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_char_at(h, idx)));
 }
 
 fn ring_StringMidCp(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const start: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_mid_cp(h, start, count)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_mid_cp(h, start, count)), STZ_HANDLE);
 }
 
 fn ring_StringGraphemeCount(p: *anyopaque) callconv(.c) void {
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_grapheme_count(getHandle(p, 1))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_grapheme_count(getHandle(p, 1))));
 }
 
 fn ring_StringNormalize(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const form: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_normalize(h, form)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_normalize(h, form)), STZ_HANDLE);
 }
 
 fn ring_StringStripMarks(p: *anyopaque) callconv(.c) void {
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_strip_marks(getHandle(p, 1))), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_strip_marks(getHandle(p, 1))), STZ_HANDLE);
 }
 
 fn ring_CharUnicode(p: *anyopaque) callconv(.c) void {
@@ -332,7 +332,7 @@ fn ring_CharIsLower(p: *anyopaque) callconv(.c) void {
 fn ring_StringNthChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp_idx: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    const result = string.stz_string_nth_char(h, cp_idx);
+    const result = string.str_nth_char(h, cp_idx);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -340,26 +340,26 @@ fn ring_StringSlice(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const start_cp: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const cp_count: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    const result = string.stz_string_slice(h, start_cp, cp_count);
+    const result = string.str_slice(h, start_cp, cp_count);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringReverse(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_reverse(h);
+    const result = string.str_reverse(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringFoldcase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_foldcase(h);
+    const result = string.str_foldcase(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringRepeat(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    const result = string.stz_string_repeat(h, count);
+    const result = string.str_repeat(h, count);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -368,7 +368,7 @@ fn ring_StringPadLeft(p: *anyopaque) callconv(.c) void {
     const target: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const pad_s = ring_vm_api_getstring(p, 3);
     const pad_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    const result = string.stz_string_pad_left(h, target, pad_s, pad_len);
+    const result = string.str_pad_left(h, target, pad_s, pad_len);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -377,7 +377,7 @@ fn ring_StringPadRight(p: *anyopaque) callconv(.c) void {
     const target: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const pad_s = ring_vm_api_getstring(p, 3);
     const pad_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    const result = string.stz_string_pad_right(h, target, pad_s, pad_len);
+    const result = string.str_pad_right(h, target, pad_s, pad_len);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -385,87 +385,87 @@ fn ring_StringRemoveRange(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const start_cp: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const cp_count: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    const result = string.stz_string_remove_range(h, start_cp, cp_count);
+    const result = string.str_remove_range(h, start_cp, cp_count);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringTrimLeft(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_trim_left(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_trim_left(h)), STZ_HANDLE);
 }
 
 fn ring_StringTrimRight(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_trim_right(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_trim_right(h)), STZ_HANDLE);
 }
 
 fn ring_StringEquals(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_equals(h1, h2)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_equals(h1, h2)));
 }
 
 fn ring_StringEqualsCI(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_equals_ci(h1, h2)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_equals_ci(h1, h2)));
 }
 
 fn ring_StringRemoveAll(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    const result = string.stz_string_remove_all(h, s, len);
+    const result = string.str_remove_all(h, s, len);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringLinesCount(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_lines_count(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_lines_count(h)));
 }
 
 fn ring_StringIsPalindrome(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_palindrome(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_palindrome(h)));
 }
 
 fn ring_StringConcat(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    const result = string.stz_string_concat(h1, h2);
+    const result = string.str_concat(h1, h2);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringFindCharsOfType(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const char_type: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    const result = string.stz_string_find_chars_of_type(h, char_type);
+    const result = string.str_find_chars_of_type(h, char_type);
     ring_vm_api_retcpointer(p, @ptrCast(result), "StzFindResultHandle");
 }
 
 fn ring_StringExtractCharsOfType(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const char_type: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    const result = string.stz_string_extract_chars_of_type(h, char_type);
+    const result = string.str_extract_chars_of_type(h, char_type);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringIsAscii(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_ascii(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_ascii(h)));
 }
 
 fn ring_StringRemoveCharAt(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp_index: usize = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    const result = string.stz_string_remove_char_at(h, cp_index);
+    const result = string.str_remove_char_at(h, cp_index);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringCharTypeAt(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp_index: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_char_type_at(h, cp_index)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_char_type_at(h, cp_index)));
 }
 
 fn ring_StringReplaceFirst(p: *anyopaque) callconv(.c) void {
@@ -474,7 +474,7 @@ fn ring_StringReplaceFirst(p: *anyopaque) callconv(.c) void {
     const old_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const new_str = ring_vm_api_getstring(p, 3);
     const new_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    const result = string.stz_string_replace_first(h, old, old_len, new_str, new_len);
+    const result = string.str_replace_first(h, old, old_len, new_str, new_len);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -484,7 +484,7 @@ fn ring_StringReplaceLast(p: *anyopaque) callconv(.c) void {
     const old_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const new_str = ring_vm_api_getstring(p, 3);
     const new_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    const result = string.stz_string_replace_last(h, old, old_len, new_str, new_len);
+    const result = string.str_replace_last(h, old, old_len, new_str, new_len);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -495,13 +495,13 @@ fn ring_StringReplaceNth(p: *anyopaque) callconv(.c) void {
     const new_str = ring_vm_api_getstring(p, 3);
     const new_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
-    const result = string.stz_string_replace_nth(h, old, old_len, new_str, new_len, n);
+    const result = string.str_replace_nth(h, old, old_len, new_str, new_len, n);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringIsEmpty(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_empty(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_empty(h)));
 }
 
 fn ring_StringBetween(p: *anyopaque) callconv(.c) void {
@@ -510,24 +510,24 @@ fn ring_StringBetween(p: *anyopaque) callconv(.c) void {
     const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const close = ring_vm_api_getstring(p, 3);
     const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    const result = string.stz_string_between(h, open, open_len, close, close_len);
+    const result = string.str_between(h, open, open_len, close, close_len);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringCountCharsOfType(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const char_type: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_chars_of_type(h, char_type)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_chars_of_type(h, char_type)));
 }
 
 fn ring_StringIsNumeric(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_numeric(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_numeric(h)));
 }
 
 fn ring_StringIsAlpha(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_alpha(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_alpha(h)));
 }
 
 fn ring_StringFindNth(p: *anyopaque) callconv(.c) void {
@@ -535,7 +535,7 @@ fn ring_StringFindNth(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_find_nth(h, s, len, n)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_find_nth(h, s, len, n)));
 }
 
 fn ring_StringFindNthCI(p: *anyopaque) callconv(.c) void {
@@ -543,7 +543,7 @@ fn ring_StringFindNthCI(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_find_nth_ci(h, s, len, n)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_find_nth_ci(h, s, len, n)));
 }
 
 fn ring_StringInsertCp(p: *anyopaque) callconv(.c) void {
@@ -551,101 +551,101 @@ fn ring_StringInsertCp(p: *anyopaque) callconv(.c) void {
     const cp_pos: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const s = ring_vm_api_getstring(p, 3);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    string.stz_string_insert_cp(h, cp_pos, s, len);
+    string.str_insert_cp(h, cp_pos, s, len);
 }
 
 fn ring_StringLeftCp(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp_count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    const result = string.stz_string_left_cp(h, cp_count);
+    const result = string.str_left_cp(h, cp_count);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringRightCp(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp_count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    const result = string.stz_string_right_cp(h, cp_count);
+    const result = string.str_right_cp(h, cp_count);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringIsUppercase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_uppercase(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_uppercase(h)));
 }
 
 fn ring_StringIsLowercase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_lowercase(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_lowercase(h)));
 }
 
 fn ring_StringIsWhitespace(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_whitespace(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_whitespace(h)));
 }
 
 fn ring_StringWordCount(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_word_count(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_word_count(h)));
 }
 
 fn ring_StringIsOnlyType(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const char_type: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_only_type(h, char_type)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_only_type(h, char_type)));
 }
 
 fn ring_StringRemoveCharsOfType(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const char_type: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    const result = string.stz_string_remove_chars_of_type(h, char_type);
+    const result = string.str_remove_chars_of_type(h, char_type);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringTrim(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_trim(h);
+    const result = string.str_trim(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringSwapCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_swap_case(h);
+    const result = string.str_swap_case(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringUniqueChars(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_unique_chars(h);
+    const result = string.str_unique_chars(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringUniqueCharCount(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_unique_char_count(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_unique_char_count(h)));
 }
 
 fn ring_StringRemoveAllCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const needle = ring_vm_api_getstring(p, 2);
     const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    const result = string.stz_string_remove_all_ci(h, needle, needle_len);
+    const result = string.str_remove_all_ci(h, needle, needle_len);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringIsAlphaOnly(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_alpha_only(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_alpha_only(h)));
 }
 
 fn ring_StringIsAlnum(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_alnum(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_alnum(h)));
 }
 
 fn ring_StringContainsChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp: i32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_char(h, cp)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_contains_char(h, cp)));
 }
 
 fn ring_StringBetweenNth(p: *anyopaque) callconv(.c) void {
@@ -655,7 +655,7 @@ fn ring_StringBetweenNth(p: *anyopaque) callconv(.c) void {
     const close = ring_vm_api_getstring(p, 3);
     const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
     const nth: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
-    const result = string.stz_string_between_nth(h, open, open_len, close, close_len, nth);
+    const result = string.str_between_nth(h, open, open_len, close, close_len, nth);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -665,33 +665,33 @@ fn ring_StringCountBetween(p: *anyopaque) callconv(.c) void {
     const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const close = ring_vm_api_getstring(p, 3);
     const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_between(h, open, open_len, close, close_len)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_between(h, open, open_len, close, close_len)));
 }
 
 fn ring_StringSimplify(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_simplify(h);
+    const result = string.str_simplify(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringStartsWithDigit(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_starts_with_digit(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_starts_with_digit(h)));
 }
 
 fn ring_StringStartsWithLetter(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_starts_with_letter(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_starts_with_letter(h)));
 }
 
 fn ring_StringEndsWithDigit(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with_digit(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_ends_with_digit(h)));
 }
 
 fn ring_StringEndsWithLetter(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with_letter(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_ends_with_letter(h)));
 }
 
 fn ring_StringReplaceCharAt(p: *anyopaque) callconv(.c) void {
@@ -699,30 +699,30 @@ fn ring_StringReplaceCharAt(p: *anyopaque) callconv(.c) void {
     const cp_index: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const replacement = ring_vm_api_getstring(p, 3);
     const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    const result = string.stz_string_replace_char_at(h, cp_index, replacement, rep_len);
+    const result = string.str_replace_char_at(h, cp_index, replacement, rep_len);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringLevenshtein(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_levenshtein(h1, h2)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_levenshtein(h1, h2)));
 }
 
 fn ring_StringIsTitleCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_title_case(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_title_case(h)));
 }
 
 fn ring_StringLinesSplitCount(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_lines_split_count(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_lines_split_count(h)));
 }
 
 fn ring_StringLineAt(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    const result = string.stz_string_line_at(h, idx);
+    const result = string.str_line_at(h, idx);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -730,7 +730,7 @@ fn ring_StringLineAt(p: *anyopaque) callconv(.c) void {
 
 fn ring_StringIsWord(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_word(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_word(h)));
 }
 
 // ─── CountLeadingChar / CountTrailingChar ───
@@ -738,33 +738,33 @@ fn ring_StringIsWord(p: *anyopaque) callconv(.c) void {
 fn ring_StringCountLeadingChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_leading_char(h, cp)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_leading_char(h, cp)));
 }
 
 fn ring_StringCountTrailingChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_trailing_char(h, cp)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_trailing_char(h, cp)));
 }
 
 // ─── IsNumericString ───
 
 fn ring_StringIsNumericString(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_numeric_string(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_numeric_string(h)));
 }
 
 // ─── URLEncode / URLDecode ───
 
 fn ring_StringURLEncode(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_url_encode(h);
+    const result = string.str_url_encode(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringURLDecode(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_url_decode(h);
+    const result = string.str_url_decode(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -773,7 +773,7 @@ fn ring_StringURLDecode(p: *anyopaque) callconv(.c) void {
 fn ring_StringCharAtToString(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    const result = string.stz_string_char_at_to_string(h, idx);
+    const result = string.str_char_at_to_string(h, idx);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -781,7 +781,7 @@ fn ring_StringCharAtToString(p: *anyopaque) callconv(.c) void {
 
 fn ring_StringSpacify(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_spacify(h);
+    const result = string.str_spacify(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -789,7 +789,7 @@ fn ring_StringSpacify(p: *anyopaque) callconv(.c) void {
 
 fn ring_StringBytesPerChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_bytes_per_char(h);
+    const result = string.str_bytes_per_char(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -797,17 +797,17 @@ fn ring_StringBytesPerChar(p: *anyopaque) callconv(.c) void {
 
 fn ring_StringIsHexString(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_hex_string(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_hex_string(h)));
 }
 
 fn ring_StringIsBinaryString(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_binary_string(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_binary_string(h)));
 }
 
 fn ring_StringIsOctalString(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_octal_string(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_octal_string(h)));
 }
 
 // ─── WordAt ───
@@ -815,7 +815,7 @@ fn ring_StringIsOctalString(p: *anyopaque) callconv(.c) void {
 fn ring_StringWordAt(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    const result = string.stz_string_word_at(h, idx);
+    const result = string.str_word_at(h, idx);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -825,7 +825,7 @@ fn ring_StringCenter(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const pad_char: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    const result = string.stz_string_center(h, width, pad_char);
+    const result = string.str_center(h, width, pad_char);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -833,7 +833,7 @@ fn ring_StringCenter(p: *anyopaque) callconv(.c) void {
 
 fn ring_StringRemoveConsecutiveDuplicates(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_remove_consecutive_duplicates(h);
+    const result = string.str_remove_consecutive_duplicates(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -843,7 +843,7 @@ fn ring_StringSubstring(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const from: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const to: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    const result = string.stz_string_substring(h, from, to);
+    const result = string.str_substring(h, from, to);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -855,7 +855,7 @@ fn ring_StringReplaceSubstring(p: *anyopaque) callconv(.c) void {
     const to: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
     const rep_ptr = ring_vm_api_getstring(p, 4);
     const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
-    const result = string.stz_string_replace_substring(h, from, to, rep_ptr, rep_len);
+    const result = string.str_replace_substring(h, from, to, rep_ptr, rep_len);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -865,14 +865,14 @@ fn ring_StringPrefixCount(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const pref_ptr = ring_vm_api_getstring(p, 2);
     const pref_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_prefix_count(h, pref_ptr, pref_len)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_prefix_count(h, pref_ptr, pref_len)));
 }
 
 fn ring_StringSuffixCount(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const suf_ptr = ring_vm_api_getstring(p, 2);
     const suf_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_suffix_count(h, suf_ptr, suf_len)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_suffix_count(h, suf_ptr, suf_len)));
 }
 
 // ─── CommonPrefix / CommonSuffix ───
@@ -880,14 +880,14 @@ fn ring_StringSuffixCount(p: *anyopaque) callconv(.c) void {
 fn ring_StringCommonPrefix(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    const result = string.stz_string_common_prefix(h1, h2);
+    const result = string.str_common_prefix(h1, h2);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringCommonSuffix(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    const result = string.stz_string_common_suffix(h1, h2);
+    const result = string.str_common_suffix(h1, h2);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -895,13 +895,13 @@ fn ring_StringCommonSuffix(p: *anyopaque) callconv(.c) void {
 
 fn ring_StringSortCharsAsc(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_sort_chars_asc(h);
+    const result = string.str_sort_chars_asc(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
 fn ring_StringSortCharsDesc(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    const result = string.stz_string_sort_chars_desc(h);
+    const result = string.str_sort_chars_desc(h);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -910,14 +910,14 @@ fn ring_StringSortCharsDesc(p: *anyopaque) callconv(.c) void {
 fn ring_StringFindAllChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_find_all_char(h, cp)), FIND_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_all_char(h, cp)), FIND_HANDLE);
 }
 
 // ─── Hash ───
 
 fn ring_StringHash(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_hash(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_hash(h)));
 }
 
 // ─── CountChar ───
@@ -925,7 +925,7 @@ fn ring_StringHash(p: *anyopaque) callconv(.c) void {
 fn ring_StringCountChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_char(h, cp)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_char(h, cp)));
 }
 
 // ─── ReplaceChar ───
@@ -934,7 +934,7 @@ fn ring_StringReplaceChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const old_cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const new_cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    const result = string.stz_string_replace_char(h, old_cp, new_cp);
+    const result = string.str_replace_char(h, old_cp, new_cp);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -944,7 +944,7 @@ fn ring_StringCountOverlapping(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const needle = ring_vm_api_getstring(p, 2);
     const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_overlapping(h, needle, needle_len)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_overlapping(h, needle, needle_len)));
 }
 
 // ─── ReplaceAt ───
@@ -955,14 +955,14 @@ fn ring_StringReplaceAt(p: *anyopaque) callconv(.c) void {
     const cp_count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
     const rep = ring_vm_api_getstring(p, 4);
     const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_replace_at(h, cp_pos, cp_count, rep, rep_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_at(h, cp_pos, cp_count, rep, rep_len)), STZ_HANDLE);
 }
 
 // ─── CharFrequency ───
 
 fn ring_StringCharFrequency(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_char_frequency(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_char_frequency(h)), STZ_HANDLE);
 }
 
 // ─── ContainsAnyOf ───
@@ -971,7 +971,7 @@ fn ring_StringContainsAnyOf(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const chars = ring_vm_api_getstring(p, 2);
     const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_any_of(h, chars, chars_len)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_contains_any_of(h, chars, chars_len)));
 }
 
 // ─── ContainsAllOf ───
@@ -980,7 +980,7 @@ fn ring_StringContainsAllOf(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const chars = ring_vm_api_getstring(p, 2);
     const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_all_of(h, chars, chars_len)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_contains_all_of(h, chars, chars_len)));
 }
 
 // ─── CenterPad ───
@@ -990,28 +990,28 @@ fn ring_StringCenterPad(p: *anyopaque) callconv(.c) void {
     const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const pad = ring_vm_api_getstring(p, 3);
     const pad_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_center_pad(h, width, pad, pad_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_center_pad(h, width, pad, pad_len)), STZ_HANDLE);
 }
 
 // ─── OnlyLetters ───
 
 fn ring_StringOnlyLetters(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_only_letters(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_letters(h)), STZ_HANDLE);
 }
 
 // ─── OnlyDigits ───
 
 fn ring_StringOnlyDigits(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_only_digits(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_digits(h)), STZ_HANDLE);
 }
 
 // ─── RemoveWhitespace ───
 
 fn ring_StringRemoveWhitespace(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_whitespace(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_whitespace(h)), STZ_HANDLE);
 }
 
 // (ring_StringIsPalindrome already defined above)
@@ -1020,7 +1020,7 @@ fn ring_StringRemoveWhitespace(p: *anyopaque) callconv(.c) void {
 
 fn ring_StringCountWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_words(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_words(h)));
 }
 
 // ─── NthWord ───
@@ -1028,7 +1028,7 @@ fn ring_StringCountWords(p: *anyopaque) callconv(.c) void {
 fn ring_StringNthWord(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_nth_word(h, n)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_nth_word(h, n)), STZ_HANDLE);
 }
 
 // ─── CharsBetween ───
@@ -1037,14 +1037,14 @@ fn ring_StringCharsBetween(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const from: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const to: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_chars_between(h, from, to)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_chars_between(h, from, to)), STZ_HANDLE);
 }
 
 // ─── IsAlphanumeric ───
 
 fn ring_StringIsAlphanumeric(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_alphanumeric(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_alphanumeric(h)));
 }
 
 // ─── Ljust / Rjust ───
@@ -1054,7 +1054,7 @@ fn ring_StringLjust(p: *anyopaque) callconv(.c) void {
     const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const pad = ring_vm_api_getstring(p, 3);
     const pad_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_ljust(h, width, pad, pad_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_ljust(h, width, pad, pad_len)), STZ_HANDLE);
 }
 
 fn ring_StringRjust(p: *anyopaque) callconv(.c) void {
@@ -1062,7 +1062,7 @@ fn ring_StringRjust(p: *anyopaque) callconv(.c) void {
     const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const pad = ring_vm_api_getstring(p, 3);
     const pad_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_rjust(h, width, pad, pad_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_rjust(h, width, pad, pad_len)), STZ_HANDLE);
 }
 
 // (ring_StringCommonPrefix already defined above)
@@ -1072,29 +1072,29 @@ fn ring_StringRjust(p: *anyopaque) callconv(.c) void {
 fn ring_StringIndent(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const spaces: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_indent(h, spaces)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_indent(h, spaces)), STZ_HANDLE);
 }
 
 fn ring_StringDedent(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_dedent(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_dedent(h)), STZ_HANDLE);
 }
 
 // ─── CamelCase / SnakeCase / KebabCase ───
 
 fn ring_StringToCamelCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_camel_case(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_camel_case(h)), STZ_HANDLE);
 }
 
 fn ring_StringToSnakeCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_snake_case(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_snake_case(h)), STZ_HANDLE);
 }
 
 fn ring_StringToKebabCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_kebab_case(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_kebab_case(h)), STZ_HANDLE);
 }
 
 // ─── RemovePrefix ───
@@ -1103,7 +1103,7 @@ fn ring_StringRemovePrefix(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const pfx = ring_vm_api_getstring(p, 2);
     const pfx_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_prefix(h, pfx, pfx_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_prefix(h, pfx, pfx_len)), STZ_HANDLE);
 }
 
 // ─── RemoveSuffix ───
@@ -1112,7 +1112,7 @@ fn ring_StringRemoveSuffix(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const sfx = ring_vm_api_getstring(p, 2);
     const sfx_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_suffix(h, sfx, sfx_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_suffix(h, sfx, sfx_len)), STZ_HANDLE);
 }
 
 // ─── EnsurePrefix ───
@@ -1121,7 +1121,7 @@ fn ring_StringEnsurePrefix(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const pfx = ring_vm_api_getstring(p, 2);
     const pfx_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_ensure_prefix(h, pfx, pfx_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_ensure_prefix(h, pfx, pfx_len)), STZ_HANDLE);
 }
 
 // ─── EnsureSuffix ───
@@ -1130,7 +1130,7 @@ fn ring_StringEnsureSuffix(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const sfx = ring_vm_api_getstring(p, 2);
     const sfx_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_ensure_suffix(h, sfx, sfx_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_ensure_suffix(h, sfx, sfx_len)), STZ_HANDLE);
 }
 
 // ─── SqueezeChar ───
@@ -1138,21 +1138,21 @@ fn ring_StringEnsureSuffix(p: *anyopaque) callconv(.c) void {
 fn ring_StringSqueezeChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_squeeze_char(h, cp)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_squeeze_char(h, cp)), STZ_HANDLE);
 }
 
 // ─── CapitalizeFirst ───
 
 fn ring_StringCapitalizeFirst(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_capitalize_first(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_capitalize_first(h)), STZ_HANDLE);
 }
 
 // ─── DecapitalizeFirst ───
 
 fn ring_StringDecapitalizeFirst(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_decapitalize_first(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_decapitalize_first(h)), STZ_HANDLE);
 }
 
 // ─── ZFill ───
@@ -1160,7 +1160,7 @@ fn ring_StringDecapitalizeFirst(p: *anyopaque) callconv(.c) void {
 fn ring_StringZFill(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_zfill(h, width)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_zfill(h, width)), STZ_HANDLE);
 }
 
 // ─── TabExpand ───
@@ -1168,7 +1168,7 @@ fn ring_StringZFill(p: *anyopaque) callconv(.c) void {
 fn ring_StringTabExpand(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const tw: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_tab_expand(h, tw)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_tab_expand(h, tw)), STZ_HANDLE);
 }
 
 // ─── RepeatChar ───
@@ -1176,7 +1176,7 @@ fn ring_StringTabExpand(p: *anyopaque) callconv(.c) void {
 fn ring_StringRepeatChar(p: *anyopaque) callconv(.c) void {
     const cp: u32 = @intFromFloat(ring_vm_api_getnumber(p, 1));
     const count: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_repeat_char(cp, count)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_repeat_char(cp, count)), STZ_HANDLE);
 }
 
 // ─── InsertBeforeEach ───
@@ -1187,7 +1187,7 @@ fn ring_StringInsertBeforeEach(p: *anyopaque) callconv(.c) void {
     const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const ins = ring_vm_api_getstring(p, 3);
     const ins_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_insert_before_each(h, needle, needle_len, ins, ins_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_insert_before_each(h, needle, needle_len, ins, ins_len)), STZ_HANDLE);
 }
 
 // ─── InsertAfterEach ───
@@ -1198,7 +1198,7 @@ fn ring_StringInsertAfterEach(p: *anyopaque) callconv(.c) void {
     const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const ins = ring_vm_api_getstring(p, 3);
     const ins_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_insert_after_each(h, needle, needle_len, ins, ins_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_insert_after_each(h, needle, needle_len, ins, ins_len)), STZ_HANDLE);
 }
 
 // ─── Truncate ───
@@ -1208,7 +1208,7 @@ fn ring_StringTruncate(p: *anyopaque) callconv(.c) void {
     const max_cp: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const ell = ring_vm_api_getstring(p, 3);
     const ell_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_truncate(h, max_cp, ell, ell_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_truncate(h, max_cp, ell, ell_len)), STZ_HANDLE);
 }
 
 // ─── WrapAt ───
@@ -1216,14 +1216,14 @@ fn ring_StringTruncate(p: *anyopaque) callconv(.c) void {
 fn ring_StringWrapAt(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_wrap_at(h, width)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_wrap_at(h, width)), STZ_HANDLE);
 }
 
 // ─── Copy ───
 
 fn ring_StringCopy(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_copy(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_copy(h)), STZ_HANDLE);
 }
 
 // ─── Compare ───
@@ -1232,7 +1232,7 @@ fn ring_StringCompare(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const ptr2 = ring_vm_api_getcpointer(p, 2, STZ_HANDLE);
     const h2: string.StzStringHandle = if (ptr2) |raw| @ptrCast(@alignCast(raw)) else null;
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_compare(h1, h2)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_compare(h1, h2)));
 }
 
 // ─── RemoveFirstOccurrence ───
@@ -1241,7 +1241,7 @@ fn ring_StringRemoveFirstOccurrence(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const needle = ring_vm_api_getstring(p, 2);
     const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_first_occurrence(h, needle, needle_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_first_occurrence(h, needle, needle_len)), STZ_HANDLE);
 }
 
 // ─── RemoveLastOccurrence ───
@@ -1250,7 +1250,7 @@ fn ring_StringRemoveLastOccurrence(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const needle = ring_vm_api_getstring(p, 2);
     const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_last_occurrence(h, needle, needle_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_last_occurrence(h, needle, needle_len)), STZ_HANDLE);
 }
 
 // ─── RemoveNthOccurrence ───
@@ -1260,21 +1260,21 @@ fn ring_StringRemoveNthOccurrence(p: *anyopaque) callconv(.c) void {
     const needle = ring_vm_api_getstring(p, 2);
     const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_nth_occurrence(h, needle, needle_len, n)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_nth_occurrence(h, needle, needle_len, n)), STZ_HANDLE);
 }
 
 // ─── IsCharsSortedAsc ───
 
 fn ring_StringIsCharsSortedAsc(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_chars_sorted_asc(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_chars_sorted_asc(h)));
 }
 
 // ─── IsCharsSortedDesc ───
 
 fn ring_StringIsCharsSortedDesc(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_chars_sorted_desc(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_chars_sorted_desc(h)));
 }
 
 // ─── Partition ───
@@ -1283,42 +1283,42 @@ fn ring_StringPartition(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const sep = ring_vm_api_getstring(p, 2);
     const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_partition(h, sep, sep_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_partition(h, sep, sep_len)), STZ_HANDLE);
 }
 
 fn ring_StringPartitionAfter(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const sep = ring_vm_api_getstring(p, 2);
     const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_partition_after(h, sep, sep_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_partition_after(h, sep, sep_len)), STZ_HANDLE);
 }
 
 fn ring_StringRpartition(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const sep = ring_vm_api_getstring(p, 2);
     const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_rpartition(h, sep, sep_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_rpartition(h, sep, sep_len)), STZ_HANDLE);
 }
 
 fn ring_StringRpartitionAfter(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const sep = ring_vm_api_getstring(p, 2);
     const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_rpartition_after(h, sep, sep_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_rpartition_after(h, sep, sep_len)), STZ_HANDLE);
 }
 
 // ─── Squeeze ───
 
 fn ring_StringSqueeze(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_squeeze(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_squeeze(h)), STZ_HANDLE);
 }
 
 // ─── IsDigit ───
 
 fn ring_StringIsDigit(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_digit(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_digit(h)));
 }
 
 // ─── Interleave ───
@@ -1327,7 +1327,7 @@ fn ring_StringInterleave(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const sep = ring_vm_api_getstring(p, 2);
     const sep_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_interleave(h, sep, sep_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_interleave(h, sep, sep_len)), STZ_HANDLE);
 }
 
 // ─── StripChars ───
@@ -1336,7 +1336,7 @@ fn ring_StringStripChars(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const chars = ring_vm_api_getstring(p, 2);
     const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_strip_chars(h, chars, chars_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_strip_chars(h, chars, chars_len)), STZ_HANDLE);
 }
 
 // ─── KeepChars ───
@@ -1345,7 +1345,7 @@ fn ring_StringKeepChars(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const chars = ring_vm_api_getstring(p, 2);
     const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_keep_chars(h, chars, chars_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_keep_chars(h, chars, chars_len)), STZ_HANDLE);
 }
 
 // ─── Replace2 ───
@@ -1360,7 +1360,7 @@ fn ring_StringReplace2(p: *anyopaque) callconv(.c) void {
     const old2_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
     const new2 = ring_vm_api_getstring(p, 5);
     const new2_len: usize = @intCast(ring_vm_api_getstringsize(p, 5));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_replace2(h, old1, old1_len, new1, new1_len, old2, old2_len, new2, new2_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace2(h, old1, old1_len, new1, new1_len, old2, old2_len, new2, new2_len)), STZ_HANDLE);
 }
 
 // ─── Surround ───
@@ -1371,7 +1371,7 @@ fn ring_StringSurround(p: *anyopaque) callconv(.c) void {
     const prefix_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const suffix = ring_vm_api_getstring(p, 3);
     const suffix_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_surround(h, prefix, prefix_len, suffix, suffix_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_surround(h, prefix, prefix_len, suffix, suffix_len)), STZ_HANDLE);
 }
 
 // ─── ReplaceAnyChar ───
@@ -1382,7 +1382,7 @@ fn ring_StringReplaceAnyChar(p: *anyopaque) callconv(.c) void {
     const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const repl = ring_vm_api_getstring(p, 3);
     const repl_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_replace_any_char(h, chars, chars_len, repl, repl_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_any_char(h, chars, chars_len, repl, repl_len)), STZ_HANDLE);
 }
 
 // ─── CountAnyChar ───
@@ -1391,19 +1391,19 @@ fn ring_StringCountAnyChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const chars = ring_vm_api_getstring(p, 2);
     const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_any_char(h, chars, chars_len)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_any_char(h, chars, chars_len)));
 }
 
 fn ring_StringRotate(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_rotate(h, n)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_rotate(h, n)), STZ_HANDLE);
 }
 
 fn ring_StringRepeatToLength(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const target: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_repeat_to_length(h, target)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_repeat_to_length(h, target)), STZ_HANDLE);
 }
 
 fn ring_StringRemoveBetween(p: *anyopaque) callconv(.c) void {
@@ -1412,22 +1412,22 @@ fn ring_StringRemoveBetween(p: *anyopaque) callconv(.c) void {
     const open_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const close = ring_vm_api_getstring(p, 3);
     const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_between(h, open, open_len, close, close_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_between(h, open, open_len, close, close_len)), STZ_HANDLE);
 }
 
 fn ring_StringIsBlank(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_blank(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_blank(h)));
 }
 
 fn ring_StringToPascalCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_pascal_case(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_pascal_case(h)), STZ_HANDLE);
 }
 
 fn ring_StringIsIdentifier(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_identifier(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_identifier(h)));
 }
 
 fn ring_StringReplaceBetween(p: *anyopaque) callconv(.c) void {
@@ -1438,52 +1438,52 @@ fn ring_StringReplaceBetween(p: *anyopaque) callconv(.c) void {
     const close_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
     const rep = ring_vm_api_getstring(p, 4);
     const rep_len: usize = @intCast(ring_vm_api_getstringsize(p, 4));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_replace_between(h, open, open_len, close, close_len, rep, rep_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_replace_between(h, open, open_len, close, close_len, rep, rep_len)), STZ_HANDLE);
 }
 
 fn ring_StringContainsOnly(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const chars = ring_vm_api_getstring(p, 2);
     const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_only(h, chars, chars_len)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_contains_only(h, chars, chars_len)));
 }
 
 fn ring_StringCapitalizeWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_capitalize_words(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_capitalize_words(h)), STZ_HANDLE);
 }
 
 fn ring_StringSwapChars(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const pos1: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const pos2: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_swap_chars(h, pos1, pos2)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_swap_chars(h, pos1, pos2)), STZ_HANDLE);
 }
 
 fn ring_StringEncodeHex(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_encode_hex(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_encode_hex(h)), STZ_HANDLE);
 }
 
 fn ring_StringDecodeHex(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_decode_hex(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_decode_hex(h)), STZ_HANDLE);
 }
 
 fn ring_StringReverseWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_reverse_words(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_reverse_words(h)), STZ_HANDLE);
 }
 
 fn ring_StringCollapseSpaces(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_collapse_spaces(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_collapse_spaces(h)), STZ_HANDLE);
 }
 
 fn ring_StringIsAnagram(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_anagram(h1, h2)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_anagram(h1, h2)));
 }
 
 fn ring_StringMask(p: *anyopaque) callconv(.c) void {
@@ -1491,329 +1491,329 @@ fn ring_StringMask(p: *anyopaque) callconv(.c) void {
     const mask = ring_vm_api_getstring(p, 2);
     const mask_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const keep: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_mask(h, mask, mask_len, keep)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_mask(h, mask, mask_len, keep)), STZ_HANDLE);
 }
 
 fn ring_StringCountRuns(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_runs(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_runs(h)));
 }
 
 fn ring_StringHammingDistance(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_hamming_distance(h1, h2)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_hamming_distance(h1, h2)));
 }
 
 fn ring_StringRemoveVowels(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_vowels(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_vowels(h)), STZ_HANDLE);
 }
 
 fn ring_StringOnlyVowels(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_only_vowels(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_vowels(h)), STZ_HANDLE);
 }
 
 fn ring_StringIsPangram(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_pangram(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_pangram(h)));
 }
 
 fn ring_StringNgram(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const size: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_ngram(h, size, n)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_ngram(h, size, n)), STZ_HANDLE);
 }
 
 fn ring_StringNgramCount(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const size: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ngram_count(h, size)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_ngram_count(h, size)));
 }
 
 fn ring_StringCountConsonants(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_consonants(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_consonants(h)));
 }
 
 fn ring_StringToSentenceCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_sentence_case(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_sentence_case(h)), STZ_HANDLE);
 }
 
 fn ring_StringIsBalanced(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_balanced(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_balanced(h)));
 }
 
 fn ring_StringSlug(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_slug(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_slug(h)), STZ_HANDLE);
 }
 
 fn ring_StringChunk(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const size: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_chunk(h, size, n)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_chunk(h, size, n)), STZ_HANDLE);
 }
 
 fn ring_StringCountVowels(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_vowels(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_vowels(h)));
 }
 
 fn ring_StringLongestRun(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_longest_run(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_longest_run(h)));
 }
 
 fn ring_StringTrimChars(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const chars: [*c]const u8 = ring_vm_api_getstring(p, 2);
     const chars_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_trim_chars(h, chars, chars_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_trim_chars(h, chars, chars_len)), STZ_HANDLE);
 }
 
 fn ring_StringIsEmailLike(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_email_like(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_email_like(h)));
 }
 
 fn ring_StringCamelToWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_camel_to_words(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_camel_to_words(h)), STZ_HANDLE);
 }
 
 fn ring_StringInitials(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_initials(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_initials(h)), STZ_HANDLE);
 }
 
 fn ring_StringRemoveDuplicateWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_duplicate_words(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_duplicate_words(h)), STZ_HANDLE);
 }
 
 fn ring_StringIsUrlLike(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_url_like(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_url_like(h)));
 }
 
 fn ring_StringEscapeHtml(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_escape_html(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_escape_html(h)), STZ_HANDLE);
 }
 
 fn ring_StringUnescapeHtml(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_unescape_html(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_unescape_html(h)), STZ_HANDLE);
 }
 
 fn ring_StringCountSentences(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_sentences(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_sentences(h)));
 }
 
 fn ring_StringTitleSmart(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_title_smart(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_title_smart(h)), STZ_HANDLE);
 }
 
 fn ring_StringRemovePunctuation(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_punctuation(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_punctuation(h)), STZ_HANDLE);
 }
 
 fn ring_StringIsFloat(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_float(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_float(h)));
 }
 
 fn ring_StringDigitSum(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_digit_sum(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_digit_sum(h)));
 }
 
 fn ring_StringToAlternatingCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_alternating_case(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_alternating_case(h)), STZ_HANDLE);
 }
 
 fn ring_StringCountUpper(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_upper(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_upper(h)));
 }
 
 fn ring_StringCountLower(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_lower(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_lower(h)));
 }
 
 fn ring_StringIsCamelCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_camel_case(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_camel_case(h)));
 }
 
 fn ring_StringCommonChars(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_common_chars(h1, h2)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_common_chars(h1, h2)), STZ_HANDLE);
 }
 
 fn ring_StringCountLines(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_lines(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_lines(h)));
 }
 
 fn ring_StringIsSnakeCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_snake_case(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_snake_case(h)));
 }
 
 fn ring_StringIsKebabCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_kebab_case(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_kebab_case(h)));
 }
 
 fn ring_StringCountUniqueChars(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_unique_chars(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_unique_chars(h)));
 }
 
 fn ring_StringCaesar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const shift: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_caesar(h, shift)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_caesar(h, shift)), STZ_HANDLE);
 }
 
 fn ring_StringMirror(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_mirror(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_mirror(h)), STZ_HANDLE);
 }
 
 fn ring_StringRepeatEachChar(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_repeat_each_char(h, n)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_repeat_each_char(h, n)), STZ_HANDLE);
 }
 
 fn ring_StringStartsWithAny(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const prefixes: [*c]const u8 = ring_vm_api_getstring(p, 2);
     const plen: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_starts_with_any(h, prefixes, plen)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_starts_with_any(h, prefixes, plen)));
 }
 
 fn ring_StringEndsWithAny(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const suffixes: [*c]const u8 = ring_vm_api_getstring(p, 2);
     const slen: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with_any(h, suffixes, slen)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_ends_with_any(h, suffixes, slen)));
 }
 
 fn ring_StringToBinary(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_binary(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_binary(h)), STZ_HANDLE);
 }
 
 fn ring_StringSortWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_sort_words(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_sort_words(h)), STZ_HANDLE);
 }
 
 fn ring_StringUniqueWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_unique_words(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_unique_words(h)), STZ_HANDLE);
 }
 
 fn ring_StringFromBinary(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_from_binary(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_from_binary(h)), STZ_HANDLE);
 }
 
 fn ring_StringSwapWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const idx1: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const idx2: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_swap_words(h, idx1, idx2)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_swap_words(h, idx1, idx2)), STZ_HANDLE);
 }
 
 fn ring_StringToPigLatin(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_pig_latin(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_pig_latin(h)), STZ_HANDLE);
 }
 
 fn ring_StringRunLengthEncode(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_run_length_encode(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_run_length_encode(h)), STZ_HANDLE);
 }
 
 fn ring_StringRunLengthDecode(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_run_length_decode(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_run_length_decode(h)), STZ_HANDLE);
 }
 
 fn ring_StringCountParagraphs(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_paragraphs(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_paragraphs(h)));
 }
 
 fn ring_StringZigzag(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const rails: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_zigzag(h, rails)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_zigzag(h, rails)), STZ_HANDLE);
 }
 
 fn ring_StringToMorse(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_morse(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_morse(h)), STZ_HANDLE);
 }
 
 fn ring_StringToBase64(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_base64(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_base64(h)), STZ_HANDLE);
 }
 
 fn ring_StringFromBase64(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_from_base64(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_from_base64(h)), STZ_HANDLE);
 }
 
 fn ring_StringXorCipher(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const key: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_xor_cipher(h, key)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_xor_cipher(h, key)), STZ_HANDLE);
 }
 
 fn ring_StringEntropy(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_entropy(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_entropy(h)));
 }
 
 fn ring_StringCharFrequencyTop(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_char_frequency_top(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_char_frequency_top(h)), STZ_HANDLE);
 }
 
 fn ring_StringJaccardSimilarity(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_jaccard_similarity(h1, h2)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_jaccard_similarity(h1, h2)));
 }
 
 fn ring_StringLongestCommonPrefix(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_longest_common_prefix(h1, h2)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_longest_common_prefix(h1, h2)), STZ_HANDLE);
 }
 
 fn ring_StringLongestCommonSuffix(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_longest_common_suffix(h1, h2)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_longest_common_suffix(h1, h2)), STZ_HANDLE);
 }
 
 fn ring_StringWrapWith(p: *anyopaque) callconv(.c) void {
@@ -1822,28 +1822,28 @@ fn ring_StringWrapWith(p: *anyopaque) callconv(.c) void {
     const prefix_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
     const suffix: [*c]const u8 = ring_vm_api_getstring(p, 3);
     const suffix_len: c_int = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_wrap_with(h, prefix, prefix_len, suffix, suffix_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_wrap_with(h, prefix, prefix_len, suffix, suffix_len)), STZ_HANDLE);
 }
 
 fn ring_StringToTitleCaseStrict(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_title_case_strict(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_title_case_strict(h)), STZ_HANDLE);
 }
 
 fn ring_StringHammingWeight(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_hamming_weight(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_hamming_weight(h)));
 }
 
 fn ring_StringIsPalindromeWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_palindrome_words(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_palindrome_words(h)));
 }
 
 fn ring_StringRemoveNthWord(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_nth_word(h, n)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_nth_word(h, n)), STZ_HANDLE);
 }
 
 fn ring_StringInsertWordAt(p: *anyopaque) callconv(.c) void {
@@ -1851,12 +1851,12 @@ fn ring_StringInsertWordAt(p: *anyopaque) callconv(.c) void {
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const word: [*c]const u8 = ring_vm_api_getstring(p, 3);
     const wlen: c_int = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_insert_word_at(h, n, word, wlen)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_insert_word_at(h, n, word, wlen)), STZ_HANDLE);
 }
 
 fn ring_StringToSpongebobCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_spongebob_case(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_spongebob_case(h)), STZ_HANDLE);
 }
 
 fn ring_StringBetweenFirst(p: *anyopaque) callconv(.c) void {
@@ -1865,30 +1865,30 @@ fn ring_StringBetweenFirst(p: *anyopaque) callconv(.c) void {
     const open_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
     const close: [*c]const u8 = ring_vm_api_getstring(p, 3);
     const close_len: c_int = @intCast(ring_vm_api_getstringsize(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_between_first(h, open, open_len, close, close_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_between_first(h, open, open_len, close, close_len)), STZ_HANDLE);
 }
 
 fn ring_StringToDotCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_dot_case(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_dot_case(h)), STZ_HANDLE);
 }
 
 fn ring_StringAbbreviate(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const max_len: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_abbreviate(h, max_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_abbreviate(h, max_len)), STZ_HANDLE);
 }
 
 fn ring_StringCountSubstring(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const needle: [*c]const u8 = ring_vm_api_getstring(p, 2);
     const nlen: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_substring(h, needle, nlen)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_substring(h, needle, nlen)));
 }
 
 fn ring_StringToPathCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_path_case(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_path_case(h)), STZ_HANDLE);
 }
 
 fn ring_StringLeftPad(p: *anyopaque) callconv(.c) void {
@@ -1896,7 +1896,7 @@ fn ring_StringLeftPad(p: *anyopaque) callconv(.c) void {
     const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const ch_str: [*c]const u8 = ring_vm_api_getstring(p, 3);
     const pad_char: u8 = if (ch_str != null) ch_str[0] else ' ';
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_left_pad(h, width, pad_char)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_left_pad(h, width, pad_char)), STZ_HANDLE);
 }
 
 fn ring_StringRightPad(p: *anyopaque) callconv(.c) void {
@@ -1904,171 +1904,171 @@ fn ring_StringRightPad(p: *anyopaque) callconv(.c) void {
     const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     const ch_str: [*c]const u8 = ring_vm_api_getstring(p, 3);
     const pad_char: u8 = if (ch_str != null) ch_str[0] else ' ';
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_right_pad(h, width, pad_char)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_right_pad(h, width, pad_char)), STZ_HANDLE);
 }
 
 fn ring_StringToHex(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_hex(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_hex(h)), STZ_HANDLE);
 }
 
 fn ring_StringFromHex(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_from_hex(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_from_hex(h)), STZ_HANDLE);
 }
 
 fn ring_StringSoundex(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_soundex(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_soundex(h)), STZ_HANDLE);
 }
 
 fn ring_StringVigenereEncrypt(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const key: [*c]const u8 = ring_vm_api_getstring(p, 2);
     const key_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_vigenere_encrypt(h, key, key_len)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_vigenere_encrypt(h, key, key_len)), STZ_HANDLE);
 }
 
 fn ring_StringAtbash(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_atbash(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_atbash(h)), STZ_HANDLE);
 }
 
 fn ring_StringCountWordsMatching(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const pat: [*c]const u8 = ring_vm_api_getstring(p, 2);
     const pat_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_words_matching(h, pat, pat_len)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_words_matching(h, pat, pat_len)));
 }
 
 fn ring_StringTruncateWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_truncate_words(h, n)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_truncate_words(h, n)), STZ_HANDLE);
 }
 
 fn ring_StringToConstantCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_constant_case(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_constant_case(h)), STZ_HANDLE);
 }
 
 fn ring_StringFirstWord(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_first_word(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_first_word(h)), STZ_HANDLE);
 }
 
 fn ring_StringLastWord(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_last_word(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_last_word(h)), STZ_HANDLE);
 }
 
 fn ring_StringToNato(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_nato(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_nato(h)), STZ_HANDLE);
 }
 
 fn ring_StringCommonality(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_commonality(h1, h2)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_commonality(h1, h2)));
 }
 
 fn ring_StringDiffChars(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_diff_chars(h1, h2)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_diff_chars(h1, h2)), STZ_HANDLE);
 }
 
 fn ring_StringRot47(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_rot47(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_rot47(h)), STZ_HANDLE);
 }
 
 fn ring_StringIsIsogram(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_isogram(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_isogram(h)));
 }
 
 fn ring_StringReverseEachWord(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_reverse_each_word(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_reverse_each_word(h)), STZ_HANDLE);
 }
 
 fn ring_StringCountDigits(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_digits(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_digits(h)));
 }
 
 fn ring_StringStripTags(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_strip_tags(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_strip_tags(h)), STZ_HANDLE);
 }
 
 fn ring_StringToSlug(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_slug(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_slug(h)), STZ_HANDLE);
 }
 
 fn ring_StringCountSpaces(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_spaces(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_spaces(h)));
 }
 
 fn ring_StringNormalizeSpaces(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_normalize_spaces(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_normalize_spaces(h)), STZ_HANDLE);
 }
 
 fn ring_StringMaskEmail(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_mask_email(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_mask_email(h)), STZ_HANDLE);
 }
 
 fn ring_StringPluralize(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_pluralize(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_pluralize(h)), STZ_HANDLE);
 }
 
 fn ring_StringDeduplicateLines(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_deduplicate_lines(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_deduplicate_lines(h)), STZ_HANDLE);
 }
 
 fn ring_StringRemoveBlankLines(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_blank_lines(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_blank_lines(h)), STZ_HANDLE);
 }
 
 fn ring_StringExtractNumbers(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_extract_numbers(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_extract_numbers(h)), STZ_HANDLE);
 }
 
 fn ring_StringExtractEmails(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_extract_emails(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_extract_emails(h)), STZ_HANDLE);
 }
 
 fn ring_StringQuote(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const ch_str: [*c]const u8 = ring_vm_api_getstring(p, 2);
     const qchar: u8 = if (ch_str != null) ch_str[0] else '"';
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_quote(h, qchar)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_quote(h, qchar)), STZ_HANDLE);
 }
 
 fn ring_StringUnquote(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_unquote(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_unquote(h)), STZ_HANDLE);
 }
 
 fn ring_StringToCsvField(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_csv_field(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_csv_field(h)), STZ_HANDLE);
 }
 
 fn ring_StringNumberLines(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_number_lines(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_number_lines(h)), STZ_HANDLE);
 }
 
 fn ring_StringHide(p: *anyopaque) callconv(.c) void {
@@ -2077,48 +2077,48 @@ fn ring_StringHide(p: *anyopaque) callconv(.c) void {
     const mask: u8 = if (ch_str != null) ch_str[0] else '*';
     const kf: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
     const kl: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_hide(h, mask, kf, kl)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_hide(h, mask, kf, kl)), STZ_HANDLE);
 }
 
 fn ring_StringExtractWords(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_extract_words(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_extract_words(h)), STZ_HANDLE);
 }
 
 fn ring_StringExpandTabs(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const ts: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_expand_tabs(h, ts)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_expand_tabs(h, ts)), STZ_HANDLE);
 }
 
 fn ring_StringSentenceCount(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_sentence_count(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_sentence_count(h)));
 }
 
 fn ring_StringChop(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_chop(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_chop(h)), STZ_HANDLE);
 }
 
 fn ring_StringScanInt(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_scan_int(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_scan_int(h)));
 }
 
 fn ring_StringToOrdinal(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_ordinal(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_to_ordinal(h)), STZ_HANDLE);
 }
 
 fn ring_StringCpCount(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_cp_count(h)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_cp_count(h)));
 }
 
 fn ring_StringCharsSplit(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_chars_split(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_chars_split(h)), STZ_HANDLE);
 }
 
 // ─── NLP: Jaro-Winkler, Metaphone, N-grams ───
@@ -2126,30 +2126,30 @@ fn ring_StringCharsSplit(p: *anyopaque) callconv(.c) void {
 fn ring_StringJaro(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_jaro(h1, h2)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_jaro(h1, h2)));
 }
 
 fn ring_StringJaroWinkler(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_jaro_winkler(h1, h2)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_jaro_winkler(h1, h2)));
 }
 
 fn ring_StringMetaphone(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_metaphone(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_metaphone(h)), STZ_HANDLE);
 }
 
 fn ring_StringCharNgrams(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_char_ngrams(h, n)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_char_ngrams(h, n)), STZ_HANDLE);
 }
 
 fn ring_StringWordNgrams(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_word_ngrams(h, n)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_word_ngrams(h, n)), STZ_HANDLE);
 }
 
 // ─── CS Unified Functions ───
@@ -2159,7 +2159,7 @@ fn ring_StringIndexOfCS(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_index_of_cs(h, s, l, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_index_of_cs(h, s, l, case)));
 }
 
 fn ring_StringIndexOfFromCS(p: *anyopaque) callconv(.c) void {
@@ -2168,7 +2168,7 @@ fn ring_StringIndexOfFromCS(p: *anyopaque) callconv(.c) void {
     const l = ring_vm_api_getstringsize(p, 2);
     const start: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_index_of_from_cs(h, s, l, start, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_index_of_from_cs(h, s, l, start, case)));
 }
 
 fn ring_StringFindAllCS(p: *anyopaque) callconv(.c) void {
@@ -2176,7 +2176,7 @@ fn ring_StringFindAllCS(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_find_all_cs(h, s, l, case)), FIND_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_all_cs(h, s, l, case)), FIND_HANDLE);
 }
 
 fn ring_StringLastIndexOfCS(p: *anyopaque) callconv(.c) void {
@@ -2184,7 +2184,7 @@ fn ring_StringLastIndexOfCS(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_last_index_of_cs(h, s, l, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_last_index_of_cs(h, s, l, case)));
 }
 
 fn ring_StringCountOfCS(p: *anyopaque) callconv(.c) void {
@@ -2192,7 +2192,7 @@ fn ring_StringCountOfCS(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_of_cs(h, s, l, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_of_cs(h, s, l, case)));
 }
 
 fn ring_StringContainsCS(p: *anyopaque) callconv(.c) void {
@@ -2200,7 +2200,7 @@ fn ring_StringContainsCS(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_cs(h, s, l, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_contains_cs(h, s, l, case)));
 }
 
 fn ring_StringStartsWithCS(p: *anyopaque) callconv(.c) void {
@@ -2208,7 +2208,7 @@ fn ring_StringStartsWithCS(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_starts_with_cs(h, s, l, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_starts_with_cs(h, s, l, case)));
 }
 
 fn ring_StringEndsWithCS(p: *anyopaque) callconv(.c) void {
@@ -2216,14 +2216,14 @@ fn ring_StringEndsWithCS(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with_cs(h, s, l, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_ends_with_cs(h, s, l, case)));
 }
 
 fn ring_StringEqualsCS(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_equals_cs(h1, h2, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_equals_cs(h1, h2, case)));
 }
 
 fn ring_StringFindNthCS(p: *anyopaque) callconv(.c) void {
@@ -2232,7 +2232,7 @@ fn ring_StringFindNthCS(p: *anyopaque) callconv(.c) void {
     const l = ring_vm_api_getstringsize(p, 2);
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_find_nth_cs(h, s, l, n, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_find_nth_cs(h, s, l, n, case)));
 }
 
 fn ring_StringReplaceCS(p: *anyopaque) callconv(.c) void {
@@ -2242,7 +2242,7 @@ fn ring_StringReplaceCS(p: *anyopaque) callconv(.c) void {
     const new = ring_vm_api_getstring(p, 3);
     const nl = ring_vm_api_getstringsize(p, 3);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
-    string.stz_string_replace_cs(h, old, ol, new, nl, case);
+    string.str_replace_cs(h, old, ol, new, nl, case);
 }
 
 fn ring_StringRemoveAllCS(p: *anyopaque) callconv(.c) void {
@@ -2250,7 +2250,7 @@ fn ring_StringRemoveAllCS(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_all_cs(h, s, l, case)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_remove_all_cs(h, s, l, case)), STZ_HANDLE);
 }
 
 fn ring_StringSplitCountCS(p: *anyopaque) callconv(.c) void {
@@ -2258,7 +2258,7 @@ fn ring_StringSplitCountCS(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const l = ring_vm_api_getstringsize(p, 2);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_split_count_cs(h, s, l, case)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_split_count_cs(h, s, l, case)));
 }
 
 fn ring_StringSplitGetCS(p: *anyopaque) callconv(.c) void {
@@ -2267,7 +2267,7 @@ fn ring_StringSplitGetCS(p: *anyopaque) callconv(.c) void {
     const l = ring_vm_api_getstringsize(p, 2);
     const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
-    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_split_get_cs(h, s, l, idx, case)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_split_get_cs(h, s, l, idx, case)), STZ_HANDLE);
 }
 
 // ─── Registration ───
