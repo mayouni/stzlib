@@ -8463,6 +8463,170 @@ pub export fn stz_string_to_title_case_strict(handle: ?*StzString) callconv(.c) 
     return result;
 }
 
+// batch 13 ────────────────────────────────────────────────────────
+
+/// Hamming weight: count of 1-bits across all bytes.
+pub export fn stz_string_hamming_weight(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var count: c_int = 0;
+    for (src) |byte| {
+        var b = byte;
+        while (b != 0) {
+            count += 1;
+            b &= b - 1; // clear lowest set bit
+        }
+    }
+    return count;
+}
+
+/// Is palindrome at word level: "dog cat dog" -> true (words reversed = same sequence).
+pub export fn stz_string_is_palindrome_words(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 1;
+
+    // Collect word boundaries
+    var starts: [256]usize = undefined;
+    var ends: [256]usize = undefined;
+    var wc: usize = 0;
+
+    var i: usize = 0;
+    while (i < src.len and wc < 256) {
+        while (i < src.len and src[i] == ' ') : (i += 1) {}
+        if (i >= src.len) break;
+        starts[wc] = i;
+        while (i < src.len and src[i] != ' ') : (i += 1) {}
+        ends[wc] = i;
+        wc += 1;
+    }
+    if (wc <= 1) return 1;
+
+    // Compare word[j] with word[wc-1-j]
+    var j: usize = 0;
+    while (j < wc / 2) : (j += 1) {
+        const w1 = src[starts[j]..ends[j]];
+        const w2 = src[starts[wc - 1 - j]..ends[wc - 1 - j]];
+        if (!mem.eql(u8, w1, w2)) return 0;
+    }
+    return 1;
+}
+
+/// Remove the nth word (0-based). Words separated by spaces.
+pub export fn stz_string_remove_nth_word(handle: ?*StzString, n: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const target: usize = if (n >= 0) @intCast(n) else {
+        result.data.appendSlice(gpa, src) catch {};
+        return result;
+    };
+
+    var starts: [256]usize = undefined;
+    var ends_arr: [256]usize = undefined;
+    var wc: usize = 0;
+
+    var i: usize = 0;
+    while (i < src.len and wc < 256) {
+        while (i < src.len and src[i] == ' ') : (i += 1) {}
+        if (i >= src.len) break;
+        starts[wc] = i;
+        while (i < src.len and src[i] != ' ') : (i += 1) {}
+        ends_arr[wc] = i;
+        wc += 1;
+    }
+
+    if (target >= wc) {
+        result.data.appendSlice(gpa, src) catch {};
+        return result;
+    }
+
+    // Build result skipping word at target index
+    var first = true;
+    for (0..wc) |idx| {
+        if (idx == target) continue;
+        if (!first) result.data.appendSlice(gpa, " ") catch break;
+        result.data.appendSlice(gpa, src[starts[idx]..ends_arr[idx]]) catch break;
+        first = false;
+    }
+    return result;
+}
+
+/// Insert a word at position n (0-based). Words separated by spaces.
+pub export fn stz_string_insert_word_at(handle: ?*StzString, n: c_int, word: [*c]const u8, word_len: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const target: usize = if (n >= 0) @intCast(n) else 0;
+    const wlen: usize = if (word_len >= 0) @intCast(word_len) else 0;
+
+    // Collect existing words
+    var starts: [256]usize = undefined;
+    var ends_arr: [256]usize = undefined;
+    var wc: usize = 0;
+
+    var i: usize = 0;
+    while (i < src.len and wc < 256) {
+        while (i < src.len and src[i] == ' ') : (i += 1) {}
+        if (i >= src.len) break;
+        starts[wc] = i;
+        while (i < src.len and src[i] != ' ') : (i += 1) {}
+        ends_arr[wc] = i;
+        wc += 1;
+    }
+
+    // Build result inserting new word at position
+    var first = true;
+    var idx: usize = 0;
+    const insert_pos = if (target > wc) wc else target;
+
+    while (idx <= wc) : (idx += 1) {
+        if (idx == insert_pos) {
+            if (!first) result.data.appendSlice(gpa, " ") catch break;
+            result.data.appendSlice(gpa, word[0..wlen]) catch break;
+            first = false;
+        }
+        if (idx < wc) {
+            if (!first) result.data.appendSlice(gpa, " ") catch break;
+            result.data.appendSlice(gpa, src[starts[idx]..ends_arr[idx]]) catch break;
+            first = false;
+        }
+    }
+    return result;
+}
+
+/// Spongebob case: alternating case starting with UPPER (opposite of alternating_case which starts lower).
+pub export fn stz_string_to_spongebob_case(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    var letter_idx: usize = 0;
+    for (src) |c| {
+        if ((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z')) {
+            if (letter_idx % 2 == 0) {
+                // Upper
+                if (c >= 'a' and c <= 'z') {
+                    result.data.appendSlice(gpa, &[_]u8{c - 32}) catch break;
+                } else {
+                    result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+                }
+            } else {
+                // Lower
+                if (c >= 'A' and c <= 'Z') {
+                    result.data.appendSlice(gpa, &[_]u8{c + 32}) catch break;
+                } else {
+                    result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+                }
+            }
+            letter_idx += 1;
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -9997,5 +10161,67 @@ test "to_title_case_strict" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "The Lord Of War"));
     stz_string_free(r2);
     stz_string_free(h2);
+}
+
+test "hamming_weight" {
+    // 'A' = 0x41 = 01000001 = 2 bits, 'B' = 0x42 = 01000010 = 2 bits
+    const h = stz_string_from("AB", 2);
+    try std.testing.expectEqual(@as(c_int, 4), stz_string_hamming_weight(h));
+    stz_string_free(h);
+
+    const h2 = stz_string_from("", 0);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_hamming_weight(h2));
+    stz_string_free(h2);
+}
+
+test "is_palindrome_words" {
+    const h1 = stz_string_from("dog cat dog", 11);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_palindrome_words(h1));
+    stz_string_free(h1);
+
+    const h2 = stz_string_from("a b c b a", 9);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_palindrome_words(h2));
+    stz_string_free(h2);
+
+    const h3 = stz_string_from("hello world", 11);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_palindrome_words(h3));
+    stz_string_free(h3);
+}
+
+test "remove_nth_word" {
+    const h = stz_string_from("hello world foo", 15);
+    const r = stz_string_remove_nth_word(h, 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hello foo"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("hello world foo", 15);
+    const r2 = stz_string_remove_nth_word(h2, 0);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "world foo"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "insert_word_at" {
+    const h = stz_string_from("hello foo", 9);
+    const r = stz_string_insert_word_at(h, 1, "world", 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hello world foo"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("world foo", 9);
+    const r2 = stz_string_insert_word_at(h2, 0, "hello", 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "hello world foo"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "to_spongebob_case" {
+    const h = stz_string_from("hello world", 11);
+    const r = stz_string_to_spongebob_case(h);
+    // H(0)e(1)L(2)l(3)O(4) W(5)o(6)R(7)l(8)D(9) -> "HeLlO wOrLd"
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "HeLlO wOrLd"));
+    stz_string_free(r);
+    stz_string_free(h);
 }
 

@@ -1660,6 +1660,89 @@ class stzString from stzObject
 		def StrictTitleCase()
 			return This.TitleCasedStrict()
 
+	  #==============================#
+	 #  HAMMING WEIGHT             #
+	#==============================#
+
+	def HammingWeight()
+		return StzEngineStringHammingWeight(@pEngine)
+
+		def BitCount()
+			return This.HammingWeight()
+
+	  #==============================#
+	 #  IS PALINDROME WORDS        #
+	#==============================#
+
+	def IsPalindromeWords()
+		return StzEngineStringIsPalindromeWords(@pEngine) = 1
+
+		def IsWordPalindrome()
+			return This.IsPalindromeWords()
+
+	  #==============================#
+	 #  REMOVE NTH WORD            #
+	#==============================#
+
+	def RemoveNthWord(n)
+		pResult = StzEngineStringRemoveNthWord(@pEngine, n - 1)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RemoveNthWordQ(n)
+			This.RemoveNthWord(n)
+			return This
+
+	def NthWordRemoved(n)
+		pResult = StzEngineStringRemoveNthWord(@pEngine, n - 1)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #==============================#
+	 #  INSERT WORD AT             #
+	#==============================#
+
+	def InsertWordAt(n, cWord)
+		pResult = StzEngineStringInsertWordAt(@pEngine, n - 1, cWord)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def InsertWordAtQ(n, cWord)
+			This.InsertWordAt(n, cWord)
+			return This
+
+	def WordInsertedAt(n, cWord)
+		pResult = StzEngineStringInsertWordAt(@pEngine, n - 1, cWord)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #==============================#
+	 #  TO SPONGEBOB CASE          #
+	#==============================#
+
+	def ToSpongebobCase()
+		pResult = StzEngineStringToSpongebobCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToSpongebobCaseQ()
+			This.ToSpongebobCase()
+			return This
+
+	def SpongebobCased()
+		pResult = StzEngineStringToSpongebobCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def MockingCase()
+			return This.SpongebobCased()
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#

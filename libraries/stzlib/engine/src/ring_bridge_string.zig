@@ -1830,6 +1830,35 @@ fn ring_StringToTitleCaseStrict(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_title_case_strict(h)), STZ_HANDLE);
 }
 
+fn ring_StringHammingWeight(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_hamming_weight(h)));
+}
+
+fn ring_StringIsPalindromeWords(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_palindrome_words(h)));
+}
+
+fn ring_StringRemoveNthWord(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_nth_word(h, n)), STZ_HANDLE);
+}
+
+fn ring_StringInsertWordAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const word: [*c]const u8 = ring_vm_api_getstring(p, 3);
+    const wlen: c_int = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_insert_word_at(h, n, word, wlen)), STZ_HANDLE);
+}
+
+fn ring_StringToSpongebobCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_spongebob_case(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2102,6 +2131,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringlongestcommonsuffix", .func = &ring_StringLongestCommonSuffix },
     .{ .name = "stzenginestringwrapwith", .func = &ring_StringWrapWith },
     .{ .name = "stzenginestringtotitlecasestrict", .func = &ring_StringToTitleCaseStrict },
+    .{ .name = "stzenginestringhammingweight", .func = &ring_StringHammingWeight },
+    .{ .name = "stzenginestringispalindromewords", .func = &ring_StringIsPalindromeWords },
+    .{ .name = "stzenginestringremoventhword", .func = &ring_StringRemoveNthWord },
+    .{ .name = "stzenginestringinsertwordat", .func = &ring_StringInsertWordAt },
+    .{ .name = "stzenginestringtospongebobcase", .func = &ring_StringToSpongebobCase },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
