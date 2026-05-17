@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 273 Registered Functions"
+? "Engine Full Bridge Test -- All 278 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -2984,6 +2984,53 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("hello world")
 pResult = StzEngineStringToSpongebobCase(pStr)
 Assert("SpongebobCase", StzEngineStringData(pResult), "HeLlO wOrLd")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+? ""
+? "--- Group 106: BetweenFirst / ToDotCase / Abbreviate / CountSubstring / ToPathCase ---"
+
+pStr = StzEngineStringFrom("hello [world] end")
+pResult = StzEngineStringBetweenFirst(pStr, "[", "]")
+Assert("BetweenFirst []", StzEngineStringData(pResult), "world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("no brackets here")
+pResult = StzEngineStringBetweenFirst(pStr, "[", "]")
+Assert("BetweenFirst none", StzEngineStringData(pResult), "")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello World")
+pResult = StzEngineStringToDotCase(pStr)
+Assert("ToDotCase", StzEngineStringData(pResult), "hello.world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world")
+pResult = StzEngineStringAbbreviate(pStr, 8)
+Assert("Abbreviate 8", StzEngineStringData(pResult), "hello...")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world")
+pResult = StzEngineStringAbbreviate(pStr, 50)
+Assert("Abbreviate long", StzEngineStringData(pResult), "hello world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abcabcabc")
+Assert("CountSubstring abc", StzEngineStringCountSubstring(pStr, "abc"), 3)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+Assert("CountSubstring none", StzEngineStringCountSubstring(pStr, "xyz"), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello World")
+pResult = StzEngineStringToPathCase(pStr)
+Assert("ToPathCase", StzEngineStringData(pResult), "hello/world")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
