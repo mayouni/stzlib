@@ -6754,6 +6754,141 @@ pub fn stz_string_hamming_distance(h1: StzStringHandle, h2: StzStringHandle) cal
     return dist;
 }
 
+/// Remove ASCII vowels (a,e,i,o,u both cases) from the string. Returns new handle.
+pub fn stz_string_remove_vowels(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        if (cp_len == 1) {
+            const c = src[off];
+            if (c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u' or
+                c == 'A' or c == 'E' or c == 'I' or c == 'O' or c == 'U')
+            {
+                off += 1;
+                continue;
+            }
+        }
+        result.data.appendSlice(gpa, src[off..][0..cp_len]) catch break;
+        off += cp_len;
+    }
+    return result;
+}
+
+/// Keep only ASCII vowels (a,e,i,o,u both cases). Returns new handle.
+pub fn stz_string_only_vowels(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        if (cp_len == 1) {
+            const c = src[off];
+            if (c == 'a' or c == 'e' or c == 'i' or c == 'o' or c == 'u' or
+                c == 'A' or c == 'E' or c == 'I' or c == 'O' or c == 'U')
+            {
+                result.data.appendSlice(gpa, src[off..][0..1]) catch break;
+            }
+        }
+        off += cp_len;
+    }
+    return result;
+}
+
+/// Check if string is a pangram (contains every letter a-z at least once, case-insensitive).
+/// Returns 1 if pangram, 0 otherwise.
+pub fn stz_string_is_pangram(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len < 26) return 0;
+
+    var seen: [26]bool = [_]bool{false} ** 26;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        if (cp_len == 1) {
+            const c = src[off];
+            if (c >= 'a' and c <= 'z') seen[c - 'a'] = true
+            else if (c >= 'A' and c <= 'Z') seen[c - 'A'] = true;
+        }
+        off += cp_len;
+    }
+
+    for (seen) |s2| {
+        if (!s2) return 0;
+    }
+    return 1;
+}
+
+/// Return the nth n-gram (0-based) of `size` codepoints from the string.
+/// E.g. ngram("hello", 2, 0) = "he", ngram("hello", 2, 1) = "el", etc.
+/// Returns new handle, or null if out of range.
+pub fn stz_string_ngram(handle: StzStringHandle, size: c_int, n: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0 or size <= 0 or n < 0) return null;
+
+    const sz: usize = @intCast(size);
+    const idx: usize = @intCast(n);
+
+    // Walk to start position (codepoint idx)
+    var off: usize = 0;
+    var cp_idx: usize = 0;
+    while (cp_idx < idx and off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        off += cp_len;
+        cp_idx += 1;
+    }
+    if (cp_idx != idx) return null;
+
+    const start = off;
+    // Walk `size` codepoints
+    var count: usize = 0;
+    while (count < sz and off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        off += cp_len;
+        count += 1;
+    }
+    if (count != sz) return null;
+
+    return stz_string_from(src[start..].ptr, off - start);
+}
+
+/// Count the number of n-grams of given size in the string.
+/// E.g. ngram_count("hello", 2) = 4 (he, el, ll, lo).
+pub fn stz_string_ngram_count(handle: StzStringHandle, size: c_int) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0 or size <= 0) return 0;
+
+    const sz: usize = @intCast(size);
+
+    // Count codepoints
+    var cp_count: usize = 0;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        cp_count += 1;
+        off += cp_len;
+    }
+
+    if (cp_count < sz) return 0;
+    return @intCast(cp_count - sz + 1);
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -7563,4 +7698,66 @@ test "hamming_distance" {
     try std.testing.expectEqual(@as(c_int, -1), stz_string_hamming_distance(s3, s4));
     stz_string_free(s4);
     stz_string_free(s3);
+}
+
+test "remove_vowels" {
+    const h = stz_string_from("Hello World", 11);
+    const r = stz_string_remove_vowels(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "Hll Wrld"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("aeiou", 5);
+    const r2 = stz_string_remove_vowels(h2);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_size(r2));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "only_vowels" {
+    const h = stz_string_from("Hello World", 11);
+    const r = stz_string_only_vowels(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "eoo"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("xyz", 3);
+    const r2 = stz_string_only_vowels(h2);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_size(r2));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "is_pangram" {
+    const h = stz_string_from("The quick brown fox jumps over the lazy dog", 43);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_pangram(h));
+    stz_string_free(h);
+
+    const h2 = stz_string_from("Hello World", 11);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_pangram(h2));
+    stz_string_free(h2);
+}
+
+test "ngram" {
+    const h = stz_string_from("hello", 5);
+    const r = stz_string_ngram(h, 2, 0);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "he"));
+    stz_string_free(r);
+
+    const r2 = stz_string_ngram(h, 2, 3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "lo"));
+    stz_string_free(r2);
+
+    const r3 = stz_string_ngram(h, 2, 4);
+    try std.testing.expectEqual(@as(StzStringHandle, null), r3);
+    stz_string_free(h);
+}
+
+test "ngram_count" {
+    const h = stz_string_from("hello", 5);
+    try std.testing.expectEqual(@as(c_int, 4), stz_string_ngram_count(h, 2));
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_ngram_count(h, 3));
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_ngram_count(h, 5));
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_ngram_count(h, 6));
+    stz_string_free(h);
 }

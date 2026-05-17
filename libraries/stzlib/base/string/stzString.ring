@@ -737,6 +737,68 @@ class stzString from stzObject
 		def NumberOfRuns()
 			return This.CountRuns()
 
+	  #==============================#
+	 #  REMOVE VOWELS              #
+	#==============================#
+
+	def RemoveVowels()
+		pResult = StzEngineStringRemoveVowels(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RemoveVowelsQ()
+			This.RemoveVowels()
+			return This
+
+	def VowelsRemoved()
+		pResult = StzEngineStringRemoveVowels(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WithoutVowels()
+			return This.VowelsRemoved()
+
+	  #==============================#
+	 #  ONLY VOWELS                #
+	#==============================#
+
+	def OnlyVowels()
+		pResult = StzEngineStringOnlyVowels(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def Vowels()
+			return This.OnlyVowels()
+
+	  #==============================#
+	 #  IS PANGRAM                 #
+	#==============================#
+
+	def IsPangram()
+		return StzEngineStringIsPangram(@pEngine) = 1
+
+	  #==============================#
+	 #  NGRAM                      #
+	#==============================#
+
+	def Ngram(nSize, n)
+		pResult = StzEngineStringNgram(@pEngine, nSize, n - 1)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def NthNgram(nSize, n)
+			return This.Ngram(nSize, n)
+
+	def NgramCount(nSize)
+		return StzEngineStringNgramCount(@pEngine, nSize)
+
+		def NumberOfNgrams(nSize)
+			return This.NgramCount(nSize)
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#

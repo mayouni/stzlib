@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 208 Registered Functions"
+? "Engine Full Bridge Test -- All 213 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1837,6 +1837,49 @@ pStr2 = StzEngineStringFrom("kathrin")
 Assert("HammingDistance", StzEngineStringHammingDistance(pStr1, pStr2), 3)
 StzEngineStringFree(pStr2)
 StzEngineStringFree(pStr1)
+
+# ==============================================================
+#  GROUP 92: RemoveVowels / OnlyVowels / IsPangram / Ngram / NgramCount
+# ==============================================================
+
+? ""
+? "--- Group 92: RemoveVowels / OnlyVowels / IsPangram / Ngram / NgramCount ---"
+
+pStr = StzEngineStringFrom("Hello World")
+pResult = StzEngineStringRemoveVowels(pStr)
+Assert("RemoveVowels Hello World", StzEngineStringData(pResult), "Hll Wrld")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello World")
+pResult = StzEngineStringOnlyVowels(pStr)
+Assert("OnlyVowels Hello World", StzEngineStringData(pResult), "eoo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("The quick brown fox jumps over the lazy dog")
+Assert("IsPangram true", StzEngineStringIsPangram(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello World")
+Assert("IsPangram false", StzEngineStringIsPangram(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringNgram(pStr, 2, 0)
+Assert("Ngram(hello,2,0)", StzEngineStringData(pResult), "he")
+StzEngineStringFree(pResult)
+pResult = StzEngineStringNgram(pStr, 2, 3)
+Assert("Ngram(hello,2,3)", StzEngineStringData(pResult), "lo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+Assert("NgramCount(hello,2)", StzEngineStringNgramCount(pStr, 2), 4)
+Assert("NgramCount(hello,3)", StzEngineStringNgramCount(pStr, 3), 3)
+Assert("NgramCount(hello,5)", StzEngineStringNgramCount(pStr, 5), 1)
+Assert("NgramCount(hello,6)", StzEngineStringNgramCount(pStr, 6), 0)
+StzEngineStringFree(pStr)
 
 # ==============================================================
 #  SUMMARY
