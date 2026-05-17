@@ -2152,6 +2152,124 @@ fn ring_StringWordNgrams(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_word_ngrams(h, n)), STZ_HANDLE);
 }
 
+// ─── CS Unified Functions ───
+
+fn ring_StringIndexOfCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_index_of_cs(h, s, l, case)));
+}
+
+fn ring_StringIndexOfFromCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const start: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_index_of_from_cs(h, s, l, start, case)));
+}
+
+fn ring_StringFindAllCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_find_all_cs(h, s, l, case)), FIND_HANDLE);
+}
+
+fn ring_StringLastIndexOfCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_last_index_of_cs(h, s, l, case)));
+}
+
+fn ring_StringCountOfCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_of_cs(h, s, l, case)));
+}
+
+fn ring_StringContainsCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_contains_cs(h, s, l, case)));
+}
+
+fn ring_StringStartsWithCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_starts_with_cs(h, s, l, case)));
+}
+
+fn ring_StringEndsWithCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ends_with_cs(h, s, l, case)));
+}
+
+fn ring_StringEqualsCS(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_equals_cs(h1, h2, case)));
+}
+
+fn ring_StringFindNthCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_find_nth_cs(h, s, l, n, case)));
+}
+
+fn ring_StringReplaceCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const old = ring_vm_api_getstring(p, 2);
+    const ol = ring_vm_api_getstringsize(p, 2);
+    const new = ring_vm_api_getstring(p, 3);
+    const nl = ring_vm_api_getstringsize(p, 3);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    string.stz_string_replace_cs(h, old, ol, new, nl, case);
+}
+
+fn ring_StringRemoveAllCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_all_cs(h, s, l, case)), STZ_HANDLE);
+}
+
+fn ring_StringSplitCountCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_split_count_cs(h, s, l, case)));
+}
+
+fn ring_StringSplitGetCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l = ring_vm_api_getstringsize(p, 2);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_split_get_cs(h, s, l, idx, case)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2481,6 +2599,21 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringmetaphone", .func = &ring_StringMetaphone },
     .{ .name = "stzenginestringcharngrams", .func = &ring_StringCharNgrams },
     .{ .name = "stzenginestringwordngrams", .func = &ring_StringWordNgrams },
+    // CS unified functions (13)
+    .{ .name = "stzenginestringindexofcs", .func = &ring_StringIndexOfCS },
+    .{ .name = "stzenginestringindexoffromcs", .func = &ring_StringIndexOfFromCS },
+    .{ .name = "stzenginestringfindallcs", .func = &ring_StringFindAllCS },
+    .{ .name = "stzenginestringlastindexofcs", .func = &ring_StringLastIndexOfCS },
+    .{ .name = "stzenginestringcountofcs", .func = &ring_StringCountOfCS },
+    .{ .name = "stzenginestringcontainscs", .func = &ring_StringContainsCS },
+    .{ .name = "stzenginestringstartswithcs", .func = &ring_StringStartsWithCS },
+    .{ .name = "stzenginestringendswithcs", .func = &ring_StringEndsWithCS },
+    .{ .name = "stzenginestringequalscs", .func = &ring_StringEqualsCS },
+    .{ .name = "stzenginestringfindnthcs", .func = &ring_StringFindNthCS },
+    .{ .name = "stzenginestringreplacecs", .func = &ring_StringReplaceCS },
+    .{ .name = "stzenginestringremoveallcs", .func = &ring_StringRemoveAllCS },
+    .{ .name = "stzenginestringsplitcountcs", .func = &ring_StringSplitCountCS },
+    .{ .name = "stzenginestringsplitgetcs", .func = &ring_StringSplitGetCS },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
