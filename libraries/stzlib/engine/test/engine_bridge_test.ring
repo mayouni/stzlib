@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 325 Registered Functions"
+? "Engine Full Bridge Test -- All 339 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -3398,6 +3398,56 @@ pStr = StzEngineStringFrom("the quick brown fox")
 pResult = StzEngineStringWordNgrams(pStr, 2)
 Assert("WordNgrams bigrams", StzEngineStringData(pResult), "the quick|quick brown|brown fox")
 StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 116: CS Unified Functions
+# ==============================================================
+
+? "--- Group 116: CS Unified Functions ---"
+
+# IndexOfCS
+pStr = StzEngineStringFrom("Hello World")
+Assert("IndexOfCS cs=1 found", StzEngineStringIndexOfCS(pStr, "World", 1), 7)
+Assert("IndexOfCS cs=1 not found", StzEngineStringIndexOfCS(pStr, "world", 1), -1)
+Assert("IndexOfCS cs=0 found", StzEngineStringIndexOfCS(pStr, "WORLD", 0), 7)
+StzEngineStringFree(pStr)
+
+# FindAllCS
+pStr = StzEngineStringFrom("abcABCabc")
+pResult = StzEngineStringFindAllCS(pStr, "abc", 1)
+Assert("FindAllCS cs=1 count", StzEngineFindResultCount(pResult), 2)
+StzEngineFindResultFree(pResult)
+pResult = StzEngineStringFindAllCS(pStr, "abc", 0)
+Assert("FindAllCS cs=0 count", StzEngineFindResultCount(pResult), 3)
+StzEngineFindResultFree(pResult)
+StzEngineStringFree(pStr)
+
+# ContainsCS
+pStr = StzEngineStringFrom("Hello World")
+Assert("ContainsCS cs=1 yes", StzEngineStringContainsCS(pStr, "World", 1), 1)
+Assert("ContainsCS cs=1 no", StzEngineStringContainsCS(pStr, "world", 1), 0)
+Assert("ContainsCS cs=0 yes", StzEngineStringContainsCS(pStr, "world", 0), 1)
+StzEngineStringFree(pStr)
+
+# EqualsCS
+pStr1 = StzEngineStringFrom("Hello")
+pStr2 = StzEngineStringFrom("hello")
+Assert("EqualsCS cs=1", StzEngineStringEqualsCS(pStr1, pStr2, 1), 0)
+Assert("EqualsCS cs=0", StzEngineStringEqualsCS(pStr1, pStr2, 0), 1)
+StzEngineStringFree(pStr1)
+StzEngineStringFree(pStr2)
+
+# StartsWithCS / EndsWithCS
+pStr = StzEngineStringFrom("Hello World")
+Assert("StartsWithCS cs=0", StzEngineStringStartsWithCS(pStr, "hello", 0), 1)
+Assert("EndsWithCS cs=0", StzEngineStringEndsWithCS(pStr, "WORLD", 0), 1)
+StzEngineStringFree(pStr)
+
+# CountOfCS
+pStr = StzEngineStringFrom("abcABCabc")
+Assert("CountOfCS cs=1", StzEngineStringCountOfCS(pStr, "abc", 1), 2)
+Assert("CountOfCS cs=0", StzEngineStringCountOfCS(pStr, "abc", 0), 3)
 StzEngineStringFree(pStr)
 
 # ==============================================================
