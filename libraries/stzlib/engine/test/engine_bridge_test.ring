@@ -82,22 +82,22 @@ StzEngineStringFree(pStr)
 
 pStr = StzEngineStringFrom("hello world hello")
 nIdx = StzEngineStringIndexOf(pStr, "world")
-Assert("IndexOf found", nIdx, 6)
+Assert("IndexOf found", nIdx, 7)
 
 nIdx = StzEngineStringIndexOf(pStr, "xyz")
 Assert("IndexOf not found", nIdx < 0, true)
 
-nIdx = StzEngineStringIndexOfFrom(pStr, "hello", 0)
-Assert("IndexOfFrom pos 0", nIdx, 0)
-
 nIdx = StzEngineStringIndexOfFrom(pStr, "hello", 1)
-Assert("IndexOfFrom pos 1 (second)", nIdx, 12)
+Assert("IndexOfFrom pos 0", nIdx, 1)
 
-nIdx = StzEngineStringIndexOfCI(pStr, "HELLO", 0)
-Assert("IndexOfCI", nIdx, 0)
+nIdx = StzEngineStringIndexOfFrom(pStr, "hello", 2)
+Assert("IndexOfFrom pos 1 (second)", nIdx, 13)
 
-nIdx = StzEngineStringIndexOfCI(pStr, "WORLD", 0)
-Assert("IndexOfCI world", nIdx, 6)
+nIdx = StzEngineStringIndexOfCI(pStr, "HELLO", 1)
+Assert("IndexOfCI", nIdx, 1)
+
+nIdx = StzEngineStringIndexOfCI(pStr, "WORLD", 1)
+Assert("IndexOfCI world", nIdx, 7)
 
 StzEngineStringFree(pStr)
 
@@ -109,7 +109,7 @@ StzEngineStringFree(pStr)
 
 pStr = StzEngineStringFrom("hello")
 nCp = StzEngineStringByteToCp(pStr, 3)
-Assert("ByteToCp ASCII", nCp, 3)
+Assert("ByteToCp ASCII", nCp, 4)
 StzEngineStringFree(pStr)
 
 # ==============================================================
@@ -121,13 +121,13 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("abc-abc-abc")
 Assert("CountOf", StzEngineStringCountOf(pStr, "abc"), 3)
 Assert("CountOf not found", StzEngineStringCountOf(pStr, "xyz"), 0)
-Assert("LastIndexOf", StzEngineStringLastIndexOf(pStr, "abc"), 8)
+Assert("LastIndexOf", StzEngineStringLastIndexOf(pStr, "abc"), 9)
 Assert("LastIndexOf not found", StzEngineStringLastIndexOf(pStr, "xyz") < 0, true)
 StzEngineStringFree(pStr)
 
 pStr = StzEngineStringFrom("Hello hello HELLO")
 Assert("CountOfCI", StzEngineStringCountOfCI(pStr, "hello"), 3)
-Assert("LastIndexOfCI", StzEngineStringLastIndexOfCI(pStr, "hello"), 12)
+Assert("LastIndexOfCI", StzEngineStringLastIndexOfCI(pStr, "hello"), 13)
 StzEngineStringFree(pStr)
 
 # ==============================================================
@@ -160,9 +160,9 @@ pStr = StzEngineStringFrom("abc-abc-abc")
 pResult = StzEngineStringFindAll(pStr, "abc")
 nCount = StzEngineFindResultCount(pResult)
 Assert("FindAll count", nCount, 3)
-Assert("FindAll pos 0", StzEngineFindResultGet(pResult, 0), 0)
-Assert("FindAll pos 1", StzEngineFindResultGet(pResult, 1), 4)
-Assert("FindAll pos 2", StzEngineFindResultGet(pResult, 2), 8)
+Assert("FindAll pos 0", StzEngineFindResultGet(pResult, 0), 1)
+Assert("FindAll pos 1", StzEngineFindResultGet(pResult, 1), 5)
+Assert("FindAll pos 2", StzEngineFindResultGet(pResult, 2), 9)
 StzEngineFindResultFree(pResult)
 StzEngineStringFree(pStr)
 
@@ -170,9 +170,9 @@ pStr = StzEngineStringFrom("Hello hello HELLO")
 pResult = StzEngineStringFindAllCI(pStr, "hello")
 nCount = StzEngineFindResultCount(pResult)
 Assert("FindAllCI count", nCount, 3)
-Assert("FindAllCI pos 0", StzEngineFindResultGet(pResult, 0), 0)
-Assert("FindAllCI pos 1", StzEngineFindResultGet(pResult, 1), 6)
-Assert("FindAllCI pos 2", StzEngineFindResultGet(pResult, 2), 12)
+Assert("FindAllCI pos 0", StzEngineFindResultGet(pResult, 0), 1)
+Assert("FindAllCI pos 1", StzEngineFindResultGet(pResult, 1), 7)
+Assert("FindAllCI pos 2", StzEngineFindResultGet(pResult, 2), 13)
 StzEngineFindResultFree(pResult)
 StzEngineStringFree(pStr)
 
@@ -257,24 +257,24 @@ StzEngineStringFree(pStr2)
 ? "--- Group 12: CharAt, MidCp, NthChar, Slice ---"
 
 pStr = StzEngineStringFrom("Hello")
-nCh = StzEngineStringCharAt(pStr, 0)
+nCh = StzEngineStringCharAt(pStr, 1)
 Assert("CharAt 0 = H (72)", nCh, 72)
 
-nCh = StzEngineStringCharAt(pStr, 4)
+nCh = StzEngineStringCharAt(pStr, 5)
 Assert("CharAt 4 = o (111)", nCh, 111)
 
-pMid = StzEngineStringMidCp(pStr, 1, 3)
+pMid = StzEngineStringMidCp(pStr, 2, 3)
 Assert("MidCp(1,3)", StzEngineStringData(pMid), "ell")
 StzEngineStringFree(pMid)
 
-pNth = StzEngineStringNthChar(pStr, 0)
+pNth = StzEngineStringNthChar(pStr, 1)
 Assert("NthChar 0", StzEngineStringData(pNth), "H")
 StzEngineStringFree(pNth)
-pNth = StzEngineStringNthChar(pStr, 4)
+pNth = StzEngineStringNthChar(pStr, 5)
 Assert("NthChar 4", StzEngineStringData(pNth), "o")
 StzEngineStringFree(pNth)
 
-pSlice = StzEngineStringSlice(pStr, 1, 3)
+pSlice = StzEngineStringSlice(pStr, 2, 3)
 Assert("Slice(1,3)", StzEngineStringData(pSlice), "ell")
 StzEngineStringFree(pSlice)
 
@@ -355,7 +355,7 @@ StzEngineStringFree(pStr)
 ? "--- Group 16: RemoveRange, TrimLeft, TrimRight ---"
 
 pStr = StzEngineStringFrom("ABCDEF")
-pRR = StzEngineStringRemoveRange(pStr, 2, 2)
+pRR = StzEngineStringRemoveRange(pStr, 3, 2)
 Assert("RemoveRange", StzEngineStringData(pRR), "ABEF")
 StzEngineStringFree(pRR)
 StzEngineStringFree(pStr)
@@ -473,16 +473,16 @@ StzEngineStringFree(pStr)
 ? "--- Group 21: FindNth ---"
 
 pStr = StzEngineStringFrom("abc-abc-abc")
-Assert("FindNth 1", StzEngineStringFindNth(pStr, "abc", 1), 0)
-Assert("FindNth 2", StzEngineStringFindNth(pStr, "abc", 2), 4)
-Assert("FindNth 3", StzEngineStringFindNth(pStr, "abc", 3), 8)
+Assert("FindNth 1", StzEngineStringFindNth(pStr, "abc", 1), 1)
+Assert("FindNth 2", StzEngineStringFindNth(pStr, "abc", 2), 5)
+Assert("FindNth 3", StzEngineStringFindNth(pStr, "abc", 3), 9)
 Assert("FindNth 4 (not found)", StzEngineStringFindNth(pStr, "abc", 4) < 0, true)
 StzEngineStringFree(pStr)
 
 pStr = StzEngineStringFrom("Hello hello HELLO")
-Assert("FindNthCI 1", StzEngineStringFindNthCI(pStr, "hello", 1), 0)
-Assert("FindNthCI 2", StzEngineStringFindNthCI(pStr, "hello", 2), 6)
-Assert("FindNthCI 3", StzEngineStringFindNthCI(pStr, "hello", 3), 12)
+Assert("FindNthCI 1", StzEngineStringFindNthCI(pStr, "hello", 1), 1)
+Assert("FindNthCI 2", StzEngineStringFindNthCI(pStr, "hello", 2), 7)
+Assert("FindNthCI 3", StzEngineStringFindNthCI(pStr, "hello", 3), 13)
 StzEngineStringFree(pStr)
 
 # ==============================================================
@@ -492,7 +492,7 @@ StzEngineStringFree(pStr)
 ? "--- Group 22: InsertCp, LeftCp, RightCp ---"
 
 pStr = StzEngineStringFrom("HelloWorld")
-StzEngineStringInsertCp(pStr, 5, " ")
+StzEngineStringInsertCp(pStr, 6, " ")
 Assert("InsertCp", StzEngineStringData(pStr), "Hello World")
 StzEngineStringFree(pStr)
 
@@ -557,16 +557,16 @@ Assert("IsAscii yes", StzEngineStringIsAscii(pStr), 1)
 StzEngineStringFree(pStr)
 
 pStr = StzEngineStringFrom("ABCDE")
-pRemoved = StzEngineStringRemoveCharAt(pStr, 2)
+pRemoved = StzEngineStringRemoveCharAt(pStr, 3)
 Assert("RemoveCharAt 2", StzEngineStringData(pRemoved), "ABDE")
 StzEngineStringFree(pRemoved)
 StzEngineStringFree(pStr)
 
 pStr = StzEngineStringFrom("A1 !")
-Assert("CharTypeAt 0 upper", StzEngineStringCharTypeAt(pStr, 0), 3)
-Assert("CharTypeAt 1 digit", StzEngineStringCharTypeAt(pStr, 1), 1)
-Assert("CharTypeAt 2 space", StzEngineStringCharTypeAt(pStr, 2), 2)
-Assert("CharTypeAt 3 punct", StzEngineStringCharTypeAt(pStr, 3), 5)
+Assert("CharTypeAt 0 upper", StzEngineStringCharTypeAt(pStr, 1), 3)
+Assert("CharTypeAt 1 digit", StzEngineStringCharTypeAt(pStr, 2), 1)
+Assert("CharTypeAt 2 space", StzEngineStringCharTypeAt(pStr, 3), 2)
+Assert("CharTypeAt 3 punct", StzEngineStringCharTypeAt(pStr, 4), 5)
 StzEngineStringFree(pStr)
 
 # ==============================================================
@@ -579,9 +579,9 @@ pStr = StzEngineStringFrom("a1b2c3")
 pResult = StzEngineStringFindCharsOfType(pStr, 1)  # digits
 nCount = StzEngineFindResultCount(pResult)
 Assert("FindCharsOfType digit count", nCount, 3)
-Assert("FindCharsOfType digit pos0", StzEngineFindResultGet(pResult, 0), 1)
-Assert("FindCharsOfType digit pos1", StzEngineFindResultGet(pResult, 1), 3)
-Assert("FindCharsOfType digit pos2", StzEngineFindResultGet(pResult, 2), 5)
+Assert("FindCharsOfType digit pos0", StzEngineFindResultGet(pResult, 0), 2)
+Assert("FindCharsOfType digit pos1", StzEngineFindResultGet(pResult, 1), 4)
+Assert("FindCharsOfType digit pos2", StzEngineFindResultGet(pResult, 2), 6)
 StzEngineFindResultFree(pResult)
 
 pExtracted = StzEngineStringExtractCharsOfType(pStr, 0) # letters
@@ -804,11 +804,11 @@ StzEngineStringFree(pStr)
 ? "--- Group 33: ReplaceCharAt ---"
 
 pStr = StzEngineStringFrom("Hello")
-pR = StzEngineStringReplaceCharAt(pStr, 0, "J")
+pR = StzEngineStringReplaceCharAt(pStr, 1, "J")
 Assert("ReplaceCharAt 0->J", StzEngineStringData(pR), "Jello")
 StzEngineStringFree(pR)
 
-pR2 = StzEngineStringReplaceCharAt(pStr, 4, "!")
+pR2 = StzEngineStringReplaceCharAt(pStr, 5, "!")
 Assert("ReplaceCharAt 4->!", StzEngineStringData(pR2), "Hell!")
 StzEngineStringFree(pR2)
 
@@ -998,10 +998,10 @@ StzEngineStringFree(pStr)
 # --- Group 43: CharAtToString ---
 ? "--- Group 43: CharAtToString ---"
 pStr = StzEngineStringFrom("Hello", 5)
-pCh = StzEngineStringCharAtToString(pStr, 0)
+pCh = StzEngineStringCharAtToString(pStr, 1)
 Assert("CharAtToString 0=H", StzEngineStringData(pCh), "H")
 StzEngineStringFree(pCh)
-pCh = StzEngineStringCharAtToString(pStr, 4)
+pCh = StzEngineStringCharAtToString(pStr, 5)
 Assert("CharAtToString 4=o", StzEngineStringData(pCh), "o")
 StzEngineStringFree(pCh)
 StzEngineStringFree(pStr)
@@ -1110,10 +1110,10 @@ StzEngineStringFree(pStr)
 # --- Group 50: Substring ---
 ? "--- Group 50: Substring ---"
 pStr = StzEngineStringFrom("Hello World", 11)
-pSub = StzEngineStringSubstring(pStr, 0, 4)
+pSub = StzEngineStringSubstring(pStr, 1, 5)
 Assert("Substring 0-4", StzEngineStringData(pSub), "Hello")
 StzEngineStringFree(pSub)
-pSub = StzEngineStringSubstring(pStr, 6, 10)
+pSub = StzEngineStringSubstring(pStr, 7, 11)
 Assert("Substring 6-10", StzEngineStringData(pSub), "World")
 StzEngineStringFree(pSub)
 StzEngineStringFree(pStr)
@@ -1121,7 +1121,7 @@ StzEngineStringFree(pStr)
 # --- Group 51: ReplaceSubstring ---
 ? "--- Group 51: ReplaceSubstring ---"
 pStr = StzEngineStringFrom("Hello World", 11)
-pR = StzEngineStringReplaceSubstring(pStr, 6, 10, "Zig", 3)
+pR = StzEngineStringReplaceSubstring(pStr, 7, 11, "Zig", 3)
 Assert("ReplaceSubstring", StzEngineStringData(pR), "Hello Zig")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
@@ -1175,8 +1175,8 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("abcabc")
 pFR = StzEngineStringFindAllChar(pStr, 97)
 Assert("FindAllChar a count", StzEngineFindResultCount(pFR), 2)
-Assert("FindAllChar a pos0", StzEngineFindResultGet(pFR, 0), 0)
-Assert("FindAllChar a pos1", StzEngineFindResultGet(pFR, 1), 3)
+Assert("FindAllChar a pos0", StzEngineFindResultGet(pFR, 0), 1)
+Assert("FindAllChar a pos1", StzEngineFindResultGet(pFR, 1), 4)
 StzEngineFindResultFree(pFR)
 StzEngineStringFree(pStr)
 
@@ -1376,7 +1376,7 @@ StzEngineStringFree(pStr)
 # --- Group 71: ReplaceAt ---
 ? "--- Group 71: ReplaceAt ---"
 pStr = StzEngineStringFrom("Hello World")
-pR = StzEngineStringReplaceAt(pStr, 5, 1, "-")
+pR = StzEngineStringReplaceAt(pStr, 6, 1, "-")
 Assert("ReplaceAt space->dash", StzEngineStringData(pR), "Hello-World")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
@@ -1463,7 +1463,7 @@ StzEngineStringFree(pStr)
 # --- Group 79: CharsBetween ---
 ? "--- Group 79: CharsBetween ---"
 pStr = StzEngineStringFrom("abcdef")
-pR = StzEngineStringCharsBetween(pStr, 1, 4)
+pR = StzEngineStringCharsBetween(pStr, 2, 5)
 Assert("CharsBetween 1..4 = cd", StzEngineStringData(pR), "cd")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
@@ -1770,7 +1770,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 pStr = StzEngineStringFrom("abcde")
-pR = StzEngineStringSwapChars(pStr, 0, 4)
+pR = StzEngineStringSwapChars(pStr, 1, 5)
 Assert("SwapChars 0,4", StzEngineStringData(pR), "ebcda")
 StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
@@ -2323,7 +2323,7 @@ StzEngineStringFree(pStr)
 
 # --- SwapChars edge cases ---
 pStr = StzEngineStringFrom("abcde")
-pResult = StzEngineStringSwapChars(pStr, 0, 4)
+pResult = StzEngineStringSwapChars(pStr, 1, 5)
 Assert("SwapChars first/last", StzEngineStringData(pResult), "ebcda")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
@@ -3335,10 +3335,10 @@ StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
 pStr = StzEngineStringFrom("Hello")
-pResult = StzEngineStringNthChar(pStr, 0)
+pResult = StzEngineStringNthChar(pStr, 1)
 Assert("NthChar 0", StzEngineStringData(pResult), "H")
 StzEngineStringFree(pResult)
-pResult = StzEngineStringNthChar(pStr, 4)
+pResult = StzEngineStringNthChar(pStr, 5)
 Assert("NthChar 4", StzEngineStringData(pResult), "o")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
