@@ -3030,8 +3030,9 @@ test "find_chars_of_type digits" {
 test "extract_chars_of_type letters" {
     const s = stz_string_from("H3ll0 W0rld!", 12);
     const r = stz_string_extract_chars_of_type(s, 0); // letters
-    try std.testing.expectEqual(@as(usize, 6), stz_string_size(r));
-    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..6], "HllWrl"));
+    // "H3ll0 W0rld!" -> letters: H, l, l, W, r, l, d = 7
+    try std.testing.expectEqual(@as(usize, 7), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..7], "HllWrld"));
     stz_string_free(r);
     stz_string_free(s);
 }
@@ -9627,6 +9628,36 @@ pub export fn stz_string_to_ordinal(handle: ?*StzString) callconv(.c) ?*StzStrin
     return result;
 }
 
+// ─── cp_count: number of codepoints in the string ───
+
+pub export fn stz_string_cp_count(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    return @intCast(utf8CodepointCount(src));
+}
+
+// ─── chars_split: split string into individual codepoint strings, null-separated ───
+// Returns a new StzString containing codepoints separated by null bytes.
+
+pub export fn stz_string_chars_split(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var i: usize = 0;
+    var first = true;
+    while (i < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[i]) catch 1;
+        const end = @min(i + cp_len, src.len);
+        if (!first) {
+            result.data.append(gpa, 0) catch break; // null separator
+        }
+        result.data.appendSlice(gpa, src[i..end]) catch break;
+        first = false;
+        i = end;
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -11666,5 +11697,63 @@ test "to_ordinal" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r3.?)[0..@intCast(stz_string_size(r3.?))], "23rd"));
     stz_string_free(r3);
     stz_string_free(h3);
+}
+
+test "left_cp" {
+    const s = stz_string_from("Hello", 5);
+    const r = stz_string_left_cp(s, 3);
+    try std.testing.expectEqual(@as(usize, 3), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..3], "Hel"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "left_cp utf8" {
+    // "cafe\xCC\x81" = "café" (5 bytes, 4 codepoints with combining accent)
+    const s = stz_string_from("caf\xC3\xA9!", 6); // café! = 5 codepoints
+    const r = stz_string_left_cp(s, 4); // "café"
+    try std.testing.expectEqual(@as(usize, 5), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..5], "caf\xC3\xA9"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "right_cp" {
+    const s = stz_string_from("Hello", 5);
+    const r = stz_string_right_cp(s, 3);
+    try std.testing.expectEqual(@as(usize, 3), stz_string_size(r));
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..3], "llo"));
+    stz_string_free(r);
+    stz_string_free(s);
+}
+
+test "cp_count" {
+    const s1 = stz_string_from("Hello", 5);
+    try std.testing.expectEqual(@as(c_int, 5), stz_string_cp_count(s1));
+    stz_string_free(s1);
+
+    const s2 = stz_string_from("caf\xC3\xA9", 5); // café = 4 codepoints
+    try std.testing.expectEqual(@as(c_int, 4), stz_string_cp_count(s2));
+    stz_string_free(s2);
+}
+
+test "nth_char" {
+    const s = stz_string_from("caf\xC3\xA9!", 6); // café! = 5 codepoints
+    const c0 = stz_string_nth_char(s, 0); // 'c'
+    try std.testing.expectEqual(@as(usize, 1), stz_string_size(c0));
+    try std.testing.expect(mem.eql(u8, stz_string_data(c0.?)[0..1], "c"));
+    stz_string_free(c0);
+
+    const c3 = stz_string_nth_char(s, 3); // 'é'
+    try std.testing.expectEqual(@as(usize, 2), stz_string_size(c3));
+    try std.testing.expect(mem.eql(u8, stz_string_data(c3.?)[0..2], "\xC3\xA9"));
+    stz_string_free(c3);
+
+    const c4 = stz_string_nth_char(s, 4); // '!'
+    try std.testing.expectEqual(@as(usize, 1), stz_string_size(c4));
+    try std.testing.expect(mem.eql(u8, stz_string_data(c4.?)[0..1], "!"));
+    stz_string_free(c4);
+
+    stz_string_free(s);
 }
 

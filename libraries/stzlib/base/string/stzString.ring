@@ -3186,9 +3186,11 @@ class stzString from stzObject
 			ok
 		ok
 
-		nLen = This.NumberOfItems()
-
-		This.AppendWith( Q(" ").RepeatedNTimes( n - nLen ) )
+		# Engine-backed: pad right with spaces to reach width n
+		pResult = StzEngineStringRightPad(@pEngine, n, " ")
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
 		
 		#< @FunctionFluentForm
 
@@ -3267,21 +3269,21 @@ class stzString from stzObject
 				This.ExtendToPositionWithCharsRepeated(n)
 				return
 			ok
-	
+
 			if NOT isNumber(n)
 				StzRaise("Incorrect param type! n must be a number.")
 			ok
-	
+
 			if NOT ( isString(pcChar) and len(pcChar) = 1 )
 				StzRaise("Incorrect param type! pcChar must be a char.")
 			ok
 		ok
 
-		nLen = This.NumberOfChars()
-
-		if n > nLen
-			This.AppendWith( Q(pcChar).RepeatedNTimes(n - nLen) )
-		ok
+		# Engine-backed: pad right with pcChar to reach width n
+		pResult = StzEngineStringRightPad(@pEngine, n, pcChar)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
 
 		#< @FunctionFluentForm
 
@@ -3741,10 +3743,11 @@ class stzString from stzObject
 			ok
 		ok
 
-		nLen = This.NumberOfItems()
-		if n < nLen
-			This.RemoveSection( n+1, nLen )
-		ok
+		# Engine-backed: keep first n codepoints
+		pResult = StzEngineStringLeftCp(@pEngine, n)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
 
 		#< @FunctionFluentForm
 
@@ -13277,23 +13280,19 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nLen = This.NumberOfChars()
-
 		if n = 0
 			return ""
-
-		but n > nLen
-			return This.Content()
-
-		else
-			if This.IsRightToleft()
-				cResult = This.Section( 1, n )
-			else
-				cResult = This.Section( nLen - n + 1, nLen )
-			end
-					
-			return cResult
 		ok
+
+		# Engine-backed: last n codepoints
+		if This.IsRightToleft()
+			pResult = StzEngineStringLeftCp(@pEngine, n)
+		else
+			pResult = StzEngineStringRightCp(@pEngine, n)
+		ok
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
 
 		#< @FunctionFluentForm
 
@@ -13391,23 +13390,19 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nLen = This.NumberOfChars()
-
 		if n = 0
 			return ""
-
-		but n > nLen
-			return This.Content()
-
-		else
-			if IsRightToleft()
-				cResult = Section( nLen - n + 1, nLen )
-			else
-				cResult = Section( 1, n)
-			end
-	
-			return cResult
 		ok
+
+		# Engine-backed: first n codepoints
+		if IsRightToleft()
+			pResult = StzEngineStringRightCp(@pEngine, n)
+		else
+			pResult = StzEngineStringLeftCp(@pEngine, n)
+		ok
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
 
 		#< @FunctionFluentForm
 
@@ -39477,27 +39472,22 @@ class stzString from stzObject
 			if isList(pcSubStr) and IsSubStringNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
-	
+
 			if isNumber(nPos) and isString(pcSubStr)
 				n = nPos
 				cSubStr = pcSubStr
-	
+
 			but isNumber(pcSubStr) and isString(nPos)
 				n = pcSubStr
 				cSubStr = nPos
-	
+
 			else
 				StzRaise("Incorrect param types! You must provide a string and number.")
 			ok
 		ok
 
-		nLen = This.NumberOfChars()
-		cBefore = ""
-		if n > 1
-			cBefore = This.Section(1, n - 1)
-		ok
-		cAfter = This.Section(n, nLen)
-		This.UpdateWith( cBefore + cSubStr + cAfter )
+		# Engine in-place mutation (0-based codepoint position)
+		StzEngineStringInsertCp(@pEngine, n - 1, cSubStr)
 
 		#< @FunctionAlternativeForms
 
@@ -94984,48 +94974,28 @@ class stzString from stzObject
 	def CharsCS(pCaseSensitive)
 		bCaseSensitive = CaseSensitive(pCaseSensitive)
 
-		cContent = This.Content()
-		nLen = len(cContent)
+		# Engine-backed: use codepoint iteration
+		nCount = StzEngineStringCpCount(@pEngine)
 		acResult = []
 
 		if bCaseSensitive = 1
-			# Split by UTF-8 codepoints (not bytes)
-			i = 1
-			while i <= nLen
-				nByte = ascii(substr(cContent, i, 1))
-				if nByte < 128
-					nCpLen = 1
-				but nByte < 224
-					nCpLen = 2
-				but nByte < 240
-					nCpLen = 3
-				else
-					nCpLen = 4
-				ok
-				acResult + substr(cContent, i, nCpLen)
-				i += nCpLen
-			end
+			# All codepoints as individual strings
+			for i = 0 to nCount - 1
+				pChar = StzEngineStringNthChar(@pEngine, i)
+				acResult + StzEngineStringData(pChar)
+				StzEngineStringFree(pChar)
+			next
 
 		else
-			# CI: unique chars (lowercased), UTF-8 aware
-			i = 1
-			while i <= nLen
-				nByte = ascii(substr(cContent, i, 1))
-				if nByte < 128
-					nCpLen = 1
-				but nByte < 224
-					nCpLen = 2
-				but nByte < 240
-					nCpLen = 3
-				else
-					nCpLen = 4
-				ok
-				c = lower( substr(cContent, i, nCpLen) )
+			# CI: unique chars (lowercased)
+			for i = 0 to nCount - 1
+				pChar = StzEngineStringNthChar(@pEngine, i)
+				c = lower(StzEngineStringData(pChar))
+				StzEngineStringFree(pChar)
 				if ring_find(acResult, c) = 0
 					acResult + c
 				ok
-				i += nCpLen
-			end
+			next
 
 		ok
 

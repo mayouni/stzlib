@@ -2111,6 +2111,16 @@ fn ring_StringToOrdinal(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_ordinal(h)), STZ_HANDLE);
 }
 
+fn ring_StringCpCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_cp_count(h)));
+}
+
+fn ring_StringCharsSplit(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_chars_split(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2433,6 +2443,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringchop", .func = &ring_StringChop },
     .{ .name = "stzenginestingscanint", .func = &ring_StringScanInt },
     .{ .name = "stzenginestringtoordinal", .func = &ring_StringToOrdinal },
+    .{ .name = "stzenginestringcpcount", .func = &ring_StringCpCount },
+    .{ .name = "stzenginestringcharssplit", .func = &ring_StringCharsSplit },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

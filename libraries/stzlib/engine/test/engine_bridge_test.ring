@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 318 Registered Functions"
+? "Engine Full Bridge Test -- All 320 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -3313,6 +3313,33 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("23")
 pResult = StzEngineStringToOrdinal(pStr)
 Assert("ToOrdinal 23rd", StzEngineStringData(pResult), "23rd")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- CpCount, LeftCp, RightCp, NthChar ---
+
+pStr = StzEngineStringFrom("Hello")
+Assert("CpCount ASCII", "" + StzEngineStringCpCount(pStr), "5")
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello")
+pResult = StzEngineStringLeftCp(pStr, 3)
+Assert("LeftCp", StzEngineStringData(pResult), "Hel")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello")
+pResult = StzEngineStringRightCp(pStr, 3)
+Assert("RightCp", StzEngineStringData(pResult), "llo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello")
+pResult = StzEngineStringNthChar(pStr, 0)
+Assert("NthChar 0", StzEngineStringData(pResult), "H")
+StzEngineStringFree(pResult)
+pResult = StzEngineStringNthChar(pStr, 4)
+Assert("NthChar 4", StzEngineStringData(pResult), "o")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
