@@ -6889,6 +6889,181 @@ pub fn stz_string_ngram_count(handle: StzStringHandle, size: c_int) callconv(.c)
     return @intCast(cp_count - sz + 1);
 }
 
+/// Count ASCII consonants (letters that are not vowels). Case-insensitive.
+pub fn stz_string_count_consonants(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var count: c_int = 0;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        if (cp_len == 1) {
+            const c = src[off];
+            const lower = if (c >= 'A' and c <= 'Z') c + 32 else c;
+            if (lower >= 'a' and lower <= 'z') {
+                if (lower != 'a' and lower != 'e' and lower != 'i' and lower != 'o' and lower != 'u') {
+                    count += 1;
+                }
+            }
+        }
+        off += cp_len;
+    }
+    return count;
+}
+
+/// Convert to sentence case: first character uppercase, rest lowercase.
+/// Returns new handle.
+pub fn stz_string_to_sentence_case(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var off: usize = 0;
+    var first_letter_done = false;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+
+        if (cp_len == 1 and !first_letter_done) {
+            const c = src[off];
+            if ((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z')) {
+                const upper = if (c >= 'a' and c <= 'z') c - 32 else c;
+                result.data.appendSlice(gpa, &[_]u8{upper}) catch break;
+                first_letter_done = true;
+                off += 1;
+                continue;
+            }
+        } else if (cp_len == 1 and first_letter_done) {
+            const c = src[off];
+            if (c >= 'A' and c <= 'Z') {
+                result.data.appendSlice(gpa, &[_]u8{c + 32}) catch break;
+                off += 1;
+                continue;
+            }
+        }
+        result.data.appendSlice(gpa, src[off..][0..cp_len]) catch break;
+        if (!first_letter_done and cp_len == 1) {
+            // non-letter single byte, keep going
+        } else if (!first_letter_done and cp_len > 1) {
+            first_letter_done = true;
+        }
+        off += cp_len;
+    }
+    return result;
+}
+
+/// Check if brackets/parentheses/braces are balanced.
+/// Returns 1 if balanced, 0 otherwise.
+pub fn stz_string_is_balanced(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 1;
+    const src = s.slice();
+    var stack: [1024]u8 = undefined;
+    var depth: usize = 0;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        if (cp_len == 1) {
+            const c = src[off];
+            if (c == '(' or c == '[' or c == '{') {
+                if (depth >= 1024) return 0;
+                stack[depth] = c;
+                depth += 1;
+            } else if (c == ')' or c == ']' or c == '}') {
+                if (depth == 0) return 0;
+                depth -= 1;
+                const expected: u8 = switch (c) {
+                    ')' => '(',
+                    ']' => '[',
+                    '}' => '{',
+                    else => 0,
+                };
+                if (stack[depth] != expected) return 0;
+            }
+        }
+        off += cp_len;
+    }
+    return if (depth == 0) @as(c_int, 1) else @as(c_int, 0);
+}
+
+/// Convert to URL-friendly slug: lowercase, spaces/underscores to hyphens,
+/// remove non-alphanumeric (except hyphens), collapse consecutive hyphens.
+/// Returns new handle.
+pub fn stz_string_slug(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var prev_hyphen = true; // suppress leading hyphen
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        if (cp_len == 1) {
+            const c = src[off];
+            if (c >= 'A' and c <= 'Z') {
+                result.data.appendSlice(gpa, &[_]u8{c + 32}) catch break;
+                prev_hyphen = false;
+            } else if ((c >= 'a' and c <= 'z') or (c >= '0' and c <= '9')) {
+                result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+                prev_hyphen = false;
+            } else if (c == ' ' or c == '_' or c == '-' or c == '\t') {
+                if (!prev_hyphen) {
+                    result.data.appendSlice(gpa, "-") catch break;
+                    prev_hyphen = true;
+                }
+            }
+            // else: skip non-alnum
+        }
+        // skip multi-byte codepoints for slug
+        off += cp_len;
+    }
+    // Remove trailing hyphen
+    const rsl = result.slice();
+    if (rsl.len > 0 and rsl[rsl.len - 1] == '-') {
+        _ = result.data.pop();
+    }
+    return result;
+}
+
+/// Return the nth chunk (0-based) when string is split into chunks of `size` codepoints.
+/// Last chunk may be shorter. Returns null if out of range.
+pub fn stz_string_chunk(handle: StzStringHandle, size: c_int, n: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0 or size <= 0 or n < 0) return null;
+
+    const sz: usize = @intCast(size);
+    const idx: usize = @intCast(n);
+    const skip_cps = idx * sz;
+
+    // Walk to start
+    var off: usize = 0;
+    var cp_idx: usize = 0;
+    while (cp_idx < skip_cps and off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        off += cp_len;
+        cp_idx += 1;
+    }
+    if (cp_idx != skip_cps) return null;
+    if (off >= src.len) return null;
+
+    const start = off;
+    var count: usize = 0;
+    while (count < sz and off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        off += cp_len;
+        count += 1;
+    }
+    if (count == 0) return null;
+    return stz_string_from(src[start..].ptr, off - start);
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -7759,5 +7934,76 @@ test "ngram_count" {
     try std.testing.expectEqual(@as(c_int, 3), stz_string_ngram_count(h, 3));
     try std.testing.expectEqual(@as(c_int, 1), stz_string_ngram_count(h, 5));
     try std.testing.expectEqual(@as(c_int, 0), stz_string_ngram_count(h, 6));
+    stz_string_free(h);
+}
+
+test "count_consonants" {
+    const h = stz_string_from("Hello World", 11);
+    try std.testing.expectEqual(@as(c_int, 7), stz_string_count_consonants(h));
+    stz_string_free(h);
+
+    const h2 = stz_string_from("aeiou", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_count_consonants(h2));
+    stz_string_free(h2);
+}
+
+test "to_sentence_case" {
+    const h = stz_string_from("hELLO WORLD", 11);
+    const r = stz_string_to_sentence_case(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "Hello world"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("already lowercase", 17);
+    const r2 = stz_string_to_sentence_case(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "Already lowercase"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "is_balanced" {
+    const h1 = stz_string_from("(hello [world])", 15);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_balanced(h1));
+    stz_string_free(h1);
+
+    const h2 = stz_string_from("(hello [world)", 14);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_balanced(h2));
+    stz_string_free(h2);
+
+    const h3 = stz_string_from("{[()]}", 6);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_balanced(h3));
+    stz_string_free(h3);
+}
+
+test "slug" {
+    const h = stz_string_from("Hello World! This is a Test", 27);
+    const r = stz_string_slug(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hello-world-this-is-a-test"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("  Multiple   Spaces  ", 21);
+    const r2 = stz_string_slug(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "multiple-spaces"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "chunk" {
+    const h = stz_string_from("abcdefgh", 8);
+    const r0 = stz_string_chunk(h, 3, 0);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r0)[0..@intCast(stz_string_size(r0))], "abc"));
+    stz_string_free(r0);
+
+    const r1 = stz_string_chunk(h, 3, 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1)[0..@intCast(stz_string_size(r1))], "def"));
+    stz_string_free(r1);
+
+    const r2 = stz_string_chunk(h, 3, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "gh"));
+    stz_string_free(r2);
+
+    const r3 = stz_string_chunk(h, 3, 3);
+    try std.testing.expectEqual(@as(StzStringHandle, null), r3);
     stz_string_free(h);
 }

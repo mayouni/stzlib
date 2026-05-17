@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 213 Registered Functions"
+? "Engine Full Bridge Test -- All 218 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -1879,6 +1879,46 @@ Assert("NgramCount(hello,2)", StzEngineStringNgramCount(pStr, 2), 4)
 Assert("NgramCount(hello,3)", StzEngineStringNgramCount(pStr, 3), 3)
 Assert("NgramCount(hello,5)", StzEngineStringNgramCount(pStr, 5), 1)
 Assert("NgramCount(hello,6)", StzEngineStringNgramCount(pStr, 6), 0)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 93: CountConsonants / ToSentenceCase / IsBalanced / Slug / Chunk
+# ==============================================================
+
+? ""
+? "--- Group 93: CountConsonants / ToSentenceCase / IsBalanced / Slug / Chunk ---"
+
+pStr = StzEngineStringFrom("Hello World")
+Assert("CountConsonants Hello World", StzEngineStringCountConsonants(pStr), 7)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hELLO WORLD")
+pResult = StzEngineStringToSentenceCase(pStr)
+Assert("ToSentenceCase", StzEngineStringData(pResult), "Hello world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("(hello [world])")
+Assert("IsBalanced true", StzEngineStringIsBalanced(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("(hello [world)")
+Assert("IsBalanced false", StzEngineStringIsBalanced(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello World! This is a Test")
+pResult = StzEngineStringSlug(pStr)
+Assert("Slug", StzEngineStringData(pResult), "hello-world-this-is-a-test")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abcdefgh")
+pResult = StzEngineStringChunk(pStr, 3, 0)
+Assert("Chunk(abcdefgh,3,0)", StzEngineStringData(pResult), "abc")
+StzEngineStringFree(pResult)
+pResult = StzEngineStringChunk(pStr, 3, 2)
+Assert("Chunk(abcdefgh,3,2)", StzEngineStringData(pResult), "gh")
+StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
 # ==============================================================
