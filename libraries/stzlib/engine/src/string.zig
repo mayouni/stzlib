@@ -9276,6 +9276,146 @@ pub export fn stz_string_pluralize(handle: ?*StzString) callconv(.c) ?*StzString
     return result;
 }
 
+// ─── Batch 20: deduplicate_lines, remove_blank_lines, extract_numbers, extract_emails, quote ───
+
+pub export fn stz_string_deduplicate_lines(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    // Track seen lines — simple O(n^2) for correctness
+    var line_starts: [1024]usize = undefined;
+    var line_ends: [1024]usize = undefined;
+    var line_count: usize = 0;
+    // Parse lines
+    var pos: usize = 0;
+    var first = true;
+    while (pos <= src.len and line_count < 1024) {
+        const start = pos;
+        while (pos < src.len and src[pos] != '\n') pos += 1;
+        const end = pos;
+        // Check if this line is a duplicate
+        var is_dup = false;
+        const line = src[start..end];
+        for (0..line_count) |li| {
+            const prev = src[line_starts[li]..line_ends[li]];
+            if (prev.len == line.len and mem.eql(u8, prev, line)) {
+                is_dup = true;
+                break;
+            }
+        }
+        if (!is_dup) {
+            if (!first) result.data.appendSlice(gpa, "\n") catch {};
+            result.data.appendSlice(gpa, line) catch {};
+            line_starts[line_count] = start;
+            line_ends[line_count] = end;
+            line_count += 1;
+            first = false;
+        }
+        if (pos < src.len) pos += 1 else break; // skip \n
+    }
+    return result;
+}
+
+pub export fn stz_string_remove_blank_lines(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var pos: usize = 0;
+    var first = true;
+    while (pos <= src.len) {
+        const start = pos;
+        while (pos < src.len and src[pos] != '\n') pos += 1;
+        const line = src[start..pos];
+        // Check if line is blank (only spaces/tabs)
+        var is_blank = true;
+        for (line) |c| {
+            if (c != ' ' and c != '\t' and c != '\r') {
+                is_blank = false;
+                break;
+            }
+        }
+        if (!is_blank) {
+            if (!first) result.data.appendSlice(gpa, "\n") catch {};
+            result.data.appendSlice(gpa, line) catch {};
+            first = false;
+        }
+        if (pos < src.len) pos += 1 else break;
+    }
+    return result;
+}
+
+pub export fn stz_string_extract_numbers(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var pos: usize = 0;
+    var first = true;
+    while (pos < src.len) {
+        if (src[pos] >= '0' and src[pos] <= '9') {
+            const start = pos;
+            while (pos < src.len and ((src[pos] >= '0' and src[pos] <= '9') or src[pos] == '.')) pos += 1;
+            if (!first) result.data.appendSlice(gpa, " ") catch {};
+            result.data.appendSlice(gpa, src[start..pos]) catch {};
+            first = false;
+        } else {
+            pos += 1;
+        }
+    }
+    return result;
+}
+
+pub export fn stz_string_extract_emails(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    // Simple extraction: find @ then scan backwards/forwards for valid chars
+    var pos: usize = 0;
+    var first = true;
+    while (pos < src.len) {
+        if (src[pos] == '@' and pos > 0) {
+            // Scan back for local part
+            var local_start = pos;
+            while (local_start > 0) {
+                const c = src[local_start - 1];
+                if ((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9') or c == '.' or c == '_' or c == '-' or c == '+') {
+                    local_start -= 1;
+                } else break;
+            }
+            // Scan forward for domain
+            var domain_end = pos + 1;
+            var has_dot = false;
+            while (domain_end < src.len) {
+                const c = src[domain_end];
+                if ((c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9') or c == '.' or c == '-') {
+                    if (c == '.') has_dot = true;
+                    domain_end += 1;
+                } else break;
+            }
+            if (local_start < pos and domain_end > pos + 1 and has_dot) {
+                if (!first) result.data.appendSlice(gpa, " ") catch {};
+                result.data.appendSlice(gpa, src[local_start..domain_end]) catch {};
+                first = false;
+                pos = domain_end;
+            } else {
+                pos += 1;
+            }
+        } else {
+            pos += 1;
+        }
+    }
+    return result;
+}
+
+pub export fn stz_string_quote(handle: ?*StzString, quote_char: u8) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    result.data.appendSlice(gpa, &[_]u8{quote_char}) catch {};
+    result.data.appendSlice(gpa, src) catch {};
+    result.data.appendSlice(gpa, &[_]u8{quote_char}) catch {};
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -11168,5 +11308,47 @@ test "pluralize" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r3.?)[0..@intCast(stz_string_size(r3.?))], "boxes"));
     stz_string_free(r3);
     stz_string_free(h3);
+}
+
+test "deduplicate_lines" {
+    const input = "hello\nworld\nhello\nfoo";
+    const h = stz_string_from(input, input.len);
+    const r = stz_string_deduplicate_lines(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "hello\nworld\nfoo"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "remove_blank_lines" {
+    const input = "hello\n\nworld\n  \nfoo";
+    const h = stz_string_from(input, input.len);
+    const r = stz_string_remove_blank_lines(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "hello\nworld\nfoo"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "extract_numbers" {
+    const h = stz_string_from("price is 42.5 and qty 10", 24);
+    const r = stz_string_extract_numbers(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "42.5 10"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "extract_emails" {
+    const h = stz_string_from("contact john@example.com or jane@test.org", 41);
+    const r = stz_string_extract_emails(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "john@example.com jane@test.org"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "quote" {
+    const h = stz_string_from("hello", 5);
+    const r = stz_string_quote(h, '"');
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "\"hello\""));
+    stz_string_free(r);
+    stz_string_free(h);
 }
 
