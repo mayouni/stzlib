@@ -39774,27 +39774,22 @@ class stzString from stzObject
 			if isList(pcSubStr) and IsSubStringNamedParamList(pcSubStr)
 				pcSubStr = pcSubStr[2]
 			ok
-	
+
 			if isNumber(nPos) and isString(pcSubStr)
 				n = nPos
 				cSubStr = pcSubStr
-	
+
 			but isNumber(pcSubStr) and isString(nPos)
 				n = pcSubStr
 				cSubStr = nPos
-	
+
 			else
 				StzRaise("Incorrect param types! You must provide a string and number.")
 			ok
 		ok
 
-		nLen = This.NumberOfChars()
-		cBefore = This.Section(1, n)
-		cAfter = ""
-		if n < nLen
-			cAfter = This.Section(n + 1, nLen)
-		ok
-		This.UpdateWith( cBefore + cSubStr + cAfter )
+		# Engine in-place mutation: insert after position n = insert at codepoint n (0-based)
+		StzEngineStringInsertCp(@pEngine, n, cSubStr)
 
 		#< @FunctionAlternativeForms
 
@@ -85729,8 +85724,19 @@ class stzString from stzObject
 	#------------------------------------------------#
 
 	def RemoveFirstOccurrenceCS(pcSubStr, pCaseSensitive)
-		This.ReplaceNthOccurrenceCS(1, pcSubStr, "", pCaseSensitive)
-	
+		# Engine-backed: direct first occurrence removal
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		if _bCase_
+			pResult = StzEngineStringRemoveFirstOccurrence(@pEngine, pcSubStr)
+		else
+			# CI: use replace to remove first occurrence case-insensitively
+			This.ReplaceNthOccurrenceCS(1, pcSubStr, "", pCaseSensitive)
+			return
+		ok
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
 		#< @FunctionFluentForm
 	
 		def RemoveFirstOccurrenceCSQ(pcSubStr, pCaseSensitive)
@@ -85797,8 +85803,17 @@ class stzString from stzObject
 	#--------------------------------------------------#
 
 	def RemoveLastOccurrenceCS(pcSubStr, pCaseSensitive)
-		This.ReplaceNthOccurrenceCS(:Last, pcSubStr, "", pCaseSensitive)
-	
+		# Engine-backed: direct last occurrence removal
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		if _bCase_
+			pResult = StzEngineStringRemoveLastOccurrence(@pEngine, pcSubStr)
+			cResult = StzEngineStringData(pResult)
+			StzEngineStringFree(pResult)
+			This.UpdateWith(cResult)
+		else
+			This.ReplaceNthOccurrenceCS(:Last, pcSubStr, "", pCaseSensitive)
+		ok
+
 		#< @FunctionFluentForm
 	
 		def RemoveLastOccurrenceCSQ(pcSubStr, pCaseSensitive)
@@ -89084,21 +89099,25 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		nLenSubStr = len(pcSubStr)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		if This.NLeftCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
-
-			if This.IsLeftToRight()
-				n1 = 1
-				n2 = nLenSubStr
-
-			else
-				nLenStr = This.NumberOfChars()
-				n1 = nLenStr - nLenSubStr + 1
-				n2 = nLenStr
+		if _bCase_
+			# Engine-backed: direct prefix removal
+			pResult = StzEngineStringRemovePrefix(@pEngine, pcSubStr)
+			cResult = StzEngineStringData(pResult)
+			StzEngineStringFree(pResult)
+			This.UpdateWith(cResult)
+		else
+			# CI: check and remove manually
+			nLenSubStr = len(pcSubStr)
+			if This.NLeftCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
+				if This.IsLeftToRight()
+					This.RemoveSection(1, nLenSubStr)
+				else
+					nLenStr = This.NumberOfChars()
+					This.RemoveSection(nLenStr - nLenSubStr + 1, nLenStr)
+				ok
 			ok
-
-			This.RemoveSection(n1, n2)
 		ok
 
 		#< @FunctionFluentForm
@@ -89166,22 +89185,25 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		nLenSubStr = len(pcSubStr)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
-		if This.NRightCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
-
-			if This.IsRightToLeft()
-				n1 = 1
-				n2 = nLenSubStr
-
-			else
-				nLenStr = This.NumberOfChars()
-				n1 = nLenStr - nLenSubStr + 1
-				n2 = nLenStr
-
+		if _bCase_
+			# Engine-backed: direct suffix removal
+			pResult = StzEngineStringRemoveSuffix(@pEngine, pcSubStr)
+			cResult = StzEngineStringData(pResult)
+			StzEngineStringFree(pResult)
+			This.UpdateWith(cResult)
+		else
+			# CI: check and remove manually
+			nLenSubStr = len(pcSubStr)
+			if This.NRightCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
+				if This.IsRightToLeft()
+					This.RemoveSection(1, nLenSubStr)
+				else
+					nLenStr = This.NumberOfChars()
+					This.RemoveSection(nLenStr - nLenSubStr + 1, nLenStr)
+				ok
 			ok
-
-			This.RemoveSection(n1, n2)
 		ok
 
 		def RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
