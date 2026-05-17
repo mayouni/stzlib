@@ -1663,6 +1663,32 @@ fn ring_StringCommonChars(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_common_chars(h1, h2)), STZ_HANDLE);
 }
 
+fn ring_StringCountLines(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_lines(h)));
+}
+
+fn ring_StringIsSnakeCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_snake_case(h)));
+}
+
+fn ring_StringIsKebabCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_kebab_case(h)));
+}
+
+fn ring_StringCountUniqueChars(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_unique_chars(h)));
+}
+
+fn ring_StringCaesar(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const shift: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_caesar(h, shift)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1905,6 +1931,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcountlower", .func = &ring_StringCountLower },
     .{ .name = "stzenginestringiscamelcase", .func = &ring_StringIsCamelCase },
     .{ .name = "stzenginestringcommonchars", .func = &ring_StringCommonChars },
+    .{ .name = "stzenginestringcountlines", .func = &ring_StringCountLines },
+    .{ .name = "stzenginestringissnakecase", .func = &ring_StringIsSnakeCase },
+    .{ .name = "stzenginestringiskebabcase", .func = &ring_StringIsKebabCase },
+    .{ .name = "stzenginestringcountuniquechars", .func = &ring_StringCountUniqueChars },
+    .{ .name = "stzenginestringcaesar", .func = &ring_StringCaesar },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
