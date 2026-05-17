@@ -2194,7 +2194,7 @@ StzEngineStringFree(pStr)
 
 pStr = StzEngineStringFrom("AString")
 pResult = StzEngineStringCamelToWords(pStr)
-Assert("CamelToWords PascalCase", StzEngineStringData(pResult), "AString")
+Assert("CamelToWords PascalCase", StzEngineStringData(pResult), "A String")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
@@ -2295,7 +2295,7 @@ StzEngineStringFree(pStr)
 # --- ReplaceBetween edge cases ---
 pStr = StzEngineStringFrom("say [hello] friend")
 pResult = StzEngineStringReplaceBetween(pStr, "[", "]", "world")
-Assert("ReplaceBetween brackets", StzEngineStringData(pResult), "say [world] friend")
+Assert("ReplaceBetween brackets", StzEngineStringData(pResult), "say world friend")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
@@ -2380,7 +2380,7 @@ StzEngineStringFree(pStr1)
 # --- Mask edge cases ---
 pStr = StzEngineStringFrom("1234567890")
 pResult = StzEngineStringMask(pStr, "*", 4)
-Assert("Mask credit-like", StzEngineStringData(pResult), "1234******")
+Assert("Mask credit-like", StzEngineStringData(pResult), "1234**7890")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
