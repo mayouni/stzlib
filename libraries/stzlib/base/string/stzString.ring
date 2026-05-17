@@ -1431,6 +1431,81 @@ class stzString from stzObject
 		def InPigLatin()
 			return This.PigLatined()
 
+	  #==============================#
+	 #  RUN-LENGTH ENCODE/DECODE   #
+	#==============================#
+
+	def RunLengthEncode()
+		pResult = StzEngineStringRunLengthEncode(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def RLEEncoded()
+			return This.RunLengthEncode()
+
+	def RunLengthDecode()
+		pResult = StzEngineStringRunLengthDecode(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RunLengthDecodeQ()
+			This.RunLengthDecode()
+			return This
+
+	def RLEDecoded()
+		pResult = StzEngineStringRunLengthDecode(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #==============================#
+	 #  COUNT PARAGRAPHS           #
+	#==============================#
+
+	def CountParagraphs()
+		return StzEngineStringCountParagraphs(@pEngine)
+
+		def NumberOfParagraphs()
+			return This.CountParagraphs()
+
+	  #==============================#
+	 #  ZIGZAG CIPHER              #
+	#==============================#
+
+	def Zigzag(nRails)
+		pResult = StzEngineStringZigzag(@pEngine, nRails)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ZigzagQ(nRails)
+			This.Zigzag(nRails)
+			return This
+
+	def Zigzagged(nRails)
+		pResult = StzEngineStringZigzag(@pEngine, nRails)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def ZigzagCipher(nRails)
+			return This.Zigzagged(nRails)
+
+	  #==============================#
+	 #  TO MORSE                   #
+	#==============================#
+
+	def ToMorse()
+		pResult = StzEngineStringToMorse(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def MorseCode()
+			return This.ToMorse()
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#

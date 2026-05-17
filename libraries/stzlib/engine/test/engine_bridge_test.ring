@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 253 Registered Functions"
+? "Engine Full Bridge Test -- All 258 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -2798,6 +2798,51 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("apple is")
 pResult = StzEngineStringToPigLatin(pStr)
 Assert("PigLatin apple is", StzEngineStringData(pResult), "appleyay isyay")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 102: RunLengthEncode / RunLengthDecode / CountParagraphs / Zigzag / ToMorse
+# ==============================================================
+
+? ""
+? "--- Group 102: RunLengthEncode / RunLengthDecode / CountParagraphs / Zigzag / ToMorse ---"
+
+pStr = StzEngineStringFrom("aaabbc")
+pResult = StzEngineStringRunLengthEncode(pStr)
+Assert("RLE encode aaabbc", StzEngineStringData(pResult), "3a2b1c")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("3a2b1c")
+pResult = StzEngineStringRunLengthDecode(pStr)
+Assert("RLE decode 3a2b1c", StzEngineStringData(pResult), "aaabbc")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("para1" + nl + nl + "para2" + nl + nl + "para3")
+Assert("CountParagraphs 3", StzEngineStringCountParagraphs(pStr), 3)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("single paragraph")
+Assert("CountParagraphs 1", StzEngineStringCountParagraphs(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("WEAREDISCOVERED")
+pResult = StzEngineStringZigzag(pStr, 3)
+Assert("Zigzag 3 rails", StzEngineStringData(pResult), "WECRERDSOEEAIVD")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("SOS")
+pResult = StzEngineStringToMorse(pStr)
+Assert("Morse SOS", StzEngineStringData(pResult), "... --- ...")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("HI")
+pResult = StzEngineStringToMorse(pStr)
+Assert("Morse HI", StzEngineStringData(pResult), ".... ..")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
