@@ -97,6 +97,11 @@
   with StrError enum (5 codes), UTF-8 validation in str_from, null-
   termination in str_data, all 128 catch {} sites set error state.
   423 Zig tests, 658 Ring bridge tests, 341 registered functions.
+- **Phase C performance** (Session 8): StzString gains cached_cp_count
+  and cached_is_ascii with lazy computation + mutation invalidation.
+  ASCII fast-paths for codepointIndexToByteOffset, utf8CodepointCount.
+  Boyer-Moore-Horspool search for needles > 4 bytes on ASCII strings.
+  434 Zig tests, 658 Ring bridge tests, 341 registered functions.
 
 ---
 
