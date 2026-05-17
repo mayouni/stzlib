@@ -1581,6 +1581,85 @@ class stzString from stzObject
 		def CharFrequencyTop()
 			return This.MostFrequentChar()
 
+	  #==============================#
+	 #  JACCARD SIMILARITY         #
+	#==============================#
+
+	def JaccardSimilarityWith(poOtherStr)
+		return StzEngineStringJaccardSimilarity(@pEngine, poOtherStr.EngineHandle())
+
+		def SimilarityWith(poOtherStr)
+			return This.JaccardSimilarityWith(poOtherStr)
+
+	  #==============================#
+	 #  LONGEST COMMON PREFIX      #
+	#==============================#
+
+	def LongestCommonPrefixWith(poOtherStr)
+		pResult = StzEngineStringLongestCommonPrefix(@pEngine, poOtherStr.EngineHandle())
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def CommonPrefixWith(poOtherStr)
+			return This.LongestCommonPrefixWith(poOtherStr)
+
+	  #==============================#
+	 #  LONGEST COMMON SUFFIX      #
+	#==============================#
+
+	def LongestCommonSuffixWith(poOtherStr)
+		pResult = StzEngineStringLongestCommonSuffix(@pEngine, poOtherStr.EngineHandle())
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def CommonSuffixWith(poOtherStr)
+			return This.LongestCommonSuffixWith(poOtherStr)
+
+	  #==============================#
+	 #  WRAP WITH                  #
+	#==============================#
+
+	def WrapWith(cPrefix, cSuffix)
+		pResult = StzEngineStringWrapWith(@pEngine, cPrefix, cSuffix)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def WrapWithQ(cPrefix, cSuffix)
+			This.WrapWith(cPrefix, cSuffix)
+			return This
+
+	def WrappedWith(cPrefix, cSuffix)
+		pResult = StzEngineStringWrapWith(@pEngine, cPrefix, cSuffix)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #==============================#
+	 #  TO TITLE CASE STRICT       #
+	#==============================#
+
+	def ToTitleCaseStrict()
+		pResult = StzEngineStringToTitleCaseStrict(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToTitleCaseStrictQ()
+			This.ToTitleCaseStrict()
+			return This
+
+	def TitleCasedStrict()
+		pResult = StzEngineStringToTitleCaseStrict(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def StrictTitleCase()
+			return This.TitleCasedStrict()
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#

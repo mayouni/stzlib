@@ -1798,6 +1798,38 @@ fn ring_StringCharFrequencyTop(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_char_frequency_top(h)), STZ_HANDLE);
 }
 
+fn ring_StringJaccardSimilarity(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_jaccard_similarity(h1, h2)));
+}
+
+fn ring_StringLongestCommonPrefix(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_longest_common_prefix(h1, h2)), STZ_HANDLE);
+}
+
+fn ring_StringLongestCommonSuffix(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_longest_common_suffix(h1, h2)), STZ_HANDLE);
+}
+
+fn ring_StringWrapWith(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const prefix: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const prefix_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    const suffix: [*c]const u8 = ring_vm_api_getstring(p, 3);
+    const suffix_len: c_int = @intCast(ring_vm_api_getstringsize(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_wrap_with(h, prefix, prefix_len, suffix, suffix_len)), STZ_HANDLE);
+}
+
+fn ring_StringToTitleCaseStrict(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_title_case_strict(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2065,6 +2097,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringxorcipher", .func = &ring_StringXorCipher },
     .{ .name = "stzenginestringentropy", .func = &ring_StringEntropy },
     .{ .name = "stzenginestringcharfrequencytop", .func = &ring_StringCharFrequencyTop },
+    .{ .name = "stzenginestringjaccardsimilarity", .func = &ring_StringJaccardSimilarity },
+    .{ .name = "stzenginestringlongestcommonprefix", .func = &ring_StringLongestCommonPrefix },
+    .{ .name = "stzenginestringlongestcommonsuffix", .func = &ring_StringLongestCommonSuffix },
+    .{ .name = "stzenginestringwrapwith", .func = &ring_StringWrapWith },
+    .{ .name = "stzenginestringtotitlecasestrict", .func = &ring_StringToTitleCaseStrict },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 263 Registered Functions"
+? "Engine Full Bridge Test -- All 268 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -2888,6 +2888,59 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("aabbbcc")
 pResult = StzEngineStringCharFrequencyTop(pStr)
 Assert("CharFreqTop aabbbcc", StzEngineStringData(pResult), "b")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 104: JaccardSimilarity / LongestCommonPrefix / LongestCommonSuffix / WrapWith / ToTitleCaseStrict
+# ==============================================================
+
+? ""
+? "--- Group 104: JaccardSimilarity / LongestCommonPrefix / LongestCommonSuffix / WrapWith / ToTitleCaseStrict ---"
+
+pStr = StzEngineStringFrom("abc")
+pStr2 = StzEngineStringFrom("abc")
+Assert("Jaccard identical", StzEngineStringJaccardSimilarity(pStr, pStr2), 100)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc")
+pStr2 = StzEngineStringFrom("xyz")
+Assert("Jaccard disjoint", StzEngineStringJaccardSimilarity(pStr, pStr2), 0)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world")
+pStr2 = StzEngineStringFrom("hello there")
+pResult = StzEngineStringLongestCommonPrefix(pStr, pStr2)
+Assert("LCP hello", StzEngineStringData(pResult), "hello ")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("testing")
+pStr2 = StzEngineStringFrom("resting")
+pResult = StzEngineStringLongestCommonSuffix(pStr, pStr2)
+Assert("LCS esting", StzEngineStringData(pResult), "esting")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringWrapWith(pStr, "[", "]")
+Assert("WrapWith brackets", StzEngineStringData(pResult), "[hello]")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world foo")
+pResult = StzEngineStringToTitleCaseStrict(pStr)
+Assert("TitleCaseStrict", StzEngineStringData(pResult), "Hello World Foo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("the LORD of war")
+pResult = StzEngineStringToTitleCaseStrict(pStr)
+Assert("TitleCaseStrict LORD", StzEngineStringData(pResult), "The Lord Of War")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
