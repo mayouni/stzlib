@@ -8365,6 +8365,104 @@ pub export fn stz_string_char_frequency_top(handle: ?*StzString) callconv(.c) ?*
     return result;
 }
 
+// batch 12 ────────────────────────────────────────────────────────
+
+/// Jaccard similarity of character sets (unique chars) * 100. Two handles.
+pub export fn stz_string_jaccard_similarity(h1: ?*StzString, h2: ?*StzString) callconv(.c) c_int {
+    const s1 = h1 orelse return 0;
+    const s2 = h2 orelse return 0;
+    const src1 = s1.slice();
+    const src2 = s2.slice();
+
+    // Build char sets (ASCII only for speed)
+    var set1: [256]bool = [_]bool{false} ** 256;
+    var set2: [256]bool = [_]bool{false} ** 256;
+    for (src1) |c| set1[c] = true;
+    for (src2) |c| set2[c] = true;
+
+    var intersection: u32 = 0;
+    var union_count: u32 = 0;
+    for (0..256) |i| {
+        if (set1[i] or set2[i]) union_count += 1;
+        if (set1[i] and set2[i]) intersection += 1;
+    }
+    if (union_count == 0) return 100; // both empty = identical
+    return @intCast((intersection * 100) / union_count);
+}
+
+/// Longest common prefix between two handles.
+pub export fn stz_string_longest_common_prefix(h1: ?*StzString, h2: ?*StzString) callconv(.c) ?*StzString {
+    const s1 = h1 orelse return null;
+    const s2 = h2 orelse return null;
+    const src1 = s1.slice();
+    const src2 = s2.slice();
+    const result = stz_string_new() orelse return null;
+
+    const min_len = if (src1.len < src2.len) src1.len else src2.len;
+    var i: usize = 0;
+    while (i < min_len and src1[i] == src2[i]) : (i += 1) {}
+    result.data.appendSlice(gpa, src1[0..i]) catch {};
+    return result;
+}
+
+/// Longest common suffix between two handles.
+pub export fn stz_string_longest_common_suffix(h1: ?*StzString, h2: ?*StzString) callconv(.c) ?*StzString {
+    const s1 = h1 orelse return null;
+    const s2 = h2 orelse return null;
+    const src1 = s1.slice();
+    const src2 = s2.slice();
+    const result = stz_string_new() orelse return null;
+
+    const min_len = if (src1.len < src2.len) src1.len else src2.len;
+    var i: usize = 0;
+    while (i < min_len and src1[src1.len - 1 - i] == src2[src2.len - 1 - i]) : (i += 1) {}
+    if (i > 0) result.data.appendSlice(gpa, src1[src1.len - i ..]) catch {};
+    return result;
+}
+
+/// Wrap string with prefix and suffix: wrap("hello", "[", "]") -> "[hello]"
+pub export fn stz_string_wrap_with(handle: ?*StzString, prefix: [*c]const u8, prefix_len: c_int, suffix: [*c]const u8, suffix_len: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const plen: usize = if (prefix_len >= 0) @intCast(prefix_len) else 0;
+    const slen: usize = if (suffix_len >= 0) @intCast(suffix_len) else 0;
+
+    result.data.appendSlice(gpa, prefix[0..plen]) catch {};
+    result.data.appendSlice(gpa, src) catch {};
+    result.data.appendSlice(gpa, suffix[0..slen]) catch {};
+    return result;
+}
+
+/// Strict title case: capitalize first letter of every word (unlike smart which skips small words).
+pub export fn stz_string_to_title_case_strict(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    var word_start = true;
+    for (src) |c| {
+        if (c == ' ' or c == '\t' or c == '\n') {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            word_start = true;
+        } else if (word_start) {
+            if (c >= 'a' and c <= 'z') {
+                result.data.appendSlice(gpa, &[_]u8{c - 32}) catch break;
+            } else {
+                result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            }
+            word_start = false;
+        } else {
+            if (c >= 'A' and c <= 'Z') {
+                result.data.appendSlice(gpa, &[_]u8{c + 32}) catch break;
+            } else {
+                result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            }
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -9836,5 +9934,68 @@ test "char_frequency_top" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "b"));
     stz_string_free(r);
     stz_string_free(h);
+}
+
+test "jaccard_similarity" {
+    const h1 = stz_string_from("abc", 3);
+    const h2 = stz_string_from("abc", 3);
+    try std.testing.expectEqual(@as(c_int, 100), stz_string_jaccard_similarity(h1, h2));
+    stz_string_free(h2);
+    stz_string_free(h1);
+
+    const h3 = stz_string_from("abc", 3);
+    const h4 = stz_string_from("xyz", 3);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_jaccard_similarity(h3, h4));
+    stz_string_free(h4);
+    stz_string_free(h3);
+
+    // "ab" and "bc" share 'b' -> intersection=1, union=3 -> 33%
+    const h5 = stz_string_from("ab", 2);
+    const h6 = stz_string_from("bc", 2);
+    try std.testing.expectEqual(@as(c_int, 33), stz_string_jaccard_similarity(h5, h6));
+    stz_string_free(h6);
+    stz_string_free(h5);
+}
+
+test "longest_common_prefix" {
+    const h1 = stz_string_from("hello world", 11);
+    const h2 = stz_string_from("hello there", 11);
+    const r = stz_string_longest_common_prefix(h1, h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hello "));
+    stz_string_free(r);
+    stz_string_free(h2);
+    stz_string_free(h1);
+}
+
+test "longest_common_suffix" {
+    const h1 = stz_string_from("testing", 7);
+    const h2 = stz_string_from("resting", 7);
+    const r = stz_string_longest_common_suffix(h1, h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "esting"));
+    stz_string_free(r);
+    stz_string_free(h2);
+    stz_string_free(h1);
+}
+
+test "wrap_with" {
+    const h = stz_string_from("hello", 5);
+    const r = stz_string_wrap_with(h, "[", 1, "]", 1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "[hello]"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "to_title_case_strict" {
+    const h = stz_string_from("hello world foo", 15);
+    const r = stz_string_to_title_case_strict(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "Hello World Foo"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("the LORD of war", 15);
+    const r2 = stz_string_to_title_case_strict(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "The Lord Of War"));
+    stz_string_free(r2);
+    stz_string_free(h2);
 }
 
