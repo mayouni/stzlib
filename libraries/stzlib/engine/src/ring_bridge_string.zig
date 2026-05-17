@@ -1533,6 +1533,33 @@ fn ring_StringNgramCount(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ngram_count(h, size)));
 }
 
+fn ring_StringCountConsonants(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_consonants(h)));
+}
+
+fn ring_StringToSentenceCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_sentence_case(h)), STZ_HANDLE);
+}
+
+fn ring_StringIsBalanced(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_balanced(h)));
+}
+
+fn ring_StringSlug(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_slug(h)), STZ_HANDLE);
+}
+
+fn ring_StringChunk(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const size: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_chunk(h, size, n)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1750,6 +1777,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringispangram", .func = &ring_StringIsPangram },
     .{ .name = "stzenginestringngram", .func = &ring_StringNgram },
     .{ .name = "stzenginestringngramcount", .func = &ring_StringNgramCount },
+    .{ .name = "stzenginestringcountconsonants", .func = &ring_StringCountConsonants },
+    .{ .name = "stzenginestringtosentencecase", .func = &ring_StringToSentenceCase },
+    .{ .name = "stzenginestringisbalanced", .func = &ring_StringIsBalanced },
+    .{ .name = "stzenginestringslug", .func = &ring_StringSlug },
+    .{ .name = "stzenginestringchunk", .func = &ring_StringChunk },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

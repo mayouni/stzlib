@@ -799,6 +799,85 @@ class stzString from stzObject
 		def NumberOfNgrams(nSize)
 			return This.NgramCount(nSize)
 
+	  #==============================#
+	 #  COUNT CONSONANTS           #
+	#==============================#
+
+	def CountConsonants()
+		return StzEngineStringCountConsonants(@pEngine)
+
+		def NumberOfConsonants()
+			return This.CountConsonants()
+
+	  #==============================#
+	 #  TO SENTENCE CASE           #
+	#==============================#
+
+	def ToSentenceCase()
+		pResult = StzEngineStringToSentenceCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToSentenceCaseQ()
+			This.ToSentenceCase()
+			return This
+
+	def SentenceCased()
+		pResult = StzEngineStringToSentenceCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def InSentenceCase()
+			return This.SentenceCased()
+
+	  #==============================#
+	 #  IS BALANCED                #
+	#==============================#
+
+	def IsBalanced()
+		return StzEngineStringIsBalanced(@pEngine) = 1
+
+		def BracketsAreBalanced()
+			return This.IsBalanced()
+
+	  #==============================#
+	 #  SLUG                       #
+	#==============================#
+
+	def Slugify()
+		pResult = StzEngineStringSlug(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def SlugifyQ()
+			This.Slugify()
+			return This
+
+	def Slugified()
+		pResult = StzEngineStringSlug(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def ToSlug()
+			return This.Slugified()
+
+	  #==============================#
+	 #  CHUNK                      #
+	#==============================#
+
+	def Chunk(nSize, n)
+		pResult = StzEngineStringChunk(@pEngine, nSize, n - 1)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def NthChunk(nSize, n)
+			return This.Chunk(nSize, n)
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
