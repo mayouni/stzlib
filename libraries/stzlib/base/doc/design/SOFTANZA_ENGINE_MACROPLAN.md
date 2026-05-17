@@ -93,6 +93,10 @@
 - **str_ prefix rename** (Session 8): all `stz_string_*` -> `str_*`
   across string.zig, ring_bridge_string.zig, engine.zig, entry files.
   No migration aliases (no user base). Phase A complete.
+- **Phase B safety audit** (Session 8): str_last_error/str_clear_error
+  with StrError enum (5 codes), UTF-8 validation in str_from, null-
+  termination in str_data, all 128 catch {} sites set error state.
+  423 Zig tests, 658 Ring bridge tests, 341 registered functions.
 
 ---
 
