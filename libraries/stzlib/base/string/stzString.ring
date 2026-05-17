@@ -1914,6 +1914,96 @@ class stzString from stzObject
 		return cResult
 
 	  #=========================#
+	 #  VIGENERE ENCRYPT       #
+	#=========================#
+
+	def VigenereEncrypt(cKey)
+		pResult = StzEngineStringVigenereEncrypt(@pEngine, cKey)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def VigenereEncryptQ(cKey)
+			This.VigenereEncrypt(cKey)
+			return This
+
+	def VigenereEncrypted(cKey)
+		pResult = StzEngineStringVigenereEncrypt(@pEngine, cKey)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  ATBASH                 #
+	#=========================#
+
+	def Atbash()
+		pResult = StzEngineStringAtbash(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def AtbashQ()
+			This.Atbash()
+			return This
+
+	def Atbashed()
+		pResult = StzEngineStringAtbash(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  COUNT WORDS MATCHING   #
+	#=========================#
+
+	def CountWordsMatching(cWord)
+		return StzEngineStringCountWordsMatching(@pEngine, cWord)
+
+	  #=========================#
+	 #  TRUNCATE WORDS         #
+	#=========================#
+
+	def TruncateWords(n)
+		pResult = StzEngineStringTruncateWords(@pEngine, n)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def TruncateWordsQ(n)
+			This.TruncateWords(n)
+			return This
+
+	def TruncatedWords(n)
+		pResult = StzEngineStringTruncateWords(@pEngine, n)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  TO CONSTANT CASE       #
+	#=========================#
+
+	def ToConstantCase()
+		pResult = StzEngineStringToConstantCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToConstantCaseQ()
+			This.ToConstantCase()
+			return This
+
+	def ConstantCased()
+		pResult = StzEngineStringToConstantCase(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def ScreamingSnakeCased()
+			return This.ConstantCased()
+
+	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
 

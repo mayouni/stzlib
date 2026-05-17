@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 283 Registered Functions"
+? "Engine Full Bridge Test -- All 288 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -3064,6 +3064,43 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("Robert")
 pResult = StzEngineStingSoundex(pStr)
 Assert("Soundex Robert", StzEngineStringData(pResult), "R163")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+? ""
+? "--- Group 108: VigenereEncrypt / Atbash / CountWordsMatching / TruncateWords / ToConstantCase ---"
+
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringVigenereEncrypt(pStr, "key")
+Assert("Vigenere hello/key", StzEngineStringData(pResult), "rijvs")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc")
+pResult = StzEngineStringAtbash(pStr)
+Assert("Atbash abc", StzEngineStringData(pResult), "zyx")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello")
+pResult = StzEngineStringAtbash(pStr)
+Assert("Atbash Hello", StzEngineStringData(pResult), "Svool")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("the cat and the dog")
+Assert("CountWordsMatching the", StzEngineStringCountWordsMatching(pStr, "the"), 2)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("one two three four five")
+pResult = StzEngineStringTruncateWords(pStr, 3)
+Assert("TruncateWords 3", StzEngineStringData(pResult), "one two three")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world")
+pResult = StzEngineStringToConstantCase(pStr)
+Assert("ToConstantCase", StzEngineStringData(pResult), "HELLO_WORLD")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 

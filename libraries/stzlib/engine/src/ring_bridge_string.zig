@@ -1922,6 +1922,36 @@ fn ring_StringSoundex(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_soundex(h)), STZ_HANDLE);
 }
 
+fn ring_StringVigenereEncrypt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const key: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const key_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_vigenere_encrypt(h, key, key_len)), STZ_HANDLE);
+}
+
+fn ring_StringAtbash(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_atbash(h)), STZ_HANDLE);
+}
+
+fn ring_StringCountWordsMatching(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pat: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const pat_len: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_words_matching(h, pat, pat_len)));
+}
+
+fn ring_StringTruncateWords(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_truncate_words(h, n)), STZ_HANDLE);
+}
+
+fn ring_StringToConstantCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_constant_case(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2209,6 +2239,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringtohex", .func = &ring_StringToHex },
     .{ .name = "stzenginestringfromhex", .func = &ring_StringFromHex },
     .{ .name = "stzenginestingsoundex", .func = &ring_StringSoundex },
+    .{ .name = "stzenginestringvigenereencrypt", .func = &ring_StringVigenereEncrypt },
+    .{ .name = "stzenginestringatbash", .func = &ring_StringAtbash },
+    .{ .name = "stzenginestringcountwordsmatching", .func = &ring_StringCountWordsMatching },
+    .{ .name = "stzenginestringtruncatewords", .func = &ring_StringTruncateWords },
+    .{ .name = "stzenginestringtoconstantcase", .func = &ring_StringToConstantCase },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
