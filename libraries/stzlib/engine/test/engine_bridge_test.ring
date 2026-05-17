@@ -1,6 +1,6 @@
-? "Engine Full Bridge Test -- All 339 Registered Functions"
+? "Engine Full Bridge Test -- All 341 Registered Functions"
 ? "======================================================"
-? ""
+
 
 # Load Engine DLL directly (no stzlib dependency)
 cDll = "D:\GitHub\stzlib\libraries\stzlib\engine\zig-out\bin\stz_string.dll"
@@ -12,7 +12,7 @@ ok
 
 pLib = LoadLib(cDll)
 ? "Engine DLL loaded from: " + cDll
-? ""
+
 
 nPass = 0
 nFail = 0
@@ -22,7 +22,7 @@ nTotal = 0
 #  GROUP 1: Lifecycle -- New, From, Free, Data, Size, Count
 # ==============================================================
 
-? "--- Group 1: Lifecycle ---"
+? NL + "--- Group 1: Lifecycle ---"
 
 pNew = StzEngineStringNew()
 Assert("StringNew returns handle", type(pNew) != "NUMBER", true)
@@ -43,7 +43,7 @@ StzEngineStringFree(pUni)
 #  GROUP 2: Append, Insert, Mid
 # ==============================================================
 
-? "--- Group 2: Append, Insert, Mid ---"
+? NL + "--- Group 2: Append, Insert, Mid ---"
 
 pStr = StzEngineStringFrom("Hello")
 StzEngineStringAppend(pStr, " World")
@@ -66,7 +66,7 @@ StzEngineStringFree(pStr2)
 #  GROUP 3: Trimmed
 # ==============================================================
 
-? "--- Group 3: Trimmed ---"
+? NL + "--- Group 3: Trimmed ---"
 
 pStr = StzEngineStringFrom("  hello  ")
 pTrimmed = StzEngineStringTrimmed(pStr)
@@ -78,7 +78,7 @@ StzEngineStringFree(pStr)
 #  GROUP 4: IndexOf, IndexOfFrom, IndexOfCI
 # ==============================================================
 
-? "--- Group 4: IndexOf, IndexOfFrom, IndexOfCI ---"
+? NL + "--- Group 4: IndexOf, IndexOfFrom, IndexOfCI ---"
 
 pStr = StzEngineStringFrom("hello world hello")
 nIdx = StzEngineStringIndexOf(pStr, "world")
@@ -105,7 +105,7 @@ StzEngineStringFree(pStr)
 #  GROUP 5: ByteToCp
 # ==============================================================
 
-? "--- Group 5: ByteToCp ---"
+? NL + "--- Group 5: ByteToCp ---"
 
 pStr = StzEngineStringFrom("hello")
 nCp = StzEngineStringByteToCp(pStr, 3)
@@ -116,7 +116,7 @@ StzEngineStringFree(pStr)
 #  GROUP 6: CountOf, CountOfCI, LastIndexOf, LastIndexOfCI
 # ==============================================================
 
-? "--- Group 6: CountOf, LastIndexOf ---"
+? NL + "--- Group 6: CountOf, LastIndexOf ---"
 
 pStr = StzEngineStringFrom("abc-abc-abc")
 Assert("CountOf", StzEngineStringCountOf(pStr, "abc"), 3)
@@ -135,7 +135,7 @@ StzEngineStringFree(pStr)
 #           EndsWith, EndsWithCI
 # ==============================================================
 
-? "--- Group 7: Contains, StartsWith, EndsWith ---"
+? NL + "--- Group 7: Contains, StartsWith, EndsWith ---"
 
 pStr = StzEngineStringFrom("Hello World")
 Assert("Contains yes", StzEngineStringContains(pStr, "World"), 1)
@@ -154,7 +154,7 @@ StzEngineStringFree(pStr)
 #  GROUP 8: FindAll, FindAllCI, FindResultCount/Get/Free
 # ==============================================================
 
-? "--- Group 8: FindAll, FindAllCI ---"
+? NL + "--- Group 8: FindAll, FindAllCI ---"
 
 pStr = StzEngineStringFrom("abc-abc-abc")
 pResult = StzEngineStringFindAll(pStr, "abc")
@@ -180,7 +180,7 @@ StzEngineStringFree(pStr)
 #  GROUP 9: SplitCount, SplitGet, SplitCountCI, SplitGetCI
 # ==============================================================
 
-? "--- Group 9: Split ---"
+? NL + "--- Group 9: Split ---"
 
 pStr = StzEngineStringFrom("one::two::three")
 Assert("SplitCount", StzEngineStringSplitCount(pStr, "::"), 3)
@@ -209,7 +209,7 @@ StzEngineStringFree(pStr)
 #  GROUP 10: Replace, ReplaceCI, ReplaceRange
 # ==============================================================
 
-? "--- Group 10: Replace ---"
+? NL + "--- Group 10: Replace ---"
 
 pStr = StzEngineStringFrom("hello world hello")
 StzEngineStringReplace(pStr, "hello", "HI")
@@ -231,7 +231,7 @@ StzEngineStringFree(pStr)
 #  GROUP 11: ToUpper, ToLower, ToTitle
 # ==============================================================
 
-? "--- Group 11: Case Conversion ---"
+? NL + "--- Group 11: Case Conversion ---"
 
 pStr = StzEngineStringFrom("Hello World")
 pUp = StzEngineStringToUpper(pStr)
@@ -254,7 +254,7 @@ StzEngineStringFree(pStr2)
 #  GROUP 12: CharAt, MidCp, NthChar, Slice
 # ==============================================================
 
-? "--- Group 12: CharAt, MidCp, NthChar, Slice ---"
+? NL + "--- Group 12: CharAt, MidCp, NthChar, Slice ---"
 
 pStr = StzEngineStringFrom("Hello")
 nCh = StzEngineStringCharAt(pStr, 1)
@@ -284,7 +284,7 @@ StzEngineStringFree(pStr)
 #  GROUP 13: GraphemeCount, Normalize, StripMarks
 # ==============================================================
 
-? "--- Group 13: GraphemeCount, Normalize, StripMarks ---"
+? NL + "--- Group 13: GraphemeCount, Normalize, StripMarks ---"
 
 pStr = StzEngineStringFrom("Hello")
 nGr = StzEngineStringGraphemeCount(pStr)
@@ -309,7 +309,7 @@ StzEngineStringFree(pStr)
 #  GROUP 14: Char module -- CharUnicode, CharIsLetter/Digit/Upper/Lower
 # ==============================================================
 
-? "--- Group 14: Char module ---"
+? NL + "--- Group 14: Char module ---"
 
 Assert("CharUnicode 'A'=65", StzEngineCharUnicode("A"), 65)
 Assert("CharIsLetter 'A'", StzEngineCharIsLetter(65), 1)
@@ -325,7 +325,7 @@ Assert("CharIsLower 'A'", StzEngineCharIsLower(65), 0)
 #  GROUP 15: Reverse, Repeat, PadLeft, PadRight
 # ==============================================================
 
-? "--- Group 15: Reverse, Repeat, Pad ---"
+? NL + "--- Group 15: Reverse, Repeat, Pad ---"
 
 pStr = StzEngineStringFrom("Hello")
 pRev = StzEngineStringReverse(pStr)
@@ -352,7 +352,7 @@ StzEngineStringFree(pStr)
 #  GROUP 16: RemoveRange, TrimLeft, TrimRight
 # ==============================================================
 
-? "--- Group 16: RemoveRange, TrimLeft, TrimRight ---"
+? NL + "--- Group 16: RemoveRange, TrimLeft, TrimRight ---"
 
 pStr = StzEngineStringFrom("ABCDEF")
 pRR = StzEngineStringRemoveRange(pStr, 3, 2)
@@ -376,7 +376,7 @@ StzEngineStringFree(pStr)
 #  GROUP 17: Equals, EqualsCI
 # ==============================================================
 
-? "--- Group 17: Equals ---"
+? NL + "--- Group 17: Equals ---"
 
 pStr1 = StzEngineStringFrom("Hello")
 pStr2 = StzEngineStringFrom("Hello")
@@ -392,7 +392,7 @@ StzEngineStringFree(pStr3)
 #  GROUP 18: ReplaceFirst, ReplaceLast, ReplaceNth
 # ==============================================================
 
-? "--- Group 18: ReplaceFirst/Last/Nth ---"
+? NL + "--- Group 18: ReplaceFirst/Last/Nth ---"
 
 pStr = StzEngineStringFrom("abc-abc-abc")
 pRF = StzEngineStringReplaceFirst(pStr, "abc", "X")
@@ -413,7 +413,7 @@ StzEngineStringFree(pStr)
 #  GROUP 19: IsEmpty, Between
 # ==============================================================
 
-? "--- Group 19: IsEmpty, Between ---"
+? NL + "--- Group 19: IsEmpty, Between ---"
 
 pEmpty = StzEngineStringFrom("")
 Assert("IsEmpty yes", StzEngineStringIsEmpty(pEmpty), 1)
@@ -439,7 +439,7 @@ StzEngineStringFree(pStr)
 #  GROUP 20: CountCharsOfType, IsNumeric, IsAlpha
 # ==============================================================
 
-? "--- Group 20: CountCharsOfType, IsNumeric, IsAlpha ---"
+? NL + "--- Group 20: CountCharsOfType, IsNumeric, IsAlpha ---"
 
 pStr = StzEngineStringFrom("Hello 123!")
 Assert("CountCharsOfType letters", StzEngineStringCountCharsOfType(pStr, 0), 5)
@@ -470,7 +470,7 @@ StzEngineStringFree(pStr)
 #  GROUP 21: FindNth, FindNthCI
 # ==============================================================
 
-? "--- Group 21: FindNth ---"
+? NL + "--- Group 21: FindNth ---"
 
 pStr = StzEngineStringFrom("abc-abc-abc")
 Assert("FindNth 1", StzEngineStringFindNth(pStr, "abc", 1), 1)
@@ -489,7 +489,7 @@ StzEngineStringFree(pStr)
 #  GROUP 22: InsertCp, LeftCp, RightCp
 # ==============================================================
 
-? "--- Group 22: InsertCp, LeftCp, RightCp ---"
+? NL + "--- Group 22: InsertCp, LeftCp, RightCp ---"
 
 pStr = StzEngineStringFrom("HelloWorld")
 StzEngineStringInsertCp(pStr, 6, " ")
@@ -510,7 +510,7 @@ StzEngineStringFree(pStr)
 #  GROUP 23: RemoveAll, LinesCount, IsPalindrome, Concat
 # ==============================================================
 
-? "--- Group 23: RemoveAll, LinesCount, IsPalindrome, Concat ---"
+? NL + "--- Group 23: RemoveAll, LinesCount, IsPalindrome, Concat ---"
 
 pStr = StzEngineStringFrom("abc--def--ghi")
 pRemoved = StzEngineStringRemoveAll(pStr, "--")
@@ -550,7 +550,7 @@ StzEngineStringFree(pStr2)
 #  GROUP 24: IsAscii, RemoveCharAt, CharTypeAt
 # ==============================================================
 
-? "--- Group 24: IsAscii, RemoveCharAt, CharTypeAt ---"
+? NL + "--- Group 24: IsAscii, RemoveCharAt, CharTypeAt ---"
 
 pStr = StzEngineStringFrom("Hello")
 Assert("IsAscii yes", StzEngineStringIsAscii(pStr), 1)
@@ -573,7 +573,7 @@ StzEngineStringFree(pStr)
 #  GROUP 25: FindCharsOfType, ExtractCharsOfType
 # ==============================================================
 
-? "--- Group 25: FindCharsOfType, ExtractCharsOfType ---"
+? NL + "--- Group 25: FindCharsOfType, ExtractCharsOfType ---"
 
 pStr = StzEngineStringFrom("a1b2c3")
 pResult = StzEngineStringFindCharsOfType(pStr, 1)  # digits
@@ -598,7 +598,7 @@ StzEngineStringFree(pStr)
 #  GROUP 26: IsUppercase, IsLowercase, IsWhitespace, WordCount, IsOnlyType
 # ==============================================================
 
-? "--- Group 26: IsUppercase, IsLowercase, IsWhitespace, WordCount, IsOnlyType ---"
+? NL + "--- Group 26: IsUppercase, IsLowercase, IsWhitespace, WordCount, IsOnlyType ---"
 
 pStr = StzEngineStringFrom("HELLO")
 Assert("IsUppercase yes", StzEngineStringIsUppercase(pStr), 1)
@@ -665,7 +665,7 @@ StzEngineStringFree(pStr)
 #  GROUP 27: RemoveCharsOfType, Trim, SwapCase
 # ==============================================================
 
-? "--- Group 27: RemoveCharsOfType, Trim, SwapCase ---"
+? NL + "--- Group 27: RemoveCharsOfType, Trim, SwapCase ---"
 
 pStr = StzEngineStringFrom("Hello 123!")
 pRem = StzEngineStringRemoveCharsOfType(pStr, 1)  # remove digits
@@ -707,7 +707,7 @@ StzEngineStringFree(pStr)
 #  GROUP 28: UniqueChars, UniqueCharsCount
 # ==============================================================
 
-? "--- Group 28: UniqueChars, UniqueCharsCount ---"
+? NL + "--- Group 28: UniqueChars, UniqueCharsCount ---"
 
 pStr = StzEngineStringFrom("aabbcc")
 pUniq = StzEngineStringUniqueChars(pStr)
@@ -731,7 +731,7 @@ StzEngineStringFree(pStr)
 #  GROUP 29: RemoveAllCI
 # ==============================================================
 
-? "--- Group 29: RemoveAllCI ---"
+? NL + "--- Group 29: RemoveAllCI ---"
 
 pStr = StzEngineStringFrom("Hello HELLO hello world")
 pResult = StzEngineStringRemoveAllCI(pStr, "hello")
@@ -743,7 +743,7 @@ StzEngineStringFree(pStr)
 #  GROUP 30: IsAlphaOnly, IsAlnum
 # ==============================================================
 
-? "--- Group 30: IsAlphaOnly, IsAlnum ---"
+? NL + "--- Group 30: IsAlphaOnly, IsAlnum ---"
 
 pStr = StzEngineStringFrom("Hello")
 Assert("IsAlphaOnly yes", StzEngineStringIsAlphaOnly(pStr), 1)
@@ -762,7 +762,7 @@ StzEngineStringFree(pStr)
 #  GROUP 31: ContainsChar
 # ==============================================================
 
-? "--- Group 31: ContainsChar ---"
+? NL + "--- Group 31: ContainsChar ---"
 
 pStr = StzEngineStringFrom("Hello")
 Assert("ContainsChar H", StzEngineStringContainsChar(pStr, 72), 1)
@@ -774,7 +774,7 @@ StzEngineStringFree(pStr)
 #  GROUP 32: BetweenNth, CountBetween
 # ==============================================================
 
-? "--- Group 32: BetweenNth, CountBetween ---"
+? NL + "--- Group 32: BetweenNth, CountBetween ---"
 
 pStr = StzEngineStringFrom("[a] [b] [c]")
 Assert("CountBetween", StzEngineStringCountBetween(pStr, "[", "]"), 3)
@@ -801,7 +801,7 @@ StzEngineStringFree(pStr)
 #  GROUP 33: ReplaceCharAt
 # ==============================================================
 
-? "--- Group 33: ReplaceCharAt ---"
+? NL + "--- Group 33: ReplaceCharAt ---"
 
 pStr = StzEngineStringFrom("Hello")
 pR = StzEngineStringReplaceCharAt(pStr, 1, "J")
@@ -818,7 +818,7 @@ StzEngineStringFree(pStr)
 #  GROUP 34: LevenshteinDistance
 # ==============================================================
 
-? "--- Group 34: LevenshteinDistance ---"
+? NL + "--- Group 34: LevenshteinDistance ---"
 
 pS1 = StzEngineStringFrom("kitten")
 pS2 = StzEngineStringFrom("sitting")
@@ -842,7 +842,7 @@ StzEngineStringFree(pS2)
 #  GROUP 35: IsTitleCase
 # ==============================================================
 
-? "--- Group 35: IsTitleCase ---"
+? NL + "--- Group 35: IsTitleCase ---"
 
 pStr = StzEngineStringFrom("Hello World")
 Assert("IsTitleCase yes", StzEngineStringIsTitleCase(pStr), 1)
@@ -860,7 +860,7 @@ StzEngineStringFree(pStr)
 #  GROUP 36: LinesSplitCount, LineAt
 # ==============================================================
 
-? "--- Group 36: LinesSplitCount, LineAt ---"
+? NL + "--- Group 36: LinesSplitCount, LineAt ---"
 
 pStr = StzEngineStringFrom("line1" + char(10) + "line2" + char(10) + "line3")
 Assert("LinesSplitCount 3", StzEngineStringLinesSplitCount(pStr), 3)
@@ -887,7 +887,7 @@ StzEngineStringFree(pStr)
 #  GROUP 37: Simplify
 # ==============================================================
 
-? "--- Group 37: Simplify ---"
+? NL + "--- Group 37: Simplify ---"
 
 pStr = StzEngineStringFrom("  hello   world  ")
 pR = StzEngineStringSimplify(pStr)
@@ -905,7 +905,7 @@ StzEngineStringFree(pStr)
 #  GROUP 38: StartsWithLetter/Digit, EndsWithLetter/Digit
 # ==============================================================
 
-? "--- Group 38: StartsWithLetter/Digit, EndsWithLetter/Digit ---"
+? NL + "--- Group 38: StartsWithLetter/Digit, EndsWithLetter/Digit ---"
 
 pStr = StzEngineStringFrom("Hello123")
 Assert("StartsWithLetter yes", StzEngineStringStartsWithLetter(pStr), 1)
@@ -922,7 +922,7 @@ Assert("EndsWithDigit no", StzEngineStringEndsWithDigit(pStr), 0)
 StzEngineStringFree(pStr)
 
 # --- Group 39: IsWord ---
-? "--- Group 39: IsWord ---"
+? NL + "--- Group 39: IsWord ---"
 pStr = StzEngineStringFrom("hello-world_123", 15)
 Assert("IsWord yes", StzEngineStringIsWord(pStr), 1)
 StzEngineStringFree(pStr)
@@ -940,7 +940,7 @@ Assert("IsWord empty", StzEngineStringIsWord(pStr), 0)
 StzEngineStringFree(pStr)
 
 # --- Group 40: CountLeadingChar, CountTrailingChar ---
-? "--- Group 40: CountLeadingChar, CountTrailingChar ---"
+? NL + "--- Group 40: CountLeadingChar, CountTrailingChar ---"
 pStr = StzEngineStringFrom("   hello", 8)
 Assert("CountLeadingChar 3 spaces", StzEngineStringCountLeadingChar(pStr, 32), 3)
 Assert("CountTrailingChar 0 spaces", StzEngineStringCountTrailingChar(pStr, 32), 0)
@@ -957,7 +957,7 @@ Assert("CountTrailingChar 3 b's", StzEngineStringCountTrailingChar(pStr, 98), 3)
 StzEngineStringFree(pStr)
 
 # --- Group 41: IsNumericString ---
-? "--- Group 41: IsNumericString ---"
+? NL + "--- Group 41: IsNumericString ---"
 pStr = StzEngineStringFrom("12345", 5)
 Assert("IsNumericString digits", StzEngineStringIsNumericString(pStr), 1)
 StzEngineStringFree(pStr)
@@ -979,7 +979,7 @@ Assert("IsNumericString no (letters)", StzEngineStringIsNumericString(pStr), 0)
 StzEngineStringFree(pStr)
 
 # --- Group 42: URLEncode, URLDecode ---
-? "--- Group 42: URLEncode, URLDecode ---"
+? NL + "--- Group 42: URLEncode, URLDecode ---"
 pStr = StzEngineStringFrom("hello world", 11)
 pEnc = StzEngineStringURLEncode(pStr)
 Assert("URLEncode spaces", StzEngineStringData(pEnc), "hello%20world")
@@ -996,7 +996,7 @@ StzEngineStringFree(pEnc)
 StzEngineStringFree(pStr)
 
 # --- Group 43: CharAtToString ---
-? "--- Group 43: CharAtToString ---"
+? NL + "--- Group 43: CharAtToString ---"
 pStr = StzEngineStringFrom("Hello", 5)
 pCh = StzEngineStringCharAtToString(pStr, 1)
 Assert("CharAtToString 0=H", StzEngineStringData(pCh), "H")
@@ -1007,7 +1007,7 @@ StzEngineStringFree(pCh)
 StzEngineStringFree(pStr)
 
 # --- Group 44: Spacify ---
-? "--- Group 44: Spacify ---"
+? NL + "--- Group 44: Spacify ---"
 pStr = StzEngineStringFrom("abc", 3)
 pR = StzEngineStringSpacify(pStr)
 Assert("Spacify abc", StzEngineStringData(pR), "a b c")
@@ -1021,7 +1021,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 45: BytesPerChar ---
-? "--- Group 45: BytesPerChar ---"
+? NL + "--- Group 45: BytesPerChar ---"
 pStr = StzEngineStringFrom("ab", 2)
 pR = StzEngineStringBytesPerChar(pStr)
 Assert("BytesPerChar ASCII", StzEngineStringData(pR), "1 1")
@@ -1029,7 +1029,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 46: IsHexString, IsBinaryString, IsOctalString ---
-? "--- Group 46: IsHexString, IsBinaryString, IsOctalString ---"
+? NL + "--- Group 46: IsHexString, IsBinaryString, IsOctalString ---"
 pStr = StzEngineStringFrom("0xFF", 4)
 Assert("IsHexString 0xFF", StzEngineStringIsHexString(pStr), 1)
 StzEngineStringFree(pStr)
@@ -1063,7 +1063,7 @@ Assert("IsOctalString no", StzEngineStringIsOctalString(pStr), 0)
 StzEngineStringFree(pStr)
 
 # --- Group 47: WordAt ---
-? "--- Group 47: WordAt ---"
+? NL + "--- Group 47: WordAt ---"
 pStr = StzEngineStringFrom("hello world foo", 15)
 pW = StzEngineStringWordAt(pStr, 0)
 Assert("WordAt 0", StzEngineStringData(pW), "hello")
@@ -1077,7 +1077,7 @@ StzEngineStringFree(pW)
 StzEngineStringFree(pStr)
 
 # --- Group 48: Center ---
-? "--- Group 48: Center ---"
+? NL + "--- Group 48: Center ---"
 pStr = StzEngineStringFrom("hi", 2)
 pR = StzEngineStringCenter(pStr, 6, 32)
 Assert("Center hi in 6", StzEngineStringData(pR), "  hi  ")
@@ -1088,7 +1088,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 49: RemoveConsecutiveDuplicates ---
-? "--- Group 49: RemoveConsecutiveDuplicates ---"
+? NL + "--- Group 49: RemoveConsecutiveDuplicates ---"
 pStr = StzEngineStringFrom("aabbcc", 6)
 pR = StzEngineStringRemoveConsecutiveDuplicates(pStr)
 Assert("RemoveConsecDups aabbcc", StzEngineStringData(pR), "abc")
@@ -1108,7 +1108,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 50: Substring ---
-? "--- Group 50: Substring ---"
+? NL + "--- Group 50: Substring ---"
 pStr = StzEngineStringFrom("Hello World", 11)
 pSub = StzEngineStringSubstring(pStr, 1, 5)
 Assert("Substring 0-4", StzEngineStringData(pSub), "Hello")
@@ -1119,7 +1119,7 @@ StzEngineStringFree(pSub)
 StzEngineStringFree(pStr)
 
 # --- Group 51: ReplaceSubstring ---
-? "--- Group 51: ReplaceSubstring ---"
+? NL + "--- Group 51: ReplaceSubstring ---"
 pStr = StzEngineStringFrom("Hello World", 11)
 pR = StzEngineStringReplaceSubstring(pStr, 7, 11, "Zig", 3)
 Assert("ReplaceSubstring", StzEngineStringData(pR), "Hello Zig")
@@ -1127,7 +1127,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 52: PrefixCount, SuffixCount ---
-? "--- Group 52: PrefixCount, SuffixCount ---"
+? NL + "--- Group 52: PrefixCount, SuffixCount ---"
 pStr = StzEngineStringFrom("ababab", 6)
 Assert("PrefixCount ab", StzEngineStringPrefixCount(pStr, "ab"), 3)
 StzEngineStringFree(pStr)
@@ -1142,7 +1142,7 @@ Assert("SuffixCount o", StzEngineStringSuffixCount(pStr, "o"), 1)
 StzEngineStringFree(pStr)
 
 # --- Group 53: CommonPrefix, CommonSuffix ---
-? "--- Group 53: CommonPrefix, CommonSuffix ---"
+? NL + "--- Group 53: CommonPrefix, CommonSuffix ---"
 pStr1 = StzEngineStringFrom("hello world", 11)
 pStr2 = StzEngineStringFrom("hello there", 11)
 pCP = StzEngineStringCommonPrefix(pStr1, pStr2)
@@ -1160,7 +1160,7 @@ StzEngineStringFree(pStr2)
 StzEngineStringFree(pStr1)
 
 # --- Group 54: SortCharsAsc, SortCharsDesc ---
-? "--- Group 54: SortCharsAsc, SortCharsDesc ---"
+? NL + "--- Group 54: SortCharsAsc, SortCharsDesc ---"
 pStr = StzEngineStringFrom("dcba")
 pR = StzEngineStringSortCharsAsc(pStr)
 Assert("SortCharsAsc dcba", StzEngineStringData(pR), "abcd")
@@ -1171,7 +1171,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 55: FindAllChar, Hash, CountChar, ReplaceChar ---
-? "--- Group 55: FindAllChar, Hash, CountChar, ReplaceChar ---"
+? NL + "--- Group 55: FindAllChar, Hash, CountChar, ReplaceChar ---"
 pStr = StzEngineStringFrom("abcabc")
 pFR = StzEngineStringFindAllChar(pStr, 97)
 Assert("FindAllChar a count", StzEngineFindResultCount(pFR), 2)
@@ -1198,7 +1198,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 56: Copy ---
-? "--- Group 56: Copy ---"
+? NL + "--- Group 56: Copy ---"
 pStr = StzEngineStringFrom("Hello World")
 pCopy = StzEngineStringCopy(pStr)
 Assert("Copy data", StzEngineStringData(pCopy), "Hello World")
@@ -1207,7 +1207,7 @@ StzEngineStringFree(pCopy)
 StzEngineStringFree(pStr)
 
 # --- Group 57: Compare ---
-? "--- Group 57: Compare ---"
+? NL + "--- Group 57: Compare ---"
 pA = StzEngineStringFrom("abc")
 pB = StzEngineStringFrom("abc")
 pC = StzEngineStringFrom("abd")
@@ -1223,7 +1223,7 @@ StzEngineStringFree(pB)
 StzEngineStringFree(pA)
 
 # --- Group 58: RemoveFirst/Last/NthOccurrence ---
-? "--- Group 58: RemoveFirst/Last/NthOccurrence ---"
+? NL + "--- Group 58: RemoveFirst/Last/NthOccurrence ---"
 pStr = StzEngineStringFrom("hello world hello")
 pR = StzEngineStringRemoveFirstOccurrence(pStr, "hello")
 Assert("RemoveFirst hello", StzEngineStringData(pR), " world hello")
@@ -1243,7 +1243,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 59: IsCharsSortedAsc/Desc ---
-? "--- Group 59: IsCharsSortedAsc/Desc ---"
+? NL + "--- Group 59: IsCharsSortedAsc/Desc ---"
 pStr = StzEngineStringFrom("abcd")
 Assert("SortedAsc abcd", StzEngineStringIsCharsSortedAsc(pStr), 1)
 Assert("SortedDesc abcd", StzEngineStringIsCharsSortedDesc(pStr), 0)
@@ -1254,13 +1254,13 @@ Assert("SortedDesc dcba", StzEngineStringIsCharsSortedDesc(pStr), 1)
 StzEngineStringFree(pStr)
 
 # --- Group 60: RepeatChar ---
-? "--- Group 60: RepeatChar ---"
+? NL + "--- Group 60: RepeatChar ---"
 pR = StzEngineStringRepeatChar(42, 5)
 Assert("RepeatChar * x5", StzEngineStringData(pR), "*****")
 StzEngineStringFree(pR)
 
 # --- Group 61: InsertBeforeEach, InsertAfterEach ---
-? "--- Group 61: InsertBeforeEach, InsertAfterEach ---"
+? NL + "--- Group 61: InsertBeforeEach, InsertAfterEach ---"
 pStr = StzEngineStringFrom("abcabc")
 pR = StzEngineStringInsertBeforeEach(pStr, "abc", "[")
 Assert("InsertBeforeEach", StzEngineStringData(pR), "[abc[abc")
@@ -1271,7 +1271,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 62: Truncate ---
-? "--- Group 62: Truncate ---"
+? NL + "--- Group 62: Truncate ---"
 pStr = StzEngineStringFrom("Hello World")
 pR = StzEngineStringTruncate(pStr, 5, "...")
 Assert("Truncate 5", StzEngineStringData(pR), "Hello...")
@@ -1282,7 +1282,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 63: WrapAt ---
-? "--- Group 63: WrapAt ---"
+? NL + "--- Group 63: WrapAt ---"
 pStr = StzEngineStringFrom("hello world foo bar")
 pR = StzEngineStringWrapAt(pStr, 10)
 Assert("WrapAt 10", StzEngineStringData(pR), "hello" + nl + "world foo" + nl + "bar")
@@ -1290,7 +1290,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 64: RemovePrefix, RemoveSuffix ---
-? "--- Group 64: RemovePrefix, RemoveSuffix ---"
+? NL + "--- Group 64: RemovePrefix, RemoveSuffix ---"
 pStr = StzEngineStringFrom("Hello World")
 pR = StzEngineStringRemovePrefix(pStr, "Hello ")
 Assert("RemovePrefix", StzEngineStringData(pR), "World")
@@ -1304,7 +1304,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 65: EnsurePrefix, EnsureSuffix ---
-? "--- Group 65: EnsurePrefix, EnsureSuffix ---"
+? NL + "--- Group 65: EnsurePrefix, EnsureSuffix ---"
 pStr = StzEngineStringFrom("world")
 pR = StzEngineStringEnsurePrefix(pStr, "hello ")
 Assert("EnsurePrefix add", StzEngineStringData(pR), "hello world")
@@ -1321,7 +1321,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 66: SqueezeChar ---
-? "--- Group 66: SqueezeChar ---"
+? NL + "--- Group 66: SqueezeChar ---"
 pStr = StzEngineStringFrom("heeellooo")
 pR = StzEngineStringSqueezeChar(pStr, 101)
 Assert("SqueezeChar e", StzEngineStringData(pR), "hellooo")
@@ -1332,7 +1332,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 67: CapitalizeFirst, DecapitalizeFirst ---
-? "--- Group 67: CapitalizeFirst, DecapitalizeFirst ---"
+? NL + "--- Group 67: CapitalizeFirst, DecapitalizeFirst ---"
 pStr = StzEngineStringFrom("hello world")
 pR = StzEngineStringCapitalizeFirst(pStr)
 Assert("CapitalizeFirst", StzEngineStringData(pR), "Hello world")
@@ -1346,7 +1346,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 68: ZFill ---
-? "--- Group 68: ZFill ---"
+? NL + "--- Group 68: ZFill ---"
 pStr = StzEngineStringFrom("42")
 pR = StzEngineStringZFill(pStr, 5)
 Assert("ZFill 42->00042", StzEngineStringData(pR), "00042")
@@ -1357,7 +1357,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 69: TabExpand ---
-? "--- Group 69: TabExpand ---"
+? NL + "--- Group 69: TabExpand ---"
 pStr = StzEngineStringFrom("a" + char(9) + "b")
 pR = StzEngineStringTabExpand(pStr, 4)
 Assert("TabExpand 4", StzEngineStringData(pR), "a    b")
@@ -1365,7 +1365,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 70: CountOverlapping ---
-? "--- Group 70: CountOverlapping ---"
+? NL + "--- Group 70: CountOverlapping ---"
 pStr = StzEngineStringFrom("aaaa")
 Assert("CountOverlapping aa in aaaa", StzEngineStringCountOverlapping(pStr, "aa"), 3)
 StzEngineStringFree(pStr)
@@ -1374,7 +1374,7 @@ Assert("CountOverlapping abc", StzEngineStringCountOverlapping(pStr, "abc"), 2)
 StzEngineStringFree(pStr)
 
 # --- Group 71: ReplaceAt ---
-? "--- Group 71: ReplaceAt ---"
+? NL + "--- Group 71: ReplaceAt ---"
 pStr = StzEngineStringFrom("Hello World")
 pR = StzEngineStringReplaceAt(pStr, 6, 1, "-")
 Assert("ReplaceAt space->dash", StzEngineStringData(pR), "Hello-World")
@@ -1382,7 +1382,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 72: CharFrequency ---
-? "--- Group 72: CharFrequency ---"
+? NL + "--- Group 72: CharFrequency ---"
 pStr = StzEngineStringFrom("aab")
 pR = StzEngineStringCharFrequency(pStr)
 cFreq = StzEngineStringData(pR)
@@ -1392,7 +1392,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 73: ContainsAnyOf, ContainsAllOf ---
-? "--- Group 73: ContainsAnyOf, ContainsAllOf ---"
+? NL + "--- Group 73: ContainsAnyOf, ContainsAllOf ---"
 pStr = StzEngineStringFrom("hello")
 Assert("ContainsAnyOf vowels", StzEngineStringContainsAnyOf(pStr, "aeiou"), 1)
 Assert("ContainsAnyOf xyz", StzEngineStringContainsAnyOf(pStr, "xyz"), 0)
@@ -1401,7 +1401,7 @@ Assert("ContainsAllOf heloz", StzEngineStringContainsAllOf(pStr, "heloz"), 0)
 StzEngineStringFree(pStr)
 
 # --- Group 74: Foldcase ---
-? "--- Group 74: Foldcase ---"
+? NL + "--- Group 74: Foldcase ---"
 pStr = StzEngineStringFrom("Hello WORLD")
 pR = StzEngineStringFoldcase(pStr)
 Assert("Foldcase Hello WORLD", StzEngineStringData(pR), "hello world")
@@ -1409,7 +1409,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 75: CenterPad ---
-? "--- Group 75: CenterPad ---"
+? NL + "--- Group 75: CenterPad ---"
 pStr = StzEngineStringFrom("hi")
 pR = StzEngineStringCenterPad(pStr, 6, "-")
 Assert("CenterPad hi to 6 with -", StzEngineStringData(pR), "--hi--")
@@ -1420,7 +1420,7 @@ StzEngineStringFree(pR2)
 StzEngineStringFree(pStr)
 
 # --- Group 76: OnlyLetters, OnlyDigits ---
-? "--- Group 76: OnlyLetters, OnlyDigits ---"
+? NL + "--- Group 76: OnlyLetters, OnlyDigits ---"
 pStr = StzEngineStringFrom("h3ll0 w0rld!")
 pR = StzEngineStringOnlyLetters(pStr)
 Assert("OnlyLetters from h3ll0 w0rld!", StzEngineStringData(pR), "hllwrld")
@@ -1434,7 +1434,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 77: RemoveWhitespace ---
-? "--- Group 77: RemoveWhitespace ---"
+? NL + "--- Group 77: RemoveWhitespace ---"
 pStr = StzEngineStringFrom("h e l l o")
 pR = StzEngineStringRemoveWhitespace(pStr)
 Assert("RemoveWhitespace", StzEngineStringData(pR), "hello")
@@ -1442,7 +1442,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 78: CountWords, NthWord ---
-? "--- Group 78: CountWords, NthWord ---"
+? NL + "--- Group 78: CountWords, NthWord ---"
 pStr = StzEngineStringFrom("hello world foo")
 Assert("CountWords 3", StzEngineStringCountWords(pStr), 3)
 pW = StzEngineStringNthWord(pStr, 0)
@@ -1461,7 +1461,7 @@ Assert("CountWords leading/trailing spaces", StzEngineStringCountWords(pStr), 1)
 StzEngineStringFree(pStr)
 
 # --- Group 79: CharsBetween ---
-? "--- Group 79: CharsBetween ---"
+? NL + "--- Group 79: CharsBetween ---"
 pStr = StzEngineStringFrom("abcdef")
 pR = StzEngineStringCharsBetween(pStr, 2, 5)
 Assert("CharsBetween 1..4 = cd", StzEngineStringData(pR), "cd")
@@ -1469,7 +1469,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 80: IsAlphanumeric ---
-? "--- Group 80: IsAlphanumeric ---"
+? NL + "--- Group 80: IsAlphanumeric ---"
 pStr = StzEngineStringFrom("hello123")
 Assert("IsAlphanumeric hello123", StzEngineStringIsAlphanumeric(pStr), 1)
 StzEngineStringFree(pStr)
@@ -1483,7 +1483,7 @@ Assert("IsAlphanumeric with punct", StzEngineStringIsAlphanumeric(pStr), 0)
 StzEngineStringFree(pStr)
 
 # --- Group 81: Ljust, Rjust ---
-? "--- Group 81: Ljust, Rjust ---"
+? NL + "--- Group 81: Ljust, Rjust ---"
 pStr = StzEngineStringFrom("hi")
 pR = StzEngineStringLjust(pStr, 5, ".")
 Assert("Ljust hi to 5 with .", StzEngineStringData(pR), "hi...")
@@ -1499,7 +1499,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 82: Indent, Dedent ---
-? "--- Group 82: Indent, Dedent ---"
+? NL + "--- Group 82: Indent, Dedent ---"
 pStr = StzEngineStringFrom("line1" + char(10) + "line2")
 pR = StzEngineStringIndent(pStr, 4)
 cIndented = StzEngineStringData(pR)
@@ -1516,7 +1516,7 @@ StzEngineStringFree(pR)
 StzEngineStringFree(pStr)
 
 # --- Group 83: CamelCase, SnakeCase, KebabCase ---
-? "--- Group 83: CamelCase, SnakeCase, KebabCase ---"
+? NL + "--- Group 83: CamelCase, SnakeCase, KebabCase ---"
 pStr = StzEngineStringFrom("hello world")
 pR = StzEngineStringToCamelCase(pStr)
 Assert("CamelCase hello world", StzEngineStringData(pR), "helloWorld")
@@ -1549,7 +1549,7 @@ StzEngineStringFree(pStr)
 #  GROUP 84: Partition, RPartition
 # ==============================================================
 
-? "--- Group 84: Partition/RPartition ---"
+? NL + "--- Group 84: Partition/RPartition ---"
 
 pStr = StzEngineStringFrom("hello:world:foo")
 pBefore = StzEngineStringPartition(pStr, ":")
@@ -1582,7 +1582,7 @@ StzEngineStringFree(pStr)
 #  GROUP 85: Squeeze, IsDigit, Interleave
 # ==============================================================
 
-? "--- Group 85: Squeeze/IsDigit/Interleave ---"
+? NL + "--- Group 85: Squeeze/IsDigit/Interleave ---"
 
 pStr = StzEngineStringFrom("heeellooo")
 pR = StzEngineStringSqueeze(pStr)
@@ -1622,7 +1622,7 @@ StzEngineStringFree(pStr)
 #  GROUP 86: StripChars, KeepChars, Replace2
 # ==============================================================
 
-? "--- Group 86: StripChars/KeepChars/Replace2 ---"
+? NL + "--- Group 86: StripChars/KeepChars/Replace2 ---"
 
 pStr = StzEngineStringFrom("hello world!")
 pR = StzEngineStringStripChars(pStr, "lo")
@@ -1652,7 +1652,7 @@ StzEngineStringFree(pStr)
 #  GROUP 87: Surround, ReplaceAnyChar, CountAnyChar
 # ==============================================================
 
-? "--- Group 87: Surround/ReplaceAnyChar/CountAnyChar ---"
+? NL + "--- Group 87: Surround/ReplaceAnyChar/CountAnyChar ---"
 
 pStr = StzEngineStringFrom("hello")
 pR = StzEngineStringSurround(pStr, "[", "]")
@@ -1681,8 +1681,8 @@ StzEngineStringFree(pStr)
 #  GROUP 88: Rotate / RepeatToLength / RemoveBetween / IsBlank / ToPascalCase
 # ==============================================================
 
-? ""
-? "--- Group 88: Rotate / RepeatToLength / RemoveBetween / IsBlank / ToPascalCase ---"
+
+? NL + "--- Group 88: Rotate / RepeatToLength / RemoveBetween / IsBlank / ToPascalCase ---"
 
 pStr = StzEngineStringFrom("abcde")
 pR = StzEngineStringRotate(pStr, 2)
@@ -1736,8 +1736,8 @@ StzEngineStringFree(pStr)
 #  GROUP 89: IsIdentifier / ReplaceBetween / ContainsOnly / CapitalizeWords / SwapChars
 # ==============================================================
 
-? ""
-? "--- Group 89: IsIdentifier / ReplaceBetween / ContainsOnly / CapitalizeWords / SwapChars ---"
+
+? NL + "--- Group 89: IsIdentifier / ReplaceBetween / ContainsOnly / CapitalizeWords / SwapChars ---"
 
 pStr = StzEngineStringFrom("hello_world")
 Assert("IsIdentifier valid", StzEngineStringIsIdentifier(pStr), 1)
@@ -1779,8 +1779,8 @@ StzEngineStringFree(pStr)
 #  GROUP 90: EncodeHex / DecodeHex / ReverseWords / CollapseSpaces
 # ==============================================================
 
-? ""
-? "--- Group 90: EncodeHex / DecodeHex / ReverseWords / CollapseSpaces ---"
+
+? NL + "--- Group 90: EncodeHex / DecodeHex / ReverseWords / CollapseSpaces ---"
 
 pStr = StzEngineStringFrom("Hi")
 pR = StzEngineStringEncodeHex(pStr)
@@ -1810,8 +1810,8 @@ StzEngineStringFree(pStr)
 #  GROUP 91: IsAnagram / Mask / CountRuns / HammingDistance
 # ==============================================================
 
-? ""
-? "--- Group 91: IsAnagram / Mask / CountRuns / HammingDistance ---"
+
+? NL + "--- Group 91: IsAnagram / Mask / CountRuns / HammingDistance ---"
 
 pStr1 = StzEngineStringFrom("listen")
 pStr2 = StzEngineStringFrom("silent")
@@ -1842,8 +1842,8 @@ StzEngineStringFree(pStr1)
 #  GROUP 92: RemoveVowels / OnlyVowels / IsPangram / Ngram / NgramCount
 # ==============================================================
 
-? ""
-? "--- Group 92: RemoveVowels / OnlyVowels / IsPangram / Ngram / NgramCount ---"
+
+? NL + "--- Group 92: RemoveVowels / OnlyVowels / IsPangram / Ngram / NgramCount ---"
 
 pStr = StzEngineStringFrom("Hello World")
 pResult = StzEngineStringRemoveVowels(pStr)
@@ -1885,8 +1885,8 @@ StzEngineStringFree(pStr)
 #  GROUP 93: CountConsonants / ToSentenceCase / IsBalanced / Slug / Chunk
 # ==============================================================
 
-? ""
-? "--- Group 93: CountConsonants / ToSentenceCase / IsBalanced / Slug / Chunk ---"
+
+? NL + "--- Group 93: CountConsonants / ToSentenceCase / IsBalanced / Slug / Chunk ---"
 
 pStr = StzEngineStringFrom("Hello World")
 Assert("CountConsonants Hello World", StzEngineStringCountConsonants(pStr), 7)
@@ -1925,8 +1925,8 @@ StzEngineStringFree(pStr)
 #  GROUP 94: CountVowels / LongestRun / TrimChars / IsEmailLike / CamelToWords
 # ==============================================================
 
-? ""
-? "--- Group 94: CountVowels / LongestRun / TrimChars / IsEmailLike / CamelToWords ---"
+
+? NL + "--- Group 94: CountVowels / LongestRun / TrimChars / IsEmailLike / CamelToWords ---"
 
 pStr = StzEngineStringFrom("Hello World")
 Assert("CountVowels Hello World", StzEngineStringCountVowels(pStr), 3)
@@ -1960,8 +1960,8 @@ StzEngineStringFree(pStr)
 #  GROUP 95: Extended Edge-Case Tests
 # ==============================================================
 
-? ""
-? "--- Group 95: Extended Edge-Case Tests ---"
+
+? NL + "--- Group 95: Extended Edge-Case Tests ---"
 
 # --- RemoveVowels edge cases ---
 pStr = StzEngineStringFrom("AEIOU")
@@ -2407,8 +2407,8 @@ StzEngineStringFree(pStr1)
 #  GROUP 96: Initials / RemoveDuplicateWords / IsUrlLike / EscapeHtml / UnescapeHtml
 # ==============================================================
 
-? ""
-? "--- Group 96: Initials / RemoveDuplicateWords / IsUrlLike / EscapeHtml / UnescapeHtml ---"
+
+? NL + "--- Group 96: Initials / RemoveDuplicateWords / IsUrlLike / EscapeHtml / UnescapeHtml ---"
 
 pStr = StzEngineStringFrom("Hello World")
 pResult = StzEngineStringInitials(pStr)
@@ -2478,8 +2478,8 @@ StzEngineStringFree(pStr)
 #  GROUP 97: CountSentences / TitleSmart / RemovePunctuation / IsFloat / DigitSum
 # ==============================================================
 
-? ""
-? "--- Group 97: CountSentences / TitleSmart / RemovePunctuation / IsFloat / DigitSum ---"
+
+? NL + "--- Group 97: CountSentences / TitleSmart / RemovePunctuation / IsFloat / DigitSum ---"
 
 pStr = StzEngineStringFrom("Hello. How are you? Fine!")
 Assert("CountSentences 3", StzEngineStringCountSentences(pStr), 3)
@@ -2539,8 +2539,8 @@ StzEngineStringFree(pStr)
 #  GROUP 98: ToAlternatingCase / CountUpper / CountLower / IsCamelCase / CommonChars
 # ==============================================================
 
-? ""
-? "--- Group 98: ToAlternatingCase / CountUpper / CountLower / IsCamelCase / CommonChars ---"
+
+? NL + "--- Group 98: ToAlternatingCase / CountUpper / CountLower / IsCamelCase / CommonChars ---"
 
 pStr = StzEngineStringFrom("hello world")
 pResult = StzEngineStringToAlternatingCase(pStr)
@@ -2628,8 +2628,8 @@ StzEngineStringFree(pStr)
 #  GROUP 99: CountLines / IsSnakeCase / IsKebabCase / CountUniqueChars / Caesar
 # ==============================================================
 
-? ""
-? "--- Group 99: CountLines / IsSnakeCase / IsKebabCase / CountUniqueChars / Caesar ---"
+
+? NL + "--- Group 99: CountLines / IsSnakeCase / IsKebabCase / CountUniqueChars / Caesar ---"
 
 pStr = StzEngineStringFrom("hello" + nl + "world" + nl + "foo")
 Assert("CountLines 3", StzEngineStringCountLines(pStr), 3)
@@ -2709,8 +2709,8 @@ StzEngineStringFree(pStr)
 #  GROUP 100: Mirror / RepeatEachChar / BeginsWithAnyX / FinishesWithAnyX / ToBinary
 # ==============================================================
 
-? ""
-? "--- Group 100: Mirror / RepeatEachChar / BeginsWithAnyX / FinishesWithAnyX / ToBinary ---"
+
+? NL + "--- Group 100: Mirror / RepeatEachChar / BeginsWithAnyX / FinishesWithAnyX / ToBinary ---"
 
 pStr = StzEngineStringFrom("abc")
 pResult = StzEngineStringMirror(pStr)
@@ -2756,8 +2756,8 @@ StzEngineStringFree(pStr)
 #  GROUP 101: SortWords / UniqueWords / FromBinary / SwapWords / ToPigLatin
 # ==============================================================
 
-? ""
-? "--- Group 101: SortWords / UniqueWords / FromBinary / SwapWords / ToPigLatin ---"
+
+? NL + "--- Group 101: SortWords / UniqueWords / FromBinary / SwapWords / ToPigLatin ---"
 
 pStr = StzEngineStringFrom("banana apple cherry")
 pResult = StzEngineStingSortWords(pStr)
@@ -2805,8 +2805,8 @@ StzEngineStringFree(pStr)
 #  GROUP 102: RunLengthEncode / RunLengthDecode / CountParagraphs / Zigzag / ToMorse
 # ==============================================================
 
-? ""
-? "--- Group 102: RunLengthEncode / RunLengthDecode / CountParagraphs / Zigzag / ToMorse ---"
+
+? NL + "--- Group 102: RunLengthEncode / RunLengthDecode / CountParagraphs / Zigzag / ToMorse ---"
 
 pStr = StzEngineStringFrom("aaabbc")
 pResult = StzEngineStringRunLengthEncode(pStr)
@@ -2850,8 +2850,8 @@ StzEngineStringFree(pStr)
 #  GROUP 103: ToBase64 / FromBase64 / XorCipher / Entropy / CharFrequencyTop
 # ==============================================================
 
-? ""
-? "--- Group 103: ToBase64 / FromBase64 / XorCipher / Entropy / CharFrequencyTop ---"
+
+? NL + "--- Group 103: ToBase64 / FromBase64 / XorCipher / Entropy / CharFrequencyTop ---"
 
 pStr = StzEngineStringFrom("Hello")
 pResult = StzEngineStringToBase64(pStr)
@@ -2895,8 +2895,8 @@ StzEngineStringFree(pStr)
 #  GROUP 104: JaccardSimilarity / LongestCommonPrefix / LongestCommonSuffix / WrapWith / ToTitleCaseStrict
 # ==============================================================
 
-? ""
-? "--- Group 104: JaccardSimilarity / LongestCommonPrefix / LongestCommonSuffix / WrapWith / ToTitleCaseStrict ---"
+
+? NL + "--- Group 104: JaccardSimilarity / LongestCommonPrefix / LongestCommonSuffix / WrapWith / ToTitleCaseStrict ---"
 
 pStr = StzEngineStringFrom("abc")
 pStr2 = StzEngineStringFrom("abc")
@@ -2948,8 +2948,8 @@ StzEngineStringFree(pStr)
 #  GROUP 105: HammingWeight / IsPalindromeWords / RemoveNthWord / InsertWordAt / ToSpongebobCase
 # ==============================================================
 
-? ""
-? "--- Group 105: HammingWeight / IsPalindromeWords / RemoveNthWord / InsertWordAt / ToSpongebobCase ---"
+
+? NL + "--- Group 105: HammingWeight / IsPalindromeWords / RemoveNthWord / InsertWordAt / ToSpongebobCase ---"
 
 pStr = StzEngineStringFrom("AB")
 Assert("HammingWeight AB", StzEngineStringHammingWeight(pStr), 4)
@@ -2987,8 +2987,8 @@ Assert("SpongebobCase", StzEngineStringData(pResult), "HeLlO wOrLd")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
-? ""
-? "--- Group 106: BetweenFirst / ToDotCase / Abbreviate / CountSubstring / ToPathCase ---"
+
+? NL + "--- Group 106: BetweenFirst / ToDotCase / Abbreviate / CountSubstring / ToPathCase ---"
 
 pStr = StzEngineStringFrom("hello [world] end")
 pResult = StzEngineStringBetweenFirst(pStr, "[", "]")
@@ -3034,8 +3034,8 @@ Assert("ToPathCase", StzEngineStringData(pResult), "hello/world")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
-? ""
-? "--- Group 107: LeftPad / RightPad / ToHex / FromHex / Soundex ---"
+
+? NL + "--- Group 107: LeftPad / RightPad / ToHex / FromHex / Soundex ---"
 
 pStr = StzEngineStringFrom("42")
 pResult = StzEngineStingLeftPad(pStr, 5, "0")
@@ -3067,8 +3067,8 @@ Assert("Soundex Robert", StzEngineStringData(pResult), "R163")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
-? ""
-? "--- Group 108: VigenereEncrypt / Atbash / CountWordsMatching / TruncateWords / ToConstantCase ---"
+
+? NL + "--- Group 108: VigenereEncrypt / Atbash / CountWordsMatching / TruncateWords / ToConstantCase ---"
 
 pStr = StzEngineStringFrom("hello")
 pResult = StzEngineStringVigenereEncrypt(pStr, "key")
@@ -3104,8 +3104,8 @@ Assert("ToConstantCase", StzEngineStringData(pResult), "HELLO_WORLD")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
-? ""
-? "--- Group 109: FirstWord / LastWord / ToNato / Commonality / DiffChars ---"
+
+? NL + "--- Group 109: FirstWord / LastWord / ToNato / Commonality / DiffChars ---"
 
 pStr = StzEngineStringFrom("hello world foo")
 pResult = StzEngineStringFirstWord(pStr)
@@ -3139,8 +3139,8 @@ StzEngineStringFree(pResult)
 StzEngineStringFree(pStr1)
 StzEngineStringFree(pStr2)
 
-? ""
-? "--- Group 110: Rot47 / IsIsogram / ReverseEachWord / CountDigits / StripTags ---"
+
+? NL + "--- Group 110: Rot47 / IsIsogram / ReverseEachWord / CountDigits / StripTags ---"
 
 pStr = StzEngineStringFrom("Hello")
 pResult = StzEngineStringRot47(pStr)
@@ -3172,8 +3172,8 @@ Assert("StripTags", StzEngineStringData(pResult), "hello world")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
-? ""
-? "--- Group 111: ToSlug / CountSpaces / NormalizeSpaces / MaskEmail / Pluralize ---"
+
+? NL + "--- Group 111: ToSlug / CountSpaces / NormalizeSpaces / MaskEmail / Pluralize ---"
 
 pStr = StzEngineStringFrom("Hello World! Test")
 pResult = StzEngineStringToSlug(pStr)
@@ -3209,8 +3209,8 @@ Assert("Pluralize city", StzEngineStringData(pResult), "cities")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
-? ""
-? "--- Group 112: DeduplicateLines / RemoveBlankLines / ExtractNumbers / ExtractEmails / Quote ---"
+
+? NL + "--- Group 112: DeduplicateLines / RemoveBlankLines / ExtractNumbers / ExtractEmails / Quote ---"
 
 pStr = StzEngineStringFrom("hello" + nl + "world" + nl + "hello" + nl + "foo")
 pResult = StzEngineStringDeduplicateLines(pStr)
@@ -3242,8 +3242,8 @@ Assert("Quote single", StzEngineStringData(pResult), "'hello'")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
-? ""
-? "--- Group 113: Unquote / ToCsvField / NumberLines / Hide / ExtractWords ---"
+
+? NL + "--- Group 113: Unquote / ToCsvField / NumberLines / Hide / ExtractWords ---"
 
 pStr = StzEngineStringFrom('"hello"')
 pResult = StzEngineStringUnquote(pStr)
@@ -3281,8 +3281,8 @@ Assert("ExtractWords", StzEngineStringData(pResult), "hello world")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
-? ""
-? "--- Group 114: ExpandTabs / SentenceCount / Chop / ScanInt / ToOrdinal ---"
+
+? NL + "--- Group 114: ExpandTabs / SentenceCount / Chop / ScanInt / ToOrdinal ---"
 
 pStr = StzEngineStringFrom("a" + char(9) + "b")
 pResult = StzEngineStringExpandTabs(pStr, 4)
@@ -3344,8 +3344,8 @@ StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
 # --- Group 115: NLP -- Jaro, Jaro-Winkler, Metaphone, Ngrams ---
-? ""
-? "--- Group 115: Jaro / JaroWinkler / Metaphone / CharNgrams / WordNgrams ---"
+
+? NL + "--- Group 115: Jaro / JaroWinkler / Metaphone / CharNgrams / WordNgrams ---"
 
 # Jaro -- identical strings = 1000
 pA = StzEngineStringFrom("hello")
@@ -3404,7 +3404,7 @@ StzEngineStringFree(pStr)
 #  GROUP 116: CS Unified Functions
 # ==============================================================
 
-? "--- Group 116: CS Unified Functions ---"
+? NL + "--- Group 116: CS Unified Functions ---"
 
 # IndexOfCS
 pStr = StzEngineStringFrom("Hello World")
@@ -3451,11 +3451,42 @@ Assert("CountOfCS cs=0", StzEngineStringCountOfCS(pStr, "abc", 0), 3)
 StzEngineStringFree(pStr)
 
 # ==============================================================
+#  GROUP 117: Error Reporting & Safety (Phase B)
+# ==============================================================
+
+? NL + "--- Group 117: Error Reporting & Safety ---"
+
+# LastError initial state
+StzEngineStringClearError()
+Assert("LastError initial", StzEngineStringLastError(), 0)
+
+# LastError after valid operation
+pStr = StzEngineStringFrom("Hello")
+Assert("LastError after valid From", StzEngineStringLastError(), 0)
+StzEngineStringFree(pStr)
+
+# ClearError works
+StzEngineStringClearError()
+Assert("ClearError resets", StzEngineStringLastError(), 0)
+
+# str_data is null-terminated (verify via string comparison)
+pStr = StzEngineStringFrom("Test")
+Assert("Data null-terminated", StzEngineStringData(pStr), "Test")
+StzEngineStringFree(pStr)
+
+# Append on valid handle
+pStr = StzEngineStringNew()
+StzEngineStringAppend(pStr, "Hello")
+Assert("Append valid", StzEngineStringData(pStr), "Hello")
+Assert("Append no error", StzEngineStringLastError(), 0)
+StzEngineStringFree(pStr)
+
+# ==============================================================
 #  SUMMARY
 # ==============================================================
 
-? ""
-? "======================================================"
+
+? NL + "======================================================"
 ? "Results: " + nPass + " passed, " + nFail + " failed out of " + nTotal + " tests"
 if nFail = 0
 	? "ALL TESTS PASSED!"

@@ -14,6 +14,37 @@ const Allocator = std.mem.Allocator;
 const gpa = std.heap.c_allocator;
 const unicode = @import("unicode.zig");
 
+// ─── Error Reporting ───
+//
+// C ABI functions cannot return Zig errors. Instead, functions set a
+// module-level error code that callers can query via str_last_error().
+// Convention: every function that can fail clears the error on entry
+// (via setError(.none)) or sets it on failure. Callers who care about
+// error details call str_last_error() immediately after the failing call.
+
+pub const StrError = enum(c_int) {
+    none = 0,
+    out_of_memory = 1,
+    invalid_utf8 = 2,
+    index_out_of_bounds = 3,
+    null_handle = 4,
+    invalid_argument = 5,
+};
+
+var last_error: StrError = .none;
+
+fn setError(err: StrError) void {
+    last_error = err;
+}
+
+pub fn str_last_error() callconv(.c) c_int {
+    return @intFromEnum(last_error);
+}
+
+pub fn str_clear_error() callconv(.c) void {
+    last_error = .none;
+}
+
 // ─── Indexing Configuration ───
 
 /// Index base for codepoint positions in the public API.
@@ -59,11 +90,28 @@ pub fn str_new() callconv(.c) StzStringHandle {
 }
 
 pub fn str_from(utf8: [*c]const u8, len: usize) callconv(.c) StzStringHandle {
-    const s = gpa.create(StzString) catch return null;
+    setError(.none);
+    if (utf8 == null and len > 0) {
+        setError(.invalid_argument);
+        return null;
+    }
+    // Validate UTF-8 before accepting the input
+    if (utf8 != null and len > 0) {
+        const src: []const u8 = utf8[0..len];
+        if (!std.unicode.utf8ValidateSlice(src)) {
+            setError(.invalid_utf8);
+            return null;
+        }
+    }
+    const s = gpa.create(StzString) catch {
+        setError(.out_of_memory);
+        return null;
+    };
     s.* = StzString.init();
     if (utf8 != null and len > 0) {
         const src: []const u8 = utf8[0..len];
         s.data.appendSlice(gpa, src) catch {
+            setError(.out_of_memory);
             s.deinit();
             gpa.destroy(s);
             return null;
@@ -81,9 +129,28 @@ pub fn str_free(handle: StzStringHandle) callconv(.c) void {
 
 // ─── Content ───
 
+/// Returns a pointer to the string's UTF-8 data.
+/// The returned pointer is guaranteed null-terminated: we append a
+/// sentinel '\0' beyond items.len (using the ArrayList's capacity
+/// headroom) so C callers can treat it as a C string. If the
+/// sentinel append fails (capacity exhausted and OOM), we return ""
+/// and set last_error.
 pub fn str_data(handle: StzStringHandle) callconv(.c) [*c]const u8 {
     if (handle) |s| {
         if (s.data.items.len == 0) return "";
+        // Ensure null-terminator in capacity headroom
+        const items = s.data.items;
+        if (s.data.capacity > items.len) {
+            // Space already available -- poke a '\0' sentinel
+            items.ptr[items.len] = 0;
+        } else {
+            // Need to grow by 1 byte for the sentinel
+            s.data.ensureTotalCapacity(gpa, items.len + 1) catch {
+                setError(.out_of_memory);
+                return "";
+            };
+            s.data.items.ptr[s.data.items.len] = 0;
+        }
         return s.data.items.ptr;
     }
     return "";
@@ -104,18 +171,28 @@ pub fn str_count(handle: StzStringHandle) callconv(.c) usize {
 // ─── Mutation ───
 
 pub fn str_append(handle: StzStringHandle, utf8: [*c]const u8, len: usize) callconv(.c) void {
+    setError(.none);
     if (handle) |s| {
         if (utf8 != null and len > 0) {
-            s.data.appendSlice(gpa, utf8[0..len]) catch {};
+            s.data.appendSlice(gpa, utf8[0..len]) catch {
+                setError(.out_of_memory);
+            };
         }
+    } else {
+        setError(.null_handle);
     }
 }
 
 pub fn str_insert(handle: StzStringHandle, byte_pos: usize, utf8: [*c]const u8, len: usize) callconv(.c) void {
+    setError(.none);
     if (handle) |s| {
         if (utf8 == null or len == 0) return;
         const pos = @min(byte_pos, s.data.items.len);
-        s.data.insertSlice(gpa, pos, utf8[0..len]) catch {};
+        s.data.insertSlice(gpa, pos, utf8[0..len]) catch {
+            setError(.out_of_memory);
+        };
+    } else {
+        setError(.null_handle);
     }
 }
 
@@ -779,16 +856,16 @@ pub fn str_to_upper(handle: StzStringHandle) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
         const r = str_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len * 2) catch {};
+        r.data.ensureTotalCapacity(gpa, src.len * 2) catch { setError(.out_of_memory); };
         var buf: [64]u8 = undefined;
         const len = unicode.stz_unicode_to_upper_str(src.ptr, src.len, &buf, 64);
         if (len > 0 and len <= 64) {
-            r.data.appendSlice(gpa, buf[0..len]) catch {};
+            r.data.appendSlice(gpa, buf[0..len]) catch { setError(.out_of_memory); };
         } else if (src.len > 0) {
             const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
             defer gpa.free(big_buf);
             const big_len = unicode.stz_unicode_to_upper_str(src.ptr, src.len, big_buf.ptr, big_buf.len);
-            if (big_len > 0) r.data.appendSlice(gpa, big_buf[0..big_len]) catch {};
+            if (big_len > 0) r.data.appendSlice(gpa, big_buf[0..big_len]) catch { setError(.out_of_memory); };
         }
         return r;
     }
@@ -799,16 +876,16 @@ pub fn str_to_lower(handle: StzStringHandle) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
         const r = str_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len * 2) catch {};
+        r.data.ensureTotalCapacity(gpa, src.len * 2) catch { setError(.out_of_memory); };
         var buf: [64]u8 = undefined;
         const len = unicode.stz_unicode_to_lower_str(src.ptr, src.len, &buf, 64);
         if (len > 0 and len <= 64) {
-            r.data.appendSlice(gpa, buf[0..len]) catch {};
+            r.data.appendSlice(gpa, buf[0..len]) catch { setError(.out_of_memory); };
         } else if (src.len > 0) {
             const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
             defer gpa.free(big_buf);
             const big_len = unicode.stz_unicode_to_lower_str(src.ptr, src.len, big_buf.ptr, big_buf.len);
-            if (big_len > 0) r.data.appendSlice(gpa, big_buf[0..big_len]) catch {};
+            if (big_len > 0) r.data.appendSlice(gpa, big_buf[0..big_len]) catch { setError(.out_of_memory); };
         }
         return r;
     }
@@ -887,7 +964,7 @@ pub fn str_insert_cp(handle: StzStringHandle, cp_pos: c_int, utf8: [*c]const u8,
         const internal: c_int = @intCast(toInternal(cp_pos));
         const byte_pos = unicode.stz_unicode_cp_to_byte(s.data.items.ptr, s.data.items.len, internal);
         if (byte_pos < 0) return;
-        s.data.insertSlice(gpa, @intCast(byte_pos), utf8[0..len]) catch {};
+        s.data.insertSlice(gpa, @intCast(byte_pos), utf8[0..len]) catch { setError(.out_of_memory); };
     }
 }
 
@@ -924,11 +1001,11 @@ pub fn str_to_title(handle: StzStringHandle) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
         const r = str_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len * 2) catch {};
+        r.data.ensureTotalCapacity(gpa, src.len * 2) catch { setError(.out_of_memory); };
         const big_buf = gpa.alloc(u8, src.len * 4) catch return r;
         defer gpa.free(big_buf);
         const len = unicode.stz_unicode_to_title_str(src.ptr, src.len, big_buf.ptr, big_buf.len);
-        if (len > 0) r.data.appendSlice(gpa, big_buf[0..len]) catch {};
+        if (len > 0) r.data.appendSlice(gpa, big_buf[0..len]) catch { setError(.out_of_memory); };
         return r;
     }
     return str_new();
@@ -957,7 +1034,7 @@ pub fn str_reverse(handle: StzStringHandle) callconv(.c) StzStringHandle {
         offsets[idx] = src.len;
 
         const r = str_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len) catch {};
+        r.data.ensureTotalCapacity(gpa, src.len) catch { setError(.out_of_memory); };
 
         // Walk codepoints in reverse order
         var k: usize = cp_count;
@@ -965,7 +1042,7 @@ pub fn str_reverse(handle: StzStringHandle) callconv(.c) StzStringHandle {
             k -= 1;
             const start = offsets[k];
             const end = offsets[k + 1];
-            r.data.appendSlice(gpa, src[start..end]) catch {};
+            r.data.appendSlice(gpa, src[start..end]) catch { setError(.out_of_memory); };
         }
         return r;
     }
@@ -979,9 +1056,9 @@ pub fn str_repeat(handle: StzStringHandle, count: c_int) callconv(.c) StzStringH
         if (src.len == 0 or count <= 0) return str_new();
         const n: usize = @intCast(count);
         const r = str_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len * n) catch {};
+        r.data.ensureTotalCapacity(gpa, src.len * n) catch { setError(.out_of_memory); };
         for (0..n) |_| {
-            r.data.appendSlice(gpa, src) catch {};
+            r.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
         }
         return r;
     }
@@ -1001,11 +1078,11 @@ pub fn str_pad_left(handle: StzStringHandle, target_cp_count: c_int, pad_char: [
         const pad_needed = target - current_cp;
         const pad_slice = if (pad_char != null and pad_len > 0) pad_char[0..pad_len] else " ";
         const r = str_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len + pad_needed * pad_slice.len) catch {};
+        r.data.ensureTotalCapacity(gpa, src.len + pad_needed * pad_slice.len) catch { setError(.out_of_memory); };
         for (0..pad_needed) |_| {
-            r.data.appendSlice(gpa, pad_slice) catch {};
+            r.data.appendSlice(gpa, pad_slice) catch { setError(.out_of_memory); };
         }
-        r.data.appendSlice(gpa, src) catch {};
+        r.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
         return r;
     }
     return str_new();
@@ -1024,10 +1101,10 @@ pub fn str_pad_right(handle: StzStringHandle, target_cp_count: c_int, pad_char: 
         const pad_needed = target - current_cp;
         const pad_slice = if (pad_char != null and pad_len > 0) pad_char[0..pad_len] else " ";
         const r = str_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len + pad_needed * pad_slice.len) catch {};
-        r.data.appendSlice(gpa, src) catch {};
+        r.data.ensureTotalCapacity(gpa, src.len + pad_needed * pad_slice.len) catch { setError(.out_of_memory); };
+        r.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
         for (0..pad_needed) |_| {
-            r.data.appendSlice(gpa, pad_slice) catch {};
+            r.data.appendSlice(gpa, pad_slice) catch { setError(.out_of_memory); };
         }
         return r;
     }
@@ -1061,9 +1138,9 @@ pub fn str_remove_range(handle: StzStringHandle, start_cp: usize, cp_count: usiz
         const remove_end = byte_pos;
 
         const r = str_new() orelse return null;
-        r.data.ensureTotalCapacity(gpa, src.len - (remove_end - remove_start)) catch {};
-        if (remove_start > 0) r.data.appendSlice(gpa, src[0..remove_start]) catch {};
-        if (remove_end < src.len) r.data.appendSlice(gpa, src[remove_end..]) catch {};
+        r.data.ensureTotalCapacity(gpa, src.len - (remove_end - remove_start)) catch { setError(.out_of_memory); };
+        if (remove_start > 0) r.data.appendSlice(gpa, src[0..remove_start]) catch { setError(.out_of_memory); };
+        if (remove_end < src.len) r.data.appendSlice(gpa, src[remove_end..]) catch { setError(.out_of_memory); };
         return r;
     }
     return str_new();
@@ -1855,7 +1932,7 @@ pub fn str_replace_char_at(handle: StzStringHandle, cp_index: c_int, replacement
     const bytes = s.slice();
     const result = str_new() orelse return null;
     if (cp_index < INDEX_BASE) {
-        result.data.appendSlice(gpa, bytes) catch {};
+        result.data.appendSlice(gpa, bytes) catch { setError(.out_of_memory); };
         return result;
     }
     const idx: usize = toInternal(@intCast(cp_index));
@@ -5390,17 +5467,17 @@ pub fn str_center_pad(handle: StzStringHandle, width: c_int, pad_char: [*c]const
     const right_pad = total_pad - left_pad;
 
     const r = str_new() orelse return null;
-    r.data.ensureTotalCapacity(gpa, src.len + total_pad * pad_len) catch {};
+    r.data.ensureTotalCapacity(gpa, src.len + total_pad * pad_len) catch { setError(.out_of_memory); };
 
     // Add left padding
     for (0..left_pad) |_| {
-        r.data.appendSlice(gpa, pad_bytes) catch {};
+        r.data.appendSlice(gpa, pad_bytes) catch { setError(.out_of_memory); };
     }
     // Add source
-    r.data.appendSlice(gpa, src) catch {};
+    r.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
     // Add right padding
     for (0..right_pad) |_| {
-        r.data.appendSlice(gpa, pad_bytes) catch {};
+        r.data.appendSlice(gpa, pad_bytes) catch { setError(.out_of_memory); };
     }
 
     return r;
@@ -5419,7 +5496,7 @@ pub fn str_only_letters(handle: StzStringHandle) callconv(.c) StzStringHandle {
         if (off + cp_len > src.len) break;
         const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
         if (unicode.stz_unicode_is_letter(cp) != 0) {
-            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
         }
         off += cp_len;
     }
@@ -5437,7 +5514,7 @@ pub fn str_only_digits(handle: StzStringHandle) callconv(.c) StzStringHandle {
         if (off + cp_len > src.len) break;
         const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
         if (unicode.stz_unicode_is_digit(cp) != 0) {
-            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
         }
         off += cp_len;
     }
@@ -5457,7 +5534,7 @@ pub fn str_remove_whitespace(handle: StzStringHandle) callconv(.c) StzStringHand
         if (off + cp_len > src.len) break;
         const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
         if (unicode.stz_unicode_is_space(cp) == 0) {
-            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
         }
         off += cp_len;
     }
@@ -5499,10 +5576,10 @@ pub fn str_ljust(handle: StzStringHandle, width: c_int, pad_char: [*c]const u8, 
     const pad_bytes: []const u8 = pad_char[0..pad_len];
 
     const r = str_new() orelse return null;
-    r.data.appendSlice(gpa, src) catch {};
+    r.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
     const needed = w - cp_count;
     for (0..needed) |_| {
-        r.data.appendSlice(gpa, pad_bytes) catch {};
+        r.data.appendSlice(gpa, pad_bytes) catch { setError(.out_of_memory); };
     }
     return r;
 }
@@ -5522,9 +5599,9 @@ pub fn str_rjust(handle: StzStringHandle, width: c_int, pad_char: [*c]const u8, 
     const r = str_new() orelse return null;
     const needed = w - cp_count;
     for (0..needed) |_| {
-        r.data.appendSlice(gpa, pad_bytes) catch {};
+        r.data.appendSlice(gpa, pad_bytes) catch { setError(.out_of_memory); };
     }
-    r.data.appendSlice(gpa, src) catch {};
+    r.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
     return r;
 }
 
@@ -5636,19 +5713,19 @@ pub fn str_indent(handle: StzStringHandle, spaces: c_int) callconv(.c) StzString
     const n: usize = if (spaces > 0) @intCast(spaces) else return str_from(src.ptr, src.len);
 
     const r = str_new() orelse return null;
-    r.data.ensureTotalCapacity(gpa, src.len + src.len / 10 * n) catch {};
+    r.data.ensureTotalCapacity(gpa, src.len + src.len / 10 * n) catch { setError(.out_of_memory); };
 
     // Add indent before first line
     for (0..n) |_| {
-        r.data.append(gpa, ' ') catch {};
+        r.data.append(gpa, ' ') catch { setError(.out_of_memory); };
     }
 
     for (src) |byte| {
-        r.data.append(gpa, byte) catch {};
+        r.data.append(gpa, byte) catch { setError(.out_of_memory); };
         if (byte == '\n') {
             // Add indent after each newline
             for (0..n) |_| {
-                r.data.append(gpa, ' ') catch {};
+                r.data.append(gpa, ' ') catch { setError(.out_of_memory); };
             }
         }
     }
@@ -5695,10 +5772,10 @@ pub fn str_dedent(handle: StzStringHandle) callconv(.c) StzStringHandle {
         if (i == src.len or src[i] == '\n') {
             const line = src[line_start..i];
             if (line.len > min_indent) {
-                r.data.appendSlice(gpa, line[min_indent..]) catch {};
+                r.data.appendSlice(gpa, line[min_indent..]) catch { setError(.out_of_memory); };
             }
             if (i < src.len) {
-                r.data.append(gpa, '\n') catch {};
+                r.data.append(gpa, '\n') catch { setError(.out_of_memory); };
             }
             line_start = i + 1;
         }
@@ -5731,16 +5808,16 @@ pub fn str_to_camel_case(handle: StzStringHandle) callconv(.c) StzStringHandle {
                 const lc = unicode.stz_unicode_to_lower(cp);
                 var buf: [4]u8 = undefined;
                 const enc_len = std.unicode.utf8Encode(@intCast(lc), &buf) catch break;
-                r.data.appendSlice(gpa, buf[0..enc_len]) catch {};
+                r.data.appendSlice(gpa, buf[0..enc_len]) catch { setError(.out_of_memory); };
                 first = false;
             } else if (capitalize_next) {
                 const uc = unicode.stz_unicode_to_upper(cp);
                 var buf: [4]u8 = undefined;
                 const enc_len = std.unicode.utf8Encode(@intCast(uc), &buf) catch break;
-                r.data.appendSlice(gpa, buf[0..enc_len]) catch {};
+                r.data.appendSlice(gpa, buf[0..enc_len]) catch { setError(.out_of_memory); };
                 capitalize_next = false;
             } else {
-                r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+                r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
             }
         }
         off += cp_len;
@@ -5763,19 +5840,19 @@ pub fn str_to_snake_case(handle: StzStringHandle) callconv(.c) StzStringHandle {
         const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
 
         if (cp == ' ' or cp == '-' or cp == '\t') {
-            r.data.append(gpa, '_') catch {};
+            r.data.append(gpa, '_') catch { setError(.out_of_memory); };
             prev_was_lower = false;
         } else if (unicode.stz_unicode_is_upper(cp) != 0) {
             if (prev_was_lower) {
-                r.data.append(gpa, '_') catch {};
+                r.data.append(gpa, '_') catch { setError(.out_of_memory); };
             }
             const lc = unicode.stz_unicode_to_lower(cp);
             var buf: [4]u8 = undefined;
             const enc_len = std.unicode.utf8Encode(@intCast(lc), &buf) catch break;
-            r.data.appendSlice(gpa, buf[0..enc_len]) catch {};
+            r.data.appendSlice(gpa, buf[0..enc_len]) catch { setError(.out_of_memory); };
             prev_was_lower = false;
         } else {
-            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
             prev_was_lower = unicode.stz_unicode_is_lower(cp) != 0;
         }
         off += cp_len;
@@ -5798,19 +5875,19 @@ pub fn str_to_kebab_case(handle: StzStringHandle) callconv(.c) StzStringHandle {
         const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
 
         if (cp == ' ' or cp == '_' or cp == '\t') {
-            r.data.append(gpa, '-') catch {};
+            r.data.append(gpa, '-') catch { setError(.out_of_memory); };
             prev_was_lower = false;
         } else if (unicode.stz_unicode_is_upper(cp) != 0) {
             if (prev_was_lower) {
-                r.data.append(gpa, '-') catch {};
+                r.data.append(gpa, '-') catch { setError(.out_of_memory); };
             }
             const lc = unicode.stz_unicode_to_lower(cp);
             var buf: [4]u8 = undefined;
             const enc_len = std.unicode.utf8Encode(@intCast(lc), &buf) catch break;
-            r.data.appendSlice(gpa, buf[0..enc_len]) catch {};
+            r.data.appendSlice(gpa, buf[0..enc_len]) catch { setError(.out_of_memory); };
             prev_was_lower = false;
         } else {
-            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
             prev_was_lower = unicode.stz_unicode_is_lower(cp) != 0;
         }
         off += cp_len;
@@ -5897,7 +5974,7 @@ pub fn str_squeeze(handle: StzStringHandle) callconv(.c) StzStringHandle {
         const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
 
         if (first or cp != prev_cp) {
-            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
             prev_cp = cp;
             first = false;
         }
@@ -5944,9 +6021,9 @@ pub fn str_interleave(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize
         if (off + cp_len > src.len) break;
 
         if (!first) {
-            r.data.appendSlice(gpa, separator) catch {};
+            r.data.appendSlice(gpa, separator) catch { setError(.out_of_memory); };
         }
-        r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+        r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
         first = false;
         off += cp_len;
     }
@@ -5986,7 +6063,7 @@ pub fn str_strip_chars(handle: StzStringHandle, chars: [*c]const u8, chars_len: 
         }
 
         if (!found) {
-            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
         }
         off += cp_len;
     }
@@ -6017,7 +6094,7 @@ pub fn str_keep_chars(handle: StzStringHandle, chars: [*c]const u8, chars_len: u
             const c_len = std.unicode.utf8ByteSequenceLength(charset[coff]) catch break;
             if (coff + c_len > charset.len) break;
             if (c_len == cp_len and mem.eql(u8, src[off..][0..cp_len], charset[coff..][0..c_len])) {
-                r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+                r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
                 break;
             }
             coff += c_len;
@@ -6049,17 +6126,17 @@ pub fn str_replace2(handle: StzStringHandle, old1: [*c]const u8, old1_len: usize
     while (off < src.len) {
         // Try needle1
         if (needle1.len > 0 and off + needle1.len <= src.len and mem.eql(u8, src[off..][0..needle1.len], needle1)) {
-            r.data.appendSlice(gpa, repl1) catch {};
+            r.data.appendSlice(gpa, repl1) catch { setError(.out_of_memory); };
             off += needle1.len;
             continue;
         }
         // Try needle2
         if (needle2.len > 0 and off + needle2.len <= src.len and mem.eql(u8, src[off..][0..needle2.len], needle2)) {
-            r.data.appendSlice(gpa, repl2) catch {};
+            r.data.appendSlice(gpa, repl2) catch { setError(.out_of_memory); };
             off += needle2.len;
             continue;
         }
-        r.data.append(gpa, src[off]) catch {};
+        r.data.append(gpa, src[off]) catch { setError(.out_of_memory); };
         off += 1;
     }
     return r;
@@ -6073,9 +6150,9 @@ pub fn str_surround(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: u
     const src = s.slice();
 
     const r = str_new() orelse return null;
-    if (prefix_len > 0) r.data.appendSlice(gpa, prefix[0..prefix_len]) catch {};
-    r.data.appendSlice(gpa, src) catch {};
-    if (suffix_len > 0) r.data.appendSlice(gpa, suffix[0..suffix_len]) catch {};
+    if (prefix_len > 0) r.data.appendSlice(gpa, prefix[0..prefix_len]) catch { setError(.out_of_memory); };
+    r.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
+    if (suffix_len > 0) r.data.appendSlice(gpa, suffix[0..suffix_len]) catch { setError(.out_of_memory); };
     return r;
 }
 
@@ -6111,9 +6188,9 @@ pub fn str_replace_any_char(handle: StzStringHandle, chars: [*c]const u8, chars_
         }
 
         if (found) {
-            r.data.appendSlice(gpa, replacement) catch {};
+            r.data.appendSlice(gpa, replacement) catch { setError(.out_of_memory); };
         } else {
-            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch {};
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
         }
         off += cp_len;
     }
@@ -8040,7 +8117,7 @@ pub export fn str_swap_words(handle: ?*StzString, idx1: c_int, idx2: c_int) call
 
     if (pos1 >= word_count or pos2 >= word_count) {
         // Out of bounds, return original
-        result.data.appendSlice(gpa, src) catch {};
+        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
         return result;
     }
 
@@ -8201,7 +8278,7 @@ pub export fn str_zigzag(handle: ?*StzString, rails: c_int) callconv(.c) ?*StzSt
     const src = s.slice();
     const result = str_new() orelse return null;
     const n: usize = if (rails >= 2) @intCast(rails) else {
-        result.data.appendSlice(gpa, src) catch {};
+        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
         return result;
     };
     if (src.len == 0) return result;
@@ -8399,7 +8476,7 @@ pub export fn str_char_frequency_top(handle: ?*StzString) callconv(.c) ?*StzStri
             max_idx = @intCast(idx);
         }
     }
-    result.data.appendSlice(gpa, &[_]u8{max_idx}) catch {};
+    result.data.appendSlice(gpa, &[_]u8{max_idx}) catch { setError(.out_of_memory); };
     return result;
 }
 
@@ -8439,7 +8516,7 @@ pub export fn str_longest_common_prefix(h1: ?*StzString, h2: ?*StzString) callco
     const min_len = if (src1.len < src2.len) src1.len else src2.len;
     var i: usize = 0;
     while (i < min_len and src1[i] == src2[i]) : (i += 1) {}
-    result.data.appendSlice(gpa, src1[0..i]) catch {};
+    result.data.appendSlice(gpa, src1[0..i]) catch { setError(.out_of_memory); };
     return result;
 }
 
@@ -8454,7 +8531,7 @@ pub export fn str_longest_common_suffix(h1: ?*StzString, h2: ?*StzString) callco
     const min_len = if (src1.len < src2.len) src1.len else src2.len;
     var i: usize = 0;
     while (i < min_len and src1[src1.len - 1 - i] == src2[src2.len - 1 - i]) : (i += 1) {}
-    if (i > 0) result.data.appendSlice(gpa, src1[src1.len - i ..]) catch {};
+    if (i > 0) result.data.appendSlice(gpa, src1[src1.len - i ..]) catch { setError(.out_of_memory); };
     return result;
 }
 
@@ -8466,9 +8543,9 @@ pub export fn str_wrap_with(handle: ?*StzString, prefix: [*c]const u8, prefix_le
     const plen: usize = if (prefix_len >= 0) @intCast(prefix_len) else 0;
     const slen: usize = if (suffix_len >= 0) @intCast(suffix_len) else 0;
 
-    result.data.appendSlice(gpa, prefix[0..plen]) catch {};
-    result.data.appendSlice(gpa, src) catch {};
-    result.data.appendSlice(gpa, suffix[0..slen]) catch {};
+    result.data.appendSlice(gpa, prefix[0..plen]) catch { setError(.out_of_memory); };
+    result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
+    result.data.appendSlice(gpa, suffix[0..slen]) catch { setError(.out_of_memory); };
     return result;
 }
 
@@ -8556,7 +8633,7 @@ pub export fn str_remove_nth_word(handle: ?*StzString, n: c_int) callconv(.c) ?*
     const src = s.slice();
     const result = str_new() orelse return null;
     const target: usize = if (n >= 0) @intCast(n) else {
-        result.data.appendSlice(gpa, src) catch {};
+        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
         return result;
     };
 
@@ -8575,7 +8652,7 @@ pub export fn str_remove_nth_word(handle: ?*StzString, n: c_int) callconv(.c) ?*
     }
 
     if (target >= wc) {
-        result.data.appendSlice(gpa, src) catch {};
+        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
         return result;
     }
 
@@ -8685,7 +8762,7 @@ pub export fn str_between_first(handle: ?*StzString, open: [*c]const u8, open_le
             var j: usize = start;
             while (j + clen <= src.len) {
                 if (mem.eql(u8, src[j .. j + clen], close[0..clen])) {
-                    result.data.appendSlice(gpa, src[start..j]) catch {};
+                    result.data.appendSlice(gpa, src[start..j]) catch { setError(.out_of_memory); };
                     return result;
                 }
                 j += 1;
@@ -8733,7 +8810,7 @@ pub export fn str_abbreviate(handle: ?*StzString, max_len: c_int) callconv(.c) ?
     const cp_count = utf8CodepointCount(src);
 
     if (cp_count <= limit) {
-        result.data.appendSlice(gpa, src) catch {};
+        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
     } else {
         // Truncate to (limit - 3) codepoints + "..."
         const text_len: usize = if (limit >= 3) limit - 3 else 0;
@@ -8745,8 +8822,8 @@ pub export fn str_abbreviate(handle: ?*StzString, max_len: c_int) callconv(.c) ?
             off += cp_len;
             cp_idx += 1;
         }
-        result.data.appendSlice(gpa, src[0..off]) catch {};
-        result.data.appendSlice(gpa, "...") catch {};
+        result.data.appendSlice(gpa, src[0..off]) catch { setError(.out_of_memory); };
+        result.data.appendSlice(gpa, "...") catch { setError(.out_of_memory); };
     }
     return result;
 }
@@ -8802,7 +8879,7 @@ pub export fn str_left_pad(handle: ?*StzString, width: c_int, pad_char: u8) call
     const w: usize = if (width < 0) 0 else @intCast(width);
     const result = str_new() orelse return null;
     if (src.len >= w) {
-        result.data.appendSlice(gpa, src) catch {};
+        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
         return result;
     }
     const pad_count = w - src.len;
@@ -8810,7 +8887,7 @@ pub export fn str_left_pad(handle: ?*StzString, width: c_int, pad_char: u8) call
     while (i < pad_count) : (i += 1) {
         result.data.appendSlice(gpa, &[_]u8{pad_char}) catch break;
     }
-    result.data.appendSlice(gpa, src) catch {};
+    result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
     return result;
 }
 
@@ -8819,7 +8896,7 @@ pub export fn str_right_pad(handle: ?*StzString, width: c_int, pad_char: u8) cal
     const src = s.slice();
     const w: usize = if (width < 0) 0 else @intCast(width);
     const result = str_new() orelse return null;
-    result.data.appendSlice(gpa, src) catch {};
+    result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
     if (src.len >= w) return result;
     const pad_count = w - src.len;
     var i: usize = 0;
@@ -8993,7 +9070,7 @@ pub export fn str_truncate_words(handle: ?*StzString, max_words: c_int) callconv
         // Find start: skip leading spaces
         var start: usize = 0;
         while (start < src.len and src[start] == ' ') start += 1;
-        result.data.appendSlice(gpa, src[start..last_end]) catch {};
+        result.data.appendSlice(gpa, src[start..last_end]) catch { setError(.out_of_memory); };
     }
     return result;
 }
@@ -9055,7 +9132,7 @@ pub export fn str_last_word(handle: ?*StzString) callconv(.c) ?*StzString {
     if (end == 0) return result;
     var start: usize = end;
     while (start > 0 and src[start - 1] != ' ') start -= 1;
-    result.data.appendSlice(gpa, src[start..end]) catch {};
+    result.data.appendSlice(gpa, src[start..end]) catch { setError(.out_of_memory); };
     return result;
 }
 
@@ -9070,12 +9147,12 @@ pub export fn str_to_nato(handle: ?*StzString) callconv(.c) ?*StzString {
         if (c >= 'a' and c <= 'z') idx = c - 'a';
         if (c >= 'A' and c <= 'Z') idx = c - 'A';
         if (idx) |i| {
-            if (!first) result.data.appendSlice(gpa, " ") catch {};
-            result.data.appendSlice(gpa, nato[i]) catch {};
+            if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
+            result.data.appendSlice(gpa, nato[i]) catch { setError(.out_of_memory); };
             first = false;
         } else if (c == ' ') {
-            if (!first) result.data.appendSlice(gpa, " ") catch {};
-            result.data.appendSlice(gpa, "[space]") catch {};
+            if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
+            result.data.appendSlice(gpa, "[space]") catch { setError(.out_of_memory); };
             first = false;
         }
     }
@@ -9282,17 +9359,17 @@ pub export fn str_mask_email(handle: ?*StzString) callconv(.c) ?*StzString {
     if (at_pos) |ap| {
         if (ap > 0) {
             // Show first char, mask rest of local part
-            result.data.appendSlice(gpa, &[_]u8{src[0]}) catch {};
+            result.data.appendSlice(gpa, &[_]u8{src[0]}) catch { setError(.out_of_memory); };
             var i: usize = 1;
             while (i < ap) : (i += 1) {
                 result.data.appendSlice(gpa, &[_]u8{'*'}) catch break;
             }
         }
         // Append @domain
-        result.data.appendSlice(gpa, src[ap..]) catch {};
+        result.data.appendSlice(gpa, src[ap..]) catch { setError(.out_of_memory); };
     } else {
         // No @, just copy
-        result.data.appendSlice(gpa, src) catch {};
+        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
     }
     return result;
 }
@@ -9305,22 +9382,22 @@ pub export fn str_pluralize(handle: ?*StzString) callconv(.c) ?*StzString {
     result.data.appendSlice(gpa, src) catch return result;
     const last = src[src.len - 1];
     if (last == 's' or last == 'x' or last == 'z') {
-        result.data.appendSlice(gpa, "es") catch {};
+        result.data.appendSlice(gpa, "es") catch { setError(.out_of_memory); };
     } else if (last == 'y' and src.len > 1) {
         const prev = src[src.len - 2];
         if (!(prev == 'a' or prev == 'e' or prev == 'i' or prev == 'o' or prev == 'u')) {
             // Replace y with ies
             _ = result.data.pop();
-            result.data.appendSlice(gpa, "ies") catch {};
+            result.data.appendSlice(gpa, "ies") catch { setError(.out_of_memory); };
         } else {
-            result.data.appendSlice(gpa, "s") catch {};
+            result.data.appendSlice(gpa, "s") catch { setError(.out_of_memory); };
         }
     } else if (src.len >= 2 and src[src.len - 2] == 'c' and last == 'h') {
-        result.data.appendSlice(gpa, "es") catch {};
+        result.data.appendSlice(gpa, "es") catch { setError(.out_of_memory); };
     } else if (src.len >= 2 and src[src.len - 2] == 's' and last == 'h') {
-        result.data.appendSlice(gpa, "es") catch {};
+        result.data.appendSlice(gpa, "es") catch { setError(.out_of_memory); };
     } else {
-        result.data.appendSlice(gpa, "s") catch {};
+        result.data.appendSlice(gpa, "s") catch { setError(.out_of_memory); };
     }
     return result;
 }
@@ -9353,8 +9430,8 @@ pub export fn str_deduplicate_lines(handle: ?*StzString) callconv(.c) ?*StzStrin
             }
         }
         if (!is_dup) {
-            if (!first) result.data.appendSlice(gpa, "\n") catch {};
-            result.data.appendSlice(gpa, line) catch {};
+            if (!first) result.data.appendSlice(gpa, "\n") catch { setError(.out_of_memory); };
+            result.data.appendSlice(gpa, line) catch { setError(.out_of_memory); };
             line_starts[line_count] = start;
             line_ends[line_count] = end;
             line_count += 1;
@@ -9384,8 +9461,8 @@ pub export fn str_remove_blank_lines(handle: ?*StzString) callconv(.c) ?*StzStri
             }
         }
         if (!is_blank) {
-            if (!first) result.data.appendSlice(gpa, "\n") catch {};
-            result.data.appendSlice(gpa, line) catch {};
+            if (!first) result.data.appendSlice(gpa, "\n") catch { setError(.out_of_memory); };
+            result.data.appendSlice(gpa, line) catch { setError(.out_of_memory); };
             first = false;
         }
         if (pos < src.len) pos += 1 else break;
@@ -9403,8 +9480,8 @@ pub export fn str_extract_numbers(handle: ?*StzString) callconv(.c) ?*StzString 
         if (src[pos] >= '0' and src[pos] <= '9') {
             const start = pos;
             while (pos < src.len and ((src[pos] >= '0' and src[pos] <= '9') or src[pos] == '.')) pos += 1;
-            if (!first) result.data.appendSlice(gpa, " ") catch {};
-            result.data.appendSlice(gpa, src[start..pos]) catch {};
+            if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
+            result.data.appendSlice(gpa, src[start..pos]) catch { setError(.out_of_memory); };
             first = false;
         } else {
             pos += 1;
@@ -9441,8 +9518,8 @@ pub export fn str_extract_emails(handle: ?*StzString) callconv(.c) ?*StzString {
                 } else break;
             }
             if (local_start < pos and domain_end > pos + 1 and has_dot) {
-                if (!first) result.data.appendSlice(gpa, " ") catch {};
-                result.data.appendSlice(gpa, src[local_start..domain_end]) catch {};
+                if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
+                result.data.appendSlice(gpa, src[local_start..domain_end]) catch { setError(.out_of_memory); };
                 first = false;
                 pos = domain_end;
             } else {
@@ -9459,9 +9536,9 @@ pub export fn str_quote(handle: ?*StzString, quote_char: u8) callconv(.c) ?*StzS
     const s = handle orelse return null;
     const src = s.slice();
     const result = str_new() orelse return null;
-    result.data.appendSlice(gpa, &[_]u8{quote_char}) catch {};
-    result.data.appendSlice(gpa, src) catch {};
-    result.data.appendSlice(gpa, &[_]u8{quote_char}) catch {};
+    result.data.appendSlice(gpa, &[_]u8{quote_char}) catch { setError(.out_of_memory); };
+    result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
+    result.data.appendSlice(gpa, &[_]u8{quote_char}) catch { setError(.out_of_memory); };
     return result;
 }
 
@@ -9472,15 +9549,15 @@ pub export fn str_unquote(handle: ?*StzString) callconv(.c) ?*StzString {
     const src = s.slice();
     const result = str_new() orelse return null;
     if (src.len < 2) {
-        result.data.appendSlice(gpa, src) catch {};
+        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
         return result;
     }
     const first = src[0];
     const last = src[src.len - 1];
     if ((first == '"' and last == '"') or (first == '\'' and last == '\'') or (first == '`' and last == '`')) {
-        result.data.appendSlice(gpa, src[1 .. src.len - 1]) catch {};
+        result.data.appendSlice(gpa, src[1 .. src.len - 1]) catch { setError(.out_of_memory); };
     } else {
-        result.data.appendSlice(gpa, src) catch {};
+        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
     }
     return result;
 }
@@ -9498,10 +9575,10 @@ pub export fn str_to_csv_field(handle: ?*StzString) callconv(.c) ?*StzString {
         }
     }
     if (!needs_quote) {
-        result.data.appendSlice(gpa, src) catch {};
+        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
         return result;
     }
-    result.data.appendSlice(gpa, "\"") catch {};
+    result.data.appendSlice(gpa, "\"") catch { setError(.out_of_memory); };
     for (src) |c| {
         if (c == '"') {
             result.data.appendSlice(gpa, "\"\"") catch break;
@@ -9509,7 +9586,7 @@ pub export fn str_to_csv_field(handle: ?*StzString) callconv(.c) ?*StzString {
             result.data.appendSlice(gpa, &[_]u8{c}) catch break;
         }
     }
-    result.data.appendSlice(gpa, "\"") catch {};
+    result.data.appendSlice(gpa, "\"") catch { setError(.out_of_memory); };
     return result;
 }
 
@@ -9523,14 +9600,14 @@ pub export fn str_number_lines(handle: ?*StzString) callconv(.c) ?*StzString {
         // Write line number
         var buf: [12]u8 = undefined;
         const num_len = formatUsize(line_num, &buf);
-        result.data.appendSlice(gpa, buf[0..num_len]) catch {};
-        result.data.appendSlice(gpa, ": ") catch {};
+        result.data.appendSlice(gpa, buf[0..num_len]) catch { setError(.out_of_memory); };
+        result.data.appendSlice(gpa, ": ") catch { setError(.out_of_memory); };
         // Write line content
         const start = pos;
         while (pos < src.len and src[pos] != '\n') pos += 1;
-        result.data.appendSlice(gpa, src[start..pos]) catch {};
+        result.data.appendSlice(gpa, src[start..pos]) catch { setError(.out_of_memory); };
         if (pos < src.len) {
-            result.data.appendSlice(gpa, "\n") catch {};
+            result.data.appendSlice(gpa, "\n") catch { setError(.out_of_memory); };
             pos += 1;
             line_num += 1;
         } else break;
@@ -9563,15 +9640,15 @@ pub export fn str_hide(handle: ?*StzString, mask_char: u8, keep_first: c_int, ke
     const kf: usize = if (keep_first < 0) 0 else @intCast(keep_first);
     const kl: usize = if (keep_last < 0) 0 else @intCast(keep_last);
     if (kf + kl >= src.len) {
-        result.data.appendSlice(gpa, src) catch {};
+        result.data.appendSlice(gpa, src) catch { setError(.out_of_memory); };
         return result;
     }
-    result.data.appendSlice(gpa, src[0..kf]) catch {};
+    result.data.appendSlice(gpa, src[0..kf]) catch { setError(.out_of_memory); };
     var i: usize = kf;
     while (i < src.len - kl) : (i += 1) {
         result.data.appendSlice(gpa, &[_]u8{mask_char}) catch break;
     }
-    result.data.appendSlice(gpa, src[src.len - kl ..]) catch {};
+    result.data.appendSlice(gpa, src[src.len - kl ..]) catch { setError(.out_of_memory); };
     return result;
 }
 
@@ -9587,8 +9664,8 @@ pub export fn str_extract_words(handle: ?*StzString) callconv(.c) ?*StzString {
         if (pos >= src.len) break;
         const start = pos;
         while (pos < src.len and ((src[pos] >= 'a' and src[pos] <= 'z') or (src[pos] >= 'A' and src[pos] <= 'Z') or src[pos] == '\'')) pos += 1;
-        if (!first) result.data.appendSlice(gpa, " ") catch {};
-        result.data.appendSlice(gpa, src[start..pos]) catch {};
+        if (!first) result.data.appendSlice(gpa, " ") catch { setError(.out_of_memory); };
+        result.data.appendSlice(gpa, src[start..pos]) catch { setError(.out_of_memory); };
         first = false;
     }
     return result;
@@ -9629,7 +9706,7 @@ pub export fn str_chop(handle: ?*StzString) callconv(.c) ?*StzString {
     const src = s.slice();
     const result = str_new() orelse return null;
     if (src.len > 0) {
-        result.data.appendSlice(gpa, src[0 .. src.len - 1]) catch {};
+        result.data.appendSlice(gpa, src[0 .. src.len - 1]) catch { setError(.out_of_memory); };
     }
     return result;
 }
@@ -9663,15 +9740,15 @@ pub export fn str_to_ordinal(handle: ?*StzString) callconv(.c) ?*StzString {
     const last_two = abs_num % 100;
     const last_one = abs_num % 10;
     if (last_two >= 11 and last_two <= 13) {
-        result.data.appendSlice(gpa, "th") catch {};
+        result.data.appendSlice(gpa, "th") catch { setError(.out_of_memory); };
     } else if (last_one == 1) {
-        result.data.appendSlice(gpa, "st") catch {};
+        result.data.appendSlice(gpa, "st") catch { setError(.out_of_memory); };
     } else if (last_one == 2) {
-        result.data.appendSlice(gpa, "nd") catch {};
+        result.data.appendSlice(gpa, "nd") catch { setError(.out_of_memory); };
     } else if (last_one == 3) {
-        result.data.appendSlice(gpa, "rd") catch {};
+        result.data.appendSlice(gpa, "rd") catch { setError(.out_of_memory); };
     } else {
-        result.data.appendSlice(gpa, "th") catch {};
+        result.data.appendSlice(gpa, "th") catch { setError(.out_of_memory); };
     }
     return result;
 }
@@ -12408,4 +12485,113 @@ test "count_of_cs" {
     try std.testing.expectEqual(@as(c_int, 2), str_count_of_cs(s, "abc", 3, 1));
     try std.testing.expectEqual(@as(c_int, 3), str_count_of_cs(s, "abc", 3, 0));
     str_free(s);
+}
+
+// ─── Phase B: Safety & Robustness Tests ───
+
+test "str_last_error initial state" {
+    try std.testing.expectEqual(@as(c_int, 0), str_last_error());
+}
+
+test "str_clear_error" {
+    // Force an error, then clear
+    _ = str_from("\xff\xfe", 2); // invalid UTF-8
+    try std.testing.expect(str_last_error() != 0);
+    str_clear_error();
+    try std.testing.expectEqual(@as(c_int, 0), str_last_error());
+}
+
+test "str_from rejects invalid UTF-8" {
+    // Invalid continuation byte
+    const bad1 = str_from("\xff\xfe", 2);
+    try std.testing.expect(bad1 == null);
+    try std.testing.expectEqual(@as(c_int, 2), str_last_error()); // invalid_utf8
+
+    // Overlong encoding
+    const bad2 = str_from("\xc0\x80", 2);
+    try std.testing.expect(bad2 == null);
+    try std.testing.expectEqual(@as(c_int, 2), str_last_error());
+
+    // Truncated sequence
+    const bad3 = str_from("\xe2\x82", 2);
+    try std.testing.expect(bad3 == null);
+    try std.testing.expectEqual(@as(c_int, 2), str_last_error());
+
+    // Valid UTF-8 should succeed and clear error
+    const good = str_from("Hello", 5);
+    try std.testing.expect(good != null);
+    try std.testing.expectEqual(@as(c_int, 0), str_last_error());
+    str_free(good);
+}
+
+test "str_from accepts valid multi-byte UTF-8" {
+    // 2-byte: e with acute
+    const s2 = str_from("\xc3\xa9", 2);
+    try std.testing.expect(s2 != null);
+    try std.testing.expectEqual(@as(c_int, 0), str_last_error());
+    str_free(s2);
+
+    // 3-byte: Euro sign
+    const s3 = str_from("\xe2\x82\xac", 3);
+    try std.testing.expect(s3 != null);
+    str_free(s3);
+
+    // 4-byte: emoji
+    const s4 = str_from("\xf0\x9f\x98\x80", 4);
+    try std.testing.expect(s4 != null);
+    str_free(s4);
+}
+
+test "str_from null pointer with len 0 succeeds" {
+    const s = str_from(null, 0);
+    try std.testing.expect(s != null);
+    try std.testing.expectEqual(@as(c_int, 0), str_last_error());
+    try std.testing.expectEqual(@as(usize, 0), str_size(s));
+    str_free(s);
+}
+
+test "str_from null pointer with len > 0 fails" {
+    const s = str_from(null, 5);
+    try std.testing.expect(s == null);
+    try std.testing.expectEqual(@as(c_int, 5), str_last_error()); // invalid_argument
+}
+
+test "str_data null-terminated" {
+    const s = str_from("Hello", 5);
+    const data = str_data(s);
+    // The 6th byte (index 5) should be '\0' for C compatibility
+    try std.testing.expectEqual(@as(u8, 0), data[5]);
+    str_free(s);
+}
+
+test "str_data empty string returns empty" {
+    const s = str_new();
+    const data = str_data(s);
+    try std.testing.expectEqual(@as(u8, 0), data[0]);
+    str_free(s);
+}
+
+test "str_data null handle returns empty" {
+    const data = str_data(null);
+    try std.testing.expectEqual(@as(u8, 0), data[0]);
+}
+
+test "str_append sets error on null handle" {
+    str_append(null, "test", 4);
+    try std.testing.expectEqual(@as(c_int, 4), str_last_error()); // null_handle
+}
+
+test "str_insert sets error on null handle" {
+    str_insert(null, 0, "test", 4);
+    try std.testing.expectEqual(@as(c_int, 4), str_last_error()); // null_handle
+}
+
+test "error enum values" {
+    // Verify the enum constants match the documented values
+    try std.testing.expectEqual(@as(c_int, 0), @intFromEnum(StrError.none));
+    try std.testing.expectEqual(@as(c_int, 1), @intFromEnum(StrError.out_of_memory));
+    try std.testing.expectEqual(@as(c_int, 2), @intFromEnum(StrError.invalid_utf8));
+    try std.testing.expectEqual(@as(c_int, 3), @intFromEnum(StrError.index_out_of_bounds));
+    try std.testing.expectEqual(@as(c_int, 4), @intFromEnum(StrError.null_handle));
+    try std.testing.expectEqual(@as(c_int, 5), @intFromEnum(StrError.invalid_argument));
 }
