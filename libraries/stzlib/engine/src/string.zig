@@ -67,9 +67,13 @@ pub const StzStringHandle = ?*StzString;
 
 const StzString = struct {
     data: std.ArrayList(u8),
+    // ─── Performance caches (Phase C) ───
+    // Lazily computed, invalidated on mutation.
+    cached_cp_count: ?usize = null,
+    cached_is_ascii: ?bool = null,
 
     fn init() StzString {
-        return .{ .data = .{} };
+        return .{ .data = .{}, .cached_cp_count = null, .cached_is_ascii = null };
     }
 
     fn deinit(self: *StzString) void {
@@ -78,6 +82,35 @@ const StzString = struct {
 
     fn slice(self: *const StzString) []const u8 {
         return self.data.items;
+    }
+
+    /// Invalidate caches after any mutation.
+    fn invalidateCache(self: *StzString) void {
+        self.cached_cp_count = null;
+        self.cached_is_ascii = null;
+    }
+
+    /// Returns true if all bytes are ASCII (< 128).
+    fn isAscii(self: *StzString) bool {
+        if (self.cached_is_ascii) |v| return v;
+        const items = self.data.items;
+        var ascii = true;
+        for (items) |b| {
+            if (b >= 128) {
+                ascii = false;
+                break;
+            }
+        }
+        self.cached_is_ascii = ascii;
+        return ascii;
+    }
+
+    /// Returns codepoint count, cached after first computation.
+    fn cpCount(self: *StzString) usize {
+        if (self.cached_cp_count) |c| return c;
+        const count = utf8CodepointCount(self.data.items);
+        self.cached_cp_count = count;
+        return count;
     }
 };
 
@@ -163,7 +196,7 @@ pub fn str_size(handle: StzStringHandle) callconv(.c) usize {
 
 pub fn str_count(handle: StzStringHandle) callconv(.c) usize {
     if (handle) |s| {
-        return utf8CodepointCount(s.slice());
+        return s.cpCount();
     }
     return 0;
 }
@@ -177,6 +210,7 @@ pub fn str_append(handle: StzStringHandle, utf8: [*c]const u8, len: usize) callc
             s.data.appendSlice(gpa, utf8[0..len]) catch {
                 setError(.out_of_memory);
             };
+            s.invalidateCache();
         }
     } else {
         setError(.null_handle);
@@ -191,6 +225,7 @@ pub fn str_insert(handle: StzStringHandle, byte_pos: usize, utf8: [*c]const u8, 
         s.data.insertSlice(gpa, pos, utf8[0..len]) catch {
             setError(.out_of_memory);
         };
+        s.invalidateCache();
     } else {
         setError(.null_handle);
     }
@@ -318,6 +353,15 @@ pub fn str_index_of_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len
         if (needle == null or needle_len == 0) return -1;
         const hay = s.slice();
         const n = needle[0..needle_len];
+
+        // ASCII + BMH fast-path: byte pos == cp pos
+        if (s.isAscii() and n.len > 4) {
+            if (bmhSearch(hay, n, 0)) |byte_pos| {
+                return toExternal(byte_pos);
+            }
+            return -1;
+        }
+
         var byte_pos: usize = 0;
         var cp_pos: usize = 0;
         while (byte_pos + n.len <= hay.len) {
@@ -745,6 +789,7 @@ pub fn str_replace_cs(handle: StzStringHandle, old: [*c]const u8, old_len: usize
 
             s.data.deinit(gpa);
             s.data = result;
+            s.invalidateCache();
         } else {
             // Case-sensitive: direct comparison
             var result: std.ArrayList(u8) = .{};
@@ -764,6 +809,7 @@ pub fn str_replace_cs(handle: StzStringHandle, old: [*c]const u8, old_len: usize
 
             s.data.deinit(gpa);
             s.data = result;
+            s.invalidateCache();
         }
     }
 }
@@ -965,6 +1011,7 @@ pub fn str_insert_cp(handle: StzStringHandle, cp_pos: c_int, utf8: [*c]const u8,
         const byte_pos = unicode.stz_unicode_cp_to_byte(s.data.items.ptr, s.data.items.len, internal);
         if (byte_pos < 0) return;
         s.data.insertSlice(gpa, @intCast(byte_pos), utf8[0..len]) catch { setError(.out_of_memory); };
+        s.invalidateCache();
     }
 }
 
@@ -1545,14 +1592,10 @@ pub fn str_extract_chars_of_type(handle: StzStringHandle, char_type: c_int) call
 }
 
 /// Check if string contains only ASCII characters (bytes 0-127). Returns 1 or 0.
+/// Uses cached result when available (Phase C optimization).
 pub fn str_is_ascii(handle: StzStringHandle) callconv(.c) c_int {
     if (handle) |s| {
-        const bytes = s.slice();
-        if (bytes.len == 0) return 1;
-        for (bytes) |b| {
-            if (b > 127) return 0;
-        }
-        return 1;
+        return if (s.isAscii()) @as(c_int, 1) else @as(c_int, 0);
     }
     return 1;
 }
@@ -2263,6 +2306,8 @@ fn decodeCodepoint(bytes: []const u8, pos: usize, cp_len: usize) i32 {
 // ─── Helpers ───
 
 fn utf8CodepointCount(bytes: []const u8) usize {
+    // ASCII fast-path: byte count == codepoint count
+    if (isAllAscii(bytes)) return bytes.len;
     var count: usize = 0;
     var i: usize = 0;
     while (i < bytes.len) {
@@ -2272,6 +2317,36 @@ fn utf8CodepointCount(bytes: []const u8) usize {
         i += cp_len;
     }
     return count;
+}
+
+// ─── Boyer-Moore-Horspool Search (Phase C) ───
+//
+// For case-sensitive byte-level search. Returns byte offset of first
+// match at or after `start`, or null if not found. Only used when
+// needle_len > 4 (small needles are faster with linear scan).
+
+fn bmhSearch(haystack: []const u8, needle: []const u8, start: usize) ?usize {
+    const n = needle.len;
+    const h = haystack.len;
+    if (n == 0 or n > h or start + n > h) return null;
+
+    // Build bad-character shift table
+    var shift: [256]usize = undefined;
+    for (&shift) |*s| s.* = n;
+    for (needle[0 .. n - 1], 0..) |byte, i| {
+        shift[byte] = n - 1 - i;
+    }
+
+    var pos: usize = start;
+    while (pos + n <= h) {
+        // Compare from right to left
+        if (mem.eql(u8, haystack[pos..][0..n], needle)) {
+            return pos;
+        }
+        // Shift by the bad-character rule
+        pos += shift[haystack[pos + n - 1]];
+    }
+    return null;
 }
 
 /// Convert a byte offset to a 0-based codepoint index.
@@ -2288,7 +2363,12 @@ fn byteOffsetToCodepointIndex(bytes: []const u8, byte_offset: usize) usize {
 }
 
 /// Convert a 0-based codepoint index to a byte offset.
+/// Uses ASCII fast-path when all bytes are < 128.
 fn codepointIndexToByteOffset(bytes: []const u8, cp_index: usize) usize {
+    // ASCII fast-path: cp_index == byte_index
+    if (isAllAscii(bytes)) {
+        return @min(cp_index, bytes.len);
+    }
     var cp_count: usize = 0;
     var i: usize = 0;
     while (i < bytes.len and cp_count < cp_index) {
@@ -2298,6 +2378,14 @@ fn codepointIndexToByteOffset(bytes: []const u8, cp_index: usize) usize {
         i += cp_len;
     }
     return i;
+}
+
+/// Check if a byte slice is all ASCII (no byte >= 128).
+fn isAllAscii(bytes: []const u8) bool {
+    for (bytes) |b| {
+        if (b >= 128) return false;
+    }
+    return true;
 }
 
 // ─── Tests ───
@@ -12594,4 +12682,90 @@ test "error enum values" {
     try std.testing.expectEqual(@as(c_int, 3), @intFromEnum(StrError.index_out_of_bounds));
     try std.testing.expectEqual(@as(c_int, 4), @intFromEnum(StrError.null_handle));
     try std.testing.expectEqual(@as(c_int, 5), @intFromEnum(StrError.invalid_argument));
+}
+
+// ─── Phase C: Performance Tests ───
+
+test "cpCount cache works" {
+    const s = str_from("Hello", 5);
+    // First call computes; second should use cache
+    try std.testing.expectEqual(@as(usize, 5), str_count(s));
+    try std.testing.expectEqual(@as(usize, 5), str_count(s));
+    str_free(s);
+}
+
+test "cpCount cache invalidated on append" {
+    const s = str_from("Hi", 2);
+    try std.testing.expectEqual(@as(usize, 2), str_count(s));
+    str_append(s, " there", 6);
+    try std.testing.expectEqual(@as(usize, 8), str_count(s));
+    str_free(s);
+}
+
+test "isAscii cache works" {
+    const s = str_from("Hello", 5);
+    try std.testing.expectEqual(@as(c_int, 1), str_is_ascii(s));
+    // Should use cached value
+    try std.testing.expectEqual(@as(c_int, 1), str_is_ascii(s));
+    str_free(s);
+}
+
+test "isAscii detects non-ASCII" {
+    const s = str_from("\xc3\xa9", 2); // e with acute
+    try std.testing.expectEqual(@as(c_int, 0), str_is_ascii(s));
+    str_free(s);
+}
+
+test "isAscii cache invalidated on append" {
+    const s = str_from("Hi", 2);
+    try std.testing.expectEqual(@as(c_int, 1), str_is_ascii(s));
+    str_append(s, "\xc3\xa9", 2); // append non-ASCII
+    try std.testing.expectEqual(@as(c_int, 0), str_is_ascii(s));
+    str_free(s);
+}
+
+test "BMH search basic" {
+    // Verify BMH finds correct positions
+    const hay = "The quick brown fox jumps over the lazy dog";
+    try std.testing.expectEqual(@as(?usize, 16), bmhSearch(hay, "fox j", 0));
+    try std.testing.expectEqual(@as(?usize, 31), bmhSearch(hay, "the lazy", 0));
+    try std.testing.expect(bmhSearch(hay, "cat jumps", 0) == null);
+}
+
+test "BMH search with start offset" {
+    const hay = "abcdef abcdef abcdef";
+    try std.testing.expectEqual(@as(?usize, 0), bmhSearch(hay, "abcdef", 0));
+    try std.testing.expectEqual(@as(?usize, 7), bmhSearch(hay, "abcdef", 1));
+    try std.testing.expectEqual(@as(?usize, 14), bmhSearch(hay, "abcdef", 8));
+}
+
+test "index_of uses BMH for long ASCII needles" {
+    // Needle > 4 bytes, ASCII string -- should use BMH path
+    const s = str_from("The quick brown fox jumps over the lazy dog", 43);
+    try std.testing.expectEqual(@as(i64, 17), str_index_of(s, "fox j", 5)); // 1-based
+    try std.testing.expectEqual(@as(i64, 32), str_index_of(s, "the lazy", 8)); // 1-based
+    try std.testing.expectEqual(@as(i64, -1), str_index_of(s, "cat jumps", 9));
+    str_free(s);
+}
+
+test "cpCount ASCII fast-path" {
+    // ASCII: codepoint count == byte count
+    const s = str_from("Hello World!", 12);
+    try std.testing.expectEqual(@as(usize, 12), str_count(s));
+    str_free(s);
+}
+
+test "cpCount multi-byte correct" {
+    // "cafe" with accented e = 5 codepoints, 6 bytes
+    const s = str_from("caf\xc3\xa9!", 6);
+    try std.testing.expectEqual(@as(usize, 5), str_count(s));
+    try std.testing.expectEqual(@as(usize, 6), str_size(s));
+    str_free(s);
+}
+
+test "isAllAscii helper" {
+    try std.testing.expect(isAllAscii("Hello World"));
+    try std.testing.expect(!isAllAscii("\xc3\xa9"));
+    try std.testing.expect(isAllAscii(""));
+    try std.testing.expect(!isAllAscii("Hi\xf0\x9f\x98\x80"));
 }
