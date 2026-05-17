@@ -1,235 +1,54 @@
 // Softanza Engine -- String Operations (Tier 1)
 //
-// Replaces QString2 with pure Zig UTF-8 string handling.
-// All functions use C ABI for Ring FFI compatibility.
+// Domain functions for string manipulation. Shared infrastructure
+// (types, lifecycle, helpers) lives in string/core.zig.
 //
-// Indexing convention: 1-based by default (INDEX_BASE = 1).
-// All codepoint positions accepted and returned by public functions
-// use this base. Internally, arrays remain 0-based.
+// Phase D module separation: core.zig holds StzString, lifecycle,
+// error reporting, indexing config, and shared helpers. This file
+// holds all domain functions and re-exports core's public API.
 
 const std = @import("std");
-const mem = std.mem;
-const Allocator = std.mem.Allocator;
 
-const gpa = std.heap.c_allocator;
-const unicode = @import("unicode.zig");
+// ─── Core imports ───
+const core = @import("string/core.zig");
 
-// ─── Error Reporting ───
-//
-// C ABI functions cannot return Zig errors. Instead, functions set a
-// module-level error code that callers can query via str_last_error().
-// Convention: every function that can fail clears the error on entry
-// (via setError(.none)) or sets it on failure. Callers who care about
-// error details call str_last_error() immediately after the failing call.
+// Re-export core public API (callers see a flat namespace)
+pub const StrError = core.StrError;
+pub const StzStringHandle = core.StzStringHandle;
+pub const StzFindResultHandle = core.StzFindResultHandle;
+pub const INDEX_BASE = core.INDEX_BASE;
+pub const str_last_error = core.str_last_error;
+pub const str_clear_error = core.str_clear_error;
+pub const str_new = core.str_new;
+pub const str_from = core.str_from;
+pub const str_free = core.str_free;
+pub const str_data = core.str_data;
+pub const str_size = core.str_size;
+pub const str_count = core.str_count;
+pub const str_append = core.str_append;
+pub const str_insert = core.str_insert;
 
-pub const StrError = enum(c_int) {
-    none = 0,
-    out_of_memory = 1,
-    invalid_utf8 = 2,
-    index_out_of_bounds = 3,
-    null_handle = 4,
-    invalid_argument = 5,
-};
-
-var last_error: StrError = .none;
-
-fn setError(err: StrError) void {
-    last_error = err;
-}
-
-pub fn str_last_error() callconv(.c) c_int {
-    return @intFromEnum(last_error);
-}
-
-pub fn str_clear_error() callconv(.c) void {
-    last_error = .none;
-}
-
-// ─── Indexing Configuration ───
-
-/// Index base for codepoint positions in the public API.
-/// 1 = 1-based (Softanza/Ring convention, default)
-/// 0 = 0-based (C/Python convention)
-pub const INDEX_BASE: c_int = 1;
-
-/// Convert a public API position to internal 0-based index.
-fn toInternal(pos: i64) usize {
-    const adjusted = pos - INDEX_BASE;
-    return if (adjusted < 0) 0 else @intCast(adjusted);
-}
-
-/// Convert an internal 0-based index to public API position.
-fn toExternal(pos: usize) i64 {
-    return @as(i64, @intCast(pos)) + INDEX_BASE;
-}
-
-pub const StzStringHandle = ?*StzString;
-
-const StzString = struct {
-    data: std.ArrayList(u8),
-    // ─── Performance caches (Phase C) ───
-    // Lazily computed, invalidated on mutation.
-    cached_cp_count: ?usize = null,
-    cached_is_ascii: ?bool = null,
-
-    fn init() StzString {
-        return .{ .data = .{}, .cached_cp_count = null, .cached_is_ascii = null };
-    }
-
-    fn deinit(self: *StzString) void {
-        self.data.deinit(gpa);
-    }
-
-    fn slice(self: *const StzString) []const u8 {
-        return self.data.items;
-    }
-
-    /// Invalidate caches after any mutation.
-    fn invalidateCache(self: *StzString) void {
-        self.cached_cp_count = null;
-        self.cached_is_ascii = null;
-    }
-
-    /// Returns true if all bytes are ASCII (< 128).
-    fn isAscii(self: *StzString) bool {
-        if (self.cached_is_ascii) |v| return v;
-        const items = self.data.items;
-        var ascii = true;
-        for (items) |b| {
-            if (b >= 128) {
-                ascii = false;
-                break;
-            }
-        }
-        self.cached_is_ascii = ascii;
-        return ascii;
-    }
-
-    /// Returns codepoint count, cached after first computation.
-    fn cpCount(self: *StzString) usize {
-        if (self.cached_cp_count) |c| return c;
-        const count = utf8CodepointCount(self.data.items);
-        self.cached_cp_count = count;
-        return count;
-    }
-};
-
-// ─── Lifecycle ───
-
-pub fn str_new() callconv(.c) StzStringHandle {
-    const s = gpa.create(StzString) catch return null;
-    s.* = StzString.init();
-    return s;
-}
-
-pub fn str_from(utf8: [*c]const u8, len: usize) callconv(.c) StzStringHandle {
-    setError(.none);
-    if (utf8 == null and len > 0) {
-        setError(.invalid_argument);
-        return null;
-    }
-    // Validate UTF-8 before accepting the input
-    if (utf8 != null and len > 0) {
-        const src: []const u8 = utf8[0..len];
-        if (!std.unicode.utf8ValidateSlice(src)) {
-            setError(.invalid_utf8);
-            return null;
-        }
-    }
-    const s = gpa.create(StzString) catch {
-        setError(.out_of_memory);
-        return null;
-    };
-    s.* = StzString.init();
-    if (utf8 != null and len > 0) {
-        const src: []const u8 = utf8[0..len];
-        s.data.appendSlice(gpa, src) catch {
-            setError(.out_of_memory);
-            s.deinit();
-            gpa.destroy(s);
-            return null;
-        };
-    }
-    return s;
-}
-
-pub fn str_free(handle: StzStringHandle) callconv(.c) void {
-    if (handle) |s| {
-        s.deinit();
-        gpa.destroy(s);
-    }
-}
-
-// ─── Content ───
-
-/// Returns a pointer to the string's UTF-8 data.
-/// The returned pointer is guaranteed null-terminated: we append a
-/// sentinel '\0' beyond items.len (using the ArrayList's capacity
-/// headroom) so C callers can treat it as a C string. If the
-/// sentinel append fails (capacity exhausted and OOM), we return ""
-/// and set last_error.
-pub fn str_data(handle: StzStringHandle) callconv(.c) [*c]const u8 {
-    if (handle) |s| {
-        if (s.data.items.len == 0) return "";
-        // Ensure null-terminator in capacity headroom
-        const items = s.data.items;
-        if (s.data.capacity > items.len) {
-            // Space already available -- poke a '\0' sentinel
-            items.ptr[items.len] = 0;
-        } else {
-            // Need to grow by 1 byte for the sentinel
-            s.data.ensureTotalCapacity(gpa, items.len + 1) catch {
-                setError(.out_of_memory);
-                return "";
-            };
-            s.data.items.ptr[s.data.items.len] = 0;
-        }
-        return s.data.items.ptr;
-    }
-    return "";
-}
-
-pub fn str_size(handle: StzStringHandle) callconv(.c) usize {
-    if (handle) |s| return s.data.items.len;
-    return 0;
-}
-
-pub fn str_count(handle: StzStringHandle) callconv(.c) usize {
-    if (handle) |s| {
-        return s.cpCount();
-    }
-    return 0;
-}
-
-// ─── Mutation ───
-
-pub fn str_append(handle: StzStringHandle, utf8: [*c]const u8, len: usize) callconv(.c) void {
-    setError(.none);
-    if (handle) |s| {
-        if (utf8 != null and len > 0) {
-            s.data.appendSlice(gpa, utf8[0..len]) catch {
-                setError(.out_of_memory);
-            };
-            s.invalidateCache();
-        }
-    } else {
-        setError(.null_handle);
-    }
-}
-
-pub fn str_insert(handle: StzStringHandle, byte_pos: usize, utf8: [*c]const u8, len: usize) callconv(.c) void {
-    setError(.none);
-    if (handle) |s| {
-        if (utf8 == null or len == 0) return;
-        const pos = @min(byte_pos, s.data.items.len);
-        s.data.insertSlice(gpa, pos, utf8[0..len]) catch {
-            setError(.out_of_memory);
-        };
-        s.invalidateCache();
-    } else {
-        setError(.null_handle);
-    }
-}
+// Local aliases for core types and helpers
+const mem = core.mem;
+const gpa = core.gpa;
+const unicode = core.unicode;
+const StzString = core.StzString;
+const StzFindResult = core.StzFindResult;
+const setError = core.setError;
+const toInternal = core.toInternal;
+const toExternal = core.toExternal;
+const casefoldAlloc = core.casefoldAlloc;
+const ciEqlUnicode = core.ciEqlUnicode;
+const ciMatch = core.ciMatch;
+const toLowerAscii = core.toLowerAscii;
+const utf8CodepointCount = core.utf8CodepointCount;
+const codepointIndexToByteOffset = core.codepointIndexToByteOffset;
+const byteOffsetToCodepointIndex = core.byteOffsetToCodepointIndex;
+const decodeCodepoint = core.decodeCodepoint;
+const isAllAscii = core.isAllAscii;
+const bmhSearch = core.bmhSearch;
+const formatUsize = core.formatUsize;
+const isVowelAscii = core.isVowelAscii;
 
 // ─── Extraction ───
 
@@ -495,47 +314,7 @@ pub fn str_split_get(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize,
     return str_split_get_cs(handle, sep, sep_len, index, 1);
 }
 
-fn toLowerAscii(c: u8) u8 {
-    return if (c >= 'A' and c <= 'Z') c + 32 else c;
-}
-
-/// Case-fold a UTF-8 slice using utf8proc (Unicode-correct).
-/// Caller must free the returned slice with gpa.free().
-/// Returns null on allocation failure or empty input.
-fn casefoldAlloc(input: []const u8) ?[]u8 {
-    if (input.len == 0) return null;
-    var out_len: usize = 0;
-    const ptr = unicode.stz_unicode_casefold(input.ptr, input.len, &out_len);
-    if (ptr == null or out_len == 0) return null;
-    // ptr was allocated by casefold using gpa -- we own it
-    return @as([*]u8, @ptrCast(ptr))[0..out_len];
-}
-
-/// Case-insensitive byte-slice comparison using Unicode case folding.
-/// Both slices are case-folded and compared. Returns true if equal.
-fn ciEqlUnicode(a: []const u8, b: []const u8) bool {
-    const fa = casefoldAlloc(a) orelse return mem.eql(u8, a, b);
-    defer gpa.free(fa);
-    const fb = casefoldAlloc(b) orelse return mem.eql(u8, a, b);
-    defer gpa.free(fb);
-    return mem.eql(u8, fa, fb);
-}
-
 // ─── Bulk Find (returns all positions in one call) ───
-
-const StzFindResult = struct {
-    positions: std.ArrayList(i64),
-
-    fn init() StzFindResult {
-        return .{ .positions = .{} };
-    }
-
-    fn deinit(self: *StzFindResult) void {
-        self.positions.deinit(gpa);
-    }
-};
-
-pub const StzFindResultHandle = ?*StzFindResult;
 
 /// Unified find_all with case sensitivity parameter.
 /// case=1: case-sensitive, case=0: case-insensitive (Unicode casefold).
@@ -743,9 +522,6 @@ pub fn str_ends_with_ci(handle: StzStringHandle, suffix: [*c]const u8, suffix_le
 
 // ─── Transform ───
 
-fn ciMatch(a: []const u8, b: []const u8) bool {
-    return ciEqlUnicode(a, b);
-}
 
 /// Unified replace with case sensitivity parameter (in-place mutation).
 pub fn str_replace_cs(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new: [*c]const u8, new_len: usize, case: c_int) callconv(.c) void {
@@ -2289,103 +2065,6 @@ pub fn str_count_between(handle: StzStringHandle, open: [*c]const u8, open_len: 
         i += 1;
     }
     return count;
-}
-
-/// Decode a codepoint from UTF-8 bytes at a given position.
-fn decodeCodepoint(bytes: []const u8, pos: usize, cp_len: usize) i32 {
-    if (cp_len == 1) return @intCast(bytes[pos]);
-    if (cp_len == 2 and pos + 1 < bytes.len)
-        return @intCast((@as(u21, bytes[pos] & 0x1F) << 6) | (bytes[pos + 1] & 0x3F));
-    if (cp_len == 3 and pos + 2 < bytes.len)
-        return @intCast((@as(u21, bytes[pos] & 0x0F) << 12) | (@as(u21, bytes[pos + 1] & 0x3F) << 6) | (bytes[pos + 2] & 0x3F));
-    if (cp_len == 4 and pos + 3 < bytes.len)
-        return @intCast((@as(u21, bytes[pos] & 0x07) << 18) | (@as(u21, bytes[pos + 1] & 0x3F) << 12) | (@as(u21, bytes[pos + 2] & 0x3F) << 6) | (bytes[pos + 3] & 0x3F));
-    return 0;
-}
-
-// ─── Helpers ───
-
-fn utf8CodepointCount(bytes: []const u8) usize {
-    // ASCII fast-path: byte count == codepoint count
-    if (isAllAscii(bytes)) return bytes.len;
-    var count: usize = 0;
-    var i: usize = 0;
-    while (i < bytes.len) {
-        const byte = bytes[i];
-        const cp_len = std.unicode.utf8ByteSequenceLength(byte) catch 1;
-        count += 1;
-        i += cp_len;
-    }
-    return count;
-}
-
-// ─── Boyer-Moore-Horspool Search (Phase C) ───
-//
-// For case-sensitive byte-level search. Returns byte offset of first
-// match at or after `start`, or null if not found. Only used when
-// needle_len > 4 (small needles are faster with linear scan).
-
-fn bmhSearch(haystack: []const u8, needle: []const u8, start: usize) ?usize {
-    const n = needle.len;
-    const h = haystack.len;
-    if (n == 0 or n > h or start + n > h) return null;
-
-    // Build bad-character shift table
-    var shift: [256]usize = undefined;
-    for (&shift) |*s| s.* = n;
-    for (needle[0 .. n - 1], 0..) |byte, i| {
-        shift[byte] = n - 1 - i;
-    }
-
-    var pos: usize = start;
-    while (pos + n <= h) {
-        // Compare from right to left
-        if (mem.eql(u8, haystack[pos..][0..n], needle)) {
-            return pos;
-        }
-        // Shift by the bad-character rule
-        pos += shift[haystack[pos + n - 1]];
-    }
-    return null;
-}
-
-/// Convert a byte offset to a 0-based codepoint index.
-fn byteOffsetToCodepointIndex(bytes: []const u8, byte_offset: usize) usize {
-    var cp_idx: usize = 0;
-    var i: usize = 0;
-    while (i < byte_offset and i < bytes.len) {
-        const byte = bytes[i];
-        const cp_len = std.unicode.utf8ByteSequenceLength(byte) catch 1;
-        cp_idx += 1;
-        i += cp_len;
-    }
-    return cp_idx;
-}
-
-/// Convert a 0-based codepoint index to a byte offset.
-/// Uses ASCII fast-path when all bytes are < 128.
-fn codepointIndexToByteOffset(bytes: []const u8, cp_index: usize) usize {
-    // ASCII fast-path: cp_index == byte_index
-    if (isAllAscii(bytes)) {
-        return @min(cp_index, bytes.len);
-    }
-    var cp_count: usize = 0;
-    var i: usize = 0;
-    while (i < bytes.len and cp_count < cp_index) {
-        const byte = bytes[i];
-        const cp_len = std.unicode.utf8ByteSequenceLength(byte) catch 1;
-        cp_count += 1;
-        i += cp_len;
-    }
-    return i;
-}
-
-/// Check if a byte slice is all ASCII (no byte >= 128).
-fn isAllAscii(bytes: []const u8) bool {
-    for (bytes) |b| {
-        if (b >= 128) return false;
-    }
-    return true;
 }
 
 // ─── Tests ───
@@ -9703,24 +9382,6 @@ pub export fn str_number_lines(handle: ?*StzString) callconv(.c) ?*StzString {
     return result;
 }
 
-fn formatUsize(val: usize, buf: *[12]u8) usize {
-    if (val == 0) {
-        buf[0] = '0';
-        return 1;
-    }
-    var v = val;
-    var len: usize = 0;
-    while (v > 0) : (len += 1) {
-        buf[11 - len] = '0' + @as(u8, @intCast(v % 10));
-        v /= 10;
-    }
-    // Shift to start
-    for (0..len) |i| {
-        buf[i] = buf[12 - len + i];
-    }
-    return len;
-}
-
 pub export fn str_hide(handle: ?*StzString, mask_char: u8, keep_first: c_int, keep_last: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
@@ -10131,10 +9792,6 @@ pub export fn str_metaphone(handle: ?*StzString) callconv(.c) ?*StzString {
         i += skip;
     }
     return result;
-}
-
-fn isVowelAscii(c: u8) bool {
-    return c == 'A' or c == 'E' or c == 'I' or c == 'O' or c == 'U';
 }
 
 /// Generate character n-grams. Returns joined result with separator "|".
