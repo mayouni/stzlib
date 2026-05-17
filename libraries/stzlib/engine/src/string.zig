@@ -279,6 +279,9 @@ pub const str_is_snake_case = inspect.str_is_snake_case;
 pub const str_is_kebab_case = inspect.str_is_kebab_case;
 pub const str_is_palindrome_words = inspect.str_is_palindrome_words;
 pub const str_is_isogram = inspect.str_is_isogram;
+pub const str_contains_latin = inspect.str_contains_latin;
+pub const str_contains_arabic = inspect.str_contains_arabic;
+pub const str_has_mixed_case = inspect.str_has_mixed_case;
 
 // ─── Extract submodule imports ───
 const extract = @import("string/extract.zig");

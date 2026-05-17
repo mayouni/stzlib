@@ -2131,6 +2131,23 @@ fn ring_StringCharsSplit(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_chars_split(h)), STZ_HANDLE);
 }
 
+// ─── Character classification (contains_latin, contains_arabic, has_mixed_case) ───
+
+fn ring_StringContainsLatin(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_contains_latin(h)));
+}
+
+fn ring_StringContainsArabic(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_contains_arabic(h)));
+}
+
+fn ring_StringHasMixedCase(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_has_mixed_case(h)));
+}
+
 // ─── Byte-level extraction (str_left, str_right) ───
 
 fn ring_StringLeft(p: *anyopaque) callconv(.c) void {
@@ -2624,6 +2641,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcharssplit", .func = &ring_StringCharsSplit },
     .{ .name = "stzenginestingleft", .func = &ring_StringLeft },
     .{ .name = "stzenginestringright", .func = &ring_StringRight },
+    .{ .name = "stzenginestringcontainslatin", .func = &ring_StringContainsLatin },
+    .{ .name = "stzenginestringcontainsarabic", .func = &ring_StringContainsArabic },
+    .{ .name = "stzenginestringhasmixedcase", .func = &ring_StringHasMixedCase },
     .{ .name = "stzenginestringjaro", .func = &ring_StringJaro },
     .{ .name = "stzenginestringjarowinkler", .func = &ring_StringJaroWinkler },
     .{ .name = "stzenginestringmetaphone", .func = &ring_StringMetaphone },

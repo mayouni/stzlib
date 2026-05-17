@@ -978,7 +978,106 @@ pub export fn str_is_isogram(handle: ?*StzString) callconv(.c) c_int {
     return 1;
 }
 
+// ─── str_contains_latin ───
+
+/// Returns 1 if the string contains at least one Latin letter (A-Z, a-z,
+/// or Latin Extended via Unicode script property). Fast ASCII check first.
+pub export fn str_contains_latin(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    for (src) |c| {
+        if ((c >= 'A' and c <= 'Z') or (c >= 'a' and c <= 'z')) return 1;
+        // Latin Extended chars start with 0xC3-0xC5 lead bytes
+        if (c >= 0xC3 and c <= 0xC5) return 1;
+    }
+    return 0;
+}
+
+// ─── str_contains_arabic ───
+
+/// Returns 1 if the string contains at least one Arabic letter
+/// (Unicode range U+0600-U+06FF, encoded as 0xD8/0xD9 lead bytes in UTF-8).
+pub export fn str_contains_arabic(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var i: usize = 0;
+    while (i < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[i]) catch {
+            i += 1;
+            continue;
+        };
+        if (i + cp_len > src.len) break;
+        const cp_val: i32 = decodeCodepoint(src, i, cp_len);
+        if (cp_val >= 0x0600 and cp_val <= 0x06FF) return 1;
+        i += cp_len;
+    }
+    return 0;
+}
+
+// ─── str_has_mixed_case ───
+
+/// Returns 1 if the string contains both uppercase and lowercase letters.
+pub export fn str_has_mixed_case(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var has_upper = false;
+    var has_lower = false;
+    var i: usize = 0;
+    while (i < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[i]) catch {
+            i += 1;
+            continue;
+        };
+        if (i + cp_len > src.len) break;
+        const cp_val: i32 = decodeCodepoint(src, i, cp_len);
+        if (unicode.stz_unicode_is_upper(cp_val) == 1) has_upper = true;
+        if (unicode.stz_unicode_is_lower(cp_val) == 1) has_lower = true;
+        if (has_upper and has_lower) return 1;
+        i += cp_len;
+    }
+    return 0;
+}
+
 // ─── Tests ───
+
+test "str_contains_latin" {
+    const latin = str_from("Hello", 5);
+    defer str_free(latin);
+    try std.testing.expectEqual(@as(c_int, 1), str_contains_latin(latin));
+
+    const digits = str_from("12345", 5);
+    defer str_free(digits);
+    try std.testing.expectEqual(@as(c_int, 0), str_contains_latin(digits));
+
+    const mixed = str_from("123abc", 6);
+    defer str_free(mixed);
+    try std.testing.expectEqual(@as(c_int, 1), str_contains_latin(mixed));
+}
+
+test "str_contains_arabic" {
+    // Arabic "marhaba" = U+0645 U+0631 U+062D U+0628 U+0627
+    const arabic = str_from("\xD9\x85\xD8\xB1\xD8\xAD\xD8\xA8\xD8\xA7", 10);
+    defer str_free(arabic);
+    try std.testing.expectEqual(@as(c_int, 1), str_contains_arabic(arabic));
+
+    const latin = str_from("Hello", 5);
+    defer str_free(latin);
+    try std.testing.expectEqual(@as(c_int, 0), str_contains_arabic(latin));
+}
+
+test "str_has_mixed_case" {
+    const mixed = str_from("Hello", 5);
+    defer str_free(mixed);
+    try std.testing.expectEqual(@as(c_int, 1), str_has_mixed_case(mixed));
+
+    const upper = str_from("HELLO", 5);
+    defer str_free(upper);
+    try std.testing.expectEqual(@as(c_int, 0), str_has_mixed_case(upper));
+
+    const lower = str_from("hello", 5);
+    defer str_free(lower);
+    try std.testing.expectEqual(@as(c_int, 0), str_has_mixed_case(lower));
+}
 
 test "str_is_empty" {
     const h = str_from("", 0);
