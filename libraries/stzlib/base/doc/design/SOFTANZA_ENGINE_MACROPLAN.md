@@ -13,10 +13,10 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 535 passing              |
+| Engine tests      | 566 passing              |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Last updated      | 2026-05-17 (Session 10)  |
+| Last updated      | 2026-05-17 (Session 11)  |
 
 ---
 
@@ -102,7 +102,7 @@
   ASCII fast-paths for codepointIndexToByteOffset, utf8CodepointCount.
   Boyer-Moore-Horspool search for needles > 4 bytes on ASCII strings.
   434 Zig tests, 658 Ring bridge tests, 341 registered functions.
-- **Phase D module separation** (Sessions 8-10): Four submodules extracted:
+- **Phase D module separation** (Sessions 8-11): Eight submodules extracted:
   `string/core.zig` (StzString, lifecycle, error, indexing, helpers),
   `string/encode.zig` (25 fns: URL/hex/base64/binary/HTML/morse/CSV/
   quote/ciphers/hash/entropy), `string/nlp.zig` (18 fns: Levenshtein/
@@ -111,10 +111,17 @@
   split/word/line/partition/chunk/sentence/chars-split),
   `string/find.zig` (37 fns: index_of/find_all/last_index_of/
   count_of/contains/starts_with/ends_with/equals/find_nth/
-  find_all_char, all with CS/CI variants).
+  find_all_char, all with CS/CI variants),
+  `string/replace.zig` (39 fns: replace/remove/insert/strip/keep),
+  `string/transform.zig` (19 fns: case transforms -- upper/lower/
+  title/camel/snake/kebab/pascal/dot/path/constant/spongebob/
+  alternating/sentence/capitalize/decapitalize/swap/foldcase),
+  `string/inspect.zig` (38 fns: is_*/predicate checks -- empty/
+  numeric/alpha/palindrome/ascii/case/type/sorted/anagram/pangram/
+  balanced/email/url/float/identifier/isogram).
   `string.zig` re-exports all submodule APIs and holds remaining
-  replace/transform/inspect domain functions (~130).
-  535 Zig tests, 658 Ring bridge tests, 341 registered functions.
+  extraction/trim/pad/structural/count/format functions (~80).
+  566 Zig tests, 658 Ring bridge tests, 341 registered functions.
 
 ---
 
@@ -524,3 +531,4 @@ M-E11 (Repo Split)
 | 2026-05-17 | 8       | Phase A-D | str_ rename, safety audit, perf, core.zig extraction |
 | 2026-05-17 | 9       | Phase D+  | encode.zig (25 fns) + nlp.zig (18 fns) extraction |
 | 2026-05-17 | 10      | Phase D++ | split.zig (26 fns) + find.zig (37 fns), 535 Zig tests |
+| 2026-05-17 | 11      | Phase D+++| replace.zig (39) + transform.zig (19) + inspect.zig (38), 566 tests |
