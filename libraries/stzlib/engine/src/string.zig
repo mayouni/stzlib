@@ -8078,6 +8078,155 @@ pub export fn stz_string_to_pig_latin(handle: ?*StzString) callconv(.c) ?*StzStr
     return result;
 }
 
+// batch 10 ────────────────────────────────────────────────────────
+
+/// Run-length encode: "aaabbc" -> "3a2b1c"
+pub export fn stz_string_run_length_encode(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (src.len == 0) return result;
+
+    var i: usize = 0;
+    while (i < src.len) {
+        const ch = src[i];
+        var count: usize = 1;
+        while (i + count < src.len and src[i + count] == ch) : (count += 1) {}
+        // Write count as digits
+        var buf: [20]u8 = undefined;
+        var digits: usize = 0;
+        var n = count;
+        while (n > 0) {
+            buf[digits] = @intCast('0' + (n % 10));
+            digits += 1;
+            n /= 10;
+        }
+        // Reverse digits into result
+        var d: usize = digits;
+        while (d > 0) {
+            d -= 1;
+            result.data.appendSlice(gpa, &[_]u8{buf[d]}) catch break;
+        }
+        result.data.appendSlice(gpa, &[_]u8{ch}) catch break;
+        i += count;
+    }
+    return result;
+}
+
+/// Run-length decode: "3a2b1c" -> "aaabbc"
+pub export fn stz_string_run_length_decode(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    var i: usize = 0;
+    while (i < src.len) {
+        // Parse number
+        var count: usize = 0;
+        while (i < src.len and src[i] >= '0' and src[i] <= '9') {
+            count = count * 10 + (src[i] - '0');
+            i += 1;
+        }
+        if (count == 0) count = 1;
+        if (i >= src.len) break;
+        const ch = src[i];
+        i += 1;
+        for (0..count) |_| {
+            result.data.appendSlice(gpa, &[_]u8{ch}) catch break;
+        }
+    }
+    return result;
+}
+
+/// Count paragraphs (separated by double newlines \n\n).
+pub export fn stz_string_count_paragraphs(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 0;
+
+    var count: c_int = 1;
+    var i: usize = 0;
+    while (i + 1 < src.len) {
+        if (src[i] == '\n' and src[i + 1] == '\n') {
+            count += 1;
+            // Skip any additional consecutive newlines
+            while (i + 1 < src.len and src[i + 1] == '\n') : (i += 1) {}
+        }
+        i += 1;
+    }
+    return count;
+}
+
+/// Zigzag cipher encode with n rails.
+pub export fn stz_string_zigzag(handle: ?*StzString, rails: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const n: usize = if (rails >= 2) @intCast(rails) else {
+        result.data.appendSlice(gpa, src) catch {};
+        return result;
+    };
+    if (src.len == 0) return result;
+
+    // Build rail contents
+    const cycle = 2 * (n - 1);
+    var rail: usize = 0;
+    while (rail < n) : (rail += 1) {
+        var i: usize = 0;
+        while (i < src.len) {
+            // Determine which rail this index belongs to
+            const pos_in_cycle = i % cycle;
+            const r = if (pos_in_cycle < n) pos_in_cycle else cycle - pos_in_cycle;
+            if (r == rail) {
+                result.data.appendSlice(gpa, &[_]u8{src[i]}) catch break;
+            }
+            i += 1;
+        }
+    }
+    return result;
+}
+
+/// Convert text to Morse code (ASCII letters and digits only, space-separated, / for word breaks).
+pub export fn stz_string_to_morse(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+
+    const morse_table = [_][]const u8{
+        ".-", "-...", "-.-.", "-..", ".", "..-.", "--.", "....", "..", // a-i
+        ".---", "-.-", ".-..", "--", "-.", "---", ".--.", "--.-", ".-.", // j-r
+        "...", "-", "..-", "...-", ".--", "-..-", "-.--", "--..", // s-z
+    };
+    const digit_table = [_][]const u8{
+        "-----", ".----", "..---", "...--", "....-", // 0-4
+        ".....", "-....", "--...", "---..", "----.", // 5-9
+    };
+
+    var first = true;
+    for (src) |c| {
+        if (c == ' ') {
+            result.data.appendSlice(gpa, " / ") catch break;
+            first = true;
+            continue;
+        }
+        const code: ?[]const u8 = if (c >= 'a' and c <= 'z')
+            morse_table[c - 'a']
+        else if (c >= 'A' and c <= 'Z')
+            morse_table[c - 'A']
+        else if (c >= '0' and c <= '9')
+            digit_table[c - '0']
+        else
+            null;
+
+        if (code) |morse| {
+            if (!first) result.data.appendSlice(gpa, " ") catch break;
+            result.data.appendSlice(gpa, morse) catch break;
+            first = false;
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -9436,6 +9585,63 @@ test "to_pig_latin" {
     const h2 = stz_string_from("apple is", 8);
     const r2 = stz_string_to_pig_latin(h2);
     try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "appleyay isyay"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "run_length_encode" {
+    const h = stz_string_from("aaabbc", 6);
+    const r = stz_string_run_length_encode(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "3a2b1c"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("abc", 3);
+    const r2 = stz_string_run_length_encode(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "1a1b1c"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "run_length_decode" {
+    const h = stz_string_from("3a2b1c", 6);
+    const r = stz_string_run_length_decode(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "aaabbc"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "count_paragraphs" {
+    const h1 = stz_string_from("para1\n\npara2\n\npara3", 19);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_paragraphs(h1));
+    stz_string_free(h1);
+
+    const h2 = stz_string_from("single paragraph", 16);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_count_paragraphs(h2));
+    stz_string_free(h2);
+}
+
+test "zigzag" {
+    const h = stz_string_from("WEAREDISCOVERED", 15);
+    const r = stz_string_zigzag(h, 3);
+    // Rail 0: W...E...C...R...  -> WECR (positions 0,4,8,12)
+    // Rail 1: .A.R.D.S.O.E.E.  -> ARDSOEE (positions 1,3,5,7,9,11,13)
+    // Rail 2: ..E...I...V...D  -> EIVD (positions 2,6,10,14)
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "WECRERDSOEEAIVD"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "to_morse" {
+    const h = stz_string_from("SOS", 3);
+    const r = stz_string_to_morse(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "... --- ..."));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("HI", 2);
+    const r2 = stz_string_to_morse(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], ".... .."));
     stz_string_free(r2);
     stz_string_free(h2);
 }
