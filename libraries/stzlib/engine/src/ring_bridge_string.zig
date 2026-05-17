@@ -1587,6 +1587,31 @@ fn ring_StringCamelToWords(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_camel_to_words(h)), STZ_HANDLE);
 }
 
+fn ring_StringInitials(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_initials(h)), STZ_HANDLE);
+}
+
+fn ring_StringRemoveDuplicateWords(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_duplicate_words(h)), STZ_HANDLE);
+}
+
+fn ring_StringIsUrlLike(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_url_like(h)));
+}
+
+fn ring_StringEscapeHtml(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_escape_html(h)), STZ_HANDLE);
+}
+
+fn ring_StringUnescapeHtml(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_unescape_html(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1814,6 +1839,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringtrimchars", .func = &ring_StringTrimChars },
     .{ .name = "stzenginestringisemaillike", .func = &ring_StringIsEmailLike },
     .{ .name = "stzenginestringcameltowords", .func = &ring_StringCamelToWords },
+    .{ .name = "stzenginestringinitials", .func = &ring_StringInitials },
+    .{ .name = "stzenginestringremoveduplicatewords", .func = &ring_StringRemoveDuplicateWords },
+    .{ .name = "stzenginestringisurllike", .func = &ring_StringIsUrlLike },
+    .{ .name = "stzenginestringescapehtml", .func = &ring_StringEscapeHtml },
+    .{ .name = "stzenginestringunescapehtml", .func = &ring_StringUnescapeHtml },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

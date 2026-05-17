@@ -954,6 +954,95 @@ class stzString from stzObject
 		def CamelCaseSplitToWords()
 			return This.CamelSplitToWords()
 
+	  #==============================#
+	 #  INITIALS                   #
+	#==============================#
+
+	def Initials()
+		pResult = StzEngineStringInitials(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def Abbreviation()
+			return This.Initials()
+
+		def Acronym()
+			return This.Initials()
+
+	  #==============================#
+	 #  REMOVE DUPLICATE WORDS     #
+	#==============================#
+
+	def RemoveDuplicateWords()
+		pResult = StzEngineStringRemoveDuplicateWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RemoveDuplicateWordsQ()
+			This.RemoveDuplicateWords()
+			return This
+
+	def DuplicateWordsRemoved()
+		pResult = StzEngineStringRemoveDuplicateWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WithoutDuplicateWords()
+			return This.DuplicateWordsRemoved()
+
+	  #==============================#
+	 #  IS URL LIKE                #
+	#==============================#
+
+	def IsUrlLike()
+		return StzEngineStringIsUrlLike(@pEngine) = 1
+
+		def IsUrl()
+			return This.IsUrlLike()
+
+	  #==============================#
+	 #  ESCAPE HTML                #
+	#==============================#
+
+	def EscapeHtml()
+		pResult = StzEngineStringEscapeHtml(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def EscapeHtmlQ()
+			This.EscapeHtml()
+			return This
+
+	def HtmlEscaped()
+		pResult = StzEngineStringEscapeHtml(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #==============================#
+	 #  UNESCAPE HTML              #
+	#==============================#
+
+	def UnescapeHtml()
+		pResult = StzEngineStringUnescapeHtml(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def UnescapeHtmlQ()
+			This.UnescapeHtml()
+			return This
+
+	def HtmlUnescaped()
+		pResult = StzEngineStringUnescapeHtml(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#

@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 223 Registered Functions"
+? "Engine Full Bridge Test -- All 228 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -2402,6 +2402,77 @@ pStr2 = StzEngineStringFrom("xyz")
 Assert("HammingDistance all diff", StzEngineStringHammingDistance(pStr1, pStr2), 3)
 StzEngineStringFree(pStr2)
 StzEngineStringFree(pStr1)
+
+# ==============================================================
+#  GROUP 96: Initials / RemoveDuplicateWords / IsUrlLike / EscapeHtml / UnescapeHtml
+# ==============================================================
+
+? ""
+? "--- Group 96: Initials / RemoveDuplicateWords / IsUrlLike / EscapeHtml / UnescapeHtml ---"
+
+pStr = StzEngineStringFrom("Hello World")
+pResult = StzEngineStringInitials(pStr)
+Assert("Initials Hello World", StzEngineStringData(pResult), "HW")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("united states of america")
+pResult = StzEngineStringInitials(pStr)
+Assert("Initials lowercase", StzEngineStringData(pResult), "usoa")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("the the cat sat on the mat")
+pResult = StzEngineStringRemoveDuplicateWords(pStr)
+Assert("RemoveDuplicateWords", StzEngineStringData(pResult), "the cat sat on mat")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello hello hello")
+pResult = StzEngineStringRemoveDuplicateWords(pStr)
+Assert("RemoveDuplicateWords all same", StzEngineStringData(pResult), "hello")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("https://example.com")
+Assert("IsUrlLike https", StzEngineStringIsUrlLike(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("http://example.com")
+Assert("IsUrlLike http", StzEngineStringIsUrlLike(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("ftp://files.com")
+Assert("IsUrlLike ftp", StzEngineStringIsUrlLike(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("not a url")
+Assert("IsUrlLike text", StzEngineStringIsUrlLike(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("<b>hello</b>")
+pResult = StzEngineStringEscapeHtml(pStr)
+Assert("EscapeHtml tags", StzEngineStringData(pResult), "&lt;b&gt;hello&lt;/b&gt;")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("a & b")
+pResult = StzEngineStringEscapeHtml(pStr)
+Assert("EscapeHtml ampersand", StzEngineStringData(pResult), "a &amp; b")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("&lt;b&gt;hello&lt;/b&gt;")
+pResult = StzEngineStringUnescapeHtml(pStr)
+Assert("UnescapeHtml", StzEngineStringData(pResult), "<b>hello</b>")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("&amp; &quot; &#39;")
+pResult = StzEngineStringUnescapeHtml(pStr)
+Assert("UnescapeHtml entities", StzEngineStringData(pResult), "& " + char(34) + " '")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
 
 # ==============================================================
 #  SUMMARY

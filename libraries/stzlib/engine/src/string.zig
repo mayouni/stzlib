@@ -7228,6 +7228,158 @@ pub fn stz_string_camel_to_words(handle: StzStringHandle) callconv(.c) StzString
     return result;
 }
 
+/// Extract initials (first letter of each word). Words separated by spaces.
+/// E.g. "Hello World" -> "HW", "united states of america" -> "usoa"
+/// Returns new handle.
+pub fn stz_string_initials(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var in_word = false;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        if (cp_len == 1 and (src[off] == ' ' or src[off] == '\t' or src[off] == '\n' or src[off] == '\r')) {
+            in_word = false;
+        } else {
+            if (!in_word) {
+                result.data.appendSlice(gpa, src[off..][0..cp_len]) catch break;
+                in_word = true;
+            }
+        }
+        off += cp_len;
+    }
+    return result;
+}
+
+/// Remove duplicate words (keeping first occurrence). Words separated by spaces.
+/// E.g. "the the cat sat on the mat" -> "the cat sat on mat"
+/// Returns new handle.
+pub fn stz_string_remove_duplicate_words(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+
+    // Simple approach: split by spaces, track seen words
+    var seen_words: [256]struct { start: usize, len: usize } = undefined;
+    var seen_count: usize = 0;
+    var off: usize = 0;
+    var first_word = true;
+
+    while (off < src.len) {
+        // Skip spaces
+        while (off < src.len and (src[off] == ' ' or src[off] == '\t')) off += 1;
+        if (off >= src.len) break;
+
+        // Find word end
+        const word_start = off;
+        while (off < src.len and src[off] != ' ' and src[off] != '\t') off += 1;
+        const word_len = off - word_start;
+        if (word_len == 0) continue;
+
+        const word = src[word_start..][0..word_len];
+
+        // Check if already seen
+        var is_dup = false;
+        var i: usize = 0;
+        while (i < seen_count) : (i += 1) {
+            if (seen_words[i].len == word_len and
+                mem.eql(u8, src[seen_words[i].start..][0..seen_words[i].len], word))
+            {
+                is_dup = true;
+                break;
+            }
+        }
+
+        if (!is_dup) {
+            if (!first_word) {
+                result.data.appendSlice(gpa, " ") catch break;
+            }
+            result.data.appendSlice(gpa, word) catch break;
+            first_word = false;
+            if (seen_count < 256) {
+                seen_words[seen_count] = .{ .start = word_start, .len = word_len };
+                seen_count += 1;
+            }
+        }
+    }
+    return result;
+}
+
+/// Basic URL format check: starts with "http://" or "https://".
+/// Returns 1 if URL-like, 0 otherwise.
+pub fn stz_string_is_url_like(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len >= 8 and mem.eql(u8, src[0..8], "https://")) return 1;
+    if (src.len >= 7 and mem.eql(u8, src[0..7], "http://")) return 1;
+    return 0;
+}
+
+/// Escape HTML special characters: & -> &amp; < -> &lt; > -> &gt; " -> &quot; ' -> &#39;
+/// Returns new handle.
+pub fn stz_string_escape_html(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    for (src) |c| {
+        switch (c) {
+            '&' => result.data.appendSlice(gpa, "&amp;") catch break,
+            '<' => result.data.appendSlice(gpa, "&lt;") catch break,
+            '>' => result.data.appendSlice(gpa, "&gt;") catch break,
+            '"' => result.data.appendSlice(gpa, "&quot;") catch break,
+            '\'' => result.data.appendSlice(gpa, "&#39;") catch break,
+            else => result.data.appendSlice(gpa, &[_]u8{c}) catch break,
+        }
+    }
+    return result;
+}
+
+/// Unescape HTML entities: &amp; &lt; &gt; &quot; &#39; back to their characters.
+/// Returns new handle.
+pub fn stz_string_unescape_html(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var off: usize = 0;
+    while (off < src.len) {
+        if (src[off] == '&') {
+            if (off + 4 <= src.len and mem.eql(u8, src[off..][0..4], "&lt;")) {
+                result.data.appendSlice(gpa, "<") catch break;
+                off += 4;
+            } else if (off + 4 <= src.len and mem.eql(u8, src[off..][0..4], "&gt;")) {
+                result.data.appendSlice(gpa, ">") catch break;
+                off += 4;
+            } else if (off + 5 <= src.len and mem.eql(u8, src[off..][0..5], "&amp;")) {
+                result.data.appendSlice(gpa, "&") catch break;
+                off += 5;
+            } else if (off + 6 <= src.len and mem.eql(u8, src[off..][0..6], "&quot;")) {
+                result.data.appendSlice(gpa, "\"") catch break;
+                off += 6;
+            } else if (off + 5 <= src.len and mem.eql(u8, src[off..][0..5], "&#39;")) {
+                result.data.appendSlice(gpa, "'") catch break;
+                off += 5;
+            } else {
+                result.data.appendSlice(gpa, &[_]u8{src[off]}) catch break;
+                off += 1;
+            }
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{src[off]}) catch break;
+            off += 1;
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -8233,3 +8385,62 @@ test "camel_to_words" {
     stz_string_free(r2);
     stz_string_free(h2);
 }
+
+test "initials" {
+    const h = stz_string_from("Hello World", 11);
+    const r = stz_string_initials(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "HW"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("united states of america", 24);
+    const r2 = stz_string_initials(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "usoa"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "remove_duplicate_words" {
+    const h = stz_string_from("the the cat sat on the mat", 26);
+    const r = stz_string_remove_duplicate_words(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "the cat sat on mat"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("abc def abc", 11);
+    const r2 = stz_string_remove_duplicate_words(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "abc def"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "is_url_like" {
+    const h1 = stz_string_from("https://example.com", 19);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_url_like(h1));
+    stz_string_free(h1);
+
+    const h2 = stz_string_from("http://example.com", 18);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_url_like(h2));
+    stz_string_free(h2);
+
+    const h3 = stz_string_from("ftp://files.com", 15);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_url_like(h3));
+    stz_string_free(h3);
+}
+
+test "escape_html" {
+    const h = stz_string_from("<b>&hi</b>", 10);
+    const r = stz_string_escape_html(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "&lt;b&gt;&amp;hi&lt;/b&gt;"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "unescape_html" {
+    const h = stz_string_from("&lt;b&gt;hello&lt;/b&gt;", 24);
+    const r = stz_string_unescape_html(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "<b>hello</b>"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
