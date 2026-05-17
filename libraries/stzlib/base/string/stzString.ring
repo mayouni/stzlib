@@ -878,6 +878,82 @@ class stzString from stzObject
 		def NthChunk(nSize, n)
 			return This.Chunk(nSize, n)
 
+	  #==============================#
+	 #  COUNT VOWELS               #
+	#==============================#
+
+	def CountVowels()
+		return StzEngineStringCountVowels(@pEngine)
+
+		def NumberOfVowels()
+			return This.CountVowels()
+
+	  #==============================#
+	 #  LONGEST RUN                #
+	#==============================#
+
+	def LongestRun()
+		return StzEngineStringLongestRun(@pEngine)
+
+		def LongestRunLength()
+			return This.LongestRun()
+
+	  #==============================#
+	 #  TRIM CHARS                 #
+	#==============================#
+
+	def TrimChars(cChars)
+		pResult = StzEngineStringTrimChars(@pEngine, cChars)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def TrimCharsQ(cChars)
+			This.TrimChars(cChars)
+			return This
+
+	def CharsTrimmed(cChars)
+		pResult = StzEngineStringTrimChars(@pEngine, cChars)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WithCharsTrimmed(cChars)
+			return This.CharsTrimmed(cChars)
+
+	  #==============================#
+	 #  IS EMAIL LIKE              #
+	#==============================#
+
+	def IsEmailLike()
+		return StzEngineStringIsEmailLike(@pEngine) = 1
+
+		def IsEmail()
+			return This.IsEmailLike()
+
+	  #==============================#
+	 #  CAMEL TO WORDS             #
+	#==============================#
+
+	def CamelToWords()
+		pResult = StzEngineStringCamelToWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def CamelToWordsQ()
+			This.CamelToWords()
+			return This
+
+	def CamelSplitToWords()
+		pResult = StzEngineStringCamelToWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def CamelCaseSplitToWords()
+			return This.CamelSplitToWords()
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
