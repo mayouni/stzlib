@@ -1957,6 +1957,453 @@ StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
 # ==============================================================
+#  GROUP 95: Extended Edge-Case Tests
+# ==============================================================
+
+? ""
+? "--- Group 95: Extended Edge-Case Tests ---"
+
+# --- RemoveVowels edge cases ---
+pStr = StzEngineStringFrom("AEIOU")
+pResult = StzEngineStringRemoveVowels(pStr)
+Assert("RemoveVowels all-uppercase-vowels", StzEngineStringData(pResult), "")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("bcdfg")
+pResult = StzEngineStringRemoveVowels(pStr)
+Assert("RemoveVowels no-vowels", StzEngineStringData(pResult), "bcdfg")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- OnlyVowels edge cases ---
+pStr = StzEngineStringFrom("bcdfg")
+pResult = StzEngineStringOnlyVowels(pStr)
+Assert("OnlyVowels no-vowels empty", StzEngineStringSize(pResult), 0)
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("AEiOu")
+pResult = StzEngineStringOnlyVowels(pStr)
+Assert("OnlyVowels mixed case", StzEngineStringData(pResult), "AEiOu")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- IsPangram edge cases ---
+pStr = StzEngineStringFrom("abcdefghijklmnopqrstuvwxyz")
+Assert("IsPangram lowercase only", StzEngineStringIsPangram(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+Assert("IsPangram uppercase only", StzEngineStringIsPangram(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abcdefghijklmnopqrstuvwxy")
+Assert("IsPangram missing z", StzEngineStringIsPangram(pStr), 0)
+StzEngineStringFree(pStr)
+
+# --- Ngram edge cases ---
+pStr = StzEngineStringFrom("ab")
+pResult = StzEngineStringNgram(pStr, 3, 0)
+Assert("Ngram too-short returns null", IsNULL(pResult), true)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringNgram(pStr, 1, 4)
+Assert("Ngram single-char last", StzEngineStringData(pResult), "o")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- NgramCount edge cases ---
+pStr = StzEngineStringFrom("")
+Assert("NgramCount empty", StzEngineStringNgramCount(pStr, 2), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("a")
+Assert("NgramCount single-char size=1", StzEngineStringNgramCount(pStr, 1), 1)
+Assert("NgramCount single-char size=2", StzEngineStringNgramCount(pStr, 2), 0)
+StzEngineStringFree(pStr)
+
+# --- CountConsonants edge cases ---
+pStr = StzEngineStringFrom("aeiou AEIOU")
+Assert("CountConsonants no-consonants", StzEngineStringCountConsonants(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("BCDFG")
+Assert("CountConsonants uppercase", StzEngineStringCountConsonants(pStr), 5)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("123!@#")
+Assert("CountConsonants non-alpha", StzEngineStringCountConsonants(pStr), 0)
+StzEngineStringFree(pStr)
+
+# --- ToSentenceCase edge cases ---
+pStr = StzEngineStringFrom("")
+pResult = StzEngineStringToSentenceCase(pStr)
+Assert("ToSentenceCase empty", StzEngineStringSize(pResult), 0)
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("A")
+pResult = StzEngineStringToSentenceCase(pStr)
+Assert("ToSentenceCase single char", StzEngineStringData(pResult), "A")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("   hello")
+pResult = StzEngineStringToSentenceCase(pStr)
+Assert("ToSentenceCase leading spaces", StzEngineStringData(pResult), "   Hello")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- IsBalanced edge cases ---
+pStr = StzEngineStringFrom("")
+Assert("IsBalanced empty", StzEngineStringIsBalanced(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("no brackets here")
+Assert("IsBalanced no brackets", StzEngineStringIsBalanced(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("((()))")
+Assert("IsBalanced nested parens", StzEngineStringIsBalanced(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom(")(")
+Assert("IsBalanced reversed", StzEngineStringIsBalanced(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("{[}]")
+Assert("IsBalanced mismatched", StzEngineStringIsBalanced(pStr), 0)
+StzEngineStringFree(pStr)
+
+# --- Slug edge cases ---
+pStr = StzEngineStringFrom("")
+pResult = StzEngineStringSlug(pStr)
+Assert("Slug empty", StzEngineStringSize(pResult), 0)
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("already-a-slug")
+pResult = StzEngineStringSlug(pStr)
+Assert("Slug already-slug", StzEngineStringData(pResult), "already-a-slug")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello_World-Test")
+pResult = StzEngineStringSlug(pStr)
+Assert("Slug mixed separators", StzEngineStringData(pResult), "hello-world-test")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("  leading trailing  ")
+pResult = StzEngineStringSlug(pStr)
+Assert("Slug leading/trailing spaces", StzEngineStringData(pResult), "leading-trailing")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- Chunk edge cases ---
+pStr = StzEngineStringFrom("abcdefgh")
+pResult = StzEngineStringChunk(pStr, 3, 1)
+Assert("Chunk middle", StzEngineStringData(pResult), "def")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc")
+pResult = StzEngineStringChunk(pStr, 3, 0)
+Assert("Chunk exact fit", StzEngineStringData(pResult), "abc")
+StzEngineStringFree(pResult)
+pResult = StzEngineStringChunk(pStr, 3, 1)
+Assert("Chunk past end returns null", IsNULL(pResult), true)
+StzEngineStringFree(pStr)
+
+# --- CountVowels edge cases ---
+pStr = StzEngineStringFrom("")
+Assert("CountVowels empty", StzEngineStringCountVowels(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("AeIoU")
+Assert("CountVowels mixed case", StzEngineStringCountVowels(pStr), 5)
+StzEngineStringFree(pStr)
+
+# --- LongestRun edge cases ---
+pStr = StzEngineStringFrom("")
+Assert("LongestRun empty", StzEngineStringLongestRun(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("aaaaaaa")
+Assert("LongestRun all-same", StzEngineStringLongestRun(pStr), 7)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("a")
+Assert("LongestRun single", StzEngineStringLongestRun(pStr), 1)
+StzEngineStringFree(pStr)
+
+# --- TrimChars edge cases ---
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringTrimChars(pStr, "*")
+Assert("TrimChars nothing to trim", StzEngineStringData(pResult), "hello")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("***")
+pResult = StzEngineStringTrimChars(pStr, "*")
+Assert("TrimChars all trimmed", StzEngineStringSize(pResult), 0)
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("--hello--world--")
+pResult = StzEngineStringTrimChars(pStr, "-")
+Assert("TrimChars hyphens", StzEngineStringData(pResult), "hello--world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- IsEmailLike edge cases ---
+pStr = StzEngineStringFrom("a@b.c")
+Assert("IsEmailLike minimal valid", StzEngineStringIsEmailLike(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("user@.com")
+Assert("IsEmailLike dot at start", StzEngineStringIsEmailLike(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("user@domain.")
+Assert("IsEmailLike dot at end", StzEngineStringIsEmailLike(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("user@@domain.com")
+Assert("IsEmailLike double at", StzEngineStringIsEmailLike(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("first.last@sub.domain.org")
+Assert("IsEmailLike complex valid", StzEngineStringIsEmailLike(pStr), 1)
+StzEngineStringFree(pStr)
+
+# --- CamelToWords edge cases ---
+pStr = StzEngineStringFrom("HTMLParser")
+pResult = StzEngineStringCamelToWords(pStr)
+Assert("CamelToWords acronym", StzEngineStringData(pResult), "HTML Parser")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("simple")
+pResult = StzEngineStringCamelToWords(pStr)
+Assert("CamelToWords no-camel", StzEngineStringData(pResult), "simple")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("AString")
+pResult = StzEngineStringCamelToWords(pStr)
+Assert("CamelToWords PascalCase", StzEngineStringData(pResult), "AString")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("getHTTPSConnection")
+pResult = StzEngineStringCamelToWords(pStr)
+Assert("CamelToWords mixed", StzEngineStringData(pResult), "get HTTPS Connection")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- Rotate edge cases ---
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringRotate(pStr, 0)
+Assert("Rotate by 0", StzEngineStringData(pResult), "hello")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringRotate(pStr, 5)
+Assert("Rotate full length", StzEngineStringData(pResult), "hello")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringRotate(pStr, -1)
+Assert("Rotate right by 1", StzEngineStringData(pResult), "ohell")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- RepeatToLength edge cases ---
+pStr = StzEngineStringFrom("ab")
+pResult = StzEngineStringRepeatToLength(pStr, 5)
+Assert("RepeatToLength ab->5", StzEngineStringData(pResult), "ababa")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringRepeatToLength(pStr, 3)
+Assert("RepeatToLength truncate", StzEngineStringData(pResult), "hel")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- RemoveBetween edge cases ---
+pStr = StzEngineStringFrom("hello (world) there")
+pResult = StzEngineStringRemoveBetween(pStr, "(", ")")
+Assert("RemoveBetween parens", StzEngineStringData(pResult), "hello  there")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("no delimiters here")
+pResult = StzEngineStringRemoveBetween(pStr, "[", "]")
+Assert("RemoveBetween no match", StzEngineStringData(pResult), "no delimiters here")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- IsBlank edge cases ---
+pStr = StzEngineStringFrom("")
+Assert("IsBlank empty", StzEngineStringIsBlank(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("   ")
+Assert("IsBlank spaces", StzEngineStringIsBlank(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom(" a ")
+Assert("IsBlank with char", StzEngineStringIsBlank(pStr), 0)
+StzEngineStringFree(pStr)
+
+# --- ToPascalCase edge cases ---
+pStr = StzEngineStringFrom("hello world")
+pResult = StzEngineStringToPascalCase(pStr)
+Assert("ToPascalCase basic", StzEngineStringData(pResult), "HelloWorld")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("one_two_three")
+pResult = StzEngineStringToPascalCase(pStr)
+Assert("ToPascalCase underscores", StzEngineStringData(pResult), "OneTwoThree")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- IsIdentifier edge cases ---
+pStr = StzEngineStringFrom("_private")
+Assert("IsIdentifier underscore start", StzEngineStringIsIdentifier(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("123abc")
+Assert("IsIdentifier digit start", StzEngineStringIsIdentifier(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("")
+Assert("IsIdentifier empty", StzEngineStringIsIdentifier(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("valid_name123")
+Assert("IsIdentifier alnum+underscore", StzEngineStringIsIdentifier(pStr), 1)
+StzEngineStringFree(pStr)
+
+# --- ReplaceBetween edge cases ---
+pStr = StzEngineStringFrom("say [hello] friend")
+pResult = StzEngineStringReplaceBetween(pStr, "[", "]", "world")
+Assert("ReplaceBetween brackets", StzEngineStringData(pResult), "say [world] friend")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- ContainsOnly edge cases ---
+pStr = StzEngineStringFrom("0123456789")
+Assert("ContainsOnly digits", StzEngineStringContainsOnly(pStr, "0123456789"), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc123")
+Assert("ContainsOnly digits fail", StzEngineStringContainsOnly(pStr, "0123456789"), 0)
+StzEngineStringFree(pStr)
+
+# --- CapitalizeWords edge cases ---
+pStr = StzEngineStringFrom("hello world")
+pResult = StzEngineStringCapitalizeWords(pStr)
+Assert("CapitalizeWords basic", StzEngineStringData(pResult), "Hello World")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("HELLO")
+pResult = StzEngineStringCapitalizeWords(pStr)
+Assert("CapitalizeWords already upper", StzEngineStringData(pResult), "HELLO")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- SwapChars edge cases ---
+pStr = StzEngineStringFrom("abcde")
+pResult = StzEngineStringSwapChars(pStr, 0, 4)
+Assert("SwapChars first/last", StzEngineStringData(pResult), "ebcda")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- EncodeHex / DecodeHex roundtrip ---
+pStr = StzEngineStringFrom("Hello")
+pHex = StzEngineStringEncodeHex(pStr)
+Assert("EncodeHex Hello", StzEngineStringData(pHex), "48656c6c6f")
+pBack = StzEngineStringDecodeHex(pHex)
+Assert("DecodeHex roundtrip", StzEngineStringData(pBack), "Hello")
+StzEngineStringFree(pBack)
+StzEngineStringFree(pHex)
+StzEngineStringFree(pStr)
+
+# --- ReverseWords edge cases ---
+pStr = StzEngineStringFrom("one")
+pResult = StzEngineStringReverseWords(pStr)
+Assert("ReverseWords single word", StzEngineStringData(pResult), "one")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("a b c d e")
+pResult = StzEngineStringReverseWords(pStr)
+Assert("ReverseWords many", StzEngineStringData(pResult), "e d c b a")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- CollapseSpaces edge cases ---
+pStr = StzEngineStringFrom("   hello   world   ")
+pResult = StzEngineStringCollapseSpaces(pStr)
+Assert("CollapseSpaces heavy", StzEngineStringData(pResult), "hello world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- IsAnagram edge cases ---
+pStr1 = StzEngineStringFrom("listen")
+pStr2 = StzEngineStringFrom("silent")
+Assert("IsAnagram listen/silent", StzEngineStringIsAnagram(pStr1, pStr2), 1)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr1)
+
+pStr1 = StzEngineStringFrom("hello")
+pStr2 = StzEngineStringFrom("world")
+Assert("IsAnagram hello/world", StzEngineStringIsAnagram(pStr1, pStr2), 0)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr1)
+
+pStr1 = StzEngineStringFrom("abc")
+pStr2 = StzEngineStringFrom("abcd")
+Assert("IsAnagram diff length", StzEngineStringIsAnagram(pStr1, pStr2), 0)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr1)
+
+# --- Mask edge cases ---
+pStr = StzEngineStringFrom("1234567890")
+pResult = StzEngineStringMask(pStr, "*", 4)
+Assert("Mask credit-like", StzEngineStringData(pResult), "1234******")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("ab")
+pResult = StzEngineStringMask(pStr, "#", 4)
+Assert("Mask short string", StzEngineStringData(pResult), "ab")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- HammingDistance edge cases ---
+pStr1 = StzEngineStringFrom("abc")
+pStr2 = StzEngineStringFrom("abc")
+Assert("HammingDistance same", StzEngineStringHammingDistance(pStr1, pStr2), 0)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr1)
+
+pStr1 = StzEngineStringFrom("abc")
+pStr2 = StzEngineStringFrom("xyz")
+Assert("HammingDistance all diff", StzEngineStringHammingDistance(pStr1, pStr2), 3)
+StzEngineStringFree(pStr2)
+StzEngineStringFree(pStr1)
+
+# ==============================================================
 #  SUMMARY
 # ==============================================================
 
