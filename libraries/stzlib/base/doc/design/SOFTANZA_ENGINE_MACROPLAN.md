@@ -13,7 +13,7 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 516 passing              |
+| Engine tests      | 535 passing              |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
 | Last updated      | 2026-05-17 (Session 10)  |
@@ -108,10 +108,13 @@
   quote/ciphers/hash/entropy), `string/nlp.zig` (18 fns: Levenshtein/
   Hamming/Jaro/JW/Jaccard/Soundex/Metaphone/n-grams/extraction/
   pluralize/pig-latin/NATO/mask-email), `string/split.zig` (26 fns:
-  split/word/line/partition/chunk/sentence/chars-split).
+  split/word/line/partition/chunk/sentence/chars-split),
+  `string/find.zig` (37 fns: index_of/find_all/last_index_of/
+  count_of/contains/starts_with/ends_with/equals/find_nth/
+  find_all_char, all with CS/CI variants).
   `string.zig` re-exports all submodule APIs and holds remaining
-  find/replace/transform/inspect domain functions (~170).
-  516 Zig tests, 658 Ring bridge tests, 341 registered functions.
+  replace/transform/inspect domain functions (~130).
+  535 Zig tests, 658 Ring bridge tests, 341 registered functions.
 
 ---
 
@@ -520,4 +523,4 @@ M-E11 (Repo Split)
 | 2026-05-17 | 7       | Phase A   | 1-based indexing + CS merge (Phase A complete) |
 | 2026-05-17 | 8       | Phase A-D | str_ rename, safety audit, perf, core.zig extraction |
 | 2026-05-17 | 9       | Phase D+  | encode.zig (25 fns) + nlp.zig (18 fns) extraction |
-| 2026-05-17 | 10      | Phase D++ | split.zig (26 fns) extraction, 516 Zig tests |
+| 2026-05-17 | 10      | Phase D++ | split.zig (26 fns) + find.zig (37 fns), 535 Zig tests |
