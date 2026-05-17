@@ -1824,6 +1824,96 @@ class stzString from stzObject
 		return cResult
 
 	  #=========================#
+	 #  LEFT PAD               #
+	#=========================#
+
+	def LeftPad(nWidth, cChar)
+		pResult = StzEngineStingLeftPad(@pEngine, nWidth, cChar)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def LeftPadQ(nWidth, cChar)
+			This.LeftPad(nWidth, cChar)
+			return This
+
+	def LeftPadded(nWidth, cChar)
+		pResult = StzEngineStingLeftPad(@pEngine, nWidth, cChar)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  RIGHT PAD              #
+	#=========================#
+
+	def RightPad(nWidth, cChar)
+		pResult = StzEngineStringRightPad(@pEngine, nWidth, cChar)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RightPadQ(nWidth, cChar)
+			This.RightPad(nWidth, cChar)
+			return This
+
+	def RightPadded(nWidth, cChar)
+		pResult = StzEngineStringRightPad(@pEngine, nWidth, cChar)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  TO HEX                 #
+	#=========================#
+
+	def ToHex()
+		pResult = StzEngineStringToHex(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToHexQ()
+			This.ToHex()
+			return This
+
+	def Hexed()
+		pResult = StzEngineStringToHex(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  FROM HEX               #
+	#=========================#
+
+	def FromHex()
+		pResult = StzEngineStringFromHex(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def FromHexQ()
+			This.FromHex()
+			return This
+
+	def Unhexed()
+		pResult = StzEngineStringFromHex(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  SOUNDEX                #
+	#=========================#
+
+	def Soundex()
+		pResult = StzEngineStingSoundex(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
 

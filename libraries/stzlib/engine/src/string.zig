@@ -8745,6 +8745,105 @@ pub export fn stz_string_to_path_case(handle: ?*StzString) callconv(.c) ?*StzStr
     return result;
 }
 
+// ─── Batch 15: left_pad, right_pad, is_numeric, is_alpha, is_alphanumeric ───
+
+pub export fn stz_string_left_pad(handle: ?*StzString, width: c_int, pad_char: u8) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const w: usize = if (width < 0) 0 else @intCast(width);
+    const result = stz_string_new() orelse return null;
+    if (src.len >= w) {
+        result.data.appendSlice(gpa, src) catch {};
+        return result;
+    }
+    const pad_count = w - src.len;
+    var i: usize = 0;
+    while (i < pad_count) : (i += 1) {
+        result.data.appendSlice(gpa, &[_]u8{pad_char}) catch break;
+    }
+    result.data.appendSlice(gpa, src) catch {};
+    return result;
+}
+
+pub export fn stz_string_right_pad(handle: ?*StzString, width: c_int, pad_char: u8) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const w: usize = if (width < 0) 0 else @intCast(width);
+    const result = stz_string_new() orelse return null;
+    result.data.appendSlice(gpa, src) catch {};
+    if (src.len >= w) return result;
+    const pad_count = w - src.len;
+    var i: usize = 0;
+    while (i < pad_count) : (i += 1) {
+        result.data.appendSlice(gpa, &[_]u8{pad_char}) catch break;
+    }
+    return result;
+}
+
+pub export fn stz_string_to_hex(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const hex_chars = "0123456789abcdef";
+    for (src) |c| {
+        result.data.appendSlice(gpa, &[_]u8{ hex_chars[c >> 4], hex_chars[c & 0x0f] }) catch break;
+    }
+    return result;
+}
+
+pub export fn stz_string_from_hex(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var i: usize = 0;
+    while (i + 1 < src.len) : (i += 2) {
+        const hi = hexCharToVal(src[i]) orelse break;
+        const lo = hexCharToVal(src[i + 1]) orelse break;
+        result.data.appendSlice(gpa, &[_]u8{(hi << 4) | lo}) catch break;
+    }
+    return result;
+}
+
+fn hexCharToVal(c: u8) ?u8 {
+    if (c >= '0' and c <= '9') return c - '0';
+    if (c >= 'a' and c <= 'f') return c - 'a' + 10;
+    if (c >= 'A' and c <= 'F') return c - 'A' + 10;
+    return null;
+}
+
+pub export fn stz_string_soundex(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (src.len == 0) return result;
+    // First letter uppercase
+    const first: u8 = if (src[0] >= 'a' and src[0] <= 'z') src[0] - 32 else src[0];
+    result.data.appendSlice(gpa, &[_]u8{first}) catch return result;
+    const map = [26]u8{ '0', '1', '2', '3', '0', '1', '2', '0', '0', '2', '2', '4', '5', '5', '0', '1', '2', '6', '2', '3', '0', '1', '0', '2', '0', '2' };
+    var count: usize = 1;
+    var last_code: u8 = soundexCode(first, &map);
+    var idx: usize = 1;
+    while (idx < src.len and count < 4) : (idx += 1) {
+        const c = src[idx];
+        const code = soundexCode(c, &map);
+        if (code != '0' and code != last_code) {
+            result.data.appendSlice(gpa, &[_]u8{code}) catch break;
+            count += 1;
+        }
+        if (code != '0') last_code = code;
+    }
+    while (count < 4) : (count += 1) {
+        result.data.appendSlice(gpa, &[_]u8{'0'}) catch break;
+    }
+    return result;
+}
+
+fn soundexCode(c: u8, map: *const [26]u8) u8 {
+    if (c >= 'a' and c <= 'z') return map[c - 'a'];
+    if (c >= 'A' and c <= 'Z') return map[c - 'A'];
+    return '0';
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -10401,5 +10500,58 @@ test "to_path_case" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hello/world"));
     stz_string_free(r);
     stz_string_free(h);
+}
+
+test "left_pad" {
+    const h = stz_string_from("42", 2);
+    const r = stz_string_left_pad(h, 5, '0');
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "00042"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    // No padding needed when already wide enough
+    const h2 = stz_string_from("hello", 5);
+    const r2 = stz_string_left_pad(h2, 3, 'x');
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "hello"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "right_pad" {
+    const h = stz_string_from("hi", 2);
+    const r = stz_string_right_pad(h, 5, '.');
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hi..."));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "to_hex" {
+    const h = stz_string_from("ABC", 3);
+    const r = stz_string_to_hex(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "414243"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "from_hex" {
+    const h = stz_string_from("414243", 6);
+    const r = stz_string_from_hex(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "ABC"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "soundex" {
+    const h = stz_string_from("Robert", 6);
+    const r = stz_string_soundex(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "R163"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("Ashcraft", 8);
+    const r2 = stz_string_soundex(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "A261"));
+    stz_string_free(r2);
+    stz_string_free(h2);
 }
 

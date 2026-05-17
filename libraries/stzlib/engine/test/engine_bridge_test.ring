@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 278 Registered Functions"
+? "Engine Full Bridge Test -- All 283 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -3031,6 +3031,39 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("Hello World")
 pResult = StzEngineStringToPathCase(pStr)
 Assert("ToPathCase", StzEngineStringData(pResult), "hello/world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+? ""
+? "--- Group 107: LeftPad / RightPad / ToHex / FromHex / Soundex ---"
+
+pStr = StzEngineStringFrom("42")
+pResult = StzEngineStingLeftPad(pStr, 5, "0")
+Assert("LeftPad 0", StzEngineStringData(pResult), "00042")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hi")
+pResult = StzEngineStringRightPad(pStr, 5, ".")
+Assert("RightPad .", StzEngineStringData(pResult), "hi...")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("ABC")
+pResult = StzEngineStringToHex(pStr)
+Assert("ToHex ABC", StzEngineStringData(pResult), "414243")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("414243")
+pResult = StzEngineStringFromHex(pStr)
+Assert("FromHex 414243", StzEngineStringData(pResult), "ABC")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Robert")
+pResult = StzEngineStingSoundex(pStr)
+Assert("Soundex Robert", StzEngineStringData(pResult), "R163")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
