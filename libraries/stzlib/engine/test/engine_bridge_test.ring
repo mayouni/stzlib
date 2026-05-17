@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 268 Registered Functions"
+? "Engine Full Bridge Test -- All 273 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -2941,6 +2941,49 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("the LORD of war")
 pResult = StzEngineStringToTitleCaseStrict(pStr)
 Assert("TitleCaseStrict LORD", StzEngineStringData(pResult), "The Lord Of War")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 105: HammingWeight / IsPalindromeWords / RemoveNthWord / InsertWordAt / ToSpongebobCase
+# ==============================================================
+
+? ""
+? "--- Group 105: HammingWeight / IsPalindromeWords / RemoveNthWord / InsertWordAt / ToSpongebobCase ---"
+
+pStr = StzEngineStringFrom("AB")
+Assert("HammingWeight AB", StzEngineStringHammingWeight(pStr), 4)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("dog cat dog")
+Assert("IsPalindromeWords yes", StzEngineStringIsPalindromeWords(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world")
+Assert("IsPalindromeWords no", StzEngineStringIsPalindromeWords(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world foo")
+pResult = StzEngineStringRemoveNthWord(pStr, 1)
+Assert("RemoveNthWord 1", StzEngineStringData(pResult), "hello foo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world foo")
+pResult = StzEngineStringRemoveNthWord(pStr, 0)
+Assert("RemoveNthWord 0", StzEngineStringData(pResult), "world foo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello foo")
+pResult = StzEngineStringInsertWordAt(pStr, 1, "world")
+Assert("InsertWordAt 1", StzEngineStringData(pResult), "hello world foo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world")
+pResult = StzEngineStringToSpongebobCase(pStr)
+Assert("SpongebobCase", StzEngineStringData(pResult), "HeLlO wOrLd")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
