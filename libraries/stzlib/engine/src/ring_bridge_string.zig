@@ -1891,6 +1891,37 @@ fn ring_StringToPathCase(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_path_case(h)), STZ_HANDLE);
 }
 
+fn ring_StringLeftPad(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const ch_str: [*c]const u8 = ring_vm_api_getstring(p, 3);
+    const pad_char: u8 = if (ch_str != null) ch_str[0] else ' ';
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_left_pad(h, width, pad_char)), STZ_HANDLE);
+}
+
+fn ring_StringRightPad(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const width: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const ch_str: [*c]const u8 = ring_vm_api_getstring(p, 3);
+    const pad_char: u8 = if (ch_str != null) ch_str[0] else ' ';
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_right_pad(h, width, pad_char)), STZ_HANDLE);
+}
+
+fn ring_StringToHex(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_hex(h)), STZ_HANDLE);
+}
+
+fn ring_StringFromHex(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_from_hex(h)), STZ_HANDLE);
+}
+
+fn ring_StringSoundex(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_soundex(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2173,6 +2204,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringabbreviate", .func = &ring_StringAbbreviate },
     .{ .name = "stzenginestringcountsubstring", .func = &ring_StringCountSubstring },
     .{ .name = "stzenginestringtopathcase", .func = &ring_StringToPathCase },
+    .{ .name = "stzenginestingleftpad", .func = &ring_StringLeftPad },
+    .{ .name = "stzenginestringrightpad", .func = &ring_StringRightPad },
+    .{ .name = "stzenginestringtohex", .func = &ring_StringToHex },
+    .{ .name = "stzenginestringfromhex", .func = &ring_StringFromHex },
+    .{ .name = "stzenginestingsoundex", .func = &ring_StringSoundex },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
