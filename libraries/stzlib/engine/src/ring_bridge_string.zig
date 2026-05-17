@@ -1952,6 +1952,33 @@ fn ring_StringToConstantCase(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_constant_case(h)), STZ_HANDLE);
 }
 
+fn ring_StringFirstWord(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_first_word(h)), STZ_HANDLE);
+}
+
+fn ring_StringLastWord(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_last_word(h)), STZ_HANDLE);
+}
+
+fn ring_StringToNato(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_nato(h)), STZ_HANDLE);
+}
+
+fn ring_StringCommonality(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_commonality(h1, h2)));
+}
+
+fn ring_StringDiffChars(p: *anyopaque) callconv(.c) void {
+    const h1 = getHandle(p, 1);
+    const h2 = getHandle(p, 2);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_diff_chars(h1, h2)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2244,6 +2271,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcountwordsmatching", .func = &ring_StringCountWordsMatching },
     .{ .name = "stzenginestringtruncatewords", .func = &ring_StringTruncateWords },
     .{ .name = "stzenginestringtoconstantcase", .func = &ring_StringToConstantCase },
+    .{ .name = "stzenginestringfirstword", .func = &ring_StringFirstWord },
+    .{ .name = "stzenginestringlastword", .func = &ring_StringLastWord },
+    .{ .name = "stzenginestringtonato", .func = &ring_StringToNato },
+    .{ .name = "stzenginestringcommonality", .func = &ring_StringCommonality },
+    .{ .name = "stzenginestringdiffchars", .func = &ring_StringDiffChars },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

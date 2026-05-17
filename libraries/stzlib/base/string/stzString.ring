@@ -2004,6 +2004,56 @@ class stzString from stzObject
 			return This.ConstantCased()
 
 	  #=========================#
+	 #  FIRST WORD             #
+	#=========================#
+
+	def FirstWord()
+		pResult = StzEngineStringFirstWord(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  LAST WORD              #
+	#=========================#
+
+	def LastWord()
+		pResult = StzEngineStringLastWord(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  TO NATO                #
+	#=========================#
+
+	def ToNato()
+		pResult = StzEngineStringToNato(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def NatoSpelling()
+			return This.ToNato()
+
+	  #=========================#
+	 #  COMMONALITY            #
+	#=========================#
+
+	def Commonality(poOther)
+		return StzEngineStringCommonality(@pEngine, poOther.Engine())
+
+	  #=========================#
+	 #  DIFF CHARS             #
+	#=========================#
+
+	def DiffChars(poOther)
+		pResult = StzEngineStringDiffChars(@pEngine, poOther.Engine())
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
 
