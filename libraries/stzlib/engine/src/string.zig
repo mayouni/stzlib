@@ -8666,42 +8666,49 @@ pub export fn stz_string_to_dot_case(handle: ?*StzString) callconv(.c) ?*StzStri
     const src = s.slice();
     const result = stz_string_new() orelse return null;
 
+    var prev_sep = false;
     for (src, 0..) |c, idx| {
         if (c >= 'A' and c <= 'Z') {
-            if (idx > 0) result.data.appendSlice(gpa, ".") catch break;
+            if (idx > 0 and !prev_sep) result.data.appendSlice(gpa, ".") catch break;
             result.data.appendSlice(gpa, &[_]u8{c + 32}) catch break;
-        } else if (c == '_' or c == '-') {
-            result.data.appendSlice(gpa, ".") catch break;
+            prev_sep = false;
+        } else if (c == '_' or c == '-' or c == ' ') {
+            if (!prev_sep and idx > 0) result.data.appendSlice(gpa, ".") catch break;
+            prev_sep = true;
         } else {
             result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            prev_sep = false;
         }
     }
     return result;
 }
 
-/// Abbreviate: truncate to n characters + "..." if longer. If shorter, return as-is.
+/// Abbreviate: produce a string of at most max_len total characters.
+/// If the string is longer, truncate to (max_len - 3) characters + "...".
+/// If max_len <= 3, just return "..." truncated to max_len.
 pub export fn stz_string_abbreviate(handle: ?*StzString, max_len: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     const result = stz_string_new() orelse return null;
     const limit: usize = if (max_len >= 0) @intCast(max_len) else return result;
 
-    // Count codepoints
-    var cp_count: usize = 0;
-    var byte_at_limit: usize = 0;
-    var off: usize = 0;
-    while (off < src.len) {
-        if (cp_count == limit) byte_at_limit = off;
-        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
-        if (off + cp_len > src.len) break;
-        off += cp_len;
-        cp_count += 1;
-    }
+    // Count total codepoints
+    const cp_count = utf8CodepointCount(src);
 
     if (cp_count <= limit) {
         result.data.appendSlice(gpa, src) catch {};
     } else {
-        result.data.appendSlice(gpa, src[0..byte_at_limit]) catch {};
+        // Truncate to (limit - 3) codepoints + "..."
+        const text_len: usize = if (limit >= 3) limit - 3 else 0;
+        var off: usize = 0;
+        var cp_idx: usize = 0;
+        while (off < src.len and cp_idx < text_len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+            if (off + cp_len > src.len) break;
+            off += cp_len;
+            cp_idx += 1;
+        }
+        result.data.appendSlice(gpa, src[0..off]) catch {};
         result.data.appendSlice(gpa, "...") catch {};
     }
     return result;
@@ -8733,14 +8740,18 @@ pub export fn stz_string_to_path_case(handle: ?*StzString) callconv(.c) ?*StzStr
     const src = s.slice();
     const result = stz_string_new() orelse return null;
 
+    var prev_sep = false;
     for (src, 0..) |c, idx| {
         if (c >= 'A' and c <= 'Z') {
-            if (idx > 0) result.data.appendSlice(gpa, "/") catch break;
+            if (idx > 0 and !prev_sep) result.data.appendSlice(gpa, "/") catch break;
             result.data.appendSlice(gpa, &[_]u8{c + 32}) catch break;
-        } else if (c == '_' or c == '-') {
-            result.data.appendSlice(gpa, "/") catch break;
+            prev_sep = false;
+        } else if (c == '_' or c == '-' or c == ' ') {
+            if (!prev_sep and idx > 0) result.data.appendSlice(gpa, "/") catch break;
+            prev_sep = true;
         } else {
             result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            prev_sep = false;
         }
     }
     return result;
@@ -11285,12 +11296,21 @@ test "to_dot_case" {
 }
 
 test "abbreviate" {
+    // abbreviate("hello world", 8) -> "hello..." (5 text + 3 dots = 8 total)
     const h = stz_string_from("hello world", 11);
-    const r = stz_string_abbreviate(h, 5);
+    const r = stz_string_abbreviate(h, 8);
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "hello..."));
     stz_string_free(r);
     stz_string_free(h);
 
+    // abbreviate("hello world", 5) -> "he..." (2 text + 3 dots = 5 total)
+    const h1b = stz_string_from("hello world", 11);
+    const r1b = stz_string_abbreviate(h1b, 5);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1b)[0..@intCast(stz_string_size(r1b))], "he..."));
+    stz_string_free(r1b);
+    stz_string_free(h1b);
+
+    // shorter than limit -> returned as-is
     const h2 = stz_string_from("hi", 2);
     const r2 = stz_string_abbreviate(h2, 5);
     try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "hi"));
