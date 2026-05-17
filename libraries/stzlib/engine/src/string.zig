@@ -1,15 +1,14 @@
 // Softanza Engine -- String Operations (Tier 1)
 //
-// Domain functions for string manipulation. Shared infrastructure
+// Pure re-export hub + integration tests. Shared infrastructure
 // (types, lifecycle, helpers) lives in string/core.zig.
 //
-// Phase D module separation: core.zig holds StzString, lifecycle,
-// error reporting, indexing config, and shared helpers. This file
-// holds all domain functions and re-exports core's public API.
+// All domain functions live in submodules under string/.
+// This file re-exports their public API as a flat namespace
+// and holds the integration test suite.
 
 const std = @import("std");
 
-// ─── Core imports ───
 const core = @import("string/core.zig");
 
 // Re-export core public API (callers see a flat namespace)
@@ -430,148 +429,6 @@ pub const str_unique_words = format.str_unique_words;
 pub const str_run_length_encode = format.str_run_length_encode;
 pub const str_run_length_decode = format.str_run_length_decode;
 pub const str_reverse_each_word = format.str_reverse_each_word;
-
-// ─── Search ───
-
-// str_index_of_cs, str_index_of, str_index_of_from_cs, str_index_of_from, str_index_of_ci -> string/find.zig
-// str_byte_to_cp, str_count_of -> string/find.zig
-
-// str_replace_range -> string/replace.zig
-
-// str_split_count, str_split_get -> string/split.zig
-
-// Find all, find result accessors, last_index_of, count_of_cs/ci -> string/find.zig
-// contains, starts_with, ends_with (all CS variants) -> string/find.zig
-
-// ─── Transform ───
-
-
-// str_replace_cs -> string/replace.zig
-
-// str_replace -> string/replace.zig
-
-// str_replace_ci -> string/replace.zig
-
-// Split CS (split_count_cs, split_count_ci, split_get_cs, split_get_ci) -> string/split.zig
-
-// str_to_upper -> string/transform.zig
-
-// str_to_lower -> string/transform.zig
-
-// str_foldcase -> string/transform.zig
-
-// str_char_at -> string/extract.zig
-// str_mid_cp -> string/extract.zig
-// str_left_cp -> string/extract.zig
-// str_right_cp -> string/extract.zig
-
-// str_insert_cp -> string/replace.zig
-
-// str_grapheme_count -> string/extract.zig
-// str_normalize -> string/extract.zig
-// str_strip_marks -> string/extract.zig
-
-// str_to_title -> string/transform.zig
-
-// str_reverse -> string/format.zig
-
-// str_repeat -> string/format.zig
-
-// str_pad_left -> string/trim.zig
-// str_pad_right -> string/trim.zig
-
-// str_remove_range -> string/replace.zig
-
-// str_trim_left -> string/trim.zig
-// str_trim_right -> string/trim.zig
-
-// str_equals_cs, str_equals, str_equals_ci -> string/find.zig
-// str_find_nth_cs, str_find_nth, str_find_nth_ci -> string/find.zig
-
-// ─── Replace First / Last / Nth ───
-
-// str_replace_first -> string/replace.zig
-
-// str_replace_last -> string/replace.zig
-
-// str_replace_nth -> string/replace.zig
-
-// ─── String Queries ───
-
-// str_is_empty -> string/inspect.zig
-
-// str_between -> string/extract.zig
-
-// str_count_chars_of_type -> string/count.zig
-
-// str_is_numeric -> string/inspect.zig
-
-// str_is_alpha -> string/inspect.zig
-
-// ─── Remove / Lines / Palindrome ───
-
-// str_remove_all_cs -> string/replace.zig
-
-// str_remove_all -> string/replace.zig
-
-// str_lines_count -> string/split.zig
-
-// str_is_palindrome -> string/inspect.zig
-
-// str_find_chars_of_type -> string/count.zig
-
-// str_extract_chars_of_type -> string/count.zig
-
-// str_is_ascii -> string/inspect.zig
-
-// str_remove_char_at -> string/replace.zig
-
-// str_char_type_at -> string/count.zig
-
-// str_concat -> string/format.zig
-
-// str_is_uppercase -> string/inspect.zig
-
-// str_is_lowercase -> string/inspect.zig
-
-// str_is_whitespace -> string/inspect.zig
-
-// str_word_count -> string/split.zig
-
-// str_is_only_type -> string/inspect.zig
-
-// str_remove_chars_of_type -> string/replace.zig
-
-// str_trim -> string/trim.zig
-
-// str_swap_case -> string/transform.zig
-
-// str_simplify -> string/trim.zig
-
-// str_starts_with_digit, str_starts_with_letter, str_ends_with_digit, str_ends_with_letter -> string/find.zig
-
-// str_replace_char_at -> string/replace.zig
-
-// Levenshtein -> string/nlp.zig
-
-// str_is_title_case -> string/inspect.zig
-
-// str_lines_split_count, str_line_at -> string/split.zig
-
-// str_unique_chars -> string/count.zig
-
-// str_remove_all_ci -> string/replace.zig
-
-// str_is_alpha_only -> string/inspect.zig
-
-// str_is_alnum -> string/inspect.zig
-
-// str_unique_char_count -> string/count.zig
-
-// str_contains_char -> string/inspect.zig
-
-// str_between_nth -> string/extract.zig
-// str_count_between -> string/extract.zig
 
 // ─── Tests ───
 
@@ -1793,27 +1650,13 @@ test "ends_with_digit_letter" {
 
 // ─── IsWord: letters, digits, underscore, hyphen ───
 
-// str_is_word -> string/inspect.zig
-
 // ─── CountLeadingChar / CountTrailingChar ───
-
-// str_count_leading_char, str_count_trailing_char -> string/count.zig
 
 // ─── IsNumericString: all digits, optional leading +/- ───
 
-// str_is_numeric_string -> string/inspect.zig
-
-// URL encode/decode -> string/encode.zig
-
-// str_char_at_to_string -> string/extract.zig
-
 // ─── SpacifyChars: "abc" → "a b c" (codepoint-aware) ───
 
-// str_spacify -> string/format.zig
-
 // ─── NumberOfBytesPerChar: returns list as "1 1 2 3" for mixed-byte chars ───
-
-// str_bytes_per_char -> string/format.zig
 
 // ─── Tests for new functions ───
 
@@ -1905,21 +1748,9 @@ test "bytes_per_char" {
 
 // ─── IsHexString: all chars are 0-9, a-f, A-F, optional 0x prefix ───
 
-// str_is_hex_string -> string/inspect.zig
-
 // ─── IsBinaryString: all chars are 0 or 1, optional 0b prefix ───
 
-// str_is_binary_string -> string/inspect.zig
-
 // ─── IsOctalString: all chars are 0-7, optional 0o prefix ───
-
-// str_is_octal_string -> string/inspect.zig
-
-// str_word_at, isWhitespace -> string/split.zig
-
-// str_center -> string/trim.zig
-
-// str_remove_consecutive_duplicates -> string/replace.zig
 
 // ─── Tests for new batch ───
 
@@ -1998,15 +1829,6 @@ test "remove_consecutive_duplicates" {
     str_free(s2);
 }
 
-// str_substring -> string/extract.zig
-
-// str_replace_substring -> string/replace.zig
-
-// str_prefix_count -> string/compare.zig
-// str_suffix_count -> string/compare.zig
-// str_common_prefix -> string/compare.zig
-// str_common_suffix -> string/compare.zig
-
 // ─── Tests for new batch ───
 
 test "substring" {
@@ -2059,457 +1881,135 @@ test "common_prefix_suffix" {
 
 // ─── SortChars: sort codepoints ascending/descending ───
 
-// str_sort_chars_asc -> string/format.zig
-
-// str_sort_chars_desc -> string/format.zig
-
-// str_find_all_char -> string/find.zig
-
-// Hash -> string/encode.zig
-
 // ─── CountChar: count occurrences of a specific codepoint ───
-
-// str_count_char -> string/count.zig
-
-// str_replace_char -> string/replace.zig
 
 // ─── Copy ───
 
-// str_copy -> string/format.zig
-
-// str_compare -> string/compare.zig
-
-// str_remove_first_occurrence -> string/replace.zig
-
-// str_remove_last_occurrence -> string/replace.zig
-
 // ─── IsCharsSortedAsc ───
-
-// str_is_chars_sorted_asc -> string/inspect.zig
 
 // ─── IsCharsSortedDesc ───
 
-// str_is_chars_sorted_desc -> string/inspect.zig
-
-// str_remove_nth_occurrence -> string/replace.zig
-
 // ─── RepeatChar ───
-
-// str_repeat_char -> string/format.zig
-
-// str_insert_before_each -> string/replace.zig
-
-// str_insert_after_each -> string/replace.zig
 
 // ─── Truncate ───
 
-// str_truncate -> string/format.zig
-
 // ─── WrapAt ───
-
-// str_wrap_at -> string/format.zig
-
-// str_remove_prefix -> string/replace.zig
-
-// str_remove_suffix -> string/replace.zig
 
 // ─── EnsurePrefix ───
 
-// str_ensure_prefix -> string/format.zig
-
 // ─── EnsureSuffix ───
-
-// str_ensure_suffix -> string/format.zig
-
-// str_squeeze_char -> string/trim.zig
-
-// str_capitalize_first -> string/transform.zig
-
-// str_decapitalize_first -> string/transform.zig
-
-// str_zfill -> string/trim.zig
-
-// str_tab_expand -> string/trim.zig
-
-// str_count_overlapping -> string/count.zig
-
-// str_replace_at -> string/replace.zig
 
 // ─── CharFrequency ───
 // Returns "char:count" pairs separated by newlines, e.g. "a:3\nb:2\n"
 
-// str_char_frequency -> string/format.zig
-
 // ─── ContainsAnyOf ───
 // Check if string contains any of the characters in the given string
 
-// str_contains_any_of -> string/inspect.zig
-
 // ─── ContainsAllOf ───
 
-// str_contains_all_of -> string/inspect.zig
-
-// str_center_pad -> string/trim.zig
-
 // ─── Only Letters / Digits ───
-
-// str_only_letters -> string/format.zig
-
-// str_only_digits -> string/format.zig
-
-// str_remove_whitespace -> string/replace.zig
 
 // (str_is_palindrome already defined above)
 
 // ─── IsAlphanumeric ───
 
-// str_is_alphanumeric -> string/inspect.zig
-
-// str_ljust -> string/trim.zig
-// str_rjust -> string/trim.zig
-
 // (str_common_prefix already defined above)
-
-// str_count_words, str_nth_word -> string/split.zig
-
-// str_chars_between -> string/extract.zig
-
-// str_indent -> string/trim.zig
-// str_dedent -> string/trim.zig
 
 // ─── CamelCase / SnakeCase / KebabCase ───
 
-// str_to_camel_case -> string/transform.zig
-
-// str_to_snake_case -> string/transform.zig
-
-// str_to_kebab_case -> string/transform.zig
-
-// Partition (str_partition, str_partition_after, str_rpartition, str_rpartition_after) -> string/split.zig
-
-// str_squeeze -> string/trim.zig
-
 // ─── IsDigit (all chars are digits) ───
-
-// str_is_digit -> string/inspect.zig
 
 // ─── StringMultiply (interleave) ───
 
 // Interleave: place separator between each codepoint. "abc" with "," => "a,b,c"
-// str_interleave -> string/format.zig
-
-// str_strip_chars -> string/replace.zig
-
-// str_keep_chars -> string/replace.zig
-
-// str_replace2 -> string/replace.zig
 
 // ─── Surround ───
 
 // Wrap string with prefix and suffix: surround("hello", "[", "]") => "[hello]"
-// str_surround -> string/format.zig
-
-// str_replace_any_char -> string/replace.zig
-
-// str_count_any_char -> string/count.zig
 
 // Rotate codepoints left by `n` positions. Negative n rotates right.
 // Returns new handle with rotated string.
-// str_rotate -> string/format.zig
 
 // Repeat string to fill exactly `target_len` codepoints.
 // Returns new handle.
-// str_repeat_to_length -> string/format.zig
-
-// str_remove_between -> string/replace.zig
-
-// str_is_blank -> string/inspect.zig
-
-// str_to_pascal_case -> string/transform.zig
-
-// str_is_identifier -> string/inspect.zig
-
-// str_replace_between -> string/replace.zig
-
-// str_contains_only -> string/inspect.zig
-
-// str_capitalize_words -> string/transform.zig
 
 // Swap characters at two codepoint positions (INDEX_BASE convention). Returns new handle.
-// str_swap_chars -> string/format.zig
-
-// Hex encode/decode -> string/encode.zig
 
 // Reverse the order of words in the string. Words are whitespace-delimited.
 // Returns new handle.
-// str_reverse_words -> string/format.zig
-
-// str_collapse_spaces -> string/trim.zig
-
-// str_is_anagram -> string/inspect.zig
 
 // Mask the string: replace middle characters with mask_char, keeping `keep` chars visible
 // at start and end. E.g. mask("hello@mail.com", '*', 2) -> "he*********om"
 // Returns new handle.
-// str_mask -> string/format.zig
-
-// str_count_runs -> string/count.zig
-
-// Hamming distance -> string/nlp.zig
-
-// str_remove_vowels -> string/replace.zig
 
 // Keep only ASCII vowels (a,e,i,o,u both cases). Returns new handle.
-// str_only_vowels -> string/format.zig
-
-// str_is_pangram -> string/inspect.zig
-
-// ngram -> string/nlp.zig
-
-// str_count_consonants -> string/count.zig
-
-// str_to_sentence_case -> string/transform.zig
-
-// str_is_balanced -> string/inspect.zig
 
 // Convert to URL-friendly slug: lowercase, spaces/underscores to hyphens,
 // remove non-alphanumeric (except hyphens), collapse consecutive hyphens.
 // Returns new handle.
-// str_slug -> string/format.zig
-
-// str_chunk -> string/split.zig
-
-// str_count_vowels -> string/count.zig
-
-// str_longest_run -> string/count.zig
-
-// str_trim_chars -> string/trim.zig
-
-// str_is_email_like -> string/inspect.zig
 
 // Split camelCase/PascalCase into space-separated words.
 // E.g. "camelCaseString" -> "camel Case String"
 // Returns new handle.
-// str_camel_to_words -> string/format.zig
 
 // Extract initials (first letter of each word). Words separated by spaces.
 // E.g. "Hello World" -> "HW", "united states of america" -> "usoa"
 // Returns new handle.
-// str_initials -> string/format.zig
-
-// str_remove_duplicate_words -> string/replace.zig
-
-// str_is_url_like -> string/inspect.zig
-
-// HTML escape/unescape -> string/encode.zig
-
-// str_count_sentences -> string/count.zig
 
 // Smart titlecase: capitalize words except small words (the, a, an, of, in, on, at, to, for, and, but, or, is).
 // First word is always capitalized. Returns new handle.
-// str_title_smart -> string/format.zig
-
-// isSmallWord -> string/format.zig
-
-// str_remove_punctuation -> string/replace.zig
-
-// str_is_float -> string/inspect.zig
-
-// str_digit_sum -> string/count.zig
-
-// str_to_alternating_case -> string/transform.zig
-
-// str_count_upper -> string/count.zig
-
-// str_count_lower -> string/count.zig
-
-// str_is_camel_case -> string/inspect.zig
-
-// str_common_chars -> string/compare.zig
 
 // batch 7 ─────────────────────────────────────────────────────────
-
-// str_count_lines -> string/split.zig
-
-// str_is_snake_case -> string/inspect.zig
-
-// str_is_kebab_case -> string/inspect.zig
-
-// str_count_unique_chars -> string/count.zig
-
-// Caesar cipher -> string/encode.zig
 
 // batch 8 ─────────────────────────────────────────────────────────
 
 // Mirror/reflect: "abc" -> "abccba"
-// str_mirror -> string/format.zig
 
 // Repeat each character n times: "abc", 2 -> "aabbcc"
-// str_repeat_each_char -> string/format.zig
-
-// str_starts_with_any, str_ends_with_any -> string/find.zig
-
-// Binary encode -> string/encode.zig
 
 // batch 9 ─────────────────────────────────────────────────────────
 
 // Sort words alphabetically (case-sensitive). Words separated by spaces.
-// str_sort_words -> string/format.zig
 
 // Keep only unique words (first occurrence preserved). Words separated by spaces.
-// str_unique_words -> string/format.zig
-
-// Binary decode -> string/encode.zig
-
-// str_swap_words -> string/split.zig
-
-// Pig latin -> string/nlp.zig
 
 // batch 10 ────────────────────────────────────────────────────────
 
 // Run-length encode: "aaabbc" -> "3a2b1c"
-// str_run_length_encode -> string/format.zig
 
 // Run-length decode: "3a2b1c" -> "aaabbc"
-// str_run_length_decode -> string/format.zig
-
-// str_count_paragraphs -> string/count.zig
-
-// Zigzag, Morse, Base64, XOR, Entropy -> string/encode.zig
 
 // Return the most frequent character as a single-char string. Ties: first in byte order.
-// str_char_frequency_top -> string/format.zig
 
 // batch 12 ────────────────────────────────────────────────────────
 
-// Jaccard similarity -> string/nlp.zig
-
-// str_longest_common_prefix -> string/compare.zig
-// str_longest_common_suffix -> string/compare.zig
-
 // Wrap string with prefix and suffix: wrap("hello", "[", "]") -> "[hello]"
-// str_wrap_with -> string/format.zig
-
-// str_to_title_case_strict -> string/transform.zig
 
 // batch 13 ────────────────────────────────────────────────────────
 
-// str_hamming_weight -> string/compare.zig
-
-// str_is_palindrome_words -> string/inspect.zig
-
-// str_remove_nth_word -> string/replace.zig
-
-// str_insert_word_at -> string/replace.zig
-
-// str_to_spongebob_case -> string/transform.zig
-
 // batch 14 ────────────────────────────────────────────────────────
-
-// str_between_first -> string/extract.zig
-
-// str_to_dot_case -> string/transform.zig
 
 // Abbreviate: produce a string of at most max_len total characters.
 // If the string is longer, truncate to (max_len - 3) characters + "...".
 // If max_len <= 3, just return "..." truncated to max_len.
-// str_abbreviate -> string/format.zig
-
-// str_count_substring -> string/count.zig
-
-// str_to_path_case -> string/transform.zig
 
 // ─── Batch 15: left_pad, right_pad, is_numeric, is_alpha, is_alphanumeric ───
 
-// str_left_pad -> string/trim.zig
-// str_right_pad -> string/trim.zig
-
-// to_hex, from_hex -> string/encode.zig
-
-// Soundex -> string/nlp.zig
-
 // ─── Batch 16: vigenere_encrypt, atbash, count_words_matching, truncate_words, to_constant_case ───
-
-// Vigenere, Atbash -> string/encode.zig
-
-// str_count_words_matching -> string/count.zig
-
-// str_truncate_words -> string/format.zig
-
-// str_to_constant_case -> string/transform.zig
 
 // ─── Batch 17: first_word, last_word, to_nato, commonality, diff_chars ───
 
-// str_first_word, str_last_word -> string/split.zig
-
-// NATO -> string/nlp.zig
-
-// str_commonality -> string/compare.zig
-// str_diff_chars -> string/compare.zig
-
 // ─── Batch 18: rot47, is_isogram, reverse_each_word, count_digits, strip_tags ───
-
-// ROT47 -> string/encode.zig
-
-// str_is_isogram -> string/inspect.zig
-
-// str_reverse_each_word -> string/format.zig
-
-// str_count_digits -> string/count.zig
-
-// str_strip_tags -> string/format.zig
 
 // ─── Batch 19: to_slug, count_spaces, normalize_spaces, mask_email, pluralize ───
 
-// str_to_slug -> string/format.zig
-
-// str_count_spaces -> string/count.zig
-
-// str_normalize_spaces -> string/trim.zig
-
-// mask_email, pluralize -> string/nlp.zig
-
 // ─── Batch 20: deduplicate_lines, remove_blank_lines, extract_numbers, extract_emails, quote ───
-
-// str_deduplicate_lines -> string/format.zig
-
-// str_remove_blank_lines -> string/replace.zig
-
-// extract_numbers, extract_emails -> string/nlp.zig
-
-// Quote, Unquote, CSV field -> string/encode.zig
 
 // ─── Batch 21: number_lines, hide, extract_words ───
 
-// str_number_lines -> string/format.zig
-
-// str_hide -> string/format.zig
-
-// extract_words -> string/nlp.zig
-
 // ─── Batch 22: expand_tabs, sentence_count, chop, scan_int, to_ordinal ───
 
-// str_expand_tabs -> string/trim.zig
-
-// str_sentence_count -> string/split.zig
-
-// str_chop -> string/format.zig
-
-// str_scan_int -> string/format.zig
-
-// str_to_ordinal -> string/format.zig
-
-// str_cp_count -> string/extract.zig
-
-// str_chars_split -> string/split.zig
-
 // batch 17 ─── NLP: Jaro-Winkler, Metaphone, N-grams ───
-
-// Jaro, Jaro-Winkler -> string/nlp.zig
-
-// Metaphone -> string/nlp.zig
-
-// char_ngrams, word_ngrams -> string/nlp.zig
 
 // ─── Tests ───
 
@@ -5072,3 +4572,4 @@ test "isAllAscii helper" {
     try std.testing.expect(isAllAscii(""));
     try std.testing.expect(!isAllAscii("Hi\xf0\x9f\x98\x80"));
 }
+
