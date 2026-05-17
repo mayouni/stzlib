@@ -16,7 +16,7 @@
 | Engine tests      | 40 passing               |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Last updated      | 2026-05-17 (Session 7)   |
+| Last updated      | 2026-05-17 (Session 8)   |
 
 ---
 
@@ -90,7 +90,9 @@
 - **CS merge**: 13 unified _cs functions (case parameter), old
   CS/CI names become thin wrappers
 - 411 Zig tests, 652 Ring bridge tests, 339 registered functions
-- str_ prefix rename deferred (cosmetic, not blocking)
+- **str_ prefix rename** (Session 8): all `stz_string_*` -> `str_*`
+  across string.zig, ring_bridge_string.zig, engine.zig, entry files.
+  No migration aliases (no user base). Phase A complete.
 
 ---
 
@@ -284,7 +286,7 @@ manageable size or mixes unrelated concerns.)
 - Each subclass can be loaded independently for minimal footprint.
 - Subclasses share state through the root object -- no data
   duplication, no cross-subclass dependencies.
-- Engine C ABI stays flat (stz_string_find_*, stz_string_split_*).
+- Engine C ABI stays flat (str_find_*, str_split_*).
   The modularization is a Ring-side concern only.
 - The 23 function forms (Active/Passive/Fluent/etc.) apply
   uniformly across all subclasses.

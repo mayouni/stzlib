@@ -1,6 +1,6 @@
 // Core entry point for stk_string.dll
 // Minimal string + char operations for speed and constrained environments.
-// Base (stz_string.dll) is a strict superset of this.
+// Base (str.dll) is a strict superset of this.
 
 pub const string = @import("string.zig");
 pub const char = @import("char.zig");
@@ -8,20 +8,20 @@ pub const ring_bridge = @import("ring_bridge_string.zig");
 
 comptime {
     // String lifecycle
-    @export(&string.stz_string_new, .{ .name = "stz_string_new" });
-    @export(&string.stz_string_from, .{ .name = "stz_string_from" });
-    @export(&string.stz_string_free, .{ .name = "stz_string_free" });
+    @export(&string.str_new, .{ .name = "str_new" });
+    @export(&string.str_from, .{ .name = "str_from" });
+    @export(&string.str_free, .{ .name = "str_free" });
 
     // String content
-    @export(&string.stz_string_data, .{ .name = "stz_string_data" });
-    @export(&string.stz_string_size, .{ .name = "stz_string_size" });
+    @export(&string.str_data, .{ .name = "str_data" });
+    @export(&string.str_size, .{ .name = "str_size" });
 
     // String mutation
-    @export(&string.stz_string_append, .{ .name = "stz_string_append" });
+    @export(&string.str_append, .{ .name = "str_append" });
 
     // String search
-    @export(&string.stz_string_index_of, .{ .name = "stz_string_index_of" });
-    @export(&string.stz_string_contains, .{ .name = "stz_string_contains" });
+    @export(&string.str_index_of, .{ .name = "str_index_of" });
+    @export(&string.str_contains, .{ .name = "str_contains" });
 
     // Char fundamentals
     @export(&char.stz_char_unicode, .{ .name = "stz_char_unicode" });
