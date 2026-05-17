@@ -1612,6 +1612,31 @@ fn ring_StringUnescapeHtml(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_unescape_html(h)), STZ_HANDLE);
 }
 
+fn ring_StringCountSentences(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_sentences(h)));
+}
+
+fn ring_StringTitleSmart(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_title_smart(h)), STZ_HANDLE);
+}
+
+fn ring_StringRemovePunctuation(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_punctuation(h)), STZ_HANDLE);
+}
+
+fn ring_StringIsFloat(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_float(h)));
+}
+
+fn ring_StringDigitSum(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_digit_sum(h)));
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1844,6 +1869,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringisurllike", .func = &ring_StringIsUrlLike },
     .{ .name = "stzenginestringescapehtml", .func = &ring_StringEscapeHtml },
     .{ .name = "stzenginestringunescapehtml", .func = &ring_StringUnescapeHtml },
+    .{ .name = "stzenginestringcountsentences", .func = &ring_StringCountSentences },
+    .{ .name = "stzenginestringtitlesmart", .func = &ring_StringTitleSmart },
+    .{ .name = "stzenginestringremovepunctuation", .func = &ring_StringRemovePunctuation },
+    .{ .name = "stzenginestringisfloat", .func = &ring_StringIsFloat },
+    .{ .name = "stzenginestringdigitsum", .func = &ring_StringDigitSum },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
