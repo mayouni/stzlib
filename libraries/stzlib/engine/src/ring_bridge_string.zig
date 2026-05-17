@@ -24,6 +24,16 @@ fn getHandle(p: *anyopaque, n: c_int) string.StzStringHandle {
     return null;
 }
 
+// ─── Error Reporting ───
+
+fn ring_StringLastError(p: *anyopaque) callconv(.c) void {
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_last_error()));
+}
+
+fn ring_StringClearError(_: *anyopaque) callconv(.c) void {
+    string.str_clear_error();
+}
+
 // ─── String Lifecycle ───
 
 fn ring_StringNew(p: *anyopaque) callconv(.c) void {
@@ -2274,6 +2284,10 @@ fn ring_StringSplitGetCS(p: *anyopaque) callconv(.c) void {
 // Ring lowercases all function names, so registered names must be lowercase.
 
 const regs = [_]R.Reg{
+    // Error reporting
+    .{ .name = "stzenginestringlasterror", .func = &ring_StringLastError },
+    .{ .name = "stzenginestringclearerror", .func = &ring_StringClearError },
+    // Lifecycle
     .{ .name = "stzenginestringnew", .func = &ring_StringNew },
     .{ .name = "stzenginestringfrom", .func = &ring_StringFrom },
     .{ .name = "stzenginestringfree", .func = &ring_StringFree },

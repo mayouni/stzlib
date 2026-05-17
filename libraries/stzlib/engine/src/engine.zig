@@ -26,6 +26,9 @@ pub const error_catalog = @import("error_catalog.zig");
 
 // Re-export C ABI symbols
 comptime {
+    // ─── Error reporting ───
+    @export(&string.str_last_error, .{ .name = "str_last_error" });
+    @export(&string.str_clear_error, .{ .name = "str_clear_error" });
     // ─── Tier 1: String operations ───
     @export(&string.str_new, .{ .name = "str_new" });
     @export(&string.str_from, .{ .name = "str_from" });
