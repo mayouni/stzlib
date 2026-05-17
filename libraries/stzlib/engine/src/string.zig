@@ -9416,6 +9416,135 @@ pub export fn stz_string_quote(handle: ?*StzString, quote_char: u8) callconv(.c)
     return result;
 }
 
+// ─── Batch 21: unquote, to_csv_field, number_lines, hide, extract_words ───
+
+pub export fn stz_string_unquote(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (src.len < 2) {
+        result.data.appendSlice(gpa, src) catch {};
+        return result;
+    }
+    const first = src[0];
+    const last = src[src.len - 1];
+    if ((first == '"' and last == '"') or (first == '\'' and last == '\'') or (first == '`' and last == '`')) {
+        result.data.appendSlice(gpa, src[1 .. src.len - 1]) catch {};
+    } else {
+        result.data.appendSlice(gpa, src) catch {};
+    }
+    return result;
+}
+
+pub export fn stz_string_to_csv_field(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    // Check if quoting needed (contains comma, quote, or newline)
+    var needs_quote = false;
+    for (src) |c| {
+        if (c == ',' or c == '"' or c == '\n' or c == '\r') {
+            needs_quote = true;
+            break;
+        }
+    }
+    if (!needs_quote) {
+        result.data.appendSlice(gpa, src) catch {};
+        return result;
+    }
+    result.data.appendSlice(gpa, "\"") catch {};
+    for (src) |c| {
+        if (c == '"') {
+            result.data.appendSlice(gpa, "\"\"") catch break;
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+        }
+    }
+    result.data.appendSlice(gpa, "\"") catch {};
+    return result;
+}
+
+pub export fn stz_string_number_lines(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var line_num: usize = 1;
+    var pos: usize = 0;
+    while (pos <= src.len) {
+        // Write line number
+        var buf: [12]u8 = undefined;
+        const num_len = formatUsize(line_num, &buf);
+        result.data.appendSlice(gpa, buf[0..num_len]) catch {};
+        result.data.appendSlice(gpa, ": ") catch {};
+        // Write line content
+        const start = pos;
+        while (pos < src.len and src[pos] != '\n') pos += 1;
+        result.data.appendSlice(gpa, src[start..pos]) catch {};
+        if (pos < src.len) {
+            result.data.appendSlice(gpa, "\n") catch {};
+            pos += 1;
+            line_num += 1;
+        } else break;
+    }
+    return result;
+}
+
+fn formatUsize(val: usize, buf: *[12]u8) usize {
+    if (val == 0) {
+        buf[0] = '0';
+        return 1;
+    }
+    var v = val;
+    var len: usize = 0;
+    while (v > 0) : (len += 1) {
+        buf[11 - len] = '0' + @as(u8, @intCast(v % 10));
+        v /= 10;
+    }
+    // Shift to start
+    for (0..len) |i| {
+        buf[i] = buf[12 - len + i];
+    }
+    return len;
+}
+
+pub export fn stz_string_hide(handle: ?*StzString, mask_char: u8, keep_first: c_int, keep_last: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    const kf: usize = if (keep_first < 0) 0 else @intCast(keep_first);
+    const kl: usize = if (keep_last < 0) 0 else @intCast(keep_last);
+    if (kf + kl >= src.len) {
+        result.data.appendSlice(gpa, src) catch {};
+        return result;
+    }
+    result.data.appendSlice(gpa, src[0..kf]) catch {};
+    var i: usize = kf;
+    while (i < src.len - kl) : (i += 1) {
+        result.data.appendSlice(gpa, &[_]u8{mask_char}) catch break;
+    }
+    result.data.appendSlice(gpa, src[src.len - kl ..]) catch {};
+    return result;
+}
+
+pub export fn stz_string_extract_words(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var pos: usize = 0;
+    var first = true;
+    while (pos < src.len) {
+        // Skip non-alpha
+        while (pos < src.len and !((src[pos] >= 'a' and src[pos] <= 'z') or (src[pos] >= 'A' and src[pos] <= 'Z'))) pos += 1;
+        if (pos >= src.len) break;
+        const start = pos;
+        while (pos < src.len and ((src[pos] >= 'a' and src[pos] <= 'z') or (src[pos] >= 'A' and src[pos] <= 'Z') or src[pos] == '\'')) pos += 1;
+        if (!first) result.data.appendSlice(gpa, " ") catch {};
+        result.data.appendSlice(gpa, src[start..pos]) catch {};
+        first = false;
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -11348,6 +11477,59 @@ test "quote" {
     const h = stz_string_from("hello", 5);
     const r = stz_string_quote(h, '"');
     try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "\"hello\""));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "unquote" {
+    const h = stz_string_from("\"hello\"", 7);
+    const r = stz_string_unquote(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "hello"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("no quotes", 9);
+    const r2 = stz_string_unquote(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2.?)[0..@intCast(stz_string_size(r2.?))], "no quotes"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "to_csv_field" {
+    const h = stz_string_from("hello,world", 11);
+    const r = stz_string_to_csv_field(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "\"hello,world\""));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("simple", 6);
+    const r2 = stz_string_to_csv_field(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2.?)[0..@intCast(stz_string_size(r2.?))], "simple"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "number_lines" {
+    const input = "hello\nworld";
+    const h = stz_string_from(input, input.len);
+    const r = stz_string_number_lines(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "1: hello\n2: world"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "hide" {
+    const h = stz_string_from("1234567890", 10);
+    const r = stz_string_hide(h, '*', 2, 2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "12******90"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "extract_words" {
+    const h = stz_string_from("hello, world! foo-bar 123", 25);
+    const r = stz_string_extract_words(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "hello world foo bar"));
     stz_string_free(r);
     stz_string_free(h);
 }

@@ -2056,6 +2056,35 @@ fn ring_StringQuote(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_quote(h, qchar)), STZ_HANDLE);
 }
 
+fn ring_StringUnquote(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_unquote(h)), STZ_HANDLE);
+}
+
+fn ring_StringToCsvField(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_csv_field(h)), STZ_HANDLE);
+}
+
+fn ring_StringNumberLines(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_number_lines(h)), STZ_HANDLE);
+}
+
+fn ring_StringHide(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const ch_str: [*c]const u8 = ring_vm_api_getstring(p, 2);
+    const mask: u8 = if (ch_str != null) ch_str[0] else '*';
+    const kf: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const kl: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_hide(h, mask, kf, kl)), STZ_HANDLE);
+}
+
+fn ring_StringExtractWords(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_extract_words(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2368,6 +2397,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringextractnumbers", .func = &ring_StringExtractNumbers },
     .{ .name = "stzenginestringextractemails", .func = &ring_StringExtractEmails },
     .{ .name = "stzenginestringquote", .func = &ring_StringQuote },
+    .{ .name = "stzenginestringunquote", .func = &ring_StringUnquote },
+    .{ .name = "stzenginestringtocsvfield", .func = &ring_StringToCsvField },
+    .{ .name = "stzenginestringnumberlines", .func = &ring_StringNumberLines },
+    .{ .name = "stzenginestringhide", .func = &ring_StringHide },
+    .{ .name = "stzenginestringextractwords", .func = &ring_StringExtractWords },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

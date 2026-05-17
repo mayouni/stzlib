@@ -2304,6 +2304,92 @@ class stzString from stzObject
 		return cResult
 
 	  #=========================#
+	 #  UNQUOTE                #
+	#=========================#
+
+	def Unquote()
+		pResult = StzEngineStringUnquote(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def UnquoteQ()
+			This.Unquote()
+			return This
+
+	def Unquoted()
+		pResult = StzEngineStringUnquote(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  TO CSV FIELD           #
+	#=========================#
+
+	def ToCsvField()
+		pResult = StzEngineStringToCsvField(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  NUMBER LINES           #
+	#=========================#
+
+	def NumberLines()
+		pResult = StzEngineStringNumberLines(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def NumberLinesQ()
+			This.NumberLines()
+			return This
+
+	def LinesNumbered()
+		pResult = StzEngineStringNumberLines(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  HIDE                   #
+	#=========================#
+
+	def Hide(cMask, nKeepFirst, nKeepLast)
+		pResult = StzEngineStringHide(@pEngine, cMask, nKeepFirst, nKeepLast)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def HideQ(cMask, nKeepFirst, nKeepLast)
+			This.Hide(cMask, nKeepFirst, nKeepLast)
+			return This
+
+	def Hidden(cMask, nKeepFirst, nKeepLast)
+		pResult = StzEngineStringHide(@pEngine, cMask, nKeepFirst, nKeepLast)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def Masked(cMask, nKeepFirst, nKeepLast)
+			return This.Hidden(cMask, nKeepFirst, nKeepLast)
+
+	  #=========================#
+	 #  EXTRACT WORDS          #
+	#=========================#
+
+	def ExtractWords()
+		pResult = StzEngineStringExtractWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WordsExtracted()
+			return This.ExtractWords()
+
+	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
 
