@@ -1505,6 +1505,34 @@ fn ring_StringHammingDistance(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_hamming_distance(h1, h2)));
 }
 
+fn ring_StringRemoveVowels(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_remove_vowels(h)), STZ_HANDLE);
+}
+
+fn ring_StringOnlyVowels(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_only_vowels(h)), STZ_HANDLE);
+}
+
+fn ring_StringIsPangram(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_is_pangram(h)));
+}
+
+fn ring_StringNgram(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const size: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_ngram(h, size, n)), STZ_HANDLE);
+}
+
+fn ring_StringNgramCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const size: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_ngram_count(h, size)));
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1717,6 +1745,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringmask", .func = &ring_StringMask },
     .{ .name = "stzenginestringcountruns", .func = &ring_StringCountRuns },
     .{ .name = "stzenginestringhammingdistance", .func = &ring_StringHammingDistance },
+    .{ .name = "stzenginestringremovevowels", .func = &ring_StringRemoveVowels },
+    .{ .name = "stzenginestringonlyvowels", .func = &ring_StringOnlyVowels },
+    .{ .name = "stzenginestringispangram", .func = &ring_StringIsPangram },
+    .{ .name = "stzenginestringngram", .func = &ring_StringNgram },
+    .{ .name = "stzenginestringngramcount", .func = &ring_StringNgramCount },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
