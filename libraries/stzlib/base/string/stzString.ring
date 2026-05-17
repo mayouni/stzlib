@@ -2766,8 +2766,8 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcStr must be a string.")
 		ok
 
-		_cResult_ = This.Content() + pcStr
-		This.UpdateWith(_cResult_)
+		# Engine in-place mutation: append directly
+		StzEngineStringAppend(@pEngine, pcStr)
 
 		#< @FunctionFluentForm
 
@@ -2817,8 +2817,8 @@ class stzString from stzObject
 			StzRaise("Incorrect param type! pcOtherStr must be a string.")
 		ok
 
-		cResult = pcOtherStr + This.String()
-		This.Update( cResult )
+		# Engine in-place mutation: insert at position 0
+		StzEngineStringInsertCp(@pEngine, 0, pcOtherStr)
 
 		#< @FunctionFluentForm
 
@@ -83108,7 +83108,11 @@ class stzString from stzObject
 	#---------------------------------------#
 
 	def RemoveCharAtPosition(n)
-		This.ReplaceNthChar(n, "")
+		# Engine-backed: direct codepoint removal (0-based)
+		pResult = StzEngineStringRemoveCharAt(@pEngine, n - 1)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
 
 		def RemoveCharAtPositionQ(n)
 			This.RemoveCharAtPosition(n)
