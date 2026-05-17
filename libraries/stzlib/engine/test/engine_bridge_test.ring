@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 313 Registered Functions"
+? "Engine Full Bridge Test -- All 318 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -3278,6 +3278,41 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("hello, world! 123")
 pResult = StzEngineStringExtractWords(pStr)
 Assert("ExtractWords", StzEngineStringData(pResult), "hello world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+? ""
+? "--- Group 114: ExpandTabs / SentenceCount / Chop / ScanInt / ToOrdinal ---"
+
+pStr = StzEngineStringFrom("a" + char(9) + "b")
+pResult = StzEngineStringExpandTabs(pStr, 4)
+Assert("ExpandTabs", StzEngineStringData(pResult), "a    b")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello. How? Fine!")
+Assert("SentenceCount", StzEngineStringSentenceCount(pStr), 3)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringChop(pStr)
+Assert("Chop", StzEngineStringData(pResult), "hell")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("42abc")
+Assert("ScanInt 42", StzEngineStingScanInt(pStr), 42)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("1")
+pResult = StzEngineStringToOrdinal(pStr)
+Assert("ToOrdinal 1st", StzEngineStringData(pResult), "1st")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("23")
+pResult = StzEngineStringToOrdinal(pStr)
+Assert("ToOrdinal 23rd", StzEngineStringData(pResult), "23rd")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 

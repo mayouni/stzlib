@@ -2085,6 +2085,32 @@ fn ring_StringExtractWords(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_extract_words(h)), STZ_HANDLE);
 }
 
+fn ring_StringExpandTabs(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const ts: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_expand_tabs(h, ts)), STZ_HANDLE);
+}
+
+fn ring_StringSentenceCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_sentence_count(h)));
+}
+
+fn ring_StringChop(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_chop(h)), STZ_HANDLE);
+}
+
+fn ring_StringScanInt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_scan_int(h)));
+}
+
+fn ring_StringToOrdinal(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_ordinal(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2402,6 +2428,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringnumberlines", .func = &ring_StringNumberLines },
     .{ .name = "stzenginestringhide", .func = &ring_StringHide },
     .{ .name = "stzenginestringextractwords", .func = &ring_StringExtractWords },
+    .{ .name = "stzenginestringexpandtabs", .func = &ring_StringExpandTabs },
+    .{ .name = "stzenginestringsentencecount", .func = &ring_StringSentenceCount },
+    .{ .name = "stzenginestringchop", .func = &ring_StringChop },
+    .{ .name = "stzenginestingscanint", .func = &ring_StringScanInt },
+    .{ .name = "stzenginestringtoordinal", .func = &ring_StringToOrdinal },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
