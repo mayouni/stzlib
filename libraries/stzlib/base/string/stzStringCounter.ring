@@ -63,13 +63,13 @@ class stzStringCounter from stzString
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		if _bCase_ = 1
-			return @NumberOfChars(This.Content())
+			return StzEngineStringCount(@pEngine)
 		else
 			return len(This.UniqueCharsCS(0))
 		ok
 
 	def NumberOfChars()
-		return This.NumberOfCharsCS(1)
+		return StzEngineStringCount(@pEngine)
 
 	  #======================================================#
 	 #   NUMBER OF CHARS WITH CONDITION                     #
