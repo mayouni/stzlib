@@ -129,6 +129,50 @@ pub const str_rpartition_after = split.str_rpartition_after;
 pub const str_chunk = split.str_chunk;
 pub const str_chars_split = split.str_chars_split;
 
+// ─── Find submodule imports ───
+const find = @import("string/find.zig");
+
+pub const str_index_of_cs = find.str_index_of_cs;
+pub const str_index_of = find.str_index_of;
+pub const str_index_of_from_cs = find.str_index_of_from_cs;
+pub const str_index_of_from = find.str_index_of_from;
+pub const str_index_of_ci = find.str_index_of_ci;
+pub const str_byte_to_cp = find.str_byte_to_cp;
+pub const str_count_of = find.str_count_of;
+pub const str_count_of_cs = find.str_count_of_cs;
+pub const str_count_of_ci = find.str_count_of_ci;
+pub const str_find_all_cs = find.str_find_all_cs;
+pub const str_find_all = find.str_find_all;
+pub const str_find_all_ci = find.str_find_all_ci;
+pub const stz_find_result_count = find.stz_find_result_count;
+pub const stz_find_result_get = find.stz_find_result_get;
+pub const stz_find_result_free = find.stz_find_result_free;
+pub const str_last_index_of_cs = find.str_last_index_of_cs;
+pub const str_last_index_of = find.str_last_index_of;
+pub const str_last_index_of_ci = find.str_last_index_of_ci;
+pub const str_contains_cs = find.str_contains_cs;
+pub const str_contains = find.str_contains;
+pub const str_contains_ci = find.str_contains_ci;
+pub const str_starts_with_cs = find.str_starts_with_cs;
+pub const str_starts_with = find.str_starts_with;
+pub const str_starts_with_ci = find.str_starts_with_ci;
+pub const str_ends_with_cs = find.str_ends_with_cs;
+pub const str_ends_with = find.str_ends_with;
+pub const str_ends_with_ci = find.str_ends_with_ci;
+pub const str_equals_cs = find.str_equals_cs;
+pub const str_equals = find.str_equals;
+pub const str_equals_ci = find.str_equals_ci;
+pub const str_find_nth_cs = find.str_find_nth_cs;
+pub const str_find_nth = find.str_find_nth;
+pub const str_find_nth_ci = find.str_find_nth_ci;
+pub const str_starts_with_digit = find.str_starts_with_digit;
+pub const str_starts_with_letter = find.str_starts_with_letter;
+pub const str_ends_with_digit = find.str_ends_with_digit;
+pub const str_ends_with_letter = find.str_ends_with_letter;
+pub const str_find_all_char = find.str_find_all_char;
+pub const str_starts_with_any = find.str_starts_with_any;
+pub const str_ends_with_any = find.str_ends_with_any;
+
 // ─── Extraction ───
 
 pub fn str_mid(handle: StzStringHandle, start: usize, length: usize) callconv(.c) StzStringHandle {
@@ -245,121 +289,8 @@ pub fn str_chars_free(arr: [*c]StzStringHandle, count: usize) callconv(.c) void 
 
 /// Unified index_of with case sensitivity parameter.
 /// case=1: case-sensitive, case=0: case-insensitive (Unicode casefold).
-pub fn str_index_of_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) i64 {
-    if (case == 0) return str_index_of_from_cs(handle, needle, needle_len, @intCast(INDEX_BASE), 0);
-    if (handle) |s| {
-        if (needle == null or needle_len == 0) return -1;
-        const hay = s.slice();
-        const n = needle[0..needle_len];
-
-        // ASCII + BMH fast-path: byte pos == cp pos
-        if (s.isAscii() and n.len > 4) {
-            if (bmhSearch(hay, n, 0)) |byte_pos| {
-                return toExternal(byte_pos);
-            }
-            return -1;
-        }
-
-        var byte_pos: usize = 0;
-        var cp_pos: usize = 0;
-        while (byte_pos + n.len <= hay.len) {
-            if (mem.eql(u8, hay[byte_pos..][0..n.len], n)) {
-                return toExternal(cp_pos);
-            }
-            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
-            byte_pos += cp_len;
-            cp_pos += 1;
-        }
-    }
-    return -1;
-}
-
-pub fn str_index_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
-    return str_index_of_cs(handle, needle, needle_len, 1);
-}
-
-/// Unified index_of_from with case sensitivity parameter.
-pub fn str_index_of_from_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize, case: c_int) callconv(.c) i64 {
-    if (handle) |s| {
-        if (needle == null or needle_len == 0) return -1;
-        const hay = s.slice();
-        const n = needle[0..needle_len];
-        const internal_start = toInternal(@intCast(start_cp));
-
-        if (case == 0) {
-            // Case-insensitive
-            const hay_folded = casefoldAlloc(hay) orelse return -1;
-            defer gpa.free(hay_folded);
-            const n_folded = casefoldAlloc(n) orelse return -1;
-            defer gpa.free(n_folded);
-            var byte_pos: usize = 0;
-            var cp_pos: usize = 0;
-            while (cp_pos < internal_start and byte_pos < hay_folded.len) {
-                const cp_len = std.unicode.utf8ByteSequenceLength(hay_folded[byte_pos]) catch 1;
-                byte_pos += cp_len;
-                cp_pos += 1;
-            }
-            if (mem.indexOfPos(u8, hay_folded, byte_pos, n_folded)) |pos| {
-                return toExternal(byteOffsetToCodepointIndex(hay_folded, pos));
-            }
-        } else {
-            // Case-sensitive
-            var byte_pos: usize = 0;
-            var cp_pos: usize = 0;
-            while (cp_pos < internal_start and byte_pos < hay.len) {
-                const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
-                byte_pos += cp_len;
-                cp_pos += 1;
-            }
-            while (byte_pos + n.len <= hay.len) {
-                if (mem.eql(u8, hay[byte_pos..][0..n.len], n)) {
-                    return toExternal(cp_pos);
-                }
-                const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
-                byte_pos += cp_len;
-                cp_pos += 1;
-            }
-        }
-    }
-    return -1;
-}
-
-pub fn str_index_of_from(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize) callconv(.c) i64 {
-    return str_index_of_from_cs(handle, needle, needle_len, start_cp, 1);
-}
-
-pub fn str_index_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize) callconv(.c) i64 {
-    return str_index_of_from_cs(handle, needle, needle_len, start_cp, 0);
-}
-
-pub fn str_byte_to_cp(handle: StzStringHandle, byte_pos: usize) callconv(.c) i64 {
-    if (handle) |s| {
-        const internal = unicode.stz_unicode_byte_to_cp(s.data.items.ptr, s.data.items.len, @intCast(byte_pos));
-        if (internal < 0) return -1;
-        return toExternal(@intCast(internal));
-    }
-    return -1;
-}
-
-pub fn str_count_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
-    if (handle) |s| {
-        if (needle == null or needle_len == 0) return 0;
-        const hay = s.slice();
-        const n = needle[0..needle_len];
-        var count: c_int = 0;
-        var pos: usize = 0;
-        while (pos + n.len <= hay.len) {
-            if (mem.eql(u8, hay[pos..][0..n.len], n)) {
-                count += 1;
-                pos += n.len;
-            } else {
-                pos += 1;
-            }
-        }
-        return count;
-    }
-    return 0;
-}
+// str_index_of_cs, str_index_of, str_index_of_from_cs, str_index_of_from, str_index_of_ci -> string/find.zig
+// str_byte_to_cp, str_count_of -> string/find.zig
 
 pub fn str_replace_range(handle: StzStringHandle, start: usize, range: usize, new: [*c]const u8, new_len: usize) callconv(.c) StzStringHandle {
     if (handle) |s| {
@@ -387,211 +318,8 @@ pub fn str_replace_range(handle: StzStringHandle, start: usize, range: usize, ne
 
 // str_split_count, str_split_get -> string/split.zig
 
-// ─── Bulk Find (returns all positions in one call) ───
-
-/// Unified find_all with case sensitivity parameter.
-/// case=1: case-sensitive, case=0: case-insensitive (Unicode casefold).
-pub fn str_find_all_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) StzFindResultHandle {
-    const r = gpa.create(StzFindResult) catch return null;
-    r.* = StzFindResult.init();
-    if (handle) |s| {
-        if (needle == null or needle_len == 0) return r;
-        const hay = s.slice();
-        const n = needle[0..needle_len];
-
-        if (case == 0) {
-            // Case-insensitive: casefold both
-            const hay_folded = casefoldAlloc(hay) orelse return r;
-            defer gpa.free(hay_folded);
-            const n_folded = casefoldAlloc(n) orelse return r;
-            defer gpa.free(n_folded);
-            var byte_pos: usize = 0;
-            var cp_pos: usize = 0;
-            while (byte_pos + n_folded.len <= hay_folded.len) {
-                if (mem.eql(u8, hay_folded[byte_pos..][0..n_folded.len], n_folded)) {
-                    r.positions.append(gpa, toExternal(cp_pos)) catch break;
-                }
-                const cp_len = std.unicode.utf8ByteSequenceLength(hay_folded[byte_pos]) catch 1;
-                byte_pos += cp_len;
-                cp_pos += 1;
-            }
-        } else {
-            // Case-sensitive: direct comparison
-            var byte_pos: usize = 0;
-            var cp_pos: usize = 0;
-            while (byte_pos + n.len <= hay.len) {
-                if (mem.eql(u8, hay[byte_pos..][0..n.len], n)) {
-                    r.positions.append(gpa, toExternal(cp_pos)) catch break;
-                }
-                const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
-                byte_pos += cp_len;
-                cp_pos += 1;
-            }
-        }
-    }
-    return r;
-}
-
-pub fn str_find_all(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzFindResultHandle {
-    return str_find_all_cs(handle, needle, needle_len, 1);
-}
-
-pub fn str_find_all_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzFindResultHandle {
-    return str_find_all_cs(handle, needle, needle_len, 0);
-}
-
-pub fn stz_find_result_count(result: StzFindResultHandle) callconv(.c) c_int {
-    if (result) |r| return @intCast(r.positions.items.len);
-    return 0;
-}
-
-pub fn stz_find_result_get(result: StzFindResultHandle, index: c_int) callconv(.c) i64 {
-    if (result) |r| {
-        const i: usize = @intCast(@max(index, 0));
-        if (i < r.positions.items.len) return r.positions.items[i];
-    }
-    return -1;
-}
-
-pub fn stz_find_result_free(result: StzFindResultHandle) callconv(.c) void {
-    if (result) |r| {
-        r.deinit();
-        gpa.destroy(r);
-    }
-}
-
-/// Unified last_index_of with case sensitivity parameter.
-pub fn str_last_index_of_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) i64 {
-    if (handle) |s| {
-        if (needle == null or needle_len == 0) return -1;
-        const hay = s.slice();
-        const n = needle[0..needle_len];
-        if (case == 0) {
-            const hay_folded = casefoldAlloc(hay) orelse return -1;
-            defer gpa.free(hay_folded);
-            const n_folded = casefoldAlloc(n) orelse return -1;
-            defer gpa.free(n_folded);
-            if (n_folded.len > hay_folded.len) return -1;
-            if (mem.lastIndexOf(u8, hay_folded, n_folded)) |pos| {
-                return toExternal(byteOffsetToCodepointIndex(hay_folded, pos));
-            }
-        } else {
-            if (mem.lastIndexOf(u8, hay, n)) |byte_pos| {
-                return toExternal(byteOffsetToCodepointIndex(hay, byte_pos));
-            }
-        }
-    }
-    return -1;
-}
-
-pub fn str_last_index_of(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
-    return str_last_index_of_cs(handle, needle, needle_len, 1);
-}
-
-pub fn str_last_index_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
-    return str_last_index_of_cs(handle, needle, needle_len, 0);
-}
-
-/// Unified count_of with case sensitivity parameter.
-pub fn str_count_of_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) c_int {
-    if (handle) |s| {
-        if (needle == null or needle_len == 0) return 0;
-        const hay = s.slice();
-        const n = needle[0..needle_len];
-        if (case == 0) {
-            const hay_folded = casefoldAlloc(hay) orelse return 0;
-            defer gpa.free(hay_folded);
-            const n_folded = casefoldAlloc(n) orelse return 0;
-            defer gpa.free(n_folded);
-            var count: c_int = 0;
-            var pos: usize = 0;
-            while (pos + n_folded.len <= hay_folded.len) {
-                if (mem.eql(u8, hay_folded[pos..][0..n_folded.len], n_folded)) {
-                    count += 1;
-                    pos += n_folded.len;
-                } else {
-                    pos += 1;
-                }
-            }
-            return count;
-        } else {
-            return str_count_of(handle, needle, needle_len);
-        }
-    }
-    return 0;
-}
-
-pub fn str_count_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
-    return str_count_of_cs(handle, needle, needle_len, 0);
-}
-
-/// Unified contains with case sensitivity parameter.
-pub fn str_contains_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, case: c_int) callconv(.c) c_int {
-    return if (str_index_of_cs(handle, needle, needle_len, case) >= 0) 1 else 0;
-}
-
-pub fn str_contains(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
-    return str_contains_cs(handle, needle, needle_len, 1);
-}
-
-pub fn str_contains_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
-    return str_contains_cs(handle, needle, needle_len, 0);
-}
-
-/// Unified starts_with with case sensitivity parameter.
-pub fn str_starts_with_cs(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize, case: c_int) callconv(.c) c_int {
-    if (handle) |s| {
-        if (prefix == null or prefix_len == 0) return 1;
-        const sl = s.slice();
-        if (prefix_len > sl.len) return 0;
-        if (case == 0) {
-            const hay_prefix = casefoldAlloc(sl[0..prefix_len]) orelse return 0;
-            defer gpa.free(hay_prefix);
-            const pfx_folded = casefoldAlloc(prefix[0..prefix_len]) orelse return 0;
-            defer gpa.free(pfx_folded);
-            return if (mem.eql(u8, hay_prefix, pfx_folded)) 1 else 0;
-        } else {
-            return if (mem.eql(u8, sl[0..prefix_len], prefix[0..prefix_len])) 1 else 0;
-        }
-    }
-    return 0;
-}
-
-pub fn str_starts_with(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) c_int {
-    return str_starts_with_cs(handle, prefix, prefix_len, 1);
-}
-
-pub fn str_starts_with_ci(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) c_int {
-    return str_starts_with_cs(handle, prefix, prefix_len, 0);
-}
-
-/// Unified ends_with with case sensitivity parameter.
-pub fn str_ends_with_cs(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize, case: c_int) callconv(.c) c_int {
-    if (handle) |s| {
-        if (suffix == null or suffix_len == 0) return 1;
-        const sl = s.slice();
-        if (suffix_len > sl.len) return 0;
-        const start = sl.len - suffix_len;
-        if (case == 0) {
-            const hay_suffix = casefoldAlloc(sl[start..]) orelse return 0;
-            defer gpa.free(hay_suffix);
-            const sfx_folded = casefoldAlloc(suffix[0..suffix_len]) orelse return 0;
-            defer gpa.free(sfx_folded);
-            return if (mem.eql(u8, hay_suffix, sfx_folded)) 1 else 0;
-        } else {
-            return if (mem.eql(u8, sl[start..], suffix[0..suffix_len])) 1 else 0;
-        }
-    }
-    return 0;
-}
-
-pub fn str_ends_with(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize) callconv(.c) c_int {
-    return str_ends_with_cs(handle, suffix, suffix_len, 1);
-}
-
-pub fn str_ends_with_ci(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize) callconv(.c) c_int {
-    return str_ends_with_cs(handle, suffix, suffix_len, 0);
-}
+// Find all, find result accessors, last_index_of, count_of_cs/ci -> string/find.zig
+// contains, starts_with, ends_with (all CS variants) -> string/find.zig
 
 // ─── Transform ───
 
@@ -1007,68 +735,8 @@ pub fn str_trim_right(handle: StzStringHandle) callconv(.c) StzStringHandle {
 
 /// Check if two strings are equal (case-sensitive). Returns 1 or 0.
 /// Unified equals with case sensitivity parameter.
-pub fn str_equals_cs(h1: StzStringHandle, h2: StzStringHandle, case: c_int) callconv(.c) c_int {
-    if (h1) |s1| {
-        if (h2) |s2| {
-            if (case == 0) return if (ciEqlUnicode(s1.slice(), s2.slice())) 1 else 0;
-            return if (mem.eql(u8, s1.slice(), s2.slice())) 1 else 0;
-        }
-    }
-    return 0;
-}
-
-pub fn str_equals(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
-    return str_equals_cs(h1, h2, 1);
-}
-
-pub fn str_equals_ci(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
-    return str_equals_cs(h1, h2, 0);
-}
-
-// ─── Find Nth ───
-
-/// Unified find_nth with case sensitivity parameter.
-pub fn str_find_nth_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int, case: c_int) callconv(.c) i64 {
-    if (handle) |s| {
-        if (n < 1) return -1;
-        const hay = s.slice();
-        const ndl = needle[0..needle_len];
-        if (case == 0) {
-            const hay_folded = casefoldAlloc(hay) orelse return -1;
-            defer gpa.free(hay_folded);
-            const ndl_folded = casefoldAlloc(ndl) orelse return -1;
-            defer gpa.free(ndl_folded);
-            var occurrence: c_int = 0;
-            var byte_pos: usize = 0;
-            while (mem.indexOfPos(u8, hay_folded, byte_pos, ndl_folded)) |pos| {
-                occurrence += 1;
-                if (occurrence == n) {
-                    return toExternal(byteOffsetToCodepointIndex(hay_folded, pos));
-                }
-                byte_pos = pos + 1;
-            }
-        } else {
-            var occurrence: c_int = 0;
-            var byte_pos: usize = 0;
-            while (mem.indexOfPos(u8, hay, byte_pos, ndl)) |pos| {
-                occurrence += 1;
-                if (occurrence == n) {
-                    return toExternal(byteOffsetToCodepointIndex(hay, pos));
-                }
-                byte_pos = pos + 1;
-            }
-        }
-    }
-    return -1;
-}
-
-pub fn str_find_nth(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) i64 {
-    return str_find_nth_cs(handle, needle, needle_len, n, 1);
-}
-
-pub fn str_find_nth_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) i64 {
-    return str_find_nth_cs(handle, needle, needle_len, n, 0);
-}
+// str_equals_cs, str_equals, str_equals_ci -> string/find.zig
+// str_find_nth_cs, str_find_nth, str_find_nth_ci -> string/find.zig
 
 // ─── Replace First / Last / Nth ───
 
@@ -1659,56 +1327,7 @@ pub fn str_simplify(handle: StzStringHandle) callconv(.c) StzStringHandle {
     return result;
 }
 
-/// Check if string starts with a digit. Returns 1 or 0.
-pub fn str_starts_with_digit(handle: StzStringHandle) callconv(.c) c_int {
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    if (bytes.len == 0) return 0;
-    const cp_len = std.unicode.utf8ByteSequenceLength(bytes[0]) catch 1;
-    const cp_val: i32 = decodeCodepoint(bytes, 0, cp_len);
-    return if (unicode.stz_unicode_is_digit(cp_val) != 0) @as(c_int, 1) else @as(c_int, 0);
-}
-
-/// Check if string starts with a letter. Returns 1 or 0.
-pub fn str_starts_with_letter(handle: StzStringHandle) callconv(.c) c_int {
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    if (bytes.len == 0) return 0;
-    const cp_len = std.unicode.utf8ByteSequenceLength(bytes[0]) catch 1;
-    const cp_val: i32 = decodeCodepoint(bytes, 0, cp_len);
-    return if (unicode.stz_unicode_is_letter(cp_val) != 0) @as(c_int, 1) else @as(c_int, 0);
-}
-
-/// Check if string ends with a digit. Returns 1 or 0.
-pub fn str_ends_with_digit(handle: StzStringHandle) callconv(.c) c_int {
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    if (bytes.len == 0) return 0;
-    // Walk to last codepoint
-    var i: usize = 0;
-    var last_cp: i32 = 0;
-    while (i < bytes.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-        last_cp = decodeCodepoint(bytes, i, cp_len);
-        i += cp_len;
-    }
-    return if (unicode.stz_unicode_is_digit(last_cp) != 0) @as(c_int, 1) else @as(c_int, 0);
-}
-
-/// Check if string ends with a letter. Returns 1 or 0.
-pub fn str_ends_with_letter(handle: StzStringHandle) callconv(.c) c_int {
-    const s = (handle orelse return 0);
-    const bytes = s.slice();
-    if (bytes.len == 0) return 0;
-    var i: usize = 0;
-    var last_cp: i32 = 0;
-    while (i < bytes.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
-        last_cp = decodeCodepoint(bytes, i, cp_len);
-        i += cp_len;
-    }
-    return if (unicode.stz_unicode_is_letter(last_cp) != 0) @as(c_int, 1) else @as(c_int, 0);
-}
+// str_starts_with_digit, str_starts_with_letter, str_ends_with_digit, str_ends_with_letter -> string/find.zig
 
 /// Replace codepoint at a given index (INDEX_BASE convention) with a new string. Returns new handle.
 pub fn str_replace_char_at(handle: StzStringHandle, cp_index: c_int, replacement: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
@@ -4012,30 +3631,7 @@ pub fn str_sort_chars_desc(handle: StzStringHandle) callconv(.c) StzStringHandle
     return result;
 }
 
-// ─── FindAllChar: find all positions of a codepoint ───
-
-pub fn str_find_all_char(handle: StzStringHandle, codepoint: u32) callconv(.c) StzFindResultHandle {
-    const s = handle orelse return null;
-    const buf = s.slice();
-
-    var positions: std.ArrayList(i64) = .{};
-    var off: usize = 0;
-    var cp_i: i64 = 0;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
-        if (off + cp_len > buf.len) break;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
-        if (cp_val == codepoint) {
-            positions.append(gpa, toExternal(@intCast(cp_i))) catch return null;
-        }
-        off += cp_len;
-        cp_i += 1;
-    }
-
-    const fr = gpa.create(StzFindResult) catch return null;
-    fr.* = .{ .positions = positions };
-    return fr;
-}
+// str_find_all_char -> string/find.zig
 
 // Hash -> string/encode.zig
 
@@ -7040,47 +6636,7 @@ pub export fn str_repeat_each_char(handle: ?*StzString, n: c_int) callconv(.c) ?
 }
 
 /// Check if string starts with any of the given prefixes (pipe-separated: "http|ftp|ssh")
-pub export fn str_starts_with_any(handle: ?*StzString, prefixes: [*c]const u8, prefixes_len: c_int) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    const plen: usize = if (prefixes_len >= 0) @intCast(prefixes_len) else return 0;
-    const pstr = prefixes[0..plen];
-
-    // Split by pipe and check each
-    var start: usize = 0;
-    var i: usize = 0;
-    while (i <= pstr.len) : (i += 1) {
-        if (i == pstr.len or pstr[i] == '|') {
-            const prefix = pstr[start..i];
-            if (prefix.len > 0 and prefix.len <= src.len) {
-                if (mem.eql(u8, src[0..prefix.len], prefix)) return 1;
-            }
-            start = i + 1;
-        }
-    }
-    return 0;
-}
-
-/// Check if string ends with any of the given suffixes (pipe-separated: ".txt|.md|.zig")
-pub export fn str_ends_with_any(handle: ?*StzString, suffixes: [*c]const u8, suffixes_len: c_int) callconv(.c) c_int {
-    const s = handle orelse return 0;
-    const src = s.slice();
-    const slen: usize = if (suffixes_len >= 0) @intCast(suffixes_len) else return 0;
-    const sstr = suffixes[0..slen];
-
-    var start: usize = 0;
-    var i: usize = 0;
-    while (i <= sstr.len) : (i += 1) {
-        if (i == sstr.len or sstr[i] == '|') {
-            const suffix = sstr[start..i];
-            if (suffix.len > 0 and suffix.len <= src.len) {
-                if (mem.eql(u8, src[src.len - suffix.len ..], suffix)) return 1;
-            }
-            start = i + 1;
-        }
-    }
-    return 0;
-}
+// str_starts_with_any, str_ends_with_any -> string/find.zig
 
 // Binary encode -> string/encode.zig
 
