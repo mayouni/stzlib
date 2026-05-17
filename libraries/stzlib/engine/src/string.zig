@@ -9071,6 +9071,89 @@ pub export fn stz_string_diff_chars(handle: ?*StzString, other: ?*StzString) cal
     return result;
 }
 
+// ─── Batch 18: rot47, is_isogram, reverse_each_word, count_digits, strip_tags ───
+
+pub export fn stz_string_rot47(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    for (src) |c| {
+        if (c >= 33 and c <= 126) {
+            const rotated: u8 = 33 + ((c - 33 + 47) % 94);
+            result.data.appendSlice(gpa, &[_]u8{rotated}) catch break;
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+        }
+    }
+    return result;
+}
+
+pub export fn stz_string_is_isogram(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 1;
+    var seen = [_]bool{false} ** 256;
+    for (src) |c| {
+        var ch = c;
+        if (ch >= 'A' and ch <= 'Z') ch += 32;
+        if (ch >= 'a' and ch <= 'z') {
+            if (seen[ch]) return 0;
+            seen[ch] = true;
+        }
+    }
+    return 1;
+}
+
+pub export fn stz_string_reverse_each_word(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var pos: usize = 0;
+    while (pos < src.len) {
+        if (src[pos] == ' ') {
+            result.data.appendSlice(gpa, &[_]u8{' '}) catch break;
+            pos += 1;
+        } else {
+            const start = pos;
+            while (pos < src.len and src[pos] != ' ') pos += 1;
+            // Reverse the word
+            var j: usize = pos;
+            while (j > start) {
+                j -= 1;
+                result.data.appendSlice(gpa, &[_]u8{src[j]}) catch break;
+            }
+        }
+    }
+    return result;
+}
+
+pub export fn stz_string_count_digits(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var count: c_int = 0;
+    for (src) |c| {
+        if (c >= '0' and c <= '9') count += 1;
+    }
+    return count;
+}
+
+pub export fn stz_string_strip_tags(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var in_tag = false;
+    for (src) |c| {
+        if (c == '<') {
+            in_tag = true;
+        } else if (c == '>') {
+            in_tag = false;
+        } else if (!in_tag) {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -10873,5 +10956,45 @@ test "diff_chars" {
     stz_string_free(r);
     stz_string_free(h1);
     stz_string_free(h2);
+}
+
+test "rot47" {
+    const h = stz_string_from("Hello", 5);
+    const r = stz_string_rot47(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "w6==@"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "is_isogram" {
+    const h1 = stz_string_from("subdermatoglyphic", 17);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_isogram(h1));
+    stz_string_free(h1);
+
+    const h2 = stz_string_from("hello", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_isogram(h2));
+    stz_string_free(h2);
+}
+
+test "reverse_each_word" {
+    const h = stz_string_from("hello world", 11);
+    const r = stz_string_reverse_each_word(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "olleh dlrow"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "count_digits" {
+    const h = stz_string_from("abc123def45", 11);
+    try std.testing.expectEqual(@as(c_int, 5), stz_string_count_digits(h));
+    stz_string_free(h);
+}
+
+test "strip_tags" {
+    const h = stz_string_from("<b>hello</b> <i>world</i>", 25);
+    const r = stz_string_strip_tags(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "hello world"));
+    stz_string_free(r);
+    stz_string_free(h);
 }
 
