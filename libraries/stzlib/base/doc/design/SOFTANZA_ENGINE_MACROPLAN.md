@@ -13,10 +13,10 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 496 passing              |
+| Engine tests      | 516 passing              |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Last updated      | 2026-05-17 (Session 9)   |
+| Last updated      | 2026-05-17 (Session 10)  |
 
 ---
 
@@ -102,15 +102,16 @@
   ASCII fast-paths for codepointIndexToByteOffset, utf8CodepointCount.
   Boyer-Moore-Horspool search for needles > 4 bytes on ASCII strings.
   434 Zig tests, 658 Ring bridge tests, 341 registered functions.
-- **Phase D module separation** (Sessions 8-9): Three submodules extracted:
+- **Phase D module separation** (Sessions 8-10): Four submodules extracted:
   `string/core.zig` (StzString, lifecycle, error, indexing, helpers),
   `string/encode.zig` (25 fns: URL/hex/base64/binary/HTML/morse/CSV/
   quote/ciphers/hash/entropy), `string/nlp.zig` (18 fns: Levenshtein/
   Hamming/Jaro/JW/Jaccard/Soundex/Metaphone/n-grams/extraction/
-  pluralize/pig-latin/NATO/mask-email). `string.zig` re-exports all
-  submodule APIs and holds remaining find/replace/transform/inspect/split
-  domain functions (~200). 496 Zig tests, 658 Ring bridge tests,
-  341 registered functions.
+  pluralize/pig-latin/NATO/mask-email), `string/split.zig` (26 fns:
+  split/word/line/partition/chunk/sentence/chars-split).
+  `string.zig` re-exports all submodule APIs and holds remaining
+  find/replace/transform/inspect domain functions (~170).
+  516 Zig tests, 658 Ring bridge tests, 341 registered functions.
 
 ---
 
@@ -519,3 +520,4 @@ M-E11 (Repo Split)
 | 2026-05-17 | 7       | Phase A   | 1-based indexing + CS merge (Phase A complete) |
 | 2026-05-17 | 8       | Phase A-D | str_ rename, safety audit, perf, core.zig extraction |
 | 2026-05-17 | 9       | Phase D+  | encode.zig (25 fns) + nlp.zig (18 fns) extraction |
+| 2026-05-17 | 10      | Phase D++ | split.zig (26 fns) extraction, 516 Zig tests |
