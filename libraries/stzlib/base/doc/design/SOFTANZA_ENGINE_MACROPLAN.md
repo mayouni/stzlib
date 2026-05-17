@@ -13,10 +13,10 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 566 passing              |
+| Engine tests      | 584 passing              |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Last updated      | 2026-05-17 (Session 11)  |
+| Last updated      | 2026-05-17 (Session 12)  |
 
 ---
 
@@ -119,9 +119,33 @@
   `string/inspect.zig` (38 fns: is_*/predicate checks -- empty/
   numeric/alpha/palindrome/ascii/case/type/sorted/anagram/pangram/
   balanced/email/url/float/identifier/isogram).
-  `string.zig` re-exports all submodule APIs and holds remaining
-  extraction/trim/pad/structural/count/format functions (~80).
-  566 Zig tests, 658 Ring bridge tests, 341 registered functions.
+  `string/extract.zig` (23 fns: mid/left/right/nth_char/slice/chars/
+  char_at/mid_cp/left_cp/right_cp/grapheme_count/normalize/strip_marks/
+  between/between_nth/count_between/substring/chars_between/cp_count),
+  `string/trim.zig` (22 fns: trim/trim_left/trim_right/simplify/
+  trim_chars/pad_left/pad_right/center/center_pad/zfill/ljust/rjust/
+  left_pad/right_pad/indent/dedent/tab_expand/expand_tabs/
+  collapse_spaces/normalize_spaces/squeeze/squeeze_char),
+  `string/count.zig` (25 fns: count_chars_of_type/find_chars_of_type/
+  extract_chars_of_type/char_type_at/unique_chars/unique_char_count/
+  count_char/count_leading/trailing_char/count_overlapping/
+  count_any_char/count_runs/count_vowels/consonants/longest_run/
+  count_sentences/digit_sum/count_upper/lower/count_unique_chars/
+  count_paragraphs/count_substring/count_words_matching/count_digits/
+  count_spaces),
+  `string/compare.zig` (11 fns: compare/common_prefix/common_suffix/
+  prefix_count/suffix_count/common_chars/longest_common_prefix/suffix/
+  hamming_weight/commonality/diff_chars),
+  `string/format.zig` (47 fns: reverse/repeat/concat/copy/sort_chars/
+  repeat_char/rotate/repeat_to_length/swap_chars/mirror/
+  repeat_each_char/spacify/bytes_per_char/char_frequency/truncate/
+  wrap_at/ensure_prefix/suffix/only_letters/digits/vowels/interleave/
+  surround/mask/slug/camel_to_words/initials/title_smart/
+  reverse_words/sort_words/unique_words/run_length_encode/decode/
+  and more formatting/word-level ops).
+  `string.zig` is now a pure re-export hub + tests (zero function bodies).
+  584 Zig tests, 658 Ring bridge tests, 341 registered functions.
+  Phase D COMPLETE -- 13 submodules, ~250 functions extracted.
 
 ---
 
@@ -532,3 +556,4 @@ M-E11 (Repo Split)
 | 2026-05-17 | 9       | Phase D+  | encode.zig (25 fns) + nlp.zig (18 fns) extraction |
 | 2026-05-17 | 10      | Phase D++ | split.zig (26 fns) + find.zig (37 fns), 535 Zig tests |
 | 2026-05-17 | 11      | Phase D+++| replace.zig (39) + transform.zig (19) + inspect.zig (38), 566 tests |
+| 2026-05-17 | 12      | Phase D****| extract(23)+trim(22)+count(25)+compare(11)+format(47), Phase D DONE |
