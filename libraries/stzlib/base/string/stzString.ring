@@ -2134,6 +2134,96 @@ class stzString from stzObject
 			return This.TagsStripped()
 
 	  #=========================#
+	 #  TO SLUG                #
+	#=========================#
+
+	def ToSlug()
+		pResult = StzEngineStringToSlug(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToSlugQ()
+			This.ToSlug()
+			return This
+
+	def Slugified()
+		pResult = StzEngineStringToSlug(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  COUNT SPACES           #
+	#=========================#
+
+	def CountSpaces()
+		return StzEngineStringCountSpaces(@pEngine)
+
+		def NumberOfSpaces()
+			return This.CountSpaces()
+
+	  #=========================#
+	 #  NORMALIZE SPACES       #
+	#=========================#
+
+	def NormalizeSpaces()
+		pResult = StzEngineStringNormalizeSpaces(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def NormalizeSpacesQ()
+			This.NormalizeSpaces()
+			return This
+
+	def SpacesNormalized()
+		pResult = StzEngineStringNormalizeSpaces(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  MASK EMAIL             #
+	#=========================#
+
+	def MaskEmail()
+		pResult = StzEngineStringMaskEmail(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def MaskEmailQ()
+			This.MaskEmail()
+			return This
+
+	def EmailMasked()
+		pResult = StzEngineStringMaskEmail(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  PLURALIZE              #
+	#=========================#
+
+	def Pluralize()
+		pResult = StzEngineStringPluralize(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def PluralizeQ()
+			This.Pluralize()
+			return This
+
+	def Pluralized()
+		pResult = StzEngineStringPluralize(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
 

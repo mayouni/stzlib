@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 298 Registered Functions"
+? "Engine Full Bridge Test -- All 303 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -3169,6 +3169,43 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("<b>hello</b> <i>world</i>")
 pResult = StzEngineStingStripTags(pStr)
 Assert("StripTags", StzEngineStringData(pResult), "hello world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+? ""
+? "--- Group 111: ToSlug / CountSpaces / NormalizeSpaces / MaskEmail / Pluralize ---"
+
+pStr = StzEngineStringFrom("Hello World! Test")
+pResult = StzEngineStringToSlug(pStr)
+Assert("ToSlug", StzEngineStringData(pResult), "hello-world-test")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello  world  foo")
+Assert("CountSpaces", StzEngineStringCountSpaces(pStr), 4)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("  hello   world  ")
+pResult = StzEngineStringNormalizeSpaces(pStr)
+Assert("NormalizeSpaces", StzEngineStringData(pResult), "hello world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("john@example.com")
+pResult = StzEngineStringMaskEmail(pStr)
+Assert("MaskEmail", StzEngineStringData(pResult), "j***@example.com")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("cat")
+pResult = StzEngineStringPluralize(pStr)
+Assert("Pluralize cat", StzEngineStringData(pResult), "cats")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("city")
+pResult = StzEngineStringPluralize(pStr)
+Assert("Pluralize city", StzEngineStringData(pResult), "cities")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 

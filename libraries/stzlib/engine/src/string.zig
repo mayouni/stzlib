@@ -9154,6 +9154,128 @@ pub export fn stz_string_strip_tags(handle: ?*StzString) callconv(.c) ?*StzStrin
     return result;
 }
 
+// ─── Batch 19: to_slug, count_spaces, normalize_spaces, mask_email, pluralize ───
+
+pub export fn stz_string_to_slug(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var prev_was_dash = false;
+    for (src) |c| {
+        if (c >= 'A' and c <= 'Z') {
+            result.data.appendSlice(gpa, &[_]u8{c + 32}) catch break;
+            prev_was_dash = false;
+        } else if ((c >= 'a' and c <= 'z') or (c >= '0' and c <= '9')) {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            prev_was_dash = false;
+        } else if (c == ' ' or c == '_' or c == '-' or c == '\t') {
+            if (!prev_was_dash) {
+                result.data.appendSlice(gpa, &[_]u8{'-'}) catch break;
+                prev_was_dash = true;
+            }
+        }
+        // skip other chars
+    }
+    // Remove trailing dash
+    const rslice = result.slice();
+    if (rslice.len > 0 and rslice[rslice.len - 1] == '-') {
+        _ = result.data.pop();
+    }
+    return result;
+}
+
+pub export fn stz_string_count_spaces(handle: ?*StzString) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var count: c_int = 0;
+    for (src) |c| {
+        if (c == ' ') count += 1;
+    }
+    return count;
+}
+
+pub export fn stz_string_normalize_spaces(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    var prev_space = true; // treat start as space to trim leading
+    for (src) |c| {
+        if (c == ' ' or c == '\t') {
+            if (!prev_space) {
+                result.data.appendSlice(gpa, &[_]u8{' '}) catch break;
+                prev_space = true;
+            }
+        } else {
+            result.data.appendSlice(gpa, &[_]u8{c}) catch break;
+            prev_space = false;
+        }
+    }
+    // Remove trailing space
+    const rslice = result.slice();
+    if (rslice.len > 0 and rslice[rslice.len - 1] == ' ') {
+        _ = result.data.pop();
+    }
+    return result;
+}
+
+pub export fn stz_string_mask_email(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    // Find @ position
+    var at_pos: ?usize = null;
+    for (src, 0..) |c, idx| {
+        if (c == '@') {
+            at_pos = idx;
+            break;
+        }
+    }
+    if (at_pos) |ap| {
+        if (ap > 0) {
+            // Show first char, mask rest of local part
+            result.data.appendSlice(gpa, &[_]u8{src[0]}) catch {};
+            var i: usize = 1;
+            while (i < ap) : (i += 1) {
+                result.data.appendSlice(gpa, &[_]u8{'*'}) catch break;
+            }
+        }
+        // Append @domain
+        result.data.appendSlice(gpa, src[ap..]) catch {};
+    } else {
+        // No @, just copy
+        result.data.appendSlice(gpa, src) catch {};
+    }
+    return result;
+}
+
+pub export fn stz_string_pluralize(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (src.len == 0) return result;
+    result.data.appendSlice(gpa, src) catch return result;
+    const last = src[src.len - 1];
+    if (last == 's' or last == 'x' or last == 'z') {
+        result.data.appendSlice(gpa, "es") catch {};
+    } else if (last == 'y' and src.len > 1) {
+        const prev = src[src.len - 2];
+        if (!(prev == 'a' or prev == 'e' or prev == 'i' or prev == 'o' or prev == 'u')) {
+            // Replace y with ies
+            _ = result.data.pop();
+            result.data.appendSlice(gpa, "ies") catch {};
+        } else {
+            result.data.appendSlice(gpa, "s") catch {};
+        }
+    } else if (src.len >= 2 and src[src.len - 2] == 'c' and last == 'h') {
+        result.data.appendSlice(gpa, "es") catch {};
+    } else if (src.len >= 2 and src[src.len - 2] == 's' and last == 'h') {
+        result.data.appendSlice(gpa, "es") catch {};
+    } else {
+        result.data.appendSlice(gpa, "s") catch {};
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -10996,5 +11118,55 @@ test "strip_tags" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "hello world"));
     stz_string_free(r);
     stz_string_free(h);
+}
+
+test "to_slug" {
+    const h = stz_string_from("Hello World! Test", 17);
+    const r = stz_string_to_slug(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "hello-world-test"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "count_spaces" {
+    const h = stz_string_from("hello  world  foo", 17);
+    try std.testing.expectEqual(@as(c_int, 4), stz_string_count_spaces(h));
+    stz_string_free(h);
+}
+
+test "normalize_spaces" {
+    const h = stz_string_from("  hello   world  ", 17);
+    const r = stz_string_normalize_spaces(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "hello world"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "mask_email" {
+    const h = stz_string_from("john@example.com", 16);
+    const r = stz_string_mask_email(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r.?)[0..@intCast(stz_string_size(r.?))], "j***@example.com"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "pluralize" {
+    const h1 = stz_string_from("cat", 3);
+    const r1 = stz_string_pluralize(h1);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r1.?)[0..@intCast(stz_string_size(r1.?))], "cats"));
+    stz_string_free(r1);
+    stz_string_free(h1);
+
+    const h2 = stz_string_from("city", 4);
+    const r2 = stz_string_pluralize(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2.?)[0..@intCast(stz_string_size(r2.?))], "cities"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+
+    const h3 = stz_string_from("box", 3);
+    const r3 = stz_string_pluralize(h3);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r3.?)[0..@intCast(stz_string_size(r3.?))], "boxes"));
+    stz_string_free(r3);
+    stz_string_free(h3);
 }
 
