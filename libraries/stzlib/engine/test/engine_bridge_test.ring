@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 228 Registered Functions"
+? "Engine Full Bridge Test -- All 233 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -2472,6 +2472,67 @@ pStr = StzEngineStringFrom("&amp; &quot; &#39;")
 pResult = StzEngineStringUnescapeHtml(pStr)
 Assert("UnescapeHtml entities", StzEngineStringData(pResult), "& " + char(34) + " '")
 StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 97: CountSentences / TitleSmart / RemovePunctuation / IsFloat / DigitSum
+# ==============================================================
+
+? ""
+? "--- Group 97: CountSentences / TitleSmart / RemovePunctuation / IsFloat / DigitSum ---"
+
+pStr = StzEngineStringFrom("Hello. How are you? Fine!")
+Assert("CountSentences 3", StzEngineStringCountSentences(pStr), 3)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("No sentence end")
+Assert("CountSentences 0", StzEngineStringCountSentences(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("the lord of the rings")
+pResult = StzEngineStringTitleSmart(pStr)
+Assert("TitleSmart LOTR", StzEngineStringData(pResult), "The Lord of the Rings")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("a tale of two cities")
+pResult = StzEngineStringTitleSmart(pStr)
+Assert("TitleSmart tale", StzEngineStringData(pResult), "A Tale of Two Cities")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("Hello, World!")
+pResult = StzEngineStringRemovePunctuation(pStr)
+Assert("RemovePunctuation", StzEngineStringData(pResult), "Hello World")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("3.14")
+Assert("IsFloat 3.14", StzEngineStringIsFloat(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("-0.5")
+Assert("IsFloat -0.5", StzEngineStringIsFloat(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("42")
+Assert("IsFloat 42 (no dot)", StzEngineStringIsFloat(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc")
+Assert("IsFloat abc", StzEngineStringIsFloat(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("a1b2c3")
+Assert("DigitSum a1b2c3", StzEngineStringDigitSum(pStr), 6)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("999")
+Assert("DigitSum 999", StzEngineStringDigitSum(pStr), 27)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc")
+Assert("DigitSum no digits", StzEngineStringDigitSum(pStr), 0)
 StzEngineStringFree(pStr)
 
 # ==============================================================

@@ -1043,6 +1043,82 @@ class stzString from stzObject
 		StzEngineStringFree(pResult)
 		return cResult
 
+	  #==============================#
+	 #  COUNT SENTENCES            #
+	#==============================#
+
+	def CountSentences()
+		return StzEngineStringCountSentences(@pEngine)
+
+		def NumberOfSentences()
+			return This.CountSentences()
+
+	  #==============================#
+	 #  TITLE SMART                #
+	#==============================#
+
+	def ToSmartTitle()
+		pResult = StzEngineStringTitleSmart(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToSmartTitleQ()
+			This.ToSmartTitle()
+			return This
+
+	def SmartTitled()
+		pResult = StzEngineStringTitleSmart(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def InSmartTitleCase()
+			return This.SmartTitled()
+
+	  #==============================#
+	 #  REMOVE PUNCTUATION         #
+	#==============================#
+
+	def RemovePunctuation()
+		pResult = StzEngineStringRemovePunctuation(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def RemovePunctuationQ()
+			This.RemovePunctuation()
+			return This
+
+	def PunctuationRemoved()
+		pResult = StzEngineStringRemovePunctuation(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WithoutPunctuation()
+			return This.PunctuationRemoved()
+
+	  #==============================#
+	 #  IS FLOAT                   #
+	#==============================#
+
+	def IsFloat()
+		return StzEngineStringIsFloat(@pEngine) = 1
+
+		def IsFloatNumber()
+			return This.IsFloat()
+
+	  #==============================#
+	 #  DIGIT SUM                  #
+	#==============================#
+
+	def DigitSum()
+		return StzEngineStringDigitSum(@pEngine)
+
+		def SumOfDigits()
+			return This.DigitSum()
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#

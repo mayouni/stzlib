@@ -7380,6 +7380,145 @@ pub fn stz_string_unescape_html(handle: StzStringHandle) callconv(.c) StzStringH
     return result;
 }
 
+/// Count sentences (terminated by '.', '!', or '?').
+pub fn stz_string_count_sentences(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 0;
+
+    var count: c_int = 0;
+    for (src) |c| {
+        if (c == '.' or c == '!' or c == '?') count += 1;
+    }
+    return count;
+}
+
+/// Smart titlecase: capitalize words except small words (the, a, an, of, in, on, at, to, for, and, but, or, is).
+/// First word is always capitalized. Returns new handle.
+pub fn stz_string_title_smart(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const small_words = [_][]const u8{ "the", "a", "an", "of", "in", "on", "at", "to", "for", "and", "but", "or", "is" };
+
+    const result = stz_string_new() orelse return null;
+    var off: usize = 0;
+    var first_word = true;
+
+    while (off < src.len) {
+        // Skip spaces
+        while (off < src.len and (src[off] == ' ' or src[off] == '\t')) {
+            result.data.appendSlice(gpa, src[off..][0..1]) catch break;
+            off += 1;
+        }
+        if (off >= src.len) break;
+
+        // Find word end
+        const word_start = off;
+        while (off < src.len and src[off] != ' ' and src[off] != '\t') off += 1;
+        const word = src[word_start..off];
+
+        if (first_word or !isSmallWord(word, &small_words)) {
+            // Capitalize first letter
+            if (word.len > 0 and word[0] >= 'a' and word[0] <= 'z') {
+                result.data.appendSlice(gpa, &[_]u8{word[0] - 32}) catch break;
+                if (word.len > 1) result.data.appendSlice(gpa, word[1..]) catch break;
+            } else {
+                result.data.appendSlice(gpa, word) catch break;
+            }
+        } else {
+            result.data.appendSlice(gpa, word) catch break;
+        }
+        first_word = false;
+    }
+    return result;
+}
+
+fn isSmallWord(word: []const u8, small_words: []const []const u8) bool {
+    // Compare lowercase
+    var buf: [16]u8 = undefined;
+    if (word.len > 16) return false;
+    for (word, 0..) |c, i| {
+        buf[i] = if (c >= 'A' and c <= 'Z') c + 32 else c;
+    }
+    const lower = buf[0..word.len];
+    for (small_words) |sw| {
+        if (mem.eql(u8, lower, sw)) return true;
+    }
+    return false;
+}
+
+/// Remove all ASCII punctuation characters. Returns new handle.
+pub fn stz_string_remove_punctuation(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return stz_string_from(src.ptr, 0);
+
+    const result = stz_string_new() orelse return null;
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        if (cp_len == 1) {
+            const c = src[off];
+            if (!((c >= '!' and c <= '/') or (c >= ':' and c <= '@') or
+                (c >= '[' and c <= '`') or (c >= '{' and c <= '~')))
+            {
+                result.data.appendSlice(gpa, src[off..][0..1]) catch break;
+            }
+        } else {
+            result.data.appendSlice(gpa, src[off..][0..cp_len]) catch break;
+        }
+        off += cp_len;
+    }
+    return result;
+}
+
+/// Check if string is a valid float format (optional sign, digits, one dot, digits).
+/// E.g. "3.14", "-0.5", "+123.456" are valid. Returns 1 if valid, 0 otherwise.
+pub fn stz_string_is_float(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    if (src.len == 0) return 0;
+
+    var off: usize = 0;
+    // Optional sign
+    if (off < src.len and (src[off] == '+' or src[off] == '-')) off += 1;
+    if (off >= src.len) return 0;
+
+    var has_digits_before = false;
+    while (off < src.len and src[off] >= '0' and src[off] <= '9') {
+        has_digits_before = true;
+        off += 1;
+    }
+
+    // Must have dot
+    if (off >= src.len or src[off] != '.') return 0;
+    off += 1;
+
+    var has_digits_after = false;
+    while (off < src.len and src[off] >= '0' and src[off] <= '9') {
+        has_digits_after = true;
+        off += 1;
+    }
+
+    if (off != src.len) return 0; // trailing chars
+    if (!has_digits_before and !has_digits_after) return 0;
+    return 1;
+}
+
+/// Sum of all digit characters in the string. E.g. "a1b2c3" -> 6.
+pub fn stz_string_digit_sum(handle: StzStringHandle) callconv(.c) c_int {
+    const s = handle orelse return 0;
+    const src = s.slice();
+    var sum: c_int = 0;
+    for (src) |c| {
+        if (c >= '0' and c <= '9') sum += @as(c_int, c - '0');
+    }
+    return sum;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -8442,5 +8581,69 @@ test "unescape_html" {
     try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "<b>hello</b>"));
     stz_string_free(r);
     stz_string_free(h);
+}
+
+test "count_sentences" {
+    const h = stz_string_from("Hello. How are you? Fine!", 25);
+    try std.testing.expectEqual(@as(c_int, 3), stz_string_count_sentences(h));
+    stz_string_free(h);
+
+    const h2 = stz_string_from("No sentence end", 15);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_count_sentences(h2));
+    stz_string_free(h2);
+}
+
+test "title_smart" {
+    const h = stz_string_from("the lord of the rings", 21);
+    const r = stz_string_title_smart(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "The Lord of the Rings"));
+    stz_string_free(r);
+    stz_string_free(h);
+
+    const h2 = stz_string_from("a tale of two cities", 20);
+    const r2 = stz_string_title_smart(h2);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r2)[0..@intCast(stz_string_size(r2))], "A Tale of Two Cities"));
+    stz_string_free(r2);
+    stz_string_free(h2);
+}
+
+test "remove_punctuation" {
+    const h = stz_string_from("Hello, World! How's it?", 23);
+    const r = stz_string_remove_punctuation(h);
+    try std.testing.expect(mem.eql(u8, stz_string_data(r)[0..@intCast(stz_string_size(r))], "Hello World Hows it"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "is_float" {
+    const h1 = stz_string_from("3.14", 4);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_float(h1));
+    stz_string_free(h1);
+
+    const h2 = stz_string_from("-0.5", 4);
+    try std.testing.expectEqual(@as(c_int, 1), stz_string_is_float(h2));
+    stz_string_free(h2);
+
+    const h3 = stz_string_from("42", 2);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_float(h3));
+    stz_string_free(h3);
+
+    const h4 = stz_string_from("1.2.3", 5);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_is_float(h4));
+    stz_string_free(h4);
+}
+
+test "digit_sum" {
+    const h = stz_string_from("a1b2c3", 6);
+    try std.testing.expectEqual(@as(c_int, 6), stz_string_digit_sum(h));
+    stz_string_free(h);
+
+    const h2 = stz_string_from("999", 3);
+    try std.testing.expectEqual(@as(c_int, 27), stz_string_digit_sum(h2));
+    stz_string_free(h2);
+
+    const h3 = stz_string_from("abc", 3);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_digit_sum(h3));
+    stz_string_free(h3);
 }
 
