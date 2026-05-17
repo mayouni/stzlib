@@ -2054,6 +2054,86 @@ class stzString from stzObject
 		return cResult
 
 	  #=========================#
+	 #  ROT47                  #
+	#=========================#
+
+	def Rot47()
+		pResult = StzEngineStringRot47(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def Rot47Q()
+			This.Rot47()
+			return This
+
+	def Rot47ed()
+		pResult = StzEngineStringRot47(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  IS ISOGRAM             #
+	#=========================#
+
+	def IsIsogram()
+		return StzEngineStringIsIsogram(@pEngine)
+
+	  #=========================#
+	 #  REVERSE EACH WORD      #
+	#=========================#
+
+	def ReverseEachWord()
+		pResult = StzEngineStringReverseEachWord(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ReverseEachWordQ()
+			This.ReverseEachWord()
+			return This
+
+	def EachWordReversed()
+		pResult = StzEngineStringReverseEachWord(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #=========================#
+	 #  COUNT DIGITS           #
+	#=========================#
+
+	def CountDigits()
+		return StzEngineStringCountDigits(@pEngine)
+
+		def NumberOfDigits()
+			return This.CountDigits()
+
+	  #=========================#
+	 #  STRIP TAGS             #
+	#=========================#
+
+	def StripTags()
+		pResult = StzEngineStingStripTags(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def StripTagsQ()
+			This.StripTags()
+			return This
+
+	def TagsStripped()
+		pResult = StzEngineStingStripTags(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def WithoutTags()
+			return This.TagsStripped()
+
+	  #=========================#
 	 #  ZFILL                  #
 	#=========================#
 

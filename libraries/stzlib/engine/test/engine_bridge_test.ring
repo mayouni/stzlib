@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 293 Registered Functions"
+? "Engine Full Bridge Test -- All 298 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -3138,6 +3138,39 @@ Assert("DiffChars abcd-bc", StzEngineStringData(pResult), "ad")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr1)
 StzEngineStringFree(pStr2)
+
+? ""
+? "--- Group 110: Rot47 / IsIsogram / ReverseEachWord / CountDigits / StripTags ---"
+
+pStr = StzEngineStringFrom("Hello")
+pResult = StzEngineStringRot47(pStr)
+Assert("Rot47 Hello", StzEngineStringData(pResult), "w6==@")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abcdef")
+Assert("IsIsogram yes", StzEngineStringIsIsogram(pStr), 1)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello")
+Assert("IsIsogram no", StzEngineStringIsIsogram(pStr), 0)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world")
+pResult = StzEngineStringReverseEachWord(pStr)
+Assert("ReverseEachWord", StzEngineStringData(pResult), "olleh dlrow")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("abc123def45")
+Assert("CountDigits", StzEngineStringCountDigits(pStr), 5)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("<b>hello</b> <i>world</i>")
+pResult = StzEngineStingStripTags(pStr)
+Assert("StripTags", StzEngineStringData(pResult), "hello world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
 
 # ==============================================================
 #  SUMMARY
