@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 320 Registered Functions"
+? "Engine Full Bridge Test -- All 325 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -3340,6 +3340,63 @@ Assert("NthChar 0", StzEngineStringData(pResult), "H")
 StzEngineStringFree(pResult)
 pResult = StzEngineStringNthChar(pStr, 4)
 Assert("NthChar 4", StzEngineStringData(pResult), "o")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# --- Group 115: NLP -- Jaro, Jaro-Winkler, Metaphone, Ngrams ---
+? ""
+? "--- Group 115: Jaro / JaroWinkler / Metaphone / CharNgrams / WordNgrams ---"
+
+# Jaro -- identical strings = 1000
+pA = StzEngineStringFrom("hello")
+pB = StzEngineStringFrom("hello")
+Assert("Jaro identical", StzEngineStringJaro(pA, pB), 1000)
+StzEngineStringFree(pA)
+StzEngineStringFree(pB)
+
+# Jaro -- similar strings > 0
+pA = StzEngineStringFrom("martha")
+pB = StzEngineStringFrom("marhta")
+nJaro = StzEngineStringJaro(pA, pB)
+Assert("Jaro similar > 900", nJaro > 900, 1)
+
+# Jaro-Winkler -- should be >= Jaro (prefix boost)
+nJW = StzEngineStringJaroWinkler(pA, pB)
+Assert("JaroWinkler >= Jaro", nJW >= nJaro, 1)
+StzEngineStringFree(pA)
+StzEngineStringFree(pB)
+
+# Jaro-Winkler -- different strings = 0
+pA = StzEngineStringFrom("abc")
+pB = StzEngineStringFrom("xyz")
+Assert("JaroWinkler different", StzEngineStringJaroWinkler(pA, pB), 0)
+StzEngineStringFree(pA)
+StzEngineStringFree(pB)
+
+# Metaphone
+pStr = StzEngineStringFrom("phone")
+pResult = StzEngineStringMetaphone(pStr)
+Assert("Metaphone phone", StzEngineStringData(pResult), "FN")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("smith")
+pResult = StzEngineStringMetaphone(pStr)
+Assert("Metaphone smith", StzEngineStringData(pResult), "SM0")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# Character n-grams (bigrams)
+pStr = StzEngineStringFrom("hello")
+pResult = StzEngineStringCharNgrams(pStr, 2)
+Assert("CharNgrams bigrams", StzEngineStringData(pResult), "he|el|ll|lo")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# Word n-grams (bigrams)
+pStr = StzEngineStringFrom("the quick brown fox")
+pResult = StzEngineStringWordNgrams(pStr, 2)
+Assert("WordNgrams bigrams", StzEngineStringData(pResult), "the quick|quick brown|brown fox")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 

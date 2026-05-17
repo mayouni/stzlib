@@ -9685,6 +9685,343 @@ pub export fn stz_string_chars_split(handle: ?*StzString) callconv(.c) ?*StzStri
     return result;
 }
 
+// batch 17 ─── NLP: Jaro-Winkler, Metaphone, N-grams ───
+
+/// Jaro similarity between two strings. Returns value * 1000 (integer scaled).
+/// Jaro similarity is a measure of similarity between two strings, useful for
+/// fuzzy name matching in multilingual contexts.
+pub export fn stz_string_jaro(h1: ?*StzString, h2: ?*StzString) callconv(.c) c_int {
+    const s1 = h1 orelse return 0;
+    const s2 = h2 orelse return 0;
+    const a = s1.slice();
+    const b = s2.slice();
+    if (a.len == 0 and b.len == 0) return 1000; // identical empty
+    if (a.len == 0 or b.len == 0) return 0;
+
+    // Count codepoints
+    const len_a = utf8CodepointCount(a);
+    const len_b = utf8CodepointCount(b);
+    if (len_a == 0 or len_b == 0) return 0;
+
+    // Match window
+    const max_len = if (len_a > len_b) len_a else len_b;
+    const match_dist = if (max_len > 1) max_len / 2 - 1 else 0;
+
+    // Collect codepoints from both strings
+    var cps_a: [1024]i32 = undefined;
+    var cps_b: [1024]i32 = undefined;
+    const ca = @min(len_a, 1024);
+    const cb = @min(len_b, 1024);
+
+    var idx: usize = 0;
+    var pos: usize = 0;
+    while (idx < ca and pos < a.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(a[pos]) catch 1;
+        cps_a[idx] = decodeCodepoint(a, pos, cp_len);
+        pos += cp_len;
+        idx += 1;
+    }
+    idx = 0;
+    pos = 0;
+    while (idx < cb and pos < b.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(b[pos]) catch 1;
+        cps_b[idx] = decodeCodepoint(b, pos, cp_len);
+        pos += cp_len;
+        idx += 1;
+    }
+
+    // Find matches
+    var matched_a: [1024]bool = [_]bool{false} ** 1024;
+    var matched_b: [1024]bool = [_]bool{false} ** 1024;
+    var matches: usize = 0;
+
+    var i: usize = 0;
+    while (i < ca) : (i += 1) {
+        const lo = if (i > match_dist) i - match_dist else 0;
+        const hi = @min(i + match_dist + 1, cb);
+        var j: usize = lo;
+        while (j < hi) : (j += 1) {
+            if (!matched_b[j] and cps_a[i] == cps_b[j]) {
+                matched_a[i] = true;
+                matched_b[j] = true;
+                matches += 1;
+                break;
+            }
+        }
+    }
+
+    if (matches == 0) return 0;
+
+    // Count transpositions
+    var transpositions: usize = 0;
+    var k: usize = 0;
+    i = 0;
+    while (i < ca) : (i += 1) {
+        if (matched_a[i]) {
+            while (k < cb and !matched_b[k]) k += 1;
+            if (k < cb and cps_a[i] != cps_b[k]) transpositions += 1;
+            k += 1;
+        }
+    }
+
+    // Jaro = (m/|a| + m/|b| + (m-t/2)/m) / 3
+    const m_f: f64 = @floatFromInt(matches);
+    const la_f: f64 = @floatFromInt(ca);
+    const lb_f: f64 = @floatFromInt(cb);
+    const t_f: f64 = @floatFromInt(transpositions / 2);
+    const jaro = (m_f / la_f + m_f / lb_f + (m_f - t_f) / m_f) / 3.0;
+    return @intFromFloat(jaro * 1000.0);
+}
+
+/// Jaro-Winkler similarity. Returns value * 1000. Boosts for common prefix.
+pub export fn stz_string_jaro_winkler(h1: ?*StzString, h2: ?*StzString) callconv(.c) c_int {
+    const jaro = stz_string_jaro(h1, h2);
+    if (jaro == 0) return 0;
+    const jaro_f: f64 = @as(f64, @floatFromInt(jaro)) / 1000.0;
+
+    // Common prefix (up to 4 chars)
+    const s1 = h1 orelse return jaro;
+    const s2 = h2 orelse return jaro;
+    const a = s1.slice();
+    const b = s2.slice();
+    var prefix: usize = 0;
+    var pa: usize = 0;
+    var pb: usize = 0;
+    while (prefix < 4 and pa < a.len and pb < b.len) {
+        const cpa_len = std.unicode.utf8ByteSequenceLength(a[pa]) catch break;
+        const cpb_len = std.unicode.utf8ByteSequenceLength(b[pb]) catch break;
+        if (cpa_len != cpb_len) break;
+        if (!mem.eql(u8, a[pa..pa + cpa_len], b[pb..pb + cpb_len])) break;
+        pa += cpa_len;
+        pb += cpb_len;
+        prefix += 1;
+    }
+
+    const p_f: f64 = @floatFromInt(prefix);
+    const jw = jaro_f + p_f * 0.1 * (1.0 - jaro_f);
+    return @intFromFloat(jw * 1000.0);
+}
+
+/// Metaphone phonetic encoding. Returns new handle with metaphone code.
+/// Implements basic metaphone algorithm for English pronunciation matching.
+pub export fn stz_string_metaphone(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (src.len == 0) return result;
+
+    // Work with uppercase ASCII
+    var buf: [256]u8 = undefined;
+    const wlen = @min(src.len, 256);
+    for (0..wlen) |i| {
+        buf[i] = if (src[i] >= 'a' and src[i] <= 'z') src[i] - 32 else src[i];
+    }
+    const word = buf[0..wlen];
+
+    // Drop initial silent consonant pairs
+    var start: usize = 0;
+    if (wlen >= 2) {
+        const pair = [2]u8{ word[0], word[1] };
+        if (mem.eql(u8, &pair, "AE") or mem.eql(u8, &pair, "GN") or
+            mem.eql(u8, &pair, "KN") or mem.eql(u8, &pair, "PN") or
+            mem.eql(u8, &pair, "WR"))
+        {
+            start = 1;
+        }
+    }
+
+    var code_len: usize = 0;
+    var prev: u8 = 0;
+    var i: usize = start;
+    while (i < wlen and code_len < 6) {
+        const c = word[i];
+        const next: u8 = if (i + 1 < wlen) word[i + 1] else 0;
+
+        if (c == prev and c != 'C') {
+            i += 1;
+            continue;
+        }
+
+        var out: u8 = 0;
+        var skip: usize = 1;
+
+        switch (c) {
+            'B' => {
+                if (i == 0 or word[i - 1] != 'M') out = 'B';
+            },
+            'C' => {
+                if (next == 'H') {
+                    out = 'X';
+                    skip = 2;
+                } else if (next == 'I' or next == 'E' or next == 'Y') {
+                    out = 'S';
+                } else {
+                    out = 'K';
+                }
+            },
+            'D' => {
+                if (next == 'G' and i + 2 < wlen and
+                    (word[i + 2] == 'I' or word[i + 2] == 'E' or word[i + 2] == 'Y'))
+                {
+                    out = 'J';
+                } else {
+                    out = 'T';
+                }
+            },
+            'F' => out = 'F',
+            'G' => {
+                if (next == 'H' and i + 2 < wlen and !isVowelAscii(word[i + 2])) {
+                    i += 2;
+                    continue;
+                } else if (i > 0 and (next == 'N' or (next == 0))) {
+                    // silent G at end
+                } else if (next == 'N' and i + 2 < wlen and word[i + 2] == 'E' and i + 3 >= wlen) {
+                    // silent GNE
+                } else {
+                    out = if (next == 'I' or next == 'E' or next == 'Y') 'J' else 'K';
+                }
+            },
+            'H' => {
+                if (isVowelAscii(next) and (i == 0 or !isVowelAscii(word[i - 1]))) out = 'H';
+            },
+            'J' => out = 'J',
+            'K' => {
+                if (i == 0 or word[i - 1] != 'C') out = 'K';
+            },
+            'L' => out = 'L',
+            'M' => out = 'M',
+            'N' => out = 'N',
+            'P' => {
+                if (next == 'H') {
+                    out = 'F';
+                    skip = 2;
+                } else {
+                    out = 'P';
+                }
+            },
+            'Q' => out = 'K',
+            'R' => out = 'R',
+            'S' => {
+                if (next == 'H') {
+                    out = 'X';
+                    skip = 2;
+                } else if (next == 'I' and i + 2 < wlen and (word[i + 2] == 'O' or word[i + 2] == 'A')) {
+                    out = 'X';
+                    skip = 3;
+                } else {
+                    out = 'S';
+                }
+            },
+            'T' => {
+                if (next == 'H') {
+                    out = '0'; // theta
+                    skip = 2;
+                } else if (next == 'I' and i + 2 < wlen and (word[i + 2] == 'O' or word[i + 2] == 'A')) {
+                    out = 'X';
+                } else {
+                    out = 'T';
+                }
+            },
+            'V' => out = 'F',
+            'W', 'Y' => {
+                if (isVowelAscii(next)) out = c;
+            },
+            'X' => {
+                result.data.appendSlice(gpa, "KS") catch break;
+                code_len += 2;
+                prev = 'S';
+                i += 1;
+                continue;
+            },
+            'Z' => out = 'S',
+            else => {},
+        }
+
+        if (out != 0) {
+            result.data.appendSlice(gpa, &[_]u8{out}) catch break;
+            code_len += 1;
+        }
+        prev = c;
+        i += skip;
+    }
+    return result;
+}
+
+fn isVowelAscii(c: u8) bool {
+    return c == 'A' or c == 'E' or c == 'I' or c == 'O' or c == 'U';
+}
+
+/// Generate character n-grams. Returns joined result with separator "|".
+/// For "hello" with n=2: "he|el|ll|lo"
+pub export fn stz_string_char_ngrams(handle: ?*StzString, n: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (n < 1) return result;
+    const ng: usize = @intCast(n);
+
+    // Collect codepoint byte offsets
+    var offsets: [4096]usize = undefined;
+    var num_cps: usize = 0;
+    var pos: usize = 0;
+    while (pos < src.len and num_cps < 4096) {
+        offsets[num_cps] = pos;
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
+        pos += cp_len;
+        num_cps += 1;
+    }
+    if (num_cps < ng) return result;
+
+    var first = true;
+    var i: usize = 0;
+    while (i + ng <= num_cps) : (i += 1) {
+        if (!first) result.data.appendSlice(gpa, "|") catch break;
+        const start = offsets[i];
+        const end = if (i + ng < num_cps) offsets[i + ng] else src.len;
+        result.data.appendSlice(gpa, src[start..end]) catch break;
+        first = false;
+    }
+    return result;
+}
+
+/// Generate word n-grams. Returns joined result with separator "|".
+/// For "the quick brown fox" with n=2: "the quick|quick brown|brown fox"
+pub export fn stz_string_word_ngrams(handle: ?*StzString, n: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = stz_string_new() orelse return null;
+    if (n < 1) return result;
+    const ng: usize = @intCast(n);
+
+    // Collect word boundaries
+    var word_starts: [1024]usize = undefined;
+    var word_ends: [1024]usize = undefined;
+    var num_words: usize = 0;
+    var i: usize = 0;
+    while (i < src.len and num_words < 1024) {
+        // Skip whitespace
+        while (i < src.len and (src[i] == ' ' or src[i] == '\t' or src[i] == '\n' or src[i] == '\r')) i += 1;
+        if (i >= src.len) break;
+        word_starts[num_words] = i;
+        // Find word end
+        while (i < src.len and src[i] != ' ' and src[i] != '\t' and src[i] != '\n' and src[i] != '\r') i += 1;
+        word_ends[num_words] = i;
+        num_words += 1;
+    }
+    if (num_words < ng) return result;
+
+    var first = true;
+    i = 0;
+    while (i + ng <= num_words) : (i += 1) {
+        if (!first) result.data.appendSlice(gpa, "|") catch break;
+        const start = word_starts[i];
+        const end = word_ends[i + ng - 1];
+        result.data.appendSlice(gpa, src[start..end]) catch break;
+        first = false;
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "sort_chars" {
@@ -11890,4 +12227,92 @@ test "trimmed delegates to unicode trim" {
     stz_string_free(r);
     stz_string_free(s);
 }
+
+// ─── NLP Tests ───
+
+test "jaro identical" {
+    const a = stz_string_from("hello", 5);
+    const b = stz_string_from("hello", 5);
+    try std.testing.expectEqual(@as(c_int, 1000), stz_string_jaro(a, b));
+    stz_string_free(a);
+    stz_string_free(b);
+}
+
+test "jaro similar" {
+    const a = stz_string_from("martha", 6);
+    const b = stz_string_from("marhta", 6);
+    const j = stz_string_jaro(a, b);
+    // Jaro("martha", "marhta") should be ~944
+    try std.testing.expect(j > 900 and j <= 1000);
+    stz_string_free(a);
+    stz_string_free(b);
+}
+
+test "jaro_winkler boosts prefix" {
+    const a = stz_string_from("martha", 6);
+    const b = stz_string_from("marhta", 6);
+    const j = stz_string_jaro(a, b);
+    const jw = stz_string_jaro_winkler(a, b);
+    // Jaro-Winkler should be >= Jaro (prefix boost)
+    try std.testing.expect(jw >= j);
+    stz_string_free(a);
+    stz_string_free(b);
+}
+
+test "jaro_winkler different strings" {
+    const a = stz_string_from("abc", 3);
+    const b = stz_string_from("xyz", 3);
+    try std.testing.expectEqual(@as(c_int, 0), stz_string_jaro_winkler(a, b));
+    stz_string_free(a);
+    stz_string_free(b);
+}
+
+test "metaphone basic" {
+    const h = stz_string_from("smith", 5);
+    const r = stz_string_metaphone(h);
+    try std.testing.expect(r != null);
+    const data = stz_string_data(r.?);
+    const size = stz_string_size(r.?);
+    // Metaphone of "smith" should be "SM0" (0 = theta for TH)
+    try std.testing.expect(size > 0);
+    try std.testing.expect(mem.eql(u8, data[0..size], "SM0"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "metaphone phone" {
+    const h = stz_string_from("phone", 5);
+    const r = stz_string_metaphone(h);
+    try std.testing.expect(r != null);
+    const data = stz_string_data(r.?);
+    const size = stz_string_size(r.?);
+    // PH -> F, so "phone" -> "FN"
+    try std.testing.expect(mem.eql(u8, data[0..size], "FN"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "char_ngrams bigrams" {
+    const h = stz_string_from("hello", 5);
+    const r = stz_string_char_ngrams(h, 2);
+    try std.testing.expect(r != null);
+    const data = stz_string_data(r.?);
+    const size = stz_string_size(r.?);
+    try std.testing.expect(mem.eql(u8, data[0..size], "he|el|ll|lo"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
+test "word_ngrams bigrams" {
+    const input = "the quick brown fox";
+    const h = stz_string_from(input, input.len);
+    const r = stz_string_word_ngrams(h, 2);
+    try std.testing.expect(r != null);
+    const data = stz_string_data(r.?);
+    const size = stz_string_size(r.?);
+    try std.testing.expect(mem.eql(u8, data[0..size], "the quick|quick brown|brown fox"));
+    stz_string_free(r);
+    stz_string_free(h);
+}
+
 
