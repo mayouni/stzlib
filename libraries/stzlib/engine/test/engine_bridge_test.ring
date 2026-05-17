@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 308 Registered Functions"
+? "Engine Full Bridge Test -- All 313 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -3239,6 +3239,45 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("hello")
 pResult = StzEngineStringQuote(pStr, "'")
 Assert("Quote single", StzEngineStringData(pResult), "'hello'")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+? ""
+? "--- Group 113: Unquote / ToCsvField / NumberLines / Hide / ExtractWords ---"
+
+pStr = StzEngineStringFrom('"hello"')
+pResult = StzEngineStringUnquote(pStr)
+Assert("Unquote", StzEngineStringData(pResult), "hello")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello,world")
+pResult = StzEngineStringToCsvField(pStr)
+Assert("ToCsvField comma", StzEngineStringData(pResult), '"hello,world"')
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("simple")
+pResult = StzEngineStringToCsvField(pStr)
+Assert("ToCsvField simple", StzEngineStringData(pResult), "simple")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello" + nl + "world")
+pResult = StzEngineStringNumberLines(pStr)
+Assert("NumberLines", StzEngineStringData(pResult), "1: hello" + nl + "2: world")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("1234567890")
+pResult = StzEngineStringHide(pStr, "*", 2, 2)
+Assert("Hide", StzEngineStringData(pResult), "12******90")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello, world! 123")
+pResult = StzEngineStringExtractWords(pStr)
+Assert("ExtractWords", StzEngineStringData(pResult), "hello world")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
