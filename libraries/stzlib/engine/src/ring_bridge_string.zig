@@ -2004,6 +2004,31 @@ fn ring_StringStripTags(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_strip_tags(h)), STZ_HANDLE);
 }
 
+fn ring_StringToSlug(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_slug(h)), STZ_HANDLE);
+}
+
+fn ring_StringCountSpaces(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.stz_string_count_spaces(h)));
+}
+
+fn ring_StringNormalizeSpaces(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_normalize_spaces(h)), STZ_HANDLE);
+}
+
+fn ring_StringMaskEmail(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_mask_email(h)), STZ_HANDLE);
+}
+
+fn ring_StringPluralize(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_pluralize(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -2306,6 +2331,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringreverseeachword", .func = &ring_StringReverseEachWord },
     .{ .name = "stzenginestringcountdigits", .func = &ring_StringCountDigits },
     .{ .name = "stzenginestingstriptags", .func = &ring_StringStripTags },
+    .{ .name = "stzenginestringtoslug", .func = &ring_StringToSlug },
+    .{ .name = "stzenginestringcountspaces", .func = &ring_StringCountSpaces },
+    .{ .name = "stzenginestringnormalizespaces", .func = &ring_StringNormalizeSpaces },
+    .{ .name = "stzenginestringmaskemail", .func = &ring_StringMaskEmail },
+    .{ .name = "stzenginestringpluralize", .func = &ring_StringPluralize },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
