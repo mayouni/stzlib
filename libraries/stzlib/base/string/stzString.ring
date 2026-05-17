@@ -1332,6 +1332,105 @@ class stzString from stzObject
 		def BinaryRepresentation()
 			return This.ToBinary()
 
+	  #==============================#
+	 #  SORT WORDS                 #
+	#==============================#
+
+	def SortWords()
+		pResult = StzEngineStingSortWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def SortWordsQ()
+			This.SortWords()
+			return This
+
+	def WordsSorted()
+		pResult = StzEngineStingSortWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def SortedWords()
+			return This.WordsSorted()
+
+	  #==============================#
+	 #  UNIQUE WORDS               #
+	#==============================#
+
+	def UniqueWords()
+		pResult = StzEngineStringUniqueWords(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def DistinctWords()
+			return This.UniqueWords()
+
+	  #==============================#
+	 #  FROM BINARY                #
+	#==============================#
+
+	def FromBinary()
+		pResult = StzEngineStringFromBinary(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def FromBinaryQ()
+			This.FromBinary()
+			return This
+
+	def DecodedFromBinary()
+		pResult = StzEngineStringFromBinary(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #==============================#
+	 #  SWAP WORDS                 #
+	#==============================#
+
+	def SwapWords(n1, n2)
+		pResult = StzEngineStringSwapWords(@pEngine, n1 - 1, n2 - 1)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def SwapWordsQ(n1, n2)
+			This.SwapWords(n1, n2)
+			return This
+
+	def WordsSwapped(n1, n2)
+		pResult = StzEngineStringSwapWords(@pEngine, n1 - 1, n2 - 1)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	  #==============================#
+	 #  TO PIG LATIN               #
+	#==============================#
+
+	def ToPigLatin()
+		pResult = StzEngineStringToPigLatin(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.UpdateWith(cResult)
+
+		def ToPigLatinQ()
+			This.ToPigLatin()
+			return This
+
+	def PigLatined()
+		pResult = StzEngineStringToPigLatin(@pEngine)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+		def InPigLatin()
+			return This.PigLatined()
+
 	  #=========================#
 	 #  ZFILL                  #
 	#=========================#

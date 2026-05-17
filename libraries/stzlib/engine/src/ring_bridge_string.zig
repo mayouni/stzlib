@@ -1719,6 +1719,33 @@ fn ring_StringToBinary(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_binary(h)), STZ_HANDLE);
 }
 
+fn ring_StringSortWords(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_sort_words(h)), STZ_HANDLE);
+}
+
+fn ring_StringUniqueWords(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_unique_words(h)), STZ_HANDLE);
+}
+
+fn ring_StringFromBinary(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_from_binary(h)), STZ_HANDLE);
+}
+
+fn ring_StringSwapWords(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx1: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    const idx2: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_swap_words(h, idx1, idx2)), STZ_HANDLE);
+}
+
+fn ring_StringToPigLatin(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.stz_string_to_pig_latin(h)), STZ_HANDLE);
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -1971,6 +1998,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringbeginswithanyx", .func = &ring_StringStartsWithAny },
     .{ .name = "stzenginestringfinisheswithanyx", .func = &ring_StringEndsWithAny },
     .{ .name = "stzenginestringtobinary", .func = &ring_StringToBinary },
+    .{ .name = "stzenginestingsortwords", .func = &ring_StringSortWords },
+    .{ .name = "stzenginestringuniquewords", .func = &ring_StringUniqueWords },
+    .{ .name = "stzenginestringfrombinary", .func = &ring_StringFromBinary },
+    .{ .name = "stzenginestringswapwords", .func = &ring_StringSwapWords },
+    .{ .name = "stzenginestringtopiglatin", .func = &ring_StringToPigLatin },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

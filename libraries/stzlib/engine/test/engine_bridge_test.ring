@@ -1,4 +1,4 @@
-? "Engine Full Bridge Test -- All 248 Registered Functions"
+? "Engine Full Bridge Test -- All 253 Registered Functions"
 ? "======================================================"
 ? ""
 
@@ -2749,6 +2749,55 @@ StzEngineStringFree(pStr)
 pStr = StzEngineStringFrom("Hi")
 pResult = StzEngineStringToBinary(pStr)
 Assert("ToBinary Hi", StzEngineStringData(pResult), "01001000 01101001")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+# ==============================================================
+#  GROUP 101: SortWords / UniqueWords / FromBinary / SwapWords / ToPigLatin
+# ==============================================================
+
+? ""
+? "--- Group 101: SortWords / UniqueWords / FromBinary / SwapWords / ToPigLatin ---"
+
+pStr = StzEngineStringFrom("banana apple cherry")
+pResult = StzEngineStingSortWords(pStr)
+Assert("SortWords alphabetical", StzEngineStringData(pResult), "apple banana cherry")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("zig is fun")
+pResult = StzEngineStingSortWords(pStr)
+Assert("SortWords zig is fun", StzEngineStringData(pResult), "fun is zig")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("the cat and the dog and cat")
+pResult = StzEngineStringUniqueWords(pStr)
+Assert("UniqueWords", StzEngineStringData(pResult), "the cat and dog")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("01001000 01101001")
+pResult = StzEngineStringFromBinary(pStr)
+Assert("FromBinary -> Hi", StzEngineStringData(pResult), "Hi")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world foo")
+pResult = StzEngineStringSwapWords(pStr, 0, 2)
+Assert("SwapWords 0<->2", StzEngineStringData(pResult), "foo world hello")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("hello world")
+pResult = StzEngineStringToPigLatin(pStr)
+Assert("PigLatin hello world", StzEngineStringData(pResult), "ellohay orldway")
+StzEngineStringFree(pResult)
+StzEngineStringFree(pStr)
+
+pStr = StzEngineStringFrom("apple is")
+pResult = StzEngineStringToPigLatin(pStr)
+Assert("PigLatin apple is", StzEngineStringData(pResult), "appleyay isyay")
 StzEngineStringFree(pResult)
 StzEngineStringFree(pStr)
 
