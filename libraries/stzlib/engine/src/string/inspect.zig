@@ -279,26 +279,36 @@ pub fn str_contains_char(handle: StzStringHandle, codepoint: i32) callconv(.c) c
 
 // ─── str_is_word ───
 
-/// Check if string is a word (letters, digits, underscore, hyphen). Returns 1 or 0.
+/// Returns 1 if every codepoint in the string is a letter, digit,
+/// hyphen (U+002D or U+2010), underscore (U+005F), Arabic harakah
+/// (U+064B-U+0652), or Arabic tamdeed (U+0640).  Empty strings and
+/// pure-number strings return 0.
 pub fn str_is_word(handle: StzStringHandle) callconv(.c) c_int {
     const s = handle orelse return 0;
-    const buf = s.slice();
-    if (buf.len == 0) return 0;
+    const src = s.slice();
+    if (src.len == 0) return 0;
 
-    var off: usize = 0;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return 0;
-        if (off + cp_len > buf.len) return 0;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch return 0;
-        // underscore=95, hyphen=45
-        if (cp_val != 95 and cp_val != 45 and
-            unicode.stz_unicode_is_letter(cp_val) == 0 and
-            unicode.stz_unicode_is_digit(cp_val) == 0)
-        {
-            return 0;
+    var all_digits = true;
+    var i: usize = 0;
+    while (i < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[i]) catch return 0;
+        if (i + cp_len > src.len) return 0;
+        const cp: i32 = decodeCodepoint(src, i, cp_len);
+
+        if (unicode.stz_unicode_is_letter(cp) == 1) {
+            all_digits = false;
+            i += cp_len;
+            continue;
         }
-        off += cp_len;
+        if (unicode.stz_unicode_is_digit(cp) == 1) { i += cp_len; continue; }
+        if (cp == 0x2D or cp == 0x2010) { all_digits = false; i += cp_len; continue; }
+        if (cp == 0x5F) { all_digits = false; i += cp_len; continue; }
+        if (cp >= 0x064B and cp <= 0x0652) { all_digits = false; i += cp_len; continue; }
+        if (cp == 0x0640) { all_digits = false; i += cp_len; continue; }
+        return 0;
     }
+
+    if (all_digits) return 0;
     return 1;
 }
 
@@ -1039,6 +1049,36 @@ pub export fn str_has_mixed_case(handle: ?*StzString) callconv(.c) c_int {
 }
 
 // ─── Tests ───
+
+test "str_is_word enhanced" {
+    const word = str_from("Hello", 5);
+    defer str_free(word);
+    try std.testing.expectEqual(@as(c_int, 1), str_is_word(word));
+
+    const hyph = str_from("well-known", 10);
+    defer str_free(hyph);
+    try std.testing.expectEqual(@as(c_int, 1), str_is_word(hyph));
+
+    const under = str_from("my_var", 6);
+    defer str_free(under);
+    try std.testing.expectEqual(@as(c_int, 1), str_is_word(under));
+
+    const digits = str_from("12345", 5);
+    defer str_free(digits);
+    try std.testing.expectEqual(@as(c_int, 0), str_is_word(digits));
+
+    const empty = str_from("", 0);
+    defer str_free(empty);
+    try std.testing.expectEqual(@as(c_int, 0), str_is_word(empty));
+
+    const mixed = str_from("hello123", 8);
+    defer str_free(mixed);
+    try std.testing.expectEqual(@as(c_int, 1), str_is_word(mixed));
+
+    const space = str_from("hello world", 11);
+    defer str_free(space);
+    try std.testing.expectEqual(@as(c_int, 0), str_is_word(space));
+}
 
 test "str_contains_latin" {
     const latin = str_from("Hello", 5);

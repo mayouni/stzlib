@@ -5585,34 +5585,8 @@ class stzString from stzObject
 	#TODO // should move to stzText
 
 	def IsWord()
-
-		if This.IsEmpty() or This.IsNumberInString()
-			return 0
-		ok
-
-		_acChars_ = This.Chars()
-		_nLen_ = len(_acChars_)
-		_bResult_ = 1
-
-		for i = 1 to _nLen_
-			_c_ = _acChars_[i]
-			_oChar_ = new stzChar(_c_)
-
-			if _oChar_.IsNotLetter() and
-			   _oChar_.IsNotNumber() and
-			   _c_ != HyphenShort() and
-			   _c_ != HyphenLong() and
-			   _c_ != Underscore() and
-			   _oChar_.IsNotArabic7arakah() and
-			   _c_ != ArabicTamdeed()
-
-				_bResult_ = 0
-				exit
-			ok
-
-		next
-
-		return _bResult_
+		# Engine-backed: replaces per-char stzChar allocation loop
+		return StzEngineStringIsWord(@pEngine) = 1
 
 	def IsArabicWord()
 		bResult = This.ToStzText().IsArabicWord()
