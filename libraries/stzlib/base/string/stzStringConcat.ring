@@ -3,8 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String concat subclass -- concatenation     #
-#                  and repetition operations.                   #
+#   Description  : String concat -- concatenation and          #
+#                  repetition operations.                       #
+#                  Wraps stzString via composition.             #
 #                  For aliases, use stzStringConcatXT.          #
 #   Version      : V0.9 (2026)                                #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
@@ -16,54 +17,76 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringConcat from stzString
+class stzStringConcat
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringConcat! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #======================================================#
 	 #   CONCATENATION                                      #
 	#======================================================#
 
 	def Concat(pcStr)
-		This.Update(This.Content() + pcStr)
+		@oString.Update(@oString.Content() + pcStr)
 
 		def ConcatQ(pcStr)
 			This.Concat(pcStr)
 			return This
 
 	def Concatenated(pcStr)
-		return This.Content() + pcStr
+		return @oString.Content() + pcStr
 
 	  #======================================================#
 	 #   CONCATENATING MANY STRINGS                         #
 	#======================================================#
 
 	def ConcatMany(pacStrings)
-		cResult = This.Content()
+		cResult = @oString.Content()
 		nLen = len(pacStrings)
 		for i = 1 to nLen
 			cResult += pacStrings[i]
 		next
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def ConcatManyQ(pacStrings)
 			This.ConcatMany(pacStrings)
 			return This
 
 	def ConcatenatedWithMany(pacStrings)
-		return This.Copy().ConcatManyQ(pacStrings).Content()
+		oCopy = new stzStringConcat(@oString.Content())
+		oCopy.ConcatMany(pacStrings)
+		return oCopy.Content()
 
 	  #======================================================#
 	 #   PREPEND / APPEND                                   #
 	#======================================================#
 
 	def Prepend(pcStr)
-		This.Update(pcStr + This.Content())
+		@oString.Update(pcStr + @oString.Content())
 
 		def PrependQ(pcStr)
 			This.Prepend(pcStr)
 			return This
 
 	def Prepended(pcStr)
-		return pcStr + This.Content()
+		return pcStr + @oString.Content()
 
 	def Append(pcStr)
 		This.Concat(pcStr)
@@ -80,12 +103,12 @@ class stzStringConcat from stzString
 	#======================================================#
 
 	def RepeatNTimes(n)
-		cStr = This.Content()
+		cStr = @oString.Content()
 		cResult = ""
 		for i = 1 to n
 			cResult += cStr
 		next
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def RepeatNTimesQ(n)
 			This.RepeatNTimes(n)
@@ -95,7 +118,9 @@ class stzStringConcat from stzString
 			This.RepeatNTimes(n)
 
 	def RepeatedNTimes(n)
-		return This.Copy().RepeatNTimesQ(n).Content()
+		oCopy = new stzStringConcat(@oString.Content())
+		oCopy.RepeatNTimes(n)
+		return oCopy.Content()
 
 		def Repeated(n)
 			return This.RepeatedNTimes(n)
@@ -105,7 +130,7 @@ class stzStringConcat from stzString
 	#======================================================#
 
 	def JoinWith(pcSep)
-		aChars = This.Chars()
+		aChars = @oString.Chars()
 		cResult = ""
 		nLen = len(aChars)
 		for i = 1 to nLen
@@ -114,11 +139,13 @@ class stzStringConcat from stzString
 				cResult += pcSep
 			ok
 		next
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def JoinWithQ(pcSep)
 			This.JoinWith(pcSep)
 			return This
 
 	def JoinedWith(pcSep)
-		return This.Copy().JoinWithQ(pcSep).Content()
+		oCopy = new stzStringConcat(@oString.Content())
+		oCopy.JoinWith(pcSep)
+		return oCopy.Content()

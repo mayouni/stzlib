@@ -3,11 +3,10 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String visualizer subclass -- Show(),       #
-#                  VizFind(), Boxed(), and visual rendering     #
-#                  operations for console output.                #
-#                  Canonical methods only. For full Softanza    #
-#                  fluency (aliases), use stzStringVisualizerXT.#
+#   Description  : String visualizer -- Show(), VizFind(),     #
+#                  Boxed(), and visual rendering operations.    #
+#                  Wraps stzString via composition.             #
+#                  For aliases, use stzStringVisualizerXT.      #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -18,25 +17,45 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringVisualizer from stzString
+class stzStringVisualizer
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringVisualizer! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     SHOW                      #
 	#===============================#
 
 	def Show()
-		? This.Content()
+		? @oString.Content()
 
 	def ShowShort()
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 		if nLen <= 50
-			? This.Content()
+			? @oString.Content()
 		else
-			? substr(This.Content(), 1, 47) + "..."
+			? substr(@oString.Content(), 1, 47) + "..."
 		ok
 
 	def ShowNL()
-		? This.Content() + NL
+		? @oString.Content() + NL
 
 	  #===============================#
 	 #     VIZFIND                   #
@@ -47,8 +66,8 @@ class stzStringVisualizer from stzString
 			return ""
 		ok
 
-		cResult = @@( This.Content() )
-		oFinder = StzStringFinderQ(This.Content())
+		cResult = @@( @oString.Content() )
+		oFinder = new stzStringFinder(@oString)
 		anPos = oFinder.FindCS(c, pCaseSensitive)
 
 		nLen = len(cResult)
@@ -68,11 +87,11 @@ class stzStringVisualizer from stzString
 		return This.VizFindCharCS(c, 1)
 
 	def VizFindCS(pcSubStr, pCaseSensitive)
-		cResult = @@( This.Content() )
-		oFinder = StzStringFinderQ(This.Content())
+		cResult = @@( @oString.Content() )
+		oFinder = new stzStringFinder(@oString)
 		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
 
-		nSubLen = Q(pcSubStr).NumberOfChars()
+		nSubLen = len(pcSubStr)
 		nLen = len(cResult)
 
 		cViz = " "
@@ -106,8 +125,8 @@ class stzStringVisualizer from stzString
 		return This.BoxedXT([ :Line = :Thin, :AllCorners = :Round ])
 
 	def BoxedXT(paOptions)
-		cContent = This.Content()
-		nLen = This.NumberOfChars()
+		cContent = @oString.Content()
+		nLen = @oString.NumberOfChars()
 
 		cCorner = "+"
 		cHLine = "-"
@@ -158,8 +177,8 @@ class stzStringVisualizer from stzString
 
 	def EachCharBoxed()
 		acResult = []
-		cContent = This.Content()
-		nLen = This.NumberOfChars()
+		cContent = @oString.Content()
+		nLen = @oString.NumberOfChars()
 
 		for i = 1 to nLen
 			c = substr(cContent, i, 1)
@@ -174,14 +193,14 @@ class stzStringVisualizer from stzString
 	#===============================#
 
 	def Stringify()
-		return @@(This.Content())
+		return @@(@oString.Content())
 
 	  #===============================#
 	 #     HIGHLIGHTED               #
 	#===============================#
 
 	def HighlightCS(pcSubStr, pcMarker, pCaseSensitive)
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = @ReplaceCS(cContent, pcSubStr, pcMarker + pcSubStr + pcMarker, pCaseSensitive)
 		return cResult
 

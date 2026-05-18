@@ -3,9 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String lines subclass -- line-based          #
-#                  operations: splitting into lines, counting,  #
-#                  unique lines, empty line removal.             #
+#   Description  : String lines -- Wraps stzString via          #
+#                  composition. Line-based operations:           #
+#                  splitting, counting, unique, empty removal.  #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -16,14 +16,34 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringLines from stzString
+class stzStringLines
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringLines! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     LINES                     #
 	#===============================#
 
 	def LinesCS(pCaseSensitive)
-		return @SplitCS(This.Content(), NL, pCaseSensitive)
+		return @SplitCS(@oString.Content(), NL, pCaseSensitive)
 
 		def LinesCSQ(pCaseSensitive)
 			return new stzList(This.LinesCS(pCaseSensitive))
@@ -141,14 +161,14 @@ class stzStringLines from stzString
 			cResult += acResult[i]
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def RemoveEmptyLinesQ()
 			This.RemoveEmptyLines()
 			return This
 
 	def EmptyLinesRemoved()
-		oCopy = new stzStringLines(This.Content())
+		oCopy = new stzStringLines(@oString.Content())
 		oCopy.RemoveEmptyLines()
 		return oCopy.Content()
 
@@ -298,14 +318,14 @@ class stzStringLines from stzString
 			cResult += acLines[i]
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def SortLinesQ()
 			This.SortLines()
 			return This
 
 	def LinesSorted()
-		oCopy = new stzStringLines(This.Content())
+		oCopy = new stzStringLines(@oString.Content())
 		oCopy.SortLines()
 		return oCopy.Content()
 
@@ -325,14 +345,14 @@ class stzStringLines from stzString
 			cResult += acLines[i]
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def ReverseLinesOrderQ()
 			This.ReverseLinesOrder()
 			return This
 
 	def LinesOrderReversed()
-		oCopy = new stzStringLines(This.Content())
+		oCopy = new stzStringLines(@oString.Content())
 		oCopy.ReverseLinesOrder()
 		return oCopy.Content()
 
@@ -357,14 +377,14 @@ class stzStringLines from stzString
 			cResult += cSpaces + acLines[i]
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def IndentLinesQ(n)
 			This.IndentLines(n)
 			return This
 
 	def LinesIndented(n)
-		oCopy = new stzStringLines(This.Content())
+		oCopy = new stzStringLines(@oString.Content())
 		oCopy.IndentLines(n)
 		return oCopy.Content()
 
@@ -400,14 +420,14 @@ class stzStringLines from stzString
 			cResult += acResult[i]
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def RemoveDuplicateLinesQ()
 			This.RemoveDuplicateLines()
 			return This
 
 	def DuplicateLinesRemoved()
-		oCopy = new stzStringLines(This.Content())
+		oCopy = new stzStringLines(@oString.Content())
 		oCopy.RemoveDuplicateLines()
 		return oCopy.Content()
 

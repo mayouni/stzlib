@@ -3,11 +3,11 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String splitter subclass -- splitting       #
-#                  operations at positions, substrings,         #
-#                  sections, before/after/around.               #
-#                  Canonical methods only. For full Softanza    #
-#                  fluency (aliases), use stzStringSplitterXT.  #
+#   Description  : String splitter -- splitting operations     #
+#                  at positions, substrings, sections,          #
+#                  before/after/around.                          #
+#                  Wraps stzString via composition.             #
+#                  For aliases, use stzStringSplitterXT.        #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -18,7 +18,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringSplitter from stzString
+class stzStringSplitter
+
+	@oString
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringSplitter! Parameter must be a string or stzString object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #====================================#
 	 #     SPLIT -- MAIN ENTRY POINT      #
@@ -118,11 +146,11 @@ class stzStringSplitter from stzString
 		ok
 
 		if pCaseSensitive = 1
-			return This._SplitByStr(pcSubStr)
+			return @oString._SplitByStr(pcSubStr)
 		ok
 
 		# Case-insensitive: use Engine CI split
-		return This._SplitByStrCI(pcSubStr)
+		return @oString._SplitByStrCI(pcSubStr)
 
 	def SplitAtSubString(pcSubStr)
 		return This.SplitAtSubStringCS(pcSubStr, 1)
@@ -168,7 +196,7 @@ class stzStringSplitter from stzString
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtPosition(n)
-		acResult = This.Sections(aSections)
+		acResult = @oString.Sections(aSections)
 
 		return acResult
 
@@ -187,7 +215,7 @@ class stzStringSplitter from stzString
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAtPositions(anPos)
-		acResult = This.Sections(aSections)
+		acResult = @oString.Sections(aSections)
 
 		return acResult
 
@@ -225,7 +253,8 @@ class stzStringSplitter from stzString
 		return [ cPart1, cPart2 ]
 
 	def SplitBeforeSubStringCS(pcSubStr, pCaseSensitive)
-		anPos = StzStringFinderQ(This.Content()).FindCS(pcSubStr, pCaseSensitive)
+		oFinder = new stzStringFinder(@oString)
+		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
 		if len(anPos) = 0
 			return [ This.Content() ]
 		ok
@@ -240,7 +269,7 @@ class stzStringSplitter from stzString
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitBeforePositions(anPos)
-		acResult = This.Sections(aSections)
+		acResult = @oString.Sections(aSections)
 		return acResult
 
 	  #==============================#
@@ -277,12 +306,13 @@ class stzStringSplitter from stzString
 		return [ cPart1, cPart2 ]
 
 	def SplitAfterSubStringCS(pcSubStr, pCaseSensitive)
-		anPos = StzStringFinderQ(This.Content()).FindCS(pcSubStr, pCaseSensitive)
+		oFinder = new stzStringFinder(@oString)
+		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
 		if len(anPos) = 0
 			return [ This.Content() ]
 		ok
 
-		nLenSub = Q(pcSubStr).NumberOfChars()
+		nLenSub = len(pcSubStr)
 		anAfterPos = []
 		for nPos in anPos
 			anAfterPos + (nPos + nLenSub - 1)
@@ -299,22 +329,5 @@ class stzStringSplitter from stzString
 		ok
 
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAfterPositions(anPos)
-		acResult = This.Sections(aSections)
-		return acResult
-
-	  #===============================#
-	 #     HELPER: SECTIONS          #
-	#===============================#
-
-	def Sections(aSections)
-		acResult = []
-		cContent = This.Content()
-		nLen = len(aSections)
-		for i = 1 to nLen
-			n1 = aSections[i][1]
-			n2 = aSections[i][2]
-			if n1 >= 1 and n2 >= n1 and n2 <= len(cContent)
-				acResult + substr(cContent, n1, n2 - n1 + 1)
-			ok
-		next
+		acResult = @oString.Sections(aSections)
 		return acResult

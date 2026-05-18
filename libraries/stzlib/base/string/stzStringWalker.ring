@@ -3,11 +3,11 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String walker subclass -- walking the       #
-#                  string forward/backward with steps,          #
-#                  yielding values, performing operations.       #
-#                  Canonical methods only. For full Softanza    #
-#                  fluency (aliases), use stzStringWalkerXT.    #
+#   Description  : String walker -- walking the string         #
+#                  forward/backward with steps, yielding        #
+#                  values, performing operations.               #
+#                  Wraps stzString via composition.             #
+#                  For aliases, use stzStringWalkerXT.          #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -18,9 +18,36 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringWalker from stzString
+class stzStringWalker
 
+	@oString
 	@aWalkers = []
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringWalker! Parameter must be a string or stzString object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     ADD/REMOVE WALKERS        #
@@ -76,15 +103,7 @@ class stzStringWalker from stzString
 	#===============================#
 
 	def Chars()
-		acResult = []
-		cContent = This.Content()
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			acResult + substr(cContent, i, 1)
-		next
-
-		return acResult
+		return @oString.Chars()
 
 		def CharsQ()
 			return new stzList(This.Chars())
@@ -114,16 +133,16 @@ class stzStringWalker from stzString
 			return new stzList(This.UniqueChars())
 
 	def CharAt(n)
-		if n < 1 or n > This.NumberOfChars()
+		if n < 1 or n > @oString.NumberOfChars()
 			StzRaise("Index out of range!")
 		ok
-		return substr(This.Content(), n, 1)
+		return substr(@oString.Content(), n, 1)
 
 	def FirstChar()
 		return This.CharAt(1)
 
 	def LastChar()
-		return This.CharAt(This.NumberOfChars())
+		return This.CharAt(@oString.NumberOfChars())
 
 	  #===============================#
 	 #     WALK AND YIELD            #
@@ -131,8 +150,8 @@ class stzStringWalker from stzString
 
 	def WalkAndYield(nStart, nEnd, nStep, pcCode)
 		acResult = []
-		cContent = This.Content()
-		nLen = This.NumberOfChars()
+		cContent = @oString.Content()
+		nLen = @oString.NumberOfChars()
 
 		if nStart < 1
 			nStart = 1
@@ -161,8 +180,8 @@ class stzStringWalker from stzString
 
 	def CharsFromTo(n1, n2)
 		acResult = []
-		cContent = This.Content()
-		nLen = This.NumberOfChars()
+		cContent = @oString.Content()
+		nLen = @oString.NumberOfChars()
 
 		if n1 < 1 or n2 < 1 or n1 > nLen or n2 > nLen
 			return acResult
@@ -182,8 +201,8 @@ class stzStringWalker from stzString
 
 	def CharsWithStep(nStart, nStep)
 		acResult = []
-		cContent = This.Content()
-		nLen = This.NumberOfChars()
+		cContent = @oString.Content()
+		nLen = @oString.NumberOfChars()
 
 		if nStart < 1 or nStart > nLen
 			return acResult

@@ -3,10 +3,10 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String replacer subclass -- replacing,      #
-#                  removing, and inserting operations.          #
-#                  Canonical methods only. For full Softanza    #
-#                  fluency (aliases), use stzStringReplacerXT.  #
+#   Description  : String replacer -- replacing, removing,     #
+#                  and inserting operations.                     #
+#                  Wraps stzString via composition.             #
+#                  For aliases, use stzStringReplacerXT.        #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -17,7 +17,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringReplacer from stzString
+class stzStringReplacer
+
+	@oString
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringReplacer! Parameter must be a string or stzString object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #========================================#
 	 #     REPLACE -- ALL OCCURRENCES         #
@@ -52,13 +80,13 @@ class stzStringReplacer from stzString
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		if _bCase_
-			StzEngineStringReplace(@pEngine, pcSubStr, pcNewSubStr)
+			StzEngineStringReplace(@oString.Engine(), pcSubStr, pcNewSubStr)
 			@TraceObjectHistory(This)
 			return
 		ok
 
 		# Case-insensitive: use Engine CI function
-		StzEngineStringReplaceCI(@pEngine, pcSubStr, pcNewSubStr)
+		StzEngineStringReplaceCI(@oString.Engine(), pcSubStr, pcNewSubStr)
 		@TraceObjectHistory(This)
 
 		def ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -88,15 +116,16 @@ class stzStringReplacer from stzString
 
 	def ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 
-		nPos = StzStringFinderQ(This.Content()).FindNthCS(n, pcSubStr, pCaseSensitive)
+		oFinder = new stzStringFinder(@oString)
+		nPos = oFinder.FindNthCS(n, pcSubStr, pCaseSensitive)
 
 		if nPos = 0
 			return
 		ok
 
-		nLenOld = Q(pcSubStr).NumberOfChars()
-		cResult = This._ReplaceRange(nPos, nLenOld, pcNewSubStr)
-		This.Update(cResult)
+		nLenOld = len(pcSubStr)
+		cResult = @oString._ReplaceRange(nPos, nLenOld, pcNewSubStr)
+		@oString.Update(cResult)
 
 		def ReplaceNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -132,7 +161,8 @@ class stzStringReplacer from stzString
 	#========================================#
 
 	def ReplaceLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		n = StzStringFinderQ(This.Content()).NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+		oFinder = new stzStringFinder(@oString)
+		n = oFinder.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 		This.ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 
 		def ReplaceLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -256,7 +286,8 @@ class stzStringReplacer from stzString
 		This.RemoveFirstCS(pcSubStr, 1)
 
 	def RemoveLastCS(pcSubStr, pCaseSensitive)
-		n = StzStringFinderQ(This.Content()).NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
+		oFinder = new stzStringFinder(@oString)
+		n = oFinder.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 		This.RemoveNthCS(n, pcSubStr, pCaseSensitive)
 
 	def RemoveLast(pcSubStr)
@@ -281,7 +312,7 @@ class stzStringReplacer from stzString
 
 		cContent = This.Content()
 		cResult = substr(cContent, 1, nPos - 1) + pcSubStr + substr(cContent, nPos)
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def InsertBeforeQ(nPos, pcSubStr)
 			This.InsertBefore(nPos, pcSubStr)

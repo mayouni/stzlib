@@ -3,8 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String trimmer subclass -- trimming         #
-#                  whitespace and chars from strings.           #
+#   Description  : String trimmer -- Wraps stzString via       #
+#                  composition. Trimming whitespace and chars   #
+#                  from strings.                               #
 #                  For aliases, use stzStringTrimmerXT.         #
 #   Version      : V0.9 (2026)                                #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
@@ -16,45 +17,65 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringTrimmer from stzString
+class stzStringTrimmer
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringTrimmer! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #======================================================#
 	 #   TRIMMING BOTH SIDES                                #
 	#======================================================#
 
 	def Trim()
-		This.Update(ring_trim(This.Content()))
+		@oString.Update(ring_trim(@oString.Content()))
 
 		def TrimQ()
 			This.Trim()
 			return This
 
 	def Trimmed()
-		return ring_trim(This.Content())
+		return ring_trim(@oString.Content())
 
 	  #======================================================#
 	 #   TRIMMING LEFT / RIGHT                              #
 	#======================================================#
 
 	def TrimLeft()
-		This.Update(ring_ltrim(This.Content()))
+		@oString.Update(ring_ltrim(@oString.Content()))
 
 		def TrimLeftQ()
 			This.TrimLeft()
 			return This
 
 	def TrimmedLeft()
-		return ring_ltrim(This.Content())
+		return ring_ltrim(@oString.Content())
 
 	def TrimRight()
-		This.Update(ring_rtrim(This.Content()))
+		@oString.Update(ring_rtrim(@oString.Content()))
 
 		def TrimRightQ()
 			This.TrimRight()
 			return This
 
 	def TrimmedRight()
-		return ring_rtrim(This.Content())
+		return ring_rtrim(@oString.Content())
 
 	  #======================================================#
 	 #   TRIMMING START / END                               #
@@ -93,7 +114,9 @@ class stzStringTrimmer from stzString
 			return This
 
 	def CharTrimmedCS(c, pCaseSensitive)
-		return This.Copy().TrimCharCSQ(c, pCaseSensitive).Content()
+		oCopy = new stzStringTrimmer(@oString.Content())
+		oCopy.TrimCharCS(c, pCaseSensitive)
+		return oCopy.Content()
 
 	def TrimChar(c)
 		This.TrimCharCS(c, 1)
@@ -110,7 +133,7 @@ class stzStringTrimmer from stzString
 	#======================================================#
 
 	def TrimCharFromStartCS(c, pCaseSensitive)
-		cStr = This.Content()
+		cStr = @oString.Content()
 		nLen = len(cStr)
 		nStart = 1
 		for i = 1 to nLen
@@ -121,9 +144,9 @@ class stzStringTrimmer from stzString
 			ok
 		next
 		if nStart > nLen
-			This.Update("")
+			@oString.Update("")
 		else
-			This.Update(substr(cStr, nStart, nLen - nStart + 1))
+			@oString.Update(substr(cStr, nStart, nLen - nStart + 1))
 		ok
 
 		def TrimCharFromStartCSQ(c, pCaseSensitive)
@@ -142,7 +165,7 @@ class stzStringTrimmer from stzString
 	#--
 
 	def TrimCharFromEndCS(c, pCaseSensitive)
-		cStr = This.Content()
+		cStr = @oString.Content()
 		nLen = len(cStr)
 		nEnd = nLen
 		for i = nLen to 1 step -1
@@ -153,9 +176,9 @@ class stzStringTrimmer from stzString
 			ok
 		next
 		if nEnd < 1
-			This.Update("")
+			@oString.Update("")
 		else
-			This.Update(substr(cStr, 1, nEnd))
+			@oString.Update(substr(cStr, 1, nEnd))
 		ok
 
 		def TrimCharFromEndCSQ(c, pCaseSensitive)
@@ -176,7 +199,7 @@ class stzStringTrimmer from stzString
 	#======================================================#
 
 	def TrimCharFromLeftCS(c, pCaseSensitive)
-		if This.IsLeftToRight()
+		if @oString.IsLeftToRight()
 			This.TrimCharFromStartCS(c, pCaseSensitive)
 		else
 			This.TrimCharFromEndCS(c, pCaseSensitive)
@@ -186,7 +209,7 @@ class stzStringTrimmer from stzString
 		This.TrimCharFromLeftCS(c, 1)
 
 	def TrimCharFromRightCS(c, pCaseSensitive)
-		if This.IsLeftToRight()
+		if @oString.IsLeftToRight()
 			This.TrimCharFromEndCS(c, pCaseSensitive)
 		else
 			This.TrimCharFromStartCS(c, pCaseSensitive)

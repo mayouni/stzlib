@@ -3,8 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String words subclass -- word extraction,   #
-#                  counting, unique words, word-level ops.      #
+#   Description  : String words -- Wraps stzString via          #
+#                  composition. Word extraction, counting,      #
+#                  unique words, word-level ops.                 #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -15,7 +16,27 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringWords from stzString
+class stzStringWords
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringWords! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     WORDS                     #
@@ -23,7 +44,7 @@ class stzStringWords from stzString
 
 	def Words()
 		acResult = []
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cWord = ""
 		nLen = len(cContent)
 
@@ -117,7 +138,7 @@ class stzStringWords from stzString
 	#===============================#
 
 	def WordAtPosition(n)
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		if n < 1 or n > nLen
@@ -350,7 +371,7 @@ class stzStringWords from stzString
 			cResult += acResult[i]
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def ReplaceWordCSQ(pcOldWord, pcNewWord, pCaseSensitive)
 			This.ReplaceWordCS(pcOldWord, pcNewWord, pCaseSensitive)
@@ -394,7 +415,7 @@ class stzStringWords from stzString
 			cResult += acResult[i]
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def RemoveWordCSQ(pcWord, pCaseSensitive)
 			This.RemoveWordCS(pcWord, pCaseSensitive)

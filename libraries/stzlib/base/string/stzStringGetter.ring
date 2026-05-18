@@ -3,9 +3,10 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String getter subclass -- accessing         #
-#                  individual chars and char groups.           #
-#                  For aliases, use stzStringGetterXT.         #
+#   Description  : String getter -- accessing individual       #
+#                  chars and char groups.                       #
+#                  Wraps stzString via composition.             #
+#                  For aliases, use stzStringGetterXT.          #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -16,14 +17,42 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringGetter from stzString
+class stzStringGetter
+
+	@oString
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringGetter! Parameter must be a string or stzString object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #======================================================#
 	 #   ACCESSING NTH CHAR                                 #
 	#======================================================#
 
 	def NthChar(n)
-		return This.Content()[n]
+		return @oString.NthChar(n)
 
 		def CharAt(n)
 			return This.NthChar(n)
@@ -39,10 +68,10 @@ class stzStringGetter from stzString
 		return This.NthChar(1)
 
 	def LastChar()
-		return This.NthChar(This.NumberOfChars())
+		return This.NthChar(@oString.NumberOfChars())
 
 	def MiddleChar()
-		n = ceil(This.NumberOfChars() / 2)
+		n = ceil(@oString.NumberOfChars() / 2)
 		return This.NthChar(n)
 
 	  #======================================================#
@@ -50,14 +79,14 @@ class stzStringGetter from stzString
 	#======================================================#
 
 	def NFirstChars(n)
-		return This.Section(1, n)
+		return @oString.Section(1, n)
 
 		def NFirstCharsQ(n)
 			return StzStringQ(This.NFirstChars(n))
 
 	def NLastChars(n)
-		nLen = This.NumberOfChars()
-		return This.Section(nLen - n + 1, nLen)
+		nLen = @oString.NumberOfChars()
+		return @oString.Section(nLen - n + 1, nLen)
 
 		def NLastCharsQ(n)
 			return StzStringQ(This.NLastChars(n))
@@ -67,7 +96,7 @@ class stzStringGetter from stzString
 	#======================================================#
 
 	def NLeftChars(n)
-		if This.IsLeftToRight()
+		if @oString.IsLeftToRight()
 			return This.NFirstChars(n)
 		else
 			return This.NLastChars(n)
@@ -83,7 +112,7 @@ class stzStringGetter from stzString
 			return StzStringQ(This.NLeftChars(n))
 
 	def NRightChars(n)
-		if This.IsLeftToRight()
+		if @oString.IsLeftToRight()
 			return This.NLastChars(n)
 		else
 			return This.NFirstChars(n)
@@ -103,13 +132,7 @@ class stzStringGetter from stzString
 	#======================================================#
 
 	def Chars()
-		aResult = []
-		cStr = This.Content()
-		nLen = This.NumberOfChars()
-		for i = 1 to nLen
-			aResult + cStr[i]
-		next
-		return aResult
+		return @oString.Chars()
 
 	  #======================================================#
 	 #   UNIQUE CHARS                                       #
@@ -127,19 +150,7 @@ class stzStringGetter from stzString
 	#======================================================#
 
 	def Section(n1, n2)
-		nLen = This.NumberOfChars()
-		if n1 < 1
-			n1 = 1
-		ok
-		if n2 > nLen
-			n2 = nLen
-		ok
-		if n1 > n2
-			temp = n1
-			n1 = n2
-			n2 = temp
-		ok
-		return substr(This.Content(), n1, n2 - n1 + 1)
+		return @oString.Section(n1, n2)
 
 	def Range(nStart, nRange)
-		return This.Section(nStart, nStart + nRange - 1)
+		return @oString.Range(nStart, nRange)

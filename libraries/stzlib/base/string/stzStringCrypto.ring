@@ -3,9 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String crypto subclass -- hashing,           #
-#                  basic encryption/decryption, checksum         #
-#                  operations.                                   #
+#   Description  : String crypto -- Wraps stzString via         #
+#                  composition. Hashing, basic encryption/       #
+#                  decryption, checksum operations.              #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -16,30 +16,50 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringCrypto from stzString
+class stzStringCrypto
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringCrypto! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     HASHING                   #
 	#===============================#
 
 	def Hash(pcAlgorithm)
-		return sha256(This.Content())
+		return sha256(@oString.Content())
 
 		def HashQ(pcAlgorithm)
 			return new stzStringCrypto(This.Hash(pcAlgorithm))
 
 	def SHA256()
-		return sha256(This.Content())
+		return sha256(@oString.Content())
 
 	def MD5()
-		return md5(This.Content())
+		return md5(@oString.Content())
 
 	  #===============================#
 	 #     SIMPLE XOR CIPHER         #
 	#===============================#
 
 	def XOREncrypt(pcKey)
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cKey = pcKey
 		nLen = len(cContent)
 		nKeyLen = len(cKey)
@@ -61,7 +81,7 @@ class stzStringCrypto from stzString
 	#===============================#
 
 	def Checksum()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		nSum = 0
 
@@ -79,7 +99,7 @@ class stzStringCrypto from stzString
 	#===============================#
 
 	def Base64Encode()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 		cResult = ""
 		nLen = len(cContent)
@@ -124,7 +144,7 @@ class stzStringCrypto from stzString
 		return cResult
 
 	def Base64Decode()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
 		cResult = ""
 		nLen = len(cContent)
@@ -176,10 +196,10 @@ class stzStringCrypto from stzString
 			return This
 
 	def ROT13ed()
-		cSaved = This.Content()
+		cSaved = @oString.Content()
 		This.ROT13()
-		cResult = This.Content()
-		This.Update(cSaved)
+		cResult = @oString.Content()
+		@oString.Update(cSaved)
 		return cResult
 
 	  #===============================#
@@ -187,7 +207,7 @@ class stzStringCrypto from stzString
 	#===============================#
 
 	def CaesarEncrypt(nShift)
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		cResult = ""
 
@@ -210,7 +230,7 @@ class stzStringCrypto from stzString
 			ok
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 	def CaesarDecrypt(nShift)
 		This.CaesarEncrypt(26 - (nShift % 26))
@@ -220,7 +240,7 @@ class stzStringCrypto from stzString
 	#===============================#
 
 	def IsEncrypted()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		if nLen < 4
 			return 0
@@ -246,7 +266,7 @@ class stzStringCrypto from stzString
 
 	def Obfuscate()
 		# Reverse the string then XOR with a fixed key
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		# Reverse
@@ -266,15 +286,15 @@ class stzStringCrypto from stzString
 			cResult += char(nXOR)
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def ObfuscateQ()
 			This.Obfuscate()
 			return This
 
 	def Obfuscated()
-		cSaved = This.Content()
+		cSaved = @oString.Content()
 		This.Obfuscate()
-		cResult = This.Content()
-		This.Update(cSaved)
+		cResult = @oString.Content()
+		@oString.Update(cSaved)
 		return cResult

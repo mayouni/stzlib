@@ -3,8 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String numbers subclass -- extracting and   #
-#                  working with numbers embedded in strings.     #
+#   Description  : String numbers -- Wraps stzString via        #
+#                  composition. Extracting and working with      #
+#                  numbers embedded in strings.                  #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -15,14 +16,34 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringNumbers from stzString
+class stzStringNumbers
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringNumbers! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     EXTRACT NUMBERS           #
 	#===============================#
 
 	def Numbers()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		anResult = []
 		cNum = ""
@@ -95,7 +116,7 @@ class stzStringNumbers from stzString
 		return This.NumberOfNumbers() > 0
 
 	def ContainsOnlyNumbers()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -111,7 +132,7 @@ class stzStringNumbers from stzString
 	#===============================#
 
 	def RemoveNumbers()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = ""
 		nLen = len(cContent)
 
@@ -122,14 +143,14 @@ class stzStringNumbers from stzString
 			ok
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def RemoveNumbersQ()
 			This.RemoveNumbers()
 			return This
 
 	def NumbersRemoved()
-		oCopy = new stzStringNumbers(This.Content())
+		oCopy = new stzStringNumbers(@oString.Content())
 		oCopy.RemoveNumbers()
 		return oCopy.Content()
 
@@ -215,7 +236,7 @@ class stzStringNumbers from stzString
 	#===============================#
 
 	def ReplaceNumbers(nNewValue)
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = ""
 		nLen = len(cContent)
 		cNewStr = "" + nNewValue
@@ -235,14 +256,14 @@ class stzStringNumbers from stzString
 			ok
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def ReplaceNumbersQ(nNewValue)
 			This.ReplaceNumbers(nNewValue)
 			return This
 
 	def NumbersReplaced(nNewValue)
-		oCopy = new stzStringNumbers(This.Content())
+		oCopy = new stzStringNumbers(@oString.Content())
 		oCopy.ReplaceNumbers(nNewValue)
 		return oCopy.Content()
 
@@ -266,7 +287,7 @@ class stzStringNumbers from stzString
 	#===============================#
 
 	def PositionsOfNumbers()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		anPositions = []
 		bInNum = 0

@@ -16,15 +16,37 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringExtractor from stzString
+class stzStringExtractor
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringExtractor! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #======================================================#
 	 #   EXTRACTING A SECTION                               #
 	#======================================================#
 
 	def ExtractSection(n1, n2)
-		cResult = This.Section(n1, n2)
-		This.RemoveSection(n1, n2)
+		cResult = @oString.Section(n1, n2)
+		# TODO: requires monolith method extraction
+		# This.RemoveSection(n1, n2)
+		@oString.RemoveSection(n1, n2)
 		return cResult
 
 	  #======================================================#
@@ -39,8 +61,8 @@ class stzStringExtractor from stzString
 	#======================================================#
 
 	def ExtractCS(pcSubStr, pCaseSensitive)
-		cResult = This.Copy().Content()
-		This.RemoveCS(pcSubStr, pCaseSensitive)
+		cResult = @oString.Content()
+		new stzStringReplacer(@oString).ReplaceCS(pcSubStr, "", pCaseSensitive)
 		return cResult
 
 		def ExtractCSQ(pcSubStr, pCaseSensitive)
@@ -69,7 +91,7 @@ class stzStringExtractor from stzString
 		nLen = len(paSubStr)
 		for i = 1 to nLen
 			acResult + paSubStr[i]
-			This.RemoveCS(paSubStr[i], pCaseSensitive)
+			new stzStringReplacer(@oString).ReplaceCS(paSubStr[i], "", pCaseSensitive)
 		next
 		return acResult
 
@@ -81,8 +103,8 @@ class stzStringExtractor from stzString
 	#======================================================#
 
 	def ExtractAll()
-		cResult = This.Content()
-		This.Update("")
+		cResult = @oString.Content()
+		@oString.Update("")
 		return cResult
 
 	  #======================================================#
@@ -103,14 +125,14 @@ class stzStringExtractor from stzString
 		return This.ExtractAt(1)
 
 	def ExtractLastChar()
-		return This.ExtractAt(This.NumberOfChars())
+		return This.ExtractAt(@oString.NumberOfChars())
 
 	  #======================================================#
 	 #   EXTRACTING NTH OCCURRENCE                          #
 	#======================================================#
 
 	def ExtractNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
-		nPos = This.FindNthCS(n, pcSubStr, pCaseSensitive)
+		nPos = new stzStringFinder(@oString).FindNthCS(n, pcSubStr, pCaseSensitive)
 		if nPos = 0
 			return ""
 		ok
@@ -125,7 +147,7 @@ class stzStringExtractor from stzString
 	#======================================================#
 
 	def ExtractFirstCS(pcSubStr, pCaseSensitive)
-		n = This.FindFirstCS(pcSubStr, pCaseSensitive)
+		n = new stzStringFinder(@oString).FindFirstCS(pcSubStr, pCaseSensitive)
 		if n = 0
 			return ""
 		ok
@@ -136,7 +158,7 @@ class stzStringExtractor from stzString
 		return This.ExtractFirstCS(pcSubStr, 1)
 
 	def ExtractLastCS(pcSubStr, pCaseSensitive)
-		n = This.FindLastCS(pcSubStr, pCaseSensitive)
+		n = new stzStringFinder(@oString).FindLastCS(pcSubStr, pCaseSensitive)
 		if n = 0
 			return ""
 		ok
@@ -151,7 +173,9 @@ class stzStringExtractor from stzString
 	#======================================================#
 
 	def ExtractCharsWCS(pcCondition, pCaseSensitive)
-		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
+		# TODO: requires monolith method extraction
+		# anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
+		anPos = @oString.FindCharsWCS(pcCondition, pCaseSensitive)
 		acResult = []
 		for i = len(anPos) to 1 step -1
 			acResult + This.ExtractAt(anPos[i])

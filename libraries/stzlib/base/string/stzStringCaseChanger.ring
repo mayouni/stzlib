@@ -3,8 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String case changer subclass -- case        #
+#   Description  : String case changer -- case                 #
 #                  transformations (upper, lower, toggle).      #
+#                  Wraps stzString via composition.             #
 #                  For aliases, use stzStringCaseChangerXT.     #
 #   Version      : V0.9 (2026)                                #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
@@ -16,35 +17,55 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringCaseChanger from stzString
+class stzStringCaseChanger
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringCaseChanger! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #======================================================#
 	 #   UPPERCASE                                          #
 	#======================================================#
 
 	def Uppercase()
-		This.Update(upper(This.Content()))
+		@oString.Update(upper(@oString.Content()))
 
 		def UppercaseQ()
 			This.Uppercase()
 			return This
 
 	def Uppercased()
-		return upper(This.Content())
+		return upper(@oString.Content())
 
 	  #======================================================#
 	 #   LOWERCASE                                          #
 	#======================================================#
 
 	def Lowercase()
-		This.Update(lower(This.Content()))
+		@oString.Update(lower(@oString.Content()))
 
 		def LowercaseQ()
 			This.Lowercase()
 			return This
 
 	def Lowercased()
-		return lower(This.Content())
+		return lower(@oString.Content())
 
 	  #======================================================#
 	 #   CAPITALIZE                                         #
@@ -55,14 +76,16 @@ class stzStringCaseChanger from stzString
 		if len(cStr) > 0
 			cStr[1] = upper(cStr[1])
 		ok
-		This.Update(cStr)
+		@oString.Update(cStr)
 
 		def CapitalizeQ()
 			This.Capitalize()
 			return This
 
 	def Capitalized()
-		return This.Copy().CapitalizeQ().Content()
+		oCopy = new stzStringCaseChanger(@oString.Content())
+		oCopy.Capitalize()
+		return oCopy.Content()
 
 	  #======================================================#
 	 #   CAPITALIZE EACH WORD                               #
@@ -82,27 +105,29 @@ class stzStringCaseChanger from stzString
 				cResult += cStr[i]
 			ok
 		next
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def CapitalizeEachWordQ()
 			This.CapitalizeEachWord()
 			return This
 
 	def EachWordCapitalized()
-		return This.Copy().CapitalizeEachWordQ().Content()
+		oCopy = new stzStringCaseChanger(@oString.Content())
+		oCopy.CapitalizeEachWord()
+		return oCopy.Content()
 
 	  #======================================================#
 	 #   CASE CHECKING                                      #
 	#======================================================#
 
 	def IsUppercase()
-		return This.Content() = upper(This.Content())
+		return @oString.Content() = upper(@oString.Content())
 
 	def IsLowercase()
-		return This.Content() = lower(This.Content())
+		return @oString.Content() = lower(@oString.Content())
 
 	def IsCapitalized()
-		cStr = This.Content()
+		cStr = @oString.Content()
 		if len(cStr) = 0
 			return 0
 		ok
@@ -113,8 +138,8 @@ class stzStringCaseChanger from stzString
 	#======================================================#
 
 	def ToggleCase()
-		cStr = This.Content()
-		nLen = This.NumberOfChars()
+		cStr = @oString.Content()
+		nLen = @oString.NumberOfChars()
 		cResult = ""
 		for i = 1 to nLen
 			c = cStr[i]
@@ -124,14 +149,16 @@ class stzStringCaseChanger from stzString
 				cResult += upper(c)
 			ok
 		next
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def ToggleCaseQ()
 			This.ToggleCase()
 			return This
 
 	def CaseToggled()
-		return This.Copy().ToggleCaseQ().Content()
+		oCopy = new stzStringCaseChanger(@oString.Content())
+		oCopy.ToggleCase()
+		return oCopy.Content()
 
 	  #======================================================#
 	 #   FORCE CASE                                         #
