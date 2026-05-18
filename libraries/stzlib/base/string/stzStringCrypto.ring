@@ -3,19 +3,15 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String crypto -- Wraps stzString via         #
-#                  composition. Hashing, basic encryption/       #
-#                  decryption, checksum operations.              #
-#                  All ops are engine-backed (Zig DLL).          #
+#   Description  : String crypto -- Wraps stzString via        #
+#                  composition. Hashing, basic encryption/     #
+#                  decryption, checksum operations.            #
+#                  All ops are engine-backed (Zig DLL).        #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringCrypto
 

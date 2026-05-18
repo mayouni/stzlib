@@ -3,18 +3,14 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String IO -- Wraps stzString via             #
-#                  composition. Import/export, file reading/     #
-#                  writing, URL operations.                      #
+#   Description  : String IO -- Wraps stzString via            #
+#                  composition. Import/export, file reading/   #
+#                  writing, URL operations.                    #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringIO
 

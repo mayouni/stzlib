@@ -4,18 +4,14 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String counter -- counting occurrences      #
-#                  of substrings and chars.                     #
-#                  Wraps stzString via composition.             #
-#                  For aliases, use stzStringCounterXT.         #
-#   Version      : V0.9 (2026)                                #
+#                  of substrings and chars.                    #
+#                  Wraps stzString via composition.            #
+#                  For aliases, use stzStringCounterXT.        #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringCounter
 

@@ -3,18 +3,14 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String duplicates -- Wraps stzString via     #
-#                  composition. Duplicate detection, consecutive #
-#                  char management, deduplication operations.    #
+#   Description  : String duplicates -- Wraps stzString via    #
+#                composition. Duplicate detection, consecutive #
+#                char management, deduplication operations.    #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringDuplicates
 

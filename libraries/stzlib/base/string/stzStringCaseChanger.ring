@@ -4,18 +4,14 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String case changer -- case                 #
-#                  transformations (upper, lower, toggle).      #
-#                  Wraps stzString via composition.             #
-#                  For aliases, use stzStringCaseChangerXT.     #
-#   Version      : V0.9 (2026)                                #
+#                  transformations (upper, lower, toggle).     #
+#                  Wraps stzString via composition.            #
+#                  For aliases, use stzStringCaseChangerXT     #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringCaseChanger
 

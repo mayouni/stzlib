@@ -3,18 +3,14 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String encoder -- Wraps stzString via        #
-#                  composition. Hex, base64, URL encoding/       #
-#                  decoding, unicode operations.                 #
+#   Description  : String encoder -- Wraps stzString via       #
+#                  composition. Hex, base64, URL encoding/     #
+#                  decoding, unicode operations.               #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringEncoder
 

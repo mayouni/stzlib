@@ -4,18 +4,14 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String aligner -- alignment and padding     #
-#                  operations.                                  #
-#                  Wraps stzString via composition.             #
-#                  For aliases, use stzStringAlignerXT.         #
-#   Version      : V0.9 (2026)                                #
+#                  operations.                                 #
+#                  Wraps stzString via composition.            #
+#                  For aliases, use stzStringAlignerXT.        #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringAligner
 
