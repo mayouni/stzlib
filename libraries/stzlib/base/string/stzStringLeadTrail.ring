@@ -16,7 +16,27 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringLeadTrail from stzString
+class stzStringLeadTrail
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringLeadTrail! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #======================================================#
 	 #   REPEATED LEADING CHARS                             #
@@ -29,8 +49,8 @@ class stzStringLeadTrail from stzString
 		return This.HasRepeatedLeadingCharsCS(1)
 
 	def RepeatedLeadingCharsCS(pCaseSensitive)
-		cStr = This.Content()
-		nLen = This.NumberOfChars()
+		cStr = @oString.Content()
+		nLen = @oString.NumberOfChars()
 		if nLen < 2
 			return ""
 		ok
@@ -63,8 +83,8 @@ class stzStringLeadTrail from stzString
 		return len(This.RepeatedLeadingChars())
 
 	def LeadingChar()
-		if This.NumberOfChars() > 0
-			return This.Content()[1]
+		if @oString.NumberOfChars() > 0
+			return @oString.Content()[1]
 		ok
 		return ""
 
@@ -79,8 +99,8 @@ class stzStringLeadTrail from stzString
 		return This.HasRepeatedTrailingCharsCS(1)
 
 	def RepeatedTrailingCharsCS(pCaseSensitive)
-		cStr = This.Content()
-		nLen = This.NumberOfChars()
+		cStr = @oString.Content()
+		nLen = @oString.NumberOfChars()
 		if nLen < 2
 			return ""
 		ok
@@ -113,9 +133,9 @@ class stzStringLeadTrail from stzString
 		return len(This.RepeatedTrailingChars())
 
 	def TrailingChar()
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 		if nLen > 0
-			return This.Content()[nLen]
+			return @oString.Content()[nLen]
 		ok
 		return ""
 
@@ -127,7 +147,9 @@ class stzStringLeadTrail from stzString
 		cLead = This.RepeatedLeadingChars()
 		nToRemove = len(cLead) - 1
 		if nToRemove > 0
-			This.RemoveSection(1, nToRemove)
+			# TODO: requires monolith method extraction
+			# This.RemoveSection(1, nToRemove)
+			@oString.RemoveSection(1, nToRemove)
 		ok
 
 		def RemoveRepeatedLeadingCharsQ()
@@ -135,16 +157,18 @@ class stzStringLeadTrail from stzString
 			return This
 
 	def RepeatedLeadingCharsRemoved()
-		return This.Copy().RemoveRepeatedLeadingCharsQ().Content()
+		return new stzStringLeadTrail(@oString.Content()).RemoveRepeatedLeadingCharsQ().Content()
 
 	#--
 
 	def RemoveRepeatedTrailingChars()
 		cTrail = This.RepeatedTrailingChars()
 		nToRemove = len(cTrail) - 1
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 		if nToRemove > 0
-			This.RemoveSection(nLen - nToRemove + 1, nLen)
+			# TODO: requires monolith method extraction
+			# This.RemoveSection(nLen - nToRemove + 1, nLen)
+			@oString.RemoveSection(nLen - nToRemove + 1, nLen)
 		ok
 
 		def RemoveRepeatedTrailingCharsQ()
@@ -152,14 +176,14 @@ class stzStringLeadTrail from stzString
 			return This
 
 	def RepeatedTrailingCharsRemoved()
-		return This.Copy().RemoveRepeatedTrailingCharsQ().Content()
+		return new stzStringLeadTrail(@oString.Content()).RemoveRepeatedTrailingCharsQ().Content()
 
 	  #======================================================#
 	 #   REMOVING A SPECIFIC LEADING / TRAILING CHAR        #
 	#======================================================#
 
 	def RemoveThisLeadingCharCS(c, pCaseSensitive)
-		cStr = This.Content()
+		cStr = @oString.Content()
 		nLen = len(cStr)
 		nStart = 1
 		for i = 1 to nLen
@@ -170,9 +194,9 @@ class stzStringLeadTrail from stzString
 			ok
 		next
 		if nStart > nLen
-			This.Update("")
+			@oString.Update("")
 		else
-			This.Update(StzStringQ(cStr).Section(nStart, nLen))
+			@oString.Update(StzStringQ(cStr).Section(nStart, nLen))
 		ok
 
 		def RemoveThisLeadingCharCSQ(c, pCaseSensitive)
@@ -191,7 +215,7 @@ class stzStringLeadTrail from stzString
 	#--
 
 	def RemoveThisTrailingCharCS(c, pCaseSensitive)
-		cStr = This.Content()
+		cStr = @oString.Content()
 		nLen = len(cStr)
 		nEnd = nLen
 		for i = nLen to 1 step -1
@@ -202,9 +226,9 @@ class stzStringLeadTrail from stzString
 			ok
 		next
 		if nEnd < 1
-			This.Update("")
+			@oString.Update("")
 		else
-			This.Update(StzStringQ(cStr).Section(1, nEnd))
+			@oString.Update(StzStringQ(cStr).Section(1, nEnd))
 		ok
 
 		def RemoveThisTrailingCharCSQ(c, pCaseSensitive)
@@ -245,10 +269,12 @@ class stzStringLeadTrail from stzString
 
 	def StartsWithCS(pcSubStr, pCaseSensitive)
 		nLen = len(pcSubStr)
-		if nLen > This.NumberOfChars()
+		if nLen > @oString.NumberOfChars()
 			return 0
 		ok
-		cLeft = This.NLeftChars(nLen)
+		# TODO: requires monolith method extraction
+		# cLeft = This.NLeftChars(nLen)
+		cLeft = @oString.NLeftChars(nLen)
 		return BothStringsAreEqualCS(cLeft, pcSubStr, pCaseSensitive)
 
 	def StartsWith(pcSubStr)
@@ -256,10 +282,12 @@ class stzStringLeadTrail from stzString
 
 	def EndsWithCS(pcSubStr, pCaseSensitive)
 		nLen = len(pcSubStr)
-		if nLen > This.NumberOfChars()
+		if nLen > @oString.NumberOfChars()
 			return 0
 		ok
-		cRight = This.NRightChars(nLen)
+		# TODO: requires monolith method extraction
+		# cRight = This.NRightChars(nLen)
+		cRight = @oString.NRightChars(nLen)
 		return BothStringsAreEqualCS(cRight, pcSubStr, pCaseSensitive)
 
 	def EndsWith(pcSubStr)
@@ -272,7 +300,9 @@ class stzStringLeadTrail from stzString
 	def RemoveFromStartCS(pcSubStr, pCaseSensitive)
 		if This.StartsWithCS(pcSubStr, pCaseSensitive)
 			nLen = len(pcSubStr)
-			This.RemoveSection(1, nLen)
+			# TODO: requires monolith method extraction
+			# This.RemoveSection(1, nLen)
+			@oString.RemoveSection(1, nLen)
 		ok
 
 		def RemoveFromStartCSQ(pcSubStr, pCaseSensitive)
@@ -287,7 +317,7 @@ class stzStringLeadTrail from stzString
 			return This
 
 	def RemovedFromStartCS(pcSubStr, pCaseSensitive)
-		return This.Copy().RemoveFromStartCSQ(pcSubStr, pCaseSensitive).Content()
+		return new stzStringLeadTrail(@oString.Content()).RemoveFromStartCSQ(pcSubStr, pCaseSensitive).Content()
 
 	def RemovedFromStart(pcSubStr)
 		return This.RemovedFromStartCS(pcSubStr, 1)
@@ -297,8 +327,10 @@ class stzStringLeadTrail from stzString
 	def RemoveFromEndCS(pcSubStr, pCaseSensitive)
 		if This.EndsWithCS(pcSubStr, pCaseSensitive)
 			nSubLen = len(pcSubStr)
-			nLen = This.NumberOfChars()
-			This.RemoveSection(nLen - nSubLen + 1, nLen)
+			nLen = @oString.NumberOfChars()
+			# TODO: requires monolith method extraction
+			# This.RemoveSection(nLen - nSubLen + 1, nLen)
+			@oString.RemoveSection(nLen - nSubLen + 1, nLen)
 		ok
 
 		def RemoveFromEndCSQ(pcSubStr, pCaseSensitive)
@@ -313,7 +345,7 @@ class stzStringLeadTrail from stzString
 			return This
 
 	def RemovedFromEndCS(pcSubStr, pCaseSensitive)
-		return This.Copy().RemoveFromEndCSQ(pcSubStr, pCaseSensitive).Content()
+		return new stzStringLeadTrail(@oString.Content()).RemoveFromEndCSQ(pcSubStr, pCaseSensitive).Content()
 
 	def RemovedFromEnd(pcSubStr)
 		return This.RemovedFromEndCS(pcSubStr, 1)

@@ -3,8 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String performer subclass -- higher-order   #
-#                  operations (perform, yield) on chars.        #
+#   Description  : String performer -- Wraps stzString via     #
+#                  composition. Higher-order operations         #
+#                  (perform, yield) on chars.                   #
 #                  For aliases, use stzStringPerformerXT.       #
 #   Version      : V0.9 (2026)                                #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
@@ -16,15 +17,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringPerformer from stzString
+class stzStringPerformer
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringPerformer! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #======================================================#
 	 #   PERFORM ACTION ON EACH CHAR                        #
 	#======================================================#
 
 	def Perform(pcAction)
-		cStr = This.Content()
-		nLen = This.NumberOfChars()
+		cStr = @oString.Content()
+		nLen = @oString.NumberOfChars()
 		_cCode_ = _StzStripBraces(pcAction)
 		for @i = 1 to nLen
 			eval(_cCode_)
@@ -67,8 +88,8 @@ class stzStringPerformer from stzString
 	#======================================================#
 
 	def Yield(pcYielder)
-		cStr = This.Content()
-		nLen = This.NumberOfChars()
+		cStr = @oString.Content()
+		nLen = @oString.NumberOfChars()
 		_cCode_ = _StzStripBraces(pcYielder)
 		aResult = []
 		for @i = 1 to nLen

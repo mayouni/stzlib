@@ -3,11 +3,10 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String finder subclass -- finding,          #
-#                  containing, counting, and positioning        #
-#                  operations on strings.                       #
-#                  Canonical methods only. For full Softanza    #
-#                  fluency (aliases), use stzStringFinderXT.    #
+#   Description  : String finder -- finding, containing,       #
+#                  counting, and positioning operations.        #
+#                  Wraps stzString via composition.             #
+#                  For aliases, use stzStringFinderXT.          #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -18,7 +17,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringFinder from stzString
+class stzStringFinder
+
+	@oString
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringFinder! Parameter must be a string or stzString object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     CONTAINS                  #
@@ -41,9 +68,9 @@ class stzStringFinder from stzString
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		if _bCase_
-			return StzEngineStringContains(@pEngine, pcSubStr)
+			return StzEngineStringContains(@oString.Engine(), pcSubStr)
 		ok
-		return StzEngineStringContainsCI(@pEngine, pcSubStr)
+		return StzEngineStringContainsCI(@oString.Engine(), pcSubStr)
 
 	def Contains(pcSubStr)
 		return This.ContainsCS(pcSubStr, 1)
@@ -102,9 +129,9 @@ class stzStringFinder from stzString
 
 		# Bulk find via Engine: one call returns all positions
 		if _bCase_
-			pResult = StzEngineStringFindAll(@pEngine, pcSubStr)
+			pResult = StzEngineStringFindAll(@oString.Engine(), pcSubStr)
 		else
-			pResult = StzEngineStringFindAllCI(@pEngine, pcSubStr)
+			pResult = StzEngineStringFindAllCI(@oString.Engine(), pcSubStr)
 		ok
 
 		nCount = StzEngineFindResultCount(pResult)
@@ -168,7 +195,7 @@ class stzStringFinder from stzString
 		nPos = 1
 		for i = 1 to n
 
-			nResult = This._FindSubStr(pcSubStr, nPos, pCaseSensitive)
+			nResult = @oString._FindSubStr(pcSubStr, nPos, pCaseSensitive)
 
 			if nResult = 0
 				exit
@@ -199,7 +226,7 @@ class stzStringFinder from stzString
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		nResult = This._FindSubStr(pcSubStr, 1, _bCase_)
+		nResult = @oString._FindSubStr(pcSubStr, 1, _bCase_)
 
 		return nResult
 
@@ -218,7 +245,7 @@ class stzStringFinder from stzString
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		if _bCase_
-			nResult = StzEngineStringLastIndexOf(@pEngine, pcSubStr)
+			nResult = StzEngineStringLastIndexOf(@oString.Engine(), pcSubStr)
 			if nResult >= 0
 				return nResult + 1
 			else
@@ -227,7 +254,7 @@ class stzStringFinder from stzString
 		ok
 
 		# Case-insensitive: use Engine CI function
-		nResult = StzEngineStringLastIndexOfCI(@pEngine, pcSubStr)
+		nResult = StzEngineStringLastIndexOfCI(@oString.Engine(), pcSubStr)
 		if nResult >= 0
 			return nResult + 1
 		else
@@ -244,10 +271,10 @@ class stzStringFinder from stzString
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		if _bCase_
-			return StzEngineStringCountOf(@pEngine, pcSubStr)
+			return StzEngineStringCountOf(@oString.Engine(), pcSubStr)
 		ok
 		# Case-insensitive: use Engine CI function
-		return StzEngineStringCountOfCI(@pEngine, pcSubStr)
+		return StzEngineStringCountOfCI(@oString.Engine(), pcSubStr)
 
 	def NumberOfOccurrence(pcSubStr)
 		return This.NumberOfOccurrenceCS(pcSubStr, 1)
@@ -285,11 +312,11 @@ class stzStringFinder from stzString
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		if _bCase_
-			return StzEngineStringStartsWith(@pEngine, pcSubStr)
+			return StzEngineStringStartsWith(@oString.Engine(), pcSubStr)
 		ok
 
 		# Case-insensitive: use Engine CI function
-		return StzEngineStringStartsWithCI(@pEngine, pcSubStr)
+		return StzEngineStringStartsWithCI(@oString.Engine(), pcSubStr)
 
 	def StartsWith(pcSubStr)
 		return This.StartsWithCS(pcSubStr, 1)
@@ -301,12 +328,11 @@ class stzStringFinder from stzString
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		if _bCase_
-			return StzEngineStringEndsWith(@pEngine, pcSubStr)
+			return StzEngineStringEndsWith(@oString.Engine(), pcSubStr)
 		ok
 
 		# Case-insensitive: use Engine CI function
-		return StzEngineStringEndsWithCI(@pEngine, pcSubStr)
+		return StzEngineStringEndsWithCI(@oString.Engine(), pcSubStr)
 
 	def EndsWith(pcSubStr)
 		return This.EndsWithCS(pcSubStr, 1)
-

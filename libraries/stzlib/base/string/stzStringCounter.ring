@@ -3,8 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String counter subclass -- counting         #
-#                  occurrences of substrings and chars.         #
+#   Description  : String counter -- counting occurrences      #
+#                  of substrings and chars.                     #
+#                  Wraps stzString via composition.             #
 #                  For aliases, use stzStringCounterXT.         #
 #   Version      : V0.9 (2026)                                #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
@@ -16,7 +17,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringCounter from stzString
+class stzStringCounter
+
+	@oString
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringCounter! Parameter must be a string or stzString object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #======================================================#
 	 #   COUNTING OCCURRENCES OF A SUBSTRING                #
@@ -25,10 +54,10 @@ class stzStringCounter from stzString
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 		if _bCase_
-			return StzEngineStringCountOf(@pEngine, pcSubStr)
+			return StzEngineStringCountOf(@oString.Engine(), pcSubStr)
 		ok
 		# Case-insensitive: use Engine CI function
-		return StzEngineStringCountOfCI(@pEngine, pcSubStr)
+		return StzEngineStringCountOfCI(@oString.Engine(), pcSubStr)
 
 		def NumberOfOccurrencesCS(pcSubStr, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
@@ -63,64 +92,29 @@ class stzStringCounter from stzString
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		if _bCase_ = 1
-			return StzEngineStringCount(@pEngine)
+			return StzEngineStringCount(@oString.Engine())
 		else
-			return len(This.UniqueCharsCS(0))
+			oGetter = new stzStringGetter(@oString)
+			return len(oGetter.UniqueCharsCS(0))
 		ok
-
-	def NumberOfChars()
-		return StzEngineStringCount(@pEngine)
-
-	  #======================================================#
-	 #   NUMBER OF CHARS WITH CONDITION                     #
-	#======================================================#
-
-	def NumberOfCharsWCS(pcCondition, pCaseSensitive)
-		anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
-		return len(anPos)
-
-	def NumberOfCharsW(pcCondition)
-		return This.NumberOfCharsWCS(pcCondition, 1)
-
-	  #======================================================#
-	 #   NUMBER OF LINES                                    #
-	#======================================================#
-
-	def NumberOfLinesCS(pCaseSensitive)
-		return len(This.LinesCS(pCaseSensitive))
-
-		def HowManyLinesCS(pCaseSensitive)
-			return This.NumberOfLinesCS(pCaseSensitive)
-
-		def CountLinesCS(pCaseSensitive)
-			return This.NumberOfLinesCS(pCaseSensitive)
-
-	def NumberOfLines()
-		return This.NumberOfLinesCS(1)
-
-		def HowManyLines()
-			return This.NumberOfLines()
-
-		def CountLines()
-			return This.NumberOfLines()
 
 	  #======================================================#
 	 #   NUMBER OF SUBSTRINGS                               #
 	#======================================================#
 
 	def NumberOfSubStringsCS(pCaseSensitive)
-		if This.IsEmpty()
+		if @oString.IsEmpty()
 			return 0
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		if _bCase_ = 1
-			n = This.NumberOfChars()
+			n = @oString.NumberOfChars()
 			return n * (n + 1) / 2
 		else
-			acSubStrCS = This.SubStringsCS(0)
-			return len(acSubStrCS)
+			# Case-insensitive count via engine
+			return StzEngineStringSubstringsCount(@oString.Engine())
 		ok
 
 		def HowManySubStringsCS(pCaseSensitive)
@@ -133,27 +127,11 @@ class stzStringCounter from stzString
 			return This.NumberOfSubStrings()
 
 	  #======================================================#
-	 #   NUMBER OF DUPLICATES                               #
-	#======================================================#
-
-	def NumberOfDuplicatesCS(pCaseSensitive)
-		return len(This.DuplicatesCS(pCaseSensitive))
-
-		def HowManyDuplicatesCS(pCaseSensitive)
-			return This.NumberOfDuplicatesCS(pCaseSensitive)
-
-	def NumberOfDuplicates()
-		return This.NumberOfDuplicatesCS(1)
-
-		def HowManyDuplicates()
-			return This.NumberOfDuplicates()
-
-	  #======================================================#
 	 #   COUNT BETWEEN TWO POSITIONS                        #
 	#======================================================#
 
 	def CountBetweenCS(pcSubStr, n1, n2, pCaseSensitive)
-		cSection = This.Section(n1, n2)
+		cSection = @oString.Section(n1, n2)
 		return StringNumberOfOccurrenceCS(cSection, pcSubStr, pCaseSensitive)
 
 	def CountBetween(pcSubStr, n1, n2)

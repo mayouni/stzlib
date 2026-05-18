@@ -3,11 +3,11 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String checker subclass -- type checking,   #
-#                  content validation, palindrome, anagram,     #
-#                  composition, and structural checks.           #
-#                  Canonical methods only. For full Softanza    #
-#                  fluency (aliases), use stzStringCheckerXT.   #
+#   Description  : String checker -- type checking, content    #
+#                  validation, palindrome, anagram, and         #
+#                  structural checks.                           #
+#                  Wraps stzString via composition.             #
+#                  For aliases, use stzStringCheckerXT.         #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -18,28 +18,56 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringChecker from stzString
+class stzStringChecker
+
+	@oString
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringChecker! Parameter must be a string or stzString object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     PALINDROME                #
 	#===============================#
 
 	def IsPalindromeCS(pCaseSensitive)
-		if This.NumberOfChars() < 2
+		if @oString.NumberOfChars() < 2
 			return 0
 		ok
 
-		cReversed = ring_reverse(This.Content())
+		cReversed = ring_reverse(@oString.Content())
 
 		bCase = @CaseSensitive(pCaseSensitive)
 		if bCase = 0
-			if lower(This.Content()) = lower(cReversed)
+			if lower(@oString.Content()) = lower(cReversed)
 				return 1
 			else
 				return 0
 			ok
 		else
-			if This.Content() = cReversed
+			if @oString.Content() = cReversed
 				return 1
 			else
 				return 0
@@ -56,7 +84,7 @@ class stzStringChecker from stzString
 	def IsAnagramOfCS(pcOtherStr, pCaseSensitive)
 		bCase = @CaseSensitive(pCaseSensitive)
 
-		_cStr_ = This.Content()
+		_cStr_ = @oString.Content()
 		_cOther_ = pcOtherStr
 
 		if bCase = 0
@@ -80,19 +108,19 @@ class stzStringChecker from stzString
 	#===============================#
 
 	def IsUppercase()
-		return This.Content() = upper(This.Content())
+		return @oString.Content() = upper(@oString.Content())
 
 	def IsLowercase()
-		return This.Content() = lower(This.Content())
+		return @oString.Content() = lower(@oString.Content())
 
 	def IsCapitalcase()
-		if This.NumberOfChars() < 1
+		if @oString.NumberOfChars() < 1
 			return 0
 		ok
 
-		cFirst = substr(This.Content(), 1, 1)
-		if cFirst = upper(cFirst) and This.NumberOfChars() > 1
-			cRest = substr(This.Content(), 2)
+		cFirst = substr(@oString.Content(), 1, 1)
+		if cFirst = upper(cFirst) and @oString.NumberOfChars() > 1
+			cRest = substr(@oString.Content(), 2)
 			return cRest = lower(cRest)
 		ok
 		return 0
@@ -100,7 +128,7 @@ class stzStringChecker from stzString
 	def IsHybridcase()
 		bHasUpper = 0
 		bHasLower = 0
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -123,7 +151,7 @@ class stzStringChecker from stzString
 	#===============================#
 
 	def ContainsOnlySpaces()
-		cTrimmed = trim(This.Content())
+		cTrimmed = trim(@oString.Content())
 		if cTrimmed = ""
 			return 1
 		else
@@ -131,7 +159,7 @@ class stzStringChecker from stzString
 		ok
 
 	def ContainsOnlyLetters()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -143,7 +171,7 @@ class stzStringChecker from stzString
 		return 1
 
 	def ContainsOnlyNumbers()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -155,7 +183,7 @@ class stzStringChecker from stzString
 		return 1
 
 	def ContainsOnlyDigits()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -167,7 +195,7 @@ class stzStringChecker from stzString
 		return 1
 
 	def ContainsOnlyLettersAndNumbers()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -189,7 +217,7 @@ class stzStringChecker from stzString
 			ok
 		ok
 
-		cCopy = This.Content()
+		cCopy = @oString.Content()
 		nLen = len(acSubStr)
 
 		for i = 1 to nLen
@@ -222,11 +250,11 @@ class stzStringChecker from stzString
 			ok
 		ok
 
-		cCopy = This.Content()
+		cCopy = @oString.Content()
 		nLen = len(acSubStr)
 
 		for i = 1 to nLen
-			oFinder = StzStringFinderQ(cCopy)
+			oFinder = new stzStringFinder(cCopy)
 			if oFinder.ContainsCS(acSubStr[i], pCaseSensitive)
 				cCopy = @ReplaceCS(cCopy, acSubStr[i], "", pCaseSensitive)
 			ok
@@ -246,7 +274,7 @@ class stzStringChecker from stzString
 	#===============================#
 
 	def RepresentsInteger()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		if nLen = 0
@@ -273,7 +301,7 @@ class stzStringChecker from stzString
 
 	def RepresentsSignedInteger()
 		if This.RepresentsInteger()
-			c1 = substr(This.Content(), 1, 1)
+			c1 = substr(@oString.Content(), 1, 1)
 			if c1 = "+" or c1 = "-"
 				return 1
 			ok
@@ -288,7 +316,7 @@ class stzStringChecker from stzString
 		ok
 
 	def RepresentsNumber()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		if nLen = 0
@@ -321,7 +349,7 @@ class stzStringChecker from stzString
 
 	def RepresentsDecimalNumber()
 		if This.RepresentsNumber()
-			oFinder = StzStringFinderQ(This.Content())
+			oFinder = new stzStringFinder(@oString)
 			if oFinder.Contains(".")
 				return 1
 			ok
@@ -329,7 +357,7 @@ class stzStringChecker from stzString
 		return 0
 
 	def RepresentsBinaryNumber()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		if nLen < 3
@@ -349,7 +377,7 @@ class stzStringChecker from stzString
 		return 1
 
 	def RepresentsHexNumber()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		if nLen < 3
@@ -374,7 +402,7 @@ class stzStringChecker from stzString
 
 	def IsReversedCopyOfCS(pcOtherStr, pCaseSensitive)
 		bCase = @CaseSensitive(pCaseSensitive)
-		cReversed = ring_reverse(This.Content())
+		cReversed = ring_reverse(@oString.Content())
 
 		if bCase = 0
 			return lower(cReversed) = lower(pcOtherStr)
@@ -390,30 +418,30 @@ class stzStringChecker from stzString
 	#===============================#
 
 	def Reversed()
-		return ring_reverse(This.Content())
+		return ring_reverse(@oString.Content())
 
 	  #===============================#
 	 #     STRUCTURAL CHECKS         #
 	#===============================#
 
 	def IsChar()
-		return This.NumberOfChars() = 1
+		return @oString.NumberOfChars() = 1
 
 	def IsLetter()
-		if This.NumberOfChars() != 1
+		if @oString.NumberOfChars() != 1
 			return 0
 		ok
-		return isAlpha(This.Content())
+		return isAlpha(@oString.Content())
 
 	def IsADigit()
-		if This.NumberOfChars() != 1
+		if @oString.NumberOfChars() != 1
 			return 0
 		ok
-		return isDigit(This.Content())
+		return isDigit(@oString.Content())
 
 	def IsWord()
-		oFinder = StzStringFinderQ(This.Content())
-		if oFinder.Contains(" ") or This.IsEmpty()
+		oFinder = new stzStringFinder(@oString)
+		if oFinder.Contains(" ") or @oString.IsEmpty()
 			return 0
 		else
 			return 1
@@ -424,22 +452,22 @@ class stzStringChecker from stzString
 	#===============================#
 
 	def HasLeadingChars()
-		if This.NumberOfChars() < 2
+		if @oString.NumberOfChars() < 2
 			return 0
 		ok
 
-		cFirst = substr(This.Content(), 1, 1)
-		cSecond = substr(This.Content(), 2, 1)
+		cFirst = substr(@oString.Content(), 1, 1)
+		cSecond = substr(@oString.Content(), 2, 1)
 		return cFirst = cSecond
 
 	def HasTrailingChars()
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 		if nLen < 2
 			return 0
 		ok
 
-		cLast = substr(This.Content(), nLen, 1)
-		cPrev = substr(This.Content(), nLen - 1, 1)
+		cLast = substr(@oString.Content(), nLen, 1)
+		cPrev = substr(@oString.Content(), nLen - 1, 1)
 		return cLast = cPrev
 
 	def HasLeadingAndTrailingChars()
@@ -450,10 +478,10 @@ class stzStringChecker from stzString
 	#===============================#
 
 	def Trimmed()
-		return trim(This.Content())
+		return trim(@oString.Content())
 
 	def TrimmedLeft()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		nStart = 1
 
@@ -471,7 +499,7 @@ class stzStringChecker from stzString
 		return substr(cContent, nStart)
 
 	def TrimmedRight()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nEnd = len(cContent)
 
 		while nEnd >= 1

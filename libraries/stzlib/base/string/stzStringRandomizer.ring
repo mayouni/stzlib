@@ -3,9 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String randomizer subclass -- shuffling,    #
-#                  random char/substring extraction,            #
-#                  random generation operations.                 #
+#   Description  : String randomizer -- Wraps stzString via     #
+#                  composition. Shuffling, random char/substring #
+#                  extraction, random generation operations.     #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -16,14 +16,34 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringRandomizer from stzString
+class stzStringRandomizer
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringRandomizer! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     SHUFFLE                   #
 	#===============================#
 
 	def Shuffle()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		acChars = []
 
@@ -43,14 +63,14 @@ class stzStringRandomizer from stzString
 			cResult += acChars[i]
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def ShuffleQ()
 			This.Shuffle()
 			return This
 
 	def Shuffled()
-		oCopy = new stzStringRandomizer(This.Content())
+		oCopy = new stzStringRandomizer(@oString.Content())
 		oCopy.Shuffle()
 		return oCopy.Content()
 
@@ -59,12 +79,12 @@ class stzStringRandomizer from stzString
 	#===============================#
 
 	def RandomChar()
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 		if nLen = 0
 			return ""
 		ok
 		n = random(nLen - 1) + 1
-		return substr(This.Content(), n, 1)
+		return substr(@oString.Content(), n, 1)
 
 	def RandomChars(n)
 		acResult = []
@@ -75,7 +95,7 @@ class stzStringRandomizer from stzString
 
 	def NRandomChars(n)
 		# Returns n unique random chars (no duplicates)
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		# Build list of unique chars in the string
@@ -112,7 +132,7 @@ class stzStringRandomizer from stzString
 	#===============================#
 
 	def RandomSection(nLen)
-		nMax = This.NumberOfChars()
+		nMax = @oString.NumberOfChars()
 		if nLen > nMax
 			nLen = nMax
 		ok
@@ -121,7 +141,7 @@ class stzStringRandomizer from stzString
 		ok
 
 		nStart = random(nMax - nLen) + 1
-		return substr(This.Content(), nStart, nLen)
+		return substr(@oString.Content(), nStart, nLen)
 
 		def RandomSubString(nLen)
 			return This.RandomSection(nLen)
@@ -131,7 +151,7 @@ class stzStringRandomizer from stzString
 	#===============================#
 
 	def RandomWord()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		acWords = split(cContent, " ")
 		nLen = len(acWords)
 		if nLen = 0
@@ -145,7 +165,7 @@ class stzStringRandomizer from stzString
 	#===============================#
 
 	def ShuffleWords()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		acWords = split(cContent, " ")
 		nLen = len(acWords)
 
@@ -164,14 +184,14 @@ class stzStringRandomizer from stzString
 			cResult += acWords[i]
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def ShuffleWordsQ()
 			This.ShuffleWords()
 			return This
 
 	def WordsShuffled()
-		oCopy = new stzStringRandomizer(This.Content())
+		oCopy = new stzStringRandomizer(@oString.Content())
 		oCopy.ShuffleWords()
 		return oCopy.Content()
 
@@ -180,7 +200,7 @@ class stzStringRandomizer from stzString
 	#===============================#
 
 	def RandomCase()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		cResult = ""
 
@@ -193,14 +213,14 @@ class stzStringRandomizer from stzString
 			ok
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def RandomCaseQ()
 			This.RandomCase()
 			return This
 
 	def RandomCased()
-		oCopy = new stzStringRandomizer(This.Content())
+		oCopy = new stzStringRandomizer(@oString.Content())
 		oCopy.RandomCase()
 		return oCopy.Content()
 
@@ -209,16 +229,16 @@ class stzStringRandomizer from stzString
 	#===============================#
 
 	def RandomInsert(cStr)
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		nPos = random(nLen) + 1
 
 		if nPos > nLen
-			This.Update(cContent + cStr)
+			@oString.Update(cContent + cStr)
 		else
 			cBefore = substr(cContent, 1, nPos - 1)
 			cAfter = substr(cContent, nPos)
-			This.Update(cBefore + cStr + cAfter)
+			@oString.Update(cBefore + cStr + cAfter)
 		ok
 
 	  #===============================#
@@ -226,10 +246,10 @@ class stzStringRandomizer from stzString
 	#===============================#
 
 	def RandomRemove(n)
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		if n >= nLen
-			This.Update("")
+			@oString.Update("")
 			return
 		ok
 
@@ -261,4 +281,4 @@ class stzStringRandomizer from stzString
 			ok
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)

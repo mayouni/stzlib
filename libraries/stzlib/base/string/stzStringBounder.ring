@@ -3,11 +3,10 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String bounder subclass -- sections,        #
-#                  ranges, between, bounding, and bounds        #
-#                  checking operations.                          #
-#                  Canonical methods only. For full Softanza    #
-#                  fluency (aliases), use stzStringBounderXT.   #
+#   Description  : String bounder -- sections, ranges,         #
+#                  between, bounding, and bounds checking.      #
+#                  Wraps stzString via composition.             #
+#                  For aliases, use stzStringBounderXT.         #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -18,7 +17,35 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringBounder from stzString
+class stzStringBounder
+
+	@oString
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringBounder! Parameter must be a string or stzString object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     SECTION (SLICE)           #
@@ -26,7 +53,7 @@ class stzStringBounder from stzString
 
 	def SectionCS(n1, n2, pCaseSensitive)
 
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 
 		if CheckingParams()
 
@@ -55,7 +82,8 @@ class stzStringBounder from stzString
 				but n1 = :Last or n1 = :LastChar
 					n1 = nLen
 				else
-					n1 = StzStringFinderQ(This.Content()).FindFirstCS(n1, pCaseSensitive)
+					oFinder = new stzStringFinder(@oString)
+					n1 = oFinder.FindFirstCS(n1, pCaseSensitive)
 				ok
 			ok
 
@@ -65,8 +93,9 @@ class stzStringBounder from stzString
 				but n2 = :First or n2 = :FirstChar
 					n2 = 1
 				else
-					nLen2 = Q(n2).NumberOfChars()
-					n2 = StzStringFinderQ(This.Content()).FindLastCS(n2, pCaseSensitive) + nLen2 - 1
+					nLen2 = len(n2)
+					oFinder = new stzStringFinder(@oString)
+					n2 = oFinder.FindLastCS(n2, pCaseSensitive) + nLen2 - 1
 				ok
 			ok
 
@@ -83,7 +112,7 @@ class stzStringBounder from stzString
 			StzRaise("Indexes out of range! n1 and n2 must be inside the string.")
 		ok
 
-		cResult = substr(This.Content(), n1, n2 - n1 + 1)
+		cResult = substr(@oString.Content(), n1, n2 - n1 + 1)
 		return cResult
 
 		def SectionCSQ(n1, n2, pCaseSensitive)
@@ -100,31 +129,21 @@ class stzStringBounder from stzString
 	#===============================#
 
 	def Sections(aSections)
-		acResult = []
-		cContent = This.Content()
-		nLen = len(aSections)
-		for i = 1 to nLen
-			n1 = aSections[i][1]
-			n2 = aSections[i][2]
-			if n1 >= 1 and n2 >= n1 and n2 <= len(cContent)
-				acResult + substr(cContent, n1, n2 - n1 + 1)
-			ok
-		next
-		return acResult
+		return @oString.Sections(aSections)
 
 	  #===============================#
 	 #     ANTI-SECTION              #
 	#===============================#
 
 	def AntiSection(n1, n2)
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 		acResult = []
 
 		if n1 > 1
-			acResult + substr(This.Content(), 1, n1 - 1)
+			acResult + substr(@oString.Content(), 1, n1 - 1)
 		ok
 		if n2 < nLen
-			acResult + substr(This.Content(), n2 + 1, nLen - n2)
+			acResult + substr(@oString.Content(), n2 + 1, nLen - n2)
 		ok
 
 		return acResult
@@ -142,7 +161,7 @@ class stzStringBounder from stzString
 
 			if isNumber(nStartPos)
 				if nStartPos < 0
-					nStartPos = This.NumberOfChars() + nStartPos + 1
+					nStartPos = @oString.NumberOfChars() + nStartPos + 1
 				ok
 				if nStartPos = 0 or nRange = 0
 					return ""
@@ -154,7 +173,8 @@ class stzStringBounder from stzString
 
 		if nRange > 0
 			if CheckingParams() and isString(nStartPos)
-				nStartPos = StzStringFinderQ(This.Content()).FindFirstCS(nStartPos, pCaseSensitive)
+				oFinder = new stzStringFinder(@oString)
+				nStartPos = oFinder.FindFirstCS(nStartPos, pCaseSensitive)
 			ok
 			cResult = This.SectionCS(nStartPos, nStartPos + nRange - 1, pCaseSensitive)
 		else
@@ -191,14 +211,14 @@ class stzStringBounder from stzString
 			StzRaise("Incorrect params types! pSubStrOrPos1 and pSubStrOrPos2 must be both strings or numbers.")
 		ok
 
-		oFinder = StzStringFinderQ(This.Content())
+		oFinder = new stzStringFinder(@oString)
 
 		if @BothAreStrings(pSubStrOrPos1, pSubStrOrPos2)
 			n1 = oFinder.FindFirstCS(pSubStrOrPos1, pCaseSensitive)
 			if n1 = 0
 				return ""
 			else
-				n1 += Q(pSubStrOrPos1).NumberOfChars()
+				n1 += len(pSubStrOrPos1)
 			ok
 
 			n2 = oFinder.FindLastCS(pSubStrOrPos2, pCaseSensitive)
@@ -212,7 +232,7 @@ class stzStringBounder from stzString
 			n2 = pSubStrOrPos2 - 1
 		ok
 
-		cResult = This.Section(n1, n2)
+		cResult = @oString.Section(n1, n2)
 		return cResult
 
 	def Between(pSubStrOrPos1, pSubStrOrPos2)
@@ -224,13 +244,13 @@ class stzStringBounder from stzString
 
 	def BetweenCSIB(pSubStrOrPos1, pSubStrOrPos2, pCaseSensitive)
 		if isNumber(pSubStrOrPos1) and isNumber(pSubStrOrPos2)
-			return This.Section(pSubStrOrPos1, pSubStrOrPos2)
+			return @oString.Section(pSubStrOrPos1, pSubStrOrPos2)
 		ok
 
-		oFinder = StzStringFinderQ(This.Content())
+		oFinder = new stzStringFinder(@oString)
 		n1 = oFinder.FindFirstCS(pSubStrOrPos1, pCaseSensitive)
-		n2 = oFinder.FindLastCS(pSubStrOrPos2, pCaseSensitive) + Q(pSubStrOrPos2).NumberOfChars() - 1
-		return This.Section(n1, n2)
+		n2 = oFinder.FindLastCS(pSubStrOrPos2, pCaseSensitive) + len(pSubStrOrPos2) - 1
+		return @oString.Section(n1, n2)
 
 	def BetweenIB(pSubStrOrPos1, pSubStrOrPos2)
 		return This.BetweenCSIB(pSubStrOrPos1, pSubStrOrPos2, 1)
@@ -254,7 +274,7 @@ class stzStringBounder from stzString
 			nCharsBefore = n1 - 1
 		ok
 
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 		if nCharsAfter > nLen - n2
 			nCharsAfter = nLen - n2
 		ok
@@ -283,11 +303,11 @@ class stzStringBounder from stzString
 
 	def SectionBounds(n1, n2, nCharsBefore, nCharsAfter)
 		aSections = This.FindSectionBoundsZZ(n1, n2, nCharsBefore, nCharsAfter)
-		return This.Sections(aSections)
+		return @oString.Sections(aSections)
 
 	def SectionBoundsIB(n1, n2, nCharsBefore, nCharsAfter)
 		aSections = This.FindSectionBoundsIBZZ(n1, n2, nCharsBefore, nCharsAfter)
-		return This.Sections(aSections)
+		return @oString.Sections(aSections)
 
 	  #===============================#
 	 #     IS BOUNDED BY             #
@@ -318,7 +338,7 @@ class stzStringBounder from stzString
 			StzRaise("Incorrect param type! pacBounds must be a string or a pair of strings.")
 		ok
 
-		oFinder = StzStringFinderQ(This.Content())
+		oFinder = new stzStringFinder(@oString)
 
 		if oFinder.StartsWithCS(cBound1, pCaseSensitive) and
 		   oFinder.EndsWithCS(cBound2, pCaseSensitive)
@@ -355,7 +375,7 @@ class stzStringBounder from stzString
 		ok
 
 		oStr = new stzStringBounder(pIn)
-		bResult = oStr.SubStringIsBoundedByCS(This.Content(), pacBounds, pCaseSensitive)
+		bResult = oStr.SubStringIsBoundedByCS(@oString.Content(), pacBounds, pCaseSensitive)
 
 		return bResult
 
@@ -379,7 +399,7 @@ class stzStringBounder from stzString
 		ok
 
 		cBounded = cBound1 + pcSubStr + cBound2
-		oFinder = StzStringFinderQ(This.Content())
+		oFinder = new stzStringFinder(@oString)
 		return oFinder.ContainsCS(cBounded, pCaseSensitive)
 
 	def SubStringIsBoundedBy(pcSubStr, pacBounds)
@@ -413,8 +433,8 @@ class stzStringBounder from stzString
 	#============================================#
 
 	def SubStringIsBetweenPositionsCS(pcSubStr, n1, n2, pCaseSensitive)
-		cSection = This.Section(n1, n2)
-		oFinder = StzStringFinderQ(cSection)
+		cSection = @oString.Section(n1, n2)
+		oFinder = new stzStringFinder(cSection)
 		return oFinder.ContainsCS(pcSubStr, pCaseSensitive)
 
 	def SubStringIsBetweenPositions(pcSubStr, n1, n2)
@@ -435,7 +455,7 @@ class stzStringBounder from stzString
 			ok
 		ok
 
-		oFinder = StzStringFinderQ(This.Content())
+		oFinder = new stzStringFinder(@oString)
 
 		n1 = oFinder.FindFirstCS(pcSubStr1, pCaseSensitive)
 		n2 = oFinder.FindLastCS(pcSubStr2, pCaseSensitive)
@@ -465,8 +485,8 @@ class stzStringBounder from stzString
 			ok
 		ok
 
-		cBounded = This.Content() + pcSubStr + This.Content()
-		oFinder = StzStringFinderQ(pcInStr)
+		cBounded = @oString.Content() + pcSubStr + @oString.Content()
+		oFinder = new stzStringFinder(pcInStr)
 		return oFinder.ContainsCS(cBounded, pCaseSensitive)
 
 	def IsBoundOf(pcSubStr, pcInStr)
@@ -477,13 +497,13 @@ class stzStringBounder from stzString
 	#===============================#
 
 	def Char(n)
-		if n < 1 or n > This.NumberOfChars()
+		if n < 1 or n > @oString.NumberOfChars()
 			StzRaise("Index out of range!")
 		ok
-		return substr(This.Content(), n, 1)
+		return substr(@oString.Content(), n, 1)
 
 	def FirstChar()
 		return This.Char(1)
 
 	def LastChar()
-		return This.Char(This.NumberOfChars())
+		return This.Char(@oString.NumberOfChars())

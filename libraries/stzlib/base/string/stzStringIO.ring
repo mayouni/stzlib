@@ -3,8 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String IO subclass -- import/export,         #
-#                  file reading/writing, URL operations.         #
+#   Description  : String IO -- Wraps stzString via             #
+#                  composition. Import/export, file reading/     #
+#                  writing, URL operations.                      #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -15,7 +16,27 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringIO from stzString
+class stzStringIO
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringIO! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     FILE OPERATIONS           #
@@ -27,7 +48,7 @@ class stzStringIO from stzString
 		ok
 
 		cContent = read(pcFilePath)
-		This.Update(cContent)
+		@oString.Update(cContent)
 
 		def FromFileQ(pcFilePath)
 			This.FromFile(pcFilePath)
@@ -37,7 +58,7 @@ class stzStringIO from stzString
 			This.FromFile(pcFilePath)
 
 	def ToFile(pcFilePath)
-		write(pcFilePath, This.Content())
+		write(pcFilePath, @oString.Content())
 
 		def SaveTo(pcFilePath)
 			This.ToFile(pcFilePath)
@@ -50,20 +71,20 @@ class stzStringIO from stzString
 		if fexists(pcFilePath)
 			cExisting = read(pcFilePath)
 		ok
-		write(pcFilePath, cExisting + This.Content())
+		write(pcFilePath, cExisting + @oString.Content())
 
 	def PrependToFile(pcFilePath)
 		cExisting = ""
 		if fexists(pcFilePath)
 			cExisting = read(pcFilePath)
 		ok
-		write(pcFilePath, This.Content() + cExisting)
+		write(pcFilePath, @oString.Content() + cExisting)
 
 	def FileExists(pcFilePath)
 		return fexists(pcFilePath)
 
 	def IsFilePath()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		if nLen = 0
 			return 0
@@ -93,7 +114,7 @@ class stzStringIO from stzString
 	#===============================#
 
 	def IsURL()
-		cContent = lower(This.Content())
+		cContent = lower(@oString.Content())
 		if left(cContent, 7) = "http://" or
 		   left(cContent, 8) = "https://" or
 		   left(cContent, 6) = "ftp://"
@@ -103,7 +124,7 @@ class stzStringIO from stzString
 		ok
 
 	def IsEmail()
-		oFinder = StzStringFinderQ(This.Content())
+		oFinder = new stzStringFinder(@oString)
 		if oFinder.Contains("@") and oFinder.Contains(".")
 			return 1
 		else
@@ -115,7 +136,7 @@ class stzStringIO from stzString
 	#===============================#
 
 	def ToJSON()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = '"'
 		nLen = len(cContent)
 		for i = 1 to nLen
@@ -138,8 +159,8 @@ class stzStringIO from stzString
 		return cResult
 
 	def ToCSV()
-		cContent = This.Content()
-		oFinder = StzStringFinderQ(cContent)
+		cContent = @oString.Content()
+		oFinder = new stzStringFinder(cContent)
 		if oFinder.Contains(",") or oFinder.Contains('"') or oFinder.Contains(NL)
 			cContent = @ReplaceCS(cContent, '"', '""', 1)
 			return '"' + cContent + '"'
@@ -148,7 +169,7 @@ class stzStringIO from stzString
 		ok
 
 	def ToXML()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = ""
 		nLen = len(cContent)
 
@@ -178,7 +199,7 @@ class stzStringIO from stzString
 		StzRaise("Clipboard access is not supported in this environment!")
 
 	def IsBase64()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		if nLen = 0
 			return 0

@@ -3,11 +3,11 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String formatter subclass -- case           #
-#                  conversion, alignment, padding, spacing,     #
-#                  simplification, and repeating.                #
-#                  Canonical methods only. For full Softanza    #
-#                  fluency (aliases), use stzStringFormatterXT. #
+#   Description  : String formatter -- case conversion,        #
+#                  alignment, padding, spacing, simplification, #
+#                  and repeating.                                #
+#                  Wraps stzString via composition.             #
+#                  For aliases, use stzStringFormatterXT.       #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -18,21 +18,49 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringFormatter from stzString
+class stzStringFormatter
+
+	@oString
+
+	  #===================#
+	 #   INITIALIZATION  #
+	#===================#
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringFormatter! Parameter must be a string or stzString object.")
+		ok
+
+	  #===============================#
+	 #     CONTENT ACCESS            #
+	#===============================#
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     LOWERCASE                 #
 	#===============================#
 
 	def ApplyLowercase()
-		This.Update( lower(This.Content()) )
+		@oString.Update( lower(@oString.Content()) )
 
 		def ApplyLowercaseQ()
 			This.ApplyLowercase()
 			return This
 
 	def Lowercased()
-		return lower(This.Content())
+		return lower(@oString.Content())
 
 		def LowercasedQ()
 			return new stzStringFormatter(This.Lowercased())
@@ -42,14 +70,14 @@ class stzStringFormatter from stzString
 	#===============================#
 
 	def ApplyUppercase()
-		This.Update( upper(This.Content()) )
+		@oString.Update( upper(@oString.Content()) )
 
 		def ApplyUppercaseQ()
 			This.ApplyUppercase()
 			return This
 
 	def Uppercased()
-		return upper(This.Content())
+		return upper(@oString.Content())
 
 		def UppercasedQ()
 			return new stzStringFormatter(This.Uppercased())
@@ -59,7 +87,7 @@ class stzStringFormatter from stzString
 	#===============================#
 
 	def ApplyCapitalcase()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		if nLen = 0
 			return
@@ -68,9 +96,9 @@ class stzStringFormatter from stzString
 		cFirst = upper(substr(cContent, 1, 1))
 		if nLen > 1
 			cRest = lower(substr(cContent, 2))
-			This.Update(cFirst + cRest)
+			@oString.Update(cFirst + cRest)
 		else
-			This.Update(cFirst)
+			@oString.Update(cFirst)
 		ok
 
 		def ApplyCapitalcaseQ()
@@ -78,7 +106,7 @@ class stzStringFormatter from stzString
 			return This
 
 	def Capitalized()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		if nLen = 0
 			return ""
@@ -99,7 +127,7 @@ class stzStringFormatter from stzString
 	#===============================#
 
 	def ApplyTitlecase()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = ""
 		bNextUpper = 1
 		nLen = len(cContent)
@@ -119,14 +147,14 @@ class stzStringFormatter from stzString
 			ok
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def ApplyTitlecaseQ()
 			This.ApplyTitlecase()
 			return This
 
 	def Titlecased()
-		oCopy = new stzStringFormatter(This.Content())
+		oCopy = new stzStringFormatter(@oString.Content())
 		oCopy.ApplyTitlecase()
 		return oCopy.Content()
 
@@ -138,24 +166,24 @@ class stzStringFormatter from stzString
 	#===============================#
 
 	def ApplyCaseFold()
-		This.Update( lower(This.Content()) )
+		@oString.Update( lower(@oString.Content()) )
 
 	def CaseFolded()
-		return lower(This.Content())
+		return lower(@oString.Content())
 
 	  #===============================#
 	 #     REVERSED                  #
 	#===============================#
 
 	def ApplyReverse()
-		This.Update( ring_reverse(This.Content()) )
+		@oString.Update( ring_reverse(@oString.Content()) )
 
 		def ApplyReverseQ()
 			This.ApplyReverse()
 			return This
 
 	def Reversed()
-		return ring_reverse(This.Content())
+		return ring_reverse(@oString.Content())
 
 		def ReversedQ()
 			return new stzStringFormatter(This.Reversed())
@@ -181,13 +209,13 @@ class stzStringFormatter from stzString
 			ok
 		ok
 
-		if nWidth > This.NumberOfChars()
+		if nWidth > @oString.NumberOfChars()
 			cPad = ""
-			nPadCount = nWidth - len(This.Content())
+			nPadCount = nWidth - len(@oString.Content())
 			for _i_ = 1 to nPadCount
 				cPad += cChar
 			next
-			This.Update( This.Content() + cPad )
+			@oString.Update( @oString.Content() + cPad )
 		ok
 
 		def LeftAlignXTQ(nWidth, cChar)
@@ -195,7 +223,7 @@ class stzStringFormatter from stzString
 			return This
 
 	def LeftAligned(nWidth)
-		oCopy = new stzStringFormatter(This.Content())
+		oCopy = new stzStringFormatter(@oString.Content())
 		oCopy.LeftAlign(nWidth)
 		return oCopy.Content()
 
@@ -220,13 +248,13 @@ class stzStringFormatter from stzString
 			ok
 		ok
 
-		if nWidth > This.NumberOfChars()
+		if nWidth > @oString.NumberOfChars()
 			cPad = ""
-			nPadCount = nWidth - len(This.Content())
+			nPadCount = nWidth - len(@oString.Content())
 			for _i_ = 1 to nPadCount
 				cPad += cChar
 			next
-			This.Update( cPad + This.Content() )
+			@oString.Update( cPad + @oString.Content() )
 		ok
 
 		def RightAlignXTQ(nWidth, cChar)
@@ -234,7 +262,7 @@ class stzStringFormatter from stzString
 			return This
 
 	def RightAligned(nWidth)
-		oCopy = new stzStringFormatter(This.Content())
+		oCopy = new stzStringFormatter(@oString.Content())
 		oCopy.RightAlign(nWidth)
 		return oCopy.Content()
 
@@ -259,7 +287,7 @@ class stzStringFormatter from stzString
 			ok
 		ok
 
-		nChars = This.NumberOfChars()
+		nChars = @oString.NumberOfChars()
 		if nWidth > nChars
 			nTotal = nWidth - nChars
 			nLeft = floor(nTotal / 2)
@@ -275,7 +303,7 @@ class stzStringFormatter from stzString
 				cPadRight += cChar
 			next
 
-			This.Update( cPadLeft + This.Content() + cPadRight )
+			@oString.Update( cPadLeft + @oString.Content() + cPadRight )
 		ok
 
 		def CenterAlignXTQ(nWidth, cChar)
@@ -283,7 +311,7 @@ class stzStringFormatter from stzString
 			return This
 
 	def CenterAligned(nWidth)
-		oCopy = new stzStringFormatter(This.Content())
+		oCopy = new stzStringFormatter(@oString.Content())
 		oCopy.CenterAlign(nWidth)
 		return oCopy.Content()
 
@@ -316,7 +344,7 @@ class stzStringFormatter from stzString
 	#===============================#
 
 	def Simplify()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = ""
 		bLastWasSpace = 0
 		nLen = len(cContent)
@@ -335,14 +363,14 @@ class stzStringFormatter from stzString
 		next
 
 		cResult = trim(cResult)
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def SimplifyQ()
 			This.Simplify()
 			return This
 
 	def Simplified()
-		oCopy = new stzStringFormatter(This.Content())
+		oCopy = new stzStringFormatter(@oString.Content())
 		oCopy.Simplify()
 		return oCopy.Content()
 
@@ -354,17 +382,17 @@ class stzStringFormatter from stzString
 	#===============================#
 
 	def Trim()
-		This.Update( trim(This.Content()) )
+		@oString.Update( trim(@oString.Content()) )
 
 		def TrimQ()
 			This.Trim()
 			return This
 
 	def Trimmed()
-		return trim(This.Content())
+		return trim(@oString.Content())
 
 	def TrimLeft()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		nStart = 1
 
@@ -377,9 +405,9 @@ class stzStringFormatter from stzString
 		end
 
 		if nStart > nLen
-			This.Update("")
+			@oString.Update("")
 		else
-			This.Update(substr(cContent, nStart))
+			@oString.Update(substr(cContent, nStart))
 		ok
 
 		def TrimLeftQ()
@@ -387,12 +415,12 @@ class stzStringFormatter from stzString
 			return This
 
 	def TrimmedLeft()
-		oCopy = new stzStringFormatter(This.Content())
+		oCopy = new stzStringFormatter(@oString.Content())
 		oCopy.TrimLeft()
 		return oCopy.Content()
 
 	def TrimRight()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nEnd = len(cContent)
 
 		while nEnd >= 1
@@ -404,9 +432,9 @@ class stzStringFormatter from stzString
 		end
 
 		if nEnd < 1
-			This.Update("")
+			@oString.Update("")
 		else
-			This.Update(substr(cContent, 1, nEnd))
+			@oString.Update(substr(cContent, 1, nEnd))
 		ok
 
 		def TrimRightQ()
@@ -414,7 +442,7 @@ class stzStringFormatter from stzString
 			return This
 
 	def TrimmedRight()
-		oCopy = new stzStringFormatter(This.Content())
+		oCopy = new stzStringFormatter(@oString.Content())
 		oCopy.TrimRight()
 		return oCopy.Content()
 
@@ -423,19 +451,19 @@ class stzStringFormatter from stzString
 	#===============================#
 
 	def RepeatNTimes(n)
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = ""
 		for i = 1 to n
 			cResult += cContent
 		next
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def RepeatNTimesQ(n)
 			This.RepeatNTimes(n)
 			return This
 
 	def RepeatedNTimes(n)
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = ""
 		for i = 1 to n
 			cResult += cContent

@@ -3,8 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String comparator subclass -- comparing     #
-#                  strings for equality, order, and diff.       #
+#   Description  : String comparator -- Wraps stzString via    #
+#                  composition. Comparing strings for equality, #
+#                  order, and diff.                             #
 #                  For aliases, use stzStringComparatorXT.      #
 #   Version      : V0.9 (2026)                                #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
@@ -16,7 +17,27 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringComparator from stzString
+class stzStringComparator
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringComparator! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #======================================================#
 	 #   EQUALITY                                           #
@@ -24,9 +45,9 @@ class stzStringComparator from stzString
 
 	def IsEqualToCS(pcOtherStr, pCaseSensitive)
 		if pCaseSensitive = 1
-			return This.Content() = pcOtherStr
+			return @oString.Content() = pcOtherStr
 		else
-			return lower(This.Content()) = lower(pcOtherStr)
+			return lower(@oString.Content()) = lower(pcOtherStr)
 		ok
 
 	def IsEqualTo(pcOtherStr)
@@ -59,16 +80,16 @@ class stzStringComparator from stzString
 	#======================================================#
 
 	def IsLessThan(pcOtherStr)
-		return strcmp(This.Content(), pcOtherStr) < 0
+		return strcmp(@oString.Content(), pcOtherStr) < 0
 
 	def IsGreaterThan(pcOtherStr)
-		return strcmp(This.Content(), pcOtherStr) > 0
+		return strcmp(@oString.Content(), pcOtherStr) > 0
 
 	def IsBetweenCS(pcStr1, pcStr2, pCaseSensitive)
 		if pCaseSensitive = 1
-			cSelf = This.Content()
+			cSelf = @oString.Content()
 		else
-			cSelf = lower(This.Content())
+			cSelf = lower(@oString.Content())
 			pcStr1 = lower(pcStr1)
 			pcStr2 = lower(pcStr2)
 		ok
@@ -83,9 +104,9 @@ class stzStringComparator from stzString
 
 	def CompareCS(pcOtherStr, pCaseSensitive)
 		if pCaseSensitive = 0
-			n = strcmp(lower(This.Content()), lower(pcOtherStr))
+			n = strcmp(lower(@oString.Content()), lower(pcOtherStr))
 		else
-			n = strcmp(This.Content(), pcOtherStr)
+			n = strcmp(@oString.Content(), pcOtherStr)
 		ok
 
 		if n < 0
@@ -105,7 +126,7 @@ class stzStringComparator from stzString
 
 	def DiffWith(pcOtherStr)
 		aResult = []
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 		nOtherLen = len(pcOtherStr)
 		nMax = nLen
 		if nOtherLen > nMax
@@ -114,7 +135,7 @@ class stzStringComparator from stzString
 		for i = 1 to nMax
 			if i > nLen or i > nOtherLen
 				aResult + i
-			but This.Content()[i] != pcOtherStr[i]
+			but @oString.Content()[i] != pcOtherStr[i]
 				aResult + i
 			ok
 		next
@@ -125,7 +146,7 @@ class stzStringComparator from stzString
 	#======================================================#
 
 	def ContainsCS(pcSubStr, pCaseSensitive)
-		return This.FindFirstCS(pcSubStr, pCaseSensitive) > 0
+		return new stzStringFinder(@oString).FindNthCS(1, pcSubStr, pCaseSensitive) > 0
 
 	def Contains(pcSubStr)
 		return This.ContainsCS(pcSubStr, 1)

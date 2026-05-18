@@ -3,9 +3,10 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String locale subclass -- locale-aware       #
-#                  operations: language, country, script,        #
-#                  currency detection and formatting.            #
+#   Description  : String locale -- Wraps stzString via         #
+#                  composition. Locale-aware operations:         #
+#                  language, country, script, currency           #
+#                  detection and formatting.                     #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -16,7 +17,27 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringLocale from stzString
+class stzStringLocale
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringLocale! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     LOCALE CASE CONVERSION    #
@@ -24,18 +45,18 @@ class stzStringLocale from stzString
 
 	def LowercasedInLocale(pcLocale)
 		oLocale = new stzLocale(pcLocale)
-		return oLocale.ToLowercase(This.Content())
+		return oLocale.ToLowercase(@oString.Content())
 
 	def UppercasedInLocale(pcLocale)
 		oLocale = new stzLocale(pcLocale)
-		return oLocale.ToUppercase(This.Content())
+		return oLocale.ToUppercase(@oString.Content())
 
 	  #===============================#
 	 #     LANGUAGE DETECTION        #
 	#===============================#
 
 	def IsLatinScript()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -48,7 +69,7 @@ class stzStringLocale from stzString
 		return 0
 
 	def ContainsLatinLetters()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -61,7 +82,7 @@ class stzStringLocale from stzString
 		return 0
 
 	def IsRightToLeft()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		if len(cContent) = 0
 			return 0
 		ok
@@ -90,7 +111,7 @@ class stzStringLocale from stzString
 
 	def Script()
 		if This.IsRightToLeft()
-			n = ascii(substr(This.Content(), 1, 1))
+			n = ascii(substr(@oString.Content(), 1, 1))
 			if n >= 0x0600 and n <= 0x06FF
 				return :Arabic
 			but n >= 0x0590 and n <= 0x05FF
@@ -107,7 +128,7 @@ class stzStringLocale from stzString
 	#===============================#
 
 	def ContainsArabicLetters()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -120,7 +141,7 @@ class stzStringLocale from stzString
 		return 0
 
 	def ContainsDigits()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -133,7 +154,7 @@ class stzStringLocale from stzString
 		return 0
 
 	def ContainsOnlyDigits()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		if nLen = 0
 			return 0
@@ -149,7 +170,7 @@ class stzStringLocale from stzString
 		return 1
 
 	def ContainsOnlyLetters()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		if nLen = 0
 			return 0
@@ -165,7 +186,7 @@ class stzStringLocale from stzString
 		return 1
 
 	def ContainsOnlyLatinLetters()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		if nLen = 0
 			return 0
@@ -181,7 +202,7 @@ class stzStringLocale from stzString
 		return 1
 
 	def IsAscii()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		if nLen = 0
 			return 1
@@ -197,7 +218,7 @@ class stzStringLocale from stzString
 		return 1
 
 	def ContainsPunctuation()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cPunct = ".,;:!?-()[]{}'" + '"'
 		nLen = len(cContent)
 
@@ -213,7 +234,7 @@ class stzStringLocale from stzString
 		return 0
 
 	def ContainsWhitespace()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -225,7 +246,7 @@ class stzStringLocale from stzString
 		return 0
 
 	def ContainsOnlyWhitespace()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		if nLen = 0
 			return 0
@@ -243,7 +264,7 @@ class stzStringLocale from stzString
 		bHasLatin = This.ContainsLatinLetters()
 		bHasNonLatin = 0
 
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen

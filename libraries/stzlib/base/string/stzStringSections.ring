@@ -3,8 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String sections subclass -- extracting      #
-#                  sections and ranges from strings.            #
+#   Description  : String sections -- Wraps stzString via      #
+#                  composition. Extracting sections and ranges  #
+#                  from strings.                               #
 #                  For aliases, use stzStringSectionsXT.        #
 #   Version      : V0.9 (2026)                                #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
@@ -16,7 +17,27 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringSections from stzString
+class stzStringSections
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringSections! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #======================================================#
 	 #   SECTION (SLICE)                                    #
@@ -31,7 +52,7 @@ class stzStringSections from stzString
 				n2 = n2[2]
 			ok
 		ok
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 		if n1 < 1
 			n1 = 1
 		ok
@@ -43,7 +64,7 @@ class stzStringSections from stzString
 			n1 = n2
 			n2 = temp
 		ok
-		return substr(This.Content(), n1, n2 - n1 + 1)
+		return substr(@oString.Content(), n1, n2 - n1 + 1)
 
 	def Section(n1, n2)
 		return This.SectionCS(n1, n2, 1)
@@ -72,7 +93,7 @@ class stzStringSections from stzString
 	#======================================================#
 
 	def AntiSections(paSections)
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 		aCovered = []
 		nSLen = len(paSections)
 		for i = 1 to nSLen
@@ -126,7 +147,7 @@ class stzStringSections from stzString
 	#======================================================#
 
 	def RemoveSection(n1, n2)
-		nLen = This.NumberOfChars()
+		nLen = @oString.NumberOfChars()
 		if n1 < 1 n1 = 1 ok
 		if n2 > nLen n2 = nLen ok
 		if n1 > n2
@@ -137,19 +158,20 @@ class stzStringSections from stzString
 		cBefore = ""
 		cAfter = ""
 		if n1 > 1
-			cBefore = substr(This.Content(), 1, n1 - 1)
+			cBefore = substr(@oString.Content(), 1, n1 - 1)
 		ok
 		if n2 < nLen
-			cAfter = substr(This.Content(), n2 + 1, nLen - n2)
+			cAfter = substr(@oString.Content(), n2 + 1, nLen - n2)
 		ok
-		This.Update(cBefore + cAfter)
+		@oString.Update(cBefore + cAfter)
 
 		def RemoveSectionQ(n1, n2)
 			This.RemoveSection(n1, n2)
 			return This
 
 	def SectionRemoved(n1, n2)
-		return This.Copy().RemoveSectionQ(n1, n2).Content()
+		oCopy = new stzStringSections(@oString.Content())
+		return oCopy.RemoveSectionQ(n1, n2).Content()
 
 	  #======================================================#
 	 #   REMOVE MANY SECTIONS                               #
@@ -166,7 +188,8 @@ class stzStringSections from stzString
 			return This
 
 	def SectionsRemoved(paSections)
-		return This.Copy().RemoveSectionsQ(paSections).Content()
+		oCopy = new stzStringSections(@oString.Content())
+		return oCopy.RemoveSectionsQ(paSections).Content()
 
 	  #======================================================#
 	 #   REMOVE RANGE                                       #
@@ -180,4 +203,5 @@ class stzStringSections from stzString
 			return This
 
 	def RangeRemoved(pnStart, pnRange)
-		return This.Copy().RemoveRangeQ(pnStart, pnRange).Content()
+		oCopy = new stzStringSections(@oString.Content())
+		return oCopy.RemoveRangeQ(pnStart, pnRange).Content()

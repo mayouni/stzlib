@@ -3,9 +3,10 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String code subclass -- detecting and        #
-#                  working with code snippets in strings         #
-#                  (Ring code, functions, classes).               #
+#   Description  : String code -- Wraps stzString via           #
+#                  composition. Detecting and working with      #
+#                  code snippets in strings (Ring code,          #
+#                  functions, classes).                          #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -16,14 +17,34 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringCode from stzString
+class stzStringCode
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringCode! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     RING CODE DETECTION       #
 	#===============================#
 
 	def IsRingCode()
-		cContent = lower(This.Content())
+		cContent = lower(@oString.Content())
 		acKeywords = [
 			"func", "class", "def", "if", "but", "else", "ok",
 			"for", "next", "while", "end", "switch", "off",
@@ -33,7 +54,7 @@ class stzStringCode from stzString
 
 		nLen = len(acKeywords)
 		for i = 1 to nLen
-			oFinder = StzStringFinderQ(cContent)
+			oFinder = new stzStringFinder(cContent)
 			if oFinder.Contains(acKeywords[i])
 				return 1
 			ok
@@ -41,11 +62,11 @@ class stzStringCode from stzString
 		return 0
 
 	def IsRingFunction()
-		cTrimmed = trim(This.Content())
+		cTrimmed = trim(@oString.Content())
 		return left(lower(cTrimmed), 5) = "func "
 
 	def IsRingClass()
-		cTrimmed = trim(This.Content())
+		cTrimmed = trim(@oString.Content())
 		return left(lower(cTrimmed), 6) = "class "
 
 	  #===============================#
@@ -53,10 +74,10 @@ class stzStringCode from stzString
 	#===============================#
 
 	def Execute()
-		eval(This.Content())
+		eval(@oString.Content())
 
 	def ExecuteAndReturn()
-		cCode = "_result_ = " + This.Content()
+		cCode = "_result_ = " + @oString.Content()
 		eval(cCode)
 		return _result_
 
@@ -65,15 +86,15 @@ class stzStringCode from stzString
 	#===============================#
 
 	def ContainsFunctions()
-		oFinder = StzStringFinderQ(lower(This.Content()))
+		oFinder = new stzStringFinder(lower(@oString.Content()))
 		return oFinder.Contains("func ")
 
 	def ContainsClasses()
-		oFinder = StzStringFinderQ(lower(This.Content()))
+		oFinder = new stzStringFinder(lower(@oString.Content()))
 		return oFinder.Contains("class ")
 
 	def NumberOfFunctions()
-		cContent = lower(This.Content())
+		cContent = lower(@oString.Content())
 		acLines = split(cContent, nl)
 		nCount = 0
 		nLen = len(acLines)
@@ -88,7 +109,7 @@ class stzStringCode from stzString
 		return nCount
 
 	def NumberOfClasses()
-		cContent = lower(This.Content())
+		cContent = lower(@oString.Content())
 		acLines = split(cContent, nl)
 		nCount = 0
 		nLen = len(acLines)
@@ -103,7 +124,7 @@ class stzStringCode from stzString
 		return nCount
 
 	def FunctionNames()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		acLines = split(cContent, nl)
 		acNames = []
 		nLen = len(acLines)
@@ -133,7 +154,7 @@ class stzStringCode from stzString
 		return acNames
 
 	def ClassNames()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		acLines = split(cContent, nl)
 		acNames = []
 		nLen = len(acLines)
@@ -167,7 +188,7 @@ class stzStringCode from stzString
 	#===============================#
 
 	def IsComment()
-		cTrimmed = trim(This.Content())
+		cTrimmed = trim(@oString.Content())
 		if left(cTrimmed, 1) = "#"
 			return 1
 		ok
@@ -177,11 +198,11 @@ class stzStringCode from stzString
 		return 0
 
 	def IsBlankLine()
-		cTrimmed = trim(This.Content())
+		cTrimmed = trim(@oString.Content())
 		return len(cTrimmed) = 0
 
 	def ContainsComments()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		if substr(cContent, "#") > 0
 			return 1
 		ok
@@ -191,7 +212,7 @@ class stzStringCode from stzString
 		return 0
 
 	def LinesOfCode()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		acLines = split(cContent, nl)
 		nCount = 0
 		nLen = len(acLines)

@@ -3,8 +3,9 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String encoder subclass -- hex, base64,     #
-#                  URL encoding/decoding, unicode operations.   #
+#   Description  : String encoder -- Wraps stzString via        #
+#                  composition. Hex, base64, URL encoding/       #
+#                  decoding, unicode operations.                 #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -15,14 +16,34 @@
  ///   CLASS   ///
 /////////////////
 
-class stzStringEncoder from stzString
+class stzStringEncoder
+
+	@oString
+
+	def init(pStrOrStzStrObj)
+		if isString(pStrOrStzStrObj)
+			@oString = new stzString(pStrOrStzStrObj)
+		but isObject(pStrOrStzStrObj)
+			@oString = pStrOrStzStrObj
+		else
+			StzRaise("Can't create stzStringEncoder! Parameter must be a string or stzString object.")
+		ok
+
+	def Content()
+		return @oString.Content()
+
+	def NumberOfChars()
+		return @oString.NumberOfChars()
+
+	def IsEmpty()
+		return @oString.IsEmpty()
 
 	  #===============================#
 	 #     HEX                       #
 	#===============================#
 
 	def ToHex()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = ""
 		nLen = len(cContent)
 
@@ -56,7 +77,7 @@ class stzStringEncoder from stzString
 			i += 2
 		end
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def FromHexQ(cHex)
 			This.FromHex(cHex)
@@ -67,7 +88,7 @@ class stzStringEncoder from stzString
 	#===============================#
 
 	def UrlEncoded()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = ""
 		nLen = len(cContent)
 
@@ -92,10 +113,10 @@ class stzStringEncoder from stzString
 		return cResult
 
 		def UrlEncode()
-			This.Update(This.UrlEncoded())
+			@oString.Update(This.UrlEncoded())
 
 	def UrlDecoded()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = ""
 		nLen = len(cContent)
 		i = 1
@@ -118,7 +139,7 @@ class stzStringEncoder from stzString
 		return cResult
 
 		def UrlDecode()
-			This.Update(This.UrlDecoded())
+			@oString.Update(This.UrlDecoded())
 
 	  #===============================#
 	 #     CHAR CODES                #
@@ -126,7 +147,7 @@ class stzStringEncoder from stzString
 
 	def AsciiCodes()
 		acResult = []
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -137,7 +158,7 @@ class stzStringEncoder from stzString
 
 	def Unicodes()
 		acResult = []
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 
 		for i = 1 to nLen
@@ -151,7 +172,7 @@ class stzStringEncoder from stzString
 	#===============================#
 
 	def ToBinary()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		cResult = ""
 
@@ -191,7 +212,7 @@ class stzStringEncoder from stzString
 			cResult += char(nVal)
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def FromBinaryQ(cBin)
 			This.FromBinary(cBin)
@@ -202,7 +223,7 @@ class stzStringEncoder from stzString
 	#===============================#
 
 	def ToOctal()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		cResult = ""
 
@@ -235,7 +256,7 @@ class stzStringEncoder from stzString
 	#===============================#
 
 	def ToCharCodes()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		cResult = ""
 
@@ -257,7 +278,7 @@ class stzStringEncoder from stzString
 			cResult += char(0 + acParts[i])
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def FromCharCodesQ(cCodes)
 			This.FromCharCodes(cCodes)
@@ -268,7 +289,7 @@ class stzStringEncoder from stzString
 	#===============================#
 
 	def HtmlEncoded()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		cResult = ""
 
@@ -293,14 +314,14 @@ class stzStringEncoder from stzString
 		return cResult
 
 		def HtmlEncode()
-			This.Update(This.HtmlEncoded())
+			@oString.Update(This.HtmlEncoded())
 
 		def HtmlEncodeQ()
 			This.HtmlEncode()
 			return This
 
 	def HtmlDecoded()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		cResult = cContent
 
 		cResult = ring_substr2(cResult, "&amp;", "&")
@@ -312,7 +333,7 @@ class stzStringEncoder from stzString
 		return cResult
 
 		def HtmlDecode()
-			This.Update(This.HtmlDecoded())
+			@oString.Update(This.HtmlDecoded())
 
 		def HtmlDecodeQ()
 			This.HtmlDecode()
@@ -323,7 +344,7 @@ class stzStringEncoder from stzString
 	#===============================#
 
 	def EscapedForRegex()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		cResult = ""
 		cSpecial = ".*+?^${}[]()|\\"
@@ -340,7 +361,7 @@ class stzStringEncoder from stzString
 		return cResult
 
 		def EscapeForRegex()
-			This.Update(This.EscapedForRegex())
+			@oString.Update(This.EscapedForRegex())
 
 		def EscapeForRegexQ()
 			This.EscapeForRegex()
@@ -351,7 +372,7 @@ class stzStringEncoder from stzString
 	#===============================#
 
 	def Reverse()
-		cContent = This.Content()
+		cContent = @oString.Content()
 		nLen = len(cContent)
 		cResult = ""
 
@@ -359,13 +380,13 @@ class stzStringEncoder from stzString
 			cResult += substr(cContent, i, 1)
 		next
 
-		This.Update(cResult)
+		@oString.Update(cResult)
 
 		def ReverseQ()
 			This.Reverse()
 			return This
 
 	def Reversed()
-		oCopy = new stzStringEncoder(This.Content())
+		oCopy = new stzStringEncoder(@oString.Content())
 		oCopy.Reverse()
 		return oCopy.Content()
