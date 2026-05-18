@@ -2176,6 +2176,11 @@ fn ring_StringHasMixedCase(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_has_mixed_case(h)));
 }
 
+fn ring_StringIsWord(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_word(h)));
+}
+
 // ─── Byte-level extraction (str_left, str_right) ───
 
 fn ring_StringLeft(p: *anyopaque) callconv(.c) void {
@@ -2697,6 +2702,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringuniquecharsci", .func = &ring_StringUniqueCharsCI },
     .{ .name = "stzenginestringsubstringscount", .func = &ring_StringSubstringsCount },
     .{ .name = "stzenginestringsubstringsofnchars", .func = &ring_StringSubstringsOfNChars },
+    .{ .name = "stzenginestringisword", .func = &ring_StringIsWord },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
