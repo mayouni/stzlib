@@ -55,7 +55,7 @@ class stzStringSplitter
 	def SplitCS(pSubStrOrPos, pCaseSensitive)
 
 		if isList(pSubStrOrPos) and len(pSubStrOrPos) = 2 and isString(pSubStrOrPos[1])
-			cParamName = lower(pSubStrOrPos[1])
+			cParamName = StzCaseFold(pSubStrOrPos[1])
 
 			if cParamName = "with" or cParamName = "by" or cParamName = "using"
 				return This.SplitAtCS(pSubStrOrPos[2], pCaseSensitive)

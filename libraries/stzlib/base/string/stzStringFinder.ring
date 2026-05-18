@@ -105,7 +105,7 @@ class stzStringFinder
 			ok
 
 			if isList(pcSubStr) and len(pcSubStr) = 2 and isString(pcSubStr[1])
-				cPN = lower(pcSubStr[1])
+				cPN = StzCaseFold(pcSubStr[1])
 				if cPN = "of" or cPN = "ofsubstring"
 					pcSubStr = pcSubStr[2]
 				ok
@@ -171,7 +171,7 @@ class stzStringFinder
 		ok
 
 		if isString(n)
-			cNLowercased = lower(n)
+			cNLowercased = StzCaseFold(n)
 			if cNLowercased = :First or cNLowercased = :FirstOccurrence
 				n = 1
 
@@ -552,7 +552,7 @@ class stzStringFinder
 
 	def FindWCS(pcCondition, pCaseSensitive)
 		# Dispatch: @char -> FindCharsWCS
-		cLower = lower(pcCondition)
+		cLower = StzCaseFold(pcCondition)
 		if substr(cLower, "@char") > 0
 			return This.FindCharsWCS(pcCondition, pCaseSensitive)
 		ok

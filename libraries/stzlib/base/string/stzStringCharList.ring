@@ -337,7 +337,7 @@ class stzStringCharList
 
 	def ToUpper()
 		cStr = This.Concatenated()
-		cUpper = upper(cStr)
+		cUpper = StzUpper(cStr)
 		pHandle = StzEngineString(cUpper)
 		pSplit = StzEngineStringCharsSplit(pHandle)
 		cJoined = StzEngineStringData(pSplit)
@@ -358,7 +358,7 @@ class stzStringCharList
 
 	def ToLower()
 		cStr = This.Concatenated()
-		cLower = lower(cStr)
+		cLower = StzLower(cStr)
 		pHandle = StzEngineString(cLower)
 		pSplit = StzEngineStringCharsSplit(pHandle)
 		cJoined = StzEngineStringData(pSplit)

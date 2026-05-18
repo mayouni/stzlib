@@ -171,7 +171,7 @@ func BothStringsAreEqualCS(str1, str2, pCaseSensitive)
 	if _bCase_
 		return str1 = str2
 	else
-		return lower(str1) = lower(str2)
+		return StzCaseFold(str1) = StzCaseFold(str2)
 	ok
 
 func BothStringsAreEqual(str1, str2)
@@ -330,16 +330,16 @@ func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
 	if bCase
 		return substr(pcStr, pcSubStr) > 0
 	else
-		return substr(lower(pcStr), lower(pcSubStr)) > 0
+		return substr(StzCaseFold(pcStr), StzCaseFold(pcSubStr)) > 0
 	ok
 
 func IsOneOfTheseNamedParamsList(p, paNames)
 	if NOT isList(p) return 0 ok
 	if len(p) != 2 return 0 ok
 	if NOT isString(p[1]) return 0 ok
-	cName = lower(p[1])
+	cName = StzCaseFold(p[1])
 	for cN in paNames
-		if lower(cN) = cName
+		if StzCaseFold(cN) = cName
 			return 1
 		ok
 	next

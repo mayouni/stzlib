@@ -65,7 +65,7 @@ class stzStringReplacer
 			ok
 
 			if isList(pcNewSubStr) and len(pcNewSubStr) = 2 and isString(pcNewSubStr[1])
-				cPN = lower(pcNewSubStr[1])
+				cPN = StzCaseFold(pcNewSubStr[1])
 				if cPN = "with" or cPN = "using" or cPN = "by" or cPN = "withmany" or cPN = "usingmany" or cPN = "bymany"
 					pcNewSubStr = pcNewSubStr[2]
 				ok

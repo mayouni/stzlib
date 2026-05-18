@@ -319,11 +319,11 @@ class stzStringText
 		ok
 
 		acWords = This.UniqueWords()
-		cLower = ring_lower(pcWord)
+		cLower = StzCaseFold(pcWord)
 
 		nLen = len(acWords)
 		for i = 1 to nLen
-			if ring_lower(acWords[i]) = cLower
+			if StzCaseFold(acWords[i]) = cLower
 				return 1
 			ok
 		next
@@ -457,12 +457,12 @@ class stzStringText
 
 	def NumberOfOccurrenceOfWord(pcWord)
 		acWords = This.Words()
-		cLower = ring_lower(pcWord)
+		cLower = StzCaseFold(pcWord)
 		nResult = 0
 		nLen = len(acWords)
 
 		for i = 1 to nLen
-			if ring_lower(acWords[i]) = cLower
+			if StzCaseFold(acWords[i]) = cLower
 				nResult++
 			ok
 		next
@@ -656,7 +656,7 @@ class stzStringText
 		nLen = len(acWords)
 
 		for i = 1 to nLen
-			if ring_find(acExclude, ring_lower(acWords[i])) = 0
+			if ring_find(acExclude, StzCaseFold(acWords[i])) = 0
 				aResult + acWords[i]
 			ok
 		next

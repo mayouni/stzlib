@@ -115,7 +115,7 @@ class stzStringLines
 						exit
 					ok
 				else
-					if lower(acResult[j]) = lower(acLines[i])
+					if StzCaseFold(acResult[j]) = StzCaseFold(acLines[i])
 						bFound = 1
 						exit
 					ok

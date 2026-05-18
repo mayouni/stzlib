@@ -1409,13 +1409,13 @@ class stzStringChar from stzObject
 		if NOT isString(pcScript)
 			StzRaise("Incorrect param type! pcScript must be a string.")
 		ok
-		return This.Script() = ring_lower(pcScript)
+		return This.Script() = StzCaseFold(pcScript)
 
 	def IsLetterInScript(pcScript)
 		if NOT isString(pcScript)
 			StzRaise("Incorrect param type! pcScript must be a string.")
 		ok
-		return ( This.IsLetter() and This.Script() = ring_lower(pcScript) )
+		return ( This.IsLetter() and This.Script() = StzCaseFold(pcScript) )
 
 	def IsUnknownScript()
 		return This.ScriptCode() = 0

@@ -47,7 +47,7 @@ class stzStringComparator
 		if pCaseSensitive = 1
 			return @oString.Content() = pcOtherStr
 		else
-			return lower(@oString.Content()) = lower(pcOtherStr)
+			return StzCaseFold(@oString.Content()) = StzCaseFold(pcOtherStr)
 		ok
 
 	def IsEqualTo(pcOtherStr)
@@ -89,9 +89,9 @@ class stzStringComparator
 		if pCaseSensitive = 1
 			cSelf = @oString.Content()
 		else
-			cSelf = lower(@oString.Content())
-			pcStr1 = lower(pcStr1)
-			pcStr2 = lower(pcStr2)
+			cSelf = StzCaseFold(@oString.Content())
+			pcStr1 = StzCaseFold(pcStr1)
+			pcStr2 = StzCaseFold(pcStr2)
 		ok
 		return strcmp(cSelf, pcStr1) >= 0 and strcmp(cSelf, pcStr2) <= 0
 
@@ -104,7 +104,7 @@ class stzStringComparator
 
 	def CompareCS(pcOtherStr, pCaseSensitive)
 		if pCaseSensitive = 0
-			n = strcmp(lower(@oString.Content()), lower(pcOtherStr))
+			n = strcmp(StzCaseFold(@oString.Content()), StzCaseFold(pcOtherStr))
 		else
 			n = strcmp(@oString.Content(), pcOtherStr)
 		ok

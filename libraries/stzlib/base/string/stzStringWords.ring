@@ -198,7 +198,7 @@ class stzStringWords
 			bFound = 0
 			nResLen = len(acResult)
 			for j = 1 to nResLen
-				if lower(acResult[j]) = lower(acWords[i])
+				if StzCaseFold(acResult[j]) = StzCaseFold(acWords[i])
 					bFound = 1
 					exit
 				ok
@@ -271,11 +271,11 @@ class stzStringWords
 		anCounts = []
 
 		for i = 1 to nTotal
-			cLow = lower(acWords[i])
+			cLow = StzCaseFold(acWords[i])
 			bFound = 0
 			nULen = len(acUnique)
 			for j = 1 to nULen
-				if lower(acUnique[j]) = cLow
+				if StzCaseFold(acUnique[j]) = cLow
 					anCounts[j] = anCounts[j] + 1
 					bFound = 1
 					exit
@@ -326,7 +326,7 @@ class stzStringWords
 					return 1
 				ok
 			else
-				if lower(acWords[i]) = lower(pcWord)
+				if StzCaseFold(acWords[i]) = StzCaseFold(pcWord)
 					return 1
 				ok
 			ok
@@ -354,7 +354,7 @@ class stzStringWords
 					acResult + acWords[i]
 				ok
 			else
-				if lower(acWords[i]) = lower(pcOldWord)
+				if StzCaseFold(acWords[i]) = StzCaseFold(pcOldWord)
 					acResult + pcNewWord
 				else
 					acResult + acWords[i]
@@ -400,7 +400,7 @@ class stzStringWords
 					acResult + acWords[i]
 				ok
 			else
-				if lower(acWords[i]) != lower(pcWord)
+				if StzCaseFold(acWords[i]) != StzCaseFold(pcWord)
 					acResult + acWords[i]
 				ok
 			ok

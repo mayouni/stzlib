@@ -207,9 +207,9 @@ class stzStringRandomizer
 		for i = 1 to nLen
 			c = substr(cContent, i, 1)
 			if random(1) = 1
-				cResult += upper(c)
+				cResult += StzUpper(c)
 			else
-				cResult += lower(c)
+				cResult += StzLower(c)
 			ok
 		next
 
