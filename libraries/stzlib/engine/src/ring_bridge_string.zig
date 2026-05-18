@@ -2131,6 +2131,28 @@ fn ring_StringCharsSplit(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_chars_split(h)), STZ_HANDLE);
 }
 
+// ─── Substrings and unique chars ───
+
+fn ring_StringAllSubstrings(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_all_substrings(h)), STZ_HANDLE);
+}
+
+fn ring_StringAllSubstringsUnique(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_all_substrings_unique(h)), STZ_HANDLE);
+}
+
+fn ring_StringUniqueCharsCI(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_unique_chars_ci(h)), STZ_HANDLE);
+}
+
+fn ring_StringSubstringsCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_substrings_count(h)));
+}
+
 // ─── Character classification (contains_latin, contains_arabic, has_mixed_case) ───
 
 fn ring_StringContainsLatin(p: *anyopaque) callconv(.c) void {
@@ -2664,6 +2686,10 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringremoveallcs", .func = &ring_StringRemoveAllCS },
     .{ .name = "stzenginestringsplitcountcs", .func = &ring_StringSplitCountCS },
     .{ .name = "stzenginestringsplitgetcs", .func = &ring_StringSplitGetCS },
+    .{ .name = "stzenginestringallsubstrings", .func = &ring_StringAllSubstrings },
+    .{ .name = "stzenginestringallsubstringsunique", .func = &ring_StringAllSubstringsUnique },
+    .{ .name = "stzenginestringuniquecharsci", .func = &ring_StringUniqueCharsCI },
+    .{ .name = "stzenginestringsubstringscount", .func = &ring_StringSubstringsCount },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

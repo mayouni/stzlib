@@ -432,6 +432,10 @@ pub const str_unique_words = format.str_unique_words;
 pub const str_run_length_encode = format.str_run_length_encode;
 pub const str_run_length_decode = format.str_run_length_decode;
 pub const str_reverse_each_word = format.str_reverse_each_word;
+pub const str_all_substrings = format.str_all_substrings;
+pub const str_all_substrings_unique = format.str_all_substrings_unique;
+pub const str_unique_chars_ci = format.str_unique_chars_ci;
+pub const str_substrings_count = format.str_substrings_count;
 
 // ─── Tests ───
 

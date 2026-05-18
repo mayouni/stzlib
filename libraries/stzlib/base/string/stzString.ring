@@ -5656,12 +5656,10 @@ class stzString from stzObject
 		nResult = 0
 
 		if _bCase_ = 1
-			n = This.NumberOfChars()
-			nResult = n * (n + 1) / 2
-	
-		else
-			#TODO (Future)// Think of a numeric solution
+			# Engine-backed: n*(n+1)/2
+			nResult = StzEngineStringSubstringsCount(@pEngine)
 
+		else
 			acSubStrCS = This.SubStringsCS(0)
 			nResult = len(acSubStrCS)
 		ok
@@ -5698,7 +5696,6 @@ class stzString from stzObject
 	#=============================================================#
 
 	def SubStringsCS(pCaseSensitive)
-		#NOTE // Got help from Google Bard for the basic algorithm used here
 
 		# Early check
 
@@ -5706,33 +5703,39 @@ class stzString from stzObject
 			return []
 		ok
 
-		# Doing the job -- uses char-level (codepoint) access
+		# Engine-backed: O(n^2) Zig replaces O(n^3) Ring loop
 
+		if @CaseSensitive(pCaseSensitive) = 1
+			pResult = StzEngineStringAllSubstrings(@pEngine)
+		else
+			pResult = StzEngineStringAllSubstringsUnique(@pEngine)
+		ok
+
+		cJoined = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+
+		if cJoined = ""
+			return []
+		ok
+
+		# Split \x00-delimited result into Ring list
 		acResult = []
-		acChars = This.CharsCS(pCaseSensitive)
-		nLen = len(acChars)
+		cDelim = char(0)
+		cRest = cJoined
 
-		for i = 1 to nLen
-			for j = i to nLen
-
-				cSubStr = ""
-				for k = i to j
-					cSubStr += acChars[k]
-				next
-
-				if @CaseSensitive(pCaseSensitive) = 1
-					acResult + cSubStr
-
-				else
-
-					if ring_find(acResult, cSubStr) = 0
-						acResult + cSubStr
-					ok
+		while true
+			nPos = substr(cRest, cDelim)
+			if nPos = 0
+				if len(cRest) > 0
+					acResult + cRest
 				ok
-			next
-		next
+				exit
+			ok
+			acResult + left(cRest, nPos - 1)
+			cRest = substr(cRest, nPos + 1)
+		end
 
-		 return acResult
+		return acResult
 
 
 		#< @FunctionFluentForm
@@ -94993,15 +94996,29 @@ class stzString from stzObject
 			next
 
 		else
-			# CI: unique chars (lowercased)
-			for i = 0 to nCount - 1
-				pChar = StzEngineStringNthChar(@pEngine, i)
-				c = lower(StzEngineStringData(pChar))
-				StzEngineStringFree(pChar)
-				if ring_find(acResult, c) = 0
-					acResult + c
+			# CI: engine-backed unique chars (case-folded dedup)
+			pResult = StzEngineStringUniqueCharsCI(@pEngine)
+			cJoined = StzEngineStringData(pResult)
+			StzEngineStringFree(pResult)
+
+			if cJoined = ""
+				return acResult
+			ok
+
+			cDelim = char(0)
+			cRest = cJoined
+
+			while true
+				nPos = substr(cRest, cDelim)
+				if nPos = 0
+					if len(cRest) > 0
+						acResult + cRest
+					ok
+					exit
 				ok
-			next
+				acResult + left(cRest, nPos - 1)
+				cRest = substr(cRest, nPos + 1)
+			end
 
 		ok
 
@@ -96003,19 +96020,46 @@ class stzString from stzObject
 
 	def UniqueCharsCS(pCaseSensitive)
 
-		acChars = This.CharsCS(pCaseSensitive)
-		nLen = len(acChars)
+		if @CaseSensitive(pCaseSensitive) = 1
+			# CS: unique chars preserving case
+			acChars = This.CharsCS(1)
+			nLen = len(acChars)
+			acResult = []
+			for i = 1 to nLen
+				c = acChars[i]
+				if ring_find(acResult, c) = 0
+					acResult + c
+				ok
+			next
+			return acResult
+		else
+			# CI: engine-backed unique chars (case-folded dedup)
+			pResult = StzEngineStringUniqueCharsCI(@pEngine)
+			cJoined = StzEngineStringData(pResult)
+			StzEngineStringFree(pResult)
 
-		acResult = []
-
-		for i = 1 to nLen
-			c = acChars[i]
-			if ring_find(acResult, c) = 0
-				acrEsult + c
+			if cJoined = ""
+				return []
 			ok
-		next
 
-		return acResult
+			acResult = []
+			cDelim = char(0)
+			cRest = cJoined
+
+			while true
+				nPos = substr(cRest, cDelim)
+				if nPos = 0
+					if len(cRest) > 0
+						acResult + cRest
+					ok
+					exit
+				ok
+				acResult + left(cRest, nPos - 1)
+				cRest = substr(cRest, nPos + 1)
+			end
+
+			return acResult
+		ok
 
 		#< @FunctionFluentForms
 

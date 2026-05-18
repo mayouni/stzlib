@@ -3486,7 +3486,7 @@ StzEngineStringFree(pStr)
 # ==============================================================
 
 
-? NL + "======================================================"
+? NL + "==================================="
 ? "Results: " + nPass + " passed, " + nFail + " failed out of " + nTotal + " tests"
 if nFail = 0
 	? "ALL TESTS PASSED!"
