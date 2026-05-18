@@ -687,11 +687,13 @@ class stzStringText
 
 		aResult = []
 		cSentence = ""
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
+		cArabicQM = StzChar(1567) # Arabic question mark
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if c = "." or c = "!" or c = "?" or c = char(1567) # Arabic question mark
+			c = acChars[i]
+			if c = "." or c = "!" or c = "?" or c = cArabicQM
 				cSentence += c
 				cTrimmed = trim(cSentence)
 				if cTrimmed != ""
