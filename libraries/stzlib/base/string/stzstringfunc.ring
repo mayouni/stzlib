@@ -1547,7 +1547,7 @@ func FoldcaseOf(cStr)
 
 func NthCharOf(n, cStr)
 	pStr = StzEngineStringFrom(cStr)
-	pChar = StzEngineStringNthChar(pStr, n - 1)  # Engine uses 0-based
+	pChar = StzEngineStringNthChar(pStr, n)  # Engine uses INDEX_BASE=1
 	cResult = StzEngineStringData(pChar)
 	StzEngineStringFree(pChar)
 	StzEngineStringFree(pStr)
@@ -1560,7 +1560,7 @@ func NthLetterOf(n, cStr)
 		# Engine-backed: get only letters, then pick nth
 		pStr = StzEngineStringFrom(cStr)
 		pLetters = StzEngineStringOnlyLetters(pStr)
-		pChar = StzEngineStringNthChar(pLetters, n - 1)  # Engine 0-based
+		pChar = StzEngineStringNthChar(pLetters, n)  # Engine uses INDEX_BASE=1
 		cResult = StzEngineStringData(pChar)
 		StzEngineStringFree(pChar)
 		StzEngineStringFree(pLetters)
@@ -2471,8 +2471,9 @@ func StringSection(str, n1, n2)
 	ok
 
 	# Use Engine for codepoint-safe section extraction
+	# Engine uses INDEX_BASE=1 (1-based), so pass positions directly
 	pStr = StzEngineStringFrom(str)
-	pSlice = StzEngineStringSlice(pStr, n1 - 1, n2 - n1 + 1)
+	pSlice = StzEngineStringSlice(pStr, n1, n2 - n1 + 1)
 	cResult = StzEngineStringData(pSlice)
 	StzEngineStringFree(pSlice)
 	StzEngineStringFree(pStr)
@@ -2508,7 +2509,7 @@ func Chars(str)
 	acResult = []
 
 	for i = 1 to nLen
-		pChar = StzEngineStringNthChar(pStr, i - 1)
+		pChar = StzEngineStringNthChar(pStr, i)  # Engine uses INDEX_BASE=1
 		acResult + StzEngineStringData(pChar)
 		StzEngineStringFree(pChar)
 	next
