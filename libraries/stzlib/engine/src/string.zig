@@ -111,6 +111,8 @@ pub const str_lines_count = split.str_lines_count;
 pub const str_lines_split_count = split.str_lines_split_count;
 pub const str_line_at = split.str_line_at;
 pub const str_count_lines = split.str_count_lines;
+pub const str_sort_lines = split.str_sort_lines;
+pub const str_unique_lines = split.str_unique_lines;
 pub const str_word_count = split.str_word_count;
 pub const str_count_words = split.str_count_words;
 pub const str_word_at = split.str_word_at;
@@ -1655,6 +1657,51 @@ test "line_at" {
     try std.testing.expect(mem.eql(u8, str_data(la)[0..1], "a"));
     str_free(la);
     str_free(s2);
+}
+
+test "sort lines" {
+    const s = str_from("cherry\napple\nbanana", 19) orelse return error.SkipZigTest;
+    defer str_free(s);
+    const sorted = str_sort_lines(s) orelse return error.SkipZigTest;
+    defer str_free(sorted);
+    try std.testing.expectEqualStrings("apple\nbanana\ncherry", sorted.slice());
+
+    // Single line
+    const s2 = str_from("hello", 5) orelse return error.SkipZigTest;
+    defer str_free(s2);
+    const sorted2 = str_sort_lines(s2) orelse return error.SkipZigTest;
+    defer str_free(sorted2);
+    try std.testing.expectEqualStrings("hello", sorted2.slice());
+
+    // Empty
+    const s3 = str_from("", 0) orelse return error.SkipZigTest;
+    defer str_free(s3);
+    const sorted3 = str_sort_lines(s3) orelse return error.SkipZigTest;
+    defer str_free(sorted3);
+    try std.testing.expectEqualStrings("", sorted3.slice());
+}
+
+test "unique lines" {
+    const input = "apple\nbanana\napple\ncherry\nbanana";
+    const s = str_from(input, input.len) orelse return error.SkipZigTest;
+    defer str_free(s);
+    const unique = str_unique_lines(s) orelse return error.SkipZigTest;
+    defer str_free(unique);
+    try std.testing.expectEqualStrings("apple\nbanana\ncherry", unique.slice());
+
+    // All unique
+    const s2 = str_from("a\nb\nc", 5) orelse return error.SkipZigTest;
+    defer str_free(s2);
+    const unique2 = str_unique_lines(s2) orelse return error.SkipZigTest;
+    defer str_free(unique2);
+    try std.testing.expectEqualStrings("a\nb\nc", unique2.slice());
+
+    // All same
+    const s3 = str_from("x\nx\nx", 5) orelse return error.SkipZigTest;
+    defer str_free(s3);
+    const unique3 = str_unique_lines(s3) orelse return error.SkipZigTest;
+    defer str_free(unique3);
+    try std.testing.expectEqualStrings("x", unique3.slice());
 }
 
 test "simplify" {

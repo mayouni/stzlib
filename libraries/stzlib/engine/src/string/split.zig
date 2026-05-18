@@ -175,6 +175,116 @@ pub export fn str_count_lines(handle: ?*StzString) callconv(.c) c_int {
     return count;
 }
 
+/// Sort lines alphabetically (by raw byte order). Returns new handle with sorted lines
+/// joined by \n. Splits by LF/CR/CRLF, emits LF.
+pub fn str_sort_lines(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    if (bytes.len == 0) return str_new();
+
+    // Collect line slices
+    var lines = std.ArrayListUnmanaged([]const u8){};
+    defer lines.deinit(gpa);
+
+    var line_start: usize = 0;
+    var i: usize = 0;
+    while (i < bytes.len) {
+        if (bytes[i] == '\r') {
+            lines.append(gpa, bytes[line_start..i]) catch return null;
+            if (i + 1 < bytes.len and bytes[i + 1] == '\n') i += 1;
+            line_start = i + 1;
+        } else if (bytes[i] == '\n') {
+            lines.append(gpa, bytes[line_start..i]) catch return null;
+            line_start = i + 1;
+        }
+        i += 1;
+    }
+    if (line_start <= bytes.len) {
+        lines.append(gpa, bytes[line_start..bytes.len]) catch return null;
+    }
+
+    // Sort
+    const items = lines.items;
+    std.mem.sort([]const u8, items, {}, struct {
+        fn lessThan(_: void, a: []const u8, b: []const u8) bool {
+            return std.mem.order(u8, a, b) == .lt;
+        }
+    }.lessThan);
+
+    // Join with \n
+    const result = str_new() orelse return null;
+    for (items, 0..) |line, idx| {
+        if (idx > 0) result.data.append(gpa, '\n') catch {
+            core.str_free(result);
+            return null;
+        };
+        result.data.appendSlice(gpa, line) catch {
+            core.str_free(result);
+            return null;
+        };
+    }
+    result.invalidateCache();
+    return result;
+}
+
+/// Deduplicate lines, preserving order of first occurrence. Returns new handle
+/// with unique lines joined by \n.
+pub fn str_unique_lines(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    if (bytes.len == 0) return str_new();
+
+    // Collect line slices
+    var lines = std.ArrayListUnmanaged([]const u8){};
+    defer lines.deinit(gpa);
+
+    var line_start: usize = 0;
+    var i: usize = 0;
+    while (i < bytes.len) {
+        if (bytes[i] == '\r') {
+            lines.append(gpa, bytes[line_start..i]) catch return null;
+            if (i + 1 < bytes.len and bytes[i + 1] == '\n') i += 1;
+            line_start = i + 1;
+        } else if (bytes[i] == '\n') {
+            lines.append(gpa, bytes[line_start..i]) catch return null;
+            line_start = i + 1;
+        }
+        i += 1;
+    }
+    if (line_start <= bytes.len) {
+        lines.append(gpa, bytes[line_start..bytes.len]) catch return null;
+    }
+
+    // Deduplicate using a hashmap for O(n) lookup
+    var seen = std.StringHashMap(void).init(gpa);
+    defer seen.deinit();
+
+    var unique = std.ArrayListUnmanaged([]const u8){};
+    defer unique.deinit(gpa);
+
+    for (lines.items) |line| {
+        const entry = seen.getOrPut(line) catch return null;
+        if (!entry.found_existing) {
+            unique.append(gpa, line) catch return null;
+        }
+    }
+
+    // Join with \n
+    const result = str_new() orelse return null;
+    for (unique.items, 0..) |line, idx| {
+        if (idx > 0) result.data.append(gpa, '\n') catch {
+            core.str_free(result);
+            return null;
+        };
+        result.data.appendSlice(gpa, line) catch {
+            core.str_free(result);
+            return null;
+        };
+    }
+    result.invalidateCache();
+    return result;
+}
+
 // ─── Words ───
 
 /// Count words (sequences of non-whitespace separated by whitespace).

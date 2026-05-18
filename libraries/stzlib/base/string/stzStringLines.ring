@@ -100,6 +100,21 @@ class stzStringLines
 	#===============================#
 
 	def UniqueLinesCS(pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+
+		if _bCase_ = 1
+			# Engine-backed O(n) hashmap deduplication
+			pH = @oString.Engine()
+			pR = StzEngineStringUniqueLines(pH)
+			c = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			if c = ""
+				return []
+			ok
+			return @SplitCS(c, NL, 1)
+		ok
+
+		# Case-insensitive: Ring-side with casefold comparison
 		acLines = This.LinesCS(pCaseSensitive)
 		acResult = []
 		nLen = len(acLines)
@@ -108,16 +123,9 @@ class stzStringLines
 			bFound = 0
 			nResLen = len(acResult)
 			for j = 1 to nResLen
-				if pCaseSensitive
-					if acResult[j] = acLines[i]
-						bFound = 1
-						exit
-					ok
-				else
-					if StzCaseFold(acResult[j]) = StzCaseFold(acLines[i])
-						bFound = 1
-						exit
-					ok
+				if StzCaseFold(acResult[j]) = StzCaseFold(acLines[i])
+					bFound = 1
+					exit
 				ok
 			next
 			if NOT bFound
@@ -282,38 +290,22 @@ class stzStringLines
 	#===============================#
 
 	def SortLines()
-		acLines = This.Lines()
-		nLen = len(acLines)
-
-		# Bubble sort
-		for i = 1 to nLen - 1
-			for j = 1 to nLen - i
-				if acLines[j] > acLines[j + 1]
-					cTemp = acLines[j]
-					acLines[j] = acLines[j + 1]
-					acLines[j + 1] = cTemp
-				ok
-			next
-		next
-
-		cResult = ""
-		for i = 1 to nLen
-			if i > 1
-				cResult += NL
-			ok
-			cResult += acLines[i]
-		next
-
-		@oString.Update(cResult)
+		pH = @oString.Engine()
+		pR = StzEngineStringSortLines(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def SortLinesQ()
 			This.SortLines()
 			return This
 
 	def LinesSorted()
-		oCopy = new stzStringLines(@oString.Content())
-		oCopy.SortLines()
-		return oCopy.Content()
+		pH = @oString.Engine()
+		pR = StzEngineStringSortLines(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	  #===============================#
 	 #     REVERSE LINES ORDER       #

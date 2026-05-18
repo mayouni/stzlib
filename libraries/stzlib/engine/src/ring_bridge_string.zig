@@ -1740,6 +1740,16 @@ fn ring_StringCountLines(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_count_lines(h)));
 }
 
+fn ring_StringSortLines(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_sort_lines(h)), STZ_HANDLE);
+}
+
+fn ring_StringUniqueLines(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_unique_lines(h)), STZ_HANDLE);
+}
+
 fn ring_StringIsSnakeCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retnumber(p, @floatFromInt(string.str_is_snake_case(h)));
@@ -2790,6 +2800,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringiscamelcase", .func = &ring_StringIsCamelCase },
     .{ .name = "stzenginestringcommonchars", .func = &ring_StringCommonChars },
     .{ .name = "stzenginestringcountlines", .func = &ring_StringCountLines },
+    .{ .name = "stzenginestringsortlines", .func = &ring_StringSortLines },
+    .{ .name = "stzenginestringuniquelines", .func = &ring_StringUniqueLines },
     .{ .name = "stzenginestringissnakecase", .func = &ring_StringIsSnakeCase },
     .{ .name = "stzenginestringiskebabcase", .func = &ring_StringIsKebabCase },
     .{ .name = "stzenginestringcountuniquechars", .func = &ring_StringCountUniqueChars },
