@@ -381,7 +381,7 @@ pub fn str_extract_chars_of_type(handle: StzStringHandle, char_type: c_int) call
     return null;
 }
 
-/// Return the character type at a codepoint index (INDEX_BASE convention).
+/// Return the character type at a codepoint index (1-based from host, converted to 0-based internally).
 /// Returns: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct, -1=invalid
 pub fn str_char_type_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
     if (handle) |s| {
@@ -859,7 +859,7 @@ test "longest_run" {
 
 // ─── str_char_unicode_at ───
 
-/// Return the Unicode codepoint number at a codepoint index (INDEX_BASE convention).
+/// Return the Unicode codepoint number at a codepoint index (1-based from host, converted to 0-based internally).
 /// Returns -1 on invalid index.
 pub fn str_char_unicode_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
     if (handle) |s| {
@@ -876,7 +876,7 @@ pub fn str_char_unicode_at(handle: StzStringHandle, cp_index: c_int) callconv(.c
 
 // ─── str_char_category_at ───
 
-/// Return the Unicode category number at a codepoint index (INDEX_BASE convention).
+/// Return the Unicode category number at a codepoint index (1-based from host, converted to 0-based internally).
 /// Uses utf8proc category (Lu=1, Ll=2, ... see unicode.zig).
 /// Returns -1 on invalid index.
 pub fn str_char_category_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {

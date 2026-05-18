@@ -436,7 +436,7 @@ pub fn str_metaphone(handle: ?*StzString) callconv(.c) ?*StzString {
 
 // ─── N-grams ───
 
-/// Return the n-th n-gram of given size (codepoint-level, INDEX_BASE convention).
+/// Return the n-th n-gram of given size (codepoint-level, 1-based from host, converted to 0-based internally).
 pub fn str_ngram(handle: StzStringHandle, size: c_int, n: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const src = s.slice();

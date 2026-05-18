@@ -1981,7 +1981,7 @@ test "common_prefix_suffix" {
 // Repeat string to fill exactly `target_len` codepoints.
 // Returns new handle.
 
-// Swap characters at two codepoint positions (INDEX_BASE convention). Returns new handle.
+// Swap characters at two codepoint positions (1-based from host, converted to 0-based internally). Returns new handle.
 
 // Reverse the order of words in the string. Words are whitespace-delimited.
 // Returns new handle.

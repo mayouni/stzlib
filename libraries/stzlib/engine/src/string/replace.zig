@@ -46,7 +46,7 @@ fn str_copy(handle: StzStringHandle) StzStringHandle {
 // ═══════════════════════════════════════════════════════════════
 
 // ─── ReplaceRange: replace codepoint range with new content ───
-// start_cp: 1-based codepoint position (uses INDEX_BASE)
+// start_cp: 1-based from host (converted to 0-based internally via toInternal)
 // cp_count: number of codepoints to replace
 
 pub fn str_replace_range(handle: StzStringHandle, start_cp: usize, cp_count: usize, new: [*c]const u8, new_len: usize) callconv(.c) StzStringHandle {
@@ -249,7 +249,7 @@ pub fn str_replace_nth(handle: StzStringHandle, old: [*c]const u8, old_len: usiz
 
 // ─── ReplaceCharAt: replace codepoint at index ───
 
-/// Replace codepoint at a given index (INDEX_BASE convention) with a new string. Returns new handle.
+/// Replace codepoint at a given index (1-based from host, converted to 0-based internally) with a new string. Returns new handle.
 pub fn str_replace_char_at(handle: StzStringHandle, cp_index: c_int, replacement: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
     const s = (handle orelse return null);
     const bytes = s.slice();
@@ -280,7 +280,7 @@ pub fn str_replace_char_at(handle: StzStringHandle, cp_index: c_int, replacement
     return result;
 }
 
-// ─── ReplaceSubstring: replace codepoint range [from..to] (INDEX_BASE convention) ───
+// ─── ReplaceSubstring: replace codepoint range [from..to] (1-based from host) ───
 
 pub fn str_replace_substring(handle: StzStringHandle, from_cp: c_int, to_cp: c_int, replacement: [*c]const u8, rep_len: usize) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
@@ -566,7 +566,7 @@ pub fn str_replace_between(handle: StzStringHandle, open: [*c]const u8, open_len
 // ─── RemoveRange: remove codepoints by position ───
 
 /// Remove a range of codepoints from the string. Returns a new handle.
-/// `start_cp` uses INDEX_BASE convention, `cp_count` is the number of codepoints to remove.
+/// `start_cp` is 1-based from host (converted to 0-based internally via toInternal), `cp_count` is the number of codepoints to remove.
 pub fn str_remove_range(handle: StzStringHandle, start_cp: usize, cp_count: usize) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
@@ -643,7 +643,7 @@ pub fn str_remove_all(handle: StzStringHandle, needle: [*c]const u8, needle_len:
 
 // ─── RemoveCharAt: remove single codepoint at index ───
 
-/// Remove a single codepoint at the given codepoint index (INDEX_BASE convention). Returns new handle.
+/// Remove a single codepoint at the given codepoint index (1-based from host). Returns new handle.
 pub fn str_remove_char_at(handle: StzStringHandle, cp_index: usize) callconv(.c) StzStringHandle {
     return str_remove_range(handle, cp_index, 1);
 }
@@ -1015,7 +1015,7 @@ pub fn str_remove_punctuation(handle: StzStringHandle) callconv(.c) StzStringHan
 
 // ─── RemoveNthWord (pub export fn) ───
 
-/// Remove the nth word (INDEX_BASE convention). Words separated by spaces.
+/// Remove the nth word (1-based from host, converted to 0-based internally). Words separated by spaces.
 pub export fn str_remove_nth_word(handle: ?*StzString, n: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
@@ -1190,7 +1190,7 @@ pub fn str_insert_after_each(handle: StzStringHandle, needle: [*c]const u8, need
 
 // ─── InsertWordAt (pub export fn) ───
 
-/// Insert a word at position n (INDEX_BASE convention). Words separated by spaces.
+/// Insert a word at position n (1-based from host, converted to 0-based internally). Words separated by spaces.
 pub export fn str_insert_word_at(handle: ?*StzString, n: c_int, word: [*c]const u8, word_len: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();

@@ -131,7 +131,7 @@ pub fn str_lines_split_count(handle: StzStringHandle) callconv(.c) c_int {
     return count;
 }
 
-/// Get nth line (INDEX_BASE convention). Returns new handle. Splits by LF/CR/CRLF.
+/// Get nth line (1-based from host, converted to 0-based internally). Returns new handle. Splits by LF/CR/CRLF.
 pub fn str_line_at(handle: StzStringHandle, line_index: c_int) callconv(.c) StzStringHandle {
     const s = (handle orelse return null);
     const bytes = s.slice();
@@ -229,7 +229,7 @@ pub fn str_count_words(handle: StzStringHandle) callconv(.c) c_int {
     return count;
 }
 
-/// Get nth word (INDEX_BASE convention), words separated by whitespace (ASCII fast-path).
+/// Get nth word (1-based from host, converted to 0-based internally), words separated by whitespace (ASCII fast-path).
 pub fn str_word_at(handle: StzStringHandle, word_index: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
@@ -263,7 +263,7 @@ pub fn str_word_at(handle: StzStringHandle, word_index: c_int) callconv(.c) StzS
     return null;
 }
 
-/// Get nth word (INDEX_BASE convention), Unicode-aware whitespace.
+/// Get nth word (1-based from host, converted to 0-based internally), Unicode-aware whitespace.
 pub fn str_nth_word(handle: StzStringHandle, n: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return str_new();
     const src = s.slice();
@@ -335,7 +335,7 @@ pub export fn str_last_word(handle: ?*StzString) callconv(.c) ?*StzString {
     return result;
 }
 
-/// Swap two words at given indices (INDEX_BASE convention). Words separated by spaces.
+/// Swap two words at given indices (1-based from host, converted to 0-based internally). Words separated by spaces.
 pub export fn str_swap_words(handle: ?*StzString, idx1: c_int, idx2: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
@@ -444,7 +444,7 @@ pub fn str_rpartition_after(handle: StzStringHandle, sep: [*c]const u8, sep_len:
 
 // ─── Chunk ───
 
-/// Return the nth chunk (INDEX_BASE convention) when string is split into chunks of `size` codepoints.
+/// Return the nth chunk (1-based from host, converted to 0-based internally) when string is split into chunks of `size` codepoints.
 /// Last chunk may be shorter. Returns null if out of range.
 pub fn str_chunk(handle: StzStringHandle, size: c_int, n: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
