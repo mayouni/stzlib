@@ -26,8 +26,26 @@ const isVowelAscii = core.isVowelAscii;
 
 // ─── Character type counting/querying ───
 
+/// Classify a codepoint against a type code.
+/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punctuation, 6=symbol, 7=mark, 8=control, 9=number
+fn matchesCharType(cp_val: i32, char_type: c_int) bool {
+    return switch (char_type) {
+        0 => unicode.stz_unicode_is_letter(cp_val) == 1,
+        1 => unicode.stz_unicode_is_digit(cp_val) == 1,
+        2 => unicode.stz_unicode_is_space(cp_val) == 1,
+        3 => unicode.stz_unicode_is_upper(cp_val) == 1,
+        4 => unicode.stz_unicode_is_lower(cp_val) == 1,
+        5 => unicode.stz_unicode_is_punctuation(cp_val) == 1,
+        6 => unicode.stz_unicode_is_symbol(cp_val) == 1,
+        7 => unicode.stz_unicode_is_mark(cp_val) == 1,
+        8 => unicode.stz_unicode_is_control(cp_val) == 1,
+        9 => unicode.stz_unicode_is_number(cp_val) == 1,
+        else => false,
+    };
+}
+
 /// Count how many codepoints match a predicate class.
-/// Classes: 0=letter, 1=digit, 2=whitespace, 3=uppercase, 4=lowercase, 5=punctuation
+/// Classes: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punctuation, 6=symbol, 7=mark, 8=control, 9=number
 pub fn str_count_chars_of_type(handle: StzStringHandle, char_type: c_int) callconv(.c) c_int {
     if (handle) |s| {
         const bytes = s.slice();
@@ -36,16 +54,7 @@ pub fn str_count_chars_of_type(handle: StzStringHandle, char_type: c_int) callco
         while (i < bytes.len) {
             const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
             const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-            const matches: bool = switch (char_type) {
-                0 => unicode.stz_unicode_is_letter(cp_val) == 1,
-                1 => unicode.stz_unicode_is_digit(cp_val) == 1,
-                2 => unicode.stz_unicode_is_space(cp_val) == 1,
-                3 => unicode.stz_unicode_is_upper(cp_val) == 1,
-                4 => unicode.stz_unicode_is_lower(cp_val) == 1,
-                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
-                else => false,
-            };
-            if (matches) count += 1;
+            if (matchesCharType(cp_val, char_type)) count += 1;
             i += cp_len;
         }
         return count;
@@ -53,8 +62,25 @@ pub fn str_count_chars_of_type(handle: StzStringHandle, char_type: c_int) callco
     return 0;
 }
 
-/// Find positions (0-based codepoint indices) of characters matching a type.
-/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct
+/// Convenience counters for specific types (avoid type-code lookup from Ring).
+pub fn str_count_letters(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 0);
+}
+pub fn str_count_punctuation(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 5);
+}
+pub fn str_count_symbols(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 6);
+}
+pub fn str_count_marks(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 7);
+}
+pub fn str_count_controls(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 8);
+}
+
+/// Find positions (1-based codepoint indices) of characters matching a type.
+/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct, 6=symbol, 7=mark, 8=control, 9=number
 pub fn str_find_chars_of_type(handle: StzStringHandle, char_type: c_int) callconv(.c) StzFindResultHandle {
     const r = gpa.create(StzFindResult) catch return null;
     r.* = StzFindResult.init();
@@ -65,16 +91,7 @@ pub fn str_find_chars_of_type(handle: StzStringHandle, char_type: c_int) callcon
         while (i < bytes.len) {
             const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
             const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-            const matches: bool = switch (char_type) {
-                0 => unicode.stz_unicode_is_letter(cp_val) == 1,
-                1 => unicode.stz_unicode_is_digit(cp_val) == 1,
-                2 => unicode.stz_unicode_is_space(cp_val) == 1,
-                3 => unicode.stz_unicode_is_upper(cp_val) == 1,
-                4 => unicode.stz_unicode_is_lower(cp_val) == 1,
-                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
-                else => false,
-            };
-            if (matches) {
+            if (matchesCharType(cp_val, char_type)) {
                 r.positions.append(gpa, toExternal(cp_idx)) catch break;
             }
             cp_idx += 1;
@@ -85,7 +102,7 @@ pub fn str_find_chars_of_type(handle: StzStringHandle, char_type: c_int) callcon
 }
 
 /// Extract characters matching a type as a new string (letters only, digits only, etc).
-/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower
+/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct, 6=symbol, 7=mark, 8=control, 9=number
 pub fn str_extract_chars_of_type(handle: StzStringHandle, char_type: c_int) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const bytes = s.slice();
@@ -95,16 +112,7 @@ pub fn str_extract_chars_of_type(handle: StzStringHandle, char_type: c_int) call
             const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
             const cp_end = @min(i + cp_len, bytes.len);
             const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
-            const matches: bool = switch (char_type) {
-                0 => unicode.stz_unicode_is_letter(cp_val) == 1,
-                1 => unicode.stz_unicode_is_digit(cp_val) == 1,
-                2 => unicode.stz_unicode_is_space(cp_val) == 1,
-                3 => unicode.stz_unicode_is_upper(cp_val) == 1,
-                4 => unicode.stz_unicode_is_lower(cp_val) == 1,
-                5 => unicode.stz_unicode_is_letter(cp_val) == 0 and unicode.stz_unicode_is_digit(cp_val) == 0 and unicode.stz_unicode_is_space(cp_val) == 0 and cp_val >= 33 and cp_val <= 126,
-                else => false,
-            };
-            if (matches) {
+            if (matchesCharType(cp_val, char_type)) {
                 result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
             }
             i += cp_len;

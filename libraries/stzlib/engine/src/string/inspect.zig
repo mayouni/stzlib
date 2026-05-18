@@ -168,7 +168,7 @@ pub fn str_is_whitespace(handle: StzStringHandle) callconv(.c) c_int {
 // ─── str_is_only_type ───
 
 /// Check if string contains only characters of a given type.
-/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct
+/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punct, 6=symbol, 7=mark, 8=control, 9=number
 pub fn str_is_only_type(handle: StzStringHandle, char_type: c_int) callconv(.c) c_int {
     const s = (handle orelse return 0);
     const bytes = s.slice();
@@ -184,12 +184,11 @@ pub fn str_is_only_type(handle: StzStringHandle, char_type: c_int) callconv(.c) 
             2 => unicode.stz_unicode_is_space(cp_val) != 0,
             3 => unicode.stz_unicode_is_upper(cp_val) != 0,
             4 => unicode.stz_unicode_is_lower(cp_val) != 0,
-            5 => blk: {
-                const is_letter = unicode.stz_unicode_is_letter(cp_val) != 0;
-                const is_digit = unicode.stz_unicode_is_digit(cp_val) != 0;
-                const is_space = unicode.stz_unicode_is_space(cp_val) != 0;
-                break :blk !is_letter and !is_digit and !is_space;
-            },
+            5 => unicode.stz_unicode_is_punctuation(cp_val) != 0,
+            6 => unicode.stz_unicode_is_symbol(cp_val) != 0,
+            7 => unicode.stz_unicode_is_mark(cp_val) != 0,
+            8 => unicode.stz_unicode_is_control(cp_val) != 0,
+            9 => unicode.stz_unicode_is_number(cp_val) != 0,
             else => false,
         };
         if (!matches) return 0;

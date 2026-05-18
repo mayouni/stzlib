@@ -88,4 +88,17 @@ cCat3 = StzEngineStringCharCategoryStringAt(pStr2, 3)
 StzEngineStringFree(pStr2)
 
 ? ""
+? "=== Test 4: Bulk counters (enumerable pattern) ==="
+
+pStr3 = StzEngineString("Hello, world! 42 + $5.")
+
+? "  CountLetters: " + StzEngineStringCountLetters(pStr3)           # 10
+? "  CountDigits: " + StzEngineStringCountDigits(pStr3)             # 3
+? "  CountSpaces: " + StzEngineStringCountSpaces(pStr3)             # 4
+? "  CountPunctuation: " + StzEngineStringCountPunctuation(pStr3)   # 3 (,!.)
+? "  CountSymbols: " + StzEngineStringCountSymbols(pStr3)           # 2 (+$)
+
+StzEngineStringFree(pStr3)
+
+? ""
 ? "=== ALL ENGINE CHAR CLASSIFICATION TESTS PASSED ==="

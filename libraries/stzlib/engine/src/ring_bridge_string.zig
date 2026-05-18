@@ -2086,6 +2086,31 @@ fn ring_StringCountSpaces(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_count_spaces(h)));
 }
 
+fn ring_StringCountLetters(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_letters(h)));
+}
+
+fn ring_StringCountPunctuation(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_punctuation(h)));
+}
+
+fn ring_StringCountSymbols(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_symbols(h)));
+}
+
+fn ring_StringCountMarks(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_marks(h)));
+}
+
+fn ring_StringCountControls(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_controls(h)));
+}
+
 fn ring_StringNormalizeSpaces(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retcpointer(p, @ptrCast(string.str_normalize_spaces(h)), STZ_HANDLE);
@@ -2713,6 +2738,11 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestingstriptags", .func = &ring_StringStripTags },
     .{ .name = "stzenginestringtoslug", .func = &ring_StringToSlug },
     .{ .name = "stzenginestringcountspaces", .func = &ring_StringCountSpaces },
+    .{ .name = "stzenginestringcountletters", .func = &ring_StringCountLetters },
+    .{ .name = "stzenginestringcountpunctuation", .func = &ring_StringCountPunctuation },
+    .{ .name = "stzenginestringcountsymbols", .func = &ring_StringCountSymbols },
+    .{ .name = "stzenginestringcountmarks", .func = &ring_StringCountMarks },
+    .{ .name = "stzenginestringcountcontrols", .func = &ring_StringCountControls },
     .{ .name = "stzenginestringnormalizespaces", .func = &ring_StringNormalizeSpaces },
     .{ .name = "stzenginestringmaskemail", .func = &ring_StringMaskEmail },
     .{ .name = "stzenginestringpluralize", .func = &ring_StringPluralize },
