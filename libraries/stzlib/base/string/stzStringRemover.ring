@@ -43,7 +43,8 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveCS(pcSubStr, pCaseSensitive)
-		new stzStringReplacer(@oString).ReplaceCS(pcSubStr, "", pCaseSensitive)
+		oReplacer = new stzStringReplacer(@oString)
+		oReplacer.ReplaceCS(pcSubStr, "", pCaseSensitive)
 
 		def RemoveCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveCS(pcSubStr, pCaseSensitive)
@@ -69,8 +70,9 @@ class stzStringRemover
 				return This.RemoveQ(pcSubStr)
 
 	def RemovedCS(pcSubStr, pCaseSensitive)
-		cResult = new stzStringRemover(@oString.Content()).RemoveCSQ(pcSubStr, pCaseSensitive).Content()
-		return cResult
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveCSQ(pcSubStr, pCaseSensitive)
+		return _oCopy_.Content()
 
 	def Removed(pcSubStr)
 		return This.RemovedCS(pcSubStr, 1)
@@ -80,7 +82,16 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveNthCS(n, pcSubStr, pCaseSensitive)
-		new stzStringReplacer(@oString).ReplaceNthCS(n, pcSubStr, "", pCaseSensitive)
+		# Find nth position then remove by section
+		# (cannot delegate to Replacer — Ring copies objects,
+		#  so shared @oString causes use-after-free on engine handle)
+		_oFinder_ = new stzStringFinder(@oString.Content())
+		nPos = _oFinder_.FindNthCS(n, pcSubStr, pCaseSensitive)
+		if nPos = 0
+			return
+		ok
+		nLenOld = len(pcSubStr)
+		This.RemoveSection(nPos, nPos + nLenOld - 1)
 
 		def RemoveNthCSQ(n, pcSubStr, pCaseSensitive)
 			This.RemoveNthCS(n, pcSubStr, pCaseSensitive)
@@ -94,7 +105,9 @@ class stzStringRemover
 			return This
 
 	def NthRemovedCS(n, pcSubStr, pCaseSensitive)
-		return new stzStringRemover(@oString.Content()).RemoveNthCSQ(n, pcSubStr, pCaseSensitive).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveNthCSQ(n, pcSubStr, pCaseSensitive)
+		return _oCopy_.Content()
 
 	def NthRemoved(n, pcSubStr)
 		return This.NthRemovedCS(n, pcSubStr, 1)
@@ -118,7 +131,9 @@ class stzStringRemover
 			return This
 
 	def FirstRemovedCS(pcSubStr, pCaseSensitive)
-		return new stzStringRemover(@oString.Content()).RemoveFirstCSQ(pcSubStr, pCaseSensitive).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveFirstCSQ(pcSubStr, pCaseSensitive)
+		return _oCopy_.Content()
 
 	def FirstRemoved(pcSubStr)
 		return This.FirstRemovedCS(pcSubStr, 1)
@@ -126,7 +141,13 @@ class stzStringRemover
 	#--
 
 	def RemoveLastCS(pcSubStr, pCaseSensitive)
-		new stzStringReplacer(@oString).ReplaceLastCS(pcSubStr, "", pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString.Content())
+		nPos = _oFinder_.FindLastCS(pcSubStr, pCaseSensitive)
+		if nPos = 0
+			return
+		ok
+		nLenOld = len(pcSubStr)
+		This.RemoveSection(nPos, nPos + nLenOld - 1)
 
 		def RemoveLastCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveLastCS(pcSubStr, pCaseSensitive)
@@ -140,7 +161,9 @@ class stzStringRemover
 			return This
 
 	def LastRemovedCS(pcSubStr, pCaseSensitive)
-		return new stzStringRemover(@oString.Content()).RemoveLastCSQ(pcSubStr, pCaseSensitive).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveLastCSQ(pcSubStr, pCaseSensitive)
+		return _oCopy_.Content()
 
 	def LastRemoved(pcSubStr)
 		return This.LastRemovedCS(pcSubStr, 1)
@@ -173,7 +196,9 @@ class stzStringRemover
 			return This
 
 	def SectionRemoved(n1, n2)
-		return new stzStringRemover(@oString.Content()).RemoveSectionQ(n1, n2).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveSectionQ(n1, n2)
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   REMOVING A RANGE (POSITION + N CHARS)              #
@@ -187,7 +212,9 @@ class stzStringRemover
 			return This
 
 	def RangeRemoved(nStart, nRange)
-		return new stzStringRemover(@oString.Content()).RemoveRangeQ(nStart, nRange).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveRangeQ(nStart, nRange)
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   REMOVING WITH CONDITION                            #
@@ -206,7 +233,9 @@ class stzStringRemover
 			return This
 
 	def RemovedW(pcCondition)
-		return new stzStringRemover(@oString.Content()).RemoveWQ(pcCondition).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveWQ(pcCondition)
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   REMOVING MANY SUBSTRINGS AT ONCE                   #
@@ -240,7 +269,9 @@ class stzStringRemover
 			This.RemoveManyCS(pacSubStr, pCaseSensitive)
 
 	def ManyRemovedCS(pacSubStr, pCaseSensitive)
-		return new stzStringRemover(@oString.Content()).RemoveManyCSQ(pacSubStr, pCaseSensitive).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveManyCSQ(pacSubStr, pCaseSensitive)
+		return _oCopy_.Content()
 
 	#--
 
@@ -260,7 +291,9 @@ class stzStringRemover
 			This.RemoveMany(pacSubStr)
 
 	def ManyRemoved(pacSubStr)
-		return new stzStringRemover(@oString.Content()).RemoveManyQ(pacSubStr).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveManyQ(pacSubStr)
+		return _oCopy_.Content()
 
 		def TheseRemoved(pacSubStr)
 			return This.ManyRemoved(pacSubStr)
@@ -321,7 +354,9 @@ class stzStringRemover
 			This.RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
 
 	def AnyBetweenRemovedCS(pcBound1, pcBound2, pCaseSensitive)
-		return new stzStringRemover(@oString.Content()).RemoveAnyBetweenCSQ(pcBound1, pcBound2, pCaseSensitive).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveAnyBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
+		return _oCopy_.Content()
 
 	#--
 
@@ -336,7 +371,9 @@ class stzStringRemover
 			This.RemoveAnyBetween(pcBound1, pcBound2)
 
 	def AnyBetweenRemoved(pcBound1, pcBound2)
-		return new stzStringRemover(@oString.Content()).RemoveAnyBetweenQ(pcBound1, pcBound2).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveAnyBetweenQ(pcBound1, pcBound2)
+		return _oCopy_.Content()
 
 		def BetweenRemoved(pcBound1, pcBound2)
 			return This.AnyBetweenRemoved(pcBound1, pcBound2)
@@ -371,7 +408,9 @@ class stzStringRemover
 			This.RemoveAnyBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
 
 	def AnyBetweenRemovedCSIB(pcBound1, pcBound2, pCaseSensitive)
-		return new stzStringRemover(@oString.Content()).RemoveAnyBetweenCSIBQ(pcBound1, pcBound2, pCaseSensitive).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveAnyBetweenCSIBQ(pcBound1, pcBound2, pCaseSensitive)
+		return _oCopy_.Content()
 
 	#--
 
@@ -386,7 +425,9 @@ class stzStringRemover
 			This.RemoveAnyBetweenIB(pcBound1, pcBound2)
 
 	def AnyBetweenRemovedIB(pcBound1, pcBound2)
-		return new stzStringRemover(@oString.Content()).RemoveAnyBetweenIBQ(pcBound1, pcBound2).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveAnyBetweenIBQ(pcBound1, pcBound2)
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   REMOVING DUPLICATES                                #
@@ -406,7 +447,9 @@ class stzStringRemover
 			return This
 
 	def DuplicatesRemovedCS(pCaseSensitive)
-		return new stzStringRemover(@oString.Content()).RemoveDuplicatesCSQ(pCaseSensitive).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveDuplicatesCSQ(pCaseSensitive)
+		return _oCopy_.Content()
 
 		def WithoutDuplicatesCS(pCaseSensitive)
 			return This.DuplicatesRemovedCS(pCaseSensitive)
@@ -421,7 +464,9 @@ class stzStringRemover
 			return This
 
 	def DuplicatesRemoved()
-		return new stzStringRemover(@oString.Content()).RemoveDuplicatesQ().Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveDuplicatesQ()
+		return _oCopy_.Content()
 
 		def WithoutDuplicates()
 			return This.DuplicatesRemoved()
@@ -436,10 +481,9 @@ class stzStringRemover
 		ok
 
 		nLenSubStr = len(pcSubStr)
+		cLeft = @oString.NLeftChars(nLenSubStr)
 
-		# TODO: requires monolith method extraction
-		# if This.NLeftCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
-		if @oString.NLeftCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
+		if BothStringsAreEqualCS(cLeft, pcSubStr, pCaseSensitive)
 			if @oString.IsLeftToRight()
 				n1 = 1
 				n2 = nLenSubStr
@@ -456,7 +500,9 @@ class stzStringRemover
 			return This
 
 	def RemovedFromLeftCS(pcSubStr, pCaseSensitive)
-		return new stzStringRemover(@oString.Content()).RemoveFromLeftCSQ(pcSubStr, pCaseSensitive).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveFromLeftCSQ(pcSubStr, pCaseSensitive)
+		return _oCopy_.Content()
 
 	#--
 
@@ -468,7 +514,9 @@ class stzStringRemover
 			return This
 
 	def RemovedFromLeft(pcSubStr)
-		return new stzStringRemover(@oString.Content()).RemoveFromLeftQ(pcSubStr).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveFromLeftQ(pcSubStr)
+		return _oCopy_.Content()
 
 	#--
 
@@ -478,17 +526,16 @@ class stzStringRemover
 		ok
 
 		nLenSubStr = len(pcSubStr)
+		cRight = @oString.NRightChars(nLenSubStr)
 
-		# TODO: requires monolith method extraction
-		# if This.NRightCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
-		if @oString.NRightCharsAsStringQ(nLenSubStr).IsEqualToCS(pcSubStr, pCaseSensitive)
-			if @oString.IsRightToLeft()
-				n1 = 1
-				n2 = nLenSubStr
-			else
+		if BothStringsAreEqualCS(cRight, pcSubStr, pCaseSensitive)
+			if @oString.IsLeftToRight()
 				nLenStr = @oString.NumberOfChars()
 				n1 = nLenStr - nLenSubStr + 1
 				n2 = nLenStr
+			else
+				n1 = 1
+				n2 = nLenSubStr
 			ok
 			This.RemoveSection(n1, n2)
 		ok
@@ -498,7 +545,9 @@ class stzStringRemover
 			return This
 
 	def RemovedFromRightCS(pcSubStr, pCaseSensitive)
-		return new stzStringRemover(@oString.Content()).RemoveFromRightCSQ(pcSubStr, pCaseSensitive).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveFromRightCSQ(pcSubStr, pCaseSensitive)
+		return _oCopy_.Content()
 
 	#--
 
@@ -510,7 +559,9 @@ class stzStringRemover
 			return This
 
 	def RemovedFromRight(pcSubStr)
-		return new stzStringRemover(@oString.Content()).RemoveFromRightQ(pcSubStr).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveFromRightQ(pcSubStr)
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   REMOVING SPACES                                    #
@@ -527,13 +578,13 @@ class stzStringRemover
 			This.RemoveSpaces()
 
 	def SpacesRemoved()
-		return new stzStringRemover(@oString.Content()).RemoveSpacesQ().Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveSpacesQ()
+		return _oCopy_.Content()
 
 	#--
 
 	def RemoveLeadingSpaces()
-		# TODO: requires monolith method extraction
-		# This.TrimStart()
 		@oString.TrimStart()
 
 		def RemoveLeadingSpacesQ()
@@ -541,13 +592,13 @@ class stzStringRemover
 			return This
 
 	def LeadingSpacesRemoved()
-		return new stzStringRemover(@oString.Content()).RemoveLeadingSpacesQ().Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveLeadingSpacesQ()
+		return _oCopy_.Content()
 
 	#--
 
 	def RemoveTrailingSpaces()
-		# TODO: requires monolith method extraction
-		# This.TrimEnd()
 		@oString.TrimEnd()
 
 		def RemoveTrailingSpacesQ()
@@ -555,13 +606,13 @@ class stzStringRemover
 			return This
 
 	def TrailingSpacesRemoved()
-		return new stzStringRemover(@oString.Content()).RemoveTrailingSpacesQ().Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveTrailingSpacesQ()
+		return _oCopy_.Content()
 
 	#--
 
 	def RemoveLeftSpaces()
-		# TODO: requires monolith method extraction
-		# This.TrimLeft()
 		@oString.TrimLeft()
 
 		def RemoveLeftSpacesQ()
@@ -569,13 +620,13 @@ class stzStringRemover
 			return This
 
 	def LeftSpacesRemoved()
-		return new stzStringRemover(@oString.Content()).RemoveLeftSpacesQ().Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveLeftSpacesQ()
+		return _oCopy_.Content()
 
 	#--
 
 	def RemoveRightSpaces()
-		# TODO: requires monolith method extraction
-		# This.TrimRight()
 		@oString.TrimRight()
 
 		def RemoveRightSpacesQ()
@@ -583,14 +634,17 @@ class stzStringRemover
 			return This
 
 	def RightSpacesRemoved()
-		return new stzStringRemover(@oString.Content()).RemoveRightSpacesQ().Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveRightSpacesQ()
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   REMOVING N-FIRST / N-LAST OCCURRENCES              #
 	#======================================================#
 
 	def RemoveNFirstOccurrencesCS(n, pcSubStr, pCaseSensitive)
-		anPos = new stzStringFinder(@oString).FindCS(pcSubStr, pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString)
+		anPos = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
 		if len(anPos) < n
 			n = len(anPos)
 		ok
@@ -609,7 +663,8 @@ class stzStringRemover
 	#--
 
 	def RemoveNLastOccurrencesCS(n, pcSubStr, pCaseSensitive)
-		anPos = new stzStringFinder(@oString).FindCS(pcSubStr, pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString)
+		anPos = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
 		nLen = len(anPos)
 		if nLen < n
 			n = nLen
@@ -638,7 +693,9 @@ class stzStringRemover
 			return This
 
 	def CharRemovedAt(n)
-		return new stzStringRemover(@oString.Content()).RemoveCharAtQ(n).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveCharAtQ(n)
+		return _oCopy_.Content()
 
 	  #======================================================#
 	 #   REMOVING CHARS AT MULTIPLE POSITIONS               #
@@ -655,4 +712,6 @@ class stzStringRemover
 			return This
 
 	def CharsRemovedAtPositions(panPos)
-		return new stzStringRemover(@oString.Content()).RemoveCharsAtPositionsQ(panPos).Content()
+		_oCopy_ = new stzStringRemover(@oString.Content())
+		_oCopy_.RemoveCharsAtPositionsQ(panPos)
+		return _oCopy_.Content()

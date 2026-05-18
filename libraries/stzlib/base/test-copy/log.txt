@@ -1,4 +1,0 @@
-Python script starting...
-Data before transformation: {'total_revenue': 6612.5, 'average_price': np.float64(11.625), 'best_seller': 'C'}
-Data after transformation: [['total_revenue', 6612.5], ['average_price', 11.625], ['best_seller', 'C']]
-Data written to file

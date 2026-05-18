@@ -235,3 +235,123 @@ class stzString from stzObject
 			ok
 		next
 		return aResult
+
+	  #========================================#
+	 #     DERIVED ACCESSORS                  #
+	#========================================#
+
+	def NLeftChars(n)
+		if This.IsLeftToRight()
+			return This.Section(1, n)
+		else
+			nLen = This.NumberOfChars()
+			return This.Section(nLen - n + 1, nLen)
+		ok
+
+		def NLeftCharsAsString(n)
+			return This.NLeftChars(n)
+
+		def NLeftCharsAsStringQ(n)
+			return new stzString(This.NLeftChars(n))
+
+	def NRightChars(n)
+		if This.IsLeftToRight()
+			nLen = This.NumberOfChars()
+			return This.Section(nLen - n + 1, nLen)
+		else
+			return This.Section(1, n)
+		ok
+
+		def NRightCharsAsString(n)
+			return This.NRightChars(n)
+
+		def NRightCharsAsStringQ(n)
+			return new stzString(This.NRightChars(n))
+
+	def NFirstChars(n)
+		return This.Section(1, n)
+
+	def NLastChars(n)
+		nLen = This.NumberOfChars()
+		return This.Section(nLen - n + 1, nLen)
+
+	  #========================================#
+	 #     MUTATION PRIMITIVES                #
+	#========================================#
+
+	def RemoveSection(n1, n2)
+		cContent = This.Content()
+		nLen = len(cContent)
+
+		if n1 < 1 n1 = 1 ok
+		if n2 > nLen n2 = nLen ok
+
+		cBefore = ""
+		cAfter = ""
+
+		if n1 > 1
+			cBefore = substr(cContent, 1, n1 - 1)
+		ok
+		if n2 < nLen
+			cAfter = substr(cContent, n2 + 1, nLen - n2)
+		ok
+
+		This.Update(cBefore + cAfter)
+
+	def RemoveSections(aSections)
+		# Remove sections from end to start to preserve positions
+		# Sort sections by start position descending
+		nLen = len(aSections)
+		for i = 1 to nLen - 1
+			for j = 1 to nLen - i
+				if aSections[j][1] < aSections[j+1][1]
+					temp = aSections[j]
+					aSections[j] = aSections[j+1]
+					aSections[j+1] = temp
+				ok
+			next
+		next
+
+		for i = 1 to nLen
+			This.RemoveSection(aSections[i][1], aSections[i][2])
+		next
+
+	def ReplaceSections(aSections, pcNewSubStr)
+		# Replace sections from end to start to preserve positions
+		nLen = len(aSections)
+		for i = 1 to nLen - 1
+			for j = 1 to nLen - i
+				if aSections[j][1] < aSections[j+1][1]
+					temp = aSections[j]
+					aSections[j] = aSections[j+1]
+					aSections[j+1] = temp
+				ok
+			next
+		next
+
+		for i = 1 to nLen
+			n1 = aSections[i][1]
+			n2 = aSections[i][2]
+			nRange = n2 - n1 + 1
+			cResult = This._ReplaceRange(n1, nRange, pcNewSubStr)
+			This.Update(cResult)
+		next
+
+	  #========================================#
+	 #     TRIMMING                           #
+	#========================================#
+
+	def TrimLeft()
+		This.Update(ring_ltrim(This.Content()))
+
+	def TrimRight()
+		This.Update(ring_rtrim(This.Content()))
+
+	def TrimStart()
+		This.TrimLeft()
+
+	def TrimEnd()
+		This.TrimRight()
+
+	def Trim()
+		This.Update(ring_trim(This.Content()))

@@ -146,7 +146,8 @@ class stzStringComparator
 	#======================================================#
 
 	def ContainsCS(pcSubStr, pCaseSensitive)
-		return new stzStringFinder(@oString).FindNthCS(1, pcSubStr, pCaseSensitive) > 0
+		_oFinder_ = new stzStringFinder(@oString)
+		return _oFinder_.FindNthCS(1, pcSubStr, pCaseSensitive) > 0
 
 	def Contains(pcSubStr)
 		return This.ContainsCS(pcSubStr, 1)

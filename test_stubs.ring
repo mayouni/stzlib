@@ -95,4 +95,61 @@ func U(aList)
 	next
 	return aResult
 
+func BothStringsAreEqualCS(str1, str2, pCaseSensitive)
+	_bCase_ = @CaseSensitive(pCaseSensitive)
+	if _bCase_
+		return str1 = str2
+	else
+		return lower(str1) = lower(str2)
+	ok
+
+func BothStringsAreEqual(str1, str2)
+	return BothStringsAreEqualCS(str1, str2, 1)
+
+func StzStringQ(cStr)
+	return new stzString(cStr)
+
+func ListReversed(aList)
+	aResult = []
+	for i = len(aList) to 1 step -1
+		aResult + aList[i]
+	next
+	return aResult
+
+func IsAndNamedParamList(p)
+	return 0
+
+func ring_trim(cStr)
+	return ring_ltrim(ring_rtrim(cStr))
+
+func ring_ltrim(cStr)
+	nLen = len(cStr)
+	nStart = 1
+	for i = 1 to nLen
+		if cStr[i] = " " or cStr[i] = char(9) or cStr[i] = char(10) or cStr[i] = char(13)
+			nStart = i + 1
+		else
+			exit
+		ok
+	next
+	if nStart > nLen
+		return ""
+	ok
+	return substr(cStr, nStart, nLen - nStart + 1)
+
+func ring_rtrim(cStr)
+	nLen = len(cStr)
+	nEnd = nLen
+	for i = nLen to 1 step -1
+		if cStr[i] = " " or cStr[i] = char(9) or cStr[i] = char(10) or cStr[i] = char(13)
+			nEnd = i - 1
+		else
+			exit
+		ok
+	next
+	if nEnd < 1
+		return ""
+	ok
+	return substr(cStr, 1, nEnd)
+
 class stzObject
