@@ -44,7 +44,7 @@ class stzStringCode
 	#===============================#
 
 	def IsRingCode()
-		cContent = lower(@oString.Content())
+		cContent = StzCaseFold(@oString.Content())
 		acKeywords = [
 			"func", "class", "def", "if", "but", "else", "ok",
 			"for", "next", "while", "end", "switch", "off",
@@ -63,11 +63,11 @@ class stzStringCode
 
 	def IsRingFunction()
 		cTrimmed = trim(@oString.Content())
-		return left(lower(cTrimmed), 5) = "func "
+		return left(StzCaseFold(cTrimmed), 5) = "func "
 
 	def IsRingClass()
 		cTrimmed = trim(@oString.Content())
-		return left(lower(cTrimmed), 6) = "class "
+		return left(StzCaseFold(cTrimmed), 6) = "class "
 
 	  #===============================#
 	 #     CODE EXECUTION            #
@@ -86,15 +86,15 @@ class stzStringCode
 	#===============================#
 
 	def ContainsFunctions()
-		oFinder = new stzStringFinder(lower(@oString.Content()))
+		oFinder = new stzStringFinder(StzCaseFold(@oString.Content()))
 		return oFinder.Contains("func ")
 
 	def ContainsClasses()
-		oFinder = new stzStringFinder(lower(@oString.Content()))
+		oFinder = new stzStringFinder(StzCaseFold(@oString.Content()))
 		return oFinder.Contains("class ")
 
 	def NumberOfFunctions()
-		cContent = lower(@oString.Content())
+		cContent = StzCaseFold(@oString.Content())
 		acLines = split(cContent, nl)
 		nCount = 0
 		nLen = len(acLines)
@@ -109,7 +109,7 @@ class stzStringCode
 		return nCount
 
 	def NumberOfClasses()
-		cContent = lower(@oString.Content())
+		cContent = StzCaseFold(@oString.Content())
 		acLines = split(cContent, nl)
 		nCount = 0
 		nLen = len(acLines)
@@ -131,7 +131,7 @@ class stzStringCode
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
-			cLineLow = lower(cLine)
+			cLineLow = StzCaseFold(cLine)
 			if left(cLineLow, 5) = "func "
 				cRest = substr(cLine, 6)
 				cRest = trim(cRest)
@@ -161,7 +161,7 @@ class stzStringCode
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
-			cLineLow = lower(cLine)
+			cLineLow = StzCaseFold(cLine)
 			if left(cLineLow, 6) = "class "
 				cRest = substr(cLine, 7)
 				cRest = trim(cRest)

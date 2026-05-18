@@ -114,7 +114,7 @@ class stzStringIO
 	#===============================#
 
 	def IsURL()
-		cContent = lower(@oString.Content())
+		cContent = StzCaseFold(@oString.Content())
 		if left(cContent, 7) = "http://" or
 		   left(cContent, 8) = "https://" or
 		   left(cContent, 6) = "ftp://"

@@ -27,7 +27,7 @@ func Concatenate(pacListOfStr)
 func ConcatenateXT(pacListOfStr, pcSep)
 	if CheckingParams()
 		if isList(pcSep) and len(pcSep) = 2 and isString(pcSep[1]) and
-		   (lower(pcSep[1]) = "with" or lower(pcSep[1]) = "using")
+		   (StzCaseFold(pcSep[1]) = "with" or StzCaseFold(pcSep[1]) = "using")
 			pcSep = pcSep[2]
 		ok
 
@@ -658,7 +658,7 @@ class stzStringList
 
 	def Split(cSep)
 		if isList(cSep) and len(cSep) = 2 and isString(cSep[1]) and
-		   (lower(cSep[1]) = "using" or lower(cSep[1]) = "with" or lower(cSep[1]) = "by")
+		   (StzCaseFold(cSep[1]) = "using" or StzCaseFold(cSep[1]) = "with" or StzCaseFold(cSep[1]) = "by")
 			cSep = cSep[2]
 		ok
 

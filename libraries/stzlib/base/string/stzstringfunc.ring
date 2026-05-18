@@ -2016,7 +2016,7 @@ func @IsPalindrome(p)
 		return 1
 
 	but isString(p)
-		pStr = StzEngineString(lower(p))
+		pStr = StzEngineString(StzCaseFold(p))
 		nResult = StzEngineStringIsPalindrome(pStr)
 		StzEngineStringFree(pStr)
 		return nResult
@@ -2153,7 +2153,7 @@ func IsCsvFileName(pcStr)
 		return FALSE
 	ok
 
-	if lower( @split(pcStr, ".")[2] ) = "csv"
+	if StzCaseFold( @split(pcStr, ".")[2] ) = "csv"
 		return TRUE
 	else
 		return FALSE
@@ -2172,7 +2172,7 @@ func IsHtmlFileName(pcStr)
 		return FALSE
 	ok
 
-	cExtension = lower( @split(pcStr, ".")[2] )
+	cExtension = StzCaseFold( @split(pcStr, ".")[2] )
 
 	if cExtension = "html" or cExtension = "htm"
 		return TRUE

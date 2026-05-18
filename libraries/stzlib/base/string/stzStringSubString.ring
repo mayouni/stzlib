@@ -40,7 +40,7 @@ class stzStringSubStringCS
 
 	def init(pcSubStr, pcStr, pCaseSensitive)
 		if isList(pcStr) and len(pcStr) = 2 and isString(pcStr[1])
-			cPN = lower(pcStr[1])
+			cPN = StzCaseFold(pcStr[1])
 			if cPN = "in" or cPN = "instring"
 				pcStr = pcStr[2]
 			ok
@@ -138,13 +138,13 @@ class stzStringSubStringCS
 	def Uppercased()
 		oStr = new stzString(@cStr)
 		oReplacer = new stzStringReplacer(oStr)
-		oReplacer.ReplaceCS(@cSubStr, upper(@cSubStr), @bCaseSensitive)
+		oReplacer.ReplaceCS(@cSubStr, StzUpper(@cSubStr), @bCaseSensitive)
 		return oReplacer.Content()
 
 	def Lowercased()
 		oStr = new stzString(@cStr)
 		oReplacer = new stzStringReplacer(oStr)
-		oReplacer.ReplaceCS(@cSubStr, lower(@cSubStr), @bCaseSensitive)
+		oReplacer.ReplaceCS(@cSubStr, StzLower(@cSubStr), @bCaseSensitive)
 		return oReplacer.Content()
 
 	  #===============================#
