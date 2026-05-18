@@ -59,7 +59,7 @@ class stzStringLines
 	#===============================#
 
 	def NumberOfLinesCS(pCaseSensitive)
-		return len(This.LinesCS(pCaseSensitive))
+		return StzEngineStringCountLines(@oString.Engine())
 
 		def CountLinesCS(pCaseSensitive)
 			return This.NumberOfLinesCS(pCaseSensitive)
@@ -68,7 +68,7 @@ class stzStringLines
 			return This.NumberOfLinesCS(pCaseSensitive)
 
 	def NumberOfLines()
-		return This.NumberOfLinesCS(1)
+		return StzEngineStringCountLines(@oString.Engine())
 
 		def CountLines()
 			return This.NumberOfLines()
@@ -142,35 +142,22 @@ class stzStringLines
 	#===============================#
 
 	def RemoveEmptyLines()
-		acLines = This.Lines()
-		acResult = []
-		nLen = len(acLines)
-
-		for i = 1 to nLen
-			if trim(acLines[i]) != ""
-				acResult + acLines[i]
-			ok
-		next
-
-		cResult = ""
-		nResLen = len(acResult)
-		for i = 1 to nResLen
-			if i > 1
-				cResult += NL
-			ok
-			cResult += acResult[i]
-		next
-
-		@oString.Update(cResult)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveBlankLines(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveEmptyLinesQ()
 			This.RemoveEmptyLines()
 			return This
 
 	def EmptyLinesRemoved()
-		oCopy = new stzStringLines(@oString.Content())
-		oCopy.RemoveEmptyLines()
-		return oCopy.Content()
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveBlankLines(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	def NumberOfEmptyLines()
 		return This.NumberOfLines() - len(This.EmptyLinesRemoved())
@@ -361,75 +348,44 @@ class stzStringLines
 	#===============================#
 
 	def IndentLines(n)
-		acLines = This.Lines()
-		nLen = len(acLines)
-
-		cSpaces = ""
-		for s = 1 to n
-			cSpaces += " "
-		next
-
-		cResult = ""
-		for i = 1 to nLen
-			if i > 1
-				cResult += NL
-			ok
-			cResult += cSpaces + acLines[i]
-		next
-
-		@oString.Update(cResult)
+		pH = @oString.Engine()
+		pR = StzEngineStringIndent(pH, n)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def IndentLinesQ(n)
 			This.IndentLines(n)
 			return This
 
 	def LinesIndented(n)
-		oCopy = new stzStringLines(@oString.Content())
-		oCopy.IndentLines(n)
-		return oCopy.Content()
+		pH = @oString.Engine()
+		pR = StzEngineStringIndent(pH, n)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	  #===============================#
 	 #     REMOVE DUPLICATE LINES    #
 	#===============================#
 
 	def RemoveDuplicateLines()
-		acLines = This.Lines()
-		nLen = len(acLines)
-		acResult = []
-
-		for i = 1 to nLen
-			bFound = 0
-			nResLen = len(acResult)
-			for j = 1 to nResLen
-				if acResult[j] = acLines[i]
-					bFound = 1
-					exit
-				ok
-			next
-			if NOT bFound
-				acResult + acLines[i]
-			ok
-		next
-
-		cResult = ""
-		nResLen = len(acResult)
-		for i = 1 to nResLen
-			if i > 1
-				cResult += NL
-			ok
-			cResult += acResult[i]
-		next
-
-		@oString.Update(cResult)
+		pH = @oString.Engine()
+		pR = StzEngineStringDeduplicateLines(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveDuplicateLinesQ()
 			This.RemoveDuplicateLines()
 			return This
 
 	def DuplicateLinesRemoved()
-		oCopy = new stzStringLines(@oString.Content())
-		oCopy.RemoveDuplicateLines()
-		return oCopy.Content()
+		pH = @oString.Engine()
+		pR = StzEngineStringDeduplicateLines(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	  #===============================#
 	 #     LINES CONTAINING          #
