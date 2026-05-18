@@ -74,7 +74,7 @@ class stzStringWords
 	#===============================#
 
 	def NumberOfWords()
-		return len(This.Words())
+		return StzEngineStringCountWords(@oString.Engine())
 
 		def CountWords()
 			return This.NumberOfWords()
