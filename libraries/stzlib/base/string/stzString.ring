@@ -842,9 +842,9 @@ class stzString from stzObject
 		def BracketsAreBalanced()
 			return This.IsBalanced()
 
-	  #==============================#
+	  #=============================#
 	 #  SLUG                       #
-	#==============================#
+	#=============================#
 
 	def Slugify()
 		pResult = StzEngineStringSlug(@pEngine)

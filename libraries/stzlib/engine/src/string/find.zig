@@ -110,10 +110,6 @@ pub fn str_index_of_from(handle: StzStringHandle, needle: [*c]const u8, needle_l
     return str_index_of_from_cs(handle, needle, needle_len, start_cp, 1);
 }
 
-pub fn str_index_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, start_cp: usize) callconv(.c) i64 {
-    return str_index_of_from_cs(handle, needle, needle_len, start_cp, 0);
-}
-
 // ─── Byte to Codepoint position ───
 
 pub fn str_byte_to_cp(handle: StzStringHandle, byte_pos: usize) callconv(.c) i64 {
@@ -176,10 +172,6 @@ pub fn str_count_of_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len
     return 0;
 }
 
-pub fn str_count_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
-    return str_count_of_cs(handle, needle, needle_len, 0);
-}
-
 // ─── Find All ───
 
 /// Unified find_all with case sensitivity parameter.
@@ -227,10 +219,6 @@ pub fn str_find_all_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len
 
 pub fn str_find_all(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzFindResultHandle {
     return str_find_all_cs(handle, needle, needle_len, 1);
-}
-
-pub fn str_find_all_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzFindResultHandle {
-    return str_find_all_cs(handle, needle, needle_len, 0);
 }
 
 // ─── Find Result Accessors ───
@@ -285,10 +273,6 @@ pub fn str_last_index_of(handle: StzStringHandle, needle: [*c]const u8, needle_l
     return str_last_index_of_cs(handle, needle, needle_len, 1);
 }
 
-pub fn str_last_index_of_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) i64 {
-    return str_last_index_of_cs(handle, needle, needle_len, 0);
-}
-
 // ─── Contains ───
 
 /// Unified contains with case sensitivity parameter.
@@ -298,10 +282,6 @@ pub fn str_contains_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len
 
 pub fn str_contains(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
     return str_contains_cs(handle, needle, needle_len, 1);
-}
-
-pub fn str_contains_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) c_int {
-    return str_contains_cs(handle, needle, needle_len, 0);
 }
 
 // ─── Starts With ───
@@ -327,10 +307,6 @@ pub fn str_starts_with_cs(handle: StzStringHandle, prefix: [*c]const u8, prefix_
 
 pub fn str_starts_with(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) c_int {
     return str_starts_with_cs(handle, prefix, prefix_len, 1);
-}
-
-pub fn str_starts_with_ci(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) c_int {
-    return str_starts_with_cs(handle, prefix, prefix_len, 0);
 }
 
 // ─── Ends With ───
@@ -359,10 +335,6 @@ pub fn str_ends_with(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: 
     return str_ends_with_cs(handle, suffix, suffix_len, 1);
 }
 
-pub fn str_ends_with_ci(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize) callconv(.c) c_int {
-    return str_ends_with_cs(handle, suffix, suffix_len, 0);
-}
-
 // ─── Equals ───
 
 pub fn str_equals_cs(h1: StzStringHandle, h2: StzStringHandle, case: c_int) callconv(.c) c_int {
@@ -377,10 +349,6 @@ pub fn str_equals_cs(h1: StzStringHandle, h2: StzStringHandle, case: c_int) call
 
 pub fn str_equals(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
     return str_equals_cs(h1, h2, 1);
-}
-
-pub fn str_equals_ci(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
-    return str_equals_cs(h1, h2, 0);
 }
 
 // ─── Find Nth ───
@@ -422,10 +390,6 @@ pub fn str_find_nth_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len
 
 pub fn str_find_nth(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) i64 {
     return str_find_nth_cs(handle, needle, needle_len, n, 1);
-}
-
-pub fn str_find_nth_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, n: c_int) callconv(.c) i64 {
-    return str_find_nth_cs(handle, needle, needle_len, n, 0);
 }
 
 // ─── Character-level find ───
@@ -653,7 +617,7 @@ test "equals" {
     defer str_free(s3);
     try testing.expectEqual(@as(c_int, 1), str_equals(s1, s2));
     try testing.expectEqual(@as(c_int, 0), str_equals(s1, s3));
-    try testing.expectEqual(@as(c_int, 1), str_equals_ci(s1, s3));
+    try testing.expectEqual(@as(c_int, 1), str_equals_cs(s1, s3, 0));
 }
 
 test "find_nth" {

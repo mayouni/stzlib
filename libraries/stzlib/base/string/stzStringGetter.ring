@@ -4,9 +4,9 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String getter subclass -- accessing         #
-#                  individual chars and char groups.            #
-#                  For aliases, use stzStringGetterXT.          #
-#   Version      : V0.9 (2026)                                #
+#                  individual chars and char groups.           #
+#                  For aliases, use stzStringGetterXT.         #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#

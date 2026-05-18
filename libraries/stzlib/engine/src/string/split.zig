@@ -48,10 +48,6 @@ pub fn str_split_count_cs(handle: StzStringHandle, sep: [*c]const u8, sep_len: u
     return 0;
 }
 
-pub fn str_split_count_ci(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) c_int {
-    return str_split_count_cs(handle, sep, sep_len, 0);
-}
-
 /// Unified split_get with case sensitivity parameter.
 pub fn str_split_get_cs(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize, index: c_int, case: c_int) callconv(.c) StzStringHandle {
     if (handle) |s| {
@@ -94,10 +90,6 @@ pub fn str_split_get_cs(handle: StzStringHandle, sep: [*c]const u8, sep_len: usi
         }
     }
     return null;
-}
-
-pub fn str_split_get_ci(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize, index: c_int) callconv(.c) StzStringHandle {
-    return str_split_get_cs(handle, sep, sep_len, index, 0);
 }
 
 // ─── Lines ───

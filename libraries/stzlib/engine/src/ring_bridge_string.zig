@@ -112,7 +112,7 @@ fn ring_StringIndexOfCI(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const start: usize = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_index_of_ci(h, s, len, start)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_index_of_from_cs(h, s, len, start, 0)));
 }
 
 fn ring_StringByteToCp(p: *anyopaque) callconv(.c) void {
@@ -172,7 +172,7 @@ fn ring_StringFindAllCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_all_ci(h, s, len)), FIND_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_find_all_cs(h, s, len, 0)), FIND_HANDLE);
 }
 
 fn ring_FindResultCount(p: *anyopaque) callconv(.c) void {
@@ -192,37 +192,37 @@ fn ring_FindResultFree(p: *anyopaque) callconv(.c) void {
 fn ring_StringCountOfCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_of_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_of_cs(h, s, @intCast(ring_vm_api_getstringsize(p, 2)), 0)));
 }
 
 fn ring_StringLastIndexOfCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_last_index_of_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_last_index_of_cs(h, s, @intCast(ring_vm_api_getstringsize(p, 2)), 0)));
 }
 
 fn ring_StringContainsCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_contains_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_contains_cs(h, s, @intCast(ring_vm_api_getstringsize(p, 2)), 0)));
 }
 
 fn ring_StringStartsWithCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_starts_with_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_starts_with_cs(h, s, @intCast(ring_vm_api_getstringsize(p, 2)), 0)));
 }
 
 fn ring_StringEndsWithCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_ends_with_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_ends_with_cs(h, s, @intCast(ring_vm_api_getstringsize(p, 2)), 0)));
 }
 
 fn ring_StringSplitCountCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const s = ring_vm_api_getstring(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_split_count_ci(h, s, @intCast(ring_vm_api_getstringsize(p, 2)))));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_split_count_cs(h, s, @intCast(ring_vm_api_getstringsize(p, 2)), 0)));
 }
 
 fn ring_StringSplitGetCI(p: *anyopaque) callconv(.c) void {
@@ -230,7 +230,7 @@ fn ring_StringSplitGetCI(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_split_get_ci(h, s, len, idx)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_split_get_cs(h, s, len, idx, 0)), STZ_HANDLE);
 }
 
 fn ring_StringReplaceCI(p: *anyopaque) callconv(.c) void {
@@ -239,7 +239,7 @@ fn ring_StringReplaceCI(p: *anyopaque) callconv(.c) void {
     const old_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const new_s = ring_vm_api_getstring(p, 3);
     const new_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
-    string.str_replace_ci(h, old_s, old_len, new_s, new_len);
+    string.str_replace_cs(h, old_s, old_len, new_s, new_len, 0);
 }
 
 fn ring_StringReplace(p: *anyopaque) callconv(.c) void {
@@ -418,7 +418,7 @@ fn ring_StringEquals(p: *anyopaque) callconv(.c) void {
 fn ring_StringEqualsCI(p: *anyopaque) callconv(.c) void {
     const h1 = getHandle(p, 1);
     const h2 = getHandle(p, 2);
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_equals_ci(h1, h2)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_equals_cs(h1, h2, 0)));
 }
 
 fn ring_StringRemoveAll(p: *anyopaque) callconv(.c) void {
@@ -553,7 +553,7 @@ fn ring_StringFindNthCI(p: *anyopaque) callconv(.c) void {
     const s = ring_vm_api_getstring(p, 2);
     const len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
     const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_find_nth_ci(h, s, len, n)));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_find_nth_cs(h, s, len, n, 0)));
 }
 
 fn ring_StringInsertCp(p: *anyopaque) callconv(.c) void {
@@ -638,7 +638,7 @@ fn ring_StringRemoveAllCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const needle = ring_vm_api_getstring(p, 2);
     const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
-    const result = string.str_remove_all_ci(h, needle, needle_len);
+    const result = string.str_remove_all_cs(h, needle, needle_len, 0);
     ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
 }
 
@@ -2139,27 +2139,10 @@ fn ring_StringAllSubstringsCS(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_all_substrings_cs(h, case)), STZ_HANDLE);
 }
 
-// Backward-compatible wrappers
-fn ring_StringAllSubstrings(p: *anyopaque) callconv(.c) void {
-    const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_all_substrings(h)), STZ_HANDLE);
-}
-
-fn ring_StringAllSubstringsUnique(p: *anyopaque) callconv(.c) void {
-    const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_all_substrings_unique(h)), STZ_HANDLE);
-}
-
 fn ring_StringUniqueCharsCS(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
     ring_vm_api_retcpointer(p, @ptrCast(string.str_unique_chars_cs(h, case)), STZ_HANDLE);
-}
-
-// Backward-compatible CI-only wrapper
-fn ring_StringUniqueCharsCI(p: *anyopaque) callconv(.c) void {
-    const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_unique_chars_cs(h, 0)), STZ_HANDLE);
 }
 
 fn ring_StringSubstringsCount(p: *anyopaque) callconv(.c) void {
@@ -2707,10 +2690,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsplitcountcs", .func = &ring_StringSplitCountCS },
     .{ .name = "stzenginestringsplitgetcs", .func = &ring_StringSplitGetCS },
     .{ .name = "stzenginestringallsubstringscs", .func = &ring_StringAllSubstringsCS },
-    .{ .name = "stzenginestringallsubstrings", .func = &ring_StringAllSubstrings },
-    .{ .name = "stzenginestringallsubstringsunique", .func = &ring_StringAllSubstringsUnique },
     .{ .name = "stzenginestringuniquecharscs", .func = &ring_StringUniqueCharsCS },
-    .{ .name = "stzenginestringuniquecharsci", .func = &ring_StringUniqueCharsCI },
     .{ .name = "stzenginestringsubstringscount", .func = &ring_StringSubstringsCount },
     .{ .name = "stzenginestringsubstringsofnchars", .func = &ring_StringSubstringsOfNChars },
 };

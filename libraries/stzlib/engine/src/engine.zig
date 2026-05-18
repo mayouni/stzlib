@@ -44,7 +44,6 @@ comptime {
     @export(&string.str_trimmed, .{ .name = "str_trimmed" });
     @export(&string.str_index_of, .{ .name = "str_index_of" });
     @export(&string.str_index_of_from, .{ .name = "str_index_of_from" });
-    @export(&string.str_index_of_ci, .{ .name = "str_index_of_ci" });
     @export(&string.str_byte_to_cp, .{ .name = "str_byte_to_cp" });
     @export(&string.str_count_of, .{ .name = "str_count_of" });
     @export(&string.str_replace_range, .{ .name = "str_replace_range" });

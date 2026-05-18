@@ -144,10 +144,6 @@ pub fn str_replace(handle: StzStringHandle, old: [*c]const u8, old_len: usize, n
     str_replace_cs(handle, old, old_len, new, new_len, 1);
 }
 
-pub fn str_replace_ci(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new: [*c]const u8, new_len: usize) callconv(.c) void {
-    str_replace_cs(handle, old, old_len, new, new_len, 0);
-}
-
 // ─── ReplaceFirst: replace only the first occurrence ───
 
 /// Replace only the first occurrence of `old` with `new_str`. Returns new handle.
@@ -619,11 +615,6 @@ pub fn str_remove_all_cs(handle: StzStringHandle, needle: [*c]const u8, needle_l
 
 pub fn str_remove_all(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
     return str_remove_all_cs(handle, needle, needle_len, 1);
-}
-
-/// Remove all occurrences of needle (case-insensitive). Returns new handle.
-pub fn str_remove_all_ci(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize) callconv(.c) StzStringHandle {
-    return str_remove_all_cs(handle, needle, needle_len, 0);
 }
 
 // ─── RemoveCharAt: remove single codepoint at index ───
