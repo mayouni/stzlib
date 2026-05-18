@@ -717,7 +717,8 @@ test "string byte_to_cp" {
 
 test "string replace_range" {
     const s = str_from("Hello World", 11);
-    const r = str_replace_range(s, 5, 1, "_beautiful_", 11);
+    // Position 6 (1-based) = " ", replace 1 codepoint with "_beautiful_"
+    const r = str_replace_range(s, 6, 1, "_beautiful_", 11);
     try std.testing.expectEqual(@as(usize, 21), str_size(r));
     try std.testing.expect(mem.eql(u8, str_data(r)[0..21], "Hello_beautiful_World"));
     str_free(r);
@@ -726,10 +727,12 @@ test "string replace_range" {
 
 test "string replace_range at edges" {
     const s = str_from("abc", 3);
-    const r1 = str_replace_range(s, 0, 1, "X", 1);
+    // Position 1 (1-based) = first codepoint
+    const r1 = str_replace_range(s, 1, 1, "X", 1);
     try std.testing.expect(mem.eql(u8, str_data(r1)[0..3], "Xbc"));
     str_free(r1);
-    const r2 = str_replace_range(s, 2, 1, "Z", 1);
+    // Position 3 (1-based) = last codepoint
+    const r2 = str_replace_range(s, 3, 1, "Z", 1);
     try std.testing.expect(mem.eql(u8, str_data(r2)[0..3], "abZ"));
     str_free(r2);
     str_free(s);

@@ -45,13 +45,37 @@ fn str_copy(handle: StzStringHandle) StzStringHandle {
 // ─── REPLACE ─────────────────────────────────────────────────
 // ═══════════════════════════════════════════════════════════════
 
-// ─── ReplaceRange: replace byte range with new content ───
+// ─── ReplaceRange: replace codepoint range with new content ───
+// start_cp: 1-based codepoint position (uses INDEX_BASE)
+// cp_count: number of codepoints to replace
 
-pub fn str_replace_range(handle: StzStringHandle, start: usize, range: usize, new: [*c]const u8, new_len: usize) callconv(.c) StzStringHandle {
+pub fn str_replace_range(handle: StzStringHandle, start_cp: usize, cp_count: usize, new: [*c]const u8, new_len: usize) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const hay = s.slice();
-        const end = @min(start + range, hay.len);
-        const result_len = start + new_len + (hay.len - end);
+        if (hay.len == 0) return str_from(hay.ptr, hay.len);
+
+        const internal_start = toInternal(@intCast(start_cp));
+
+        // Find byte position of start codepoint
+        var byte_pos: usize = 0;
+        var cp: usize = 0;
+        while (byte_pos < hay.len and cp < internal_start) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            cp += 1;
+        }
+        const byte_start = byte_pos;
+
+        // Find byte position of end (start + cp_count codepoints)
+        var replaced: usize = 0;
+        while (byte_pos < hay.len and replaced < cp_count) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(hay[byte_pos]) catch 1;
+            byte_pos += cp_len;
+            replaced += 1;
+        }
+        const byte_end = byte_pos;
+
+        const result_len = byte_start + new_len + (hay.len - byte_end);
         const out = gpa.create(StzString) catch return null;
         out.* = StzString.init();
         out.data.ensureTotalCapacity(gpa, result_len) catch {
@@ -59,12 +83,12 @@ pub fn str_replace_range(handle: StzStringHandle, start: usize, range: usize, ne
             gpa.destroy(out);
             return null;
         };
-        out.data.appendSlice(gpa, hay[0..start]) catch unreachable;
+        out.data.appendSlice(gpa, hay[0..byte_start]) catch unreachable;
         if (new != null and new_len > 0) {
             out.data.appendSlice(gpa, new[0..new_len]) catch unreachable;
         }
-        if (end < hay.len) {
-            out.data.appendSlice(gpa, hay[end..]) catch unreachable;
+        if (byte_end < hay.len) {
+            out.data.appendSlice(gpa, hay[byte_end..]) catch unreachable;
         }
         return out;
     }
@@ -1300,7 +1324,8 @@ const testing = std.testing;
 test "replace_range" {
     const s = str_from("Hello World", 11);
     defer str_free(s);
-    const r = str_replace_range(s, 5, 1, "_", 1);
+    // Position 6 (1-based) = " ", replace 1 codepoint with "_"
+    const r = str_replace_range(s, 6, 1, "_", 1);
     defer str_free(r);
     try testing.expect(r != null);
     try testing.expectEqualStrings("Hello_World", r.?.slice());
