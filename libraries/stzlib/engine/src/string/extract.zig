@@ -98,7 +98,7 @@ pub fn str_nth_char(handle: StzStringHandle, cp_index: usize) callconv(.c) StzSt
 }
 
 /// Extract substring by codepoint range [start_cp, start_cp + cp_count).
-/// start_cp uses INDEX_BASE convention. cp_count is a length (not a position).
+/// start_cp is 1-based from host (converted to 0-based internally). cp_count is a length (not a position).
 pub fn str_slice(handle: StzStringHandle, start_cp: usize, cp_count_arg: usize) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const hay = s.slice();
@@ -189,7 +189,7 @@ pub fn str_right_cp(handle: StzStringHandle, cp_count_arg: c_int) callconv(.c) S
     if (handle) |s| {
         const src = s.slice();
         const total_cp = utf8CodepointCount(src);
-        // right_cp: start from (total - count), expressed in INDEX_BASE convention
+        // right_cp: start from (total - count), expressed in 1-based host convention
         const start_cp: c_int = @intCast(total_cp -| @as(usize, @intCast(@max(cp_count_arg, 0))));
         return str_mid_cp(handle, start_cp + INDEX_BASE, cp_count_arg);
     }
@@ -309,7 +309,7 @@ pub fn str_count_between(handle: StzStringHandle, open: [*c]const u8, open_len: 
 
 // ─── Substring / CharsBetween ───
 
-/// Extract between two codepoint positions (inclusive, INDEX_BASE convention).
+/// Extract between two codepoint positions (inclusive, 1-based from host).
 pub fn str_substring(handle: StzStringHandle, from_cp: c_int, to_cp: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
@@ -356,7 +356,7 @@ pub fn str_substring(handle: StzStringHandle, from_cp: c_int, to_cp: c_int) call
 }
 
 pub fn str_chars_between(handle: StzStringHandle, cp_from: c_int, cp_to: c_int) callconv(.c) StzStringHandle {
-    // Extract characters between two codepoint positions (exclusive on both ends, INDEX_BASE convention)
+    // Extract characters between two codepoint positions (exclusive on both ends, 1-based from host)
     const s = handle orelse return str_new();
     const src = s.slice();
     if (cp_from < INDEX_BASE or cp_to < INDEX_BASE or cp_to <= cp_from + 1) return str_new();

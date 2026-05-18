@@ -35,14 +35,23 @@ pub fn str_clear_error() callconv(.c) void {
 }
 
 // ─── Indexing Configuration ───
+//
+// The engine is 0-based internally. INDEX_BASE adapts the FFI
+// boundary for the host language (Ring is 1-based, so INDEX_BASE=1).
+// Exported functions accept INDEX_BASE-based indices from the host,
+// convert to 0-based with toInternal() or `- INDEX_BASE`, do all
+// internal work 0-based, and convert results back with toExternal()
+// when returning positions to the host.
 
 pub const INDEX_BASE: c_int = 1;
 
+/// Convert external (host-language) position to internal 0-based index.
 pub fn toInternal(pos: i64) usize {
     const adjusted = pos - INDEX_BASE;
     return if (adjusted < 0) 0 else @intCast(adjusted);
 }
 
+/// Convert internal 0-based index to external (host-language) position.
 pub fn toExternal(pos: usize) i64 {
     return @as(i64, @intCast(pos)) + INDEX_BASE;
 }

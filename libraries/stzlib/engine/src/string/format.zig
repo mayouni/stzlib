@@ -306,7 +306,7 @@ pub fn str_repeat_to_length(handle: StzStringHandle, target_len: c_int) callconv
     return result;
 }
 
-/// Swap characters at two codepoint positions (INDEX_BASE convention). Returns new handle.
+/// Swap characters at two codepoint positions (1-based from host, converted to 0-based internally). Returns new handle.
 pub fn str_swap_chars(handle: StzStringHandle, pos1: c_int, pos2: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const src = s.slice();
