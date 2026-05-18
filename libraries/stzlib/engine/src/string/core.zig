@@ -275,10 +275,6 @@ pub fn str_insert(handle: StzStringHandle, byte_pos: usize, utf8: [*c]const u8, 
 
 // ─── Shared Helpers ───
 
-pub fn toLowerAscii(c: u8) u8 {
-    return if (c >= 'A' and c <= 'Z') c + 32 else c;
-}
-
 pub fn casefoldAlloc(input: []const u8) ?[]u8 {
     if (input.len == 0) return null;
     var out_len: usize = 0;
