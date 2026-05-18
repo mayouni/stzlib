@@ -6,6 +6,7 @@
 #   Description  : String crypto -- Wraps stzString via         #
 #                  composition. Hashing, basic encryption/       #
 #                  decryption, checksum operations.              #
+#                  All ops are engine-backed (Zig DLL).          #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -39,39 +40,29 @@ class stzStringCrypto
 		return @oString.IsEmpty()
 
 	  #===============================#
-	 #     HASHING                   #
+	 #     HASHING (Engine-backed)   #
 	#===============================#
 
-	def Hash(pcAlgorithm)
-		return sha256(@oString.Content())
+	def Hash()
+		pH = @oString.Engine()
+		return StzEngineStringHash(pH)
 
-		def HashQ(pcAlgorithm)
-			return new stzStringCrypto(This.Hash(pcAlgorithm))
-
-	def SHA256()
-		return sha256(@oString.Content())
-
-	def MD5()
-		return md5(@oString.Content())
+	def Entropy()
+		pH = @oString.Engine()
+		return StzEngineStringEntropy(pH)
 
 	  #===============================#
-	 #     SIMPLE XOR CIPHER         #
+	 #     XOR CIPHER (Engine)       #
 	#===============================#
 
 	def XOREncrypt(pcKey)
-		cContent = @oString.Content()
-		cKey = pcKey
-		nLen = len(cContent)
-		nKeyLen = len(cKey)
-		cResult = ""
-
-		for i = 1 to nLen
-			nKeyIdx = ((i - 1) % nKeyLen) + 1
-			nXOR = ascii(substr(cContent, i, 1)) ^ ascii(substr(cKey, nKeyIdx, 1))
-			cResult += char(nXOR)
-		next
-
-		return cResult
+		pH = @oString.Engine()
+		pKey = StzEngineString(pcKey)
+		pR = StzEngineStringXorCipher(pH, pKey)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pKey)
+		return c
 
 	def XORDecrypt(pcKey)
 		return This.XOREncrypt(pcKey)
@@ -95,206 +86,162 @@ class stzStringCrypto
 		return hex(This.Checksum())
 
 	  #===============================#
-	 #     BASE64                    #
+	 #     BASE64 (Engine-backed)    #
 	#===============================#
 
 	def Base64Encode()
-		cContent = @oString.Content()
-		cTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-		cResult = ""
-		nLen = len(cContent)
-		i = 1
+		pH = @oString.Engine()
+		pR = StzEngineStringToBase64(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
-		while i <= nLen
-			nB1 = ascii(substr(cContent, i, 1))
-			if i + 1 <= nLen
-				nB2 = ascii(substr(cContent, i + 1, 1))
-			else
-				nB2 = 0
-			ok
-			if i + 2 <= nLen
-				nB3 = ascii(substr(cContent, i + 2, 1))
-			else
-				nB3 = 0
-			ok
-
-			nIdx1 = (nB1 >> 2) + 1
-			nIdx2 = (((nB1 & 3) << 4) | (nB2 >> 4)) + 1
-			nIdx3 = (((nB2 & 15) << 2) | (nB3 >> 6)) + 1
-			nIdx4 = (nB3 & 63) + 1
-
-			cResult += substr(cTable, nIdx1, 1)
-			cResult += substr(cTable, nIdx2, 1)
-
-			if i + 1 <= nLen
-				cResult += substr(cTable, nIdx3, 1)
-			else
-				cResult += "="
-			ok
-
-			if i + 2 <= nLen
-				cResult += substr(cTable, nIdx4, 1)
-			else
-				cResult += "="
-			ok
-
-			i += 3
-		end
-
-		return cResult
+		def Base64Encoded()
+			return This.Base64Encode()
 
 	def Base64Decode()
-		cContent = @oString.Content()
-		cTable = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/"
-		cResult = ""
-		nLen = len(cContent)
-		i = 1
+		pH = @oString.Engine()
+		pR = StzEngineStringBase64(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
-		while i <= nLen
-			nV1 = substr(cTable, substr(cContent, i, 1)) - 1
-			nV2 = substr(cTable, substr(cContent, i + 1, 1)) - 1
-
-			c3 = substr(cContent, i + 2, 1)
-			c4 = substr(cContent, i + 3, 1)
-
-			if c3 != "="
-				nV3 = substr(cTable, c3) - 1
-			else
-				nV3 = 0
-			ok
-
-			if c4 != "="
-				nV4 = substr(cTable, c4) - 1
-			else
-				nV4 = 0
-			ok
-
-			cResult += char((nV1 << 2) | (nV2 >> 4))
-
-			if c3 != "="
-				cResult += char(((nV2 & 15) << 4) | (nV3 >> 2))
-			ok
-
-			if c4 != "="
-				cResult += char(((nV3 & 3) << 6) | nV4)
-			ok
-
-			i += 4
-		end
-
-		return cResult
+		def Base64Decoded()
+			return This.Base64Decode()
 
 	  #===============================#
-	 #     ROT13 CIPHER              #
+	 #     ROT13 CIPHER (Engine)     #
 	#===============================#
 
 	def ROT13()
-		This.CaesarEncrypt(13)
+		pH = @oString.Engine()
+		pR = StzEngineStringCaesar(pH, 13)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def ROT13Q()
 			This.ROT13()
 			return This
 
 	def ROT13ed()
-		cSaved = @oString.Content()
-		This.ROT13()
-		cResult = @oString.Content()
-		@oString.Update(cSaved)
-		return cResult
+		pH = @oString.Engine()
+		pR = StzEngineStringCaesar(pH, 13)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	  #===============================#
-	 #     CAESAR CIPHER             #
+	 #     CAESAR CIPHER (Engine)    #
 	#===============================#
 
 	def CaesarEncrypt(nShift)
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		cResult = ""
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			nCode = ascii(c)
-
-			if nCode >= 65 and nCode <= 90
-				# Uppercase A-Z
-				nCode = ((nCode - 65 + nShift) % 26) + 65
-				cResult += char(nCode)
-
-			but nCode >= 97 and nCode <= 122
-				# Lowercase a-z
-				nCode = ((nCode - 97 + nShift) % 26) + 97
-				cResult += char(nCode)
-
-			else
-				cResult += c
-			ok
-		next
-
-		@oString.Update(cResult)
+		pH = @oString.Engine()
+		pR = StzEngineStringCaesar(pH, nShift)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 	def CaesarDecrypt(nShift)
 		This.CaesarEncrypt(26 - (nShift % 26))
+
+	def CaesarEncrypted(nShift)
+		pH = @oString.Engine()
+		pR = StzEngineStringCaesar(pH, nShift)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	  #===============================#
+	 #     VIGENERE CIPHER (Engine)  #
+	#===============================#
+
+	def VigenereEncrypt(pcKey)
+		pH = @oString.Engine()
+		pR = StzEngineStringVigenereEncrypt(pH, pcKey, len(pcKey))
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+	def VigenereEncrypted(pcKey)
+		pH = @oString.Engine()
+		pR = StzEngineStringVigenereEncrypt(pH, pcKey, len(pcKey))
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	  #===============================#
+	 #     ATBASH CIPHER (Engine)    #
+	#===============================#
+
+	def Atbash()
+		pH = @oString.Engine()
+		pR = StzEngineStringAtbash(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+	def Atbashed()
+		pH = @oString.Engine()
+		pR = StzEngineStringAtbash(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	  #===============================#
+	 #     ROT47 CIPHER (Engine)     #
+	#===============================#
+
+	def ROT47()
+		pH = @oString.Engine()
+		pR = StzEngineStringRot47(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+	def ROT47ed()
+		pH = @oString.Engine()
+		pR = StzEngineStringRot47(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	  #===============================#
 	 #     ENCRYPTION DETECTION      #
 	#===============================#
 
 	def IsEncrypted()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		if nLen < 4
-			return 0
-		ok
-
-		# Heuristic: count unique chars relative to length
-		acSeen = []
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if ring_find(acSeen, c) = 0
-				acSeen + c
-			ok
-		next
-
-		nUnique = len(acSeen)
-		# High ratio of unique chars suggests encrypted/random data
-		nRatio = nUnique * 100 / nLen
-		return nRatio > 70
+		# High entropy suggests encrypted/random data
+		nE = This.Entropy()
+		return nE > 4
 
 	  #===============================#
 	 #     OBFUSCATION               #
 	#===============================#
 
 	def Obfuscate()
-		# Reverse the string then XOR with a fixed key
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		# Reverse
-		cReversed = ""
-		for i = nLen to 1 step -1
-			cReversed += substr(cContent, i, 1)
-		next
-
+		cReversed = StzReverse(@oString.Content())
 		# XOR with fixed key "ZiN"
-		cKey = "ZiN"
-		nKeyLen = len(cKey)
-		cResult = ""
-
-		for i = 1 to nLen
-			nKeyIdx = ((i - 1) % nKeyLen) + 1
-			nXOR = ascii(substr(cReversed, i, 1)) ^ ascii(substr(cKey, nKeyIdx, 1))
-			cResult += char(nXOR)
-		next
-
-		@oString.Update(cResult)
+		pRev = StzEngineString(cReversed)
+		pKey = StzEngineString("ZiN")
+		pR = StzEngineStringXorCipher(pRev, pKey)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pKey)
+		StzEngineStringFree(pRev)
+		@oString.Update(c)
 
 		def ObfuscateQ()
 			This.Obfuscate()
 			return This
 
 	def Obfuscated()
-		cSaved = @oString.Content()
-		This.Obfuscate()
-		cResult = @oString.Content()
-		@oString.Update(cSaved)
-		return cResult
+		cReversed = StzReverse(@oString.Content())
+		pRev = StzEngineString(cReversed)
+		pKey = StzEngineString("ZiN")
+		pR = StzEngineStringXorCipher(pRev, pKey)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pKey)
+		StzEngineStringFree(pRev)
+		return c
