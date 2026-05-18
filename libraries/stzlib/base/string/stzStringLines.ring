@@ -81,9 +81,12 @@ class stzStringLines
 	#===============================#
 
 	def NthLine(n)
-		acLines = This.Lines()
-		if n >= 1 and n <= len(acLines)
-			return acLines[n]
+		pH = @oString.Engine()
+		pR = StzEngineStringLineAt(pH, n)
+		if pR != NULL
+			c = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			return c
 		ok
 		StzRaise("Index out of range!")
 

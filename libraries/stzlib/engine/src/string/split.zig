@@ -15,6 +15,7 @@ const str_new = core.str_new;
 const str_from = core.str_from;
 const decodeCodepoint = core.decodeCodepoint;
 const ciMatch = core.ciMatch;
+const INDEX_BASE = core.INDEX_BASE;
 
 // ─── Split by separator ───
 
@@ -130,12 +131,12 @@ pub fn str_lines_split_count(handle: StzStringHandle) callconv(.c) c_int {
     return count;
 }
 
-/// Get nth line (0-based). Returns new handle. Splits by LF/CR/CRLF.
+/// Get nth line (INDEX_BASE convention). Returns new handle. Splits by LF/CR/CRLF.
 pub fn str_line_at(handle: StzStringHandle, line_index: c_int) callconv(.c) StzStringHandle {
     const s = (handle orelse return null);
     const bytes = s.slice();
-    if (line_index < 0) return null;
-    const target: usize = @intCast(line_index);
+    if (line_index < INDEX_BASE) return null;
+    const target: usize = @intCast(line_index - INDEX_BASE);
 
     var line_num: usize = 0;
     var line_start: usize = 0;
@@ -228,11 +229,11 @@ pub fn str_count_words(handle: StzStringHandle) callconv(.c) c_int {
     return count;
 }
 
-/// Get nth word (0-based), words separated by whitespace (ASCII fast-path).
+/// Get nth word (INDEX_BASE convention), words separated by whitespace (ASCII fast-path).
 pub fn str_word_at(handle: StzStringHandle, word_index: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
-    const target: usize = if (word_index >= 0) @intCast(word_index) else return null;
+    const target: usize = if (word_index >= INDEX_BASE) @intCast(word_index - INDEX_BASE) else return null;
 
     var wi: usize = 0;
     var i: usize = 0;
@@ -262,12 +263,12 @@ pub fn str_word_at(handle: StzStringHandle, word_index: c_int) callconv(.c) StzS
     return null;
 }
 
-/// Get nth word (0-based), Unicode-aware whitespace.
+/// Get nth word (INDEX_BASE convention), Unicode-aware whitespace.
 pub fn str_nth_word(handle: StzStringHandle, n: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return str_new();
     const src = s.slice();
-    if (n < 0) return str_new();
-    const target: usize = @intCast(n);
+    if (n < INDEX_BASE) return str_new();
+    const target: usize = @intCast(n - INDEX_BASE);
 
     var word_idx: usize = 0;
     var in_word = false;
@@ -334,13 +335,13 @@ pub export fn str_last_word(handle: ?*StzString) callconv(.c) ?*StzString {
     return result;
 }
 
-/// Swap two words at given 0-based indices. Words separated by spaces.
+/// Swap two words at given indices (INDEX_BASE convention). Words separated by spaces.
 pub export fn str_swap_words(handle: ?*StzString, idx1: c_int, idx2: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     const result = str_new() orelse return null;
-    const pos1: usize = if (idx1 >= 0) @intCast(idx1) else return result;
-    const pos2: usize = if (idx2 >= 0) @intCast(idx2) else return result;
+    const pos1: usize = if (idx1 >= INDEX_BASE) @intCast(idx1 - INDEX_BASE) else return result;
+    const pos2: usize = if (idx2 >= INDEX_BASE) @intCast(idx2 - INDEX_BASE) else return result;
 
     // Collect words
     var word_starts: [256]usize = undefined;
@@ -443,15 +444,15 @@ pub fn str_rpartition_after(handle: StzStringHandle, sep: [*c]const u8, sep_len:
 
 // ─── Chunk ───
 
-/// Return the nth chunk (0-based) when string is split into chunks of `size` codepoints.
+/// Return the nth chunk (INDEX_BASE convention) when string is split into chunks of `size` codepoints.
 /// Last chunk may be shorter. Returns null if out of range.
 pub fn str_chunk(handle: StzStringHandle, size: c_int, n: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const src = s.slice();
-    if (src.len == 0 or size <= 0 or n < 0) return null;
+    if (src.len == 0 or size <= 0 or n < INDEX_BASE) return null;
 
     const sz: usize = @intCast(size);
-    const idx: usize = @intCast(n);
+    const idx: usize = @intCast(n - INDEX_BASE);
     const skip_cps = idx * sz;
 
     // Walk to start
@@ -579,18 +580,18 @@ test "line_at" {
     const s = str_from("first\nsecond\nthird", 18);
     defer str_free(s);
 
-    const l0 = str_line_at(s, 0);
-    defer str_free(l0);
-    try testing.expect(l0 != null);
-    try testing.expectEqualStrings("first", l0.?.slice());
+    const l1 = str_line_at(s, 1);
+    defer str_free(l1);
+    try testing.expect(l1 != null);
+    try testing.expectEqualStrings("first", l1.?.slice());
 
-    const l2 = str_line_at(s, 2);
-    defer str_free(l2);
-    try testing.expect(l2 != null);
-    try testing.expectEqualStrings("third", l2.?.slice());
+    const l3 = str_line_at(s, 3);
+    defer str_free(l3);
+    try testing.expect(l3 != null);
+    try testing.expectEqualStrings("third", l3.?.slice());
 
     // Out of range
-    try testing.expect(str_line_at(s, 5) == null);
+    try testing.expect(str_line_at(s, 6) == null);
 }
 
 test "count_lines_export" {
@@ -615,25 +616,25 @@ test "word_at" {
     const s = str_from("  alpha  beta  gamma  ", 22);
     defer str_free(s);
 
-    const w0 = str_word_at(s, 0);
-    defer str_free(w0);
-    try testing.expect(w0 != null);
-    try testing.expectEqualStrings("alpha", w0.?.slice());
+    const w1 = str_word_at(s, 1);
+    defer str_free(w1);
+    try testing.expect(w1 != null);
+    try testing.expectEqualStrings("alpha", w1.?.slice());
 
-    const w2 = str_word_at(s, 2);
-    defer str_free(w2);
-    try testing.expect(w2 != null);
-    try testing.expectEqualStrings("gamma", w2.?.slice());
+    const w3 = str_word_at(s, 3);
+    defer str_free(w3);
+    try testing.expect(w3 != null);
+    try testing.expectEqualStrings("gamma", w3.?.slice());
 }
 
 test "nth_word" {
     const s = str_from("one two three", 13);
     defer str_free(s);
 
-    const w1 = str_nth_word(s, 1);
-    defer str_free(w1);
-    try testing.expect(w1 != null);
-    try testing.expectEqualStrings("two", w1.?.slice());
+    const w2 = str_nth_word(s, 2);
+    defer str_free(w2);
+    try testing.expect(w2 != null);
+    try testing.expectEqualStrings("two", w2.?.slice());
 }
 
 test "first_word" {
@@ -657,7 +658,7 @@ test "last_word" {
 test "swap_words" {
     const s = str_from("one two three", 13);
     defer str_free(s);
-    const sw = str_swap_words(s, 0, 2);
+    const sw = str_swap_words(s, 1, 3);
     defer str_free(sw);
     try testing.expect(sw != null);
     try testing.expectEqualStrings("three two one", sw.?.slice());
@@ -703,18 +704,18 @@ test "chunk" {
     const s = str_from("abcdefgh", 8);
     defer str_free(s);
 
-    const c0 = str_chunk(s, 3, 0);
-    defer str_free(c0);
-    try testing.expect(c0 != null);
-    try testing.expectEqualStrings("abc", c0.?.slice());
+    const c1 = str_chunk(s, 3, 1);
+    defer str_free(c1);
+    try testing.expect(c1 != null);
+    try testing.expectEqualStrings("abc", c1.?.slice());
 
-    const c2 = str_chunk(s, 3, 2);
-    defer str_free(c2);
-    try testing.expect(c2 != null);
-    try testing.expectEqualStrings("gh", c2.?.slice()); // last chunk shorter
+    const c3 = str_chunk(s, 3, 3);
+    defer str_free(c3);
+    try testing.expect(c3 != null);
+    try testing.expectEqualStrings("gh", c3.?.slice()); // last chunk shorter
 
     // Out of range
-    try testing.expect(str_chunk(s, 3, 5) == null);
+    try testing.expect(str_chunk(s, 3, 6) == null);
 }
 
 test "chars_split" {

@@ -87,9 +87,12 @@ class stzStringWords
 	#===============================#
 
 	def NthWord(n)
-		acWords = This.Words()
-		if n >= 1 and n <= len(acWords)
-			return acWords[n]
+		pH = @oString.Engine()
+		pR = StzEngineStringNthWord(pH, n)
+		if pR != NULL
+			c = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			return c
 		ok
 		StzRaise("Index out of range!")
 
