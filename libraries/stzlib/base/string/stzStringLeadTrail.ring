@@ -4,17 +4,13 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String lead/trail subclass -- repeated      #
-#                  leading and trailing char operations.        #
-#                  For aliases, use stzStringLeadTrailXT.       #
-#   Version      : V0.9 (2026)                                #
+#                  leading and trailing char operations.       #
+#                  For aliases, use stzStringLeadTrailXT.      #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringLeadTrail
 
@@ -43,27 +39,28 @@ class stzStringLeadTrail
 	#======================================================#
 
 	def HasRepeatedLeadingCharsCS(pCaseSensitive)
-		return len(This.RepeatedLeadingCharsCS(pCaseSensitive)) > 1
+		return StzLen(This.RepeatedLeadingCharsCS(pCaseSensitive)) > 1
 
 	def HasRepeatedLeadingChars()
 		return This.HasRepeatedLeadingCharsCS(1)
 
 	def RepeatedLeadingCharsCS(pCaseSensitive)
-		cStr = @oString.Content()
-		nLen = @oString.NumberOfChars()
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		if nLen < 2
 			return ""
 		ok
-		cFirst = cStr[1]
+		cFirst = acChars[1]
 		cResult = cFirst
 		for i = 2 to nLen
-			if cStr[i] = cFirst
-				cResult += cStr[i]
+			if acChars[i] = cFirst
+				cResult += acChars[i]
 			else
 				exit
 			ok
 		next
-		if len(cResult) < 2
+		nResultChars = StzLen(cResult)
+		if nResultChars < 2
 			return ""
 		ok
 		return cResult
@@ -73,18 +70,18 @@ class stzStringLeadTrail
 
 	def RepeatedLeadingChar()
 		cLead = This.RepeatedLeadingChars()
-		if len(cLead) > 0
-			return cLead[1]
+		if StzLen(cLead) > 0
+			return @oString.NthChar(1)
 		else
 			return ""
 		ok
 
 	def NumberOfRepeatedLeadingChars()
-		return len(This.RepeatedLeadingChars())
+		return StzLen(This.RepeatedLeadingChars())
 
 	def LeadingChar()
 		if @oString.NumberOfChars() > 0
-			return @oString.Content()[1]
+			return @oString.NthChar(1)
 		ok
 		return ""
 
@@ -93,27 +90,28 @@ class stzStringLeadTrail
 	#======================================================#
 
 	def HasRepeatedTrailingCharsCS(pCaseSensitive)
-		return len(This.RepeatedTrailingCharsCS(pCaseSensitive)) > 1
+		return StzLen(This.RepeatedTrailingCharsCS(pCaseSensitive)) > 1
 
 	def HasRepeatedTrailingChars()
 		return This.HasRepeatedTrailingCharsCS(1)
 
 	def RepeatedTrailingCharsCS(pCaseSensitive)
-		cStr = @oString.Content()
-		nLen = @oString.NumberOfChars()
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		if nLen < 2
 			return ""
 		ok
-		cLast = cStr[nLen]
+		cLast = acChars[nLen]
 		cResult = cLast
 		for i = nLen - 1 to 1 step -1
-			if cStr[i] = cLast
-				cResult = cStr[i] + cResult
+			if acChars[i] = cLast
+				cResult = acChars[i] + cResult
 			else
 				exit
 			ok
 		next
-		if len(cResult) < 2
+		nResultChars = StzLen(cResult)
+		if nResultChars < 2
 			return ""
 		ok
 		return cResult
@@ -123,19 +121,20 @@ class stzStringLeadTrail
 
 	def RepeatedTrailingChar()
 		cTrail = This.RepeatedTrailingChars()
-		if len(cTrail) > 0
-			return cTrail[len(cTrail)]
+		nTrailLen = StzLen(cTrail)
+		if nTrailLen > 0
+			return @oString.NthChar(@oString.NumberOfChars())
 		else
 			return ""
 		ok
 
 	def NumberOfRepeatedTrailingChars()
-		return len(This.RepeatedTrailingChars())
+		return StzLen(This.RepeatedTrailingChars())
 
 	def TrailingChar()
 		nLen = @oString.NumberOfChars()
 		if nLen > 0
-			return @oString.Content()[nLen]
+			return @oString.NthChar(nLen)
 		ok
 		return ""
 
@@ -145,7 +144,7 @@ class stzStringLeadTrail
 
 	def RemoveRepeatedLeadingChars()
 		cLead = This.RepeatedLeadingChars()
-		nToRemove = len(cLead) - 1
+		nToRemove = StzLen(cLead) - 1
 		if nToRemove > 0
 			@oString.RemoveSection(1, nToRemove)
 		ok
@@ -163,7 +162,7 @@ class stzStringLeadTrail
 
 	def RemoveRepeatedTrailingChars()
 		cTrail = This.RepeatedTrailingChars()
-		nToRemove = len(cTrail) - 1
+		nToRemove = StzLen(cTrail) - 1
 		nLen = @oString.NumberOfChars()
 		if nToRemove > 0
 			@oString.RemoveSection(nLen - nToRemove + 1, nLen)
