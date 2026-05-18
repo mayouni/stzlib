@@ -1,5 +1,0 @@
-
-digraph Test {
-	A -> B;
-	B -> C;
-}

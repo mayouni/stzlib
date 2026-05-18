@@ -44,8 +44,6 @@ class stzStringExtractor
 
 	def ExtractSection(n1, n2)
 		cResult = @oString.Section(n1, n2)
-		# TODO: requires monolith method extraction
-		# This.RemoveSection(n1, n2)
 		@oString.RemoveSection(n1, n2)
 		return cResult
 
@@ -62,7 +60,8 @@ class stzStringExtractor
 
 	def ExtractCS(pcSubStr, pCaseSensitive)
 		cResult = @oString.Content()
-		new stzStringReplacer(@oString).ReplaceCS(pcSubStr, "", pCaseSensitive)
+		_oReplacer_ = new stzStringReplacer(@oString)
+		_oReplacer_.ReplaceCS(pcSubStr, "", pCaseSensitive)
 		return cResult
 
 		def ExtractCSQ(pcSubStr, pCaseSensitive)
@@ -91,7 +90,8 @@ class stzStringExtractor
 		nLen = len(paSubStr)
 		for i = 1 to nLen
 			acResult + paSubStr[i]
-			new stzStringReplacer(@oString).ReplaceCS(paSubStr[i], "", pCaseSensitive)
+			_oReplacer_ = new stzStringReplacer(@oString)
+			_oReplacer_.ReplaceCS(paSubStr[i], "", pCaseSensitive)
 		next
 		return acResult
 
@@ -132,7 +132,8 @@ class stzStringExtractor
 	#======================================================#
 
 	def ExtractNthOccurrenceCS(n, pcSubStr, pCaseSensitive)
-		nPos = new stzStringFinder(@oString).FindNthCS(n, pcSubStr, pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString)
+		nPos = _oFinder_.FindNthCS(n, pcSubStr, pCaseSensitive)
 		if nPos = 0
 			return ""
 		ok
@@ -147,7 +148,8 @@ class stzStringExtractor
 	#======================================================#
 
 	def ExtractFirstCS(pcSubStr, pCaseSensitive)
-		n = new stzStringFinder(@oString).FindFirstCS(pcSubStr, pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString)
+		n = _oFinder_.FindFirstCS(pcSubStr, pCaseSensitive)
 		if n = 0
 			return ""
 		ok
@@ -158,7 +160,8 @@ class stzStringExtractor
 		return This.ExtractFirstCS(pcSubStr, 1)
 
 	def ExtractLastCS(pcSubStr, pCaseSensitive)
-		n = new stzStringFinder(@oString).FindLastCS(pcSubStr, pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString)
+		n = _oFinder_.FindLastCS(pcSubStr, pCaseSensitive)
 		if n = 0
 			return ""
 		ok

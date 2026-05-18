@@ -1,2 +1,0 @@
-load "../stzbase.ring"
-
