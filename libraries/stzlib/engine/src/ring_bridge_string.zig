@@ -2157,6 +2157,50 @@ fn ring_StringIsLatinLetters(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retnumber(p, @floatFromInt(string.str_is_latin_letters(h)));
 }
+fn ring_StringIsGreek(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_greek(h)));
+}
+fn ring_StringIsCyrillic(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_cyrillic(h)));
+}
+fn ring_StringIsHebrew(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_hebrew(h)));
+}
+fn ring_StringHasArabic(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_has_arabic(h)));
+}
+fn ring_StringHasLatin(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_has_latin(h)));
+}
+fn ring_StringHasGreek(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_has_greek(h)));
+}
+fn ring_StringHasCyrillic(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_has_cyrillic(h)));
+}
+fn ring_StringHasHebrew(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_has_hebrew(h)));
+}
+fn ring_StringCountCjk(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_cjk(h)));
+}
+fn ring_StringCountDevanagari(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_devanagari(h)));
+}
+fn ring_StringCountThai(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_thai(h)));
+}
 fn ring_StringOnlyArabic(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retcpointer(p, @ptrCast(string.str_only_arabic(h)), STZ_HANDLE);
@@ -2821,6 +2865,17 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringonlylatin", .func = &ring_StringOnlyLatin },
     .{ .name = "stzenginestringonlyarabicletters", .func = &ring_StringOnlyArabicLetters },
     .{ .name = "stzenginestringonlylatinletters", .func = &ring_StringOnlyLatinLetters },
+    .{ .name = "stzenginestringisgreek", .func = &ring_StringIsGreek },
+    .{ .name = "stzenginestringiscyrillic", .func = &ring_StringIsCyrillic },
+    .{ .name = "stzenginestringishebrew", .func = &ring_StringIsHebrew },
+    .{ .name = "stzenginestringhasarabic", .func = &ring_StringHasArabic },
+    .{ .name = "stzenginestringhaslatin", .func = &ring_StringHasLatin },
+    .{ .name = "stzenginestringhasgreek", .func = &ring_StringHasGreek },
+    .{ .name = "stzenginestringhascyrillic", .func = &ring_StringHasCyrillic },
+    .{ .name = "stzenginestringhashebrew", .func = &ring_StringHasHebrew },
+    .{ .name = "stzenginestringcountcjk", .func = &ring_StringCountCjk },
+    .{ .name = "stzenginestringcountdevanagari", .func = &ring_StringCountDevanagari },
+    .{ .name = "stzenginestringcountthai", .func = &ring_StringCountThai },
     .{ .name = "stzenginestringnormalizespaces", .func = &ring_StringNormalizeSpaces },
     .{ .name = "stzenginestringmaskemail", .func = &ring_StringMaskEmail },
     .{ .name = "stzenginestringpluralize", .func = &ring_StringPluralize },

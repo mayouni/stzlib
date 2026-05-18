@@ -189,6 +189,140 @@ pub fn str_is_latin_letters(handle: StzStringHandle) callconv(.c) c_int {
     return 0;
 }
 
+// ─── Script-level "are all" predicates (remaining scripts) ───
+
+pub fn str_is_greek(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        if (bytes.len == 0) return 0;
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (unicode.stz_unicode_is_greek(cp_val) == 0) return 0;
+            i += cp_len;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+pub fn str_is_cyrillic(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        if (bytes.len == 0) return 0;
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (unicode.stz_unicode_is_cyrillic(cp_val) == 0) return 0;
+            i += cp_len;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+pub fn str_is_hebrew(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        if (bytes.len == 0) return 0;
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (unicode.stz_unicode_is_hebrew(cp_val) == 0) return 0;
+            i += cp_len;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+// ─── Script-level "has any" predicates ───
+
+pub fn str_has_arabic(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (unicode.stz_unicode_is_arabic(cp_val) == 1) return 1;
+            i += cp_len;
+        }
+    }
+    return 0;
+}
+
+pub fn str_has_latin(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (unicode.stz_unicode_is_latin(cp_val) == 1) return 1;
+            i += cp_len;
+        }
+    }
+    return 0;
+}
+
+pub fn str_has_greek(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (unicode.stz_unicode_is_greek(cp_val) == 1) return 1;
+            i += cp_len;
+        }
+    }
+    return 0;
+}
+
+pub fn str_has_cyrillic(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (unicode.stz_unicode_is_cyrillic(cp_val) == 1) return 1;
+            i += cp_len;
+        }
+    }
+    return 0;
+}
+
+pub fn str_has_hebrew(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (unicode.stz_unicode_is_hebrew(cp_val) == 1) return 1;
+            i += cp_len;
+        }
+    }
+    return 0;
+}
+
+// ─── Script-level remaining counters ───
+
+pub fn str_count_cjk(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 15);
+}
+pub fn str_count_devanagari(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 16);
+}
+pub fn str_count_thai(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 17);
+}
+
 // ─── Script-level "only" filters ───
 
 pub fn str_only_arabic(handle: StzStringHandle) callconv(.c) StzStringHandle {
