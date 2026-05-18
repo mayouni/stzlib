@@ -219,10 +219,10 @@ class stzStringLines
 		ok
 
 		cLongest = acLines[1]
-		nMax = len(cLongest)
+		nMax = StzLen(cLongest)
 
 		for i = 2 to nLen
-			nLineLen = len(acLines[i])
+			nLineLen = StzLen(acLines[i])
 			if nLineLen > nMax
 				nMax = nLineLen
 				cLongest = acLines[i]
@@ -245,7 +245,7 @@ class stzStringLines
 		for i = 1 to nLen
 			cLine = acLines[i]
 			if trim(cLine) != ""
-				nLineLen = len(cLine)
+				nLineLen = StzLen(cLine)
 				if bFirst
 					cShortest = cLine
 					nMin = nLineLen
@@ -272,7 +272,7 @@ class stzStringLines
 
 		nTotal = 0
 		for i = 1 to nLen
-			nTotal += len(acLines[i])
+			nTotal += StzLen(acLines[i])
 		next
 
 		return nTotal / nLen
