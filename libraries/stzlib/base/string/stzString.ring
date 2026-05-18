@@ -4,9 +4,9 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : Core string class -- engine handle,         #
-#                  content access, and fundamental primitives.  #
-#                  Domain classes (stzStringFinder, etc.)       #
-#                  wrap this class via composition.             #
+#                  content access, and fundamental primitives. #
+#                  Domain classes (stzStringFinder, etc.)      #
+#                  wrap this class via composition.            #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #

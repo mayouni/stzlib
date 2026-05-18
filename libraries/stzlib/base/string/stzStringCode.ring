@@ -3,19 +3,15 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String code -- Wraps stzString via           #
-#                  composition. Detecting and working with      #
-#                  code snippets in strings (Ring code,          #
-#                  functions, classes).                          #
+#   Description  : String code -- Wraps stzString via          #
+#                  composition. Detecting and working with     #
+#                  code snippets in strings (Ring code,        #
+#                  functions, classes).                        #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringCode
 

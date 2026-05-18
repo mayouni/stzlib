@@ -4,19 +4,15 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String checker -- type checking, content    #
-#                  validation, palindrome, anagram, and         #
-#                  structural checks.                           #
-#                  Wraps stzString via composition.             #
-#                  For aliases, use stzStringCheckerXT.         #
+#                  validation, palindrome, anagram, and        #
+#                  structural checks.                          #
+#                  Wraps stzString via composition.            #
+#                  For aliases, use stzStringCheckerXT.        #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringChecker
 

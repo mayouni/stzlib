@@ -4,19 +4,15 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String formatter -- case conversion,        #
-#                  alignment, padding, spacing, simplification, #
-#                  and repeating.                                #
-#                  Wraps stzString via composition.             #
-#                  For aliases, use stzStringFormatterXT.       #
+#                  alignment, padding, spacing, simplification #
+#                  and repeating.                              #
+#                  Wraps stzString via composition.            #
+#                  For aliases, use stzStringFormatterXT.      #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringFormatter
 

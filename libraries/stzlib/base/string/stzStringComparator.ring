@@ -4,18 +4,14 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String comparator -- Wraps stzString via    #
-#                  composition. Comparing strings for equality, #
-#                  order, and diff.                             #
-#                  For aliases, use stzStringComparatorXT.      #
-#   Version      : V0.9 (2026)                                #
+#                 composition. Comparing strings for equality, #
+#                 order, and diff.                             #
+#                 For aliases, use stzStringComparatorXT.      #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringComparator
 

@@ -4,18 +4,14 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String bounder -- sections, ranges,         #
-#                  between, bounding, and bounds checking.      #
-#                  Wraps stzString via composition.             #
-#                  For aliases, use stzStringBounderXT.         #
+#                  between, bounding, and bounds checking.     #
+#                  Wraps stzString via composition.            #
+#                  For aliases, use stzStringBounderXT.        #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringBounder
 

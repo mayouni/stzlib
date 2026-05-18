@@ -4,18 +4,14 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String finder -- finding, containing,       #
-#                  counting, and positioning operations.        #
-#                  Wraps stzString via composition.             #
-#                  For aliases, use stzStringFinderXT.          #
+#                  counting, and positioning operations.       #
+#                  Wraps stzString via composition.            #
+#                  For aliases, use stzStringFinderXT.         #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringFinder
 

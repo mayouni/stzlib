@@ -3,18 +3,14 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String lines -- Wraps stzString via          #
-#                  composition. Line-based operations:           #
-#                  splitting, counting, unique, empty removal.  #
+#   Description  : String lines -- Wraps stzString via         #
+#                  composition. Line-based operations:         #
+#                  splitting, counting, unique, empty removal. #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringLines
 

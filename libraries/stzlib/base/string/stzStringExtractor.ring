@@ -4,17 +4,13 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String extractor subclass -- extract        #
-#                  (remove and return) sections and matches.    #
-#                  For aliases, use stzStringExtractorXT.       #
-#   Version      : V0.9 (2026)                                #
+#                  (remove and return) sections and matches.   #
+#                  For aliases, use stzStringExtractorXT.      #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringExtractor
 

@@ -4,18 +4,14 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String getter -- accessing individual       #
-#                  chars and char groups.                       #
-#                  Wraps stzString via composition.             #
-#                  For aliases, use stzStringGetterXT.          #
+#                  chars and char groups.                      #
+#                  Wraps stzString via composition.            #
+#                  For aliases, use stzStringGetterXT.         #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringGetter
 

@@ -4,17 +4,13 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String inserter subclass -- inserting       #
-#                  substrings at positions or around matches.   #
-#                  For aliases, use stzStringInserterXT.        #
-#   Version      : V0.9 (2026)                                #
+#                  substrings at positions or around matches.  #
+#                  For aliases, use stzStringInserterXT.       #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringInserter
 
