@@ -181,14 +181,14 @@ class stzStringFormatter
 	#===============================#
 
 	def ApplyReverse()
-		@oString.Update( ring_reverse(@oString.Content()) )
+		@oString.Update(StzReverse(@oString.Content()))
 
 		def ApplyReverseQ()
 			This.ApplyReverse()
 			return This
 
 	def Reversed()
-		return ring_reverse(@oString.Content())
+		return StzReverse(@oString.Content())
 
 		def ReversedQ()
 			return new stzStringFormatter(This.Reversed())
@@ -213,16 +213,11 @@ class stzStringFormatter
 				StzRaise("Incorrect param type! cChar must be a char.")
 			ok
 		ok
-
-		nChars = @oString.NumberOfChars()
-		if nWidth > nChars
-			cPad = ""
-			nPadCount = nWidth - nChars
-			for _i_ = 1 to nPadCount
-				cPad += cChar
-			next
-			@oString.Update( @oString.Content() + cPad )
-		ok
+		pH = @oString.Engine()
+		pR = StzEngineStringLjust(pH, nWidth, cChar)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def LeftAlignXTQ(nWidth, cChar)
 			This.LeftAlignXT(nWidth, cChar)
@@ -253,16 +248,11 @@ class stzStringFormatter
 				StzRaise("Incorrect param type! cChar must be a char.")
 			ok
 		ok
-
-		nChars = @oString.NumberOfChars()
-		if nWidth > nChars
-			cPad = ""
-			nPadCount = nWidth - nChars
-			for _i_ = 1 to nPadCount
-				cPad += cChar
-			next
-			@oString.Update( cPad + @oString.Content() )
-		ok
+		pH = @oString.Engine()
+		pR = StzEngineStringRjust(pH, nWidth, cChar)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RightAlignXTQ(nWidth, cChar)
 			This.RightAlignXT(nWidth, cChar)
@@ -293,25 +283,11 @@ class stzStringFormatter
 				StzRaise("Incorrect param type! cChar must be a char.")
 			ok
 		ok
-
-		nChars = @oString.NumberOfChars()
-		if nWidth > nChars
-			nTotal = nWidth - nChars
-			nLeft = floor(nTotal / 2)
-			nRight = nTotal - nLeft
-
-			cPadLeft = ""
-			for _i_ = 1 to nLeft
-				cPadLeft += cChar
-			next
-
-			cPadRight = ""
-			for _i_ = 1 to nRight
-				cPadRight += cChar
-			next
-
-			@oString.Update( cPadLeft + @oString.Content() + cPadRight )
-		ok
+		pH = @oString.Engine()
+		pR = StzEngineStringCenterPad(pH, nWidth, cChar)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def CenterAlignXTQ(nWidth, cChar)
 			This.CenterAlignXT(nWidth, cChar)
@@ -351,26 +327,11 @@ class stzStringFormatter
 	#===============================#
 
 	def Simplify()
-		cContent = @oString.Content()
-		cResult = ""
-		bLastWasSpace = 0
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if c = " " or c = char(9) or c = char(10) or c = char(13)
-				if NOT bLastWasSpace
-					cResult += " "
-					bLastWasSpace = 1
-				ok
-			else
-				cResult += c
-				bLastWasSpace = 0
-			ok
-		next
-
-		cResult = trim(cResult)
-		@oString.Update(cResult)
+		pH = @oString.Engine()
+		pR = StzEngineStringSimplify(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def SimplifyQ()
 			This.Simplify()
@@ -389,90 +350,77 @@ class stzStringFormatter
 	#===============================#
 
 	def Trim()
-		@oString.Update( trim(@oString.Content()) )
+		pH = @oString.Engine()
+		pR = StzEngineStringTrim(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def TrimQ()
 			This.Trim()
 			return This
 
 	def Trimmed()
-		return trim(@oString.Content())
+		pH = @oString.Engine()
+		pR = StzEngineStringTrimmed(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	def TrimLeft()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		nStart = 1
-
-		while nStart <= nLen
-			c = substr(cContent, nStart, 1)
-			if c != " " and c != char(9) and c != char(10) and c != char(13)
-				exit
-			ok
-			nStart++
-		end
-
-		if nStart > nLen
-			@oString.Update("")
-		else
-			@oString.Update(substr(cContent, nStart))
-		ok
+		pH = @oString.Engine()
+		pR = StzEngineStringTrimLeft(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def TrimLeftQ()
 			This.TrimLeft()
 			return This
 
 	def TrimmedLeft()
-		oCopy = new stzStringFormatter(@oString.Content())
-		oCopy.TrimLeft()
-		return oCopy.Content()
+		pH = @oString.Engine()
+		pR = StzEngineStringTrimLeft(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	def TrimRight()
-		cContent = @oString.Content()
-		nEnd = len(cContent)
-
-		while nEnd >= 1
-			c = substr(cContent, nEnd, 1)
-			if c != " " and c != char(9) and c != char(10) and c != char(13)
-				exit
-			ok
-			nEnd--
-		end
-
-		if nEnd < 1
-			@oString.Update("")
-		else
-			@oString.Update(substr(cContent, 1, nEnd))
-		ok
+		pH = @oString.Engine()
+		pR = StzEngineStringTrimRight(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def TrimRightQ()
 			This.TrimRight()
 			return This
 
 	def TrimmedRight()
-		oCopy = new stzStringFormatter(@oString.Content())
-		oCopy.TrimRight()
-		return oCopy.Content()
+		pH = @oString.Engine()
+		pR = StzEngineStringTrimRight(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	  #===============================#
 	 #     REPEATING                 #
 	#===============================#
 
 	def RepeatNTimes(n)
-		cContent = @oString.Content()
-		cResult = ""
-		for i = 1 to n
-			cResult += cContent
-		next
-		@oString.Update(cResult)
+		pH = @oString.Engine()
+		pR = StzEngineStringRepeat(pH, n)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RepeatNTimesQ(n)
 			This.RepeatNTimes(n)
 			return This
 
 	def RepeatedNTimes(n)
-		cContent = @oString.Content()
-		cResult = ""
-		for i = 1 to n
-			cResult += cContent
-		next
-		return cResult
+		pH = @oString.Engine()
+		pR = StzEngineStringRepeat(pH, n)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c

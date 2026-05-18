@@ -52,19 +52,7 @@ class stzStringSections
 				n2 = n2[2]
 			ok
 		ok
-		nLen = @oString.NumberOfChars()
-		if n1 < 1
-			n1 = 1
-		ok
-		if n2 > nLen
-			n2 = nLen
-		ok
-		if n1 > n2
-			temp = n1
-			n1 = n2
-			n2 = temp
-		ok
-		return substr(@oString.Content(), n1, n2 - n1 + 1)
+		return @oString.Section(n1, n2)
 
 	def Section(n1, n2)
 		return This.SectionCS(n1, n2, 1)
@@ -155,15 +143,11 @@ class stzStringSections
 			n1 = n2
 			n2 = temp
 		ok
-		cBefore = ""
-		cAfter = ""
-		if n1 > 1
-			cBefore = substr(@oString.Content(), 1, n1 - 1)
-		ok
-		if n2 < nLen
-			cAfter = substr(@oString.Content(), n2 + 1, nLen - n2)
-		ok
-		@oString.Update(cBefore + cAfter)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveRange(pH, n1, n2 - n1 + 1)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveSectionQ(n1, n2)
 			This.RemoveSection(n1, n2)
