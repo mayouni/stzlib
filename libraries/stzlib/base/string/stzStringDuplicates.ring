@@ -182,20 +182,13 @@ class stzStringDuplicates
 			return
 		ok
 
-		nLenSub = Q(pcSubStr).NumberOfChars()
-		cContent = @oString.Content()
+		nLenSub = StzLen(pcSubStr)
 
+		# Remove from end to start to preserve earlier positions
 		for i = len(anPos) to 2 step -1
 			nPos = anPos[i]
-			cBefore = substr(cContent, 1, nPos - 1)
-			cAfter = ""
-			if nPos + nLenSub <= len(cContent)
-				cAfter = substr(cContent, nPos + nLenSub)
-			ok
-			cContent = cBefore + cAfter
+			@oString.RemoveSection(nPos, nPos + nLenSub - 1)
 		next
-
-		@oString.Update(cContent)
 
 		def RemoveDuplicateSubStringCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveDuplicateSubStringCS(pcSubStr, pCaseSensitive)
