@@ -200,7 +200,8 @@ class stzString from stzObject
 		ok
 
 	def _ReplaceRange(n1, nRange, pcNew)
-		pResult = StzEngineStringReplaceRange(@pEngine, n1 - 1, nRange, pcNew)
+		# Engine uses INDEX_BASE=1 (1-based codepoint positions)
+		pResult = StzEngineStringReplaceRange(@pEngine, n1, nRange, pcNew)
 		if pResult = NULL
 			return This.Content()
 		ok
