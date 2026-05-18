@@ -429,6 +429,38 @@ pub fn str_unique_chars(handle: StzStringHandle) callconv(.c) StzStringHandle {
     return result;
 }
 
+/// Return a null-delimited string of codepoints that appear more than once.
+/// Each duplicated char appears once in the result, in order of first duplication.
+pub fn str_duplicated_chars(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    const result = str_new() orelse return null;
+
+    // Track counts: 0 = unseen, 1 = seen once, 2+ = duplicated
+    var counts = std.AutoHashMap(i32, u8).init(gpa);
+    defer counts.deinit();
+
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_end = @min(i + cp_len, bytes.len);
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        const entry = counts.getOrPut(cp_val) catch break;
+        if (!entry.found_existing) {
+            entry.value_ptr.* = 1;
+        } else if (entry.value_ptr.* == 1) {
+            // Second occurrence — add to result with null delimiter
+            if (result.data.items.len > 0) {
+                result.data.append(gpa, 0) catch break;
+            }
+            result.data.appendSlice(gpa, bytes[i..cp_end]) catch break;
+            entry.value_ptr.* = 2;
+        }
+        i += cp_len;
+    }
+    return result;
+}
+
 /// Return number of unique codepoints.
 pub fn str_unique_char_count(handle: StzStringHandle) callconv(.c) c_int {
     const s = (handle orelse return 0);
