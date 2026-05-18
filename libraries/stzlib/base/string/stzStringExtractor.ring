@@ -176,9 +176,8 @@ class stzStringExtractor
 	#======================================================#
 
 	def ExtractCharsWCS(pcCondition, pCaseSensitive)
-		# TODO: requires monolith method extraction
-		# anPos = This.FindCharsWCS(pcCondition, pCaseSensitive)
-		anPos = @oString.FindCharsWCS(pcCondition, pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString)
+		anPos = _oFinder_.FindCharsWCS(pcCondition, pCaseSensitive)
 		acResult = []
 		for i = len(anPos) to 1 step -1
 			acResult + This.ExtractAt(anPos[i])

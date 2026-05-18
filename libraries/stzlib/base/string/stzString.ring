@@ -185,16 +185,16 @@ class stzString from stzObject
 			return 0
 		ok
 
-		nByteStart = nStartAt - 1
-
+		# Engine uses INDEX_BASE=1 (1-based), so pass nStartAt directly
 		if bCaseSensitive
-			nResult = StzEngineStringIndexOfFrom(@pEngine, pcSubStr, nByteStart)
+			nResult = StzEngineStringIndexOfFrom(@pEngine, pcSubStr, nStartAt)
 		else
-			nResult = StzEngineStringIndexOfCI(@pEngine, pcSubStr, nByteStart)
+			nResult = StzEngineStringIndexOfCI(@pEngine, pcSubStr, nStartAt)
 		ok
 
-		if nResult >= 0
-			return nResult + 1
+		# Engine returns 1-based position, -1 for not found
+		if nResult > 0
+			return nResult
 		else
 			return 0
 		ok
