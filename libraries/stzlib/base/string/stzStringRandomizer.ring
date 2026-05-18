@@ -43,13 +43,8 @@ class stzStringRandomizer
 	#===============================#
 
 	def Shuffle()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		acChars = []
-
-		for i = 1 to nLen
-			acChars + substr(cContent, i, 1)
-		next
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 
 		for i = nLen to 2 step -1
 			j = random(i - 1) + 1
@@ -84,7 +79,7 @@ class stzStringRandomizer
 			return ""
 		ok
 		n = random(nLen - 1) + 1
-		return substr(@oString.Content(), n, 1)
+		return @oString.NthChar(n)
 
 	def RandomChars(n)
 		acResult = []
@@ -95,13 +90,13 @@ class stzStringRandomizer
 
 	def NRandomChars(n)
 		# Returns n unique random chars (no duplicates)
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
 
 		# Build list of unique chars in the string
 		acUnique = []
+		nLen = len(acChars)
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 			if ring_find(acUnique, c) = 0
 				acUnique + c
 			ok
@@ -141,7 +136,7 @@ class stzStringRandomizer
 		ok
 
 		nStart = random(nMax - nLen) + 1
-		return substr(@oString.Content(), nStart, nLen)
+		return @oString.Section(nStart, nStart + nLen - 1)
 
 		def RandomSubString(nLen)
 			return This.RandomSection(nLen)
@@ -200,12 +195,12 @@ class stzStringRandomizer
 	#===============================#
 
 	def RandomCase()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		cResult = ""
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 			if random(1) = 1
 				cResult += StzUpper(c)
 			else
@@ -229,16 +224,14 @@ class stzStringRandomizer
 	#===============================#
 
 	def RandomInsert(cStr)
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		nLen = @oString.NumberOfChars()
 		nPos = random(nLen) + 1
 
 		if nPos > nLen
-			@oString.Update(cContent + cStr)
+			@oString.Update(@oString.Content() + cStr)
 		else
-			cBefore = substr(cContent, 1, nPos - 1)
-			cAfter = substr(cContent, nPos)
-			@oString.Update(cBefore + cStr + cAfter)
+			oInserter = new stzStringInserter(@oString)
+			oInserter.InsertBefore(nPos, cStr)
 		ok
 
 	  #===============================#
@@ -246,8 +239,8 @@ class stzStringRandomizer
 	#===============================#
 
 	def RandomRemove(n)
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		if n >= nLen
 			@oString.Update("")
 			return
@@ -277,7 +270,7 @@ class stzStringRandomizer
 		cResult = ""
 		for i = 1 to nLen
 			if ring_find(anRemove, i) = 0
-				cResult += substr(cContent, i, 1)
+				cResult += acChars[i]
 			ok
 		next
 

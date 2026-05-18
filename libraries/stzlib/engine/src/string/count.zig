@@ -711,30 +711,44 @@ pub export fn str_count_unique_chars(handle: ?*StzString) callconv(.c) c_int {
     const src = s.slice();
     if (src.len == 0) return 0;
 
-    // For ASCII, use a 256-entry seen table; for multi-byte, count them separately
-    var seen: [256]bool = [_]bool{false} ** 256;
+    // For ASCII, use a 256-entry seen table; for multi-byte, track seen codepoints
+    var seen_ascii: [256]bool = [_]bool{false} ** 256;
     var count: c_int = 0;
-    var multi_byte_count: c_int = 0;
 
-    // Simple approach: for single-byte chars use the table, for multi-byte just count unique sequences
-    // (limited to ASCII uniqueness for performance; multi-byte chars each counted as unique)
+    // Collect seen multi-byte codepoints (up to 512 unique before falling back)
+    var seen_mb: [512]u21 = undefined;
+    var seen_mb_count: usize = 0;
+
     var off: usize = 0;
     while (off < src.len) {
         const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
         if (off + cp_len > src.len) break;
         if (cp_len == 1) {
-            if (!seen[src[off]]) {
-                seen[src[off]] = true;
+            if (!seen_ascii[src[off]]) {
+                seen_ascii[src[off]] = true;
                 count += 1;
             }
         } else {
-            // For multi-byte, do a naive check against previously seen multi-byte sequences
-            // Simple: just count all multi-byte codepoints (approximation for ASCII-heavy use)
-            multi_byte_count += 1;
+            // Decode the codepoint and check if already seen
+            const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+            var already_seen = false;
+            for (seen_mb[0..seen_mb_count]) |prev| {
+                if (prev == cp) {
+                    already_seen = true;
+                    break;
+                }
+            }
+            if (!already_seen) {
+                if (seen_mb_count < seen_mb.len) {
+                    seen_mb[seen_mb_count] = cp;
+                    seen_mb_count += 1;
+                }
+                count += 1;
+            }
         }
         off += cp_len;
     }
-    return count + multi_byte_count;
+    return count;
 }
 
 /// Count paragraphs (separated by double newlines \n\n).

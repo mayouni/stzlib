@@ -79,7 +79,7 @@ class stzString from stzObject
 	#=======================================#
 
 	def NumberOfChars()
-		return len(This.Content())
+		return StzLen(This.Content())
 
 	  #=======================================#
 	 #  CHECKING IF THE STRING IS EMPTY      #
@@ -142,10 +142,9 @@ class stzString from stzObject
 
 	def Chars()
 		aResult = []
-		cStr = This.Content()
 		nLen = This.NumberOfChars()
 		for i = 1 to nLen
-			aResult + cStr[i]
+			aResult + This.NthChar(i)
 		next
 		return aResult
 
@@ -280,23 +279,12 @@ class stzString from stzObject
 	#========================================#
 
 	def RemoveSection(n1, n2)
-		cContent = This.Content()
-		nLen = len(cContent)
-
-		if n1 < 1 n1 = 1 ok
-		if n2 > nLen n2 = nLen ok
-
-		cBefore = ""
-		cAfter = ""
-
-		if n1 > 1
-			cBefore = substr(cContent, 1, n1 - 1)
+		pH = This.Engine()
+		pR = StzEngineStringRemoveRange(pH, n1, n2 - n1 + 1)
+		if pR != 0
+			This.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
 		ok
-		if n2 < nLen
-			cAfter = substr(cContent, n2 + 1, nLen - n2)
-		ok
-
-		This.Update(cBefore + cAfter)
 
 	def RemoveSections(aSections)
 		# Remove sections from end to start to preserve positions
