@@ -106,14 +106,17 @@ class stzStringFormatter
 
 	def ApplyCapitalcase()
 		cContent = @oString.Content()
-		nLen = len(cContent)
-		if nLen = 0
+		if StzLen(cContent) = 0
 			return
 		ok
 
-		cFirst = upper(substr(cContent, 1, 1))
-		if nLen > 1
-			cRest = lower(substr(cContent, 2))
+		cFirst = StzUpper(StzLeft(cContent, 1))
+		if StzLen(cContent) > 1
+			pH = StzEngineString(cContent)
+			pRest = StzEngineStringSlice(pH, 2, StzLen(cContent) - 1)
+			cRest = StzLower(StzEngineStringData(pRest))
+			StzEngineStringFree(pRest)
+			StzEngineStringFree(pH)
 			@oString.Update(cFirst + cRest)
 		else
 			@oString.Update(cFirst)
@@ -125,14 +128,18 @@ class stzStringFormatter
 
 	def Capitalized()
 		cContent = @oString.Content()
-		nLen = len(cContent)
-		if nLen = 0
+		if StzLen(cContent) = 0
 			return ""
 		ok
 
-		cFirst = upper(substr(cContent, 1, 1))
-		if nLen > 1
-			return cFirst + lower(substr(cContent, 2))
+		cFirst = StzUpper(StzLeft(cContent, 1))
+		if StzLen(cContent) > 1
+			pH = StzEngineString(cContent)
+			pRest = StzEngineStringSlice(pH, 2, StzLen(cContent) - 1)
+			cRest = StzLower(StzEngineStringData(pRest))
+			StzEngineStringFree(pRest)
+			StzEngineStringFree(pH)
+			return cFirst + cRest
 		else
 			return cFirst
 		ok
@@ -145,27 +152,7 @@ class stzStringFormatter
 	#===============================#
 
 	def ApplyTitlecase()
-		cContent = @oString.Content()
-		cResult = ""
-		bNextUpper = 1
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if c = " " or c = char(9) or c = char(10)
-				cResult += c
-				bNextUpper = 1
-			else
-				if bNextUpper
-					cResult += upper(c)
-					bNextUpper = 0
-				else
-					cResult += lower(c)
-				ok
-			ok
-		next
-
-		@oString.Update(cResult)
+		@oString.Update(StzTitle(@oString.Content()))
 
 		def ApplyTitlecaseQ()
 			This.ApplyTitlecase()
@@ -184,10 +171,10 @@ class stzStringFormatter
 	#===============================#
 
 	def ApplyCaseFold()
-		@oString.Update( StzEngineUnicodeCaseFold(@oString.Content()) )
+		@oString.Update(StzCaseFold(@oString.Content()))
 
 	def CaseFolded()
-		return StzEngineUnicodeCaseFold(@oString.Content())
+		return StzCaseFold(@oString.Content())
 
 	  #===============================#
 	 #     REVERSED                  #
@@ -222,14 +209,15 @@ class stzStringFormatter
 			if NOT isNumber(nWidth)
 				StzRaise("Incorrect param type! nWidth must be a number.")
 			ok
-			if NOT ( isString(cChar) and len(cChar) = 1 )
+			if NOT ( isString(cChar) and StzLen(cChar) = 1 )
 				StzRaise("Incorrect param type! cChar must be a char.")
 			ok
 		ok
 
-		if nWidth > @oString.NumberOfChars()
+		nChars = @oString.NumberOfChars()
+		if nWidth > nChars
 			cPad = ""
-			nPadCount = nWidth - len(@oString.Content())
+			nPadCount = nWidth - nChars
 			for _i_ = 1 to nPadCount
 				cPad += cChar
 			next
@@ -261,14 +249,15 @@ class stzStringFormatter
 			if NOT isNumber(nWidth)
 				StzRaise("Incorrect param type! nWidth must be a number.")
 			ok
-			if NOT ( isString(cChar) and len(cChar) = 1 )
+			if NOT ( isString(cChar) and StzLen(cChar) = 1 )
 				StzRaise("Incorrect param type! cChar must be a char.")
 			ok
 		ok
 
-		if nWidth > @oString.NumberOfChars()
+		nChars = @oString.NumberOfChars()
+		if nWidth > nChars
 			cPad = ""
-			nPadCount = nWidth - len(@oString.Content())
+			nPadCount = nWidth - nChars
 			for _i_ = 1 to nPadCount
 				cPad += cChar
 			next
@@ -300,7 +289,7 @@ class stzStringFormatter
 			if NOT isNumber(nWidth)
 				StzRaise("Incorrect param type! nWidth must be a number.")
 			ok
-			if NOT ( isString(cChar) and len(cChar) = 1 )
+			if NOT ( isString(cChar) and StzLen(cChar) = 1 )
 				StzRaise("Incorrect param type! cChar must be a char.")
 			ok
 		ok

@@ -347,4 +347,93 @@ func IsOneOfTheseNamedParamsList(p, paNames)
 
 NL = char(10)
 
+# --- Unicode-aware wrapper functions (engine-backed, simple API) ---
+
+func StzUpper(cStr)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringToUpper(pH)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
+func StzLower(cStr)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringToLower(pH)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
+func StzTitle(cStr)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringToTitle(pH)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
+func StzCaseFold(cStr)
+	return StzEngineUnicodeCaseFold(cStr)
+
+func StzLen(cStr)
+	if isList(cStr)
+		return len(cStr)
+	ok
+	pH = StzEngineString(cStr)
+	n = StzEngineStringCount(pH)
+	StzEngineStringFree(pH)
+	return n
+
+func StzChar(nCodepoint)
+	return StzEngineUnicodeEncode(nCodepoint)
+
+func StzReverse(cStr)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringReverse(pH)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
+func StzIsUpper(cStr)
+	pH = StzEngineString(cStr)
+	n = StzEngineStringIsUppercase(pH)
+	StzEngineStringFree(pH)
+	return n
+
+func StzIsLower(cStr)
+	pH = StzEngineString(cStr)
+	n = StzEngineStringIsLowercase(pH)
+	StzEngineStringFree(pH)
+	return n
+
+func StzIsAlpha(cStr)
+	pH = StzEngineString(cStr)
+	n = StzEngineStringIsAlpha(pH)
+	StzEngineStringFree(pH)
+	return n
+
+func StzIsDigit(cStr)
+	pH = StzEngineString(cStr)
+	n = StzEngineStringIsDigit(pH)
+	StzEngineStringFree(pH)
+	return n
+
+func StzLeft(cStr, n)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringLeft(pH, n)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
+func StzRight(cStr, n)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringRight(pH, n)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
 class stzObject

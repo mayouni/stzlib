@@ -1339,13 +1339,7 @@ class stzStringChar from stzObject
 			return This.IsLower()
 
 	def Lowercase()
-		# Use engine: create a 1-char string, lowercase it, return result
-		pHandle = StzEngineString(This.Content())
-		pLower = StzEngineStringToLower(pHandle)
-		cResult = StzEngineStringData(pLower)
-		StzEngineStringFree(pLower)
-		StzEngineStringFree(pHandle)
-		return cResult
+		return StzLower(This.Content())
 
 		def Lowercased()
 			return This.Lowercase()
@@ -1357,13 +1351,7 @@ class stzStringChar from stzObject
 			return This.IsUppercase()
 
 	def Uppercase()
-		# Use engine: create a 1-char string, uppercase it, return result
-		pHandle = StzEngineString(This.Content())
-		pUpper = StzEngineStringToUpper(pHandle)
-		cResult = StzEngineStringData(pUpper)
-		StzEngineStringFree(pUpper)
-		StzEngineStringFree(pHandle)
-		return cResult
+		return StzUpper(This.Content())
 
 		def Uppercased()
 			return This.Uppercase()
