@@ -295,8 +295,11 @@ class stzStringLeadTrail
 
 	def RemoveFromStartCS(pcSubStr, pCaseSensitive)
 		if This.StartsWithCS(pcSubStr, pCaseSensitive)
-			nLen = len(pcSubStr)
-			@oString.RemoveSection(1, nLen)
+			pH = @oString.Engine()
+			pR = StzEngineStringRemovePrefix(pH, pcSubStr)
+			c = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			@oString.Update(c)
 		ok
 
 		def RemoveFromStartCSQ(pcSubStr, pCaseSensitive)
@@ -322,9 +325,11 @@ class stzStringLeadTrail
 
 	def RemoveFromEndCS(pcSubStr, pCaseSensitive)
 		if This.EndsWithCS(pcSubStr, pCaseSensitive)
-			nSubLen = len(pcSubStr)
-			nLen = @oString.NumberOfChars()
-			@oString.RemoveSection(nLen - nSubLen + 1, nLen)
+			pH = @oString.Engine()
+			pR = StzEngineStringRemoveSuffix(pH, pcSubStr)
+			c = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			@oString.Update(c)
 		ok
 
 		def RemoveFromEndCSQ(pcSubStr, pCaseSensitive)
