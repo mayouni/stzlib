@@ -44,38 +44,62 @@ class stzStringTrimmer
 	#======================================================#
 
 	def Trim()
-		@oString.Update(ring_trim(@oString.Content()))
+		pH = @oString.Engine()
+		pR = StzEngineStringTrim(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def TrimQ()
 			This.Trim()
 			return This
 
 	def Trimmed()
-		return ring_trim(@oString.Content())
+		pH = @oString.Engine()
+		pR = StzEngineStringTrimmed(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	  #======================================================#
 	 #   TRIMMING LEFT / RIGHT                              #
 	#======================================================#
 
 	def TrimLeft()
-		@oString.Update(ring_ltrim(@oString.Content()))
+		pH = @oString.Engine()
+		pR = StzEngineStringTrimLeft(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def TrimLeftQ()
 			This.TrimLeft()
 			return This
 
 	def TrimmedLeft()
-		return ring_ltrim(@oString.Content())
+		pH = @oString.Engine()
+		pR = StzEngineStringTrimLeft(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	def TrimRight()
-		@oString.Update(ring_rtrim(@oString.Content()))
+		pH = @oString.Engine()
+		pR = StzEngineStringTrimRight(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def TrimRightQ()
 			This.TrimRight()
 			return This
 
 	def TrimmedRight()
-		return ring_rtrim(@oString.Content())
+		pH = @oString.Engine()
+		pR = StzEngineStringTrimRight(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	  #======================================================#
 	 #   TRIMMING START / END                               #
