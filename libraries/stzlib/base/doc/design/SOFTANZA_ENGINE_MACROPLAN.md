@@ -13,11 +13,12 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 592 passing              |
+| Engine tests      | 604 passing              |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 352 DLL functions        |
-| Last updated      | 2026-05-18 (Session 15)  |
+| Ring bridge regs  | 389 DLL functions        |
+| Ring Unicode hard | Complete (all domains)   |
+| Last updated      | 2026-05-18 (Session 16)  |
 
 ---
 
@@ -147,6 +148,26 @@
   `string.zig` is now a pure re-export hub + tests (zero function bodies).
   584 Zig tests, 658 Ring bridge tests, 341 registered functions.
   Phase D COMPLETE -- 13 submodules, ~250 functions extracted.
+
+### Phase 7 -- Ring-Side Unicode Hardening (Sessions 15-16)
+
+- **Comprehensive audit**: ~180 byte-level usages across 18+ files scanned.
+  Classified as "needs fix" vs "safe (ASCII-only intent)".
+- **Critical path fixes**: stzStringLeadTrail, stzStringWords, stzStringLocale,
+  stzStringText, stzStringVisualizer, stzStringDuplicates, stzStringFinder,
+  stzStringChar, stzStringLines, stzStringExtractor, stzStringInserter,
+  stzStringComparator, stzStringRemover, stzStringReplacer, stzStringSplitter.
+- **Patterns fixed**: `len(pcSubStr)` -> `StzLen()` for codepoint position
+  arithmetic. `substr(str, i, 1)` byte-level char access -> `@oString.NthChar(i)`
+  or `Chars()` iteration. `Content()[i]` byte indexing -> `Chars()[i]`.
+  `char(n)` for non-ASCII -> `StzChar(n)`.
+- **Confirmed safe**: stzStringEncoder (hex/base64), stzStringCrypto (ASCII
+  ciphers), stzStringIO (file paths), stzStringNumbers (ASCII digits 0x30-0x39),
+  stzStringChecker (format checks), stzStringCode (syntax parsing).
+- **Engine additions**: str_duplicated_chars (O(n) hashmap), cpToByteCached
+  (O(n) sequential access cache in StzString struct).
+- **Stats**: 604 Zig tests, 389 Ring bridge functions, all 9 Ring test suites pass.
+  Unicode hardening COMPLETE across all active domain classes.
 
 ---
 
