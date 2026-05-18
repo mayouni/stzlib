@@ -1491,15 +1491,6 @@ pub export fn str_all_substrings_cs(handle: ?*StzString, case: c_int) callconv(.
     return result;
 }
 
-/// Backward-compatible alias: case-sensitive (all substrings).
-pub export fn str_all_substrings(handle: ?*StzString) callconv(.c) ?*StzString {
-    return str_all_substrings_cs(handle, 1);
-}
-
-/// Backward-compatible alias: case-insensitive (unique substrings).
-pub export fn str_all_substrings_unique(handle: ?*StzString) callconv(.c) ?*StzString {
-    return str_all_substrings_cs(handle, 0);
-}
 
 /// Return unique chars as \x00-delimited string.
 /// case=1: case-sensitive (preserves original case).
@@ -1557,10 +1548,6 @@ pub export fn str_unique_chars_cs(handle: ?*StzString, case: c_int) callconv(.c)
     return result;
 }
 
-/// Backward-compatible alias: case-insensitive unique chars.
-pub export fn str_unique_chars_ci(handle: ?*StzString) callconv(.c) ?*StzString {
-    return str_unique_chars_cs(handle, 0);
-}
 
 /// Count of all substrings (n*(n+1)/2 for n codepoints).
 pub export fn str_substrings_count(handle: ?*StzString) callconv(.c) c_int {
@@ -1696,18 +1683,15 @@ test "format: run_length_encode" {
     core.str_free(h);
 }
 
-test "format: all_substrings" {
+test "format: all_substrings_cs case=1" {
     const s = str_from("abc", 3);
     defer core.str_free(s);
-    // "abc" has 6 substrings: a, ab, abc, b, bc, c
     try std.testing.expectEqual(@as(c_int, 6), str_substrings_count(s));
 
-    const r = str_all_substrings(s);
+    const r = str_all_substrings_cs(s, 1);
     defer core.str_free(r);
     try std.testing.expect(r != null);
-    // Result is "a\x00ab\x00abc\x00b\x00bc\x00c"
     const data = core.str_data(r.?)[0..core.str_size(r)];
-    // Count delimiters: should be 5 (6 substrings - 1)
     var delims: usize = 0;
     for (data) |b| {
         if (b == 0) delims += 1;
@@ -1715,11 +1699,10 @@ test "format: all_substrings" {
     try std.testing.expectEqual(@as(usize, 5), delims);
 }
 
-test "format: all_substrings_unique" {
+test "format: all_substrings_cs case=0" {
     const s = str_from("aba", 3);
     defer core.str_free(s);
-    // "aba" substrings: a, ab, aba, b, ba, a -- unique: a, ab, aba, b, ba = 5
-    const r = str_all_substrings_unique(s);
+    const r = str_all_substrings_cs(s, 0);
     defer core.str_free(r);
     try std.testing.expect(r != null);
     const data = core.str_data(r.?)[0..core.str_size(r)];

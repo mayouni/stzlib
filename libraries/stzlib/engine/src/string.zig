@@ -106,9 +106,7 @@ const split = @import("string/split.zig");
 pub const str_split_count = split.str_split_count;
 pub const str_split_get = split.str_split_get;
 pub const str_split_count_cs = split.str_split_count_cs;
-pub const str_split_count_ci = split.str_split_count_ci;
 pub const str_split_get_cs = split.str_split_get_cs;
-pub const str_split_get_ci = split.str_split_get_ci;
 pub const str_lines_count = split.str_lines_count;
 pub const str_lines_split_count = split.str_lines_split_count;
 pub const str_line_at = split.str_line_at;
@@ -135,35 +133,26 @@ pub const str_index_of_cs = find.str_index_of_cs;
 pub const str_index_of = find.str_index_of;
 pub const str_index_of_from_cs = find.str_index_of_from_cs;
 pub const str_index_of_from = find.str_index_of_from;
-pub const str_index_of_ci = find.str_index_of_ci;
 pub const str_byte_to_cp = find.str_byte_to_cp;
 pub const str_count_of = find.str_count_of;
 pub const str_count_of_cs = find.str_count_of_cs;
-pub const str_count_of_ci = find.str_count_of_ci;
 pub const str_find_all_cs = find.str_find_all_cs;
 pub const str_find_all = find.str_find_all;
-pub const str_find_all_ci = find.str_find_all_ci;
 pub const stz_find_result_count = find.stz_find_result_count;
 pub const stz_find_result_get = find.stz_find_result_get;
 pub const stz_find_result_free = find.stz_find_result_free;
 pub const str_last_index_of_cs = find.str_last_index_of_cs;
 pub const str_last_index_of = find.str_last_index_of;
-pub const str_last_index_of_ci = find.str_last_index_of_ci;
 pub const str_contains_cs = find.str_contains_cs;
 pub const str_contains = find.str_contains;
-pub const str_contains_ci = find.str_contains_ci;
 pub const str_starts_with_cs = find.str_starts_with_cs;
 pub const str_starts_with = find.str_starts_with;
-pub const str_starts_with_ci = find.str_starts_with_ci;
 pub const str_ends_with_cs = find.str_ends_with_cs;
 pub const str_ends_with = find.str_ends_with;
-pub const str_ends_with_ci = find.str_ends_with_ci;
 pub const str_equals_cs = find.str_equals_cs;
 pub const str_equals = find.str_equals;
-pub const str_equals_ci = find.str_equals_ci;
 pub const str_find_nth_cs = find.str_find_nth_cs;
 pub const str_find_nth = find.str_find_nth;
-pub const str_find_nth_ci = find.str_find_nth_ci;
 pub const str_starts_with_digit = find.str_starts_with_digit;
 pub const str_starts_with_letter = find.str_starts_with_letter;
 pub const str_ends_with_digit = find.str_ends_with_digit;
@@ -178,7 +167,6 @@ const replace = @import("string/replace.zig");
 pub const str_replace_range = replace.str_replace_range;
 pub const str_replace_cs = replace.str_replace_cs;
 pub const str_replace = replace.str_replace;
-pub const str_replace_ci = replace.str_replace_ci;
 pub const str_replace_first = replace.str_replace_first;
 pub const str_replace_last = replace.str_replace_last;
 pub const str_replace_nth = replace.str_replace_nth;
@@ -192,7 +180,6 @@ pub const str_replace_between = replace.str_replace_between;
 pub const str_remove_range = replace.str_remove_range;
 pub const str_remove_all_cs = replace.str_remove_all_cs;
 pub const str_remove_all = replace.str_remove_all;
-pub const str_remove_all_ci = replace.str_remove_all_ci;
 pub const str_remove_char_at = replace.str_remove_char_at;
 pub const str_remove_chars_of_type = replace.str_remove_chars_of_type;
 pub const str_remove_consecutive_duplicates = replace.str_remove_consecutive_duplicates;
@@ -433,10 +420,7 @@ pub const str_run_length_encode = format.str_run_length_encode;
 pub const str_run_length_decode = format.str_run_length_decode;
 pub const str_reverse_each_word = format.str_reverse_each_word;
 pub const str_all_substrings_cs = format.str_all_substrings_cs;
-pub const str_all_substrings = format.str_all_substrings;
-pub const str_all_substrings_unique = format.str_all_substrings_unique;
 pub const str_unique_chars_cs = format.str_unique_chars_cs;
-pub const str_unique_chars_ci = format.str_unique_chars_ci;
 pub const str_substrings_count = format.str_substrings_count;
 pub const str_substrings_of_n_chars = format.str_substrings_of_n_chars;
 
@@ -614,10 +598,10 @@ test "string index_of_from" {
 
 test "string index_of_ci" {
     const s = str_from("Hello WORLD", 11);
-    try std.testing.expectEqual(@as(i64, 1), str_index_of_ci(s, "hello", 5, 1));
-    try std.testing.expectEqual(@as(i64, 7), str_index_of_ci(s, "world", 5, 1));
-    try std.testing.expectEqual(@as(i64, -1), str_index_of_ci(s, "xyz", 3, 1));
-    try std.testing.expectEqual(@as(i64, 7), str_index_of_ci(s, "WORLD", 5, 4));
+    try std.testing.expectEqual(@as(i64, 1), str_index_of_from_cs(s, "hello", 5, 1, 0));
+    try std.testing.expectEqual(@as(i64, 7), str_index_of_from_cs(s, "world", 5, 1, 0));
+    try std.testing.expectEqual(@as(i64, -1), str_index_of_from_cs(s, "xyz", 3, 1, 0));
+    try std.testing.expectEqual(@as(i64, 7), str_index_of_from_cs(s, "WORLD", 5, 4, 0));
     str_free(s);
 }
 
@@ -639,7 +623,7 @@ test "string find_all" {
 
 test "string find_all_ci" {
     const s = str_from("Ring RING ring", 14);
-    const r = str_find_all_ci(s, "ring", 4);
+    const r = str_find_all_cs(s, "ring", 4, 0);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
     try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0));
     try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r, 1));
@@ -650,57 +634,57 @@ test "string find_all_ci" {
 
 test "string count_of_ci" {
     const s = str_from("Hello hello HELLO hElLo", 23);
-    try std.testing.expectEqual(@as(c_int, 4), str_count_of_ci(s, "hello", 5));
-    try std.testing.expectEqual(@as(c_int, 0), str_count_of_ci(s, "xyz", 3));
+    try std.testing.expectEqual(@as(c_int, 4), str_count_of_cs(s, "hello", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 0), str_count_of_cs(s, "xyz", 3, 0));
     str_free(s);
 }
 
 test "string last_index_of_ci" {
     const s = str_from("abc-ABC-Abc", 11);
-    try std.testing.expectEqual(@as(i64, 9), str_last_index_of_ci(s, "abc", 3));
-    try std.testing.expectEqual(@as(i64, -1), str_last_index_of_ci(s, "xyz", 3));
+    try std.testing.expectEqual(@as(i64, 9), str_last_index_of_cs(s, "abc", 3, 0));
+    try std.testing.expectEqual(@as(i64, -1), str_last_index_of_cs(s, "xyz", 3, 0));
     str_free(s);
 }
 
 test "string starts_with_ci" {
     const s = str_from("Hello World", 11);
-    try std.testing.expectEqual(@as(c_int, 1), str_starts_with_ci(s, "hello", 5));
-    try std.testing.expectEqual(@as(c_int, 1), str_starts_with_ci(s, "HELLO", 5));
-    try std.testing.expectEqual(@as(c_int, 0), str_starts_with_ci(s, "world", 5));
+    try std.testing.expectEqual(@as(c_int, 1), str_starts_with_cs(s, "hello", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 1), str_starts_with_cs(s, "HELLO", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 0), str_starts_with_cs(s, "world", 5, 0));
     str_free(s);
 }
 
 test "string ends_with_ci" {
     const s = str_from("Hello World", 11);
-    try std.testing.expectEqual(@as(c_int, 1), str_ends_with_ci(s, "world", 5));
-    try std.testing.expectEqual(@as(c_int, 1), str_ends_with_ci(s, "WORLD", 5));
-    try std.testing.expectEqual(@as(c_int, 0), str_ends_with_ci(s, "hello", 5));
+    try std.testing.expectEqual(@as(c_int, 1), str_ends_with_cs(s, "world", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 1), str_ends_with_cs(s, "WORLD", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 0), str_ends_with_cs(s, "hello", 5, 0));
     str_free(s);
 }
 
 test "string contains_ci" {
     const s = str_from("Hello World", 11);
-    try std.testing.expectEqual(@as(c_int, 1), str_contains_ci(s, "WORLD", 5));
-    try std.testing.expectEqual(@as(c_int, 1), str_contains_ci(s, "hello", 5));
-    try std.testing.expectEqual(@as(c_int, 0), str_contains_ci(s, "xyz", 3));
+    try std.testing.expectEqual(@as(c_int, 1), str_contains_cs(s, "WORLD", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 1), str_contains_cs(s, "hello", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 0), str_contains_cs(s, "xyz", 3, 0));
     str_free(s);
 }
 
 test "string split_count_ci" {
     const s = str_from("oneABCtwoabcthree", 17);
-    try std.testing.expectEqual(@as(c_int, 3), str_split_count_ci(s, "abc", 3));
+    try std.testing.expectEqual(@as(c_int, 3), str_split_count_cs(s, "abc", 3, 0));
     str_free(s);
 }
 
 test "string split_get_ci" {
     const s = str_from("oneABCtwoAbCthree", 17);
-    const p0 = str_split_get_ci(s, "abc", 3, 0);
+    const p0 = str_split_get_cs(s, "abc", 3, 0, 0);
     try std.testing.expect(mem.eql(u8, str_data(p0)[0..str_size(p0)], "one"));
     str_free(p0);
-    const p1 = str_split_get_ci(s, "abc", 3, 1);
+    const p1 = str_split_get_cs(s, "abc", 3, 1, 0);
     try std.testing.expect(mem.eql(u8, str_data(p1)[0..str_size(p1)], "two"));
     str_free(p1);
-    const p2 = str_split_get_ci(s, "abc", 3, 2);
+    const p2 = str_split_get_cs(s, "abc", 3, 2, 0);
     try std.testing.expect(mem.eql(u8, str_data(p2)[0..str_size(p2)], "three"));
     str_free(p2);
     str_free(s);
@@ -708,7 +692,7 @@ test "string split_get_ci" {
 
 test "string replace_ci" {
     const s = str_from("Hello hello HELLO", 17);
-    str_replace_ci(s, "hello", 5, "hi", 2);
+    str_replace_cs(s, "hello", 5, "hi", 2, 0);
     try std.testing.expectEqual(@as(usize, 8), str_size(s));
     try std.testing.expect(mem.eql(u8, str_data(s)[0..8], "hi hi hi"));
     str_free(s);
@@ -1463,7 +1447,7 @@ test "unique_char_count" {
 
 test "remove_all_ci" {
     const s = str_from("Hello HELLO hello", 17);
-    const r = str_remove_all_ci(s, "hello", 5);
+    const r = str_remove_all_cs(s, "hello", 5, 0);
     try std.testing.expectEqual(@as(usize, 2), str_size(r));
     try std.testing.expect(mem.eql(u8, str_data(r)[0..2], "  "));
     str_free(r);
@@ -4135,45 +4119,45 @@ test "equals_ci unicode" {
     // German sharp-s: "strasse" should equal "STRASSE" case-insensitively
     const a = str_from("hello", 5);
     const b = str_from("HELLO", 5);
-    try std.testing.expectEqual(@as(c_int, 1), str_equals_ci(a, b));
+    try std.testing.expectEqual(@as(c_int, 1), str_equals_cs(a, b, 0));
     str_free(a);
     str_free(b);
 
     // French accented: "cafe" vs "CAFE" (basic)
     const c = str_from("caf\xC3\xA9", 5);
     const d = str_from("CAF\xC3\x89", 5);
-    try std.testing.expectEqual(@as(c_int, 1), str_equals_ci(c, d));
+    try std.testing.expectEqual(@as(c_int, 1), str_equals_cs(c, d, 0));
     str_free(c);
     str_free(d);
 }
 
 test "contains_ci unicode" {
     const s = str_from("Hello World", 11);
-    try std.testing.expectEqual(@as(c_int, 1), str_contains_ci(s, "WORLD", 5));
-    try std.testing.expectEqual(@as(c_int, 1), str_contains_ci(s, "hello", 5));
-    try std.testing.expectEqual(@as(c_int, 0), str_contains_ci(s, "xyz", 3));
+    try std.testing.expectEqual(@as(c_int, 1), str_contains_cs(s, "WORLD", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 1), str_contains_cs(s, "hello", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 0), str_contains_cs(s, "xyz", 3, 0));
     str_free(s);
 }
 
 test "starts_with_ci unicode" {
     const s = str_from("Hello World", 11);
-    try std.testing.expectEqual(@as(c_int, 1), str_starts_with_ci(s, "HELLO", 5));
-    try std.testing.expectEqual(@as(c_int, 1), str_starts_with_ci(s, "hello", 5));
-    try std.testing.expectEqual(@as(c_int, 0), str_starts_with_ci(s, "world", 5));
+    try std.testing.expectEqual(@as(c_int, 1), str_starts_with_cs(s, "HELLO", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 1), str_starts_with_cs(s, "hello", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 0), str_starts_with_cs(s, "world", 5, 0));
     str_free(s);
 }
 
 test "ends_with_ci unicode" {
     const s = str_from("Hello World", 11);
-    try std.testing.expectEqual(@as(c_int, 1), str_ends_with_ci(s, "WORLD", 5));
-    try std.testing.expectEqual(@as(c_int, 1), str_ends_with_ci(s, "world", 5));
-    try std.testing.expectEqual(@as(c_int, 0), str_ends_with_ci(s, "hello", 5));
+    try std.testing.expectEqual(@as(c_int, 1), str_ends_with_cs(s, "WORLD", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 1), str_ends_with_cs(s, "world", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 0), str_ends_with_cs(s, "hello", 5, 0));
     str_free(s);
 }
 
 test "find_all_ci unicode" {
     const s = str_from("abcABCabc", 9);
-    const r = str_find_all_ci(s, "abc", 3);
+    const r = str_find_all_cs(s, "abc", 3, 0);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
     try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0));
     try std.testing.expectEqual(@as(i64, 4), stz_find_result_get(r, 1));
@@ -4184,7 +4168,7 @@ test "find_all_ci unicode" {
 
 test "count_of_ci unicode" {
     const s = str_from("abcABCabc", 9);
-    try std.testing.expectEqual(@as(c_int, 3), str_count_of_ci(s, "abc", 3));
+    try std.testing.expectEqual(@as(c_int, 3), str_count_of_cs(s, "abc", 3, 0));
     str_free(s);
 }
 
