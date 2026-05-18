@@ -436,6 +436,7 @@ pub const str_all_substrings = format.str_all_substrings;
 pub const str_all_substrings_unique = format.str_all_substrings_unique;
 pub const str_unique_chars_ci = format.str_unique_chars_ci;
 pub const str_substrings_count = format.str_substrings_count;
+pub const str_substrings_of_n_chars = format.str_substrings_of_n_chars;
 
 // ─── Tests ───
 

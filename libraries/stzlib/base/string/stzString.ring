@@ -5790,29 +5790,32 @@ class stzString from stzObject
 			return []
 		ok
 
-		# Doing the job
+		# Engine-backed: reuses str_all_substrings_unique
 
-		acResult = []
-		nLen = This.NumberOfChars()
+		pResult = StzEngineStringAllSubstringsUnique(@pEngine)
+		cJoined = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 
-		cContent = This.Content()
-
-		if IsCaseSensitive(pCaseSensitive) = 0
-			cContent = ring_lower(cContent)
+		if cJoined = ""
+			return []
 		ok
 
+		# Split \x00-delimited result into Ring list
+		acResult = []
+		cDelim = char(0)
+		cRest = cJoined
 
-
-		for i = 1 to nLen
-			for j = i to nLen
-				cSubStr = This.Section(i, j)
-	
-				if ring_find(acResult, cSubStr) = 0
-					acResult + cSubStr
+		while true
+			nPos = substr(cRest, cDelim)
+			if nPos = 0
+				if len(cRest) > 0
+					acResult + cRest
 				ok
-
-			next
-		next
+				exit
+			ok
+			acResult + left(cRest, nPos - 1)
+			cRest = substr(cRest, nPos + 1)
+		end
 
 		return acResult
 
@@ -6979,28 +6982,32 @@ class stzString from stzObject
 			return []
 		ok
 
-		# Doing the job
+		# Engine-backed: O(n) sliding window replaces O(n^2) Ring loop
 
-		acResult = []
-		nLen = This.NumberOfChars()
+		pResult = StzEngineStringSubstringsOfNChars(@pEngine, n)
+		cJoined = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 
-		cContent = This.Content()
-
-		if IsCaseSensitive(pCaseSensitive) = 0
-			cContent = ring_lower(cContent)
+		if cJoined = ""
+			return []
 		ok
 
+		# Split \x00-delimited result into Ring list
+		acResult = []
+		cDelim = char(0)
+		cRest = cJoined
 
-
-
-		for i = 1 to nLen
-			for j = i to nLen
-				if n = j-i+1
-					cSubStr = This.Section(i, j)
-					acResult + cSubStr
+		while true
+			nPos = substr(cRest, cDelim)
+			if nPos = 0
+				if len(cRest) > 0
+					acResult + cRest
 				ok
-			next
-		next
+				exit
+			ok
+			acResult + left(cRest, nPos - 1)
+			cRest = substr(cRest, nPos + 1)
+		end
 
 		return acResult
 

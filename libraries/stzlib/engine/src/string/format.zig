@@ -1600,7 +1600,78 @@ pub export fn str_substrings_count(handle: ?*StzString) callconv(.c) c_int {
     return @divTrunc(n * (n + 1), 2);
 }
 
+/// Return all substrings of exactly `n` codepoints, joined by \x00.
+/// O(cp_count) sliding window — replaces O(n^2) Ring loop.
+pub export fn str_substrings_of_n_chars(handle: ?*StzString, n: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return core.str_from("", 0);
+    const src = s.slice();
+    if (src.len == 0 or n <= 0) return core.str_from("", 0);
+
+    const cp_count = utf8CodepointCount(src);
+    const wanted: usize = @intCast(n);
+    if (wanted > cp_count) return core.str_from("", 0);
+
+    // Build codepoint offset table
+    var cp_offsets: [16384]usize = undefined;
+    const offsets = if (cp_count + 1 <= 16384) cp_offsets[0 .. cp_count + 1] else blk: {
+        break :blk gpa.alloc(usize, cp_count + 1) catch return core.str_from("", 0);
+    };
+    defer if (cp_count + 1 > 16384) gpa.free(offsets);
+
+    var idx: usize = 0;
+    var byte_pos: usize = 0;
+    while (byte_pos < src.len) : (idx += 1) {
+        offsets[idx] = byte_pos;
+        const b = src[byte_pos];
+        const seq_len: usize = if (b < 0x80) 1 else if (b < 0xE0) 2 else if (b < 0xF0) 3 else 4;
+        byte_pos += seq_len;
+    }
+    offsets[idx] = byte_pos;
+
+    const result_count = cp_count - wanted + 1;
+
+    // Pre-allocate: each substring is up to wanted*4 bytes, plus \x00 delimiter
+    const est_size = result_count * (wanted * 4 + 1);
+    const out = gpa.alloc(u8, est_size) catch return core.str_from("", 0);
+    defer gpa.free(out);
+
+    var write_pos: usize = 0;
+    for (0..result_count) |i| {
+        if (i > 0) {
+            out[write_pos] = 0;
+            write_pos += 1;
+        }
+        const start = offsets[i];
+        const end = offsets[i + wanted];
+        const chunk = src[start..end];
+        @memcpy(out[write_pos .. write_pos + chunk.len], chunk);
+        write_pos += chunk.len;
+    }
+
+    return core.str_from(out.ptr, write_pos);
+}
+
 // ─── Tests ─────────────────────────────────────────────────────
+
+test "format: substrings_of_n_chars" {
+    const s = core.str_from("Hello", 5);
+    defer core.str_free(s);
+
+    // 2-char substrings of "Hello": "He", "el", "ll", "lo" = 4 items, 3 delimiters
+    const r = str_substrings_of_n_chars(s, 2);
+    defer core.str_free(r);
+    const data = core.str_data(r);
+    const size = core.str_size(r);
+    if (data) |d| {
+        const slice = d[0..size];
+        // Count delimiters
+        var delims: usize = 0;
+        for (slice) |c| {
+            if (c == 0) delims += 1;
+        }
+        try std.testing.expectEqual(@as(usize, 3), delims); // 4 items = 3 delimiters
+    }
+}
 
 test "format: reverse ascii" {
     const s = str_from("hello", 5);
