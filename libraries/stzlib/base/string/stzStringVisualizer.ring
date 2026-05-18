@@ -47,7 +47,7 @@ class stzStringVisualizer
 		if nLen <= 50
 			? @oString.Content()
 		else
-			? substr(@oString.Content(), 1, 47) + "..."
+			? @oString.Section(1, 47) + "..."
 		ok
 
 	def ShowNL()
@@ -58,7 +58,7 @@ class stzStringVisualizer
 	#===============================#
 
 	def VizFindCharCS(c, pCaseSensitive)
-		if NOT ( isString(c) and len(c) = 1 )
+		if NOT ( isString(c) and StzLen(c) = 1 )
 			return ""
 		ok
 
@@ -66,10 +66,10 @@ class stzStringVisualizer
 		oFinder = new stzStringFinder(@oString)
 		anPos = oFinder.FindCS(c, pCaseSensitive)
 
-		nLen = len(cResult)
+		nChars = @oString.NumberOfChars()
 
 		cViz = " "
-		for i = 1 to nLen - 2
+		for i = 1 to nChars
 			if ring_find(anPos, i) > 0
 				cViz += "^"
 			else
@@ -87,11 +87,11 @@ class stzStringVisualizer
 		oFinder = new stzStringFinder(@oString)
 		anPos = oFinder.FindCS(pcSubStr, pCaseSensitive)
 
-		nSubLen = len(pcSubStr)
-		nLen = len(cResult)
+		nSubLen = StzLen(pcSubStr)
+		nChars = @oString.NumberOfChars()
 
 		cViz = " "
-		for i = 1 to nLen - 2
+		for i = 1 to nChars
 			bMarked = 0
 			nPosLen = len(anPos)
 			for j = 1 to nPosLen
