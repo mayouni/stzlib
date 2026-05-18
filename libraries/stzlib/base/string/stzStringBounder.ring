@@ -89,7 +89,7 @@ class stzStringBounder
 				but n2 = :First or n2 = :FirstChar
 					n2 = 1
 				else
-					nLen2 = len(n2)
+					nLen2 = StzLen(n2)
 					oFinder = new stzStringFinder(@oString)
 					n2 = oFinder.FindLastCS(n2, pCaseSensitive) + nLen2 - 1
 				ok
@@ -213,7 +213,7 @@ class stzStringBounder
 			if n1 = 0
 				return ""
 			else
-				n1 += len(pSubStrOrPos1)
+				n1 += StzLen(pSubStrOrPos1)
 			ok
 
 			n2 = oFinder.FindLastCS(pSubStrOrPos2, pCaseSensitive)
@@ -244,7 +244,7 @@ class stzStringBounder
 
 		oFinder = new stzStringFinder(@oString)
 		n1 = oFinder.FindFirstCS(pSubStrOrPos1, pCaseSensitive)
-		n2 = oFinder.FindLastCS(pSubStrOrPos2, pCaseSensitive) + len(pSubStrOrPos2) - 1
+		n2 = oFinder.FindLastCS(pSubStrOrPos2, pCaseSensitive) + StzLen(pSubStrOrPos2) - 1
 		return @oString.Section(n1, n2)
 
 	def BetweenIB(pSubStrOrPos1, pSubStrOrPos2)
