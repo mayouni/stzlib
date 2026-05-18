@@ -157,6 +157,89 @@ pub fn stz_unicode_is_valid(cp: i32) callconv(.c) c_int {
     return if (c.utf8proc_codepoint_valid(cp)) 1 else 0;
 }
 
+// ─── Script Detection (codepoint level) ───
+// Each function covers the full set of Unicode blocks for that script.
+
+/// Arabic: U+0600-06FF (Arabic), U+0750-077F (Supplement), U+08A0-08FF (Extended-A),
+/// U+FB50-FDFF (Presentation Forms-A), U+FE70-FEFF (Presentation Forms-B),
+/// U+1EE00-1EEFF (Mathematical Alphabetic Symbols)
+pub fn stz_unicode_is_arabic(cp: i32) callconv(.c) c_int {
+    if (cp >= 0x0600 and cp <= 0x06FF) return 1;
+    if (cp >= 0x0750 and cp <= 0x077F) return 1;
+    if (cp >= 0x08A0 and cp <= 0x08FF) return 1;
+    if (cp >= 0xFB50 and cp <= 0xFDFF) return 1;
+    if (cp >= 0xFE70 and cp <= 0xFEFF) return 1;
+    if (cp >= 0x1EE00 and cp <= 0x1EEFF) return 1;
+    return 0;
+}
+
+/// Latin: U+0041-007A (Basic), U+00C0-024F (Latin-1 Supp + Extended-A/B),
+/// U+1E00-1EFF (Extended Additional), U+2C60-2C7F (Extended-C),
+/// U+A720-A7FF (Extended-D), U+AB30-AB6F (Extended-E),
+/// U+FB00-FB06 (Ligatures)
+pub fn stz_unicode_is_latin(cp: i32) callconv(.c) c_int {
+    if (cp >= 0x0041 and cp <= 0x005A) return 1; // A-Z
+    if (cp >= 0x0061 and cp <= 0x007A) return 1; // a-z
+    if (cp >= 0x00C0 and cp <= 0x00FF and cp != 0x00D7 and cp != 0x00F7) return 1; // Latin-1 Supp (minus multiplication/division)
+    if (cp >= 0x0100 and cp <= 0x024F) return 1; // Extended-A + B
+    if (cp >= 0x0250 and cp <= 0x02AF) return 1; // IPA Extensions
+    if (cp >= 0x1E00 and cp <= 0x1EFF) return 1; // Extended Additional
+    if (cp >= 0x2C60 and cp <= 0x2C7F) return 1; // Extended-C
+    if (cp >= 0xA720 and cp <= 0xA7FF) return 1; // Extended-D
+    if (cp >= 0xAB30 and cp <= 0xAB6F) return 1; // Extended-E
+    if (cp >= 0xFB00 and cp <= 0xFB06) return 1; // Ligatures
+    return 0;
+}
+
+/// Greek: U+0370-03FF (Greek and Coptic), U+1F00-1FFF (Extended)
+pub fn stz_unicode_is_greek(cp: i32) callconv(.c) c_int {
+    if (cp >= 0x0370 and cp <= 0x03FF) return 1;
+    if (cp >= 0x1F00 and cp <= 0x1FFF) return 1;
+    return 0;
+}
+
+/// Cyrillic: U+0400-04FF (Cyrillic), U+0500-052F (Supplement),
+/// U+2DE0-2DFF (Extended-A), U+A640-A69F (Extended-B), U+1C80-1C8F (Extended-C)
+pub fn stz_unicode_is_cyrillic(cp: i32) callconv(.c) c_int {
+    if (cp >= 0x0400 and cp <= 0x04FF) return 1;
+    if (cp >= 0x0500 and cp <= 0x052F) return 1;
+    if (cp >= 0x2DE0 and cp <= 0x2DFF) return 1;
+    if (cp >= 0xA640 and cp <= 0xA69F) return 1;
+    if (cp >= 0x1C80 and cp <= 0x1C8F) return 1;
+    return 0;
+}
+
+/// Hebrew: U+0590-05FF (Hebrew), U+FB1D-FB4F (Presentation Forms)
+pub fn stz_unicode_is_hebrew(cp: i32) callconv(.c) c_int {
+    if (cp >= 0x0590 and cp <= 0x05FF) return 1;
+    if (cp >= 0xFB1D and cp <= 0xFB4F) return 1;
+    return 0;
+}
+
+/// CJK: U+4E00-9FFF (Unified Ideographs), U+3400-4DBF (Ext A),
+/// U+3040-309F (Hiragana), U+30A0-30FF (Katakana), U+AC00-D7AF (Hangul)
+pub fn stz_unicode_is_cjk(cp: i32) callconv(.c) c_int {
+    if (cp >= 0x4E00 and cp <= 0x9FFF) return 1;
+    if (cp >= 0x3400 and cp <= 0x4DBF) return 1;
+    if (cp >= 0x3040 and cp <= 0x309F) return 1; // Hiragana
+    if (cp >= 0x30A0 and cp <= 0x30FF) return 1; // Katakana
+    if (cp >= 0xAC00 and cp <= 0xD7AF) return 1; // Hangul
+    if (cp >= 0x20000 and cp <= 0x2A6DF) return 1; // Ext B
+    return 0;
+}
+
+/// Devanagari: U+0900-097F (Devanagari), U+A8E0-A8FF (Extended)
+pub fn stz_unicode_is_devanagari(cp: i32) callconv(.c) c_int {
+    if (cp >= 0x0900 and cp <= 0x097F) return 1;
+    if (cp >= 0xA8E0 and cp <= 0xA8FF) return 1;
+    return 0;
+}
+
+/// Thai: U+0E00-0E7F
+pub fn stz_unicode_is_thai(cp: i32) callconv(.c) c_int {
+    return if (cp >= 0x0E00 and cp <= 0x0E7F) 1 else 0;
+}
+
 // ─── Case Conversion (codepoint level) ───
 
 pub fn stz_unicode_to_lower(cp: i32) callconv(.c) i32 {

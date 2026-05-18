@@ -101,4 +101,50 @@ pStr3 = StzEngineString("Hello, world! 42 + $5.")
 StzEngineStringFree(pStr3)
 
 ? ""
+? "=== Test 5: Script detection (codepoint-level) ==="
+
+# Arabic alef = U+0627 = 1575
+? "  IsArabic(U+0627 alef): " + StzEngineUnicodeIsArabic(1575)    # 1
+? "  IsArabic(65 = 'A'): " + StzEngineUnicodeIsArabic(65)         # 0
+? "  IsLatin(65 = 'A'): " + StzEngineUnicodeIsLatin(65)           # 1
+? "  IsLatin(1575 = alef): " + StzEngineUnicodeIsLatin(1575)      # 0
+? "  IsGreek(945 = alpha): " + StzEngineUnicodeIsGreek(945)       # 1
+? "  IsCyrillic(1040 = A): " + StzEngineUnicodeIsCyrillic(1040)   # 1
+
+? ""
+? "=== Test 6: Script bulk (enumerable pattern) ==="
+
+# Build Arabic "marhaba" from UTF-8 bytes
+# U+0645 (meem) = D9 85, U+0631 (ra) = D8 B1, U+062D (ha) = D8 AD
+# U+0628 (ba) = D8 A8, U+0627 (alef) = D8 A7
+cArabic = char(217)+char(133) + char(216)+char(177) + char(216)+char(173) + char(216)+char(168) + char(216)+char(167)
+pAr = StzEngineString(cArabic)
+? "  IsArabic('marhaba'): " + StzEngineStringIsArabic(pAr)                    # 1
+? "  IsArabicLetters('marhaba'): " + StzEngineStringIsArabicLetters(pAr)       # 1
+? "  CountArabic: " + StzEngineStringCountArabic(pAr)                          # 5
+? "  CountArabicLetters: " + StzEngineStringCountArabicLetters(pAr)            # 5
+StzEngineStringFree(pAr)
+
+# Mixed: "Hi" + Arabic meem+ra (2 Arabic chars)
+cMixed = "Hi" + char(217)+char(133) + char(216)+char(177)
+pMx = StzEngineString(cMixed)
+? "  IsLatin('Hi+arabic'): " + StzEngineStringIsLatin(pMx)                    # 0 (mixed)
+? "  CountLatin: " + StzEngineStringCountLatin(pMx)                            # 2
+? "  CountArabic: " + StzEngineStringCountArabic(pMx)                          # 2
+? "  CountLatinLetters: " + StzEngineStringCountLatinLetters(pMx)              # 2
+
+# OnlyLatin extracts just the Latin chars
+pLatOnly = StzEngineStringOnlyLatin(pMx)
+cLatOnly = StzEngineStringData(pLatOnly)
+? "  OnlyLatin('Hi+arabic'): [" + cLatOnly + "]"                               # Hi
+
+# OnlyArabicLetters extracts just the Arabic letters
+pArOnly = StzEngineStringOnlyArabicLetters(pMx)
+? "  OnlyArabicLetters count: " + StzEngineStringCount(pArOnly)                # 2
+
+StzEngineStringFree(pMx)
+StzEngineStringFree(pLatOnly)
+StzEngineStringFree(pArOnly)
+
+? ""
 ? "=== ALL ENGINE CHAR CLASSIFICATION TESTS PASSED ==="

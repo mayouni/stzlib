@@ -27,8 +27,12 @@ const isVowelAscii = core.isVowelAscii;
 // ─── Character type counting/querying ───
 
 /// Classify a codepoint against a type code.
-/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punctuation, 6=symbol, 7=mark, 8=control, 9=number
-fn matchesCharType(cp_val: i32, char_type: c_int) bool {
+/// Types: 0=letter, 1=digit, 2=space, 3=upper, 4=lower, 5=punctuation,
+///        6=symbol, 7=mark, 8=control, 9=number,
+///        10=arabic, 11=latin, 12=greek, 13=cyrillic, 14=hebrew, 15=cjk, 16=devanagari, 17=thai,
+///        18=arabic_letter (arabic AND letter), 19=latin_letter (latin AND letter),
+///        20=vowel (ASCII vowel)
+pub fn matchesCharType(cp_val: i32, char_type: c_int) bool {
     return switch (char_type) {
         0 => unicode.stz_unicode_is_letter(cp_val) == 1,
         1 => unicode.stz_unicode_is_digit(cp_val) == 1,
@@ -40,6 +44,22 @@ fn matchesCharType(cp_val: i32, char_type: c_int) bool {
         7 => unicode.stz_unicode_is_mark(cp_val) == 1,
         8 => unicode.stz_unicode_is_control(cp_val) == 1,
         9 => unicode.stz_unicode_is_number(cp_val) == 1,
+        10 => unicode.stz_unicode_is_arabic(cp_val) == 1,
+        11 => unicode.stz_unicode_is_latin(cp_val) == 1,
+        12 => unicode.stz_unicode_is_greek(cp_val) == 1,
+        13 => unicode.stz_unicode_is_cyrillic(cp_val) == 1,
+        14 => unicode.stz_unicode_is_hebrew(cp_val) == 1,
+        15 => unicode.stz_unicode_is_cjk(cp_val) == 1,
+        16 => unicode.stz_unicode_is_devanagari(cp_val) == 1,
+        17 => unicode.stz_unicode_is_thai(cp_val) == 1,
+        18 => unicode.stz_unicode_is_arabic(cp_val) == 1 and unicode.stz_unicode_is_letter(cp_val) == 1,
+        19 => unicode.stz_unicode_is_latin(cp_val) == 1 and unicode.stz_unicode_is_letter(cp_val) == 1,
+        20 => blk: {
+            if (cp_val < 0 or cp_val > 127) break :blk false;
+            const b: u8 = @intCast(cp_val);
+            break :blk (b == 'a' or b == 'e' or b == 'i' or b == 'o' or b == 'u' or
+                b == 'A' or b == 'E' or b == 'I' or b == 'O' or b == 'U');
+        },
         else => false,
     };
 }
@@ -77,6 +97,111 @@ pub fn str_count_marks(handle: StzStringHandle) callconv(.c) c_int {
 }
 pub fn str_count_controls(handle: StzStringHandle) callconv(.c) c_int {
     return str_count_chars_of_type(handle, 8);
+}
+
+// ─── Script-level convenience counters ───
+
+pub fn str_count_arabic(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 10);
+}
+pub fn str_count_latin(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 11);
+}
+pub fn str_count_greek(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 12);
+}
+pub fn str_count_cyrillic(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 13);
+}
+pub fn str_count_hebrew(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 14);
+}
+pub fn str_count_arabic_letters(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 18);
+}
+pub fn str_count_latin_letters(handle: StzStringHandle) callconv(.c) c_int {
+    return str_count_chars_of_type(handle, 19);
+}
+
+// ─── Script-level "are all" predicates ───
+
+pub fn str_is_arabic(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        if (bytes.len == 0) return 0;
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (unicode.stz_unicode_is_arabic(cp_val) == 0) return 0;
+            i += cp_len;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+pub fn str_is_latin(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        if (bytes.len == 0) return 0;
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (unicode.stz_unicode_is_latin(cp_val) == 0) return 0;
+            i += cp_len;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+pub fn str_is_arabic_letters(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        if (bytes.len == 0) return 0;
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (!(unicode.stz_unicode_is_arabic(cp_val) == 1 and unicode.stz_unicode_is_letter(cp_val) == 1)) return 0;
+            i += cp_len;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+pub fn str_is_latin_letters(handle: StzStringHandle) callconv(.c) c_int {
+    if (handle) |s| {
+        const bytes = s.slice();
+        if (bytes.len == 0) return 0;
+        var i: usize = 0;
+        while (i < bytes.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+            const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+            if (!(unicode.stz_unicode_is_latin(cp_val) == 1 and unicode.stz_unicode_is_letter(cp_val) == 1)) return 0;
+            i += cp_len;
+        }
+        return 1;
+    }
+    return 0;
+}
+
+// ─── Script-level "only" filters ───
+
+pub fn str_only_arabic(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    return str_extract_chars_of_type(handle, 10);
+}
+pub fn str_only_latin(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    return str_extract_chars_of_type(handle, 11);
+}
+pub fn str_only_arabic_letters(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    return str_extract_chars_of_type(handle, 18);
+}
+pub fn str_only_latin_letters(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    return str_extract_chars_of_type(handle, 19);
 }
 
 /// Find positions (1-based codepoint indices) of characters matching a type.

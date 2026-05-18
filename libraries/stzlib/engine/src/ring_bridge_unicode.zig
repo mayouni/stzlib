@@ -127,6 +127,32 @@ fn ring_ByteToCp(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(u.stz_unicode_byte_to_cp(gs(p, 1), @intCast(gss(p, 1)), @intFromFloat(g(p, 2)))));
 }
 
+// ─── Script detection ───
+fn ring_IsArabic(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(u.stz_unicode_is_arabic(@intFromFloat(g(p, 1)))));
+}
+fn ring_IsLatin(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(u.stz_unicode_is_latin(@intFromFloat(g(p, 1)))));
+}
+fn ring_IsGreek(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(u.stz_unicode_is_greek(@intFromFloat(g(p, 1)))));
+}
+fn ring_IsCyrillic(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(u.stz_unicode_is_cyrillic(@intFromFloat(g(p, 1)))));
+}
+fn ring_IsHebrew(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(u.stz_unicode_is_hebrew(@intFromFloat(g(p, 1)))));
+}
+fn ring_IsCjk(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(u.stz_unicode_is_cjk(@intFromFloat(g(p, 1)))));
+}
+fn ring_IsDevanagari(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(u.stz_unicode_is_devanagari(@intFromFloat(g(p, 1)))));
+}
+fn ring_IsThai(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(u.stz_unicode_is_thai(@intFromFloat(g(p, 1)))));
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineunicodecategory", .func = &ring_Category },
     .{ .name = "stzengineunicodecategorystring", .func = &ring_CategoryString },
@@ -159,6 +185,14 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineunicodeencode", .func = &ring_Encode },
     .{ .name = "stzengineunicodecptobyte", .func = &ring_CpToByte },
     .{ .name = "stzengineunicodebytetocp", .func = &ring_ByteToCp },
+    .{ .name = "stzengineunicodeisarabic", .func = &ring_IsArabic },
+    .{ .name = "stzengineunicodeislatin", .func = &ring_IsLatin },
+    .{ .name = "stzengineunicodeisgreek", .func = &ring_IsGreek },
+    .{ .name = "stzengineunicodeiscyrillic", .func = &ring_IsCyrillic },
+    .{ .name = "stzengineunicodeishebrew", .func = &ring_IsHebrew },
+    .{ .name = "stzengineunicodeiscjk", .func = &ring_IsCjk },
+    .{ .name = "stzengineunicodeisdevanagari", .func = &ring_IsDevanagari },
+    .{ .name = "stzengineunicodeisthai", .func = &ring_IsThai },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

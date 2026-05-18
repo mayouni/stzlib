@@ -4,13 +4,20 @@
 
 $aStzLibConfig = []
 
-# --- Auto-load DLL at load time ---
+# --- Auto-load DLLs at load time ---
 # Ring compiles functions first, so _stzFindDll() is callable here.
-$cStzStringLib = _stzFindDll()
+$cStzStringLib = _stzFindDll("stz_string.dll")
 if $cStzStringLib != ""
 	$pStzStringHandle = LoadLib($cStzStringLib)
 else
 	? "WARNING: stz_string.dll not found! Engine functions will fail."
+ok
+
+$cStzUnicodeLib = _stzFindDll("stz_unicode.dll")
+if $cStzUnicodeLib != ""
+	$pStzUnicodeHandle = LoadLib($cStzUnicodeLib)
+else
+	? "WARNING: stz_unicode.dll not found! Unicode engine functions will fail."
 ok
 
 # --- DLL Discovery ---
@@ -18,7 +25,7 @@ ok
 # Works regardless of where the test is run from, as long as
 # the working directory is somewhere inside the stzlib tree.
 
-func _stzFindDll()
+func _stzFindDll(cDllName)
 	cDir = currentdir()
 	# Normalize to forward slashes
 	nLen = len(cDir)
@@ -34,7 +41,7 @@ func _stzFindDll()
 
 	# Try up to 10 parent levels
 	for depth = 1 to 10
-		cTry = cDir + "/engine/zig-out/bin/stz_string.dll"
+		cTry = cDir + "/engine/zig-out/bin/" + cDllName
 		if fexists(cTry)
 			return cTry
 		ok
