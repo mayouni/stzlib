@@ -44,28 +44,46 @@ class stzStringCaseChanger
 	#======================================================#
 
 	def Uppercase()
-		@oString.Update(upper(@oString.Content()))
+		pHandle = StzEngineString(@oString.Content())
+		pUpper = StzEngineStringToUpper(pHandle)
+		@oString.Update(StzEngineStringData(pUpper))
+		StzEngineStringFree(pUpper)
+		StzEngineStringFree(pHandle)
 
 		def UppercaseQ()
 			This.Uppercase()
 			return This
 
 	def Uppercased()
-		return upper(@oString.Content())
+		pHandle = StzEngineString(@oString.Content())
+		pUpper = StzEngineStringToUpper(pHandle)
+		cResult = StzEngineStringData(pUpper)
+		StzEngineStringFree(pUpper)
+		StzEngineStringFree(pHandle)
+		return cResult
 
 	  #======================================================#
 	 #   LOWERCASE                                          #
 	#======================================================#
 
 	def Lowercase()
-		@oString.Update(lower(@oString.Content()))
+		pHandle = StzEngineString(@oString.Content())
+		pLower = StzEngineStringToLower(pHandle)
+		@oString.Update(StzEngineStringData(pLower))
+		StzEngineStringFree(pLower)
+		StzEngineStringFree(pHandle)
 
 		def LowercaseQ()
 			This.Lowercase()
 			return This
 
 	def Lowercased()
-		return lower(@oString.Content())
+		pHandle = StzEngineString(@oString.Content())
+		pLower = StzEngineStringToLower(pHandle)
+		cResult = StzEngineStringData(pLower)
+		StzEngineStringFree(pLower)
+		StzEngineStringFree(pHandle)
+		return cResult
 
 	  #======================================================#
 	 #   CAPITALIZE                                         #
@@ -121,10 +139,16 @@ class stzStringCaseChanger
 	#======================================================#
 
 	def IsUppercase()
-		return @oString.Content() = upper(@oString.Content())
+		pHandle = StzEngineString(@oString.Content())
+		nResult = StzEngineStringIsUppercase(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
 
 	def IsLowercase()
-		return @oString.Content() = lower(@oString.Content())
+		pHandle = StzEngineString(@oString.Content())
+		nResult = StzEngineStringIsLowercase(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
 
 	def IsCapitalized()
 		cStr = @oString.Content()
