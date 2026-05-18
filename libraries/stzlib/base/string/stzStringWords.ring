@@ -40,12 +40,12 @@ class stzStringWords
 
 	def Words()
 		acResult = []
-		cContent = @oString.Content()
+		acChars = @oString.Chars()
 		cWord = ""
-		nLen = len(cContent)
+		nLen = len(acChars)
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 			if c = " " or c = char(9) or c = char(10) or c = char(13)
 				if cWord != ""
 					acResult + cWord
@@ -137,8 +137,8 @@ class stzStringWords
 	#===============================#
 
 	def WordAtPosition(n)
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 
 		if n < 1 or n > nLen
 			StzRaise("Position out of range!")
@@ -149,7 +149,7 @@ class stzStringWords
 		cWord = ""
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 			bIsSpace = (c = " " or c = char(9) or c = char(10) or c = char(13))
 
 			if NOT bIsSpace
@@ -171,7 +171,7 @@ class stzStringWords
 				else
 					# Finish reading the rest of this word
 					for j = i + 1 to nLen
-						cNext = substr(cContent, j, 1)
+						cNext = acChars[j]
 						if cNext = " " or cNext = char(9) or cNext = char(10) or cNext = char(13)
 							exit
 						ok
@@ -225,7 +225,7 @@ class stzStringWords
 
 		cLongest = acWords[1]
 		for i = 2 to nTotal
-			if len(acWords[i]) > len(cLongest)
+			if StzLen(acWords[i]) > StzLen(cLongest)
 				cLongest = acWords[i]
 			ok
 		next
@@ -240,7 +240,7 @@ class stzStringWords
 
 		cShortest = acWords[1]
 		for i = 2 to nTotal
-			if len(acWords[i]) < len(cShortest)
+			if StzLen(acWords[i]) < StzLen(cShortest)
 				cShortest = acWords[i]
 			ok
 		next
@@ -255,7 +255,7 @@ class stzStringWords
 
 		nSum = 0
 		for i = 1 to nTotal
-			nSum += len(acWords[i])
+			nSum += StzLen(acWords[i])
 		next
 		return nSum / nTotal
 
