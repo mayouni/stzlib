@@ -405,13 +405,15 @@ func RomanNumber@(pcChar)
 	ok
 
 func FirstCharOf(pcStr)
-	return substr(pcStr, 1, 1)
+	oTemp = new stzString(pcStr)
+	return oTemp.NthChar(1)
 
 	func FirstCharIn(pcStr)
 		return FirstCharOf(pcStr)
 
 func LastCharOf(pcStr)
-	return substr(pcStr, len(pcStr), 1)
+	oTemp = new stzString(pcStr)
+	return oTemp.NthChar(oTemp.NumberOfChars())
 
 	func LastCharIn(pcStr)
 		return LastCharOf(pcStr)
@@ -428,11 +430,15 @@ func FirstLetterOf(pcStr)
 		return FirstLetterOf(pcStr)
 
 func LastLetterOf(pcStr)
-	cReversed = ""
-	for _i = len(pcStr) to 1 step -1
-		cReversed += pcStr[_i]
+	oTemp = new stzString(pcStr)
+	nLen = oTemp.NumberOfChars()
+	for _i = nLen to 1 step -1
+		cChar = oTemp.NthChar(_i)
+		if StzCharQ(cChar).IsLetter()
+			return cChar
+		ok
 	next
-	return FirstLetterOf(cReversed)
+	return ""
 
 	func LastLetterIn(pcStr)
 		return LastLetterOf(pcStr)
@@ -468,8 +474,8 @@ func NthChar(n, str)
 		ok
 	ok
 
-	cResult = substr(str, n, 1)
-	return cResult
+	oTemp = new stzString(str)
+	return oTemp.NthChar(n)
 
 	func @NthChar(n, str)
 		return NthChar(n, str)

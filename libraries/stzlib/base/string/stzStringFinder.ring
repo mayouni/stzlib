@@ -314,7 +314,7 @@ class stzStringFinder
 		ok
 
 		aResult = []
-		nLenSubStr = len(pcSubStr)
+		nLenSubStr = StzLen(pcSubStr)
 
 		for i = 1 to nLen
 			aResult + [ anFirstPos[i], anFirstPos[i] + nLenSubStr - 1 ]
@@ -331,7 +331,7 @@ class stzStringFinder
 
 	def FindBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 
-		nLen1 = len(pcBound1)
+		nLen1 = StzLen(pcBound1)
 		n1 = This.FindFirstCS(pcBound1, pCaseSensitive)
 		if n1 = 0
 			return [0, 0]
