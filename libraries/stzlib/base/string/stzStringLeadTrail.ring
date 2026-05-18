@@ -267,7 +267,7 @@ class stzStringLeadTrail
 	#======================================================#
 
 	def StartsWithCS(pcSubStr, pCaseSensitive)
-		nLen = len(pcSubStr)
+		nLen = StzLen(pcSubStr)
 		if nLen > @oString.NumberOfChars()
 			return 0
 		ok
@@ -278,7 +278,7 @@ class stzStringLeadTrail
 		return This.StartsWithCS(pcSubStr, 1)
 
 	def EndsWithCS(pcSubStr, pCaseSensitive)
-		nLen = len(pcSubStr)
+		nLen = StzLen(pcSubStr)
 		if nLen > @oString.NumberOfChars()
 			return 0
 		ok

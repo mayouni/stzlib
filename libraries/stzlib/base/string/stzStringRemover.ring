@@ -94,7 +94,7 @@ class stzStringRemover
 		if nPos = 0
 			return
 		ok
-		nLenOld = len(pcSubStr)
+		nLenOld = StzLen(pcSubStr)
 		This.RemoveSection(nPos, nPos + nLenOld - 1)
 
 		def RemoveNthCSQ(n, pcSubStr, pCaseSensitive)
@@ -179,7 +179,7 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveAtPositionCS(n, pcSubStr, pCaseSensitive)
-		nLen = len(pcSubStr)
+		nLen = StzLen(pcSubStr)
 		This.RemoveSection(n, n + nLen - 1)
 
 	def RemoveAtPosition(n, pcSubStr)
@@ -392,8 +392,8 @@ class stzStringRemover
 			pcBound2 = pcBound2[2]
 		ok
 
-		nLen1 = len(pcBound1)
-		nLen2 = len(pcBound2)
+		nLen1 = StzLen(pcBound1)
+		nLen2 = StzLen(pcBound2)
 
 		aSection[1] = aSection[1] - nLen1
 		aSection[2] = aSection[2] + nLen2
@@ -479,7 +479,7 @@ class stzStringRemover
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		nLenSubStr = len(pcSubStr)
+		nLenSubStr = StzLen(pcSubStr)
 		cLeft = @oString.NLeftChars(nLenSubStr)
 
 		if BothStringsAreEqualCS(cLeft, pcSubStr, pCaseSensitive)
@@ -524,7 +524,7 @@ class stzStringRemover
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
 		ok
 
-		nLenSubStr = len(pcSubStr)
+		nLenSubStr = StzLen(pcSubStr)
 		cRight = @oString.NRightChars(nLenSubStr)
 
 		if BothStringsAreEqualCS(cRight, pcSubStr, pCaseSensitive)
@@ -647,7 +647,7 @@ class stzStringRemover
 		if len(anPos) < n
 			n = len(anPos)
 		ok
-		nLenSubStr = len(pcSubStr)
+		nLenSubStr = StzLen(pcSubStr)
 		for i = n to 1 step -1
 			This.RemoveSection(anPos[i], anPos[i] + nLenSubStr - 1)
 		next
@@ -668,7 +668,7 @@ class stzStringRemover
 		if nLen < n
 			n = nLen
 		ok
-		nLenSubStr = len(pcSubStr)
+		nLenSubStr = StzLen(pcSubStr)
 		for i = nLen to nLen - n + 1 step -1
 			This.RemoveSection(anPos[i], anPos[i] + nLenSubStr - 1)
 		next

@@ -303,7 +303,7 @@ class stzStringSplitter
 			return [ This.Content() ]
 		ok
 
-		nLenSub = len(pcSubStr)
+		nLenSub = StzLen(pcSubStr)
 		anAfterPos = []
 		for nPos in anPos
 			anAfterPos + (nPos + nLenSub - 1)

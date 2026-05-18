@@ -111,7 +111,7 @@ class stzStringReplacer
 			return
 		ok
 
-		nLenOld = len(pcSubStr)
+		nLenOld = StzLen(pcSubStr)
 		cResult = @oString._ReplaceRange(nPos, nLenOld, pcNewSubStr)
 		@oString.Update(cResult)
 
