@@ -1,5 +1,5 @@
 # Test domain classes batch 5: Numbers, Duplicates, Extractor,
-# Randomizer, Walker, Performer, Visualizer
+# Randomizer, Crypto
 # Run from the test/ directory: ring test_domains5.ring
 
 ? "Loading stubs + DLL"
@@ -13,6 +13,7 @@ load "../stzStringNumbers.ring"
 load "../stzStringDuplicates.ring"
 load "../stzStringExtractor.ring"
 load "../stzStringRandomizer.ring"
+load "../stzStringCrypto.ring"
 
 nPass = 0
 nFail = 0
@@ -377,6 +378,125 @@ if len(cRCased) = 5
     nPass++
 else
     ? "  RandomCased length: FAIL"
+    nFail++
+ok
+
+#-----------------------------------------------#
+#   stzStringCrypto (Engine-backed)             #
+#-----------------------------------------------#
+
+? ""
+? "=== Test: stzStringCrypto ==="
+
+# Caesar cipher (shift 3)
+oCrypto = new stzStringCrypto("Hello World")
+cCaesar = oCrypto.CaesarEncrypted(3)
+if cCaesar = "Khoor Zruog"
+    ? "  CaesarEncrypt(3): PASS"
+    nPass++
+else
+    ? "  CaesarEncrypt(3): FAIL [" + cCaesar + "]"
+    nFail++
+ok
+
+# Caesar decrypt (reverse of encrypt)
+oCrypto2 = new stzStringCrypto("Khoor Zruog")
+oCrypto2.CaesarDecrypt(3)
+if oCrypto2.Content() = "Hello World"
+    ? "  CaesarDecrypt(3): PASS"
+    nPass++
+else
+    ? "  CaesarDecrypt(3): FAIL [" + oCrypto2.Content() + "]"
+    nFail++
+ok
+
+# ROT13
+oCrypto3 = new stzStringCrypto("Hello")
+cRot = oCrypto3.ROT13ed()
+if cRot = "Uryyb"
+    ? "  ROT13: PASS"
+    nPass++
+else
+    ? "  ROT13: FAIL [" + cRot + "]"
+    nFail++
+ok
+
+# ROT13 is its own inverse
+oCrypto4 = new stzStringCrypto("Uryyb")
+cRot2 = oCrypto4.ROT13ed()
+if cRot2 = "Hello"
+    ? "  ROT13 inverse: PASS"
+    nPass++
+else
+    ? "  ROT13 inverse: FAIL [" + cRot2 + "]"
+    nFail++
+ok
+
+# Base64 encode
+oCrypto5 = new stzStringCrypto("Hello World")
+cB64 = oCrypto5.Base64Encoded()
+if cB64 = "SGVsbG8gV29ybGQ="
+    ? "  Base64Encode: PASS"
+    nPass++
+else
+    ? "  Base64Encode: FAIL [" + cB64 + "]"
+    nFail++
+ok
+
+# Base64 decode
+oCrypto6 = new stzStringCrypto("SGVsbG8gV29ybGQ=")
+cDecoded = oCrypto6.Base64Decoded()
+if cDecoded = "Hello World"
+    ? "  Base64Decode: PASS"
+    nPass++
+else
+    ? "  Base64Decode: FAIL [" + cDecoded + "]"
+    nFail++
+ok
+
+# Atbash cipher (a<->z, b<->y, etc.)
+oCrypto7 = new stzStringCrypto("abc")
+cAtb = oCrypto7.Atbashed()
+if cAtb = "zyx"
+    ? "  Atbash: PASS"
+    nPass++
+else
+    ? "  Atbash: FAIL [" + cAtb + "]"
+    nFail++
+ok
+
+# Hash returns a number
+oCrypto8 = new stzStringCrypto("test")
+nHash = oCrypto8.Hash()
+if isNumber(nHash) and nHash != 0
+    ? "  Hash: PASS [" + nHash + "]"
+    nPass++
+else
+    ? "  Hash: FAIL"
+    nFail++
+ok
+
+# Entropy returns a positive number for non-empty string
+oCrypto9 = new stzStringCrypto("Hello World")
+nEnt = oCrypto9.Entropy()
+if isNumber(nEnt) and nEnt > 0
+    ? "  Entropy: PASS [" + nEnt + "]"
+    nPass++
+else
+    ? "  Entropy: FAIL"
+    nFail++
+ok
+
+# XOR encrypt/decrypt roundtrip
+oCrypto10 = new stzStringCrypto("Secret")
+cXOR = oCrypto10.XOREncrypt("key")
+cBack = new stzStringCrypto(cXOR)
+cDecrypted = cBack.XORDecrypt("key")
+if cDecrypted = "Secret"
+    ? "  XOR roundtrip: PASS"
+    nPass++
+else
+    ? "  XOR roundtrip: FAIL [" + cDecrypted + "]"
     nFail++
 ok
 

@@ -72,21 +72,45 @@ class stzStringDuplicates
 	#===============================#
 
 	def UniqueChars()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		acUnique = []
-
+		pH = @oString.Engine()
+		pR = StzEngineStringUniqueChars(pH)
+		cUnique = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		if cUnique = ""
+			return []
+		ok
+		# Split unique chars string into individual characters
+		pU = StzEngineString(cUnique)
+		pSplit = StzEngineStringCharsSplit(pU)
+		cJoined = StzEngineStringData(pSplit)
+		StzEngineStringFree(pSplit)
+		StzEngineStringFree(pU)
+		if cJoined = ""
+			return []
+		ok
+		# Split by null delimiter
+		acResult = []
+		cCurrent = ""
+		nLen = len(cJoined)
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if ring_find(acUnique, c) = 0
-				acUnique + c
+			c = substr(cJoined, i, 1)
+			if ascii(c) = 0
+				if cCurrent != ""
+					acResult + cCurrent
+					cCurrent = ""
+				ok
+			else
+				cCurrent += c
 			ok
 		next
-
-		return acUnique
+		if cCurrent != ""
+			acResult + cCurrent
+		ok
+		return acResult
 
 	def NumberOfUniqueChars()
-		return len(This.UniqueChars())
+		pH = @oString.Engine()
+		return StzEngineStringCountUniqueChars(pH)
 
 	  #===============================#
 	 #     CONSECUTIVE CHARS         #
@@ -108,60 +132,44 @@ class stzStringDuplicates
 		return 0
 
 	def RemoveConsecutiveDuplicateChars()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		if nLen = 0
-			return
-		ok
-
-		cResult = substr(cContent, 1, 1)
-		for i = 2 to nLen
-			c = substr(cContent, i, 1)
-			cPrev = substr(cContent, i - 1, 1)
-			if c != cPrev
-				cResult += c
-			ok
-		next
-
-		@oString.Update(cResult)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveConsecutiveDuplicates(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveConsecutiveDuplicateCharsQ()
 			This.RemoveConsecutiveDuplicateChars()
 			return This
 
 	def ConsecutiveDuplicateCharsRemoved()
-		oCopy = new stzStringDuplicates(@oString.Content())
-		oCopy.RemoveConsecutiveDuplicateChars()
-		return oCopy.Content()
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveConsecutiveDuplicates(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	  #===============================#
 	 #     REMOVE ALL DUPLICATES     #
 	#===============================#
 
 	def RemoveAllDuplicateChars()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		acSeen = []
-		cResult = ""
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if ring_find(acSeen, c) = 0
-				acSeen + c
-				cResult += c
-			ok
-		next
-
-		@oString.Update(cResult)
+		pH = @oString.Engine()
+		pR = StzEngineStringUniqueChars(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveAllDuplicateCharsQ()
 			This.RemoveAllDuplicateChars()
 			return This
 
 	def AllDuplicateCharsRemoved()
-		oCopy = new stzStringDuplicates(@oString.Content())
-		oCopy.RemoveAllDuplicateChars()
-		return oCopy.Content()
+		pH = @oString.Engine()
+		pR = StzEngineStringUniqueChars(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
 
 	  #===============================#
 	 #     DEDUPLICATE SUBSTRINGS    #
