@@ -1153,11 +1153,11 @@ class stzStringChar from stzObject
 	#=========================#
 
 	def IsLatin()
-		oList = new stzList(_anLatinUnicodes)
-		return oList.Contains(This.Unicode())
+		return StzEngineUnicodeIsLatin(This.Unicode())
 
 	def IsLatinLetter()
-		return This.IsLetter() AND This.IsLatin()
+		nCp = This.Unicode()
+		return StzEngineUnicodeIsLetter(nCp) AND StzEngineUnicodeIsLatin(nCp)
 
 	def IsBasicLatin()
 		oList = new stzList(_anBasicLatinUnicodes)
@@ -1196,11 +1196,11 @@ class stzStringChar from stzObject
 	#=========================#
 
 	def IsArabic()
-		oList = new stzList(_anArabicUnicodes)
-		return oList.Contains(This.Unicode())
+		return StzEngineUnicodeIsArabic(This.Unicode())
 
 	def IsArabicLetter()
-		return This.IsLetter() AND This.IsArabic()
+		nCp = This.Unicode()
+		return StzEngineUnicodeIsLetter(nCp) AND StzEngineUnicodeIsArabic(nCp)
 
 	def IsBasicArabic()
 		oList = new stzList(_anBasicArabicUnicodes)

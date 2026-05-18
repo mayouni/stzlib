@@ -142,9 +142,53 @@ cLatOnly = StzEngineStringData(pLatOnly)
 pArOnly = StzEngineStringOnlyArabicLetters(pMx)
 ? "  OnlyArabicLetters count: " + StzEngineStringCount(pArOnly)                # 2
 
+# HasArabic / HasLatin on mixed string
+? "  HasArabic('Hi+arabic'): " + StzEngineStringHasArabic(pMx)                  # 1
+? "  HasLatin('Hi+arabic'): " + StzEngineStringHasLatin(pMx)                    # 1
+
 StzEngineStringFree(pMx)
 StzEngineStringFree(pLatOnly)
 StzEngineStringFree(pArOnly)
+
+# Pure Latin: HasArabic should be 0
+pPureLat = StzEngineString("Hello")
+? "  HasArabic('Hello'): " + StzEngineStringHasArabic(pPureLat)                 # 0
+? "  HasLatin('Hello'): " + StzEngineStringHasLatin(pPureLat)                   # 1
+? "  IsLatin('Hello'): " + StzEngineStringIsLatin(pPureLat)                     # 1
+StzEngineStringFree(pPureLat)
+
+? ""
+? "=== Test 7: Greek/Cyrillic/Hebrew predicates ==="
+
+# Greek alpha+beta = U+03B1 (CE B1) + U+03B2 (CE B2)
+cGreek = char(206)+char(177) + char(206)+char(178)
+pGr = StzEngineString(cGreek)
+? "  IsGreek(alpha+beta): " + StzEngineStringIsGreek(pGr)                       # 1
+? "  HasGreek(alpha+beta): " + StzEngineStringHasGreek(pGr)                     # 1
+? "  CountGreek: " + StzEngineStringCountGreek(pGr)                             # 2 (already tested at codepoint)
+StzEngineStringFree(pGr)
+
+# Cyrillic A+B = U+0410 (D0 90) + U+0411 (D0 91)
+cCyr = char(208)+char(144) + char(208)+char(145)
+pCyr = StzEngineString(cCyr)
+? "  IsCyrillic: " + StzEngineStringIsCyrillic(pCyr)                            # 1
+? "  HasCyrillic: " + StzEngineStringHasCyrillic(pCyr)                          # 1
+StzEngineStringFree(pCyr)
+
+# Hebrew alef+bet = U+05D0 (D7 90) + U+05D1 (D7 91)
+cHeb = char(215)+char(144) + char(215)+char(145)
+pHeb = StzEngineString(cHeb)
+? "  IsHebrew: " + StzEngineStringIsHebrew(pHeb)                                # 1
+? "  HasHebrew: " + StzEngineStringHasHebrew(pHeb)                              # 1
+StzEngineStringFree(pHeb)
+
+# Mixed: Latin + Hebrew should not be IsHebrew but HasHebrew
+cMixHeb = "Hi" + char(215)+char(144)
+pMixHeb = StzEngineString(cMixHeb)
+? "  IsHebrew('Hi+alef'): " + StzEngineStringIsHebrew(pMixHeb)                  # 0
+? "  HasHebrew('Hi+alef'): " + StzEngineStringHasHebrew(pMixHeb)                # 1
+? "  HasLatin('Hi+alef'): " + StzEngineStringHasLatin(pMixHeb)                  # 1
+StzEngineStringFree(pMixHeb)
 
 ? ""
 ? "=== ALL ENGINE CHAR CLASSIFICATION TESTS PASSED ==="
