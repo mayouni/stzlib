@@ -17,7 +17,7 @@
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
 | Ring bridge regs  | 352 DLL functions        |
-| Last updated      | 2026-05-18 (Session 13)  |
+| Last updated      | 2026-05-18 (Session 15)  |
 
 ---
 
@@ -560,3 +560,5 @@ M-E11 (Repo Split)
 | 2026-05-17 | 12      | Phase D****| extract(23)+trim(22)+count(25)+compare(11)+format(47), Phase D DONE |
 | 2026-05-18 | 12+     | Bridging   | +3 engine fns (contains_latin/arabic, has_mixed_case), 587 tests, 341 DLL fns |
 | 2026-05-18 | 13      | Bridging++ | +6 engine fns (all_substrings, unique_substrings, unique_chars_ci, substrings_count, substrings_of_n_chars, is_word enhanced). 8 Ring methods bridged: SubStringsCS, UniqueCharsCS, CharsCS CI, UniqueSubStringsCS, SubStringsOfNCharsCS, IsWord, NumberOfSubStringsCS. 592 tests, 352 DLL fns |
+| 2026-05-18 | 14      | M-S1       | Modularised stzString: 32 domain classes converted to composition pattern, stzString.ring minimal core, monolith archived. Fixed Ring object-copy use-after-free. Added core primitives (NLeftChars, NRightChars, RemoveSection/s, ReplaceSections, Trim). 14/22 TODOs resolved |
+| 2026-05-18 | 15      | M-S1+      | Fixed INDEX_BASE=1 off-by-one in Ring wrappers (FindCS, FindLastCS, _FindSubStr all had double +1). Added 6 Finder methods (FindAsSectionsCS, FindBetweenAsSectionCS, FindBoundedByAsSectionsCS, SubStringsCS, FindCharsWCS/FindW, FindDuplicatesAsSectionsCS). All 8 remaining TODOs in domain files resolved (0 remaining). 5 test suites pass |
