@@ -687,7 +687,7 @@ ok
 
 oEnc = new stzStringEncoder("AB")
 cHex = oEnc.ToHex()
-if upper(cHex) = "4142"
+if StzUpper(cHex) = "4142"
     ? "  ToHex: PASS"
     nPass++
 else

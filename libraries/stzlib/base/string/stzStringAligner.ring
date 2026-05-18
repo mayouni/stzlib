@@ -156,7 +156,11 @@ class stzStringAligner
 		if nLen >= n
 			return 1
 		ok
-		return right(cStr, n - nLen) = ring_copy(pcChar, n - nLen)
+		cPad = ""
+		for i = 1 to n - nLen
+			cPad += pcChar
+		next
+		return StzRight(cStr, n - nLen) = cPad
 
 	def IsAlignedRight(n, pcChar)
 		cStr = @oString.Content()
@@ -164,4 +168,8 @@ class stzStringAligner
 		if nLen >= n
 			return 1
 		ok
-		return left(cStr, n - nLen) = ring_copy(pcChar, n - nLen)
+		cPad = ""
+		for i = 1 to n - nLen
+			cPad += pcChar
+		next
+		return StzLeft(cStr, n - nLen) = cPad
