@@ -186,6 +186,56 @@ class stzStringUnicodeList
 		StzEngineStringFree(pHandle)
 		return nResult
 
+	def AllAreArabic()
+		cStr = This.ToString()
+		if cStr = ""
+			return 0
+		ok
+		pHandle = StzEngineString(cStr)
+		nResult = StzEngineStringIsArabic(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
+
+	def AllAreLatin()
+		cStr = This.ToString()
+		if cStr = ""
+			return 0
+		ok
+		pHandle = StzEngineString(cStr)
+		nResult = StzEngineStringIsLatin(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
+
+	def AllAreGreek()
+		cStr = This.ToString()
+		if cStr = ""
+			return 0
+		ok
+		pHandle = StzEngineString(cStr)
+		nResult = StzEngineStringIsGreek(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
+
+	def AllAreCyrillic()
+		cStr = This.ToString()
+		if cStr = ""
+			return 0
+		ok
+		pHandle = StzEngineString(cStr)
+		nResult = StzEngineStringIsCyrillic(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
+
+	def AllAreHebrew()
+		cStr = This.ToString()
+		if cStr = ""
+			return 0
+		ok
+		pHandle = StzEngineString(cStr)
+		nResult = StzEngineStringIsHebrew(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
+
 	  #===============================#
 	 #     OPERATIONS               #
 	#===============================#
