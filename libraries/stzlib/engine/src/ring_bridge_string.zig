@@ -2111,6 +2111,69 @@ fn ring_StringCountControls(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_count_controls(h)));
 }
 
+// ─── Script-level bulk functions ───
+
+fn ring_StringCountArabic(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_arabic(h)));
+}
+fn ring_StringCountLatin(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_latin(h)));
+}
+fn ring_StringCountGreek(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_greek(h)));
+}
+fn ring_StringCountCyrillic(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_cyrillic(h)));
+}
+fn ring_StringCountHebrew(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_hebrew(h)));
+}
+fn ring_StringCountArabicLetters(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_arabic_letters(h)));
+}
+fn ring_StringCountLatinLetters(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_count_latin_letters(h)));
+}
+fn ring_StringIsArabic(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_arabic(h)));
+}
+fn ring_StringIsLatin(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_latin(h)));
+}
+fn ring_StringIsArabicLetters(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_arabic_letters(h)));
+}
+fn ring_StringIsLatinLetters(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_latin_letters(h)));
+}
+fn ring_StringOnlyArabic(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_arabic(h)), STZ_HANDLE);
+}
+fn ring_StringOnlyLatin(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_latin(h)), STZ_HANDLE);
+}
+fn ring_StringOnlyArabicLetters(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_arabic_letters(h)), STZ_HANDLE);
+}
+fn ring_StringOnlyLatinLetters(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_latin_letters(h)), STZ_HANDLE);
+}
+
 fn ring_StringNormalizeSpaces(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retcpointer(p, @ptrCast(string.str_normalize_spaces(h)), STZ_HANDLE);
@@ -2743,6 +2806,21 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcountsymbols", .func = &ring_StringCountSymbols },
     .{ .name = "stzenginestringcountmarks", .func = &ring_StringCountMarks },
     .{ .name = "stzenginestringcountcontrols", .func = &ring_StringCountControls },
+    .{ .name = "stzenginestringcountarabic", .func = &ring_StringCountArabic },
+    .{ .name = "stzenginestringcountlatin", .func = &ring_StringCountLatin },
+    .{ .name = "stzenginestringcountgreek", .func = &ring_StringCountGreek },
+    .{ .name = "stzenginestringcountcyrillic", .func = &ring_StringCountCyrillic },
+    .{ .name = "stzenginestringcounthebrew", .func = &ring_StringCountHebrew },
+    .{ .name = "stzenginestringcountarabicletters", .func = &ring_StringCountArabicLetters },
+    .{ .name = "stzenginestringcountlatinletters", .func = &ring_StringCountLatinLetters },
+    .{ .name = "stzenginestringisarabic", .func = &ring_StringIsArabic },
+    .{ .name = "stzenginestringislatin", .func = &ring_StringIsLatin },
+    .{ .name = "stzenginestringisarabicletters", .func = &ring_StringIsArabicLetters },
+    .{ .name = "stzenginestringislatinletters", .func = &ring_StringIsLatinLetters },
+    .{ .name = "stzenginestringonlyarabic", .func = &ring_StringOnlyArabic },
+    .{ .name = "stzenginestringonlylatin", .func = &ring_StringOnlyLatin },
+    .{ .name = "stzenginestringonlyarabicletters", .func = &ring_StringOnlyArabicLetters },
+    .{ .name = "stzenginestringonlylatinletters", .func = &ring_StringOnlyLatinLetters },
     .{ .name = "stzenginestringnormalizespaces", .func = &ring_StringNormalizeSpaces },
     .{ .name = "stzenginestringmaskemail", .func = &ring_StringMaskEmail },
     .{ .name = "stzenginestringpluralize", .func = &ring_StringPluralize },
