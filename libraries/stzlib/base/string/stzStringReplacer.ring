@@ -302,9 +302,16 @@ class stzStringReplacer
 			return
 		ok
 
-		cContent = This.Content()
-		cResult = substr(cContent, 1, nPos - 1) + pcSubStr + substr(cContent, nPos)
-		@oString.Update(cResult)
+		nLen = @oString.NumberOfChars()
+		cBefore = ""
+		cAfter = ""
+		if nPos > 1
+			cBefore = @oString.Section(1, nPos - 1)
+		ok
+		if nPos <= nLen
+			cAfter = @oString.Section(nPos, nLen)
+		ok
+		@oString.Update(cBefore + pcSubStr + cAfter)
 
 		def InsertBeforeQ(nPos, pcSubStr)
 			This.InsertBefore(nPos, pcSubStr)

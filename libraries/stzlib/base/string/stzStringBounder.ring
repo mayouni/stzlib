@@ -112,8 +112,7 @@ class stzStringBounder
 			StzRaise("Indexes out of range! n1 and n2 must be inside the string.")
 		ok
 
-		cResult = substr(@oString.Content(), n1, n2 - n1 + 1)
-		return cResult
+		return @oString.Section(n1, n2)
 
 		def SectionCSQ(n1, n2, pCaseSensitive)
 			return new stzStringBounder( This.SectionCS(n1, n2, pCaseSensitive) )
@@ -140,10 +139,10 @@ class stzStringBounder
 		acResult = []
 
 		if n1 > 1
-			acResult + substr(@oString.Content(), 1, n1 - 1)
+			acResult + @oString.Section(1, n1 - 1)
 		ok
 		if n2 < nLen
-			acResult + substr(@oString.Content(), n2 + 1, nLen - n2)
+			acResult + @oString.Section(n2 + 1, nLen)
 		ok
 
 		return acResult

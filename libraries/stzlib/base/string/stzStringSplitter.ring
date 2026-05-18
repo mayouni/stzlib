@@ -242,8 +242,8 @@ class stzStringSplitter
 			return [ This.Content() ]
 		ok
 
-		cPart1 = substr(This.Content(), 1, n - 1)
-		cPart2 = substr(This.Content(), n)
+		cPart1 = @oString.Section(1, n - 1)
+		cPart2 = @oString.Section(n, @oString.NumberOfChars())
 
 		return [ cPart1, cPart2 ]
 
@@ -295,8 +295,8 @@ class stzStringSplitter
 			return [ This.Content() ]
 		ok
 
-		cPart1 = substr(This.Content(), 1, n)
-		cPart2 = substr(This.Content(), n + 1)
+		cPart1 = @oString.Section(1, n)
+		cPart2 = @oString.Section(n + 1, @oString.NumberOfChars())
 
 		return [ cPart1, cPart2 ]
 
