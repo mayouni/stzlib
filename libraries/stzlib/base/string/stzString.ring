@@ -185,12 +185,8 @@ class stzString from stzObject
 			return 0
 		ok
 
-		# Engine uses INDEX_BASE=1 (1-based), so pass nStartAt directly
-		if bCaseSensitive
-			nResult = StzEngineStringIndexOfFrom(@pEngine, pcSubStr, nStartAt)
-		else
-			nResult = StzEngineStringIndexOfCI(@pEngine, pcSubStr, nStartAt)
-		ok
+		# Engine uses INDEX_BASE=1 (1-based), CS pattern (case=1 sensitive, case=0 insensitive)
+		nResult = StzEngineStringIndexOfFromCS(@pEngine, pcSubStr, nStartAt, bCaseSensitive)
 
 		# Engine returns 1-based position, -1 for not found
 		if nResult > 0
@@ -209,11 +205,11 @@ class stzString from stzObject
 		StzEngineStringFree(pResult)
 		return cResult
 
-	def _SplitByStr(cSep)
-		nCount = StzEngineStringSplitCount(@pEngine, cSep)
+	def _SplitByStrCS(cSep, bCaseSensitive)
+		nCount = StzEngineStringSplitCountCS(@pEngine, cSep, bCaseSensitive)
 		aResult = []
 		for i = 0 to nCount - 1
-			pPart = StzEngineStringSplitGet(@pEngine, cSep, i)
+			pPart = StzEngineStringSplitGetCS(@pEngine, cSep, i, bCaseSensitive)
 			if pPart != NULL
 				aResult + StzEngineStringData(pPart)
 				StzEngineStringFree(pPart)
@@ -223,19 +219,8 @@ class stzString from stzObject
 		next
 		return aResult
 
-	def _SplitByStrCI(cSep)
-		nCount = StzEngineStringSplitCountCI(@pEngine, cSep)
-		aResult = []
-		for i = 0 to nCount - 1
-			pPart = StzEngineStringSplitGetCI(@pEngine, cSep, i)
-			if pPart != NULL
-				aResult + StzEngineStringData(pPart)
-				StzEngineStringFree(pPart)
-			else
-				aResult + ""
-			ok
-		next
-		return aResult
+	def _SplitByStr(cSep)
+		return This._SplitByStrCS(cSep, 1)
 
 	  #========================================#
 	 #     DERIVED ACCESSORS                  #
