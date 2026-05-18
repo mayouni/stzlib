@@ -136,7 +136,7 @@ class stzStringWalker
 		if n < 1 or n > @oString.NumberOfChars()
 			StzRaise("Index out of range!")
 		ok
-		return substr(@oString.Content(), n, 1)
+		return @oString.NthChar(n)
 
 	def FirstChar()
 		return This.CharAt(1)
@@ -150,7 +150,6 @@ class stzStringWalker
 
 	def WalkAndYield(nStart, nEnd, nStep, pcCode)
 		acResult = []
-		cContent = @oString.Content()
 		nLen = @oString.NumberOfChars()
 
 		if nStart < 1
@@ -162,7 +161,7 @@ class stzStringWalker
 
 		i = nStart
 		while i <= nEnd
-			@char = substr(cContent, i, 1)
+			@char = @oString.NthChar(i)
 			@position = i
 
 			cCode = pcCode
@@ -180,7 +179,6 @@ class stzStringWalker
 
 	def CharsFromTo(n1, n2)
 		acResult = []
-		cContent = @oString.Content()
 		nLen = @oString.NumberOfChars()
 
 		if n1 < 1 or n2 < 1 or n1 > nLen or n2 > nLen
@@ -189,11 +187,11 @@ class stzStringWalker
 
 		if n1 <= n2
 			for i = n1 to n2
-				acResult + substr(cContent, i, 1)
+				acResult + @oString.NthChar(i)
 			next
 		else
 			for i = n1 to n2 step -1
-				acResult + substr(cContent, i, 1)
+				acResult + @oString.NthChar(i)
 			next
 		ok
 
@@ -201,7 +199,6 @@ class stzStringWalker
 
 	def CharsWithStep(nStart, nStep)
 		acResult = []
-		cContent = @oString.Content()
 		nLen = @oString.NumberOfChars()
 
 		if nStart < 1 or nStart > nLen
@@ -210,7 +207,7 @@ class stzStringWalker
 
 		i = nStart
 		while i >= 1 and i <= nLen
-			acResult + substr(cContent, i, 1)
+			acResult + @oString.NthChar(i)
 			i += nStep
 		end
 
