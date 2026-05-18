@@ -1,19 +1,16 @@
 # Test: Extended Finder methods (FindAsSections, FindBetween, FindBoundedBy,
 #       SubStrings, FindDuplicates, FindW/FindCharsW)
+# Run from the test/ directory: ring test_finder_extended.ring
 
-? "Loading DLL"
-$cStzStringLib = "D:\GitHub\stzlib\libraries\stzlib\engine\zig-out\bin\stz_string.dll"
-if fexists($cStzStringLib)
-    $pStzStringHandle = LoadLib($cStzStringLib)
-ok
+? "Loading stubs + DLL"
+load "test_stubs.ring"
 
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\test\test_stubs.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzString.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringFinder.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringReplacer.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringRemover.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringExtractor.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringInserter.ring"
+load "../stzString.ring"
+load "../stzStringFinder.ring"
+load "../stzStringReplacer.ring"
+load "../stzStringRemover.ring"
+load "../stzStringExtractor.ring"
+load "../stzStringInserter.ring"
 
 ? ""
 ? "=== Test: FindAsSections ==="

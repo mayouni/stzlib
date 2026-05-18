@@ -1,24 +1,14 @@
 # Test domain classes with composition pattern
+# Run from the test/ directory: ring test_domains.ring
 
-? "Step 1: Loading DLL"
+? "Loading stubs + DLL"
+load "test_stubs.ring"
 
-$cStzStringLib = "D:\GitHub\stzlib\libraries\stzlib\engine\zig-out\bin\stz_string.dll"
-
-if fexists($cStzStringLib)
-    $pStzStringHandle = LoadLib($cStzStringLib)
-    ? "  DLL loaded OK"
-else
-    ? "  DLL not found!"
-ok
-
-? "Step 2: Loading stubs"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\test\test_stubs.ring"
-
-? "Step 3: Loading classes"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzString.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringFinder.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringSplitter.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringReplacer.ring"
+? "Loading classes"
+load "../stzString.ring"
+load "../stzStringFinder.ring"
+load "../stzStringSplitter.ring"
+load "../stzStringReplacer.ring"
 
 ? "Step 4: Testing stzString core"
 o1 = new stzString("Ring is beautiful!")

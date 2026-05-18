@@ -1,23 +1,18 @@
 # Test domain classes batch 5: Numbers, Duplicates, Extractor,
 # Randomizer, Walker, Performer, Visualizer
+# Run from the test/ directory: ring test_domains5.ring
 
-? "Loading DLL"
-$cStzStringLib = "D:\GitHub\stzlib\libraries\stzlib\engine\zig-out\bin\stz_string.dll"
-if fexists($cStzStringLib)
-    $pStzStringHandle = LoadLib($cStzStringLib)
-ok
-
-? "Loading stubs"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\test\test_stubs.ring"
+? "Loading stubs + DLL"
+load "test_stubs.ring"
 
 ? "Loading classes"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzString.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringFinder.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringReplacer.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringNumbers.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringDuplicates.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringExtractor.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringRandomizer.ring"
+load "../stzString.ring"
+load "../stzStringFinder.ring"
+load "../stzStringReplacer.ring"
+load "../stzStringNumbers.ring"
+load "../stzStringDuplicates.ring"
+load "../stzStringExtractor.ring"
+load "../stzStringRandomizer.ring"
 
 nPass = 0
 nFail = 0

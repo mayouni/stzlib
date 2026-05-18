@@ -50,13 +50,13 @@ class stzString from stzObject
 
 			if isList(pcStr) and IsPairOfStrings(pcStr)
 				@cVarName = pcStr[1]
-				@pEngine = StzEngineStringFrom(pcStr[2])
+				@pEngine = StzEngineString(pcStr[2])
 				return
 			ok
 
 		ok
 
-		@pEngine = StzEngineStringFrom(pcStr)
+		@pEngine = StzEngineString(pcStr)
 
 		These = This
 		Those = This
@@ -245,7 +245,7 @@ class stzString from stzObject
 		if pCaseSensitive
 			return StzEngineStringIsPalindrome(@pEngine)
 		else
-			hStr = StzEngineStringFrom(This.Lowercased())
+			hStr = StzEngineString(This.Lowercased())
 			nResult = StzEngineStringIsPalindrome(hStr)
 			StzEngineStringFree(hStr)
 			return nResult
@@ -709,7 +709,7 @@ class stzString from stzObject
 	#==============================#
 
 	def IsAnagramOf(pcOther)
-		pOther = StzEngineStringFrom(pcOther)
+		pOther = StzEngineString(pcOther)
 		nResult = StzEngineStringIsAnagram(@pEngine, pOther)
 		StzEngineStringFree(pOther)
 		return nResult
@@ -719,7 +719,7 @@ class stzString from stzObject
 	#==============================#
 
 	def HammingDistanceWith(pcOther)
-		pOther = StzEngineStringFrom(pcOther)
+		pOther = StzEngineString(pcOther)
 		nResult = StzEngineStringHammingDistance(@pEngine, pOther)
 		StzEngineStringFree(pOther)
 		return nResult
@@ -1373,7 +1373,7 @@ class stzString from stzObject
 	#==============================#
 
 	def FromBinary()
-		pResult = StzEngineStringFromBinary(@pEngine)
+		pResult = StzEngineStringBinary(@pEngine)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		This.UpdateWith(cResult)
@@ -1383,7 +1383,7 @@ class stzString from stzObject
 			return This
 
 	def DecodedFromBinary()
-		pResult = StzEngineStringFromBinary(@pEngine)
+		pResult = StzEngineStringBinary(@pEngine)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return cResult
@@ -1520,7 +1520,7 @@ class stzString from stzObject
 			return This.ToBase64()
 
 	def FromBase64()
-		pResult = StzEngineStringFromBase64(@pEngine)
+		pResult = StzEngineStringBase64(@pEngine)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		This.UpdateWith(cResult)
@@ -1530,7 +1530,7 @@ class stzString from stzObject
 			return This
 
 	def Base64Decoded()
-		pResult = StzEngineStringFromBase64(@pEngine)
+		pResult = StzEngineStringBase64(@pEngine)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return cResult
@@ -1888,7 +1888,7 @@ class stzString from stzObject
 	#=========================#
 
 	def FromHex()
-		pResult = StzEngineStringFromHex(@pEngine)
+		pResult = StzEngineStringHex(@pEngine)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		This.UpdateWith(cResult)
@@ -1898,7 +1898,7 @@ class stzString from stzObject
 			return This
 
 	def Unhexed()
-		pResult = StzEngineStringFromHex(@pEngine)
+		pResult = StzEngineStringHex(@pEngine)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return cResult
@@ -2794,7 +2794,7 @@ class stzString from stzObject
 
 	def AppendedWith(pcStr)
 		# Engine-backed: concat without Copy()
-		pOther = StzEngineStringFrom(pcStr)
+		pOther = StzEngineString(pcStr)
 		pResult = StzEngineStringConcat(@pEngine, pOther)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
@@ -2830,7 +2830,7 @@ class stzString from stzObject
 
 	def Prepended(pcOtherStr)
 		# Engine-backed: prepend = concat other + this
-		pOther = StzEngineStringFrom(pcOtherStr)
+		pOther = StzEngineString(pcOtherStr)
 		pResult = StzEngineStringConcat(pOther, @pEngine)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
@@ -46198,7 +46198,7 @@ class stzString from stzObject
 	    ok
 
 	    StzEngineStringFree(@pEngine)
-	    @pEngine = StzEngineStringFrom(pcNewStr)
+	    @pEngine = StzEngineString(pcNewStr)
 	
 	    # Tracing the history of updates (only if not already in history update)
 	    if _bInHistoryUpdate = 0
@@ -92017,7 +92017,7 @@ class stzString from stzObject
 	def OnlyLettersAndSpacesAndChar(pcChar)
 		# Keep letters, spaces, and the specified char
 		cContent = This.Content()
-		hStr = StzEngineStringFrom(cContent)
+		hStr = StzEngineString(cContent)
 		nLen = StzEngineStringCount(hStr)
 		cResult = ""
 

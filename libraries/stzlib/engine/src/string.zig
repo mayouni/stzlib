@@ -269,6 +269,13 @@ pub const str_is_isogram = inspect.str_is_isogram;
 pub const str_contains_latin = inspect.str_contains_latin;
 pub const str_contains_arabic = inspect.str_contains_arabic;
 pub const str_has_mixed_case = inspect.str_has_mixed_case;
+pub const str_is_punctuation = inspect.str_is_punctuation;
+pub const str_is_symbol = inspect.str_is_symbol;
+pub const str_is_mark = inspect.str_is_mark;
+pub const str_is_control = inspect.str_is_control;
+pub const str_has_punctuation = inspect.str_has_punctuation;
+pub const str_has_symbol = inspect.str_has_symbol;
+pub const str_has_mark = inspect.str_has_mark;
 
 // ─── Extract submodule imports ───
 const extract = @import("string/extract.zig");
@@ -364,6 +371,14 @@ pub const str_count_substring = counting.str_count_substring;
 pub const str_count_words_matching = counting.str_count_words_matching;
 pub const str_count_digits = counting.str_count_digits;
 pub const str_count_spaces = counting.str_count_spaces;
+pub const str_char_unicode_at = counting.str_char_unicode_at;
+pub const str_char_category_at = counting.str_char_category_at;
+pub const str_char_category_string_at = counting.str_char_category_string_at;
+pub const str_char_is_punctuation_at = counting.str_char_is_punctuation_at;
+pub const str_char_is_symbol_at = counting.str_char_is_symbol_at;
+pub const str_char_is_mark_at = counting.str_char_is_mark_at;
+pub const str_char_is_control_at = counting.str_char_is_control_at;
+pub const str_char_is_space_at = counting.str_char_is_space_at;
 
 const format = @import("string/format.zig");
 
@@ -392,6 +407,11 @@ pub const str_ensure_suffix = format.str_ensure_suffix;
 pub const str_only_letters = format.str_only_letters;
 pub const str_only_digits = format.str_only_digits;
 pub const str_only_vowels = format.str_only_vowels;
+pub const str_only_punctuation = format.str_only_punctuation;
+pub const str_only_symbols = format.str_only_symbols;
+pub const str_only_spaces = format.str_only_spaces;
+pub const str_only_marks = format.str_only_marks;
+pub const str_only_controls = format.str_only_controls;
 pub const str_interleave = format.str_interleave;
 pub const str_surround = format.str_surround;
 pub const str_mask = format.str_mask;

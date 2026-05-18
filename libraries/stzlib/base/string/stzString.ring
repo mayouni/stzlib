@@ -40,13 +40,13 @@ class stzString from stzObject
 
 			if isList(pcStr) and IsPairOfStrings(pcStr)
 				@cVarName = pcStr[1]
-				@pEngine = StzEngineStringFrom(pcStr[2])
+				@pEngine = StzEngineString(pcStr[2])
 				return
 			ok
 
 		ok
 
-		@pEngine = StzEngineStringFrom(pcStr)
+		@pEngine = StzEngineString(pcStr)
 
 		These = This
 		Those = This
@@ -107,7 +107,7 @@ class stzString from stzObject
 		ok
 
 		StzEngineStringFree(@pEngine)
-		@pEngine = StzEngineStringFrom(pcNewStr)
+		@pEngine = StzEngineString(pcNewStr)
 
 		#< @FunctionFluentForm
 

@@ -1,18 +1,15 @@
 # Test: Remover, LeadTrail, Trimmer with resolved TODOs
+# Run from the test/ directory: ring test_domains3.ring
 
-? "Loading DLL"
-$cStzStringLib = "D:\GitHub\stzlib\libraries\stzlib\engine\zig-out\bin\stz_string.dll"
-if fexists($cStzStringLib)
-    $pStzStringHandle = LoadLib($cStzStringLib)
-ok
+? "Loading stubs + DLL"
+load "test_stubs.ring"
 
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\test\test_stubs.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzString.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringFinder.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringReplacer.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringRemover.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringLeadTrail.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringTrimmer.ring"
+load "../stzString.ring"
+load "../stzStringFinder.ring"
+load "../stzStringReplacer.ring"
+load "../stzStringRemover.ring"
+load "../stzStringLeadTrail.ring"
+load "../stzStringTrimmer.ring"
 
 ? ""
 ? "=== Test: stzString Trim ==="

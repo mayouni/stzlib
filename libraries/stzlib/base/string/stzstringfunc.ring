@@ -52,7 +52,7 @@ func PadRight(cText, nWidth)
 
 func PadRightXT(text, width, c)
 	# Engine-backed: codepoint-aware left-justify (pad right)
-	pStr = StzEngineStringFrom("" + text)
+	pStr = StzEngineString("" + text)
 	pResult = StzEngineStringLjust(pStr, width, c)
 	cResult = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
@@ -64,7 +64,7 @@ func PadLeft(cText, nWidth)
 
 func PadLeftXT(text, width, c)
 	# Engine-backed: codepoint-aware right-justify (pad left)
-	pStr = StzEngineStringFrom("" + text)
+	pStr = StzEngineString("" + text)
 	pResult = StzEngineStringRjust(pStr, width, c)
 	cResult = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
@@ -73,7 +73,7 @@ func PadLeftXT(text, width, c)
 
 func Center(text, width)
 	# Engine-backed: codepoint-aware center padding
-	pStr = StzEngineStringFrom("" + text)
+	pStr = StzEngineString("" + text)
 	pResult = StzEngineStringCenterPad(pStr, width, " ")
 	cResult = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
@@ -85,7 +85,7 @@ func Center(text, width)
 
 func Capitalize(str)
 		if len(str) = 0 return str ok
-		pStr = StzEngineStringFrom(str)
+		pStr = StzEngineString(str)
 		pResult = StzEngineStringCapitalizeFirst(pStr)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
@@ -148,7 +148,7 @@ func IsNotString(pcStr)
 		return IsNotString(pcStr)
 
 func @IsAlpha(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	nResult = StzEngineStringIsAlpha(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
@@ -172,7 +172,7 @@ func @IsAlpha(cStr)
 	#>
 
 func @IsAlnum(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	nLen = StzEngineStringCount(pStr)
 	if nLen = 0
 		StzEngineStringFree(pStr)
@@ -309,7 +309,7 @@ func IsNonNullString(cStr)
 
 func IsBlank(pcStr)
 	if len(pcStr) = 0 return 0 ok
-	pStr = StzEngineStringFrom(pcStr)
+	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringIsWhitespace(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
@@ -381,7 +381,7 @@ func ContainsOneOfThese(pStrOrList, pSubStrOrItem)
 func StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	if isString(pStrOrList) and isString(pSubStrOrItem)
 		bCase = CaseSensitive(bCaseSensitive)
-		pStr = StzEngineStringFrom(pStrOrList)
+		pStr = StzEngineString(pStrOrList)
 		nResult = StzEngineStringStartsWithCS(pStr, pSubStrOrItem, bCase)
 		StzEngineStringFree(pStr)
 		return nResult
@@ -399,7 +399,7 @@ func StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 func StzStartsWith(pStrOrList, pSubStrOrItem) # startsWith() seems to be reserved by Ring StdLib
 	if isString(pStrOrList) and isString(pSubStrOrItem)
-		pStr = StzEngineStringFrom(pStrOrList)
+		pStr = StzEngineString(pStrOrList)
 		nResult = StzEngineStringStartsWith(pStr, pSubStrOrItem)
 		StzEngineStringFree(pStr)
 		return nResult
@@ -420,7 +420,7 @@ func StzStartsWith(pStrOrList, pSubStrOrItem) # startsWith() seems to be reserve
 func EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	if isString(pStrOrList) and isString(pSubStrOrItem)
 		bCase = CaseSensitive(bCaseSensitive)
-		pStr = StzEngineStringFrom(pStrOrList)
+		pStr = StzEngineString(pStrOrList)
 		nResult = StzEngineStringEndsWithCS(pStr, pSubStrOrItem, bCase)
 		StzEngineStringFree(pStr)
 		return nResult
@@ -432,7 +432,7 @@ func EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 func StzEndsWith(pStrOrList, pSubStrOrItem) # endsWith() seems to be reserved by Ring StdLib
 	if isString(pStrOrList) and isString(pSubStrOrItem)
-		pStr = StzEngineStringFrom(pStrOrList)
+		pStr = StzEngineString(pStrOrList)
 		nResult = StzEngineStringEndsWith(pStr, pSubStrOrItem)
 		StzEngineStringFree(pStr)
 		return nResult
@@ -465,7 +465,7 @@ func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
 	bCase = CaseSensitive(pCaseSensitive)
 
 	# Engine-backed contains check
-	pStr = StzEngineStringFrom(pcStr)
+	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringContainsCS(pStr, pcSubStr, bCase)
 	StzEngineStringFree(pStr)
 	return nResult
@@ -567,7 +567,7 @@ func StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
 	bCase = CaseSensitive(bCaseSensitive)
 
 	# Use Engine for codepoint-safe replace
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	StzEngineStringReplaceCS(pStr, cSubStr, cNewSubStr, bCase)
 
 	cResult = StzEngineStringData(pStr)
@@ -632,7 +632,7 @@ func TrimString(cStr)
 
 	if len(cStr) = 0 return "" ok
 
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	pTrimmed = StzEngineStringTrimmed(pStr)
 	cResult = StzEngineStringData(pTrimmed)
 	StzEngineStringFree(pTrimmed)
@@ -690,7 +690,7 @@ func StzTrimLeft(cStrOrList)
 	ok
 
 	if isString(cStrOrList)
-		pStr = StzEngineStringFrom(cStrOrList)
+		pStr = StzEngineString(cStrOrList)
 		pResult = StzEngineStringTrimLeft(pStr)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
@@ -739,7 +739,7 @@ func StzTrimRight(cStrOrList)
 	ok
 
 	if isString(cStrOrList)
-		pStr = StzEngineStringFrom(cStrOrList)
+		pStr = StzEngineString(cStrOrList)
 		pResult = StzEngineStringTrimRight(pStr)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
@@ -814,7 +814,7 @@ func StzTrimEnd(cStrOrList)
 #--
 
 func _StzSimplifyString(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	pResult = StzEngineStringSimplify(pStr)
 	cResult = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
@@ -824,7 +824,7 @@ func _StzSimplifyString(cStr)
 func _StzStripBraces(cStr)
 	cStr = @trim(cStr)
 	if len(cStr) < 2 return cStr ok
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	nLen = StzEngineStringCount(pStr)
 	if nLen >= 2 and StzEngineStringStartsWith(pStr, "{") and StzEngineStringEndsWith(pStr, "}")
 		pSliced = StzEngineStringSlice(pStr, 1, nLen - 2)
@@ -997,19 +997,19 @@ func StringIsScriptNumber(cStr)
 		return StringIsScriptNumber(cStr)
 
 func StringIsLowercase(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	nResult = StzEngineStringIsLowercase(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
 
 func StringIsUppercase(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	nResult = StzEngineStringIsUppercase(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
 
 func StringLowercased(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	pLower = StzEngineStringToLower(pStr)
 	cResult = StzEngineStringData(pLower)
 	StzEngineStringFree(pLower)
@@ -1032,7 +1032,7 @@ func StringLowercased(cStr)
 		return StringLowercased(cStr)
 
 func StringUppercased(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	pUpper = StzEngineStringToUpper(pStr)
 	cResult = StzEngineStringData(pUpper)
 	StzEngineStringFree(pUpper)
@@ -1055,7 +1055,7 @@ func StringUppercased(cStr)
 		return StringUppercased(cStr)
 
 func StringTitlecased(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	pTitle = StzEngineStringToTitle(pStr)
 	cResult = StzEngineStringData(pTitle)
 	StzEngineStringFree(pTitle)
@@ -1160,7 +1160,7 @@ func IsSortedStringInAscending(pcStr)
 		return 0
 	ok
 
-	pStr = StzEngineStringFrom(pcStr)
+	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringIsCharsSortedAsc(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
@@ -1208,7 +1208,7 @@ func IsSortedStringInDescending(pcStr)
 		return 0
 	ok
 
-	pStr = StzEngineStringFrom(pcStr)
+	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringIsCharsSortedDesc(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
@@ -1255,7 +1255,7 @@ func IsSortedStringInDescending(pcStr)
 #TODO: Review if the String...() functions are necessary
 
 func StringAlignXT(cStr, nWidth, cChar, cDirection)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	if cDirection = :Left
 		pResult = StzEngineStringLjust(pStr, nWidth, cChar)
 	but cDirection = :Right
@@ -1426,7 +1426,7 @@ func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
 	bCase = @CaseSensitive(pCaseSensitive)
 
 	# Engine-backed count
-	pStr = StzEngineStringFrom(pcStr)
+	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringCountOfCS(pStr, pcSubStr, bCase)
 	StzEngineStringFree(pStr)
 
@@ -1444,7 +1444,7 @@ func StringCount(pcStr, pcSubStr)
 #--
 
 func StringNumberOfChars(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	nResult = StzEngineStringCount(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
@@ -1453,7 +1453,7 @@ func StringNumberOfChars(cStr)
 		return StringNumberOfChars(cStr)
 
 func StringReverseChars(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	pReversed = StzEngineStringReverse(pStr)
 	cResult = StzEngineStringData(pReversed)
 	StzEngineStringFree(pReversed)
@@ -1466,7 +1466,7 @@ func StringReverseChars(cStr)
 func StringIsWord(cStr)
 	# Engine-backed: a word has no whitespace and is non-empty
 	if len(cStr) = 0 return 0 ok
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	nResult = StzEngineStringIsWord(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
@@ -1475,7 +1475,7 @@ func StringIsWord(cStr)
 		return StringIsWord(cStr)
 
 func StringNumberOfOccurrence(pcStr, pcSubStr)
-	pStr = StzEngineStringFrom(pcStr)
+	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringCountOf(pStr, pcSubStr)
 	StzEngineStringFree(pStr)
 	return nResult
@@ -1492,7 +1492,7 @@ func StringToUnicodes(pcStr)
 # Some functions used mainly in natural-code
 
 func UppercaseOf(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	pUpper = StzEngineStringToUpper(pStr)
 	cResult = StzEngineStringData(pUpper)
 	StzEngineStringFree(pUpper)
@@ -1503,7 +1503,7 @@ func UppercaseOf(cStr)
 		return UppercaseOf(cStr)
 
 func LowercaseOf(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	pLower = StzEngineStringToLower(pStr)
 	cResult = StzEngineStringData(pLower)
 	StzEngineStringFree(pLower)
@@ -1514,7 +1514,7 @@ func LowercaseOf(cStr)
 		return LowercaseOf(cStr)
 
 func FoldcaseOf(cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	pFolded = StzEngineStringFoldcase(pStr)
 	cResult = StzEngineStringData(pFolded)
 	StzEngineStringFree(pFolded)
@@ -1525,7 +1525,7 @@ func FoldcaseOf(cStr)
 		return FoldcaseOf(cStr)
 
 func NthCharOf(n, cStr)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	pChar = StzEngineStringNthChar(pStr, n)  # Engine uses INDEX_BASE=1
 	cResult = StzEngineStringData(pChar)
 	StzEngineStringFree(pChar)
@@ -1537,7 +1537,7 @@ func NthCharOf(n, cStr)
 
 func NthLetterOf(n, cStr)
 		# Engine-backed: get only letters, then pick nth
-		pStr = StzEngineStringFrom(cStr)
+		pStr = StzEngineString(cStr)
 		pLetters = StzEngineStringOnlyLetters(pStr)
 		pChar = StzEngineStringNthChar(pLetters, n)  # Engine uses INDEX_BASE=1
 		cResult = StzEngineStringData(pChar)
@@ -1566,7 +1566,7 @@ func Text(pcStr)
 
 func NumberOfCharsOf(pcStr)
 	# Engine-backed: codepoint count (not byte count)
-	pStr = StzEngineStringFrom(pcStr)
+	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringCount(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
@@ -1576,8 +1576,8 @@ func NumberOfCharsOf(pcStr)
 
 func BothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
 	_bCase_ = @CaseSensitive(pCaseSensitive)
-	pStr1 = StzEngineStringFrom(pcStr1)
-	pStr2 = StzEngineStringFrom(pcStr2)
+	pStr1 = StzEngineString(pcStr1)
+	pStr2 = StzEngineString(pcStr2)
 	nResult = StzEngineStringEqualsCS(pStr1, pStr2, _bCase_)
 	StzEngineStringFree(pStr2)
 	StzEngineStringFree(pStr1)
@@ -1606,9 +1606,9 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 	nLen = len(pacStr)
 	bResult = 1
 
-	pFirst = StzEngineStringFrom(pacStr[1])
+	pFirst = StzEngineString(pacStr[1])
 	for i = 2 to nLen
-		pOther = StzEngineStringFrom(pacStr[i])
+		pOther = StzEngineString(pacStr[i])
 		nEq = StzEngineStringEqualsCS(pFirst, pOther, _bCase_)
 		StzEngineStringFree(pOther)
 		if nEq = 0
@@ -1624,7 +1624,7 @@ func StringsAreEqual(paStr)
 
 func RemoveDiacritics(pcStr)
 	# Engine-backed: strip combining marks (diacritics)
-	pStr = StzEngineStringFrom(pcStr)
+	pStr = StzEngineString(pcStr)
 	pR = StzEngineStringStripMarks(pStr)
 	cResult = StzEngineStringData(pR)
 	StzEngineStringFree(pR)
@@ -1671,7 +1671,7 @@ func NCopies(n, p)
 		return NCopies(3, p)
 
 func WithoutSpaces(pcStr)
-	pStr = StzEngineStringFrom(pcStr)
+	pStr = StzEngineString(pcStr)
 	StzEngineStringReplace(pStr, " ", "")
 	cResult = StzEngineStringData(pStr)
 	StzEngineStringFree(pStr)
@@ -1695,7 +1695,7 @@ func WithoutQuotes(cStr)
 	cStr = @trim(cStr)
 	if len(cStr) < 2 return cStr ok
 
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	nLen = StzEngineStringCount(pStr)
 	if nLen < 2
 		StzEngineStringFree(pStr)
@@ -1733,7 +1733,7 @@ func Simplify(pcStr)
 		return _StzSimplifyString(pcStr)
 
 func Spacify(str)
-	pStr = StzEngineStringFrom(str)
+	pStr = StzEngineString(str)
 	pResult = StzEngineStringSpacify(pStr)
 	cResult = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
@@ -1792,7 +1792,7 @@ func RepeatInString(pcSubStr, nTimes)
 	ok
 
 	# Engine-backed: much faster than Ring loop for large repetitions
-	pStr = StzEngineStringFrom(pcSubStr)
+	pStr = StzEngineString(pcSubStr)
 	pResult = StzEngineStringRepeat(pStr, nTimes)
 	cResult = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
@@ -1908,7 +1908,7 @@ func @IsPalindrome(p)
 		return 1
 
 	but isString(p)
-		pStr = StzEngineStringFrom(lower(p))
+		pStr = StzEngineString(lower(p))
 		nResult = StzEngineStringIsPalindrome(pStr)
 		StzEngineStringFree(pStr)
 		return nResult
@@ -1932,7 +1932,7 @@ func @IsPunct(p)
 	if isString(p)
 		if len(p) = 0 return 0 ok
 		# Engine-backed: check all chars are punctuation (type 5)
-		pStr = StzEngineStringFrom(p)
+		pStr = StzEngineString(p)
 		nCount = StzEngineStringCount(pStr)
 		nPunct = StzEngineStringCountCharsOfType(pStr, 5)
 		StzEngineStringFree(pStr)
@@ -1990,7 +1990,7 @@ func SplitAtCS(cData, cSubStr, pCaseSensitive)
 	bCase = CaseSensitive(pCaseSensitive)
 
 	# Engine-backed split for codepoint safety
-	pStr = StzEngineStringFrom(cData)
+	pStr = StzEngineString(cData)
 	nCount = StzEngineStringSplitCountCS(pStr, cSubStr, bCase)
 
 	acResult = []
@@ -2435,7 +2435,7 @@ func StringSection(str, n1, n2)
 
 	# Use Engine for codepoint-safe section extraction
 	# Engine uses INDEX_BASE=1 (1-based), so pass positions directly
-	pStr = StzEngineStringFrom(str)
+	pStr = StzEngineString(str)
 	pSlice = StzEngineStringSlice(pStr, n1, n2 - n1 + 1)
 	cResult = StzEngineStringData(pSlice)
 	StzEngineStringFree(pSlice)
@@ -2455,7 +2455,7 @@ func stzRight(str, n)
 		return ListSection(str, nLen+1-n, n)
 	ok
 
-	pStr = StzEngineStringFrom(str)
+	pStr = StzEngineString(str)
 	nLen = StzEngineStringCount(pStr)
 	StzEngineStringFree(pStr)
 	return StringSection(str, nLen-n+1, nLen)
@@ -2467,7 +2467,7 @@ func Chars(str)
 	ok
 
 	# Use Engine for codepoint-safe character splitting
-	pStr = StzEngineStringFrom(str)
+	pStr = StzEngineString(str)
 	nLen = StzEngineStringCount(pStr)
 	acResult = []
 
@@ -2485,7 +2485,7 @@ func Chars(str)
 
 
 func _StrContainsCS(cStr, cSubStr, bCaseSensitive)
-	pStr = StzEngineStringFrom(cStr)
+	pStr = StzEngineString(cStr)
 	nResult = StzEngineStringContainsCS(pStr, cSubStr, bCaseSensitive)
 	StzEngineStringFree(pStr)
 	return nResult

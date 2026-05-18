@@ -1,23 +1,18 @@
 # Test additional domain classes
+# Run from the test/ directory: ring test_domains2.ring
 
-? "Loading DLL"
-$cStzStringLib = "D:\GitHub\stzlib\libraries\stzlib\engine\zig-out\bin\stz_string.dll"
-if fexists($cStzStringLib)
-    $pStzStringHandle = LoadLib($cStzStringLib)
-ok
-
-? "Loading stubs"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\test\test_stubs.ring"
+? "Loading stubs + DLL"
+load "test_stubs.ring"
 
 ? "Loading classes"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzString.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringFinder.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringBounder.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringFormatter.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringGetter.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringCounter.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringChecker.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringConcat.ring"
+load "../stzString.ring"
+load "../stzStringFinder.ring"
+load "../stzStringBounder.ring"
+load "../stzStringFormatter.ring"
+load "../stzStringGetter.ring"
+load "../stzStringCounter.ring"
+load "../stzStringChecker.ring"
+load "../stzStringConcat.ring"
 
 ? ""
 ? "=== Test: stzStringBounder ==="

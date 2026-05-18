@@ -1742,3 +1742,165 @@ test "format: unique_chars_cs case-sensitive" {
     }
     try std.testing.expectEqual(@as(usize, 5), delims); // 6 chars - 1
 }
+
+// ─── str_only_punctuation ───
+
+/// Keep only punctuation characters (Unicode categories Pc, Pd, Ps, Pe, Pi, Pf, Po).
+/// Returns new handle.
+pub fn str_only_punctuation(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return str_new();
+    const src = s.slice();
+    const r = str_new() orelse return null;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+        if (unicode.stz_unicode_is_punctuation(cp) != 0) {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+// ─── str_only_symbols ───
+
+/// Keep only symbol characters (Unicode categories Sm, Sc, Sk, So).
+/// Returns new handle.
+pub fn str_only_symbols(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return str_new();
+    const src = s.slice();
+    const r = str_new() orelse return null;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+        if (unicode.stz_unicode_is_symbol(cp) != 0) {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+// ─── str_only_spaces ───
+
+/// Keep only space/whitespace characters (Unicode category Zs + ASCII whitespace).
+/// Returns new handle.
+pub fn str_only_spaces(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return str_new();
+    const src = s.slice();
+    const r = str_new() orelse return null;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+        if (unicode.stz_unicode_is_space(cp) != 0) {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+// ─── str_only_marks ───
+
+/// Keep only mark characters (Unicode categories Mn, Mc, Me -- diacritics, combining marks).
+/// Returns new handle.
+pub fn str_only_marks(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return str_new();
+    const src = s.slice();
+    const r = str_new() orelse return null;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+        if (unicode.stz_unicode_is_mark(cp) != 0) {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+// ─── str_only_controls ───
+
+/// Keep only control characters (Unicode categories Cc, Cf).
+/// Returns new handle.
+pub fn str_only_controls(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = handle orelse return str_new();
+    const src = s.slice();
+    const r = str_new() orelse return null;
+
+    var off: usize = 0;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+        if (off + cp_len > src.len) break;
+        const cp = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+        if (unicode.stz_unicode_is_control(cp) != 0) {
+            r.data.appendSlice(gpa, src[off..][0..cp_len]) catch { setError(.out_of_memory); };
+        }
+        off += cp_len;
+    }
+    return r;
+}
+
+// ─── Tests for new str_only_* functions ───
+
+test "format: only_punctuation" {
+    const s = str_from("Hello, world! 42.", 17);
+    defer core.str_free(s);
+    const r = str_only_punctuation(s);
+    defer core.str_free(r);
+    try std.testing.expect(r != null);
+    const data = core.str_data(r.?)[0..core.str_size(r)];
+    try std.testing.expectEqualStrings(",!.", data);
+}
+
+test "format: only_symbols" {
+    const s = str_from("a+b=c $5", 8);
+    defer core.str_free(s);
+    const r = str_only_symbols(s);
+    defer core.str_free(r);
+    try std.testing.expect(r != null);
+    const data = core.str_data(r.?)[0..core.str_size(r)];
+    // @ is Unicode Po (Punctuation, other), not a symbol
+    try std.testing.expectEqualStrings("+=$", data);
+}
+
+test "format: only_spaces" {
+    const s = str_from("a b\tc", 5);
+    defer core.str_free(s);
+    const r = str_only_spaces(s);
+    defer core.str_free(r);
+    try std.testing.expect(r != null);
+    const data = core.str_data(r.?)[0..core.str_size(r)];
+    try std.testing.expectEqualStrings(" \t", data);
+}
+
+test "format: only_marks empty for ascii" {
+    const s = str_from("Hello", 5);
+    defer core.str_free(s);
+    const r = str_only_marks(s);
+    defer core.str_free(r);
+    try std.testing.expect(r != null);
+    try std.testing.expectEqual(@as(usize, 0), core.str_size(r));
+}
+
+test "format: only_controls" {
+    const s = str_from("A\x01B\x02C", 5);
+    defer core.str_free(s);
+    const r = str_only_controls(s);
+    defer core.str_free(r);
+    try std.testing.expect(r != null);
+    const data = core.str_data(r.?)[0..core.str_size(r)];
+    try std.testing.expectEqualStrings("\x01\x02", data);
+}
