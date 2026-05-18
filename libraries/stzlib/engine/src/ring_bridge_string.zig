@@ -2133,6 +2133,13 @@ fn ring_StringCharsSplit(p: *anyopaque) callconv(.c) void {
 
 // ─── Substrings and unique chars ───
 
+fn ring_StringAllSubstringsCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_all_substrings_cs(h, case)), STZ_HANDLE);
+}
+
+// Backward-compatible wrappers
 fn ring_StringAllSubstrings(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retcpointer(p, @ptrCast(string.str_all_substrings(h)), STZ_HANDLE);
@@ -2143,9 +2150,16 @@ fn ring_StringAllSubstringsUnique(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_all_substrings_unique(h)), STZ_HANDLE);
 }
 
+fn ring_StringUniqueCharsCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_unique_chars_cs(h, case)), STZ_HANDLE);
+}
+
+// Backward-compatible CI-only wrapper
 fn ring_StringUniqueCharsCI(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_unique_chars_ci(h)), STZ_HANDLE);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_unique_chars_cs(h, 0)), STZ_HANDLE);
 }
 
 fn ring_StringSubstringsCount(p: *anyopaque) callconv(.c) void {
@@ -2174,11 +2188,6 @@ fn ring_StringContainsArabic(p: *anyopaque) callconv(.c) void {
 fn ring_StringHasMixedCase(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retnumber(p, @floatFromInt(string.str_has_mixed_case(h)));
-}
-
-fn ring_StringIsWord(p: *anyopaque) callconv(.c) void {
-    const h = getHandle(p, 1);
-    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_word(h)));
 }
 
 // ─── Byte-level extraction (str_left, str_right) ───
@@ -2697,12 +2706,13 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringremoveallcs", .func = &ring_StringRemoveAllCS },
     .{ .name = "stzenginestringsplitcountcs", .func = &ring_StringSplitCountCS },
     .{ .name = "stzenginestringsplitgetcs", .func = &ring_StringSplitGetCS },
+    .{ .name = "stzenginestringallsubstringscs", .func = &ring_StringAllSubstringsCS },
     .{ .name = "stzenginestringallsubstrings", .func = &ring_StringAllSubstrings },
     .{ .name = "stzenginestringallsubstringsunique", .func = &ring_StringAllSubstringsUnique },
+    .{ .name = "stzenginestringuniquecharscs", .func = &ring_StringUniqueCharsCS },
     .{ .name = "stzenginestringuniquecharsci", .func = &ring_StringUniqueCharsCI },
     .{ .name = "stzenginestringsubstringscount", .func = &ring_StringSubstringsCount },
     .{ .name = "stzenginestringsubstringsofnchars", .func = &ring_StringSubstringsOfNChars },
-    .{ .name = "stzenginestringisword", .func = &ring_StringIsWord },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
