@@ -13,10 +13,10 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 590 passing              |
+| Engine tests      | 592 passing              |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 350 DLL functions        |
+| Ring bridge regs  | 352 DLL functions        |
 | Last updated      | 2026-05-18 (Session 13)  |
 
 ---
@@ -559,4 +559,4 @@ M-E11 (Repo Split)
 | 2026-05-17 | 11      | Phase D+++| replace.zig (39) + transform.zig (19) + inspect.zig (38), 566 tests |
 | 2026-05-17 | 12      | Phase D****| extract(23)+trim(22)+count(25)+compare(11)+format(47), Phase D DONE |
 | 2026-05-18 | 12+     | Bridging   | +3 engine fns (contains_latin/arabic, has_mixed_case), 587 tests, 341 DLL fns |
-| 2026-05-18 | 13      | Bridging++ | +4 engine fns (all_substrings, unique_substrings, unique_chars_ci, substrings_count), SubStringsCS/UniqueCharsCS/CharsCS wired to engine, 590 tests, 350 DLL fns |
+| 2026-05-18 | 13      | Bridging++ | +6 engine fns (all_substrings, unique_substrings, unique_chars_ci, substrings_count, substrings_of_n_chars, is_word enhanced). 8 Ring methods bridged: SubStringsCS, UniqueCharsCS, CharsCS CI, UniqueSubStringsCS, SubStringsOfNCharsCS, IsWord, NumberOfSubStringsCS. 592 tests, 352 DLL fns |
