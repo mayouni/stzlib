@@ -108,10 +108,16 @@ class stzStringChecker
 	#===============================#
 
 	def IsUppercase()
-		return @oString.Content() = upper(@oString.Content())
+		pHandle = StzEngineString(@oString.Content())
+		nResult = StzEngineStringIsUppercase(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
 
 	def IsLowercase()
-		return @oString.Content() = lower(@oString.Content())
+		pHandle = StzEngineString(@oString.Content())
+		nResult = StzEngineStringIsLowercase(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
 
 	def IsCapitalcase()
 		if @oString.NumberOfChars() < 1
@@ -126,85 +132,44 @@ class stzStringChecker
 		return 0
 
 	def IsHybridcase()
-		bHasUpper = 0
-		bHasLower = 0
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if c != upper(c)
-				bHasLower = 1
-			ok
-			if c != lower(c)
-				bHasUpper = 1
-			ok
-			if bHasUpper and bHasLower
-				return 1
-			ok
-		next
-
-		return 0
+		pHandle = StzEngineString(@oString.Content())
+		nResult = StzEngineStringHasMixedCase(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
 
 	  #===============================#
 	 #     CONTENT COMPOSITION       #
 	#===============================#
 
 	def ContainsOnlySpaces()
-		cTrimmed = trim(@oString.Content())
-		if cTrimmed = ""
-			return 1
-		else
-			return 0
-		ok
+		pHandle = StzEngineString(@oString.Content())
+		nResult = StzEngineStringIsWhitespace(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
 
 	def ContainsOnlyLetters()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if NOT isAlpha(c)
-				return 0
-			ok
-		next
-		return 1
+		pHandle = StzEngineString(@oString.Content())
+		nResult = StzEngineStringIsAlpha(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
 
 	def ContainsOnlyNumbers()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if NOT isDigit(c) and c != "." and c != "-" and c != "+"
-				return 0
-			ok
-		next
-		return 1
+		pHandle = StzEngineString(@oString.Content())
+		nResult = StzEngineStringIsNumericString(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
 
 	def ContainsOnlyDigits()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if NOT isDigit(c)
-				return 0
-			ok
-		next
-		return 1
+		pHandle = StzEngineString(@oString.Content())
+		nResult = StzEngineStringIsDigit(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
 
 	def ContainsOnlyLettersAndNumbers()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if NOT isAlpha(c) and NOT isDigit(c)
-				return 0
-			ok
-		next
-		return 1
+		pHandle = StzEngineString(@oString.Content())
+		nResult = StzEngineStringIsAlphanumeric(pHandle)
+		StzEngineStringFree(pHandle)
+		return nResult
 
 	  #===============================#
 	 #     IS MADE OF                #
