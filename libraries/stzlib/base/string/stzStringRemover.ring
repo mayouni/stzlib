@@ -4,9 +4,9 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String remover subclass -- removing         #
-#                  substrings by value, position, or section.   #
-#                  For aliases, use stzStringRemoverXT.         #
-#   Version      : V0.9 (2026)                                #
+#                  substrings by value, position, or section.  #
+#                  For aliases, use stzStringRemoverXT.        #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#

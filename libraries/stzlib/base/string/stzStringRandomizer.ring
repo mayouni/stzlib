@@ -3,18 +3,14 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String randomizer -- Wraps stzString via     #
-#                  composition. Shuffling, random char/substring #
-#                  extraction, random generation operations.     #
+#   Description  : String randomizer -- Wraps stzString via    #
+#                  composition. Shuffling, random char/substr  #
+#                  extraction, random generation operations.   #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringRandomizer
 

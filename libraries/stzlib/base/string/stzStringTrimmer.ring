@@ -4,18 +4,14 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String trimmer -- Wraps stzString via       #
-#                  composition. Trimming whitespace and chars   #
+#                  composition. Trimming whitespace and chars  #
 #                  from strings.                               #
-#                  For aliases, use stzStringTrimmerXT.         #
-#   Version      : V0.9 (2026)                                #
+#                  For aliases, use stzStringTrimmerXT.        #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringTrimmer
 
@@ -157,11 +153,11 @@ class stzStringTrimmer
 	#======================================================#
 
 	def TrimCharFromStartCS(c, pCaseSensitive)
-		cStr = @oString.Content()
-		nLen = len(cStr)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		nStart = 1
 		for i = 1 to nLen
-			if BothStringsAreEqualCS(cStr[i], c, pCaseSensitive)
+			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)
 				nStart = i + 1
 			else
 				exit
@@ -170,7 +166,7 @@ class stzStringTrimmer
 		if nStart > nLen
 			@oString.Update("")
 		else
-			@oString.Update(substr(cStr, nStart, nLen - nStart + 1))
+			@oString.Update(@oString.Section(nStart, nLen))
 		ok
 
 		def TrimCharFromStartCSQ(c, pCaseSensitive)
@@ -189,11 +185,11 @@ class stzStringTrimmer
 	#--
 
 	def TrimCharFromEndCS(c, pCaseSensitive)
-		cStr = @oString.Content()
-		nLen = len(cStr)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		nEnd = nLen
 		for i = nLen to 1 step -1
-			if BothStringsAreEqualCS(cStr[i], c, pCaseSensitive)
+			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)
 				nEnd = i - 1
 			else
 				exit
@@ -202,7 +198,7 @@ class stzStringTrimmer
 		if nEnd < 1
 			@oString.Update("")
 		else
-			@oString.Update(substr(cStr, 1, nEnd))
+			@oString.Update(@oString.Section(1, nEnd))
 		ok
 
 		def TrimCharFromEndCSQ(c, pCaseSensitive)

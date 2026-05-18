@@ -4,19 +4,15 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String splitter -- splitting operations     #
-#                  at positions, substrings, sections,          #
-#                  before/after/around.                          #
-#                  Wraps stzString via composition.             #
-#                  For aliases, use stzStringSplitterXT.        #
+#                  at positions, substrings, sections,         #
+#                  before/after/around.                        #
+#                  Wraps stzString via composition.            #
+#                  For aliases, use stzStringSplitterXT.       #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringSplitter
 

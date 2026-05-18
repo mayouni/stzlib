@@ -183,11 +183,11 @@ class stzStringLeadTrail
 	#======================================================#
 
 	def RemoveThisLeadingCharCS(c, pCaseSensitive)
-		cStr = @oString.Content()
-		nLen = len(cStr)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		nStart = 1
 		for i = 1 to nLen
-			if BothStringsAreEqualCS(cStr[i], c, pCaseSensitive)
+			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)
 				nStart = i + 1
 			else
 				exit
@@ -196,7 +196,7 @@ class stzStringLeadTrail
 		if nStart > nLen
 			@oString.Update("")
 		else
-			@oString.Update(StzStringQ(cStr).Section(nStart, nLen))
+			@oString.Update(@oString.Section(nStart, nLen))
 		ok
 
 		def RemoveThisLeadingCharCSQ(c, pCaseSensitive)
@@ -215,11 +215,11 @@ class stzStringLeadTrail
 	#--
 
 	def RemoveThisTrailingCharCS(c, pCaseSensitive)
-		cStr = @oString.Content()
-		nLen = len(cStr)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		nEnd = nLen
 		for i = nLen to 1 step -1
-			if BothStringsAreEqualCS(cStr[i], c, pCaseSensitive)
+			if BothStringsAreEqualCS(acChars[i], c, pCaseSensitive)
 				nEnd = i - 1
 			else
 				exit
@@ -228,7 +228,7 @@ class stzStringLeadTrail
 		if nEnd < 1
 			@oString.Update("")
 		else
-			@oString.Update(StzStringQ(cStr).Section(1, nEnd))
+			@oString.Update(@oString.Section(1, nEnd))
 		ok
 
 		def RemoveThisTrailingCharCSQ(c, pCaseSensitive)

@@ -461,11 +461,11 @@ class stzStringFinder
 		ok
 
 		acResult = []
-		nLen = len(cStr)
+		nLen = @oString.NumberOfChars()
 
 		for i = 1 to nLen
 			for j = i to nLen
-				cSubStr = substr(cStr, i, j - i + 1)
+				cSubStr = @oString.Section(i, j)
 
 				# Check if already collected (case-sensitive or not)
 				bAlready = 0
@@ -532,12 +532,12 @@ class stzStringFinder
 		# Returns positions (1-based) where condition is true
 		# Ring eval() does NOT return values -- must assign inside eval string
 
-		cStr = @oString.Content()
-		nLen = len(cStr)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		anResult = []
 
 		for i = 1 to nLen
-			@char = cStr[i]
+			@char = acChars[i]
 			_stzFindW_result_ = 0
 			eval("_stzFindW_result_ = (" + pcCondition + ")")
 			if _stzFindW_result_ = 1

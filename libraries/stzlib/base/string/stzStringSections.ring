@@ -4,18 +4,14 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String sections -- Wraps stzString via      #
-#                  composition. Extracting sections and ranges  #
+#                  composition. Extracting sections and ranges #
 #                  from strings.                               #
-#                  For aliases, use stzStringSectionsXT.        #
-#   Version      : V0.9 (2026)                                #
+#                  For aliases, use stzStringSectionsXT.       #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringSections
 

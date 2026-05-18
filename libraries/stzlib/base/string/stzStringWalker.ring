@@ -4,19 +4,15 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String walker -- walking the string         #
-#                  forward/backward with steps, yielding        #
-#                  values, performing operations.               #
-#                  Wraps stzString via composition.             #
-#                  For aliases, use stzStringWalkerXT.          #
+#                  forward/backward with steps, yielding       #
+#                  values, performing operations.              #
+#                  Wraps stzString via composition.            #
+#                  For aliases, use stzStringWalkerXT.         #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringWalker
 

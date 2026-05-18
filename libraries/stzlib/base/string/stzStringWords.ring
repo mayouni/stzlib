@@ -3,18 +3,14 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String words -- Wraps stzString via          #
-#                  composition. Word extraction, counting,      #
-#                  unique words, word-level ops.                 #
+#   Description  : String words -- Wraps stzString via         #
+#                  composition. Word extraction, counting,     #
+#                  unique words, word-level ops.               #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringWords
 

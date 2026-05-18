@@ -4,10 +4,10 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String performer -- Wraps stzString via     #
-#                  composition. Higher-order operations         #
-#                  (perform, yield) on chars.                   #
-#                  For aliases, use stzStringPerformerXT.       #
-#   Version      : V0.9 (2026)                                #
+#                  composition. Higher-order operations        #
+#                  (perform, yield) on chars.                  #
+#                  For aliases, use stzStringPerformerXT.      #
+#   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
