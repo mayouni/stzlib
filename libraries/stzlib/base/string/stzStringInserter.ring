@@ -323,8 +323,8 @@ class stzStringInserter
 			return
 		ok
 
-		# TODO: FindAnyBoundedByAsSectionsCS needs extraction from monolith to Finder
-		aSections = @oString.FindAnyBoundedByAsSectionsCS([pcSubStr1, pcSubStr2], pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString)
+		aSections = _oFinder_.FindAnyBoundedByAsSectionsCS([pcSubStr1, pcSubStr2], pCaseSensitive)
 		@oString.ReplaceSections(aSections, pcSubStr)
 
 		def InsertBetweenSubStringsCS(pcSubStr, pcSubStr1, pcSubStr2, pCaseSensitive)

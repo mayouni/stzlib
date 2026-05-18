@@ -221,9 +221,8 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveW(pcCondition)
-		# TODO: requires monolith method extraction
-		# anPos = This.FindW(pcCondition)
-		anPos = @oString.FindW(pcCondition)
+		_oFinder_ = new stzStringFinder(@oString)
+		anPos = _oFinder_.FindW(pcCondition)
 		for i = len(anPos) to 1 step -1
 			This.RemoveSection(anPos[i], anPos[i])
 		next
@@ -303,9 +302,8 @@ class stzStringRemover
 	#===========================================================#
 
 	def RemoveSubStringsExceptCS(pacSubStr, pCaseSensitive)
-		# TODO: requires monolith method extraction
-		# acAll = This.SubStringsCS(pCaseSensitive)
-		acAll = @oString.SubStringsCS(pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString)
+		acAll = _oFinder_.SubStringsCS(pCaseSensitive)
 		_nLen_ = len(acAll)
 
 		for @i = 1 to _nLen_
@@ -341,9 +339,8 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveAnyBetweenCS(pcBound1, pcBound2, pCaseSensitive)
-		# TODO: requires monolith method extraction
-		# aSection = This.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
-		aSection = @oString.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString)
+		aSection = _oFinder_.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 		This.RemoveSection(aSection[1], aSection[2])
 
 		def RemoveAnyBetweenCSQ(pcBound1, pcBound2, pCaseSensitive)
@@ -383,10 +380,8 @@ class stzStringRemover
 	#-----------------------------------------------------------#
 
 	def RemoveAnyBetweenCSIB(pcBound1, pcBound2, pCaseSensitive)
-
-		# TODO: requires monolith method extraction
-		# aSection = This.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
-		aSection = @oString.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
+		_oFinder_ = new stzStringFinder(@oString)
+		aSection = _oFinder_.FindAnyBetweenAsSectionCS(pcBound1, pcBound2, pCaseSensitive)
 
 		if isList(pcBound2) and IsAndNamedParamList(pcBound2)
 			pcBound2 = pcBound2[2]
@@ -434,12 +429,11 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveDuplicatesCS(pCaseSensitive)
-		# TODO: requires monolith method extraction
-		# aSections = This.FindDuplicatesAsSectionsCS(pCaseSensitive)
-		aSections = @oString.FindDuplicatesAsSectionsCS(pCaseSensitive)
-		# TODO: requires monolith method extraction
-		# _cResult_ = This.Copy().RemoveSections(aSections)
-		_cResult_ = new stzStringRemover(@oString.Content()).RemoveSections(aSections)
+		_oFinder_ = new stzStringFinder(@oString)
+		aSections = _oFinder_.FindDuplicatesAsSectionsCS(pCaseSensitive)
+		if len(aSections) > 0
+			@oString.RemoveSections(aSections)
+		ok
 		This.UpdateWith(_cResult_)
 
 		def RemoveDuplicatesCSQ(pCaseSensitive)
