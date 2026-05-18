@@ -57,11 +57,11 @@ class stzStringChecker
 			return 0
 		ok
 
-		cReversed = ring_reverse(@oString.Content())
+		cReversed = StzReverse(@oString.Content())
 
 		bCase = @CaseSensitive(pCaseSensitive)
 		if bCase = 0
-			if lower(@oString.Content()) = lower(cReversed)
+			if StzCaseFold(@oString.Content()) = StzCaseFold(cReversed)
 				return 1
 			else
 				return 0
@@ -88,11 +88,11 @@ class stzStringChecker
 		_cOther_ = pcOtherStr
 
 		if bCase = 0
-			_cStr_ = lower(_cStr_)
-			_cOther_ = lower(pcOtherStr)
+			_cStr_ = StzCaseFold(_cStr_)
+			_cOther_ = StzCaseFold(pcOtherStr)
 		ok
 
-		_cInversed_ = ring_reverse(_cOther_)
+		_cInversed_ = StzReverse(_cOther_)
 
 		if _cStr_ = _cInversed_
 			return 1
@@ -108,33 +108,32 @@ class stzStringChecker
 	#===============================#
 
 	def IsUppercase()
-		pHandle = StzEngineString(@oString.Content())
-		nResult = StzEngineStringIsUppercase(pHandle)
-		StzEngineStringFree(pHandle)
-		return nResult
+		return StzIsUpper(@oString.Content())
 
 	def IsLowercase()
-		pHandle = StzEngineString(@oString.Content())
-		nResult = StzEngineStringIsLowercase(pHandle)
-		StzEngineStringFree(pHandle)
-		return nResult
+		return StzIsLower(@oString.Content())
 
 	def IsCapitalcase()
-		if @oString.NumberOfChars() < 1
+		cStr = @oString.Content()
+		if StzLen(cStr) < 1
 			return 0
 		ok
 
-		cFirst = substr(@oString.Content(), 1, 1)
-		if cFirst = upper(cFirst) and @oString.NumberOfChars() > 1
-			cRest = substr(@oString.Content(), 2)
-			return cRest = lower(cRest)
+		cFirst = StzLeft(cStr, 1)
+		if cFirst = StzUpper(cFirst) and StzLen(cStr) > 1
+			pH = StzEngineString(cStr)
+			pRest = StzEngineStringSlice(pH, 2, StzLen(cStr) - 1)
+			cRest = StzEngineStringData(pRest)
+			StzEngineStringFree(pRest)
+			StzEngineStringFree(pH)
+			return cRest = StzLower(cRest)
 		ok
 		return 0
 
 	def IsHybridcase()
-		pHandle = StzEngineString(@oString.Content())
-		nResult = StzEngineStringHasMixedCase(pHandle)
-		StzEngineStringFree(pHandle)
+		pH = StzEngineString(@oString.Content())
+		nResult = StzEngineStringHasMixedCase(pH)
+		StzEngineStringFree(pH)
 		return nResult
 
 	  #===============================#
@@ -142,34 +141,28 @@ class stzStringChecker
 	#===============================#
 
 	def ContainsOnlySpaces()
-		pHandle = StzEngineString(@oString.Content())
-		nResult = StzEngineStringIsWhitespace(pHandle)
-		StzEngineStringFree(pHandle)
-		return nResult
+		pH = StzEngineString(@oString.Content())
+		n = StzEngineStringIsWhitespace(pH)
+		StzEngineStringFree(pH)
+		return n
 
 	def ContainsOnlyLetters()
-		pHandle = StzEngineString(@oString.Content())
-		nResult = StzEngineStringIsAlpha(pHandle)
-		StzEngineStringFree(pHandle)
-		return nResult
+		return StzIsAlpha(@oString.Content())
 
 	def ContainsOnlyNumbers()
-		pHandle = StzEngineString(@oString.Content())
-		nResult = StzEngineStringIsNumericString(pHandle)
-		StzEngineStringFree(pHandle)
-		return nResult
+		pH = StzEngineString(@oString.Content())
+		n = StzEngineStringIsNumericString(pH)
+		StzEngineStringFree(pH)
+		return n
 
 	def ContainsOnlyDigits()
-		pHandle = StzEngineString(@oString.Content())
-		nResult = StzEngineStringIsDigit(pHandle)
-		StzEngineStringFree(pHandle)
-		return nResult
+		return StzIsDigit(@oString.Content())
 
 	def ContainsOnlyLettersAndNumbers()
-		pHandle = StzEngineString(@oString.Content())
-		nResult = StzEngineStringIsAlphanumeric(pHandle)
-		StzEngineStringFree(pHandle)
-		return nResult
+		pH = StzEngineString(@oString.Content())
+		n = StzEngineStringIsAlphanumeric(pH)
+		StzEngineStringFree(pH)
+		return n
 
 	  #===============================#
 	 #     IS MADE OF                #
@@ -354,7 +347,7 @@ class stzStringChecker
 		ok
 
 		for i = 3 to nLen
-			c = lower(substr(cContent, i, 1))
+			c = StzLower(substr(cContent, i, 1))
 			if NOT isDigit(c) and NOT (c >= "a" and c <= "f")
 				return 0
 			ok
@@ -367,10 +360,10 @@ class stzStringChecker
 
 	def IsReversedCopyOfCS(pcOtherStr, pCaseSensitive)
 		bCase = @CaseSensitive(pCaseSensitive)
-		cReversed = ring_reverse(@oString.Content())
+		cReversed = StzReverse(@oString.Content())
 
 		if bCase = 0
-			return lower(cReversed) = lower(pcOtherStr)
+			return StzCaseFold(cReversed) = StzCaseFold(pcOtherStr)
 		else
 			return cReversed = pcOtherStr
 		ok

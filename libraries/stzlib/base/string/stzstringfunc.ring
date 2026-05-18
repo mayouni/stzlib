@@ -2,6 +2,114 @@
  ///   FUNCTIONS FOR THE STZSTRING CLASS   ///
 /////////////////////////////////////////////
 
+  #------------------------------------------------------#
+ #  UNICODE-AWARE WRAPPERS (engine-backed, simple API)  #
+#------------------------------------------------------#
+
+#-- Case conversion (Unicode-aware, replaces ASCII-only Ring upper()/lower())
+
+func StzUpper(cStr)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringToUpper(pH)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
+func StzLower(cStr)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringToLower(pH)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
+func StzTitle(cStr)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringToTitle(pH)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
+func StzCaseFold(cStr)
+	return StzEngineUnicodeCaseFold(cStr)
+
+#-- Length (codepoint count, not byte count)
+
+func StzLen(cStr)
+	if isList(cStr)
+		return len(cStr)
+	ok
+	pH = StzEngineString(cStr)
+	n = StzEngineStringCount(pH)
+	StzEngineStringFree(pH)
+	return n
+
+#-- Character from codepoint (UTF-8 encoded, replaces byte-only Ring char())
+
+func StzChar(nCodepoint)
+	return StzEngineUnicodeEncode(nCodepoint)
+
+#-- String reverse (codepoint-aware, not byte-reverse)
+
+func StzReverse(cStr)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringReverse(pH)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
+#-- Type checking (Unicode-aware)
+
+func StzIsUpper(cStr)
+	pH = StzEngineString(cStr)
+	n = StzEngineStringIsUppercase(pH)
+	StzEngineStringFree(pH)
+	return n
+
+func StzIsLower(cStr)
+	pH = StzEngineString(cStr)
+	n = StzEngineStringIsLowercase(pH)
+	StzEngineStringFree(pH)
+	return n
+
+func StzIsAlpha(cStr)
+	pH = StzEngineString(cStr)
+	n = StzEngineStringIsAlpha(pH)
+	StzEngineStringFree(pH)
+	return n
+
+func StzIsDigit(cStr)
+	pH = StzEngineString(cStr)
+	n = StzEngineStringIsDigit(pH)
+	StzEngineStringFree(pH)
+	return n
+
+#-- Substring extraction (codepoint-aware)
+
+func StzLeft(cStr, n)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringLeft(pH, n)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
+func StzRight(cStr, n)
+	pH = StzEngineString(cStr)
+	pR = StzEngineStringRight(pH, n)
+	c = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
+	StzEngineStringFree(pH)
+	return c
+
+  #------------------------------------#
+ #  END OF UNICODE-AWARE WRAPPERS     #
+#------------------------------------#
+
+
 func StzStringQ(str)
 	return new stzString(str)
 

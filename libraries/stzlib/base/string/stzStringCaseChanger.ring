@@ -44,57 +44,49 @@ class stzStringCaseChanger
 	#======================================================#
 
 	def Uppercase()
-		pHandle = StzEngineString(@oString.Content())
-		pUpper = StzEngineStringToUpper(pHandle)
-		@oString.Update(StzEngineStringData(pUpper))
-		StzEngineStringFree(pUpper)
-		StzEngineStringFree(pHandle)
+		@oString.Update(StzUpper(@oString.Content()))
 
 		def UppercaseQ()
 			This.Uppercase()
 			return This
 
 	def Uppercased()
-		pHandle = StzEngineString(@oString.Content())
-		pUpper = StzEngineStringToUpper(pHandle)
-		cResult = StzEngineStringData(pUpper)
-		StzEngineStringFree(pUpper)
-		StzEngineStringFree(pHandle)
-		return cResult
+		return StzUpper(@oString.Content())
 
 	  #======================================================#
 	 #   LOWERCASE                                          #
 	#======================================================#
 
 	def Lowercase()
-		pHandle = StzEngineString(@oString.Content())
-		pLower = StzEngineStringToLower(pHandle)
-		@oString.Update(StzEngineStringData(pLower))
-		StzEngineStringFree(pLower)
-		StzEngineStringFree(pHandle)
+		@oString.Update(StzLower(@oString.Content()))
 
 		def LowercaseQ()
 			This.Lowercase()
 			return This
 
 	def Lowercased()
-		pHandle = StzEngineString(@oString.Content())
-		pLower = StzEngineStringToLower(pHandle)
-		cResult = StzEngineStringData(pLower)
-		StzEngineStringFree(pLower)
-		StzEngineStringFree(pHandle)
-		return cResult
+		return StzLower(@oString.Content())
 
 	  #======================================================#
 	 #   CAPITALIZE                                         #
 	#======================================================#
 
 	def Capitalize()
-		cStr = This.Lowercased()
-		if len(cStr) > 0
-			cStr[1] = upper(cStr[1])
+		cStr = @oString.Content()
+		if StzLen(cStr) > 0
+			# Engine-backed: first char uppercase, rest lowercase
+			cFirst = StzUpper(StzLeft(cStr, 1))
+			if StzLen(cStr) > 1
+				pH = StzEngineString(cStr)
+				pRest = StzEngineStringSlice(pH, 2, StzLen(cStr) - 1)
+				cRest = StzLower(StzEngineStringData(pRest))
+				StzEngineStringFree(pRest)
+				StzEngineStringFree(pH)
+				@oString.Update(cFirst + cRest)
+			else
+				@oString.Update(cFirst)
+			ok
 		ok
-		@oString.Update(cStr)
 
 		def CapitalizeQ()
 			This.Capitalize()
@@ -110,20 +102,8 @@ class stzStringCaseChanger
 	#======================================================#
 
 	def CapitalizeEachWord()
-		cStr = This.Lowercased()
-		nLen = len(cStr)
-		if nLen = 0
-			return
-		ok
-		cResult = upper(cStr[1])
-		for i = 2 to nLen
-			if i > 1 and cStr[i-1] = " "
-				cResult += upper(cStr[i])
-			else
-				cResult += cStr[i]
-			ok
-		next
-		@oString.Update(cResult)
+		# Engine-backed: use StzTitle for Unicode-aware title case
+		@oString.Update(StzTitle(@oString.Content()))
 
 		def CapitalizeEachWordQ()
 			This.CapitalizeEachWord()
@@ -139,50 +119,41 @@ class stzStringCaseChanger
 	#======================================================#
 
 	def IsUppercase()
-		pHandle = StzEngineString(@oString.Content())
-		nResult = StzEngineStringIsUppercase(pHandle)
-		StzEngineStringFree(pHandle)
-		return nResult
+		return StzIsUpper(@oString.Content())
 
 	def IsLowercase()
-		pHandle = StzEngineString(@oString.Content())
-		nResult = StzEngineStringIsLowercase(pHandle)
-		StzEngineStringFree(pHandle)
-		return nResult
+		return StzIsLower(@oString.Content())
 
 	def IsCapitalized()
 		cStr = @oString.Content()
-		if len(cStr) = 0
+		if StzLen(cStr) = 0
 			return 0
 		ok
-		return cStr[1] = upper(cStr[1])
+		cFirst = StzLeft(cStr, 1)
+		return cFirst = StzUpper(cFirst)
 
 	  #======================================================#
 	 #   TOGGLE CASE                                        #
 	#======================================================#
 
 	def ToggleCase()
-		cStr = @oString.Content()
-		nLen = @oString.NumberOfChars()
-		cResult = ""
-		for i = 1 to nLen
-			c = cStr[i]
-			if c = upper(c)
-				cResult += lower(c)
-			else
-				cResult += upper(c)
-			ok
-		next
-		@oString.Update(cResult)
+		pH = StzEngineString(@oString.Content())
+		pR = StzEngineStringSwapCase(pH)
+		@oString.Update(StzEngineStringData(pR))
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH)
 
 		def ToggleCaseQ()
 			This.ToggleCase()
 			return This
 
 	def CaseToggled()
-		oCopy = new stzStringCaseChanger(@oString.Content())
-		oCopy.ToggleCase()
-		return oCopy.Content()
+		pH = StzEngineString(@oString.Content())
+		pR = StzEngineStringSwapCase(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH)
+		return c
 
 	  #======================================================#
 	 #   FORCE CASE                                         #
