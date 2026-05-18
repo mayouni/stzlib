@@ -2153,6 +2153,12 @@ fn ring_StringSubstringsCount(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_substrings_count(h)));
 }
 
+fn ring_StringSubstringsOfNChars(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const n: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_substrings_of_n_chars(h, n)), STZ_HANDLE);
+}
+
 // ─── Character classification (contains_latin, contains_arabic, has_mixed_case) ───
 
 fn ring_StringContainsLatin(p: *anyopaque) callconv(.c) void {
@@ -2690,6 +2696,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringallsubstringsunique", .func = &ring_StringAllSubstringsUnique },
     .{ .name = "stzenginestringuniquecharsci", .func = &ring_StringUniqueCharsCI },
     .{ .name = "stzenginestringsubstringscount", .func = &ring_StringSubstringsCount },
+    .{ .name = "stzenginestringsubstringsofnchars", .func = &ring_StringSubstringsOfNChars },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
