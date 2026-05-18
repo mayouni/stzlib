@@ -2333,6 +2333,12 @@ fn ring_StringAllSubstringsCS(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_all_substrings_cs(h, case)), STZ_HANDLE);
 }
 
+fn ring_StringDuplicatedChars(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const result = string.str_duplicated_chars(h);
+    ring_vm_api_retcpointer(p, @ptrCast(result), STZ_HANDLE);
+}
+
 fn ring_StringUniqueCharsCS(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
@@ -2923,6 +2929,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsplitgetcs", .func = &ring_StringSplitGetCS },
     .{ .name = "stzenginestringallsubstringscs", .func = &ring_StringAllSubstringsCS },
     .{ .name = "stzenginestringuniquecharscs", .func = &ring_StringUniqueCharsCS },
+    .{ .name = "stzenginestringduplicatedchars", .func = &ring_StringDuplicatedChars },
     .{ .name = "stzenginestringsubstringscount", .func = &ring_StringSubstringsCount },
     .{ .name = "stzenginestringsubstringsofnchars", .func = &ring_StringSubstringsOfNChars },
 };

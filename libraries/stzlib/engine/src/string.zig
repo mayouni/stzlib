@@ -351,6 +351,7 @@ pub const str_find_chars_of_type = counting.str_find_chars_of_type;
 pub const str_extract_chars_of_type = counting.str_extract_chars_of_type;
 pub const str_char_type_at = counting.str_char_type_at;
 pub const str_unique_chars = counting.str_unique_chars;
+pub const str_duplicated_chars = counting.str_duplicated_chars;
 pub const str_unique_char_count = counting.str_unique_char_count;
 pub const str_count_leading_char = counting.str_count_leading_char;
 pub const str_count_trailing_char = counting.str_count_trailing_char;

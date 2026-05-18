@@ -39,23 +39,32 @@ class stzStringDuplicates
 	#===============================#
 
 	def DuplicatedChars()
-		acAll = []
-		acDups = []
-		acChars = @oString.Chars()
-		nLen = len(acChars)
-
+		pH = @oString.Engine()
+		pR = StzEngineStringDuplicatedChars(pH)
+		cDups = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		if cDups = ""
+			return []
+		ok
+		# Split by null delimiter
+		acResult = []
+		cCurrent = ""
+		nLen = len(cDups)
 		for i = 1 to nLen
-			c = acChars[i]
-			if ring_find(acAll, c) > 0
-				if ring_find(acDups, c) = 0
-					acDups + c
+			c = substr(cDups, i, 1)
+			if ascii(c) = 0
+				if cCurrent != ""
+					acResult + cCurrent
+					cCurrent = ""
 				ok
 			else
-				acAll + c
+				cCurrent += c
 			ok
 		next
-
-		return acDups
+		if cCurrent != ""
+			acResult + cCurrent
+		ok
+		return acResult
 
 	def HasDuplicatedChars()
 		return len(This.DuplicatedChars()) > 0
