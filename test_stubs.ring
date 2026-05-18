@@ -106,6 +106,12 @@ func BothStringsAreEqualCS(str1, str2, pCaseSensitive)
 func BothStringsAreEqual(str1, str2)
 	return BothStringsAreEqualCS(str1, str2, 1)
 
+func Q(p)
+	if isString(p)
+		return new stzString(p)
+	ok
+	return p
+
 func StzStringQ(cStr)
 	return new stzString(cStr)
 
@@ -179,8 +185,25 @@ func ring_substr2(cStr, cOld, cNew)
 	end
 	return cResult
 
-func ring_find(cStr, cChar)
-	return substr(cStr, cChar)
+func ring_find(p, pItem)
+	if isString(p)
+		return substr(p, pItem)
+	ok
+	if isList(p)
+		for i = 1 to len(p)
+			if p[i] = pItem
+				return i
+			ok
+		next
+		return 0
+	ok
+	return 0
+
+func isDigit(c)
+	if NOT isString(c) return 0 ok
+	if len(c) != 1 return 0 ok
+	n = ascii(c)
+	return n >= 48 and n <= 57
 
 func ring_reverse(aList)
 	return ListReversed(aList)
@@ -203,6 +226,9 @@ func @split(cStr, cSep)
 	end
 	aResult + cCurrent
 	return aResult
+
+func split(cStr, cSep)
+	return @split(cStr, cSep)
 
 func @SplitCS(cStr, cSep, pCS)
 	return @split(cStr, cSep)
