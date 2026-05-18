@@ -172,13 +172,13 @@ class stzString from stzObject
 
 	def Sections(aSections)
 		acResult = []
-		cContent = This.Content()
+		nCharCount = This.NumberOfChars()
 		nLen = len(aSections)
 		for i = 1 to nLen
 			n1 = aSections[i][1]
 			n2 = aSections[i][2]
-			if n1 >= 1 and n2 >= n1 and n2 <= len(cContent)
-				acResult + substr(cContent, n1, n2 - n1 + 1)
+			if n1 >= 1 and n2 >= n1 and n2 <= nCharCount
+				acResult + This.Section(n1, n2)
 			ok
 		next
 		return acResult
