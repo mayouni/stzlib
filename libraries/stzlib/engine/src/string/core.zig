@@ -64,9 +64,15 @@ pub const StzString = struct {
     data: std.ArrayList(u8),
     cached_cp_count: ?usize = null,
     cached_is_ascii: ?bool = null,
+    // Codepoint-to-byte offset cache for sequential access optimization.
+    // Stores the last resolved (codepoint_index, byte_offset) pair so
+    // consecutive char_at(5), char_at(6) calls walk forward from the
+    // cache instead of rescanning from the start each time.
+    cached_cp_pos: usize = 0,
+    cached_byte_pos: usize = 0,
 
     pub fn init() StzString {
-        return .{ .data = .{}, .cached_cp_count = null, .cached_is_ascii = null };
+        return .{ .data = .{}, .cached_cp_count = null, .cached_is_ascii = null, .cached_cp_pos = 0, .cached_byte_pos = 0 };
     }
 
     pub fn deinit(self: *StzString) void {
@@ -80,6 +86,48 @@ pub const StzString = struct {
     pub fn invalidateCache(self: *StzString) void {
         self.cached_cp_count = null;
         self.cached_is_ascii = null;
+        self.cached_cp_pos = 0;
+        self.cached_byte_pos = 0;
+    }
+
+    /// Convert a 0-based codepoint index to a byte offset, using the
+    /// internal cache to avoid rescanning from byte 0 every time.
+    /// Returns null if the index is out of range.
+    pub fn cpToByteCached(self: *StzString, cp_index: usize) ?usize {
+        const src = self.data.items;
+        if (src.len == 0) return if (cp_index == 0) @as(?usize, 0) else null;
+
+        // If target is at or ahead of the cache, walk forward
+        if (cp_index >= self.cached_cp_pos) {
+            var pos: usize = self.cached_byte_pos;
+            var cp: usize = self.cached_cp_pos;
+            while (pos < src.len and cp < cp_index) {
+                const seq_len = std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
+                pos += seq_len;
+                cp += 1;
+            }
+            if (cp == cp_index) {
+                self.cached_cp_pos = cp;
+                self.cached_byte_pos = pos;
+                return pos;
+            }
+            return null;
+        }
+
+        // Target is before the cache -- walk from the beginning
+        var pos: usize = 0;
+        var cp: usize = 0;
+        while (pos < src.len and cp < cp_index) {
+            const seq_len = std.unicode.utf8ByteSequenceLength(src[pos]) catch 1;
+            pos += seq_len;
+            cp += 1;
+        }
+        if (cp == cp_index) {
+            self.cached_cp_pos = cp;
+            self.cached_byte_pos = pos;
+            return pos;
+        }
+        return null;
     }
 
     pub fn isAscii(self: *StzString) bool {

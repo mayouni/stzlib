@@ -158,9 +158,8 @@ pub fn str_chars_free(arr: [*c]StzStringHandle, count: usize) callconv(.c) void 
 
 pub fn str_char_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) i32 {
     if (handle) |s| {
-        const internal: c_int = @intCast(toInternal(cp_index));
-        const byte_off = unicode.stz_unicode_cp_to_byte(s.data.items.ptr, s.data.items.len, internal);
-        if (byte_off < 0) return -1;
+        const internal = toInternal(@as(i64, cp_index));
+        const byte_off = s.cpToByteCached(internal) orelse return -1;
         return unicode.stz_unicode_iterate(s.data.items.ptr, s.data.items.len, @intCast(byte_off));
     }
     return -1;
@@ -169,13 +168,12 @@ pub fn str_char_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) i32 {
 pub fn str_mid_cp(handle: StzStringHandle, cp_start: c_int, cp_count_arg: c_int) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const src = s.slice();
-        const internal_start: c_int = @intCast(toInternal(cp_start));
-        const byte_start = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, internal_start);
-        if (byte_start < 0) return str_new();
-        const byte_end = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, internal_start + cp_count_arg);
-        const end: usize = if (byte_end < 0) src.len else @intCast(byte_end);
-        const start: usize = @intCast(byte_start);
-        return str_from(src[start..end].ptr, end - start);
+        const internal_start = toInternal(@as(i64, cp_start));
+        const count: usize = if (cp_count_arg > 0) @intCast(cp_count_arg) else 0;
+        const byte_start = s.cpToByteCached(internal_start) orelse return str_new();
+        const end_cp = internal_start + count;
+        const byte_end = s.cpToByteCached(end_cp) orelse src.len;
+        return str_from(src[byte_start..byte_end].ptr, byte_end - byte_start);
     }
     return str_new();
 }
@@ -362,20 +360,17 @@ pub fn str_chars_between(handle: StzStringHandle, cp_from: c_int, cp_to: c_int) 
     if (cp_from < INDEX_BASE or cp_to < INDEX_BASE or cp_to <= cp_from + 1) return str_new();
 
     // Convert to internal 0-based, then get the range between (exclusive)
-    const from_internal: c_int = @intCast(toInternal(@intCast(cp_from)));
-    const to_internal: c_int = @intCast(toInternal(@intCast(cp_to)));
+    const from_internal = toInternal(@as(i64, cp_from));
+    const to_internal = toInternal(@as(i64, cp_to));
+    if (to_internal <= from_internal + 1) return str_new();
     const start_cp = from_internal + 1;
-    const count_cp = to_internal - from_internal - 1;
-    if (count_cp <= 0) return str_new();
+    const end_cp = to_internal;
 
-    const byte_start = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, start_cp);
-    if (byte_start < 0) return str_new();
-    const byte_end = unicode.stz_unicode_cp_to_byte(src.ptr, src.len, start_cp + count_cp);
-    const end: usize = if (byte_end < 0) src.len else @intCast(byte_end);
-    const start: usize = @intCast(byte_start);
-    if (start >= end) return str_new();
+    const byte_start = s.cpToByteCached(start_cp) orelse return str_new();
+    const byte_end = s.cpToByteCached(end_cp) orelse src.len;
+    if (byte_start >= byte_end) return str_new();
 
-    return str_from(src[start..end].ptr, end - start);
+    return str_from(src[byte_start..byte_end].ptr, byte_end - byte_start);
 }
 
 // ─── CharAtToString ───
@@ -384,27 +379,21 @@ pub fn str_chars_between(handle: StzStringHandle, cp_from: c_int, cp_to: c_int) 
 pub fn str_char_at_to_string(handle: StzStringHandle, cp_index: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
-    const idx: usize = if (cp_index >= INDEX_BASE) toInternal(@intCast(cp_index)) else return null;
+    if (cp_index < INDEX_BASE) return null;
+    const idx = toInternal(@as(i64, cp_index));
+    const off = s.cpToByteCached(idx) orelse return null;
+    if (off >= buf.len) return null;
+    const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return null;
+    if (off + cp_len > buf.len) return null;
 
-    var off: usize = 0;
-    var cp_i: usize = 0;
-    while (off < buf.len) {
-        const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch return null;
-        if (off + cp_len > buf.len) return null;
-        if (cp_i == idx) {
-            const result = gpa.create(StzString) catch return null;
-            result.* = StzString.init();
-            result.data.appendSlice(gpa, buf[off .. off + cp_len]) catch {
-                result.deinit();
-                gpa.destroy(result);
-                return null;
-            };
-            return result;
-        }
-        off += cp_len;
-        cp_i += 1;
-    }
-    return null;
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    result.data.appendSlice(gpa, buf[off .. off + cp_len]) catch {
+        result.deinit();
+        gpa.destroy(result);
+        return null;
+    };
+    return result;
 }
 
 // ─── Export-convention variants ───

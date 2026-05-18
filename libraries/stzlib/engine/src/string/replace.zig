@@ -1102,10 +1102,9 @@ pub export fn str_remove_blank_lines(handle: ?*StzString) callconv(.c) ?*StzStri
 pub fn str_insert_cp(handle: StzStringHandle, cp_pos: c_int, utf8: [*c]const u8, len: usize) callconv(.c) void {
     if (handle) |s| {
         if (utf8 == null or len == 0) return;
-        const internal: c_int = @intCast(toInternal(cp_pos));
-        const byte_pos = unicode.stz_unicode_cp_to_byte(s.data.items.ptr, s.data.items.len, internal);
-        if (byte_pos < 0) return;
-        s.data.insertSlice(gpa, @intCast(byte_pos), utf8[0..len]) catch {
+        const internal = toInternal(@as(i64, cp_pos));
+        const byte_pos = s.cpToByteCached(internal) orelse return;
+        s.data.insertSlice(gpa, byte_pos, utf8[0..len]) catch {
             setError(.out_of_memory);
         };
         s.invalidateCache();
