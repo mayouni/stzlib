@@ -1015,12 +1015,12 @@ pub fn str_remove_punctuation(handle: StzStringHandle) callconv(.c) StzStringHan
 
 // ─── RemoveNthWord (pub export fn) ───
 
-/// Remove the nth word (0-based). Words separated by spaces.
+/// Remove the nth word (INDEX_BASE convention). Words separated by spaces.
 pub export fn str_remove_nth_word(handle: ?*StzString, n: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     const result = str_new() orelse return null;
-    const target: usize = if (n >= 0) @intCast(n) else {
+    const target: usize = if (n >= INDEX_BASE) @intCast(n - INDEX_BASE) else {
         result.data.appendSlice(gpa, src) catch {
             setError(.out_of_memory);
         };
@@ -1190,12 +1190,12 @@ pub fn str_insert_after_each(handle: StzStringHandle, needle: [*c]const u8, need
 
 // ─── InsertWordAt (pub export fn) ───
 
-/// Insert a word at position n (0-based). Words separated by spaces.
+/// Insert a word at position n (INDEX_BASE convention). Words separated by spaces.
 pub export fn str_insert_word_at(handle: ?*StzString, n: c_int, word: [*c]const u8, word_len: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     const result = str_new() orelse return null;
-    const target: usize = if (n >= 0) @intCast(n) else 0;
+    const target: usize = if (n >= INDEX_BASE) @intCast(n - INDEX_BASE) else 0;
     const wlen: usize = if (word_len >= 0) @intCast(word_len) else 0;
 
     // Collect existing words

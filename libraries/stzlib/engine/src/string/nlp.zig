@@ -18,6 +18,7 @@ const mem = core.mem;
 const gpa = core.gpa;
 const StzString = core.StzString;
 const StzStringHandle = core.StzStringHandle;
+const INDEX_BASE = core.INDEX_BASE;
 const setError = core.setError;
 const str_new = core.str_new;
 const str_from = core.str_from;
@@ -435,14 +436,14 @@ pub fn str_metaphone(handle: ?*StzString) callconv(.c) ?*StzString {
 
 // ─── N-grams ───
 
-/// Return the n-th n-gram of given size (codepoint-level, 0-based).
+/// Return the n-th n-gram of given size (codepoint-level, INDEX_BASE convention).
 pub fn str_ngram(handle: StzStringHandle, size: c_int, n: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const src = s.slice();
-    if (src.len == 0 or size <= 0 or n < 0) return null;
+    if (src.len == 0 or size <= 0 or n < INDEX_BASE) return null;
 
     const sz: usize = @intCast(size);
-    const idx: usize = @intCast(n);
+    const idx: usize = @intCast(n - INDEX_BASE);
 
     // Walk to start position (codepoint idx)
     var off: usize = 0;

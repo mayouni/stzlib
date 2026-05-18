@@ -1632,25 +1632,25 @@ test "is_title_case" {
 
 test "line_at" {
     const s = str_from("line1\nline2\nline3", 17);
-    const l0 = str_line_at(s, 0);
-    try std.testing.expect(mem.eql(u8, str_data(l0)[0..5], "line1"));
-    str_free(l0);
-
     const l1 = str_line_at(s, 1);
-    try std.testing.expect(mem.eql(u8, str_data(l1)[0..5], "line2"));
+    try std.testing.expect(mem.eql(u8, str_data(l1)[0..5], "line1"));
     str_free(l1);
 
     const l2 = str_line_at(s, 2);
-    try std.testing.expect(mem.eql(u8, str_data(l2)[0..5], "line3"));
+    try std.testing.expect(mem.eql(u8, str_data(l2)[0..5], "line2"));
     str_free(l2);
 
-    try std.testing.expect(str_line_at(s, 3) == null);
+    const l3 = str_line_at(s, 3);
+    try std.testing.expect(mem.eql(u8, str_data(l3)[0..5], "line3"));
+    str_free(l3);
+
+    try std.testing.expect(str_line_at(s, 4) == null);
     str_free(s);
 
     // CRLF
     const s2 = str_from("a\r\nb\r\nc", 7);
     try std.testing.expectEqual(@as(c_int, 3), str_lines_split_count(s2));
-    const la = str_line_at(s2, 0);
+    const la = str_line_at(s2, 1);
     try std.testing.expect(mem.eql(u8, str_data(la)[0..1], "a"));
     str_free(la);
     str_free(s2);
@@ -1842,16 +1842,16 @@ test "is_octal_string" {
 
 test "word_at" {
     const s1 = str_from("hello world foo", 15);
-    const w0 = str_word_at(s1, 0);
-    try std.testing.expect(mem.eql(u8, str_data(w0)[0..@intCast(str_size(w0))], "hello"));
-    str_free(w0);
-
-    const w2 = str_word_at(s1, 2);
-    try std.testing.expect(mem.eql(u8, str_data(w2)[0..@intCast(str_size(w2))], "foo"));
-    str_free(w2);
+    const w1 = str_word_at(s1, 1);
+    try std.testing.expect(mem.eql(u8, str_data(w1)[0..@intCast(str_size(w1))], "hello"));
+    str_free(w1);
 
     const w3 = str_word_at(s1, 3);
-    try std.testing.expectEqual(@as(StzStringHandle, null), w3);
+    try std.testing.expect(mem.eql(u8, str_data(w3)[0..@intCast(str_size(w3))], "foo"));
+    str_free(w3);
+
+    const w4 = str_word_at(s1, 4);
+    try std.testing.expectEqual(@as(StzStringHandle, null), w4);
     str_free(s1);
 }
 
@@ -2420,17 +2420,17 @@ test "count_words" {
 
 test "nth_word" {
     const s1 = str_from("hello world foo", 15);
-    const w0 = str_nth_word(s1, 0);
-    try std.testing.expect(mem.eql(u8, str_data(w0)[0..@intCast(str_size(w0))], "hello"));
-    str_free(w0);
-
     const w1 = str_nth_word(s1, 1);
-    try std.testing.expect(mem.eql(u8, str_data(w1)[0..@intCast(str_size(w1))], "world"));
+    try std.testing.expect(mem.eql(u8, str_data(w1)[0..@intCast(str_size(w1))], "hello"));
     str_free(w1);
 
     const w2 = str_nth_word(s1, 2);
-    try std.testing.expect(mem.eql(u8, str_data(w2)[0..@intCast(str_size(w2))], "foo"));
+    try std.testing.expect(mem.eql(u8, str_data(w2)[0..@intCast(str_size(w2))], "world"));
     str_free(w2);
+
+    const w3 = str_nth_word(s1, 3);
+    try std.testing.expect(mem.eql(u8, str_data(w3)[0..@intCast(str_size(w3))], "foo"));
+    str_free(w3);
     str_free(s1);
 }
 
@@ -2910,15 +2910,15 @@ test "is_pangram" {
 
 test "ngram" {
     const h = str_from("hello", 5);
-    const r = str_ngram(h, 2, 0);
+    const r = str_ngram(h, 2, 1);
     try std.testing.expect(mem.eql(u8, str_data(r)[0..@intCast(str_size(r))], "he"));
     str_free(r);
 
-    const r2 = str_ngram(h, 2, 3);
+    const r2 = str_ngram(h, 2, 4);
     try std.testing.expect(mem.eql(u8, str_data(r2)[0..@intCast(str_size(r2))], "lo"));
     str_free(r2);
 
-    const r3 = str_ngram(h, 2, 4);
+    const r3 = str_ngram(h, 2, 5);
     try std.testing.expectEqual(@as(StzStringHandle, null), r3);
     str_free(h);
 }
@@ -2986,20 +2986,20 @@ test "slug" {
 
 test "chunk" {
     const h = str_from("abcdefgh", 8);
-    const r0 = str_chunk(h, 3, 0);
-    try std.testing.expect(mem.eql(u8, str_data(r0)[0..@intCast(str_size(r0))], "abc"));
-    str_free(r0);
-
     const r1 = str_chunk(h, 3, 1);
-    try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], "def"));
+    try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], "abc"));
     str_free(r1);
 
     const r2 = str_chunk(h, 3, 2);
-    try std.testing.expect(mem.eql(u8, str_data(r2)[0..@intCast(str_size(r2))], "gh"));
+    try std.testing.expect(mem.eql(u8, str_data(r2)[0..@intCast(str_size(r2))], "def"));
     str_free(r2);
 
     const r3 = str_chunk(h, 3, 3);
-    try std.testing.expectEqual(@as(StzStringHandle, null), r3);
+    try std.testing.expect(mem.eql(u8, str_data(r3)[0..@intCast(str_size(r3))], "gh"));
+    str_free(r3);
+
+    const r4 = str_chunk(h, 3, 4);
+    try std.testing.expectEqual(@as(StzStringHandle, null), r4);
     str_free(h);
 }
 
@@ -3401,7 +3401,7 @@ test "from_binary" {
 
 test "swap_words" {
     const h = str_from("hello world foo", 15);
-    const r = str_swap_words(h, 0, 2);
+    const r = str_swap_words(h, 1, 3);
     try std.testing.expect(mem.eql(u8, str_data(r)[0..@intCast(str_size(r))], "foo world hello"));
     str_free(r);
     str_free(h);
@@ -3622,13 +3622,13 @@ test "is_palindrome_words" {
 
 test "remove_nth_word" {
     const h = str_from("hello world foo", 15);
-    const r = str_remove_nth_word(h, 1);
+    const r = str_remove_nth_word(h, 2);
     try std.testing.expect(mem.eql(u8, str_data(r)[0..@intCast(str_size(r))], "hello foo"));
     str_free(r);
     str_free(h);
 
     const h2 = str_from("hello world foo", 15);
-    const r2 = str_remove_nth_word(h2, 0);
+    const r2 = str_remove_nth_word(h2, 1);
     try std.testing.expect(mem.eql(u8, str_data(r2)[0..@intCast(str_size(r2))], "world foo"));
     str_free(r2);
     str_free(h2);
@@ -3636,13 +3636,13 @@ test "remove_nth_word" {
 
 test "insert_word_at" {
     const h = str_from("hello foo", 9);
-    const r = str_insert_word_at(h, 1, "world", 5);
+    const r = str_insert_word_at(h, 2, "world", 5);
     try std.testing.expect(mem.eql(u8, str_data(r)[0..@intCast(str_size(r))], "hello world foo"));
     str_free(r);
     str_free(h);
 
     const h2 = str_from("world foo", 9);
-    const r2 = str_insert_word_at(h2, 0, "hello", 5);
+    const r2 = str_insert_word_at(h2, 1, "hello", 5);
     try std.testing.expect(mem.eql(u8, str_data(r2)[0..@intCast(str_size(r2))], "hello world foo"));
     str_free(r2);
     str_free(h2);
