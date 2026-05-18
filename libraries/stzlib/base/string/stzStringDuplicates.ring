@@ -45,11 +45,11 @@ class stzStringDuplicates
 	def DuplicatedChars()
 		acAll = []
 		acDups = []
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 			if ring_find(acAll, c) > 0
 				if ring_find(acDups, c) = 0
 					acDups + c
@@ -117,14 +117,14 @@ class stzStringDuplicates
 	#===============================#
 
 	def HasConsecutiveDuplicates()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		if nLen < 2
 			return 0
 		ok
 
 		for i = 2 to nLen
-			if substr(cContent, i, 1) = substr(cContent, i - 1, 1)
+			if acChars[i] = acChars[i - 1]
 				return 1
 			ok
 		next

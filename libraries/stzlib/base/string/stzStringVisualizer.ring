@@ -181,7 +181,7 @@ class stzStringVisualizer
 		nLen = @oString.NumberOfChars()
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = @oString.NthChar(i)
 			oViz = new stzStringVisualizer(c)
 			acResult + oViz.Boxed()
 		next
