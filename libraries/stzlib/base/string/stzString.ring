@@ -5677,13 +5677,10 @@ class stzString from stzObject
 			return []
 		ok
 
-		# Engine-backed: O(n^2) Zig replaces O(n^3) Ring loop
+		# Engine-backed: unified CS function (case=1 all, case=0 unique)
 
-		if @CaseSensitive(pCaseSensitive) = 1
-			pResult = StzEngineStringAllSubstrings(@pEngine)
-		else
-			pResult = StzEngineStringAllSubstringsUnique(@pEngine)
-		ok
+		bCase = @CaseSensitive(pCaseSensitive)
+		pResult = StzEngineStringAllSubstringsCS(@pEngine, bCase)
 
 		cJoined = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
@@ -5764,9 +5761,9 @@ class stzString from stzObject
 			return []
 		ok
 
-		# Engine-backed: reuses str_all_substrings_unique
+		# Engine-backed: unified CS function (case=0 = unique)
 
-		pResult = StzEngineStringAllSubstringsUnique(@pEngine)
+		pResult = StzEngineStringAllSubstringsCS(@pEngine, 0)
 		cJoined = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 
@@ -94978,7 +94975,7 @@ class stzString from stzObject
 
 		else
 			# CI: engine-backed unique chars (case-folded dedup)
-			pResult = StzEngineStringUniqueCharsCI(@pEngine)
+			pResult = StzEngineStringUniqueCharsCS(@pEngine, 0)
 			cJoined = StzEngineStringData(pResult)
 			StzEngineStringFree(pResult)
 
@@ -96000,47 +95997,35 @@ class stzString from stzObject
 	#------------------------------#
 
 	def UniqueCharsCS(pCaseSensitive)
+		# Engine-backed: unified CS function (case=1 preserves, case=0 folds)
 
-		if @CaseSensitive(pCaseSensitive) = 1
-			# CS: unique chars preserving case
-			acChars = This.CharsCS(1)
-			nLen = len(acChars)
-			acResult = []
-			for i = 1 to nLen
-				c = acChars[i]
-				if ring_find(acResult, c) = 0
-					acResult + c
-				ok
-			next
-			return acResult
-		else
-			# CI: engine-backed unique chars (case-folded dedup)
-			pResult = StzEngineStringUniqueCharsCI(@pEngine)
-			cJoined = StzEngineStringData(pResult)
-			StzEngineStringFree(pResult)
+		bCase = @CaseSensitive(pCaseSensitive)
+		pResult = StzEngineStringUniqueCharsCS(@pEngine, bCase)
+		cJoined = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
 
-			if cJoined = ""
-				return []
-			ok
-
-			acResult = []
-			cDelim = char(0)
-			cRest = cJoined
-
-			while true
-				nPos = substr(cRest, cDelim)
-				if nPos = 0
-					if len(cRest) > 0
-						acResult + cRest
-					ok
-					exit
-				ok
-				acResult + left(cRest, nPos - 1)
-				cRest = substr(cRest, nPos + 1)
-			end
-
-			return acResult
+		if cJoined = ""
+			return []
 		ok
+
+		# Split \x00-delimited result into Ring list
+		acResult = []
+		cDelim = char(0)
+		cRest = cJoined
+
+		while true
+			nPos = substr(cRest, cDelim)
+			if nPos = 0
+				if len(cRest) > 0
+					acResult + cRest
+				ok
+				exit
+			ok
+			acResult + left(cRest, nPos - 1)
+			cRest = substr(cRest, nPos + 1)
+		end
+
+		return acResult
 
 		#< @FunctionFluentForms
 
