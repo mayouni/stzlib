@@ -81,7 +81,7 @@ class stzStringInserter
 		anPos = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
 		nLen = len(anPos)
 		nShift = 0
-		nNewLen = len(pcNewSubStr)
+		nNewLen = StzLen(pcNewSubStr)
 		for i = 1 to nLen
 			This.InsertBefore(anPos[i] + nShift, pcNewSubStr)
 			nShift += nNewLen
@@ -97,10 +97,10 @@ class stzStringInserter
 	def InsertAfterSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
 		anPos = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
-		nSubLen = len(pcSubStr)
+		nSubLen = StzLen(pcSubStr)
 		nLen = len(anPos)
 		nShift = 0
-		nNewLen = len(pcNewSubStr)
+		nNewLen = StzLen(pcNewSubStr)
 		for i = 1 to nLen
 			This.InsertAfter(anPos[i] + nSubLen - 1 + nShift, pcNewSubStr)
 			nShift += nNewLen
@@ -120,7 +120,7 @@ class stzStringInserter
 	def InsertAfterNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
 		nPos = _oFinder_.FindNthCS(n, pcSubStr, pCaseSensitive)
-		This.InsertAfterPosition(nPos + len(pcSubStr) - 1, pcNewSubStr)
+		This.InsertAfterPosition(nPos + StzLen(pcSubStr) - 1, pcNewSubStr)
 
 		def InsertAfterNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertAfterNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -150,7 +150,7 @@ class stzStringInserter
 	def InsertAfterFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
 		nPos = _oFinder_.FindFirstCS(pcSubStr, pCaseSensitive)
-		This.InsertAfterPosition(nPos + len(pcSubStr) - 1, pcNewSubStr)
+		This.InsertAfterPosition(nPos + StzLen(pcSubStr) - 1, pcNewSubStr)
 
 		def InsertAfterFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertAfterFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -176,7 +176,7 @@ class stzStringInserter
 	def InsertAfterLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
 		_oFinder_ = new stzStringFinder(@oString)
 		nPos = _oFinder_.FindLastCS(pcSubStr, pCaseSensitive)
-		This.InsertAfterPosition(nPos + len(pcSubStr) - 1, pcNewSubStr)
+		This.InsertAfterPosition(nPos + StzLen(pcSubStr) - 1, pcNewSubStr)
 
 		def InsertAfterLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertAfterLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)

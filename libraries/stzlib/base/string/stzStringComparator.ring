@@ -123,15 +123,18 @@ class stzStringComparator
 	def DiffWith(pcOtherStr)
 		aResult = []
 		nLen = @oString.NumberOfChars()
-		nOtherLen = len(pcOtherStr)
+		oOther = new stzString(pcOtherStr)
+		nOtherLen = oOther.NumberOfChars()
 		nMax = nLen
 		if nOtherLen > nMax
 			nMax = nOtherLen
 		ok
+		acThisChars = @oString.Chars()
+		acOtherChars = oOther.Chars()
 		for i = 1 to nMax
 			if i > nLen or i > nOtherLen
 				aResult + i
-			but @oString.Content()[i] != pcOtherStr[i]
+			but acThisChars[i] != acOtherChars[i]
 				aResult + i
 			ok
 		next
