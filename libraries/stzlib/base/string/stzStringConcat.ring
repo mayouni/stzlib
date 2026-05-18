@@ -103,12 +103,12 @@ class stzStringConcat
 	#======================================================#
 
 	def RepeatNTimes(n)
-		cStr = @oString.Content()
-		cResult = ""
-		for i = 1 to n
-			cResult += cStr
-		next
-		@oString.Update(cResult)
+		pH = @oString.Engine()
+		pR = StzEngineStringRepeat(pH, n)
+		if pR != 0
+			@oString.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
 
 		def RepeatNTimesQ(n)
 			This.RepeatNTimes(n)

@@ -500,7 +500,7 @@ class stzStringBounder
 		if n < 1 or n > @oString.NumberOfChars()
 			StzRaise("Index out of range!")
 		ok
-		return substr(@oString.Content(), n, 1)
+		return @oString.NthChar(n)
 
 	def FirstChar()
 		return This.Char(1)

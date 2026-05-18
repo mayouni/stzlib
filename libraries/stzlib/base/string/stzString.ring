@@ -342,10 +342,20 @@ class stzString from stzObject
 	#========================================#
 
 	def TrimLeft()
-		This.Update(ring_ltrim(This.Content()))
+		pH = This.Engine()
+		pR = StzEngineStringTrimLeft(pH)
+		if pR != 0
+			This.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
 
 	def TrimRight()
-		This.Update(ring_rtrim(This.Content()))
+		pH = This.Engine()
+		pR = StzEngineStringTrimRight(pH)
+		if pR != 0
+			This.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
 
 	def TrimStart()
 		This.TrimLeft()
@@ -354,4 +364,9 @@ class stzString from stzObject
 		This.TrimRight()
 
 	def Trim()
-		This.Update(ring_trim(This.Content()))
+		pH = This.Engine()
+		pR = StzEngineStringTrim(pH)
+		if pR != 0
+			This.Update(StzEngineStringData(pR))
+			StzEngineStringFree(pR)
+		ok
