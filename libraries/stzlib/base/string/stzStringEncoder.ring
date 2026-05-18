@@ -43,18 +43,11 @@ class stzStringEncoder
 	#===============================#
 
 	def ToHex()
-		cContent = @oString.Content()
-		cResult = ""
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			cHex = hex(ascii(substr(cContent, i, 1)))
-			if len(cHex) = 1
-				cHex = "0" + cHex
-			ok
-			cResult += cHex
-		next
-
+		pHandle = StzEngineString(@oString.Content())
+		pHex = StzEngineStringToHex(pHandle)
+		cResult = StzEngineStringData(pHex)
+		StzEngineStringFree(pHex)
+		StzEngineStringFree(pHandle)
 		return cResult
 
 		def ToHexQ()
@@ -88,54 +81,22 @@ class stzStringEncoder
 	#===============================#
 
 	def UrlEncoded()
-		cContent = @oString.Content()
-		cResult = ""
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			n = ascii(c)
-
-			if (n >= 65 and n <= 90) or
-			   (n >= 97 and n <= 122) or
-			   (n >= 48 and n <= 57) or
-			   c = "-" or c = "_" or c = "." or c = "~"
-				cResult += c
-			else
-				cHex = hex(n)
-				if len(cHex) = 1
-					cHex = "0" + cHex
-				ok
-				cResult += "%" + upper(cHex)
-			ok
-		next
-
+		pHandle = StzEngineString(@oString.Content())
+		pEnc = StzEngineStringURLEncode(pHandle)
+		cResult = StzEngineStringData(pEnc)
+		StzEngineStringFree(pEnc)
+		StzEngineStringFree(pHandle)
 		return cResult
 
 		def UrlEncode()
 			@oString.Update(This.UrlEncoded())
 
 	def UrlDecoded()
-		cContent = @oString.Content()
-		cResult = ""
-		nLen = len(cContent)
-		i = 1
-
-		while i <= nLen
-			c = substr(cContent, i, 1)
-			if c = "%" and i + 2 <= nLen
-				cHex = substr(cContent, i + 1, 2)
-				cResult += char(dec(cHex))
-				i += 3
-			but c = "+"
-				cResult += " "
-				i++
-			else
-				cResult += c
-				i++
-			ok
-		end
-
+		pHandle = StzEngineString(@oString.Content())
+		pDec = StzEngineStringURLDecode(pHandle)
+		cResult = StzEngineStringData(pDec)
+		StzEngineStringFree(pDec)
+		StzEngineStringFree(pHandle)
 		return cResult
 
 		def UrlDecode()
