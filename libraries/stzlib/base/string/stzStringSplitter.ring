@@ -145,12 +145,7 @@ class stzStringSplitter
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		if pCaseSensitive = 1
-			return @oString._SplitByStr(pcSubStr)
-		ok
-
-		# Case-insensitive: use Engine CI split
-		return @oString._SplitByStrCI(pcSubStr)
+		return @oString._SplitByStrCS(pcSubStr, pCaseSensitive)
 
 	def SplitAtSubString(pcSubStr)
 		return This.SplitAtSubStringCS(pcSubStr, 1)

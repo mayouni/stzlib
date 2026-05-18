@@ -382,11 +382,7 @@ func StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	if isString(pStrOrList) and isString(pSubStrOrItem)
 		bCase = CaseSensitive(bCaseSensitive)
 		pStr = StzEngineStringFrom(pStrOrList)
-		if bCase
-			nResult = StzEngineStringStartsWith(pStr, pSubStrOrItem)
-		else
-			nResult = StzEngineStringStartsWithCI(pStr, pSubStrOrItem)
-		ok
+		nResult = StzEngineStringStartsWithCS(pStr, pSubStrOrItem, bCase)
 		StzEngineStringFree(pStr)
 		return nResult
 	ok
@@ -425,11 +421,7 @@ func EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	if isString(pStrOrList) and isString(pSubStrOrItem)
 		bCase = CaseSensitive(bCaseSensitive)
 		pStr = StzEngineStringFrom(pStrOrList)
-		if bCase
-			nResult = StzEngineStringEndsWith(pStr, pSubStrOrItem)
-		else
-			nResult = StzEngineStringEndsWithCI(pStr, pSubStrOrItem)
-		ok
+		nResult = StzEngineStringEndsWithCS(pStr, pSubStrOrItem, bCase)
 		StzEngineStringFree(pStr)
 		return nResult
 	ok
@@ -474,11 +466,7 @@ func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
 
 	# Engine-backed contains check
 	pStr = StzEngineStringFrom(pcStr)
-	if bCase
-		nResult = StzEngineStringContains(pStr, pcSubStr)
-	else
-		nResult = StzEngineStringContainsCI(pStr, pcSubStr)
-	ok
+	nResult = StzEngineStringContainsCS(pStr, pcSubStr, bCase)
 	StzEngineStringFree(pStr)
 	return nResult
 
@@ -580,12 +568,7 @@ func StzReplaceCS(cStr, cSubStr, cNewSubStr, bCaseSensitive)
 
 	# Use Engine for codepoint-safe replace
 	pStr = StzEngineStringFrom(cStr)
-
-	if bCase = 1
-		StzEngineStringReplace(pStr, cSubStr, cNewSubStr)
-	else
-		StzEngineStringReplaceCI(pStr, cSubStr, cNewSubStr)
-	ok
+	StzEngineStringReplaceCS(pStr, cSubStr, cNewSubStr, bCase)
 
 	cResult = StzEngineStringData(pStr)
 	StzEngineStringFree(pStr)
@@ -1444,11 +1427,7 @@ func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
 
 	# Engine-backed count
 	pStr = StzEngineStringFrom(pcStr)
-	if bCase
-		nResult = StzEngineStringCountOf(pStr, pcSubStr)
-	else
-		nResult = StzEngineStringCountOfCI(pStr, pcSubStr)
-	ok
+	nResult = StzEngineStringCountOfCS(pStr, pcSubStr, bCase)
 	StzEngineStringFree(pStr)
 
 	return nResult
@@ -1599,11 +1578,7 @@ func BothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
 	_bCase_ = @CaseSensitive(pCaseSensitive)
 	pStr1 = StzEngineStringFrom(pcStr1)
 	pStr2 = StzEngineStringFrom(pcStr2)
-	if _bCase_ = 1
-		nResult = StzEngineStringEqualsCI(pStr1, pStr2)
-	else
-		nResult = StzEngineStringEquals(pStr1, pStr2)
-	ok
+	nResult = StzEngineStringEqualsCS(pStr1, pStr2, _bCase_)
 	StzEngineStringFree(pStr2)
 	StzEngineStringFree(pStr1)
 	return nResult
@@ -1634,11 +1609,7 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 	pFirst = StzEngineStringFrom(pacStr[1])
 	for i = 2 to nLen
 		pOther = StzEngineStringFrom(pacStr[i])
-		if _bCase_ = 1
-			nEq = StzEngineStringEqualsCI(pFirst, pOther)
-		else
-			nEq = StzEngineStringEquals(pFirst, pOther)
-		ok
+		nEq = StzEngineStringEqualsCS(pFirst, pOther, _bCase_)
 		StzEngineStringFree(pOther)
 		if nEq = 0
 			bResult = 0
@@ -2020,19 +1991,11 @@ func SplitAtCS(cData, cSubStr, pCaseSensitive)
 
 	# Engine-backed split for codepoint safety
 	pStr = StzEngineStringFrom(cData)
-	if bCase
-		nCount = StzEngineStringSplitCount(pStr, cSubStr)
-	else
-		nCount = StzEngineStringSplitCountCI(pStr, cSubStr)
-	ok
+	nCount = StzEngineStringSplitCountCS(pStr, cSubStr, bCase)
 
 	acResult = []
 	for i = 0 to nCount - 1
-		if bCase
-			pPart = StzEngineStringSplitGet(pStr, cSubStr, i)
-		else
-			pPart = StzEngineStringSplitGetCI(pStr, cSubStr, i)
-		ok
+		pPart = StzEngineStringSplitGetCS(pStr, cSubStr, i, bCase)
 		if pPart != NULL
 			acResult + StzEngineStringData(pPart)
 			StzEngineStringFree(pPart)
@@ -2523,11 +2486,7 @@ func Chars(str)
 
 func _StrContainsCS(cStr, cSubStr, bCaseSensitive)
 	pStr = StzEngineStringFrom(cStr)
-	if bCaseSensitive = 1
-		nResult = StzEngineStringContains(pStr, cSubStr)
-	else
-		nResult = StzEngineStringContainsCI(pStr, cSubStr)
-	ok
+	nResult = StzEngineStringContainsCS(pStr, cSubStr, bCaseSensitive)
 	StzEngineStringFree(pStr)
 	return nResult
 

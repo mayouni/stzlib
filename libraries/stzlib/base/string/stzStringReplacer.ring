@@ -78,15 +78,7 @@ class stzStringReplacer
 		ok
 
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-
-		if _bCase_
-			StzEngineStringReplace(@oString.Engine(), pcSubStr, pcNewSubStr)
-			@TraceObjectHistory(This)
-			return
-		ok
-
-		# Case-insensitive: use Engine CI function
-		StzEngineStringReplaceCI(@oString.Engine(), pcSubStr, pcNewSubStr)
+		StzEngineStringReplaceCS(@oString.Engine(), pcSubStr, pcNewSubStr, _bCase_)
 		@TraceObjectHistory(This)
 
 		def ReplaceCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)

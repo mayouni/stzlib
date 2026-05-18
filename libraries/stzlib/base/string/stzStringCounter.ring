@@ -53,11 +53,7 @@ class stzStringCounter
 
 	def NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
-		if _bCase_
-			return StzEngineStringCountOf(@oString.Engine(), pcSubStr)
-		ok
-		# Case-insensitive: use Engine CI function
-		return StzEngineStringCountOfCI(@oString.Engine(), pcSubStr)
+		return StzEngineStringCountOfCS(@oString.Engine(), pcSubStr, _bCase_)
 
 		def NumberOfOccurrencesCS(pcSubStr, pCaseSensitive)
 			return This.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
