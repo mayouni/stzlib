@@ -1,26 +1,21 @@
 # Test domain classes batch 4: CaseChanger, Aligner, Lines, Words,
 # Sections, Inserter, Comparator, Encoder
+# Run from the test/ directory: ring test_domains4.ring
 
-? "Loading DLL"
-$cStzStringLib = "D:\GitHub\stzlib\libraries\stzlib\engine\zig-out\bin\stz_string.dll"
-if fexists($cStzStringLib)
-    $pStzStringHandle = LoadLib($cStzStringLib)
-ok
-
-? "Loading stubs"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\test\test_stubs.ring"
+? "Loading stubs + DLL"
+load "test_stubs.ring"
 
 ? "Loading classes"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzString.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringFinder.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringCaseChanger.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringAligner.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringLines.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringWords.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringSections.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringInserter.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringComparator.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringEncoder.ring"
+load "../stzString.ring"
+load "../stzStringFinder.ring"
+load "../stzStringCaseChanger.ring"
+load "../stzStringAligner.ring"
+load "../stzStringLines.ring"
+load "../stzStringWords.ring"
+load "../stzStringSections.ring"
+load "../stzStringInserter.ring"
+load "../stzStringComparator.ring"
+load "../stzStringEncoder.ring"
 
 nPass = 0
 nFail = 0

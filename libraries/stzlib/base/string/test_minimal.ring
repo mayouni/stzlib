@@ -1,24 +1,15 @@
 # Minimal test: verify composition pattern
 # Tests core stzString + Finder + Splitter + Replacer
+# Run from the base/string/ directory: ring test_minimal.ring
 
-? "Loading DLL"
-$cStzStringLib = "D:\GitHub\stzlib\libraries\stzlib\engine\zig-out\bin\stz_string.dll"
-
-if fexists($cStzStringLib)
-    $pStzStringHandle = LoadLib($cStzStringLib)
-    ? "  Engine DLL loaded: " + $cStzStringLib
-else
-    ? "  WARNING: DLL not found at: " + $cStzStringLib
-ok
-
-? "Loading stubs"
-load "D:\GitHub\stzlib\test_stubs.ring"
+? "Loading stubs + DLL"
+load "test/test_stubs.ring"
 
 ? "Loading domain classes"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzString.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringFinder.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringSplitter.ring"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringReplacer.ring"
+load "stzString.ring"
+load "stzStringFinder.ring"
+load "stzStringSplitter.ring"
+load "stzStringReplacer.ring"
 
 # --- Tests ---
 

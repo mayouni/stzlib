@@ -1,22 +1,12 @@
 # Test stzString core with minimal stubs
 # All procedural code MUST come before any class definition in Ring
+# Run from the test/ directory: ring test_core.ring
 
-? "Step 1: Loading DLL"
+? "Step 1: Loading stubs + DLL"
+load "test_stubs.ring"
 
-$cStzStringLib = "D:\GitHub\stzlib\libraries\stzlib\engine\zig-out\bin\stz_string.dll"
-
-if fexists($cStzStringLib)
-    $pStzStringHandle = LoadLib($cStzStringLib)
-    ? "  DLL loaded OK"
-else
-    ? "  DLL not found!"
-ok
-
-? "Step 2: Loading stubs + stzObject"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\test\test_stubs.ring"
-
-? "Step 3: Loading stzString"
-load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzString.ring"
+? "Step 2: Loading stzString"
+load "../stzString.ring"
 
 ? "Step 4: Creating stzString object"
 o1 = new stzString("Hello")

@@ -929,6 +929,156 @@ fn ring_StringOnlyDigits(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_only_digits(h)), STZ_HANDLE);
 }
 
+// ─── OnlyPunctuation ───
+
+fn ring_StringOnlyPunctuation(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_punctuation(h)), STZ_HANDLE);
+}
+
+// ─── OnlySymbols ───
+
+fn ring_StringOnlySymbols(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_symbols(h)), STZ_HANDLE);
+}
+
+// ─── OnlySpaces ───
+
+fn ring_StringOnlySpaces(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_spaces(h)), STZ_HANDLE);
+}
+
+// ─── OnlyMarks ───
+
+fn ring_StringOnlyMarks(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_marks(h)), STZ_HANDLE);
+}
+
+// ─── OnlyControls ───
+
+fn ring_StringOnlyControls(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_only_controls(h)), STZ_HANDLE);
+}
+
+// ─── IsPunctuation ───
+
+fn ring_StringIsPunctuation2(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_punctuation(h)));
+}
+
+// ─── IsSymbol ───
+
+fn ring_StringIsSymbol(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_symbol(h)));
+}
+
+// ─── IsMark ───
+
+fn ring_StringIsMark(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_mark(h)));
+}
+
+// ─── IsControl ───
+
+fn ring_StringIsControl(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_is_control(h)));
+}
+
+// ─── HasPunctuation ───
+
+fn ring_StringHasPunctuation(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_has_punctuation(h)));
+}
+
+// ─── HasSymbol ───
+
+fn ring_StringHasSymbol(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_has_symbol(h)));
+}
+
+// ─── HasMark ───
+
+fn ring_StringHasMark(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_has_mark(h)));
+}
+
+// ─── CharUnicodeAt ───
+
+fn ring_StringCharUnicodeAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_char_unicode_at(h, idx)));
+}
+
+// ─── CharCategoryAt ───
+
+fn ring_StringCharCategoryAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_char_category_at(h, idx)));
+}
+
+// ─── CharCategoryStringAt ───
+
+fn ring_StringCharCategoryStringAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    var buf: [8]u8 = undefined;
+    const n = string.str_char_category_string_at(h, idx, &buf, 8);
+    if (n > 0) ring_vm_api_retstring2(p, &buf, @intCast(n)) else ring_vm_api_retstring(p, "");
+}
+
+// ─── CharIsPunctuationAt ───
+
+fn ring_StringCharIsPunctuationAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_char_is_punctuation_at(h, idx)));
+}
+
+// ─── CharIsSymbolAt ───
+
+fn ring_StringCharIsSymbolAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_char_is_symbol_at(h, idx)));
+}
+
+// ─── CharIsMarkAt ───
+
+fn ring_StringCharIsMarkAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_char_is_mark_at(h, idx)));
+}
+
+// ─── CharIsControlAt ───
+
+fn ring_StringCharIsControlAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_char_is_control_at(h, idx)));
+}
+
+// ─── CharIsSpaceAt ───
+
+fn ring_StringCharIsSpaceAt(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_char_is_space_at(h, idx)));
+}
+
 // ─── RemoveWhitespace ───
 
 fn ring_StringRemoveWhitespace(p: *anyopaque) callconv(.c) void {
@@ -2257,7 +2407,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringclearerror", .func = &ring_StringClearError },
     // Lifecycle
     .{ .name = "stzenginestringnew", .func = &ring_StringNew },
-    .{ .name = "stzenginestringfrom", .func = &ring_StringFrom },
+    .{ .name = "stzenginestring", .func = &ring_StringFrom },
     .{ .name = "stzenginestringfree", .func = &ring_StringFree },
     .{ .name = "stzenginestringdata", .func = &ring_StringData },
     .{ .name = "stzenginestringsize", .func = &ring_StringSize },
@@ -2408,6 +2558,26 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcenterpad", .func = &ring_StringCenterPad },
     .{ .name = "stzenginestringonlyletters", .func = &ring_StringOnlyLetters },
     .{ .name = "stzenginestringonlydigits", .func = &ring_StringOnlyDigits },
+    .{ .name = "stzenginestringonlypunctuation", .func = &ring_StringOnlyPunctuation },
+    .{ .name = "stzenginestringonlysymbols", .func = &ring_StringOnlySymbols },
+    .{ .name = "stzenginestringonlyspaces", .func = &ring_StringOnlySpaces },
+    .{ .name = "stzenginestringonlymarks", .func = &ring_StringOnlyMarks },
+    .{ .name = "stzenginestringonlycontrols", .func = &ring_StringOnlyControls },
+    .{ .name = "stzenginestringispunctuation", .func = &ring_StringIsPunctuation2 },
+    .{ .name = "stzenginestringissymbol", .func = &ring_StringIsSymbol },
+    .{ .name = "stzenginestringismark", .func = &ring_StringIsMark },
+    .{ .name = "stzenginestringiscontrol", .func = &ring_StringIsControl },
+    .{ .name = "stzenginestringhaspunctuation", .func = &ring_StringHasPunctuation },
+    .{ .name = "stzenginestringhassymbol", .func = &ring_StringHasSymbol },
+    .{ .name = "stzenginestringhasmark", .func = &ring_StringHasMark },
+    .{ .name = "stzenginestringcharunicodeat", .func = &ring_StringCharUnicodeAt },
+    .{ .name = "stzenginestringcharcategoryat", .func = &ring_StringCharCategoryAt },
+    .{ .name = "stzenginestringcharcategorystringat", .func = &ring_StringCharCategoryStringAt },
+    .{ .name = "stzenginestringcharispunctuationat", .func = &ring_StringCharIsPunctuationAt },
+    .{ .name = "stzenginestringcharissymbolat", .func = &ring_StringCharIsSymbolAt },
+    .{ .name = "stzenginestringcharismarkat", .func = &ring_StringCharIsMarkAt },
+    .{ .name = "stzenginestringchariscontrolat", .func = &ring_StringCharIsControlAt },
+    .{ .name = "stzenginestringcharisspaceat", .func = &ring_StringCharIsSpaceAt },
     .{ .name = "stzenginestringremovewhitespace", .func = &ring_StringRemoveWhitespace },
     .{ .name = "stzenginestringcountwords", .func = &ring_StringCountWords },
     .{ .name = "stzenginestringnthword", .func = &ring_StringNthWord },
@@ -2493,7 +2663,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringtobinary", .func = &ring_StringToBinary },
     .{ .name = "stzenginestingsortwords", .func = &ring_StringSortWords },
     .{ .name = "stzenginestringuniquewords", .func = &ring_StringUniqueWords },
-    .{ .name = "stzenginestringfrombinary", .func = &ring_StringFromBinary },
+    .{ .name = "stzenginestringbinary", .func = &ring_StringFromBinary },
     .{ .name = "stzenginestringswapwords", .func = &ring_StringSwapWords },
     .{ .name = "stzenginestringtopiglatin", .func = &ring_StringToPigLatin },
     .{ .name = "stzenginestringrunlengthencode", .func = &ring_StringRunLengthEncode },
@@ -2502,7 +2672,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringzigzag", .func = &ring_StringZigzag },
     .{ .name = "stzenginestringtomorse", .func = &ring_StringToMorse },
     .{ .name = "stzenginestringtobase64", .func = &ring_StringToBase64 },
-    .{ .name = "stzenginestringfrombase64", .func = &ring_StringFromBase64 },
+    .{ .name = "stzenginestringbase64", .func = &ring_StringFromBase64 },
     .{ .name = "stzenginestringxorcipher", .func = &ring_StringXorCipher },
     .{ .name = "stzenginestringentropy", .func = &ring_StringEntropy },
     .{ .name = "stzenginestringcharfrequencytop", .func = &ring_StringCharFrequencyTop },
@@ -2524,7 +2694,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestingleftpad", .func = &ring_StringLeftPad },
     .{ .name = "stzenginestringrightpad", .func = &ring_StringRightPad },
     .{ .name = "stzenginestringtohex", .func = &ring_StringToHex },
-    .{ .name = "stzenginestringfromhex", .func = &ring_StringFromHex },
+    .{ .name = "stzenginestringhex", .func = &ring_StringFromHex },
     .{ .name = "stzenginestingsoundex", .func = &ring_StringSoundex },
     .{ .name = "stzenginestringvigenereencrypt", .func = &ring_StringVigenereEncrypt },
     .{ .name = "stzenginestringatbash", .func = &ring_StringAtbash },

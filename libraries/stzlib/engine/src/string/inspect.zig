@@ -1228,3 +1228,155 @@ test "str_is_hex_binary_octal" {
     defer str_free(oc);
     try std.testing.expectEqual(@as(c_int, 1), str_is_octal_string(oc));
 }
+
+// ─── str_is_punctuation ───
+
+/// Check if string contains only punctuation characters (Unicode Pc..Po).
+/// Returns 1 if true, 0 if false. Empty string returns 0.
+pub fn str_is_punctuation(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_punctuation(cp_val) == 0) return 0;
+        i += cp_len;
+    }
+    return 1;
+}
+
+// ─── str_is_symbol ───
+
+/// Check if string contains only symbol characters (Unicode Sm, Sc, Sk, So).
+/// Returns 1 if true, 0 if false. Empty string returns 0.
+pub fn str_is_symbol(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_symbol(cp_val) == 0) return 0;
+        i += cp_len;
+    }
+    return 1;
+}
+
+// ─── str_is_mark ───
+
+/// Check if string contains only mark characters (Unicode Mn, Mc, Me).
+/// Returns 1 if true, 0 if false. Empty string returns 0.
+pub fn str_is_mark(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_mark(cp_val) == 0) return 0;
+        i += cp_len;
+    }
+    return 1;
+}
+
+// ─── str_is_control ───
+
+/// Check if string contains only control characters (Unicode Cc, Cf).
+/// Returns 1 if true, 0 if false. Empty string returns 0.
+pub fn str_is_control(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    if (bytes.len == 0) return 0;
+
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_control(cp_val) == 0) return 0;
+        i += cp_len;
+    }
+    return 1;
+}
+
+// ─── str_has_punctuation / str_has_symbol / str_has_mark ───
+
+/// Check if string contains at least one punctuation character.
+pub fn str_has_punctuation(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_punctuation(cp_val) != 0) return 1;
+        i += cp_len;
+    }
+    return 0;
+}
+
+/// Check if string contains at least one symbol character.
+pub fn str_has_symbol(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_symbol(cp_val) != 0) return 1;
+        i += cp_len;
+    }
+    return 0;
+}
+
+/// Check if string contains at least one mark/combining character.
+pub fn str_has_mark(handle: StzStringHandle) callconv(.c) c_int {
+    const s = (handle orelse return 0);
+    const bytes = s.slice();
+    var i: usize = 0;
+    while (i < bytes.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(bytes[i]) catch 1;
+        const cp_val: i32 = decodeCodepoint(bytes, i, cp_len);
+        if (unicode.stz_unicode_is_mark(cp_val) != 0) return 1;
+        i += cp_len;
+    }
+    return 0;
+}
+
+// ─── Tests for new predicates ───
+
+test "str_is_punctuation" {
+    const h1 = str_from(".,!?", 4);
+    defer str_free(h1);
+    try std.testing.expectEqual(@as(c_int, 1), str_is_punctuation(h1));
+
+    const h2 = str_from("Hello!", 6);
+    defer str_free(h2);
+    try std.testing.expectEqual(@as(c_int, 0), str_is_punctuation(h2));
+}
+
+test "str_is_symbol" {
+    const h1 = str_from("+=$", 3);
+    defer str_free(h1);
+    try std.testing.expectEqual(@as(c_int, 1), str_is_symbol(h1));
+
+    const h2 = str_from("+a", 2);
+    defer str_free(h2);
+    try std.testing.expectEqual(@as(c_int, 0), str_is_symbol(h2));
+}
+
+test "str_has_punctuation" {
+    const h1 = str_from("Hello, world!", 13);
+    defer str_free(h1);
+    try std.testing.expectEqual(@as(c_int, 1), str_has_punctuation(h1));
+
+    const h2 = str_from("Hello", 5);
+    defer str_free(h2);
+    try std.testing.expectEqual(@as(c_int, 0), str_has_punctuation(h2));
+}

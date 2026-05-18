@@ -4294,7 +4294,7 @@ func IsRingOrStzType(pcStr)
 func StzLen(p)
 	if isString(p)
 		# Engine-backed: count Unicode codepoints (not bytes)
-		pHandle = StzEngineStringFrom(p)
+		pHandle = StzEngineString(p)
 		nCount = StzEngineStringCount(pHandle)
 		StzEngineStringFree(pHandle)
 		return nCount

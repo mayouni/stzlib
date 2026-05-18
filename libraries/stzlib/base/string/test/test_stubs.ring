@@ -1,5 +1,69 @@
 # Stub functions needed by stzString
+# This file also handles portable DLL discovery so test files
+# don't need hardcoded absolute paths.
+
 $aStzLibConfig = []
+
+# --- Auto-load DLL at load time ---
+# Ring compiles functions first, so _stzFindDll() is callable here.
+$cStzStringLib = _stzFindDll()
+if $cStzStringLib != ""
+	$pStzStringHandle = LoadLib($cStzStringLib)
+else
+	? "WARNING: stz_string.dll not found! Engine functions will fail."
+ok
+
+# --- DLL Discovery ---
+# Searches upward from currentdir() for the engine DLL.
+# Works regardless of where the test is run from, as long as
+# the working directory is somewhere inside the stzlib tree.
+
+func _stzFindDll()
+	cDir = currentdir()
+	# Normalize to forward slashes
+	nLen = len(cDir)
+	cNorm = ""
+	for i = 1 to nLen
+		if cDir[i] = "\"
+			cNorm += "/"
+		else
+			cNorm += cDir[i]
+		ok
+	next
+	cDir = cNorm
+
+	# Try up to 10 parent levels
+	for depth = 1 to 10
+		cTry = cDir + "/engine/zig-out/bin/stz_string.dll"
+		if fexists(cTry)
+			return cTry
+		ok
+		# Also try with backslashes (Windows)
+		cTryWin = ""
+		for k = 1 to len(cTry)
+			if cTry[k] = "/"
+				cTryWin += "\"
+			else
+				cTryWin += cTry[k]
+			ok
+		next
+		if fexists(cTryWin)
+			return cTryWin
+		ok
+		# Go up one level
+		nLast = 0
+		for j = len(cDir) to 1 step -1
+			if cDir[j] = "/"
+				nLast = j
+				exit
+			ok
+		next
+		if nLast < 2
+			exit
+		ok
+		cDir = left(cDir, nLast - 1)
+	next
+	return ""
 
 func CheckingParams()
 	return 0

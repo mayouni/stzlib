@@ -15,7 +15,7 @@
 class stzString from stzObject
     @pEngine
     def init(pcStr)
-        @pEngine = StzEngineStringFrom(pcStr)
+        @pEngine = StzEngineString(pcStr)
     def Content()
         return StzEngineStringData(@pEngine)
     def Size()

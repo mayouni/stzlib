@@ -589,3 +589,121 @@ test "longest_run" {
     defer core.str_free(s);
     try std.testing.expectEqual(@as(c_int, 3), str_longest_run(s));
 }
+
+// ─── str_char_unicode_at ───
+
+/// Return the Unicode codepoint number at a codepoint index (INDEX_BASE convention).
+/// Returns -1 on invalid index.
+pub fn str_char_unicode_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
+    if (handle) |s| {
+        const src = s.slice();
+        if (cp_index < INDEX_BASE) return -1;
+        const idx: usize = toInternal(@intCast(cp_index));
+        const byte_offset = codepointIndexToByteOffset(src, idx);
+        if (byte_offset >= src.len) return -1;
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[byte_offset]) catch return -1;
+        return decodeCodepoint(src, byte_offset, cp_len);
+    }
+    return -1;
+}
+
+// ─── str_char_category_at ───
+
+/// Return the Unicode category number at a codepoint index (INDEX_BASE convention).
+/// Uses utf8proc category (Lu=1, Ll=2, ... see unicode.zig).
+/// Returns -1 on invalid index.
+pub fn str_char_category_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
+    if (handle) |s| {
+        const src = s.slice();
+        if (cp_index < INDEX_BASE) return -1;
+        const idx: usize = toInternal(@intCast(cp_index));
+        const byte_offset = codepointIndexToByteOffset(src, idx);
+        if (byte_offset >= src.len) return -1;
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[byte_offset]) catch return -1;
+        const cp_val: i32 = decodeCodepoint(src, byte_offset, cp_len);
+        if (cp_val < 0) return -1;
+        return unicode.stz_unicode_category(cp_val);
+    }
+    return -1;
+}
+
+// ─── str_char_category_string_at ───
+
+/// Return the Unicode category string (e.g. "Lu", "Nd") at a codepoint index.
+/// Writes to caller-provided buffer. Returns bytes written, 0 on error.
+pub fn str_char_category_string_at(handle: StzStringHandle, cp_index: c_int, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
+    if (handle) |s| {
+        const src = s.slice();
+        if (cp_index < INDEX_BASE) return 0;
+        const idx: usize = toInternal(@intCast(cp_index));
+        const byte_offset = codepointIndexToByteOffset(src, idx);
+        if (byte_offset >= src.len) return 0;
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[byte_offset]) catch return 0;
+        const cp_val: i32 = decodeCodepoint(src, byte_offset, cp_len);
+        if (cp_val < 0) return 0;
+        return unicode.stz_unicode_category_string(cp_val, buf, buf_len);
+    }
+    return 0;
+}
+
+// ─── str_char_is_punctuation_at / str_char_is_symbol_at / str_char_is_mark_at / str_char_is_control_at ───
+
+/// Check if char at position is punctuation. Returns 1/0/-1 (invalid).
+pub fn str_char_is_punctuation_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
+    const cp_val = str_char_unicode_at(handle, cp_index);
+    if (cp_val < 0) return -1;
+    return unicode.stz_unicode_is_punctuation(cp_val);
+}
+
+/// Check if char at position is a symbol. Returns 1/0/-1 (invalid).
+pub fn str_char_is_symbol_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
+    const cp_val = str_char_unicode_at(handle, cp_index);
+    if (cp_val < 0) return -1;
+    return unicode.stz_unicode_is_symbol(cp_val);
+}
+
+/// Check if char at position is a mark. Returns 1/0/-1 (invalid).
+pub fn str_char_is_mark_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
+    const cp_val = str_char_unicode_at(handle, cp_index);
+    if (cp_val < 0) return -1;
+    return unicode.stz_unicode_is_mark(cp_val);
+}
+
+/// Check if char at position is a control char. Returns 1/0/-1 (invalid).
+pub fn str_char_is_control_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
+    const cp_val = str_char_unicode_at(handle, cp_index);
+    if (cp_val < 0) return -1;
+    return unicode.stz_unicode_is_control(cp_val);
+}
+
+/// Check if char at position is a space. Returns 1/0/-1 (invalid).
+pub fn str_char_is_space_at(handle: StzStringHandle, cp_index: c_int) callconv(.c) c_int {
+    const cp_val = str_char_unicode_at(handle, cp_index);
+    if (cp_val < 0) return -1;
+    return unicode.stz_unicode_is_space(cp_val);
+}
+
+// ─── Tests ───
+
+test "str_char_unicode_at" {
+    const s = str_from("ABC", 3);
+    defer core.str_free(s);
+    try std.testing.expectEqual(@as(c_int, 65), str_char_unicode_at(s, 1)); // 'A' = 65
+    try std.testing.expectEqual(@as(c_int, 66), str_char_unicode_at(s, 2)); // 'B' = 66
+    try std.testing.expectEqual(@as(c_int, 67), str_char_unicode_at(s, 3)); // 'C' = 67
+    try std.testing.expectEqual(@as(c_int, -1), str_char_unicode_at(s, 4)); // out of range
+}
+
+test "str_char_category_at" {
+    const s = str_from("A1!", 3);
+    defer core.str_free(s);
+    try std.testing.expectEqual(@as(c_int, 1), str_char_category_at(s, 1)); // Lu
+    try std.testing.expectEqual(@as(c_int, 9), str_char_category_at(s, 2)); // Nd
+}
+
+test "str_char_is_punctuation_at" {
+    const s = str_from("a,b", 3);
+    defer core.str_free(s);
+    try std.testing.expectEqual(@as(c_int, 0), str_char_is_punctuation_at(s, 1)); // 'a' = not punct
+    try std.testing.expectEqual(@as(c_int, 1), str_char_is_punctuation_at(s, 2)); // ',' = punct
+}
