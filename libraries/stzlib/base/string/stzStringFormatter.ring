@@ -53,14 +53,23 @@ class stzStringFormatter
 	#===============================#
 
 	def ApplyLowercase()
-		@oString.Update( lower(@oString.Content()) )
+		pHandle = StzEngineString(@oString.Content())
+		pLower = StzEngineStringToLower(pHandle)
+		@oString.Update(StzEngineStringData(pLower))
+		StzEngineStringFree(pLower)
+		StzEngineStringFree(pHandle)
 
 		def ApplyLowercaseQ()
 			This.ApplyLowercase()
 			return This
 
 	def Lowercased()
-		return lower(@oString.Content())
+		pHandle = StzEngineString(@oString.Content())
+		pLower = StzEngineStringToLower(pHandle)
+		cResult = StzEngineStringData(pLower)
+		StzEngineStringFree(pLower)
+		StzEngineStringFree(pHandle)
+		return cResult
 
 		def LowercasedQ()
 			return new stzStringFormatter(This.Lowercased())
@@ -70,14 +79,23 @@ class stzStringFormatter
 	#===============================#
 
 	def ApplyUppercase()
-		@oString.Update( upper(@oString.Content()) )
+		pHandle = StzEngineString(@oString.Content())
+		pUpper = StzEngineStringToUpper(pHandle)
+		@oString.Update(StzEngineStringData(pUpper))
+		StzEngineStringFree(pUpper)
+		StzEngineStringFree(pHandle)
 
 		def ApplyUppercaseQ()
 			This.ApplyUppercase()
 			return This
 
 	def Uppercased()
-		return upper(@oString.Content())
+		pHandle = StzEngineString(@oString.Content())
+		pUpper = StzEngineStringToUpper(pHandle)
+		cResult = StzEngineStringData(pUpper)
+		StzEngineStringFree(pUpper)
+		StzEngineStringFree(pHandle)
+		return cResult
 
 		def UppercasedQ()
 			return new stzStringFormatter(This.Uppercased())
@@ -166,10 +184,10 @@ class stzStringFormatter
 	#===============================#
 
 	def ApplyCaseFold()
-		@oString.Update( lower(@oString.Content()) )
+		@oString.Update( StzEngineUnicodeCaseFold(@oString.Content()) )
 
 	def CaseFolded()
-		return lower(@oString.Content())
+		return StzEngineUnicodeCaseFold(@oString.Content())
 
 	  #===============================#
 	 #     REVERSED                  #
