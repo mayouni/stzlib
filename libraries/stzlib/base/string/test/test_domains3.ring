@@ -6,7 +6,7 @@ if fexists($cStzStringLib)
     $pStzStringHandle = LoadLib($cStzStringLib)
 ok
 
-load "D:\GitHub\stzlib\test_stubs.ring"
+load "D:\GitHub\stzlib\libraries\stzlib\base\string\test\test_stubs.ring"
 load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzString.ring"
 load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringFinder.ring"
 load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzStringReplacer.ring"

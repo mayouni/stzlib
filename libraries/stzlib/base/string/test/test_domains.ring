@@ -12,7 +12,7 @@ else
 ok
 
 ? "Step 2: Loading stubs"
-load "D:\GitHub\stzlib\test_stubs.ring"
+load "D:\GitHub\stzlib\libraries\stzlib\base\string\test\test_stubs.ring"
 
 ? "Step 3: Loading classes"
 load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzString.ring"

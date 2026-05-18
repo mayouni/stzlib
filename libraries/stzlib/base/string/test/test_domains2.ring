@@ -7,7 +7,7 @@ if fexists($cStzStringLib)
 ok
 
 ? "Loading stubs"
-load "D:\GitHub\stzlib\test_stubs.ring"
+load "D:\GitHub\stzlib\libraries\stzlib\base\string\test\test_stubs.ring"
 
 ? "Loading classes"
 load "D:\GitHub\stzlib\libraries\stzlib\base\string\stzString.ring"
