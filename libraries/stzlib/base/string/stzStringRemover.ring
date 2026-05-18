@@ -43,8 +43,12 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveCS(pcSubStr, pCaseSensitive)
-		oReplacer = new stzStringReplacer(@oString)
-		oReplacer.ReplaceCS(pcSubStr, "", pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveAllCS(pH, pcSubStr, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveCS(pcSubStr, pCaseSensitive)
@@ -117,7 +121,11 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveFirstCS(pcSubStr, pCaseSensitive)
-		This.RemoveNthCS(1, pcSubStr, pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveFirstOccurrence(pH, pcSubStr)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveFirstCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveFirstCS(pcSubStr, pCaseSensitive)
@@ -141,13 +149,11 @@ class stzStringRemover
 	#--
 
 	def RemoveLastCS(pcSubStr, pCaseSensitive)
-		_oFinder_ = new stzStringFinder(@oString.Content())
-		nPos = _oFinder_.FindLastCS(pcSubStr, pCaseSensitive)
-		if nPos = 0
-			return
-		ok
-		nLenOld = len(pcSubStr)
-		This.RemoveSection(nPos, nPos + nLenOld - 1)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveLastOccurrence(pH, pcSubStr)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveLastCSQ(pcSubStr, pCaseSensitive)
 			This.RemoveLastCS(pcSubStr, pCaseSensitive)
@@ -184,12 +190,11 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveSection(n1, n2)
-		cLeft = @oString.Section(1, n1 - 1)
-		cRight = ""
-		if n2 < @oString.NumberOfChars()
-			cRight = @oString.Section(n2 + 1, @oString.NumberOfChars())
-		ok
-		@oString.Update(cLeft + cRight)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveRange(pH, n1, n2 - n1 + 1)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveSectionQ(n1, n2)
 			This.RemoveSection(n1, n2)
@@ -680,7 +685,11 @@ class stzStringRemover
 	#======================================================#
 
 	def RemoveCharAt(n)
-		This.RemoveSection(n, n)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveCharAt(pH, n)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
 
 		def RemoveCharAtQ(n)
 			This.RemoveCharAt(n)

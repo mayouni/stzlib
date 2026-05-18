@@ -122,7 +122,14 @@ class stzString from stzObject
 	#========================================#
 
 	def NthChar(n)
-		return This.Content()[n]
+		pH = This.Engine()
+		pR = StzEngineStringNthChar(pH, n)
+		if pR != NULL
+			c = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			return c
+		ok
+		return ""
 
 		def CharAt(n)
 			return This.NthChar(n)
@@ -155,7 +162,14 @@ class stzString from stzObject
 			n1 = n2
 			n2 = temp
 		ok
-		return substr(This.Content(), n1, n2 - n1 + 1)
+		pH = This.Engine()
+		pR = StzEngineStringSlice(pH, n1, n2 - n1 + 1)
+		if pR != NULL
+			c = StzEngineStringData(pR)
+			StzEngineStringFree(pR)
+			return c
+		ok
+		return ""
 
 	def Sections(aSections)
 		acResult = []

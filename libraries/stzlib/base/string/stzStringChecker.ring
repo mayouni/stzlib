@@ -376,7 +376,7 @@ class stzStringChecker
 	#===============================#
 
 	def Reversed()
-		return ring_reverse(@oString.Content())
+		return StzReverse(@oString.Content())
 
 	  #===============================#
 	 #     STRUCTURAL CHECKS         #
@@ -436,39 +436,25 @@ class stzStringChecker
 	#===============================#
 
 	def Trimmed()
-		return trim(@oString.Content())
+		pH = StzEngineString(@oString.Content())
+		pR = StzEngineStringTrimmed(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH)
+		return c
 
 	def TrimmedLeft()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		nStart = 1
-
-		while nStart <= nLen
-			c = substr(cContent, nStart, 1)
-			if c != " " and c != char(9) and c != char(10) and c != char(13)
-				exit
-			ok
-			nStart++
-		end
-
-		if nStart > nLen
-			return ""
-		ok
-		return substr(cContent, nStart)
+		pH = StzEngineString(@oString.Content())
+		pR = StzEngineStringTrimLeft(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH)
+		return c
 
 	def TrimmedRight()
-		cContent = @oString.Content()
-		nEnd = len(cContent)
-
-		while nEnd >= 1
-			c = substr(cContent, nEnd, 1)
-			if c != " " and c != char(9) and c != char(10) and c != char(13)
-				exit
-			ok
-			nEnd--
-		end
-
-		if nEnd < 1
-			return ""
-		ok
-		return substr(cContent, 1, nEnd)
+		pH = StzEngineString(@oString.Content())
+		pR = StzEngineStringTrimRight(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH)
+		return c
