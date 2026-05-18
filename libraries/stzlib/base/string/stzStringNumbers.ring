@@ -3,18 +3,14 @@
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
 #                                                              #
-#   Description  : String numbers -- Wraps stzString via        #
-#                  composition. Extracting and working with      #
-#                  numbers embedded in strings.                  #
+#   Description  : String numbers -- Wraps stzString via       #
+#                  composition. Extracting and working with    #
+#                  numbers embedded in strings.                #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringNumbers
 

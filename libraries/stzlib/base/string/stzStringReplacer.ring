@@ -4,18 +4,14 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : String replacer -- replacing, removing,     #
-#                  and inserting operations.                     #
-#                  Wraps stzString via composition.             #
-#                  For aliases, use stzStringReplacerXT.        #
+#                  and inserting operations.                   #
+#                  Wraps stzString via composition.            #
+#                  For aliases, use stzStringReplacerXT.       #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
 #--------------------------------------------------------------#
 
-
-  /////////////////
- ///   CLASS   ///
-/////////////////
 
 class stzStringReplacer
 
