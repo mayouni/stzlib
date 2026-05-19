@@ -124,44 +124,71 @@ func _IsValidDate(nYear, nMonth, nDay)
     if nDay < 1 or nDay > _DaysInMonth(nYear, nMonth) return FALSE ok
     return TRUE
 
-func TimeStamp()
+func StzTimeStamp()
 	return Date() + " " + Time()
 
+	func TimeStamp()
+		return StzTimeStamp()
+
 # Quick date creation functions
-func Yesterday()
+func StzYesterday()
     return StzDateQ("").SubtractDaysQ(1).Content()
 
-func Tomorrow()
+	func Yesterday()
+		return StzYesterday()
+
+func StzTomorrow()
     return StzDateQ("").AddDaysQ(1).Content()
 
-func StartOfWeek()
+	func Tomorrow()
+		return StzTomorrow()
+
+func StzStartOfWeek()
     oDate = StzDateQ("")
     nDaysToSubtract = oDate.DayOfWeekN() - 1
     return oDate.SubtractDaysQ(nDaysToSubtract).Content()
 
-func EndOfWeek()
-    oDate = StartOfWeek()
+	func StartOfWeek()
+		return StzStartOfWeek()
+
+func StzEndOfWeek()
+    oDate = StzStartOfWeek()
     return oDate.AddDaysQ(6).Content()
 
-func StartOfMonth()
+	func EndOfWeek()
+		return StzEndOfWeek()
+
+func StzStartOfMonth()
     oDate = StzDateQ("")
     return StzDateQ("01/" + oDate.MonthNumberInString() + "/" + oDate.Year()).Content()
 
-func EndOfMonth()
+	func StartOfMonth()
+		return StzStartOfMonth()
+
+func StzEndOfMonth()
     oDate = StzDateQ("")
     nDays = oDate.DaysInMonthN()
     return StzDateQ('' + nDays + "/" + oDate.MonthNumberInString() + "/" + oDate.Year()).Content()
 
+	func EndOfMonth()
+		return StzEndOfMonth()
+
 
 #=== UTILITY FUNCTIONS ===#
 
-func GetDayByName(nDayOfWeek)
-	return GetDayByNameXT(nDayOfWeek, :English)
+func StzGetDayByName(nDayOfWeek)
+	return StzGetDayNameXT(nDayOfWeek, :English)
 
-func GetDayName(nDayOfWeek)
-	return GetDayNameXT(nDayOfWeek, :English)
+	func GetDayByName(nDayOfWeek)
+		return StzGetDayByName(nDayOfWeek)
 
-func GetDayNameXT(nDayOfWeek, cLanguage)
+func StzGetDayName(nDayOfWeek)
+	return StzGetDayNameXT(nDayOfWeek, :English)
+
+	func GetDayName(nDayOfWeek)
+		return StzGetDayName(nDayOfWeek)
+
+func StzGetDayNameXT(nDayOfWeek, cLanguage)
     if cLanguage = NULL
         cLanguage = $cCurrentLanguage
     ok
@@ -172,20 +199,28 @@ func GetDayNameXT(nDayOfWeek, cLanguage)
         ok
     next
 
-    # Fallback to English
     for aLang in $aDayNames
         if aLang[1] = :English
             return aLang[2][nDayOfWeek]
         ok
     next
+
+	func GetDayNameXT(nDayOfWeek, cLanguage)
+		return StzGetDayNameXT(nDayOfWeek, cLanguage)
+
+	func StzGetDayNameInLanguage(nDayOfWeek, cLanguage)
+		return StzGetDayNameXT(nDayOfWeek, cLanguage)
 
 	func GetDayNameInLanguage(nDayOfWeek, cLanguage)
-		return GetDayNameXT(nDayOfWeek, cLanguage)
+		return StzGetDayNameXT(nDayOfWeek, cLanguage)
 
-func GetMonthName(nMonth)
-	return GetMonthNameInLanguage(nMonth, :English)
+func StzGetMonthName(nMonth)
+	return StzGetMonthNameInLanguage(nMonth, :English)
 
-func GetMonthNameInLanguage(nMonth, cLanguage)
+	func GetMonthName(nMonth)
+		return StzGetMonthName(nMonth)
+
+func StzGetMonthNameInLanguage(nMonth, cLanguage)
     if cLanguage = NULL
         cLanguage = $cCurrentLanguage
     ok
@@ -196,45 +231,74 @@ func GetMonthNameInLanguage(nMonth, cLanguage)
         ok
     next
 
-    # Fallback to English
     for aLang in $aMonthNames
         if aLang[1] = :English
             return aLang[2][nMonth]
         ok
     next
 
-	func GetMonthNameXT(nMonth, cLanguage)
-		return GetMonthNameInLanguage(nMonth, cLanguage)
+	func GetMonthNameInLanguage(nMonth, cLanguage)
+		return StzGetMonthNameInLanguage(nMonth, cLanguage)
 
-func SysDate()
+	func StzGetMonthNameXT(nMonth, cLanguage)
+		return StzGetMonthNameInLanguage(nMonth, cLanguage)
+
+	func GetMonthNameXT(nMonth, cLanguage)
+		return StzGetMonthNameInLanguage(nMonth, cLanguage)
+
+func StzSysDate()
 	return date()
 
-	func DateSys()
-		return date()
+	func SysDate()
+		return StzSysDate()
 
-func ring_addDays(cDate, n)
+	func StzDateSys()
+		return StzSysDate()
+
+	func DateSys()
+		return StzSysDate()
+
+func StzAddDays(cDate, n)
 	return addDays(cDate, n)
+
+	func ring_addDays(cDate, n)
+		return StzAddDays(cDate, n)
 
 func StzDateQ(pDate)
     return new stzDate(pDate)
 
-func Now()
+func StzNow()
 	return Date() + " " + Time()
 
-func TodayQ()
-    return StzDateQ(DateSys())
+	func Now()
+		return StzNow()
+
+func StzTodayQ()
+    return StzDateQ(StzDateSys())
+
+	func TodayQ()
+		return StzTodayQ()
+
+	func StzToday()
+		return StzTodayQ().ToString()
 
 	func Today()
-		return TodayQ().ToString()
+		return StzToday()
 
-func IsDate(str)
+func StzIsDate(str)
 	Rx = Rx(pat(:Date))
 	return Rx.Match(str)
 
-	func IsValidDate(str)
-		return IsDate(str)
+	func IsDate(str)
+		return StzIsDate(str)
 
-func DayOrdinalSuffix(nDay)
+	func StzIsValidDate(str)
+		return StzIsDate(str)
+
+	func IsValidDate(str)
+		return StzIsDate(str)
+
+func StzDayOrdinalSuffix(nDay)
     if nDay % 10 = 1 and nDay != 11
         return "st"
     but nDay % 10 = 2 and nDay != 12
@@ -244,6 +308,9 @@ func DayOrdinalSuffix(nDay)
     else
         return "th"
     ok
+
+	func DayOrdinalSuffix(nDay)
+		return StzDayOrdinalSuffix(nDay)
 
 class stzDate from stzObject
     @nYear
@@ -814,7 +881,7 @@ def LastWeekdayOfMonth()
 		but op = "<"
 
 			if (isObject(v) and v.IsAStzDate()) or
-				(isString(v) and IsDate(v))
+				(isString(v) and StzIsDate(v))
 
 				return This.IsBefore(v)
 
@@ -825,7 +892,7 @@ def LastWeekdayOfMonth()
 		but op = "<="
 
 			if (isObject(v) and v.IsAStzDate()) or
-				(isString(v) and IsDate(v))
+				(isString(v) and StzIsDate(v))
 
 				return This.IsBefore(v) or This.IsEqualTo(v)
 
@@ -835,7 +902,7 @@ def LastWeekdayOfMonth()
 
 		but op = ">"
 			if (isObject(v) and v.IsAStzDate()) or
-				(isString(v) and IsDate(v))
+				(isString(v) and StzIsDate(v))
 
 				return This.IsAfter(v)
 
@@ -845,7 +912,7 @@ def LastWeekdayOfMonth()
 
 		but op = ">="
 			if (isObject(v) and v.IsAStzDate()) or
-				(isString(v) and IsDate(v))
+				(isString(v) and StzIsDate(v))
 
 				return This.IsAfter(v) or This.IsEqualTo(v)
 
@@ -855,7 +922,7 @@ def LastWeekdayOfMonth()
 
 		but op = "="
 			if (isObject(v) and v.IsAStzDate()) or
-				(isString(v) and IsDate(v))
+				(isString(v) and StzIsDate(v))
 
 				return This.IsEqualTo(v)
 			else

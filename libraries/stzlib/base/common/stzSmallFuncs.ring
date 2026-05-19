@@ -215,7 +215,7 @@ func QQ(p)
 		but oParam.IsChar() or oParam.IsHexUnicode()
 			return new stzChar(p)
 
-		but IsDate(p)
+		but StzIsDate(p)
 			return new stzDate(p)
 
 		ok

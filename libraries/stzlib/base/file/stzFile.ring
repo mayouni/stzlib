@@ -1222,16 +1222,16 @@ class stzFileAppender from stzFileReadingMixin
 			return This
     
     def WriteTimestamp()
-        cTimeStamp = TimeStamp()
+        cTimeStamp = StzTimeStamp()
         This.Write(cTimeStamp + ": ")
     	return 1
 
 	   def WriteTimeStampQ()
-		This.WriteTimeStamp()
+		This.WriteStzTimeStamp()
 		return This
 
     def WriteLogEntry(cMessage)
-        cTimeStamp = TimeStamp()
+        cTimeStamp = StzTimeStamp()
         This.WriteLine(cTimeStamp + " - " + cMessage)
     	return 1
 
@@ -1349,7 +1349,7 @@ class stzFileCreator from stzFileReadingMixin
     
     def WriteHeader(cTitle)
         This.WriteLine("# " + cTitle)
-        This.WriteLine("# Created: " + TimeStamp())
+        This.WriteLine("# Created: " + StzTimeStamp())
         This.WriteLine("#" + RepeatChar("=", StzLen(cTitle) + 2))
         This.WriteBlankLine()
     	return 1
@@ -1499,7 +1499,7 @@ class stzFileOverwriter from stzFileReadingMixin
     
     def WriteHeader(cTitle)
         This.WriteLine("# " + cTitle)
-        This.WriteLine("# Updated: " + TimeStamp())
+        This.WriteLine("# Updated: " + StzTimeStamp())
         This.WriteLine("#" + RepeatChar("=", len(cTitle) + 2))
         This.WriteBlankLine()
     	return 1
@@ -2075,7 +2075,7 @@ class stzFileManager from stzObject
 	# BACKUP OPERATION
 
 	def Backup()
-        cBackup = @cFileName + ".backup." + TimeStamp()
+        cBackup = @cFileName + ".backup." + StzTimeStamp()
         StzFileCopy(@cFileName, cBackup) #TODO // use internal methods to the object
 		return 1
 
@@ -2264,7 +2264,7 @@ class stzFileManager from stzObject
         # Create zip backup with timestamp
         if cZipFileName = ""
             cBaseName = _FileCompleteBaseName(@cFileName)
-            cTimeStamp = TimeStamp()
+            cTimeStamp = StzTimeStamp()
             cZipFileName = cBaseName + "_backup_" + cTimeStamp + ".zip"
         ok
         
@@ -2284,7 +2284,7 @@ class stzFileManager from stzObject
         cSuffix = _FileExtension(@cFileName)
         cDirPath = _FileDirPath(@cFileName)
         
-        cTimeStamp = TimeStamp()
+        cTimeStamp = StzTimeStamp()
         cBackupName = cBaseName + "_backup_" + cTimeStamp + "." + cSuffix
         cBackupPath = cDirPath + "/" + cBackupName
         
