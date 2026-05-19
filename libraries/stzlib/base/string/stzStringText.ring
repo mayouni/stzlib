@@ -317,33 +317,49 @@ class stzStringText
 			return 0
 		ok
 
-	def ContainsWord(pcWord)
+	def ContainsWordCS(pcWord, pCaseSensitive)
 		if NOT isString(pcWord)
 			StzRaise("Incorrect param type! pcWord must be a string.")
 		ok
 
-		acWords = This.UniqueWords()
-		cLower = StzCaseFold(pcWord)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		acWords = This.UniqueWordsCS(_bCase_)
 
-		nLen = len(acWords)
-		for i = 1 to nLen
-			if StzCaseFold(acWords[i]) = cLower
-				return 1
-			ok
-		next
+		if _bCase_ = 1
+			nLen = len(acWords)
+			for i = 1 to nLen
+				if acWords[i] = pcWord
+					return 1
+				ok
+			next
+		else
+			cLower = StzCaseFold(pcWord)
+			nLen = len(acWords)
+			for i = 1 to nLen
+				if StzCaseFold(acWords[i]) = cLower
+					return 1
+				ok
+			next
+		ok
 		return 0
+
+	def ContainsWord(pcWord)
+		return This.ContainsWordCS(pcWord, 1)
 
 		def ContainsNoWord(pcWord)
 			return NOT This.ContainsWord(pcWord)
 
-	def ContainsEachWord(pacWords)
+	def ContainsEachWordCS(pacWords, pCaseSensitive)
 		nLen = len(pacWords)
 		for i = 1 to nLen
-			if This.ContainsNoWord(pacWords[i])
+			if NOT This.ContainsWordCS(pacWords[i], pCaseSensitive)
 				return 0
 			ok
 		next
 		return 1
+
+	def ContainsEachWord(pacWords)
+		return This.ContainsEachWordCS(pacWords, 1)
 
 	  #------------------------------------------#
 	 #     WORD TRANSFORMS (Engine-backed)      #
@@ -459,19 +475,31 @@ class stzStringText
 	 #     WORD FREQUENCY (Ring logic)          #
 	#------------------------------------------#
 
-	def NumberOfOccurrenceOfWord(pcWord)
+	def NumberOfOccurrenceOfWordCS(pcWord, pCaseSensitive)
 		acWords = This.Words()
-		cLower = StzCaseFold(pcWord)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 		nResult = 0
 		nLen = len(acWords)
 
-		for i = 1 to nLen
-			if StzCaseFold(acWords[i]) = cLower
-				nResult++
-			ok
-		next
+		if _bCase_ = 1
+			for i = 1 to nLen
+				if acWords[i] = pcWord
+					nResult++
+				ok
+			next
+		else
+			cLower = StzCaseFold(pcWord)
+			for i = 1 to nLen
+				if StzCaseFold(acWords[i]) = cLower
+					nResult++
+				ok
+			next
+		ok
 
 		return nResult
+
+	def NumberOfOccurrenceOfWord(pcWord)
+		return This.NumberOfOccurrenceOfWordCS(pcWord, 1)
 
 		def NumberOfOccurrencesOfWord(pcWord)
 			return This.NumberOfOccurrenceOfWord(pcWord)
