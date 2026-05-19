@@ -1,4 +1,4 @@
-#TODO Make a bridge with stzLocale to let the stzPlural class be locale-sensitive
+﻿#TODO Make a bridge with stzLocale to let the stzPlural class be locale-sensitive
 
 // Systematic plural transformation rules
 PluralRules = [
@@ -53,7 +53,7 @@ func Plural(str)
                     cResult = rule[2]
                     for j = 1 to nLen
                         cPlaceholder = "\\" + j
-                        cResult = ring_substr2(cResult, cPlaceholder, aCaptured[j])
+                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j])
                     next
                     return cResult
                 else

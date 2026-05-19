@@ -1,4 +1,4 @@
-#======================================#
+﻿#======================================#
 #  STZFOLDER CLASS - SOFTANZA LIBRARY  #
 #======================================#
 
@@ -151,7 +151,7 @@ func @dir(cPath) # Same as Ring dir() but in lowercase
 
 func CreateIfInexistant(cPath)
     # Check if it has an extension (likely a file)
-    if ring_find(cPath, ".")
+    if StzFind(cPath, ".")
         CreateFileIfInexistant(cPath)
     else
         CreateFolderIfInexistant(cPath)
@@ -215,7 +215,7 @@ func NormalizePath(cPath)
 		ok
 	ok
 	
-	if ring_find(cPath, ".") > 0
+	if StzFind(cPath, ".") > 0
 		return NormalizeFilePath(cPath)
 	else
 		return NormalizeFolderPath(cPath)
@@ -232,7 +232,7 @@ func NormalizePathXT(cPath)
 	ok
 
 	# Check if it's a file (has extension) or folder
-	if ring_find(cPath, ".") > 0
+	if StzFind(cPath, ".") > 0
 		return NormalizeFilePathXT(cPath)
 	else
 		return NormalizeFolderPathXT(cPath)
@@ -252,7 +252,7 @@ func NormalizeFolderPath(cName)
 		cName += "/"
 	ok
 
-	return ring_substr2(cName, "//", "/")
+	return StzReplace(cName, "//", "/")
 
 	func NormaliseFolderPath(cName)
 		return NormalizeFolderPath(cName)
@@ -264,7 +264,7 @@ func NormalizeFolderPathXT(cName)
 		cName += "/"
 	ok
 
-	return ring_substr2(cName, "//", "/")
+	return StzReplace(cName, "//", "/")
 
 	func NormaliseFolderPathXT(cName)
 		return NormalizeFolderPathXT(cName)
@@ -274,9 +274,9 @@ func NormalizeFolderPathXT(cName)
 #--------------------------#
 
 func _CleanPath(cPath)
-	cPath = ring_substr2(cPath, "\", "/")
-	while ring_find(cPath, "//") > 0
-		cPath = ring_substr2(cPath, "//", "/")
+	cPath = StzReplace(cPath, "\", "/")
+	while StzFind(cPath, "//") > 0
+		cPath = StzReplace(cPath, "//", "/")
 	end
 	if StzLen(cPath) > 1 and StzRight(cPath, 1) = "/"
 		cPath = StzLeft(cPath, StzLen(cPath) - 1)
@@ -371,19 +371,19 @@ class stzFolder from stzObject
 	@acCollapseFolders = []
 
 	@acDisplayChars = [
-		:VerticlalChar = "â”‚",
-		:VerticalCharTick = "â”œ",
-		:ClosingChar = "â•°",
-		:File = " ðŸ—‹",
-		:FileFound = "ðŸ“„",
-		:FolderRoot = "ðŸ—€",
-		:FolderRootXT = "ðŸ“",
-		:FolderOpened = "ðŸ—",
-		:FolderOpenedFound = "ðŸ“‚",
-		:FolderClosedEmpty = "ðŸ—€",
-		:FolderClosedFull = "ðŸ–¿",
-		:FolderRootSearchSymbol = "ðŸŽ¯",
-		:FileFoundSymbol = "ðŸ‘‰"
+		:VerticlalChar = "Ã¢â€â€š",
+		:VerticalCharTick = "Ã¢â€Å“",
+		:ClosingChar = "Ã¢â€¢Â°",
+		:File = " Ã°Å¸â€”â€¹",
+		:FileFound = "Ã°Å¸â€œâ€ž",
+		:FolderRoot = "Ã°Å¸â€”â‚¬",
+		:FolderRootXT = "Ã°Å¸â€œÂ",
+		:FolderOpened = "Ã°Å¸â€”Â",
+		:FolderOpenedFound = "Ã°Å¸â€œâ€š",
+		:FolderClosedEmpty = "Ã°Å¸â€”â‚¬",
+		:FolderClosedFull = "Ã°Å¸â€“Â¿",
+		:FolderRootSearchSymbol = "Ã°Å¸Å½Â¯",
+		:FileFoundSymbol = "Ã°Å¸â€˜â€°"
 	]
 
 	@bBacthMode = FALSE
@@ -494,7 +494,7 @@ class stzFolder from stzObject
 	
 	    cNormalizedPath = This.NormalizePathXT(cPath)
 	
-		if ring_find(This.FilesXT(), cNormalizedPath) > 0
+		if StzFind(This.FilesXT(), cNormalizedPath) > 0
 			return 1
 		else
 			return 0
@@ -515,7 +515,7 @@ class stzFolder from stzObject
 	
 		cPath = This.NormalizeFolderPath(cPath)
 	
-		if ring_find(This.Folders(), cPath) > 0
+		if StzFind(This.Folders(), cPath) > 0
 			return 1
 		else
 			return 0
@@ -553,7 +553,7 @@ class stzFolder from stzObject
 		
 		cPath = This.NormaliseFolderPath(cPath)
 	
-		if ring_find( This.Files(), cPath ) > 0
+		if StzFind( This.Files(), cPath ) > 0
 			return 1
 		else
 			return 0
@@ -573,7 +573,7 @@ class stzFolder from stzObject
 			raise("Insecure path with potential injection risks!")
 		ok
 		
-		if ring_find( This.Folders(), cPath ) > 0
+		if StzFind( This.Folders(), cPath ) > 0
 			return 1
 		else
 			return 0
@@ -738,7 +738,7 @@ class stzFolder from stzObject
 		ok
 	    
 	    cResult = "/" + StzLower(_CleanPath(trim(cName)))
-		cResult = ring_substr2(cResult, "//", "/")
+		cResult = StzReplace(cResult, "//", "/")
 		return cResult
 
 		def NormaliseFilePath(cName)
@@ -765,7 +765,7 @@ class stzFolder from stzObject
 			cResult += cSeparator
 		ok
 
-		cResult = ring_substr2(cResult, "//", "/")
+		cResult = StzReplace(cResult, "//", "/")
 		return cResult
 
 		def NormaliseFilePathXT(cName)
@@ -784,7 +784,7 @@ class stzFolder from stzObject
 	        cName += cSeparator
 	    ok
 
-		cName = ring_substr2(cName, "//", "/")
+		cName = StzReplace(cName, "//", "/")
 	    return cName
 	
 		def NormaliseFolderPath(cName)
@@ -798,7 +798,7 @@ class stzFolder from stzObject
 	        cName += cSeparator
 	    ok
 
-		cName = ring_substr2(cName, "//", "/")
+		cName = StzReplace(cName, "//", "/")
 	    return cName
 
 		def NormaliseFolderPathXT(cName)
@@ -857,7 +857,7 @@ class stzFolder from stzObject
 	        :type, cType,
 	        :is_file, (cType = "file"),
 	        :is_folder, (cType = "folder"),
-	        :is_relative, (StzLeft(cPath, 1) != This.Separator() AND ring_find(cPath, ":/") = 0 AND ring_find(cPath, ":\\") = 0),
+	        :is_relative, (StzLeft(cPath, 1) != This.Separator() AND StzFind(cPath, ":/") = 0 AND StzFind(cPath, ":\\") = 0),
 	        :parent_folder, This.ParentFolder(cPath)
 	    ]
 	    
@@ -1191,7 +1191,7 @@ class stzFolder from stzObject
 		aFiles = This.Files()
 		aFolders = This.Folders()
 
-		return (ring_find(aFiles, cName) > 0) or (ring_find(aFolders, cName) > 0)
+		return (StzFind(aFiles, cName) > 0) or (StzFind(aFolders, cName) > 0)
 
 
 		def Has(cName)
@@ -1214,7 +1214,7 @@ class stzFolder from stzObject
 		cFile = This.NormalizeFilePath(cFileName)
 		aFiles = This.Files()
 
-		return ring_find(aFiles, cFileName) > 0
+		return StzFind(aFiles, cFileName) > 0
 
 	def ContainsFolder(cFolderName)
 		if CheckParams()
@@ -1226,7 +1226,7 @@ class stzFolder from stzObject
 		cFolderName = NormalizeFolderPath(cFolderName)
 		aFolders = This.Folders()
 
-		return ring_find(aFolders, cFolderName) > 0
+		return StzFind(aFolders, cFolderName) > 0
 
 		def ContainsDir(cFolderName)
 			return This.ContainsFolder(cFolderName)
@@ -2952,11 +2952,11 @@ class stzFolder from stzObject
 
 		acResult = []
 
-		if ring_find(cPattern, "*") > 0
-			cPattern = ring_substr2(cPattern, "*", "")
+		if StzFind(cPattern, "*") > 0
+			cPattern = StzReplace(cPattern, "*", "")
 
 			for i = 1 to nLen
-				if ring_find(StzLower(acFiles[i]), StzLower(cPattern)) > 0
+				if StzFind(StzLower(acFiles[i]), StzLower(cPattern)) > 0
 					acResult + acFiles[i]
 				ok
 			next
@@ -2993,12 +2993,12 @@ class stzFolder from stzObject
 
 		acResult = []
 
-		if ring_find(cPattern, "*") > 0
+		if StzFind(cPattern, "*") > 0
 
-			cPattern = ring_substr2(cPattern, "*", "")
+			cPattern = StzReplace(cPattern, "*", "")
 
 			for i = 1 to nLen
-				if ring_find(StzLower(acFolders[i]), StzLower(cPattern)) > 0
+				if StzFind(StzLower(acFolders[i]), StzLower(cPattern)) > 0
 					acResult + acFolders[i]
 				ok
 			next
@@ -3099,10 +3099,10 @@ class stzFolder from stzObject
 		ok
 		acFound = []
 		acAllDirs = This.DeepFolders()
-		bWildcard = (ring_find(cPattern, "*") > 0)
+		bWildcard = (StzFind(cPattern, "*") > 0)
 
 		if bWildcard
-			cPattern = ring_substr2(cPattern, "*", "")
+			cPattern = StzReplace(cPattern, "*", "")
 		ok
 
 		nLen = len(acAllDirs)
@@ -3117,7 +3117,7 @@ class stzFolder from stzObject
 				if _aEntry_[2] = 0
 
 					if bWildcard
-						if ring_find(StzLower(aEntries[j][1]), StzLower(cPattern)) > 0
+						if StzFind(StzLower(aEntries[j][1]), StzLower(cPattern)) > 0
 							acFound + (acAllDirs[i] + This.Separator() + aEntries[j][1])
 						ok
 
@@ -3148,10 +3148,10 @@ class stzFolder from stzObject
 
 		acFound = []
 		acAllDirs = This.DeepFolders()
-		bWildcard = (ring_find(cPattern, "*") > 0)
+		bWildcard = (StzFind(cPattern, "*") > 0)
 
 		if bWildcard
-			cPattern = ring_substr2(cPattern, "*", "")
+			cPattern = StzReplace(cPattern, "*", "")
 		ok
 
 		nLen = len(acAllDirs)
@@ -3166,7 +3166,7 @@ class stzFolder from stzObject
 				if aEntries[j][2] = 1 and aEntries[j][1] != "." and aEntries[j][1] != ".."
 
 					if bWildcard
-						if ring_find(StzLower(aEntries[j][1]), StzLower(cPattern)) > 0
+						if StzFind(StzLower(aEntries[j][1]), StzLower(cPattern)) > 0
 							acFound + (acAllDirs[i] + This.Separator() + aEntries[j][1])
 						ok
 
@@ -3202,7 +3202,7 @@ class stzFolder from stzObject
 			nLenR = len(acFileResults)
 
 			for j = 1 to nLenR
-				if ring_find(acFound, acFileResults[j]) = 0
+				if StzFind(acFound, acFileResults[j]) = 0
 					acFound + acFileResults[j]
 				ok
 			next
@@ -3223,7 +3223,7 @@ class stzFolder from stzObject
 			nLenR = len(acFolderResults)
 
 			for j = 1 to nLenR
-				if ring_find(acFound, acFolderResults[j]) = 0
+				if StzFind(acFound, acFolderResults[j]) = 0
 					acFound + acFolderResults[j]
 				ok
 			next
@@ -3267,7 +3267,7 @@ class stzFolder from stzObject
 
 			nLen = len(acLines)
 			for i = 1 to nLen
-				if ring_find(StzLower(acLines[i]), StzLower(cContent)) > 0
+				if StzFind(StzLower(acLines[i]), StzLower(cContent)) > 0
 					acLineNumbers + i
 				ok
 			next
@@ -3328,7 +3328,7 @@ class stzFolder from stzObject
 						acLineNumbers = []
 
 						for i = 1 to nLenL
-							if ring_find(StzLower(acLines[i]), StzLower(cContent)) > 0
+							if StzFind(StzLower(acLines[i]), StzLower(cContent)) > 0
 								acLineNumbers + i
 							ok
 						next
@@ -3392,7 +3392,7 @@ class stzFolder from stzObject
 
 				if aEntries[j][2] = 0
 
-					cFilePath = ring_substr2( acAllDirs[i] + This.Separator() + aEntries[j][1], "//", "/")
+					cFilePath = StzReplace( acAllDirs[i] + This.Separator() + aEntries[j][1], "//", "/")
 
 					if fexists(cFilePath)
 
@@ -3402,7 +3402,7 @@ class stzFolder from stzObject
 						acLineNumbers = []
 
 						for i = 1 to nLenL
-							if ring_find(StzLower(acLines[i]), StzLower(cContent)) > 0
+							if StzFind(StzLower(acLines[i]), StzLower(cContent)) > 0
 								acLineNumbers + i
 							ok
 						next
@@ -3438,7 +3438,7 @@ class stzFolder from stzObject
 				acLineNumbers = []
 				
 				for i = 1 to nLenL
-					if ring_find(StzLower(acLines[i]), StzLower(cContent)) > 0
+					if StzFind(StzLower(acLines[i]), StzLower(cContent)) > 0
 						acLineNumbers + i
 					ok
 				next
@@ -3505,7 +3505,7 @@ class stzFolder from stzObject
 							acLineNumbers = []
 
 							for i = 1 to nLenL
-								if ring_find(StzLower(acLines[i]), StzLower(cContent)) > 0
+								if StzFind(StzLower(acLines[i]), StzLower(cContent)) > 0
 									acLineNumbers + i
 								ok
 							next
@@ -3555,12 +3555,12 @@ class stzFolder from stzObject
 		ok
 
 		cRegexPattern = cPattern
-		cRegexPattern = ring_substr2(cRegexPattern, "*", ".*")
-		cRegexPattern = ring_substr2(cRegexPattern, "?", ".")
+		cRegexPattern = StzReplace(cRegexPattern, "*", ".*")
+		cRegexPattern = StzReplace(cRegexPattern, "?", ".")
 
 		if StzLeft(cPattern, 1) = "*" and StzRight(cPattern, 1) = "*"
 			cMiddle = StzMid(cPattern, 2, StzLen(cPattern) - 2)
-			return ring_find(cName, cMiddle) > 0
+			return StzFind(cName, cMiddle) > 0
 
 		but StzLeft(cPattern, 1) = "*"
 			cSuffix = StzMid(cPattern, 2, StzLen(cPattern) - 1)
@@ -3588,7 +3588,7 @@ class stzFolder from stzObject
 			nLenP = len(acPathParts)
 
 			for j = 1 to nLenP
-				if ring_find(aFolderNames, acPathParts[j]) = 0
+				if StzFind(aFolderNames, acPathParts[j]) = 0
 					aFolderNames + acPathParts[j]
 				end
 			next
@@ -3637,7 +3637,7 @@ class stzFolder from stzObject
 		cFullPath = @cCurrentPath + This.Separator() + cFile
 		if fexists(cFullPath)
 			cFileContent = read(cFullPath)
-			cModifiedContent = ring_substr2(cFileContent, cContent, cNewContent)
+			cModifiedContent = StzReplace(cFileContent, cContent, cNewContent)
 			write(cFullPath, cModifiedContent)
 			return TRUE
 		ok
@@ -3681,7 +3681,7 @@ class stzFolder from stzObject
 
 					if fexists(cFilePath)
 						cFileContent = read(cFilePath)
-						cModifiedContent = ring_substr2(cFileContent, cContent, cNewContent)
+						cModifiedContent = StzReplace(cFileContent, cContent, cNewContent)
 						write(cFilePath, cModifiedContent)
 						nModified++
 					ok
@@ -3743,7 +3743,7 @@ class stzFolder from stzObject
 			if fexists(acFilePaths[i])
 
 				cFileContent = read(acFilePaths[i])
-				cModifiedContent = ring_substr2(cFileContent, cContent, cNewContent)
+				cModifiedContent = StzReplace(cFileContent, cContent, cNewContent)
 
 				write(acFilePaths[i], cModifiedContent)
 				nModified++
@@ -3795,7 +3795,7 @@ class stzFolder from stzObject
 						if fexists(cFilePath)
 
 							cFileContent = read(cFilePath)
-							cModifiedContent = ring_substr2(cFileContent, cContent, cNewContent)
+							cModifiedContent = StzReplace(cFileContent, cContent, cNewContent)
 
 							write(cFilePath, cModifiedContent)
 							nModified++
@@ -3850,7 +3850,7 @@ class stzFolder from stzObject
 					if fexists(cFilePath)
 
 						cFileContent = read(cFilePath)
-						cModifiedContent = ring_substr2(cFileContent, cContent, cNewContent)
+						cModifiedContent = StzReplace(cFileContent, cContent, cNewContent)
 
 						write(cFilePath, cModifiedContent)
 						nModified++
@@ -4140,7 +4140,7 @@ class stzFolder from stzObject
 		bResult = 0
 
 		for i = 1 to nLen
-			if ring_find(cPattern, acKeywords[i]) > 0
+			if StzFind(cPattern, acKeywords[i]) > 0
 				bResult = 1
 				exit
 			ok
@@ -4155,7 +4155,7 @@ class stzFolder from stzObject
 			StzRaise("Incorrect param type! cOrder must be a string.")
 		ok
 		acValidOrders = ["systemorder", "filefirstascending", "filefirstdescending", "folderfirstascending", "folderfirstdescending"]
-		if NOT ring_find(acValidOrders, StzLower(cOrder))
+		if NOT StzFind(acValidOrders, StzLower(cOrder))
 			StzRaise("Invalid display order! Must be one of: " + @@(acValidOrders))
 		ok
 		@cDisplayOrder = StzLower(cOrder)
@@ -4167,13 +4167,13 @@ class stzFolder from stzObject
 
 	def IsSecurePath(cPath)
 		# Check for null bytes (path injection attempt)
-		if ring_find(cPath, StzChar(0)) > 0
+		if StzFind(cPath, StzChar(0)) > 0
 			return true
 		ok
 
 		# Check for other control characters that could be used for injection
 		for i = 1 to 31
-			if ring_find(cPath, StzChar(i)) > 0
+			if StzFind(cPath, StzChar(i)) > 0
 				return false
 			ok
 		next
@@ -4214,7 +4214,7 @@ class stzFolder from stzObject
 
 	def GetPathHierarchy(cPath)
 		acParts = []
-		cRelativePath = ring_substr2(cPath, This.Path() + This.Separator(), "")
+		cRelativePath = StzReplace(cPath, This.Path() + This.Separator(), "")
 		if cRelativePath = cPath
 			return []
 		end
@@ -4259,7 +4259,7 @@ class stzFolder from stzObject
 			if cPath = This.Path()
 				return ""
 			end
-			nPos = max([ring_find(cPath, This.Separator()), ring_find(cPath, "\")])
+			nPos = max([StzFind(cPath, This.Separator()), StzFind(cPath, "\")])
 			if nPos > 0
 				return StzRight(cPath, StzLen(cPath) - nPos)
 			end
@@ -4440,20 +4440,20 @@ class stzFolder from stzObject
 		nAllSubLevelFiles = oFolder.DeepCountFiles()
 		nAllSubLevelFolders = oFolder.DeepCountFolders()
 	
-		if ring_find(cResult, "@countfiles")
-			cResult = ring_substr2(cResult, "@countfiles", "" + nThisLevelFiles)
+		if StzFind(cResult, "@countfiles")
+			cResult = StzReplace(cResult, "@countfiles", "" + nThisLevelFiles)
 		ok
 
-		if ring_find(cResult, "@deepcountfiles")
-			cResult = ring_substr2(cResult, "@deepcountfiles", "" + nAllSubLevelFiles)
+		if StzFind(cResult, "@deepcountfiles")
+			cResult = StzReplace(cResult, "@deepcountfiles", "" + nAllSubLevelFiles)
 		ok
 
-		if ring_find(cResult, "@countfolders")
-			cResult = ring_substr2(cResult, "@countfolders", "" + nThisLevelFolders)
+		if StzFind(cResult, "@countfolders")
+			cResult = StzReplace(cResult, "@countfolders", "" + nThisLevelFolders)
 		ok
 
-		if ring_find(cResult, "@deepcountfolders")
-			cResult = ring_substr2(cResult, "@deepcountfolders", "" + nAllSubLevelFolders)
+		if StzFind(cResult, "@deepcountfolders")
+			cResult = StzReplace(cResult, "@deepcountfolders", "" + nAllSubLevelFolders)
 		ok
 
 		# If tokens were replaced (custom pattern), handle zero filtering
@@ -4472,7 +4472,7 @@ class stzFolder from stzObject
 
 				# Check if this token contains "0 files" or "0 folders"
 
-				if not (ring_find(cToken, "0 files") or ring_find(cToken, "0 folders"))
+				if not (StzFind(cToken, "0 files") or StzFind(cToken, "0 folders"))
 					acFiltered + cToken
 				ok
 			next
@@ -4599,22 +4599,22 @@ class stzFolder from stzObject
 		
 		# Replace patterns
 
-		if ring_find(cResult, "@countfiles") or ring_find(cResult, "@countfiles")
-			cResult = ring_substr2(cResult, "@countfiles", "" + nFiles)
-			cResult = ring_substr2(cResult, "@countfiles", "" + nFiles)
+		if StzFind(cResult, "@countfiles") or StzFind(cResult, "@countfiles")
+			cResult = StzReplace(cResult, "@countfiles", "" + nFiles)
+			cResult = StzReplace(cResult, "@countfiles", "" + nFiles)
 		ok
 
-		if ring_find(cResult, "@deepcountfiles")
-			cResult = ring_substr2(cResult, "@deepcountfiles", "" + nDeepFiles)
+		if StzFind(cResult, "@deepcountfiles")
+			cResult = StzReplace(cResult, "@deepcountfiles", "" + nDeepFiles)
 		ok
 
-		if ring_find(cResult, "@countfolders") or ring_find(cResult, "@countfolders")
-			cResult = ring_substr2(cResult, "@countfolders", "" + nFolders)
-			cResult = ring_substr2(cResult, "@countfolders", "" + nFolders)
+		if StzFind(cResult, "@countfolders") or StzFind(cResult, "@countfolders")
+			cResult = StzReplace(cResult, "@countfolders", "" + nFolders)
+			cResult = StzReplace(cResult, "@countfolders", "" + nFolders)
 		ok
 
-		if ring_find(cResult, "@deepcountfolders")
-			cResult = ring_substr2(cResult, "@deepcountfolders", "" + nDeepFolders)
+		if StzFind(cResult, "@deepcountfolders")
+			cResult = StzReplace(cResult, "@deepcountfolders", "" + nDeepFolders)
 		ok
 		
 		return cResult
@@ -4788,14 +4788,14 @@ class stzFolder from stzObject
 	            
 	            # Add found indicator if file matches
 	            if bFileMatches
-	                cIcon += @acDisplayChars[:FileFoundSymbol]  # Found file gets ðŸ‘‰ðŸ“„
+	                cIcon += @acDisplayChars[:FileFoundSymbol]  # Found file gets Ã°Å¸â€˜â€°Ã°Å¸â€œâ€ž
 	            end
 	            
 	            # Use correct connector based on position
 	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "â”€" + cIcon + " " + cItemName + nl
+	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "Ã¢â€â‚¬" + cIcon + " " + cItemName + nl
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "â”€" + cIcon + " " + cItemName + nl
+	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "Ã¢â€â‚¬" + cIcon + " " + cItemName + nl
 	            end
 	            
 	        else  # folder
@@ -4860,10 +4860,10 @@ class stzFolder from stzObject
 	            
 	            # Build the line - use correct connector based on position
 	            if bIsLastItem
-	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "â”€" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
+	                cResult += cPrefix + @acDisplayChars[:ClosingChar] + "Ã¢â€â‚¬" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
 	                cNewPrefix = cPrefix + "  "  # No vertical line continuation for last item
 	            else
-	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "â”€" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
+	                cResult += cPrefix + @acDisplayChars[:VerticalCharTick] + "Ã¢â€â‚¬" + cIcon + " " + cItemName + cMatchCount + cFolderStats + nl
 	                cNewPrefix = cPrefix + @acDisplayChars[:VerticlalChar] + " "  # Continue vertical line
 	            end
 	            

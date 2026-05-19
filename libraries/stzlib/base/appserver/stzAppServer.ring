@@ -328,7 +328,7 @@ class stzAppServer from stzNetwork
 				exit
 			ok
 			
-			nColon = ring_find(aLines[i], ":")
+			nColon = StzFind(aLines[i], ":")
 			if nColon > 0
 				cName = trim(StzLeft(aLines[i], nColon - 1))
 				cValue = trim(@substr(aLines[i], nColon + 1))

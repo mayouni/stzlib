@@ -142,14 +142,14 @@ class stzSection
 	
 			if isString(n1)
 
-				if ring_find([
+				if StzFind([
 					:Start, :First, :FirstChar,
 					:FromFirst, :FromFirstChar,
 					:FirstItem, :FromFirstItem], n1) > 0
 
 					n1 = 1
 	
-				but ring_find([
+				but StzFind([
 					:Last, :LastChar, :ToLast, :ToLastChar,
 					:LastItem, :ToLastItem ], n1) > 0
 
@@ -163,7 +163,7 @@ class stzSection
 		
 			if isString(n2)
 
-				if ring_find([
+				if StzFind([
 					:End, :Last, :LastChar, :EndOfString,
 					:ToEnd, :ToLast, :ToLastChar, :ToEndOfString,
 
@@ -175,7 +175,7 @@ class stzSection
 
 					n2 = nSize
 	
-				but ring_find([
+				but StzFind([
 					:First, :FirstChar,
 					:FromFirst, :FromFirstChar,
 

@@ -254,7 +254,7 @@ class stzListOfBytes from stzList
 
 		aResult = []
 
-		if ring_find(aChars, pcChar) > 0
+		if StzFind(aChars, pcChar) > 0
 			aResult = StzListOfBytesQ(pcChar).Bytes()
 		ok
 

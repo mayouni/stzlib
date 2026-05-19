@@ -1,4 +1,4 @@
-/*
+﻿/*
 This class is responsible for managing the binary
 representation form of numbers.
 
@@ -27,7 +27,7 @@ def BinaryPrefixes()
 
 def SetBinaryNumberPrefix(pcBinaryPrefix)
 
-	if isString(pcBinaryPrefix) and ring_find(BinaryPrefixes(),pcBinaryPrefix) > 0
+	if isString(pcBinaryPrefix) and StzFind(BinaryPrefixes(),pcBinaryPrefix) > 0
 		_cBinaryNumberPrefix = pcBinaryPrefix
 
 	else
@@ -222,8 +222,8 @@ class stzBinaryNumber from stzObject
 
 		# Remove the 0b or b prefix
 
-		cBinary = ring_substr2(cBinary, "0b", "")
-		cBinary = ring_substr2(cBinary, "b", "")
+		cBinary = StzReplace(cBinary, "0b", "")
+		cBinary = StzReplace(cBinary, "b", "")
 		nLen = StzLen(cBinary)
 
 		# Doing the job

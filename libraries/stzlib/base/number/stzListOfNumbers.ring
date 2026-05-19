@@ -2532,7 +2532,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		if NOT 	( isString(pcBeforeOrAfter) and
-			  ring_find([
+			  StzFind([
 				:Before, :After, :BeforeIt, :AfterIt,
 				:BeforeOrAfter, :BeforeOrAfterIt,
 				:AfterOrBefore, :AfterOrBeforeIt,
@@ -2549,7 +2549,7 @@ class stzListOfNumbers from stzList
 
 		# Doing the job
 
-		if ring_find([
+		if StzFind([
 			:BeforeOrAfter, :BeforeOrAfterIt,
 			:AfterOrBefore, :AfterOrBeforeIt,
 
@@ -2559,7 +2559,7 @@ class stzListOfNumbers from stzList
 
 			nResult = This.NearestTo(n)
 
-		but ring_find([
+		but StzFind([
 			:Before, :BeforeIt,
 			:ComingBefore, :ComingBeforeIt
 			], pcBeforeOrAfter) > 0
@@ -2567,7 +2567,7 @@ class stzListOfNumbers from stzList
 			anPair = This.NeighborsOf(n)
 			nResult = anPair[1]
 
-		but ring_find([
+		but StzFind([
 			:After, :AfterIt,
 			:ComingAfter, :ComingAfterIt
 			], pcBeforeOrAfter) > 0
@@ -2656,7 +2656,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		if NOT ( isString(pcBeforeOrAfter) and
-			  ring_find([
+			  StzFind([
 				:Before, :After, :BeforeIt, :AfterIt,
 				:BeforeOrAfter, :BeforeOrAfterIt,
 				:AfterOrBefore, :AfterOrBeforeIt,
@@ -2673,7 +2673,7 @@ class stzListOfNumbers from stzList
 
 		# Doing the job
 
-		if ring_find([
+		if StzFind([
 			:BeforeOrAfter, :BeforeOrAfterIt,
 			:AfterOrBefore, :AfterOrBeforeIt,
 
@@ -2683,7 +2683,7 @@ class stzListOfNumbers from stzList
 
 			nResult = This.FarthestTo(n)
 
-		but ring_find([
+		but StzFind([
 			:Before, :BeforeIt,
 			:ComingBefore, :ComingBeforeIt
 			], pcBeforeOrAfter) > 0
@@ -2703,7 +2703,7 @@ class stzListOfNumbers from stzList
 				ok
 
 			else
-				nPos = ring_find(anSorted, n)
+				nPos = StzFind(anSorted, n)
 
 				if nPos > 1
 					nFirst = anSorted[1]
@@ -2724,7 +2724,7 @@ class stzListOfNumbers from stzList
 
 			ok
 
-		but ring_find([
+		but StzFind([
 			:After, :AfterIt,
 			:ComingAfter, :ComingAfterIt
 			], pcBeforeOrAfter) > 0
@@ -2744,7 +2744,7 @@ class stzListOfNumbers from stzList
 				ok
 
 			else
-				nPos = ring_find(anSorted, n)
+				nPos = StzFind(anSorted, n)
 
 				if nPos > 0 and nPos < nLen
 					nFirst = anSorted[1]
@@ -2840,7 +2840,7 @@ class stzListOfNumbers from stzList
 
 		# Case where n exists in the list
 
-		nPos = ring_find(anSorted, n)
+		nPos = StzFind(anSorted, n)
 
 		if nPos > 0
 			if nPos = 1
@@ -2961,7 +2961,7 @@ class stzListOfNumbers from stzList
 
 		# Case where n exists in the list
 
-		nPos = ring_find(anSorted, n)
+		nPos = StzFind(anSorted, n)
 
 		if nPos > 0
 			nDif1 = abs( n - anSorted[1] )
@@ -3068,7 +3068,7 @@ class stzListOfNumbers from stzList
 		ok
 
 		anSorted = This.ToSetQ().Sorted()
-		nPos = ring_find(anSorted, n)
+		nPos = StzFind(anSorted, n)
 
 		if nPos = 0
 			if n < anSorted[1]
@@ -3217,7 +3217,7 @@ class stzListOfNumbers from stzList
 			return [ "", "" ]
 		ok
 
-		nPos = ring_find( anSorted, n )
+		nPos = StzFind( anSorted, n )
 
 		if nPos = 0
 			return [ "", "" ]
@@ -3428,7 +3428,7 @@ class stzListOfNumbers from stzList
 
 			for i = 1 to len(aResult)
 
-				if ring_find(panNumbers, nNumber) = 0 and
+				if StzFind(panNumbers, nNumber) = 0 and
 				   aResult[i][1] = nClosestPivot
 
 					aResult[i][2] + nNumber
@@ -5393,7 +5393,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = ring_find( This.Content(), n)
+		nPos = StzFind( This.Content(), n)
 		nResult = This.AnyNumberBeforePosition(nPos)
 
 		return nResult
@@ -5425,7 +5425,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = ring_find( This.Content(), n)
+		nPos = StzFind( This.Content(), n)
 		aResult = This.AnyNumberBeforePositionZ(nPos)
 
 		return aResult
@@ -5545,7 +5545,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = ring_find( ring_reverse(This.Content()), n )
+		nPos = StzFind( ring_reverse(This.Content()), n )
 		nResult = This.AnyNumberAfterPosition(nPos)
 
 		return nResult
@@ -5577,7 +5577,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = ring_find( ring_reverse(This.Content()), n )
+		nPos = StzFind( ring_reverse(This.Content()), n )
 		aResult = This.AnyNumberAfterPositionZ(nPos)
 
 		return aResult
@@ -7470,7 +7470,7 @@ class stzListOfNumbers from stzList
 		anResult = []
 
 		for i = 1 to nLen
-			if NOT ring_find(anNumbers, anContent[i])
+			if NOT StzFind(anNumbers, anContent[i])
 				anResult + aContent[i]
 			ok
 		next
@@ -7517,7 +7517,7 @@ class stzListOfNumbers from stzList
 		aResult = []
 
 		for i = 1 to nLen
-			if NOT ring_find(anNumbers, anContent[i])
+			if NOT StzFind(anNumbers, anContent[i])
 				aResult + [ aContent[i], i ]
 			ok
 		next

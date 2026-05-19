@@ -1,4 +1,4 @@
-/*
+﻿/*
 stzUUID - Multiplatform UUID Generation Class for Softanza Library
 Provides robust UUID generation using the C++ Uiid extension by Youssef Saeed
 */
@@ -46,10 +46,10 @@ class stzUUID
 		return new stzUUID(@cUuid)
 
 	def WithoutHyphens()
-		return ring_substr2(@cUuid, "-", "")
+		return StzReplace(@cUuid, "-", "")
 
 	def WithHyphens()
-		if ring_find(@cUuid, "-") = 0
+		if StzFind(@cUuid, "-") = 0
 			# Add hyphens in standard UUID format: 8-4-4-4-12
 			cResult = StzMid(@cUuid, 1, 8) + "-" +
 			          StzMid(@cUuid, 9, 4) + "-" +

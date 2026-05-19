@@ -1,4 +1,4 @@
-#--------------------------------------------------------------#
+﻿#--------------------------------------------------------------#
 #            SOFTANZA LIBRARY (V0.9) - STZLIST                 #
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
@@ -130,7 +130,7 @@ func DeepContainsOneOfThese(paList, paItems)
 #===
 
 #NOTE the next 3 fucntions are based on the implementation made for them
-# by Mahكoud in the Ring StdLib. Here I rewrote them for better efficiency
+# by MahÙƒoud in the Ring StdLib. Here I rewrote them for better efficiency
 #TODO // We may need more performant C-based implementation for large data!
 
 # Executing a function on each list item
@@ -769,7 +769,7 @@ func SortOnXT(n, paList, pcDirection)
 		StzRaise("Incorrect param type! pcDirection must be a string.")
 	ok
 
-	if not ring_find([ "ascending", "descending", "up", "down" ], StzLower(pcDirection))
+	if not StzFind([ "ascending", "descending", "up", "down" ], StzLower(pcDirection))
 		StzRaise("Incorrect param value! pcDirection can be :Forward or :Backward.")
 	ok
 
@@ -5103,7 +5103,7 @@ func IsListOfListsOfSameSize(paList)
 	anSizes = []
 	for i = 1 to nLen
 		nLenList = len(paList[i])
-		if ring_find(anSizes, nLenList)
+		if StzFind(anSizes, nLenList)
 			return 0
 		ok
 	next
@@ -6195,7 +6195,7 @@ func ListCount(aList, pItem)
 # checking if you can use these global @Find...() functions
 # before using an stzList object.
 
-# These functions can be used when the items you’re looking for
+# These functions can be used when the items youâ€™re looking for
 # are either numbers or lists. Otherwise, the use of stzList is necessary.
 
 # The option for the right approach can lead to significant performance gains.
@@ -6343,7 +6343,7 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 	# because the content of the object can be modified by this function.
 
 	# Instead of that you should protect the content by taking a copy first
-	# and then sendهng it to this function, like this:
+	# and then sendÙ‡ng it to this function, like this:
 
 	#    aTempContent = This.Content()
 	#    @FindNthOccurrence(TaTempContent, ...; ...)
@@ -6749,13 +6749,13 @@ func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #c
 		else
 			# Check for nested lists
 
-			if ring_substr2(pcListProvidedAsStr, _nCurrentIndex_, 1) = "["
+			if StzReplace(pcListProvidedAsStr, _nCurrentIndex_, 1) = "["
 
 				_nSubEndPos_ = FindMatchingBracket(pcListProvidedAsStr, _nCurrentIndex_)
 
 				if _nSubEndPos_ > _nCurrentIndex_ + 1
 
-					_cSubStr_ = ring_substr2( pcListProvidedAsStr, (_nCurrentIndex_ + 1), (_nSubEndPos_ - _nCurrentIndex_ - 1) )
+					_cSubStr_ = StzReplace( pcListProvidedAsStr, (_nCurrentIndex_ + 1), (_nSubEndPos_ - _nCurrentIndex_ - 1) )
 					_aSubPositions_ = FindStrListInNestedStrList(pcItemProvidedAsStr, _cSubStr_)
 
 					_nLenSubPos_ = len(_aSubPositions_)
@@ -6801,7 +6801,7 @@ func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #c
 		# Move to next item at current level
 
 		if _nCurrentIndex_ <= _nLenListProvidedAsStr_ and 
-		   ring_substr2(pcListProvidedAsStr, _nCurrentIndex_, 1) = ","
+		   StzReplace(pcListProvidedAsStr, _nCurrentIndex_, 1) = ","
 
 			_nRootPos_++
 			_nCurrentIndex_++
@@ -6819,10 +6819,10 @@ func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #c
 	
 		while @i <= _nLenStr_
 
-			if ring_substr2(cStr, @i, 1) = "["
+			if StzReplace(cStr, @i, 1) = "["
 				_nOpenCount_++
 
-			but ring_substr2(cStr, @i, 1) = "]"
+			but StzReplace(cStr, @i, 1) = "]"
 
 				_nOpenCount_--
 
@@ -6841,7 +6841,7 @@ func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #c
 			return 0
 		ok
 	    
-		return ring_substr2(pcMainStr, pnStartPos, stzlen(pcSearchStr)) = pcSearchStr
+		return StzReplace(pcMainStr, pnStartPos, stzlen(pcSearchStr)) = pcSearchStr
 
 		func @ExistsAt(pcSearchStr, pcMainStr, pnStartPos)
 			return ExistsAt(pcSearchStr, pcMainStr, pnStartPos)
@@ -6861,10 +6861,10 @@ func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #c
 //			currentIndex += nLenItemProvidedAsStr
 //		else
 //			# Check for nested lists
-//			if ring_substr2(pcListProvidedAsStr, currentIndex, 1) = "["
+//			if StzReplace(pcListProvidedAsStr, currentIndex, 1) = "["
 //				subEnd = FindMatchingBracket(pcListProvidedAsStr, currentIndex)
 //				if subEnd > currentIndex + 1
-//					subStr = ring_substr2(pcListProvidedAsStr, currentIndex + 1, subEnd - currentIndex - 1)
+//					subStr = StzReplace(pcListProvidedAsStr, currentIndex + 1, subEnd - currentIndex - 1)
 //					subPositions = FindStrListInNestedStrList(pcItemProvidedAsStr, subStr)
 //					
 //					# Only handle nesting for non-root positions
@@ -6894,7 +6894,7 @@ func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #c
 //        
 //		# Move to next item at current level
 //		if currentIndex <= nLenListProvidedAsStr and 
-//		   ring_substr2(pcListProvidedAsStr, currentIndex, 1) = ","
+//		   StzReplace(pcListProvidedAsStr, currentIndex, 1) = ","
 //			rootPos++
 //			currentIndex++
 //		ok
@@ -6908,9 +6908,9 @@ func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #c
 //		nLenStr = stzlen(pcStr)
 //	
 //		while i <= nLenStr
-//			if ring_substr2(pcStr, i, 1) = "["
+//			if StzReplace(pcStr, i, 1) = "["
 //				openCount++
-//			but ring_substr2(pcStr, i, 1) = "]"
+//			but StzReplace(pcStr, i, 1) = "]"
 //				openCount--
 //				if openCount = 0
 //					return i
@@ -6926,7 +6926,7 @@ func FindStrListInNestedStrList(pcItemProvidedAsStr, pcListProvidedAsStr) #ai #c
 //			return false
 //		ok
 //	    
-//		return ring_substr2(pcMainStr, pnStartPos, stzlen(pcSearchStr)) = pcSearchStr
+//		return StzReplace(pcMainStr, pnStartPos, stzlen(pcSearchStr)) = pcSearchStr
 //
 
 #=====
@@ -7005,7 +7005,7 @@ func IsRingSortable(pListOrString)
 					bColSortable = 0
 					exit
 				else
-					if ring_find(aSeen, aCol[j]) = 0
+					if StzFind(aSeen, aCol[j]) = 0
 						aSeen + aCol[j]
 					else
 						bColSortable = 0
@@ -7087,7 +7087,7 @@ func IsRingSortableOn(paListOfLists, n)
 			return 0
 		ok
 
-		if ring_find(aSeen, aCol[i]) = 0
+		if StzFind(aSeen, aCol[i]) = 0
 			aSeen + aCol[i]
 		else
 			return 0
@@ -9469,12 +9469,12 @@ class stzList from stzObject
 			ok
 	
 			if isString(n1) and
-			   ring_find([ :First, :FirstPosition, :FirstItem ], n1) > 0
+			   StzFind([ :First, :FirstPosition, :FirstItem ], n1) > 0
 				n1 = 1
 			ok
 	
 			if isString(n2) and
-			   ring_find([ :Last, :LastPosition, :LastItem ], n2)
+			   StzFind([ :Last, :LastPosition, :LastItem ], n2)
 				n2 = This.NumberOfItems()
 			ok
 	
@@ -10277,9 +10277,9 @@ class stzList from stzObject
 		/* EXAMPLE
 
 		o1 = new stzList([ "ring", "php", "ruby", "ring", "python", "ring" ])
-		o1.ReplaceByMany("ring", [ "♥", "♥♥", "♥♥♥" ])
+		o1.ReplaceByMany("ring", [ "â™¥", "â™¥â™¥", "â™¥â™¥â™¥" ])
 	
-		? o1.Content() #--> [ "♥", "php", "ruby", "♥♥", "python", "♥♥♥" ]
+		? o1.Content() #--> [ "â™¥", "php", "ruby", "â™¥â™¥", "python", "â™¥â™¥â™¥" ]
 
 		*/
 
@@ -10652,9 +10652,9 @@ class stzList from stzObject
 		/* EXAMPLE
 
 		o1 = new stzList(["ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "ring" ])
-		o1.ReplaceManyByMany([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥", "♥♥♥" ])
+		o1.ReplaceManyByMany([ "ring", "softanza", "kandaji" ], :By = [ "â™¥", "â™¥â™¥", "â™¥â™¥â™¥" ])
 
-		? o1.Content() #--> [ "♥", "qt", "♥♥", "pyhton", "♥♥♥", "csharp", "♥" ]
+		? o1.Content() #--> [ "â™¥", "qt", "â™¥â™¥", "pyhton", "â™¥â™¥â™¥", "csharp", "â™¥" ]
 		*/
 
 		if CheckingParams()
@@ -10839,10 +10839,10 @@ class stzList from stzObject
 		/* EXAMPLE
 
 		o1 = new stzList(["ring", "qt", "softanza", "pyhton", "kandaji", "csharp", "zai" ])
-		o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "♥", "♥♥" ])
+		o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "â™¥", "â™¥â™¥" ])
 		
 		? o1.Content()
-		#--> [ "♥", "qt", "♥♥", "pyhton", "♥", "csharp", "♥♥" ]
+		#--> [ "â™¥", "qt", "â™¥â™¥", "pyhton", "â™¥", "csharp", "â™¥â™¥" ]
 
 		*/
 
@@ -11578,7 +11578,7 @@ class stzList from stzObject
 		aContent = This.Content()
 		anPos = This.FindCS(pItem, pCaseSensitive)
 
-		if len(anPos) > 0 and ring_find(anPos, n) > 0
+		if len(anPos) > 0 and StzFind(anPos, n) > 0
 			aContent[n] = pNewItem
 		ok
 
@@ -11774,10 +11774,10 @@ class stzList from stzObject
 
 		/* EXAMPLE
 		o1 = new stzList([ "ring", "ruby", "ring", "php", "ring" ])
-		o1.ReplaceThisItemAtPositions([ 1, 5 ], "ring", :By = "♥♥♥")
+		o1.ReplaceThisItemAtPositions([ 1, 5 ], "ring", :By = "â™¥â™¥â™¥")
 
 		? o1.Content()
-		#--> [ "♥♥♥", "ruby", "ring", "php", "♥♥♥" ]
+		#--> [ "â™¥â™¥â™¥", "ruby", "ring", "php", "â™¥â™¥â™¥" ]
 		*/
 
 		if CheckingParams()
@@ -11812,7 +11812,7 @@ class stzList from stzObject
 		anPos = []
 
 		for i = 1 to nLen
-			if ring_find(anPosAll, panPos[i])
+			if StzFind(anPosAll, panPos[i])
 				aContent[ panPos[i] ] = pNewItem
 			ok
 		next
@@ -11871,10 +11871,10 @@ class stzList from stzObject
 		/* EXAMPLE
 
 		o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
-		o1.ReplaceTheseItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , :By = "♥♥♥")
+		o1.ReplaceTheseItemsAtPositions([ 1, 3, 4, 5 ], [ "ring", "softanza" ] , :By = "â™¥â™¥â™¥")
 		
 		? o1.Content()
-		#--> [ "♥♥♥", "ruby", "♥♥♥", "♥♥♥", "php", "softanza" ]
+		#--> [ "â™¥â™¥â™¥", "ruby", "â™¥â™¥â™¥", "â™¥â™¥â™¥", "php", "softanza" ]
 
 		*/
 
@@ -11912,7 +11912,7 @@ class stzList from stzObject
 		aContent = This.Content()
 
 		for i = 1 to nLen
-			if ring_find(anPosAll, panPos[i])
+			if StzFind(anPosAll, panPos[i])
 				aContent[ panPos[i] ] = pNewItem
 			ok
 		next
@@ -11963,10 +11963,10 @@ class stzList from stzObject
 		/* EXAMPLE
 
 		o1 = new stzList([ "ring", "ruby", "softanza", "ring", "php", "softanza" ])
-		o1.ReplaceTheseItemsAtPositionsByMany([ 1, 3, 4, 6 ], [ "ring", "softanza" ] , [ "♥", "♥♥" ])
+		o1.ReplaceTheseItemsAtPositionsByMany([ 1, 3, 4, 6 ], [ "ring", "softanza" ] , [ "â™¥", "â™¥â™¥" ])
 				
 		? @@( o1.Content() )
-		#--> [ "♥", "ruby", "♥", "♥♥", "php", "♥♥" ]
+		#--> [ "â™¥", "ruby", "â™¥", "â™¥â™¥", "php", "â™¥â™¥" ]
 
 		*/
 
@@ -12323,11 +12323,11 @@ class stzList from stzObject
 		])
 		
 		o1.ReplaceTheseItemsAtPositionsByManyXT( [ 1, 4, 5, 8, 9 ],
-			[ "ring", "softanza" ], [ "♥", "♥♥" ] )
+			[ "ring", "softanza" ], [ "â™¥", "â™¥â™¥" ] )
 						
 		? @@( o1.Content() )
 		#       1    2       3     4    5     6      7    8     9
-		#--> [ "♥", "ruby", "♥", "♥♥", "♥", "php", "♥♥", "♥♥", "♥" ]
+		#--> [ "â™¥", "ruby", "â™¥", "â™¥â™¥", "â™¥", "php", "â™¥â™¥", "â™¥â™¥", "â™¥" ]
 		#	^                  ^    ^                 ^
 		#                    ^                       ^          ^
 
@@ -12468,11 +12468,11 @@ class stzList from stzObject
 			"softanza", "ring", "softanza"
 		])
 		
-		o1.ReplaceAnyItemsAtPositionsByManyXT( [ 1, 4, 5, 8, 9 ], [ "♥", "♥♥" ] )
+		o1.ReplaceAnyItemsAtPositionsByManyXT( [ 1, 4, 5, 8, 9 ], [ "â™¥", "â™¥â™¥" ] )
 						
 		? @@( o1.Content() )
 		#       1    2       3     4    5     6      7          8     9
-		#--> [ "♥", "ruby", "♥♥", "♥", "♥♥", "php", "softanza", "♥", "♥♥" ]
+		#--> [ "â™¥", "ruby", "â™¥â™¥", "â™¥", "â™¥â™¥", "php", "softanza", "â™¥", "â™¥â™¥" ]
 		#	^                  ^    ^                        ^    ^
 
 		*/
@@ -12701,10 +12701,10 @@ class stzList from stzObject
 		/* EXAMPLE 1
 
 		o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
-		o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+		o1.ReplaceItemAtPositionsByMany([ 3, 5, 7], "ring", :By = [ "â™¥", "â™¥â™¥", "â™¥â™¥â™¥" ])
 
 		? o1.Content()
-		#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
+		#--> [ "ring", "php", "â™¥", "ruby", "â™¥â™¥", "python", "â™¥â™¥â™¥", "csharp", "ring" ]
 
 		*/
 
@@ -12870,10 +12870,10 @@ class stzList from stzObject
 		/* EXAMPLE 1
 
 		o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
-		o1.ReplaceAnyItemsAtPositionsByMany([ 3, 5, 7], :By = [ "♥", "♥♥", "♥♥♥" ])
+		o1.ReplaceAnyItemsAtPositionsByMany([ 3, 5, 7], :By = [ "â™¥", "â™¥â™¥", "â™¥â™¥â™¥" ])
 
 		? o1.Content()
-		#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
+		#--> [ "ring", "php", "â™¥", "ruby", "â™¥â™¥", "python", "â™¥â™¥â™¥", "csharp", "ring" ]
 
 		*/
 
@@ -13187,10 +13187,10 @@ class stzList from stzObject
 		/* EXAMPLE 1
 
 		o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
-		o1.ReplaceItemAtPositionsByManyXT([ 3, 5, 7, 9], "ring", :By = [ "♥", "♥♥" ])
+		o1.ReplaceItemAtPositionsByManyXT([ 3, 5, 7, 9], "ring", :By = [ "â™¥", "â™¥â™¥" ])
 
 		? o1.Content()
-		#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥", "csharp", "♥♥" ]
+		#--> [ "ring", "php", "â™¥", "ruby", "â™¥â™¥", "python", "â™¥", "csharp", "â™¥â™¥" ]
 
 		*/
 
@@ -13228,8 +13228,8 @@ class stzList from stzObject
 		anPos = []
 
 		for i = 1 to nLenPos
-			if ring_find(anPosItem, panPos[i]) > 0 and
-			   ring_find(anPos, panPos[i]) = 0
+			if StzFind(anPosItem, panPos[i]) > 0 and
+			   StzFind(anPos, panPos[i]) = 0
 
 				anPos + panPos[i]
 			ok
@@ -13452,10 +13452,10 @@ class stzList from stzObject
 		/* EXAMPLE 1
 
 		o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
-		o1.ReplaceAnyItemsAtPositionsByManyXT([ 3, 5, 7], :By = [ "♥", "♥♥", "♥♥♥" ])
+		o1.ReplaceAnyItemsAtPositionsByManyXT([ 3, 5, 7], :By = [ "â™¥", "â™¥â™¥", "â™¥â™¥â™¥" ])
 
 		? o1.Content()
-		#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
+		#--> [ "ring", "php", "â™¥", "ruby", "â™¥â™¥", "python", "â™¥â™¥â™¥", "csharp", "ring" ]
 
 		*/
 
@@ -14471,12 +14471,12 @@ class stzList from stzObject
 
 		if isString(pnStartingAt)
 
-			if ring_find([
+			if StzFind([
 				:First, :FirstPosition, :FirstItem ], pnStartingAt) > 0
 
 				pnStartingAt = 1
 			
-			but ring_find([
+			but StzFind([
 				:Last, :LastPosition, :LastItem ], pnStartingAt)
 
 				pnStartingAt = This.NumberOfItems()
@@ -14805,12 +14805,12 @@ class stzList from stzObject
 
 		if isString(pnStartingAt)
 
-			if ring_find([
+			if StzFind([
 				:First, :FirstPosition, :FirstItem ], pnStartingAt) > 0
 
 				pnStartingAt = 1
 			
-			but ring_find([
+			but StzFind([
 				:Last, :LastPosition, :LastItem ], pnStartingAt) > 0
 
 				pnStartingAt = This.NumberOfItems()
@@ -16186,12 +16186,12 @@ class stzList from stzObject
 		ok
 
 		for i = 1 to nLen
-			cContent = ring_substr2(cContent, acItems[i], "")
+			cContent = StzReplace(cContent, acItems[i], "")
 		next
 
-		cContent = ring_substr2(@Simplify(cContent), "[ ,", "[ ")
-		cContent = ring_substr2(@Simplify(cContent), ", ,", ", ") 
-		cContent = ring_substr2(@Simplify(cContent), ", ]", " ]")
+		cContent = StzReplace(@Simplify(cContent), "[ ,", "[ ")
+		cContent = StzReplace(@Simplify(cContent), ", ,", ", ") 
+		cContent = StzReplace(@Simplify(cContent), ", ]", " ]")
 
 		cCode = 'This.UpdateWith(' + cContent + ')'
 		eval(cCode)
@@ -17481,12 +17481,12 @@ class stzList from stzObject
 
 		if isString(pnStartingAt)
 
-			if ring_find([
+			if StzFind([
 				:First, :FirstPosition, :FirstItem, :FirstItem ], pnStartingAt) > 0
 
 				pnStartingAt = 1
 			
-			but ring_find([
+			but StzFind([
 				:Last, :LastPosition, :LastItem, :LastItem ], pnStartingAt) > 0
 
 				pnStartingAt = This.NumberOfItems()
@@ -17773,13 +17773,13 @@ class stzList from stzObject
 
 		if isString(n)
 
-			if ring_find([
+			if StzFind([
 				:First, :FirstPosition,
 			      	:FirstItem, :FirstItem ], n) > 0
 				  
 				n = 1
 
-			but ring_find([
+			but StzFind([
 				:Last, :LastPosition,
 			     	:LastItem, :LastItem ], n) > 0
 
@@ -18571,13 +18571,13 @@ class stzList from stzObject
 
 		if isString(pnStart)
 
-			if ring_find([
+			if StzFind([
 					:First, :FirstPosition,
 				      	:FirstItem, :FirstItem ], pnStart) > 0
 				  
 				pnStart = 1
 
-			but ring_find([
+			but StzFind([
 					:Last, :LastPosition,
 				      	:LastItem, :LastItem ], pnStart) > 0
 
@@ -18594,7 +18594,7 @@ class stzList from stzObject
 		if isList(pnRange) and
 		   isString(pnRange[1]) and
 
-		   ring_find([ :UpToN, :UpToNItems, :UpToNItems ], pnRange[1]) > 0
+		   StzFind([ :UpToN, :UpToNItems, :UpToNItems ], pnRange[1]) > 0
 
 		   	pnRange = pnRange[2]
 		ok
@@ -18662,7 +18662,7 @@ class stzList from stzObject
 			ok
 	
 			if isString(n1) and
-				ring_find([
+				StzFind([
 					:First, :FirstPosition,
 					:FirstItem, :FirstItem ], n1) > 0
 	
@@ -18670,7 +18670,7 @@ class stzList from stzObject
 			ok
 	
 			if isString(n2) and
-				ring_find([
+				StzFind([
 					:Last, :LastPosition,
 					:LastItem, :LastItem ], n2) > 0
 	 
@@ -20621,7 +20621,7 @@ class stzList from stzObject
 				bResult = 0
 				exit
 			else
-				if ring_find(aTempKeys, aContent[i][1]) > 0
+				if StzFind(aTempKeys, aContent[i][1]) > 0
 					bResult = 0
 					exit
 				ok
@@ -28144,7 +28144,7 @@ class stzList from stzObject
 	def FindWalker(pWalker)
 
 		if isString(pWalker)
-			return ring_find(@acWalkersNames, pcWalker)
+			return StzFind(@acWalkersNames, pcWalker)
 
 		but isList(pWalker) and @IsListOfNumbers(pWalker)
 			return This.WalkersObject().Find(pWalker)
@@ -28253,7 +28253,7 @@ class stzList from stzObject
 	
 			if NOT ( isString(pReturn) and
 	
-				 ring_find([
+				 StzFind([
 					:WalkedPositions, :WalkedItems,
 					:LastPosition, :LastWalkedPosition,
 					:LastItem, :LastWalkedItem,
@@ -28355,7 +28355,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -28442,7 +28442,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -28499,7 +28499,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -28554,7 +28554,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -28628,7 +28628,7 @@ class stzList from stzObject
 	
 			if NOT ( isString(pReturn) and
 	
-				 ring_find([
+				 StzFind([
 					:WalkedPositions, :WalkedItems,
 					:LastPosition, :LastWalkedPosition,
 					:LastItem, :LastWalkedItem,
@@ -28644,12 +28644,12 @@ class stzList from stzObject
 			ok
 	
 			if isList(pcDirection) and
-			   ring_find([ :Direction, :Going ], pcDirection) > 0
+			   StzFind([ :Direction, :Going ], pcDirection) > 0
 				pcDirection = pcDirection[2]
 			ok
 	
 			if NOT ( isString(pcDirection) and
-				 ring_find([ :Forward, :Backward, :Default ], pcDirection) > 0 )
+				 StzFind([ :Forward, :Backward, :Default ], pcDirection) > 0 )
 	
 				StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
 			ok
@@ -28759,7 +28759,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -28779,7 +28779,7 @@ class stzList from stzObject
 		ok
 
 		if NOT ( isString(pcDirection) and
-			 ring_find([ :Forward, :Backward, :Default ], pcDirection) > 0 )
+			 StzFind([ :Forward, :Backward, :Default ], pcDirection) > 0 )
 
 			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
 		ok
@@ -28884,7 +28884,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -28904,7 +28904,7 @@ class stzList from stzObject
 		ok
 
 		if NOT ( isString(pcDirection) and
-			 ring_find([ :Forward, :Backward, :Default ], pcDirection) > 0 )
+			 StzFind([ :Forward, :Backward, :Default ], pcDirection) > 0 )
 
 			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
 		ok
@@ -28980,7 +28980,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -29000,7 +29000,7 @@ class stzList from stzObject
 		ok
 
 		if NOT ( isString(pcDirection) and
-			 ring_find([ :Forward, :Backward, :Default ], pcDirection) > 0 )
+			 StzFind([ :Forward, :Backward, :Default ], pcDirection) > 0 )
 
 			StzRaise("Incorrect param type! pcDirection must be one of these strings [ :Forward, :Backward, :Default ].")
 		ok
@@ -29157,7 +29157,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -29389,7 +29389,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -29562,7 +29562,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -29686,7 +29686,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -29817,7 +29817,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -29943,7 +29943,7 @@ class stzList from stzObject
 
 		if NOT ( isString(pReturn) and
 
-			 ring_find([
+			 StzFind([
 				:WalkedPositions, :WalkedItems,
 				:LastPosition, :LastWalkedPosition,
 				:LastItem, :LastWalkedItem,
@@ -31079,7 +31079,7 @@ class stzList from stzObject
 					loop
 				ok
 
-				if ring_find(acSeen, acContent[i]) = 0
+				if StzFind(acSeen, acContent[i]) = 0
 					aResult + [ acContent[i], [i] ]
 					acSeen + acContent[i]
 
@@ -31942,20 +31942,20 @@ class stzList from stzObject
 		/*
 		Examples:
 
-		o1 = new stzList([ "A", "b", "c", "28", "5", "X", "Y", "&", "من" ])
+		o1 = new stzList([ "A", "b", "c", "28", "5", "X", "Y", "&", "Ù…Ù†" ])
 		
 		? o1.PartsUsing( 'Q(@item).IsLetter()' )
 		#--> [
 		#	[ "A", "b", "c" ] = 1,
 		#	["28", "5" ] = 0,
 		# 	[ "X", "Y" ] = 1,
-		#o	[ "&", "من" ] = 0
+		#o	[ "&", "Ù…Ù†" ] = 0
 		# ]
 		
 		? o1.PartsUsing('Q(@item).Orientation()' )
 		#--> [
 		#	[ A", "b", "c", "28", "5", "X", "Y", "&" ] = :LeftToRight,
-		#o	[ "من" = :RightToLeft ]
+		#o	[ "Ù…Ù†" = :RightToLeft ]
 		# ]
 		
 		? o1.PartsUsing( 'Q(@item).IsUppercase()' )
@@ -31963,7 +31963,7 @@ class stzList from stzObject
 		# 	[ "A" ]  = 1,
 		#	[ "b", "c", "28", "5" ] = 0,
 		#	[ "X", Y" ] = 1,
-		#o	[ "&", "من" = 0
+		#o	[ "&", "Ù…Ù†" = 0
 		# ]
 		
 		? o1.PartsUsing( 'Q(@item).Kase()' )
@@ -31972,7 +31972,7 @@ class stzList from stzObject
 		#	[ "b", "c" ] = :Lowercase,
 		#	[ "28", "5" ] = "",
 		#	[ "X", "Y" ] = :Uppercase,
-		#o	[ "&", "من" ] = ""
+		#o	[ "&", "Ù…Ù†" ] = ""
 		# ]
 
 		*/
@@ -32003,11 +32003,11 @@ class stzList from stzObject
 
 		if bCaseSensitive = 0
 			_cLowExpr = StzLower(paPartitionExpr)
-			if ring_find(_cLowExpr, "charcase(") or
-			   ring_find(_cLowExpr, "isuppercase") or
-			   ring_find(_cLowExpr, "islowercase") or
-			   ring_find(_cLowExpr, "lower(") or
-			   ring_find(_cLowExpr, "upper(")
+			if StzFind(_cLowExpr, "charcase(") or
+			   StzFind(_cLowExpr, "isuppercase") or
+			   StzFind(_cLowExpr, "islowercase") or
+			   StzFind(_cLowExpr, "lower(") or
+			   StzFind(_cLowExpr, "upper(")
 				return [ [ @aContent ] ]
 			ok
 		ok
@@ -32145,20 +32145,20 @@ class stzList from stzObject
 		/*
 		Examples:
 
-		o1 = new stzList([ "A", "b", "c", "28", "5", "X", "Y", "&", "من" ])
+		o1 = new stzList([ "A", "b", "c", "28", "5", "X", "Y", "&", "Ù…Ù†" ])
 		
 		? o1.PartsUsingXT( 'Q(@item).IsLetter()' )
 		#--> [
 		#	[ "A", "b", "c" ] = 1,
 		#	["28", "5" ] = 0,
 		# 	[ "X", "Y" ] = 1,
-		#o	[ "&", "من" ] = 0
+		#o	[ "&", "Ù…Ù†" ] = 0
 		# ]
 		
 		? o1.PartsUsingXT('Q(@item).Orientation()' )
 		#--> [
 		#	[ A", "b", "c", "28", "5", "X", "Y", "&" ] = :LeftToRight,
-		#o	[ "من" = :RightToLeft ]
+		#o	[ "Ù…Ù†" = :RightToLeft ]
 		# ]
 		
 		? o1.PartsUsingXT( 'Q(@item).IsUppercase()' )
@@ -32166,7 +32166,7 @@ class stzList from stzObject
 		# 	[ "A" ]  = 1,
 		#	[ "b", "c", "28", "5" ] = 0,
 		#	[ "X", Y" ] = 1,
-		#o	[ "&", "من" = 0
+		#o	[ "&", "Ù…Ù†" = 0
 		# ]
 		
 		? o1.PartsUsingXT( 'Q(@item).Kase()' )
@@ -32175,7 +32175,7 @@ class stzList from stzObject
 		#	[ "b", "c" ] = :Lowercase,
 		#	[ "28", "5" ] = "",
 		#	[ "X", "Y" ] = :Uppercase,
-		#o	[ "&", "من" ] = ""
+		#o	[ "&", "Ù…Ù†" ] = ""
 		# ]
 
 		*/
@@ -32206,11 +32206,11 @@ class stzList from stzObject
 
 		if bCaseSensitive = 0
 			_cLowExpr = StzLower(paPartitionExpr)
-			if ring_find(_cLowExpr, "charcase(") or
-			   ring_find(_cLowExpr, "isuppercase") or
-			   ring_find(_cLowExpr, "islowercase") or
-			   ring_find(_cLowExpr, "lower(") or
-			   ring_find(_cLowExpr, "upper(")
+			if StzFind(_cLowExpr, "charcase(") or
+			   StzFind(_cLowExpr, "isuppercase") or
+			   StzFind(_cLowExpr, "islowercase") or
+			   StzFind(_cLowExpr, "lower(") or
+			   StzFind(_cLowExpr, "upper(")
 				return [ [ @aContent, "" ] ]
 			ok
 		ok
@@ -32370,11 +32370,11 @@ class stzList from stzObject
 
 		if bCaseSensitive = 0
 			_cLowExpr = StzLower(paPartitionExpr)
-			if ring_find(_cLowExpr, "charcase(") or
-			   ring_find(_cLowExpr, "isuppercase") or
-			   ring_find(_cLowExpr, "islowercase") or
-			   ring_find(_cLowExpr, "lower(") or
-			   ring_find(_cLowExpr, "upper(")
+			if StzFind(_cLowExpr, "charcase(") or
+			   StzFind(_cLowExpr, "isuppercase") or
+			   StzFind(_cLowExpr, "islowercase") or
+			   StzFind(_cLowExpr, "lower(") or
+			   StzFind(_cLowExpr, "upper(")
 				return [ 1 ]
 			ok
 		ok
@@ -32458,11 +32458,11 @@ class stzList from stzObject
 
 		if bCaseSensitive = 0
 			_cLowExpr = StzLower(paPartitionExpr)
-			if ring_find(_cLowExpr, "charcase(") or
-			   ring_find(_cLowExpr, "isuppercase") or
-			   ring_find(_cLowExpr, "islowercase") or
-			   ring_find(_cLowExpr, "lower(") or
-			   ring_find(_cLowExpr, "upper(")
+			if StzFind(_cLowExpr, "charcase(") or
+			   StzFind(_cLowExpr, "isuppercase") or
+			   StzFind(_cLowExpr, "islowercase") or
+			   StzFind(_cLowExpr, "lower(") or
+			   StzFind(_cLowExpr, "upper(")
 				return [ [ 1, nLen ] ]
 			ok
 		ok
@@ -32547,11 +32547,11 @@ class stzList from stzObject
 
 		if bCaseSensitive = 0
 			_cLowExpr = StzLower(paPartitionExpr)
-			if ring_find(_cLowExpr, "charcase(") or
-			   ring_find(_cLowExpr, "isuppercase") or
-			   ring_find(_cLowExpr, "islowercase") or
-			   ring_find(_cLowExpr, "lower(") or
-			   ring_find(_cLowExpr, "upper(")
+			if StzFind(_cLowExpr, "charcase(") or
+			   StzFind(_cLowExpr, "isuppercase") or
+			   StzFind(_cLowExpr, "islowercase") or
+			   StzFind(_cLowExpr, "lower(") or
+			   StzFind(_cLowExpr, "upper(")
 				return [ [ @aContent ] ]
 			ok
 		ok
@@ -32643,11 +32643,11 @@ class stzList from stzObject
 
 		if bCaseSensitive = 0
 			_cLowExpr = StzLower(paPartitionExpr)
-			if ring_find(_cLowExpr, "charcase(") or
-			   ring_find(_cLowExpr, "isuppercase") or
-			   ring_find(_cLowExpr, "islowercase") or
-			   ring_find(_cLowExpr, "lower(") or
-			   ring_find(_cLowExpr, "upper(")
+			if StzFind(_cLowExpr, "charcase(") or
+			   StzFind(_cLowExpr, "isuppercase") or
+			   StzFind(_cLowExpr, "islowercase") or
+			   StzFind(_cLowExpr, "lower(") or
+			   StzFind(_cLowExpr, "upper(")
 				return [ [ @aContent, [1, nLen] ] ]
 			ok
 		ok
@@ -32978,14 +32978,14 @@ class stzList from stzObject
 
 		nLen = len(@aContent)
 		for i = 1 to nLen
-			if ring_find(acOtherList, acList[i]) = 0
+			if StzFind(acOtherList, acList[i]) = 0
 				aResult + @aContent[i]
 			ok
 		next
 
 		nLen = len(paOtherList)
 		for i = 1 to nLen
-			if ring_find(acList, acOtherList[i]) = 0
+			if StzFind(acList, acOtherList[i]) = 0
 				aResult + paOtherList[i]
 			ok
 		next
@@ -33459,14 +33459,14 @@ class stzList from stzObject
 		aResult = []
 
 		for i = 1 to nLen
-			if ring_find(acOther, acList[i]) > 0 and
+			if StzFind(acOther, acList[i]) > 0 and
 				aResult + @aContent[i]
 			ok
 		next
 
 		for i = 1 to nLenOther
-			if ring_find(acList, acOther[i]) > 0 and
-			   ring_find(aResult, acOther[i]) = 0
+			if StzFind(acList, acOther[i]) > 0 and
+			   StzFind(aResult, acOther[i]) = 0
 
 				aResult + paOtherList[i]
 			ok
@@ -36948,7 +36948,7 @@ class stzList from stzObject
 				ok
 
 			but isString(pWith) and
-			    ring_find([ :ByRepeatingItems, :WithItemsRepeated,
+			    StzFind([ :ByRepeatingItems, :WithItemsRepeated,
 					:ByItemsRepeated ], pWith ) > 0
 
 				if isList(n) and IsToOrToPositionNamedParamList(n)
@@ -38025,7 +38025,7 @@ class stzList from stzObject
 		aResult = []
 		acSeen = []
 		for i = 1 to nLenList
-			if ring_find(acSeen, acListStringified[i])
+			if StzFind(acSeen, acListStringified[i])
 				loop
 			ok
 
@@ -38137,7 +38137,7 @@ class stzList from stzObject
 		aResult = []
 		acSeen = []
 		for i = 1 to nLenList
-			if ring_find(acSeen, acListStringified[i])
+			if StzFind(acSeen, acListStringified[i])
 				loop
 			ok
 
@@ -38436,7 +38436,7 @@ class stzList from stzObject
 			anDiff + Abs(pnPos - anPos[i])
 		next
 
-		nResult = anPos[ ring_find(anDiff, Min(anDiff)) ]
+		nResult = anPos[ StzFind(anDiff, Min(anDiff)) ]
 		return nResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -38514,7 +38514,7 @@ class stzList from stzObject
 			ok
 		next
 
-		nResult = anNearest[ ring_find(anDiff, Min(anDiff)) ]
+		nResult = anNearest[ StzFind(anDiff, Min(anDiff)) ]
 		return nResult
 
 
@@ -38687,7 +38687,7 @@ class stzList from stzObject
 			ok
 		next
 
-		nResult = anNearest[ ring_find(anDiff, Min(anDiff)) ]
+		nResult = anNearest[ StzFind(anDiff, Min(anDiff)) ]
 		return nResult
 
 	#-- WITHOUT CASESENSITIVITY
@@ -38847,7 +38847,7 @@ class stzList from stzObject
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
+		# while relying on the performant native StzFind()
 
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not onlu numbers and strings, but also lists,
@@ -38913,7 +38913,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			n = ring_find( acSeen, acStr[i] )
+			n = StzFind( acSeen, acStr[i] )
 			if n = 0
 				acSeen + acStr[i]
 			else
@@ -39000,7 +39000,7 @@ class stzList from stzObject
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
+		# while relying on the performant native StzFind()
 
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not onlu numbers and strings, but also lists,
@@ -39066,12 +39066,12 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			n = ring_find( acSeen, acStr[i] )
+			n = StzFind( acSeen, acStr[i] )
 			if n = 0
 				acSeen + acStr[i]
 				acNonDuplicated + acStr[i]
 			else
-				nPos = ring_find( acNonDuplicated, acStr[i] )
+				nPos = StzFind( acNonDuplicated, acStr[i] )
 				if nPos > 0
 					ring_del(acNonDuplicated, nPos)
 				ok
@@ -39125,7 +39125,7 @@ class stzList from stzObject
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
+		# while relying on the performant native StzFind()
 
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not onlu numbers and strings, but also lists,
@@ -39191,12 +39191,12 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			n = ring_find( acSeen, acStr[i] )
+			n = StzFind( acSeen, acStr[i] )
 			if n = 0
 				acSeen + acStr[i]
 				acNonDuplicated + acStr[i]
 			else
-				nPos = ring_find( acNonDuplicated, acStr[i] )
+				nPos = StzFind( acNonDuplicated, acStr[i] )
 				if nPos > 0
 					bResult = 0
 					exit
@@ -39428,7 +39428,7 @@ class stzList from stzObject
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
+		# while relying on the performant native StzFind()
 
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not onlu numbers and strings, but also lists,
@@ -39493,7 +39493,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			n = ring_find(acSeen, acStr[i])
+			n = StzFind(acSeen, acStr[i])
 
 			if n = 0
 				acSeen + acStr[i]
@@ -39600,7 +39600,7 @@ class stzList from stzObject
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
+		# while relying on the performant native StzFind()
 
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not onlu numbers and strings, but also lists,
@@ -39666,7 +39666,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			n = ring_find(acSeen, acStr[i])
+			n = StzFind(acSeen, acStr[i])
 
 			if n = 0
 				acSeen + acStr[i]
@@ -39740,7 +39740,7 @@ class stzList from stzObject
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
+		# while relying on the performant native StzFind()
 
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not onlu numbers and strings, but also lists,
@@ -39808,14 +39808,14 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			n = ring_find(acSeen, acStr[i])
+			n = StzFind(acSeen, acStr[i])
 
 			if n = 0
 				acSeen + acStr[i]
 				anSeen + i
 				aResult + [ aContent[i], [i] ]
 			else
-				if ring_find(anPos, anSeen[n]) = 0
+				if StzFind(anPos, anSeen[n]) = 0
 					anPos + anSeen[n]
 				ok
 				anPos + i
@@ -39904,7 +39904,7 @@ class stzList from stzObject
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
+		# while relying on the performant native StzFind()
 
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not onlu numbers and strings, but also lists,
@@ -39970,13 +39970,13 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			n = ring_find(acSeen, acStr[i])
+			n = StzFind(acSeen, acStr[i])
 
 			if n = 0
 				acSeen + acStr[i]
 				anSeen + i
 			else
-				if ring_find(anPos, anSeen[n]) = 0
+				if StzFind(anPos, anSeen[n]) = 0
 					anPos + anSeen[n]
 				ok
 				anPos + i
@@ -40049,7 +40049,7 @@ class stzList from stzObject
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
+		# while relying on the performant native StzFind()
 
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not onlu numbers and strings, but also lists,
@@ -40116,13 +40116,13 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			n = ring_find(acSeen, acStr[i])
+			n = StzFind(acSeen, acStr[i])
 
 			if n = 0
 				acSeen + acStr[i]
 				anSeen + i
 			else
-				if ring_find(anPos, anSeen[n]) = 0
+				if StzFind(anPos, anSeen[n]) = 0
 					anPos + anSeen[n]
 					anResult + anSeen[n]
 				ok
@@ -40383,7 +40383,7 @@ class stzList from stzObject
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
+		# while relying on the performant native StzFind()
 
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not onlu numbers and strings, but also lists,
@@ -40447,7 +40447,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			n = ring_find(acSeen, acStr[i])
+			n = StzFind(acSeen, acStr[i])
 
 			if n = 0
 				acSeen + acStr[i]
@@ -40799,7 +40799,7 @@ class stzList from stzObject
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
+		# while relying on the performant native StzFind()
 
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not only numbers and strings, but also lists,
@@ -40865,7 +40865,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			n = ring_find(acSeen, acStr[i])
+			n = StzFind(acSeen, acStr[i])
 
 			if n = 0
 				acSeen + acStr[i]
@@ -40873,7 +40873,7 @@ class stzList from stzObject
 				anPos + i
 
 			else
-				nPos = ring_find(acResult, acStr[i])
+				nPos = StzFind(acResult, acStr[i])
 
 				if nPos > 0
 					ring_del(acResult, nPos)
@@ -41029,7 +41029,7 @@ class stzList from stzObject
 		acStr = []
 
 		# We duplicate the code because we need to manage casesensitivty
-		# while relying on the performant native ring_find()
+		# while relying on the performant native StzFind()
 
 		# We start by stringifying the list (casting all the items in to strings)
 		# so we can find not only numbers and strings, but also lists,
@@ -41096,7 +41096,7 @@ class stzList from stzObject
 
 		for i = 1 to nLen
 
-			n = ring_find(acSeen, acStr[i])
+			n = StzFind(acSeen, acStr[i])
 
 			if n = 0
 				acSeen + acStr[i]
@@ -41104,7 +41104,7 @@ class stzList from stzObject
 				anResult + i
 
 			else
-				nPos = ring_find(acResult, acStr[i])
+				nPos = StzFind(acResult, acStr[i])
 
 				if nPos > 0
 					ring_del(acResult, nPos)
@@ -42249,7 +42249,7 @@ class stzList from stzObject
 		for i = 2 to nLen
 
 			if acItems[i-1] = acItems[i]
-				if ring_find(acSeen, acItems[i-1]) = 0
+				if StzFind(acSeen, acItems[i-1]) = 0
 					aResult + aContent[i-1]
 					acSeen + acItems[i-1]
 				ok
@@ -42347,7 +42347,7 @@ class stzList from stzObject
 		for i = 2 to nLen
 
 			if acItems[i-1] = acItems[i]
-				n = ring_find(acSeen, acItems[i-1])
+				n = StzFind(acSeen, acItems[i-1])
 				if n = 0
 					aResult + [ aContent[i-1], [i] ]
 					acSeen + acItems[i-1]
@@ -43173,7 +43173,7 @@ class stzList from stzObject
 		_bResult_ = 1
 
 		for @i = 1 to _nLen_
-			if NOT ring_find(panPos, _anPos_[@i])
+			if NOT StzFind(panPos, _anPos_[@i])
 				_bResult_ = 0
 				exit
 			ok
@@ -43247,7 +43247,7 @@ class stzList from stzObject
 
 		_anPos_ = This.FindAllCS(pcSubStr, pCaseSensitive)
 		
-		if ring_find(_anPos_, n) > 0
+		if StzFind(_anPos_, n) > 0
 			return 1
 
 		else
@@ -43837,7 +43837,7 @@ class stzList from stzObject
 		return This.ContainsLessThen(n, pItem)
 
 	  #--------------------------------------------------#
-	 #  ِCHECKING IF EACH ITEM CONTAINS THE GIVEN VALUE  #
+	 #  ÙCHECKING IF EACH ITEM CONTAINS THE GIVEN VALUE  #
 	#--------------------------------------------------#
 
 	def EachContainsCS(pItem, pCaseSensitive)
@@ -43846,26 +43846,26 @@ class stzList from stzObject
 
 		EXAMPLE 1
 
-		o1 = new stzList([ "ee♥ee", "b♥bbb", "ccc♥", "♥♥" ])
-		? o1.EachContains("♥")
+		o1 = new stzList([ "eeâ™¥ee", "bâ™¥bbb", "cccâ™¥", "â™¥â™¥" ])
+		? o1.EachContains("â™¥")
 		#--> TRUE
 		
 		EXAMPLE 2
 
-		o1 = new stzList([ ["ee","♥","ee"], ["♥", "bb"], "ccc♥", "♥♥" ])
-		? o1.EachContains("♥")
+		o1 = new stzList([ ["ee","â™¥","ee"], ["â™¥", "bb"], "cccâ™¥", "â™¥â™¥" ])
+		? o1.EachContains("â™¥")
 		#--> TRUE
 		
 		EXAMPLE 3
 
-		o1 = new stzList([ "a♥a" ])
-		? o1.EachContains("♥")
+		o1 = new stzList([ "aâ™¥a" ])
+		? o1.EachContains("â™¥")
 		#--> TRUE
 		
 		EXAMPLE 4
 
-		o1 = new stzList([ 0, "a♥a" ])
-		? o1.EachContains("♥")
+		o1 = new stzList([ 0, "aâ™¥a" ])
+		? o1.EachContains("â™¥")
 		#--> FALSE
 
 		*/
@@ -43912,7 +43912,7 @@ class stzList from stzObject
 		#>
 
 	  #---------------------------------------------------#
-	 #  ِCHECKING IF EACH ITEM CONTAINS THE GIVEN STRING  #
+	 #  ÙCHECKING IF EACH ITEM CONTAINS THE GIVEN STRING  #
 	#---------------------------------------------------#
 
 	def EachContainsTheseCS(paItems, pCaseSensitive)
@@ -45280,12 +45280,12 @@ fdef
 	def AntiFindCS(pItem, pCaseSensitive)
 		/* Example
 
-		o1 = new stzList([ "1", "2", "♥", "4", "5", "♥", "6", "7", "♥", "9" ])
+		o1 = new stzList([ "1", "2", "â™¥", "4", "5", "â™¥", "6", "7", "â™¥", "9" ])
 		
-		? @@( o1.Find("♥") ) + NL
+		? @@( o1.Find("â™¥") ) + NL
 		#--> [ 3, 6, 9 ]
 		
-		? @@( o1.AntiFind("♥") ) + NL
+		? @@( o1.AntiFind("â™¥") ) + NL
 		#--> [ 1, 2, 4, 5, 7, 8, 10 ]
 
 		*/
@@ -45343,7 +45343,7 @@ fdef
 		anResult = []
 
 		for i = 1 to nLen
-			if ring_find(anPos, anContent[i]) = 0
+			if StzFind(anPos, anContent[i]) = 0
 				anResult + i
 			ok
 		next
@@ -46429,9 +46429,9 @@ fdef
 		ok
 
 		if _bCase_ = 1
-			_bResult_ = ring_find(_cList_, _cItem_) > 0
+			_bResult_ = StzFind(_cList_, _cItem_) > 0
 		else
-			_bResult_ = ring_find(StzLower(_cList_), StzLower(_cItem_)) > 0
+			_bResult_ = StzFind(StzLower(_cList_), StzLower(_cItem_)) > 0
 		ok
 
 		return _bResult_
@@ -48203,7 +48203,7 @@ fdef
 	
 			_n_ = paPaths[@i][1]
 	
-			if ring_find(_anSeen_, _n_) = 0
+			if StzFind(_anSeen_, _n_) = 0
 				_aResult_ + [_n_]
 				_anSeen_ + _n_
 			ok
@@ -49955,7 +49955,7 @@ fdef
 		cViz = " "
 		for i = 1 to nLen - 2
 			
-			if ring_find(anPos, i) > 0
+			if StzFind(anPos, i) > 0
 				cViz += "^"
 			else
 				cViz += "-"
@@ -50720,11 +50720,11 @@ fdef
 			ok
 
 			if isString(pnStartingAt)
-				if ring_find([ :First, :FirstItem ], pnStartingAt) > 0
+				if StzFind([ :First, :FirstItem ], pnStartingAt) > 0
 	
 					pnStartingAt = 1
 				
-				but ring_find([ :Last, :LastItem ], pnStartingAt) > 0
+				but StzFind([ :Last, :LastItem ], pnStartingAt) > 0
 	
 					pnStartingAt = This.NumberOfItems()
 				ok
@@ -50799,11 +50799,11 @@ fdef
 
 			if isString(pnStartingAt)
 
-				if ring_find([ :First, :FirstItem ], pnStartingAt) > 0
+				if StzFind([ :First, :FirstItem ], pnStartingAt) > 0
 	
 					pnStartingAt = 1
 				
-				but ring_find([ :Last, :LastItem ], pnStartingAt) > 0
+				but StzFind([ :Last, :LastItem ], pnStartingAt) > 0
 	
 					pnStartingAt = This.NumberOfItems()
 				ok
@@ -52864,7 +52864,7 @@ fdef
 		acResult = []
 
 		for i = 1 to nLen
-			if isString(aContent[i]) and ring_find(acResult,aContent[i]) = 0
+			if isString(aContent[i]) and StzFind(acResult,aContent[i]) = 0
 				acResult + aContent[i]
 			ok
 		next
@@ -53826,7 +53826,7 @@ fdef
 		return aResult
 
 	  #-----------------------------------------#
-	 #  GETTING THE /÷SلإS AND THEIR POSITIONS  #
+	 #  GETTING THE /Ã·SÙ„Ø¥S AND THEIR POSITIONS  #
 	#-----------------------------------------#
 
 	def ListsZ()
@@ -55287,11 +55287,11 @@ fdef
 	
 			if isString(n1)
 
-				if ring_find([ :First, :FirstItem ], n1) > 0
+				if StzFind([ :First, :FirstItem ], n1) > 0
 
 					n1 = 1
 	
-				but ring_find([ :Last, :LastItem ], n1) > 0
+				but StzFind([ :Last, :LastItem ], n1) > 0
 
 					n1 = nLen
 	
@@ -55305,13 +55305,13 @@ fdef
 		
 			if isString(n2)
 
-				if ring_find([
+				if StzFind([
 					:End, :Last, :LastItem, :EndOfList
 				], n2) > 0
 
 					n2 = nLen
 	
-				but ring_find([ :First, :FirstItem ], n2) > 0
+				but StzFind([ :First, :FirstItem ], n2) > 0
 
 					n2 = 1
 	
@@ -56406,7 +56406,7 @@ fdef
 			[
 			:en = "house",
 			:fr = "maison",
-			:ar = "منزل"
+			:ar = "Ù…Ù†Ø²Ù„"
 		     	]
 
 		The keys of the hashlit must be language abbreviations as
@@ -56454,7 +56454,7 @@ fdef
 
 		if nLen = 1 and isString(@aContent[1]) and
 
-		   ring_find([
+		   StzFind([
 			:Default, :DefaultLocale,
 			:System, :SystemLocale, "c", "C", :CLocale
 
@@ -56485,9 +56485,9 @@ fdef
 			acKeys + @aContent[i][1]
 		next
 
-		bLanguage = ring_find(acKeys, "language")
-		bScript = ring_find(acKeys, "script")
-		bCountry = ring_find(acKeys, "country")
+		bLanguage = StzFind(acKeys, "language")
+		bScript = StzFind(acKeys, "script")
+		bCountry = StzFind(acKeys, "country")
 
 		if bLanguage = 0 and bScript = 0 and bCountry = 0
 			return 0
@@ -56686,7 +56686,7 @@ fdef
 		aResult = []
 
 		for i = 1 to nLen
-			if ring_find(aResult, ring_type(aContent[i])) = 0
+			if StzFind(aResult, ring_type(aContent[i])) = 0
 				aResult + ring_type(aContent[i])
 			ok
 		next
@@ -56791,7 +56791,7 @@ fdef
 		aResult = []
 
 		for i = 1 to nLen
-			if ring_find(aResult, Q(aContent[i]).StzType()) = 0
+			if StzFind(aResult, Q(aContent[i]).StzType()) = 0
 				aResult + Q(aContent[i]).StzType()
 			ok
 		next
@@ -57272,7 +57272,7 @@ fdef
 			# FindXT("word", :StartingAt = 12)
 			but oP2.IsStartingAtNamedParam()
 				p2 = p2[2]
-				return This.FindSTِS(p1, p2,pCaseSensitive)
+				return This.FindSTÙS(p1, p2,pCaseSensitive)
 
 			# FindXT( "*", :InSection = [10 , 14 ] )
 			but oP2.IsInSectionNamedParam()
@@ -57380,14 +57380,14 @@ fdef
 				return This.FindAfterPositionCS( p1[2], p2[2], pCaseSensitive )
 
 			# FindXT( :AnySubString, :Between = ["<<", ">>" )
-			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
+			but isString(p1) and StzFind([ :Any, :AnySubString ], p1) > 0 and
 			    isList(p2) and IsBetweenNamedParamList(p2) and
 			    isList(p2[2]) and IsPairOfStrings(p2[2])
 
 				return This.FindAnyBetweenCS(p2[2][1], p2[2][1], pCaseSensitive)
 
 			# FindXT( :Any, :BoundedBy = '"' )
-			but isString(p1) and ring_find([ :Any, :AnySubString ], p1) > 0 and
+			but isString(p1) and StzFind([ :Any, :AnySubString ], p1) > 0 and
 			    isList(p2) and IsBoundedByNamedParamList(p2)
 
 				return This.FindAnyBoundedByCS(p2[2], pCaseSensitive)
@@ -57423,9 +57423,9 @@ fdef
 	
 			if isString(n1)
 
-				if ring_find([ :First, :FirstItem ], n1) > 0
+				if StzFind([ :First, :FirstItem ], n1) > 0
 					n1 = 1
-				but ring_find([ :Last, :LastItem ], n1) > 0
+				but StzFind([ :Last, :LastItem ], n1) > 0
 					n1 = This.NumberOfItems()
 				ok
 			ok
@@ -57440,10 +57440,10 @@ fdef
 	
 			if isString(n2)
 
-				if ring_find([ :Last, :LastItem ], n2) > 0
+				if StzFind([ :Last, :LastItem ], n2) > 0
 					n2 = This.NumberOfItems()
 
-				but ring_find([ :First, :FirstItem ], n2) > 0
+				but StzFind([ :First, :FirstItem ], n2) > 0
 					n2 = 1
 				ok
 
@@ -57589,9 +57589,9 @@ fdef
 	
 			if isString(n1)
 
-				if ring_find([ :First, :FirstItem ], n1) > 0
+				if StzFind([ :First, :FirstItem ], n1) > 0
 					n1 = 1
-				but ring_find([ :Last, :LastItem ], n1) > 0
+				but StzFind([ :Last, :LastItem ], n1) > 0
 					n1 = This.NumberOfItems()
 				ok
 			ok
@@ -57606,9 +57606,9 @@ fdef
 	
 			if isString(n2)
 
-				if ring_find([ :Last, :LastItem ], n2) > 0
+				if StzFind([ :Last, :LastItem ], n2) > 0
 					n2 = This.NumberOfItems()
-				but ring_find([ :First, :FirstItem ], n2) > 0
+				but StzFind([ :First, :FirstItem ], n2) > 0
 					n2 = 1
 				ok
 			ok
@@ -58513,7 +58513,7 @@ fdef
 					cName = aContent[i].VarName()
 				ok
 	
-				if ring_find(acSeen, cName)
+				if StzFind(acSeen, cName)
 					loop
 				ok
 	
@@ -58555,7 +58555,7 @@ fdef
 				cName = paoObjects[i]
 			ok
 
-			if ring_find(acSeen, cName) = 0
+			if StzFind(acSeen, cName) = 0
 				anPos = This.FindObject(cName)
 				aResult + [ cName, anPos ]
 				acSeen + cName
@@ -59333,7 +59333,7 @@ fdef
 					anPos + i
 				ok
 
-				if bExtend and ring_find(anPos, i) = 0
+				if bExtend and StzFind(anPos, i) = 0
 					cItem = cExtension + cItem + cExtension
 					anPosExt + i
 				ok
@@ -59351,7 +59351,7 @@ fdef
 					cItem = @ReplaceCS(item, pcSubStr, pcOtherSubStr, pCaseSensitive)
 				ok
 
-				if bExtend and ring_find(anPos, i) = 0
+				if bExtend and StzFind(anPos, i) = 0
 					cItem += cExtendion
 					anPosExt + i
 				ok
@@ -59549,7 +59549,7 @@ fdef
 					anPos + i
 				ok
 
-				if bExtend and ring_find(anPos, i) = 0
+				if bExtend and StzFind(anPos, i) = 0
 					cItem = cExtension + cItem + cExtension
 					anPosExt + i
 				ok
@@ -59567,7 +59567,7 @@ fdef
 					cItem = @ReplaceCS(item, pcSubStr, pcOtherSubStr, pCaseSensitive)
 				ok
 
-				if bExtend and ring_find(anPos, i) = 0
+				if bExtend and StzFind(anPos, i) = 0
 					cItem += cExtendion
 					anPosExt + i
 				ok
@@ -60008,7 +60008,7 @@ fdef
 	
 		ok
 
-		cCode = ring_substr2(cCode, "Isnobject", "IsAnObject")
+		cCode = StzReplace(cCode, "Isnobject", "IsAnObject")
 		# Brute force solution!
 		# #TODO A cleaner solution is to check how cCode is composed
 		# and let IsAnObject be generated isntead of IsnObject
@@ -60131,7 +60131,7 @@ fdef
 			StzRaise("Incorrect param type! paEvalDirection must be a string.")
 		ok
 
-		if NOT ring_find([
+		if NOT StzFind([
 			:Default, :Nothing,
 			:LeftToRight, :RightToLeft,
 			:Left2Right, :Right2Left,
@@ -60150,7 +60150,7 @@ fdef
 
 		# Doing the job
 
-		if ring_find([
+		if StzFind([
 			:RightToLeft,
 			:Right2Left,
 			:FromRightToLeft,
@@ -64459,7 +64459,7 @@ fdef
 
 			cItem = @@(item)
 
-			if ring_find(acSeen, cItem) = 0
+			if StzFind(acSeen, cItem) = 0
 				aResult + item
 				acSeen + cItem
 			ok
@@ -64483,7 +64483,7 @@ fdef
 				loop
 			ok
 
-			if ring_find(acSeen, @@(item)) = 0
+			if StzFind(acSeen, @@(item)) = 0
 				anPos = This.Find(aContent[i])
 				aResult + [ item, anPos ]
 				acSeen + @@(item)
@@ -64617,7 +64617,7 @@ fdef
 
 			cItem = @@(item)
 
-			if ring_find(acSeen, cItem) = 0
+			if StzFind(acSeen, cItem) = 0
 				aResult + item
 				acSeen + cItem
 			ok
@@ -64641,7 +64641,7 @@ fdef
 				loop
 			ok
 
-			if ring_find(acSeen, @@(item)) = 0
+			if StzFind(acSeen, @@(item)) = 0
 				anPos = This.Find(aContent[i])
 				aResult + [ item, anPos ]
 				acSeen + @@(item)
@@ -64807,7 +64807,7 @@ fdef
 				aResult + n
 
 			but isString(aContent[i])
-				cNumber = ring_substr2(aContent[i], "_", "")
+				cNumber = StzReplace(aContent[i], "_", "")
 				n = 0+ cNumber
 				aResult + n
 				
@@ -70517,7 +70517,7 @@ fdef
 		#>
 
 	  #--------------------------------------------------------#
-	 #   FINDING SPLITS (َAS SECTIONS) AFTER A GIVEN SECTION   #
+	 #   FINDING SPLITS (ÙŽAS SECTIONS) AFTER A GIVEN SECTION   #
 	#--------------------------------------------------------#
 
 	def FindSplitsAfterSectionCSZZ(n1, n2, pCaseSensitive)
@@ -74123,7 +74123,7 @@ fdef
 		#>
 
 	  #----------------------------------------------------------#
-	 #   FINDING NTH SPLIT (َAS SECTION) AFTER A GIVEN SECTION   #
+	 #   FINDING NTH SPLIT (ÙŽAS SECTION) AFTER A GIVEN SECTION   #
 	#----------------------------------------------------------#
 
 	def FindNthSplitAfterSectionZZ(n, n1, n2)
@@ -77391,7 +77391,7 @@ fdef
 		#>
 
 	  #-----------------------------------------------------------#
-	 #   FINDING LAST SPLIT (َAS SECTION) AFTER A GIVEN SECTION   #
+	 #   FINDING LAST SPLIT (ÙŽAS SECTION) AFTER A GIVEN SECTION   #
 	#-----------------------------------------------------------#
 
 	def FindLastSplitAfterSectionZZ(n1, n2)
@@ -78229,8 +78229,8 @@ fdef
 		_nLen_ = len(_aItems_)
 
 		_cCode_ = StzLower(StzCCodeQ(pcYielder).Content())
-		_cCode_ = ring_substr2(_cCode_, "this[", "_aItems_[")
-		_cCode_ = ring_substr2(_cCode_, "@aContent[", "_aItems_[")
+		_cCode_ = StzReplace(_cCode_, "this[", "_aItems_[")
+		_cCode_ = StzReplace(_cCode_, "@aContent[", "_aItems_[")
 
 		_cCode_ = '_aResult_ + ' + _cCode_
 
@@ -78265,8 +78265,8 @@ fdef
 		_oCode_.Transpile()
 		_cCode_ = StzLower(_oCode_.Content())
 
-		_cCode_ = ring_substr2(_cCode_, "this[", "_aItems_[")
-		_cCode_ = ring_substr2(_cCode_, "@aContent[", "_aItems_[")
+		_cCode_ = StzReplace(_cCode_, "this[", "_aItems_[")
+		_cCode_ = StzReplace(_cCode_, "@aContent[", "_aItems_[")
 
 		_cCode_ = '_aResult_ + ' + _cCode_
 

@@ -147,7 +147,7 @@ func vxt(cVarName)
 
 	cVarName = ring_lower(cVarName)
 
-	if NOT ring_find(TempVarNames(), cVarName)
+	if NOT StzFind(TempVarNames(), cVarName)
 		StzRaise("Variable name does not exist!")
 	ok
 

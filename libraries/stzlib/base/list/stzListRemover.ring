@@ -73,9 +73,9 @@ class stzListRemover from stzList
 	def RemoveItemAtPosition(n)
 
 		if isString(n)
-			if ring_find([ :First, :FirstPosition, :FirstItem ], n) > 0
+			if StzFind([ :First, :FirstPosition, :FirstItem ], n) > 0
 				n = 1
-			but ring_find([ :Last, :LastPosition, :LastItem ], n) > 0
+			but StzFind([ :Last, :LastPosition, :LastItem ], n) > 0
 				n = This.NumberOfItems()
 			ok
 		ok

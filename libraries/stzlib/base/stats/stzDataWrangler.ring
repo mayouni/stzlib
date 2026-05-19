@@ -1,4 +1,4 @@
-
+﻿
 # =============================================================================
 # stzDataWRangler - Intelligent Data Wrangling Class for Softanza Library
 # =============================================================================
@@ -325,7 +325,7 @@ class stzDataRangler
                 for i = 1 to len(@aData)
                     if NOT This._IsMissing(@aData[i][j])
                         cType = This._GetDataType(@aData[i][j])
-                        if ring_find(aColumnTypes, cType) = 0
+                        if StzFind(aColumnTypes, cType) = 0
                             aColumnTypes + cType
                         ok
                     ok
@@ -356,7 +356,7 @@ class stzDataRangler
                 cColumn = rule[1]
                 nMin = rule[2]
                 nMax = rule[3]
-                nColIndex = ring_find(@aHeaders, cColumn)
+                nColIndex = StzFind(@aHeaders, cColumn)
                 
                 if nColIndex > 0
                     for i = 1 to len(@aData)
@@ -429,7 +429,7 @@ class stzDataRangler
             for rule in aConversionRules
                 cColumn = rule[1]
                 cTargetType = rule[2]
-                nColIndex = ring_find(@aHeaders, cColumn)
+                nColIndex = StzFind(@aHeaders, cColumn)
                 
                 if nColIndex > 0
                     for i = 1 to len(@aData)
@@ -550,9 +550,9 @@ class stzDataRangler
         if aPlan = NULL return NULL ok
         
         if @bVerbose
-            ? "🔧 Executing Plan: " + aPlan[:title]
-            ? "📝 " + aPlan[:description]
-            ? "⏱️  Estimated time: " + aPlan[:estimated_time] + " seconds"
+            ? "ðŸ”§ Executing Plan: " + aPlan[:title]
+            ? "ðŸ“ " + aPlan[:description]
+            ? "â±ï¸  Estimated time: " + aPlan[:estimated_time] + " seconds"
             ? ""
         ok
         
@@ -561,7 +561,7 @@ class stzDataRangler
         
         for stepp in aPlan[:steps]
             if @bVerbose
-                ? "▶️  " + stepp[:description] + "..."
+                ? "â–¶ï¸  " + stepp[:description] + "..."
             ok
             
             try
@@ -574,7 +574,7 @@ class stzDataRangler
                 ]
                 
                 if @bVerbose
-                    ? "   ✅ " + result
+                    ? "   âœ… " + result
                 ok
                 
             catch
@@ -586,7 +586,7 @@ class stzDataRangler
                 ]
                 
                 if @bVerbose
-                    ? "   ❌ Error: " + cCatchError
+                    ? "   âŒ Error: " + cCatchError
                 ok
             done
         next
@@ -596,8 +596,8 @@ class stzDataRangler
         
         if @bVerbose
             ? ""
-            ? "🎉 Plan execution completed in " + nActualTime + " seconds"
-            ? "📊 " + This._GetExecutionSummary(aResults)
+            ? "ðŸŽ‰ Plan execution completed in " + nActualTime + " seconds"
+            ? "ðŸ“Š " + This._GetExecutionSummary(aResults)
         ok
         
         return [
@@ -698,26 +698,26 @@ class stzDataRangler
         """Display formatted data quality report"""
         aProfile = This.GetDataProfile()
         
-        ? "📋 DATA WRANGLING REPORT"
+        ? "ðŸ“‹ DATA WRANGLING REPORT"
         ? "========================"
         ? "Structure: " + aProfile[:structure]
-        ? "Dimensions: " + aProfile[:rows] + " rows × " + aProfile[:columns] + " columns"
+        ? "Dimensions: " + aProfile[:rows] + " rows Ã— " + aProfile[:columns] + " columns"
         ? "Issues Found: " + aProfile[:issues_found]
         ? "Transformations: " + aProfile[:transformations_applied]
         ? ""
         
         if len(@aIssues) > 0
-            ? "🚨 ISSUES DETECTED:"
+            ? "ðŸš¨ ISSUES DETECTED:"
             for issue in @aIssues
-                ? "  • " + issue[:type] + ": " + issue[:description]
+                ? "  â€¢ " + issue[:type] + ": " + issue[:description]
             next
             ? ""
         ok
         
         if len(@aTransformLog) > 0
-            ? "🔄 TRANSFORMATIONS APPLIED:"
+            ? "ðŸ”„ TRANSFORMATIONS APPLIED:"
             for transform in @aTransformLog
-                ? "  • " + transform[:operation] + ": " + transform[:details]
+                ? "  â€¢ " + transform[:operation] + ": " + transform[:details]
             next
         ok
 
@@ -725,7 +725,7 @@ class stzDataRangler
     # ==============
     
     def _IsMissing(value)
-        return isNull(value) or ring_find($aWRANGLE_MISSING_VALUES, "" + value) > 0
+        return isNull(value) or StzFind($aWRANGLE_MISSING_VALUES, "" + value) > 0
 
     def _GetFillValue(aData, cStrategy)
         # Determine best fill value based on data and strategy
@@ -833,7 +833,7 @@ class stzDataRangler
         return "unknown"
 
     def _IsBoolean(cValue)
-        return ring_find($aWRANGLE_TRUE_VALUES + $aWRANGLE_FALSE_VALUES, StzLower(trim("" + cValue))) > 0
+        return StzFind($aWRANGLE_TRUE_VALUES + $aWRANGLE_FALSE_VALUES, StzLower(trim("" + cValue))) > 0
 
     def _IsDate(cValue)
         # Simple date detection - could be enhanced
@@ -857,7 +857,7 @@ class stzDataRangler
             
         on "boolean"
             if This._IsBoolean(value)
-                return ring_find($aWRANGLE_TRUE_VALUES, StzLower(trim("" + value))) > 0
+                return StzFind($aWRANGLE_TRUE_VALUES, StzLower(trim("" + value))) > 0
             ok
             
         on "date"
@@ -999,7 +999,7 @@ next
             for i = 1 to len(@aData)
                 if NOT This._IsMissing(@aData[i][j])
                     cType = This._GetDataType(@aData[i][j])
-                    if ring_find(aTypes, cType) = 0
+                    if StzFind(aTypes, cType) = 0
                         aTypes + cType
                     ok
                 ok
@@ -1148,7 +1148,7 @@ next
         aUnique = []
         for i = 1 to len(@aData)
             value = @aData[i][nColIndex]
-            if NOT This._IsMissing(value) and ring_find(aUnique, value) = 0
+            if NOT This._IsMissing(value) and StzFind(aUnique, value) = 0
                 aUnique + value
             ok
         next
@@ -1177,7 +1177,7 @@ next
         for i = 1 to len(@aData)
             value = @aData[i][nColIndex]
             if NOT This._IsMissing(value)
-                nLabelIndex = ring_find(aUniqueValues, value)
+                nLabelIndex = StzFind(aUniqueValues, value)
                 if nLabelIndex > 0
                     @aData[i][nColIndex] = nLabelIndex - 1  # 0-based encoding
                     nEncoded++
@@ -1231,7 +1231,7 @@ next
         
         # Remove double underscores and trim
         while find(cCleaned, "__") > 0
-            cCleaned = ring_substr2(cCleaned, "__", "_")
+            cCleaned = StzReplace(cCleaned, "__", "_")
         end
         
         return trim(cCleaned)

@@ -34,14 +34,14 @@ class stzAppRequest
 		return cBody
 
 	def ParseQuery()
-		nQuestion = ring_find(cPath, "?")
+		nQuestion = StzFind(cPath, "?")
 		if nQuestion > 0
 			cQueryString = @substr(cPath, nQuestion + 1)
 			cPath = StzLeft(cPath, nQuestion - 1)
 			
 			aPairs = @split(cQueryString, "&")
 			for cPair in aPairs
-				nEqual = ring_find(cPair, "=")
+				nEqual = StzFind(cPair, "=")
 				if nEqual > 0
 					cKey = StzLeft(cPair, nEqual - 1)
 					cValue = @substr(cPair, nEqual + 1)

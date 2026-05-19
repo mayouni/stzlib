@@ -1,4 +1,4 @@
-
+﻿
 class stzMultiBarChart from stzMBarPlot
 class stzMBarChart from stzMBarPlot
 
@@ -6,10 +6,10 @@ class stzMultiBarPlot from stzMBarPlot
 class stzMBarPlot from stzBarPlot
 
 	# Multi-series data properties
-	@aSeriesData = []		# [ [:SeriesName = "Sales", :Values = [25,35,30,40], :Char = "█"], ... ]
+	@aSeriesData = []		# [ [:SeriesName = "Sales", :Values = [25,35,30,40], :Char = "â–ˆ"], ... ]
 	@acCategories = []		# ["Q1", "Q2", "Q3", "Q4"]
 	@acSeriesNames = []		# ["Sales", "Costs", "Profit"]
-	@acSeriesChars = []		# ["█", "▒", "▓"]
+	@acSeriesChars = []		# ["â–ˆ", "â–’", "â–“"]
 	@nSeries = 0
 	@nCategories = 0
 
@@ -20,7 +20,7 @@ class stzMBarPlot from stzBarPlot
 	@nCategorySpace = 2		# Space between categories
 
 	# Default series characters
-	@acDefaultSeriesChars = ["█", "▒", "▓", "░", "▌", "▐", "▀", "▄"]
+	@acDefaultSeriesChars = ["â–ˆ", "â–’", "â–“", "â–‘", "â–Œ", "â–", "â–€", "â–„"]
 
 	def init(paMultiSeriesData)
 		if not isList(paMultiSeriesData)
@@ -143,7 +143,7 @@ class stzMBarPlot from stzBarPlot
 			@bShowLegend = True
 
 	def SetLegendLayout(cLayout)
-		if NOT ring_find([:Horizontal, :Vertical, "horizontal", "vertical", "h", "v"], cLayout)
+		if NOT StzFind([:Horizontal, :Vertical, "horizontal", "vertical", "h", "v"], cLayout)
 			stzRaise("Incorrect legend layout value! Must be 'horizontal' or 'vertical'.")
 		ok
 
@@ -228,10 +228,10 @@ class stzMBarPlot from stzBarPlot
 		if @bShowLegend
 			if @cLegendLayout = :Horizontal
 				nLegendHeight = 1
-				# Calculate total legend width: "██ SeriesName   ▒▒ SeriesName   ..."
+				# Calculate total legend width: "â–ˆâ–ˆ SeriesName   â–’â–’ SeriesName   ..."
 				nLegendWidth = 0
 				for i = 1 to @nSeries
-					nLegendWidth += 3 + len(@acSeriesNames[i])  # "██ SeriesName"
+					nLegendWidth += 3 + len(@acSeriesNames[i])  # "â–ˆâ–ˆ SeriesName"
 					if i < @nSeries
 						nLegendWidth += 3  # "   " spacing
 					ok
@@ -410,7 +410,7 @@ class stzMBarPlot from stzBarPlot
 						nPercent = RoundN((nValue * 100) / @nSum, 1)
 						cValue = '' + nPercent + "%"
 						cPercent = RoundN((nValue * 100) / @nSum, 1)
-						cPercent = ring_substr2(cPercent, ".0", "")
+						cPercent = StzReplace(cPercent, ".0", "")
 						cValue = cPercent + "%"
 					ok
 					
@@ -496,7 +496,7 @@ class stzMBarPlot from stzBarPlot
 		
 
 		if @cLegendLayout = :Horizontal
-			# Draw horizontal legend: "██ Series1   ▒▒ Series2   ..."
+			# Draw horizontal legend: "â–ˆâ–ˆ Series1   â–’â–’ Series2   ..."
 			nCol = 1
 			for i = 1 to @nSeries
 				aSeriesInfo = @aSeriesData[i]

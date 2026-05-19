@@ -340,7 +340,7 @@ aMyList = [ "Hi", o1, "how", 1:3, o2, "are", o3, "you?", 1:3, o3, 99 ]
 
 # In Ring, you can find the string "how" like this:
 
-? find(aMyList, "how") # or ring_find() if you want
+? find(aMyList, "how") # or StzFind() if you want
 #--> 3
 
 # And find the number 99 like this:
@@ -3444,7 +3444,7 @@ pf()
 
 pr()
 
-? ring_find( 1:100_000, 67_000 )
+? StzFind( 1:100_000, 67_000 )
 #--> 67000
 
 pf()
@@ -3662,7 +3662,7 @@ pf()
 
 pr()
 
-? ring_find(1:299_000, 40_000)
+? StzFind(1:299_000, 40_000)
 #--> 40000
 pf()
 # Executed in 0.04 second(s)

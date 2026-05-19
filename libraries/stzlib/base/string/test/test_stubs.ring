@@ -260,28 +260,27 @@ func ring_copy(cStr, n)
 	return cResult
 
 func ring_substr2(cStr, cOld, cNew)
-	# Simple replace all occurrences
-	cResult = cStr
-	nOldLen = len(cOld)
-	nNewLen = len(cNew)
-	nPos = substr(cResult, cOld)
-	while nPos > 0
-		cLeft = ""
-		if nPos > 1
-			cLeft = left(cResult, nPos - 1)
-		ok
-		cRight = ""
-		if nPos + nOldLen - 1 < len(cResult)
-			cRight = substr(cResult, nPos + nOldLen, len(cResult) - nPos - nOldLen + 1)
-		ok
-		cResult = cLeft + cNew + cRight
-		nPos = substr(cResult, cOld)
-	end
-	return cResult
+	return StzReplace(cStr, cOld, cNew)
 
 func ring_find(p, pItem)
+	return StzFind(p, pItem)
+
+func StzReplace(cStr, cOld, cNew)
+	pH = StzEngineString(cStr)
+	StzEngineStringReplace(pH, cOld, cNew)
+	cResult = StzEngineStringData(pH)
+	StzEngineStringFree(pH)
+	return cResult
+
+func StzFind(p, pItem)
 	if isString(p)
-		return substr(p, pItem)
+		pH = StzEngineString(p)
+		nPos = StzEngineStringFindNth(pH, pItem, 1)
+		StzEngineStringFree(pH)
+		if nPos < 0
+			return 0
+		ok
+		return nPos
 	ok
 	if isList(p)
 		for i = 1 to len(p)

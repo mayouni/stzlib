@@ -1,4 +1,4 @@
-
+﻿
 class stzHBarChart from stzHBarPlot
 
 class stzHBarPlot from stzBarPlot
@@ -26,15 +26,15 @@ class stzHBarPlot from stzBarPlot
 	@nBarInterSpace = 0 # No space between bars - compact layout
 
 	# Override characters for horizontal layout
-	@cBarChar = "▇"
-	@cTopChar = "▇"
-	@cVAxisChar = "│"
-	@cHAxisChar = "─"
+	@cBarChar = "â–‡"
+	@cTopChar = "â–‡"
+	@cVAxisChar = "â”‚"
+	@cHAxisChar = "â”€"
 	@cVArrowChar = "^"
 	@cHArrowChar = ">"
-	@cVArrowChar = "▲"
-	@cHArrowChar = "►"
-	@cOriginChar = "╰"
+	@cVArrowChar = "â–²"
+	@cHArrowChar = "â–º"
+	@cOriginChar = "â•°"
 	@cAverageChar = "|"
 	@cLabelChar = "X"
 
@@ -339,7 +339,7 @@ class stzHBarPlot from stzBarPlot
 	        but @bShowPercent and @nSum > 0
 	            nPercent = RoundN((nValue * 100) / @nSum, 1)
 	            cValue = "" + nPercent + "%"
-				cValue = ring_substr2(cValue, ".0%", "%")
+				cValue = StzReplace(cValue, ".0%", "%")
 	        ok
 	        
 	        nRow = nBarsStartRow + (i - 1)

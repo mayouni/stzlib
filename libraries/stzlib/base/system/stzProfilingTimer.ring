@@ -31,7 +31,7 @@ func ElapsedTimeXT(pIn)
 		StzRaise("Incorrect param type! pIn must be a string.")
 	ok
 
-	if NOT ring_find([ :Clocks, :Seconds, :Minutes, :Hours ], pIn)
+	if NOT StzFind([ :Clocks, :Seconds, :Minutes, :Hours ], pIn)
 		#TODO // Future: Add days, weeks, months, years...
 
 		StzRaise("Incorrect value of pIn param! Allowed values are: " +

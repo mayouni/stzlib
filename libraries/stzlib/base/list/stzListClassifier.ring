@@ -25,7 +25,7 @@ class stzListClassifier from stzList
 		aResult = []
 		for i = 1 to nLen
 			if isString(acContent[i])
-				n = ring_find(acSeen, acContent[i])
+				n = StzFind(acSeen, acContent[i])
 				if n = 0
 					acSeen + acContent[i]
 					aResult + [acContent[i], [i]]
@@ -59,7 +59,7 @@ class stzListClassifier from stzList
 		for i = 1 to nLen
 			@item = aContent[i]
 			cValue = "" + eval(pcExpr)
-			n = ring_find(acSeen, cValue)
+			n = StzFind(acSeen, cValue)
 			if n = 0
 				acSeen + cValue
 				aResult + [cValue, [i]]

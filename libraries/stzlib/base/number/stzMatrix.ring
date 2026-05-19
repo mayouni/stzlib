@@ -1,4 +1,4 @@
-
+﻿
 #-------------------------#
 #  SOFTANZA MATRIX CLASS  #
 #-------------------------#
@@ -621,7 +621,7 @@ class stzMatrix
 		next
 
 		cCode += ')'
-		cCode = ring_substr2(ccode, ", )", ")")
+		cCode = StzReplace(ccode, ", )", ")")
 
 		eval(ccode)
 
@@ -1180,7 +1180,7 @@ class stzMatrix
 
 			for j = panStart[2] to panEnd[2]
 
-				if ring_find(anElms, @aMatrix[i][j]) > 0
+				if StzFind(anElms, @aMatrix[i][j]) > 0
 					aResult + [i, j]
 				ok
 
@@ -2149,7 +2149,7 @@ class stzMatrix
 		# If matrix is empty, just show empty border
 
 		if @nRows = 0 or @nCols = 0
-			see "┌┐" + nl + "└┘" + nl
+			see "â”Œâ”" + nl + "â””â”˜" + nl
 			return
 		ok
 
@@ -2189,13 +2189,13 @@ class stzMatrix
 
 		# Top border
 
-		see "┌" + ring_copy(" ", nTotalWidth) + "┐" + NL
+		see "â”Œ" + ring_copy(" ", nTotalWidth) + "â”" + NL
 
 		# Matrix content
 
 		for i = 1 to @nRows
 
-			see "│ "
+			see "â”‚ "
 
 			for j = 1 to @nCols
 
@@ -2206,12 +2206,12 @@ class stzMatrix
 
 			next
 
-			see "│" + NL
+			see "â”‚" + NL
 		next
 
 		# Bottom border
 
-		see "└" + ring_copy(" ", nTotalWidth) + "┘" + nl
+		see "â””" + ring_copy(" ", nTotalWidth) + "â”˜" + nl
 
 		#< @FunctionMisspelledForm
 

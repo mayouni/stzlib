@@ -1,4 +1,4 @@
-
+﻿
 #==========================================================#
 # STZDATETIME CLASS - SOFTANZA LIBRARY - V0.9 (2019-2025)  #
 # BY: MANSOUR AYOUNI - EMAIL: kalidianow@gmail.com         #
@@ -202,7 +202,7 @@ func Is12HourFormat(cFormat)
     cActualFormat = GetDateTimeFormat(cFormat)
 
     # Check for AP/ap marker (definitive 12h indicator)
-    if ring_find(StzUpper(cActualFormat), "AP") > 0
+    if StzFind(StzUpper(cActualFormat), "AP") > 0
         return TRUE
     ok
 
@@ -235,19 +235,19 @@ func _DateTimeFormatString(nYear, nMonth, nDay, nHour, nMinute, nSecond, nMs, cF
     StzEngineDateFree(pHandle)
 
     cResult = cFormat
-    cResult = ring_substr2(cResult, "dddd", cDayName)
-    cResult = ring_substr2(cResult, "ddd", StzLeft(cDayName, 3))
-    cResult = ring_substr2(cResult, "dd", _PadLeft("" + nDay, 2, "0"))
-    cResult = ring_substr2(cResult, "MMMM", cMonthName)
-    cResult = ring_substr2(cResult, "MMM", StzLeft(cMonthName, 3))
-    cResult = ring_substr2(cResult, "MM", _PadLeft("" + nMonth, 2, "0"))
-    cResult = ring_substr2(cResult, "yyyy", "" + nYear)
+    cResult = StzReplace(cResult, "dddd", cDayName)
+    cResult = StzReplace(cResult, "ddd", StzLeft(cDayName, 3))
+    cResult = StzReplace(cResult, "dd", _PadLeft("" + nDay, 2, "0"))
+    cResult = StzReplace(cResult, "MMMM", cMonthName)
+    cResult = StzReplace(cResult, "MMM", StzLeft(cMonthName, 3))
+    cResult = StzReplace(cResult, "MM", _PadLeft("" + nMonth, 2, "0"))
+    cResult = StzReplace(cResult, "yyyy", "" + nYear)
     nYY = nYear % 100
-    cResult = ring_substr2(cResult, "yy", _PadLeft("" + nYY, 2, "0"))
-    cResult = ring_substr2(cResult, "zzz", _PadLeft("" + nMs, 3, "0"))
-    cResult = ring_substr2(cResult, "HH", _PadLeft("" + nHour, 2, "0"))
-    cResult = ring_substr2(cResult, "mm", _PadLeft("" + nMinute, 2, "0"))
-    cResult = ring_substr2(cResult, "ss", _PadLeft("" + nSecond, 2, "0"))
+    cResult = StzReplace(cResult, "yy", _PadLeft("" + nYY, 2, "0"))
+    cResult = StzReplace(cResult, "zzz", _PadLeft("" + nMs, 3, "0"))
+    cResult = StzReplace(cResult, "HH", _PadLeft("" + nHour, 2, "0"))
+    cResult = StzReplace(cResult, "mm", _PadLeft("" + nMinute, 2, "0"))
+    cResult = StzReplace(cResult, "ss", _PadLeft("" + nSecond, 2, "0"))
     return cResult
 
 func _SetComponentsFromUnixMs(nMs)
@@ -462,7 +462,7 @@ class stzDateTime from stzObject
     def ParseStringDateTime(cDateTime)
         cDateTime = trim(cDateTime)
 
-        if ring_find(cDateTime, "T") > 0
+        if StzFind(cDateTime, "T") > 0
             aParts = split(cDateTime, "T")
             cDatePart = aParts[1]
             cTimePart = aParts[2]
@@ -471,7 +471,7 @@ class stzDateTime from stzObject
             return
         ok
 
-        nSpacePos = ring_find(cDateTime, " ")
+        nSpacePos = StzFind(cDateTime, " ")
         if nSpacePos > 0
             cDatePart = StzLeft(cDateTime, nSpacePos - 1)
             cRest = StzRight(cDateTime, StzLen(cDateTime) - nSpacePos)
@@ -483,7 +483,7 @@ class stzDateTime from stzObject
             ok
         ok
 
-        if ring_find(cDateTime, "-") > 0 or ring_find(cDateTime, "/") > 0
+        if StzFind(cDateTime, "-") > 0 or StzFind(cDateTime, "/") > 0
             This._ParseDatePart(cDateTime)
             @nHour = 0
             @nMinute = 0
@@ -495,13 +495,13 @@ class stzDateTime from stzObject
         StzRaise("Cannot parse date/time string: " + cDateTime)
 
     def _LooksLikeDatePart(cStr)
-        return (ring_find(cStr, "-") > 0 or ring_find(cStr, "/") > 0)
+        return (StzFind(cStr, "-") > 0 or StzFind(cStr, "/") > 0)
 
     def _ParseDatePart(cDatePart)
         aDateParts = []
-        if ring_find(cDatePart, "/") > 0
+        if StzFind(cDatePart, "/") > 0
             aDateParts = split(cDatePart, "/")
-        but ring_find(cDatePart, "-") > 0
+        but StzFind(cDatePart, "-") > 0
             aDateParts = split(cDatePart, "-")
         ok
 
@@ -548,7 +548,7 @@ class stzDateTime from stzObject
 
         if len(aTimeParts) >= 3
             cSecPart = aTimeParts[3]
-            if ring_find(cSecPart, ".") > 0
+            if StzFind(cSecPart, ".") > 0
                 aSecParts = split(cSecPart, ".")
                 @nSecond = 0+ aSecParts[1]
                 if len(aSecParts) >= 2
@@ -567,10 +567,10 @@ class stzDateTime from stzObject
         ok
 
 	def GuessDateTimeFormat(cDateTime)
-	    if ring_find(cDateTime, "T") > 0
-	        if ring_find(cDateTime, ".") > 0
+	    if StzFind(cDateTime, "T") > 0
+	        if StzFind(cDateTime, ".") > 0
 	            return "yyyy-MM-ddTHH:mm:ss.zzz"
-	        but ring_find(cDateTime, ":") > 0
+	        but StzFind(cDateTime, ":") > 0
 	            nColons = CountOccurrences(cDateTime, ":")
 	            if nColons = 2
 	                return "yyyy-MM-ddTHH:mm:ss"
@@ -582,11 +582,11 @@ class stzDateTime from stzObject
 	    ok
 
 	    cDateSep = ""
-	    if ring_find(cDateTime, "/") > 0
+	    if StzFind(cDateTime, "/") > 0
 	        cDateSep = "/"
-	    but ring_find(cDateTime, "-") > 0 and ring_find(cDateTime, " ") = 0
+	    but StzFind(cDateTime, "-") > 0 and StzFind(cDateTime, " ") = 0
 	        return "yyyy-MM-dd"
-	    but ring_find(cDateTime, "-") > 0
+	    but StzFind(cDateTime, "-") > 0
 	        cDateSep = "-"
 	    ok
 
@@ -628,7 +628,7 @@ class stzDateTime from stzObject
 	            cTimeFormat = "HH:mm"
 	        ok
 
-	        if ring_find(cTimePart, ".") > 0
+	        if StzFind(cTimePart, ".") > 0
 	            cTimeFormat = cTimeFormat + ".zzz"
 	        ok
 
@@ -640,7 +640,7 @@ class stzDateTime from stzObject
 	def TryManualParse(cDateTime)
 	    cDateTime = trim(cDateTime)
 
-	    nSpacePos = ring_find(cDateTime, " ")
+	    nSpacePos = StzFind(cDateTime, " ")
 	    if nSpacePos = 0
 	        return This.TryManualDateParse(cDateTime)
 	    ok
@@ -658,9 +658,9 @@ class stzDateTime from stzObject
 	    ok
 
 	    aDateParts = []
-	    if ring_find(cDatePart, "/") > 0
+	    if StzFind(cDatePart, "/") > 0
 	        aDateParts = split(cDatePart, "/")
-	    but ring_find(cDatePart, "-") > 0
+	    but StzFind(cDatePart, "-") > 0
 	        aDateParts = split(cDatePart, "-")
 	    else
 	        return FALSE
@@ -696,7 +696,7 @@ class stzDateTime from stzObject
 
 	    if len(aTimeParts) >= 3
 	        cSecPart = aTimeParts[3]
-	        if ring_find(cSecPart, ".") > 0
+	        if StzFind(cSecPart, ".") > 0
 	            aSecParts = split(cSecPart, ".")
 	            nSecond = 0+ aSecParts[1]
 	            if len(aSecParts) >= 2
@@ -732,9 +732,9 @@ class stzDateTime from stzObject
 	def TryManualDateParse(cDate)
 	    aDateParts = []
 
-	    if ring_find(cDate, "/") > 0
+	    if StzFind(cDate, "/") > 0
 	        aDateParts = split(cDate, "/")
-	    but ring_find(cDate, "-") > 0
+	    but StzFind(cDate, "-") > 0
 	        aDateParts = split(cDate, "-")
 	    else
 	        return FALSE
@@ -1145,7 +1145,7 @@ class stzDateTime from stzObject
 	def SubtractNatural(cExpr)
 	    cExpr = StzLower(trim(cExpr))
 
-	    if ring_find(cExpr, "-") > 0 or ring_find(cExpr, ":") > 0 or ring_find(cExpr, "T") > 0
+	    if StzFind(cExpr, "-") > 0 or StzFind(cExpr, ":") > 0 or StzFind(cExpr, "T") > 0
 	        return
 	    ok
 
@@ -1450,7 +1450,7 @@ class stzDateTime from stzObject
 	        "medium", "medium12h", "medium24h",
 	    ]
 
-	    if ring_find(acNamedPatterns, cFormat) > 0
+	    if StzFind(acNamedPatterns, cFormat) > 0
 
 	        if cFormat = "simple" or cFormat = "simple12h"
 	            return This.ToSimple()
@@ -1495,16 +1495,16 @@ class stzDateTime from stzObject
 
 	    cQtFormat = GetDateTimeFormat(cFormat)
 
-	    if ring_find(StzUpper(cQtFormat), "AP") > 0
-	        cFormatWithout12h = ring_substr2(cQtFormat, "AP", "")
-	        cFormatWithout12h = ring_substr2(cFormatWithout12h, "ap", "")
+	    if StzFind(StzUpper(cQtFormat), "AP") > 0
+	        cFormatWithout12h = StzReplace(cQtFormat, "AP", "")
+	        cFormatWithout12h = StzReplace(cFormatWithout12h, "ap", "")
 	        cFormatWithout12h = trim(cFormatWithout12h)
 
 	        nHour12 = ConvertTo12Hour(@nHour)
 
-	        cFormatFinal = ring_substr2(cFormatWithout12h, "hh", _PadLeft("" + nHour12, 2, "0"))
+	        cFormatFinal = StzReplace(cFormatWithout12h, "hh", _PadLeft("" + nHour12, 2, "0"))
 	        if cFormatFinal = cFormatWithout12h
-	            cFormatFinal = ring_substr2(cFormatWithout12h, "h", "" + nHour12)
+	            cFormatFinal = StzReplace(cFormatWithout12h, "h", "" + nHour12)
 	        ok
 
 	        cResult = _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, cFormatFinal)
@@ -1937,8 +1937,8 @@ class stzDateTime from stzObject
 	def IsNaturalEpochString(cStr)
 	    cLower = StzLower(cStr)
 
-	    if ring_find(cLower, "from epoch") > 0 or
-	       ring_find(cLower, "since epoch") > 0
+	    if StzFind(cLower, "from epoch") > 0 or
+	       StzFind(cLower, "since epoch") > 0
 	        return TRUE
 	    ok
 
@@ -1949,8 +1949,8 @@ class stzDateTime from stzObject
 
 	    cNatural = StzLower(cNatural)
 
-	    cNatural = ring_substr2(cNatural, "from epoch", "")
-	    cNatural = ring_substr2(cNatural, "since epoch", "")
+	    cNatural = StzReplace(cNatural, "from epoch", "")
+	    cNatural = StzReplace(cNatural, "since epoch", "")
 	    cNatural = trim(cNatural)
 
 	    aUnits = [
@@ -1985,7 +1985,7 @@ class stzDateTime from stzObject
 
 	        cPattern = "(\d+\.?\d*)\s*" + cUnit
 
-	        nPos = ring_find(cNatural, cUnit)
+	        nPos = StzFind(cNatural, cUnit)
 	        if nPos > 0
 	            cBefore = StzLeft(cNatural, nPos - 1)
 	            cBefore = trim(cBefore)
@@ -2063,20 +2063,20 @@ class stzDateTime from stzObject
 
     def IsCountingFromString(cStr)
         cLower = StzLower(cStr)
-        return (ring_find(cLower, "counting from") > 0) or
-		(ring_find(cLower, "starting from") > 0) or
-		(ring_find(cLower, "since") > 0)
+        return (StzFind(cLower, "counting from") > 0) or
+		(StzFind(cLower, "starting from") > 0) or
+		(StzFind(cLower, "since") > 0)
 
     def ParseCountingFrom(cStr)
         cLower = StzLower(cStr)
 
-        nPos = ring_find(cLower, "counting from")
+        nPos = StzFind(cLower, "counting from")
         if nPos = 0
-		nPos = ring_find(cLower, "starting from")
+		nPos = StzFind(cLower, "starting from")
 	ok
 
 	if nPos = 0
-		nPos = ring_find(cLower, "since")
+		nPos = StzFind(cLower, "since")
 	ok
 
         if nPos > 0
@@ -2091,28 +2091,28 @@ class stzDateTime from stzObject
     def MapOriginName(cName)
         cLower = StzLower(trim(cName))
 
-        if ring_find(cLower, "unix") > 0
+        if StzFind(cLower, "unix") > 0
             return :UnixEpoch
 
-        but ring_find(cLower, "year one") > 0 or ring_find(cLower, "common era") > 0
+        but StzFind(cLower, "year one") > 0 or StzFind(cLower, "common era") > 0
             return :YearOne
 
-        but ring_find(cLower, "islamic") > 0
+        but StzFind(cLower, "islamic") > 0
             return :IslamicHijra
 
-        but ring_find(cLower, "space age") > 0
+        but StzFind(cLower, "space age") > 0
             return :SpaceAge
 
-        but ring_find(cLower, "atomic age") > 0
+        but StzFind(cLower, "atomic age") > 0
             return :AtomicAge
 
-        but ring_find(cLower, "us independence") > 0
+        but StzFind(cLower, "us independence") > 0
             return :USIndependence
 
-        but ring_find(cLower, "french revolution") > 0
+        but StzFind(cLower, "french revolution") > 0
             return :FrenchRevolution
 
-        but ring_find(cLower, "internet") > 0
+        but StzFind(cLower, "internet") > 0
             return :InternetAge
 
         else
@@ -2643,10 +2643,10 @@ class stzDateTime from stzObject
 
 	        but isString(v)
 	            cLower = StzLower(trim(v))
-	            bHasDateTime = (ring_find(v, "-") > 0 and ring_find(v, ":") > 0)
-	            bHasUnits = (ring_find(cLower, " day") > 0 or ring_find(cLower, " month") > 0 or
-	                        ring_find(cLower, " year") > 0 or ring_find(cLower, " hour") > 0 or
-	                        ring_find(cLower, " minute") > 0 or ring_find(cLower, " second") > 0)
+	            bHasDateTime = (StzFind(v, "-") > 0 and StzFind(v, ":") > 0)
+	            bHasUnits = (StzFind(cLower, " day") > 0 or StzFind(cLower, " month") > 0 or
+	                        StzFind(cLower, " year") > 0 or StzFind(cLower, " hour") > 0 or
+	                        StzFind(cLower, " minute") > 0 or StzFind(cLower, " second") > 0)
 
 	            if not bHasDateTime and bHasUnits
 	                This.AddNatural(v)
@@ -2666,10 +2666,10 @@ class stzDateTime from stzObject
 		    but isString(v)
 
 		        cLower = StzLower(trim(v))
-		        bHasDateTime = (ring_find(v, "-") > 0 and ring_find(v, ":") > 0)
-		        bHasUnits = (ring_find(cLower, " day") > 0 or ring_find(cLower, " month") > 0 or
-		                    ring_find(cLower, " year") > 0 or ring_find(cLower, " hour") > 0 or
-		                    ring_find(cLower, " minute") > 0 or ring_find(cLower, " second") > 0)
+		        bHasDateTime = (StzFind(v, "-") > 0 and StzFind(v, ":") > 0)
+		        bHasUnits = (StzFind(cLower, " day") > 0 or StzFind(cLower, " month") > 0 or
+		                    StzFind(cLower, " year") > 0 or StzFind(cLower, " hour") > 0 or
+		                    StzFind(cLower, " minute") > 0 or StzFind(cLower, " second") > 0)
 
 		        if not bHasDateTime and bHasUnits
 		            This.SubtractNatural(v)

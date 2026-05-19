@@ -1,4 +1,4 @@
-  /////////////////////////////////////////////
+﻿  /////////////////////////////////////////////
  ///   FUNCTIONS FOR THE STZSTRING CLASS   ///
 /////////////////////////////////////////////
 
@@ -1977,8 +1977,8 @@ func @Number(pNumberOrString) # An enhanced version of the Ring number() functio
 
 	# Removing spaces and underscores (because we use them in numbers)
 
-	cNumberInStr = ring_substr2(pNumberOrString, " ", "")
-	cNumberInStr = ring_substr2(cNumberInStr, "_", "")
+	cNumberInStr = StzReplace(pNumberOrString, " ", "")
+	cNumberInStr = StzReplace(cNumberInStr, "_", "")
 
 	if cNumberInStr = ""
 		StzRaise("Incorrect param value! pNumberOrString must contain a number.")
@@ -2508,7 +2508,7 @@ func @substr(str, p1, p2) #TODO // Move to stzExtCode
 		return nResult
 
 	but isString(p1) and ( (isList(p2) and len(p2)=0) or (isNumber(p2) and p2 = 0) )
-		return ring_find(str, p1)
+		return StzFind(str, p1)
 
 	else
 
@@ -2543,7 +2543,7 @@ func substrXT(paParams)
 			return StringSection(paParams[1], paParams[2], paParams[3])
 
 		but isString(paParams[2]) and isString(paParams[3])
-			return ring_substr2(paParams[1], paParams[2], paParams[3])
+			return StzReplace(paParams[1], paParams[2], paParams[3])
 
 		but isString(paParams[2]) and isNumber(paParams[3])
 			return @substr(paParams[1], paParams[2], paParams[3])

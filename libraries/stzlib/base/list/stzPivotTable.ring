@@ -287,7 +287,7 @@ class stzPivotTable from stzList
 				# First add values from the custom order
 
 				for i = 1 to nLenColOrder
-					if ring_find(aUniqueValues, @aColumnOrder[i]) > 0
+					if StzFind(aUniqueValues, @aColumnOrder[i]) > 0
 						aOrdered + @aColumnOrder[i]
 					ok
 				next
@@ -296,7 +296,7 @@ class stzPivotTable from stzList
 
 				for i = 1 to nLenU
 					cItem = aUniqueValues[i]
-					if not ring_find(aOrdered, cItem) > 0
+					if not StzFind(aOrdered, cItem) > 0
 						aOrdered + cItem
 					ok
 				next
@@ -1341,11 +1341,11 @@ class stzPivotTable from stzList
 				dim1Value = aParts[1]
 				dim2Value = aParts[2]
 				
-				if ring_find(aColDim1Values, dim1Value) = 0
+				if StzFind(aColDim1Values, dim1Value) = 0
 					aColDim1Values + dim1Value
 				ok
 				
-				if ring_find(aColDim2Values, dim2Value) = 0
+				if StzFind(aColDim2Values, dim2Value) = 0
 					aColDim2Values + dim2Value
 				ok
 				
@@ -1863,11 +1863,11 @@ class stzPivotTable from stzList
 				dim1Value = aParts[1]
 				dim2Value = aParts[2]
 				
-				if ring_find(aColDim1Values, dim1Value) = 0
+				if StzFind(aColDim1Values, dim1Value) = 0
 					aColDim1Values + dim1Value
 				ok
 				
-				if ring_find(aColDim2Values, dim2Value) = 0
+				if StzFind(aColDim2Values, dim2Value) = 0
 					aColDim2Values + dim2Value
 				ok
 				
@@ -1985,7 +1985,7 @@ class stzPivotTable from stzList
 				cGroup = "" + aPivotData[r][1]
 				
 				# Add to group list if new
-				if NOT ring_find(aGroups, cGroup) > 0
+				if NOT StzFind(aGroups, cGroup) > 0
 					aGroups + cGroup
 					aGroupTotals[cGroup] = []
 					
@@ -2544,11 +2544,11 @@ class stzPivotTable from stzList
 				dim1Value = aParts[1]
 				dim2Value = aParts[2]
 			
-				if ring_find(aColDim1Values, dim1Value) = 0
+				if StzFind(aColDim1Values, dim1Value) = 0
 					aColDim1Values = aColDim1Values + dim1Value
 				ok
 			
-				if ring_find(aColDim2Values, dim2Value) = 0
+				if StzFind(aColDim2Values, dim2Value) = 0
 					aColDim2Values = aColDim2Values + dim2Value
 				ok
 			

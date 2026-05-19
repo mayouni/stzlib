@@ -1,4 +1,4 @@
-/*
+﻿/*
 	stzTimeLine - Timeline Management in Softanza
 	Manages sequential time data: points, spans, and temporal relationships
 	String-first design: methods accept/return strings, ...Q() returns objects
@@ -34,16 +34,16 @@ class stzTimeLine from stzObject
 	@nVizMinWidth = 30
 	@nVizHeight = 5 # Will adjust autumatically to the required hight
 
-	@cAxisChar = "─"
-	@cPointChar = "●"
-	@cMultiPointChar = "◉"
-	@cBoundaryEndChar = "○"
+	@cAxisChar = "â”€"
+	@cPointChar = "â—"
+	@cMultiPointChar = "â—‰"
+	@cBoundaryEndChar = "â—‹"
 	@cSpanChar = "="
-	@cSpanStartChar = "╞"
-	@cSpanEndChar = "╡"
+	@cSpanStartChar = "â•ž"
+	@cSpanEndChar = "â•¡"
 	@cBoundaryStartChar = "|"
-	@cHighlightChar = "█"
-	@cArrowChar = "►"
+	@cHighlightChar = "â–ˆ"
+	@cArrowChar = "â–º"
 	@cUncoveredChar = "/"
 	@cBlockChar = "X"
 
@@ -77,7 +77,7 @@ class stzTimeLine from stzObject
 		ok
 
 		if isString(pEnd)
-			if ring_find(pEnd, " ") = 0
+			if StzFind(pEnd, " ") = 0
 				pEnd += " 23:59:59"
 			ok
 			pEnd = This._normalizeDateTime(pEnd)
@@ -311,7 +311,7 @@ class stzTimeLine from stzObject
 
 		for i = 1 to nLen
 			cLabel = @aPoints[i][1]
-			if ring_find(acSeen, cLabel) = 0
+			if StzFind(acSeen, cLabel) = 0
 				acResult + cLabel
 				acSeen + cLabel
 			ok
@@ -363,7 +363,7 @@ class stzTimeLine from stzObject
 
 		for i = 1 to nLen
 			cLabel = @aSpans[i][1]
-			if ring_find(acSeen, cLabel) = 0
+			if StzFind(acSeen, cLabel) = 0
 				acResult + cLabel
 				acSeen + cLabel
 			ok
@@ -1511,10 +1511,10 @@ class stzTimeLine from stzObject
 			cTable = _buildTimepointsTable(aTimepoints)
 		ok
 	
-		# Workaround: replacing eventual ──○●► with ─●○─►
+		# Workaround: replacing eventual â”€â”€â—‹â—â–º with â”€â—â—‹â”€â–º
 		#TODO // Resolve it logically at construction
 
-		cViz = ring_substr2(cViz, "──○●►", "───●○─►")
+		cViz = StzReplace(cViz, "â”€â”€â—‹â—â–º", "â”€â”€â”€â—â—‹â”€â–º")
 
 		return cViz + nl + nl + cTable
 	
@@ -1636,7 +1636,7 @@ class stzTimeLine from stzObject
 			raise("Blocked point is outside timeline boundaries")
 		ok
 
-		if ring_find(@aBlockedPoints, cPoint) = 0
+		if StzFind(@aBlockedPoints, cPoint) = 0
 			@aBlockedPoints + cPoint
 		ok
 	
@@ -1652,7 +1652,7 @@ class stzTimeLine from stzObject
 
 	def RemoveBlockedPoint(pDateTime)
 		cPoint = This._normalizeDateTime(pDateTime)
-		nPos = ring_find(@aBlockedPoints, cPoint)
+		nPos = StzFind(@aBlockedPoints, cPoint)
 		if nPos > 0
 			del(@aBlockedPoints, nPos)
 		ok
@@ -2278,16 +2278,16 @@ class stzTimeLine from stzObject
 	                bHighlighted = TRUE
 	            ok
 	
-	            # Use ◉ if multiple events at same position, otherwise ●
+	            # Use â—‰ if multiple events at same position, otherwise â—
 	            cChar = ""
 	            if bHighlighted
 	                cChar = @cHighlightChar
 	            else
 	                if nCount = 1
-	                    cChar = @cPointChar # Single event (●)
+	                    cChar = @cPointChar # Single event (â—)
 	
 	                but nCount > 1
-	                    cChar = @cMultiPointChar  # Multiple events at this position (◉)
+	                    cChar = @cMultiPointChar  # Multiple events at this position (â—‰)
 	                ok
 	            ok
 	

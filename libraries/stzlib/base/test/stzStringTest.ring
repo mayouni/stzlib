@@ -1,4 +1,4 @@
-load "../stzbase.ring"
+﻿load "../stzbase.ring"
 
 /*=====
 
@@ -205,7 +205,7 @@ oXML = new stzString(xml)
 
 # All entities should have an equal number of opening and
 # closing tags, which is TRUE for all except "name" (look at
-# lines 2 and 3 of the list—you'll see 2 versus 1).
+# lines 2 and 3 of the listâ€”you'll see 2 versus 1).
 
 # The issue, then, is that we have an additional "<name>" entity
 # that we should remove. To fix it, we say:
@@ -332,10 +332,10 @@ pr()
 o1 = new stzString("ring qt softanza pyhton kandaji csharp ring kandaji")
 
 o1.ReplaceManyByMany([
-	"ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥", "♥♥♥" ])
+	"ring", "softanza", "kandaji" ], :By = [ "â™¥", "â™¥â™¥", "â™¥â™¥â™¥" ])
 
 ? o1.Content()
-#--> ♥ qt ♥♥ pyhton ♥♥♥ csharp ♥ ♥♥♥
+#--> â™¥ qt â™¥â™¥ pyhton â™¥â™¥â™¥ csharp â™¥ â™¥â™¥â™¥
 
 pf()
 #--> Executed in 0.01 second(s)
@@ -345,10 +345,10 @@ pf()
 pr()
 
 o1 = new stzString("ring qt softanza pyhton kandaji csharp zai")
-o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "♥", "♥♥" ])
+o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji", "zai" ], :By = [ "â™¥", "â™¥â™¥" ])
 
 ? o1.Content()
-#--> ♥ qt ♥♥ pyhton ♥ csharp ♥♥
+#--> â™¥ qt â™¥â™¥ pyhton â™¥ csharp â™¥â™¥
 
 pf()
 # Executed in 0.01 second(s)
@@ -358,10 +358,10 @@ pf()
 pr()
 
 o1 = new stzString("ring qt softanza pyhton kandaji csharp ring")
-o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥" ])
+o1.ReplaceManyByManyXT([ "ring", "softanza", "kandaji" ], :By = [ "â™¥", "â™¥â™¥" ])
 
 ? o1.Content()
-#--> ♥ qt ♥♥ pyhton ♥ csharp ♥
+#--> â™¥ qt â™¥â™¥ pyhton â™¥ csharp â™¥
 
 pf()
 # Executed in 0.01 second(s)
@@ -595,10 +595,10 @@ pr()
 ? Q("ring---").HowManyOccurrenceOfCharRightSide("-")
 #--> 3
 
-? Q("---سلام").NumberOfOccurrenceOfCharLeftSide("-")
+? Q("---Ø³Ù„Ø§Ù…").NumberOfOccurrenceOfCharLeftSide("-")
 #--> 3
 
-? Q("سلام---").NumberOfOccurrenceOfCharRightSide("-")
+? Q("Ø³Ù„Ø§Ù…---").NumberOfOccurrenceOfCharRightSide("-")
 #--> 3
 
 #--
@@ -609,10 +609,10 @@ pr()
 ? Q("ring---").HowManyOccurrenceOfCharEndSide("-")
 #--> 3
 
-? Q("---سلام").NumberOfOccurrenceOfCharEndSide("-")
+? Q("---Ø³Ù„Ø§Ù…").NumberOfOccurrenceOfCharEndSide("-")
 #--> 3
 
-? Q("سلام---").NumberOfOccurrenceOfCharStartSide("-")
+? Q("Ø³Ù„Ø§Ù…---").NumberOfOccurrenceOfCharStartSide("-")
 # #--> 3
 
 pf()
@@ -830,7 +830,7 @@ pr()
 #--> 28
 
 ? 10PercentOf( ArabicLetters() ) # Or NPercentOf(10, ArabicLetters())
-#o--> [ "ص", "ة", "د", "ص" ]
+#o--> [ "Øµ", "Ø©", "Ø¯", "Øµ" ]
 
 #NOTE : there is an eXTended list of arabic leters
 
@@ -962,21 +962,21 @@ o1 = new stzString("Hello <<<Ring>>>, the beautiful (((Ring)))!")
 ? @@( o1.FindSubStringBoundsUpToNCharsAsSections("Ring", 2) )
 #--> [ [ 8, 9 ], [ 14, 15 ], [ 34, 35 ], [ 40, 41 ] ]
 
-# This shouldn’t disappoint you. Let me explain why.
+# This shouldnâ€™t disappoint you. Let me explain why.
 
 # Even though the function name clearly describes what it does (in this case,
-# finding the substrings bounding "Ring" with up to 2 characters), it’s not
+# finding the substrings bounding "Ring" with up to 2 characters), itâ€™s not
 # meant to be used directly by you.
 
 # These long functions are, in fact, used internally by other simpler functions
 # that you will actually need in practice, while keeping the codebase more readable.
 
-# In our case, the function you’d need is this one:
+# In our case, the function youâ€™d need is this one:
 
 ? o1.BoundsOfXT("Ring", 2, 2) # You will understand the XT() usage in a moment ;)
 #--> [ [ "<<", ">>" ], [ "((", "))" ] ]
 
-# This is what you should use when you don’t want all the bounding substrings returned
+# This is what you should use when you donâ€™t want all the bounding substrings returned
 # (in this case all 3 chars), but only 2 chars from each bound.
 
 # To return all the characters bounding the substring "Ring", you can use:
@@ -1163,9 +1163,9 @@ pf()
 pr()
 
 o1 = new stzString("ring php ruby ring python ring")
-o1.ReplaceByMany("ring", [ "♥", "♥♥", "♥♥♥" ])
+o1.ReplaceByMany("ring", [ "â™¥", "â™¥â™¥", "â™¥â™¥â™¥" ])
 	
-? o1.Content() #--> "♥ php ruby ♥♥ python ♥♥♥"
+? o1.Content() #--> "â™¥ php ruby â™¥â™¥ python â™¥â™¥â™¥"
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.21
@@ -1224,8 +1224,8 @@ pr()
 ? Q(' "A" : "E" ').ToList()
 #--> [ "A", "B", "C", "D", "E" ])
 
-? Q(' "ا" : "ت" ').ToList()
-#o--> [ "ا", "ب", "ة", "ت" ]
+? Q(' "Ø§" : "Øª" ').ToList()
+#o--> [ "Ø§", "Ø¨", "Ø©", "Øª" ]
 
 ? Q(' "#1" : "#5" ').ToList()
 #--> [ "#1", "#2", "#3", "#4", "#5" ]
@@ -1317,18 +1317,18 @@ pf()
 
 pr()
 
-o1 = new stzString("1♥34♥♥")
-o1.ReplaceByMany("♥", [ "2", "5", "6" ])
+o1 = new stzString("1â™¥34â™¥â™¥")
+o1.ReplaceByMany("â™¥", [ "2", "5", "6" ])
 ? o1.Content()
 #--> 123456
 
-o1 = new stzString("1♥34♥♥")
-o1.Replace("♥", :By = [ "2", "5", "6" ])
+o1 = new stzString("1â™¥34â™¥â™¥")
+o1.Replace("â™¥", :By = [ "2", "5", "6" ])
 ? o1.Content()
 #--> 123456
 
-o1 = new stzString("1♥34♥♥")
-o1.Replace("♥", :ByMany = [ "2", "5", "6" ])
+o1 = new stzString("1â™¥34â™¥â™¥")
+o1.Replace("â™¥", :ByMany = [ "2", "5", "6" ])
 ? o1.Content()
 #--> 123456
 
@@ -1356,9 +1356,9 @@ pr()
 
 o1 = new stzString("ring php ruby ring python ring")
 
-o1.ReplaceByMany("ring", :By = [ "♥", "♥♥", "♥♥♥" ])
+o1.ReplaceByMany("ring", :By = [ "â™¥", "â™¥â™¥", "â™¥â™¥â™¥" ])
 ? o1.Content()
-#--> "♥ php ruby ♥♥ python ♥♥♥"
+#--> "â™¥ php ruby â™¥â™¥ python â™¥â™¥â™¥"
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -1384,9 +1384,9 @@ pr()
 
 o1 = new stzString("ring qt softanza pyhton kandaji csharp ring")
 
-o1.ReplaceManyByMany([ "ring", "softanza", "kandaji" ], :By = [ "♥", "♥♥", "♥♥♥" ])
+o1.ReplaceManyByMany([ "ring", "softanza", "kandaji" ], :By = [ "â™¥", "â™¥â™¥", "â™¥â™¥â™¥" ])
 ? o1.Content()
-#--> "♥ qt ♥♥ pyhton ♥♥♥ csharp ♥"
+#--> "â™¥ qt â™¥â™¥ pyhton â™¥â™¥â™¥ csharp â™¥"
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -1398,9 +1398,9 @@ pr()
 
 o1 = new stzString("ring ruby ring php ring")
 
-o1.ReplaceSubstringAtPositions([ 1, 20 ], "ring", :By = "♥♥♥")
+o1.ReplaceSubstringAtPositions([ 1, 20 ], "ring", :By = "â™¥â™¥â™¥")
 ? o1.Content()
-#--> "♥♥♥ ruby ring php ♥♥♥"
+#--> "â™¥â™¥â™¥ ruby ring php â™¥â™¥â™¥"
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -1443,7 +1443,7 @@ pf()
 
 pr()
 
-o1 = new stzString("1♥♥456♥♥901♥♥4")
+o1 = new stzString("1â™¥â™¥456â™¥â™¥901â™¥â™¥4")
 o1.RemoveSections([ 2:3, 7:8, 12:13 ])
 ? o1.Content()
 #--> 14569014
@@ -1456,24 +1456,24 @@ pf()
 
 pr()
 
-o1 = new stzString("1♥♥456♥♥901♥♥4")
+o1 = new stzString("1â™¥â™¥456â™¥â™¥901â™¥â™¥4")
 
 o1 {
 	# Finding chars / items
 
-	anPos = Find("♥")
+	anPos = Find("â™¥")
 		? @@(anPos)
 		#--> [ 2, 3, 4, 8, 9, 14, 15 ]
 
 	# Doing someting with the positions
 
-	ReplaceCharsAtPositions(anPos, :With = "★")
+	ReplaceCharsAtPositions(anPos, :With = "â˜…")
 		? Content()
-		#--> 1★★456★★901★★4
+		#--> 1â˜…â˜…456â˜…â˜…901â˜…â˜…4
 
 	#-- Finding sections
 
-	aSections = FindAsSections("★★")
+	aSections = FindAsSections("â˜…â˜…")
 		? @@(aSections)
 		#--> [ [ 2, 3 ], [ 7, 8 ], [ 12, 13 ] ]
 
@@ -1492,8 +1492,8 @@ pf()
 
 pr()
 
-	o1 = new stzString("ring ♥♥♥ruby php")
-	o1.RemoveAt(6, "♥♥♥") # Or RemoveSubStringAtPosition()
+	o1 = new stzString("ring â™¥â™¥â™¥ruby php")
+	o1.RemoveAt(6, "â™¥â™¥â™¥") # Or RemoveSubStringAtPosition()
 
 	? o1.Content()
 	#--> "ring ruby php"
@@ -1505,8 +1505,8 @@ pf()
 
 pr()
 
-	o1 = new stzString("ring ♥♥♥ruby php")
-	o1.RemoveXT("♥♥♥", :AtPosition = 6)
+	o1 = new stzString("ring â™¥â™¥â™¥ruby php")
+	o1.RemoveXT("â™¥â™¥â™¥", :AtPosition = 6)
 
 	? o1.Content()
 	#--> "ring ruby php"
@@ -1519,8 +1519,8 @@ pf()
 
 pr()
 
-	o1 = new stzString("♥♥♥ring ♥♥♥ruby ♥♥♥php")
-	o1.RemoveXT("♥♥♥", :AtPositions = [ 1, 9, 17 ])
+	o1 = new stzString("â™¥â™¥â™¥ring â™¥â™¥â™¥ruby â™¥â™¥â™¥php")
+	o1.RemoveXT("â™¥â™¥â™¥", :AtPositions = [ 1, 9, 17 ])
 
 	? o1.Content() #--> "ring ruby php"
 
@@ -1532,8 +1532,8 @@ pf()
 
 pr()
 
-	o1 = new stzString("♥♥♥ring ♥♥♥ruby ♥♥♥php")
-	o1.RemoveAt([ 1, 9, 17 ], "♥♥♥") # Or RemoveSubstringAtPositions()
+	o1 = new stzString("â™¥â™¥â™¥ring â™¥â™¥â™¥ruby â™¥â™¥â™¥php")
+	o1.RemoveAt([ 1, 9, 17 ], "â™¥â™¥â™¥") # Or RemoveSubstringAtPositions()
 
 	? o1.Content()
 	#--> "ring ruby php"
@@ -1547,10 +1547,10 @@ pf()
 pr()
 
 	o1 = new stzString("ruby ring php")
-	o1.ReplaceAt(6, "ring", :By = "♥♥♥") # Or ReplaceSubStringAtPosition()
+	o1.ReplaceAt(6, "ring", :By = "â™¥â™¥â™¥") # Or ReplaceSubStringAtPosition()
 
 	? o1.Content()
-	#--> "ruby ♥♥♥ php"
+	#--> "ruby â™¥â™¥â™¥ php"
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -1561,10 +1561,10 @@ pf()
 pr()
 
 	o1 = new stzString("ruby ring php")
-	o1.ReplaceXT("ring", :AtPosition = 6, :By = "♥♥♥")
+	o1.ReplaceXT("ring", :AtPosition = 6, :By = "â™¥â™¥â™¥")
 
 	? o1.Content()
-	#--> "ruby ♥♥♥ php"
+	#--> "ruby â™¥â™¥â™¥ php"
 
 pf()
 # Executed in 0.16 second(s)
@@ -1574,9 +1574,9 @@ pf()
 pr()
 
 	o1 = new stzString("ring ruby ring php ring")
-	o1.ReplaceXT("ring", :AtPositions = [ 1, 20 ], :By = "♥♥♥")
+	o1.ReplaceXT("ring", :AtPositions = [ 1, 20 ], :By = "â™¥â™¥â™¥")
 
-	? o1.Content() #--> "♥♥♥ ruby ring php ♥♥♥"
+	? o1.Content() #--> "â™¥â™¥â™¥ ruby ring php â™¥â™¥â™¥"
 
 pf()
 # Executed in 0.14 second(s)
@@ -1586,9 +1586,9 @@ pf()
 pr()
 
 	o1 = new stzString("ring ruby ring php ring")
-	o1.ReplaceAt([ 1, 20 ], "ring", :By = "♥♥♥") # Or ReplaceSubstringAtPositions()
+	o1.ReplaceAt([ 1, 20 ], "ring", :By = "â™¥â™¥â™¥") # Or ReplaceSubstringAtPositions()
 
-	? o1.Content() #--> "♥♥♥ ruby ring php ♥♥♥"
+	? o1.Content() #--> "â™¥â™¥â™¥ ruby ring php â™¥â™¥â™¥"
 
 pf()
 # Executed in 0.07 second(s)
@@ -1674,7 +1674,7 @@ pr()
 o1 = new stzString("--Ring--__Softanza__")
 o1.ReplaceAllExcept([ "Ring", "&", "Softanza" ], :With = AHeart())
 ? o1.Content()
-#--> Ring&♥Ring♥Softanza♥
+#--> Ring&â™¥Ringâ™¥Softanzaâ™¥
 
 pf()
 # Executed in 0.11 second(s)
@@ -1709,7 +1709,7 @@ o1 = new stzString("--Ring--__Softanza__")
 
 o1.ReplaceAllExcept([ "Ring", :And = "Softanza" ], :With = AHeart())
 ? o1.Content()
-#--> ♥Ring♥Softanza♥
+#--> â™¥Ringâ™¥Softanzaâ™¥
 
 pf()
 
@@ -1841,12 +1841,12 @@ pf()
 
 pr()
 
-o1 = new stzString("---♥♥...**---")
+o1 = new stzString("---â™¥â™¥...**---")
 
-? o1.SubStringComesBetween("...", "♥♥", "**")
+? o1.SubStringComesBetween("...", "â™¥â™¥", "**")
 #--> TRUE
 
-? o1.SubStringComesBetween("...", "**", "♥♥")
+? o1.SubStringComesBetween("...", "**", "â™¥â™¥")
 #--> TRUE
 
 pf()
@@ -1856,57 +1856,57 @@ pf()
 
 pr()
 
-o1 = new stzString("123♥♥678**123♥♥678")
+o1 = new stzString("123â™¥â™¥678**123â™¥â™¥678")
 
-? o1.SubStringComesBefore("♥♥", :Position = 6)
+? o1.SubStringComesBefore("â™¥â™¥", :Position = 6)
 #--> TRUE
 
-? o1.SubStringComesBeforePosition("♥♥", 6)
+? o1.SubStringComesBeforePosition("â™¥â™¥", 6)
 #--> TRUE
 
-? o1.SubStringComesBefore("♥♥", :SubString = "**")
+? o1.SubStringComesBefore("â™¥â™¥", :SubString = "**")
 #--> TRUE
 
-? o1.SubStringComesBeforeSubString("♥♥", "**")
-#--> TRUE
-
-#--
-
-? o1.SubStringComesAfter("♥♥", :Position = 3)
-#--> TRUE
-
-? o1.SubStringComesAfterPosition("♥♥", 3)
-#--> TRUE
-
-? o1.SubStringComesAfter("**", :SubString = "♥♥")
-#--> TRUE
-
-? o1.SubStringComesAfterSubString("**", "♥♥")
+? o1.SubStringComesBeforeSubString("â™¥â™¥", "**")
 #--> TRUE
 
 #--
 
-? o1.SubStringComesBetween("♥♥", :Positions = 3, :And = 6)
+? o1.SubStringComesAfter("â™¥â™¥", :Position = 3)
 #--> TRUE
 
-? o1.SubStringComesBetweenPositions("♥♥", 3, 6)
+? o1.SubStringComesAfterPosition("â™¥â™¥", 3)
 #--> TRUE
 
-? o1.SubStringComesBetween("678", :SubStrings = "♥♥", :And = "**")
+? o1.SubStringComesAfter("**", :SubString = "â™¥â™¥")
 #--> TRUE
 
-? o1.SubStringComesBetweenSubStrings("678", "**", "♥♥")
+? o1.SubStringComesAfterSubString("**", "â™¥â™¥")
 #--> TRUE
 
 #--
 
-? SubStringQ([ "♥♥", :In = "--♥♥--**--" ]).ComesBeforeSubString("**")
+? o1.SubStringComesBetween("â™¥â™¥", :Positions = 3, :And = 6)
 #--> TRUE
 
-? SubStringQ("♥♥").InQ("--♥♥--**--").ComesBeforeSubString("**")
+? o1.SubStringComesBetweenPositions("â™¥â™¥", 3, 6)
 #--> TRUE
 
-? Q("--♥♥--**--").SubStringQ("♥♥").ComesBeforeSubString("**")
+? o1.SubStringComesBetween("678", :SubStrings = "â™¥â™¥", :And = "**")
+#--> TRUE
+
+? o1.SubStringComesBetweenSubStrings("678", "**", "â™¥â™¥")
+#--> TRUE
+
+#--
+
+? SubStringQ([ "â™¥â™¥", :In = "--â™¥â™¥--**--" ]).ComesBeforeSubString("**")
+#--> TRUE
+
+? SubStringQ("â™¥â™¥").InQ("--â™¥â™¥--**--").ComesBeforeSubString("**")
+#--> TRUE
+
+? Q("--â™¥â™¥--**--").SubStringQ("â™¥â™¥").ComesBeforeSubString("**")
 #--> TRUE
 
 pf()
@@ -1931,14 +1931,14 @@ pf()
 
 pr()
 
-o1 = new stzString("123♥♥678♥♥123♥♥678")
-? @@( o1.FindSSZZ("♥♥", 7, 17) )
+o1 = new stzString("123â™¥â™¥678â™¥â™¥123â™¥â™¥678")
+? @@( o1.FindSSZZ("â™¥â™¥", 7, 17) )
 #--> [ [ 9, 10 ], [ 14, 15 ] ]
 
-? @@( o1.FindInSectionZZ("♥♥", 7, 17) )
+? @@( o1.FindInSectionZZ("â™¥â™¥", 7, 17) )
 #--> [ [ 9, 10 ], [ 14, 15 ] ]
 
-? @@( o1.FindBetweenZZ("♥♥", 7, 17) )
+? @@( o1.FindBetweenZZ("â™¥â™¥", 7, 17) )
 #--> [ [ 9, 10 ], [ 14, 15 ] ]
 
 pf()
@@ -2049,18 +2049,18 @@ Q("PROGRAMMING") {
 pf()
 # Executed in 0.07 second(s) in Ring 1.23
 #-->
-# ┌─────────────┐
-# │ PROGRAMMING │
-# └─────────────┘
-# ╭─────────────╮
-# │ PROGRAMMING │
-# ╰─────────────╯
-# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-# │ P │ R │ O │ G │ R │ A │ M │ M │ I │ N │ G │
-# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
-# │ P │ R │ O │ G │ R │ A │ M │ M │ I │ N │ G │
-# ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+# â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+# â”‚ PROGRAMMING â”‚
+# â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+# â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
+# â”‚ PROGRAMMING â”‚
+# â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ P â”‚ R â”‚ O â”‚ G â”‚ R â”‚ A â”‚ M â”‚ M â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ P â”‚ R â”‚ O â”‚ G â”‚ R â”‚ A â”‚ M â”‚ M â”‚ I â”‚ N â”‚ G â”‚
+# â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
 
 /*---
 
@@ -2069,9 +2069,9 @@ pr()
 ? BoxRound("SOFTANZA")
 #-->
 '
-╭───┬───┬───┬───┬───┬───┬───┬───╮
-│ S │ O │ F │ T │ A │ N │ Z │ A │
-╰───┴───┴───┴───┴───┴───┴───┴───╯
+â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚
+â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
 '
 
 ? BoxRound(
@@ -2082,18 +2082,18 @@ pr()
 )
 #-->
 '
-╭───────────────────────────────────╮
-│ ╭───┬───┬───┬───┬───┬───┬───┬───╮ │
-│ │ S │ O │ F │ T │ A │ N │ Z │ A │ │
-│ ╰───┴───┴───┴───┴───┴───┴───┴───╯ │
-│       ╭───────────────────╮       │
-│       │ I S   G R E A T ! │       │
-│       ╰───────────────────╯       │
-│         ACTUALLY, IT'S...         │
-│            ┌─────────┐            │
-│            │ AWOSME! │            │
-│            └─────────┘            │
-╰───────────────────────────────────╯
+â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
+â”‚ â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•® â”‚
+â”‚ â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚ â”‚
+â”‚ â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯ â”‚
+â”‚       â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®       â”‚
+â”‚       â”‚ I S   G R E A T ! â”‚       â”‚
+â”‚       â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯       â”‚
+â”‚         ACTUALLY, IT'S...         â”‚
+â”‚            â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”            â”‚
+â”‚            â”‚ AWOSME! â”‚            â”‚
+â”‚            â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜            â”‚
+â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
 '
 
 pf()
@@ -2107,31 +2107,31 @@ pr()
 ? Box("SOFTANZA") + NL
 #-->
 '
-┌──────────┐
-│ SOFTANZA │
-└──────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ SOFTANZA â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 '
 
 ? Box(Box("SOFTANZA")) + NL
 #-->
 '
-┌──────────────┐
-│ ┌──────────┐ │
-│ │ SOFTANZA │ │
-│ └──────────┘ │
-└──────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚
+â”‚ â”‚ SOFTANZA â”‚ â”‚
+â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 '
 
 ? BoxRound(BoxRound(Box("SOFTANZA")))
 #-->
 '
-╭──────────────────╮
-│ ╭──────────────╮ │
-│ │ ┌──────────┐ │ │
-│ │ │ SOFTANZA │ │ │
-│ │ └──────────┘ │ │
-│ ╰──────────────╯ │
-╰──────────────────╯
+â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
+â”‚ â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•® â”‚
+â”‚ â”‚ â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â” â”‚ â”‚
+â”‚ â”‚ â”‚ SOFTANZA â”‚ â”‚ â”‚
+â”‚ â”‚ â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜ â”‚ â”‚
+â”‚ â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯ â”‚
+â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
 '
 
 pf()
@@ -2157,9 +2157,9 @@ Q("Thank you Irwin Rodriguez!") {
 	# Thank you for your trust!
 }
 
-#--> ╭────────────────────────────────╮
-#    │ Thank you ♥♥IRWIN♥♥ Rodriguez! │
-#    ╰────────────────────────────────╯
+#--> â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
+#    â”‚ Thank you â™¥â™¥IRWINâ™¥â™¥ Rodriguez! â”‚
+#    â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.23
@@ -2169,12 +2169,12 @@ pf()
 
 pr()()
 
-o1 = new stzString("123♥♥678♥♥1234♥♥789")
+o1 = new stzString("123â™¥â™¥678â™¥â™¥1234â™¥â™¥789")
 
-? o1.ContainsXT( "♥", :InSection = [ 3, 10 ] )
+? o1.ContainsXT( "â™¥", :InSection = [ 3, 10 ] )
 #-- TRUE
 
-? o1.ContainsXT( "♥", :InSections = [ [ 3, 10 ], [ 8, 12 ], [ 14, 19 ] ] )
+? o1.ContainsXT( "â™¥", :InSections = [ [ 3, 10 ], [ 8, 12 ], [ 14, 19 ] ] )
 #--> TRUE
 
 pf()
@@ -2185,12 +2185,12 @@ pf()
 
 pr()
 
-o1 = new stzString("123♥♥678♥♥1234♥♥789")
+o1 = new stzString("123â™¥â™¥678â™¥â™¥1234â™¥â™¥789")
 
-? o1.ContainsInSection("♥", 3, 10)
+? o1.ContainsInSection("â™¥", 3, 10)
 #--> TRUE
 
-? o1.ContainsInSections("♥", [ [3,10], [8,12], [14,19] ])
+? o1.ContainsInSections("â™¥", [ [3,10], [8,12], [14,19] ])
 #--> TRUE
 
 pf()
@@ -2237,7 +2237,7 @@ pf()
 
 pr()
 
-? TQ("משמש").Script()
+? TQ("×ž×©×ž×©").Script()
 #--> hebrew
 
 
@@ -2248,9 +2248,9 @@ pf()
 pr()
 
 ? Q('U+0649').IsHexUnicode() 	#--> TRUE
-? StzCharQ("ڢ").HexUnicode() 	#--> U+06A2
-? QQ('U+0649').Content() 	#--> ى
-? QQ('U+06A2').Content() 	#--> ڢ
+? StzCharQ("Ú¢").HexUnicode() 	#--> U+06A2
+? QQ('U+0649').Content() 	#--> Ù‰
+? QQ('U+06A2').Content() 	#--> Ú¢
 ? HexUnicodeToUnicode('U+06A2')	#--> 1698
 ? UnicodeToHexUnicode(1698)	#--> U+06A2
 
@@ -2261,10 +2261,10 @@ pf()
 
 pr()
 
-? Q("ı").Unicode()
+? Q("Ä±").Unicode()
 #--> 305
 
-? Q("ȷ").Unicode()
+? Q("È·").Unicode()
 #--> 567
 
 ? Q("abc").Unicodes()
@@ -2308,17 +2308,17 @@ cName = "Gary"
 
 pr()
 
-? Q("♥").RepeatedNTimes(3)
-#--> ♥♥♥
+? Q("â™¥").RepeatedNTimes(3)
+#--> â™¥â™¥â™¥
 
-? Q("♥").Repeated3Times()
-#--> ♥♥♥
+? Q("â™¥").Repeated3Times()
+#--> â™¥â™¥â™¥
 
-? NCopies(3, "♥")
-#--> ♥♥♥
+? NCopies(3, "â™¥")
+#--> â™¥â™¥â™¥
 
-? 3Copies(:of="♥")
-#--> ♥♥♥
+? 3Copies(:of="â™¥")
+#--> â™¥â™¥â™¥
 
 pf()
 
@@ -2341,10 +2341,10 @@ pf()
 
 pr()
 
-? Dotless("alitalia extrême extèrieur aéorô ûltrâ")
-#--> alıtalıa extreme exterıeur aeoro ultra
+? Dotless("alitalia extrÃªme extÃ¨rieur aÃ©orÃ´ Ã»ltrÃ¢")
+#--> alÄ±talÄ±a extreme exterÄ±eur aeoro ultra
 
-? Dotless("مشمش وخوخ وزيتون")	#--> مسمس وحوح ورٮٮوٮ
+? Dotless("Ù…Ø´Ù…Ø´ ÙˆØ®ÙˆØ® ÙˆØ²ÙŠØªÙˆÙ†")	#--> Ù…Ø³Ù…Ø³ ÙˆØ­ÙˆØ­ ÙˆØ±Ù®Ù®ÙˆÙ®
 
 
 pf()
@@ -2353,12 +2353,12 @@ pf()
 
 pr()
 
-? Dotless("فلسطين الأبيّة") 		#--> ٯلسطٮں الأٮٮّه
-? Dotless("عاشت المقاومة") 		#--> عاسٮ المٯاومه
-? Dotless("تونس معك يا غزّة")		#--> ٮوٮس معک ٮا عرّه
-? Dotless("جمعية الخيرات")		#--> حمعٮه الحٮراٮ
-? Dotless("أفديك بروحي يا قدس") 	#--> أٯدٮک ٮروحٮ ٮا ٯدس
-? Dotless("مشمش وخوخ وزيتون")		#--> مسمس وحوح ورٮٮوٮ
+? Dotless("ÙÙ„Ø³Ø·ÙŠÙ† Ø§Ù„Ø£Ø¨ÙŠÙ‘Ø©") 		#--> Ù¯Ù„Ø³Ø·Ù®Úº Ø§Ù„Ø£Ù®Ù®Ù‘Ù‡
+? Dotless("Ø¹Ø§Ø´Øª Ø§Ù„Ù…Ù‚Ø§ÙˆÙ…Ø©") 		#--> Ø¹Ø§Ø³Ù® Ø§Ù„Ù…Ù¯Ø§ÙˆÙ…Ù‡
+? Dotless("ØªÙˆÙ†Ø³ Ù…Ø¹Ùƒ ÙŠØ§ ØºØ²Ù‘Ø©")		#--> Ù®ÙˆÙ®Ø³ Ù…Ø¹Ú© Ù®Ø§ Ø¹Ø±Ù‘Ù‡
+? Dotless("Ø¬Ù…Ø¹ÙŠØ© Ø§Ù„Ø®ÙŠØ±Ø§Øª")		#--> Ø­Ù…Ø¹Ù®Ù‡ Ø§Ù„Ø­Ù®Ø±Ø§Ù®
+? Dotless("Ø£ÙØ¯ÙŠÙƒ Ø¨Ø±ÙˆØ­ÙŠ ÙŠØ§ Ù‚Ø¯Ø³") 	#--> Ø£Ù¯Ø¯Ù®Ú© Ù®Ø±ÙˆØ­Ù® Ù®Ø§ Ù¯Ø¯Ø³
+? Dotless("Ù…Ø´Ù…Ø´ ÙˆØ®ÙˆØ® ÙˆØ²ÙŠØªÙˆÙ†")		#--> Ù…Ø³Ù…Ø³ ÙˆØ­ÙˆØ­ ÙˆØ±Ù®Ù®ÙˆÙ®
 
 #TODO // the implementation needs some enhancements/
 
@@ -2845,17 +2845,17 @@ pf()
 
 pr()
 #                     3  6  9  2
-o1 = new stzString("..♥^^♥..^♥♥^..")
+o1 = new stzString("..â™¥^^â™¥..^â™¥â™¥^..")
 
 ? @@( o1.SubStringsWXT('
 
 	Q(@SubString).NumberOfChars() = 4 and
-	Q(@SubString).ContainsXT( 2, "♥") and
+	Q(@SubString).ContainsXT( 2, "â™¥") and
 	Q(@SubString).ContainsXT( :MoreThen = 1, "^")
 
 ') )
 
-#--> [ "♥^^♥", "^♥♥^" ]
+#--> [ "â™¥^^â™¥", "^â™¥â™¥^" ]
 
 pf()
 # Executed in 0.42 second(s) in Ring 1.21
@@ -2865,12 +2865,12 @@ pf()
 
 pr()
 #                     3  6  9  2 
-o1 = new stzString("..♥^^♥..^♥♥^..")
+o1 = new stzString("..â™¥^^â™¥..^â™¥â™¥^..")
 
 ? @@( o1.FindSubStringsAsSectionsWXT('
 
 	Q(@SubString).NumberOfChars() = 4 and
-	Q(@SubString).ContainsXT( 2, "♥") and
+	Q(@SubString).ContainsXT( 2, "â™¥") and
 	Q(@SubString).ContainsXT( :MoreThen = 1, "^")
 
 ') )
@@ -2885,8 +2885,8 @@ pf()
 
 pr()
 
-o1 = new stzString("...♥...♥...")
-? o1.FindWXT('@char = "♥"')
+o1 = new stzString("...â™¥...â™¥...")
+? o1.FindWXT('@char = "â™¥"')
 #--> [4, 8]
 
 pf()
@@ -2975,11 +2975,11 @@ pf()
 
 pr()
 
-o1 = new stzString("..3..♥..♥..2..")
-? o1.FindInSection("♥", 3, 12)
+o1 = new stzString("..3..â™¥..â™¥..2..")
+? o1.FindInSection("â™¥", 3, 12)
 #--> [6, 9]
 
-? o1.FindInSection("♥", 12, 3)
+? o1.FindInSection("â™¥", 12, 3)
 #--> [6, 9]
 
 pf()
@@ -3049,10 +3049,10 @@ pf()
 
 pr()
 
-? Script("鶊")
+? Script("é¶Š")
 #--> han
 
-? Name("鶊")
+? Name("é¶Š")
 #--> CJK UNIFIED IDEOGRAPH-9D8A
 
 pf()
@@ -3128,7 +3128,7 @@ pf()
 
 pr()
 
-? @@( Q("--<<♥♥♥>>--<<♥♥♥>>---<<♥♥♥>>").
+? @@( Q("--<<â™¥â™¥â™¥>>--<<â™¥â™¥â™¥>>---<<â™¥â™¥â™¥>>").
 	FindBoundedByAsSections([ "<<", ">>" ]) ) # Or Simply FindBoundedByZZ()
 #--> [ [ 5, 7 ], [ 14, 16 ], [ 24, 26 ] ]
 
@@ -3162,15 +3162,15 @@ pf()
 
 pr()
 
-aList = [ 1, "♥", 3, 4, "♥", 5, "♥" ]
+aList = [ 1, "â™¥", 3, 4, "â™¥", 5, "â™¥" ]
 
-? FindNth(aList, 2, "♥", :StartingAt = 2)
+? FindNth(aList, 2, "â™¥", :StartingAt = 2)
 #--> 5
 
-? FindNth(aList, 2, "♥", :StartingAt = 3)
+? FindNth(aList, 2, "â™¥", :StartingAt = 3)
 #--> 7
 
-? FindNextNth(aList, 2 , "♥", :StartingAt = 2)
+? FindNextNth(aList, 2 , "â™¥", :StartingAt = 2)
 #--> 7
 
 pf()
@@ -3180,13 +3180,13 @@ pf()
 
 pr()
 
-? @ListContainsCS([ "hi!", "--♥♥♥--♥♥♥--" ], "hi!", TRUE)
+? @ListContainsCS([ "hi!", "--â™¥â™¥â™¥--â™¥â™¥â™¥--" ], "hi!", TRUE)
 #--> TRUE
 
-? @FindNthSTCS([ "hi!", "--♥♥♥--♥♥♥--" ], 1, "hi!", :StartingAt = 1, TRUE)
+? @FindNthSTCS([ "hi!", "--â™¥â™¥â™¥--â™¥â™¥â™¥--" ], 1, "hi!", :StartingAt = 1, TRUE)
 #--> 1
 
-? Q([ "hi!", "--♥♥♥--♥♥♥--" ]).ContainsCS("hi!", 1)
+? Q([ "hi!", "--â™¥â™¥â™¥--â™¥â™¥â™¥--" ]).ContainsCS("hi!", 1)
 #--> 1
 
 pf()
@@ -3196,18 +3196,18 @@ pf()
 
 pr()
 
-o1 = new stzString("<<hi!>>..<<--♥♥♥--♥♥♥-->>..<<hi!>>")
+o1 = new stzString("<<hi!>>..<<--â™¥â™¥â™¥--â™¥â™¥â™¥-->>..<<hi!>>")
 
 ? @@NL( o1.BoundedByZZ([ "<<", ">>" ]) ) + NL
 #--> [	[ "hi!", [3, 5] ],
-#	[ "--♥♥♥--♥♥♥--", [ 12, 23 ] ],
+#	[ "--â™¥â™¥â™¥--â™¥â™¥â™¥--", [ 12, 23 ] ],
 #	[ "hi!", [ 30, 32 ] ]
 # ]
 
 ? @@NL( o1.BoundedByUZZ([ "<<", ">>" ]) )
 #--> [
 #	[ "hi!", [ [ 3, 5 ], [ 30, 32 ] ] ],
-#	[ "--♥♥♥--♥♥♥--", [ [ 12, 23 ] ] ]
+#	[ "--â™¥â™¥â™¥--â™¥â™¥â™¥--", [ [ 12, 23 ] ] ]
 # ]
 
 pf()
@@ -3271,13 +3271,13 @@ pf()
 
 pr()
 
-? Q("^^♥^^").ContainsAt(3, "♥")
+? Q("^^â™¥^^").ContainsAt(3, "â™¥")
 #--> TRUE
 
-? Q("^^♥^^").ContainsAt("♥", :Position = 3)
+? Q("^^â™¥^^").ContainsAt("â™¥", :Position = 3)
 #--> TRUE
 
-? Q("^^♥^^").ContainsXT("♥", :AtPosition = 3)
+? Q("^^â™¥^^").ContainsXT("â™¥", :AtPosition = 3)
 #--> TRUE
 
 pf()
@@ -3287,16 +3287,16 @@ pf()
 
 pr()
 
-? Q("^^♥^^").ContainsInSection("♥", 2, 4)
+? Q("^^â™¥^^").ContainsInSection("â™¥", 2, 4)
 #--> TRUE
 
-? Q("^^♥^^").ContainsBetweenPositions("♥", 2, 4)
+? Q("^^â™¥^^").ContainsBetweenPositions("â™¥", 2, 4)
 #--> TRUE
 
-//? Q("^^♥^^").ContainsBoundedBy("♥", :Positions = [ 2, 4])
+//? Q("^^â™¥^^").ContainsBoundedBy("â™¥", :Positions = [ 2, 4])
 #--> TRUE
 
-? Q("^^♥^^").ContainsInSection("♥", 1, 3)
+? Q("^^â™¥^^").ContainsInSection("â™¥", 1, 3)
 #--> TRUE
 
 pf()
@@ -3306,16 +3306,16 @@ pf()
 *
 pr()
 
-? Q("^^♥^^").ContainsBefore("♥", :Position = 4)
+? Q("^^â™¥^^").ContainsBefore("â™¥", :Position = 4)
 #--> TRUE
 
-? Q("^^^♥^").ContainsAfter("♥", 3)
+? Q("^^^â™¥^").ContainsAfter("â™¥", 3)
 #--> TRUE
 
-? Q("--♥--^^").ContainsBefore("♥", :SubString = "^^")
+? Q("--â™¥--^^").ContainsBefore("â™¥", :SubString = "^^")
 #--> TRUE
 
-? Q("--^^--♥^^").ContainsAfter("♥", "^^")
+? Q("--^^--â™¥^^").ContainsAfter("â™¥", "^^")
 #--> TRUE
 
 pf()
@@ -3325,8 +3325,8 @@ pf()
 
 pr()
 
-? Q("^^♥^^").ContainsXT("^", :AfterPosition = 2)
-? Q("^^♥^^").ContainsInSection("^", 5, 3)
+? Q("^^â™¥^^").ContainsXT("^", :AfterPosition = 2)
+? Q("^^â™¥^^").ContainsInSection("^", 5, 3)
 
 pf()
 # Executed in 0.04 second(s) in Ring 1.21
@@ -3335,10 +3335,10 @@ pf()
 
 pr()
 
-? Q("^^♥^^").ContainsXT("^", :BeforePosition = 3)
+? Q("^^â™¥^^").ContainsXT("^", :BeforePosition = 3)
 #--> TRUE
 
-? Q("--♥^^").ContainsXT("^", :AfterPosition = 2)
+? Q("--â™¥^^").ContainsXT("^", :AfterPosition = 2)
 #--> TRUE
 
 pf()
@@ -3348,10 +3348,10 @@ pf()
 
 pr()
 
-? Q("^^♥^^").ContainsXT("^", :Before = 3)
+? Q("^^â™¥^^").ContainsXT("^", :Before = 3)
 #--> TRUE
 
-? Q("--♥^^").ContainsXT("^", :After = 2)
+? Q("--â™¥^^").ContainsXT("^", :After = 2)
 #--> TRUE
 
 pf()
@@ -3361,10 +3361,10 @@ pf()
 
 pr()
 
-? Q("^^♥^^").ContainsXT("^", :Before = "♥^")
+? Q("^^â™¥^^").ContainsXT("^", :Before = "â™¥^")
 #--> TRUE
 
-? Q("--♥^^").ContainsXT("^", :After = "-♥")
+? Q("--â™¥^^").ContainsXT("^", :After = "-â™¥")
 #--> TRUE
 
 pf()
@@ -3374,10 +3374,10 @@ pf()
 
 pr()
 
-? Q("^♥^^♥^^♥^").ContainsAtPositions([2, 5, 8], "♥")
+? Q("^â™¥^^â™¥^^â™¥^").ContainsAtPositions([2, 5, 8], "â™¥")
 #--> TRUE
 
-? Q("♥^^♥^^♥").ContainsAtPosition("♥", 1)
+? Q("â™¥^^â™¥^^â™¥").ContainsAtPosition("â™¥", 1)
 
 pf()
 # Executed in 0.03 second(s)
@@ -3386,10 +3386,10 @@ pf()
 
 pr()
 
-? Q("♥^^♥^^♥").ContainsAt([1, 4, 7], "♥")
+? Q("â™¥^^â™¥^^â™¥").ContainsAt([1, 4, 7], "â™¥")
 #--> TRUE
 
-? Q("♥^^♥^^♥").ContainsXT("♥", :AtPositions = [1, 4, 7])
+? Q("â™¥^^â™¥^^â™¥").ContainsXT("â™¥", :AtPositions = [1, 4, 7])
 #--> TRUE
 
 pf()
@@ -3456,11 +3456,11 @@ pf()
 
 StartProfiler()
 
-o1 = new stzString("/♥♥♥\__/\/\__/♥♥♥\__")
-? o1.FindBetweenAsSections("♥♥♥", "/", "\")	# FindXT( "♥", :Between = ["/","\"], :AsSections )
+o1 = new stzString("/â™¥â™¥â™¥\__/\/\__/â™¥â™¥â™¥\__")
+? o1.FindBetweenAsSections("â™¥â™¥â™¥", "/", "\")	# FindXT( "â™¥", :Between = ["/","\"], :AsSections )
 #--> [ [2, 4], [15, 17] ]
 
-? o1.FindAsSectionsXT( "♥♥♥", :Between = ["/","\"])
+? o1.FindAsSectionsXT( "â™¥â™¥â™¥", :Between = ["/","\"])
 #--> [ [2, 4], [15, 17] ]
 
 StopProfiler()
@@ -3482,12 +3482,12 @@ pf()
 
 StartProfiler()
 
-o1 = new stzString("/♥♥♥\__/\/\__/♥♥♥\__")
+o1 = new stzString("/â™¥â™¥â™¥\__/\/\__/â™¥â™¥â™¥\__")
 
-? o1.FindBetweenAsSections("♥♥♥", "/", "\")	# FindXT( "♥", :Between = ["/","\"], :AsSections )
+? o1.FindBetweenAsSections("â™¥â™¥â™¥", "/", "\")	# FindXT( "â™¥", :Between = ["/","\"], :AsSections )
 #--> [ [2, 4], [15, 17] ]
 
-? o1.FindAsSectionsXT( "♥♥♥", :Between = ["/","\"])
+? o1.FindAsSectionsXT( "â™¥â™¥â™¥", :Between = ["/","\"])
 #--> [ [2, 4], [15, 17] ]
 
 StopProfiler()
@@ -3497,7 +3497,7 @@ StopProfiler()
 
 StartProfiler()
 
-? Q("^^♥♥♥^^").ContainsSubStringBoundedBy("♥♥♥", ["^^","^^"])
+? Q("^^â™¥â™¥â™¥^^").ContainsSubStringBoundedBy("â™¥â™¥â™¥", ["^^","^^"])
 #--> TRUE
 
 StopProfiler()
@@ -3510,16 +3510,16 @@ pr()
 
 # Let's take this string of text:
 
-o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
+o1 = new stzString("<<â™¥â™¥â™¥>>--<<stars>>--<<â™¥â™¥â™¥>>")
 
 # You may want to get the section between two positions:
 
 ? o1.BetweenIB(3, 5)
-#--> ♥♥♥
+#--> â™¥â™¥â™¥
 
 # You can also say:
 ? o1.Section(3, 5)
-#--> ♥♥♥
+#--> â™¥â™¥â™¥
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.21
@@ -3530,20 +3530,20 @@ pr()
 
 # Let's start with this string of text:
 
-o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
+o1 = new stzString("<<â™¥â™¥â™¥>>--<<stars>>--<<â™¥â™¥â™¥>>")
 
 # If you want to extract all substrings bounded by << and >>,
 # you can do so easily:
 
 ? o1.BoundedBy([ "<<", ">>" ])
-#--> ["♥♥♥", "stars", "♥♥♥"]
+#--> ["â™¥â™¥â™¥", "stars", "â™¥â™¥â™¥"]
 
 # There are 3 substrings, and 2 of them are identical! No worries,
 # you can retrieve only the unique substrings by appending the
 # letter "U" (for Unique) to the function name:
 
 ? o1.BoundedByU([ "<<", ">>" ])
-#--> ["♥♥♥", "stars"]
+#--> ["â™¥â™¥â™¥", "stars"]
 
 # Sometimes, the term "BETWEEN" can be interpreted differently,
 # and you might want  to include the bounds along with the substrings. 
@@ -3552,13 +3552,13 @@ o1 = new stzString("<<♥♥♥>>--<<stars>>--<<♥♥♥>>")
 # name ("IB" for "Include Bounds"):
 
 ? o1.BoundedByIB([ "<<", ">>" ])
-#--> [ "<<♥♥♥>>", "<<stars>>", "<<♥♥♥>>" ]
+#--> [ "<<â™¥â™¥â™¥>>", "<<stars>>", "<<â™¥â™¥â™¥>>" ]
 
-# Wonderful! But notice that "<<♥♥♥>>" appears twice...
+# Wonderful! But notice that "<<â™¥â™¥â™¥>>" appears twice...
 # No problem, you know the solution: just append the "U" prefix:
 
 ? o1.BoundedByIBU([ "<<", ">>" ])
-#--> [ "<<♥♥♥>>", "<<stars>>" ]
+#--> [ "<<â™¥â™¥â™¥>>", "<<stars>>" ]
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.21
@@ -3573,15 +3573,15 @@ pf()
 
 pr()
 
-o1 = new stzString("...<<♥♥♥>>...<<★★>>...")
+o1 = new stzString("...<<â™¥â™¥â™¥>>...<<â˜…â˜…>>...")
 
 ? o1.BoundedByIB([ "<<", ">>" ])
-#--> [ "<<♥♥♥>>", "<<★★>>" ]
+#--> [ "<<â™¥â™¥â™¥>>", "<<â˜…â˜…>>" ]
 
 ? o1.BoundedByIBZZ([ "<<", ">>" ])
 #--> [
-#	[ "<<♥♥♥>>", [ 4, 10 ] ],
-#	[ "<<★★>>", [ 14, 19 ] ]
+#	[ "<<â™¥â™¥â™¥>>", [ 4, 10 ] ],
+#	[ "<<â˜…â˜…>>", [ 14, 19 ] ]
 # ]
 
 pf()
@@ -3591,15 +3591,15 @@ pf()
 
 pr()
 
-Q("♥♥♥ Ring programing language ♥♥♥") {
+Q("â™¥â™¥â™¥ Ring programing language â™¥â™¥â™¥") {
 
-	ReplaceXT( :Each = "♥", [], :With = "*")
+	ReplaceXT( :Each = "â™¥", [], :With = "*")
 	? Content()
 	#--> *** Ring programing language ***
 
-	ReplaceXT("*", :With = "♥", [])
+	ReplaceXT("*", :With = "â™¥", [])
 	? Content()
-	#--> ♥♥♥ Ring programing language ♥♥♥
+	#--> â™¥â™¥â™¥ Ring programing language â™¥â™¥â™¥
 }
 
 pf()
@@ -3610,10 +3610,10 @@ pf()
 
 pr()
 
-o1 = new stzString("_/♥\__/♥\__/♥♥__/♥\_")
-o1.ReplaceXT(:Nth = 4, "♥", :With = "\")
+o1 = new stzString("_/â™¥\__/â™¥\__/â™¥â™¥__/â™¥\_")
+o1.ReplaceXT(:Nth = 4, "â™¥", :With = "\")
 ? o1.Content()
-#--> _/♥\__/♥\__/♥\__/♥\_
+#--> _/â™¥\__/â™¥\__/â™¥\__/â™¥\_
 
 pf()
 #--> Executed in 0.01 second(s)
@@ -3622,10 +3622,10 @@ pf()
 
 pr()
 
-o1 = new stzString("_♥♥\__/♥\__/♥\_")
-o1.ReplaceXT(:First, "♥", :With = "/")
+o1 = new stzString("_â™¥â™¥\__/â™¥\__/â™¥\_")
+o1.ReplaceXT(:First, "â™¥", :With = "/")
 ? o1.Content()
-#--> _/♥\__/♥\__/♥\__/♥\_
+#--> _/â™¥\__/â™¥\__/â™¥\__/â™¥\_
 
 pf()
 #--> Executed in 0.01 second(s)
@@ -3634,10 +3634,10 @@ pf()
 
 pr()
 
-o1 = new stzString("_/♥\__/♥\__/♥♥_")
-o1.ReplaceXT(:Last, "♥", :With = "\")
+o1 = new stzString("_/â™¥\__/â™¥\__/â™¥â™¥_")
+o1.ReplaceXT(:Last, "â™¥", :With = "\")
 ? o1.Content()
-#--> _/♥\__/♥\__/♥\__/♥\_
+#--> _/â™¥\__/â™¥\__/â™¥\__/â™¥\_
 
 pf()
 #--> Executed in 0.01 second(s)
@@ -3646,10 +3646,10 @@ pf()
 
 pr()
 
-o1 = new stzString("~♥/♥\~~")
-o1.ReplaceXT("♥", :At = 2, :With = "~") # Or :AtPosition
+o1 = new stzString("~â™¥/â™¥\~~")
+o1.ReplaceXT("â™¥", :At = 2, :With = "~") # Or :AtPosition
 ? o1.Content()
-#--> ~~/♥\~~
+#--> ~~/â™¥\~~
 
 pf()
 #-- Executed in 0.01 second(s)
@@ -3658,10 +3658,10 @@ pf()
 
 pr()
 
-o1 = new stzString("~♥/♥\~♥")
-o1.ReplaceXT("♥", :AtPositions = [2, 7], :With = "~") # Or :AtPositions
+o1 = new stzString("~â™¥/â™¥\~â™¥")
+o1.ReplaceXT("â™¥", :AtPositions = [2, 7], :With = "~") # Or :AtPositions
 ? o1.Content()
-#--> ~~/♥\~~
+#--> ~~/â™¥\~~
 
 pf()
 #-- Executed in 0.01 second(s)
@@ -3670,7 +3670,7 @@ pf()
 
 pr()
 
-o1 = new stzString("bla bla <<♥♥♥>> and bla!")
+o1 = new stzString("bla bla <<â™¥â™¥â™¥>> and bla!")
 o1.ReplaceXT( [], :BoundedBy = ["<<",">>"], :With = "bla" )
 #--> bla bla <<bla>> and bla!
 
@@ -3716,7 +3716,7 @@ pf()
 
 StartProfiler()
 
-	o1 = new stzString("__/♥\__")
+	o1 = new stzString("__/â™¥\__")
 
 	o1.RemoveBetween("/", "\")
 	? o1.Content()
@@ -3729,7 +3729,7 @@ StopProfiler()
 
 StartProfiler()
 
-	o1 = new stzString("__/♥\__")
+	o1 = new stzString("__/â™¥\__")
 
 	o1.RemoveBetweenIB("/", "\") # ..XT() -> Bounds are also removed
 	? o1.Content()
@@ -4374,12 +4374,12 @@ StopProfiler()
 
 pr()
 
-cStr = "•••••••••"
+cStr = "â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢"
 
 ? substr(cStr, "")
 #--> 0
 
-? substr(cStr, "•")
+? substr(cStr, "â€¢")
 #--> 1
 
 pf()
@@ -4388,12 +4388,12 @@ pf()
 
 pr()
 
-o1 = new stzString("•••••••••")
+o1 = new stzString("â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢")
 
 ? o1.Contains("")
 #--> FALSE
 
-? o1.Contains("•")
+? o1.Contains("â€¢")
 #--> TRUE
 
 pf()
@@ -4406,7 +4406,7 @@ pr()
 
 StartProfiler()
 #                   .2....7.9
-o1 = new stzString("•••••••••")
+o1 = new stzString("â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢")
 
 ? o1.FindNext("", :StartingAt = 1)
 #--> 0
@@ -4414,13 +4414,13 @@ o1 = new stzString("•••••••••")
 ? o1.FindNext("x", :StartingAt = 1)
 #--> 0
 
-? o1.FindNext("•", :startingAt = 5)
+? o1.FindNext("â€¢", :startingAt = 5)
 #--> 6
 
-? o1.FindNthNext(6, "•", :StartingAt = 3)
+? o1.FindNthNext(6, "â€¢", :StartingAt = 3)
 #--> 9
 
-? o1.FindNthNext(5, "•", :StartingAt = 1)
+? o1.FindNthNext(5, "â€¢", :StartingAt = 1)
 #--> 6
 
 ? o1.FindPrevious("", :StartingAt = 9)
@@ -4429,16 +4429,16 @@ o1 = new stzString("•••••••••")
 ? o1.FindPrevious("x", :StartingAt = 1)
 #--> 0
 
-? o1.FindPrevious("•", :StartingAt = 5)
+? o1.FindPrevious("â€¢", :StartingAt = 5)
 #--> 4
 
-? o1.FindPrevious("•", :StartingAt = 2)
+? o1.FindPrevious("â€¢", :StartingAt = 2)
 #--> 1
 
-? o1.FindNthPrevious(8, "•", :StartingAt = 9)
+? o1.FindNthPrevious(8, "â€¢", :StartingAt = 9)
 #--> 1
 
-? o1.FindNthPrevious(3, "•", :StartingAt = 4)
+? o1.FindNthPrevious(3, "â€¢", :StartingAt = 4)
 #--> 1
 
 StopProfiler()
@@ -4481,8 +4481,8 @@ StopProfiler()
 
 StartProfiler()
 #                    2    7
-o1 = new stzString("•♥••••♥••")
-? o1.FindLast("♥")
+o1 = new stzString("â€¢â™¥â€¢â€¢â€¢â€¢â™¥â€¢â€¢")
+? o1.FindLast("â™¥")
 #--> 7
 
 ? o1.FindLast("_")
@@ -4498,10 +4498,10 @@ StopProfiler()
 StartProfiler()
 
 o1 = new stzString( UnicodeDataAsString() ) # Contains 1_897_793 chars
-? o1.Contains("جميل")
+? o1.Contains("Ø¬Ù…ÙŠÙ„")
 #--> FALSE
 
-? o1.FindLast("جميل")
+? o1.FindLast("Ø¬Ù…ÙŠÙ„")
 #--> FALSE
 
 StopProfiler()
@@ -4702,13 +4702,13 @@ StopProfiler()
 StartProfiler()
 
 #                    2    7
-o1 = new stzString("•♥••••♥••")
+o1 = new stzString("â€¢â™¥â€¢â€¢â€¢â€¢â™¥â€¢â€¢")
 
-? o1.FindNthW(2, '@char = "♥"')
+? o1.FindNthW(2, '@char = "â™¥"')
 #--> 7
 # Executed in 0.13 second(s)
 
-? o1.FindNthW(2, '@substring = "•♥•"')
+? o1.FindNthW(2, '@substring = "â€¢â™¥â€¢"')
 #--> 6
 
 StopProfiler()
@@ -4882,8 +4882,8 @@ pf()
 
 pr()
 
-? @replace("صباح الخير أصدقائي", "خير", "نور")
-#o--> صباح النور أصدقائي
+? @replace("ØµØ¨Ø§Ø­ Ø§Ù„Ø®ÙŠØ± Ø£ØµØ¯Ù‚Ø§Ø¦ÙŠ", "Ø®ÙŠØ±", "Ù†ÙˆØ±")
+#o--> ØµØ¨Ø§Ø­ Ø§Ù„Ù†ÙˆØ± Ø£ØµØ¯Ù‚Ø§Ø¦ÙŠ
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.22
@@ -5070,15 +5070,15 @@ pr()
 
 o1 = new stzString('[
 	"1", "1",
-		["2", "♥", "2"],
+		["2", "â™¥", "2"],
 	"1",
 		["2",
-			["3", "♥",
+			["3", "â™¥",
 				["4",
-					["5", "♥"],
+					["5", "â™¥"],
 				"4",
-					["5","♥"],
-				"♥"],
+					["5","â™¥"],
+				"â™¥"],
 			"3"]
 		]
 
@@ -5389,7 +5389,7 @@ pf()
 pr()
 
 o1 = new stzString("phpringringringpythonrubyruby")
-#		       ↑   ↑   ↑  ↑
+#		       â†‘   â†‘   â†‘  â†‘
 #                      4   8   12 15
 
 ? @@( o1.FindDupSecutiveSubString("ring") ) + NL
@@ -6017,14 +6017,14 @@ pr()
 ? @@( Q("   ").Unspacified() )
 #--> " "
 
-? @@( Q(" ♥").Unspacified() )
-#--> "♥"
+? @@( Q(" â™¥").Unspacified() )
+#--> "â™¥"
 
-? @@( Q("♥ ").Unspacified() )
-#--> "♥"
+? @@( Q("â™¥ ").Unspacified() )
+#--> "â™¥"
 
-? @@( Q(" ♥ ").Unspacified() )
-#--> "♥"
+? @@( Q(" â™¥ ").Unspacified() )
+#--> "â™¥"
 
 ? Q("r  in  g ").Unspacified() # Does not remove spaces inside!
 #--> "r  in  g"
@@ -6311,12 +6311,12 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindNthPrevious(:Last, "♥♥♥", :StartingAt = 12)
+? o1.FindNthPrevious(:Last, "â™¥â™¥â™¥", :StartingAt = 12)
 #--> 3
 
-? o1.FindNthPrevious(:First, "♥♥♥", :StartingAt = 12)
+? o1.FindNthPrevious(:First, "â™¥â™¥â™¥", :StartingAt = 12)
 #--> 8
 
 pf()
@@ -6326,19 +6326,19 @@ pf()
 
 pr()
 
-o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
+o1 = new stzString("bla {â™¥â™¥â™¥} blaba bla {â™¥â™¥â™¥} blabla")
 
-? o1.FindFirst("♥♥♥")
+? o1.FindFirst("â™¥â™¥â™¥")
 #--> 6
 
-? o1.FindFirstAsSection("♥♥♥")
+? o1.FindFirstAsSection("â™¥â™¥â™¥")
 #--> [6, 8]
 
-? o1.FirstZ("♥♥♥") # Or FindFirstZ()
-#--> [ "♥♥♥", 6 ]
+? o1.FirstZ("â™¥â™¥â™¥") # Or FindFirstZ()
+#--> [ "â™¥â™¥â™¥", 6 ]
 
-? o1.FirstZZ("♥♥♥") # Or FindfirstZZ()
-#--> [ "♥♥♥", [6, 8] ]
+? o1.FirstZZ("â™¥â™¥â™¥") # Or FindfirstZZ()
+#--> [ "â™¥â™¥â™¥", [6, 8] ]
 
 pf()
 # Executed in 0.02 second(s)
@@ -6347,19 +6347,19 @@ pf()
 
 pr()
 
-o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
+o1 = new stzString("bla {â™¥â™¥â™¥} blaba bla {â™¥â™¥â™¥} blabla")
 
-? o1.FindLast("♥♥♥")
+? o1.FindLast("â™¥â™¥â™¥")
 #--> 22
 
-? o1.FindLasteAsSection("♥♥♥") 	#NOTE //that the function is misspelled (there is an
+? o1.FindLasteAsSection("â™¥â™¥â™¥") 	#NOTE //that the function is misspelled (there is an
 #--> [22, 24]			#ERRonous "e" after "Last", but Softanza lets it go!
 
-? o1.FindLastZ("♥♥♥")
-#--> [ "♥♥♥", 22 ]
+? o1.FindLastZ("â™¥â™¥â™¥")
+#--> [ "â™¥â™¥â™¥", 22 ]
 
-? o1.FindLastZZ("♥♥♥")
-#--> [ "♥♥♥", [22, 24] ]
+? o1.FindLastZZ("â™¥â™¥â™¥")
+#--> [ "â™¥â™¥â™¥", [22, 24] ]
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.21
@@ -6368,19 +6368,19 @@ pf()
 
 pr()
 
-o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
+o1 = new stzString("bla {â™¥â™¥â™¥} blaba bla {â™¥â™¥â™¥} blabla")
 
-? o1.FindNth(2, "♥♥♥")
+? o1.FindNth(2, "â™¥â™¥â™¥")
 #--> 22
 
-? o1.FindNthAsSection(2, "♥♥♥")
+? o1.FindNthAsSection(2, "â™¥â™¥â™¥")
 #--> [22, 24]
 
-? o1.NthZ(2, "♥♥♥") # Or o1.FindNthZ()
-#--> [ "♥♥♥", 22 ]
+? o1.NthZ(2, "â™¥â™¥â™¥") # Or o1.FindNthZ()
+#--> [ "â™¥â™¥â™¥", 22 ]
 
-? o1.FindNthZZ(2, "♥♥♥") # Or o1.NthZZ()
-#--> [ "♥♥♥", [22, 24] ]
+? o1.FindNthZZ(2, "â™¥â™¥â™¥") # Or o1.NthZZ()
+#--> [ "â™¥â™¥â™¥", [22, 24] ]
 
 pf()
 # Executed in 0.03 second(s)
@@ -6390,15 +6390,15 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindNthST(1, "♥♥♥", :StartingAt = 3)
+? o1.FindNthST(1, "â™¥â™¥â™¥", :StartingAt = 3)
 #--> 3
 
-? o1.FindNext("♥♥♥", :StartingAt = 3)
+? o1.FindNext("â™¥â™¥â™¥", :StartingAt = 3)
 #--> 8
 
-? o1.FindPrevious("♥♥♥", :StartingAt = 10)
+? o1.FindPrevious("â™¥â™¥â™¥", :StartingAt = 10)
 #--> 3
 
 pf()
@@ -6410,27 +6410,27 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
 # Spacifying the starting prosition with the S extension
-? o1.FindNthST(2, "♥♥♥", :StartingAt = 3)
+? o1.FindNthST(2, "â™¥â™¥â™¥", :StartingAt = 3)
 #--> 8
 
-? o1.FindFirstST("♥♥♥", :StartingAt = 5)
+? o1.FindFirstST("â™¥â™¥â™¥", :StartingAt = 5)
 #--> 8
 
-? o1.FindLastST("♥♥♥", :StartingAt = 6)
+? o1.FindLastST("â™¥â™¥â™¥", :StartingAt = 6)
 #--> 13
 
 #--- Spacifying the direction with SD extension
 
-? o1.FindNthSTD(2, "♥♥♥", :StartingAt = 10, :Going = :Backward)
+? o1.FindNthSTD(2, "â™¥â™¥â™¥", :StartingAt = 10, :Going = :Backward)
 #--> 3
 
-? o1.FindFirstSTD("♥♥♥", :StartingAt = 14, :Backward)
+? o1.FindFirstSTD("â™¥â™¥â™¥", :StartingAt = 14, :Backward)
 #--> 8
 
-? o1.FindLastSTD("♥♥♥", :StartingAt = 6, :Direction = :Backward)
+? o1.FindLastSTD("â™¥â™¥â™¥", :StartingAt = 6, :Direction = :Backward)
 #--> 3
 
 pf()
@@ -6442,16 +6442,16 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.NthSTZ(2, "♥♥♥", :StartingAt = 3)
-#--> [ "♥♥♥", 8 ]
+? o1.NthSTZ(2, "â™¥â™¥â™¥", :StartingAt = 3)
+#--> [ "â™¥â™¥â™¥", 8 ]
 
-? o1.FirstSTZ("♥♥♥", :StartingAt = 5)
-#--> [ "♥♥♥", 8 ]
+? o1.FirstSTZ("â™¥â™¥â™¥", :StartingAt = 5)
+#--> [ "â™¥â™¥â™¥", 8 ]
 
-? o1.LastSTZ("♥♥♥", :StartingAt = 6)
-#--> [ "♥♥♥", 13 ]
+? o1.LastSTZ("â™¥â™¥â™¥", :StartingAt = 6)
+#--> [ "â™¥â™¥â™¥", 13 ]
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.21
@@ -6462,15 +6462,15 @@ pf()
 pr()
 
 #                     3 5
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindNthSTDZZ(2, "♥♥♥", :StartingAt = 10, :Backward)
+? o1.FindNthSTDZZ(2, "â™¥â™¥â™¥", :StartingAt = 10, :Backward)
 #--> [ 3, 5 ]
 
-? o1.FindFirstSTDZZ("♥♥♥", :StartingAt = 5, :Backward)
+? o1.FindFirstSTDZZ("â™¥â™¥â™¥", :StartingAt = 5, :Backward)
 #--> [ 3, 5 ]
 
-? o1.FindLastSTDZZ("♥♥♥", :StartingAt = :LastChar, :Backward)
+? o1.FindLastSTDZZ("â™¥â™¥â™¥", :StartingAt = :LastChar, :Backward)
 #--> [ 3, 5 ]
 
 pf()
@@ -6480,12 +6480,12 @@ pf()
 
 pr()
 
-o1 = new stzString("123456♥..♥♥")
-? o1.HowManyST("♥", :StartingAt = 6) # Or NumberOfOuccurrenceST() or CountST()
+o1 = new stzString("123456â™¥..â™¥â™¥")
+? o1.HowManyST("â™¥", :StartingAt = 6) # Or NumberOfOuccurrenceST() or CountST()
 #--> 3
 
-o1 = new stzList( @Chars("123456♥..♥♥") )
-? o1.HowManyST("♥", :StartingAt = 6)
+o1 = new stzList( @Chars("123456â™¥..â™¥â™¥") )
+? o1.HowManyST("â™¥", :StartingAt = 6)
 #--> 3
 
 pf()
@@ -6496,16 +6496,16 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindNthSZZ(2, "♥♥♥", :StartingAt = 3)
-#--> [ "♥♥♥", [8, 10] ]
+? o1.FindNthSZZ(2, "â™¥â™¥â™¥", :StartingAt = 3)
+#--> [ "â™¥â™¥â™¥", [8, 10] ]
 
-? o1.FindFirstSZZ("♥♥♥", :StartingAt = 5)
-#--> [ "♥♥♥", [8, 10] ]
+? o1.FindFirstSZZ("â™¥â™¥â™¥", :StartingAt = 5)
+#--> [ "â™¥â™¥â™¥", [8, 10] ]
 
-? o1.FindLastSZZ("♥♥♥", :StartingAt = 6)
-#--> [ "♥♥♥", [13, 15] ]
+? o1.FindLastSZZ("â™¥â™¥â™¥", :StartingAt = 6)
+#--> [ "â™¥â™¥â™¥", [13, 15] ]
 
 pf()
 # Executed in 0.05 second(s)
@@ -6515,15 +6515,15 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindNthSTDZZ(2, "♥♥♥", :StartingAt = 3, :Direction = :Forward)
+? o1.FindNthSTDZZ(2, "â™¥â™¥â™¥", :StartingAt = 3, :Direction = :Forward)
 #--> [ 8, 10 ]
 
-? o1.FindFirstSTDZZ("♥♥♥", :StartingAt = 5, :Direction = :Forward)
+? o1.FindFirstSTDZZ("â™¥â™¥â™¥", :StartingAt = 5, :Direction = :Forward)
 #--> [ 8, 10 ]
 
-? o1.FindLastSTDZZ("♥♥♥", :StartingAt = 6, :Direction = :Forward)
+? o1.FindLastSTDZZ("â™¥â™¥â™¥", :StartingAt = 6, :Direction = :Forward)
 #--> [ 13, 15 ]
 
 pf()
@@ -6534,15 +6534,15 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindFirstST("♥♥♥", :StartingAt = 6)
+? o1.FindFirstST("â™¥â™¥â™¥", :StartingAt = 6)
 #--> 8
 
-? o1.FindLastST("♥♥♥", :StartingAt = 6)
+? o1.FindLastST("â™¥â™¥â™¥", :StartingAt = 6)
 #--> 13
 
-? o1.FindNthST(2, "♥♥♥", :StartingAt = 6)
+? o1.FindNthST(2, "â™¥â™¥â™¥", :StartingAt = 6)
 #--> 13
 
 pf()
@@ -6553,15 +6553,15 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindFirstSTZZ("♥♥♥", :StartingAt = 6)
+? o1.FindFirstSTZZ("â™¥â™¥â™¥", :StartingAt = 6)
 #--> [ 8, 10 ]
 
-? o1.FindLastSTZZ("♥♥♥", :StartingAt = 6)
+? o1.FindLastSTZZ("â™¥â™¥â™¥", :StartingAt = 6)
 #--> [ 13, 15 ]
 
-? o1.FindNthSTZZ(2, "♥♥♥", :StartingAt = 6)
+? o1.FindNthSTZZ(2, "â™¥â™¥â™¥", :StartingAt = 6)
 #--> [ 13, 15 ]
 
 pf()
@@ -6573,15 +6573,15 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindFirstSTD("♥♥♥", :StartingAt = 12, :Backward)
+? o1.FindFirstSTD("â™¥â™¥â™¥", :StartingAt = 12, :Backward)
 #--> 8
 
-? o1.FindLastSTD("♥♥♥", :StartingAt = 12, :Backward)
+? o1.FindLastSTD("â™¥â™¥â™¥", :StartingAt = 12, :Backward)
 #--> 3
 
-? o1.FindNthSTD(2, "♥♥♥", :StartingAt = 12, :Backward)
+? o1.FindNthSTD(2, "â™¥â™¥â™¥", :StartingAt = 12, :Backward)
 #--> 3
 
 pf()
@@ -6592,16 +6592,16 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FirstSTDZ("♥♥♥", :StartingAt = 12, :Backward)
-#--> [ "♥♥♥", 8 ]
+? o1.FirstSTDZ("â™¥â™¥â™¥", :StartingAt = 12, :Backward)
+#--> [ "â™¥â™¥â™¥", 8 ]
 
-? o1.LastSTDZ("♥♥♥", :StartingAt = 12, :Backward)
-#--> [ "♥♥♥"", 3 ]
+? o1.LastSTDZ("â™¥â™¥â™¥", :StartingAt = 12, :Backward)
+#--> [ "â™¥â™¥â™¥"", 3 ]
 
-? o1.NthSTDZ(2, "♥♥♥", :StartingAt = 12, :Backward)
-#--> [ "♥♥♥", 3 ]
+? o1.NthSTDZ(2, "â™¥â™¥â™¥", :StartingAt = 12, :Backward)
+#--> [ "â™¥â™¥â™¥", 3 ]
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.21
@@ -6611,15 +6611,15 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindFirstSTDZZ("♥♥♥", :StartingAt = 12, :Backward)
+? o1.FindFirstSTDZZ("â™¥â™¥â™¥", :StartingAt = 12, :Backward)
 #--> [ 8, 10 ]
 
-? o1.FindLastSTDZZ("♥♥♥", :StartingAt = 12, :Backward)
+? o1.FindLastSTDZZ("â™¥â™¥â™¥", :StartingAt = 12, :Backward)
 #--> [ 3, 5 ]
 
-? o1.FindNthSTDZZ(2, "♥♥♥", :StartingAt = 12, :Backward)
+? o1.FindNthSTDZZ(2, "â™¥â™¥â™¥", :StartingAt = 12, :Backward)
 #--> [ 3, 5 ]
 
 pf()
@@ -6630,16 +6630,16 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FirstSTDZZ("♥♥♥", :StartingAt = 12, :Backward)
-#--> [ "♥♥♥", [ 8, 10 ] ]
+? o1.FirstSTDZZ("â™¥â™¥â™¥", :StartingAt = 12, :Backward)
+#--> [ "â™¥â™¥â™¥", [ 8, 10 ] ]
 
-? o1.LastSTDZZ("♥♥♥", :StartingAt = 12, :Backward)
-#--> [ "♥♥♥", [ 3, 5 ] ]
+? o1.LastSTDZZ("â™¥â™¥â™¥", :StartingAt = 12, :Backward)
+#--> [ "â™¥â™¥â™¥", [ 3, 5 ] ]
 
-? o1.NthSTDZZ(2, "♥♥♥", :StartingAt = 12, :Backward)
-#--> [ "♥♥♥", [ 3, 5 ] ]
+? o1.NthSTDZZ(2, "â™¥â™¥â™¥", :StartingAt = 12, :Backward)
+#--> [ "â™¥â™¥â™¥", [ 3, 5 ] ]
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.21
@@ -6650,12 +6650,12 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindFirstAsSection("♥♥♥")
+? o1.FindFirstAsSection("â™¥â™¥â™¥")
 #--> [3, 5]
 
-? o1.FindFirstAsSectionST("♥♥♥", :StartingAt = 5)
+? o1.FindFirstAsSectionST("â™¥â™¥â™¥", :StartingAt = 5)
 #--> [8, 10]
 
 pf()
@@ -6666,9 +6666,9 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindFirstDZZ("♥♥♥", :Backward)
+? o1.FindFirstDZZ("â™¥â™¥â™¥", :Backward)
 #--> [13, 15]
 
 pf()
@@ -6679,18 +6679,18 @@ pf()
 
 pr()
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindFirstD("♥♥♥", :Backward)
+? o1.FindFirstD("â™¥â™¥â™¥", :Backward)
 #--> 13
 
-? o1.FindLastD("♥♥♥", :Backward)
+? o1.FindLastD("â™¥â™¥â™¥", :Backward)
 #--> 3
 
-? o1.FindNthD(2, "♥♥♥", :Backward) + NL
+? o1.FindNthD(2, "â™¥â™¥â™¥", :Backward) + NL
 #--> 8
 
-? o1.FindD("♥♥♥", :Backward)
+? o1.FindD("â™¥â™¥â™¥", :Backward)
 #--> [13, 8, 3 ]
 
 pf()
@@ -6701,18 +6701,18 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindFirstD("♥♥♥", :Backward)
+? o1.FindFirstD("â™¥â™¥â™¥", :Backward)
 #--> 13
 
-? o1.FindLastD("♥♥♥", :Backward)
+? o1.FindLastD("â™¥â™¥â™¥", :Backward)
 #--> 3
 
-? o1.FindNthD(2, "♥♥♥", :Backward) + NL
+? o1.FindNthD(2, "â™¥â™¥â™¥", :Backward) + NL
 #--> 8
 
-? o1.FindD("♥♥♥", :Backward)
+? o1.FindD("â™¥â™¥â™¥", :Backward)
 #--> [ 13, 8, 3 ]
 
 pf()
@@ -6723,18 +6723,18 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindFirstDZZ("♥♥♥", :Backward)
+? o1.FindFirstDZZ("â™¥â™¥â™¥", :Backward)
 #--> [ 13, 15 ]
 
-? o1.FindLastDZZ("♥♥♥", :Backward)
+? o1.FindLastDZZ("â™¥â™¥â™¥", :Backward)
 #--> [ 3, 5 ]
 
-? o1.FindNthDZZ(2, "♥♥♥", :Backward)
+? o1.FindNthDZZ(2, "â™¥â™¥â™¥", :Backward)
 #--> [ 8, 10 ]
 
-? @@( o1.FindDZZ("♥♥♥", :Backward) )
+? @@( o1.FindDZZ("â™¥â™¥â™¥", :Backward) )
 #--> [ [ [ 13, 15 ], [ 8, 10 ], [ 3, 5 ] ]
 
 pf()
@@ -6746,15 +6746,15 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? @@( o1.Find( "♥♥♥" ) ) # or FindOccurrences( :Of = "♥♥♥" )
+? @@( o1.Find( "â™¥â™¥â™¥" ) ) # or FindOccurrences( :Of = "â™¥â™¥â™¥" )
 #--> [3, 8, 13 ]
 
-? @@( o1.FindZ( :Of = "♥♥♥") )
+? @@( o1.FindZ( :Of = "â™¥â™¥â™¥") )
 #--> [ 3, 8, 13 ]
 
-? @@( o1.FindZZ( :Of = "♥♥♥") )
+? @@( o1.FindZZ( :Of = "â™¥â™¥â™¥") )
 #--> [ [3, 5], [8, 10], [13, 15] ]
 
 pf()
@@ -6765,18 +6765,18 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? @@( o1.FindD( "♥♥♥", :Backward ) )
+? @@( o1.FindD( "â™¥â™¥â™¥", :Backward ) )
 #--> [ 13, 8, 3 ]
 
-? @@( o1.FindAsSectionsD( "♥♥♥", :Backward ) )
+? @@( o1.FindAsSectionsD( "â™¥â™¥â™¥", :Backward ) )
 #--> [ [13, 5], [8, 10], [3, 5] ]
 
-? @@( o1.FindDZ( "♥♥♥", :Backward) )
+? @@( o1.FindDZ( "â™¥â™¥â™¥", :Backward) )
 #--> [ 13, 8, 3 ]
 
-? @@( o1.FindDZZ( "♥♥♥", :Backward) )
+? @@( o1.FindDZZ( "â™¥â™¥â™¥", :Backward) )
 #--> [ [ 13, 15 ], [ 8, 10 ], [ 3, 5 ] ]
 
 pf()
@@ -6787,15 +6787,15 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? @@( o1.FindST( "♥♥♥", :StartingAt = 6 ) )
+? @@( o1.FindST( "â™¥â™¥â™¥", :StartingAt = 6 ) )
 #--> [8, 13 ]
 
-? @@( o1.FindSTZ( "♥♥♥", :StartingAt = 6 ) )
+? @@( o1.FindSTZ( "â™¥â™¥â™¥", :StartingAt = 6 ) )
 #--> [ 8, 13 ]
 
-? @@( o1.FindSTZZ( "♥♥♥", :StartingAt = 6 ) )
+? @@( o1.FindSTZZ( "â™¥â™¥â™¥", :StartingAt = 6 ) )
 #--> [ 8, 10], [13, 15] ]
 
 pf()
@@ -6807,18 +6807,18 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥")
 
-? o1.FindSTD( "♥♥♥", :StartingAt = 6, :Backward )
+? o1.FindSTD( "â™¥â™¥â™¥", :StartingAt = 6, :Backward )
 #--> [8, 13 ]
 
-? o1.FindSTDZ( "♥♥♥", :StartingAt = 6, :Backward )
-#--> [ "♥♥♥", [13, 8] ]
+? o1.FindSTDZ( "â™¥â™¥â™¥", :StartingAt = 6, :Backward )
+#--> [ "â™¥â™¥â™¥", [13, 8] ]
 
-? @@( o1.FindAsSectionsSTD("♥♥♥", :StartingAt = 12, :Backward) )
+? @@( o1.FindAsSectionsSTD("â™¥â™¥â™¥", :StartingAt = 12, :Backward) )
 #--> [ [ 8, 10 ], [ 3, 5 ] ]
 
-? @@( o1.FindSTDZZ( "♥♥♥", :StartingAt = 12, :Backward ) )
+? @@( o1.FindSTDZZ( "â™¥â™¥â™¥", :StartingAt = 12, :Backward ) )
 #--> [ [ 8, 10 ], [ 3, 5 ] ]
 
 pf()
@@ -6960,41 +6960,41 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥67")
 
 ? @@( o1.FindSubStringsBoundedBy([ "67", :And = "12" ]) ) # Same as o1.FindSubStringsBetween("67", "12")
 #--> [ 8 ]
 
-? @@( o1.FindSubStringBoundedBy("♥♥♥", [ "67", :And = "12" ]) ) # Same  as o1.FindSubStringsBetween( "♥♥♥", "67", "12")
+? @@( o1.FindSubStringBoundedBy("â™¥â™¥â™¥", [ "67", :And = "12" ]) ) # Same  as o1.FindSubStringsBetween( "â™¥â™¥â™¥", "67", "12")
 #--> [ 8 ]
 
-? @@( o1.FindXT( "♥♥♥", :BoundedBy = [ "67", :And = "12" ]) )
+? @@( o1.FindXT( "â™¥â™¥â™¥", :BoundedBy = [ "67", :And = "12" ]) )
 #--> [ 8 ]
 
-? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedBy = [ "67", :And = "12" ]) )
+? @@( o1.FindAsSectionsXT( "â™¥â™¥â™¥", :BoundedBy = [ "67", :And = "12" ]) )
 #--> [ [ 8, 10 ] ]
 
-? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedByIB = [ "67", :And = "12" ]) )
+? @@( o1.FindAsSectionsXT( "â™¥â™¥â™¥", :BoundedByIB = [ "67", :And = "12" ]) )
 #--> [ [ 6, 12 ] ]
 
-? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedBy = [ "12", :And = "67" ]) )
+? @@( o1.FindAsSectionsXT( "â™¥â™¥â™¥", :BoundedBy = [ "12", :And = "67" ]) )
 #--> [ [ 3, 5 ], [ 13, 15 ] ]
 
-? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedByIB = [ "12", "67" ]) )
+? @@( o1.FindAsSectionsXT( "â™¥â™¥â™¥", :BoundedByIB = [ "12", "67" ]) )
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
 
 #-----
 
-? @@( o1.FindXT( "♥♥♥", :BoundedBy = ["12", :And = "67" ]) )
+? @@( o1.FindXT( "â™¥â™¥â™¥", :BoundedBy = ["12", :And = "67" ]) )
 #--> [3, 13]
 
-? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedBy = ["12", :And = "67" ]) )
+? @@( o1.FindAsSectionsXT( "â™¥â™¥â™¥", :BoundedBy = ["12", :And = "67" ]) )
 #--> [ [ 3, 5 ], [ 13, 15 ] ]
 
-? @@( o1.FindXT( "♥♥♥", :BoundedByIB = ["12", :And = "67" ]) )
+? @@( o1.FindXT( "â™¥â™¥â™¥", :BoundedByIB = ["12", :And = "67" ]) )
 #--> [1, 11]
 
-? @@( o1.FindAsSectionsXT( "♥♥♥", :BoundedByIB = ["12", :And = "67" ]) )
+? @@( o1.FindAsSectionsXT( "â™¥â™¥â™¥", :BoundedByIB = ["12", :And = "67" ]) )
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
 
 pf()
@@ -7006,12 +7006,12 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥67")
 
 ? @@( o1.FindAnyBoundedByAsSectionsIB([ "12", "67" ]) )
 #--> [ [ 1, 7 ], [ 11, 17 ] ]
 
-? @@( o1.FindAnyBoundedByAsSections([ "♥♥♥", "♥♥♥" ]) )
+? @@( o1.FindAnyBoundedByAsSections([ "â™¥â™¥â™¥", "â™¥â™¥â™¥" ]) )
 #--> [ [ 6, 7 ], [ 11, 12 ] ]
 
 pf()
@@ -7023,36 +7023,36 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥67")
 
-? @@( o1.FindD("♥♥♥", :Forward) )
+? @@( o1.FindD("â™¥â™¥â™¥", :Forward) )
 #--> [ 3, 8, 13 ]
 
-? @@( o1.FindAsSectionsD("♥♥♥", :Forward) )
+? @@( o1.FindAsSectionsD("â™¥â™¥â™¥", :Forward) )
 #--> [ [ 3, 5 ], [ 8, 10 ], [ 13, 15 ] ]
 
 #--
 
-? @@( o1.FindD("♥♥♥", :Backward) )
+? @@( o1.FindD("â™¥â™¥â™¥", :Backward) )
 #--> [ 13, 8, 3 ]
 
-? @@( o1.FindAsSectionsD("♥♥♥", :Backward) )
+? @@( o1.FindAsSectionsD("â™¥â™¥â™¥", :Backward) )
 #--> [ [ 13, 15 ], [ 8, 10 ], [ 3, 5 ] ]
 
 #--
 
-? @@( o1.FindSTD("♥♥♥", :StartingAt = 6, :Forward) )
+? @@( o1.FindSTD("â™¥â™¥â™¥", :StartingAt = 6, :Forward) )
 #--> [ 8, 13 ]
 
-? @@( o1.FindAsSectionsSTD("♥♥♥", :StartingAt = 6, :Forward) )
+? @@( o1.FindAsSectionsSTD("â™¥â™¥â™¥", :StartingAt = 6, :Forward) )
 #--> [ [ 8, 10 ], [ 13, 15 ] ]
 
 #--
 
-? @@( o1.FindSTD("♥♥♥", :StartingAt = 14, :Backward) )
+? @@( o1.FindSTD("â™¥â™¥â™¥", :StartingAt = 14, :Backward) )
 #--> [8, 3]
 
-? @@( o1.FindAsSectionsSTD("♥♥♥", :StartingAt = 14, :Backward) )
+? @@( o1.FindAsSectionsSTD("â™¥â™¥â™¥", :StartingAt = 14, :Backward) )
 #--> [ [ 8, 10 ], [ 3, 5 ] ]
 
 pf()
@@ -7064,21 +7064,21 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥67")
 
-? @@( o1.FindOccurrences( [ 2, 3 ], :Of = "♥♥♥" ) ) # Or FindAllOccurrences()
+? @@( o1.FindOccurrences( [ 2, 3 ], :Of = "â™¥â™¥â™¥" ) ) # Or FindAllOccurrences()
 #--> [ 8, 13 ]
 
-? @@( o1.FindTheseOccurrences([ 2, 3], :Of = "♥♥♥") ) # Or FindOccurrencesXT()
+? @@( o1.FindTheseOccurrences([ 2, 3], :Of = "â™¥â™¥â™¥") ) # Or FindOccurrencesXT()
 #--> [ 8, 13 ]
 
-? @@( o1.FindTheseOccurrencesZZ([ 2, 3], :Of = "♥♥♥") ) # Or FindOccurrencesAsSectionsXT
+? @@( o1.FindTheseOccurrencesZZ([ 2, 3], :Of = "â™¥â™¥â™¥") ) # Or FindOccurrencesAsSectionsXT
 #--> [ [ 8, 10 ], [ 13, 15 ] ]
 
-? @@( o1.FindTheseOccurrencesST([ 2, 3], :Of = "♥♥♥", :StartingAt = 2) ) # Or FindOccurrencesXTS()
+? @@( o1.FindTheseOccurrencesST([ 2, 3], :Of = "â™¥â™¥â™¥", :StartingAt = 2) ) # Or FindOccurrencesXTS()
 #--> [ 3, 8, 13 ]
 
-? @@( o1.FindTheseOccurrencesSTZZ([ 2, 3], :Of = "♥♥♥", :StartingAt = 2) ) # Or FindOccurrencesXTS()
+? @@( o1.FindTheseOccurrencesSTZZ([ 2, 3], :Of = "â™¥â™¥â™¥", :StartingAt = 2) ) # Or FindOccurrencesXTS()
 #--> [ [ 3, 5 ], [ 8, 10 ], [ 13, 15 ] ]
 
 pf()
@@ -7090,21 +7090,21 @@ pf()
 pr()
 
 #                     3    8    3
-o1 = new stzString("12♥♥♥67♥♥♥12♥♥♥67")
+o1 = new stzString("12â™¥â™¥â™¥67â™¥â™¥â™¥12â™¥â™¥â™¥67")
 
-? @@( o1.FindD( :Of = "♥♥♥", :Backward ) ) 
+? @@( o1.FindD( :Of = "â™¥â™¥â™¥", :Backward ) ) 
 #--> [ 13, 8, 3 ]
 
-? @@( o1.FindTheseOccurrencesD([ 1, 2], :Of = "♥♥♥", :Backward) )
+? @@( o1.FindTheseOccurrencesD([ 1, 2], :Of = "â™¥â™¥â™¥", :Backward) )
 #--> [ 13, 8 ]
 
-? @@( o1.FindTheseOccurrencesAsSectionsD([ 1, 2], :Of = "♥♥♥", :Backward) )
+? @@( o1.FindTheseOccurrencesAsSectionsD([ 1, 2], :Of = "â™¥â™¥â™¥", :Backward) )
 #--> [ [ 13, 15 ], [ 8, 10 ] ]
 
-? @@( o1.FindTheseOccurrencesSD([ 1, 2], :Of = "♥♥♥", :StartingAt = 12, :Bakcward) )
+? @@( o1.FindTheseOccurrencesSD([ 1, 2], :Of = "â™¥â™¥â™¥", :StartingAt = 12, :Bakcward) )
 #--> [ 8, 3 ]
 
-? @@( o1.FindTheseOccurrencesAsSectionsSTD([ 1, 2], :Of = "♥♥♥", :StartingAt = 12, :Backward) )
+? @@( o1.FindTheseOccurrencesAsSectionsSTD([ 1, 2], :Of = "â™¥â™¥â™¥", :StartingAt = 12, :Backward) )
 #--> [ [ 8, 10 ], [ 3, 5 ] ]
 
 pf()
@@ -7114,15 +7114,15 @@ pf()
 
 pr()
 
-o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla")
+o1 = new stzString("bla {â™¥â™¥â™¥} blaba bla {â™¥â™¥â™¥} blabla")
 
-? o1.FindFirstST("♥♥♥", :StartingAt = 8)
+? o1.FindFirstST("â™¥â™¥â™¥", :StartingAt = 8)
 #--> 22
 
-? o1.FindLastST("♥♥♥", :Startingat = 8)
+? o1.FindLastST("â™¥â™¥â™¥", :Startingat = 8)
 #--> 22
 
-? o1.FindNthST(2, "♥♥♥", :StartingAt = 3)
+? o1.FindNthST(2, "â™¥â™¥â™¥", :StartingAt = 3)
 #--> 22
 
 pf()
@@ -7167,17 +7167,17 @@ StopProfiler()
 
 pr()
 
-o1 = new stzString("bla {♥♥♥} blaba bla {♥♥♥} blabla {✤✤✤}")
-? @@( o1.Find([ "♥♥♥", "✤✤✤" ]) ) # or FindMany()
+o1 = new stzString("bla {â™¥â™¥â™¥} blaba bla {â™¥â™¥â™¥} blabla {âœ¤âœ¤âœ¤}")
+? @@( o1.Find([ "â™¥â™¥â™¥", "âœ¤âœ¤âœ¤" ]) ) # or FindMany()
 #-->[ 6, 22, 35 ]
 
-? @@( o1.TheseSubStringsZ([ "♥♥♥", "✤✤✤" ]) ) + NL
-#--> [ [ "♥♥♥", [ 6, 22 ] ], [ "✤✤✤", [ 35 ] ] ]
+? @@( o1.TheseSubStringsZ([ "â™¥â™¥â™¥", "âœ¤âœ¤âœ¤" ]) ) + NL
+#--> [ [ "â™¥â™¥â™¥", [ 6, 22 ] ], [ "âœ¤âœ¤âœ¤", [ 35 ] ] ]
 
-? @@NL( o1.TheseSubStringsZZ([ "♥♥♥", "✤✤✤" ]) ) # or FindManyZZ()
+? @@NL( o1.TheseSubStringsZZ([ "â™¥â™¥â™¥", "âœ¤âœ¤âœ¤" ]) ) # or FindManyZZ()
 #--> [
-#	[ "♥♥♥", [ [ 6, 8 ], [ 22, 24 ] ] ],
-#	[ "✤✤✤", [ [ 35, 37 ] ] ]
+#	[ "â™¥â™¥â™¥", [ [ 6, 8 ], [ 22, 24 ] ] ],
+#	[ "âœ¤âœ¤âœ¤", [ [ 35, 37 ] ] ]
 # ]
 
 pf()
@@ -7190,23 +7190,23 @@ pf()
  -------------------+--------+--------+-------+--------- 
         SPLITTING   |   At   | Before | After | Around  
  ===================+========+========+=======+========= 
-      A Position    |   ✓   |   ✓   |   ✓   |   ✓   
+      A Position    |   âœ“   |   âœ“   |   âœ“   |   âœ“   
  -------------------+--------+--------+-------+---------
-   Many Positions   |   ✓   |   ✓   |   ✓   |   ✓    
+   Many Positions   |   âœ“   |   âœ“   |   âœ“   |   âœ“    
  -------------------+--------+--------+-------+---------
-      A SubString   |   ✓   |   ✓   |   ✓   |   ✓   
+      A SubString   |   âœ“   |   âœ“   |   âœ“   |   âœ“   
  -------------------+--------+--------+-------+---------
-   Many SubStrings  |   ✓   |   ✓   |   ✓   |   ✓    
+   Many SubStrings  |   âœ“   |   âœ“   |   âœ“   |   âœ“    
  -------------------+--------+--------+-------+---------
-       Section	    |   ✓   |   ✓   |   ✓   |   ✓    
+       Section	    |   âœ“   |   âœ“   |   âœ“   |   âœ“    
  -------------------+--------+--------+-------+---------
-      SectionIB     |   ✓   |   ✓   |   ✓   |   ✓    
+      SectionIB     |   âœ“   |   âœ“   |   âœ“   |   âœ“    
  -------------------+--------+--------+-------+---------
-    Many Sections   |   ✓   |   ✓   |   ✓   |   ✓    
+    Many Sections   |   âœ“   |   âœ“   |   âœ“   |   âœ“    
  -------------------+--------+--------+-------+---------
-   Many SectionsIB  |   ✓   |   ✓   |   ✓   |   ✓    
+   Many SectionsIB  |   âœ“   |   âœ“   |   âœ“   |   âœ“    
  -------------------+--------+--------+-------+---------
-       Where        |   ✓   |   ✓   |   ✓   |   ...    
+       Where        |   âœ“   |   âœ“   |   âœ“   |   ...    
  -------------------+--------+--------+-------+---------
 
 # See fellowing examples...
@@ -7230,29 +7230,29 @@ o1 = new stzString("__a__A__")
 
 #---
 
-o1 = new stzString("...♥...♥...")
+o1 = new stzString("...â™¥...â™¥...")
 ? @@( o1.Split( :BeforePosition = 4 ) )
-#--> [ "...", "♥...♥..." ]
+#--> [ "...", "â™¥...â™¥..." ]
 
 ? @@( o1.Split( :BeforePositions = [ 4, 8 ] ) )
-#--> [ "...", "♥...", "♥..." ]
+#--> [ "...", "â™¥...", "â™¥..." ]
 
 ? @@( o1.Split( :BeforeSection = [ 4,  8 ] ) ) + NL
-#--> [ "...", "♥...♥..." ]
+#--> [ "...", "â™¥...â™¥..." ]
 
 #---
 
-o1 = new stzString("...♥♥♥..♥♥..")
+o1 = new stzString("...â™¥â™¥â™¥..â™¥â™¥..")
 ? @@( o1.Split( :BeforeSections = [ [4, 6], [9, 10] ] ) )
-#--> [ "...", "♥♥♥..", "♥♥.." ]
+#--> [ "...", "â™¥â™¥â™¥..", "â™¥â™¥.." ]
 
-o1 = new stzString("...♥...♥...")
-? @@( o1.SplitBeforeCharsWXT(' @char = "♥" ') )
-#--> [ "...", "♥...", "♥..." ]
+o1 = new stzString("...â™¥...â™¥...")
+? @@( o1.SplitBeforeCharsWXT(' @char = "â™¥" ') )
+#--> [ "...", "â™¥...", "â™¥..." ]
 
-o1 = new stzString("...♥♥...♥♥...")
-? @@( o1.SplitBeforeSubStringsWXT(' @SubString = "♥♥" ') )
-#--> [ "...", "♥♥...", "♥♥..." ]
+o1 = new stzString("...â™¥â™¥...â™¥â™¥...")
+? @@( o1.SplitBeforeSubStringsWXT(' @SubString = "â™¥â™¥" ') )
+#--> [ "...", "â™¥â™¥...", "â™¥â™¥..." ]
 
 
 pf()
@@ -7291,25 +7291,25 @@ o1 = new stzString("__a__A__")
 
 # Splitting at a given position
 
-o1 = new stzString("...♥...")
+o1 = new stzString("...â™¥...")
 ? o1.Split( :At = 4 )
 #--> [ "...", "..." ]
 
 # Splitting at many positions
 
-o1 = new stzString("...♥...♥...")
+o1 = new stzString("...â™¥...â™¥...")
 ? o1.Split( :At = [ 4, 8 ] )
 #--> [ "...", "...", "..." ]
 
 # Splitting at many substrings
 
-o1 = new stzString("...♥...★...")
-? o1.Split( :At = [ "♥", "★" ] )
+o1 = new stzString("...â™¥...â˜…...")
+? o1.Split( :At = [ "â™¥", "â˜…" ] )
 #--> [ "...", "...", "..." ]
 
 # Splitting at a given section
 
-o1 = new stzString("...♥♥♥...")
+o1 = new stzString("...â™¥â™¥â™¥...")
 ? o1.SplitAt( :Section = [ 4, 6 ] )
 #--> [ "...", "..." ]
 
@@ -7318,20 +7318,20 @@ o1 = new stzString("...♥♥♥...")
 
 # Splitting at many sections
 
-o1 = new stzString("...♥♥♥...♥♥...")
+o1 = new stzString("...â™¥â™¥â™¥...â™¥â™¥...")
 ? o1.Split( :AtSections = [ [ 4, 6 ], [10, 11] ] )
 #--> [ "...", "...", "..."]
 
 # Splitting at a char described by a condition
 
-o1 = new stzString("...♥...♥...")
-? o1.SplitAtCharsWXT('@char = "♥"')
+o1 = new stzString("...â™¥...â™¥...")
+? o1.SplitAtCharsWXT('@char = "â™¥"')
 #--> [ "...", "...", "..." ]
 
 # Splitting at a substring described by a condition
 
-o1 = new stzString("...♥♥...♥♥...")
-? o1.SplitAtSubStringsWXT('{ @SubString = "♥♥" }')
+o1 = new stzString("...â™¥â™¥...â™¥â™¥...")
+? o1.SplitAtSubStringsWXT('{ @SubString = "â™¥â™¥" }')
 #--> [ "...", "...", "..." ]
 
 o1 = new stzString("...ONE...TWO...ONE")
@@ -7363,28 +7363,28 @@ o1 = new stzString("__a__A__")
 ? @@( o1.Split( :After = [ "a", "A" ] ) )
 #--> [ "__a", "__A", "__" ]
 
-o1 = new stzString("...♥...")
+o1 = new stzString("...â™¥...")
 ? @@( o1.Split( :AfterPosition = 4 ) )
-#--> [ "...♥", "..." ]
+#--> [ "...â™¥", "..." ]
 
-o1 = new stzString("...♥...♥...")
+o1 = new stzString("...â™¥...â™¥...")
 ? @@( o1.Split( :AfterPositions = [ 4, 8 ] ) )
-#--> [ "...♥", "...♥", "..." ]
+#--> [ "...â™¥", "...â™¥", "..." ]
 
 ? @@( o1.Split( :AfterSection = [ 4,  8 ] ) )
-#--> [ "...♥...♥", "..." ]
+#--> [ "...â™¥...â™¥", "..." ]
 
-o1 = new stzString("...♥♥♥..♥♥..")
+o1 = new stzString("...â™¥â™¥â™¥..â™¥â™¥..")
 ? @@( o1.Split( :AfterSections = [ [4, 6], [9, 10] ] ) )
-#--> [ "...♥♥♥", "..♥♥", ".." ]
+#--> [ "...â™¥â™¥â™¥", "..â™¥â™¥", ".." ]
 
-o1 = new stzString("...♥...♥...")
-? @@( o1.SplitBeforeCharsWXT(' @char = "♥" ') )
-#--> [ "...", "♥...", "♥..." ]
+o1 = new stzString("...â™¥...â™¥...")
+? @@( o1.SplitBeforeCharsWXT(' @char = "â™¥" ') )
+#--> [ "...", "â™¥...", "â™¥..." ]
 
-o1 = new stzString("...♥♥...♥♥...")
-? @@( o1.SplitAfterSubStringsWXT(' @SubString = "♥♥" ') )
-#--> [ "...♥♥", "...♥♥", "..." ]
+o1 = new stzString("...â™¥â™¥...â™¥â™¥...")
+? @@( o1.SplitAfterSubStringsWXT(' @SubString = "â™¥â™¥" ') )
+#--> [ "...â™¥â™¥", "...â™¥â™¥", "..." ]
 
 pf()
 # Executed in 0.55 second(s) in Ring 1.21
@@ -7400,14 +7400,14 @@ o1 = new stzSplitter(10)
 
 ? @@( o1.SplitAroundSectionsIB([ [4, 5], [ 8, 8] ]) )
 
-o1 = new stzString("...♥♥..♥..")
+o1 = new stzString("...â™¥â™¥..â™¥..")
 #		    1234567890
 
 ? @@( o1.SplitAroundSections([ [ 4, 5], [8,8] ]) )
 #--> [ "...", "..", ".." ]
 
 ? @@( o1.SplitAroundSectionsIB([ [ 4, 5], [8,8] ]) )
-#--> [ "...♥", "♥..♥", "♥.." ]
+#--> [ "...â™¥", "â™¥..â™¥", "â™¥.." ]
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.21
@@ -7457,44 +7457,44 @@ pf()
 
 pr()
 
-o1 = new stzString("...♥^♥.|.♥^♥...")
+o1 = new stzString("...â™¥^â™¥.|.â™¥^â™¥...")
 
-? @@( o1.SplitAround("♥^♥") )
+? @@( o1.SplitAround("â™¥^â™¥") )
 #--> [ "...", ".|.", "..." ]
 
-? @@( o1.SplitAroundIB("♥^♥") )
-#--> [ "...♥", "♥.|.♥", "♥..." ]
+? @@( o1.SplitAroundIB("â™¥^â™¥") )
+#--> [ "...â™¥", "â™¥.|.â™¥", "â™¥..." ]
 
 #--
 
 ? @@( o1.SplitAroundPosition(8) )
-#--> [ "...♥^♥.", ".♥^♥..." ]
+#--> [ "...â™¥^â™¥.", ".â™¥^â™¥..." ]
 
 ? @@( o1.SplitAroundPositions([ 5, 8, 11 ]) )
-#--> [ "...♥", "♥.", ".♥", "♥..." ]
+#--> [ "...â™¥", "â™¥.", ".â™¥", "â™¥..." ]
 
 ? @@( o1.SplitAroundSection(5, 11) )
-#--> [ "...♥", "♥..." ]
+#--> [ "...â™¥", "â™¥..." ]
 
 ? @@( o1.SplitAroundSectionIB(5, 11) )
-#--> [ "...♥^", "^♥..." ]
+#--> [ "...â™¥^", "^â™¥..." ]
 
-? @@( o1.SplitAroundSections( o1.FindZZ("♥^♥") ) )
+? @@( o1.SplitAroundSections( o1.FindZZ("â™¥^â™¥") ) )
 #--> [ "...", ".|.", "..." ]
 
-? @@( o1.SplitAroundSectionsIB( o1.FindZZ("♥^♥") ) )
-#--> [ "...♥", "♥.|.♥", "♥..." ]
+? @@( o1.SplitAroundSectionsIB( o1.FindZZ("â™¥^â™¥") ) )
+#--> [ "...â™¥", "â™¥.|.â™¥", "â™¥..." ]
 
-? @@( o1.SplitAroundSubString("♥^♥") )
+? @@( o1.SplitAroundSubString("â™¥^â™¥") )
 #--> [ "...", ".|.", "..." ]
 
-? @@( o1.SplitAroundSubStringIB("♥^♥") )
-#--> [ "...♥", "♥.|.♥", "♥..." ]
+? @@( o1.SplitAroundSubStringIB("â™¥^â™¥") )
+#--> [ "...â™¥", "â™¥.|.â™¥", "â™¥..." ]
 
-? @@( o1.SplitAroundSubStrings([ "♥^♥.", ".♥^♥" ]) )
+? @@( o1.SplitAroundSubStrings([ "â™¥^â™¥.", ".â™¥^â™¥" ]) )
 #--> [ "..", "|", ".." ]
 
-? @@( o1.SplitAroundSubStringsIB([ "♥^♥.", ".♥^♥" ]) )
+? @@( o1.SplitAroundSubStringsIB([ "â™¥^â™¥.", ".â™¥^â™¥" ]) )
 #--> [ "...", ".|.", "..." ]
 
 pf()
@@ -7535,12 +7535,12 @@ pf()
 
 pr()
 
-o1 = new stzString("...♥♥...♥♥...")
+o1 = new stzString("...â™¥â™¥...â™¥â™¥...")
 
-? @@( o1.FindSubStringsWXT('{ @SubString = "♥♥" }') )
+? @@( o1.FindSubStringsWXT('{ @SubString = "â™¥â™¥" }') )
 #--> [ 4, 9 ]
 
-? @@( o1.FindSubStringsWXTZZ('{ @SubString = "♥♥" }') )
+? @@( o1.FindSubStringsWXTZZ('{ @SubString = "â™¥â™¥" }') )
 #--> [ [ 4, 5 ], [ 9, 10 ] ]
 
 pf()
@@ -7679,7 +7679,7 @@ pf()
 
 pr()
 
-? Q(".. ♥♥ring♥♥ ..").SubStringXT("♥♥", :IsBoundOf = "ring")
+? Q(".. â™¥â™¥ringâ™¥â™¥ ..").SubStringXT("â™¥â™¥", :IsBoundOf = "ring")
 #--> TRUE
 
 ? Q(".. <<ring>> ..").SubStringXT("<<", :IsFirstBoundOf = "ring")
@@ -7704,10 +7704,10 @@ pr()
 ? Q(:IsBoundedBy = ".").IsIsBoundedByNamedParam()
 #--> TRUE
 
-? Q(".♥.").SubStringIsBoundedBy("♥", ".")
+? Q(".â™¥.").SubStringIsBoundedBy("â™¥", ".")
 #--> TRUE
 
-? Q(".♥.").SubStringXT("♥", :IsBoundedBy = ".")
+? Q(".â™¥.").SubStringXT("â™¥", :IsBoundedBy = ".")
 #--> TRUE
 
 pf()
@@ -7785,9 +7785,9 @@ StartProfiler()
 
 o1 = new stzString("123456789")
 
-o1.ReplaceSection(4, 6, :with = "♥♥♥")
+o1.ReplaceSection(4, 6, :with = "â™¥â™¥â™¥")
 ? o1.Content()
-#--> 123♥♥♥789
+#--> 123â™¥â™¥â™¥789
 
 StopProfiler()
 # Executed in 0.01 second(s) in Ring 1.21
@@ -7811,11 +7811,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__(♥__(♥__(♥__") {
+Q("__(â™¥__(â™¥__(â™¥__") {
 
-	AddXT( ")", :AfterEach = "♥" ) # ... you can also say :After = "♥"
+	AddXT( ")", :AfterEach = "â™¥" ) # ... you can also say :After = "â™¥"
 	? Content()
-	#--> __(♥)__(♥)__(♥)__
+	#--> __(â™¥)__(â™¥)__(â™¥)__
 }
 
 StopProfiler()
@@ -7825,11 +7825,11 @@ StopProfiler()
 *
 StartProfiler()
 
-Q("__♥__(♥__♥__") {
+Q("__â™¥__(â™¥__â™¥__") {
 
-	AddXT( ")", :AfterNth = [2, "♥"] )
+	AddXT( ")", :AfterNth = [2, "â™¥"] )
 	? Content()
-	#--> __♥__(♥)__♥__
+	#--> __â™¥__(â™¥)__â™¥__
 }
 
 StopProfiler()
@@ -7839,11 +7839,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__(♥__♥__♥__") {
+Q("__(â™¥__â™¥__â™¥__") {
 
-	AddXT( ")", :AfterFirst = "♥" ) # ... or :ToFirst
+	AddXT( ")", :AfterFirst = "â™¥" ) # ... or :ToFirst
 	? Content()
-	#--> __♥__(♥)__♥__
+	#--> __â™¥__(â™¥)__â™¥__
 }
 
 StopProfiler()
@@ -7853,11 +7853,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__♥__♥__(♥__") {
+Q("__â™¥__â™¥__(â™¥__") {
 
-	AddXT( ")", :AfterLast = "♥" ) # ... or :ToLast
+	AddXT( ")", :AfterLast = "â™¥" ) # ... or :ToLast
 	? Content()
-	#--> __♥__♥__(♥)__
+	#--> __â™¥__â™¥__(â™¥)__
 }
 
 StopProfiler()
@@ -7880,11 +7880,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__♥)__♥)__♥)__") {
+Q("__â™¥)__â™¥)__â™¥)__") {
 
-	AddXT( "(", :BeforeEach = "♥" ) # ... you can also say :Before = "♥"
+	AddXT( "(", :BeforeEach = "â™¥" ) # ... you can also say :Before = "â™¥"
 	? Content()
-	#--> __(♥)__(♥)__(♥)__
+	#--> __(â™¥)__(â™¥)__(â™¥)__
 }
 
 StopProfiler()
@@ -7894,11 +7894,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__♥__♥)__♥__") {
+Q("__â™¥__â™¥)__â™¥__") {
 
-	AddXT( "(", :BeforeNth = [2, "♥"] )
+	AddXT( "(", :BeforeNth = [2, "â™¥"] )
 	? Content()
-	#--> __♥__(♥)__♥__
+	#--> __â™¥__(â™¥)__â™¥__
 }
 
 StopProfiler()
@@ -7908,11 +7908,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__♥)__♥__♥__") {
+Q("__â™¥)__â™¥__â™¥__") {
 
-	AddXT( "(", :BeforeFirst = "♥" )
+	AddXT( "(", :BeforeFirst = "â™¥" )
 	? Content()
-	#--> __(♥)__♥__♥__
+	#--> __(â™¥)__â™¥__â™¥__
 }
 
 StopProfiler()
@@ -7922,11 +7922,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__♥__♥__♥)__") {
+Q("__â™¥__â™¥__â™¥)__") {
 
-	AddXT( "(", :BeforeLast = "♥" )
+	AddXT( "(", :BeforeLast = "â™¥" )
 	? Content()
-	#--> __♥__♥__(♥)__
+	#--> __â™¥__â™¥__(â™¥)__
 }
 
 StopProfiler()
@@ -7936,11 +7936,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__♥__♥__♥__") {
+Q("__â™¥__â™¥__â™¥__") {
 
-	AddXT(" ", :AroundEach = "♥")
+	AddXT(" ", :AroundEach = "â™¥")
 	? Content()
-	#--> __ ♥ __ ♥ __ ♥ __
+	#--> __ â™¥ __ â™¥ __ â™¥ __
 }
 
 StopProfiler()
@@ -7950,11 +7950,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__♥__♥__♥__") {
+Q("__â™¥__â™¥__â™¥__") {
 
-	AddXT([ "/","\" ], :AroundEach = "♥") # ... or just :Around = "♥" if you want
+	AddXT([ "/","\" ], :AroundEach = "â™¥") # ... or just :Around = "â™¥" if you want
 	? Content()
-	#--> __/♥\__/♥\__/♥\__
+	#--> __/â™¥\__/â™¥\__/â™¥\__
 }
 # Executed in 0.06 second(s)
 
@@ -7964,11 +7964,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__♥__♥__♥__") {
+Q("__â™¥__â™¥__â™¥__") {
 
-	AddXT([ "/","\" ], :AroundNth = [2, "♥"])
+	AddXT([ "/","\" ], :AroundNth = [2, "â™¥"])
 	? Content()
-	#--> __♥__/♥\__♥__
+	#--> __â™¥__/â™¥\__â™¥__
 }
 
 StopProfiler()
@@ -7978,11 +7978,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__♥__/♥\__/♥\__") {
+Q("__â™¥__/â™¥\__/â™¥\__") {
 
-	AddXT( [ "/","\" ], :AroundFirst = "♥" )
+	AddXT( [ "/","\" ], :AroundFirst = "â™¥" )
 	? Content()
-	#--> __/♥\__/♥\__/♥\__
+	#--> __/â™¥\__/â™¥\__/â™¥\__
 }
 
 StopProfiler()
@@ -7992,11 +7992,11 @@ StopProfiler()
 
 StartProfiler()
 
-Q("__/♥\__/♥\__♥__") {
+Q("__/â™¥\__/â™¥\__â™¥__") {
 
-	AddXT( [ "/","\" ], :AroundLast = "♥" )
+	AddXT( [ "/","\" ], :AroundLast = "â™¥" )
 	? Content()
-	#--> __/♥\__/♥\__/♥\__
+	#--> __/â™¥\__/â™¥\__/â™¥\__
 }
 
 StopProfiler()
@@ -8087,7 +8087,7 @@ pf()
 
 StartProfiler()
 
-o1 = new stzString("ABC♥DEF★GHI♥JKL")
+o1 = new stzString("ABCâ™¥DEFâ˜…GHIâ™¥JKL")
 o1.ReplaceW(' Q(@char).IsNotLetter() ', :With = " ")
 ? o1.Content()
 #--> ABC DEF GHI JKL
@@ -8097,22 +8097,22 @@ StopProfiler()
 
 /*==================
 
-o1 = new stzString("_♥_★_♥_")
+o1 = new stzString("_â™¥_â˜…_â™¥_")
 
-? @@( o1.FindMany([ "♥", "★" ]) )
+? @@( o1.FindMany([ "â™¥", "â˜…" ]) )
 #--> [ 2, 4, 6 ]
 
-o1 = new stzList([ "_", "♥", "_", "★", "_", "♥" ])
-? @@( o1.FindMany([ "♥", "★" ]) )
+o1 = new stzList([ "_", "â™¥", "_", "â˜…", "_", "â™¥" ])
+? @@( o1.FindMany([ "â™¥", "â˜…" ]) )
 #--> [ 2, 4, 6 ]
 
-o1 = new stzString("_♥_★_♥_")
-? @@( o1.TheseCharsZ([ "♥", "★" ]) )
-#--> [ [ "♥", [ 2, 6 ] ], [ "★", [ 4 ] ] ]
+o1 = new stzString("_â™¥_â˜…_â™¥_")
+? @@( o1.TheseCharsZ([ "â™¥", "â˜…" ]) )
+#--> [ [ "â™¥", [ 2, 6 ] ], [ "â˜…", [ 4 ] ] ]
 
-o1 = new stzList([ "_", "♥", "_", "★", "_", "♥" ])
-? @@( o1.TheseCharsZ([ "♥", "★" ]) )
-#--> [ [ "♥", [ 2, 6 ] ], [ "★", [ 4 ] ] ]
+o1 = new stzList([ "_", "â™¥", "_", "â˜…", "_", "â™¥" ])
+? @@( o1.TheseCharsZ([ "â™¥", "â˜…" ]) )
+#--> [ [ "â™¥", [ 2, 6 ] ], [ "â˜…", [ 4 ] ] ]
 
 /*-----------------
 
@@ -8741,16 +8741,16 @@ pr()
 ? SoftanzaLogo()
 #--> 
 '
-╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
-┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
-┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
-╰━━╮┃┃╱┃┃╭━━╯╱┃┃╱┃╰━╯┃┃╰╮┃┃╭╯╭╯┃╰━╯┃
-┃╰━╯┃╰━╯┃┃╱╱╱╱┃┃╱┃╭━╮┃┃╱┃┃┣╯━╰━┫╭━╮┃
-╰━━━┻━━━┻╯╱╱╱╱╰╯╱╰╯╱╰┻╯╱╰━┻━━━━┻╯╱╰━
+â•­â”â”â”â”³â”â”â”â”³â”â”â”â”³â”â”â”â”â”³â”â”â”â”³â”â•®â•±â•­â”³â”â”â”â”â”³â”â”â”â•®
+â”ƒâ•­â”â•®â”ƒâ•­â”â•®â”ƒâ•­â”â”â”«â•­â•®â•­â•®â”ƒâ•­â”â•®â”ƒâ”ƒâ•°â•®â”ƒâ”£â”â”â•®â”â”ƒâ•­â”â•®â”ƒ
+â”ƒâ•°â”â”â”«â”ƒâ•±â”ƒâ”ƒâ•°â”â”â•‹â•¯â”ƒâ”ƒâ•°â”«â”ƒâ•±â”ƒâ”ƒâ•­â•®â•°â•¯â”ƒâ•±â•­â•¯â•­â”«â”ƒâ•±â”ƒâ”ƒ
+â•°â”â”â•®â”ƒâ”ƒâ•±â”ƒâ”ƒâ•­â”â”â•¯â•±â”ƒâ”ƒâ•±â”ƒâ•°â”â•¯â”ƒâ”ƒâ•°â•®â”ƒâ”ƒâ•­â•¯â•­â•¯â”ƒâ•°â”â•¯â”ƒ
+â”ƒâ•°â”â•¯â”ƒâ•°â”â•¯â”ƒâ”ƒâ•±â•±â•±â•±â”ƒâ”ƒâ•±â”ƒâ•­â”â•®â”ƒâ”ƒâ•±â”ƒâ”ƒâ”£â•¯â”â•°â”â”«â•­â”â•®â”ƒ
+â•°â”â”â”â”»â”â”â”â”»â•¯â•±â•±â•±â•±â•°â•¯â•±â•°â•¯â•±â•°â”»â•¯â•±â•°â”â”»â”â”â”â”â”»â•¯â•±â•°â”
 
-Programming, by Heart! By: M.Ayouni╭
-━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
-  ╰╯
+Programming, by Heart! By: M.Ayouniâ•­
+â”â”â•®â•­â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â•®â•±â•­â”â”â”â”â”â”â”â”â•¯
+  â•°â•¯
 '
 pf()
 # Executed in almost 0 second(s) in Ring 1.21
@@ -8759,10 +8759,10 @@ pf()
 
 pr()
 
-? Basmalah()	#--> ﷽
-? Heart()	#--> ♥
-? 3Hearts()	#--> ♥♥♥
-? 5Stars()	#--> ★★★★★
+? Basmalah()	#--> ï·½
+? Heart()	#--> â™¥
+? 3Hearts()	#--> â™¥â™¥â™¥
+? 5Stars()	#--> â˜…â˜…â˜…â˜…â˜…
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.21
@@ -8772,10 +8772,10 @@ pf()
 pr()
 
 ? Heart()
-#--> ♥
+#--> â™¥
 
 ? Q(Heart()).RepeatedNTimes(3)
-#--> ♥♥♥
+#--> â™¥â™¥â™¥
 
 # or you can use the short form .NTimes(3)
 
@@ -8786,10 +8786,10 @@ pr()
 #--> [ [ "A", "B" ], [ "A", "B" ], [ "A", "B" ] ]
 
 ? Five(Star())
-#--> ★★★★★
+#--> â˜…â˜…â˜…â˜…â˜…
 
 ? Three(Heart())
-#--> ♥♥♥
+#--> â™¥â™¥â™¥
 
 pf()
 # Executed in 0.03 second(s) in Ring 1.21
@@ -9463,13 +9463,13 @@ pf()
 
 pr()
 
-? QQ("ر").StzType()
+? QQ("Ø±").StzType()
 #--> stzChar
 
-? @@( QQ("ر").UnicodeDirectionNumber() )
+? @@( QQ("Ø±").UnicodeDirectionNumber() )
 #--> "13"
 
-? QQ("ر").IsRightToLeft()
+? QQ("Ø±").IsRightToLeft()
 #--> TRUE
 
 pf()
@@ -9480,7 +9480,7 @@ pf()
 pr()
 
 ? StzCharQ("L").Turned()
-#--> ⅂
+#--> â…‚
 
 pf()
 # Executed in 0.04 second(s).
@@ -9493,7 +9493,7 @@ pr()
 #--> EVOL
 
 ? Q("LOVE").CharsInverted()	# Or Turned()
-#--> ƎɅO⅂
+#--> ÆŽÉ…Oâ…‚
 
 ? QQ("L").IsInvertible()	// #NOTE that QQ() elevates "L" to a stzChar
 #--> TRUE
@@ -9506,7 +9506,7 @@ pf()
 pr()
 
 ? Q("LOVE").Turned()
-#--> ƎɅO⅂
+#--> ÆŽÉ…Oâ…‚
 
 pf()
 # Executed in 0.05 second(s).
@@ -9540,17 +9540,17 @@ pr()
 ? Q("(,)").AllCharsAre(:Punctuations)
 #--> TRUE
 
-? Q("نور").AllCharsAre(:Arabic)
+? Q("Ù†ÙˆØ±").AllCharsAre(:Arabic)
 #--> TRUE
 
-? Q("نور").AllCharsAre(:RightToLeft)
+? Q("Ù†ÙˆØ±").AllCharsAre(:RightToLeft)
 #--> TRUE
 
 ? Q("LOVE").AllCharsAre(:Invertible)
 #--> TRUE
 
 ? Q("LOVE").CharsInverted()
-#--> ƎɅO⅂
+#--> ÆŽÉ…Oâ…‚
 
 pf()
 # Executed in 2.71 second(s).
@@ -9575,10 +9575,10 @@ pf()
 
 pr()
 
-? QQ("①").IsCircledNumber()
+? QQ("â‘ ").IsCircledNumber()
 #--> TRUE
 
-# or QQ("①").IsCircledDigit() if you wana embrace the semantics of Unicode
+# or QQ("â‘ ").IsCircledDigit() if you wana embrace the semantics of Unicode
 
 pf()
 # Executed in 0.03 second(s).
@@ -9587,10 +9587,10 @@ pf()
 
 pr()
 
-? Q("①②③").AllCharsAre(:CircledNumbers)
+? Q("â‘ â‘¡â‘¢").AllCharsAre(:CircledNumbers)
 #--> TRUE
 
-? Q("①②③").AllCharsAre([:CircledNumber, :Chars]) #TODO check after reincluding check()
+? Q("â‘ â‘¡â‘¢").AllCharsAre([:CircledNumber, :Chars]) #TODO check after reincluding check()
 #--> TRUE
 
 pf()
@@ -9619,13 +9619,13 @@ pr()
 #--> TRUE
 
 ? StzCharQ("L").Inverted() # Or Turned()
-#--> ⅂
+#--> â…‚
 
 ? Q("LIFE").Inverted()
 #--> EFIL
 
 ? Q("LIFE").Turned() # Or CharsInverted()
-#--> ƎℲI⅂
+#--> ÆŽâ„²Iâ…‚
 
 pf()
 # Executed in 0.07 second(s).
@@ -9883,7 +9883,7 @@ o1 = new stzList([ "R", "I", "N", "G" ])
 
 if o1.IsNotAString() and
    o1.IsNotInLowercase() and
-   o1.DoesNotContain("♥") and
+   o1.DoesNotContain("â™¥") and
 
    o1.NumberOfChars() < 5 and
    o1.NumberOfCharsQ().IsNotOdd()
@@ -9902,7 +9902,7 @@ ok
 ? o1.IsNotInLowercase()
 #--> TRUE
 
-? o1.DoesNotContain("♥")
+? o1.DoesNotContain("â™¥")
 #--> TRUE
 
 ? o1.NumberOfChars() < 5
@@ -10051,75 +10051,75 @@ o1 = new stzList( Cards() )
 
 ? @@NL( o1.Content() ) + NL
 #--> [
-#	"🂡",
-#	"🂢",
-#	"🂣",
-#	"🂤",
-#	"🂥",
-#	"🂦",
-#	"🂧",
-#	"🂨",
-#	"🂩",
-#	"🂪",
-#	"🂫",
-#	"🂭",
-#	"🂮"
+#	"ðŸ‚¡",
+#	"ðŸ‚¢",
+#	"ðŸ‚£",
+#	"ðŸ‚¤",
+#	"ðŸ‚¥",
+#	"ðŸ‚¦",
+#	"ðŸ‚§",
+#	"ðŸ‚¨",
+#	"ðŸ‚©",
+#	"ðŸ‚ª",
+#	"ðŸ‚«",
+#	"ðŸ‚­",
+#	"ðŸ‚®"
 # ]
 
 # We can get random cards
 
 ? @@( o1.rndItems() )
-#--> [ "🂫" ]
+#--> [ "ðŸ‚«" ]
 
 ? @@( o1.rndItems() ) + NL
-#--> [ "🂨", "🂥", "🂡", "🂧" ]
+#--> [ "ðŸ‚¨", "ðŸ‚¥", "ðŸ‚¡", "ðŸ‚§" ]
 
 # Or a specifed numbers of random cards
 
 ? @@( o1.rndNItems(3) )
-#--> [ "🂤", "🂨", "🂧" ]
+#--> [ "ðŸ‚¤", "ðŸ‚¨", "ðŸ‚§" ]
 
 ? @@( o1.rndNItems(3) ) + NL
-#--> [ "🂧", "🂨", "🂡" ]
+#--> [ "ðŸ‚§", "ðŸ‚¨", "ðŸ‚¡" ]
 
 # And we can rmoved a random number of them
 
 o1.rndRemoveItems()
 ? @@( o1.Content() )
-#--> [ "🂡", "🂢", "🂤", "🂥", "🂦", "🂧", "🂨", "🂩", "🂪", "🂮" ]
+#--> [ "ðŸ‚¡", "ðŸ‚¢", "ðŸ‚¤", "ðŸ‚¥", "ðŸ‚¦", "ðŸ‚§", "ðŸ‚¨", "ðŸ‚©", "ðŸ‚ª", "ðŸ‚®" ]
 
 o1.rndRemoveItems()
 ? @@( o1.Content() )
-#--> [ "🂤", "🂥", "🂦", "🂧", "🂨", "🂩", "🂮" ]
+#--> [ "ðŸ‚¤", "ðŸ‚¥", "ðŸ‚¦", "ðŸ‚§", "ðŸ‚¨", "ðŸ‚©", "ðŸ‚®" ]
 
 o1.rndRemoveItems()
 ? @@( o1.Content() ) + NL
-#--> [ "🂥", "🂧", "🂨", "🂩", "🂮" ]
+#--> [ "ðŸ‚¥", "ðŸ‚§", "ðŸ‚¨", "ðŸ‚©", "ðŸ‚®" ]
 
 # Or we can remove a givan number of random cards
 
 o1.rndRemoveNItems(3) + NL
 ? @@( o1.Content() )
-#--> [ "🂩", "🂪" ]
+#--> [ "ðŸ‚©", "ðŸ‚ª" ]
 
 #NOT: You can play the game with cards names by using CardsXT()
 
 o1 = new stzList( CardsXT() )
 ? @@NL( o1.Content() )
 #--> [
-#	[ "ace", "🂡" ],
-#	[ "two", "🂢" ],
-#	[ "three", "🂣" ],
-#	[ "four", "🂤" ],
-#	[ "five", "🂥" ],
-#	[ "six", "🂦" ],
-#	[ "seven", "🂧" ],
-#	[ "eight", "🂨" ],
-#	[ "nine", "🂩" ],
-#	[ "ten", "🂪" ],
-#	[ "jack", "🂫" ],
-#	[ "queen", "🂭" ],
-#	[ "king", "🂮" ]
+#	[ "ace", "ðŸ‚¡" ],
+#	[ "two", "ðŸ‚¢" ],
+#	[ "three", "ðŸ‚£" ],
+#	[ "four", "ðŸ‚¤" ],
+#	[ "five", "ðŸ‚¥" ],
+#	[ "six", "ðŸ‚¦" ],
+#	[ "seven", "ðŸ‚§" ],
+#	[ "eight", "ðŸ‚¨" ],
+#	[ "nine", "ðŸ‚©" ],
+#	[ "ten", "ðŸ‚ª" ],
+#	[ "jack", "ðŸ‚«" ],
+#	[ "queen", "ðŸ‚­" ],
+#	[ "king", "ðŸ‚®" ]
 # ]
 
 pf()
@@ -10166,7 +10166,7 @@ pf()
 pr()
 
 # Here is a fluent chain of actions that starts from
-# the word "LIFE" and ends at the word "L ♥ F E"
+# the word "LIFE" and ends at the word "L â™¥ F E"
 
 ? Q("LIFE").
 	LowercaseQ().
@@ -10181,7 +10181,7 @@ pr()
 	ReplaceQ("I", :With = AHeart()).
 
 	Content() + NL
-	#--> L ♥ F E
+	#--> L â™¥ F E
 
 # We can see what happened internally interms of updates
 # by adding the H suffix to the Q() while using History()
@@ -10211,7 +10211,7 @@ pr()
 #	[ "L", "I", "F", "E" ],
 #
 #	"L I F E",
-#	"L ♥ F E"
+#	"L â™¥ F E"
 # ]
 
 # Or we add an HH() suffix if we need more inforamtion
@@ -10248,9 +10248,9 @@ pr()
 #	[ "LIFE", "stzstring", 0, 435 ],
 #	[ "L I F E", "stzstring", 0.02, 435 ],
 #
-#	[ [ "with", "♥" ], "stzlist", 0, 322 ],
+#	[ [ "with", "â™¥" ], "stzlist", 0, 322 ],
 #
-#	[ "L ♥ F E", "stzstring", 0.01, 435 ]
+#	[ "L â™¥ F E", "stzstring", 0.01, 435 ]
 # ]
 
 # NOTE that only the methods that update the objects are traced!
@@ -10321,8 +10321,8 @@ pr()
 #	[ [ "L", "I", "F", "E" ], "stzlist", 319 ],
 #	[ "LIFE", "stzstring", 435 ],
 #	[ "L I F E", "stzstring", 435 ],
-#	[ [ "with", "♥" ], "stzlist", 322 ],
-#	[ "L ♥ F E", "stzstring", 435 ]
+#	[ [ "with", "â™¥" ], "stzlist", 322 ],
+#	[ "L â™¥ F E", "stzstring", 435 ]
 # ]
 
 pf()
@@ -10342,7 +10342,7 @@ o1 = new stzTable([
 	[ "L I F E", "stzstring", 0.009 ],
 	[ [ "l", "i", "f", "e" ], "stzlist", 0.011 ],
 	[ "LIFE", "stzstring", 0.026 ],
-	[ "⅂IℲƎ", "stzstring", 0.071 ]
+	[ "â…‚Iâ„²ÆŽ", "stzstring", 0.071 ]
 ])
 
 o1.Show()
@@ -10354,7 +10354,7 @@ o1.Show()
 #                L I F E   stzstring   0.009
 # [ "l", "i", "f", "e" ]     stzlist   0.011
 #                   LIFE   stzstring   0.026
-#                   ⅂IℲƎ   stzstring   0.071
+#                   â…‚Iâ„²ÆŽ   stzstring   0.071
 
 pf()
 # Executed in 0.071 second(s) in Ring 1.22
@@ -10759,7 +10759,7 @@ pr()
 ? StzStringQ('1:3').IsListInString()			#--> TRUE
 
 ? StzStringQ(' "A":"C" ').IsListInString()		#--> TRUE
-? StzStringQ(' "ا":"ج" ').IsListInString() + NL		#--> TRUE
+? StzStringQ(' "Ø§":"Ø¬" ').IsListInString() + NL		#--> TRUE
 
 # Softanza can tell you if the syntax used is normal or short:
 
@@ -10767,7 +10767,7 @@ pr()
 ? StzStringQ('1:3').IsListInShortForm()			#--> TRUE
 
 ? StzStringQ(' "A":"C" ').IsListInShortForm()		#--> TRUE
-? StzStringQ(' "ا":"ج" ').IsListInShortForm() + NL	#--> TRUE
+? StzStringQ(' "Ø§":"Ø¬" ').IsListInShortForm() + NL	#--> TRUE
 
 # And knows about the list beeing contiguous or not:
 
@@ -10775,7 +10775,7 @@ pr()
 ? StzStringQ('1:3').IsContiguousListInString()		#--> TRUE
 
 ? StzStringQ(' "A":"C" ').IsContiguousListInString()	#--> TRUE
-? StzStringQ(' "ا":"ج" ').IsContiguousListInString()	#--> TRUE
+? StzStringQ(' "Ø§":"Ø¬" ').IsContiguousListInString()	#--> TRUE
 
 	# REMINDER: A contiguous list can be made of  numbers,
 	# or contiguous chars (based on their unicode numbers).
@@ -10793,7 +10793,7 @@ pr()
 ? StzStringQ('1:3').IsContiguousListInShortForm()	#--> TRUE
 
 ? StzStringQ(' "A":"C" ').IsContiguousListInShortForm()	#--> TRUE
-? StzStringQ(' "ا":"ج" ').IsContiguousListInShortForm()	#--> TRUE
+? StzStringQ(' "Ø§":"Ø¬" ').IsContiguousListInShortForm()	#--> TRUE
 ? NL
 
 # Now, what about tranforming one form to another: possible in
@@ -10804,7 +10804,7 @@ pr()
 ? @@( StzStringQ('1:3').ToListInNormalForm() )		#--> "[1, 2, 3]"
 
 ? StzStringQ(' ["A","B","C","D"] ').ToListInShortForm()	#--> "A" : "D"
-? StzStringQ(' "ا":"ج" ').ToListInShortForm() + NL	#--> "ا" : "ج"
+? StzStringQ(' "Ø§":"Ø¬" ').ToListInShortForm() + NL	#--> "Ø§" : "Ø¬"
 
 # And by default, of course, the normal form is used:
 
@@ -10812,7 +10812,7 @@ pr()
 ? @@( StzStringQ('1:3').ToListInString() )	#--> "[1, 2, 3]"
 
 ? StzStringQ(' "A":"C" ').ToListInString()	#--> [ "A", "B", "C" ]
-? StzStringQ(' "ا":"ج" ').ToListInString() + NL	#--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+? StzStringQ(' "Ø§":"Ø¬" ').ToListInString() + NL	#--> [ "Ø§", "Ø¨", "Ø©", "Øª", "Ø«", "Ø¬" ]
 
 # If you prefer (or need) the short form, there is an interesting
 # abbreviation to the ToListInShortForm() alternative that uses
@@ -10823,14 +10823,14 @@ pr()
 ? @@( StzStringQ('1:3').ToListInStringSF() )			#--> "1 : 3"
 
 ? StzStringQ(' ["A","B","C","D"] ').ToListInStringSF()		#--> "A" : "D"
-? StzStringQ(' [ "ا", "ب", "ة", "ت" ] ').ToListInStringSF()+ NL	#--> "ا" : "ت"
+? StzStringQ(' [ "Ø§", "Ø¨", "Ø©", "Øª" ] ').ToListInStringSF()+ NL	#--> "Ø§" : "Øª"
 
 # Finally, as a cherry on the cake, you can evaluate
 # the string in list in runtime like this:
 
 ? StzStringQ('1:3').ToList()	   	#--> [1, 2, 3]
 ? StzStringQ(' "A":"C" ').ToList() 	#--> ["A", "B", "C"]
-? StzStringQ(' "ا":"ج" ').ToList() 	#--> [ "ا", "ب", "ة", "ت", "ث", "ج" ]
+? StzStringQ(' "Ø§":"Ø¬" ').ToList() 	#--> [ "Ø§", "Ø¨", "Ø©", "Øª", "Ø«", "Ø¬" ]
 
 pf()
 # Executed in 1.62 second(s) in Ring 1.22
@@ -11334,15 +11334,15 @@ pf()
 
 pr()
 
-o1 = new stzString("12*♥*78*♥*")
+o1 = new stzString("12*â™¥*78*â™¥*")
 
-? @@( o1.FindSubStringBoundedBy("♥", "*") )
+? @@( o1.FindSubStringBoundedBy("â™¥", "*") )
 #--> [ 4, 9 ]
 
-? @@( o1.FindXT("♥", :BoundedBy = "*" ) )
+? @@( o1.FindXT("â™¥", :BoundedBy = "*" ) )
 #--> [ 4, 9 ]
 
-? @@( o1.FindXT("♥", :BoundedBy = [ "*", "*" ] ) )
+? @@( o1.FindXT("â™¥", :BoundedBy = [ "*", "*" ] ) )
 #--> [ 4, 9 ]
 
 pf()
@@ -11493,12 +11493,12 @@ pf()
 
 pr()
 
-o1 = new stzString("12*♥*56*♥*")
+o1 = new stzString("12*â™¥*56*â™¥*")
 
-? o1.FindFirstXT("♥", :BoundedBy = [ "*", "*"])
+? o1.FindFirstXT("â™¥", :BoundedBy = [ "*", "*"])
 #--> 4
 
-? o1.FindFirstXT("♥", :BoundedBy = "*")
+? o1.FindFirstXT("â™¥", :BoundedBy = "*")
 #--> 4
 
 pf()
@@ -11809,15 +11809,15 @@ o1.RemoveFromLeft("let's say ")
 # right is at the end!
 
 # Hence, if you want to retrieve a substring from the beginning
-# of a right-to-left arabic text ("هذه" in the following example),
+# of a right-to-left arabic text ("Ù‡Ø°Ù‡" in the following example),
 # you should inverse the orientation and use RemoveFromRight()
 # instead...
 
-o1 = new stzString("هذه الكلمات الّتي سوف تبقى")
-? o1.NRightCharsAsSubstring(4) #--> "هذه "
+o1 = new stzString("Ù‡Ø°Ù‡ Ø§Ù„ÙƒÙ„Ù…Ø§Øª Ø§Ù„Ù‘ØªÙŠ Ø³ÙˆÙ ØªØ¨Ù‚Ù‰")
+? o1.NRightCharsAsSubstring(4) #--> "Ù‡Ø°Ù‡ "
 
-o1.RemoveFromRight("هذه ")
-? o1.Content() #--> "الكلمات الّتي سوف تبقى"
+o1.RemoveFromRight("Ù‡Ø°Ù‡ ")
+? o1.Content() #--> "Ø§Ù„ÙƒÙ„Ù…Ø§Øª Ø§Ù„Ù‘ØªÙŠ Ø³ÙˆÙ ØªØ¨Ù‚Ù‰"
 
 # To avoid this complication, Softanza provides a more general (semantic)
 # solution working both for left-to-right and right-to-left strings:
@@ -11829,9 +11829,9 @@ o1.RemoveFromStart("let's say ")
 
 # and the same code working for arabic:
 
-o1 = new stzString("هذه الكلمات الّتي سوف تبقى")
-o1.RemoveFromStart("هذه ")
-? o1.Content() #--> "الكلمات الّتي سوف تبقى"
+o1 = new stzString("Ù‡Ø°Ù‡ Ø§Ù„ÙƒÙ„Ù…Ø§Øª Ø§Ù„Ù‘ØªÙŠ Ø³ÙˆÙ ØªØ¨Ù‚Ù‰")
+o1.RemoveFromStart("Ù‡Ø°Ù‡ ")
+? o1.Content() #--> "Ø§Ù„ÙƒÙ„Ù…Ø§Øª Ø§Ù„Ù‘ØªÙŠ Ø³ÙˆÙ ØªØ¨Ù‚Ù‰"
 
 pf()
 # Executed in 0.02 second(s) in Ring 1.20
@@ -11841,10 +11841,10 @@ pf()
 
 pr()
 
-o1 = new stzString("من كان في زمنه من أصحابه فهو من أكبر المحظوظين")
-o1.RemoveLast(" من") # Or o1.RemoveNthOccurrence(:Last, " من")
+o1 = new stzString("Ù…Ù† ÙƒØ§Ù† ÙÙŠ Ø²Ù…Ù†Ù‡ Ù…Ù† Ø£ØµØ­Ø§Ø¨Ù‡ ÙÙ‡Ùˆ Ù…Ù† Ø£ÙƒØ¨Ø± Ø§Ù„Ù…Ø­Ø¸ÙˆØ¸ÙŠÙ†")
+o1.RemoveLast(" Ù…Ù†") # Or o1.RemoveNthOccurrence(:Last, " Ù…Ù†")
 ? o1.Content()
-#--> Gives من كان في زمنه من أصحابه فهو أكبر المحظوظين
+#--> Gives Ù…Ù† ÙƒØ§Ù† ÙÙŠ Ø²Ù…Ù†Ù‡ Ù…Ù† Ø£ØµØ­Ø§Ø¨Ù‡ ÙÙ‡Ùˆ Ø£ÙƒØ¨Ø± Ø§Ù„Ù…Ø­Ø¸ÙˆØ¸ÙŠÙ†
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -12110,9 +12110,9 @@ pf()
 
 pr()
 
-o1 = new stzString("Softanza embraces ♥♥♥ simplicty and flexibility")
+o1 = new stzString("Softanza embraces â™¥â™¥â™¥ simplicty and flexibility")
 
-o1.ReplaceSubStringAtPosition(19, "♥♥♥", :With = "Ring")
+o1.ReplaceSubStringAtPosition(19, "â™¥â™¥â™¥", :With = "Ring")
 ? o1.Content()
 #--> Softanza embraces Ring simplicty and flexibility
 
@@ -12373,7 +12373,7 @@ pr()
 	? Q("text").Contains('') + NL
 	#--> FALSE
 
-# Rule 4 - Emptiness is irreplaçable in both directions
+# Rule 4 - Emptiness is irreplaÃ§able in both directions
 
 	? @@( Q("").ReplaceQ('', '').Content() )
 	#--> ""
@@ -12938,8 +12938,8 @@ pr()
 # And extends it to cover any Unicode char not only ASCII chars
 # as it is the case for the Ring syntax:
 
-? Q("ب").UpTo("ج") 	#--> [ "ب", "ة", "ت", "ث", "ج" ]
-? Q("ج").DownTo("ب")	#--> [ "ج", "ث", "ت", "ة", "ب" ]
+? Q("Ø¨").UpTo("Ø¬") 	#--> [ "Ø¨", "Ø©", "Øª", "Ø«", "Ø¬" ]
+? Q("Ø¬").DownTo("Ø¨")	#--> [ "Ø¬", "Ø«", "Øª", "Ø©", "Ø¨" ]
 
 pf()
 # Executed in 0.06 second(s) in Ring 1.21
@@ -13370,28 +13370,28 @@ pr()
 
 # Here we take an example of a greek word
 
-? TQ("Σίσυφος").Script()
+? TQ("Î£Î¯ÏƒÏ…Ï†Î¿Ï‚").Script()
 #--> greek
 
-? Q("Σίσυφος").StringCase()
+? Q("Î£Î¯ÏƒÏ…Ï†Î¿Ï‚").StringCase()
 #--> capitalcase
 
-? Q("ΣΊΣΥΦΟΣ").StringCase()
+? Q("Î£ÎŠÎ£Î¥Î¦ÎŸÎ£").StringCase()
 #--> uppercase
 
-? Q("ΣΊΣΥΦΟΣ").Lowercased()
-#--> σίσυφοσ
+? Q("Î£ÎŠÎ£Î¥Î¦ÎŸÎ£").Lowercased()
+#--> ÏƒÎ¯ÏƒÏ…Ï†Î¿Ïƒ
 
-? Q("σίσυφοσ").Uppercased()
-#--> ΣΊΣΥΦΟΣ
+? Q("ÏƒÎ¯ÏƒÏ…Ï†Î¿Ïƒ").Uppercased()
+#--> Î£ÎŠÎ£Î¥Î¦ÎŸÎ£
 
-? Q("σίσυφοσ").Capitalcased()
-#--> Σίσυφοσ
+? Q("ÏƒÎ¯ÏƒÏ…Ï†Î¿Ïƒ").Capitalcased()
+#--> Î£Î¯ÏƒÏ…Ï†Î¿Ïƒ
 
-? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", :CS = FALSE)
+? Q("ÏƒÎ¯ÏƒÏ…Ï†Î¿Ïƒ").IsEqualToCS("Î£ÎŠÎ£Î¥Î¦ÎŸÎ£", :CS = FALSE)
 #--> TRUE
 
-? Q("σίσυφοσ").IsEqualToCS("ΣΊΣΥΦΟΣ", TRUE)
+? Q("ÏƒÎ¯ÏƒÏ…Ï†Î¿Ïƒ").IsEqualToCS("Î£ÎŠÎ£Î¥Î¦ÎŸÎ£", TRUE)
 #--> FALSE
 
 pf()
@@ -13403,16 +13403,16 @@ pf()
 
 pr()
 
-# Let's take this example of a turkish letter ı that should be
-# uppercased to İ and not I
+# Let's take this example of a turkish letter Ä± that should be
+# uppercased to Ä° and not I
 
-? TQ("ı").Script()
+? TQ("Ä±").Script()
 #--> latin (in fact this is a turk letter) (TQ --> stzText object)
 
-? Q("ı").StringCase()
+? Q("Ä±").StringCase()
 #--> lowercase
 
-? Q("İ").StringCase()
+? Q("Ä°").StringCase()
 #--> uppercase
 
 pf()
@@ -13424,14 +13424,14 @@ pr()
 
 # This sample shows a locale-specific casing edge case:
 
-? Q("ı").UppercasedInLocale("tr-TR")	#ERROR: --> I but must be İ
-? Q("İ").Lowercased()	# i
-? Q("İ").LowercasedInLocale("tr-TR")	#ERROR: --> i but must be ı
+? Q("Ä±").UppercasedInLocale("tr-TR")	#ERROR: --> I but must be Ä°
+? Q("Ä°").Lowercased()	# i
+? Q("Ä°").LowercasedInLocale("tr-TR")	#ERROR: --> i but must be Ä±
 
 # In fact, this is a known Unicode special-casing issue:
 
 oLocale = StzLocaleQ("tr-TR")
-? oLocale.Uppercase("ı") #ERROR: --> I but must be İ
+? oLocale.Uppercase("Ä±") #ERROR: --> I but must be Ä°
 
 #TODO // solve this by implementing the specialCasing of unicode as
 # described in this file:
@@ -13445,39 +13445,39 @@ pf()
 
 pr()
 
-# Do you think "ê" and "ê" are the same?
+# Do you think "Ãª" and "eÌ‚" are the same?
 # If one should trust the visual shape of these two strings, then yes...
 # but, the truth, is that they are different.
 
 # In fact, both Ring and Softanza know it:
 
-? "ê" = "ê"
+? "Ãª" = "eÌ‚"
 #--> FALSE
 
-? Q("ê").IsEqualTo("ê")
+? Q("Ãª").IsEqualTo("eÌ‚")
 #--> FALSE
 
-# and that's because ê is just one char:
+# and that's because Ãª is just one char:
 
-Q("ê") { ? NumberOfChars() ? Unicode() }
+Q("Ãª") { ? NumberOfChars() ? Unicode() }
 #--> 1
 #--> 234
 
-# while ê are two chars:
+# while eÌ‚ are two chars:
 
-Q("ê") { ? NumberOfChars() ? Unicode() }
+Q("eÌ‚") { ? NumberOfChars() ? Unicode() }
 #--> 2
 #--> [101, 770]
 
 # And we can do even better by getting the names of the chars in every string.
-# So "ê" contains one char called :
+# So "Ãª" contains one char called :
 
-? Q("ê").CharName() 
+? Q("Ãª").CharName() 
 #--> LATIN SMALL LETTER E WITH CIRCUMFLEX
 
-# While "ê" contains two chars called:
+# While "eÌ‚" contains two chars called:
 
-? Q("ê").CharsNames() 	
+? Q("eÌ‚").CharsNames() 	
 #--> [ 'LATIN SMALL LETTER E', 'COMBINING CIRCUMFLEX ACCENT' ]
 
 # Combining characters is an advanced aspect of Unicode we are not going to delve
@@ -13493,31 +13493,31 @@ pf()
 
 pr()
 
-# Let's take the example of the german letter ß that
+# Let's take the example of the german letter ÃŸ that
 # should be uppercased to SS
 
-? Q("ß").CharCase()
+? Q("ÃŸ").CharCase()
 #--> lowercase
 
-? Q("ß").Uppercased()
+? Q("ÃŸ").Uppercased()
 #--> SS
 
 # Which is nice, and we can check it for a hole word
-? upper("der fluß")
+? upper("der fluÃŸ")
 #--> DER FLUSS
 
 # Now, if we check the other way around :
 ? Q("SS").Lowercased()
 #--> ss
 
-# we don't get "ß", which is expected, because Softanza is running
+# we don't get "ÃŸ", which is expected, because Softanza is running
 # at the default locale ("C" locale) and not the german locale.
 
 # Therefore, we need to tune the previous expression by sepecifying
 # the german locale ("ge-GE")
 
 ? Q("SS").LowercasedInLocale("ge-GE")
-#--> ss (ERROR in QT: it should be ß)
+#--> ss (ERROR in QT: it should be ÃŸ)
 
 pf()
 # Executed in 0.08 second(s)
@@ -13526,10 +13526,10 @@ pf()
 
 pr()
 
-? upper("der fluß")
+? upper("der fluÃŸ")
 #--> DER FLUSS
 
-? StringIsLowercase("der fluß")
+? StringIsLowercase("der fluÃŸ")
 #--> TRUE
 
 pf()
@@ -13542,7 +13542,7 @@ pr()
 ? Q("DER FLUSS").LowercasedInLocale("de-DE")
 #--> der fluss
 
-? Q("der fluß").IsLowercaseOfXT("DER FLUSS", :InLocale = "de-DE")
+? Q("der fluÃŸ").IsLowercaseOfXT("DER FLUSS", :InLocale = "de-DE")
 #--> FALSE (but should be TRUE!)
 
 pf()
@@ -13641,13 +13641,13 @@ StzStringQ("in search of lost time") {
 	#--> In Search Of Lost Time
 }
 
-StzStringQ("à la recherche du temps perdu") {
+StzStringQ("Ã  la recherche du temps perdu") {
 
 	? TitlecasedInLocale("fr-FR")
-	#--> À la recherche du temps perdu
+	#--> Ã€ la recherche du temps perdu
 
 	? CapitalisedInLocale("fr-FR")
-	# !--> À la Recherche du Temps Perdu
+	# !--> Ã€ la Recherche du Temps Perdu
 }
 
 pf()
@@ -14049,9 +14049,9 @@ pf()
 
 pr()
 
-# Quiet-eqality is particularily useful in french where "énoncé" and "ÉNONCÉ" are the same:
+# Quiet-eqality is particularily useful in french where "Ã©noncÃ©" and "Ã‰NONCÃ‰" are the same:
 
-o1 = new stzString("énoncé")
+o1 = new stzString("Ã©noncÃ©")
 
 ? o1.IsEqualTo("enonce")
 #--> FALSE
@@ -14059,7 +14059,7 @@ o1 = new stzString("énoncé")
 ? o1.IsQuietEqualTo("enonce")
 #--> TRUE
 
-? o1.IsQuietEqualTo("ÉNONCÉ")
+? o1.IsQuietEqualTo("Ã‰NONCÃ‰")
 #--> TRUE
 
 pf()
@@ -14069,10 +14069,10 @@ pf()
 
 pr()
 
-? StzCharQ("é").Script()
+? StzCharQ("Ã©").Script()
 #--> latin
 
-? StzCharQ("ن").Script()
+? StzCharQ("Ù†").Script()
 #--> arabic
 
 pf()
@@ -14082,7 +14082,7 @@ pf()
 
 pr()
 
-o1 = new stzText("père frère mère tête")
+o1 = new stzText("pÃ¨re frÃ¨re mÃ¨re tÃªte")
 
 ? o1.CountScripts()
 #--> 2
@@ -14327,7 +14327,7 @@ pf()
 
 pr()
 
-StzStringQ("__b和平س__a__و") {
+StzStringQ("__bå’Œå¹³Ø³__a__Ùˆ") {
 
 	? ContainsLettersInScript(:Latin)
 	#--> TRUE
@@ -14339,13 +14339,13 @@ StzStringQ("__b和平س__a__و") {
 	#--> TRUE
 
 	? CharsWXT( ' Q(@char).IsArabic() ')
-	#o--> [ "س", "و" ]
+	#o--> [ "Ø³", "Ùˆ" ]
 
 	? ContainsLettersInScript(:Han)
 	#--> TRUE
 
 	? CharsWXT( ' StzCharQ(@char).IsHanScript() ')
-	#--> [ "和", "平" ]
+	#--> [ "å’Œ", "å¹³" ]
 
 	? ContainsCharsInScript(:Common)
 	#--> TRUE
@@ -14369,7 +14369,7 @@ pf()
 
 pr()
 
-o1 = new stzString("__b和平س__a__و")
+o1 = new stzString("__bå’Œå¹³Ø³__a__Ùˆ")
 ? o1.ToStzText().Scripts()
 #--> [ "latin", "han", "arabic" ]
 
@@ -14380,10 +14380,10 @@ pf()
 
 pr()
 
-o1 = new stzString("__b和平س__a_ووو")
+o1 = new stzString("__bå’Œå¹³Ø³__a_ÙˆÙˆÙˆ")
 
 ? @@( o1.PartsUsingXT(' StzCharQ(@char).Script() ') )
-#--> [ "__", "b", "和平", "س", "__", "a", "_", "ووو" ]
+#--> [ "__", "b", "å’Œå¹³", "Ø³", "__", "a", "_", "ÙˆÙˆÙˆ" ]
 
 pf()
 # Executed in 0.13 second(s) in Ring 1.22
@@ -14392,10 +14392,10 @@ pf()
 
 pr()
 
-o1 = new stzString("__b和平س__a_ووو")
+o1 = new stzString("__bå’Œå¹³Ø³__a_ÙˆÙˆÙˆ")
 
 ? o1.PartsUsing(' StzCharQ(This[@i]).Script() ' )
-# #--> [ "__", "b", "和平", "س", "__", "a", "_", "ووو" ]
+# #--> [ "__", "b", "å’Œå¹³", "Ø³", "__", "a", "_", "ÙˆÙˆÙˆ" ]
 
 pf()
 # EExecuted in 0.09 second(s) in Ring 1.22
@@ -14404,18 +14404,18 @@ pf()
 
 pr()
 
-o1 = new stzString("__b和平س__a_ووو")
+o1 = new stzString("__bå’Œå¹³Ø³__a_ÙˆÙˆÙˆ")
 ? @@NL( o1.PartsUsingZZ(' StzCharQ(This[@i]).Script() ' ) )
 #-->
 # [
 #	[ "__", [ 1, 2 ] ],
 #	[ "b", [ 3, 3 ] ],
-#	[ "和平", [ 4, 5 ] ],
-#o	[ "س", [ 6, 6 ] ],
+#	[ "å’Œå¹³", [ 4, 5 ] ],
+#o	[ "Ø³", [ 6, 6 ] ],
 #	[ "__", [ 7, 8 ] ],
 #	[ "a", [ 9, 9 ] ],
 #	[ "_", [ 10, 10 ] ],
-#o	[ "ووو", [ 11, 13 ] ]
+#o	[ "ÙˆÙˆÙˆ", [ 11, 13 ] ]
 # ]
 
 pf()
@@ -14434,10 +14434,10 @@ pr()
 ? StzCharQ("9").IsUppercase()
 #--> FALSE
 
-? StzCharQ("ك").IsLowercase()
+? StzCharQ("Ùƒ").IsLowercase()
 #--> FALSE
 
-? StzCharQ("ك").IsUppercase()
+? StzCharQ("Ùƒ").IsUppercase()
 #--> FALSE
 
 ? StringIsLowercase("120")
@@ -14449,7 +14449,7 @@ pr()
 ? StringIsUppercase("120M")
 #--> TRUE
 
-? StringIsLowercase("كلام")
+? StringIsLowercase("ÙƒÙ„Ø§Ù…")
 #--> FALSE
 
 pf()
@@ -14567,7 +14567,7 @@ pf()
 pr()
 
 ? StzStringQ("SOFTANZA").CharsReversed()
-#--> SOℲꞱⱯNZⱯ
+#--> SOâ„²êž±â±¯NZâ±¯
 
 ? StzStringQ(" Softanza    Near-natural Programming   ").Simplified()
 #--> Softanza Near-natural Programming
@@ -14581,7 +14581,7 @@ pr()
 
 # TQ is an abbreviation of StzTextQ()
 
-? TQ("عربي").Script()
+? TQ("Ø¹Ø±Ø¨ÙŠ").Script()
 #--> arabic
 
 ? TQ("ring").Script()
@@ -14630,21 +14630,21 @@ pr()
 # Are you confused between chars, bytes, unicodes (or unicode code points), and bytecodes?!
 # Here how Softanza can help you see them all in clarity:
 
-StzStringQ("s㊱m") {
+StzStringQ("sãŠ±m") {
 
 	? Chars()
-	#--> [ "s", "㊱", "m" ]
+	#--> [ "s", "ãŠ±", "m" ]
 
 	? Unicodes()
 	#--> [ 115, 12977, 109 ]
 
 	? UnicodesPerChar()
-	#--> [ [ "s", 115 ], [ "㊱", 12977 ], [ "m", 109 ] ]
+	#--> [ [ "s", 115 ], [ "ãŠ±", 12977 ], [ "m", 109 ] ]
 
 	? SizeInBytes() #--> 435
 
 	? @@( SizeInBytesPerChar() ) + NL
-	#--> [ [ "s", 33 ], [ "㊱", 35 ], [ "m", 33 ] ]
+	#--> [ [ "s", 33 ], [ "ãŠ±", 35 ], [ "m", 33 ] ]
 
 	#--
 
@@ -14652,10 +14652,10 @@ StzStringQ("s㊱m") {
 	#--> [ "s", " ", " ", " ", "m" ]
 
 	? @@( BytesPerChar() ) + NL
-	#--> [ [ "s", [ "s" ] ], [ "㊱", [ " ", " ", " " ] ], [ "m", [ "m" ] ] ]
+	#--> [ [ "s", [ "s" ] ], [ "ãŠ±", [ " ", " ", " " ] ], [ "m", [ "m" ] ] ]
 
 	? @@( NumberOfBytesPerChar() ) + NL
-	#-->  [ [ "s", 1 ], [ "㊱", 3 ], [ "m", 1 ] ]
+	#-->  [ [ "s", 1 ], [ "ãŠ±", 3 ], [ "m", 1 ] ]
 
 	#--
 
@@ -14663,7 +14663,7 @@ StzStringQ("s㊱m") {
 	#--> [ 115, -29, -118, -79, 109 ]
 
 	? @@( BytecodesPerChar() )
-	#--> [ [ "s", [ 115 ] ], [ "㊱", [ -29, -118, -79 ] ], [ "m", [ 109 ] ] ]
+	#--> [ [ "s", [ 115 ] ], [ "ãŠ±", [ -29, -118, -79 ] ], [ "m", [ 109 ] ] ]
 }
 
 pf()
@@ -14736,13 +14736,13 @@ o1 = new stzString("LIFE")
 #--> EFIL
 
 ? o1.CharsInverted() + NL
-#--> ⅂IℲƎ
+#--> â…‚Iâ„²ÆŽ
 
 ? o1.Turned()
-#--> ƎℲI⅂
+#--> ÆŽâ„²Iâ…‚
 
 ? o1.CharsTurned()
-#--> ⅂IℲƎ
+#--> â…‚Iâ„²ÆŽ
 
 pf()
 # Executed in 0.09 second(s).
@@ -14752,19 +14752,19 @@ pf()
 pr()
 
 ? Q("LIFE").Turned()
-#--> ƎℲI⅂
+#--> ÆŽâ„²Iâ…‚
 
 ? Q("GAYA").Turned()
-#--> Ɐ⅄Ɐ⅁
+#--> â±¯â…„â±¯â…
 
 ? Q("TIBA").Turned()
-#--> ⱯBIꞱ
+#--> â±¯BIêž±
 
 ? Q("HANEEN").Turned()
-#--> NƎƎNⱯH
+#--> NÆŽÆŽNâ±¯H
 
 ? Q("MILLAVOY (Y908$)").Turned()
-#--> ($806⅄) ⅄OɅⱯ⅂⅂IƜ
+#--> ($806â…„) â…„OÉ…â±¯â…‚â…‚IÆœ
 
 pf()
 # Executed in 0.17 second(s).
@@ -14805,16 +14805,16 @@ pf()
 
 pr()
 
-? StzTextQ("abc سلام abc").ContainsScript(:Arabic)
+? StzTextQ("abc Ø³Ù„Ø§Ù… abc").ContainsScript(:Arabic)
 #--> TRUE
 
-? StzTextQ("abc سلام abc").ContainsArabicScript()
+? StzTextQ("abc Ø³Ù„Ø§Ù… abc").ContainsArabicScript()
 #--> TRUE
 
 #NOTE: Scripts are now moved from stzString to stzText
 
 # You can use this short form instead of StzTextQ()
-? TQ("سلام").Script() #--> :Arabic
+? TQ("Ø³Ù„Ø§Ù…").Script() #--> :Arabic
 
 pf()
 # Executed in 0.07 second(s).
@@ -14823,11 +14823,11 @@ pf()
 
 pr()
 
-? StzStringQ("évènement").ReplaceNthCharQ(3, "*").Content()
-#--> év*nement
+? StzStringQ("Ã©vÃ¨nement").ReplaceNthCharQ(3, "*").Content()
+#--> Ã©v*nement
 
-? StzStringQ("évènement").ReplaceNthCharQ(3, :With = "*").Content()
-#--> év*nement
+? StzStringQ("Ã©vÃ¨nement").ReplaceNthCharQ(3, :With = "*").Content()
+#--> Ã©v*nement
 
 pf()
 # Executed in 0.01 second(s).
@@ -14867,23 +14867,23 @@ pf()
 
 pr()
 
-o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
+o1 = new stzString("Hanine Ø­Ù†ÙŠÙ† is a nice Ø¬Ù…ÙŠÙ„Ø© ÙˆØ¹Ù…Ø±Ù‡Ø§ 7 years-old Ø³Ù†ÙˆØ§Øª girl!")
 
 ? @@(o1.PartsUsingXT('StzCharQ(@char).CharCase()')) + NL # or simply o1.PartsUsing('StzCharQ(@char)')
 # [
 #	"H",
 #	"anine",
-#o	" حنين ",
+#o	" Ø­Ù†ÙŠÙ† ",
 #	"is",
 #	" ",
 #	"a",
 #	" ",
 #	"nice",
-#o	" جميلة وعمرها 7 ",
+#o	" Ø¬Ù…ÙŠÙ„Ø© ÙˆØ¹Ù…Ø±Ù‡Ø§ 7 ",
 #	"years",
 #	"-",
 #	"old",
-#o	" سنوات ",
+#o	" Ø³Ù†ÙˆØ§Øª ",
 #	"girl",
 #	"!"
 # ]
@@ -14892,17 +14892,17 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 #--> [
 #	[ "H", 			"uppercase" 	],
 #	[ "anine", 		"lowercase" 	],
-#o	[ " حنين ", 		"" 		],
+#o	[ " Ø­Ù†ÙŠÙ† ", 		"" 		],
 #	[ "is", 		"lowercase" 	],
 #	[ " ", 			"" 		],
 #	[ "a", 			"lowercase" 	],
 #	[ " ", 			"" 		],
 #	[ "nice", 		"lowercase" 	],
-#o	[ " جميلة وعمرها 7 ", 	"" 	],
+#o	[ " Ø¬Ù…ÙŠÙ„Ø© ÙˆØ¹Ù…Ø±Ù‡Ø§ 7 ", 	"" 	],
 #	[ "years", 		"lowercase" 	],
 #	[ "-", 			"" 		],
 #	[ "old", 		"lowercase" 	],
-#o	[ " سنوات ", 		"" 		],
+#o	[ " Ø³Ù†ÙˆØ§Øª ", 		"" 		],
 #	[ "girl", 		"lowercase" 	],
 #	[ "!", 			"" 		]
 # ]
@@ -14911,17 +14911,17 @@ o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-ol
 #--> [
 #	[ "uppercase", 		"H" 			],
 #	[ "lowercase", 		"anine" 		],
-#o	[ "", 			" حنين " 		],
+#o	[ "", 			" Ø­Ù†ÙŠÙ† " 		],
 #	[ "lowercase", 		"is" 			],
 #	[ "", 			" " 			],
 #	[ "lowercase", 		"a" 			],
 #	[ "", 			" " 			],
 #	[ "lowercase", 		"nice" 			],
-#o	[ "", 			" جميلة وعمرها 7 " 	],
+#o	[ "", 			" Ø¬Ù…ÙŠÙ„Ø© ÙˆØ¹Ù…Ø±Ù‡Ø§ 7 " 	],
 #	[ "lowercase", 		"years" 		],
 #	[ "", 			"-" 			],
 #	[ "lowercase", 		"old" 			],
-#o	[ "", 			" سنوات " 		],
+#o	[ "", 			" Ø³Ù†ÙˆØ§Øª " 		],
 #	[ "lowercase", 		"girl" 			],
 #	[ "", 			"!" 			]
 # ]
@@ -14933,24 +14933,24 @@ pf()
 
 pr()
 
-o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
+o1 = new stzString("Hanine Ø­Ù†ÙŠÙ† is a nice Ø¬Ù…ÙŠÙ„Ø© ÙˆØ¹Ù…Ø±Ù‡Ø§ 7 years-old Ø³Ù†ÙˆØ§Øª girl!")
 
 ? @@NL(o1.PartsUsingZZ( 'StzCharQ(This[@i]).CharCase()' ))
 
 #--> [
 #	[ "H", [ 1, 1 ] ],
 #	[ "anine", [ 2, 6 ] ],
-#o	[ " حنين ", [ 7, 12 ] ],
+#o	[ " Ø­Ù†ÙŠÙ† ", [ 7, 12 ] ],
 #	[ "is", [ 13, 14 ] ],
 #	[ " ", [ 15, 15 ] ],
 #	[ "a", [ 16, 16 ] ],
 #	[ " ", [ 17, 17 ] ],
 #	[ "nice", [ 18, 21 ] ],
-#o	[ " جميلة وعمرها 7 ", [ 22, 37 ] ],
+#o	[ " Ø¬Ù…ÙŠÙ„Ø© ÙˆØ¹Ù…Ø±Ù‡Ø§ 7 ", [ 22, 37 ] ],
 #	[ "years", [ 38, 42 ] ],
 #	[ "-", [ 43, 43 ] ],
 #	[ "old", [ 44, 46 ] ],
-#o	[ " سنوات ", [ 47, 53 ] ],
+#o	[ " Ø³Ù†ÙˆØ§Øª ", [ 47, 53 ] ],
 #	[ "girl", [ 54, 57 ] ],
 #	[ "!", [ 58, 58 ] ]
 # ]
@@ -14962,14 +14962,14 @@ pf()
 
 pr()
 
-o1 = new stzString("Hanine حنين is a nice جميلة وعمرها 7 years-old سنوات girl!")
+o1 = new stzString("Hanine Ø­Ù†ÙŠÙ† is a nice Ø¬Ù…ÙŠÙ„Ø© ÙˆØ¹Ù…Ø±Ù‡Ø§ 7 years-old Ø³Ù†ÙˆØ§Øª girl!")
 
 ? @@NL( o1.PartsClassifiedUsingXT( 'StzCharQ(@char).Script()' ) )
 
 #--> [
 #	:latin	 	= [ "Hanine", "is", "a", "nice", "years", "old", "girl" ],
 #	:common		= [ " ", " ", " ", " ", " ", " ", " 7 ", "-", " ", " ", "!" ],
-#	:arabic		= [ "حنين", "جميلة", "وعمرها", "سنوات" ],
+#	:arabic		= [ "Ø­Ù†ÙŠÙ†", "Ø¬Ù…ÙŠÙ„Ø©", "ÙˆØ¹Ù…Ø±Ù‡Ø§", "Ø³Ù†ÙˆØ§Øª" ],
 #     ]
 
 # Alternatives to PartsClassified(): Classify() and Classified()
@@ -14997,7 +14997,7 @@ pf()
 
 pr()
 
-o1 = new stzString("Abc285XY&من")
+o1 = new stzString("Abc285XY&Ù…Ù†")
 ? o1.Parts2UsingXT('{	# Or PartsAndPartitionersUsingXT()
 	StzCharQ(@char).CharType()
 }')
@@ -15008,7 +15008,7 @@ o1 = new stzString("Abc285XY&من")
 #	"285"	= :Number_DecimalDigit,
 #	"XY"	= :Letter_Uppercase,
 #	"&"	= :Punctauation_Other,
-#o	"من"	= :Letter_Other
+#o	"Ù…Ù†"	= :Letter_Other
 #    ]
 
 pf()
@@ -15043,23 +15043,23 @@ pf()
 
 pr()
 
-o1 = new stzString("Abc285XY&من")
+o1 = new stzString("Abc285XY&Ù…Ù†")
 
 ? @@( o1.Parts2Using( 'CharQ(@i).IsLetter()' ) ) + NL
 #--> Gives:
-# [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "من" = TRUE ]
+# [ "Abc" = TRUE, "285" = FALSE, "XY" = TRUE, "&" = FALSE, "Ù…Ù†" = TRUE ]
 
 ? @@( o1.Parts2Using("CharQ(@i).Orientation()") ) + NL
 #--> Gives:
-# [ "Abc285XY&" = :LeftToRight, "من" = :RightToLeft ]
+# [ "Abc285XY&" = :LeftToRight, "Ù…Ù†" = :RightToLeft ]
 
 ? @@( o1.Parts2Using("CharQ(@i).IsUppercase()") ) + NL
 #--> Gives:
-# [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&من" = FALSE ]
+# [ "A" = TRUE, "bc285" = FALSE, "XY" = TRUE, "&Ù…Ù†" = FALSE ]
 
 ? @@( o1.Parts2Using("CharQ(@i).CharCase()") )
 #--> Gives:
-# [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&من" = NULL ]
+# [ "A" = :Uppercase, "bc" = :Lowercase, "285" = NULL, "XY" = :Uppercase, "&Ù…Ù†" = NULL ]
 
 pf()
 # Executed in 0.35 second(s).
@@ -15068,7 +15068,7 @@ pf()
 
 pr()
 
-o1 = new stzString("Use these two letters: س and ص.")
+o1 = new stzString("Use these two letters: Ø³ and Øµ.")
 o1.ReplaceAllChars( :With = "*" )
 ? o1.Content()
 #--> "*******************************"
@@ -15080,7 +15080,7 @@ pf()
 
 pr()
 
-o1 = new stzString("Use these two letters: س and ص.")
+o1 = new stzString("Use these two letters: Ø³ and Øµ.")
 ? o1.FindCharsW(
 	:Where = '{
 		StzCharQ(This[@i]).IsLetter() AND
@@ -15095,7 +15095,7 @@ o1 = new stzString("Use these two letters: س and ص.")
 		NOT StzCharQ(This[@i]).IsLatinLetter()
 	}'
 )
-#o--> [ "س", "ص" ]
+#o--> [ "Ø³", "Øµ" ]
 
 pf()
 # Executed in 0.64 second(s).
@@ -15104,7 +15104,7 @@ pf()
 
 pr()
 
-o1 = new stzString("Use these two letters: س and ص.")
+o1 = new stzString("Use these two letters: Ø³ and Øµ.")
 o1.ReplaceCharsW(
 
 	:Where = '{
@@ -15138,7 +15138,7 @@ pf()
 
 pr()
 
-o1 = new stzString("Use these two letters: س , ص.")
+o1 = new stzString("Use these two letters: Ø³ , Øµ.")
 
 o1.RemoveCharsWhereQ('{
 
@@ -15157,7 +15157,7 @@ pf()
 
 pr()
 
-o1 = new stzString("Use these two letters: س and ص.")
+o1 = new stzString("Use these two letters: Ø³ and Øµ.")
 
 o1.ReplaceCharsWXT(
 	:Where = '{ @char != " " and StzCharQ(@Char).IsArabicLetter() }',
@@ -15174,10 +15174,10 @@ pf()
 
 pr()
 
-? StzCharQ("س").Name()
+? StzCharQ("Ø³").Name()
 #--> ARABIC LETTER SEEN
 
-? StzCharQ("ص").Name()
+? StzCharQ("Øµ").Name()
 #--> ARABIC LETTER SAD
 
 pf()
@@ -15237,9 +15237,9 @@ pr()
 	:TextAdjustedTo = :Center # or :Left or :Right or :Justified
 ])
 
-#--> ╭─────────────────────┐
-#    │ SOFTANZA IS AWSOME! │
-#    └─────────────────────╯
+#--> â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+#    â”‚ SOFTANZA IS AWSOME! â”‚
+#    â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
@@ -15251,9 +15251,9 @@ pr()
 
 ? StzStringQ("RING").BoxedXT([ ])
 #-->
-# ┌──────┐
-# │ RING │
-# └──────┘
+# â”Œâ”€â”€â”€â”€â”€â”€â”
+# â”‚ RING â”‚
+# â””â”€â”€â”€â”€â”€â”€â”˜
 
 pf()
 # Executed in almost 0 second(s) in Ring 1.23
@@ -15276,24 +15276,24 @@ StzStringQ("RING") {
 }
 
 #--> RING
-#   ┌──────┐
-#   │ RING │
-#   └──────┘
-#   ╭──────╮
-#   │ RING │
-#   ╰──────╯
-#   ╭╌╌╌╌╌╌╮
-#   ┊ RING ┊
-#   ╰╌╌╌╌╌╌╯
-#   ┌───┬───┬───┬───┐
-#   │ R │ I │ N │ G │
-#   └───┴───┴───┴───┘
-#   ╭───┬───┬───┬───╮
-#   │ R │ I │ N │ G │
-#   ╰───┴───┴───┴───╯
-#   ╭───┬───┬───┬───╮
-#   │ R │ I │ N │ G │
-#   ╰───┴─•─┴───┴───╯
+#   â”Œâ”€â”€â”€â”€â”€â”€â”
+#   â”‚ RING â”‚
+#   â””â”€â”€â”€â”€â”€â”€â”˜
+#   â•­â”€â”€â”€â”€â”€â”€â•®
+#   â”‚ RING â”‚
+#   â•°â”€â”€â”€â”€â”€â”€â•¯
+#   â•­â•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•®
+#   â”Š RING â”Š
+#   â•°â•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•¯
+#   â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+#   â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+#   â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
+#   â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+#   â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+#   â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
+#   â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+#   â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+#   â•°â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
 
 pf()
 # Executed in 0.10 second(s) in Ring 1.23
@@ -15328,30 +15328,30 @@ StzStringQ("RING IS NICE") {
 }
 
 #--> RING IS NICE
-#   ┌──────────────┐
-#   │ RING IS NICE │
-#   └──────────────┘
-#   ╭──────────────╮
-#   │ RING IS NICE │
-#   ╰──────────────╯
-#   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-#   │ R │ I │ N │ G │   │ I │ S │   │ N │ I │ C │ E │
-#   └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
-#   ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
-#   │ R │ I │ N │ G │   │ I │ S │   │ N │ I │ C │ E │
-#   ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
-#   ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-#   │ R │ I │ N │ G │   │ I │ S │   │ N │ I │ C │ E │
-#   └───┴─•─┴───┴───┴───┴─•─┴───┴───┴───┴─•─┴───┴───┘
-#   ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
-#   ┊ RING IS NICE ┊
-#   └╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
-#   ╭╌╌╌╌╌╌╌╌╌╌╌╌╌╌╮
-#   ┊ RING IS NICE ┊
-#   ╰╌╌╌╌╌╌╌╌╌╌╌╌╌╌╯
-#   ╭──────────────┐
-#   │ RING IS NICE │
-#   └──────────────╯
+#   â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+#   â”‚ RING IS NICE â”‚
+#   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+#   â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
+#   â”‚ RING IS NICE â”‚
+#   â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
+#   â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+#   â”‚ R â”‚ I â”‚ N â”‚ G â”‚   â”‚ I â”‚ S â”‚   â”‚ N â”‚ I â”‚ C â”‚ E â”‚
+#   â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
+#   â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+#   â”‚ R â”‚ I â”‚ N â”‚ G â”‚   â”‚ I â”‚ S â”‚   â”‚ N â”‚ I â”‚ C â”‚ E â”‚
+#   â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
+#   â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+#   â”‚ R â”‚ I â”‚ N â”‚ G â”‚   â”‚ I â”‚ S â”‚   â”‚ N â”‚ I â”‚ C â”‚ E â”‚
+#   â””â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
+#   â”Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ”
+#   â”Š RING IS NICE â”Š
+#   â””â•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ”˜
+#   â•­â•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•®
+#   â”Š RING IS NICE â”Š
+#   â•°â•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•¯
+#   â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+#   â”‚ RING IS NICE â”‚
+#   â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
 
 pf()
 # Executed in 0.14 second(s) in Ring 1.23
@@ -15366,9 +15366,9 @@ pr()
 	:TextAdjustedTo = :Center
 ])
 #-->
-# ╭────────────────────╮
-# │ PARIS              │
-# ╰────────────────────╯
+# â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
+# â”‚ PARIS              â”‚
+# â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
 
 ? StzStringQ("PARIS").BoxedXT([
 	:AllCorners = :Round,
@@ -15376,9 +15376,9 @@ pr()
 	:TextAdjustedTo = :Left
 ])
 #-->
-# ╭────────────────────╮
-# │       PARIS        │
-# ╰────────────────────╯
+# â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
+# â”‚       PARIS        â”‚
+# â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
 
 ? StzStringQ("PARIS").BoxedXT([
 	:AllCorners = :Round,
@@ -15386,9 +15386,9 @@ pr()
 	:TextAdjustedTo = :Right
 ])
 #-->
-# ╭────────────────────╮
-# │ P    A   R   I   S │
-# ╰────────────────────╯
+# â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
+# â”‚ P    A   R   I   S â”‚
+# â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
 
 ? StzStringQ("PARIS").BoxedXT([
 	:AllCorners = :Round,
@@ -15396,9 +15396,9 @@ pr()
 	:TextAdjustedTo = :Justified
 ])
 #-->
-# ╭────────────────────╮
-# │              PARIS │
-# ╰────────────────────╯
+# â•­â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•®
+# â”‚              PARIS â”‚
+# â•°â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•¯
 
 pf()
 # Executed in 0.05 second(s) in Ring 1.23
@@ -15410,18 +15410,18 @@ pr()
 # You can box the entire string like this:
 ? StzStringQ("SOFTANZA").BoxedXT([])
 #-->
-# ┌──────────┐
-# │ SOFTANZA │
-# └──────────┘
+# â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+# â”‚ SOFTANZA â”‚
+# â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
 # Or box it char by char like this:
 
 ? StzStringQ("SOFTANZA").BoxedXT([ :EachChar = TRUE ])
 
 #-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┐
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# └───┴───┴───┴───┴───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 
 pf()
 # Executed in 0.04 second(s) in Ring 1.23
@@ -15433,16 +15433,16 @@ pr()
 # Boxing work great for latin chars, but for non latin chars,
 # it would break:
 
-? StzStringQ("乇乂丅尺卂 丅卄工匚匚").BoxedXT([
+? StzStringQ("ä¹‡ä¹‚ä¸…å°ºå‚ ä¸…å„å·¥åŒšåŒš").BoxedXT([
 	:Line = :Dashed,
 	:AllCorners = :Rectangular,
 
 	:TextAdjustedTo = :Center
 ])
 #-->
-# ┌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
-# ┊ 乇乂丅尺卂 丅卄工匚匚 ┊
-# └╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+# â”Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ”
+# â”Š ä¹‡ä¹‚ä¸…å°ºå‚ ä¸…å„å·¥åŒšåŒš â”Š
+# â””â•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ”˜
 
 # That is because chars in non-latin script won't have necessarily
 # same width. In fact, this is related to the font used to render
@@ -15453,7 +15453,7 @@ pr()
 # switching ta a fixed-width font, Softanza provide the width option
 # that you can adjust manually and get a nice result like this:
 
-? StzStringQ("乇乂丅尺卂 丅卄工匚匚").BoxedXT([
+? StzStringQ("ä¹‡ä¹‚ä¸…å°ºå‚ ä¸…å„å·¥åŒšåŒš").BoxedXT([
 	:Line = :Dashed,
 	:AllCorners = :Rectangular,
 
@@ -15461,9 +15461,9 @@ pr()
 	:TextAdjustedTo = :Center
 ])
 #--> TODO: Fix the output to return this
-# ┌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┐
-# ┊ 乇乂丅尺卂 丅卄工匚匚 ┊
-# └╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌╌┘
+# â”Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ”
+# â”Š ä¹‡ä¹‚ä¸…å°ºå‚ ä¸…å„å·¥åŒšåŒš â”Š
+# â””â•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ•Œâ”˜
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.23
@@ -15598,32 +15598,32 @@ pf()
 
 pr()
 
-str = "قَالُوا ادْعُ لَنَا رَبَّكَ يُبَيِّن لَّنَا مَا هِيَ إِنَّ الْبَقَرَ 
-تَشَابَهَ عَلَيْنَا وَإِنَّا إِن شَاءَ اللَّهُ لَمُهْتَدُونَ (70)
- قَالَ إِنَّهُ يَقُولُ إِنَّهَا بَقَرَةٌ لَّا ذَلُولٌ تُثِيرُ الْأَرْضَ وَلَا
- تَسْقِي الْحَرْثَ مُسَلَّمَةٌ لَّا شِيَةَ فِيهَا ۚ قَالُوا الْآنَ 
-جِئْتَ بِالْحَقِّ ۚ فَذَبَحُوهَا وَمَا كَادُوا يَفْعَلُونَ (71)
- وَإِذْ قَتَلْتُمْ نَفْسًا فَادَّارَأْتُمْ فِيهَا ۖ وَاللَّهُ مُخْرِجٌ مَّا كُنتُمْ تَكْتُمُونَ (72)
- فَقُلْنَا اضْرِبُوهُ بِبَعْضِهَا ۚ كَذَٰلِكَ يُحْيِي اللَّهُ 
-الْمَوْتَىٰ وَيُرِيكُمْ آيَاتِهِ لَعَلَّكُمْ تَعْقِلُونَ (73)
- ثُمَّ قَسَتْ قُلُوبُكُم مِّن بَعْدِ ذَٰلِكَ فَهِيَ كَالْحِجَارَةِ أَوْ أَشَدُّ قَسْوَةً 
-ۚ وَإِنَّ مِنَ الْحِجَارَةِ لَمَا يَتَفَجَّرُ مِنْهُ الْأَنْهَارُ ۚ 
-وَإِنَّ مِنْهَا لَمَا يَشَّقَّقُ فَيَخْرُجُ مِنْهُ الْمَاءُ 
-ۚ وَإِنَّ مِنْهَا لَمَا يَهْبِطُ مِنْ خَشْيَةِ اللَّهِ ۗ وَمَا اللَّهُ بِغَافِلٍ
- عَمَّا تَعْمَلُونَ (74) ۞ أَفَتَطْمَعُونَ أَن يُؤْمِنُوا لَكُمْ
- وَقَدْ كَانَ فَرِيقٌ مِّنْهُمْ يَسْمَعُونَ كَلَامَ اللَّهِ ثُمَّ يُحَرِّفُونَهُ
- مِن بَعْدِ مَا عَقَلُوهُ وَهُمْ يَعْلَمُونَ (75)
- وَإِذَا لَقُوا الَّذِينَ آمَنُوا قَالُوا آمَنَّا
- وَإِذَا خَلَا بَعْضُهُمْ إِلَىٰ بَعْضٍ قَالُوا أَتُحَدِّثُونَهُم
- بِمَا فَتَحَ اللَّهُ عَلَيْكُمْ لِيُحَاجُّوكُم بِهِ عِندَ رَبِّكُمْ ۚ أَفَلَا تَعْقِلُونَ  (76)  
+str = "Ù‚ÙŽØ§Ù„ÙÙˆØ§ Ø§Ø¯Ù’Ø¹Ù Ù„ÙŽÙ†ÙŽØ§ Ø±ÙŽØ¨Ù‘ÙŽÙƒÙŽ ÙŠÙØ¨ÙŽÙŠÙ‘ÙÙ† Ù„Ù‘ÙŽÙ†ÙŽØ§ Ù…ÙŽØ§ Ù‡ÙÙŠÙŽ Ø¥ÙÙ†Ù‘ÙŽ Ø§Ù„Ù’Ø¨ÙŽÙ‚ÙŽØ±ÙŽ 
+ØªÙŽØ´ÙŽØ§Ø¨ÙŽÙ‡ÙŽ Ø¹ÙŽÙ„ÙŽÙŠÙ’Ù†ÙŽØ§ ÙˆÙŽØ¥ÙÙ†Ù‘ÙŽØ§ Ø¥ÙÙ† Ø´ÙŽØ§Ø¡ÙŽ Ø§Ù„Ù„Ù‘ÙŽÙ‡Ù Ù„ÙŽÙ…ÙÙ‡Ù’ØªÙŽØ¯ÙÙˆÙ†ÙŽ (70)
+ Ù‚ÙŽØ§Ù„ÙŽ Ø¥ÙÙ†Ù‘ÙŽÙ‡Ù ÙŠÙŽÙ‚ÙÙˆÙ„Ù Ø¥ÙÙ†Ù‘ÙŽÙ‡ÙŽØ§ Ø¨ÙŽÙ‚ÙŽØ±ÙŽØ©ÙŒ Ù„Ù‘ÙŽØ§ Ø°ÙŽÙ„ÙÙˆÙ„ÙŒ ØªÙØ«ÙÙŠØ±Ù Ø§Ù„Ù’Ø£ÙŽØ±Ù’Ø¶ÙŽ ÙˆÙŽÙ„ÙŽØ§
+ ØªÙŽØ³Ù’Ù‚ÙÙŠ Ø§Ù„Ù’Ø­ÙŽØ±Ù’Ø«ÙŽ Ù…ÙØ³ÙŽÙ„Ù‘ÙŽÙ…ÙŽØ©ÙŒ Ù„Ù‘ÙŽØ§ Ø´ÙÙŠÙŽØ©ÙŽ ÙÙÙŠÙ‡ÙŽØ§ Ûš Ù‚ÙŽØ§Ù„ÙÙˆØ§ Ø§Ù„Ù’Ø¢Ù†ÙŽ 
+Ø¬ÙØ¦Ù’ØªÙŽ Ø¨ÙØ§Ù„Ù’Ø­ÙŽÙ‚Ù‘Ù Ûš ÙÙŽØ°ÙŽØ¨ÙŽØ­ÙÙˆÙ‡ÙŽØ§ ÙˆÙŽÙ…ÙŽØ§ ÙƒÙŽØ§Ø¯ÙÙˆØ§ ÙŠÙŽÙÙ’Ø¹ÙŽÙ„ÙÙˆÙ†ÙŽ (71)
+ ÙˆÙŽØ¥ÙØ°Ù’ Ù‚ÙŽØªÙŽÙ„Ù’ØªÙÙ…Ù’ Ù†ÙŽÙÙ’Ø³Ù‹Ø§ ÙÙŽØ§Ø¯Ù‘ÙŽØ§Ø±ÙŽØ£Ù’ØªÙÙ…Ù’ ÙÙÙŠÙ‡ÙŽØ§ Û– ÙˆÙŽØ§Ù„Ù„Ù‘ÙŽÙ‡Ù Ù…ÙØ®Ù’Ø±ÙØ¬ÙŒ Ù…Ù‘ÙŽØ§ ÙƒÙÙ†ØªÙÙ…Ù’ ØªÙŽÙƒÙ’ØªÙÙ…ÙÙˆÙ†ÙŽ (72)
+ ÙÙŽÙ‚ÙÙ„Ù’Ù†ÙŽØ§ Ø§Ø¶Ù’Ø±ÙØ¨ÙÙˆÙ‡Ù Ø¨ÙØ¨ÙŽØ¹Ù’Ø¶ÙÙ‡ÙŽØ§ Ûš ÙƒÙŽØ°ÙŽÙ°Ù„ÙÙƒÙŽ ÙŠÙØ­Ù’ÙŠÙÙŠ Ø§Ù„Ù„Ù‘ÙŽÙ‡Ù 
+Ø§Ù„Ù’Ù…ÙŽÙˆÙ’ØªÙŽÙ‰Ù° ÙˆÙŽÙŠÙØ±ÙÙŠÙƒÙÙ…Ù’ Ø¢ÙŠÙŽØ§ØªÙÙ‡Ù Ù„ÙŽØ¹ÙŽÙ„Ù‘ÙŽÙƒÙÙ…Ù’ ØªÙŽØ¹Ù’Ù‚ÙÙ„ÙÙˆÙ†ÙŽ (73)
+ Ø«ÙÙ…Ù‘ÙŽ Ù‚ÙŽØ³ÙŽØªÙ’ Ù‚ÙÙ„ÙÙˆØ¨ÙÙƒÙÙ… Ù…Ù‘ÙÙ† Ø¨ÙŽØ¹Ù’Ø¯Ù Ø°ÙŽÙ°Ù„ÙÙƒÙŽ ÙÙŽÙ‡ÙÙŠÙŽ ÙƒÙŽØ§Ù„Ù’Ø­ÙØ¬ÙŽØ§Ø±ÙŽØ©Ù Ø£ÙŽÙˆÙ’ Ø£ÙŽØ´ÙŽØ¯Ù‘Ù Ù‚ÙŽØ³Ù’ÙˆÙŽØ©Ù‹ 
+Ûš ÙˆÙŽØ¥ÙÙ†Ù‘ÙŽ Ù…ÙÙ†ÙŽ Ø§Ù„Ù’Ø­ÙØ¬ÙŽØ§Ø±ÙŽØ©Ù Ù„ÙŽÙ…ÙŽØ§ ÙŠÙŽØªÙŽÙÙŽØ¬Ù‘ÙŽØ±Ù Ù…ÙÙ†Ù’Ù‡Ù Ø§Ù„Ù’Ø£ÙŽÙ†Ù’Ù‡ÙŽØ§Ø±Ù Ûš 
+ÙˆÙŽØ¥ÙÙ†Ù‘ÙŽ Ù…ÙÙ†Ù’Ù‡ÙŽØ§ Ù„ÙŽÙ…ÙŽØ§ ÙŠÙŽØ´Ù‘ÙŽÙ‚Ù‘ÙŽÙ‚Ù ÙÙŽÙŠÙŽØ®Ù’Ø±ÙØ¬Ù Ù…ÙÙ†Ù’Ù‡Ù Ø§Ù„Ù’Ù…ÙŽØ§Ø¡Ù 
+Ûš ÙˆÙŽØ¥ÙÙ†Ù‘ÙŽ Ù…ÙÙ†Ù’Ù‡ÙŽØ§ Ù„ÙŽÙ…ÙŽØ§ ÙŠÙŽÙ‡Ù’Ø¨ÙØ·Ù Ù…ÙÙ†Ù’ Ø®ÙŽØ´Ù’ÙŠÙŽØ©Ù Ø§Ù„Ù„Ù‘ÙŽÙ‡Ù Û— ÙˆÙŽÙ…ÙŽØ§ Ø§Ù„Ù„Ù‘ÙŽÙ‡Ù Ø¨ÙØºÙŽØ§ÙÙÙ„Ù
+ Ø¹ÙŽÙ…Ù‘ÙŽØ§ ØªÙŽØ¹Ù’Ù…ÙŽÙ„ÙÙˆÙ†ÙŽ (74) Ûž Ø£ÙŽÙÙŽØªÙŽØ·Ù’Ù…ÙŽØ¹ÙÙˆÙ†ÙŽ Ø£ÙŽÙ† ÙŠÙØ¤Ù’Ù…ÙÙ†ÙÙˆØ§ Ù„ÙŽÙƒÙÙ…Ù’
+ ÙˆÙŽÙ‚ÙŽØ¯Ù’ ÙƒÙŽØ§Ù†ÙŽ ÙÙŽØ±ÙÙŠÙ‚ÙŒ Ù…Ù‘ÙÙ†Ù’Ù‡ÙÙ…Ù’ ÙŠÙŽØ³Ù’Ù…ÙŽØ¹ÙÙˆÙ†ÙŽ ÙƒÙŽÙ„ÙŽØ§Ù…ÙŽ Ø§Ù„Ù„Ù‘ÙŽÙ‡Ù Ø«ÙÙ…Ù‘ÙŽ ÙŠÙØ­ÙŽØ±Ù‘ÙÙÙÙˆÙ†ÙŽÙ‡Ù
+ Ù…ÙÙ† Ø¨ÙŽØ¹Ù’Ø¯Ù Ù…ÙŽØ§ Ø¹ÙŽÙ‚ÙŽÙ„ÙÙˆÙ‡Ù ÙˆÙŽÙ‡ÙÙ…Ù’ ÙŠÙŽØ¹Ù’Ù„ÙŽÙ…ÙÙˆÙ†ÙŽ (75)
+ ÙˆÙŽØ¥ÙØ°ÙŽØ§ Ù„ÙŽÙ‚ÙÙˆØ§ Ø§Ù„Ù‘ÙŽØ°ÙÙŠÙ†ÙŽ Ø¢Ù…ÙŽÙ†ÙÙˆØ§ Ù‚ÙŽØ§Ù„ÙÙˆØ§ Ø¢Ù…ÙŽÙ†Ù‘ÙŽØ§
+ ÙˆÙŽØ¥ÙØ°ÙŽØ§ Ø®ÙŽÙ„ÙŽØ§ Ø¨ÙŽØ¹Ù’Ø¶ÙÙ‡ÙÙ…Ù’ Ø¥ÙÙ„ÙŽÙ‰Ù° Ø¨ÙŽØ¹Ù’Ø¶Ù Ù‚ÙŽØ§Ù„ÙÙˆØ§ Ø£ÙŽØªÙØ­ÙŽØ¯Ù‘ÙØ«ÙÙˆÙ†ÙŽÙ‡ÙÙ…
+ Ø¨ÙÙ…ÙŽØ§ ÙÙŽØªÙŽØ­ÙŽ Ø§Ù„Ù„Ù‘ÙŽÙ‡Ù Ø¹ÙŽÙ„ÙŽÙŠÙ’ÙƒÙÙ…Ù’ Ù„ÙÙŠÙØ­ÙŽØ§Ø¬Ù‘ÙÙˆÙƒÙÙ… Ø¨ÙÙ‡Ù Ø¹ÙÙ†Ø¯ÙŽ Ø±ÙŽØ¨Ù‘ÙÙƒÙÙ…Ù’ Ûš Ø£ÙŽÙÙŽÙ„ÙŽØ§ ØªÙŽØ¹Ù’Ù‚ÙÙ„ÙÙˆÙ†ÙŽ  (76)  
 "
 
 o1 = new stzString(str)
 
 ? ShowShort( o1.UniqueChars() ) //+ NL
-#o--> [ "ق", "َ", "ا", "...", "ؤ", "5", "6" ]
+#o--> [ "Ù‚", "ÙŽ", "Ø§", "...", "Ø¤", "5", "6" ]
 
-? len( o1.SplitAt("۞") )
+? len( o1.SplitAt("Ûž") )
 #--> 2
 
 pf()
@@ -15655,7 +15655,7 @@ pf()
 
 pr()
 
-str = "   سلام"
+str = "   Ø³Ù„Ø§Ù…"
 o1 = new stzString(str)
 
 ? o1.HasRepeatedLeadingChars()
@@ -15665,7 +15665,7 @@ o1 = new stzString(str)
 #--> " "
 
 o1.TrimRight() ? o1.Content()
-#o--> سلام
+#o--> Ø³Ù„Ø§Ù…
 
 pf()
 # Executed in 0.02 second(s).
@@ -16216,13 +16216,13 @@ o1 = new stzString("This text is my text not your text, right?!")
 ? o1.ReplaceNthOccurrenceCSQ(2, "TEXT", :With = "narration", :Casesensitive = FALSE).Content()
 #--> This text is my narration not your text, right?!
 
-o1 = new stzString("هذا نصّ لا يشبه أيّ نصّ ويا له من نصّ يا صديقي")
-? o1.FindAll("نصّ")
+o1 = new stzString("Ù‡Ø°Ø§ Ù†ØµÙ‘ Ù„Ø§ ÙŠØ´Ø¨Ù‡ Ø£ÙŠÙ‘ Ù†ØµÙ‘ ÙˆÙŠØ§ Ù„Ù‡ Ù…Ù† Ù†ØµÙ‘ ÙŠØ§ ØµØ¯ÙŠÙ‚ÙŠ")
+? o1.FindAll("Ù†ØµÙ‘")
 #--> [5, 21, 35]
 
-? o1.FindFirst("نصّ")
+? o1.FindFirst("Ù†ØµÙ‘")
 #--> 5
-? o1.FindLast("نصّ")
+? o1.FindLast("Ù†ØµÙ‘")
 #--> 35
 
 pf()
@@ -16255,7 +16255,7 @@ pf()
 
 pr()
 
-o1 = new stzString("ring language isسلام  a nice language")
+o1 = new stzString("ring language isØ³Ù„Ø§Ù…  a nice language")
 
 ? o1.Orientation()
 #--> :LeftToRight
@@ -16265,7 +16265,7 @@ o1 = new stzString("ring language isسلام  a nice language")
 
 #---
 
-o1 = new stzString("سلام عليكم ياأهل مصر hello الكرام")
+o1 = new stzString("Ø³Ù„Ø§Ù… Ø¹Ù„ÙŠÙƒÙ… ÙŠØ§Ø£Ù‡Ù„ Ù…ØµØ± hello Ø§Ù„ÙƒØ±Ø§Ù…")
 
 ? o1.Orientation()
 #--> :RightToLeft
@@ -16280,36 +16280,36 @@ pf()
 
 pr()
 
-o1 = new stzString("ring language isسلام  a nice language")
+o1 = new stzString("ring language isØ³Ù„Ø§Ù…  a nice language")
 
 ? @@( o1.PartsUsingXT( 'StzCharQ(@char).Orientation()') ) + NL
-#--> [ "ring language is", "سلام", "  a nice language" ]
+#--> [ "ring language is", "Ø³Ù„Ø§Ù…", "  a nice language" ]
 
 ? @@( o1.Parts2UsingXT( 'StzCharQ(@char).Orientation()') ) + NL
 #--> [
 #	[ "ring language is", "lefttoright" ],
-#o	[ "سلام", "righttoleft" ],
+#o	[ "Ø³Ù„Ø§Ù…", "righttoleft" ],
 #	[ "  a nice language", "lefttoright" ]
 # ]
 
 #---
 
-o1 = new stzString("سلام عليكم ياأهل مصر hello الكرام")
+o1 = new stzString("Ø³Ù„Ø§Ù… Ø¹Ù„ÙŠÙƒÙ… ÙŠØ§Ø£Ù‡Ù„ Ù…ØµØ± hello Ø§Ù„ÙƒØ±Ø§Ù…")
 
 ? @@( o1.PartsUsingXT( 'StzCharQ(@char).Orientation()') ) + NL #TODO // add PartitionBy() and PartionedBy()
-#o--> [ "سلام", " ", "عليكم", " ", "ياأهل", " ", "مصر", " hello ", "الكرام" ]
+#o--> [ "Ø³Ù„Ø§Ù…", " ", "Ø¹Ù„ÙŠÙƒÙ…", " ", "ÙŠØ§Ø£Ù‡Ù„", " ", "Ù…ØµØ±", " hello ", "Ø§Ù„ÙƒØ±Ø§Ù…" ]
 
 ? @@( o1.Parts2UsingXT( 'StzCharQ(@char).Orientation()') )
 #o--> [
-#o	[ "سلام", "righttoleft" ],
+#o	[ "Ø³Ù„Ø§Ù…", "righttoleft" ],
 #o	[ " ", "lefttoright" ],
-#o	[ "عليكم", "righttoleft" ],
+#o	[ "Ø¹Ù„ÙŠÙƒÙ…", "righttoleft" ],
 #o	[ " ", "lefttoright" ],
-#o	[ "ياأهل", "righttoleft" ],
+#o	[ "ÙŠØ§Ø£Ù‡Ù„", "righttoleft" ],
 #o	[ " ", "lefttoright" ],
-#o	[ "مصر", "righttoleft" ],
+#o	[ "Ù…ØµØ±", "righttoleft" ],
 #	[ " hello ", "lefttoright" ],
-#o	[ "الكرام", "righttoleft" ]
+#o	[ "Ø§Ù„ÙƒØ±Ø§Ù…", "righttoleft" ]
 # ]
 
 pf()
@@ -16319,10 +16319,10 @@ pf()
 
 pr()
 
-o1 = new stzString("سلام لأهل مصر الكرام")
+o1 = new stzString("Ø³Ù„Ø§Ù… Ù„Ø£Ù‡Ù„ Ù…ØµØ± Ø§Ù„ÙƒØ±Ø§Ù…")
 o1.RemoveNLeftChars(7)
 ? o1.Content()
-o#--> سلام لأهل مصر
+o#--> Ø³Ù„Ø§Ù… Ù„Ø£Ù‡Ù„ Ù…ØµØ±
 
 pf()
 # Executed in 0.01 second(s).
@@ -16337,7 +16337,7 @@ o1 = new stzString("ring language is nice language")
 #--> ring language is nice
 
 ? o1.SectionQ(1,4).CharsReversed()
-#--> ɹᴉnᵷ
+#--> É¹á´‰náµ·
 
 pf()
 # Executed in 0.06 second(s).
@@ -16401,8 +16401,8 @@ pr()
 ? StzStringQ("{nnnnn}").IsBoundedBy(["{","}"])
 #--> TRUE
 
-o1 = new stzString("بسم الله الرّحمن الرّحيم")
-? o1.IsBoundedBy(["بسم", "الرّحيم"])
+o1 = new stzString("Ø¨Ø³Ù… Ø§Ù„Ù„Ù‡ Ø§Ù„Ø±Ù‘Ø­Ù…Ù† Ø§Ù„Ø±Ù‘Ø­ÙŠÙ…")
+? o1.IsBoundedBy(["Ø¨Ø³Ù…", "Ø§Ù„Ø±Ù‘Ø­ÙŠÙ…"])
 #--> TRUE
 
 pf()
@@ -16412,20 +16412,20 @@ pf()
 
 pr()
 
-o1 = new stzString("بسم الله الرّحمن الرّحيم")
+o1 = new stzString("Ø¨Ø³Ù… Ø§Ù„Ù„Ù‡ Ø§Ù„Ø±Ù‘Ø­Ù…Ù† Ø§Ù„Ø±Ù‘Ø­ÙŠÙ…")
 
-? @@( o1.FindTheseBounds("بسم", "الرّحيم") )
+? @@( o1.FindTheseBounds("Ø¨Ø³Ù…", "Ø§Ù„Ø±Ù‘Ø­ÙŠÙ…") )
 #--> [ 1, 18 ]
 
-? @@( o1.FindBoundedBy([ "بسم", "الرّحيم" ]) ) + NL
+? @@( o1.FindBoundedBy([ "Ø¨Ø³Ù…", "Ø§Ù„Ø±Ù‘Ø­ÙŠÙ…" ]) ) + NL
 #--> [ 4 ]
 
 #--
 
-? @@( o1.FindTheseBoundsZZ("بسم", "الرّحيم") )
+? @@( o1.FindTheseBoundsZZ("Ø¨Ø³Ù…", "Ø§Ù„Ø±Ù‘Ø­ÙŠÙ…") )
 #--> [ [ 1, 3 ], [ 18, 24 ] ]
 
-? @@( o1.FindBoundedByZZ([ "بسم", "الرّحيم" ]) )
+? @@( o1.FindBoundedByZZ([ "Ø¨Ø³Ù…", "Ø§Ù„Ø±Ù‘Ø­ÙŠÙ…" ]) )
 #--> [ [ 4, 17 ] ]
 
 pf()
@@ -16510,17 +16510,17 @@ pf()
 
 pr()
 
-str = "منصوريّات"
+str = "Ù…Ù†ØµÙˆØ±ÙŠÙ‘Ø§Øª"
 ? StringAlignXT(str, 30, ".", :Left)
 ? StringAlignXT(str, 30, ".", :Right)
 ? StringAlignXT(str, 30, ".", :Center)
 ? StringAlignXT(str, 30, ".", :Justified)
 
 #-->
-# ......................منصوريّات
-# منصوريّات......................
-# ...........منصوريّات...........
-# م....ن...ص...و...ر...يّ...ا...ت
+# ......................Ù…Ù†ØµÙˆØ±ÙŠÙ‘Ø§Øª
+# Ù…Ù†ØµÙˆØ±ÙŠÙ‘Ø§Øª......................
+# ...........Ù…Ù†ØµÙˆØ±ÙŠÙ‘Ø§Øª...........
+# Ù…....Ù†...Øµ...Ùˆ...Ø±...ÙŠÙ‘...Ø§...Øª
 
 pf()
 # Executed in 0.05 second(s).
@@ -16529,9 +16529,9 @@ pf()
 
 pr()
 
-o1 = new stzString("مَنْصُورِيَّاتُُ")
+o1 = new stzString("Ù…ÙŽÙ†Ù’ØµÙÙˆØ±ÙÙŠÙ‘ÙŽØ§ØªÙÙ")
 
-? o1.NLastCharsQ(2).IsMadeOfSome([ "ُ", "س", "ص" ])
+? o1.NLastCharsQ(2).IsMadeOfSome([ "Ù", "Ø³", "Øµ" ])
 #--> TRUE
 
 pf()
@@ -16568,15 +16568,15 @@ pf()
 
 pr()
 
-o1 = new stzString("سلسبيل")
+o1 = new stzString("Ø³Ù„Ø³Ø¨ÙŠÙ„")
 
-? o1.IsMadeOf([ "ب", "ل", "س", "ي" ])
+? o1.IsMadeOf([ "Ø¨", "Ù„", "Ø³", "ÙŠ" ])
 #--> TRUE
 
-? o1.IsMadeOf([ "ب", "ل", "س", "ي", "ج" ])
+? o1.IsMadeOf([ "Ø¨", "Ù„", "Ø³", "ÙŠ", "Ø¬" ])
 #--> FALSE
 
-? o1.IsMadeOfSome([ "ب", "ل", "س", "ي", "m" ])
+? o1.IsMadeOfSome([ "Ø¨", "Ù„", "Ø³", "ÙŠ", "m" ])
 #--> TRUE
 
 pf()
@@ -16690,11 +16690,11 @@ pf()
 
 pr()
 
-o1 = new stzString("Hi Dan! You are Dan, but your work is never done! 😉")
+o1 = new stzString("Hi Dan! You are Dan, but your work is never done! ðŸ˜‰")
 o1.ReplaceNthOccurrence(2, "Dan", "hardworker")
 
 ? o1.Content()
-#--> Hi Dan! You are hardworker, but your work is never done! 😉
+#--> Hi Dan! You are hardworker, but your work is never done! ðŸ˜‰
 
 pf()
 # Executed in 0.01 second(s).
@@ -16725,7 +16725,7 @@ o1 = new stzString("reserve")
 ? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = FALSE )
 #--> :Equal
 
-o1 = new stzString("réservé")
+o1 = new stzString("rÃ©servÃ©")
 ? o1.UnicodeCompareWithCS("RESERVE", :CaseSensitive = FALSE )
 #--> :Greater
 
@@ -16740,12 +16740,12 @@ pf()
 
 pr()
 
-o1 = new stzString("RÉSERVÉ")
+o1 = new stzString("RÃ‰SERVÃ‰")
 
-? o1.UnicodeCompareWithInSystemLocale("réservé")
+? o1.UnicodeCompareWithInSystemLocale("rÃ©servÃ©")
 #--> :Greater
 
-//? o1.UnicodeCompareWithInLocale("réservé", "fr-FR")	#TODO
+//? o1.UnicodeCompareWithInLocale("rÃ©servÃ©", "fr-FR")	#TODO
 
 pf()
 # Executed in 0.01 second(s).
@@ -16769,10 +16769,10 @@ pf()
 
 pr()
 
-o1 = new stzString("اسمي هو فلانة، قلت لك فلانة! أوَ لم يعجبك أن يكون اسمي فلانة؟")
-o1.ReplaceAll("فلانة", "فلسطين")
+o1 = new stzString("Ø§Ø³Ù…ÙŠ Ù‡Ùˆ ÙÙ„Ø§Ù†Ø©ØŒ Ù‚Ù„Øª Ù„Ùƒ ÙÙ„Ø§Ù†Ø©! Ø£ÙˆÙŽ Ù„Ù… ÙŠØ¹Ø¬Ø¨Ùƒ Ø£Ù† ÙŠÙƒÙˆÙ† Ø§Ø³Ù…ÙŠ ÙÙ„Ø§Ù†Ø©ØŸ")
+o1.ReplaceAll("ÙÙ„Ø§Ù†Ø©", "ÙÙ„Ø³Ø·ÙŠÙ†")
 ? o1.Content()
-o#--> اسمي هو فلسطين، قلت لك فلسطين! أوَ لم يعجبك أن يكون اسمي فلسطين؟
+o#--> Ø§Ø³Ù…ÙŠ Ù‡Ùˆ ÙÙ„Ø³Ø·ÙŠÙ†ØŒ Ù‚Ù„Øª Ù„Ùƒ ÙÙ„Ø³Ø·ÙŠÙ†! Ø£ÙˆÙŽ Ù„Ù… ÙŠØ¹Ø¬Ø¨Ùƒ Ø£Ù† ÙŠÙƒÙˆÙ† Ø§Ø³Ù…ÙŠ ÙÙ„Ø³Ø·ÙŠÙ†ØŸ
 
 pf()
 # Executed in 0.01 second(s).
@@ -16781,13 +16781,13 @@ pf()
 
 pr()
 
-o1 = new stzString("Mon prénom c'est Foulèna. J'ai bien dit Foulèna! " +
-"Où bien tu n'aimes pas que ce soit Foulèna?")
+o1 = new stzString("Mon prÃ©nom c'est FoulÃ¨na. J'ai bien dit FoulÃ¨na! " +
+"OÃ¹ bien tu n'aimes pas que ce soit FoulÃ¨na?")
 
-o1.ReplaceAll("Foulèna", "Tiba")
+o1.ReplaceAll("FoulÃ¨na", "Tiba")
 ? o1.Content()
 
-#--> "Mon prénom c'est Tiba. J'ai bien dit Tiba! Où bien tu n'aimes pas que ce soit Tiba?"
+#--> "Mon prÃ©nom c'est Tiba. J'ai bien dit Tiba! OÃ¹ bien tu n'aimes pas que ce soit Tiba?"
 
 pf()
 # Executed in 0.01 second(s).
@@ -17114,11 +17114,11 @@ pf()
 
 pr()
 
-o1 = new stzString("Ⅱ")
+o1 = new stzString("â…¡")
 ? o1.IsLatin()
 #--> TRUE
 
-o1 = new stzChar("Ⅱ")
+o1 = new stzChar("â…¡")
 ? o1.IsRomanNumber()
 #--> TRUE
 
@@ -17218,20 +17218,20 @@ pr()
 
 # In Softanza you get the unicode number of a char by saying:
 
-? Unicode("鶊")
+? Unicode("é¶Š")
 #--> 40330
 
 # Once you have the code, you can pass it as an imput to a stzChar
 # char object to get the char:
 
 ? StzCharQ(40330).Content()
-#--> 鶊
+#--> é¶Š
 
 # The engine is used internally to get the Unicode code.
 # We use StzChar to get the character from a decimal unicode:
 
 ? StzCharQ(:FromUnicode = 40220).Content()
-#--> 鶊
+#--> é¶Š
 
 pf()
 # Executed in 0.01 second(s) in Ring 1.22
@@ -17254,7 +17254,7 @@ pf()
 
 pr()
 
-o1 = new stzString("saस्तेb")
+o1 = new stzString("saà¤¸à¥à¤¤à¥‡b")
 ? o1.NumberOfChars()
 #--> 7
 
@@ -17262,10 +17262,10 @@ o1 = new stzString("saस्तेb")
 #--> [ 115, 97, 2360, 2381, 2340, 2375, 98 ]
 
 ? @@( o1.UnicodesXT() )
-#--> [ [ 115, "s" ], [ 97, "a" ], [ 2360, "स" ], [ 2381, "्" ], [ 2340, "त" ], [ 2375, "े" ], [ 98, "b" ] ]
+#--> [ [ 115, "s" ], [ 97, "a" ], [ 2360, "à¤¸" ], [ 2381, "à¥" ], [ 2340, "à¤¤" ], [ 2375, "à¥‡" ], [ 98, "b" ] ]
 
 ? @@( o1.CharsAndTheirUnicodes() )
-#--> [ [ "s", 115 ], [ "a", 97 ], [ "स", 2360 ], [ "्", 2381 ], [ "त", 2340 ], [ "े", 2375 ], [ "b", 98 ] ]
+#--> [ [ "s", 115 ], [ "a", 97 ], [ "à¤¸", 2360 ], [ "à¥", 2381 ], [ "à¤¤", 2340 ], [ "à¥‡", 2375 ], [ "b", 98 ] ]
 
 pf()
 # Executed in 0.03 second(s).
@@ -17308,25 +17308,25 @@ pf()
 
 pr()
 
-o1 = new stzString("Приве́т नमस्ते שָׁלוֹם")
+o1 = new stzString("ÐŸÑ€Ð¸Ð²ÐµÌÑ‚ à¤¨à¤®à¤¸à¥à¤¤à¥‡ ×©Ö¸××œ×•Ö¹×")
 
 ? @@( o1.PartsUsingXT( "StzCharQ(@char).Script()" ) ) + NL
 
 ? @@NL( o1.Parts2UsingXT( "StzCharQ(@char).Script()" ) ) + NL
 #--> [
-# 	[ "Приве", "cyrillic" 	],
-# 	[ "́", 	   "inherited" 	],
-# 	[ "т",     "cyrillic" 	],
+# 	[ "ÐŸÑ€Ð¸Ð²Ðµ", "cyrillic" 	],
+# 	[ "Ì", 	   "inherited" 	],
+# 	[ "Ñ‚",     "cyrillic" 	],
 # 	[ " ",     "common" 	], 
-#	[ "नमस्ते",         "devanagari" ],
+#	[ "à¤¨à¤®à¤¸à¥à¤¤à¥‡",         "devanagari" ],
 # 	[ " ",     "common" 	],
-#o 	[ "שָׁלוֹם", "hebrew" 	]
+#o 	[ "×©Ö¸××œ×•Ö¹×", "hebrew" 	]
 # ]
 
 ? @@( o1.PartsWXT('{
 	StzCharQ(@char).Script() = :Cyrillic
 }') )
-#--> [ "Приве", "́", "т", " नमस्ते שָׁלוֹם" ]
+#--> [ "ÐŸÑ€Ð¸Ð²Ðµ", "Ì", "Ñ‚", " à¤¨à¤®à¤¸à¥à¤¤à¥‡ ×©Ö¸××œ×•Ö¹×" ]
 
 pf()
 # Executed in 0.45 second(s) in Ring 1.22
@@ -17339,10 +17339,10 @@ pr()
 ? Q("M").NumberOfChars()
 #--> 1
 
-? Q("🐨").NumberOfChars()
+? Q("ðŸ¨").NumberOfChars()
 #--> 1
 
-? len("🐨")
+? len("ðŸ¨")
 #--> 4 (bytes, not chars)
 
 pf()
@@ -17352,7 +17352,7 @@ pf()
 
 pr()
 
-o1 = new stzString("🐨")
+o1 = new stzString("ðŸ¨")
 
 ? o1.SizeInBytes()
 #--> 624
@@ -17383,28 +17383,28 @@ pf()
 pr()
 
 ? Heart()
-#--> "♥"
+#--> "â™¥"
 
 ? Smile()
-#--> "😆"
+#--> "ðŸ˜†"
 
 ? Handshake()
-#--> "🤝"
+#--> "ðŸ¤"
 
 ? Sun()
-#--> "🌞"
+#--> "ðŸŒž"
 
 ? Star()
-#--> "★"
+#--> "â˜…"
 
 ? CheckMark()
-#--> "✓"
+#--> "âœ“"
 
 ? Dot()
-#--> "•"
+#--> "â€¢"
 
 ? Flower()
-#--> "✤"
+#--> "âœ¤"
 
 pf()
 # Executed in almost 0 second(s).
@@ -17445,8 +17445,8 @@ pf()
 
 StartProfiler()
 	
-	o1 = new stzString("Ring programming♥ language")
-	o1.RemoveXT("♥", :From = "programming♥")
+	o1 = new stzString("Ring programmingâ™¥ language")
+	o1.RemoveXT("â™¥", :From = "programmingâ™¥")
 	
 	? o1.Content()
 	#--> Ring programming language
@@ -17549,11 +17549,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__♥)__♥)__♥)__") {
+Q("__â™¥)__â™¥)__â™¥)__") {
 	
-	RemoveXT( ")", :AfterEach = "♥" ) # ... you can also say :After = "♥"
+	RemoveXT( ")", :AfterEach = "â™¥" ) # ... you can also say :After = "â™¥"
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 }
 	
 StopProfiler()
@@ -17563,11 +17563,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__♥__♥)__♥__") {
+Q("__â™¥__â™¥)__â™¥__") {
 	
-	RemoveXT( ")", :AfterNth = [2, "♥"] )
+	RemoveXT( ")", :AfterNth = [2, "â™¥"] )
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 	
 }
 	
@@ -17578,11 +17578,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__♥)__♥__♥__") {
+Q("__â™¥)__â™¥__â™¥__") {
 
-	RemoveXT( ")", :AfterFirst = "♥" )
+	RemoveXT( ")", :AfterFirst = "â™¥" )
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 }
 	
 StopProfiler()
@@ -17592,11 +17592,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__♥__♥__♥)__") {
+Q("__â™¥__â™¥__â™¥)__") {
 	
-	RemoveXT( ")", :AfterLast = "♥" )
+	RemoveXT( ")", :AfterLast = "â™¥" )
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 }
 	
 StopProfiler()
@@ -17621,11 +17621,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__(♥__(♥__(♥__") {
+Q("__(â™¥__(â™¥__(â™¥__") {
 
-	RemoveXT( "(", :BeforeEach = "♥" ) # ... you can also say :Before = "♥"
+	RemoveXT( "(", :BeforeEach = "â™¥" ) # ... you can also say :Before = "â™¥"
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 }
 	
 StopProfiler()
@@ -17635,11 +17635,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__♥__(♥__♥__") {
+Q("__â™¥__(â™¥__â™¥__") {
 	
-	RemoveXT( "(", :BeforeNth = [2, "♥"] )
+	RemoveXT( "(", :BeforeNth = [2, "â™¥"] )
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 
 }
 	
@@ -17650,11 +17650,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__(♥__♥__♥__") {
+Q("__(â™¥__â™¥__â™¥__") {
 
-	RemoveXT( "(", :BeforeFirst = "♥" )
+	RemoveXT( "(", :BeforeFirst = "â™¥" )
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 }
 	
 StopProfiler()
@@ -17664,11 +17664,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__♥__♥__(♥__") {
+Q("__â™¥__â™¥__(â™¥__") {
 	
-	RemoveXT( "(", :BeforeLast = "♥" )
+	RemoveXT( "(", :BeforeLast = "â™¥" )
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 }
 	
 StopProfiler()
@@ -17678,11 +17678,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("_-♥-_-♥-_-♥-_") {
+Q("_-â™¥-_-â™¥-_-â™¥-_") {
 	
-	RemoveXT("-", :AroundEach = "♥") # Or simply :Around
+	RemoveXT("-", :AroundEach = "â™¥") # Or simply :Around
 	? Content()
-	#--> _♥_♥_♥_
+	#--> _â™¥_â™¥_â™¥_
 }
 	
 StopProfiler()
@@ -17692,11 +17692,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__/♥\__/♥\__/♥\__") {
+Q("__/â™¥\__/â™¥\__/â™¥\__") {
 	
-	RemoveXT([ "/","\" ], :Around = "♥") # or just :AroundEach = "♥" if you want
+	RemoveXT([ "/","\" ], :Around = "â™¥") # or just :AroundEach = "â™¥" if you want
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 }
 	
 StopProfiler()
@@ -17706,11 +17706,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__♥__/♥\__♥__") {
+Q("__â™¥__/â™¥\__â™¥__") {
 
-	RemoveXT([ "/","\" ], :AroundNth = [2, "♥"])
+	RemoveXT([ "/","\" ], :AroundNth = [2, "â™¥"])
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 }
 	
 StopProfiler()
@@ -17720,11 +17720,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__/♥\__♥__♥__") {
+Q("__/â™¥\__â™¥__â™¥__") {
 	
-	RemoveXT( [ "/","\" ], :AroundFirst = "♥" )
+	RemoveXT( [ "/","\" ], :AroundFirst = "â™¥" )
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 }
 	
 StopProfiler()
@@ -17734,11 +17734,11 @@ StopProfiler()
 
 StartProfiler()
 	
-Q("__♥__♥__/♥\__") {
+Q("__â™¥__â™¥__/â™¥\__") {
 	
-	RemoveXT( [ "/","\" ], :AroundLast = "♥" )
+	RemoveXT( [ "/","\" ], :AroundLast = "â™¥" )
 	? Content()
-	#--> __♥__♥__♥__
+	#--> __â™¥__â™¥__â™¥__
 }
 	
 StopProfiler()
@@ -17748,8 +17748,8 @@ StopProfiler()
 
 StartProfiler()
 
-	Q("/♥♥♥\__/\/\__/♥♥♥\__") {
-		RemoveXT("♥♥♥", :BoundedBy = [ "/", :And = "\" ])
+	Q("/â™¥â™¥â™¥\__/\/\__/â™¥â™¥â™¥\__") {
+		RemoveXT("â™¥â™¥â™¥", :BoundedBy = [ "/", :And = "\" ])
 		? Content()
 		#--> /\__/\/\__/\__
 	}
@@ -17761,8 +17761,8 @@ StopProfiler()
 
 StartProfiler()
 
-	Q("__/\/\__/♥\__") {
-		RemoveXT("♥", :BoundedByIB = ["/", "\"]) # IB -> Bounds are also removed
+	Q("__/\/\__/â™¥\__") {
+		RemoveXT("â™¥", :BoundedByIB = ["/", "\"]) # IB -> Bounds are also removed
 		? Content()
 		#--> __/\/\____
 	}
@@ -17774,8 +17774,8 @@ StopProfiler()
 
 pr()
 
-o1 = new stzString("__^^^__^^♥^^__")
-o1.RemoveSubStringBoundedBy("♥", "^^")
+o1 = new stzString("__^^^__^^â™¥^^__")
+o1.RemoveSubStringBoundedBy("â™¥", "^^")
 ? o1.Content()
 #--> __^^^__^^^^__
 
@@ -17786,8 +17786,8 @@ pf()
 
 StartProfiler()
 
-	Q("__^^^__^^♥^^__") {
-		RemoveXT("♥", :BoundedBy = "^^")
+	Q("__^^^__^^â™¥^^__") {
+		RemoveXT("â™¥", :BoundedBy = "^^")
 		? Content()
 		#--> __^^^__^^^^__
 	}
@@ -17799,8 +17799,8 @@ StopProfiler()
 
 StartProfiler()
 
-	Q("__/\/\__^^♥^^__") {
-		RemoveXT("♥", :BoundedByIB = "^^")
+	Q("__/\/\__^^â™¥^^__") {
+		RemoveXT("â™¥", :BoundedByIB = "^^")
 		? Content()
 		#--> __/\/\____
 	}
@@ -17812,8 +17812,8 @@ StopProfiler()
 
 StartProfiler()
 
-	Q("/♥♥♥\__/♥\/♥♥\__/♥\__") {
-		RemoveXT("♥", [])
+	Q("/â™¥â™¥â™¥\__/â™¥\/â™¥â™¥\__/â™¥\__") {
+		RemoveXT("â™¥", [])
 		? Content()
 		#--> /\__/\/\__/\__
 	}
@@ -17825,8 +17825,8 @@ StopProfiler()
 
 StartProfiler()
 
-	Q("/♥♥♥\__/♥\/♥♥\__/♥\__") {
-		RemoveXT([], "♥")
+	Q("/â™¥â™¥â™¥\__/â™¥\/â™¥â™¥\__/â™¥\__") {
+		RemoveXT([], "â™¥")
 		? Content()
 		#--> /\__/\/\__/\__
 	}
@@ -17838,10 +17838,10 @@ StopProfiler()
 
 StartProfiler()
 
-	Q("_/♥\_/♥\_/♥♥\_/♥\_") {
-		RemoveXT(:Nth = 4, "♥")
+	Q("_/â™¥\_/â™¥\_/â™¥â™¥\_/â™¥\_") {
+		RemoveXT(:Nth = 4, "â™¥")
 		? Content()
-		#--> _/♥\_/♥\_/♥\_/♥\_
+		#--> _/â™¥\_/â™¥\_/â™¥\_/â™¥\_
 	}
 
 StopProfiler()
@@ -17851,8 +17851,8 @@ StopProfiler()
 
 StartProfiler()
 
-	Q("^^♥^^") {
-		RemoveXT( "♥", :AtPosition = 3)
+	Q("^^â™¥^^") {
+		RemoveXT( "â™¥", :AtPosition = 3)
 		? Content()
 		#--> ^^^^
 	}
@@ -17865,10 +17865,10 @@ StopProfiler()
 
 StartProfiler()
 
-	Q("♥^^♥^^♥") {
-		RemoveXT( "♥", :AtPositions = [1, 7]) # or :At = [1, 7]
+	Q("â™¥^^â™¥^^â™¥") {
+		RemoveXT( "â™¥", :AtPositions = [1, 7]) # or :At = [1, 7]
 		? Content()
-		#--> ^^♥^^
+		#--> ^^â™¥^^
 	}
 
 StopProfiler()
@@ -17947,9 +17947,9 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 	[ "corners", "" ]
 ])
 #-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 
 pf()
 # Executed in 0.04 second(s).
@@ -17962,15 +17962,15 @@ o1 = new stzString("RING")
 
 ? o1.BoxEachCharQ().Content()
 #-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 
 ? o1.Content()
 #-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 
 pf()
 # Executed in 0.04 second(s).
@@ -17981,9 +17981,9 @@ pr()
 
 ? Q("RING").CharsBoxed()
 #-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 
 pf()
 # Executed in 0.04 second(s).
@@ -17996,9 +17996,9 @@ o1 = new stzString("SOFTANZA")
 o1.BoxifyChars()
 ? o1.Content()
 #-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┐
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# └───┴───┴───┴───┴───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 
 pf()
 # Executed in 0.04 second(s).
@@ -18011,9 +18011,9 @@ o1 = new stzString("SOFTANZA")
 o1.BoxifyCharsXT([])
 ? o1.Content()
 #-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┐
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# └───┴───┴───┴───┴───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 
 pf()
 # Executed in 0.04 second(s).
@@ -18025,9 +18025,9 @@ pr()
 o1 = new stzListOfChars(@Chars("SOFTANZA~RING"))
 ? o1.BoxifiedRounded()
 #-->s
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
-# │ S │ O │ F │ T │ A │ N │ Z │ A │ ~ │ R │ I │ N │ G │
-# ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚ ~ â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
 
 pf()
 # Executed in 0.04 second(s).
@@ -18039,15 +18039,15 @@ pr()
 o1 = new stzListOfChars([ "S", "O", "F", "T", "A", "N", "Z", "A" ])
 ? o1.BoxifiedXT([ :Round = TRUE ])
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───╮
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# ╰───┴───┴───┴───┴───┴───┴───┴───╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚
+# â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
 
 ? o1.BoxifiedXT([ :Corners = [ :Round, :Rect, :Round, :Rect ] ])
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───┐
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# └───┴───┴───┴───┴───┴───┴───┴───╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
 
 pf()
 # Executed in 0.04 second(s).
@@ -18242,7 +18242,7 @@ pr()
 o1 = new stzString("AB3CD6EF9GH")
 o1.ReplaceCharsAtPositions([ 3, 9, 6], Heart())
 ? o1.Content()
-#--> AB♥CD♥EF♥GH
+#--> ABâ™¥CDâ™¥EFâ™¥GH
 
 pf()
 # Executed in 0.01 second(s).
@@ -18252,10 +18252,10 @@ pf()
 pr()
 
 o1 = new stzList([ "ring", "php", "ring", "ruby", "ring", "python", "ring", "csharp", "ring" ])
-o1.ReplaceItemsAtPositionsByMany([ 3, 5, 7], [ "♥", "♥♥", "♥♥♥" ])
+o1.ReplaceItemsAtPositionsByMany([ 3, 5, 7], [ "â™¥", "â™¥â™¥", "â™¥â™¥â™¥" ])
 
 ? @@( o1.Content() )
-#--> [ "ring", "php", "♥", "ruby", "♥♥", "python", "♥♥♥", "csharp", "ring" ]
+#--> [ "ring", "php", "â™¥", "ruby", "â™¥â™¥", "python", "â™¥â™¥â™¥", "csharp", "ring" ]
 
 pf()
 # Executed in almost 0 second(s).
@@ -18365,9 +18365,9 @@ o1 = new stzListOfChars(@Chars("RINGORIALAND"))
 	:Numbered = TRUE
 ])
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
-# │ R │ I │ N │ G │ O │ R │ I │ A │ L │ A │ N │ D │
-# ╰───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚ O â”‚ R â”‚ I â”‚ A â”‚ L â”‚ A â”‚ N â”‚ D â”‚
+# â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
 #   1   2   3   4   5   6   7   8   9   10  11  12
 
 pf()
@@ -18385,9 +18385,9 @@ o1 = new stzListOfChars(@Chars("RINGORIA"))
 	:Numbered = TRUE # Shows only the highlited positions
 ])
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───╮
-# │ R │ I │ N │ G │ O │ R │ I │ A │
-# ╰─•─┴─•─┴─•─┴───┴─•─┴───┴───┴───╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚ O â”‚ R â”‚ I â”‚ A â”‚
+# â•°â”€â€¢â”€â”´â”€â€¢â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
 #   1   2   3       5
 
 pf()
@@ -18407,9 +18407,9 @@ o1 = new stzListOfChars(@Chars("RINGORIALAND"))
 ])
 
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
-# │ R │ I │ N │ G │ O │ R │ I │ A │ L │ A │ N │ D │
-# ╰─•─┴─•─┴─•─┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴─•─╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚ O â”‚ R â”‚ I â”‚ A â”‚ L â”‚ A â”‚ N â”‚ D â”‚
+# â•°â”€â€¢â”€â”´â”€â€¢â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â€¢â”€â•¯
 #   '---'   '-------'                   '-------'
 #   1   2   3       5                   10     12   
 
@@ -18424,9 +18424,9 @@ o1 = new stzListOfChars([ "R", "I", "G", "N", "G" ])
 
 ? o1.BoxifyXT([ :Rounded, :Hilight = [ 1, 2, 4, 5 ], :Sectioned, :Numbered ])
 #-->
-# ╭───┬───┬───┬───┬───╮
-# │ R │ I │ G │ N │ G │
-# ╰─•─┴─•─┴───┴─•─┴─•─╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ R â”‚ I â”‚ G â”‚ N â”‚ G â”‚
+# â•°â”€â€¢â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â€¢â”€â•¯
 #   '---'       '---'
 #   1   2       4   5
 
@@ -18441,9 +18441,9 @@ o1 = new stzListOfChars([ "R", "I", "G", "N", "G" ])
 
 ? o1.BoxifyXT([ :Hilight = [ 1, 2, 4, 5 ], :Sectioned=FALSE, :Numbered ])
 #-->
-# ┌───┬───┬───┬───┬───┐
-# │ R │ I │ G │ N │ G │
-# └─•─┴─•─┴───┴─•─┴─•─┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ R â”‚ I â”‚ G â”‚ N â”‚ G â”‚
+# â””â”€â€¢â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â€¢â”€â”˜
 #   1   2       4   5
 
 pf()
@@ -18492,9 +18492,9 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 	:Sectioned = TRUE,
 	:Numbered = TRUE ]) + NL
 #-->
-# ╭───┬───┬───┬───╮
-# │ R │ I │ N │ G │
-# ╰─•─┴───┴───┴─•─╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â•°â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â•¯
 #   '-----------'
 #   1           4
 
@@ -18507,9 +18507,9 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 	:NumberedXT = TRUE
 ])
 #-->
-# ╭───┬───┬───┬───╮
-# │ R │ I │ N │ G │
-# ╰─•─┴───┴───┴─•─╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â•°â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â•¯
 #   '-----------'
 #   1   2   3   4
 
@@ -18528,16 +18528,16 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 	:NumberedXT = TRUE
 ]) + NL # OrBoxifyXT()
 #-->
-# ╭───┬───┬───┬───╮
-# │ R │ I │ N │ G │
-# ╰─•─┴───┴───┴─•─╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â•°â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â•¯
 #   1   2   3   4
 
 ? o1.BoxifyXT([ :ShowPositions = [ 1, 4 ], :NumberedXT = TRUE ])
 #-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └─•─┴───┴───┴─•─┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”˜
 #   1   2   3   4
 
 pf()
@@ -18549,16 +18549,16 @@ pr()
 
 ? Q("RING").CharsBoxifiedXT([ :Numbered = TRUE ]) + NL
 #-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 #   1   2   3   4
 
 ? Q(Chars("RING")).ToStzListOfChars().BoxifiedXT([ :Numbered = TRUE ])
 #-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 #   1   2   3   4
 
 pf()
@@ -18579,9 +18579,9 @@ o1.BoxifyCharsXT([
 
 ? o1.Content() + NL
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-# │ S │ O │ F │ T │ A │ N │ Z │ A │ ~ │ R │ I │ N │ G │
-# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚ ~ â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
 #   1   2   3   4   5   6   7   8   9   10  11  12  13
 
 # When you define :Rounded = FALSE, the ouput is not rounded,
@@ -18597,9 +18597,9 @@ o1.BoxifyCharsXT([
 
 ? o1.Content()
 #-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-# │ S │ O │ F │ T │ A │ N │ Z │ A │ ~ │ R │ I │ N │ G │
-# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚ ~ â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 #   1   2   3   4   5   6   7   8   9   10  11  12  13
 
 pf()
@@ -18721,19 +18721,19 @@ o1 = new stzString("SOFTANZA")
 ? o1.VizFindXT("A", [ :Spacified = TRUE, :PositionSign = Heart() ]) + NL
 #-->
 # S O F T A N Z A
-# --------♥-----♥
+# --------â™¥-----â™¥
 
 ? o1.VizFindXT("A", [ :Spacified = 1, :PositionSign = Heart(), :Numbered = 1 ]) + NL
 #-->
 # S O F T A N Z A
-# --------♥-----♥
+# --------â™¥-----â™¥
 #         9     15
 
 ? o1.VizFindBoxed("A") + NL
 #-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┐
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# └───┴───┴───┴───┴─•─┴───┴───┴─•─┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”˜
 
 ? o1.VizFindBoxedXT("A", [
 	:PositionSign = Heart(),
@@ -18741,9 +18741,9 @@ o1 = new stzString("SOFTANZA")
 ]) + NL
 
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───╮
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# ╰───┴───┴───┴───┴─♥─┴───┴───┴─♥─╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚
+# â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â™¥â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â™¥â”€â•¯
 
 ? o1.VizFindXT( "A", [
 	:Boxed = TRUE,
@@ -18755,9 +18755,9 @@ o1 = new stzString("SOFTANZA")
 	:PositionSign = Heart()
 ])
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───╮
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# ╰───┴───┴───┴───┴─♥─┴───┴───┴─♥─╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚
+# â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â™¥â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â™¥â”€â•¯
 #                   5           8
 
 pf()
@@ -18778,25 +18778,25 @@ o1 = new stzString("SOFTANZA")
 ])
 
 #-->
-# ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
-# ┊ S ┊ O ┊ F ┊ T ┊ A ┊ N ┊ Z ┊ A ┊
-# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴─•─┴╌╌╌┴╌╌╌┴─•─╯
+# â•­â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ•®
+# â”Š S â”Š O â”Š F â”Š T â”Š A â”Š N â”Š Z â”Š A â”Š
+# â•°â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â”€â€¢â”€â”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â”€â€¢â”€â•¯
 #                   5           8
 
 # Let's change the position sign:
 
 ? PositionSign() # Or PositionChar() or HilightSign() or HilightChar()
-#--> "•"
+#--> "â€¢"
 
-SetPositionSign("↑")
+SetPositionSign("â†‘")
 
 # When you provide one option, enclose it between [ and ]:
 
 ? o1.VizFindBoxedXT( "A", [ :Rounded = TRUE, :Numbered = FALSE ] )
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───╮
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# ╰───┴───┴───┴───┴─↑─┴───┴───┴─↑─╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚
+# â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â†‘â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â†‘â”€â•¯
 
 pf()
 # Executed in 0.12 second(s) in Ring 1.24
@@ -18808,7 +18808,7 @@ pr()
 o1 = new stzString("SOFTANZA")
 
 ? o1.VizFindBoxedXT("A", [
-	:PositionChar = "↑", # Or :PositionSign or :HilightChar or :HilightSign
+	:PositionChar = "â†‘", # Or :PositionSign or :HilightChar or :HilightSign
 	:Numbered = TRUE,
 	:Solid = TRUE,
 
@@ -18817,22 +18817,22 @@ o1 = new stzString("SOFTANZA")
 
 ]) + NL
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───╮
-# │ S │ O │ F │ T │ A │ N │ Z │ A │
-# └───┴───┴───┴───┴─↑─┴───┴───┴─↑─┘
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ S â”‚ O â”‚ F â”‚ T â”‚ A â”‚ N â”‚ Z â”‚ A â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â†‘â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â†‘â”€â”˜
 #                   5           8 
 
 ? o1.VizFindBoxedXT("A", [
 	:Dashed = TRUE,
 	:Rounded = TRUE,
 
-	:PositionSign = "↑",
+	:PositionSign = "â†‘",
 	:Numbered = TRUE
 ])
 #-->
-# ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
-# ┊ S ┊ O ┊ F ┊ T ┊ A ┊ N ┊ Z ┊ A ┊
-# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴─↑─┴╌╌╌┴╌╌╌┴─↑─╯
+# â•­â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ•®
+# â”Š S â”Š O â”Š F â”Š T â”Š A â”Š N â”Š Z â”Š A â”Š
+# â•°â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â”€â†‘â”€â”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â”€â†‘â”€â•¯
 #                   5           8
 
 pf()
@@ -18852,9 +18852,9 @@ o1 = new stzString("..STZ..STZ..STZ")
 	:Rounded = TRUE
  ])
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
-# │ . │ . │ S │ T │ Z │ . │ . │ S │ T │ Z │ . │ . │ S │ T │ Z │
-# ╰───┴───┴─•─┴───┴─•─┴───┴───┴─•─┴───┴─•─┴───┴───┴─•─┴───┴─•─╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ . â”‚ . â”‚ S â”‚ T â”‚ Z â”‚ . â”‚ . â”‚ S â”‚ T â”‚ Z â”‚ . â”‚ . â”‚ S â”‚ T â”‚ Z â”‚
+# â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â€¢â”€â•¯
 #           '-------'           '-------'           '-------'
 #           3       5           8     10            13     15
 
@@ -18870,39 +18870,39 @@ o1 = new stzListOfChars([ "R", "I", "N", "G" ])
 
 ? o1.Box()
 #-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 
 ? o1.BoxXT([])
 #-->
-# ┌───┬───┬───┬───┐
-# │ R │ I │ N │ G │
-# └───┴───┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 
 ? o1.BoxRound()
 #-->
-# ╭───┬───┬───┬───╮
-# │ R │ I │ N │ G │
-# ╰───┴───┴───┴───╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ R â”‚ I â”‚ N â”‚ G â”‚
+# â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
 
 ? o1.BoxDash()
 #-->
-# ┌╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┐
-# ┊ R ┊ I ┊ N ┊ G ┊
-# └╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┘
+# â”Œâ•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”
+# â”Š R â”Š I â”Š N â”Š G â”Š
+# â””â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”˜
 
 ? o1.BoxRoundDash()
 #-->
-# ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
-# ┊ R ┊ I ┊ N ┊ G ┊
-# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
+# â•­â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ•®
+# â”Š R â”Š I â”Š N â”Š G â”Š
+# â•°â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ•¯
 
 ? o1.BoxDashRound()
 #-->
-# ╭╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌╮
-# ┊ R ┊ I ┊ N ┊ G ┊
-# ╰╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌╯
+# â•­â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ•®
+# â”Š R â”Š I â”Š N â”Š G â”Š
+# â•°â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ•¯
 
 pf()
 # Executed in 0.06 second(s) in Ring 1.26
@@ -18916,15 +18916,15 @@ o1 = new stzListOfChars( @Chars("..STZ..StZ..stz") )
 
 ? o1.Boxify() # Or simply Box()
 #-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-# │ . │ . │ S │ T │ Z │ . │ . │ S │ t │ Z │ . │ . │ s │ t │ z │
-# └───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───┴───╯
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ . â”‚ . â”‚ S â”‚ T â”‚ Z â”‚ . â”‚ . â”‚ S â”‚ t â”‚ Z â”‚ . â”‚ . â”‚ s â”‚ t â”‚ z â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â•¯
 
 ? o1.BoxDash()
 #-->
-# ┌╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┬╌╌╌┐
-# ┊ . ┊ . ┊ S ┊ T ┊ Z ┊ . ┊ . ┊ S ┊ t ┊ Z ┊ . ┊ . ┊ s ┊ t ┊ z ┊
-# └╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┴╌╌╌┘
+# â”Œâ•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”¬â•Œâ•Œâ•Œâ”
+# â”Š . â”Š . â”Š S â”Š T â”Š Z â”Š . â”Š . â”Š S â”Š t â”Š Z â”Š . â”Š . â”Š s â”Š t â”Š z â”Š
+# â””â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”´â•Œâ•Œâ•Œâ”˜
 
 pf()
 # Executed in 0.06 second(s) in Ring 1.24
@@ -18983,9 +18983,9 @@ o1 = new stzString("..STZ..StZ..stz...STZ")
 
 ? o1.VizFindBoxedCSXT("STZ", :CS = FALSE, [ :Numbered = TRUE ])
 #-->
-# ┌───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┐
-# │ . │ . │ S │ T │ Z │ . │ . │ S │ t │ Z │ . │ . │ s │ t │ z │ . │ . │ . │ S │ T │ Z │
-# └───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴─•─┴───┴───┴───┴───┴───┴─•─┴───┴───┘
+# â”Œâ”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”
+# â”‚ . â”‚ . â”‚ S â”‚ T â”‚ Z â”‚ . â”‚ . â”‚ S â”‚ t â”‚ Z â”‚ . â”‚ . â”‚ s â”‚ t â”‚ z â”‚ . â”‚ . â”‚ . â”‚ S â”‚ T â”‚ Z â”‚
+# â””â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”˜
 
 pf()
 # Executed in 0..7 second(s) in Ring 1.26
@@ -19026,35 +19026,35 @@ pr()
 
 ? @@NL( CardsXT() ) + NL
 #--> [
-#	[ "ace","🂡" ],
-#	[ "two", "🂢" ],
-#	[ "three", "🂣" ],
-#	[ "four", "🂤" ],
-#	[ "five", "🂥" ],
-#	[ "six", "🂦" ],
-#	[ "seven", "🂧" ],
-#	[ "eight", "🂨" ],
-#	[ "nine", "🂩" ],
-#	[ "ten", "🂪" ],
-#	[ "jack", "🂫" ],
-#	[ "queen", "🂭" ],
-#	[ "king", "🂮" ]
+#	[ "ace","ðŸ‚¡" ],
+#	[ "two", "ðŸ‚¢" ],
+#	[ "three", "ðŸ‚£" ],
+#	[ "four", "ðŸ‚¤" ],
+#	[ "five", "ðŸ‚¥" ],
+#	[ "six", "ðŸ‚¦" ],
+#	[ "seven", "ðŸ‚§" ],
+#	[ "eight", "ðŸ‚¨" ],
+#	[ "nine", "ðŸ‚©" ],
+#	[ "ten", "ðŸ‚ª" ],
+#	[ "jack", "ðŸ‚«" ],
+#	[ "queen", "ðŸ‚­" ],
+#	[ "king", "ðŸ‚®" ]
 # ]
 
 ? @@( Cards() ) + NL
-#--> [ "🂡", "🂢", "🂣", "🂤", "🂥", "🂦", "🂧", "🂨", "🂩", "🂪", "🂫", "🂭", "🂮" ]
+#--> [ "ðŸ‚¡", "ðŸ‚¢", "ðŸ‚£", "ðŸ‚¤", "ðŸ‚¥", "ðŸ‚¦", "ðŸ‚§", "ðŸ‚¨", "ðŸ‚©", "ðŸ‚ª", "ðŸ‚«", "ðŸ‚­", "ðŸ‚®" ]
 
 ? Card(:jack) + NL
-#--> 🂫
+#--> ðŸ‚«
 
 ? @@( TheseCards([ :four, :nine, :king ]) ) + NL
-#--> [ "🂤", "🂩", "🂮" ]
+#--> [ "ðŸ‚¤", "ðŸ‚©", "ðŸ‚®" ]
 
 ? @@NL( TheseCardsXT([ :four, :nine, :king ]) )
 #--> [
-#	[ "four", "🂤" ],
-#	[ "nine", "🂩" ],
-#	[ "king", "🂮" ]
+#	[ "four", "ðŸ‚¤" ],
+#	[ "nine", "ðŸ‚©" ],
+#	[ "king", "ðŸ‚®" ]
 # ]
 
 pf()
@@ -19104,7 +19104,7 @@ pf()
 
 pr()
 
-? ring_substr2("--^---^^--^", "-", " ")
+? StzReplace("--^---^^--^", "-", " ")
 #--> "  ^   ^^  ^"
 
 pf()
@@ -19292,9 +19292,9 @@ o1 = new stzString("fjringljringdjringg")
 ? o1.vizFindXT("ring", [
 	:Boxed = TRUE, :Rounded = TRUE, :Sectioned = TRUE, :Numbered = TRUE ])
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
-# │ f │ j │ r │ i │ n │ g │ l │ j │ r │ i │ n │ g │ d │ j │ r │ i │ n │ g │ g │
-# ╰───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ f â”‚ j â”‚ r â”‚ i â”‚ n â”‚ g â”‚ l â”‚ j â”‚ r â”‚ i â”‚ n â”‚ g â”‚ d â”‚ j â”‚ r â”‚ i â”‚ n â”‚ g â”‚ g â”‚
+# â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â•¯
 #           '-----------'           '-----------'           '-----------'
 #           3           6           9         12            15         18
 
@@ -19316,9 +19316,9 @@ aOptions = [
 
 ? o1.BoxXT(aOptions)
 #-->
-# ╭───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───┬───╮
-# │ f │ j │ r │ i │ n │ g │ l │ j │ r │ i │ n │ g │ d │ j │ r │ i │ n │ g │ g │
-# ╰───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───┴───┴─•─┴───╯
+# â•­â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â”¬â”€â”€â”€â•®
+# â”‚ f â”‚ j â”‚ r â”‚ i â”‚ n â”‚ g â”‚ l â”‚ j â”‚ r â”‚ i â”‚ n â”‚ g â”‚ d â”‚ j â”‚ r â”‚ i â”‚ n â”‚ g â”‚ g â”‚
+# â•°â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â”´â”€â”€â”€â”´â”€â€¢â”€â”´â”€â”€â”€â•¯
 #          '-----------'           '-----------'           '-----------'
 #          3           6           9         12            15         18
 
@@ -19358,7 +19358,7 @@ StartProfiler()
 
 #	str = ""
 #	for i = 1 to 1_000_000
-#		str += "السّلام عليكم ورحمة الله"
+#		str += "Ø§Ù„Ø³Ù‘Ù„Ø§Ù… Ø¹Ù„ÙŠÙƒÙ… ÙˆØ±Ø­Ù…Ø© Ø§Ù„Ù„Ù‡"
 #	next
 #	? "Finished"
 #
@@ -19371,7 +19371,7 @@ StartProfiler()
 
 	acList = []
 	for i = 1 to 1_000_000
-		acList + "السّلام عليكم ورحمة الله"
+		acList + "Ø§Ù„Ø³Ù‘Ù„Ø§Ù… Ø¹Ù„ÙŠÙƒÙ… ÙˆØ±Ø­Ù…Ø© Ø§Ù„Ù„Ù‡"
 	next
 	
 	Concatenate(acList)
@@ -19408,7 +19408,7 @@ pr()
 
 	acList = []
 	for i = 1 to 1_000_000
-		acList + "السّلام عليكم ورحمة الله"
+		acList + "Ø§Ù„Ø³Ù‘Ù„Ø§Ù… Ø¹Ù„ÙŠÙƒÙ… ÙˆØ±Ø­Ù…Ø© Ø§Ù„Ù„Ù‡"
 	next
 
 	? ElapsedTime()
@@ -19439,7 +19439,7 @@ pr()
 #
 #	cStr = ""
 #	for i = 1 to 1_000_000
-#		cStr += "السّلام عليكم ورحمة الله"
+#		cStr += "Ø§Ù„Ø³Ù‘Ù„Ø§Ù… Ø¹Ù„ÙŠÙƒÙ… ÙˆØ±Ø­Ù…Ø© Ø§Ù„Ù„Ù‡"
 #	next
 #
 #	? ElapsedTime() + NL
@@ -19453,7 +19453,7 @@ pr()
 	aListOfStr = []
 
 	for i = 1 to 1_000_000
-		aListOfStr + "السّلام عليكم ورحمة الله"
+		aListOfStr + "Ø§Ù„Ø³Ù‘Ù„Ø§Ù… Ø¹Ù„ÙŠÙƒÙ… ÙˆØ±Ø­Ù…Ø© Ø§Ù„Ù„Ù‡"
 	next
 	# The filling takes 1.70 seconds
 

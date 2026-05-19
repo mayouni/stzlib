@@ -1,4 +1,4 @@
-# Systematic adverb transformation rules
+﻿# Systematic adverb transformation rules
 AdverbRules = [
     # [pattern, replacement, type, priority, category]
     
@@ -88,7 +88,7 @@ func Adverb(str)
                     cResult = rule[2]
                     for j = 1 to nLen
                         cPlaceholder = "\\" + j
-                        cResult = ring_substr2(cResult, cPlaceholder, aCaptured[j])
+                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j])
                     next
                     return cResult
                 else

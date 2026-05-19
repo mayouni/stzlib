@@ -1,4 +1,4 @@
-#--------------------------------------------------------------#
+﻿#--------------------------------------------------------------#
 #        SOFTANZA LIBRARY (V0.9) - STZSTRINGENCODER            #
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
@@ -115,7 +115,7 @@ class stzStringEncoder
 		return acResult
 
 	def Unicodes()
-		# Same as AsciiCodes — returns Unicode codepoints
+		# Same as AsciiCodes â€” returns Unicode codepoints
 		return This.AsciiCodes()
 
 		return acResult
@@ -278,11 +278,11 @@ class stzStringEncoder
 		cContent = @oString.Content()
 		cResult = cContent
 
-		cResult = ring_substr2(cResult, "&amp;", "&")
-		cResult = ring_substr2(cResult, "&lt;", "<")
-		cResult = ring_substr2(cResult, "&gt;", ">")
-		cResult = ring_substr2(cResult, "&quot;", '"')
-		cResult = ring_substr2(cResult, "&#39;", "'")
+		cResult = StzReplace(cResult, "&amp;", "&")
+		cResult = StzReplace(cResult, "&lt;", "<")
+		cResult = StzReplace(cResult, "&gt;", ">")
+		cResult = StzReplace(cResult, "&quot;", '"')
+		cResult = StzReplace(cResult, "&#39;", "'")
 
 		return cResult
 
@@ -305,7 +305,7 @@ class stzStringEncoder
 
 		for i = 1 to nLen
 			c = acChars[i]
-			if ring_find(cSpecial, c) > 0
+			if StzFind(cSpecial, c) > 0
 				cResult += "\" + c
 			else
 				cResult += c

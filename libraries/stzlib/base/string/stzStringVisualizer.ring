@@ -70,7 +70,7 @@ class stzStringVisualizer
 
 		cViz = " "
 		for i = 1 to nChars
-			if ring_find(anPos, i) > 0
+			if StzFind(anPos, i) > 0
 				cViz += "^"
 			else
 				cViz += "-"

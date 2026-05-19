@@ -35,11 +35,11 @@ _$aRegexPatterns_ = [
 
 	# Files names and paths
 
-	:fileName = "^[^<>:\" + char(34) + "/\\|?*\r\n]+$",
-	:filePath = "^(?:[a-zA-Z]:)?(?:\\\\[^<>:\" + char(34) + "/\\|?*\r\n]+)+\\\\?$",
-	:unixFilePath = "^(/[^<>:\" + char(34) + "/\\|?*\r\n]+)+/?$",
+	:fileName = "^[^<>:\" + StzChar(34) + "/\\|?*\r\n]+$",
+	:filePath = "^(?:[a-zA-Z]:)?(?:\\\\[^<>:\" + StzChar(34) + "/\\|?*\r\n]+)+\\\\?$",
+	:unixFilePath = "^(/[^<>:\" + StzChar(34) + "/\\|?*\r\n]+)+/?$",
 	:fileExtension = "\\.[a-zA-Z0-9]+$",
-	:relativeFilePath = "^(?:\\.\\.?/|[^/<>:\" + char(34) + "|?*]+)(?:/[^/<>:\" + char(34) + "|?*]+)*/?$",
+	:relativeFilePath = "^(?:\\.\\.?/|[^/<>:\" + StzChar(34) + "|?*]+)(?:/[^/<>:\" + StzChar(34) + "|?*]+)*/?$",
 
 	# Web & Email
 
@@ -103,38 +103,38 @@ _$aRegexPatterns_ = [
 	# YAML Patterns
 	
 	:yamlKey = "^[a-zA-Z0-9]+[a-zA-Z0-9_-]*$",
-	:yamlValue = "^(\ " + char(34) + "[^\ " + char(34) + "]*\ " + char(34) + ")|([0-9]+)|(true|false)|null$",
+	:yamlValue = "^(\ " + StzChar(34) + "[^\ " + StzChar(34) + "]*\ " + StzChar(34) + ")|([0-9]+)|(true|false)|null$",
 	:yamlMap = "^[a-zA-Z0-9]+:[ ]*.+$",
-	:yamlArray = "^-?[0-9]+$|\ " + char(34) + "[^\ " + char(34) + "]*\ " + char(34) + "$",
+	:yamlArray = "^-?[0-9]+$|\ " + StzChar(34) + "[^\ " + StzChar(34) + "]*\ " + StzChar(34) + "$",
 	:yamlFrontMatter = "^---\\s*\\n(.*?)\\n---$",
 
 	# HTML
 
 	:htmlComment = "<!--[\s\S]*?-->",
 	:htmlDoctype = "<!DOCTYPE[^>]*>",
-	:htmlOpenTag = "<([a-zA-Z][a-zA-Z0-9]*)((?:\s+[a-zA-Z][a-zA-Z0-9]*(?:\s*=\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)\s*/?>",
+	:htmlOpenTag = "<([a-zA-Z][a-zA-Z0-9]*)((?:\s+[a-zA-Z][a-zA-Z0-9]*(?:\s*=\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)*)\s*/?>",
 	:htmlCloseTag = "</([a-zA-Z][a-zA-Z0-9]*)>",
-	:htmlAttribute = "(?:\s+[a-zA-Z][a-zA-Z0-9]*(?:\s*=\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)",
-	:htmlClass = "(?:\\s+class\\s*=\\s*(?:\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + "|'[^']*'|[^'\" + char(34) + "\\s>]+))",
-	:htmlId = "(?:\\s+id\\s*=\\s*(?:\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + "|'[^']*'|[^'\" + char(34) + "\\s>]+))",   
+	:htmlAttribute = "(?:\s+[a-zA-Z][a-zA-Z0-9]*(?:\s*=\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)",
+	:htmlClass = "(?:\\s+class\\s*=\\s*(?:\" + StzChar(34) + "[^\" + StzChar(34) + "]*\" + StzChar(34) + "|'[^']*'|[^'\" + StzChar(34) + "\\s>]+))",
+	:htmlId = "(?:\\s+id\\s*=\\s*(?:\" + StzChar(34) + "[^\" + StzChar(34) + "]*\" + StzChar(34) + "|'[^']*'|[^'\" + StzChar(34) + "\\s>]+))",   
 	:html5Color = "^#[A-Fa-f0-9]{3,6}$",
 
-	:htmlTableOpen = "<table((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)\\s*>",
+	:htmlTableOpen = "<table((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)*)\\s*>",
 	:htmlTableClose = "</table>",
-	:htmlRowOpen = "<tr((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)\\s*>",
+	:htmlRowOpen = "<tr((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)*)\\s*>",
 	:htmlRowClose = "</tr>",
-	:htmlCellOpen = "<td((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)\\s*>",
+	:htmlCellOpen = "<td((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)*)\\s*>",
 	:htmlCellClose = "</td>",
-	:htmlHeaderCellOpen = "<th((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)\\s*>",
+	:htmlHeaderCellOpen = "<th((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)*)\\s*>",
 	:htmlHeaderCellClose = "</th>",
-	:htmlTableSectionOpen = "<(thead|tbody|tfoot)((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)\\s*>",
+	:htmlTableSectionOpen = "<(thead|tbody|tfoot)((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)*)\\s*>",
 	:htmlTableSectionClose = "</(thead|tbody|tfoot)>",
 
 	# CSS Patterns
 
 	:idSelector = "^#([a-zA-Z_][a-zA-Z\\d_-]*)$",
 	:classSelector = "^\\.([a-zA-Z_][a-zA-Z\\d_-]*)$",
-	:attributeSelector = "\\[\\s*([a-zA-Z][a-zA-Z0-9-]*)\\s*(?:([*^$|!~]?=)\\s*(?:\ " + char(34) + "[^\ " + char(34) + "]*\ " + char(34) + "|'[^']*'|[^'\ " + char(34) + "\\s>]+))?\\s*\\]",
+	:attributeSelector = "\\[\\s*([a-zA-Z][a-zA-Z0-9-]*)\\s*(?:([*^$|!~]?=)\\s*(?:\ " + StzChar(34) + "[^\ " + StzChar(34) + "]*\ " + StzChar(34) + "|'[^']*'|[^'\ " + StzChar(34) + "\\s>]+))?\\s*\\]",
 	:hexColor = "^#([a-fA-F\\d]{3}|[a-fA-F\\d]{6})$",
 	:rgbColor = "^rgba?\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*,\\s*\\d{1,3}(\\s*,\\s*(0|1|0?\\.\\d+))?\\s*\\)$",
 
@@ -189,7 +189,7 @@ _$aRegexPatterns_ = [
 	:numbersAsValuesInPairs = ',\s*"?([+-]?\d+(?:\.\d+)?)"?',
 	:numbersAsValuesInJSON = ':\s*"?([+-]?\d+(?:\.\d+)?)"?',
 
-	:numbersInList = '\b(["' + char(39) + ']?)(-?\d+(?:\.\d+)?)(\1)\b',
+	:numbersInList = '\b(["' + StzChar(39) + ']?)(-?\d+(?:\.\d+)?)(\1)\b',
 
    	# Contact Information (International)
 
@@ -228,20 +228,20 @@ _$aRegexPatterns_ = [
 
    	# JSON Patterns
 
-   	:jsonObject = "\\{(?:\\s*\ " + char(34) + "[a-zA-Z0-9_]+\ " + char(34) + "\\s*:\\s*(?:\ " + char(34) + "[^\ " + char(34) + "]*\ " + char(34) + "|'[^']*'|\\d+|true|false|null|\\{.*?\\}|\\[.*?\\]))*\\s*\\}",
+   	:jsonObject = "\\{(?:\\s*\ " + StzChar(34) + "[a-zA-Z0-9_]+\ " + StzChar(34) + "\\s*:\\s*(?:\ " + StzChar(34) + "[^\ " + StzChar(34) + "]*\ " + StzChar(34) + "|'[^']*'|\\d+|true|false|null|\\{.*?\\}|\\[.*?\\]))*\\s*\\}",
    	:jsonArray = "^\[(?:\s*[^,]+,?\s*)*\]$",
-   	:jsonKeyValuePair = "\ " + char(34) + "[a-zA-Z0-9_]+\ " + char(34) + "\\s*:\\s*(?:\ " + char(34) + "[^\ " + char(34) + "]*\ " + char(34) + "|'[^']*'|\\d+|true|false|null|\\{.*?\\}|\\[.*?\\])",
-	:geoJSON = "^\\{\\s*\ " + char(34) + "type\ " + char(34) + "\\s*:\\s*\ " + char(34) + "FeatureCollection\ " + char(34) + "\\s*,\\s*\ " + char(34) + "features\ " + char(34) + "\\s*:\\s*\\[.*?\\]\\s*\\}$ + |'.*?'|[^'\ + char(34) + <>\\s]+))?)*)\s*/?>",
+   	:jsonKeyValuePair = "\ " + StzChar(34) + "[a-zA-Z0-9_]+\ " + StzChar(34) + "\\s*:\\s*(?:\ " + StzChar(34) + "[^\ " + StzChar(34) + "]*\ " + StzChar(34) + "|'[^']*'|\\d+|true|false|null|\\{.*?\\}|\\[.*?\\])",
+	:geoJSON = "^\\{\\s*\ " + StzChar(34) + "type\ " + StzChar(34) + "\\s*:\\s*\ " + StzChar(34) + "FeatureCollection\ " + StzChar(34) + "\\s*,\\s*\ " + StzChar(34) + "features\ " + StzChar(34) + "\\s*:\\s*\\[.*?\\]\\s*\\}$ + |'.*?'|[^'\ + StzChar(34) + <>\\s]+))?)*)\s*/?>",
 
    	# CSV Patterns
 
    	:csvHeaderRow = "^([^,]*,)*[^,]*$",
-   	:csvQuotedField = "\ " + char(34) + "[^\ " + char(34) + "]*\ " + char(34),
+   	:csvQuotedField = "\ " + StzChar(34) + "[^\ " + StzChar(34) + "]*\ " + StzChar(34),
    	:csvUnquotedField = "[^,\r\n]*",
    	:csvDelimiter = ",",
    	:csvRowEnding = "\r?",
-   	:csvEscapedQuote = "\ " + char(34) + "\ " + char(34),
-	:csvLine = "^(?:(?:\ " + char(34) + "[^\ " + char(34) + "]*\ " + char(34) + ")|(?:[^,\ " + char(34) + "]+))(?:,(?:(?:\ " + char(34) + "[^\ " + char(34) + "]*\ " + char(34) + ")|(?:[^,\ " + char(34) + "]+)))*$",
+   	:csvEscapedQuote = "\ " + StzChar(34) + "\ " + StzChar(34),
+	:csvLine = "^(?:(?:\ " + StzChar(34) + "[^\ " + StzChar(34) + "]*\ " + StzChar(34) + ")|(?:[^,\ " + StzChar(34) + "]+))(?:,(?:(?:\ " + StzChar(34) + "[^\ " + StzChar(34) + "]*\ " + StzChar(34) + ")|(?:[^,\ " + StzChar(34) + "]+)))*$",
 
 	# SQL Patterns
 
@@ -259,14 +259,14 @@ _$aRegexPatterns_ = [
 
    	# Regexes for Potential Security Concerns
 
-   	:sqlInjection = "(?:[\ " + char(34) + "'`;]+.*?)+",
+   	:sqlInjection = "(?:[\ " + StzChar(34) + "'`;]+.*?)+",
    	:xssInjection = "<[a-zA-Z][a-zA-Z0-9]*[^>]*>.*?</[a-zA-Z][a-zA-Z0-9]*>",
    	:emailInjection = ".*[\n\r]+.+@[a-z0-9]+[.][a-z]{2,}.*",
    	:htmlInjection = "<[^>]*?[^<]*[a-zA-Z0-9]+.*[^<]*?>",
 
 	# Ring Language Patterns
 
-	:ringString = "^(?:[" + char(34) + "'].*?[" + char(34) + "']|\[.*?\]|`.*?`)$",
+	:ringString = "^(?:[" + StzChar(34) + "'].*?[" + StzChar(34) + "']|\[.*?\]|`.*?`)$",
 	:ringNumber = "^-?\d+(?:\.\d+)?$",
 	:ringBoolean = "^(?:True|False)$",
 	:ringVariable = "^[a-zA-Z_]\w*$",
@@ -292,9 +292,9 @@ _$aRegexPatterns_ = [
 
 	:ringComment = "^(?:#.*|//.*|/\*[\s\S]*?\*/)$",
 	
-	:ringSee = "^(?i)See\s+[" + char(34) + "'].*?[" + char(34) + "']|See\s+\w+$",
+	:ringSee = "^(?i)See\s+[" + StzChar(34) + "'].*?[" + StzChar(34) + "']|See\s+\w+$",
 	:ringGive = "^(?i)Give\s+\w+$",
-	:ringLoad = "^(?i)Load\s+[" + char(34) + "'].*?[" + char(34) + "']$",
+	:ringLoad = "^(?i)Load\s+[" + StzChar(34) + "'].*?[" + StzChar(34) + "']$",
 	:ringImport = "^(?i)Import\s+[\w.]+$",
 	
 	:ringOperator = "^(?:[+\-*/=%]|==|!=|>=|<=|>|<|\+=|-=|\*=|/=)$",
@@ -312,7 +312,7 @@ _$aRegexPatterns_ = [
 
 	# Python Language Patterns
 	
-	:pythonString = "^(?:[" + char(34) + "]{3}.*?[" + char(34) + "]{3}|[" + char(34) + "].*?[" + char(34) + "]|'''.*?'''|'.*?')$",
+	:pythonString = "^(?:[" + StzChar(34) + "]{3}.*?[" + StzChar(34) + "]{3}|[" + StzChar(34) + "].*?[" + StzChar(34) + "]|'''.*?'''|'.*?')$",
 	:pythonNumber = "^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?$",
 	:pythonBoolean = "^(?:True|False|None)$",
 	:pythonVariable = "^[a-zA-Z_]\w*$",
@@ -336,13 +336,13 @@ _$aRegexPatterns_ = [
 	:pythonComprehension = "^\[.*?\s+for\s+.*?\s+in\s+.*?\]$",
 	
 	:pythonComment = "^#.*$",
-	:pythonDocstring = "^[" + char(34) + "]{3}[\s\S]*?[" + char(34) + "]{3}$",
+	:pythonDocstring = "^[" + StzChar(34) + "]{3}[\s\S]*?[" + StzChar(34) + "]{3}$",
 	
 	:pythonImport = "^(?:import|from)\s+[\w.]+(?:\s+import\s+(?:\w+(?:\s+as\s+\w+)?(?:\s*,\s*\w+(?:\s+as\s+\w+)?)*|\*))?\s*$",
 	
 	# JavaScript Language Patterns
 	
-	:jsString = "^(?:[" + char(34) + "].*?[" + char(34) + "]|'.*?'|`[\s\S]*?`)$",
+	:jsString = "^(?:[" + StzChar(34) + "].*?[" + StzChar(34) + "]|'.*?'|`[\s\S]*?`)$",
 	:jsNumber = "^-?\d+(?:\.\d+)?(?:e[+-]?\d+)?$",
 	:jsBoolean = "^(?:true|false|null|undefined)$",
 	:jsVariable = "^(?:var|let|const)\s+[a-zA-Z_$][\w$]*(?:\s*=\s*.*)?$",
@@ -366,12 +366,12 @@ _$aRegexPatterns_ = [
 	
 	:jsComment = "^(?://.*|/\*[\s\S]*?\*/)$",
 	
-	:jsImport = "^import\s+(?:{[^}]*}|\*\s+as\s+\w+|\w+)\s+from\s+[" + char(34) + "'].*?[" + char(34) + "']$",
+	:jsImport = "^import\s+(?:{[^}]*}|\*\s+as\s+\w+|\w+)\s+from\s+[" + StzChar(34) + "'].*?[" + StzChar(34) + "']$",
 	:jsExport = "^export\s+(?:default\s+)?(?:class|function|const|let|var)\s+.*$",
 	
 	# Visual Basic Language Patterns
 	
-	:vbString = "^[" + char(34) + "].*?[" + char(34) + "]$",
+	:vbString = "^[" + StzChar(34) + "].*?[" + StzChar(34) + "]$",
 	:vbNumber = "^-?\d+(?:\.\d+)?$",
 	:vbBoolean = "^(?:True|False)$",
 	:vbVariable = "^(?:Dim|Private|Public|Protected)\s+([a-zA-Z_]\w*)\s+As\s+\w+$",
@@ -403,7 +403,7 @@ _$aRegexPatterns_ = [
 
 	# Julia Language Patterns
 
-	:juliaString = "^(?:[" + char(34) + "]{3}.*?[" + char(34) + "]{3}|[" + char(34) + "].*?[" + char(34) + "]|r[" + char(34) + "].*?[" + char(34) + "]|raw[" + char(34) + "].*?[" + char(34) + "])$",
+	:juliaString = "^(?:[" + StzChar(34) + "]{3}.*?[" + StzChar(34) + "]{3}|[" + StzChar(34) + "].*?[" + StzChar(34) + "]|r[" + StzChar(34) + "].*?[" + StzChar(34) + "]|raw[" + StzChar(34) + "].*?[" + StzChar(34) + "])$",
 	:juliaNumber = "^-?(?:\\d+(?:\\.\\d*)?|\\.\\d+)(?:e[+-]?\\d+)?(?:[ff]32|f64)?$",
 	:juliaBoolean = "^(?:true|false|nothing|missing)$",
 	:juliaVariable = "^[a-zA-Z_][\\w!]*$",
@@ -427,7 +427,7 @@ _$aRegexPatterns_ = [
 	:juliaComprehension = "^\\[.*?\\s+for\\s+.*?\\s+in\\s+.*?\\]$",
     
 	:juliaComment = "^#=(?:[^=#]|=(?!#))*=#$|^#.*$",
-	:juliaDocString = "^[" + char(34) + "]{3}[\\s\\S]*?[" + char(34) + "]{3}$",
+	:juliaDocString = "^[" + StzChar(34) + "]{3}[\\s\\S]*?[" + StzChar(34) + "]{3}$",
     
 	:juliaImport = "^(?:using|import)\\s+(?:[\\w.]+(?:\\s*:\\s*(?:[\\w,\\s]+|\\(.*?\\)))?(?:\\s*,\\s*[\\w.]+(?:\\s*:\\s*(?:[\\w,\\s]+|\\(.*?\\)))?)*)$",
     
@@ -447,7 +447,7 @@ _$aRegexPatterns_ = [
 	:xlsRelativeReference = "^(?:[A-Z]*\\d+|[A-Z]+\\d*)$",
 	:xlsAbsoluteReference = "^\\$[A-Z]+\\$\\d+$",
 	:xlsMixedReference = "^(?:\\$[A-Z]+\\d+|[A-Z]+\\$\\d+)$",
-	:xlsStringLiteral = "^\" + char(34) + ".*\" + char(34) + "$",
+	:xlsStringLiteral = "^\" + StzChar(34) + ".*\" + StzChar(34) + "$",
 	:xlsNumberLiteral = "^-?\\d+(\\.\\d+)?$",
 	:xlsBooleanLiteral = "^(TRUE|FALSE)$",
 	:xlsArithmeticExpression = "^.*(?:[+\\-*/^]).*$",
@@ -460,7 +460,7 @@ _$aRegexPatterns_ = [
 	:rFunctionCall = "^[A-Za-z.][A-Za-z0-9._]*\\s*\\(.*\\)$",
 	:rAssignment = "^\\s*[A-Za-z.][A-Za-z0-9._]*\\s*(<-|=)\\s*.*$",
 	:rNumericVector = "^c\\((\\s*-?\\d+(\\.\\d+)?\\s*(,\\s*-?\\d+(\\.\\d+)?\\s*)*)?\\)$",
-	:rStringVector = "^c\\((\\s*\" + char(34) + ".*?\" + char(34) + "\\s*(,\\s*\" + char(34) + ".*?\" + char(34) + "\\s*)*)?\\)$",
+	:rStringVector = "^c\\((\\s*\" + StzChar(34) + ".*?\" + StzChar(34) + "\\s*(,\\s*\" + StzChar(34) + ".*?\" + StzChar(34) + "\\s*)*)?\\)$",
 	:rDataFrame = "^[A-Za-z.][A-Za-z0-9._]*\\s*<-\\s*data\\.frame\\(.*\\)$",
 	:rPipeOperator = "\\s*%>%\\s*",
 	:rComment = "^\\s*#.*$",
@@ -520,7 +520,7 @@ _$aRegexPatterns_ = [
 
 	# Common word-based regex patterns
     
-	:quotedWord = char(34) + "([^" + char(34) + "]+)" + char(34),
+	:quotedWord = StzChar(34) + "([^" + StzChar(34) + "]+)" + StzChar(34),
 	:singleWord = "^\\w+$",
 	:multipleWords = "^[\\w\\s]+$",
 	:camelCaseWord = "^[a-z]+([A-Z][a-z]*)*$",
@@ -546,7 +546,7 @@ _$aRegexPatterns_ = [
     
 	# Punctuation variations
 
-	:punctuationMarks = "^[.,!?;:'\" + char(34) + "”“\(\)\[\]\{\}]+$",
+	:punctuationMarks = "^[.,!?;:'\" + StzChar(34) + "”“\(\)\[\]\{\}]+$",
 
 	# Password Complexity Patterns
 
@@ -554,8 +554,8 @@ _$aRegexPatterns_ = [
 	:passwordSimple = "^.{8,}$",
 	:passwordWithDigits = "^(?=.*[0-9]).{8,}$",
 	:passwordWithUpperLower = "^(?=.*[a-z])(?=.*[A-Z]).{8,}$",
-	:passwordWithSpecialChar = "^(?=.*[!@#$%^&*(),.?\" + char(34) + ":{}|<>]).{8,}$",
-	:passwordStrong = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?\" + char(34) + ":{}|<>]).{12,}$",
+	:passwordWithSpecialChar = "^(?=.*[!@#$%^&*(),.?\" + StzChar(34) + ":{}|<>]).{8,}$",
+	:passwordStrong = "^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%^&*(),.?\" + StzChar(34) + ":{}|<>]).{12,}$",
 
 	# API Keys and Secrets Detection
 
@@ -796,7 +796,7 @@ _$aRegexPatternsExplanations_ = [
 	:fileName = [
 		"Matches valid file names",
 
-		"- `^[^<>:\" + char(34) + "/\\|?*\r\n]+$`: Matches any string that does not contain invalid file name characters." + NL + NL +
+		"- `^[^<>:\" + StzChar(34) + "/\\|?*\r\n]+$`: Matches any string that does not contain invalid file name characters." + NL + NL +
 
 		"- Matches: `document.txt`, `image123.png`, `file_name.ext`." + NL +
 		"- Non-matches: `file/name.txt`, `file|name.ext`, `file:name`."
@@ -806,7 +806,7 @@ _$aRegexPatternsExplanations_ = [
 		"Matches valid Windows file paths",
 
 		"- `^(?:[a-zA-Z]:)?`: Optionally matches a drive letter followed by a colon (e.g., `C:`)." + NL +
-		"- `(?:\\\\[^<>:\" + char(34) + "/\\|?*\r\n]+)+`: Matches one or more folder or file names separated by backslashes." + NL +
+		"- `(?:\\\\[^<>:\" + StzChar(34) + "/\\|?*\r\n]+)+`: Matches one or more folder or file names separated by backslashes." + NL +
 		"- `\\\\?$`: Allows an optional trailing backslash." + NL + NL +
 
 		"- Matches: `C:\\Users\\Documents\\file.txt`, `\\folder\\subfolder\\file.ext`." + NL +
@@ -817,7 +817,7 @@ _$aRegexPatternsExplanations_ = [
 		"Matches valid Unix/Linux file paths",
 
 		"- `^/`: Matches a leading forward slash for absolute paths." + NL +
-		"- `(/[^<>:\" + char(34) + "/\\|?*\r\n]+)+`: Matches one or more folder or file names separated by forward slashes." + NL +
+		"- `(/[^<>:\" + StzChar(34) + "/\\|?*\r\n]+)+`: Matches one or more folder or file names separated by forward slashes." + NL +
 		"- `/?$`: Allows an optional trailing forward slash." + NL + NL +
 
 		"- Matches: `/home/user/document.txt`, `/var/log/`, `/file`." + NL +
@@ -836,8 +836,8 @@ _$aRegexPatternsExplanations_ = [
 	:relativeFilePath = [
 		"Matches valid relative file paths",
 
-		"- `^(?:\\.\\.?/|[^/<>:\" + char(34) + "|?*]+)`: Matches a dot (`.`) or dot-dot (`..`) for relative paths or a valid folder name." + NL +
-		"- `(?:/[^/<>:\" + char(34) + "|?*]+)*`: Matches additional folder or file names separated by slashes." + NL +
+		"- `^(?:\\.\\.?/|[^/<>:\" + StzChar(34) + "|?*]+)`: Matches a dot (`.`) or dot-dot (`..`) for relative paths or a valid folder name." + NL +
+		"- `(?:/[^/<>:\" + StzChar(34) + "|?*]+)*`: Matches additional folder or file names separated by slashes." + NL +
 		"- `/?$`: Allows an optional trailing slash." + NL + NL +
 
 		"- Matches: `./file.txt`, `../folder/file.txt`, `folder/subfolder/file`." + NL +
@@ -1285,9 +1285,9 @@ _$aRegexPatternsExplanations_ = [
 	:mdCodeBlock = [
 		"Matches Markdown code blocks",
 
-		"- ```" + char(34) + ": Three backticks opening" + NL +
+		"- ```" + StzChar(34) + ": Three backticks opening" + NL +
 		"- `[^`]*`: Any characters except backtick" + NL +
-		"- ```" + char(34) + ": Three backticks closing" + NL + NL +
+		"- ```" + StzChar(34) + ": Three backticks closing" + NL + NL +
 
 		"- Matches: ```code block```, ```multiple" + NL + "lines```" + NL +
 		"- Non-matches: ``two ticks``, ````four ticks````"
@@ -1350,9 +1350,9 @@ _$aRegexPatternsExplanations_ = [
 
 		"- `^`: Start of line" + NL +
 		"- `(`: Start first alternative (quoted strings):" + NL +
-		"  - `\\ " + char(34) + "`: Opening quote" + NL +
-		"  - `[^\\ " + char(34) + "]*`: Any characters except quotes" + NL +
-		"  - `\\ " + char(34) + "`: Closing quote" + NL +
+		"  - `\\ " + StzChar(34) + "`: Opening quote" + NL +
+		"  - `[^\\ " + StzChar(34) + "]*`: Any characters except quotes" + NL +
+		"  - `\\ " + StzChar(34) + "`: Closing quote" + NL +
 		"- `)`: End first alternative" + NL +
 		"- `|`: OR" + NL +
 		"- `([0-9]+)`: Second alternative (numbers)" + NL +
@@ -1360,7 +1360,7 @@ _$aRegexPatternsExplanations_ = [
 		"- `(true|false)|null`: Third alternative (booleans and null)" + NL +
 		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `" + char(34) + "hello" + char(34) + "`, `42`, `true`, `false`, `null`" + NL +
+		"- Matches: `" + StzChar(34) + "hello" + StzChar(34) + "`, `42`, `true`, `false`, `null`" + NL +
 		"- Non-matches: `'single quotes'`, `-42`, `True`, `NULL`"
 	],
 
@@ -1384,12 +1384,12 @@ _$aRegexPatternsExplanations_ = [
 		"- `^`: Start of line" + NL +
 		"- `-?[0-9]+`: First alternative (optional negative sign followed by digits)" + NL +
 		"- `|`: OR" + NL +
-		"- `\\ " + char(34) + "`: Opening quote" + NL +
-		"- `[^\\ " + char(34) + "]*`: Any characters except quotes" + NL +
-		"- `\\ " + char(34) + "`: Closing quote" + NL +
+		"- `\\ " + StzChar(34) + "`: Opening quote" + NL +
+		"- `[^\\ " + StzChar(34) + "]*`: Any characters except quotes" + NL +
+		"- `\\ " + StzChar(34) + "`: Closing quote" + NL +
 		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `42`, `-42`, `" + char(34) + "element" + char(34) + "`, `" + char(34) + "item 1" + char(34) + "`" + NL +
+		"- Matches: `42`, `-42`, `" + StzChar(34) + "element" + StzChar(34) + "`, `" + StzChar(34) + "item 1" + StzChar(34) + "`" + NL +
 		"- Non-matches: `true`, `null`, `'single quotes'`, `plain text`"
 	],
 
@@ -1443,11 +1443,11 @@ _$aRegexPatternsExplanations_ = [
 
 		"- `<`: Opening angle bracket" + NL +
 		"- `([a-zA-Z][a-zA-Z0-9]*)`: Tag name" + NL +
-		"- `((?:\s+[a-zA-Z][a-zA-Z0-9]*(?:\s*=\s*(?:\ " + NL + char(34) + NL + ".*?\ " + NL + char(34) + NL + "|'.*?'|[^'\ " + NL + char(34) + NL + "<>\\s]+))?)*)`:" + NL +
+		"- `((?:\s+[a-zA-Z][a-zA-Z0-9]*(?:\s*=\s*(?:\ " + NL + StzChar(34) + NL + ".*?\ " + NL + StzChar(34) + NL + "|'.*?'|[^'\ " + NL + StzChar(34) + NL + "<>\\s]+))?)*)`:" + NL +
 		"  Optional attributes with values" + NL +
 		"- `\s*/?>`: Optional self-closing slash and closing bracket" + NL + NL +
 
-		"- Matches: `<div>`, `<input type=\ " + NL + char(34) + NL + "text\ " + NL + char(34) + NL + ">`, `<br/>`" + NL +
+		"- Matches: `<div>`, `<input type=\ " + NL + StzChar(34) + NL + "text\ " + NL + StzChar(34) + NL + ">`, `<br/>`" + NL +
 		"- Non-matches: `<1div>`, `<div`, `</div>`"
 	],
 
@@ -1468,9 +1468,9 @@ _$aRegexPatternsExplanations_ = [
 		"- `\\s+`: Required whitespace" + NL +
 		"- `[a-zA-Z][a-zA-Z0-9]*`: Attribute name" + NL +
 		"- `(?:\\s*=\\s*`: Optional value assignment" + NL +
-		"- `(?:" + char(34) + ".*?" + char(34) + "|'.*?'|[^'" + char(34) + "<>\\s]+))?`: Optional value" + NL + NL +
+		"- `(?:" + StzChar(34) + ".*?" + StzChar(34) + "|'.*?'|[^'" + StzChar(34) + "<>\\s]+))?`: Optional value" + NL + NL +
 
-		"- Matches: `class=" + char(34) + "main" + char(34) + "`, `disabled`, `data-value='123'`" + NL +
+		"- Matches: `class=" + StzChar(34) + "main" + StzChar(34) + "`, `disabled`, `data-value='123'`" + NL +
 		"- Non-matches: `=value`, `123=456`, `class =`"
 	],
 
@@ -1478,11 +1478,11 @@ _$aRegexPatternsExplanations_ = [
 		"Matches HTML class attributes",
 
 		"- `\\s+class\\s*=\\s*`: Class attribute declaration" + NL +
-		"- `(?:" + char(34) + "[^" + char(34) + "]*" + char(34) + "`: Double-quoted value" + NL +
+		"- `(?:" + StzChar(34) + "[^" + StzChar(34) + "]*" + StzChar(34) + "`: Double-quoted value" + NL +
 		"- `|'[^']*'`: Single-quoted value" + NL +
-		"- `|[^'" + char(34) + "\\s>]+)`: Unquoted value" + NL + NL +
+		"- `|[^'" + StzChar(34) + "\\s>]+)`: Unquoted value" + NL + NL +
 
-		"- Matches: `class=" + char(34) + "main" + char(34) + "`, `class='header'`, `class=container`" + NL +
+		"- Matches: `class=" + StzChar(34) + "main" + StzChar(34) + "`, `class='header'`, `class=container`" + NL +
 		"- Non-matches: `class=`, `class=>`, `class`"
 	],
 
@@ -1490,11 +1490,11 @@ _$aRegexPatternsExplanations_ = [
 		"Matches HTML id attributes",
 
 		"- `\\s+id\\s*=\\s*`: ID attribute declaration" + NL +
-		"- `(?:" + char(34) + "[^" + char(34) + "]*" + char(34) + "`: Double-quoted value" + NL +
+		"- `(?:" + StzChar(34) + "[^" + StzChar(34) + "]*" + StzChar(34) + "`: Double-quoted value" + NL +
 		"- `|'[^']*'`: Single-quoted value" + NL +
-		"- `|[^'" + char(34) + "\\s>]+)`: Unquoted value" + NL + NL +
+		"- `|[^'" + StzChar(34) + "\\s>]+)`: Unquoted value" + NL + NL +
 
-		"- Matches: `id=" + char(34) + "main" + char(34) + "`, `id='header'`, `id=container`" + NL +
+		"- Matches: `id=" + StzChar(34) + "main" + StzChar(34) + "`, `id='header'`, `id=container`" + NL +
 		"- Non-matches: `id=`, `id=>`, `id`"
 	],
 
@@ -1513,10 +1513,10 @@ _$aRegexPatternsExplanations_ = [
 	:htmlTableOpen = [ "Matches HTML table opening tags with optional attributes",
 	
 	"- `<table`: Table opening sequence" + NL +
-	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., class, id) with optional double-quoted, single-quoted, or unquoted values" + NL +
+	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., class, id) with optional double-quoted, single-quoted, or unquoted values" + NL +
 	"- `\\s*>`: Optional whitespace and closing bracket" + NL + NL +
 	
-	"- Matches: `<table>`, `<table class=\" + char(34) + "data\" + char(34) + " id='t1'>`" + NL +
+	"- Matches: `<table>`, `<table class=\" + StzChar(34) + "data\" + StzChar(34) + " id='t1'>`" + NL +
 	"- Non-matches: `<tablee>`, `<table class>`"
 	
 	],
@@ -1533,10 +1533,10 @@ _$aRegexPatternsExplanations_ = [
 	:htmlRowOpen = [ "Matches HTML table row opening tags with optional attributes",
 	
 	"- `<tr`: Row opening sequence" + NL +
-	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., class, style) with optional double-quoted, single-quoted, or unquoted values" + NL +
+	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., class, style) with optional double-quoted, single-quoted, or unquoted values" + NL +
 	"- `\\s*>`: Optional whitespace and closing bracket" + NL + NL +
 	
-	"- Matches: `<tr>`, `<tr class=\" + char(34) + "row\" + char(34) + " align='center'>`" + NL +
+	"- Matches: `<tr>`, `<tr class=\" + StzChar(34) + "row\" + StzChar(34) + " align='center'>`" + NL +
 	"- Non-matches: `<trr>`, `<tr class>`"
 	
 	],
@@ -1553,10 +1553,10 @@ _$aRegexPatternsExplanations_ = [
 	:htmlCellOpen = [ "Matches HTML table cell opening tags with optional attributes",
 	
 	"- `<td`: Cell opening sequence" + NL +
-	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., colspan, class) with optional double-quoted, single-quoted, or unquoted values" + NL +
+	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., colspan, class) with optional double-quoted, single-quoted, or unquoted values" + NL +
 	"- `\\s*>`: Optional whitespace and closing bracket" + NL + NL +
 	
-	"- Matches: `<td>`, `<td colspan=\" + char(34) + "2\" + char(34) + " class='cell'>`" + NL +
+	"- Matches: `<td>`, `<td colspan=\" + StzChar(34) + "2\" + StzChar(34) + " class='cell'>`" + NL +
 	"- Non-matches: `<tdd>`, `<td colspan>`"
 	
 	],
@@ -1573,10 +1573,10 @@ _$aRegexPatternsExplanations_ = [
 	:htmlHeaderCellOpen = [ "Matches HTML table header cell opening tags with optional attributes",
 	
 	"- `<th`: Header cell opening sequence" + NL +
-	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., scope, class) with optional double-quoted, single-quoted, or unquoted values" + NL +
+	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., scope, class) with optional double-quoted, single-quoted, or unquoted values" + NL +
 	"- `\\s*>`: Optional whitespace and closing bracket" + NL + NL +
 	
-	"- Matches: `<th>`, `<th scope=\" + char(34) + "col\" + char(34) + " class='header'>`" + NL +
+	"- Matches: `<th>`, `<th scope=\" + StzChar(34) + "col\" + StzChar(34) + " class='header'>`" + NL +
 	"- Non-matches: `<thh>`, `<th scope>`"
 	
 	],
@@ -1593,10 +1593,10 @@ _$aRegexPatternsExplanations_ = [
 	:htmlTableSectionOpen = [ "Matches HTML table section opening tags (thead, tbody, tfoot) with optional attributes",
 	
 	"- `<(thead|tbody|tfoot)`: Section opening sequence for thead, tbody, or tfoot" + NL +
-	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + char(34) + ".*?\" + char(34) + "|'.*?'|[^'\" + char(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., class, id) with optional double-quoted, single-quoted, or unquoted values" + NL +
+	"- `((?:\\s+[a-zA-Z][a-zA-Z0-9]*(?:\\s*=\\s*(?:\" + StzChar(34) + ".*?\" + StzChar(34) + "|'.*?'|[^'\" + StzChar(34) + "<>\\s]+))?)*)`: Zero or more attributes (e.g., class, id) with optional double-quoted, single-quoted, or unquoted values" + NL +
 	"- `\\s*>`: Optional whitespace and closing bracket" + NL + NL +
 	
-	"- Matches: `<thead>`, `<tbody class=\" + char(34) + "main\" + char(34) + ">`" + NL +
+	"- Matches: `<thead>`, `<tbody class=\" + StzChar(34) + "main\" + StzChar(34) + ">`" + NL +
 	"- Non-matches: `<tbodyy>`, `<thead class>`"
 	
 	],
@@ -1645,10 +1645,10 @@ _$aRegexPatternsExplanations_ = [
 		"- `\\s*`: Optional whitespace" + NL +
 		"- `(?:([*^$|!~]?=)`: Optional operator" + NL +
 		"- `\\s*`: Optional whitespace" + NL +
-		"- `(?:\\ " + char(34) + "[^\\ " + char(34) + "]*\\ " + char(34) + "|'[^']*'|[^'\\ " + char(34) + "\\s>]+))?`: Optional value" + NL +
+		"- `(?:\\ " + StzChar(34) + "[^\\ " + StzChar(34) + "]*\\ " + StzChar(34) + "|'[^']*'|[^'\\ " + StzChar(34) + "\\s>]+))?`: Optional value" + NL +
 		"- `\\s*\\]`: Closing bracket with optional whitespace" + NL + NL +
 
-		"- Matches: `[type]`, `[type=" + char(34) + "text" + char(34) + "]`, `[class^=" + char(34) + "btn-" + char(34) + "]`" + NL +
+		"- Matches: `[type]`, `[type=" + StzChar(34) + "text" + StzChar(34) + "]`, `[class^=" + StzChar(34) + "btn-" + StzChar(34) + "]`" + NL +
 		"- Non-matches: `[1type]`, `[]`, `[type=]`"
 	],
 
@@ -1994,12 +1994,12 @@ _$aRegexPatternsExplanations_ = [
 		"Matches JSON object structures",
 
 		"- `\\{`: Opening brace" + NL +
-		"- `(?:\\s*\\\ " + NL + char(34) + NL + "[a-zA-Z0-9_]+\\\ " + NL + char(34) + NL + "\\s*:\\s*`: Key part with quotes and colon" + NL +
-		"- `(?:\\\ " + NL + char(34) + NL + "[^\\\ " + NL + char(34) + NL + "]*\\\ " + NL + char(34) + NL + "|'[^']*'|\\d+|true|false|null|\\{.*?\\}|\\[.*?\\]))*`: Various value types" + NL +
+		"- `(?:\\s*\\\ " + NL + StzChar(34) + NL + "[a-zA-Z0-9_]+\\\ " + NL + StzChar(34) + NL + "\\s*:\\s*`: Key part with quotes and colon" + NL +
+		"- `(?:\\\ " + NL + StzChar(34) + NL + "[^\\\ " + NL + StzChar(34) + NL + "]*\\\ " + NL + StzChar(34) + NL + "|'[^']*'|\\d+|true|false|null|\\{.*?\\}|\\[.*?\\]))*`: Various value types" + NL +
 		"- `\\s*\\}`: Closing brace with optional whitespace" + NL + NL +
 
-		"- Matches: `{\ " + NL + char(34) + NL + "name\ " + NL + char(34) + NL + ":\ " + NL + char(34) + NL + "value\ " + NL + char(34) + NL + "}`, `{\ " + NL + char(34) + NL + "age\ " + NL + char(34) + NL + ":25}`" + NL +
-		"- Non-matches: `{name:value}`, `{\ " + NL + char(34) + NL + "key\ " + NL + char(34) + NL + ":}`, `{\ " + NL + char(34) + NL + "key\ " + NL + char(34) + NL + "}`"
+		"- Matches: `{\ " + NL + StzChar(34) + NL + "name\ " + NL + StzChar(34) + NL + ":\ " + NL + StzChar(34) + NL + "value\ " + NL + StzChar(34) + NL + "}`, `{\ " + NL + StzChar(34) + NL + "age\ " + NL + StzChar(34) + NL + ":25}`" + NL +
+		"- Non-matches: `{name:value}`, `{\ " + NL + StzChar(34) + NL + "key\ " + NL + StzChar(34) + NL + ":}`, `{\ " + NL + StzChar(34) + NL + "key\ " + NL + StzChar(34) + NL + "}`"
 	],
 
 	:jsonArray = [
@@ -2011,16 +2011,16 @@ _$aRegexPatternsExplanations_ = [
 		"- `\\]`: Closing bracket" + NL +
 		"- `$`: End of string" + NL + NL +
 
-		"- Matches: `[1,2,3]`, `[\ " + NL + char(34) + NL + "a\ " + NL + char(34) + NL + ",\ " + NL + char(34) + NL + "b\ " + NL + char(34) + NL + ",\ " + NL + char(34) + NL + "c\ " + NL + char(34) + NL + "]`" + NL +
+		"- Matches: `[1,2,3]`, `[\ " + NL + StzChar(34) + NL + "a\ " + NL + StzChar(34) + NL + ",\ " + NL + StzChar(34) + NL + "b\ " + NL + StzChar(34) + NL + ",\ " + NL + StzChar(34) + NL + "c\ " + NL + StzChar(34) + NL + "]`" + NL +
 		"- Non-matches: `[1,2,]`, `[,]`, `[1,,2]`"
 	],
 
 	:jsonKeyValuePair = [
 		"Matches a key-value pair in JSON format",
 
-		"- `\" + char(34) + "[a-zA-Z0-9_]+\" + char(34) + "`: Matches a JSON key enclosed in double quotes, consisting of alphanumeric characters and underscores" + NL +
+		"- `\" + StzChar(34) + "[a-zA-Z0-9_]+\" + StzChar(34) + "`: Matches a JSON key enclosed in double quotes, consisting of alphanumeric characters and underscores" + NL +
 		"- `\\s*:\\s*`: Matches the colon `:` separator with optional spaces around it" + NL +
-		"- `(?:\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + "|'[^']*'|\\d+|true|false|null|\\{.*?\\}|\\[.*?\\])`: Matches the value, which can be:" + NL +
+		"- `(?:\" + StzChar(34) + "[^\" + StzChar(34) + "]*\" + StzChar(34) + "|'[^']*'|\\d+|true|false|null|\\{.*?\\}|\\[.*?\\])`: Matches the value, which can be:" + NL +
 		"  - A double-quoted string" + NL +
 		"  - A single-quoted string" + NL +
 		"  - A number (e.g., `123`)" + NL +
@@ -2028,19 +2028,19 @@ _$aRegexPatternsExplanations_ = [
 		"  - `null`" + NL +
 		"  - A JSON object (`{}`) or array (`[]`)" + NL + NL +
 
-		"- Matches: `\" + char(34) + "name\" + char(34) + ":\" + char(34) + "John\" + char(34) + "`, `\" + char(34) + "age\" + char(34) + ":30`, `\" + char(34) + "active\" + char(34) + ":true`, `\" + char(34) + "address\" + char(34) + ":{\" + char(34) + "city\" + char(34) + ":\" + char(34) + "Paris\" + char(34) + "}`" + NL +
-		"- Non-matches: `name:John`, `\" + char(34) + "key\" + char(34) + ":`, `\" + char(34) + "invalid\" + char(34) + "\" + char(34) + "value\" + char(34) + "`"
+		"- Matches: `\" + StzChar(34) + "name\" + StzChar(34) + ":\" + StzChar(34) + "John\" + StzChar(34) + "`, `\" + StzChar(34) + "age\" + StzChar(34) + ":30`, `\" + StzChar(34) + "active\" + StzChar(34) + ":true`, `\" + StzChar(34) + "address\" + StzChar(34) + ":{\" + StzChar(34) + "city\" + StzChar(34) + ":\" + StzChar(34) + "Paris\" + StzChar(34) + "}`" + NL +
+		"- Non-matches: `name:John`, `\" + StzChar(34) + "key\" + StzChar(34) + ":`, `\" + StzChar(34) + "invalid\" + StzChar(34) + "\" + StzChar(34) + "value\" + StzChar(34) + "`"
 	],
 
 	:geoJSON = [
 		"Matches a valid GeoJSON FeatureCollection object",
 
-		"- `^\\{\\s*\" + char(34) + "type\" + char(34) + "\\s*:\\s*\" + char(34) + "FeatureCollection\" + char(34) + "`: Matches the opening of a GeoJSON object with the type `FeatureCollection`" + NL +
-		"- `\\s*,\\s*\" + char(34) + "features\" + char(34) + "\\s*:\\s*\\[.*?\\]`: Matches the `features` property containing an array of features" + NL +
+		"- `^\\{\\s*\" + StzChar(34) + "type\" + StzChar(34) + "\\s*:\\s*\" + StzChar(34) + "FeatureCollection\" + StzChar(34) + "`: Matches the opening of a GeoJSON object with the type `FeatureCollection`" + NL +
+		"- `\\s*,\\s*\" + StzChar(34) + "features\" + StzChar(34) + "\\s*:\\s*\\[.*?\\]`: Matches the `features` property containing an array of features" + NL +
 		"- `\\s*\\}$`: Matches the closing brace of the GeoJSON object" + NL + NL +
 
-		"- Matches: `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "FeatureCollection\" + char(34) + ", \" + char(34) + "features\" + char(34) + ": [] }`, `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "FeatureCollection\" + char(34) + ", \" + char(34) + "features\" + char(34) + ": [{\" + char(34) + "type\" + char(34) + ":\" + char(34) + "Feature\" + char(34) + "}] }`" + NL +
-		"- Non-matches: `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "Feature\" + char(34) + ", \" + char(34) + "features\" + char(34) + ": [] }`, `{ \" + char(34) + "type\" + char(34) + ": \" + char(34) + "FeatureCollection\" + char(34) + " }`"
+		"- Matches: `{ \" + StzChar(34) + "type\" + StzChar(34) + ": \" + StzChar(34) + "FeatureCollection\" + StzChar(34) + ", \" + StzChar(34) + "features\" + StzChar(34) + ": [] }`, `{ \" + StzChar(34) + "type\" + StzChar(34) + ": \" + StzChar(34) + "FeatureCollection\" + StzChar(34) + ", \" + StzChar(34) + "features\" + StzChar(34) + ": [{\" + StzChar(34) + "type\" + StzChar(34) + ":\" + StzChar(34) + "Feature\" + StzChar(34) + "}] }`" + NL +
+		"- Non-matches: `{ \" + StzChar(34) + "type\" + StzChar(34) + ": \" + StzChar(34) + "Feature\" + StzChar(34) + ", \" + StzChar(34) + "features\" + StzChar(34) + ": [] }`, `{ \" + StzChar(34) + "type\" + StzChar(34) + ": \" + StzChar(34) + "FeatureCollection\" + StzChar(34) + " }`"
 	],
 
 	# CSV Patterns
@@ -2060,10 +2060,10 @@ _$aRegexPatternsExplanations_ = [
 	:csvQuotedField = [
 		"Matches a quoted field in a CSV file",
 
-		"- `\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + "`: Matches any text enclosed within double quotes" + NL + NL +
+		"- `\" + StzChar(34) + "[^\" + StzChar(34) + "]*\" + StzChar(34) + "`: Matches any text enclosed within double quotes" + NL + NL +
 
-		"- Matches: `\" + char(34) + "hello\" + char(34) + "`, `\" + char(34) + "123\" + char(34) + "`, `\" + char(34) + "a,b,c\" + char(34) + "`" + NL +
-		"- Non-matches: `hello`, `\" + char(34) + "hello` (unclosed quote)"
+		"- Matches: `\" + StzChar(34) + "hello\" + StzChar(34) + "`, `\" + StzChar(34) + "123\" + StzChar(34) + "`, `\" + StzChar(34) + "a,b,c\" + StzChar(34) + "`" + NL +
+		"- Non-matches: `hello`, `\" + StzChar(34) + "hello` (unclosed quote)"
 	],
 
 	:csvUnquotedField = [
@@ -2096,19 +2096,19 @@ _$aRegexPatternsExplanations_ = [
 	:csvEscapedQuote = [
 		"Matches escaped double quotes within a quoted CSV field",
 
-		"- `\" + char(34) + "\" + char(34) + "`: Matches two consecutive double quotes inside a quoted field" + NL + NL +
+		"- `\" + StzChar(34) + "\" + StzChar(34) + "`: Matches two consecutive double quotes inside a quoted field" + NL + NL +
 
-		"- Matches: `\" + char(34) + "hello\" + char(34) + "\" + char(34) + "world\" + char(34) + "` (represents `hello\" + char(34) + "world`)" + NL +
-		"- Non-matches: `\" + char(34) + "hello\" + char(34) + "world\" + char(34) + "` (no double quotes to escape)"
+		"- Matches: `\" + StzChar(34) + "hello\" + StzChar(34) + "\" + StzChar(34) + "world\" + StzChar(34) + "` (represents `hello\" + StzChar(34) + "world`)" + NL +
+		"- Non-matches: `\" + StzChar(34) + "hello\" + StzChar(34) + "world\" + StzChar(34) + "` (no double quotes to escape)"
 	],
 
 	:csvLine = [
 		"Matches an entire line of CSV data",
 
-		"- `^(?:(?:\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + ")|(?:[^,\\\" + char(34) + "]+))`: Matches the first field, which can be quoted or unquoted" + NL +
-		"- `(?:,(?:(?:\" + char(34) + "[^\" + char(34) + "]*\" + char(34) + ")|(?:[^,\\\" + char(34) + "]+)))*`: Matches subsequent fields separated by commas, which can also be quoted or unquoted" + NL + NL +
+		"- `^(?:(?:\" + StzChar(34) + "[^\" + StzChar(34) + "]*\" + StzChar(34) + ")|(?:[^,\\\" + StzChar(34) + "]+))`: Matches the first field, which can be quoted or unquoted" + NL +
+		"- `(?:,(?:(?:\" + StzChar(34) + "[^\" + StzChar(34) + "]*\" + StzChar(34) + ")|(?:[^,\\\" + StzChar(34) + "]+)))*`: Matches subsequent fields separated by commas, which can also be quoted or unquoted" + NL + NL +
 
-		"- Matches: `\" + char(34) + "field1\" + char(34) + ",\" + char(34) + "field2\" + char(34) + "`, `field1,field2`, `\" + char(34) + "field,1\" + char(34) + ",field2`" + NL +
+		"- Matches: `\" + StzChar(34) + "field1\" + StzChar(34) + ",\" + StzChar(34) + "field2\" + StzChar(34) + "`, `field1,field2`, `\" + StzChar(34) + "field,1\" + StzChar(34) + ",field2`" + NL +
 		"- Non-matches: `field1,field2,` (trailing comma), `field1 field2` (no delimiter)"
 	],
 
@@ -2234,8 +2234,8 @@ _$aRegexPatternsExplanations_ = [
 	:sqlInjection = [
 		"Detects potential SQL injection patterns",
 
-		"- `(?:[\\\ " + NL + char(34) + NL + "';]+.*?)+`: Sequences of quotes or semicolons with following content" + NL +
-		"- Matches: `'; DROP TABLE users;--`, `\ " + NL + char(34) + NL + " OR \ " + NL + char(34) + NL + "1\ " + NL + char(34) + NL + "=\ " + NL + char(34) + NL + "1`" + NL + NL +
+		"- `(?:[\\\ " + NL + StzChar(34) + NL + "';]+.*?)+`: Sequences of quotes or semicolons with following content" + NL +
+		"- Matches: `'; DROP TABLE users;--`, `\ " + NL + StzChar(34) + NL + " OR \ " + NL + StzChar(34) + NL + "1\ " + NL + StzChar(34) + NL + "=\ " + NL + StzChar(34) + NL + "1`" + NL + NL +
 
 		"- Non-matches: `normal text`, `user@example.com`" + NL +
 		"- Note: This is a basic detection pattern and should be used with other security measures"
@@ -2292,11 +2292,11 @@ _$aRegexPatternsExplanations_ = [
 
 		"- `^=?`: Optional assignment operator at start" + NL +
 		"- `*`: Optional whitespace" + NL +
-		"- `([ " + char(34) + "'].*?[ " + char(34) + "']|[^ ]+)`: Quoted string or word" + NL +
+		"- `([ " + StzChar(34) + "'].*?[ " + StzChar(34) + "']|[^ ]+)`: Quoted string or word" + NL +
 		"- `*$`: Optional whitespace at end" + NL + NL +
 
-		"- Matches: `name = " + char(34) + "John" + char(34) + "`, `str = 'Hello'`" + NL +
-		"- Non-matches: `name = `, `= " + char(34) + "unclosed`"
+		"- Matches: `name = " + StzChar(34) + "John" + StzChar(34) + "`, `str = 'Hello'`" + NL +
+		"- Non-matches: `name = `, `= " + StzChar(34) + "unclosed`"
 	],
 
 	:ringNumber = [
@@ -2478,7 +2478,7 @@ _$aRegexPatternsExplanations_ = [
 		"- `.*`: Case value" + NL +
 		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `on 1`, `OFF " + char(34) + "text" + char(34) + "`, `on value`" + NL +
+		"- Matches: `on 1`, `OFF " + StzChar(34) + "text" + StzChar(34) + "`, `on value`" + NL +
 		"- Non-matches: `on`, `case 1`, `on()`"
 	],
 
@@ -2530,7 +2530,7 @@ _$aRegexPatternsExplanations_ = [
 		"- `\\]`: Closing bracket" + NL +
 		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `[:name=" + char(34) + "John" + char(34) + ",age=30]`, `[:key=value]`" + NL +
+		"- Matches: `[:name=" + StzChar(34) + "John" + StzChar(34) + ",age=30]`, `[:key=value]`" + NL +
 		"- Non-matches: `[]`, `[:invalid]`, `[:key=]`"
 	],
 
@@ -2554,10 +2554,10 @@ _$aRegexPatternsExplanations_ = [
 		"- `^`: Start of line" + NL +
 		"- `(?i)`: Case-insensitive matching" + NL +
 		"- `See\\s+`: 'See' keyword" + NL +
-		"- `(?:[" + char(34) + "'].*?[" + char(34) + "']|\\w+)`: String literal or variable" + NL +
+		"- `(?:[" + StzChar(34) + "'].*?[" + StzChar(34) + "']|\\w+)`: String literal or variable" + NL +
 		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `See " + char(34) + "Hello" + char(34) + "`, `SEE x`, `see 'text'`" + NL +
+		"- Matches: `See " + StzChar(34) + "Hello" + StzChar(34) + "`, `SEE x`, `see 'text'`" + NL +
 		"- Non-matches: `See`, `See()`, `See,`"
 	],
 
@@ -2580,10 +2580,10 @@ _$aRegexPatternsExplanations_ = [
 		"- `^`: Start of line" + NL +
 		"- `(?i)`: Case-insensitive matching" + NL +
 		"- `Load\\s+`: 'Load' keyword" + NL +
-		"- `[" + char(34) + "'].*?[" + char(34) + "']`: Quoted filename" + NL +
+		"- `[" + StzChar(34) + "'].*?[" + StzChar(34) + "']`: Quoted filename" + NL +
 		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `Load " + char(34) + "file.ring" + char(34) + "`, `LOAD 'module.ring'`" + NL +
+		"- Matches: `Load " + StzChar(34) + "file.ring" + StzChar(34) + "`, `LOAD 'module.ring'`" + NL +
 		"- Non-matches: `Load`, `Load file`, `Load()`"
 	],
 
@@ -2724,14 +2724,14 @@ _$aRegexPatternsExplanations_ = [
 	        
 	        "- `^`: Start of line" + NL +
 	        "- `(?:`: Non-capturing group for alternatives:" + NL +
-	        "  - `[" + char(34) + "]{3}.*?[" + char(34) + "]{3}`: Triple double-quoted strings" + NL +
-	        "  - `|[" + char(34) + "].*?[" + char(34) + "]`: Double-quoted strings" + NL +
+	        "  - `[" + StzChar(34) + "]{3}.*?[" + StzChar(34) + "]{3}`: Triple double-quoted strings" + NL +
+	        "  - `|[" + StzChar(34) + "].*?[" + StzChar(34) + "]`: Double-quoted strings" + NL +
 	        "  - `|'''.*?'''`: Triple single-quoted strings" + NL +
 	        "  - `|'.*?'`: Single-quoted strings" + NL +
 	        "- `$`: End of line" + NL + NL +
 
-	        "- Matches: `" + char(34) + "hello" + char(34) + "`, `'world'`, `" + char(34) + char(34) + char(34) + "multiline" + char(34) + char(34) + char(34) + "`, `'''text'''`" + NL +
-	        "- Non-matches: `" + char(34) + "unclosed`, `''''extra'''`"
+	        "- Matches: `" + StzChar(34) + "hello" + StzChar(34) + "`, `'world'`, `" + StzChar(34) + StzChar(34) + StzChar(34) + "multiline" + StzChar(34) + StzChar(34) + StzChar(34) + "`, `'''text'''`" + NL +
+	        "- Non-matches: `" + StzChar(34) + "unclosed`, `''''extra'''`"
     	],
 
     	:pythonNumber = [
@@ -2972,13 +2972,13 @@ _$aRegexPatternsExplanations_ = [
 		"Matches Python docstrings",
 
 	        "- `^`: Start of line" + NL +
-	        "- `[" + char(34) + "]{3}`: Triple quotes" + NL +
+	        "- `[" + StzChar(34) + "]{3}`: Triple quotes" + NL +
 	        "- `[\\s\\S]*?`: Any content including newlines" + NL +
-	        "- `[" + char(34) + "]{3}`: Closing triple quotes" + NL +
+	        "- `[" + StzChar(34) + "]{3}`: Closing triple quotes" + NL +
 	        "- `$`: End of line" + NL + NL +
 
-	        "- Matches: `" + char(34) + char(34) + char(34) + "Documentation" + char(34) + char(34) + char(34) + "`, `" + char(34) + char(34) + char(34) + "Multi" + NL + "line" + char(34) + char(34) + char(34) + "`" + NL +
-	        "- Non-matches: `" + char(34) + "doc" + char(34) + "`, `" + char(34) + char(34) + char(34) + "unclosed`"
+	        "- Matches: `" + StzChar(34) + StzChar(34) + StzChar(34) + "Documentation" + StzChar(34) + StzChar(34) + StzChar(34) + "`, `" + StzChar(34) + StzChar(34) + StzChar(34) + "Multi" + NL + "line" + StzChar(34) + StzChar(34) + StzChar(34) + "`" + NL +
+	        "- Non-matches: `" + StzChar(34) + "doc" + StzChar(34) + "`, `" + StzChar(34) + StzChar(34) + StzChar(34) + "unclosed`"
     	],
 
 	:pythonImport = [
@@ -3003,13 +3003,13 @@ _$aRegexPatternsExplanations_ = [
 		
 		"- `^`: Start of line" + NL +
 		"- `(?:`: Non-capturing group for string types" + NL +
-		"- `[" + char(34) + "].*?[" + char(34) + "]`: Double-quoted strings" + NL +
+		"- `[" + StzChar(34) + "].*?[" + StzChar(34) + "]`: Double-quoted strings" + NL +
 		"- `|'.*?'`: Single-quoted strings" + NL +
 		"- `|`[\s\S]*?``: Template literals" + NL +
 		"- `$`: End of line" + NL + NL +
 
-		"- Matches: `" + char(34) + "hello" + char(34) + "`, `'world'`, ``template``" + NL +
-		"- Non-matches: `hello`, `" + char(34) + "unclosed`"
+		"- Matches: `" + StzChar(34) + "hello" + StzChar(34) + "`, `'world'`, ``template``" + NL +
+		"- Non-matches: `hello`, `" + StzChar(34) + "unclosed`"
 	],
 
 	:jsNumber = [
@@ -3187,10 +3187,10 @@ _$aRegexPatternsExplanations_ = [
 	    "- `import\s+`: Import keyword" + NL +
 	    "- `(?:{[^}]*}|\*\s+as\s+\w+|\w+)`: Import specifiers" + NL +
 	    "- `\s+from\s+`: From keyword" + NL +
-	    "- `[" + char(34) + "'].*?[" + char(34) + "']`: Module path" + NL +
+	    "- `[" + StzChar(34) + "'].*?[" + StzChar(34) + "']`: Module path" + NL +
 	    "- `$`: End of line" + NL + NL +
 
-	    "- Matches: `import {x} from " + char(34) + "mod" + char(34) + "`, `import * as y from 'z'`" + NL +
+	    "- Matches: `import {x} from " + StzChar(34) + "mod" + StzChar(34) + "`, `import * as y from 'z'`" + NL +
 	    "- Non-matches: `import`, `import from`"
 	],
 	
@@ -3214,13 +3214,13 @@ _$aRegexPatternsExplanations_ = [
 	    "Matches Visual Basic string literals",
 	
 	    "- `^`: Start of line" + NL +
-	    "- `[" + char(34) + "]`: Opening double quote" + NL +
+	    "- `[" + StzChar(34) + "]`: Opening double quote" + NL +
 	    "- `.*?`: String content (non-greedy)" + NL +
-	    "- `[" + char(34) + "]`: Closing double quote" + NL +
+	    "- `[" + StzChar(34) + "]`: Closing double quote" + NL +
 	    "- `$`: End of line" + NL + NL +
 
-	    "- Matches: `" + char(34) + "Hello World" + char(34) + "`, `" + char(34) + "" + char(34) + "`" + NL +
-	    "- Non-matches: `Hello`, `" + char(34) + "unclosed`"
+	    "- Matches: `" + StzChar(34) + "Hello World" + StzChar(34) + "`, `" + StzChar(34) + "" + StzChar(34) + "`" + NL +
+	    "- Non-matches: `Hello`, `" + StzChar(34) + "unclosed`"
 	],
 	
 	:vbNumber = [
@@ -3489,7 +3489,7 @@ _$aRegexPatternsExplanations_ = [
 	    "- `.*`: Reference path or name" + NL +
 	    "- `$`: End of line" + NL + NL +
 
-	    "- Matches: `Reference = System`, `Reference = " + char(34) + "MyLib.dll" + char(34) + "`" + NL +
+	    "- Matches: `Reference = System`, `Reference = " + StzChar(34) + "MyLib.dll" + StzChar(34) + "`" + NL +
 	    "- Non-matches: `Reference`, `Reference ==`"
 	],
 	
@@ -3500,14 +3500,14 @@ _$aRegexPatternsExplanations_ = [
 	
 	    "- `^`: Start of line" + NL +
 	    "- `(?:`: Start non-capturing group for string types" + NL +
-	    "- `[" + char(34) + "]{3}.*?[" + char(34) + "]{3}`: Triple-quoted strings" + NL +
-	    "- `|[" + char(34) + "].*?[" + char(34) + "]`: Regular strings" + NL +
-	    "- `|r[" + char(34) + "].*?[" + char(34) + "]`: Raw strings" + NL +
-	    "- `|raw[" + char(34) + "].*?[" + char(34) + "])`: Literal strings" + NL +
+	    "- `[" + StzChar(34) + "]{3}.*?[" + StzChar(34) + "]{3}`: Triple-quoted strings" + NL +
+	    "- `|[" + StzChar(34) + "].*?[" + StzChar(34) + "]`: Regular strings" + NL +
+	    "- `|r[" + StzChar(34) + "].*?[" + StzChar(34) + "]`: Raw strings" + NL +
+	    "- `|raw[" + StzChar(34) + "].*?[" + StzChar(34) + "])`: Literal strings" + NL +
 	    "- `$`: End of line" + NL + NL +
 
-	    "- Matches: `" + char(34) + "hello" + char(34) + "`, `" + char(34) + char(34) + char(34) + "multiline" + char(34) + char(34) + char(34) + "`, `r" + char(34) + "raw\string" + char(34) + "`" + NL +
-	    "- Non-matches: `'string'`, `" + char(34) + "unclosed`"
+	    "- Matches: `" + StzChar(34) + "hello" + StzChar(34) + "`, `" + StzChar(34) + StzChar(34) + StzChar(34) + "multiline" + StzChar(34) + StzChar(34) + StzChar(34) + "`, `r" + StzChar(34) + "raw\string" + StzChar(34) + "`" + NL +
+	    "- Non-matches: `'string'`, `" + StzChar(34) + "unclosed`"
 	],
 	
 	:juliaNumber = [
@@ -3742,13 +3742,13 @@ _$aRegexPatternsExplanations_ = [
 	    "Matches Julia documentation strings",
 	
 	    "- `^`: Start of line" + NL +
-	    "- `[" + char(34) + "]{3}`: Three double quotes" + NL +
+	    "- `[" + StzChar(34) + "]{3}`: Three double quotes" + NL +
 	    "- `[\\s\\S]*?`: Documentation content" + NL +
-	    "- `[" + char(34) + "]{3}`: Closing three double quotes" + NL +
+	    "- `[" + StzChar(34) + "]{3}`: Closing three double quotes" + NL +
 	    "- `$`: End of line" + NL + NL +
 
-	    "- Matches: `" + char(34) + char(34) + char(34) + "Function documentation" + char(34) + char(34) + char(34) + "`" + NL +
-	    "- Non-matches: `" + char(34) + "doc" + char(34) + "`, `" + char(34) + char(34) + char(34) + "unclosed`"
+	    "- Matches: `" + StzChar(34) + StzChar(34) + StzChar(34) + "Function documentation" + StzChar(34) + StzChar(34) + StzChar(34) + "`" + NL +
+	    "- Non-matches: `" + StzChar(34) + "doc" + StzChar(34) + "`, `" + StzChar(34) + StzChar(34) + StzChar(34) + "unclosed`"
 	],
 	
 	:juliaImport = [
@@ -3892,10 +3892,10 @@ _$aRegexPatternsExplanations_ = [
 	:xlsStringLiteral = [
 	    "Matches a string literal in Excel",
 	
-	   "- `^\" + char(34) + " + char(34) + " + char(34) + ".*\" + char(34) + " + char(34) + " + char(34) + "$`: Matches a string enclosed in double quotes" + NL + NL +
+	   "- `^\" + StzChar(34) + " + StzChar(34) + " + StzChar(34) + ".*\" + StzChar(34) + " + StzChar(34) + " + StzChar(34) + "$`: Matches a string enclosed in double quotes" + NL + NL +
 
-	   "- Matches: `\" + char(34) + "Hello\" + char(34) + "`, `\" + char(34) + "123\" + char(34) + "`, `\" + char(34) + "A1:B10\" + char(34) + "`" + NL +
-	    "- Non-matches: `Hello`, `'Hello'`, `\" + char(34) + "Hello`"
+	   "- Matches: `\" + StzChar(34) + "Hello\" + StzChar(34) + "`, `\" + StzChar(34) + "123\" + StzChar(34) + "`, `\" + StzChar(34) + "A1:B10\" + StzChar(34) + "`" + NL +
+	    "- Non-matches: `Hello`, `'Hello'`, `\" + StzChar(34) + "Hello`"
 	],
 	
 	:xlsNumberLiteral = [
@@ -4000,10 +4000,10 @@ _$aRegexPatternsExplanations_ = [
 		"Matches R string vector syntax",
 
 		"- `^c\\(`: Starts with the `c(` function." + NL +
-		"- `(\\s*\" + char(34) + ".*?\" + char(34) + "\\s*(,\\s*\" + char(34) + ".*?\" + char(34) + "\\s*)*)?`: Matches one or more quoted strings separated by commas." + NL +
+		"- `(\\s*\" + StzChar(34) + ".*?\" + StzChar(34) + "\\s*(,\\s*\" + StzChar(34) + ".*?\" + StzChar(34) + "\\s*)*)?`: Matches one or more quoted strings separated by commas." + NL +
 		"- `\\)$`: Ends with a closing parenthesis." + NL + NL +
 
-		"- Matches: `c(\" + char(34) + "apple\" + char(34) + ", \" + char(34) + "banana\" + char(34) + ")`, `c(\" + char(34) + "hello\" + char(34) + ")`." + NL +
+		"- Matches: `c(\" + StzChar(34) + "apple\" + StzChar(34) + ", \" + StzChar(34) + "banana\" + StzChar(34) + ")`, `c(\" + StzChar(34) + "hello\" + StzChar(34) + ")`." + NL +
 		"- Non-matches: `c(apple, banana)`, `c()` (missing quotes or empty vector)."
 	],
 
@@ -4385,12 +4385,12 @@ _$aRegexPatternsExplanations_ = [
 	:quotedWord = [
 		"Matches text enclosed in double quotes",
 
-		"- `" + char(34) + "`: Opening double quote character" + NL +
-		"- `([^" + char(34) + "]+)`: Captures one or more characters that are not double quotes" + NL +
-		"- `" + char(34) + "`: Closing double quote character" + NL + NL +
+		"- `" + StzChar(34) + "`: Opening double quote character" + NL +
+		"- `([^" + StzChar(34) + "]+)`: Captures one or more characters that are not double quotes" + NL +
+		"- `" + StzChar(34) + "`: Closing double quote character" + NL + NL +
 
-		"- Matches: `\" + char(34) + "Hello World\" + char(34) + "`, `\" + char(34) + "Testing 123\" + char(34) + "`" + NL +
-		"- Non-matches: `Hello World` (no quotes), `\" + char(34) + "Unclosed quote` (missing closing quote)"
+		"- Matches: `\" + StzChar(34) + "Hello World\" + StzChar(34) + "`, `\" + StzChar(34) + "Testing 123\" + StzChar(34) + "`" + NL +
+		"- Non-matches: `Hello World` (no quotes), `\" + StzChar(34) + "Unclosed quote` (missing closing quote)"
 	],
 
 	:singleWord = [
@@ -4584,7 +4584,7 @@ _$aRegexPatternsExplanations_ = [
 		"Matches standard punctuation marks",
 
 		"- `^`: Start of string" + NL +
-		"- `[.,!?;:'\" + char(34) + "\" + char(34) + "\" + char(34) + "\\(\\)\\[\\]\\{\\}]+`: One or more punctuation characters" + NL +
+		"- `[.,!?;:'\" + StzChar(34) + "\" + StzChar(34) + "\" + StzChar(34) + "\\(\\)\\[\\]\\{\\}]+`: One or more punctuation characters" + NL +
 		"- `$`: End of string" + NL + NL +
 
 		"- Matches: `...`, `!!!`, `?!.`" + NL +
@@ -4644,7 +4644,7 @@ _$aRegexPatternsExplanations_ = [
 		"Matches passwords containing special characters",
 
 		"- `^`: Start of string" + NL +
-		"- `(?=.*[!@#$%^&*(),.?\" + char(34) + ":{}|<>])`: Positive lookahead for special char" + NL +
+		"- `(?=.*[!@#$%^&*(),.?\" + StzChar(34) + ":{}|<>])`: Positive lookahead for special char" + NL +
 		"- `.{8,}`: Any character, minimum 8 occurrences" + NL +
 		"- `$`: End of string" + NL + NL +
 
@@ -4659,7 +4659,7 @@ _$aRegexPatternsExplanations_ = [
 		"- `(?=.*[a-z])`: Positive lookahead for lowercase" + NL +
 		"- `(?=.*[A-Z])`: Positive lookahead for uppercase" + NL +
 		"- `(?=.*[0-9])`: Positive lookahead for digit" + NL +
-		"- `(?=.*[!@#$%^&*(),.?\" + char(34) + ":{}|<>])`: Positive lookahead for special char" + NL +
+		"- `(?=.*[!@#$%^&*(),.?\" + StzChar(34) + ":{}|<>])`: Positive lookahead for special char" + NL +
 		"- `.{12,}`: Any character, minimum 12 occurrences" + NL +
 		"- `$`: End of string" + NL + NL +
 

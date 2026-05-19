@@ -133,7 +133,7 @@ func ParseUrl(cUrl) # TODO Exists already in stzString and may be in stzUrl
     ok
 
     # Extract host and path
-    slash_pos = ring_find(url, "/")
+    slash_pos = StzFind(url, "/")
     if slash_pos > 0
         host = StzLeft(url, slash_pos - 1)
         path = StzMid(url, slash_pos, StzLen(url) - slash_pos + 1)
@@ -143,7 +143,7 @@ func ParseUrl(cUrl) # TODO Exists already in stzString and may be in stzUrl
     ok
 
     # Extract port
-    colon_pos = ring_find(host, ":")
+    colon_pos = StzFind(host, ":")
     if colon_pos > 0
         port = 0 + StzMid(host, colon_pos + 1, StzLen(host) - colon_pos)
         host = StzLeft(host, colon_pos - 1)
@@ -158,7 +158,7 @@ func ParseHttpResponse(cResponse)
 
     # Find headers/body separator
     double_crlf = StzChar(13) + StzChar(10) + StzChar(13) + StzChar(10)
-    body_start = ring_find(cResponse, double_crlf)
+    body_start = StzFind(cResponse, double_crlf)
 
     if body_start > 0
         headers_part = StzLeft(cResponse, body_start - 1)
@@ -170,7 +170,7 @@ func ParseHttpResponse(cResponse)
 
     # Extract status code
     status_code = 200
-    first_line_end = ring_find(headers_part, StzChar(13) + StzChar(10))
+    first_line_end = StzFind(headers_part, StzChar(13) + StzChar(10))
     if first_line_end > 0
         status_line = StzLeft(headers_part, first_line_end - 1)
         parts = split(status_line, " ")
@@ -553,7 +553,7 @@ class stzHttpParallelClient
         ok
 
         # Extract host and path
-        slash_pos = ring_find(url, "/")
+        slash_pos = StzFind(url, "/")
         if slash_pos > 0
             host = StzLeft(url, slash_pos - 1)
             path = StzMid(url, slash_pos, StzLen(url) - slash_pos + 1)
@@ -563,7 +563,7 @@ class stzHttpParallelClient
         ok
 
         # Extract port if specified
-        colon_pos = ring_find(host, ":")
+        colon_pos = StzFind(host, ":")
         if colon_pos > 0
             port = 0 + StzMid(host, colon_pos + 1, StzLen(host) - colon_pos)
             host = StzLeft(host, colon_pos - 1)
@@ -578,7 +578,7 @@ class stzHttpParallelClient
 
         # Split headers and body
         double_crlf = StzChar(13) + StzChar(10) + StzChar(13) + StzChar(10)
-        body_start = ring_find(cResponse, double_crlf)
+        body_start = StzFind(cResponse, double_crlf)
 
         if body_start > 0
             headers_part = StzLeft(cResponse, body_start - 1)
@@ -590,7 +590,7 @@ class stzHttpParallelClient
 
         # Extract status code from first line
         status_code = 200
-        first_line_end = ring_find(headers_part, StzChar(13) + StzChar(10))
+        first_line_end = StzFind(headers_part, StzChar(13) + StzChar(10))
         if first_line_end > 0
             status_line = StzLeft(headers_part, first_line_end - 1)
             # Extract status code (format: HTTP/1.1 200 OK)

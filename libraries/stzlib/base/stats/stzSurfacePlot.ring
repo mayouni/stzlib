@@ -1,4 +1,4 @@
-
+﻿
 #---------------------------------------#
 #  SURFACE COMPOSITION-ORIENTED CHART   #
 #---------------------------------------#
@@ -24,17 +24,17 @@ class stzSurfacePlot
 	@nMinLabelWidth = 3  # Minimum characters to show from label
 
 	# Border characters
-	@cTopLeft = "╭"
-	@cTopRight = "╮"
-	@cBottomLeft = "╰"
-	@cBottomRight = "╯"
-	@cHorizontal = "─"
-	@cVertical = "│"
-	@cTeeDown = "┬"
-	@cTeeUp = "┴"
-	@cTeeRight = "├"
-	@cTeeLeft = "┤"
-	@cCross = "┼"
+	@cTopLeft = "â•­"
+	@cTopRight = "â•®"
+	@cBottomLeft = "â•°"
+	@cBottomRight = "â•¯"
+	@cHorizontal = "â”€"
+	@cVertical = "â”‚"
+	@cTeeDown = "â”¬"
+	@cTeeUp = "â”´"
+	@cTeeRight = "â”œ"
+	@cTeeLeft = "â”¤"
+	@cCross = "â”¼"
 
 	@aRectangles = []
 	@nSum = 0
@@ -749,12 +749,12 @@ def init(paData)
 	        cValueStr = ""
 	        if @bShowValues
 	            cValueStr = ""+ RoundN(nValue, 1)
-				cValueStr = ring_substr2(cValueStr, ".0", "")
+				cValueStr = StzReplace(cValueStr, ".0", "")
 	        ok
 
 	        if @bShowPercent
 	            cPercentStr = ""+ RoundN((nValue / @nSum) * 100, 1)
-				cPercentStr = ring_substr2(cPercentStr, ".0", "")
+				cPercentStr = StzReplace(cPercentStr, ".0", "")
 	            cPercentStr += "%"
 
 	            if StzLen(cValueStr) > 0

@@ -38,17 +38,17 @@ class stzListBounder from stzList
 			ok
 
 			if isString(n1)
-				if ring_find([ :First, :FirstItem ], n1) > 0
+				if StzFind([ :First, :FirstItem ], n1) > 0
 					n1 = 1
-				but ring_find([ :Last, :LastItem ], n1) > 0
+				but StzFind([ :Last, :LastItem ], n1) > 0
 					n1 = nLen
 				ok
 			ok
 
 			if isString(n2)
-				if ring_find([ :End, :Last, :LastItem, :EndOfList ], n2) > 0
+				if StzFind([ :End, :Last, :LastItem, :EndOfList ], n2) > 0
 					n2 = nLen
-				but ring_find([ :First, :FirstItem ], n2) > 0
+				but StzFind([ :First, :FirstItem ], n2) > 0
 					n2 = 1
 				ok
 			ok

@@ -267,7 +267,7 @@ class stzListChecker from stzList
 	def IsWithOrByOrUsingNamedParam()
 		if This.NumberOfItems() = 2 and
 		   ( isString(This.Item(1)) and
-		     ring_find([ "with", "by", "using" ], This.Item(1)) > 0 )
+		     StzFind([ "with", "by", "using" ], This.Item(1)) > 0 )
 			return 1
 		else
 			return 0

@@ -423,7 +423,7 @@ func IntensifyColor(cColor)
 # Helper: Hex to RGB
 func HexToRGB(cHex)
 	# Remove # if present
-	if ring_find(cHex, "#")
+	if StzFind(cHex, "#")
 		cHex = StzMid(cHex, 2, StzLen(cHex) - 1)
 	ok
 

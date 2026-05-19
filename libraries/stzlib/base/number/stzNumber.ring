@@ -1,4 +1,4 @@
-#------------------------------------------------------------#
+﻿#------------------------------------------------------------#
 #                                                            #
 #   Class        : stzNumber                                 #
 #   Description  : The class for managing softanza numbers   #
@@ -45,15 +45,15 @@
 	Number (1 bit for the sign, 11 bits for the exponent, and 52* bits
 	for the value), i.e. double has 15 decimal digits of precision.
 	
-	Double range is '2.2250738585072014 E–308' to '1.7976931348623158 E+308'.
+	Double range is '2.2250738585072014 Eâ€“308' to '1.7976931348623158 E+308'.
 	Subsequently the size and length varies accordingly.
 	It has nothing to do with the language one is using.
 	
 	<Ilir>
-		±2.23 x 10-308 to ±1.80 x 10 308
+		Â±2.23 x 10-308 to Â±1.80 x 10 308
 		
 		Min and max numbers for a double type which Ring uses are
-		±2.23 x 10-308 to ±1.80 x 1030.
+		Â±2.23 x 10-308 to Â±1.80 x 1030.
 	
 		Maximum of 15 digits are allowed.
 		
@@ -1634,7 +1634,7 @@ class stzNumber from stzObject
 
 			# Case where a char is provided in the form
 			# of Unicode circled numbers
-			# ~> Example : new stzNumber("⑦")
+			# ~> Example : new stzNumber("â‘¦")
 			if StzStringQ(pNumber).IsAChar() and
 			   StzCharQ(pNumber).IsCircledNumber()
 
@@ -2511,7 +2511,7 @@ class stzNumber from stzObject
 
 		if cSign = "+" or cSign = "-"
 
-			This.Update( ring_substr2(cNumber, 2, nLenNumber -2 ) )
+			This.Update( StzReplace(cNumber, 2, nLenNumber -2 ) )
 		ok
 
 		def RemoveSignQ()
@@ -2986,7 +2986,7 @@ class stzNumber from stzObject
 		if NOT This.IsSigned()
 			return This.IntegerPart()
 		else
-			return ring_substr2( This.IntegerPart(), 2, len(This.IntegerPart())-1 )
+			return StzReplace( This.IntegerPart(), 2, len(This.IntegerPart())-1 )
 		ok
 
 		def IntegerPartWithoutSignQ()
@@ -5177,7 +5177,7 @@ class stzNumber from stzObject
 		return 1
 
 	def Contains(pcDigit)
-		return ring_find(This.Content(), pcDigit) > 0
+		return StzFind(This.Content(), pcDigit) > 0
 
 	def ExistsIn(paList)
 		return ListContains(paList, This.NumericValue())
@@ -5794,7 +5794,7 @@ class stzNumber from stzObject
 
 				# Reading the rounded fraction part
 				cFractionalPart = ""
-				for i = ring_find(cTempNumber, ".") + 1 to len(cTempNumber)
+				for i = StzFind(cTempNumber, ".") + 1 to len(cTempNumber)
 					cFractionalPart += cTempNumber[i]
 				next
 			ok

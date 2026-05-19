@@ -195,7 +195,7 @@ class stzListFinder from stzList
 		anResult = []
 
 		for i = 1 to nLen
-			if ring_find(anPos, anContent[i]) = 0
+			if StzFind(anPos, anContent[i]) = 0
 				anResult + i
 			ok
 		next

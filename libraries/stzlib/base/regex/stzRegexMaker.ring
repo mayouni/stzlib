@@ -1,4 +1,4 @@
-
+﻿
 # A great tool to learn from:
 # https://www.regexmagic.com/patterns.html
 
@@ -127,10 +127,10 @@ class stzRegexMaker
 		ok
 
 		if cType = :among
-			cPattern = "[" + ring_substr2(cRange, "SPACE", " ") + "]"
+			cPattern = "[" + StzReplace(cRange, "SPACE", " ") + "]"
 
 		but cType = :notAmong
-			cPattern = "[^" + ring_substr2(cRange, "SPACE", " ") + "]"
+			cPattern = "[^" + StzReplace(cRange, "SPACE", " ") + "]"
 
 		else
 			cPattern = "[" + cRange + "]"
@@ -1053,7 +1053,7 @@ class stzRegexMaker
 	
 		_cRepeat_ = ""
 
-		if ring_find(_aTempList_, pRepeat[1]) > 0
+		if StzFind(_aTempList_, pRepeat[1]) > 0
 			_cRepeat_ = pRepeat[1]
 		ok
 	

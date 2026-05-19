@@ -1,19 +1,19 @@
-
+﻿
 #TODO // general - study the compatibility of softanza comments
 # with JSDoc (https://jsdoc.app/)
 #--> Create a generator of a static web site documentation
 
 _cSoftanzaLogo = '
-╭━━━┳━━━┳━━━┳━━━━┳━━━┳━╮╱╭┳━━━━┳━━━╮
-┃╭━╮┃╭━╮┃╭━━┫╭╮╭╮┃╭━╮┃┃╰╮┃┣━━╮━┃╭━╮┃
-┃╰━━┫┃╱┃┃╰━━╋╯┃┃╰┫┃╱┃┃╭╮╰╯┃╱╭╯╭┫┃╱┃┃
-╰━━╮┃┃╱┃┃╭━━╯╱┃┃╱┃╰━╯┃┃╰╮┃┃╭╯╭╯┃╰━╯┃
-┃╰━╯┃╰━╯┃┃╱╱╱╱┃┃╱┃╭━╮┃┃╱┃┃┣╯━╰━┫╭━╮┃
-╰━━━┻━━━┻╯╱╱╱╱╰╯╱╰╯╱╰┻╯╱╰━┻━━━━┻╯╱╰━
+â•­â”â”â”â”³â”â”â”â”³â”â”â”â”³â”â”â”â”â”³â”â”â”â”³â”â•®â•±â•­â”³â”â”â”â”â”³â”â”â”â•®
+â”ƒâ•­â”â•®â”ƒâ•­â”â•®â”ƒâ•­â”â”â”«â•­â•®â•­â•®â”ƒâ•­â”â•®â”ƒâ”ƒâ•°â•®â”ƒâ”£â”â”â•®â”â”ƒâ•­â”â•®â”ƒ
+â”ƒâ•°â”â”â”«â”ƒâ•±â”ƒâ”ƒâ•°â”â”â•‹â•¯â”ƒâ”ƒâ•°â”«â”ƒâ•±â”ƒâ”ƒâ•­â•®â•°â•¯â”ƒâ•±â•­â•¯â•­â”«â”ƒâ•±â”ƒâ”ƒ
+â•°â”â”â•®â”ƒâ”ƒâ•±â”ƒâ”ƒâ•­â”â”â•¯â•±â”ƒâ”ƒâ•±â”ƒâ•°â”â•¯â”ƒâ”ƒâ•°â•®â”ƒâ”ƒâ•­â•¯â•­â•¯â”ƒâ•°â”â•¯â”ƒ
+â”ƒâ•°â”â•¯â”ƒâ•°â”â•¯â”ƒâ”ƒâ•±â•±â•±â•±â”ƒâ”ƒâ•±â”ƒâ•­â”â•®â”ƒâ”ƒâ•±â”ƒâ”ƒâ”£â•¯â”â•°â”â”«â•­â”â•®â”ƒ
+â•°â”â”â”â”»â”â”â”â”»â•¯â•±â•±â•±â•±â•°â•¯â•±â•°â•¯â•±â•°â”»â•¯â•±â•°â”â”»â”â”â”â”â”»â•¯â•±â•°â”
 
-Programming, by Heart! By: M.Ayouni╭
-━━╮╭━━━━━━━━━━━━━━━━━━━━╮╱╭━━━━━━━━╯
-  ╰╯'
+Programming, by Heart! By: M.Ayouniâ•­
+â”â”â•®â•­â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â”â•®â•±â•­â”â”â”â”â”â”â”â”â•¯
+  â•°â•¯'
 
 #TODO // Add these alternatives to NumberOf...() functions, allover the library:
 #	- HowMany...() : in singular and plural forms, exp: HowManyItem() and HowManyItems()
@@ -2812,7 +2812,7 @@ func StzRaise(paMessage)
 			raise("Error in StzRaise param type!")
 		ok
 	
-		cFile = ring_substr2(cWhere, " ", "")
+		cFile = StzReplace(cWhere, " ", "")
 		if isNull(cWhere)
 			raise("Error in StzRaise --> Where the error happened!")
 		ok
@@ -3938,9 +3938,9 @@ func BothAreCharsInComputableForm(p1, p2)
 		c1 = '"'
 		c2 = "'"
 
-		cClean1 = ring_substr2(ring_substr2(p1, c1, ""), c2, "")
+		cClean1 = StzReplace(StzReplace(p1, c1, ""), c2, "")
 		bOk1 = (len(cClean1) = 1)
-		cClean2 = ring_substr2(ring_substr2(p2, c1, ""), c2, "")
+		cClean2 = StzReplace(StzReplace(p2, c1, ""), c2, "")
 		bOk2 = (len(cClean2) = 1)
 
 		if bOk1 and bOk2
@@ -4466,13 +4466,13 @@ func HexUnicodes(p)
 #---
 
 func YaAllah()
-	return "يَا أَلله"
+	return "ÙŠÙŽØ§ Ø£ÙŽÙ„Ù„Ù‡"
 
 func YaMuhammed()
-	return "يا مُحَمَّدْ"
+	return "ÙŠØ§ Ù…ÙØ­ÙŽÙ…Ù‘ÙŽØ¯Ù’"
 
 func SalatNabee()
-	return "صلّى الله على نبيّه الأكرم"
+	return "ØµÙ„Ù‘Ù‰ Ø§Ù„Ù„Ù‡ Ø¹Ù„Ù‰ Ù†Ø¨ÙŠÙ‘Ù‡ Ø§Ù„Ø£ÙƒØ±Ù…"
 
 func NHearts(n)
 	return Q(Heart()).RepeatedNTimes(n)
@@ -4762,7 +4762,7 @@ func TodoInCurrent()
 
 func TodoXT(pcCurrentOrFuture)
 	if NOT ( isString(pcCurrentOrFuture) and
-	   	 ring_find([
+	   	 StzFind([
 			:Current, :InCurrent, :Future, :InFuture,
 			:CurrentRelease, :InCurrentRelease, :FutureRelease, :InFutureRelease,
 
@@ -4772,7 +4772,7 @@ func TodoXT(pcCurrentOrFuture)
 		StzRaise("Incorrect param! pcCurrentOrFuture must be a string equal to :Current or :Future.")
 	ok
 
-	if ring_find([ :Future, :InFuture, :FutureRelase, :InFutureRelase ], pcCurrentOrFuture) > 0
+	if StzFind([ :Future, :InFuture, :FutureRelase, :InFutureRelase ], pcCurrentOrFuture) > 0
 		StzRaise("Unavailable feature in current version (TODO in the future!)")
 
 	else
@@ -5039,7 +5039,7 @@ func IsStzFindableType(cType)
 	ok
 
 	cType = StzLower(cType)
-	if ring_find( StzFindableTypes(), cType) > 0
+	if StzFind( StzFindableTypes(), cType) > 0
 		return 1
 	else
 		return 0
@@ -5063,7 +5063,7 @@ func IsStzFindable(p)
 	ok
 
 	cStzType = p.StzType()
-	if ring_find( StzFindableTypes(), cStzType ) > 0
+	if StzFind( StzFindableTypes(), cStzType ) > 0
 		return 1
 	else
 		return 0

@@ -1,4 +1,4 @@
-/*
+﻿/*
 Hex numbers are used mainly because they form a more
 compact form to represent numbers compared to binary.
 
@@ -137,7 +137,7 @@ class stzHexNumber from stzObject
 			@cHexNumber = cTemp
 
 		but StringRepresentsNumberInUnicodeHexForm(cNumber)
-			@cHexNumber = ring_substr2(ring_substr2(cNumber, "U+", ""), "u+", "")
+			@cHexNumber = StzReplace(StzReplace(cNumber, "U+", ""), "u+", "")
 
 		else
 			StzRaise(stzHexNumberError(:CanNotCreateHexNumber))

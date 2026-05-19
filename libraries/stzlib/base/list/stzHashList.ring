@@ -107,7 +107,7 @@ func HasKey(paList, pcKey)
 		acKeys + StzLower(paList[i][1])
 	next
 
-	return iff(ring_find(acKeys, StzLower(pcKey)) > 0, TRUE, FALSE)
+	return iff(StzFind(acKeys, StzLower(pcKey)) > 0, TRUE, FALSE)
 
 	func @HasKey(paList, pcKey)
 		return HasKey(paList, pcKey)
@@ -1502,7 +1502,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	def FindKey(pcKey)
 
 		if isString(pcKey)
-			return ring_find( Keys(), pcKey)
+			return StzFind( Keys(), pcKey)
 		ok
 
 		def FindThisKey(pcKey)

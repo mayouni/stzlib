@@ -1,4 +1,4 @@
-#----------------------------------------------------------------#
+﻿#----------------------------------------------------------------#
 #            SOFTANZA LIBRARY (V0.9) - STZLOCALE                 #
 #        An accelerative library for Ring applications           #
 #----------------------------------------------------------------#
@@ -24,12 +24,12 @@ $aDaysOfWeek = [
 	[ "7", :Sunday ]
 ]
 
-# ── Locale helper data tables ──
+# â”€â”€ Locale helper data tables â”€â”€
 
 $_aDayNamesPerLang = [
 	[:english,    ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"]],
 	[:french,     ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"]],
-	[:arabic,     ["الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد"]],
+	[:arabic,     ["Ø§Ù„Ø§Ø«Ù†ÙŠÙ†", "Ø§Ù„Ø«Ù„Ø§Ø«Ø§Ø¡", "Ø§Ù„Ø£Ø±Ø¨Ø¹Ø§Ø¡", "Ø§Ù„Ø®Ù…ÙŠØ³", "Ø§Ù„Ø¬Ù…Ø¹Ø©", "Ø§Ù„Ø³Ø¨Øª", "Ø§Ù„Ø£Ø­Ø¯"]],
 	[:spanish,    ["Lunes", "Martes", "Miercoles", "Jueves", "Viernes", "Sabado", "Domingo"]],
 	[:german,     ["Montag", "Dienstag", "Mittwoch", "Donnerstag", "Freitag", "Samstag", "Sonntag"]],
 	[:portuguese, ["Segunda-feira", "Terca-feira", "Quarta-feira", "Quinta-feira", "Sexta-feira", "Sabado", "Domingo"]],
@@ -73,12 +73,12 @@ $_aCurrencyISOData = [
 	[:Botswana_pula, "BWP", "P"],
 	[:Brazilian_real, "BRL", "R$"],
 	[:Brunei_dollar, "BND", "B$"],
-	[:Bulgarian_lev, "BGN", "лв"],
+	[:Bulgarian_lev, "BGN", "Ð»Ð²"],
 	[:Cambodian_riel, "KHR", "KHR"],
 	[:Canadian_dollar, "CAD", "C$"],
 	[:Cape_Verdean_escudo, "CVE", "Esc"],
 	[:Chilean_peso, "CLP", "CL$"],
-	[:Chinese_yuan, "CNY", "CN¥"],
+	[:Chinese_yuan, "CNY", "CNÂ¥"],
 	[:Colombian_peso, "COP", "COL$"],
 	[:Comorian_franc, "KMF", "CF"],
 	[:Costa_Rican_colon, "CRC", "CRC"],
@@ -110,7 +110,7 @@ $_aCurrencyISOData = [
 	[:Iraqi_dinar, "IQD", "IQD"],
 	[:Israeli_new_shekel, "ILS", "ILS"],
 	[:Jamaican_dollar, "JMD", "J$"],
-	[:Japanese_yen, "JPY", "JP¥"],
+	[:Japanese_yen, "JPY", "JPÂ¥"],
 	[:Jordanian_dinar, "JOD", "JD"],
 	[:Kazakhstani_tenge, "KZT", "KZT"],
 	[:Kenyan_shilling, "KES", "KSh"],
@@ -198,22 +198,22 @@ $_aCurrencyISOData = [
 	[:Antarctic_dollar, "AAD", "$"]
 ]
 
-# ── Pure Ring locale helper functions ──
+# â”€â”€ Pure Ring locale helper functions â”€â”€
 
 func _LocaleLangCodeFromAbbr(cLocaleAbbr)
-	cLocaleAbbr = ring_substr2(cLocaleAbbr, "-", "_")
-	nPos = ring_find(cLocaleAbbr, "_")
+	cLocaleAbbr = StzReplace(cLocaleAbbr, "-", "_")
+	nPos = StzFind(cLocaleAbbr, "_")
 	if nPos > 0
 		return StzLower(StzLeft(cLocaleAbbr, nPos - 1))
 	ok
 	return StzLower(cLocaleAbbr)
 
 func _LocaleCountryCodeFromAbbr(cLocaleAbbr)
-	cLocaleAbbr = ring_substr2(cLocaleAbbr, "-", "_")
-	nPos = ring_find(cLocaleAbbr, "_")
+	cLocaleAbbr = StzReplace(cLocaleAbbr, "-", "_")
+	nPos = StzFind(cLocaleAbbr, "_")
 	if nPos > 0
 		cRest = StzMid(cLocaleAbbr, nPos + 1, StzLen(cLocaleAbbr))
-		nPos2 = ring_find(cRest, "_")
+		nPos2 = StzFind(cRest, "_")
 		if nPos2 > 0
 			return StzUpper(StzMid(cRest, nPos2 + 1, StzLen(cRest)))
 		ok
@@ -227,8 +227,8 @@ func _LocaleNormalizeAbbr(cInput)
 	if cInput = NULL or cInput = "" or cInput = "C"
 		return "C"
 	ok
-	cInput = ring_substr2(cInput, "-", "_")
-	nPos = ring_find(cInput, "_")
+	cInput = StzReplace(cInput, "-", "_")
+	nPos = StzFind(cInput, "_")
 	if nPos > 0
 		cLang = StzLower(StzLeft(cInput, nPos - 1))
 		cRest = StzUpper(StzMid(cInput, nPos + 1, StzLen(cInput)))
@@ -418,7 +418,7 @@ func _LangNativeNameFromCode(cLangCode)
 	next
 	return ""
 
-# ── Top-level functions ──
+# â”€â”€ Top-level functions â”€â”€
 
 func SystemLocale()
 	return "C"
@@ -596,13 +596,13 @@ class stzLocale from stzObject
 				return
 
 			else
-				pLocale = ring_substr2(pLocale, "_", "-")
+				pLocale = StzReplace(pLocale, "_", "-")
 
 				@cAbbreviation = _LocaleNormalizeAbbr(pLocale)
 
 			ok
 
-			pLocale = ring_substr2(pLocale, "_", "-")
+			pLocale = StzReplace(pLocale, "_", "-")
 			oLocale = new stzString(pLocale)
 
 			if oLocale.ContainsOneOccurrence("-")
@@ -715,7 +715,7 @@ class stzLocale from stzObject
 			return Content()
 
 	def bcp47Abbreviation()
-		return ring_substr2(@cAbbreviation, "_", "-")
+		return StzReplace(@cAbbreviation, "_", "-")
 
 	  #---------------#
 	 #    COUNTRY    #
@@ -860,7 +860,7 @@ class stzLocale from stzObject
 		for i = 1 to nLen
 
 			if _aLocaleCountriesXT[i][1] = cNumber
-				cTemp = ring_substr2(_aLocaleCountriesXT[i][7], "_", " ")
+				cTemp = StzReplace(_aLocaleCountriesXT[i][7], "_", " ")
 				cResult = StzUpper(StzLeft(cTemp, 1)) + StzMid(cTemp, 2, StzLen(cTemp))
 				return cResult
 			ok
@@ -1008,7 +1008,7 @@ class stzLocale from stzObject
 
 		cFirstDayInEnglish = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
-		n = ring_find( aDaysInEnglish, cFirstDayInEnglish )
+		n = StzFind( aDaysInEnglish, cFirstDayInEnglish )
 
 		# We need to get that 1st day in native language of the locale
 
@@ -1032,7 +1032,7 @@ class stzLocale from stzObject
 	def NativeDaysOfWeek()
 		cFirstDayInEnglish = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
-		n = ring_find( aDaysInEnglish, cFirstDayInEnglish )
+		n = StzFind( aDaysInEnglish, cFirstDayInEnglish )
 
 		cLang = This.LanguageName()
 
@@ -1107,7 +1107,7 @@ class stzLocale from stzObject
 		cFirstDay = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
 
-		nFirst = ring_find( aDaysInEnglish, cFirstDay )
+		nFirst = StzFind( aDaysInEnglish, cFirstDay )
 
 		nDay = nFirst + n - 1
 		if nDay > 7 nDay = nDay - 7 ok
@@ -1147,7 +1147,7 @@ class stzLocale from stzObject
 		cFirstDay = This.FirstDayOfWeek()
 		aDaysInEnglish = [ :monday, :tuesady, :wednesday, :thirsday, :friday, :saturday, :sunday ]
 
-		nFirst = ring_find( aDaysInEnglish, cFirstDay )
+		nFirst = StzFind( aDaysInEnglish, cFirstDay )
 
 		nDay = nFirst + n - 1
 		if nDay > 7 nDay = nDay - 7 ok
@@ -1431,7 +1431,7 @@ class stzLocale from stzObject
 			return _CurrencyNativeSymbol(cCurrencyName)
 
 		on :NativeName
-			cResult = ring_substr2(cCurrencyName, "_", " ")
+			cResult = StzReplace(cCurrencyName, "_", " ")
 			return cResult
 
 		other

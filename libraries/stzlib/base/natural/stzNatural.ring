@@ -1,4 +1,4 @@
-# Enhanced Multilingual Softanza Natural Programming System
+﻿# Enhanced Multilingual Softanza Natural Programming System
 # Extended with Context Interpolation Support
 
 #-- [Previous global definitions remain the same]
@@ -79,10 +79,10 @@ $aLanguageDefinitions = [
 			[:natural = "rubutu", :semantic = "OBJECT_STRING"],
 			[:natural = "rubuti", :semantic = "OBJECT_STRING"],
 			[:natural = "dauke", :semantic = "VALUE_INDICATOR"],
-			[:natural = "ɗauke", :semantic = "VALUE_INDICATOR"],
+			[:natural = "É—auke", :semantic = "VALUE_INDICATOR"],
 			[:natural = "raba", :semantic = "METHOD_SPACIFY"],
 			[:natural = "maida", :semantic = "METHOD_UPPERCASE"],
-			[:natural = "maiɗa", :semantic = "METHOD_UPPERCASE"],
+			[:natural = "maiÉ—a", :semantic = "METHOD_UPPERCASE"],
 			[:natural = "datsa", :semantic = "METHOD_TRIM"],
 			[:natural = "akwati", :semantic = "METHOD_BOX"],
 			[:natural = "zagaye", :semantic = "MODIFIER_ROUNDED"],
@@ -327,7 +327,7 @@ class stzNaturalEngine
 			cValue = @@(This.GetContextValue(cKey, aContext))
 
 			if cValue != :NOT_FOUND
-				cResult = ring_substr2(cResult, "{" + cKey + "}", cValue)
+				cResult = StzReplace(cResult, "{" + cKey + "}", cValue)
 			ok
 		next
 		
@@ -370,7 +370,7 @@ class stzNaturalEngine
 	
 	def GetContextValue(cKey, aContext)
 		# Handle nested keys like "user.profile.name"
-		if ring_find(cKey, ".") > 0
+		if StzFind(cKey, ".") > 0
 			aParts = @split(cKey, ".")
 			xCurrent = aContext
 			
@@ -632,7 +632,7 @@ class stzNaturalEngine
 		return 0
 	
 	def IsIgnoredWord(cWord)
-		return ring_find(@aIgnoredWords, StzLower(cWord)) > 0
+		return StzFind(@aIgnoredWords, StzLower(cWord)) > 0
 	
 	def ToSemantic(cWord)
 		cLower = StzLower(cWord)
@@ -708,7 +708,7 @@ class stzNaturalEngine
 				but cSemantic = "OUTPUT_DISPLAY"
 					aOp = This.GetSemanticOperation(cSemantic)
 					if len(aOp) > 0
-						cCode = ring_substr2(aOp[:stz_signature], "@var", @cCurrentVariable)
+						cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
 						aCodeLines + cCode
 					ok
 					i++
@@ -768,10 +768,10 @@ class stzNaturalEngine
 				cConstructor = aOp[:constructor]
 				
 				if isListInString(cValue)
-					cConstructor = ring_substr2(cConstructor, "@", cValue)
+					cConstructor = StzReplace(cConstructor, "@", cValue)
 				else
 
-					cConstructor = ring_substr2(cConstructor, "@", '"' + cValue + '"')
+					cConstructor = StzReplace(cConstructor, "@", '"' + cValue + '"')
 				ok
 				
 				cCode = @cCurrentVariable + " = " + cConstructor
@@ -790,7 +790,7 @@ class stzNaturalEngine
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
-		cCode = ring_substr2(aOp[:stz_signature], "@var", @cCurrentVariable)
+		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
 
 		if HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
 			aResult = This.ExtractMethodParameters(nIndex, aOp[:requires_params])
@@ -805,7 +805,7 @@ class stzNaturalEngine
 				else
 					cParamValue = "" + aParams[i]
 				ok
-				cCode = ring_substr2(cCode, cPlaceholder, cParamValue)
+				cCode = StzReplace(cCode, cPlaceholder, cParamValue)
 			next
 			
 			return [:code = cCode, :next_index = nNextIndex]
@@ -848,7 +848,7 @@ class stzNaturalEngine
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
-		cCode = ring_substr2(aOp[:stz_signature], "@var", @cCurrentVariable)
+		cCode = StzReplace(aOp[:stz_signature], "@var", @cCurrentVariable)
 
 		if HasKey(aOp, :supports_modifiers) and aOp[:supports_modifiers] = 1
 			nLen = len(@aSemanticTokens)
@@ -859,8 +859,8 @@ class stzNaturalEngine
 					for j = 1 to nModLen
 						aMod = aOp[:modifiers][j]
 						if aMod[:semantic_id] = aToken[:value]
-							cCode = ring_substr2(cCode, aOp[:stz_method], aMod[:stz_method])
-							cCode = ring_substr2(cCode, "()", "([" + aMod[:stz_param] + "])")
+							cCode = StzReplace(cCode, aOp[:stz_method], aMod[:stz_method])
+							cCode = StzReplace(cCode, "()", "([" + aMod[:stz_param] + "])")
 							exit 2
 						ok
 					next

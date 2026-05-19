@@ -135,7 +135,7 @@ class stzListGetter from stzList
 		anUsed = []
 		while len(aResult) < n
 			nRand = random(nLen - 1) + 1
-			if ring_find(anUsed, nRand) = 0
+			if StzFind(anUsed, nRand) = 0
 				anUsed + nRand
 				aResult + This.List()[nRand]
 			ok

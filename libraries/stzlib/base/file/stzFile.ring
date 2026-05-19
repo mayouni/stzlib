@@ -1,4 +1,4 @@
-load "ziplib.ring" # A ring library, Required by stzZipFile
+﻿load "ziplib.ring" # A ring library, Required by stzZipFile
 
 /*
 Intent-Based File API for Softanza v2.0
@@ -665,8 +665,8 @@ func NormalizeFilePath(cName)
 	ok
 	
 	cResult = StzLower(trim(cName))
-	cResult = ring_substr2(cResult, "\", "/")
-	cResult = ring_substr2(cResult, "//", "/")
+	cResult = StzReplace(cResult, "\", "/")
+	cResult = StzReplace(cResult, "//", "/")
 	return cResult
 
 	func NormaliseFilePath(cName)
@@ -681,13 +681,13 @@ func NormalizeFilePathXT(cName)
 
 	cName = trim(cName)
 
-	if StzLeft(cName, 1) != "/" and ring_find(cName, ":/") = 0
+	if StzLeft(cName, 1) != "/" and StzFind(cName, ":/") = 0
 		cName = currentdir() + "/" + cName
 	ok
 
 	cResult = StzLower(cName)
-	cResult = ring_substr2(cResult, "\", "/")
-	cResult = ring_substr2(cResult, "//", "/")
+	cResult = StzReplace(cResult, "\", "/")
+	cResult = StzReplace(cResult, "//", "/")
 	return cResult
 
 	func NormaliseFilePathXT(cName)
@@ -931,7 +931,7 @@ class stzFileInfo from stzObject
 
     def BaseName()
         cBase = StzEnginePathBasename(@cFileName)
-        nDot = ring_find(cBase, ".")
+        nDot = StzFind(cBase, ".")
         if nDot > 0
             return StzLeft(cBase, nDot - 1)
         ok
@@ -1020,7 +1020,7 @@ class stzFileReadingMixin from stzObject
     def FindText(cSearchText)
         # Returns position of text in file, or 0 if not found
         cContent = This.Content()
-        return ring_find(cContent, cSearchText)
+        return StzFind(cContent, cSearchText)
     
     def ContainsText(cSearchText)
         return This.FindText(cSearchText) > 0
@@ -1039,7 +1039,7 @@ class stzFileReadingMixin from stzObject
         aResult = []
 	   nLen = len(aLines)
         for i = 1 to nLen
-            if ring_find(aLines[i], cSearchText) > 0
+            if StzFind(aLines[i], cSearchText) > 0
                 aResult + [i, aLines[i]]
             ok
         next
@@ -1050,7 +1050,7 @@ class stzFileReadingMixin from stzObject
         aLines = This.Lines()
 	   nLen = len(aLines)
         for i = 1 to nLen
-            if ring_find(aLines[i], cSearchText) > 0
+            if StzFind(aLines[i], cSearchText) > 0
                 return i
             ok
         next
@@ -1227,7 +1227,7 @@ class stzFileAppender from stzFileReadingMixin
 #=======================================#
 
 # Purpose: Creates a new file with write methods and
-# read access, ensuring it doesnâ€™t already exists
+# read access, ensuring it doesnÃ¢â‚¬â„¢t already exists
 
 # Intent: "I want to create a new file"
 
@@ -1773,7 +1773,7 @@ class stzFileModifier from stzFileReadingMixin
 
         anResult = []
         for i = 1 to nLen
-            if ring_find(aLines[i], cSearchText) > 0
+            if StzFind(aLines[i], cSearchText) > 0
                 anResult + i
             ok
         next
@@ -1786,7 +1786,7 @@ class stzFileModifier from stzFileReadingMixin
 
         acResult = []
         for i = 1 to nLen
-            if ring_find(acLines[i], cSearchText) > 0
+            if StzFind(acLines[i], cSearchText) > 0
                 acResult + acLines[i]
             ok
         next
@@ -1800,7 +1800,7 @@ class stzFileModifier from stzFileReadingMixin
 
         aNewLines = []
         for i = 1 to nLen
-            if ring_find(aLines[i], cSearchText) = 0
+            if StzFind(aLines[i], cSearchText) = 0
                 aNewLines + aLines[i]
             ok
         next
@@ -1834,7 +1834,7 @@ class stzFileModifier from stzFileReadingMixin
 			ok
 		ok
 
-        cNewContent = ring_substr2(@cOriginalContent, cOldText, cNewText)
+        cNewContent = StzReplace(@cOriginalContent, cOldText, cNewText)
         This.ModifyAllContent(cNewContent)
 		return 1
 
@@ -1849,7 +1849,7 @@ class stzFileModifier from stzFileReadingMixin
 
     def ReplaceInLine(nLineNumber, cOldText, cNewText)
         aLines = This.OriginalLines()
-        aLines[nLineNumber] = ring_substr2(aLines[nLineNumber], cOldText, cNewText)
+        aLines[nLineNumber] = StzReplace(aLines[nLineNumber], cOldText, cNewText)
         cNewContent = JoinLines(aLines)
         This.ReplaceAllContent(cNewContent)
 
@@ -1863,7 +1863,7 @@ class stzFileModifier from stzFileReadingMixin
 	    nLen = len(aLines)
 
 	    for i = 1 to nLen
-	        if ring_find(aLines[i], cSubstr) > 0
+	        if StzFind(aLines[i], cSubstr) > 0
 	            aLines[i] = cNewLine
 	            exit
 	        ok
@@ -2107,7 +2107,7 @@ class stzFileManager from stzObject
 
         nLen = len(aLines)
         for i = 1 to nLen
-            if ring_find(aLines[i], cPattern) > 0 and len(aCurrentChunk) > 0
+            if StzFind(aLines[i], cPattern) > 0 and len(aCurrentChunk) > 0
                 cNewFileName = cBaseName + "_" + nFileNum + "." + cSuffix
                 cFullPath = cDirPath + "/" + cNewFileName
                 

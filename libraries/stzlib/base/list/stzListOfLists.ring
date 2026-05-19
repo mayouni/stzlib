@@ -1801,7 +1801,7 @@ class stzListOfLists from stzList
 			ok
 	
 			if isString(pItem) and
-			    	ring_find([
+			    	StzFind([
 					:ItemsRepeated, :RepeatingItems,
 					:RepeatedItems, :ByRepeatingItems
 				], pItem) > 0
@@ -3948,7 +3948,7 @@ class stzListOfLists from stzList
 
 				nLenList = len(@aContent[i])
 
-				if ring_find(acSeen, acContent[i]) = 0
+				if StzFind(acSeen, acContent[i]) = 0
 					aResult + [ acContent[i], [] ]
 
 					for j = 2 to nLenlist

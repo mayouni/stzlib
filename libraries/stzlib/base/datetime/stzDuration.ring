@@ -514,7 +514,7 @@ def ToStringXT(cFormat)
 		
 		# Extract all numbers followed by units
 		# Days
-		nPos = ring_find(cStr, "day")
+		nPos = StzFind(cStr, "day")
 		if nPos > 0
 			cNum = ""
 			for i = nPos - 1 to 1 step -1
@@ -533,9 +533,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Hours
-		nPos = ring_find(cStr, "hour")
+		nPos = StzFind(cStr, "hour")
 		if nPos = 0
-			nPos = ring_find(cStr, "hr")
+			nPos = StzFind(cStr, "hr")
 		ok
 		if nPos > 0
 			cNum = ""
@@ -555,9 +555,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Minutes
-		nPos = ring_find(cStr, "minute")
+		nPos = StzFind(cStr, "minute")
 		if nPos = 0
-			nPos = ring_find(cStr, "min")
+			nPos = StzFind(cStr, "min")
 		ok
 		if nPos > 0
 			cNum = ""
@@ -577,9 +577,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Seconds
-		nPos = ring_find(cStr, "second")
+		nPos = StzFind(cStr, "second")
 		if nPos = 0
-			nPos = ring_find(cStr, "sec")
+			nPos = StzFind(cStr, "sec")
 		ok
 		if nPos > 0
 			cNum = ""
@@ -599,9 +599,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Milliseconds
-		nPos = ring_find(cStr, "millisecond")
+		nPos = StzFind(cStr, "millisecond")
 		if nPos = 0
-			nPos = ring_find(cStr, "ms")
+			nPos = StzFind(cStr, "ms")
 		ok
 		if nPos > 0
 			cNum = ""

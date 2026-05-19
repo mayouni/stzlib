@@ -734,7 +734,7 @@ func FastProUpdate(paList, paCommand)
 		   isNumber(paCommand[2][2][2])
 
 
-		   	nPos = ring_find(paCommand[2][1][2], paCommand[2][2][2])
+		   	nPos = StzFind(paCommand[2][1][2], paCommand[2][2][2])
 			if nPos = 0
 				stzraise("Can't proceed! The :InCol number must be one of the two numbers in :Cols list.")
 			ok
@@ -762,7 +762,7 @@ func FastProUpdate(paList, paCommand)
 		    isNumber(paCommand[2][2][2])
 
 
-		   	nPos = ring_find(paCommand[2][1][2], paCommand[2][2][2])
+		   	nPos = StzFind(paCommand[2][1][2], paCommand[2][2][2])
 			if nPos = 0
 				stzraise("Can't proceed! The :InRow number must be one of the two numbers in :Rows list.")
 			ok

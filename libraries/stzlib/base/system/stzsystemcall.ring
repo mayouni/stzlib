@@ -1,4 +1,4 @@
-#--------------------------------------------------------------#
+﻿#--------------------------------------------------------------#
 #         SOFTANZA LIBRARY (V0.9) - STZSYSTEMCALL              #
 #   An accelerative library for Ring applications, and more!   #
 #--------------------------------------------------------------#
@@ -58,13 +58,13 @@ func NormalizePathsInCommand(pcCommand)
 
 		if isWindows()
 			# Convert / to \ only if not a flag (doesn't start with /)
-			if ring_find(cToken, "/") > 0 and cToken[1] != "/"
-				cToken = ring_substr2(cToken, "/", "\")
+			if StzFind(cToken, "/") > 0 and cToken[1] != "/"
+				cToken = StzReplace(cToken, "/", "\")
 			ok
 		else
 			# Convert \ to / for Unix paths
-			if ring_find(cToken, "\") > 0
-				cToken = ring_substr2(cToken, "\", "/")
+			if StzFind(cToken, "\") > 0
+				cToken = StzReplace(cToken, "\", "/")
 			ok
 		ok
 
@@ -121,7 +121,7 @@ class stzSystemCall
 
 	def ParseCommandString(cCmd)
 		# Check for return type suffix (@RETURN:type)
-		nReturnPos = ring_find(cCmd, "@RETURN:")
+		nReturnPos = StzFind(cCmd, "@RETURN:")
 		if nReturnPos > 0
 			# Extract return type
 			oCmd = new stzString(cCmd)
@@ -135,7 +135,7 @@ class stzSystemCall
 		cCmd = trim(cCmd)
 
 		# Extract first token (program name)
-		nPos = ring_find(cCmd, " ")
+		nPos = StzFind(cCmd, " ")
 		if nPos = 0
 			@cProgram = cCmd
 			return
@@ -308,13 +308,13 @@ class stzSystemCall
 			next
 			cCmd += cCommand
 		else
-			if ring_find(@cProgram, " ") > 0
+			if StzFind(@cProgram, " ") > 0
 				cCmd = '"' + @cProgram + '"'
 			else
 				cCmd = @cProgram
 			ok
 			for i = 1 to len(@acArgs)
-				if ring_find(@acArgs[i], " ") > 0
+				if StzFind(@acArgs[i], " ") > 0
 					cCmd += ' "' + @acArgs[i] + '"'
 				else
 					cCmd += " " + @acArgs[i]
@@ -418,12 +418,12 @@ class stzSystemCall
 
 	def SetParam(cParam, cValue)
 		# Convert forward slashes to backslashes on Windows for path-like values
-		if isWindows() and (ring_find(cValue, "/") > 0 or ring_find(cValue, "\") > 0)
-			cValue = ring_substr2(cValue, "/", "\")
+		if isWindows() and (StzFind(cValue, "/") > 0 or StzFind(cValue, "\") > 0)
+			cValue = StzReplace(cValue, "/", "\")
 		ok
 
 		for i = 1 to len(@acArgs)
-			@acArgs[i] = ring_substr2(@acArgs[i], "{" + cParam + "}", cValue)
+			@acArgs[i] = StzReplace(@acArgs[i], "{" + cParam + "}", cValue)
 		next
 
 	def SetParams(aParams)
@@ -674,7 +674,7 @@ class stzSystemCall
 
 	def OpenFile(cFilePath)
 		if isWindows()
-			cFilePath = ring_substr2(cFilePath, "\", "/")
+			cFilePath = StzReplace(cFilePath, "\", "/")
 			This.SetProgram("cmd.exe")
 			This.SetArgs(["/c", "start", "", cFilePath])
 		but isMacOS()
@@ -714,14 +714,14 @@ class stzSystemCall
 		bNeedsShell = FALSE
 
 		# Check for shell operators
-		if ring_find(cCmd, " > ") > 0 or ring_find(cCmd, " < ") > 0 or
-		   ring_find(cCmd, "|") > 0 or ring_find(cCmd, "&&") > 0 or
-		   ring_find(cCmd, "||") > 0
+		if StzFind(cCmd, " > ") > 0 or StzFind(cCmd, " < ") > 0 or
+		   StzFind(cCmd, "|") > 0 or StzFind(cCmd, "&&") > 0 or
+		   StzFind(cCmd, "||") > 0
 			bNeedsShell = TRUE
 		ok
 
 		# Check for single & (but not &&)
-		if ring_find(cCmd, "&") > 0 and ring_find(cCmd, "&&") = 0
+		if StzFind(cCmd, "&") > 0 and StzFind(cCmd, "&&") = 0
 			bNeedsShell = TRUE
 		ok
 

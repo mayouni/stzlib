@@ -69,9 +69,9 @@ class stzNumbrex from stzObject
 				loop
 			ok
 			
-			if ring_find(cPart, "|") > 0
+			if StzFind(cPart, "|") > 0
 				aToken = This.ParseAlternation(cPart)
-			but ring_find(cPart, "&") > 0
+			but StzFind(cPart, "&") > 0
 				aToken = This.ParseConjunction(cPart)
 			else
 				aToken = This.ParseSingleToken(cPart)
@@ -279,11 +279,11 @@ def ParseSingleToken(cTokenStr)
 		return []
 	ok
 	
-	nOpenParen = ring_find(cTokenStr, "(")
+	nOpenParen = StzFind(cTokenStr, "(")
 
 	nCloseParen = 0
 	if nOpenParen > 0
-		nCloseParen = ring_find(cTokenStr, ")")
+		nCloseParen = StzFind(cTokenStr, ")")
 		if nCloseParen > nOpenParen
 			cContent = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
 
@@ -368,8 +368,8 @@ def ParseSingleToken(cTokenStr)
 	
 	if len(cQuantPart) > 0
 		# Check for colon (constraints like :unique)
-		if ring_find(cQuantPart, ":") > 0
-			nColon = ring_find(cQuantPart, ":")
+		if StzFind(cQuantPart, ":") > 0
+			nColon = StzFind(cQuantPart, ":")
 			cBeforeColon = @substr(cQuantPart, 1, nColon - 1)
 			cAfterColon = @substr(cQuantPart, nColon + 1, len(cQuantPart))
 			
@@ -380,7 +380,7 @@ def ParseSingleToken(cTokenStr)
 			
 			cBeforeColon = trim(cBeforeColon)
 			if len(cBeforeColon) > 0 and This.IsNumeric(cBeforeColon)
-				if ring_find(cBeforeColon, "-") > 0
+				if StzFind(cBeforeColon, "-") > 0
 					aSection = @split(cBeforeColon, "-")
 					if len(aSection) = 2
 						nMin = 0 + trim(aSection[1])
@@ -424,7 +424,7 @@ def ParseSingleToken(cTokenStr)
 				nMin = 0
 				nMax = 1
 			but This.IsNumeric(cQuantPart)
-				if ring_find(cQuantPart, "-") > 0
+				if StzFind(cQuantPart, "-") > 0
 					aSection = @split(cQuantPart, "-")
 					if len(aSection) = 2
 						nMin = 0 + trim(aSection[1])
@@ -455,9 +455,9 @@ def ParseSingleToken(cTokenStr)
 		ok
 		
 		if cType = "digit"
-			if ring_find(StzLower(cConstraintStr), ":unique") > 0
+			if StzFind(StzLower(cConstraintStr), ":unique") > 0
 				aConstraints + [["type", "unique"]]
-			but ring_find(cConstraintStr, "..") > 0
+			but StzFind(cConstraintStr, "..") > 0
 				aParts = @split(cConstraintStr, "..")
 				if len(aParts) = 2
 					aConstraints + [
@@ -466,16 +466,16 @@ def ParseSingleToken(cTokenStr)
 						["end", 0 + trim(aParts[2])]
 					]
 				ok
-			but ring_find(cConstraintStr, "{") > 0
-				nStart = ring_find(cConstraintStr, "{")
-				nEnd = ring_find(cConstraintStr, "}")
+			but StzFind(cConstraintStr, "{") > 0
+				nStart = StzFind(cConstraintStr, "{")
+				nEnd = StzFind(cConstraintStr, "}")
 				cSet = @substr(cConstraintStr, nStart + 1, nEnd - 1)
 				aValues = @split(cSet, ";")
 				aConstraints + [
 					["type", "set"],
 					["values", aValues]
 				]
-			but ring_find(cConstraintStr, ":step") > 0
+			but StzFind(cConstraintStr, ":step") > 0
 				cStep = @substr(cConstraintStr, 6, len(cConstraintStr))
 				aConstraints + [
 					["type", "step"],
@@ -486,7 +486,7 @@ def ParseSingleToken(cTokenStr)
 					["type", "exact"],
 					["value", 0 + cConstraintStr]
 				]
-			but ring_find(cConstraintStr, "-") > 0
+			but StzFind(cConstraintStr, "-") > 0
 				aParts = @split(cConstraintStr, "-")
 				if len(aParts) = 2
 					aConstraints + [
@@ -998,9 +998,9 @@ def CheckDigits(aToken, nNum)
 	#-----------------------#
 	
 	def CheckRelation(cRelation, nNum)
-		if ring_find(StzLower(cRelation), "mod:") > 0
+		if StzFind(StzLower(cRelation), "mod:") > 0
 			cRest = @substr(cRelation, 5, len(cRelation))
-			nEquals = ring_find(cRest, "=")
+			nEquals = StzFind(cRest, "=")
 			if nEquals > 0
 				cMod = @substr(cRest, 1, nEquals - 1)
 				cExpected = @substr(cRest, nEquals + 1, len(cRest))
@@ -1016,10 +1016,10 @@ def CheckDigits(aToken, nNum)
 			cValue = @substr(cApprox, 2, len(cApprox))
 			nDecimals = 2
 			
-			if ring_find(cValue, ":") > 0
+			if StzFind(cValue, ":") > 0
 				aParts = @split(cValue, ":")
 				cValue = aParts[1]
-				if len(aParts) > 1 and ring_find(StzLower(aParts[2]), "decimal") > 0
+				if len(aParts) > 1 and StzFind(StzLower(aParts[2]), "decimal") > 0
 					nLenPart = len(aParts[2])
 					for i = 1 to nLenPart
 						if isDigit(@substr(aParts[2], i, i))

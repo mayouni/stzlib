@@ -3654,7 +3654,7 @@ oBank {
     acCriticalPositions = []
     for cStepId in aCritical[:path]
         cPos = oLoanFlow.GetPositionForStep(cStepId)
-        if cPos != "" and ring_find(acCriticalPositions, cPos) = 0
+        if cPos != "" and StzFind(acCriticalPositions, cPos) = 0
             acCriticalPositions + cPos
         ok
     end

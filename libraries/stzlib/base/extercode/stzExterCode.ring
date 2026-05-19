@@ -1,4 +1,4 @@
-load "stzextercodetransfuncs.ring"
+﻿load "stzextercodetransfuncs.ring"
 
 #TODO Ensure temp script and runtime files are all generated in a temp folder
 
@@ -363,7 +363,7 @@ class stzExterCode
         ok
 
         try
-	    cContent = ring_substr2(cContent, "\n", NL)
+	    cContent = StzReplace(cContent, "\n", NL)
             cCode = 'result = ' + cContent
 
             eval(cCode)
@@ -552,11 +552,11 @@ int main() {
     cMainPredicate = "compute_result"  # default
     
     # Try to find a predicate definition in the code
-    if ring_find(@cCode, "compute_result(") > 0
+    if StzFind(@cCode, "compute_result(") > 0
         cMainPredicate = "compute_result"
-    but ring_find(@cCode, "get_factorials(") > 0
+    but StzFind(@cCode, "get_factorials(") > 0
         cMainPredicate = "get_factorials"
-    but ring_find(@cCode, "res(") > 0
+    but StzFind(@cCode, "res(") > 0
         cMainPredicate = "res"
     ok
 
