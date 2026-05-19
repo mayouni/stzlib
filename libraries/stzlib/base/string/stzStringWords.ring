@@ -171,26 +171,21 @@ class stzStringWords
 	 #     UNIQUE WORDS              #
 	#===============================#
 
+	def UniqueWordsCS(pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringUniqueWordsCS(pH, _bCase_)
+		cResult = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+
+		if cResult = ""
+			return []
+		ok
+
+		return StzStringQ(cResult).Split(" ")
+
 	def UniqueWords()
-		acWords = This.Words()
-		acResult = []
-		nLen = len(acWords)
-
-		for i = 1 to nLen
-			bFound = 0
-			nResLen = len(acResult)
-			for j = 1 to nResLen
-				if StzCaseFold(acResult[j]) = StzCaseFold(acWords[i])
-					bFound = 1
-					exit
-				ok
-			next
-			if NOT bFound
-				acResult + acWords[i]
-			ok
-		next
-
-		return acResult
+		return This.UniqueWordsCS(1)
 
 		def WordsU()
 			return This.UniqueWords()
