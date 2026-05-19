@@ -11,6 +11,69 @@ func StzUrlQ(pcUrl)
 func StzUrl(pcUrl)
 	return new stzUrl(pcUrl)
 
+func StzUrlIsValid(pcUrl)
+	pH = StzEngineUrlParse(pcUrl)
+	if pH = NULL
+		return FALSE
+	ok
+	nValid = StzEngineUrlIsValid(pH)
+	StzEngineUrlFree(pH)
+	return nValid = 1
+
+func StzUrlScheme(pcUrl)
+	pH = StzEngineUrlParse(pcUrl)
+	if pH = NULL
+		return ""
+	ok
+	cResult = StzEngineUrlScheme(pH)
+	StzEngineUrlFree(pH)
+	return cResult
+
+func StzUrlHost(pcUrl)
+	pH = StzEngineUrlParse(pcUrl)
+	if pH = NULL
+		return ""
+	ok
+	cResult = StzEngineUrlHost(pH)
+	StzEngineUrlFree(pH)
+	return cResult
+
+func StzUrlPort(pcUrl)
+	pH = StzEngineUrlParse(pcUrl)
+	if pH = NULL
+		return -1
+	ok
+	nResult = StzEngineUrlPort(pH)
+	StzEngineUrlFree(pH)
+	return nResult
+
+func StzUrlPath(pcUrl)
+	pH = StzEngineUrlParse(pcUrl)
+	if pH = NULL
+		return ""
+	ok
+	cResult = StzEngineUrlPath(pH)
+	StzEngineUrlFree(pH)
+	return cResult
+
+func StzUrlQuery(pcUrl)
+	pH = StzEngineUrlParse(pcUrl)
+	if pH = NULL
+		return ""
+	ok
+	cResult = StzEngineUrlQuery(pH)
+	StzEngineUrlFree(pH)
+	return cResult
+
+func StzUrlFragment(pcUrl)
+	pH = StzEngineUrlParse(pcUrl)
+	if pH = NULL
+		return ""
+	ok
+	cResult = StzEngineUrlFragment(pH)
+	StzEngineUrlFree(pH)
+	return cResult
+
 Class stzUrl from stzObject
 
 	@cUrl = ""

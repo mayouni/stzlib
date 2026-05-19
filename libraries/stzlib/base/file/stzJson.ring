@@ -1,9 +1,97 @@
 /*
 	stzJson Class - Pure Ring Implementation
 	Uses Ring lists internally with stzJsonFuncs for serialization
+	Engine-backed utility functions (StzJsonIsValid, StzJsonPretty, etc.)
 */
 
 load "stzjsonfuncs.ring"
+
+func StzJsonQ(p)
+	return new stzJson(p)
+
+func StzJsonIsValid(cJson)
+	pH = StzEngineJsonParse(cJson)
+	if pH = NULL
+		return FALSE
+	ok
+	nValid = StzEngineJsonIsValid(pH)
+	StzEngineJsonFree(pH)
+	return nValid = 1
+
+func StzJsonPretty(cJson)
+	pH = StzEngineJsonParse(cJson)
+	if pH = NULL
+		return ""
+	ok
+	cResult = StzEngineJsonToStringPretty(pH)
+	StzEngineJsonFree(pH)
+	return cResult
+
+func StzJsonCompact(cJson)
+	pH = StzEngineJsonParse(cJson)
+	if pH = NULL
+		return ""
+	ok
+	cResult = StzEngineJsonToString(pH)
+	StzEngineJsonFree(pH)
+	return cResult
+
+func StzJsonGet(cJson, cKey)
+	pH = StzEngineJsonParse(cJson)
+	if pH = NULL
+		return ""
+	ok
+	cResult = StzEngineJsonGetString(pH, cKey)
+	StzEngineJsonFree(pH)
+	return cResult
+
+func StzJsonGetInt(cJson, cKey)
+	pH = StzEngineJsonParse(cJson)
+	if pH = NULL
+		return 0
+	ok
+	nResult = StzEngineJsonGetInt(pH, cKey)
+	StzEngineJsonFree(pH)
+	return nResult
+
+func StzJsonHasKey(cJson, cKey)
+	pH = StzEngineJsonParse(cJson)
+	if pH = NULL
+		return FALSE
+	ok
+	nResult = StzEngineJsonHasKey(pH, cKey)
+	StzEngineJsonFree(pH)
+	return nResult = 1
+
+func StzJsonKeys(cJson)
+	pH = StzEngineJsonParse(cJson)
+	if pH = NULL
+		return []
+	ok
+	cKeys = StzEngineJsonKeys(pH)
+	StzEngineJsonFree(pH)
+	if StzLen(cKeys) = 0
+		return []
+	ok
+	return split(cKeys, nl)
+
+func StzJsonSize(cJson)
+	pH = StzEngineJsonParse(cJson)
+	if pH = NULL
+		return 0
+	ok
+	nResult = StzEngineJsonSize(pH)
+	StzEngineJsonFree(pH)
+	return nResult
+
+func StzJsonIsArray(cJson)
+	pH = StzEngineJsonParse(cJson)
+	if pH = NULL
+		return FALSE
+	ok
+	nResult = StzEngineJsonIsArray(pH)
+	StzEngineJsonFree(pH)
+	return nResult = 1
 
 Class stzJson from stzObject
 
