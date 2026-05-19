@@ -103,17 +103,13 @@ class stzStringReplacer
 	#========================================#
 
 	def ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
-
-		oFinder = new stzStringFinder(@oString)
-		nPos = oFinder.FindNthCS(n, pcSubStr, pCaseSensitive)
-
-		if nPos = 0
-			return
-		ok
-
-		nLenOld = StzLen(pcSubStr)
-		cResult = @oString._ReplaceRange(nPos, nLenOld, pcNewSubStr)
-		@oString.Update(cResult)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceNthCS(pH, pcSubStr, pcNewSubStr, n, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+		@TraceObjectHistory(This)
 
 		def ReplaceNthCSQ(n, pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -131,7 +127,13 @@ class stzStringReplacer
 	#========================================#
 
 	def ReplaceFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		This.ReplaceNthCS(1, pcSubStr, pcNewSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceFirstCS(pH, pcSubStr, pcNewSubStr, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+		@TraceObjectHistory(This)
 
 		def ReplaceFirstCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceFirstCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -149,9 +151,13 @@ class stzStringReplacer
 	#========================================#
 
 	def ReplaceLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		oFinder = new stzStringFinder(@oString)
-		n = oFinder.NumberOfOccurrenceCS(pcSubStr, pCaseSensitive)
-		This.ReplaceNthCS(n, pcSubStr, pcNewSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceLastCS(pH, pcSubStr, pcNewSubStr, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+		@TraceObjectHistory(This)
 
 		def ReplaceLastCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.ReplaceLastCS(pcSubStr, pcNewSubStr, pCaseSensitive)
