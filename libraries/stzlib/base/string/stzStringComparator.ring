@@ -162,3 +162,70 @@ class stzStringComparator
 
 	def ContainsAllOfThese(pacSubStr)
 		return This.ContainsAllOfTheseCS(pacSubStr, 1)
+
+	  #======================================================#
+	 #   COMMON PREFIX / SUFFIX                             #
+	#======================================================#
+
+	def CommonPrefixWithCS(pcOtherStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		pR = StzEngineStringCommonPrefixCS(pH, pH2, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH2)
+		return c
+
+	def CommonPrefixWith(pcOtherStr)
+		return This.CommonPrefixWithCS(pcOtherStr, 1)
+
+	def CommonSuffixWithCS(pcOtherStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		pR = StzEngineStringCommonSuffixCS(pH, pH2, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH2)
+		return c
+
+	def CommonSuffixWith(pcOtherStr)
+		return This.CommonSuffixWithCS(pcOtherStr, 1)
+
+	def CommonCharsWithCS(pcOtherStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		pR = StzEngineStringCommonCharsCS(pH, pH2, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH2)
+		return c
+
+	def CommonCharsWith(pcOtherStr)
+		return This.CommonCharsWithCS(pcOtherStr, 1)
+
+	def CommonalityWithCS(pcOtherStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		n = StzEngineStringCommonalityCS(pH, pH2, _bCase_)
+		StzEngineStringFree(pH2)
+		return n
+
+	def CommonalityWith(pcOtherStr)
+		return This.CommonalityWithCS(pcOtherStr, 1)
+
+	def DiffCharsWithCS(pcOtherStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		pR = StzEngineStringDiffCharsCS(pH, pH2, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH2)
+		return c
+
+	def DiffCharsWith(pcOtherStr)
+		return This.DiffCharsWithCS(pcOtherStr, 1)
