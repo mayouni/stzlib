@@ -2824,6 +2824,22 @@ fn ring_StringIsAnagramCS(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_is_anagram_cs(h1, h2, case)));
 }
 
+fn ring_StringStartsWithAnyCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_starts_with_any_cs(h, s, l, case)));
+}
+
+fn ring_StringEndsWithAnyCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const s = ring_vm_api_getstring(p, 2);
+    const l: c_int = @intCast(ring_vm_api_getstringsize(p, 2));
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_ends_with_any_cs(h, s, l, case)));
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -3264,6 +3280,9 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcontainsallofcs", .func = &ring_StringContainsAllOfCS },
     .{ .name = "stzenginestringcontainsonlycs", .func = &ring_StringContainsOnlyCS },
     .{ .name = "stzenginestringisanagramcs", .func = &ring_StringIsAnagramCS },
+    // CS batch 2: find (2)
+    .{ .name = "stzenginestringbeginswithanyxcs", .func = &ring_StringStartsWithAnyCS },
+    .{ .name = "stzenginestringfinisheswithanyxcs", .func = &ring_StringEndsWithAnyCS },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {

@@ -172,7 +172,9 @@ pub const str_starts_with_letter = find.str_starts_with_letter;
 pub const str_ends_with_digit = find.str_ends_with_digit;
 pub const str_ends_with_letter = find.str_ends_with_letter;
 pub const str_find_all_char = find.str_find_all_char;
+pub const str_starts_with_any_cs = find.str_starts_with_any_cs;
 pub const str_starts_with_any = find.str_starts_with_any;
+pub const str_ends_with_any_cs = find.str_ends_with_any_cs;
 pub const str_ends_with_any = find.str_ends_with_any;
 pub const str_duplicate_substrings_cs = find.str_duplicate_substrings_cs;
 

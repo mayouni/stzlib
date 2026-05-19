@@ -472,7 +472,7 @@ pub fn str_find_all_char(handle: StzStringHandle, codepoint: u32) callconv(.c) S
 // ─── Starts/Ends With Any ───
 
 /// Check if string starts with any of given prefixes (pipe-separated).
-pub export fn str_starts_with_any(handle: ?*StzString, prefixes: [*c]const u8, prefixes_len: c_int) callconv(.c) c_int {
+pub export fn str_starts_with_any_cs(handle: ?*StzString, prefixes: [*c]const u8, prefixes_len: c_int, case: c_int) callconv(.c) c_int {
     const s = handle orelse return 0;
     const src = s.slice();
     const plen: usize = if (prefixes_len >= 0) @intCast(prefixes_len) else return 0;
@@ -485,7 +485,11 @@ pub export fn str_starts_with_any(handle: ?*StzString, prefixes: [*c]const u8, p
         if (i == pstr.len or pstr[i] == '|') {
             const prefix = pstr[start..i];
             if (prefix.len > 0 and prefix.len <= src.len) {
-                if (mem.eql(u8, src[0..prefix.len], prefix)) return 1;
+                if (case != 0) {
+                    if (mem.eql(u8, src[0..prefix.len], prefix)) return 1;
+                } else {
+                    if (ciMatch(src[0..prefix.len], prefix)) return 1;
+                }
             }
             start = i + 1;
         }
@@ -493,8 +497,12 @@ pub export fn str_starts_with_any(handle: ?*StzString, prefixes: [*c]const u8, p
     return 0;
 }
 
+pub export fn str_starts_with_any(handle: ?*StzString, prefixes: [*c]const u8, prefixes_len: c_int) callconv(.c) c_int {
+    return str_starts_with_any_cs(handle, prefixes, prefixes_len, 1);
+}
+
 /// Check if string ends with any of given suffixes (pipe-separated).
-pub export fn str_ends_with_any(handle: ?*StzString, suffixes: [*c]const u8, suffixes_len: c_int) callconv(.c) c_int {
+pub export fn str_ends_with_any_cs(handle: ?*StzString, suffixes: [*c]const u8, suffixes_len: c_int, case: c_int) callconv(.c) c_int {
     const s = handle orelse return 0;
     const src = s.slice();
     const slen: usize = if (suffixes_len >= 0) @intCast(suffixes_len) else return 0;
@@ -506,12 +514,20 @@ pub export fn str_ends_with_any(handle: ?*StzString, suffixes: [*c]const u8, suf
         if (i == sstr.len or sstr[i] == '|') {
             const suffix = sstr[start..i];
             if (suffix.len > 0 and suffix.len <= src.len) {
-                if (mem.eql(u8, src[src.len - suffix.len ..], suffix)) return 1;
+                if (case != 0) {
+                    if (mem.eql(u8, src[src.len - suffix.len ..], suffix)) return 1;
+                } else {
+                    if (ciMatch(src[src.len - suffix.len ..], suffix)) return 1;
+                }
             }
             start = i + 1;
         }
     }
     return 0;
+}
+
+pub export fn str_ends_with_any(handle: ?*StzString, suffixes: [*c]const u8, suffixes_len: c_int) callconv(.c) c_int {
+    return str_ends_with_any_cs(handle, suffixes, suffixes_len, 1);
 }
 
 // ─── Duplicate Substrings ───
@@ -752,4 +768,22 @@ test "ends_with_any" {
     defer str_free(s);
     try testing.expectEqual(@as(c_int, 1), str_ends_with_any(s, ".txt|.zig", 9));
     try testing.expectEqual(@as(c_int, 0), str_ends_with_any(s, ".md|.rs", 6));
+}
+
+test "starts_with_any_cs CI" {
+    const s = str_from("Hello.zig", 9);
+    defer str_free(s);
+    // CS: "hello" won't match "Hello"
+    try testing.expectEqual(@as(c_int, 0), str_starts_with_any_cs(s, "hello|world", 11, 1));
+    // CI: "hello" matches "Hello"
+    try testing.expectEqual(@as(c_int, 1), str_starts_with_any_cs(s, "hello|world", 11, 0));
+}
+
+test "ends_with_any_cs CI" {
+    const s = str_from("hello.ZIG", 9);
+    defer str_free(s);
+    // CS: ".zig" won't match ".ZIG"
+    try testing.expectEqual(@as(c_int, 0), str_ends_with_any_cs(s, ".txt|.zig", 9, 1));
+    // CI: ".zig" matches ".ZIG"
+    try testing.expectEqual(@as(c_int, 1), str_ends_with_any_cs(s, ".txt|.zig", 9, 0));
 }
