@@ -168,40 +168,68 @@ pub fn str_replace(handle: StzStringHandle, old: [*c]const u8, old_len: usize, n
     str_replace_cs(handle, old, old_len, new, new_len, 1);
 }
 
-// ─── ReplaceFirst: replace only the first occurrence ───
+// ─── CI find helpers for replace ───
 
-/// Replace only the first occurrence of `old` with `new_str`. Returns new handle.
-pub fn str_replace_first(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize) callconv(.c) StzStringHandle {
+fn ciMatch(a: []const u8, b: []const u8) bool {
+    return core.ciMatch(a, b);
+}
+
+fn findFirstCI(hay: []const u8, needle: []const u8) ?usize {
+    if (needle.len == 0 or needle.len > hay.len) return null;
+    var pos: usize = 0;
+    while (pos + needle.len <= hay.len) {
+        if (ciMatch(hay[pos..][0..needle.len], needle)) return pos;
+        pos += 1;
+    }
+    return null;
+}
+
+fn findFirstCIFrom(hay: []const u8, start: usize, needle: []const u8) ?usize {
+    if (needle.len == 0 or start + needle.len > hay.len) return null;
+    var pos: usize = start;
+    while (pos + needle.len <= hay.len) {
+        if (ciMatch(hay[pos..][0..needle.len], needle)) return pos;
+        pos += 1;
+    }
+    return null;
+}
+
+// ─── ReplaceFirst with CS ───
+
+pub fn str_replace_first_cs(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize, case: c_int) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const haystack = s.slice();
         const needle = old[0..old_len];
         const replacement = new_str[0..new_len];
-        if (mem.indexOf(u8, haystack, needle)) |pos| {
+        const pos_opt = if (case == 0) findFirstCI(haystack, needle) else mem.indexOf(u8, haystack, needle);
+        if (pos_opt) |pos| {
             const result = str_new() orelse return null;
             result.data.appendSlice(gpa, haystack[0..pos]) catch return null;
             result.data.appendSlice(gpa, replacement) catch return null;
             result.data.appendSlice(gpa, haystack[pos + old_len ..]) catch return null;
             return result;
         }
-        // No match: return copy
         return str_from(s.data.items.ptr, haystack.len);
     }
     return null;
 }
 
-// ─── ReplaceLast: replace only the last occurrence ───
+pub fn str_replace_first(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize) callconv(.c) StzStringHandle {
+    return str_replace_first_cs(handle, old, old_len, new_str, new_len, 1);
+}
 
-/// Replace only the last occurrence of `old` with `new_str`. Returns new handle.
-pub fn str_replace_last(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize) callconv(.c) StzStringHandle {
+// ─── ReplaceLast with CS ───
+
+pub fn str_replace_last_cs(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize, case: c_int) callconv(.c) StzStringHandle {
     if (handle) |s| {
         const haystack = s.slice();
         const needle = old[0..old_len];
         const replacement = new_str[0..new_len];
-        // Find last occurrence by scanning forward
         var last_pos: ?usize = null;
         var search_from: usize = 0;
         while (search_from <= haystack.len) {
-            if (mem.indexOfPos(u8, haystack, search_from, needle)) |pos| {
+            const found = if (case == 0) findFirstCIFrom(haystack, search_from, needle) else mem.indexOfPos(u8, haystack, search_from, needle);
+            if (found) |pos| {
                 last_pos = pos;
                 search_from = pos + 1;
             } else break;
@@ -218,10 +246,13 @@ pub fn str_replace_last(handle: StzStringHandle, old: [*c]const u8, old_len: usi
     return null;
 }
 
-// ─── ReplaceNth: replace the Nth occurrence (1-based) ───
+pub fn str_replace_last(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize) callconv(.c) StzStringHandle {
+    return str_replace_last_cs(handle, old, old_len, new_str, new_len, 1);
+}
 
-/// Replace the Nth occurrence (1-based) of `old` with `new_str`. Returns new handle.
-pub fn str_replace_nth(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize, n: c_int) callconv(.c) StzStringHandle {
+// ─── ReplaceNth with CS ───
+
+pub fn str_replace_nth_cs(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize, n: c_int, case: c_int) callconv(.c) StzStringHandle {
     if (handle) |s| {
         if (n < 1) return str_from(s.data.items.ptr, s.slice().len);
         const haystack = s.slice();
@@ -230,7 +261,8 @@ pub fn str_replace_nth(handle: StzStringHandle, old: [*c]const u8, old_len: usiz
         var occurrence: c_int = 0;
         var search_from: usize = 0;
         while (search_from <= haystack.len) {
-            if (mem.indexOfPos(u8, haystack, search_from, needle)) |pos| {
+            const found = if (case == 0) findFirstCIFrom(haystack, search_from, needle) else mem.indexOfPos(u8, haystack, search_from, needle);
+            if (found) |pos| {
                 occurrence += 1;
                 if (occurrence == n) {
                     const result = str_new() orelse return null;
@@ -245,6 +277,10 @@ pub fn str_replace_nth(handle: StzStringHandle, old: [*c]const u8, old_len: usiz
         return str_from(s.data.items.ptr, haystack.len);
     }
     return null;
+}
+
+pub fn str_replace_nth(handle: StzStringHandle, old: [*c]const u8, old_len: usize, new_str: [*c]const u8, new_len: usize, n: c_int) callconv(.c) StzStringHandle {
+    return str_replace_nth_cs(handle, old, old_len, new_str, new_len, n, 1);
 }
 
 // ─── ReplaceCharAt: replace codepoint at index ───

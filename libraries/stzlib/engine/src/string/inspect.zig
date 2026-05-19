@@ -460,31 +460,37 @@ pub fn str_is_chars_sorted_desc(handle: StzStringHandle) callconv(.c) c_int {
 
 // ─── str_contains_any_of ───
 
-/// Check if string contains any of the characters in the given string. Returns 1 or 0.
-pub fn str_contains_any_of(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
+/// Check if string contains any of the characters in the given string. case=0: casefold comparison.
+pub fn str_contains_any_of_cs(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize, case: c_int) callconv(.c) c_int {
     const s = handle orelse return 0;
     const buf = s.slice();
     if (chars == null or chars_len == 0) return 0;
     const char_set: []const u8 = chars[0..chars_len];
 
-    // Parse char_set into codepoints
     var set_cps: std.ArrayList(u21) = .{};
     defer set_cps.deinit(gpa);
     var coff: usize = 0;
     while (coff < char_set.len) {
         const cl = std.unicode.utf8ByteSequenceLength(char_set[coff]) catch break;
         if (coff + cl > char_set.len) break;
-        const cv = std.unicode.utf8Decode(char_set[coff..][0..cl]) catch break;
+        var cv = std.unicode.utf8Decode(char_set[coff..][0..cl]) catch break;
+        if (case == 0) {
+            const lower = unicode.stz_unicode_to_lower(@intCast(cv));
+            cv = if (lower >= 0) @intCast(@as(u32, @intCast(lower))) else cv;
+        }
         set_cps.append(gpa, cv) catch break;
         coff += cl;
     }
 
-    // Check if any char in buf matches
     var off: usize = 0;
     while (off < buf.len) {
         const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
         if (off + cp_len > buf.len) break;
-        const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        var cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+        if (case == 0) {
+            const lower = unicode.stz_unicode_to_lower(@intCast(cp_val));
+            cp_val = if (lower >= 0) @intCast(@as(u32, @intCast(lower))) else cp_val;
+        }
         for (set_cps.items) |set_cp| {
             if (cp_val == set_cp) return 1;
         }
@@ -493,35 +499,45 @@ pub fn str_contains_any_of(handle: StzStringHandle, chars: [*c]const u8, chars_l
     return 0;
 }
 
+pub fn str_contains_any_of(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
+    return str_contains_any_of_cs(handle, chars, chars_len, 1);
+}
+
 // ─── str_contains_all_of ───
 
-/// Check if string contains all of the characters in the given string. Returns 1 or 0.
-pub fn str_contains_all_of(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
+/// Check if string contains all of the characters in the given string. case=0: casefold.
+pub fn str_contains_all_of_cs(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize, case: c_int) callconv(.c) c_int {
     const s = handle orelse return 0;
     const buf = s.slice();
     if (chars == null or chars_len == 0) return 1;
     const char_set: []const u8 = chars[0..chars_len];
 
-    // Parse char_set into codepoints
     var set_cps: std.ArrayList(u21) = .{};
     defer set_cps.deinit(gpa);
     var coff: usize = 0;
     while (coff < char_set.len) {
         const cl = std.unicode.utf8ByteSequenceLength(char_set[coff]) catch break;
         if (coff + cl > char_set.len) break;
-        const cv = std.unicode.utf8Decode(char_set[coff..][0..cl]) catch break;
+        var cv = std.unicode.utf8Decode(char_set[coff..][0..cl]) catch break;
+        if (case == 0) {
+            const lower = unicode.stz_unicode_to_lower(@intCast(cv));
+            cv = if (lower >= 0) @intCast(@as(u32, @intCast(lower))) else cv;
+        }
         set_cps.append(gpa, cv) catch break;
         coff += cl;
     }
 
-    // For each set char, check it exists in buf
     for (set_cps.items) |set_cp| {
         var found = false;
         var off: usize = 0;
         while (off < buf.len) {
             const cp_len = std.unicode.utf8ByteSequenceLength(buf[off]) catch break;
             if (off + cp_len > buf.len) break;
-            const cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+            var cp_val = std.unicode.utf8Decode(buf[off..][0..cp_len]) catch break;
+            if (case == 0) {
+                const lower = unicode.stz_unicode_to_lower(@intCast(cp_val));
+                cp_val = if (lower >= 0) @intCast(@as(u32, @intCast(lower))) else cp_val;
+            }
             if (cp_val == set_cp) {
                 found = true;
                 break;
@@ -531,6 +547,10 @@ pub fn str_contains_all_of(handle: StzStringHandle, chars: [*c]const u8, chars_l
         if (!found) return 0;
     }
     return 1;
+}
+
+pub fn str_contains_all_of(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
+    return str_contains_all_of_cs(handle, chars, chars_len, 1);
 }
 
 // ─── str_is_alphanumeric ───
@@ -623,17 +643,40 @@ pub fn str_is_identifier(handle: StzStringHandle) callconv(.c) c_int {
 
 // ─── str_contains_only ───
 
-/// Check if string contains only characters from the given set.
-/// Returns 1 if all chars are in set, 0 otherwise. Empty string returns 1.
-pub fn str_contains_only(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
+/// Check if string contains only characters from the given set. case=0: casefold comparison.
+pub fn str_contains_only_cs(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize, case: c_int) callconv(.c) c_int {
     const s = handle orelse return 1;
     const src = s.slice();
     if (src.len == 0) return 1;
     if (chars_len == 0) return 0;
 
     const charset = chars[0..chars_len];
-    var off: usize = 0;
 
+    if (case == 0) {
+        // CI: build set of folded codepoints from charset
+        var set = std.AutoHashMap(i32, void).init(gpa);
+        defer set.deinit();
+        var coff: usize = 0;
+        while (coff < charset.len) {
+            const c_len = std.unicode.utf8ByteSequenceLength(charset[coff]) catch break;
+            if (coff + c_len > charset.len) break;
+            const cv = std.unicode.utf8Decode(charset[coff..][0..c_len]) catch break;
+            set.put(unicode.stz_unicode_to_lower(@intCast(cv)), {}) catch break;
+            coff += c_len;
+        }
+        var off: usize = 0;
+        while (off < src.len) {
+            const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
+            if (off + cp_len > src.len) break;
+            const cp_val = std.unicode.utf8Decode(src[off..][0..cp_len]) catch break;
+            if (!set.contains(unicode.stz_unicode_to_lower(@intCast(cp_val)))) return 0;
+            off += cp_len;
+        }
+        return 1;
+    }
+
+    // CS path
+    var off: usize = 0;
     while (off < src.len) {
         const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch break;
         if (off + cp_len > src.len) break;
@@ -655,19 +698,20 @@ pub fn str_contains_only(handle: StzStringHandle, chars: [*c]const u8, chars_len
     return 1;
 }
 
+pub fn str_contains_only(handle: StzStringHandle, chars: [*c]const u8, chars_len: usize) callconv(.c) c_int {
+    return str_contains_only_cs(handle, chars, chars_len, 1);
+}
+
 // ─── str_is_anagram ───
 
-/// Check if two strings are anagrams (same chars, different order).
-/// Case-sensitive. Returns 1 if anagram, 0 otherwise.
-pub fn str_is_anagram(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
+/// Check if two strings are anagrams. case=0: casefold comparison.
+pub fn str_is_anagram_cs(h1: StzStringHandle, h2: StzStringHandle, case: c_int) callconv(.c) c_int {
     const s1 = h1 orelse return 0;
     const s2 = h2 orelse return 0;
     const src1 = s1.slice();
     const src2 = s2.slice();
-    if (src1.len != src2.len) return 0;
-    if (src1.len == 0) return 1;
+    if (src1.len == 0 and src2.len == 0) return 1;
 
-    // Count codepoints in both and compare sorted
     var counts = std.AutoHashMap(i32, i32).init(gpa);
     defer counts.deinit();
 
@@ -675,7 +719,8 @@ pub fn str_is_anagram(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_i
     while (off < src1.len) {
         const cp_len = std.unicode.utf8ByteSequenceLength(src1[off]) catch break;
         if (off + cp_len > src1.len) break;
-        const cp: i32 = decodeCodepoint(src1, off, cp_len);
+        var cp: i32 = decodeCodepoint(src1, off, cp_len);
+        if (case == 0) cp = unicode.stz_unicode_to_lower(cp);
         const entry = counts.getOrPut(cp) catch break;
         if (!entry.found_existing) entry.value_ptr.* = 0;
         entry.value_ptr.* += 1;
@@ -686,7 +731,8 @@ pub fn str_is_anagram(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_i
     while (off < src2.len) {
         const cp_len = std.unicode.utf8ByteSequenceLength(src2[off]) catch break;
         if (off + cp_len > src2.len) break;
-        const cp: i32 = decodeCodepoint(src2, off, cp_len);
+        var cp: i32 = decodeCodepoint(src2, off, cp_len);
+        if (case == 0) cp = unicode.stz_unicode_to_lower(cp);
         const entry = counts.getOrPut(cp) catch break;
         if (!entry.found_existing) entry.value_ptr.* = 0;
         entry.value_ptr.* -= 1;
@@ -698,6 +744,10 @@ pub fn str_is_anagram(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_i
         if (entry.value_ptr.* != 0) return 0;
     }
     return 1;
+}
+
+pub fn str_is_anagram(h1: StzStringHandle, h2: StzStringHandle) callconv(.c) c_int {
+    return str_is_anagram_cs(h1, h2, 1);
 }
 
 // ─── str_is_pangram ───

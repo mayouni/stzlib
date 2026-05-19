@@ -33,6 +33,8 @@ const utf8CodepointCount = core.utf8CodepointCount;
 const codepointIndexToByteOffset = core.codepointIndexToByteOffset;
 const isVowelAscii = core.isVowelAscii;
 const formatUsize = core.formatUsize;
+const ciMatch = core.ciMatch;
+const casefoldAlloc = core.casefoldAlloc;
 
 // ─── Structural Transforms ─────────────────────────────────────
 
@@ -594,12 +596,18 @@ pub fn str_wrap_at(handle: StzStringHandle, width: c_int) callconv(.c) StzString
     return result;
 }
 
-pub fn str_ensure_prefix(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) StzStringHandle {
+pub fn str_ensure_prefix_cs(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize, case: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
     if (prefix == null or prefix_len == 0) return str_copy(handle);
     const pfx: []const u8 = prefix[0..prefix_len];
-    if (mem.startsWith(u8, buf, pfx)) return str_copy(handle);
+
+    const has_prefix = if (case == 0) blk: {
+        if (buf.len < pfx.len) break :blk false;
+        break :blk core.ciMatch(buf[0..pfx.len], pfx);
+    } else mem.startsWith(u8, buf, pfx);
+
+    if (has_prefix) return str_copy(handle);
 
     const result = gpa.create(StzString) catch return null;
     result.* = StzString.init();
@@ -616,12 +624,22 @@ pub fn str_ensure_prefix(handle: StzStringHandle, prefix: [*c]const u8, prefix_l
     return result;
 }
 
-pub fn str_ensure_suffix(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize) callconv(.c) StzStringHandle {
+pub fn str_ensure_prefix(handle: StzStringHandle, prefix: [*c]const u8, prefix_len: usize) callconv(.c) StzStringHandle {
+    return str_ensure_prefix_cs(handle, prefix, prefix_len, 1);
+}
+
+pub fn str_ensure_suffix_cs(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize, case: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return null;
     const buf = s.slice();
     if (suffix == null or suffix_len == 0) return str_copy(handle);
     const sfx: []const u8 = suffix[0..suffix_len];
-    if (mem.endsWith(u8, buf, sfx)) return str_copy(handle);
+
+    const has_suffix = if (case == 0) blk: {
+        if (buf.len < sfx.len) break :blk false;
+        break :blk core.ciMatch(buf[buf.len - sfx.len ..], sfx);
+    } else mem.endsWith(u8, buf, sfx);
+
+    if (has_suffix) return str_copy(handle);
 
     const result = gpa.create(StzString) catch return null;
     result.* = StzString.init();
@@ -636,6 +654,10 @@ pub fn str_ensure_suffix(handle: StzStringHandle, suffix: [*c]const u8, suffix_l
         return null;
     };
     return result;
+}
+
+pub fn str_ensure_suffix(handle: StzStringHandle, suffix: [*c]const u8, suffix_len: usize) callconv(.c) StzStringHandle {
+    return str_ensure_suffix_cs(handle, suffix, suffix_len, 1);
 }
 
 pub fn str_only_letters(handle: StzStringHandle) callconv(.c) StzStringHandle {
@@ -1042,42 +1064,80 @@ pub export fn str_to_slug(handle: ?*StzString) callconv(.c) ?*StzString {
     return result;
 }
 
-pub export fn str_deduplicate_lines(handle: ?*StzString) callconv(.c) ?*StzString {
+/// Deduplicate lines. case=1: exact comparison, case=0: casefold comparison.
+pub export fn str_deduplicate_lines_cs(handle: ?*StzString, case: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     const result = str_new() orelse return null;
-    // Track seen lines -- simple O(n^2) for correctness
-    var line_starts: [1024]usize = undefined;
-    var line_ends: [1024]usize = undefined;
-    var line_count: usize = 0;
-    // Parse lines
-    var pos: usize = 0;
-    var first = true;
-    while (pos <= src.len and line_count < 1024) {
-        const start = pos;
-        while (pos < src.len and src[pos] != '\n') pos += 1;
-        const end = pos;
-        // Check if this line is a duplicate
-        var is_dup = false;
-        const line = src[start..end];
-        for (0..line_count) |li| {
-            const prev = src[line_starts[li]..line_ends[li]];
-            if (prev.len == line.len and mem.eql(u8, prev, line)) {
-                is_dup = true;
-                break;
+
+    if (case == 0) {
+        // CI dedup using hashmap with casefolded keys
+        var seen = std.StringHashMap(void).init(gpa);
+        defer {
+            var it = seen.keyIterator();
+            while (it.next()) |key| gpa.free(key.*);
+            seen.deinit();
+        }
+        var pos: usize = 0;
+        var first = true;
+        while (pos <= src.len) {
+            const start = pos;
+            while (pos < src.len and src[pos] != '\n') pos += 1;
+            const line = src[start..pos];
+            const folded = casefoldAlloc(line) orelse line;
+            if (!seen.contains(folded)) {
+                const owned = gpa.dupe(u8, folded) catch {
+                    gpa.free(folded);
+                    break;
+                };
+                seen.put(owned, {}) catch {
+                    gpa.free(owned);
+                    gpa.free(folded);
+                    break;
+                };
+                if (!first) result.data.appendSlice(gpa, "\n") catch { setError(.out_of_memory); };
+                result.data.appendSlice(gpa, line) catch { setError(.out_of_memory); };
+                first = false;
             }
+            gpa.free(folded);
+            if (pos < src.len) pos += 1 else break;
         }
-        if (!is_dup) {
-            if (!first) result.data.appendSlice(gpa, "\n") catch { setError(.out_of_memory); };
-            result.data.appendSlice(gpa, line) catch { setError(.out_of_memory); };
-            line_starts[line_count] = start;
-            line_ends[line_count] = end;
-            line_count += 1;
-            first = false;
+    } else {
+        // CS dedup using O(n^2) scan for correctness
+        var line_starts: [1024]usize = undefined;
+        var line_ends: [1024]usize = undefined;
+        var line_count: usize = 0;
+        var pos: usize = 0;
+        var first = true;
+        while (pos <= src.len and line_count < 1024) {
+            const start = pos;
+            while (pos < src.len and src[pos] != '\n') pos += 1;
+            const end = pos;
+            var is_dup = false;
+            const line = src[start..end];
+            for (0..line_count) |li| {
+                const prev = src[line_starts[li]..line_ends[li]];
+                if (prev.len == line.len and mem.eql(u8, prev, line)) {
+                    is_dup = true;
+                    break;
+                }
+            }
+            if (!is_dup) {
+                if (!first) result.data.appendSlice(gpa, "\n") catch { setError(.out_of_memory); };
+                result.data.appendSlice(gpa, line) catch { setError(.out_of_memory); };
+                line_starts[line_count] = start;
+                line_ends[line_count] = end;
+                line_count += 1;
+                first = false;
+            }
+            if (pos < src.len) pos += 1 else break;
         }
-        if (pos < src.len) pos += 1 else break; // skip \n
     }
     return result;
+}
+
+pub export fn str_deduplicate_lines(handle: ?*StzString) callconv(.c) ?*StzString {
+    return str_deduplicate_lines_cs(handle, 1);
 }
 
 pub export fn str_number_lines(handle: ?*StzString) callconv(.c) ?*StzString {
@@ -1230,18 +1290,17 @@ pub fn str_reverse_words(handle: StzStringHandle) callconv(.c) StzStringHandle {
     return result;
 }
 
-/// Sort words alphabetically (case-sensitive). Words separated by spaces.
-pub export fn str_sort_words(handle: ?*StzString) callconv(.c) ?*StzString {
+/// Sort words alphabetically. case=1: byte order, case=0: casefold order.
+pub export fn str_sort_words_cs(handle: ?*StzString, case: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     const result = str_new() orelse return null;
 
     // Collect word boundaries
-    var words: [256][2]usize = undefined; // [start, end] pairs, max 256 words
+    var words: [256][2]usize = undefined;
     var word_count: usize = 0;
     var i: usize = 0;
     while (i < src.len and word_count < 256) {
-        // Skip spaces
         while (i < src.len and src[i] == ' ') : (i += 1) {}
         if (i >= src.len) break;
         const start = i;
@@ -1250,70 +1309,138 @@ pub export fn str_sort_words(handle: ?*StzString) callconv(.c) ?*StzString {
         word_count += 1;
     }
 
-    // Simple insertion sort on words
-    var j: usize = 1;
-    while (j < word_count) : (j += 1) {
-        const key = words[j];
-        var k: usize = j;
-        while (k > 0) {
-            const w_k = src[words[k - 1][0]..words[k - 1][1]];
-            const w_key = src[key[0]..key[1]];
-            if (mem.order(u8, w_k, w_key) == .gt) {
-                words[k] = words[k - 1];
-                k -= 1;
-            } else break;
+    if (case == 0) {
+        // CI sort: allocate folded keys, build index, sort by folded
+        const folded = gpa.alloc([]const u8, word_count) catch return result;
+        defer {
+            for (folded[0..word_count]) |f| gpa.free(f);
+            gpa.free(folded);
         }
-        words[k] = key;
-    }
+        for (0..word_count) |idx| {
+            folded[idx] = casefoldAlloc(src[words[idx][0]..words[idx][1]]) orelse src[words[idx][0]..words[idx][1]];
+        }
+        const indices = gpa.alloc(usize, word_count) catch return result;
+        defer gpa.free(indices);
+        for (0..word_count) |idx| indices[idx] = idx;
 
-    // Build result
-    for (0..word_count) |idx| {
-        if (idx > 0) result.data.appendSlice(gpa, " ") catch break;
-        result.data.appendSlice(gpa, src[words[idx][0]..words[idx][1]]) catch break;
+        const Ctx = struct {
+            folded_keys: []const []const u8,
+            fn lessThan(ctx: @This(), a: usize, b: usize) bool {
+                return std.mem.order(u8, ctx.folded_keys[a], ctx.folded_keys[b]) == .lt;
+            }
+        };
+        std.mem.sort(usize, indices, Ctx{ .folded_keys = folded }, Ctx.lessThan);
+
+        for (indices[0..word_count], 0..) |idx, out_i| {
+            if (out_i > 0) result.data.appendSlice(gpa, " ") catch break;
+            result.data.appendSlice(gpa, src[words[idx][0]..words[idx][1]]) catch break;
+        }
+    } else {
+        // CS sort: insertion sort by raw byte order
+        var j: usize = 1;
+        while (j < word_count) : (j += 1) {
+            const key = words[j];
+            var k: usize = j;
+            while (k > 0) {
+                const w_k = src[words[k - 1][0]..words[k - 1][1]];
+                const w_key = src[key[0]..key[1]];
+                if (mem.order(u8, w_k, w_key) == .gt) {
+                    words[k] = words[k - 1];
+                    k -= 1;
+                } else break;
+            }
+            words[k] = key;
+        }
+
+        for (0..word_count) |idx| {
+            if (idx > 0) result.data.appendSlice(gpa, " ") catch break;
+            result.data.appendSlice(gpa, src[words[idx][0]..words[idx][1]]) catch break;
+        }
     }
     return result;
 }
 
-/// Keep only unique words (first occurrence preserved). Words separated by spaces.
-pub export fn str_unique_words(handle: ?*StzString) callconv(.c) ?*StzString {
+pub export fn str_sort_words(handle: ?*StzString) callconv(.c) ?*StzString {
+    return str_sort_words_cs(handle, 1);
+}
+
+/// Keep only unique words (first occurrence preserved). case=1: exact, case=0: casefold dedup.
+pub export fn str_unique_words_cs(handle: ?*StzString, case: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     const result = str_new() orelse return null;
 
-    // Collect words and track seen
-    var seen_starts: [256]usize = undefined;
-    var seen_ends: [256]usize = undefined;
-    var seen_count: usize = 0;
-    var first = true;
-
-    var ii: usize = 0;
-    while (ii < src.len) {
-        while (ii < src.len and src[ii] == ' ') : (ii += 1) {}
-        if (ii >= src.len) break;
-        const start = ii;
-        while (ii < src.len and src[ii] != ' ') : (ii += 1) {}
-        const word = src[start..ii];
-
-        // Check if already seen
-        var found = false;
-        for (0..seen_count) |si| {
-            if (mem.eql(u8, src[seen_starts[si]..seen_ends[si]], word)) {
-                found = true;
-                break;
-            }
+    if (case == 0) {
+        // CI dedup using hashmap with casefolded keys
+        var seen = std.StringHashMap(void).init(gpa);
+        defer {
+            var it = seen.keyIterator();
+            while (it.next()) |key| gpa.free(key.*);
+            seen.deinit();
         }
-        if (!found) {
-            if (!first) result.data.appendSlice(gpa, " ") catch break;
-            result.data.appendSlice(gpa, word) catch break;
-            if (seen_count < 256) {
-                seen_starts[seen_count] = start;
-                seen_ends[seen_count] = ii;
-                seen_count += 1;
+        var first = true;
+        var ii: usize = 0;
+        while (ii < src.len) {
+            while (ii < src.len and src[ii] == ' ') : (ii += 1) {}
+            if (ii >= src.len) break;
+            const start = ii;
+            while (ii < src.len and src[ii] != ' ') : (ii += 1) {}
+            const word = src[start..ii];
+            const folded = casefoldAlloc(word) orelse word;
+            if (!seen.contains(folded)) {
+                const owned = gpa.dupe(u8, folded) catch {
+                    gpa.free(folded);
+                    break;
+                };
+                seen.put(owned, {}) catch {
+                    gpa.free(owned);
+                    gpa.free(folded);
+                    break;
+                };
+                if (!first) result.data.appendSlice(gpa, " ") catch break;
+                result.data.appendSlice(gpa, word) catch break;
+                first = false;
             }
-            first = false;
+            gpa.free(folded);
+        }
+    } else {
+        // CS dedup using O(n^2) scan
+        var seen_starts: [256]usize = undefined;
+        var seen_ends: [256]usize = undefined;
+        var seen_count: usize = 0;
+        var first = true;
+        var ii: usize = 0;
+        while (ii < src.len) {
+            while (ii < src.len and src[ii] == ' ') : (ii += 1) {}
+            if (ii >= src.len) break;
+            const start = ii;
+            while (ii < src.len and src[ii] != ' ') : (ii += 1) {}
+            const word = src[start..ii];
+
+            var found = false;
+            for (0..seen_count) |si| {
+                if (mem.eql(u8, src[seen_starts[si]..seen_ends[si]], word)) {
+                    found = true;
+                    break;
+                }
+            }
+            if (!found) {
+                if (!first) result.data.appendSlice(gpa, " ") catch break;
+                result.data.appendSlice(gpa, word) catch break;
+                if (seen_count < 256) {
+                    seen_starts[seen_count] = start;
+                    seen_ends[seen_count] = ii;
+                    seen_count += 1;
+                }
+                first = false;
+            }
         }
     }
     return result;
+}
+
+pub export fn str_unique_words(handle: ?*StzString) callconv(.c) ?*StzString {
+    return str_unique_words_cs(handle, 1);
 }
 
 /// Run-length encode: "aaabbc" -> "3a2b1c"
@@ -1903,4 +2030,56 @@ test "format: only_controls" {
     try std.testing.expect(r != null);
     const data = core.str_data(r.?)[0..core.str_size(r)];
     try std.testing.expectEqualStrings("\x01\x02", data);
+}
+
+test "format: sort_words_cs CI" {
+    const h = str_from("Banana apple Cherry", 19);
+    const r = str_sort_words_cs(h, 0);
+    try std.testing.expect(r != null);
+    try std.testing.expect(core.mem.eql(u8, core.str_data(r.?)[0..core.str_size(r)], "apple Banana Cherry"));
+    core.str_free(r);
+    core.str_free(h);
+}
+
+test "format: unique_words_cs CI" {
+    const h = str_from("Hello hello HELLO world", 23);
+    const r = str_unique_words_cs(h, 0);
+    try std.testing.expect(r != null);
+    try std.testing.expect(core.mem.eql(u8, core.str_data(r.?)[0..core.str_size(r)], "Hello world"));
+    core.str_free(r);
+    core.str_free(h);
+}
+
+test "format: deduplicate_lines_cs CI" {
+    const h = str_from("Hello\nhello\nWorld\nworld", 23);
+    const r = str_deduplicate_lines_cs(h, 0);
+    try std.testing.expect(r != null);
+    try std.testing.expect(core.mem.eql(u8, core.str_data(r.?)[0..core.str_size(r)], "Hello\nWorld"));
+    core.str_free(r);
+    core.str_free(h);
+}
+
+test "format: ensure_prefix_cs CI" {
+    const h = str_from("Hello World", 11);
+    // CI: "hello" matches "Hello" prefix, so no change
+    const r = str_ensure_prefix_cs(h, "hello", 5, 0);
+    try std.testing.expect(r != null);
+    try std.testing.expect(core.mem.eql(u8, core.str_data(r.?)[0..core.str_size(r)], "Hello World"));
+    core.str_free(r);
+    // CS: "hello" does NOT match "Hello", so prefix is added
+    const r2 = str_ensure_prefix_cs(h, "hello", 5, 1);
+    try std.testing.expect(r2 != null);
+    try std.testing.expect(core.mem.eql(u8, core.str_data(r2.?)[0..core.str_size(r2)], "helloHello World"));
+    core.str_free(r2);
+    core.str_free(h);
+}
+
+test "format: ensure_suffix_cs CI" {
+    const h = str_from("Hello World", 11);
+    // CI: "WORLD" matches "World" suffix
+    const r = str_ensure_suffix_cs(h, "WORLD", 5, 0);
+    try std.testing.expect(r != null);
+    try std.testing.expect(core.mem.eql(u8, core.str_data(r.?)[0..core.str_size(r)], "Hello World"));
+    core.str_free(r);
+    core.str_free(h);
 }
