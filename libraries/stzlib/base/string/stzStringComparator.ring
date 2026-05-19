@@ -229,3 +229,87 @@ class stzStringComparator
 
 	def DiffCharsWith(pcOtherStr)
 		return This.DiffCharsWithCS(pcOtherStr, 1)
+
+	  #======================================================#
+	 #   LEVENSHTEIN DISTANCE                               #
+	#======================================================#
+
+	def LevenshteinDistanceWith(pcOtherStr)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		n = StzEngineStringLevenshteinDistance(pH, pH2)
+		StzEngineStringFree(pH2)
+		return n
+
+		def EditDistanceWith(pcOtherStr)
+			return This.LevenshteinDistanceWith(pcOtherStr)
+
+	  #======================================================#
+	 #   PREFIX / SUFFIX COUNT                              #
+	#======================================================#
+
+	def PrefixCountWithCS(pcOtherStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		n = StzEngineStringPrefixCountCS(pH, pcOtherStr, _bCase_)
+		return n
+
+	def PrefixCountWith(pcOtherStr)
+		return This.PrefixCountWithCS(pcOtherStr, 1)
+
+	def SuffixCountWithCS(pcOtherStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		n = StzEngineStringSuffixCountCS(pH, pcOtherStr, _bCase_)
+		return n
+
+	def SuffixCountWith(pcOtherStr)
+		return This.SuffixCountWithCS(pcOtherStr, 1)
+
+	  #======================================================#
+	 #   LONGEST COMMON PREFIX / SUFFIX                     #
+	#======================================================#
+
+	def LongestCommonPrefixWithCS(pcOtherStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		pR = StzEngineStringLongestCommonPrefixCS(pH, pH2, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH2)
+		return c
+
+	def LongestCommonPrefixWith(pcOtherStr)
+		return This.LongestCommonPrefixWithCS(pcOtherStr, 1)
+
+	def LongestCommonSuffixWithCS(pcOtherStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		pR = StzEngineStringLongestCommonSuffixCS(pH, pH2, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH2)
+		return c
+
+	def LongestCommonSuffixWith(pcOtherStr)
+		return This.LongestCommonSuffixWithCS(pcOtherStr, 1)
+
+	  #======================================================#
+	 #   SOUNDEX / METAPHONE                                #
+	#======================================================#
+
+	def Soundex()
+		pH = @oString.Engine()
+		pR = StzEngineStringSoundex(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	def Metaphone()
+		pH = @oString.Engine()
+		pR = StzEngineStringMetaphone(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c

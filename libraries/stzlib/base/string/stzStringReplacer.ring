@@ -325,3 +325,87 @@ class stzStringReplacer
 		def InsertAfterQ(nPos, pcSubStr)
 			This.InsertAfter(nPos, pcSubStr)
 			return This
+
+	  #===============================#
+	 #     SURROUND                  #
+	#===============================#
+
+	def Surround(pcBefore, pcAfter)
+		pH = @oString.Engine()
+		pR = StzEngineStringSurround(pH, pcBefore, pcAfter)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def SurroundQ(pcBefore, pcAfter)
+			This.Surround(pcBefore, pcAfter)
+			return This
+
+	def Surrounded(pcBefore, pcAfter)
+		_oCopy_ = new stzStringReplacer(@oString.Content())
+		_oCopy_.SurroundQ(pcBefore, pcAfter)
+		return _oCopy_.Content()
+
+	  #===============================#
+	 #     STRIP TAGS                #
+	#===============================#
+
+	def StripTags()
+		pH = @oString.Engine()
+		pR = StzEngineStringStripTags(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def StripTagsQ()
+			This.StripTags()
+			return This
+
+	def TagsStripped()
+		_oCopy_ = new stzStringReplacer(@oString.Content())
+		_oCopy_.StripTagsQ()
+		return _oCopy_.Content()
+
+	  #===============================#
+	 #     REMOVE WHITESPACE         #
+	#===============================#
+
+	def RemoveWhitespace()
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveWhitespace(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def RemoveWhitespaceQ()
+			This.RemoveWhitespace()
+			return This
+
+	def WhitespaceRemoved()
+		_oCopy_ = new stzStringReplacer(@oString.Content())
+		_oCopy_.RemoveWhitespaceQ()
+		return _oCopy_.Content()
+
+	  #===============================#
+	 #     SQUEEZE CHAR              #
+	#===============================#
+
+	def SqueezeChar(pcChar)
+		pH = @oString.Engine()
+		# Convert char string to codepoint number for the engine
+		pHChar = StzEngineString(pcChar)
+		nCp = StzEngineStringCharAt(pHChar, 1)
+		StzEngineStringFree(pHChar)
+		pR = StzEngineStringSqueezeChar(pH, nCp)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def SqueezeCharQ(pcChar)
+			This.SqueezeChar(pcChar)
+			return This
+
+	def CharSqueezed(pcChar)
+		_oCopy_ = new stzStringReplacer(@oString.Content())
+		_oCopy_.SqueezeCharQ(pcChar)
+		return _oCopy_.Content()

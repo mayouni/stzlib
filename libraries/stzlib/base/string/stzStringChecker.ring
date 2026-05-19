@@ -208,35 +208,13 @@ class stzStringChecker
 	#===============================#
 
 	def RepresentsInteger()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		if nLen = 0
-			return 0
-		ok
-
-		nStart = 1
-		c1 = substr(cContent, 1, 1)
-		if c1 = "+" or c1 = "-"
-			nStart = 2
-			if nLen = 1
-				return 0
-			ok
-		ok
-
-		for i = nStart to nLen
-			c = substr(cContent, i, 1)
-			if NOT isDigit(c)
-				return 0
-			ok
-		next
-
-		return 1
+		pH = @oString.Engine()
+		return StzEngineStringIsNumericString(pH)
 
 	def RepresentsSignedInteger()
 		if This.RepresentsInteger()
-			c1 = substr(@oString.Content(), 1, 1)
-			if c1 = "+" or c1 = "-"
+			cFirst = @oString.NthChar(1)
+			if cFirst = "+" or cFirst = "-"
 				return 1
 			ok
 		ok
@@ -250,85 +228,41 @@ class stzStringChecker
 		ok
 
 	def RepresentsNumber()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		if nLen = 0
-			return 0
+		pH = @oString.Engine()
+		if StzEngineStringIsNumericString(pH)
+			return 1
 		ok
-
-		nStart = 1
-		c1 = substr(cContent, 1, 1)
-		if c1 = "+" or c1 = "-"
-			nStart = 2
-			if nLen = 1
-				return 0
-			ok
-		ok
-
-		bDotSeen = 0
-		for i = nStart to nLen
-			c = substr(cContent, i, 1)
-			if c = "."
-				if bDotSeen
-					return 0
-				ok
-				bDotSeen = 1
-			but NOT isDigit(c)
-				return 0
-			ok
-		next
-
-		return 1
+		return StzEngineStringIsFloat(pH)
 
 	def RepresentsDecimalNumber()
-		if This.RepresentsNumber()
-			oFinder = new stzStringFinder(@oString)
-			if oFinder.Contains(".")
-				return 1
-			ok
-		ok
-		return 0
+		pH = @oString.Engine()
+		return StzEngineStringIsFloat(pH)
 
 	def RepresentsBinaryNumber()
+		# Requires 0b/0B prefix per Softanza convention
 		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		if nLen < 3
+		if StzLen(cContent) < 3
 			return 0
 		ok
-
-		if NOT (substr(cContent, 1, 2) = "0b" or substr(cContent, 1, 2) = "0B")
+		cPrefix = StzLeft(cContent, 2)
+		if cPrefix != "0b" and cPrefix != "0B"
 			return 0
 		ok
-
-		for i = 3 to nLen
-			c = substr(cContent, i, 1)
-			if c != "0" and c != "1"
-				return 0
-			ok
-		next
-		return 1
+		pH = @oString.Engine()
+		return StzEngineStringIsBinaryString(pH)
 
 	def RepresentsHexNumber()
+		# Requires 0x/0X prefix per Softanza convention
 		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		if nLen < 3
+		if StzLen(cContent) < 3
 			return 0
 		ok
-
-		if NOT (substr(cContent, 1, 2) = "0x" or substr(cContent, 1, 2) = "0X")
+		cPrefix = StzLeft(cContent, 2)
+		if cPrefix != "0x" and cPrefix != "0X"
 			return 0
 		ok
-
-		for i = 3 to nLen
-			c = StzLower(substr(cContent, i, 1))
-			if NOT isDigit(c) and NOT (c >= "a" and c <= "f")
-				return 0
-			ok
-		next
-		return 1
+		pH = @oString.Engine()
+		return StzEngineStringIsHexString(pH)
 
 	  #===============================#
 	 #     REVERSED COPY             #
@@ -436,3 +370,76 @@ class stzStringChecker
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH)
 		return c
+
+	  #===============================#
+	 #     ADDITIONAL CHECKS          #
+	#===============================#
+
+	def IsBlank()
+		pH = @oString.Engine()
+		return StzEngineStringIsBlank(pH)
+
+	def IsTitlecase()
+		pH = @oString.Engine()
+		return StzEngineStringIsTitleCase(pH)
+
+	def RepresentsOctalNumber()
+		# Requires 0o/0O prefix per Softanza convention
+		cContent = @oString.Content()
+		if StzLen(cContent) < 3
+			return 0
+		ok
+		cPrefix = StzLeft(cContent, 2)
+		if cPrefix != "0o" and cPrefix != "0O"
+			return 0
+		ok
+		pH = @oString.Engine()
+		return StzEngineStringIsOctalString(pH)
+
+	def IsIdentifier()
+		pH = @oString.Engine()
+		return StzEngineStringIsIdentifier(pH)
+
+	def IsPangram()
+		pH = @oString.Engine()
+		return StzEngineStringIsPangram(pH)
+
+	def IsIsogram()
+		pH = @oString.Engine()
+		return StzEngineStringIsIsogram(pH)
+
+	def IsBalanced()
+		pH = @oString.Engine()
+		return StzEngineStringIsBalanced(pH)
+
+	def IsEmailLike()
+		pH = @oString.Engine()
+		return StzEngineStringIsEmailLike(pH)
+
+	def IsUrlLike()
+		pH = @oString.Engine()
+		return StzEngineStringIsUrlLike(pH)
+
+	def IsCamelCase()
+		pH = @oString.Engine()
+		return StzEngineStringIsCamelCase(pH)
+
+	def IsSnakeCase()
+		pH = @oString.Engine()
+		return StzEngineStringIsSnakeCase(pH)
+
+	def IsKebabCase()
+		pH = @oString.Engine()
+		return StzEngineStringIsKebabCase(pH)
+
+	def IsPalindromeWords()
+		pH = @oString.Engine()
+		return StzEngineStringIsPalindromeWords(pH)
+
+	def ContainsLatin()
+		pH = @oString.Engine()
+		return StzEngineStringContainsLatin(pH)
+
+	def ContainsArabic()
+		pH = @oString.Engine()
+		return StzEngineStringContainsArabic(pH)
