@@ -13,12 +13,12 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 604 passing              |
+| Engine tests      | 610 passing              |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 389 DLL functions        |
+| Ring bridge regs  | 390 DLL functions        |
 | Ring Unicode hard | Complete (all domains)   |
-| Last updated      | 2026-05-18 (Session 16)  |
+| Last updated      | 2026-05-19 (Session 17)  |
 
 ---
 
@@ -168,6 +168,21 @@
   (O(n) sequential access cache in StzString struct).
 - **Stats**: 604 Zig tests, 389 Ring bridge functions, all 9 Ring test suites pass.
   Unicode hardening COMPLETE across all active domain classes.
+
+### Phase 8 -- Code Deduplication & Bulk Engine Ops (Session 17)
+
+- **`_SplitNullDelimited()` centralization**: Created global helper in stzStringFunc.ring
+  to eliminate repeated null-byte delimiter parsing boilerplate (~60 lines removed).
+  Used by: DuplicatedChars, UniqueChars, SubStringsCS, Chars(), stzStringCharList.
+- **`Chars()` bulk optimization**: Replaced N individual `NthChar(i)` FFI calls with
+  single `StzEngineStringCharsSplit()` call + `_SplitNullDelimited()`.
+- **`Words()` engine migration**: Replaced Ring-side char-by-char word parsing with
+  engine `str_words_split()` + `_SplitNullDelimited()`.
+- **Engine additions**: `str_words_split` (null-delimited word list, Unicode-aware
+  whitespace splitting).
+- **stzStringCharList cleanup**: Removed private `_SplitNullDelimited` method (uses
+  global), replaced inline null-split in init() with helper call.
+- **Stats**: 610 Zig tests, 390 Ring bridge functions, all 9 Ring test suites pass.
 
 ---
 

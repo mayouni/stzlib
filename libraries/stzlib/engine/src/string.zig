@@ -127,6 +127,7 @@ pub const str_rpartition = split.str_rpartition;
 pub const str_rpartition_after = split.str_rpartition_after;
 pub const str_chunk = split.str_chunk;
 pub const str_chars_split = split.str_chars_split;
+pub const str_words_split = split.str_words_split;
 
 // ─── Find submodule imports ───
 const find = @import("string/find.zig");
@@ -1702,6 +1703,14 @@ test "unique lines" {
     const unique3 = str_unique_lines(s3) orelse return error.SkipZigTest;
     defer str_free(unique3);
     try std.testing.expectEqualStrings("x", unique3.slice());
+}
+
+test "facade words_split" {
+    const s = str_from("hello world  foo", 16) orelse return error.SkipZigTest;
+    defer str_free(s);
+    const ws = str_words_split(s) orelse return error.SkipZigTest;
+    defer str_free(ws);
+    try std.testing.expectEqualStrings("hello\x00world\x00foo", ws.slice());
 }
 
 test "simplify" {
