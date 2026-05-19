@@ -517,7 +517,7 @@ class stzChainOfValue from stzObject
 
 	def IsANumber()
 
-		if upper(This._Type()) = "NUMBER"	
+		if StzUpper(This._Type()) = "NUMBER"	
 			return This
 		else
 
@@ -596,7 +596,7 @@ class stzChainOfValue from stzObject
 	#----------------------
 
 	def IsAString()
-		if upper(This._Type()) = "STRING"
+		if StzUpper(This._Type()) = "STRING"
 			return 1
 		else
 			return 0

@@ -54,7 +54,7 @@ class stzWebSocket from stzNetwork
         # Convert array to binary string
         binary_string = ""
         for byte in aData
-            binary_string += char(byte)
+            binary_string += StzChar(byte)
         next
         
         result = curl_ws_send(curl_handle, binary_string, 0, CURLWS_BINARY)
