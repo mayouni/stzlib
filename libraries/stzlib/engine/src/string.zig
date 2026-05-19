@@ -167,6 +167,7 @@ pub const str_ends_with_letter = find.str_ends_with_letter;
 pub const str_find_all_char = find.str_find_all_char;
 pub const str_starts_with_any = find.str_starts_with_any;
 pub const str_ends_with_any = find.str_ends_with_any;
+pub const str_duplicate_substrings_cs = find.str_duplicate_substrings_cs;
 
 // ─── Replace submodule imports ───
 const replace = @import("string/replace.zig");
@@ -4699,6 +4700,46 @@ test "cpCount ASCII fast-path" {
     const s = str_from("Hello World!", 12);
     try std.testing.expectEqual(@as(usize, 12), str_count(s));
     str_free(s);
+}
+
+test "duplicate_substrings_cs basic" {
+    const s = str_from("abab", 4);
+    defer str_free(s);
+    const r = str_duplicate_substrings_cs(s, 1);
+    defer str_free(r);
+    try std.testing.expect(r != null);
+    // Should contain at least "a", "b", "ab"
+    const result = r.?.slice();
+    try std.testing.expect(result.len > 0);
+    // Count null-separated items
+    var count: usize = 1;
+    for (result) |c| {
+        if (c == 0) count += 1;
+    }
+    try std.testing.expect(count >= 3); // at least a, b, ab
+}
+
+test "duplicate_substrings_cs no duplicates" {
+    const s = str_from("abcd", 4);
+    defer str_free(s);
+    const r = str_duplicate_substrings_cs(s, 1);
+    defer str_free(r);
+    try std.testing.expect(r != null);
+    try std.testing.expectEqual(@as(usize, 0), r.?.slice().len);
+}
+
+test "duplicate_substrings_cs case-insensitive" {
+    const s = str_from("AbAb", 4);
+    defer str_free(s);
+    // Case-sensitive: "A" appears twice (pos 1,3), "b" appears twice (pos 2,4)
+    // but "a" appears 0 times
+    const r_cs = str_duplicate_substrings_cs(s, 1);
+    defer str_free(r_cs);
+    // Case-insensitive: "a/A" appears 4 times conceptually
+    const r_ci = str_duplicate_substrings_cs(s, 0);
+    defer str_free(r_ci);
+    try std.testing.expect(r_ci != null);
+    try std.testing.expect(r_ci.?.slice().len > 0);
 }
 
 test "unique_lines_ci" {
