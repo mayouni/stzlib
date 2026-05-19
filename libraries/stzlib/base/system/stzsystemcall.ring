@@ -1,13 +1,22 @@
-#------------------------------#
-#  SOFTANZA SYSTEM CALL CLASS  #
-#------------------------------#
+#--------------------------------------------------------------#
+#         SOFTANZA LIBRARY (V0.9) - STZSYSTEMCALL              #
+#   An accelerative library for Ring applications, and more!   #
+#--------------------------------------------------------------#
+#                                                              #
+#   Description  : System call -- Engine-backed (Zig DLL).     #
+#                  Runs external commands without showing a     #
+#                  console window. Captures stdout/stderr.      #
+#   Version      : V0.9 (2026)                                 #
+#   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
+#                                                              #
+#--------------------------------------------------------------#
 
 ShellBuiltInCommands = [
 	# Windows built-ins
 	"echo", "cd", "dir", "type", "set", "if", "for", "date", "time",
 	"copy", "move", "del", "ren", "md", "rd", "cls", "exit", "call",
 	"start", "pushd", "popd", "assoc", "ftype", "mklink",
-	
+
 	# Unix/Linux built-ins
 	"export", "source", "alias", "unalias", "pwd", "test", "read",
 	"eval", "exec", "shift", "wait", "ulimit", "umask", "bg", "fg",
@@ -27,14 +36,14 @@ func StzSystemCallQXT(pcProgram, cReturnType)
 
 func stzsystem(pcCommand)
 	pcCommand = NormalizePathsInCommand(pcCommand)
-	
+
 	_oSysCall_ = new stzSystemCall(pcCommand)
 	_oSysCall_.HideConsole()
 	return _oSysCall_.RunAndGetOutput()
 
-func stzsystemSilent(pcCommand) # Not output!
+func stzsystemSilent(pcCommand) # No output!
 	pcCommand = NormalizePathsInCommand(pcCommand)
-	
+
 	_oSysCall_ = new stzSystemCall(pcCommand)
 	_oSysCall_.HideConsole()
 	_oSysCall_.RunSilently()
@@ -43,28 +52,28 @@ func NormalizePathsInCommand(pcCommand)
 	# Convert slashes in paths only, not in command flags
 	cResult = ""
 	aTokens = split(pcCommand, " ")
-	
+
 	for i = 1 to len(aTokens)
 		cToken = aTokens[i]
-		
+
 		if isWindows()
 			# Convert / to \ only if not a flag (doesn't start with /)
-			if substr(cToken, "/") > 0 and cToken[1] != "/"
-				cToken = substr(cToken, "/", "\")
+			if ring_find(cToken, "/") > 0 and cToken[1] != "/"
+				cToken = ring_substr2(cToken, "/", "\")
 			ok
 		else
 			# Convert \ to / for Unix paths
-			if substr(cToken, "\") > 0
-				cToken = substr(cToken, "\", "/")
+			if ring_find(cToken, "\") > 0
+				cToken = ring_substr2(cToken, "\", "/")
 			ok
 		ok
-		
+
 		cResult += cToken
 		if i < len(aTokens)
 			cResult += " "
 		ok
 	next
-	
+
 	return cResult
 
 
@@ -97,7 +106,7 @@ class stzSystemCall
 	@nExitCode = -1
 	@bExecuted = FALSE
 	@bRunSilentMode = FALSE
-	
+
 	# Return type control for Sys() commands
 	@cReturnType = "string"  # "string", "number", or "list"
 
@@ -105,43 +114,48 @@ class stzSystemCall
 		if NOT isString(pcCommandString)
 			stzraise("Command must be a string!")
 		ok
-		
+
 		@cCommandString = pcCommandString
 		This.ParseCommandString(pcCommandString)
 		This.UseShellIfNeeded()
 
 	def ParseCommandString(cCmd)
 		# Check for return type suffix (@RETURN:type)
-		nReturnPos = substr(cCmd, "@RETURN:")
+		nReturnPos = ring_find(cCmd, "@RETURN:")
 		if nReturnPos > 0
 			# Extract return type
-			cReturnPart = substr(cCmd, nReturnPos + 8)  # After "@RETURN:"
-			@cReturnType = trim(cReturnPart)
+			oCmd = new stzString(cCmd)
+			@cReturnType = trim(oCmd.Section(nReturnPos + 8, oCmd.NumberOfChars()))
 			# Remove suffix from command
-			cCmd = trim(left(cCmd, nReturnPos - 1))
+			cCmd = trim(oCmd.Section(1, nReturnPos - 1))
 		ok
-		
+
 		# Handle quoted arguments properly
 		@acArgs = []
 		cCmd = trim(cCmd)
-		
+
 		# Extract first token (program name)
-		nPos = substr(cCmd, " ")
+		nPos = ring_find(cCmd, " ")
 		if nPos = 0
 			@cProgram = cCmd
 			return
 		ok
-		
-		@cProgram = left(cCmd, nPos - 1)
-		cRest = trim(substr(cCmd, nPos + 1))
-		
+
+		oCmd2 = new stzString(cCmd)
+		@cProgram = oCmd2.Section(1, nPos - 1)
+		cRest = trim(oCmd2.Section(nPos + 1, oCmd2.NumberOfChars()))
+
 		# Parse remaining arguments respecting quotes
 		bInQuote = FALSE
 		cCurrent = ""
-		
-		for i = 1 to len(cRest)
-			c = cRest[i]
-			
+
+		oRest = new stzString(cRest)
+		acChars = oRest.Chars()
+		nLen = len(acChars)
+
+		for i = 1 to nLen
+			c = acChars[i]
+
 			if c = '"'
 				bInQuote = NOT bInQuote
 			but c = " " and NOT bInQuote
@@ -153,7 +167,7 @@ class stzSystemCall
 				cCurrent += c
 			ok
 		next
-		
+
 		if cCurrent != ""
 			@acArgs + cCurrent
 		ok
@@ -163,58 +177,71 @@ class stzSystemCall
 	#-------------------#
 
 	def Run()
-	
+
 		if @cProgram = ""
 			stzraise("No program specified!")
 		ok
-		
+
 		# Use shell if command contains shell operators
 		This.UseShellIfNeeded()
-	
+
 		# Handle silent mode
-		if @bRunSilentMode and isWindows() and NOT (@cProgram = "cmd.exe" and len(@acArgs) > 1 and @acArgs[2] = "start")
-			This.RunWindowsSilent()
+		if @bRunSilentMode
+			This.RunEngineSilent()
 			return NULL
 		ok
-	
+
 		cFullCmd = _BuildCommandLine()
 
-		cOutFile = ""
-		cErrFile = ""
+		# Use engine for hidden console execution
+		if NOT @bShowConsole
+			# Engine-backed: no console window, direct stdout capture
+			@cOutput = StzEngineSystemRun(cFullCmd)
+			@nExitCode = 0
+			if @cOutput = "" and @bCaptureError
+				# If no output, might have failed
+				@nExitCode = StzEngineSystemExec(cFullCmd)
+				if @nExitCode != 0
+					@cError = "Command failed with exit code " + @nExitCode
+				ok
+			ok
+			@bExecuted = TRUE
 
-		if @bCaptureOutput or @bCaptureError
-			cTmpBase = tempname()
-			cOutFile = cTmpBase + "_out.tmp"
-			cErrFile = cTmpBase + "_err.tmp"
-			if isWindows()
-				cFullCmd += ' >"' + cOutFile + '" 2>"' + cErrFile + '"'
-			else
+			if @bCaptureOutput
+				This.ConvertOutputByType()
+			ok
+		else
+			# Fallback to Ring system() when console is explicitly shown
+			cOutFile = ""
+			cErrFile = ""
+
+			if @bCaptureOutput or @bCaptureError
+				cTmpBase = tempname()
+				cOutFile = cTmpBase + "_out.tmp"
+				cErrFile = cTmpBase + "_err.tmp"
 				cFullCmd += ' >"' + cOutFile + '" 2>"' + cErrFile + '"'
 			ok
-		ok
 
-		@nExitCode = system(cFullCmd)
-		@bExecuted = TRUE
+			@nExitCode = system(cFullCmd)
+			@bExecuted = TRUE
 
-		if @bCaptureOutput and cOutFile != ""
-			try
-				@cOutput = read(cOutFile)
-				remove(cOutFile)
-			catch
-				@cOutput = ""
-			done
-			This.ConvertOutputByType()
-		ok
+			if @bCaptureOutput and cOutFile != ""
+				try
+					@cOutput = read(cOutFile)
+					remove(cOutFile)
+				catch
+					@cOutput = ""
+				done
+				This.ConvertOutputByType()
+			ok
 
-		if @bCaptureError and cErrFile != ""
-			try
-				@cError = read(cErrFile)
-				remove(cErrFile)
-			catch
-				@cError = ""
-			done
-			if @cError = "" and @nExitCode != 0 and isString(@cOutput) and @cOutput != ""
-				@cError = @cOutput
+			if @bCaptureError and cErrFile != ""
+				try
+					@cError = read(cErrFile)
+					remove(cErrFile)
+				catch
+					@cError = ""
+				done
 			ok
 		ok
 
@@ -266,8 +293,13 @@ class stzSystemCall
 					cCommand += " "
 				ok
 				if cArg = "&" or cArg = "&&" or cArg = "|" or cArg = "||"
-					if len(cCommand) > 0 and cCommand[len(cCommand)] != " "
-						cCommand += " "
+					nCmdLen = StzLen(cCommand)
+					if nCmdLen > 0
+						oTmp = new stzString(cCommand)
+						acTmpChars = oTmp.Chars()
+						if acTmpChars[nCmdLen] != " "
+							cCommand += " "
+						ok
 					ok
 					cCommand += cArg
 				else
@@ -276,13 +308,13 @@ class stzSystemCall
 			next
 			cCmd += cCommand
 		else
-			if substr(@cProgram, " ") > 0
+			if ring_find(@cProgram, " ") > 0
 				cCmd = '"' + @cProgram + '"'
 			else
 				cCmd = @cProgram
 			ok
 			for i = 1 to len(@acArgs)
-				if substr(@acArgs[i], " ") > 0
+				if ring_find(@acArgs[i], " ") > 0
 					cCmd += ' "' + @acArgs[i] + '"'
 				else
 					cCmd += " " + @acArgs[i]
@@ -295,7 +327,7 @@ class stzSystemCall
 		if NOT isString(@cOutput)
 			return  # Already converted or empty
 		ok
-		
+
 		if @cReturnType = "list"
 			@cOutput = This.ParseOutputAsLines()
 		but @cReturnType = "number"
@@ -307,7 +339,7 @@ class stzSystemCall
 		if NOT isString(@cOutput) or @cOutput = ""
 			return []
 		ok
-		
+
 		acLines = split(@cOutput, NL)
 		aResult = []
 		nLen = len(acLines)
@@ -324,16 +356,20 @@ class stzSystemCall
 		if NOT isString(@cOutput) or @cOutput = ""
 			return 0
 		ok
-		
-		cOutput = trim(@cOutput)
+
+		cOut = trim(@cOutput)
+		oOut = new stzString(cOut)
+		acChars = oOut.Chars()
+		nLen = len(acChars)
+
 		# Try to extract first number from output
-		for i = 1 to len(cOutput)
-			c = cOutput[i]
+		for i = 1 to nLen
+			c = acChars[i]
 			if (c >= "0" and c <= "9") or c = "-" or c = "."
 				# Found start of number, extract it
 				cNum = ""
-				for j = i to len(cOutput)
-					c2 = cOutput[j]
+				for j = i to nLen
+					c2 = acChars[j]
 					if (c2 >= "0" and c2 <= "9") or c2 = "." or c2 = "-"
 						cNum += c2
 					else
@@ -379,31 +415,30 @@ class stzSystemCall
 
 		def WithArgsQ(pacArgs)
 			return This.SetArgsQ(pacArgs)
-	
+
 	def SetParam(cParam, cValue)
-		# Convert forward slashes to backslashes on Windows for any path-like value
-		if isWindows() and (substr(cValue, "/") > 0 or substr(cValue, "\") > 0)
-			# If it looks like a path (contains slashes), convert to backslashes
-			cValue = substr(cValue, "/", "\")
+		# Convert forward slashes to backslashes on Windows for path-like values
+		if isWindows() and (ring_find(cValue, "/") > 0 or ring_find(cValue, "\") > 0)
+			cValue = ring_substr2(cValue, "/", "\")
 		ok
-		
+
 		for i = 1 to len(@acArgs)
-			@acArgs[i] = substr(@acArgs[i], "{" + cParam + "}", cValue)
+			@acArgs[i] = ring_substr2(@acArgs[i], "{" + cParam + "}", cValue)
 		next
-	
+
 	def SetParams(aParams)
 		nLen = len(aParams)
 		for i = 1 to nLen
 			This.SetParam(aParams[i][1], aParams[i][2])
 		next
-		
+
 		def WithParams(aParams)
 			This.SetParams(aParams)
-		
+
 		def SetParamsQ(aParams)
 			This.SetParams(aParams)
 			return This
-		
+
 		def WithParamsQ(aParams)
 			return This.SetParamsQ(aParams)
 
@@ -505,14 +540,10 @@ class stzSystemCall
 	#  SILENT EXECUTION     #
 	#-----------------------#
 
-	def RunWindowsSilent()
+	def RunEngineSilent()
 		cFullCmd = _BuildCommandLine()
-		if isWindows()
-			cFullCmd += " >NUL 2>&1"
-		else
-			cFullCmd += " >/dev/null 2>&1"
-		ok
-		@nExitCode = system(cFullCmd)
+		# Engine exec: no console, no output capture, just exit code
+		@nExitCode = StzEngineSystemExec(cFullCmd)
 		@bExecuted = TRUE
 
 	def RunSilently()
@@ -551,7 +582,7 @@ class stzSystemCall
 		if @cOutput = ""
 			return []
 		ok
-		
+
 		acLines = split(@cOutput, NL)
 		# Remove empty lines
 		aResult = []
@@ -596,10 +627,13 @@ class stzSystemCall
 		return NOT This.Succeeded()
 
 	def HasOutput()
-		return len(@cOutput) > 0
+		if isString(@cOutput)
+			return StzLen(@cOutput) > 0
+		ok
+		return TRUE
 
 	def HasError()
-		return len(@cError) > 0
+		return StzLen(@cError) > 0
 
 	def RunAndGetOutput()
 		This.Run()
@@ -609,12 +643,38 @@ class stzSystemCall
 			return This.RunAndGetOutput()
 
 	#-----------------------#
+	#  ENVIRONMENT          #
+	#-----------------------#
+
+	def Env(pcVarName)
+		return StzEngineSystemEnv(pcVarName)
+
+		def GetEnv(pcVarName)
+			return This.Env(pcVarName)
+
+		def EnvironmentVariable(pcVarName)
+			return This.Env(pcVarName)
+
+	#-----------------------#
+	#  OS DETECTION         #
+	#-----------------------#
+
+	def EngineIsWindows()
+		return StzEngineSystemIsWindows()
+
+	def EngineIsLinux()
+		return StzEngineSystemIsLinux()
+
+	def EngineIsMacos()
+		return StzEngineSystemIsMacos()
+
+	#-----------------------#
 	#  UTILITIES            #
 	#-----------------------#
 
 	def OpenFile(cFilePath)
 		if isWindows()
-			cFilePath = substr(cFilePath, "\", "/")
+			cFilePath = ring_substr2(cFilePath, "\", "/")
 			This.SetProgram("cmd.exe")
 			This.SetArgs(["/c", "start", "", cFilePath])
 		but isMacOS()
@@ -645,28 +705,26 @@ class stzSystemCall
 	def UseShellIfNeeded()
 		# Detect if command needs shell wrapper
 		cCmd = @cCommandString
-		
+
 		# Handle empty command
 		if cCmd = "" or trim(cCmd) = ""
 			return This
 		ok
-		
+
 		bNeedsShell = FALSE
-		
-		# Check for shell operators (but not command-line flags)
-		# Look for > or < only when followed by space or filename (not part of flag)
-		if substr(cCmd, " > ") > 0 or substr(cCmd, " < ") > 0 or
-		   substr(cCmd, ">") = 1 or substr(cCmd, "<") = 1 or
-		   substr(cCmd, "|") > 0 or substr(cCmd, "&&") > 0 or
-		   substr(cCmd, "||") > 0
+
+		# Check for shell operators
+		if ring_find(cCmd, " > ") > 0 or ring_find(cCmd, " < ") > 0 or
+		   ring_find(cCmd, "|") > 0 or ring_find(cCmd, "&&") > 0 or
+		   ring_find(cCmd, "||") > 0
 			bNeedsShell = TRUE
 		ok
-		
+
 		# Check for single & (but not &&)
-		if substr(cCmd, "&") > 0 and substr(cCmd, "&&") = 0
+		if ring_find(cCmd, "&") > 0 and ring_find(cCmd, "&&") = 0
 			bNeedsShell = TRUE
 		ok
-		
+
 		# Check for shell built-in commands
 		aWords = split(cCmd, " ")
 		if len(aWords) > 0
@@ -675,7 +733,7 @@ class stzSystemCall
 				bNeedsShell = TRUE
 			ok
 		ok
-		
+
 		if bNeedsShell
 			# Rebuild command with shell wrapper
 			if isWindows()
@@ -686,9 +744,9 @@ class stzSystemCall
 			# Re-parse with new command string
 			This.ParseCommandString(@cCommandString)
 		ok
-		
+
 		return This
-	
+
 		def UseShellIfNeededQ()
 			This.UseShellIfNeeded()
 			return This
