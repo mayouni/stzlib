@@ -314,7 +314,7 @@ class stzCalendar from stzObject
 	
 	def QuarterNumber()
 		if @cQuarter != ""
-			return val(right(@cQuarter, 1))
+			return val(StzRight(@cQuarter, 1))
 		ok
 		return 0
 	
@@ -2042,10 +2042,10 @@ def CompareWith(oOtherCal)
 		# different from those we use here in this hack), the the result
 		# will be erronous
 	
-		cResult = substr(cResult, " │ ", "   ")
-		cResult = substr(cResult, "┬", "─")
-		cResult = substr(cResult, "┼", "─")
-		cResult = substr(cResult, "┴", "─")
+		cResult = ring_substr2(cResult, " │ ", "   ")
+		cResult = ring_substr2(cResult, "┬", "─")
+		cResult = ring_substr2(cResult, "┼", "─")
+		cResult = ring_substr2(cResult, "┴", "─")
 	
 		# Drawing the legend
 		cResult += NL + NL + _drawLegend()
