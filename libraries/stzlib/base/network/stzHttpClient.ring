@@ -10,8 +10,8 @@ parallel_loop = NULL
 
 func CreateParallelRequest(cUrl, nIndex)
     # Parse URL
-    url_parts = ParseUrl(cUrl)
-    
+    url_parts = StzParseUrl(cUrl)
+
     # Create connection
     tcp_handle = new_uv_tcp_t()
     connect_req = new_uv_connect_t()
@@ -98,7 +98,7 @@ func OnParallelRead()
         set_request_data(tcp_handle, request_data)
     elseif nRead < 0
         # Connection closed - parse response and complete
-        response_parts = ParseHttpResponse(request_data[:response])
+        response_parts = StzParseHttpResponse(request_data[:response])
         CompleteParallelRequest(nIndex, response_parts[3], response_parts[1], "")
         cleanup_handle(tcp_handle)
     ok
@@ -120,7 +120,7 @@ func CompleteParallelRequest(nIndex, cBody, nCode, cError)
 func cleanup_handle(tcp_handle)
     uv_close(tcp_handle, NULL)
 
-func ParseUrl(cUrl) # TODO Exists already in stzString and may be in stzUrl
+func StzParseUrl(cUrl)
     url = cUrl
     port = 80
 
@@ -151,7 +151,10 @@ func ParseUrl(cUrl) # TODO Exists already in stzString and may be in stzUrl
 
     return [host, port, path]
 
-func ParseHttpResponse(cResponse)
+	func ParseUrl(cUrl)
+		return StzParseUrl(cUrl)
+
+func StzParseHttpResponse(cResponse)
     if StzLen(cResponse) = 0
         return [0, "", "", ""]
     ok
@@ -180,6 +183,9 @@ func ParseHttpResponse(cResponse)
     ok
 
     return [status_code, headers_part, body_part]
+
+	func ParseHttpResponse(cResponse)
+		return StzParseHttpResponse(cResponse)
 
 class stzHttpClient from stzNetwork
     headers_list = []
