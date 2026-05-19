@@ -732,6 +732,136 @@ fn isWhitespace(c: u8) bool {
     return c == ' ' or c == '\t' or c == '\n' or c == '\r';
 }
 
+// ─── UniqueLinesCI ───
+
+/// Deduplicate lines case-insensitively (preserves first occurrence's case).
+pub fn str_unique_lines_ci(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    if (bytes.len == 0) return str_new();
+
+    const casefoldAlloc = core.casefoldAlloc;
+
+    // Collect line slices
+    var lines = std.ArrayListUnmanaged([]const u8){};
+    defer lines.deinit(gpa);
+
+    var line_start: usize = 0;
+    var i: usize = 0;
+    while (i < bytes.len) {
+        if (bytes[i] == '\r') {
+            lines.append(gpa, bytes[line_start..i]) catch return null;
+            if (i + 1 < bytes.len and bytes[i + 1] == '\n') i += 1;
+            line_start = i + 1;
+        } else if (bytes[i] == '\n') {
+            lines.append(gpa, bytes[line_start..i]) catch return null;
+            line_start = i + 1;
+        }
+        i += 1;
+    }
+    if (line_start <= bytes.len) {
+        lines.append(gpa, bytes[line_start..bytes.len]) catch return null;
+    }
+
+    // Deduplicate using casefolded keys but preserving original text
+    var seen = std.StringHashMap(void).init(gpa);
+    defer {
+        // Free all allocated keys
+        var it = seen.keyIterator();
+        while (it.next()) |key| {
+            gpa.free(key.*);
+        }
+        seen.deinit();
+    }
+
+    var unique = std.ArrayListUnmanaged([]const u8){};
+    defer unique.deinit(gpa);
+
+    for (lines.items) |line| {
+        const folded = casefoldAlloc(line) orelse line;
+        // Check if we've seen this casefolded version
+        if (!seen.contains(folded)) {
+            // Need to duplicate the folded key for the hashmap to own
+            const owned = gpa.dupe(u8, folded) catch {
+                gpa.free(folded);
+                return null;
+            };
+            seen.put(owned, {}) catch {
+                gpa.free(owned);
+                gpa.free(folded);
+                return null;
+            };
+            unique.append(gpa, line) catch {
+                gpa.free(folded);
+                return null;
+            };
+        }
+        gpa.free(folded);
+    }
+
+    // Join with \n
+    const result = str_new() orelse return null;
+    for (unique.items, 0..) |line, idx| {
+        if (idx > 0) result.data.append(gpa, '\n') catch {
+            core.str_free(result);
+            return null;
+        };
+        result.data.appendSlice(gpa, line) catch {
+            core.str_free(result);
+            return null;
+        };
+    }
+    result.invalidateCache();
+    return result;
+}
+
+// ─── ReverseLinesOrder ───
+
+/// Reverse the order of lines in the string.
+pub fn str_reverse_lines(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    const s = (handle orelse return null);
+    const bytes = s.slice();
+    if (bytes.len == 0) return str_new();
+
+    // Collect line slices
+    var lines = std.ArrayListUnmanaged([]const u8){};
+    defer lines.deinit(gpa);
+
+    var line_start: usize = 0;
+    var ii: usize = 0;
+    while (ii < bytes.len) {
+        if (bytes[ii] == '\r') {
+            lines.append(gpa, bytes[line_start..ii]) catch return null;
+            if (ii + 1 < bytes.len and bytes[ii + 1] == '\n') ii += 1;
+            line_start = ii + 1;
+        } else if (bytes[ii] == '\n') {
+            lines.append(gpa, bytes[line_start..ii]) catch return null;
+            line_start = ii + 1;
+        }
+        ii += 1;
+    }
+    if (line_start <= bytes.len) {
+        lines.append(gpa, bytes[line_start..bytes.len]) catch return null;
+    }
+
+    // Build result in reverse order
+    const result = str_new() orelse return null;
+    var j: usize = lines.items.len;
+    while (j > 0) {
+        j -= 1;
+        if (j < lines.items.len - 1) result.data.append(gpa, '\n') catch {
+            core.str_free(result);
+            return null;
+        };
+        result.data.appendSlice(gpa, lines.items[j]) catch {
+            core.str_free(result);
+            return null;
+        };
+    }
+    result.invalidateCache();
+    return result;
+}
+
 // ─── Tests ───
 
 const testing = std.testing;

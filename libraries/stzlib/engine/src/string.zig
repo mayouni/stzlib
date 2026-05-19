@@ -113,6 +113,8 @@ pub const str_line_at = split.str_line_at;
 pub const str_count_lines = split.str_count_lines;
 pub const str_sort_lines = split.str_sort_lines;
 pub const str_unique_lines = split.str_unique_lines;
+pub const str_unique_lines_ci = split.str_unique_lines_ci;
+pub const str_reverse_lines = split.str_reverse_lines;
 pub const str_word_count = split.str_word_count;
 pub const str_count_words = split.str_count_words;
 pub const str_word_at = split.str_word_at;
@@ -4696,6 +4698,45 @@ test "cpCount ASCII fast-path" {
     // ASCII: codepoint count == byte count
     const s = str_from("Hello World!", 12);
     try std.testing.expectEqual(@as(usize, 12), str_count(s));
+    str_free(s);
+}
+
+test "unique_lines_ci" {
+    const input = "Hello\nhello\nWorld\nHELLO\nworld";
+    const s = str_from(input, input.len);
+    const r = str_unique_lines_ci(s);
+    try std.testing.expect(r != null);
+    try std.testing.expectEqualStrings("Hello\nWorld", r.?.slice());
+    str_free(r);
+    str_free(s);
+}
+
+test "unique_lines_ci preserves first case" {
+    const input = "ABC\nabc\nDef\ndef\nDEF";
+    const s = str_from(input, input.len);
+    const r = str_unique_lines_ci(s);
+    try std.testing.expect(r != null);
+    try std.testing.expectEqualStrings("ABC\nDef", r.?.slice());
+    str_free(r);
+    str_free(s);
+}
+
+test "reverse_lines" {
+    const input = "first\nsecond\nthird";
+    const s = str_from(input, input.len);
+    const r = str_reverse_lines(s);
+    try std.testing.expect(r != null);
+    try std.testing.expectEqualStrings("third\nsecond\nfirst", r.?.slice());
+    str_free(r);
+    str_free(s);
+}
+
+test "reverse_lines single" {
+    const s = str_from("only", 4);
+    const r = str_reverse_lines(s);
+    try std.testing.expect(r != null);
+    try std.testing.expectEqualStrings("only", r.?.slice());
+    str_free(r);
     str_free(s);
 }
 

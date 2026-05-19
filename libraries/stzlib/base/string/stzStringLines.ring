@@ -102,38 +102,18 @@ class stzStringLines
 	def UniqueLinesCS(pCaseSensitive)
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
+		pH = @oString.Engine()
 		if _bCase_ = 1
-			# Engine-backed O(n) hashmap deduplication
-			pH = @oString.Engine()
 			pR = StzEngineStringUniqueLines(pH)
-			c = StzEngineStringData(pR)
-			StzEngineStringFree(pR)
-			if c = ""
-				return []
-			ok
-			return @SplitCS(c, NL, 1)
+		else
+			pR = StzEngineStringUniqueLinesCI(pH)
 		ok
-
-		# Case-insensitive: Ring-side with casefold comparison
-		acLines = This.LinesCS(pCaseSensitive)
-		acResult = []
-		nLen = len(acLines)
-
-		for i = 1 to nLen
-			bFound = 0
-			nResLen = len(acResult)
-			for j = 1 to nResLen
-				if StzCaseFold(acResult[j]) = StzCaseFold(acLines[i])
-					bFound = 1
-					exit
-				ok
-			next
-			if NOT bFound
-				acResult + acLines[i]
-			ok
-		next
-
-		return acResult
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		if c = ""
+			return []
+		ok
+		return @SplitCS(c, NL, 1)
 
 		def LinesCSU(pCaseSensitive)
 			return This.UniqueLinesCS(pCaseSensitive)
@@ -312,18 +292,10 @@ class stzStringLines
 	#===============================#
 
 	def ReverseLinesOrder()
-		acLines = This.Lines()
-		nLen = len(acLines)
-
-		cResult = ""
-		for i = nLen to 1 step -1
-			if i < nLen
-				cResult += NL
-			ok
-			cResult += acLines[i]
-		next
-
-		@oString.Update(cResult)
+		pH = @oString.Engine()
+		pR = StzEngineStringReverseLines(pH)
+		@oString.Update(StzEngineStringData(pR))
+		StzEngineStringFree(pR)
 
 		def ReverseLinesOrderQ()
 			This.ReverseLinesOrder()
