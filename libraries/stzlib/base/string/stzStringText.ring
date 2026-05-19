@@ -237,8 +237,8 @@ class stzStringText
 			return This.NumberOfWords()
 
 	def NthWord(n)
-		# Engine uses 0-based indexing
-		pResult = StzEngineStringNthWord(This.Engine(), n - 1)
+		# Engine uses INDEX_BASE=1, no manual adjustment needed
+		pResult = StzEngineStringNthWord(This.Engine(), n)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return cResult
@@ -378,8 +378,8 @@ class stzStringText
 		return cResult
 
 	def RemoveNthWord(n)
-		# Engine uses 0-based indexing
-		pResult = StzEngineStringRemoveNthWord(This.Engine(), n - 1)
+		# Engine uses INDEX_BASE=1, no manual adjustment needed
+		pResult = StzEngineStringRemoveNthWord(This.Engine(), n)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		This.Update(cResult)
@@ -389,14 +389,14 @@ class stzStringText
 			return This
 
 	def NthWordRemoved(n)
-		pResult = StzEngineStringRemoveNthWord(This.Engine(), n - 1)
+		pResult = StzEngineStringRemoveNthWord(This.Engine(), n)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return cResult
 
 	def InsertWordAt(n, pcWord)
-		# Engine uses 0-based indexing
-		pResult = StzEngineStringInsertWordAt(This.Engine(), n - 1, pcWord)
+		# Engine uses INDEX_BASE=1, no manual adjustment needed
+		pResult = StzEngineStringInsertWordAt(This.Engine(), n, pcWord)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		This.Update(cResult)
@@ -406,8 +406,8 @@ class stzStringText
 			return This
 
 	def SwapWords(n1, n2)
-		# Engine uses 0-based indexing
-		pResult = StzEngineStringSwapWords(This.Engine(), n1 - 1, n2 - 1)
+		# Engine uses INDEX_BASE=1, no manual adjustment needed
+		pResult = StzEngineStringSwapWords(This.Engine(), n1, n2)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		This.Update(cResult)
@@ -795,8 +795,8 @@ class stzStringText
 		return @SplitCS(@oString.Content(), NL, 1)
 
 	def NthLine(n)
-		# Engine uses 0-based indexing
-		pResult = StzEngineStringLineAt(This.Engine(), n - 1)
+		# Engine uses INDEX_BASE=1, no manual adjustment needed
+		pResult = StzEngineStringLineAt(This.Engine(), n)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return cResult
