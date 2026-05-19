@@ -54,22 +54,50 @@ func StzRegexQ(pcPattern)
 	func rx(pcPattern)
 		return StzRegexQ(pcPattern)
 
-func MatchTypes()
+func StzMatchTypes()
 	return _$aMATCH_TYPES
 
-	def @MatchTypes()
-		return _$aMATCH_TYPES
+	func MatchTypes()
+		return StzMatchTypes()
 
-func MatchOptions()
+	func @MatchTypes()
+		return StzMatchTypes()
+
+func StzMatchOptions()
 	return _$aMATCH_OPTIONS
 
-	func @MatchOptions()
-		return _$aMATCH_OPTIONS
+	func MatchOptions()
+		return StzMatchOptions()
 
-func AllMatches(cInput, cPattern)
+	func @MatchOptions()
+		return StzMatchOptions()
+
+func StzAllMatches(cInput, cPattern)
 	oRegex = new stzRegex(cPattern)
 	oRegex.Match(cInput)
 	return oRegex.AllMatches()
+
+	func AllMatches(cInput, cPattern)
+		return StzAllMatches(cInput, cPattern)
+
+func StzRegexMatch(cInput, cPattern)
+	pH = StzEngineRegexNew(cPattern, 0)
+	if pH = NULL
+		return FALSE
+	ok
+	nResult = StzEngineRegexMatch(pH, cInput, 0)
+	StzEngineRegexFree(pH)
+	return nResult = 1
+
+func StzRegexReplace(cInput, cPattern, cReplacement)
+	pH = StzEngineRegexNew(cPattern, 0)
+	if pH = NULL
+		return cInput
+	ok
+	StzEngineRegexMatch(pH, cInput, 0)
+	cResult = StzEngineRegexReplace(pH, cInput, cReplacement)
+	StzEngineRegexFree(pH)
+	return cResult
 
   #==================#
  #  STZREGEX CLASS  #
