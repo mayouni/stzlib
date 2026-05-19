@@ -888,7 +888,7 @@ class stzLinearSolver from stzObject
 		? ""
 		? "Objective:"
 		? "• Objective:"
-		? "  " + upper(@objectiveType) + " " + @objective
+		? "  " + StzUpper(@objectiveType) + " " + @objective
 
 		if @status != ""
 			? ""
@@ -935,7 +935,7 @@ class stzLinearSolver from stzObject
 		cContent += "Problem Definition:" + nl
 		cContent += "Variables: " + len(@variables) + nl
 		cContent += "Constraints: " + len(@constraints) + nl
-		cContent += "Objective: " + upper(@objectiveType) + " " + @objective + nl + nl
+		cContent += "Objective: " + StzUpper(@objectiveType) + " " + @objective + nl + nl
 		
 		if @status != ""
 			cContent += "Solution:" + nl

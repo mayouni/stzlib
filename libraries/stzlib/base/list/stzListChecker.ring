@@ -98,7 +98,7 @@ class stzListChecker from stzList
 		nLen = len(aContent)
 
 		for i = 1 to nLen
-			if type(aContent[i]) != upper(pcType)
+			if type(aContent[i]) != StzUpper(pcType)
 				return 0
 			ok
 		next

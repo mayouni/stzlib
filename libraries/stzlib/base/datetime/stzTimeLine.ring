@@ -164,7 +164,7 @@ class stzTimeLine from stzObject
 			StzRaise("Incorrect param type! pcLabel must be a string.")
 		ok
 	
-		pcLabel = upper(pcLabel)
+		pcLabel = StzUpper(pcLabel)
 		cPoint = This._normalizeDateTime(pDateTime)
 	
 		oPoint = new stzDateTime(cPoint)
@@ -223,7 +223,7 @@ class stzTimeLine from stzObject
 			StzRaise("Incorrect param type! pcLabel must be a string.")
 		ok
 
-		pcLabel = upper(pcLabel)
+		pcLabel = StzUpper(pcLabel)
 
 		#--
 
@@ -251,7 +251,7 @@ class stzTimeLine from stzObject
 			StzRaise("Incorrect param type! pcLabel must be a string.")
 		ok
 
-		pcLabel = upper(pcLabel)
+		pcLabel = StzUpper(pcLabel)
 
 		#--
 
@@ -421,7 +421,7 @@ class stzTimeLine from stzObject
 
 		#--
 
-		cLabel = upper(pcLabelOrDateTime)
+		cLabel = StzUpper(pcLabelOrDateTime)
 
 		nLen = len(@aPoints)
 		for i = 1 to nLen
@@ -518,8 +518,8 @@ class stzTimeLine from stzObject
 			StzRaise("Incorrect param type! pcNewLabel must be a string.")
 		ok
 	
-		pcLabel = upper(pcLabel)
-		pcNewLabel = upper(pcNewLabel)
+		pcLabel = StzUpper(pcLabel)
+		pcNewLabel = StzUpper(pcNewLabel)
 	
 		nLen = len(@aPoints)
 	
@@ -551,8 +551,8 @@ class stzTimeLine from stzObject
 			StzRaise("Incorrect param type! pcNewLabel must be a string.")
 		ok
 	
-		pcLabel = upper(pcLabel)
-		pcNewLabel = upper(pcNewLabel)
+		pcLabel = StzUpper(pcLabel)
+		pcNewLabel = StzUpper(pcNewLabel)
 	
 		nLen = len(@aSpans)
 	
@@ -658,7 +658,7 @@ class stzTimeLine from stzObject
 		acResult = []
 		nLen = len(@aSpans)
 
-		pcLabel = upper(pcLabel)
+		pcLabel = StzUpper(pcLabel)
 	
 		for i = 1 to nLen
 			if @aSpans[i][1] = pcLabel
@@ -682,7 +682,7 @@ class stzTimeLine from stzObject
 		acResult = []
 		nLen = len(@aSpans)
 
-		pcLabel = upper(pcLabel)
+		pcLabel = StzUpper(pcLabel)
 
 		for i = 1 to nLen
 			if @aSpans[i][1] = pcSpan
@@ -761,7 +761,7 @@ class stzTimeLine from stzObject
 			StzRaise("Incorrect param type! pcLabel must be a string.")
 		ok
 
-		pcLabel = upper(pcLabel)
+		pcLabel = StzUpper(pcLabel)
 
 		nPos = 0
 		nLen = len(@aSpans)
@@ -1782,7 +1782,7 @@ class stzTimeLine from stzObject
 			raise("Blocked span '" + pcLabel + "' is outside timeline boundaries")
 		ok
 	
-		@aBlockedSpans + [upper(pcLabel), cStart, cEnd]
+		@aBlockedSpans + [StzUpper(pcLabel), cStart, cEnd]
 	
 		def AddBlockedSpanQ(pcLabel, pStart, pEnd)
 			This.AddBlockedSpan(pcLabel, pStart, pEnd)
@@ -1793,7 +1793,7 @@ class stzTimeLine from stzObject
 			StzRaise("Incorrect param type! pcLabel must be a string.")
 		ok
 	
-		pcLabel = upper(pcLabel)
+		pcLabel = StzUpper(pcLabel)
 		nPos = 0
 		nLen = len(@aBlockedSpans)
 	
