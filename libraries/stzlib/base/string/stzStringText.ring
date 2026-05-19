@@ -272,8 +272,9 @@ class stzStringText
 		def WordsQ()
 			return new stzList(This.Words())
 
-	def UniqueWords()
-		pResult = StzEngineStringUniqueWords(This.Engine())
+	def UniqueWordsCS(pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pResult = StzEngineStringUniqueWordsCS(This.Engine(), _bCase_)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 
@@ -282,6 +283,9 @@ class stzStringText
 		ok
 
 		return StzStringQ(cResult).Split(" ")
+
+	def UniqueWords()
+		return This.UniqueWordsCS(1)
 
 		def SetOfWords()
 			return This.UniqueWords()
@@ -814,21 +818,33 @@ class stzStringText
 	 #     LINE TRANSFORMS (Engine-backed)      #
 	#------------------------------------------#
 
-	def DeduplicateLines()
-		pResult = StzEngineStringDeduplicateLines(This.Engine())
+	def DeduplicateLinesCS(pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pResult = StzEngineStringDeduplicateLinesCS(This.Engine(), _bCase_)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		This.Update(cResult)
+
+		def DeduplicateLinesCSQ(pCaseSensitive)
+			This.DeduplicateLinesCS(pCaseSensitive)
+			return This
+
+	def DeduplicateLines()
+		return This.DeduplicateLinesCS(1)
 
 		def DeduplicateLinesQ()
 			This.DeduplicateLines()
 			return This
 
-	def LinesDeduplicated()
-		pResult = StzEngineStringDeduplicateLines(This.Engine())
+	def LinesDeduplicatedCS(pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pResult = StzEngineStringDeduplicateLinesCS(This.Engine(), _bCase_)
 		cResult = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 		return cResult
+
+	def LinesDeduplicated()
+		return This.LinesDeduplicatedCS(1)
 
 	def RemoveBlankLines()
 		pResult = StzEngineStringRemoveBlankLines(This.Engine())
