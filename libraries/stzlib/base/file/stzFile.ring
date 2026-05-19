@@ -116,79 +116,90 @@ func StzPathDirname(pcPath)
 
 
 func FileExists(cFullPath)
-    oInfo = new stzFileInfo(cFullPath)
-    return oInfo.Exists()
+    return StzFileExists(cFullPath)
 
 	func @FileExists(cFullPath)
-		return FileExists(cFullPath)
+		return StzFileExists(cFullPath)
 
 	func IsFile(cFullPath)
-		return FileExists(cFullPath)
+		return StzFileExists(cFullPath)
 
 	func @IsFile(cFullPath)
-		return FileExists(cFullPath)
+		return StzFileExists(cFullPath)
 
 	func IsValidFile(cFullPath)
-		return FileExists(cFullPath)
+		return StzFileExists(cFullPath)
 
 	func @IsValidFile(cFullPath)
-		return FileExists(cFullPath)
+		return StzFileExists(cFullPath)
 
 	#--
 
 	func FilePathExists(cFullPath)
-		return FileExists(cFullPath)
+		return StzFileExists(cFullPath)
 
 	func @FilePathExists(cFullPath)
-		return FileExists(cFullPath)
+		return StzFileExists(cFullPath)
 
 	func IsFilePath(cFullPath)
-		return FileExists(cFullPath)
+		return StzFileExists(cFullPath)
 
 	func @IsFilePath(cFullPath)
-		return FileExists(cFullPath)
+		return StzFileExists(cFullPath)
 
 	func IsValidFilePath(cFullPath)
-		return FileExists(cFullPath)
+		return StzFileExists(cFullPath)
 
 	func @IsValidFilePath(cFullPath)
-		return FileExists(cFullPath)
+		return StzFileExists(cFullPath)
 
 	#>
 
-func FileReadQ(cFile)
+func StzFileReadQ(cFile)
     # Pure reading intent - read-only access
     return new stzFileReader(cFile)
 
+	func FileReadQ(cFile)
+		return StzFileReadQ(cFile)
+
 	func @FileReadQ(cFile)
-		return FileReadQ(cFile)
+		return StzFileReadQ(cFile)
 
 func FileRead(cFile)
-	return FileReadQ(cFile).Content()
+	return StzFileRead(cFile)
 
 	func @FileRead(cFile)
-		return FileRead(cFile)
+		return StzFileRead(cFile)
 
-func FileInfoQ(cFile)
+func StzFileInfoQ(cFile)
 	# Intent to get information without opening file
 	return new stzFileInfo(cFile)
 
-	func @FileInfoQ(cFile)
-		return FileInfoQ(cFile)
+	func FileInfoQ(cFile)
+		return StzFileInfoQ(cFile)
 
-func FileInfo(cFile)
-	return FileInfoQ(cFile).Info()
+	func @FileInfoQ(cFile)
+		return StzFileInfoQ(cFile)
+
+func StzFileInfo(cFile)
+	return StzFileInfoQ(cFile).Info()
+
+	func FileInfo(cFile)
+		return StzFileInfo(cFile)
 
 	func @FileInfo(cFile)
-		return FileInfo(cFile)
+		return StzFileInfo(cFile)
 
-func FileInfoXT(cFile)
-	return FileInfoQ(cFile).InfoXT()
+func StzFileInfoXT(cFile)
+	return StzFileInfoQ(cFile).InfoXT()
+
+	func FileInfoXT(cFile)
+		return StzFileInfoXT(cFile)
 
 	func @FileInfoXT(cFile)
-		return FileInfoQ(cFile)
+		return StzFileInfoXT(cFile)
 
-func CopyFileContent(cSource, cDest)
+func StzCopyFileContent(cSource, cDest)
 	if NOT fexists(cSource)
 		stzraise("Source file does not exist: " + cSource)
 	ok
@@ -201,99 +212,98 @@ func CopyFileContent(cSource, cDest)
 			exit
 		ok
 	next
-	
+
 	if cDestDir != "" and NOT isdir(cDestDir)
 		if StzEngineDirCreatePath(cDestDir) = 0
 			stzraise("Cannot create destination directory: " + cDestDir)
 		ok
 	ok
-	
+
 	cContent = read(cSource)
 	write(cDest, cContent)
 
-func ListFiles(cDir)
+	func CopyFileContent(cSource, cDest)
+		return StzCopyFileContent(cSource, cDest)
+
+func StzListFiles(cDir)
 	aFiles = []
 	_aList_ = @dir(cDir)
 	nLen = len(_aList_)
-	
+
 	for i = 1 to nLen
 		if _aList_[i][2] = 0  # Files only
 			aFiles + _aList_[i][1]
 		ok
 	next
-	
+
 	return aFiles
 
-func FileModifTime(cFile)
+	func ListFiles(cDir)
+		return StzListFiles(cDir)
+
+func StzFileModifTime(cFile)
 	if NOT fexists(cFile)
 		return 0
 	ok
 	return 0
 
+	func FileModifTime(cFile)
+		return StzFileModifTime(cFile)
+
 	func FileModificationTime(cFile)
-		return FileModifTime(cFile)
+		return StzFileModifTime(cFile)
 
 	func filemtime(cFile)
-		return FileModifTime(cFile)
+		return StzFileModifTime(cFile)
 
 # Appending an exsistant file
 # Intent to create new - can read + write (fails if file does not exist)
 
 func FileAppend(cFileName, cAdditionalText)
-
-	if NOT FileExists(cFileName)
-		StzRaise("Can't append a non-existing file: " + cFileName)
-	ok
-
-	if CheckParams()
-		if isList(cAdditionalText) and IsWithNamedParamList(cAdditionalText)
-			cAdditionalText = cAdditionalText[2]
-		ok
-	ok
-
-	oFileAppender = new stzFileAppender(cFileName)
-	oFileAppender.Append(cAdditionalText)
-	return 1
+	return StzFileAppend(cFileName, cAdditionalText)
 
 	#< @FunctionFluentForm
 
-	func FileAppendQ(cFileName, cAdditionalText)
-		if NOT FileExists(cFileName)
+	func StzFileAppendQ(cFileName, cAdditionalText)
+		if NOT StzFileExists(cFileName)
 			StzRaise("Can't append a non-existing file: " + cFileName)
 		ok
-	
+
 		oFile = new stzFileAppender(cFileName)
 		oFile.Append(cAdditionalText)
 		return oFile
+
+	func FileAppendQ(cFileName, cAdditionalText)
+		return StzFileAppendQ(cFileName, cAdditionalText)
 
 	#>
 
 	#< @FunctionAlternativeForms
 
 	func AppendFile(cFileName)
-		return FileAppend(cFileName)
+		return StzFileAppend(cFileName)
 
 	func AppendFileQ(cFileName)
-		return FileAppendQ(cFileName)
+		return StzFileAppendQ(cFileName)
 
 	#--
 
 	func @FileAppend(cFileName, cAdditionalText)
-		return FileAppend(cFileName, cAdditionalText)
+		return StzFileAppend(cFileName, cAdditionalText)
 
 		func @FileAppendQ(cFileName, cAdditionalText)
-			return FileAppendQ(cFileName, cAdditionalText)
+			return StzFileAppendQ(cFileName, cAdditionalText)
 
 	func @AppendFile(cFileName)
-		return FileAppend(cFileName)
+		return StzFileAppend(cFileName)
 
 		func @AppendFileQ(cFileName)
-			return FileAppendQ(cFileName)
+			return StzFileAppendQ(cFileName)
 
 	#>
 
-func FileCreate(cFileName)
-	if FileExists(cFileName)
+func StzFileCreate(cFileName)
+	if StzFileExists(cFileName)
 		StzRaise("Can't proceed! The file already exists: " + cFileName)
 	ok
 
@@ -303,8 +313,8 @@ func FileCreate(cFileName)
 
 	#< @FunctionFluentForm
 
-	func FileCreateQ(cFileName)
-		if FileExists(cFileName)
+	func StzFileCreateQ(cFileName)
+		if StzFileExists(cFileName)
 			StzRaise("Can't proceed! The file already exists: " + cFileName)
 		ok
 		oFile = new stzFileCreator(cFileName)
@@ -313,91 +323,106 @@ func FileCreate(cFileName)
 
 	#< @FunctionAlternativeForms
 
+	func FileCreate(cFileName)
+		return StzFileCreate(cFileName)
+
+		func FileCreateQ(cFileName)
+			return StzFileCreateQ(cFileName)
+
 	func CreateFile(cFileName)
-		return FileCreate(cFileName)
+		return StzFileCreate(cFileName)
 
 		func CreateFileQ(cFileName)
-			return FileCreateQ(cFileName)
+			return StzFileCreateQ(cFileName)
 
 	func @FileCreate(cFileName)
-		return FileCreate(cFileName)
+		return StzFileCreate(cFileName)
 
 		func @FileCreateQ(cFileName)
-			return FileCreateQ(cFileName)
+			return StzFileCreateQ(cFileName)
 
 	func @CreateFile(cFileName)
-		return FileCreate(cFileName)
+		return StzFileCreate(cFileName)
 
 		func @CreateFileQ(cFileName)
-			return FileCreate(cFileName)
+			return StzFileCreate(cFileName)
 	#>
 
-func FileOverwrite(cFileName, cNewContent)
-    oFile = FileOverwite(cFileName, cNewContent)
+func StzFileOverwrite(cFileName, cNewContent)
+    oFile = StzFileOverwiteQ(cFileName, cNewContent)
 	oFile.Close()
 	return 1
 
 	#< @FunctionAlternativeForms
 
+	func FileOverwrite(cFileName, cNewContent)
+		return StzFileOverwrite(cFileName, cNewContent)
+
 	func FileOverrite(cFileName, cNewContent)
-		return FileOverwrite(cFileName, cNewContent)
+		return StzFileOverwrite(cFileName, cNewContent)
 
 	func OverwriteFile(cFileName, cNewContent)
-		return FileOverwrite(cFileName, cNewContent)
+		return StzFileOverwrite(cFileName, cNewContent)
 
 	#--
 
 	func @FileOverwrite(cFileName, cNewContent)
-		return FileOverwrite(cFileName, cNewContent)
+		return StzFileOverwrite(cFileName, cNewContent)
 
 	func @FileOverrite(cFileName, cNewContent)
-		return FileOverwrite(cFileName, cNewContent)
+		return StzFileOverwrite(cFileName, cNewContent)
 
 	func @OverwriteFile(cFileName, cNewContent)
-		return FileOverwrite(cFileName, cNewContent)
+		return StzFileOverwrite(cFileName, cNewContent)
 
 	#>
 
-	
-func FileOverwiteQ(cFileName, cNewContent)
+
+func StzFileOverwiteQ(cFileName, cNewContent)
     # Immediate operation - replaces entire file content
-    if not FileExists(cFileName)
+    if not StzFileExists(cFileName)
         StzRaise("Cannot overwrite content of non-existent file: " + cFileName)
     ok
-    
+
     StzEngineFileWrite(cFileName, cNewContent)
     return NULL
 
 	#< #< @FunctionAlternativeForms
 
+	func FileOverwiteQ(cFileName, cNewContent)
+		return StzFileOverwiteQ(cFileName, cNewContent)
+
+	func FileOverwriteQ(cFileName, cNewContent)
+		return StzFileOverwiteQ(cFileName, cNewContent)
+
 	func FileOverriteQ(cFileName, cNewContent)
-		return FileOverwriteQ(cFileName, cNewContent)
+		return StzFileOverwiteQ(cFileName, cNewContent)
 
 	func OverwriteFileQ(cFileName, cNewContent)
-		return FileOverwrite(cFileName, cNewContent)
+		return StzFileOverwrite(cFileName, cNewContent)
 
 	func OverriteFileQ(cFileName, cNewContent)
-		return FileOverwrite(cFileName, cNewContent)
+		return StzFileOverwrite(cFileName, cNewContent)
 
 	#--
 
 	func @FileOverwriteQ(cFileName, cNewContent)
-		return FileOverwriteQ(cFileName, cNewContent)
+		return StzFileOverwiteQ(cFileName, cNewContent)
 
 	func @FileOverriteQ(cFileName, cNewContent)
-		return FileOverwriteQ(cFileName, cNewContent)
+		return StzFileOverwiteQ(cFileName, cNewContent)
 
 	func @OverwriteFileQ(cFileName, cNewContent)
-		return FileOverwrite(cFileName, cNewContent)
+		return StzFileOverwrite(cFileName, cNewContent)
 
 	func @OverriteFileQ(cFileName, cNewContent)
-		return FileOverwrite(cFileName, cNewContent)
+		return StzFileOverwrite(cFileName, cNewContent)
 
 	#>
 
-func FileErase(cFileName)
-    if not FileExists(cSource)
-        StzRaise("Cannot erase non-existent file: " + cSource)
+func StzFileErase(cFileName)
+    if not StzFileExists(cFileName)
+        StzRaise("Cannot erase non-existent file: " + cFileName)
     ok
 	oFile = new stzFileEraser(cFileName)
 	oFile.Erase()
@@ -405,47 +430,53 @@ func FileErase(cFileName)
 
 	#< @FunctionFluentForm
 
-	func FileEraseQ(cFileName)
-	    if not FileExists(cSource)
-	        StzRaise("Cannot erase non-existent file: " + cSource)
+	func StzFileEraseQ(cFileName)
+	    if not StzFileExists(cFileName)
+	        StzRaise("Cannot erase non-existent file: " + cFileName)
 	    ok
 		oFile = new stzFileEraser(cFileName)
 		oFile.Erase()
-		return FileAppend(cFileName)
+		return StzFileAppend(cFileName)
 
 	#>
 
 	#< @FunctionAlternativeForms
 
+	func FileErase(cFileName)
+		return StzFileErase(cFileName)
+
+		func FileEraseQ(cFileName)
+			return StzFileEraseQ(cFileName)
+
 	func EraseFile(cFileName)
-		return FileErase(cFileName)
+		return StzFileErase(cFileName)
 
 		func EraseFileQ(cFileName)
-			return FileEraseQ(cFileName)
+			return StzFileEraseQ(cFileName)
 
 	#--
 
 	func @FileErase(cFileName)
-		return FileErase(cFileName)
+		return StzFileErase(cFileName)
 
 		func @FileEraseQ(cFileName)
-			return FileEraseQ(cFileName)
+			return StzFileEraseQ(cFileName)
 
 	func @EraseFile(cFileName)
-		return FileErase(cFileName)
+		return StzFileErase(cFileName)
 
 		func @EraseFileQ(cFileName)
-			return FileEraseQ(cFileName)
+			return StzFileEraseQ(cFileName)
 
 	#>
 
-func FileSafeErase(cFileName)
+func StzFileSafeErase(cFileName)
 
-    if not FileExists(cSource)
-        StzRaise("Cannot erase non-existent file: " + cSource)
+    if not StzFileExists(cFileName)
+        StzRaise("Cannot erase non-existent file: " + cFileName)
     ok
 
-	FileBackup(cFileName)
+	StzFileBackup(cFileName)
 
 	oFile = new stzFileEraser(cFileName)
 	oFile.Erase()
@@ -453,45 +484,51 @@ func FileSafeErase(cFileName)
 
 	#< @FunctionFluentForm
 
-	func FileSafeEraseQ(cFileName)
+	func StzFileSafeEraseQ(cFileName)
 
-	    if not FileExists(cSource)
-	        StzRaise("Cannot erase non-existent file: " + cSource)
+	    if not StzFileExists(cFileName)
+	        StzRaise("Cannot erase non-existent file: " + cFileName)
 	    ok
 
-		FileBackup(cFileName)
+		StzFileBackup(cFileName)
 
 		oFile = new stzFileEraser(cFileName)
 		oFile.Erase()
-		return FileAppend(cFileName)
+		return StzFileAppend(cFileName)
 	#>
 
 	#< @FunctionAlternativeForms
 
+	func FileSafeErase(cFileName)
+		return StzFileSafeErase(cFileName)
+
+		func FileSafeEraseQ(cFileName)
+			return StzFileSafeEraseQ(cFileName)
+
 	func SafEraseFile(cFileName)
-		return FileSafeErase(cFileName)
+		return StzFileSafeErase(cFileName)
 
 		func SafeEraseFileQ(cFileName)
-			return FileSafeEraseQ(cFileName)
+			return StzFileSafeEraseQ(cFileName)
 
 	#--
 
 	func @FileSafeErase(cFileName)
-		return FileSafeErase(cFileName)
+		return StzFileSafeErase(cFileName)
 
 		func @FileSafeEraseQ(cFileName)
-			return FileSafeEraseQ(cFileName)
+			return StzFileSafeEraseQ(cFileName)
 
 	func @SafEraseFile(cFileName)
-		return FileSafeErase(cFileName)
+		return StzFileSafeErase(cFileName)
 
 		func @SafeEraseFileQ(cFileName)
-			return FileSafeEraseQ(cFileName)
+			return StzFileSafeEraseQ(cFileName)
 
 	#>
 
-func FileBackup(cFileName)
-    if NOT FileExists(cFileName)
+func StzFileBackup(cFileName)
+    if NOT StzFileExists(cFileName)
 		StzRaise("Cannot backup a non-existent file: " + cFileName)
 	ok
 
@@ -499,72 +536,81 @@ func FileBackup(cFileName)
 	oFileManager.Backup()
 	return 1
 
+	func FileBackup(cFileName)
+		return StzFileBackup(cFileName)
+
 	func BackupFile(cFileName)
-		return FileBackup(cFileName)
+		return StzFileBackup(cFileName)
 
 	func @FileBackup(cFileName)
-		return FileBackup(cFileName)
+		return StzFileBackup(cFileName)
 
 	func @BackupFile(cFileName)
-		return FileBackup(cFileName)
+		return StzFileBackup(cFileName)
 
-func FileSafeOverwrite(cFileName, cNewContent)
+func StzFileSafeOverwrite(cFileName, cNewContent)
     # Creates timestamped backup before overwriting
-	FileBackup(cFileName)
-    FileOverwrite(cFileName, cNewContent)
+	StzFileBackup(cFileName)
+    StzFileOverwrite(cFileName, cNewContent)
 	return 1
 
 	#< @FunctionAlternativeForms
 
+	func FileSafeOverwrite(cFileName, cNewContent)
+		return StzFileSafeOverwrite(cFileName, cNewContent)
+
 	func SafeOverwriteFile(cFileName, cNewContent)
-		return FileSafeOverwrite(cFileName, cNewContent)
+		return StzFileSafeOverwrite(cFileName, cNewContent)
 
 	func FileSafeOverrite(cFileName, cNewContent)
-		return FileSafeOverwrite(cFileName, cNewContent)
+		return StzFileSafeOverwrite(cFileName, cNewContent)
 
 	func SafeOverriteFile(cFileName, cNewContent)
-		return FileSafeOverwrite(cFileName, cNewContent)
+		return StzFileSafeOverwrite(cFileName, cNewContent)
 
 	#--
 
 	func @FileSafeOverwrite(cFileName, cNewContent)
-		return FileSafeOverwrite(cFileName, cNewContent)
+		return StzFileSafeOverwrite(cFileName, cNewContent)
 
 	func @SafeOverwriteFile(cFileName, cNewContent)
-		return FileSafeOverwrite(cFileName, cNewContent)
+		return StzFileSafeOverwrite(cFileName, cNewContent)
 
 	func @FileSafeOverrite(cFileName, cNewContent)
-		return FileSafeOverwrite(cFileName, cNewContent)
+		return StzFileSafeOverwrite(cFileName, cNewContent)
 
 	func @SafeOverriteFile(cFileName, cNewContent)
-		return FileSafeOverwrite(cFileName, cNewContent)
+		return StzFileSafeOverwrite(cFileName, cNewContent)
 
 	#>
 
-func FileModify(cFileName, cOldContent, cNewContent)
-    if NOT FileExists(cFileName)
-		StzRaise("Cannot modify a non-existent file: " + cSource)
+func StzFileModify(cFileName, cOldContent, cNewContent)
+    if NOT StzFileExists(cFileName)
+		StzRaise("Cannot modify a non-existent file: " + cFileName)
 	ok
 
 	oFileModifier = new stzFileModifier(cFileName)
 	oFileModifier.Modify(cOldContent, cNewContent)
 	return 1
 
+	func FileModify(cFileName, cOldContent, cNewContent)
+		return StzFileModify(cFileName, cOldContent, cNewContent)
+
 	func ModifyFile(cFileName, cOldContent, cNewContent)
-		return FileModify(cFileName, cOldContent, cNewContent)
+		return StzFileModify(cFileName, cOldContent, cNewContent)
 
 	func @FileModify(cFileName, cOldContent, cNewcontent)
-		return FileModify(cFileName, cOldContent, cNewContent)
+		return StzFileModify(cFileName, cOldContent, cNewContent)
 
 	func @ModifyFile(cFileName, cOldContent, cNewContent)
-		return FileModify(cFileName, cOldContent, cNewContent)
+		return StzFileModify(cFileName, cOldContent, cNewContent)
 
 
 func FileCopy(cSource, cDestination)
-    if not FileExists(cSource)
+    if not StzFileExists(cSource)
         StzRaise("Cannot copy non-existent file: " + cSource)
     ok
-    return StzEngineFileCopy(cSource, cDestination) = 1
+    return StzFileCopy(cSource, cDestination)
 
 	func CopyFile(cSource, cDestination)
 		return FileCopy(cSource, cDestination)
@@ -576,8 +622,8 @@ func FileCopy(cSource, cDestination)
 		return FileCopy(cSource, cDestination)
 
 
-func FileMove(cSource, cDestination)
-    if not FileExists(cSource)
+func StzFileMove(cSource, cDestination)
+    if not StzFileExists(cSource)
         StzRaise("Cannot move non-existent file: " + cSource)
     ok
     if StzEngineFileCopy(cSource, cDestination) = 1
@@ -586,25 +632,28 @@ func FileMove(cSource, cDestination)
     ok
     return 0
 
+	func FileMove(cSource, cDestination)
+		return StzFileMove(cSource, cDestination)
+
 	func MoveFile(cSource, cDestination)
-		return FileMove(cSource, cDestination)
+		return StzFileMove(cSource, cDestination)
 
 	func @FileMove(cSource, cDestination)
-		return FileMove(cSource, cDestination)
+		return StzFileMove(cSource, cDestination)
 
 	func @MoveFile(cSource, cDestination)
-		return FileMove(cSource, cDestination)
+		return StzFileMove(cSource, cDestination)
 
 func FileDelete(cFileName)
-    if not FileExists(cFileName)
+    if not StzFileExists(cFileName)
         StzRaise("Cannot Remove non-existent file: " + cFileName)
     ok
-    return StzEngineFileDelete(cFileName) = 1
+    return StzFileDelete(cFileName)
 
 	#< @FunctionAlternativeForms
 
 	func DeleteFile(cFileName)
-		return FileRemove(cFileName)
+		return FileDelete(cFileName)
 
 	func @FileDelete(cFileName)
 		return FileDelete(cFileName)
@@ -614,11 +663,11 @@ func FileDelete(cFileName)
 
 	#--
 
-	def FileRemove(cFileName)
-		This.FileDelete(cFileName)
+	func FileRemove(cFileName)
+		return FileDelete(cFileName)
 
 	func RemoveFile(cFileName)
-		return FileRemove(cFileName)
+		return FileDelete(cFileName)
 
 	func @FileRemove(cFileName)
 		return FileDelete(cFileName)
@@ -629,50 +678,56 @@ func FileDelete(cFileName)
 	#>
 
 func FileSize(cFileName)
-    if not FileExists(cFileName)
+    if not StzFileExists(cFileName)
         StzRaise("Cannot get size of non-existent file: " + cFileName)
     ok
-    return StzEngineFileSize(cFileName)
+    return StzFileSize(cFileName)
 
 	func FileSizeInBytes(cFileName)
 		return FileSize(cFileName)
 
 
-func FileCreateIfInexistant(cFilePath)
+func StzFileCreateIfInexistant(cFilePath)
     if NOT fexists(cFilePath)
         fp = fopen(cFilePath, "w")
         fclose(fp)
     ok
 
+	func FileCreateIfInexistant(cFilePath)
+		StzFileCreateIfInexistant(cFilePath)
+
 	func CreateFileIfInexistant(cFilePath)
-		FileCreateIfInexistant(cFilePath)
+		StzFileCreateIfInexistant(cFilePath)
 
 	func @FileCreateIfInexistant(cFilePath)
-		FileCreateIfInexistant(cFilePath)
+		StzFileCreateIfInexistant(cFilePath)
 
 	func @CreateFileIfInexistant(cFilePath)
-		FileCreateIfInexistant(cFilePath)
+		StzFileCreateIfInexistant(cFilePath)
 
 
 #---
 
 # Short form - relative/normalized paths
-func NormalizeFilePath(cName)
+func StzNormalizeFilePath(cName)
 	if CheckParams()
 		if NOT ( isString(cName) and trim(cName) != "" )
 			StzRaise("Incorrect param type! cName must be a non-empty string.")
 		ok
 	ok
-	
+
 	cResult = StzLower(trim(cName))
 	cResult = StzReplace(cResult, "\", "/")
 	cResult = StzReplace(cResult, "//", "/")
 	return cResult
 
-	func NormaliseFilePath(cName)
-		return NormalizeFilePath(cName)
+	func NormalizeFilePath(cName)
+		return StzNormalizeFilePath(cName)
 
-func NormalizeFilePathXT(cName)
+	func NormaliseFilePath(cName)
+		return StzNormalizeFilePath(cName)
+
+func StzNormalizeFilePathXT(cName)
 	if CheckParams()
 		if NOT ( isString(cName) and trim(cName) != "" )
 			StzRaise("Incorrect param type! cName must be a non-empty string.")
@@ -690,8 +745,11 @@ func NormalizeFilePathXT(cName)
 	cResult = StzReplace(cResult, "//", "/")
 	return cResult
 
+	func NormalizeFilePathXT(cName)
+		return StzNormalizeFilePathXT(cName)
+
 	func NormaliseFilePathXT(cName)
-		return NormalizeFilePathXT(cName)
+		return StzNormalizeFilePathXT(cName)
 
 class stzFileXT from stzObject
 
@@ -1069,7 +1127,7 @@ class stzFileReader from stzFileReadingMixin
     @cFileName
     
     def init(cFileName)
-        if not FileExists(cFileName)
+        if not StzFileExists(cFileName)
             StzRaise("Cannot read non-existent file: " + cFileName)
         ok
         @cFileName = cFileName
@@ -1113,11 +1171,11 @@ class stzFileAppender from stzFileReadingMixin
     @cFileName
 
     def init(cFileName)
-        if not FileExists(cFileName)
+        if not StzFileExists(cFileName)
             StzRaise("Cannot append non-existent file: " + cFileName)
         ok
         @cFileName = cFileName
-    
+
 	def Conditions()
 		return [
 			:FileExists = TRUE
@@ -1235,7 +1293,7 @@ class stzFileCreator from stzFileReadingMixin
     @cFileName
 
     def init(cFileName)
-        if FileExists(cFileName)
+        if StzFileExists(cFileName)
             StzRaise("Cannot create file - already exists: " + cFileName)
         ok
 
@@ -1360,7 +1418,7 @@ class stzFileOverwriter from stzFileReadingMixin
     def init(cFileName)
         @cFileName = cFileName
 
-        if FileExists(cFileName)
+        if StzFileExists(cFileName)
             @cOriginalContent = read(cFileName)
         else
             @cOriginalContent = ""
@@ -1390,19 +1448,19 @@ class stzFileOverwriter from stzFileReadingMixin
     # READING METHODS (access to original content)
     def OriginalContent()
         return @cOriginalContent
-    
+
     def OriginalLines()
         return @Lines(@cOriginalContent)
-    
+
     def OriginalSize()
         return len(@cOriginalContent)
- 
+
 		def OriginalSizeInBytes()
 			return This.OriginalSize()
 
     def OriginalLineCount()
         return len(This.OriginalLines())
-    
+
 		def OriginalNumberOfLines()
 			return This.OriginalLineCount()
 
@@ -1480,7 +1538,7 @@ class stzFileEaraser from stzObject
     def init(cFileName)
         @cFileName = cFileName
 
-        if FileExists(cFileName)
+        if StzFileExists(cFileName)
             @cOriginalContent = read(cFileName)
         else
             @cOriginalContent = ""
@@ -1510,19 +1568,19 @@ class stzFileEaraser from stzObject
     # READING METHODS (access to original content)
     def OriginalContent()
         return @cOriginalContent
-    
+
     def OriginalLines()
         return @Lines(@cOriginalContent)
-    
+
     def OriginalSize()
         return len(@cOriginalContent)
- 
+
 		def OriginalSizeInBytes()
 			return This.OriginalSize()
 
     def OriginalLineCount()
         return len(This.OriginalLines())
-    
+
 		def OriginalNumberOfLines()
 			return This.OriginalLineCount()
 
@@ -1534,7 +1592,7 @@ class stzFileEaraser from stzObject
 
 		def EraseQ(cText)
 			This.Erase()
-			return FileAppend(@cFileName)
+			return StzFileAppend(@cFileName)
 
 #======================================================#
 # MODIFIER CLASS - READ + SOPHISTICATED UPDATE INTENT  #
@@ -1552,7 +1610,7 @@ class stzFileModifier from stzFileReadingMixin
     @aOriginalLines
 
     def init(cFileName)
-        if not FileExists(cFileName)
+        if not StzFileExists(cFileName)
             StzRaise("Cannot update non-existent file: " + cFileName)
         ok
 
@@ -1884,14 +1942,17 @@ class stzFileModifier from stzFileReadingMixin
 # MANAGER CLASS - DISK OPERATIONS INTENT  #
 #=========================================#
 
-func FileManage(cFileName)
+func StzFileManage(cFileName)
     return new stzFileManager(cFileName)
+
+	func FileManage(cFileName)
+		return StzFileManage(cFileName)
 
 class stzFileManager from stzObject
     @cFileName
 
     def init(cFileName)
-        if not FileExists(cFileName)
+        if not StzFileExists(cFileName)
             StzRaise("Cannot manage non-existent file: " + cFileName)
         ok
 
@@ -2015,13 +2076,13 @@ class stzFileManager from stzObject
 
 	def Backup()
         cBackup = @cFileName + ".backup." + TimeStamp()
-        FileCopy(@cFileName, cBackup) #TODO // use internal methods to the object
+        StzFileCopy(@cFileName, cBackup) #TODO // use internal methods to the object
 		return 1
 
     # SPLIT OPERATIONS
 
     def SplitByLines(nLinesPerFile)
-        oReader = FileRead(@cFileName)
+        oReader = StzFileRead(@cFileName)
         aLines = oReader.Lines()
         oReader.Close()
         
@@ -2041,7 +2102,7 @@ class stzFileManager from stzObject
             cNewFileName = cBaseName + "_" + nFile + "." + cSuffix
             cFullPath = cDirPath + "/" + cNewFileName
             
-            oCreator = FileCreate(cFullPath)
+            oCreator = StzFileCreate(cFullPath)
             for nLine = nStartLine to nEndLine
                 oCreator.WriteLine(aLines[nLine])
             next
@@ -2057,7 +2118,7 @@ class stzFileManager from stzObject
             return This
     
     def SplitBySize(nBytesPerFile)
-        oReader = FileRead(@cFileName)
+        oReader = StzFileRead(@cFileName)
         cContent = oReader.Content()
         oReader.Close()
 
@@ -2079,7 +2140,7 @@ class stzFileManager from stzObject
             cNewFileName = cBaseName + "_" + nFile + "." + cSuffix
             cFullPath = cDirPath + "/" + cNewFileName
             
-            oCreator = FileCreate(cFullPath)
+            oCreator = StzFileCreate(cFullPath)
             oCreator.Write(cChunk)
             oCreator.Close()
             
@@ -2093,7 +2154,7 @@ class stzFileManager from stzObject
             return This
     
     def SplitByPattern(cPattern)
-        oReader = FileRead(@cFileName)
+        oReader = StzFileRead(@cFileName)
         aLines = oReader.Lines()
         oReader.Close()
 
@@ -2111,7 +2172,7 @@ class stzFileManager from stzObject
                 cNewFileName = cBaseName + "_" + nFileNum + "." + cSuffix
                 cFullPath = cDirPath + "/" + cNewFileName
                 
-                oCreator = FileCreate(cFullPath)
+                oCreator = StzFileCreate(cFullPath)
                 nChunkLen = len(aCurrentChunk)
                 for j = 1 to nChunkLen
                     oCreator.WriteLine(aCurrentChunk[j])
@@ -2130,7 +2191,7 @@ class stzFileManager from stzObject
             cNewFileName = cBaseName + "_" + nFileNum + "." + cSuffix
             cFullPath = cDirPath + "/" + cNewFileName
             
-            oCreator = FileCreate(cFullPath)
+            oCreator = StzFileCreate(cFullPath)
             nChunkLen = len(aCurrentChunk)
             for j = 1 to nChunkLen
                 oCreator.WriteLine(aCurrentChunk[j])
