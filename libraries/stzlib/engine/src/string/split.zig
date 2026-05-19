@@ -175,9 +175,9 @@ pub export fn str_count_lines(handle: ?*StzString) callconv(.c) c_int {
     return count;
 }
 
-/// Sort lines alphabetically (by raw byte order). Returns new handle with sorted lines
-/// joined by \n. Splits by LF/CR/CRLF, emits LF.
-pub fn str_sort_lines(handle: StzStringHandle) callconv(.c) StzStringHandle {
+/// Sort lines alphabetically. case=1: raw byte order, case=0: casefold comparison.
+/// Returns new handle with sorted lines joined by \n. Splits by LF/CR/CRLF, emits LF.
+pub fn str_sort_lines_cs(handle: StzStringHandle, case: c_int) callconv(.c) StzStringHandle {
     const s = (handle orelse return null);
     const bytes = s.slice();
     if (bytes.len == 0) return str_new();
@@ -205,11 +205,50 @@ pub fn str_sort_lines(handle: StzStringHandle) callconv(.c) StzStringHandle {
 
     // Sort
     const items = lines.items;
-    std.mem.sort([]const u8, items, {}, struct {
-        fn lessThan(_: void, a: []const u8, b: []const u8) bool {
-            return std.mem.order(u8, a, b) == .lt;
+    if (case == 0) {
+        // Case-insensitive: allocate folded keys, sort by them, free
+        const folded = gpa.alloc([]const u8, items.len) catch return null;
+        defer {
+            for (folded) |f| gpa.free(f);
+            gpa.free(folded);
         }
-    }.lessThan);
+        for (items, 0..) |line, idx| {
+            folded[idx] = core.casefoldAlloc(line) orelse line;
+        }
+        // Build index array and sort by folded key
+        const indices = gpa.alloc(usize, items.len) catch return null;
+        defer gpa.free(indices);
+        for (0..items.len) |idx| indices[idx] = idx;
+
+        const Ctx = struct {
+            folded_keys: []const []const u8,
+            fn lessThan(ctx: @This(), a: usize, b: usize) bool {
+                return std.mem.order(u8, ctx.folded_keys[a], ctx.folded_keys[b]) == .lt;
+            }
+        };
+        std.mem.sort(usize, indices, Ctx{ .folded_keys = folded }, Ctx.lessThan);
+
+        // Join with \n in sorted order
+        const result = str_new() orelse return null;
+        for (indices, 0..) |idx, out_i| {
+            if (out_i > 0) result.data.append(gpa, '\n') catch {
+                core.str_free(result);
+                return null;
+            };
+            result.data.appendSlice(gpa, items[idx]) catch {
+                core.str_free(result);
+                return null;
+            };
+        }
+        result.invalidateCache();
+        return result;
+    } else {
+        std.mem.sort([]const u8, items, {}, struct {
+            fn lessThan(_: void, a: []const u8, b: []const u8) bool {
+                return std.mem.order(u8, a, b) == .lt;
+            }
+        }.lessThan);
+    }
 
     // Join with \n
     const result = str_new() orelse return null;
@@ -227,68 +266,19 @@ pub fn str_sort_lines(handle: StzStringHandle) callconv(.c) StzStringHandle {
     return result;
 }
 
-/// Deduplicate lines, preserving order of first occurrence. Returns new handle
-/// with unique lines joined by \n.
+pub fn str_sort_lines(handle: StzStringHandle) callconv(.c) StzStringHandle {
+    return str_sort_lines_cs(handle, 1);
+}
+
+/// Deduplicate lines, preserving order of first occurrence. Wrapper for str_unique_lines_cs(handle, 1).
 pub fn str_unique_lines(handle: StzStringHandle) callconv(.c) StzStringHandle {
-    const s = (handle orelse return null);
-    const bytes = s.slice();
-    if (bytes.len == 0) return str_new();
-
-    // Collect line slices
-    var lines = std.ArrayListUnmanaged([]const u8){};
-    defer lines.deinit(gpa);
-
-    var line_start: usize = 0;
-    var i: usize = 0;
-    while (i < bytes.len) {
-        if (bytes[i] == '\r') {
-            lines.append(gpa, bytes[line_start..i]) catch return null;
-            if (i + 1 < bytes.len and bytes[i + 1] == '\n') i += 1;
-            line_start = i + 1;
-        } else if (bytes[i] == '\n') {
-            lines.append(gpa, bytes[line_start..i]) catch return null;
-            line_start = i + 1;
-        }
-        i += 1;
-    }
-    if (line_start <= bytes.len) {
-        lines.append(gpa, bytes[line_start..bytes.len]) catch return null;
-    }
-
-    // Deduplicate using a hashmap for O(n) lookup
-    var seen = std.StringHashMap(void).init(gpa);
-    defer seen.deinit();
-
-    var unique = std.ArrayListUnmanaged([]const u8){};
-    defer unique.deinit(gpa);
-
-    for (lines.items) |line| {
-        const entry = seen.getOrPut(line) catch return null;
-        if (!entry.found_existing) {
-            unique.append(gpa, line) catch return null;
-        }
-    }
-
-    // Join with \n
-    const result = str_new() orelse return null;
-    for (unique.items, 0..) |line, idx| {
-        if (idx > 0) result.data.append(gpa, '\n') catch {
-            core.str_free(result);
-            return null;
-        };
-        result.data.appendSlice(gpa, line) catch {
-            core.str_free(result);
-            return null;
-        };
-    }
-    result.invalidateCache();
-    return result;
+    return str_unique_lines_cs(handle, 1);
 }
 
 // ─── Null-delimited item operations ───
 
-/// Sort null-delimited items alphabetically. Returns null-delimited sorted output.
-pub export fn str_sort_null_items(handle: ?*StzString) callconv(.c) ?*StzString {
+/// Sort null-delimited items. case=1: raw byte order, case=0: casefold comparison.
+pub export fn str_sort_null_items_cs(handle: ?*StzString, case: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
     const src = s.slice();
     if (src.len == 0) return str_new();
@@ -310,60 +300,127 @@ pub export fn str_sort_null_items(handle: ?*StzString) callconv(.c) ?*StzString 
         }
     }
 
-    // Sort
-    std.mem.sort([]const u8, items.items, {}, struct {
-        fn lessThan(_: void, a: []const u8, b: []const u8) bool {
-            return std.mem.order(u8, a, b) == .lt;
+    if (case == 0) {
+        // CI sort via index array + casefold keys
+        const folded = gpa.alloc([]const u8, items.items.len) catch return null;
+        defer {
+            for (folded) |f| gpa.free(f);
+            gpa.free(folded);
         }
-    }.lessThan);
+        for (items.items, 0..) |item, idx| {
+            folded[idx] = core.casefoldAlloc(item) orelse item;
+        }
+        const indices = gpa.alloc(usize, items.items.len) catch return null;
+        defer gpa.free(indices);
+        for (0..items.items.len) |idx| indices[idx] = idx;
 
-    // Build null-separated result
+        const Ctx = struct {
+            folded_keys: []const []const u8,
+            fn lessThan(ctx: @This(), a: usize, b: usize) bool {
+                return std.mem.order(u8, ctx.folded_keys[a], ctx.folded_keys[b]) == .lt;
+            }
+        };
+        std.mem.sort(usize, indices, Ctx{ .folded_keys = folded }, Ctx.lessThan);
+
+        const result = str_new() orelse return null;
+        for (indices, 0..) |idx, out_i| {
+            if (out_i > 0) result.data.append(gpa, 0) catch break;
+            result.data.appendSlice(gpa, items.items[idx]) catch break;
+        }
+        return result;
+    } else {
+        // CS sort: raw byte order
+        std.mem.sort([]const u8, items.items, {}, struct {
+            fn lessThan(_: void, a: []const u8, b: []const u8) bool {
+                return std.mem.order(u8, a, b) == .lt;
+            }
+        }.lessThan);
+
+        const result = str_new() orelse return null;
+        for (items.items, 0..) |item, idx| {
+            if (idx > 0) result.data.append(gpa, 0) catch break;
+            result.data.appendSlice(gpa, item) catch break;
+        }
+        return result;
+    }
+}
+
+pub export fn str_sort_null_items(handle: ?*StzString) callconv(.c) ?*StzString {
+    return str_sort_null_items_cs(handle, 1);
+}
+
+/// Deduplicate null-delimited items, preserving first-occurrence order.
+/// case=1: exact comparison, case=0: casefold dedup preserving original case.
+pub export fn str_unique_null_items_cs(handle: ?*StzString, case: c_int) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return str_new();
+
+    // Collect items split by \0
+    var items = std.ArrayListUnmanaged([]const u8){};
+    defer items.deinit(gpa);
+    {
+        var start: usize = 0;
+        var i: usize = 0;
+        while (i < src.len) : (i += 1) {
+            if (src[i] == 0) {
+                items.append(gpa, src[start..i]) catch return null;
+                start = i + 1;
+            }
+        }
+        if (start <= src.len) {
+            items.append(gpa, src[start..src.len]) catch return null;
+        }
+    }
+
     const result = str_new() orelse return null;
-    for (items.items, 0..) |item, idx| {
-        if (idx > 0) result.data.append(gpa, 0) catch break;
-        result.data.appendSlice(gpa, item) catch break;
+
+    if (case == 0) {
+        // CI dedup: casefold keys, preserve original text
+        var seen = std.StringHashMap(void).init(gpa);
+        defer {
+            var it = seen.keyIterator();
+            while (it.next()) |key| gpa.free(key.*);
+            seen.deinit();
+        }
+        var first = true;
+        for (items.items) |item| {
+            const folded = core.casefoldAlloc(item) orelse item;
+            if (!seen.contains(folded)) {
+                const owned = gpa.dupe(u8, folded) catch {
+                    gpa.free(folded);
+                    break;
+                };
+                seen.put(owned, {}) catch {
+                    gpa.free(owned);
+                    gpa.free(folded);
+                    break;
+                };
+                if (!first) result.data.append(gpa, 0) catch break;
+                result.data.appendSlice(gpa, item) catch break;
+                first = false;
+            }
+            gpa.free(folded);
+        }
+    } else {
+        // CS dedup: exact comparison
+        var seen = std.StringHashMap(void).init(gpa);
+        defer seen.deinit();
+        var first = true;
+        for (items.items) |item| {
+            const gop = seen.getOrPut(item) catch break;
+            if (!gop.found_existing) {
+                if (!first) result.data.append(gpa, 0) catch break;
+                result.data.appendSlice(gpa, item) catch break;
+                first = false;
+            }
+        }
     }
     return result;
 }
 
-/// Deduplicate null-delimited items, preserving first-occurrence order.
-/// Returns null-delimited unique output. O(n) via StringHashMap.
 pub export fn str_unique_null_items(handle: ?*StzString) callconv(.c) ?*StzString {
-    const s = handle orelse return null;
-    const src = s.slice();
-    if (src.len == 0) return str_new();
-
-    // Collect items split by \0
-    var items = std.ArrayListUnmanaged([]const u8){};
-    defer items.deinit(gpa);
-    {
-        var start: usize = 0;
-        var i: usize = 0;
-        while (i < src.len) : (i += 1) {
-            if (src[i] == 0) {
-                items.append(gpa, src[start..i]) catch return null;
-                start = i + 1;
-            }
-        }
-        if (start <= src.len) {
-            items.append(gpa, src[start..src.len]) catch return null;
-        }
-    }
-
-    // Dedup via StringHashMap
-    var seen = std.StringHashMap(void).init(gpa);
-    defer seen.deinit();
-    const result = str_new() orelse return null;
-    var first = true;
-    for (items.items) |item| {
-        const gop = seen.getOrPut(item) catch break;
-        if (!gop.found_existing) {
-            if (!first) result.data.append(gpa, 0) catch break;
-            result.data.appendSlice(gpa, item) catch break;
-            first = false;
-        }
-    }
-    return result;
+    return str_unique_null_items_cs(handle, 1);
 }
 
 // ─── Words ───
@@ -612,59 +669,101 @@ pub export fn str_sentence_count(handle: ?*StzString) callconv(.c) c_int {
 
 // ─── Partition ───
 
-/// Split string at first occurrence of separator into [before, separator, after].
+// ─── CI find helpers for partition ───
+
+/// Find first occurrence of needle in haystack with case sensitivity.
+/// Returns byte position or null if not found.
+fn findFirstCS(hay: []const u8, needle: []const u8, case: c_int) ?usize {
+    if (needle.len == 0 or needle.len > hay.len) return null;
+    if (case != 0) return mem.indexOf(u8, hay, needle);
+    // CI: scan with ciMatch
+    var pos: usize = 0;
+    while (pos + needle.len <= hay.len) {
+        if (ciMatch(hay[pos..][0..needle.len], needle)) return pos;
+        pos += 1;
+    }
+    return null;
+}
+
+/// Find last occurrence of needle in haystack with case sensitivity.
+fn findLastCS(hay: []const u8, needle: []const u8, case: c_int) ?usize {
+    if (needle.len == 0 or needle.len > hay.len) return null;
+    if (case != 0) return mem.lastIndexOf(u8, hay, needle);
+    // CI: scan backwards with ciMatch
+    var pos: usize = hay.len - needle.len + 1;
+    while (pos > 0) {
+        pos -= 1;
+        if (ciMatch(hay[pos..][0..needle.len], needle)) return pos;
+    }
+    return null;
+}
+
+/// Split string at first occurrence of separator. case=1: exact, case=0: casefold.
 /// Returns the "before" part.
+pub fn str_partition_cs(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize, case: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return str_new();
+    const src = s.slice();
+    const needle = if (sep_len > 0) sep[0..sep_len] else return str_from(src.ptr, src.len);
+
+    if (findFirstCS(src, needle, case)) |pos| {
+        return str_from(src.ptr, pos);
+    }
+    return str_from(src.ptr, src.len);
+}
+
 pub fn str_partition(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
-    const s = handle orelse return str_new();
-    const src = s.slice();
-    const needle = if (sep_len > 0) sep[0..sep_len] else return str_from(src.ptr, src.len);
-
-    // Find first occurrence
-    if (mem.indexOf(u8, src, needle)) |pos| {
-        return str_from(src.ptr, pos);
-    }
-    // Not found: return full string
-    return str_from(src.ptr, src.len);
+    return str_partition_cs(handle, sep, sep_len, 1);
 }
 
-/// Get the "after" part of a partition (everything after first occurrence of separator).
+/// Get the "after" part of a partition. case=1: exact, case=0: casefold.
+pub fn str_partition_after_cs(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize, case: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return str_new();
+    const src = s.slice();
+    const needle = if (sep_len > 0) sep[0..sep_len] else return str_new();
+
+    if (findFirstCS(src, needle, case)) |pos| {
+        const after_start = pos + needle.len;
+        return str_from(src.ptr + after_start, src.len - after_start);
+    }
+    return str_new();
+}
+
 pub fn str_partition_after(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
-    const s = handle orelse return str_new();
-    const src = s.slice();
-    const needle = if (sep_len > 0) sep[0..sep_len] else return str_new();
-
-    if (mem.indexOf(u8, src, needle)) |pos| {
-        const after_start = pos + needle.len;
-        return str_from(src.ptr + after_start, src.len - after_start);
-    }
-    return str_new();
+    return str_partition_after_cs(handle, sep, sep_len, 1);
 }
 
-/// Split string at LAST occurrence of separator. Returns the "before" part.
-pub fn str_rpartition(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
+/// Split string at LAST occurrence of separator. case=1: exact, case=0: casefold.
+/// Returns the "before" part.
+pub fn str_rpartition_cs(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize, case: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return str_new();
     const src = s.slice();
     const needle = if (sep_len > 0) sep[0..sep_len] else return str_new();
 
-    // Find last occurrence
-    if (mem.lastIndexOf(u8, src, needle)) |pos| {
+    if (findLastCS(src, needle, case)) |pos| {
         return str_from(src.ptr, pos);
     }
     return str_new();
 }
 
-/// Get the "after" part of a rpartition (everything after last occurrence of separator).
-pub fn str_rpartition_after(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
+pub fn str_rpartition(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
+    return str_rpartition_cs(handle, sep, sep_len, 1);
+}
+
+/// Get the "after" part of a rpartition. case=1: exact, case=0: casefold.
+pub fn str_rpartition_after_cs(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize, case: c_int) callconv(.c) StzStringHandle {
     const s = handle orelse return str_new();
     const src = s.slice();
     const needle = if (sep_len > 0) sep[0..sep_len] else return str_from(src.ptr, src.len);
 
-    if (mem.lastIndexOf(u8, src, needle)) |pos| {
+    if (findLastCS(src, needle, case)) |pos| {
         const after_start = pos + needle.len;
         return str_from(src.ptr + after_start, src.len - after_start);
     }
-    // Not found: return full string
     return str_from(src.ptr, src.len);
+}
+
+pub fn str_rpartition_after(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize) callconv(.c) StzStringHandle {
+    return str_rpartition_after_cs(handle, sep, sep_len, 1);
 }
 
 // ─── Chunk ───
@@ -735,16 +834,12 @@ fn isWhitespace(c: u8) bool {
 // ─── UniqueLinesCS ───
 
 /// Deduplicate lines with case sensitivity parameter.
-/// case = 1: case-sensitive (delegates to str_unique_lines).
+/// case = 1: case-sensitive exact comparison.
 /// case = 0: case-insensitive (casefold comparison, preserves first occurrence's case).
 pub fn str_unique_lines_cs(handle: StzStringHandle, case: c_int) callconv(.c) StzStringHandle {
-    if (case != 0) return str_unique_lines(handle);
-
     const s = (handle orelse return null);
     const bytes = s.slice();
     if (bytes.len == 0) return str_new();
-
-    const casefoldAlloc = core.casefoldAlloc;
 
     // Collect line slices
     var lines = std.ArrayListUnmanaged([]const u8){};
@@ -767,56 +862,80 @@ pub fn str_unique_lines_cs(handle: StzStringHandle, case: c_int) callconv(.c) St
         lines.append(gpa, bytes[line_start..bytes.len]) catch return null;
     }
 
-    // Deduplicate using casefolded keys but preserving original text
-    var seen = std.StringHashMap(void).init(gpa);
-    defer {
-        // Free all allocated keys
-        var it = seen.keyIterator();
-        while (it.next()) |key| {
-            gpa.free(key.*);
+    if (case == 0) {
+        // Case-insensitive: deduplicate using casefolded keys, preserve original text
+        var seen = std.StringHashMap(void).init(gpa);
+        defer {
+            var it = seen.keyIterator();
+            while (it.next()) |key| gpa.free(key.*);
+            seen.deinit();
         }
-        seen.deinit();
-    }
 
-    var unique = std.ArrayListUnmanaged([]const u8){};
-    defer unique.deinit(gpa);
+        var unique = std.ArrayListUnmanaged([]const u8){};
+        defer unique.deinit(gpa);
 
-    for (lines.items) |line| {
-        const folded = casefoldAlloc(line) orelse line;
-        // Check if we've seen this casefolded version
-        if (!seen.contains(folded)) {
-            // Need to duplicate the folded key for the hashmap to own
-            const owned = gpa.dupe(u8, folded) catch {
-                gpa.free(folded);
+        for (lines.items) |line| {
+            const folded = core.casefoldAlloc(line) orelse line;
+            if (!seen.contains(folded)) {
+                const owned = gpa.dupe(u8, folded) catch {
+                    gpa.free(folded);
+                    return null;
+                };
+                seen.put(owned, {}) catch {
+                    gpa.free(owned);
+                    gpa.free(folded);
+                    return null;
+                };
+                unique.append(gpa, line) catch {
+                    gpa.free(folded);
+                    return null;
+                };
+            }
+            gpa.free(folded);
+        }
+
+        const result = str_new() orelse return null;
+        for (unique.items, 0..) |line, idx| {
+            if (idx > 0) result.data.append(gpa, '\n') catch {
+                core.str_free(result);
                 return null;
             };
-            seen.put(owned, {}) catch {
-                gpa.free(owned);
-                gpa.free(folded);
-                return null;
-            };
-            unique.append(gpa, line) catch {
-                gpa.free(folded);
+            result.data.appendSlice(gpa, line) catch {
+                core.str_free(result);
                 return null;
             };
         }
-        gpa.free(folded);
-    }
+        result.invalidateCache();
+        return result;
+    } else {
+        // Case-sensitive: exact byte comparison
+        var seen = std.StringHashMap(void).init(gpa);
+        defer seen.deinit();
 
-    // Join with \n
-    const result = str_new() orelse return null;
-    for (unique.items, 0..) |line, idx| {
-        if (idx > 0) result.data.append(gpa, '\n') catch {
-            core.str_free(result);
-            return null;
-        };
-        result.data.appendSlice(gpa, line) catch {
-            core.str_free(result);
-            return null;
-        };
+        var unique = std.ArrayListUnmanaged([]const u8){};
+        defer unique.deinit(gpa);
+
+        for (lines.items) |line| {
+            const entry = seen.getOrPut(line) catch return null;
+            if (!entry.found_existing) {
+                unique.append(gpa, line) catch return null;
+            }
+        }
+
+        const result = str_new() orelse return null;
+        for (unique.items, 0..) |line, idx| {
+            if (idx > 0) result.data.append(gpa, '\n') catch {
+                core.str_free(result);
+                return null;
+            };
+            result.data.appendSlice(gpa, line) catch {
+                core.str_free(result);
+                return null;
+            };
+        }
+        result.invalidateCache();
+        return result;
     }
-    result.invalidateCache();
-    return result;
 }
 
 // ─── ReverseLinesOrder ───
@@ -1155,4 +1274,63 @@ test "unique_null_items_all_same" {
     defer str_free(unique);
     try testing.expect(unique != null);
     try testing.expectEqualStrings("x", unique.?.slice());
+}
+
+test "sort_lines_cs CI" {
+    const s = str_from("Banana\napple\nCherry", 19);
+    defer str_free(s);
+    const r = str_sort_lines_cs(s, 0); // CI sort
+    defer str_free(r);
+    try testing.expect(r != null);
+    try testing.expectEqualStrings("apple\nBanana\nCherry", r.?.slice());
+}
+
+test "sort_null_items_cs CI" {
+    const input = "Banana\x00apple\x00Cherry";
+    const s = str_from(input, input.len);
+    defer str_free(s);
+    const r = str_sort_null_items_cs(s, 0);
+    defer str_free(r);
+    try testing.expect(r != null);
+    try testing.expectEqualStrings("apple\x00Banana\x00Cherry", r.?.slice());
+}
+
+test "unique_null_items_cs CI" {
+    const input = "Hello\x00hello\x00HELLO\x00world";
+    const s = str_from(input, input.len);
+    defer str_free(s);
+    const r = str_unique_null_items_cs(s, 0);
+    defer str_free(r);
+    try testing.expect(r != null);
+    try testing.expectEqualStrings("Hello\x00world", r.?.slice());
+}
+
+test "partition_cs CI" {
+    const s = str_from("Hello=World=Foo", 15);
+    defer str_free(s);
+    // CI: find "hello" in "Hello=World=Foo" should not match (it's not substring)
+    // Find "=" exact
+    const before = str_partition_cs(s, "WORLD", 5, 0);
+    defer str_free(before);
+    try testing.expect(before != null);
+    try testing.expectEqualStrings("Hello=", before.?.slice());
+
+    const after = str_partition_after_cs(s, "WORLD", 5, 0);
+    defer str_free(after);
+    try testing.expect(after != null);
+    try testing.expectEqualStrings("=Foo", after.?.slice());
+}
+
+test "rpartition_cs CI" {
+    const s = str_from("aXbXc", 5);
+    defer str_free(s);
+    const before = str_rpartition_cs(s, "x", 1, 0); // CI: "x" matches "X"
+    defer str_free(before);
+    try testing.expect(before != null);
+    try testing.expectEqualStrings("aXb", before.?.slice());
+
+    const after = str_rpartition_after_cs(s, "x", 1, 0);
+    defer str_free(after);
+    try testing.expect(after != null);
+    try testing.expectEqualStrings("c", after.?.slice());
 }
