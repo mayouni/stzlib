@@ -15060,7 +15060,7 @@ Class stzTable from stzList
 
 		for i = 1 to nLen
 			cColName = paAggregations[i][1]
-			cAggMethod = lower(paAggregations[i][2])
+			cAggMethod = StzLower(paAggregations[i][2])
 	
 			# Validate column existence
 			nColIndex = This.FindCol(cColName)
@@ -15317,7 +15317,7 @@ Class stzTable from stzList
 		# Lowercase all the aggregation functions
 
 		for i = 1 to nLenAgg
-			paAggregations[i][2] = lower(paAggregations[i][2])
+			paAggregations[i][2] = StzLower(paAggregations[i][2])
 		next
 
 		# Valid aggregation methods
@@ -15874,13 +15874,13 @@ Class stzTable from stzList
 					nLenP = len(pParams)
 					for i = 1 to nLenP
 						if isList(pParams[i])
-							cParamName = lower(string(pParams[i][1]))
+							cParamName = StzLower(string(pParams[i][1]))
 							if len(pParams[i]) >= 2
-								if lower(cParamName) = "rownumber"
+								if StzLower(cParamName) = "rownumber"
 									bRowNumber = pParams[i][2]
-								but lower(cParamName) = "subtotal"
+								but StzLower(cParamName) = "subtotal"
 									bSubTotal = pParams[i][2]
-								but lower(cParamName) = "grandtotal"
+								but StzLower(cParamName) = "grandtotal"
 									bGrandTotal = pParams[i][2]
 
 								ok

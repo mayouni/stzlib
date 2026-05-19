@@ -313,7 +313,7 @@ class stzAppServer from stzNetwork
 			raise("Invalid request line")
 		ok
 		
-		cMethod = upper(aParts[1])
+		cMethod = StzUpper(aParts[1])
 		cPath = aParts[2]
 		cProtocol = aParts[3]
 		
@@ -328,9 +328,9 @@ class stzAppServer from stzNetwork
 				exit
 			ok
 			
-			nColon = substr(aLines[i], ":")
+			nColon = ring_find(aLines[i], ":")
 			if nColon > 0
-				cName = trim(left(aLines[i], nColon - 1))
+				cName = trim(StzLeft(aLines[i], nColon - 1))
 				cValue = trim(@substr(aLines[i], nColon + 1))
 				aHeaders + [cName, cValue]
 			ok

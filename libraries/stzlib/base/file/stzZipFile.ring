@@ -3,38 +3,38 @@
 #=========================================#
 
 func _DirOfPath(cPath)
-	cPath = substr(cPath, "\", "/")
+	cPath = ring_substr2(cPath, "\", "/")
 	nPos = 0
-	for i = len(cPath) to 1 step -1
+	for i = StzLen(cPath) to 1 step -1
 		if cPath[i] = "/"
 			nPos = i
 			exit
 		ok
 	next
 	if nPos > 0
-		return left(cPath, nPos - 1)
+		return StzLeft(cPath, nPos - 1)
 	ok
 	return "."
 
 func _BaseNameOfPath(cPath)
-	cPath = substr(cPath, "\", "/")
+	cPath = ring_substr2(cPath, "\", "/")
 	nSlash = 0
-	for i = len(cPath) to 1 step -1
+	for i = StzLen(cPath) to 1 step -1
 		if cPath[i] = "/"
 			nSlash = i
 			exit
 		ok
 	next
-	cName = substr(cPath, nSlash + 1)
+	cName = StzMid(cPath, nSlash + 1, StzLen(cPath) - nSlash)
 	nDot = 0
-	for i = len(cName) to 1 step -1
+	for i = StzLen(cName) to 1 step -1
 		if cName[i] = "."
 			nDot = i
 			exit
 		ok
 	next
 	if nDot > 1
-		return left(cName, nDot - 1)
+		return StzLeft(cName, nDot - 1)
 	ok
 	return cName
 
@@ -255,7 +255,7 @@ class stzZipFile from stzObject
         if not This.Exists()
             return 0
         ok
-        return len(read(@cZipFileName))
+        return StzLen(read(@cZipFileName))
     
     # UTILITY OPERATIONS
     def FileName()

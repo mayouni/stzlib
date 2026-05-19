@@ -86,7 +86,7 @@ class stzGraph
 			stzraise("Inncorrect Id! pcName must be a string without spaces nor new lines.")
 		ok
 
-		@cId = lower(pcName)
+		@cId = StzLower(pcName)
 
 	def Copy()
 		_oCopy_ = This
@@ -102,7 +102,7 @@ class stzGraph
 		return @cGraphType
 
 	def SetGraphType(pcType)
-		@cGraphType = lower(pcType)
+		@cGraphType = StzLower(pcType)
 
 	def IsGraph()
 		return 1
@@ -156,7 +156,7 @@ class stzGraph
 		pcLabel = _NormalizeLabel(pcLabel)
 
 		aNode = [
-			:id = lower(pcNodeId),
+			:id = StzLower(pcNodeId),
 			:label = pcLabel,
 			:properties = iif(isList(pacProperties), pacProperties, [])
 		]
@@ -171,7 +171,7 @@ class stzGraph
 		nLen = len(@aNodes)
 		for i = 1 to nLen
 			aNode = @aNodes[i]
-			if aNode["id"] = lower(pcNodeId)
+			if aNode["id"] = StzLower(pcNodeId)
 				return aNode
 			ok
 		end
@@ -193,7 +193,7 @@ class stzGraph
 			stzraise("Incorrect Id! pcNodeId must be one string without spaces nor new lines.")
 		ok
 
-		if ring_find(This.NodesIds(), lower(pcNodeId)) > 0
+		if ring_find(This.NodesIds(), StzLower(pcNodeId)) > 0
 			return 1
 		else
 			return 0
@@ -384,7 +384,7 @@ class stzGraph
 			acPath = paPaths[i]
 			nLen = len(acPath)
 			if nLen > 0
-				cNodeId = lower(acPath[nLen])
+				cNodeId = StzLower(acPath[nLen])
 				if ring_find(acToRemove, cNodeId) = 0
 					acToRemove + cNodeId
 				ok
@@ -563,9 +563,9 @@ class stzGraph
 			ok
 		ok
 	
-		pcFromNodeId = lower(pcFromNodeId)
-		pcToNodeId = lower(pcToNodeId)
-	
+		pcFromNodeId = StzLower(pcFromNodeId)
+		pcToNodeId = StzLower(pcToNodeId)
+
 		# Check basic preconditions first
 		if NOT This.NodeExists(pcFromNodeId)
 			return "Node '" + pcFromNodeId + "' does not exist"
@@ -615,7 +615,7 @@ class stzGraph
 		def Connect(pcFromNodeId, pcToNodeId)
 			if CheckParams()
 
-				if isList(pcToNodeId) and len(pcToNodeId) = 2 and isString(pcToNodeId[1]) and ring_find(["to","tonode","tonodes","and","andnode","andnodes"], lower(pcToNodeId[1])) > 0
+				if isList(pcToNodeId) and len(pcToNodeId) = 2 and isString(pcToNodeId[1]) and ring_find(["to","tonode","tonodes","and","andnode","andnodes"], StzLower(pcToNodeId[1])) > 0
 					pcToNodeId = pcToNodeId[2]
 				ok
 
@@ -715,8 +715,8 @@ class stzGraph
 			return
 		ok
 
-		pcFromNodeId = lower(pcFromNodeId)
-		pcToNodeId = lower(pcToNodeId)
+		pcFromNodeId = StzLower(pcFromNodeId)
+		pcToNodeId = StzLower(pcToNodeId)
 
 		# Validate nodes exist
 		if NOT This.NodeExists(pcFromNodeId) or NOT This.NodeExists(pcToNodeId)
@@ -757,8 +757,8 @@ class stzGraph
 	
 		# Add edge
 		aEdge = [
-			:from = lower(pcFromNodeId),
-			:to = lower(pcToNodeId),
+			:from = StzLower(pcFromNodeId),
+			:to = StzLower(pcToNodeId),
 			:label = pcLabel,
 			:properties = iif(isList(pacProperties), pacProperties, [])
 		]
@@ -810,7 +810,7 @@ class stzGraph
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId)
+			if aEdge["from"] = StzLower(pcFromNodeId) and aEdge["to"] = StzLower(pcToNodeId)
 				return aEdge
 			ok
 		end
@@ -843,7 +843,7 @@ class stzGraph
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId)
+			if aEdge["from"] = StzLower(pcFromNodeId) and aEdge["to"] = StzLower(pcToNodeId)
 				return 1
 			ok
 		end
@@ -893,7 +893,7 @@ class stzGraph
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId)
+			if aEdge["from"] = StzLower(pcFromNodeId) and aEdge["to"] = StzLower(pcToNodeId)
 				nCount++
 			ok
 		end
@@ -924,7 +924,7 @@ class stzGraph
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId)
+			if aEdge["from"] = StzLower(pcFromNodeId) and aEdge["to"] = StzLower(pcToNodeId)
 				aResult + [aEdge["from"], aEdge["label"], aEdge["to"]]
 			ok
 		end
@@ -961,7 +961,7 @@ class stzGraph
 		
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId) and lower(aEdge["label"]) = lower(pcLabel) and NOT bFound
+			if aEdge["from"] = StzLower(pcFromNodeId) and aEdge["to"] = StzLower(pcToNodeId) and StzLower(aEdge["label"]) = StzLower(pcLabel) and NOT bFound
 				bFound = TRUE
 				loop
 			ok
@@ -999,7 +999,7 @@ class stzGraph
 		
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
-			if NOT (aEdge["from"] = lower(pcFromNodeId) and aEdge["to"] = lower(pcToNodeId))
+			if NOT (aEdge["from"] = StzLower(pcFromNodeId) and aEdge["to"] = StzLower(pcToNodeId))
 				acNew + aEdge
 			ok
 		end
@@ -1070,7 +1070,7 @@ class stzGraph
 		aEdges = This.Edges()
 		nLen = len(aEdges)
 		for i = 1 to nLen
-			if aEdges[i]["from"] = lower(pcNodeId)
+			if aEdges[i]["from"] = StzLower(pcNodeId)
 				This.AddEdgeXTT(pcNewId, aEdges[i]["to"], aEdges[i]["label"], aEdges[i]["properties"])
 			ok
 		end
@@ -1552,7 +1552,7 @@ class stzGraph
 			return This.NthNode(n)
 
 	def NodePosition(pcNodeId)
-		return ring_find(This.NodesIds(), lower(pcNodeId) )
+		return ring_find(This.NodesIds(), StzLower(pcNodeId) )
 
 	#--
 
@@ -2683,27 +2683,27 @@ class stzGraph
 			cName = aNode["id"]
 			cLabel = aNode["label"]
 			
-			if left(cName, 1) = "@"
-				cName = @substr(cName, 2, stzlen(cName))
+			if StzLeft(cName, 1) = "@"
+				cName = StzMid(cName, 2, stzlen(cName) - 1)
 			ok
-			
+
 			cDOT += "  " + cName + " [label=" + '"' + cLabel + '"' + "];" + nl
 		end
-		
+
 		cDOT += nl
-		
+
 		nLen = len(@aEdges)
 		for i = 1 to nLen
 			aEdge = @aEdges[i]
 			cFrom = aEdge["from"]
 			cTo = aEdge["to"]
 			cLabel = aEdge["label"]
-			
-			if left(cFrom, 1) = "@"
-				cFrom = @substr(cFrom, 2, stzlen(cFrom))
+
+			if StzLeft(cFrom, 1) = "@"
+				cFrom = StzMid(cFrom, 2, stzlen(cFrom) - 1)
 			ok
-			if left(cTo, 1) = "@"
-				cTo = @substr(cTo, 2, stzlen(cTo))
+			if StzLeft(cTo, 1) = "@"
+				cTo = StzMid(cTo, 2, stzlen(cTo) - 1)
 			ok
 			
 			cDOT += "  " + cFrom + " -> " + cTo
@@ -2741,8 +2741,8 @@ class stzGraph
 		for i = 1 to nLen
 			aNode = @aNodes[i]
 			cName = aNode["id"]
-			if @substr(cName, 1, 1) = "@"
-				cName = @substr(cName, 2, stzlen(cName) - 1)
+			if StzLeft(cName, 1) = "@"
+				cName = StzMid(cName, 2, stzlen(cName) - 2)
 			ok
 			acNodes + [
 				:id = cName,
@@ -2756,11 +2756,11 @@ class stzGraph
 			aEdge = @aEdges[i]
 			cFrom = aEdge["from"]
 			cTo = aEdge["to"]
-			if @substr(cFrom, 1, 1) = "@"
-				cFrom = @substr(cFrom, 2, stzlen(cFrom) - 1)
+			if StzLeft(cFrom, 1) = "@"
+				cFrom = StzMid(cFrom, 2, stzlen(cFrom) - 2)
 			ok
-			if @substr(cTo, 1, 1) = "@"
-				cTo = @substr(cTo, 2, stzlen(cTo) - 1)
+			if StzLeft(cTo, 1) = "@"
+				cTo = StzMid(cTo, 2, stzlen(cTo) - 2)
 			ok
 			acEdges + [
 				:from = cFrom,
@@ -2822,10 +2822,10 @@ class stzGraph
 			aNode = @aNodes[i]
 			cName = aNode["id"]
 			
-			if left(cName, 1) = "@"
-				cName = @substr(cName, 2, stzlen(cName))
+			if StzLeft(cName, 1) = "@"
+				cName = StzMid(cName, 2, stzlen(cName) - 1)
 			ok
-			
+
 			cYAML += "  - id: " + cName + nl
 			cYAML += "    label: " + aNode["label"] + nl
 			if len(aNode["properties"]) > 0
@@ -2845,13 +2845,13 @@ class stzGraph
 			cFrom = aEdge["from"]
 			cTo = aEdge["to"]
 			
-			if left(cFrom, 1) = "@"
-				cFrom = @substr(cFrom, 2, stzlen(cFrom))
+			if StzLeft(cFrom, 1) = "@"
+				cFrom = StzMid(cFrom, 2, stzlen(cFrom) - 1)
 			ok
-			if left(cTo, 1) = "@"
-				cTo = @substr(cTo, 2, stzlen(cTo))
+			if StzLeft(cTo, 1) = "@"
+				cTo = StzMid(cTo, 2, stzlen(cTo) - 1)
 			ok
-			
+
 			cYAML += "  - from: " + cFrom + nl
 			cYAML += "    to: " + cTo + nl
 			cYAML += "    label: " + aEdge["label"] + nl
@@ -2981,133 +2981,133 @@ class stzGraph
 		@aEdges = []
 		
 		# Extract graph id
-		nPos = substr(cXML, '<graph id="')
+		nPos = ring_find(cXML, '<graph id="')
 		if nPos > 0
-			cRest = @substr(cXML, 11, stzlen(cXML))
-			nEnd = substr(cRest, '"')
+			cRest = StzMid(cXML, 11, stzlen(cXML) - 10)
+			nEnd = ring_find(cRest, '"')
 			if nEnd > 0
-				@cId = @substr(cRest, 1, nEnd - 1)
+				@cId = StzMid(cRest, 1, nEnd - 1)
 			ok
 		ok
-		
+
 		# Extract graph type
-		nPos = substr(cXML, '<data key="type">')
+		nPos = ring_find(cXML, '<data key="type">')
 		if nPos > 0
-			cRest = @substr(cXML, 17, stzlen(cXML))
-			nEnd = substr(cRest, '</data>')
+			cRest = StzMid(cXML, 17, stzlen(cXML) - 16)
+			nEnd = ring_find(cRest, '</data>')
 			if nEnd > 0
-				@cGraphType = trim(@substr(cRest, 1, nEnd - 1))
+				@cGraphType = trim(StzMid(cRest, 1, nEnd - 1))
 			ok
 		ok
-		
+
 		# Parse nodes
 		cRemaining = cXML
 		while TRUE
-			nNodeStart = substr(cRemaining, '<node id="')
+			nNodeStart = ring_find(cRemaining, '<node id="')
 			if nNodeStart = 0
 				exit
 			ok
-			
-			cRemaining = @substr(cRemaining, 10, stzlen(cRemaining))
-			nIdEnd = substr(cRemaining, '"')
-			cNodeId = @substr(cRemaining, 1, nIdEnd - 1)
-			
-			nNodeEnd = substr(cRemaining, '</node>')
-			cNodeBlock = @substr(cRemaining, 1, nNodeEnd - 1)
-			
+
+			cRemaining = StzMid(cRemaining, 10, stzlen(cRemaining) - 9)
+			nIdEnd = ring_find(cRemaining, '"')
+			cNodeId = StzMid(cRemaining, 1, nIdEnd - 1)
+
+			nNodeEnd = ring_find(cRemaining, '</node>')
+			cNodeBlock = StzMid(cRemaining, 1, nNodeEnd - 1)
+
 			# Extract label
 			cLabel = cNodeId
-			nLabelPos = substr(cNodeBlock, '<data key="label">')
+			nLabelPos = ring_find(cNodeBlock, '<data key="label">')
 			if nLabelPos > 0
-				cLabelRest = @substr(cNodeBlock, 18, stzlen(cNodeBlock))
-				nLabelEnd = substr(cLabelRest, '</data>')
+				cLabelRest = StzMid(cNodeBlock, 18, stzlen(cNodeBlock) - 17)
+				nLabelEnd = ring_find(cLabelRest, '</data>')
 				if nLabelEnd > 0
-					cLabel = This._XMLUnescape(@substr(cLabelRest, 1, nLabelEnd - 1))
+					cLabel = This._XMLUnescape(StzMid(cLabelRest, 1, nLabelEnd - 1))
 				ok
 			ok
-			
+
 			# Extract properties
 			aProps = []
 			cPropBlock = cNodeBlock
 			while TRUE
-				nPropPos = substr(cPropBlock, '<data key="prop_')
+				nPropPos = ring_find(cPropBlock, '<data key="prop_')
 				if nPropPos = 0
 					exit
 				ok
-				
-				cPropBlock = @substr(cPropBlock, 16, stzlen(cPropBlock))
-				nKeyEnd = substr(cPropBlock, '">')
-				cPropKey = @substr(cPropBlock, 1, nKeyEnd - 1)
-				
-				cPropBlock = @substr(cPropBlock, nKeyEnd + 2, stzlen(cPropBlock))
-				nValEnd = substr(cPropBlock, '</data>')
-				cPropVal = This._XMLUnescape(@substr(cPropBlock, 1, nValEnd - 1))
-				
+
+				cPropBlock = StzMid(cPropBlock, 16, stzlen(cPropBlock) - 15)
+				nKeyEnd = ring_find(cPropBlock, '">')
+				cPropKey = StzMid(cPropBlock, 1, nKeyEnd - 1)
+
+				cPropBlock = StzMid(cPropBlock, nKeyEnd + 2, stzlen(cPropBlock) - nKeyEnd - 1)
+				nValEnd = ring_find(cPropBlock, '</data>')
+				cPropVal = This._XMLUnescape(StzMid(cPropBlock, 1, nValEnd - 1))
+
 				aProps + [cPropKey, This._StringToValue(cPropVal)]
 			end
-			
+
 			This.AddNodeXTT(cNodeId, cLabel, aProps)
-			cRemaining = @substr(cRemaining, 7, stzlen(cRemaining))
+			cRemaining = StzMid(cRemaining, 7, stzlen(cRemaining) - 6)
 		end
-		
+
 		# Parse edges
 		cRemaining = cXML
 		while TRUE
-			nEdgeStart = substr(cRemaining, '<edge ')
+			nEdgeStart = ring_find(cRemaining, '<edge ')
 			if nEdgeStart = 0
 				exit
 			ok
-			
-			cRemaining = @substr(cRemaining, 6, stzlen(cRemaining))
-			
+
+			cRemaining = StzMid(cRemaining, 6, stzlen(cRemaining) - 5)
+
 			# Extract source
-			nSourcePos = substr(cRemaining, 'source="')
-			cRemaining = @substr(cRemaining, 8, stzlen(cRemaining))
-			nSourceEnd = substr(cRemaining, '"')
-			cSource = @substr(cRemaining, 1, nSourceEnd - 1)
-			
+			nSourcePos = ring_find(cRemaining, 'source="')
+			cRemaining = StzMid(cRemaining, 8, stzlen(cRemaining) - 7)
+			nSourceEnd = ring_find(cRemaining, '"')
+			cSource = StzMid(cRemaining, 1, nSourceEnd - 1)
+
 			# Extract target
-			nTargetPos = substr(cRemaining, 'target="')
-			cRemaining = @substr(cRemaining, 8, stzlen(cRemaining))
-			nTargetEnd = substr(cRemaining, '"')
-			cTarget = @substr(cRemaining, 1, nTargetEnd - 1)
-			
-			nEdgeEnd = substr(cRemaining, '</edge>')
-			cEdgeBlock = @substr(cRemaining, 1, nEdgeEnd - 1)
-			
+			nTargetPos = ring_find(cRemaining, 'target="')
+			cRemaining = StzMid(cRemaining, 8, stzlen(cRemaining) - 7)
+			nTargetEnd = ring_find(cRemaining, '"')
+			cTarget = StzMid(cRemaining, 1, nTargetEnd - 1)
+
+			nEdgeEnd = ring_find(cRemaining, '</edge>')
+			cEdgeBlock = StzMid(cRemaining, 1, nEdgeEnd - 1)
+
 			# Extract edge label
 			cEdgeLabel = ""
-			nLabelPos = substr(cEdgeBlock, '<data key="edge_label">')
+			nLabelPos = ring_find(cEdgeBlock, '<data key="edge_label">')
 			if nLabelPos > 0
-				cLabelRest = @substr(cEdgeBlock, 23, stzlen(cEdgeBlock))
-				nLabelEnd = substr(cLabelRest, '</data>')
+				cLabelRest = StzMid(cEdgeBlock, 23, stzlen(cEdgeBlock) - 22)
+				nLabelEnd = ring_find(cLabelRest, '</data>')
 				if nLabelEnd > 0
-					cEdgeLabel = This._XMLUnescape(@substr(cLabelRest, 1, nLabelEnd - 1))
+					cEdgeLabel = This._XMLUnescape(StzMid(cLabelRest, 1, nLabelEnd - 1))
 				ok
 			ok
-			
+
 			# Extract edge properties
 			aProps = []
 			cPropBlock = cEdgeBlock
 			while TRUE
-				nPropPos = substr(cPropBlock, '<data key="prop_')
+				nPropPos = ring_find(cPropBlock, '<data key="prop_')
 				if nPropPos = 0
 					exit
 				ok
-				
-				cPropBlock = @substr(cPropBlock, 16, stzlen(cPropBlock))
-				nKeyEnd = substr(cPropBlock, '">')
-				cPropKey = @substr(cPropBlock, 1, nKeyEnd - 1)
-				
-				cPropBlock = @substr(cPropBlock, 2, stzlen(cPropBlock))
-				nValEnd = substr(cPropBlock, '</data>')
-				cPropVal = This._XMLUnescape(@substr(cPropBlock, 1, nValEnd - 1))
-				
+
+				cPropBlock = StzMid(cPropBlock, 16, stzlen(cPropBlock) - 15)
+				nKeyEnd = ring_find(cPropBlock, '">')
+				cPropKey = StzMid(cPropBlock, 1, nKeyEnd - 1)
+
+				cPropBlock = StzMid(cPropBlock, 2, stzlen(cPropBlock) - 1)
+				nValEnd = ring_find(cPropBlock, '</data>')
+				cPropVal = This._XMLUnescape(StzMid(cPropBlock, 1, nValEnd - 1))
+
 				aProps + [cPropKey, This._StringToValue(cPropVal)]
 			end
-			
+
 			This.AddEdgeXTT(cSource, cTarget, cEdgeLabel, aProps)
-			cRemaining = @substr(cRemaining, 7, stzlen(cRemaining))
+			cRemaining = StzMid(cRemaining, 7, stzlen(cRemaining) - 6)
 		end
 	
 	def _XMLEscape(cText)
@@ -3115,23 +3115,23 @@ class stzGraph
 			return ""
 		ok
 		
-		cText = substr(cText, "&", "&amp;")
-		cText = substr(cText, "<", "&lt;")
-		cText = substr(cText, ">", "&gt;")
-		cText = substr(cText, '"', "&quot;")
-		cText = substr(cText, "'", "&apos;")
+		cText = ring_substr2(cText, "&", "&amp;")
+		cText = ring_substr2(cText, "<", "&lt;")
+		cText = ring_substr2(cText, ">", "&gt;")
+		cText = ring_substr2(cText, '"', "&quot;")
+		cText = ring_substr2(cText, "'", "&apos;")
 		return cText
-	
+
 	def _XMLUnescape(cText)
 		if NOT isString(cText)
 			return ""
 		ok
-		
-		cText = substr(cText, "&amp;", "&")
-		cText = substr(cText, "&lt;", "<")
-		cText = substr(cText, "&gt;", ">")
-		cText = substr(cText, "&quot;", '"')
-		cText = substr(cText, "&apos;", "'")
+
+		cText = ring_substr2(cText, "&amp;", "&")
+		cText = ring_substr2(cText, "&lt;", "<")
+		cText = ring_substr2(cText, "&gt;", ">")
+		cText = ring_substr2(cText, "&quot;", '"')
+		cText = ring_substr2(cText, "&apos;", "'")
 		return cText
 	
 	def _ValueToString(pValue)
@@ -3148,9 +3148,9 @@ class stzGraph
 		ok
 	
 	def _StringToValue(cValue)
-		if left(cValue, 1) = "[" and right(cValue, 1) = "]"
+		if StzLeft(cValue, 1) = "[" and StzRight(cValue, 1) = "]"
 
-			cInner = @substr(cValue, 2, stzlen(cValue) - 2)
+			cInner = StzMid(cValue, 2, stzlen(cValue) - 2)
 			if cInner = ""
 				return []
 			ok
@@ -3165,8 +3165,8 @@ class stzGraph
 
 			return aResult
 		ok
-		
-		if isdigit(cValue) or (left(cValue, 1) = "-" and stzlen(cValue) > 1 and isdigit(@substr(cValue, 2, 1)))
+
+		if isdigit(cValue) or (StzLeft(cValue, 1) = "-" and stzlen(cValue) > 1 and isdigit(StzMid(cValue, 2, 1)))
 			return 0 + cValue
 		ok
 		
@@ -3336,7 +3336,7 @@ class stzGraph
 	        aEdge = This.Edge(acPath[i], acPath[i+1])
 	        aStory + (acPath[i] + " â†’ " + acPath[i+1])
 		if aEdge[:label] != ""
-			aStory[len(aStory)] +=  (" : because {" + acPath[i] + "} " + substr(aEdge[:label], "_", " ") + " {" + acPath[i+1] + "}" )
+			aStory[len(aStory)] +=  (" : because {" + acPath[i] + "} " + ring_substr2(aEdge[:label], "_", " ") + " {" + acPath[i+1] + "}" )
 		ok
 	    next
 	    
@@ -3592,7 +3592,7 @@ class stzGraph
 		# Check Derivation rules
 		nLen = len(@aDerivationRules)
 		for i = 1 to nLen
-			if lower(@aDerivationRules[i][:name]) = pcRuleName
+			if StzLower(@aDerivationRules[i][:name]) = pcRuleName
 				return TRUE
 			ok
 		next
@@ -3600,7 +3600,7 @@ class stzGraph
 		# Check Validation rules
 		nLen = len(@aValidationRules)
 		for i = 1 to nLen
-			if lower(@aValidationRules[i][:name]) = pcRuleName
+			if StzLower(@aValidationRules[i][:name]) = pcRuleName
 				return TRUE
 			ok
 		next
@@ -3651,7 +3651,7 @@ class stzGraph
 		return This.ValidateXT(:Completeness)
 
 	def _ValidateSingle(pcValidator)
-		cValidator = lower(pcValidator)
+		cValidator = StzLower(pcValidator)
 		
 		# Load rules (additive)
 		This.UseRulesFrom(cValidator)
@@ -4603,27 +4603,27 @@ class stzGraph
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
 			
-			if cLine = "" or left(cLine, 1) = "#"
+			if cLine = "" or StzLeft(cLine, 1) = "#"
 				loop
 			ok
-			
+
 			# Parse graph declaration
-			if left(cLine, 5) = "graph"
-				nPos = substr(cLine, '"')
+			if StzLeft(cLine, 5) = "graph"
+				nPos = ring_find(cLine, '"')
 				if nPos > 0
-					cQuoted = @substr(cLine, nPos + 1, stzlen(cLine))
-					nEnd = substr(cQuoted, '"')
+					cQuoted = StzMid(cLine, nPos + 1, stzlen(cLine) - nPos)
+					nEnd = ring_find(cQuoted, '"')
 					if nEnd > 0
-						@cId = @substr(cQuoted, 1, nEnd - 1)
+						@cId = StzMid(cQuoted, 1, nEnd - 1)
 					ok
 				ok
 				loop
 			ok
-			
+
 			# Parse type
-			if substr(cLine, "type:") > 0
-				nPos = substr(cLine, ":")
-				@cGraphType = trim(@substr(cLine, nPos + 1, stzlen(cLine)))
+			if ring_find(cLine, "type:") > 0
+				nPos = ring_find(cLine, ":")
+				@cGraphType = trim(StzMid(cLine, nPos + 1, stzlen(cLine) - nPos))
 				loop
 			ok
 			
@@ -4649,20 +4649,20 @@ class stzGraph
 				ok
 				
 			but cSection = "edges"
-				if substr(cLine, "->") > 0
+				if ring_find(cLine, "->") > 0
 					acParts = @split(cLine, "->")
 					if len(acParts) >= 2
 						cFrom = trim(acParts[1])
 						cRest = trim(acParts[2])
-						
+
 						# Check for label in quotes
-						nQuote = substr(cRest, '"')
+						nQuote = ring_find(cRest, '"')
 						if nQuote > 0
-							cTo = trim(@substr(cRest, 1, nQuote - 1))
-							cLabel = @substr(cRest, nQuote + 1, stzlen(cRest))
-							nEndQuote = substr(cLabel, '"')
+							cTo = trim(StzMid(cRest, 1, nQuote - 1))
+							cLabel = StzMid(cRest, nQuote + 1, stzlen(cRest) - nQuote)
+							nEndQuote = ring_find(cLabel, '"')
 							if nEndQuote > 0
-								cLabel = @substr(cLabel, 1, nEndQuote - 1)
+								cLabel = StzMid(cLabel, 1, nEndQuote - 1)
 								This.AddEdgeXT(cFrom, cTo, cLabel)
 							else
 								This.AddEdge(cFrom, cTo)
@@ -4679,7 +4679,7 @@ class stzGraph
 				nIndent = 0
 				nLen2 = len(acLines[i])
 				for j = 1 to nLen2
-					_c_ = @substr(acLines[i], j, j+1)
+					_c_ = StzMid(acLines[i], j, 2)
 					if _c_ = " " or _c_ = TAB
 						nIndent++
 					else
@@ -4691,7 +4691,7 @@ class stzGraph
 					cCurrentNode = trim(cLine)
 				else
 					# Property line
-					if substr(cLine, ":") > 0
+					if ring_find(cLine, ":") > 0
 						acParts = @split(cLine, ":")
 						if len(acParts) >= 2
 							cKey = trim(acParts[1])
@@ -4779,24 +4779,24 @@ class stzGraph
 			cLine = acLines[i]
 			cTrimmed = trim(cLine)
 			
-			if cTrimmed = "" or left(cTrimmed, 1) = "#"
+			if cTrimmed = "" or StzLeft(cTrimmed, 1) = "#"
 				loop
 			ok
-			
+
 			if cTrimmed = "rules"
 				cSection = "rules"
 				loop
 			ok
-			
+
 			if cSection = "rules"
-				if left(cTrimmed, 4) = "rule"
+				if StzLeft(cTrimmed, 4) = "rule"
 					# Save previous rule
 					if len(aCurrentRule) > 0
 						@aRules + aCurrentRule
 					ok
-					
+
 					# Start new rule
-					cName = trim(@substr(cTrimmed, 6, stzlen(cTrimmed)))
+					cName = trim(StzMid(cTrimmed, 6, stzlen(cTrimmed) - 5))
 					aCurrentRule = [
 						:name = cName,
 						:type = "",
@@ -4805,24 +4805,24 @@ class stzGraph
 						:message = "",
 						:severity = ""
 					]
-					
-				but substr(cTrimmed, "type:") = 1
-					aCurrentRule[:type] = trim(@substr(cTrimmed, 6, stzlen(cTrimmed)))
-					
-				but substr(cTrimmed, "severity:") = 1
-					aCurrentRule[:severity] = trim(@substr(cTrimmed, 11, stzlen(cTrimmed)))
-					
-				but substr(cTrimmed, "function:") = 1
-					cFuncName = trim(@substr(cTrimmed, 11, stzlen(cTrimmed)))
+
+				but ring_find(cTrimmed, "type:") = 1
+					aCurrentRule[:type] = trim(StzMid(cTrimmed, 6, stzlen(cTrimmed) - 5))
+
+				but ring_find(cTrimmed, "severity:") = 1
+					aCurrentRule[:severity] = trim(StzMid(cTrimmed, 11, stzlen(cTrimmed) - 10))
+
+				but ring_find(cTrimmed, "function:") = 1
+					cFuncName = trim(StzMid(cTrimmed, 11, stzlen(cTrimmed) - 10))
 					aCurrentRule[:function] = This._ResolveFunctionName(cFuncName)
-					
+
 				but cTrimmed = "params"
 					cCurrentKey = "params"
-					
+
 				but cTrimmed = "message"
 					cCurrentKey = "message"
-					
-				but cCurrentKey = "params" and substr(cTrimmed, ":") > 0
+
+				but cCurrentKey = "params" and ring_find(cTrimmed, ":") > 0
 					acParts = @split(cTrimmed, ":")
 					if len(acParts) >= 2
 						cKey = trim(acParts[1])
@@ -4832,8 +4832,8 @@ class stzGraph
 					
 				but cCurrentKey = "message"
 					cMsg = trim(cTrimmed)
-					if left(cMsg, 1) = '"' and right(cMsg, 1) = '"'
-						cMsg = @substr(cMsg, 2, stzlen(cMsg) - 2)
+					if StzLeft(cMsg, 1) = '"' and StzRight(cMsg, 1) = '"'
+						cMsg = StzMid(cMsg, 2, stzlen(cMsg) - 2)
 					ok
 					aCurrentRule[:message] = cMsg
 				ok
@@ -5033,33 +5033,33 @@ class stzGraph
 			cLine = acLines[i]
 			cTrimmed = trim(cLine)
 			
-			if cTrimmed = "" or left(cTrimmed, 1) = "#"
+			if cTrimmed = "" or StzLeft(cTrimmed, 1) = "#"
 				loop
 			ok
-			
+
 			if cTrimmed = "changes"
 				cSection = "changes"
 				loop
 			but cTrimmed = "metrics"
 				exit  # Stop at metrics section
 			ok
-			
+
 			if cSection = "changes"
-				if substr(cTrimmed, "add node ") = 1
-					cNodeId = trim(@substr(cTrimmed, 10, stzlen(cTrimmed)))
+				if ring_find(cTrimmed, "add node ") = 1
+					cNodeId = trim(StzMid(cTrimmed, 10, stzlen(cTrimmed) - 9))
 					if NOT This.NodeExists(cNodeId)
 						This.AddNode(cNodeId)
 					ok
-					
-				but substr(cTrimmed, "remove node ") = 1
-					cNodeId = trim(@substr(cTrimmed, 13, stzlen(cTrimmed)))
+
+				but ring_find(cTrimmed, "remove node ") = 1
+					cNodeId = trim(StzMid(cTrimmed, 13, stzlen(cTrimmed) - 12))
 					if This.NodeExists(cNodeId)
 						This.RemoveThisNode(cNodeId)
 					ok
-					
-				but substr(cTrimmed, "add edge ") = 1
-					cRest = trim(@substr(cTrimmed, 10, stzlen(cTrimmed)))
-					if substr(cRest, "->") > 0
+
+				but ring_find(cTrimmed, "add edge ") = 1
+					cRest = trim(StzMid(cTrimmed, 10, stzlen(cTrimmed) - 9))
+					if ring_find(cRest, "->") > 0
 						acParts = split(cRest, "->")
 						if len(acParts) >= 2
 							cFrom = trim(acParts[1])
@@ -5070,9 +5070,9 @@ class stzGraph
 						ok
 					ok
 					
-				but substr(cTrimmed, "remove edge ") = 1
-					cRest = trim(@substr(cTrimmed, 13, stzlen(cTrimmed)))
-					if substr(cRest, "->") > 0
+				but ring_find(cTrimmed, "remove edge ") = 1
+					cRest = trim(StzMid(cTrimmed, 13, stzlen(cTrimmed) - 12))
+					if ring_find(cRest, "->") > 0
 						acParts = @split(cRest, "->")
 						if len(acParts) >= 2
 							cFrom = trim(acParts[1])
@@ -5104,7 +5104,7 @@ class stzGraph
 	
 	def _FormatValue(pValue)
 		if isString(pValue)
-			if substr(pValue, " ") > 0 or substr(pValue, ":") > 0
+			if ring_find(pValue, " ") > 0 or ring_find(pValue, ":") > 0
 				return '"' + pValue + '"'
 			else
 				return pValue
@@ -5123,31 +5123,31 @@ class stzGraph
 		cValue = trim(cValue)
 		
 		# Remove quotes if present
-		if left(cValue, 1) = '"' and
-		   right(cValue, 1) = '"'
+		if StzLeft(cValue, 1) = '"' and
+		   StzRight(cValue, 1) = '"'
 
-			return @substr(cValue, 2, stzlen(cValue) - 2)
+			return StzMid(cValue, 2, stzlen(cValue) - 2)
 		ok
-		
+
 		# Try to parse as number
-		if isdigit(cValue) or (left(cValue, 1) = "-" and
-					isdigit(@substr(cValue, 2, 3)))
+		if isdigit(cValue) or (StzLeft(cValue, 1) = "-" and
+					isdigit(StzMid(cValue, 2, 3)))
 
 			return 0 + cValue
 		ok
-		
+
 		# Try to parse as boolean
-		if lower(cValue) = "true"
+		if StzLower(cValue) = "true"
 			return TRUE
 
-		but lower(cValue) = "false"
+		but StzLower(cValue) = "false"
 			return FALSE
 		ok
-		
-		# Try to parse as list
-		if left(cValue, 1) = "[" and right(cValue, 1) = "]"
 
-			cInner = @substr(cValue, 2, stzlen(cValue) - 2)
+		# Try to parse as list
+		if StzLeft(cValue, 1) = "[" and StzRight(cValue, 1) = "]"
+
+			cInner = StzMid(cValue, 2, stzlen(cValue) - 2)
 			if cInner = ""
 				return []
 			ok
@@ -5199,23 +5199,23 @@ class stzGraph
 	#--
 
 	def _NormalizeLabel(pcLabel)
-		pcLabel = substr(pcLabel, " ", "_")
-		pcLabel = substr(pcLabel, NL, "_")
+		pcLabel = ring_substr2(pcLabel, " ", "_")
+		pcLabel = ring_substr2(pcLabel, NL, "_")
 		return pcLabel
 
 		def  _NormaliseLabel(pcLabel)
-			return substr(pcLabel, " ", "_")
+			return ring_substr2(pcLabel, " ", "_")
 
 	def _IsWellFormedId(pcName)
 		if NOT isString(pcName)
 			return 0
 		ok
 
-		if substr(pcName, " ") > 0
+		if ring_find(pcName, " ") > 0
 			return 0
 		ok
 
-		if substr(pcName, NL) > 0
+		if ring_find(pcName, NL) > 0
 			return 0
 		ok
 
@@ -5232,7 +5232,7 @@ class stzGraphFinder
 	
 	def init(oGraph, cTarget)
 		@oGraph = oGraph
-		@cTarget = lower(cTarget)
+		@cTarget = StzLower(cTarget)
 		@aFilters = []
 	
 	def Where(pcKey, pCondition, pValue)
@@ -5368,7 +5368,7 @@ class stzGraphFinder
 		return TRUE
 	
 	def _GetNestedValue(aElement, pcKey)
-		bIsNested = (substr(pcKey, ".") > 0)
+		bIsNested = (ring_find(pcKey, ".") > 0)
 		
 		if bIsNested
 			acPath = split(pcKey, ".")
@@ -5408,7 +5408,7 @@ class stzGraphFinder
 		return "" # TODO Is it safer to raise an error?
 	
 	def _Matches(pActual, pCondition, pValue)
-		cCond = lower(pCondition)
+		cCond = StzLower(pCondition)
 		
 		if cCond = "equals" or cCond = ":equals" or cCond = "="
 			return pActual = pValue
@@ -5421,7 +5421,7 @@ class stzGraphFinder
 			
 		but cCond = "contains" or cCond = ":contains"
 			return isString(pActual) and isString(pValue) and 
-			       substr(lower(pActual), lower(pValue)) > 0
+			       ring_find(StzLower(pActual), StzLower(pValue)) > 0
 			       
 		but cCond = "insection" or cCond = ":insection" or cCond = "between" or cCond = ":between"
 			return isNumber(pActual) and isList(pValue) and len(pValue) = 2 and
@@ -5877,7 +5877,7 @@ class stzGraphComparison
 			
 			# Positive density change: +3
 			cDensity = aComp[:densityChange]
-			if isString(cDensity) and substr(cDensity, "+") > 0
+			if isString(cDensity) and ring_find(cDensity, "+") > 0
 				nScore += 3
 			ok
 			

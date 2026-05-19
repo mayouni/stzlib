@@ -97,8 +97,8 @@ class stzRegexuter
 
 		# Clean code
 		cCode = trim(cCode)
-		if left(cCode, 1) = "{" and right(cCode, 1) = "}"
-			cCode = substr(cCode, 2, len(cCode)-2)
+		if StzLeft(cCode, 1) = "{" and StzRight(cCode, 1) = "}"
+			cCode = StzMid(cCode, 2, len(cCode)-2)
 		ok
 
 		aCodesPerTrigger + [cTriggerName, cCode]

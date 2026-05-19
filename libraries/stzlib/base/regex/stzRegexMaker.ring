@@ -127,10 +127,10 @@ class stzRegexMaker
 		ok
 
 		if cType = :among
-			cPattern = "[" + substr(cRange, "SPACE", " ") + "]"
+			cPattern = "[" + ring_substr2(cRange, "SPACE", " ") + "]"
 
 		but cType = :notAmong
-			cPattern = "[^" + substr(cRange, "SPACE", " ") + "]"
+			cPattern = "[^" + ring_substr2(cRange, "SPACE", " ") + "]"
 
 		else
 			cPattern = "[" + cRange + "]"

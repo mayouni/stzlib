@@ -36,7 +36,7 @@ func HtmlQ(pcHtmlOrFile)
 		return HtmlQ(pcHtmlOrFile)
 
 func IsHtml(pcStr)
-	return substr(pcStr, "<html") > 0 or substr(pcStr, "<!DOCTYPE html") > 0
+	return ring_find(pcStr, "<html") > 0 or ring_find(pcStr, "<!DOCTYPE html") > 0
 
 	func @IsHtml(pcStr)
 		return IsHtml(pcStr)
@@ -140,11 +140,11 @@ class stzHtml
 			for oNode in aNodes
 				bMatch = TRUE
 				for aPair in pCondition
-					cKey = lower(aPair[1])
+					cKey = StzLower(aPair[1])
 					cVal = aPair[2]
 					switch cKey
 					on "tag"
-						if lower(oNode.Tag()) != lower(cVal)
+						if StzLower(oNode.Tag()) != StzLower(cVal)
 							bMatch = FALSE
 						ok
 					on "class"
@@ -248,7 +248,7 @@ class stzHtml
 	func TagsUsed()
 		aTags = []
 		for oNode in This.Elements()
-			cTag = lower(oNode.Tag())
+			cTag = StzLower(oNode.Tag())
 			if NOT ring_find(aTags, cTag)
 				aTags + cTag
 			ok
@@ -265,7 +265,7 @@ class stzHtmlNode
 		@oNode = oNode
 
 	def Tag()
-		return lower(@oNode.tag())
+		return StzLower(@oNode.tag())
 
 	def Text()
 		return @oNode.text()
@@ -555,9 +555,9 @@ class stzCSS
 	# Natural methods
 	def PropertyOf(pcSelector, pcProp)
 		for aRule in This.Rules()
-			if lower(aRule[1]) = lower(pcSelector)
+			if StzLower(aRule[1]) = StzLower(pcSelector)
 				for aProp in aRule[2]
-					if lower(aProp[1]) = lower(pcProp)
+					if StzLower(aProp[1]) = StzLower(pcProp)
 						return aProp[2]
 					ok
 				next

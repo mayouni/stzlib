@@ -57,7 +57,7 @@ func _SplitNullDelimited(cJoined)
 	cCurrent = ""
 	nLen = len(cJoined)
 	for i = 1 to nLen
-		c = substr(cJoined, i, 1)
+		c = StzMid(cJoined, i, 1)
 		if ascii(c) = 0
 			if cCurrent != ""
 				acResult + cCurrent
@@ -2500,15 +2500,15 @@ func @substr(str, p1, p2) #TODO // Move to stzExtCode
 
 	but isString(p1) and isNumber(p2)
 
-		nLen = len(str)
+		nLen = StzLen(str)
 
-		cStrRight = right(str, nLen-p2+1)
+		cStrRight = StzRight(str, nLen-p2+1)
 		nResult = ring_substr1(cStrRight, p1) + p2 - 1
 
 		return nResult
 
 	but isString(p1) and ( (isList(p2) and len(p2)=0) or (isNumber(p2) and p2 = 0) )
-		return substr(str, p1)
+		return ring_find(str, p1)
 
 	else
 

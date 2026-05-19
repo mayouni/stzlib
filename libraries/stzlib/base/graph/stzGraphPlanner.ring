@@ -53,7 +53,7 @@ class stzGraphPlanner
 		]
 
 	def Profile(cProfile)
-		cProfile = lower(cProfile)
+		cProfile = StzLower(cProfile)
 		if HasKey(@aProfiles, cProfile)
 			return @aProfiles[cProfile]
 		ok
@@ -70,7 +70,7 @@ class stzGraphPlanner
 			ok
 		ok
 
-		pcPlanName = lower(pcPlanName)
+		pcPlanName = StzLower(pcPlanName)
 		@aPlans + [pcPlanName, ["", "", "", [], [], "", [], []]]  # Added slots for explored and alternatives
 
 		This.SetCurrentPlan(pcPlanName)
@@ -82,7 +82,7 @@ class stzGraphPlanner
 			ok
 		ok
 
-		pcName = lower(pcPlanName)
+		pcName = StzLower(pcPlanName)
 		return @aPlans[pcPlanName]
 
 	def SetCurrentPlan(pcPlanName)
@@ -92,7 +92,7 @@ class stzGraphPlanner
 			ok
 		ok
 
-		pcPlanName = lower(pcPlanName)
+		pcPlanName = StzLower(pcPlanName)
 
 		if NOT HasKey(@aPlans, pcPlanName)
 			stzraise("Inexistant plan (" + pcPlanName + ")!")
@@ -113,7 +113,7 @@ class stzGraphPlanner
 			ok
 		ok
 
-		pcPlanName = lower(pcPlanName)
+		pcPlanName = StzLower(pcPlanName)
 
 		if NOT HasKey(@aPlans, pcPlanName)
 			stzraise("Inexistant plan (" + pcPlanName + ")!")
@@ -292,9 +292,9 @@ class stzGraphPlanner
 		aProfileCriteria = []
 		
 		if isString(pProfile)
-			cProfile = lower(pProfile)
-			if left(cProfile, 1) = ":"
-				cProfile = substr(cProfile, 2)
+			cProfile = StzLower(pProfile)
+			if StzLeft(cProfile, 1) = ":"
+				cProfile = StzRight(cProfile, StzLen(cProfile) - 1)
 			ok
 			aProfileCriteria = This.Profile(cProfile)
 			if len(aProfileCriteria) = 0
@@ -500,10 +500,10 @@ class stzGraphPlanner
 		aConstraints = aPlanData[5]
 		
 		if cStartNode != ""
-			cStartNode = lower(cStartNode)
+			cStartNode = StzLower(cStartNode)
 		ok
 		if cGoalNode != ""
-			cGoalNode = lower(cGoalNode)
+			cGoalNode = StzLower(cGoalNode)
 		ok
 		
 		if cStartNode = "" or NOT @oGraph.NodeExists(cStartNode)
@@ -1063,7 +1063,7 @@ class stzGraphPlanner
 	def RankPlansByXT(cCriterion, pPlans)
 		acPlanNames = []
 		
-		if isString(pPlans) and lower(pPlans) = "all"
+		if isString(pPlans) and StzLower(pPlans) = "all"
 			nLen = len(@aPlans)
 			for i = 1 to nLen
 				cPlanName = @aPlans[i][1]
@@ -1120,7 +1120,7 @@ class stzGraphPlanner
 			return 0
 		ok
 
-		cCriterion = lower(cCriterion)
+		cCriterion = StzLower(cCriterion)
 		nSum = 0
 		nCount = 0
 
@@ -1152,7 +1152,7 @@ class stzGraphPlanner
 			return ""
 		ok
 
-		cCriterion = lower(cCriterion)
+		cCriterion = StzLower(cCriterion)
 		cBestPlan = ""
 		nBestValue = 999999
 
@@ -1185,7 +1185,7 @@ class stzGraphPlanner
 			return ""
 		ok
 	
-		cCriterion = lower(cCriterion)
+		cCriterion = StzLower(cCriterion)
 		cWorstPlan = ""
 		nWorstValue = -999999
 	
@@ -1330,10 +1330,10 @@ class stzGraphPlanner
 	#-----------------------#
 	
 	def _FindPlan(pcPlanName)
-		pcPlanName = lower(pcPlanName)
+		pcPlanName = StzLower(pcPlanName)
 		nLen = len(@aPlans)
 		for i = 1 to nLen
-			if lower(@aPlans[i][1]) = pcPlanName
+			if StzLower(@aPlans[i][1]) = pcPlanName
 				return i
 			ok
 		next
@@ -1689,7 +1689,7 @@ class stzGraphPlanner
 				loop
 			ok
 			
-			cKey = lower(aConstraint[1])
+			cKey = StzLower(aConstraint[1])
 			pValue = aConstraint[2]
 	
 			if cKey = "maxcost"
@@ -1704,17 +1704,17 @@ class stzGraphPlanner
 	
 			but cKey = "avoid"
 				acStates = aResult[3]
-				cNodeToAvoid = lower(pValue)
+				cNodeToAvoid = StzLower(pValue)
 				nLen3 = len(acStates)
 				for k = 1 to nLen3
-					if lower(acStates[k]) = cNodeToAvoid
+					if StzLower(acStates[k]) = cNodeToAvoid
 						return FALSE
 					ok
 				next
 	
 			but cKey = "requires"
 				acStates = aResult[3]
-				cRequiredNode = lower(pValue)
+				cRequiredNode = StzLower(pValue)
 				if ring_find(acStates, cRequiredNode) = 0
 					return FALSE
 				ok
@@ -1886,7 +1886,7 @@ class stzMultiPlanComparison
 		@aResults = paResults
 
 	def RankBy(cCriterion)
-		cCriterion = lower(cCriterion)
+		cCriterion = StzLower(cCriterion)
 		aRanking = []
 		
 		nLen = len(@aResults)

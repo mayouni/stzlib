@@ -528,7 +528,7 @@ func FormatString(cStr)
     ok
     
     # Choose quote character based on content
-    if substr(cStr, '"') > 0 and substr(cStr, "'") = 0
+    if ring_find(cStr, '"') > 0 and ring_find(cStr, "'") = 0
         return "'" + cStr + "'"
     else
         return '"' + cStr + '"'
@@ -640,7 +640,7 @@ func FormatShortString(cStr, nItems)
     # Add first nItems characters
     for i = 1 to nItems
         if i <= nLen
-            cResult += substr(cStr, aChars[i][1], aChars[i][2])
+            cResult += StzMid(cStr, aChars[i][1], aChars[i][2])
         ok
     next
 
@@ -649,7 +649,7 @@ func FormatShortString(cStr, nItems)
     # Add last nItems characters
     for i = (nLen - nItems + 1) to nLen
         if i >= 1 and i <= nLen
-            cResult += substr(cStr, aChars[i][1], aChars[i][2])
+            cResult += StzMid(cStr, aChars[i][1], aChars[i][2])
         ok
     next
 

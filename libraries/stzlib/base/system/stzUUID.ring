@@ -10,13 +10,13 @@ load "uuid.ring" # The C++ uuid extension should be isntalled
 #TODO Study the additon of ULID, KSUID, and SnowFlakeID
 
 func UUID()
-	return upper(uuid_generate())
+	return StzUpper(uuid_generate())
 
 	func @Uuid()
 		return UUID()
 
 func NullUUID()
-	return upper( uuid_nil() )
+	return StzUpper( uuid_nil() )
 
 	func @NullUuid()
 		return NullUuid()
@@ -34,7 +34,7 @@ class stzUUID
 	@nVersion = 4
 
 	def init()
-		@cUuid = upper(uuid_generate())
+		@cUuid = StzUpper(uuid_generate())
 		@nVersion = This.Version()
 
 	# Public methods
@@ -46,16 +46,16 @@ class stzUUID
 		return new stzUUID(@cUuid)
 
 	def WithoutHyphens()
-		return substr(@cUuid, "-", "")
+		return ring_substr2(@cUuid, "-", "")
 
 	def WithHyphens()
-		if substr(@cUuid, "-") = 0
+		if ring_find(@cUuid, "-") = 0
 			# Add hyphens in standard UUID format: 8-4-4-4-12
-			cResult = @substr(@cUuid, 1, 8) + "-" +
-			          @substr(@cUuid, 9, 4) + "-" +
-			          @substr(@cUuid, 13, 4) + "-" +
-			          @substr(@cUuid, 17, 4) + "-" +
-			          @substr(@cUuid, 21, 12)
+			cResult = StzMid(@cUuid, 1, 8) + "-" +
+			          StzMid(@cUuid, 9, 4) + "-" +
+			          StzMid(@cUuid, 13, 4) + "-" +
+			          StzMid(@cUuid, 17, 4) + "-" +
+			          StzMid(@cUuid, 21, 12)
 			return cResult
 		ok
 		return @cUuid
@@ -67,13 +67,13 @@ class stzUUID
 		return uuid_isvalid(@cUuid)
 
 	def Version()
-		if len(@cUuid) >= 14
+		if StzLen(@cUuid) >= 14
 			return number("0x" + @cUuid[15])
 		ok
 		return 0
 
 	def Variant()
-		if len(@cUuid) >= 19
+		if StzLen(@cUuid) >= 19
 			nVariantBits = number("0x" + @cUuid[20])
 			if (nVariantBits & 8) = 0
 				return "Reserved (NCS)"
@@ -91,7 +91,7 @@ class stzUUID
 		# Simple hash function for UUID
 		nHash = 0
 		cClean = WithoutHyphens()
-		nLen = len(cClean)
+		nLen = StzLen(cClean)
 		for i = 1 to nLen
 			nHash = (nHash * 31 + ascii(cClean[i])) % 2147483647
 		next

@@ -35,12 +35,12 @@ PluralRules = [
 
 func Plural(str)
 
-    cWord = lower(trim(str))
+    cWord = StzLower(trim(str))
     aSortedRules = SortPluralRulesByPriority(PluralRules)
     for rule in aSortedRules
         if rule[3] = "exact"
             oRule1 = new stzString(rule[1])
-            cPattern = oRule1.Section(2, len(rule[1])-1)
+            cPattern = oRule1.Section(2, StzLen(rule[1])-1)
             if cWord = cPattern
                 return rule[2]
             ok
@@ -53,7 +53,7 @@ func Plural(str)
                     cResult = rule[2]
                     for j = 1 to nLen
                         cPlaceholder = "\\" + j
-                        cResult = substr(cResult, cPlaceholder, aCaptured[j])
+                        cResult = ring_substr2(cResult, cPlaceholder, aCaptured[j])
                     next
                     return cResult
                 else

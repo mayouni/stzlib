@@ -21,7 +21,7 @@ class stzListex
 
 	# Regular expression patterns for various token types
 	@cNumberPattern = '(?:-?\d+(?:\.\d+)?)'
-	@cStringPattern = "(?:" + char(34) + "[^" + char(34) + "]*" + char(34) + "|\'[^\']*\')"
+	@cStringPattern = "(?:" + StzChar(34) + "[^" + StzChar(34) + "]*" + StzChar(34) + "|\'[^\']*\')"
 	@cSimpleListPattern = '\[\s*[^\[\]]*\s*\]'
 	@cRecursiveListPattern = '\[\s*(?:[^\[\]]|\[(?:[^\[\]]|(?R))*\])*\s*\]'
 	@cListPattern = @cSimpleListPattern
@@ -185,9 +185,9 @@ class stzListex
 
 		# Extract set values BEFORE case conversion to preserve original values
 		cPreservedSet = ""
-		nSetStart = substr(cTokenStr, "{")
+		nSetStart = ring_find(cTokenStr, "{")
 		if nSetStart > 0
-			nSetEnd = substr(cTokenStr, "}")
+			nSetEnd = ring_find(cTokenStr, "}")
 			if nSetEnd > nSetStart
 				cPreservedSet = @substr(cTokenStr, nSetStart, nSetEnd - nSetStart + 1)
 			ok
@@ -244,7 +244,7 @@ class stzListex
 				ok
         
 				nRangeLen = len(acNumbers[1]) + 1 + len(acNumbers[2])
-				cRemainder = right(cRemainder, len(cRemainder) - nRangeLen)
+				cRemainder = StzRight(cRemainder, len(cRemainder) - nRangeLen)
 
 			else
 				oQMatch = rx(@cQuantifierPattern)
@@ -265,7 +265,7 @@ class stzListex
 						nMax = 1
 					off
 
-					cRemainder = right(cRemainder, len(cRemainder) - 1)
+					cRemainder = StzRight(cRemainder, len(cRemainder) - 1)
 
 				else
 					oNumberMatch = rx(@cSingleNumberPattern)
@@ -276,7 +276,7 @@ class stzListex
 						nMin = nQuantifier
 						nMax = nQuantifier
                 
-						cRemainder = right(cRemainder, len(cRemainder) - len(aMatches[1]))
+						cRemainder = StzRight(cRemainder, len(cRemainder) - len(aMatches[1]))
 					ok
 				ok
 			ok
@@ -285,7 +285,7 @@ class stzListex
 		# Set constraints processing using preserved values
 		if len(cPreservedSet) > 0
 			# Check for {values}U format
-			if EndsWith(cRemainder, "U") and substr(cRemainder, "{") > 0
+			if EndsWith(cRemainder, "U") and ring_find(cRemainder, "{") > 0
 				bRequireUnique = TRUE
 				cPreservedSet = ring_substr2(cPreservedSet, "U", "")
 			ok

@@ -28,13 +28,13 @@ class stzRequestClassifier
         ]
 
     def ClassifyComputationalDomain(oRequest)
-        cContent = lower(oRequest.Path() + " " + oRequest.Body())
+        cContent = StzLower(oRequest.Path() + " " + oRequest.Body())
         aScores = []
         
         for aPattern in aPatterns
             nScore = 0
             for cKeyword in aPattern[:keywords]
-                if substr(cContent, cKeyword) > 0
+                if ring_find(cContent, cKeyword) > 0
                     nScore++
                 ok
             next

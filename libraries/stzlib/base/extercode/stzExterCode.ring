@@ -166,12 +166,12 @@ class stzExterCode
             stzraise("Language '" + cLang + "' is not supported")
         ok
 
-        @cLanguage = lower(cLang)
+        @cLanguage = StzLower(cLang)
         @cSourceFile = "temp" + @aLanguages[@cLanguage][:extension]
         @cResultFile = @aLanguages[@cLanguage][:ResultFile]
 
     def IsLanguageSupported(cLang)
-        return HasKey(@aLanguages, lower(cLang))
+        return HasKey(@aLanguages, StzLower(cLang))
 
     def SetRuntimePath(cPath)
         # Set custom runtime path for the language
@@ -552,11 +552,11 @@ int main() {
     cMainPredicate = "compute_result"  # default
     
     # Try to find a predicate definition in the code
-    if substr(@cCode, "compute_result(") > 0
+    if ring_find(@cCode, "compute_result(") > 0
         cMainPredicate = "compute_result"
-    but substr(@cCode, "get_factorials(") > 0
+    but ring_find(@cCode, "get_factorials(") > 0
         cMainPredicate = "get_factorials"
-    but substr(@cCode, "res(") > 0
+    but ring_find(@cCode, "res(") > 0
         cMainPredicate = "res"
     ok
 
