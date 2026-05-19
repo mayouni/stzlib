@@ -732,10 +732,14 @@ fn isWhitespace(c: u8) bool {
     return c == ' ' or c == '\t' or c == '\n' or c == '\r';
 }
 
-// ─── UniqueLinesCI ───
+// ─── UniqueLinesCS ───
 
-/// Deduplicate lines case-insensitively (preserves first occurrence's case).
-pub fn str_unique_lines_ci(handle: StzStringHandle) callconv(.c) StzStringHandle {
+/// Deduplicate lines with case sensitivity parameter.
+/// case = 1: case-sensitive (delegates to str_unique_lines).
+/// case = 0: case-insensitive (casefold comparison, preserves first occurrence's case).
+pub fn str_unique_lines_cs(handle: StzStringHandle, case: c_int) callconv(.c) StzStringHandle {
+    if (case != 0) return str_unique_lines(handle);
+
     const s = (handle orelse return null);
     const bytes = s.slice();
     if (bytes.len == 0) return str_new();
