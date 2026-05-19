@@ -302,9 +302,9 @@ class stzGraphex from stzGraph
 		ok
 	
 		# Process set constraints - look for {...}U or {...}
-		nBraceStart = substr(cTokenStr, "{")
+		nBraceStart = ring_find(cTokenStr, "{")
 		if nBraceStart > 0
-			nBraceEnd = substr(cTokenStr, "}")
+			nBraceEnd = ring_find(cTokenStr, "}")
 			if nBraceEnd > nBraceStart
 	
 				cSetContent = @substr(cTokenStr, nBraceStart + 1, nBraceEnd)
@@ -312,9 +312,9 @@ class stzGraphex from stzGraph
 				# Check for U after closing brace
 				if nBraceEnd < len(cTokenStr) and @substr(cTokenStr, nBraceEnd + 1, nBraceEnd + 2) = "U"
 					bRequireUnique = TRUE
-					cTokenStr = left(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 2, len(cTokenStr))
+					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 2, len(cTokenStr))
 				else
-					cTokenStr = left(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 1, len(cTokenStr))
+					cTokenStr = StzLeft(cTokenStr, nBraceStart - 1) + @substr(cTokenStr, nBraceEnd + 1, len(cTokenStr))
 				ok
 				
 				# Parse set values
@@ -334,18 +334,18 @@ class stzGraphex from stzGraph
 			? "      Parsing as @Node"
 			
 			# Manual extraction: @Node(label){props}
-			nParenStart = substr(cTokenStr, "(")
+			nParenStart = ring_find(cTokenStr, "(")
 			if nParenStart > 0
-				nParenEnd = substr(cTokenStr, ")")
+				nParenEnd = ring_find(cTokenStr, ")")
 				if nParenEnd > nParenStart
 					cLabel = @substr(cTokenStr, nParenStart + 1, nParenEnd - 1)
 				ok
 			ok
-			
+
 			# Props already handled above in set constraints
-			
+
 			? "      Matched: label=[" + cLabel + "]"
-			
+
 			return [
 				[ "type", "node" ],
 				[ "label", cLabel ],
@@ -361,16 +361,16 @@ class stzGraphex from stzGraph
 			? "      Parsing as @Edge"
 			
 			# Manual extraction: @Edge(label){props}
-			nParenStart = substr(cTokenStr, "(")
+			nParenStart = ring_find(cTokenStr, "(")
 			if nParenStart > 0
-				nParenEnd = substr(cTokenStr, ")")
+				nParenEnd = ring_find(cTokenStr, ")")
 				if nParenEnd > nParenStart
 					cLabel = @substr(cTokenStr, nParenStart + 1, nParenEnd - 1)
 				ok
 			ok
-			
+
 			? "      Matched: label=[" + cLabel + "]"
-			
+
 			return [
 				[ "type", "edge" ],
 				[ "label", cLabel ],
@@ -718,14 +718,14 @@ class stzGraphex from stzGraph
 				cToken = aPatternBranch[j]
 				cLabel = ""
 				
-				nParenPos = substr(cToken, "(")
+				nParenPos = ring_find(cToken, "(")
 				if nParenPos > 0
-					nClosePos = substr(cToken, ")")
+					nClosePos = ring_find(cToken, ")")
 					if nClosePos > nParenPos
 						cLabel = @substr(cToken, nParenPos + 1, nClosePos - 1)
 					ok
 				ok
-				
+
 				# Check if negated
 				aNodeFromPattern = This.Node(":p" + j)
 				bIsNegated = FALSE
@@ -869,9 +869,9 @@ class stzGraphex from stzGraph
 			
 			if isString(cToken)
 				# Extract label from "edge(flows)" -> "flows"
-				nParenPos = substr(cToken, "(")
+				nParenPos = ring_find(cToken, "(")
 				if nParenPos > 0
-					nClosePos = substr(cToken, ")")
+					nClosePos = ring_find(cToken, ")")
 					if nClosePos > nParenPos
 						cLabel = @substr(cToken, nParenPos + 1, nClosePos - nParenPos - 1)
 						aPattern + cLabel

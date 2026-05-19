@@ -123,7 +123,7 @@ class stzTimex
 		nOpLen = len(cOperator)
 		
 		for i = 1 to nLen
-			cChar = substr(cStr, i, 1)
+			cChar = StzMid(cStr, i, 1)
 			
 			if cChar = "(" or cChar = "{"
 				nDepth++
@@ -227,9 +227,9 @@ class stzTimex
 		ok
 		
 		# Extract label from parentheses
-		nOpenParen = substr(cTokenStr, "(")
+		nOpenParen = ring_find(cTokenStr, "(")
 		if nOpenParen > 0
-			nCloseParen = substr(cTokenStr, ")")
+			nCloseParen = ring_find(cTokenStr, ")")
 			if nCloseParen > nOpenParen
 				cContent = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
 				
@@ -253,7 +253,7 @@ class stzTimex
 		ok
 		
 		# Extract quantifier from end
-		cLastChar = right(cTokenStr, 1)
+		cLastChar = StzRight(cTokenStr, 1)
 		if cLastChar = "+"
 			nMin = 1
 			nMax = 999999
@@ -345,9 +345,9 @@ class stzTimex
 		ok
 		
 		# Check for set {Mon;Wed;Fri}
-		nBraceStart = substr(cConstraintStr, "{")
+		nBraceStart = ring_find(cConstraintStr, "{")
 		if nBraceStart > 0
-			nBraceEnd = substr(cConstraintStr, "}")
+			nBraceEnd = ring_find(cConstraintStr, "}")
 			if nBraceEnd > nBraceStart
 				cSetContent = @substr(cConstraintStr, nBraceStart + 1, nBraceEnd - 1)
 				aSetValues = @split(cSetContent, ";")
@@ -367,16 +367,16 @@ class stzTimex
 		nMinutes = 0
 		
 		# Extract hours
-		nHPos = substr(cDuration, "h")
+		nHPos = ring_find(cDuration, "h")
 		if nHPos > 0
-			cHours = left(cDuration, nHPos - 1)
+			cHours = StzLeft(cDuration, nHPos - 1)
 			nMinutes = (0 + cHours) * 60
 			cDuration = @substr(cDuration, nHPos + 1, len(cDuration))
 		ok
 		
 		# Extract minutes
 		if contains(cDuration, "min")
-			cMinutes = @substr(cDuration, 1, substr(cDuration, "min") - 1)
+			cMinutes = @substr(cDuration, 1, ring_find(cDuration, "min") - 1)
 			nMinutes += (0 + StzStringQ(cDuration).Numbers()[1])  # ADD @trim() here
 		but len(cDuration) > 0  # CHANGE: was cDuration != ""
 			# Just a number, assume minutes

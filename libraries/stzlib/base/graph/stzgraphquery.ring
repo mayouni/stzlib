@@ -336,7 +336,7 @@ class stzGraphQuery
 			cInternalOp = This._ConvertOp(cOp)
 			
 			# Add implicit variable if needed
-			if isString(cProp) and NOT substr(cProp, ".")
+			if isString(cProp) and NOT ring_find(cProp, ".")
 				cProp = pcVarName + "." + cProp
 			ok
 			
@@ -502,7 +502,7 @@ class stzGraphQuery
 			pcDirection = "asc"
 		ok
 
-		pcDirection = lower(pcDirection)
+		pcDirection = StzLower(pcDirection)
 
 		if pcDirection = "inascending" or pcDirection = "ascending"
 			pcDirection = "asc"
@@ -1184,7 +1184,7 @@ class stzGraphQuery
 			pLeft = This._ResolveValue(pCondition["left"], aBinding)
 			pRight = pCondition["right"]
 			
-			if isString(pRight) and substr(pRight, ".") > 0
+			if isString(pRight) and ring_find(pRight, ".") > 0
 				pRight = This._ResolveValue(pRight, aBinding)
 			ok
 			
@@ -1218,17 +1218,17 @@ class stzGraphQuery
 		but cOp = :contains
 			pLeft = This._ResolveValue(pCondition["left"], aBinding)
 			pRight = This._ResolveValue(pCondition["right"], aBinding)
-			return isString(pLeft) and isString(pRight) and substr(lower(pLeft), lower(pRight)) > 0
+			return isString(pLeft) and isString(pRight) and ring_find(StzLower(pLeft), StzLower(pRight)) > 0
 			
 		but cOp = :startswith
 			pLeft = This._ResolveValue(pCondition["left"], aBinding)
 			pRight = This._ResolveValue(pCondition["right"], aBinding)
-			return isString(pLeft) and isString(pRight) and left(lower(pLeft), len(pRight)) = lower(pRight)
-			
+			return isString(pLeft) and isString(pRight) and StzLeft(StzLower(pLeft), len(pRight)) = StzLower(pRight)
+
 		but cOp = :endswith
 			pLeft = This._ResolveValue(pCondition["left"], aBinding)
 			pRight = This._ResolveValue(pCondition["right"], aBinding)
-			return isString(pLeft) and isString(pRight) and right(lower(pLeft), len(pRight)) = lower(pRight)
+			return isString(pLeft) and isString(pRight) and StzRight(StzLower(pLeft), len(pRight)) = StzLower(pRight)
 			
 		but cOp = :and
 			return This._EvaluateCondition(pCondition["left"], aBinding) and
@@ -1256,7 +1256,7 @@ class stzGraphQuery
 	
 	def _ResolveValue(pValue, aBinding)
 		if isString(pValue)
-			if substr(pValue, ".") > 0
+			if ring_find(pValue, ".") > 0
 				acParts = @split(pValue, ".")
 				cVar = acParts[1]
 				cProp = acParts[2]
@@ -1481,7 +1481,7 @@ def _ExecuteSetProperty(aOp, aBindings)
 	for i = 1 to nLen
 		aBinding = aBindings[i]
 		
-		if substr(cTarget, ".") > 0
+		if ring_find(cTarget, ".") > 0
 			acParts = @split(cTarget, ".")
 			cVar = acParts[1]
 			cProp = acParts[2]
@@ -1559,7 +1559,7 @@ def _ApplyOrderBy(aResults)
 	return aSorted
 
 def _GetResultValue(aResult, cField)
-	if substr(cField, ".") > 0
+	if ring_find(cField, ".") > 0
 		acParts = @split(cField, ".")
 		cVar = acParts[1]
 		cProp = acParts[2]
@@ -1777,7 +1777,7 @@ def Explain()
 	if len(@aDefinition["order_by"]) > 0
 		aOrder = @aDefinition["order_by"][1]
 		cField = aOrder["field"]
-		cDir = upper(aOrder["direction"])
+		cDir = StzUpper(aOrder["direction"])
 		aExplanation + [ ["step", "orderby"], ["description", ["Sort by: " + cField + " " + cDir]] ]
 	ok
 	

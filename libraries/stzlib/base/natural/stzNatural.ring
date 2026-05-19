@@ -276,7 +276,7 @@ class stzNaturalEngine
 		if isList(aContext) and isString(cContextCode)
 			@aContext = aContext
 			@cOriginalCode = cContextCode
-			@cLanguage = lower(cLang)
+			@cLanguage = StzLower(cLang)
 			if @cLanguage = "" or NOT IsLanguageAbbreviation(@cLanguage)
 				@cLanguage = "en"
 			ok
@@ -290,12 +290,12 @@ class stzNaturalEngine
 		
 		# Handle original patterns
 		if cCode != ""
-			@cLanguage = lower(cLang)
+			@cLanguage = StzLower(cLang)
 			@cNaturalCode = cCode
 			@cOriginalCode = cCode
 		else
 			if IsLanguageAbbreviation(cLang)
-				@cLanguage = lower(cLang)
+				@cLanguage = StzLower(cLang)
 			else
 				@cLanguage = "en"
 				if cLang != ""
@@ -327,7 +327,7 @@ class stzNaturalEngine
 			cValue = @@(This.GetContextValue(cKey, aContext))
 
 			if cValue != :NOT_FOUND
-				cResult = substr(cResult, "{" + cKey + "}", cValue)
+				cResult = ring_substr2(cResult, "{" + cKey + "}", cValue)
 			ok
 		next
 		
@@ -370,7 +370,7 @@ class stzNaturalEngine
 	
 	def GetContextValue(cKey, aContext)
 		# Handle nested keys like "user.profile.name"
-		if substr(cKey, ".") > 0
+		if ring_find(cKey, ".") > 0
 			aParts = @split(cKey, ".")
 			xCurrent = aContext
 			
@@ -399,12 +399,12 @@ class stzNaturalEngine
 	
 	def NormalizeKey(cKey)
 		cKey = trim(cKey)
-		if len(cKey) = 0
+		if StzLen(cKey) = 0
 			return cKey
 		ok
 		
 		# Capitalize first letter, lowercase rest
-		return upper(@substr(cKey, 1, 1)) + lower(substr(cKey, 2, stzlen(cKey) - 1))
+		return StzUpper(@substr(cKey, 1, 1)) + StzLower(StzMid(cKey, 2, stzlen(cKey) - 1))
 	
 	def FindInList(aList, cKey) #TODO// Review it
 		nLen = len(aList)
@@ -618,10 +618,10 @@ class stzNaturalEngine
 		if aLast[:type] = "semantic" and aLast[:value] = "VALUE_INDICATOR"
 			return 1
 		ok
-		
+
 		if aLast[:type] = "literal" and nLen >= 2
 			aBeforeLast = aTokens[nLen-1]
-			if aBeforeLast[:type] = "semantic" and left(aBeforeLast[:value], 7) = "METHOD_"
+			if aBeforeLast[:type] = "semantic" and StzLeft(aBeforeLast[:value], 7) = "METHOD_"
 				aOp = This.GetSemanticOperation(aBeforeLast[:value])
 				if len(aOp) > 0 and HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
 					return 1
@@ -632,18 +632,18 @@ class stzNaturalEngine
 		return 0
 	
 	def IsIgnoredWord(cWord)
-		return ring_find(@aIgnoredWords, lower(cWord)) > 0
+		return ring_find(@aIgnoredWords, StzLower(cWord)) > 0
 	
 	def ToSemantic(cWord)
-		cLower = lower(cWord)
+		cLower = StzLower(cWord)
 
-		bDefine = left(cLower, 1) = "@"
-		bRecall = right(cLower, 1) = "@"
+		bDefine = StzLeft(cLower, 1) = "@"
+		bRecall = StzRight(cLower, 1) = "@"
 		
 		if bDefine
 			cLower = @substr(cLower, 2, stzlen(cLower) - 1)
 		but bRecall
-			cLower = left(cLower, stzlen(cLower) - 1)
+			cLower = StzLeft(cLower, stzlen(cLower) - 1)
 		ok
 		
 		nLen = len(@aMappings)
@@ -674,15 +674,15 @@ class stzNaturalEngine
 				cSemantic = aToken[:value]
 				nLenSem = stzLen(cSemantic)
 
-				if left(cSemantic, 1) = "@"
+				if StzLeft(cSemantic, 1) = "@"
 					cClean = @substr(cSemantic, 2, nLenSem - 1)
 					@aDefineRecallState + [:semantic = cClean, :index = i]
 					i++
 					loop
 				ok
 				
-				if right(cSemantic, 1) = "@"
-					cClean = left(cSemantic, nLenSem - 1)
+				if StzRight(cSemantic, 1) = "@"
+					cClean = StzLeft(cSemantic, nLenSem - 1)
 					aResult = This.ProcessMethodWithModifiers(i, cClean)
 					if stzlen(aResult[:code]) > 0
 						aCodeLines + aResult[:code]
@@ -698,7 +698,7 @@ class stzNaturalEngine
 					ok
 					i = aResult[:next_index]
 					
-				but left(cSemantic, 7) = "METHOD_"
+				but StzLeft(cSemantic, 7) = "METHOD_"
 					aResult = This.ProcessMethod(i, cSemantic)
 					if stzlen(aResult[:code]) > 0
 						aCodeLines + aResult[:code]
@@ -708,7 +708,7 @@ class stzNaturalEngine
 				but cSemantic = "OUTPUT_DISPLAY"
 					aOp = This.GetSemanticOperation(cSemantic)
 					if len(aOp) > 0
-						cCode = substr(aOp[:stz_signature], "@var", @cCurrentVariable)
+						cCode = ring_substr2(aOp[:stz_signature], "@var", @cCurrentVariable)
 						aCodeLines + cCode
 					ok
 					i++
@@ -724,7 +724,7 @@ class stzNaturalEngine
 			raise("Unsupported object type!")
 		ok
 
-		cCode = JoinLines(aCodeLines) + char(10) + "@result = " + @cCurrentVariable + ".Content()"
+		cCode = JoinLines(aCodeLines) + StzChar(10) + "@result = " + @cCurrentVariable + ".Content()"
 		return cCode
 	
 	def FindDefineIndex(cSemantic)
@@ -745,7 +745,7 @@ class stzNaturalEngine
 		
 		for i = nIndex+1 to nLen
 			aToken = @aSemanticTokens[i]
-			if aToken[:type] = "semantic" and left(aToken[:value], 7) = "OBJECT_"
+			if aToken[:type] = "semantic" and StzLeft(aToken[:value], 7) = "OBJECT_"
 				cObjectType = aToken[:value]
 				
 				for j = i+1 to nLen
@@ -768,10 +768,10 @@ class stzNaturalEngine
 				cConstructor = aOp[:constructor]
 				
 				if isListInString(cValue)
-					cConstructor = substr(cConstructor, "@", cValue)
+					cConstructor = ring_substr2(cConstructor, "@", cValue)
 				else
 
-					cConstructor = substr(cConstructor, "@", '"' + cValue + '"')
+					cConstructor = ring_substr2(cConstructor, "@", '"' + cValue + '"')
 				ok
 				
 				cCode = @cCurrentVariable + " = " + cConstructor
@@ -790,8 +790,8 @@ class stzNaturalEngine
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
-		cCode = substr(aOp[:stz_signature], "@var", @cCurrentVariable)
-		
+		cCode = ring_substr2(aOp[:stz_signature], "@var", @cCurrentVariable)
+
 		if HasKey(aOp, :requires_params) and aOp[:requires_params] > 0
 			aResult = This.ExtractMethodParameters(nIndex, aOp[:requires_params])
 			aParams = aResult[:params]
@@ -805,7 +805,7 @@ class stzNaturalEngine
 				else
 					cParamValue = "" + aParams[i]
 				ok
-				cCode = substr(cCode, cPlaceholder, cParamValue)
+				cCode = ring_substr2(cCode, cPlaceholder, cParamValue)
 			next
 			
 			return [:code = cCode, :next_index = nNextIndex]
@@ -834,7 +834,7 @@ class stzNaturalEngine
 			ok
 			
 			if aToken[:type] = "semantic" and 
-			   (left(aToken[:value], 7) = "METHOD_" or aToken[:value] = "OUTPUT_DISPLAY")
+			   (StzLeft(aToken[:value], 7) = "METHOD_" or aToken[:value] = "OUTPUT_DISPLAY")
 				nLastIndex = i - 1
 				exit
 			ok
@@ -848,8 +848,8 @@ class stzNaturalEngine
 			return [:code = "", :next_index = nIndex+1]
 		ok
 		
-		cCode = substr(aOp[:stz_signature], "@var", @cCurrentVariable)
-		
+		cCode = ring_substr2(aOp[:stz_signature], "@var", @cCurrentVariable)
+
 		if HasKey(aOp, :supports_modifiers) and aOp[:supports_modifiers] = 1
 			nLen = len(@aSemanticTokens)
 			for i = nIndex+1 to nLen
@@ -859,8 +859,8 @@ class stzNaturalEngine
 					for j = 1 to nModLen
 						aMod = aOp[:modifiers][j]
 						if aMod[:semantic_id] = aToken[:value]
-							cCode = substr(cCode, aOp[:stz_method], aMod[:stz_method])
-							cCode = substr(cCode, "()", "([" + aMod[:stz_param] + "])")
+							cCode = ring_substr2(cCode, aOp[:stz_method], aMod[:stz_method])
+							cCode = ring_substr2(cCode, "()", "([" + aMod[:stz_param] + "])")
 							exit 2
 						ok
 					next

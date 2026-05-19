@@ -92,8 +92,8 @@ class stzKnowledgeGraph from stzGraph
 		_aEdges_ = This.Edges()
 		_nLen_ = len(_aEdges_)
 		
-		_bSubjVar_ = (isString(_cSubject_) and left(_cSubject_, 1) = "?")
-		_bObjVar_ = (isString(_cObject_) and left(_cObject_, 1) = "?")
+		_bSubjVar_ = (isString(_cSubject_) and StzLeft(_cSubject_, 1) = "?")
+		_bObjVar_ = (isString(_cObject_) and StzLeft(_cObject_, 1) = "?")
 		
 		if _bSubjVar_ and _bObjVar_
 			# Both variables: return all subject-object pairs for predicate
@@ -386,7 +386,7 @@ class stzKnowledgeGraph from stzGraph
 
 	def ImportKnow(pSource)
 	    if isString(pSource)
-	        if right(pSource, 8) = ".stzknow"
+	        if StzRight(pSource, 8) = ".stzknow"
 	            oParser = new stzKnowParser()
 	            oLoaded = oParser.ParseFile(pSource)
 	        else
@@ -409,7 +409,7 @@ class stzKnowledgeGraph from stzGraph
 	    return cKnow
 	
 	def WriteToKnowFile(pcFilename)
-	    if right(pcFilename, 8) != ".stzknow"
+	    if StzRight(pcFilename, 8) != ".stzknow"
 	        pcFilename += ".stzknow"
 	    ok
 	    write(pcFilename, This.ExportToKnow())
@@ -435,11 +435,11 @@ class stzKnowParser
         
         for cLine in acLines
             cLine = trim(cLine)
-            if cLine = "" or left(cLine, 1) = "#"
+            if cLine = "" or StzLeft(cLine, 1) = "#"
                 loop
             ok
             
-            if substr(cLine, "knowledge ")
+            if ring_find(cLine, "knowledge ")
                 cId = This._ExtractQuoted(cLine)
                 oKG = new stzKnowledgeGraph(cId)
             
@@ -452,7 +452,7 @@ class stzKnowParser
             but cLine = "rules"
                 cSection = "rules"
             
-            but cSection = "facts" and substr(cLine, "|")
+            but cSection = "facts" and ring_find(cLine, "|")
                 aParts = split(cLine, "|")
                 if len(aParts) = 3
                     oKG.AddFact(trim(aParts[1]), trim(aParts[2]), trim(aParts[3]))
@@ -463,8 +463,8 @@ class stzKnowParser
         return oKG
     
     def _ExtractQuoted(cLine)
-        nStart = substr(cLine, '"')
+        nStart = ring_find(cLine, '"')
         if nStart = 0 return "" ok
-        nEnd = @substr(cLine, nStart + 1, len(cLine))
-        nEnd = substr(nEnd, '"')
-        return @substr(cLine, nStart + 1, nStart + nEnd - 1)
+        nEnd = StzMid(cLine, nStart + 1, StzLen(cLine) - nStart)
+        nEnd = ring_find(nEnd, '"')
+        return StzMid(cLine, nStart + 1, nEnd - 1)

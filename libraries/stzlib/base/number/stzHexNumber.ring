@@ -24,7 +24,7 @@ func HexToDecimalForm(cHex)
 
 func UnicodeHexToDecimalForm(cUnicodeHex)
 	if IsUnicodeHex(cUnicodeHex)
-		cHex = substr(cUnicodeHex, 3)
+		cHex = StzMid(cUnicodeHex, 3, StzLen(cUnicodeHex) - 2)
 		cHex = HexPrefix() + cHex
 		return HexToDecimal(cHex).ToDecimalForm()
 	ok
@@ -128,9 +128,9 @@ class stzHexNumber from stzObject
 			nLen = len(acHexPrefix)
 
 			for i = 1 to nLen
-				nPrefLen = len(acHexPrefix[i])
-				if left(cTemp, nPrefLen) = acHexPrefix[i]
-					cTemp = substr(cTemp, nPrefLen + 1)
+				nPrefLen = StzLen(acHexPrefix[i])
+				if StzLeft(cTemp, nPrefLen) = acHexPrefix[i]
+					cTemp = StzMid(cTemp, nPrefLen + 1, StzLen(cTemp) - nPrefLen)
 				ok
 			next
 

@@ -800,8 +800,8 @@ class stzDataRangler
 
     def _ApplyCaseNormalization(cText, cMode)
         switch cMode
-        on "lower"   return lower(cText)
-        on "upper"   return upper(cText)
+        on "lower"   return StzLower(cText)
+        on "upper"   return StzUpper(cText)
         on "title"   return This._ToTitleCase(cText)
         on "sentence" return This._ToSentenceCase(cText)
         other        return cText
@@ -812,14 +812,14 @@ class stzDataRangler
         aWords = split(cText, " ")
         for i = 1 to len(aWords)
             if len(aWords[i]) > 0
-                aWords[i] = upper(left(aWords[i], 1)) + lower(substr(aWords[i], 2))
+                aWords[i] = StzUpper(StzLeft(aWords[i], 1)) + StzLower(StzMid(aWords[i], 2, StzLen(aWords[i]) - 1))
             ok
         next
         return This._JoinList(aWords, " ")
 
     def _ToSentenceCase(cText)
         if len(cText) > 0
-            return upper(left(cText, 1)) + lower(substr(cText, 2))
+            return StzUpper(StzLeft(cText, 1)) + StzLower(StzMid(cText, 2, StzLen(cText) - 1))
         ok
         return cText
 
@@ -833,7 +833,7 @@ class stzDataRangler
         return "unknown"
 
     def _IsBoolean(cValue)
-        return ring_find($aWRANGLE_TRUE_VALUES + $aWRANGLE_FALSE_VALUES, lower(trim("" + cValue))) > 0
+        return ring_find($aWRANGLE_TRUE_VALUES + $aWRANGLE_FALSE_VALUES, StzLower(trim("" + cValue))) > 0
 
     def _IsDate(cValue)
         # Simple date detection - could be enhanced
@@ -857,7 +857,7 @@ class stzDataRangler
             
         on "boolean"
             if This._IsBoolean(value)
-                return ring_find($aWRANGLE_TRUE_VALUES, lower(trim("" + value))) > 0
+                return ring_find($aWRANGLE_TRUE_VALUES, StzLower(trim("" + value))) > 0
             ok
             
         on "date"
@@ -889,7 +889,7 @@ class stzDataRangler
         ok
 
     def _ResolvePlanTemplate(cInput)
-        cInput = lower(trim(cInput))
+        cInput = StzLower(trim(cInput))
         
         # Check if it's a direct template name
         for template in $aWranglingPlanTemplates
@@ -1231,7 +1231,7 @@ next
         
         # Remove double underscores and trim
         while find(cCleaned, "__") > 0
-            cCleaned = substr(cCleaned, "__", "_")
+            cCleaned = ring_substr2(cCleaned, "__", "_")
         end
         
         return trim(cCleaned)

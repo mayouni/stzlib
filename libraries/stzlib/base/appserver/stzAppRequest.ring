@@ -24,7 +24,7 @@ class stzAppRequest
 
 	def Header(cName)
 		for aHeader in aHeaders
-			if lower(aHeader[1]) = lower(cName)
+			if StzLower(aHeader[1]) = StzLower(cName)
 				return aHeader[2]
 			ok
 		next
@@ -34,16 +34,16 @@ class stzAppRequest
 		return cBody
 
 	def ParseQuery()
-		nQuestion = substr(cPath, "?")
+		nQuestion = ring_find(cPath, "?")
 		if nQuestion > 0
 			cQueryString = @substr(cPath, nQuestion + 1)
-			cPath = left(cPath, nQuestion - 1)
+			cPath = StzLeft(cPath, nQuestion - 1)
 			
 			aPairs = @split(cQueryString, "&")
 			for cPair in aPairs
-				nEqual = substr(cPair, "=")
+				nEqual = ring_find(cPair, "=")
 				if nEqual > 0
-					cKey = left(cPair, nEqual - 1)
+					cKey = StzLeft(cPair, nEqual - 1)
 					cValue = @substr(cPair, nEqual + 1)
 					aQuery + [cKey, cValue]
 				ok

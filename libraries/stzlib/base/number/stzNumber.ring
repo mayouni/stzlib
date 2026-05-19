@@ -1126,12 +1126,12 @@ func GetUnitsDozensAndHundreds(pNumber)	// Or simplier : GetMicroStructure(pNumb
 	pcNumber = "" + pNumber
 		
 	// Ensuring the number provided doesn't exceed 3 digits
-	if len(pcNumber) > 3
+	if StzLen(pcNumber) > 3
 		// Considering the case where the number is preceeded by a + or - sign
 		// --> In This case, the sign is simply ignored
-		if len(pcNumber)=4 and
-		   ( left(pcNumber,1) = "+" or
-		     left(pcNumber,1) = "-")
+		if StzLen(pcNumber)=4 and
+		   ( StzLeft(pcNumber,1) = "+" or
+		     StzLeft(pcNumber,1) = "-")
 
 			pcNumber = pcNumber[2] + pcNumber[3] + pcNumber[4]
 		else
@@ -1144,18 +1144,18 @@ func GetUnitsDozensAndHundreds(pNumber)	// Or simplier : GetMicroStructure(pNumb
 	cDozens = "0"
 	cHundreds = "0"
 	
-	switch len(pcNumber)
+	switch StzLen(pcNumber)
 	on 1
 		cUnits = pcNumber
-			
+
 	on 2
-		cUnits = right(pcNumber,1)
-		cDozens = left(pcNumber,1)
-			
+		cUnits = StzRight(pcNumber,1)
+		cDozens = StzLeft(pcNumber,1)
+
 	on 3
-		cUnits = right(pcNumber,1)
+		cUnits = StzRight(pcNumber,1)
 		cDozens = StzStringQ(pcNumber).Section(2, 1)
-		cHundreds = left(pcNumber,1)
+		cHundreds = StzLeft(pcNumber,1)
 	off
 
 	return [ :Units = cUnits, :Dozens = cDozens, :Hundreds = cHundreds ]
@@ -1651,8 +1651,8 @@ class stzNumber from stzObject
 
 			# Case where the user provides a number in string
 			# with a dot "." at the end (a "0" is then added)
-			but right(pNumber, 1) = "." and
-			   StringRepresentsNumberInDecimalForm(substr(pNumber, 1, len(pNumber) - 1))
+			but StzRight(pNumber, 1) = "." and
+			   StringRepresentsNumberInDecimalForm(StzMid(pNumber, 1, StzLen(pNumber) - 1))
 
 				pNumber += "0"
 	
@@ -5177,7 +5177,7 @@ class stzNumber from stzObject
 		return 1
 
 	def Contains(pcDigit)
-		return substr(This.Content(), pcDigit) > 0
+		return ring_find(This.Content(), pcDigit) > 0
 
 	def ExistsIn(paList)
 		return ListContains(paList, This.NumericValue())

@@ -170,7 +170,7 @@ class stzCoeffExtractor from stzObject
 					return 0 + cCoeff
 				else
 					# Variable without explicit coefficient
-					if left(cTerm, 1) = "-"
+					if StzLeft(cTerm, 1) = "-"
 						return -1
 					ok
 					return 1

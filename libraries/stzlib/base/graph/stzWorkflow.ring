@@ -36,7 +36,7 @@ class stzWorkflow from stzDiagram
 	#-----------------------#
 	
 	def SetWorkflowType(pcType)
-		cType = lower(pcType)
+		cType = StzLower(pcType)
 		if ring_find($acWorkflowTypes, cType) > 0
 			@cWorkflowType = cType
 		ok
@@ -473,7 +473,7 @@ class stzWorkflow from stzDiagram
 		return acIds
 	
 	def _ValidateSingle(pcValidator)
-		switch lower(pcValidator)
+		switch StzLower(pcValidator)
 		on "deadlock"
 			return This.ValidateDeadlock()
 		on "sla"
@@ -717,7 +717,7 @@ class stzWorkflowSimulation from stzGraphSimulation
 	#------------------------#
 
 	def ImportFlow(pSource)
-		if isString(pSource) and right(pSource, 8) = ".stzflow"
+		if isString(pSource) and StzRight(pSource, 8) = ".stzflow"
 			oParser = new stzFlowParser()
 			oLoaded = oParser.ParseFile(pSource)
 		else
@@ -773,15 +773,15 @@ class stzFlowParser
 		for cLine in acLines
 			cLine = trim(cLine)
 			
-			if cLine = '' or left(cLine, 1) = "#"
+			if cLine = '' or StzLeft(cLine, 1) = "#"
 				loop
 			ok
 			
-			if substr(cLine, "workflow ")
+			if ring_find(cLine, "workflow ")
 				cId = This._ExtractQuoted(cLine)
 				oWorkflow = new stzWorkflow(cId)
 			
-			but substr(cLine, "type:")
+			but ring_find(cLine, "type:")
 				cType = This._ExtractValue(cLine)
 				oWorkflow.SetWorkflowType(cType)
 			
@@ -798,7 +798,7 @@ class stzFlowParser
 				cSection = "roles"
 			
 			but cSection = "steps"
-				if NOT substr(cLine, ":")
+				if NOT ring_find(cLine, ":")
 					if cCurrentItem != ""
 						This._AddStep(oWorkflow, cCurrentItem, aCurrentProps)
 					ok
@@ -811,12 +811,12 @@ class stzFlowParser
 					aCurrentProps + [cKey, This._ParseValue(cValue)]
 				ok
 			
-			but cSection = "flow" and substr(cLine, "->")
+			but cSection = "flow" and ring_find(cLine, "->")
 				aParts = split(cLine, "->")
 				oWorkflow.ConnectSteps(trim(aParts[1]), trim(aParts[2]))
 			
 			but cSection = "actors"
-				if NOT substr(cLine, ":")
+				if NOT ring_find(cLine, ":")
 					if cCurrentItem != ""
 						This._AddActor(oWorkflow, cCurrentItem, aCurrentProps)
 					ok
@@ -827,7 +827,7 @@ class stzFlowParser
 					aCurrentProps + [trim(aParts[1]), This._ParseValue(trim(aParts[2]))]
 				ok
 			
-			but cSection = "roles" and substr(cLine, "->")
+			but cSection = "roles" and ring_find(cLine, "->")
 				aParts = split(cLine, "->")
 				oWorkflow.MapRoleToPosition(trim(aParts[1]), trim(aParts[2]))
 			ok
@@ -895,19 +895,19 @@ class stzFlowParser
 		if isdigit(cValue)
 			return 0 + cValue
 		ok
-		if left(cValue, 1) = '"' and right(cValue, 1) = '"'
-			return @substr(cValue, 2, len(cValue) - 1)
+		if StzLeft(cValue, 1) = '"' and StzRight(cValue, 1) = '"'
+			return StzMid(cValue, 2, StzLen(cValue) - 2)
 		ok
 		return cValue
 	
 	def _ExtractQuoted(cLine)
-		nStart = substr(cLine, '"')
+		nStart = ring_find(cLine, '"')
 		if nStart = 0 return "" ok
-		nEnd = @substr(cLine, nStart + 1, len(cLine))
-		nEnd = substr(nEnd, '"')
-		return @substr(cLine, nStart + 1, nStart + nEnd - 1)
-	
+		nEnd = StzMid(cLine, nStart + 1, StzLen(cLine) - nStart)
+		nEnd = ring_find(nEnd, '"')
+		return StzMid(cLine, nStart + 1, nEnd - 1)
+
 	def _ExtractValue(cLine)
-		nPos = substr(cLine, ":")
+		nPos = ring_find(cLine, ":")
 		if nPos = 0 return "" ok
-		return trim(@substr(cLine, nPos + 1, len(cLine)))
+		return trim(StzMid(cLine, nPos + 1, StzLen(cLine) - nPos))

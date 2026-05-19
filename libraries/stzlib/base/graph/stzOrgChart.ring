@@ -435,7 +435,7 @@ class stzOrgChart from stzDiagram
 		return aResult[:status] = "pass"
 
 	def _ValidateSingle(pcValidator)
-		switch lower(pcValidator)
+		switch StzLower(pcValidator)
 
 		on "bceao"
 			return This.ValidateBCEAOGovernance()
@@ -1451,7 +1451,7 @@ class stzOrgChart from stzDiagram
 	
 
 	def WriteToStzOrgFile(pcFileName)
-		if right(pcFileName, 7) != ".stzorg"
+		if StzRight(pcFileName, 7) != ".stzorg"
 			pcFileName += ".stzorg"
 		ok
 
@@ -1476,12 +1476,12 @@ class stzOrgChart from stzDiagram
 		nLen = len(acLines)
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
-			if cLine = '' or left(cLine, 1) = "#"
+			if cLine = '' or StzLeft(cLine, 1) = "#"
 				loop
 			ok
 			
-			if substr(cLine, "orgchart ")
-				cTitle = @substr(cLine, 10, len(cLine)-1)
+			if ring_find(cLine, "orgchart ")
+				cTitle = StzMid(cLine, 10, StzLen(cLine) - 10)
 				
 			but cLine = "positions"
 				# Flush previous section
@@ -1576,7 +1576,7 @@ class stzOrgChart from stzDiagram
 				cCurrentId = ""
 				
 			but cCurrentSection = "positions"
-				if NOT substr(cLine, ":")
+				if NOT ring_find(cLine, ":")
 
 					# Flush previous position
 					if cCurrentId != ""
@@ -1590,7 +1590,7 @@ class stzOrgChart from stzDiagram
 							This.ReportsTo(cCurrentId, aCurrent[:reportsTo])
 						ok
 					ok
-					
+
 					cCurrentId = cLine
 					aCurrent = [
 						:title = "",
@@ -1598,60 +1598,60 @@ class stzOrgChart from stzDiagram
 						:department = "",
 						:reportsTo = ""
 					]
-					
-				but substr(cLine, "title:")
-					aCurrent[:title] = trim(@substr(cLine, 7, len(cLine)))
+
+				but ring_find(cLine, "title:")
+					aCurrent[:title] = trim(StzMid(cLine, 7, StzLen(cLine) - 6))
 					# Remove quotes if present
-					if left(aCurrent[:title], 1) = '"' and
-					   right(aCurrent[:title], 1) = '"'
-						aCurrent[:title] = @substr(aCurrent[:title], 2, len(aCurrent[:title]) - 1)
+					if StzLeft(aCurrent[:title], 1) = '"' and
+					   StzRight(aCurrent[:title], 1) = '"'
+						aCurrent[:title] = StzMid(aCurrent[:title], 2, StzLen(aCurrent[:title]) - 2)
 					ok
-					
-				but substr(cLine, "level:")
-					aCurrent[:level] = trim(@substr(cLine, 7, len(cLine)))
-					
-				but substr(cLine, "department:")
-					aCurrent[:department] = trim(@substr(cLine, 12, len(cLine)))
-					
-				but substr(cLine, "reportsTo:")
-					aCurrent[:reportsTo] = trim(@substr(cLine, 11, len(cLine)))
+
+				but ring_find(cLine, "level:")
+					aCurrent[:level] = trim(StzMid(cLine, 7, StzLen(cLine) - 6))
+
+				but ring_find(cLine, "department:")
+					aCurrent[:department] = trim(StzMid(cLine, 12, StzLen(cLine) - 11))
+
+				but ring_find(cLine, "reportsTo:")
+					aCurrent[:reportsTo] = trim(StzMid(cLine, 11, StzLen(cLine) - 10))
 				ok
 				
 			but cCurrentSection = "people"
-				if NOT substr(cLine, ":")
+				if NOT ring_find(cLine, ":")
 					# Flush previous person
 					if cCurrentId != ""
 						This.AddPersonXT(cCurrentId, aCurrent[:name])
 					ok
-					
+
 					cCurrentId = cLine
 					aCurrent = [ :name = "" ]
-					
-				but substr(cLine, "name:")
-					aCurrent[:name] = trim(@substr(cLine, 6, len(cLine)))
+
+				but ring_find(cLine, "name:")
+					aCurrent[:name] = trim(StzMid(cLine, 6, StzLen(cLine) - 5))
 				ok
-				
+
 			but cCurrentSection = "assignments"
-				if substr(cLine, " -> ")
+				if ring_find(cLine, " -> ")
 					aParts = @split(cLine, " -> ")
 					This.AssignPerson(trim(aParts[1]), trim(aParts[2]))
 				ok
 				
 			but cCurrentSection = "departments"
-				if NOT substr(cLine, ":")
+				if NOT ring_find(cLine, ":")
 					# Flush previous department
 					if cCurrentId != ""
 						This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
 					ok
-					
+
 					cCurrentId = cLine
 					aCurrent = [ :name = "", :positions = [] ]
-					
-				but substr(cLine, "name:")
-					aCurrent[:name] = trim(@substr(cLine, 6, len(cLine)))
-					
-				but substr(cLine, "positions:")
-					cPosStr = trim(@substr(cLine, 11, len(cLine)))
+
+				but ring_find(cLine, "name:")
+					aCurrent[:name] = trim(StzMid(cLine, 6, StzLen(cLine) - 5))
+
+				but ring_find(cLine, "positions:")
+					cPosStr = trim(StzMid(cLine, 11, StzLen(cLine) - 10))
 					cPosStr = replace(cPosStr, "[", "")
 					cPosStr = replace(cPosStr, "]", "")
 					aCurrent[:positions] = @split(cPosStr, ",")
@@ -1730,8 +1730,8 @@ class stzOrgChartBCEAOValidator
 		for i = 1 to nPosCount
 			aPos = @oOrgChart.@aPositions[i]
 			if HasKey(aPos, :title)
-				cTitle = lower(aPos[:title])
-				if substr(cTitle, "board")
+				cTitle = StzLower(aPos[:title])
+				if ring_find(cTitle, "board")
 					bHasBoard = TRUE
 					exit
 				ok
@@ -1862,7 +1862,7 @@ class stzOrgChartReporter
 		return aResult
 
 	def GenerateXT(pcType)
-		switch lower(pcType)
+		switch StzLower(pcType)
 		on "summary"
 			return This.SummaryReport()
 

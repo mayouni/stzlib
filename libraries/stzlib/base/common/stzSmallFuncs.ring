@@ -435,7 +435,7 @@ func L(p)
 		aResult = []
 		nLen = len(p)
 		for i = 1 to nLen
-			aResult + substr(p, i, 1)
+			aResult + StzMid(p, i, 1)
 		next
 		return aResult
 

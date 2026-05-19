@@ -423,17 +423,17 @@ func IntensifyColor(cColor)
 # Helper: Hex to RGB
 func HexToRGB(cHex)
 	# Remove # if present
-	if substr(cHex, "#")
-		cHex = @substr(cHex, 2, len(cHex))
+	if ring_find(cHex, "#")
+		cHex = StzMid(cHex, 2, StzLen(cHex) - 1)
 	ok
-	
-	if len(cHex) != 6
+
+	if StzLen(cHex) != 6
 		return [128, 128, 128] # Gray fallback
 	ok
-	
-	cR = @substr(cHex, 1, 2)
-	cG = @substr(cHex, 3, 4)
-	cB = @substr(cHex, 5, 6)
+
+	cR = StzMid(cHex, 1, 2)
+	cG = StzMid(cHex, 3, 2)
+	cB = StzMid(cHex, 5, 2)
 	
 	nR = HexToDec(cR)
 	nG = HexToDec(cG)
@@ -457,7 +457,7 @@ func RGBToHex(nR, nG, nB)
 	if len(cG) = 1 cG = "0" + cG ok
 	if len(cB) = 1 cB = "0" + cB ok
 	
-	return "#" + upper(cR) + upper(cG) + upper(cB)
+	return "#" + StzUpper(cR) + StzUpper(cG) + StzUpper(cB)
 
 
 func Palette()

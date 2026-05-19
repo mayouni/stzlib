@@ -79,12 +79,12 @@ def ParsePattern(cPattern)
 			loop
 		ok
 		
-		if substr(cPart, "|") > 0
+		if ring_find(cPart, "|") > 0
 			if @bDebugMode
 				? ">>> Detected alternation"
 			ok
 			aToken = This.ParseAlternation(cPart)
-		but substr(cPart, "&") > 0
+		but ring_find(cPart, "&") > 0
 			if @bDebugMode
 				? ">>> Detected conjunction"
 			ok
@@ -315,11 +315,11 @@ def ParseConjunction(cTokenStr)
 		ok
 		
 		# Parse parentheses content
-		nOpenParen = substr(cTokenStr, "(")
+		nOpenParen = ring_find(cTokenStr, "(")
 		nCloseParen = 0
-		
+
 		if nOpenParen > 0
-			nCloseParen = substr(cTokenStr, ")")
+			nCloseParen = ring_find(cTokenStr, ")")
 			if nCloseParen > nOpenParen
 				cContent = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
 				
@@ -346,14 +346,14 @@ def ParseConjunction(cTokenStr)
 		cQuantPart = trim(cQuantPart)
 		
 		if len(cQuantPart) > 0
-			if substr(cQuantPart, ":") > 0
-				nColon = substr(cQuantPart, ":")
+			if ring_find(cQuantPart, ":") > 0
+				nColon = ring_find(cQuantPart, ":")
 				cBeforeColon = @substr(cQuantPart, 1, nColon - 1)
 				cAfterColon = @substr(cQuantPart, nColon + 1, len(cQuantPart))
 				
 				cBeforeColon = trim(cBeforeColon)
 				if len(cBeforeColon) > 0 and This.IsNumeric(cBeforeColon)
-					if substr(cBeforeColon, "-") > 0
+					if ring_find(cBeforeColon, "-") > 0
 						aSection = @split(cBeforeColon, "-")
 						if len(aSection) = 2
 							nMin = 0 + trim(aSection[1])
@@ -371,7 +371,7 @@ def ParseConjunction(cTokenStr)
 					aConstraints + aMoreConstraints[i]
 				next
 			else
-				cLastChar = right(cQuantPart, 1)
+				cLastChar = StzRight(cQuantPart, 1)
 				if cLastChar = "+"
 					nMin = 1
 					nMax = 999999
@@ -382,7 +382,7 @@ def ParseConjunction(cTokenStr)
 					nMin = 0
 					nMax = 1
 				but This.IsNumeric(cQuantPart)
-					if substr(cQuantPart, "-") > 0
+					if ring_find(cQuantPart, "-") > 0
 						aSection = @split(cQuantPart, "-")
 						if len(aSection) = 2
 							nMin = 0 + trim(aSection[1])
@@ -413,7 +413,7 @@ def ParseConjunction(cTokenStr)
 		ok
 		
 		if cType = "element"
-			if substr(cConstraintStr, "..") > 0
+			if ring_find(cConstraintStr, "..") > 0
 				aParts = @split(cConstraintStr, "..")
 				if len(aParts) = 2
 					aConstraints + [
@@ -422,9 +422,9 @@ def ParseConjunction(cTokenStr)
 						["end", 0 + trim(aParts[2])]
 					]
 				ok
-			but substr(cConstraintStr, "{") > 0
-				nStart = substr(cConstraintStr, "{")
-				nEnd = substr(cConstraintStr, "}")
+			but ring_find(cConstraintStr, "{") > 0
+				nStart = ring_find(cConstraintStr, "{")
+				nEnd = ring_find(cConstraintStr, "}")
 				cSet = @substr(cConstraintStr, nStart + 1, nEnd - 1)
 				aValues = @split(cSet, ";")
 				aConstraints + [
@@ -440,7 +440,7 @@ def ParseConjunction(cTokenStr)
 		
 		but cType = "size"
 			# Handle size constraints like "3x3", "mxn", ">4"
-			if substr(cConstraintStr, "x") > 0
+			if ring_find(cConstraintStr, "x") > 0
 				aParts = @split(cConstraintStr, "x")
 				if len(aParts) = 2
 					aConstraints + [
@@ -610,7 +610,7 @@ def ParseConjunction(cTokenStr)
 		if HasKey(aToken, "value")
 			cValue = aToken["value"]
 			
-			if substr(cValue, "x") > 0
+			if ring_find(cValue, "x") > 0
 				aParts = @split(cValue, "x")
 				if len(aParts) = 2
 					cRowSpec = trim(aParts[1])

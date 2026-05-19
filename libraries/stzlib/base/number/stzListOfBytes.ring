@@ -94,13 +94,13 @@ class stzListOfBytes from stzList
 		return new stzString(This.ToString())
 
 	def InsertNBytesOfSubstringAt(nPosition, nBytes, pcSubstr)
-		cLeft = left(@cData, nPosition - 1)
-		cInsert = left(pcSubstr, nBytes)
-		cRight = substr(@cData, nPosition)
+		cLeft = StzLeft(@cData, nPosition - 1)
+		cInsert = StzLeft(pcSubstr, nBytes)
+		cRight = StzMid(@cData, nPosition, StzLen(@cData) - nPosition + 1)
 		@cData = cLeft + cInsert + cRight
 
 	def NLeftBytes(n)
-		return left(@cData, n)
+		return StzLeft(@cData, n)
 
 		def LeftNBytes(n)
 			return NLeftBytes(n)
@@ -112,7 +112,7 @@ class stzListOfBytes from stzList
 			return This.3LeftBytes()
 
 	def NRightBytes(n)
-		return right(@cData, n)
+		return StzRight(@cData, n)
 
 		def RightNBytes(n)
 			return NRightBytes(n)
@@ -131,23 +131,23 @@ class stzListOfBytes from stzList
 			return This
 
 	def IsEmpty()
-		return len(@cData) = 0
+		return StzLen(@cData) = 0
 
 	def RemoveNBytesStartingAt(nPosition, nBytes)
-		if nPosition < 1 or nPosition > len(@cData) return ok
+		if nPosition < 1 or nPosition > StzLen(@cData) return ok
 		nEnd = nPosition + nBytes - 1
-		if nEnd > len(@cData) nEnd = len(@cData) ok
-		@cData = left(@cData, nPosition - 1) + substr(@cData, nEnd + 1)
+		if nEnd > StzLen(@cData) nEnd = StzLen(@cData) ok
+		@cData = StzLeft(@cData, nPosition - 1) + StzMid(@cData, nEnd + 1, StzLen(@cData) - nEnd)
 
 	def RemoveNBytesStartingAtQ(nPosition, nBytes)
 		This.RemoveNBytesStartingAt(nPosition, nBytes)
 		return This
 
 	def RemoveNBytesFromEnd(n)
-		if n >= len(@cData)
+		if n >= StzLen(@cData)
 			@cData = ""
 		else
-			@cData = left(@cData, len(@cData) - n)
+			@cData = StzLeft(@cData, StzLen(@cData) - n)
 		ok
 
 	def RemoveNBytesFromEndQ(n)
@@ -155,15 +155,15 @@ class stzListOfBytes from stzList
 		return This
 
 	def Range(nStart, nBytes)
-		return substr(@cData, nStart, nBytes)
+		return StzMid(@cData, nStart, nBytes)
 
 	def Section(n1, n2)
 		return This.Range( n1, n2 - n1 + 1 )
 
 	def ReplaceNBytes(nBytesFromMainStr, nStartingAtPosition, nWithNBytes, pcFromSubstr)
-		cLeft = left(@cData, nStartingAtPosition - 1)
-		cMid = left(pcFromSubstr, nWithNBytes)
-		cRight = substr(@cData, nStartingAtPosition + nBytesFromMainStr)
+		cLeft = StzLeft(@cData, nStartingAtPosition - 1)
+		cMid = StzLeft(pcFromSubstr, nWithNBytes)
+		cRight = StzMid(@cData, nStartingAtPosition + nBytesFromMainStr, StzLen(@cData) - (nStartingAtPosition + nBytesFromMainStr) + 1)
 		@cData = cLeft + cMid + cRight
 
 	def ReplaceNBytesQ(nBytesFromMainStr, nStartingAtPosition, nWithNBytes, pcFromSubstr)
@@ -171,7 +171,7 @@ class stzListOfBytes from stzList
 		return This
 
 	def UnicodeOfNthByte(n)
-		if n < 1 or n > len(@cData) return -1 ok
+		if n < 1 or n > StzLen(@cData) return -1 ok
 		return ascii(@cData[n])
 
 		def UnicodeOfByteNumber(n)
@@ -194,7 +194,7 @@ class stzListOfBytes from stzList
 	def Bytecodes()
 		aResult = []
 
-		for i = 1 to len(@cData)
+		for i = 1 to StzLen(@cData)
 			aResult + ascii(@cData[i])
 		next
 
@@ -290,7 +290,7 @@ class stzListOfBytes from stzList
 			return This.BytesOfCharNumber(n)
 
 	def NumberOfBytes()
-		return len(@cData)
+		return StzLen(@cData)
 
 		def Size()
 			return This.NumberOfBytes()
@@ -319,7 +319,7 @@ class stzListOfBytes from stzList
 		oCaract = new stzChar(pcChar)
 		if oCaract.IsAscii()
 			nCode = oCaract.AsciiCode()
-			cChar = char(nCode)
+			cChar = StzChar(nCode)
 			@cData = copy(cChar, This.NumberOfBytes())
 			return @cData
 		else
@@ -327,17 +327,17 @@ class stzListOfBytes from stzList
 		ok
 
 	def FillWithAsciiCharUpToNBytes(pcChar, nBytes)
-		@cData = copy(char(ascii(pcChar)), nBytes)
+		@cData = copy(StzChar(ascii(pcChar)), nBytes)
 
 	def FillWithAsciiCharUpToNChars(pcChar, nChars)
 		nBytes = nChars * This.NumberOfBytesPerChar()
-		@cData = copy(char(ascii(pcChar)), nBytes)
+		@cData = copy(StzChar(ascii(pcChar)), nBytes)
 
 	def Resize(n)
-		if n < len(@cData)
-			@cData = left(@cData, n)
-		but n > len(@cData)
-			@cData = @cData + copy(char(0), n - len(@cData))
+		if n < StzLen(@cData)
+			@cData = StzLeft(@cData, n)
+		but n > StzLen(@cData)
+			@cData = @cData + copy(StzChar(0), n - StzLen(@cData))
 		ok
 
 	def Reserve(n)
@@ -779,10 +779,10 @@ class stzListOfBytes from stzList
 				return This.TrimQ()
 
 	def TruncatedAt(n)
-		return left(@cData, n)
+		return StzLeft(@cData, n)
 
 	def TruncateAt(n)
-		@cData = left(@cData, n)
+		@cData = StzLeft(@cData, n)
 
 		def TruncateAtQ(n)
 			This.TruncateAt(n)

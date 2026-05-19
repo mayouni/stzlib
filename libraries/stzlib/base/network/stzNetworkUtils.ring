@@ -36,7 +36,7 @@
         return True
     
     func IsValidUrl(cUrl)
-        return left(cUrl, 7) = "http://" or left(cUrl, 8) = "https://"
+        return StzLeft(cUrl, 7) = "http://" or StzLeft(cUrl, 8) = "https://"
     
 
     func UrlEncode(cString)
@@ -56,10 +56,10 @@
         # Implementation for URL decoding
         cOut = ""
         i = 1
-        while i <= len(cString)
+        while i <= StzLen(cString)
             if cString[i] = "%"
-                hex = substr(cString, i+1, 2)
-                cOut += char(hex2dec(hex))
+                hex = StzMid(cString, i+1, 2)
+                cOut += StzChar(hex2dec(hex))
                 i += 3
             elseif cString[i] = "+"
                 cOut += " "

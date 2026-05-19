@@ -24,11 +24,11 @@ func CreateParallelRequest(cUrl, nIndex)
     set_uv_tcp_data(tcp_handle, nIndex)
 
     # Build HTTP request
-    http_request = "GET " + url_parts[3] + " HTTP/1.1" + char(13) + char(10) +
-                   "Host: " + url_parts[1] + char(13) + char(10) +
-                   "User-Agent: Softanza-HTTP/1.0" + char(13) + char(10) +
-                   "Connection: close" + char(13) + char(10) +
-                   char(13) + char(10)
+    http_request = "GET " + url_parts[3] + " HTTP/1.1" + StzChar(13) + StzChar(10) +
+                   "Host: " + url_parts[1] + StzChar(13) + StzChar(10) +
+                   "User-Agent: Softanza-HTTP/1.0" + StzChar(13) + StzChar(10) +
+                   "Connection: close" + StzChar(13) + StzChar(10) +
+                   StzChar(13) + StzChar(10)
     
     # Store request data globally indexed by handle
     set_request_data(tcp_handle, [
@@ -63,7 +63,7 @@ func OnParallelConnect()
     write_req = new_uv_write_t()
     buf = new_uv_buf_t()
     http_req = request_data[:request]
-    set_uv_buf_t_len(buf, len(http_req))
+    set_uv_buf_t_len(buf, StzLen(http_req))
     set_uv_buf_t_base(buf, varptr("http_req", :char))
     
     uv_write(write_req, tcp_handle, buf, 1, "OnParallelWrite()")
@@ -123,62 +123,62 @@ func cleanup_handle(tcp_handle)
 func ParseUrl(cUrl) # TODO Exists already in stzString and may be in stzUrl
     url = cUrl
     port = 80
-    
+
     # Remove protocol
-    if left(url, 7) = "http://"
-        url = substr(url, 8)
-    elseif left(url, 8) = "https://"
-        url = substr(url, 9) 
+    if StzLeft(url, 7) = "http://"
+        url = StzMid(url, 8, StzLen(url) - 7)
+    elseif StzLeft(url, 8) = "https://"
+        url = StzMid(url, 9, StzLen(url) - 8)
         port = 443
     ok
-    
+
     # Extract host and path
-    slash_pos = substr(url, "/")
+    slash_pos = ring_find(url, "/")
     if slash_pos > 0
-        host = left(url, slash_pos - 1)
-        path = substr(url, slash_pos)
+        host = StzLeft(url, slash_pos - 1)
+        path = StzMid(url, slash_pos, StzLen(url) - slash_pos + 1)
     else
         host = url
         path = "/"
     ok
-    
+
     # Extract port
-    colon_pos = substr(host, ":")
+    colon_pos = ring_find(host, ":")
     if colon_pos > 0
-        port = 0 + substr(host, colon_pos + 1)
-        host = left(host, colon_pos - 1)
+        port = 0 + StzMid(host, colon_pos + 1, StzLen(host) - colon_pos)
+        host = StzLeft(host, colon_pos - 1)
     ok
-    
+
     return [host, port, path]
 
 func ParseHttpResponse(cResponse)
-    if len(cResponse) = 0
+    if StzLen(cResponse) = 0
         return [0, "", "", ""]
     ok
-    
+
     # Find headers/body separator
-    double_crlf = char(13) + char(10) + char(13) + char(10)
-    body_start = substr(cResponse, double_crlf)
-    
+    double_crlf = StzChar(13) + StzChar(10) + StzChar(13) + StzChar(10)
+    body_start = ring_find(cResponse, double_crlf)
+
     if body_start > 0
-        headers_part = left(cResponse, body_start - 1)
-        body_part = substr(cResponse, body_start + 4)
+        headers_part = StzLeft(cResponse, body_start - 1)
+        body_part = StzMid(cResponse, body_start + 4, StzLen(cResponse) - body_start - 3)
     else
         headers_part = cResponse
         body_part = ""
     ok
-    
+
     # Extract status code
     status_code = 200
-    first_line_end = substr(headers_part, char(13) + char(10))
+    first_line_end = ring_find(headers_part, StzChar(13) + StzChar(10))
     if first_line_end > 0
-        status_line = left(headers_part, first_line_end - 1)
+        status_line = StzLeft(headers_part, first_line_end - 1)
         parts = split(status_line, " ")
         if len(parts) >= 2
             status_code = 0 + parts[2]
         ok
     ok
-    
+
     return [status_code, headers_part, body_part]
 
 class stzHttpClient from stzNetwork
@@ -460,16 +460,16 @@ class stzHttpParallelClient
         ok
         
         # Send HTTP request
-        http_request = "GET " + request_data[:path] + " HTTP/1.1" + char(13) + char(10) +
-                      "Host: " + request_data[:host] + char(13) + char(10) +
-                      "User-Agent: Softanza-HTTP/1.0" + char(13) + char(10) +
-                      "Connection: close" + char(13) + char(10) +
-                      char(13) + char(10)
+        http_request = "GET " + request_data[:path] + " HTTP/1.1" + StzChar(13) + StzChar(10) +
+                      "Host: " + request_data[:host] + StzChar(13) + StzChar(10) +
+                      "User-Agent: Softanza-HTTP/1.0" + StzChar(13) + StzChar(10) +
+                      "Connection: close" + StzChar(13) + StzChar(10) +
+                      StzChar(13) + StzChar(10)
         
         # Create write request
         write_req = new_uv_write_t()
         buf = new_uv_buf_t()
-        set_uv_buf_t_len(buf, len(http_request))
+        set_uv_buf_t_len(buf, StzLen(http_request))
         set_uv_buf_t_base(buf, varptr("http_request", :char))
         
         tcp = get_uv_connect_t_handle(req)
@@ -544,60 +544,60 @@ class stzHttpParallelClient
         url = cUrl
         protocol = "http"
         port = 80
-        
-        if left(url, 7) = "http://"
-            url = substr(url, 8)
-        elseif left(url, 8) = "https://"
-            url = substr(url, 9)
+
+        if StzLeft(url, 7) = "http://"
+            url = StzMid(url, 8, StzLen(url) - 7)
+        elseif StzLeft(url, 8) = "https://"
+            url = StzMid(url, 9, StzLen(url) - 8)
             port = 443
         ok
-        
+
         # Extract host and path
-        slash_pos = substr(url, "/")
+        slash_pos = ring_find(url, "/")
         if slash_pos > 0
-            host = left(url, slash_pos - 1)
-            path = substr(url, slash_pos)
+            host = StzLeft(url, slash_pos - 1)
+            path = StzMid(url, slash_pos, StzLen(url) - slash_pos + 1)
         else
             host = url
             path = "/"
         ok
-        
+
         # Extract port if specified
-        colon_pos = substr(host, ":")
+        colon_pos = ring_find(host, ":")
         if colon_pos > 0
-            port = 0 + substr(host, colon_pos + 1)
-            host = left(host, colon_pos - 1)
+            port = 0 + StzMid(host, colon_pos + 1, StzLen(host) - colon_pos)
+            host = StzLeft(host, colon_pos - 1)
         ok
-        
+
         return [:host = host, :port = port, :path = path]
     
     def ParseHttpResponse(cResponse)
-        if len(cResponse) = 0
+        if StzLen(cResponse) = 0
             return [:status_code = 0, :headers = "", :body = ""]
         ok
-        
+
         # Split headers and body
-        double_crlf = char(13) + char(10) + char(13) + char(10)
-        body_start = substr(cResponse, double_crlf)
-        
+        double_crlf = StzChar(13) + StzChar(10) + StzChar(13) + StzChar(10)
+        body_start = ring_find(cResponse, double_crlf)
+
         if body_start > 0
-            headers_part = left(cResponse, body_start - 1)
-            body_part = substr(cResponse, body_start + 4)
+            headers_part = StzLeft(cResponse, body_start - 1)
+            body_part = StzMid(cResponse, body_start + 4, StzLen(cResponse) - body_start - 3)
         else
             headers_part = cResponse
             body_part = ""
         ok
-        
+
         # Extract status code from first line
         status_code = 200
-        first_line_end = substr(headers_part, char(13) + char(10))
+        first_line_end = ring_find(headers_part, StzChar(13) + StzChar(10))
         if first_line_end > 0
-            status_line = left(headers_part, first_line_end - 1)
+            status_line = StzLeft(headers_part, first_line_end - 1)
             # Extract status code (format: HTTP/1.1 200 OK)
             parts = split(status_line, " ")
             if len(parts) >= 2
                 status_code = 0 + parts[2]
             ok
         ok
-        
+
         return [:status_code = status_code, :headers = headers_part, :body = body_part]

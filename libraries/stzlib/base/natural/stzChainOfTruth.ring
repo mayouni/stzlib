@@ -222,7 +222,7 @@ class stzChainOfTruth from stzObject
 			bResult = 1
 
 		but BothAreStrings( pThing, This.Value() ) and
-		    lower(pThing) = lower(This.Value())
+		    StzLower(pThing) = StzLower(This.Value())
 			bResult = 1
 
 		# Case of a string
@@ -249,7 +249,7 @@ class stzChainOfTruth from stzObject
 				eval(cCode)
 	
 			# Case of a function call
-			but (substr(pThing, "(") > 1 and substr(pThing, ")") > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and substr(pThing, "(") < substr(pThing, ")") and right(pThing, 1) = ")")
+			but (ring_find(pThing, "(") > 1 and ring_find(pThing, ")") > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and ring_find(pThing, "(") < ring_find(pThing, ")") and StzRight(pThing, 1) = ")")
 				# Example: _("H").Is('LetterOf("HUSSEIN")')._
 
 				cCode = 'bResult = _(' + ComputableForm(This.Value()) + ').Q.Is' + pThing
@@ -322,7 +322,7 @@ class stzChainOfTruth from stzObject
 
 		# Managing the special semantic meaning of IsA()
 		if isString(pThing) and
-		   (substr(pThing, "(") > 1 and substr(pThing, ")") > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and substr(pThing, "(") < substr(pThing, ")") and right(pThing, 1) = ")") and
+		   (ring_find(pThing, "(") > 1 and ring_find(pThing, ")") > 0 and StringNumberOfOccurrence(pThing, "(") = 1 and StringNumberOfOccurrence(pThing, ")") = 1 and ring_find(pThing, "(") < ring_find(pThing, ")") and StzRight(pThing, 1) = ")") and
 		   FunctionNameFinishesWithOneOfThese( pThing, [ "in", "of" ] ) and
 		   FunctionParamTypeIsOneOfThese( pThing, [ "STRING", "LIST" ] )
 
@@ -359,7 +359,7 @@ class stzChainOfTruth from stzObject
 
 			cFuncName = FunctionName(pThing)
 
-			cTempType = upper(left(cFuncName, len(cFuncName) - 2))
+			cTempType = StzUpper(StzLeft(cFuncName, StzLen(cFuncName) - 2))
 			if cTempType = "NUMBER" or cTempType = "STRING" or cTempType = "LIST"
 				cFuncName = "A" + cFuncName
 
@@ -385,7 +385,7 @@ class stzChainOfTruth from stzObject
 			# semantics of IsA() as explained above
 
 			cValue = FunctionParam(pThing)
-			cMethod = left(cFuncName, len(cFuncName) - 2)
+			cMethod = StzLeft(cFuncName, StzLen(cFuncName) - 2)
 			cIsMethod = "is" + cMethod
 			cIsMethodCall = cIsMethod + "()"
 			cCode = "bPass = _(" + ComputableForm(cValue) + ").Q.NumberOfItemsW('{ _(@item).Q." + cIsMethodCall + " }') > 1"
@@ -463,7 +463,7 @@ class stzChainOfTruth from stzObject
 
 		cCode = 'bResult = This.StzObject().' + pcMethod
 
-		if NOT (substr(pcMethod, "(") > 1 and substr(pcMethod, ")") > 0 and StringNumberOfOccurrence(pcMethod, "(") = 1 and StringNumberOfOccurrence(pcMethod, ")") = 1 and substr(pcMethod, "(") < substr(pcMethod, ")") and right(pcMethod, 1) = ")")
+		if NOT (ring_find(pcMethod, "(") > 1 and ring_find(pcMethod, ")") > 0 and StringNumberOfOccurrence(pcMethod, "(") = 1 and StringNumberOfOccurrence(pcMethod, ")") = 1 and ring_find(pcMethod, "(") < ring_find(pcMethod, ")") and StzRight(pcMethod, 1) = ")")
 			cCode += "()"
 		ok
 
@@ -680,33 +680,33 @@ class stzChainOfTruth from stzObject
 
 	def st(pcThing)
 		if This._Type() = "NUMBER" and
-		   right(''+ This.Value(), 1) = "1"
+		   StzRight(''+ This.Value(), 1) = "1"
 
 			return This.Nth(pcThing)
 		ok
 
 	def nd(pcThing)
 		if This._Type() = "NUMBER" and
-		   right(''+ This.Value(), 1) = "2"
+		   StzRight(''+ This.Value(), 1) = "2"
 
 			return This.nth(pcThing)
 		ok
 
 	def rd(pcThing)
 		if This._Type() = "NUMBER" and
-		   right(''+ This.Value(), 1) = "3"
+		   StzRight(''+ This.Value(), 1) = "3"
 
 			return This.nth(pcThing)
 		ok
 
 	def th(pcThing)
 		/* Example:
-	
+
 		_(7).nth('LetterOf("HUSSEIN")').Q 	#--> "N"
-	
+
 		*/
 		if This._Type() = "NUMBER" and
-		   (0+ right(''+ This.Value(), 1)) > 1
+		   (0+ StzRight(''+ This.Value(), 1)) > 1
 
 			return This.nth(pcThing)
 
@@ -725,7 +725,7 @@ class stzChainOfTruth from stzObject
 			oStzString = new stzString(cCode)
 			n = oStzString.FindFirst("(")
 	
-			cCode = left(cCode, n) + "" + This.Value() + ", " + substr(cCode, n + 1)
+			cCode = StzLeft(cCode, n) + "" + This.Value() + ", " + substr(cCode, n + 1)
 
 			eval(cCode)
 
@@ -794,7 +794,7 @@ class stzChainOfTruth from stzObject
 		n1 = oStzStr.FindFirstOccurrence("(") + 1
 		n2 = oStzStr.FindFirstOccurrence(")") - 1
 
-		return substr(pcFunctionCall, n1, n2 - n1 + 1)
+		return StzMid(pcFunctionCall, n1, n2 - n1 + 1)
 
 
 	def pvtFunctionName( pcFunctionCall )
@@ -802,7 +802,7 @@ class stzChainOfTruth from stzObject
 
 		n = oStzStr.FindFirstOccurrence("(") - 1
 
-		return left(pcFunctionCall, n)
+		return StzLeft(pcFunctionCall, n)
 
 	def pvtFunctionNameFinishesWithOneOfThese( pcFunctionCall, paSubStr )
 		/*
@@ -810,7 +810,7 @@ class stzChainOfTruth from stzObject
 		*/
 
 		cFuncName = pvtFunctionName(pcFunctionCall)
-		cLast2Chars = lower(right(cFuncName, 2))
+		cLast2Chars = StzLower(StzRight(cFuncName, 2))
 
 		if cLast2Chars = "in" or cLast2Chars = "of"
 			return 1
@@ -821,10 +821,10 @@ class stzChainOfTruth from stzObject
 	def pvtFunctionParamType( pcFunctionCall )
 		cParam = pvtFunctionParam(pcFunctionCall)
 
-		if len(cParam) >= 2 and left(cParam, 1) = '"' and right(cParam, 1) = '"'
+		if StzLen(cParam) >= 2 and StzLeft(cParam, 1) = '"' and StzRight(cParam, 1) = '"'
 			cType = "STRING"
 
-		but len(cParam) >= 2 and left(cParam, 1) = "[" and right(cParam, 1) = "]"
+		but StzLen(cParam) >= 2 and StzLeft(cParam, 1) = "[" and StzRight(cParam, 1) = "]"
 			cType = "LIST"
 
 		but isNumber(0+ cParam) and cParam != ""

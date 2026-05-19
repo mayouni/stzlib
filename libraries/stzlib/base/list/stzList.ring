@@ -532,7 +532,7 @@ func ListStringifyXT(paList)
 
 			cNumber = ""+ paList[i]
 
-			nSize = len(cNumber)
+			nSize = StzLen(cNumber)
 			if nSize > nMaxSize
 				nMaxSize = nSize
 			ok
@@ -578,7 +578,7 @@ func ListStringifyXT(paList)
 		# In case where the number is not a zero
 
 		cNumber = ""+ paList[nPos]
-		nLenNumber = len(cNumber)
+		nLenNumber = StzLen(cNumber)
 		nPosDot = ring_substr1(cNumber, ".")
 			
 		if nPosDot = 0
@@ -769,7 +769,7 @@ func SortOnXT(n, paList, pcDirection)
 		StzRaise("Incorrect param type! pcDirection must be a string.")
 	ok
 
-	if not ring_find([ "ascending", "descending", "up", "down" ], lower(pcDirection))
+	if not ring_find([ "ascending", "descending", "up", "down" ], StzLower(pcDirection))
 		StzRaise("Incorrect param value! pcDirection can be :Forward or :Backward.")
 	ok
 
@@ -5419,8 +5419,8 @@ func AreBothEqualCS(p1, p2, pCaseSensitive)
 	but isString(p1)
 
 		if pCaseSensitive = 0
-			p1 = lower(p1)
-			p2 = lower(p2)
+			p1 = StzLower(p1)
+			p2 = StzLower(p2)
 		ok
 
 		return p1 = p2
@@ -5559,7 +5559,7 @@ func AreEqualCS(paValues, pCaseSensitive)
 	but isString(paValues[1])
 		if pCaseSensitive = 0
 			for i = 1 to nLen
-				paValues[i] = lower(paValues[i])
+				paValues[i] = StzLower(paValues[i])
 			next
 		ok
 
@@ -6234,7 +6234,7 @@ func @FindAllCS_NbrOrStr(paList, pItem, pCaseSensitive)
 
 	if pCaseSensitive = 0 
 		if isString(_item_)
-			pItem = lower(_item_)
+			pItem = StzLower(_item_)
 		ok
 
 		_aList_ = ListLowercased(_aList_)
@@ -6383,7 +6383,7 @@ func @FindNthOccurrenceCS(paList, nth, pItem, pCaseSensitive)
 	if pCaseSensitive = 0 
 
 		if isString(pItem)
-			pItem = lower(pItem)
+			pItem = StzLower(pItem)
 		ok
 
 		paList = ListLowercased(paList)
@@ -6464,7 +6464,7 @@ func @FindNthSTCS(aList, nth, pItem, nStart, pCaseSensitive)
 
 	if pCaseSensitive = 0 
 		if isString(pItem)
-			pItem = lower(pItem)
+			pItem = StzLower(pItem)
 		ok
 
 		aList = ListLowercased(aList)
@@ -7474,7 +7474,7 @@ func HasPath(paList, pacKeys)
 		for j = 1 to nCurrentLen
 			# Handle hashlist format [key, value]
 			if isList(aCurrent[j]) and len(aCurrent[j]) >= 2
-				if isString(aCurrent[j][1]) and lower(aCurrent[j][1]) = lower(cKey)
+				if isString(aCurrent[j][1]) and StzLower(aCurrent[j][1]) = StzLower(cKey)
 					nPos = j
 					exit
 				ok
@@ -16179,9 +16179,9 @@ class stzList from stzObject
 		bCase = @CaseSensitive(pCaseSensitive)
 
 		if bCase = FALSE
-			cContent = lower(cContent)
+			cContent = StzLower(cContent)
 			for i = 1 to nLen
-				acItems[i] = lower(acItems[i])
+				acItems[i] = StzLower(acItems[i])
 			next
 		ok
 
@@ -18910,7 +18910,7 @@ class stzList from stzObject
 	#========================================#
 
 	def SwapSections( panSection1, panSection2 )
-		if isList(panSection2) and len(panSection2) = 2 and isString(panSection2[1]) and (lower(panSection2[1]) = "with" or lower(panSection2[1]) = "and")
+		if isList(panSection2) and len(panSection2) = 2 and isString(panSection2[1]) and (StzLower(panSection2[1]) = "with" or StzLower(panSection2[1]) = "and")
 			panSection2 = panSection2[2]
 		ok
 
@@ -20216,7 +20216,7 @@ class stzList from stzObject
 	def BoundsCS(pItem, pUpTo, pCaseSensitive)
 
 		if CheckingParams()
-			if isList(pItem) and len(pItem) = 2 and isString(pItem[1]) and lower(pItem[1]) = "of"
+			if isList(pItem) and len(pItem) = 2 and isString(pItem[1]) and StzLower(pItem[1]) = "of"
 				pItem = pItem[2]
 			ok
 	
@@ -27413,8 +27413,8 @@ class stzList from stzObject
 		ok
 
 		cCode1 = 'bOk = item.Is' + pcType + '()'
-		if left(pcType, 1) = "A"
-			pcType = right(pcType, len(pcType)-1)
+		if StzLeft(pcType, 1) = "A"
+			pcType = StzRight(pcType, StzLen(pcType)-1)
 		ok
 		cCode2 = 'bOk = ( ring_type(item) = "' + upper(pcType) + '" )'
 
@@ -30972,7 +30972,7 @@ class stzList from stzObject
 			acList1 = This.StringifyQ().SortQ().Lowercased()
 			acList2 = sort(_acOther)
 			for _k = 1 to len(acList2)
-				acList2[_k] = lower(acList2[_k])
+				acList2[_k] = StzLower(acList2[_k])
 			next
 
 		else
@@ -32002,12 +32002,12 @@ class stzList from stzObject
 		# Special case
 
 		if bCaseSensitive = 0
-			_cLowExpr = lower(paPartitionExpr)
-			if substr(_cLowExpr, "charcase(") or
-			   substr(_cLowExpr, "isuppercase") or
-			   substr(_cLowExpr, "islowercase") or
-			   substr(_cLowExpr, "lower(") or
-			   substr(_cLowExpr, "upper(")
+			_cLowExpr = StzLower(paPartitionExpr)
+			if ring_find(_cLowExpr, "charcase(") or
+			   ring_find(_cLowExpr, "isuppercase") or
+			   ring_find(_cLowExpr, "islowercase") or
+			   ring_find(_cLowExpr, "lower(") or
+			   ring_find(_cLowExpr, "upper(")
 				return [ [ @aContent ] ]
 			ok
 		ok
@@ -32205,12 +32205,12 @@ class stzList from stzObject
 		# Special case
 
 		if bCaseSensitive = 0
-			_cLowExpr = lower(paPartitionExpr)
-			if substr(_cLowExpr, "charcase(") or
-			   substr(_cLowExpr, "isuppercase") or
-			   substr(_cLowExpr, "islowercase") or
-			   substr(_cLowExpr, "lower(") or
-			   substr(_cLowExpr, "upper(")
+			_cLowExpr = StzLower(paPartitionExpr)
+			if ring_find(_cLowExpr, "charcase(") or
+			   ring_find(_cLowExpr, "isuppercase") or
+			   ring_find(_cLowExpr, "islowercase") or
+			   ring_find(_cLowExpr, "lower(") or
+			   ring_find(_cLowExpr, "upper(")
 				return [ [ @aContent, "" ] ]
 			ok
 		ok
@@ -32369,12 +32369,12 @@ class stzList from stzObject
 		# Special case
 
 		if bCaseSensitive = 0
-			_cLowExpr = lower(paPartitionExpr)
-			if substr(_cLowExpr, "charcase(") or
-			   substr(_cLowExpr, "isuppercase") or
-			   substr(_cLowExpr, "islowercase") or
-			   substr(_cLowExpr, "lower(") or
-			   substr(_cLowExpr, "upper(")
+			_cLowExpr = StzLower(paPartitionExpr)
+			if ring_find(_cLowExpr, "charcase(") or
+			   ring_find(_cLowExpr, "isuppercase") or
+			   ring_find(_cLowExpr, "islowercase") or
+			   ring_find(_cLowExpr, "lower(") or
+			   ring_find(_cLowExpr, "upper(")
 				return [ 1 ]
 			ok
 		ok
@@ -32457,12 +32457,12 @@ class stzList from stzObject
 		# Special case
 
 		if bCaseSensitive = 0
-			_cLowExpr = lower(paPartitionExpr)
-			if substr(_cLowExpr, "charcase(") or
-			   substr(_cLowExpr, "isuppercase") or
-			   substr(_cLowExpr, "islowercase") or
-			   substr(_cLowExpr, "lower(") or
-			   substr(_cLowExpr, "upper(")
+			_cLowExpr = StzLower(paPartitionExpr)
+			if ring_find(_cLowExpr, "charcase(") or
+			   ring_find(_cLowExpr, "isuppercase") or
+			   ring_find(_cLowExpr, "islowercase") or
+			   ring_find(_cLowExpr, "lower(") or
+			   ring_find(_cLowExpr, "upper(")
 				return [ [ 1, nLen ] ]
 			ok
 		ok
@@ -32546,12 +32546,12 @@ class stzList from stzObject
 		# Special case
 
 		if bCaseSensitive = 0
-			_cLowExpr = lower(paPartitionExpr)
-			if substr(_cLowExpr, "charcase(") or
-			   substr(_cLowExpr, "isuppercase") or
-			   substr(_cLowExpr, "islowercase") or
-			   substr(_cLowExpr, "lower(") or
-			   substr(_cLowExpr, "upper(")
+			_cLowExpr = StzLower(paPartitionExpr)
+			if ring_find(_cLowExpr, "charcase(") or
+			   ring_find(_cLowExpr, "isuppercase") or
+			   ring_find(_cLowExpr, "islowercase") or
+			   ring_find(_cLowExpr, "lower(") or
+			   ring_find(_cLowExpr, "upper(")
 				return [ [ @aContent ] ]
 			ok
 		ok
@@ -32642,12 +32642,12 @@ class stzList from stzObject
 		# Special case
 
 		if bCaseSensitive = 0
-			_cLowExpr = lower(paPartitionExpr)
-			if substr(_cLowExpr, "charcase(") or
-			   substr(_cLowExpr, "isuppercase") or
-			   substr(_cLowExpr, "islowercase") or
-			   substr(_cLowExpr, "lower(") or
-			   substr(_cLowExpr, "upper(")
+			_cLowExpr = StzLower(paPartitionExpr)
+			if ring_find(_cLowExpr, "charcase(") or
+			   ring_find(_cLowExpr, "isuppercase") or
+			   ring_find(_cLowExpr, "islowercase") or
+			   ring_find(_cLowExpr, "lower(") or
+			   ring_find(_cLowExpr, "upper(")
 				return [ [ @aContent, [1, nLen] ] ]
 			ok
 		ok
@@ -32968,7 +32968,7 @@ class stzList from stzObject
 		else
 			acList = This.Copy().StringifyQ().Lowercased()
 			for _k_ = 1 to _nLenOther_
-				acOtherList + lower("" + paOtherList[_k_])
+				acOtherList + StzLower("" + paOtherList[_k_])
 			next
 		ok
 
@@ -33450,7 +33450,7 @@ class stzList from stzObject
 		else
 			acList = This.Copy().StringifyQ().Lowercased()
 			for _k_ = 1 to nLenOther
-				acOther + lower("" + paOtherList[_k_])
+				acOther + StzLower("" + paOtherList[_k_])
 			next
 		ok
 
@@ -45328,7 +45328,7 @@ fdef
 	def AntiPositions(anPos)
 
 		if CheckingParams()
-			if isList(anPos) and len(anPos) = 2 and isString(anPos[1]) and lower(anPos[1]) = "of"
+			if isList(anPos) and len(anPos) = 2 and isString(anPos[1]) and StzLower(anPos[1]) = "of"
 				anPos = anPos[2]
 			ok
 
@@ -46429,9 +46429,9 @@ fdef
 		ok
 
 		if _bCase_ = 1
-			_bResult_ = substr(_cList_, _cItem_) > 0
+			_bResult_ = ring_find(_cList_, _cItem_) > 0
 		else
-			_bResult_ = substr(lower(_cList_), lower(_cItem_)) > 0
+			_bResult_ = ring_find(StzLower(_cList_), StzLower(_cItem_)) > 0
 		ok
 
 		return _bResult_
@@ -46615,8 +46615,8 @@ fdef
 			_cContent_ = @@(_aContent_)
 	
 			if _bCase_ = 0
-				_cItem_ = lower(_cItem_)
-				_cContent_ = lower(_cContent_)
+				_cItem_ = StzLower(_cItem_)
+				_cContent_ = StzLower(_cContent_)
 			ok
 	
 			return FindStrListInNestedStrList( _cItem_, _cContent_ )
@@ -49644,7 +49644,7 @@ fdef
 
 	def NumberOfLevels()
 		_cBraces_ = @@Q(This.Content()).RemoveAllExceptQ([ "[", "]" ]).Content()
-		_nLenBraces_ = len(_cBraces_)
+		_nLenBraces_ = StzLen(_cBraces_)
 
 		nMaxLevel = 0
 		nCurrentLevel = 0
@@ -49950,7 +49950,7 @@ fdef
 		cResult = This.ToCodeQ().Simplified()
 		anPos = Q(cResult).FindAllCS( @@(pItem), pCaseSensitive )
 
-		nLen = len(cResult)
+		nLen = StzLen(cResult)
 
 		cViz = " "
 		for i = 1 to nLen - 2
@@ -53180,7 +53180,7 @@ fdef
 
 	def DeepLowercase()
 
-		_cCode_ = ' _aResult_ = ' + lower( @@(This.Content()) )
+		_cCode_ = ' _aResult_ = ' + StzLower( @@(This.Content()) )
 		eval(_cCode_)
 		This.Update(_aResult_)
 
@@ -53213,7 +53213,7 @@ fdef
 
 	def DeepLowercaseString(pcStr)
 
-		_cContent_ = @@Q( This.Content() ).ReplaceQ(pcStr, lower(pcStr)).Content()
+		_cContent_ = @@Q( This.Content() ).ReplaceQ(pcStr, StzLower(pcStr)).Content()
 		_cCode_ = ' _aResult_ = ' + _cContent_
 		eval(_cCode_)
 		This.Update(_aResult_)
@@ -53303,7 +53303,7 @@ fdef
 	#-----------------------------#
 
 	def DeepUppercase()
-		_cCode_ = ' _aResult_ = ' + upper( @@(This.Content()) )
+		_cCode_ = ' _aResult_ = ' + StzUpper( @@(This.Content()) )
 		eval(_cCode_)
 		This.Update(_aResult_)
 
@@ -53336,7 +53336,7 @@ fdef
 
 	def DeepUppercaseString(pcStr)
 
-		_cContent_ = @@Q( This.Content() ).ReplaceQ(pcStr, upper(pcStr)).Content()
+		_cContent_ = @@Q( This.Content() ).ReplaceQ(pcStr, StzUpper(pcStr)).Content()
 		_cCode_ = ' _aResult_ = ' + _cContent_
 		eval(_cCode_)
 		This.Update(_aResult_)
@@ -56707,7 +56707,7 @@ fdef
 
 		for i = 1 to nLen
 
-			cType = lower(acTypes[i])
+			cType = StzLower(acTypes[i])
 
 			if  cType = "number"
 				aResult + [ :Number, This.FindNumbers() ]
@@ -56737,7 +56737,7 @@ fdef
 
 		for i = 1 to nLen
 
-			cType = lower(acTypes[i])
+			cType = StzLower(acTypes[i])
 
 			if  cType = "number"
 				aResult + [ :Number, This.FindNumbersZZ() ]
@@ -59576,7 +59576,7 @@ fdef
 				cItem = @ObjectVarName(aContent[i])
 			ok
 
-			cItem = lower( cItem )
+			cItem = StzLower( cItem )
 			acResult + cItem
 		next
 
@@ -59949,9 +59949,9 @@ fdef
 			StzRaise("Incorrect param types! p1, p2, and p3 must be all strings.")
 		ok
 
-		p1 = lower(p1)
-		p2 = lower(p2)
-		p3 = lower(p3)
+		p1 = StzLower(p1)
+		p2 = StzLower(p2)
+		p3 = StzLower(p3)
 
 		# Composing the conditional expression
 
@@ -60245,7 +60245,7 @@ fdef
 			ok
 		ok
 
-		cType = upper(pcType)
+		cType = StzUpper(pcType)
 
 		bResult = TRUE
 		nLen = This.NumberOfItems()
@@ -78228,7 +78228,7 @@ fdef
 		_aItems_ = This.ItemsW(pcCondition)
 		_nLen_ = len(_aItems_)
 
-		_cCode_ = lower(StzCCodeQ(pcYielder).Content())
+		_cCode_ = StzLower(StzCCodeQ(pcYielder).Content())
 		_cCode_ = ring_substr2(_cCode_, "this[", "_aItems_[")
 		_cCode_ = ring_substr2(_cCode_, "@aContent[", "_aItems_[")
 
@@ -78263,7 +78263,7 @@ fdef
 
 		_oCode_ = new stzCCode(pcYielder)
 		_oCode_.Transpile()
-		_cCode_ = lower(_oCode_.Content())
+		_cCode_ = StzLower(_oCode_.Content())
 
 		_cCode_ = ring_substr2(_cCode_, "this[", "_aItems_[")
 		_cCode_ = ring_substr2(_cCode_, "@aContent[", "_aItems_[")

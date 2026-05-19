@@ -50,7 +50,7 @@ class stzPivotTable from stzList
 
 	def init(pSource)
 		# Initialize the pivot table with source data
-		if isString(pSource) and lower(pSource) = :fromsource
+		if isString(pSource) and StzLower(pSource) = :fromsource
 			return
 		ok
 		
@@ -159,7 +159,7 @@ class stzPivotTable from stzList
 
 	def SetAggregateFunction(pcFunction)
 		# Set aggregation function (e.g., SUM, AVG)
-		@cAggFunc = upper(pcFunction)
+		@cAggFunc = StzUpper(pcFunction)
 		This.SetTotalLabel(@cAggFunc)
 		@bIsGenerated = FALSE
 
@@ -461,7 +461,7 @@ class stzPivotTable from stzList
 
 			if @bShowTotalColumn
 
-				if lower(@cAggFunc) = "count"
+				if StzLower(@cAggFunc) = "count"
 					aRow + aRowValues[1]
 				else
 
@@ -506,7 +506,7 @@ class stzPivotTable from stzList
 			
 			# Apply aggregation
 
-			if lower(@cAggFunc) = "count"
+			if StzLower(@cAggFunc) = "count"
 				cOrigAggFunc = @cAggFunc
 				@cAggFunc = :Sum
 				nColTotal = _applyAggregateFunction(aColValues)
@@ -701,7 +701,7 @@ class stzPivotTable from stzList
 			return @cCellNullValue
 		ok
 
-		switch lower(@cAggFunc)
+		switch StzLower(@cAggFunc)
 
 			on "sum"
 
@@ -1155,7 +1155,7 @@ class stzPivotTable from stzList
 		for i = 1 to nDataColsLen
 			colIdx = aDataCols[i]
 			colHeader = aHeaderRow[colIdx]
-			capitalized = Upper(Left(colHeader, 1)) + substr(colHeader, 2)
+			capitalized = StzUpper(StzLeft(colHeader, 1)) + StzMid(colHeader, 2, StzLen(colHeader) - 1)
 			cLine += CenterText(capitalized, aDataColWidths[i])
 		
 			if i < nDataColsLen
@@ -1530,7 +1530,7 @@ class stzPivotTable from stzList
 		
 		for i = 1 to nRowDimsLen
 			dim = aRowDims[i]
-			capitalized = Upper(Left(dim, 1)) + substr(dim, 2)
+			capitalized = StzUpper(StzLeft(dim, 1)) + StzMid(dim, 2, StzLen(dim) - 1)
 			cLine += CenterText(capitalized, aRowLabelWidths[i])
 			
 			if i < nRowDimsLen
@@ -1798,7 +1798,7 @@ class stzPivotTable from stzList
 		ok
 
 		cTrimmed = trim(cOutput)
-		? left(cTrimmed, len(cTrimmed) - 1) + NL
+		? StzLeft(cTrimmed, len(cTrimmed) - 1) + NL
 
 	#-------------------------------------#
 	#  2D PIVOT TABLE DISPLAY - eXTended  #
@@ -2147,7 +2147,7 @@ class stzPivotTable from stzList
 		
 		for i = 1 to nRowDimsLen
 			dim = aRowDims[i]
-			capitalized = Upper(Left(dim, 1)) + substr(dim, 2)
+			capitalized = StzUpper(StzLeft(dim, 1)) + StzMid(dim, 2, StzLen(dim) - 1)
 			cLine += CenterText(capitalized, aRowLabelWidths[i])
 			
 			if i < nRowDimsLen
@@ -2488,7 +2488,7 @@ class stzPivotTable from stzList
 		ok
 	
 		cTrimmed = trim(cOutput)
-		? left(cTrimmed, len(cTrimmed) - 1) + NL
+		? StzLeft(cTrimmed, len(cTrimmed) - 1) + NL
 	
 	  #------------------------------------------#
 	 #  1D Rows 2D Columns Pivot Table Display  #
@@ -2965,7 +2965,7 @@ class stzPivotTable from stzList
 		ok
 
 		cTrimmed = trim(cOutput)
-		? left(cTrimmed, len(cTrimmed) - 1) + NL
+		? StzLeft(cTrimmed, len(cTrimmed) - 1) + NL
 
 	  #------------------------------------------#
 	 #  2D Rows 1D Columns Pivot Table Display  #
