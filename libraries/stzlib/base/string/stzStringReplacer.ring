@@ -555,3 +555,50 @@ class stzStringReplacer
 		def RemoveNthOccurrenceEngineQ(n, pcSubStr)
 			This.RemoveNthOccurrenceEngine(n, pcSubStr)
 			return This
+
+	  #===============================#
+	 #     SPACIFY (Engine-backed)   #
+	#===============================#
+
+	def Spacify()
+		pH = @oString.Engine()
+		pR = StzEngineStringSpacify(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def SpacifyQ()
+			This.Spacify()
+			return This
+
+	def Spacified()
+		pH = @oString.Engine()
+		pR = StzEngineStringSpacify(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	  #===============================#
+	 #     STRIP MARKS (Engine)      #
+	#===============================#
+
+	def StripMarks()
+		pH = @oString.Engine()
+		pR = StzEngineStringStripMarks(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def StripMarksQ()
+			This.StripMarks()
+			return This
+
+	def MarksStripped()
+		pH = @oString.Engine()
+		pR = StzEngineStringStripMarks(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+		def StrippedOfMarks()
+			return This.MarksStripped()

@@ -85,7 +85,7 @@ class stzStringUnicodeList
 	def Chars()
 		aResult = []
 		for n in @anUnicodes
-			aResult + char(n)
+			aResult + StzChar(n)
 		next
 		return aResult
 
@@ -95,7 +95,7 @@ class stzStringUnicodeList
 	def ToString()
 		cResult = ""
 		for n in @anUnicodes
-			cResult += char(n)
+			cResult += StzChar(n)
 		next
 		return cResult
 
@@ -105,14 +105,14 @@ class stzStringUnicodeList
 	def UnicodesAndChars()
 		aResult = []
 		for n in @anUnicodes
-			aResult + [ n, char(n) ]
+			aResult + [ n, StzChar(n) ]
 		next
 		return aResult
 
 	def CharsAndUnicodes()
 		aResult = []
 		for n in @anUnicodes
-			aResult + [ char(n), n ]
+			aResult + [ StzChar(n), n ]
 		next
 		return aResult
 

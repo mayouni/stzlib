@@ -72,7 +72,7 @@ class stzStringBoxed
 			cHBar += "-"
 		next
 
-		cResult = "+" + cHBar + "+" + char(10)
+		cResult = "+" + cHBar + "+" + StzChar(10)
 
 		for i = 1 to nLines
 			cLine = oLines.NthLine(i)
@@ -82,7 +82,7 @@ class stzStringBoxed
 			for j = 1 to nMaxLen - nLen
 				cPad += " "
 			next
-			cResult += "| " + cLine + cPad + " |" + char(10)
+			cResult += "| " + cLine + cPad + " |" + StzChar(10)
 		next
 
 		cResult += "+" + cHBar + "+"
@@ -123,4 +123,4 @@ class stzStringBoxed
 		cTop += "+"
 		cBottom += "+"
 
-		return cTop + char(10) + cMiddle + char(10) + cBottom
+		return cTop + StzChar(10) + cMiddle + StzChar(10) + cBottom

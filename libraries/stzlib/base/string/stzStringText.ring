@@ -301,7 +301,11 @@ class stzStringText
 	#------------------------------------------#
 
 	def IsWord()
-		return This.ToStzString().IsWord()
+		if @oString.IsEmpty()
+			return 0
+		ok
+		pH = @oString.Engine()
+		return StzEngineStringIsWord(pH)
 
 	def IsArabicWord()
 		if This.IsWord() and This.ScriptIs(:Arabic)
