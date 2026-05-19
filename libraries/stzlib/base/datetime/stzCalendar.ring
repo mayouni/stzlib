@@ -123,7 +123,7 @@ class stzCalendar from stzObject
 		@cEndDate = cParam
 
 	def _parseQuarterString(cQuarter)
-		cQuarter = upper(trim(cQuarter))
+		cQuarter = StzUpper(trim(cQuarter))
 		aParts = stzStringQ(cQuarter).Split("-")
 		@nYear = val(aParts[1])
 		@cQuarter = aParts[2]
@@ -186,7 +186,7 @@ class stzCalendar from stzObject
 					_initializeMonth(nYear, nMonth)
 					return
 				but isString(aParams[2])
-					cValue = upper(aParams[2])
+					cValue = StzUpper(aParams[2])
 					# Check if it's a quarter like "Q3"
 
 					if cValue[1] = "Q"
@@ -205,7 +205,7 @@ class stzCalendar from stzObject
 		i = 1
 		while i <= nLen
 			if isList(aParams[i]) and len(aParams[i]) = 2
-				cKey = "" + lower(aParams[i][1])
+				cKey = "" + StzLower(aParams[i][1])
 				cValue = "" + aParams[i][2]
 				
 				if cKey = "start" or cKey = "from"
@@ -217,7 +217,7 @@ class stzCalendar from stzObject
 				but cKey = "month"
 					nMonth = val(cValue)
 				but cKey = "quarter"
-					cQuarter = upper(cValue)
+					cQuarter = StzUpper(cValue)
 				but cKey = "lLocale"
 					@oLocale = _setupLocale(cValue)
 				ok
@@ -246,12 +246,12 @@ class stzCalendar from stzObject
 	def _monthNameToNumber(cName)
 		aMonths = [ "JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE",
 			"JULY", "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER" ]
-		nPos = find(aMonths, upper(cName))
+		nPos = find(aMonths, StzUpper(cName))
 		return nPos
 
 	def _dayNameToNumber(cName)
 		aDays = [ "MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY", "SATURDAY", "SUNDAY" ]
-		nPos = find(aDays, upper(cName))
+		nPos = find(aDays, StzUpper(cName))
 		return nPos
 	
 	def _numberToDayName(nDay)
@@ -380,13 +380,13 @@ class stzCalendar from stzObject
 
 	# Working days configuration
 	def SetWorkingDays(pDays)
-		if isString(pDays) and upper(pDays) = "DEFAULT"
+		if isString(pDays) and StzUpper(pDays) = "DEFAULT"
 			@aWorkingDays = [1, 2, 3, 4, 5]  # Mon-Fri
 		but isList(pDays)
 			@aWorkingDays = []
 			nLen = len(pDays)
 			for i = 1 to nLen
-				cDay = upper("" + pDays[i])
+				cDay = StzUpper("" + pDays[i])
 				nDayNum = _dayNameToNumber(cDay)
 				if nDayNum > 0
 					@aWorkingDays + nDayNum
@@ -1684,7 +1684,7 @@ def ApplyConstraints(pDate)
 				cDay = "" + aConstraintDef[2]
 				oDate = new stzDate(cDate)
 				
-				if upper(oDate.DayName()) = upper(cDay)
+				if StzUpper(oDate.DayName()) = StzUpper(cDay)
 					if len(aConstraintDef) >= 6
 						cFrom = aConstraintDef[4]
 						cTo = aConstraintDef[6]

@@ -130,7 +130,7 @@ class stzGrid From stzObject
 		return @cDirection
 		
 	def SetDirection(cDirection)
-		cDirection = lower(cDirection)
+		cDirection = StzLower(cDirection)
 		
 		if cDirection = :forward or 
 		   cDirection = :backward or 

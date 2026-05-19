@@ -327,7 +327,7 @@ class stzGraphex from stzGraph
 		ok
 	
 		# Parse token type
-		cTokenLower = lower(cTokenStr)
+		cTokenLower = StzLower(cTokenStr)
 		? "      cTokenLower = [" + cTokenLower + "]"
 		
 		if startsWith(cTokenLower, "@node")

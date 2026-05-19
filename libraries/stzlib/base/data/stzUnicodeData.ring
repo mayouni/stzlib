@@ -543,7 +543,7 @@ func UnicodeBlocksContaining(pcStr)
 	nLen = len($aUnicodeBlocksXT)
 
 	for i = 1 to nLen
-		str = lower($aUnicodeBlocksXT[i][1])
+		str = StzLower($aUnicodeBlocksXT[i][1])
 		if ring_substr1(str, pcStr) > 0
 			acResult + $aUnicodeBlocksXT[i][1]
 		ok
@@ -583,7 +583,7 @@ func UnicodeBlocksContainingXT(pcStr)
 	nLen = len($aUnicodeBlocksXT)
 
 	for i = 1 to nLen
-		str = lower($aUnicodeBlocksXT[i][1])
+		str = StzLower($aUnicodeBlocksXT[i][1])
 		if ring_substr1(str, pcStr) > 0
 			aResult + $aUnicodeBlocksXT[i]
 		ok
@@ -706,7 +706,7 @@ class stzUnicodeData
 			ok
 		ok
 
-		pcCharName = upper(pcCharName)
+		pcCharName = StzUpper(pcCharName)
 		n = This.FindCharName(";"+ pcCharName + ";")
 
 		if n > 0
@@ -813,7 +813,7 @@ class stzUnicodeData
 			ok
 		ok
 
-		cPartOfName = upper(cPartOfName)
+		cPartOfName = StzUpper(cPartOfName)
 		acLines = @oStzStrUnicodeData.split(NL)
 		nLen = len(acLines)
 

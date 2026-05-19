@@ -87,7 +87,7 @@ class stzListInString from stzString
 						RemoveTheseBoundsQ("'", "'").
 						Content()
 
-				cCode = 'cType = lower(type(' + cVarName + '))'
+				cCode = 'cType = StzLower(type(' + cVarName + '))'
 				eval(cCode)
 
 				aResult + [
@@ -131,7 +131,7 @@ class stzListInString from stzString
 						RemoveTheseBoundsQ("'", "'").
 						Content()
 
-				cCode = 'cType = lower(type(' + cVarName + '))'
+				cCode = 'cType = StzLower(type(' + cVarName + '))'
 				eval(cCode)
 
 				aResult + oStzStr.Content()

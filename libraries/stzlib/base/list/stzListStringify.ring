@@ -206,7 +206,7 @@ class stzListStringify from stzList
 		aResult = []
 		for i = 1 to nLen
 			if isString(aContent[i])
-				aResult + lower(aContent[i])
+				aResult + StzLower(aContent[i])
 			else
 				aResult + aContent[i]
 			ok
@@ -222,7 +222,7 @@ class stzListStringify from stzList
 		aResult = []
 		for i = 1 to nLen
 			if isString(aContent[i])
-				aResult + upper(aContent[i])
+				aResult + StzUpper(aContent[i])
 			else
 				aResult + aContent[i]
 			ok

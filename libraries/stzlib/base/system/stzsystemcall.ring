@@ -268,7 +268,7 @@ class stzSystemCall
 	#-----------------------#
 
 	def SetReturnType(cType)
-		cType = lower(cType)
+		cType = StzLower(cType)
 		if NOT (cType = "string" or cType = "number" or cType = "list")
 			stzraise("Return type must be 'string', 'number', or 'list'")
 		ok
@@ -728,7 +728,7 @@ class stzSystemCall
 		# Check for shell built-in commands
 		aWords = split(cCmd, " ")
 		if len(aWords) > 0
-			cFirstWord = lower(trim(aWords[1]))
+			cFirstWord = StzLower(trim(aWords[1]))
 			if find(ShellBuiltInCommands, cFirstWord) > 0
 				bNeedsShell = TRUE
 			ok

@@ -104,10 +104,10 @@ func HasKey(paList, pcKey)
 	acKeys = []
 
 	for i = 1 to nLen
-		acKeys + lower(paList[i][1])
+		acKeys + StzLower(paList[i][1])
 	next
 
-	return iff(ring_find(acKeys, lower(pcKey)) > 0, TRUE, FALSE)
+	return iff(ring_find(acKeys, StzLower(pcKey)) > 0, TRUE, FALSE)
 
 	func @HasKey(paList, pcKey)
 		return HasKey(paList, pcKey)
@@ -178,14 +178,14 @@ func HasKeysXT(paList, pacKeys)
 	acAllKeys = []
 
 	for i = 1 to nLen
-		acAllKeys + lower(paList[i][1])
+		acAllKeys + StzLower(paList[i][1])
 	next
 
 	aResult = []
 	nKeysLen = len(pacKeys)
 	
 	for i = 1 to nKeysLen
-		if find(acAllKeys, lower(pacKeys[i])) > 0
+		if find(acAllKeys, StzLower(pacKeys[i])) > 0
 			aResult + TRUE
 		else
 			aResult + FALSE
@@ -367,7 +367,7 @@ func HashRemove(paHash, cKey)
 	ok
 
 	nLen = len(paHash)
-	cKey = lower(cKey)
+	cKey = StzLower(cKey)
 	n = 0
 
 	for i = 1 to nLen
@@ -437,7 +437,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 
 		nLen = len(p)
 		for i = 1 to nLen
-			p[i][1] = ring_lower(p[i][1])
+			p[i][1] = ring_StzLower(p[i][1])
 		next
 
 		@aContent = p

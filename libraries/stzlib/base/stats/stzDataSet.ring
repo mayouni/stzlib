@@ -3403,7 +3403,7 @@ class stzDataSet
         */
  
 		
-        cKey = "custom_" + lower(cName)
+        cKey = "custom_" + StzLower(cName)
 
         $aPlanTemplates[cName] = [
 			:name = cName,
@@ -3697,7 +3697,7 @@ class stzDataSet
 			StzRaise("Incorrect param type! cKey must be a non empty string.")
 		ok
 
-		if ring_find( This._CacheKeys(), lower(cKey))
+		if ring_find( This._CacheKeys(), StzLower(cKey))
 			return TRUE
 		else
 			return FALSE
@@ -3713,7 +3713,7 @@ class stzDataSet
 			return
 		ok
 
-		n = ring_find(This._CacheKeys(), lower(cKey))
+		n = ring_find(This._CacheKeys(), StzLower(cKey))
 		if n > 0
 			del(@aCache, n)
 		ok

@@ -363,7 +363,7 @@ class stzTimex
 		
 	def ParseDurationToMinutes(cDuration)
 		# Parse duration strings like "1h", "30min", "1h30min", "2h"
-		cDuration = lower(@trim(cDuration))
+		cDuration = StzLower(@trim(cDuration))
 		nMinutes = 0
 		
 		# Extract hours
@@ -552,7 +552,7 @@ class stzTimex
 				
 				# Check label if specified
 				if aToken[:label] != "" and aData[:label] != ""
-					if lower(aToken[:label]) != lower(aData[:label])
+					if StzLower(aToken[:label]) != StzLower(aData[:label])
 						bSuccess = FALSE
 						exit
 					ok
@@ -703,7 +703,7 @@ class stzTimex
 				ok
 				
 				if aToken[:label] != "" and aData[:label] != ""
-					if lower(aToken[:label]) != lower(aData[:label])
+					if StzLower(aToken[:label]) != StzLower(aData[:label])
 						nElemIdx++
 						loop
 					ok
@@ -940,7 +940,7 @@ class stzTimex
 				bInSet = FALSE
 				nLenTemp = len(aConstraint[:values])
 				for j = 1 to nLenTemp
-					if lower(aData[:label]) = lower(@trim(aConstraint[:values][j]))
+					if StzLower(aData[:label]) = StzLower(@trim(aConstraint[:values][j]))
 						bInSet = TRUE
 						exit
 					ok

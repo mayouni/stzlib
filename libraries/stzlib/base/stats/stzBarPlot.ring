@@ -6,7 +6,7 @@ func StzPlotQ(pcChartType, paDataSet)
 		ok
 	ok
 
-	switch lower(pcChartType)
+	switch StzLower(pcChartType)
 	on :VBar
 		return new stzVBarChart(paDataSet)
 

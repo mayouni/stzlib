@@ -347,7 +347,7 @@ func CountriesforWhichDefaultLanguageIs(cLangCode)
 	aResult = []
 	cLangName = StzLanguageQ(cLangCode).Name()
 	for aCountryInfo in LocaleCountriesXT()
-		if lower(aCountryInfo[6]) = lower(cLangName)
+		if StzLower(aCountryInfo[6]) = StzLower(cLangName)
 			aResult + aCountryInfo[2]
 		ok
 	next
@@ -382,7 +382,7 @@ class stzCountry
 
 		if oStr.IsCountryCode()
 			for aCountryInfo in LocaleCountriesXT()
-				if lower(aCountryInfo[1]) = lower(pcCountryIdentifier)
+				if StzLower(aCountryInfo[1]) = StzLower(pcCountryIdentifier)
 
 					@aCountryInfo = aCountryInfo
 					exit
@@ -391,8 +391,8 @@ class stzCountry
 	
 		but oStr.IsCountryAbbreviation()
 			for aCountryInfo in LocaleCountriesXT()
-				if lower(aCountryInfo[3])  = lower(pcCountryIdentifier) OR
-				   lower(aCountryInfo[4])  = lower(pcCountryIdentifier)
+				if StzLower(aCountryInfo[3])  = StzLower(pcCountryIdentifier) OR
+				   StzLower(aCountryInfo[4])  = StzLower(pcCountryIdentifier)
 	
 					@aCountryInfo = aCountryInfo
 					exit
@@ -401,7 +401,7 @@ class stzCountry
 	
 		but oStr.IsCountryName()
 			for aCountryInfo in LocaleCountriesXT()
-				if lower(aCountryInfo[2]) = lower(pcCountryIdentifier)
+				if StzLower(aCountryInfo[2]) = StzLower(pcCountryIdentifier)
 
 					@aCountryInfo = aCountryInfo
 					exit
@@ -415,7 +415,7 @@ class stzCountry
 			//cCountryCode = DefaultCountryCodeForLanguage(pcCountryIdentifier)
 
 			for aCountryInfo in LocaleCountriesXT()
-				if lower(aCountryInfo[1]) = lower(cCountryNumber)
+				if StzLower(aCountryInfo[1]) = StzLower(cCountryNumber)
 
 					@aCountryInfo = aCountryInfo
 					exit
@@ -426,7 +426,7 @@ class stzCountry
 			cCountryPhoneCode = oStr.Content()
 
 			for aCountryInfo in LocaleCountriesXT()
-				if lower(aCountryInfo[5]) = lower(cCountryPhoneCode)
+				if StzLower(aCountryInfo[5]) = StzLower(cCountryPhoneCode)
 
 					@aCountryInfo = aCountryInfo
 					exit
@@ -544,7 +544,7 @@ class stzCountry
 	def Languages()
 		aResult = []
 		for aLangInfo in LocaleLanguagesXT()
-			if lower(aLangInfo[5]) = lower(This.Country())
+			if StzLower(aLangInfo[5]) = StzLower(This.Country())
 				aResult + aLangInfo[2]
 			ok
 		next
@@ -566,7 +566,7 @@ class stzCountry
 		aResult = []
 
 		for aLangInfo in LocaleLanguagesXT()
-			if lower(aLangInfo[5]) = lower(This.Country())
+			if StzLower(aLangInfo[5]) = StzLower(This.Country())
 				aResult + aLangInfo[3]
 			ok
 		next

@@ -11,7 +11,7 @@ func ceiling(n)
 	return ceil(n)
 
 func low(str)
-	return lower(str)
+	return StzLower(str)
 
 func ring_exeFolder()
 	return exeFolder()

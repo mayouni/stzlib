@@ -404,7 +404,7 @@ class stzLanguage
 
 		if oStr.IsLanguageCode()
 			for aLangInfo in LocaleLanguagesXT()
-				if lower(aLangInfo[1]) = lower(pcLangIdentifier)
+				if StzLower(aLangInfo[1]) = StzLower(pcLangIdentifier)
 
 					@aLanguageInfo@ = aLangInfo
 					exit
@@ -414,7 +414,7 @@ class stzLanguage
 		but oStr.IsLanguageName()
 
 			for aLangInfo in LocaleLanguagesXT()
-				if lower(aLangInfo[2]) = lower(pcLangIdentifier)
+				if StzLower(aLangInfo[2]) = StzLower(pcLangIdentifier)
 
 					@aLanguageInfo@ = aLangInfo
 					exit
@@ -423,8 +423,8 @@ class stzLanguage
 
 		but oStr.IsLanguageAbbreviation()
 			for aLangInfo in LocaleLanguagesXT()
-				if lower(aLangInfo[3]) = lower(pcLangIdentifier) or
-				   lower(aLangInfo[4]) = lower(pcLangIdentifier)
+				if StzLower(aLangInfo[3]) = StzLower(pcLangIdentifier) or
+				   StzLower(aLangInfo[4]) = StzLower(pcLangIdentifier)
 
 					@aLanguageInfo@ = aLangInfo
 					exit
@@ -434,7 +434,7 @@ class stzLanguage
 		but oStr.IsCountryName()
 
 			for aLangInfo in LocaleLanguagesXT()
-				if lower(aLangInfo[5]) = lower(pcLangIdentifier)
+				if StzLower(aLangInfo[5]) = StzLower(pcLangIdentifier)
 
 					@aLanguageInfo@ = aLangInfo
 					exit
@@ -551,7 +551,7 @@ class stzLanguage
 
 		for aScriptInfo in LocaleScriptsXT()
 			if aScriptInfo[4] = cThisLanguage
-				aResult + lower(aScriptInfo[2])
+				aResult + StzLower(aScriptInfo[2])
 			ok
 		next
 
@@ -567,7 +567,7 @@ class stzLanguage
 
 		for aScriptInfo in LocaleScriptsXT()
 			if aScriptInfo[4] = cThisLanguage
-				aResult + lower(aScriptInfo[3])
+				aResult + StzLower(aScriptInfo[3])
 			ok
 		next
 

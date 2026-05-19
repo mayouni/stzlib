@@ -204,9 +204,9 @@ func _LocaleLangCodeFromAbbr(cLocaleAbbr)
 	cLocaleAbbr = ring_substr2(cLocaleAbbr, "-", "_")
 	nPos = ring_find(cLocaleAbbr, "_")
 	if nPos > 0
-		return lower(StzLeft(cLocaleAbbr, nPos - 1))
+		return StzLower(StzLeft(cLocaleAbbr, nPos - 1))
 	ok
-	return lower(cLocaleAbbr)
+	return StzLower(cLocaleAbbr)
 
 func _LocaleCountryCodeFromAbbr(cLocaleAbbr)
 	cLocaleAbbr = ring_substr2(cLocaleAbbr, "-", "_")
@@ -215,10 +215,10 @@ func _LocaleCountryCodeFromAbbr(cLocaleAbbr)
 		cRest = StzMid(cLocaleAbbr, nPos + 1, StzLen(cLocaleAbbr))
 		nPos2 = ring_find(cRest, "_")
 		if nPos2 > 0
-			return upper(StzMid(cRest, nPos2 + 1, StzLen(cRest)))
+			return StzUpper(StzMid(cRest, nPos2 + 1, StzLen(cRest)))
 		ok
 		if StzLen(cRest) <= 3 and isalpha(StzLeft(cRest, 1))
-			return upper(cRest)
+			return StzUpper(cRest)
 		ok
 	ok
 	return ""
@@ -230,19 +230,19 @@ func _LocaleNormalizeAbbr(cInput)
 	cInput = ring_substr2(cInput, "-", "_")
 	nPos = ring_find(cInput, "_")
 	if nPos > 0
-		cLang = lower(StzLeft(cInput, nPos - 1))
-		cRest = upper(StzMid(cInput, nPos + 1, StzLen(cInput)))
+		cLang = StzLower(StzLeft(cInput, nPos - 1))
+		cRest = StzUpper(StzMid(cInput, nPos + 1, StzLen(cInput)))
 		return cLang + "_" + cRest
 	ok
-	cLang = lower(cInput)
+	cLang = StzLower(cInput)
 	nLen = len($aLocaleLanguagesXT)
 	for i = 1 to nLen
-		if lower($aLocaleLanguagesXT[i][3]) = cLang
+		if StzLower($aLocaleLanguagesXT[i][3]) = cLang
 			if $aLocaleLanguagesXT[i][5] != NULL
 				cCountryName = $aLocaleLanguagesXT[i][5]
 				nLen2 = len(_aLocaleCountriesXT)
 				for j = 1 to nLen2
-					if lower(_aLocaleCountriesXT[j][2]) = lower(cCountryName)
+					if StzLower(_aLocaleCountriesXT[j][2]) = StzLower(cCountryName)
 						return cLang + "_" + _aLocaleCountriesXT[j][3]
 					ok
 				next
@@ -253,10 +253,10 @@ func _LocaleNormalizeAbbr(cInput)
 	return cInput
 
 func _LocaleCountryNumber(cCountryCode)
-	cCode = upper(cCountryCode)
+	cCode = StzUpper(cCountryCode)
 	nLen = len(_aLocaleCountriesXT)
 	for i = 1 to nLen
-		if upper(_aLocaleCountriesXT[i][3]) = cCode
+		if StzUpper(_aLocaleCountriesXT[i][3]) = cCode
 			return _aLocaleCountriesXT[i][1]
 		ok
 	next
@@ -265,14 +265,14 @@ func _LocaleCountryNumber(cCountryCode)
 func _LocaleQtScriptNumber(cScriptCode)
 	nLen = len(_aLocaleScriptsXT)
 	for i = 1 to nLen
-		if upper(_aLocaleScriptsXT[i][3]) = upper(cScriptCode)
+		if StzUpper(_aLocaleScriptsXT[i][3]) = StzUpper(cScriptCode)
 			return _aLocaleScriptsXT[i][1]
 		ok
 	next
 	return "0"
 
 func _LocaleFirstDayNumber(cLocaleAbbr)
-	cCountry = upper(_LocaleCountryCodeFromAbbr(cLocaleAbbr))
+	cCountry = StzUpper(_LocaleCountryCodeFromAbbr(cLocaleAbbr))
 	aSatFirst = ["AF", "IR"]
 	aSunFirst = ["US", "CA", "JP", "CN", "IL", "KR", "TW", "PH", "BR", "IN",
 	             "CO", "MX", "AU", "NZ", "SG", "ZA", "GT", "HN", "SV", "NI",
@@ -311,7 +311,7 @@ func _LocaleGroupSepChar(cLocaleAbbr)
 	return ","
 
 func _LocaleMeasurementSysNum(cLocaleAbbr)
-	cCountry = upper(_LocaleCountryCodeFromAbbr(cLocaleAbbr))
+	cCountry = StzUpper(_LocaleCountryCodeFromAbbr(cLocaleAbbr))
 	if cCountry = "US" or cCountry = "LR" or cCountry = "MM"
 		return "1"
 	ok
@@ -321,7 +321,7 @@ func _LocaleMeasurementSysNum(cLocaleAbbr)
 	return "0"
 
 func _LocaleTimeFormatStr(cLocaleAbbr, nType)
-	cCountry = upper(_LocaleCountryCodeFromAbbr(cLocaleAbbr))
+	cCountry = StzUpper(_LocaleCountryCodeFromAbbr(cLocaleAbbr))
 	cLang = _LocaleLangCodeFromAbbr(cLocaleAbbr)
 	if nType = 1 or nType = 2
 		if cCountry = "US" or (cLang = "en" and cCountry = "")
@@ -335,30 +335,30 @@ func _LocaleTimeFormatStr(cLocaleAbbr, nType)
 	return "HH:mm:ss t"
 
 func _CurrencyISOCode(cCurrencyName)
-	cName = lower(cCurrencyName)
+	cName = StzLower(cCurrencyName)
 	nLen = len($_aCurrencyISOData)
 	for i = 1 to nLen
-		if lower($_aCurrencyISOData[i][1]) = cName
+		if StzLower($_aCurrencyISOData[i][1]) = cName
 			return $_aCurrencyISOData[i][2]
 		ok
 	next
 	return ""
 
 func _CurrencyNativeSymbol(cCurrencyName)
-	cName = lower(cCurrencyName)
+	cName = StzLower(cCurrencyName)
 	nLen = len($_aCurrencyISOData)
 	for i = 1 to nLen
-		if lower($_aCurrencyISOData[i][1]) = cName
+		if StzLower($_aCurrencyISOData[i][1]) = cName
 			return $_aCurrencyISOData[i][3]
 		ok
 	next
 	return ""
 
 func _DayNameInLang(cLangName, nDay)
-	cLang = lower(cLangName)
+	cLang = StzLower(cLangName)
 	nLen = len($_aDayNamesPerLang)
 	for i = 1 to nLen
-		if lower($_aDayNamesPerLang[i][1]) = cLang
+		if StzLower($_aDayNamesPerLang[i][1]) = cLang
 			if nDay >= 1 and nDay <= 7
 				return $_aDayNamesPerLang[i][2][nDay]
 			ok
@@ -384,10 +384,10 @@ func _DaySymbolInLang(cLangName, nDay)
 	return ""
 
 func _MonthNameInLang(cLangName, nMonth)
-	cLang = lower(cLangName)
+	cLang = StzLower(cLangName)
 	nLen = len($_aMonthNamesPerLang)
 	for i = 1 to nLen
-		if lower($_aMonthNamesPerLang[i][1]) = cLang
+		if StzLower($_aMonthNamesPerLang[i][1]) = cLang
 			if nMonth >= 1 and nMonth <= 12
 				return $_aMonthNamesPerLang[i][2][nMonth]
 			ok
@@ -399,20 +399,20 @@ func _MonthNameInLang(cLangName, nMonth)
 	return ""
 
 func _LangNameFromCode(cLangCode)
-	cCode = lower(cLangCode)
+	cCode = StzLower(cLangCode)
 	nLen = len($aLocaleLanguagesXT)
 	for i = 1 to nLen
-		if lower($aLocaleLanguagesXT[i][3]) = cCode
+		if StzLower($aLocaleLanguagesXT[i][3]) = cCode
 			return $aLocaleLanguagesXT[i][2]
 		ok
 	next
 	return :english
 
 func _LangNativeNameFromCode(cLangCode)
-	cCode = lower(cLangCode)
+	cCode = StzLower(cLangCode)
 	nLen = len($aLocaleLanguagesXT)
 	for i = 1 to nLen
-		if lower($aLocaleLanguagesXT[i][3]) = cCode
+		if StzLower($aLocaleLanguagesXT[i][3]) = cCode
 			return $aLocaleLanguagesXT[i][6]
 		ok
 	next
@@ -465,7 +465,7 @@ func LanguagesforWhichDefaultCountryIs(cCountryCode)
 	aResult = []
 	cCountryName = StzCountryQ(cCountryCode).Name()
 	for aLangInfo in LocaleLanguagesXT()
-		if lower(aLangInfo[5]) = lower(cCountryName)
+		if StzLower(aLangInfo[5]) = StzLower(cCountryName)
 			aResult + aLangInfo[2]
 		ok
 	next
@@ -482,7 +482,7 @@ func ScriptsforWhichDefaultLanguageIs(cLangCode)
 	aResult = []
 	cLangName = StzLanguageQ(cLangCode).Name()
 	for aScriptInfo in LocaleScriptsXT()
-		if lower(aScriptInfo[4]) = lower(cLangName)
+		if StzLower(aScriptInfo[4]) = StzLower(cLangName)
 			aResult + aScriptInfo[2]
 		ok
 	next
@@ -753,7 +753,7 @@ class stzLocale from stzObject
 		cCountry = This.CountryName()
 
 		for aCountryInfo in LocaleCountriesXT()
-			if lower(aCountryInfo[2]) = lower(cCountry)
+			if StzLower(aCountryInfo[2]) = StzLower(cCountry)
 				return aCountryInfo[5]
 			ok
 		next
@@ -779,7 +779,7 @@ class stzLocale from stzObject
 		cLangName = This.LanguageName()
 
 		for aLangInfo in LocaleLanguagesXT()
-			if lower(aLangInfo[2]) = lower(cLangName)
+			if StzLower(aLangInfo[2]) = StzLower(cLangName)
 				return aLangInfo[1]
 			ok
 		next
@@ -826,7 +826,7 @@ class stzLocale from stzObject
 		ok
 		cLang = This.LanguageName()
 		for aScriptInfo in LocaleScriptsXT()
-			if lower(aScriptInfo[4]) = lower(cLang)
+			if StzLower(aScriptInfo[4]) = StzLower(cLang)
 				return aScriptInfo[1]
 			ok
 		next
@@ -861,7 +861,7 @@ class stzLocale from stzObject
 
 			if _aLocaleCountriesXT[i][1] = cNumber
 				cTemp = ring_substr2(_aLocaleCountriesXT[i][7], "_", " ")
-				cResult = upper(StzLeft(cTemp, 1)) + StzMid(cTemp, 2, StzLen(cTemp))
+				cResult = StzUpper(StzLeft(cTemp, 1)) + StzMid(cTemp, 2, StzLen(cTemp))
 				return cResult
 			ok
 		next
@@ -921,7 +921,7 @@ class stzLocale from stzObject
 		return aResult
 
 	def CurrencyXT(pcInfo)
-		return This.CurrencyInfo()[lower(pcInfo)]
+		return This.CurrencyInfo()[StzLower(pcInfo)]
 
 	  #-----------------------------#
 	 #  LOCALISED TIME MANAGEMENT  #	#TODO :Should be used by default in

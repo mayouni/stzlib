@@ -248,7 +248,7 @@ class stzTree from stzList
 			stzraise("Can't proceed! pcNode must not be empty string.")
 		ok
 
-		pcNodeName = lower(pcNodeName)
+		pcNodeName = StzLower(pcNodeName)
 		cResult = This.NodesZ()[pcNodeName]
 
 		if cResult = ""
@@ -507,7 +507,7 @@ class stzTree from stzList
 						exit
 					ok
 				else
-					if lower(aNodeContent[j]) = lower(pItem)
+					if StzLower(aNodeContent[j]) = StzLower(pItem)
 						nPos = j
 						exit
 					ok
@@ -537,7 +537,7 @@ class stzTree from stzList
 					exit
 				ok
 			else
-				if lower(aNodeContent[i]) = lower(pItem)
+				if StzLower(aNodeContent[i]) = StzLower(pItem)
 					nPos = i
 					exit
 				ok
