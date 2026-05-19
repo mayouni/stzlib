@@ -179,20 +179,9 @@ class stzStringFinder
 			ok
 		ok
 
-		nResult = 0
-
-		nPos = 1
-		for i = 1 to n
-
-			nResult = @oString._FindSubStr(pcSubStr, nPos, pCaseSensitive)
-
-			if nResult = 0
-				exit
-			ok
-
-			nPos = nResult + 1
-		next
-
+		# Direct engine call — single FFI instead of N iterated find-next
+		pH = @oString.Engine()
+		nResult = StzEngineStringFindNthCS(pH, pcSubStr, n, pCaseSensitive)
 		return nResult
 
 	def FindNth(n, pcSubstr)

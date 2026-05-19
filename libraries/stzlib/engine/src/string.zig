@@ -203,6 +203,8 @@ pub const str_remove_blank_lines = replace.str_remove_blank_lines;
 pub const str_insert_cp = replace.str_insert_cp;
 pub const str_insert_before_each = replace.str_insert_before_each;
 pub const str_insert_after_each = replace.str_insert_after_each;
+pub const str_insert_before_each_cs = replace.str_insert_before_each_cs;
+pub const str_insert_after_each_cs = replace.str_insert_after_each_cs;
 pub const str_insert_word_at = replace.str_insert_word_at;
 pub const str_strip_chars = replace.str_strip_chars;
 pub const str_keep_chars = replace.str_keep_chars;
@@ -2250,6 +2252,38 @@ test "insert_after_each" {
     const s1 = str_from("abcabc", 6);
     const r1 = str_insert_after_each(s1, "abc", 3, "]", 1);
     try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], "abc]abc]"));
+    str_free(r1);
+    str_free(s1);
+}
+
+test "insert_before_each_cs case-sensitive" {
+    const s1 = str_from("AbcAbc", 6);
+    const r1 = str_insert_before_each_cs(s1, "Abc", 3, "[", 1, 1);
+    try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], "[Abc[Abc"));
+    str_free(r1);
+    str_free(s1);
+}
+
+test "insert_before_each_cs case-insensitive" {
+    const s1 = str_from("AbcABC", 6);
+    const r1 = str_insert_before_each_cs(s1, "abc", 3, "[", 1, 0);
+    try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], "[Abc[ABC"));
+    str_free(r1);
+    str_free(s1);
+}
+
+test "insert_after_each_cs case-sensitive" {
+    const s1 = str_from("AbcAbc", 6);
+    const r1 = str_insert_after_each_cs(s1, "Abc", 3, "]", 1, 1);
+    try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], "Abc]Abc]"));
+    str_free(r1);
+    str_free(s1);
+}
+
+test "insert_after_each_cs case-insensitive" {
+    const s1 = str_from("AbcABC", 6);
+    const r1 = str_insert_after_each_cs(s1, "abc", 3, "]", 1, 0);
+    try std.testing.expect(mem.eql(u8, str_data(r1)[0..@intCast(str_size(r1))], "Abc]ABC]"));
     str_free(r1);
     str_free(s1);
 }
