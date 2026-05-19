@@ -49,26 +49,17 @@ class stzStringChecker
 	#===============================#
 
 	def IsPalindromeCS(pCaseSensitive)
-		if @oString.NumberOfChars() < 2
-			return 0
-		ok
-
-		cReversed = StzReverse(@oString.Content())
-
-		bCase = @CaseSensitive(pCaseSensitive)
-		if bCase = 0
-			if StzCaseFold(@oString.Content()) = StzCaseFold(cReversed)
-				return 1
-			else
-				return 0
-			ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		# Engine palindrome is always CS. For CI, casefold first.
+		if _bCase_ = 0
+			pFolded = StzEngineStringFoldcase(pH)
+			nResult = StzEngineStringIsPalindrome(pFolded)
+			StzEngineStringFree(pFolded)
 		else
-			if @oString.Content() = cReversed
-				return 1
-			else
-				return 0
-			ok
+			nResult = StzEngineStringIsPalindrome(pH)
 		ok
+		return nResult
 
 	def IsPalindrome()
 		return This.IsPalindromeCS(1)
@@ -78,23 +69,12 @@ class stzStringChecker
 	#===============================#
 
 	def IsAnagramOfCS(pcOtherStr, pCaseSensitive)
-		bCase = @CaseSensitive(pCaseSensitive)
-
-		_cStr_ = @oString.Content()
-		_cOther_ = pcOtherStr
-
-		if bCase = 0
-			_cStr_ = StzCaseFold(_cStr_)
-			_cOther_ = StzCaseFold(pcOtherStr)
-		ok
-
-		_cInversed_ = StzReverse(_cOther_)
-
-		if _cStr_ = _cInversed_
-			return 1
-		else
-			return 0
-		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		nResult = StzEngineStringIsAnagramCS(pH, pH2, _bCase_)
+		StzEngineStringFree(pH2)
+		return nResult
 
 	def IsAnagramOf(pcOtherStr)
 		return This.IsAnagramOfCS(pcOtherStr, 1)
@@ -355,14 +335,14 @@ class stzStringChecker
 	#===============================#
 
 	def IsReversedCopyOfCS(pcOtherStr, pCaseSensitive)
-		bCase = @CaseSensitive(pCaseSensitive)
-		cReversed = StzReverse(@oString.Content())
-
-		if bCase = 0
-			return StzCaseFold(cReversed) = StzCaseFold(pcOtherStr)
-		else
-			return cReversed = pcOtherStr
-		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pRev = StzEngineStringReverse(pH)
+		pH2 = StzEngineString(pcOtherStr)
+		nResult = StzEngineStringEqualsCS(pRev, pH2, _bCase_)
+		StzEngineStringFree(pRev)
+		StzEngineStringFree(pH2)
+		return nResult
 
 	def IsReversedCopyOf(pcOtherStr)
 		return This.IsReversedCopyOfCS(pcOtherStr, 1)
@@ -410,8 +390,9 @@ class stzStringChecker
 			return 0
 		ok
 
-		cFirst = substr(@oString.Content(), 1, 1)
-		cSecond = substr(@oString.Content(), 2, 1)
+		pH = @oString.Engine()
+		cFirst = StzEngineStringCharAtToString(pH, 1)
+		cSecond = StzEngineStringCharAtToString(pH, 2)
 		return cFirst = cSecond
 
 	def HasTrailingChars()
@@ -420,8 +401,9 @@ class stzStringChecker
 			return 0
 		ok
 
-		cLast = substr(@oString.Content(), nLen, 1)
-		cPrev = substr(@oString.Content(), nLen - 1, 1)
+		pH = @oString.Engine()
+		cLast = StzEngineStringCharAtToString(pH, nLen)
+		cPrev = StzEngineStringCharAtToString(pH, nLen - 1)
 		return cLast = cPrev
 
 	def HasLeadingAndTrailingChars()
