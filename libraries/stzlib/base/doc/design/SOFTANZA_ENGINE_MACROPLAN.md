@@ -13,10 +13,10 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 610 passing              |
+| Engine tests      | 614 passing              |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 390 DLL functions        |
+| Ring bridge regs  | 394 DLL functions        |
 | Ring Unicode hard | Complete (all domains)   |
 | Last updated      | 2026-05-19 (Session 17)  |
 
@@ -182,7 +182,14 @@
   whitespace splitting).
 - **stzStringCharList cleanup**: Removed private `_SplitNullDelimited` method (uses
   global), replaced inline null-split in init() with helper call.
-- **Stats**: 610 Zig tests, 390 Ring bridge functions, all 9 Ring test suites pass.
+- **Engine additions**: `str_sort_null_items` (O(n log n) sort on null-delimited items),
+  `str_unique_null_items` (O(n) hashmap dedup on null-delimited items).
+- **stzStringList Sort/Unique migration**: O(n^2) insertion sort with per-comparison
+  handle create/free replaced with engine O(n log n) sort. O(n^2) nested-loop dedup
+  with per-pair handle create/free replaced with engine O(n) hashmap dedup.
+- **Standalone Chars() optimization**: stzStringFunc `Chars()` migrated from N
+  individual NthChar FFI calls to single `StzEngineStringCharsSplit` call.
+- **Stats**: 614 Zig tests, 394 Ring bridge functions, all 9 Ring test suites pass.
 
 ---
 

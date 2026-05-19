@@ -285,6 +285,87 @@ pub fn str_unique_lines(handle: StzStringHandle) callconv(.c) StzStringHandle {
     return result;
 }
 
+// ─── Null-delimited item operations ───
+
+/// Sort null-delimited items alphabetically. Returns null-delimited sorted output.
+pub export fn str_sort_null_items(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return str_new();
+
+    // Collect items split by \0
+    var items = std.ArrayListUnmanaged([]const u8){};
+    defer items.deinit(gpa);
+    {
+        var start: usize = 0;
+        var i: usize = 0;
+        while (i < src.len) : (i += 1) {
+            if (src[i] == 0) {
+                items.append(gpa, src[start..i]) catch return null;
+                start = i + 1;
+            }
+        }
+        if (start <= src.len) {
+            items.append(gpa, src[start..src.len]) catch return null;
+        }
+    }
+
+    // Sort
+    std.mem.sort([]const u8, items.items, {}, struct {
+        fn lessThan(_: void, a: []const u8, b: []const u8) bool {
+            return std.mem.order(u8, a, b) == .lt;
+        }
+    }.lessThan);
+
+    // Build null-separated result
+    const result = str_new() orelse return null;
+    for (items.items, 0..) |item, idx| {
+        if (idx > 0) result.data.append(gpa, 0) catch break;
+        result.data.appendSlice(gpa, item) catch break;
+    }
+    return result;
+}
+
+/// Deduplicate null-delimited items, preserving first-occurrence order.
+/// Returns null-delimited unique output. O(n) via StringHashMap.
+pub export fn str_unique_null_items(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    if (src.len == 0) return str_new();
+
+    // Collect items split by \0
+    var items = std.ArrayListUnmanaged([]const u8){};
+    defer items.deinit(gpa);
+    {
+        var start: usize = 0;
+        var i: usize = 0;
+        while (i < src.len) : (i += 1) {
+            if (src[i] == 0) {
+                items.append(gpa, src[start..i]) catch return null;
+                start = i + 1;
+            }
+        }
+        if (start <= src.len) {
+            items.append(gpa, src[start..src.len]) catch return null;
+        }
+    }
+
+    // Dedup via StringHashMap
+    var seen = std.StringHashMap(void).init(gpa);
+    defer seen.deinit();
+    const result = str_new() orelse return null;
+    var first = true;
+    for (items.items) |item| {
+        const gop = seen.getOrPut(item) catch break;
+        if (!gop.found_existing) {
+            if (!first) result.data.append(gpa, 0) catch break;
+            result.data.appendSlice(gpa, item) catch break;
+            first = false;
+        }
+    }
+    return result;
+}
+
 // ─── Words ───
 
 /// Count words (sequences of non-whitespace separated by whitespace).
@@ -903,4 +984,41 @@ test "words_split_tabs_newlines" {
     try testing.expectEqualStrings("a\x00b\x00c", ws.?.slice());
 }
 
+test "sort_null_items" {
+    const input = "cherry\x00apple\x00banana";
+    const s = str_from(input, input.len);
+    defer str_free(s);
+    const sorted = str_sort_null_items(s);
+    defer str_free(sorted);
+    try testing.expect(sorted != null);
+    try testing.expectEqualStrings("apple\x00banana\x00cherry", sorted.?.slice());
+}
 
+test "sort_null_items_empty" {
+    const s = str_from("", 0);
+    defer str_free(s);
+    const sorted = str_sort_null_items(s);
+    defer str_free(sorted);
+    try testing.expect(sorted != null);
+    try testing.expectEqual(@as(usize, 0), sorted.?.slice().len);
+}
+
+test "unique_null_items" {
+    const input = "hello\x00world\x00hello\x00foo\x00world";
+    const s = str_from(input, input.len);
+    defer str_free(s);
+    const unique = str_unique_null_items(s);
+    defer str_free(unique);
+    try testing.expect(unique != null);
+    try testing.expectEqualStrings("hello\x00world\x00foo", unique.?.slice());
+}
+
+test "unique_null_items_all_same" {
+    const input = "x\x00x\x00x";
+    const s = str_from(input, input.len);
+    defer str_free(s);
+    const unique = str_unique_null_items(s);
+    defer str_free(unique);
+    try testing.expect(unique != null);
+    try testing.expectEqualStrings("x", unique.?.slice());
+}

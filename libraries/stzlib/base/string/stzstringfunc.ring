@@ -2600,19 +2600,13 @@ func Chars(str)
 		str = str[2]
 	ok
 
-	# Use Engine for codepoint-safe character splitting
+	# Use Engine bulk char split (single FFI call)
 	pStr = StzEngineString(str)
-	nLen = StzEngineStringCount(pStr)
-	acResult = []
-
-	for i = 1 to nLen
-		pChar = StzEngineStringNthChar(pStr, i)  # Engine uses INDEX_BASE=1
-		acResult + StzEngineStringData(pChar)
-		StzEngineStringFree(pChar)
-	next
-
+	pR = StzEngineStringCharsSplit(pStr)
+	cJoined = StzEngineStringData(pR)
+	StzEngineStringFree(pR)
 	StzEngineStringFree(pStr)
-	return acResult
+	return _SplitNullDelimited(cJoined)
 
 	func @Chars(str)
 		return Chars(str)
