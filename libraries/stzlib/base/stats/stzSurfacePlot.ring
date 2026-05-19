@@ -236,7 +236,7 @@ def init(paData)
 		nMaxLabelLen = 0
 		nLen = len(@acLabels)
 		for i = 1 to nLen
-			nLenLabel = len(@acLabels[i])
+			nLenLabel = StzLen(@acLabels[i])
 			if nLenLabel > nMaxLabelLen
 				nMaxLabelLen = nLenLabel
 			ok
@@ -683,15 +683,15 @@ def init(paData)
 		next
 
 	def _truncateLabel(cLabel, nMaxWidth)
-		if len(cLabel) <= nMaxWidth
+		if StzLen(cLabel) <= nMaxWidth
 			return cLabel
 		ok
-		
+
 		if nMaxWidth <= @nMinLabelWidth
-			return left(cLabel, max([1, nMaxWidth - 1])) + "."
+			return StzLeft(cLabel, max([1, nMaxWidth - 1])) + "."
 		ok
-		
-		return left(cLabel, nMaxWidth - 1) + "."
+
+		return StzLeft(cLabel, nMaxWidth - 1) + "."
 
 	def _drawContent()
 	    
@@ -741,7 +741,7 @@ def init(paData)
 	        cMainContent = ""
 	        cSubContent = ""
 
-	        if @bShowLabels and len(cLabel) > 0
+	        if @bShowLabels and StzLen(cLabel) > 0
 	            cMainContent = _truncateLabel(cLabel, nContentW)
 	        ok
 
@@ -756,35 +756,35 @@ def init(paData)
 	            cPercentStr = ""+ RoundN((nValue / @nSum) * 100, 1)
 				cPercentStr = ring_substr2(cPercentStr, ".0", "")
 	            cPercentStr += "%"
-	            
-	            if len(cValueStr) > 0
+
+	            if StzLen(cValueStr) > 0
 	                cSubContent = cValueStr + " (" + cPercentStr + ")"
 	            else
 	                cSubContent = cPercentStr
 	            ok
-	        but len(cValueStr) > 0
+	        but StzLen(cValueStr) > 0
 	            cSubContent = cValueStr
 	        ok
 
 	        # Ensure sub-content fits
-	        if len(cSubContent) > nContentW
+	        if StzLen(cSubContent) > nContentW
 	            if nContentW > 3
-	                cSubContent = left(cSubContent, nContentW - 1) + "."
+	                cSubContent = StzLeft(cSubContent, nContentW - 1) + "."
 	            else
-	                cSubContent = left(cSubContent, nContentW)
+	                cSubContent = StzLeft(cSubContent, nContentW)
 	            ok
 	        ok
 
 	        # Determine layout - prioritize compact, clean display
-	        bShowMain = (len(cMainContent) > 0 and len(cMainContent) <= nContentW)
-	        bShowSub = (len(cSubContent) > 0 and len(cSubContent) <= nContentW)
+	        bShowMain = (StzLen(cMainContent) > 0 and StzLen(cMainContent) <= nContentW)
+	        bShowSub = (StzLen(cSubContent) > 0 and StzLen(cSubContent) <= nContentW)
 	        
 	        if bShowMain and bShowSub
 	            if nContentHt >= 2
 	                # Multi-line: label on top, value below
 	                aContentLines + cMainContent
 	                aContentLines + cSubContent
-	            but nContentW >= (len(cMainContent) + len(cSubContent) + 1)
+	            but nContentW >= (StzLen(cMainContent) + StzLen(cSubContent) + 1)
 	                # Single line if they fit together
 	                aContentLines + cMainContent + " " + cSubContent
 	            else
@@ -809,7 +809,7 @@ def init(paData)
 	
 	            for k = 1 to nLenLines
 	                cLine = aContentLines[k]
-	                nLineLen = len(cLine)
+	                nLineLen = StzLen(cLine)
 	                nCurrentV = nStartV + k - 1
 	
 	                # Horizontal centering

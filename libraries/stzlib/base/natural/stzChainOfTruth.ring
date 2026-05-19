@@ -725,7 +725,7 @@ class stzChainOfTruth from stzObject
 			oStzString = new stzString(cCode)
 			n = oStzString.FindFirst("(")
 	
-			cCode = StzLeft(cCode, n) + "" + This.Value() + ", " + substr(cCode, n + 1)
+			cCode = StzLeft(cCode, n) + "" + This.Value() + ", " + StzMid(cCode, n + 1, StzLen(cCode) - n)
 
 			eval(cCode)
 

@@ -560,13 +560,13 @@ class stzStringChar from stzObject
 				nUnicode = StzHexNumberQ(pChar).ToDecimal()
 				cBuf = space(4)
 				nLen = StzEngineCharToUtf8(nUnicode, cBuf, 4)
-				@oString = new stzString(left(cBuf, nLen))
+				@oString = new stzString(StzLeft(cBuf, nLen))
 
 			but oStr.IsCharName()
 				nUnicode = StzUnicodeDataQ().CharUnicodeByName(pChar)
 				cBuf = space(4)
 				nLen = StzEngineCharToUtf8(nUnicode, cBuf, 4)
-				@oString = new stzString(left(cBuf, nLen))
+				@oString = new stzString(StzLeft(cBuf, nLen))
 
 			else
 				StzRaise("Can not create char object!")
@@ -575,7 +575,7 @@ class stzStringChar from stzObject
 		but isNumber(pChar)
 			cBuf = space(4)
 			nLen = StzEngineCharToUtf8(pChar, cBuf, 4)
-			@oString = new stzString(left(cBuf, nLen))
+			@oString = new stzString(StzLeft(cBuf, nLen))
 
 		but isObject(pChar)
 			# Accept a stzString object directly
@@ -676,7 +676,7 @@ class stzStringChar from stzObject
 		but ring_Type(pChar) = "NUMBER"
 			cBuf = space(4)
 			nLen = StzEngineCharToUtf8(pChar, cBuf, 4)
-			@oString = new stzString(left(cBuf, nLen))
+			@oString = new stzString(StzLeft(cBuf, nLen))
 		else
 			StzRaise("Can't update the char!")
 		ok

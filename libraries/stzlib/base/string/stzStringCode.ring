@@ -59,11 +59,11 @@ class stzStringCode
 
 	def IsRingFunction()
 		cTrimmed = trim(@oString.Content())
-		return left(StzCaseFold(cTrimmed), 5) = "func "
+		return StzLeft(StzCaseFold(cTrimmed), 5) = "func "
 
 	def IsRingClass()
 		cTrimmed = trim(@oString.Content())
-		return left(StzCaseFold(cTrimmed), 6) = "class "
+		return StzLeft(StzCaseFold(cTrimmed), 6) = "class "
 
 	  #===============================#
 	 #     CODE EXECUTION            #
@@ -97,7 +97,7 @@ class stzStringCode
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
-			if left(cLine, 5) = "func "
+			if StzLeft(cLine, 5) = "func "
 				nCount++
 			ok
 		next
@@ -112,7 +112,7 @@ class stzStringCode
 
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
-			if left(cLine, 6) = "class "
+			if StzLeft(cLine, 6) = "class "
 				nCount++
 			ok
 		next

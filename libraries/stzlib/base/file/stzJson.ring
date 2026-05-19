@@ -15,7 +15,7 @@ def init(p)
 
     if isString(p)
         p = _TrimJson(p)
-        if len(p) = 0
+        if StzLen(p) = 0
             @cLastError = "Empty JSON string"
             return
         ok
@@ -24,7 +24,7 @@ def init(p)
             return
         ok
         @aData = JsonToList(p)
-        @bIsArray = (left(p, 1) = "[")
+        @bIsArray = (StzLeft(p, 1) = "[")
 
     but isList(p)
         @aData = p

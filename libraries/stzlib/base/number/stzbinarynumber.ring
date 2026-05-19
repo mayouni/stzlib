@@ -187,7 +187,7 @@ class stzBinaryNumber from stzObject
 	def FractionalPartReversed()
 		cStr = This.FractionalPart()
 		cRev = ""
-		for i = len(cStr) to 1 step -1
+		for i = StzLen(cStr) to 1 step -1
 			cRev += cStr[i]
 		next
 		return cRev
@@ -195,7 +195,7 @@ class stzBinaryNumber from stzObject
 	def IntegerPartReversed()
 		cStr = This.IntegerPart()
 		cRev = ""
-		for i = len(cStr) to 1 step -1
+		for i = StzLen(cStr) to 1 step -1
 			cRev += cStr[i]
 		next
 		return cRev
@@ -217,14 +217,14 @@ class stzBinaryNumber from stzObject
 
 		nDotPos = ring_substr1(cBinary, ".")
 		if nDotPos > 0
-			cBinary = left(cBinary, nDotPos-1)
+			cBinary = StzLeft(cBinary, nDotPos-1)
 		ok
 
 		# Remove the 0b or b prefix
 
 		cBinary = ring_substr2(cBinary, "0b", "")
 		cBinary = ring_substr2(cBinary, "b", "")
-		nLen = len(cBinary)
+		nLen = StzLen(cBinary)
 
 		# Doing the job
 
@@ -247,8 +247,8 @@ class stzBinaryNumber from stzObject
 		next
 
 		cStr = "" + nCurrentTotal
-		while len(cStr) > 1 and right(cStr, 1) = "0"
-			cStr = left(cStr, len(cStr) - 1)
+		while StzLen(cStr) > 1 and StzRight(cStr, 1) = "0"
+			cStr = StzLeft(cStr, StzLen(cStr) - 1)
 		end
 		return cStr
 

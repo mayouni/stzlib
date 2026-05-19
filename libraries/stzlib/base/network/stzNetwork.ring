@@ -7,7 +7,7 @@ load "libuv.ring"
 
 func hex2dec(cHex)
     result = 0
-    for i = 1 to len(cHex)
+    for i = 1 to StzLen(cHex)
         char = cHex[i]
         if char >= "0" and char <= "9"
             digit = ascii(char) - 48
@@ -26,7 +26,7 @@ func str2hex(cStr)
     result = ""
     for char in cStr
         hex = dec2hex(ascii(char))
-        if len(hex) = 1 hex = "0" + hex ok
+        if StzLen(hex) = 1 hex = "0" + hex ok
         result += hex
     next
     return result
@@ -67,7 +67,7 @@ class stzNetwork
     def IsSecure()
         if curl_handle = NULL return False ok
         url = curl_simple_getinfo_1(curl_handle, CURLINFO_EFFECTIVE_URL)
-        return left(url, 8) = "https://"
+        return StzLeft(url, 8) = "https://"
     
     def ConnectionInfo()
         if curl_handle = NULL return [] ok
