@@ -39,7 +39,7 @@ const toExternal = core.toExternal;
 const casefoldAlloc = core.casefoldAlloc;
 const ciEqlUnicode = core.ciEqlUnicode;
 const ciMatch = core.ciMatch;
-const toLowerAscii = core.toLowerAscii;
+// toLowerAscii removed -- all CI paths use casefoldAlloc/ciEqlUnicode now
 const utf8CodepointCount = core.utf8CodepointCount;
 const codepointIndexToByteOffset = core.codepointIndexToByteOffset;
 const byteOffsetToCodepointIndex = core.byteOffsetToCodepointIndex;
