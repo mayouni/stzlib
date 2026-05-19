@@ -378,7 +378,7 @@ class stzStringFinder
 		anPos1 = This.FindCS(cBound1, pCaseSensitive)
 		anPos2 = This.FindCS(cBound2, pCaseSensitive)
 
-		nLen1 = len(cBound1)
+		nLen1 = StzLen(cBound1)
 
 		aResult = []
 
