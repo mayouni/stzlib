@@ -322,3 +322,51 @@ class stzStringSplitter
 		aSections = StzSplitterQ( This.NumberOfChars() ).SplitAfterPositions(anPos)
 		acResult = @oString.Sections(aSections)
 		return acResult
+
+	  #======================================================#
+	 #   PARTITION (split into [before, sep, after])         #
+	#======================================================#
+
+	def PartitionCS(pcSep, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringPartitionCS(pH, pcSep, _bCase_)
+		cResult = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return _SplitNullDelimited(cResult)
+
+	def Partition(pcSep)
+		return This.PartitionCS(pcSep, 1)
+
+	def PartitionAfterCS(pcSep, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringPartitionAfterCS(pH, pcSep, _bCase_)
+		cResult = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return _SplitNullDelimited(cResult)
+
+	def PartitionAfter(pcSep)
+		return This.PartitionAfterCS(pcSep, 1)
+
+	def RPartitionCS(pcSep, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringRpartitionCS(pH, pcSep, _bCase_)
+		cResult = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return _SplitNullDelimited(cResult)
+
+	def RPartition(pcSep)
+		return This.RPartitionCS(pcSep, 1)
+
+	def RPartitionAfterCS(pcSep, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringRpartitionAfterCS(pH, pcSep, _bCase_)
+		cResult = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return _SplitNullDelimited(cResult)
+
+	def RPartitionAfter(pcSep)
+		return This.RPartitionAfterCS(pcSep, 1)
