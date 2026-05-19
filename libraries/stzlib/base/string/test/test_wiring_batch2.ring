@@ -147,4 +147,46 @@ oNum = new stzStringNumbers("abc")
 ? "ScanInteger('abc'): " + oNum.ScanInteger()
 
 ? ""
-? "=== All batch 2 tests completed ==="
+? "=== Checker Tests (batch 3) ==="
+
+# IsWord (engine-backed)
+oChk = new stzStringChecker("hello")
+? "IsWord('hello'): " + oChk.IsWord()
+#--> 1
+
+oChk = new stzStringChecker("hello world")
+? "IsWord('hello world'): " + oChk.IsWord()
+#--> 0
+
+oChk = new stzStringChecker("")
+? "IsWord(''): " + oChk.IsWord()
+#--> 0
+
+# IsCharsSortedAscending
+oChk = new stzStringChecker("abcde")
+? "IsCharsSortedAsc('abcde'): " + oChk.IsCharsSortedAscending()
+#--> 1
+
+oChk = new stzStringChecker("edcba")
+? "IsCharsSortedDesc('edcba'): " + oChk.IsCharsSortedDescending()
+#--> 1
+
+oChk = new stzStringChecker("hello")
+? "IsCharsSortedAsc('hello'): " + oChk.IsCharsSortedAscending()
+#--> 0
+
+? ""
+? "=== Replacer Tests (batch 3) ==="
+
+# Spacify
+oRpl = new stzStringReplacer("hello")
+? "Spacified('hello'): " + oRpl.Spacified()
+#--> h e l l o
+
+# StripMarks
+oRpl = new stzStringReplacer("hello")
+? "MarksStripped('hello'): " + oRpl.MarksStripped()
+#--> hello (no marks to strip)
+
+? ""
+? "=== All batch 2+3 tests completed ==="

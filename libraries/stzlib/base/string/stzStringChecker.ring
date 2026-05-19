@@ -308,12 +308,29 @@ class stzStringChecker
 		return isDigit(@oString.Content())
 
 	def IsWord()
-		oFinder = new stzStringFinder(@oString)
-		if oFinder.Contains(" ") or @oString.IsEmpty()
+		if @oString.IsEmpty()
 			return 0
-		else
-			return 1
 		ok
+		pH = @oString.Engine()
+		return StzEngineStringIsWord(pH)
+
+	  #===============================#
+	 #     CHAR SORT ORDER           #
+	#===============================#
+
+	def IsCharsSortedAscending()
+		pH = @oString.Engine()
+		return StzEngineStringIsCharsSortedAsc(pH)
+
+		def IsCharsSortedAsc()
+			return This.IsCharsSortedAscending()
+
+	def IsCharsSortedDescending()
+		pH = @oString.Engine()
+		return StzEngineStringIsCharsSortedDesc(pH)
+
+		def IsCharsSortedDesc()
+			return This.IsCharsSortedDescending()
 
 	  #===============================#
 	 #     LEADING/TRAILING CHARS    #

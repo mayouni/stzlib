@@ -352,7 +352,7 @@ class stzStringList
 		cJoined = ""
 		for i = 1 to nLen
 			if i > 1
-				cJoined += char(0)
+				cJoined += StzChar(0)
 			ok
 			cJoined += @acContent[i]
 		next
@@ -445,7 +445,7 @@ class stzStringList
 		cJoined = ""
 		for i = 1 to nLen
 			if i > 1
-				cJoined += char(0)
+				cJoined += StzChar(0)
 			ok
 			cJoined += @acContent[i]
 		next
