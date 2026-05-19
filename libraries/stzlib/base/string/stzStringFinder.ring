@@ -496,7 +496,8 @@ class stzStringFinder
 	def FindWCS(pcCondition, pCaseSensitive)
 		# Dispatch: @char -> FindCharsWCS
 		cLower = StzCaseFold(pcCondition)
-		if substr(cLower, "@char") > 0
+		oTmp = new stzStringFinder(cLower)
+		if oTmp.Contains("@char")
 			return This.FindCharsWCS(pcCondition, pCaseSensitive)
 		ok
 

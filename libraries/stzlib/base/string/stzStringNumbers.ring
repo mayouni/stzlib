@@ -39,13 +39,13 @@ class stzStringNumbers
 	#===============================#
 
 	def Numbers()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = StzLen(@oString.Content())
 		anResult = []
 		cNum = ""
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 
 			if isDigit(c)
 				cNum += c
@@ -53,7 +53,7 @@ class stzStringNumbers
 			but (c = "-" or c = "+") and cNum = ""
 				cNext = ""
 				if i + 1 <= nLen
-					cNext = substr(cContent, i + 1, 1)
+					cNext = acChars[i + 1]
 				ok
 				if isDigit(cNext)
 					cNum = c
@@ -62,7 +62,7 @@ class stzStringNumbers
 			but c = "." and cNum != ""
 				cNext = ""
 				if i + 1 <= nLen
-					cNext = substr(cContent, i + 1, 1)
+					cNext = acChars[i + 1]
 				ok
 				if isDigit(cNext)
 					cNum += c
@@ -112,11 +112,11 @@ class stzStringNumbers
 		return This.NumberOfNumbers() > 0
 
 	def ContainsOnlyNumbers()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 			if NOT isDigit(c) and c != "." and c != "-" and c != "+"
 				return 0
 			ok
@@ -128,12 +128,12 @@ class stzStringNumbers
 	#===============================#
 
 	def RemoveNumbers()
-		cContent = @oString.Content()
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		cResult = ""
-		nLen = len(cContent)
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 			if NOT isDigit(c)
 				cResult += c
 			ok
@@ -232,14 +232,14 @@ class stzStringNumbers
 	#===============================#
 
 	def ReplaceNumbers(nNewValue)
-		cContent = @oString.Content()
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		cResult = ""
-		nLen = len(cContent)
 		cNewStr = "" + nNewValue
 		bInNum = 0
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 
 			if isDigit(c)
 				if NOT bInNum
@@ -283,13 +283,13 @@ class stzStringNumbers
 	#===============================#
 
 	def PositionsOfNumbers()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		anPositions = []
 		bInNum = 0
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 
 			if isDigit(c)
 				if NOT bInNum
