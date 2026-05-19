@@ -116,6 +116,17 @@ oRpl = new stzStringReplacer("hello world")
 oRpl = new stzStringReplacer("say (hello) please")
 ? "BetweenReplaced('(',')','HI'): " + oRpl.BetweenReplaced("(", ")", "HI")
 
+# ReplaceCharAt
+oRpl = new stzStringReplacer("hello")
+? "CharReplacedAt(1,'H'): " + oRpl.CharReplacedAt(1, "H")
+#--> Hello
+
+# Replace2 (two pairs at once)
+oRpl = new stzStringReplacer("hello world")
+oRpl.Replace2("hello", "HI", "world", "THERE")
+? "Replace2: " + oRpl.Content()
+#--> HI THERE
+
 ? ""
 ? "=== Getter Tests (new) ==="
 

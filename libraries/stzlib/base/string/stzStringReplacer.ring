@@ -520,3 +520,38 @@ class stzStringReplacer
 		def Replace2Q(pcOld1, pcNew1, pcOld2, pcNew2)
 			This.Replace2(pcOld1, pcNew1, pcOld2, pcNew2)
 			return This
+
+	  #===============================#
+	 #     REPLACE CHAR AT POSITION  #
+	#===============================#
+
+	def ReplaceCharAt(nCpPos, pcNewStr)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceCharAt(pH, nCpPos, pcNewStr)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def ReplaceCharAtQ(nCpPos, pcNewStr)
+			This.ReplaceCharAt(nCpPos, pcNewStr)
+			return This
+
+	def CharReplacedAt(nCpPos, pcNewStr)
+		_oCopy_ = new stzStringReplacer(@oString.Content())
+		_oCopy_.ReplaceCharAt(nCpPos, pcNewStr)
+		return _oCopy_.Content()
+
+	  #===============================#
+	 #     REMOVE NTH OCCURRENCE     #
+	#===============================#
+
+	def RemoveNthOccurrenceEngine(n, pcSubStr)
+		pH = @oString.Engine()
+		pR = StzEngineStringRemoveNthOccurrence(pH, pcSubStr, n)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def RemoveNthOccurrenceEngineQ(n, pcSubStr)
+			This.RemoveNthOccurrenceEngine(n, pcSubStr)
+			return This
