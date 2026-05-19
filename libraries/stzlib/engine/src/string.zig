@@ -113,7 +113,7 @@ pub const str_line_at = split.str_line_at;
 pub const str_count_lines = split.str_count_lines;
 pub const str_sort_lines = split.str_sort_lines;
 pub const str_unique_lines = split.str_unique_lines;
-pub const str_unique_lines_ci = split.str_unique_lines_ci;
+pub const str_unique_lines_cs = split.str_unique_lines_cs;
 pub const str_reverse_lines = split.str_reverse_lines;
 pub const str_word_count = split.str_word_count;
 pub const str_count_words = split.str_count_words;
@@ -4742,20 +4742,31 @@ test "duplicate_substrings_cs case-insensitive" {
     try std.testing.expect(r_ci.?.slice().len > 0);
 }
 
-test "unique_lines_ci" {
+test "unique_lines_cs case-sensitive" {
     const input = "Hello\nhello\nWorld\nHELLO\nworld";
     const s = str_from(input, input.len);
-    const r = str_unique_lines_ci(s);
+    const r = str_unique_lines_cs(s, 1);
+    try std.testing.expect(r != null);
+    // All 5 lines are distinct case-sensitively
+    try std.testing.expectEqualStrings("Hello\nhello\nWorld\nHELLO\nworld", r.?.slice());
+    str_free(r);
+    str_free(s);
+}
+
+test "unique_lines_cs case-insensitive" {
+    const input = "Hello\nhello\nWorld\nHELLO\nworld";
+    const s = str_from(input, input.len);
+    const r = str_unique_lines_cs(s, 0);
     try std.testing.expect(r != null);
     try std.testing.expectEqualStrings("Hello\nWorld", r.?.slice());
     str_free(r);
     str_free(s);
 }
 
-test "unique_lines_ci preserves first case" {
+test "unique_lines_cs CI preserves first case" {
     const input = "ABC\nabc\nDef\ndef\nDEF";
     const s = str_from(input, input.len);
-    const r = str_unique_lines_ci(s);
+    const r = str_unique_lines_cs(s, 0);
     try std.testing.expect(r != null);
     try std.testing.expectEqualStrings("ABC\nDef", r.?.slice());
     str_free(r);

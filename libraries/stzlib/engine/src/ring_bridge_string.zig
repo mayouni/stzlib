@@ -1782,9 +1782,10 @@ fn ring_StringUniqueLines(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_unique_lines(h)), STZ_HANDLE);
 }
 
-fn ring_StringUniqueLinesCI(p: *anyopaque) callconv(.c) void {
+fn ring_StringUniqueLinesCS(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
-    ring_vm_api_retcpointer(p, @ptrCast(string.str_unique_lines_ci(h)), STZ_HANDLE);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_unique_lines_cs(h, case)), STZ_HANDLE);
 }
 
 fn ring_StringReverseLines(p: *anyopaque) callconv(.c) void {
@@ -2862,7 +2863,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringcountlines", .func = &ring_StringCountLines },
     .{ .name = "stzenginestringsortlines", .func = &ring_StringSortLines },
     .{ .name = "stzenginestringuniquelines", .func = &ring_StringUniqueLines },
-    .{ .name = "stzenginestringuniquelinesci", .func = &ring_StringUniqueLinesCI },
+    .{ .name = "stzenginestringuniquelinescs", .func = &ring_StringUniqueLinesCS },
     .{ .name = "stzenginestringreverselines", .func = &ring_StringReverseLines },
     .{ .name = "stzenginestringissnakecase", .func = &ring_StringIsSnakeCase },
     .{ .name = "stzenginestringiskebabcase", .func = &ring_StringIsKebabCase },

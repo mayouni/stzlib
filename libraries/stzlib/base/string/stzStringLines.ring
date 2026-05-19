@@ -103,11 +103,7 @@ class stzStringLines
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		pH = @oString.Engine()
-		if _bCase_ = 1
-			pR = StzEngineStringUniqueLines(pH)
-		else
-			pR = StzEngineStringUniqueLinesCI(pH)
-		ok
+		pR = StzEngineStringUniqueLinesCS(pH, _bCase_)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		if c = ""
