@@ -128,6 +128,8 @@ pub const str_rpartition_after = split.str_rpartition_after;
 pub const str_chunk = split.str_chunk;
 pub const str_chars_split = split.str_chars_split;
 pub const str_words_split = split.str_words_split;
+pub const str_sort_null_items = split.str_sort_null_items;
+pub const str_unique_null_items = split.str_unique_null_items;
 
 // ─── Find submodule imports ───
 const find = @import("string/find.zig");

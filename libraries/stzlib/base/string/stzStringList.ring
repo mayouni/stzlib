@@ -337,32 +337,29 @@ class stzStringList
 	#======================================================#
 
 	def SortInAscending()
-		# Insertion sort using engine Compare
-
+		# Engine-backed O(n log n) sort via null-delimited items
 		nLen = len(@acContent)
-		for i = 2 to nLen
-			cKey = @acContent[i]
-			j = i - 1
+		if nLen < 2
+			return
+		ok
 
-			pKey = StzEngineString(cKey)
-			bContinue = 1
-
-			while j >= 1 and bContinue
-				pJ = StzEngineString(@acContent[j])
-				nCmp = StzEngineStringCompare(pJ, pKey)
-				StzEngineStringFree(pJ)
-
-				if nCmp > 0
-					@acContent[j + 1] = @acContent[j]
-					j -= 1
-				else
-					bContinue = 0
-				ok
-			end
-
-			StzEngineStringFree(pKey)
-			@acContent[j + 1] = cKey
+		# Join items with null bytes
+		cJoined = ""
+		for i = 1 to nLen
+			if i > 1
+				cJoined += char(0)
+			ok
+			cJoined += @acContent[i]
 		next
+
+		# Sort via engine
+		pH = StzEngineString(cJoined)
+		pR = StzEngineStringSortNullItems(pH)
+		cSorted = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH)
+
+		@acContent = _SplitNullDelimited(cSorted)
 
 		def SortInAscendingQ()
 			This.SortInAscending()
@@ -421,32 +418,29 @@ class stzStringList
 	#======================================================#
 
 	def Unique()
-		acResult = []
+		# Engine-backed O(n) dedup via null-delimited items
 		nLen = len(@acContent)
+		if nLen < 2
+			return
+		ok
 
+		# Join items with null bytes
+		cJoined = ""
 		for i = 1 to nLen
-			bDup = 0
-			nResLen = len(acResult)
-			pI = StzEngineString(@acContent[i])
-
-			for j = 1 to nResLen
-				pJ = StzEngineString(acResult[j])
-				if StzEngineStringEquals(pI, pJ)
-					bDup = 1
-					StzEngineStringFree(pJ)
-					exit
-				ok
-				StzEngineStringFree(pJ)
-			next
-
-			StzEngineStringFree(pI)
-
-			if NOT bDup
-				acResult + @acContent[i]
+			if i > 1
+				cJoined += char(0)
 			ok
+			cJoined += @acContent[i]
 		next
 
-		@acContent = acResult
+		# Unique via engine (hashmap-based O(n))
+		pH = StzEngineString(cJoined)
+		pR = StzEngineStringUniqueNullItems(pH)
+		cUnique = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		StzEngineStringFree(pH)
+
+		@acContent = _SplitNullDelimited(cUnique)
 
 		def UniqueQ()
 			This.Unique()
