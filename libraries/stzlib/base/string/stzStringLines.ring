@@ -265,23 +265,35 @@ class stzStringLines
 	 #     SORT LINES                #
 	#===============================#
 
-	def SortLines()
+	def SortLinesCS(pCaseSensitive)
 		pH = @oString.Engine()
-		pR = StzEngineStringSortLines(pH)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pR = StzEngineStringSortLinesCS(pH, _bCase_)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		@oString.Update(c)
+
+		def SortLinesCSQ(pCaseSensitive)
+			This.SortLinesCS(pCaseSensitive)
+			return This
+
+	def SortLines()
+		return This.SortLinesCS(1)
 
 		def SortLinesQ()
 			This.SortLines()
 			return This
 
-	def LinesSorted()
+	def LinesSortedCS(pCaseSensitive)
 		pH = @oString.Engine()
-		pR = StzEngineStringSortLines(pH)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pR = StzEngineStringSortLinesCS(pH, _bCase_)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		return c
+
+	def LinesSorted()
+		return This.LinesSortedCS(1)
 
 	  #===============================#
 	 #     REVERSE LINES ORDER       #
@@ -328,23 +340,35 @@ class stzStringLines
 	 #     REMOVE DUPLICATE LINES    #
 	#===============================#
 
-	def RemoveDuplicateLines()
+	def RemoveDuplicateLinesCS(pCaseSensitive)
 		pH = @oString.Engine()
-		pR = StzEngineStringDeduplicateLines(pH)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pR = StzEngineStringDeduplicateLinesCS(pH, _bCase_)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		@oString.Update(c)
+
+		def RemoveDuplicateLinesCSQ(pCaseSensitive)
+			This.RemoveDuplicateLinesCS(pCaseSensitive)
+			return This
+
+	def RemoveDuplicateLines()
+		return This.RemoveDuplicateLinesCS(1)
 
 		def RemoveDuplicateLinesQ()
 			This.RemoveDuplicateLines()
 			return This
 
-	def DuplicateLinesRemoved()
+	def DuplicateLinesRemovedCS(pCaseSensitive)
 		pH = @oString.Engine()
-		pR = StzEngineStringDeduplicateLines(pH)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pR = StzEngineStringDeduplicateLinesCS(pH, _bCase_)
 		c = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		return c
+
+	def DuplicateLinesRemoved()
+		return This.DuplicateLinesRemovedCS(1)
 
 	  #===============================#
 	 #     LINES CONTAINING          #

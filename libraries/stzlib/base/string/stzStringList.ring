@@ -345,12 +345,14 @@ class stzStringList
 	 #   SORT (engine-backed compare)                       #
 	#======================================================#
 
-	def SortInAscending()
+	def SortInAscendingCS(pCaseSensitive)
 		# Engine-backed O(n log n) sort via null-delimited items
 		nLen = len(@acContent)
 		if nLen < 2
 			return
 		ok
+
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Join items with null bytes
 		cJoined = ""
@@ -363,12 +365,19 @@ class stzStringList
 
 		# Sort via engine
 		pH = StzEngineString(cJoined)
-		pR = StzEngineStringSortNullItems(pH)
+		pR = StzEngineStringSortNullItemsCS(pH, _bCase_)
 		cSorted = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH)
 
 		@acContent = _SplitNullDelimited(cSorted)
+
+		def SortInAscendingCSQ(pCaseSensitive)
+			This.SortInAscendingCS(pCaseSensitive)
+			return This
+
+	def SortInAscending()
+		This.SortInAscendingCS(1)
 
 		def SortInAscendingQ()
 			This.SortInAscending()
@@ -377,10 +386,13 @@ class stzStringList
 		def SortUp()
 			This.SortInAscending()
 
-	def SortedInAscending()
+	def SortedInAscendingCS(pCaseSensitive)
 		oCopy = This.Copy()
-		oCopy.SortInAscending()
+		oCopy.SortInAscendingCS(pCaseSensitive)
 		return oCopy.Content()
+
+	def SortedInAscending()
+		return This.SortedInAscendingCS(1)
 
 		def SortedUp()
 			return This.SortedInAscending()
@@ -426,12 +438,14 @@ class stzStringList
 	 #   UNIQUE (remove duplicates, engine-backed)          #
 	#======================================================#
 
-	def Unique()
+	def UniqueCS(pCaseSensitive)
 		# Engine-backed O(n) dedup via null-delimited items
 		nLen = len(@acContent)
 		if nLen < 2
 			return
 		ok
+
+		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		# Join items with null bytes
 		cJoined = ""
@@ -444,12 +458,19 @@ class stzStringList
 
 		# Unique via engine (hashmap-based O(n))
 		pH = StzEngineString(cJoined)
-		pR = StzEngineStringUniqueNullItems(pH)
+		pR = StzEngineStringUniqueNullItemsCS(pH, _bCase_)
 		cUnique = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
 		StzEngineStringFree(pH)
 
 		@acContent = _SplitNullDelimited(cUnique)
+
+		def UniqueCSQ(pCaseSensitive)
+			This.UniqueCS(pCaseSensitive)
+			return This
+
+	def Unique()
+		This.UniqueCS(1)
 
 		def UniqueQ()
 			This.Unique()
