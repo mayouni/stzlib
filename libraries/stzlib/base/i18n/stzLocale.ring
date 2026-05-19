@@ -201,23 +201,23 @@ $_aCurrencyISOData = [
 # ── Pure Ring locale helper functions ──
 
 func _LocaleLangCodeFromAbbr(cLocaleAbbr)
-	cLocaleAbbr = substr(cLocaleAbbr, "-", "_")
-	nPos = substr(cLocaleAbbr, "_")
+	cLocaleAbbr = ring_substr2(cLocaleAbbr, "-", "_")
+	nPos = ring_find(cLocaleAbbr, "_")
 	if nPos > 0
-		return lower(left(cLocaleAbbr, nPos - 1))
+		return lower(StzLeft(cLocaleAbbr, nPos - 1))
 	ok
 	return lower(cLocaleAbbr)
 
 func _LocaleCountryCodeFromAbbr(cLocaleAbbr)
-	cLocaleAbbr = substr(cLocaleAbbr, "-", "_")
-	nPos = substr(cLocaleAbbr, "_")
+	cLocaleAbbr = ring_substr2(cLocaleAbbr, "-", "_")
+	nPos = ring_find(cLocaleAbbr, "_")
 	if nPos > 0
-		cRest = substr(cLocaleAbbr, nPos + 1)
-		nPos2 = substr(cRest, "_")
+		cRest = StzMid(cLocaleAbbr, nPos + 1, StzLen(cLocaleAbbr))
+		nPos2 = ring_find(cRest, "_")
 		if nPos2 > 0
-			return upper(substr(cRest, nPos2 + 1))
+			return upper(StzMid(cRest, nPos2 + 1, StzLen(cRest)))
 		ok
-		if len(cRest) <= 3 and isalpha(left(cRest, 1))
+		if StzLen(cRest) <= 3 and isalpha(StzLeft(cRest, 1))
 			return upper(cRest)
 		ok
 	ok
@@ -227,11 +227,11 @@ func _LocaleNormalizeAbbr(cInput)
 	if cInput = NULL or cInput = "" or cInput = "C"
 		return "C"
 	ok
-	cInput = substr(cInput, "-", "_")
-	nPos = substr(cInput, "_")
+	cInput = ring_substr2(cInput, "-", "_")
+	nPos = ring_find(cInput, "_")
 	if nPos > 0
-		cLang = lower(left(cInput, nPos - 1))
-		cRest = upper(substr(cInput, nPos + 1))
+		cLang = lower(StzLeft(cInput, nPos - 1))
+		cRest = upper(StzMid(cInput, nPos + 1, StzLen(cInput)))
 		return cLang + "_" + cRest
 	ok
 	cLang = lower(cInput)
@@ -371,15 +371,15 @@ func _DayNameInLang(cLangName, nDay)
 
 func _DayAbbrInLang(cLangName, nDay)
 	cFullName = _DayNameInLang(cLangName, nDay)
-	if len(cFullName) >= 3
-		return left(cFullName, 3)
+	if StzLen(cFullName) >= 3
+		return StzLeft(cFullName, 3)
 	ok
 	return cFullName
 
 func _DaySymbolInLang(cLangName, nDay)
 	cFullName = _DayNameInLang(cLangName, nDay)
-	if len(cFullName) >= 1
-		return left(cFullName, 1)
+	if StzLen(cFullName) >= 1
+		return StzLeft(cFullName, 1)
 	ok
 	return ""
 
@@ -715,7 +715,7 @@ class stzLocale from stzObject
 			return Content()
 
 	def bcp47Abbreviation()
-		return substr(@cAbbreviation, "_", "-")
+		return ring_substr2(@cAbbreviation, "_", "-")
 
 	  #---------------#
 	 #    COUNTRY    #
@@ -861,7 +861,7 @@ class stzLocale from stzObject
 
 			if _aLocaleCountriesXT[i][1] = cNumber
 				cTemp = ring_substr2(_aLocaleCountriesXT[i][7], "_", " ")
-				cResult = upper(left(cTemp, 1)) + substr(cTemp, 2)
+				cResult = upper(StzLeft(cTemp, 1)) + StzMid(cTemp, 2, StzLen(cTemp))
 				return cResult
 			ok
 		next
