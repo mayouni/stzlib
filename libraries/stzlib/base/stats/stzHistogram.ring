@@ -512,15 +512,15 @@ class stzHistogram
 				cLine += @acCanvas[i][j]
 			next
 			# Trim trailing spaces
-			while len(cLine) > 0 and right(cLine, 1) = " "
-				cLine = left(cLine, len(cLine) - 1)
+			while StzLen(cLine) > 0 and StzRight(cLine, 1) = " "
+				cLine = StzLeft(cLine, StzLen(cLine) - 1)
 			end
 			cResult += cLine + NL
 		next
 		
 		# Remove final newline
-		if len(cResult) > 0 and right(cResult, 1) = NL
-			cResult = left(cResult, len(cResult) - 1)
+		if StzLen(cResult) > 0 and StzRight(cResult, 1) = NL
+			cResult = StzLeft(cResult, StzLen(cResult) - 1)
 		ok
 		
 		return cResult
@@ -618,17 +618,17 @@ class stzHistogram
 		        # Calculate width for two-line labels (use the longer of the two values)
 		        cLabel1 = "" + RoundN(@aBinRanges[i][1], 1)
 		        cLabel2 = "" + RoundN(@aBinRanges[i][2], 1)
-		        nLabelWidth = max([len(cLabel1), len(cLabel2)])
+		        nLabelWidth = max([StzLen(cLabel1), StzLen(cLabel2)])
 		        if nLabelWidth > @nMaxLabelWidth
 		            nLabelWidth = @nMaxLabelWidth
 		        ok
 		    ok
 		    
 		    if @bShowFrequency
-		        nValueWidth = len("" + @anValues[i])
+		        nValueWidth = StzLen("" + @anValues[i])
 		    but @bShowPercent
 		        cPercent = RoundN((@anValues[i]/nSum)*100, 1)
-		        nValueWidth = len("" + cPercent + '%')
+		        nValueWidth = StzLen("" + cPercent + '%')
 		    ok
 		    
 		    # Use bar width as minimum, but allow labels to determine spacing
@@ -886,7 +886,7 @@ class stzHistogram
 			    cValue = iff(nRounded = floor(nRounded), ('' + floor(nRounded)), ("" + nRounded))
 			off
 			
-			nValueLen = len(cValue)
+			nValueLen = StzLen(cValue)
 			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
 			
 			for k = 1 to nValueLen
@@ -941,7 +941,7 @@ class stzHistogram
 			    cValue = "" + nPercent + '%'
 			ok
 			
-			nValueLen = len(cValue)
+			nValueLen = StzLen(cValue)
 			nValueStartX = nCurrentX + floor((nElementWidth - nValueLen) / 2)
 			
 			for k = 1 to nValueLen
@@ -976,7 +976,7 @@ class stzHistogram
 				//cLabel1 = "" + RoundN(@aBinRanges[i][1], 1)
 				cLabel1 = _formatNumber(@aBinRanges[i][1])
 				cLabel1 = StzNumberQ(@aBinRanges[i][1]).ToCompactForm()
-				nLenLabel1 = len(cLabel1)
+				nLenLabel1 = StzLen(cLabel1)
 				nLabelStartX1 = nCurrentX + floor((nElementWidth - nLenLabel1) / 2)
 	
 				for j = 1 to nLenLabel1
@@ -990,7 +990,7 @@ class stzHistogram
 				//cLabel2 = "" + RoundN(@aBinRanges[i][2], 1)
 				cLabel2 = _formatNumber(@aBinRanges[i][2])
 				cLabel2 = StzNumberQ(@aBinRanges[i][2]).CompactForm()
-				nLenLabel2 = len(cLabel2)
+				nLenLabel2 = StzLen(cLabel2)
 				nLabelStartX2 = nCurrentX + floor((nElementWidth - nLenLabel2) / 2)
 	
 				for j = 1 to nLenLabel2

@@ -100,12 +100,12 @@ Class TableDisplayConfig
         # 1.1 Analyze row labels
         for i = 1 to len(aRowLabels)
             cLabel = aRowLabels[i]
-            nWidth = len(cLabel)
+            nWidth = StzLen(cLabel)
             
             # Find max width of actual data in this column
             nMaxDataWidth = nWidth
             for r = 2 to len(aPivotData)
-                nValueWidth = len(aPivotData[r][i])
+                nValueWidth = StzLen(aPivotData[r][i])
                 if nValueWidth > nMaxDataWidth
                     nMaxDataWidth = nValueWidth
                 ok
@@ -128,11 +128,11 @@ Class TableDisplayConfig
         aColumnHeaders = []
         for i = 1 to len(aColLabels)
             cLabel = aColLabels[i]
-            nWidth = len(cLabel)
+            nWidth = StzLen(cLabel)
             
             # For each value in this dimension, measure width
             for cValue in aColumnValues[i]
-                nValueWidth = len(cValue)
+                nValueWidth = StzLen(cValue)
                 if nValueWidth > nWidth
                     nWidth = nValueWidth
                 ok
@@ -159,7 +159,7 @@ Class TableDisplayConfig
                 
                 # Get the cell value and measure it
                 cValue = "" + aPivotData[r][c]
-                nWidth = len(cValue)
+                nWidth = StzLen(cValue)
                 
                 # Store in our map with the header as key
                 if nWidth > 0  # Only store non-empty cells
@@ -177,7 +177,7 @@ Class TableDisplayConfig
         aContentDimensions[:DataCells] = aDataWidths
         
         # 1.5 Measure total labels and cells
-        nTotalLabelWidth = len(cTotalLabel)
+        nTotalLabelWidth = StzLen(cTotalLabel)
         aContentDimensions[:TotalLabels] = [
             :label = cTotalLabel,
             :width = nTotalLabelWidth
@@ -189,7 +189,7 @@ Class TableDisplayConfig
             for r = 2 to len(aPivotData)
                 nCol = len(aPivotData[r])
                 cValue = "" + aPivotData[r][nCol]
-                nWidth = len(cValue)
+                nWidth = StzLen(cValue)
                 
                 if nWidth > nMaxTotalWidth
                     nMaxTotalWidth = nWidth
@@ -256,7 +256,7 @@ Class TableDisplayConfig
             # Add to section width (including separators)
             nRowLabelSectionWidth += nWidth
             if i < len(aContentDimensions[:RowLabels])
-                nRowLabelSectionWidth += len(aDecorators[:RowLabelSeparator])
+                nRowLabelSectionWidth += StzLen(aDecorators[:RowLabelSeparator])
             ok
         next
         
@@ -701,7 +701,7 @@ Class TableRenderer
             ok
             
             # Pad to full row label section width if needed
-            while len(cRowData) < nRowLabelSectionWidth
+            while StzLen(cRowData) < nRowLabelSectionWidth
                 cRowData += " "
             end
             
@@ -732,7 +732,7 @@ Class TableRenderer
                     # Add data with proper padding
                     if nColIndex > 0
                         cValue = "" + aPivotData[r][nColIndex]
-                        if len(cValue) > 0
+                        if StzLen(cValue) > 0
                             cRowData += " " + _padLeft(cValue, nCellWidth - oConfig.aSettings[:DefaultPadding])
                         else
                             cRowData += " " + copy(" ", nCellWidth - oConfig.aSettings[:DefaultPadding])
@@ -827,7 +827,7 @@ Class TableRenderer
             cTotalRow = copy(" ", nLeftPadding) + oConfig.cTotalLabel
             
             # Pad to row label section width
-            while len(cTotalRow) < nLeftPadding + nRowLabelSectionWidth
+            while StzLen(cTotalRow) < nLeftPadding + nRowLabelSectionWidth
                 cTotalRow += " "
             end
             
@@ -858,7 +858,7 @@ Class TableRenderer
                     # Add total value with proper padding
                     if nColIndex > 0
                         cValue = "" + aPivotData[nLastRow][nColIndex]
-                        if len(cValue) > 0
+                        if StzLen(cValue) > 0
                             cTotalRow += " " + _padLeft(cValue, nCellWidth - oConfig.aSettings[:DefaultPadding])
                         else
                             cTotalRow += " " + copy(" ", nCellWidth - oConfig.aSettings[:DefaultPadding])
@@ -890,9 +890,9 @@ Class TableRenderer
     
     # Helper: Center text in a fixed width
     func _center(cText, nWidth)
-        nTextLen = len(cText)
+        nTextLen = StzLen(cText)
         if nTextLen >= nWidth
-            return left(cText, nWidth)
+            return StzLeft(cText, nWidth)
         ok
         
         nLeftPad = floor((nWidth - nTextLen) / 2)
@@ -902,18 +902,18 @@ Class TableRenderer
     
     # Helper: Right pad text to fixed width
     func _padRight(cText, nWidth)
-        nTextLen = len(cText)
+        nTextLen = StzLen(cText)
         if nTextLen >= nWidth
-            return left(cText, nWidth)
+            return StzLeft(cText, nWidth)
         ok
         
         return cText + copy(" ", nWidth - nTextLen)
     
     # Helper: Left pad text to fixed width
     func _padLeft(cText, nWidth)
-        nTextLen = len(cText)
+        nTextLen = StzLen(cText)
         if nTextLen >= nWidth
-            return left(cText, nWidth)
+            return StzLeft(cText, nWidth)
         ok
         
         return copy(" ", nWidth - nTextLen) + cText

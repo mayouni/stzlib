@@ -512,18 +512,18 @@ class stzStringList
 
 		acResult = []
 		nLen = len(@acContent)
-		nPrefixLen = len(pcPrefix)
+		nPrefixLen = StzLen(pcPrefix)
 		if _bCase_
 			for i = 1 to nLen
-				if left(@acContent[i], nPrefixLen) = pcPrefix
+				if StzLeft(@acContent[i], nPrefixLen) = pcPrefix
 					acResult + @acContent[i]
 				ok
 			next
 		else
 			cPrefix = StzCaseFold(pcPrefix)
-			nFoldLen = len(cPrefix)
+			nFoldLen = StzLen(cPrefix)
 			for i = 1 to nLen
-				if left(StzCaseFold(@acContent[i]), nFoldLen) = cPrefix
+				if StzLeft(StzCaseFold(@acContent[i]), nFoldLen) = cPrefix
 					acResult + @acContent[i]
 				ok
 			next
@@ -538,18 +538,18 @@ class stzStringList
 
 		acResult = []
 		nLen = len(@acContent)
-		nSuffixLen = len(pcSuffix)
+		nSuffixLen = StzLen(pcSuffix)
 		if _bCase_
 			for i = 1 to nLen
-				if right(@acContent[i], nSuffixLen) = pcSuffix
+				if StzRight(@acContent[i], nSuffixLen) = pcSuffix
 					acResult + @acContent[i]
 				ok
 			next
 		else
 			cSuffix = StzCaseFold(pcSuffix)
-			nFoldLen = len(cSuffix)
+			nFoldLen = StzLen(cSuffix)
 			for i = 1 to nLen
-				if right(StzCaseFold(@acContent[i]), nFoldLen) = cSuffix
+				if StzRight(StzCaseFold(@acContent[i]), nFoldLen) = cSuffix
 					acResult + @acContent[i]
 				ok
 			next
