@@ -133,7 +133,7 @@ class stzStringWords
 
 		for i = 1 to nLen
 			c = acChars[i]
-			bIsSpace = (c = " " or c = char(9) or c = char(10) or c = char(13))
+			bIsSpace = (c = " " or c = StzChar(9) or c = StzChar(10) or c = StzChar(13))
 
 			if NOT bIsSpace
 				if NOT bInWord
@@ -155,7 +155,7 @@ class stzStringWords
 					# Finish reading the rest of this word
 					for j = i + 1 to nLen
 						cNext = acChars[j]
-						if cNext = " " or cNext = char(9) or cNext = char(10) or cNext = char(13)
+						if cNext = " " or cNext = StzChar(9) or cNext = StzChar(10) or cNext = StzChar(13)
 							exit
 						ok
 						cWord += cNext
