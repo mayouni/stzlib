@@ -1,4 +1,4 @@
-load "test_stubs.ring"
+load "../../string/test/test_stubs.ring"
 
 # Load stz_file.dll
 ? "Loading stz_file.dll..."
@@ -11,7 +11,7 @@ else
 	return
 ok
 
-load "../stzFileEngine.ring"
+load "../stzfile.ring"
 
 ? ""
 ? "=== stzFileEngine Tests ==="
@@ -26,14 +26,14 @@ load "../stzFileEngine.ring"
 # Test 2: File existence (test_stubs.ring should exist)
 ? ""
 ? "--- Test 2: File/Dir existence ---"
-? "FileExists('test_stubs.ring'): " + StzFileExists("test_stubs.ring")
+? "FileExists('test_stubs.ring'): " + StzFileExists("../../string/test/test_stubs.ring")
 ? "FileExists('nonexistent.xyz'): " + StzFileExists("nonexistent.xyz")
 ? "DirExists('.'): " + StzDirExists(".")
 
 # Test 3: File size
 ? ""
 ? "--- Test 3: File size ---"
-nSize = StzFileSize("test_stubs.ring")
+nSize = StzFileSize("../../string/test/test_stubs.ring")
 ? "FileSize('test_stubs.ring'): " + nSize + " bytes"
 
 # Test 4: Write, read, delete cycle
