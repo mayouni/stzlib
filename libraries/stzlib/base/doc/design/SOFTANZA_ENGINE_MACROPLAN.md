@@ -13,12 +13,12 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 614 passing              |
+| Engine tests      | 622 passing              |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 394 DLL functions        |
+| Ring bridge regs  | 398 DLL functions        |
 | Ring Unicode hard | Complete (all domains)   |
-| Last updated      | 2026-05-19 (Session 17)  |
+| Last updated      | 2026-05-19 (Session 18)  |
 
 ---
 
@@ -198,7 +198,24 @@
 - **stzStringList test suite**: Added test_stringlist.ring covering ContainsCS,
   FindCS, ContainsSubStringCS, FilterCS, FilterByStartsWithCS, FilterByEndsWithCS,
   ToUpper/ToLower, SortInAscending, UniqueItems (17 assertions).
-- **Stats**: 614 Zig tests, 394 Ring bridge functions, all Ring test suites pass.
+
+### Phase 9 -- Engine Migration: Inserter, Finder, Lines (Session 18)
+
+- **Engine additions**: `str_insert_before_each_cs`, `str_insert_after_each_cs`
+  (Unicode casefold matching for CI insert), `str_unique_lines_ci` (O(n) casefold
+  hashmap dedup preserving first occurrence case), `str_reverse_lines`.
+  8 new Zig tests (622 total). 4 new bridge functions (398 total).
+- **stzStringInserter migration**: `InsertBeforeSubStringCS` and
+  `InsertAfterSubStringCS` migrated from O(n) find-then-shift Ring loop
+  to single engine `InsertBeforeEachCS`/`InsertAfterEachCS` call.
+- **stzStringFinder migration**: `FindNthCS` migrated from iterated
+  find-next Ring loop to direct `StzEngineStringFindNthCS` engine call.
+- **stzStringLines migration**: `UniqueLinesCS` CI path migrated from
+  O(n^2) Ring nested loop with per-pair StzCaseFold to single engine
+  `UniqueLinesCI` call. `ReverseLinesOrder` migrated from Ring string
+  rebuild loop to engine `ReverseLines` call.
+- **Test suites**: Added test_inserter.ring (7 assertions).
+- **Stats**: 622 Zig tests, 398 Ring bridge functions, all Ring test suites pass.
 
 ---
 
