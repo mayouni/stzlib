@@ -77,7 +77,7 @@ class stzTimeLine from stzObject
 		ok
 
 		if isString(pEnd)
-			if substr(pEnd, " ") = 0
+			if ring_find(pEnd, " ") = 0
 				pEnd += " 23:59:59"
 			ok
 			pEnd = This._normalizeDateTime(pEnd)
@@ -363,7 +363,7 @@ class stzTimeLine from stzObject
 
 		for i = 1 to nLen
 			cLabel = @aSpans[i][1]
-			if find(acSeen, cLabel) = 0
+			if ring_find(acSeen, cLabel) = 0
 				acResult + cLabel
 				acSeen + cLabel
 			ok
@@ -824,15 +824,15 @@ class stzTimeLine from stzObject
 			oDate = new stzDate(cDateTime)
 			nLen = len(@aPoints)
 			for i = 1 to nLen
-				if left(@aPoints[i][2], 10) = cDateTime
+				if StzLeft(@aPoints[i][2], 10) = cDateTime
 					aResult + [@aPoints[i][1], :Point]
 				ok
 			next
 	
 			nLen = len(@aSpans)
 			for i = 1 to nLen
-				oSpanStart = new stzDate(left(@aSpans[i][2], 10))
-				oSpanEnd = new stzDate(left(@aSpans[i][3], 10))
+				oSpanStart = new stzDate(StzLeft(@aSpans[i][2], 10))
+				oSpanEnd = new stzDate(StzLeft(@aSpans[i][3], 10))
 				if oDate >= oSpanStart and oDate <= oSpanEnd
 					aResult + [@aSpans[i][1], :Span]
 				ok
@@ -843,7 +843,7 @@ class stzTimeLine from stzObject
 			cTime = cDateTime
 			nLen = len(@aPoints)
 			for i = 1 to nLen
-				if right(@aPoints[i][2], 8) = cTime
+				if StzRight(@aPoints[i][2], 8) = cTime
 					aResult + [@aPoints[i][1], :Point]
 				ok
 			next
@@ -857,8 +857,8 @@ class stzTimeLine from stzObject
 	
 				# Check if time falls within span's time range
 
-				oSpanStartTime = new stzTime(right(@aSpans[i][2], 8))
-				oSpanEndTime = new stzTime(right(@aSpans[i][3], 8))
+				oSpanStartTime = new stzTime(StzRight(@aSpans[i][2], 8))
+				oSpanEndTime = new stzTime(StzRight(@aSpans[i][3], 8))
 	
 				if oTime >= oSpanStartTime or oTime <= oSpanEndTime
 					aResult + [@aSpans[i][1], :Span]
@@ -910,36 +910,36 @@ class stzTimeLine from stzObject
 	
 		switch cMode
 		on :DateOnly
-			cDate = left(cDateTime, 10)
+			cDate = StzLeft(cDateTime, 10)
 			nLen = len(@aPoints)
 			for i = 1 to nLen
-				if left(@aPoints[i][2], 10) = cDate
+				if StzLeft(@aPoints[i][2], 10) = cDate
 					aResult + [@aPoints[i][1], :Point]
 				ok
 			next
 	
 			nLen = len(@aSpans)
 			for i = 1 to nLen
-				cSpanStart = left(@aSpans[i][2], 10)
-				cSpanEnd = left(@aSpans[i][3], 10)
+				cSpanStart = StzLeft(@aSpans[i][2], 10)
+				cSpanEnd = StzLeft(@aSpans[i][3], 10)
 				if cDate >= cSpanStart and cDate <= cSpanEnd
 					aResult + [@aSpans[i][1], :Span]
 				ok
 			next
 	
 		on :TimeOnly
-			cTime = right(cDateTime, 8)
+			cTime = StzRight(cDateTime, 8)
 			nLen = len(@aPoints)
 			for i = 1 to nLen
-				if right(@aPoints[i][2], 8) = cTime
+				if StzRight(@aPoints[i][2], 8) = cTime
 					aResult + [@aPoints[i][1], :Point]
 				ok
 			next
 	        
 			nLen = len(@aSpans)
 			for i = 1 to nLen
-				cSpanStartTime = right(@aSpans[i][2], 8)
-				cSpanEndTime = right(@aSpans[i][3], 8)
+				cSpanStartTime = StzRight(@aSpans[i][2], 8)
+				cSpanEndTime = StzRight(@aSpans[i][3], 8)
 				if cTime >= cSpanStartTime or cTime <= cSpanEndTime
 					aResult + [@aSpans[i][1], :Span]
 				ok
@@ -1514,7 +1514,7 @@ class stzTimeLine from stzObject
 		# Workaround: replacing eventual ──○●► with ─●○─►
 		#TODO // Resolve it logically at construction
 
-		cViz = substr(cViz, "──○●►", "───●○─►")
+		cViz = ring_substr2(cViz, "──○●►", "───●○─►")
 
 		return cViz + nl + nl + cTable
 	
@@ -1631,12 +1631,12 @@ class stzTimeLine from stzObject
 		oPoint = new stzDateTime(cPoint)
 		oStart = This.StartQ()
 		oEnd = This.EndQ()
-	
+
 		if oPoint < oStart or oPoint > oEnd
 			raise("Blocked point is outside timeline boundaries")
 		ok
-	
-		if find(@aBlockedPoints, cPoint) = 0
+
+		if ring_find(@aBlockedPoints, cPoint) = 0
 			@aBlockedPoints + cPoint
 		ok
 	
@@ -1652,7 +1652,7 @@ class stzTimeLine from stzObject
 
 	def RemoveBlockedPoint(pDateTime)
 		cPoint = This._normalizeDateTime(pDateTime)
-		nPos = find(@aBlockedPoints, cPoint)
+		nPos = ring_find(@aBlockedPoints, cPoint)
 		if nPos > 0
 			del(@aBlockedPoints, nPos)
 		ok
@@ -1850,7 +1850,7 @@ class stzTimeLine from stzObject
 		ok
 	
 	def _setVizString(nRow, nCol, cStr)
-		nLen = len(cStr)
+		nLen = StzLen(cStr)
 		for i = 1 to nLen
 			_setVizChar(nRow, nCol + i - 1, cStr[i])
 		next
@@ -2017,7 +2017,7 @@ class stzTimeLine from stzObject
 	    _setVizChar(nRow, nCanvasWidth, @cArrowChar)
 	
 	def _canPlaceLabel(nPos, cLabel, aTimepoints)
-		nLabelLen = len(cLabel)
+		nLabelLen = StzLen(cLabel)
 		nLabelStart = max([1, nPos - floor(nLabelLen / 2)])
 		nLabelEnd = nLabelStart + nLabelLen - 1
 		
@@ -2073,8 +2073,8 @@ class stzTimeLine from stzObject
 		for i = 1 to nLen
 			nPos = aLabelsToPlace[i][1]
 			cLabel = aLabelsToPlace[i][2]
-			nLabelLen = len(cLabel)
-			
+			nLabelLen = StzLen(cLabel)
+
 			nLabelStart = max([1, nPos - floor(nLabelLen / 2)])
 			nLabelEnd = nLabelStart + nLabelLen - 1
 			
@@ -2189,22 +2189,22 @@ class stzTimeLine from stzObject
 			if nLenIndices = 1
 				# Single number - draw on first row
 				cNum = "" + aIndices[1]
-				nNumLen = len(cNum)
+				nNumLen = StzLen(cNum)
 				nStartCol = max([1, nPos - floor(nNumLen / 2)])
 				_setVizString(nRow, nStartCol, cNum)
-				
+
 			else
 				# Multiple indices - stack 2 per row
 				nCurrentRow = nRow
-				
+
 				for j = 1 to nLenIndices step 2
 					# Build number string for this row (up to 2 numbers)
 					cNum = "" + aIndices[j]
 					if j + 1 <= nLenIndices
 						cNum += "-" + aIndices[j + 1]
 					ok
-					
-					nNumLen = len(cNum)
+
+					nNumLen = StzLen(cNum)
 					nStartCol = max([1, nPos - floor(nNumLen / 2)])
 					_setVizString(nCurrentRow, nStartCol, cNum)
 					
@@ -2360,13 +2360,13 @@ class stzTimeLine from stzObject
 
 	def _drawSpanBar(nRow, nStartPos, nEndPos, cLabel, bHighlighted)
 		cBarChar = @cSpanChar
-	
+
 		_setVizChar(nRow, nStartPos, @cSpanStartChar)
-	
+
 		# Draw label in the middle of span
 		nSpanWidth = nEndPos - nStartPos + 1
-		nLabelLen = len(cLabel)
-	
+		nLabelLen = StzLen(cLabel)
+
 		if nLabelLen <= nSpanWidth - 2
 			nLabelStart = nStartPos + floor((nSpanWidth - nLabelLen) / 2)
 	
@@ -2599,7 +2599,7 @@ class stzTimeLine from stzObject
 	
 	def _isDateOnly(cDateTime)
 		# Check if format is YYYY-MM-DD (no time component)
-		if len(cDateTime) = 10 and substr(cDateTime, 5, 1) = "-" and substr(cDateTime, 8, 1) = "-"
+		if StzLen(cDateTime) = 10 and StzMid(cDateTime, 5, 1) = "-" and StzMid(cDateTime, 8, 1) = "-"
 			return 1
 		else
 			return 0
@@ -2610,7 +2610,7 @@ class stzTimeLine from stzObject
 
 	def _isTimeOnly(cDateTime)
 		# Check if format is HH:MM:SS (no date component)
-		if len(cDateTime) = 8 and substr(cDateTime, 3, 1) = ":" and substr(cDateTime, 6, 1) = ":"
+		if StzLen(cDateTime) = 8 and StzMid(cDateTime, 3, 1) = ":" and StzMid(cDateTime, 6, 1) = ":"
 			return 1
 		else
 			return 0

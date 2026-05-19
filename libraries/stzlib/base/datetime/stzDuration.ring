@@ -198,11 +198,11 @@ def ToStringXT(cFormat)
 	
 	cResult = ""
 	i = 1
-	nLen = len(cFormat)
+	nLen = StzLen(cFormat)
 	
 	while i <= nLen
 		# Three-character patterns
-		if i <= nLen - 2 and substr(cFormat, i, 3) = "zzz"
+		if i <= nLen - 2 and StzMid(cFormat, i, 3) = "zzz"
 			cResult += PadLeftXT("" + nMs, 3, '0')
 			i += 3
 			loop
@@ -210,7 +210,7 @@ def ToStringXT(cFormat)
 		
 		# Two-character patterns
 		if i <= nLen - 1
-			cTwo = substr(cFormat, i, 2)
+			cTwo = StzMid(cFormat, i, 2)
 			if cTwo = "dd"
 				cResult += PadLeftXT('' + nD, 2, "0")
 				i += 2
@@ -514,7 +514,7 @@ def ToStringXT(cFormat)
 		
 		# Extract all numbers followed by units
 		# Days
-		nPos = substr(cStr, "day")
+		nPos = ring_find(cStr, "day")
 		if nPos > 0
 			cNum = ""
 			for i = nPos - 1 to 1 step -1
@@ -533,9 +533,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Hours
-		nPos = substr(cStr, "hour")
+		nPos = ring_find(cStr, "hour")
 		if nPos = 0
-			nPos = substr(cStr, "hr")
+			nPos = ring_find(cStr, "hr")
 		ok
 		if nPos > 0
 			cNum = ""
@@ -555,9 +555,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Minutes
-		nPos = substr(cStr, "minute")
+		nPos = ring_find(cStr, "minute")
 		if nPos = 0
-			nPos = substr(cStr, "min")
+			nPos = ring_find(cStr, "min")
 		ok
 		if nPos > 0
 			cNum = ""
@@ -577,9 +577,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Seconds
-		nPos = substr(cStr, "second")
+		nPos = ring_find(cStr, "second")
 		if nPos = 0
-			nPos = substr(cStr, "sec")
+			nPos = ring_find(cStr, "sec")
 		ok
 		if nPos > 0
 			cNum = ""
@@ -599,9 +599,9 @@ def ToStringXT(cFormat)
 		ok
 		
 		# Milliseconds
-		nPos = substr(cStr, "millisecond")
+		nPos = ring_find(cStr, "millisecond")
 		if nPos = 0
-			nPos = substr(cStr, "ms")
+			nPos = ring_find(cStr, "ms")
 		ok
 		if nPos > 0
 			cNum = ""
