@@ -459,4 +459,11 @@ func StzRight(cStr, n)
 	StzEngineStringFree(pH)
 	return c
 
+func StzPadLeft(cStr, nWidth, cPadChar)
+	nLen = len(cStr)
+	for i = 1 to nWidth - nLen
+		cStr = cPadChar + cStr
+	next
+	return cStr
+
 class stzObject

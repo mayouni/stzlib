@@ -4,8 +4,8 @@
 #--------------------------------------------------------------#
 #                                                              #
 #   Description  : System call -- Engine-backed (Zig DLL).     #
-#                  Runs external commands without showing a     #
-#                  console window. Captures stdout/stderr.      #
+#                  Runs external commands without showing a    #
+#                  console window. Captures stdout/stderr.     #
 #   Version      : V0.9 (2026)                                 #
 #   Author       : Mansour Ayouni (kalidianow@gmail.com)       #
 #                                                              #
@@ -34,14 +34,14 @@ func StzSystemCallQXT(pcProgram, cReturnType)
 	oCall.SetReturnType(cReturnType)
 	return oCall
 
-func stzsystem(pcCommand)
+func StzSystem(pcCommand)
 	pcCommand = NormalizePathsInCommand(pcCommand)
 
 	_oSysCall_ = new stzSystemCall(pcCommand)
 	_oSysCall_.HideConsole()
 	return _oSysCall_.RunAndGetOutput()
 
-func stzsystemSilent(pcCommand) # No output!
+func StzSystemSilent(pcCommand) # No output!
 	pcCommand = NormalizePathsInCommand(pcCommand)
 
 	_oSysCall_ = new stzSystemCall(pcCommand)
@@ -52,8 +52,8 @@ func NormalizePathsInCommand(pcCommand)
 	# Convert slashes in paths only, not in command flags
 	cResult = ""
 	aTokens = split(pcCommand, " ")
-
-	for i = 1 to len(aTokens)
+	nLen = len(aTokens)
+	for i = 1 to nLen
 		cToken = aTokens[i]
 
 		if isWindows()
@@ -77,13 +77,13 @@ func NormalizePathsInCommand(pcCommand)
 	return cResult
 
 
-func stzsystemXT(pcProgram, pacArgs)
+func StzSystemXT(pcProgram, pacArgs)
 	_oSysCall_ = new stzSystemCall(pcProgram)
 	_oSysCall_.SetArgs(pacArgs)
 	_oSysCall_.HideConsole()
 	return _oSysCall_.RunAndGetOutput()
 
-func stzsystemSilentXT(pcProgram, pacArgs)
+func StzSystemSilentXT(pcProgram, pacArgs)
 	_oSysCall_ = new stzSystemCall(pcProgram)
 	_oSysCall_.SetArgs(pacArgs)
 	_oSysCall_.RunSilently()

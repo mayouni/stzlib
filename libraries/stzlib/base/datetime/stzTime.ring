@@ -21,15 +21,15 @@ func NowTime()
     return StzTimeQ("").ToString()
 
 func IsTime(str)
-    if not isString(str) or len(str) = 0
+    if not isString(str) or StzLen(str) = 0
         return FALSE
     ok
 
     aParts = split(str, ":")
     if len(aParts) < 2 or len(aParts) > 3
-        cUpper = upper(str)
-        if right(cUpper, 3) = " AM" or right(cUpper, 3) = " PM"
-            cCore = trim(left(str, len(str) - 3))
+        cUpper = StzUpper(str)
+        if StzRight(cUpper, 3) = " AM" or StzRight(cUpper, 3) = " PM"
+            cCore = trim(StzLeft(str, StzLen(str) - 3))
             aParts = split(cCore, ":")
             if len(aParts) < 2 or len(aParts) > 3
                 return FALSE
@@ -41,7 +41,7 @@ func IsTime(str)
 
     for i = 1 to len(aParts)
         cPart = aParts[i]
-        if i = len(aParts) and substr(cPart, ".")
+        if i = len(aParts) and ring_find(cPart, ".")
             aSubParts = split(cPart, ".")
             cPart = aSubParts[1]
         ok
@@ -57,7 +57,7 @@ func IsTime(str)
     ok
     if len(aParts) = 3
         cSecPart = aParts[3]
-        if substr(cSecPart, ".")
+        if ring_find(cSecPart, ".")
             aSubParts = split(cSecPart, ".")
             cSecPart = aSubParts[1]
         ok
@@ -136,10 +136,10 @@ class stzTime from stzObject
         cTime = trim(cTime)
 
         cAmPm = ""
-        cUpper = upper(cTime)
-        if right(cUpper, 3) = " AM" or right(cUpper, 3) = " PM"
-            cAmPm = upper(right(cTime, 2))
-            cTime = trim(left(cTime, len(cTime) - 3))
+        cUpper = StzUpper(cTime)
+        if StzRight(cUpper, 3) = " AM" or StzRight(cUpper, 3) = " PM"
+            cAmPm = StzUpper(StzRight(cTime, 2))
+            cTime = trim(StzLeft(cTime, StzLen(cTime) - 3))
         ok
 
         aParts = split(cTime, ":")
@@ -154,7 +154,7 @@ class stzTime from stzObject
 
         if len(aParts) = 3
             cSecPart = aParts[3]
-            if substr(cSecPart, ".")
+            if ring_find(cSecPart, ".")
                 aSubParts = split(cSecPart, ".")
                 nS = 0+ aSubParts[1]
                 if len(aSubParts) > 1
@@ -541,10 +541,10 @@ class stzTime from stzObject
         return This.ToString()
 
     def StartOfHour()
-        return PadLeft(''+ @nHour, 2, "0") + ":00:00"
+        return StzPadLeft(''+ @nHour, 2, "0") + ":00:00"
 
     def EndOfHour()
-        return PadLeft(''+ @nHour, 2, "0") + ":59:59"
+        return StzPadLeft(''+ @nHour, 2, "0") + ":59:59"
 
     #--- FORMATTING ---#
 
@@ -565,9 +565,9 @@ class stzTime from stzObject
 		cLowerFormat = lower(cFormat)
 
 		cFormat = trim(cFormat)
-		if right(cFormat, 2) = "ap"
+		if StzRight(cFormat, 2) = "ap"
 
-			return This.ToStringXT(left(cFormat, len(cFormat)-2)) +
+			return This.ToStringXT(StzLeft(cFormat, StzLen(cFormat)-2)) +
 				   " " + This.AMPM()
 
 		but cFormat = "ampm"
@@ -623,7 +623,7 @@ class stzTime from stzObject
             return "Quarter to " + (nHour + 1) + " " + cAMPM
 
         else
-            return '' + nHour + ":" + PadLeft(''+ nMinute, 2, "0") + " " + cAMPM
+            return '' + nHour + ":" + StzPadLeft(''+ nMinute, 2, "0") + " " + cAMPM
         ok
 
     def ToRelative()
@@ -728,16 +728,16 @@ class stzTime from stzObject
     def pvtFormatTime(cFormat)
         cResult = cFormat
 
-        cResult = substr(cResult, "HH", PadLeft(''+ @nHour, 2, "0"))
-        cResult = substr(cResult, "hh", PadLeft(''+ @nHour, 2, "0"))
+        cResult = ring_substr2(cResult, "HH", StzPadLeft(''+ @nHour, 2, "0"))
+        cResult = ring_substr2(cResult, "hh", StzPadLeft(''+ @nHour, 2, "0"))
 
-        if substr(cResult, "h")
-            cResult = substr(cResult, "h", ''+ @nHour)
+        if ring_find(cResult, "h")
+            cResult = ring_substr2(cResult, "h", ''+ @nHour)
         ok
 
-        cResult = substr(cResult, "mm", PadLeft(''+ @nMinute, 2, "0"))
-        cResult = substr(cResult, "ss", PadLeft(''+ @nSecond, 2, "0"))
-        cResult = substr(cResult, "zzz", PadLeft(''+ @nMillisecond, 3, "0"))
-        cResult = substr(cResult, "AP", This.AMPM())
+        cResult = ring_substr2(cResult, "mm", StzPadLeft(''+ @nMinute, 2, "0"))
+        cResult = ring_substr2(cResult, "ss", StzPadLeft(''+ @nSecond, 2, "0"))
+        cResult = ring_substr2(cResult, "zzz", StzPadLeft(''+ @nMillisecond, 3, "0"))
+        cResult = ring_substr2(cResult, "AP", This.AMPM())
 
         return cResult
