@@ -167,3 +167,23 @@ class stzStringCaseChanger
 		def SetCaseQ(pcCase)
 			This.SetCase(pcCase)
 			return This
+
+	  #======================================================#
+	 #   DECAPITALIZE FIRST                                 #
+	#======================================================#
+
+	def DecapitalizeFirst()
+		pH = @oString.Engine()
+		pR = StzEngineStringDecapitalizeFirst(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def DecapitalizeFirstQ()
+			This.DecapitalizeFirst()
+			return This
+
+	def FirstDecapitalized()
+		oCopy = new stzStringCaseChanger(@oString.Content())
+		oCopy.DecapitalizeFirst()
+		return oCopy.Content()

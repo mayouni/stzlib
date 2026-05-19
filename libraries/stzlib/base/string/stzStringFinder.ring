@@ -505,3 +505,80 @@ class stzStringFinder
 
 	def FindW(pcCondition)
 		return This.FindWCS(pcCondition, 1)
+
+	  #===============================#
+	 #     INDEX OF (CS)             #
+	#===============================#
+
+	def IndexOfCS(pcSubStr, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		return StzEngineStringIndexOfCS(pH, pcSubStr, _bCase_)
+
+	def IndexOf(pcSubStr)
+		return This.IndexOfCS(pcSubStr, 1)
+
+	  #===============================#
+	 #     FIND ALL CHAR             #
+	#===============================#
+
+	def FindAllChar(pcChar)
+		pH = @oString.Engine()
+		pHChar = StzEngineString(pcChar)
+		nCp = StzEngineStringCharAt(pHChar, 1)
+		StzEngineStringFree(pHChar)
+		pResult = StzEngineStringFindAllChar(pH, nCp)
+		nCount = StzEngineFindResultCount(pResult)
+		if nCount = 0
+			StzEngineFindResultFree(pResult)
+			return []
+		ok
+		anResult = []
+		for i = 0 to nCount - 1
+			anResult + StzEngineFindResultGet(pResult, i)
+		next
+		StzEngineFindResultFree(pResult)
+		return anResult
+
+	  #===============================#
+	 #     STARTS/ENDS WITH ANY      #
+	#===============================#
+
+	def StartsWithAnyCS(pcPrefixes, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		return StzEngineStringBeginsWithAnyXCS(pH, pcPrefixes, _bCase_)
+
+	def StartsWithAny(pcPrefixes)
+		return This.StartsWithAnyCS(pcPrefixes, 1)
+
+	def EndsWithAnyCS(pcSuffixes, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		return StzEngineStringFinishesWithAnyXCS(pH, pcSuffixes, _bCase_)
+
+	def EndsWithAny(pcSuffixes)
+		return This.EndsWithAnyCS(pcSuffixes, 1)
+
+	  #===============================#
+	 #     BETWEEN NTH               #
+	#===============================#
+
+	def BetweenNth(pcOpen, pcClose, n)
+		pH = @oString.Engine()
+		# Engine uses 0-based nth; Softanza uses 1-based
+		pR = StzEngineStringBetweenNth(pH, pcOpen, pcClose, n - 1)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	  #===============================#
+	 #     CHARS BETWEEN POSITIONS   #
+	#===============================#
+
+	def CharsBetween(nFrom, nTo)
+		pH = @oString.Engine()
+		pR = StzEngineStringCharsBetween(pH, nFrom, nTo)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c

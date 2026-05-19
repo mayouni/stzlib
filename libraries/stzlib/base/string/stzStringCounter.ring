@@ -128,3 +128,78 @@ class stzStringCounter
 
 	def CountBetween(pcSubStr, n1, n2)
 		return This.CountBetweenCS(pcSubStr, n1, n2, 1)
+
+	  #======================================================#
+	 #   COUNT ANY CHAR (count occurrences of any char       #
+	 #   in a given set)                                     #
+	#======================================================#
+
+	def CountAnyChar(pcChars)
+		pH = @oString.Engine()
+		return StzEngineStringCountAnyChar(pH, pcChars)
+
+	  #======================================================#
+	 #   COUNT LEADING / TRAILING CHAR                      #
+	#======================================================#
+
+	def CountLeadingChar(pcChar)
+		pH = @oString.Engine()
+		pHChar = StzEngineString(pcChar)
+		nCp = StzEngineStringCharAt(pHChar, 1)
+		StzEngineStringFree(pHChar)
+		return StzEngineStringCountLeadingChar(pH, nCp)
+
+	def CountTrailingChar(pcChar)
+		pH = @oString.Engine()
+		pHChar = StzEngineString(pcChar)
+		nCp = StzEngineStringCharAt(pHChar, 1)
+		StzEngineStringFree(pHChar)
+		return StzEngineStringCountTrailingChar(pH, nCp)
+
+	  #======================================================#
+	 #   COUNT BETWEEN MARKERS                              #
+	#======================================================#
+
+	def CountBetweenMarkers(pcOpenMarker, pcCloseMarker)
+		pH = @oString.Engine()
+		return StzEngineStringCountBetween(pH, pcOpenMarker, pcCloseMarker)
+
+	  #======================================================#
+	 #   GRAPHEME COUNT                                     #
+	#======================================================#
+
+	def GraphemeCount()
+		pH = @oString.Engine()
+		return StzEngineStringGraphemeCount(pH)
+
+	  #======================================================#
+	 #   SCRIPT-SPECIFIC COUNTS                             #
+	#======================================================#
+
+	def CountMarks()
+		pH = @oString.Engine()
+		return StzEngineStringCountMarks(pH)
+
+	def CountControls()
+		pH = @oString.Engine()
+		return StzEngineStringCountControls(pH)
+
+	def CountCjk()
+		pH = @oString.Engine()
+		return StzEngineStringCountCjk(pH)
+
+	def CountCyrillic()
+		pH = @oString.Engine()
+		return StzEngineStringCountCyrillic(pH)
+
+	def CountHebrew()
+		pH = @oString.Engine()
+		return StzEngineStringCountHebrew(pH)
+
+	def CountDevanagari()
+		pH = @oString.Engine()
+		return StzEngineStringCountDevanagari(pH)
+
+	def CountThai()
+		pH = @oString.Engine()
+		return StzEngineStringCountThai(pH)

@@ -150,3 +150,44 @@ class stzStringGetter
 
 	def Range(nStart, nRange)
 		return @oString.Range(nStart, nRange)
+
+	  #======================================================#
+	 #   CHAR N-GRAMS                                       #
+	#======================================================#
+
+	def CharNgrams(n)
+		pH = @oString.Engine()
+		pR = StzEngineStringCharNgrams(pH, n)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		if c = ""
+			return []
+		ok
+		# Engine returns pipe-delimited ngrams: "ab|bc|cd"
+		return @Split(c, "|")
+
+	  #======================================================#
+	 #   WORD N-GRAMS                                       #
+	#======================================================#
+
+	def WordNgrams(n)
+		pH = @oString.Engine()
+		pR = StzEngineStringWordNgrams(pH, n)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		if c = ""
+			return []
+		ok
+		# Engine returns pipe-delimited ngrams: "the quick|quick brown"
+		return @Split(c, "|")
+
+	  #======================================================#
+	 #   BYTES PER CHAR                                     #
+	#======================================================#
+
+	def BytesPerChar()
+		pH = @oString.Engine()
+		pR = StzEngineStringBytesPerChar(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
