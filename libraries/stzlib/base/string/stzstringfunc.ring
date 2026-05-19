@@ -46,6 +46,32 @@ func StzLen(cStr)
 	StzEngineStringFree(pH)
 	return n
 
+#-- Split null-delimited engine output into Ring list
+#   Used to parse engine functions that return items separated by \0
+
+func _SplitNullDelimited(cJoined)
+	if cJoined = ""
+		return []
+	ok
+	acResult = []
+	cCurrent = ""
+	nLen = len(cJoined)
+	for i = 1 to nLen
+		c = substr(cJoined, i, 1)
+		if ascii(c) = 0
+			if cCurrent != ""
+				acResult + cCurrent
+				cCurrent = ""
+			ok
+		else
+			cCurrent += c
+		ok
+	next
+	if cCurrent != ""
+		acResult + cCurrent
+	ok
+	return acResult
+
 #-- Character from codepoint (UTF-8 encoded, replaces byte-only Ring char())
 
 func StzChar(nCodepoint)

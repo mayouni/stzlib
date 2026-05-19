@@ -43,28 +43,7 @@ class stzStringDuplicates
 		pR = StzEngineStringDuplicatedChars(pH)
 		cDups = StzEngineStringData(pR)
 		StzEngineStringFree(pR)
-		if cDups = ""
-			return []
-		ok
-		# Split by null delimiter
-		acResult = []
-		cCurrent = ""
-		nLen = len(cDups)
-		for i = 1 to nLen
-			c = substr(cDups, i, 1)
-			if ascii(c) = 0
-				if cCurrent != ""
-					acResult + cCurrent
-					cCurrent = ""
-				ok
-			else
-				cCurrent += c
-			ok
-		next
-		if cCurrent != ""
-			acResult + cCurrent
-		ok
-		return acResult
+		return _SplitNullDelimited(cDups)
 
 	def HasDuplicatedChars()
 		return len(This.DuplicatedChars()) > 0
@@ -90,28 +69,7 @@ class stzStringDuplicates
 		cJoined = StzEngineStringData(pSplit)
 		StzEngineStringFree(pSplit)
 		StzEngineStringFree(pU)
-		if cJoined = ""
-			return []
-		ok
-		# Split by null delimiter
-		acResult = []
-		cCurrent = ""
-		nLen = len(cJoined)
-		for i = 1 to nLen
-			c = substr(cJoined, i, 1)
-			if ascii(c) = 0
-				if cCurrent != ""
-					acResult + cCurrent
-					cCurrent = ""
-				ok
-			else
-				cCurrent += c
-			ok
-		next
-		if cCurrent != ""
-			acResult + cCurrent
-		ok
-		return acResult
+		return _SplitNullDelimited(cJoined)
 
 	def NumberOfUniqueChars()
 		pH = @oString.Engine()

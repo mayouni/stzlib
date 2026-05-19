@@ -137,12 +137,11 @@ class stzString from stzObject
 		return This.NthChar(This.NumberOfChars())
 
 	def Chars()
-		aResult = []
-		nLen = This.NumberOfChars()
-		for i = 1 to nLen
-			aResult + This.NthChar(i)
-		next
-		return aResult
+		pH = This.Engine()
+		pR = StzEngineStringCharsSplit(pH)
+		cJoined = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return _SplitNullDelimited(cJoined)
 
 	def Section(n1, n2)
 		nLen = This.NumberOfChars()
