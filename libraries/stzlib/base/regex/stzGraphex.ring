@@ -302,9 +302,9 @@ class stzGraphex from stzGraph
 		ok
 	
 		# Process set constraints - look for {...}U or {...}
-		nBraceStart = ring_find(cTokenStr, "{")
+		nBraceStart = StzFind(cTokenStr, "{")
 		if nBraceStart > 0
-			nBraceEnd = ring_find(cTokenStr, "}")
+			nBraceEnd = StzFind(cTokenStr, "}")
 			if nBraceEnd > nBraceStart
 	
 				cSetContent = @substr(cTokenStr, nBraceStart + 1, nBraceEnd)
@@ -334,9 +334,9 @@ class stzGraphex from stzGraph
 			? "      Parsing as @Node"
 			
 			# Manual extraction: @Node(label){props}
-			nParenStart = ring_find(cTokenStr, "(")
+			nParenStart = StzFind(cTokenStr, "(")
 			if nParenStart > 0
-				nParenEnd = ring_find(cTokenStr, ")")
+				nParenEnd = StzFind(cTokenStr, ")")
 				if nParenEnd > nParenStart
 					cLabel = @substr(cTokenStr, nParenStart + 1, nParenEnd - 1)
 				ok
@@ -361,9 +361,9 @@ class stzGraphex from stzGraph
 			? "      Parsing as @Edge"
 			
 			# Manual extraction: @Edge(label){props}
-			nParenStart = ring_find(cTokenStr, "(")
+			nParenStart = StzFind(cTokenStr, "(")
 			if nParenStart > 0
-				nParenEnd = ring_find(cTokenStr, ")")
+				nParenEnd = StzFind(cTokenStr, ")")
 				if nParenEnd > nParenStart
 					cLabel = @substr(cTokenStr, nParenStart + 1, nParenEnd - 1)
 				ok
@@ -718,9 +718,9 @@ class stzGraphex from stzGraph
 				cToken = aPatternBranch[j]
 				cLabel = ""
 				
-				nParenPos = ring_find(cToken, "(")
+				nParenPos = StzFind(cToken, "(")
 				if nParenPos > 0
-					nClosePos = ring_find(cToken, ")")
+					nClosePos = StzFind(cToken, ")")
 					if nClosePos > nParenPos
 						cLabel = @substr(cToken, nParenPos + 1, nClosePos - 1)
 					ok
@@ -869,9 +869,9 @@ class stzGraphex from stzGraph
 			
 			if isString(cToken)
 				# Extract label from "edge(flows)" -> "flows"
-				nParenPos = ring_find(cToken, "(")
+				nParenPos = StzFind(cToken, "(")
 				if nParenPos > 0
-					nClosePos = ring_find(cToken, ")")
+					nClosePos = StzFind(cToken, ")")
 					if nClosePos > nParenPos
 						cLabel = @substr(cToken, nParenPos + 1, nClosePos - nParenPos - 1)
 						aPattern + cLabel

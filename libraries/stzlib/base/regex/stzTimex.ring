@@ -227,9 +227,9 @@ class stzTimex
 		ok
 		
 		# Extract label from parentheses
-		nOpenParen = ring_find(cTokenStr, "(")
+		nOpenParen = StzFind(cTokenStr, "(")
 		if nOpenParen > 0
-			nCloseParen = ring_find(cTokenStr, ")")
+			nCloseParen = StzFind(cTokenStr, ")")
 			if nCloseParen > nOpenParen
 				cContent = @substr(cTokenStr, nOpenParen + 1, nCloseParen - 1)
 				
@@ -345,9 +345,9 @@ class stzTimex
 		ok
 		
 		# Check for set {Mon;Wed;Fri}
-		nBraceStart = ring_find(cConstraintStr, "{")
+		nBraceStart = StzFind(cConstraintStr, "{")
 		if nBraceStart > 0
-			nBraceEnd = ring_find(cConstraintStr, "}")
+			nBraceEnd = StzFind(cConstraintStr, "}")
 			if nBraceEnd > nBraceStart
 				cSetContent = @substr(cConstraintStr, nBraceStart + 1, nBraceEnd - 1)
 				aSetValues = @split(cSetContent, ";")
@@ -367,7 +367,7 @@ class stzTimex
 		nMinutes = 0
 		
 		# Extract hours
-		nHPos = ring_find(cDuration, "h")
+		nHPos = StzFind(cDuration, "h")
 		if nHPos > 0
 			cHours = StzLeft(cDuration, nHPos - 1)
 			nMinutes = (0 + cHours) * 60
@@ -376,7 +376,7 @@ class stzTimex
 		
 		# Extract minutes
 		if contains(cDuration, "min")
-			cMinutes = @substr(cDuration, 1, ring_find(cDuration, "min") - 1)
+			cMinutes = @substr(cDuration, 1, StzFind(cDuration, "min") - 1)
 			nMinutes += (0 + StzStringQ(cDuration).Numbers()[1])  # ADD @trim() here
 		but len(cDuration) > 0  # CHANGE: was cDuration != ""
 			# Just a number, assume minutes

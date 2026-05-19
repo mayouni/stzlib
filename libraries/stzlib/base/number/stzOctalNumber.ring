@@ -1,4 +1,4 @@
-/*
+﻿/*
 The main advantage of using Octal numbers is that it uses less
 digits than decimal and Hexadecimal number system. So, it has
 fewer computations and less computational errors. It uses only
@@ -69,8 +69,8 @@ class stzOctalNumber from stzString
 		oStzStr = new stzString(This.OctalNumber())
 		cOctal = oStzStr.Section(2, len(This.OctalNumber()) )
 
-		cOctal = ring_substr2(cOctal, "0o", "")
-		cOctal = ring_substr2(cOctal, "o", "")
+		cOctal = StzReplace(cOctal, "0o", "")
+		cOctal = StzReplace(cOctal, "o", "")
 
 		nResult = 0
 		nLen = len(cOctal)

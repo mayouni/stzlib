@@ -346,7 +346,7 @@ class stzListSorter from stzList
 
 		aResult = []
 		for i = 1 to nLen
-			nRank = ring_find(aSorted, aContent[i])
+			nRank = StzFind(aSorted, aContent[i])
 			aResult + nRank
 		next
 

@@ -44,7 +44,7 @@ class stzListDuplicates from stzList
 
 		for i = 1 to nLen
 			cItem = acContent[i]
-			nPos = ring_find(aSeen, cItem)
+			nPos = StzFind(aSeen, cItem)
 			if nPos > 0
 				anResult + i
 			else
@@ -255,7 +255,7 @@ class stzListDuplicates from stzList
 		anCounts = []
 		for i = 1 to nLen
 			cItem = acContent[i]
-			nPos = ring_find(aSeen, cItem)
+			nPos = StzFind(aSeen, cItem)
 			if nPos > 0
 				anCounts[nPos] = anCounts[nPos] + 1
 			else
@@ -299,7 +299,7 @@ class stzListDuplicates from stzList
 		anCounts = []
 		for i = 1 to nLen
 			cItem = acContent[i]
-			nPos = ring_find(aSeen, cItem)
+			nPos = StzFind(aSeen, cItem)
 			if nPos > 0
 				anCounts[nPos] = anCounts[nPos] + 1
 			else

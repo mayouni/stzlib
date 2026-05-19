@@ -112,7 +112,7 @@ class stzListRandom from stzList
 		ok
 
 		nResult = panPos[1]
-		while ring_find(panPos, nResult) > 0
+		while StzFind(panPos, nResult) > 0
 			nResult = ARandomNumberBetween(1, nLen)
 		end
 

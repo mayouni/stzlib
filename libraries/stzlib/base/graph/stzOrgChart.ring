@@ -409,7 +409,7 @@ class stzOrgChart from stzDiagram
 					nTotalIssues += aResult[:issueCount]
 					nAffLen = len(aResult[:affectedNodes])
 					for j = 1 to nAffLen
-						if ring_find(acAllAffected, aResult[:affectedNodes][j]) = 0
+						if StzFind(acAllAffected, aResult[:affectedNodes][j]) = 0
 							acAllAffected + aResult[:affectedNodes][j]
 						ok
 					end
@@ -1063,7 +1063,7 @@ class stzOrgChart from stzDiagram
 	            nLen = len(aNodes)
 	            for i = 1 to nLen
 	                cNodeId = aNodes[i]["id"]
-	                if ring_find(acIssueNodes, cNodeId) = 0
+	                if StzFind(acIssueNodes, cNodeId) = 0
 	                    acAll + cNodeId
 	                ok
 	            end
@@ -1133,7 +1133,7 @@ class stzOrgChart from stzDiagram
 	            cWord = aWords[j]
 	            # Check if this word is a node ID
 	            if This.NodeExists(cWord)
-	                if ring_find(acNodes, cWord) = 0
+	                if StzFind(acNodes, cWord) = 0
 	                    acNodes + cWord
 	                ok
 	            ok
@@ -1170,7 +1170,7 @@ class stzOrgChart from stzDiagram
 	    
 	    for i = 1 to nLen
 	        cNodeId = aNodes[i]["id"]
-	        if ring_find(acRisk, cNodeId) = 0
+	        if StzFind(acRisk, cNodeId) = 0
 	            acAll + cNodeId
 	        ok
 	    end
@@ -1264,7 +1264,7 @@ class stzOrgChart from stzDiagram
 	    for i = 1 to nLen
 	        aNode = aNodes[i]
 	        if HasKey(aNode["properties"], "tags")
-	            if ring_find(aNode["properties"]["tags"], pcTag) > 0
+	            if StzFind(aNode["properties"]["tags"], pcTag) > 0
 	                acMatching + aNode["id"]
 	            ok
 	        ok
@@ -1480,7 +1480,7 @@ class stzOrgChart from stzDiagram
 				loop
 			ok
 			
-			if ring_find(cLine, "orgchart ")
+			if StzFind(cLine, "orgchart ")
 				cTitle = StzMid(cLine, 10, StzLen(cLine) - 10)
 				
 			but cLine = "positions"
@@ -1576,7 +1576,7 @@ class stzOrgChart from stzDiagram
 				cCurrentId = ""
 				
 			but cCurrentSection = "positions"
-				if NOT ring_find(cLine, ":")
+				if NOT StzFind(cLine, ":")
 
 					# Flush previous position
 					if cCurrentId != ""
@@ -1599,7 +1599,7 @@ class stzOrgChart from stzDiagram
 						:reportsTo = ""
 					]
 
-				but ring_find(cLine, "title:")
+				but StzFind(cLine, "title:")
 					aCurrent[:title] = trim(StzMid(cLine, 7, StzLen(cLine) - 6))
 					# Remove quotes if present
 					if StzLeft(aCurrent[:title], 1) = '"' and
@@ -1607,18 +1607,18 @@ class stzOrgChart from stzDiagram
 						aCurrent[:title] = StzMid(aCurrent[:title], 2, StzLen(aCurrent[:title]) - 2)
 					ok
 
-				but ring_find(cLine, "level:")
+				but StzFind(cLine, "level:")
 					aCurrent[:level] = trim(StzMid(cLine, 7, StzLen(cLine) - 6))
 
-				but ring_find(cLine, "department:")
+				but StzFind(cLine, "department:")
 					aCurrent[:department] = trim(StzMid(cLine, 12, StzLen(cLine) - 11))
 
-				but ring_find(cLine, "reportsTo:")
+				but StzFind(cLine, "reportsTo:")
 					aCurrent[:reportsTo] = trim(StzMid(cLine, 11, StzLen(cLine) - 10))
 				ok
 				
 			but cCurrentSection = "people"
-				if NOT ring_find(cLine, ":")
+				if NOT StzFind(cLine, ":")
 					# Flush previous person
 					if cCurrentId != ""
 						This.AddPersonXT(cCurrentId, aCurrent[:name])
@@ -1627,18 +1627,18 @@ class stzOrgChart from stzDiagram
 					cCurrentId = cLine
 					aCurrent = [ :name = "" ]
 
-				but ring_find(cLine, "name:")
+				but StzFind(cLine, "name:")
 					aCurrent[:name] = trim(StzMid(cLine, 6, StzLen(cLine) - 5))
 				ok
 
 			but cCurrentSection = "assignments"
-				if ring_find(cLine, " -> ")
+				if StzFind(cLine, " -> ")
 					aParts = @split(cLine, " -> ")
 					This.AssignPerson(trim(aParts[1]), trim(aParts[2]))
 				ok
 				
 			but cCurrentSection = "departments"
-				if NOT ring_find(cLine, ":")
+				if NOT StzFind(cLine, ":")
 					# Flush previous department
 					if cCurrentId != ""
 						This.AddDepartmentXTT(cCurrentId, aCurrent[:name], aCurrent[:positions])
@@ -1647,10 +1647,10 @@ class stzOrgChart from stzDiagram
 					cCurrentId = cLine
 					aCurrent = [ :name = "", :positions = [] ]
 
-				but ring_find(cLine, "name:")
+				but StzFind(cLine, "name:")
 					aCurrent[:name] = trim(StzMid(cLine, 6, StzLen(cLine) - 5))
 
-				but ring_find(cLine, "positions:")
+				but StzFind(cLine, "positions:")
 					cPosStr = trim(StzMid(cLine, 11, StzLen(cLine) - 10))
 					cPosStr = replace(cPosStr, "[", "")
 					cPosStr = replace(cPosStr, "]", "")
@@ -1731,7 +1731,7 @@ class stzOrgChartBCEAOValidator
 			aPos = @oOrgChart.@aPositions[i]
 			if HasKey(aPos, :title)
 				cTitle = StzLower(aPos[:title])
-				if ring_find(cTitle, "board")
+				if StzFind(cTitle, "board")
 					bHasBoard = TRUE
 					exit
 				ok

@@ -187,7 +187,7 @@ class stzRegex
 
 		ok
 
-		if NOT ring_find(@MatchTypes(), pcMatchType) > 0
+		if NOT StzFind(@MatchTypes(), pcMatchType) > 0
 			StzRaise("Unsupported match type! Should be one of these " + @@(@MatchTypes()) + "!")
 		ok
 
@@ -996,7 +996,7 @@ class stzRegex
 
 			cCapture = StzEngineRegexCaptureText(@pRegexHandle, 0)
 
-			if ring_find(acSeen, cCapture) = 0
+			if StzFind(acSeen, cCapture) = 0
 
 				_nS_ = StzEngineRegexCaptureStart(@pRegexHandle, 0)
 				_nE_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)

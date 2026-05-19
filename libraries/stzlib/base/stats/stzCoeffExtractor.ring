@@ -1,4 +1,4 @@
-
+﻿
 # A utility class used by the various class solvers
 # to extract the coefficient of a given variable in an expression
 
@@ -31,7 +31,7 @@
 # depending on the value of the variables.
 
 # Examples:
-   "pow(x, 2)"            	   # x² → result changes with x (at x=10, rate = 20)  
+   "pow(x, 2)"            	   # xÂ² â†’ result changes with x (at x=10, rate = 20)  
    "sqrt(area)"                # rate changes depending on area  
    "max([0, profit-1000])"     # rate is 0 if profit < 1000, 1 if profit > 1000
 
@@ -128,8 +128,8 @@ class stzCoeffExtractor from stzObject
 	
 	def normalizeExpression(cExpression)
 		cExpr = @trim(cExpression)
-		cExpr = ring_substr2(cExpr, " ", "")  # Remove spaces
-		cExpr = ring_substr2(cExpr, "\t", "") # Remove tabs
+		cExpr = StzReplace(cExpr, " ", "")  # Remove spaces
+		cExpr = StzReplace(cExpr, "\t", "") # Remove tabs
 		return cExpr
 	
 	def isSimpleLinearExpression(cExpression)
@@ -147,7 +147,7 @@ class stzCoeffExtractor from stzObject
 		return TRUE
 	
 	def extractLinearCoefficient(cExpression, cVarName)
-		cExpr = ring_substr2(cExpression, "-", "+-")  # Handle negative terms
+		cExpr = StzReplace(cExpression, "-", "+-")  # Handle negative terms
 		acTerms = @split(cExpr, "+")
 		nLen = len(acTerms)
 

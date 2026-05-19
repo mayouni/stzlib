@@ -1,4 +1,4 @@
-
+﻿
 #-------------------------#
 #  HISTOGRAM CHART CLASS  #
 #-------------------------#
@@ -20,7 +20,7 @@ class stzHistogram
 	@nBarInterSpace = 1
 	@nLabelInterSpace = 1
 
-	@cBarChar = "█"
+	@cBarChar = "â–ˆ"
 	@cFinalBarChar = ""
 
 	# Histogram-specific data
@@ -44,11 +44,11 @@ class stzHistogram
 	@nLabelPadding = 1
 
 	# Axis characters
-	@cVAxisChar = "│"
-	@cHAxisChar = "─"
-	@cVArrowChar = "▲"
-	@cHArrowChar = "►"
-	@cOriginChar = "╰"
+	@cVAxisChar = "â”‚"
+	@cHAxisChar = "â”€"
+	@cVArrowChar = "â–²"
+	@cHArrowChar = "â–º"
+	@cOriginChar = "â•°"
 	@cAverageChar = "-"
 
 	# Histogram aggregation types
@@ -382,7 +382,7 @@ class stzHistogram
 	def Mode()
 		# Find the bin with highest frequency
 		nMaxFreq = max(@aBinCounts)
-		nModeIndex = ring_find(@aBinCounts, nMaxFreq)
+		nModeIndex = StzFind(@aBinCounts, nMaxFreq)
 		
 		if nModeIndex > 0
 			return @aBinRanges[nModeIndex]
@@ -580,7 +580,7 @@ class stzHistogram
 			bFirstLineIsEmpty = @trim(oStrTemp.Section(4, nPos-1)) = ""
 
 			if NOT bFirstLineIsEmpty # then add an empty line
-				cResult = ring_substr2(cResult, @cVArrowChar, @cVAxisChar)
+				cResult = StzReplace(cResult, @cVArrowChar, @cVAxisChar)
 				cResult = @cVArrowChar + NL + cResult
 			ok
 

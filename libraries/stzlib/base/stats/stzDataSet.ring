@@ -1010,7 +1010,7 @@ class stzDataSet
         ok
         
         cStr = "" + item
-        return ring_find($aSTAT_MISSING_VALUES, cStr) > 0
+        return StzFind($aSTAT_MISSING_VALUES, cStr) > 0
 
     def _DetectDataType()
         if len(@anData) = 0
@@ -1458,7 +1458,7 @@ class stzDataSet
 			nLen = len(aUnique1)
 
             for i = 1 to nLen
-                if ring_find(aUnique2, aUnique1[i]) > 0
+                if StzFind(aUnique2, aUnique1[i]) > 0
                     nIntersection++
                 ok
             next
@@ -1708,7 +1708,7 @@ class stzDataSet
         aUnique = []
 
         for i = 1 to nLen
-            if ring_find(aUnique, @anData[i]) = 0
+            if StzFind(aUnique, @anData[i]) = 0
                 aUnique + @anData[i]
             ok
         next
@@ -1794,8 +1794,8 @@ class stzDataSet
 	    # Count occurrences
 	    nLen = len(aData1)
 	    for k = 1 to nLen
-	        nXIndex = ring_find(aUniqueX, aData1[k])
-	        nYIndex = ring_find(aUniqueY, aData2[k])
+	        nXIndex = StzFind(aUniqueX, aData1[k])
+	        nYIndex = StzFind(aUniqueY, aData2[k])
 	        if nXIndex > 0 and nYIndex > 0
 	            aTable[nXIndex][2][nYIndex]++
 	        ok
@@ -2048,7 +2048,7 @@ class stzDataSet
 
     def IsOutlier(nValue)
         aOutliers = This.Outliers()
-        return ring_find(aOutliers, nValue) > 0
+        return StzFind(aOutliers, nValue) > 0
 
 
     def ZScores()
@@ -2519,8 +2519,8 @@ class stzDataSet
 	    # Populate contingency table with observed frequencies
 	    nLen = len(@anData)
 	    for i = 1 to nLen
-	        nRow = ring_find(aUnique1, @anData[i])
-	        nCol = ring_find(aUnique2, aOtherData[i])
+	        nRow = StzFind(aUnique1, @anData[i])
+	        nCol = StzFind(aUnique2, aOtherData[i])
 	        if nRow > 0 and nCol > 0
 	            aContingency[nRow][nCol]++
 	        ok
@@ -3215,7 +3215,7 @@ class stzDataSet
             StzRaise("Unknown Plan name, goal or template: " + cNameOrGoalOrTemplate)
         ok
 
-		n = ring_find(This._PlanNames(), cTemplate)
+		n = StzFind(This._PlanNames(), cTemplate)
 
 		if n = 0
 			StzRaise("Inexistant Plan template name!")
@@ -3553,17 +3553,17 @@ class stzDataSet
         cInput = Lower(@trim(cInput))
 
 		# Check if it's a Plan name
-		if ring_find(_PlanNames(), cInput)
+		if StzFind(_PlanNames(), cInput)
 			return cInput
 		ok
 
         # Check if it's a direct template key
-		if ring_find(_PlanTemplates(), cInput)
+		if StzFind(_PlanTemplates(), cInput)
 			return cInput
 		ok
         
         # Check goal mappings
-		if ring_find(_PlanGoals(), cInput)
+		if StzFind(_PlanGoals(), cInput)
 			return $aPlanGoals[cInput]
 		ok
         
@@ -3697,7 +3697,7 @@ class stzDataSet
 			StzRaise("Incorrect param type! cKey must be a non empty string.")
 		ok
 
-		if ring_find( This._CacheKeys(), StzLower(cKey))
+		if StzFind( This._CacheKeys(), StzLower(cKey))
 			return TRUE
 		else
 			return FALSE
@@ -3713,7 +3713,7 @@ class stzDataSet
 			return
 		ok
 
-		n = ring_find(This._CacheKeys(), StzLower(cKey))
+		n = StzFind(This._CacheKeys(), StzLower(cKey))
 		if n > 0
 			del(@aCache, n)
 		ok

@@ -1,4 +1,4 @@
-#---------------------------------------------------------------------#
+﻿#---------------------------------------------------------------------#
 #             SOFTANZA LIBRARY (V0.9) - STZTABLE                      #
 #         An accelerative library for Ring applications               #
 #---------------------------------------------------------------------#
@@ -91,17 +91,17 @@ Class stzTable from stzList
 
 	# Define border characters
 	@aBorder = [
-		:TopLeft = "╭",
-		:TopRight = "╮",
-		:BottomLeft = "╰",
-		:BottomRight = "╯",
-		:Horizontal = "─",
-		:Vertical = "│",
-		:TeeRight = "├",
-		:TeeLeft = "┤",
-		:TeeDown = "┬",
-		:TeeUp = "┴",
-		:Cross = "┼"
+		:TopLeft = "â•­",
+		:TopRight = "â•®",
+		:BottomLeft = "â•°",
+		:BottomRight = "â•¯",
+		:Horizontal = "â”€",
+		:Vertical = "â”‚",
+		:TeeRight = "â”œ",
+		:TeeLeft = "â”¤",
+		:TeeDown = "â”¬",
+		:TeeUp = "â”´",
+		:Cross = "â”¼"
 	]
 
 	# Attributes used by the Transpose() method
@@ -718,17 +718,17 @@ Class stzTable from stzList
 				StzRaise("Incorrect param type! pcColName must be a string.")
 			ok
 
-			if ring_find([:First, :FirstCol, :FirstColumn], pcColName) > 0
+			if StzFind([:First, :FirstCol, :FirstColumn], pcColName) > 0
 				pcColName = This.FirstColName()
 
-			but ring_find([:Last, :LastCol, :LastColumn], pcColName) > 0
+			but StzFind([:Last, :LastCol, :LastColumn], pcColName) > 0
 				pcColName = This.LastColName()
 			ok
 
 		ok
 
 		pcColName = ring_lower(pcColName)
-		n = ring_find( This.Header(), pcColName)
+		n = StzFind( This.Header(), pcColName)
 		return n
 
 		#< @FunctionAlternativeForm
@@ -947,7 +947,7 @@ Class stzTable from stzList
 		anResult = []
 
 		for i = 1 to nLen
-			if ring_find(anColNumbers, i) = 0
+			if StzFind(anColNumbers, i) = 0
 				anResult + i
 			ok
 		next
@@ -1178,7 +1178,7 @@ Class stzTable from stzList
 		anResult = []
 
 		for i = 1 to nRows
-			if ring_find(anPos, i) = 0 and ring_find(anResult, i) = 0
+			if StzFind(anPos, i) = 0 and StzFind(anResult, i) = 0
 				anResult +i
 			ok
 		next
@@ -1203,7 +1203,7 @@ Class stzTable from stzList
 			return This.FindRowsExceptThese(paRows)
 
 	  #-----------------------------------------------------------#
-	 #  FINDINING ROWS OTHER THAN THOSE PROVIDED (َAS POSITIONS)  #
+	 #  FINDINING ROWS OTHER THAN THOSE PROVIDED (ÙŽAS POSITIONS)  #
 	#-----------------------------------------------------------#
 
 	def FindRowsExceptAtCS(panRowNumbers, pCaseSensitive)
@@ -1218,7 +1218,7 @@ Class stzTable from stzList
 		anResult = []
 
 		for i = 1 to nRows
-			if ring_find(panRowNumbers, i) = 0 and ring_find(anResult, i) = 0
+			if StzFind(panRowNumbers, i) = 0 and StzFind(anResult, i) = 0
 				anResult + i
 			ok
 		next
@@ -1257,10 +1257,10 @@ Class stzTable from stzList
 
 		if isString(p)
 
-			if ring_find([ :First, :FirstCol, :FirstColumn ], p) > 0
+			if StzFind([ :First, :FirstCol, :FirstColumn ], p) > 0
 				p = 1
 
-			but ring_find([ :Last, :LastCol, :LastColumn ], p) > 0
+			but StzFind([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfColumns()
 
 			but This.HasColName(p)
@@ -1454,10 +1454,10 @@ Class stzTable from stzList
 	def NthColName(n)
 		if isString(n)
 
-			if ring_find([ :First, :FirstCol, :FirstColumn ], n) > 0
+			if StzFind([ :First, :FirstCol, :FirstColumn ], n) > 0
 				n = 1
 
-			but ring_find([ :Last, :LastCol, :LastColumn ], n) > 0
+			but StzFind([ :Last, :LastCol, :LastColumn ], n) > 0
 				n = This.NumberOfColumns()
 
 			else
@@ -1907,10 +1907,10 @@ Class stzTable from stzList
 
 		if isString(n)
 
-			if ring_find([ :First, :FirstRow ], n) > 0
+			if StzFind([ :First, :FirstRow ], n) > 0
 				n = 1
 
-			but ring_find([ :Last, :LastRow ], n) > 0
+			but StzFind([ :Last, :LastRow ], n) > 0
 				n = This.NumberOfRows()
 
 			ok
@@ -2397,10 +2397,10 @@ Class stzTable from stzList
 
 		if isString(pCol)
 
-			if ring_find([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+			if StzFind([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = 1
 
-			but ring_find([ :Last, :LastCol, :LastColumn ], pCol) > 0
+			but StzFind([ :Last, :LastCol, :LastColumn ], pCol) > 0
 				pCol = This.NumberOfColumns()
 
 			else
@@ -3183,10 +3183,10 @@ Class stzTable from stzList
 			ok
 	
 			if isString(pCol)
-				if ring_find([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+				if StzFind([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 					pCol = 1
 	
-				but ring_find([ :Last, :LastCol, :LastColumn ], pCol) > 0
+				but StzFind([ :Last, :LastCol, :LastColumn ], pCol) > 0
 					pCol = This.NumberOfColumns()
 	
 				but This.HasColName(pCol)
@@ -3299,10 +3299,10 @@ Class stzTable from stzList
 	
 			if isString(nRow)
 
-				if ring_find([ :First, :FirstRow], nRow) > 0
+				if StzFind([ :First, :FirstRow], nRow) > 0
 					nRow = 1
 	
-				but ring_find([ :Last, :LastRow ], nRow) > 0
+				but StzFind([ :Last, :LastRow ], nRow) > 0
 					nRow = This.NumberOfRows()
 				ok
 			ok
@@ -3746,10 +3746,10 @@ Class stzTable from stzList
 
 		if isString(n)
 
-			if ring_find([ :First, :FirstOccurrence ], n) > 0
+			if StzFind([ :First, :FirstOccurrence ], n) > 0
 				n = 1
 
-			but ring_find([ :Last, :LastOccurrence ], n) > 0
+			but StzFind([ :Last, :LastOccurrence ], n) > 0
 				n = This.NumberOfOccurrenceCS(pCellValue, pCaseSensitive)
 			ok
 		ok
@@ -3808,10 +3808,10 @@ Class stzTable from stzList
 		# the nth position is returned as a pair of numbers
 
 		if isString(n)
-			if ring_find([ :First, :FirstOccurrence ], n) > 0
+			if StzFind([ :First, :FirstOccurrence ], n) > 0
 				n = 1
 
-			but ring_find([ :Last, :LastOccurrence ], n) > 0
+			but StzFind([ :Last, :LastOccurrence ], n) > 0
 				n = This.CountSubValueCS(pSubValue, pCaseSensitive)
 
 			ok
@@ -5020,10 +5020,10 @@ Class stzTable from stzList
 		# Returns an empty pair [] if no occurrence is found.
 
 		if isString(n)
-			if ring_find([ :First, :FirstOccurrence, :FirstValue ], n) > 0
+			if StzFind([ :First, :FirstOccurrence, :FirstValue ], n) > 0
 				n = 1
 
-			but ring_find([ :Last, :LastOccurrence, :LastValue ], n) > 0
+			but StzFind([ :Last, :LastOccurrence, :LastValue ], n) > 0
 				n = This.NumberOfOccurrenceInCellsCS(paCells, pCellValue, pCaseSensitive)
 			ok
 		ok
@@ -5062,10 +5062,10 @@ Class stzTable from stzList
 		# Returns an empty pair [] if no occurrence is found.
 
 		if isString(n)
-			if ring_find([ :First, :FirstOccurrence, :FirstSubValue ], n) > 0
+			if StzFind([ :First, :FirstOccurrence, :FirstSubValue ], n) > 0
 				n = 1
 
-			but ring_find([ :Last, :LastOccurrence, :LastSubValue ], n) > 0
+			but StzFind([ :Last, :LastOccurrence, :LastSubValue ], n) > 0
 				n = This.CountSubValueInCellsCS(paCells, pSubValue, pCaseSensitive)
 
 			ok
@@ -7792,10 +7792,10 @@ Class stzTable from stzList
 
 		if isString(pCol)
 
-			if ring_find([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+			if StzFind([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = 1
 
-			but ring_find([ :Last, :LastCol, :LastColumn ], pCol) > 0
+			but StzFind([ :Last, :LastCol, :LastColumn ], pCol) > 0
 				pCol = This.NumberOfCols()
 		
 			else
@@ -11562,10 +11562,10 @@ Class stzTable from stzList
 
 		if isString(pCol)
 
-			if ring_find([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+			if StzFind([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = 1
 
-			but ring_find([ :First, :FirstCol, :FirstColumn ], pCol) > 0
+			but StzFind([ :First, :FirstCol, :FirstColumn ], pCol) > 0
 				pCol = This.NumberOfCols()
 
 			but This.HasColName(pCol)
@@ -12929,12 +12929,12 @@ Class stzTable from stzList
 
 		if isString(pnFrom)
 
-			if ring_find([
+			if StzFind([
 				:First, :FirstCol, :FirstColumn, :FirstPosition ], pnForm) > 0
 
 				pnFrom = 1
 
-			but ring_find([
+			but StzFind([
 				:Last, :LastCol, :LastColumn, :LastPosition ], pnFrom) > 0
 
 				pnFrom = This.NumberOfCols()
@@ -12943,12 +12943,12 @@ Class stzTable from stzList
 
 		if isString(pnTo)
 
-			if ring_find([
+			if StzFind([
 				:First, :FirstCol, :FirstColumn, :FirstPosition ], pnTo) > 0
 
 				pnTo = 1
 
-			but ring_find([
+			but StzFind([
 				:Last, :LastCol, :LastColumn, :LastPosition ], pnTo) > 0
 
 				pnTo = This.NumberOfCols()
@@ -13504,7 +13504,7 @@ Class stzTable from stzList
 
 		nCol = This.ColToColNumber(pCol)
 		oLoL = new stzListOfLists( This.Rows() )
-		pcExpr = ring_substr2(ring_substr2(pcExpr, "@cell", "@item"), "@CELL", "@item")
+		pcExpr = StzReplace(StzReplace(pcExpr, "@cell", "@item"), "@CELL", "@item")
 
 		oLoL.SortOnBy(nCol, pcExpr)
 
@@ -13616,7 +13616,7 @@ Class stzTable from stzList
 		nCol = This.ColToColNumber(pCol)
 
 		oLoL = new stzListOfLists( This.Rows() )
-		pcExpr = ring_substr2(ring_substr2(pcExpr, "@cell", "@item"), "@CELL", "@item")
+		pcExpr = StzReplace(StzReplace(pcExpr, "@cell", "@item"), "@CELL", "@item")
 		oLoL.SortDownOnBy(nCol, pcExpr)
 
 		aRowsSorted = oLol.Content()
@@ -14029,7 +14029,7 @@ Class stzTable from stzList
 
 			This.UpdateWith( _oCopy_.Content() )
 
-		but ring_find([
+		but StzFind([
 			:WithCol, :WithColumn, :UsingCol, :UsingColumn ], cFill) > 0
 		    
 			This.ReplaceCols(:With = pValue)
@@ -14079,10 +14079,10 @@ Class stzTable from stzList
 
 		if isString(p)
 
-			if ring_find([ :First, :FirstCol, :FirstColumn ], p) > 0
+			if StzFind([ :First, :FirstCol, :FirstColumn ], p) > 0
 				p = 1
 
-			but ring_find([ :Last, :LastCol, :LastColumn ], p) > 0
+			but StzFind([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfCols()
 
 			but This.HasColName(p)
@@ -14187,10 +14187,10 @@ Class stzTable from stzList
 
 		if isString(p)
 
-			if ring_find([ :First, :FirstCol, :FirstColumn ], p) > 0
+			if StzFind([ :First, :FirstCol, :FirstColumn ], p) > 0
 				p = 1
 
-			but ring_find([ :Last, :LastCol, :LastColumn ], p) > 0
+			but StzFind([ :Last, :LastCol, :LastColumn ], p) > 0
 				p = This.NumberOfCols()
 
 			but This.HasColName(p)
@@ -15069,7 +15069,7 @@ Class stzTable from stzList
 			ok
 	
 			# Validate aggregation method
-			if ring_find(aValidMethods, cAggMethod) = 0
+			if StzFind(aValidMethods, cAggMethod) = 0
 				StzRaise("Invalid aggregation method: " + cAggMethod)
 			ok
 	
@@ -15220,7 +15220,7 @@ Class stzTable from stzList
 			next
 
 			# Check if this group key exists
-			nGroupIndex = ring_find(aGroupKeys, cGroupKey)
+			nGroupIndex = StzFind(aGroupKeys, cGroupKey)
 			if nGroupIndex = 0
 				# New group, add to groups
 				aGroupKeys + cGroupKey
@@ -15307,7 +15307,7 @@ Class stzTable from stzList
 
 			for i = 1 to nLenAgg
 
-				if NOT ring_find(paCols, acColNames[i]) > 0
+				if NOT StzFind(paCols, acColNames[i]) > 0
 					paAggregations + [cColName, :First]
 				ok
 
@@ -15337,13 +15337,13 @@ Class stzTable from stzList
 
 			# Validate method is supported
 
-			if NOT ring_find(aValidMethods, cAggMethod)
+			if NOT StzFind(aValidMethods, cAggMethod)
 				StzRaise("Invalid aggregation method: " + cAggMethod)
 			ok
 
 			# Validate column is not in grouping columns
 
-			if ring_find(paCols, cColName) > 0
+			if StzFind(paCols, cColName) > 0
 				StzRaise("Cannot aggregate grouping column: " + cColName)
 			ok
 
@@ -15383,7 +15383,7 @@ Class stzTable from stzList
 
 		# Check if this group key exists
 
-		nGroupIndex = ring_find(aGroupKeys, cGroupKey)
+		nGroupIndex = StzFind(aGroupKeys, cGroupKey)
 
 		if nGroupIndex = 0
 
@@ -16045,7 +16045,7 @@ Class stzTable from stzList
 
 			cGroup = "" + aContent[nGroupCol][2][r]
 
-			if NOT ring_find(aGroups, cGroup) > 0
+			if NOT StzFind(aGroups, cGroup) > 0
 				aGroups + cGroup
 				aGroupTotals[cGroup] = []
 				for i = 1 to nCols

@@ -207,8 +207,8 @@ class stzListComparator from stzList
 			return 1
 		ok
 		for i = 1 to nLen - 1
-			bThisAsc = BothAreEqual(aContent[i], aContent[i+1]) or ring_find([""+aContent[i]], ""+aContent[i+1]) >= 0
-			bOtherAsc = BothAreEqual(paOtherList[i], paOtherList[i+1]) or ring_find([""+paOtherList[i]], ""+paOtherList[i+1]) >= 0
+			bThisAsc = BothAreEqual(aContent[i], aContent[i+1]) or StzFind([""+aContent[i]], ""+aContent[i+1]) >= 0
+			bOtherAsc = BothAreEqual(paOtherList[i], paOtherList[i+1]) or StzFind([""+paOtherList[i]], ""+paOtherList[i+1]) >= 0
 			if bThisAsc != bOtherAsc
 				return 0
 			ok

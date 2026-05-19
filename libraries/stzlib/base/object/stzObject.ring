@@ -1,4 +1,4 @@
-
+﻿
 # SOFTANZA OBJECT CLASS
 
 /*
@@ -4408,7 +4408,7 @@ class stzObject
 			value = This.Content()
 		ok
 
-		if ring_find([ :List, :InList, :AList, :InAList ], pIn) > 0
+		if StzFind([ :List, :InList, :AList, :InAList ], pIn) > 0
 	
 			aResult = []
 			for i = 1 to pnSize
@@ -4416,7 +4416,7 @@ class stzObject
 			next
 			return aResult
 
-		but ring_find([ :Pair, :InPair, :APair, :InAPair ], pIn) > 0
+		but StzFind([ :Pair, :InPair, :APair, :InAPair ], pIn) > 0
 
 			aResult = []
 			for i = 1 to 2
@@ -4424,7 +4424,7 @@ class stzObject
 			next
 			return aResult
 
-		but ring_find([ :ListOfNumbers, :InListOfNumbers,
+		but StzFind([ :ListOfNumbers, :InListOfNumbers,
 				:AListOfNumbers, :InAListOfNumbers ], pIn) > 0
 
 			aResult = []
@@ -4433,7 +4433,7 @@ class stzObject
 			next
 			return aResult
 
-		but ring_find([ :ListOfStrings, :InListOfStrings,
+		but StzFind([ :ListOfStrings, :InListOfStrings,
 				:AListOfStrings, :InAListOfStrings ], pIn) > 0
 
 			aResult = []
@@ -4442,7 +4442,7 @@ class stzObject
 			next
 			return aResult
 
-		but ring_find([ :ListOfLists, :InListOfLists,
+		but StzFind([ :ListOfLists, :InListOfLists,
 				:AListOfLists, :InAListOfLists ], pIn) > 0
 	
 			aResult = []
@@ -4451,7 +4451,7 @@ class stzObject
 			next
 			return aResult
 
-		but ring_find([ :ListOfPairs, :InListOfPairs,
+		but StzFind([ :ListOfPairs, :InListOfPairs,
 				:AListOfPairs, :InAListOfNPairs ], pIn) > 0
 	
 			aResult = []
@@ -4460,7 +4460,7 @@ class stzObject
 			next
 			return aResult
 
-		but ring_find([ :String, :InString, :AString, :InAString ], pIn) > 0
+		but StzFind([ :String, :InString, :AString, :InAString ], pIn) > 0
 
 			cResult = ""
 			for i = 1 to pnSize
@@ -4468,7 +4468,7 @@ class stzObject
 			next
 			return cResult
 
-		but ring_find([ :Grid, :InGrid, :AGrid, :InAGrid ], pIn) > 0
+		but StzFind([ :Grid, :InGrid, :AGrid, :InAGrid ], pIn) > 0
 
 			aResult = StzGridQ([ pnSize[1], pnSize[2] ]).
 					ReplaceAllQ(:With = value).
@@ -4476,12 +4476,12 @@ class stzObject
 
 			return aResult
 
-		but ring_find([ :Table, :InTable, :ATable, :InATable ], pIn) > 0
+		but StzFind([ :Table, :InTable, :ATable, :InATable ], pIn) > 0
 
 			aResult = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(value).Content()
 			return aResult
 
-		but ring_find([ :StzTable, :InStzTable, :InAStzTable ], pIn) > 0
+		but StzFind([ :StzTable, :InStzTable, :InAStzTable ], pIn) > 0
 
 			oResult = StzTableQ([ pnSize[1], pnSize[2] ]).FillQ(value)
 			return oResult
@@ -4555,7 +4555,7 @@ class stzObject
 
 		but This.IsAString()
 			if This.IsNumberInString()
-				cNumber = ring_substr2(This.Content(), "_", "")
+				cNumber = StzReplace(This.Content(), "_", "")
 				return 0+ cNumber
 
 			else
@@ -4572,7 +4572,7 @@ class stzObject
 
 		but This.IsAString()
 			if This.IsNumberInString()
-				cNumber = ring_substr2(This.Content(), "_", "")
+				cNumber = StzReplace(This.Content(), "_", "")
 				return 0+ cNumber
 
 			else
@@ -5436,7 +5436,7 @@ class stzObject
 		return This.OccursBeforeCS( pcSubStr, pIn, 1 )
 
 	   #----------------------------------------------#
-	  #   CHECKING IF OBJECT OCCURES َAFTER A GIVEN   #
+	  #   CHECKING IF OBJECT OCCURES ÙŽAFTER A GIVEN   #
 	 #   VALUE IN THE GIVEN STRING OR LIST          #
 	#----------------------------------------------#
 

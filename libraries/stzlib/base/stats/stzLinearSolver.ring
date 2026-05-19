@@ -821,7 +821,7 @@ class stzLinearSolver from stzObject
 		for i = 1 to nLen
 			cVarName = @variables[i][:name]
 			nValue = @aSolution[cVarName]
-			cExpression = ring_substr2(cExpression, cVarName, "" + nValue)
+			cExpression = StzReplace(cExpression, cVarName, "" + nValue)
 		next
 
 		# Evaluate expression (simplified)

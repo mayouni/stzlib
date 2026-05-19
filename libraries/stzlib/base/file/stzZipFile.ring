@@ -1,9 +1,9 @@
-#=========================================#
+﻿#=========================================#
 # ZIP FILE CLASS - ARCHIVE OPERATIONS     #
 #=========================================#
 
 func _DirOfPath(cPath)
-	cPath = ring_substr2(cPath, "\", "/")
+	cPath = StzReplace(cPath, "\", "/")
 	nPos = 0
 	for i = StzLen(cPath) to 1 step -1
 		if cPath[i] = "/"
@@ -17,7 +17,7 @@ func _DirOfPath(cPath)
 	return "."
 
 func _BaseNameOfPath(cPath)
-	cPath = ring_substr2(cPath, "\", "/")
+	cPath = StzReplace(cPath, "\", "/")
 	nSlash = 0
 	for i = StzLen(cPath) to 1 step -1
 		if cPath[i] = "/"

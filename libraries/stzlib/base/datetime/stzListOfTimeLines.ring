@@ -170,7 +170,7 @@ class stzListOfTimeLines from stzObject
 		return len(@aLanes)
 
 	def Lane(pcLane)
-		nIndex = ring_find(@aLanes, StzUpper(pcLane))
+		nIndex = StzFind(@aLanes, StzUpper(pcLane))
 		if nIndex > 0
 			return @aTimeLines[nIndex]
 		else
@@ -181,7 +181,7 @@ class stzListOfTimeLines from stzObject
 			return This.Lane(pcLane)  // Already a stzTimeLine object
 
 	def HasLane(pcLane)
-		return ring_find(@aLanes, StzUpper(pcLane)) > 0
+		return StzFind(@aLanes, StzUpper(pcLane)) > 0
 
 	def AddLane(pcLane)
 		if This.HasLane(pcLane)
@@ -196,7 +196,7 @@ class stzListOfTimeLines from stzObject
 			return This
 
 	def RemoveLane(pcLane)
-		nIndex = ring_find(@aLanes, StzUpper(pcLane))
+		nIndex = StzFind(@aLanes, StzUpper(pcLane))
 		if nIndex > 0
 			del(@aLanes, nIndex)
 			del(@aTimeLines, nIndex)

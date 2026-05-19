@@ -1,21 +1,21 @@
-
+﻿
 #TODO Make a bridge with stzLocale to let the stzDate class be locale-sensitive
 
 # Multi-language day names
 $aDayNames = [
     [ :English, [ "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" ] ],
     [ :French, [ "Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche" ] ],
-    [ :Arabic, [ "الاثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت", "الأحد" ] ]
+    [ :Arabic, [ "Ø§Ù„Ø§Ø«Ù†ÙŠÙ†", "Ø§Ù„Ø«Ù„Ø§Ø«Ø§Ø¡", "Ø§Ù„Ø£Ø±Ø¨Ø¹Ø§Ø¡", "Ø§Ù„Ø®Ù…ÙŠØ³", "Ø§Ù„Ø¬Ù…Ø¹Ø©", "Ø§Ù„Ø³Ø¨Øª", "Ø§Ù„Ø£Ø­Ø¯" ] ]
 ]
 
 # Multi-language month names
 $aMonthNames = [
     [ :English, [ "January", "February", "March", "April", "May", "June",
                  "July", "August", "September", "October", "November", "December" ] ],
-    [ :French, [ "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-                "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre" ] ],
-    [ :Arabic, [ "يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو",
-                "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر" ] ]
+    [ :French, [ "Janvier", "FÃ©vrier", "Mars", "Avril", "Mai", "Juin",
+                "Juillet", "AoÃ»t", "Septembre", "Octobre", "Novembre", "DÃ©cembre" ] ],
+    [ :Arabic, [ "ÙŠÙ†Ø§ÙŠØ±", "ÙØ¨Ø±Ø§ÙŠØ±", "Ù…Ø§Ø±Ø³", "Ø£Ø¨Ø±ÙŠÙ„", "Ù…Ø§ÙŠÙˆ", "ÙŠÙˆÙ†ÙŠÙˆ",
+                "ÙŠÙˆÙ„ÙŠÙˆ", "Ø£ØºØ³Ø·Ø³", "Ø³Ø¨ØªÙ…Ø¨Ø±", "Ø£ÙƒØªÙˆØ¨Ø±", "Ù†ÙˆÙÙ…Ø¨Ø±", "Ø¯ÙŠØ³Ù…Ø¨Ø±" ] ]
 ]
 
 # Default language
@@ -94,15 +94,15 @@ func _DateFormatString(nYear, nMonth, nDay, cFormat)
     StzEngineDateFree(pHandle)
 
     cResult = cFormat
-    cResult = ring_substr2(cResult, "dddd", cDayName)
-    cResult = ring_substr2(cResult, "ddd", StzLeft(cDayName, 3))
-    cResult = ring_substr2(cResult, "dd", _PadLeft("" + nDay, 2, "0"))
-    cResult = ring_substr2(cResult, "MMMM", cMonthName)
-    cResult = ring_substr2(cResult, "MMM", StzLeft(cMonthName, 3))
-    cResult = ring_substr2(cResult, "MM", _PadLeft("" + nMonth, 2, "0"))
-    cResult = ring_substr2(cResult, "yyyy", "" + nYear)
+    cResult = StzReplace(cResult, "dddd", cDayName)
+    cResult = StzReplace(cResult, "ddd", StzLeft(cDayName, 3))
+    cResult = StzReplace(cResult, "dd", _PadLeft("" + nDay, 2, "0"))
+    cResult = StzReplace(cResult, "MMMM", cMonthName)
+    cResult = StzReplace(cResult, "MMM", StzLeft(cMonthName, 3))
+    cResult = StzReplace(cResult, "MM", _PadLeft("" + nMonth, 2, "0"))
+    cResult = StzReplace(cResult, "yyyy", "" + nYear)
     nYY = nYear % 100
-    cResult = ring_substr2(cResult, "yy", _PadLeft("" + nYY, 2, "0"))
+    cResult = StzReplace(cResult, "yy", _PadLeft("" + nYY, 2, "0"))
     return cResult
 
 func _PadLeft(cStr, nWidth, cPadChar)
@@ -423,7 +423,7 @@ class stzDate from stzObject
 
         aSeparators = ["/", "-", "."]
         for cSep in aSeparators
-            if ring_find(cDate, cSep) > 0
+            if StzFind(cDate, cSep) > 0
                 aParts = @split(cDate, cSep)
                 if len(aParts) = 3
                     nA = 0 + aParts[1]

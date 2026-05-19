@@ -36,7 +36,7 @@ func HtmlQ(pcHtmlOrFile)
 		return HtmlQ(pcHtmlOrFile)
 
 func IsHtml(pcStr)
-	return ring_find(pcStr, "<html") > 0 or ring_find(pcStr, "<!DOCTYPE html") > 0
+	return StzFind(pcStr, "<html") > 0 or StzFind(pcStr, "<!DOCTYPE html") > 0
 
 	func @IsHtml(pcStr)
 		return IsHtml(pcStr)
@@ -249,7 +249,7 @@ class stzHtml
 		aTags = []
 		for oNode in This.Elements()
 			cTag = StzLower(oNode.Tag())
-			if NOT ring_find(aTags, cTag)
+			if NOT StzFind(aTags, cTag)
 				aTags + cTag
 			ok
 		next

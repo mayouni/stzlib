@@ -1395,7 +1395,7 @@ class stzGraphPlanner
 			
 			for i = 1 to nLen
 				cNeighbor = aNeighbors[i]
-				if ring_find(aClosedSet, cNeighbor) > 0
+				if StzFind(aClosedSet, cNeighbor) > 0
 					loop
 				ok
 				
@@ -1475,7 +1475,7 @@ class stzGraphPlanner
 			
 			for i = 1 to nLen
 				cNeighbor = aNeighbors[i]
-				if ring_find(aClosedSet, cNeighbor) > 0
+				if StzFind(aClosedSet, cNeighbor) > 0
 					loop
 				ok
 				
@@ -1715,7 +1715,7 @@ class stzGraphPlanner
 			but cKey = "requires"
 				acStates = aResult[3]
 				cRequiredNode = StzLower(pValue)
-				if ring_find(acStates, cRequiredNode) = 0
+				if StzFind(acStates, cRequiredNode) = 0
 					return FALSE
 				ok
 	

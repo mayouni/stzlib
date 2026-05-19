@@ -1,4 +1,4 @@
-# Softanza List Regex Engine - Enhanced Version
+﻿# Softanza List Regex Engine - Enhanced Version
 
 func StzListRegexQ(cPattern)
 	return new stzListex(cPattern)
@@ -185,9 +185,9 @@ class stzListex
 
 		# Extract set values BEFORE case conversion to preserve original values
 		cPreservedSet = ""
-		nSetStart = ring_find(cTokenStr, "{")
+		nSetStart = StzFind(cTokenStr, "{")
 		if nSetStart > 0
-			nSetEnd = ring_find(cTokenStr, "}")
+			nSetEnd = StzFind(cTokenStr, "}")
 			if nSetEnd > nSetStart
 				cPreservedSet = @substr(cTokenStr, nSetStart, nSetEnd - nSetStart + 1)
 			ok
@@ -285,9 +285,9 @@ class stzListex
 		# Set constraints processing using preserved values
 		if len(cPreservedSet) > 0
 			# Check for {values}U format
-			if EndsWith(cRemainder, "U") and ring_find(cRemainder, "{") > 0
+			if EndsWith(cRemainder, "U") and StzFind(cRemainder, "{") > 0
 				bRequireUnique = TRUE
-				cPreservedSet = ring_substr2(cPreservedSet, "U", "")
+				cPreservedSet = StzReplace(cPreservedSet, "U", "")
 			ok
 			
 			# Determine type for set parsing
@@ -389,8 +389,8 @@ class stzListex
 	#--------------------#
 
 	def ParseSetValues(cSetContent, cType, bCheckUnique)
-		cSetContent = ring_substr2(cSetContent, "{", "")
-		cSetContent = ring_substr2(cSetContent, "}", "")
+		cSetContent = StzReplace(cSetContent, "{", "")
+		cSetContent = StzReplace(cSetContent, "}", "")
 
 		aValues = []
 		aParts = @split(cSetContent, ";")

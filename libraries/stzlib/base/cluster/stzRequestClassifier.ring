@@ -34,7 +34,7 @@ class stzRequestClassifier
         for aPattern in aPatterns
             nScore = 0
             for cKeyword in aPattern[:keywords]
-                if ring_find(cContent, cKeyword) > 0
+                if StzFind(cContent, cKeyword) > 0
                     nScore++
                 ok
             next

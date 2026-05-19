@@ -1,4 +1,4 @@
-/*
+﻿/*
 	stzCalendar - Calendar Management and Capacity Planning in Softanza
 	Manages calendar periods, working days, holidays, and capacity calculations
 	String-first design: methods accept/return strings, ...Q() returns objects
@@ -46,28 +46,28 @@ class stzCalendar from stzObject
 	@nVizHeight = 10
 
 	# Display Characters
-	@cVizBoundaryChar = "│"
+	@cVizBoundaryChar = "â”‚"
 	@cVizSpanStartChar = "["
 	@cVizSpanEndChar = "]"
 
-	@cVizBlockChar = "▓"
-	@cVizWeekendChar = "░"
+	@cVizBlockChar = "â–“"
+	@cVizWeekendChar = "â–‘"
 	@cVizHolidayChar = "[D]"
 
-	@cVizTopLeftCorner = "╭"
-	@cVizTopRightCorner = "╮"
-	@cVizBottomLeftCorner = "╰"
-	@cVizBottomRightCorner = "╯"
-	@cVizTopTSeparator = "├"
-	@cVizBottomTSeparator = "┤"
-	@cVizHorizontalLine = "─"
+	@cVizTopLeftCorner = "â•­"
+	@cVizTopRightCorner = "â•®"
+	@cVizBottomLeftCorner = "â•°"
+	@cVizBottomRightCorner = "â•¯"
+	@cVizTopTSeparator = "â”œ"
+	@cVizBottomTSeparator = "â”¤"
+	@cVizHorizontalLine = "â”€"
 
 
 	# Timeline
 	@oTimeLine = NULL
 
-	@cVizTimeLineEventChar = "●"
-	@cVizTimeLineSpanChar = "▬"
+	@cVizTimeLineEventChar = "â—"
+	@cVizTimeLineSpanChar = "â–¬"
 
 	# Cache system
 	@nCachedAvailableHours = -1
@@ -1395,17 +1395,17 @@ def TimelineEventsXT()
 	
 	nPointCount = len(aPoints)
 	if nPointCount > 0
-		aResult + ["Points", nPointCount, "—", 0]
+		aResult + ["Points", nPointCount, "â€”", 0]
 	ok
 	
 	nSpanCount = len(aSpans)
 	if nSpanCount > 0
-		aResult + ["Spans", nSpanCount, "—", 0]
+		aResult + ["Spans", nSpanCount, "â€”", 0]
 	ok
 	
 	nBlockedCount = len(aBlockedSpans)
 	if nBlockedCount > 0
-		aResult + ["Blocked", nBlockedCount, "—", 0]
+		aResult + ["Blocked", nBlockedCount, "â€”", 0]
 	ok
 	
 	return aResult
@@ -2042,10 +2042,10 @@ def CompareWith(oOtherCal)
 		# different from those we use here in this hack), the the result
 		# will be erronous
 	
-		cResult = ring_substr2(cResult, " │ ", "   ")
-		cResult = ring_substr2(cResult, "┬", "─")
-		cResult = ring_substr2(cResult, "┼", "─")
-		cResult = ring_substr2(cResult, "┴", "─")
+		cResult = StzReplace(cResult, " â”‚ ", "   ")
+		cResult = StzReplace(cResult, "â”¬", "â”€")
+		cResult = StzReplace(cResult, "â”¼", "â”€")
+		cResult = StzReplace(cResult, "â”´", "â”€")
 	
 		# Drawing the legend
 		cResult += NL + NL + _drawLegend()
@@ -2325,7 +2325,7 @@ def CompareWith(oOtherCal)
 				if len(@aBreaks) > 0
 					cBreaks = @aBreaks[1][1] + "-" + @aBreaks[1][2]
 				else
-					cBreaks = "─"
+					cBreaks = "â”€"
 				ok
 				
 				nHours = This.AvailableHoursOnN(cDate)

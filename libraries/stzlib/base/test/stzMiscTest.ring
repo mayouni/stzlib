@@ -1,4 +1,4 @@
-
+﻿
 #TODO Move theses test samples in the relevant test files
 
 /*---
@@ -52,7 +52,7 @@ str = "I love pizza"
 # Softanza: updates and returns in one step
 
 str = "I love pizza"
-str = ring_substr2(str, "pizza", "couscous")
+str = StzReplace(str, "pizza", "couscous")
 ? str
 #--> I love couscous
 
@@ -193,13 +193,13 @@ o1 = new stzTable([
 ? o1.Shwo() 	// #NOTE this is a mispelled form of Show()
 #-->
 '
-╭──────┬───────╮
-│ Name │ Score │
-├──────┼───────┤
-│ Bob  │    89 │
-│ Dan  │   120 │
-│ Roy  │   100 │
-╰──────┴───────╯
+â•­â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â•®
+â”‚ Name â”‚ Score â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ Bob  â”‚    89 â”‚
+â”‚ Dan  â”‚   120 â”‚
+â”‚ Roy  â”‚   100 â”‚
+â•°â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â•¯
 '
 
 o1.SortOnDown(:SCORE) # Or SortOnInDescending()
@@ -207,13 +207,13 @@ o1.SortOnDown(:SCORE) # Or SortOnInDescending()
 ? o1.Show()
 #-->
 '
-╭──────┬───────╮
-│ Name │ Score │
-├──────┼───────┤
-│ Dan  │   120 │
-│ Roy  │   100 │
-│ Bob  │    89 │
-╰──────┴───────╯
+â•­â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â•®
+â”‚ Name â”‚ Score â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ Dan  â”‚   120 â”‚
+â”‚ Roy  â”‚   100 â”‚
+â”‚ Bob  â”‚    89 â”‚
+â•°â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â•¯
 '
 
 pf()

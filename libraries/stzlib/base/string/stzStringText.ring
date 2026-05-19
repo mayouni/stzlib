@@ -129,7 +129,7 @@ class stzStringText
 		but This.NumberOfScripts() = 1
 			return This.Scripts()[1]
 
-		but This.NumberOfScripts() = 2 and ring_find(This.Scripts(), :Common) > 0
+		but This.NumberOfScripts() = 2 and StzFind(This.Scripts(), :Common) > 0
 			cResult = StzListQ(This.Scripts()).AllItemsExcept(:Common)[1]
 			return cResult
 
@@ -168,7 +168,7 @@ class stzStringText
 		return This.Script() = cScript
 
 	def ContainsScript(cScript)
-		return ring_find(This.Scripts(), cScript) > 0
+		return StzFind(This.Scripts(), cScript) > 0
 
 	def ContainsArabicScript()
 		return This.ContainsScript(:Arabic)
@@ -720,7 +720,7 @@ class stzStringText
 		nLen = len(acWords)
 
 		for i = 1 to nLen
-			if ring_find(acExclude, StzCaseFold(acWords[i])) = 0
+			if StzFind(acExclude, StzCaseFold(acWords[i])) = 0
 				aResult + acWords[i]
 			ok
 		next

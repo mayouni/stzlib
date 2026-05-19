@@ -528,7 +528,7 @@ func FormatString(cStr)
     ok
     
     # Choose quote character based on content
-    if ring_find(cStr, '"') > 0 and ring_find(cStr, "'") = 0
+    if StzFind(cStr, '"') > 0 and StzFind(cStr, "'") = 0
         return "'" + cStr + "'"
     else
         return '"' + cStr + '"'

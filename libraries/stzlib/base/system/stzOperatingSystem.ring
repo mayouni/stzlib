@@ -1,4 +1,4 @@
-#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
+﻿#~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 #  SOFTANZA OPERATING SYSTEM    #
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~#
 
@@ -482,9 +482,9 @@ class stzOperatingSystem
 	def NormalizePath(cPath)
 		cSep = This.PathSeparator()
 		if This.IsWindows()
-			cPath = ring_substr2(cPath, "/", "\")
+			cPath = StzReplace(cPath, "/", "\")
 		else
-			cPath = ring_substr2(cPath, "\", "/")
+			cPath = StzReplace(cPath, "\", "/")
 		ok
 		return cPath
 

@@ -97,7 +97,7 @@ func IsInvisibleChar(c)
 		ok
 	ok
 
-	if ring_find( InvisibleChars(), c )
+	if StzFind( InvisibleChars(), c )
 		return 1
 	else
 		return 0
@@ -798,7 +798,7 @@ class stzStringChar from stzObject
 		return "" + _CharBidiClass(This.Unicode())
 
 	def IsVowel()
-		if ring_find( Vowels(), This.Content() ) > 0
+		if StzFind( Vowels(), This.Content() ) > 0
 			return 1
 		else
 			return 0
@@ -1071,10 +1071,10 @@ class stzStringChar from stzObject
 			return This.IsPunctuation()
 
 	def IsGeneralPunctuation()
-		return ring_find( GeneralPunctuationUnicodes(), This.Unicode() ) > 0
+		return StzFind( GeneralPunctuationUnicodes(), This.Unicode() ) > 0
 
 	def IsSupplementalPunctuation()
-		return ring_find( SupplementalPunctuationUnicodes(), This.Unicode() ) > 0
+		return StzFind( SupplementalPunctuationUnicodes(), This.Unicode() ) > 0
 
 	def IsSymbol()
 		return StzEngineUnicodeIsSymbol(This.Unicode())
@@ -1106,21 +1106,21 @@ class stzStringChar from stzObject
 			ok
 		ok
 
-		if ring_find(pacChars, This.Char()) > 0
+		if StzFind(pacChars, This.Char()) > 0
 			return 1
 		else
 			return 0
 		ok
 
 	def IsWordSeparator()
-		if ring_find( WordSeparators(), This.Char() ) > 0
+		if StzFind( WordSeparators(), This.Char() ) > 0
 			return 1
 		else
 			return 0
 		ok
 
 	def IsSentenceSeparator()
-		if ring_find( SentenceSeparators(), This.Char() ) > 0
+		if StzFind( SentenceSeparators(), This.Char() ) > 0
 			return 1
 		else
 			return 0
@@ -1136,7 +1136,7 @@ class stzStringChar from stzObject
 			return This.IsLineSeparator()
 
 	def IsWordNonLetterChar()
-		return ring_find( WordNonLetterChars(), This.Content() ) > 0
+		return StzFind( WordNonLetterChars(), This.Content() ) > 0
 
 	  #==================#
 	 #   MIRRORED CHAR  #
@@ -1297,7 +1297,7 @@ class stzStringChar from stzObject
 		return NOT This.IsPrintable()
 
 	def IsInvisible()
-		return ring_find( InvisibleUnicodes(), This.Unicode() ) > 0
+		return StzFind( InvisibleUnicodes(), This.Unicode() ) > 0
 
 	def IsVisible()
 		return NOT This.IsInvisible()

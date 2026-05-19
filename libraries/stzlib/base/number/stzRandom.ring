@@ -2001,7 +2001,7 @@ func SomeRandomNumbersGreaterThanU(n)
 	
 		while 1
 			nRandom = RandomNumberGreaterThan01(n)
-			if ring_find(anResult, nRandom) = 0
+			if StzFind(anResult, nRandom) = 0
 				anResult + nRandom
 	
 				if len(anResult) = nSome
@@ -2140,7 +2140,7 @@ func SomeRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 	
 		while 1
 			nRandom = RandomNumberGreaterThan01XT(n, nSeed)
-			if ring_find(anResult, nRandom) = 0
+			if StzFind(anResult, nRandom) = 0
 				anResult + nRandom
 	
 				if len(anResult) = nSome
@@ -2375,7 +2375,7 @@ func NRandomNumbersGreaterThanU(n, nValue)
 
 		nRandom = ARandomNumberGreaterThan(nValue)
 
-		if ring_find(anResult, nRandom) = 0
+		if StzFind(anResult, nRandom) = 0
 			anResult + nRandom
 			if len(anResult) = n
 				exit
@@ -2447,7 +2447,7 @@ func NRandomNumbersGreaterThanU(n, nValue)
 
 			nRandom = ARandomNumberGreaterThan01(nValue)
 
-			if ring_find(anResult, nRandom)
+			if StzFind(anResult, nRandom)
 				anResult + nRandom
 				if len(anResult) = n
 					exit
@@ -2570,7 +2570,7 @@ func NRandomNumbersGreaterThanXTU(n, nValue, nSeed)
 
 			nRandom = ARandomNumberGreaterThan01XT(nValue, nSeed)
 
-			if ring_find(anResult, nRandom)
+			if StzFind(anResult, nRandom)
 				anResult + nRandom
 				if len(anResult) = n
 					exit
@@ -2769,7 +2769,7 @@ func NRandomNumbersLessThanU(n, nValue)
 
 		nRandom = ARandomNumberLessThan(nValue)
 
-		if ring_find(anResult, nRandom) = 0
+		if StzFind(anResult, nRandom) = 0
 			anResult + nRandom
 			if len(anResult) = n
 				exit
@@ -2825,7 +2825,7 @@ func NRandomNumbersLessThanU(n, nValue)
 			i++
 			nRandom = ARandomNumberLessthan01(n, nValue)
 
-			if ring_find(anResult, nRandom) = 0
+			if StzFind(anResult, nRandom) = 0
 				anResult + nRandom
 				if len(anResult) = n or i = MaxRandomLoop()
 					exit
@@ -2918,7 +2918,7 @@ func NRandomNumbersLessThanXTU(n, nValue, nSeed)
 			i++
 			nRandom = ARandomNumberLessthanXT01(n, nValue, nSeed)
 
-			if ring_find(anResult, nRandom) = 0
+			if StzFind(anResult, nRandom) = 0
 				anResult + nRandom
 				if len(anResult) = n or i = MaxRandomLoop()
 					exit
@@ -4146,7 +4146,7 @@ func NRandomNumbersInU(n, panNumbers)
 
 		nRandom = ARandomNumberIn(panNumbers)
 		
-		if ring_find(anResult, nRandom) = 0
+		if StzFind(anResult, nRandom) = 0
 			anResult + nRandom
 
 			if len(anResult) = n
@@ -4255,7 +4255,7 @@ func NRandomNumbersInUZ(n, panNumbers)
 
 		anRandomZ = ARandomNumberInZ(panNumbers)
 		
-		if ring_find(anNumbers, anRandomZ[1]) = 0
+		if StzFind(anNumbers, anRandomZ[1]) = 0
 			anNumbers + anRandomZ[1]
 			anPos + anRandomZ[2]
 
@@ -4625,7 +4625,7 @@ func NRandomItemsInU(n, paList)
 
 	while 1
 		item = ARandomItemIn(paList)
-		if ring_find(aResult, item) = 0
+		if StzFind(aResult, item) = 0
 			aResult + item
 			if len(aResult) = n
 				exit

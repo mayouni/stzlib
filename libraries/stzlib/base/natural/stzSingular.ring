@@ -1,4 +1,4 @@
-// Define the aSingularRules list with inverse transformations of stzPlural
+﻿// Define the aSingularRules list with inverse transformations of stzPlural
 aSingularRules = [
     // Irregulars (priority 1)
     [ "^children$", "child", "exact", 1, "irregular" ],
@@ -59,7 +59,7 @@ func Singular(str)
                     cResult = rule[2]
                     for j = 1 to nLen
                         cPlaceholder = "\\" + j
-                        cResult = ring_substr2(cResult, cPlaceholder, aCaptured[j])
+                        cResult = StzReplace(cResult, cPlaceholder, aCaptured[j])
                     next
                     return cResult
                 else

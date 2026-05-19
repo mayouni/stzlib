@@ -60,7 +60,7 @@ class stzLoadBalancer
         # Check explicit routing rules first
         cPath = oRequest.Path()
         for aRule in aRoutingRules
-            if ring_find(cPath, aRule[:pattern]) > 0
+            if StzFind(cPath, aRule[:pattern]) > 0
                 return aRule[:domain]
             ok
         next

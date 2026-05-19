@@ -1,4 +1,4 @@
-# stzTree - Softanza Tree Class
+﻿# stzTree - Softanza Tree Class
 # Extending stzList to provide tree-specific capabilities
 
 
@@ -645,7 +645,7 @@ class stzTree from stzList
 		ok
 		
 		# Check if branch exists
-		if NOT ring_find(This.Branches(), pcBranch) > 0
+		if NOT StzFind(This.Branches(), pcBranch) > 0
 			return
 		ok
 
@@ -664,7 +664,7 @@ class stzTree from stzList
 		ok
 		
 		# Check if branch exists
-		if NOT ring_find(This.Branches(), pcBranch) > 0
+		if NOT StzFind(This.Branches(), pcBranch) > 0
 			return
 		ok
 		
@@ -705,12 +705,12 @@ class stzTree from stzList
 		_nLen_ = len(_acSplits_)
 	
 		if _nLen_ > 0
-			_acSplits_[1] = ring_substr2(_acSplits_[1], "[", "")
-			_acSplits_[1] = ring_substr2(_acSplits_[1], "]", "")
+			_acSplits_[1] = StzReplace(_acSplits_[1], "[", "")
+			_acSplits_[1] = StzReplace(_acSplits_[1], "]", "")
 		ok
 	
 		if _nLen_ > 1
-			_acSplits_[_nLen_] = ring_substr2(_acSplits_[_nLen_], "]", "")
+			_acSplits_[_nLen_] = StzReplace(_acSplits_[_nLen_], "]", "")
 		ok
 	
 		return _acSplits_

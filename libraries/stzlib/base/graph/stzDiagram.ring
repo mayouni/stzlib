@@ -1,4 +1,4 @@
-#--------------------------------------------------#
+﻿#--------------------------------------------------#
 #  stzDiagram - DOMAIN SPECIALIZATION OF stzGraph  #
 #  Workflows, org charts, semantic diagrams        #
 #--------------------------------------------------#
@@ -146,7 +146,7 @@ func ResolveEdgeStyle(pStyle)
 		return $acEdgeStyles[cStyleKey]
 	ok
 	
-	if ring_find(["solid", "dashed", "dotted", "bold"], cStyleKey)
+	if StzFind(["solid", "dashed", "dotted", "bold"], cStyleKey)
 		return cStyleKey
 	ok
 	
@@ -155,12 +155,12 @@ func ResolveEdgeStyle(pStyle)
 func ResolveNodeType(pcType)
 	cTypeKey = StzLower("" + pcType)
 
-	if ring_find($acDotShapes, cTypeKey) > 0
+	if StzFind($acDotShapes, cTypeKey) > 0
 		return cTypeKey
 	ok
 	
 	# Semantic types
-	if ring_find($acNodeTypes, cTypeKey)
+	if StzFind($acNodeTypes, cTypeKey)
 		return cTypeKey
 	ok
 	
@@ -205,7 +205,7 @@ func NodeTypes()
 	return $acNodeTypes
 
 func IsValidNodeType(pcType)
-	return ring_find($acNodeTypes, pcType) > 0
+	return StzFind($acNodeTypes, pcType) > 0
 
 # EDGE STYLE FUNCTIONS
 
@@ -368,7 +368,7 @@ class stzDiagram from stzGraph
 	def _NormalizeStyle(pcStyle)
 		cStyle = StzLower(pcStyle)
 		# Replace + with ,
-		cStyle = ring_substr2(cStyle, "+", ",")
+		cStyle = StzReplace(cStyle, "+", ",")
 		return cStyle
 	
 	def SetArrowHead(pcStyle)
@@ -380,7 +380,7 @@ class stzDiagram from stzGraph
 	def SetSplines(pcType)
 
 	    cType = StzLower(pcType)
-	    if ring_find($acSplineTypes, cType) > 0
+	    if StzFind($acSplineTypes, cType) > 0
 	        @cSplineType = cType
 	    else
 		@cSplineType = $cDefaultSplineType
@@ -1109,7 +1109,7 @@ class stzDiagram from stzGraph
 		ok
 		
 		cTag = aParams[1]
-		return ring_find(aContext[:tags], cTag) > 0
+		return StzFind(aContext[:tags], cTag) > 0
 	
 	def _BuildRuleContext(aElement)
 		aContext = aElement
@@ -1175,7 +1175,7 @@ class stzDiagram from stzGraph
 		for aNode in aNodes
 			if HasKey(aNode, :properties) and 
 			   HasKey(aNode[:properties], :tags) and
-			   ring_find(aNode[:properties][:tags], pcTag) > 0
+			   StzFind(aNode[:properties][:tags], pcTag) > 0
 				acResult + aNode[:id]
 			ok
 		end
@@ -1227,7 +1227,7 @@ class stzDiagram from stzGraph
 			ok
 			
 			for aEffect in aEffects
-				acLegend + "  ÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢ " + aEffect[1] + ": " + aEffect[2]
+				acLegend + "  ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ " + aEffect[1] + ": " + aEffect[2]
 			next
 			
 			acLegend + ""
@@ -1433,8 +1433,8 @@ class stzDiagram from stzGraph
 			stzraise("Incorrect folder name!")
 		ok
 
-		pcFolder = ring_substr2(pcFolder, "/", "")
-		pcFolder = ring_substr2(pcFolder, "\", "")
+		pcFolder = StzReplace(pcFolder, "/", "")
+		pcFolder = StzReplace(pcFolder, "\", "")
 
 		oConv = new stzDiagramToStzDiag(This)
 		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".stzdiag")
@@ -1573,8 +1573,8 @@ class stzDiagram from stzGraph
 			stzraise("Incorrect folder name!")
 		ok
 
-		pcFolder = ring_substr2(pcFolder, "/", "")
-		pcFolder = ring_substr2(pcFolder, "\", "")
+		pcFolder = StzReplace(pcFolder, "/", "")
+		pcFolder = StzReplace(pcFolder, "\", "")
 
 		oConv = new stzDiagramToDot(This)
 		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".dot")
@@ -1644,8 +1644,8 @@ class stzDiagram from stzGraph
 			stzraise("Incorrect folder name!")
 		ok
 
-		pcFolder = ring_substr2(pcFolder, "/", "")
-		pcFolder = ring_substr2(pcFolder, "\", "")
+		pcFolder = StzReplace(pcFolder, "/", "")
+		pcFolder = StzReplace(pcFolder, "\", "")
 
 		oConv = new stzDiagramToMermaid(This)
 		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".mmd")
@@ -1716,8 +1716,8 @@ class stzDiagram from stzGraph
 			stzraise("Incorrect folder name!")
 		ok
 
-		pcFolder = ring_substr2(pcFolder, "/", "")
-		pcFolder = ring_substr2(pcFolder, "\", "")
+		pcFolder = StzReplace(pcFolder, "/", "")
+		pcFolder = StzReplace(pcFolder, "\", "")
 
 		oConv = new stzDiagramToJson(This)
 		bSuccess = oConv.WriteToFile(pcFolder + "/" + This.Name() + ".json")
@@ -1856,9 +1856,9 @@ class stzDiagram from stzGraph
 			ok
 			
 			if bInNodesSection and cLine != "" and
-			   NOT ring_find(cLine, "label:") and
-			   NOT ring_find(cLine, "type:") and
-			   NOT ring_find(cLine, "color:")
+			   NOT StzFind(cLine, "label:") and
+			   NOT StzFind(cLine, "type:") and
+			   NOT StzFind(cLine, "color:")
 				return cLine
 			ok
 			
@@ -1914,7 +1914,7 @@ class stzDiagram from stzGraph
 				loop
 			ok
 			
-			if ring_find(cLine, "diagram ")
+			if StzFind(cLine, "diagram ")
 				cTitle = trim(StzMid(cLine, 10, stzlen(cLine) - 10))
 				@cId = cTitle
 
@@ -1927,7 +1927,7 @@ class stzDiagram from stzGraph
 			but cLine = "edges"
 				cCurrentSection = "edges"
 
-			but cCurrentSection = "properties" and ring_find(cLine, ":")
+			but cCurrentSection = "properties" and StzFind(cLine, ":")
 				aParts = @split(cLine, ":")
 				cKey = trim(aParts[1])
 				cValue = trim(aParts[2])
@@ -1939,7 +1939,7 @@ class stzDiagram from stzGraph
 				ok
 
 			but cCurrentSection = "nodes"
-				if NOT ring_find(cLine, "label:") and NOT ring_find(cLine, "type:") and NOT ring_find(cLine, "color:")
+				if NOT StzFind(cLine, "label:") and NOT StzFind(cLine, "type:") and NOT StzFind(cLine, "color:")
 					if cCurrentNode != "" and cLabel != ""
 						if cType = "" cType = $cDefaultNodeType ok
 						if cColor = "" cColor = $cDefaultNodeColor ok
@@ -1950,17 +1950,17 @@ class stzDiagram from stzGraph
 					cType = ""
 					cColor = ""
 
-				but ring_find(cLine, "label:")
+				but StzFind(cLine, "label:")
 					cLabel = StzMid(cLine, 9, stzlen(cLine) - 9)
 
-				but ring_find(cLine, "type:")
+				but StzFind(cLine, "type:")
 					cType = trim(StzMid(cLine, 7, stzlen(cLine) - 6))
 
-				but ring_find(cLine, "color:")
+				but StzFind(cLine, "color:")
 					cColor = trim(StzMid(cLine, 8, stzlen(cLine) - 7))
 				ok
 
-			but cCurrentSection = "edges" and ring_find(cLine, "->")
+			but cCurrentSection = "edges" and StzFind(cLine, "->")
 				aEdgeParts = @split(cLine, "->")
 				cFrom = trim(aEdgeParts[1])
 				cTo = trim(aEdgeParts[2])
@@ -2545,16 +2545,16 @@ class stzDiagramToDot
 		
 		cRankDir = "TB"
 
-		if cLayout = "topdown" or ring_find($acLayouts[:TopDown], cLayout)
+		if cLayout = "topdown" or StzFind($acLayouts[:TopDown], cLayout)
 			cRankDir = "TB"
 	
-		but cLayout = "bottomup" or ring_find($acLayouts[:BottomUp], cLayout)
+		but cLayout = "bottomup" or StzFind($acLayouts[:BottomUp], cLayout)
 			cRankDir = "BT"
 	
-		but cLayout = "leftright" or ring_find($acLayouts[:LeftRight], cLayout)
+		but cLayout = "leftright" or StzFind($acLayouts[:LeftRight], cLayout)
 			cRankDir = "LR"
 	
-		but cLayout = "rightleft" or ring_find($acLayouts[:RightLeft], cLayout)
+		but cLayout = "rightleft" or StzFind($acLayouts[:RightLeft], cLayout)
 			cRankDir = "RL"
 		ok
 	
@@ -2649,7 +2649,7 @@ class stzDiagramToDot
 	    ok
 	    
 	    # Ensure filled is always present (visual rules already merged in _GetNodeStyle)
-	    if NOT ring_find(cStyle, "filled")
+	    if NOT StzFind(cStyle, "filled")
 	        if cStyle = ""
 	            cStyle = "filled"
 	        else
@@ -2723,7 +2723,7 @@ class stzDiagramToDot
 		ok
 		
 		# Direct DOT shape (bypasses semantic mapping)
-		if ring_find($acDotShapes, cType) > 0
+		if StzFind($acDotShapes, cType) > 0
 			return cType
 		ok
 		
@@ -2768,10 +2768,10 @@ class stzDiagramToDot
 		if HasKey(aEnhancements, "style")
 			cRuleStyle = aEnhancements["style"]
 			# Merge: ensure filled + rounded (for boxes) + rule style
-			if NOT ring_find(cRuleStyle, "filled")
+			if NOT StzFind(cRuleStyle, "filled")
 				cRuleStyle += ",filled"
 			ok
-			if cShape = "box" and NOT ring_find(cRuleStyle, "rounded")
+			if cShape = "box" and NOT StzFind(cRuleStyle, "rounded")
 				cRuleStyle = "rounded," + cRuleStyle
 			ok
 			return cRuleStyle
@@ -2779,19 +2779,19 @@ class stzDiagramToDot
 		
 		# Polygon shapes don't support rounded
 		
-		if ring_find($aPolygonShapes, cShape) > 0
+		if StzFind($aPolygonShapes, cShape) > 0
 			# Add filled if not already there
-			if NOT ring_find(cBaseStyle, "filled")
+			if NOT StzFind(cBaseStyle, "filled")
 				return cBaseStyle + ",filled"
 			ok
 			return cBaseStyle
 		ok
 
 		# For box-like shapes, add rounded and filled
-		if NOT ring_find(cBaseStyle, "filled")
+		if NOT StzFind(cBaseStyle, "filled")
 			cBaseStyle += ",filled"
 		ok
-		if NOT ring_find(cBaseStyle, "rounded") and cShape = "box"
+		if NOT StzFind(cBaseStyle, "rounded") and cShape = "box"
 			cBaseStyle = "rounded," + cBaseStyle
 		ok
 		
@@ -2819,7 +2819,7 @@ class stzDiagramToDot
 	    ok
 	    
 	    # If already hex, return after theme transforms
-	    if ring_find(cColor, "#")
+	    if StzFind(cColor, "#")
 	        if cTheme = "gray"
 	            return @oDiagram.ConvertColorTogray(cColor)
 	        but cTheme = "print"
@@ -2885,7 +2885,7 @@ class stzDiagramToDot
 	    cOutput = '    ' + cFrom + ' -> ' + cTo
 	    aAttrs = []
 	    
-	    # Check if this is a supervisorÃƒÂ¢Ã¢â‚¬ Ã¢â‚¬â„¢helper edge
+	    # Check if this is a supervisorÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬ ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢helper edge
 	    if StzLeft(cTo, 8) = "_helper_"
 	        aAttrs + 'arrowhead=none'
 	        aAttrs + 'weight=10'
@@ -2979,8 +2979,8 @@ class stzDiagramToDot
 	    return cTooltip
 	
 	def _EscapeTooltip(cText)
-	    cText = ring_substr2(cText, '"', '\"')
-	    cText = ring_substr2(cText, "\n", "&#10;")  # HTML entity for newline
+	    cText = StzReplace(cText, '"', '\"')
+	    cText = StzReplace(cText, "\n", "&#10;")  # HTML entity for newline
 	    return cText
 
 	def _JoinAttributes(aAttrs)
@@ -3050,7 +3050,7 @@ class stzDiagramToMermaid
 	
 			# Escape reserved keywords
 			cSafeNodeId = cNodeId
-			if ring_find(aReservedWords, StzLower(cNodeId)) > 0
+			if StzFind(aReservedWords, StzLower(cNodeId)) > 0
 				cSafeNodeId = "node_" + cNodeId
 			ok
 	
@@ -3083,10 +3083,10 @@ class stzDiagramToMermaid
 			cToId = aEdge["to"]
 			
 			# Escape reserved keywords in edges
-			if ring_find(aReservedWords, StzLower(cFromId)) > 0
+			if StzFind(aReservedWords, StzLower(cFromId)) > 0
 				cFromId = "node_" + cFromId
 			ok
-			if ring_find(aReservedWords, StzLower(cToId)) > 0
+			if StzFind(aReservedWords, StzLower(cToId)) > 0
 				cToId = "node_" + cToId
 			ok
 			
@@ -3209,7 +3209,7 @@ class stzColorResolver
 
 	def ResolveWithPalette(pcColor, pacPalette)
 
-		if isString(pcColor) and ring_find(pcColor, "#")
+		if isString(pcColor) and StzFind(pcColor, "#")
 			return pcColor
 		ok
 
@@ -3302,13 +3302,13 @@ class stzStylParser
 			ok
 
 			# Style header
-			if ring_find(cLine, "style ")
+			if StzFind(cLine, "style ")
 				aStyle[:name] = This._ExtractQuoted(cLine)
 
-			but ring_find(cLine, "theme:")
+			but StzFind(cLine, "theme:")
 				aStyle[:theme] = This._ExtractValue(cLine)
 
-			but ring_find(cLine, "layout:")
+			but StzFind(cLine, "layout:")
 				aStyle[:layout] = This._ExtractValue(cLine)
 
 			# Sections
@@ -3331,7 +3331,7 @@ class stzStylParser
 				cSection = "custom"
 
 			# Parse section content
-			but cSection != "" and ring_find(cLine, ":")
+			but cSection != "" and StzFind(cLine, ":")
 				aParts = split(cLine, ":")
 				cKey = trim(aParts[1])
 				cValue = trim(aParts[2])
@@ -3357,14 +3357,14 @@ class stzStylParser
 		return cValue
 
 	def _ExtractValue(cLine)
-		nPos = ring_find(cLine, ":")
+		nPos = StzFind(cLine, ":")
 		if nPos = 0 return "" ok
 		cValue = trim(StzMid(cLine, nPos + 1, StzLen(cLine) - nPos))
 		return This._ParseValue(cValue)
 
 	def _ExtractQuoted(cLine)
-		nStart = ring_find(cLine, '"')
+		nStart = StzFind(cLine, '"')
 		if nStart = 0 return "" ok
 		nEnd = StzMid(cLine, nStart + 1, StzLen(cLine) - nStart)
-		nEnd = ring_find(nEnd, '"')
+		nEnd = StzFind(nEnd, '"')
 		return StzMid(cLine, nStart + 1, nEnd - 1)

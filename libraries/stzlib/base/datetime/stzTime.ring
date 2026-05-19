@@ -1,4 +1,4 @@
-
+﻿
 #TODO Make a bridge with stzLocale to let the stzTime class be locale-sensitive
 
 # Global time format configurations
@@ -41,7 +41,7 @@ func IsTime(str)
 
     for i = 1 to len(aParts)
         cPart = aParts[i]
-        if i = len(aParts) and ring_find(cPart, ".")
+        if i = len(aParts) and StzFind(cPart, ".")
             aSubParts = split(cPart, ".")
             cPart = aSubParts[1]
         ok
@@ -57,7 +57,7 @@ func IsTime(str)
     ok
     if len(aParts) = 3
         cSecPart = aParts[3]
-        if ring_find(cSecPart, ".")
+        if StzFind(cSecPart, ".")
             aSubParts = split(cSecPart, ".")
             cSecPart = aSubParts[1]
         ok
@@ -154,7 +154,7 @@ class stzTime from stzObject
 
         if len(aParts) = 3
             cSecPart = aParts[3]
-            if ring_find(cSecPart, ".")
+            if StzFind(cSecPart, ".")
                 aSubParts = split(cSecPart, ".")
                 nS = 0+ aSubParts[1]
                 if len(aSubParts) > 1
@@ -728,16 +728,16 @@ class stzTime from stzObject
     def pvtFormatTime(cFormat)
         cResult = cFormat
 
-        cResult = ring_substr2(cResult, "HH", StzPadLeft(''+ @nHour, 2, "0"))
-        cResult = ring_substr2(cResult, "hh", StzPadLeft(''+ @nHour, 2, "0"))
+        cResult = StzReplace(cResult, "HH", StzPadLeft(''+ @nHour, 2, "0"))
+        cResult = StzReplace(cResult, "hh", StzPadLeft(''+ @nHour, 2, "0"))
 
-        if ring_find(cResult, "h")
-            cResult = ring_substr2(cResult, "h", ''+ @nHour)
+        if StzFind(cResult, "h")
+            cResult = StzReplace(cResult, "h", ''+ @nHour)
         ok
 
-        cResult = ring_substr2(cResult, "mm", StzPadLeft(''+ @nMinute, 2, "0"))
-        cResult = ring_substr2(cResult, "ss", StzPadLeft(''+ @nSecond, 2, "0"))
-        cResult = ring_substr2(cResult, "zzz", StzPadLeft(''+ @nMillisecond, 3, "0"))
-        cResult = ring_substr2(cResult, "AP", This.AMPM())
+        cResult = StzReplace(cResult, "mm", StzPadLeft(''+ @nMinute, 2, "0"))
+        cResult = StzReplace(cResult, "ss", StzPadLeft(''+ @nSecond, 2, "0"))
+        cResult = StzReplace(cResult, "zzz", StzPadLeft(''+ @nMillisecond, 3, "0"))
+        cResult = StzReplace(cResult, "AP", This.AMPM())
 
         return cResult
