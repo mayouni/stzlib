@@ -249,20 +249,20 @@ class stzStringList
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		nLen = len(@acContent)
-		for i = 1 to nLen
-			pHandle = StzEngineString(@acContent[i])
-			pTarget = StzEngineString(pcStr)
-			if _bCase_
-				bFound = StzEngineStringEquals(pHandle, pTarget)
-			else
-				bFound = StzEngineStringEqualsCI(pHandle, pTarget)
-			ok
-			StzEngineStringFree(pHandle)
-			StzEngineStringFree(pTarget)
-			if bFound
-				return 1
-			ok
-		next
+		if _bCase_
+			for i = 1 to nLen
+				if @acContent[i] = pcStr
+					return 1
+				ok
+			next
+		else
+			cTarget = StzCaseFold(pcStr)
+			for i = 1 to nLen
+				if StzCaseFold(@acContent[i]) = cTarget
+					return 1
+				ok
+			next
+		ok
 		return 0
 
 	def Contains(pcStr)
@@ -276,14 +276,20 @@ class stzStringList
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		nLen = len(@acContent)
-		for i = 1 to nLen
-			pHandle = StzEngineString(@acContent[i])
-			bFound = StzEngineStringContainsCS(pHandle, pcSubStr, _bCase_)
-			StzEngineStringFree(pHandle)
-			if bFound
-				return 1
-			ok
-		next
+		if _bCase_
+			for i = 1 to nLen
+				if substr(@acContent[i], pcSubStr) > 0
+					return 1
+				ok
+			next
+		else
+			cTarget = StzCaseFold(pcSubStr)
+			for i = 1 to nLen
+				if substr(StzCaseFold(@acContent[i]), cTarget) > 0
+					return 1
+				ok
+			next
+		ok
 		return 0
 
 	def ContainsSubString(pcSubStr)
@@ -298,20 +304,23 @@ class stzStringList
 
 		anResult = []
 		nLen = len(@acContent)
-		for i = 1 to nLen
-			pHandle = StzEngineString(@acContent[i])
-			pTarget = StzEngineString(pcStr)
-			if _bCase_
-				bFound = StzEngineStringEquals(pHandle, pTarget)
-			else
-				bFound = StzEngineStringEqualsCI(pHandle, pTarget)
-			ok
-			StzEngineStringFree(pHandle)
-			StzEngineStringFree(pTarget)
-			if bFound
-				anResult + i
-			ok
-		next
+
+		if _bCase_
+			# Case-sensitive: direct string comparison (no FFI needed)
+			for i = 1 to nLen
+				if @acContent[i] = pcStr
+					anResult + i
+				ok
+			next
+		else
+			# Case-insensitive: use engine casefold comparison
+			cTarget = StzCaseFold(pcStr)
+			for i = 1 to nLen
+				if StzCaseFold(@acContent[i]) = cTarget
+					anResult + i
+				ok
+			next
+		ok
 		return anResult
 
 	def Find(pcStr)
@@ -466,13 +475,20 @@ class stzStringList
 
 		acResult = []
 		nLen = len(@acContent)
-		for i = 1 to nLen
-			pHandle = StzEngineString(@acContent[i])
-			if StzEngineStringContainsCS(pHandle, pcSubStr, _bCase_)
-				acResult + @acContent[i]
-			ok
-			StzEngineStringFree(pHandle)
-		next
+		if _bCase_
+			for i = 1 to nLen
+				if substr(@acContent[i], pcSubStr) > 0
+					acResult + @acContent[i]
+				ok
+			next
+		else
+			cTarget = StzCaseFold(pcSubStr)
+			for i = 1 to nLen
+				if substr(StzCaseFold(@acContent[i]), cTarget) > 0
+					acResult + @acContent[i]
+				ok
+			next
+		ok
 		return acResult
 
 	def Filter(pcSubStr)
@@ -487,18 +503,22 @@ class stzStringList
 
 		acResult = []
 		nLen = len(@acContent)
-		for i = 1 to nLen
-			pHandle = StzEngineString(@acContent[i])
-			if _bCase_
-				bMatch = StzEngineStringStartsWith(pHandle, pcPrefix)
-			else
-				bMatch = StzEngineStringStartsWithCI(pHandle, pcPrefix)
-			ok
-			StzEngineStringFree(pHandle)
-			if bMatch
-				acResult + @acContent[i]
-			ok
-		next
+		nPrefixLen = len(pcPrefix)
+		if _bCase_
+			for i = 1 to nLen
+				if left(@acContent[i], nPrefixLen) = pcPrefix
+					acResult + @acContent[i]
+				ok
+			next
+		else
+			cPrefix = StzCaseFold(pcPrefix)
+			nFoldLen = len(cPrefix)
+			for i = 1 to nLen
+				if left(StzCaseFold(@acContent[i]), nFoldLen) = cPrefix
+					acResult + @acContent[i]
+				ok
+			next
+		ok
 		return acResult
 
 	def FilterByStartsWith(pcPrefix)
@@ -509,18 +529,22 @@ class stzStringList
 
 		acResult = []
 		nLen = len(@acContent)
-		for i = 1 to nLen
-			pHandle = StzEngineString(@acContent[i])
-			if _bCase_
-				bMatch = StzEngineStringEndsWith(pHandle, pcSuffix)
-			else
-				bMatch = StzEngineStringEndsWithCI(pHandle, pcSuffix)
-			ok
-			StzEngineStringFree(pHandle)
-			if bMatch
-				acResult + @acContent[i]
-			ok
-		next
+		nSuffixLen = len(pcSuffix)
+		if _bCase_
+			for i = 1 to nLen
+				if right(@acContent[i], nSuffixLen) = pcSuffix
+					acResult + @acContent[i]
+				ok
+			next
+		else
+			cSuffix = StzCaseFold(pcSuffix)
+			nFoldLen = len(cSuffix)
+			for i = 1 to nLen
+				if right(StzCaseFold(@acContent[i]), nFoldLen) = cSuffix
+					acResult + @acContent[i]
+				ok
+			next
+		ok
 		return acResult
 
 	def FilterByEndsWith(pcSuffix)
@@ -534,11 +558,7 @@ class stzStringList
 		acResult = []
 		nLen = len(@acContent)
 		for i = 1 to nLen
-			pHandle = StzEngineString(@acContent[i])
-			pUpper = StzEngineStringToUpper(pHandle)
-			acResult + StzEngineStringData(pUpper)
-			StzEngineStringFree(pUpper)
-			StzEngineStringFree(pHandle)
+			acResult + StzUpper(@acContent[i])
 		next
 		@acContent = acResult
 
@@ -555,11 +575,7 @@ class stzStringList
 		acResult = []
 		nLen = len(@acContent)
 		for i = 1 to nLen
-			pHandle = StzEngineString(@acContent[i])
-			pLower = StzEngineStringToLower(pHandle)
-			acResult + StzEngineStringData(pLower)
-			StzEngineStringFree(pLower)
-			StzEngineStringFree(pHandle)
+			acResult + StzLower(@acContent[i])
 		next
 		@acContent = acResult
 

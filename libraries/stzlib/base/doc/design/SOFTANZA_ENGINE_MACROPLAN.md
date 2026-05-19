@@ -189,7 +189,16 @@
   with per-pair handle create/free replaced with engine O(n) hashmap dedup.
 - **Standalone Chars() optimization**: stzStringFunc `Chars()` migrated from N
   individual NthChar FFI calls to single `StzEngineStringCharsSplit` call.
-- **Stats**: 614 Zig tests, 394 Ring bridge functions, all 9 Ring test suites pass.
+- **stzStringList FFI handle elimination**: Eliminated per-iteration engine handle
+  creation/destruction in 8 methods: ContainsCS, FindCS, ContainsSubStringCS,
+  FilterCS, FilterByStartsWithCS, FilterByEndsWithCS (replaced with Ring string
+  comparison + StzCaseFold for CI), ToUpper/ToLower (replaced with StzUpper/StzLower
+  wrappers). JaroWinkler methods (MostSimilarTo, SimilarToCS) kept engine handles
+  as computation requires the engine.
+- **stzStringList test suite**: Added test_stringlist.ring covering ContainsCS,
+  FindCS, ContainsSubStringCS, FilterCS, FilterByStartsWithCS, FilterByEndsWithCS,
+  ToUpper/ToLower, SortInAscending, UniqueItems (17 assertions).
+- **Stats**: 614 Zig tests, 394 Ring bridge functions, all Ring test suites pass.
 
 ---
 
