@@ -154,26 +154,7 @@ class stzStringCharList
 			StzEngineStringFree(pSplit)
 			StzEngineStringFree(pHandle)
 
-			if cJoined = ""
-				@acChars = []
-				return
-			ok
-
-			@acChars = []
-			cDelim = char(0)
-			cRest = cJoined
-
-			while true
-				nPos = substr(cRest, cDelim)
-				if nPos = 0
-					if len(cRest) > 0
-						@acChars + cRest
-					ok
-					exit
-				ok
-				@acChars + left(cRest, nPos - 1)
-				cRest = substr(cRest, nPos + 1)
-			end
+			@acChars = _SplitNullDelimited(cJoined)
 
 		but isList(pValue) and Q(pValue).IsListOfNumbers()
 			# List of unicode codepoints
@@ -429,27 +410,4 @@ class stzStringCharList
 
 		@acChars = paNewChars
 
-	  #===============================#
-	 #   PRIVATE HELPERS             #
-	#===============================#
-
-	private
-
-	def _SplitNullDelimited(cJoined)
-		acResult = []
-		cDelim = char(0)
-		cRest = cJoined
-
-		while true
-			nPos = substr(cRest, cDelim)
-			if nPos = 0
-				if len(cRest) > 0
-					acResult + cRest
-				ok
-				exit
-			ok
-			acResult + left(cRest, nPos - 1)
-			cRest = substr(cRest, nPos + 1)
-		end
-
-		return acResult
+	# _SplitNullDelimited() is provided globally by stzStringFunc.ring

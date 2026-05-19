@@ -39,28 +39,11 @@ class stzStringWords
 	#===============================#
 
 	def Words()
-		acResult = []
-		acChars = @oString.Chars()
-		cWord = ""
-		nLen = len(acChars)
-
-		for i = 1 to nLen
-			c = acChars[i]
-			if c = " " or c = char(9) or c = char(10) or c = char(13)
-				if cWord != ""
-					acResult + cWord
-					cWord = ""
-				ok
-			else
-				cWord += c
-			ok
-		next
-
-		if cWord != ""
-			acResult + cWord
-		ok
-
-		return acResult
+		pH = @oString.Engine()
+		pR = StzEngineStringWordsSplit(pH)
+		cJoined = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return _SplitNullDelimited(cJoined)
 
 		def WordsQ()
 			return new stzList(This.Words())

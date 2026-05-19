@@ -2044,6 +2044,11 @@ fn ring_StringLastWord(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_last_word(h)), STZ_HANDLE);
 }
 
+fn ring_StringWordsSplit(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_words_split(h)), STZ_HANDLE);
+}
+
 fn ring_StringToNato(p: *anyopaque) callconv(.c) void {
     const h = getHandle(p, 1);
     ring_vm_api_retcpointer(p, @ptrCast(string.str_to_nato(h)), STZ_HANDLE);
@@ -2853,6 +2858,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringtoconstantcase", .func = &ring_StringToConstantCase },
     .{ .name = "stzenginestringfirstword", .func = &ring_StringFirstWord },
     .{ .name = "stzenginestringlastword", .func = &ring_StringLastWord },
+    .{ .name = "stzenginestringwordssplit", .func = &ring_StringWordsSplit },
     .{ .name = "stzenginestringtonato", .func = &ring_StringToNato },
     .{ .name = "stzenginestringcommonality", .func = &ring_StringCommonality },
     .{ .name = "stzenginestringdiffchars", .func = &ring_StringDiffChars },

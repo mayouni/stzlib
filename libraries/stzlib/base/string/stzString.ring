@@ -189,7 +189,7 @@ class stzString from stzObject
 	#========================================#
 
 	def _FindSubStr(pcSubStr, nStartAt, bCaseSensitive)
-		if len(pcSubStr) = 0 or nStartAt < 1
+		if pcSubStr = "" or nStartAt < 1
 			return 0
 		ok
 

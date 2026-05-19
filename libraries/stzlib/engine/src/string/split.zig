@@ -445,6 +445,40 @@ pub export fn str_last_word(handle: ?*StzString) callconv(.c) ?*StzString {
     return result;
 }
 
+/// Split string into individual words, null-separated. Words are sequences of
+/// non-whitespace separated by whitespace (Unicode-aware).
+pub export fn str_words_split(handle: ?*StzString) callconv(.c) ?*StzString {
+    const s = handle orelse return null;
+    const src = s.slice();
+    const result = str_new() orelse return null;
+    var off: usize = 0;
+    var first = true;
+    while (off < src.len) {
+        const cp_len = std.unicode.utf8ByteSequenceLength(src[off]) catch 1;
+        const end = @min(off + cp_len, src.len);
+        const is_space = (cp_len == 1 and (src[off] == ' ' or src[off] == '\t' or src[off] == '\n' or src[off] == '\r'));
+        if (is_space) {
+            off = end;
+            continue;
+        }
+        // Start of a word
+        const word_start = off;
+        off = end;
+        while (off < src.len) {
+            const next_len = std.unicode.utf8ByteSequenceLength(src[off]) catch 1;
+            const next_end = @min(off + next_len, src.len);
+            if (next_len == 1 and (src[off] == ' ' or src[off] == '\t' or src[off] == '\n' or src[off] == '\r')) break;
+            off = next_end;
+        }
+        if (!first) {
+            result.data.append(gpa, 0) catch break;
+        }
+        result.data.appendSlice(gpa, src[word_start..off]) catch break;
+        first = false;
+    }
+    return result;
+}
+
 /// Swap two words at given indices (1-based from host, converted to 0-based internally). Words separated by spaces.
 pub export fn str_swap_words(handle: ?*StzString, idx1: c_int, idx2: c_int) callconv(.c) ?*StzString {
     const s = handle orelse return null;
@@ -840,3 +874,33 @@ test "chars_split" {
     try testing.expectEqual(@as(u8, 0), cs.?.slice()[1]);
     try testing.expectEqual(@as(u8, 'b'), cs.?.slice()[2]);
 }
+
+test "words_split" {
+    const s = str_from("hello world  foo", "hello world  foo".len);
+    defer str_free(s);
+    const ws = str_words_split(s);
+    defer str_free(ws);
+    try testing.expect(ws != null);
+    // "hello\x00world\x00foo"
+    try testing.expectEqualStrings("hello\x00world\x00foo", ws.?.slice());
+}
+
+test "words_split_empty" {
+    const s = str_from("", 0);
+    defer str_free(s);
+    const ws = str_words_split(s);
+    defer str_free(ws);
+    try testing.expect(ws != null);
+    try testing.expectEqual(@as(usize, 0), ws.?.slice().len);
+}
+
+test "words_split_tabs_newlines" {
+    const s = str_from("a\tb\nc", "a\tb\nc".len);
+    defer str_free(s);
+    const ws = str_words_split(s);
+    defer str_free(ws);
+    try testing.expect(ws != null);
+    try testing.expectEqualStrings("a\x00b\x00c", ws.?.slice());
+}
+
+
