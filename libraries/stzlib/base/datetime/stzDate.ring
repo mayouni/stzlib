@@ -94,15 +94,15 @@ func _DateFormatString(nYear, nMonth, nDay, cFormat)
     StzEngineDateFree(pHandle)
 
     cResult = cFormat
-    cResult = substr(cResult, "dddd", cDayName)
-    cResult = substr(cResult, "ddd", left(cDayName, 3))
-    cResult = substr(cResult, "dd", _PadLeft("" + nDay, 2, "0"))
-    cResult = substr(cResult, "MMMM", cMonthName)
-    cResult = substr(cResult, "MMM", left(cMonthName, 3))
-    cResult = substr(cResult, "MM", _PadLeft("" + nMonth, 2, "0"))
-    cResult = substr(cResult, "yyyy", "" + nYear)
+    cResult = ring_substr2(cResult, "dddd", cDayName)
+    cResult = ring_substr2(cResult, "ddd", StzLeft(cDayName, 3))
+    cResult = ring_substr2(cResult, "dd", _PadLeft("" + nDay, 2, "0"))
+    cResult = ring_substr2(cResult, "MMMM", cMonthName)
+    cResult = ring_substr2(cResult, "MMM", StzLeft(cMonthName, 3))
+    cResult = ring_substr2(cResult, "MM", _PadLeft("" + nMonth, 2, "0"))
+    cResult = ring_substr2(cResult, "yyyy", "" + nYear)
     nYY = nYear % 100
-    cResult = substr(cResult, "yy", _PadLeft("" + nYY, 2, "0"))
+    cResult = ring_substr2(cResult, "yy", _PadLeft("" + nYY, 2, "0"))
     return cResult
 
 func _PadLeft(cStr, nWidth, cPadChar)
@@ -314,8 +314,8 @@ class stzDate from stzObject
 	        return
 	    ok
 
-	    if left(cDate, 3) = "in "
-	        aValueUnit = ExtractValueAndUnit(substr(cDate, 4))
+	    if StzLeft(cDate, 3) = "in "
+	        aValueUnit = ExtractValueAndUnit(StzRight(cDate, StzLen(cDate) - 3))
 	        if aValueUnit != NULL
 	            nValue = aValueUnit[1]
 	            cUnit = aValueUnit[2]
@@ -423,7 +423,7 @@ class stzDate from stzObject
 
         aSeparators = ["/", "-", "."]
         for cSep in aSeparators
-            if substr(cDate, cSep) > 0
+            if ring_find(cDate, cSep) > 0
                 aParts = @split(cDate, cSep)
                 if len(aParts) = 3
                     nA = 0 + aParts[1]
@@ -453,10 +453,10 @@ class stzDate from stzObject
             ok
         next
 
-        if len(cDate) = 8
-            nA = 0 + left(cDate, 2)
-            nB = 0 + substr(cDate, 3, 2)
-            nC = 0 + right(cDate, 4)
+        if StzLen(cDate) = 8
+            nA = 0 + StzLeft(cDate, 2)
+            nB = 0 + StzRight(StzLeft(cDate, 4), 2)
+            nC = 0 + StzRight(cDate, 4)
             if nC > 100
                 @nDay = nA
                 @nMonth = nB
@@ -1143,7 +1143,7 @@ def LastWeekdayOfMonth()
 
     def MonthShort()
         cMonth = This.Month()
-        return left(cMonth, 3)
+        return StzLeft(cMonth, 3)
 
     def Day()
         return GetDayName(This.DayOfWeek())
@@ -1165,7 +1165,7 @@ def LastWeekdayOfMonth()
 
     def DayShort()
         cDay = This.Day()
-        return left(cDay, 3)
+        return StzLeft(cDay, 3)
 
     def DayOfWeek()
         pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
