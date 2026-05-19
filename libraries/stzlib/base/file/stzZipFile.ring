@@ -61,14 +61,14 @@ class stzZipFile from stzObject
         
         nLen = len(aFiles)
         for i = 1 to nLen
-            if FileExists(aFiles[i])
+            if StzFileExists(aFiles[i])
                 zip_addfile(oZip, aFiles[i])
             ok
         next
-        
+
         zip_close(oZip)
         return @cZipFileName
-    
+
         def CreateFromQ(aFiles)
             This.CreateFrom(aFiles)
             return This
@@ -102,7 +102,7 @@ class stzZipFile from stzObject
     # MODIFICATION OPERATIONS
     def AddFile(cFileName)
         # Add file to existing zip
-        if not FileExists(cFileName)
+        if not StzFileExists(cFileName)
             StzRaise("File does not exist: " + cFileName)
         ok
         
@@ -132,14 +132,14 @@ class stzZipFile from stzObject
         
         nLen = len(aFiles)
         for i = 1 to nLen
-            if FileExists(aFiles[i])
+            if StzFileExists(aFiles[i])
                 zip_addfile(oZip, aFiles[i])
             ok
         next
-        
+
         zip_close(oZip)
         return @cZipFileName
-    
+
         def AddFilesQ(aFiles)
             This.AddFiles(aFiles)
             return This
