@@ -161,16 +161,25 @@ func IsStzDateTime(p)
 	func @IsStzDateTime(p)
 		return IsStzDateTime(p)
 
-func NowDateTime()
+func StzNowDateTime()
     return StzDateTimeQ("").ToStringXT('yyyy-mm-dd hh:mm:ss')
 
-    func NowXT()
-        return NowDateTime()
+    func NowDateTime()
+        return StzNowDateTime()
 
-func NowXTQ()
+    func StzNowXT()
+        return StzNowDateTime()
+
+    func NowXT()
+        return StzNowDateTime()
+
+func StzNowXTQ()
 	return StzDateTimeQ("")
 
-func IsDateTime(str)
+	func NowXTQ()
+		return StzNowXTQ()
+
+func StzIsDateTime(str)
     if not isString(str)
         return FALSE
     ok
@@ -178,55 +187,66 @@ func IsDateTime(str)
 	Rx = new stzRegex(pat(:DateTime) )
 	return Rx.Match(str)
 
-    func IsValidDateTime(str)
-        return IsDateTime(str)
+    func IsDateTime(str)
+        return StzIsDateTime(str)
 
-# Helper function: Get format string by name or return as-is if custom
-func GetDateTimeFormat(cFormatNameOrString)
+    func StzIsValidDateTime(str)
+        return StzIsDateTime(str)
+
+    func IsValidDateTime(str)
+        return StzIsDateTime(str)
+
+func StzGetDateTimeFormat(cFormatNameOrString)
     if isString(cFormatNameOrString)
-        # Check if it's a named format
         for aFormat in $aDateTimeFormats
             if aFormat[1] = cFormatNameOrString
                 return aFormat[2]
             ok
         next
-        # Not a named format, treat as custom format string
         return cFormatNameOrString
     ok
 
     return $cDefaultDateTimeFormat
 
+	func GetDateTimeFormat(cFormatNameOrString)
+		return StzGetDateTimeFormat(cFormatNameOrString)
 
-func Is12HourFormat(cFormat)
-    # Get actual format string if it's a name
-    cActualFormat = GetDateTimeFormat(cFormat)
+func StzIs12HourFormat(cFormat)
+    cActualFormat = StzGetDateTimeFormat(cFormat)
 
-    # Check for AP/ap marker (definitive 12h indicator)
     if StzFind(StzUpper(cActualFormat), "AP") > 0
         return TRUE
     ok
 
-    # Check for explicit 12h suffix in format name
     if isString(cFormat) and StzRight(StzLower(cFormat), 3) = "12h"
         return TRUE
     ok
 
     return FALSE
 
-func ConvertTo12Hour(nHour)
+	func Is12HourFormat(cFormat)
+		return StzIs12HourFormat(cFormat)
+
+func StzConvertTo12Hour(nHour)
     nHour12 = nHour % 12
     if nHour12 = 0
         nHour12 = 12
     ok
     return nHour12
 
-func GetAmPmText(nHour)
+	func ConvertTo12Hour(nHour)
+		return StzConvertTo12Hour(nHour)
+
+func StzGetAmPmText(nHour)
     oLocale = new stzLocale("")
     if nHour >= 12
         return oLocale.pmText()
     else
         return oLocale.amText()
     ok
+
+	func GetAmPmText(nHour)
+		return StzGetAmPmText(nHour)
 
 func _DateTimeFormatString(nYear, nMonth, nDay, nHour, nMinute, nSecond, nMs, cFormat)
     pHandle = StzEngineDateNew(nYear, nMonth, nDay)
@@ -1465,8 +1485,8 @@ class stzDateTime from stzObject
 	            return _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, "dddd, MMMM d, yyyy HH:mm:ss")
 
 	        but cFormat = "short" or cFormat = "short12h"
-	            nHour12 = ConvertTo12Hour(@nHour)
-	            cAmPm = GetAmPmText(@nHour)
+	            nHour12 = StzConvertTo12Hour(@nHour)
+	            cAmPm = StzGetAmPmText(@nHour)
 	            return _PadLeft("" + @nDay, 2, "0") + "/" + _PadLeft("" + @nMonth, 2, "0") + " " + nHour12 + ":" +
 	                   _PadLeft("" + @nMinute, 2, "0") + " " + cAmPm
 
@@ -1474,8 +1494,8 @@ class stzDateTime from stzObject
 	            return _PadLeft("" + @nDay, 2, "0") + "/" + _PadLeft("" + @nMonth, 2, "0") + " " + _PadLeft("" + @nHour, 2, "0") + ":" + _PadLeft("" + @nMinute, 2, "0")
 
 	        but cFormat = "medium" or cFormat = "medium12h"
-	            nHour12 = ConvertTo12Hour(@nHour)
-	            cAmPm = GetAmPmText(@nHour)
+	            nHour12 = StzConvertTo12Hour(@nHour)
+	            cAmPm = StzGetAmPmText(@nHour)
 	            pHandle = StzEngineDateNew(@nYear, @nMonth, @nDay)
 	            cDayName = StzEngineDateDayName(pHandle)
 	            cMonthName = StzEngineDateMonthName(pHandle)
@@ -1493,14 +1513,14 @@ class stzDateTime from stzObject
 
 	    ok
 
-	    cQtFormat = GetDateTimeFormat(cFormat)
+	    cQtFormat = StzGetDateTimeFormat(cFormat)
 
 	    if StzFind(StzUpper(cQtFormat), "AP") > 0
 	        cFormatWithout12h = StzReplace(cQtFormat, "AP", "")
 	        cFormatWithout12h = StzReplace(cFormatWithout12h, "ap", "")
 	        cFormatWithout12h = trim(cFormatWithout12h)
 
-	        nHour12 = ConvertTo12Hour(@nHour)
+	        nHour12 = StzConvertTo12Hour(@nHour)
 
 	        cFormatFinal = StzReplace(cFormatWithout12h, "hh", _PadLeft("" + nHour12, 2, "0"))
 	        if cFormatFinal = cFormatWithout12h
@@ -1508,7 +1528,7 @@ class stzDateTime from stzObject
 	        ok
 
 	        cResult = _DateTimeFormatString(@nYear, @nMonth, @nDay, @nHour, @nMinute, @nSecond, @nMs, cFormatFinal)
-	        cAmPm = GetAmPmText(@nHour)
+	        cAmPm = StzGetAmPmText(@nHour)
 
 	        return cResult + " " + cAmPm
 	    else
@@ -1794,8 +1814,8 @@ class stzDateTime from stzObject
 		return This.ToStringXT(:LongDate)
 
 	def ToString12h()
-	    nHour12 = ConvertTo12Hour(@nHour)
-	    cAmPm = GetAmPmText(@nHour)
+	    nHour12 = StzConvertTo12Hour(@nHour)
+	    cAmPm = StzGetAmPmText(@nHour)
 
 	    return _PadLeft("" + @nYear, 4, "0") + "-" + _PadLeft("" + @nMonth, 2, "0") + "-" + _PadLeft("" + @nDay, 2, "0") + " " + nHour12 + ":" +
 	           _PadLeft("" + @nMinute, 2, "0") + ":" +

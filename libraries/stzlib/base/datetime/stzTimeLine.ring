@@ -412,7 +412,7 @@ class stzTimeLine from stzObject
 			StzRaise("Incorrect param type! pcLabelOrDateTime must be a string.")
 		ok
 
-		if IsDateTime(pcLabelOrDateTime) or
+		if StzIsDateTime(pcLabelOrDateTime) or
 		   This._IsDateOnly(pcLabelOrDateTime) or
 		   This._IsTimeOnly(pcLabelOrDateTime)
 

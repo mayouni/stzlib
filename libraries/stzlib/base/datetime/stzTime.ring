@@ -17,10 +17,13 @@ $aTimeFormats = [
 func StzTimeQ(pTime)
     return new stzTime(pTime)
 
-func NowTime()
+func StzNowTime()
     return StzTimeQ("").ToString()
 
-func IsTime(str)
+	func NowTime()
+		return StzNowTime()
+
+func StzIsTime(str)
     if not isString(str) or StzLen(str) = 0
         return FALSE
     ok
@@ -69,8 +72,14 @@ func IsTime(str)
 
     return TRUE
 
+    func IsTime(str)
+        return StzIsTime(str)
+
+    func StzIsValidTime(str)
+        return StzIsTime(str)
+
     func IsValidTime(str)
-        return IsTime(str)
+        return StzIsTime(str)
 
 class stzTime from stzObject
     @nHour = 0

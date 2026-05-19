@@ -464,7 +464,7 @@ class stzExterCode
 
         @aCallTrace + [
             :Language = @cLanguage,
-            :Timestamp = TimeStamp(),
+            :Timestamp = StzTimeStamp(),
             :Duration = (@nEndTime - @nStartTime) / clockspersecond(),
             :Log = cLog,
             :Exitcode = nExitCode,

@@ -40,9 +40,9 @@ class stzEntity
 
 		# Auto-add creation timestamp
 		if NOT HasKey(paEntity, "created")
-			paEntity + [ "created", TimeStamp() ]
+			paEntity + [ "created", StzTimeStamp() ]
 		else
-			paEntity[:created] = TimeStamp()
+			paEntity[:created] = StzTimeStamp()
 		ok
 
 		@aEntity = paEntity
