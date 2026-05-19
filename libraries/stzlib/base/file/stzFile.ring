@@ -116,12 +116,12 @@ func CopyFileContent(cSource, cDest)
 	if NOT fexists(cSource)
 		stzraise("Source file does not exist: " + cSource)
 	ok
-	
+
 	# Extract and create destination directory if needed
 	cDestDir = ""
-	for i = len(cDest) to 1 step -1
+	for i = StzLen(cDest) to 1 step -1
 		if cDest[i] = "/" or cDest[i] = "\"
-			cDestDir = left(cDest, i - 1)
+			cDestDir = StzLeft(cDest, i - 1)
 			exit
 		ok
 	next
@@ -589,8 +589,8 @@ func NormalizeFilePath(cName)
 	ok
 	
 	cResult = lower(trim(cName))
-	cResult = substr(cResult, "\", "/")
-	cResult = substr(cResult, "//", "/")
+	cResult = ring_substr2(cResult, "\", "/")
+	cResult = ring_substr2(cResult, "//", "/")
 	return cResult
 
 	func NormaliseFilePath(cName)
@@ -605,13 +605,13 @@ func NormalizeFilePathXT(cName)
 
 	cName = trim(cName)
 
-	if left(cName, 1) != "/" and substr(cName, ":/") = 0
+	if StzLeft(cName, 1) != "/" and ring_find(cName, ":/") = 0
 		cName = currentdir() + "/" + cName
 	ok
 
 	cResult = lower(cName)
-	cResult = substr(cResult, "\", "/")
-	cResult = substr(cResult, "//", "/")
+	cResult = ring_substr2(cResult, "\", "/")
+	cResult = ring_substr2(cResult, "//", "/")
 	return cResult
 
 	func NormaliseFilePathXT(cName)
@@ -657,55 +657,55 @@ class stzFileXT from stzObject
 
 func _FileName(cPath)
 	nPos = 0
-	for i = len(cPath) to 1 step -1
+	for i = StzLen(cPath) to 1 step -1
 		if cPath[i] = "/" or cPath[i] = "\"
 			nPos = i
 			exit
 		ok
 	next
 	if nPos > 0
-		return substr(cPath, nPos + 1)
+		return StzRight(cPath, StzLen(cPath) - nPos)
 	ok
 	return cPath
 
 func _FileDirPath(cPath)
 	nPos = 0
-	for i = len(cPath) to 1 step -1
+	for i = StzLen(cPath) to 1 step -1
 		if cPath[i] = "/" or cPath[i] = "\"
 			nPos = i
 			exit
 		ok
 	next
 	if nPos > 0
-		return left(cPath, nPos - 1)
+		return StzLeft(cPath, nPos - 1)
 	ok
 	return "."
 
 func _FileExtension(cPath)
 	cName = _FileName(cPath)
 	nDot = 0
-	for i = len(cName) to 1 step -1
+	for i = StzLen(cName) to 1 step -1
 		if cName[i] = "."
 			nDot = i
 			exit
 		ok
 	next
 	if nDot > 0
-		return substr(cName, nDot + 1)
+		return StzRight(cName, StzLen(cName) - nDot)
 	ok
 	return ""
 
 func _FileCompleteBaseName(cPath)
 	cName = _FileName(cPath)
 	nDot = 0
-	for i = len(cName) to 1 step -1
+	for i = StzLen(cName) to 1 step -1
 		if cName[i] = "."
 			nDot = i
 			exit
 		ok
 	next
 	if nDot > 1
-		return left(cName, nDot - 1)
+		return StzLeft(cName, nDot - 1)
 	ok
 	return cName
 
@@ -821,7 +821,7 @@ class stzFileInfo from stzObject
 
     def IsHidden()
         cBase = StzEnginePathBasename(@cFileName)
-        if len(cBase) > 0 and left(cBase, 1) = "."
+        if len(cBase) > 0 and StzLeft(cBase, 1) = "."
             return 1
         ok
         return 0
@@ -855,9 +855,9 @@ class stzFileInfo from stzObject
 
     def BaseName()
         cBase = StzEnginePathBasename(@cFileName)
-        nDot = substr(cBase, ".")
+        nDot = ring_find(cBase, ".")
         if nDot > 0
-            return left(cBase, nDot - 1)
+            return StzLeft(cBase, nDot - 1)
         ok
         return cBase
 
@@ -915,7 +915,7 @@ class stzFileReadingMixin from stzObject
     
     def LastLine()
         aLines = This.Lines()
-        return aLines[len(aLines)]
+        return aLines[StzLen(aLines)]
     
     def NumberOfLines()
         return len(This.Lines())
@@ -944,7 +944,7 @@ class stzFileReadingMixin from stzObject
     def FindText(cSearchText)
         # Returns position of text in file, or 0 if not found
         cContent = This.Content()
-        return substr(cContent, cSearchText)
+        return ring_find(cContent, cSearchText)
     
     def ContainsText(cSearchText)
         return This.FindText(cSearchText) > 0
@@ -963,7 +963,7 @@ class stzFileReadingMixin from stzObject
         aResult = []
 	   nLen = len(aLines)
         for i = 1 to nLen
-            if substr(aLines[i], cSearchText) > 0
+            if ring_find(aLines[i], cSearchText) > 0
                 aResult + [i, aLines[i]]
             ok
         next
@@ -973,8 +973,8 @@ class stzFileReadingMixin from stzObject
         # Returns line number containing the text
         aLines = This.Lines()
 	   nLen = len(aLines)
-        for i = 1 to nLine
-            if substr(aLines[i], cSearchText) > 0
+        for i = 1 to nLen
+            if ring_find(aLines[i], cSearchText) > 0
                 return i
             ok
         next
@@ -1078,7 +1078,7 @@ class stzFileAppender from stzFileReadingMixin
 
     def WriteLines(aLines)
 	   nLen = len(aLines)
-        for i = 1 to nlen
+        for i = 1 to nLen
             This.WriteLine(aLines[i])
         next
         return 1
@@ -1216,7 +1216,7 @@ class stzFileCreator from stzFileReadingMixin
     def WriteHeader(cTitle)
         This.WriteLine("# " + cTitle)
         This.WriteLine("# Created: " + TimeStamp())
-        This.WriteLine("#" + RepeatChar("=", len(cTitle) + 2))
+        This.WriteLine("#" + RepeatChar("=", StzLen(cTitle) + 2))
         This.WriteBlankLine()
     	return 1
 
@@ -1254,7 +1254,7 @@ class stzFileCreator from stzFileReadingMixin
 			return 1
 
         other
-            This.WriteHeader("File: " + This.cFileName)
+            This.WriteHeader("File: " + This.@cFileName)
         off
 
 	   def WriteTemplateQ(cTemplateType)
@@ -1370,7 +1370,7 @@ class stzFileOverwriter from stzFileReadingMixin
         This.WriteBlankLine()
     	return 1
 
-		def WriteHeaderQ(cTile)
+		def WriteHeaderQ(cTitle)
 			This.WriteHeader(cTitle)
 			return This
 
@@ -1697,7 +1697,7 @@ class stzFileModifier from stzFileReadingMixin
 
         anResult = []
         for i = 1 to nLen
-            if substr(aLines[i], cSearchText) = 0
+            if ring_find(aLines[i], cSearchText) > 0
                 anResult + i
             ok
         next
@@ -1710,7 +1710,7 @@ class stzFileModifier from stzFileReadingMixin
 
         acResult = []
         for i = 1 to nLen
-            if substr(acLines[i], cSearchText) = 0
+            if ring_find(acLines[i], cSearchText) > 0
                 acResult + acLines[i]
             ok
         next
@@ -1724,7 +1724,7 @@ class stzFileModifier from stzFileReadingMixin
 
         aNewLines = []
         for i = 1 to nLen
-            if substr(aLines[i], cSearchText) = 0
+            if ring_find(aLines[i], cSearchText) = 0
                 aNewLines + aLines[i]
             ok
         next
@@ -1758,7 +1758,7 @@ class stzFileModifier from stzFileReadingMixin
 			ok
 		ok
 
-        cNewContent = substr(@cOriginalContent, cOldText, cNewText)
+        cNewContent = ring_substr2(@cOriginalContent, cOldText, cNewText)
         This.ModifyAllContent(cNewContent)
 		return 1
 
@@ -1773,7 +1773,7 @@ class stzFileModifier from stzFileReadingMixin
 
     def ReplaceInLine(nLineNumber, cOldText, cNewText)
         aLines = This.OriginalLines()
-        aLines[nLineNumber] = substr(aLines[nLineNumber], cOldText, cNewText)
+        aLines[nLineNumber] = ring_substr2(aLines[nLineNumber], cOldText, cNewText)
         cNewContent = JoinLines(aLines)
         This.ReplaceAllContent(cNewContent)
 
@@ -1785,14 +1785,14 @@ class stzFileModifier from stzFileReadingMixin
 	    # Update first line that contains the substring
 	    aLines = @aOriginalLines
 	    nLen = len(aLines)
-	
+
 	    for i = 1 to nLen
-	        if substr(aLines[i], cSubstr) > 0
+	        if ring_find(aLines[i], cSubstr) > 0
 	            aLines[i] = cNewLine
 	            exit
 	        ok
 	    next
-	
+
 	    cNewContent = JoinXT(aLines, NL)  # Add newline separator
 	    This.ReplaceAllContent(cNewContent)
     
@@ -1849,10 +1849,10 @@ class stzFileManager from stzObject
     # COPY OPERATIONS
 
     def CopyTo(cDestinationPath)
-        if not substr(cDestinationPath, -1, 1) = "/"
+        if not StzRight(cDestinationPath, 1) = "/"
             cDestinationPath = cDestinationPath + "/"
         ok
-        
+
         cDestFile = cDestinationPath + _FileName(@cFileName)
         return StzEngineFileCopy(@cFileName, cDestFile)
 
@@ -1869,7 +1869,7 @@ class stzFileManager from stzObject
             return This
 
     def CopyToAs(cDestinationPath, cNewFileName)
-        if not substr(cDestinationPath, -1, 1) = "/"
+        if not StzRight(cDestinationPath, 1) = "/"
             cDestinationPath = cDestinationPath + "/"
         ok
 
@@ -1883,10 +1883,10 @@ class stzFileManager from stzObject
     # MOVE OPERATIONS
 
     def MoveTo(cDestinationPath)
-        if not substr(cDestinationPath, -1, 1) = "/"
+        if not StzRight(cDestinationPath, 1) = "/"
             cDestinationPath = cDestinationPath + "/"
         ok
-        
+
         cDestFile = cDestinationPath + _FileName(@cFileName)
         bResult = StzEngineFileCopy(@cFileName, cDestFile)
         if bResult StzEngineFileDelete(@cFileName) @cFileName = cDestFile ok
@@ -1907,7 +1907,7 @@ class stzFileManager from stzObject
             return This
 
     def MoveToAs(cDestinationPath, cNewFileName)
-        if not substr(cDestinationPath, -1, 1) = "/"
+        if not StzRight(cDestinationPath, 1) = "/"
             cDestinationPath = cDestinationPath + "/"
         ok
 
@@ -1984,21 +1984,21 @@ class stzFileManager from stzObject
         oReader = FileRead(@cFileName)
         cContent = oReader.Content()
         oReader.Close()
-        
+
         nTotalSize = len(cContent)
         nFileCount = ceil(nTotalSize / nBytesPerFile)
-        
+
         cBaseName = _FileCompleteBaseName(@cFileName)
         cSuffix = _FileExtension(@cFileName)
         cDirPath = _FileDirPath(@cFileName)
-        
+
         aCreatedFiles = []
-        
+
         for nFile = 1 to nFileCount
             nStartPos = ((nFile - 1) * nBytesPerFile) + 1
             nEndPos = min(nFile * nBytesPerFile, nTotalSize)
-            
-            cChunk = substr(cContent, nStartPos, nEndPos - nStartPos + 1)
+
+            cChunk = StzMid(cContent, nStartPos, nEndPos - nStartPos + 1)
             
             cNewFileName = cBaseName + "_" + nFile + "." + cSuffix
             cFullPath = cDirPath + "/" + cNewFileName
@@ -2020,18 +2020,18 @@ class stzFileManager from stzObject
         oReader = FileRead(@cFileName)
         aLines = oReader.Lines()
         oReader.Close()
-        
+
         cBaseName = _FileCompleteBaseName(@cFileName)
         cSuffix = _FileExtension(@cFileName)
         cDirPath = _FileDirPath(@cFileName)
-        
+
         aCreatedFiles = []
         aCurrentChunk = []
         nFileNum = 1
-        
+
         nLen = len(aLines)
         for i = 1 to nLen
-            if substr(aLines[i], cPattern) > 0 and len(aCurrentChunk) > 0
+            if ring_find(aLines[i], cPattern) > 0 and len(aCurrentChunk) > 0
                 cNewFileName = cBaseName + "_" + nFileNum + "." + cSuffix
                 cFullPath = cDirPath + "/" + cNewFileName
                 
@@ -2093,10 +2093,10 @@ class stzFileManager from stzObject
     
     def ZipToDirectory(cZipFileName, cTargetDir)
         # Create zip in specified directory
-        if not substr(cTargetDir, -1, 1) = "/"
+        if not StzRight(cTargetDir, 1) = "/"
             cTargetDir = cTargetDir + "/"
         ok
-        
+
         cFullZipPath = cTargetDir + cZipFileName
         return This.ZipAs(cFullZipPath)
     
