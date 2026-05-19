@@ -1,5 +1,6 @@
 /*
-	stzUrl - Pure Ring URL parser
+	stzUrl - Engine-backed URL parser
+	Uses Zig DLL for parsing via StzEngineUrl* functions.
 */
 
 #-- FUNCTIONAL FORM --
@@ -13,20 +14,22 @@ func StzUrl(pcUrl)
 Class stzUrl from stzObject
 
 	@cUrl = ""
+	@pEngine = NULL
 
-	@cScheme = ""
-	@cUserName = ""
-	@cPassword = ""
-	@cHost = ""
+	# Cached fields (populated lazily or on parse)
+	@cScheme = NULL
+	@cUserName = NULL
+	@cPassword = NULL
+	@cHost = NULL
 	@nPort = -1
-	@cPath = ""
-	@cQuery = ""
-	@cFragment = ""
+	@cPath = NULL
+	@cQuery = NULL
+	@cFragment = NULL
 
 	def init(pcUrl)
-		if isString(pcUrl)
+		if isString(pcUrl) and pcUrl != ""
 			@cUrl = pcUrl
-			_ParseUrl(pcUrl)
+			@pEngine = StzEngineUrlParse(pcUrl)
 		ok
 
 	def Content()
@@ -48,32 +51,57 @@ Class stzUrl from stzObject
 	#-- CORE URL METHODS --
 
 	def SetUrl(pcUrl)
+		if @pEngine != NULL
+			StzEngineUrlFree(@pEngine)
+		ok
 		@cUrl = pcUrl
-		_ParseUrl(pcUrl)
+		@pEngine = StzEngineUrlParse(pcUrl)
+		# Clear cached values
+		@cScheme = NULL
+		@cUserName = NULL
+		@cPassword = NULL
+		@cHost = NULL
+		@nPort = -1
+		@cPath = NULL
+		@cQuery = NULL
+		@cFragment = NULL
 
 	def Url()
 		return This.Content()
 
 	def IsValid()
-		return @cScheme != "" and @cHost != ""
+		if @pEngine = NULL
+			return 0
+		ok
+		return StzEngineUrlIsValid(@pEngine)
 
 	def IsEmpty()
 		return @cUrl = "" or @cUrl = NULL
 
 	def Clear()
+		if @pEngine != NULL
+			StzEngineUrlFree(@pEngine)
+			@pEngine = NULL
+		ok
 		@cUrl = ""
-		@cScheme = ""
-		@cUserName = ""
-		@cPassword = ""
-		@cHost = ""
+		@cScheme = NULL
+		@cUserName = NULL
+		@cPassword = NULL
+		@cHost = NULL
 		@nPort = -1
-		@cPath = ""
-		@cQuery = ""
-		@cFragment = ""
+		@cPath = NULL
+		@cQuery = NULL
+		@cFragment = NULL
 
 	#-- SCHEME/PROTOCOL --
 
 	def Scheme()
+		if @cScheme = NULL and @pEngine != NULL
+			@cScheme = StzEngineUrlScheme(@pEngine)
+		ok
+		if @cScheme = NULL
+			return ""
+		ok
 		return @cScheme
 
 	def Protocol()
@@ -86,6 +114,12 @@ Class stzUrl from stzObject
 	#-- HOST/DOMAIN/SERVER --
 
 	def Host()
+		if @cHost = NULL and @pEngine != NULL
+			@cHost = StzEngineUrlHost(@pEngine)
+		ok
+		if @cHost = NULL
+			return ""
+		ok
 		return @cHost
 
 	def Domain()
@@ -101,10 +135,13 @@ Class stzUrl from stzObject
 	#-- PORT --
 
 	def Port()
+		if @nPort = -1 and @pEngine != NULL
+			@nPort = StzEngineUrlPort(@pEngine)
+		ok
 		return @nPort
 
 	def PortWithDefault(nDefault)
-		if @nPort = -1
+		if This.Port() = -1 or This.Port() = 0
 			return nDefault
 		ok
 		return @nPort
@@ -116,6 +153,12 @@ Class stzUrl from stzObject
 	#-- PATH/LOCATION --
 
 	def Path()
+		if @cPath = NULL and @pEngine != NULL
+			@cPath = StzEngineUrlPath(@pEngine)
+		ok
+		if @cPath = NULL
+			return ""
+		ok
 		return @cPath
 
 	def Location()
@@ -128,29 +171,38 @@ Class stzUrl from stzObject
 	#-- FILENAME --
 
 	def FileName()
-		cP = @cPath
+		cP = This.Path()
 		if cP = "" or cP = NULL
 			return ""
 		ok
 		nPos = 0
-		for i = len(cP) to 1 step -1
-			if cP[i] = "/"
+		oPath = new stzString(cP)
+		acChars = oPath.Chars()
+		nLen = len(acChars)
+		for i = nLen to 1 step -1
+			if acChars[i] = "/"
 				nPos = i
 				exit
 			ok
 		next
 		if nPos > 0
-			return substr(cP, nPos + 1)
+			return oPath.Section(nPos + 1, nLen)
 		ok
 		return cP
 
 	#-- QUERY --
 
 	def Query()
+		if @cQuery = NULL and @pEngine != NULL
+			@cQuery = StzEngineUrlQuery(@pEngine)
+		ok
+		if @cQuery = NULL
+			return ""
+		ok
 		return @cQuery
 
 	def HasQuery()
-		return @cQuery != "" and @cQuery != NULL
+		return This.Query() != ""
 
 	def SetQuery(pcQuery)
 		@cQuery = pcQuery
@@ -159,10 +211,16 @@ Class stzUrl from stzObject
 	#-- FRAGMENT --
 
 	def Fragment()
+		if @cFragment = NULL and @pEngine != NULL
+			@cFragment = StzEngineUrlFragment(@pEngine)
+		ok
+		if @cFragment = NULL
+			return ""
+		ok
 		return @cFragment
 
 	def HasFragment()
-		return @cFragment != "" and @cFragment != NULL
+		return This.Fragment() != ""
 
 	def SetFragment(pcFragment)
 		@cFragment = pcFragment
@@ -171,19 +229,33 @@ Class stzUrl from stzObject
 	#-- USER AUTHENTICATION --
 
 	def UserName()
+		if @cUserName = NULL and @pEngine != NULL
+			@cUserName = StzEngineUrlUser(@pEngine)
+		ok
+		if @cUserName = NULL
+			return ""
+		ok
 		return @cUserName
 
 	def Password()
+		if @cPassword = NULL and @pEngine != NULL
+			@cPassword = StzEngineUrlPassword(@pEngine)
+		ok
+		if @cPassword = NULL
+			return ""
+		ok
 		return @cPassword
 
 	def UserInfo()
-		if @cUserName = "" and @cPassword = ""
+		cUser = This.UserName()
+		cPass = This.Password()
+		if cUser = "" and cPass = ""
 			return ""
 		ok
-		if @cPassword != ""
-			return @cUserName + ":" + @cPassword
+		if cPass != ""
+			return cUser + ":" + cPass
 		ok
-		return @cUserName
+		return cUser
 
 	def SetUserName(pcUserName)
 		@cUserName = pcUserName
@@ -194,10 +266,12 @@ Class stzUrl from stzObject
 		This.ReconstructUrl()
 
 	def SetUserInfo(pcUserInfo)
-		nColon = substr(pcUserInfo, ":")
+		oInfo = new stzString(pcUserInfo)
+		oFinder = new stzStringFinder(oInfo)
+		nColon = oFinder.IndexOf(":")
 		if nColon > 0
-			@cUserName = left(pcUserInfo, nColon - 1)
-			@cPassword = substr(pcUserInfo, nColon + 1)
+			@cUserName = oInfo.Section(1, nColon - 1)
+			@cPassword = oInfo.Section(nColon + 1, oInfo.NumberOfChars())
 		else
 			@cUserName = pcUserInfo
 			@cPassword = ""
@@ -212,23 +286,30 @@ Class stzUrl from stzObject
 		if cUI != ""
 			cAuth += cUI + "@"
 		ok
-		cAuth += @cHost
-		if @nPort != -1
-			cAuth += ":" + string(@nPort)
+		cAuth += This.Host()
+		nP = This.Port()
+		if nP != -1 and nP != 0
+			cAuth += ":" + string(nP)
 		ok
 		return cAuth
 
 	def SetAuthority(pcAuthority)
+		oAuth = new stzString(pcAuthority)
+		oFinder = new stzStringFinder(oAuth)
+
+		nAt = oFinder.IndexOf("@")
 		cWork = pcAuthority
-		nAt = substr(cWork, "@")
 		if nAt > 0
-			This.SetUserInfo(left(cWork, nAt - 1))
-			cWork = substr(cWork, nAt + 1)
+			This.SetUserInfo(oAuth.Section(1, nAt - 1))
+			cWork = oAuth.Section(nAt + 1, oAuth.NumberOfChars())
 		ok
-		nColon = substr(cWork, ":")
+
+		oWork = new stzString(cWork)
+		oFinder2 = new stzStringFinder(oWork)
+		nColon = oFinder2.IndexOf(":")
 		if nColon > 0
-			@cHost = left(cWork, nColon - 1)
-			@nPort = number(substr(cWork, nColon + 1))
+			@cHost = oWork.Section(1, nColon - 1)
+			@nPort = 0 + oWork.Section(nColon + 1, oWork.NumberOfChars())
 		else
 			@cHost = cWork
 		ok
@@ -237,52 +318,55 @@ Class stzUrl from stzObject
 	#-- URL TYPE CHECKS --
 
 	def IsRelative()
-		return @cScheme = "" or @cScheme = NULL
+		return This.Scheme() = ""
 
 	def IsLocalFile()
-		return lower(@cScheme) = "file"
+		return StzCaseFold(This.Scheme()) = "file"
 
 	def IsHttp()
-		return lower(@cScheme) = "http"
+		return StzCaseFold(This.Scheme()) = "http"
 
 	def IsHttps()
-		return lower(@cScheme) = "https"
+		return StzCaseFold(This.Scheme()) = "https"
 
 	def IsFtp()
-		return lower(@cScheme) = "ftp"
+		return StzCaseFold(This.Scheme()) = "ftp"
 
 	def IsFileScheme()
-		return lower(@cScheme) = "file"
+		return StzCaseFold(This.Scheme()) = "file"
 
 	#-- URL RELATIONSHIPS --
 
 	def IsParentOf(oOtherUrl)
 		if isObject(oOtherUrl)
-			cMyPath = @cHost + @cPath
+			cMyPath = This.Host() + This.Path()
 			cOtherPath = oOtherUrl.Host() + oOtherUrl.Path()
-			return left(cOtherPath, len(cMyPath)) = cMyPath and
-				len(cOtherPath) > len(cMyPath)
+			return StzLeft(cOtherPath, StzLen(cMyPath)) = cMyPath and
+				StzLen(cOtherPath) > StzLen(cMyPath)
 		ok
-		return FALSE
+		return 0
 
 	def ResolvedWith(oRelativeUrl)
 		if isObject(oRelativeUrl)
 			cRelPath = oRelativeUrl.Path()
-			if left(cRelPath, 1) = "/"
+			if StzLeft(cRelPath, 1) = "/"
 				oResult = new stzUrl(This.Content())
 				oResult.SetPath(cRelPath)
 				return oResult
 			else
-				cBasePath = @cPath
+				cBasePath = This.Path()
 				nSlash = 0
-				for i = len(cBasePath) to 1 step -1
-					if cBasePath[i] = "/"
+				oBase = new stzString(cBasePath)
+				acChars = oBase.Chars()
+				nBLen = len(acChars)
+				for i = nBLen to 1 step -1
+					if acChars[i] = "/"
 						nSlash = i
 						exit
 					ok
 				next
 				if nSlash > 0
-					cNewPath = left(cBasePath, nSlash) + cRelPath
+					cNewPath = oBase.Section(1, nSlash) + cRelPath
 				else
 					cNewPath = "/" + cRelPath
 				ok
@@ -296,18 +380,25 @@ Class stzUrl from stzObject
 	#-- FILE OPERATIONS --
 
 	def ToLocalFile()
-		if lower(@cScheme) = "file"
-			cP = @cPath
-			if substr(cP, 1, 1) = "/" and len(cP) > 2 and cP[3] = ":"
-				return substr(cP, 2)
+		if StzCaseFold(This.Scheme()) = "file"
+			cP = This.Path()
+			oP = new stzString(cP)
+			if StzLeft(cP, 1) = "/" and oP.NumberOfChars() > 2
+				acChars = oP.Chars()
+				if acChars[3] = ":"
+					return oP.Section(2, oP.NumberOfChars())
+				ok
 			ok
 			return cP
 		ok
 		return ""
 
 	def FromLocalFile(pcFilePath)
-		cNorm = substr(pcFilePath, "\", "/")
-		if left(cNorm, 1) != "/"
+		oFile = new stzString(pcFilePath)
+		oReplacer = new stzStringReplacer(oFile)
+		oReplacer.ReplaceSubstring("\", "/")
+		cNorm = oReplacer.Content()
+		if StzLeft(cNorm, 1) != "/"
 			cNorm = "/" + cNorm
 		ok
 		return new stzUrl("file://" + cNorm)
@@ -317,41 +408,49 @@ Class stzUrl from stzObject
 	def ReconstructUrl()
 		cUrl = ""
 
-		if @cScheme != "" and @cScheme != NULL
-			cUrl = @cScheme + "://"
+		cSch = This.Scheme()
+		if cSch != ""
+			cUrl = cSch + "://"
 		ok
 
-		if (@cUserName != "" and @cUserName != NULL) or (@cPassword != "" and @cPassword != NULL)
-			if @cUserName != "" and @cUserName != NULL
-				cUrl += @cUserName
+		cUser = This.UserName()
+		cPass = This.Password()
+		if cUser != "" or cPass != ""
+			if cUser != ""
+				cUrl += cUser
 			ok
-			if @cPassword != "" and @cPassword != NULL
-				cUrl += ":" + @cPassword
+			if cPass != ""
+				cUrl += ":" + cPass
 			ok
 			cUrl += "@"
 		ok
 
-		if @cHost != "" and @cHost != NULL
-			cUrl += @cHost
+		cH = This.Host()
+		if cH != ""
+			cUrl += cH
 		ok
 
-		if @nPort != -1 and @nPort != 80 and @nPort != 443
-			cUrl += ":" + string(@nPort)
+		nP = This.Port()
+		if nP != -1 and nP != 0 and nP != 80 and nP != 443
+			cUrl += ":" + string(nP)
 		ok
 
-		if @cPath != "" and @cPath != NULL
-			if left(@cPath, 1) != "/"
+		cPth = This.Path()
+		if cPth != ""
+			if StzLeft(cPth, 1) != "/"
 				cUrl += "/"
 			ok
-			cUrl += @cPath
+			cUrl += cPth
 		ok
 
-		if @cQuery != "" and @cQuery != NULL
-			cUrl += "?" + @cQuery
+		cQ = This.Query()
+		if cQ != ""
+			cUrl += "?" + cQ
 		ok
 
-		if @cFragment != "" and @cFragment != NULL
-			cUrl += "#" + @cFragment
+		cFr = This.Fragment()
+		if cFr != ""
+			cUrl += "#" + cFr
 		ok
 
 		@cUrl = cUrl
@@ -361,69 +460,4 @@ Class stzUrl from stzObject
 			cTemp = This.Content()
 			This.SetUrl(oOtherUrl.Content())
 			oOtherUrl.SetUrl(cTemp)
-		ok
-
-	#-- PRIVATE PARSER --
-
-	private
-
-	def _ParseUrl(cUrl)
-		if cUrl = "" or cUrl = NULL
-			return
-		ok
-
-		cWork = cUrl
-
-		# Extract fragment
-		nHash = substr(cWork, "#")
-		if nHash > 0
-			@cFragment = substr(cWork, nHash + 1)
-			cWork = left(cWork, nHash - 1)
-		ok
-
-		# Extract query
-		nQ = substr(cWork, "?")
-		if nQ > 0
-			@cQuery = substr(cWork, nQ + 1)
-			cWork = left(cWork, nQ - 1)
-		ok
-
-		# Extract scheme
-		nScheme = substr(cWork, "://")
-		if nScheme > 0
-			@cScheme = left(cWork, nScheme - 1)
-			cWork = substr(cWork, nScheme + 3)
-		ok
-
-		# Extract userinfo
-		nAt = substr(cWork, "@")
-		if nAt > 0
-			cUserInfo = left(cWork, nAt - 1)
-			cWork = substr(cWork, nAt + 1)
-			nColon = substr(cUserInfo, ":")
-			if nColon > 0
-				@cUserName = left(cUserInfo, nColon - 1)
-				@cPassword = substr(cUserInfo, nColon + 1)
-			else
-				@cUserName = cUserInfo
-			ok
-		ok
-
-		# Extract host and port from path
-		nSlash = substr(cWork, "/")
-		if nSlash > 0
-			cHostPort = left(cWork, nSlash - 1)
-			@cPath = substr(cWork, nSlash)
-		else
-			cHostPort = cWork
-			@cPath = ""
-		ok
-
-		# Split host:port
-		nColon = substr(cHostPort, ":")
-		if nColon > 0
-			@cHost = left(cHostPort, nColon - 1)
-			@nPort = number(substr(cHostPort, nColon + 1))
-		else
-			@cHost = cHostPort
 		ok
