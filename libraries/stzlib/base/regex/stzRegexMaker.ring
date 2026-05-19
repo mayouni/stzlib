@@ -1281,7 +1281,7 @@ class stzRecursiveRegexMaker
 
 		# Special handling for close pattern
 
-		if lower(level[:name]) = "close"
+		if StzLower(level[:name]) = "close"
 			return level[:pattern]
 		ok
 

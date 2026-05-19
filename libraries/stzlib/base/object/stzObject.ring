@@ -119,7 +119,7 @@ func EmptyStringIsConsideredFalse()
 func SetEmptyStringIsConsideredFalse(pnTrueFalse)
 
 	if CheckParams() and isString(pnTrueFalse)
-		cLower = lower(pnTrueFalse)
+		cLower = StzLower(pnTrueFalse)
 		if cLower = "yes" or cLower = "on"
 			pnTrueFalse = 1
 		but cLower = "no" or cLower = "off"
@@ -163,7 +163,7 @@ func EmptyListIsConsideredFalse()
 func SetEmptyListIsConsideredFalse(pnTrueFalse)
 
 	if CheckParams() and isString(pnTrueFalse)
-		cLower = lower(pnTrueFalse)
+		cLower = StzLower(pnTrueFalse)
 		if cLower = "yes" or cLower = "on"
 			pnTrueFalse = 1
 		but cLower = "no" or cLower = "off"
@@ -291,7 +291,7 @@ func HasAttribute(pObject, cAttr)
 	ok
 
 	acAttr = attributes(pObject)
-	nPos = find(acAttr, lower(cAttr))
+	nPos = find(acAttr, StzLower(cAttr))
 	if nPos > 0
 		return TRUE
 	else
@@ -483,7 +483,7 @@ func PluralOfRingType(cType)
 		StzRaise("Incorrect param! cType is not a valid Ring type.")
 	ok
 
-	cType = lower(cType)
+	cType = StzLower(cType)
 	acRingTypesXT = RingTypesXT()
 	nLen = len(acRingTypesXT)
 
@@ -522,7 +522,7 @@ func IsPluralOfRingType(cPlural)
 		ok
 	ok
 
-	cPlural = lower(cPlural)
+	cPlural = StzLower(cPlural)
 	acRingTypesPlurals = RingTypesPlurals()
 	nLen = len(acRingTypesPlurals)
 
@@ -585,7 +585,7 @@ func PluralToRingType(cPlural)
 		ok
 	ok
 
-	cPlural = lower(cPlural)
+	cPlural = StzLower(cPlural)
 	acRingTypesXT = RingTypesXT()
 	nLen = len(acRingTypesXT)
 
@@ -669,7 +669,7 @@ func IsPluralOfAStzType(cPlural)
 		ok
 	ok
 
-	cPlural = lower(cPlural)
+	cPlural = StzLower(cPlural)
 	acPlurals = StzClassesPlurals()
 	nLen = len(acPlurals)
 
@@ -759,7 +759,7 @@ func PluralToStzType(cPlural)
 		ok
 	ok
 
-	cPlural = lower(cPlural)
+	cPlural = StzLower(cPlural)
 	
 	acTypesXT = StzTypesXT()
 

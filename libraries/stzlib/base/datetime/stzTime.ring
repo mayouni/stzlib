@@ -562,7 +562,7 @@ class stzTime from stzObject
         if cFormat = ""
             cFormat = $cDefaultTimeFormat
         ok
-		cLowerFormat = lower(cFormat)
+		cLowerFormat = StzLower(cFormat)
 
 		cFormat = trim(cFormat)
 		if StzRight(cFormat, 2) = "ap"
@@ -576,7 +576,7 @@ class stzTime from stzObject
 		ok
 
         for aFormat in $aTimeFormats
-            if lower(aFormat[1]) = cLowerFormat
+            if StzLower(aFormat[1]) = cLowerFormat
                 cFormat = aFormat[2]
                 exit
             ok

@@ -510,7 +510,7 @@ def ToStringXT(cFormat)
 	
 	def ParseDurationString(cStr)
 		nTotal = 0
-		cStr = lower(trim(cStr))
+		cStr = StzLower(trim(cStr))
 		
 		# Extract all numbers followed by units
 		# Days

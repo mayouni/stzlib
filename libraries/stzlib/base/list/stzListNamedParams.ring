@@ -8916,7 +8916,7 @@ class stzListNamedParams from stzList
 
 	def IsReturningNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and lower(This.Item(1)) = "returning"
+		   isString(This.Item(1)) and StzLower(This.Item(1)) = "returning"
 			return 1
 		else
 			return 0
@@ -8924,7 +8924,7 @@ class stzListNamedParams from stzList
 
 	def IsAndReturnNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and lower(This.Item(1)) = "andreturn"
+		   isString(This.Item(1)) and StzLower(This.Item(1)) = "andreturn"
 			return 1
 		else
 			return 0
@@ -8932,7 +8932,7 @@ class stzListNamedParams from stzList
 
 	def IsAndReturningNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and lower(This.Item(1)) = "andreturning"
+		   isString(This.Item(1)) and StzLower(This.Item(1)) = "andreturning"
 			return 1
 		else
 			return 0
@@ -8940,7 +8940,7 @@ class stzListNamedParams from stzList
 
 	def IsReturnNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and lower(This.Item(1)) = "returnnth"
+		   isString(This.Item(1)) and StzLower(This.Item(1)) = "returnnth"
 			return 1
 		else
 			return 0
@@ -8948,7 +8948,7 @@ class stzListNamedParams from stzList
 
 	def IsReturningNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and lower(This.Item(1)) = "returningnth"
+		   isString(This.Item(1)) and StzLower(This.Item(1)) = "returningnth"
 			return 1
 		else
 			return 0
@@ -8956,7 +8956,7 @@ class stzListNamedParams from stzList
 
 	def IsAndReturnNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and lower(This.Item(1)) = "andreturnnth"
+		   isString(This.Item(1)) and StzLower(This.Item(1)) = "andreturnnth"
 			return 1
 		else
 			return 0
@@ -8964,7 +8964,7 @@ class stzListNamedParams from stzList
 
 	def IsAndReturningNthNamedParam()
 		if This.NumberOfItems() = 2 and
-		   isString(This.Item(1)) and lower(This.Item(1)) = "andreturningnth"
+		   isString(This.Item(1)) and StzLower(This.Item(1)) = "andreturningnth"
 			return 1
 		else
 			return 0

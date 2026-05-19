@@ -72,7 +72,7 @@ class stzDotCode
 	def SetOutputFormat(cFormat)
 
 		cFormat = trim(cFormat)
-		if cFormat = "" or lower(cFormat) = 'null'
+		if cFormat = "" or StzLower(cFormat) = 'null'
 			cFormat = $cDefaultDotOutputFormat
 		else
 			if ring_find($acDotOutputFormats, cFormat) = 0
@@ -80,10 +80,10 @@ class stzDotCode
 			ok
 		ok
 
-		@cOutputFormat = lower(cFormat)
+		@cOutputFormat = StzLower(cFormat)
 
 		def SetOutput(cFormat)
-			@cOutputFormat = lower(cFormat)
+			@cOutputFormat = StzLower(cFormat)
 
 	def SetTempDir(cDir)
 		@cTempDir = cDir

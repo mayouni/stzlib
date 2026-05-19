@@ -207,7 +207,7 @@ func Is12HourFormat(cFormat)
     ok
 
     # Check for explicit 12h suffix in format name
-    if isString(cFormat) and StzRight(lower(cFormat), 3) = "12h"
+    if isString(cFormat) and StzRight(StzLower(cFormat), 3) = "12h"
         return TRUE
     ok
 
@@ -1095,7 +1095,7 @@ class stzDateTime from stzObject
 		return This
 
 	def AddNatural(cExpr)
-	    cExpr = lower(trim(cExpr))
+	    cExpr = StzLower(trim(cExpr))
 
 		Rx = new stzRegex(pat(:DateTime))
 	    if Rx.Match(cExpr)
@@ -1109,7 +1109,7 @@ class stzDateTime from stzObject
 	        if isNumber(0+ aParts[i])
 	            nValue = 0+ aParts[i]
 	            if i < len(aParts)
-	                cUnit = lower(aParts[i+1])
+	                cUnit = StzLower(aParts[i+1])
 
 	                if cUnit = "day" or cUnit = "days"
 	                    This.AddDays(nValue)
@@ -1143,7 +1143,7 @@ class stzDateTime from stzObject
 	    end
 
 	def SubtractNatural(cExpr)
-	    cExpr = lower(trim(cExpr))
+	    cExpr = StzLower(trim(cExpr))
 
 	    if ring_find(cExpr, "-") > 0 or ring_find(cExpr, ":") > 0 or ring_find(cExpr, "T") > 0
 	        return
@@ -1156,7 +1156,7 @@ class stzDateTime from stzObject
 	        if isNumber(0+ aParts[i])
 	            nValue = 0+ aParts[i]
 	            if i < len(aParts)
-	                cUnit = lower(aParts[i+1])
+	                cUnit = StzLower(aParts[i+1])
 
 	                if cUnit = "day" or cUnit = "days"
 	                    This.SubtractDays(nValue)
@@ -1935,7 +1935,7 @@ class stzDateTime from stzObject
         return TRUE
 
 	def IsNaturalEpochString(cStr)
-	    cLower = lower(cStr)
+	    cLower = StzLower(cStr)
 
 	    if ring_find(cLower, "from epoch") > 0 or
 	       ring_find(cLower, "since epoch") > 0
@@ -1947,7 +1947,7 @@ class stzDateTime from stzObject
 	def ParseNaturalEpoch(cNatural)
 	    nTotalMilliseconds = 0
 
-	    cNatural = lower(cNatural)
+	    cNatural = StzLower(cNatural)
 
 	    cNatural = ring_substr2(cNatural, "from epoch", "")
 	    cNatural = ring_substr2(cNatural, "since epoch", "")
@@ -2062,13 +2062,13 @@ class stzDateTime from stzObject
     #--- HELPER METHODS FOR COUNTINGFROM ---#
 
     def IsCountingFromString(cStr)
-        cLower = lower(cStr)
+        cLower = StzLower(cStr)
         return (ring_find(cLower, "counting from") > 0) or
 		(ring_find(cLower, "starting from") > 0) or
 		(ring_find(cLower, "since") > 0)
 
     def ParseCountingFrom(cStr)
-        cLower = lower(cStr)
+        cLower = StzLower(cStr)
 
         nPos = ring_find(cLower, "counting from")
         if nPos = 0
@@ -2089,7 +2089,7 @@ class stzDateTime from stzObject
         ok
 
     def MapOriginName(cName)
-        cLower = lower(trim(cName))
+        cLower = StzLower(trim(cName))
 
         if ring_find(cLower, "unix") > 0
             return :UnixEpoch
@@ -2150,7 +2150,7 @@ class stzDateTime from stzObject
 
     def ParseNaturalDuration(cDuration)
         nTotalMs = 0
-        cDuration = lower(trim(cDuration))
+        cDuration = StzLower(trim(cDuration))
 
         aUnits = [
             ["years", 31536000000],
@@ -2176,7 +2176,7 @@ class stzDateTime from stzObject
             nMultiplier = aUnit[2]
 
             for i = 1 to len(aTokens)
-                if lower(aTokens[i]) = cUnit and i > 1
+                if StzLower(aTokens[i]) = cUnit and i > 1
                     nValue = 0+ aTokens[i-1]
                     nTotalMs += (nValue * nMultiplier)
                     exit
@@ -2230,7 +2230,7 @@ class stzDateTime from stzObject
 		ok
 	    ok
 
-	    cUnit = lower(pcUnit)
+	    cUnit = StzLower(pcUnit)
 
 	    if isString(cUnit) and StzLeft(cUnit, 2) = "in"
 			cUnit = StzRight(cUnit, StzLen(cUnit)-2)
@@ -2430,7 +2430,7 @@ class stzDateTime from stzObject
             ]
 
         else
-            cUnit = lower(pcUnit)
+            cUnit = StzLower(pcUnit)
 
             switch cUnit
             case :milliseconds
@@ -2642,7 +2642,7 @@ class stzDateTime from stzObject
 	            return This
 
 	        but isString(v)
-	            cLower = lower(trim(v))
+	            cLower = StzLower(trim(v))
 	            bHasDateTime = (ring_find(v, "-") > 0 and ring_find(v, ":") > 0)
 	            bHasUnits = (ring_find(cLower, " day") > 0 or ring_find(cLower, " month") > 0 or
 	                        ring_find(cLower, " year") > 0 or ring_find(cLower, " hour") > 0 or
@@ -2665,7 +2665,7 @@ class stzDateTime from stzObject
 
 		    but isString(v)
 
-		        cLower = lower(trim(v))
+		        cLower = StzLower(trim(v))
 		        bHasDateTime = (ring_find(v, "-") > 0 and ring_find(v, ":") > 0)
 		        bHasUnits = (ring_find(cLower, " day") > 0 or ring_find(cLower, " month") > 0 or
 		                    ring_find(cLower, " year") > 0 or ring_find(cLower, " hour") > 0 or

@@ -2172,7 +2172,7 @@ class stzMatrix
 				# Format number to remove unnecessary decimals
 
 				cFormattedNum = _FormatNumber(@aMatrix[i][j])
-				nWidth = len(cFormattedNum)
+				nWidth = StzLen(cFormattedNum)
 
 				if nWidth > nMaxWidth
 					nMaxWidth = nWidth
@@ -2202,7 +2202,7 @@ class stzMatrix
 				# Format and left-pad numbers
 
 				cFormattedNum = _FormatNumber(@aMatrix[i][j])
-				see ring_copy(" ", anColWidths[j] - len(cFormattedNum)) + cFormattedNum + " "
+				see ring_copy(" ", anColWidths[j] - StzLen(cFormattedNum)) + cFormattedNum + " "
 
 			next
 
@@ -2234,14 +2234,14 @@ class stzMatrix
 
 			# Remove trailing zeros
 
-			while cNum[len(cNum)] = "0"
-				cNum = left(cNum, len(cNum) - 1)
+			while cNum[StzLen(cNum)] = "0"
+				cNum = StzLeft(cNum, StzLen(cNum) - 1)
 			end
 
 			# Remove trailing decimal point if it's the last character
 
-			if cNum[len(cNum)] = "."
-				cNum = left(cNum, len(cNum) - 1)
+			if cNum[StzLen(cNum)] = "."
+				cNum = StzLeft(cNum, StzLen(cNum) - 1)
 			ok
 		ok
 

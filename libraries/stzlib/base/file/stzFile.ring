@@ -664,7 +664,7 @@ func NormalizeFilePath(cName)
 		ok
 	ok
 	
-	cResult = lower(trim(cName))
+	cResult = StzLower(trim(cName))
 	cResult = ring_substr2(cResult, "\", "/")
 	cResult = ring_substr2(cResult, "//", "/")
 	return cResult
@@ -685,7 +685,7 @@ func NormalizeFilePathXT(cName)
 		cName = currentdir() + "/" + cName
 	ok
 
-	cResult = lower(cName)
+	cResult = StzLower(cName)
 	cResult = ring_substr2(cResult, "\", "/")
 	cResult = ring_substr2(cResult, "//", "/")
 	return cResult
@@ -696,7 +696,7 @@ func NormalizeFilePathXT(cName)
 class stzFileXT from stzObject
 
 	def init(pcFileName, pcIntent)
-		pcIntent = lower(pcIntent)
+		pcIntent = StzLower(pcIntent)
 
 		if pcIntent = "info"
 			return new stzFileInfo(cFileName)
@@ -892,7 +892,7 @@ class stzFileInfo from stzObject
         return 0
 
     def IsExecutable()
-        cExt = lower(StzEnginePathExtension(@cFileName))
+        cExt = StzLower(StzEnginePathExtension(@cFileName))
         return cExt = "exe" or cExt = "bat" or cExt = "cmd" or cExt = "com"
 
     def IsHidden()
@@ -2354,7 +2354,7 @@ class stzFileManager from stzObject
         return FALSE
 
     def IsExecutable()
-        cExt = lower(_FileExtension(@cFileName))
+        cExt = StzLower(_FileExtension(@cFileName))
         if isWindows()
             return cExt = "exe" or cExt = "bat" or cExt = "cmd" or cExt = "com"
         ok

@@ -175,7 +175,7 @@ def ParseSingleToken(cTokenStr)
 	cOriginal = cTokenStr
 	bNegated = 0
 	
-	if startsWith(lower(cTokenStr), "@!")
+	if startsWith(StzLower(cTokenStr), "@!")
 		bNegated = 1
 		cTokenStr = @substr(cTokenStr, 3, len(cTokenStr))
 
@@ -190,7 +190,7 @@ def ParseSingleToken(cTokenStr)
 	nMin = 1
 	nMax = 1
 	
-	cTokenStr = lower(cTokenStr)
+	cTokenStr = StzLower(cTokenStr)
 
 	if startsWith(cTokenStr, "@digit")
 		cType = "digit"
@@ -314,7 +314,7 @@ def ParseSingleToken(cTokenStr)
 	else
 		# No parentheses - extract after token type name from original string
 		nTypeLen = 0
-		cLowerOriginal = lower(cOriginal)
+		cLowerOriginal = StzLower(cOriginal)
 		
 		if startsWith(cLowerOriginal, "@digit")
 			nTypeLen = 6
@@ -455,7 +455,7 @@ def ParseSingleToken(cTokenStr)
 		ok
 		
 		if cType = "digit"
-			if ring_find(lower(cConstraintStr), ":unique") > 0
+			if ring_find(StzLower(cConstraintStr), ":unique") > 0
 				aConstraints + [["type", "unique"]]
 			but ring_find(cConstraintStr, "..") > 0
 				aParts = @split(cConstraintStr, "..")
@@ -498,9 +498,9 @@ def ParseSingleToken(cTokenStr)
 			ok
 		
 		but cType = "factor"
-			if lower(cConstraintStr) = "prime"
+			if StzLower(cConstraintStr) = "prime"
 				aConstraints + [["type", "prime"]]
-			but lower(cConstraintStr) = "unique"
+			but StzLower(cConstraintStr) = "unique"
 				aConstraints + [["type", "unique"]]
 			but isDigit(cConstraintStr)
 				aConstraints + [
@@ -652,7 +652,7 @@ def ParseSingleToken(cTokenStr)
 	#-----------------------#
 	
 	def CheckProperty(cProperty, nNum)
-		cProperty = lower(trim(cProperty))
+		cProperty = StzLower(trim(cProperty))
 		
 		if cProperty = "prime"
 			return This.IsPrime(nNum)
@@ -998,7 +998,7 @@ def CheckDigits(aToken, nNum)
 	#-----------------------#
 	
 	def CheckRelation(cRelation, nNum)
-		if ring_find(lower(cRelation), "mod:") > 0
+		if ring_find(StzLower(cRelation), "mod:") > 0
 			cRest = @substr(cRelation, 5, len(cRelation))
 			nEquals = ring_find(cRest, "=")
 			if nEquals > 0
@@ -1019,7 +1019,7 @@ def CheckDigits(aToken, nNum)
 			if ring_find(cValue, ":") > 0
 				aParts = @split(cValue, ":")
 				cValue = aParts[1]
-				if len(aParts) > 1 and ring_find(lower(aParts[2]), "decimal") > 0
+				if len(aParts) > 1 and ring_find(StzLower(aParts[2]), "decimal") > 0
 					nLenPart = len(aParts[2])
 					for i = 1 to nLenPart
 						if isDigit(@substr(aParts[2], i, i))
@@ -1037,7 +1037,7 @@ def CheckDigits(aToken, nNum)
 		return FALSE
 	
 	def CheckPart(cPart, nNum)
-		cPart = lower(trim(cPart))
+		cPart = StzLower(trim(cPart))
 		
 		if cPart = "integer"
 			# Check if number has no fractional part (with floating point tolerance)
@@ -1239,7 +1239,7 @@ def CheckDigits(aToken, nNum)
 				StzRaise("Incorrect param type! nStart mustr be a number.")
 			ok
 
-			if isList(nEnd) and len(nEnd) = 2 and isString(nEnd[1]) and lower(nEnd[1]) = "and"
+			if isList(nEnd) and len(nEnd) = 2 and isString(nEnd[1]) and StzLower(nEnd[1]) = "and"
 				nEnd = nEnd[2]
 			ok
 
@@ -1267,7 +1267,7 @@ def CheckDigits(aToken, nNum)
 				StzRaise("Incorrect param type! nStart mustr be a number.")
 			ok
 
-			if isList(nEnd) and len(nEnd) = 2 and isString(nEnd[1]) and lower(nEnd[1]) = "and"
+			if isList(nEnd) and len(nEnd) = 2 and isString(nEnd[1]) and StzLower(nEnd[1]) = "and"
 				nEnd = nEnd[2]
 			ok
 

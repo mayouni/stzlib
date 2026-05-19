@@ -214,7 +214,7 @@ def ParseConjunction(cTokenStr)
 		cOriginal = cTokenStr
 		bNegated = 0
 		
-		if startsWith(lower(cTokenStr), "@!")
+		if startsWith(StzLower(cTokenStr), "@!")
 			bNegated = 1
 			cTokenStr = @substr(cTokenStr, 3, len(cTokenStr))
 			
@@ -229,7 +229,7 @@ def ParseConjunction(cTokenStr)
 		nMin = 1
 		nMax = 1
 		
-		cTokenStr = lower(cTokenStr)
+		cTokenStr = StzLower(cTokenStr)
 		
 		# Parse token types
 		if startsWith(cTokenStr, "@size")
@@ -668,7 +668,7 @@ def ParseConjunction(cTokenStr)
 		return TRUE
 	
 	def CheckShape(cShape, aMatrix)
-		cShape = lower(trim(cShape))
+		cShape = StzLower(trim(cShape))
 		nRows = len(aMatrix)
 		nCols = len(aMatrix[1])
 		
@@ -773,7 +773,7 @@ def ParseConjunction(cTokenStr)
 		return TRUE
 	
 	def CheckProperty(cProperty, aMatrix)
-		cProperty = lower(trim(cProperty))
+		cProperty = StzLower(trim(cProperty))
 		nRows = len(aMatrix)
 		nCols = len(aMatrix[1])
 		
@@ -1032,7 +1032,7 @@ def ParseConjunction(cTokenStr)
 	#---------------------------#
 	
 	def MatchingMatrices(paMatrices)
-		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1059,7 +1059,7 @@ def ParseConjunction(cTokenStr)
 		# Find all matrices in a list that match the pattern
 		# and retyurning their positions in paMatrices
 
-		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1083,7 +1083,7 @@ def ParseConjunction(cTokenStr)
 
 	def CountMatchingMatrices(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1107,7 +1107,7 @@ def ParseConjunction(cTokenStr)
 
 	def FirstMatchingMatrix(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1130,7 +1130,7 @@ def ParseConjunction(cTokenStr)
 
 	def FindFirstMatchingMatrix(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1153,7 +1153,7 @@ def ParseConjunction(cTokenStr)
 
 	def MatchesNone(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1176,7 +1176,7 @@ def ParseConjunction(cTokenStr)
 
 	def MatchesAll(paMatrices)
 
-		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
+		if CheckParams() and isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 			paMatrices = paMatrices[2]
 		ok
 
@@ -1225,10 +1225,10 @@ def ParseConjunction(cTokenStr)
 	def SimilarityScore(aMatrix1, aMatrix2)
 
 		if CheckParams()
-			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and lower(aMatrix1[1]) = "between"
+			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and StzLower(aMatrix1[1]) = "between"
 				aMatix1 = aMatrix1[2]
 			ok
-			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and lower(aMatrix1[1]) = "and"
+			if isList(aMatrix1) and len(aMatrix1) = 2 and isString(aMatrix1[1]) and StzLower(aMatrix1[1]) = "and"
 				aMatix1 = aMatrix1[2]
 			ok
 		ok
@@ -1270,10 +1270,10 @@ def ParseConjunction(cTokenStr)
 		# Get the matrix in the list most similar to target
 		
 		if CheckParams()
-			if isList(aTargetMatrix) and len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and lower(aTargetMatrix[1]) = "to"
+			if isList(aTargetMatrix) and len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and StzLower(aTargetMatrix[1]) = "to"
 				aTargetMatrix = aTargetMatrix[2]
 			ok
-			if isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
+			if isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 				paMatrices = paMatrices[2]
 			ok
 		ok
@@ -1309,10 +1309,10 @@ def ParseConjunction(cTokenStr)
 		# and return its position in paMatrices
 		
 		if CheckParams()
-			if isList(aTargetMatrix) and len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and lower(aTargetMatrix[1]) = "to"
+			if isList(aTargetMatrix) and len(aTargetMatrix) = 2 and isString(aTargetMatrix[1]) and StzLower(aTargetMatrix[1]) = "to"
 				aTargetMatrix = aTargetMatrix[2]
 			ok
-			if isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and lower(paMatrices[1]) = "in"
+			if isList(paMatrices) and len(paMatrices) = 2 and isString(paMatrices[1]) and StzLower(paMatrices[1]) = "in"
 				paMatrices = paMatrices[2]
 			ok
 		ok

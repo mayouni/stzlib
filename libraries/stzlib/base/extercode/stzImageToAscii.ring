@@ -47,7 +47,7 @@ class stzImgToAscii
         dir_create(@cOutputDir)
 
     def Image(pc)          { @cImage = pc ; if NOT fexists(pc) stzraise("Image not found: " + pc) ok ; return This }
-    def Format(pc)         { pc=lower(pc) ; if ring_find($acFormats,pc)=0 stzraise("Unsupported format") ok ; @cFormat=pc ; return This }
+    def Format(pc)         { pc=StzLower(pc) ; if ring_find($acFormats,pc)=0 stzraise("Unsupported format") ok ; @cFormat=pc ; return This }
     def Height(n)          { @nHeight = n ; return This }
     def Width(n)           { @nWidth  = n ; return This }
     def Chars(pc)          { @cChars  = pc ; return This }

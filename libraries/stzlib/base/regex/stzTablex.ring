@@ -188,13 +188,13 @@ class stzTablex from stzObject
 		bCaseSensitive = FALSE
 
 		# Check for negation
-		if startsWith(lower(cTokenStr), "@!")
+		if startsWith(StzLower(cTokenStr), "@!")
 			bNegated = TRUE
 			cTokenStr = @substr(cTokenStr, 3, len(cTokenStr))
 		ok
 
 		# Check for case sensitivity flag
-		if startsWith(lower(cTokenStr), "@cs:")
+		if startsWith(StzLower(cTokenStr), "@cs:")
 			bCaseSensitive = TRUE
 			cTokenStr = @substr(cTokenStr, 5, len(cTokenStr))
 		ok
@@ -219,7 +219,7 @@ class stzTablex from stzObject
 		ok
 
 		# NOW lowercase the token string for type detection
-		cTokenStr = lower(cTokenStr)
+		cTokenStr = StzLower(cTokenStr)
 		
 		if @bDebugMode
 			? "After lowercase: " + cTokenStr
@@ -803,7 +803,7 @@ class stzTablex from stzObject
 
 	def CheckProperty(aToken, oTable)
 		if HasKey(aToken, "value")
-			cProperty = lower(trim(aToken["value"]))
+			cProperty = StzLower(trim(aToken["value"]))
 
 			switch cProperty
 			on "empty"
@@ -878,7 +878,7 @@ class stzTablex from stzObject
 								return FALSE
 							ok
 						else
-							if strcmp(lower(xCurrent), lower(xNext)) > 0
+							if strcmp(StzLower(xCurrent), StzLower(xNext)) > 0
 								return FALSE
 							ok
 						ok
@@ -913,7 +913,7 @@ class stzTablex from stzObject
 					nLen = len(aCol)
 					for i = 1 to nLen
 						if isString(aCol[i])
-							aLower + lower(aCol[i])
+							aLower + StzLower(aCol[i])
 						else
 							aLower + aCol[i]
 						ok
@@ -942,7 +942,7 @@ class stzTablex from stzObject
 					nLen = len(aCol)
 					for i = 1 to nLen
 						if isString(aCol[i])
-							aLower + lower(aCol[i])
+							aLower + StzLower(aCol[i])
 						else
 							aLower + aCol[i]
 						ok
@@ -994,7 +994,7 @@ class stzTablex from stzObject
 						if bCaseSensitive
 							bMatch = (xCurrent = xNext)
 						else
-							bMatch = (lower(xCurrent) = lower(xNext))
+							bMatch = (StzLower(xCurrent) = StzLower(xNext))
 						ok
 					else
 						bMatch = (xCurrent = xNext)
@@ -1083,7 +1083,7 @@ class stzTablex from stzObject
 				aParts = @split(cValue, ":")
 				if len(aParts) = 2
 					cColName = trim(aParts[1])
-					cType = lower(trim(aParts[2]))
+					cType = StzLower(trim(aParts[2]))
 					
 					if oTable.HasColumn(cColName)
 						aCol = oTable.Col(cColName)

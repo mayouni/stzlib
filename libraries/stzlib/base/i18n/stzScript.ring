@@ -294,7 +294,7 @@ class stzScript
 
 		if oStr.IsScriptName()
 			for aScriptInfo in LocaleScriptsXT()
-				if lower(aScriptInfo[2]) = lower(pcScriptIdentifier)
+				if StzLower(aScriptInfo[2]) = StzLower(pcScriptIdentifier)
 					@aScriptInfo@ = aScriptInfo
 					exit
 				ok
@@ -302,7 +302,7 @@ class stzScript
 
 		but oStr.IsScriptCode()
 			for aScriptInfo in LocaleScriptsXT()
-				if lower(aScriptInfo[1]) = lower(pcScriptIdentifier)
+				if StzLower(aScriptInfo[1]) = StzLower(pcScriptIdentifier)
 					@aScriptInfo@ = aScriptInfo
 					exit
 				ok
@@ -310,7 +310,7 @@ class stzScript
 
 		but oStr.IsScriptAbbreviation()
 			for aScriptInfo in LocaleScriptsXT()
-				if lower(aScriptInfo[3]) = lower(pcScriptIdentifier)
+				if StzLower(aScriptInfo[3]) = StzLower(pcScriptIdentifier)
 					@aScriptInfo@ = aScriptInfo
 					exit
 				ok

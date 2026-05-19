@@ -2540,7 +2540,7 @@ func StartingAt(p)
 		return p
 
 	but isString(p)
-		p = lower(p)
+		p = StzLower(p)
 
 		if p = :first
 			return 1
@@ -2571,7 +2571,7 @@ func StoppingAt(p)
 		return p
 
 	but isString(p)
-		p = lower(p)
+		p = StzLower(p)
 
 		if p = :first
 			return 1
@@ -2639,7 +2639,7 @@ func Bounds(pBounds)
 func Direction(p)
 	if isString(p)
 
-		p = lower(p)
+		p = StzLower(p)
 
 		if p = :Forward or p = :Backward
 			return p
@@ -2875,7 +2875,7 @@ func IsPackageName(cStr)
 		ok
 	ok
 
-	bResult = find( packages(), lower(cStr))
+	bResult = find( packages(), StzLower(cStr))
 	return bResult
 
 	func @IsPackageName(cStr)
@@ -4250,7 +4250,7 @@ func IsRingType(pcStr)
 		StzRaise("Incorrect param type! pcStr must be a string.")
 	ok
 
-	pcStr = lower(pcStr)
+	pcStr = StzLower(pcStr)
 	acRingTypes = RingTypes()
 
 	if find( RingTypes(), pcStr) > 0
@@ -5038,7 +5038,7 @@ func IsStzFindableType(cType)
 		StzRaise("Incorrect param type! cType must be a string.")
 	ok
 
-	cType = lower(cType)
+	cType = StzLower(cType)
 	if ring_find( StzFindableTypes(), cType) > 0
 		return 1
 	else

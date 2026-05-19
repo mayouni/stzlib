@@ -64,7 +64,7 @@ class stzCurrency
 		if IsCountryName(pcCurrencyIdentifier)
 
 			for aCountryInfo in CountriesOrRegionsAndTheirCurrenciesXT()
-				if lower(aCountryInfo[1]) = lower(pcCurrencyIdentifier)
+				if StzLower(aCountryInfo[1]) = StzLower(pcCurrencyIdentifier)
 
 					@aCurrencyInfo@ = aCountryInfo[2]
 					exit
@@ -74,7 +74,7 @@ class stzCurrency
 		but StzStringQ(pcCurrencyIdentifier).IsCurrencyName()
 
 			for aCurrencyInfo in CurrenciesXT()
-				if lower(aCurrencyInfo[1]) = lower(pcCurrencyIdentifier)
+				if StzLower(aCurrencyInfo[1]) = StzLower(pcCurrencyIdentifier)
 					@aCurrencyInfo@ = aCurrencyInfo
 					exit
 				ok
@@ -130,7 +130,7 @@ class stzCurrency
 
 	def Country()
 		for aCountryInfo in LocaleCountriesXT()
-			if lower(aCountryInfo[7][1]) = lower(This.Currency())
+			if StzLower(aCountryInfo[7][1]) = StzLower(This.Currency())
 				return aCountryInfo[2]
 			ok
 		next

@@ -90,7 +90,7 @@ class stzReactiveObject from stzReactive
 
 	# Universal Attribute setter
 	def SetAttribute(cAttribute, newValue)
-		cAttribute = lower(cAttribute)
+		cAttribute = StzLower(cAttribute)
 
 		# Get old value
 		cOldValue = GetAttributeValue(cAttribute)
@@ -116,7 +116,7 @@ class stzReactiveObject from stzReactive
 
 	# Universal Attribute getter
 	def GetAttribute(cAttribute)
-		cAttribute = lower(cAttribute)
+		cAttribute = StzLower(cAttribute)
 		value = GetAttributeValue(cAttribute)
 		
 		if bReactiveMode = REACTIVE_ON
@@ -127,7 +127,7 @@ class stzReactiveObject from stzReactive
 
 	# Core Attribute access methods
 	def GetAttributeValue(cAttribute)
-	    cAttribute = lower(cAttribute)
+	    cAttribute = StzLower(cAttribute)
 	    
 	    # Check cache first
 	    nIndex = FindAttributeInCache(cAttribute)
@@ -149,7 +149,7 @@ class stzReactiveObject from stzReactive
 	    ok
 	
 	def SetAttributeValue(cAttribute, value)
-		cAttribute = lower(cAttribute)
+		cAttribute = StzLower(cAttribute)
 		
 		if wrappedObject != OBJECT_STANDALONE
 			# Wrapper mode: set on wrapped object
@@ -170,13 +170,13 @@ class stzReactiveObject from stzReactive
 
 	# Watch Attribute changes
 	def Watch(cAttribute, fCallback)
-		cAttribute = lower(cAttribute)
+		cAttribute = StzLower(cAttribute)
 		aAttributeWatchers + [cAttribute, fCallback]
 		return self
 
 	# Create computed Attribute that auto-updates
 	def Computed(cAttribute, fnComputer, aDependencies)
-	    cAttribute = lower(cAttribute)
+	    cAttribute = StzLower(cAttribute)
 	    aComputedAttributes + [cAttribute, fnComputer, aDependencies]
 	    
 	    # Initial computation
@@ -189,8 +189,8 @@ class stzReactiveObject from stzReactive
 			cTargetAttribute = cSourceAttribute
 		ok
 
-		cSourceAttribute = lower(cSourceAttribute)
-		cTargetAttribute = lower(cTargetAttribute)
+		cSourceAttribute = StzLower(cSourceAttribute)
+		cTargetAttribute = StzLower(cTargetAttribute)
 
 		aAttributeBindings + [cSourceAttribute, oTargetObject, cTargetAttribute]
 		
@@ -202,7 +202,7 @@ class stzReactiveObject from stzReactive
 
 	# Async Attribute update
 	def SetAsync(cAttribute, newValue, fnSuccess, fnError)
-		cAttribute = lower(cAttribute)
+		cAttribute = StzLower(cAttribute)
 		taskId = "attr_" + cAttribute + "_" + string(random(999999))
 		
 		# Ensure fnError has a value for error handling
@@ -249,9 +249,9 @@ class stzReactiveObject from stzReactive
 
 	# Create reactive stream from Attribute changes
 	def StreamAttribute(cAttribute)
-		cAttribute = lower(cAttribute)
+		cAttribute = StzLower(cAttribute)
 		
-		streamId = lower(classname(self)) + "_" + cAttribute + "_" + random(999999)
+		streamId = StzLower(classname(self)) + "_" + cAttribute + "_" + random(999999)
 		stream = this.engine.CreateStream(streamId)
 		
 		Watch(cAttribute, func(attr, oldVal, newVal) {
@@ -267,7 +267,7 @@ class stzReactiveObject from stzReactive
 
 	# The method waits for the attribute to stop changing (settle) before executing the callback
 	def WaitForAttributetoSettle(cAttribute, nDelay, fCallback)
-		cAttribute = lower(cAttribute)
+		cAttribute = StzLower(cAttribute)
 		
 		currentTimer = NULL
 		
@@ -296,7 +296,7 @@ class stzReactiveObject from stzReactive
 	#-------------------#
 
 	def GetAttributeFromStorage(cAttribute)
-		cAttribute = lower(cAttribute)
+		cAttribute = StzLower(cAttribute)
 
 		# Find in internal storage
 		nLenAttr = len(aAttributesOfStandaloneObjects)
@@ -310,7 +310,7 @@ class stzReactiveObject from stzReactive
 		return ""  # Default empty value
 
 	def SetAttributeInStorage(cAttribute, value)
-		cAttribute = lower(cAttribute)
+		cAttribute = StzLower(cAttribute)
 
 		# Find existing Attribute
 		nLenAttr = len(aAttributesOfStandaloneObjects)
@@ -324,7 +324,7 @@ class stzReactiveObject from stzReactive
 		aAttributesOfStandaloneObjects + [cAttribute, value]
 
 	def UpdateAttributeCache(cAttribute, value)
-	    cAttribute = lower(cAttribute)
+	    cAttribute = StzLower(cAttribute)
 	    nIndex = FindAttributeInCache(cAttribute)
 	    if nIndex > 0
 	        aCachedAttributeValues[nIndex][2] = value
@@ -333,7 +333,7 @@ class stzReactiveObject from stzReactive
 	    ok
 
 	def FindAttributeInCache(cAttribute)
-	    cAttribute = lower(cAttribute)
+	    cAttribute = StzLower(cAttribute)
 	    nLenCacheAttr = len(aCachedAttributeValues)
 	    for i = 1 to nLenCacheAttr
 	        if aCachedAttributeValues[i][1] = cAttribute
@@ -343,7 +343,7 @@ class stzReactiveObject from stzReactive
 	    return 0
 
 	def ProcessAttributeChange(cAttribute, oldValue, newValue)
-		cAttribute = lower(cAttribute)
+		cAttribute = StzLower(cAttribute)
 
 		# Notify watchers with immediate processing
 		if DEFAULT_WATCH_MODE = WATCH_IMMEDIATE
@@ -380,7 +380,7 @@ class stzReactiveObject from stzReactive
 
 
 	def TriggerAttributeWatchers(cAttribute, oldValue, newValue)
-	    cAttribute = lower(cAttribute)
+	    cAttribute = StzLower(cAttribute)
 	    nLenAttr = len(aAttributeWatchers)
 	
 	    for i = 1 to nLenAttr
@@ -399,7 +399,7 @@ class stzReactiveObject from stzReactive
 
 
 	def UpdateDependentComputedAttributes(cChangedAttribute)
-		cChangedAttribute = lower(cChangedAttribute)
+		cChangedAttribute = StzLower(cChangedAttribute)
 		nLenAttr = len(aComputedAttributes)
 
 		for i = 1 to nLenAttr
@@ -413,7 +413,7 @@ class stzReactiveObject from stzReactive
 		next
 
 	def UpdateBoundAttributes(cAttribute, newValue)
-		cAttribute = lower(cAttribute)
+		cAttribute = StzLower(cAttribute)
 		nLenAttr = len(aAttributeBindings)
 
 		for i = 1 to nLenAttr
@@ -421,7 +421,7 @@ class stzReactiveObject from stzReactive
 			oTargetObj = aAttributeBindings[i][2]
 			cTargetAttr = aAttributeBindings[i][3]
 
-			if lower(cSourceAttr) = lower(cAttribute)
+			if StzLower(cSourceAttr) = StzLower(cAttribute)
 				try
 					if DEFAULT_BINDING_MODE = BIND_ONE_WAY
 						oTargetObj.SetAttributeValue(cTargetAttr, newValue)
@@ -437,7 +437,7 @@ class stzReactiveObject from stzReactive
 
 
 	def ComputeAttribute(cAttribute)
-	    cAttribute = lower(cAttribute)
+	    cAttribute = StzLower(cAttribute)
 	    nLenAttr = len(aComputedAttributes)
 	
 	    for i = 1 to nLenAttr

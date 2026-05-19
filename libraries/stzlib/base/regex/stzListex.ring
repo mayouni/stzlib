@@ -178,7 +178,7 @@ class stzListex
 		bCaseSensitive = FALSE
 
 		# Check for case-sensitive prefix @cs:
-		if StartsWith(lower(cTokenStr), "@cs:")
+		if StartsWith(StzLower(cTokenStr), "@cs:")
 			bCaseSensitive = TRUE
 			cTokenStr = @substr(cTokenStr, 5, len(cTokenStr))
 		ok
@@ -908,7 +908,7 @@ class stzListex
 			if bCaseSensitive
 				return cVal1 = cVal2
 			else
-				return lower(cVal1) = lower(cVal2)
+				return StzLower(cVal1) = StzLower(cVal2)
 			ok
 
 		on "list"
@@ -939,7 +939,7 @@ class stzListex
 			if bCaseSensitive
 				return cVal1 = cVal2
 			else
-				return lower(cVal1) = lower(cVal2)
+				return StzLower(cVal1) = StzLower(cVal2)
 			ok
 		off
 

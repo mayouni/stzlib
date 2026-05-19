@@ -27416,7 +27416,7 @@ class stzList from stzObject
 		if StzLeft(pcType, 1) = "A"
 			pcType = StzRight(pcType, StzLen(pcType)-1)
 		ok
-		cCode2 = 'bOk = ( ring_type(item) = "' + upper(pcType) + '" )'
+		cCode2 = 'bOk = ( ring_type(item) = "' + StzUpper(pcType) + '" )'
 
 		bResult = 1
 		aList = This.List()

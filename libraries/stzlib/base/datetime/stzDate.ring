@@ -273,7 +273,7 @@ class stzDate from stzObject
 	        StzRaise("Can't create the stzDate object! You must provide a string.")
 	    ok
 
-	    cDate = lower(trim(pcDate))
+	    cDate = StzLower(trim(pcDate))
 	    nLenDate = len(cDate)
 
 
@@ -1309,9 +1309,9 @@ def LastWeekdayOfMonth()
             cFormat = $cDefaultDateFormat
         ok
 
-        cLowerFormat = lower(cFormat)
+        cLowerFormat = StzLower(cFormat)
         for aFormat in $aDateFormats
-            if lower(aFormat[1]) = cLowerFormat
+            if StzLower(aFormat[1]) = cLowerFormat
                 cFormat = aFormat[2]
                 exit
             ok
@@ -1422,7 +1422,7 @@ def LastWeekdayOfMonth()
         return TRUE
 
    func ExtractValueAndUnit(cExpression)
-	    cExpression = lower(trim(cExpression))
+	    cExpression = StzLower(trim(cExpression))
 	    acWords = @split(cExpression, " ")
 	    if len(acWords) < 2
 
