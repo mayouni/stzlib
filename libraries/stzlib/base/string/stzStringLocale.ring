@@ -109,33 +109,12 @@ class stzStringLocale
 		return StzEngineStringContainsArabic(pH)
 
 	def ContainsDigits()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			n = ascii(c)
-			if n >= 48 and n <= 57
-				return 1
-			ok
-		next
-		return 0
+		pH = @oString.Engine()
+		return StzEngineStringCountDigits(pH) > 0
 
 	def ContainsOnlyDigits()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		if nLen = 0
-			return 0
-		ok
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			n = ascii(c)
-			if n < 48 or n > 57
-				return 0
-			ok
-		next
-		return 1
+		pH = @oString.Engine()
+		return StzEngineStringIsDigit(pH)
 
 	def ContainsOnlyLetters()
 		pH = @oString.Engine()
@@ -146,63 +125,24 @@ class stzStringLocale
 		return StzEngineStringIsLatinLetters(pH)
 
 	def IsAscii()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		if nLen = 0
-			return 1
-		ok
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			n = ascii(c)
-			if n >= 128
-				return 0
-			ok
-		next
-		return 1
+		pH = @oString.Engine()
+		return StzEngineStringIsAscii(pH)
 
 	def ContainsPunctuation()
-		cContent = @oString.Content()
-		cPunct = ".,;:!?-()[]{}'" + '"'
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			nPLen = len(cPunct)
-			for j = 1 to nPLen
-				if c = substr(cPunct, j, 1)
-					return 1
-				ok
-			next
-		next
-		return 0
+		pH = @oString.Engine()
+		return StzEngineStringCountPunctuation(pH) > 0
 
 	def ContainsWhitespace()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if c = " " or c = char(9) or c = char(10) or c = char(13)
-				return 1
-			ok
-		next
-		return 0
+		pH = @oString.Engine()
+		return StzEngineStringCountSpaces(pH) > 0
 
 	def ContainsOnlyWhitespace()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		if nLen = 0
+		if @oString.IsEmpty()
 			return 0
 		ok
-
-		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			if NOT (c = " " or c = char(9) or c = char(10) or c = char(13))
-				return 0
-			ok
-		next
-		return 1
+		# All chars must be whitespace: count of spaces = total codepoints
+		pH = @oString.Engine()
+		return StzEngineStringCountSpaces(pH) = @oString.NumberOfChars()
 
 	def IsMixedScript()
 		pH = @oString.Engine()
