@@ -276,20 +276,14 @@ class stzStringList
 		_bCase_ = @CaseSensitive(pCaseSensitive)
 
 		nLen = len(@acContent)
-		if _bCase_
-			for i = 1 to nLen
-				if substr(@acContent[i], pcSubStr) > 0
-					return 1
-				ok
-			next
-		else
-			cTarget = StzCaseFold(pcSubStr)
-			for i = 1 to nLen
-				if substr(StzCaseFold(@acContent[i]), cTarget) > 0
-					return 1
-				ok
-			next
-		ok
+		for i = 1 to nLen
+			pH = StzEngineString(@acContent[i])
+			nFound = StzEngineStringContainsCS(pH, pcSubStr, _bCase_)
+			StzEngineStringFree(pH)
+			if nFound
+				return 1
+			ok
+		next
 		return 0
 
 	def ContainsSubString(pcSubStr)
@@ -496,20 +490,14 @@ class stzStringList
 
 		acResult = []
 		nLen = len(@acContent)
-		if _bCase_
-			for i = 1 to nLen
-				if substr(@acContent[i], pcSubStr) > 0
-					acResult + @acContent[i]
-				ok
-			next
-		else
-			cTarget = StzCaseFold(pcSubStr)
-			for i = 1 to nLen
-				if substr(StzCaseFold(@acContent[i]), cTarget) > 0
-					acResult + @acContent[i]
-				ok
-			next
-		ok
+		for i = 1 to nLen
+			pH = StzEngineString(@acContent[i])
+			nFound = StzEngineStringContainsCS(pH, pcSubStr, _bCase_)
+			StzEngineStringFree(pH)
+			if nFound
+				acResult + @acContent[i]
+			ok
+		next
 		return acResult
 
 	def Filter(pcSubStr)
