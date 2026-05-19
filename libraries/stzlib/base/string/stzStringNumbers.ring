@@ -302,3 +302,11 @@ class stzStringNumbers
 		next
 
 		return anPositions
+
+	  #===============================#
+	 #     SCAN INTEGER              #
+	#===============================#
+
+	def ScanInteger()
+		pH = @oString.Engine()
+		return StzEngineStringScanInt(pH)

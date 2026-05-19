@@ -443,3 +443,90 @@ class stzStringChecker
 	def ContainsArabic()
 		pH = @oString.Engine()
 		return StzEngineStringContainsArabic(pH)
+
+	  #===============================#
+	 #     CONTAINS CHAR / ANY / ALL #
+	#===============================#
+
+	def ContainsCharCS(pcChar, pCaseSensitive)
+		pH = @oString.Engine()
+		pHChar = StzEngineString(pcChar)
+		nCp = StzEngineStringCharAt(pHChar, 1)
+		StzEngineStringFree(pHChar)
+		return StzEngineStringContainsChar(pH, nCp)
+
+	def ContainsChar(pcChar)
+		return This.ContainsCharCS(pcChar, 1)
+
+	def ContainsAnyOfCharsCS(pcChars, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		return StzEngineStringContainsAnyOfCS(pH, pcChars, _bCase_)
+
+	def ContainsAnyOfChars(pcChars)
+		return This.ContainsAnyOfCharsCS(pcChars, 1)
+
+	def ContainsAllOfCharsCS(pcChars, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		return StzEngineStringContainsAllOfCS(pH, pcChars, _bCase_)
+
+	def ContainsAllOfChars(pcChars)
+		return This.ContainsAllOfCharsCS(pcChars, 1)
+
+	def ContainsOnlyCharsCS(pcChars, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		return StzEngineStringContainsOnlyCS(pH, pcChars, _bCase_)
+
+	def ContainsOnlyChars(pcChars)
+		return This.ContainsOnlyCharsCS(pcChars, 1)
+
+	  #===============================#
+	 #     CONTROL / MARK CHECKS     #
+	#===============================#
+
+	def IsControl()
+		pH = @oString.Engine()
+		return StzEngineStringIsControl(pH)
+
+	def HasMark()
+		pH = @oString.Engine()
+		return StzEngineStringHasMark(pH)
+
+	def CharIsControlAt(n)
+		pH = @oString.Engine()
+		return StzEngineStringCharIsControlAt(pH, n)
+
+	def CharIsMarkAt(n)
+		pH = @oString.Engine()
+		return StzEngineStringCharIsMarkAt(pH, n)
+
+	def CharIsSpaceAt(n)
+		pH = @oString.Engine()
+		return StzEngineStringCharIsSpaceAt(pH, n)
+
+	  #===============================#
+	 #     ONLY MARKS / CONTROLS     #
+	#===============================#
+
+	def OnlyMarks()
+		pH = @oString.Engine()
+		pR = StzEngineStringOnlyMarks(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	def OnlyControls()
+		pH = @oString.Engine()
+		pR = StzEngineStringOnlyControls(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	def OnlyLatinLetters()
+		pH = @oString.Engine()
+		pR = StzEngineStringOnlyLatinLetters(pH)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c

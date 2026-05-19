@@ -409,3 +409,114 @@ class stzStringReplacer
 		_oCopy_ = new stzStringReplacer(@oString.Content())
 		_oCopy_.SqueezeCharQ(pcChar)
 		return _oCopy_.Content()
+
+	  #===============================#
+	 #     REPLACE CHAR (codepoint)  #
+	#===============================#
+
+	def ReplaceCharCP(pcOldChar, pcNewChar)
+		pH = @oString.Engine()
+		pHOld = StzEngineString(pcOldChar)
+		nOldCp = StzEngineStringCharAt(pHOld, 1)
+		StzEngineStringFree(pHOld)
+		pHNew = StzEngineString(pcNewChar)
+		nNewCp = StzEngineStringCharAt(pHNew, 1)
+		StzEngineStringFree(pHNew)
+		pR = StzEngineStringReplaceChar(pH, nOldCp, nNewCp)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def ReplaceCharCPQ(pcOldChar, pcNewChar)
+			This.ReplaceCharCP(pcOldChar, pcNewChar)
+			return This
+
+	def CharReplacedCP(pcOldChar, pcNewChar)
+		_oCopy_ = new stzStringReplacer(@oString.Content())
+		_oCopy_.ReplaceCharCP(pcOldChar, pcNewChar)
+		return _oCopy_.Content()
+
+	  #===============================#
+	 #     REPLACE ANY CHAR          #
+	#===============================#
+
+	def ReplaceAnyChar(pcCharsToReplace, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceAnyChar(pH, pcCharsToReplace, pcReplacement)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def ReplaceAnyCharQ(pcCharsToReplace, pcReplacement)
+			This.ReplaceAnyChar(pcCharsToReplace, pcReplacement)
+			return This
+
+	def AnyCharReplaced(pcCharsToReplace, pcReplacement)
+		_oCopy_ = new stzStringReplacer(@oString.Content())
+		_oCopy_.ReplaceAnyChar(pcCharsToReplace, pcReplacement)
+		return _oCopy_.Content()
+
+	  #===============================#
+	 #     REPLACE AT POSITION       #
+	#===============================#
+
+	def ReplaceAt(nCpPos, nCpCount, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceAt(pH, nCpPos, nCpCount, pcReplacement)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def ReplaceAtQ(nCpPos, nCpCount, pcReplacement)
+			This.ReplaceAt(nCpPos, nCpCount, pcReplacement)
+			return This
+
+	  #===============================#
+	 #     REPLACE BETWEEN MARKERS   #
+	#===============================#
+
+	def ReplaceBetween(pcOpen, pcClose, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceBetween(pH, pcOpen, pcClose, pcReplacement)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def ReplaceBetweenQ(pcOpen, pcClose, pcReplacement)
+			This.ReplaceBetween(pcOpen, pcClose, pcReplacement)
+			return This
+
+	def BetweenReplaced(pcOpen, pcClose, pcReplacement)
+		_oCopy_ = new stzStringReplacer(@oString.Content())
+		_oCopy_.ReplaceBetween(pcOpen, pcClose, pcReplacement)
+		return _oCopy_.Content()
+
+	  #===============================#
+	 #     REPLACE SUBSTRING (range) #
+	#===============================#
+
+	def ReplaceSubstring(nFrom, nTo, pcReplacement)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplaceSubstring(pH, nFrom, nTo, pcReplacement)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def ReplaceSubstringQ(nFrom, nTo, pcReplacement)
+			This.ReplaceSubstring(nFrom, nTo, pcReplacement)
+			return This
+
+	  #===============================#
+	 #     REPLACE TWO PAIRS         #
+	#===============================#
+
+	def Replace2(pcOld1, pcNew1, pcOld2, pcNew2)
+		pH = @oString.Engine()
+		pR = StzEngineStringReplace2(pH, pcOld1, pcNew1, pcOld2, pcNew2)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def Replace2Q(pcOld1, pcNew1, pcOld2, pcNew2)
+			This.Replace2(pcOld1, pcNew1, pcOld2, pcNew2)
+			return This
