@@ -68,12 +68,12 @@ class stzStringCrypto
 	#===============================#
 
 	def Checksum()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		pH = @oString.Engine()
+		nLen = @oString.NumberOfChars()
 		nSum = 0
 
 		for i = 1 to nLen
-			nSum += ascii(substr(cContent, i, 1))
+			nSum += StzEngineStringCharAt(pH, i)
 		next
 
 		return nSum

@@ -128,20 +128,23 @@ class stzStringCode
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
 			cLineLow = StzCaseFold(cLine)
-			if left(cLineLow, 5) = "func "
-				cRest = substr(cLine, 6)
+			if StzLeft(cLineLow, 5) = "func "
+				oLine = new stzString(cLine)
+				cRest = oLine.Section(6, StzLen(cLine))
 				cRest = trim(cRest)
 				# Extract the function name (first word)
 				cName = ""
-				nRestLen = len(cRest)
+				oRest = new stzString(cRest)
+				acRestChars = oRest.Chars()
+				nRestLen = len(acRestChars)
 				for j = 1 to nRestLen
-					c = substr(cRest, j, 1)
+					c = acRestChars[j]
 					if c = " " or c = "(" or c = nl
 						exit
 					ok
 					cName += c
 				next
-				if len(cName) > 0
+				if StzLen(cName) > 0
 					acNames + cName
 				ok
 			ok
@@ -158,20 +161,23 @@ class stzStringCode
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
 			cLineLow = StzCaseFold(cLine)
-			if left(cLineLow, 6) = "class "
-				cRest = substr(cLine, 7)
+			if StzLeft(cLineLow, 6) = "class "
+				oLine = new stzString(cLine)
+				cRest = oLine.Section(7, StzLen(cLine))
 				cRest = trim(cRest)
 				# Extract the class name (first word)
 				cName = ""
-				nRestLen = len(cRest)
+				oRest = new stzString(cRest)
+				acRestChars = oRest.Chars()
+				nRestLen = len(acRestChars)
 				for j = 1 to nRestLen
-					c = substr(cRest, j, 1)
+					c = acRestChars[j]
 					if c = " " or c = nl
 						exit
 					ok
 					cName += c
 				next
-				if len(cName) > 0
+				if StzLen(cName) > 0
 					acNames + cName
 				ok
 			ok
@@ -185,24 +191,24 @@ class stzStringCode
 
 	def IsComment()
 		cTrimmed = trim(@oString.Content())
-		if left(cTrimmed, 1) = "#"
+		if StzLeft(cTrimmed, 1) = "#"
 			return 1
 		ok
-		if left(cTrimmed, 2) = "//"
+		if StzLeft(cTrimmed, 2) = "//"
 			return 1
 		ok
 		return 0
 
 	def IsBlankLine()
 		cTrimmed = trim(@oString.Content())
-		return len(cTrimmed) = 0
+		return StzLen(cTrimmed) = 0
 
 	def ContainsComments()
-		cContent = @oString.Content()
-		if substr(cContent, "#") > 0
+		oFinder = new stzStringFinder(@oString)
+		if oFinder.Contains("#")
 			return 1
 		ok
-		if substr(cContent, "//") > 0
+		if oFinder.Contains("//")
 			return 1
 		ok
 		return 0
@@ -216,14 +222,14 @@ class stzStringCode
 		for i = 1 to nLen
 			cLine = trim(acLines[i])
 			# Skip blank lines
-			if len(cLine) = 0
+			if StzLen(cLine) = 0
 				loop
 			ok
 			# Skip comment lines
-			if left(cLine, 1) = "#"
+			if StzLeft(cLine, 1) = "#"
 				loop
 			ok
-			if left(cLine, 2) = "//"
+			if StzLeft(cLine, 2) = "//"
 				loop
 			ok
 			nCount++
