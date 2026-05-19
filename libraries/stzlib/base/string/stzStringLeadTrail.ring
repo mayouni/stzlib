@@ -349,3 +349,67 @@ class stzStringLeadTrail
 
 	def RemovedFromEnd(pcSubStr)
 		return This.RemovedFromEndCS(pcSubStr, 1)
+
+	  #======================================================#
+	 #   ENSURE PREFIX / SUFFIX                             #
+	#======================================================#
+
+	def EnsurePrefixCS(pcPrefix, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringEnsurePrefixCS(pH, pcPrefix, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def EnsurePrefixCSQ(pcPrefix, pCaseSensitive)
+			This.EnsurePrefixCS(pcPrefix, pCaseSensitive)
+			return This
+
+	def EnsurePrefix(pcPrefix)
+		This.EnsurePrefixCS(pcPrefix, 1)
+
+		def EnsurePrefixQ(pcPrefix)
+			This.EnsurePrefix(pcPrefix)
+			return This
+
+	def PrefixEnsuredCS(pcPrefix, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringEnsurePrefixCS(pH, pcPrefix, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	def PrefixEnsured(pcPrefix)
+		return This.PrefixEnsuredCS(pcPrefix, 1)
+
+	def EnsureSuffixCS(pcSuffix, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringEnsureSuffixCS(pH, pcSuffix, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		@oString.Update(c)
+
+		def EnsureSuffixCSQ(pcSuffix, pCaseSensitive)
+			This.EnsureSuffixCS(pcSuffix, pCaseSensitive)
+			return This
+
+	def EnsureSuffix(pcSuffix)
+		This.EnsureSuffixCS(pcSuffix, 1)
+
+		def EnsureSuffixQ(pcSuffix)
+			This.EnsureSuffix(pcSuffix)
+			return This
+
+	def SuffixEnsuredCS(pcSuffix, pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringEnsureSuffixCS(pH, pcSuffix, _bCase_)
+		c = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		return c
+
+	def SuffixEnsured(pcSuffix)
+		return This.SuffixEnsuredCS(pcSuffix, 1)

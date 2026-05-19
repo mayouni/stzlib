@@ -381,6 +381,34 @@ class stzStringText
 		StzEngineStringFree(pResult)
 		return cResult
 
+	def SortWordsCS(pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pResult = StzEngineStringSortWordsCS(This.Engine(), _bCase_)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		This.Update(cResult)
+
+		def SortWordsCSQ(pCaseSensitive)
+			This.SortWordsCS(pCaseSensitive)
+			return This
+
+	def SortWords()
+		This.SortWordsCS(1)
+
+		def SortWordsQ()
+			This.SortWords()
+			return This
+
+	def WordsSortedCS(pCaseSensitive)
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pResult = StzEngineStringSortWordsCS(This.Engine(), _bCase_)
+		cResult = StzEngineStringData(pResult)
+		StzEngineStringFree(pResult)
+		return cResult
+
+	def WordsSorted()
+		return This.WordsSortedCS(1)
+
 	def ReverseEachWord()
 		pResult = StzEngineStringReverseEachWord(This.Engine())
 		cResult = StzEngineStringData(pResult)
