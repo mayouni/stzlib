@@ -72,6 +72,29 @@ func _stzFindDll(cDllName)
 	next
 	return ""
 
+func _SplitNullDelimited(cJoined)
+	if cJoined = ""
+		return []
+	ok
+	acResult = []
+	cCurrent = ""
+	nLen = len(cJoined)
+	for i = 1 to nLen
+		c = substr(cJoined, i, 1)
+		if ascii(c) = 0
+			if cCurrent != ""
+				acResult + cCurrent
+				cCurrent = ""
+			ok
+		else
+			cCurrent += c
+		ok
+	next
+	if cCurrent != ""
+		acResult + cCurrent
+	ok
+	return acResult
+
 func CheckingParams()
 	return 0
 

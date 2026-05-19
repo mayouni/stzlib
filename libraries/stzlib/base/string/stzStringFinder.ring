@@ -421,27 +421,7 @@ class stzStringFinder
 		cJoined = StzEngineStringData(pResult)
 		StzEngineStringFree(pResult)
 
-		if cJoined = ""
-			return []
-		ok
-
-		acResult = []
-		cDelim = char(0)
-		cRest = cJoined
-
-		while true
-			nPos = substr(cRest, cDelim)
-			if nPos = 0
-				if len(cRest) > 0
-					acResult + cRest
-				ok
-				exit
-			ok
-			acResult + left(cRest, nPos - 1)
-			cRest = substr(cRest, nPos + 1)
-		end
-
-		return acResult
+		return _SplitNullDelimited(cJoined)
 
 	def SubStrings()
 		return This.SubStringsCS(1)
