@@ -420,37 +420,15 @@ class stzStringFinder
 	#===============================#
 
 	def DuplicatesCS(pCaseSensitive)
-		cStr = @oString.Content()
-		if cStr = ""
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pR = StzEngineStringDuplicateSubstringsCS(pH, _bCase_)
+		cJoined = StzEngineStringData(pR)
+		StzEngineStringFree(pR)
+		if cJoined = ""
 			return []
 		ok
-
-		acResult = []
-		nLen = @oString.NumberOfChars()
-
-		for i = 1 to nLen
-			for j = i to nLen
-				cSubStr = @oString.Section(i, j)
-
-				# Check if already collected (case-sensitive or not)
-				bAlready = 0
-				for k = 1 to len(acResult)
-					if BothStringsAreEqualCS(acResult[k], cSubStr, pCaseSensitive)
-						bAlready = 1
-						exit
-					ok
-				next
-
-				if NOT bAlready
-					# Check if it appears more than once
-					if This.NumberOfOccurrenceCS(cSubStr, pCaseSensitive) > 1
-						acResult + cSubStr
-					ok
-				ok
-			next
-		next
-
-		return acResult
+		return _SplitNullDelimited(cJoined)
 
 	def Duplicates()
 		return This.DuplicatesCS(1)

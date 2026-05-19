@@ -514,6 +514,87 @@ pub export fn str_ends_with_any(handle: ?*StzString, suffixes: [*c]const u8, suf
     return 0;
 }
 
+// ─── Duplicate Substrings ───
+
+const codepointIndexToByteOffset = core.codepointIndexToByteOffset;
+const utf8CodepointCount = core.utf8CodepointCount;
+
+/// Find all substrings (of any length) that appear more than once.
+/// Returns null-delimited list of unique duplicate substrings.
+/// case = 1: case-sensitive, case = 0: case-insensitive.
+pub fn str_duplicate_substrings_cs(handle: StzStringHandle, case: c_int) callconv(.c) StzStringHandle {
+    const s = handle orelse return str_new();
+    const buf = s.slice();
+    if (buf.len == 0) return str_new();
+
+    const n = utf8CodepointCount(buf);
+    if (n < 2) return str_new();
+
+    // Build codepoint offset table for O(1) codepoint-to-byte lookups
+    var cp_offsets = std.ArrayListUnmanaged(usize){};
+    defer cp_offsets.deinit(gpa);
+    {
+        var off: usize = 0;
+        while (off < buf.len) {
+            cp_offsets.append(gpa, off) catch return null;
+            const seq = std.unicode.utf8ByteSequenceLength(buf[off]) catch 1;
+            off += seq;
+        }
+        cp_offsets.append(gpa, buf.len) catch return null; // sentinel
+    }
+
+    // Track seen substrings: key = substring bytes (or casefolded), value = count
+    // Also track which originals we've already emitted
+    var seen = std.StringHashMap(u8).init(gpa); // 0 = seen once, 1 = emitted
+    defer {
+        var it = seen.keyIterator();
+        while (it.next()) |key| gpa.free(key.*);
+        seen.deinit();
+    }
+
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+    var first = true;
+
+    // Iterate all substrings by codepoint indices
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        var j: usize = i + 1;
+        while (j <= n) : (j += 1) {
+            const byte_start = cp_offsets.items[i];
+            const byte_end = cp_offsets.items[j];
+            const substr = buf[byte_start..byte_end];
+
+            // Get the comparison key
+            const key_slice = if (case == 0) (casefoldAlloc(substr) orelse continue) else (gpa.dupe(u8, substr) catch continue);
+
+            const entry = seen.getOrPut(key_slice) catch {
+                gpa.free(key_slice);
+                continue;
+            };
+            if (entry.found_existing) {
+                // Already seen — free the duplicate key
+                gpa.free(key_slice);
+                if (entry.value_ptr.* == 0) {
+                    // First duplicate — emit it
+                    entry.value_ptr.* = 1;
+                    if (!first) {
+                        result.data.append(gpa, 0) catch break; // null separator
+                    }
+                    result.data.appendSlice(gpa, substr) catch break;
+                    first = false;
+                }
+                // Already emitted — skip
+            } else {
+                // First occurrence
+                entry.value_ptr.* = 0;
+            }
+        }
+    }
+
+    return result;
+}
+
 // ─── Tests ───
 
 const testing = std.testing;

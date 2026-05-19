@@ -835,6 +835,14 @@ fn ring_StringFindAllChar(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_find_all_char(h, cp)), FIND_HANDLE);
 }
 
+// ─── DuplicateSubstringsCS ───
+
+fn ring_StringDuplicateSubstringsCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 2));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_duplicate_substrings_cs(h, case)), STZ_HANDLE);
+}
+
 // ─── Hash ───
 
 fn ring_StringHash(p: *anyopaque) callconv(.c) void {
@@ -2723,6 +2731,7 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringsortcharsasc", .func = &ring_StringSortCharsAsc },
     .{ .name = "stzenginestringsortcharsdesc", .func = &ring_StringSortCharsDesc },
     .{ .name = "stzenginestringfindallchar", .func = &ring_StringFindAllChar },
+    .{ .name = "stzenginestringduplicatesubstringscs", .func = &ring_StringDuplicateSubstringsCS },
     .{ .name = "stzenginestringhash", .func = &ring_StringHash },
     .{ .name = "stzenginestringcountchar", .func = &ring_StringCountChar },
     .{ .name = "stzenginestringreplacechar", .func = &ring_StringReplaceChar },
