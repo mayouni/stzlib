@@ -40,11 +40,12 @@ class stzStringComparator
 	#======================================================#
 
 	def IsEqualToCS(pcOtherStr, pCaseSensitive)
-		if pCaseSensitive = 1
-			return @oString.Content() = pcOtherStr
-		else
-			return StzCaseFold(@oString.Content()) = StzCaseFold(pcOtherStr)
-		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		nResult = StzEngineStringEqualsCS(pH, pH2, _bCase_)
+		StzEngineStringFree(pH2)
+		return nResult
 
 	def IsEqualTo(pcOtherStr)
 		return This.IsEqualToCS(pcOtherStr, 1)
@@ -76,20 +77,14 @@ class stzStringComparator
 	#======================================================#
 
 	def IsLessThan(pcOtherStr)
-		return strcmp(@oString.Content(), pcOtherStr) < 0
+		return This.CompareCS(pcOtherStr, 1) < 0
 
 	def IsGreaterThan(pcOtherStr)
-		return strcmp(@oString.Content(), pcOtherStr) > 0
+		return This.CompareCS(pcOtherStr, 1) > 0
 
 	def IsBetweenCS(pcStr1, pcStr2, pCaseSensitive)
-		if pCaseSensitive = 1
-			cSelf = @oString.Content()
-		else
-			cSelf = StzCaseFold(@oString.Content())
-			pcStr1 = StzCaseFold(pcStr1)
-			pcStr2 = StzCaseFold(pcStr2)
-		ok
-		return strcmp(cSelf, pcStr1) >= 0 and strcmp(cSelf, pcStr2) <= 0
+		return This.CompareCS(pcStr1, pCaseSensitive) >= 0 and
+		       This.CompareCS(pcStr2, pCaseSensitive) <= 0
 
 	def IsBetween(pcStr1, pcStr2)
 		return This.IsBetweenCS(pcStr1, pcStr2, 1)
@@ -99,19 +94,12 @@ class stzStringComparator
 	#======================================================#
 
 	def CompareCS(pcOtherStr, pCaseSensitive)
-		if pCaseSensitive = 0
-			n = strcmp(StzCaseFold(@oString.Content()), StzCaseFold(pcOtherStr))
-		else
-			n = strcmp(@oString.Content(), pcOtherStr)
-		ok
-
-		if n < 0
-			return -1
-		but n > 0
-			return 1
-		else
-			return 0
-		ok
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pH2 = StzEngineString(pcOtherStr)
+		nResult = StzEngineStringCompareCS(pH, pH2, _bCase_)
+		StzEngineStringFree(pH2)
+		return nResult
 
 	def Compare(pcOtherStr)
 		return This.CompareCS(pcOtherStr, 1)
@@ -145,8 +133,8 @@ class stzStringComparator
 	#======================================================#
 
 	def ContainsCS(pcSubStr, pCaseSensitive)
-		_oFinder_ = new stzStringFinder(@oString)
-		return _oFinder_.FindNthCS(1, pcSubStr, pCaseSensitive) > 0
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		return StzEngineStringContainsCS(@oString.Engine(), pcSubStr, _bCase_)
 
 	def Contains(pcSubStr)
 		return This.ContainsCS(pcSubStr, 1)
