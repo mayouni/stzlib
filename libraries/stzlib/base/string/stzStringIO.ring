@@ -81,16 +81,17 @@ class stzStringIO
 
 	def IsFilePath()
 		cContent = @oString.Content()
-		nLen = len(cContent)
+		nLen = StzLen(cContent)
 		if nLen = 0
 			return 0
 		ok
 
+		acChars = @oString.Chars()
 		bHasSep = 0
 		bHasDot = 0
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 			if c = "\" or c = "/"
 				bHasSep = 1
 			ok
@@ -111,9 +112,9 @@ class stzStringIO
 
 	def IsURL()
 		cContent = StzCaseFold(@oString.Content())
-		if left(cContent, 7) = "http://" or
-		   left(cContent, 8) = "https://" or
-		   left(cContent, 6) = "ftp://"
+		if StzLeft(cContent, 7) = "http://" or
+		   StzLeft(cContent, 8) = "https://" or
+		   StzLeft(cContent, 6) = "ftp://"
 			return 1
 		else
 			return 0
@@ -132,20 +133,20 @@ class stzStringIO
 	#===============================#
 
 	def ToJSON()
-		cContent = @oString.Content()
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		cResult = '"'
-		nLen = len(cContent)
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 			if c = '"'
 				cResult += '\"'
 			but c = "\"
 				cResult += "\\"
-			but c = char(10)
+			but c = StzChar(10)
 				cResult += "\n"
-			but c = char(13)
+			but c = StzChar(13)
 				cResult += "\r"
-			but c = char(9)
+			but c = StzChar(9)
 				cResult += "\t"
 			else
 				cResult += c
@@ -165,12 +166,12 @@ class stzStringIO
 		ok
 
 	def ToXML()
-		cContent = @oString.Content()
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		cResult = ""
-		nLen = len(cContent)
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 			if c = "&"
 				cResult += "&amp;"
 			but c = "<"
@@ -195,18 +196,15 @@ class stzStringIO
 		StzRaise("Clipboard access is not supported in this environment!")
 
 	def IsBase64()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		if nLen = 0
 			return 0
 		ok
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
-			n = ascii(c)
-			if (n >= 65 and n <= 90) or
-			   (n >= 97 and n <= 122) or
-			   (n >= 48 and n <= 57) or
+			c = acChars[i]
+			if isAlpha(c) or isDigit(c) or
 			   c = "+" or c = "/" or c = "="
 				# valid base64 character
 			else

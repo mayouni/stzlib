@@ -57,12 +57,14 @@ class stzStringEncoder
 
 	def FromHex(cHex)
 		cResult = ""
-		nLen = len(cHex)
+		oHex = new stzString(cHex)
+		acChars = oHex.Chars()
+		nLen = len(acChars)
 		i = 1
 
 		while i <= nLen - 1
-			cByte = substr(cHex, i, 2)
-			cResult += char(dec(cByte))
+			cByte = acChars[i] + acChars[i + 1]
+			cResult += StzChar(dec(cByte))
 			i += 2
 		end
 
@@ -103,24 +105,18 @@ class stzStringEncoder
 	#===============================#
 
 	def AsciiCodes()
+		# Returns Unicode codepoints for each char (engine-backed)
+		pH = @oString.Engine()
+		nLen = @oString.NumberOfChars()
 		acResult = []
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
 		for i = 1 to nLen
-			acResult + ascii(substr(cContent, i, 1))
+			acResult + StzEngineStringCharAt(pH, i)
 		next
-
 		return acResult
 
 	def Unicodes()
-		acResult = []
-		cContent = @oString.Content()
-		nLen = len(cContent)
-
-		for i = 1 to nLen
-			acResult + ascii(substr(cContent, i, 1))
-		next
+		# Same as AsciiCodes — returns Unicode codepoints
+		return This.AsciiCodes()
 
 		return acResult
 
@@ -129,15 +125,15 @@ class stzStringEncoder
 	#===============================#
 
 	def ToBinary()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		pH = @oString.Engine()
+		nLen = @oString.NumberOfChars()
 		cResult = ""
 
 		for i = 1 to nLen
 			if i > 1
 				cResult += " "
 			ok
-			n = ascii(substr(cContent, i, 1))
+			n = StzEngineStringCharAt(pH, i)
 			cBin = ""
 			for b = 7 to 0 step -1
 				if n & pow(2, b)
@@ -159,14 +155,15 @@ class stzStringEncoder
 		for i = 1 to nLen
 			cByte = acParts[i]
 			nVal = 0
-			nByteLen = len(cByte)
+			nByteLen = StzLen(cByte)
+			oTmp = new stzString(cByte)
+			acBits = oTmp.Chars()
 			for j = 1 to nByteLen
-				c = substr(cByte, j, 1)
-				if c = "1"
+				if acBits[j] = "1"
 					nVal += pow(2, nByteLen - j)
 				ok
 			next
-			cResult += char(nVal)
+			cResult += StzChar(nVal)
 		next
 
 		@oString.Update(cResult)
@@ -180,15 +177,15 @@ class stzStringEncoder
 	#===============================#
 
 	def ToOctal()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		pH = @oString.Engine()
+		nLen = @oString.NumberOfChars()
 		cResult = ""
 
 		for i = 1 to nLen
 			if i > 1
 				cResult += " "
 			ok
-			n = ascii(substr(cContent, i, 1))
+			n = StzEngineStringCharAt(pH, i)
 			cOct = ""
 			nTemp = n
 			if nTemp = 0
@@ -200,7 +197,7 @@ class stzStringEncoder
 				end
 			ok
 			# Pad to at least 3 digits
-			while len(cOct) < 3
+			while StzLen(cOct) < 3
 				cOct = "0" + cOct
 			end
 			cResult += cOct
@@ -213,15 +210,15 @@ class stzStringEncoder
 	#===============================#
 
 	def ToCharCodes()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		pH = @oString.Engine()
+		nLen = @oString.NumberOfChars()
 		cResult = ""
 
 		for i = 1 to nLen
 			if i > 1
 				cResult += " "
 			ok
-			cResult += ("" + ascii(substr(cContent, i, 1)))
+			cResult += ("" + StzEngineStringCharAt(pH, i))
 		next
 
 		return cResult
@@ -232,7 +229,7 @@ class stzStringEncoder
 		nLen = len(acParts)
 
 		for i = 1 to nLen
-			cResult += char(0 + acParts[i])
+			cResult += StzChar(0 + acParts[i])
 		next
 
 		@oString.Update(cResult)
@@ -246,12 +243,12 @@ class stzStringEncoder
 	#===============================#
 
 	def HtmlEncoded()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		cResult = ""
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 
 			if c = "&"
 				cResult += "&amp;"
@@ -301,13 +298,13 @@ class stzStringEncoder
 	#===============================#
 
 	def EscapedForRegex()
-		cContent = @oString.Content()
-		nLen = len(cContent)
+		acChars = @oString.Chars()
+		nLen = len(acChars)
 		cResult = ""
 		cSpecial = ".*+?^${}[]()|\\"
 
 		for i = 1 to nLen
-			c = substr(cContent, i, 1)
+			c = acChars[i]
 			if ring_find(cSpecial, c) > 0
 				cResult += "\" + c
 			else
@@ -329,15 +326,8 @@ class stzStringEncoder
 	#===============================#
 
 	def Reverse()
-		cContent = @oString.Content()
-		nLen = len(cContent)
-		cResult = ""
-
-		for i = nLen to 1 step -1
-			cResult += substr(cContent, i, 1)
-		next
-
-		@oString.Update(cResult)
+		# Engine-backed Unicode-aware reverse
+		@oString.Update(StzReverse(@oString.Content()))
 
 		def ReverseQ()
 			This.Reverse()
