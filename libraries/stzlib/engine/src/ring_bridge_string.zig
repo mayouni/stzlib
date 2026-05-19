@@ -1273,6 +1273,30 @@ fn ring_StringInsertAfterEach(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retcpointer(p, @ptrCast(string.str_insert_after_each(h, needle, needle_len, ins, ins_len)), STZ_HANDLE);
 }
 
+// ─── InsertBeforeEachCS ───
+
+fn ring_StringInsertBeforeEachCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const needle = ring_vm_api_getstring(p, 2);
+    const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const ins = ring_vm_api_getstring(p, 3);
+    const ins_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_insert_before_each_cs(h, needle, needle_len, ins, ins_len, case)), STZ_HANDLE);
+}
+
+// ─── InsertAfterEachCS ───
+
+fn ring_StringInsertAfterEachCS(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const needle = ring_vm_api_getstring(p, 2);
+    const needle_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const ins = ring_vm_api_getstring(p, 3);
+    const ins_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const case: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_insert_after_each_cs(h, needle, needle_len, ins, ins_len, case)), STZ_HANDLE);
+}
+
 // ─── Truncate ───
 
 fn ring_StringTruncate(p: *anyopaque) callconv(.c) void {
@@ -2702,6 +2726,8 @@ const regs = [_]R.Reg{
     .{ .name = "stzenginestringrepeatchar", .func = &ring_StringRepeatChar },
     .{ .name = "stzenginestringinsertbeforeeach", .func = &ring_StringInsertBeforeEach },
     .{ .name = "stzenginestringinsertaftereach", .func = &ring_StringInsertAfterEach },
+    .{ .name = "stzenginestringinsertbeforeeachcs", .func = &ring_StringInsertBeforeEachCS },
+    .{ .name = "stzenginestringinsertaftereachcs", .func = &ring_StringInsertAfterEachCS },
     .{ .name = "stzenginestringtruncate", .func = &ring_StringTruncate },
     .{ .name = "stzenginestringwrapat", .func = &ring_StringWrapAt },
     .{ .name = "stzenginestringremoveprefix", .func = &ring_StringRemovePrefix },

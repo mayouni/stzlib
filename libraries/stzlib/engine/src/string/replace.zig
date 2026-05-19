@@ -1187,6 +1187,127 @@ pub fn str_insert_after_each(handle: StzStringHandle, needle: [*c]const u8, need
     return result;
 }
 
+// ─── InsertBeforeEachCS ───
+
+pub fn str_insert_before_each_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, ins: [*c]const u8, ins_len: usize, case: c_int) callconv(.c) StzStringHandle {
+    if (case != 0) return str_insert_before_each(handle, needle, needle_len, ins, ins_len);
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (needle == null or ins == null or needle_len == 0) return str_copy(handle);
+    const ndl: []const u8 = needle[0..needle_len];
+    const insert: []const u8 = ins[0..ins_len];
+
+    // Casefold the needle once
+    const ndl_folded = casefoldAlloc(ndl) orelse return str_copy(handle);
+    defer gpa.free(ndl_folded);
+
+    const ndl_cp_count = utf8CodepointCount(ndl);
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    var pos: usize = 0;
+    while (pos < buf.len) {
+        const cp_byte_len = std.unicode.utf8ByteSequenceLength(buf[pos]) catch 1;
+
+        // Try to match ndl_cp_count codepoints from pos
+        blk: {
+            var end: usize = pos;
+            var cp_i: usize = 0;
+            while (cp_i < ndl_cp_count and end < buf.len) {
+                const seq_len = std.unicode.utf8ByteSequenceLength(buf[end]) catch 1;
+                end += seq_len;
+                cp_i += 1;
+            }
+            if (cp_i < ndl_cp_count) break :blk;
+            const candidate = buf[pos..end];
+            const cand_folded = casefoldAlloc(candidate) orelse break :blk;
+            defer gpa.free(cand_folded);
+            if (mem.eql(u8, cand_folded, ndl_folded)) {
+                result.data.appendSlice(gpa, insert) catch {
+                    result.deinit();
+                    gpa.destroy(result);
+                    return null;
+                };
+                result.data.appendSlice(gpa, candidate) catch {
+                    result.deinit();
+                    gpa.destroy(result);
+                    return null;
+                };
+                pos = end;
+                continue;
+            }
+        }
+        // No match — copy one codepoint's bytes
+        const adv = @min(cp_byte_len, buf.len - pos);
+        result.data.appendSlice(gpa, buf[pos..][0..adv]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+        pos += adv;
+    }
+    return result;
+}
+
+// ─── InsertAfterEachCS ───
+
+pub fn str_insert_after_each_cs(handle: StzStringHandle, needle: [*c]const u8, needle_len: usize, ins: [*c]const u8, ins_len: usize, case: c_int) callconv(.c) StzStringHandle {
+    if (case != 0) return str_insert_after_each(handle, needle, needle_len, ins, ins_len);
+    const s = handle orelse return null;
+    const buf = s.slice();
+    if (needle == null or ins == null or needle_len == 0) return str_copy(handle);
+    const ndl: []const u8 = needle[0..needle_len];
+    const insert: []const u8 = ins[0..ins_len];
+
+    const ndl_folded = casefoldAlloc(ndl) orelse return str_copy(handle);
+    defer gpa.free(ndl_folded);
+
+    const ndl_cp_count = utf8CodepointCount(ndl);
+    const result = gpa.create(StzString) catch return null;
+    result.* = StzString.init();
+
+    var pos: usize = 0;
+    while (pos < buf.len) {
+        const cp_byte_len = std.unicode.utf8ByteSequenceLength(buf[pos]) catch 1;
+
+        blk: {
+            var end: usize = pos;
+            var cp_i: usize = 0;
+            while (cp_i < ndl_cp_count and end < buf.len) {
+                const seq_len = std.unicode.utf8ByteSequenceLength(buf[end]) catch 1;
+                end += seq_len;
+                cp_i += 1;
+            }
+            if (cp_i < ndl_cp_count) break :blk;
+            const candidate = buf[pos..end];
+            const cand_folded = casefoldAlloc(candidate) orelse break :blk;
+            defer gpa.free(cand_folded);
+            if (mem.eql(u8, cand_folded, ndl_folded)) {
+                result.data.appendSlice(gpa, candidate) catch {
+                    result.deinit();
+                    gpa.destroy(result);
+                    return null;
+                };
+                result.data.appendSlice(gpa, insert) catch {
+                    result.deinit();
+                    gpa.destroy(result);
+                    return null;
+                };
+                pos = end;
+                continue;
+            }
+        }
+        const adv = @min(cp_byte_len, buf.len - pos);
+        result.data.appendSlice(gpa, buf[pos..][0..adv]) catch {
+            result.deinit();
+            gpa.destroy(result);
+            return null;
+        };
+        pos += adv;
+    }
+    return result;
+}
+
 // ─── InsertWordAt (pub export fn) ───
 
 /// Insert a word at position n (1-based from host, converted to 0-based internally). Words separated by spaces.

@@ -77,15 +77,11 @@ class stzStringInserter
 	#======================================================#
 
 	def InsertBeforeSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		_oFinder_ = new stzStringFinder(@oString)
-		anPos = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
-		nLen = len(anPos)
-		nShift = 0
-		nNewLen = StzLen(pcNewSubStr)
-		for i = 1 to nLen
-			This.InsertBefore(anPos[i] + nShift, pcNewSubStr)
-			nShift += nNewLen
-		next
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pResult = StzEngineStringInsertBeforeEachCS(pH, pcSubStr, pcNewSubStr, _bCase_)
+		@oString.Update(StzEngineStringData(pResult))
+		StzEngineStringFree(pResult)
 
 		def InsertBeforeSubStringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertBeforeSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
@@ -95,16 +91,11 @@ class stzStringInserter
 		This.InsertBeforeSubStringCS(pcSubStr, pcNewSubStr, 1)
 
 	def InsertAfterSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
-		_oFinder_ = new stzStringFinder(@oString)
-		anPos = _oFinder_.FindCS(pcSubStr, pCaseSensitive)
-		nSubLen = StzLen(pcSubStr)
-		nLen = len(anPos)
-		nShift = 0
-		nNewLen = StzLen(pcNewSubStr)
-		for i = 1 to nLen
-			This.InsertAfter(anPos[i] + nSubLen - 1 + nShift, pcNewSubStr)
-			nShift += nNewLen
-		next
+		_bCase_ = @CaseSensitive(pCaseSensitive)
+		pH = @oString.Engine()
+		pResult = StzEngineStringInsertAfterEachCS(pH, pcSubStr, pcNewSubStr, _bCase_)
+		@oString.Update(StzEngineStringData(pResult))
+		StzEngineStringFree(pResult)
 
 		def InsertAfterSubStringCSQ(pcSubStr, pcNewSubStr, pCaseSensitive)
 			This.InsertAfterSubStringCS(pcSubStr, pcNewSubStr, pCaseSensitive)
