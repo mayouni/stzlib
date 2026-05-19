@@ -482,9 +482,9 @@ class stzOperatingSystem
 	def NormalizePath(cPath)
 		cSep = This.PathSeparator()
 		if This.IsWindows()
-			cPath = substr(cPath, "/", "\")
+			cPath = ring_substr2(cPath, "/", "\")
 		else
-			cPath = substr(cPath, "\", "/")
+			cPath = ring_substr2(cPath, "\", "/")
 		ok
 		return cPath
 
