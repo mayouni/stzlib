@@ -102,19 +102,26 @@ pub fn stz_regex_capture_count(h: ?*Regex) callconv(.c) c_int {
 
 pub fn stz_regex_capture_start(h: ?*Regex, idx: c_int) callconv(.c) c_int {
     const r = h orelse return -1;
-    const i: usize = @intCast(idx);
-    return if (i < r.captures.items.len) r.captures.items[i].start else -1;
+    if (idx < 1) return -1;
+    const i: usize = @intCast(idx - 1);
+    if (i >= r.captures.items.len) return -1;
+    const s = r.captures.items[i].start;
+    return if (s < 0) s else s + 1;
 }
 
 pub fn stz_regex_capture_end(h: ?*Regex, idx: c_int) callconv(.c) c_int {
     const r = h orelse return -1;
-    const i: usize = @intCast(idx);
-    return if (i < r.captures.items.len) r.captures.items[i].end else -1;
+    if (idx < 1) return -1;
+    const i: usize = @intCast(idx - 1);
+    if (i >= r.captures.items.len) return -1;
+    const e = r.captures.items[i].end;
+    return if (e < 0) e else e + 1;
 }
 
 pub fn stz_regex_capture_text(h: ?*Regex, idx: c_int, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     const r = h orelse return 0;
-    const i: usize = @intCast(idx);
+    if (idx < 1) return 0;
+    const i: usize = @intCast(idx - 1);
     if (i >= r.captures.items.len) return 0;
     const c = r.captures.items[i];
     if (c.start < 0 or c.end < 0) return 0;

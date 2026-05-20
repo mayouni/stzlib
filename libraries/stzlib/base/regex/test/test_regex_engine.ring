@@ -19,13 +19,13 @@ ok
 ? "--- Test 1: Simple match ---"
 pH = StzEngineRegexNew("[0-9]+", 0)
 if pH != NULL
-	nResult = StzEngineRegexMatch(pH, "abc123def", 0)
+	nResult = StzEngineRegexMatch(pH, "abc123def", 1)
 	? "  Match '[0-9]+' in 'abc123def': " + nResult
 	? "  HasMatch: " + StzEngineRegexHasMatch(pH)
 	? "  CaptureCount: " + StzEngineRegexCaptureCount(pH)
-	? "  CaptureStart(0): " + StzEngineRegexCaptureStart(pH, 0)
-	? "  CaptureEnd(0): " + StzEngineRegexCaptureEnd(pH, 0)
-	? "  CaptureText(0): " + StzEngineRegexCaptureText(pH, 0)
+	? "  CaptureStart(1): " + StzEngineRegexCaptureStart(pH, 1)
+	? "  CaptureEnd(1): " + StzEngineRegexCaptureEnd(pH, 1)
+	? "  CaptureText(1): " + StzEngineRegexCaptureText(pH, 1)
 	StzEngineRegexFree(pH)
 else
 	? "  ERROR: regex new returned NULL"
@@ -36,7 +36,7 @@ ok
 ? "--- Test 2: No match ---"
 pH2 = StzEngineRegexNew("[0-9]+", 0)
 if pH2 != NULL
-	nResult = StzEngineRegexMatch(pH2, "abcdef", 0)
+	nResult = StzEngineRegexMatch(pH2, "abcdef", 1)
 	? "  Match '[0-9]+' in 'abcdef': " + nResult
 	? "  HasMatch: " + StzEngineRegexHasMatch(pH2)
 	StzEngineRegexFree(pH2)
@@ -47,13 +47,13 @@ ok
 ? "--- Test 3: Capture groups ---"
 pH3 = StzEngineRegexNew("([a-z]+)@([a-z]+)[.]([a-z]+)", 0)
 if pH3 != NULL
-	nResult = StzEngineRegexMatch(pH3, "user@example.com", 0)
+	nResult = StzEngineRegexMatch(pH3, "user@example.com", 1)
 	? "  Match email pattern: " + nResult
 	? "  CaptureCount: " + StzEngineRegexCaptureCount(pH3)
-	? "  Full match: " + StzEngineRegexCaptureText(pH3, 0)
-	? "  Group 1: " + StzEngineRegexCaptureText(pH3, 1)
-	? "  Group 2: " + StzEngineRegexCaptureText(pH3, 2)
-	? "  Group 3: " + StzEngineRegexCaptureText(pH3, 3)
+	? "  Full match: " + StzEngineRegexCaptureText(pH3, 1)
+	? "  Group 1: " + StzEngineRegexCaptureText(pH3, 2)
+	? "  Group 2: " + StzEngineRegexCaptureText(pH3, 3)
+	? "  Group 3: " + StzEngineRegexCaptureText(pH3, 4)
 	StzEngineRegexFree(pH3)
 ok
 
@@ -62,7 +62,7 @@ ok
 ? "--- Test 4: Replace ---"
 pH4 = StzEngineRegexNew("[0-9]+", 0)
 if pH4 != NULL
-	nResult = StzEngineRegexMatch(pH4, "abc123def456", 0)
+	nResult = StzEngineRegexMatch(pH4, "abc123def456", 1)
 	cReplaced = StzEngineRegexReplace(pH4, "abc123def456", "#")
 	? "  Replace digits with '#': " + cReplaced
 	StzEngineRegexFree(pH4)
@@ -85,9 +85,9 @@ pH = StzEngineRegexNew("[0-9]+", 0)
 nCount = StzEngineRegexMatchAll(pH, "abc 123 def 456 ghi 789")
 ? "  Match count: " + nCount
 if nCount = 3
-	cFirst = StzEngineRegexCaptureText(pH, 0)
-	cSecond = StzEngineRegexCaptureText(pH, 1)
-	cThird = StzEngineRegexCaptureText(pH, 2)
+	cFirst = StzEngineRegexCaptureText(pH, 1)
+	cSecond = StzEngineRegexCaptureText(pH, 2)
+	cThird = StzEngineRegexCaptureText(pH, 3)
 	? "  Matches: '" + cFirst + "', '" + cSecond + "', '" + cThird + "'"
 	if cFirst = "123" and cSecond = "456" and cThird = "789"
 		? "  PASS"

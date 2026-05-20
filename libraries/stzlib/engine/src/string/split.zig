@@ -52,10 +52,10 @@ pub fn str_split_count_cs(handle: StzStringHandle, sep: [*c]const u8, sep_len: u
 /// Unified split_get with case sensitivity parameter.
 pub fn str_split_get_cs(handle: StzStringHandle, sep: [*c]const u8, sep_len: usize, index: c_int, case: c_int) callconv(.c) StzStringHandle {
     if (handle) |s| {
-        if (sep == null or sep_len == 0 or index < 0) return null;
+        if (sep == null or sep_len == 0 or index < 1) return null;
         const hay = s.slice();
         const d = sep[0..sep_len];
-        const target: usize = @intCast(index);
+        const target: usize = @intCast(index - 1);
         var part: usize = 0;
         var start: usize = 0;
         var pos: usize = 0;
@@ -1009,12 +1009,12 @@ test "split_count_cs" {
 test "split_get" {
     const s = str_from("hello world foo", 15);
     defer str_free(s);
-    const w0 = str_split_get(s, " ", 1, 0);
+    const w0 = str_split_get(s, " ", 1, 1);
     defer str_free(w0);
     try testing.expect(w0 != null);
     try testing.expectEqualStrings("hello", w0.?.slice());
 
-    const w2 = str_split_get(s, " ", 1, 2);
+    const w2 = str_split_get(s, " ", 1, 3);
     defer str_free(w2);
     try testing.expect(w2 != null);
     try testing.expectEqualStrings("foo", w2.?.slice());
@@ -1024,12 +1024,12 @@ test "split_get_cs" {
     const s = str_from("AaBbAaCc", 8);
     defer str_free(s);
     // Case sensitive: split by "Aa"
-    const cs0 = str_split_get_cs(s, "Aa", 2, 0, 1);
+    const cs0 = str_split_get_cs(s, "Aa", 2, 1, 1);
     defer str_free(cs0);
     try testing.expect(cs0 != null);
     try testing.expectEqualStrings("", cs0.?.slice());
 
-    const cs1 = str_split_get_cs(s, "Aa", 2, 1, 1);
+    const cs1 = str_split_get_cs(s, "Aa", 2, 2, 1);
     defer str_free(cs1);
     try testing.expect(cs1 != null);
     try testing.expectEqualStrings("Bb", cs1.?.slice());

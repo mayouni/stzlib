@@ -85,7 +85,7 @@ func StzRegexMatch(cInput, cPattern)
 	if pH = NULL
 		return FALSE
 	ok
-	nResult = StzEngineRegexMatch(pH, cInput, 0)
+	nResult = StzEngineRegexMatch(pH, cInput, 1)
 	StzEngineRegexFree(pH)
 	return nResult = 1
 
@@ -94,7 +94,7 @@ func StzRegexReplace(cInput, cPattern, cReplacement)
 	if pH = NULL
 		return cInput
 	ok
-	StzEngineRegexMatch(pH, cInput, 0)
+	StzEngineRegexMatch(pH, cInput, 1)
 	cResult = StzEngineRegexReplace(pH, cInput, cReplacement)
 	StzEngineRegexFree(pH)
 	return cResult
@@ -401,12 +401,12 @@ class stzRegex
 		_nPos_ = 1
 
 		while This.MatchAt(@cStr, _nPos_)
-			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 0)
+			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
 			if _cMatch_ != ""
 				_acResults_ + _cMatch_
-				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
-				_nPos_ = _nEnd_ + 2
+				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
+				_nPos_ = _nEnd_ + 1
 			else
 				break
 			ok
@@ -465,8 +465,8 @@ class stzRegex
 
 	def NumberOfChars()
 		if @pRegexHandle = NULL return 0 ok
-		_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 0)
-		_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
+		_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
+		_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
 		if _nStart_ < 0 or _nEnd_ < 0 return 0 ok
 		return _nEnd_ - _nStart_
 
@@ -478,13 +478,13 @@ class stzRegex
 		_nPos_ = 1
 
 		while This.MatchAt(@cStr, _nPos_)
-			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 0)
+			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
 			if _cMatch_ != ""
-				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 0)
-				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
-				_anResults_ + (_nStart_ + 1)
-				_nPos_ = _nEnd_ + 2
+				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
+				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
+				_anResults_ + _nStart_
+				_nPos_ = _nEnd_ + 1
 			else
 				break
 			ok
@@ -556,13 +556,13 @@ class stzRegex
 		_nPos_ = 1
 
 		while This.MatchAt(@cStr, _nPos_)
-			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 0)
+			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
 			if _cMatch_ != ""
-				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 0)
-				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
-				_nPos_ = _nEnd_ + 2
-				_aResults_ + [_nStart_ + 1, _nEnd_ + 1]
+				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
+				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
+				_nPos_ = _nEnd_ + 1
+				_aResults_ + [_nStart_, _nEnd_]
 			else
 				break
 			ok
@@ -603,13 +603,13 @@ class stzRegex
 		_nPos_ = 1
 
 		while This.MatchAt(@cStr, _nPos_)
-			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 0)
+			_cMatch_ = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
 			if _cMatch_ != ""
-				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 0)
-				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
-				_nPos_ = _nEnd_ + 2
-				_aResults_ + [ _cMatch_, [_nStart_ + 1, _nEnd_ + 1] ]
+				_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
+				_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
+				_nPos_ = _nEnd_ + 1
+				_aResults_ + [ _cMatch_, [_nStart_, _nEnd_] ]
 			else
 				break
 			ok
@@ -777,7 +777,7 @@ class stzRegex
 		for @i = 1 to This.CaptureCount()
 			_cCapture_ = StzEngineRegexCaptureText(@pRegexHandle, @i)
 			if _cCapture_ != ""
-				_nPos_ = StzEngineRegexCaptureStart(@pRegexHandle, @i) + 1
+				_nPos_ = StzEngineRegexCaptureStart(@pRegexHandle, @i)
 				if _nPos_ > 0
 					_aResult_ + [ _cCapture_, _nPos_]
 				ok
@@ -853,7 +853,7 @@ class stzRegex
 			_cCapture_ = StzEngineRegexCaptureText(@pRegexHandle, @i)
 
 			if _cCapture_ != ""
-				_aSection_ = [ StzEngineRegexCaptureStart(@pRegexHandle, @i) + 1,
+				_aSection_ = [ StzEngineRegexCaptureStart(@pRegexHandle, @i),
 					       StzEngineRegexCaptureEnd(@pRegexHandle, @i) ]
 				_aResult_ + [ _cCapture_, _aSection_ ]
 			ok
@@ -1022,16 +1022,16 @@ class stzRegex
 
 		while This.HasMatch()
 
-			cCapture = StzEngineRegexCaptureText(@pRegexHandle, 0)
+			cCapture = StzEngineRegexCaptureText(@pRegexHandle, 1)
 
 			if StzFind(acSeen, cCapture) = 0
 
-				_nS_ = StzEngineRegexCaptureStart(@pRegexHandle, 0)
-				_nE_ = StzEngineRegexCaptureEnd(@pRegexHandle, 0)
+				_nS_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
+				_nE_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
 
 				aMatches + [
 					cCapture,
-					[ _nS_ + 1, _nE_ ]
+					[ _nS_, _nE_ ]
 				]
 
 				nMaxDepth++

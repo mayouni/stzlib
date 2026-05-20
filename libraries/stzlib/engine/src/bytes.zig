@@ -63,7 +63,8 @@ pub fn stz_bytes_append(h: ?*Bytes, data: [*c]const u8, len: usize) callconv(.c)
 
 pub fn stz_bytes_at(h: ?*Bytes, idx: c_int) callconv(.c) c_int {
     const b = h orelse return -1;
-    const i: usize = @intCast(idx);
+    if (idx < 1) return -1;
+    const i: usize = @intCast(idx - 1);
     if (i >= b.data.items.len) return -1;
     return @intCast(b.data.items[i]);
 }
@@ -71,14 +72,16 @@ pub fn stz_bytes_at(h: ?*Bytes, idx: c_int) callconv(.c) c_int {
 pub fn stz_bytes_insert(h: ?*Bytes, pos: c_int, data: [*c]const u8, len: usize) callconv(.c) void {
     const b = h orelse return;
     if (data == null or len == 0) return;
-    const p: usize = @intCast(pos);
+    if (pos < 1) return;
+    const p: usize = @intCast(pos - 1);
     if (p > b.data.items.len) return;
     b.data.insertSlice(gpa, p, data[0..len]) catch {};
 }
 
 pub fn stz_bytes_remove(h: ?*Bytes, pos: c_int, count: c_int) callconv(.c) void {
     const b = h orelse return;
-    const p: usize = @intCast(pos);
+    if (pos < 1) return;
+    const p: usize = @intCast(pos - 1);
     const c: usize = @intCast(count);
     if (p >= b.data.items.len) return;
     const end = @min(p + c, b.data.items.len);
@@ -108,7 +111,8 @@ pub fn stz_bytes_right(h: ?*Bytes, n: c_int, buf: [*c]u8, buf_len: usize) callco
 
 pub fn stz_bytes_mid(h: ?*Bytes, pos: c_int, count: c_int, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
     const b = h orelse return 0;
-    const p: usize = @intCast(pos);
+    if (pos < 1) return 0;
+    const p: usize = @intCast(pos - 1);
     const c: usize = @intCast(count);
     if (p >= b.data.items.len) return 0;
     const end = @min(p + c, b.data.items.len);
@@ -127,7 +131,8 @@ pub fn stz_bytes_fill(h: ?*Bytes, val: u8, count: c_int) callconv(.c) void {
 
 pub fn stz_bytes_replace(h: ?*Bytes, pos: c_int, count: c_int, data: [*c]const u8, data_len: usize) callconv(.c) void {
     const b = h orelse return;
-    const p: usize = @intCast(pos);
+    if (pos < 1) return;
+    const p: usize = @intCast(pos - 1);
     const c: usize = @intCast(count);
     if (p >= b.data.items.len) return;
     const end = @min(p + c, b.data.items.len);
@@ -279,7 +284,7 @@ test "bytes lifecycle" {
     const b = stz_bytes_from("hello", 5) orelse return error.NullBytes;
     defer stz_bytes_free(b);
     try std.testing.expectEqual(@as(c_int, 5), stz_bytes_size(b));
-    try std.testing.expectEqual(@as(c_int, 'h'), stz_bytes_at(b, 0));
+    try std.testing.expectEqual(@as(c_int, 'h'), stz_bytes_at(b, 1));
 }
 
 test "base64 round-trip" {

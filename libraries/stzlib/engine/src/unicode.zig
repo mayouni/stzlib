@@ -443,38 +443,38 @@ pub fn stz_unicode_encode(cp: i32, buf: [*c]u8, buf_len: usize) callconv(.c) usi
 // ─── Codepoint-to-byte offset mapping ───
 
 pub fn stz_unicode_cp_to_byte(data: [*c]const u8, len: usize, cp_index: c_int) callconv(.c) c_int {
-    if (data == null or len == 0 or cp_index < 0) return -1;
-    const target: usize = @intCast(cp_index);
+    if (data == null or len == 0 or cp_index < 1) return -1;
+    const target: usize = @intCast(cp_index - 1);
     const src = data[0..len];
     var pos: usize = 0;
     var cp_count: usize = 0;
     while (pos < src.len) {
-        if (cp_count == target) return @intCast(pos);
+        if (cp_count == target) return @as(c_int, @intCast(pos)) + 1;
         var cp: i32 = undefined;
         const consumed = c.utf8proc_iterate(src.ptr + pos, @intCast(src.len - pos), &cp);
         if (consumed < 1) break;
         pos += @intCast(consumed);
         cp_count += 1;
     }
-    if (cp_count == target) return @intCast(pos);
+    if (cp_count == target) return @as(c_int, @intCast(pos)) + 1;
     return -1;
 }
 
 pub fn stz_unicode_byte_to_cp(data: [*c]const u8, len: usize, byte_pos: c_int) callconv(.c) c_int {
-    if (data == null or len == 0 or byte_pos < 0) return -1;
-    const target: usize = @intCast(byte_pos);
+    if (data == null or len == 0 or byte_pos < 1) return -1;
+    const target: usize = @intCast(byte_pos - 1);
     const src = data[0..len];
     var pos: usize = 0;
     var cp_count: usize = 0;
     while (pos < src.len) {
-        if (pos == target) return @intCast(cp_count);
+        if (pos == target) return @as(c_int, @intCast(cp_count)) + 1;
         var cp: i32 = undefined;
         const consumed = c.utf8proc_iterate(src.ptr + pos, @intCast(src.len - pos), &cp);
         if (consumed < 1) break;
         pos += @intCast(consumed);
         cp_count += 1;
     }
-    if (pos == target) return @intCast(cp_count);
+    if (pos == target) return @as(c_int, @intCast(cp_count)) + 1;
     return -1;
 }
 
@@ -522,11 +522,11 @@ test "unicode grapheme count" {
 
 test "unicode cp_to_byte" {
     // "Abc" = 3 bytes, 3 codepoints
-    try std.testing.expectEqual(@as(c_int, 0), stz_unicode_cp_to_byte("Abc", 3, 0));
     try std.testing.expectEqual(@as(c_int, 1), stz_unicode_cp_to_byte("Abc", 3, 1));
-    // e-acute (2 bytes) + "x" = byte offsets: 0, 2
-    try std.testing.expectEqual(@as(c_int, 0), stz_unicode_cp_to_byte("\xC3\xA9x", 3, 0));
-    try std.testing.expectEqual(@as(c_int, 2), stz_unicode_cp_to_byte("\xC3\xA9x", 3, 1));
+    try std.testing.expectEqual(@as(c_int, 2), stz_unicode_cp_to_byte("Abc", 3, 2));
+    // e-acute (2 bytes) + "x" = byte offsets: 1, 3 (1-based)
+    try std.testing.expectEqual(@as(c_int, 1), stz_unicode_cp_to_byte("\xC3\xA9x", 3, 1));
+    try std.testing.expectEqual(@as(c_int, 3), stz_unicode_cp_to_byte("\xC3\xA9x", 3, 2));
 }
 
 test "unicode normalize" {

@@ -9,79 +9,76 @@ ok
 
 # Loding the files related to the CORE layer
 
-    load "../core/stzcore.ring" 
+    load "../core/stzCore.ring" 
 
 # Loading files related tp the COMMON module
 
-    load "common/stzcounter.ring"
-    load "common/stzfuncs.ring"
+    load "common/stzCounter.ring"
+    load "common/stzFuncs.ring"
 
-    load "common/stzoccurrences.ring"
-    load "common/stzringfuncs.ring"
+    load "common/stzOccurrences.ring"
+    load "common/stzRingFuncs.ring"
 
-    load "common/stzringlibs.ring"
+    load "common/stzRingLibs.ring"
     load "common/stzNamedParams.ring"
-    load "common/stzerrors_engine.ring"
-    load "common/stzsmallfuncs.ring"
-    load "common/stzsplitter.ring"
+    load "common/stzSmallFuncs.ring"
+    load "common/stzSplitter.ring"
 
-    load "common/stzccode.ring"
-    load "common/stznamedvars.ring"
+    load "common/stzCCode.ring"
+    load "common/stzNamedVars.ring"
 
 # Loading files related to the DATA module
 
-    load "data/stzchardata.ring"
-    load "data/stzunicodedata.ring"
-    load "data/stzlocaledata.ring"
-    load "data/stzregexdata.ring"
-    load "data/stzrandomdata.ring"
-    load "data/stzsystemcalldata.ring"
+    load "data/stzCharData.ring"
+    load "data/stzUnicodeData.ring"
+    load "data/stzLocaleData.ring"
+    load "data/stzRegexData.ring"
+    load "data/stzRandomData.ring"
+    load "data/stzSystemCallData.ring"
 
 # Loading files related to the OBJECT module
 
-    load "object/stzobject.ring"
-    load "object/stzobjecthistory.ring"
+    load "object/stzObject.ring"
+    load "object/stzObjectHistory.ring"
 
-    load "object/stzlistofobjects.ring"
-    load "object/stzlistofnamedobjects.ring"
-    load "object/stznullobject.ring"
-    load "object/stztrueobject.ring"
-    load "object/stzfalseobject.ring"
+    load "object/stzListOfObjects.ring"
+    load "object/stzListOfNamedObjects.ring"
+    load "object/stzNullObject.ring"
+    load "object/stzTrueObject.ring"
+    load "object/stzFalseObject.ring"
 
 # Loading files related to the NUMBER module
 
-    load "number/stznumber.ring" #TODO Check compatibiiliy with stkNumber in CORE layer
-    load "number/stzlistofnumbers.ring"
-    load "number/stzpairofnumbers.ring"
+    load "number/stzNumber.ring" #TODO Check compatibiiliy with stkNumber in CORE layer
+    load "number/stzListOfNumbers.ring"
+    load "number/stzPairOfNumbers.ring"
 
-    load "number/stzbinarynumber.ring"
-    load "number/stzdecimaltobinary.ring"
-    load "number/stzhexnumber.ring"
-    load "number/stzoctalnumber.ring"
+    load "number/stzBinaryNumber.ring"
+    load "number/stzDecimalToBinary.ring"
+    load "number/stzHexNumber.ring"
+    load "number/stzOctalNumber.ring"
 
-    load "number/stzlistofbytes.ring"
+    load "number/stzListOfBytes.ring"
 
-    load "number/stzrandom.ring"
-    load "number/stzscinumber.ring"
+    load "number/stzRandom.ring"
+    load "number/stzSciNumber.ring"
 
-    load "number/stzfastpro.ring"
-    load "number/stzmatrix.ring"
+    load "number/stzFastPro.ring"
+    load "number/stzMatrix.ring"
 
 # Loading files related to the STRING module
 
-    load "string/stzstringfunc.ring"
-    load "string/stzstring.ring"
+    load "string/stzStringFunc.ring"
+    load "string/stzString.ring"
 
-    load "string/stzlistofstrings.ring"
-    load "string/stzboxedstring.ring"
-    load "string/stzchar.ring"
-    load "string/stzlistofchars.ring"
-    load "string/stzlistofunicodes.ring"
-    load "string/stzstringart.ring"
-    load "string/stzsubstring.ring"
+    load "string/stzStringList.ring"
+    load "string/stzStringBoxed.ring"
+    load "string/stzStringChar.ring"
+    load "string/stzStringCharList.ring"
+    load "string/stzStringUnicodeList.ring"
+    load "string/stzStringSubString.ring"
 
-    load "string/stztext.ring"
-    load "string/stzstopwords.ring"
+    load "string/stzStringText.ring"
 
     # Modular subclasses (existing)
 
@@ -159,53 +156,53 @@ ok
 
 # Loading files related to REGEX module
 
-    load "regex/stzregex.ring"
-    load "regex/stzregexmaker.ring"
-    load "regex/stzlistex.ring"
-    load "regex/stznumbrex.ring"
-    load "regex/stztimex.ring"
-    load "regex/stzmatrex.ring"
-    load "regex/stztablex.ring"
-    load "regex/stzgraphex.ring"
+    load "regex/stzRegex.ring"
+    load "regex/stzRegexMaker.ring"
+    load "regex/stzListex.ring"
+    load "regex/stzNumbrex.ring"
+    load "regex/stzTimex.ring"
+    load "regex/stzMatrex.ring"
+    load "regex/stzTablex.ring"
+    load "regex/stzGraphex.ring"
 
-    load "regex/stzlistexuter.ring"
-    load "regex/stzregexuter.ring"
+    load "regex/stzListexUter.ring"
+    load "regex/stzRegexUter.ring"
 
 # Loading files related to the LIST module
 
-    load "list/stzhashlist.ring"
-    load "list/stzitem.ring"
-    load "list/stzlist.ring"
-    load "list/stzlistinstring.ring"
+    load "list/stzHashList.ring"
+    load "list/stzItem.ring"
+    load "list/stzList.ring"
+    load "list/stzListInString.ring"
 
-    load "list/stzlistofhashlists.ring"
-    load "list/stzlistoflists.ring"
-    load "list/stzlistofpairs.ring"
-    load "list/stzlistofsections.ring"
+    load "list/stzListOfHashLists.ring"
+    load "list/stzListOfLists.ring"
+    load "list/stzListOfPairs.ring"
+    load "list/stzListOfSections.ring"
 
-    load "list/stzlistofsets.ring"
-    load "list/stzlistpaths.ring"
-    load "list/stzlistshow.ring"
-    load "list/stzpair.ring"
+    load "list/stzListOfSets.ring"
+    load "list/stzListPaths.ring"
+    load "list/stzListShow.ring"
+    load "list/stzPair.ring"
 
-    load "list/stzpairoflists.ring"
-    load "list/stzsection.ring"
-    load "list/stzset.ring"
-    load "list/stzsetofsections.ring"
+    load "list/stzPairOfLists.ring"
+    load "list/stzSection.ring"
+    load "list/stzSet.ring"
+    load "list/stzSetOfSections.ring"
 
-    load "list/stztable.ring"
-    load "list/stzlistoftables.ring"
+    load "list/stzTable.ring"
+    load "list/stzListOfTables.ring"
 
-    load "list/stzgrid.ring"
-    load "list/stzlist2d.ring"
-    load "list/stzlistofgrids.ring"
-    load "list/stzlistparser.ring"
-    load "list/stzlistprovidedasString.ring"
-    load "list/stzpivottable.ring"
-    load "list/stzpivottableShow.ring"
-    load "list/stzsortedlist.ring"
-    load "list/stztile.ring"
-    load "list/stztree.ring"
+    load "list/stzGrid.ring"
+    load "list/stzList2D.ring"
+    load "list/stzListOfGrids.ring"
+    load "list/stzListParser.ring"
+    load "list/stzListProvidedAsString.ring"
+    load "list/stzPivotTable.ring"
+    load "list/stzPivotTableShow.ring"
+    load "list/stzSortedList.ring"
+    load "list/stzTile.ring"
+    load "list/stzTree.ring"
 
     # Modular subclasses (Phase 1)
 
@@ -273,21 +270,21 @@ ok
 
 # Loading files related to the GRAPH module
 
-    load "graph/stzgraph.ring"
-    load "graph/stzgraphrule.ring"
+    load "graph/stzGraph.ring"
+    load "graph/stzGraphRule.ring"
 
-    load "graph/stzgraphquery.ring"
-    load "graph/stzgraphview.ring"
+    load "graph/stzGraphQuery.ring"
+    load "graph/stzGraphView.ring"
 
-    load "graph/stzgraphplanner.ring"
-    load "graph/stzknowledgegraph.ring"
+    load "graph/stzGraphPlanner.ring"
+    load "graph/stzKnowledgeGraph.ring"
 
-    load "graph/stzdiagram.ring"
-    load "graph/stzdiagramcolor.ring"
+    load "graph/stzDiagram.ring"
+    load "graph/stzDiagramColor.ring"
 
-    load "graph/stzorgchart.ring"
+    load "graph/stzOrgChart.ring"
 
-    load "graph/stzworkflow.ring"
+    load "graph/stzWorkflow.ring"
 
 # Loading files related to the VISUAL module
 
@@ -295,164 +292,163 @@ ok
 
 # Loading files related to SYSTEM module
 
-    load "system/stzsystemcall.ring"
+    load "system/stzSystemCall.ring"
 
-    load "system/stzmemoryglobals.ring"
-    load "system/stzmemoryconvertors.ring"
-    load "system/stzoperatingsystem.ring"
+    load "system/stzMemoryGlobals.ring"
+    load "system/stzMemoryConvertors.ring"
+    load "system/stzOperatingSystem.ring"
 
-    load "system/stzmemoryprofiler.ring"
-    load "system/stzmemoryprofiler32bit.ring"
-    load "system/stzmemoryprofiler64bit.ring"
+    load "system/stzMemoryProfiler.ring"
+    load "system/stzMemoryProfiler32Bit.ring"
+    load "system/stzMemoryProfiler64Bit.ring"
 
-    load "system/stzprofilingtimer.ring"
+    load "system/stzProfilingTimer.ring"
 
-    load "system/stzpointer.ring"
+    load "system/stzPointer.ring"
 
-    load "system/stzuuid.ring"
+    load "system/stzUUID.ring"
 
 # Loading files related to the FILE module
 
-    load "file/stzfile.ring"
-    load "file/stzzipfile.ring"
+    load "file/stzFile.ring"
+    load "file/stzZipFile.ring"
 
-    load "file/stzfolder.ring"
+    load "file/stzFolder.ring"
 
-    load "file/stzjson.ring"
-    load "file/stzcsv.ring"
-    load "file/stzhtml.ring"
+    load "file/stzJson.ring"
+    load "file/stzCSV.ring"
+    load "file/stzHtml.ring"
 
 # Loading files related to the ERROR module
 
-    load "error/stzobjecterror.ring"
-    load "error/stzstringerror.ring"
+    load "error/stzObjectError.ring"
+    load "error/stzStringError.ring"
 
-    load "error/stzcountererror.ring"
-    load "error/stzfileerror.ring"
+    load "error/stzCounterError.ring"
+    load "error/stzFileError.ring"
 
-    load "error/stzlisterror.ring"
-    load "error/stzlistofbyteserror.ring"
-    load "error/stzlistofstringserror.ring"
+    load "error/stzListError.ring"
+    load "error/stzListOfBytesError.ring"
+    load "error/stzListOfStringsError.ring"
 
-    load "error/stznumbererror.ring"
-    load "error/stzbinarynumbererror.ring"
-    load "error/stzhexnumbererror.ring"
-    load "error/stzoctalnumbererror.ring"
-    load "error/stzdecimaltobinaryerror.ring"
+    load "error/stzNumberError.ring"
+    load "error/stzBinaryNumberError.ring"
+    load "error/stzHexNumberError.ring"
+    load "error/stzOctalNumberError.ring"
+    load "error/stzDecimalToBinaryError.ring"
 
-    load "error/stzcountryerror.ring"
+    load "error/stzCountryError.ring"
     load "error/stzError.ring"
 
 # Loading files related to the DATETIME module
 
-    load "datetime/stzdate.ring"
-    load "datetime/stztime.ring"
-    load "datetime/stzdatetime.ring"
-    load "datetime/stzduration.ring"
-    load "datetime/stztimeline.ring"
-    load "datetime/stzcalendar.ring"
+    load "datetime/stzDate.ring"
+    load "datetime/stzTime.ring"
+    load "datetime/stzDateTime.ring"
+    load "datetime/stzDuration.ring"
+    load "datetime/stzTimeLine.ring"
+    load "datetime/stzCalendar.ring"
 
-    load "datetime/stzlistoftimelines.ring"
+    load "datetime/stzListOfTimeLines.ring"
 
 # Loading files related to the I18N module
 
-    load "i18n/stzcountry.ring"
-    load "i18n/stzcurrency.ring"
-    load "i18n/stzlanguage.ring"
-    load "i18n/stzlocale.ring"
-    load "i18n/stzscript.ring"
-    load "i18n/stzcurrency.ring"
+    load "i18n/stzCountry.ring"
+    load "i18n/stzCurrency.ring"
+    load "i18n/stzLanguage.ring"
+    load "i18n/stzLocale.ring"
+    load "i18n/stzScript.ring"
 
 # Loading files related to the EXTINCODE module
 
-    load "extincode/stzextincode.ring"
-    load "extincode/stzextincsharp.ring"
-    load "extincode/stzextinpython.ring"
-    load "extincode/stzextinjs.ring"
-    load "extincode/stzextinsql.ring"
-    load "extincode/stzextinperl.ring"
-    load "extincode/stzextinc.ring"
+    load "extincode/stzExtinCode.ring"
+    load "extincode/stzExtinCSharp.ring"
+    load "extincode/stzExtinPython.ring"
+    load "extincode/stzExtinJS.ring"
+    load "extincode/stzExtinSql.ring"
+    load "extincode/stzExtinPerl.ring"
+    load "extincode/stzExtinC.ring"
 
 # Loading files related to the EXERCODE module
 
-    load "extercode/stzextercode.ring"
-    load "extercode/stzpythoncode.ring"
-    load "extercode/stzrcode.ring"
-    load "extercode/stzjuliacode.ring"
-    load "extercode/stzprologcode.ring"
+    load "extercode/stzExterCode.ring"
+    load "extercode/stzPythonCode.ring"
+    load "extercode/stzRCode.ring"
+    load "extercode/stzJuliaCode.ring"
+    load "extercode/stzPrologCode.ring"
 
-    load "extercode/stzdotcode.ring"
+    load "extercode/stzDotCode.ring"
 
 # Loading files related to the NETWORK module
 
-    load "network/stznetwork.ring"
-    load "network/stzhttpclient.ring"
-    load "network/stzwebsocket.ring"
-    load "network/stztcpclient.ring"
-    load "network/stztcpserver.ring"
-    load "network/stznetworkutils.ring"
+    load "network/stzNetwork.ring"
+    load "network/stzHttpClient.ring"
+    load "network/stzWebSocket.ring"
+    load "network/stzTcpClient.ring"
+    load "network/stzTcpServer.ring"
+    load "network/stzNetworkUtils.ring"
 
 # Loading files related to the REACTIVE module
 
-    load "reactive/stzreactiveglobals.ring"
-    load "reactive/stzreactive.ring"
-    load "reactive/stzreactivetask.ring"
+    load "reactive/stzReactiveGlobals.ring"
+    load "reactive/stzReactive.ring"
+    load "reactive/stzReactiveTask.ring"
 
-    load "reactive/stzreactivefunc.ring"
-    load "reactive/stzreactiveobject.ring"
+    load "reactive/stzReactiveFunc.ring"
+    load "reactive/stzReactiveObject.ring"
 
-    load "reactive/stzreactivetimer.ring"
-    load "reactive/stzreactivestream.ring"
-    load "reactive/stzreactivehttp.ring"
+    load "reactive/stzReactiveTimer.ring"
+    load "reactive/stzReactiveStream.ring"
+    load "reactive/stzReactiveHttp.ring"
 
 # Loading files related to APPSERVER module (FUTURE)
 
-    load "appserver/stzappserver.ring"
-    load "appserver/stzapprequest.ring"
-    load "appserver/stzappresponse.ring"
-    load "appserver/stzapprouter.ring"
-    load "appserver/stzcomputeengine.ring"
-    load "appserver/stzcontextpool.ring"
+    load "appserver/stzAppServer.ring"
+    load "appserver/stzAppRequest.ring"
+    load "appserver/stzAppResponse.ring"
+    load "appserver/stzAppRouter.ring"
+    load "appserver/stzComputeEngine.ring"
+    load "appserver/stzContextPool.ring"
 
 # Loading files related to CLUSTER module (FUTURE)
 
-    load "cluster/stzcluster.ring"
-    load "cluster/stzclusternode.ring"
-    load "cluster/stzrequestclassifier.ring"
-    load "cluster/stzloadbalancer.ring"
-    load "cluster/stzclustermanager.ring"
-    load "cluster/stzclustermonitor.ring"
+    load "cluster/stzCluster.ring"
+    load "cluster/stzClusterNode.ring"
+    load "cluster/stzRequestClassifier.ring"
+    load "cluster/stzLoadBalancer.ring"
+    load "cluster/stzClusterManager.ring"
+    load "cluster/stzClusterMonitor.ring"
 
 # Loading files related to NATURAL module
 
-    load "natural/stzchainoftruth.ring"
-    load "natural/stzchainofvalue.ring"
-    load "natural/stzconstraints.ring"
+    load "natural/stzChainOfTruth.ring"
+    load "natural/stzChainOfValue.ring"
+    load "natural/stzConstraints.ring"
 
-    load "natural/stzentity.ring"
-    load "natural/stzlistofentities.ring"
+    load "natural/stzEntity.ring"
+    load "natural/stzListOfEntities.ring"
 
-    load "natural/stznaturalcode.ring"
-    load "natural/stznatural.ring"
-    load "natural/stznaturalmarkup.ring"
+    load "natural/stzNaturalCode.ring"
+    load "natural/stzNatural.ring"
+    load "natural/stzNaturalMarkup.ring"
 
-    load "natural/stzadverb.ring"
-    load "natural/stzplural.ring"
-    load "natural/stzsingular.ring"
-    load "natural/stzordinal.ring"
+    load "natural/stzAdverb.ring"
+    load "natural/stzPlural.ring"
+    load "natural/stzSingular.ring"
+    load "natural/stzOrdinal.ring"
 
 # Loading files related to STATS module
 
-    load "stats/stzdataset.ring"
-    load "stats/stzbarplot.ring"
-    load "stats/stzhbarplot.ring"
-    load "stats/stzmbarplot.ring"
-    load "stats/stzsurfaceplot.ring"
-    load "stats/stzscatterplot.ring"
-    load "stats/stzhistogram.ring"
-    load "stats/stzdatawrangler.ring"
-    load "stats/stzcoeffextractor.ring"
-    load "stats/stzlinearsolver.ring"
+    load "stats/stzDataSet.ring"
+    load "stats/stzBarPlot.ring"
+    load "stats/stzHBarPlot.ring"
+    load "stats/stzMBarPlot.ring"
+    load "stats/stzSurfacePlot.ring"
+    load "stats/stzScatterPlot.ring"
+    load "stats/stzHistogram.ring"
+    load "stats/stzDataWrangler.ring"
+    load "stats/stzCoeffExtractor.ring"
+    load "stats/stzLinearSolver.ring"
 
 // tz1 = clock()
 // ? "Softanza laoding time:"
