@@ -175,17 +175,25 @@ func StzStringClassName()
 
 #--
 
-func StringIsInListCS(str, aList, pCaseSensitive)
+func StzStringIsInListCS(str, aList, pCaseSensitive)
 	return ListContainsCS(aList, str, pCaseSensitive)
 
-func StringIsInList(str, aList)
+	func StringIsInListCS(str, aList, pCaseSensitive)
+		return StzStringIsInListCS(str, aList, pCaseSensitive)
+
+func StzStringIsInList(str, aList)
 	return ListContains(aList, str)
 
-func PadRight(cText, nWidth)
-	return PadRightXT(cText, nWidth, " ")
+	func StringIsInList(str, aList)
+		return StzStringIsInList(str, aList)
 
-func PadRightXT(text, width, c)
-	# Engine-backed: codepoint-aware left-justify (pad right)
+func StzPadRight(cText, nWidth)
+	return StzPadRightXT(cText, nWidth, " ")
+
+	func PadRight(cText, nWidth)
+		return StzPadRight(cText, nWidth)
+
+func StzPadRightXT(text, width, c)
 	pStr = StzEngineString("" + text)
 	pResult = StzEngineStringLjust(pStr, width, c)
 	cResult = StzEngineStringData(pResult)
@@ -193,11 +201,16 @@ func PadRightXT(text, width, c)
 	StzEngineStringFree(pStr)
 	return cResult
 
-func PadLeft(cText, nWidth)
-	return PadLeftXT(cText, nWidth, " ")
+	func PadRightXT(text, width, c)
+		return StzPadRightXT(text, width, c)
 
-func PadLeftXT(text, width, c)
-	# Engine-backed: codepoint-aware right-justify (pad left)
+func StzPadLeft(cText, nWidth)
+	return StzPadLeftXT(cText, nWidth, " ")
+
+	func PadLeft(cText, nWidth)
+		return StzPadLeft(cText, nWidth)
+
+func StzPadLeftXT(text, width, c)
 	pStr = StzEngineString("" + text)
 	pResult = StzEngineStringRjust(pStr, width, c)
 	cResult = StzEngineStringData(pResult)
@@ -205,8 +218,10 @@ func PadLeftXT(text, width, c)
 	StzEngineStringFree(pStr)
 	return cResult
 
-func Center(text, width)
-	# Engine-backed: codepoint-aware center padding
+	func PadLeftXT(text, width, c)
+		return StzPadLeftXT(text, width, c)
+
+func StzCenter(text, width)
 	pStr = StzEngineString("" + text)
 	pResult = StzEngineStringCenterPad(pStr, width, " ")
 	cResult = StzEngineStringData(pResult)
@@ -214,10 +229,13 @@ func Center(text, width)
 	StzEngineStringFree(pStr)
 	return cResult
 
+	func Center(text, width)
+		return StzCenter(text, width)
+
 #---
 
 
-func Capitalize(str)
+func StzCapitalize(str)
 		if len(str) = 0 return str ok
 		pStr = StzEngineString(str)
 		pResult = StzEngineStringCapitalizeFirst(pStr)
@@ -226,17 +244,20 @@ func Capitalize(str)
 		StzEngineStringFree(pStr)
 		return cResult
 
+		func Capitalize(str)
+			return StzCapitalize(str)
+
 		func Capitalise(str)
-			return Capitalize(str)
+			return StzCapitalize(str)
 
 		func @Capitalize(str)
-			return Capitalize(str)
+			return StzCapitalize(str)
 
 		func @Capitalise(str)
-			return Capitalize(str)
+			return StzCapitalize(str)
 #--
 
-func IsInvisibleString(str)
+func StzIsInvisibleString(str)
 
 	if CheckParams()
 		if NOT isString(str)
@@ -258,54 +279,57 @@ func IsInvisibleString(str)
 
 	return _bResult_
 
+	func IsInvisibleString(str)
+		return StzIsInvisibleString(str)
+
 	func @IsInvisibleString(str)
-		return IsInvisibleString(str)
+		return StzIsInvisibleString(str)
 
 	func IsInvisible(str)
-		return IsInvisibleString(str)
+		return StzIsInvisibleString(str)
 
 	func @IsInvisible(str)
-		return IsInvisibleString(str)
+		return StzIsInvisibleString(str)
 
 #--
 
-func IsNotString(pcStr)
+func StzIsNotString(pcStr)
 	return NOT isString(pcStr)
 
+	func IsNotString(pcStr)
+		return StzIsNotString(pcStr)
+
 	func IsNotAString(pcStr)
-		return IsNotString(pcStr)
+		return StzIsNotString(pcStr)
 
 	func @IsNotString(pcStr)
-		return IsNotString(pcStr)
+		return StzIsNotString(pcStr)
 
 	func @IsNotAString(pcStr)
-		return IsNotString(pcStr)
+		return StzIsNotString(pcStr)
 
-func @IsAlpha(cStr)
+func StzIsAlphabetic(cStr)
 	pStr = StzEngineString(cStr)
 	nResult = StzEngineStringIsAlpha(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
 
-	#< @FunctionAlternativeForms
+	func @IsAlpha(cStr)
+		return StzIsAlphabetic(cStr)
 
 	func IsAlphabetical(cStr)
-		return @IsAlpha(cStr)
+		return StzIsAlphabetic(cStr)
 
 	func @IsAlphabetical(cStr)
-		return @IsAlpha(cStr)
-
-	#--
+		return StzIsAlphabetic(cStr)
 
 	func IsAlphabetic(cStr)
-		return @IsAlpha(cStr)
+		return StzIsAlphabetic(cStr)
 
 	func @IsAlphabetic(cStr)
-		return @IsAlpha(cStr)
+		return StzIsAlphabetic(cStr)
 
-	#>
-
-func @IsAlnum(cStr)
+func StzIsAlphanumeric(cStr)
 	pStr = StzEngineString(cStr)
 	nLen = StzEngineStringCount(pStr)
 	if nLen = 0
@@ -317,27 +341,24 @@ func @IsAlnum(cStr)
 	StzEngineStringFree(pStr)
 	return (nLetters + nDigits) = nLen
 
-	#< @FunctionAlternativeForms
+	func @IsAlnum(cStr)
+		return StzIsAlphanumeric(cStr)
 
 	func IsAlphaNumerical(cStr)
-		return @IsAlnum(cStr)
+		return StzIsAlphanumeric(cStr)
 
 	func @IsAlphaNumerical(cStr)
-		return @IsAlnum(cStr)
-
-	#--
+		return StzIsAlphanumeric(cStr)
 
 	func IsAlphaNumeric(cStr)
-		return @IsAlnum(cStr)
+		return StzIsAlphanumeric(cStr)
 
 	func @IsAlphanumeric(cStr)
-		return @IsAlnum(cStr)
+		return StzIsAlphanumeric(cStr)
 
-	#>
-
-func IsEmpty(p)
+func StzIsEmpty(p)
 	if isString(p)
-		return IsNullString(p)
+		return StzIsNullString(p)
 
 	but isNumber(p)
 		return FALSE
@@ -352,13 +373,16 @@ func IsEmpty(p)
 		return FALSE
 	ok
 
+	func IsEmpty(p)
+		return StzIsEmpty(p)
+
 	func @IsEmpty(p)
-		return IsNullString(p)
+		return StzIsEmpty(p)
 
 
-func IsNull(p)
+func StzIsNull(p)
 	if isString(p)
-		return IsNullString(p)
+		return StzIsNullString(p)
 
 	but isObject(p) and IsNullObject(p)
 		return TRUE
@@ -367,114 +391,104 @@ func IsNull(p)
 		return FALSE
 	ok
 
-	#--
+	func IsNull(p)
+		return StzIsNull(p)
 
 	func @IsNull(cStr)
-		return IsNull(cStr)
+		return StzIsNull(cStr)
 
-func IsNullString(cStr)
+func StzIsNullString(cStr)
 	if isString(cStr) and cStr = ""
 		return 1
 	else
 		return 0
 	ok
 
-	#< @FunctionAlternativeForms
+	func IsNullString(cStr)
+		return StzIsNullString(cStr)
 
 	func IsEmptyString(cStr)
-		return IsNullString(cStr)
+		return StzIsNullString(cStr)
 
 	func ANullString(pcStr)
-		return IsNullString(cStr)
+		return StzIsNullString(cStr)
 
 	func IsAnEmptyString(cStr)
-		return IsNullString(cStr)
-
-	#--
+		return StzIsNullString(cStr)
 
 	func @IsNullString(cStr)
-		return IsNullString(cStr)
+		return StzIsNullString(cStr)
 
 	func @IsEmptyString(cStr)
-		return IsNullString(cStr)
+		return StzIsNullString(cStr)
 
 	func @ANullString(pcStr)
-		return IsNullString(cStr)
+		return StzIsNullString(cStr)
 
 	func @IsAnEmptyString(cStr)
-		return IsNullString(cStr)
+		return StzIsNullString(cStr)
 
-	#==
+	func StringIsNull(pcStr)
+		return isString(pcStr) and pcStr = ""
 
-		func StringIsNull(pcStr)
-			return isString(pcStr) and pcStr = ""
+func StzIsNonNullString(cStr)
+	return NOT StzIsNullString(cStr)
 
-	#>
-
-func IsNonNullString(cStr)
-	return NOT IsNullString(cStr)
-
-	#< @FunctionAlternativeForms
+	func IsNonNullString(cStr)
+		return StzIsNonNullString(cStr)
 
 	func IsNonEmptyString(cStr)
-		return IsNonNullString(cStr)
+		return StzIsNonNullString(cStr)
 
 	func ANonNullString(pcStr)
-		return IsNonNullString(cStr)
+		return StzIsNonNullString(cStr)
 
 	func IsANonEmptyString(cStr)
-		return IsNonNullString(cStr)
-
-	#--
+		return StzIsNonNullString(cStr)
 
 	func @IsNonNullString(cStr)
-		return IsNonNullString(cStr)
+		return StzIsNonNullString(cStr)
 
 	func @IsNonEmptyString(cStr)
-		return IsNonNullString(cStr)
+		return StzIsNonNullString(cStr)
 
 	func @ANonNullString(pcStr)
-		return IsNonNullString(cStr)
+		return StzIsNonNullString(cStr)
 
 	func @IsANonEmptyString(cStr)
-		return IsNonNullString(cStr)
+		return StzIsNonNullString(cStr)
 
-	#>
-
-func IsBlank(pcStr)
+func StzIsBlank(pcStr)
 	if len(pcStr) = 0 return 0 ok
 	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringIsWhitespace(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
 
-	#< @FunctionAlternativeForms
+	func IsBlank(pcStr)
+		return StzIsBlank(pcStr)
 
 	func IsBlankString(pcStr)
-		return IsBlank(pcStr)
+		return StzIsBlank(pcStr)
 
 	func IsABlankString(pcStr)
-		return IsBlank(pcStr)
-
-	#--
+		return StzIsBlank(pcStr)
 
 	func @IsBlank(pcStr)
-		return IsBlank(pcStr)
+		return StzIsBlank(pcStr)
 
 	func @IsBlankString(pcStr)
-		return IsBlank(pcStr)
+		return StzIsBlank(pcStr)
 
 	func @IsABlankString(pcStr)
-		return IsBlank(pcStr)
-
-	#>
+		return StzIsBlank(pcStr)
 
 #TODO Some of these functions should call their corresponding (same)
 # functions in the core layer
 
-func ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+func StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	if isString(pStrOrList)
-		return StringContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzStringContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 	but isList(pStrOrList)
 		return ListContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
@@ -482,18 +496,24 @@ func ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 		StzRaise("Can't proceed! pStrOrList must be a string or list.")
 	ok
 
-	func @ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+	func ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
-func Contains(pStrOrList, pSubStrOrItem)
-	return ContainsCS(pStrOrList, pSubStrOrItem, 1)
+	func @ContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzContainsCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
+func StzContains(pStrOrList, pSubStrOrItem)
+	return StzContainsCS(pStrOrList, pSubStrOrItem, 1)
+
+	func Contains(pStrOrList, pSubStrOrItem)
+		return StzContains(pStrOrList, pSubStrOrItem)
 
 	func @Contains(pStrOrList, pSubStrOrItem)
-		return Contains(pStrOrList, pSubStrOrItem)
+		return StzContains(pStrOrList, pSubStrOrItem)
 
-func ContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+func StzContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	if isString(pStrOrList)
-		return StringContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzStringContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 	but isList(pStrOrList)
 		return ListContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
@@ -501,18 +521,24 @@ func ContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 		StzRaise("Can't proceed! pStrOrList must be a string or list.")
 	ok
 
-	func @ContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return ContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+	func ContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
-func ContainsOneOfThese(pStrOrList, pSubStrOrItem)
-	return ContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, 1)
+	func @ContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
+func StzContainsOneOfThese(pStrOrList, pSubStrOrItem)
+	return StzContainsOneOfTheseCS(pStrOrList, pSubStrOrItem, 1)
+
+	func ContainsOneOfThese(pStrOrList, pSubStrOrItem)
+		return StzContainsOneOfThese(pStrOrList, pSubStrOrItem)
 
 	func @ContainsOneOfThese(pStrOrList, pSubStrOrItem)
-		return ContainsOneOfThese(pStrOrList, pSubStrOrItem)
+		return StzContainsOneOfThese(pStrOrList, pSubStrOrItem)
 
 #==
 
-func StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+func StzStartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	if isString(pStrOrList) and isString(pSubStrOrItem)
 		bCase = CaseSensitive(bCaseSensitive)
 		pStr = StzEngineString(pStrOrList)
@@ -522,14 +548,17 @@ func StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	ok
 	return Q(pStrOrList).StartsWithCS(pSubStrOrItem, bCaseSensitive)
 
+	func StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzStartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
 	func BeginsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzStartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 	func @StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzStartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 	func @BeginsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return StartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzStartsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 func StzStartsWith(pStrOrList, pSubStrOrItem) # startsWith() seems to be reserved by Ring StdLib
 	if isString(pStrOrList) and isString(pSubStrOrItem)
@@ -551,7 +580,7 @@ func StzStartsWith(pStrOrList, pSubStrOrItem) # startsWith() seems to be reserve
 
 #--
 
-func EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+func StzEndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	if isString(pStrOrList) and isString(pSubStrOrItem)
 		bCase = CaseSensitive(bCaseSensitive)
 		pStr = StzEngineString(pStrOrList)
@@ -561,8 +590,11 @@ func EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 	ok
 	return Q(pStrOrList).EndsWithCS(pSubStrOrItem, bCaseSensitive)
 
+	func EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzEndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+
 	func @EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
-		return EndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
+		return StzEndsWithCS(pStrOrList, pSubStrOrItem, bCaseSensitive)
 
 func StzEndsWith(pStrOrList, pSubStrOrItem) # endsWith() seems to be reserved by Ring StdLib
 	if isString(pStrOrList) and isString(pSubStrOrItem)
@@ -584,7 +616,7 @@ func StzEndsWith(pStrOrList, pSubStrOrItem) # endsWith() seems to be reserved by
 #~> Solves the problem where substr() function in Ring returns 1
 # if we are searching for an empty string!
 
-func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
+func StzStringContainsCS(pcStr, pcSubStr, pCaseSensitive)
 	if CheckParams()
 		if NOT ( isString(pcStr) and isString(pcSubStr) )
 			StzRaise("Incorrect param type! pcStr and pcSubStr must be both strings.")
@@ -598,40 +630,35 @@ func StringContainsCS(pcStr, pcSubStr, pCaseSensitive)
 
 	bCase = CaseSensitive(pCaseSensitive)
 
-	# Engine-backed contains check
 	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringContainsCS(pStr, pcSubStr, bCase)
 	StzEngineStringFree(pStr)
 	return nResult
 
-	#< @FunctionAlternativeForms
+	func StringContainsCS(pcStr, pcSubStr, bCaseSensitive)
+		return StzStringContainsCS(pcStr, pcSubStr, bCaseSensitive)
 
 	func @StringContainsCS(pcStr, pcSubStr, bCaseSensitive)
-		return StringContainsCS(pcStr, pcSubStr, bCaseSensitive)
-
-	func StzStringContainsCS(pcStr, pcSubStr, bCaseSensitive)
-		return StringContainsCS(pcStr, pcSubStr, bCaseSensitive)
+		return StzStringContainsCS(pcStr, pcSubStr, bCaseSensitive)
 
 	func @StzStringContainsCS(pcStr, pcSubStr, bCaseSensitive)
-		return StringContainsCS(pcStr, pcSubStr, bCaseSensitive)
+		return StzStringContainsCS(pcStr, pcSubStr, bCaseSensitive)
 
-	#>
+func StzStringContains(pcStr, pcSubStr)
+	return StzStringContainsCS(pcStr, pcSubStr, 1)
 
-func StringContains(pcStr, pcSubStr)
-	return StringContainsCS(pcStr, pcSubStr, 1)
+	func StringContains(pcStr, pcSubStr)
+		return StzStringContains(pcStr, pcSubStr)
 
 	func @StringContains(pcStr, pcSubStr)
-		return StringContains(pcStr, pcSubStr)
-
-	func StzStringContains(pcStr, pcSubStr)
-		return StringContains(pcStr, pcSubStr)
+		return StzStringContains(pcStr, pcSubStr)
 
 	func @StzStringContains(pcStr, pcSubStr)
-		return StringContains(pcStr, pcSubStr)
+		return StzStringContains(pcStr, pcSubStr)
 
 #--
 
-func StringContainsOneOfTheseCS(pcStr, pacSubStr, pCaseSensitive)
+func StzStringContainsOneOfTheseCS(pcStr, pacSubStr, pCaseSensitive)
 	if CheckParams()
 		if NOT isString(pcStr)
 			StzRaise("Incorrect param type! pcStr must be a string.")
@@ -651,39 +678,34 @@ func StringContainsOneOfTheseCS(pcStr, pacSubStr, pCaseSensitive)
 
 	bResult = 0
 	for i = 1 to nLenSubStr
-		if StringContainsCS(pcStr, pacSubStr[i], pCaseSensitive)
+		if StzStringContainsCS(pcStr, pacSubStr[i], pCaseSensitive)
 			bResult = 1
 			exit
 		ok
 	next
 
 	return bResult
-	
 
-	#< @FunctionAlternativeForms
+	func StringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
+		return StzStringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
 
 	func @StringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
-		return StringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
-
-	func StzStringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
-		return StringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
+		return StzStringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
 
 	func @StzStringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
-		return StringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
+		return StzStringContainsOneOfTheseCS(pcStr, pcSubStr, bCaseSensitive)
 
-	#>
+func StzStringContainsOneOfThese(pcStr, pcSubStr)
+	return StzStringContainsOneOfTheseCS(pcStr, pcSubStr, 1)
 
-func StringContainsOneOfThese(pcStr, pcSubStr)
-	return StringContainsOneOfTheseCS(pcStr, pcSubStr, 1)
+	func StringContainsOneOfThese(pcStr, pcSubStr)
+		return StzStringContainsOneOfThese(pcStr, pcSubStr)
 
 	func @StringContainsOneOfThese(pcStr, pcSubStr)
-		return StringContainsOneOfThese(pcStr, pcSubStr)
-
-	func StzStringContainsOneOfThese(pcStr, pcSubStr)
-		return StringContainsOneOfThese(pcStr, pcSubStr)
+		return StzStringContainsOneOfThese(pcStr, pcSubStr)
 
 	func @StzStringContainsOneOfThese(pcStr, pcSubStr)
-		return StringContainsOneOfThese(pcStr, pcSubStr)
+		return StzStringContainsOneOfThese(pcStr, pcSubStr)
 
 #==
 
@@ -757,7 +779,7 @@ func StzTrim(cStrOrList)
 	func Trim(pcStr)
 		return StzTrim(pcStr)
 
-func TrimString(cStr)
+func StzTrimString(cStr)
 	if CheckParams()
 		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
@@ -773,13 +795,13 @@ func TrimString(cStr)
 	StzEngineStringFree(pStr)
 	return cResult
 
+	func TrimString(cStr)
+		return StzTrimString(cStr)
+
 	func @TrimString(cStr)
-		return TrimString(cStr)
+		return StzTrimString(cStr)
 
-	func StzTrimString(cStr)
-		return TrimString(cStr)
-
-func TrimLines(pStrOrList)
+func StzTrimLines(pStrOrList)
 	if CheckParams()
 		if NOT (isString(pStrOrList) or isList(pStrOrList))
 			StzRaise("Incorrect param type! pStrOrList must be a string or list.")
@@ -796,10 +818,12 @@ func TrimLines(pStrOrList)
 		acSplits = pStrOrList
 	ok
 
-	return TrimList(acSplits)
+	return StzTrimList(acSplits)
 
+	func TrimLines(pStrOrList)
+		return StzTrimLines(pStrOrList)
 
-func TrimList(aList)
+func StzTrimList(aList)
 	if CheckParams()
 		if NOT isList(aList)
 			StzRaise("Incorrect param type! aList must be a list.")
@@ -810,11 +834,11 @@ func TrimList(aList)
 	aResult = oList.Trimmed()
 	return aResult
 
-	func @TrimList(aList)
-		return TrimList(aList)
+	func TrimList(aList)
+		return StzTrimList(aList)
 
-	func StzTrimList(aList)
-		return TrimList(aList)
+	func @TrimList(aList)
+		return StzTrimList(aList)
 
 func StzTrimLeft(cStrOrList)
 	if CheckParams()
@@ -974,175 +998,222 @@ func _StzStripBraces(cStr)
 func StzStringContent(oStr)
 	return oStr.Content()
 
-func StringIsLocaleAbbreviation(cStr)
+func StzStringIsLocaleAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLocaleAbbreviation()
-	
+
+	func StringIsLocaleAbbreviation(cStr)
+		return StzStringIsLocaleAbbreviation(cStr)
+
 	func IsLocaleAbbreviation(cStr)
-		return StringIsLocaleAbbreviation(cStr)
+		return StzStringIsLocaleAbbreviation(cStr)
 
 	func @IsLocaleAbbreviation(cStr)
-		return StringIsLocaleAbbreviation(cStr)
+		return StzStringIsLocaleAbbreviation(cStr)
 
-func StringIsLanguageAbbreviation(cStr)
+func StzStringIsLanguageAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLanguageAbbreviation()
 
+	func StringIsLanguageAbbreviation(cStr)
+		return StzStringIsLanguageAbbreviation(cStr)
+
 	func IsLanguageAbbreviation(cStr)
-		return StringIsLanguageAbbreviation(cStr)
+		return StzStringIsLanguageAbbreviation(cStr)
 
 	func @IsLanguageAbbreviation(cStr)
-		return StringIsLanguageAbbreviation(cStr)
+		return StzStringIsLanguageAbbreviation(cStr)
 
-func StringIsShortLanguageAbbreviation(cStr)
+func StzStringIsShortLanguageAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsShortLanguageAbbreviation()
 
-	func @IsShortLanguageAbbreviation(cStr)
-		return StringIsShortLanguageAbbreviation(cStr)
+	func StringIsShortLanguageAbbreviation(cStr)
+		return StzStringIsShortLanguageAbbreviation(cStr)
 
-func StringIsLongLanguageAbbreviation(cStr)
+	func @IsShortLanguageAbbreviation(cStr)
+		return StzStringIsShortLanguageAbbreviation(cStr)
+
+func StzStringIsLongLanguageAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLongLanguageAbbreviation()
 
+	func StringIsLongLanguageAbbreviation(cStr)
+		return StzStringIsLongLanguageAbbreviation(cStr)
+
 	func IsLongLanguageAbbreviation(cStr)
-		return StringIsLongLanguageAbbreviation(cStr)
+		return StzStringIsLongLanguageAbbreviation(cStr)
 
 	func @IsLongLanguageAbbreviation(cStr)
-		return StringIsLongLanguageAbbreviation(cStr)
+		return StzStringIsLongLanguageAbbreviation(cStr)
 
-func StringIsLanguageName(cStr)
+func StzStringIsLanguageName(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLanguageName()
 
-	func IsLanguageName(cStr)
-		return StringIsLanguageName(cStr)
+	func StringIsLanguageName(cStr)
+		return StzStringIsLanguageName(cStr)
 
+	func IsLanguageName(cStr)
+		return StzStringIsLanguageName(cStr)
 
 	func IsLanguage(cStr)
-		return StringIsLanguageName(cStr)
+		return StzStringIsLanguageName(cStr)
 
 	func @IsLanguageName(cStr)
-		return StringIsLanguageName(cStr)
+		return StzStringIsLanguageName(cStr)
 
 	func @IsLanguage(cStr)
-		return StringIsLanguageName(cStr)
+		return StzStringIsLanguageName(cStr)
 
-func StringIsLanguageNumber(cStr)
+func StzStringIsLanguageNumber(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLanguageNumber()
 
+	func StringIsLanguageNumber(cStr)
+		return StzStringIsLanguageNumber(cStr)
+
 	func IsLanguageNumber(cStr)
-		return StringIsLanguageNumber(cStr)
+		return StzStringIsLanguageNumber(cStr)
 
 	func @IsLanguageNumber(cStr)
-		return StringIsLanguageNumber(cStr)
+		return StzStringIsLanguageNumber(cStr)
 
-func StringIsCountryAbbreviation(cStr)
+func StzStringIsCountryAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsCountryAbbreviation()
 
+	func StringIsCountryAbbreviation(cStr)
+		return StzStringIsCountryAbbreviation(cStr)
+
 	func IsCountryAbbreviation(cStr)
-		return StringIsCountryAbbreviation(cStr)
+		return StzStringIsCountryAbbreviation(cStr)
 
 	func @IsCountryAbbreviation(cStr)
-		return StringIsCountryAbbreviation(cStr)
+		return StzStringIsCountryAbbreviation(cStr)
 
-func StringIsCountryName(cStr)
+func StzStringIsCountryName(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsCountryName()
 
+	func StringIsCountryName(cStr)
+		return StzStringIsCountryName(cStr)
+
 	func IsCountryName(cStr)
-		return StringIsCountryName(cStr)
+		return StzStringIsCountryName(cStr)
 
 	func IsCountry(cStr)
-		return StringIsCountryName(cStr)
+		return StzStringIsCountryName(cStr)
 
 	func @IsCountryName(cStr)
-		return StringIsCountryName(cStr)
+		return StzStringIsCountryName(cStr)
 
 	func @IsCountry(cStr)
-		return StringIsCountryName(cStr)
+		return StzStringIsCountryName(cStr)
 
-func StringIsCountryNumber(cStr)
+func StzStringIsCountryNumber(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsCountryNumber()
 
+	func StringIsCountryNumber(cStr)
+		return StzStringIsCountryNumber(cStr)
+
 	func IsCountryNumber(cStr)
-		return StringIsCountryNumber(cStr)
+		return StzStringIsCountryNumber(cStr)
 
 	func @IsCountryNumber(cStr)
-		return StringIsCountryNumber(cStr)
+		return StzStringIsCountryNumber(cStr)
 
-func StringIsShortCountryAbbreviation(cStr)
+func StzStringIsShortCountryAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsShortCountryAbbreviation()
 
+	func StringIsShortCountryAbbreviation(cStr)
+		return StzStringIsShortCountryAbbreviation(cStr)
+
 	func IsShortCountryAbbreviation(cStr)
-		return StringIsShortCountryAbbreviation(cStr)
+		return StzStringIsShortCountryAbbreviation(cStr)
 
 	func @IsShortCountryAbbreviation(cStr)
-		return StringIsShortCountryAbbreviation(cStr)
+		return StzStringIsShortCountryAbbreviation(cStr)
 
-func StringIsLongCountryAbbreviation(cStr)
+func StzStringIsLongCountryAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsLongCountryAbbreviation()
 
+	func StringIsLongCountryAbbreviation(cStr)
+		return StzStringIsLongCountryAbbreviation(cStr)
+
 	func IsLongCountryAbbreviation(cStr)
-		return StringIsLongCountryAbbreviation(cStr)
+		return StzStringIsLongCountryAbbreviation(cStr)
 
 	func @IsLongCountryAbbreviation(cStr)
-		return StringIsLongCountryAbbreviation(cStr)
+		return StzStringIsLongCountryAbbreviation(cStr)
 
-func StringIsScriptAbbreviation(cStr)
+func StzStringIsScriptAbbreviation(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsScriptAbbreviation()
 
+	func StringIsScriptAbbreviation(cStr)
+		return StzStringIsScriptAbbreviation(cStr)
+
 	func IsScriptAbbreviation(cStr)
-		return StringIsScriptAbbreviation(cStr)
+		return StzStringIsScriptAbbreviation(cStr)
 
 	func @IsScriptAbbreviation(cStr)
-		return StringIsScriptAbbreviation(cStr)
+		return StzStringIsScriptAbbreviation(cStr)
 
-func StringIsScriptName(cStr)
+func StzStringIsScriptName(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsScriptName()
 
+	func StringIsScriptName(cStr)
+		return StzStringIsScriptName(cStr)
+
 	func IsScriptName(cStr)
-		return StringIsScriptName(cStr)
+		return StzStringIsScriptName(cStr)
 
 	func IsScript(cStr)
-		return StringIsScriptName(cStr)
+		return StzStringIsScriptName(cStr)
 
 	func @IsScriptName(cStr)
-		return StringIsScriptName(cStr)
+		return StzStringIsScriptName(cStr)
 
 	func @IsScript(cStr)
-		return StringIsScriptName(cStr)
+		return StzStringIsScriptName(cStr)
 
-func StringIsScriptNumber(cStr)
+func StzStringIsScriptNumber(cStr)
 	oStr = new stzString(cStr)
 	return oStr.IsScriptNumber()
 
 	func IsScriptNumber(cStr)
-		return StringIsScriptNumber(cStr)
+		return StzStringIsScriptNumber(cStr)
+
+	func StringIsScriptNumber(cStr)
+		return StzStringIsScriptNumber(cStr)
 
 	func @IsScriptNumber(cStr)
-		return StringIsScriptNumber(cStr)
+		return StzStringIsScriptNumber(cStr)
 
-func StringIsLowercase(cStr)
+func StzStringIsLowercase(cStr)
 	pStr = StzEngineString(cStr)
 	nResult = StzEngineStringIsLowercase(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
 
-func StringIsUppercase(cStr)
+	func StringIsLowercase(cStr)
+		return StzStringIsLowercase(cStr)
+
+func StzStringIsUppercase(cStr)
 	pStr = StzEngineString(cStr)
 	nResult = StzEngineStringIsUppercase(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
 
-func StringLowercased(cStr)
+	func StringIsUppercase(cStr)
+		return StzStringIsUppercase(cStr)
+
+func StzStringLowercased(cStr)
 	pStr = StzEngineString(cStr)
 	pLower = StzEngineStringToLower(pStr)
 	cResult = StzEngineStringData(pLower)
@@ -1150,22 +1221,25 @@ func StringLowercased(cStr)
 	StzEngineStringFree(pStr)
 	return cResult
 
+	func StringLowercased(cStr)
+		return StzStringLowercased(cStr)
+
 	func Lowercased(cStr)
-		return StringLowercased(cStr)
+		return StzStringLowercased(cStr)
 
 	func Lowercase(cStr)
-		return StringLowercased(cStr)
+		return StzStringLowercased(cStr)
 
 	func StringLowercase(cStr)
-		return StringLowercased(cStr)
+		return StzStringLowercased(cStr)
 
 	func @Lowercased(cStr)
-		return StringLowercased(cStr)
+		return StzStringLowercased(cStr)
 
 	func @Lowercase(cStr)
-		return StringLowercased(cStr)
+		return StzStringLowercased(cStr)
 
-func StringUppercased(cStr)
+func StzStringUppercased(cStr)
 	pStr = StzEngineString(cStr)
 	pUpper = StzEngineStringToUpper(pStr)
 	cResult = StzEngineStringData(pUpper)
@@ -1173,123 +1247,125 @@ func StringUppercased(cStr)
 	StzEngineStringFree(pStr)
 	return cResult
 
+	func StringUppercased(cStr)
+		return StzStringUppercased(cStr)
+
 	func Uppercase(cStr)
-		return StringUppercased(cStr)
+		return StzStringUppercased(cStr)
 
 	func Uppercased(cStr)
-		return StringUppercased(cStr)
+		return StzStringUppercased(cStr)
 
 	func StringUppercase(cStr)
-		return StringUppercased(cStr)
+		return StzStringUppercased(cStr)
 
 	func @Uppercased(cStr)
-		return StringUppercased(cStr)
+		return StzStringUppercased(cStr)
 
 	func @Uppercase(cStr)
-		return StringUppercased(cStr)
+		return StzStringUppercased(cStr)
 
-func StringTitlecased(cStr)
+func StzStringTitlecased(cStr)
 	pStr = StzEngineString(cStr)
 	pTitle = StzEngineStringToTitle(pStr)
 	cResult = StzEngineStringData(pTitle)
 	StzEngineStringFree(pTitle)
 	StzEngineStringFree(pStr)
 	return cResult
-	
+
+	func StringTitlecased(cStr)
+		return StzStringTitlecased(cStr)
+
 	func Titlecase(cStr)
-		return StringTitlecased(cStr)
+		return StzStringTitlecased(cStr)
 
 	func Titlecased(cStr)
-		return StringTitlecased(cStr)
+		return StzStringTitlecased(cStr)
 
 	func StringTitlecase(cStr)
-		return StringTitlecased(cStr)
+		return StzStringTitlecased(cStr)
 
 	func @Titlecased(cStr)
-		return StringTitlecased(cStr)
-	
+		return StzStringTitlecased(cStr)
+
 	func @Titlecase(cStr)
-		return StringTitlecased(cStr)
+		return StzStringTitlecased(cStr)
 
 #===
 
-func IsSorted(pcStrOrList)
-	if IsSortedString(pcStrOrList) or IsSortedList(pcStrOrList)
+func StzIsSorted(pcStrOrList)
+	if StzIsSortedString(pcStrOrList) or IsSortedList(pcStrOrList)
 		return 1
 	else
 		return 0
 	ok
+
+	func IsSorted(pcStrOrList)
+		return StzIsSorted(pcStrOrList)
 
 	func @IsSorted(pcStrOrList)
-		return IsSorted(pcStrOrList)
+		return StzIsSorted(pcStrOrList)
 
-func IsSortedInAscending(pcStrOrList)
-	if IsSortedStringInAscending(pcStrOrList) or IsSortedListInAscending(pcStrOrList)
+func StzIsSortedInAscending(pcStrOrList)
+	if StzIsSortedStringInAscending(pcStrOrList) or IsSortedListInAscending(pcStrOrList)
 		return 1
 	else
 		return 0
 	ok
 
-	#< @FunctionAlternativeForms
+	func IsSortedInAscending(pcStrOrList)
+		return StzIsSortedInAscending(pcStrOrList)
 
 	func IsSortedUp(pcStrOrList)
-		return IsSortedInAscending(pcStrOrList)
-
-	#--
+		return StzIsSortedInAscending(pcStrOrList)
 
 	func @IsSortedInAscending(pcStrOrList)
-		return IsSortedInAscending(pcStrOrList)
+		return StzIsSortedInAscending(pcStrOrList)
 
 	func @IsSortedUp(pcStrOrList)
-		return IsSortedInAscending(pcStrOrList)
+		return StzIsSortedInAscending(pcStrOrList)
 
-	#>
-
-func IsSortedInDescending(pcStrOrList)
-	if IsSortedStringInDescending(pcStrOrList) or IsSortedListInDescending(pcStrOrList)
+func StzIsSortedInDescending(pcStrOrList)
+	if StzIsSortedStringInDescending(pcStrOrList) or IsSortedListInDescending(pcStrOrList)
 		return 1
 	else
 		return 0
 	ok
 
-	#< @FunctionAlternativeForms
+	func IsSortedInDescending(pcStrOrList)
+		return StzIsSortedInDescending(pcStrOrList)
 
 	func IsSortedDown(pcStrOrList)
-		return IsSortedInDescending(pcStrOrList)
+		return StzIsSortedInDescending(pcStrOrList)
 
 	func @IsSortedInDescending(pcStrOrList)
-		return IsSortedInDescending(pcStrOrList)
+		return StzIsSortedInDescending(pcStrOrList)
 
 	func @IsSortedDown(pcStrOrList)
-		return IsSortedInDescending(pcStrOrList)
-
-	#>
+		return StzIsSortedInDescending(pcStrOrList)
 
 #--
 
-func IsSortedString(pcStr)
-	if IsSortedStringInAscending(pcStr) or IsSortedStringInDescending(pcStr)
+func StzIsSortedString(pcStr)
+	if StzIsSortedStringInAscending(pcStr) or StzIsSortedStringInDescending(pcStr)
 		return 1
 	else
 		return 0
 	ok
 
-	#< @FunctionAlternativeForms
+	func IsSortedString(pcStr)
+		return StzIsSortedString(pcStr)
 
 	func IsStringSorted(pcStr)
-		return IsSortedString(pcStr)
-
-	#--
+		return StzIsSortedString(pcStr)
 
 	func @IsSortedString(pcStr)
-		return IsSortedString(pcStr)
+		return StzIsSortedString(pcStr)
 
 	func @IsStringSorted(pcStr)
-		return IsSortedString(pcStr)
+		return StzIsSortedString(pcStr)
 
-	#>
-
-func IsSortedStringInAscending(pcStr)
+func StzIsSortedStringInAscending(pcStr)
 	if NOT isString(pcStr)
 		return 0
 	ok
@@ -1299,44 +1375,37 @@ func IsSortedStringInAscending(pcStr)
 	StzEngineStringFree(pStr)
 	return nResult
 
-	#< @FunctionAlternativeForms
+	func IsSortedStringInAscending(pcStr)
+		return StzIsSortedStringInAscending(pcStr)
 
 	func IsStringSortedInAscending(pcStr)
-		return IsSortedStringInAscending(pcStr)
-
-	#--
+		return StzIsSortedStringInAscending(pcStr)
 
 	func IsSortedStringUp(pcStr)
-		return IsSortedStringInAscending(pcStr)
+		return StzIsSortedStringInAscending(pcStr)
 
 	func IsSortedUpString(pcStr)
-		return IsSortedStringInAscending(pcStr)
+		return StzIsSortedStringInAscending(pcStr)
 
 	func IsStringSortedUp(pcStr)
-		return IsSortedStringInAscending(pcStr)
-
-	#==
+		return StzIsSortedStringInAscending(pcStr)
 
 	func @IsSortedStringInAscending(pcStr)
-		return IsSortedStringInAscending(pcStr)
+		return StzIsSortedStringInAscending(pcStr)
 
 	func @IsStringSortedInAscending(pcStr)
-		return IsSortedStringInAscending(pcStr)
-
-	#--
+		return StzIsSortedStringInAscending(pcStr)
 
 	func @IsSortedStringUp(pcStr)
-		return IsSortedStringInAscending(pcStr)
+		return StzIsSortedStringInAscending(pcStr)
 
 	func @IsSortedUpString(pcStr)
-		return IsSortedStringInAscending(pcStr)
+		return StzIsSortedStringInAscending(pcStr)
 
 	func @IsStringSortedUp(pcStr)
-		return IsSortedStringInAscending(pcStr)
+		return StzIsSortedStringInAscending(pcStr)
 
-	#>
-
-func IsSortedStringInDescending(pcStr)
+func StzIsSortedStringInDescending(pcStr)
 
 	if NOT isString(pcStr)
 		return 0
@@ -1347,42 +1416,35 @@ func IsSortedStringInDescending(pcStr)
 	StzEngineStringFree(pStr)
 	return nResult
 
-	#< @FunctionAlternativeForms
+	func IsSortedStringInDescending(pcStr)
+		return StzIsSortedStringInDescending(pcStr)
 
 	func IsStringSortedInDescending(pcStr)
-		return IsSortedStringInDescending(pcStr)
-
-	#--
+		return StzIsSortedStringInDescending(pcStr)
 
 	func IsSortedStringDown(pcStr)
-		return IsSortedStringInDescending(pcStr)
+		return StzIsSortedStringInDescending(pcStr)
 
 	func IsSortedDownString(pcStr)
-		return IsSortedStringInDescending(pcStr)
+		return StzIsSortedStringInDescending(pcStr)
 
 	func IsStringSortedDown(pcStr)
-		return IsSortedStringInDescending(pcStr)
-
-	#==
+		return StzIsSortedStringInDescending(pcStr)
 
 	func @IsSortedStringInDescending(pcStr)
-		return IsSortedStringInDescending(pcStr)
+		return StzIsSortedStringInDescending(pcStr)
 
 	func @IsStringSortedInDescending(pcStr)
-		return IsSortedStringInDescending(pcStr)
-
-	#--
+		return StzIsSortedStringInDescending(pcStr)
 
 	func @IsSortedStringDown(pcStr)
-		return IsSortedStringInDescending(pcStr)
+		return StzIsSortedStringInDescending(pcStr)
 
 	func @IsSortedDownString(pcStr)
-		return IsSortedStringInDescending(pcStr)
+		return StzIsSortedStringInDescending(pcStr)
 
 	func @IsStringSortedDown(pcStr)
-		return IsSortedStringInDescending(pcStr)
-
-	#>
+		return StzIsSortedStringInDescending(pcStr)
 
 #===
 
