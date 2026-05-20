@@ -35,20 +35,20 @@ func StzSystemCallQXT(pcProgram, cReturnType)
 	return oCall
 
 func StzSystem(pcCommand)
-	pcCommand = NormalizePathsInCommand(pcCommand)
+	pcCommand = StzNormalizePathsInCommand(pcCommand)
 
 	_oSysCall_ = new stzSystemCall(pcCommand)
 	_oSysCall_.HideConsole()
 	return _oSysCall_.RunAndGetOutput()
 
-func StzSystemSilent(pcCommand) # No output!
-	pcCommand = NormalizePathsInCommand(pcCommand)
+func StzSystemSilent(pcCommand)
+	pcCommand = StzNormalizePathsInCommand(pcCommand)
 
 	_oSysCall_ = new stzSystemCall(pcCommand)
 	_oSysCall_.HideConsole()
 	_oSysCall_.RunSilently()
 
-func NormalizePathsInCommand(pcCommand)
+func StzNormalizePathsInCommand(pcCommand)
 	# Convert slashes in paths only, not in command flags
 	cResult = ""
 	aTokens = split(pcCommand, " ")
@@ -76,6 +76,8 @@ func NormalizePathsInCommand(pcCommand)
 
 	return cResult
 
+	func NormalizePathsInCommand(pcCommand)
+		return StzNormalizePathsInCommand(pcCommand)
 
 func StzSystemXT(pcProgram, pacArgs)
 	_oSysCall_ = new stzSystemCall(pcProgram)
