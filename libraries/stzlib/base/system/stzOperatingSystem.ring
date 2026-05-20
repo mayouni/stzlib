@@ -38,25 +38,31 @@ func @isFreeBSD()
 func @isAndroid()
 	return isAndroid()
 
-func OS()
+func StzOS()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.Name()
 
-	func OperatingSystem()
-		return OS()
+	func OS()
+		return StzOS()
 
-func Arch()
+	func OperatingSystem()
+		return StzOS()
+
+func StzArch()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.Architecture()
 
+	func Arch()
+		return StzArch()
+
 	func Architecture()
-		return Arch()
+		return StzArch()
 
 	func SystemArch()
-		return Arch()
+		return StzArch()
 
 	func SystemArchitecture()
-		return Arch()
+		return StzArch()
 
 func Is32Bit()
 	_oOS_ = new stzOperatingSystem()
@@ -193,9 +199,12 @@ func Is32Or64Bit()
 	func Is64Or32Bit()
 		return Is32Or64Bit()
 
-func OperatingSystemXT()
+func StzOperatingSystemXT()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.NameAndArchitecture()
+
+	func OperatingSystemXT()
+		return StzOperatingSystemXT()
 
 	func OSXT()
 		return OperatingSystemXT()
