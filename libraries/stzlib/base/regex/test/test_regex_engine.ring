@@ -78,5 +78,53 @@ if pH5 != NULL
 	StzEngineRegexFree(pH5)
 ok
 
+# Test: MatchAll via low-level API
+? ""
+? "--- Test: MatchAll ---"
+pH = StzEngineRegexNew("[0-9]+", 0)
+nCount = StzEngineRegexMatchAll(pH, "abc 123 def 456 ghi 789")
+? "  Match count: " + nCount
+if nCount = 3
+	cFirst = StzEngineRegexCaptureText(pH, 0)
+	cSecond = StzEngineRegexCaptureText(pH, 1)
+	cThird = StzEngineRegexCaptureText(pH, 2)
+	? "  Matches: '" + cFirst + "', '" + cSecond + "', '" + cThird + "'"
+	if cFirst = "123" and cSecond = "456" and cThird = "789"
+		? "  PASS"
+	else
+		? "  FAIL (wrong match text)"
+	ok
+else
+	? "  FAIL (expected 3)"
+ok
+StzEngineRegexFree(pH)
+
+# Test: StzRegexMatchAll high-level wrapper
+? ""
+? "--- Test: StzRegexMatchAll wrapper ---"
+
+# Need to set $cEngineDir for the bridge file
+cTemp = cRegexLib
+nLen2 = len(cTemp)
+cNorm2 = ""
+for i = 1 to nLen2
+	if cTemp[i] = "\"
+		cNorm2 += "/"
+	else
+		cNorm2 += cTemp[i]
+	ok
+next
+nCut2 = len(cNorm2) - len("/zig-out/bin/stz_regex.dll")
+$cEngineDir = left(cNorm2, nCut2)
+load "../../../engine/stz_regex.ring"
+
+aMatches = StzRegexMatchAll("[a-z]+", "Hello World Test")
+? "  Found " + len(aMatches) + " matches"
+if len(aMatches) = 3
+	? "  PASS"
+else
+	? "  FAIL"
+ok
+
 ? ""
 ? "=== All stz_regex engine tests completed ==="

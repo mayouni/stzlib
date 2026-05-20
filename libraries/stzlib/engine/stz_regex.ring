@@ -21,3 +21,22 @@ else
     ? "WARNING: stz_regex not found at: " + $cStzRegexLib
     $pStzRegexHandle = NULL
 ok
+
+#------------------------------------------------------------#
+#  HIGH-LEVEL REGEX WRAPPERS                                 #
+#------------------------------------------------------------#
+
+func StzRegexMatchAll(cPattern, cInput)
+    pHandle = StzEngineRegexNew(cPattern, 0)
+    nCount = StzEngineRegexMatchAll(pHandle, cInput)
+    aResult = []
+    for i = 0 to nCount - 1
+        cText = StzEngineRegexCaptureText(pHandle, i)
+        nStart = StzEngineRegexCaptureStart(pHandle, i)
+        aResult + [ :text = cText, :position = nStart + 1 ]
+    next
+    StzEngineRegexFree(pHandle)
+    return aResult
+
+func StzRegexSetLimits(pHandle, nMaxSteps, nMaxMatches, nMaxCaptures)
+    StzEngineRegexSetLimits(pHandle, nMaxSteps, nMaxMatches, nMaxCaptures)
