@@ -439,7 +439,7 @@ _acStzCCKeywords = [
  ///  GLOBAL FUNCTIONS  ///
 //////////////////////////
 
-func FindCS(pContainer, pVal, pCaseSensitive)
+func StzFindAllCS(pContainer, pVal, pCaseSensitive)
 	if CheckParams()
 		if NOt (isString(pContainer) or isList(pContainer))
 			StzRaise("Incorrect param type! pContainer must be a string or list.")
@@ -460,56 +460,62 @@ func FindCS(pContainer, pVal, pCaseSensitive)
 		return aResult
 	ok
 
-	#< @FunctionAlternativeForms
+	func FindCS(pContainer, pVal, pCaseSensitive)
+		return StzFindAllCS(pContainer, pVal, pCaseSensitive)
 
 	func @FindCS(pContainer, pVal, pCaseSensitive)
-		return FindCS(pContainer, pVal, pCaseSensitive)
+		return StzFindAllCS(pContainer, pVal, pCaseSensitive)
 
 	func FindAllCS(pContainer, pVal, pCaseSensitive)
-		return FindCS(pContainer, pVal, pCaseSensitive)
+		return StzFindAllCS(pContainer, pVal, pCaseSensitive)
 
 	func @FindAllCS(pContainer, pVal, pCaseSensitive)
-		return FindCS(pContainer, pVal, pCaseSensitive)
-	#>
+		return StzFindAllCS(pContainer, pVal, pCaseSensitive)
 
-func @Find(pContainer, pVal)
-	return @FindCS(pContainer, pVal, 1)
+func StzFindAll(pContainer, pVal)
+	return StzFindAllCS(pContainer, pVal, 1)
 
-	#< @FunctionAlternativeForms
+	func @Find(pContainer, pVal)
+		return StzFindAll(pContainer, pVal)
 
 	func FindAll(pContainer, pVal)
-		return @Find(pContainer, pVal)
+		return StzFindAll(pContainer, pVal)
 
 	func @FindAll(pContainer, pVal)
-		return @Find(pContainer, pVal)
-	#>
+		return StzFindAll(pContainer, pVal)
 
 
 #---
 
-func TruthStatement()
+func StzTruthStatement()
 	return _bXStatement_
 
+	func TruthStatement()
+		return StzTruthStatement()
+
 #---
 
-func KeepingTime()
+func StzKeepingTime()
 	return _bKeepTime
 
+	func KeepingTime()
+		return StzKeepingTime()
+
 	func KeepingExecutionTime()
-		return _bKeepTime
+		return StzKeepingTime()
 
 	func ObjectKeepingTime()
-		return _bKeepTime
+		return StzKeepingTime()
 
 	func KeepingObjectTime()
-		return _bKeepTime
+		return StzKeepingTime()
 
-func SetKeepingTimeTo(bTrueOrFalse)
+func StzSetKeepingTimeTo(bTrueOrFalse)
 	if CheckParams()
 		if NOT (isNumber(bTrueOrFalse) and isNumber(bTrueOrFalse) )
 			StzRaise("Incorrect param type! bTrueOrFalse must be a number.")
 		ok
-	
+
 		if NOT ( bTrueOrFalse = 0 or bTrueOrFalse = 1 )
 			StzRaise("Incorrect param value! bTrueOrFalse must be 0 or 1.")
 		ok
@@ -518,87 +524,125 @@ func SetKeepingTimeTo(bTrueOrFalse)
 	_bKeepTime = bTrueOrFalse
 	_nStartTimeInClocks = clock()
 
-	#< @FunctionAlternativeForms
+	func SetKeepingTimeTo(bTrueOrFalse)
+		StzSetKeepingTimeTo(bTrueOrFalse)
 
 	func SetKeepingTime(bTrueOrFalse)
-		SetKeepingTimeTo(bTrueOrFalse)
+		StzSetKeepingTimeTo(bTrueOrFalse)
 
 	func SetKeepTime(bTrueOrFalse)
-		SetKeepingTimeTo(bTrueOrFalse)
+		StzSetKeepingTimeTo(bTrueOrFalse)
 
 	func SetObjectKeepingTimeTo(bTrueOrFalse)
-		SetKeepingTimeTo(bTrueOrFalse)
+		StzSetKeepingTimeTo(bTrueOrFalse)
 
 	func SetKeepingObjectTimeTo(bTrueOrFalse)
-		SetKeepingTimeTo(bTrueOrFalse)
+		StzSetKeepingTimeTo(bTrueOrFalse)
 
-	#>
-
-func StartObjectTime()
+func StzStartObjectTime()
 	_nStartTimeInClocks = clock()
 
+	func StartObjectTime()
+		StzStartObjectTime()
+
 	func StartObjectTimeInClocks()
-		StartObjectTime()
+		StzStartObjectTime()
 
 #-- Managing temporal values (used with @() inside objects)
 
-func TempList()
+func StzTempList()
 	return $TEMP_LIST
 
-func SetTempList(aList)
+	func TempList()
+		return StzTempList()
+
+func StzSetTempList(aList)
 	if NOT isList(aList)
 		StzRaise("Incorrect param type! aList must be a list.")
 	ok
 
 	$TEMP_LIST = aList
 
-func EraseTempList()
+	func SetTempList(aList)
+		StzSetTempList(aList)
+
+func StzEraseTempList()
 	$TEMP_LIST = []
+
+	func EraseTempList()
+		StzEraseTempList()
 
 #--
 
-func TempString()
+func StzTempString()
 	return $TEMP_STRING
 
-func SetTempString(cStr)
+	func TempString()
+		return StzTempString()
+
+func StzSetTempString(cStr)
 	if NOT isString(cStr)
 		StzRaise("Incorrect param type! cStr must be a string.")
 	ok
 
 	$TEMP_STRING = cStr
 
-func EraseTempString()
+	func SetTempString(cStr)
+		StzSetTempString(cStr)
+
+func StzEraseTempString()
 	$TEMP_STRING = ""
+
+	func EraseTempString()
+		StzEraseTempString()
 
 #--
 
-func TempNumber()
+func StzTempNumber()
 	return $TEMP_NUMBER
 
-func SetTempNumber(n)
+	func TempNumber()
+		return StzTempNumber()
+
+func StzSetTempNumber(n)
 	if NOT isNumber(n)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
 
 	$TEMP_NUMBER = n
 
-func EraseTempnumber()
+	func SetTempNumber(n)
+		StzSetTempNumber(n)
+
+func StzEraseTempNumber()
 	$TEMP_NUMBER = 0
+
+	func EraseTempnumber()
+		StzEraseTempNumber()
 
 #--
 
-func TempObject()
+func StzTempObject()
 	return $TEMP_OBJECT
 
-func SetTempObject(pObj)
+	func TempObject()
+		return StzTempObject()
+
+func StzSetTempObject(pObj)
 	if NOT isObject(pObj)
 		StzRaise("Incorrect param type! pObj must be an object.")
 	ok
 
 	$TEMP_OBJECt = pObj
 
-func EraseTempObject()
+	func SetTempObject(pObj)
+		StzSetTempObject(pObj)
+
+func StzEraseTempObject()
 	$TEMP_STRING = ""
+
+	func EraseTempObject()
+		StzEraseTempObject()
 
 #===
 
@@ -2344,13 +2388,14 @@ func @ForEach(p, pIn)
 
 	#>
 
-func ActivateParamChecking()
+func StzActivateParamChecking()
 	_bParamCheck = 1
 
-	#< FunctionAlternativeForms
+	func ActivateParamChecking()
+		StzActivateParamChecking()
 
 	func ActivateParamCheck()
-		ActivateParamChecking()
+		StzActivateParamChecking()
 
 	func ActivateParamsChecking()
 		ActivateParamChecking()
@@ -2385,8 +2430,11 @@ func ActivateParamChecking()
 
 	#>
 
-func DesactivateParamChecking()
+func StzDesactivateParamChecking()
 	_bParamCheck = 0
+
+	func DesactivateParamChecking()
+		StzDesactivateParamChecking()
 
 	#< @FunctionAlternativeForms
 
@@ -2426,8 +2474,11 @@ func DesactivateParamChecking()
 
 	#>
 
-func ParamChecking()
+func StzParamChecking()
 	return _bParamCheck
+
+	func ParamChecking()
+		return StzParamChecking()
 
 	#< @FunctionAlternativeForms
 
@@ -2485,14 +2536,20 @@ func ParamChecking()
 
 #--
 
-func EarlyCheck()
+func StzEarlyCheck()
 	return _bEarlyCheck
 
-	func EarlyChecks()
-		return _bEarlyCheck
+	func EarlyCheck()
+		return StzEarlyCheck()
 
-func EarlyCheckOn()
+	func EarlyChecks()
+		return StzEarlyCheck()
+
+func StzEarlyCheckOn()
 	_bEarlyCheck = 1
+
+	func EarlyCheckOn()
+		StzEarlyCheckOn()
 
 	func ActivateEarlyCheck()
 		_bEarlyCheck = 1
@@ -2503,19 +2560,22 @@ func EarlyCheckOn()
 	func ActivateEarlyChecks()
 		_bEarlyCheck = 1
 
-func EarlyCheckOff()
+func StzEarlyCheckOff()
 	_bEarlyCheck = 0
 
+	func EarlyCheckOff()
+		StzEarlyCheckOff()
+
 	func DeactivateEarlyCheck()
-		_bEarlyCheck = 0
+		StzEarlyCheckOff()
 
 	func EarlyChecksOff()
-		_bEarlyCheck = 0
+		StzEarlyCheckOff()
 
 	func DectivateEarlyChecks()
-		_bEarlyCheck = 0
+		StzEarlyCheckOff()
 
-func SetEarlyCheck(b)
+func StzSetEarlyCheck(b)
 	if CheckingParams()
 		if NOT (isNumber(b) and (b = 0 or b = 1) )
 			StzRaise("Incorrect param! b must be a boolean (1 or FALSE).")
@@ -2524,18 +2584,21 @@ func SetEarlyCheck(b)
 
 	_bEarlyCheck = b
 
+	func SetEarlyCheck(b)
+		StzSetEarlyCheck(b)
+
 	func SetEarlyCheckTo(b)
-		SetEarlyCheck(b)
+		StzSetEarlyCheck(b)
 
 	func SetEarlyChecks(b)
-		SetEarlyCheck(b)
+		StzSetEarlyCheck(b)
 
 	func SetEarlyChecksTo(b)
-		SetEarlyCheck(b)
+		StzSetEarlyCheck(b)
 
 #--
 
-func StartingAt(p)
+func StzStartingAt(p)
 	if isNumber(p)
 		return p
 
@@ -2563,10 +2626,13 @@ func StartingAt(p)
 
 	StzRaise("Incorrect param type! p must be string or a list containing a named param.")
 
-	func @StartingAt(p)
-		return StartingAt(p)
+	func StartingAt(p)
+		return StzStartingAt(p)
 
-func StoppingAt(p)
+	func @StartingAt(p)
+		return StzStartingAt(p)
+
+func StzStoppingAt(p)
 	if isNumber(p)
 		return p
 
@@ -2594,18 +2660,21 @@ func StoppingAt(p)
 
 	StzRaise("Incorrect param type! p must be string or a list containing a named param.")
 
+	func StoppingAt(p)
+		return StzStoppingAt(p)
+
 	func @StoppingAt(p)
-		return StoppingAt(p)
+		return StzStoppingAt(p)
 
 	func EndingAt(p)
-		return StoppingAt(p)
+		return StzStoppingAt(p)
 
 	func @EndingAt(p)
-		return StoppingAt(p)
+		return StzStoppingAt(p)
 
 #==
 
-func Bounds(pBounds)
+func StzBounds(pBounds)
 
 	if NOT ( isString(pBounds) or ( isList(pBounds) and len(pBounds) = 2 and isString(pBounds[1]) ) )
 			StzRaise("Incorrect param type! pBounds must be a string or a list of two strings.")
@@ -2630,13 +2699,15 @@ func Bounds(pBounds)
 
 	return [ p1, p2 ]
 
+	func Bounds(pBounds)
+		return StzBounds(pBounds)
 
 	func @Bounds(pBounds)
-		return Bounds(pBounds)
+		return StzBounds(pBounds)
 
 #--
 
-func Direction(p)
+func StzDirection(p)
 	if isString(p)
 
 		p = StzLower(p)
@@ -2660,13 +2731,16 @@ func Direction(p)
 
 	StzRaise("Incorrect param type! p must be string or a list containing a named param.")
 
+	func Direction(p)
+		return StzDirection(p)
+
 	func @Direction(p)
-		return Direction(p)
+		return StzDirection(p)
 	
 #--
 
 
-func IsCaseSensitive(p)
+func StzIsCaseSensitive(p)
 
 	if (isNumber(p) and p = 1) or
 	   (isList(p) and Q(p).IsCaseSensitiveNamedParam() and p[2] = 1)
@@ -2682,10 +2756,13 @@ func IsCaseSensitive(p)
 		StzRaise("Incorrect param! p must be 1 or FALSE.")
 	ok
 
-	func @IsCaseSensitive(p)
-		return IsCaseSensitive(p)
+	func IsCaseSensitive(p)
+		return StzIsCaseSensitive(p)
 
-func CaseSensitive(p)
+	func @IsCaseSensitive(p)
+		return StzIsCaseSensitive(p)
+
+func StzCaseSensitive(p)
 
 	if isNumber(p)
 		if p = 1
@@ -2709,9 +2786,11 @@ func CaseSensitive(p)
 		StzRaise("Incorrect param type! p must be a bolean (1 or FALSE).")
 	ok
 
+	func CaseSensitive(p)
+		return StzCaseSensitive(p)
 
 	func @CaseSensitive(p)
-		return CaseSensitive(p)
+		return StzCaseSensitive(p)
 
 #--
 
@@ -2724,40 +2803,52 @@ func StzKeywords()
 	func StzConditionalCodeKeywords()
 		return StzKeywords()
 
-func ASpace() # We don't use Space() because it is reserved by Ring standard library
-	return NSpaces(1)
+func StzASpace()
+	return StzNSpaces(1)
+
+	func ASpace()
+		return StzASpace()
 
 	func SingleSpace()
-		return ASpace()
+		return StzASpace()
 
 	func BlankSpace()
-		return ASpace()
+		return StzASpace()
 
 	func OneSpace()
-		return ASpace()
+		return StzASpace()
 
-func DoubleSpace()
-	return NSpaces(2)
+func StzDoubleSpace()
+	return StzNSpaces(2)
+
+	func DoubleSpace()
+		return StzDoubleSpace()
 
 	func DoubleBlankSpace()
-		return DoubleSpace()
+		return StzDoubleSpace()
 
-func NSpaces(n)
+func StzNSpaces(n)
 	return copy(" ", n)
 
-	def NBlankSpaces(n)
-		return NSpaces()
+	func NSpaces(n)
+		return StzNSpaces(n)
 
-func QuietEqualityRatio()
+	def NBlankSpaces(n)
+		return StzNSpaces(n)
+
+func StzQuietEqualityRatio()
 	return _nQuietEqualityRatio
 
+	func QuietEqualityRatio()
+		return StzQuietEqualityRatio()
+
 	func ApproximateEqualityRatio()
-		return _nQuietEqualityRatio
+		return StzQuietEqualityRatio()
 
 	func ApproximativeEqualityRatio()
-		return _nQuietEqualityRatio
+		return StzQuietEqualityRatio()
 
-func SetQuietEqualityRatio(n)
+func StzSetQuietEqualityRatio(n)
 	if NOT isNumber(n)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
@@ -2766,20 +2857,32 @@ func SetQuietEqualityRatio(n)
 		_nQuietEqualityRatio = n
 	ok
 
+	func SetQuietEqualityRatio(n)
+		StzSetQuietEqualityRatio(n)
+
 	def SetApproximateEqualityRatio(n)
-		SetQuietEqualityRatio(n)
+		StzSetQuietEqualityRatio(n)
 
 	def SetApproximativeEqualityRation(n)
-		SetQuietEqualityRatio(n)
+		StzSetQuietEqualityRatio(n)
 
-func RingTypes()
+func StzRingTypes()
 	return _aRingTypes
 
-func RingFunctions()
+	func RingTypes()
+		return StzRingTypes()
+
+func StzRingFunctions()
 	return _acRingFunctions
 
-func RingKeywords()
+	func RingFunctions()
+		return StzRingFunctions()
+
+func StzRingKeywords()
 	return _acRingKeywords()
+
+	func RingKeywords()
+		return StzRingKeywords()
 
 func StzRaise(paMessage)
 	/*
@@ -2852,7 +2955,7 @@ func StzRaise(paMessage)
 
 #-----
 
-func IsClassName(cStr)
+func StzIsClassName(cStr)
 	if CheckingParams()
 		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
@@ -2862,13 +2965,16 @@ func IsClassName(cStr)
 	bResult = find( ClassesNames(), cStr)
 	return bResult
 
+	func IsClassName(cStr)
+		return StzIsClassName(cStr)
+
 	func @IsClassName(pcStr)
-		return IsClassName
+		return StzIsClassName(pcStr)
 
 	func IsAClassName(pcStr)
-		return IsClassName
+		return StzIsClassName(pcStr)
 
-func IsPackageName(cStr)
+func StzIsPackageName(cStr)
 	if CheckingParams()
 		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
@@ -2878,18 +2984,24 @@ func IsPackageName(cStr)
 	bResult = find( packages(), StzLower(cStr))
 	return bResult
 
+	func IsPackageName(cStr)
+		return StzIsPackageName(cStr)
+
 	func @IsPackageName(cStr)
-		return IsPackageName(cStr)
+		return StzIsPackageName(cStr)
 
 	func IsAPackageName(cStr)
-		return IsPackageName(cStr)
+		return StzIsPackageName(cStr)
 
 	func @IsAPackageName(cStr)
-		return IsPackageName(cStr)
+		return StzIsPackageName(cStr)
 
 
-func Vars()
+func StzVars()
 	return globals()
+
+	func Vars()
+		return StzVars()
 
 #----
 
@@ -2912,23 +3024,26 @@ func StzFind(pThing, paIn)
 
 #-----
 
-func IsNumberOrNumberInString(p)
+func StzIsNumberOrNumberInString(p)
 	if isNumber(p) or IsNumberInString(p)
 		return 1
 	else
 		return 0
 	ok
 
+	func IsNumberOrNumberInString(p)
+		return StzIsNumberOrNumberInString(p)
+
 	func @IsNumberOrNumberInString(p)
-		return IsNumberOrNumberInString(p)
+		return StzIsNumberOrNumberInString(p)
 
 	func IsNumberInStringOrNumber(p)
-		return IsNumberOrNumberInString(p)
+		return StzIsNumberOrNumberInString(p)
 
 	func @IsNumberInStringOrNumber(p)
-		return IsNumberOrNumberInString(p)
+		return StzIsNumberOrNumberInString(p)
 
-func IsNumberOrString(p)
+func StzIsNumberOrString(p)
 	if isNumber(p) or isString(p)
 		return 1
 	else
@@ -2937,49 +3052,45 @@ func IsNumberOrString(p)
 
 	#< @FunctionAlternativeForms
 
-	func IsStringOrNumber(p)
-		return IsNumberOrString(p)
+	func IsNumberOrString(p)
+		return StzIsNumberOrString(p)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.IsNumberOrString()
+	func IsStringOrNumber(p)
+		return StzIsNumberOrString(p)
 
 	func @IsNumberOrString(p)
-		return IsNumberOrString(p)
+		return StzIsNumberOrString(p)
 
 	func @IsStringOrNumber(p)
-		return IsNumberOrString(p)
-
-	#--
+		return StzIsNumberOrString(p)
 
 	func IsANumberOrString(p)
-		return IsNumberOrString(p)
+		return StzIsNumberOrString(p)
 
 	func IsANumberOrAString(p)
-		return IsNumberOrString(p)
+		return StzIsNumberOrString(p)
 
 	func IsAStringOrNumber(p)
-		return IsNumberOrString(p)
+		return StzIsNumberOrString(p)
 
 	func IsAStringOrANumber(p)
-		return IsNumberOrString(p)
-
+		return StzIsNumberOrString(p)
 
 	func @IsANumberOrString(p)
-		return IsNumberOrString(p)
+		return StzIsNumberOrString(p)
 
 	func @IsANumberOrAString(p)
-		return IsNumberOrString(p)
+		return StzIsNumberOrString(p)
 
 	func @IsAStringOrNumber(p)
-		return IsNumberOrString(p)
+		return StzIsNumberOrString(p)
 
 	func @IsAStringOrANumber(p)
-		return IsNumberOrString(p)
+		return StzIsNumberOrString(p)
 
 	#>
 
-func IsNumberOrList(p)
+func StzIsNumberOrList(p)
 	if isNumber(p) or isList(p)
 		return 1
 	else
@@ -2988,45 +3099,45 @@ func IsNumberOrList(p)
 
 	#< @FunctionAlternativeForms
 
+	func IsNumberOrList(p)
+		return StzIsNumberOrList(p)
+
 	func IsListOrNumber(p)
-		return This.IsNumberOrList(p)
+		return StzIsNumberOrList(p)
 
 	func @IsNumberOrList(p)
-		return IsNumberOrList(p)
+		return StzIsNumberOrList(p)
 
 	func @IsListOrNumber(p)
-		return IsNumberOrList(p)
-
-	#--
+		return StzIsNumberOrList(p)
 
 	func IsANumberOrList(p)
-		return IsNumberOrList(p)
+		return StzIsNumberOrList(p)
 
 	func IsANumberOrAList(p)
-		return IsNumberOrList(p)
+		return StzIsNumberOrList(p)
 
 	func IsAListOrNumber(p)
-		return IsNumberOrList(p)
+		return StzIsNumberOrList(p)
 
 	func IsAListOrANumber(p)
-		return IsNumberOrList(p)
-
+		return StzIsNumberOrList(p)
 
 	func @IsANumberOrList(p)
-		return IsNumberOrList(p)
+		return StzIsNumberOrList(p)
 
 	func @IsANumberOrAList(p)
-		return IsNumberOrList(p)
+		return StzIsNumberOrList(p)
 
 	func @IsAListOrNumber(p)
-		return IsNumberOrList(p)
+		return StzIsNumberOrList(p)
 
 	func @IsAListOrANumber(p)
-		return IsNumberOrList(p)
+		return StzIsNumberOrList(p)
 
 	#>
 
-func IsNumberOrObject(p)
+func StzIsNumberOrObject(p)
 	if isNumber(p) or isObject(p)
 		return 1
 	else
@@ -3035,77 +3146,83 @@ func IsNumberOrObject(p)
 
 	#< @FunctionAlternativeForms
 
+	func IsNumberOrObject(p)
+		return StzIsNumberOrObject(p)
+
 	func IsObjectOrNumber(p)
-		return This.IsNumberOrObject(p)
+		return StzIsNumberOrObject(p)
 
 	func @IsNumberOrSObject(p)
-		return IsNumberOrObject(p)
+		return StzIsNumberOrObject(p)
 
 	func @IsObjectOrNumber(p)
-		return IsNumberOrObject(p)
-
-	#--
+		return StzIsNumberOrObject(p)
 
 	func IsANumberOrObject(p)
-		return IsNumberOrObject(p)
+		return StzIsNumberOrObject(p)
 
 	func IsANumberOrAObject(p)
-		return IsNumberOrObject(p)
+		return StzIsNumberOrObject(p)
 
 	func IsAObjectOrNumber(p)
-		return IsNumberOrObject(p)
+		return StzIsNumberOrObject(p)
 
 	func IsAObjectOrANumber(p)
-		return IsNumberOrObject(p)
-
+		return StzIsNumberOrObject(p)
 
 	func @IsANumberOrObject(p)
-		return IsNumberOrObject(p)
+		return StzIsNumberOrObject(p)
 
 	func @IsANumberOrAObject(p)
-		return IsNumberOrObject(p)
+		return StzIsNumberOrObject(p)
 
 	func @IsAObjectOrNumber(p)
-		return IsNumberOrObject(p)
+		return StzIsNumberOrObject(p)
 
 	func @IsAObjectOrANumber(p)
-		return IsNumberOrObject(p)
+		return StzIsNumberOrObject(p)
 
 	#>
 
-func IsStringOrList(p)
+func StzIsStringOrList(p)
 	if isString(p) or isList(p)
 		return 1
 	else
 		return 0
 	ok
 
+	func IsStringOrList(p)
+		return StzIsStringOrList(p)
+
 	def IsListOrString(p)
-		return IsStringOrList(p)
+		return StzIsStringOrList(p)
 
 	func @IsStringOrList(p)
-		return IsStringOrList(p)
+		return StzIsStringOrList(p)
 
 	func @IsListOrString(p)
-		return IsStringOrList(p)
+		return StzIsStringOrList(p)
 
-func IsStringOrListOfStrings(p)
+func StzIsStringOrListOfStrings(p)
 	if isString(p) or IsListOfStrings(p)
 		return 1
 	else
 		return 0
 	ok
 
+	func IsStringOrListOfStrings(p)
+		return StzIsStringOrListOfStrings(p)
+
 	def IsListOfStringsOrString(p)
-		return IsStringOrListOfStrings(p)
+		return StzIsStringOrListOfStrings(p)
 
 	func @IsStringOrListOfStrings(p)
-		return IsStringOrListOfStrings(p)
+		return StzIsStringOrListOfStrings(p)
 
 	func @IsListOfStringsOrString(p)
-		return IsStringOrListOfStrings(p)
+		return StzIsStringOrListOfStrings(p)
 
-func IsStringOrObject(p)
+func StzIsStringOrObject(p)
 	if isString(p) or isObject(p)
 		return 1
 	else
@@ -3114,45 +3231,45 @@ func IsStringOrObject(p)
 
 	#< @FunctionAlternativeForms
 
+	func IsStringOrObject(p)
+		return StzIsStringOrObject(p)
+
 	def IsObjectOrString(p)
-		return IsStringOrObject(p)
+		return StzIsStringOrObject(p)
 
 	func @IsStringOrObject(p)
-		return IsStringOrObject(p)
+		return StzIsStringOrObject(p)
 
 	func @IsObjectOrString(p)
-		return IsStringOrObject(p)
-
-	#--
+		return StzIsStringOrObject(p)
 
 	func IsAStringOrObject(p)
-		return IsStringOrObject(p)
+		return StzIsStringOrObject(p)
 
 	func IsAStringOrAObject(p)
-		return IsStringOrObject(p)
+		return StzIsStringOrObject(p)
 
 	func IsAObjectOrString(p)
-		return IsStringOrObject(p)
+		return StzIsStringOrObject(p)
 
 	func IsAObjectOrAString(p)
-		return IsStringOrObject(p)
-
+		return StzIsStringOrObject(p)
 
 	func @IsAStringOrObject(p)
-		return IsStringOrObject(p)
+		return StzIsStringOrObject(p)
 
 	func @IsAStringOrAObject(p)
-		return IsStringOrObject(p)
+		return StzIsStringOrObject(p)
 
 	func @IsAObjectOrString(p)
-		return IsStringOrObject(p)
+		return StzIsStringOrObject(p)
 
 	func @IsAObjectOrAString(p)
-		return IsStringOrObject(p)
+		return StzIsStringOrObject(p)
 
 	#>
 
-func IsListOrObject(p)
+func StzIsListOrObject(p)
 	if isList(p) or isObject(p)
 		return 1
 	else
@@ -3161,45 +3278,45 @@ func IsListOrObject(p)
 
 	#< @FunctionAlternativeForms
 
+	func IsListOrObject(p)
+		return StzIsListOrObject(p)
+
 	def IsObjectOrList(p)
-		return IsListOrObject(p)
+		return StzIsListOrObject(p)
 
 	func @IsListOrObject(p)
-		return IsListOrObject(p)
+		return StzIsListOrObject(p)
 
 	func @IsObjectOrList(p)
-		return IsListOrObject(p)
-
-	#--
+		return StzIsListOrObject(p)
 
 	func IsAListOrObject(p)
-		return IsListOrObject(p)
+		return StzIsListOrObject(p)
 
 	func IsAListOrAObject(p)
-		return IsListOrObject(p)
+		return StzIsListOrObject(p)
 
 	func IsAObjectOrList(p)
-		return IsListOrObject(p)
+		return StzIsListOrObject(p)
 
 	func IsAObjectOrAList(p)
-		return IsListOrObject(p)
-
+		return StzIsListOrObject(p)
 
 	func @IsAListOrObject(p)
-		return IsListOrObject(p)
+		return StzIsListOrObject(p)
 
 	func @IsAListOrAObject(p)
-		return IsListOrObject(p)
+		return StzIsListOrObject(p)
 
 	func @IsAObjectOrList(p)
-		return IsListOrObject(p)
+		return StzIsListOrObject(p)
 
 	func @IsAObjectOrAList(p)
-		return IsListOrObject(p)
+		return StzIsListOrObject(p)
 
 	#>
 
-func IsNumberOrStringOrList(p)
+func StzIsNumberOrStringOrList(p)
 	if isNumber(p) or isString(p) or isList(p)
 		return 1
 	else
@@ -3208,46 +3325,47 @@ func IsNumberOrStringOrList(p)
 
 	#<@FunctionAlternativeForms
 
+	func IsNumberOrStringOrList(p)
+		return StzIsNumberOrStringOrList(p)
+
 	def IsNumberOrListOrString(p)
-		return IsNumberOrStringOrList(p)
+		return StzIsNumberOrStringOrList(p)
 
 	def IsStringOrNumberOrList(p)
-		return IsNumberOrStringOrList(p)
+		return StzIsNumberOrStringOrList(p)
 
 	def IsStringOrListOrNumber(p)
-		return IsNumberOrStringOrList(p)
+		return StzIsNumberOrStringOrList(p)
 
 	def IsListOrNumberOrString(p)
-		return IsNumberOrStringOrList(p)
+		return StzIsNumberOrStringOrList(p)
 
 	def IsListOrStringOrNumber(p)
-		return IsNumberOrStringOrList(p)
-
-	#--
+		return StzIsNumberOrStringOrList(p)
 
 	def @IsNumberOrStringOrList(p)
-		return IsNumberOrStringOrList(p)
+		return StzIsNumberOrStringOrList(p)
 
 	def @IsNumberOrListOrString(p)
-		return IsNumberOrStringOrList(p)
+		return StzIsNumberOrStringOrList(p)
 
 	def @IsStringOrNumberOrList(p)
-		return IsNumberOrStringOrList(p)
+		return StzIsNumberOrStringOrList(p)
 
 	def @IsStringOrListOrNumber(p)
-		return IsNumberOrStringOrList(p)
+		return StzIsNumberOrStringOrList(p)
 
 	def @IsListOrNumberOrString(p)
-		return IsNumberOrStringOrList(p)
+		return StzIsNumberOrStringOrList(p)
 
 	def @IsListOrStringOrNumber(p)
-		return IsNumberOrStringOrList(p)
+		return StzIsNumberOrStringOrList(p)
 
 	#>
 
 #--
 
-func IsCharOrNumber(p)
+func StzIsCharOrNumber(p)
 	if isNumber(p) or IsChar(p)
 		return 1
 	else
@@ -3256,45 +3374,45 @@ func IsCharOrNumber(p)
 
 	#< @FunctionAlternativeForms
 
+	func IsCharOrNumber(p)
+		return StzIsCharOrNumber(p)
+
 	func IsNumberOrChar(p)
-		return IsCharOrNumber(p)
+		return StzIsCharOrNumber(p)
 
 	func @IsCharOrNumber(p)
-		return IsCharOrNumber(p)
+		return StzIsCharOrNumber(p)
 
 	func @IsNumberOrChar(p)
-		return IsCharOrNumber(p)
-
-	#--
+		return StzIsCharOrNumber(p)
 
 	func IsACharOrNumber(p)
-		return IsCharOrNumber(p)
+		return StzIsCharOrNumber(p)
 
 	func IsACharOrANumber(p)
-		return IsCharOrNumber(p)
+		return StzIsCharOrNumber(p)
 
 	func IsANumberOrChar(p)
-		return IsCharOrNumber(p)
+		return StzIsCharOrNumber(p)
 
 	func IsANumberOrAChar(p)
-		return IsCharOrNumber(p)
-
+		return StzIsCharOrNumber(p)
 
 	func @IsACharOrNumber(p)
-		return IsCharOrNumber(p)
+		return StzIsCharOrNumber(p)
 
 	func @IsACharOrANumber(p)
-		return IsCharOrNumber(p)
+		return StzIsCharOrNumber(p)
 
 	func @IsANumberOrChar(p)
-		return IsCharOrNumber(p)
+		return StzIsCharOrNumber(p)
 
 	func @IsANumberOrAChar(p)
-		return IsCharOrNumber(p)
+		return StzIsCharOrNumber(p)
 
 	#>
 
-func IsCharOrString(p)
+func StzIsCharOrString(p)
 	if isString(p)
 		return 1
 	else
@@ -3303,45 +3421,45 @@ func IsCharOrString(p)
 
 	#< @FunctionAlternativeForms
 
+	func IsCharOrString(p)
+		return StzIsCharOrString(p)
+
 	func IsStringOrChar(p)
-		return IsCharOrString(p)
+		return StzIsCharOrString(p)
 
 	func @IsCharOrString(p)
-		return IsCharOrString(p)
+		return StzIsCharOrString(p)
 
 	func @IsStringOrChar(p)
-		return IsCharOrString(p)
-
-	#--
+		return StzIsCharOrString(p)
 
 	func IsACharOrString(p)
-		return IsCharOrString(p)
+		return StzIsCharOrString(p)
 
 	func IsACharOrAString(p)
-		return IsCharOrString(p)
+		return StzIsCharOrString(p)
 
 	func IsAStringOrChar(p)
-		return IsCharOrString(p)
+		return StzIsCharOrString(p)
 
 	func IsAStringOrAChar(p)
-		return IsCharOrString(p)
-
+		return StzIsCharOrString(p)
 
 	func @IsACharOrString(p)
-		return IsCharOrString(p)
+		return StzIsCharOrString(p)
 
 	func @IsACharOrAString(p)
-		return IsCharOrString(p)
+		return StzIsCharOrString(p)
 
 	func @IsAStringOrChar(p)
-		return IsCharOrString(p)
+		return StzIsCharOrString(p)
 
 	func @IsAStringOrAChar(p)
-		return IsCharOrString(p)
+		return StzIsCharOrString(p)
 
 	#>
 
-func IsCharOrList(p)
+func StzIsCharOrList(p)
 	if isList(p) or IsChar(p)
 		return 1
 	else
@@ -3350,45 +3468,45 @@ func IsCharOrList(p)
 
 	#< @FunctionAlternativeForms
 
+	func IsCharOrList(p)
+		return StzIsCharOrList(p)
+
 	func IsListOrChar(p)
-		return IsCharOrList(p)
+		return StzIsCharOrList(p)
 
 	func @IsCharOrList(p)
-		return IsCharOrList(p)
+		return StzIsCharOrList(p)
 
 	func @IsListOrChar(p)
-		return IsCharOrList(p)
-
-	#--
+		return StzIsCharOrList(p)
 
 	func IsACharOrList(p)
-		return IsCharOrList(p)
+		return StzIsCharOrList(p)
 
 	func IsACharOrAList(p)
-		return IsCharOrList(p)
+		return StzIsCharOrList(p)
 
 	func IsAListOrChar(p)
-		return IsCharOrList(p)
+		return StzIsCharOrList(p)
 
 	func IsAListOrAChar(p)
-		return IsCharOrList(p)
-
+		return StzIsCharOrList(p)
 
 	func @IsACharOrList(p)
-		return IsCharOrList(p)
+		return StzIsCharOrList(p)
 
 	func @IsACharOrAList(p)
-		return IsCharOrList(p)
+		return StzIsCharOrList(p)
 
 	func @IsAListOrChar(p)
-		return IsCharOrList(p)
+		return StzIsCharOrList(p)
 
 	func @IsAListOrAChar(p)
-		return IsCharOrList(p)
+		return StzIsCharOrList(p)
 
 	#>
 
-func IsCharOrObject(p)
+func StzIsCharOrObject(p)
 	if isObject(p) or IsChar(p)
 		return 1
 	else
@@ -3397,47 +3515,47 @@ func IsCharOrObject(p)
 
 	#< @FunctionAlternativeForms
 
+	func IsCharOrObject(p)
+		return StzIsCharOrObject(p)
+
 	func IsObjectOrChar(p)
-		return IsCharOrObject(p)
+		return StzIsCharOrObject(p)
 
 	func @IsCharOrObject(p)
-		return IsCharOrObject(p)
+		return StzIsCharOrObject(p)
 
 	func @IsObjectOrChar(p)
-		return IsCharOrObject(p)
-
-	#--
+		return StzIsCharOrObject(p)
 
 	func IsACharOrObject(p)
-		return IsCharOrObject(p)
+		return StzIsCharOrObject(p)
 
 	func IsACharOrAObject(p)
-		return IsCharOrObject(p)
+		return StzIsCharOrObject(p)
 
 	func IsAObjectOrChar(p)
-		return IsCharOrObject(p)
+		return StzIsCharOrObject(p)
 
 	func IsAObjectOrAChar(p)
-		return IsCharOrObject(p)
-
+		return StzIsCharOrObject(p)
 
 	func @IsACharOrObject(p)
-		return IsCharOrObject(p)
+		return StzIsCharOrObject(p)
 
 	func @IsACharOrAObject(p)
-		return IsCharOrObject(p)
+		return StzIsCharOrObject(p)
 
 	func @IsAObjectOrChar(p)
-		return IsCharOrObject(p)
+		return StzIsCharOrObject(p)
 
 	func @IsAObjectOrAChar(p)
-		return IsCharOrObject(p)
+		return StzIsCharOrObject(p)
 
 	#>
 
 #--
 
-func ListOfListsOfStzTypes() #TODO // complete the list
+func StzListOfListsOfStzTypes() #TODO // complete the list
 	return [
 		:stzListOfObjects,
 		:stzListOfNumbers,
@@ -3452,7 +3570,10 @@ func ListOfListsOfStzTypes() #TODO // complete the list
 		:stzListOfEntities
 	]
 
-func BothAreNumbers(p1, p2)
+	func ListOfListsOfStzTypes()
+		return StzListOfListsOfStzTypes()
+
+func StzBothAreNumbers(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -3463,20 +3584,19 @@ func BothAreNumbers(p1, p2)
 		return 0
 	ok
 
-	func AreBothNumbers(p1, p2)
-		return BothAreNumbers(p1, p2)
+	func BothAreNumbers(p1, p2)
+		return StzBothAreNumbers(p1, p2)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothAreNumbers()
+	func AreBothNumbers(p1, p2)
+		return StzBothAreNumbers(p1, p2)
 
 	func @BothAreNumbers(p1, p2)
-		return BothAreNumbers(p1, p2)
+		return StzBothAreNumbers(p1, p2)
 
 	func @AreBothNumbers(p1, p2)
-		return BothAreNumbers(p1, p2)
+		return StzBothAreNumbers(p1, p2)
 
-func BothAreNumbersInStrings(p1, p2)
+func StzBothAreNumbersInStrings(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -3492,32 +3612,35 @@ func BothAreNumbersInStrings(p1, p2)
 
 	#< @FunctionAlternativeForms
 
+	func BothAreNumbersInStrings(p1, p2)
+		return StzBothAreNumbersInStrings(p1, p2)
+
 	func AreBothNumbersInStrings(p1, p2)
-		return BothAreNumbersInStrings(p1, p2)
+		return StzBothAreNumbersInStrings(p1, p2)
 
 	func @BothAreNumbersInStrings(p1, p2)
-		return BothAreNumbersInStrings(p1, p2)
+		return StzBothAreNumbersInStrings(p1, p2)
 
 	func @AreBothNumbersInStrings(p1, p2)
-		return BothAreNumbersInStrings(p1, p2)
+		return StzBothAreNumbersInStrings(p1, p2)
 
 	#--
 
 	func BothAreNumbersInString(p1, p2)
-		return BothAreNumbersInStrings(p1, p2)
+		return StzBothAreNumbersInStrings(p1, p2)
 
 	func AreBothNumbersInString(p1, p2)
-		return BothAreNumbersInStrings(p1, p2)
+		return StzBothAreNumbersInStrings(p1, p2)
 
 	func @BothAreNumbersInString(p1, p2)
-		return BothAreNumbersInStrings(p1, p2)
+		return StzBothAreNumbersInStrings(p1, p2)
 
 	func @AreBothNumbersInString(p1, p2)
-		return BothAreNumbersInStrings(p1, p2)
+		return StzBothAreNumbersInStrings(p1, p2)
 
 	#>
 
-func BothAreIntegers(p1, p2)
+func StzBothAreIntegers(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -3528,16 +3651,19 @@ func BothAreIntegers(p1, p2)
 		return 0
 	ok
 
+	func BothAreIntegers(p1, p2)
+		return StzBothAreIntegers(p1, p2)
+
 	func AreBothIntegers(p1, p2)
-		return BothAreIntegers(p1, p2)
+		return StzBothAreIntegers(p1, p2)
 
 	func @BothAreIntegers(p1, p2)
-		return BothAreIntegers(p1, p2)
+		return StzBothAreIntegers(p1, p2)
 
 	func @AreBothIntegers(p1, p2)
-		return BothAreIntegers(p1, p2)
+		return StzBothAreIntegers(p1, p2)
 
-func BothAreIntegersInStrings(p1, p2)
+func StzBothAreIntegersInStrings(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -3552,32 +3678,35 @@ func BothAreIntegersInStrings(p1, p2)
 
 	#< @FunctionAlternativeForms
 
+	func BothAreIntegersInStrings(p1, p2)
+		return StzBothAreIntegersInStrings(p1, p2)
+
 	func AreBothIntegersInStrings(p1, p2)
-		return BothAreIntegersInStrings(p1, p2)
+		return StzBothAreIntegersInStrings(p1, p2)
 
 	func @BothAreIntegersInStrings(p1, p2)
-		return BothAreIntegersInStrings(p1, p2)
+		return StzBothAreIntegersInStrings(p1, p2)
 
 	func @AreBothIntegersInStrings(p1, p2)
-		return BothAreIntegersInStrings(p1, p2)
+		return StzBothAreIntegersInStrings(p1, p2)
 
 	#--
 
 	func BothAreIntegersInString(p1, p2)
-		return BothAreIntegersInStrings(p1, p2)
+		return StzBothAreIntegersInStrings(p1, p2)
 
 	func AreBothIntegersInString(p1, p2)
-		return BothAreIntegersInStrings(p1, p2)
+		return StzBothAreIntegersInStrings(p1, p2)
 
 	func @BothAreIntegersInString(p1, p2)
-		return BothAreIntegersInStrings(p1, p2)
+		return StzBothAreIntegersInStrings(p1, p2)
 
 	func @AreBothIntegersInString(p1, p2)
-		return BothAreIntegersInStrings(p1, p2)
+		return StzBothAreIntegersInStrings(p1, p2)
 
 	#>
 
-func BothAreReals(p1, p2)
+func StzBothAreReals(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -3590,32 +3719,35 @@ func BothAreReals(p1, p2)
 
 	#< @FunctionAlternativeForms
 
+	func BothAreReals(p1, p2)
+		return StzBothAreReals(p1, p2)
+
 	func AreBothReals(p1, p2)
-		return BothAreReals(p1, p2)
+		return StzBothAreReals(p1, p2)
 
 	func @BothAreReals(p1, p2)
-		return BothAreReals(p1, p2)
+		return StzBothAreReals(p1, p2)
 
 	func @AreBothReals(p1, p2)
-		return BothAreReals(p1, p2)
+		return StzBothAreReals(p1, p2)
 
 	#--
 
 	func BothAreRealNumbers(p1, p2)
-		return BothAreReals(p1, p2)
+		return StzBothAreReals(p1, p2)
 
 	func AreBothRealNumbers(p1, p2)
-		return BothAreReals(p1, p2)
+		return StzBothAreReals(p1, p2)
 
 	func @BothAreRealNumbers(p1, p2)
-		return BothAreReals(p1, p2)
+		return StzBothAreReals(p1, p2)
 
 	func @AreBothRealNumbers(p1, p2)
-		return BothAreReals(p1, p2)
+		return StzBothAreReals(p1, p2)
 
 	#>
 
-func BothAreRealsInStrings(p1, p2)
+func StzBothAreRealsInStrings(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -3630,60 +3762,63 @@ func BothAreRealsInStrings(p1, p2)
 
 	#< @FunctionAlternativeForms
 
+	func BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
+
 	func AreBothRealsInStrings(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	func @BothAreRealsInStrings(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	func @AreBothRealsInStrings(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	#--
 
 	func BothAreRealsInString(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	func AreBothRealsInString(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	func @BothAreRealsInString(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	func @AreBothRealsInString(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	#==
 
 	func BothAreRealInString(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	func AreBothRealInString(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	func @BothAreRealInString(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	func @AreBothRealInString(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	#--
 
 	func BothAreRealInStrings(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	func AreBothRealInStrings(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	func @BothAreRealInStrings(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	func @AreBothRealInStrings(p1, p2)
-		return BothAreRealsInStrings(p1, p2)
+		return StzBothAreRealsInStrings(p1, p2)
 
 	#>
 
-func BothArePairsOfNumbers(p1, p2)
+func StzBothArePairsOfNumbers(p1, p2)
 	if BothAreLists(p1, p2) and
 	   isList(p1) and Q(p1).IsPairOfNumbers() and
 	   isList(p2) and Q(p2).IsPairOfNumbers()
@@ -3695,57 +3830,57 @@ func BothArePairsOfNumbers(p1, p2)
 
 	#< @FunctionAlternativeForms
 
+	func BothArePairsOfNumbers(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
+
 	func AreBothPairsOfNumbers(p1, p2)
-		return BothArePairsOfNumbers(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
 
 	func @BothArePairsOfNumbers(p1, p2)
-		return BothArePairsOfNumbers(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
 
 	func @AreBothPairsOfNumbers(p1, p2)
-		return BothArePairsOfNumbers(p1, p2)
-
-
-	#--
+		return StzBothArePairsOfNumbers(p1, p2)
 
 	func BothArePairOfNumbers(p1, p2)
-		return BothArePairsOfNumbers(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
 
-		func AreBothPairOfNumbers(p1, p2)
-			return BothArePairsOfNumbers(p1, p2)
-	
+	func AreBothPairOfNumbers(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
+
 	func @BothArePairOfNumbers(p1, p2)
-		return BothArePairsOfNumbers(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
 
-		func @AreBothPairOfNumbers(p1, p2)
-			return BothArePairsOfNumbers(p1, p2)
+	func @AreBothPairOfNumbers(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
 
 	func BothArePairOfNumber(p1, p2)
-		return BothArePairsOfNumbers(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
 
-		func AreBothPairOfNumber(p1, p2)
-			return BothArePairsOfNumbers(p1, p2)
-	
+	func AreBothPairOfNumber(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
+
 	func @BothArePairOfNumber(p1, p2)
-		return BothArePairsOfNumbers(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
 
-		func @AreBothPairOfNumber(p1, p2)
-			return BothArePairsOfNumbers(p1, p2)
+	func @AreBothPairOfNumber(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
 
 	func BothArePairsOfNumber(p1, p2)
-		return BothArePairsOfNumbers(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
 
-		func AreBothPairsOfNumber(p1, p2)
-			return BothArePairsOfNumbers(p1, p2)
-	
+	func AreBothPairsOfNumber(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
+
 	func @BothArePairsOfNumber(p1, p2)
-		return BothArePairsOfNumbers(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
 
-		func @AreBothPairsOfNumber(p1, p2)
-			return BothArePairsOfNumbers(p1, p2)
+	func @AreBothPairsOfNumber(p1, p2)
+		return StzBothArePairsOfNumbers(p1, p2)
 
 	#>
 
-func BothArePairsOfStrings(p1, p2)
+func StzBothArePairsOfStrings(p1, p2)
 	if BothAreLists(p1, p2) and
 	   isList(p1) and Q(p1).IsPairOfStrings() and
 	   isList(p2) and Q(p2).IsPairOfStrings()
@@ -3757,55 +3892,57 @@ func BothArePairsOfStrings(p1, p2)
 
 	#< @FunctionAlternativeForms
 
+	func BothArePairsOfStrings(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
+
 	func AreBothPairsOfStrings(p1, p2)
-		return BothArePairsOfStrings(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
 
 	func @BothArePairsOfStrings(p1, p2)
-		return BothArePairsOfStrings(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
 
 	func @AreBothPairsOfStrings(p1, p2)
-		return BothArePairsOfStrings(p1, p2)
-
-	#--
+		return StzBothArePairsOfStrings(p1, p2)
 
 	func BothArePairOfStrings(p1, p2)
-		return BothArePairsOfStrings(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
 
-		func AreBothPairOfStrings(p1, p2)
-			return BothArePairsOfStrings(p1, p2)
-	
+	func AreBothPairOfStrings(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
+
 	func @BothArePairOfStrings(p1, p2)
-		return BothArePairsOfStrings(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
 
-		func @AreBothPairOfStrings(p1, p2)
-			return BothArePairsOfStrings(p1, p2)
+	func @AreBothPairOfStrings(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
 
 	func BothArePairOfString(p1, p2)
-		return BothArePairsOfStrings(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
 
-		func AreBothPairOfString(p1, p2)
-			return BothArePairsOfStrings(p1, p2)
-	
+	func AreBothPairOfString(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
+
 	func @BothArePairOfString(p1, p2)
-		return BothArePairsOfStrings(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
 
-		func @AreBothPairOfString(p1, p2)
-			return BothArePairsOfStrings(p1, p2)
+	func @AreBothPairOfString(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
 
 	func BothArePairsOfString(p1, p2)
-		return BothArePairsOfStrings(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
 
-		func AreBothPairsOfString(p1, p2)
-			return BothArePairsOfStrings(p1, p2)
-	
+	func AreBothPairsOfString(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
+
 	func @BothArePairsOfString(p1, p2)
-		return BothArePairsOfStrings(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
 
-		func @AreBothPairsOfString(p1, p2)
-			return BothArePairsOfStrings(p1, p2)
+	func @AreBothPairsOfString(p1, p2)
+		return StzBothArePairsOfStrings(p1, p2)
+
 	#>
 
-func BothArePairsOfLists(p1, p2)
+func StzBothArePairsOfLists(p1, p2)
 	if BothAreLists(p1, p2) and
 	   isList(p1) and Q(p1).IsPairOfLists() and
 	   isList(p2) and Q(p2).IsPairOfLists()
@@ -3817,56 +3954,57 @@ func BothArePairsOfLists(p1, p2)
 
 	#< @FunctionAlternativeForms
 
+	func BothArePairsOfLists(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
+
 	func AreBothPairsOfLists(p1, p2)
-		return BothArePairsOfLists(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
 
 	func @BothArePairsOfLists(p1, p2)
-		return BothArePairsOfLists(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
 
 	func @AreBothPairsOfLists(p1, p2)
-		return BothArePairsOfLists(p1, p2)
-
-	#--
+		return StzBothArePairsOfLists(p1, p2)
 
 	func BothArePairOfLists(p1, p2)
-		return BothArePairsOfLists(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
 
-		func AreBothPairOfLists(p1, p2)
-			return BothArePairsOfLists(p1, p2)
-	
+	func AreBothPairOfLists(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
+
 	func @BothArePairOfLists(p1, p2)
-		return BothArePairsOfLists(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
 
-		func @AreBothPairOfLists(p1, p2)
-			return BothArePairsOfLists(p1, p2)
+	func @AreBothPairOfLists(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
 
 	func BothArePairOfList(p1, p2)
-		return BothArePairsOfLists(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
 
-		func AreBothPairOfList(p1, p2)
-			return BothArePairsOfLists(p1, p2)
-	
+	func AreBothPairOfList(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
+
 	func @BothArePairOfList(p1, p2)
-		return BothArePairsOfLists(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
 
-		func @AreBothPairOfList(p1, p2)
-			return BothArePairsOfLists(p1, p2)
+	func @AreBothPairOfList(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
 
 	func BothArePairsOfList(p1, p2)
-		return BothArePairsOfLists(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
 
-		func AreBothPairsOfList(p1, p2)
-			return BothArePairsOfLists(p1, p2)
-	
+	func AreBothPairsOfList(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
+
 	func @BothArePairsOfList(p1, p2)
-		return BothArePairsOfLists(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
 
-		func @AreBothPairsOfList(p1, p2)
-			return BothArePairsOfLists(p1, p2)
+	func @AreBothPairsOfList(p1, p2)
+		return StzBothArePairsOfLists(p1, p2)
 
 	#>
 
-func BothArePairsOfObjects(p1, p2)
+func StzBothArePairsOfObjects(p1, p2)
 	if BothAreLists(p1, p2) and
 	   isList(p1) and Q(p1).IsPairOfObjects() and
 	   isList(p2) and Q(p2).IsPairOfObjects()
@@ -3878,56 +4016,57 @@ func BothArePairsOfObjects(p1, p2)
 
 	#< @FunctionAlternativeForms
 
+	func BothArePairsOfObjects(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
+
 	func AreBothPairsOfObjects(p1, p2)
-		return BothArePairsOfObjects(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
 
 	func @BothArePairsOfObjects(p1, p2)
-		return BothArePairsOfObjects(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
 
 	func @AreBothPairsOfObjects(p1, p2)
-		return BothArePairsOfObjects(p1, p2)
-
-	#--
+		return StzBothArePairsOfObjects(p1, p2)
 
 	func BothArePairOfObjects(p1, p2)
-		return BothArePairsOfObjects(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
 
-		func AreBothPairOfObjects(p1, p2)
-			return BothArePairsOfObjects(p1, p2)
-	
+	func AreBothPairOfObjects(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
+
 	func @BothArePairOfObjects(p1, p2)
-		return BothArePairsOfObjects(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
 
-		func @AreBothPairOfObjects(p1, p2)
-			return BothArePairsOfObjects(p1, p2)
+	func @AreBothPairOfObjects(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
 
 	func BothArePairOfObject(p1, p2)
-		return BothArePairsOfObjects(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
 
-		func AreBothPairOfObject(p1, p2)
-			return BothArePairsOfObjects(p1, p2)
-	
+	func AreBothPairOfObject(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
+
 	func @BothArePairOfObject(p1, p2)
-		return BothArePairsOfObjects(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
 
-		func @AreBothPairOfObject(p1, p2)
-			return BothArePairsOfObjects(p1, p2)
+	func @AreBothPairOfObject(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
 
 	func BothArePairsOfObject(p1, p2)
-		return BothArePairsOfObjects(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
 
-		func AreBothPairsOfObject(p1, p2)
-			return BothArePairsOfObjects(p1, p2)
-	
+	func AreBothPairsOfObject(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
+
 	func @BothArePairsOfObject(p1, p2)
-		return BothArePairsOfObjects(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
 
-		func @AreBothPairsOfObject(p1, p2)
-			return BothArePairsOfObjects(p1, p2)
+	func @AreBothPairsOfObject(p1, p2)
+		return StzBothArePairsOfObjects(p1, p2)
 
 	#>
 
-func BothAreCharsInComputableForm(p1, p2)
+func StzBothAreCharsInComputableForm(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -3949,21 +4088,20 @@ func BothAreCharsInComputableForm(p1, p2)
 	ok
 
 	return bResult
-	
-	func AreBothCharsInComputableForm(p1, p2)
-		return BothAreCharsInComputableForm(p1, p2)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothAreNumbersInStrings()
+	func BothAreCharsInComputableForm(p1, p2)
+		return StzBothAreCharsInComputableForm(p1, p2)
+
+	func AreBothCharsInComputableForm(p1, p2)
+		return StzBothAreCharsInComputableForm(p1, p2)
 
 	func @BothAreCharsInComputableForm(p1, p2)
-		return BothAreCharsInComputableForm(p1, p2)
+		return StzBothAreCharsInComputableForm(p1, p2)
 
 	func @AreBothCharsInComputableForm(p1, p2)
-		return BothAreCharsInComputableForm(p1, p2)
+		return StzBothAreCharsInComputableForm(p1, p2)
 	 
-func BothAreStringsInComputableForm(p1, p2)
+func StzBothAreStringsInComputableForm(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -3985,20 +4123,19 @@ func BothAreStringsInComputableForm(p1, p2)
 		return 0
 	ok
 
-	func AreBothStringsInComputableForm(p1, p2)
-		return BothAreStringsInComputableForm(p1, p2)
+	func BothAreStringsInComputableForm(p1, p2)
+		return StzBothAreStringsInComputableForm(p1, p2)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothAreStringsInComputableForm()
+	func AreBothStringsInComputableForm(p1, p2)
+		return StzBothAreStringsInComputableForm(p1, p2)
 
 	func @BothAreStringsInComputableForm(p1, p2)
-		return BothAreStringsInComputableForm(p1, p2)
+		return StzBothAreStringsInComputableForm(p1, p2)
 
 	func @AreBothStringsInComputableForm(p1, p2)
-		return BothAreStringsInComputableForm(p1, p2)
+		return StzBothAreStringsInComputableForm(p1, p2)
 
-func BothAreStzNumbers(p1, p2)
+func StzBothAreStzNumbers(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -4009,20 +4146,19 @@ func BothAreStzNumbers(p1, p2)
 		return 0
 	ok
 
-	func AreBothStzNumbers(p1, p2)
-		return BothAreStzNumbers(p1, p2)
+	func BothAreStzNumbers(p1, p2)
+		return StzBothAreStzNumbers(p1, p2)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothAreStzNumbers()
+	func AreBothStzNumbers(p1, p2)
+		return StzBothAreStzNumbers(p1, p2)
 
 	func @BothAreStzNumbers(p1, p2)
-		return BothAreStzNumbers(p1, p2)
+		return StzBothAreStzNumbers(p1, p2)
 
 	func @AreBothStzNumbers(p1, p2)
-		return BothAreStzNumbers(p1, p2)
+		return StzBothAreStzNumbers(p1, p2)
 
-func BothAreStrings(p1, p2)
+func StzBothAreStrings(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -4033,20 +4169,19 @@ func BothAreStrings(p1, p2)
 		return 0
 	ok
 
-	func AreBothStrings(p1, p2)
-		return BothAreStrings(p1, p2)
+	func BothAreStrings(p1, p2)
+		return StzBothAreStrings(p1, p2)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothAreStrings()
+	func AreBothStrings(p1, p2)
+		return StzBothAreStrings(p1, p2)
 
 	func @BothAreStrings(p1, p2)
-		return BothAreStrings(p1, p2)
+		return StzBothAreStrings(p1, p2)
 
 	func @AreBothStrings(p1, p2)
-		return BothAreStrings(p1, p2)
+		return StzBothAreStrings(p1, p2)
 
-func BothAreStzStrings(p1, p2)
+func StzBothAreStzStrings(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -4057,20 +4192,19 @@ func BothAreStzStrings(p1, p2)
 		return 0
 	ok
 
-	func AreBothStzStrings(p1, p2)
-		return BothAreStzStrings(p1, p2)
+	func BothAreStzStrings(p1, p2)
+		return StzBothAreStzStrings(p1, p2)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothAreStzStrings()
+	func AreBothStzStrings(p1, p2)
+		return StzBothAreStzStrings(p1, p2)
 
 	func @BothAreStzStrings(p1, p2)
-		return BothAreStzStrings(p1, p2)
+		return StzBothAreStzStrings(p1, p2)
 
 	func @AreBothStzStrings(p1, p2)
-		eturn BothAreStzStrings(p1, p2)
+		return StzBothAreStzStrings(p1, p2)
 
-func BothAreLists(p1, p2)
+func StzBothAreLists(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -4081,20 +4215,19 @@ func BothAreLists(p1, p2)
 		return 0
 	ok
 
-	func AreBothLists(p1, p2)
-		return BothAreLists(p1, p2)
+	func BothAreLists(p1, p2)
+		return StzBothAreLists(p1, p2)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothAreLists()
+	func AreBothLists(p1, p2)
+		return StzBothAreLists(p1, p2)
 
 	func @BothAreLists(p1, p2)
-		return BothAreLists(p1, p2)
+		return StzBothAreLists(p1, p2)
 
 	func @AreBothLists(p1, p2)
-		eturn BothAreLists(p1, p2)
+		return StzBothAreLists(p1, p2)
 
-func BothAreStzLists(p1, p2)
+func StzBothAreStzLists(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -4105,20 +4238,19 @@ func BothAreStzLists(p1, p2)
 		return 0
 	ok
 
-	func AreBothStzLists()
-		return BothAreStzLists()
+	func BothAreStzLists(p1, p2)
+		return StzBothAreStzLists(p1, p2)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothAreStzLists()
+	func AreBothStzLists(p1, p2)
+		return StzBothAreStzLists(p1, p2)
 
 	func @BothAreStzLists(p1, p2)
-		return BothAreStzLists(p1, p2)
+		return StzBothAreStzLists(p1, p2)
 
 	func @AreBothStzLists(p1, p2)
-		return BothAreStzLists(p1, p2)
+		return StzBothAreStzLists(p1, p2)
 
-func BothAreObjects(p1, p2)
+func StzBothAreObjects(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -4129,20 +4261,19 @@ func BothAreObjects(p1, p2)
 		return 0
 	ok
 
-	func AreBothObjects(p1, p2)
-		return BothAreObjects(p1, p2)
+	func BothAreObjects(p1, p2)
+		return StzBothAreObjects(p1, p2)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothAreObjects()
+	func AreBothObjects(p1, p2)
+		return StzBothAreObjects(p1, p2)
 
 	func @BothAreObjects(p1, p2)
-		return BothAreObjects(p1, p2)
+		return StzBothAreObjects(p1, p2)
 
 	func @AreBothObjects(p1, p2)
-		return BothAreObjects(p1, p2)
+		return StzBothAreObjects(p1, p2)
 
-func BothAreStzObjects(p1, p2)
+func StzBothAreStzObjects(p1, p2)
 	if isList(p2) and Q(p2).IsAndNamedParam()
 		p2 = p2[2]
 	ok
@@ -4153,20 +4284,19 @@ func BothAreStzObjects(p1, p2)
 		return 0
 	ok
 
-	func AreBothStzObjects(p1, p2)
-		return BothAreStzObjects(p1, p2)
+	func BothAreStzObjects(p1, p2)
+		return StzBothAreStzObjects(p1, p2)
 
-	#-- Alternatives added so the function can be called from
-	#-- inside an object that already contains a method of
-	#-- the same name obj.BothAreStzObjects()
+	func AreBothStzObjects(p1, p2)
+		return StzBothAreStzObjects(p1, p2)
 
 	func @BothAreStzObjects(p1, p2)
-		return BothAreStzObjects(p1, p2)
+		return StzBothAreStzObjects(p1, p2)
 
 	func @AreBothStzObjects(p1, p2)
-		return BothAreStzObjects(p1, p2)
+		return StzBothAreStzObjects(p1, p2)
 
-func BothHaveSameStzType(p1, p2)
+func StzBothHaveSameStzType(p1, p2)
 
 	if BothAreObjects(p1, p2) and
 	   p1.StzType() = p2.StzType()
@@ -4176,17 +4306,23 @@ func BothHaveSameStzType(p1, p2)
 		return 0
 	ok
 
+	func BothHaveSameStzType(p1, p2)
+		return StzBothHaveSameStzType(p1, p2)
+
 # ARE TWO OBJECTS THE SAME?
 
-func AreSameObject(pcVarName1, pcVarName2) #TODO
+func StzAreSameObject(pcVarName1, pcVarName2) #TODO
 	if isList(pcVarName2) and Q(pcVarName2).IsAndNamedParam()
 		pcVarName2 = pcVarName2[2]
 	ok
 
 	return StzObjectQ(pcVarName1).IsEqualTo( pcVarName2 )
 
+	func AreSameObject(pcVarName1, pcVarName2)
+		return StzAreSameObject(pcVarName1, pcVarName2)
+
 	func @AreSameObject(pcVarName1, pcVarName2)
-		return AreSameObject(pcVarName1, pcVarName2)
+		return StzAreSameObject(pcVarName1, pcVarName2)
 # OTHER STAFF
 
 func IsStzType(pcStr)
@@ -4318,7 +4454,7 @@ func StzLen(p)
 	func @len(p)
 		return stzlen(p)
 
-func HowMany(paList)
+func StzHowMany(paList)
 
 	if NOT isList(paList)
 		StzRaise("Incorrect param type! paList must be a list.")
@@ -4328,36 +4464,34 @@ func HowMany(paList)
 
 	#< @FunctionAlternativeForms
 
-	func @HowMany(paList)
-		return HowMany(palist)
+	func HowMany(paList)
+		return StzHowMany(paList)
 
-	#--
+	func @HowMany(paList)
+		return StzHowMany(palist)
 
 	func HowManyItemsIn(paList)
-		return HowMany(paList)
+		return StzHowMany(paList)
 
 	func HowManyItems(paList)
 		if isList(paList) and Q(paList).IsInNamedParam()
 			paList = paList[2]
 		ok
 
-		return HowMany(paList)
-
-	#-- @FunctionMisspelledForms
-	#TODO // Add "Hwo" as an alternative of "Hwo" in all functions
+		return StzHowMany(paList)
 
 	func HwoMany(paList)
-		return HowMany(paList)
+		return StzHowMany(paList)
 
 	func HwoManyItemsIn(paList)
-		return HowMany(paList)
+		return StzHowMany(paList)
 
 	func HwoManyItems(paList)
-		return HowManyItems(paList)
+		return StzHowMany(paList)
 
 	#>
 
-func Unicode(p)
+func StzUnicode(p)
 	if isList(p) and Q(p).IsOfNamedParam()
 		p = p[2]
 	ok
@@ -4374,16 +4508,19 @@ func Unicode(p)
 		StzRaise("Incorrect param type! p must be either a string or list.")
 	ok
 
+	func Unicode(p)
+		return StzUnicode(p)
+
 	func @Unicode(p)
-		return Unicode(p)
+		return StzUnicode(p)
 
 	func UnicodeOf(p)
-		return Unicode(p)
+		return StzUnicode(p)
 
 	func @UnicodeOf(p)
-		return Unicode(p)
+		return StzUnicode(p)
 
-func HexUnicode(p)
+func StzHexUnicode(p)
 	if isList(p) and Q(p).IsOfNamedParam()
 		p = p[2]
 	ok
@@ -4400,16 +4537,19 @@ func HexUnicode(p)
 		StzRaise("Incorrect param type! p must be either a string or list.")
 	ok
 
+	func HexUnicode(p)
+		return StzHexUnicode(p)
+
 	func @HexUnicode(p)
-		return HexUnicode(p)
+		return StzHexUnicode(p)
 
 	func HexUnicodeOf(p)
-		return hexUnicode(p)
+		return StzHexUnicode(p)
 
 	func @HexUnicodeOf(p)
-		return hexUnicode(p)
+		return StzHexUnicode(p)
 
-func Unicodes(p)
+func StzUnicodes(p)
 	if isList(p) and Q(p).IsOfNamedParam()
 		p = p[2]
 	ok
@@ -4426,16 +4566,19 @@ func Unicodes(p)
 		StzRaise("Incorrect param type! p must be either a string or list.")
 	ok
 
+	func Unicodes(p)
+		return StzUnicodes(p)
+
 	func @Unicodes(p)
-		return Unicodes(p)
+		return StzUnicodes(p)
 
 	func UnicodesOf(p)
-		return Unciodes(p)
+		return StzUnicodes(p)
 
 	func @UnicodesOf(p)
-		return Unciodes(p)
+		return StzUnicodes(p)
 
-func HexUnicodes(p)
+func StzHexUnicodes(p)
 	if isList(p) and Q(p).IsOfNamedParam(p)
 		p = p[2]
 	ok
@@ -4452,14 +4595,17 @@ func HexUnicodes(p)
 		StzRaise("Incorrect param type! p must be either a string or list.")
 	ok
 
+	func HexUnicodes(p)
+		return StzHexUnicodes(p)
+
 	func @HexUnicodes(p)
-		return HexUnicodes(p)
+		return StzHexUnicodes(p)
 
 	func HexUnicodesOf(p)
-		return HexUnicodes(p)
+		return StzHexUnicodes(p)
 
 	func @HexUnicodesOf(p)
-		return HexUnicodes(p)
+		return StzHexUnicodes(p)
 
 
 
@@ -4474,8 +4620,11 @@ func YaMuhammed()
 func SalatNabee()
 	return "ØµÙ„Ù‘Ù‰ Ø§Ù„Ù„Ù‡ Ø¹Ù„Ù‰ Ù†Ø¨ÙŠÙ‘Ù‡ Ø§Ù„Ø£ÙƒØ±Ù…"
 
-func NHearts(n)
+func StzNHearts(n)
 	return Q(Heart()).RepeatedNTimes(n)
+
+	func NHearts(n)
+		return StzNHearts(n)
 
 	func 2Hearts()
 		return NHearts(2)
@@ -4492,8 +4641,11 @@ func NHearts(n)
 	func 9Hearts()
 		return NHearts(9)
 
-func NStars(n)
+func StzNStars(n)
 	return Q(Star()).RepeatedNTimes(n)
+
+	func NStars(n)
+		return StzNStars(n)
 
 	func 2Stars()
 		return NStars(2)
@@ -4510,7 +4662,7 @@ func NStars(n)
 	func 9Stars()
 		return NStars(9)
 
-func Empty(pcStzType)
+func StzEmpty(pcStzType)
 	if NOT isString(pcStzType)
 		StzRaise("Incorrect param type! pcStzType must be a string.")
 	ok
@@ -4609,14 +4761,21 @@ func Empty(pcStzType)
 
 	off
 
-func Swap(p1, p2)
+	func Empty(pcStzType)
+		return StzEmpty(pcStzType)
+
+func StzSwap(p1, p2)
 	_temp_ = p2
 	p2 = p1
 	p1 = _temp_
 
 	return [p1, p2]
 
+	func Swap(p1, p2)
+		return StzSwap(p1, p2)
+
 	func @Swap(p1, p2)
+		return StzSwap(p1, p2)
 
 func new_stz(cType, p)
 	
@@ -4639,10 +4798,13 @@ func new_stz(cType, p)
 	func new@stz(cType, p)
 		return stz(cType, p)
 
-func Softanzify(p)
+func StzSoftanzify(p)
 	return Q(p)
 
-func TheNumberQ(n)
+	func Softanzify(p)
+		return StzSoftanzify(p)
+
+func StzTheNumberQ(n)
 	if NOT isNumber(n)
 		StzRaise("Incorrect param type! n must be a number.")
 	ok
@@ -4650,18 +4812,24 @@ func TheNumberQ(n)
 	obj = new stzNumber(n)
 	return obj
 
-	func NumberQ(n)
-		return TheNumberQ(n)
+	func TheNumberQ(n)
+		return StzTheNumberQ(n)
 
-func TheNumberQM(n)
-	obj = TheNumberQ(n)
+	func NumberQ(n)
+		return StzTheNumberQ(n)
+
+func StzTheNumberQM(n)
+	obj = StzTheNumberQ(n)
 	SetMainObject(obj)
 	return obj
 
-	def NumberQM(n)
-		return TheNumberQM(n)
+	func TheNumberQM(n)
+		return StzTheNumberQM(n)
 
-func TheListQ(aList)
+	def NumberQM(n)
+		return StzTheNumberQM(n)
+
+func StzTheListQ(aList)
 	if NOT isList(aList)
 		StzRaise("Incorrect param type! aList must be a list.")
 	ok
@@ -4669,25 +4837,34 @@ func TheListQ(aList)
 	obj = new stzList(aList)
 	return obj
 
-	func ListQ(aList)
-		return TheListQ(aList)
+	func TheListQ(aList)
+		return StzTheListQ(aList)
 
-func TheListQM(aList)
-	obj = TheListQ(aList)
+	func ListQ(aList)
+		return StzTheListQ(aList)
+
+func StzTheListQM(aList)
+	obj = StzTheListQ(aList)
 	SetMainObject(obj)
 	return obj
 
-	func ListQM(aList)
-		return TheListQM(aList)
+	func TheListQM(aList)
+		return StzTheListQM(aList)
 
-func TheList(aList)
+	func ListQM(aList)
+		return StzTheListQM(aList)
+
+func StzTheList(aList)
 	if NOT isList(aList)
 		StzRaise("Incorrect param type! aList must be a list.")
 	ok
 
 	return aList
 
-func TheStringQ(str)
+	func TheList(aList)
+		return StzTheList(aList)
+
+func StzTheStringQ(str)
 	if NOT isString(str)
 		StzRaise("Incorrect param type! str must be a string.")
 	ok
@@ -4695,72 +4872,88 @@ func TheStringQ(str)
 	obj = new stzString(str)
 	return obj
 
-	func StringQ(str)
-		return TheStringQ(str)
+	func TheStringQ(str)
+		return StzTheStringQ(str)
 
-	#--
+	func StringQ(str)
+		return StzTheStringQ(str)
 
 	func TheWordQ(str)
-		return TheStringQ(str)
+		return StzTheStringQ(str)
 
 	func WordQ(str)
-		return TheStringQ(str)
+		return StzTheStringQ(str)
 
-func TheStringQM(str)
-	obj = TheStringQ(str)
+func StzTheStringQM(str)
+	obj = StzTheStringQ(str)
 	SetMainObject(obj)
 	return obj
 
+	func TheStringQM(str)
+		return StzTheStringQM(str)
+
 	func StringQM(str)
-		return TheStringQM(str)
+		return StzTheStringQM(str)
 
 	func TheWordQM(str)
-		return TheStringQM(str)
+		return StzTheStringQM(str)
 
 	func WordQM(str)
-		return TheStringQM(str)
+		return StzTheStringQM(str)
 
-func TheString(str)
+func StzTheString(str)
 	if NOT isString(str)
 		StzRaise("Incorrect param type! str must be a string.")
 	ok
 
 	return str
 
+	func TheString(str)
+		return StzTheString(str)
+
 	func TheWord(str)
-		return TheString(str)
+		return StzTheString(str)
 
 
 
 
-func Todo()
-	return TodoXT(:InCurrent)
+func StzTodo()
+	return StzTodoXT(:InCurrent)
 
-func TodoInFuture()
-	return TodoXT(:InFuture)
+	func Todo()
+		return StzTodo()
+
+func StzTodoInFuture()
+	return StzTodoXT(:InFuture)
+
+	func TodoInFuture()
+		return StzTodoInFuture()
 
 	func TodoFuture()
-		return TodoInFuture()
+		return StzTodoInFuture()
 
 	func TodoInFutureRelease()
-		return TodoInFuture()
+		return StzTodoInFuture()
 
 	func TodoFutureRelease()
-		return TodoInFuture()
+		return StzTodoInFuture()
 
-func TodoInCurrent()
-	return TodoXT(:InCurrent)
+func StzTodoInCurrent()
+	return StzTodoXT(:InCurrent)
+
+	func TodoInCurrent()
+		return StzTodoInCurrent()
 
 	func TodoCurrent()
-		return TodoInCurrent()
+		return StzTodoInCurrent()
 
 	func TodoInCurrentRelease()
-		return TodoInCurrent()
+		return StzTodoInCurrent()
 
 	func TodoCurrentRelease()
-		return TodoInCurrent()
+		return StzTodoInCurrent()
 
-func TodoXT(pcCurrentOrFuture)
+func StzTodoXT(pcCurrentOrFuture)
 	if NOT ( isString(pcCurrentOrFuture) and
 	   	 StzFind([
 			:Current, :InCurrent, :Future, :InFuture,
@@ -4779,7 +4972,10 @@ func TodoXT(pcCurrentOrFuture)
 		StzRaise("Feature not yet implemented, but it should be (TODO in current release)")
 	ok
 
-func AreBothListsOfNumbers(aList1, aList2)
+	func TodoXT(pcCurrentOrFuture)
+		return StzTodoXT(pcCurrentOrFuture)
+
+func StzAreBothListsOfNumbers(aList1, aList2)
 	if isList(aList1) and
 	   isList(aList2) and
 	   Q(aList1).IsListOfNumbers() and
@@ -4791,7 +4987,10 @@ func AreBothListsOfNumbers(aList1, aList2)
 		return 0
 	ok
 
-func AreBothListsOfStrings(aList1, aList2)
+	func AreBothListsOfNumbers(aList1, aList2)
+		return StzAreBothListsOfNumbers(aList1, aList2)
+
+func StzAreBothListsOfStrings(aList1, aList2)
 	if isList(aList1) and
 	   isList(aList2) and
 	   Q(aList1).IsListOfStrings() and
@@ -4803,7 +5002,10 @@ func AreBothListsOfStrings(aList1, aList2)
 		return 0
 	ok
 
-func AreBothListsOfLists(aList1, aList2)
+	func AreBothListsOfStrings(aList1, aList2)
+		return StzAreBothListsOfStrings(aList1, aList2)
+
+func StzAreBothListsOfLists(aList1, aList2)
 	if isList(aList1) and
 	   isList(aList2) and
 	   Q(aList1).IsListOfLists() and
@@ -4815,7 +5017,10 @@ func AreBothListsOfLists(aList1, aList2)
 		return 0
 	ok
 
-func AreBothListsOfPairs(aList1, aList2)
+	func AreBothListsOfLists(aList1, aList2)
+		return StzAreBothListsOfLists(aList1, aList2)
+
+func StzAreBothListsOfPairs(aList1, aList2)
 	if isList(aList1) and
 	   isList(aList2) and
 	   Q(aList1).IsListOfPairs() and
@@ -4827,7 +5032,10 @@ func AreBothListsOfPairs(aList1, aList2)
 		return 0
 	ok
 
-func AreBothListsOfSets(aList1, aList2)
+	func AreBothListsOfPairs(aList1, aList2)
+		return StzAreBothListsOfPairs(aList1, aList2)
+
+func StzAreBothListsOfSets(aList1, aList2)
 	if isList(aList1) and
 	   isList(aList2) and
 	   Q(aList1).IsListOfSets() and
@@ -4839,7 +5047,10 @@ func AreBothListsOfSets(aList1, aList2)
 		return 0
 	ok
 
-func AreBothListsOfHashLists(aList1, aList2)
+	func AreBothListsOfSets(aList1, aList2)
+		return StzAreBothListsOfSets(aList1, aList2)
+
+func StzAreBothListsOfHashLists(aList1, aList2)
 	if isList(aList1) and
 	   isList(aList2) and
 	   Q(aList1).IsListOfHashLists() and
@@ -4851,7 +5062,10 @@ func AreBothListsOfHashLists(aList1, aList2)
 		return 0
 	ok
 
-func AreBothListsOfObjects(aList1, aList2)
+	func AreBothListsOfHashLists(aList1, aList2)
+		return StzAreBothListsOfHashLists(aList1, aList2)
+
+func StzAreBothListsOfObjects(aList1, aList2)
 	if isList(aList1) and
 	   isList(aList2) and
 	   Q(aList1).IsListOfObjects() and
@@ -4863,7 +5077,10 @@ func AreBothListsOfObjects(aList1, aList2)
 		return 0
 	ok
 
-func EuclideanDistance(anNumbers1, anNumbers2)
+	func AreBothListsOfObjects(aList1, aList2)
+		return StzAreBothListsOfObjects(aList1, aList2)
+
+func StzEuclideanDistance(anNumbers1, anNumbers2)
 
 	if CheckParams()
 		if isList(anNumbers1) and IsBetweenNamedParamList(anNumbers1)
@@ -4884,6 +5101,9 @@ func EuclideanDistance(anNumbers1, anNumbers2)
 
 	nResult = euc_dist(anNumbers1, anNumbers2)
 	return nResult
+
+	func EuclideanDistance(anNumbers1, anNumbers2)
+		return StzEuclideanDistance(anNumbers1, anNumbers2)
 
 func euc_dist(a,b)
 
@@ -4951,21 +5171,27 @@ func @IsString(str)
 
 #--
 
-func IsNeitherNorCS(p, p1, p2, pCaseSensitive)
+func StzIsNeitherNorCS(p, p1, p2, pCaseSensitive)
 	return Q(p).IsNeitherCS(p1, p2, pCaseSensitive)
 
-	func @IsNeitherNorCS(p, p1, p2, pCaseSensitive)
-		return IsNeitherNorCS(p, p1, p2, pCaseSensitive)
+	func IsNeitherNorCS(p, p1, p2, pCaseSensitive)
+		return StzIsNeitherNorCS(p, p1, p2, pCaseSensitive)
 
-func IsNeitherNor(p, p1, p2)
+	func @IsNeitherNorCS(p, p1, p2, pCaseSensitive)
+		return StzIsNeitherNorCS(p, p1, p2, pCaseSensitive)
+
+func StzIsNeitherNor(p, p1, p2)
 	return Q(p).IsNeither(p1, p2)
 
+	func IsNeitherNor(p, p1, p2)
+		return StzIsNeitherNor(p, p1, p2)
+
 	func @IsNeitherNor(p, p1, p2)
-		return IsNeitherNor(p, p1, p2)
+		return StzIsNeitherNor(p, p1, p2)
 
 #==
 
-func BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+func StzBothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 
 	if Q(pStrOrList1).StartsWithCS(pSubStrOrSubList, pCaseSensitive) and
 	   Q(pStrOrList2).StartsWithCS(pSubStrOrSubList, pCaseSensitive)
@@ -4975,18 +5201,24 @@ func BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 		return 0
 	ok
 
-	func @BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
-		return BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+	func BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+		return StzBothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 
-func BothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
-	return BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, 1)
+	func @BothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+		return StzBothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+
+func StzBothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
+	return StzBothStartWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, 1)
+
+	func BothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
+		return StzBothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
 
 	func @BothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
-		return BothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
+		return StzBothStartWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
 
 #--
 
-func BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+func StzBothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 
 	if Q(pStrOrList1).endsWithCS(pSubStrOrSubList, pCaseSensitive) and
 	   Q(pStrOrList2).EndsWithCS(pSubStrOrSubList, pCaseSensitive)
@@ -4996,42 +5228,60 @@ func BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 		return 0
 	ok
 
-	func @BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
-		return BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+	func BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+		return StzBothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
 
-func BothEndWith(pStrOrList1, pStrOrList2)
-	return BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, 1)
+	func @BothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+		return StzBothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, pCaseSensitive)
+
+func StzBothEndWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
+	return StzBothEndWithCS(pStrOrList1, pStrOrList2, pSubStrOrSubList, 1)
+
+	func BothEndWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
+		return StzBothEndWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
 
 	func @BothEndWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
-		return BothEndWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
+		return StzBothEndWith(pStrOrList1, pStrOrList2, pSubStrOrSubList)
 
 #==
 
-func BothStartWithANumber(p1, p2)
+func StzBothStartWithANumber(p1, p2)
 	if Q(p1).StartsWithANumber() and Q(p2).StartsWithANumber()
 		return 1
 	else
 		return 0
 	ok
 
-func BothEndWithANumber(p1, p2)
+	func BothStartWithANumber(p1, p2)
+		return StzBothStartWithANumber(p1, p2)
+
+func StzBothEndWithANumber(p1, p2)
 	if Q(p1).EndsWithANumber() and Q(p2).EndsWithANumber()
 		return 1
 	else
 		return 0
 	ok
 
-func NewLine()
+	func BothEndWithANumber(p1, p2)
+		return StzBothEndWithANumber(p1, p2)
+
+func StzNewLine()
 	return NL
+
+	func NewLine()
+		return StzNewLine()
 
 	func NL()
 		return NL
 
 	func EmptyLine()
-		return NL
+		return StzNewLine()
 
-func NumberOfStzFindableTypes()
+func StzNumberOfStzFindableTypes()
 	return len(_aStzFindableTypes)
+
+	func NumberOfStzFindableTypes()
+		return StzNumberOfStzFindableTypes()
 
 func IsStzFindableType(cType)
 	if NOT isString(cType)
@@ -5208,17 +5458,20 @@ func StzType(oStzObj)
 	func @StzType(oStzObj)
 		return StzType(oStzObj)
 
-func InfereType(cType)
+func StzInfereType(cType)
 	return StzStringQ(cType).InfereType()
 
+	func InfereType(cType)
+		return StzInfereType(cType)
+
 	func @InfereType(cType)
-		return InfereType(cType)
+		return StzInfereType(cType)
 
 #---
 
 # Viewing a file in the default program in the system
 
-func View(cFileName)
+func StzView(cFileName)
 	if CheckParams()
 		if NOT isString(cFileName)
 			stzraise("Incorrect param type! cFileName mlust be a string.")
@@ -5233,8 +5486,11 @@ func View(cFileName)
 		stzraise("Can't proceed! The file you provided does not exist.")
 	ok
 
+	func View(cFileName)
+		StzView(cFileName)
+
 	func @View(cFileName)
-		View(cFileName)
+		StzView(cFileName)
 
 
   ////////////////////////

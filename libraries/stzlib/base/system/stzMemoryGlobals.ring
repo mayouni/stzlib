@@ -66,5 +66,8 @@ RING_STRING_ARRAYSIZE = 32
 
 #==
 
-func MemoryUnits()
+func StzMemoryUnits()
 	return MEMORY_UNITS
+
+	func MemoryUnits()
+		return StzMemoryUnits()
