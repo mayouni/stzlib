@@ -104,19 +104,22 @@ $aInnerItemsMakingAListFalse = []
 $bNullObjectIsFalse = 1 # A Siftanza's default, confroming to Ring default
 $bObjectContentDefinesItsTruth = 0
 
-func EmptyStringIsConsideredFalse()
+func StzEmptyStringIsConsideredFalse()
 	return $bEmptyStringIsConsideredFalse
 
+	func EmptyStringIsConsideredFalse()
+		return StzEmptyStringIsConsideredFalse()
+
 	func EmptyStringConsideredFalse()
-		return $bEmptyStringIsConsideredFalse
+		return StzEmptyStringIsConsideredFalse()
 
 	func NullStringIsConsideredFalse()
-		return $bEmptyStringIsConsideredFalse
+		return StzEmptyStringIsConsideredFalse()
 
 	func NullStringConsideredFalse()
-		return $bEmptyStringIsConsideredFalse
+		return StzEmptyStringIsConsideredFalse()
 
-func SetEmptyStringIsConsideredFalse(pnTrueFalse)
+func StzSetEmptyStringIsConsideredFalse(pnTrueFalse)
 
 	if CheckParams() and isString(pnTrueFalse)
 		cLower = StzLower(pnTrueFalse)
@@ -136,13 +139,19 @@ func SetEmptyStringIsConsideredFalse(pnTrueFalse)
 
 	$bEmptyStringIsConsideredFalse = pnTrueFalse
 
-func SubStringsMakingAStringFalse()
+	func SetEmptyStringIsConsideredFalse(pnTrueFalse)
+		StzSetEmptyStringIsConsideredFalse(pnTrueFalse)
+
+func StzSubStringsMakingAStringFalse()
 	return $acSubStringsMakingAStringFalse
 
-	func SubStringsMakingStringFalse()
-		return $acSubStringsMakingAStringFalse
+	func SubStringsMakingAStringFalse()
+		return StzSubStringsMakingAStringFalse()
 
-func SetSubStringsMakingAStringFalse(pacStr)
+	func SubStringsMakingStringFalse()
+		return StzSubStringsMakingAStringFalse()
+
+func StzSetSubStringsMakingAStringFalse(pacStr)
 	if CheckParams()
 		if NOT IsListOfStrings(pacStr)
 			StzRaise("Incorrect param type! pacStr must be a list of strings.")
@@ -151,16 +160,22 @@ func SetSubStringsMakingAStringFalse(pacStr)
 
 	$acSubStringsMakingAStringFalse = pacStr
 
-	func SetSubStringsMakingStringFalse(pacStr)
-		SetSubStringsMakingAStringFalse(pacStr)
+	func SetSubStringsMakingAStringFalse(pacStr)
+		StzSetSubStringsMakingAStringFalse(pacStr)
 
-func EmptyListIsConsideredFalse()
+	func SetSubStringsMakingStringFalse(pacStr)
+		StzSetSubStringsMakingAStringFalse(pacStr)
+
+func StzEmptyListIsConsideredFalse()
 	return $bEmptyListIsConsideredFalse
 
-	func EmptyListConsideredFalse()
-		return $bEmptyListIsConsideredFalse
+	func EmptyListIsConsideredFalse()
+		return StzEmptyListIsConsideredFalse()
 
-func SetEmptyListIsConsideredFalse(pnTrueFalse)
+	func EmptyListConsideredFalse()
+		return StzEmptyListIsConsideredFalse()
+
+func StzSetEmptyListIsConsideredFalse(pnTrueFalse)
 
 	if CheckParams() and isString(pnTrueFalse)
 		cLower = StzLower(pnTrueFalse)
@@ -180,13 +195,19 @@ func SetEmptyListIsConsideredFalse(pnTrueFalse)
 
 	$bEmptyListIsConsideredFalse = pnTrueFalse
 
-func ItemsMakingAListFalse()
+	func SetEmptyListIsConsideredFalse(pnTrueFalse)
+		StzSetEmptyListIsConsideredFalse(pnTrueFalse)
+
+func StzItemsMakingAListFalse()
 	return $aItemsMakingAListFalse
 
-	func ItemsMakingListFalse()
-		return $aItemsMakingAListFalse
+	func ItemsMakingAListFalse()
+		return StzItemsMakingAListFalse()
 
-func SetItemsMakingAListFalse(paItems)
+	func ItemsMakingListFalse()
+		return StzItemsMakingAListFalse()
+
+func StzSetItemsMakingAListFalse(paItems)
 	if CheckParams()
 		if NOT IsList(paItems)
 			StzRaise("Incorrect param type! paItems must be a list.")
@@ -195,16 +216,22 @@ func SetItemsMakingAListFalse(paItems)
 
 	$aItemsMakingAListFalse = paItems
 
-	func SetItemsMakingListFalse(paItems)
-		SetItemsMakingAListFalse(paItems)
+	func SetItemsMakingAListFalse(paItems)
+		StzSetItemsMakingAListFalse(paItems)
 
-func InnerItemsMakingAListFalse()
+	func SetItemsMakingListFalse(paItems)
+		StzSetItemsMakingAListFalse(paItems)
+
+func StzInnerItemsMakingAListFalse()
 	return $aInnerItemsMakingAListFalse
 
-	func InnerItemsMakingListFalse()
-		return $aInnerItemsMakingAListFalse
+	func InnerItemsMakingAListFalse()
+		return StzInnerItemsMakingAListFalse()
 
-func SetInnerItemsMakingAListFalse(paItems)
+	func InnerItemsMakingListFalse()
+		return StzInnerItemsMakingAListFalse()
+
+func StzSetInnerItemsMakingAListFalse(paItems)
 	if CheckParams()
 		if NOT IsList(paItems)
 			StzRaise("Incorrect param type! paItems must be a list.")
@@ -213,14 +240,23 @@ func SetInnerItemsMakingAListFalse(paItems)
 
 	$aInnerItemsMakingAListFalse = paItems
 
-	func SetInnerItemsMakingListFalse(paItems)
-		SetInnerItemsMakingAListFalse(paItems)
+	func SetInnerItemsMakingAListFalse(paItems)
+		StzSetInnerItemsMakingAListFalse(paItems)
 
-func NullObjectIsFalse()
+	func SetInnerItemsMakingListFalse(paItems)
+		StzSetInnerItemsMakingAListFalse(paItems)
+
+func StzNullObjectIsFalse()
 	return $bNullObjectIsFalse
 
-func ObjectContentDefinesItsTruth()
+	func NullObjectIsFalse()
+		return StzNullObjectIsFalse()
+
+func StzObjectContentDefinesItsTruth()
 	return $bObjectContentDefinesItsTruth
+
+	func ObjectContentDefinesItsTruth()
+		return StzObjectContentDefinesItsTruth()
 
   ///////////////////
  //   FUNCTIONS   //
@@ -229,14 +265,17 @@ func ObjectContentDefinesItsTruth()
 func StzObjectQ(pObject)
 	return new stzObject(pObject)
 
-func NumberOfAttributes(pObject)
+func StzNumberOfAttributes(pObject)
 	return len(attributes(pObject))
 
+	func NumberOfAttributes(pObject)
+		return StzNumberOfAttributes(pObject)
+
 	func HowManyAttributes(pObject)
-		return len(attributes(pObject))
+		return StzNumberOfAttributes(pObject)
 
 	func CountAttributes(pObject)
-		return len(attributes(pObject))
+		return StzNumberOfAttributes(pObject)
 
 	func @NumberOfAttributes(pObject)
 		return len(attributes(pObject))
@@ -247,7 +286,7 @@ func NumberOfAttributes(pObject)
 	func @CountAttributes(pObject)
 		return len(attributes(pObject))
 
-func AttributesXT(pObj)
+func StzAttributesXT(pObj)
 	if NOT isObject(pObj)
 		StzRaise("Incorrect param type! pObj must be an object.")
 	ok
@@ -264,22 +303,25 @@ func AttributesXT(pObj)
 
 	return aResult
 
+	func AttributesXT(pObj)
+		return StzAttributesXT(pObj)
+
 	func AttributesAndValues(pObj)
-		return AttributesXT(pObj)
+		return StzAttributesXT(pObj)
 
 	func AttributesAndTheirValues(pObj)
-		return AttributesXT(pObj)
+		return StzAttributesXT(pObj)
 
 	func @AttributesXT(pObj)
-		return AttributesXT(pObj)
+		return StzAttributesXT(pObj)
 
 	func @AttributesAndValues(pObj)
-		return AttributesXT(pObj)
+		return StzAttributesXT(pObj)
 
 	func @AttributesAndTheirValues(pObj)
-		return AttributesXT(pObj)
+		return StzAttributesXT(pObj)
 
-func HasAttribute(pObject, cAttr)
+func StzHasAttribute(pObject, cAttr)
 	if CheckParams()
 		if NOT isObject(pObject)
 			StzRaise("Incorrect param type! pObject must be an object.")
@@ -298,8 +340,11 @@ func HasAttribute(pObject, cAttr)
 		return FALSE
 	ok
 
+	func HasAttribute(pObject, cAttr)
+		return StzHasAttribute(pObject, cAttr)
+
 	func ContainsAttribute(pObject, cAttr)
-		return HasAttribute(pObject, cAttr)
+		return StzHasAttribute(pObject, cAttr)
 
 	func @HasAttribute(pObject, cAttr)
 		return HasAttribute(pObject, cAttr)
@@ -309,18 +354,24 @@ func HasAttribute(pObject, cAttr)
 
 #--
 
-func IsTrue(p)
+func StzIsTrue(p)
 	if p
 		return 1
 	else
 		return 0
 	ok
 
-func IsFalse(p)
-	return NOT IsTrue(p)
+	func IsTrue(p)
+		return StzIsTrue(p)
+
+func StzIsFalse(p)
+	return NOT StzIsTrue(p)
+
+	func IsFalse(p)
+		return StzIsFalse(p)
 
 
-func IsTrueXT(p)
+func StzIsTrueXT(p)
 	if isNumber(p)
 		return IsTrue(p)
 	
@@ -374,8 +425,14 @@ func IsTrueXT(p)
 
 	ok
 
-func IsFalseXT(p)
-	return NOT IsTrueXT(p)
+	func IsTrueXT(p)
+		return StzIsTrueXT(p)
+
+func StzIsFalseXT(p)
+	return NOT StzIsTrueXT(p)
+
+	func IsFalseXT(p)
+		return StzIsFalseXT(p)
 
 #--
 
@@ -402,11 +459,14 @@ func StzNamedObject(paNamed)
 	func StzNamedObjectXTQ(paNamed)
 		return StzNamedObject(paNamed)
 
-func NamedObject(pcObjName)
+func StzNamedObjectFrom(pcObjName)
 	? @@(_avars)
 	if CheckingParams()
-		
+
 	ok
+
+	func NamedObject(pcObjName)
+		return StzNamedObjectFrom(pcObjName)
 
 func StzObjectMethods()
 	return Stz(:Object, :Methods)
@@ -420,8 +480,11 @@ func StzObjectClassName()
 	func StzObjectClass()
 		return "stzobject"
 
-func IsNotObject(p)
+func StzIsNotObject(p)
 	return NOT isObject(p)
+
+	func IsNotObject(p)
+		return StzIsNotObject(p)
 
 	func @IsNotObject(p)
 		return IsNotObject(p)
@@ -432,8 +495,8 @@ func IsNotObject(p)
 	func @IsNotAnObject(p)
 		return IsNotObject(p)
 
-func ObjectVarName(pObject)
-	
+func StzObjectVarName(pObject)
+
 	if NOT isObject(pObject)
 		StzRaise("Incorrect param type! pObject must be an object.")
 	ok
@@ -445,34 +508,43 @@ func ObjectVarName(pObject)
 
 	return cResult
 
-	func ObjectName(pObject) #NOTE the difference with classname(pObject)
-		return ObjectVarName(pObject)
+	func ObjectVarName(pObject)
+		return StzObjectVarName(pObject)
+
+	func ObjectName(pObject)
+		return StzObjectVarName(pObject)
 
 	func @ObjectVarName(pObject)
-		return ObjectVarName(pObject)
+		return StzObjectVarName(pObject)
 
 	func @ObjectName(pObject)
-		return ObjectVarName(pObject)
+		return StzObjectVarName(pObject)
 
-func ObjectIsNamed(pObject)
-	if ObjectVarName(pObject) != :@NoName
+func StzObjectIsNamed(pObject)
+	if StzObjectVarName(pObject) != :@NoName
 		return 1
 	else
 		return 0
 	ok
 
-	func @ObjectIsNamed(pObject)
-		return ObjectIsNamed(pObject)
+	func ObjectIsNamed(pObject)
+		return StzObjectIsNamed(pObject)
 
-func ObjectIsUnnamed(pObject)
-	return NOT ObjectIsNamed(pObject)
+	func @ObjectIsNamed(pObject)
+		return StzObjectIsNamed(pObject)
+
+func StzObjectIsUnnamed(pObject)
+	return NOT StzObjectIsNamed(pObject)
+
+	func ObjectIsUnnamed(pObject)
+		return StzObjectIsUnnamed(pObject)
 
 	func @ObjectIsUnnamed(pObject)
-		return ObjectIsUnnamed(pObject)
+		return StzObjectIsUnnamed(pObject)
 
 #--
 
-func PluralOfRingType(cType)
+func StzPluralOfRingType(cType)
 	if CheckingParams()
 		if NOT IsString(cPlural)
 			StzRaise("Incorrect param type! cPlural must be a string.")
@@ -501,7 +573,10 @@ func PluralOfRingType(cType)
 		return cResult
 	ok
 
-func RingTypesPlurals()
+	func PluralOfRingType(cType)
+		return StzPluralOfRingType(cType)
+
+func StzRingTypesPlurals()
 	acResult = []
 	aRingTypesXT = RingTypesXT()
 	nLen = len(aRingTypesXT)
@@ -512,10 +587,13 @@ func RingTypesPlurals()
 
 	return acResult
 
-	func PluralsOfRingTypes()
-		return RingTypesPlurals()
+	func RingTypesPlurals()
+		return StzRingTypesPlurals()
 
-func IsPluralOfRingType(cPlural)
+	func PluralsOfRingTypes()
+		return StzRingTypesPlurals()
+
+func StzIsPluralOfRingType(cPlural)
 	if CheckingParams()
 		if NOT IsString(cPlural)
 			StzRaise("Incorrect param type! cPlural must be a string.")
@@ -539,46 +617,51 @@ func IsPluralOfRingType(cPlural)
 
 	#< @FunctionAlternativeForms
 
+	func IsPluralOfRingType(cPlural)
+		return StzIsPluralOfRingType(cPlural)
+
 	func IsRingTypePlural(cPlural)
-		return IsPluralOfRingType(cPlural)
+		return StzIsPluralOfRingType(cPlural)
 
 	func IsPluralOfARingType(cPlural)
-		return IsPluralOfRingType(cPlural)
+		return StzIsPluralOfRingType(cPlural)
 
 	func IsARingTypePlural(cPlural)
-		return IsPluralOfRingType(cPlural)
+		return StzIsPluralOfRingType(cPlural)
 
 	func IsRingTypeInPlural(cPlural)
-		return IsPluralOfRingType(cPlural)
+		return StzIsPluralOfRingType(cPlural)
 
 	func IsARingTypInePlural(cPlural)
-		return IsPluralOfRingType(cPlural)
-	#--
+		return StzIsPluralOfRingType(cPlural)
 
 	func @IsPluralOfRingType(cPlural)
-		return IsPluralOfRingType(cPlural)
+		return StzIsPluralOfRingType(cPlural)
 
 	func @IsRingTypePlural(cPlural)
-		return IsPluralOfRingType(cPlural)
+		return StzIsPluralOfRingType(cPlural)
 
 	func @IsPluralOfARingType(cPlural)
-		return IsPluralOfRingType(cPlural)
+		return StzIsPluralOfRingType(cPlural)
 
 	func @IsARingTypePlural(cPlural)
-		return IsPluralOfRingType(cPlural)
+		return StzIsPluralOfRingType(cPlural)
 
 	func @IsRingTypeInPlural(cPlural)
-		return IsPluralOfRingType(cPlural)
+		return StzIsPluralOfRingType(cPlural)
 
 	func @IsARingTypInePlural(cPlural)
-		return IsPluralOfRingType(cPlural)
+		return StzIsPluralOfRingType(cPlural)
 
 	#>
-	
-func RingTypesXT()
+
+func StzRingTypesXT()
 	return _aRingTypesXT
-	
-func PluralToRingType(cPlural)
+
+	func RingTypesXT()
+		return StzRingTypesXT()
+
+func StzPluralToRingType(cPlural)
 	if CheckingParams()
 		if NOT isString(cPlural)
 			StzRaise("Incorrect param type! cPlural must be a string.")
@@ -604,37 +687,41 @@ func PluralToRingType(cPlural)
 		return cResult
 	ok
 
-func PluralOfStzClassName(cClass)
+	func PluralToRingType(cPlural)
+		return StzPluralToRingType(cPlural)
+
+func StzPluralOfStzClassName(cClass)
 
 	return StzClassesXT()[cClass]
 
 	#< @FunctionAlternativeForms
 
+	func PluralOfStzClassName(cClass)
+		return StzPluralOfStzClassName(cClass)
+
 	func PluralOfStzType(cClass)
-		return PluralOfStzClassName(cClass)
+		return StzPluralOfStzClassName(cClass)
 
 	func PluralOfStzClass(cClass)
-		return PluralOfStzClassName(cClass)
+		return StzPluralOfStzClassName(cClass)
 
 	func StzTypeToPlural(cClass)
-		return PluralOfStzClassName(cClass)
+		return StzPluralOfStzClassName(cClass)
 
 	func StzClassNameToPlural(cClass)
-		return PluralOfStzClassName(cClass)
+		return StzPluralOfStzClassName(cClass)
 
 	func StzClassToPlural(cClass)
-		return PluralOfStzClassName(cClass)
-
-	#--
+		return StzPluralOfStzClassName(cClass)
 
 	func PluralOfThisStzClass(cClass)
-		return PluralOfStzClassName(cClass)
+		return StzPluralOfStzClassName(cClass)
 
 	func PluralOfThisStzClassName(cClass)
-		return PluralOfStzClassName(cClass)
+		return StzPluralOfStzClassName(cClass)
 
 	func PluralOfThisStzType(cClass)
-		return PluralOfStzClassName(cClass)
+		return StzPluralOfStzClassName(cClass)
 
 	#>
 
@@ -662,7 +749,7 @@ func StzClassesPlurals()
 	def PluralsOfStzTypes()
 		return StzClassesPlurals()
 
-func IsPluralOfAStzType(cPlural)
+func StzIsPluralOfAStzType(cPlural)
 	if CheckingParams()
 		if NOT isString(cPlural)
 			StzRaise("Incorrect param! cPlural must be a string.")
@@ -681,78 +768,75 @@ func IsPluralOfAStzType(cPlural)
 
 	#< @FunctionAlternativeForms
 
+	func IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
+
 	func IsPluralOfStzType(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func IsStzTypePlural(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func IsPluralOfAStzClass(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func IsPluralOfStzClass(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func IsStzClassPlural(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func IsPluralOfAStzClassName(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func IsPluralOfStzClassName(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func IsStzClassNamePlural(cPlural)
-		return IsPluralOfAStzType(cPlural)
-
-	#--
+		return StzIsPluralOfAStzType(cPlural)
 
 	func IsStzTypeInPlural(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func IsAStzTypeInPlural(cPlural)
-		return IsPluralOfAStzType(cPlural)
-
-	#==
+		return StzIsPluralOfAStzType(cPlural)
 
 	func @IsPluralOfAStzType(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func @IsPluralOfStzType(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func @IsStzTypePlural(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func @IsPluralOfAStzClass(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func @IsPluralOfStzClass(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func @IsStzClassPlural(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func @IsPluralOfAStzClassName(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func @IsPluralOfStzClassName(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func @IsStzClassNamePlural(cPlural)
-		return IsPluralOfAStzType(cPlural)
-
-	#--
+		return StzIsPluralOfAStzType(cPlural)
 
 	func @IsStzTypeInPlural(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	func @IsAStzTypeInPlural(cPlural)
-		return IsPluralOfAStzType(cPlural)
+		return StzIsPluralOfAStzType(cPlural)
 
 	#>
 
-func PluralToStzType(cPlural)
+func StzPluralToStzType(cPlural)
 	if CheckingParams()
 		if NOT isString(cPlural)
 			StzRaise("Incorrect param! cPlural must be a string.")
@@ -782,11 +866,14 @@ func PluralToStzType(cPlural)
 
 	#< @FunctionAlternativeForms
 
+	func PluralToStzType(cPlural)
+		return StzPluralToStzType(cPlural)
+
 	func PluraltoStzClass(cPlural)
-		return PluralToStzType(cPlural)
+		return StzPluralToStzType(cPlural)
 
 	func PluraltoStzClassName(cPlural)
-		return PluralToStzType(cPlural)
+		return StzPluralToStzType(cPlural)
 
 	#>
 
@@ -816,7 +903,7 @@ func IsStzObject(pObject)
 
 	#>
 
-func IsNamedObject(pObject) 
+func StzIsNamedObject(pObject)
 	if isObject(pObject) and @IsStzObject(pObject) and pObject.IsNamed()
 		return 1
 
@@ -826,50 +913,52 @@ func IsNamedObject(pObject)
 
 	#< @FunctionAlternativeForms
 
+	func IsNamedObject(pObject)
+		return StzIsNamedObject(pObject)
+
 	func ObjectIsNamedObject(pObject)
-		return IsNamedObject(pObject)
+		return StzIsNamedObject(pObject)
 
 	func @IsNamedObject(pObject)
-		return IsNamedObject(pObject)
-
-	#--
+		return StzIsNamedObject(pObject)
 
 	func IsANamedObject(pObject)
-		return IsNamedObject(pObject)
+		return StzIsNamedObject(pObject)
 
 	func @IsANamedObject(pObject)
-		return IsNamedObject(pObject)
+		return StzIsNamedObject(pObject)
 
 	#>
 
-func IsUnnamedObject(pObject)
-	return NOT IsNamedObject(pObject)
+func StzIsUnnamedObject(pObject)
+	return NOT StzIsNamedObject(pObject)
 
 	#< @FunctionAlternativeForms
 
-	func ObjectIsUnnamedObject()
-		return IsUnnamedObject(pObject)
+	func IsUnnamedObject(pObject)
+		return StzIsUnnamedObject(pObject)
+
+	func ObjectIsUnnamedObject(pObject)
+		return StzIsUnnamedObject(pObject)
 
 	func @IsUnnamedObject(pObject)
-		return IsUnnamedObject(pObject)
-
-	#--
+		return StzIsUnnamedObject(pObject)
 
 	func IsAUnnamedObject(pObject)
-		return IsUnnamedObject(pObject)
+		return StzIsUnnamedObject(pObject)
 
 	func @IsAnUnnamedObject(pObject)
-		return IsUnnamedObject(pObject)
+		return StzIsUnnamedObject(pObject)
 
 	#>
 
-func AreEqualObjects(paObjects)
+func StzAreEqualObjects(paObjects)
 	if NOT AreNamedObjects(paObjects)
 		StzRaise("Incorrect param type! paObjects must be a list of named objects.")
 	ok
 
 	acNames = ObjectsNames(paObjects)
-	if len(U(acNames)) = 1	# A bit of magic sometimes ;)
+	if len(U(acNames)) = 1
 		return 1
 	else
 		return 0
@@ -877,18 +966,21 @@ func AreEqualObjects(paObjects)
 
 	#< @FunctionAlternativeForms
 
+	func AreEqualObjects(paObjects)
+		return StzAreEqualObjects(paObjects)
+
 	func AreEqualNamedObjects(paObjects)
-		return AreEqualObjects(paObjects)
+		return StzAreEqualObjects(paObjects)
 
 	func @AreEqualObjects(paObjects)
-		return AreEqualObjects(paObjects)
+		return StzAreEqualObjects(paObjects)
 
 	func @AreEqualNamedObjects(paObjects)
-		return AreEqualObjects(paObjects)
+		return StzAreEqualObjects(paObjects)
 
 	#>
 
-func AreNamedObjects(paObjects) 
+func StzAreNamedObjects(paObjects)
 	if isList(paObjects) and IsListOfObjects(paObjects)
 		bResult = 1
 
@@ -907,18 +999,24 @@ func AreNamedObjects(paObjects)
 
 	#< @FunctionAlternativeForms
 
+	func AreNamedObjects(paObjects)
+		return StzAreNamedObjects(paObjects)
+
 	func @AreNamedObjects(paObjects)
-		return AreNamedObjects(paObjects)
+		return StzAreNamedObjects(paObjects)
 
 	#>
 
-func AreUnnamedObjects(paObjects)
-	return NOT AreNamedObjects(paObjects)
+func StzAreUnnamedObjects(paObjects)
+	return NOT StzAreNamedObjects(paObjects)
+
+	func AreUnnamedObjects(paObjects)
+		return StzAreUnnamedObjects(paObjects)
 
 	func @AreUnnamedObjects(paObjects)
-		return AreUnnamedObjects(paObjects)
+		return StzAreUnnamedObjects(paObjects)
 
-func ObjectsNames(paObjects)
+func StzObjectsNames(paObjects)
 	if CheckingParams()
 		if NOT isList(paObjects)
 			StzRaise("Incorrect param type! paObjects must be a list.")
@@ -938,22 +1036,23 @@ func ObjectsNames(paObjects)
 
 	#< @FunctionAlternativeForms
 
+	func ObjectsNames(paObjects)
+		return StzObjectsNames(paObjects)
+
 	func ObjectsVarNames(paObjects)
-		return ObjectsNames(paObjects)
+		return StzObjectsNames(paObjects)
 
 	func ObjectsVarsNames(paObjects)
-		return ObjectsNames(paObjects)
-
-	#--
+		return StzObjectsNames(paObjects)
 
 	func @ObjectsNames(paObjects)
-		return ObjectsNames(paObjects)
+		return StzObjectsNames(paObjects)
 
 	func @ObjectsVarNames(paObjects)
-		return ObjectsNames(paObjects)
+		return StzObjectsNames(paObjects)
 
 	func @ObjectsVarsNames(paObjects)
-		return ObjectsNames(paObjects)
+		return StzObjectsNames(paObjects)
 
 	#>
 
@@ -1865,14 +1964,23 @@ func IsStzTrueObject(pObject)
 
 #< @EndOfGenCode >
 
-func ObjectValues(cObjectVarName)
+func StzObjectValues(cObjectVarName)
 	return StzObjectQ(cObjectVarName).ObjectValues()
 
-func ObjectAttributesAndValues(cObjectVarName)
+	func ObjectValues(cObjectVarName)
+		return StzObjectValues(cObjectVarName)
+
+func StzObjectAttributesAndValues(cObjectVarName)
 	return StzObjectQ(cObjectVarName).ObjectAttributesAndValues()
 
-func ObjectToList(cObjectVarName)
+	func ObjectAttributesAndValues(cObjectVarName)
+		return StzObjectAttributesAndValues(cObjectVarName)
+
+func StzObjectToList(cObjectVarName)
 	return StzObjectQ(cObjectVarName).ObjectToList()
+
+	func ObjectToList(cObjectVarName)
+		return StzObjectToList(cObjectVarName)
 
 
   ///////////////
