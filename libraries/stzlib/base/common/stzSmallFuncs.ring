@@ -1,7 +1,7 @@
 
 
 # Returns the softanza object related to the type of p
-func Q(p)
+func StzQ(p)
 
 	oResult = AFalseObject()
 
@@ -20,17 +20,19 @@ func Q(p)
 
 	return oResult
 
+	func Q(p)
+		return StzQ(p)
 
 	func @Q(p)
-		return Q(p)
+		return StzQ(p)
 
 	func The(p)
-		return Q(p)
+		return StzQ(p)
 
 	func TheQ(p)
-		return Q(p)
+		return StzQ(p)
 
-func QH(p)
+func StzQH(p)
 	#TODO // Review the code of all functions where loops are used
 	# on the main object and modify it many times
 
@@ -40,73 +42,111 @@ func QH(p)
 	SetKeepingHistoryTo(1)
 	_aHisto + p
 
-	return Q(p)
+	return StzQ(p)
 
-	return QHHV(p) # tracing only the value (V)
-		return QHH(p)
+	return StzQHHV(p) # tracing only the value (V)
 
-func QHH(p)
+	func QH(p)
+		return StzQH(p)
+
+	func StzQHHV(p)
+		return StzQHH(p)
+
+func StzQHH(p)
 	SetKeepingTimeTo(1)
 	SetKeepingHistoryToXT(1, :VTMS)
 
-	return Q(p)
+	return StzQ(p)
+
+	func QHH(p)
+		return StzQHH(p)
 
 	func QHHVTMS(p) # Tracing Value, Type, Time and Size
-		return QHH(p)
+		return StzQHH(p)
 
-func QHHVT(p) # Tracing Value and Type
+	func StzQHHVTMS(p)
+		return StzQHH(p)
+
+func StzQHHVT(p) # Tracing Value and Type
 	SetKeepingTimeTo(1)
 	SetKeepingHistoryToXT(1, :VT)
 
-	return Q(p)
+	return StzQ(p)
 
-func QHHVM(p) # Tacing Value and Time
+	func QHHVT(p)
+		return StzQHHVT(p)
+
+func StzQHHVM(p) # Tacing Value and Time
 	SetKeepingTimeTo(1)
 	SetKeepingHistoryToXT(1, :VM)
 
-	return Q(p)
+	return StzQ(p)
 
-func QHHVS(p) # Tracing Value and Size
+	func QHHVM(p)
+		return StzQHHVM(p)
+
+func StzQHHVS(p) # Tracing Value and Size
 	SetKeepingTimeTo(1)
 	SetKeepingHistoryToXT(1, :VS)
 
-	return Q(p)
+	return StzQ(p)
 
-func QHHTM(p) # Tracing Type and Time
+	func QHHVS(p)
+		return StzQHHVS(p)
+
+func StzQHHTM(p) # Tracing Type and Time
 	SetKeepingTimeTo(1)
 	SetKeepingHistoryToXT(1, :TM)
 
-	return Q(p)
+	return StzQ(p)
 
-func QHHTS(p) # Tacing Type and Size
+	func QHHTM(p)
+		return StzQHHTM(p)
+
+func StzQHHTS(p) # Tacing Type and Size
 	SetKeepingTimeTo(1)
 	SetKeepingHistoryToXT(1, :TS)
 
-	return Q(p)
+	return StzQ(p)
 
-func QHHMS(p) # Tracing Time and Size
+	func QHHTS(p)
+		return StzQHHTS(p)
+
+func StzQHHMS(p) # Tracing Time and Size
 	SetKeepingTimeTo(1)
 	SetKeepingHistoryToXT(1, :MS)
 
-	return Q(p)
+	return StzQ(p)
 
-func QHHVTM(p) # Tracing Value, Type nad Time
+	func QHHMS(p)
+		return StzQHHMS(p)
+
+func StzQHHVTM(p) # Tracing Value, Type nad Time
 	SetKeepingTimeTo(1)
 	SetKeepingHistoryToXT(1, :TM)
 
-	return Q(p)
+	return StzQ(p)
 
-func QHHVTS(p) # Tracing Value, Type and Size
+	func QHHVTM(p)
+		return StzQHHVTM(p)
+
+func StzQHHVTS(p) # Tracing Value, Type and Size
 	SetKeepingTimeTo(1)
 	SetKeepingHistoryToXT(1, :VTS)
 
-	return Q(p)
+	return StzQ(p)
 
-func QHHTMS(p) # Tracing Type, Time and Size
+	func QHHVTS(p)
+		return StzQHHVTS(p)
+
+func StzQHHTMS(p) # Tracing Type, Time and Size
 	SetKeepingTimeTo(1)
 	SetKeepingHistoryToXT(1, :TMS)
 
-	return Q(p)
+	return StzQ(p)
+
+	func QHHTMS(p)
+		return StzQHHTMS(p)
 
 #--
 
@@ -127,7 +167,7 @@ func StzW(cType, paMethodAndFilter)
 	cCondition = Q(paMethodAndFilter[2][2]).
 			ReplaceCSQ("@Method", "@Item", 0).
 			Content()
-	
+
 	aResult = QRT(aTempList, :stzListOfStrings).StringsW(ccondition)
 
 	return aResult
@@ -180,25 +220,25 @@ func Stz(cType, pInfo)
 # This function tries its best to infere a convenient type
 # by analysing a value hosted in a string
 
-func QQ(p)
+func StzQQ(p)
 
 	/* EXAMPLE 1
 
-	? QQ("19")		# stzNumber
+	? StzQQ("19")		# stzNumber
 	#--> Note that this is a number in string:
-	? Q("19").IsNumberInString() #--> TRUE
+	? StzQ("19").IsNumberInString() #--> TRUE
 
 	EXAMPLE 2
 
-	? QQ("[1, 2, 3]")	#--> stzListOfNumbers
+	? StzQQ("[1, 2, 3]")	#--> stzListOfNumbers
 	#--> Note that this is a list in string:
-	? Q("[1, 2, 3]").IsListOfNumbersInString() #--> TRUE
+	? StzQ("[1, 2, 3]").IsListOfNumbersInString() #--> TRUE
 
 	EXAMPLE 3
 
-	? QQ(' [ "one", "two", "three" ] ')	#--> stzListOfStrings
+	? StzQQ(' [ "one", "two", "three" ] ')	#--> stzListOfStrings
 	#--> Note that this is a list of strings in a string:
-	? Q(' [ "one", "two", "three" ] ').IsListOfStringsInString #--> TRUE
+	? StzQ(' [ "one", "two", "three" ] ').IsListOfStringsInString #--> TRUE
 
 	*/
 
@@ -210,7 +250,7 @@ func QQ(p)
 			return new stzNumber(p)
 
 		but oParam.IsListInString()
-			return new stzList(L(p))
+			return new stzList(StzL(p))
 
 		but oParam.IsChar() or oParam.IsHexUnicode()
 			return new stzChar(p)
@@ -224,7 +264,7 @@ func QQ(p)
 
 	but isList(p)
 
-		oQTemp = Q(p)
+		oQTemp = StzQ(p)
 
 		if oQTemp.IsListOfNumbers()
 			return new stzListOfNumbers(p)
@@ -249,45 +289,54 @@ func QQ(p)
 		ok
 
 	else
-		return Q(p)
+		return StzQ(p)
 	ok
+
+	func QQ(p)
+		return StzQQ(p)
 
 #---
 
-func N(p)
+func StzN(p)
 	if isNumber(p)
 		return p
 
 	but isString(p)
 
-		oParam = Q(p)
+		oParam = StzQ(p)
 
 		if oParam.IsNumberInString()
 			return 0+ p
 
 		but oParam.IsListInString()
-			return len( Q(p).ToList() )
+			return len( StzQ(p).ToList() )
 
 		else
-			return Q(p).NumberOfChars()
+			return StzQ(p).NumberOfChars()
 		ok
 
 	but isList(p)
 		return len(p)
 
 	but isObject(p)
-		return len( Q(p).ObjectAttributes() )
+		return len( StzQ(p).ObjectAttributes() )
 	ok
 
-	func NQ(p)
-		return new stzNumber( N(p) )
+	func N(p)
+		return StzN(p)
 
-		func QN(p)
-			return NQ(p)
+	func StzNQ(p)
+		return new stzNumber( StzN(p) )
+
+	func NQ(p)
+		return StzNQ(p)
+
+	func QN(p)
+		return StzNQ(p)
 
 #---
 
-func S(p)
+func StzS(p)
 	if isString(p)
 		return p
 
@@ -295,27 +344,33 @@ func S(p)
 		return ""+ p
 
 	but isList(p)
-		return Q(p).ToCode()
+		return StzQ(p).ToCode()
 
 	but isObject(p)
-		return LQ(p).ToCode()
+		return StzLQ(p).ToCode()
 	ok
 
-	func SQ(p)
-		return Q( S(p) )
+	func S(p)
+		return StzS(p)
 
-		func QS(p)
-			return SQ(p)
+	func StzSQ(p)
+		return StzQ( StzS(p) )
+
+	func SQ(p)
+		return StzSQ(p)
+
+	func QS(p)
+		return StzSQ(p)
 
 
 #---
 
-func UCS(p, pCaseSensitive)
+func StzUCS(p, pCaseSensitive)
 	/* EXAMPLE
 
-	? U([ "♥", 1, 2, 2, "♥", "♥", 3 ]) # Or Unique() or WithoutDuplicates()
-	#--> [ "♥", 1, 2, 3 ]
-	
+	? StzU([ "a", 1, 2, 2, "a", "a", 3 ]) # Or Unique() or WithoutDuplicates()
+	#--> [ "a", 1, 2, 3 ]
+
 	*/
 
 	if CheckingParams()
@@ -341,91 +396,121 @@ func UCS(p, pCaseSensitive)
 	next
 	return aResult
 
+	func UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
+
+	func StzWithoutDuplicatesCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
+
 	func WithoutDuplicatesCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func WithoutDupplicatesCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
+
+	func StzUniqueCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func UniqueCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func @UCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func @WithoutDuplicatesCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func @WithoutDupplicatesCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func @UniqueCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
+
+	func StzUniqueItemsCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func UniqueItemsCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func @UniqueItemsCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func UniqueItemsInCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func @UniqueItemsInCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
+
+	func StzToSetCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func ToSetCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 	func @ToSetCS(p, pCaseSensitive)
-		return UCS(p, pCaseSensitive)
+		return StzUCS(p, pCaseSensitive)
 
 
-func U(p)
-	return UCS(p, 1)
+func StzU(p)
+	return StzUCS(p, 1)
+
+	func U(p)
+		return StzU(p)
+
+	func StzWithoutDuplicates(p)
+		return StzU(p)
 
 	func WithoutDuplicates(p)
-		return U(p)
+		return StzU(p)
 
 	func WithoutDupplicates(p)
-		return U(p)
+		return StzU(p)
+
+	func StzUnique(p)
+		return StzU(p)
 
 	func Unique(p)
-		return U(p)
+		return StzU(p)
 
 	func @U(p)
-		return U(p)
+		return StzU(p)
 
 	func @WithoutDuplicates(p)
-		return U(p)
+		return StzU(p)
 
 	func @WithoutDupplicates(p)
-		return U(p)
+		return StzU(p)
 
 	func @Unique(p)
-		return U(p)
+		return StzU(p)
+
+	func StzUniqueItems(p)
+		return StzU(p)
 
 	func UniqueItems(p)
-		return U(p)
+		return StzU(p)
 
 	func @UniqueItems(p)
-		return U(p)
+		return StzU(p)
 
 	func UniqueItemsIn(p)
-		return U(p)
+		return StzU(p)
 
 	func @UniqueItemsIn(p)
-		return U(p)
+		return StzU(p)
+
+	func StzToSet(p)
+		return StzU(p)
 
 	func ToSet(p)
-		return U(p)
+		return StzU(p)
 
 	func @ToSet(p)
-		return U(p)
+		return StzU(p)
 
 #--
 
-func L(p)
+func StzL(p)
 
 	if isList(p)
 		return p
@@ -454,12 +539,18 @@ func L(p)
 		StzRaise("Incorrect param! Can't tranform param to list.")
 	ok
 
+	func L(p)
+		return StzL(p)
+
+	func StzLQ(p)
+		return new stzList(StzL(p))
+
 	func LQ(p)
-		return new stzList(L(p))
+		return StzLQ(p)
 
 #---
 
-func LN(p)
+func StzLN(p)
 
 	if  IsPair(p) and
 	    IsPair(p[1]) and IsPair(p[2]) and
@@ -479,8 +570,8 @@ func LN(p)
 		next
 		return aResult
 
-	but isString(p) and Q(p).IsListInString()
-		aResult = Q(p).ToListQ().OnlyNumbers()
+	but isString(p) and StzQ(p).IsListInString()
+		aResult = StzQ(p).ToListQ().OnlyNumbers()
 		return aResult
 
 	but isNumber(p)
@@ -491,21 +582,30 @@ func LN(p)
 		return aResult
 	ok
 
-	func LNQ(p)
-		return Q(LN(p))
+	func LN(p)
+		return StzLN(p)
 
-		func QLN(p)
-			return LNQ(p)
+	func StzLNQ(p)
+		return StzQ(StzLN(p))
+
+	func LNQ(p)
+		return StzLNQ(p)
+
+	func QLN(p)
+		return StzLNQ(p)
+
+	func StzLoN(p)
+		return StzLN(p)
 
 	func LoN(p)
-		return LN(p)
+		return StzLN(p)
 
-		func LoNQ(p)
-			return LNQ(p)
+	func LoNQ(p)
+		return StzLNQ(p)
 
 #---
 
-func LC(p)
+func StzLC(p)
 	if isList(p)
 		aResult = []
 		nLen = len(p)
@@ -516,8 +616,8 @@ func LC(p)
 		next
 		return aResult
 
-	but isString(p) and Q(p).IsListInString()
-		aResult = Q(p).ToListQ().OnlyChars()
+	but isString(p) and StzQ(p).IsListInString()
+		aResult = StzQ(p).ToListQ().OnlyChars()
 		return aResult
 
 	but isNumber(p)
@@ -529,21 +629,30 @@ func LC(p)
 
 	ok
 
-	func LCQ(p)
-		return Q(LC(p))
+	func LC(p)
+		return StzLC(p)
 
-		func QLC(p)
-			return LCQ(p)
+	func StzLCQ(p)
+		return StzQ(StzLC(p))
+
+	func LCQ(p)
+		return StzLCQ(p)
+
+	func QLC(p)
+		return StzLCQ(p)
+
+	func StzLoC(p)
+		return StzLC(p)
 
 	func LoC(p)
-		return LC(p)
+		return StzLC(p)
 
-		func LoCQ(p)
-			return LCQ(p)
+	func LoCQ(p)
+		return StzLCQ(p)
 
 #---
 
-func LL(p)
+func StzLL(p)
 	if isList(p)
 		aResult = []
 		nLen = len(p)
@@ -554,8 +663,8 @@ func LL(p)
 		next
 		return aResult
 
-	but isString(p) and Q(p).IsListInString()
-		aResult = Q(p).ToListQ().OnlyLists()
+	but isString(p) and StzQ(p).IsListInString()
+		aResult = StzQ(p).ToListQ().OnlyLists()
 		return aResult
 
 	but isNumber(p)
@@ -567,21 +676,30 @@ func LL(p)
 
 	ok
 
-	func LLQ(p)
-		return Q(LL(p))
+	func LL(p)
+		return StzLL(p)
 
-		func QLL(p)
-			return LLQ(p)
+	func StzLLQ(p)
+		return StzQ(StzLL(p))
+
+	func LLQ(p)
+		return StzLLQ(p)
+
+	func QLL(p)
+		return StzLLQ(p)
+
+	func StzLoL(p)
+		return StzLL(p)
 
 	func LoL(p)
-		return LL(p)
+		return StzLL(p)
 
-		func LoLQ(p)
-			return LLQ(p)
+	func LoLQ(p)
+		return StzLLQ(p)
 
 #---
 
-func LS(p)
+func StzLS(p)
 	if isList(p)
 		aResult = []
 		nLen = len(p)
@@ -592,8 +710,8 @@ func LS(p)
 		next
 		return aResult
 
-	but isString(p) and Q(p).IsListInString()
-		aResult = Q(p).ToListQ().OnlyStrings()
+	but isString(p) and StzQ(p).IsListInString()
+		aResult = StzQ(p).ToListQ().OnlyStrings()
 		return aResult
 
 	but isNumber(p)
@@ -605,21 +723,30 @@ func LS(p)
 
 	ok
 
-	func LSQ(p)
-		return Q(LS(p))
+	func LS(p)
+		return StzLS(p)
 
-		func QLS(p)
-			return LSQ(p)
+	func StzLSQ(p)
+		return StzQ(StzLS(p))
+
+	func LSQ(p)
+		return StzLSQ(p)
+
+	func QLS(p)
+		return StzLSQ(p)
+
+	func StzLoS(p)
+		return StzLS(p)
 
 	func LoS(p)
-		return LS(p)
+		return StzLS(p)
 
-		func LoSQ(p)
-			return LSQ(p)
+	func LoSQ(p)
+		return StzLSQ(p)
 
 #---
 
-func W(cCode)
+func StzWhere(cCode)
 	if NOT isString(cCode)
 		StzRaise("Incorrect param type! cCode must be a string.")
 	ok
@@ -627,10 +754,13 @@ func W(cCode)
 	aResult = [:Where, cCode]
 	return aResult
 
-	func Where(cCode)
-		return W(cCode)
+	func W(cCode)
+		return StzWhere(cCode)
 
-func WXT(cCode)
+	func Where(cCode)
+		return StzWhere(cCode)
+
+func StzWhereXT(cCode)
 	if NOT isString(cCode)
 		StzRaise("Incorrect param type! cCode must be a string.")
 	ok
@@ -638,5 +768,8 @@ func WXT(cCode)
 	aResult = [:WhereXT, cCode]
 	return aResult
 
+	func WXT(cCode)
+		return StzWhereXT(cCode)
+
 	func WhereXT(cCode)
-		return WXT(cCode)
+		return StzWhereXT(cCode)
