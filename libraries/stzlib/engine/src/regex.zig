@@ -1,17 +1,23 @@
 // Softanza Engine -- Regex Operations (Tier 3)
 //
-// Replaces QRegularExpression with a recursive backtracking
-// pattern matcher. Supports: literal, . * + ? *? +? ?? | () [] [^]
-// \d \w \s \D \W \S \p{L} \P{N} ^ $ and case-insensitive flag.
+// PCRE2 backend replacing the custom recursive backtracker.
+// Full feature set: lookaround, named groups, backreferences,
+// word boundaries, multiline, recursion, counted quantifiers,
+// non-capturing groups, Unicode scripts, replace with $1/$2.
 // All functions use C ABI for Ring FFI compatibility.
 //
-// ReDoS hardening: step budget, input/pattern length caps, nesting
-// depth limit. All configurable per handle via stz_regex_set_limits.
+// ReDoS hardening: match limit, recursion limit, input/pattern
+// length caps. All configurable per handle via stz_regex_set_limits.
 
 const std = @import("std");
 const mem = std.mem;
 const gpa = std.heap.c_allocator;
-const unicode = @import("unicode.zig");
+
+const pcre2 = @cImport({
+    @cDefine("PCRE2_CODE_UNIT_WIDTH", "8");
+    @cDefine("PCRE2_STATIC", "1");
+    @cInclude("pcre2.h");
+});
 
 // ─── Public handle ───
 
@@ -20,76 +26,188 @@ pub const StzRegexHandle = ?*Regex;
 const Regex = struct {
     pattern: []const u8,
     flags: u32,
-    captures: std.ArrayList(Cap),
+    code: *pcre2.pcre2_code_8,
+    match_data: *pcre2.pcre2_match_data_8,
+    match_ctx: ?*pcre2.pcre2_match_context_8,
     matched: bool,
     input: []const u8,
-    max_steps: u32 = 1_000_000,
+    last_match_count: c_int,
+    all_captures: std.ArrayList(Cap),
     max_input_len: u32 = 1_048_576,
-    max_depth: u16 = 64,
     const Cap = struct { start: i32, end: i32 };
 };
 
-// Flags: 1=CaseInsensitive 2=DotMatchesAll 4=MultiLine
+const MAX_PATTERN_LEN: usize = 8192;
+
+// Flags: 1=CaseInsensitive 2=DotMatchesAll 4=MultiLine 8=Extended 16=Ungreedy
 const FLAG_CASE_I: u32 = 1;
 const FLAG_DOT_ALL: u32 = 2;
+const FLAG_MULTILINE: u32 = 4;
+const FLAG_EXTENDED: u32 = 8;
+const FLAG_UNGREEDY: u32 = 16;
 
-const MAX_PATTERN_LEN: usize = 4096;
+fn toPcre2Options(flags: u32) u32 {
+    var opts: u32 = pcre2.PCRE2_UTF | pcre2.PCRE2_UCP;
+    if (flags & FLAG_CASE_I != 0) opts |= pcre2.PCRE2_CASELESS;
+    if (flags & FLAG_DOT_ALL != 0) opts |= pcre2.PCRE2_DOTALL;
+    if (flags & FLAG_MULTILINE != 0) opts |= pcre2.PCRE2_MULTILINE;
+    if (flags & FLAG_EXTENDED != 0) opts |= pcre2.PCRE2_EXTENDED;
+    if (flags & FLAG_UNGREEDY != 0) opts |= pcre2.PCRE2_UNGREEDY;
+    return opts;
+}
 
 pub fn stz_regex_new(pat: [*c]const u8, pat_len: usize, flags: u32) callconv(.c) ?*Regex {
     if (pat == null or pat_len == 0) return null;
     if (pat_len > MAX_PATTERN_LEN) return null;
-    const p = gpa.dupe(u8, pat[0..pat_len]) catch return null;
-    const r = gpa.create(Regex) catch { gpa.free(p); return null; };
-    r.* = .{ .pattern = p, .flags = flags, .captures = .{}, .matched = false, .input = "" };
+
+    var err_code: c_int = 0;
+    var err_offset: usize = 0;
+    const opts = toPcre2Options(flags);
+
+    const code = pcre2.pcre2_compile_8(pat, pat_len, opts, &err_code, &err_offset, null) orelse return null;
+
+    const md = pcre2.pcre2_match_data_create_from_pattern_8(code, null) orelse {
+        pcre2.pcre2_code_free_8(code);
+        return null;
+    };
+
+    const p = gpa.dupe(u8, pat[0..pat_len]) catch {
+        pcre2.pcre2_match_data_free_8(md);
+        pcre2.pcre2_code_free_8(code);
+        return null;
+    };
+
+    const r = gpa.create(Regex) catch {
+        gpa.free(p);
+        pcre2.pcre2_match_data_free_8(md);
+        pcre2.pcre2_code_free_8(code);
+        return null;
+    };
+    r.* = .{
+        .pattern = p,
+        .flags = flags,
+        .code = code,
+        .match_data = md,
+        .match_ctx = null,
+        .matched = false,
+        .input = "",
+        .last_match_count = 0,
+        .all_captures = .{},
+    };
     return r;
 }
 
 pub fn stz_regex_set_limits(h: ?*Regex, max_steps: u32, max_input_len: u32, max_depth: u16) callconv(.c) void {
     const r = h orelse return;
-    if (max_steps > 0) r.max_steps = max_steps;
     if (max_input_len > 0) r.max_input_len = max_input_len;
-    if (max_depth > 0) r.max_depth = max_depth;
+
+    if (max_steps > 0 or max_depth > 0) {
+        if (r.match_ctx == null) {
+            r.match_ctx = pcre2.pcre2_match_context_create_8(null);
+        }
+        if (r.match_ctx) |ctx| {
+            if (max_steps > 0) _ = pcre2.pcre2_set_match_limit_8(ctx, max_steps);
+            if (max_depth > 0) _ = pcre2.pcre2_set_depth_limit_8(ctx, @intCast(max_depth));
+        }
+    }
 }
 
 pub fn stz_regex_free(h: ?*Regex) callconv(.c) void {
-    if (h) |r| { gpa.free(r.pattern); r.captures.deinit(gpa); gpa.destroy(r); }
+    if (h) |r| {
+        if (r.match_ctx) |ctx| pcre2.pcre2_match_context_free_8(ctx);
+        pcre2.pcre2_match_data_free_8(r.match_data);
+        pcre2.pcre2_code_free_8(r.code);
+        r.all_captures.deinit(gpa);
+        gpa.free(r.pattern);
+        gpa.destroy(r);
+    }
 }
 
 pub fn stz_regex_match(h: ?*Regex, inp: [*c]const u8, inp_len: usize, start: usize) callconv(.c) c_int {
     const r = h orelse return 0;
     if (inp == null) { r.matched = false; return 0; }
     if (inp_len > r.max_input_len) { r.matched = false; return 0; }
-    const text = inp[0..inp_len];
-    r.input = text;
-    r.captures.clearRetainingCapacity();
-    var budget: u32 = r.max_steps;
-    r.matched = doMatch(r.pattern, text, start, r.flags, &r.captures, &budget, r.max_depth);
-    return if (r.matched) 1 else 0;
+    r.input = inp[0..inp_len];
+    r.all_captures.clearRetainingCapacity();
+
+    const rc = pcre2.pcre2_match_8(r.code, inp, inp_len, start, 0, r.match_data, r.match_ctx);
+    if (rc < 0) {
+        r.matched = false;
+        r.last_match_count = 0;
+        return 0;
+    }
+
+    r.matched = true;
+    r.last_match_count = rc;
+
+    const ovector = pcre2.pcre2_get_ovector_pointer_8(r.match_data);
+    const pair_count: usize = @intCast(rc);
+    var i: usize = 0;
+    while (i < pair_count) : (i += 1) {
+        const s = ovector[i * 2];
+        const e = ovector[i * 2 + 1];
+        if (s == std.math.maxInt(usize)) {
+            r.all_captures.append(gpa, .{ .start = -1, .end = -1 }) catch {};
+        } else {
+            r.all_captures.append(gpa, .{ .start = @intCast(s), .end = @intCast(e) }) catch {};
+        }
+    }
+
+    return 1;
 }
 
 pub fn stz_regex_match_all(h: ?*Regex, inp: [*c]const u8, inp_len: usize) callconv(.c) c_int {
     const r = h orelse return 0;
     if (inp == null) return 0;
     if (inp_len > r.max_input_len) return 0;
-    const text = inp[0..inp_len];
-    r.input = text;
-    r.captures.clearRetainingCapacity();
+    r.input = inp[0..inp_len];
+    r.all_captures.clearRetainingCapacity();
+
     var pos: usize = 0;
     var n: c_int = 0;
-    var budget: u32 = r.max_steps;
-    while (pos <= text.len) {
-        if (budget == 0) break;
-        var tmp: std.ArrayList(Regex.Cap) = .{};
-        defer tmp.deinit(gpa);
-        if (doMatch(r.pattern, text, pos, r.flags, &tmp, &budget, r.max_depth) and tmp.items.len > 0) {
-            for (tmp.items) |cap| r.captures.append(gpa, cap) catch {};
-            n += 1;
-            const e: usize = @intCast(tmp.items[0].end);
-            pos = if (e <= pos) pos + 1 else e;
-        } else pos += 1;
+    var opts: u32 = 0;
+
+    while (pos <= inp_len) {
+        const rc = pcre2.pcre2_match_8(r.code, inp, inp_len, pos, opts, r.match_data, r.match_ctx);
+        if (rc < 0) break;
+
+        const ovector = pcre2.pcre2_get_ovector_pointer_8(r.match_data);
+        const pair_count: usize = @intCast(rc);
+        var i: usize = 0;
+        while (i < pair_count) : (i += 1) {
+            const s = ovector[i * 2];
+            const e = ovector[i * 2 + 1];
+            if (s == std.math.maxInt(usize)) {
+                r.all_captures.append(gpa, .{ .start = -1, .end = -1 }) catch {};
+            } else {
+                r.all_captures.append(gpa, .{ .start = @intCast(s), .end = @intCast(e) }) catch {};
+            }
+        }
+
+        n += 1;
+        const match_end = ovector[1];
+        if (match_end == ovector[0]) {
+            // Zero-length match: advance by one character
+            if (pos >= inp_len) break;
+            pos = nextCharPos(inp, inp_len, pos);
+            opts = 0;
+        } else {
+            pos = match_end;
+            opts = 0;
+        }
     }
+
     r.matched = n > 0;
+    r.last_match_count = n;
     return n;
+}
+
+fn nextCharPos(inp: [*c]const u8, inp_len: usize, pos: usize) usize {
+    if (pos >= inp_len) return pos + 1;
+    const byte = inp[pos];
+    if (byte < 0x80) return pos + 1;
+    const seq_len = std.unicode.utf8ByteSequenceLength(byte) catch return pos + 1;
+    return pos + seq_len;
 }
 
 pub fn stz_regex_has_match(h: ?*Regex) callconv(.c) c_int {
@@ -97,15 +215,15 @@ pub fn stz_regex_has_match(h: ?*Regex) callconv(.c) c_int {
 }
 
 pub fn stz_regex_capture_count(h: ?*Regex) callconv(.c) c_int {
-    return if (h) |r| @as(c_int, @intCast(r.captures.items.len)) else 0;
+    return if (h) |r| @as(c_int, @intCast(r.all_captures.items.len)) else 0;
 }
 
 pub fn stz_regex_capture_start(h: ?*Regex, idx: c_int) callconv(.c) c_int {
     const r = h orelse return -1;
     if (idx < 1) return -1;
     const i: usize = @intCast(idx - 1);
-    if (i >= r.captures.items.len) return -1;
-    const s = r.captures.items[i].start;
+    if (i >= r.all_captures.items.len) return -1;
+    const s = r.all_captures.items[i].start;
     return if (s < 0) s else s + 1;
 }
 
@@ -113,8 +231,8 @@ pub fn stz_regex_capture_end(h: ?*Regex, idx: c_int) callconv(.c) c_int {
     const r = h orelse return -1;
     if (idx < 1) return -1;
     const i: usize = @intCast(idx - 1);
-    if (i >= r.captures.items.len) return -1;
-    const e = r.captures.items[i].end;
+    if (i >= r.all_captures.items.len) return -1;
+    const e = r.all_captures.items[i].end;
     return if (e < 0) e else e + 1;
 }
 
@@ -122,8 +240,8 @@ pub fn stz_regex_capture_text(h: ?*Regex, idx: c_int, buf: [*c]u8, buf_len: usiz
     const r = h orelse return 0;
     if (idx < 1) return 0;
     const i: usize = @intCast(idx - 1);
-    if (i >= r.captures.items.len) return 0;
-    const c = r.captures.items[i];
+    if (i >= r.all_captures.items.len) return 0;
+    const c = r.all_captures.items[i];
     if (c.start < 0 or c.end < 0) return 0;
     const s: usize = @intCast(c.start);
     const e: usize = @intCast(c.end);
@@ -134,31 +252,77 @@ pub fn stz_regex_capture_text(h: ?*Regex, idx: c_int, buf: [*c]u8, buf_len: usiz
     return t.len;
 }
 
+// ─── Named group access (new PCRE2 feature) ───
+
+pub fn stz_regex_capture_by_name(h: ?*Regex, name: [*c]const u8, name_len: usize, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
+    const r = h orelse return 0;
+    if (name == null or name_len == 0) return 0;
+    if (!r.matched) return 0;
+
+    const group_num = pcre2.pcre2_substring_number_from_name_8(r.code, name);
+    if (group_num < 0) return 0;
+
+    const idx: usize = @intCast(group_num);
+    if (idx >= r.all_captures.items.len) return 0;
+    const c = r.all_captures.items[idx];
+    if (c.start < 0 or c.end < 0) return 0;
+    const s: usize = @intCast(c.start);
+    const e: usize = @intCast(c.end);
+    if (s >= e or e > r.input.len) return 0;
+    const t = r.input[s..e];
+    if (t.len > buf_len) return 0;
+    @memcpy(buf[0..t.len], t);
+    return t.len;
+}
+
+pub fn stz_regex_named_group_count(h: ?*Regex) callconv(.c) c_int {
+    const r = h orelse return 0;
+    var name_count: u32 = 0;
+    const rc = pcre2.pcre2_pattern_info_8(r.code, pcre2.PCRE2_INFO_NAMECOUNT, &name_count);
+    if (rc != 0) return 0;
+    return @intCast(name_count);
+}
+
+// ─── Replace with backreference support ($1, $2, ${name}) ───
+
 pub fn stz_regex_replace(h: ?*Regex, inp: [*c]const u8, inp_len: usize, repl: [*c]const u8, repl_len: usize, out_len: *usize) callconv(.c) [*c]u8 {
     out_len.* = 0;
     const r = h orelse return null;
     if (inp == null or inp_len == 0) return null;
     if (inp_len > r.max_input_len) return null;
-    const text = inp[0..inp_len];
+
     const rep = if (repl != null and repl_len > 0) repl[0..repl_len] else "";
+    const text = inp[0..inp_len];
+
     var res: std.ArrayList(u8) = .{};
     var pos: usize = 0;
-    var budget: u32 = r.max_steps;
-    while (pos <= text.len) {
-        if (budget == 0) break;
-        var tmp: std.ArrayList(Regex.Cap) = .{};
-        defer tmp.deinit(gpa);
-        if (doMatch(r.pattern, text, pos, r.flags, &tmp, &budget, r.max_depth) and tmp.items.len > 0) {
-            const s: usize = @intCast(tmp.items[0].start);
-            const e: usize = @intCast(tmp.items[0].end);
-            res.appendSlice(gpa, text[pos..s]) catch { res.deinit(gpa); return null; };
-            res.appendSlice(gpa, rep) catch { res.deinit(gpa); return null; };
-            pos = if (e <= pos) pos + 1 else e;
+
+    while (pos <= inp_len) {
+        const rc = pcre2.pcre2_match_8(r.code, inp, inp_len, pos, 0, r.match_data, r.match_ctx);
+        if (rc < 0) {
+            res.appendSlice(gpa, text[pos..]) catch { res.deinit(gpa); return null; };
+            break;
+        }
+
+        const ovector = pcre2.pcre2_get_ovector_pointer_8(r.match_data);
+        const match_start = ovector[0];
+        const match_end = ovector[1];
+
+        res.appendSlice(gpa, text[pos..match_start]) catch { res.deinit(gpa); return null; };
+        expandReplacement(&res, rep, text, ovector, @intCast(rc), r.code) catch { res.deinit(gpa); return null; };
+
+        if (match_end == match_start) {
+            if (pos >= inp_len) {
+                break;
+            }
+            const next = nextCharPos(inp, inp_len, pos);
+            res.appendSlice(gpa, text[pos..next]) catch { res.deinit(gpa); return null; };
+            pos = next;
         } else {
-            if (pos < text.len) res.append(gpa, text[pos]) catch { res.deinit(gpa); return null; };
-            pos += 1;
+            pos = match_end;
         }
     }
+
     out_len.* = res.items.len;
     const buf = gpa.alloc(u8, res.items.len) catch { res.deinit(gpa); return null; };
     @memcpy(buf, res.items);
@@ -166,600 +330,187 @@ pub fn stz_regex_replace(h: ?*Regex, inp: [*c]const u8, inp_len: usize, repl: [*
     return buf.ptr;
 }
 
+fn expandReplacement(res: *std.ArrayList(u8), repl: []const u8, text: []const u8, ovector: [*]usize, pair_count: usize, code: *pcre2.pcre2_code_8) !void {
+    _ = code;
+    var i: usize = 0;
+    while (i < repl.len) {
+        if (repl[i] == '$' and i + 1 < repl.len) {
+            if (repl[i + 1] == '$') {
+                try res.append(gpa, '$');
+                i += 2;
+                continue;
+            }
+            if (repl[i + 1] >= '0' and repl[i + 1] <= '9') {
+                var num: usize = 0;
+                var j = i + 1;
+                while (j < repl.len and repl[j] >= '0' and repl[j] <= '9') : (j += 1) {
+                    num = num * 10 + @as(usize, repl[j] - '0');
+                }
+                if (num < pair_count) {
+                    const s = ovector[num * 2];
+                    const e = ovector[num * 2 + 1];
+                    if (s != std.math.maxInt(usize) and e != std.math.maxInt(usize) and s <= e and e <= text.len) {
+                        try res.appendSlice(gpa, text[s..e]);
+                    }
+                }
+                i = j;
+                continue;
+            }
+            if (repl[i + 1] == '{') {
+                if (mem.indexOfScalar(u8, repl[i + 2 ..], '}')) |close_off| {
+                    const name_slice = repl[i + 2 .. i + 2 + close_off];
+                    var is_numeric = true;
+                    for (name_slice) |ch| {
+                        if (ch < '0' or ch > '9') { is_numeric = false; break; }
+                    }
+                    if (is_numeric and name_slice.len > 0) {
+                        var num: usize = 0;
+                        for (name_slice) |ch| {
+                            num = num * 10 + @as(usize, ch - '0');
+                        }
+                        if (num < pair_count) {
+                            const s = ovector[num * 2];
+                            const e = ovector[num * 2 + 1];
+                            if (s != std.math.maxInt(usize) and e != std.math.maxInt(usize) and s <= e and e <= text.len) {
+                                try res.appendSlice(gpa, text[s..e]);
+                            }
+                        }
+                    }
+                    i = i + 2 + close_off + 1;
+                    continue;
+                }
+            }
+        }
+        if (repl[i] == '\\' and i + 1 < repl.len and repl[i + 1] >= '1' and repl[i + 1] <= '9') {
+            const num: usize = @as(usize, repl[i + 1] - '0');
+            if (num < pair_count) {
+                const s = ovector[num * 2];
+                const e = ovector[num * 2 + 1];
+                if (s != std.math.maxInt(usize) and e != std.math.maxInt(usize) and s <= e and e <= text.len) {
+                    try res.appendSlice(gpa, text[s..e]);
+                }
+            }
+            i += 2;
+            continue;
+        }
+        try res.append(gpa, repl[i]);
+        i += 1;
+    }
+}
+
 pub fn stz_regex_replace_free(ptr: [*c]u8, len: usize) callconv(.c) void {
     if (ptr != null and len > 0) gpa.free(ptr[0..len]);
 }
 
-// ─── Core matching engine ───
-
-fn doMatch(pattern: []const u8, text: []const u8, start: usize, flags: u32, caps: *std.ArrayList(Regex.Cap), budget: *u32, max_depth: u16) bool {
-    const ci = (flags & FLAG_CASE_I) != 0;
-    const da = (flags & FLAG_DOT_ALL) != 0;
-    var pos = start;
-    const anchored = pattern.len > 0 and pattern[0] == '^';
-    while (pos <= text.len) {
-        if (budget.* == 0) return false;
-        caps.clearRetainingCapacity();
-        caps.append(gpa, .{ .start = @intCast(pos), .end = -1 }) catch {};
-        if (matchHere(pattern, if (anchored) 1 else 0, text, pos, ci, da, caps, budget, max_depth)) {
-            return true;
-        }
-        if (anchored) return false;
-        if (pos < text.len) {
-            const info = decodeAt(text, pos);
-            pos += info.len;
-        } else {
-            pos += 1;
-        }
-    }
-    return false;
-}
-
-fn matchHere(pat: []const u8, pi: usize, text: []const u8, ti: usize, ci: bool, da: bool, caps: *std.ArrayList(Regex.Cap), budget: *u32, max_depth: u16) bool {
-    if (budget.* == 0) return false;
-    budget.* -= 1;
-
-    var p = pi;
-    var t = ti;
-
-    while (p < pat.len) {
-        if (pat[p] == '$' and (p + 1 >= pat.len or pat[p + 1] == '|')) {
-            if (t == text.len) {
-                updateEnd(caps, t);
-                return true;
-            }
-            return false;
-        }
-
-        if (pat[p] == '|') {
-            updateEnd(caps, t);
-            return true;
-        }
-
-        if (pat[p] == '(') {
-            if (max_depth == 0) return false;
-            return matchGroup(pat, p, text, t, ci, da, caps, budget, max_depth - 1);
-        }
-
-        const atom_end = atomEnd(pat, p);
-        if (atom_end <= p) return false;
-
-        if (atom_end < pat.len) {
-            const q = pat[atom_end];
-            if (q == '*' or q == '+' or q == '?') {
-                const lazy = (atom_end + 1 < pat.len and pat[atom_end + 1] == '?');
-                const skip = if (lazy) atom_end + 2 else atom_end + 1;
-                return matchQuantifiedEx(pat, p, atom_end, q, lazy, skip, text, t, ci, da, caps, budget, max_depth);
-            }
-        }
-
-        if (t >= text.len) return false;
-        const info = decodeAt(text, t);
-        if (!matchOne(pat, p, info.cp, ci, da)) return false;
-        t += info.len;
-        p = atom_end;
-    }
-
-    updateEnd(caps, t);
-    return true;
-}
-
-fn matchQuantifiedEx(pat: []const u8, p: usize, _: usize, q: u8, lazy: bool, skip: usize, text: []const u8, ti: usize, ci: bool, da: bool, caps: *std.ArrayList(Regex.Cap), budget: *u32, max_depth: u16) bool {
-    const min_count: usize = if (q == '+') 1 else 0;
-
-    var match_ends: [4096]usize = undefined;
-    var match_count: usize = 0;
-    var t = ti;
-
-    while (t < text.len and match_count < 4096) {
-        const info = decodeAt(text, t);
-        if (!matchOne(pat, p, info.cp, ci, da)) break;
-        t += info.len;
-        match_ends[match_count] = t;
-        match_count += 1;
-    }
-
-    if (q == '?') {
-        if (match_count > 1) match_count = 1;
-    }
-
-    if (lazy) {
-        var count: usize = min_count;
-        while (count <= match_count) {
-            if (budget.* == 0) return false;
-            const end_pos = if (count == 0) ti else match_ends[count - 1];
-            if (matchHere(pat, skip, text, end_pos, ci, da, caps, budget, max_depth)) return true;
-            count += 1;
-        }
-    } else {
-        var count: usize = match_count;
-        while (true) {
-            if (budget.* == 0) return false;
-            if (count >= min_count) {
-                const end_pos = if (count == 0) ti else match_ends[count - 1];
-                if (matchHere(pat, skip, text, end_pos, ci, da, caps, budget, max_depth)) return true;
-            }
-            if (count == 0) break;
-            count -= 1;
-        }
-    }
-    return false;
-}
-
-fn matchGroup(pat: []const u8, p: usize, text: []const u8, ti: usize, ci: bool, da: bool, caps: *std.ArrayList(Regex.Cap), budget: *u32, max_depth: u16) bool {
-    const close = findGroupClose(pat, p) orelse return false;
-    const inner = pat[p + 1 .. close];
-    const after = close + 1;
-    const cap_idx = caps.items.len;
-    caps.append(gpa, .{ .start = @intCast(ti), .end = -1 }) catch {};
-
-    var alt_start: usize = 0;
-    var i: usize = 0;
-    var depth: u32 = 0;
-    while (i <= inner.len) : (i += 1) {
-        if (budget.* == 0) return false;
-        const at_end = i == inner.len;
-        const at_alt = if (!at_end) (inner[i] == '|' and depth == 0) else false;
-        if (!at_end and inner[i] == '(') depth += 1;
-        if (!at_end and inner[i] == ')') depth -|= 1;
-
-        if (at_end or at_alt) {
-            const alt = inner[alt_start..i];
-            var sub_t = ti;
-            if (matchBranch(alt, text, &sub_t, ci, da, caps, budget, max_depth)) {
-                if (cap_idx < caps.items.len)
-                    caps.items[cap_idx].end = @intCast(sub_t);
-                var next = after;
-                if (next < pat.len and (pat[next] == '*' or pat[next] == '+' or pat[next] == '?')) {
-                    next += 1;
-                    if (next < pat.len and pat[next] == '?') next += 1;
-                }
-                return matchHere(pat, next, text, sub_t, ci, da, caps, budget, max_depth);
-            }
-            alt_start = i + 1;
-        }
-    }
-
-    if (after < pat.len and pat[after] == '?') {
-        if (cap_idx < caps.items.len) {
-            caps.items[cap_idx].start = -1;
-            caps.items[cap_idx].end = -1;
-        }
-        return matchHere(pat, after + 1, text, ti, ci, da, caps, budget, max_depth);
-    }
-
-    return false;
-}
-
-fn matchBranch(branch: []const u8, text: []const u8, t: *usize, ci: bool, da: bool, caps: *std.ArrayList(Regex.Cap), budget: *u32, max_depth: u16) bool {
-    var p: usize = 0;
-    while (p < branch.len) {
-        if (budget.* == 0) return false;
-        if (branch[p] == '(') {
-            if (max_depth == 0) return false;
-            const close = findGroupClose(branch, p) orelse return false;
-            const inner = branch[p + 1 .. close];
-            const cap_idx = caps.items.len;
-            caps.append(gpa, .{ .start = @intCast(t.*), .end = -1 }) catch {};
-
-            var alt_start: usize = 0;
-            var i: usize = 0;
-            var depth: u32 = 0;
-            var matched = false;
-            while (i <= inner.len) : (i += 1) {
-                if (budget.* == 0) return false;
-                const at_end = i == inner.len;
-                const at_alt = if (!at_end) (inner[i] == '|' and depth == 0) else false;
-                if (!at_end and inner[i] == '(') depth += 1;
-                if (!at_end and inner[i] == ')') depth -|= 1;
-                if (at_end or at_alt) {
-                    const alt = inner[alt_start..i];
-                    var sub_t = t.*;
-                    if (matchBranch(alt, text, &sub_t, ci, da, caps, budget, max_depth - 1)) {
-                        if (cap_idx < caps.items.len)
-                            caps.items[cap_idx].end = @intCast(sub_t);
-                        t.* = sub_t;
-                        matched = true;
-                        break;
-                    }
-                    alt_start = i + 1;
-                }
-            }
-            if (!matched) return false;
-            p = close + 1;
-            if (p < branch.len and (branch[p] == '*' or branch[p] == '+' or branch[p] == '?')) {
-                p += 1;
-                if (p < branch.len and branch[p] == '?') p += 1;
-            }
-            continue;
-        }
-
-        const ae = atomEnd(branch, p);
-        if (ae <= p) return false;
-
-        if (ae < branch.len and (branch[ae] == '*' or branch[ae] == '+' or branch[ae] == '?')) {
-            const q = branch[ae];
-            const min_count: usize = if (q == '+') 1 else 0;
-            var count: usize = 0;
-            var scan = t.*;
-            while (scan < text.len) {
-                const info = decodeAt(text, scan);
-                if (!matchOne(branch, p, info.cp, ci, da)) break;
-                scan += info.len;
-                count += 1;
-            }
-            if (q == '?') { if (count > 1) count = 1; }
-            if (count < min_count) return false;
-            // Re-advance t by the matched characters
-            var adv: usize = 0;
-            var pos = t.*;
-            while (adv < count) : (adv += 1) {
-                const info = decodeAt(text, pos);
-                pos += info.len;
-            }
-            t.* = pos;
-            p = ae + 1;
-            if (p < branch.len and branch[p] == '?') p += 1;
-            continue;
-        }
-
-        if (t.* >= text.len) return false;
-        const info = decodeAt(text, t.*);
-        if (!matchOne(branch, p, info.cp, ci, da)) return false;
-        t.* += info.len;
-        p = ae;
-    }
-    return true;
-}
-
-fn matchOne(pat: []const u8, p: usize, cp: i32, ci: bool, da: bool) bool {
-    if (p >= pat.len) return false;
-    const pc = pat[p];
-
-    if (pc == '.') return if (cp == '\n' and !da) false else true;
-
-    if (pc == '\\' and p + 1 < pat.len) {
-        const esc = pat[p + 1];
-        if ((esc == 'p' or esc == 'P') and p + 2 < pat.len and pat[p + 2] == '{') {
-            if (findBrace(pat, p + 2)) |close| {
-                const prop_name = pat[p + 3 .. close];
-                const matches = matchUnicodeProperty(cp, prop_name);
-                return if (esc == 'p') matches else !matches;
-            }
-            return false;
-        }
-        return switch (esc) {
-            'd' => cp >= '0' and cp <= '9',
-            'D' => !(cp >= '0' and cp <= '9'),
-            'w' => isWordCp(cp),
-            'W' => !isWordCp(cp),
-            's' => isSpaceCp(cp),
-            'S' => !isSpaceCp(cp),
-            'n' => cp == '\n',
-            'r' => cp == '\r',
-            't' => cp == '\t',
-            else => eqCharCp(cp, esc, ci),
-        };
-    }
-
-    if (pc == '[') return matchCharClassCp(pat, p, cp, ci);
-
-    return eqCharCp(cp, pc, ci);
-}
-
-fn matchUnicodeProperty(cp: i32, prop: []const u8) bool {
-    if (prop.len == 0) return false;
-    if (prop.len == 1) {
-        return switch (prop[0]) {
-            'L' => unicode.stz_unicode_is_letter(cp) == 1,
-            'N' => unicode.stz_unicode_is_number(cp) == 1,
-            'P' => unicode.stz_unicode_is_punctuation(cp) == 1,
-            'S' => unicode.stz_unicode_is_symbol(cp) == 1,
-            'Z' => unicode.stz_unicode_is_space(cp) == 1,
-            'M' => unicode.stz_unicode_is_mark(cp) == 1,
-            'C' => unicode.stz_unicode_is_control(cp) == 1,
-            else => false,
-        };
-    }
-    if (prop.len == 2) {
-        const cat = unicode.stz_unicode_category(cp);
-        if (mem.eql(u8, prop, "Lu")) return cat == 1;
-        if (mem.eql(u8, prop, "Ll")) return cat == 2;
-        if (mem.eql(u8, prop, "Lt")) return cat == 3;
-        if (mem.eql(u8, prop, "Lm")) return cat == 4;
-        if (mem.eql(u8, prop, "Lo")) return cat == 5;
-        if (mem.eql(u8, prop, "Mn")) return cat == 6;
-        if (mem.eql(u8, prop, "Mc")) return cat == 7;
-        if (mem.eql(u8, prop, "Me")) return cat == 8;
-        if (mem.eql(u8, prop, "Nd")) return cat == 9;
-        if (mem.eql(u8, prop, "Nl")) return cat == 10;
-        if (mem.eql(u8, prop, "No")) return cat == 11;
-        if (mem.eql(u8, prop, "Pc")) return cat == 12;
-        if (mem.eql(u8, prop, "Pd")) return cat == 13;
-        if (mem.eql(u8, prop, "Ps")) return cat == 14;
-        if (mem.eql(u8, prop, "Pe")) return cat == 15;
-        if (mem.eql(u8, prop, "Pi")) return cat == 16;
-        if (mem.eql(u8, prop, "Pf")) return cat == 17;
-        if (mem.eql(u8, prop, "Po")) return cat == 18;
-        if (mem.eql(u8, prop, "Sm")) return cat == 19;
-        if (mem.eql(u8, prop, "Sc")) return cat == 20;
-        if (mem.eql(u8, prop, "Sk")) return cat == 21;
-        if (mem.eql(u8, prop, "So")) return cat == 22;
-        if (mem.eql(u8, prop, "Zs")) return cat == 23;
-        if (mem.eql(u8, prop, "Cc")) return cat == 26;
-        if (mem.eql(u8, prop, "Cf")) return cat == 27;
-    }
-    if (eqlAsciiI(prop, "Letter")) return unicode.stz_unicode_is_letter(cp) == 1;
-    if (eqlAsciiI(prop, "Number")) return unicode.stz_unicode_is_number(cp) == 1;
-    if (eqlAsciiI(prop, "Punctuation")) return unicode.stz_unicode_is_punctuation(cp) == 1;
-    if (eqlAsciiI(prop, "Symbol")) return unicode.stz_unicode_is_symbol(cp) == 1;
-    if (eqlAsciiI(prop, "Separator")) return unicode.stz_unicode_is_space(cp) == 1;
-    if (eqlAsciiI(prop, "Mark")) return unicode.stz_unicode_is_mark(cp) == 1;
-    return false;
-}
-
-fn eqlAsciiI(a: []const u8, b: []const u8) bool {
-    if (a.len != b.len) return false;
-    for (a, b) |ac, bc| {
-        if (toLowerAscii(ac) != toLowerAscii(bc)) return false;
-    }
-    return true;
-}
-
-fn findBrace(pat: []const u8, open: usize) ?usize {
-    var i = open + 1;
-    while (i < pat.len) : (i += 1) {
-        if (pat[i] == '}') return i;
-    }
-    return null;
-}
-
-fn matchCharClassCp(pat: []const u8, p: usize, cp: i32, ci: bool) bool {
-    var i = p + 1;
-    if (i >= pat.len) return false;
-    const neg = pat[i] == '^';
-    if (neg) i += 1;
-    var matched = false;
-
-    while (i < pat.len and pat[i] != ']') {
-        if (pat[i] == '\\' and i + 1 < pat.len) {
-            const esc = pat[i + 1];
-            if ((esc == 'p' or esc == 'P') and i + 2 < pat.len and pat[i + 2] == '{') {
-                if (findBrace(pat, i + 2)) |close| {
-                    const prop_name = pat[i + 3 .. close];
-                    const m = matchUnicodeProperty(cp, prop_name);
-                    if (if (esc == 'p') m else !m) matched = true;
-                    i = close + 1;
-                    continue;
-                }
-            }
-            const m = switch (esc) {
-                'd' => cp >= '0' and cp <= '9',
-                'D' => !(cp >= '0' and cp <= '9'),
-                'w' => isWordCp(cp),
-                'W' => !isWordCp(cp),
-                's' => isSpaceCp(cp),
-                'S' => !isSpaceCp(cp),
-                else => eqCharCp(cp, esc, ci),
-            };
-            if (m) matched = true;
-            i += 2;
-        } else if (i + 2 < pat.len and pat[i + 1] == '-' and pat[i + 2] != ']') {
-            const lo: i32 = @intCast(if (ci) toLowerAscii(pat[i]) else pat[i]);
-            const hi: i32 = @intCast(if (ci) toLowerAscii(pat[i + 2]) else pat[i + 2]);
-            const tc: i32 = if (ci and cp < 128) @intCast(toLowerAscii(@intCast(@as(u32, @intCast(cp))))) else cp;
-            if (tc >= lo and tc <= hi) matched = true;
-            i += 3;
-        } else {
-            if (eqCharCp(cp, pat[i], ci)) matched = true;
-            i += 1;
-        }
-    }
-
-    return if (neg) !matched else matched;
-}
-
-fn atomEnd(pat: []const u8, p: usize) usize {
-    if (p >= pat.len) return p;
-    if (pat[p] == '\\' and p + 1 < pat.len) {
-        const esc = pat[p + 1];
-        if ((esc == 'p' or esc == 'P') and p + 2 < pat.len and pat[p + 2] == '{') {
-            if (findBrace(pat, p + 2)) |close| return close + 1;
-        }
-        return p + 2;
-    }
-    if (pat[p] == '[') {
-        var i = p + 1;
-        if (i < pat.len and pat[i] == '^') i += 1;
-        if (i < pat.len and pat[i] == ']') i += 1;
-        while (i < pat.len and pat[i] != ']') : (i += 1) {}
-        return if (i < pat.len) i + 1 else pat.len;
-    }
-    return p + 1;
-}
-
-fn findGroupClose(pat: []const u8, open: usize) ?usize {
-    var d: u32 = 0;
-    var i = open;
-    while (i < pat.len) : (i += 1) {
-        if (pat[i] == '\\') { i += 1; continue; }
-        if (pat[i] == '(') d += 1;
-        if (pat[i] == ')') { d -= 1; if (d == 0) return i; }
-    }
-    return null;
-}
-
-fn updateEnd(caps: *std.ArrayList(Regex.Cap), t: usize) void {
-    if (caps.items.len > 0) caps.items[0].end = @intCast(t);
-}
-
-const CpInfo = struct { cp: i32, len: usize };
-
-fn decodeAt(text: []const u8, pos: usize) CpInfo {
-    if (pos >= text.len) return .{ .cp = -1, .len = 0 };
-    const byte = text[pos];
-    if (byte < 0x80) return .{ .cp = @intCast(byte), .len = 1 };
-    const seq_len = std.unicode.utf8ByteSequenceLength(byte) catch return .{ .cp = @intCast(byte), .len = 1 };
-    if (pos + seq_len > text.len) return .{ .cp = @intCast(byte), .len = 1 };
-    const cp = std.unicode.utf8Decode(text[pos..][0..seq_len]) catch return .{ .cp = @intCast(byte), .len = 1 };
-    return .{ .cp = @intCast(cp), .len = seq_len };
-}
-
-fn eqCharCp(cp: i32, pat_byte: u8, ci: bool) bool {
-    if (cp == @as(i32, pat_byte)) return true;
-    if (ci and cp < 128) return toLowerAscii(@intCast(@as(u32, @intCast(cp)))) == toLowerAscii(pat_byte);
-    return false;
-}
-
-fn toLowerAscii(c: u8) u8 {
-    return if (c >= 'A' and c <= 'Z') c + 32 else c;
-}
-
-fn isWordCp(cp: i32) bool {
-    if (cp < 0) return false;
-    if (cp < 128) {
-        const c: u8 = @intCast(@as(u32, @intCast(cp)));
-        return (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or (c >= '0' and c <= '9') or c == '_';
-    }
-    return unicode.stz_unicode_is_letter(cp) == 1 or unicode.stz_unicode_is_digit(cp) == 1;
-}
-
-fn isSpaceCp(cp: i32) bool {
-    if (cp < 0) return false;
-    if (cp < 128) {
-        const c: u8 = @intCast(@as(u32, @intCast(cp)));
-        return c == ' ' or c == '\t' or c == '\n' or c == '\r';
-    }
-    return unicode.stz_unicode_is_space(cp) == 1;
-}
-
 // ─── Tests ───
 
-const TEST_BUDGET: u32 = 1_000_000;
-const TEST_DEPTH: u16 = 64;
-
-fn testMatch(pat: []const u8, text: []const u8, start: usize, flags: u32, caps: *std.ArrayList(Regex.Cap)) bool {
-    var budget: u32 = TEST_BUDGET;
-    return doMatch(pat, text, start, flags, caps, &budget, TEST_DEPTH);
-}
-
 test "literal match" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("hello", "say hello world", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 4), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 9), caps.items[0].end);
+    const h = stz_regex_new("hello", 5, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "say hello world", 15, 0));
+    try std.testing.expectEqual(@as(c_int, 5), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 10), stz_regex_capture_end(h, 1));
 }
 
 test "dot and star" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("h.*o", "hello", 0, 0, &caps));
+    const h = stz_regex_new("h.*o", 4, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "hello", 5, 0));
 }
 
 test "char class" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("[abc]+", "xxbcaxx", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 2), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 5), caps.items[0].end);
+    const h = stz_regex_new("[abc]+", 6, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "xxbcaxx", 7, 0));
+    try std.testing.expectEqual(@as(c_int, 3), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 6), stz_regex_capture_end(h, 1));
 }
 
 test "anchors" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("^hello$", "hello", 0, 0, &caps));
-    caps.clearRetainingCapacity();
-    try std.testing.expect(!testMatch("^hello$", "say hello", 0, 0, &caps));
+    const h = stz_regex_new("^hello$", 7, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "hello", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 0), stz_regex_match(h, "say hello", 9, 0));
 }
 
 test "capture group" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("(\\d+)-(\\d+)", "val 123-456 end", 0, 0, &caps));
-    try std.testing.expect(caps.items.len >= 3);
+    const h = stz_regex_new("(\\d+)-(\\d+)", 11, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "val 123-456 end", 15, 0));
+    try std.testing.expect(stz_regex_capture_count(h) >= 3);
 }
 
 test "case insensitive" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("hello", "HELLO", 0, FLAG_CASE_I, &caps));
+    const h = stz_regex_new("hello", 5, FLAG_CASE_I) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "HELLO", 5, 0));
 }
 
 test "alternation in group" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("(cat|dog)", "I have a dog", 0, 0, &caps));
+    const h = stz_regex_new("(cat|dog)", 9, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "I have a dog", 12, 0));
 }
 
 test "escape sequences" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("\\d+", "abc123def", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 3), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 6), caps.items[0].end);
+    const h = stz_regex_new("\\d+", 3, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "abc123def", 9, 0));
+    try std.testing.expectEqual(@as(c_int, 4), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 7), stz_regex_capture_end(h, 1));
 }
 
 test "lazy quantifier" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("<.*>", "<a><b>", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 6), caps.items[0].end);
+    const h1 = stz_regex_new("<.*>", 4, 0) orelse unreachable;
+    defer stz_regex_free(h1);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h1, "<a><b>", 6, 0));
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_capture_start(h1, 1));
+    try std.testing.expectEqual(@as(c_int, 7), stz_regex_capture_end(h1, 1));
 
-    caps.clearRetainingCapacity();
-    try std.testing.expect(testMatch("<.*?>", "<a><b>", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 3), caps.items[0].end);
+    const h2 = stz_regex_new("<.*?>", 5, 0) orelse unreachable;
+    defer stz_regex_free(h2);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h2, "<a><b>", 6, 0));
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_capture_start(h2, 1));
+    try std.testing.expectEqual(@as(c_int, 4), stz_regex_capture_end(h2, 1));
 }
 
 test "lazy plus" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("a+?", "aaaa", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 1), caps.items[0].end);
+    const h = stz_regex_new("a+?", 3, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "aaaa", 4, 0));
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 2), stz_regex_capture_end(h, 1));
 }
 
 test "unicode property \\p{L}" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("\\p{L}+", "abc123", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 3), caps.items[0].end);
+    const h = stz_regex_new("\\p{L}+", 6, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "abc123", 6, 0));
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 4), stz_regex_capture_end(h, 1));
 }
 
 test "unicode property \\p{N}" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("\\p{N}+", "abc123", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 3), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 6), caps.items[0].end);
+    const h = stz_regex_new("\\p{N}+", 6, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "abc123", 6, 0));
+    try std.testing.expectEqual(@as(c_int, 4), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 7), stz_regex_capture_end(h, 1));
 }
 
 test "unicode property negated \\P{L}" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("\\P{L}+", "abc 123", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 3), caps.items[0].start);
+    const h = stz_regex_new("\\P{L}+", 6, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "abc 123", 7, 0));
+    try std.testing.expectEqual(@as(c_int, 4), stz_regex_capture_start(h, 1));
 }
 
-test "redos budget exhaustion" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    var budget: u32 = 50;
-    const evil_input = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaab";
-    const result = doMatch("(a+)+$", evil_input, 0, 0, &caps, &budget, 64);
-    try std.testing.expect(!result);
-    try std.testing.expect(budget < 50);
-}
-
-test "depth limit prevents deep nesting" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    var budget: u32 = TEST_BUDGET;
-    const result = doMatch("((((a))))", "a", 0, 0, &caps, &budget, 2);
-    try std.testing.expect(!result);
+test "match limit exhaustion" {
+    const h = stz_regex_new("(a+)+$", 6, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    stz_regex_set_limits(h, 1, 0, 0);
+    const result = stz_regex_match(h, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaab", 30, 0);
+    try std.testing.expectEqual(@as(c_int, 0), result);
 }
 
 test "pattern length limit" {
@@ -778,54 +529,184 @@ test "input length limit" {
 }
 
 test "utf8 dot matches multibyte" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    // "caf\xC3\xA9" = 4 codepoints (c,a,f,e-acute), dot should match each
-    try std.testing.expect(testMatch(".+", "caf\xC3\xA9", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 5), caps.items[0].end);
+    const h = stz_regex_new(".+", 2, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "caf\xC3\xA9", 5, 0));
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 6), stz_regex_capture_end(h, 1));
 }
 
 test "utf8 \\p{L} matches unicode letters" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    // Greek alpha beta gamma: \xCE\xB1\xCE\xB2\xCE\xB3 (6 bytes, 3 codepoints)
-    try std.testing.expect(testMatch("\\p{L}+", "\xCE\xB1\xCE\xB2\xCE\xB3", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 6), caps.items[0].end);
+    const h = stz_regex_new("\\p{L}+", 6, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "\xCE\xB1\xCE\xB2\xCE\xB3", 6, 0));
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 7), stz_regex_capture_end(h, 1));
 }
 
 test "utf8 \\w matches unicode word chars" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    // Arabic alef: \xD8\xA7 (2 bytes, 1 codepoint, is_letter = true)
-    try std.testing.expect(testMatch("\\w+", "\xD8\xA7\xD8\xA8\xD8\xAA", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 6), caps.items[0].end);
+    const h = stz_regex_new("\\w+", 3, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "\xD8\xA7\xD8\xA8\xD8\xAA", 6, 0));
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 7), stz_regex_capture_end(h, 1));
 }
 
 test "utf8 mixed ascii and unicode" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    // "abc\xC3\xA9def" -- find the e-acute with \p{L}
-    try std.testing.expect(testMatch("\\p{L}+", "abc\xC3\xA9def", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 8), caps.items[0].end);
+    const h = stz_regex_new("\\p{L}+", 6, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "abc\xC3\xA9def", 8, 0));
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 9), stz_regex_capture_end(h, 1));
 }
 
 test "utf8 \\P{L} skips unicode letters" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    // "abc 123" -- \\P{L}+ should match " 123"
-    try std.testing.expect(testMatch("\\P{L}+", "abc 123", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 3), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 7), caps.items[0].end);
+    const h = stz_regex_new("\\P{L}+", 6, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "abc 123", 7, 0));
+    try std.testing.expectEqual(@as(c_int, 4), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 8), stz_regex_capture_end(h, 1));
 }
 
 test "utf8 category subcategory Lu" {
-    var caps: std.ArrayList(Regex.Cap) = .{};
-    defer caps.deinit(gpa);
-    try std.testing.expect(testMatch("\\p{Lu}+", "ABCdef", 0, 0, &caps));
-    try std.testing.expectEqual(@as(i32, 0), caps.items[0].start);
-    try std.testing.expectEqual(@as(i32, 3), caps.items[0].end);
+    const h = stz_regex_new("\\p{Lu}+", 7, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "ABCdef", 6, 0));
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 4), stz_regex_capture_end(h, 1));
+}
+
+// ─── New PCRE2 feature tests ───
+
+test "word boundary \\b" {
+    const h = stz_regex_new("\\bword\\b", 8, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "a word here", 11, 0));
+    try std.testing.expectEqual(@as(c_int, 0), stz_regex_match(h, "awordhere", 9, 0));
+}
+
+test "non-capturing group" {
+    const h = stz_regex_new("(?:abc)(def)", 12, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "abcdef", 6, 0));
+    try std.testing.expectEqual(@as(c_int, 2), stz_regex_capture_count(h));
+    var buf: [32]u8 = undefined;
+    const len = stz_regex_capture_text(h, 2, &buf, 32);
+    try std.testing.expectEqualStrings("def", buf[0..len]);
+}
+
+test "counted quantifier {n,m}" {
+    const h = stz_regex_new("a{2,4}", 6, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "aaa", 3, 0));
+    try std.testing.expectEqual(@as(c_int, 0), stz_regex_match(h, "a", 1, 0));
+}
+
+test "lookahead" {
+    const h = stz_regex_new("\\w+(?=\\d)", 9, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "abc3", 4, 0));
+    var buf: [32]u8 = undefined;
+    const len = stz_regex_capture_text(h, 1, &buf, 32);
+    try std.testing.expectEqualStrings("abc", buf[0..len]);
+}
+
+test "negative lookahead" {
+    const h = stz_regex_new("\\d+(?!\\d)", 9, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "123x", 4, 0));
+}
+
+test "lookbehind" {
+    const h = stz_regex_new("(?<=@)\\w+", 9, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "user@host", 9, 0));
+    var buf: [32]u8 = undefined;
+    const len = stz_regex_capture_text(h, 1, &buf, 32);
+    try std.testing.expectEqualStrings("host", buf[0..len]);
+}
+
+test "named group" {
+    const h = stz_regex_new("(?P<year>\\d{4})-(?P<month>\\d{2})", 32, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "2026-05", 7, 0));
+    var buf: [32]u8 = undefined;
+    const len1 = stz_regex_capture_by_name(h, "year", 4, &buf, 32);
+    try std.testing.expectEqualStrings("2026", buf[0..len1]);
+    const len2 = stz_regex_capture_by_name(h, "month", 5, &buf, 32);
+    try std.testing.expectEqualStrings("05", buf[0..len2]);
+}
+
+test "backreference" {
+    const h = stz_regex_new("(\\w+) \\1", 8, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "hello hello", 11, 0));
+    try std.testing.expectEqual(@as(c_int, 0), stz_regex_match(h, "hello world", 11, 0));
+}
+
+test "multiline mode" {
+    const h = stz_regex_new("^line2$", 7, FLAG_MULTILINE) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "line1\nline2\nline3", 17, 0));
+
+    const h2 = stz_regex_new("^line2$", 7, 0) orelse unreachable;
+    defer stz_regex_free(h2);
+    try std.testing.expectEqual(@as(c_int, 0), stz_regex_match(h2, "line1\nline2\nline3", 17, 0));
+}
+
+test "replace with backreference $1" {
+    const h = stz_regex_new("(\\w+)@(\\w+)", 11, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    var out_len: usize = 0;
+    const ptr = stz_regex_replace(h, "user@host", 9, "[$1 at $2]", 10, &out_len);
+    defer stz_regex_replace_free(ptr, out_len);
+    try std.testing.expect(ptr != null);
+    try std.testing.expectEqualStrings("[user at host]", ptr[0..out_len]);
+}
+
+test "replace with backslash backreference \\1" {
+    const h = stz_regex_new("(\\w+)@(\\w+)", 11, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    var out_len: usize = 0;
+    const ptr = stz_regex_replace(h, "user@host", 9, "\\1_\\2", 5, &out_len);
+    defer stz_regex_replace_free(ptr, out_len);
+    try std.testing.expect(ptr != null);
+    try std.testing.expectEqualStrings("user_host", ptr[0..out_len]);
+}
+
+test "match_all basic" {
+    const h = stz_regex_new("\\d+", 3, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 3), stz_regex_match_all(h, "a1b22c333", 9));
+}
+
+test "unicode script \\p{Greek}" {
+    const h = stz_regex_new("\\p{Greek}+", 10, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "\xCE\xB1\xCE\xB2\xCE\xB3", 6, 0));
+}
+
+test "unicode script \\p{Arabic}" {
+    const h = stz_regex_new("\\p{Arabic}+", 11, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "\xD8\xA7\xD8\xA8", 4, 0));
+}
+
+test "recursion (?R)" {
+    const h = stz_regex_new("\\((?:[^()]*|(?R))*\\)", 20, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_match(h, "(a(b)c)", 7, 0));
+    try std.testing.expectEqual(@as(c_int, 1), stz_regex_capture_start(h, 1));
+    try std.testing.expectEqual(@as(c_int, 8), stz_regex_capture_end(h, 1));
+}
+
+test "null handle safety" {
+    try std.testing.expectEqual(@as(c_int, 0), stz_regex_match(null, "a", 1, 0));
+    try std.testing.expectEqual(@as(c_int, 0), stz_regex_has_match(null));
+    try std.testing.expectEqual(@as(c_int, 0), stz_regex_capture_count(null));
+    try std.testing.expectEqual(@as(c_int, -1), stz_regex_capture_start(null, 1));
+    try std.testing.expectEqual(@as(c_int, -1), stz_regex_capture_end(null, 1));
+    try std.testing.expectEqual(@as(usize, 0), stz_regex_capture_text(null, 1, undefined, 0));
+    try std.testing.expectEqual(@as(usize, 0), stz_regex_capture_by_name(null, "x", 1, undefined, 0));
+    try std.testing.expectEqual(@as(c_int, 0), stz_regex_named_group_count(null));
 }

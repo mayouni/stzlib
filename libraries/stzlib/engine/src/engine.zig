@@ -183,6 +183,8 @@ comptime {
     @export(&regex.stz_regex_replace, .{ .name = "stz_regex_replace" });
     @export(&regex.stz_regex_replace_free, .{ .name = "stz_regex_replace_free" });
     @export(&regex.stz_regex_set_limits, .{ .name = "stz_regex_set_limits" });
+    @export(&regex.stz_regex_capture_by_name, .{ .name = "stz_regex_capture_by_name" });
+    @export(&regex.stz_regex_named_group_count, .{ .name = "stz_regex_named_group_count" });
 
     // ─── Tier 3: Bytes operations ───
     @export(&bytes.stz_bytes_new, .{ .name = "stz_bytes_new" });
