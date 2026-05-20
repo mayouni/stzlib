@@ -441,6 +441,26 @@ func StzDefaultDaysOfWeek()
 func StzLocaleQ(p)
 	return new stzLocale(p)
 
+#-- ENGINE-BACKED LOCALE FUNCTIONS --
+
+func StzFormatNumber(nValue, nDecimals)
+	return StzEngineLocaleFormatNumber(nValue, nDecimals)
+
+func StzEngineMonthName(nMonth)
+	return StzEngineLocaleMonthName(nMonth)
+
+func StzEngineMonthAbbr(nMonth)
+	return StzEngineLocaleMonthAbbr(nMonth)
+
+func StzEngineDayName(nDay)
+	return StzEngineLocaleDayName(nDay)
+
+func StzEngineDayAbbr(nDay)
+	return StzEngineLocaleDayAbbr(nDay)
+
+func StzLocaleToTitlecase(cStr)
+	return StzEngineLocaleToTitlecase(cStr)
+
 func StzLocaleAbbreviationsXT()
 	return _aLocaleAbbreviationsXT
 
