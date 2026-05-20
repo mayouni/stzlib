@@ -6,41 +6,41 @@
 
 # Loading files in COMMON module
 
-    load "common/stkglobals.ring"
-    load "common/stklistcommons.ring"
-    load "common/stklowlevelfuncs.ring"
-    load "common/stknumbercommons.ring"
-    load "common/stkobjectcommons.ring"
-    load "common/stkringfuncs.ring"
-    load "common/stkringlibs.ring"
-    load "common/stkstringcommons.ring"
-    load "common/stkprofiler.ring"
+    load "common/stkGlobals.ring"
+    load "common/stkListCommons.ring"
+    load "common/stkLowLevelFuncs.ring"
+    load "common/stkNumberCommons.ring"
+    load "common/stkObjectCommons.ring"
+    load "common/stkRingFuncs.ring"
+    load "common/stkRingLibs.ring"
+    load "common/stkStringCommons.ring"
+    load "common/stkProfiler.ring"
 
 # Loading files in ERROR module
 
-    load "error/stkerror.ring"
+    load "error/stkError.ring"
 
 # Loading files in OBJECT module
 
-    load "object/stkobject.ring"
+    load "object/stkObject.ring"
 
 # Loading files in LIST module
 
-    load "list/stklist.ring"
+    load "list/stkList.ring"
 
 # Loading files in NUMBER module
 
-    load "number/stknumber.ring"
-    load "number/stklistofnumbers.ring"
-    load "number/stkscinumber.ring"
+    load "number/stkNumber.ring"
+    load "number/stkListOfNumbers.ring"
+    load "number/stkSciNumber.ring"
 
 # Loading files in STRING module
 
-    load "string/stkstring.ring"
-    load "string/stkchar.ring"
+    load "string/stkString.ring"
+    load "string/stkChar.ring"
 
-# Loading files in SystEM module
+# Loading files in SYSTEM module
 
-    load "system/stkpointer.ring"
-    load "system/stkbuffer.ring"
-    load "system/stkmemory.ring"
+    load "system/stkPointer.ring"
+    load "system/stkBuffer.ring"
+    load "system/stkMemory.ring"

@@ -11,54 +11,54 @@
 
 # Loading the Softanza Base layer (which loads Core layer underneath)
 
-    load "../base/stzbase.ring"
+    load "../base/stzBase.ring"
 
 # Loading files related to the COMMON module
 
-    load "common/stzwalker.ring"
-    load "common/stzlistofwalkers.ring"
-    load "common/stzwalker2d.ring"
-    load "common/stzlistofwalkers2d.ring"
-    load "common/stzparser.ring"
+    load "common/stzWalker.ring"
+    load "common/stzListOfWalkers.ring"
+    load "common/stzWalker2D.ring"
+    load "common/stzListOfWalkers2D.ring"
+    load "common/stzParser.ring"
 
-    load "common/stzglobalhelp.ring"
+    load "common/stzGlobalHelp.ring"
 
 # Loading files related to the DATA module
 
-    load "data/stzconstraintsdata.ring"
-//  load "data/stzstopwordsdata.ring"
-    load "data/stzdatamodeldata.ring"
+    load "data/stzConstraintsData.ring"
+//  load "data/stzStopWordsData.ring"
+    load "data/stzDataModelData.ring"
 
 # Loading files related to the NUMBER module
 
-    load "number/stzbignumber.ring"
-    load "number/stzlistoflistsofnumbers.ring"
-    load "number/stzlistofpairsofnumbers.ring"
+    load "number/stzBigNumber.ring"
+    load "number/stzListOfListsOfNumbers.ring"
+    load "number/stzListOfPairsOfNumbers.ring"
 
-    load "number/stznumberlowleveltype.ring"
+    load "number/stzNumberLowLevelType.ring"
 
 # Loading files related to STRING module
 
-    load "string/stzmultistring.ring"
+    load "string/stzMultiString.ring"
     load "string/stzSringConstraints.ring"
-    load "string/stztextencoding.ring"
+    load "string/stzTextEncoding.ring"
 
 # Loading files related to the SYSTEM module
 
-    load "system/stzbinaryfile.ring"
+    load "system/stzBinaryFile.ring"
 
 # Loading files related to the TEST module
 
-    load "test/stztestoor.ring"
+    load "test/stzTestoor.ring"
 
 # Loading files related to the ERROR module
 
-    load "error/stzgriderror.ring"
-    load "error/stzlistofsetserror.ring"
-    load "error/stzmultistringerror.ring"
-    load "error/stzseterror.ring"
-    load "error/stztextencodingsystemerror.ring"
+    load "error/stzGridError.ring"
+    load "error/stzListOfSetsError.ring"
+    load "error/stzMultiStringError.ring"
+    load "error/stzSetError.ring"
+    load "error/stzTextEncodingSystemError.ring"
 
 # Loading files related to WINGS modules
 
-//  load "wings/stzwings.ring"
+//  load "wings/stzWings.ring"
