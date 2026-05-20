@@ -20,7 +20,7 @@
 func StzStringCharListQ(p)
 	return new stzStringCharList(p)
 
-func AreChars(pacChars)
+func StzAreChars(pacChars)
 	if CheckingParams()
 		if NOT isList(pacChars)
 			StzRaise("Incorrect param type! pacChars must be a list.")
@@ -35,22 +35,28 @@ func AreChars(pacChars)
 	next
 	return 1
 
-	func @AreChars(pacChars)
-		return AreChars(pacChars)
+	func AreChars(pacChars)
+		return StzAreChars(pacChars)
 
-func AreBothChars(p1, p2)
-	return AreChars([ p1, p2 ])
+	func @AreChars(pacChars)
+		return StzAreChars(pacChars)
+
+func StzAreBothChars(p1, p2)
+	return StzAreChars([ p1, p2 ])
+
+	func AreBothChars(p1, p2)
+		return StzAreBothChars(p1, p2)
 
 	func BothAreChars(p1, p2)
-		return AreBothChars(p1, p2)
+		return StzAreBothChars(p1, p2)
 
 	func @AreBothChars(p1, p2)
-		return AreBothChars(p1, p2)
+		return StzAreBothChars(p1, p2)
 
 	func @BothAreChars(p1, p2)
-		return AreBothChars(p1, p2)
+		return StzAreBothChars(p1, p2)
 
-func AreLetters(pacLetters)
+func StzAreLetters(pacLetters)
 	if CheckingParams()
 		if NOT isList(pacLetters)
 			StzRaise("Incorrect param type! pacLetters must be a list.")
@@ -65,22 +71,28 @@ func AreLetters(pacLetters)
 	next
 	return 1
 
-	func @AreLetters(pacLetters)
-		return AreLetters(pacLetters)
+	func AreLetters(pacLetters)
+		return StzAreLetters(pacLetters)
 
-func AreBothLetters(p1, p2)
-	return AreLetters([ p1, p2 ])
+	func @AreLetters(pacLetters)
+		return StzAreLetters(pacLetters)
+
+func StzAreBothLetters(p1, p2)
+	return StzAreLetters([ p1, p2 ])
+
+	func AreBothLetters(p1, p2)
+		return StzAreBothLetters(p1, p2)
 
 	func BothAreLetters(p1, p2)
-		return AreBothLetters(p1, p2)
+		return StzAreBothLetters(p1, p2)
 
 	func @AreBothLetters(p1, p2)
-		return AreBothLetters(p1, p2)
+		return StzAreBothLetters(p1, p2)
 
 	func @BothAreLetters(p1, p2)
-		return AreBothLetters(p1, p2)
+		return StzAreBothLetters(p1, p2)
 
-func CharsBetween(c1, c2)
+func StzCharsBetween(c1, c2)
 	if CheckingParams()
 		if isList(c2) and len(c2) = 2 and isString(c2[1]) and c2[1] = "and"
 			c2 = c2[2]
@@ -106,7 +118,10 @@ func CharsBetween(c1, c2)
 
 	return acResult
 
-func NumberOfCharsBetween(c1, c2)
+	func CharsBetween(c1, c2)
+		return StzCharsBetween(c1, c2)
+
+func StzNumberOfCharsBetween(c1, c2)
 	if CheckingParams()
 		if NOT @BothAreChars(c1, c2)
 			StzRaise("Incorrect param type!")
@@ -118,18 +133,30 @@ func NumberOfCharsBetween(c1, c2)
 
 	return Abs(nUnicode2 - nUnicode1) + 1
 
-func CharsToUnicodes(paList)
+	func NumberOfCharsBetween(c1, c2)
+		return StzNumberOfCharsBetween(c1, c2)
+
+func StzCharsToUnicodes(paList)
 	return StzStringCharListQ(paList).Unicodes()
 
-func ListOfChars(paList)
+	func CharsToUnicodes(paList)
+		return StzCharsToUnicodes(paList)
+
+func StzListOfChars(paList)
 	if @IsListOfChars(paList)
 		return paList
 	ok
 
-func ListOfLetters(paList)
+	func ListOfChars(paList)
+		return StzListOfChars(paList)
+
+func StzListOfLetters(paList)
 	if @IsListOfLetters(paList)
 		return StzStringCharListQ(paList).Uppercased()
 	ok
+
+	func ListOfLetters(paList)
+		return StzListOfLetters(paList)
 
 
   /////////////////

@@ -16,9 +16,12 @@
  ///   FUNCTIONS   ///
 /////////////////////
 
-func BoxedString(str)
+func StzBoxedString(str)
 	oStr = new stzStringBoxed(str)
 	return oStr.Boxed()
+
+	func BoxedString(str)
+		return StzBoxedString(str)
 
 
   /////////////////

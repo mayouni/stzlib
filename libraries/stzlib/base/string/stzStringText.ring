@@ -28,14 +28,23 @@ _cWordIdentificationMode = :Quick	# or :Strict
  ///   FUNCTIONS   ///
 /////////////////////
 
-func SentenceSeparator()
+func StzSentenceSeparator()
 	return _cSentenceSeparator
 
-func ParagraphSeparator()
+	func SentenceSeparator()
+		return StzSentenceSeparator()
+
+func StzParagraphSeparator()
 	return _cParagraphSeparator
 
-func DefaultLanguage()
+	func ParagraphSeparator()
+		return StzParagraphSeparator()
+
+func StzDefaultLanguage()
 	return _cDefaultLanguage
+
+	func DefaultLanguage()
+		return StzDefaultLanguage()
 
 func StzStringTextQ(pcStr)
 	return new stzStringText(pcStr)
@@ -43,14 +52,23 @@ func StzStringTextQ(pcStr)
 func IsStzStringText(p)
 	return IsObject(p) and classname(p) = "stzstringtext"
 
-func WordIdentificationMode()
+func StzWordIdentificationMode()
 	return _cWordIdentificationMode
 
-func IdentifyWordsInQuickMode()
+	func WordIdentificationMode()
+		return StzWordIdentificationMode()
+
+func StzIdentifyWordsInQuickMode()
 	_cWordIdentificationMode = :Quick
 
-func IdentifyWordsInStrictMode()
+	func IdentifyWordsInQuickMode()
+		StzIdentifyWordsInQuickMode()
+
+func StzIdentifyWordsInStrictMode()
 	_cWordIdentificationMode = :Strict
+
+	func IdentifyWordsInStrictMode()
+		StzIdentifyWordsInStrictMode()
 
   /////////////////
  ///   CLASS   ///
