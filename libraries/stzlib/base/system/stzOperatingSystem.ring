@@ -14,11 +14,14 @@ func @isWindows()
 func @isWindows64()
 	return iswindows64()
 
-func isWindows32()
+func StzIsWindows32()
 	return iswindows() and not iswindows64()
 
+	func isWindows32()
+		return StzIsWindows32()
+
 	func @isWindows32()
-		return isWindows32()
+		return StzIsWindows32()
 
 func @isMSDOS()
 	return ismsdos()
@@ -64,128 +67,185 @@ func StzArch()
 	func SystemArchitecture()
 		return StzArch()
 
-func Is32Bit()
+func StzIs32Bit()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.Is32Bit()
 
-func Is64Bit()
+	func Is32Bit()
+		return StzIs32Bit()
+
+func StzIs64Bit()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.Is64Bit()
 
-func IsARM()
+	func Is64Bit()
+		return StzIs64Bit()
+
+func StzIsARM()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsARM()
 
-func IsARM32()
+	func IsARM()
+		return StzIsARM()
+
+func StzIsARM32()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsARM32()
 
-func IsARM64()
+	func IsARM32()
+		return StzIsARM32()
+
+func StzIsARM64()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsARM64()
 
-func IsX86()
+	func IsARM64()
+		return StzIsARM64()
+
+func StzIsX86()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsX86()
 
-func IsX64()
+	func IsX86()
+		return StzIsX86()
+
+func StzIsX64()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsX64()
 
-func IsMSDOS32()
+	func IsX64()
+		return StzIsX64()
+
+func StzIsMSDOS32()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsMSDOS32()
 
-	func @IsMSDOS32()
-		return IsMSDOS32()
+	func IsMSDOS32()
+		return StzIsMSDOS32()
 
-func IsMSDOS64()
+	func @IsMSDOS32()
+		return StzIsMSDOS32()
+
+func StzIsMSDOS64()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsMSDOS64()
 
-	func @IsMSDOS64()
-		return IsMSDOS64()
+	func IsMSDOS64()
+		return StzIsMSDOS64()
 
-func IsUnix32()
+	func @IsMSDOS64()
+		return StzIsMSDOS64()
+
+func StzIsUnix32()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsUnix32()
 
-	func @IsUnix32()
-		return IsUnix32()
+	func IsUnix32()
+		return StzIsUnix32()
 
-func IsUnix64()
+	func @IsUnix32()
+		return StzIsUnix32()
+
+func StzIsUnix64()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsUnix64()
 
-	func @IsUnix64()
-		return IsUnix64()
+	func IsUnix64()
+		return StzIsUnix64()
 
-func IsLinux32()
+	func @IsUnix64()
+		return StzIsUnix64()
+
+func StzIsLinux32()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsLinux32()
 
-	func @IsLinux32()
-		return IsLinux32()
+	func IsLinux32()
+		return StzIsLinux32()
 
-func IsLinux64()
+	func @IsLinux32()
+		return StzIsLinux32()
+
+func StzIsLinux64()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsLinux64()
 
-	func @IsLinux64()
-		return IsLinux64()
+	func IsLinux64()
+		return StzIsLinux64()
 
-func IsFreeBSD32()
+	func @IsLinux64()
+		return StzIsLinux64()
+
+func StzIsFreeBSD32()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsFreeBSD32()
 
-	func @IsFreeBSD32()
-		return IsFreeBSD32()
+	func IsFreeBSD32()
+		return StzIsFreeBSD32()
 
-func IsFreeBSD64()
+	func @IsFreeBSD32()
+		return StzIsFreeBSD32()
+
+func StzIsFreeBSD64()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsFreeBSD64()
 
-	func @IsFreeBSD64()
-		return IsFreeBSD64()
+	func IsFreeBSD64()
+		return StzIsFreeBSD64()
 
-func IsMacOSX32()
+	func @IsFreeBSD64()
+		return StzIsFreeBSD64()
+
+func StzIsMacOSX32()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsMacOS32()
 
+	func IsMacOSX32()
+		return StzIsMacOSX32()
+
 	func @IsMacOSX32()
-		return IsMacOSX32()
+		return StzIsMacOSX32()
 
 	func IsMacOS32()
-		return IsMacOSX32()
+		return StzIsMacOSX32()
 
-func IsMacOSX64()
+func StzIsMacOSX64()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsMacOS64()
 
+	func IsMacOSX64()
+		return StzIsMacOSX64()
+
 	func @IsMacOSX64()
-		return IsMacOSX64()
+		return StzIsMacOSX64()
 
 	func IsMacOS64()
-		return IsMacOSX64()
+		return StzIsMacOSX64()
 
 	func @IsMacOS64()
-		return IsMacOSX64()
+		return StzIsMacOSX64()
 
-func IsAndroid32()
+func StzIsAndroid32()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsAndroid32()
 
-	func @IsAndroid32()
-		return IsAndroid32()
+	func IsAndroid32()
+		return StzIsAndroid32()
 
-func IsAndroid64()
+	func @IsAndroid32()
+		return StzIsAndroid32()
+
+func StzIsAndroid64()
 	_oOS_ = new stzOperatingSystem()
 	return _oOS_.IsAndroid64()
 
-	func @IsAndroid64()
-		return IsAndroid64()
+	func IsAndroid64()
+		return StzIsAndroid64()
 
-func Is32Or64Bit()
+	func @IsAndroid64()
+		return StzIsAndroid64()
+
+func StzIs32Or64Bit()
 	_oOS_ = new stzOperatingSystem()
 	nBits = _oOS_.BitSize()
 	if nBits = 32
@@ -196,8 +256,11 @@ func Is32Or64Bit()
 		return :Unknown
 	ok
 
+	func Is32Or64Bit()
+		return StzIs32Or64Bit()
+
 	func Is64Or32Bit()
-		return Is32Or64Bit()
+		return StzIs32Or64Bit()
 
 func StzOperatingSystemXT()
 	_oOS_ = new stzOperatingSystem()
