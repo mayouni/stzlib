@@ -87,7 +87,7 @@ func _CharScriptCode(nUnicode)
 
 #-- Public standalone functions
 
-func IsInvisibleChar(c)
+func StzIsInvisibleChar(c)
 	if CheckParams()
 		if NOT isString(c)
 			stzraise("Incorrect param type! c must be a string.")
@@ -103,14 +103,20 @@ func IsInvisibleChar(c)
 		return 0
 	ok
 
-	func @IsInvisibleChar(c)
-		return IsInvisibleChar(c)
+	func IsInvisibleChar(c)
+		return StzIsInvisibleChar(c)
 
-func Space(n)
+	func @IsInvisibleChar(c)
+		return StzIsInvisibleChar(c)
+
+func StzSpace(n)
 	return Copy(" ", n)
 
+	func Space(n)
+		return StzSpace(n)
+
 	func @Space(n)
-		return Copy(" ", n)
+		return StzSpace(n)
 
 func StzCharQ(p)
 	return new stzStringChar(p)
@@ -118,18 +124,18 @@ func StzCharQ(p)
 	func CQ(p)
 		return StzCharQ(p)
 
-func UnicodeChar(n)
+func StzChar(n)
 	nMax = MaxUnicodeNumber()
 	if NOT ( isNumber(n) and n <= nMax )
 		StzRaise("Incorrect param type! p must be a number less then " + nMax + "!")
 	ok
 	return StzCharQ(n).Content()
 
-	func StzChar(n)
-		return UnicodeChar(n)
+	func UnicodeChar(n)
+		return StzChar(n)
 
 	func UChar(n)
-		return UnicodeChar(n)
+		return StzChar(n)
 
 func StzCharMethods()
 	return Stz(:Char, :Methods)
@@ -143,22 +149,25 @@ func StzCharClass()
 	func StzCharClassName()
 		return StzCharClass()
 
-func IsAsciiChar(c)
+func StzIsAsciiChar(c)
 	if NOT isString(c)
 		return 0
 	ok
 	return StzCharQ(c).IsAscii()
 
+	func IsAsciiChar(c)
+		return StzIsAsciiChar(c)
+
 	func IsAnAsciiChar(c)
-		return IsAsciiChar(c)
+		return StzIsAsciiChar(c)
 
 	func @IsAsciiChar(c)
-		return IsAsciiChar(c)
+		return StzIsAsciiChar(c)
 
 	func @IsAnAsciiChar(c)
-		return IsAsciiChar(c)
+		return StzIsAsciiChar(c)
 
-func IsChar(pStrOrNbr)
+func StzIsChar(pStrOrNbr)
 	if isString(pStrOrNbr)
 		if isNumber(Unicode(pStrOrNbr))
 			return 1
@@ -181,14 +190,17 @@ func IsChar(pStrOrNbr)
 		return 0
 	ok
 
+	func IsChar(pStrOrNbr)
+		return StzIsChar(pStrOrNbr)
+
 	func @IsChar(pcStr)
-		return IsChar(pcStr)
+		return StzIsChar(pcStr)
 
 	func IsAChar(pcStr)
-		return IsChar(pcStr)
+		return StzIsChar(pcStr)
 
 	func @IsAChar(pcStr)
-		return IsChar(pcStr)
+		return StzIsChar(pcStr)
 
 	func IsALetter(pcStr)
 		return IsLetter(pcStr)
@@ -196,229 +208,337 @@ func IsChar(pStrOrNbr)
 	func @IsALetter(pcStr)
 		return IsLetter(pcStr)
 
-func QuotationMark()
+func StzQuotationMark()
 	return '"'
 
-	func DoubleQuote()
-		return '"'
+	func QuotationMark()
+		return StzQuotationMark()
 
-func Apostrophe()
+	func DoubleQuote()
+		return StzQuotationMark()
+
+func StzApostrophe()
 	return "'"
 
-	func SingleQuote()
-		return "'"
+	func Apostrophe()
+		return StzApostrophe()
 
-func CharName(c)
+	func SingleQuote()
+		return StzApostrophe()
+
+func StzCharName(c)
 	return StzCharQ(c).Name()
 
+	func CharName(c)
+		return StzCharName(c)
+
 	func @CharName(c)
-		return CharName(c)
+		return StzCharName(c)
 
 	func Name(c)
-		return CharName(c)
+		return StzCharName(c)
 
 	func @Name(c)
-		return CharName(c)
+		return StzCharName(c)
 
-func UnicodeToHexUnicode(n)
+func StzUnicodeToHexUnicode(n)
 	oChar = new stzStringChar(n)
 	return oChar.HexUnicode()
 
-func HexUnicodeToUnicode(cHex)
+	func UnicodeToHexUnicode(n)
+		return StzUnicodeToHexUnicode(n)
+
+func StzHexUnicodeToUnicode(cHex)
 	oChar = new stzStringChar(cHex)
 	return oChar.Unicode()
 
-func CharToUnicode(c)
+	func HexUnicodeToUnicode(cHex)
+		return StzHexUnicodeToUnicode(cHex)
+
+func StzCharToUnicode(c)
 	if NOT isString(c)
 		StzRaise("Can't proceed! You must provide a char in a string type.")
 	ok
 	return StzCharQ(c).Unicode()
 
-	def CharUnicode(c)
-		return CharToUnicode(c)
+	func CharToUnicode(c)
+		return StzCharToUnicode(c)
 
-func UnicodeToChar(nUnicode)
+	def CharUnicode(c)
+		return StzCharToUnicode(c)
+
+func StzUnicodeToChar(nUnicode)
 	oChar = new stzStringChar(nUnicode)
 	return oChar.Content()
 
-	func @Char(nUnicode)
-		return UnicodeToChar(nUnicode)
+	func UnicodeToChar(nUnicode)
+		return StzUnicodeToChar(nUnicode)
 
-func UnicodeSectionToListOfChars(nUnicode1, nUnicode2)
+	func @Char(nUnicode)
+		return StzUnicodeToChar(nUnicode)
+
+func StzUnicodeSectionToListOfChars(nUnicode1, nUnicode2)
 	aResult = []
 	for nUnicode = nUnicode1 to nUnicode2
-		aResult + UnicodeToChar( nUnicode )
+		aResult + StzUnicodeToChar( nUnicode )
 	next
 	return aResult
 
-func UnicodeSectionToListOfStzChars(nUnicode1, nUnicode2)
+	func UnicodeSectionToListOfChars(nUnicode1, nUnicode2)
+		return StzUnicodeSectionToListOfChars(nUnicode1, nUnicode2)
+
+func StzUnicodeSectionToListOfStzChars(nUnicode1, nUnicode2)
 	aResult = []
 	for nUnicode = nUnicode1 to nUnicode2
 		aResult + new stzStringChar( nUnicode )
 	next
 	return aResult
 
-func UnicodeSectionToStzListOfChars(nUnicode1, nUnicode2)
-	return new stzListOfChars( UnicodeSectionToListOfChars(nUnicode1, nUnicode2) )
+	func UnicodeSectionToListOfStzChars(nUnicode1, nUnicode2)
+		return StzUnicodeSectionToListOfStzChars(nUnicode1, nUnicode2)
 
-func CurrentUnicodeVersion()
+func StzUnicodeSectionToStzListOfChars(nUnicode1, nUnicode2)
+	return new stzListOfChars( StzUnicodeSectionToListOfChars(nUnicode1, nUnicode2) )
+
+	func UnicodeSectionToStzListOfChars(nUnicode1, nUnicode2)
+		return StzUnicodeSectionToStzListOfChars(nUnicode1, nUnicode2)
+
+func StzCurrentUnicodeVersion()
 	return _acUnicodeVersions[ len(_acUnicodeVersions) ]
 
-func UnicodeCharName(c)
+	func CurrentUnicodeVersion()
+		return StzCurrentUnicodeVersion()
+
+func StzUnicodeCharName(c)
 	return "NOT_AVAILABLE"
 
-func CharScript(c)
+	func UnicodeCharName(c)
+		return StzUnicodeCharName(c)
+
+func StzCharScript(c)
 	oTempChar = new stzStringChar(c)
 	return oTempChar.Script()
 
-func CharIsArabicShaddah(c)
+	func CharScript(c)
+		return StzCharScript(c)
+
+func StzCharIsArabicShaddah(c)
 	oChar = new stzStringChar(c)
 	return oChar.IsArabicShaddah()
 
-func CharIsArabic7arakah(c)
+	func CharIsArabicShaddah(c)
+		return StzCharIsArabicShaddah(c)
+
+func StzCharIsArabic7arakah(c)
 	oChar = new stzStringChar(c)
 	return oChar.IsArabic7arakah()
 
-func CharIsWordSeparator(c)
+	func CharIsArabic7arakah(c)
+		return StzCharIsArabic7arakah(c)
+
+func StzCharIsWordSeparator(c)
 	return StzCharQ(c).IsWordSeparator()
 
-	func CharIsWordSeperator(c)
-		return CharIsWordSeparator(c)
+	func CharIsWordSeparator(c)
+		return StzCharIsWordSeparator(c)
 
-func CharIsSenstenceSeparator(c)
+	func CharIsWordSeperator(c)
+		return StzCharIsWordSeparator(c)
+
+func StzCharIsSentenceSeparator(c)
 	return StzCharQ(c).IsSentenceSeparator(c)
 
-	func CharIsSenstenceSeperator(c)
-		return CharIsSenstenceSeparator(c)
+	func CharIsSenstenceSeparator(c)
+		return StzCharIsSentenceSeparator(c)
 
-func CharIsLineSeparator(c)
+	func CharIsSenstenceSeperator(c)
+		return StzCharIsSentenceSeparator(c)
+
+func StzCharIsLineSeparator(c)
 	return StzCharQ(c).IsLineSeparator(c)
 
-	func CharIsLineSeperator(c)
-		return CharIsLineSeparator(c)
+	func CharIsLineSeparator(c)
+		return StzCharIsLineSeparator(c)
 
-func RemoveDiacritic(pcChar)
+	func CharIsLineSeperator(c)
+		return StzCharIsLineSeparator(c)
+
+func StzRemoveDiacritic(pcChar)
 	return StzCharQ(pcChar).DiacriticRemoved()
 
-func ACharOtherThan(pcChar)
+	func RemoveDiacritic(pcChar)
+		return StzRemoveDiacritic(pcChar)
+
+func StzACharOtherThan(pcChar)
 	nUnicode = Unicode(pcChar)
 	n = StzListOfNumbersQ( 1: NumberOfUnicodeChars()).ANumberOtherThan(nUnicode)
 	cResult = StzCharQ(n).Content()
 	return cResult
 
+	func ACharOtherThan(pcChar)
+		return StzACharOtherThan(pcChar)
+
 	func ACharDifferentThan(pcChar)
-		return ACharOtherThan(pcChar)
+		return StzACharOtherThan(pcChar)
 
 	func ACharDifferentFrom(pcChar)
-		return ACharOtherThan(pcChar)
+		return StzACharOtherThan(pcChar)
 
 	func CharOtherThan(pcChar)
-		return ACharOtherThan(pcChar)
+		return StzACharOtherThan(pcChar)
 
 	func CharDifferentThan(pcChar)
-		return ACharOtherThan(pcChar)
+		return StzACharOtherThan(pcChar)
 
 	func CharDifferentFrom(pcChar)
-		return ACharOtherThan(pcChar)
+		return StzACharOtherThan(pcChar)
 
 	func AnyCharOtherThan(pcChar)
-		return ACharOtherThan(pcChar)
+		return StzACharOtherThan(pcChar)
 
 	func AnyCharDifferentThan(pcChar)
-		return ACharOtherThan(pcChar)
+		return StzACharOtherThan(pcChar)
 
 	func AnyCharDifferentFrom(pcChar)
-		return ACharOtherThan(pcChar)
+		return StzACharOtherThan(pcChar)
 
-func LastUnicodeChar()
+func StzLastUnicodeChar()
 	return StzCharQ( NumberOfUnicodeChars() ).Content()
 
-	func LastCharInUnicode()
-		return LastUnicodeChar()
+	func LastUnicodeChar()
+		return StzLastUnicodeChar()
 
-func FirstUnicodeChar()
+	func LastCharInUnicode()
+		return StzLastUnicodeChar()
+
+func StzFirstUnicodeChar()
 	return StzCharQ( 1 ).Content()
 
+	func FirstUnicodeChar()
+		return StzFirstUnicodeChar()
+
 	func FirstCharInUnicode()
-		return FirstUnicodeChar()
+		return StzFirstUnicodeChar()
 
 #-- Natural-coding functions
 
-func Letter(pcChar)
+func StzLetter(pcChar)
 	if @IsChar(pcChar) and StzCharQ(pcChar).IsLetter()
 		return StzCharQ(pcChar).Uppercased()
 	ok
 
-func Letter@(pcChar)
+	func Letter(pcChar)
+		return StzLetter(pcChar)
+
+func StzLetter@(pcChar)
 	if @IsChar(pcChar) and StzCharQ(pcChar).IsLetter()
 		return ComputableForm(pcChar)
 	ok
 
-func Character(pcChar)
+	func Letter@(pcChar)
+		return StzLetter@(pcChar)
+
+func StzCharacter(pcChar)
 	if @IsChar(pcChar)
 		return pcChar
 	ok
 
-func Character@(pcChar)
+	func Character(pcChar)
+		return StzCharacter(pcChar)
+
+func StzCharacter@(pcChar)
 	if @IsChar(pcChar)
 		return ComputableForm(pcChar)
 	ok
 
-func ArabicLetter(pcChar)
+	func Character@(pcChar)
+		return StzCharacter@(pcChar)
+
+func StzArabicLetter(pcChar)
 	if @IsChar(pcChar) and StzCharQ(pcChar).IsArabicLetter()
 		return pcChar
 	ok
 
-func ArabicLetter@(pcChar)
+	func ArabicLetter(pcChar)
+		return StzArabicLetter(pcChar)
+
+func StzArabicLetter@(pcChar)
 	if @IsChar(pcChar) and StzCharQ(pcChar).IsArabicLetter()
 		return ComputableForm(pcChar)
 	ok
 
-func LatinLetter(pcChar)
+	func ArabicLetter@(pcChar)
+		return StzArabicLetter@(pcChar)
+
+func StzLatinLetter(pcChar)
 	if @IsChar(pcChar) and StzCharQ(pcChar).IsLatinLetter()
 		return pcChar
 	ok
 
-func LatinLetter@(pcChar)
+	func LatinLetter(pcChar)
+		return StzLatinLetter(pcChar)
+
+func StzLatinLetter@(pcChar)
 	if @IsChar(pcChar) and StzCharQ(pcChar).IsLatinLetter()
 		return ComputableForm(pcChar)
 	ok
 
-func ArabicNumber(pcChar)
+	func LatinLetter@(pcChar)
+		return StzLatinLetter@(pcChar)
+
+func StzArabicNumber(pcChar)
 	if @IsChar(pcChar) and StzCharQ(pcChar).IsArabicNumber()
 		return pcChar
 	ok
 
-func ArabicNumber@(pcChar)
+	func ArabicNumber(pcChar)
+		return StzArabicNumber(pcChar)
+
+func StzArabicNumber@(pcChar)
 	if @IsChar(pcChar) and StzCharQ(pcChar).IsArabicNumber()
 		return ComputableForm(pcChar)
 	ok
 
-func RomanNumber(pcChar)
+	func ArabicNumber@(pcChar)
+		return StzArabicNumber@(pcChar)
+
+func StzRomanNumber(pcChar)
 	if @IsChar(pcChar) and StzCharQ(pcChar).IsRomanNumber()
 		return pcChar
 	ok
 
-func RomanNumber@(pcChar)
+	func RomanNumber(pcChar)
+		return StzRomanNumber(pcChar)
+
+func StzRomanNumber@(pcChar)
 	if @IsChar(pcChar) and StzCharQ(pcChar).IsRomanNumber()
 		return ComputableForm(pcChar)
 	ok
 
-func FirstCharOf(pcStr)
+	func RomanNumber@(pcChar)
+		return StzRomanNumber@(pcChar)
+
+func StzFirstCharOf(pcStr)
 	oTemp = new stzString(pcStr)
 	return oTemp.NthChar(1)
 
-	func FirstCharIn(pcStr)
-		return FirstCharOf(pcStr)
+	func FirstCharOf(pcStr)
+		return StzFirstCharOf(pcStr)
 
-func LastCharOf(pcStr)
+	func FirstCharIn(pcStr)
+		return StzFirstCharOf(pcStr)
+
+func StzLastCharOf(pcStr)
 	oTemp = new stzString(pcStr)
 	return oTemp.NthChar(oTemp.NumberOfChars())
 
-	func LastCharIn(pcStr)
-		return LastCharOf(pcStr)
+	func LastCharOf(pcStr)
+		return StzLastCharOf(pcStr)
 
-func FirstLetterOf(pcStr)
+	func LastCharIn(pcStr)
+		return StzLastCharOf(pcStr)
+
+func StzFirstLetterOf(pcStr)
 	oStzStr = new stzString(pcStr)
 	for i = 1 to oStzStr.NumberOfChars()
 		if StzCharQ(oStzStr[i]).IsLetter()
@@ -426,10 +546,13 @@ func FirstLetterOf(pcStr)
 		ok
 	next
 
-	func FirstLetterIn(pcStr)
-		return FirstLetterOf(pcStr)
+	func FirstLetterOf(pcStr)
+		return StzFirstLetterOf(pcStr)
 
-func LastLetterOf(pcStr)
+	func FirstLetterIn(pcStr)
+		return StzFirstLetterOf(pcStr)
+
+func StzLastLetterOf(pcStr)
 	oTemp = new stzString(pcStr)
 	nLen = oTemp.NumberOfChars()
 	for _i = nLen to 1 step -1
@@ -440,28 +563,40 @@ func LastLetterOf(pcStr)
 	next
 	return ""
 
-	func LastLetterIn(pcStr)
-		return LastLetterOf(pcStr)
+	func LastLetterOf(pcStr)
+		return StzLastLetterOf(pcStr)
 
-func NumberOfLatinLetters()
+	func LastLetterIn(pcStr)
+		return StzLastLetterOf(pcStr)
+
+func StzNumberOfLatinLetters()
 	return 52
 
-	func HowManyLatinLetters()
-		return NumberOfLatinLetters()
+	func NumberOfLatinLetters()
+		return StzNumberOfLatinLetters()
 
-func NumberOfArabicLetters()
+	func HowManyLatinLetters()
+		return StzNumberOfLatinLetters()
+
+func StzNumberOfArabicLetters()
 	return len( ArabicLetters() )
 
-	func HowManyArabicLetters()
-		return NumberOfArabicLetters()
+	func NumberOfArabicLetters()
+		return StzNumberOfArabicLetters()
 
-func NumberOfChineseLetters()
+	func HowManyArabicLetters()
+		return StzNumberOfArabicLetters()
+
+func StzNumberOfChineseLetters()
 	return 20000
 
-	func HowManyChineseLetters()
-		return NumberOfChineseLetters()
+	func NumberOfChineseLetters()
+		return StzNumberOfChineseLetters()
 
-func NthChar(n, str)
+	func HowManyChineseLetters()
+		return StzNumberOfChineseLetters()
+
+func StzNthChar(n, str)
 	if isString(n) and isNumber(str)
 		temp = n
 		n = str
@@ -477,8 +612,11 @@ func NthChar(n, str)
 	oTemp = new stzString(str)
 	return oTemp.NthChar(n)
 
+	func NthChar(n, str)
+		return StzNthChar(n, str)
+
 	func @NthChar(n, str)
-		return NthChar(n, str)
+		return StzNthChar(n, str)
 
 func StzIsVowel(p)
 	if CheckingParams()
@@ -524,11 +662,14 @@ func StzIsVowel(p)
 	func @AreVowels(p)
 		return StzIsVowel(p)
 
-func CharByName(cName)
+func StzCharByName(cName)
 	return StzUnicodeDataQ().CharByName(cName)
 
+	func CharByName(cName)
+		return StzCharByName(cName)
+
 	func @CharByName(cName)
-		return CharByName(cName)
+		return StzCharByName(cName)
 
 
   /////////////////
