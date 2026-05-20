@@ -22,11 +22,14 @@ $aOrgColors = [
 
 $acOrgChartDefaultValidators = ["bceao", "sod", "soc", "vacancy", "succession"]
 
-func OrgChartDefaultValidators()
+func StzOrgChartDefaultValidators()
 	return $acOrgChartDefaultValidators
 
+	func OrgChartDefaultValidators()
+		return StzOrgChartDefaultValidators()
+
 	func DefaultOrgChartValidators()
-		return $acOrgChartDefaultValidators
+		return StzOrgChartDefaultValidators()
 
 func IsStzOrgChart(pObj)
 	if isObject(pObj) and classname(pObj) = "stzorgchart"
