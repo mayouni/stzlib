@@ -891,37 +891,43 @@ $aPlanGoals = [
 #TODO Move the data setting to a stzDataSetData.ring file and host it in /data subfolder
 
 # Helper Functions
-func MissingValues()
+func StzMissingValues()
     return $aSTAT_MISSING_VALUES
 
-func @MissingValues()
-    return $aSTAT_MISSING_VALUES
+	func MissingValues()
+		return StzMissingValues()
 
-func DataSetTemplates()
+	func @MissingValues()
+		return StzMissingValues()
+
+func StzDataSetTemplates()
     aResult = $aEmptyInsightTemplates
-    
+
     nLen = len($aNumericInsightTemplates)
     for i = 1 to nLen
         aResult + $aNumericInsightTemplates[i]
     next
-    
+
     nLen = len($aCategoricalInsightTemplates)
     for i = 1 to nLen
         aResult + $aCategoricalInsightTemplates[i]
     next
-    
+
     nLen = len($aMixedInsightTemplates)
     for i = 1 to nLen
         aResult + $aMixedInsightTemplates[i]
     next
-    
+
     return aResult
 
-func DataSetTemplatesXT(cType)
+	func DataSetTemplates()
+		return StzDataSetTemplates()
+
+func StzDataSetTemplatesXT(cType)
     if CheckParams() and NOT isString(cType)
         SteRaise("Incorrect param type! cType must be a string.")
     ok
-    
+
     switch cType
     on "empty"
         return $aEmptyInsightTemplates
@@ -935,33 +941,49 @@ func DataSetTemplatesXT(cType)
         return []
     off
 
-func Trend(panDataSet)
+	func DataSetTemplatesXT(cType)
+		return StzDataSetTemplatesXT(cType)
+
+func StzTrend(panDataSet)
 	return StzDataSetQ(panDataSet).Trend()
 
-	func TrendAnalysis(panDataSet)
-		return Trend(panDataSet)
+	func Trend(panDataSet)
+		return StzTrend(panDataSet)
 
-# Convenience functions
-func GeneratePlanFor(paData, cGoal)
+	func TrendAnalysis(panDataSet)
+		return StzTrend(panDataSet)
+
+func StzGeneratePlanFor(paData, cGoal)
     oStats = new stzDataSet(paData)
     return oStats.GeneratePlan(cGoal)
 
-func ExecutePlanFor(paData, cGoal)
+	func GeneratePlanFor(paData, cGoal)
+		return StzGeneratePlanFor(paData, cGoal)
+
+func StzExecutePlanFor(paData, cGoal)
     oStats = new stzDataSet(paData)
     return oStats.ExecutePlan(cGoal, TRUE)
 
-func PlanSummaryFor(paData, cGoal)
+	func ExecutePlanFor(paData, cGoal)
+		return StzExecutePlanFor(paData, cGoal)
+
+func StzPlanSummaryFor(paData, cGoal)
     oStats = new stzDataSet(paData)
     return oStats.PlanSummary(cGoal)
 
-# Factory function
+	func PlanSummaryFor(paData, cGoal)
+		return StzPlanSummaryFor(paData, cGoal)
+
 func StzDataSetQ(paData)
 	return new stzDataSet(paData)
-    
-func CompareDatasets(paData1, paData2)
+
+func StzCompareDatasets(paData1, paData2)
 	oStats1 = new stzDataSet(paData1)
 	oStats2 = new stzDataSet(paData2)
 	return oStats1.CompareWith(oStats2)
+
+	func CompareDatasets(paData1, paData2)
+		return StzCompareDatasets(paData1, paData2)
 
 #-------------#
 #  THE CLASS  #
