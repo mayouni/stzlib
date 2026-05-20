@@ -1423,7 +1423,7 @@ func MostSquareLikeFactors(n)
 # solution to tje Weiferich primes case made here:
 # https://rosettacode.org/wiki/Wieferich_primes#Ring
 
-func isWeiferich(p)
+func StzIsWeiferich(p)
 	if not isPrime(p)
 		return 0
 	ok
@@ -1442,8 +1442,11 @@ func isWeiferich(p)
 		return 0
 	ok
 
+	func isWeiferich(p)
+		return StzIsWeiferich(p)
+
 	func @isWeiferich(p)
-		return isWeiferich(p)
+		return StzIsWeiferich(p)
 
 #-- Percent functions
 

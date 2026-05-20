@@ -1,10 +1,16 @@
 # Example implementation of stzListexuter
 
-func lxuter()
+func StzLxuter()
     return new stzListexuter
-    
+
+    func lxuter()
+        return StzLxuter()
+
+    func StzLxu()
+        return StzLxuter()
+
     func lxu()
-        return new stzListexuter
+        return StzLxuter()
 
 class stzListexuter
 

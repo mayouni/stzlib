@@ -16,7 +16,7 @@ _oldVar = []	# A copy of the temp var before it is changed
  ///  FUNCTIONS  ///
 ///////////////////
 
-func TempVars()
+func StzTempVars()
 	aResult = []
 	nLen = len(_aVars)
 	for i = 1 to nLen
@@ -25,22 +25,31 @@ func TempVars()
 
 	return aResult
 
+	func TempVars()
+		return StzTempVars()
+
+	func StzTempVarsNames()
+		return StzTempVars()
+
 	func TempVarsNames()
-		return TempVars()
+		return StzTempVars()
+
+	func StzTempVarNames()
+		return StzTempVars()
 
 	func TempVarNames()
-		return TempVars()
+		return StzTempVars()
 
 	func @TempVars()
-		return TempVars()
+		return StzTempVars()
 
 	func @TempVarsNames()
-		return TempVars()
+		return StzTempVars()
 
 	func @TempVarNames()
-		return TempVars()
+		return StzTempVars()
 
-func TempVals()
+func StzTempVals()
 	aResult = []
 	nLen = len(_aVars)
 	for i = 1 to nLen
@@ -49,77 +58,104 @@ func TempVals()
 
 	return aResult
 
-	func @TempVals()
-		return TempVals()
+	func TempVals()
+		return StzTempVals()
 
-func TempVarsVals()
+	func @TempVals()
+		return StzTempVals()
+
+func StzTempVarsVals()
 	return _aVars
 
+	func TempVarsVals()
+		return StzTempVarsVals()
+
+	func StzTempVarsXT()
+		return StzTempVarsVals()
+
 	func TempVarsXT()
-		return TempVarsVals()
+		return StzTempVarsVals()
 
 	func @TempVarsVals()
-		return TempVarsVals()
+		return StzTempVarsVals()
 
-func TempVar()
+func StzTempVar()
 	if len(_var) = 0
 		return []
 	else
 		return _var[1]
 	ok
 
+	func TempVar()
+		return StzTempVar()
+
+	def StzTempVarName()
+		return StzTempVar()
+
 	def TempVarName()
-		return TempVar()
+		return StzTempVar()
 
 	func @TempVar()
-		return TempVar()
+		return StzTempVar()
 
 	def @TempVarName()
-		return TempVar()
+		return StzTempVar()
 
-func TempVal()
+func StzTempVal()
 	if len(_var) = 0
 		return ""
 	else
 		return _var[2]
 	ok
 
-	func @TempVal()
-		return TempVal()
+	func TempVal()
+		return StzTempVal()
 
-func TempVarVal()
+	func @TempVal()
+		return StzTempVal()
+
+func StzTempVarVal()
 	return _var
 
+	func TempVarVal()
+		return StzTempVarVal()
+
+	func StzTempVarXT()
+		return StzTempVarVal()
+
 	func TempVarXT()
-		return TempVarVal()
+		return StzTempVarVal()
 
 	func @TempVarVal()
-		return TempVarVal()
+		return StzTempVarVal()
 
 	func @TempVarXT()
-		return TempVarVal()
+		return StzTempVarVal()
 
-func V(p)
+func StzV(p)
 	if isList(p) and Q(p).IsPair()
 		aTemp = []
 		aTemp + p
-		SetV(aTemp)
+		StzSetV(aTemp)
 
 	but isList(p) and Q(p).IsHashList()
-		SetV(p)
+		StzSetV(p)
 
 	but isList(p) and Q(p).IsListOfStrings()
-		return ReadManyV(p)
+		return StzReadManyV(p)
 
 	else
-		return ReadV(p)
+		return StzReadV(p)
 	ok
 
-	func @V(p)
-		return V(p)
+	func V(p)
+		return StzV(p)
 
-func VrVl(p)
-	val = v(p)
+	func @V(p)
+		return StzV(p)
+
+func StzVrVl(p)
+	val = StzV(p)
 	if isNull(val)
 		val = []
 		nLen = len(p)
@@ -127,20 +163,26 @@ func VrVl(p)
 			val + ""
 		next
 	ok
-		
+
 	aResult = Association([ p, val ])
 	return aResult
 
+	func VrVl(p)
+		return StzVrVl(p)
+
+	func StzVarVal(p)
+		return StzVrVl(p)
+
 	func VarVal(p)
-		return VrVl(p)
+		return StzVrVl(p)
 
 	func @VrVl(p)
-		return VrVl(p)
+		return StzVrVl(p)
 
 	func @VarVal(p)
-		return VrVl(p)
+		return StzVrVl(p)
 
-func vxt(cVarName)
+func StzVxt(cVarName)
 	if NOT isString(cVarName)
 		StzRaise("Incorrect param type! cVarName must be a string.")
 	ok
@@ -151,13 +193,16 @@ func vxt(cVarName)
 		StzRaise("Variable name does not exist!")
 	ok
 
-	aResult = [ cVarName, v(cVarName) ]
+	aResult = [ cVarName, StzV(cVarName) ]
 	return aResult
-	
-	func @vxt(cVarName)
-		return vxt(cVarName)
 
-func SetV(paVarNamesAndTheirValues)
+	func vxt(cVarName)
+		return StzVxt(cVarName)
+
+	func @vxt(cVarName)
+		return StzVxt(cVarName)
+
+func StzSetV(paVarNamesAndTheirValues)
 	if isList(paVarNamesAndTheirValues) and
 	   len(paVarNamesAndTheirValues) = 2 and
 	   isString(paVarNamesAndTheirValues[1])
@@ -197,10 +242,13 @@ func SetV(paVarNamesAndTheirValues)
 
 	_var = _aVars[len(_aVars)]
 
-	func @SetV(paVarNamesAndTheirValues)
-		SetV(paVarNamesAndTheirValues)
+	func SetV(paVarNamesAndTheirValues)
+		StzSetV(paVarNamesAndTheirValues)
 
-func ReadV(p)
+	func @SetV(paVarNamesAndTheirValues)
+		StzSetV(paVarNamesAndTheirValues)
+
+func StzReadV(p)
 	oHash = new stzHashList(_aVars)
 	n = oHash.FindKey(p)
 	if n = 0
@@ -209,23 +257,29 @@ func ReadV(p)
 		return _aVars[n][2]
 	ok
 
-	func @ReadV(p)
-		return ReadV(p)
+	func ReadV(p)
+		return StzReadV(p)
 
-func ReadManyV(paVars)
+	func @ReadV(p)
+		return StzReadV(p)
+
+func StzReadManyV(paVars)
 	nLen = len(paVars)
 
 	aResult = []
 	for i = 1 to nLen
-		aResult + ReadV(paVars[i])
+		aResult + StzReadV(paVars[i])
 	next
 
 	return aResult
 
-	func @ReadManyV(paVars)
-		return ReadManyV(paVars)
+	func ReadManyV(paVars)
+		return StzReadManyV(paVars)
 
-func DataVars()
+	func @ReadManyV(paVars)
+		return StzReadManyV(paVars)
+
+func StzDataVars()
 	nLen = len(_aVars)
 	aResult = []
 	for i = 1 to nLen
@@ -233,16 +287,22 @@ func DataVars()
 	next
 	return aResult
 
-	func @DataVars()
-		return DataVars()
+	func DataVars()
+		return StzDataVars()
 
-func DataVarsXT()
+	func @DataVars()
+		return StzDataVars()
+
+func StzDataVarsXT()
 	return _aVars
 
-	func @DataVarsXT()
-		return DataVarsXT()
+	func DataVarsXT()
+		return StzDataVarsXT()
 
-func Vr(pacVars)
+	func @DataVarsXT()
+		return StzDataVarsXT()
+
+func StzVr(pacVars)
 
 	if isString(pacVars)
 		aTemp = []
@@ -273,36 +333,48 @@ func Vr(pacVars)
 	# Set _var to the last one for consistency
 	_var = [ pacVars[nLen], null ]
 
-	func @Vr(pacVars)
-		return Vr(pacVars)
+	func Vr(pacVars)
+		return StzVr(pacVars)
 
-func OldVar()
+	func @Vr(pacVars)
+		return StzVr(pacVars)
+
+func StzOldVar()
 	return _oldVar
 
-	func @OldVar()
-		return OldVar()
+	func OldVar()
+		return StzOldVar()
 
-func OldVarname()
-	if len(oldVar()) = 0
+	func @OldVar()
+		return StzOldVar()
+
+func StzOldVarname()
+	if len(StzOldVar()) = 0
 		return []
 	else
-		return oldvar()[1]
+		return StzOldVar()[1]
 	ok
+
+	func OldVarname()
+		return StzOldVarname()
 
 	func @OldVarname()
-		return OldVarname()
+		return StzOldVarname()
 
-func OldVal()
-	if len(oldvar()) = 0
+func StzOldVal()
+	if len(StzOldVar()) = 0
 		return ""
 	else
-		return oldvar()[2]
+		return StzOldVar()[2]
 	ok
 
-	func @OldVal()
-		return OldVal()
+	func OldVal()
+		return StzOldVal()
 
-func Vl(paVals)
+	func @OldVal()
+		return StzOldVal()
+
+func StzVl(paVals)
 	# Checking the paVals param
 	if len(_aTempVars) = 0 or (isList(paVals) and len(paVals) = 0)
 		return
@@ -340,50 +412,65 @@ func Vl(paVals)
 
 	# Memorizing the last variable/value processed
 	_var = [ _aTempVars[nLen][1], paVals[nLen] ]
-	if oldval() = ""
+	if StzOldVal() = ""
 		_oldVar = _var
 	ok
 
+	func Vl(paVals)
+		StzVl(paVals)
+
 	func @Vl(paVals)
-		Vl(paVals)
+		StzVl(paVals)
 
 # Clear all named variables
-func ClearVars()
+func StzClearVars()
 	_aTempVars = []
 	_aVars = []
 	_var = []
 	_oldVar = []
 	_bVarReset = 0
 
+	func ClearVars()
+		StzClearVars()
+
 	func @ClearVars()
-		ClearVars()
+		StzClearVars()
+
+	func StzResetVars()
+		StzClearVars()
 
 	func ResetVars()
-		ClearVars()
+		StzClearVars()
 
 	func @ResetVars()
-		ClearVars()
+		StzClearVars()
 
 # Check if a variable exists
-func VarExists(cVarName)
+func StzVarExists(cVarName)
 	if NOT isString(cVarName)
 		return FALSE
 	ok
-	
+
 	oHash = new stzHashList(_aVars)
 	return (oHash.FindKey(cVarName) > 0)
 
+	func VarExists(cVarName)
+		return StzVarExists(cVarName)
+
 	func @VarExists(cVarName)
-		return VarExists(cVarName)
+		return StzVarExists(cVarName)
+
+	func StzHasVar(cVarName)
+		return StzVarExists(cVarName)
 
 	func HasVar(cVarName)
-		return VarExists(cVarName)
+		return StzVarExists(cVarName)
 
 	func @HasVar(cVarName)
-		return VarExists(cVarName)
+		return StzVarExists(cVarName)
 
 # Remove a variable
-func RemoveVar(cVarName)
+func StzRemoveVar(cVarName)
 	if NOT isString(cVarName)
 		StzRaise("Incorrect param type! cVarName must be a string.")
 	ok
@@ -394,24 +481,36 @@ func RemoveVar(cVarName)
 		del(_aVars, n)
 	ok
 
+	func RemoveVar(cVarName)
+		StzRemoveVar(cVarName)
+
 	func @RemoveVar(cVarName)
-		RemoveVar(cVarName)
+		StzRemoveVar(cVarName)
+
+	func StzDeleteVar(cVarName)
+		StzRemoveVar(cVarName)
 
 	func DeleteVar(cVarName)
-		RemoveVar(cVarName)
+		StzRemoveVar(cVarName)
 
 	func @DeleteVar(cVarName)
-		RemoveVar(cVarName)
+		StzRemoveVar(cVarName)
 
 # Get number of variables
-func NumberOfVars()
+func StzNumberOfVars()
 	return len(_aVars)
 
+	func NumberOfVars()
+		return StzNumberOfVars()
+
 	func @NumberOfVars()
-		return NumberOfVars()
+		return StzNumberOfVars()
+
+	func StzVarsCount()
+		return StzNumberOfVars()
 
 	func VarsCount()
-		return NumberOfVars()
+		return StzNumberOfVars()
 
 	func @VarsCount()
-		return NumberOfVars()
+		return StzNumberOfVars()

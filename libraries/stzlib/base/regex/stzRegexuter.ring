@@ -1,11 +1,17 @@
 # File: stzregexuter.ring
 # Description: Reactive Regex Computer System for Softanza Library
 
-func rxuter()
+func StzRxuter()
 	return new stzRegexuter
 
+	func rxuter()
+		return StzRxuter()
+
+	func StzRxu()
+		return StzRxuter()
+
 	func rxu()
-		return new stzRegexuter
+		return StzRxuter()
 
 class stzRegexuter
 

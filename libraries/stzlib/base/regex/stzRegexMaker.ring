@@ -41,7 +41,7 @@ func StzRegexLookaroundMakerQ()
 	func arxm()
 		return new stzRegexLookaroundMaker
 
-func rxp(pcPattName)
+func StzRxp(pcPattName)
 	cResult = RegexPatterns()[pcPattName]
 	if cResult = ""
 		StzRaise("The pattern name you provided does not exist in stzRegexData file.")
@@ -49,20 +49,35 @@ func rxp(pcPattName)
 
 	return cResult
 
+	func rxp(pcPattName)
+		return StzRxp(pcPattName)
+
+	func StzPat(pcPattName)
+		return StzRxp(pcPattName)
+
 	func pat(pcPattName)
-		return rxp(pcPattName)
+		return StzRxp(pcPattName)
 
 	func patt(pcPattName)
-		return rxp(pcPattName)
+		return StzRxp(pcPattName)
+
+	func StzPattern(pcPattName)
+		return StzRxp(pcPattName)
 
 	func Pattern(pcPattName)
-		return rxp(pcPattName)
+		return StzRxp(pcPattName)
+
+	func StzPatternByName(pcPattName)
+		return StzRxp(pcPattName)
 
 	func PatternByName(pcPattName)
-		return rxp(pcPattName)
+		return StzRxp(pcPattName)
+
+	func StzRegexPattern(pcPattName)
+		return StzRxp(pcPattName)
 
 	func RegexPattern(pcPattName)
-		return rxp(pcPattName)
+		return StzRxp(pcPattName)
 
 
 func 1Time()
