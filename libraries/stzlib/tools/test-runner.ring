@@ -13,9 +13,9 @@ load "stdlibcore.ring"
 # Configuration
 cBaseDir = currentdir() + "/../"
 aLayers = [
-    [:name = "core",  :path = cBaseDir + "core/test/",  :loader = "../core/stzcore.ring"],
-    [:name = "base",  :path = cBaseDir + "base/test/",  :loader = "../base/stzbase.ring"],
-    [:name = "max",   :path = cBaseDir + "max/test/",   :loader = "../max/stzmax.ring"]
+    [:name = "core",  :path = cBaseDir + "core/test/",  :loader = "../core/stzCore.ring"],
+    [:name = "base",  :path = cBaseDir + "base/test/",  :loader = "../base/stzBase.ring"],
+    [:name = "max",   :path = cBaseDir + "max/test/",   :loader = "../max/stzMax.ring"]
 ]
 
 # Parse command line

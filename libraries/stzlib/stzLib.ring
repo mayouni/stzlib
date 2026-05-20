@@ -12,12 +12,12 @@ if NOT isGlobal(:$STZ_LAYER)
 ok
 
 if $STZ_LAYER = :core
-    load "core/stzcore.ring"
+    load "core/stzCore.ring"
 
 but $STZ_LAYER = :max
-    load "max/stzmax.ring"
+    load "max/stzMax.ring"
 
 else
-    load "base/stzbase.ring"
+    load "base/stzBase.ring"
 
 ok
