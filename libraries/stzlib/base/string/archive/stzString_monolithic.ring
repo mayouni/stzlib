@@ -93872,7 +93872,7 @@ class stzString from stzObject
 	def IsDayNameIn(pcLanguageName)
 		if This.IsEmpty() { return 0 }
 
-		return This.LowercaseQ().IsOnOfThese(NamesOfDaysIn(pcLanguageName))
+		return This.LowercaseQ().IsOnOfThese(StzNamesOfDaysIn(pcLanguageName))
 
 	def IsNativeDayNameInLocale(pLocale) # Locale-specific
 		if This.IsEmpty() { return 0 }

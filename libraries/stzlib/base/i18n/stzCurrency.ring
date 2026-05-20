@@ -137,7 +137,7 @@ class stzCurrency
 		StzRaise(stzCurrencyError(:UnknowanCountry))
 
 	def CountryLocaleAbbreviation()
-		return LocaleAbbreviationsXT()[ This.Country() ][1][1][2]
+		return StzLocaleAbbreviationsXT()[ This.Country() ][1][1][2]
 
 
 	PRIVATE

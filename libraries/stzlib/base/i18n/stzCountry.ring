@@ -472,7 +472,7 @@ class stzCountry
 			return This.LongAbbreviation()
 
 	def LocaleAbbreviation()
-		return LocaleAbbreviationsXT()[ This.Country() ][1][1][2]
+		return StzLocaleAbbreviationsXT()[ This.Country() ][1][1][2]
 
 	def PhoneCode()
 		return @aCountryInfo[5]

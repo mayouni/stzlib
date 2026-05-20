@@ -503,7 +503,7 @@ class stzLanguage
 		next
 
 	def DefaultCountryLocaleAbbreviation()
-		return LocaleAbbreviationsXT()[ This.DefaultCountry() ][1][1][2]
+		return StzLocaleAbbreviationsXT()[ This.DefaultCountry() ][1][1][2]
 
 		def CountryLocaleAbbreviation()
 			return This.DefaultCountryLocaleAbbreviation()
