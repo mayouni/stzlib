@@ -2692,7 +2692,7 @@ func @substr(str, p1, p2) #TODO // Move to stzExtCode
 		return substr(str, p1, p2)
 	ok
 
-func substrXT(paParams)
+func StzSubstrXT(paParams)
 	if NOt isList(paParams)
 		StzRaise("Incorrect param type! paParams must be a list.")
 	ok
@@ -2730,8 +2730,11 @@ func substrXT(paParams)
 		ok
 	ok
 
+	func substrXT(paParams)
+		return StzSubstrXT(paParams)
+
 	func @substrXT(paParams)
-		return substrXT(paParams)
+		return StzSubstrXT(paParams)
 
 func StzStringSection(str, n1, n2)
 	if CheckParams()

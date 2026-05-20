@@ -117,8 +117,11 @@ func CompleteParallelRequest(nIndex, cBody, nCode, cError)
         uv_stop(parallel_loop)
     ok
 
-func cleanup_handle(tcp_handle)
+func StzCleanupHandle(tcp_handle)
     uv_close(tcp_handle, NULL)
+
+    func cleanup_handle(tcp_handle)
+        StzCleanupHandle(tcp_handle)
 
 func StzParseUrl(cUrl)
     url = cUrl

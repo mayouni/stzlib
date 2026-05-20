@@ -5,7 +5,7 @@ load "libuv.ring"
 # HELPER FUNCTIONS
 # =============================================================================
 
-func hex2dec(cHex)
+func StzHex2Dec(cHex)
     result = 0
     for i = 1 to StzLen(cHex)
         char = cHex[i]
@@ -22,27 +22,36 @@ func hex2dec(cHex)
     next
     return result
 
-func str2hex(cStr)
+    func hex2dec(cHex)
+        return StzHex2Dec(cHex)
+
+func StzStr2Hex(cStr)
     result = ""
     for char in cStr
-        hex = dec2hex(ascii(char))
+        hex = StzDec2Hex(ascii(char))
         if StzLen(hex) = 1 hex = "0" + hex ok
         result += hex
     next
     return result
 
-func dec2hex(nNum)
+    func str2hex(cStr)
+        return StzStr2Hex(cStr)
+
+func StzDec2Hex(nNum)
     if nNum = 0 return "0" ok
-    
+
     hex_chars = "0123456789ABCDEF"
     result = ""
-    
+
     while nNum > 0
         result = hex_chars[nNum % 16 + 1] + result
         nNum = floor(nNum / 16)
     end
-    
+
     return result
+
+    func dec2hex(nNum)
+        return StzDec2Hex(nNum)
 
 # =============================================================================
 # BASE NETWORK CLASS - Foundation for all network operations

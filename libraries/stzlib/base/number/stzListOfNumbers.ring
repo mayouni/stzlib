@@ -252,8 +252,11 @@ func Substruct(panNumbers)
 	func @SubstructionOf(panNumbers)
 		return Substruct(panNumbers)
 
-func mul(n1, n2) # Used as ExternalCode
+func StzMul(n1, n2) # Used as ExternalCode
 	return n1 * n2
+
+	func mul(n1, n2)
+		return StzMul(n1, n2)
 
 func Product(panNumbers)
 	if CheckingParams()
