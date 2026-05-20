@@ -139,32 +139,33 @@ func IsStzDiagram(pObj)
 
 # STYLE RESOLUTION
 
-func ResolveEdgeStyle(pStyle)
+func StzResolveEdgeStyle(pStyle)
 	cStyleKey = StzLower("" + pStyle)
-	
+
 	if HasKey($acEdgeStyles, cStyleKey)
 		return $acEdgeStyles[cStyleKey]
 	ok
-	
+
 	if StzFind(["solid", "dashed", "dotted", "bold"], cStyleKey)
 		return cStyleKey
 	ok
-	
+
 	return $cDefaultEdgeStyle
 
-func ResolveNodeType(pcType)
+	func ResolveEdgeStyle(pStyle)
+		return StzResolveEdgeStyle(pStyle)
+
+func StzResolveNodeType(pcType)
 	cTypeKey = StzLower("" + pcType)
 
 	if StzFind($acDotShapes, cTypeKey) > 0
 		return cTypeKey
 	ok
-	
-	# Semantic types
+
 	if StzFind($acNodeTypes, cTypeKey)
 		return cTypeKey
 	ok
-	
-	# Fallback mapping #TODO Shoud it be gloabal?
+
 	aVisualMap = [
 		:box = "process",
 		:diamond = "decision",
@@ -173,12 +174,11 @@ func ResolveNodeType(pcType)
 		:cylinder = "storage",
 		:doublecircle = "endpoint"
 	]
-	
+
 	if HasKey(aVisualMap, cTypeKey)
 		return aVisualMap[cTypeKey]
 	ok
 
-	# Map unsupported to supported shapes #TODO Shoud it be gloable?
 	aShapeMap = [
 		:square = "box",
 		:rect = "box",
@@ -189,40 +189,60 @@ func ResolveNodeType(pcType)
 		:note = "box",
 		:ellpise = "ellipse"
 	]
-	
+
 	if HasKey(aShapeMap, cTypeKey)
 		return aShapeMap[cTypeKey]
 	ok
-	
+
 	return $cDefaultNodeType
 
-# NODE TYPE FUNCTIONS
+	func ResolveNodeType(pcType)
+		return StzResolveNodeType(pcType)
 
-func DefaultNodeType()
+func StzDefaultNodeType()
 	return $cDefaultNodeType
 
-func NodeTypes()
+	func DefaultNodeType()
+		return StzDefaultNodeType()
+
+func StzNodeTypes()
 	return $acNodeTypes
 
-func IsValidNodeType(pcType)
+	func NodeTypes()
+		return StzNodeTypes()
+
+func StzIsValidNodeType(pcType)
 	return StzFind($acNodeTypes, pcType) > 0
 
-# EDGE STYLE FUNCTIONS
+	func IsValidNodeType(pcType)
+		return StzIsValidNodeType(pcType)
 
-func IsValidEdgeStyle(pcStyle)
+func StzIsValidEdgeStyle(pcStyle)
 	return HasKey($acEdgeStyles, pcStyle)
 
-func EdgeStyles()
+	func IsValidEdgeStyle(pcStyle)
+		return StzIsValidEdgeStyle(pcStyle)
+
+func StzEdgeStyles()
 	return $acEdgeStyles
 
-func DefaultEdgeStyle()
+	func EdgeStyles()
+		return StzEdgeStyles()
+
+func StzDefaultEdgeStyle()
 	return $cDefaultEdgeStyle
 
-func StyleForEdgeType(pcType)
+	func DefaultEdgeStyle()
+		return StzDefaultEdgeStyle()
+
+func StzStyleForEdgeType(pcType)
 	if HasKey($acEdgeStyles, pcType)
 		return $acEdgeStyles[pcType]
 	ok
 	return $cDefaultEdgeStyle
+
+	func StyleForEdgeType(pcType)
+		return StzStyleForEdgeType(pcType)
 
 #--------------------------------------------------#
 #  stzDiagram Class - Main Diagram Implementation  #
@@ -2601,7 +2621,7 @@ class stzDiagramToDot
 		cEdgeStyle = "solid"
 
 		if @oDiagram.@cEdgeStyle != "" and @oDiagram.@cEdgeStyle != NULL
-			cEdgeStyle = ResolveEdgeStyle(@oDiagram.@cEdgeStyle)
+			cEdgeStyle = StzResolveEdgeStyle(@oDiagram.@cEdgeStyle)
 		ok
 
 		return cEdgeStyle

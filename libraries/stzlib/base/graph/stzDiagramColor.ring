@@ -266,14 +266,17 @@ $cDefaultNodeStrokeColor = "gray"  # Can be "" or 'invisible' to hide
 $cDefaultClusterColor = "blue--"
 
 
-func ColorThemes()
+func StzColorThemes()
 	return $acColorThemes
 
+	func ColorThemes()
+		return StzColorThemes()
+
 # Generate color intensities: color--, color-, color, color+, color++
-func GenerateColorIntensities(cColorName, cHexValue)
+func StzGenerateColorIntensities(cColorName, cHexValue)
 	aIntensities = []
-	
-	aRGB = HexToRGB(cHexValue)
+
+	aRGB = StzHexToRGB(cHexValue)
 	nR = aRGB[1]
 	nG = aRGB[2]
 	nB = aRGB[3]
@@ -361,8 +364,10 @@ func GenerateColorIntensities(cColorName, cHexValue)
 	
 	return aIntensities
 
-# Build complete color palette with all intensities
-func BuildColorPalette()
+	func GenerateColorIntensities(cColorName, cHexValue)
+		return StzGenerateColorIntensities(cColorName, cHexValue)
+
+func StzBuildColorPalette()
 	aPalette = []
 	acKeys = keys($acColors)
 	nLen = len(acKeys)
@@ -379,7 +384,7 @@ func BuildColorPalette()
 	for i = 1 to nLen
 		cHex = $acColors[acKeys[i]]
 		cColorName = "" + acKeys[i]
-		aIntensities = GenerateColorIntensities(cColorName, cHex)
+		aIntensities = StzGenerateColorIntensities(cColorName, cHex)
 		acKeysInt = keys(aIntensities)
 		nLenInt = len(acKeysInt)
 
@@ -387,20 +392,24 @@ func BuildColorPalette()
 			aPalette[acKeysInt[j]] = aIntensities[acKeysInt[j]]
 		end
 	end
-	
+
 	return aPalette
 
+	func BuildColorPalette()
+		return StzBuildColorPalette()
 
-# Global color resolution function
-func ResolveColor(pColor)
+func StzResolveColor(pColor)
 	if len($acFullColorPalette) = 0
-		$acFullColorPalette = BuildColorPalette()
+		$acFullColorPalette = StzBuildColorPalette()
 	ok
-	
-      oResolver = new stzColorResolver()
-      return oResolver.ResolveWithPalette(pColor, $acFullColorPalette)
 
-func AttenuateColor(cColor)
+	oResolver = new stzColorResolver()
+	return oResolver.ResolveWithPalette(pColor, $acFullColorPalette)
+
+	func ResolveColor(pColor)
+		return StzResolveColor(pColor)
+
+func StzAttenuateColor(cColor)
     # Remove all intensity modifiers
     cBase = replace(cColor, "++", "")
     cBase = replace(cBase, "+", "")
@@ -410,68 +419,83 @@ func AttenuateColor(cColor)
     # Apply maximum attenuation
     return cBase + "--"
 
-func IntensifyColor(cColor)
-    # Remove all intensity modifiers
+	func AttenuateColor(cColor)
+		return StzAttenuateColor(cColor)
+
+func StzIntensifyColor(cColor)
     cBase = replace(cColor, "++", "")
     cBase = replace(cBase, "+", "")
     cBase = replace(cBase, "--", "")
     cBase = replace(cBase, "-", "")
-    
-    # Apply maximum intensification
     return cBase + "++"
 
-# Helper: Hex to RGB
-func HexToRGB(cHex)
-	# Remove # if present
+	func IntensifyColor(cColor)
+		return StzIntensifyColor(cColor)
+
+func StzHexToRGB(cHex)
 	if StzFind(cHex, "#")
 		cHex = StzMid(cHex, 2, StzLen(cHex) - 1)
 	ok
 
 	if StzLen(cHex) != 6
-		return [128, 128, 128] # Gray fallback
+		return [128, 128, 128]
 	ok
 
 	cR = StzMid(cHex, 1, 2)
 	cG = StzMid(cHex, 3, 2)
 	cB = StzMid(cHex, 5, 2)
-	
+
 	nR = HexToDec(cR)
 	nG = HexToDec(cG)
 	nB = HexToDec(cB)
-	
+
 	return [nR, nG, nB]
 
-# Helper: RGB to Hex
-func RGBToHex(nR, nG, nB)
-	# Clamp values to 0-255
+	func HexToRGB(cHex)
+		return StzHexToRGB(cHex)
+
+func StzRGBToHex(nR, nG, nB)
 	nR = max([ 0, min([ 255, nR ]) ])
 	nG = max([ 0, min([ 255, nG ]) ])
 	nB = max([ 0, min([ 255, nB ]) ])
-	
+
 	cR = DecToHex(nR)
 	cG = DecToHex(nG)
 	cB = DecToHex(nB)
-	
-	# Pad to 2 digits
+
 	if len(cR) = 1 cR = "0" + cR ok
 	if len(cG) = 1 cG = "0" + cG ok
 	if len(cB) = 1 cB = "0" + cB ok
-	
+
 	return "#" + StzUpper(cR) + StzUpper(cG) + StzUpper(cB)
 
+	func RGBToHex(nR, nG, nB)
+		return StzRGBToHex(nR, nG, nB)
 
-func Palette()
+func StzPalette()
 	return $aPalette
 
-func FontColors()
+	func Palette()
+		return StzPalette()
+
+func StzFontColors()
 	return $aFontColors
 
-func DefaultNodeColor()
-	return ResolveColor($cDefaultNodeColor)
+	func FontColors()
+		return StzFontColors()
 
-func ColorForNodeType(pcType)
+func StzDefaultNodeColor()
+	return StzResolveColor($cDefaultNodeColor)
+
+	func DefaultNodeColor()
+		return StzDefaultNodeColor()
+
+func StzColorForNodeType(pcType)
 	if HasKey($acColorsByNodeType, pcType)
-		return ResolveColor($acColorsByNodeType[pcType])
+		return StzResolveColor($acColorsByNodeType[pcType])
 	ok
-	return ResolveColor($cDefaultNodeColor)
+	return StzResolveColor($cDefaultNodeColor)
+
+	func ColorForNodeType(pcType)
+		return StzColorForNodeType(pcType)
 

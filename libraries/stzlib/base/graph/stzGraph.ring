@@ -16,17 +16,26 @@ $acGraphDefaultValidators = ["dag", "reachability", "completeness"]
 func StzGraphQ(cGraphName)
 	return new stzGraph(cGraphName)
 
-func GraphTypes()
-	return @acGraphTypes 
+func StzGraphTypes()
+	return @acGraphTypes
 
-func DefaultGraphType()
+	func GraphTypes()
+		return StzGraphTypes()
+
+func StzDefaultGraphType()
 	return @cDefaultGraphType
 
-func GraphDefaultValidators()
+	func DefaultGraphType()
+		return StzDefaultGraphType()
+
+func StzGraphDefaultValidators()
 	return $acGraphDefaultValidators
 
+	func GraphDefaultValidators()
+		return StzGraphDefaultValidators()
+
 	func DefaultGraphValidators()
-		return $acGraphDefaultValidators
+		return StzGraphDefaultValidators()
 
 func IsStzGraph(pObj)
 	if isObject(pObj) and classname(pObj) = "stzgraph"

@@ -24,10 +24,13 @@ $aGraphRules = [
 #  FUNCTIONS  #
 #-------------#
 
-func GraphRules()
+func StzGraphRules()
 	return $aGraphRules
 
-func RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
+	func GraphRules()
+		return StzGraphRules()
+
+func StzRegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 	if CheckParams()
 		if isList(pcRuleGroup) and IsInGroupNamedParamList(pcRuleGroup)
 			pcRuleGroup = pcRuleGroup[2]
@@ -37,7 +40,7 @@ func RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 	if NOT HasKey($aGraphRules, pcRuleGroup)
 		$aGraphRules[pcRuleGroup] = []
 	ok
-	
+
 	aRule = [
 		:name = UPPER(pcRuleName),
 		:type = paRuleDefinition[:type],
@@ -46,13 +49,16 @@ func RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 		:message = paRuleDefinition[:message],
 		:severity = paRuleDefinition[:severity]
 	]
-	
+
 	$aGraphRules[pcRuleGroup] + aRule
 
-	func RegisterRuleInGroup(pcRuleGroup, pcRuleName, paRuleDefinition)
-		RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
+	func RegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
+		StzRegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
 
-func GetRule(pcRuleGroup, pcRuleName)
+	func RegisterRuleInGroup(pcRuleGroup, pcRuleName, paRuleDefinition)
+		StzRegisterRule(pcRuleGroup, pcRuleName, paRuleDefinition)
+
+func StzGetRule(pcRuleGroup, pcRuleName)
 	pcRuleName = UPPER(pcRuleName)
 	if HasKey($aGraphRules, pcRuleGroup)
 		aRules = $aGraphRules[pcRuleGroup]
@@ -64,6 +70,9 @@ func GetRule(pcRuleGroup, pcRuleName)
 		next
 	ok
 	stzraise("Inexistant rule!")
+
+	func GetRule(pcRuleGroup, pcRuleName)
+		return StzGetRule(pcRuleGroup, pcRuleName)
 
 #-------------------------------------------------#
 #  BUILT-IN RULE FUNCTIONS : Derivation  #
