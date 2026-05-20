@@ -114,9 +114,8 @@ pub fn str_index_of_from(handle: StzStringHandle, needle: [*c]const u8, needle_l
 
 pub fn str_byte_to_cp(handle: StzStringHandle, byte_pos: usize) callconv(.c) i64 {
     if (handle) |s| {
-        const internal = unicode.stz_unicode_byte_to_cp(s.data.items.ptr, s.data.items.len, @intCast(byte_pos));
-        if (internal < 0) return -1;
-        return toExternal(@intCast(internal));
+        const result = unicode.stz_unicode_byte_to_cp(s.data.items.ptr, s.data.items.len, @intCast(byte_pos));
+        return result;
     }
     return -1;
 }
@@ -230,7 +229,8 @@ pub fn stz_find_result_count(result: StzFindResultHandle) callconv(.c) c_int {
 
 pub fn stz_find_result_get(result: StzFindResultHandle, index: c_int) callconv(.c) i64 {
     if (result) |r| {
-        const i: usize = @intCast(@max(index, 0));
+        if (index < 1) return -1;
+        const i: usize = @intCast(index - 1);
         if (i < r.positions.items.len) return r.positions.items[i];
     }
     return -1;
@@ -644,7 +644,7 @@ test "index_of_from" {
 test "byte_to_cp" {
     const s = str_from("abc", 3);
     defer str_free(s);
-    try testing.expectEqual(@as(i64, 1), str_byte_to_cp(s, 0));
+    try testing.expectEqual(@as(i64, 1), str_byte_to_cp(s, 1));
 }
 
 test "count_of" {
@@ -667,8 +667,8 @@ test "find_all" {
     defer stz_find_result_free(fr);
     try testing.expect(fr != null);
     try testing.expectEqual(@as(c_int, 2), stz_find_result_count(fr));
-    try testing.expectEqual(@as(i64, 1), stz_find_result_get(fr, 0));
-    try testing.expectEqual(@as(i64, 4), stz_find_result_get(fr, 1));
+    try testing.expectEqual(@as(i64, 1), stz_find_result_get(fr, 1));
+    try testing.expectEqual(@as(i64, 4), stz_find_result_get(fr, 2));
 }
 
 test "last_index_of" {
@@ -752,8 +752,8 @@ test "find_all_char" {
     defer stz_find_result_free(fr);
     try testing.expect(fr != null);
     try testing.expectEqual(@as(c_int, 2), stz_find_result_count(fr));
-    try testing.expectEqual(@as(i64, 1), stz_find_result_get(fr, 0));
-    try testing.expectEqual(@as(i64, 4), stz_find_result_get(fr, 1));
+    try testing.expectEqual(@as(i64, 1), stz_find_result_get(fr, 1));
+    try testing.expectEqual(@as(i64, 4), stz_find_result_get(fr, 2));
 }
 
 test "starts_with_any" {

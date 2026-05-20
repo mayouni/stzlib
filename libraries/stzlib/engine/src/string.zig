@@ -702,9 +702,9 @@ test "string find_all" {
     const s = str_from("ring is ring and ring", 21);
     const r = str_find_all(s, "ring", 4);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0));
-    try std.testing.expectEqual(@as(i64, 9), stz_find_result_get(r, 1));
-    try std.testing.expectEqual(@as(i64, 18), stz_find_result_get(r, 2));
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 9), stz_find_result_get(r, 2));
+    try std.testing.expectEqual(@as(i64, 18), stz_find_result_get(r, 3));
     stz_find_result_free(r);
 
     // Not found
@@ -718,9 +718,9 @@ test "string find_all_ci" {
     const s = str_from("Ring RING ring", 14);
     const r = str_find_all_cs(s, "ring", 4, 0);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0));
-    try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r, 1));
-    try std.testing.expectEqual(@as(i64, 11), stz_find_result_get(r, 2));
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r, 2));
+    try std.testing.expectEqual(@as(i64, 11), stz_find_result_get(r, 3));
     stz_find_result_free(r);
     str_free(s);
 }
@@ -771,13 +771,13 @@ test "string split_count_ci" {
 
 test "string split_get_ci" {
     const s = str_from("oneABCtwoAbCthree", 17);
-    const p0 = str_split_get_cs(s, "abc", 3, 0, 0);
+    const p0 = str_split_get_cs(s, "abc", 3, 1, 0);
     try std.testing.expect(mem.eql(u8, str_data(p0)[0..str_size(p0)], "one"));
     str_free(p0);
-    const p1 = str_split_get_cs(s, "abc", 3, 1, 0);
+    const p1 = str_split_get_cs(s, "abc", 3, 2, 0);
     try std.testing.expect(mem.eql(u8, str_data(p1)[0..str_size(p1)], "two"));
     str_free(p1);
-    const p2 = str_split_get_cs(s, "abc", 3, 2, 0);
+    const p2 = str_split_get_cs(s, "abc", 3, 3, 0);
     try std.testing.expect(mem.eql(u8, str_data(p2)[0..str_size(p2)], "three"));
     str_free(p2);
     str_free(s);
@@ -801,10 +801,10 @@ test "string count_of" {
 test "string byte_to_cp" {
     // "caf\xC3\xA9" = c(0) a(1) f(2) e-acute(3,4 bytes -> cp 3)
     const s = str_from("caf\xC3\xA9", 5);
-    try std.testing.expectEqual(@as(i64, 1), str_byte_to_cp(s, 0));
-    try std.testing.expectEqual(@as(i64, 2), str_byte_to_cp(s, 1));
-    try std.testing.expectEqual(@as(i64, 3), str_byte_to_cp(s, 2));
-    try std.testing.expectEqual(@as(i64, 4), str_byte_to_cp(s, 3));
+    try std.testing.expectEqual(@as(i64, 1), str_byte_to_cp(s, 1));
+    try std.testing.expectEqual(@as(i64, 2), str_byte_to_cp(s, 2));
+    try std.testing.expectEqual(@as(i64, 3), str_byte_to_cp(s, 3));
+    try std.testing.expectEqual(@as(i64, 4), str_byte_to_cp(s, 4));
     str_free(s);
 }
 
@@ -839,13 +839,13 @@ test "string split_count" {
 
 test "string split_get" {
     const s = str_from("one::two::three", 15);
-    const p0 = str_split_get(s, "::", 2, 0);
+    const p0 = str_split_get(s, "::", 2, 1);
     try std.testing.expect(mem.eql(u8, str_data(p0)[0..str_size(p0)], "one"));
     str_free(p0);
-    const p1 = str_split_get(s, "::", 2, 1);
+    const p1 = str_split_get(s, "::", 2, 2);
     try std.testing.expect(mem.eql(u8, str_data(p1)[0..str_size(p1)], "two"));
     str_free(p1);
-    const p2 = str_split_get(s, "::", 2, 2);
+    const p2 = str_split_get(s, "::", 2, 3);
     try std.testing.expect(mem.eql(u8, str_data(p2)[0..str_size(p2)], "three"));
     str_free(p2);
     str_free(s);
@@ -864,16 +864,16 @@ test "find_all unicode codepoint positions" {
     // Find heart (E2 99 A5) -- should be at codepoint positions 2 and 7 (1-based)
     const r = str_find_all(s, "\xe2\x99\xa5", 3);
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 2), stz_find_result_get(r, 0));
-    try std.testing.expectEqual(@as(i64, 7), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 2), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 7), stz_find_result_get(r, 2));
     stz_find_result_free(r);
 
     // Find "bullet heart bullet" (9 bytes) -- at codepoint positions 1 and 6 (1-based)
     const sub = "\xe2\x80\xa2\xe2\x99\xa5\xe2\x80\xa2";
     const r2 = str_find_all(s, sub, 9);
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r2));
-    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r2, 0));
-    try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r2, 1));
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r2, 1));
+    try std.testing.expectEqual(@as(i64, 6), stz_find_result_get(r2, 2));
     stz_find_result_free(r2);
 
     str_free(s);
@@ -1341,9 +1341,9 @@ test "find_chars_of_type letters" {
     const s = str_from("a1b2c", 5);
     const r = str_find_chars_of_type(s, 0); // letters
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0)); // 'a'
-    try std.testing.expectEqual(@as(i64, 3), stz_find_result_get(r, 1)); // 'b'
-    try std.testing.expectEqual(@as(i64, 5), stz_find_result_get(r, 2)); // 'c'
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 1)); // 'a'
+    try std.testing.expectEqual(@as(i64, 3), stz_find_result_get(r, 2)); // 'b'
+    try std.testing.expectEqual(@as(i64, 5), stz_find_result_get(r, 3)); // 'c'
     stz_find_result_free(r);
     str_free(s);
 }
@@ -1352,8 +1352,8 @@ test "find_chars_of_type digits" {
     const s = str_from("a1b2c", 5);
     const r = str_find_chars_of_type(s, 1); // digits
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 2), stz_find_result_get(r, 0)); // '1'
-    try std.testing.expectEqual(@as(i64, 4), stz_find_result_get(r, 1)); // '2'
+    try std.testing.expectEqual(@as(i64, 2), stz_find_result_get(r, 1)); // '1'
+    try std.testing.expectEqual(@as(i64, 4), stz_find_result_get(r, 2)); // '2'
     stz_find_result_free(r);
     str_free(s);
 }
@@ -2173,8 +2173,8 @@ test "find_all_char" {
     const fr = str_find_all_char(s1, 'a');
     try std.testing.expect(fr != null);
     try std.testing.expectEqual(@as(c_int, 2), stz_find_result_count(fr));
-    try std.testing.expectEqual(@as(c_int, 1), stz_find_result_get(fr, 0));
-    try std.testing.expectEqual(@as(c_int, 4), stz_find_result_get(fr, 1));
+    try std.testing.expectEqual(@as(c_int, 1), stz_find_result_get(fr, 1));
+    try std.testing.expectEqual(@as(c_int, 4), stz_find_result_get(fr, 2));
     stz_find_result_free(fr);
     str_free(s1);
 }
@@ -4340,9 +4340,9 @@ test "find_all_ci unicode" {
     const s = str_from("abcABCabc", 9);
     const r = str_find_all_cs(s, "abc", 3, 0);
     try std.testing.expectEqual(@as(c_int, 3), stz_find_result_count(r));
-    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 0));
-    try std.testing.expectEqual(@as(i64, 4), stz_find_result_get(r, 1));
-    try std.testing.expectEqual(@as(i64, 7), stz_find_result_get(r, 2));
+    try std.testing.expectEqual(@as(i64, 1), stz_find_result_get(r, 1));
+    try std.testing.expectEqual(@as(i64, 4), stz_find_result_get(r, 2));
+    try std.testing.expectEqual(@as(i64, 7), stz_find_result_get(r, 3));
     stz_find_result_free(r);
     str_free(s);
 }

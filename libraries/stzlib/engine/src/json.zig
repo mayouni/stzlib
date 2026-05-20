@@ -113,7 +113,8 @@ pub fn stz_json_array_at_string(h: ?*Json, idx: c_int, buf: [*c]u8, buf_len: usi
     const j = h orelse return 0;
     const t = j.tree orelse return 0;
     if (t.value != .array) return 0;
-    const i: usize = @intCast(idx);
+    if (idx < 1) return 0;
+    const i: usize = @intCast(idx - 1);
     if (i >= t.value.array.items.len) return 0;
     const val = t.value.array.items[i];
     if (val != .string) return 0;
@@ -127,7 +128,8 @@ pub fn stz_json_array_at_int(h: ?*Json, idx: c_int) callconv(.c) i64 {
     const j = h orelse return 0;
     const t = j.tree orelse return 0;
     if (t.value != .array) return 0;
-    const i: usize = @intCast(idx);
+    if (idx < 1) return 0;
+    const i: usize = @intCast(idx - 1);
     if (i >= t.value.array.items.len) return 0;
     const val = t.value.array.items[i];
     return switch (val) {
@@ -217,7 +219,7 @@ test "parse array" {
     defer stz_json_free(j);
     try std.testing.expectEqual(@as(c_int, 1), stz_json_is_array(j));
     try std.testing.expectEqual(@as(c_int, 3), stz_json_size(j));
-    try std.testing.expectEqual(@as(i64, 20), stz_json_array_at_int(j, 1));
+    try std.testing.expectEqual(@as(i64, 20), stz_json_array_at_int(j, 2));
 }
 
 test "invalid json" {

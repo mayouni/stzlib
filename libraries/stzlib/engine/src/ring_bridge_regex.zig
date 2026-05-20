@@ -31,7 +31,8 @@ fn ring_Match(p: *anyopaque) callconv(.c) void {
     const h = getH(p, 1);
     const inp = gs(p, 2);
     const inp_len: usize = @intCast(gss(p, 2));
-    const start: usize = @intFromFloat(g(p, 3));
+    const raw: usize = @intFromFloat(g(p, 3));
+    const start: usize = if (raw > 0) raw - 1 else 0;
     rn(p, @floatFromInt(rx.stz_regex_match(h, inp, inp_len, start)));
 }
 fn ring_MatchAll(p: *anyopaque) callconv(.c) void {

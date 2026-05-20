@@ -30,10 +30,10 @@ func StzRegexMatchAll(cPattern, cInput)
     pHandle = StzEngineRegexNew(cPattern, 0)
     nCount = StzEngineRegexMatchAll(pHandle, cInput)
     aResult = []
-    for i = 0 to nCount - 1
+    for i = 1 to nCount
         cText = StzEngineRegexCaptureText(pHandle, i)
         nStart = StzEngineRegexCaptureStart(pHandle, i)
-        aResult + [ :text = cText, :position = nStart + 1 ]
+        aResult + [ :text = cText, :position = nStart ]
     next
     StzEngineRegexFree(pHandle)
     return aResult
