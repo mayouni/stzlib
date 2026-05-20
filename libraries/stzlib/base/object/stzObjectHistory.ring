@@ -2,89 +2,101 @@
 //_bInHistoryUpdate = 0
 
 
-func KeepingHistory()
+func StzKeepingHistory()
 	return _bKeepHisto
 
+	func KeepingHistory()
+		return StzKeepingHistory()
+
 	func KeepingHisto()
-		return _bKeepHisto
+		return StzKeepingHistory()
 
 	func KeepingObjectHistory()
-		return _bKeepHisto
+		return StzKeepingHistory()
 
 	func KeepingObjectHisto()
-		return_bKeepHisto
+		return StzKeepingHistory()
 
 	func KeepingObjHist()
-		return _bKeepHisto
+		return StzKeepingHistory()
 
 
-func KeepingHistoryXT()
+func StzKeepingHistoryXT()
 	return _aKeepHistoXT[1]
 
+	func KeepingHistoryXT()
+		return StzKeepingHistoryXT()
+
 	func KeepingHistoXT()
-		return _aKeepHistoXT[1]
+		return StzKeepingHistoryXT()
 
 	func KeepingObjectHistoryXT()
-		return _aKeepHistoXT[1]
+		return StzKeepingHistoryXT()
 
 	func KeepingObjectHistoXT()
-		return _aKeepHistoXT[1]
+		return StzKeepingHistoryXT()
 
 	func KeepingObjHistXT()
-		return _aKeepHistoXT[1]
+		return StzKeepingHistoryXT()
 
 #-- Enhanced History Control Functions
 
-func KeepHistoryON()
+func StzKeepHistoryON()
 	_bKeepHisto = 1
 
+	func KeepHistoryON()
+		StzKeepHistoryON()
+
 	func KeepHistory()
-		_bKeepHisto = 1
+		StzKeepHistoryON()
 
 	func KeepHistoON()
-		_bKeepHisto = 1
+		StzKeepHistoryON()
 
 	func KeepHisto()
-		_bKeepHisto = 1
+		StzKeepHistoryON()
 
-func KeepHistoryOFF()
+func StzKeepHistoryOFF()
 	_bKeepHisto = 0
 
+	func KeepHistoryOFF()
+		StzKeepHistoryOFF()
+
 	func DontKeepHistory()
-		_bKeepHisto = 0
+		StzKeepHistoryOFF()
 
 	func KeepHistoOFF()
-		_bKeepHisto = 0
+		StzKeepHistoryOFF()
 
 	func DontKeepHisto()
-		_bKeepHisto = 0
+		StzKeepHistoryOFF()
 
 #-- Enhanced TraceObjectHistory with Recursion Prevention
 
-func TraceObjectHistory(poStzObj)
+func StzTraceObjectHistory(poStzObj)
 	# CRITICAL: Prevent recursive calls
 	if _bInHistoryUpdate = 1
 		return
 	ok
 
 	# Check if history tracking is enabled
-	if KeepingHistory() = 0 and KeepingHistoryXT() = 0
+	if StzKeepingHistory() = 0 and StzKeepingHistoryXT() = 0
 		return
 	ok
 
 	_obj_ = poStzObj
-	
+
 	# Set flag to prevent recursion
 	_bInHistoryUpdate = 1
 
 	try
 		# Basic history tracking
-		if KeepingHistory() = 1
+		if StzKeepingHistory() = 1
 			_obj_.AddHistoricValueInternal(_obj_.Content())
 		ok
 
 		# Extended history tracking
-		if KeepingHistoryXT() = 1
+		if StzKeepingHistoryXT() = 1
 			_cDisp_ = _aKeepHistoXT[2]
 			_aHistoryData_ = []
 
@@ -162,51 +174,60 @@ func TraceObjectHistory(poStzObj)
 		ok
 
 	catch
-		# Handle any errors during history tracking
-		# Log error but don't break the main operation
-		# Could add logging here if needed
 	done
 
 	# Always reset the flag
 	_bInHistoryUpdate = 0
 
+	func TraceObjectHistory(pStzObj)
+		StzTraceObjectHistory(pStzObj)
+
 	func @TraceObjectHistory(pStzObj)
-		TraceObjectHistory(pStzObj)
+		StzTraceObjectHistory(pStzObj)
 
 	func TraceStzObjectHistory(pStzObj)
-		TraceObjectHistory(pStzObj)
+		StzTraceObjectHistory(pStzObj)
 
 	func @TraceStzObjectHistory(pStzObj)
-		TraceObjectHistory(pStzObj)
+		StzTraceObjectHistory(pStzObj)
 
 
 #-- Utility Functions for Debugging
 
-func IsInHistoryUpdate()
+func StzIsInHistoryUpdate()
 	return _bInHistoryUpdate
 
-func GetHistoryUpdateState()
+	func IsInHistoryUpdate()
+		return StzIsInHistoryUpdate()
+
+func StzGetHistoryUpdateState()
 	return _bInHistoryUpdate
 
-func ResetHistoryUpdateState()
+	func GetHistoryUpdateState()
+		return StzGetHistoryUpdateState()
+
+func StzResetHistoryUpdateState()
 	_bInHistoryUpdate = 0
+
+	func ResetHistoryUpdateState()
+		StzResetHistoryUpdateState()
 
 #-- Enhanced Error Handling
 
-func SafeTraceObjectHistory(poStzObj)
-	# Extra safety wrapper
+func StzSafeTraceObjectHistory(poStzObj)
 	if poStzObj = NULL
 		return
 	ok
-	
+
 	if _bInHistoryUpdate = 1
 		return
 	ok
-	
+
 	try
-		TraceObjectHistory(poStzObj)
+		StzTraceObjectHistory(poStzObj)
 	catch
-		# Log error and continue
-		# Could add proper error logging here
 		_bInHistoryUpdate = 0
 	done
+
+	func SafeTraceObjectHistory(poStzObj)
+		StzSafeTraceObjectHistory(poStzObj)

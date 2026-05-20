@@ -1,7 +1,7 @@
 
 func StzListOfNamedObject(paoObjects)
 
-func IsListOfNamedObjects(paList)
+func StzIsListOfNamedObjects(paList)
 	if CheckingParams()
 		if NOT isList(paList)
 			StzRaise("Incorrect param type!")
@@ -22,16 +22,19 @@ func IsListOfNamedObjects(paList)
 
 	#< @FunctionAlternativeForms
 
+	func IsListOfNamedObjects(paList)
+		return StzIsListOfNamedObjects(paList)
+
 	func @IsListOfNamedObjects(paList)
-		return IsListOfObjects(paList)
+		return StzIsListOfNamedObjects(paList)
 
 	#--
 
 	func IsAListOfNamedObjects(paList)
-		return IsListOfObjects(paList)
+		return StzIsListOfNamedObjects(paList)
 
 	func @IsAListOfNamedObjects(paList)
-		return IsListOfObjects(paList)
+		return StzIsListOfNamedObjects(paList)
 
 	#>
  

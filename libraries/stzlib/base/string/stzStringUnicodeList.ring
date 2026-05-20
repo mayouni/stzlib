@@ -19,18 +19,27 @@
 func StzStringUnicodeListQ(aList)
 	return new stzStringUnicodeList(aList)
 
-func UnicodesToChars(anUnicodes)
+func StzUnicodesToChars(anUnicodes)
 	return StzStringUnicodeListQ(anUnicodes).Chars()
 
-func UnicodesToString(anUnicodes)
+	func UnicodesToChars(anUnicodes)
+		return StzUnicodesToChars(anUnicodes)
+
+func StzUnicodesToString(anUnicodes)
 	return StzStringUnicodeListQ(anUnicodes).ToString()
 
-func IsUnicode(n)
+	func UnicodesToString(anUnicodes)
+		return StzUnicodesToString(anUnicodes)
+
+func StzIsUnicode(n)
 	if isNumber(n) and n >= 0 and n <= 1114111
 		return 1
 	else
 		return 0
 	ok
+
+	func IsUnicode(n)
+		return StzIsUnicode(n)
 
 
   /////////////////
