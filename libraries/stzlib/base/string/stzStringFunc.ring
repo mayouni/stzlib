@@ -1450,143 +1450,159 @@ func StzIsSortedStringInDescending(pcStr)
 
 #TODO: Review if the String...() functions are necessary
 
-func StringAlignXT(cStr, nWidth, cChar, cDirection)
+func StzStringAlignXT(cStr, nWidth, cChar, cDirection)
 	pStr = StzEngineString(cStr)
 	if cDirection = :Left
 		pResult = StzEngineStringLjust(pStr, nWidth, cChar)
 	but cDirection = :Right
 		pResult = StzEngineStringRjust(pStr, nWidth, cChar)
-	else  # :Center
+	else
 		pResult = StzEngineStringCenterPad(pStr, nWidth, cChar)
 	ok
 	cResult = StzEngineStringData(pResult)
 	StzEngineStringFree(pResult)
 	StzEngineStringFree(pStr)
 	return cResult
-	
+
+	func StringAlignXT(cStr, nWidth, cChar, cDirection)
+		return StzStringAlignXT(cStr, nWidth, cChar, cDirection)
+
 	func @AlignXT(cStr, nWidth, cChar, cDirection)
-		return StringAlignXT(cStr, nWidth, cChar, cDirection)
+		return StzStringAlignXT(cStr, nWidth, cChar, cDirection)
 
 	func AlignXT(cStr, nWidth, cChar, cDirection)
-		return StringAlignXT(cStr, nWidth, cChar, cDirection)
+		return StzStringAlignXT(cStr, nWidth, cChar, cDirection)
 
-#--
+func StzStringLeftAlign(cStr, nWidth)
+	return StzStringAlignXT(cStr, nWidth, " ", :Left)
 
-func StringLeftAlign(cStr, nWidth)
-	return StringAlignXT(cStr, nWidth, " ", :Left)
+	func StringLeftAlign(cStr, nWidth)
+		return StzStringLeftAlign(cStr, nWidth)
 
 	func StringAlignLeft(cStr, nWidth)
-		return StringLeftAlign(cStr, nWidth)
+		return StzStringLeftAlign(cStr, nWidth)
 
 	func LeftAlign(cStr, nWidth)
-		return StringLeftAlign(cStr, nWidth)
+		return StzStringLeftAlign(cStr, nWidth)
 
 	func AlignLeft(cStr, nWidth)
-		return StringLeftAlign(cStr, nWidth)
+		return StzStringLeftAlign(cStr, nWidth)
 
 	func @LeftAlign(cStr, nWidth)
-		return StringLeftAlign(cStr, nWidth)
+		return StzStringLeftAlign(cStr, nWidth)
 
 	func @AlignLeft(cStr, nWidth)
-		return StringLeftAlign(cStr, nWidth)
+		return StzStringLeftAlign(cStr, nWidth)
 
-func StringLeftAlignXT(cStr, nWidth, cChar)
-	return StringAlignXT(cStr, nWidth, cChar, :Left)
+func StzStringLeftAlignXT(cStr, nWidth, cChar)
+	return StzStringAlignXT(cStr, nWidth, cChar, :Left)
+
+	func StringLeftAlignXT(cStr, nWidth, cChar)
+		return StzStringLeftAlignXT(cStr, nWidth, cChar)
 
 	func StringAlignLeftXT(cStr, nWidth, cChar)
-		return StringLeftAlignXT(cStr, nWidth, cChar)
+		return StzStringLeftAlignXT(cStr, nWidth, cChar)
 
 	func LeftAlignXT(cStr, nWidth, cChar)
-		return StringLeftAlignXT(cStr, nWidth, cChar)
+		return StzStringLeftAlignXT(cStr, nWidth, cChar)
 
 	func AlignLeftXT(cStr, nWidth, cChar)
-		return StringLeftAlignXT(cStr, nWidth, cChar)
+		return StzStringLeftAlignXT(cStr, nWidth, cChar)
 
 	func @LeftAlignXT(cStr, nWidth, cChar)
-		return StringLeftAlignXT(cStr, nWidth, cChar)
+		return StzStringLeftAlignXT(cStr, nWidth, cChar)
 
 	func @AlignLeftXT(cStr, nWidth, cChar)
-		return StringLeftAlignXT(cStr, nWidth, cChar)
+		return StzStringLeftAlignXT(cStr, nWidth, cChar)
 
-#--
+func StzStringRightAlign(cStr, nWidth)
+	return StzStringAlignXT(cStr, nWidth, " ", :Right)
 
-func StringRightAlign(cStr, nWidth)
-	return StringAlignXT(cStr, nWidth, " ", :Right)
+	func StringRightAlign(cStr, nWidth)
+		return StzStringRightAlign(cStr, nWidth)
 
 	func StringAlignRight(cStr, nWidth)
-		return StringRightAlign(cStr, nWidth)
+		return StzStringRightAlign(cStr, nWidth)
 
 	func RightAlign(cStr, nWidth)
-		return StringRightAlign(cStr, nWidth)
+		return StzStringRightAlign(cStr, nWidth)
 
 	func AlignRight(cStr, nWidth)
-		return StringRightAlign(cStr, nWidth)
+		return StzStringRightAlign(cStr, nWidth)
 
 	func @RightAlign(cStr, nWidth)
-		return StringRightAlign(cStr, nWidth)
+		return StzStringRightAlign(cStr, nWidth)
 
 	func @AlignRight(cStr, nWidth)
-		return StringRightAlign(cStr, nWidth)
+		return StzStringRightAlign(cStr, nWidth)
 
-func StringRightAlignXT(cStr, nWidth, cChar)
-	return StringAlignXT(cStr, nWidth, cChar, :Right)
+func StzStringRightAlignXT(cStr, nWidth, cChar)
+	return StzStringAlignXT(cStr, nWidth, cChar, :Right)
+
+	func StringRightAlignXT(cStr, nWidth, cChar)
+		return StzStringRightAlignXT(cStr, nWidth, cChar)
 
 	func StringAlignRightXT(cStr, nWidth, cChar)
-		return StringRightAlignXT(cStr, nWidth, cChar)
+		return StzStringRightAlignXT(cStr, nWidth, cChar)
 
 	func RightAlignXT(cStr, nWidth, cChar)
-		return StringRightAlignXT(cStr, nWidth, cChar)
+		return StzStringRightAlignXT(cStr, nWidth, cChar)
 
 	func AlignRightXT(cStr, nWidth, cChar)
-		return StringRightAlignXT(cStr, nWidth, cChar)
+		return StzStringRightAlignXT(cStr, nWidth, cChar)
 
 	func @RightAlignXT(cStr, nWidth, cChar)
-		return StringRightAlignXT(cStr, nWidth, cChar)
+		return StzStringRightAlignXT(cStr, nWidth, cChar)
 
 	func @AlignRightXT(cStr, nWidth, cChar)
-		return StringRightAlignXT(cStr, nWidth, cChar)
-#--
+		return StzStringRightAlignXT(cStr, nWidth, cChar)
 
-func StringCenterAlign(cStr, nWidth)
-	return StringAlignXT(cStr, nWidth, " ", :Center)
+func StzStringCenterAlign(cStr, nWidth)
+	return StzStringAlignXT(cStr, nWidth, " ", :Center)
+
+	func StringCenterAlign(cStr, nWidth)
+		return StzStringCenterAlign(cStr, nWidth)
 
 	func StringAlignCenter(cStr, nWidth)
-		return StringCenterAlign(cStr, nWidth)
+		return StzStringCenterAlign(cStr, nWidth)
 
 	func CenterAlign(cStr, nWidth)
-		return StringCenterAlign(cStr, nWidth)
+		return StzStringCenterAlign(cStr, nWidth)
 
 	func AlignCenter(cStr, nWidth)
-		return StringCenterAlign(cStr, nWidth)
+		return StzStringCenterAlign(cStr, nWidth)
 
 	func @CenterAlign(cStr, nWidth)
-		return StringCenterAlign(cStr, nWidth)
+		return StzStringCenterAlign(cStr, nWidth)
 
 	func @AlignCenter(cStr, nWidth)
-		return StringCenterAlign(cStr, nWidth)
+		return StzStringCenterAlign(cStr, nWidth)
 
-func StringCenterAlignXT(cStr, nWidth, cChar)
-	return StringAlignXT(cStr, nWidth, cChar, :Center)
+func StzStringCenterAlignXT(cStr, nWidth, cChar)
+	return StzStringAlignXT(cStr, nWidth, cChar, :Center)
+
+	func StringCenterAlignXT(cStr, nWidth, cChar)
+		return StzStringCenterAlignXT(cStr, nWidth, cChar)
 
 	func StringAlignCenterXT(cStr, nWidth, cChar)
-		return StringCenterAlignXT(cStr, nWidth, cChar)
+		return StzStringCenterAlignXT(cStr, nWidth, cChar)
 
 	func CenterAlignXT(cStr, nWidth, cChar)
-		return StringCenterAlignXT(cStr, nWidth, cChar)
+		return StzStringCenterAlignXT(cStr, nWidth, cChar)
 
 	func AlignCenterXT(cStr, nWidth, cChar)
-		return StringCenterAlignXT(cStr, nWidth, cChar)
+		return StzStringCenterAlignXT(cStr, nWidth, cChar)
 
 	func @CenterAlignXT(cStr, nWidth, cChar)
-		return StringCenterAlignXT(cStr, nWidth, cChar)
+		return StzStringCenterAlignXT(cStr, nWidth, cChar)
 
 	func @AlignCenterXT(cStr, nWidth, cChar)
-		return StringCenterAlignXT(cStr, nWidth, cChar)
+		return StzStringCenterAlignXT(cStr, nWidth, cChar)
 #===
 
-func CountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
+func StzCountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
 	if isSrtring(pStrOrList)
-		return StringCountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
+		return StzStringCountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
 
 	but isList(pStrOrList)
 		return ListCountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
@@ -1595,18 +1611,18 @@ func CountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
 		StzRaise("Incorrect param type! pStrOrList must be a string or list.")
 	ok
 
-	func StzCountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
-		return CountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
+	func CountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
+		return StzCountCS(pStrOrList, pSubStrOrItem, pCaseSensitive)
 
-func Count(pStrOrList, pSubStrOrItem)
-	return CountCS(pstrOrList, pSubStrOrItem, 1)
+func StzCount(pStrOrList, pSubStrOrItem)
+	return StzCountCS(pstrOrList, pSubStrOrItem, 1)
 
-	func StzCount(pStrOrList, pSubStrOrItem)
-		return Count(pStrOrList, pSubStrOrItem)
+	func Count(pStrOrList, pSubStrOrItem)
+		return StzCount(pStrOrList, pSubStrOrItem)
 
 #--
 
-func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
+func StzStringCountCS(pcStr, pcSubStr, pCaseSensitive)
 	if CheckingParams()
 
 		if isList(pcSubStr) and IsOfNamedParamList(pcSubStr)
@@ -1621,34 +1637,36 @@ func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
 
 	bCase = @CaseSensitive(pCaseSensitive)
 
-	# Engine-backed count
 	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringCountOfCS(pStr, pcSubStr, bCase)
 	StzEngineStringFree(pStr)
 
 	return nResult
 
-	func StzStringCountCS(pcStr, pcSubStr, pCaseSensitive)
-		return StringCountCS(pcStr, pcSubStr, pCaseSensitive)
+	func StringCountCS(pcStr, pcSubStr, pCaseSensitive)
+		return StzStringCountCS(pcStr, pcSubStr, pCaseSensitive)
 
-func StringCount(pcStr, pcSubStr)
-	return StringCount(pcStr, pcSubStr, 1)
+func StzStringCount(pcStr, pcSubStr)
+	return StzStringCountCS(pcStr, pcSubStr, 1)
 
-	func StzStringCount(pcStr, pcSubStr)
-		return StringCount(pcStr, pcSubStr)
+	func StringCount(pcStr, pcSubStr)
+		return StzStringCount(pcStr, pcSubStr)
 
 #--
 
-func StringNumberOfChars(cStr)
+func StzStringNumberOfChars(cStr)
 	pStr = StzEngineString(cStr)
 	nResult = StzEngineStringCount(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
 
-	func @NumberOfChars(cStr)
-		return StringNumberOfChars(cStr)
+	func StringNumberOfChars(cStr)
+		return StzStringNumberOfChars(cStr)
 
-func StringReverseChars(cStr)
+	func @NumberOfChars(cStr)
+		return StzStringNumberOfChars(cStr)
+
+func StzStringReverseChars(cStr)
 	pStr = StzEngineString(cStr)
 	pReversed = StzEngineStringReverse(pStr)
 	cResult = StzEngineStringData(pReversed)
@@ -1656,38 +1674,47 @@ func StringReverseChars(cStr)
 	StzEngineStringFree(pStr)
 	return cResult
 
-	func @ReverseChars(cStr)
-		return StringReverseChars(cStr)
+	func StringReverseChars(cStr)
+		return StzStringReverseChars(cStr)
 
-func StringIsWord(cStr)
-	# Engine-backed: a word has no whitespace and is non-empty
+	func @ReverseChars(cStr)
+		return StzStringReverseChars(cStr)
+
+func StzStringIsWord(cStr)
 	if len(cStr) = 0 return 0 ok
 	pStr = StzEngineString(cStr)
 	nResult = StzEngineStringIsWord(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
 
-	func @IsWord(cStr)
-		return StringIsWord(cStr)
+	func StringIsWord(cStr)
+		return StzStringIsWord(cStr)
 
-func StringNumberOfOccurrence(pcStr, pcSubStr)
+	func @IsWord(cStr)
+		return StzStringIsWord(cStr)
+
+func StzStringNumberOfOccurrence(pcStr, pcSubStr)
 	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringCountOf(pStr, pcSubStr)
 	StzEngineStringFree(pStr)
 	return nResult
-	
+
+	func StringNumberOfOccurrence(pcStr, pcSubStr)
+		return StzStringNumberOfOccurrence(pcStr, pcSubStr)
+
 	func @NumberOfOccurrence(pcStr, pcSubStr)
 		return StringNumberOfOccurrence(pcStr, pcSubStr)
 
-func StringToUnicodes(pcStr)
+func StzStringToUnicodes(pcStr)
 	return StzStringQ(pcStr).Unicodes()
-		
+
+	func StringToUnicodes(pcStr)
+		return StzStringToUnicodes(pcStr)
+
 	func @ToUnicodes(pcStr)
-		return StringToUnicodes(pcStr)
+		return StzStringToUnicodes(pcStr)
 
-# Some functions used mainly in natural-code
-
-func UppercaseOf(cStr)
+func StzUppercaseOf(cStr)
 	pStr = StzEngineString(cStr)
 	pUpper = StzEngineStringToUpper(pStr)
 	cResult = StzEngineStringData(pUpper)
@@ -1695,10 +1722,13 @@ func UppercaseOf(cStr)
 	StzEngineStringFree(pStr)
 	return cResult
 
-	func UppercaseIn(cStr)
-		return UppercaseOf(cStr)
+	func UppercaseOf(cStr)
+		return StzUppercaseOf(cStr)
 
-func LowercaseOf(cStr)
+	func UppercaseIn(cStr)
+		return StzUppercaseOf(cStr)
+
+func StzLowercaseOf(cStr)
 	pStr = StzEngineString(cStr)
 	pLower = StzEngineStringToLower(pStr)
 	cResult = StzEngineStringData(pLower)
@@ -1706,10 +1736,13 @@ func LowercaseOf(cStr)
 	StzEngineStringFree(pStr)
 	return cResult
 
-	func LowercaseIn(cStr)
-		return LowercaseOf(cStr)
+	func LowercaseOf(cStr)
+		return StzLowercaseOf(cStr)
 
-func FoldcaseOf(cStr)
+	func LowercaseIn(cStr)
+		return StzLowercaseOf(cStr)
+
+func StzFoldcaseOf(cStr)
 	pStr = StzEngineString(cStr)
 	pFolded = StzEngineStringFoldcase(pStr)
 	cResult = StzEngineStringData(pFolded)
@@ -1717,60 +1750,75 @@ func FoldcaseOf(cStr)
 	StzEngineStringFree(pStr)
 	return cResult
 
-	func FoldcaseIn(cStr)
-		return FoldcaseOf(cStr)
+	func FoldcaseOf(cStr)
+		return StzFoldcaseOf(cStr)
 
-func NthCharOf(n, cStr)
+	func FoldcaseIn(cStr)
+		return StzFoldcaseOf(cStr)
+
+func StzNthCharOf(n, cStr)
 	pStr = StzEngineString(cStr)
-	pChar = StzEngineStringNthChar(pStr, n)  # Engine uses INDEX_BASE=1
+	pChar = StzEngineStringNthChar(pStr, n)
 	cResult = StzEngineStringData(pChar)
 	StzEngineStringFree(pChar)
 	StzEngineStringFree(pStr)
 	return cResult
 
-	func NthCharIn(n, cStr)
-		return NthCharOf(n, cStr)
+	func NthCharOf(n, cStr)
+		return StzNthCharOf(n, cStr)
 
-func NthLetterOf(n, cStr)
-		# Engine-backed: get only letters, then pick nth
+	func NthCharIn(n, cStr)
+		return StzNthCharOf(n, cStr)
+
+func StzNthLetterOf(n, cStr)
 		pStr = StzEngineString(cStr)
 		pLetters = StzEngineStringOnlyLetters(pStr)
-		pChar = StzEngineStringNthChar(pLetters, n)  # Engine uses INDEX_BASE=1
+		pChar = StzEngineStringNthChar(pLetters, n)
 		cResult = StzEngineStringData(pChar)
 		StzEngineStringFree(pChar)
 		StzEngineStringFree(pLetters)
 		StzEngineStringFree(pStr)
 		return cResult
 
-	func NthLetterIn(n, cStr)
-		return NthLetterOf(n, cStr)
+	func NthLetterOf(n, cStr)
+		return StzNthLetterOf(n, cStr)
 
-func StringIsArabicWord(pcStr)
+	func NthLetterIn(n, cStr)
+		return StzNthLetterOf(n, cStr)
+
+func StzStringIsArabicWord(pcStr)
 	return StzStringQ(pcStr).IsArabicWord()
 
-func StringIsCharName(pcStr)
+	func StringIsArabicWord(pcStr)
+		return StzStringIsArabicWord(pcStr)
+
+func StzStringIsCharName(pcStr)
 	return StzStringQ(pcStr).IsCharName()
 
-# Used for natural-coding
+	func StringIsCharName(pcStr)
+		return StzStringIsCharName(pcStr)
 
-func Text(pcStr)
-	#NOTE: In the future, there will be a difference
-	# between String and Text
+func StzText(pcStr)
 	if isString(pcStr)
 		return pcStr
 	ok
 
-func NumberOfCharsOf(pcStr)
-	# Engine-backed: codepoint count (not byte count)
+	func Text(pcStr)
+		return StzText(pcStr)
+
+func StzNumberOfCharsOf(pcStr)
 	pStr = StzEngineString(pcStr)
 	nResult = StzEngineStringCount(pStr)
 	StzEngineStringFree(pStr)
 	return nResult
 
-	func NumberOfCharsIn(pcStr)
-		return NumberOfCharsOf(pcStr)
+	func NumberOfCharsOf(pcStr)
+		return StzNumberOfCharsOf(pcStr)
 
-func BothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
+	func NumberOfCharsIn(pcStr)
+		return StzNumberOfCharsOf(pcStr)
+
+func StzBothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
 	_bCase_ = @CaseSensitive(pCaseSensitive)
 	pStr1 = StzEngineString(pcStr1)
 	pStr2 = StzEngineString(pcStr2)
@@ -1779,10 +1827,16 @@ func BothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
 	StzEngineStringFree(pStr1)
 	return nResult
 
-func BothStringsAreEqual(pcStr1, pcStr2)
-	return BothStringsAreEqualCS(pcStr1, pcStr2, 1)
+	func BothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
+		return StzBothStringsAreEqualCS(pcStr1, pcStr2, pCaseSensitive)
 
-func StringsAreEqualCS(pacStr, pCaseSensitive)
+func StzBothStringsAreEqual(pcStr1, pcStr2)
+	return StzBothStringsAreEqualCS(pcStr1, pcStr2, 1)
+
+	func BothStringsAreEqual(pcStr1, pcStr2)
+		return StzBothStringsAreEqual(pcStr1, pcStr2)
+
+func StzStringsAreEqualCS(pacStr, pCaseSensitive)
 
 	if CheckParams()
 		if NOT @IsListOfStrings(pacStr)
@@ -1794,11 +1848,8 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 		ok
 	ok
 
-	# Resolving pCaseSensitive
-
 	_bCase_ = @CaseSensitive(pCaseSensitive)
 
-	# Engine-backed equality check
 	nLen = len(pacStr)
 	bResult = 1
 
@@ -1815,11 +1866,16 @@ func StringsAreEqualCS(pacStr, pCaseSensitive)
 	StzEngineStringFree(pFirst)
 	return bResult
 
-func StringsAreEqual(paStr)
-	return StringsAreEqualCS(paStr, 1)
+	func StringsAreEqualCS(pacStr, pCaseSensitive)
+		return StzStringsAreEqualCS(pacStr, pCaseSensitive)
 
-func RemoveDiacritics(pcStr)
-	# Engine-backed: strip combining marks (diacritics)
+func StzStringsAreEqual(paStr)
+	return StzStringsAreEqualCS(paStr, 1)
+
+	func StringsAreEqual(paStr)
+		return StzStringsAreEqual(paStr)
+
+func StzRemoveDiacritics(pcStr)
 	pStr = StzEngineString(pcStr)
 	pR = StzEngineStringStripMarks(pStr)
 	cResult = StzEngineStringData(pR)
@@ -1827,66 +1883,75 @@ func RemoveDiacritics(pcStr)
 	StzEngineStringFree(pStr)
 	return cResult
 
-func StringCases()
+	func RemoveDiacritics(pcStr)
+		return StzRemoveDiacritics(pcStr)
+
+func StzStringCases()
 	return [ :Lowercase, :Uppercase, :Capitalcase, :Titlecase, :Foldercase ]
 
-func StringCase(pcStr)
+	func StringCases()
+		return StzStringCases()
 
+func StzStringCase(pcStr)
 	return StzStringQ(pcStr).StringCase()
 
-func Interpolate(pcStr)
+	func StringCase(pcStr)
+		return StzStringCase(pcStr)
+
+func StzInterpolate(pcStr)
 	return Q(pcStr).Interpolated()
 
-	#< @FunctionMisspelledForm
+	func Interpolate(pcStr)
+		return StzInterpolate(pcStr)
 
 	func Interpoltate(pcStr)
-		return Intrepolate(pcStr)
+		return StzInterpolate(pcStr)
 
 	func Intrepolate(pcStr)
-		return Interpolate(pcStr)
+		return StzInterpolate(pcStr)
 
-	#>
-
-func NCopies(n, p)
+func StzNCopies(n, p)
 	if isList(p) and Q(p).IsFromOrOfNamedParam()
 		p = p[2]
 	ok
 
 	return Q(p).CopiedNTimes(n)
 
+	func NCopies(n, p)
+		return StzNCopies(n, p)
+
 	func 2Copies(p)
-		return NCopies(2, p)
-	
+		return StzNCopies(2, p)
+
 	func 3Copies(p)
-		return NCopies(3, p)
+		return StzNCopies(3, p)
 
 	func 4Copies(p)
-		return NCopies(4, p)
+		return StzNCopies(4, p)
 
 	func 5Copies(p)
-		return NCopies(3, p)
+		return StzNCopies(3, p)
 
-func WithoutSpaces(pcStr)
+func StzWithoutSpaces(pcStr)
 	pStr = StzEngineString(pcStr)
 	StzEngineStringReplace(pStr, " ", "")
 	cResult = StzEngineStringData(pStr)
 	StzEngineStringFree(pStr)
 	return cResult
 
-	func @WithoutSpaces(pcStr)
-		return WithoutSpaces(pcStr)
+	func WithoutSpaces(pcStr)
+		return StzWithoutSpaces(pcStr)
 
-	#< @FunctionMisspelledForms
+	func @WithoutSpaces(pcStr)
+		return StzWithoutSpaces(pcStr)
 
 	func WithoutSapces(pcStr)
-		return WithoutSpaces(pcStr)
+		return StzWithoutSpaces(pcStr)
 
 	func @WithoutSapces(pcStr)
-		return WithoutSpaces(pcStr)
+		return StzWithoutSpaces(pcStr)
 
-	#>
-
-func WithoutQuotes(cStr)
+func StzWithoutQuotes(cStr)
 
 	cStr = @trim(cStr)
 	if len(cStr) < 2 return cStr ok
@@ -1898,11 +1963,9 @@ func WithoutQuotes(cStr)
 		return cStr
 	ok
 
-	# Check if bounded by " or '
 	if (StzEngineStringStartsWith(pStr, '"') and StzEngineStringEndsWith(pStr, '"')) or
 	   (StzEngineStringStartsWith(pStr, "'") and StzEngineStringEndsWith(pStr, "'"))
 
-		# Remove first and last chars (slice from 1 to nLen-2)
 		pSliced = StzEngineStringSlice(pStr, 1, nLen - 2)
 		cResult = StzEngineStringData(pSliced)
 		StzEngineStringFree(pSliced)
@@ -1913,22 +1976,28 @@ func WithoutQuotes(cStr)
 	StzEngineStringFree(pStr)
 	return cStr
 
-	func @WithoutQuotes(cStr)
-		return WithoutQuotes(cStr)
+	func WithoutQuotes(cStr)
+		return StzWithoutQuotes(cStr)
 
-func Simplify(pcStr)
+	func @WithoutQuotes(cStr)
+		return StzWithoutQuotes(cStr)
+
+func StzSimplify(pcStr)
 	return _StzSimplifyString(pcStr)
 
+	func Simplify(pcStr)
+		return StzSimplify(pcStr)
+
 	func @Simplify(pcStr)
-		return _StzSimplifyString(pcStr)
+		return StzSimplify(pcStr)
 
 	func StringSimplified(pcStr)
-		return _StzSimplifyString(pcStr)
+		return StzSimplify(pcStr)
 
 	func Simplified(pcStr)
-		return _StzSimplifyString(pcStr)
+		return StzSimplify(pcStr)
 
-func Spacify(str)
+func StzSpacify(str)
 	pStr = StzEngineString(str)
 	pResult = StzEngineStringSpacify(pStr)
 	cResult = StzEngineStringData(pResult)
@@ -1936,17 +2005,23 @@ func Spacify(str)
 	StzEngineStringFree(pStr)
 	return cResult
 
-	func @Spacify(str)
-		return Spacify(str)
+	func Spacify(str)
+		return StzSpacify(str)
 
-func SpacifyXT(str, pSep, pStep, pDirection)
+	func @Spacify(str)
+		return StzSpacify(str)
+
+func StzSpacifyXT(str, pSep, pStep, pDirection)
 	cResult = StzStringQ(str).SpacifyXTQ(pSep, pStep, pDirection).Content()
 	return cResult
 
-	func @SpacifyXT(str, pSep, pStep, pDirection)
-		return SpacifyXT(str, pSep, pStep, pDirection)
+	func SpacifyXT(str, pSep, pStep, pDirection)
+		return StzSpacifyXT(str, pSep, pStep, pDirection)
 
-func IsMarquer(cStr)
+	func @SpacifyXT(str, pSep, pStep, pDirection)
+		return StzSpacifyXT(str, pSep, pStep, pDirection)
+
+func StzIsMarquer(cStr)
 	if CheckingParams()
 		if NOT isString(cStr)
 			StzRaise("Incorrect param type! cStr must be a string.")
@@ -1955,28 +2030,31 @@ func IsMarquer(cStr)
 
 	return Q(cStr).IsMarquer()
 
+	func IsMarquer(cStr)
+		return StzIsMarquer(cStr)
+
 	func IsAMarquer(cStr)
-		return IsMarquer(cStr)
+		return StzIsMarquer(cStr)
 
 	func StringIsMarquer(cStr)
-		return IsMarquer(cStr)
+		return StzIsMarquer(cStr)
 
 	func StringIsAMarquer(cStr)
-		return IsMarquer(cStr)
+		return StzIsMarquer(cStr)
 
 	func @IsMarquer(cStr)
-		return IsMarquer(cStr)
+		return StzIsMarquer(cStr)
 
 	func @IsAMarquer(cStr)
-		return IsMarquer(cStr)
+		return StzIsMarquer(cStr)
 
 	func @StringIsMarquer(cStr)
-		return IsMarquer(cStr)
+		return StzIsMarquer(cStr)
 
 	func @StringIsAMarquer(cStr)
-		return IsMarquer(cStr)
+		return StzIsMarquer(cStr)
 
-func RepeatInString(pcSubStr, nTimes)
+func StzRepeatInString(pcSubStr, nTimes)
 	if CheckParams()
 		if NOT isString(pcSubStr)
 			StzRaise("Incorrect param type! pcSubStr must be a string.")
@@ -1987,7 +2065,6 @@ func RepeatInString(pcSubStr, nTimes)
 		ok
 	ok
 
-	# Engine-backed: much faster than Ring loop for large repetitions
 	pStr = StzEngineString(pcSubStr)
 	pResult = StzEngineStringRepeat(pStr, nTimes)
 	cResult = StzEngineStringData(pResult)
@@ -1995,20 +2072,19 @@ func RepeatInString(pcSubStr, nTimes)
 	StzEngineStringFree(pStr)
 	return cResult
 
-	#< @FunctionAlternativeForms
+	func RepeatInString(pcSubStr, nTimes)
+		return StzRepeatInString(pcSubStr, nTimes)
 
 	func RepeatInAString(pcSubStr, nTimes)
-		return RepeatInString(pcSubStr, nTimes)
+		return StzRepeatInString(pcSubStr, nTimes)
 
 	func @RepeatInString(pcSubStr, nTimes)
-		return RepeatInString(pcSubStr, nTimes)
+		return StzRepeatInString(pcSubStr, nTimes)
 
 	func @RepeatInAString(pcSubStr, nTimes)
-		return RepeatInString(pcSubStr, nTimes)
+		return StzRepeatInString(pcSubStr, nTimes)
 
-	#>
-
-func BothAreMarquers(pcStr1, pcStr2)
+func StzBothAreMarquers(pcStr1, pcStr2)
 	if BothAreStrings(pcStr1, pcStr2) and
 	   Q(pcStr1).IsMarquer() and Q(pcStr2).IsMarquer()
 
@@ -2017,8 +2093,11 @@ func BothAreMarquers(pcStr1, pcStr2)
 		return 0
 	ok
 
+	func BothAreMarquers(pcStr1, pcStr2)
+		return StzBothAreMarquers(pcStr1, pcStr2)
+
 	func @BothAreMarquers(pcStr1, pcStr2)
-		return BothAreMarquers(pcStr1, pcStr2)
+		return StzBothAreMarquers(pcStr1, pcStr2)
 
 func ring_number(cNumberInStr) #TODO // Move it to stzRingFuncs.ring
 	return number(cNumberInStr)
@@ -2055,41 +2134,53 @@ func @Number(pNumberOrString) # An enhanced version of the Ring number() functio
 		stzRaise("Can't proceed! pNumberOrString contains a literal not a number in string.")
 	done
 
-func IsNumberInString(str)
+func StzIsNumberInString(str)
 	if NOT isString(str)
 		return FALSE
 	ok
 
-	return rx(pat(:number)).Match(str) # Regex-base, more performant then:
+	return rx(pat(:number)).Match(str)
+
+	func IsNumberInString(str)
+		return StzIsNumberInString(str)
 
 	func @IsNumberInstring(str)
-		return IsNumberInString(str)
+		return StzIsNumberInString(str)
 
-func IsIntegerInString(str)
+func StzIsIntegerInString(str)
 	return StzStringQ(str).IsIntegerInString()
 
-	func @IsIntegerInstring(str)
-		return IsIntegerInString(str)
+	func IsIntegerInString(str)
+		return StzIsIntegerInString(str)
 
-func IsNumberOrListInString(str)
+	func @IsIntegerInstring(str)
+		return StzIsIntegerInString(str)
+
+func StzIsNumberOrListInString(str)
 	return StzStringQ(str).IsNumberOrListInString()
 
+	func IsNumberOrListInString(str)
+		return StzIsNumberOrListInString(str)
+
 	func IsStringOrNumberInString(str)
-		return IsNumberOrListInString(str)
+		return StzIsNumberOrListInString(str)
 
 	func @IsNumberOrListInString(str)
-		return IsNumberOrListInString(str)
+		return StzIsNumberOrListInString(str)
 
 	func @IsStringOrNumberInString(str)
-		return IsNumberOrListInString(str)
+		return StzIsNumberOrListInString(str)
 
-func IsRealInString(str)
+func StzIsRealInString(str)
 	return StzStringQ(str).IsRealInString()
 
-	func @IsRealInstring(str)
-		return IsRealInString(str)
+	func IsRealInString(str)
+		return StzIsRealInString(str)
 
-func @IsPalindrome(p)
+	func @IsRealInstring(str)
+		return StzIsRealInString(str)
+
+func StzIsPalindrome(p)
 	if isList(p)
 		if len(p) < 2
 			return 0
@@ -2112,22 +2203,24 @@ func @IsPalindrome(p)
 		StzRaise("Incorrect param type! p must be a string or list.")
 	ok
 
+	func @IsPalindrome(p)
+		return StzIsPalindrome(p)
+
 	def IsPalindrom(p)
-		return @IsPalindrome(p)
+		return StzIsPalindrome(p)
 
 	func @IsPalindrom(p)
-		return @IsPalindrome(p)
+		return StzIsPalindrome(p)
 
 	func IsMirrored(p)
-		return @IsPalindrome(p)
+		return StzIsPalindrome(p)
 
 	func @IsMirrored(p)
-		return @IsPalindrome(p)
+		return StzIsPalindrome(p)
 
-func @IsPunct(p)
+func StzIsPunct(p)
 	if isString(p)
 		if len(p) = 0 return 0 ok
-		# Engine-backed: check all chars are punctuation (type 5)
 		pStr = StzEngineString(p)
 		nCount = StzEngineStringCount(pStr)
 		nPunct = StzEngineStringCountCharsOfType(pStr, 5)
@@ -2140,31 +2233,38 @@ func @IsPunct(p)
 		StzRaise("Incorrect param type! p must be a string or list of chars.")
 	ok
 
+	func @IsPunct(p)
+		return StzIsPunct(p)
+
 #--
 
-func MarquerChar()
+func StzMarquerChar()
 	return _cMarquerChar
 
+	func MarquerChar()
+		return StzMarquerChar()
+
 	func DefaultMarquerChar()
-		return _cMarquerChar
+		return StzMarquerChar()
 
 	func @MarquerChar()
-		return _cMarquerChar
+		return StzMarquerChar()
 
 	func Marquer()
-		return _cMarquerChar
+		return StzMarquerChar()
 
 	func @Marquer()
-		return _cMarquerChar
+		return StzMarquerChar()
 
-func SetMarquerChar(c)
+func StzSetMarquerChar(c)
 	if NOT (isString(c) and IsChar(c))
 		StzRaise("Incorrect param type! c must be a char.")
 	ok
 
 	_cMarquerChar = c
 
-	#NOTE // A marquer char can be set at the global level or string object level
+	func SetMarquerChar(c)
+		StzSetMarquerChar(c)
 
 	func SetDefaultMarquerChar()
 		_cMarquerChar = c
@@ -2178,14 +2278,13 @@ func SetMarquerChar(c)
 	func @SetMarquer()
 		_cMarquerChar = c
 
-func SplitAtCS(cData, cSubStr, pCaseSensitive)
+func StzSplitAtCS(cData, cSubStr, pCaseSensitive)
 	if NOT (isString(cData) and isString(cSubStr))
 		StzRaise("Incorrect param type! cData and cSubStr must both be strings.")
 	ok
 
 	bCase = CaseSensitive(pCaseSensitive)
 
-	# Engine-backed split for codepoint safety
 	pStr = StzEngineString(cData)
 	nCount = StzEngineStringSplitCountCS(pStr, cSubStr, bCase)
 
@@ -2200,38 +2299,46 @@ func SplitAtCS(cData, cSubStr, pCaseSensitive)
 	StzEngineStringFree(pStr)
 	return acResult
 
+	func SplitAtCS(cData, cSubStr, pCaseSensitive)
+		return StzSplitAtCS(cData, cSubStr, pCaseSensitive)
+
 	func @SplitAtCS(cData, cSubStr, pCaseSensitive)
-		return SplitAtCS(cData, cSubStr, pCaseSensitive)
+		return StzSplitAtCS(cData, cSubStr, pCaseSensitive)
 
 	func SplitCS(cData, cSubStr, pCaseSensitive)
-		return SplitAtCS(cData, cSubStr, pCaseSensitive)
+		return StzSplitAtCS(cData, cSubStr, pCaseSensitive)
 
 	func @SplitCS(cData, cSubStr, pCaseSensitive)
-		return SplitAtCS(cData, cSubStr, pCaseSensitive)
+		return StzSplitAtCS(cData, cSubStr, pCaseSensitive)
 
 
-func @SplitAt(cData, cSubStr)
+func StzSplitAt(cData, cSubStr)
 	if NOT (isString(cData) and isString(cSubStr))
 		StzRaise("Incorrect param type! cData and cSubStr must both be strings.")
 	ok
 
 	return StzSplitCS(cData, cSubStr, 0)
 
+	func @SplitAt(cData, cSubStr)
+		return StzSplitAt(cData, cSubStr)
+
 	func SplitAt(cData, cSubStr)
-		return @SplitAt(cData, cSubStr)
+		return StzSplitAt(cData, cSubStr)
 
 	func @Split(cData, cSubStr)
-		return @SplitAt(cData, cSubStr)
+		return StzSplitAt(cData, cSubStr)
 
-func IsFileName(pcStr)
+func StzIsFileName(pcStr)
 	if NOT isString(pcStr)
 		return FALSE
 	ok
 
 	return Rx(pat(:fileName)).Match(pcStr)
 
-	
-func IsCsvFileName(pcStr)
+	func IsFileName(pcStr)
+		return StzIsFileName(pcStr)
+
+func StzIsCsvFileName(pcStr)
 
 	if NOT isString(pcStr)
 		return FALSE
@@ -2247,11 +2354,10 @@ func IsCsvFileName(pcStr)
 		return FALSE
 	ok
 
-func IsHtmlFileName(pcStr)
-	if NOT isString(pcStr)
-		return FALSE
-	ok
+	func IsCsvFileName(pcStr)
+		return StzIsCsvFileName(pcStr)
 
+func StzIsHtmlFileName(pcStr)
 	if NOT isString(pcStr)
 		return FALSE
 	ok
@@ -2268,14 +2374,20 @@ func IsHtmlFileName(pcStr)
 		return FALSE
 	ok
 
-func IsCsvString(pcStr)
+	func IsHtmlFileName(pcStr)
+		return StzIsHtmlFileName(pcStr)
+
+func StzIsCsvString(pcStr)
 	if NOT isString(pcStr)
 		return FALSE
 	ok
 
 	return StzStringQ(pcStr).IsCSV()
 
-func IsHtmlTableString(pcStr)
+	func IsCsvString(pcStr)
+		return StzIsCsvString(pcStr)
+
+func StzIsHtmlTableString(pcStr)
 
 	if NOT isString(pcStr)
 		return FALSE
@@ -2283,27 +2395,36 @@ func IsHtmlTableString(pcStr)
 
 	return StzStringQ(pcStr).IsHtmlTable()
 
+	func IsHtmlTableString(pcStr)
+		return StzIsHtmlTableString(pcStr)
 
 
-func Boxify(str)
+
+func StzBoxify(str)
 	oTempStr = new stzString(str)
 	oTempStr.Boxify()
 	return otempStr.Content()
 
+	func Boxify(str)
+		return StzBoxify(str)
+
 	func Box(str)
-		return Boxify(str)
+		return StzBoxify(str)
 
 	func @Boxify(str)
-		return Boxify(str)
+		return StzBoxify(str)
 
 	func @Box(str)
-		return Boxify(str)
+		return StzBoxify(str)
 
 
-func BoxifyRound(str)
+func StzBoxifyRound(str)
 	oTempStr = new stzString(str)
 	oTempStr.BoxifyRound()
 	return otempStr.Content()
+
+	func BoxifyRound(str)
+		return StzBoxifyRound(str)
 
 	#< @FunctionAlternativeForms
 
@@ -2376,10 +2497,13 @@ func BoxifyRound(str)
 	
 	#>
 
-func BoxifyDash(str)
+func StzBoxifyDash(str)
 	oTempStr = new stzString(str)
 	oTempStr.BoxifyDash()
 	return otempStr.Content()
+
+	func BoxifyDash(str)
+		return StzBoxifyDash(str)
 
 	#< @FunctionAlternativeForms
 
@@ -2426,134 +2550,125 @@ func BoxifyDash(str)
 
 	#>
 
-func BoxDashRound(str)
+func StzBoxDashRound(str)
 	oTempStr = new stzString(str)
 	oTempStr.BoxifyDashRound()
 	return oTempStr.Content()
 
-	func @BoxDashRound(str)
-		return BoxDashRound(str)
+	func BoxDashRound(str)
+		return StzBoxDashRound(str)
 
-func BoxChars(str)
+	func @BoxDashRound(str)
+		return StzBoxDashRound(str)
+
+func StzBoxChars(str)
 
 	_oTempStr_ = new stzString(str)
 	_oTempStr_.BoxEachChar()
 	return _oTempStr_.Content()
 
-	#< @FunctionAlternativeForms
+	func BoxChars(str)
+		return StzBoxChars(str)
 
 	func BoxedChars(str)
-		return BoxChars(str)
-
-	#--
+		return StzBoxChars(str)
 
 	func @BoxChars(str)
-		return BoxChars(str)
+		return StzBoxChars(str)
 
 	func @BoxedChars(str)
-		return BoxChars(str)
+		return StzBoxChars(str)
 
-	#>
-
-func BoxRoundChars(str)
+func StzBoxRoundChars(str)
 
 	_oTempStr_ = new stzString(str)
 	_oTempStr_.BoxRoundEachChar()
 	return _oTempStr_.Content()
 
-	#< @FunctionAlternativeForms
+	func BoxRoundChars(str)
+		return StzBoxRoundChars(str)
 
 	func BoxRoundedChars(str)
-		return BoxRoundChars(str)
+		return StzBoxRoundChars(str)
 
 	func BoxedRoundChars(str)
-		return BoxRoundChars(str)
+		return StzBoxRoundChars(str)
 
 	func BoxedRoundedChars(str)
-		return BoxRoundChars(str)
-
-	#--
+		return StzBoxRoundChars(str)
 
 	func @BoxRoundChars(str)
-		return BoxRoundChars(str)
+		return StzBoxRoundChars(str)
 
 	func @BoxRoundedChars(str)
-		return BoxRoundChars(str)
+		return StzBoxRoundChars(str)
 
 	func @BoxedRoundChars(str)
-		return BoxRoundChars(str)
+		return StzBoxRoundChars(str)
 
 	func @BoxedRoundedChars(str)
-		return BoxRoundChars(str)
-
-	#>
+		return StzBoxRoundChars(str)
 
 
-func BoxDashChars(str)
+func StzBoxDashChars(str)
 
 	_oTempStr_ = new stzString(str)
 	_oTempStr_.BoxDashEachChar()
 	return _oTempStr_.Content()
 
-	#< @FunctionAlternativeForms
+	func BoxDashChars(str)
+		return StzBoxDashChars(str)
 
 	func BoxedDashChars(str)
-		return BoxDashChars(str)
+		return StzBoxDashChars(str)
 
 	func BoxedDashedChars(str)
-		return BoxDashChars(str)
+		return StzBoxDashChars(str)
 
 	func BoxDashedChars(str)
-		return BoxDashChars(str)
-
-	#--
+		return StzBoxDashChars(str)
 
 	func @BoxDashChars(str)
-		return BoxDashChars(str)
+		return StzBoxDashChars(str)
 
 	func @BoxedDashChars(str)
-		return BoxDashChars(str)
+		return StzBoxDashChars(str)
 
 	func @BoxedDashedChars(str)
-		return BoxDashChars(str)
+		return StzBoxDashChars(str)
 
 	func @BoxDashedChars(str)
-		return BoxDashChars(str)
+		return StzBoxDashChars(str)
 
-	#>
-
-func BoxRoundDashChars(str)
+func StzBoxRoundDashChars(str)
 
 	_oTempStr_ = new stzString(str)
 	_oTempStr_.BoxRoundDashEachChar()
 	return _oTempStr_.Content()
 
-	#< @FunctionAlternativeForms
+	func BoxRoundDashChars(str)
+		return StzBoxRoundDashChars(str)
 
 	func BoxedRoundDashChars(str)
-		return BoxRoundDashChars(str)
+		return StzBoxRoundDashChars(str)
 
 	func BoxedRoundedDashedChars(str)
-		return BoxRoundDashChars(str)
+		return StzBoxRoundDashChars(str)
 
 	func BoxRoundDashedChars(str)
-		return BoxRoundDashChars(str)
-
-	#--
+		return StzBoxRoundDashChars(str)
 
 	func @BoxRoundDashChars(str)
-		return BoxRoundDashChars(str)
+		return StzBoxRoundDashChars(str)
 
 	func @BoxedRoundDashChars(str)
-		return BoxRoundDashChars(str)
+		return StzBoxRoundDashChars(str)
 
 	func @BoxedRoundedDashedChars(str)
-		return BoxRoundDashChars(str)
+		return StzBoxRoundDashChars(str)
 
 	func @BoxRoundDashedChars(str)
-		return BoxRoundDashChars(str)
-
-	#>
+		return StzBoxRoundDashChars(str)
 
 func @substr(str, p1, p2) #TODO // Move to stzExtCode
 
@@ -2618,7 +2733,7 @@ func substrXT(paParams)
 	func @substrXT(paParams)
 		return substrXT(paParams)
 
-func StringSection(str, n1, n2)
+func StzStringSection(str, n1, n2)
 	if CheckParams()
 		if NOT isString(str)
 			StzRaise("Incorrect param type! str must be a string.")
@@ -2629,14 +2744,15 @@ func StringSection(str, n1, n2)
 		ok
 	ok
 
-	# Use Engine for codepoint-safe section extraction
-	# Engine uses INDEX_BASE=1 (1-based), so pass positions directly
 	pStr = StzEngineString(str)
 	pSlice = StzEngineStringSlice(pStr, n1, n2 - n1 + 1)
 	cResult = StzEngineStringData(pSlice)
 	StzEngineStringFree(pSlice)
 	StzEngineStringFree(pStr)
 	return cResult
+
+	func StringSection(str, n1, n2)
+		return StzStringSection(str, n1, n2)
 
 func stzleft(str, n)
 	if isList(str)
@@ -2657,12 +2773,11 @@ func stzRight(str, n)
 	return StringSection(str, nLen-n+1, nLen)
 
 
-func Chars(str)
+func StzChars(str)
 	if isList(str) and len(str) = 2 and isString(str[1]) and str[1] = :In
 		str = str[2]
 	ok
 
-	# Use Engine bulk char split (single FFI call)
 	pStr = StzEngineString(str)
 	pR = StzEngineStringCharsSplit(pStr)
 	cJoined = StzEngineStringData(pR)
@@ -2670,8 +2785,11 @@ func Chars(str)
 	StzEngineStringFree(pStr)
 	return _SplitNullDelimited(cJoined)
 
+	func Chars(str)
+		return StzChars(str)
+
 	func @Chars(str)
-		return Chars(str)
+		return StzChars(str)
 
 
 func _StrContainsCS(cStr, cSubStr, bCaseSensitive)
@@ -2680,14 +2798,17 @@ func _StrContainsCS(cStr, cSubStr, bCaseSensitive)
 	StzEngineStringFree(pStr)
 	return nResult
 
-func Lines(str)
+func StzLines(str)
 	acResult = @split(str, NL)
 	return acResult
 
+	func Lines(str)
+		return StzLines(str)
+
 	func @Lines(str)
-		return Lines(str)
-		
-func IsLatin(p)
+		return StzLines(str)
+
+func StzIsLatin(p)
 
 	if IsChar(p)
 		return StzCharQ(p).IsLatin()
@@ -2705,8 +2826,11 @@ func IsLatin(p)
 		StzRaise("Unsupported param type!")
 	ok
 
+	func IsLatin(p)
+		return StzIsLatin(p)
+
 	func @IsLatin(p)
-		return IsLatin(p)
+		return StzIsLatin(p)
 
 #--
 
