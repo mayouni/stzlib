@@ -15,13 +15,12 @@ ok
 
     load "common/stzcounter.ring"
     load "common/stzfuncs.ring"
-    load "common/stznamedparams.ring" #TODO //Use it instead the equivalent code in stzList
 
     load "common/stzoccurrences.ring"
     load "common/stzringfuncs.ring"
 
     load "common/stzringlibs.ring"
-    load "common/stznamedparams_engine.ring"
+    load "common/stzNamedParams.ring"
     load "common/stzerrors_engine.ring"
     load "common/stzsmallfuncs.ring"
     load "common/stzsplitter.ring"
