@@ -9,20 +9,29 @@ load "uuid.ring" # The C++ uuid extension should be isntalled
 
 #TODO Study the additon of ULID, KSUID, and SnowFlakeID
 
-func UUID()
+func StzUUID()
 	return StzUpper(uuid_generate())
 
-	func @Uuid()
-		return UUID()
+	func UUID()
+		return StzUUID()
 
-func NullUUID()
+	func @Uuid()
+		return StzUUID()
+
+func StzNullUUID()
 	return StzUpper( uuid_nil() )
 
-	func @NullUuid()
-		return NullUuid()
+	func NullUUID()
+		return StzNullUUID()
 
-func IsValidUuid(cUuidStr)
+	func @NullUuid()
+		return StzNullUUID()
+
+func StzIsValidUuid(cUuidStr)
 	return uuid_isvalid(cUuidStr)
+
+	func IsValidUuid(cUuidStr)
+		return StzIsValidUuid(cUuidStr)
 
 func StzUUIDQ()
 	return new stzUUID()

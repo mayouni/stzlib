@@ -2,26 +2,31 @@
 #  PROFILING TIME  #
 #~~~~~~~~~~~~~~~~~~#
 
-func StartTimer()
+func StzStartTimer()
 	_time0 = clock()
 
-func ResetTimer()
+	func StartTimer()
+		StzStartTimer()
+
+func StzResetTimer()
 	_time0 = clock()
+
+	func ResetTimer()
+		StzResetTimer()
 
 	func ResetProfiler()
-		_time0 = clock()
+		StzResetTimer()
 
-func ElapsedTime()
-	return ElapsedTimeXT(:In = :Seconds)
+func StzElapsedTime()
+	return StzElapsedTimeXT(:In = :Seconds)
+
+	func ElapsedTime()
+		return StzElapsedTime()
 
 	func ElpasedTime()
-		return ElapsedTime()
-		#NOTE
-		# This function name alternative contains a spelling error.
-		# Despite that, I'll take it. Because I always make this
-		#ERRor and don't want to be blocked for that.
+		return StzElapsedTime()
 
-func ElapsedTimeXT(pIn)
+func StzElapsedTimeXT(pIn)
 
 	if isList(pIn) and Q(pIn).IsInNamedParam()
 		pIn = pIn[2]
@@ -59,39 +64,48 @@ func ElapsedTimeXT(pIn)
 
 	off
 	
-	func ElpasedTimeXT(pIn)
-		return ElapsedTimeXT(pIn)
+	func ElapsedTimeXT(pIn)
+		return StzElapsedTimeXT(pIn)
 
-func StartProfiler()
+	func ElpasedTimeXT(pIn)
+		return StzElapsedTimeXT(pIn)
+
+func StzStartProfiler()
 	pr() # From Softanza CORE layer
 
+	func StartProfiler()
+		StzStartProfiler()
+
 	func ProfilerOn()
-		pr()
+		StzStartProfiler()
 
 	func pron()
-		pr()
+		StzStartProfiler()
 
 	func profon()
-		pr()
+		StzStartProfiler()
 
 
-func EndProfiler()
+func StzEndProfiler()
 	pf() # From Softanza CORE layer
 
+	func EndProfiler()
+		StzEndProfiler()
+
 	func Profoff()
-		pf()
+		StzEndProfiler()
 
 	func StopProfiler()
-		pf()
+		StzEndProfiler()
 
 	func ProfilerOff()
-		pf()
+		StzEndProfiler()
 
 	func prff()
-		pf()
+		StzEndProfiler()
 
 	func Proff()
-		pf()
+		StzEndProfiler()
 
 	func prf()
-		Pf()
+		StzEndProfiler()

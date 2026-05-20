@@ -9,7 +9,7 @@
 #   - addmethod() alias loops          -> StzMetaRegisterAlias()
 #   - CS/Q/Passive wrapper methods     -> StzMetaApplyGenRules()
 #
-# Used by: base/common/stzfuncs.ring, all Stz* classes
+# Used by: base/common/stzFuncs.ring, all Stz* classes
 
 if isWindows()
     $cStzMetaLib = $cEngineDir + "/zig-out/bin/stz_meta.dll"
