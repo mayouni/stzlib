@@ -46,6 +46,9 @@ fn runShellCommand(command: []const u8) !RunResult {
     child.stdout_behavior = .Pipe;
     child.stderr_behavior = .Pipe;
 
+    // Hide the console window on Windows (replaces old Qt QProcess behavior)
+    child.create_no_window = true;
+
     try child.spawn();
 
     const stdout = child.stdout.?.readToEndAlloc(gpa, 10 * 1024 * 1024) catch "";
@@ -86,6 +89,7 @@ pub fn stz_system_exec(cmd: [*c]const u8, cmd_len: usize) callconv(.c) c_int {
         &[_][]const u8{ shell.name, command };
 
     var child = std.process.Child.init(argv, gpa);
+    child.create_no_window = true;
     child.spawn() catch return -1;
     const term = child.wait() catch return -1;
     return switch (term) {
