@@ -13,12 +13,13 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 657 passing              |
-| DLLs shipping     | 8 (4 Core + 4 Base)      |
+| Engine tests      | 672 passing              |
+| DLLs shipping     | 15 (4 Core + 11 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 405 DLL functions        |
+| Ring bridge regs  | 407 DLL functions        |
 | Ring Unicode hard | Complete (all domains)   |
-| Last updated      | 2026-05-20 (Session 19)  |
+| PCRE2 backend     | 10.47 (industrial regex) |
+| Last updated      | 2026-05-20 (Session 20)  |
 
 ---
 
@@ -240,6 +241,24 @@
 - **Tests**: 16 new Zig tests covering ASCII, Unicode, case-insensitive, null
   handles, edge cases (657 total).
 - **DLLs**: `stz_string.dll` and `stk_string.dll` rebuilt with regex integration.
+
+### PCRE2 Industrial Regex Backend (Session 20)
+
+- **PCRE2 10.47 vendored**: 31 C source files in `vendor/pcre2/pcre2-10.47/src/`,
+  compiled with `-DHAVE_CONFIG_H -DPCRE2_CODE_UNIT_WIDTH=8 -DSUPPORT_UNICODE -DPCRE2_STATIC`.
+- **regex.zig rewritten**: Custom recursive backtracker replaced with PCRE2 backend.
+  Same C ABI surface preserved (`stz_regex_new/free/match/match_all/has_match/
+  capture_count/capture_start/capture_end/capture_text/replace/replace_free/set_limits`).
+- **New PCRE2 features exposed**: `stz_regex_capture_by_name` (named group access),
+  `stz_regex_named_group_count`. Ring bridge: `stzengineregexcapturebyname`,
+  `stzengineregexnamedgroupcount` (407 total).
+- **Full feature set now available**: lookahead/lookbehind, named groups `(?P<name>)`,
+  backreferences `\1`, word boundaries `\b`, non-capturing groups `(?:)`, counted
+  quantifiers `{n,m}`, multiline mode, recursion `(?R)`, Unicode scripts
+  `\p{Greek}/\p{Arabic}`, replace with `$1/$2/\1` backreferences.
+- **Tests**: 672 total (15 new PCRE2 feature tests).
+- **build.zig**: `needs_pcre2` flag added to Domain struct. All string and regex
+  domains link PCRE2. Static lib and test targets include PCRE2.
 
 ---
 

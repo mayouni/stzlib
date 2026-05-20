@@ -74,6 +74,16 @@ fn ring_Replace(p: *anyopaque) callconv(.c) void {
 fn ring_SetLimits(p: *anyopaque) callconv(.c) void {
     rx.stz_regex_set_limits(getH(p, 1), @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)));
 }
+fn ring_CaptureByName(p: *anyopaque) callconv(.c) void {
+    var buf: [4096]u8 = undefined;
+    const name = gs(p, 2);
+    const name_len: usize = @intCast(gss(p, 2));
+    const n = rx.stz_regex_capture_by_name(getH(p, 1), name, name_len, &buf, 4096);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
+}
+fn ring_NamedGroupCount(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(rx.stz_regex_named_group_count(getH(p, 1))));
+}
 
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineregexnew", .func = &ring_New },
@@ -87,6 +97,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineregexcapturetext", .func = &ring_CaptureText },
     .{ .name = "stzengineregexreplace", .func = &ring_Replace },
     .{ .name = "stzengineregexsetlimits", .func = &ring_SetLimits },
+    .{ .name = "stzengineregexcapturebyname", .func = &ring_CaptureByName },
+    .{ .name = "stzengineregexnamedgroupcount", .func = &ring_NamedGroupCount },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
