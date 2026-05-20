@@ -21,10 +21,13 @@
 func StzStringListQ(paList)
 	return new stzStringList(paList)
 
-func Concatenate(pacListOfStr)
-	return ConcatenateXT(pacListOfStr, "")
+func StzConcatenate(pacListOfStr)
+	return StzConcatenateXT(pacListOfStr, "")
 
-func ConcatenateXT(pacListOfStr, pcSep)
+	func Concatenate(pacListOfStr)
+		return StzConcatenate(pacListOfStr)
+
+func StzConcatenateXT(pacListOfStr, pcSep)
 	if CheckingParams()
 		if isList(pcSep) and len(pcSep) = 2 and isString(pcSep[1]) and
 		   (StzCaseFold(pcSep[1]) = "with" or StzCaseFold(pcSep[1]) = "using")
@@ -51,13 +54,19 @@ func ConcatenateXT(pacListOfStr, pcSep)
 
 	return _cResult_
 
-	func ConcatXT(acListOfStr, cSep)
-		return ConcatenateXT(acListOfStr, cSep)
+	func ConcatenateXT(pacListOfStr, pcSep)
+		return StzConcatenateXT(pacListOfStr, pcSep)
 
-func ListOfStrings(paList)
+	func ConcatXT(acListOfStr, cSep)
+		return StzConcatenateXT(acListOfStr, cSep)
+
+func StzListOfStrings(paList)
 	if @IsListOfStrings(paList)
 		return paList
 	ok
+
+	func ListOfStrings(paList)
+		return StzListOfStrings(paList)
 
 
   /////////////////
