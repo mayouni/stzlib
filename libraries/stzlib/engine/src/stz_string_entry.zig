@@ -42,6 +42,15 @@ comptime {
     @export(&string.str_normalize, .{ .name = "str_normalize" });
     @export(&string.str_strip_marks, .{ .name = "str_strip_marks" });
 
+    // Regex integration (Phase E)
+    @export(&string.str_regex_is_match, .{ .name = "str_regex_is_match" });
+    @export(&string.str_regex_count, .{ .name = "str_regex_count" });
+    @export(&string.str_regex_find_first, .{ .name = "str_regex_find_first" });
+    @export(&string.str_regex_find_all, .{ .name = "str_regex_find_all" });
+    @export(&string.str_regex_replace_all, .{ .name = "str_regex_replace_all" });
+    @export(&string.str_regex_split_count, .{ .name = "str_regex_split_count" });
+    @export(&string.str_regex_split_get, .{ .name = "str_regex_split_get" });
+
     @export(&char.stz_char_unicode, .{ .name = "stz_char_unicode" });
     @export(&char.stz_char_to_utf8, .{ .name = "stz_char_to_utf8" });
     @export(&char.stz_char_is_letter, .{ .name = "stz_char_is_letter" });

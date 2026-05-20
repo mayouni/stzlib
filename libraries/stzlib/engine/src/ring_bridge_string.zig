@@ -2840,6 +2840,80 @@ fn ring_StringEndsWithAnyCS(p: *anyopaque) callconv(.c) void {
     ring_vm_api_retnumber(p, @floatFromInt(string.str_ends_with_any_cs(h, s, l, case)));
 }
 
+// ─── Regex Integration (Phase E) ───
+
+fn ring_StringRegexIsMatch(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pat = ring_vm_api_getstring(p, 2);
+    const pat_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const flags: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_regex_is_match(h, pat, pat_len, flags)));
+}
+
+fn ring_StringRegexCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pat = ring_vm_api_getstring(p, 2);
+    const pat_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const flags: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_regex_count(h, pat, pat_len, flags)));
+}
+
+fn ring_StringRegexFindFirst(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pat = ring_vm_api_getstring(p, 2);
+    const pat_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const flags: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_regex_find_first(h, pat, pat_len, flags)));
+}
+
+fn ring_StringRegexFindAll(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pat = ring_vm_api_getstring(p, 2);
+    const pat_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const flags: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const FR_HANDLE: [*:0]const u8 = "StzFindResultHandle";
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_regex_find_all(h, pat, pat_len, flags)), FR_HANDLE);
+}
+
+fn ring_StringRegexReplaceAll(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pat = ring_vm_api_getstring(p, 2);
+    const pat_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const repl = ring_vm_api_getstring(p, 3);
+    const repl_len: usize = @intCast(ring_vm_api_getstringsize(p, 3));
+    const flags: u32 = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    ring_vm_api_retcpointer(p, @ptrCast(string.str_regex_replace_all(h, pat, pat_len, repl, repl_len, flags)), STZ_HANDLE);
+}
+
+fn ring_StringRegexSplitCount(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pat = ring_vm_api_getstring(p, 2);
+    const pat_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const flags: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    ring_vm_api_retnumber(p, @floatFromInt(string.str_regex_split_count(h, pat, pat_len, flags)));
+}
+
+fn ring_StringRegexSplitGet(p: *anyopaque) callconv(.c) void {
+    const h = getHandle(p, 1);
+    const pat = ring_vm_api_getstring(p, 2);
+    const pat_len: usize = @intCast(ring_vm_api_getstringsize(p, 2));
+    const flags: u32 = @intFromFloat(ring_vm_api_getnumber(p, 3));
+    const idx: c_int = @intFromFloat(ring_vm_api_getnumber(p, 4));
+    const result = string.str_regex_split_get(h, pat, pat_len, flags, idx);
+    if (result) |rs_h| {
+        const data = string.str_data(rs_h);
+        const size = string.str_size(rs_h);
+        if (data != null and size > 0) {
+            ring_vm_api_retstring2(p, data, @intCast(size));
+        } else {
+            ring_vm_api_retstring(p, "");
+        }
+        string.str_free(rs_h);
+    } else {
+        ring_vm_api_retstring(p, "");
+    }
+}
+
 // ─── Registration ───
 // Ring lowercases all function names, so registered names must be lowercase.
 
@@ -3283,6 +3357,14 @@ const regs = [_]R.Reg{
     // CS batch 2: find (2)
     .{ .name = "stzenginestringbeginswithanyxcs", .func = &ring_StringStartsWithAnyCS },
     .{ .name = "stzenginestringfinisheswithanyxcs", .func = &ring_StringEndsWithAnyCS },
+    // Regex integration (Phase E) (7)
+    .{ .name = "stzenginestringregexismatch", .func = &ring_StringRegexIsMatch },
+    .{ .name = "stzenginestringregexcount", .func = &ring_StringRegexCount },
+    .{ .name = "stzenginestringregexfindfirst", .func = &ring_StringRegexFindFirst },
+    .{ .name = "stzenginestringregexfindall", .func = &ring_StringRegexFindAll },
+    .{ .name = "stzenginestringregexreplaceall", .func = &ring_StringRegexReplaceAll },
+    .{ .name = "stzenginestringregexsplitcount", .func = &ring_StringRegexSplitCount },
+    .{ .name = "stzenginestringregexsplitget", .func = &ring_StringRegexSplitGet },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
