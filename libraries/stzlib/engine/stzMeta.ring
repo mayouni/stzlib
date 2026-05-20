@@ -3,11 +3,11 @@
 # Loads stz_meta.dll and provides high-level Ring functions
 # that wrap the native meta-engine. This replaces:
 #
-#   - 1,566 IsXxxNamedParam() methods  -> EngineIsNamedParam()
+#   - 1,566 IsXxxNamedParam() methods  -> StzMetaIsNamedParam()
 #   - CheckingParams() boilerplate     -> engine-side param validation
-#   - StzRaise() hand-crafted strings  -> EngineFormatError()
-#   - addmethod() alias loops          -> EngineRegisterAlias()
-#   - CS/Q/Passive wrapper methods     -> EngineApplyGenRules()
+#   - StzRaise() hand-crafted strings  -> StzMetaFormatError()
+#   - addmethod() alias loops          -> StzMetaRegisterAlias()
+#   - CS/Q/Passive wrapper methods     -> StzMetaApplyGenRules()
 #
 # Used by: base/common/stzfuncs.ring, all Stz* classes
 
@@ -22,7 +22,6 @@ ok
 if fexists($cStzMetaLib)
     $pStzMetaHandle = LoadLib($cStzMetaLib)
 else
-    # stz_meta is optional -- all functions have NULL-handle fallbacks
     $pStzMetaHandle = NULL
 ok
 
@@ -30,41 +29,36 @@ ok
 #  INITIALIZATION                                            #
 #------------------------------------------------------------#
 
-func EngineMetaInit()
+func StzMetaInit()
     if $pStzMetaHandle != NULL
         stz_meta_init()
     ok
 
-func EngineMetaShutdown()
+	func EngineMetaInit()
+		StzMetaInit()
+
+func StzMetaShutdown()
     if $pStzMetaHandle != NULL
         stz_meta_shutdown()
     ok
+
+	func EngineMetaShutdown()
+		StzMetaShutdown()
 
 #------------------------------------------------------------#
 #  NAMED PARAM REGISTRY (replaces 1,566 IsXxxNamedParam)     #
 #------------------------------------------------------------#
 
-# Replaces:
-#   def IsOfNamedParam()
-#       if This.NumberOfItems() = 2 and
-#          (isString(This.Item(1)) and This.Item(1) = :Of)
-#           return 1
-#       else
-#           return 0
-#       ok
-#
-# With a single hash-lookup:
-#   EngineIsNamedParam("Of")  -->  1
-
-func EngineIsNamedParam(cKeyword)
+func StzMetaIsNamedParam(cKeyword)
     if $pStzMetaHandle = NULL
         return 0
     ok
     return stz_meta_is_named_param(cKeyword)
 
-# Replaces IsOneOfTheseNamedParams() which used eval() to
-# dynamically build method names. Now does N hash lookups.
-func EngineIsOneOfTheseNamedParams(paList, pacNames)
+	func EngineIsNamedParam(cKeyword)
+		return StzMetaIsNamedParam(cKeyword)
+
+func StzMetaIsOneOfTheseNamedParams(paList, pacNames)
     if $pStzMetaHandle = NULL
         return 0
     ok
@@ -84,7 +78,7 @@ func EngineIsOneOfTheseNamedParams(paList, pacNames)
     nLen = len(pacNames)
     for i = 1 to nLen
         if ring_lower(paList[1]) = ring_lower(pacNames[i])
-            if EngineIsNamedParam(pacNames[i])
+            if StzMetaIsNamedParam(pacNames[i])
                 return 1
             ok
         ok
@@ -92,9 +86,10 @@ func EngineIsOneOfTheseNamedParams(paList, pacNames)
 
     return 0
 
-# Unified named-param check: is this list a [:Keyword, value] pair
-# where Keyword is registered in the engine?
-func EngineIsAnyNamedParam(paList)
+	func EngineIsOneOfTheseNamedParams(paList, pacNames)
+		return StzMetaIsOneOfTheseNamedParams(paList, pacNames)
+
+func StzMetaIsAnyNamedParam(paList)
     if NOT isList(paList)
         return 0
     ok
@@ -107,41 +102,41 @@ func EngineIsAnyNamedParam(paList)
         return 0
     ok
 
-    return EngineIsNamedParam(paList[1])
+    return StzMetaIsNamedParam(paList[1])
+
+	func EngineIsAnyNamedParam(paList)
+		return StzMetaIsAnyNamedParam(paList)
 
 #------------------------------------------------------------#
 #  PARAM CHECKING TOGGLE                                     #
 #------------------------------------------------------------#
 
-func EngineParamCheckEnabled()
+func StzMetaParamCheckEnabled()
     if $pStzMetaHandle = NULL
         return _bParamCheck
     ok
     return stz_meta_param_check_enabled()
 
-func EngineSetParamCheck(bValue)
+	func EngineParamCheckEnabled()
+		return StzMetaParamCheckEnabled()
+
+func StzMetaSetParamCheck(bValue)
     if $pStzMetaHandle != NULL
         stz_meta_set_param_check(bValue)
     ok
     _bParamCheck = bValue
 
+	func EngineSetParamCheck(bValue)
+		StzMetaSetParamCheck(bValue)
+
 #------------------------------------------------------------#
 #  ERROR CATALOG (replaces hand-crafted StzRaise strings)    #
 #------------------------------------------------------------#
 
-# Usage:
-#   StzRaise(EngineFormatError(:PARAM_TYPE, [
-#       :param = "pItem", :expected = "string"
-#   ]))
-
-func EngineFormatError(cCode, paParams)
+func StzMetaFormatError(cCode, paParams)
     if $pStzMetaHandle = NULL
         return "Error: " + cCode
     ok
-
-    # Convert Ring hash list to flat key/value pairs for the engine
-    # [:param = "pItem", :expected = "string"]
-    # becomes: "param", "pItem", "expected", "string"
 
     nLen = len(paParams)
 
@@ -170,31 +165,41 @@ func EngineFormatError(cCode, paParams)
         return "Error: " + cCode
     off
 
+	func EngineFormatError(cCode, paParams)
+		return StzMetaFormatError(cCode, paParams)
+
 #------------------------------------------------------------#
 #  ALIAS ENGINE (replaces addmethod() init loops in XT)      #
 #------------------------------------------------------------#
 
-func EngineRegisterAlias(cClass, cAlias, cCanonical)
+func StzMetaRegisterAlias(cClass, cAlias, cCanonical)
     if $pStzMetaHandle = NULL
         return
     ok
     stz_meta_register_alias(cClass, cAlias, cCanonical)
 
-func EngineResolveAlias(cClass, cMethod)
+	func EngineRegisterAlias(cClass, cAlias, cCanonical)
+		StzMetaRegisterAlias(cClass, cAlias, cCanonical)
+
+func StzMetaResolveAlias(cClass, cMethod)
     if $pStzMetaHandle = NULL
         return ""
     ok
     return stz_meta_resolve_alias(cClass, cMethod)
 
-func EngineAliasCount(cClass)
+	func EngineResolveAlias(cClass, cMethod)
+		return StzMetaResolveAlias(cClass, cMethod)
+
+func StzMetaAliasCount(cClass)
     if $pStzMetaHandle = NULL
         return 0
     ok
     return stz_meta_alias_count(cClass)
 
-# Bulk register aliases from a table (same format as XT classes)
-# aAliases = [ [:Value, :Content], [:Size, :NumberOfItems], ... ]
-func EngineRegisterAliases(cClass, aAliases)
+	func EngineAliasCount(cClass)
+		return StzMetaAliasCount(cClass)
+
+func StzMetaRegisterAliases(cClass, aAliases)
     if $pStzMetaHandle = NULL
         return
     ok
@@ -204,13 +209,14 @@ func EngineRegisterAliases(cClass, aAliases)
         stz_meta_register_alias(cClass, aAliases[i][1], aAliases[i][2])
     next
 
+	func EngineRegisterAliases(cClass, aAliases)
+		StzMetaRegisterAliases(cClass, aAliases)
+
 #------------------------------------------------------------#
 #  METHOD GENERATION (CS/Q/Passive auto-dispatch)            #
 #------------------------------------------------------------#
 
-# Apply generation rules to a class object using addmethod().
-# Called once at class init instead of writing hundreds of wrappers.
-func EngineApplyGenRules(oObject, cClass)
+func StzMetaApplyGenRules(oObject, cClass)
     if $pStzMetaHandle = NULL
         return
     ok
@@ -226,7 +232,6 @@ func EngineApplyGenRules(oObject, cClass)
             loop
         ok
 
-        # Parse "kind|generated|canonical"
         aparts = split(cRule, "|")
         if len(aparts) != 3
             loop
@@ -238,10 +243,7 @@ func EngineApplyGenRules(oObject, cClass)
 
         switch cKind
         on "cs"
-            # For CS rules, the generated method calls canonical with CS=1
-            # We use addmethod to point generated -> a wrapper
-            # Ring's addmethod can only alias, so we create a dispatcher
-            _EngineAddCSWrapper(oObject, cGenerated, cCanonical)
+            _StzMetaAddCSWrapper(oObject, cGenerated, cCanonical)
         on "fluent_q"
             addmethod(oObject, cGenerated, cCanonical)
         on "passive"
@@ -249,25 +251,33 @@ func EngineApplyGenRules(oObject, cClass)
         off
     next
 
-# CS wrapper: creates a method that calls the CS version with TRUE
-func _EngineAddCSWrapper(oObject, cNonCS, cCS)
-    # For now, use addmethod as a direct alias.
-    # Full CS-dispatch (appending ,1) requires Ring method interception
-    # which will be added when the engine gains method-call hooks.
+	func EngineApplyGenRules(oObject, cClass)
+		StzMetaApplyGenRules(oObject, cClass)
+
+func _StzMetaAddCSWrapper(oObject, cNonCS, cCS)
     addmethod(oObject, cNonCS, cCS)
+
+	func _EngineAddCSWrapper(oObject, cNonCS, cCS)
+		_StzMetaAddCSWrapper(oObject, cNonCS, cCS)
 
 #------------------------------------------------------------#
 #  HISTORY TRACKING                                          #
 #------------------------------------------------------------#
 
-func EngineHistoryEnabled()
+func StzMetaHistoryEnabled()
     if $pStzMetaHandle = NULL
         return _bKeepHisto
     ok
     return stz_meta_history_enabled()
 
-func EngineSetHistory(bValue)
+	func EngineHistoryEnabled()
+		return StzMetaHistoryEnabled()
+
+func StzMetaSetHistory(bValue)
     if $pStzMetaHandle != NULL
         stz_meta_set_history(bValue)
     ok
     _bKeepHisto = bValue
+
+	func EngineSetHistory(bValue)
+		StzMetaSetHistory(bValue)

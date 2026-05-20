@@ -342,6 +342,7 @@ ok
     load "error/stzdecimaltobinaryerror.ring"
 
     load "error/stzcountryerror.ring"
+    load "error/stzError.ring"
 
 # Loading files related to the DATETIME module
 
