@@ -517,6 +517,21 @@ pub const str_unique_chars_cs = format.str_unique_chars_cs;
 pub const str_substrings_count = format.str_substrings_count;
 pub const str_substrings_of_n_chars = format.str_substrings_of_n_chars;
 
+// ─── Regex submodule imports ───
+const regex = @import("string/regex.zig");
+
+pub const str_regex_is_match = regex.str_regex_is_match;
+pub const str_regex_count = regex.str_regex_count;
+pub const str_regex_find_first = regex.str_regex_find_first;
+pub const str_regex_find_all = regex.str_regex_find_all;
+pub const str_regex_replace_all = regex.str_regex_replace_all;
+pub const str_regex_split_count = regex.str_regex_split_count;
+pub const str_regex_split_get = regex.str_regex_split_get;
+
+test {
+    _ = regex;
+}
+
 // ─── Tests ───
 
 test "string lifecycle" {
