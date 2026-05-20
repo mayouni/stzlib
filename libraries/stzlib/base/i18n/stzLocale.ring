@@ -420,25 +420,37 @@ func _LangNativeNameFromCode(cLangCode)
 
 # â”€â”€ Top-level functions â”€â”€
 
-func SystemLocale()
+func StzSystemLocale()
 	return "C"
 
-	func SystemLocaleAbbreviation()
-		return SystemLocale()
+	func SystemLocale()
+		return StzSystemLocale()
 
-func DefaultDaysOfWeek()
+	func StzSystemLocaleAbbreviation()
+		return StzSystemLocale()
+
+	func SystemLocaleAbbreviation()
+		return StzSystemLocale()
+
+func StzDefaultDaysOfWeek()
 	return $aDaysOfWeek
+
+	func DefaultDaysOfWeek()
+		return StzDefaultDaysOfWeek()
 
 func StzLocaleQ(p)
 	return new stzLocale(p)
 
-func LocaleAbbreviationsXT()
+func StzLocaleAbbreviationsXT()
 	return _aLocaleAbbreviationsXT
 
-func LocaleAbbreviations()
+	func LocaleAbbreviationsXT()
+		return StzLocaleAbbreviationsXT()
+
+func StzLocaleAbbreviations()
 	aResult = []
 
-	for acountry in LocaleAbbreviationsXT()
+	for acountry in StzLocaleAbbreviationsXT()
 		for aLanguage in aCountry[2]
 			for aLocale in aLanguage
 				aResult + aLocale[2]
@@ -448,20 +460,29 @@ func LocaleAbbreviations()
 
 	return aResult
 
-func LocaleAbbreviationsAsString()
+	func LocaleAbbreviations()
+		return StzLocaleAbbreviations()
+
+func StzLocaleAbbreviationsAsString()
 	return _cLocaleAbbreviations
 
-	def LocaleAbbreviationsHostedInString()
-		return LocaleAbbreviationsAsString()
+	func LocaleAbbreviationsAsString()
+		return StzLocaleAbbreviationsAsString()
 
-func LanguagesAndTheirDefaultCountries()
+	func LocaleAbbreviationsHostedInString()
+		return StzLocaleAbbreviationsAsString()
+
+func StzLanguagesAndTheirDefaultCountries()
 	aResult = []
 	for aLangInfo in LocaleLanguagesXT()
 		aResult + [ aLangInfo[2], aLangInfo[5] ]
 	next
 	return aResult
 
-func LanguagesforWhichDefaultCountryIs(cCountryCode)
+	func LanguagesAndTheirDefaultCountries()
+		return StzLanguagesAndTheirDefaultCountries()
+
+func StzLanguagesforWhichDefaultCountryIs(cCountryCode)
 	aResult = []
 	cCountryName = StzCountryQ(cCountryCode).Name()
 	for aLangInfo in LocaleLanguagesXT()
@@ -471,14 +492,20 @@ func LanguagesforWhichDefaultCountryIs(cCountryCode)
 	next
 	return aResult
 
-func ScriptsAndTheirDefaultLanguages()
+	func LanguagesforWhichDefaultCountryIs(cCountryCode)
+		return StzLanguagesforWhichDefaultCountryIs(cCountryCode)
+
+func StzScriptsAndTheirDefaultLanguages()
 	aResult = []
 	for aScriptInfo in LocaleScriptsXT()
 		aResult + [ aScriptInfo[2], DefaultLanguageForScript(aScriptInfo[2]) ]
 	next
 	return aResult
 
-func ScriptsforWhichDefaultLanguageIs(cLangCode)
+	func ScriptsAndTheirDefaultLanguages()
+		return StzScriptsAndTheirDefaultLanguages()
+
+func StzScriptsforWhichDefaultLanguageIs(cLangCode)
 	aResult = []
 	cLangName = StzLanguageQ(cLangCode).Name()
 	for aScriptInfo in LocaleScriptsXT()
@@ -488,13 +515,22 @@ func ScriptsforWhichDefaultLanguageIs(cLangCode)
 	next
 	return aResult
 
-func LocaleMeasurementSystems()
+	func ScriptsforWhichDefaultLanguageIs(cLangCode)
+		return StzScriptsforWhichDefaultLanguageIs(cLangCode)
+
+func StzLocaleMeasurementSystems()
 	return _aLocaleMeasurementsystems
 
-func NamesOfDays()
-	return NamesOfDaysIn(:English)
+	func LocaleMeasurementSystems()
+		return StzLocaleMeasurementSystems()
 
-func NamesOfDaysIn(pcLangOrCountry)
+func StzNamesOfDays()
+	return StzNamesOfDaysIn(:English)
+
+	func NamesOfDays()
+		return StzNamesOfDays()
+
+func StzNamesOfDaysIn(pcLangOrCountry)
 
 	aResult = []
 	cLangName = :english
@@ -527,10 +563,16 @@ func NamesOfDaysIn(pcLangOrCountry)
 
 	return aDaysInLocaleLanguage
 
-func NamesOfMonths()
-	return NamesOfMonthsIn(:English)
+	func NamesOfDaysIn(pcLangOrCountry)
+		return StzNamesOfDaysIn(pcLangOrCountry)
 
-func NamesOfMonthsIn(pcLangOrCountry)
+func StzNamesOfMonths()
+	return StzNamesOfMonthsIn(:English)
+
+	func NamesOfMonths()
+		return StzNamesOfMonths()
+
+func StzNamesOfMonthsIn(pcLangOrCountry)
 	oLang = new stzString(pcLangOrCountry)
 	aResult = []
 	cLangName = :english
@@ -547,6 +589,9 @@ func NamesOfMonthsIn(pcLangOrCountry)
 	next
 
 	return aResult
+
+	func NamesOfMonthsIn(pcLangOrCountry)
+		return StzNamesOfMonthsIn(pcLangOrCountry)
 
 class stzLocale from stzObject
 	@cAbbreviation
@@ -1408,7 +1453,7 @@ class stzLocale from stzObject
 	#-----------------------#
 
 	def MeasurementSystem()
-		return LocaleMeasurementSystems()[ _LocaleMeasurementSysNum(@cAbbreviation) ]
+		return StzLocaleMeasurementSystems()[ _LocaleMeasurementSysNum(@cAbbreviation) ]
 
 	PRIVATE
 
