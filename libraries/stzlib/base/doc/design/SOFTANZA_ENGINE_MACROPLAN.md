@@ -13,12 +13,12 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 622 passing              |
+| Engine tests      | 657 passing              |
 | DLLs shipping     | 8 (4 Core + 4 Base)      |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 398 DLL functions        |
+| Ring bridge regs  | 405 DLL functions        |
 | Ring Unicode hard | Complete (all domains)   |
-| Last updated      | 2026-05-19 (Session 18)  |
+| Last updated      | 2026-05-20 (Session 19)  |
 
 ---
 
@@ -216,6 +216,30 @@
   rebuild loop to engine `ReverseLines` call.
 - **Test suites**: Added test_inserter.ring (7 assertions).
 - **Stats**: 622 Zig tests, 398 Ring bridge functions, all Ring test suites pass.
+
+### String Engine v2 -- Phases A-D (Sessions 7-18)
+
+- **Phase A (Naming & Indexing)**: Unified `_cs()` signatures, INDEX_BASE=1 at FFI
+  boundary, CamelCase file naming across all layers.
+- **Phase B (Safety)**: Null-handle guards, StrError reporting, ReDoS hardening.
+- **Phase C (Performance)**: BMH search, codepoint cache, ASCII fast-path.
+- **Phase D (Module Separation)**: String engine split into 13 submodules under
+  `string/` (core, find, replace, split, encode, transform, nlp, inspect, extract,
+  trim, compare, count, format).
+- **Stats at D completion**: 641 Zig tests, 398 Ring bridge functions.
+
+### String Engine v2 -- Phase E: Regex Integration (Session 19)
+
+- **New submodule**: `string/regex.zig` -- bridges standalone regex engine into
+  string handle API. 7 functions: `str_regex_is_match`, `str_regex_count`,
+  `str_regex_find_first`, `str_regex_find_all` (returns StzFindResultHandle),
+  `str_regex_replace_all` (returns new StzStringHandle), `str_regex_split_count`,
+  `str_regex_split_get`.
+- **Ring bridge**: 7 new bridge wrappers in `ring_bridge_string.zig` (405 total).
+- **Exports**: All 7 functions exported in `engine.zig` and `stz_string_entry.zig`.
+- **Tests**: 16 new Zig tests covering ASCII, Unicode, case-insensitive, null
+  handles, edge cases (657 total).
+- **DLLs**: `stz_string.dll` and `stk_string.dll` rebuilt with regex integration.
 
 ---
 
