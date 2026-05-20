@@ -133,7 +133,7 @@ func IsNamedParamList(paList)
 		return 0
 	ok
 
-	return EngineIsNamedParam(paList[1])
+	return StzMetaIsNamedParam(paList[1])
 
 # Is this value a specific named param?
 func IsThisNamedParam(paList, cKeyword)
