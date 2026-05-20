@@ -36,10 +36,10 @@ _$aMATCH_OPTIONS = [
 	:CaseInsensitive,	# flag 1
 	:DotMatchesAll,		# flag 2
 	:MultiLine,		# flag 4
-	:ExtendedSyntax,	# flag 8 (ignored by Engine)
-	:NonGreedy,		# flag 16 (ignored by Engine)
+	:ExtendedSyntax,	# flag 8
+	:NonGreedy,		# flag 16
 	:DontCapture,		# flag 32 (ignored by Engine)
-	:UseUnicode,		# flag 64 (ignored by Engine)
+	:UseUnicode,		# flag 64 (ignored by Engine -- always on via PCRE2_UTF|PCRE2_UCP)
 	:DisableOptimizations,	# flag 128 (ignored by Engine)
 	:RecursiveMatch,	# flag 256 (ignored by Engine)
 ]
@@ -238,6 +238,12 @@ class stzRegex
 			case :MultiLine
 				@nFlags = @nFlags | 4
 
+			case :ExtendedSyntax
+				@nFlags = @nFlags | 8
+
+			case :NonGreedy
+				@nFlags = @nFlags | 16
+
 			case :RecursiveMatch
 				@bRecursiveMatch = TRUE
 			off
@@ -280,7 +286,9 @@ class stzRegex
 		return StzEngineRegexHasMatch(@pRegexHandle)
 
 	def HasPartialMatch()
-		return FALSE
+		if @pRegexHandle = NULL return FALSE ok
+		nResult = StzEngineRegexPartialMatch(@pRegexHandle, @cStr, 1)
+		return nResult = 2
 
 	#-- Softanza scope-based pattern matching methods
 
@@ -652,7 +660,8 @@ class stzRegex
 		return This.CaptureCount() > 0
 
 	def HasNames()
-		return FALSE
+		if @pRegexHandle = NULL return FALSE ok
+		return StzEngineRegexNamedGroupCount(@pRegexHandle) > 0
 
 	def CaptureGroups()
 
@@ -705,7 +714,20 @@ class stzRegex
 			return This.HasValues()
 
 	def CaptureNames()
-		return []
+		if @pRegexHandle = NULL return [] ok
+
+		_nCount_ = StzEngineRegexNamedGroupCount(@pRegexHandle)
+		if _nCount_ = 0 return [] ok
+
+		_acResult_ = []
+		for @i = 1 to _nCount_
+			_cName_ = StzEngineRegexNamedGroupName(@pRegexHandle, @i)
+			if _cName_ != ""
+				_acResult_ + _cName_
+			ok
+		next
+
+		return _acResult_
 
 		def Names()
 			return This.CaptureNames()
@@ -731,6 +753,33 @@ class stzRegex
 
 		def Groups()
 			return This.CapturedGroups()
+
+	def CaptureByName(pcName)
+		if @pRegexHandle = NULL return "" ok
+		return StzEngineRegexCaptureByName(@pRegexHandle, pcName)
+
+		def NamedCapture(pcName)
+			return This.CaptureByName(pcName)
+
+		def GroupByName(pcName)
+			return This.CaptureByName(pcName)
+
+	def NamedGroups()
+		if NOT This.HasNames() return [] ok
+
+		_acNames_ = This.CaptureNames()
+		_aResult_ = []
+		_nLen_ = len(_acNames_)
+
+		for @i = 1 to _nLen_
+			_cVal_ = StzEngineRegexCaptureByName(@pRegexHandle, _acNames_[@i])
+			_aResult_ + [ _acNames_[@i], _cVal_ ]
+		next
+
+		return _aResult_
+
+		def NamedCaptureGroups()
+			return This.NamedGroups()
 
 	def FindCapture()
 		_aPosZZ_ = This.FindMatchesZZ()
@@ -907,7 +956,9 @@ class stzRegex
 	#-----------------#
 
 	def IsPartialMatch(pcStr)
-		return FALSE
+		if @pRegexHandle = NULL return FALSE ok
+		nResult = StzEngineRegexPartialMatch(@pRegexHandle, pcStr, 1)
+		return nResult = 2
 
 		def IsPartial(pcStr)
 			return This.IsPartialMatch(pcStr)
@@ -938,11 +989,33 @@ class stzRegex
 
 	def PartialMatchInfo(pcStr)
 
-		if This.IsCompleteMatch(pcStr)
+		if @pRegexHandle = NULL
+			return [
+				:matchType = "none",
+				:matched   = "",
+				:section  = []
+			]
+		ok
+
+		nResult = StzEngineRegexPartialMatch(@pRegexHandle, pcStr, 1)
+
+		if nResult = 1
+			_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
+			_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
 			return [
 				:matchType = "complete",
 				:matched   = pcStr,
-				:section  = [ 1, len(pcStr) ]
+				:section  = [ _nStart_, _nEnd_ ]
+			]
+		ok
+
+		if nResult = 2
+			_nStart_ = StzEngineRegexCaptureStart(@pRegexHandle, 1)
+			_nEnd_ = StzEngineRegexCaptureEnd(@pRegexHandle, 1)
+			return [
+				:matchType = "partial",
+				:matched   = StzSubStr(pcStr, _nStart_, _nEnd_ - _nStart_),
+				:section  = [ _nStart_, _nEnd_ ]
 			]
 		ok
 
@@ -963,23 +1036,30 @@ class stzRegex
 
 
 	def PartialMatchStart(pcStr)
-		return 0
+		_aInfo_ = This.PartialMatchInfo(pcStr)
+		if _aInfo_[1][2] = "none" return 0 ok
+		return _aInfo_[3][2][1]
 
 	def FindPartialMatchZZ(pcStr)
-		return This.PartialMAtchInfo(pcStr)[3][2]
+		return This.PartialMatchInfo(pcStr)[3][2]
 
-	def PartialMatchLength()
-		return 0
+	def PartialMatchLength(pcStr)
+		_aInfo_ = This.PartialMatchInfo(pcStr)
+		if _aInfo_[1][2] = "none" return 0 ok
+		return _aInfo_[3][2][2] - _aInfo_[3][2][1]
 
-		def PartialMatchSize()
-			return This.PartialMatchLength()
+		def PartialMatchSize(pcStr)
+			return This.PartialMatchLength(pcStr)
 
-		def PartialMatchNumberOfChars()
-			return This.PartialMatchLength()
+		def PartialMatchNumberOfChars(pcStr)
+			return This.PartialMatchLength(pcStr)
 
 	def PartialMatchZ(pcStr)
-		aResult = [ FALSE, 0 ]
-		return aResult
+		_aInfo_ = This.PartialMatchInfo(pcStr)
+		if _aInfo_[1][2] = "partial"
+			return [ TRUE, _aInfo_[3][2][1] ]
+		ok
+		return [ FALSE, 0 ]
 
 	  #----------------------------#
 	 #  Recursive (Nested) Match  #

@@ -13,10 +13,10 @@
 | Modules designed  | 88                       |
 | Modules built     | 11                       |
 | Design principles | 19                       |
-| Engine tests      | 672 passing              |
+| Engine tests      | 674 passing              |
 | DLLs shipping     | 15 (4 Core + 11 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 407 DLL functions        |
+| Ring bridge regs  | 411 DLL functions        |
 | Ring Unicode hard | Complete (all domains)   |
 | PCRE2 backend     | 10.47 (industrial regex) |
 | Last updated      | 2026-05-20 (Session 20)  |
@@ -256,7 +256,11 @@
   backreferences `\1`, word boundaries `\b`, non-capturing groups `(?:)`, counted
   quantifiers `{n,m}`, multiline mode, recursion `(?R)`, Unicode scripts
   `\p{Greek}/\p{Arabic}`, replace with `$1/$2/\1` backreferences.
-- **Tests**: 672 total (15 new PCRE2 feature tests).
+- **Tests**: 674 total (17 new PCRE2 feature tests).
+- **Ring-side stzRegex.ring**: `HasNames()`, `CaptureNames()`, `CaptureByName()`,
+  `NamedGroups()` now live. `IsPartialMatch()`, `HasPartialMatch()`,
+  `PartialMatchInfo()` return real partial match results (code 2 = partial).
+  `:ExtendedSyntax` and `:NonGreedy` match options now wired to PCRE2 flags.
 - **build.zig**: `needs_pcre2` flag added to Domain struct. All string and regex
   domains link PCRE2. Static lib and test targets include PCRE2.
 

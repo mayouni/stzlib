@@ -283,6 +283,64 @@ pub fn stz_regex_named_group_count(h: ?*Regex) callconv(.c) c_int {
     return @intCast(name_count);
 }
 
+pub fn stz_regex_named_group_name(h: ?*Regex, idx: c_int, buf: [*c]u8, buf_len: usize) callconv(.c) usize {
+    const r = h orelse return 0;
+    if (idx < 1) return 0;
+
+    var name_count: u32 = 0;
+    if (pcre2.pcre2_pattern_info_8(r.code, pcre2.PCRE2_INFO_NAMECOUNT, &name_count) != 0) return 0;
+    if (@as(u32, @intCast(idx)) > name_count) return 0;
+
+    var name_entry_size: u32 = 0;
+    if (pcre2.pcre2_pattern_info_8(r.code, pcre2.PCRE2_INFO_NAMEENTRYSIZE, &name_entry_size) != 0) return 0;
+
+    var nametable_ptr: [*]const u8 = undefined;
+    if (pcre2.pcre2_pattern_info_8(r.code, pcre2.PCRE2_INFO_NAMETABLE, @ptrCast(&nametable_ptr)) != 0) return 0;
+
+    const entry_offset = @as(usize, @intCast(idx - 1)) * @as(usize, name_entry_size);
+    const entry = nametable_ptr + entry_offset;
+    const name_start = entry + 2;
+    var name_len: usize = 0;
+    while (name_len < name_entry_size - 3 and name_start[name_len] != 0) : (name_len += 1) {}
+    if (name_len == 0 or name_len > buf_len) return 0;
+    @memcpy(buf[0..name_len], name_start[0..name_len]);
+    return name_len;
+}
+
+pub fn stz_regex_partial_match(h: ?*Regex, inp: [*c]const u8, inp_len: usize, start: usize) callconv(.c) c_int {
+    const r = h orelse return 0;
+    if (inp == null) return 0;
+    if (inp_len > r.max_input_len) return 0;
+    r.input = inp[0..inp_len];
+    r.all_captures.clearRetainingCapacity();
+
+    const rc = pcre2.pcre2_match_8(r.code, inp, inp_len, start, pcre2.PCRE2_PARTIAL_SOFT, r.match_data, r.match_ctx);
+    if (rc == pcre2.PCRE2_ERROR_PARTIAL) {
+        r.matched = false;
+        const ovector = pcre2.pcre2_get_ovector_pointer_8(r.match_data);
+        r.all_captures.append(gpa, .{ .start = @intCast(ovector[0]), .end = @intCast(ovector[1]) }) catch {};
+        return 2;
+    }
+    if (rc < 0) {
+        r.matched = false;
+        return 0;
+    }
+    r.matched = true;
+    const ovector = pcre2.pcre2_get_ovector_pointer_8(r.match_data);
+    const pair_count: usize = @intCast(rc);
+    var i: usize = 0;
+    while (i < pair_count) : (i += 1) {
+        const s = ovector[i * 2];
+        const e = ovector[i * 2 + 1];
+        if (s == std.math.maxInt(usize)) {
+            r.all_captures.append(gpa, .{ .start = -1, .end = -1 }) catch {};
+        } else {
+            r.all_captures.append(gpa, .{ .start = @intCast(s), .end = @intCast(e) }) catch {};
+        }
+    }
+    return 1;
+}
+
 // ─── Replace with backreference support ($1, $2, ${name}) ───
 
 pub fn stz_regex_replace(h: ?*Regex, inp: [*c]const u8, inp_len: usize, repl: [*c]const u8, repl_len: usize, out_len: *usize) callconv(.c) [*c]u8 {
@@ -700,6 +758,29 @@ test "recursion (?R)" {
     try std.testing.expectEqual(@as(c_int, 8), stz_regex_capture_end(h, 1));
 }
 
+test "named_group_name enumerates names" {
+    const h = stz_regex_new("(?P<year>\\d{4})-(?P<month>\\d{2})", 32, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    try std.testing.expectEqual(@as(c_int, 2), stz_regex_named_group_count(h));
+    var buf: [64]u8 = undefined;
+    const len1 = stz_regex_named_group_name(h, 1, &buf, 64);
+    try std.testing.expect(len1 > 0);
+    const len2 = stz_regex_named_group_name(h, 2, &buf, 64);
+    try std.testing.expect(len2 > 0);
+    try std.testing.expectEqual(@as(usize, 0), stz_regex_named_group_name(h, 3, &buf, 64));
+}
+
+test "partial match returns 2" {
+    const h = stz_regex_new("^\\d{4}-\\d{2}-\\d{2}$", 18, 0) orelse unreachable;
+    defer stz_regex_free(h);
+    const full = stz_regex_partial_match(h, "2026-05-20", 10, 0);
+    try std.testing.expectEqual(@as(c_int, 1), full);
+    const partial = stz_regex_partial_match(h, "2026-05", 7, 0);
+    try std.testing.expectEqual(@as(c_int, 2), partial);
+    const none = stz_regex_partial_match(h, "abcdef", 6, 0);
+    try std.testing.expectEqual(@as(c_int, 0), none);
+}
+
 test "null handle safety" {
     try std.testing.expectEqual(@as(c_int, 0), stz_regex_match(null, "a", 1, 0));
     try std.testing.expectEqual(@as(c_int, 0), stz_regex_has_match(null));
@@ -709,4 +790,6 @@ test "null handle safety" {
     try std.testing.expectEqual(@as(usize, 0), stz_regex_capture_text(null, 1, undefined, 0));
     try std.testing.expectEqual(@as(usize, 0), stz_regex_capture_by_name(null, "x", 1, undefined, 0));
     try std.testing.expectEqual(@as(c_int, 0), stz_regex_named_group_count(null));
+    try std.testing.expectEqual(@as(usize, 0), stz_regex_named_group_name(null, 1, undefined, 0));
+    try std.testing.expectEqual(@as(c_int, 0), stz_regex_partial_match(null, "a", 1, 0));
 }
