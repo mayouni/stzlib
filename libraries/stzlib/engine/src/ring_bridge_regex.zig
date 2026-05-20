@@ -84,6 +84,20 @@ fn ring_CaptureByName(p: *anyopaque) callconv(.c) void {
 fn ring_NamedGroupCount(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(rx.stz_regex_named_group_count(getH(p, 1))));
 }
+fn ring_NamedGroupName(p: *anyopaque) callconv(.c) void {
+    var buf: [256]u8 = undefined;
+    const idx: c_int = @intFromFloat(g(p, 2));
+    const n = rx.stz_regex_named_group_name(getH(p, 1), idx, &buf, 256);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
+}
+fn ring_PartialMatch(p: *anyopaque) callconv(.c) void {
+    const h = getH(p, 1);
+    const inp = gs(p, 2);
+    const inp_len: usize = @intCast(gss(p, 2));
+    const raw: usize = @intFromFloat(g(p, 3));
+    const start: usize = if (raw > 0) raw - 1 else 0;
+    rn(p, @floatFromInt(rx.stz_regex_partial_match(h, inp, inp_len, start)));
+}
 
 pub const regs = [_]R.Reg{
     .{ .name = "stzengineregexnew", .func = &ring_New },
@@ -99,6 +113,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzengineregexsetlimits", .func = &ring_SetLimits },
     .{ .name = "stzengineregexcapturebyname", .func = &ring_CaptureByName },
     .{ .name = "stzengineregexnamedgroupcount", .func = &ring_NamedGroupCount },
+    .{ .name = "stzengineregexnamedgroupname", .func = &ring_NamedGroupName },
+    .{ .name = "stzengineregexpartialmatch", .func = &ring_PartialMatch },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
