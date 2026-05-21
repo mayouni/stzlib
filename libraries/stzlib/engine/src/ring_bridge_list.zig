@@ -300,6 +300,14 @@ fn ring_AllUniqueCS(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_all_unique_cs(getLC(p, 1), @intFromFloat(g(p, 2)))));
 }
 
+// Classify / Frequencies
+fn ring_ClassifyCS(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_classify_cs(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
+}
+fn ring_FrequenciesCS(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_frequencies_cs(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
+}
+
 // Set operations
 fn ring_IntersectionCS(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_intersection_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
@@ -369,6 +377,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginestringfindcharsw", .func = &ring_StringFindCharsW },
     .{ .name = "stzenginestringmapchars", .func = &ring_StringMapChars },
     .{ .name = "stzenginestringcountcharsw", .func = &ring_StringCountCharsW },
+    .{ .name = "stzenginelistclassifycs", .func = &ring_ClassifyCS },
+    .{ .name = "stzenginelistfrequenciescs", .func = &ring_FrequenciesCS },
     .{ .name = "stzenginelistintersectioncs", .func = &ring_IntersectionCS },
     .{ .name = "stzenginelistunioncs", .func = &ring_UnionCS },
     .{ .name = "stzenginelistdifferencecs", .func = &ring_DifferenceCS },

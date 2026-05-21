@@ -534,6 +534,185 @@ pub fn stz_list_equals_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive
     return 1;
 }
 
+// ─── C ABI: Classify / Frequencies ───
+
+fn valueToString(v: *const StzValue, buf: []u8) usize {
+    return switch (v.tag) {
+        .null_val => blk: {
+            const s = "null";
+            if (s.len <= buf.len) @memcpy(buf[0..s.len], s);
+            break :blk @min(s.len, buf.len);
+        },
+        .bool_val => blk: {
+            const s = if (v.data.bool_val) "true" else "false";
+            if (s.len <= buf.len) @memcpy(buf[0..s.len], s);
+            break :blk @min(s.len, buf.len);
+        },
+        .int_val => blk: {
+            const n = std.fmt.bufPrint(buf, "{d}", .{v.data.int_val}) catch break :blk 0;
+            break :blk n.len;
+        },
+        .float_val => blk: {
+            const n = std.fmt.bufPrint(buf, "{d}", .{v.data.float_val}) catch break :blk 0;
+            break :blk n.len;
+        },
+        .string_val => blk: {
+            const s = v.data.string_val;
+            const copy_len = @min(s.len, buf.len);
+            if (copy_len > 0) @memcpy(buf[0..copy_len], s.ptr[0..copy_len]);
+            break :blk copy_len;
+        },
+        .list_val => blk: {
+            const s = "[list]";
+            if (s.len <= buf.len) @memcpy(buf[0..s.len], s);
+            break :blk @min(s.len, buf.len);
+        },
+    };
+}
+
+fn findInSeen(seen: []const []const u8, key: []const u8, case_sensitive: bool) ?usize {
+    for (seen, 0..) |s, i| {
+        if (case_sensitive) {
+            if (s.len == key.len and std.mem.eql(u8, s, key)) return i;
+        } else {
+            if (strEqlCI(s.ptr, s.len, key.ptr, key.len)) return i;
+        }
+    }
+    return null;
+}
+
+pub fn stz_list_classify_cs(list_arg: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const cs = case_sensitive != 0;
+    const n = l.len();
+    const result = StzList.init() catch return null;
+    if (n == 0) return result;
+
+    // Build key strings for each item
+    const key_bufs = allocator.alloc([256]u8, n) catch { result.deinit(); return null; };
+    defer allocator.free(key_bufs);
+    const key_lens = allocator.alloc(usize, n) catch { result.deinit(); return null; };
+    defer allocator.free(key_lens);
+
+    for (l.items.items, 0..) |item, i| {
+        key_lens[i] = valueToString(item, &key_bufs[i]);
+        if (!cs) {
+            // lowercase in-place for comparison
+            for (key_bufs[i][0..key_lens[i]]) |*c| {
+                if (c.* >= 'A' and c.* <= 'Z') c.* += 32;
+            }
+        }
+    }
+
+    // Group: seen_keys[], position_lists[]
+    const max_groups = n;
+    const seen_keys = allocator.alloc([]const u8, max_groups) catch { result.deinit(); return null; };
+    defer allocator.free(seen_keys);
+
+    // For each group, store positions as a dynamic list of indices
+    const PosGroup = struct { positions: std.ArrayList(usize) };
+    const groups = allocator.alloc(PosGroup, max_groups) catch { result.deinit(); return null; };
+    defer {
+        for (groups[0..]) |*grp| grp.positions.deinit(allocator);
+        allocator.free(groups);
+    }
+    for (groups) |*grp| grp.* = .{ .positions = .{} };
+
+    var num_groups: usize = 0;
+
+    for (0..n) |i| {
+        const key = key_bufs[i][0..key_lens[i]];
+        if (findInSeen(seen_keys[0..num_groups], key, true)) |gi| {
+            // Already comparing lowercased keys if CI, so always use true here
+            groups[gi].positions.append(allocator, i) catch {};
+        } else {
+            seen_keys[num_groups] = key;
+            groups[num_groups].positions = .{};
+            groups[num_groups].positions.append(allocator, i) catch {};
+            num_groups += 1;
+        }
+    }
+
+    // Build result: alternating [key_string, positions_csv_string]
+    for (0..num_groups) |gi| {
+        // Append the key (use original casing from first occurrence)
+        const first_idx = groups[gi].positions.items[0];
+        const orig_item = l.items.items[first_idx];
+        var orig_buf: [256]u8 = undefined;
+        const orig_len = valueToString(orig_item, &orig_buf);
+        _ = stz_list_append_string(result, &orig_buf, orig_len);
+
+        // Build positions CSV (1-based)
+        var csv_buf: [65536]u8 = undefined;
+        var pos: usize = 0;
+        for (groups[gi].positions.items, 0..) |idx, pi| {
+            const val_1based = idx + 1;
+            const slice = std.fmt.bufPrint(csv_buf[pos..], "{d}", .{val_1based}) catch break;
+            pos += slice.len;
+            if (pi + 1 < groups[gi].positions.items.len) {
+                csv_buf[pos] = ',';
+                pos += 1;
+            }
+        }
+        _ = stz_list_append_string(result, &csv_buf, pos);
+    }
+    return result;
+}
+
+pub fn stz_list_frequencies_cs(list_arg: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const cs = case_sensitive != 0;
+    const n = l.len();
+    const result = StzList.init() catch return null;
+    if (n == 0) return result;
+
+    const key_bufs = allocator.alloc([256]u8, n) catch { result.deinit(); return null; };
+    defer allocator.free(key_bufs);
+    const key_lens = allocator.alloc(usize, n) catch { result.deinit(); return null; };
+    defer allocator.free(key_lens);
+
+    for (l.items.items, 0..) |item, i| {
+        key_lens[i] = valueToString(item, &key_bufs[i]);
+        if (!cs) {
+            for (key_bufs[i][0..key_lens[i]]) |*c| {
+                if (c.* >= 'A' and c.* <= 'Z') c.* += 32;
+            }
+        }
+    }
+
+    const max_groups = n;
+    const seen_keys = allocator.alloc([]const u8, max_groups) catch { result.deinit(); return null; };
+    defer allocator.free(seen_keys);
+    const counts = allocator.alloc(usize, max_groups) catch { result.deinit(); return null; };
+    defer allocator.free(counts);
+    const first_indices = allocator.alloc(usize, max_groups) catch { result.deinit(); return null; };
+    defer allocator.free(first_indices);
+
+    var num_groups: usize = 0;
+
+    for (0..n) |i| {
+        const key = key_bufs[i][0..key_lens[i]];
+        if (findInSeen(seen_keys[0..num_groups], key, true)) |gi| {
+            counts[gi] += 1;
+        } else {
+            seen_keys[num_groups] = key;
+            counts[num_groups] = 1;
+            first_indices[num_groups] = i;
+            num_groups += 1;
+        }
+    }
+
+    // Result: alternating [key_string, count_int]
+    for (0..num_groups) |gi| {
+        const orig_item = l.items.items[first_indices[gi]];
+        var orig_buf: [256]u8 = undefined;
+        const orig_len = valueToString(orig_item, &orig_buf);
+        _ = stz_list_append_string(result, &orig_buf, orig_len);
+        _ = stz_list_append_int(result, @intCast(counts[gi]));
+    }
+    return result;
+}
+
 // ─── Expression-based operations ───
 // Replace Ring's eval() with native bytecode evaluation for
 // Map, Filter, Reduce, FindW, and all ...W() predicates.
@@ -2028,4 +2207,134 @@ test "is_subset_cs empty is subset" {
     _ = stz_list_append_int(b, 1);
 
     try std.testing.expectEqual(@as(i32, 1), stz_list_is_subset_cs(a, b, 1));
+}
+
+// ─── Classify / Frequencies tests ───
+
+test "classify_cs basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "c", 1);
+    _ = stz_list_append_string(l, "b", 1);
+
+    const r = stz_list_classify_cs(l, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    // 3 groups * 2 entries each = 6 items
+    try std.testing.expectEqual(@as(usize, 6), stz_list_len(r));
+
+    var buf: [256]u8 = undefined;
+    // Group 0: "a", "1,3"
+    var n = stz_list_get_string(r, 0, &buf, 256);
+    try std.testing.expectEqualStrings("a", buf[0..n]);
+    n = stz_list_get_string(r, 1, &buf, 256);
+    try std.testing.expectEqualStrings("1,3", buf[0..n]);
+
+    // Group 1: "b", "2,5"
+    n = stz_list_get_string(r, 2, &buf, 256);
+    try std.testing.expectEqualStrings("b", buf[0..n]);
+    n = stz_list_get_string(r, 3, &buf, 256);
+    try std.testing.expectEqualStrings("2,5", buf[0..n]);
+
+    // Group 2: "c", "4"
+    n = stz_list_get_string(r, 4, &buf, 256);
+    try std.testing.expectEqualStrings("c", buf[0..n]);
+    n = stz_list_get_string(r, 5, &buf, 256);
+    try std.testing.expectEqualStrings("4", buf[0..n]);
+}
+
+test "classify_cs case insensitive" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "Hello", 5);
+    _ = stz_list_append_string(l, "hello", 5);
+    _ = stz_list_append_string(l, "World", 5);
+
+    const r = stz_list_classify_cs(l, 0) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    // 2 groups
+    try std.testing.expectEqual(@as(usize, 4), stz_list_len(r));
+}
+
+test "classify_cs integers" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 1);
+
+    const r = stz_list_classify_cs(l, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 4), stz_list_len(r));
+
+    var buf: [256]u8 = undefined;
+    var n = stz_list_get_string(r, 0, &buf, 256);
+    try std.testing.expectEqualStrings("1", buf[0..n]);
+    n = stz_list_get_string(r, 1, &buf, 256);
+    try std.testing.expectEqualStrings("1,3", buf[0..n]);
+}
+
+test "classify_cs empty" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    const r = stz_list_classify_cs(l, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 0), stz_list_len(r));
+}
+
+test "frequencies_cs basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "c", 1);
+    _ = stz_list_append_string(l, "a", 1);
+
+    const r = stz_list_frequencies_cs(l, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    // 3 groups * 2 entries = 6
+    try std.testing.expectEqual(@as(usize, 6), stz_list_len(r));
+
+    var buf: [256]u8 = undefined;
+    // "a" => 3
+    var n = stz_list_get_string(r, 0, &buf, 256);
+    try std.testing.expectEqualStrings("a", buf[0..n]);
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(r, 1));
+
+    // "b" => 1
+    n = stz_list_get_string(r, 2, &buf, 256);
+    try std.testing.expectEqualStrings("b", buf[0..n]);
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(r, 3));
+
+    // "c" => 1
+    n = stz_list_get_string(r, 4, &buf, 256);
+    try std.testing.expectEqualStrings("c", buf[0..n]);
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(r, 5));
+}
+
+test "frequencies_cs case insensitive" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "Hello", 5);
+    _ = stz_list_append_string(l, "hello", 5);
+    _ = stz_list_append_string(l, "HELLO", 5);
+
+    const r = stz_list_frequencies_cs(l, 0) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    // 1 group
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(r));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(r, 1));
+}
+
+test "frequencies_cs null returns null" {
+    try std.testing.expect(stz_list_frequencies_cs(null, 1) == null);
 }
