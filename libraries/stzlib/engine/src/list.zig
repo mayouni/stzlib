@@ -66,6 +66,36 @@ fn strEqlCI(a_ptr: [*]const u8, a_len: usize, b_ptr: [*]const u8, b_len: usize) 
     return true;
 }
 
+fn strCompareCI(a_ptr: [*]const u8, a_len: usize, b_ptr: [*]const u8, b_len: usize) i32 {
+    const min_len = @min(a_len, b_len);
+    if (min_len > 0) {
+        const a = a_ptr[0..min_len];
+        const b = b_ptr[0..min_len];
+        for (a, b) |ca, cb| {
+            const la = if (ca >= 'A' and ca <= 'Z') ca + 32 else ca;
+            const lb = if (cb >= 'A' and cb <= 'Z') cb + 32 else cb;
+            if (la < lb) return -1;
+            if (la > lb) return 1;
+        }
+    }
+    if (a_len < b_len) return -1;
+    if (a_len > b_len) return 1;
+    return 0;
+}
+
+fn valueCompareCS(a: *const StzValue, b: *const StzValue, case_sensitive: bool) i32 {
+    if (case_sensitive) return a.compare(b);
+    if (a.tag != b.tag) {
+        return @as(i32, @intCast(@intFromEnum(a.tag))) - @as(i32, @intCast(@intFromEnum(b.tag)));
+    }
+    if (a.tag == .string_val) {
+        const sa = a.data.string_val;
+        const sb = b.data.string_val;
+        return strCompareCI(sa.ptr, sa.len, sb.ptr, sb.len);
+    }
+    return a.compare(b);
+}
+
 fn valueEqlCS(a: *const StzValue, b: *const StzValue, case_sensitive: bool) bool {
     if (case_sensitive) return a.eql(b);
     if (a.tag != b.tag) return false;
@@ -251,26 +281,36 @@ pub fn stz_list_count_cs(list: ?*const StzList, v: ?*const StzValue, case_sensit
 
 // ─── C ABI: Sort ───
 
-pub fn stz_list_sort(list: ?*StzList) callconv(.c) i32 {
+pub fn stz_list_sort_cs(list: ?*StzList, case_sensitive: i32) callconv(.c) i32 {
     const l = list orelse return -1;
     if (l.len() <= 1) return 0;
-    std.mem.sort(*StzValue, l.items.items, {}, struct {
-        fn lessThan(_: void, a: *StzValue, b: *StzValue) bool {
-            return a.compare(b) < 0;
+    const cs = case_sensitive != 0;
+    std.mem.sort(*StzValue, l.items.items, cs, struct {
+        fn lessThan(cs_ctx: bool, a: *StzValue, b: *StzValue) bool {
+            return valueCompareCS(a, b, cs_ctx) < 0;
         }
     }.lessThan);
     return 0;
 }
 
-pub fn stz_list_sort_descending(list: ?*StzList) callconv(.c) i32 {
+pub fn stz_list_sort(list: ?*StzList) callconv(.c) i32 {
+    return stz_list_sort_cs(list, 1);
+}
+
+pub fn stz_list_sort_descending_cs(list: ?*StzList, case_sensitive: i32) callconv(.c) i32 {
     const l = list orelse return -1;
     if (l.len() <= 1) return 0;
-    std.mem.sort(*StzValue, l.items.items, {}, struct {
-        fn greaterThan(_: void, a: *StzValue, b: *StzValue) bool {
-            return a.compare(b) > 0;
+    const cs = case_sensitive != 0;
+    std.mem.sort(*StzValue, l.items.items, cs, struct {
+        fn greaterThan(cs_ctx: bool, a: *StzValue, b: *StzValue) bool {
+            return valueCompareCS(a, b, cs_ctx) > 0;
         }
     }.greaterThan);
     return 0;
+}
+
+pub fn stz_list_sort_descending(list: ?*StzList) callconv(.c) i32 {
+    return stz_list_sort_descending_cs(list, 1);
 }
 
 // ─── C ABI: Reverse ───
@@ -625,6 +665,32 @@ test "list sort strings" {
     try std.testing.expect(std.mem.eql(u8, buf[0..n], "banana"));
     n = stz_list_get_string(l, 2, &buf, 32);
     try std.testing.expect(std.mem.eql(u8, buf[0..n], "cherry"));
+}
+
+test "list sort_cs case insensitive" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "banana", 6);
+    _ = stz_list_append_string(l, "Apple", 5);
+    _ = stz_list_append_string(l, "cherry", 6);
+
+    _ = stz_list_sort_cs(l, 0);
+    var buf: [32]u8 = undefined;
+    var n = stz_list_get_string(l, 0, &buf, 32);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "Apple"));
+    n = stz_list_get_string(l, 1, &buf, 32);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "banana"));
+    n = stz_list_get_string(l, 2, &buf, 32);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "cherry"));
+
+    _ = stz_list_sort_descending_cs(l, 0);
+    n = stz_list_get_string(l, 0, &buf, 32);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "cherry"));
+    n = stz_list_get_string(l, 1, &buf, 32);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "banana"));
+    n = stz_list_get_string(l, 2, &buf, 32);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "Apple"));
 }
 
 test "list reverse" {

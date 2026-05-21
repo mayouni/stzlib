@@ -21,7 +21,9 @@ comptime {
     @export(&list.stz_list_contains_cs, .{ .name = "stz_list_contains_cs" });
     @export(&list.stz_list_find_all_cs, .{ .name = "stz_list_find_all_cs" });
     @export(&list.stz_list_count_cs, .{ .name = "stz_list_count_cs" });
+    @export(&list.stz_list_sort_cs, .{ .name = "stz_list_sort_cs" });
     @export(&list.stz_list_sort, .{ .name = "stz_list_sort" });
+    @export(&list.stz_list_sort_descending_cs, .{ .name = "stz_list_sort_descending_cs" });
     @export(&list.stz_list_sort_descending, .{ .name = "stz_list_sort_descending" });
     @export(&list.stz_list_reverse, .{ .name = "stz_list_reverse" });
     @export(&list.stz_list_unique_cs, .{ .name = "stz_list_unique_cs" });

@@ -641,47 +641,83 @@ class stzList from stzObject
 	 #  SORTING (engine-backed)     #
 	#------------------------------#
 
-	def Sort()
+	def SortCS(pCaseSensitive)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
 		pList = This._EngineListFromContent()
 		if pList = NULL return ok
 
-		StzEngineListSort(pList)
+		StzEngineListSortCS(pList, pCaseSensitive)
 		@aContent = This._ContentFromEngineList(pList)
 		StzEngineListFree(pList)
+
+		def SortCSQ(pCaseSensitive)
+			This.SortCS(pCaseSensitive)
+			return This
+
+	def Sort()
+		This.SortCS(1)
 
 		def SortQ()
 			This.Sort()
 			return This
 
-	def Sorted()
+	def SortedCS(pCaseSensitive)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
 		pList = This._EngineListFromContent()
 		if pList = NULL return [] ok
 
-		StzEngineListSort(pList)
+		StzEngineListSortCS(pList, pCaseSensitive)
 		aResult = This._ContentFromEngineList(pList)
 		StzEngineListFree(pList)
 		return aResult
 
-	def SortInDescending()
+	def Sorted()
+		return This.SortedCS(1)
+
+	def SortInDescendingCS(pCaseSensitive)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
 		pList = This._EngineListFromContent()
 		if pList = NULL return ok
 
-		StzEngineListSortDescending(pList)
+		StzEngineListSortDescendingCS(pList, pCaseSensitive)
 		@aContent = This._ContentFromEngineList(pList)
 		StzEngineListFree(pList)
+
+		def SortInDescendingCSQ(pCaseSensitive)
+			This.SortInDescendingCS(pCaseSensitive)
+			return This
+
+	def SortInDescending()
+		This.SortInDescendingCS(1)
 
 		def SortInDescendingQ()
 			This.SortInDescending()
 			return This
 
-	def SortedInDescending()
+	def SortedInDescendingCS(pCaseSensitive)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
 		pList = This._EngineListFromContent()
 		if pList = NULL return [] ok
 
-		StzEngineListSortDescending(pList)
+		StzEngineListSortDescendingCS(pList, pCaseSensitive)
 		aResult = This._ContentFromEngineList(pList)
 		StzEngineListFree(pList)
 		return aResult
+
+	def SortedInDescending()
+		return This.SortedInDescendingCS(1)
 
 	  #------------------------------#
 	 #  REVERSING (engine-backed)   #

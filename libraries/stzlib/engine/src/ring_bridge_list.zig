@@ -112,8 +112,14 @@ fn ring_CountCS(p: *anyopaque) callconv(.c) void {
 }
 
 // Sort
+fn ring_SortCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_sort_cs(getL(p, 1), @intFromFloat(g(p, 2)))));
+}
 fn ring_Sort(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sort(getL(p, 1))));
+}
+fn ring_SortDescendingCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_sort_descending_cs(getL(p, 1), @intFromFloat(g(p, 2)))));
 }
 fn ring_SortDescending(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sort_descending(getL(p, 1))));
@@ -207,7 +213,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistfindstringcs", .func = &ring_FindStringCS },
     .{ .name = "stzenginelistcontainscs", .func = &ring_ContainsCS },
     .{ .name = "stzenginelistcountcs", .func = &ring_CountCS },
+    .{ .name = "stzenginelistsortcs", .func = &ring_SortCS },
     .{ .name = "stzenginelistsort", .func = &ring_Sort },
+    .{ .name = "stzenginelistsortdescendingcs", .func = &ring_SortDescendingCS },
     .{ .name = "stzenginelistsortdescending", .func = &ring_SortDescending },
     .{ .name = "stzenginelistreverse", .func = &ring_Reverse },
     .{ .name = "stzenginelistuniquecs", .func = &ring_UniqueCS },
