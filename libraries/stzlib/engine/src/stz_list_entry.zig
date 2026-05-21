@@ -66,6 +66,14 @@ comptime {
     @export(&list.stz_list_deep_flatten, .{ .name = "stz_list_deep_flatten" });
     @export(&list.stz_list_flatten_to_depth, .{ .name = "stz_list_flatten_to_depth" });
     @export(&list.stz_list_sort_on, .{ .name = "stz_list_sort_on" });
+    @export(&list.stz_list_shuffle, .{ .name = "stz_list_shuffle" });
+    @export(&list.stz_list_random_item, .{ .name = "stz_list_random_item" });
+    @export(&list.stz_list_random_items, .{ .name = "stz_list_random_items" });
+    @export(&list.stz_list_trim_leading, .{ .name = "stz_list_trim_leading" });
+    @export(&list.stz_list_trim_trailing, .{ .name = "stz_list_trim_trailing" });
+    @export(&list.stz_list_trim, .{ .name = "stz_list_trim" });
+    @export(&list.stz_list_section, .{ .name = "stz_list_section" });
+    @export(&list.stz_list_swap, .{ .name = "stz_list_swap" });
     @export(&list.stz_string_find_chars_w, .{ .name = "stz_string_find_chars_w" });
     @export(&list.stz_string_map_chars, .{ .name = "stz_string_map_chars" });
     @export(&list.stz_string_count_chars_w, .{ .name = "stz_string_count_chars_w" });
