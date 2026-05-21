@@ -323,16 +323,10 @@ class stzListChecker from stzList
 			return This.AllItemsAreEqual()
 
 	def AllItemsAreUnique()
-		aContent = This.Content()
-		nLen = len(aContent)
-		for i = 1 to nLen - 1
-			for j = i + 1 to nLen
-				if BothAreEqual(aContent[i], aContent[j])
-					return 0
-				ok
-			next
-		next
-		return 1
+		pList = _EngineListFromContent()
+		nResult = StzEngineListAllUniqueCS(pList, 1)
+		StzEngineListFree(pList)
+		return nResult
 
 		def ItemsAreAllUnique()
 			return This.AllItemsAreUnique()

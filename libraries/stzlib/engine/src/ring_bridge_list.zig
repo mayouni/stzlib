@@ -247,6 +247,59 @@ fn ring_StringCountCharsW(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_string_count_chars_w(gs(p, 1), @intCast(gss(p, 1)), gs(p, 2), @intCast(gss(p, 2)))));
 }
 
+// Duplicate analysis
+fn ring_FindDuplicatesCS(p: *anyopaque) callconv(.c) void {
+    const dup_list = list.stz_list_find_duplicates_cs(getLC(p, 1), @intFromFloat(g(p, 2)));
+    if (dup_list == null or list.stz_list_len(dup_list) == 0) {
+        if (dup_list) |dl| list.stz_list_free(dl);
+        rs(p, "");
+        return;
+    }
+    const dl = dup_list.?;
+    defer list.stz_list_free(dl);
+    const count = list.stz_list_len(dl);
+    var buf: [65536 * 12]u8 = undefined;
+    var pos: usize = 0;
+    for (0..count) |ci| {
+        const val_1based = list.stz_list_get_int(dl, ci) + 1;
+        const slice = std.fmt.bufPrint(buf[pos..], "{d}", .{val_1based}) catch break;
+        pos += slice.len;
+        if (ci + 1 < count) {
+            buf[pos] = ',';
+            pos += 1;
+        }
+    }
+    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+}
+
+fn ring_FindNonDuplicatedCS(p: *anyopaque) callconv(.c) void {
+    const nd_list = list.stz_list_find_non_duplicated_cs(getLC(p, 1), @intFromFloat(g(p, 2)));
+    if (nd_list == null or list.stz_list_len(nd_list) == 0) {
+        if (nd_list) |nl| list.stz_list_free(nl);
+        rs(p, "");
+        return;
+    }
+    const nl = nd_list.?;
+    defer list.stz_list_free(nl);
+    const count = list.stz_list_len(nl);
+    var buf: [65536 * 12]u8 = undefined;
+    var pos: usize = 0;
+    for (0..count) |ci| {
+        const val_1based = list.stz_list_get_int(nl, ci) + 1;
+        const slice = std.fmt.bufPrint(buf[pos..], "{d}", .{val_1based}) catch break;
+        pos += slice.len;
+        if (ci + 1 < count) {
+            buf[pos] = ',';
+            pos += 1;
+        }
+    }
+    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+}
+
+fn ring_AllUniqueCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_all_unique_cs(getLC(p, 1), @intFromFloat(g(p, 2)))));
+}
+
 // Null-delimited
 fn ring_FromNullDelimited(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_from_null_delimited(gs(p, 1), @intCast(gss(p, 1)))), HL);
@@ -302,6 +355,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginestringfindcharsw", .func = &ring_StringFindCharsW },
     .{ .name = "stzenginestringmapchars", .func = &ring_StringMapChars },
     .{ .name = "stzenginestringcountcharsw", .func = &ring_StringCountCharsW },
+    .{ .name = "stzenginelistfindduplicatescs", .func = &ring_FindDuplicatesCS },
+    .{ .name = "stzenginelistfindnonduplicatedcs", .func = &ring_FindNonDuplicatedCS },
+    .{ .name = "stzenginelistalluniquecs", .func = &ring_AllUniqueCS },
     .{ .name = "stzenginelistfromnulldelimited", .func = &ring_FromNullDelimited },
     .{ .name = "stzenginelisttonulldelimited", .func = &ring_ToNullDelimited },
 };

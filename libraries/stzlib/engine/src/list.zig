@@ -782,6 +782,73 @@ fn keyCmp(a: expr.Val, b: expr.Val) i32 {
     return 0;
 }
 
+// ─── C ABI: Duplicate Analysis ───
+
+pub fn stz_list_find_duplicates_cs(list_arg: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const cs = case_sensitive != 0;
+    const n = l.len();
+    const result = StzList.init() catch return null;
+    if (n <= 1) return result;
+
+    // Track first-seen index for each unique item; duplicates get appended to result
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        const item = l.items.items[i];
+        var is_dup = false;
+        for (l.items.items[0..i]) |prev| {
+            if (valueEqlCS(prev, item, cs)) {
+                is_dup = true;
+                break;
+            }
+        }
+        if (is_dup) {
+            _ = stz_list_append_int(result, @intCast(i));
+        }
+    }
+    return result;
+}
+
+pub fn stz_list_find_non_duplicated_cs(list_arg: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const cs = case_sensitive != 0;
+    const n = l.len();
+    const result = StzList.init() catch return null;
+
+    // For each item, count occurrences. If exactly 1, it's non-duplicated.
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        const item = l.items.items[i];
+        var count: usize = 0;
+        for (l.items.items) |other| {
+            if (valueEqlCS(other, item, cs)) {
+                count += 1;
+                if (count > 1) break;
+            }
+        }
+        if (count == 1) {
+            _ = stz_list_append_int(result, @intCast(i));
+        }
+    }
+    return result;
+}
+
+pub fn stz_list_all_unique_cs(list_arg: ?*const StzList, case_sensitive: i32) callconv(.c) i32 {
+    const l = list_arg orelse return 1;
+    const cs = case_sensitive != 0;
+    const n = l.len();
+    if (n <= 1) return 1;
+
+    var i: usize = 0;
+    while (i < n) : (i += 1) {
+        var j: usize = i + 1;
+        while (j < n) : (j += 1) {
+            if (valueEqlCS(l.items.items[i], l.items.items[j], cs)) return 0;
+        }
+    }
+    return 1;
+}
+
 // ─── String expression operations ───
 
 fn utf8CharLen(byte: u8) usize {
@@ -1639,4 +1706,122 @@ test "string_count_chars_w empty" {
     const str = "";
     const e = "@char = \"a\"";
     try std.testing.expectEqual(@as(usize, 0), stz_string_count_chars_w(str.ptr, str.len, e.ptr, e.len));
+}
+
+// ─── Duplicate analysis tests ───
+
+test "find_duplicates_cs basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "c", 1);
+    _ = stz_list_append_string(l, "b", 1);
+
+    const r = stz_list_find_duplicates_cs(l, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(r));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(r, 0)); // "a" at index 2
+    try std.testing.expectEqual(@as(i64, 4), stz_list_get_int(r, 1)); // "b" at index 4
+}
+
+test "find_duplicates_cs case insensitive" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "Hello", 5);
+    _ = stz_list_append_string(l, "hello", 5);
+    _ = stz_list_append_string(l, "world", 5);
+
+    const r = stz_list_find_duplicates_cs(l, 0) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 1), stz_list_len(r));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(r, 0)); // "hello" at index 1
+}
+
+test "find_duplicates_cs no duplicates" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+
+    const r = stz_list_find_duplicates_cs(l, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 0), stz_list_len(r));
+}
+
+test "find_non_duplicated_cs basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "c", 1);
+
+    const r = stz_list_find_non_duplicated_cs(l, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(r));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(r, 0)); // "b" at index 1
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(r, 1)); // "c" at index 3
+}
+
+test "find_non_duplicated_cs all unique" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 30);
+
+    const r = stz_list_find_non_duplicated_cs(l, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(r));
+}
+
+test "all_unique_cs true" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+
+    try std.testing.expectEqual(@as(i32, 1), stz_list_all_unique_cs(l, 1));
+}
+
+test "all_unique_cs false" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 1);
+
+    try std.testing.expectEqual(@as(i32, 0), stz_list_all_unique_cs(l, 1));
+}
+
+test "all_unique_cs case insensitive" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "Hello", 5);
+    _ = stz_list_append_string(l, "hello", 5);
+
+    try std.testing.expectEqual(@as(i32, 1), stz_list_all_unique_cs(l, 1)); // CS: different
+    try std.testing.expectEqual(@as(i32, 0), stz_list_all_unique_cs(l, 0)); // CI: same
+}
+
+test "all_unique_cs null returns 1" {
+    try std.testing.expectEqual(@as(i32, 1), stz_list_all_unique_cs(null, 1));
+}
+
+test "all_unique_cs empty returns 1" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_all_unique_cs(l, 1));
 }
