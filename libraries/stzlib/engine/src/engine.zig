@@ -23,6 +23,8 @@ pub const meta = @import("meta.zig");
 pub const named_params = @import("named_params.zig");
 pub const method_gen = @import("method_gen.zig");
 pub const error_catalog = @import("error_catalog.zig");
+pub const value = @import("value.zig");
+pub const number = @import("number.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -291,6 +293,72 @@ comptime {
     @export(&system.stz_system_is_windows, .{ .name = "stz_system_is_windows" });
     @export(&system.stz_system_is_linux, .{ .name = "stz_system_is_linux" });
     @export(&system.stz_system_is_macos, .{ .name = "stz_system_is_macos" });
+
+    // ─── Foundation: Value operations ───
+    @export(&value.stz_value_new_null, .{ .name = "stz_value_new_null" });
+    @export(&value.stz_value_new_bool, .{ .name = "stz_value_new_bool" });
+    @export(&value.stz_value_new_int, .{ .name = "stz_value_new_int" });
+    @export(&value.stz_value_new_float, .{ .name = "stz_value_new_float" });
+    @export(&value.stz_value_new_string, .{ .name = "stz_value_new_string" });
+    @export(&value.stz_value_new_list, .{ .name = "stz_value_new_list" });
+    @export(&value.stz_value_free, .{ .name = "stz_value_free" });
+    @export(&value.stz_value_type, .{ .name = "stz_value_type" });
+    @export(&value.stz_value_is_null, .{ .name = "stz_value_is_null" });
+    @export(&value.stz_value_get_bool, .{ .name = "stz_value_get_bool" });
+    @export(&value.stz_value_get_int, .{ .name = "stz_value_get_int" });
+    @export(&value.stz_value_get_float, .{ .name = "stz_value_get_float" });
+    @export(&value.stz_value_get_string, .{ .name = "stz_value_get_string" });
+    @export(&value.stz_value_get_string_len, .{ .name = "stz_value_get_string_len" });
+    @export(&value.stz_value_list_len, .{ .name = "stz_value_list_len" });
+    @export(&value.stz_value_list_get, .{ .name = "stz_value_list_get" });
+    @export(&value.stz_value_list_append, .{ .name = "stz_value_list_append" });
+    @export(&value.stz_value_list_set, .{ .name = "stz_value_list_set" });
+    @export(&value.stz_value_list_remove, .{ .name = "stz_value_list_remove" });
+    @export(&value.stz_value_list_insert, .{ .name = "stz_value_list_insert" });
+    @export(&value.stz_value_equals, .{ .name = "stz_value_equals" });
+    @export(&value.stz_value_compare, .{ .name = "stz_value_compare" });
+    @export(&value.stz_value_clone, .{ .name = "stz_value_clone" });
+    @export(&value.stz_value_to_string, .{ .name = "stz_value_to_string" });
+    @export(&value.stz_value_type_name, .{ .name = "stz_value_type_name" });
+    @export(&value.stz_value_type_name_len, .{ .name = "stz_value_type_name_len" });
+    @export(&value.stz_value_list_find, .{ .name = "stz_value_list_find" });
+    @export(&value.stz_value_list_contains, .{ .name = "stz_value_list_contains" });
+    @export(&value.stz_value_list_reverse, .{ .name = "stz_value_list_reverse" });
+    @export(&value.stz_value_list_sort, .{ .name = "stz_value_list_sort" });
+    @export(&value.stz_value_list_clear, .{ .name = "stz_value_list_clear" });
+
+    // ─── Foundation: Number operations ───
+    @export(&number.stz_bigint_new, .{ .name = "stz_bigint_new" });
+    @export(&number.stz_bigint_from_int, .{ .name = "stz_bigint_from_int" });
+    @export(&number.stz_bigint_from_string, .{ .name = "stz_bigint_from_string" });
+    @export(&number.stz_bigint_free, .{ .name = "stz_bigint_free" });
+    @export(&number.stz_bigint_add, .{ .name = "stz_bigint_add" });
+    @export(&number.stz_bigint_sub, .{ .name = "stz_bigint_sub" });
+    @export(&number.stz_bigint_mul, .{ .name = "stz_bigint_mul" });
+    @export(&number.stz_bigint_div, .{ .name = "stz_bigint_div" });
+    @export(&number.stz_bigint_mod, .{ .name = "stz_bigint_mod" });
+    @export(&number.stz_bigint_negate, .{ .name = "stz_bigint_negate" });
+    @export(&number.stz_bigint_abs, .{ .name = "stz_bigint_abs" });
+    @export(&number.stz_bigint_compare, .{ .name = "stz_bigint_compare" });
+    @export(&number.stz_bigint_equals, .{ .name = "stz_bigint_equals" });
+    @export(&number.stz_bigint_is_zero, .{ .name = "stz_bigint_is_zero" });
+    @export(&number.stz_bigint_is_negative, .{ .name = "stz_bigint_is_negative" });
+    @export(&number.stz_bigint_to_int, .{ .name = "stz_bigint_to_int" });
+    @export(&number.stz_bigint_to_string, .{ .name = "stz_bigint_to_string" });
+    @export(&number.stz_bigint_to_string_base, .{ .name = "stz_bigint_to_string_base" });
+    @export(&number.stz_bigint_clone, .{ .name = "stz_bigint_clone" });
+    @export(&number.stz_bigint_pow, .{ .name = "stz_bigint_pow" });
+    @export(&number.stz_bigint_bit_count, .{ .name = "stz_bigint_bit_count" });
+    @export(&number.stz_number_gcd, .{ .name = "stz_number_gcd" });
+    @export(&number.stz_number_lcm, .{ .name = "stz_number_lcm" });
+    @export(&number.stz_number_is_prime, .{ .name = "stz_number_is_prime" });
+    @export(&number.stz_number_factorial, .{ .name = "stz_number_factorial" });
+    @export(&number.stz_number_fibonacci, .{ .name = "stz_number_fibonacci" });
+    @export(&number.stz_number_is_perfect, .{ .name = "stz_number_is_perfect" });
+    @export(&number.stz_number_digit_count, .{ .name = "stz_number_digit_count" });
+    @export(&number.stz_number_digit_sum, .{ .name = "stz_number_digit_sum" });
+    @export(&number.stz_number_reverse_digits, .{ .name = "stz_number_reverse_digits" });
+    @export(&number.stz_number_is_palindrome, .{ .name = "stz_number_is_palindrome" });
 }
 
 // Ring extension entry point (no-op -- we use CallCFunc for raw FFI)
@@ -298,7 +366,7 @@ pub export fn ringlib_init(_: ?*anyopaque) callconv(.c) void {}
 
 // Version -- bumped for Unicode
 pub export fn stz_engine_version() callconv(.c) u32 {
-    return 0x00_05_00_00; // 0.5.0.0
+    return 0x00_06_00_00; // 0.6.0.0
 }
 
 test {
@@ -317,4 +385,6 @@ test {
     _ = named_params;
     _ = method_gen;
     _ = error_catalog;
+    _ = value;
+    _ = number;
 }
