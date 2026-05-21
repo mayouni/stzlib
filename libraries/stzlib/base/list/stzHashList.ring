@@ -2040,7 +2040,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			next
 		next
 
-		anResult = ring_sort(anResult)
+		anResult = new stzList(anResult).Sorted()
 		return anResult
 
 	def TheseListsZ(paLists)
@@ -2153,7 +2153,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			next
 		next
 
-		anResult = ring_sort(anResult)
+		anResult = new stzList(anResult).Sorted()
 		return anResult
 
 	def TheseNumbersZ(paNumbers)
@@ -2264,7 +2264,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 			next
 		next
 
-		anResult = ring_sort(anResult)
+		anResult = new stzList(anResult).Sorted()
 		return anResult
 
 	def TheseStringsZ(paStrings)
@@ -3745,7 +3745,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#=====================================#
 
 	def NStrongestClasses(n)
-		aClassesXT = new stzList(ring_sort2( ClassesXT(), 2 )).Reversed()
+		aClassesXT = new stzList(SortListsOn( ClassesXT(), 2 )).Reversed()
 		nLen = len(aClassesXT)
 
 		n = @Min([ n, nLen ])
@@ -3780,7 +3780,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def NStrongestClassesXT(n)
-		aClassesXT = new stzList(ring_sort2( ClassesXT(), 2 )).Reversed()
+		aClassesXT = new stzList(SortListsOn( ClassesXT(), 2 )).Reversed()
 		nLen = len(aClassesXT)
 		n = Min([ n, nLen ])
 
@@ -3931,7 +3931,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#===================================#
 
 	def NWeakestClasses(n)
-		aClassesXT = ring_sort2( ClassesXT(), 2 )
+		aClassesXT = SortListsOn( ClassesXT(), 2 )
 		nLen = len(aClassesXT)
 		n = Min([ n, nLen ])
 
@@ -3965,7 +3965,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def NWeakestClassesXT(n)
-		aClassesXT = ring_sort2( ClassesXT(), 2 )
+		aClassesXT = SortListsOn( ClassesXT(), 2 )
 		nLen = len(aClassesXT)
 		n = Min([ n, nLen ])
 

@@ -100,7 +100,7 @@ class stzStringBounder
 			ok
 		ok
 
-		anTemp = ring_sort([ n1, n2 ])
+		anTemp = new stzList([ n1, n2 ]).Sorted()
 		n1 = anTemp[1]
 		n2 = anTemp[2]
 

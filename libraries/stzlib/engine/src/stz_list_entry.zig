@@ -65,6 +65,7 @@ comptime {
     @export(&list.stz_list_paired, .{ .name = "stz_list_paired" });
     @export(&list.stz_list_deep_flatten, .{ .name = "stz_list_deep_flatten" });
     @export(&list.stz_list_flatten_to_depth, .{ .name = "stz_list_flatten_to_depth" });
+    @export(&list.stz_list_sort_on, .{ .name = "stz_list_sort_on" });
     @export(&list.stz_string_find_chars_w, .{ .name = "stz_string_find_chars_w" });
     @export(&list.stz_string_map_chars, .{ .name = "stz_string_map_chars" });
     @export(&list.stz_string_count_chars_w, .{ .name = "stz_string_count_chars_w" });

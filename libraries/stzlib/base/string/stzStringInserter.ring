@@ -345,7 +345,7 @@ class stzStringInserter
 			ok
 		ok
 
-		aSorted = ring_reverse(sort(panPos))
+		aSorted = new stzList(panPos).SortedInDescending()
 		for n in aSorted
 			This.InsertAfter(n, pcSubStr)
 		next
@@ -364,7 +364,7 @@ class stzStringInserter
 			ok
 		ok
 
-		aSorted = ring_reverse(sort(panPos))
+		aSorted = new stzList(panPos).SortedInDescending()
 		for n in aSorted
 			This.InsertBefore(n, pcSubStr)
 		next

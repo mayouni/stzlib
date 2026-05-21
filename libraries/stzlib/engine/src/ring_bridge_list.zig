@@ -266,6 +266,12 @@ fn ring_FlattenToDepth(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_flatten_to_depth(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
 }
 
+fn ring_SortOn(p: *anyopaque) callconv(.c) void {
+    const col = @as(usize, @intFromFloat(g(p, 2)));
+    const col0 = if (col > 0) col - 1 else 0;
+    rn(p, @floatFromInt(list.stz_list_sort_on(getL(p, 1), col0)));
+}
+
 // String expression operations
 fn ring_StringFindCharsW(p: *anyopaque) callconv(.c) void {
     var buf: [65536]u8 = undefined;
@@ -430,6 +436,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistpaired", .func = &ring_Paired },
     .{ .name = "stzenginelistdeepflatten", .func = &ring_DeepFlatten },
     .{ .name = "stzenginelistflattentodepth", .func = &ring_FlattenToDepth },
+    .{ .name = "stzenginelistsorton", .func = &ring_SortOn },
     .{ .name = "stzenginelistfromnulldelimited", .func = &ring_FromNullDelimited },
     .{ .name = "stzenginelisttonulldelimited", .func = &ring_ToNullDelimited },
 };

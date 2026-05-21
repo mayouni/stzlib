@@ -3043,7 +3043,7 @@ func RandomNumberIn(panNumbers)
 	
 		if BothAreIntegers(nMin, nMax)
 			if Abs(nMin - nMax) = 1
-				anTemp = ring_sort([ nMin, nMax ])
+				anTemp = new stzList([ nMin, nMax ]).Sorted()
 				nRandom01 = ARandomNumber01()
 				nResult = anTemp[1] + nRandom01
 				return nResult

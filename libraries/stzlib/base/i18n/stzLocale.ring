@@ -1430,7 +1430,7 @@ class stzLocale from stzObject
 		else
 			anPos = StzListOfNumbersQ(anPos).AddedToEach(1)
 			ring_insert(anPos, 1, 1)
-			anPos = ring_sort(anPos)
+			anPos = new stzList(anPos).Sorted()
 		ok
 
 		nLen = len(anPos)

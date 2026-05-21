@@ -1464,7 +1464,7 @@ _cMarquerChar = "#"
 		acResult = []
 		for i = 1 to nLen
 			if acUnicodeScriptsXT[i][2] = cScript
-				acResult = ring_sort(acUnicodeScriptsXT[i][4])
+				acResult = new stzList(acUnicodeScriptsXT[i][4]).Sorted()
 				exit
 			ok
 		next

@@ -125,7 +125,7 @@ class stzListInserter from stzList
 			pItem = pItem[2]
 		ok
 
-		panPositions = ring_sort(panPositions)
+		panPositions = new stzList(panPositions).Sorted()
 		nLen = len(panPositions)
 
 		for i = nLen to 1 step -1

@@ -926,55 +926,14 @@ func SortListsOn(paLists, n)
 		ok
 	next
 
-	# Early check 3 : Using Ring sort() in priority
+	# Sort using the engine
 
-	if IsRingSortableOn(paLists, n)
-		return ring_sort2(paLists, n)
-	ok
-
-	# if the nth column contains an object, interrupt the operation
-
-	for i = 1 to nLen
-		nLenList = len(paLists[i])
-
-		if nLenList >= n
-			if isObject(paLists[i][n])
-				StzRaise("Can't proceed! Nth column must not contain objects.")
-			ok
-		ok
-	next
-
-	# In all other cases:
-
-	# Adjust the lists to the largest size using NULLs
-
-	oLoL = new stzListOfLists(paLists)
-	oLoL.Adjust()
-
-	aColNXT = oLoL.ColXT(n)
-
-	# Ring can't sort on the nth column unless it is made
-	# completely either of numbers or strings
-
-	# Check this case and stringify the column
-
-	if NOT ( IsListOfNumbers(aColNXT) or IsListOfStrings(aColNXT) )
-		for i = 1 to nLen
-			if NOT isString(aColNXT[i])
-				aColNXT[i] = @@(aColNXT[i])
-			ok
-		next
-	ok
-
-	# Update the adjusted lists of lists object with
-	# the stringified n column
-
-	oLol.ReplaceCol(n, aColNXT)
-
-	# Sort the adjusted lists using Ring native sort()
-
-	aSorted = ring_sort2(oLol.content(), n)
-	return aSorted
+	oTemp = new stzList(paLists)
+	pList = oTemp._EngineListFromContent()
+	StzEngineListSortOn(pList, n)
+	aResult = StzEngineContentFromList(pList)
+	StzEngineListFree(pList)
+	return aResult
 
 
 	#< @FunctionAlternativeForms
