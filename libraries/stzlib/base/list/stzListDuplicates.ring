@@ -23,35 +23,20 @@ class stzListDuplicates from stzList
 	#===============================#
 
 	def FindDuplicatesCS(pCaseSensitive)
+		pList = _EngineListFromContent()
+		cResult = StzEngineListFindDuplicatesCS(pList, pCaseSensitive)
+		StzEngineListFree(pList)
 
-		aContent = This.Content()
-		nLen = len(aContent)
-
-		nLenC = len(aContent)
-		acContent = []
-		for _k = 1 to nLenC
-			acContent + ("" + aContent[_k])
-		next
-
-		if pCaseSensitive = 0
-			for i = 1 to nLen
-				acContent[i] = StzLower(acContent[i])
-			next
+		if cResult = ""
+			return []
 		ok
 
-		aSeen = []
+		aParts = StzSplit(cResult, ",")
+		nLen = len(aParts)
 		anResult = []
-
 		for i = 1 to nLen
-			cItem = acContent[i]
-			nPos = StzFind(aSeen, cItem)
-			if nPos > 0
-				anResult + i
-			else
-				aSeen + cItem
-			ok
+			anResult + (0 + aParts[i])
 		next
-
 		return anResult
 
 	def FindDuplicates()
@@ -181,35 +166,20 @@ class stzListDuplicates from stzList
 	#========================================#
 
 	def FindNonDuplicatedItemsCS(pCaseSensitive)
-		aContent = This.Content()
-		nLen = len(aContent)
+		pList = _EngineListFromContent()
+		cResult = StzEngineListFindNonDuplicatedCS(pList, pCaseSensitive)
+		StzEngineListFree(pList)
 
-		nLenC = len(aContent)
-		acContent = []
-		for _k = 1 to nLenC
-			acContent + ("" + aContent[_k])
-		next
-
-		if pCaseSensitive = 0
-			for i = 1 to nLen
-				acContent[i] = StzLower(acContent[i])
-			next
+		if cResult = ""
+			return []
 		ok
 
+		aParts = StzSplit(cResult, ",")
+		nLen = len(aParts)
 		anResult = []
-
 		for i = 1 to nLen
-			nCount = 0
-			for j = 1 to nLen
-				if acContent[i] = acContent[j]
-					nCount++
-				ok
-			next
-			if nCount = 1
-				anResult + i
-			ok
+			anResult + (0 + aParts[i])
 		next
-
 		return anResult
 
 	def FindNonDuplicatedItems()
