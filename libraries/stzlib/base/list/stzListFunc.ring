@@ -218,6 +218,18 @@
 #                                                            #
 #============================================================#
 
+func ListLowercased(paList)
+	aResult = []
+	nLen = len(paList)
+	for i = 1 to nLen
+		if isString(paList[i])
+			aResult + StzLower(paList[i])
+		else
+			aResult + paList[i]
+		ok
+	next
+	return aResult
+
 func StzListQ(paList)
 	return new stzList(paList)
 
