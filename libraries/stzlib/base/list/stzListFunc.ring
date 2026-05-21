@@ -38,6 +38,14 @@
 				aResult + StzEngineListGetFloat(pList, i)
 			on 4
 				aResult + StzEngineListGetString(pList, i)
+			on 5
+				pSub = StzEngineListGetSubList(pList, i)
+				if pSub != NULL
+					aResult + StzEngineContentFromList(pSub)
+					StzEngineListFree(pSub)
+				else
+					aResult + []
+				ok
 			other
 				aResult + NULL
 			off

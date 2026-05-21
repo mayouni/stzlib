@@ -232,6 +232,22 @@ fn ring_SortByExpr(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sort_by_expr(getL(p, 1), gs(p, 2), @intCast(gss(p, 2)), @intFromFloat(g(p, 3)))));
 }
 
+// Zip / Interleave / Partition
+fn ring_GetSubList(p: *anyopaque) callconv(.c) void {
+    const idx: usize = @intFromFloat(g(p, 2));
+    const adjusted = if (idx > 0) idx - 1 else 0;
+    rcp(p, @ptrCast(list.stz_list_get_sublist(getLC(p, 1), adjusted)), HL);
+}
+fn ring_Zip(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_zip(getLC(p, 1), getLC(p, 2))), HL);
+}
+fn ring_Interleave(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_interleave(getLC(p, 1), getLC(p, 2))), HL);
+}
+fn ring_Partition(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_partition(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
+}
+
 // String expression operations
 fn ring_StringFindCharsW(p: *anyopaque) callconv(.c) void {
     var buf: [65536]u8 = undefined;
@@ -386,6 +402,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistfindduplicatescs", .func = &ring_FindDuplicatesCS },
     .{ .name = "stzenginelistfindnonduplicatedcs", .func = &ring_FindNonDuplicatedCS },
     .{ .name = "stzenginelistalluniquecs", .func = &ring_AllUniqueCS },
+    .{ .name = "stzenginelistgetsublist", .func = &ring_GetSubList },
+    .{ .name = "stzenginelistzip", .func = &ring_Zip },
+    .{ .name = "stzenginelistinterleave", .func = &ring_Interleave },
+    .{ .name = "stzenginelistpartition", .func = &ring_Partition },
     .{ .name = "stzenginelistfromnulldelimited", .func = &ring_FromNullDelimited },
     .{ .name = "stzenginelisttonulldelimited", .func = &ring_ToNullDelimited },
 };

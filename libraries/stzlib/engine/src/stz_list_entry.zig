@@ -55,6 +55,10 @@ comptime {
     @export(&list.stz_list_find_duplicates_cs, .{ .name = "stz_list_find_duplicates_cs" });
     @export(&list.stz_list_find_non_duplicated_cs, .{ .name = "stz_list_find_non_duplicated_cs" });
     @export(&list.stz_list_all_unique_cs, .{ .name = "stz_list_all_unique_cs" });
+    @export(&list.stz_list_get_sublist, .{ .name = "stz_list_get_sublist" });
+    @export(&list.stz_list_zip, .{ .name = "stz_list_zip" });
+    @export(&list.stz_list_interleave, .{ .name = "stz_list_interleave" });
+    @export(&list.stz_list_partition, .{ .name = "stz_list_partition" });
     @export(&list.stz_string_find_chars_w, .{ .name = "stz_string_find_chars_w" });
     @export(&list.stz_string_map_chars, .{ .name = "stz_string_map_chars" });
     @export(&list.stz_string_count_chars_w, .{ .name = "stz_string_count_chars_w" });

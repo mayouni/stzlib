@@ -124,20 +124,14 @@ class stzListMerger from stzList
 	#======================================================#
 
 	def InterleaveWith(paOtherList)
-		aContent = This.Content()
-		nLen1 = len(aContent)
-		nLen2 = len(paOtherList)
-		nMax = nLen1
-		if nLen2 > nMax nMax = nLen2 ok
-		aResult = []
-		for i = 1 to nMax
-			if i <= nLen1
-				aResult + aContent[i]
-			ok
-			if i <= nLen2
-				aResult + paOtherList[i]
-			ok
-		next
+		pList1 = _EngineListFromContent()
+		oTemp = new stzList(paOtherList)
+		pList2 = oTemp._EngineListFromContent()
+		pResult = StzEngineListInterleave(pList1, pList2)
+		StzEngineListFree(pList1)
+		StzEngineListFree(pList2)
+		aResult = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
 		This.UpdateWith(aResult)
 
 		def InterleaveWithQ(paOtherList)
@@ -152,15 +146,14 @@ class stzListMerger from stzList
 	#======================================================#
 
 	def ZipWith(paOtherList)
-		aContent = This.Content()
-		nLen1 = len(aContent)
-		nLen2 = len(paOtherList)
-		nMin = nLen1
-		if nLen2 < nMin nMin = nLen2 ok
-		aResult = []
-		for i = 1 to nMin
-			aResult + [aContent[i], paOtherList[i]]
-		next
+		pList1 = _EngineListFromContent()
+		oTemp = new stzList(paOtherList)
+		pList2 = oTemp._EngineListFromContent()
+		pResult = StzEngineListZip(pList1, pList2)
+		StzEngineListFree(pList1)
+		StzEngineListFree(pList2)
+		aResult = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
 		return aResult
 
 		def ZipWithQ(paOtherList)
@@ -278,3 +271,21 @@ class stzListMerger from stzList
 
 		def UnionWithQ(paOtherList)
 			return new stzList(This.UnionWith(paOtherList))
+
+	  #======================================================#
+	 #   PARTITION -- SPLIT INTO N GROUPS                    #
+	#======================================================#
+
+	def Partition(n)
+		pList = _EngineListFromContent()
+		pResult = StzEngineListPartition(pList, n)
+		StzEngineListFree(pList)
+		aResult = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
+		return aResult
+
+		def PartitionQ(n)
+			return new stzList(This.Partition(n))
+
+		def Partitioned(n)
+			return This.Partition(n)
