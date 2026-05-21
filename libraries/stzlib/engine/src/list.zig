@@ -1323,6 +1323,125 @@ pub fn stz_list_partition(list_arg: ?*const StzList, n: usize) callconv(.c) ?*St
     return result;
 }
 
+// ─── Rotate ───
+
+pub fn stz_list_rotate_left(list_arg: ?*StzList, n: usize) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const total = l.len();
+    if (total <= 1 or n == 0) return 0;
+    const shift = n % total;
+    if (shift == 0) return 0;
+
+    const result = stz_list_new() orelse return -1;
+    for (shift..total) |i| {
+        if (l.get(i)) |v| { _ = stz_list_append_value(result, v); }
+    }
+    for (0..shift) |i| {
+        if (l.get(i)) |v| { _ = stz_list_append_value(result, v); }
+    }
+    _ = stz_list_clear(l);
+    for (0..result.len()) |i| {
+        if (result.get(i)) |v| { _ = stz_list_append_value(l, v); }
+    }
+    stz_list_free(result);
+    return 0;
+}
+
+pub fn stz_list_rotate_right(list_arg: ?*StzList, n: usize) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const total = l.len();
+    if (total <= 1 or n == 0) return 0;
+    const shift = n % total;
+    if (shift == 0) return 0;
+    return stz_list_rotate_left(l, total - shift);
+}
+
+// ─── Chunked / Paired ───
+
+pub fn stz_list_chunked(list_arg: ?*const StzList, n: usize) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    if (n == 0) return null;
+    const total = l.len();
+    const result = stz_list_new() orelse return null;
+
+    var start: usize = 0;
+    while (start < total) {
+        var end = start + n;
+        if (end > total) end = total;
+
+        const chunk_val = value_mod.stz_value_new_list() orelse {
+            stz_list_free(result);
+            return null;
+        };
+        for (start..end) |j| {
+            if (l.get(j)) |v| { _ = value_mod.stz_value_list_append(chunk_val, v); }
+        }
+        _ = stz_list_append_value(result, chunk_val);
+        value_mod.stz_value_free(chunk_val);
+        start = end;
+    }
+    return result;
+}
+
+pub fn stz_list_paired(list_arg: ?*const StzList) callconv(.c) ?*StzList {
+    return stz_list_chunked(list_arg, 2);
+}
+
+// ─── Deep Flatten ───
+
+fn deepFlattenInto(l: *const StzList, result: *StzList) void {
+    for (0..l.len()) |i| {
+        const v = l.get(i) orelse continue;
+        if (v.tag == .list_val) {
+            const sub = v.data.list_val;
+            const temp = stz_list_new() orelse continue;
+            for (0..sub.len) |j| {
+                _ = stz_list_append_value(temp, sub.items[j]);
+            }
+            deepFlattenInto(temp, result);
+            stz_list_free(temp);
+        } else {
+            _ = stz_list_append_value(result, v);
+        }
+    }
+}
+
+pub fn stz_list_deep_flatten(list_arg: ?*const StzList) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const result = stz_list_new() orelse return null;
+    deepFlattenInto(l, result);
+    return result;
+}
+
+pub fn stz_list_flatten_to_depth(list_arg: ?*const StzList, depth: usize) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    if (depth == 0) {
+        return stz_list_clone(l);
+    }
+    const result = stz_list_new() orelse return null;
+    for (0..l.len()) |i| {
+        const v = l.get(i) orelse continue;
+        if (v.tag == .list_val) {
+            const sub = v.data.list_val;
+            const temp = stz_list_new() orelse continue;
+            for (0..sub.len) |j| {
+                _ = stz_list_append_value(temp, sub.items[j]);
+            }
+            const flattened = stz_list_flatten_to_depth(temp, depth - 1);
+            stz_list_free(temp);
+            if (flattened) |f| {
+                for (0..f.len()) |k| {
+                    if (f.get(k)) |fv| { _ = stz_list_append_value(result, fv); }
+                }
+                stz_list_free(f);
+            }
+        } else {
+            _ = stz_list_append_value(result, v);
+        }
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "list basic append and get" {
@@ -2548,4 +2667,132 @@ test "partition zero returns null" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
     try std.testing.expect(stz_list_partition(l, 0) == null);
+}
+
+test "rotate left basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 5);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_rotate_left(l, 2));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(l, 0));
+    try std.testing.expectEqual(@as(i64, 4), stz_list_get_int(l, 1));
+    try std.testing.expectEqual(@as(i64, 5), stz_list_get_int(l, 2));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(l, 3));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(l, 4));
+}
+
+test "rotate right basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 5);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_rotate_right(l, 2));
+    try std.testing.expectEqual(@as(i64, 4), stz_list_get_int(l, 0));
+    try std.testing.expectEqual(@as(i64, 5), stz_list_get_int(l, 1));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(l, 2));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(l, 3));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(l, 4));
+}
+
+test "rotate wraps around" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 30);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_rotate_left(l, 5));
+    try std.testing.expectEqual(@as(i64, 30), stz_list_get_int(l, 0));
+    try std.testing.expectEqual(@as(i64, 10), stz_list_get_int(l, 1));
+    try std.testing.expectEqual(@as(i64, 20), stz_list_get_int(l, 2));
+}
+
+test "chunked basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (1..8) |i| { _ = stz_list_append_int(l, @intCast(i)); }
+    const result = stz_list_chunked(l, 3) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    try std.testing.expectEqual(@as(usize, 3), result.len());
+    const c0 = stz_list_get_sublist(result, 0) orelse return error.AllocFailed;
+    defer stz_list_free(c0);
+    try std.testing.expectEqual(@as(usize, 3), c0.len());
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(c0, 0));
+    const c2 = stz_list_get_sublist(result, 2) orelse return error.AllocFailed;
+    defer stz_list_free(c2);
+    try std.testing.expectEqual(@as(usize, 1), c2.len());
+    try std.testing.expectEqual(@as(i64, 7), stz_list_get_int(c2, 0));
+}
+
+test "paired basic" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    for (1..6) |i| { _ = stz_list_append_int(l, @intCast(i)); }
+    const result = stz_list_paired(l) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+    try std.testing.expectEqual(@as(usize, 3), result.len());
+    const p0 = stz_list_get_sublist(result, 0) orelse return error.AllocFailed;
+    defer stz_list_free(p0);
+    try std.testing.expectEqual(@as(usize, 2), p0.len());
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(p0, 0));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(p0, 1));
+}
+
+test "deep flatten nested" {
+    const inner_val = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(inner_val);
+    _ = value_mod.stz_value_list_append(inner_val, value_mod.stz_value_new_int(3) orelse return error.AllocFailed);
+
+    const mid_val = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(mid_val);
+    _ = value_mod.stz_value_list_append(mid_val, value_mod.stz_value_new_int(2) orelse return error.AllocFailed);
+    _ = value_mod.stz_value_list_append(mid_val, inner_val);
+
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_value(l, mid_val);
+    _ = stz_list_append_int(l, 4);
+
+    const flat = stz_list_deep_flatten(l) orelse return error.AllocFailed;
+    defer stz_list_free(flat);
+    try std.testing.expectEqual(@as(usize, 4), flat.len());
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(flat, 0));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(flat, 1));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(flat, 2));
+    try std.testing.expectEqual(@as(i64, 4), stz_list_get_int(flat, 3));
+}
+
+test "flatten to depth 1" {
+    const inner_val = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(inner_val);
+    _ = value_mod.stz_value_list_append(inner_val, value_mod.stz_value_new_int(3) orelse return error.AllocFailed);
+
+    const mid_val = value_mod.stz_value_new_list() orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(mid_val);
+    _ = value_mod.stz_value_list_append(mid_val, value_mod.stz_value_new_int(2) orelse return error.AllocFailed);
+    _ = value_mod.stz_value_list_append(mid_val, inner_val);
+
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_value(l, mid_val);
+    _ = stz_list_append_int(l, 4);
+
+    const flat = stz_list_flatten_to_depth(l, 1) orelse return error.AllocFailed;
+    defer stz_list_free(flat);
+    try std.testing.expectEqual(@as(usize, 4), flat.len());
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(flat, 0));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(flat, 1));
+    const sub = stz_list_get_sublist(flat, 2) orelse return error.AllocFailed;
+    defer stz_list_free(sub);
+    try std.testing.expectEqual(@as(usize, 1), sub.len());
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(sub, 0));
+    try std.testing.expectEqual(@as(i64, 4), stz_list_get_int(flat, 3));
 }

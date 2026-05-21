@@ -145,19 +145,10 @@ class stzListMover from stzList
 	#======================================================#
 
 	def RotateLeft(n)
-		aContent = This.Content()
-		nLen = len(aContent)
-		if nLen = 0 return ok
-		n = n % nLen
-		if n = 0 return ok
-		aResult = []
-		for i = n + 1 to nLen
-			aResult + aContent[i]
-		next
-		for i = 1 to n
-			aResult + aContent[i]
-		next
-		This.UpdateWith(aResult)
+		pList = _EngineListFromContent()
+		StzEngineListRotateLeft(pList, n)
+		This.UpdateWith(StzEngineContentFromList(pList))
+		StzEngineListFree(pList)
 
 		def RotateLeftQ(n)
 			This.RotateLeft(n)
@@ -167,12 +158,10 @@ class stzListMover from stzList
 		return This.Copy().RotateLeftQ(n).Content()
 
 	def RotateRight(n)
-		aContent = This.Content()
-		nLen = len(aContent)
-		if nLen = 0 return ok
-		n = n % nLen
-		if n = 0 return ok
-		This.RotateLeft(nLen - n)
+		pList = _EngineListFromContent()
+		StzEngineListRotateRight(pList, n)
+		This.UpdateWith(StzEngineContentFromList(pList))
+		StzEngineListFree(pList)
 
 		def RotateRightQ(n)
 			This.RotateRight(n)
