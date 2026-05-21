@@ -13340,7 +13340,7 @@ Class stzTable from stzList
 	def SortDownOn(pCol)
 
 		nCol = This.ColToColNumber(pCol)
-		aRowsSorted = ring_reverse( @SortOn( This.Rows(), nCol) )
+		aRowsSorted = new stzList(@SortOn( This.Rows(), nCol)).Reversed()
 
 		nLenRows = len(aRowsSorted)
 

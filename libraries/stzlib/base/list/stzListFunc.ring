@@ -5414,7 +5414,8 @@ func @Reverse(p)
 	but isList(p)
 
 		if NOT isPalindrom(p)
-			p = ring_reverse(p)
+			oTemp = new stzList(p)
+			p = oTemp.Reversed()
 		ok
 
 		return p

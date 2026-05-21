@@ -691,7 +691,7 @@ class stzListOfPairs from stzListOfLists
 	#=========================================================#
 
 	def SortOnInDescending(n)
-		aResult = ring_reverse( This.SortedOnInAscending(n) )
+		aResult = new stzList(This.SortedOnInAscending(n)).Reversed()
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
