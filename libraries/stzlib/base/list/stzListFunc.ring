@@ -18,6 +18,34 @@
 /////////////////
 
 	  #============================================#
+	 #  ENGINE UNMARSHALING                       #
+	#============================================#
+
+	func StzEngineContentFromList(pList)
+		if pList = NULL
+			return []
+		ok
+
+		nLen = StzEngineListLen(pList)
+		aResult = []
+
+		for i = 1 to nLen
+			nType = StzEngineListItemType(pList, i)
+			switch nType
+			on 2
+				aResult + StzEngineListGetInt(pList, i)
+			on 3
+				aResult + StzEngineListGetFloat(pList, i)
+			on 4
+				aResult + StzEngineListGetString(pList, i)
+			other
+				aResult + NULL
+			off
+		next
+
+		return aResult
+
+	  #============================================#
 	 #  Q-CONSTRUCTORS FOR MODULAR CLASSES        #
 	#============================================#
 
