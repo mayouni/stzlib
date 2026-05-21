@@ -1494,6 +1494,52 @@ pub fn stz_list_flatten_to_depth(list_arg: ?*const StzList, depth: usize) callco
     return result;
 }
 
+// ─── Is Sorted ───
+
+pub fn stz_list_is_sorted_ascending(list_arg: ?*const StzList) callconv(.c) i32 {
+    const l = list_arg orelse return 0;
+    const n = l.len();
+    if (n <= 1) return 1;
+    var i: usize = 0;
+    while (i + 1 < n) : (i += 1) {
+        const a = l.get(i) orelse continue;
+        const b = l.get(i + 1) orelse continue;
+        if (a.compare(b) > 0) return 0;
+    }
+    return 1;
+}
+
+pub fn stz_list_is_sorted_descending(list_arg: ?*const StzList) callconv(.c) i32 {
+    const l = list_arg orelse return 0;
+    const n = l.len();
+    if (n <= 1) return 1;
+    var i: usize = 0;
+    while (i + 1 < n) : (i += 1) {
+        const a = l.get(i) orelse continue;
+        const b = l.get(i + 1) orelse continue;
+        if (a.compare(b) < 0) return 0;
+    }
+    return 1;
+}
+
+// ─── Repeat ───
+
+pub fn stz_list_repeat(list_arg: ?*const StzList, count: usize) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const n = l.len();
+    if (n == 0 or count == 0) return stz_list_new();
+
+    const result = stz_list_new() orelse return null;
+    for (0..count) |_| {
+        for (0..n) |i| {
+            if (l.get(i)) |v| {
+                _ = stz_list_append_value(result, v);
+            }
+        }
+    }
+    return result;
+}
+
 // ─── Shuffle ───
 
 pub fn stz_list_shuffle(list_arg: ?*StzList) callconv(.c) i32 {
@@ -2360,6 +2406,71 @@ test "sort_on single element returns 0" {
     _ = stz_list_append_value(l, r0);
     value_mod.stz_value_free(r0);
     try std.testing.expectEqual(@as(i32, 0), stz_list_sort_on(l, 0));
+}
+
+// ─── Is Sorted tests ───
+
+test "is_sorted_ascending on sorted list" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_sorted_ascending(l));
+}
+
+test "is_sorted_ascending on unsorted list" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_sorted_ascending(l));
+}
+
+test "is_sorted_descending on descending list" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 5);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 1);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_sorted_descending(l));
+}
+
+test "is_sorted on empty list" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_sorted_ascending(l));
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_sorted_descending(l));
+}
+
+test "is_sorted null returns 0" {
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_sorted_ascending(null));
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_sorted_descending(null));
+}
+
+// ─── Repeat tests ───
+
+test "repeat list 3 times" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    const r = stz_list_repeat(l, 3).?;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 6), stz_list_len(r));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(r, 0));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(r, 1));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(r, 2));
+}
+
+test "repeat 0 times returns empty" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    const r = stz_list_repeat(l, 0).?;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 0), stz_list_len(r));
 }
 
 // ─── Shuffle tests ───

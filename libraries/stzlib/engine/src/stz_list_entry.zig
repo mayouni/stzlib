@@ -66,6 +66,9 @@ comptime {
     @export(&list.stz_list_deep_flatten, .{ .name = "stz_list_deep_flatten" });
     @export(&list.stz_list_flatten_to_depth, .{ .name = "stz_list_flatten_to_depth" });
     @export(&list.stz_list_sort_on, .{ .name = "stz_list_sort_on" });
+    @export(&list.stz_list_is_sorted_ascending, .{ .name = "stz_list_is_sorted_ascending" });
+    @export(&list.stz_list_is_sorted_descending, .{ .name = "stz_list_is_sorted_descending" });
+    @export(&list.stz_list_repeat, .{ .name = "stz_list_repeat" });
     @export(&list.stz_list_shuffle, .{ .name = "stz_list_shuffle" });
     @export(&list.stz_list_random_item, .{ .name = "stz_list_random_item" });
     @export(&list.stz_list_random_items, .{ .name = "stz_list_random_items" });
