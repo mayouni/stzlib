@@ -1242,6 +1242,87 @@ pub fn stz_string_count_chars_w(str_ptr: [*]const u8, str_len: usize, expr_ptr: 
     return count;
 }
 
+// ─── Get sub-list from a list-typed item ───
+
+pub fn stz_list_get_sublist(l: ?*const StzList, index: usize) callconv(.c) ?*StzList {
+    const list = l orelse return null;
+    const v = list.get(index) orelse return null;
+    if (v.tag != .list_val) return null;
+    const sub = v.data.list_val;
+    const result = stz_list_new() orelse return null;
+    for (0..sub.len) |i| {
+        _ = stz_list_append_value(result, sub.items[i]);
+    }
+    return result;
+}
+
+// ─── Zip / Interleave / Partition ───
+
+pub fn stz_list_zip(a: ?*const StzList, b: ?*const StzList) callconv(.c) ?*StzList {
+    const la = a orelse return null;
+    const lb = b orelse return null;
+    const len_a = la.len();
+    const len_b = lb.len();
+    const min_len = if (len_a < len_b) len_a else len_b;
+
+    const result = stz_list_new() orelse return null;
+    for (0..min_len) |i| {
+        const pair_val = value_mod.stz_value_new_list() orelse {
+            stz_list_free(result);
+            return null;
+        };
+        _ = value_mod.stz_value_list_append(pair_val, la.get(i) orelse continue);
+        _ = value_mod.stz_value_list_append(pair_val, lb.get(i) orelse continue);
+        _ = stz_list_append_value(result, pair_val);
+        value_mod.stz_value_free(pair_val);
+    }
+    return result;
+}
+
+pub fn stz_list_interleave(a: ?*const StzList, b: ?*const StzList) callconv(.c) ?*StzList {
+    const la = a orelse return null;
+    const lb = b orelse return null;
+    const len_a = la.len();
+    const len_b = lb.len();
+    const max_len = if (len_a > len_b) len_a else len_b;
+
+    const result = stz_list_new() orelse return null;
+    for (0..max_len) |i| {
+        if (i < len_a) if (la.get(i)) |v| { _ = stz_list_append_value(result, v); };
+        if (i < len_b) if (lb.get(i)) |v| { _ = stz_list_append_value(result, v); };
+    }
+    return result;
+}
+
+pub fn stz_list_partition(list_arg: ?*const StzList, n: usize) callconv(.c) ?*StzList {
+    const list = list_arg orelse return null;
+    if (n == 0) return null;
+    const total = list.len();
+    if (total == 0) return stz_list_new();
+
+    const group_size = (total + n - 1) / n; // ceil division
+    const result = stz_list_new() orelse return null;
+
+    var start: usize = 0;
+    for (0..n) |_| {
+        if (start >= total) break;
+        var end = start + group_size;
+        if (end > total) end = total;
+
+        const group_val = value_mod.stz_value_new_list() orelse {
+            stz_list_free(result);
+            return null;
+        };
+        for (start..end) |j| {
+            if (list.get(j)) |v| { _ = value_mod.stz_value_list_append(group_val, v); }
+        }
+        _ = stz_list_append_value(result, group_val);
+        value_mod.stz_value_free(group_val);
+        start = end;
+    }
+    return result;
+}
+
 // ─── Tests ───
 
 test "list basic append and get" {
@@ -2337,4 +2418,134 @@ test "frequencies_cs case insensitive" {
 
 test "frequencies_cs null returns null" {
     try std.testing.expect(stz_list_frequencies_cs(null, 1) == null);
+}
+
+// ─── Zip / Interleave / Partition tests ───
+
+test "zip basic" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_int(a, 1);
+    _ = stz_list_append_int(a, 2);
+    _ = stz_list_append_int(a, 3);
+    _ = stz_list_append_string(b, "a", 1);
+    _ = stz_list_append_string(b, "b", 1);
+    _ = stz_list_append_string(b, "c", 1);
+
+    const r = stz_list_zip(a, b) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(r));
+}
+
+test "zip unequal lengths" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_int(a, 1);
+    _ = stz_list_append_int(a, 2);
+    _ = stz_list_append_int(a, 3);
+    _ = stz_list_append_string(b, "x", 1);
+
+    const r = stz_list_zip(a, b) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 1), stz_list_len(r));
+}
+
+test "zip null returns null" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    try std.testing.expect(stz_list_zip(a, null) == null);
+    try std.testing.expect(stz_list_zip(null, a) == null);
+}
+
+test "interleave basic" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_int(a, 1);
+    _ = stz_list_append_int(a, 3);
+    _ = stz_list_append_int(a, 5);
+    _ = stz_list_append_int(b, 2);
+    _ = stz_list_append_int(b, 4);
+    _ = stz_list_append_int(b, 6);
+
+    const r = stz_list_interleave(a, b) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 6), stz_list_len(r));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(r, 0));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(r, 1));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(r, 2));
+    try std.testing.expectEqual(@as(i64, 4), stz_list_get_int(r, 3));
+    try std.testing.expectEqual(@as(i64, 5), stz_list_get_int(r, 4));
+    try std.testing.expectEqual(@as(i64, 6), stz_list_get_int(r, 5));
+}
+
+test "interleave unequal lengths" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_int(a, 1);
+    _ = stz_list_append_int(a, 3);
+    _ = stz_list_append_int(b, 2);
+
+    const r = stz_list_interleave(a, b) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(r));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(r, 0));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(r, 1));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(r, 2));
+}
+
+test "partition into 3 groups" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    for (1..8) |n| _ = stz_list_append_int(l, @intCast(n));
+
+    const r = stz_list_partition(l, 3) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(r));
+}
+
+test "partition into 1 group" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+
+    const r = stz_list_partition(l, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 1), stz_list_len(r));
+}
+
+test "partition more groups than items" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+
+    const r = stz_list_partition(l, 5) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(r));
+}
+
+test "partition null returns null" {
+    try std.testing.expect(stz_list_partition(null, 3) == null);
+}
+
+test "partition zero returns null" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    try std.testing.expect(stz_list_partition(l, 0) == null);
 }
