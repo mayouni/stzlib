@@ -221,14 +221,15 @@ class stzListMerger from stzList
 	#======================================================#
 
 	def DiffWith(paOtherList)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if NOT ListContains(paOtherList, aContent[i])
-				aResult + aContent[i]
-			ok
-		next
+		pList1 = _EngineListFromContent()
+		oTemp = new stzList(paOtherList)
+		pList2 = oTemp._EngineListFromContent()
+		pResult = StzEngineListDifferenceCS(pList1, pList2, 1)
+		StzEngineListFree(pList1)
+		StzEngineListFree(pList2)
+
+		aResult = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
 		return aResult
 
 		def DiffWithQ(paOtherList)
@@ -242,14 +243,15 @@ class stzListMerger from stzList
 	#======================================================#
 
 	def IntersectWith(paOtherList)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		for i = 1 to nLen
-			if ListContains(paOtherList, aContent[i]) and NOT ListContains(aResult, aContent[i])
-				aResult + aContent[i]
-			ok
-		next
+		pList1 = _EngineListFromContent()
+		oTemp = new stzList(paOtherList)
+		pList2 = oTemp._EngineListFromContent()
+		pResult = StzEngineListIntersectionCS(pList1, pList2, 1)
+		StzEngineListFree(pList1)
+		StzEngineListFree(pList2)
+
+		aResult = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
 		return aResult
 
 		def IntersectWithQ(paOtherList)
@@ -263,20 +265,15 @@ class stzListMerger from stzList
 	#======================================================#
 
 	def UnionWith(paOtherList)
-		aResult = []
-		aContent = This.Content()
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if NOT ListContains(aResult, aContent[i])
-				aResult + aContent[i]
-			ok
-		next
-		nLen2 = len(paOtherList)
-		for i = 1 to nLen2
-			if NOT ListContains(aResult, paOtherList[i])
-				aResult + paOtherList[i]
-			ok
-		next
+		pList1 = _EngineListFromContent()
+		oTemp = new stzList(paOtherList)
+		pList2 = oTemp._EngineListFromContent()
+		pResult = StzEngineListUnionCS(pList1, pList2, 1)
+		StzEngineListFree(pList1)
+		StzEngineListFree(pList2)
+
+		aResult = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
 		return aResult
 
 		def UnionWithQ(paOtherList)
