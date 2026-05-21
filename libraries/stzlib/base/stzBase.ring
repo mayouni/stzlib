@@ -204,69 +204,37 @@ ok
     load "list/stzTile.ring"
     load "list/stzTree.ring"
 
-    # Modular subclasses (Phase 1)
+    # List global functions and Q-constructors
 
-    load "list/stzListXT.ring"
     load "list/stzListFunc.ring"
 
+    # Modular subclasses (domain modules — base layer)
+
     load "list/stzListFinder.ring"
-    load "list/stzListFinderXT.ring"
     load "list/stzListReplacer.ring"
-    load "list/stzListReplacerXT.ring"
     load "list/stzListRemover.ring"
-    load "list/stzListRemoverXT.ring"
     load "list/stzListInserter.ring"
-    load "list/stzListInserterXT.ring"
-
     load "list/stzListSorter.ring"
-    load "list/stzListSorterXT.ring"
     load "list/stzListWalker.ring"
-    load "list/stzListWalkerXT.ring"
     load "list/stzListChecker.ring"
-    load "list/stzListCheckerXT.ring"
-
     load "list/stzListDuplicates.ring"
-    load "list/stzListDuplicatesXT.ring"
     load "list/stzListBounder.ring"
-    load "list/stzListBounderXT.ring"
     load "list/stzListFlattener.ring"
-    load "list/stzListFlattenerXT.ring"
-
-    # Modular subclasses (Phase 2)
-
     load "list/stzListCounter.ring"
-    load "list/stzListCounterXT.ring"
     load "list/stzListSections.ring"
-    load "list/stzListSectionsXT.ring"
     load "list/stzListRandom.ring"
-    load "list/stzListRandomXT.ring"
     load "list/stzListSplits.ring"
-    load "list/stzListSplitsXT.ring"
     load "list/stzListStringify.ring"
-    load "list/stzListStringifyXT.ring"
-
     load "list/stzListNamedParams.ring"
-
-    # Modular subclasses (Phase 3)
-
     load "list/stzListGetter.ring"
-    load "list/stzListGetterXT.ring"
     load "list/stzListExtractor.ring"
-    load "list/stzListExtractorXT.ring"
     load "list/stzListTrimmer.ring"
-    load "list/stzListTrimmerXT.ring"
     load "list/stzListMover.ring"
-    load "list/stzListMoverXT.ring"
     load "list/stzListClassifier.ring"
-    load "list/stzListClassifierXT.ring"
     load "list/stzListComparator.ring"
-    load "list/stzListComparatorXT.ring"
     load "list/stzListLeadTrail.ring"
-    load "list/stzListLeadTrailXT.ring"
     load "list/stzListPerformer.ring"
-    load "list/stzListPerformerXT.ring"
     load "list/stzListMerger.ring"
-    load "list/stzListMergerXT.ring"
 
 # Loading files related to the GRAPH module
 

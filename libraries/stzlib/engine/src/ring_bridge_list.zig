@@ -82,6 +82,11 @@ fn ring_GetInt(p: *anyopaque) callconv(.c) void {
     const adjusted = if (idx > 0) idx - 1 else 0;
     rn(p, @floatFromInt(list.stz_list_get_int(getLC(p, 1), adjusted)));
 }
+fn ring_GetFloat(p: *anyopaque) callconv(.c) void {
+    const idx: usize = @intFromFloat(g(p, 2));
+    const adjusted = if (idx > 0) idx - 1 else 0;
+    rn(p, list.stz_list_get_float(getLC(p, 1), adjusted));
+}
 fn ring_GetString(p: *anyopaque) callconv(.c) void {
     const idx: usize = @intFromFloat(g(p, 2));
     const adjusted = if (idx > 0) idx - 1 else 0;
@@ -196,6 +201,7 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistremove", .func = &ring_Remove },
     .{ .name = "stzenginelistget", .func = &ring_Get },
     .{ .name = "stzenginelistgetint", .func = &ring_GetInt },
+    .{ .name = "stzenginelistgetfloat", .func = &ring_GetFloat },
     .{ .name = "stzenginelistgetstring", .func = &ring_GetString },
     .{ .name = "stzenginelistfindcs", .func = &ring_FindCS },
     .{ .name = "stzenginelistfindstringcs", .func = &ring_FindStringCS },
