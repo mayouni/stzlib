@@ -99,12 +99,15 @@ class stzListSections from stzList
 			n2 = nTemp
 		ok
 
-		aResult = []
-
-		for i = n1 to n2
-			aResult + @aContent[i]
-		next
-
+		pList = This._EngineListFromContent()
+		pSection = StzEngineListSection(pList, n1, n2)
+		if pSection != NULL
+			aResult = StzEngineContentFromList(pSection)
+			StzEngineListFree(pSection)
+		else
+			aResult = []
+		ok
+		StzEngineListFree(pList)
 		return aResult
 
 		def SectionCSQ(n1, n2, pCaseSensitive)

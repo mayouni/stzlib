@@ -272,6 +272,39 @@ fn ring_SortOn(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sort_on(getL(p, 1), col0)));
 }
 
+fn ring_Shuffle(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_shuffle(getL(p, 1))));
+}
+
+fn ring_RandomItem(p: *anyopaque) callconv(.c) void {
+    if (list.stz_list_random_item(getLC(p, 1))) |v| {
+        rcp(p, @ptrCast(@constCast(v)), HL);
+    } else {
+        rs(p, "");
+    }
+}
+
+fn ring_RandomItems(p: *anyopaque) callconv(.c) void {
+    const count = @as(usize, @intFromFloat(g(p, 2)));
+    rcp(p, @ptrCast(list.stz_list_random_items(getLC(p, 1), count)), HL);
+}
+
+fn ring_Section(p: *anyopaque) callconv(.c) void {
+    const from = @as(usize, @intFromFloat(g(p, 2)));
+    const to = @as(usize, @intFromFloat(g(p, 3)));
+    const from0 = if (from > 0) from - 1 else 0;
+    const to0 = if (to > 0) to - 1 else 0;
+    rcp(p, @ptrCast(list.stz_list_section(getLC(p, 1), from0, to0)), HL);
+}
+
+fn ring_Swap(p: *anyopaque) callconv(.c) void {
+    const si = @as(usize, @intFromFloat(g(p, 2)));
+    const sj = @as(usize, @intFromFloat(g(p, 3)));
+    const si0 = if (si > 0) si - 1 else 0;
+    const sj0 = if (sj > 0) sj - 1 else 0;
+    rn(p, @floatFromInt(list.stz_list_swap(getL(p, 1), si0, sj0)));
+}
+
 // String expression operations
 fn ring_StringFindCharsW(p: *anyopaque) callconv(.c) void {
     var buf: [65536]u8 = undefined;
@@ -437,6 +470,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistdeepflatten", .func = &ring_DeepFlatten },
     .{ .name = "stzenginelistflattentodepth", .func = &ring_FlattenToDepth },
     .{ .name = "stzenginelistsorton", .func = &ring_SortOn },
+    .{ .name = "stzenginelistshuffle", .func = &ring_Shuffle },
+    .{ .name = "stzenginelistrandomitems", .func = &ring_RandomItems },
+    .{ .name = "stzenginelistsection", .func = &ring_Section },
+    .{ .name = "stzenginelistswap", .func = &ring_Swap },
     .{ .name = "stzenginelistfromnulldelimited", .func = &ring_FromNullDelimited },
     .{ .name = "stzenginelisttonulldelimited", .func = &ring_ToNullDelimited },
 };

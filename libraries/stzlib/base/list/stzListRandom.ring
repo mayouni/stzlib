@@ -214,8 +214,15 @@ class stzListRandom from stzList
 	#=================================#
 
 	def NRandomItems(n)
-		anPos = This.NRandomPositions(n)
-		aResult = This.ItemsAtPositions(anPos)
+		pList = This._EngineListFromContent()
+		pPicked = StzEngineListRandomItems(pList, n)
+		if pPicked != NULL
+			aResult = StzEngineContentFromList(pPicked)
+			StzEngineListFree(pPicked)
+		else
+			aResult = []
+		ok
+		StzEngineListFree(pList)
 		return aResult
 
 		def SomeItems()
@@ -227,9 +234,10 @@ class stzListRandom from stzList
 	#================================================#
 
 	def Randomize()
-		nLen = This.NumberOfItems()
-		anPos = NUniqueRandomNumbersIn(nLen, 1:nLen)
-		This.UpdateWith( This.ItemsAtPositions(anPos) )
+		pList = This._EngineListFromContent()
+		StzEngineListShuffle(pList)
+		This.UpdateWith( StzEngineContentFromList(pList) )
+		StzEngineListFree(pList)
 
 		def RandomizeQ()
 			This.Randomize()

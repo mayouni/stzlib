@@ -1494,6 +1494,128 @@ pub fn stz_list_flatten_to_depth(list_arg: ?*const StzList, depth: usize) callco
     return result;
 }
 
+// ─── Shuffle ───
+
+pub fn stz_list_shuffle(list_arg: ?*StzList) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const n = l.len();
+    if (n <= 1) return 0;
+
+    var prng = std.Random.DefaultPrng.init(@truncate(@as(u128, @bitCast(std.time.nanoTimestamp()))));
+    const rng = prng.random();
+
+    var i: usize = n - 1;
+    while (i > 0) : (i -= 1) {
+        const j = rng.intRangeAtMost(usize, 0, i);
+        const tmp = l.items.items[i];
+        l.items.items[i] = l.items.items[j];
+        l.items.items[j] = tmp;
+    }
+    return 0;
+}
+
+// ─── Random Pick ───
+
+pub fn stz_list_random_item(list_arg: ?*const StzList) callconv(.c) ?*const StzValue {
+    const l = list_arg orelse return null;
+    const n = l.len();
+    if (n == 0) return null;
+
+    var prng = std.Random.DefaultPrng.init(@truncate(@as(u128, @bitCast(std.time.nanoTimestamp()))));
+    const idx = prng.random().intRangeLessThan(usize, 0, n);
+    return l.get(idx);
+}
+
+pub fn stz_list_random_items(list_arg: ?*const StzList, count: usize) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const n = l.len();
+    if (n == 0 or count == 0) return null;
+
+    const result = stz_list_new() orelse return null;
+    var prng = std.Random.DefaultPrng.init(@truncate(@as(u128, @bitCast(std.time.nanoTimestamp()))));
+    const rng = prng.random();
+
+    const pick = @min(count, n);
+    const indices = allocator.alloc(usize, n) catch {
+        stz_list_free(result);
+        return null;
+    };
+    defer allocator.free(indices);
+    for (0..n) |i| indices[i] = i;
+
+    for (0..pick) |i| {
+        const j = rng.intRangeAtMost(usize, i, n - 1);
+        const tmp = indices[i];
+        indices[i] = indices[j];
+        indices[j] = tmp;
+        if (l.get(indices[i])) |v| {
+            _ = stz_list_append_value(result, v);
+        }
+    }
+    return result;
+}
+
+// ─── Trim ───
+
+pub fn stz_list_trim_leading(list_arg: ?*StzList, val: ?*const StzValue) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const v = val orelse return -1;
+    while (l.len() > 0) {
+        const first = l.get(0) orelse break;
+        if (first.compare(v) != 0) break;
+        _ = stz_list_remove(l, 0);
+    }
+    return 0;
+}
+
+pub fn stz_list_trim_trailing(list_arg: ?*StzList, val: ?*const StzValue) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const v = val orelse return -1;
+    while (l.len() > 0) {
+        const last = l.get(l.len() - 1) orelse break;
+        if (last.compare(v) != 0) break;
+        _ = stz_list_remove(l, l.len() - 1);
+    }
+    return 0;
+}
+
+pub fn stz_list_trim(list_arg: ?*StzList, val: ?*const StzValue) callconv(.c) i32 {
+    const r1 = stz_list_trim_leading(list_arg, val);
+    if (r1 < 0) return r1;
+    return stz_list_trim_trailing(list_arg, val);
+}
+
+// ─── Section (range extraction) ───
+
+pub fn stz_list_section(list_arg: ?*const StzList, from: usize, to: usize) callconv(.c) ?*StzList {
+    const l = list_arg orelse return null;
+    const n = l.len();
+    if (from >= n) return stz_list_new();
+    const end = @min(to + 1, n);
+    if (from >= end) return stz_list_new();
+
+    const result = stz_list_new() orelse return null;
+    for (from..end) |i| {
+        if (l.get(i)) |v| {
+            _ = stz_list_append_value(result, v);
+        }
+    }
+    return result;
+}
+
+// ─── Swap ───
+
+pub fn stz_list_swap(list_arg: ?*StzList, i: usize, j: usize) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const n = l.len();
+    if (i >= n or j >= n) return -1;
+    if (i == j) return 0;
+    const tmp = l.items.items[i];
+    l.items.items[i] = l.items.items[j];
+    l.items.items[j] = tmp;
+    return 0;
+}
+
 // ─── Tests ───
 
 test "list basic append and get" {
@@ -2238,6 +2360,160 @@ test "sort_on single element returns 0" {
     _ = stz_list_append_value(l, r0);
     value_mod.stz_value_free(r0);
     try std.testing.expectEqual(@as(i32, 0), stz_list_sort_on(l, 0));
+}
+
+// ─── Shuffle tests ───
+
+test "shuffle preserves length" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 5);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_shuffle(l));
+    try std.testing.expectEqual(@as(usize, 5), stz_list_len(l));
+}
+
+test "shuffle null returns -1" {
+    try std.testing.expectEqual(@as(i32, -1), stz_list_shuffle(null));
+}
+
+test "shuffle single element" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 42);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_shuffle(l));
+    try std.testing.expectEqual(@as(i64, 42), stz_list_get_int(l, 0));
+}
+
+// ─── Random pick tests ───
+
+test "random_item from list" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 30);
+    const v = stz_list_random_item(l);
+    try std.testing.expect(v != null);
+}
+
+test "random_item null returns null" {
+    try std.testing.expectEqual(@as(?*const StzValue, null), stz_list_random_item(null));
+}
+
+test "random_items picks correct count" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 5);
+    const picked = stz_list_random_items(l, 3).?;
+    defer stz_list_free(picked);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(picked));
+}
+
+test "random_items capped at list size" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    const picked = stz_list_random_items(l, 10).?;
+    defer stz_list_free(picked);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(picked));
+}
+
+// ─── Trim tests ───
+
+test "trim_leading removes matching items" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 0);
+    _ = stz_list_append_int(l, 0);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 0);
+    const zero = value_mod.stz_value_new_int(0);
+    defer value_mod.stz_value_free(zero);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_trim_leading(l, zero));
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(l));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(l, 0));
+}
+
+test "trim_trailing removes matching items" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 0);
+    _ = stz_list_append_int(l, 0);
+    const zero = value_mod.stz_value_new_int(0);
+    defer value_mod.stz_value_free(zero);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_trim_trailing(l, zero));
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(l));
+}
+
+test "trim removes both ends" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    const s = value_mod.stz_value_new_string("", 0);
+    defer value_mod.stz_value_free(s);
+    _ = stz_list_append_value(l, s);
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_value(l, s);
+    _ = stz_list_append_value(l, s);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_trim(l, s));
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(l));
+}
+
+// ─── Section tests ───
+
+test "section extracts range" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 30);
+    _ = stz_list_append_int(l, 40);
+    _ = stz_list_append_int(l, 50);
+    const sec = stz_list_section(l, 1, 3).?;
+    defer stz_list_free(sec);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(sec));
+    try std.testing.expectEqual(@as(i64, 20), stz_list_get_int(sec, 0));
+    try std.testing.expectEqual(@as(i64, 40), stz_list_get_int(sec, 2));
+}
+
+test "section null returns null" {
+    try std.testing.expectEqual(@as(?*StzList, null), stz_list_section(null, 0, 1));
+}
+
+// ─── Swap tests ───
+
+test "swap exchanges items" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 30);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_swap(l, 0, 2));
+    try std.testing.expectEqual(@as(i64, 30), stz_list_get_int(l, 0));
+    try std.testing.expectEqual(@as(i64, 10), stz_list_get_int(l, 2));
+}
+
+test "swap null returns -1" {
+    try std.testing.expectEqual(@as(i32, -1), stz_list_swap(null, 0, 1));
+}
+
+test "swap out of bounds returns -1" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 1);
+    try std.testing.expectEqual(@as(i32, -1), stz_list_swap(l, 0, 5));
 }
 
 // ─── String expression tests ───
