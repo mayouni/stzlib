@@ -61,7 +61,10 @@ class stzListSorter from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		aSorted = @SortList(aContent)
+		pList = _EngineListFromContent()
+		StzEngineListSortCS(pList, 1)
+		aSorted = This._ContentFromEngineList(pList)
+		StzEngineListFree(pList)
 
 		bResult = 1
 
@@ -84,7 +87,10 @@ class stzListSorter from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		aSorted = ring_reverse( @SortList(aContent) )
+		pList = _EngineListFromContent()
+		StzEngineListSortDescendingCS(pList, 1)
+		aSorted = This._ContentFromEngineList(pList)
+		StzEngineListFree(pList)
 
 		bResult = 1
 
@@ -111,8 +117,10 @@ class stzListSorter from stzList
 	#----------------------------------#
 
 	def SortInAscending()
-		aResult = @SortList( This.Content() )
-		This.Update( aResult )
+		pList = _EngineListFromContent()
+		StzEngineListSortCS(pList, 1)
+		This.UpdateWith(This._ContentFromEngineList(pList))
+		StzEngineListFree(pList)
 
 		def SortInAscendingQ()
 			This.SortInAscending()
@@ -142,8 +150,10 @@ class stzListSorter from stzList
 	#-----------------------------------#
 
 	def SortInDescending()
-		aResult = ring_reverse( This.SortedInAscending() )
-		This.Update( aResult )
+		pList = _EngineListFromContent()
+		StzEngineListSortDescendingCS(pList, 1)
+		This.UpdateWith(This._ContentFromEngineList(pList))
+		StzEngineListFree(pList)
 
 		def SortInDescendingQ()
 			This.SortInDescending()
@@ -187,8 +197,10 @@ class stzListSorter from stzList
 	#-------------------------------------#
 
 	def Reverse()
-		aResult = ring_reverse( This.List() )
-		This.Update( aResult )
+		pList = _EngineListFromContent()
+		StzEngineListReverse(pList)
+		This.UpdateWith(This._ContentFromEngineList(pList))
+		StzEngineListFree(pList)
 
 		def ReverseQ()
 			This.Reverse()
@@ -198,7 +210,10 @@ class stzListSorter from stzList
 			This.Reverse()
 
 	def Reversed()
-		aResult = ring_reverse(This.Content())
+		pList = _EngineListFromContent()
+		StzEngineListReverse(pList)
+		aResult = This._ContentFromEngineList(pList)
+		StzEngineListFree(pList)
 		return aResult
 
 		def ItemsReversed()
@@ -321,7 +336,10 @@ class stzListSorter from stzList
 	def Ranked()
 		aContent = This.Content()
 		nLen = len(aContent)
-		aSorted = sort(aContent)
+		pList = _EngineListFromContent()
+		StzEngineListSortCS(pList, 1)
+		aSorted = This._ContentFromEngineList(pList)
+		StzEngineListFree(pList)
 
 		aResult = []
 		for i = 1 to nLen
@@ -339,15 +357,20 @@ class stzListSorter from stzList
 	#==============================#
 
 	def NthSmallest(n)
-		aSorted = sort(This.Content())
+		pList = _EngineListFromContent()
+		StzEngineListSortCS(pList, 1)
+		aSorted = This._ContentFromEngineList(pList)
+		StzEngineListFree(pList)
 		if n >= 1 and n <= len(aSorted)
 			return aSorted[n]
 		ok
 		return NULL
 
 	def NthLargest(n)
-		aSorted = sort(This.Content())
-		aSorted = ring_reverse(aSorted)
+		pList = _EngineListFromContent()
+		StzEngineListSortDescendingCS(pList, 1)
+		aSorted = This._ContentFromEngineList(pList)
+		StzEngineListFree(pList)
 		if n >= 1 and n <= len(aSorted)
 			return aSorted[n]
 		ok
@@ -364,7 +387,10 @@ class stzListSorter from stzList
 			return 0
 		ok
 
-		aSorted = sort(aContent)
+		pList = _EngineListFromContent()
+		StzEngineListSortCS(pList, 1)
+		aSorted = This._ContentFromEngineList(pList)
+		StzEngineListFree(pList)
 		if nLen % 2 = 1
 			return aSorted[ (nLen + 1) / 2 ]
 		else

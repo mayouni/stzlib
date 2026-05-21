@@ -446,7 +446,10 @@ class stzListChecker from stzList
 			return 1
 		ok
 
-		aSorted = sort(aContent)
+		pList = _EngineListFromContent()
+		StzEngineListSortCS(pList, 1)
+		aSorted = This._ContentFromEngineList(pList)
+		StzEngineListFree(pList)
 		for i = 1 to nLen - 1
 			if NOT isNumber(aSorted[i])
 				return 0
