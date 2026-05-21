@@ -849,6 +849,84 @@ pub fn stz_list_all_unique_cs(list_arg: ?*const StzList, case_sensitive: i32) ca
     return 1;
 }
 
+// ─── C ABI: Set Operations ───
+
+pub fn stz_list_intersection_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
+    const la = a orelse return StzList.init() catch null;
+    const lb = b orelse return StzList.init() catch null;
+    const cs = case_sensitive != 0;
+    const result = StzList.init() catch return null;
+
+    for (la.items.items) |item| {
+        // Check item is in b
+        var in_b = false;
+        for (lb.items.items) |bi| {
+            if (valueEqlCS(item, bi, cs)) { in_b = true; break; }
+        }
+        if (!in_b) continue;
+        // Check not already in result
+        var in_r = false;
+        for (result.items.items) |ri| {
+            if (valueEqlCS(item, ri, cs)) { in_r = true; break; }
+        }
+        if (!in_r) {
+            result.appendClone(item) catch { result.deinit(); return null; };
+        }
+    }
+    return result;
+}
+
+pub fn stz_list_union_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
+    const la = a orelse return if (b != null) stz_list_clone(b) else StzList.init() catch null;
+    const lb = b orelse return stz_list_clone(a);
+    const cs = case_sensitive != 0;
+    const result = stz_list_clone(la) orelse return null;
+
+    for (lb.items.items) |item| {
+        var found = false;
+        for (result.items.items) |ri| {
+            if (valueEqlCS(item, ri, cs)) { found = true; break; }
+        }
+        if (!found) {
+            result.appendClone(item) catch { result.deinit(); return null; };
+        }
+    }
+    return result;
+}
+
+pub fn stz_list_difference_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive: i32) callconv(.c) ?*StzList {
+    const la = a orelse return StzList.init() catch null;
+    const lb = b orelse return stz_list_clone(a);
+    const cs = case_sensitive != 0;
+    const result = StzList.init() catch return null;
+
+    for (la.items.items) |item| {
+        var in_b = false;
+        for (lb.items.items) |bi| {
+            if (valueEqlCS(item, bi, cs)) { in_b = true; break; }
+        }
+        if (!in_b) {
+            result.appendClone(item) catch { result.deinit(); return null; };
+        }
+    }
+    return result;
+}
+
+pub fn stz_list_is_subset_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive: i32) callconv(.c) i32 {
+    const la = a orelse return 1; // empty set is subset of everything
+    const lb = b orelse return if (la.len() == 0) @as(i32, 1) else @as(i32, 0);
+    const cs = case_sensitive != 0;
+
+    for (la.items.items) |item| {
+        var found = false;
+        for (lb.items.items) |bi| {
+            if (valueEqlCS(item, bi, cs)) { found = true; break; }
+        }
+        if (!found) return 0;
+    }
+    return 1;
+}
+
 // ─── String expression operations ───
 
 fn utf8CharLen(byte: u8) usize {
@@ -1824,4 +1902,130 @@ test "all_unique_cs empty returns 1" {
     const l = stz_list_new() orelse return error.AllocFailed;
     defer stz_list_free(l);
     try std.testing.expectEqual(@as(i32, 1), stz_list_all_unique_cs(l, 1));
+}
+
+// ─── Set operation tests ───
+
+test "intersection_cs basic" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_int(a, 1);
+    _ = stz_list_append_int(a, 2);
+    _ = stz_list_append_int(a, 3);
+    _ = stz_list_append_int(b, 2);
+    _ = stz_list_append_int(b, 3);
+    _ = stz_list_append_int(b, 4);
+
+    const r = stz_list_intersection_cs(a, b, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(r));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(r, 0));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(r, 1));
+}
+
+test "intersection_cs no overlap" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_int(a, 1);
+    _ = stz_list_append_int(b, 2);
+
+    const r = stz_list_intersection_cs(a, b, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 0), stz_list_len(r));
+}
+
+test "intersection_cs case insensitive strings" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_string(a, "Hello", 5);
+    _ = stz_list_append_string(a, "World", 5);
+    _ = stz_list_append_string(b, "hello", 5);
+    _ = stz_list_append_string(b, "other", 5);
+
+    const r = stz_list_intersection_cs(a, b, 0) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 1), stz_list_len(r));
+}
+
+test "union_cs basic" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_int(a, 1);
+    _ = stz_list_append_int(a, 2);
+    _ = stz_list_append_int(b, 2);
+    _ = stz_list_append_int(b, 3);
+
+    const r = stz_list_union_cs(a, b, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(r));
+}
+
+test "difference_cs basic" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_int(a, 1);
+    _ = stz_list_append_int(a, 2);
+    _ = stz_list_append_int(a, 3);
+    _ = stz_list_append_int(b, 2);
+
+    const r = stz_list_difference_cs(a, b, 1) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(r));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(r, 0));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(r, 1));
+}
+
+test "is_subset_cs true" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_int(a, 1);
+    _ = stz_list_append_int(a, 2);
+    _ = stz_list_append_int(b, 1);
+    _ = stz_list_append_int(b, 2);
+    _ = stz_list_append_int(b, 3);
+
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_subset_cs(a, b, 1));
+}
+
+test "is_subset_cs false" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_int(a, 1);
+    _ = stz_list_append_int(a, 4);
+    _ = stz_list_append_int(b, 1);
+    _ = stz_list_append_int(b, 2);
+
+    try std.testing.expectEqual(@as(i32, 0), stz_list_is_subset_cs(a, b, 1));
+}
+
+test "is_subset_cs empty is subset" {
+    const a = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(a);
+    const b = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(b);
+
+    _ = stz_list_append_int(b, 1);
+
+    try std.testing.expectEqual(@as(i32, 1), stz_list_is_subset_cs(a, b, 1));
 }
