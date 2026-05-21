@@ -108,18 +108,31 @@ class stzListExtractor from stzList
 	#======================================================#
 
 	def ExtractDuplicatesCS(pCaseSensitive)
-		aUnique = []
-		aDups = []
-		aContent = This.Content()
-		nLen = len(aContent)
+		pList = _EngineListFromContent()
+		cResult = StzEngineListFindDuplicatesCS(pList, pCaseSensitive)
+		StzEngineListFree(pList)
+
+		if cResult = ""
+			return []
+		ok
+
+		aParts = StzSplit(cResult, ",")
+		nLen = len(aParts)
+		anDupPos = []
 		for i = 1 to nLen
-			if ListContainsCS(aUnique, aContent[i], pCaseSensitive)
-				aDups + aContent[i]
-			else
-				aUnique + aContent[i]
-			ok
+			anDupPos + (0 + aParts[i])
 		next
-		This.UpdateWith(aUnique)
+
+		aContent = This.Content()
+		aDups = []
+		for i = 1 to nLen
+			aDups + aContent[anDupPos[i]]
+		next
+
+		for i = nLen to 1 step -1
+			ring_remove(This.List(), anDupPos[i])
+		next
+
 		return aDups
 
 	def ExtractDuplicates()
