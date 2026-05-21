@@ -1034,98 +1034,13 @@ func @SortList(paList)
 		ok
 	ok
 
-	# The idea is to separate the items by type
-	# and then sort them
-
 	nLen = len(paList)
-
 	if nLen = 0
 		return []
 	ok
-	
-	anNumbers = []
 
-	acStrings = []
-	nLenNull = 0
-	# Null strings are counted and will be put first in the sort
-
-	aaLists   = []
-	nLenEmptyLists = 0
-	# Empty lists are counted and will be added at the top
-	# of sorted lists (there is no need to sort them)
-
-	aoObjects = []
-
-	for i = 1 to nLen
-		if isNumber(paList[i])
-			anNumbers + paList[i]
-
-		but isString(paList[i])
-			if paList[i] = ""
-				nLenNull++
-			else
-				acStrings + paList[i]
-			ok
-
-		but isList(paList[i])
-			if len(paList[i]) = 0
-				nLenEmptyLists++
-			else
-				aaLists + paList[i]
-			ok
-
-		else // isObject()
-			aoObjects + paList[i]
-		ok
-	next
-
-	aResult = []
-
-	nLenNumbers = len(anNumbers)
-	nLenStrings = len(acStrings)
-	nLenLists = len(aaLists)
-	nLenObjects = len(aoObjects)
-
-	# Adding the null values on the top of the result
-
-	for i = 1 to nLenNull
-		aResult + ""
-	next
-
-	# Sorting the numbers and adding them to the result
-
-	anNumbersSorted = ring_sort(anNumbers)
-	for i = 1 to nLenNumbers
-		aResult + anNumbersSorted[i]
-	next
-
-	# Sorting the (non-null) strings and adding them to the result
-
-	acStringsSorted = ring_sort(acStrings)
-	for i = 1 to nLenStrings
-		aResult + acStringsSorted[i]
-	next
-
-	# Adding the empty lists to the result
-
-	for i = 1 to nLenEmptyLists
-		aResult + []
-	next
-
-	# Sorting the (other non-empty) lists and adding them to the result
-
-	aaListsSorted = @SortListsOn(aaLists, 1)
-	for i = 1 to nLenLists
-		aResult + aaListsSorted[i]
-	next
-
-	# Sorting the objects and adding them to the result
-
-	for i = 1 to nLenObjects
-		aResult + aoObjects[i]
-	next
-
-	return aResult
+	oTemp = new stzList(paList)
+	return oTemp.Sorted()
 
 
 	func SortList(paList)
@@ -1139,31 +1054,8 @@ func @Sort(p)
 	if isString(p)
 		return ring_sort(p)
 
-	else // isList()
-
-		if @IsListOfNumbers(p) or @IsListOfStrings(p)
-			return ring_sort(p)
-		ok
-
-		if @IsListOfLists(p)
-			
-			# Case where one list is empty
-
-			nLen = len(p)
-			for i = 1 to nLen
-				if len(p[i]) = 0
-					return @SortList(p)
-				ok
-
-			next
-
-			# Other cases
-
-			return @SortListsOn(p, 1)
-
-		else
-			return @SortList(p)
-		ok
+	else
+		return @SortList(p)
 	ok
 
 func SortListBy(paList, pcExpr)
