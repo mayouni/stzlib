@@ -25,6 +25,8 @@ pub const method_gen = @import("method_gen.zig");
 pub const error_catalog = @import("error_catalog.zig");
 pub const value = @import("value.zig");
 pub const number = @import("number.zig");
+pub const list = @import("list.zig");
+pub const hashmap = @import("hashmap.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -359,6 +361,65 @@ comptime {
     @export(&number.stz_number_digit_sum, .{ .name = "stz_number_digit_sum" });
     @export(&number.stz_number_reverse_digits, .{ .name = "stz_number_reverse_digits" });
     @export(&number.stz_number_is_palindrome, .{ .name = "stz_number_is_palindrome" });
+
+    // ─── Foundation: List operations ───
+    @export(&list.stz_list_new, .{ .name = "stz_list_new" });
+    @export(&list.stz_list_free, .{ .name = "stz_list_free" });
+    @export(&list.stz_list_len, .{ .name = "stz_list_len" });
+    @export(&list.stz_list_append_int, .{ .name = "stz_list_append_int" });
+    @export(&list.stz_list_append_float, .{ .name = "stz_list_append_float" });
+    @export(&list.stz_list_append_string, .{ .name = "stz_list_append_string" });
+    @export(&list.stz_list_append_value, .{ .name = "stz_list_append_value" });
+    @export(&list.stz_list_insert, .{ .name = "stz_list_insert" });
+    @export(&list.stz_list_remove, .{ .name = "stz_list_remove" });
+    @export(&list.stz_list_get, .{ .name = "stz_list_get" });
+    @export(&list.stz_list_get_int, .{ .name = "stz_list_get_int" });
+    @export(&list.stz_list_get_string, .{ .name = "stz_list_get_string" });
+    @export(&list.stz_list_find_cs, .{ .name = "stz_list_find_cs" });
+    @export(&list.stz_list_find_string_cs, .{ .name = "stz_list_find_string_cs" });
+    @export(&list.stz_list_contains_cs, .{ .name = "stz_list_contains_cs" });
+    @export(&list.stz_list_find_all_cs, .{ .name = "stz_list_find_all_cs" });
+    @export(&list.stz_list_count_cs, .{ .name = "stz_list_count_cs" });
+    @export(&list.stz_list_sort, .{ .name = "stz_list_sort" });
+    @export(&list.stz_list_sort_descending, .{ .name = "stz_list_sort_descending" });
+    @export(&list.stz_list_reverse, .{ .name = "stz_list_reverse" });
+    @export(&list.stz_list_unique_cs, .{ .name = "stz_list_unique_cs" });
+    @export(&list.stz_list_remove_duplicates_cs, .{ .name = "stz_list_remove_duplicates_cs" });
+    @export(&list.stz_list_clone, .{ .name = "stz_list_clone" });
+    @export(&list.stz_list_slice, .{ .name = "stz_list_slice" });
+    @export(&list.stz_list_clear, .{ .name = "stz_list_clear" });
+    @export(&list.stz_list_from_null_delimited, .{ .name = "stz_list_from_null_delimited" });
+    @export(&list.stz_list_to_null_delimited, .{ .name = "stz_list_to_null_delimited" });
+    @export(&list.stz_list_set, .{ .name = "stz_list_set" });
+    @export(&list.stz_list_flatten, .{ .name = "stz_list_flatten" });
+    @export(&list.stz_list_item_type, .{ .name = "stz_list_item_type" });
+    @export(&list.stz_list_is_all_strings, .{ .name = "stz_list_is_all_strings" });
+    @export(&list.stz_list_is_all_numbers, .{ .name = "stz_list_is_all_numbers" });
+    @export(&list.stz_list_equals_cs, .{ .name = "stz_list_equals_cs" });
+
+    // ─── Foundation: HashMap operations ───
+    @export(&hashmap.stz_hashmap_new, .{ .name = "stz_hashmap_new" });
+    @export(&hashmap.stz_hashmap_free, .{ .name = "stz_hashmap_free" });
+    @export(&hashmap.stz_hashmap_len, .{ .name = "stz_hashmap_len" });
+    @export(&hashmap.stz_hashmap_put, .{ .name = "stz_hashmap_put" });
+    @export(&hashmap.stz_hashmap_put_int, .{ .name = "stz_hashmap_put_int" });
+    @export(&hashmap.stz_hashmap_put_float, .{ .name = "stz_hashmap_put_float" });
+    @export(&hashmap.stz_hashmap_put_string, .{ .name = "stz_hashmap_put_string" });
+    @export(&hashmap.stz_hashmap_get, .{ .name = "stz_hashmap_get" });
+    @export(&hashmap.stz_hashmap_get_cs, .{ .name = "stz_hashmap_get_cs" });
+    @export(&hashmap.stz_hashmap_get_int, .{ .name = "stz_hashmap_get_int" });
+    @export(&hashmap.stz_hashmap_get_float, .{ .name = "stz_hashmap_get_float" });
+    @export(&hashmap.stz_hashmap_get_string, .{ .name = "stz_hashmap_get_string" });
+    @export(&hashmap.stz_hashmap_has_key, .{ .name = "stz_hashmap_has_key" });
+    @export(&hashmap.stz_hashmap_has_key_cs, .{ .name = "stz_hashmap_has_key_cs" });
+    @export(&hashmap.stz_hashmap_remove, .{ .name = "stz_hashmap_remove" });
+    @export(&hashmap.stz_hashmap_key_at, .{ .name = "stz_hashmap_key_at" });
+    @export(&hashmap.stz_hashmap_key_len_at, .{ .name = "stz_hashmap_key_len_at" });
+    @export(&hashmap.stz_hashmap_value_at, .{ .name = "stz_hashmap_value_at" });
+    @export(&hashmap.stz_hashmap_clear, .{ .name = "stz_hashmap_clear" });
+    @export(&hashmap.stz_hashmap_clone, .{ .name = "stz_hashmap_clone" });
+    @export(&hashmap.stz_hashmap_keys, .{ .name = "stz_hashmap_keys" });
+    @export(&hashmap.stz_hashmap_merge, .{ .name = "stz_hashmap_merge" });
 }
 
 // Ring extension entry point (no-op -- we use CallCFunc for raw FFI)
@@ -366,7 +427,7 @@ pub export fn ringlib_init(_: ?*anyopaque) callconv(.c) void {}
 
 // Version -- bumped for Unicode
 pub export fn stz_engine_version() callconv(.c) u32 {
-    return 0x00_06_00_00; // 0.6.0.0
+    return 0x00_07_00_00; // 0.7.0.0
 }
 
 test {
@@ -387,4 +448,6 @@ test {
     _ = error_catalog;
     _ = value;
     _ = number;
+    _ = list;
+    _ = hashmap;
 }

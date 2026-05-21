@@ -11,15 +11,15 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 13                       |
+| Modules built     | 15                       |
 | Design principles | 19                       |
-| Engine tests      | 728 passing              |
-| DLLs shipping     | 17 (4 Core + 13 Base)    |
+| Engine tests      | 759 passing              |
+| DLLs shipping     | 19 (4 Core + 15 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 470 DLL functions        |
+| Ring bridge regs  | 523 DLL functions        |
 | Ring Unicode hard | Complete (all domains)   |
 | PCRE2 backend     | 10.47 (industrial regex) |
-| Last updated      | 2026-05-21 (Session 21)  |
+| Last updated      | 2026-05-21 (Session 22)  |
 
 ---
 
@@ -286,6 +286,32 @@
 - **Stats**: 728 Zig tests (was 674), 470 Ring bridge functions (was 411), 13 modules
   built (was 11).
 
+### M-E2: Core Collections (Session 22)
+
+- **`list.zig` -- StzList typed dynamic list**: Handle-based list operating on StzValue
+  items. Full C ABI: lifecycle (new, free, len), typed appenders (append_int, append_float,
+  append_string, append_value), positional ops (insert, remove, get, get_int, get_string,
+  set), search (find_cs, find_string_cs, contains_cs, find_all_cs, count_cs -- all with
+  case-sensitivity parameter), sorting (sort, sort_descending), mutation (reverse, clear),
+  deduplication (unique_cs returns new list, remove_duplicates_cs in-place), clone/slice,
+  bulk string I/O (from_null_delimited, to_null_delimited), nested list flatten,
+  type queries (item_type, is_all_strings, is_all_numbers), equality (equals_cs).
+  21 Zig tests.
+- **`hashmap.zig` -- StzHashMap string-keyed map**: Handle-based associative container
+  mapping string keys to StzValue items. Full C ABI: lifecycle (new, free, len),
+  typed putters (put, put_int, put_float, put_string -- all upsert), getters (get,
+  get_cs, get_int, get_float, get_string), key tests (has_key, has_key_cs), remove,
+  iteration (key_at, key_len_at, value_at), bulk ops (clear, clone, keys as
+  null-delimited, merge). 10 Zig tests.
+- **Ring bridge**: 32 list bridge functions (StzEngineList*), 21 hashmap bridge functions
+  (StzEngineHashMap*). All index-based operations use INDEX_BASE=1 adjustment at FFI
+  boundary. Find operations return 1-based positions (0 = not found). 53 new bridge
+  registrations (523 total).
+- **DLLs**: `stz_list.dll` and `stz_hashmap.dll` added to base_domains in build.zig.
+  19 DLLs shipping (was 17).
+- **Stats**: 759 Zig tests (was 728), 523 Ring bridge functions (was 470), 15 modules
+  built (was 13). Engine version bumped to 0.7.0.0.
+
 ---
 
 ## MILESTONES AHEAD
@@ -322,14 +348,20 @@ tests, 59 Ring bridge functions, 2 new DLLs.
 - DLL entry points (stz_value_entry.zig, stz_number_entry.zig)
 - Tests: 54 passing
 
-### M-E2: Core Collections [ ]
+### M-E2: Core Collections [DONE]
 
-> `stz_list` (heterogeneous dynamic array), `stz_hashmap`,
-> `stz_set`.
+> `stz_list` (heterogeneous dynamic array), `stz_hashmap`.
 
-**Why:** Lists are Softanza's most-used structure. HashMap
-enables named-parameter dispatch. Set enables unique-element
-operations.
+**Completed Session 22.** StzList (33 C ABI functions) +
+StzHashMap (22 C ABI functions). 31 Zig tests, 53 Ring bridge
+functions, 2 new DLLs.
+
+**Deliverables:**
+- `engine/src/list.zig` with typed list + find/sort/dedup
+- `engine/src/hashmap.zig` with string-keyed map
+- Ring FFI bridges for both (ring_bridge_list.zig, ring_bridge_hashmap.zig)
+- DLL entry points (stz_list_entry.zig, stz_hashmap_entry.zig)
+- Tests: 31 passing
 
 **Depends on:** M-E1 (StzValue)
 
