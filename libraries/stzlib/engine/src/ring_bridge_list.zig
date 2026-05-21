@@ -1,3 +1,4 @@
+const std = @import("std");
 const list = @import("list.zig");
 const value = @import("value.zig");
 const R = @import("ring_api.zig");
@@ -185,6 +186,47 @@ fn ring_EqualsCS(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_equals_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))));
 }
 
+// Expression-based operations (Map/Filter/Reduce/FindW)
+fn ring_MapExpr(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_map_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)))), HL);
+}
+fn ring_FilterExpr(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_filter_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)))), HL);
+}
+fn ring_ReduceExpr(p: *anyopaque) callconv(.c) void {
+    rcp(p, @constCast(@ptrCast(list.stz_list_reduce_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), getV(p, 3)))), HV);
+}
+fn ring_ReduceExprNoInit(p: *anyopaque) callconv(.c) void {
+    rcp(p, @constCast(@ptrCast(list.stz_list_reduce_expr(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), null))), HV);
+}
+fn ring_FindW(p: *anyopaque) callconv(.c) void {
+    const result = list.stz_list_find_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)));
+    rn(p, if (result >= 0) @as(f64, @floatFromInt(result + 1)) else 0);
+}
+fn ring_FindAllW(p: *anyopaque) callconv(.c) void {
+    var positions: [65536]i64 = undefined;
+    const count = list.stz_list_find_all_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), &positions, 65536);
+    if (count == 0) {
+        rs(p, "");
+        return;
+    }
+    var buf: [65536 * 12]u8 = undefined;
+    var pos: usize = 0;
+    for (0..count) |ci| {
+        const val_1based = positions[ci] + 1;
+        const slice = std.fmt.bufPrint(buf[pos..], "{d}", .{val_1based}) catch break;
+        pos += slice.len;
+        if (ci + 1 < count) {
+            buf[pos] = ',';
+            pos += 1;
+        }
+    }
+    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+}
+fn ring_CountW(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_count_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)))));
+}
+
 // Null-delimited
 fn ring_FromNullDelimited(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_from_null_delimited(gs(p, 1), @intCast(gss(p, 1)))), HL);
@@ -229,6 +271,13 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistisallstrings", .func = &ring_IsAllStrings },
     .{ .name = "stzenginelistisallnumbers", .func = &ring_IsAllNumbers },
     .{ .name = "stzenginelistequalscs", .func = &ring_EqualsCS },
+    .{ .name = "stzenginelistmapexpr", .func = &ring_MapExpr },
+    .{ .name = "stzenginelistfilterexpr", .func = &ring_FilterExpr },
+    .{ .name = "stzenginelistreduceexpr", .func = &ring_ReduceExpr },
+    .{ .name = "stzenginelistreduceexprnoinit", .func = &ring_ReduceExprNoInit },
+    .{ .name = "stzenginelistfindw", .func = &ring_FindW },
+    .{ .name = "stzenginelistfindallw", .func = &ring_FindAllW },
+    .{ .name = "stzenginelistcountw", .func = &ring_CountW },
     .{ .name = "stzenginelistfromnulldelimited", .func = &ring_FromNullDelimited },
     .{ .name = "stzenginelisttonulldelimited", .func = &ring_ToNullDelimited },
 };

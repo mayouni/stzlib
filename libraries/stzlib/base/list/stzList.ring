@@ -891,6 +891,103 @@ class stzList from stzObject
 	def IsEqualTo(paOtherList)
 		return This.IsEqualToCS(paOtherList, 1)
 
+	  #---------------------------------------------------#
+	 #  EXPRESSION-BACKED OPERATIONS (engine bytecode)    #
+	#---------------------------------------------------#
+
+	def Map(pcExpr)
+		pList = This._EngineListFromContent()
+		if pList = NULL return [] ok
+
+		pcExpr = _StzStripBraces(pcExpr)
+		pResult = StzEngineListMapExpr(pList, pcExpr)
+		aResult = This._ContentFromEngineList(pResult)
+
+		StzEngineListFree(pResult)
+		StzEngineListFree(pList)
+		return aResult
+
+		def MapQ(pcExpr)
+			return new stzList(This.Map(pcExpr))
+
+	def Filter(pcExpr)
+		pList = This._EngineListFromContent()
+		if pList = NULL return [] ok
+
+		pcExpr = _StzStripBraces(pcExpr)
+		pResult = StzEngineListFilterExpr(pList, pcExpr)
+		aResult = This._ContentFromEngineList(pResult)
+
+		StzEngineListFree(pResult)
+		StzEngineListFree(pList)
+		return aResult
+
+		def FilterQ(pcExpr)
+			return new stzList(This.Filter(pcExpr))
+
+		def FilterW(pcExpr)
+			return This.Filter(pcExpr)
+
+	def Reduce(pcExpr, pInitValue)
+		pList = This._EngineListFromContent()
+		if pList = NULL return 0 ok
+
+		pcExpr = _StzStripBraces(pcExpr)
+		pInit = StzEngineValueNewInt(pInitValue)
+		pResult = StzEngineListReduceExpr(pList, pcExpr, pInit)
+
+		nType = StzEngineValueType(pResult)
+		switch nType
+		on 2
+			result = StzEngineValueGetInt(pResult)
+		on 3
+			result = StzEngineValueGetFloat(pResult)
+		other
+			result = 0
+		off
+
+		StzEngineValueFree(pInit)
+		StzEngineValueFree(pResult)
+		StzEngineListFree(pList)
+		return result
+
+	def ReduceNoInit(pcExpr)
+		pList = This._EngineListFromContent()
+		if pList = NULL return 0 ok
+
+		pcExpr = _StzStripBraces(pcExpr)
+		pResult = StzEngineListReduceExprNoInit(pList, pcExpr)
+
+		nType = StzEngineValueType(pResult)
+		switch nType
+		on 2
+			result = StzEngineValueGetInt(pResult)
+		on 3
+			result = StzEngineValueGetFloat(pResult)
+		other
+			result = 0
+		off
+
+		StzEngineValueFree(pResult)
+		StzEngineListFree(pList)
+		return result
+
+	def CountW(pcCondition)
+		pList = This._EngineListFromContent()
+		if pList = NULL return 0 ok
+
+		pcCondition = _StzStripBraces(pcCondition)
+		nResult = StzEngineListCountW(pList, pcCondition)
+
+		StzEngineListFree(pList)
+		return nResult
+
+		def CountWhere(pcCondition)
+			return This.CountW(pcCondition)
+
+		def NumberOfItemsW(pcCondition)
+			return This.CountW(pcCondition)
+
 	  #-------------------------------------------#
 	 #  SORTING ORDER CHECK                      #
 	#-------------------------------------------#
@@ -1488,21 +1585,7 @@ class stzList from stzObject
 			pCaseSensitive = pCaseSensitive[2]
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
-		anResult = []
-
-		_cCode_ = _StzStripBraces(pcCondition)
-
-		for @i = 1 to nLen
-			@item = aContent[@i]
-			_cResult_ = eval(_cCode_)
-			if _cResult_ = 1
-				anResult + @i
-			ok
-		next
-
-		return anResult
+		return This.FindAllItemsW(pcCondition)
 
 		def FindWCS(pcCondition, pCaseSensitive)
 			return This.FindAllItemsWCS(pcCondition, pCaseSensitive)
@@ -1511,7 +1594,23 @@ class stzList from stzObject
 			return This.FindAllItemsWCS(pcCondition, pCaseSensitive)
 
 	def FindAllItemsW(pcCondition)
-		return This.FindAllItemsWCS(pcCondition, 1)
+		pList = This._EngineListFromContent()
+		if pList = NULL return [] ok
+
+		pcCondition = _StzStripBraces(pcCondition)
+		cRaw = StzEngineListFindAllW(pList, pcCondition)
+		StzEngineListFree(pList)
+
+		if len(cRaw) = 0
+			return []
+		ok
+
+		anResult = StzSplit(cRaw, ",")
+		nLen = len(anResult)
+		for i = 1 to nLen
+			anResult[i] = 0 + anResult[i]
+		next
+		return anResult
 
 		def FindW(pcCondition)
 			return This.FindAllItemsW(pcCondition)
@@ -1577,12 +1676,7 @@ class stzList from stzObject
 	  #-- Perform: execute code on each item
 
 	def Perform(pcAction)
-		aContent = This.Content()
-		nLen = len(aContent)
-		_cCode_ = _StzStripBraces(pcAction)
-		for @i = 1 to nLen
-			eval(_cCode_)
-		next
+		@aContent = This.Map(pcAction)
 
 		def PerformQ(pcAction)
 			This.Perform(pcAction)
@@ -1591,25 +1685,28 @@ class stzList from stzObject
 	  #-- PerformOn: execute code on specific positions
 
 	def PerformOn(panPos, pcAction)
-		aContent = This.Content()
+		pcAction = _StzStripBraces(pcAction)
 		nLen = len(panPos)
-		_cCode_ = _StzStripBraces(pcAction)
+		pList = This._EngineListFromContent()
+		if pList = NULL return ok
+
+		pResult = StzEngineListMapExpr(pList, pcAction)
+		aNew = This._ContentFromEngineList(pResult)
+
 		for i = 1 to nLen
-			@i = panPos[i]
-			eval(_cCode_)
+			nPos = panPos[i]
+			if nPos >= 1 and nPos <= len(@aContent)
+				@aContent[nPos] = aNew[nPos]
+			ok
 		next
+
+		StzEngineListFree(pResult)
+		StzEngineListFree(pList)
 
 	  #-- Yield: execute code on each item and collect results
 
 	def Yield(pcYielder)
-		aContent = This.Content()
-		nLen = len(aContent)
-		_cCode_ = _StzStripBraces(pcYielder)
-		aResult = []
-		for @i = 1 to nLen
-			aResult + eval(_cCode_)
-		next
-		return aResult
+		return This.Map(pcYielder)
 
 		def YieldQ(pcYielder)
 			return new stzList(This.Yield(pcYielder))
