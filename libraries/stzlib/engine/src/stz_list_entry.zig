@@ -46,6 +46,10 @@ comptime {
     @export(&list.stz_list_find_all_w, .{ .name = "stz_list_find_all_w" });
     @export(&list.stz_list_count_w, .{ .name = "stz_list_count_w" });
     @export(&list.stz_list_sort_by_expr, .{ .name = "stz_list_sort_by_expr" });
+    @export(&list.stz_list_intersection_cs, .{ .name = "stz_list_intersection_cs" });
+    @export(&list.stz_list_union_cs, .{ .name = "stz_list_union_cs" });
+    @export(&list.stz_list_difference_cs, .{ .name = "stz_list_difference_cs" });
+    @export(&list.stz_list_is_subset_cs, .{ .name = "stz_list_is_subset_cs" });
     @export(&list.stz_list_find_duplicates_cs, .{ .name = "stz_list_find_duplicates_cs" });
     @export(&list.stz_list_find_non_duplicated_cs, .{ .name = "stz_list_find_non_duplicated_cs" });
     @export(&list.stz_list_all_unique_cs, .{ .name = "stz_list_all_unique_cs" });

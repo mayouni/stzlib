@@ -300,6 +300,20 @@ fn ring_AllUniqueCS(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_all_unique_cs(getLC(p, 1), @intFromFloat(g(p, 2)))));
 }
 
+// Set operations
+fn ring_IntersectionCS(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_intersection_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
+}
+fn ring_UnionCS(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_union_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
+}
+fn ring_DifferenceCS(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_difference_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))), HL);
+}
+fn ring_IsSubsetCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_subset_cs(getLC(p, 1), getLC(p, 2), @intFromFloat(g(p, 3)))));
+}
+
 // Null-delimited
 fn ring_FromNullDelimited(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_from_null_delimited(gs(p, 1), @intCast(gss(p, 1)))), HL);
@@ -355,6 +369,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginestringfindcharsw", .func = &ring_StringFindCharsW },
     .{ .name = "stzenginestringmapchars", .func = &ring_StringMapChars },
     .{ .name = "stzenginestringcountcharsw", .func = &ring_StringCountCharsW },
+    .{ .name = "stzenginelistintersectioncs", .func = &ring_IntersectionCS },
+    .{ .name = "stzenginelistunioncs", .func = &ring_UnionCS },
+    .{ .name = "stzenginelistdifferencecs", .func = &ring_DifferenceCS },
+    .{ .name = "stzenginelistissubsetcs", .func = &ring_IsSubsetCS },
     .{ .name = "stzenginelistfindduplicatescs", .func = &ring_FindDuplicatesCS },
     .{ .name = "stzenginelistfindnonduplicatedcs", .func = &ring_FindNonDuplicatedCS },
     .{ .name = "stzenginelistalluniquecs", .func = &ring_AllUniqueCS },
