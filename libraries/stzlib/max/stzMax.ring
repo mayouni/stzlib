@@ -59,6 +59,34 @@
     load "error/stzSetError.ring"
     load "error/stzTextEncodingSystemError.ring"
 
+# Loading files related to LIST XT aliases (max layer)
+
+    load "list/stzListXT.ring"
+    load "list/stzListFinderXT.ring"
+    load "list/stzListReplacerXT.ring"
+    load "list/stzListRemoverXT.ring"
+    load "list/stzListInserterXT.ring"
+    load "list/stzListSorterXT.ring"
+    load "list/stzListWalkerXT.ring"
+    load "list/stzListCheckerXT.ring"
+    load "list/stzListDuplicatesXT.ring"
+    load "list/stzListBounderXT.ring"
+    load "list/stzListFlattenerXT.ring"
+    load "list/stzListCounterXT.ring"
+    load "list/stzListSectionsXT.ring"
+    load "list/stzListRandomXT.ring"
+    load "list/stzListSplitsXT.ring"
+    load "list/stzListStringifyXT.ring"
+    load "list/stzListGetterXT.ring"
+    load "list/stzListExtractorXT.ring"
+    load "list/stzListTrimmerXT.ring"
+    load "list/stzListMoverXT.ring"
+    load "list/stzListClassifierXT.ring"
+    load "list/stzListComparatorXT.ring"
+    load "list/stzListLeadTrailXT.ring"
+    load "list/stzListPerformerXT.ring"
+    load "list/stzListMergerXT.ring"
+
 # Loading files related to WINGS modules
 
 //  load "wings/stzWings.ring"

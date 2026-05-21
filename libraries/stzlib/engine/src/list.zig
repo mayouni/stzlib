@@ -174,6 +174,12 @@ pub fn stz_list_get_int(list: ?*const StzList, index: usize) callconv(.c) i64 {
     return value_mod.stz_value_get_int(v);
 }
 
+pub fn stz_list_get_float(list: ?*const StzList, index: usize) callconv(.c) f64 {
+    const l = list orelse return 0.0;
+    const v = l.get(index) orelse return 0.0;
+    return value_mod.stz_value_get_float(v);
+}
+
 pub fn stz_list_get_string(list: ?*const StzList, index: usize, buf: [*]u8, buf_len: usize) callconv(.c) usize {
     const l = list orelse return 0;
     const v = l.get(index) orelse return 0;

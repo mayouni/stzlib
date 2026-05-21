@@ -14,6 +14,8 @@ load "../../engine/stz_bytes.ring"
 load "../../engine/stz_json.ring"
 load "../../engine/stz_url.ring"
 load "../../engine/stz_system.ring"
+load "../../engine/stz_list.ring"
+load "../../engine/stz_hashmap.ring"
 load "../../engine/stzMeta.ring"
 
 # Initialize the meta-engine (named params, error catalog, aliases)

@@ -374,6 +374,7 @@ comptime {
     @export(&list.stz_list_remove, .{ .name = "stz_list_remove" });
     @export(&list.stz_list_get, .{ .name = "stz_list_get" });
     @export(&list.stz_list_get_int, .{ .name = "stz_list_get_int" });
+    @export(&list.stz_list_get_float, .{ .name = "stz_list_get_float" });
     @export(&list.stz_list_get_string, .{ .name = "stz_list_get_string" });
     @export(&list.stz_list_find_cs, .{ .name = "stz_list_find_cs" });
     @export(&list.stz_list_find_string_cs, .{ .name = "stz_list_find_string_cs" });
