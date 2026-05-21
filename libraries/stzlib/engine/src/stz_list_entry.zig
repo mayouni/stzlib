@@ -59,6 +59,12 @@ comptime {
     @export(&list.stz_list_zip, .{ .name = "stz_list_zip" });
     @export(&list.stz_list_interleave, .{ .name = "stz_list_interleave" });
     @export(&list.stz_list_partition, .{ .name = "stz_list_partition" });
+    @export(&list.stz_list_rotate_left, .{ .name = "stz_list_rotate_left" });
+    @export(&list.stz_list_rotate_right, .{ .name = "stz_list_rotate_right" });
+    @export(&list.stz_list_chunked, .{ .name = "stz_list_chunked" });
+    @export(&list.stz_list_paired, .{ .name = "stz_list_paired" });
+    @export(&list.stz_list_deep_flatten, .{ .name = "stz_list_deep_flatten" });
+    @export(&list.stz_list_flatten_to_depth, .{ .name = "stz_list_flatten_to_depth" });
     @export(&list.stz_string_find_chars_w, .{ .name = "stz_string_find_chars_w" });
     @export(&list.stz_string_map_chars, .{ .name = "stz_string_map_chars" });
     @export(&list.stz_string_count_chars_w, .{ .name = "stz_string_count_chars_w" });

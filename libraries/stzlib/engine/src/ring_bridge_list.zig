@@ -247,6 +247,24 @@ fn ring_Interleave(p: *anyopaque) callconv(.c) void {
 fn ring_Partition(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_partition(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
 }
+fn ring_RotateLeft(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_rotate_left(getL(p, 1), @intFromFloat(g(p, 2)))));
+}
+fn ring_RotateRight(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_rotate_right(getL(p, 1), @intFromFloat(g(p, 2)))));
+}
+fn ring_Chunked(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_chunked(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
+}
+fn ring_Paired(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_paired(getLC(p, 1))), HL);
+}
+fn ring_DeepFlatten(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_deep_flatten(getLC(p, 1))), HL);
+}
+fn ring_FlattenToDepth(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_flatten_to_depth(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
+}
 
 // String expression operations
 fn ring_StringFindCharsW(p: *anyopaque) callconv(.c) void {
@@ -406,6 +424,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistzip", .func = &ring_Zip },
     .{ .name = "stzenginelistinterleave", .func = &ring_Interleave },
     .{ .name = "stzenginelistpartition", .func = &ring_Partition },
+    .{ .name = "stzenginelistrotateleft", .func = &ring_RotateLeft },
+    .{ .name = "stzenginelistrotateright", .func = &ring_RotateRight },
+    .{ .name = "stzenginelistchunked", .func = &ring_Chunked },
+    .{ .name = "stzenginelistpaired", .func = &ring_Paired },
+    .{ .name = "stzenginelistdeepflatten", .func = &ring_DeepFlatten },
+    .{ .name = "stzenginelistflattentodepth", .func = &ring_FlattenToDepth },
     .{ .name = "stzenginelistfromnulldelimited", .func = &ring_FromNullDelimited },
     .{ .name = "stzenginelisttonulldelimited", .func = &ring_ToNullDelimited },
 };

@@ -272,30 +272,46 @@ class stzListFlattener from stzList
 	#=======================================#
 
 	def DeepFlatten()
-		aResult = _DeepFlattenHelper(This.Content())
-		This.Update(aResult)
+		pList = _EngineListFromContent()
+		pResult = StzEngineListDeepFlatten(pList)
+		StzEngineListFree(pList)
+		This.Update(StzEngineContentFromList(pResult))
+		StzEngineListFree(pResult)
 
 		def DeepFlattenQ()
 			This.DeepFlatten()
 			return This
 
 	def DeepFlattened()
-		return _DeepFlattenHelper(This.Content())
+		pList = _EngineListFromContent()
+		pResult = StzEngineListDeepFlatten(pList)
+		StzEngineListFree(pList)
+		aResult = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
+		return aResult
 
 	  #=======================================#
 	 #     FLATTENING TO A GIVEN DEPTH       #
 	#=======================================#
 
 	def FlattenToDepth(n)
-		aResult = _FlattenDepthHelper(This.Content(), n)
-		This.Update(aResult)
+		pList = _EngineListFromContent()
+		pResult = StzEngineListFlattenToDepth(pList, n)
+		StzEngineListFree(pList)
+		This.Update(StzEngineContentFromList(pResult))
+		StzEngineListFree(pResult)
 
 		def FlattenToDepthQ(n)
 			This.FlattenToDepth(n)
 			return This
 
 	def FlattenedToDepth(n)
-		return _FlattenDepthHelper(This.Content(), n)
+		pList = _EngineListFromContent()
+		pResult = StzEngineListFlattenToDepth(pList, n)
+		StzEngineListFree(pList)
+		aResult = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
+		return aResult
 
 	  #=======================================#
 	 #     TO SET (REMOVE DUPLICATES)        #
@@ -309,18 +325,11 @@ class stzListFlattener from stzList
 	#=======================================#
 
 	def Paired()
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-
-		for i = 1 to nLen step 2
-			if i + 1 <= nLen
-				aResult + [ aContent[i], aContent[i+1] ]
-			else
-				aResult + [ aContent[i], NULL ]
-			ok
-		next
-
+		pList = _EngineListFromContent()
+		pResult = StzEngineListPaired(pList)
+		StzEngineListFree(pList)
+		aResult = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
 		return aResult
 
 	  #=======================================#
@@ -328,22 +337,11 @@ class stzListFlattener from stzList
 	#=======================================#
 
 	def Chunked(n)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-
-		i = 1
-		while i <= nLen
-			aChunk = []
-			for j = 0 to n - 1
-				if i + j <= nLen
-					aChunk + aContent[i + j]
-				ok
-			next
-			aResult + [aChunk]
-			i += n
-		end
-
+		pList = _EngineListFromContent()
+		pResult = StzEngineListChunked(pList, n)
+		StzEngineListFree(pList)
+		aResult = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
 		return aResult
 
 	  #=======================================#
