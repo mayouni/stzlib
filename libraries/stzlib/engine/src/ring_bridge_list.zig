@@ -227,6 +227,26 @@ fn ring_CountW(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_count_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)))));
 }
 
+// Sort by expression: ring_SortByExpr(handle, expr_string, ascending_flag)
+fn ring_SortByExpr(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_sort_by_expr(getL(p, 1), gs(p, 2), @intCast(gss(p, 2)), @intFromFloat(g(p, 3)))));
+}
+
+// String expression operations
+fn ring_StringFindCharsW(p: *anyopaque) callconv(.c) void {
+    var buf: [65536]u8 = undefined;
+    const n = list.stz_string_find_chars_w(gs(p, 1), @intCast(gss(p, 1)), gs(p, 2), @intCast(gss(p, 2)), &buf, 65536);
+    if (n > 0) rs2(p, &buf, @intCast(n)) else rs(p, "");
+}
+
+fn ring_StringMapChars(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_string_map_chars(gs(p, 1), @intCast(gss(p, 1)), gs(p, 2), @intCast(gss(p, 2)))), HL);
+}
+
+fn ring_StringCountCharsW(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_string_count_chars_w(gs(p, 1), @intCast(gss(p, 1)), gs(p, 2), @intCast(gss(p, 2)))));
+}
+
 // Null-delimited
 fn ring_FromNullDelimited(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(list.stz_list_from_null_delimited(gs(p, 1), @intCast(gss(p, 1)))), HL);
@@ -278,6 +298,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistfindw", .func = &ring_FindW },
     .{ .name = "stzenginelistfindallw", .func = &ring_FindAllW },
     .{ .name = "stzenginelistcountw", .func = &ring_CountW },
+    .{ .name = "stzenginelistsortbyexpr", .func = &ring_SortByExpr },
+    .{ .name = "stzenginestringfindcharsw", .func = &ring_StringFindCharsW },
+    .{ .name = "stzenginestringmapchars", .func = &ring_StringMapChars },
+    .{ .name = "stzenginestringcountcharsw", .func = &ring_StringCountCharsW },
     .{ .name = "stzenginelistfromnulldelimited", .func = &ring_FromNullDelimited },
     .{ .name = "stzenginelisttonulldelimited", .func = &ring_ToNullDelimited },
 };

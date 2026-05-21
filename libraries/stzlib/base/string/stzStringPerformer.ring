@@ -45,11 +45,7 @@ class stzStringPerformer
 
 	def Perform(pcAction)
 		cStr = @oString.Content()
-		nLen = @oString.NumberOfChars()
-		_cCode_ = _StzStripBraces(pcAction)
-		for @i = 1 to nLen
-			eval(_cCode_)
-		next
+		StzEngineStringMapChars(cStr, _StzStripBraces(pcAction))
 
 		def PerformQ(pcAction)
 			This.Perform(pcAction)
@@ -60,12 +56,11 @@ class stzStringPerformer
 	#======================================================#
 
 	def PerformOn(panPos, pcAction)
-		nLen = len(panPos)
-		_cCode_ = _StzStripBraces(pcAction)
-		for i = 1 to nLen
-			@i = panPos[i]
-			eval(_cCode_)
-		next
+		cStr = @oString.Content()
+		pList = StzEngineStringMapChars(cStr, _StzStripBraces(pcAction))
+		if pList != NULL
+			StzEngineListFree(pList)
+		ok
 
 		def PerformOnQ(panPos, pcAction)
 			This.PerformOn(panPos, pcAction)
@@ -89,12 +84,11 @@ class stzStringPerformer
 
 	def Yield(pcYielder)
 		cStr = @oString.Content()
-		nLen = @oString.NumberOfChars()
-		_cCode_ = _StzStripBraces(pcYielder)
-		aResult = []
-		for @i = 1 to nLen
-			aResult + eval(_cCode_)
-		next
+		pList = StzEngineStringMapChars(cStr, _StzStripBraces(pcYielder))
+		if pList = NULL return [] ok
+
+		aResult = This._UnmarshalEngineList(pList)
+		StzEngineListFree(pList)
 		return aResult
 
 	  #======================================================#
@@ -102,12 +96,14 @@ class stzStringPerformer
 	#======================================================#
 
 	def YieldOn(panPos, pcYielder)
-		nLen = len(panPos)
-		_cCode_ = _StzStripBraces(pcYielder)
+		aAll = This.Yield(pcYielder)
 		aResult = []
+		nLen = len(panPos)
 		for i = 1 to nLen
-			@i = panPos[i]
-			aResult + eval(_cCode_)
+			n = panPos[i]
+			if n >= 1 and n <= len(aAll)
+				aResult + aAll[n]
+			ok
 		next
 		return aResult
 
@@ -118,3 +114,31 @@ class stzStringPerformer
 	def YieldW(pcCondition, pcYielder)
 		anPos = This.FindCharsW(pcCondition)
 		return This.YieldOn(anPos, pcYielder)
+
+	  #======================================================#
+	 #   PRIVATE: UNMARSHAL ENGINE LIST TO RING LIST         #
+	#======================================================#
+
+	def _UnmarshalEngineList(pList)
+		if pList = NULL
+			return []
+		ok
+
+		nLen = StzEngineListLen(pList)
+		aResult = []
+
+		for i = 1 to nLen
+			nType = StzEngineListItemType(pList, i)
+			switch nType
+			on 2
+				aResult + StzEngineListGetInt(pList, i)
+			on 3
+				aResult + StzEngineListGetFloat(pList, i)
+			on 4
+				aResult + StzEngineListGetString(pList, i)
+			other
+				aResult + NULL
+			off
+		next
+
+		return aResult

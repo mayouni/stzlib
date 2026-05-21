@@ -471,23 +471,17 @@ class stzStringFinder
 	#========================================#
 
 	def FindCharsWCS(pcCondition, pCaseSensitive)
-		# Evaluates pcCondition for each char, replacing @char with the char value
-		# Returns positions (1-based) where condition is true
-		# Ring eval() does NOT return values -- must assign inside eval string
-
-		acChars = @oString.Chars()
-		nLen = len(acChars)
+		cStr = @oString.Content()
+		cResult = StzEngineStringFindCharsW(cStr, pcCondition)
+		if cResult = ""
+			return []
+		ok
+		aParts = StzSplit(cResult, ",")
 		anResult = []
-
+		nLen = len(aParts)
 		for i = 1 to nLen
-			@char = acChars[i]
-			_stzFindW_result_ = 0
-			eval("_stzFindW_result_ = (" + pcCondition + ")")
-			if _stzFindW_result_ = 1
-				anResult + i
-			ok
+			anResult + (0 + aParts[i])
 		next
-
 		return anResult
 
 	def FindCharsW(pcCondition)

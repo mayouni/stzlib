@@ -164,31 +164,23 @@ class stzListSorter from stzList
 	#--------------------------------------------#
 
 	def SortByInAscending(pcExpr)
-		aContent = This.Content()
-		nLen = len(aContent)
+		pList = This._EngineListFromContent()
+		if pList = NULL return ok
 
-		for i = 1 to nLen - 1
-			for j = i + 1 to nLen
-				@item = aContent[i]
-				@item2 = aContent[j]
-				cCode = 'bSwap = (' + pcExpr + ')'
-				eval(cCode)
-				if bSwap
-					temp = aContent[i]
-					aContent[i] = aContent[j]
-					aContent[j] = temp
-				ok
-			next
-		next
-
-		This.UpdateWith(aContent)
+		StzEngineListSortByExpr(pList, pcExpr, 1)
+		This.UpdateWith(This._ContentFromEngineList(pList))
+		StzEngineListFree(pList)
 
 		def SortBy(pcExpr)
 			This.SortByInAscending(pcExpr)
 
 	def SortByInDescending(pcExpr)
-		This.SortByInAscending(pcExpr)
-		This.Reverse()
+		pList = This._EngineListFromContent()
+		if pList = NULL return ok
+
+		StzEngineListSortByExpr(pList, pcExpr, 0)
+		This.UpdateWith(This._ContentFromEngineList(pList))
+		StzEngineListFree(pList)
 
 	  #-------------------------------------#
 	 #  REVERSING ITEMS ORDER IN THE LIST  #
@@ -253,30 +245,17 @@ class stzListSorter from stzList
 	#==============================#
 
 	def SortedBy(pcExpr)
-		aResult = This.Copy().Content()
-		nLen = len(aResult)
-
-		for i = 1 to nLen - 1
-			for j = i + 1 to nLen
-				@item = aResult[i]
-				@item2 = aResult[j]
-				cCode = 'bSwap = (' + pcExpr + ')'
-				eval(cCode)
-				if bSwap
-					temp = aResult[i]
-					aResult[i] = aResult[j]
-					aResult[j] = temp
-				ok
-			next
-		next
-
-		return aResult
+		_oCopy_ = This.Copy()
+		_oCopy_.SortByInAscending(pcExpr)
+		return _oCopy_.Content()
 
 		def SortedByInAscending(pcExpr)
 			return This.SortedBy(pcExpr)
 
 	def SortedByInDescending(pcExpr)
-		return ring_reverse(This.SortedBy(pcExpr))
+		_oCopy_ = This.Copy()
+		_oCopy_.SortByInDescending(pcExpr)
+		return _oCopy_.Content()
 
 	  #==============================#
 	 #    MIN / MAX ITEMS           #

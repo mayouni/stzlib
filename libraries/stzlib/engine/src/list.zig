@@ -703,6 +703,221 @@ pub fn stz_list_count_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: 
     return found;
 }
 
+pub fn stz_list_sort_by_expr(list: ?*StzList, expr_ptr: [*]const u8, expr_len: usize, ascending: i32) callconv(.c) i32 {
+    const l = list orelse return -1;
+    const prog = expr.compile(expr_ptr, expr_len) orelse return -1;
+    defer prog.deinit();
+
+    const n = l.len();
+    if (n <= 1) return 0;
+
+    const keys = allocator.alloc(expr.Val, n) catch return -1;
+    defer allocator.free(keys);
+
+    const indices = allocator.alloc(usize, n) catch return -1;
+    defer allocator.free(indices);
+
+    const count: i64 = @intCast(n);
+    for (l.items.items, 0..) |item, i| {
+        var ctx = expr.EvalCtx{
+            .item = stzValueToVal(item),
+            .index = @as(i64, @intCast(i)) + 1,
+            .count = count,
+        };
+        keys[i] = expr.eval(prog, &ctx);
+        indices[i] = i;
+    }
+
+    const asc = ascending != 0;
+
+    const SortCtx = struct {
+        k: []expr.Val,
+        a: bool,
+    };
+    const sort_ctx = SortCtx{ .k = keys, .a = asc };
+    const S = struct {
+        fn lessThan(ctx: SortCtx, lhs: usize, rhs: usize) bool {
+            const cmp = keyCmp(ctx.k[lhs], ctx.k[rhs]);
+            return if (ctx.a) cmp < 0 else cmp > 0;
+        }
+    };
+    std.sort.pdq(usize, indices, sort_ctx, S.lessThan);
+
+    // Permute items according to sorted indices
+    const tmp = allocator.alloc(*StzValue, n) catch return -1;
+    defer allocator.free(tmp);
+    for (indices, 0..) |src, dst| {
+        tmp[dst] = l.items.items[src];
+    }
+    @memcpy(l.items.items[0..n], tmp[0..n]);
+
+    return 0;
+}
+
+fn keyCmp(a: expr.Val, b: expr.Val) i32 {
+    if ((a.tag == .int_v or a.tag == .float_v) and (b.tag == .int_v or b.tag == .float_v)) {
+        const af = a.asFloat();
+        const bf = b.asFloat();
+        if (af < bf) return -1;
+        if (af > bf) return 1;
+        return 0;
+    }
+    if (a.tag == .str_v and b.tag == .str_v) {
+        const sa = a.data.s;
+        const sb = b.data.s;
+        const min_len = @min(sa.len, sb.len);
+        if (min_len > 0) {
+            const ord = std.mem.order(u8, sa.ptr[0..min_len], sb.ptr[0..min_len]);
+            if (ord != .eq) return if (ord == .lt) @as(i32, -1) else @as(i32, 1);
+        }
+        if (sa.len < sb.len) return -1;
+        if (sa.len > sb.len) return 1;
+        return 0;
+    }
+    if (a.tag == .bool_v and b.tag == .bool_v) {
+        const ai: i32 = if (a.data.b) 1 else 0;
+        const bi: i32 = if (b.data.b) 1 else 0;
+        return ai - bi;
+    }
+    return 0;
+}
+
+// ─── String expression operations ───
+
+fn utf8CharLen(byte: u8) usize {
+    if (byte < 0x80) return 1;
+    if (byte & 0xE0 == 0xC0) return 2;
+    if (byte & 0xF0 == 0xE0) return 3;
+    if (byte & 0xF8 == 0xF0) return 4;
+    return 1;
+}
+
+pub fn stz_string_find_chars_w(str_ptr: [*]const u8, str_len: usize, expr_ptr: [*]const u8, expr_len: usize, out_buf: [*]u8, out_cap: usize) callconv(.c) usize {
+    const prog = expr.compile(expr_ptr, expr_len) orelse return 0;
+    defer prog.deinit();
+
+    const str = str_ptr[0..str_len];
+    var off: usize = 0;
+    var char_idx: i64 = 0;
+    var written: usize = 0;
+
+    var total_chars: i64 = 0;
+    {
+        var tmp: usize = 0;
+        while (tmp < str_len) {
+            tmp += utf8CharLen(str[tmp]);
+            total_chars += 1;
+        }
+    }
+
+    while (off < str_len) {
+        const cp_len = utf8CharLen(str[off]);
+        if (off + cp_len > str_len) break;
+        char_idx += 1;
+
+        var ctx = expr.EvalCtx{
+            .item = expr.Val.initNull(),
+            .index = char_idx,
+            .count = total_chars,
+        };
+        ctx.char_val = expr.Val.initStr(str[off..].ptr, cp_len);
+
+        const val = expr.eval(prog, &ctx);
+        if (val.isTruthy()) {
+            var num_buf: [20]u8 = undefined;
+            const num_str = std.fmt.bufPrint(&num_buf, "{}", .{char_idx}) catch break;
+            if (written > 0) {
+                if (written >= out_cap) break;
+                out_buf[written] = ',';
+                written += 1;
+            }
+            if (written + num_str.len > out_cap) break;
+            @memcpy(out_buf[written..][0..num_str.len], num_str);
+            written += num_str.len;
+        }
+        off += cp_len;
+    }
+    return written;
+}
+
+pub fn stz_string_map_chars(str_ptr: [*]const u8, str_len: usize, expr_ptr: [*]const u8, expr_len: usize) callconv(.c) ?*StzList {
+    const prog = expr.compile(expr_ptr, expr_len) orelse return null;
+    defer prog.deinit();
+
+    const result = StzList.init() catch return null;
+    const str = str_ptr[0..str_len];
+    var off: usize = 0;
+    var char_idx: i64 = 0;
+
+    var total_chars: i64 = 0;
+    {
+        var tmp: usize = 0;
+        while (tmp < str_len) {
+            tmp += utf8CharLen(str[tmp]);
+            total_chars += 1;
+        }
+    }
+
+    while (off < str_len) {
+        const cp_len = utf8CharLen(str[off]);
+        if (off + cp_len > str_len) break;
+        char_idx += 1;
+
+        var ctx = expr.EvalCtx{
+            .item = expr.Val.initNull(),
+            .index = char_idx,
+            .count = total_chars,
+        };
+        ctx.char_val = expr.Val.initStr(str[off..].ptr, cp_len);
+
+        const val = expr.eval(prog, &ctx);
+        const sv = valToStzValue(val) orelse continue;
+        result.items.append(allocator, sv) catch {
+            result.deinit();
+            return null;
+        };
+        off += cp_len;
+    }
+    return result;
+}
+
+pub fn stz_string_count_chars_w(str_ptr: [*]const u8, str_len: usize, expr_ptr: [*]const u8, expr_len: usize) callconv(.c) usize {
+    const prog = expr.compile(expr_ptr, expr_len) orelse return 0;
+    defer prog.deinit();
+
+    const str = str_ptr[0..str_len];
+    var off: usize = 0;
+    var char_idx: i64 = 0;
+    var count: usize = 0;
+
+    var total_chars: i64 = 0;
+    {
+        var tmp: usize = 0;
+        while (tmp < str_len) {
+            tmp += utf8CharLen(str[tmp]);
+            total_chars += 1;
+        }
+    }
+
+    while (off < str_len) {
+        const cp_len = utf8CharLen(str[off]);
+        if (off + cp_len > str_len) break;
+        char_idx += 1;
+
+        var ctx = expr.EvalCtx{
+            .item = expr.Val.initNull(),
+            .index = char_idx,
+            .count = total_chars,
+        };
+        ctx.char_val = expr.Val.initStr(str[off..].ptr, cp_len);
+
+        const val = expr.eval(prog, &ctx);
+        if (val.isTruthy()) count += 1;
+        off += cp_len;
+    }
+    return count;
+}
+
 // ─── Tests ───
 
 test "list basic append and get" {
@@ -1275,4 +1490,153 @@ test "count_w with isString" {
 test "count_w null list returns 0" {
     const e = "@item > 0";
     try std.testing.expectEqual(@as(usize, 0), stz_list_count_w(null, e.ptr, e.len));
+}
+
+test "sort_by_expr ascending by value" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 30);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+
+    const e = "@item";
+    const rc = stz_list_sort_by_expr(l, e.ptr, e.len, 1);
+    try std.testing.expectEqual(@as(i32, 0), rc);
+
+    try std.testing.expectEqual(@as(i64, 10), stz_list_get_int(l, 0));
+    try std.testing.expectEqual(@as(i64, 20), stz_list_get_int(l, 1));
+    try std.testing.expectEqual(@as(i64, 30), stz_list_get_int(l, 2));
+}
+
+test "sort_by_expr descending" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 30);
+    _ = stz_list_append_int(l, 20);
+
+    const e = "@item";
+    const rc = stz_list_sort_by_expr(l, e.ptr, e.len, 0);
+    try std.testing.expectEqual(@as(i32, 0), rc);
+
+    try std.testing.expectEqual(@as(i64, 30), stz_list_get_int(l, 0));
+    try std.testing.expectEqual(@as(i64, 20), stz_list_get_int(l, 1));
+    try std.testing.expectEqual(@as(i64, 10), stz_list_get_int(l, 2));
+}
+
+test "sort_by_expr by computed key" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    // Sort by negative value = reverse order
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 2);
+
+    const e = "0 - @item";
+    const rc = stz_list_sort_by_expr(l, e.ptr, e.len, 1);
+    try std.testing.expectEqual(@as(i32, 0), rc);
+
+    // ascending by (0-@item) means descending by @item
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(l, 0));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(l, 1));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(l, 2));
+}
+
+test "sort_by_expr strings" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "cherry", 6);
+    _ = stz_list_append_string(l, "apple", 5);
+    _ = stz_list_append_string(l, "banana", 6);
+
+    const e = "@item";
+    const rc = stz_list_sort_by_expr(l, e.ptr, e.len, 1);
+    try std.testing.expectEqual(@as(i32, 0), rc);
+
+    var buf: [64]u8 = undefined;
+    const n0 = stz_list_get_string(l, 0, &buf, 64);
+    try std.testing.expectEqualStrings("apple", buf[0..n0]);
+    const n1 = stz_list_get_string(l, 1, &buf, 64);
+    try std.testing.expectEqualStrings("banana", buf[0..n1]);
+    const n2 = stz_list_get_string(l, 2, &buf, 64);
+    try std.testing.expectEqualStrings("cherry", buf[0..n2]);
+}
+
+test "sort_by_expr single element" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_int(l, 42);
+
+    const e = "@item";
+    const rc = stz_list_sort_by_expr(l, e.ptr, e.len, 1);
+    try std.testing.expectEqual(@as(i32, 0), rc);
+    try std.testing.expectEqual(@as(i64, 42), stz_list_get_int(l, 0));
+}
+
+test "sort_by_expr null list returns -1" {
+    const e = "@item";
+    try std.testing.expectEqual(@as(i32, -1), stz_list_sort_by_expr(null, e.ptr, e.len, 1));
+}
+
+// ─── String expression tests ───
+
+test "string_find_chars_w vowels" {
+    const str = "hello";
+    const e = "@char = \"e\" or @char = \"o\"";
+    var buf: [256]u8 = undefined;
+    const n = stz_string_find_chars_w(str.ptr, str.len, e.ptr, e.len, &buf, 256);
+    try std.testing.expectEqualStrings("2,5", buf[0..n]);
+}
+
+test "string_find_chars_w no match" {
+    const str = "abc";
+    const e = "@char = \"z\"";
+    var buf: [256]u8 = undefined;
+    const n = stz_string_find_chars_w(str.ptr, str.len, e.ptr, e.len, &buf, 256);
+    try std.testing.expectEqual(@as(usize, 0), n);
+}
+
+test "string_find_chars_w by index" {
+    const str = "abcde";
+    const e = "@i > 3";
+    var buf: [256]u8 = undefined;
+    const n = stz_string_find_chars_w(str.ptr, str.len, e.ptr, e.len, &buf, 256);
+    try std.testing.expectEqualStrings("4,5", buf[0..n]);
+}
+
+test "string_map_chars identity" {
+    const str = "abc";
+    const e = "@char";
+    const result = stz_string_map_chars(str.ptr, str.len, e.ptr, e.len) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(result));
+    var buf: [64]u8 = undefined;
+    const n0 = stz_list_get_string(result, 0, &buf, 64);
+    try std.testing.expectEqualStrings("a", buf[0..n0]);
+    const n2 = stz_list_get_string(result, 2, &buf, 64);
+    try std.testing.expectEqualStrings("c", buf[0..n2]);
+}
+
+test "string_map_chars index" {
+    const str = "ab";
+    const e = "@i";
+    const result = stz_string_map_chars(str.ptr, str.len, e.ptr, e.len) orelse return error.AllocFailed;
+    defer stz_list_free(result);
+
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(result));
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(result, 0));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(result, 1));
+}
+
+test "string_count_chars_w" {
+    const str = "hello world";
+    const e = "@char = \"l\"";
+    try std.testing.expectEqual(@as(usize, 3), stz_string_count_chars_w(str.ptr, str.len, e.ptr, e.len));
+}
+
+test "string_count_chars_w empty" {
+    const str = "";
+    const e = "@char = \"a\"";
+    try std.testing.expectEqual(@as(usize, 0), stz_string_count_chars_w(str.ptr, str.len, e.ptr, e.len));
 }
