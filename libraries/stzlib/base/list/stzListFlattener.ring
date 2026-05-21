@@ -199,14 +199,14 @@ class stzListFlattener from stzList
 
 		cFirst = @@(aContent[1])
 		if pCaseSensitive = 0
-			cFirst = ring_lower(cFirst)
+			cFirst = StzLower(cFirst)
 		ok
 
 		aResult = []
 		for i = 2 to nLen
 			cItem = @@(aContent[i])
 			if pCaseSensitive = 0
-				cItem = ring_lower(cItem)
+				cItem = StzLower(cItem)
 			ok
 
 			if cItem = cFirst
@@ -240,14 +240,14 @@ class stzListFlattener from stzList
 
 		cLast = @@(aContent[nLen])
 		if pCaseSensitive = 0
-			cLast = ring_lower(cLast)
+			cLast = StzLower(cLast)
 		ok
 
 		aResult = []
 		for i = nLen - 1 to 1 step -1
 			cItem = @@(aContent[i])
 			if pCaseSensitive = 0
-				cItem = ring_lower(cItem)
+				cItem = StzLower(cItem)
 			ok
 
 			if cItem = cLast

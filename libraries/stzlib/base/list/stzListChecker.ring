@@ -173,8 +173,8 @@ class stzListChecker from stzList
 			c2 = @@(paOtherList[i])
 
 			if pCaseSensitive = 0
-				c1 = ring_lower(c1)
-				c2 = ring_lower(c2)
+				c1 = StzLower(c1)
+				c2 = StzLower(c2)
 			ok
 
 			if c1 != c2

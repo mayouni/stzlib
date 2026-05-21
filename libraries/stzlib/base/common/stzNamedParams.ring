@@ -227,10 +227,10 @@ func StzCheckParam(pValue, p2, p3)
 	ok
 
 	if isList(pValue) and len(pValue) = 2 and isString(pValue[1])
-		cKey = ring_lower(pValue[1])
+		cKey = StzLower(pValue[1])
 		nLen = len(pacSkipping)
 		for i = 1 to nLen
-			if cKey = ring_lower(pacSkipping[i])
+			if cKey = StzLower(pacSkipping[i])
 				pValue = pValue[2]
 				exit
 			ok
@@ -256,7 +256,7 @@ func StzCheckParam(pValue, p2, p3)
 
 func StzCheckParamCS(pValue)
 	if isList(pValue) and len(pValue) = 2 and isString(pValue[1])
-		cKey = ring_lower(pValue[1])
+		cKey = StzLower(pValue[1])
 		if cKey = "casesensitive" or cKey = "cs"
 			pValue = pValue[2]
 		ok
@@ -292,7 +292,7 @@ func StzIsNamedParamList(paList)
 		return 0
 	ok
 
-	return ring_find($_acStzNamedParams, ring_lower(paList[1])) > 0
+	return ring_find($_acStzNamedParams, StzLower(paList[1])) > 0
 
 	func IsNamedParamList(paList)
 		return StzIsNamedParamList(paList)
@@ -310,7 +310,7 @@ func StzIsThisNamedParam(paList, cKeyword)
 		return 0
 	ok
 
-	if ring_lower(paList[1]) = ring_lower(cKeyword)
+	if StzLower(paList[1]) = StzLower(cKeyword)
 		return 1
 	ok
 
@@ -332,11 +332,11 @@ func StzIsOneOfTheseNamedParamsList(paList, pacKeywords)
 		return 0
 	ok
 
-	cParam = ring_lower(paList[1])
+	cParam = StzLower(paList[1])
 	nLen = len(pacKeywords)
 
 	for i = 1 to nLen
-		if cParam = ring_lower(pacKeywords[i])
+		if cParam = StzLower(pacKeywords[i])
 			return 1
 		ok
 	next

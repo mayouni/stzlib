@@ -38901,7 +38901,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + ring_lower(cItem)
+				acStr + StzLower(cItem)
 			next
 
 		ok
@@ -39053,7 +39053,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + ring_lower(cItem)
+				acStr + StzLower(cItem)
 			next
 
 		ok
@@ -39178,7 +39178,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + ring_lower(cItem)
+				acStr + StzLower(cItem)
 			next
 
 		ok
@@ -39480,7 +39480,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + ring_lower(cItem)
+				acStr + StzLower(cItem)
 			next
 
 
@@ -39653,7 +39653,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + ring_lower(cItem)
+				acStr + StzLower(cItem)
 			next
 
 
@@ -39792,7 +39792,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + ring_lower(cItem)
+				acStr + StzLower(cItem)
 			next
 
 
@@ -39955,7 +39955,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + ring_lower(cItem)
+				acStr + StzLower(cItem)
 			next
 
 
@@ -40100,7 +40100,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + ring_lower(cItem)
+				acStr + StzLower(cItem)
 			next
 
 
@@ -40434,7 +40434,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + ring_lower(cItem)
+				acStr + StzLower(cItem)
 			next
 
 
@@ -40852,7 +40852,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + ring_lower(cItem)
+				acStr + StzLower(cItem)
 			next
 
 		ok
@@ -41083,7 +41083,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acStr + ring_lower(cItem)
+				acStr + StzLower(cItem)
 			next
 
 		ok
@@ -42143,7 +42143,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acItems + ring_lower(cItem)
+				acItems + StzLower(cItem)
 			next
 
 		ok
@@ -42236,7 +42236,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acItems + ring_lower(cItem)
+				acItems + StzLower(cItem)
 			next
 
 		ok
@@ -42334,7 +42334,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acItems + ring_lower(cItem)
+				acItems + StzLower(cItem)
 			next
 
 		ok
@@ -42559,7 +42559,7 @@ class stzList from stzObject
 	
 				# Memorising the stringified items so we can used them later
 	
-				acItems + ring_lower(cItem)
+				acItems + StzLower(cItem)
 			next
 
 		ok
@@ -42568,7 +42568,7 @@ class stzList from stzObject
 
 		cItem = @@(pItem)
 		if bCaseSensitive = 0
-			cItem = ring_lower(cItem)
+			cItem = StzLower(cItem)
 		ok
 
 		anResult = []
@@ -45044,11 +45044,11 @@ fdef
 			# Managing case sensitivity
 	
 			if pCaseSensitive = 0
-				cItem = ring_lower(cItem)
+				cItem = StzLower(cItem)
 	
 				for i = 1 to nLen
 					if NOT ring_isLower(acContent[i])
-						acContent[i] = ring_lower(acContent[i])
+						acContent[i] = StzLower(acContent[i])
 					ok
 				next
 			ok
@@ -45487,11 +45487,11 @@ fdef
 			# Managing case sensitivity
 	
 			if pCaseSensitive = 0
-				cItem = ring_lower(cItem)
+				cItem = StzLower(cItem)
 	
 				for i = 1 to nLen
 					if NOT ring_isLower(acContent[i])
-						acContent[i] = ring_lower(acContent[i])
+						acContent[i] = StzLower(acContent[i])
 					ok
 				next
 			ok
@@ -53134,7 +53134,7 @@ fdef
 		for @i = 1 to _nLen_
 
 			if isString(_aContent_[@i])
-				_aContent_[@i] = ring_lower(_aContent_[@i])
+				_aContent_[@i] = StzLower(_aContent_[@i])
 			ok
 
 		next
@@ -53255,7 +53255,7 @@ fdef
 
 		for @i = 1 to _nLen_
 			if isString(_aContent_[@i])
-				_cStrUpp_ = ring_upper(_aContent_[@i])
+				_cStrUpp_ = StzUpper(_aContent_[@i])
 				_aContent_[@i] = _cStrUpp_
 			ok
 		next

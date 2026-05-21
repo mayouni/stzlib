@@ -187,7 +187,7 @@ func StzVxt(cVarName)
 		StzRaise("Incorrect param type! cVarName must be a string.")
 	ok
 
-	cVarName = ring_lower(cVarName)
+	cVarName = StzLower(cVarName)
 
 	if NOT StzFind(TempVarNames(), cVarName)
 		StzRaise("Variable name does not exist!")
