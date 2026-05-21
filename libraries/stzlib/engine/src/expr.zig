@@ -131,6 +131,9 @@ pub const Op = enum(u8) {
     fn_right,
     fn_substr,
     fn_if,
+    fn_replace,
+    fn_repeat,
+    fn_indexof,
 };
 
 pub const Inst = struct {
@@ -197,6 +200,9 @@ const TTag = enum(u8) {
     fn_right,
     fn_substr,
     fn_if,
+    fn_replace,
+    fn_repeat,
+    fn_indexof,
     plus,
     minus,
     star,
@@ -400,6 +406,9 @@ fn classifyWord(word: []const u8) TTag {
     if (std.mem.eql(u8, w, "right")) return .fn_right;
     if (std.mem.eql(u8, w, "substr")) return .fn_substr;
     if (std.mem.eql(u8, w, "if")) return .fn_if;
+    if (std.mem.eql(u8, w, "replace")) return .fn_replace;
+    if (std.mem.eql(u8, w, "repeat")) return .fn_repeat;
+    if (std.mem.eql(u8, w, "indexof")) return .fn_indexof;
     return .err;
 }
 
@@ -585,6 +594,8 @@ const Compiler = struct {
             .fn_endswith => .fn_endswith,
             .fn_left => .fn_left,
             .fn_right => .fn_right,
+            .fn_repeat => .fn_repeat,
+            .fn_indexof => .fn_indexof,
             else => null,
         };
 
@@ -599,10 +610,11 @@ const Compiler = struct {
             return;
         }
 
-        // Three-arg functions: substr(s, start, len), if(cond, then, else)
+        // Three-arg functions: substr(s, start, len), if(cond, then, else), replace(s, old, new)
         const fn3_op: ?Op = switch (self.cur.tag) {
             .fn_substr => .fn_substr,
             .fn_if => .fn_if,
+            .fn_replace => .fn_replace,
             else => null,
         };
 
@@ -1092,6 +1104,92 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                 const cond = pop(&stack, &sp);
                 push(&stack, &sp, if (cond.isTruthy()) then_val else else_val);
             },
+            .fn_replace => {
+                const new_val = pop(&stack, &sp);
+                const old_val = pop(&stack, &sp);
+                const str_val = pop(&stack, &sp);
+                if (str_val.tag == .str_v and old_val.tag == .str_v and new_val.tag == .str_v) {
+                    const s = str_val.data.s;
+                    const old = old_val.data.s;
+                    const new = new_val.data.s;
+                    if (old.len == 0 or s.len == 0) {
+                        push(&stack, &sp, str_val);
+                    } else {
+                        var result_len: usize = 0;
+                        var pos: usize = 0;
+                        while (pos <= s.len -| old.len) {
+                            if (std.mem.eql(u8, s.ptr[pos..][0..old.len], old.ptr[0..old.len])) {
+                                result_len += new.len;
+                                pos += old.len;
+                            } else {
+                                result_len += 1;
+                                pos += 1;
+                            }
+                        }
+                        result_len += s.len - pos;
+
+                        if (ctx.allocScratch(result_len)) |buf| {
+                            var wp: usize = 0;
+                            pos = 0;
+                            while (pos <= s.len -| old.len) {
+                                if (std.mem.eql(u8, s.ptr[pos..][0..old.len], old.ptr[0..old.len])) {
+                                    if (new.len > 0) {
+                                        @memcpy(buf[wp..][0..new.len], new.ptr[0..new.len]);
+                                        wp += new.len;
+                                    }
+                                    pos += old.len;
+                                } else {
+                                    buf[wp] = s.ptr[pos];
+                                    wp += 1;
+                                    pos += 1;
+                                }
+                            }
+                            while (pos < s.len) : (pos += 1) {
+                                buf[wp] = s.ptr[pos];
+                                wp += 1;
+                            }
+                            push(&stack, &sp, Val.initStr(buf.ptr, wp));
+                        } else push(&stack, &sp, str_val);
+                    }
+                } else push(&stack, &sp, Val.initNull());
+            },
+            .fn_repeat => {
+                const n_val = pop(&stack, &sp);
+                const s_val = pop(&stack, &sp);
+                if (s_val.tag == .str_v) {
+                    const s = s_val.data.s;
+                    const n: usize = @intCast(@max(n_val.asInt(), 0));
+                    const total = s.len * n;
+                    if (total == 0) {
+                        push(&stack, &sp, Val.initStr(s.ptr, 0));
+                    } else if (ctx.allocScratch(total)) |buf| {
+                        for (0..n) |j| {
+                            @memcpy(buf[j * s.len ..][0..s.len], s.ptr[0..s.len]);
+                        }
+                        push(&stack, &sp, Val.initStr(buf.ptr, total));
+                    } else push(&stack, &sp, s_val);
+                } else push(&stack, &sp, Val.initNull());
+            },
+            .fn_indexof => {
+                const sub = pop(&stack, &sp);
+                const haystack = pop(&stack, &sp);
+                if (haystack.tag == .str_v and sub.tag == .str_v) {
+                    const h = haystack.data.s;
+                    const s = sub.data.s;
+                    if (s.len == 0 or s.len > h.len) {
+                        push(&stack, &sp, Val.initInt(0));
+                    } else {
+                        var found: i64 = 0;
+                        for (0..h.len - s.len + 1) |j| {
+                            if (std.mem.eql(u8, h.ptr[j..][0..s.len], s.ptr[0..s.len])) {
+                                found = @as(i64, @intCast(j)) + 1;
+                                break;
+                            }
+                        }
+                        push(&stack, &sp, Val.initInt(found));
+                    }
+                } else push(&stack, &sp, Val.initInt(0));
+            },
         }
     }
 
@@ -1545,4 +1643,69 @@ test "expr: complex string expression" {
         1,
     );
     try std.testing.expectEqualStrings("HELLO", r2.data.s.ptr[0..r2.data.s.len]);
+}
+
+test "expr: replace function" {
+    const r = compileAndEval(
+        "replace(@item, \"world\", \"zig\")",
+        Val.initStr("hello world", 11),
+        1,
+        1,
+    );
+    try std.testing.expectEqualStrings("hello zig", r.data.s.ptr[0..r.data.s.len]);
+}
+
+test "expr: replace multiple occurrences" {
+    const r = compileAndEval(
+        "replace(@item, \"a\", \"x\")",
+        Val.initStr("banana", 6),
+        1,
+        1,
+    );
+    try std.testing.expectEqualStrings("bxnxnx", r.data.s.ptr[0..r.data.s.len]);
+}
+
+test "expr: replace no match" {
+    const r = compileAndEval(
+        "replace(@item, \"z\", \"x\")",
+        Val.initStr("hello", 5),
+        1,
+        1,
+    );
+    try std.testing.expectEqualStrings("hello", r.data.s.ptr[0..r.data.s.len]);
+}
+
+test "expr: repeat function" {
+    const r = compileAndEval(
+        "repeat(@item, 3)",
+        Val.initStr("ab", 2),
+        1,
+        1,
+    );
+    try std.testing.expectEqualStrings("ababab", r.data.s.ptr[0..r.data.s.len]);
+}
+
+test "expr: repeat zero times" {
+    const r = compileAndEval("repeat(@item, 0)", Val.initStr("x", 1), 1, 1);
+    try std.testing.expectEqual(@as(usize, 0), r.data.s.len);
+}
+
+test "expr: indexof found" {
+    const r = compileAndEval(
+        "indexof(@item, \"world\")",
+        Val.initStr("hello world", 11),
+        1,
+        1,
+    );
+    try std.testing.expectEqual(@as(i64, 7), r.data.i);
+}
+
+test "expr: indexof not found" {
+    const r = compileAndEval(
+        "indexof(@item, \"xyz\")",
+        Val.initStr("hello", 5),
+        1,
+        1,
+    );
+    try std.testing.expectEqual(@as(i64, 0), r.data.i);
 }
