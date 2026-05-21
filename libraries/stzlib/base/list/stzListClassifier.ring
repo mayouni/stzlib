@@ -19,20 +19,27 @@
 class stzListClassifier from stzList
 
 	def Classify()
-		acContent = This.StringifyQ().Lowercased()
-		nLen = len(acContent)
-		acSeen = []
+		pList = _EngineListFromContent()
+		pResult = StzEngineListClassifyCS(pList, 0)
+		StzEngineListFree(pList)
+
+		aRaw = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
+
+		nLen = len(aRaw)
 		aResult = []
-		for i = 1 to nLen
-			if isString(acContent[i])
-				n = StzFind(acSeen, acContent[i])
-				if n = 0
-					acSeen + acContent[i]
-					aResult + [acContent[i], [i]]
-				else
-					aResult[n][2] + i
-				ok
-			ok
+		i = 1
+		for _k = 1 to nLen / 2
+			cKey = aRaw[i]
+			cPositions = aRaw[i + 1]
+			aParts = StzSplit(cPositions, ",")
+			anPos = []
+			nParts = len(aParts)
+			for j = 1 to nParts
+				anPos + (0 + aParts[j])
+			next
+			aResult + [cKey, anPos]
+			i += 2
 		next
 		return aResult
 
@@ -52,19 +59,31 @@ class stzListClassifier from stzList
 		return aResult
 
 	def ClassifyBy(pcExpr)
-		aKeys = This.Map("string(" + pcExpr + ")")
-		nLen = len(aKeys)
-		acSeen = []
+		pList = _EngineListFromContent()
+		cMapExpr = "string(" + pcExpr + ")"
+		pMapped = StzEngineListMapExpr(pList, cMapExpr)
+		StzEngineListFree(pList)
+
+		pResult = StzEngineListClassifyCS(pMapped, 1)
+		StzEngineListFree(pMapped)
+
+		aRaw = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
+
+		nLen = len(aRaw)
 		aResult = []
-		for i = 1 to nLen
-			cValue = "" + aKeys[i]
-			n = StzFind(acSeen, cValue)
-			if n = 0
-				acSeen + cValue
-				aResult + [cValue, [i]]
-			else
-				aResult[n][2] + i
-			ok
+		i = 1
+		for _k = 1 to nLen / 2
+			cKey = aRaw[i]
+			cPositions = aRaw[i + 1]
+			aParts = StzSplit(cPositions, ",")
+			anPos = []
+			nParts = len(aParts)
+			for j = 1 to nParts
+				anPos + (0 + aParts[j])
+			next
+			aResult + [cKey, anPos]
+			i += 2
 		next
 		return aResult
 
@@ -86,11 +105,19 @@ class stzListClassifier from stzList
 	#======================================================#
 
 	def Frequencies()
-		aClassified = This.Classify()
-		nLen = len(aClassified)
+		pList = _EngineListFromContent()
+		pFreqs = StzEngineListFrequenciesCS(pList, 0)
+		StzEngineListFree(pList)
+
+		aRaw = StzEngineContentFromList(pFreqs)
+		StzEngineListFree(pFreqs)
+
+		nLen = len(aRaw)
 		aResult = []
-		for i = 1 to nLen
-			aResult + [aClassified[i][1], len(aClassified[i][2])]
+		i = 1
+		for _k = 1 to nLen / 2
+			aResult + [aRaw[i], aRaw[i + 1]]
+			i += 2
 		next
 		return aResult
 

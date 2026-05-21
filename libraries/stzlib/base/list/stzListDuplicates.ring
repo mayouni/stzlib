@@ -207,39 +207,23 @@ class stzListDuplicates from stzList
 	#========================================#
 
 	def ItemsDuplicatedNTimesCS(n, pCaseSensitive)
-		aContent = This.Content()
-		nLen = len(aContent)
-		nLenC = len(aContent)
-		acContent = []
-		for _k = 1 to nLenC
-			acContent + ("" + aContent[_k])
-		next
+		pList = _EngineListFromContent()
+		pFreqs = StzEngineListFrequenciesCS(pList, pCaseSensitive)
+		StzEngineListFree(pList)
 
-		if pCaseSensitive = 0
-			for i = 1 to nLen
-				acContent[i] = StzLower(acContent[i])
-			next
-		ok
+		aRaw = StzEngineContentFromList(pFreqs)
+		StzEngineListFree(pFreqs)
 
-		aSeen = []
-		anCounts = []
-		for i = 1 to nLen
-			cItem = acContent[i]
-			nPos = StzFind(aSeen, cItem)
-			if nPos > 0
-				anCounts[nPos] = anCounts[nPos] + 1
-			else
-				aSeen + cItem
-				anCounts + 1
-			ok
-		next
-
+		nLen = len(aRaw)
 		aResult = []
-		nSeen = len(aSeen)
-		for i = 1 to nSeen
-			if anCounts[i] = n
-				aResult + aSeen[i]
+		i = 1
+		for _k = 1 to nLen / 2
+			cKey = aRaw[i]
+			nCount = aRaw[i + 1]
+			if nCount = n
+				aResult + cKey
 			ok
+			i += 2
 		next
 		return aResult
 
@@ -251,47 +235,27 @@ class stzListDuplicates from stzList
 	#========================================#
 
 	def MostDuplicatedItemCS(pCaseSensitive)
-		aContent = This.Content()
-		nLen = len(aContent)
-		nLenC = len(aContent)
-		acContent = []
-		for _k = 1 to nLenC
-			acContent + ("" + aContent[_k])
-		next
+		pList = _EngineListFromContent()
+		pFreqs = StzEngineListFrequenciesCS(pList, pCaseSensitive)
+		StzEngineListFree(pList)
 
-		if pCaseSensitive = 0
-			for i = 1 to nLen
-				acContent[i] = StzLower(acContent[i])
-			next
-		ok
+		aRaw = StzEngineContentFromList(pFreqs)
+		StzEngineListFree(pFreqs)
 
-		aSeen = []
-		anCounts = []
-		for i = 1 to nLen
-			cItem = acContent[i]
-			nPos = StzFind(aSeen, cItem)
-			if nPos > 0
-				anCounts[nPos] = anCounts[nPos] + 1
-			else
-				aSeen + cItem
-				anCounts + 1
-			ok
-		next
-
+		nLen = len(aRaw)
 		nMax = 0
-		nMaxIdx = 0
-		nSeen = len(aSeen)
-		for i = 1 to nSeen
-			if anCounts[i] > nMax
-				nMax = anCounts[i]
-				nMaxIdx = i
+		cResult = ""
+		i = 1
+		for _k = 1 to nLen / 2
+			cKey = aRaw[i]
+			nCount = aRaw[i + 1]
+			if nCount > nMax
+				nMax = nCount
+				cResult = cKey
 			ok
+			i += 2
 		next
-
-		if nMaxIdx > 0
-			return aSeen[nMaxIdx]
-		ok
-		return ""
+		return cResult
 
 	def MostDuplicatedItem()
 		return This.MostDuplicatedItemCS(1)
