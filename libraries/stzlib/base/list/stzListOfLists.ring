@@ -4492,7 +4492,7 @@ class stzListOfLists from stzList
 		aContent = This.Content()
 		nLen = len(aContent)
 
-		anColNumbers = ring_sort(anColNumbers)
+		anColNumbers = new stzList(anColNumbers).Sorted()
 		nLenCols = len(anColNumbers)
 
 		for i = nLenCols to 1 step -1

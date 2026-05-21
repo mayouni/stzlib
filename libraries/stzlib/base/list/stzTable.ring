@@ -868,7 +868,7 @@ Class stzTable from stzList
 			next
 		next
 
-		anResult = ring_sort(anResult)
+		anResult = new stzList(anResult).Sorted()
 		return anResult
 
 		#< @FunctionAlternativeForms
@@ -11671,7 +11671,7 @@ Class stzTable from stzList
 			ok
 		ok
 
-		anColNumbers = ring_sort( U(TpacColNamesOrNumbers) )
+		anColNumbers = new stzList( U(TpacColNamesOrNumbers) ).Sorted()
 		nLen = len(anColNumbers)
 
 		aContent = @aContent
@@ -11694,7 +11694,7 @@ Class stzTable from stzList
 			This.RemoveColumnsAt(panColNumbers)
 
 	def RemoveColumns(pacColNamesOrNumbers)
-		anColNumbers = ring_sort( U(This.TheseColsToColNumbers(pacColNamesOrNumbers)) )
+		anColNumbers = new stzList( U(This.TheseColsToColNumbers(pacColNamesOrNumbers)) ).Sorted()
 		nLen = len(anColNumbers)
 
 		aContent = @aContent
@@ -11870,7 +11870,7 @@ Class stzTable from stzList
 
 		aContent = @aContent
 		nLen = len(aContent)
-		anPos = ring_sort( U(panRows) )
+		anPos = new stzList( U(panRows) ).Sorted()
 		nLenPos = len(anPos)
 
 		for i = nLen to 1 step -1
@@ -12287,7 +12287,7 @@ Class stzTable from stzList
 			ok
 		ok
 
-		anPos = ring_sort( U(panPos) )
+		anPos = new stzList( U(panPos) ).Sorted()
 		nLen = len(anPos)
 
 		for i = nLen to 1 step -1
@@ -12575,7 +12575,7 @@ Class stzTable from stzList
 			StzRaise("Incorrect param type! numbers in panColNumbers must all be between 1 and " + nCols + ".")
 		ok
 
-		panColNumbers  = ring_sort(panColNumbers)
+		panColNumbers  = new stzList(panColNumbers).Sorted()
 		nLenColNumbers = len(panColNumbers)
 
 		pacColNames    = This.ColNames()
@@ -14489,7 +14489,7 @@ Class stzTable from stzList
 	#-----------------------------------------------#
 
 	def FindCalculatedCols()
-		anResult = ring_sort(@anCalculatedCols)
+		anResult = new stzList(@anCalculatedCols).Sorted()
 		return anResult
 
 		def FindCalculatedColumns()
@@ -14586,7 +14586,7 @@ Class stzTable from stzList
 	#--------------------------------------------#
 
 	def FindCalculatedRows()
-		anResult = ring_sort( @anCalculatedRows )
+		anResult = new stzList( @anCalculatedRows ).Sorted()
 		return anResult
 
 	  #------------------------------------------#

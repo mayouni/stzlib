@@ -1244,7 +1244,7 @@ class stzList from stzObject
 			StzRaise("Incorrect param type! panPos must be a list.")
 		ok
 
-		panSorted = ring_sort(panPos)
+		panSorted = new stzList(panPos).Sorted()
 		nLen = len(panSorted)
 
 		for i = nLen to 1 step -1
@@ -1512,7 +1512,7 @@ class stzList from stzObject
 			next
 		next
 
-		return ring_sort(anResult)
+		return new stzList(anResult).Sorted()
 
 		def FindMany(paItems)
 			return This.FindManyCS(paItems, 1)

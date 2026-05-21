@@ -409,7 +409,7 @@ class stzSplitter from stzListOfNumbers
 			return This.SplitAtPosition(panPos[1])
 		ok
 
-		panPos = ring_sort(panPos)
+		panPos = new stzList(panPos).Sorted()
 		aPairs = This.GetPairsFromPositions(panPos)
 
 		nFirstPos = panPos[1]
@@ -555,7 +555,7 @@ class stzSplitter from stzListOfNumbers
 
 		nLen = This.NumberOfItems()
 
-		anPos = U( ring_sort(panPos) )
+		anPos = U( new stzList(panPos).Sorted() )
 		nLenPos = len(anPos)
 
 		for i = 1 to nLenPos
@@ -685,7 +685,7 @@ class stzSplitter from stzListOfNumbers
 
 		nLen = This.NumberOfItems()
 
-		anPos = U( ring_sort(panPos) )
+		anPos = U( new stzList(panPos).Sorted() )
 		nLenPos = len(anPos)
 
 		for i = 1 to nLenPos
@@ -1763,7 +1763,7 @@ class stzSplitter from stzListOfNumbers
 		if aPos[len(aPos)] != 10 { aPos + nLen }
 		
 		# Sorting the list
-		aPos = ring_sort(aPos)
+		aPos = new stzList(aPos).Sorted()
 		
 		# Getting the pairs of that list
 

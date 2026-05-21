@@ -334,7 +334,7 @@ class stzListFinder from stzList
 			next
 		next
 
-		anResult = ring_sort(anResult)
+		anResult = new stzList(anResult).Sorted()
 		return anResult
 
 	def FindMany(paItems)

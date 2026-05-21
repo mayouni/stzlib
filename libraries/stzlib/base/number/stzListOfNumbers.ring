@@ -1971,7 +1971,7 @@ class stzListOfNumbers from stzList
 
 	def Min()
 		anContent = This.Content()
-		nResult = ring_sort( anContent )[1]
+		nResult = new stzList( anContent ).Sorted()[1]
 		return nResult
 
 		def MinNumber()
@@ -2390,7 +2390,7 @@ class stzListOfNumbers from stzList
 
 	def Max()
 		anContent = This.Content()
-		nResult = ring_reverse( ring_sort( anContent ) )[1]
+		nResult = new stzList( anContent ).SortedInDescending()[1]
 		return nResult
 
 		def MaxNumber()
@@ -4817,7 +4817,7 @@ class stzListOfNumbers from stzList
 			return []
 		ok
 
-		anSorted = ring_sort(anContent)
+		anSorted = new stzList(anContent).Sorted()
 		aSections = []
 		n = 0
 
@@ -5548,7 +5548,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = StzFind( ring_reverse(This.Content()), n )
+		nPos = StzFind( new stzList(This.Content()).Reversed(), n )
 		nResult = This.AnyNumberAfterPosition(nPos)
 
 		return nResult
@@ -5580,7 +5580,7 @@ class stzListOfNumbers from stzList
 			StzRaise("Incorrect param type! n must be a number.")
 		ok
 
-		nPos = StzFind( ring_reverse(This.Content()), n )
+		nPos = StzFind( new stzList(This.Content()).Reversed(), n )
 		aResult = This.AnyNumberAfterPositionZ(nPos)
 
 		return aResult
@@ -8306,7 +8306,7 @@ class stzListOfNumbers from stzList
 	#-------------------------------------#
 
 	def SortInDescending()
-		aResult = ring_reverse( @Sort(This.Content()) )
+		aResult = new stzList( @Sort(This.Content()) ).Reversed()
 		return aResult
 
 		def SortInDescendingQ()
@@ -8380,7 +8380,7 @@ class stzListOfNumbers from stzList
 	#--------------------------------------------------------#
  
 	def SortByInDescending(pcExpr)
-		aResult = ring_reverse( This.SortedByInAscending(pcExpr) )
+		aResult = new stzList( This.SortedByInAscending(pcExpr) ).Reversed()
 		This.UpdateWith(aResult)
 
 		def SortByInDescendingQ(pcExpr)

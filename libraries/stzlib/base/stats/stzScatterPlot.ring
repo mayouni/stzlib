@@ -382,7 +382,7 @@ class stzScatterPlot
 		nDynamicVAxisWidth = 0
 		if @bShowVAxis
 			aUniqueV = U(@anVValues)
-			aUniqueV = ring_sort(aUniqueV)
+			aUniqueV = new stzList(aUniqueV).Sorted()
 			nMaxVLabelLen = 0
 			for nV in aUniqueV
 				cLabel = _formatValue(nV)
@@ -519,7 +519,7 @@ class stzScatterPlot
 
 		# Always draw V-axis labels when V-axis is visible
 		aUniqueV = U(@anVValues)
-		aUniqueV = ring_sort(aUniqueV)
+		aUniqueV = new stzList(aUniqueV).Sorted()
 		for nV in aUniqueV
 			nRow = nEndRow - floor((nV - @nVMin) * (nPlotHeight - 1) / (@nVMax - @nVMin))
 			if nRow >= nStartRow and nRow <= nEndRow
@@ -569,7 +569,7 @@ class stzScatterPlot
 
 		# Always draw H-axis labels when H-axis is visible
 		aUniqueH = U(@anHValues)
-		aUniqueH = ring_sort(aUniqueH)
+		aUniqueH = new stzList(aUniqueH).Sorted()
 		for nH in aUniqueH
 			nCol = nStartCol + floor((nH - @nHMin) * (nPlotWidth - 1) / (@nHMax - @nHMin))
 			if nCol >= nStartCol and nCol <= nEndCol

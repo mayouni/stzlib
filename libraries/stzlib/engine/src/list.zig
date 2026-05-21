@@ -1323,6 +1323,58 @@ pub fn stz_list_partition(list_arg: ?*const StzList, n: usize) callconv(.c) ?*St
     return result;
 }
 
+// ─── Sort On Column ───
+
+pub fn stz_list_sort_on(list_arg: ?*StzList, col: usize) callconv(.c) i32 {
+    const l = list_arg orelse return -1;
+    const n = l.len();
+    if (n <= 1) return 0;
+
+    const indices = allocator.alloc(usize, n) catch return -1;
+    defer allocator.free(indices);
+    for (0..n) |i| indices[i] = i;
+
+    const keys = allocator.alloc(?*const StzValue, n) catch return -1;
+    defer allocator.free(keys);
+    for (0..n) |i| {
+        const v = l.get(i) orelse {
+            keys[i] = null;
+            continue;
+        };
+        if (v.tag == .list_val) {
+            const sub = v.data.list_val;
+            if (col < sub.len) {
+                keys[i] = sub.items[col];
+            } else {
+                keys[i] = null;
+            }
+        } else {
+            keys[i] = null;
+        }
+    }
+
+    const SortCtx = struct {
+        k: []?*const StzValue,
+        fn lessThan(ctx: @This(), a: usize, b: usize) bool {
+            const ka = ctx.k[a];
+            const kb = ctx.k[b];
+            if (ka == null and kb == null) return false;
+            if (ka == null) return true;
+            if (kb == null) return false;
+            return ka.?.compare(kb.?) < 0;
+        }
+    };
+    std.sort.pdq(usize, indices, SortCtx{ .k = keys }, SortCtx.lessThan);
+
+    const tmp = allocator.alloc(*StzValue, n) catch return -1;
+    defer allocator.free(tmp);
+    for (indices, 0..) |src, dst| {
+        tmp[dst] = l.items.items[src];
+    }
+    @memcpy(l.items.items[0..n], tmp);
+    return 0;
+}
+
 // ─── Rotate ───
 
 pub fn stz_list_rotate_left(list_arg: ?*StzList, n: usize) callconv(.c) i32 {
@@ -2100,6 +2152,92 @@ test "sort_by_expr single element" {
 test "sort_by_expr null list returns -1" {
     const e = "@item";
     try std.testing.expectEqual(@as(i32, -1), stz_list_sort_by_expr(null, e.ptr, e.len, 1));
+}
+
+// ─── Sort on column tests ───
+
+test "sort_on column 0" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+
+    // Row [3, "c"], [1, "a"], [2, "b"]
+    const r0 = value_mod.stz_value_new_list().?;
+    _ = value_mod.stz_value_list_append(r0, value_mod.stz_value_new_int(3));
+    _ = value_mod.stz_value_list_append(r0, value_mod.stz_value_new_string("c", 1));
+    _ = stz_list_append_value(l, r0);
+    value_mod.stz_value_free(r0);
+
+    const r1 = value_mod.stz_value_new_list().?;
+    _ = value_mod.stz_value_list_append(r1, value_mod.stz_value_new_int(1));
+    _ = value_mod.stz_value_list_append(r1, value_mod.stz_value_new_string("a", 1));
+    _ = stz_list_append_value(l, r1);
+    value_mod.stz_value_free(r1);
+
+    const r2 = value_mod.stz_value_new_list().?;
+    _ = value_mod.stz_value_list_append(r2, value_mod.stz_value_new_int(2));
+    _ = value_mod.stz_value_list_append(r2, value_mod.stz_value_new_string("b", 1));
+    _ = stz_list_append_value(l, r2);
+    value_mod.stz_value_free(r2);
+
+    try std.testing.expectEqual(@as(i32, 0), stz_list_sort_on(l, 0));
+
+    // After sort on col 0: [1,"a"], [2,"b"], [3,"c"]
+    const v0 = l.get(0).?;
+    try std.testing.expectEqual(ValueType.list_val, v0.tag);
+    try std.testing.expectEqual(@as(i64, 1), v0.data.list_val.items[0].data.int_val);
+
+    const v1 = l.get(1).?;
+    try std.testing.expectEqual(@as(i64, 2), v1.data.list_val.items[0].data.int_val);
+
+    const v2 = l.get(2).?;
+    try std.testing.expectEqual(@as(i64, 3), v2.data.list_val.items[0].data.int_val);
+}
+
+test "sort_on column 1 strings" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+
+    const r0 = value_mod.stz_value_new_list().?;
+    _ = value_mod.stz_value_list_append(r0, value_mod.stz_value_new_int(1));
+    _ = value_mod.stz_value_list_append(r0, value_mod.stz_value_new_string("cherry", 6));
+    _ = stz_list_append_value(l, r0);
+    value_mod.stz_value_free(r0);
+
+    const r1 = value_mod.stz_value_new_list().?;
+    _ = value_mod.stz_value_list_append(r1, value_mod.stz_value_new_int(2));
+    _ = value_mod.stz_value_list_append(r1, value_mod.stz_value_new_string("apple", 5));
+    _ = stz_list_append_value(l, r1);
+    value_mod.stz_value_free(r1);
+
+    const r2 = value_mod.stz_value_new_list().?;
+    _ = value_mod.stz_value_list_append(r2, value_mod.stz_value_new_int(3));
+    _ = value_mod.stz_value_list_append(r2, value_mod.stz_value_new_string("banana", 6));
+    _ = stz_list_append_value(l, r2);
+    value_mod.stz_value_free(r2);
+
+    try std.testing.expectEqual(@as(i32, 0), stz_list_sort_on(l, 1));
+
+    // Sorted by col 1: apple < banana < cherry
+    const v0 = l.get(0).?;
+    try std.testing.expectEqual(@as(i64, 2), v0.data.list_val.items[0].data.int_val);
+    const v1 = l.get(1).?;
+    try std.testing.expectEqual(@as(i64, 3), v1.data.list_val.items[0].data.int_val);
+    const v2 = l.get(2).?;
+    try std.testing.expectEqual(@as(i64, 1), v2.data.list_val.items[0].data.int_val);
+}
+
+test "sort_on null list returns -1" {
+    try std.testing.expectEqual(@as(i32, -1), stz_list_sort_on(null, 0));
+}
+
+test "sort_on single element returns 0" {
+    const l = stz_list_new().?;
+    defer stz_list_free(l);
+    const r0 = value_mod.stz_value_new_list().?;
+    _ = value_mod.stz_value_list_append(r0, value_mod.stz_value_new_int(42));
+    _ = stz_list_append_value(l, r0);
+    value_mod.stz_value_free(r0);
+    try std.testing.expectEqual(@as(i32, 0), stz_list_sort_on(l, 0));
 }
 
 // ─── String expression tests ───
