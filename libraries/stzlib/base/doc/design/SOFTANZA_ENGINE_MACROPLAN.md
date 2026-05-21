@@ -11,15 +11,15 @@
 | Metric            | Value                    |
 |-------------------|--------------------------|
 | Modules designed  | 88                       |
-| Modules built     | 11                       |
+| Modules built     | 13                       |
 | Design principles | 19                       |
-| Engine tests      | 674 passing              |
-| DLLs shipping     | 15 (4 Core + 11 Base)    |
+| Engine tests      | 728 passing              |
+| DLLs shipping     | 17 (4 Core + 13 Base)    |
 | Qt dependencies   | 0 (fully purged)         |
-| Ring bridge regs  | 411 DLL functions        |
+| Ring bridge regs  | 470 DLL functions        |
 | Ring Unicode hard | Complete (all domains)   |
 | PCRE2 backend     | 10.47 (industrial regex) |
-| Last updated      | 2026-05-20 (Session 20)  |
+| Last updated      | 2026-05-21 (Session 21)  |
 
 ---
 
@@ -264,6 +264,28 @@
 - **build.zig**: `needs_pcre2` flag added to Domain struct. All string and regex
   domains link PCRE2. Static lib and test targets include PCRE2.
 
+### M-E1: Foundation Types (Session 21)
+
+- **`value.zig` -- StzValue tagged union**: 6 types (null, bool, int, float, string,
+  list). Full C ABI: constructors (`stz_value_new_*`), destructor, type query,
+  getters (with cross-type coercion for int/float), list operations (append, set,
+  remove, insert, find, contains, reverse, sort, clear), deep clone, equality,
+  comparison (total ordering across types), toString, type_name. 27 Zig tests.
+- **`number.zig` -- StzBigInt + numeric utilities**: Arbitrary-precision integer
+  arithmetic via `std.math.big.int.Managed`. Full C ABI: lifecycle (from_int,
+  from_string, free, clone), arithmetic (add, sub, mul, div, mod, negate, abs, pow),
+  comparison (compare, equals, is_zero, is_negative), conversion (to_int, to_string,
+  to_string_base for hex/binary/octal). Numeric utilities: GCD, LCM, is_prime,
+  factorial, fibonacci (both returning BigInt), is_perfect, digit_count, digit_sum,
+  reverse_digits, is_palindrome. 27 Zig tests.
+- **Ring bridge**: 29 value bridge functions (StzEngineValue*), 30 number bridge
+  functions (StzEngineBigInt*, StzEngineNumber*). All list operations use INDEX_BASE=1
+  adjustment at FFI boundary. 59 new bridge registrations (470 total).
+- **DLLs**: `stz_value.dll` and `stz_number.dll` added to base_domains in build.zig.
+  17 DLLs shipping (was 15).
+- **Stats**: 728 Zig tests (was 674), 470 Ring bridge functions (was 411), 13 modules
+  built (was 11).
+
 ---
 
 ## MILESTONES AHEAD
@@ -284,20 +306,21 @@ now prevents all downstream modules from inheriting the same
 patterns. The CS merge and 1-based indexing set conventions
 that StzValue and StzList will follow.
 
-### M-E1: Foundation Types [ ]
+### M-E1: Foundation Types [DONE]
 
 > Build `stz_value` (StzValue tagged union) + `stz_number`
-> (BigInt, Decimal, 64-bit).
+> (BigInt + numeric utilities).
 
-**Why first:** Every module above Layer 0 depends on StzValue.
-This kills the Stringify trick and unlocks heterogeneous
-collections.
+**Completed Session 21.** StzValue tagged union (6 types) +
+StzBigInt (arbitrary precision) + 10 numeric utilities. 54 Zig
+tests, 59 Ring bridge functions, 2 new DLLs.
 
 **Deliverables:**
 - `engine/src/value.zig` with tagged union + C ABI
-- `engine/src/number.zig` with BigInt + Decimal
-- Ring FFI bridges for both
-- Tests at all 4 layers
+- `engine/src/number.zig` with BigInt + numeric utilities
+- Ring FFI bridges for both (ring_bridge_value.zig, ring_bridge_number.zig)
+- DLL entry points (stz_value_entry.zig, stz_number_entry.zig)
+- Tests: 54 passing
 
 ### M-E2: Core Collections [ ]
 
