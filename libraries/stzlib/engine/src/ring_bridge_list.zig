@@ -272,6 +272,18 @@ fn ring_SortOn(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_sort_on(getL(p, 1), col0)));
 }
 
+fn ring_IsSortedAscending(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_sorted_ascending(getLC(p, 1))));
+}
+
+fn ring_IsSortedDescending(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_is_sorted_descending(getLC(p, 1))));
+}
+
+fn ring_Repeat(p: *anyopaque) callconv(.c) void {
+    rcp(p, @ptrCast(list.stz_list_repeat(getLC(p, 1), @intFromFloat(g(p, 2)))), HL);
+}
+
 fn ring_Shuffle(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_shuffle(getL(p, 1))));
 }
@@ -470,6 +482,9 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistdeepflatten", .func = &ring_DeepFlatten },
     .{ .name = "stzenginelistflattentodepth", .func = &ring_FlattenToDepth },
     .{ .name = "stzenginelistsorton", .func = &ring_SortOn },
+    .{ .name = "stzenginelistissortedascending", .func = &ring_IsSortedAscending },
+    .{ .name = "stzenginelistissorteddescending", .func = &ring_IsSortedDescending },
+    .{ .name = "stzenginelistrepeat", .func = &ring_Repeat },
     .{ .name = "stzenginelistshuffle", .func = &ring_Shuffle },
     .{ .name = "stzenginelistrandomitems", .func = &ring_RandomItems },
     .{ .name = "stzenginelistsection", .func = &ring_Section },

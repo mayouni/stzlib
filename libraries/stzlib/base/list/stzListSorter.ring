@@ -58,52 +58,18 @@ class stzListSorter from stzList
 		ok
 
 	def IsSortedInAscending()
-		aContent = This.Content()
-		nLen = len(aContent)
-
 		pList = _EngineListFromContent()
-		StzEngineListSortCS(pList, 1)
-		aSorted = This._ContentFromEngineList(pList)
+		bResult = StzEngineListIsSortedAscending(pList)
 		StzEngineListFree(pList)
-
-		bResult = 1
-
-		for i = 1 to nLen
-			cItem   = @@(aContent[i])
-			cSorted = @@(aSorted[i])
-
-			if cItem != cSorted
-				bResult = 0
-				exit
-			ok
-		next
-
 		return bResult
 
 		def IsSortedUp()
 			return This.IsSortedInAscending()
 
 	def IsSortedInDescending()
-		aContent = This.Content()
-		nLen = len(aContent)
-
 		pList = _EngineListFromContent()
-		StzEngineListSortDescendingCS(pList, 1)
-		aSorted = This._ContentFromEngineList(pList)
+		bResult = StzEngineListIsSortedDescending(pList)
 		StzEngineListFree(pList)
-
-		bResult = 1
-
-		for i = 1 to nLen
-			cItem   = @@(aContent[i])
-			cSorted = @@(aSorted[i])
-
-			if cItem != cSorted
-				bResult = 0
-				exit
-			ok
-		next
-
 		return bResult
 
 		def IsSortedDown()
