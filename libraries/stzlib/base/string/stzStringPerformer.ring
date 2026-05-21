@@ -87,7 +87,7 @@ class stzStringPerformer
 		pList = StzEngineStringMapChars(cStr, _StzStripBraces(pcYielder))
 		if pList = NULL return [] ok
 
-		aResult = This._UnmarshalEngineList(pList)
+		aResult = StzEngineContentFromList(pList)
 		StzEngineListFree(pList)
 		return aResult
 
@@ -115,30 +115,3 @@ class stzStringPerformer
 		anPos = This.FindCharsW(pcCondition)
 		return This.YieldOn(anPos, pcYielder)
 
-	  #======================================================#
-	 #   PRIVATE: UNMARSHAL ENGINE LIST TO RING LIST         #
-	#======================================================#
-
-	def _UnmarshalEngineList(pList)
-		if pList = NULL
-			return []
-		ok
-
-		nLen = StzEngineListLen(pList)
-		aResult = []
-
-		for i = 1 to nLen
-			nType = StzEngineListItemType(pList, i)
-			switch nType
-			on 2
-				aResult + StzEngineListGetInt(pList, i)
-			on 3
-				aResult + StzEngineListGetFloat(pList, i)
-			on 4
-				aResult + StzEngineListGetString(pList, i)
-			other
-				aResult + NULL
-			off
-		next
-
-		return aResult

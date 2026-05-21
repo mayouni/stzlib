@@ -614,28 +614,7 @@ class stzList from stzObject
 	#-- Reads engine list contents back into a Ring list
 
 	def _ContentFromEngineList(pList)
-		if pList = NULL
-			return []
-		ok
-
-		nLen = StzEngineListLen(pList)
-		aResult = []
-
-		for i = 1 to nLen
-			nType = StzEngineListItemType(pList, i)
-			switch nType
-			on 2 # integer
-				aResult + StzEngineListGetInt(pList, i)
-			on 3 # float
-				aResult + StzEngineListGetFloat(pList, i)
-			on 4 # string
-				aResult + StzEngineListGetString(pList, i)
-			other
-				aResult + NULL
-			off
-		next
-
-		return aResult
+		return StzEngineContentFromList(pList)
 
 	  #------------------------------#
 	 #  SORTING (engine-backed)     #
