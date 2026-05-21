@@ -3745,7 +3745,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 	#=====================================#
 
 	def NStrongestClasses(n)
-		aClassesXT = ring_reverse( ring_sort2( ClassesXT(), 2 ) )
+		aClassesXT = new stzList(ring_sort2( ClassesXT(), 2 )).Reversed()
 		nLen = len(aClassesXT)
 
 		n = @Min([ n, nLen ])
@@ -3780,7 +3780,7 @@ class stzHashList from stzList # Also called stzAssociativeList
 		#>
 
 	def NStrongestClassesXT(n)
-		aClassesXT = ring_reverse( ring_sort2( ClassesXT(), 2 ) )
+		aClassesXT = new stzList(ring_sort2( ClassesXT(), 2 )).Reversed()
 		nLen = len(aClassesXT)
 		n = Min([ n, nLen ])
 

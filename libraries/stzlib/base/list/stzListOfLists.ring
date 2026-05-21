@@ -2454,7 +2454,8 @@ class stzListOfLists from stzList
 
 	def ReverseLists()
 
-		aResult = ring_reverse(This.ListOfLists())
+		oTemp = new stzList(This.ListOfLists())
+		aResult = oTemp.Reversed()
 
 		This.Update( aResult )
 
@@ -3480,7 +3481,7 @@ class stzListOfLists from stzList
 
 	def SortDownNthList(n)
 		aContent = This.Content()
-		aSorted = ring_reverse( @SortList(aContent[n]) )
+		aSorted = new stzList(@SortList(aContent[n])).Reversed()
 		aContent[n] = aSorted
 
 		This.UpdateWith(aContent)
@@ -3669,7 +3670,7 @@ class stzListOfLists from stzList
 	#-------------------------------------------------------------#
 
 	def SortDownOn(n)
-		aResult = ring_reverse( This.SortedOn(n) )
+		aResult = new stzList(This.SortedOn(n)).Reversed()
 		This.UpdateWith(aResult)
 
 		#< @FunctionFluentForm
