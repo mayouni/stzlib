@@ -257,7 +257,12 @@ class stzListFlattener from stzList
 			ok
 		next
 
-		return ring_reverse(aResult)
+		oTemp = new stzList(aResult)
+		pTmp = oTemp._EngineListFromContent()
+		StzEngineListReverse(pTmp)
+		aReversed = oTemp._ContentFromEngineList(pTmp)
+		StzEngineListFree(pTmp)
+		return aReversed
 
 	def RepeatedTrailingItems()
 		return This.RepeatedTrailingItemsCS(1)

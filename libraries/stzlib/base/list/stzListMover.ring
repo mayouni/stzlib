@@ -92,13 +92,21 @@ class stzListMover from stzList
 
 	def MoveMany(panPositions, nTo)
 		nLen = len(panPositions)
-		aSorted = ring_reverse(sort(panPositions))
+		oTemp = new stzList(panPositions)
+		pTmp = oTemp._EngineListFromContent()
+		StzEngineListSortDescendingCS(pTmp, 1)
+		aSorted = oTemp._ContentFromEngineList(pTmp)
+		StzEngineListFree(pTmp)
 		aItems = []
 		for i = 1 to nLen
 			aItems + This.NthItem(aSorted[i])
 			ring_remove(This.List(), aSorted[i])
 		next
-		aItems = ListReversed(aItems)
+		oTemp2 = new stzList(aItems)
+		pTmp2 = oTemp2._EngineListFromContent()
+		StzEngineListReverse(pTmp2)
+		aItems = oTemp2._ContentFromEngineList(pTmp2)
+		StzEngineListFree(pTmp2)
 		nInsert = nTo
 		if nInsert > This.NumberOfItems()
 			nInsert = This.NumberOfItems() + 1
