@@ -180,7 +180,7 @@ class stzListFinder from stzList
 	def AntiPositions(anPos)
 
 		if CheckingParams()
-			if isList(anPos) and stzListQ(anPos).IsOfNamedParam()
+			if isList(anPos) and IsOfNamedParamList(anPos)
 				anPos = anPos[2]
 			ok
 
@@ -189,13 +189,23 @@ class stzListFinder from stzList
 			ok
 		ok
 
-		nLen = len(@aContent)
-		anContent = 1 : len(@aContent)
+		nTotal = len(@aContent)
+		nPosLen = len(anPos)
+
+		aMarked = []
+		for _k = 1 to nTotal
+			aMarked + 0
+		next
+		for i = 1 to nPosLen
+			n = anPos[i]
+			if n >= 1 and n <= nTotal
+				aMarked[n] = 1
+			ok
+		next
 
 		anResult = []
-
-		for i = 1 to nLen
-			if StzFind(anPos, anContent[i]) = 0
+		for i = 1 to nTotal
+			if aMarked[i] != 1
 				anResult + i
 			ok
 		next

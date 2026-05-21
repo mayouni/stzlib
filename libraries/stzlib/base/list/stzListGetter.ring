@@ -105,14 +105,11 @@ class stzListGetter from stzList
 	#======================================================#
 
 	def UniqueItemsCS(pCaseSensitive)
-		aResult = []
-		aContent = This.Content()
-		nLen = len(aContent)
-		for i = 1 to nLen
-			if NOT ListContainsCS(aResult, aContent[i], pCaseSensitive)
-				aResult + aContent[i]
-			ok
-		next
+		pList = _EngineListFromContent()
+		pResult = StzEngineListUniqueCS(pList, pCaseSensitive)
+		aResult = StzEngineContentFromList(pResult)
+		StzEngineListFree(pResult)
+		StzEngineListFree(pList)
 		return aResult
 
 	def UniqueItems()
@@ -127,19 +124,25 @@ class stzListGetter from stzList
 		return This.NthItem(n)
 
 	def NRandomItems(n)
-		aResult = []
-		nLen = This.NumberOfItems()
+		nLen = len(@aContent)
 		if n >= nLen
-			return This.Content()
+			aResult = []
+			for i = 1 to nLen
+				aResult + @aContent[i]
+			next
+			return aResult
 		ok
-		anUsed = []
-		while len(aResult) < n
-			nRand = random(nLen - 1) + 1
-			if StzFind(anUsed, nRand) = 0
-				anUsed + nRand
-				aResult + This.List()[nRand]
-			ok
-		end
+		anIndices = 1 : nLen
+		for i = nLen to 2 step -1
+			j = random(i - 1) + 1
+			temp = anIndices[i]
+			anIndices[i] = anIndices[j]
+			anIndices[j] = temp
+		next
+		aResult = []
+		for i = 1 to n
+			aResult + @aContent[anIndices[i]]
+		next
 		return aResult
 
 	  #======================================================#
