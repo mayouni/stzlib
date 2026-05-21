@@ -88,6 +88,7 @@ pub const Op = enum(u8) {
     load_index,
     load_accum,
     load_count,
+    load_char,
     add,
     sub,
     mul,
@@ -106,12 +107,30 @@ pub const Op = enum(u8) {
     fn_is_string,
     fn_is_number,
     fn_is_list,
+    fn_is_bool,
+    fn_is_null,
     fn_len,
     fn_lower,
     fn_upper,
     fn_abs,
     fn_type,
     fn_sqrt,
+    fn_floor,
+    fn_ceil,
+    fn_round,
+    fn_trim,
+    fn_reversed,
+    fn_number,
+    fn_string,
+    fn_min,
+    fn_max,
+    fn_contains,
+    fn_startswith,
+    fn_endswith,
+    fn_left,
+    fn_right,
+    fn_substr,
+    fn_if,
 };
 
 pub const Inst = struct {
@@ -150,15 +169,34 @@ const TTag = enum(u8) {
     var_index,
     var_accum,
     var_count,
+    var_char,
     fn_is_string,
     fn_is_number,
     fn_is_list,
+    fn_is_bool,
+    fn_is_null,
     fn_len,
     fn_lower,
     fn_upper,
     fn_abs,
     fn_type,
     fn_sqrt,
+    fn_floor,
+    fn_ceil,
+    fn_round,
+    fn_trim,
+    fn_reversed,
+    fn_number,
+    fn_string,
+    fn_min,
+    fn_max,
+    fn_contains,
+    fn_startswith,
+    fn_endswith,
+    fn_left,
+    fn_right,
+    fn_substr,
+    fn_if,
     plus,
     minus,
     star,
@@ -329,6 +367,7 @@ fn classifyWord(word: []const u8) TTag {
     if (std.mem.eql(u8, w, "@i")) return .var_index;
     if (std.mem.eql(u8, w, "@accumulator")) return .var_accum;
     if (std.mem.eql(u8, w, "@numberofitems")) return .var_count;
+    if (std.mem.eql(u8, w, "@char")) return .var_char;
     if (std.mem.eql(u8, w, "true")) return .kw_true;
     if (std.mem.eql(u8, w, "false")) return .kw_false;
     if (std.mem.eql(u8, w, "and")) return .kw_and;
@@ -337,12 +376,30 @@ fn classifyWord(word: []const u8) TTag {
     if (std.mem.eql(u8, w, "isstring")) return .fn_is_string;
     if (std.mem.eql(u8, w, "isnumber")) return .fn_is_number;
     if (std.mem.eql(u8, w, "islist")) return .fn_is_list;
+    if (std.mem.eql(u8, w, "isbool")) return .fn_is_bool;
+    if (std.mem.eql(u8, w, "isnull")) return .fn_is_null;
     if (std.mem.eql(u8, w, "len")) return .fn_len;
     if (std.mem.eql(u8, w, "lower")) return .fn_lower;
     if (std.mem.eql(u8, w, "upper")) return .fn_upper;
     if (std.mem.eql(u8, w, "abs")) return .fn_abs;
     if (std.mem.eql(u8, w, "type")) return .fn_type;
     if (std.mem.eql(u8, w, "sqrt")) return .fn_sqrt;
+    if (std.mem.eql(u8, w, "floor")) return .fn_floor;
+    if (std.mem.eql(u8, w, "ceil")) return .fn_ceil;
+    if (std.mem.eql(u8, w, "round")) return .fn_round;
+    if (std.mem.eql(u8, w, "trim")) return .fn_trim;
+    if (std.mem.eql(u8, w, "reversed")) return .fn_reversed;
+    if (std.mem.eql(u8, w, "number")) return .fn_number;
+    if (std.mem.eql(u8, w, "string")) return .fn_string;
+    if (std.mem.eql(u8, w, "min")) return .fn_min;
+    if (std.mem.eql(u8, w, "max")) return .fn_max;
+    if (std.mem.eql(u8, w, "contains")) return .fn_contains;
+    if (std.mem.eql(u8, w, "startswith")) return .fn_startswith;
+    if (std.mem.eql(u8, w, "endswith")) return .fn_endswith;
+    if (std.mem.eql(u8, w, "left")) return .fn_left;
+    if (std.mem.eql(u8, w, "right")) return .fn_right;
+    if (std.mem.eql(u8, w, "substr")) return .fn_substr;
+    if (std.mem.eql(u8, w, "if")) return .fn_if;
     return .err;
 }
 
@@ -492,12 +549,21 @@ const Compiler = struct {
             .fn_is_string => .fn_is_string,
             .fn_is_number => .fn_is_number,
             .fn_is_list => .fn_is_list,
+            .fn_is_bool => .fn_is_bool,
+            .fn_is_null => .fn_is_null,
             .fn_len => .fn_len,
             .fn_lower => .fn_lower,
             .fn_upper => .fn_upper,
             .fn_abs => .fn_abs,
             .fn_type => .fn_type,
             .fn_sqrt => .fn_sqrt,
+            .fn_floor => .fn_floor,
+            .fn_ceil => .fn_ceil,
+            .fn_round => .fn_round,
+            .fn_trim => .fn_trim,
+            .fn_reversed => .fn_reversed,
+            .fn_number => .fn_number,
+            .fn_string => .fn_string,
             else => null,
         };
 
@@ -509,6 +575,50 @@ const Compiler = struct {
             self.emit(.{ .op = op });
             return;
         }
+
+        // Two-arg functions: min(a,b), max(a,b), contains(s,sub), startswith(s,pre), endswith(s,suf), left(s,n), right(s,n)
+        const fn2_op: ?Op = switch (self.cur.tag) {
+            .fn_min => .fn_min,
+            .fn_max => .fn_max,
+            .fn_contains => .fn_contains,
+            .fn_startswith => .fn_startswith,
+            .fn_endswith => .fn_endswith,
+            .fn_left => .fn_left,
+            .fn_right => .fn_right,
+            else => null,
+        };
+
+        if (fn2_op) |op| {
+            self.advance();
+            self.expect(.lparen);
+            self.parseExpr();
+            self.expect(.comma);
+            self.parseExpr();
+            self.expect(.rparen);
+            self.emit(.{ .op = op });
+            return;
+        }
+
+        // Three-arg functions: substr(s, start, len), if(cond, then, else)
+        const fn3_op: ?Op = switch (self.cur.tag) {
+            .fn_substr => .fn_substr,
+            .fn_if => .fn_if,
+            else => null,
+        };
+
+        if (fn3_op) |op| {
+            self.advance();
+            self.expect(.lparen);
+            self.parseExpr();
+            self.expect(.comma);
+            self.parseExpr();
+            self.expect(.comma);
+            self.parseExpr();
+            self.expect(.rparen);
+            self.emit(.{ .op = op });
+            return;
+        }
+
         self.parsePrimary();
     }
 
@@ -548,6 +658,10 @@ const Compiler = struct {
             },
             .var_count => {
                 self.emit(.{ .op = .load_count });
+                self.advance();
+            },
+            .var_char => {
+                self.emit(.{ .op = .load_char });
                 self.advance();
             },
             .lparen => {
@@ -610,6 +724,7 @@ pub const EvalCtx = struct {
     index: i64 = 0,
     count: i64 = 0,
     accum: Val = Val.initNull(),
+    char_val: Val = Val.initNull(),
     scratch: [8192]u8 = undefined,
     scratch_pos: usize = 0,
 
@@ -665,6 +780,7 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
             .load_index => push(&stack, &sp, Val.initInt(ctx.index)),
             .load_accum => push(&stack, &sp, ctx.accum),
             .load_count => push(&stack, &sp, Val.initInt(ctx.count)),
+            .load_char => push(&stack, &sp, ctx.char_val),
 
             .add => {
                 const b = pop(&stack, &sp);
@@ -808,6 +924,174 @@ pub fn eval(prog: *const Program, ctx: *EvalCtx) Val {
                 const a = pop(&stack, &sp);
                 push(&stack, &sp, Val.initFloat(@sqrt(a.asFloat())));
             },
+            .fn_is_bool => {
+                const a = pop(&stack, &sp);
+                push(&stack, &sp, Val.initBool(a.tag == .bool_v));
+            },
+            .fn_is_null => {
+                const a = pop(&stack, &sp);
+                push(&stack, &sp, Val.initBool(a.tag == .null_v));
+            },
+            .fn_floor => {
+                const a = pop(&stack, &sp);
+                push(&stack, &sp, Val.initInt(@intFromFloat(@floor(a.asFloat()))));
+            },
+            .fn_ceil => {
+                const a = pop(&stack, &sp);
+                push(&stack, &sp, Val.initInt(@intFromFloat(@ceil(a.asFloat()))));
+            },
+            .fn_round => {
+                const a = pop(&stack, &sp);
+                push(&stack, &sp, Val.initInt(@intFromFloat(@round(a.asFloat()))));
+            },
+            .fn_trim => {
+                const a = pop(&stack, &sp);
+                if (a.tag == .str_v) {
+                    const s = a.data.s;
+                    var start: usize = 0;
+                    var end: usize = s.len;
+                    while (start < end and (s.ptr[start] == ' ' or s.ptr[start] == '\t')) start += 1;
+                    while (end > start and (s.ptr[end - 1] == ' ' or s.ptr[end - 1] == '\t')) end -= 1;
+                    push(&stack, &sp, Val.initStr(s.ptr + start, end - start));
+                } else push(&stack, &sp, a);
+            },
+            .fn_reversed => {
+                const a = pop(&stack, &sp);
+                if (a.tag == .str_v) {
+                    const s = a.data.s;
+                    if (ctx.allocScratch(s.len)) |buf| {
+                        for (0..s.len) |j| buf[j] = s.ptr[s.len - 1 - j];
+                        push(&stack, &sp, Val.initStr(buf.ptr, buf.len));
+                    } else push(&stack, &sp, a);
+                } else push(&stack, &sp, a);
+            },
+            .fn_number => {
+                const a = pop(&stack, &sp);
+                if (a.tag == .int_v or a.tag == .float_v) {
+                    push(&stack, &sp, a);
+                } else if (a.tag == .str_v) {
+                    const s = a.data.s.ptr[0..a.data.s.len];
+                    if (std.fmt.parseInt(i64, s, 10)) |iv| {
+                        push(&stack, &sp, Val.initInt(iv));
+                    } else |_| {
+                        if (std.fmt.parseFloat(f64, s)) |fv| {
+                            push(&stack, &sp, Val.initFloat(fv));
+                        } else |_| {
+                            push(&stack, &sp, Val.initInt(0));
+                        }
+                    }
+                } else if (a.tag == .bool_v) {
+                    push(&stack, &sp, Val.initInt(if (a.data.b) 1 else 0));
+                } else push(&stack, &sp, Val.initInt(0));
+            },
+            .fn_string => {
+                const a = pop(&stack, &sp);
+                switch (a.tag) {
+                    .str_v => push(&stack, &sp, a),
+                    .int_v => {
+                        if (ctx.allocScratch(20)) |buf| {
+                            const s = std.fmt.bufPrint(buf, "{d}", .{a.data.i}) catch "";
+                            push(&stack, &sp, Val.initStr(s.ptr, s.len));
+                        } else push(&stack, &sp, Val.initStr("".ptr, 0));
+                    },
+                    .float_v => {
+                        if (ctx.allocScratch(32)) |buf| {
+                            const s = std.fmt.bufPrint(buf, "{d}", .{a.data.f}) catch "";
+                            push(&stack, &sp, Val.initStr(s.ptr, s.len));
+                        } else push(&stack, &sp, Val.initStr("".ptr, 0));
+                    },
+                    .bool_v => {
+                        const s: []const u8 = if (a.data.b) "true" else "false";
+                        push(&stack, &sp, Val.initStr(s.ptr, s.len));
+                    },
+                    .null_v => push(&stack, &sp, Val.initStr("null".ptr, 4)),
+                }
+            },
+            .fn_min => {
+                const b = pop(&stack, &sp);
+                const a = pop(&stack, &sp);
+                push(&stack, &sp, if (valCmp(a, b) <= 0) a else b);
+            },
+            .fn_max => {
+                const b = pop(&stack, &sp);
+                const a = pop(&stack, &sp);
+                push(&stack, &sp, if (valCmp(a, b) >= 0) a else b);
+            },
+            .fn_contains => {
+                const sub = pop(&stack, &sp);
+                const haystack = pop(&stack, &sp);
+                if (haystack.tag == .str_v and sub.tag == .str_v) {
+                    const h = haystack.data.s;
+                    const n = sub.data.s;
+                    if (n.len == 0 or n.len > h.len) {
+                        push(&stack, &sp, Val.initBool(n.len == 0));
+                    } else {
+                        var found = false;
+                        var j: usize = 0;
+                        while (j + n.len <= h.len) : (j += 1) {
+                            if (std.mem.eql(u8, h.ptr[j .. j + n.len], n.ptr[0..n.len])) {
+                                found = true;
+                                break;
+                            }
+                        }
+                        push(&stack, &sp, Val.initBool(found));
+                    }
+                } else push(&stack, &sp, Val.initBool(false));
+            },
+            .fn_startswith => {
+                const pre = pop(&stack, &sp);
+                const s = pop(&stack, &sp);
+                if (s.tag == .str_v and pre.tag == .str_v) {
+                    if (pre.data.s.len <= s.data.s.len) {
+                        push(&stack, &sp, Val.initBool(std.mem.eql(u8, s.data.s.ptr[0..pre.data.s.len], pre.data.s.ptr[0..pre.data.s.len])));
+                    } else push(&stack, &sp, Val.initBool(false));
+                } else push(&stack, &sp, Val.initBool(false));
+            },
+            .fn_endswith => {
+                const suf = pop(&stack, &sp);
+                const s = pop(&stack, &sp);
+                if (s.tag == .str_v and suf.tag == .str_v) {
+                    if (suf.data.s.len <= s.data.s.len) {
+                        const offset = s.data.s.len - suf.data.s.len;
+                        push(&stack, &sp, Val.initBool(std.mem.eql(u8, s.data.s.ptr[offset .. offset + suf.data.s.len], suf.data.s.ptr[0..suf.data.s.len])));
+                    } else push(&stack, &sp, Val.initBool(false));
+                } else push(&stack, &sp, Val.initBool(false));
+            },
+            .fn_left => {
+                const n = pop(&stack, &sp);
+                const s = pop(&stack, &sp);
+                if (s.tag == .str_v) {
+                    const take = @min(@as(usize, @intCast(@max(n.asInt(), 0))), s.data.s.len);
+                    push(&stack, &sp, Val.initStr(s.data.s.ptr, take));
+                } else push(&stack, &sp, Val.initStr("".ptr, 0));
+            },
+            .fn_right => {
+                const n = pop(&stack, &sp);
+                const s = pop(&stack, &sp);
+                if (s.tag == .str_v) {
+                    const take = @min(@as(usize, @intCast(@max(n.asInt(), 0))), s.data.s.len);
+                    push(&stack, &sp, Val.initStr(s.data.s.ptr + s.data.s.len - take, take));
+                } else push(&stack, &sp, Val.initStr("".ptr, 0));
+            },
+            .fn_substr => {
+                const len_val = pop(&stack, &sp);
+                const start_val = pop(&stack, &sp);
+                const s = pop(&stack, &sp);
+                if (s.tag == .str_v) {
+                    const slen = s.data.s.len;
+                    const raw_start = start_val.asInt();
+                    const start_1 = if (raw_start < 1) @as(usize, 0) else @as(usize, @intCast(raw_start - 1));
+                    const start_clamped = @min(start_1, slen);
+                    const take = @min(@as(usize, @intCast(@max(len_val.asInt(), 0))), slen - start_clamped);
+                    push(&stack, &sp, Val.initStr(s.data.s.ptr + start_clamped, take));
+                } else push(&stack, &sp, Val.initStr("".ptr, 0));
+            },
+            .fn_if => {
+                const else_val = pop(&stack, &sp);
+                const then_val = pop(&stack, &sp);
+                const cond = pop(&stack, &sp);
+                push(&stack, &sp, if (cond.isTruthy()) then_val else else_val);
+            },
         }
     }
 
@@ -820,6 +1104,13 @@ fn valAdd(a: Val, b: Val) Val {
     if (a.tag == .int_v and b.tag == .int_v) return Val.initInt(a.data.i +% b.data.i);
     if ((a.tag == .int_v or a.tag == .float_v) and (b.tag == .int_v or b.tag == .float_v))
         return Val.initFloat(a.asFloat() + b.asFloat());
+    if (a.tag == .str_v and b.tag == .str_v) {
+        const total = a.data.s.len + b.data.s.len;
+        const buf = alloc.alloc(u8, total) catch return Val.initNull();
+        if (a.data.s.len > 0) @memcpy(buf[0..a.data.s.len], a.data.s.ptr[0..a.data.s.len]);
+        if (b.data.s.len > 0) @memcpy(buf[a.data.s.len..], b.data.s.ptr[0..b.data.s.len]);
+        return Val.initStr(buf.ptr, total);
+    }
     return Val.initNull();
 }
 
@@ -918,25 +1209,41 @@ pub fn stz_expr_free(prog: ?*Program) callconv(.c) void {
 
 // ─── Tests ───
 
+var test_str_buf: [4096]u8 = undefined;
+
 fn compileAndEval(expr_str: []const u8, item: Val, index: i64, count: i64) Val {
     const prog = compile(expr_str.ptr, expr_str.len) orelse return Val.initNull();
-    defer prog.deinit();
     var ctx = EvalCtx{
         .item = item,
         .index = index,
         .count = count,
     };
-    return eval(prog, &ctx);
+    const result = eval(prog, &ctx);
+    if (result.tag == .str_v and result.data.s.len > 0) {
+        const n = @min(result.data.s.len, test_str_buf.len);
+        @memcpy(test_str_buf[0..n], result.data.s.ptr[0..n]);
+        prog.deinit();
+        return Val.initStr(&test_str_buf, n);
+    }
+    prog.deinit();
+    return result;
 }
 
 fn compileAndEvalReduce(expr_str: []const u8, item: Val, accum: Val) Val {
     const prog = compile(expr_str.ptr, expr_str.len) orelse return Val.initNull();
-    defer prog.deinit();
     var ctx = EvalCtx{
         .item = item,
         .accum = accum,
     };
-    return eval(prog, &ctx);
+    const result = eval(prog, &ctx);
+    if (result.tag == .str_v and result.data.s.len > 0) {
+        const n = @min(result.data.s.len, test_str_buf.len);
+        @memcpy(test_str_buf[0..n], result.data.s.ptr[0..n]);
+        prog.deinit();
+        return Val.initStr(&test_str_buf, n);
+    }
+    prog.deinit();
+    return result;
 }
 
 test "expr: integer arithmetic" {
@@ -1101,4 +1408,141 @@ test "expr: Softanza <> inequality" {
 test "expr: sqrt" {
     const r = compileAndEval("sqrt(@item)", Val.initInt(16), 1, 1);
     try std.testing.expectApproxEqAbs(@as(f64, 4.0), r.data.f, 0.001);
+}
+
+test "expr: string concatenation" {
+    const r = compileAndEval("@item + \" world\"", Val.initStr("hello", 5), 1, 1);
+    try std.testing.expectEqual(Val.Tag.str_v, r.tag);
+    try std.testing.expectEqualStrings("hello world", r.data.s.ptr[0..r.data.s.len]);
+}
+
+test "expr: isBool and isNull" {
+    const r1 = compileAndEval("isBool(@item)", Val.initBool(true), 1, 1);
+    try std.testing.expect(r1.data.b);
+
+    const r2 = compileAndEval("isBool(@item)", Val.initInt(1), 1, 1);
+    try std.testing.expect(!r2.data.b);
+
+    const r3 = compileAndEval("isNull(@item)", Val.initNull(), 1, 1);
+    try std.testing.expect(r3.data.b);
+
+    const r4 = compileAndEval("isNull(@item)", Val.initInt(0), 1, 1);
+    try std.testing.expect(!r4.data.b);
+}
+
+test "expr: floor/ceil/round" {
+    const r1 = compileAndEval("floor(@item)", Val.initFloat(3.7), 1, 1);
+    try std.testing.expectEqual(@as(i64, 3), r1.data.i);
+
+    const r2 = compileAndEval("ceil(@item)", Val.initFloat(3.2), 1, 1);
+    try std.testing.expectEqual(@as(i64, 4), r2.data.i);
+
+    const r3 = compileAndEval("round(@item)", Val.initFloat(3.5), 1, 1);
+    try std.testing.expectEqual(@as(i64, 4), r3.data.i);
+
+    const r4 = compileAndEval("round(@item)", Val.initFloat(3.4), 1, 1);
+    try std.testing.expectEqual(@as(i64, 3), r4.data.i);
+}
+
+test "expr: trim" {
+    const r = compileAndEval("trim(@item)", Val.initStr("  hello  ", 9), 1, 1);
+    try std.testing.expectEqualStrings("hello", r.data.s.ptr[0..r.data.s.len]);
+}
+
+test "expr: reversed" {
+    const r = compileAndEval("reversed(@item)", Val.initStr("abcd", 4), 1, 1);
+    try std.testing.expectEqualStrings("dcba", r.data.s.ptr[0..r.data.s.len]);
+}
+
+test "expr: number conversion" {
+    const r1 = compileAndEval("number(@item)", Val.initStr("42", 2), 1, 1);
+    try std.testing.expectEqual(@as(i64, 42), r1.data.i);
+
+    const r2 = compileAndEval("number(@item)", Val.initStr("3.14", 4), 1, 1);
+    try std.testing.expectApproxEqAbs(@as(f64, 3.14), r2.data.f, 0.001);
+
+    const r3 = compileAndEval("number(@item)", Val.initBool(true), 1, 1);
+    try std.testing.expectEqual(@as(i64, 1), r3.data.i);
+}
+
+test "expr: string conversion" {
+    const r1 = compileAndEval("string(@item)", Val.initInt(42), 1, 1);
+    try std.testing.expectEqualStrings("42", r1.data.s.ptr[0..r1.data.s.len]);
+
+    const r2 = compileAndEval("string(@item)", Val.initBool(true), 1, 1);
+    try std.testing.expectEqualStrings("true", r2.data.s.ptr[0..r2.data.s.len]);
+}
+
+test "expr: min and max" {
+    const r1 = compileAndEval("min(@item, 10)", Val.initInt(5), 1, 1);
+    try std.testing.expectEqual(@as(i64, 5), r1.data.i);
+
+    const r2 = compileAndEval("max(@item, 10)", Val.initInt(5), 1, 1);
+    try std.testing.expectEqual(@as(i64, 10), r2.data.i);
+}
+
+test "expr: contains" {
+    const r1 = compileAndEval("contains(@item, \"ell\")", Val.initStr("hello", 5), 1, 1);
+    try std.testing.expect(r1.data.b);
+
+    const r2 = compileAndEval("contains(@item, \"xyz\")", Val.initStr("hello", 5), 1, 1);
+    try std.testing.expect(!r2.data.b);
+}
+
+test "expr: startswith and endswith" {
+    const r1 = compileAndEval("startswith(@item, \"hel\")", Val.initStr("hello", 5), 1, 1);
+    try std.testing.expect(r1.data.b);
+
+    const r2 = compileAndEval("endswith(@item, \"llo\")", Val.initStr("hello", 5), 1, 1);
+    try std.testing.expect(r2.data.b);
+
+    const r3 = compileAndEval("startswith(@item, \"xyz\")", Val.initStr("hello", 5), 1, 1);
+    try std.testing.expect(!r3.data.b);
+}
+
+test "expr: left and right" {
+    const r1 = compileAndEval("left(@item, 3)", Val.initStr("hello", 5), 1, 1);
+    try std.testing.expectEqualStrings("hel", r1.data.s.ptr[0..r1.data.s.len]);
+
+    const r2 = compileAndEval("right(@item, 3)", Val.initStr("hello", 5), 1, 1);
+    try std.testing.expectEqualStrings("llo", r2.data.s.ptr[0..r2.data.s.len]);
+}
+
+test "expr: substr (1-based)" {
+    const r = compileAndEval("substr(@item, 2, 3)", Val.initStr("hello", 5), 1, 1);
+    try std.testing.expectEqualStrings("ell", r.data.s.ptr[0..r.data.s.len]);
+}
+
+test "expr: if conditional" {
+    const r1 = compileAndEval("if(@item > 5, \"big\", \"small\")", Val.initInt(10), 1, 1);
+    try std.testing.expectEqualStrings("big", r1.data.s.ptr[0..r1.data.s.len]);
+
+    const r2 = compileAndEval("if(@item > 5, \"big\", \"small\")", Val.initInt(3), 1, 1);
+    try std.testing.expectEqualStrings("small", r2.data.s.ptr[0..r2.data.s.len]);
+}
+
+test "expr: @char variable" {
+    const prog = compile("@char = \"a\"".ptr, "@char = \"a\"".len) orelse return error.CompileFailed;
+    defer prog.deinit();
+    var ctx = EvalCtx{ .char_val = Val.initStr("a", 1) };
+    const r = eval(prog, &ctx);
+    try std.testing.expect(r.data.b);
+}
+
+test "expr: complex string expression" {
+    const r = compileAndEval(
+        "if(contains(@item, \"@\"), left(@item, 3), upper(@item))",
+        Val.initStr("abc@def", 7),
+        1,
+        1,
+    );
+    try std.testing.expectEqualStrings("abc", r.data.s.ptr[0..r.data.s.len]);
+
+    const r2 = compileAndEval(
+        "if(contains(@item, \"@\"), left(@item, 3), upper(@item))",
+        Val.initStr("hello", 5),
+        1,
+        1,
+    );
+    try std.testing.expectEqualStrings("HELLO", r2.data.s.ptr[0..r2.data.s.len]);
 }

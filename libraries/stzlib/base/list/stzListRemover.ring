@@ -240,19 +240,7 @@ class stzListRemover from stzList
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
-		anPositions = []
-
-		for @i = 1 to nLen
-			@item = aContent[@i]
-			cCode = 'bOk = (' + pcCondition + ')'
-			eval(cCode)
-			if bOk
-				anPositions + @i
-			ok
-		next
-
+		anPositions = This.FindAllItemsW(pcCondition)
 		This.RemoveItemsAtPositions(anPositions)
 
 		def RemoveWQ(pcCondition)
