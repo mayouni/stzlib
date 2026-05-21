@@ -906,3 +906,745 @@ class stzList from stzObject
 
 	def SortingOrder()
 		return _ListSortingOrder(@aContent)
+
+	def HasSameSortingOrderAs(paOther)
+		return This.SortingOrder() = _ListSortingOrder(paOther)
+
+	  #-------------------------------------------#
+	 #  TYPE-CHECKING METHODS                    #
+	#-------------------------------------------#
+
+	def IsHashList()
+		bResult = 1
+		aTempKeys = []
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			if NOT ( isList(@aContent[i]) and len(@aContent[i]) = 2 and
+				 isString(@aContent[i][1]) )
+				bResult = 0
+				exit
+			else
+				cKey = @aContent[i][1]
+				nKeyLen = len(aTempKeys)
+				for j = 1 to nKeyLen
+					if aTempKeys[j] = cKey
+						bResult = 0
+						exit 2
+					ok
+				next
+				aTempKeys + cKey
+			ok
+		next
+		return bResult
+
+		def IsAHashList()
+			return This.IsHashList()
+
+		def IsNotHashList()
+			return NOT This.IsHashList()
+
+	def IsPair()
+		return len(@aContent) = 2
+
+		def IsAPair()
+			return This.IsPair()
+
+	def IsListOfStrings()
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			if NOT isString(@aContent[i])
+				return FALSE
+			ok
+		next
+		return TRUE
+
+		def IsAListOfStrings()
+			return This.IsListOfStrings()
+
+	def IsListOfNumbers()
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			if NOT isNumber(@aContent[i])
+				return FALSE
+			ok
+		next
+		return TRUE
+
+		def IsAListOfNumbers()
+			return This.IsListOfNumbers()
+
+	def IsListOfLists()
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			if NOT isList(@aContent[i])
+				return FALSE
+			ok
+		next
+		return TRUE
+
+		def IsAListOfLists()
+			return This.IsListOfLists()
+
+	def IsListOfPairs()
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			if NOT (isList(@aContent[i]) and len(@aContent[i]) = 2)
+				return FALSE
+			ok
+		next
+		return TRUE
+
+		def IsAListOfPairs()
+			return This.IsListOfPairs()
+
+	def IsSet()
+		nLen = len(@aContent)
+		for i = 1 to nLen
+			for j = i + 1 to nLen
+				if @aContent[i] = @aContent[j]
+					return FALSE
+				ok
+			next
+		next
+		return TRUE
+
+		def IsASet()
+			return This.IsSet()
+
+	  #=============================================#
+	 #  ESSENTIAL METHODS FOR SUBMODULE SUPPORT    #
+	#=============================================#
+
+	  #-- List() alias
+
+	def List()
+		return This.Content()
+
+		def ListQ()
+			return This
+
+	  #-- Section: extract items between two positions
+
+	def SectionCS(n1, n2, pCaseSensitive)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		nLen = This.NumberOfItems()
+
+		if CheckingParams()
+			if isString(n1)
+				if n1 = :First or n1 = :FirstItem
+					n1 = 1
+				but n1 = :Last or n1 = :LastItem
+					n1 = nLen
+				ok
+			ok
+
+			if isString(n2)
+				if n2 = :Last or n2 = :LastItem or n2 = :End or n2 = :EndOfList
+					n2 = nLen
+				but n2 = :First or n2 = :FirstItem
+					n2 = 1
+				ok
+			ok
+
+			if NOT @BothAreNumbers(n1, n2)
+				StzRaise("Incorrect params! n1 and n2 must be numbers.")
+			ok
+		ok
+
+		if n1 < 1 or n1 > nLen or n2 < 1 or n2 > nLen
+			StzRaise("Indexes out of range!")
+		ok
+
+		if n2 < n1
+			nTemp = n1
+			n1 = n2
+			n2 = nTemp
+		ok
+
+		aContent = This.Content()
+		aResult = []
+		for i = n1 to n2
+			aResult + aContent[i]
+		next
+
+		return aResult
+
+		def SectionCSQ(n1, n2, pCaseSensitive)
+			return new stzList(This.SectionCS(n1, n2, pCaseSensitive))
+
+	def Section(n1, n2)
+		return This.SectionCS(n1, n2, 1)
+
+		def SectionQ(n1, n2)
+			return new stzList(This.Section(n1, n2))
+
+	  #-- Range: extract items from a start position for a given count
+
+	def Range(pnStart, pnRange)
+		if CheckingParams()
+			if isString(pnStart)
+				if pnStart = :First or pnStart = :FirstItem
+					pnStart = 1
+				but pnStart = :Last or pnStart = :LastItem
+					pnStart = This.NumberOfItems()
+				ok
+			ok
+		ok
+
+		if pnStart < 0
+			pnStart = This.NumberOfItems() + pnStart + 1
+		ok
+
+		if pnStart = 0 or pnRange = 0
+			return []
+		ok
+
+		if pnRange > 0
+			return This.Section(pnStart, pnStart + pnRange - 1)
+		else
+			n1 = pnStart + pnRange + 1
+			if n1 > 0
+				return This.Section(n1, pnStart)
+			ok
+			return []
+		ok
+
+		def RangeQ(pnStart, pnRange)
+			return new stzList(This.Range(pnStart, pnRange))
+
+	  #-- InsertAt: insert an item at a given position
+
+	def InsertAt(n, pItem)
+		if isList(n) and IsOneOfTheseNamedParamsList(n, [ :Position, :ItemAt, :ItemAtPosition ])
+			n = n[2]
+		ok
+
+		aContent = @aContent
+		ring_insert(aContent, n, pItem)
+		This.UpdateWith(aContent)
+
+		def InsertBefore(n, pItem)
+			This.InsertAt(n, pItem)
+
+		def InsertAtQ(n, pItem)
+			This.InsertAt(n, pItem)
+			return This
+
+	  #-- RemoveItemAtPosition: remove item at a specific position
+
+	def RemoveItemAtPosition(n)
+		if isString(n)
+			if StzFind([:First, :FirstPosition, :FirstItem], n) > 0
+				n = 1
+			but StzFind([:Last, :LastPosition, :LastItem], n) > 0
+				n = This.NumberOfItems()
+			ok
+		ok
+
+		if NOT (isNumber(n) and n != 0)
+			StzRaise("Incorrect param! n must be a number different from zero.")
+		ok
+
+		if n <= This.NumberOfItems()
+			aContent = This.Content()
+			ring_del(aContent, n)
+			This.UpdateWith(aContent)
+		ok
+
+		def RemoveItemAtPositionQ(n)
+			This.RemoveItemAtPosition(n)
+			return This
+
+		def RemoveAt(n)
+			This.RemoveItemAtPosition(n)
+
+	  #-- RemoveItemsAtPositions: remove items at multiple positions
+
+	def RemoveItemsAtPositions(panPos)
+		if NOT isList(panPos)
+			StzRaise("Incorrect param type! panPos must be a list.")
+		ok
+
+		panSorted = ring_sort(panPos)
+		nLen = len(panSorted)
+
+		for i = nLen to 1 step -1
+			This.RemoveItemAtPosition(panSorted[i])
+		next
+
+		def RemoveItemsAtPositionsQ(panPos)
+			This.RemoveItemsAtPositions(panPos)
+			return This
+
+	  #-- RemoveSection: remove items between two positions
+
+	def RemoveSection(n1, n2)
+		nLen = This.NumberOfItems()
+
+		if CheckingParams()
+			if isString(n1)
+				if StzFind([:First, :FirstPosition, :FirstItem], n1) > 0
+					n1 = 1
+				ok
+			ok
+
+			if isString(n2)
+				if StzFind([:Last, :LastPosition, :LastItem], n2) > 0
+					n2 = nLen
+				ok
+			ok
+
+			if NOT @BothAreNumbers(n1, n2)
+				StzRaise("Incorrect param type! n1 and n2 must be numbers.")
+			ok
+
+			if n2 < n1
+				nTemp = n1
+				n1 = n2
+				n2 = nTemp
+			ok
+		ok
+
+		if nLen = 0
+			return
+		ok
+
+		if n1 = 1 and n2 = nLen
+			This.UpdateWith([])
+			return
+		ok
+
+		if n1 = n2
+			This.RemoveItemAtPosition(n1)
+			return
+		ok
+
+		aContent = This.Content()
+		aResult = []
+
+		for i = 1 to n1 - 1
+			aResult + aContent[i]
+		next
+
+		for i = n2 + 1 to nLen
+			aResult + aContent[i]
+		next
+
+		This.UpdateWith(aResult)
+
+		def RemoveSectionQ(n1, n2)
+			This.RemoveSection(n1, n2)
+			return This
+
+	  #-- RemoveFirstItem / RemoveLastItem
+
+	def RemoveFirstItem()
+		This.RemoveItemAtPosition(1)
+
+		def RemoveFirstItemQ()
+			This.RemoveFirstItem()
+			return This
+
+	def RemoveLastItem()
+		This.RemoveItemAtPosition(This.NumberOfItems())
+
+		def RemoveLastItemQ()
+			This.RemoveLastItem()
+			return This
+
+	def RemoveFirstAndLastItems()
+		This.RemoveFirstItem()
+		This.RemoveLastItem()
+
+	  #-- RemoveRange: remove items from start for a count
+
+	def RemoveRange(nStart, nRange)
+		if nRange > 0
+			This.RemoveSection(nStart, nStart + nRange - 1)
+		but nRange < 0
+			n1 = nStart + nRange + 1
+			if n1 > 0
+				This.RemoveSection(n1, nStart)
+			ok
+		ok
+
+	  #-- RemoveAllItems
+
+	def RemoveAllItems()
+		This.UpdateWith([])
+
+	  #-- FindAllOccurrencesCS: find all positions of an item
+
+	def FindAllOccurrencesCS(pItem, pCaseSensitive)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		if isList(pItem) and IsOfNamedParamList(pItem)
+			pItem = pItem[2]
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+
+		if nLen = 0
+			return []
+		ok
+
+		anResult = @FindAllCS_NbrOrStr(aContent, pItem, pCaseSensitive)
+
+		if isList(anResult) and len(anResult) > 0
+			return anResult
+		ok
+
+		cItem = ""
+		if isList(pItem)
+			cItem = @@(pItem)
+		but isObject(pItem) and @IsStzObject(pItem) and pItem.IsNamed()
+			cItem = pItem.ObjectName()
+		else
+			cItem = Q(pItem).Stringified()
+		ok
+
+		acContent = []
+		for _k = 1 to nLen
+			acContent + ("" + aContent[_k])
+		next
+
+		if pCaseSensitive = 0
+			cItem = StzLower(cItem)
+			for i = 1 to nLen
+				acContent[i] = StzLower(acContent[i])
+			next
+		ok
+
+		anResult = []
+		for i = 1 to nLen
+			if acContent[i] = cItem
+				anResult + i
+			ok
+		next
+
+		return anResult
+
+		def FindAllCS(pItem, pCaseSensitive)
+			return This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+
+		def FindAll(pItem)
+			return This.FindAllOccurrencesCS(pItem, 1)
+
+		def FindAllOccurrences(pItem)
+			return This.FindAllOccurrencesCS(pItem, 1)
+
+	  #-- NumberOfOccurrenceCS: count occurrences
+
+	def NumberOfOccurrenceCS(pItem, pCaseSensitive)
+		return len(This.FindAllOccurrencesCS(pItem, pCaseSensitive))
+
+		def NumberOfOccurrencesCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
+		def NumberOfOccurrence(pItem)
+			return This.NumberOfOccurrenceCS(pItem, 1)
+
+		def NumberOfOccurrences(pItem)
+			return This.NumberOfOccurrenceCS(pItem, 1)
+
+		def CountCS(pItem, pCaseSensitive)
+			return This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+
+		def Count(pItem)
+			return This.NumberOfOccurrenceCS(pItem, 1)
+
+	  #-- FindNthOccurrenceCS: find nth occurrence
+
+	def FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+		if CheckingParams()
+			if isString(n)
+				if n = :First or n = :FirstOccurrence
+					n = 1
+				but n = :Last or n = :LastOccurrence
+					n = This.NumberOfOccurrenceCS(pItem, pCaseSensitive)
+				ok
+			ok
+
+			if isList(pItem) and IsOfNamedParamList(pItem)
+				pItem = pItem[2]
+			ok
+
+			if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+				pCaseSensitive = pCaseSensitive[2]
+			ok
+		ok
+
+		anPositions = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+		nLen = len(anPositions)
+
+		if n < 1 or n > nLen
+			return 0
+		ok
+
+		return anPositions[n]
+
+		def FindNthCS(n, pItem, pCaseSensitive)
+			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+
+		def NthOccurrenceCS(n, pItem, pCaseSensitive)
+			return This.FindNthOccurrenceCS(n, pItem, pCaseSensitive)
+
+	  #-- FindFirstOccurrenceCS / FindLastOccurrenceCS
+
+	def FindFirstOccurrenceCS(pItem, pCaseSensitive)
+		return This.FindNthOccurrenceCS(1, pItem, pCaseSensitive)
+
+		def FindFirstCS(pItem, pCaseSensitive)
+			return This.FindFirstOccurrenceCS(pItem, pCaseSensitive)
+
+		def FindFirst(pItem)
+			return This.FindFirstOccurrenceCS(pItem, 1)
+
+	def FindLastOccurrenceCS(pItem, pCaseSensitive)
+		anAll = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+		nLen = len(anAll)
+		if nLen = 0
+			return 0
+		ok
+		return anAll[nLen]
+
+		def FindLastCS(pItem, pCaseSensitive)
+			return This.FindLastOccurrenceCS(pItem, pCaseSensitive)
+
+		def FindLast(pItem)
+			return This.FindLastOccurrenceCS(pItem, 1)
+
+	  #-- FindManyCS: find multiple items at once
+
+	def FindManyCS(paItems, pCaseSensitive)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		anResult = []
+		nLen = len(paItems)
+		for i = 1 to nLen
+			anPos = This.FindAllOccurrencesCS(paItems[i], pCaseSensitive)
+			for j = 1 to len(anPos)
+				anResult + anPos[j]
+			next
+		next
+
+		return ring_sort(anResult)
+
+		def FindMany(paItems)
+			return This.FindManyCS(paItems, 1)
+
+	  #-- ContainsManyCS: check if list contains multiple items
+
+	def ContainsManyCS(paItems, pCaseSensitive)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		nLen = len(paItems)
+		for i = 1 to nLen
+			if NOT This.ContainsCS(paItems[i], pCaseSensitive)
+				return 0
+			ok
+		next
+
+		return 1
+
+		def ContainsMany(paItems)
+			return This.ContainsManyCS(paItems, 1)
+
+	  #-- RemoveAllCS: remove all occurrences of an item
+
+	def RemoveAllCS(pItem, pCaseSensitive)
+		if isList(pItem) and IsOfNamedParamList(pItem)
+			pItem = pItem[2]
+		ok
+
+		anPos = This.FindAllOccurrencesCS(pItem, pCaseSensitive)
+		nLenPos = len(anPos)
+
+		for i = nLenPos to 1 step -1
+			This.RemoveItemAtPosition(anPos[i])
+		next
+
+		def RemoveAllCSQ(pItem, pCaseSensitive)
+			This.RemoveAllCS(pItem, pCaseSensitive)
+			return This
+
+		def RemoveAll(pItem)
+			This.RemoveAllCS(pItem, 1)
+
+	  #-- FindW: find items matching a condition (eval-based)
+
+	def FindAllItemsWCS(pcCondition, pCaseSensitive)
+		if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+			pCaseSensitive = pCaseSensitive[2]
+		ok
+
+		aContent = This.Content()
+		nLen = len(aContent)
+		anResult = []
+
+		_cCode_ = _StzStripBraces(pcCondition)
+
+		for @i = 1 to nLen
+			@item = aContent[@i]
+			_cResult_ = eval(_cCode_)
+			if _cResult_ = 1
+				anResult + @i
+			ok
+		next
+
+		return anResult
+
+		def FindWCS(pcCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pcCondition, pCaseSensitive)
+
+		def FindAllWCS(pcCondition, pCaseSensitive)
+			return This.FindAllItemsWCS(pcCondition, pCaseSensitive)
+
+	def FindAllItemsW(pcCondition)
+		return This.FindAllItemsWCS(pcCondition, 1)
+
+		def FindW(pcCondition)
+			return This.FindAllItemsW(pcCondition)
+
+		def FindAllW(pcCondition)
+			return This.FindAllItemsW(pcCondition)
+
+		def FindWhere(pcCondition)
+			return This.FindAllItemsW(pcCondition)
+
+		def PositionsW(pcCondition)
+			return This.FindAllItemsW(pcCondition)
+
+		def PositionsWhere(pcCondition)
+			return This.FindAllItemsW(pcCondition)
+
+	  #-- FindWXT: find items matching condition (returns items, not positions)
+
+	def FindWXT(pcCondition)
+		anPos = This.FindW(pcCondition)
+		return This.ItemsAtPositions(anPos)
+
+	  #-- ItemsAtPositions: get items at given positions
+
+	def ItemsAtPositions(panPos)
+		if NOT isList(panPos)
+			StzRaise("Incorrect param type! panPos must be a list.")
+		ok
+
+		aContent = This.Content()
+		nLen = len(panPos)
+		aResult = []
+
+		for i = 1 to nLen
+			aResult + aContent[panPos[i]]
+		next
+
+		return aResult
+
+		def ItemsAtPositionsQ(panPos)
+			return new stzList(This.ItemsAtPositions(panPos))
+
+		def ItemsAt(panPos)
+			return This.ItemsAtPositions(panPos)
+
+	  #-- ExtendToPositionXT: extend list to a given position
+
+	def ExtendToPositionXT(n, pWith)
+		if isList(pWith) and IsWithOrByOrUsingNamedParamList(pWith)
+			pWith = pWith[2]
+		ok
+
+		nLen = This.NumberOfItems()
+		if n > nLen
+			for i = nLen + 1 to n
+				This.AddItem(pWith)
+			next
+		ok
+
+		def ExtendToPositionWith(n, pWith)
+			This.ExtendToPositionXT(n, pWith)
+
+	  #-- Perform: execute code on each item
+
+	def Perform(pcAction)
+		aContent = This.Content()
+		nLen = len(aContent)
+		_cCode_ = _StzStripBraces(pcAction)
+		for @i = 1 to nLen
+			eval(_cCode_)
+		next
+
+		def PerformQ(pcAction)
+			This.Perform(pcAction)
+			return This
+
+	  #-- PerformOn: execute code on specific positions
+
+	def PerformOn(panPos, pcAction)
+		aContent = This.Content()
+		nLen = len(panPos)
+		_cCode_ = _StzStripBraces(pcAction)
+		for i = 1 to nLen
+			@i = panPos[i]
+			eval(_cCode_)
+		next
+
+	  #-- Yield: execute code on each item and collect results
+
+	def Yield(pcYielder)
+		aContent = This.Content()
+		nLen = len(aContent)
+		_cCode_ = _StzStripBraces(pcYielder)
+		aResult = []
+		for @i = 1 to nLen
+			aResult + eval(_cCode_)
+		next
+		return aResult
+
+		def YieldQ(pcYielder)
+			return new stzList(This.Yield(pcYielder))
+
+	  #-- Min / Max for numeric lists
+
+	def Min()
+		aContent = This.Content()
+		nLen = len(aContent)
+		if nLen = 0
+			return 0
+		ok
+
+		nMin = aContent[1]
+		for i = 2 to nLen
+			if isNumber(aContent[i]) and aContent[i] < nMin
+				nMin = aContent[i]
+			ok
+		next
+
+		return nMin
+
+	def Max()
+		aContent = This.Content()
+		nLen = len(aContent)
+		if nLen = 0
+			return 0
+		ok
+
+		nMax = aContent[1]
+		for i = 2 to nLen
+			if isNumber(aContent[i]) and aContent[i] > nMax
+				nMax = aContent[i]
+			ok
+		next
+
+		return nMax
+
