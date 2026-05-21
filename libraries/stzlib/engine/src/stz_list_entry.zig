@@ -39,6 +39,12 @@ comptime {
     @export(&list.stz_list_is_all_strings, .{ .name = "stz_list_is_all_strings" });
     @export(&list.stz_list_is_all_numbers, .{ .name = "stz_list_is_all_numbers" });
     @export(&list.stz_list_equals_cs, .{ .name = "stz_list_equals_cs" });
+    @export(&list.stz_list_map_expr, .{ .name = "stz_list_map_expr" });
+    @export(&list.stz_list_filter_expr, .{ .name = "stz_list_filter_expr" });
+    @export(&list.stz_list_reduce_expr, .{ .name = "stz_list_reduce_expr" });
+    @export(&list.stz_list_find_w, .{ .name = "stz_list_find_w" });
+    @export(&list.stz_list_find_all_w, .{ .name = "stz_list_find_all_w" });
+    @export(&list.stz_list_count_w, .{ .name = "stz_list_count_w" });
 }
 
 comptime {

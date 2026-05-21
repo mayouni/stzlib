@@ -534,6 +534,175 @@ pub fn stz_list_equals_cs(a: ?*const StzList, b: ?*const StzList, case_sensitive
     return 1;
 }
 
+// ─── Expression-based operations ───
+// Replace Ring's eval() with native bytecode evaluation for
+// Map, Filter, Reduce, FindW, and all ...W() predicates.
+
+const expr = @import("expr.zig");
+
+fn stzValueToVal(v: *const StzValue) expr.Val {
+    return switch (v.tag) {
+        .null_val => expr.Val.initNull(),
+        .bool_val => expr.Val.initBool(v.data.bool_val),
+        .int_val => expr.Val.initInt(v.data.int_val),
+        .float_val => expr.Val.initFloat(v.data.float_val),
+        .string_val => expr.Val.initStr(v.data.string_val.ptr, v.data.string_val.len),
+        .list_val => expr.Val.initNull(),
+    };
+}
+
+fn valToStzValue(v: expr.Val) ?*StzValue {
+    return switch (v.tag) {
+        .null_v => value_mod.stz_value_new_null(),
+        .bool_v => value_mod.stz_value_new_bool(if (v.data.b) 1 else 0),
+        .int_v => value_mod.stz_value_new_int(v.data.i),
+        .float_v => value_mod.stz_value_new_float(v.data.f),
+        .str_v => value_mod.stz_value_new_string(v.data.s.ptr, v.data.s.len),
+    };
+}
+
+pub fn stz_list_map_expr(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize) callconv(.c) ?*StzList {
+    const l = list orelse return null;
+    const prog = expr.compile(expr_ptr, expr_len) orelse return null;
+    defer prog.deinit();
+
+    const result = StzList.init() catch return null;
+    const count: i64 = @intCast(l.len());
+
+    for (l.items.items, 0..) |item, i| {
+        var ctx = expr.EvalCtx{
+            .item = stzValueToVal(item),
+            .index = @as(i64, @intCast(i)) + 1,
+            .count = count,
+        };
+        const val = expr.eval(prog, &ctx);
+        const sv = valToStzValue(val) orelse {
+            result.deinit();
+            return null;
+        };
+        result.items.append(allocator, sv) catch {
+            sv.deinit();
+            allocator.destroy(sv);
+            result.deinit();
+            return null;
+        };
+    }
+    return result;
+}
+
+pub fn stz_list_filter_expr(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize) callconv(.c) ?*StzList {
+    const l = list orelse return null;
+    const prog = expr.compile(expr_ptr, expr_len) orelse return null;
+    defer prog.deinit();
+
+    const result = StzList.init() catch return null;
+    const count: i64 = @intCast(l.len());
+
+    for (l.items.items, 0..) |item, i| {
+        var ctx = expr.EvalCtx{
+            .item = stzValueToVal(item),
+            .index = @as(i64, @intCast(i)) + 1,
+            .count = count,
+        };
+        const val = expr.eval(prog, &ctx);
+        if (val.isTruthy()) {
+            result.appendClone(item) catch {
+                result.deinit();
+                return null;
+            };
+        }
+    }
+    return result;
+}
+
+pub fn stz_list_reduce_expr(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize, init_val: ?*const StzValue) callconv(.c) ?*StzValue {
+    const l = list orelse return null;
+    const prog = expr.compile(expr_ptr, expr_len) orelse return null;
+    defer prog.deinit();
+
+    if (l.len() == 0) {
+        if (init_val) |iv| return iv.clone() catch null;
+        return null;
+    }
+
+    var accum: expr.Val = if (init_val) |iv| stzValueToVal(iv) else stzValueToVal(l.items.items[0]);
+    const start: usize = if (init_val != null) 0 else 1;
+
+    for (l.items.items[start..], start..) |item, i| {
+        var ctx = expr.EvalCtx{
+            .item = stzValueToVal(item),
+            .index = @as(i64, @intCast(i)) + 1,
+            .count = @intCast(l.len()),
+            .accum = accum,
+        };
+        accum = expr.eval(prog, &ctx);
+    }
+
+    return valToStzValue(accum);
+}
+
+pub fn stz_list_find_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize) callconv(.c) i64 {
+    const l = list orelse return -1;
+    const prog = expr.compile(expr_ptr, expr_len) orelse return -1;
+    defer prog.deinit();
+
+    const count: i64 = @intCast(l.len());
+
+    for (l.items.items, 0..) |item, i| {
+        var ctx = expr.EvalCtx{
+            .item = stzValueToVal(item),
+            .index = @as(i64, @intCast(i)) + 1,
+            .count = count,
+        };
+        const val = expr.eval(prog, &ctx);
+        if (val.isTruthy()) return @intCast(i);
+    }
+    return -1;
+}
+
+pub fn stz_list_find_all_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize, out_buf: [*]i64, out_cap: usize) callconv(.c) usize {
+    const l = list orelse return 0;
+    const prog = expr.compile(expr_ptr, expr_len) orelse return 0;
+    defer prog.deinit();
+
+    var found: usize = 0;
+    const count: i64 = @intCast(l.len());
+
+    for (l.items.items, 0..) |item, i| {
+        var ctx = expr.EvalCtx{
+            .item = stzValueToVal(item),
+            .index = @as(i64, @intCast(i)) + 1,
+            .count = count,
+        };
+        const val = expr.eval(prog, &ctx);
+        if (val.isTruthy()) {
+            if (found < out_cap) out_buf[found] = @intCast(i);
+            found += 1;
+        }
+    }
+    return found;
+}
+
+pub fn stz_list_count_w(list: ?*const StzList, expr_ptr: [*]const u8, expr_len: usize) callconv(.c) usize {
+    const l = list orelse return 0;
+    const prog = expr.compile(expr_ptr, expr_len) orelse return 0;
+    defer prog.deinit();
+
+    var found: usize = 0;
+    const count: i64 = @intCast(l.len());
+
+    for (l.items.items, 0..) |item, i| {
+        var ctx = expr.EvalCtx{
+            .item = stzValueToVal(item),
+            .index = @as(i64, @intCast(i)) + 1,
+            .count = count,
+        };
+        const val = expr.eval(prog, &ctx);
+        if (val.isTruthy()) found += 1;
+    }
+    return found;
+}
+
 // ─── Tests ───
 
 test "list basic append and get" {
@@ -877,4 +1046,233 @@ test "list null handles" {
     try std.testing.expectEqual(@as(i32, -1), stz_list_sort(null));
     try std.testing.expectEqual(@as(i32, -1), stz_list_reverse(null));
     try std.testing.expect(stz_list_clone(null) == null);
+}
+
+// ─── Expression-based operation tests ───
+
+test "map_expr doubles integers" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+
+    const e = "@item * 2";
+    const r = stz_list_map_expr(l, e.ptr, e.len) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(r));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(r, 0));
+    try std.testing.expectEqual(@as(i64, 4), stz_list_get_int(r, 1));
+    try std.testing.expectEqual(@as(i64, 6), stz_list_get_int(r, 2));
+}
+
+test "map_expr with @i index" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    _ = stz_list_append_string(l, "c", 1);
+
+    const e = "@i";
+    const r = stz_list_map_expr(l, e.ptr, e.len) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+
+    try std.testing.expectEqual(@as(i64, 1), stz_list_get_int(r, 0));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(r, 1));
+    try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(r, 2));
+}
+
+test "map_expr null list returns null" {
+    const e = "@item";
+    try std.testing.expect(stz_list_map_expr(null, e.ptr, e.len) == null);
+}
+
+test "filter_expr keeps even numbers" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 5);
+
+    const e = "@item % 2 = 0";
+    const r = stz_list_filter_expr(l, e.ptr, e.len) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(r));
+    try std.testing.expectEqual(@as(i64, 2), stz_list_get_int(r, 0));
+    try std.testing.expectEqual(@as(i64, 4), stz_list_get_int(r, 1));
+}
+
+test "filter_expr with string predicate" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "hello", 5);
+    _ = stz_list_append_string(l, "hi", 2);
+    _ = stz_list_append_string(l, "world", 5);
+
+    const e = "len(@item) > 3";
+    const r = stz_list_filter_expr(l, e.ptr, e.len) orelse return error.AllocFailed;
+    defer stz_list_free(r);
+
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(r));
+    var buf: [32]u8 = undefined;
+    var n = stz_list_get_string(r, 0, &buf, 32);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "hello"));
+    n = stz_list_get_string(r, 1, &buf, 32);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "world"));
+}
+
+test "filter_expr null list returns null" {
+    const e = "@item > 0";
+    try std.testing.expect(stz_list_filter_expr(null, e.ptr, e.len) == null);
+}
+
+test "reduce_expr sum with init" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+
+    const init = value_mod.stz_value_new_int(0) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(init);
+
+    const e = "@accumulator + @item";
+    const r = stz_list_reduce_expr(l, e.ptr, e.len, init) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(r);
+
+    try std.testing.expectEqual(ValueType.int_val, r.tag);
+    try std.testing.expectEqual(@as(i64, 6), r.data.int_val);
+}
+
+test "reduce_expr sum without init" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 10);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 30);
+
+    const e = "@accumulator + @item";
+    const r = stz_list_reduce_expr(l, e.ptr, e.len, null) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(r);
+
+    try std.testing.expectEqual(@as(i64, 60), r.data.int_val);
+}
+
+test "reduce_expr empty list with init returns init" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    const init = value_mod.stz_value_new_int(42) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(init);
+
+    const e = "@accumulator + @item";
+    const r = stz_list_reduce_expr(l, e.ptr, e.len, init) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(r);
+
+    try std.testing.expectEqual(@as(i64, 42), r.data.int_val);
+}
+
+test "reduce_expr null list returns null" {
+    const e = "@accumulator + @item";
+    try std.testing.expect(stz_list_reduce_expr(null, e.ptr, e.len, null) == null);
+}
+
+test "find_w first match" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 5);
+    _ = stz_list_append_int(l, 12);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 15);
+
+    const e = "@item > 10";
+    try std.testing.expectEqual(@as(i64, 1), stz_list_find_w(l, e.ptr, e.len));
+}
+
+test "find_w no match returns -1" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+
+    const e = "@item > 100";
+    try std.testing.expectEqual(@as(i64, -1), stz_list_find_w(l, e.ptr, e.len));
+}
+
+test "find_w null list returns -1" {
+    const e = "@item > 0";
+    try std.testing.expectEqual(@as(i64, -1), stz_list_find_w(null, e.ptr, e.len));
+}
+
+test "find_all_w positions" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 20);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 40);
+    _ = stz_list_append_int(l, 5);
+
+    const e = "@item > 10";
+    var positions: [10]i64 = undefined;
+    const count = stz_list_find_all_w(l, e.ptr, e.len, &positions, 10);
+    try std.testing.expectEqual(@as(usize, 2), count);
+    try std.testing.expectEqual(@as(i64, 1), positions[0]);
+    try std.testing.expectEqual(@as(i64, 3), positions[1]);
+}
+
+test "find_all_w empty result" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+
+    const e = "@item > 100";
+    var positions: [10]i64 = undefined;
+    const count = stz_list_find_all_w(l, e.ptr, e.len, &positions, 10);
+    try std.testing.expectEqual(@as(usize, 0), count);
+}
+
+test "count_w matching items" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_int(l, 1);
+    _ = stz_list_append_int(l, 2);
+    _ = stz_list_append_int(l, 3);
+    _ = stz_list_append_int(l, 4);
+    _ = stz_list_append_int(l, 5);
+
+    const e = "@item > 2";
+    try std.testing.expectEqual(@as(usize, 3), stz_list_count_w(l, e.ptr, e.len));
+}
+
+test "count_w with isString" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+
+    _ = stz_list_append_string(l, "hello", 5);
+    _ = stz_list_append_int(l, 42);
+    _ = stz_list_append_string(l, "world", 5);
+
+    const e = "isString(@item)";
+    try std.testing.expectEqual(@as(usize, 2), stz_list_count_w(l, e.ptr, e.len));
+}
+
+test "count_w null list returns 0" {
+    const e = "@item > 0";
+    try std.testing.expectEqual(@as(usize, 0), stz_list_count_w(null, e.ptr, e.len));
 }
