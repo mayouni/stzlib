@@ -320,7 +320,7 @@ Class stzTable from stzList
 			StzRaise("Incorrect param type! pcName must be a string.")
 		ok
 
-		cName = ring_lower(pcName)
+		cName = StzLower(pcName)
 		bResult = This.ColNamesQ().Contains(cName)
 
 		return bResult
@@ -519,7 +519,7 @@ Class stzTable from stzList
 			return FALSE
 		ok
 /*
-		cName = ring_lower(pcName)
+		cName = StzLower(pcName)
 
 		bResult = 0
 		if This.ColNamesQ().Contains(pcName)
@@ -727,7 +727,7 @@ Class stzTable from stzList
 
 		ok
 
-		pcColName = ring_lower(pcColName)
+		pcColName = StzLower(pcColName)
 		n = StzFind( This.Header(), pcColName)
 		return n
 

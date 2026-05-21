@@ -35,7 +35,7 @@ class stzListDuplicates from stzList
 
 		if pCaseSensitive = 0
 			for i = 1 to nLen
-				acContent[i] = ring_lower(acContent[i])
+				acContent[i] = StzLower(acContent[i])
 			next
 		ok
 
@@ -192,7 +192,7 @@ class stzListDuplicates from stzList
 
 		if pCaseSensitive = 0
 			for i = 1 to nLen
-				acContent[i] = ring_lower(acContent[i])
+				acContent[i] = StzLower(acContent[i])
 			next
 		ok
 
@@ -247,7 +247,7 @@ class stzListDuplicates from stzList
 
 		if pCaseSensitive = 0
 			for i = 1 to nLen
-				acContent[i] = ring_lower(acContent[i])
+				acContent[i] = StzLower(acContent[i])
 			next
 		ok
 
@@ -291,7 +291,7 @@ class stzListDuplicates from stzList
 
 		if pCaseSensitive = 0
 			for i = 1 to nLen
-				acContent[i] = ring_lower(acContent[i])
+				acContent[i] = StzLower(acContent[i])
 			next
 		ok
 

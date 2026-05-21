@@ -76,11 +76,11 @@ class stzListFinder from stzList
 			nLen = len(acContent)
 
 			if pCaseSensitive = 0
-				cItem = ring_lower(cItem)
+				cItem = StzLower(cItem)
 
 				for i = 1 to nLen
 					if NOT ring_isLower(acContent[i])
-						acContent[i] = ring_lower(acContent[i])
+						acContent[i] = StzLower(acContent[i])
 					ok
 				next
 			ok

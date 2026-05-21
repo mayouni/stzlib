@@ -133,7 +133,7 @@ class stzEntity
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
-		pcProp = ring_lower(pcProp)
+		pcProp = StzLower(pcProp)
 
 		if HasKey(@aEntity, pcProp)
 			return @aEntity[pcProp]
@@ -170,7 +170,7 @@ class stzEntity
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
-		pcProp = ring_lower(pcProp)
+		pcProp = StzLower(pcProp)
 		if HasKey(@aEntity, pcProp)
 			@aEntity[pcProp] = pValue
 		else
@@ -191,7 +191,7 @@ class stzEntity
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
-		pcProp = ring_lower(pcProp)
+		pcProp = StzLower(pcProp)
 		if NOT HasKey(@aEntity, pcProp)
 			return 0
 		else
@@ -217,7 +217,7 @@ class stzEntity
 			StzRaise("Incorrect param type! pcProp must be a string.")
 		ok
 
-		pcProp = ring_lower(pcProp)
+		pcProp = StzLower(pcProp)
 		if HasKey(@aEntity, pcProp)
 			del(@aEntity, this.FindProperty(pcProp))
 		else
@@ -247,10 +247,10 @@ class stzEntity
 		return StzHashListQ( This.Content() ).Values()
 
 	def IsOfType(pcType)
-		return This.Type() = ring_lower(pcType)
+		return This.Type() = StzLower(pcType)
 
 	def HasName(pcName)
-		return This.Name() = ring_lower(pcName)
+		return This.Name() = StzLower(pcName)
 
 	def Copy()
 		return new stzEntity( This.Content() )
