@@ -52,13 +52,12 @@ class stzListClassifier from stzList
 		return aResult
 
 	def ClassifyBy(pcExpr)
-		aContent = This.Content()
-		nLen = len(aContent)
+		aKeys = This.Map("string(" + pcExpr + ")")
+		nLen = len(aKeys)
 		acSeen = []
 		aResult = []
 		for i = 1 to nLen
-			@item = aContent[i]
-			cValue = "" + eval(pcExpr)
+			cValue = "" + aKeys[i]
 			n = StzFind(acSeen, cValue)
 			if n = 0
 				acSeen + cValue

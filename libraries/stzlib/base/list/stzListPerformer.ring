@@ -19,24 +19,20 @@
 class stzListPerformer from stzList
 
 	def Perform(pcAction)
-		aContent = This.Content()
-		nLen = len(aContent)
-		_cCode_ = _StzStripBraces(pcAction)
-		for @i = 1 to nLen
-			eval(_cCode_)
-		next
+		@aContent = This.Map(pcAction)
 
 		def PerformQ(pcAction)
 			This.Perform(pcAction)
 			return This
 
 	def PerformOn(panPos, pcAction)
-		aContent = This.Content()
+		aAll = This.Map(pcAction)
 		nLen = len(panPos)
-		_cCode_ = _StzStripBraces(pcAction)
 		for i = 1 to nLen
-			@i = panPos[i]
-			eval(_cCode_)
+			nPos = panPos[i]
+			if nPos >= 1 and nPos <= len(@aContent)
+				@aContent[nPos] = aAll[nPos]
+			ok
 		next
 
 		def PerformOnQ(panPos, pcAction)
@@ -55,25 +51,20 @@ class stzListPerformer from stzList
 			return This
 
 	def Yield(pcYielder)
-		aContent = This.Content()
-		nLen = len(aContent)
-		_cCode_ = _StzStripBraces(pcYielder)
-		aResult = []
-		for @i = 1 to nLen
-			aResult + eval(_cCode_)
-		next
-		return aResult
+		return This.Map(pcYielder)
 
 		def YieldQ(pcYielder)
 			return new stzList(This.Yield(pcYielder))
 
 	def YieldOn(panPos, pcYielder)
+		aAll = This.Map(pcYielder)
 		nLen = len(panPos)
-		_cCode_ = _StzStripBraces(pcYielder)
 		aResult = []
 		for i = 1 to nLen
-			@i = panPos[i]
-			aResult + eval(_cCode_)
+			nPos = panPos[i]
+			if nPos >= 1 and nPos <= len(aAll)
+				aResult + aAll[nPos]
+			ok
 		next
 		return aResult
 
@@ -96,13 +87,7 @@ class stzListPerformer from stzList
 	#======================================================#
 
 	def PerformOnEachItemAndItsPosition(pcAction)
-		aContent = This.Content()
-		nLen = len(aContent)
-		_cCode_ = _StzStripBraces(pcAction)
-		for @i = 1 to nLen
-			@item = aContent[@i]
-			eval(_cCode_)
-		next
+		This.Perform(pcAction)
 
 		def PerformOnEachItemAndItsPositionQ(pcAction)
 			This.PerformOnEachItemAndItsPosition(pcAction)
@@ -113,12 +98,4 @@ class stzListPerformer from stzList
 	#======================================================#
 
 	def YieldPairs(pcYielder)
-		aContent = This.Content()
-		nLen = len(aContent)
-		_cCode_ = _StzStripBraces(pcYielder)
-		aResult = []
-		for @i = 1 to nLen
-			@item = aContent[@i]
-			aResult + eval(_cCode_)
-		next
-		return aResult
+		return This.Map(pcYielder)

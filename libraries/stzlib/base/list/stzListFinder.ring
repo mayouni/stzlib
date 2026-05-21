@@ -486,20 +486,7 @@ class stzListFinder from stzList
 			StzRaise("Incorrect param type! pcCondition must be a string.")
 		ok
 
-		aContent = This.Content()
-		nLen = len(aContent)
-		nCount = 0
-
-		for @i = 1 to nLen
-			@item = aContent[@i]
-			cCode = 'bOk = (' + pcCondition + ')'
-			eval(cCode)
-			if bOk
-				nCount++
-			ok
-		next
-
-		return nCount
+		return This.CountW(pcCondition)
 
 	  #==============================#
 	 #  CONTAINS                    #

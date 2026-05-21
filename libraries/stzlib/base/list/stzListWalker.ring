@@ -140,40 +140,33 @@ class stzListWalker from stzList
 	#=========================#
 
 	def WalkW(pcCondition)
-		aContent = This.Content()
-		nLen = len(aContent)
-		anResult = []
-
-		for @i = 1 to nLen
-			@item = aContent[@i]
-			cCode = 'bOk = (' + pcCondition + ')'
-			eval(cCode)
-			if bOk
-				anResult + @i
-			ok
-		next
-
-		return anResult
+		return This.FindAllItemsW(pcCondition)
 
 	  #==========================#
 	 #  WALKING UNTIL           #
 	#==========================#
 
 	def WalkUntil(pcCondition)
-		aContent = This.Content()
-		nLen = len(aContent)
+		pList = This._EngineListFromContent()
+		if pList = NULL return [] ok
+
+		pcCondition = _StzStripBraces(pcCondition)
+		nFirst = StzEngineListFindW(pList, pcCondition)
+		StzEngineListFree(pList)
+
+		if nFirst = 0
+			nLen = This.NumberOfItems()
+			anResult = []
+			for i = 1 to nLen
+				anResult + i
+			next
+			return anResult
+		ok
+
 		anResult = []
-
-		for @i = 1 to nLen
-			@item = aContent[@i]
-			cCode = 'bOk = (' + pcCondition + ')'
-			eval(cCode)
-			if bOk
-				exit
-			ok
-			anResult + @i
+		for i = 1 to nFirst - 1
+			anResult + i
 		next
-
 		return anResult
 
 	  #==========================#
@@ -181,20 +174,26 @@ class stzListWalker from stzList
 	#==========================#
 
 	def WalkWhile(pcCondition)
-		aContent = This.Content()
-		nLen = len(aContent)
+		pList = This._EngineListFromContent()
+		if pList = NULL return [] ok
+
+		cNegated = "not (" + _StzStripBraces(pcCondition) + ")"
+		nFirst = StzEngineListFindW(pList, cNegated)
+		StzEngineListFree(pList)
+
+		if nFirst = 0
+			nLen = This.NumberOfItems()
+			anResult = []
+			for i = 1 to nLen
+				anResult + i
+			next
+			return anResult
+		ok
+
 		anResult = []
-
-		for @i = 1 to nLen
-			@item = aContent[@i]
-			cCode = 'bOk = (' + pcCondition + ')'
-			eval(cCode)
-			if NOT bOk
-				exit
-			ok
-			anResult + @i
+		for i = 1 to nFirst - 1
+			anResult + i
 		next
-
 		return anResult
 
 	  #=================================#
@@ -293,19 +292,7 @@ class stzListWalker from stzList
 	#=================================#
 
 	def WalkAccumulating(pcExpr)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-		@Acc = 0
-
-		for @i = 1 to nLen
-			@item = aContent[@i]
-			cCode = '@Acc = (' + pcExpr + ')'
-			eval(cCode)
-			aResult + @Acc
-		next
-
-		return aResult
+		return This.Map(pcExpr)
 
 		def WalkAccumulate(pcExpr)
 			return This.WalkAccumulating(pcExpr)

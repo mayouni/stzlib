@@ -282,19 +282,8 @@ class stzListTrimmer from stzList
 	#======================================================#
 
 	def TrimW(pcCondition)
-		aContent = This.Content()
-		nLen = len(aContent)
-		aResult = []
-
-		for @i = 1 to nLen
-			@item = aContent[@i]
-			cCode = 'bRemove = (' + pcCondition + ')'
-			eval(cCode)
-			if NOT bRemove
-				aResult + aContent[@i]
-			ok
-		next
-
+		cNegated = "not (" + _StzStripBraces(pcCondition) + ")"
+		aResult = This.Filter(cNegated)
 		This.Update(aResult)
 
 		def TrimWQ(pcCondition)
