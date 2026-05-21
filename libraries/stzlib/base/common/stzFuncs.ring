@@ -3014,13 +3014,20 @@ func StzFindCS(pThing, paIn, pCaseSensitive)
 	return anPos
 
 func StzFind(pThing, paIn)
-	if isList(paIn) and Q(paIn).IsInNamedParam()
+	if isList(paIn) and len(paIn) = 2 and isString(paIn[1]) and paIn[1] = :in
 		paIn = paIn[2]
 	ok
 
-	anPos = Q(paIn).FindAll(pThing)
+	if isList(paIn)
+		nLen = len(paIn)
+		for _i = 1 to nLen
+			if paIn[_i] = pThing
+				return _i
+			ok
+		next
+	ok
 
-	return anPos
+	return 0
 
 #-----
 
@@ -4427,33 +4434,6 @@ func IsRingOrStzType(pcStr)
 	#-- #TODO // Add other alternatives (see IsRingType() and IsStzType() functions)
 
 
-func StzLen(p)
-	if isString(p)
-		# Engine-backed: count Unicode codepoints (not bytes)
-		pHandle = StzEngineString(p)
-		nCount = StzEngineStringCount(pHandle)
-		StzEngineStringFree(pHandle)
-		return nCount
-
-	but IsStzString(p)
-		return p.NumberOfChars()
-
-	but isList(p)
-		return len(p)
-
-	but IsStzList(p)
-		return p.NumberOfItems()
-
-	else
-		StzRaise("Unsupported parameter type!")
-	ok
-
-	func @StzLen(p)
-		return StzLen(p)
-
-	func @len(p)
-		return stzlen(p)
-
 func StzHowMany(paList)
 
 	if NOT isList(paList)
@@ -4789,7 +4769,7 @@ func new_stz(cType, p)
 
 	return oObject
 
-	func stzQ(cType, p)
+	func StzTypedQ(cType, p)
 		return stz(cType, p)
 
 	func stz@(cType, p)

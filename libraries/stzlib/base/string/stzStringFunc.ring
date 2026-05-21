@@ -2757,14 +2757,14 @@ func StzStringSection(str, n1, n2)
 	func StringSection(str, n1, n2)
 		return StzStringSection(str, n1, n2)
 
-func stzleft(str, n)
+func StzLeftOf(str, n)
 	if isList(str)
 		return ListSection(str, 1, n)
 	ok
 
 	return StringSection(str, 1, n)
 
-func stzRight(str, n)
+func StzRightOf(str, n)
 	if isList(str)
 		nLen = len(str)
 		return ListSection(str, nLen+1-n, n)

@@ -212,13 +212,11 @@
 	func StzListMergerXTQ(paList)
 		return new stzListMergerXT(paList)
 
-#
-============================================================
-#
-# GLOBAL FUNCTIONS (extracted from monolithic stzList.ring) #
-#
-============================================================
-#
+#============================================================#
+#                                                            #
+# GLOBAL FUNCTIONS (extracted from monolithic stzList.ring)  #
+#                                                            #
+#============================================================#
 
 func StzListQ(paList)
 	return new stzList(paList)

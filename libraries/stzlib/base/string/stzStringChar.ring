@@ -124,7 +124,7 @@ func StzCharQ(p)
 	func CQ(p)
 		return StzCharQ(p)
 
-func StzChar(n)
+func StzCharObj(n)
 	nMax = MaxUnicodeNumber()
 	if NOT ( isNumber(n) and n <= nMax )
 		StzRaise("Incorrect param type! p must be a number less then " + nMax + "!")
