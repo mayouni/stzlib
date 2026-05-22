@@ -82,9 +82,13 @@ pub fn shutdownGlobal() void {
     }
 }
 
-// ── Open / Close (internal) ────────────────────────────────────────
+pub fn setGlobalDbForTest(db: ?*StzUnicodeDb) void {
+    g_db = db;
+}
 
-fn openDb(path_ptr: [*]const u8, path_len: usize) ?*StzUnicodeDb {
+// ── Open / Close ──────────────────────────────────────────────────
+
+pub fn openDb(path_ptr: [*]const u8, path_len: usize) ?*StzUnicodeDb {
     const alloc = std.heap.c_allocator;
 
     const buf = alloc.alloc(u8, path_len + 1) catch return null;
@@ -112,7 +116,7 @@ fn openDb(path_ptr: [*]const u8, path_len: usize) ?*StzUnicodeDb {
     return udb;
 }
 
-fn closeDb(udb: *StzUnicodeDb) void {
+pub fn closeDb(udb: *StzUnicodeDb) void {
     if (udb.stmt_by_cp) |s| _ = c.sqlite3_finalize(s);
     if (udb.stmt_name_search) |s| _ = c.sqlite3_finalize(s);
     if (udb.stmt_block_range) |s| _ = c.sqlite3_finalize(s);

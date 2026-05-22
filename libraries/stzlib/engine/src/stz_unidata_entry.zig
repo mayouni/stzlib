@@ -2,7 +2,9 @@
 // The DLL auto-opens unicode.db on load via ringlib_init.
 // Ring never sees handles, paths, or init calls.
 pub const unicode_data = @import("unicode_data.zig");
+pub const ref_data = @import("ref_data.zig");
 pub const ring_bridge = @import("ring_bridge_unidata.zig");
+pub const ring_bridge_ref = @import("ring_bridge_refdata.zig");
 
 comptime {
     @export(&unicode_data.stz_unidata_char_name, .{ .name = "stz_unidata_char_name" });
@@ -17,4 +19,4 @@ comptime {
     @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }
 
-test { _ = unicode_data; }
+test { _ = unicode_data; _ = ref_data; }

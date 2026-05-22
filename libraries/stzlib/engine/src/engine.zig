@@ -28,6 +28,7 @@ pub const number = @import("number.zig");
 pub const list = @import("list.zig");
 pub const hashmap = @import("hashmap.zig");
 pub const unicode_data = @import("unicode_data.zig");
+pub const ref_data = @import("ref_data.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -432,6 +433,9 @@ comptime {
     @export(&unicode_data.stz_unidata_chars_in_range, .{ .name = "stz_unidata_chars_in_range" });
     @export(&unicode_data.stz_unidata_count, .{ .name = "stz_unidata_count" });
     @export(&unicode_data.stz_unidata_char_info, .{ .name = "stz_unidata_char_info" });
+
+    // ─── Reference Data (scripts, directions, categories, regex, words, etc.) ───
+    // Exports are declared directly in ref_data.zig via `pub export fn`
 }
 
 // Ring extension entry point (no-op -- we use CallCFunc for raw FFI)
@@ -463,4 +467,5 @@ test {
     _ = list;
     _ = hashmap;
     _ = unicode_data;
+    _ = ref_data;
 }
