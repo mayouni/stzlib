@@ -60,13 +60,13 @@ class stzStringEncoder
 		oHex = new stzString(cHex)
 		acChars = oHex.Chars()
 		nLen = len(acChars)
-		i = 1
-
-		while i <= nLen - 1
-			cByte = acChars[i] + acChars[i + 1]
+		_iHx = 1
+		for _kHx = 1 to nLen
+			if _iHx > nLen - 1 exit ok
+			cByte = acChars[_iHx] + acChars[_iHx + 1]
 			cResult += StzChar(dec(cByte))
-			i += 2
-		end
+			_iHx += 2
+		next
 
 		@oString.Update(cResult)
 
@@ -191,15 +191,16 @@ class stzStringEncoder
 			if nTemp = 0
 				cOct = "0"
 			else
-				while nTemp > 0
+				for _kOc = 1 to 32
+					if nTemp <= 0 exit ok
 					cOct = ("" + (nTemp % 8)) + cOct
 					nTemp = floor(nTemp / 8)
-				end
+				next
 			ok
-			# Pad to at least 3 digits
-			while StzLen(cOct) < 3
+			for _kPd = 1 to 3
+				if StzLen(cOct) >= 3 exit ok
 				cOct = "0" + cOct
-			end
+			next
 			cResult += cOct
 		next
 

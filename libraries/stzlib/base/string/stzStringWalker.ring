@@ -155,17 +155,18 @@ class stzStringWalker
 			nEnd = nLen
 		ok
 
-		i = nStart
-		while i <= nEnd
-			@char = @oString.NthChar(i)
-			@position = i
+		_iWay = nStart
+		for _kWay = 1 to nEnd
+			if _iWay > nEnd exit ok
+			@char = @oString.NthChar(_iWay)
+			@position = _iWay
 
 			cCode = pcCode
 			eval(cCode)
 			acResult + @char
 
-			i += nStep
-		end
+			_iWay += nStep
+		next
 
 		return acResult
 
@@ -201,10 +202,11 @@ class stzStringWalker
 			return acResult
 		ok
 
-		i = nStart
-		while i >= 1 and i <= nLen
-			acResult + @oString.NthChar(i)
-			i += nStep
-		end
+		_iCws = nStart
+		for _kCws = 1 to nLen
+			if _iCws < 1 or _iCws > nLen exit ok
+			acResult + @oString.NthChar(_iCws)
+			_iCws += nStep
+		next
 
 		return acResult
