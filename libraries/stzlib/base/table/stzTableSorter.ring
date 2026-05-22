@@ -195,13 +195,16 @@ class stzTableSorter from stzTable
 
 	def SortDownOn(pCol)
 
-		nCol = This.ColToColNumber(pCol)
-		aRowsSorted = new stzList(@SortOn( This.Rows(), nCol)).Reversed()
+		This.SortOn(pCol)
 
-		nLenRows = len(aRowsSorted)
+		nRows = This.NumberOfRows()
+		nHalf = nRows / 2
 
-		for i = 1 to nLenRows
-			This.ReplaceRow(i, aRowsSorted[i])
+		for i = 1 to nHalf
+			j = nRows - i + 1
+			aTemp = This.Row(i)
+			This.ReplaceRow(i, This.Row(j))
+			This.ReplaceRow(j, aTemp)
 		next
 
 		#< @FunctionFluentForm

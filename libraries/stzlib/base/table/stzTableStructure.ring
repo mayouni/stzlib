@@ -55,7 +55,7 @@ class stzTableStructure from stzTable
 			next
 		ok
 
-		This.Content() + pacColNameAndData
+		@aContent + pacColNameAndData
 
 		def AddCol(pacColNameAndData)
 			This.AddColumn(pacColNameAndData)
@@ -244,7 +244,7 @@ class stzTableStructure from stzTable
 			StzRaise("Incorrect param type! pcNewName must be a string.")
 		ok
 
-		This.Table()[n][1] = pcNewName
+		@aContent[n][1] = pcNewName
 
 		def RenameColN(n, pcNewName)
 			This.RenameNthCol(n, pcNewName)

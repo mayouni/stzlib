@@ -58,6 +58,39 @@ class stzListChecker from stzList
 
 		return 1
 
+		def AllItemsAreLists()
+			return This.IsListOfLists()
+
+		def ContainsOnlyLists()
+			return This.IsListOfLists()
+
+	def IsListOfListsOfSameSize()
+		_nLen_ = This.NumberOfItems()
+		if _nLen_ = 0
+			return 0
+		ok
+
+		_bResult_ = 0
+		if This.IsListOfLists()
+			_bSame_ = 1
+			aContent = This.Content()
+			for @i = 2 to _nLen_
+				if len(aContent[@i]) != len(aContent[@i-1])
+					_bSame_ = 0
+				ok
+			next
+			if _bSame_ = 1
+				_bResult_ = 1
+			ok
+		ok
+		return _bResult_
+
+		def ItemsAreListsOfSameSize()
+			return This.IsListOfListsOfSameSize()
+
+		def AllItemsAreListsOfSameSize()
+			return This.IsListOfListsOfSameSize()
+
 	def IsListOfObjects()
 		aContent = This.Content()
 		nLen = len(aContent)
@@ -465,3 +498,25 @@ class stzListChecker from stzList
 
 		def IsConsecutive()
 			return This.IsContinuous()
+
+	  #==============================#
+	 #  PAIR CHECKING               #
+	#==============================#
+
+	def IsPairOfNumbers()
+		aContent = This.Content()
+		nLen = len(aContent)
+		if nLen = 2 and isNumber(aContent[1]) and isNumber(aContent[2])
+			return 1
+		else
+			return 0
+		ok
+
+		def IsAPairOfNumbers()
+			return This.IsPairOfNumbers()
+
+		def ContainsOnlyPairOfNumbers()
+			return This.IsPairOfNumbers()
+
+		def ContainsOnlyAPairOfNumbers()
+			return This.IsPairOfNumbers()
