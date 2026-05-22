@@ -1578,6 +1578,46 @@ func 100PercentOf(p)
 		return 100PercentOf(p)
 
 
+  #=============================================#
+ #  ENGINE-BACKED GLOBAL NUMBER FUNCTIONS      #
+#=============================================#
+
+func StzIsPrime(n)
+	return StzEngineNumberIsPrime(n)
+
+func StzGCD(n1, n2)
+	return StzEngineNumberGcd(n1, n2)
+
+func StzLCM(n1, n2)
+	return StzEngineNumberLcm(n1, n2)
+
+func StzFactorial(n)
+	pBigInt = StzEngineNumberFactorial(n)
+	cResult = StzEngineBigIntToString(pBigInt)
+	StzEngineBigIntFree(pBigInt)
+	return cResult
+
+func StzFibonacci(n)
+	pBigInt = StzEngineNumberFibonacci(n)
+	cResult = StzEngineBigIntToString(pBigInt)
+	StzEngineBigIntFree(pBigInt)
+	return cResult
+
+func StzIsPerfectNumber(n)
+	return StzEngineNumberIsPerfect(n)
+
+func StzDigitCount(n)
+	return StzEngineNumberDigitCount(n)
+
+func StzDigitSum(n)
+	return StzEngineNumberDigitSum(n)
+
+func StzReverseDigits(n)
+	return StzEngineNumberReverseDigits(n)
+
+func StzIsDigitPalindrome(n)
+	return StzEngineNumberIsPalindrome(n)
+
   ///////////////////////////
  ///   STZNUMBER CLASS   ///
 ///////////////////////////
@@ -2410,7 +2450,7 @@ class stzNumber from stzObject
 
 	def IsPrime()
 		if This.IsInteger() and This.IsGreaterThan(1)
-			return ring_isPrime( This.NumericValue() )
+			return StzEngineNumberIsPrime( This.NumericValue() )
 		else
 			return 0
 		ok
@@ -4168,7 +4208,17 @@ class stzNumber from stzObject
 	# FACT
 
 	def Factorial()
-		return This.pvtCalculate( "fact", "" )
+		if NOT This.IsInteger()
+			StzRaise("Can't compute factorial of a non-integer!")
+		ok
+		n = This.NumericValue()
+		if n < 0
+			StzRaise("Can't compute factorial of a negative number!")
+		ok
+		pBigInt = StzEngineNumberFactorial(n)
+		cResult = StzEngineBigIntToString(pBigInt)
+		StzEngineBigIntFree(pBigInt)
+		return cResult
 
 		def FactorialQ()
 				return new stzNumber(This.Factorial())
@@ -6415,8 +6465,84 @@ class stzNumber from stzObject
 				return This.SwapWithQ(pOtherStzNumber)
 
 	def LCM(pOtherNumber)
-		return pvtCalculate("LCM", pOtherNumber)
+		if isString(pOtherNumber)
+			pOtherNumber = 0+ pOtherNumber
+		ok
+		return StzEngineNumberLcm(This.NumericValue(), pOtherNumber)
 
+	def GCD(pOtherNumber)
+		if isString(pOtherNumber)
+			pOtherNumber = 0+ pOtherNumber
+		ok
+		return StzEngineNumberGcd(This.NumericValue(), pOtherNumber)
+
+	  #=========================================#
+	 #  ENGINE-BACKED NUMBER OPERATIONS        #
+	#=========================================#
+
+	def IsPerfect()
+		if NOT This.IsInteger()
+			return 0
+		ok
+		return StzEngineNumberIsPerfect(This.NumericValue())
+
+		def IsPerfectNumber()
+			return This.IsPerfect()
+
+	def DigitCount()
+		if NOT This.IsInteger()
+			return len(This.IntegerPartValue())
+		ok
+		return StzEngineNumberDigitCount(This.NumericValue())
+
+		def NumberOfDigits()
+			return This.DigitCount()
+
+		def HowManyDigits()
+			return This.DigitCount()
+
+	def DigitSum()
+		if NOT This.IsInteger()
+			StzRaise("Can't compute digit sum of a non-integer!")
+		ok
+		return StzEngineNumberDigitSum(This.NumericValue())
+
+		def SumOfDigits()
+			return This.DigitSum()
+
+	def ReverseDigits()
+		if NOT This.IsInteger()
+			StzRaise("Can't reverse digits of a non-integer!")
+		ok
+		return StzEngineNumberReverseDigits(This.NumericValue())
+
+		def ReversedDigits()
+			return This.ReverseDigits()
+
+	def IsDigitPalindrome()
+		if NOT This.IsInteger()
+			return 0
+		ok
+		return StzEngineNumberIsPalindrome(This.NumericValue())
+
+		def IsPalindromeNumber()
+			return This.IsDigitPalindrome()
+
+	def Fibonacci()
+		if NOT This.IsInteger()
+			StzRaise("Can't compute Fibonacci of a non-integer!")
+		ok
+		n = This.NumericValue()
+		if n < 0
+			StzRaise("Can't compute Fibonacci of a negative number!")
+		ok
+		pBigInt = StzEngineNumberFibonacci(n)
+		cResult = StzEngineBigIntToString(pBigInt)
+		StzEngineBigIntFree(pBigInt)
+		return cResult
+
+		def FibonacciQ()
+			return new stzNumber(This.Fibonacci())
 
 	def Methods()
 		return ring_methods(This)
@@ -6587,10 +6713,10 @@ class stzNumber from stzObject
 			nResult = nSigmoid * ( 1 - nSigmoid)
 
 		on "LCM"
-			nResult = ring_LCM(n1, n2)
+			nResult = StzEngineNumberLcm(n1, n2)
 
 		on "GCD"
-			nResult = ring_GCD(n1, n2)
+			nResult = StzEngineNumberGcd(n1, n2)
 
 		on "inverse"
 			nResult = 1 / n1

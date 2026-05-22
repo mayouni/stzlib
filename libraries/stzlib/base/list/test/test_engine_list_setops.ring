@@ -3,6 +3,8 @@
 
 load "../../stzBase.ring"
 
+pr()
+
 ? "=== CommonItems (intersection) ==="
 oC = new stzListComparator([1, 2, 3, 4, 5])
 ? "  CommonItems [3,4,5,6,7]: " + @@(oC.CommonItems([3, 4, 5, 6, 7]))
@@ -50,3 +52,5 @@ oC = new stzListComparator([1, 2, 3, 4])
 
 ? ""
 ? "All set operation tests completed."
+
+pf()
