@@ -1,7 +1,6 @@
 # Test engine-backed sorting operations in stzListSorter
 # Run from base/list/test/: ring test_engine_list_sort.ring
 
-chdir("../../data")
 load "../../stzBase.ring"
 
 ? "=== Sort: Ascending ==="

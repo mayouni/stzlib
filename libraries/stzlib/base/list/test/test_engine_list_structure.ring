@@ -1,7 +1,6 @@
 # Test engine-backed structural operations: flatten, chunk, rotate, section
 # Run from base/list/test/: ring test_engine_list_structure.ring
 
-chdir("../../data")
 load "../../stzBase.ring"
 
 ? "=== Flatten ==="

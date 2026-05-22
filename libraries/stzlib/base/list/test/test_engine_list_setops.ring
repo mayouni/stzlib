@@ -1,7 +1,6 @@
 # Test engine-backed set operations in stzListComparator + stzListMerger
 # Run from base/list/test/: ring test_engine_list_setops.ring
 
-chdir("../../data")
 load "../../stzBase.ring"
 
 ? "=== CommonItems (intersection) ==="

@@ -1,7 +1,6 @@
 # Test engine-backed random/shuffle operations in stzListRandom
 # Run from base/list/test/: ring test_engine_list_random.ring
 
-chdir("../../data")
 load "../../stzBase.ring"
 
 ? "=== Shuffle ==="

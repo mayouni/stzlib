@@ -1,7 +1,6 @@
 # Test stzHashList operations (validates modularization)
 # Run from base/list/test/: ring test_engine_list_hashlist.ring
 
-chdir("../../data")
 load "../../stzBase.ring"
 
 ? "=== Init and Content ==="
