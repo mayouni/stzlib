@@ -1,5 +1,6 @@
 // Per-domain entry point for stz_table.dll
 pub const table = @import("table.zig");
+pub const pivot = @import("pivot.zig");
 pub const ring_bridge = @import("ring_bridge_table.zig");
 
 comptime {
@@ -41,10 +42,17 @@ comptime {
     @export(&table.stz_table_sub_table, .{ .name = "stz_table_sub_table" });
     @export(&table.stz_table_group_by, .{ .name = "stz_table_group_by" });
     @export(&table.stz_table_filter_rows, .{ .name = "stz_table_filter_rows" });
+
+    // ─── Pivot operations ───
+    @export(&pivot.stz_pivot_multi_group_by, .{ .name = "stz_pivot_multi_group_by" });
+    @export(&pivot.stz_pivot_cross_tab, .{ .name = "stz_pivot_cross_tab" });
 }
 
 comptime {
     @export(&ring_bridge.ringlib_init, .{ .name = "ringlib_init" });
 }
 
-test { _ = table; }
+test {
+    _ = table;
+    _ = pivot;
+}

@@ -1,5 +1,6 @@
 const std = @import("std");
 const table = @import("table.zig");
+const pivot = @import("pivot.zig");
 const value = @import("value.zig");
 const R = @import("ring_api.zig");
 
@@ -160,6 +161,39 @@ fn ring_FilterRows(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(table.stz_table_filter_rows(getTC(p, 1), @intFromFloat(g(p, 2)), getV(p, 3))), HT);
 }
 
+// Pivot: multi group by (table, col1, col2, value_col, agg_func)
+// Supports up to 4 group columns via overloaded ring functions
+fn ring_PivotGroupBy1(p: *anyopaque) callconv(.c) void {
+    const cols = [_]i64{@intFromFloat(g(p, 2))};
+    rcp(p, @ptrCast(pivot.stz_pivot_multi_group_by(getTC(p, 1), &cols, 1, @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)))), HT);
+}
+fn ring_PivotGroupBy2(p: *anyopaque) callconv(.c) void {
+    const cols = [_]i64{ @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)) };
+    rcp(p, @ptrCast(pivot.stz_pivot_multi_group_by(getTC(p, 1), &cols, 2, @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)))), HT);
+}
+fn ring_PivotGroupBy3(p: *anyopaque) callconv(.c) void {
+    const cols = [_]i64{ @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)) };
+    rcp(p, @ptrCast(pivot.stz_pivot_multi_group_by(getTC(p, 1), &cols, 3, @intFromFloat(g(p, 5)), @intFromFloat(g(p, 6)))), HT);
+}
+
+// Pivot: cross tab (table, row_col, col_col, value_col, agg_func, inc_row_total, inc_col_total)
+fn ring_PivotCrossTab1(p: *anyopaque) callconv(.c) void {
+    const rows = [_]i64{@intFromFloat(g(p, 2))};
+    rcp(p, @ptrCast(pivot.stz_pivot_cross_tab(
+        getTC(p, 1), &rows, 1,
+        @intFromFloat(g(p, 3)), @intFromFloat(g(p, 4)),
+        @intFromFloat(g(p, 5)), @intFromFloat(g(p, 6)), @intFromFloat(g(p, 7)),
+    )), HT);
+}
+fn ring_PivotCrossTab2(p: *anyopaque) callconv(.c) void {
+    const rows = [_]i64{ @intFromFloat(g(p, 2)), @intFromFloat(g(p, 3)) };
+    rcp(p, @ptrCast(pivot.stz_pivot_cross_tab(
+        getTC(p, 1), &rows, 2,
+        @intFromFloat(g(p, 4)), @intFromFloat(g(p, 5)),
+        @intFromFloat(g(p, 6)), @intFromFloat(g(p, 7)), @intFromFloat(g(p, 8)),
+    )), HT);
+}
+
 pub const regs = [_]R.Reg{
     .{ .name = "stzenginetablenew",           .func = &ring_New },
     .{ .name = "stzenginetablefree",          .func = &ring_Free },
@@ -196,6 +230,12 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginetableclone",         .func = &ring_Clone },
     .{ .name = "stzenginetablegroupby",       .func = &ring_GroupBy },
     .{ .name = "stzenginetablefilterrows",    .func = &ring_FilterRows },
+    // Pivot
+    .{ .name = "stzenginepivotgroupby1",     .func = &ring_PivotGroupBy1 },
+    .{ .name = "stzenginepivotgroupby2",     .func = &ring_PivotGroupBy2 },
+    .{ .name = "stzenginepivotgroupby3",     .func = &ring_PivotGroupBy3 },
+    .{ .name = "stzenginepivotcrosstab1",    .func = &ring_PivotCrossTab1 },
+    .{ .name = "stzenginepivotcrosstab2",    .func = &ring_PivotCrossTab2 },
 };
 
 pub fn ringlib_init(pRingState: ?*anyopaque) callconv(.c) void {
