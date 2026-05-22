@@ -425,9 +425,7 @@ comptime {
     @export(&hashmap.stz_hashmap_keys, .{ .name = "stz_hashmap_keys" });
     @export(&hashmap.stz_hashmap_merge, .{ .name = "stz_hashmap_merge" });
 
-    // ─── Unicode Data (SQLite-backed, pre-built DB) ───
-    @export(&unicode_data.stz_unidata_open, .{ .name = "stz_unidata_open" });
-    @export(&unicode_data.stz_unidata_close, .{ .name = "stz_unidata_close" });
+    // ─── Unicode Data (SQLite-backed, pre-built DB, auto-init) ───
     @export(&unicode_data.stz_unidata_char_name, .{ .name = "stz_unidata_char_name" });
     @export(&unicode_data.stz_unidata_char_category, .{ .name = "stz_unidata_char_category" });
     @export(&unicode_data.stz_unidata_find_by_name, .{ .name = "stz_unidata_find_by_name" });

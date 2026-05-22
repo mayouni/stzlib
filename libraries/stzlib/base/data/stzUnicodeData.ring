@@ -71,34 +71,26 @@ $nMaxUnicode = 1_114_112
 
 $nNumberOfLinesInUnicodeDataFile = 34_931
 
-# Engine-side SQLite Unicode data (pre-built unicode.db)
-StzEngineUnidataInit()
-
 # Engine-backed Unicode lookups (O(1) via SQLite indexed queries)
+# The engine manages the database internally -- Ring never sees it.
 
 func StzCharNameByUnicode(nCodepoint)
-    if $pStzUnidataDb = NULL return "" ok
-    return StzEngineUnidataCharName($pStzUnidataDb, nCodepoint)
+    return StzEngineUnidataCharName(nCodepoint)
 
 func StzCharCategoryByUnicode(nCodepoint)
-    if $pStzUnidataDb = NULL return "" ok
-    return StzEngineUnidataCharCategory($pStzUnidataDb, nCodepoint)
+    return StzEngineUnidataCharCategory(nCodepoint)
 
 func StzCharInfoByUnicode(nCodepoint)
-    if $pStzUnidataDb = NULL return "" ok
-    return StzEngineUnidataCharInfo($pStzUnidataDb, nCodepoint)
+    return StzEngineUnidataCharInfo(nCodepoint)
 
 func StzUnicodeFindByName(cPattern)
-    if $pStzUnidataDb = NULL return "" ok
-    return StzEngineUnidataFindByName($pStzUnidataDb, cPattern)
+    return StzEngineUnidataFindByName(cPattern)
 
 func StzUnicodeCharsInRange(nFrom, nTo)
-    if $pStzUnidataDb = NULL return "" ok
-    return StzEngineUnidataCharsInRange($pStzUnidataDb, nFrom, nTo)
+    return StzEngineUnidataCharsInRange(nFrom, nTo)
 
 func StzUnicodeCharCount()
-    if $pStzUnidataDb = NULL return 0 ok
-    return StzEngineUnidataCount($pStzUnidataDb)
+    return StzEngineUnidataCount()
 
 #TODO Read this discussion:
 # https://groups.google.com/g/ring-lang/c/yCGeILp49O4/m/FWC5XWpsAQAJ

@@ -1,4 +1,5 @@
 const std = @import("std");
+const builtin = @import("builtin");
 const c = @cImport({
     @cInclude("sqlite3.h");
 });
@@ -13,16 +14,82 @@ pub const StzUnicodeDb = struct {
     stmt_count: ?*c.sqlite3_stmt = null,
 };
 
-// ── Open / Close ────────────────────────────────────────────────────
+// Module-global singleton — opened once, used by all Ring bridge calls
+var g_db: ?*StzUnicodeDb = null;
 
-pub fn stz_unidata_open(path_ptr: ?[*]const u8, path_len: usize) callconv(.c) ?*StzUnicodeDb {
+pub fn getGlobalDb() ?*StzUnicodeDb {
+    return g_db;
+}
+
+// ── Auto-init: find unicode.db relative to DLL ─────────────────────
+
+const win = struct {
+    extern "kernel32" fn GetModuleHandleA(lpModuleName: ?[*:0]const u8) callconv(.winapi) ?*anyopaque;
+    extern "kernel32" fn GetModuleFileNameA(hModule: ?*anyopaque, lpFilename: [*]u8, nSize: u32) callconv(.winapi) u32;
+};
+
+fn findDbPath(out: *[1024]u8) ?[]u8 {
+    if (comptime builtin.os.tag == .windows) {
+        const hMod = win.GetModuleHandleA("stz_unidata");
+        var dll_path: [1024]u8 = undefined;
+        const len = win.GetModuleFileNameA(hMod, &dll_path, dll_path.len);
+        if (len == 0 or len >= dll_path.len) return null;
+
+        // Walk back to find the DLL directory
+        var last_sep: usize = 0;
+        for (dll_path[0..len], 0..) |ch, i| {
+            if (ch == '\\' or ch == '/') last_sep = i;
+        }
+        if (last_sep == 0) return null;
+
+        // DLL is in .../engine/zig-out/bin/ — DB is in .../engine/data/
+        // Walk up two levels from the DLL dir to get engine/
+        var ups: u8 = 0;
+        var pos = last_sep;
+        while (pos > 0 and ups < 2) {
+            pos -= 1;
+            if (dll_path[pos] == '\\' or dll_path[pos] == '/') ups += 1;
+        }
+        if (ups < 2) return null;
+
+        const base = dll_path[0 .. pos + 1];
+        const suffix = "data/unicode.db";
+        if (base.len + suffix.len >= out.len) return null;
+        @memcpy(out[0..base.len], base);
+        @memcpy(out[base.len .. base.len + suffix.len], suffix);
+        out[base.len + suffix.len] = 0;
+        return out[0 .. base.len + suffix.len];
+    } else {
+        // Linux/macOS: try relative to CWD as fallback
+        const fallback = "data/unicode.db";
+        @memcpy(out[0..fallback.len], fallback);
+        out[fallback.len] = 0;
+        return out[0..fallback.len];
+    }
+}
+
+pub fn initGlobal() void {
+    if (g_db != null) return;
+    var path_buf: [1024]u8 = undefined;
+    const path = findDbPath(&path_buf) orelse return;
+    g_db = openDb(path.ptr, path.len);
+}
+
+pub fn shutdownGlobal() void {
+    if (g_db) |db| {
+        closeDb(db);
+        g_db = null;
+    }
+}
+
+// ── Open / Close (internal) ────────────────────────────────────────
+
+fn openDb(path_ptr: [*]const u8, path_len: usize) ?*StzUnicodeDb {
     const alloc = std.heap.c_allocator;
-
-    if (path_ptr == null or path_len == 0) return null;
 
     const buf = alloc.alloc(u8, path_len + 1) catch return null;
     defer alloc.free(buf);
-    @memcpy(buf[0..path_len], path_ptr.?[0..path_len]);
+    @memcpy(buf[0..path_len], path_ptr[0..path_len]);
     buf[path_len] = 0;
 
     var db: ?*c.sqlite3 = null;
@@ -45,15 +112,25 @@ pub fn stz_unidata_open(path_ptr: ?[*]const u8, path_len: usize) callconv(.c) ?*
     return udb;
 }
 
+fn closeDb(udb: *StzUnicodeDb) void {
+    if (udb.stmt_by_cp) |s| _ = c.sqlite3_finalize(s);
+    if (udb.stmt_name_search) |s| _ = c.sqlite3_finalize(s);
+    if (udb.stmt_block_range) |s| _ = c.sqlite3_finalize(s);
+    if (udb.stmt_by_category) |s| _ = c.sqlite3_finalize(s);
+    if (udb.stmt_count) |s| _ = c.sqlite3_finalize(s);
+    _ = c.sqlite3_close(udb.db);
+    std.heap.c_allocator.destroy(udb);
+}
+
+// ── Public C ABI kept for static lib / direct Zig linking ──────────
+
+pub fn stz_unidata_open(path_ptr: ?[*]const u8, path_len: usize) callconv(.c) ?*StzUnicodeDb {
+    if (path_ptr == null or path_len == 0) return null;
+    return openDb(path_ptr.?, path_len);
+}
+
 pub fn stz_unidata_close(udb: ?*StzUnicodeDb) callconv(.c) void {
-    const db = udb orelse return;
-    if (db.stmt_by_cp) |s| _ = c.sqlite3_finalize(s);
-    if (db.stmt_name_search) |s| _ = c.sqlite3_finalize(s);
-    if (db.stmt_block_range) |s| _ = c.sqlite3_finalize(s);
-    if (db.stmt_by_category) |s| _ = c.sqlite3_finalize(s);
-    if (db.stmt_count) |s| _ = c.sqlite3_finalize(s);
-    _ = c.sqlite3_close(db.db);
-    std.heap.c_allocator.destroy(db);
+    if (udb) |db| closeDb(db);
 }
 
 // ── Query: char name by codepoint ──────────────────────────────────
@@ -265,19 +342,20 @@ pub fn stz_unidata_char_info(udb: ?*StzUnicodeDb, codepoint: i32, buf: [*]u8, bu
 
 fn openTestDb() ?*StzUnicodeDb {
     const db_path = "data/unicode.db";
-    return stz_unidata_open(db_path.ptr, db_path.len);
+    return openDb(db_path.ptr, db_path.len);
 }
 
 test "open pre-built database" {
     const db = openTestDb();
     if (db == null) return;
+    defer closeDb(db.?);
     const count = stz_unidata_count(db);
     try std.testing.expect(count > 34000);
-    stz_unidata_close(db);
 }
 
 test "char name and category lookup" {
     const db = openTestDb() orelse return;
+    defer closeDb(db);
 
     var name_buf: [64]u8 = undefined;
     const name_len = stz_unidata_char_name(db, 0x41, &name_buf, name_buf.len);
@@ -289,36 +367,33 @@ test "char name and category lookup" {
 
     const cat_len2 = stz_unidata_char_category(db, 0x30, &cat_buf, cat_buf.len);
     try std.testing.expectEqualStrings("Nd", cat_buf[0..cat_len2]);
-
-    stz_unidata_close(db);
 }
 
 test "search by name" {
     const db = openTestDb() orelse return;
+    defer closeDb(db);
 
     var search_buf: [4096]u8 = undefined;
     const search_len = stz_unidata_find_by_name(db, "EURO", 4, &search_buf, search_buf.len);
     try std.testing.expect(search_len > 0);
     const result = search_buf[0..search_len];
     try std.testing.expect(std.mem.indexOf(u8, result, "EURO SIGN") != null);
-
-    stz_unidata_close(db);
 }
 
 test "char info full record" {
     const db = openTestDb() orelse return;
+    defer closeDb(db);
 
     var buf: [256]u8 = undefined;
     const len = stz_unidata_char_info(db, 0x41, &buf, buf.len);
     try std.testing.expect(len > 0);
     const info = buf[0..len];
     try std.testing.expect(std.mem.indexOf(u8, info, "LATIN CAPITAL LETTER A") != null);
-
-    stz_unidata_close(db);
 }
 
 test "chars in range" {
     const db = openTestDb() orelse return;
+    defer closeDb(db);
 
     var buf: [4096]u8 = undefined;
     const len = stz_unidata_chars_in_range(db, 0x41, 0x43, &buf, buf.len);
@@ -326,6 +401,4 @@ test "chars in range" {
     try std.testing.expect(std.mem.indexOf(u8, result, "LETTER A") != null);
     try std.testing.expect(std.mem.indexOf(u8, result, "LETTER B") != null);
     try std.testing.expect(std.mem.indexOf(u8, result, "LETTER C") != null);
-
-    stz_unidata_close(db);
 }
