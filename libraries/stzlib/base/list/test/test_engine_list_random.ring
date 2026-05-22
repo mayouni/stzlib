@@ -1,7 +1,8 @@
 # Test engine-backed random/shuffle operations in stzListRandom
-# Run from base/data/: ring ../list/test/test_engine_random.ring
+# Run from base/list/test/: ring test_engine_list_random.ring
 
-load "../stzBase.ring"
+chdir("../../data")
+load "../../stzBase.ring"
 
 ? "=== Shuffle ==="
 oRand = new stzListRandom([1, 2, 3, 4, 5])

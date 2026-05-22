@@ -1,7 +1,8 @@
 # Test engine-backed find/search operations in stzList + stzListFinder
-# Run from base/data/: ring ../list/test/test_engine_find.ring
+# Run from base/list/test/: ring test_engine_list_find.ring
 
-load "../stzBase.ring"
+chdir("../../data")
+load "../../stzBase.ring"
 
 ? "=== FindCS: case sensitive ==="
 o = new stzList(["hello", "Hello", "HELLO", "hello"])

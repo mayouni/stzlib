@@ -1,7 +1,8 @@
 # Test engine-backed set operations in stzListComparator + stzListMerger
-# Run from base/data/: ring ../list/test/test_engine_setops.ring
+# Run from base/list/test/: ring test_engine_list_setops.ring
 
-load "../stzBase.ring"
+chdir("../../data")
+load "../../stzBase.ring"
 
 ? "=== CommonItems (intersection) ==="
 oC = new stzListComparator([1, 2, 3, 4, 5])
