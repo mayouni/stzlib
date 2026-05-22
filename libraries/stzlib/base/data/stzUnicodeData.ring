@@ -71,13 +71,49 @@ $nMaxUnicode = 1_114_112
 
 $nNumberOfLinesInUnicodeDataFile = 34_931
 
-if Haskey($aStzLibConfig, :UnicodeDataPath) and $aStzLibConfig[:UnicodeDataPath] != ""
-    $cUnicodeDataPath = $aStzLibConfig[:UnicodeDataPath]
-else
-    $cUnicodeDataPath = "../data/unicodedata.txt"
-ok
+# Engine-side SQLite Unicode data (replaces text file loading)
+StzEngineUnidataInit()
 
-$cUnicodeData = read($cUnicodeDataPath)
+$cUnicodeData = ""
+$bUnicodeDataLoaded = 0
+
+func _EnsureUnicodeDataLoaded()
+    if $bUnicodeDataLoaded return ok
+    if Haskey($aStzLibConfig, :UnicodeDataPath) and $aStzLibConfig[:UnicodeDataPath] != ""
+        $cUnicodeDataPath = $aStzLibConfig[:UnicodeDataPath]
+    else
+        $cUnicodeDataPath = "../data/unicodedata.txt"
+    ok
+    if fexists($cUnicodeDataPath)
+        $cUnicodeData = read($cUnicodeDataPath)
+    ok
+    $bUnicodeDataLoaded = 1
+
+# Engine-backed Unicode lookups (O(1) via SQLite indexed queries)
+
+func StzCharNameByUnicode(nCodepoint)
+    if $pStzUnidataDb = NULL return "" ok
+    return StzEngineUnidataCharName($pStzUnidataDb, nCodepoint)
+
+func StzCharCategoryByUnicode(nCodepoint)
+    if $pStzUnidataDb = NULL return "" ok
+    return StzEngineUnidataCharCategory($pStzUnidataDb, nCodepoint)
+
+func StzCharInfoByUnicode(nCodepoint)
+    if $pStzUnidataDb = NULL return "" ok
+    return StzEngineUnidataCharInfo($pStzUnidataDb, nCodepoint)
+
+func StzUnicodeFindByName(cPattern)
+    if $pStzUnidataDb = NULL return "" ok
+    return StzEngineUnidataFindByName($pStzUnidataDb, cPattern)
+
+func StzUnicodeCharsInRange(nFrom, nTo)
+    if $pStzUnidataDb = NULL return "" ok
+    return StzEngineUnidataCharsInRange($pStzUnidataDb, nFrom, nTo)
+
+func StzUnicodeCharCount()
+    if $pStzUnidataDb = NULL return 0 ok
+    return StzEngineUnidataCount($pStzUnidataDb)
 
 #TODO Read this discussion:
 # https://groups.google.com/g/ring-lang/c/yCGeILp49O4/m/FWC5XWpsAQAJ
@@ -442,6 +478,7 @@ func UnicodeBoxChars()
 	return UnicodesToChars($anUnicodesOfBoxCharsdeBlocksXT)
 
 func UnicodeData()
+	_EnsureUnicodeDataLoaded()
 	return $cUnicodeData
 	
 	func StzUnicodeDataQ()
