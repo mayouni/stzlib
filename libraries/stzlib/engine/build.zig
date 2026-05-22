@@ -6,6 +6,7 @@ const Domain = struct {
     needs_utf8proc: bool = false,
     needs_pcre2: bool = false,
     needs_ring: bool = false,
+    needs_sqlite: bool = false,
 };
 
 // Core (stk_*): minimal, fast, constrained environments
@@ -33,6 +34,7 @@ const base_domains = [_]Domain{
     .{ .name = "stz_number", .entry = "src/stz_number_entry.zig", .needs_ring = true },
     .{ .name = "stz_list", .entry = "src/stz_list_entry.zig", .needs_ring = true },
     .{ .name = "stz_hashmap", .entry = "src/stz_hashmap_entry.zig", .needs_ring = true },
+    .{ .name = "stz_unidata", .entry = "src/stz_unidata_entry.zig", .needs_sqlite = true, .needs_ring = true },
 };
 
 fn addUtf8proc(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
@@ -97,6 +99,18 @@ fn addRing(mod: *std.Build.Module, lib: *std.Build.Step.Compile) void {
     lib.linkSystemLibrary("ring");
 }
 
+fn addSqlite(mod: *std.Build.Module, lib: *std.Build.Step.Compile, b: *std.Build) void {
+    mod.addIncludePath(b.path("vendor/sqlite"));
+    lib.addCSourceFiles(.{
+        .files = &.{"vendor/sqlite/sqlite3.c"},
+        .flags = &.{
+            "-DSQLITE_THREADSAFE=1",
+            "-DSQLITE_OMIT_LOAD_EXTENSION",
+            "-DSQLITE_DQS=0",
+        },
+    });
+}
+
 pub fn build(b: *std.Build) void {
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
@@ -117,6 +131,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_utf8proc) addUtf8proc(mod, lib, b);
         if (dom.needs_pcre2) addPcre2(mod, lib, b);
         if (dom.needs_ring) addRing(mod, lib);
+        if (dom.needs_sqlite) addSqlite(mod, lib, b);
         b.installArtifact(lib);
     }
 
@@ -136,6 +151,7 @@ pub fn build(b: *std.Build) void {
         if (dom.needs_utf8proc) addUtf8proc(mod, lib, b);
         if (dom.needs_pcre2) addPcre2(mod, lib, b);
         if (dom.needs_ring) addRing(mod, lib);
+        if (dom.needs_sqlite) addSqlite(mod, lib, b);
         b.installArtifact(lib);
     }
 
@@ -153,6 +169,7 @@ pub fn build(b: *std.Build) void {
     });
     addUtf8proc(static_mod, static_lib, b);
     addPcre2(static_mod, static_lib, b);
+    addSqlite(static_mod, static_lib, b);
     b.installArtifact(static_lib);
 
     // Tests run through engine.zig (covers all modules)
@@ -165,6 +182,7 @@ pub fn build(b: *std.Build) void {
     const tests = b.addTest(.{ .root_module = test_mod });
     addUtf8proc(test_mod, tests, b);
     addPcre2(test_mod, tests, b);
+    addSqlite(test_mod, tests, b);
     const run_tests = b.addRunArtifact(tests);
     const test_step = b.step("test", "Run Softanza Engine tests");
     test_step.dependOn(&run_tests.step);

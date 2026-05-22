@@ -27,6 +27,7 @@ pub const value = @import("value.zig");
 pub const number = @import("number.zig");
 pub const list = @import("list.zig");
 pub const hashmap = @import("hashmap.zig");
+pub const unicode_data = @import("unicode_data.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -423,6 +424,18 @@ comptime {
     @export(&hashmap.stz_hashmap_clone, .{ .name = "stz_hashmap_clone" });
     @export(&hashmap.stz_hashmap_keys, .{ .name = "stz_hashmap_keys" });
     @export(&hashmap.stz_hashmap_merge, .{ .name = "stz_hashmap_merge" });
+
+    // ─── Unicode Data (SQLite-backed) ───
+    @export(&unicode_data.stz_unidata_open, .{ .name = "stz_unidata_open" });
+    @export(&unicode_data.stz_unidata_close, .{ .name = "stz_unidata_close" });
+    @export(&unicode_data.stz_unidata_import, .{ .name = "stz_unidata_import" });
+    @export(&unicode_data.stz_unidata_import_file, .{ .name = "stz_unidata_import_file" });
+    @export(&unicode_data.stz_unidata_char_name, .{ .name = "stz_unidata_char_name" });
+    @export(&unicode_data.stz_unidata_char_category, .{ .name = "stz_unidata_char_category" });
+    @export(&unicode_data.stz_unidata_find_by_name, .{ .name = "stz_unidata_find_by_name" });
+    @export(&unicode_data.stz_unidata_chars_in_range, .{ .name = "stz_unidata_chars_in_range" });
+    @export(&unicode_data.stz_unidata_count, .{ .name = "stz_unidata_count" });
+    @export(&unicode_data.stz_unidata_char_info, .{ .name = "stz_unidata_char_info" });
 }
 
 // Ring extension entry point (no-op -- we use CallCFunc for raw FFI)
@@ -453,4 +466,5 @@ test {
     _ = number;
     _ = list;
     _ = hashmap;
+    _ = unicode_data;
 }
