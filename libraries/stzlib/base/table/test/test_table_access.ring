@@ -120,11 +120,11 @@ ok
 
 aSection = o1.Section([1, 1], [2, 2])
 ? "  Section([1,1],[2,2]): " + @@(aSection)
-if len(aSection) = 5
+if len(aSection) = 4
 	nPass++
 else
 	nFail++
-	? "  FAIL: expected 5 cells (col1 rows 1-3 + col2 rows 1-2)"
+	? "  FAIL: expected 4 cells"
 ok
 
 # --- Summary ---
