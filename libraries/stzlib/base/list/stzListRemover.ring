@@ -29,20 +29,28 @@ class stzListRemover from stzList
 			ok
 		ok
 
-		anPos = This.FindAllCS(pItem, pCaseSensitive)
-		nLenPos = len(anPos)
-
-		if nLenPos > 0
+		if isString(pItem)
 			_pRmList = This._EngineListFromContent()
 			if _pRmList != NULL
-				for _iRm = nLenPos to 1 step -1
-					StzEngineListRemove(_pRmList, anPos[_iRm])
-				next
-				@aContent = This._ContentFromEngineList(_pRmList)
+				_pRmVal = StzEngineValueNewString(pItem)
+				if _pRmVal != NULL
+					_nCsRm = 1
+					if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+						_nCsRm = pCaseSensitive[2]
+					but isNumber(pCaseSensitive)
+						_nCsRm = pCaseSensitive
+					ok
+					StzEngineListRemoveAllCS(_pRmList, _pRmVal, _nCsRm)
+					@aContent = This._ContentFromEngineList(_pRmList)
+					StzEngineValueFree(_pRmVal)
+				ok
 				StzEngineListFree(_pRmList)
 				return
 			ok
 		ok
+
+		anPos = This.FindAllCS(pItem, pCaseSensitive)
+		nLenPos = len(anPos)
 
 		_oCopy_ = This.Copy()
 

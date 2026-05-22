@@ -49,6 +49,28 @@ class stzListReplacer from stzList
 			ok
 		ok
 
+		if isString(pItem) and isString(pNewItem)
+			_pRpAll = This._EngineListFromContent()
+			if _pRpAll != NULL
+				_pOldVal = StzEngineValueNewString(pItem)
+				_pNewVal = StzEngineValueNewString(pNewItem)
+				if _pOldVal != NULL and _pNewVal != NULL
+					_nCsRp = 1
+					if isList(pCaseSensitive) and IsCaseSensitiveNamedParamList(pCaseSensitive)
+						_nCsRp = pCaseSensitive[2]
+					but isNumber(pCaseSensitive)
+						_nCsRp = pCaseSensitive
+					ok
+					StzEngineListReplaceAllCS(_pRpAll, _pOldVal, _pNewVal, _nCsRp)
+					@aContent = This._ContentFromEngineList(_pRpAll)
+				ok
+				if _pOldVal != NULL StzEngineValueFree(_pOldVal) ok
+				if _pNewVal != NULL StzEngineValueFree(_pNewVal) ok
+				StzEngineListFree(_pRpAll)
+				return
+			ok
+		ok
+
 		anPos = This.FindAllCS(pItem, pCaseSensitive)
 		nLen = len(anPos)
 

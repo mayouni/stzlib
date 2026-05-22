@@ -191,6 +191,43 @@ pub fn stz_list_remove(list: ?*StzList, index: usize) callconv(.c) i32 {
     return 0;
 }
 
+pub fn stz_list_remove_all_cs(list: ?*StzList, v: ?*const StzValue, case_sensitive: i32) callconv(.c) i32 {
+    const l = list orelse return -1;
+    const needle = v orelse return -1;
+    const cs = case_sensitive != 0;
+    var i: usize = 0;
+    var removed: i32 = 0;
+    while (i < l.items.items.len) {
+        if (valueEqlCS(l.items.items[i], needle, cs)) {
+            const item = l.items.orderedRemove(i);
+            item.deinit();
+            allocator.destroy(item);
+            removed += 1;
+        } else {
+            i += 1;
+        }
+    }
+    return removed;
+}
+
+pub fn stz_list_replace_all_cs(list: ?*StzList, old_v: ?*const StzValue, new_v: ?*const StzValue, case_sensitive: i32) callconv(.c) i32 {
+    const l = list orelse return -1;
+    const needle = old_v orelse return -1;
+    const replacement = new_v orelse return -1;
+    const cs = case_sensitive != 0;
+    var replaced: i32 = 0;
+    for (l.items.items) |item| {
+        if (valueEqlCS(item, needle, cs)) {
+            const cloned = replacement.clone() catch return -1;
+            item.deinit();
+            item.* = cloned.*;
+            allocator.destroy(cloned);
+            replaced += 1;
+        }
+    }
+    return replaced;
+}
+
 // ─── C ABI: Get ───
 
 pub fn stz_list_get(list: ?*const StzList, index: usize) callconv(.c) ?*const StzValue {
@@ -3320,4 +3357,87 @@ test "flatten to depth 1" {
     try std.testing.expectEqual(@as(usize, 1), sub.len());
     try std.testing.expectEqual(@as(i64, 3), stz_list_get_int(sub, 0));
     try std.testing.expectEqual(@as(i64, 4), stz_list_get_int(flat, 3));
+}
+
+test "remove_all_cs removes all matching items" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "x", 1);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "x", 1);
+    _ = stz_list_append_string(l, "b", 1);
+    _ = stz_list_append_string(l, "x", 1);
+
+    const needle = value_mod.stz_value_new_string("x", 1) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(needle);
+
+    const removed = stz_list_remove_all_cs(l, needle, 1);
+    try std.testing.expectEqual(@as(i32, 3), removed);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(l));
+    var buf: [64]u8 = undefined;
+    var n = stz_list_get_string(l, 0, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "a"));
+    n = stz_list_get_string(l, 1, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "b"));
+}
+
+test "remove_all_cs no match returns 0" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "a", 1);
+    _ = stz_list_append_string(l, "b", 1);
+
+    const needle = value_mod.stz_value_new_string("z", 1) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(needle);
+
+    const removed = stz_list_remove_all_cs(l, needle, 1);
+    try std.testing.expectEqual(@as(i32, 0), removed);
+    try std.testing.expectEqual(@as(usize, 2), stz_list_len(l));
+}
+
+test "replace_all_cs replaces all matching items" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "old", 3);
+    _ = stz_list_append_string(l, "keep", 4);
+    _ = stz_list_append_string(l, "old", 3);
+
+    const old_v = value_mod.stz_value_new_string("old", 3) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(old_v);
+    const new_v = value_mod.stz_value_new_string("new", 3) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(new_v);
+
+    const replaced = stz_list_replace_all_cs(l, old_v, new_v, 1);
+    try std.testing.expectEqual(@as(i32, 2), replaced);
+    try std.testing.expectEqual(@as(usize, 3), stz_list_len(l));
+    var buf: [64]u8 = undefined;
+    var n = stz_list_get_string(l, 0, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "new"));
+    n = stz_list_get_string(l, 1, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "keep"));
+    n = stz_list_get_string(l, 2, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "new"));
+}
+
+test "replace_all_cs case insensitive" {
+    const l = stz_list_new() orelse return error.AllocFailed;
+    defer stz_list_free(l);
+    _ = stz_list_append_string(l, "Hello", 5);
+    _ = stz_list_append_string(l, "world", 5);
+    _ = stz_list_append_string(l, "HELLO", 5);
+
+    const old_v = value_mod.stz_value_new_string("hello", 5) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(old_v);
+    const new_v = value_mod.stz_value_new_string("hi", 2) orelse return error.AllocFailed;
+    defer value_mod.stz_value_free(new_v);
+
+    const replaced = stz_list_replace_all_cs(l, old_v, new_v, 0);
+    try std.testing.expectEqual(@as(i32, 2), replaced);
+    var buf: [64]u8 = undefined;
+    var n = stz_list_get_string(l, 0, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "hi"));
+    n = stz_list_get_string(l, 1, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "world"));
+    n = stz_list_get_string(l, 2, &buf, 64);
+    try std.testing.expect(std.mem.eql(u8, buf[0..n], "hi"));
 }
