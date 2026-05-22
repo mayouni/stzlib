@@ -64,13 +64,13 @@ Class stzTable from stzList
 		:TopRight = "â•®",
 		:BottomLeft = "â•°",
 		:BottomRight = "â•¯",
-		:Horizontal = "â"€",
-		:Vertical = "â"‚",
-		:TeeRight = "â"œ",
-		:TeeLeft = "â"¤",
-		:TeeDown = "â"¬",
-		:TeeUp = "â"´",
-		:Cross = "â"¼"
+		:Horizontal = "â”€",
+		:Vertical = "â”‚",
+		:TeeRight = "â”œ",
+		:TeeLeft = "â”¤",
+		:TeeDown = "â”¬",
+		:TeeUp = "â”´",
+		:Cross = "â”¼"
 	]
 
 	# Attributes used by the Transpose() method
