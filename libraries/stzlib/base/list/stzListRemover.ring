@@ -32,6 +32,18 @@ class stzListRemover from stzList
 		anPos = This.FindAllCS(pItem, pCaseSensitive)
 		nLenPos = len(anPos)
 
+		if nLenPos > 0
+			_pRmList = This._EngineListFromContent()
+			if _pRmList != NULL
+				for _iRm = nLenPos to 1 step -1
+					StzEngineListRemove(_pRmList, anPos[_iRm])
+				next
+				@aContent = This._ContentFromEngineList(_pRmList)
+				StzEngineListFree(_pRmList)
+				return
+			ok
+		ok
+
 		_oCopy_ = This.Copy()
 
 		for i = nLenPos to 1 step -1
@@ -85,6 +97,14 @@ class stzListRemover from stzList
 		ok
 
 		if n <= This.NumberOfItems()
+			_pRipList = This._EngineListFromContent()
+			if _pRipList != NULL
+				StzEngineListRemove(_pRipList, n)
+				@aContent = This._ContentFromEngineList(_pRipList)
+				StzEngineListFree(_pRipList)
+				return
+			ok
+
 			aContent = This.Content()
 			ring_del( aContent, n )
 			This.UpdateWith(aContent)

@@ -190,6 +190,14 @@ class stzListInserter from stzList
 			StzRaise("Incorrect param types! n1 and n2 must be numbers.")
 		ok
 
+		_pSwpList = This._EngineListFromContent()
+		if _pSwpList != NULL
+			StzEngineListSwap(_pSwpList, n1, n2)
+			@aContent = This._ContentFromEngineList(_pSwpList)
+			StzEngineListFree(_pSwpList)
+			return
+		ok
+
 		aContent = This.Content()
 		temp = aContent[n1]
 		aContent[n1] = aContent[n2]
