@@ -590,26 +590,7 @@ class stzList from stzObject
 	#   Returns a C pointer to a StzList, or NULL on failure.
 
 	def _EngineListFromContent()
-		pList = StzEngineListNew()
-		if pList = NULL
-			return NULL
-		ok
-
-		nLen = len(@aContent)
-		for i = 1 to nLen
-			item = @aContent[i]
-			if isNumber(item)
-				if floor(item) = item
-					StzEngineListAppendInt(pList, item)
-				else
-					StzEngineListAppendFloat(pList, item)
-				ok
-			but isString(item)
-				StzEngineListAppendString(pList, item)
-			ok
-		next
-
-		return pList
+		return StzEngineMarshalList(@aContent)
 
 	#-- Reads engine list contents back into a Ring list
 
