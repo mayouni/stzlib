@@ -30,6 +30,7 @@ pub const hashmap = @import("hashmap.zig");
 pub const unicode_data = @import("unicode_data.zig");
 pub const ref_data = @import("ref_data.zig");
 pub const table = @import("table.zig");
+pub const pivot = @import("pivot.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -470,4 +471,5 @@ test {
     _ = unicode_data;
     _ = ref_data;
     _ = table;
+    _ = pivot;
 }
