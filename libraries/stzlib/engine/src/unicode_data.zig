@@ -3,6 +3,8 @@ const c = @cImport({
     @cInclude("sqlite3.h");
 });
 
+const embedded_unicode_data = @embedFile("unicodedata.txt");
+
 pub const StzUnicodeDb = struct {
     db: *c.sqlite3,
 
@@ -87,6 +89,11 @@ pub fn stz_unidata_open(path_ptr: ?[*]const u8, path_len: usize) callconv(.c) ?*
         .stmt_by_category = null,
         .stmt_count = null,
     };
+
+    // Auto-populate from embedded data when opening in-memory
+    if (path_ptr == null or path_len == 0) {
+        _ = stz_unidata_import(udb, embedded_unicode_data.ptr, embedded_unicode_data.len);
+    }
 
     return udb;
 }
@@ -440,47 +447,45 @@ pub fn stz_unidata_char_info(udb: ?*StzUnicodeDb, codepoint: i32, buf: [*]u8, bu
 
 // ── Tests ──────────────────────────────────────────────────────────
 
-test "open in-memory db" {
+test "open with embedded data auto-populated" {
     const db = stz_unidata_open(null, 0);
     try std.testing.expect(db != null);
+    const count = stz_unidata_count(db);
+    try std.testing.expect(count > 34000);
     stz_unidata_close(db);
 }
 
-test "import and query" {
+test "char name and category lookup" {
     const db = stz_unidata_open(null, 0) orelse return error.SkipZigTest;
 
-    const sample =
-        "0041;LATIN CAPITAL LETTER A;Lu;0;L;;;;;N;;;;0061;\n" ++
-        "0042;LATIN CAPITAL LETTER B;Lu;0;L;;;;;N;;;;0062;\n" ++
-        "0061;LATIN SMALL LETTER A;Ll;0;L;;;;;N;;;0041;;0041\n" ++
-        "0062;LATIN SMALL LETTER B;Ll;0;L;;;;;N;;;0042;;0042\n";
-
-    const count = stz_unidata_import(db, sample.ptr, sample.len);
-    try std.testing.expectEqual(@as(i32, 4), count);
-
-    // Query count
-    try std.testing.expectEqual(@as(i32, 4), stz_unidata_count(db));
-
-    // Query char name
     var name_buf: [64]u8 = undefined;
     const name_len = stz_unidata_char_name(db, 0x41, &name_buf, name_buf.len);
     try std.testing.expectEqualStrings("LATIN CAPITAL LETTER A", name_buf[0..name_len]);
 
-    // Search by name
-    var search_buf: [1024]u8 = undefined;
-    const search_len = stz_unidata_find_by_name(db, "SMALL", 5, &search_buf, search_buf.len);
+    var cat_buf: [16]u8 = undefined;
+    const cat_len = stz_unidata_char_category(db, 0x41, &cat_buf, cat_buf.len);
+    try std.testing.expectEqualStrings("Lu", cat_buf[0..cat_len]);
+
+    const cat_len2 = stz_unidata_char_category(db, 0x30, &cat_buf, cat_buf.len);
+    try std.testing.expectEqualStrings("Nd", cat_buf[0..cat_len2]);
+
+    stz_unidata_close(db);
+}
+
+test "search by name" {
+    const db = stz_unidata_open(null, 0) orelse return error.SkipZigTest;
+
+    var search_buf: [4096]u8 = undefined;
+    const search_len = stz_unidata_find_by_name(db, "EURO", 4, &search_buf, search_buf.len);
     try std.testing.expect(search_len > 0);
-    const search_result = search_buf[0..search_len];
-    try std.testing.expect(std.mem.indexOf(u8, search_result, "LATIN SMALL LETTER A") != null);
+    const result = search_buf[0..search_len];
+    try std.testing.expect(std.mem.indexOf(u8, result, "EURO SIGN") != null);
 
     stz_unidata_close(db);
 }
 
 test "char info full record" {
     const db = stz_unidata_open(null, 0) orelse return error.SkipZigTest;
-
-    const sample = "0041;LATIN CAPITAL LETTER A;Lu;0;L;;;;;N;;;;0061;\n";
-    _ = stz_unidata_import(db, sample.ptr, sample.len);
 
     var buf: [256]u8 = undefined;
     const len = stz_unidata_char_info(db, 0x41, &buf, buf.len);
@@ -494,18 +499,12 @@ test "char info full record" {
 test "chars in range" {
     const db = stz_unidata_open(null, 0) orelse return error.SkipZigTest;
 
-    const sample =
-        "0041;LATIN CAPITAL LETTER A;Lu;0;L;;;;;N;;;;0061;\n" ++
-        "0042;LATIN CAPITAL LETTER B;Lu;0;L;;;;;N;;;;0062;\n" ++
-        "0043;LATIN CAPITAL LETTER C;Lu;0;L;;;;;N;;;;0063;\n";
-    _ = stz_unidata_import(db, sample.ptr, sample.len);
-
-    var buf: [1024]u8 = undefined;
-    const len = stz_unidata_chars_in_range(db, 0x41, 0x42, &buf, buf.len);
+    var buf: [4096]u8 = undefined;
+    const len = stz_unidata_chars_in_range(db, 0x41, 0x43, &buf, buf.len);
     const result = buf[0..len];
     try std.testing.expect(std.mem.indexOf(u8, result, "LETTER A") != null);
     try std.testing.expect(std.mem.indexOf(u8, result, "LETTER B") != null);
-    try std.testing.expect(std.mem.indexOf(u8, result, "LETTER C") == null);
+    try std.testing.expect(std.mem.indexOf(u8, result, "LETTER C") != null);
 
     stz_unidata_close(db);
 }

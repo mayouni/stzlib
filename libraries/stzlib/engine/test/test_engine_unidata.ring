@@ -1,4 +1,4 @@
-# Test engine-backed SQLite Unicode data store
+# Test engine-backed SQLite Unicode data store (embedded data)
 # Run from engine/test/: D:\Ring126\bin\ring.exe test_engine_unidata.ring
 
 # Find and load the stz_unidata DLL
@@ -9,7 +9,7 @@ if cDll = ""
 ok
 pHandle = LoadLib(cDll)
 
-? "=== Unicode Data: Open in-memory ==="
+? "=== Unicode Data: Open (auto-populated from embedded data) ==="
 pDb = StzEngineUnidataOpen("")
 if pDb = NULL
     ? "FAIL: could not open in-memory database"
@@ -18,18 +18,7 @@ ok
 ? "  Opened in-memory database: OK"
 
 ? ""
-? "=== Unicode Data: Import from file ==="
-cDataFile = _stzFindDataFile("unicodedata.txt")
-if cDataFile = ""
-    ? "SKIP: unicodedata.txt not found"
-else
-    nCount = StzEngineUnidataImportFile(pDb, cDataFile)
-    ? "  Imported " + nCount + " characters"
-    # Expected: ~34000+
-ok
-
-? ""
-? "=== Unicode Data: Count ==="
+? "=== Unicode Data: Count (should be 34939 from embedded data) ==="
 nTotal = StzEngineUnidataCount(pDb)
 ? "  Total characters: " + nTotal
 
@@ -96,37 +85,6 @@ func _stzFindDll(cDllName)
     cDir = cNorm
     for depth = 1 to 10
         cTry = cDir + "/zig-out/bin/" + cDllName
-        if fexists(cTry)
-            return cTry
-        ok
-        nLast = 0
-        for j = len(cDir) to 1 step -1
-            if cDir[j] = "/"
-                nLast = j
-                exit
-            ok
-        next
-        if nLast < 2
-            exit
-        ok
-        cDir = left(cDir, nLast - 1)
-    next
-    return ""
-
-func _stzFindDataFile(cFileName)
-    cDir = currentdir()
-    nLen = len(cDir)
-    cNorm = ""
-    for i = 1 to nLen
-        if cDir[i] = "\"
-            cNorm += "/"
-        else
-            cNorm += cDir[i]
-        ok
-    next
-    cDir = cNorm
-    for depth = 1 to 10
-        cTry = cDir + "/data/" + cFileName
         if fexists(cTry)
             return cTry
         ok

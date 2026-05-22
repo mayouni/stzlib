@@ -27,11 +27,6 @@ func StzEngineUnidataInit()
     if $pStzUnidataDb != NULL return ok
     if $pStzUnidataHandle = NULL return ok
     $pStzUnidataDb = StzEngineUnidataOpen("")
-    if $pStzUnidataDb = NULL return ok
-    cDataFile = $cEngineDir + "/data/unicodedata.txt"
-    if fexists(cDataFile)
-        StzEngineUnidataImportFile($pStzUnidataDb, cDataFile)
-    ok
 
 func StzEngineUnidataShutdown()
     if $pStzUnidataDb != NULL
