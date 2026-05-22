@@ -133,6 +133,34 @@ else
 	? "  FAIL: expected [3, 2, 1]"
 ok
 
+? ""
+? "=== Engine Delegation: ReplaceAll ==="
+
+o10 = new stzListReplacer(["x", "a", "x", "b", "x"])
+o10.ReplaceAll("x", "Z")
+aResult10 = o10.Content()
+? "  ReplaceAll('x','Z'): " + @@(aResult10)
+if len(aResult10) = 5 and aResult10[1] = "Z" and aResult10[3] = "Z" and aResult10[5] = "Z" and aResult10[2] = "a"
+	nPass++
+else
+	nFail++
+	? "  FAIL: expected [Z, a, Z, b, Z]"
+ok
+
+? ""
+? "=== Engine Delegation: RemoveAll no match ==="
+
+o11 = new stzListRemover(["a", "b", "c"])
+o11.RemoveAll("z")
+aResult11 = o11.Content()
+? "  RemoveAll('z') on [a,b,c]: " + @@(aResult11)
+if len(aResult11) = 3
+	nPass++
+else
+	nFail++
+	? "  FAIL: expected no change"
+ok
+
 # --- Summary ---
 ? ""
 ? "================================="

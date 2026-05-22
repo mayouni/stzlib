@@ -12,6 +12,8 @@ comptime {
     @export(&list.stz_list_append_value, .{ .name = "stz_list_append_value" });
     @export(&list.stz_list_insert, .{ .name = "stz_list_insert" });
     @export(&list.stz_list_remove, .{ .name = "stz_list_remove" });
+    @export(&list.stz_list_remove_all_cs, .{ .name = "stz_list_remove_all_cs" });
+    @export(&list.stz_list_replace_all_cs, .{ .name = "stz_list_replace_all_cs" });
     @export(&list.stz_list_get, .{ .name = "stz_list_get" });
     @export(&list.stz_list_get_int, .{ .name = "stz_list_get_int" });
     @export(&list.stz_list_get_float, .{ .name = "stz_list_get_float" });

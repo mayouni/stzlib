@@ -72,6 +72,16 @@ fn ring_Remove(p: *anyopaque) callconv(.c) void {
     rn(p, @floatFromInt(list.stz_list_remove(getL(p, 1), adjusted)));
 }
 
+// RemoveAllCS(list, value, caseSensitive) -> count removed
+fn ring_RemoveAllCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_remove_all_cs(getL(p, 1), getV(p, 2), @intFromFloat(g(p, 3)))));
+}
+
+// ReplaceAllCS(list, oldValue, newValue, caseSensitive) -> count replaced
+fn ring_ReplaceAllCS(p: *anyopaque) callconv(.c) void {
+    rn(p, @floatFromInt(list.stz_list_replace_all_cs(getL(p, 1), getV(p, 2), getV(p, 3), @intFromFloat(g(p, 4)))));
+}
+
 // Get (INDEX_BASE=1: subtract 1)
 fn ring_Get(p: *anyopaque) callconv(.c) void {
     const idx: usize = @intFromFloat(g(p, 2));
@@ -529,6 +539,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistappendvalue", .func = &ring_AppendValue },
     .{ .name = "stzenginelistinsert", .func = &ring_Insert },
     .{ .name = "stzenginelistremove", .func = &ring_Remove },
+    .{ .name = "stzenginelistremoveallcs", .func = &ring_RemoveAllCS },
+    .{ .name = "stzenginelistreplaceallcs", .func = &ring_ReplaceAllCS },
     .{ .name = "stzenginelistget", .func = &ring_Get },
     .{ .name = "stzenginelistgetint", .func = &ring_GetInt },
     .{ .name = "stzenginelistgetfloat", .func = &ring_GetFloat },
