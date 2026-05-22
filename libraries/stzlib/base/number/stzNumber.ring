@@ -6495,9 +6495,6 @@ class stzNumber from stzObject
 		ok
 		return StzEngineNumberDigitCount(This.NumericValue())
 
-		def NumberOfDigits()
-			return This.DigitCount()
-
 		def HowManyDigits()
 			return This.DigitCount()
 

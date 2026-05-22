@@ -1,4 +1,4 @@
-# Dynamic Pivot Table Display System
+﻿# Dynamic Pivot Table Display System
 # This system provides a configurable and automatically adjusting
 # display framework for pivot tables with interdependent dimensions
 
