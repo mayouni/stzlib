@@ -1,7 +1,8 @@
 # Test stzHashList operations (validates modularization)
-# Run from base/data/: ring ../list/test/test_engine_hashlist.ring
+# Run from base/list/test/: ring test_engine_list_hashlist.ring
 
-load "../stzBase.ring"
+chdir("../../data")
+load "../../stzBase.ring"
 
 ? "=== Init and Content ==="
 o = new stzHashList([ :name = "mansour", :age = 44, :job = "programmer" ])

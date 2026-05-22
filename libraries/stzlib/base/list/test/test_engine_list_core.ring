@@ -1,7 +1,8 @@
 # Test engine-backed core operations: marshaling, type detection, item access
-# Run from base/data/: ring ../list/test/test_engine_core.ring
+# Run from base/list/test/: ring test_engine_list_core.ring
 
-load "../stzBase.ring"
+chdir("../../data")
+load "../../stzBase.ring"
 
 ? "=== Core: Init and Content ==="
 o = new stzList([1, 2, 3])

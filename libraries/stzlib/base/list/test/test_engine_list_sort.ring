@@ -1,7 +1,8 @@
 # Test engine-backed sorting operations in stzListSorter
-# Run from base/data/: ring ../list/test/test_engine_sort.ring
+# Run from base/list/test/: ring test_engine_list_sort.ring
 
-load "../stzBase.ring"
+chdir("../../data")
+load "../../stzBase.ring"
 
 ? "=== Sort: Ascending ==="
 o = new stzList([3, 1, 4, 1, 5, 9, 2])

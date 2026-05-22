@@ -1,7 +1,8 @@
 # Test engine-backed structural operations: flatten, chunk, rotate, section
-# Run from base/data/: ring ../list/test/test_engine_structure.ring
+# Run from base/list/test/: ring test_engine_list_structure.ring
 
-load "../stzBase.ring"
+chdir("../../data")
+load "../../stzBase.ring"
 
 ? "=== Flatten ==="
 o = new stzList([1, [2, 3], 4, [5, 6]])
