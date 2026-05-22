@@ -203,7 +203,6 @@ class stzPivotTable from stzList
 	#-----------------------------#
 
 	def Generate()
-		# Generate the pivot table based on configuration
 		if len(@aRowLabels) = 0
 			stzRaise("You must specify at least one row label")
 		ok
@@ -213,31 +212,127 @@ class stzPivotTable from stzList
 		if len(@aValues) = 0
 			stzRaise("You must specify at least one value column")
 		ok
-		
-		# Clear cache
+
 		@aCellCache = []
-		
-		# Validate source table
+
 		if NOT isObject(@oSourceTable)
 			stzRaise("Source table is not properly initialized")
 		ok
-		
-		# Get unique combinations for rows and columns
+
+		# Engine fast path: delegate crossTab to Zig engine
+		if _CanUseEngine()
+			_GenerateViaEngine()
+			return
+		ok
+
+		# Ring fallback
 		aUniqueRowCombos = _getUniqueCombinations(@aRowLabels)
 		aUniqueColCombos = _getUniqueCombinations(@aColLabels)
-		
-		# Create header structure for the pivot table
+
 		@aPivotData = [ @Flatten(_createHeaderStructure(aUniqueColCombos)) ]
-		
-		# Generate data rows
+
 		_generateDataRows(aUniqueRowCombos, aUniqueColCombos)
-		
-		# Add total row if configured
+
 		if @bShowTotalRow
 			_addTotalRow()
 		ok
 
-		# Create result table
+		@oResultTable = new stzTable(@aPivotData)
+		@bIsGenerated = TRUE
+
+	  #-----------------------------------------#
+	 #  ENGINE-BACKED PIVOT (ZIG FAST PATH)   #
+	#-----------------------------------------#
+
+	def _CanUseEngine()
+		if len(@aColLabels) != 1
+			return FALSE
+		ok
+		if len(@aRowLabels) < 1 or len(@aRowLabels) > 2
+			return FALSE
+		ok
+		if len(@aValues) != 1
+			return FALSE
+		ok
+		return TRUE
+
+	def _AggFuncToInt()
+		_cFn = StzLower(@cAggFunc)
+		if _cFn = "sum"      return 0 ok
+		if _cFn = "count"    return 1 ok
+		if _cFn = "average"  return 2 ok
+		if _cFn = "min"      return 3 ok
+		if _cFn = "max"      return 4 ok
+		if _cFn = "product"  return 5 ok
+		if _cFn = "stdev"    return 6 ok
+		if _cFn = "variance" return 7 ok
+		if _cFn = "median"   return 8 ok
+		return 0
+
+	def _GenerateViaEngine()
+		_pSrcHandle = @oSourceTable.EngineHandle()
+
+		_nAggInt = _AggFuncToInt()
+
+		_nRowCol1 = @oSourceTable.FindCol(@aRowLabels[1]) - 1
+		_nColCol  = @oSourceTable.FindCol(@aColLabels[1]) - 1
+		_nValCol  = @oSourceTable.FindCol(@aValues[1]) - 1
+
+		_nIncRowTotal = 0
+		if @bShowTotalColumn _nIncRowTotal = 1 ok
+		_nIncColTotal = 0
+		if @bShowTotalRow _nIncColTotal = 1 ok
+
+		_nRowLabels = len(@aRowLabels)
+
+		if _nRowLabels = 1
+			_pResult = StzEnginePivotCrossTab1(
+				_pSrcHandle, _nRowCol1,
+				_nColCol, _nValCol, _nAggInt,
+				_nIncRowTotal, _nIncColTotal
+			)
+		else
+			_nRowCol2 = @oSourceTable.FindCol(@aRowLabels[2]) - 1
+			_pResult = StzEnginePivotCrossTab2(
+				_pSrcHandle, _nRowCol1, _nRowCol2,
+				_nColCol, _nValCol, _nAggInt,
+				_nIncRowTotal, _nIncColTotal
+			)
+		ok
+
+		if _pResult = NULL
+			stzRaise("Engine pivot failed!")
+		ok
+
+		_nResCols = StzEngineTableNumCols(_pResult)
+		_nResRows = StzEngineTableNumRows(_pResult)
+
+		_aHeader = []
+		for _iP = 1 to _nResCols
+			_aHeader + StzEngineTableColName(_pResult, _iP - 1)
+		next
+
+		@aPivotData = [_aHeader]
+
+		for _rP = 1 to _nResRows
+			_aRow = []
+			for _cP = 1 to _nResCols
+				_nType = StzEngineTableGetCellType(_pResult, _cP - 1, _rP - 1)
+				if _nType = 2
+					_aRow + StzEngineTableGetCellInt(_pResult, _cP - 1, _rP - 1)
+				but _nType = 3
+					_aRow + StzEngineTableGetCellFloat(_pResult, _cP - 1, _rP - 1)
+				but _nType = 4
+					_aRow + StzEngineTableGetCellString(_pResult, _cP - 1, _rP - 1)
+				else
+					_aRow + ""
+				ok
+			next
+			@aPivotData + _aRow
+		next
+
+		StzEngineTableFree(_pResult)
+
 		@oResultTable = new stzTable(@aPivotData)
 		@bIsGenerated = TRUE
 
