@@ -1,7 +1,8 @@
-# Softanza Engine -- Unicode Data Ring Bridge
+# Softanza Engine -- Unicode Data
 #
-# Loads stz_unidata.dll (SQLite-backed Unicode character database).
-# Opens the pre-built unicode.db shipped with the engine.
+# Loads stz_unidata.dll which auto-opens the pre-built unicode.db
+# on DLL load. Ring functions take no handle -- the engine manages
+# the database internally, like utf8proc manages its own tables.
 #
 # Used by: base/common/stzUnicodeData.ring
 # Function prefix: StzEngineUnidata*
@@ -20,21 +21,3 @@ else
     ? "WARNING: stz_unidata not found at: " + $cStzUnidataLib
     $pStzUnidataHandle = NULL
 ok
-
-$cStzUnidataDbPath = $cEngineDir + "/data/unicode.db"
-$pStzUnidataDb = NULL
-
-func StzEngineUnidataInit()
-    if $pStzUnidataDb != NULL return ok
-    if $pStzUnidataHandle = NULL return ok
-    if not fexists($cStzUnidataDbPath)
-        ? "WARNING: unicode.db not found at: " + $cStzUnidataDbPath
-        return
-    ok
-    $pStzUnidataDb = StzEngineUnidataOpen($cStzUnidataDbPath)
-
-func StzEngineUnidataShutdown()
-    if $pStzUnidataDb != NULL
-        StzEngineUnidataClose($pStzUnidataDb)
-        $pStzUnidataDb = NULL
-    ok
