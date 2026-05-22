@@ -1,7 +1,6 @@
 # Test engine-backed duplicate operations in stzListDuplicates + stzListChecker
 # Run from base/list/test/: ring test_engine_list_duplicates.ring
 
-chdir("../../data")
 load "../../stzBase.ring"
 
 ? "=== FindDuplicates ==="

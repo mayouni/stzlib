@@ -1,7 +1,6 @@
 # Test engine-backed core operations: marshaling, type detection, item access
 # Run from base/list/test/: ring test_engine_list_core.ring
 
-chdir("../../data")
 load "../../stzBase.ring"
 
 ? "=== Core: Init and Content ==="

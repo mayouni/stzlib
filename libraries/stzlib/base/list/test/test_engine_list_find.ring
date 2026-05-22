@@ -1,7 +1,6 @@
 # Test engine-backed find/search operations in stzList + stzListFinder
 # Run from base/list/test/: ring test_engine_list_find.ring
 
-chdir("../../data")
 load "../../stzBase.ring"
 
 ? "=== FindCS: case sensitive ==="
