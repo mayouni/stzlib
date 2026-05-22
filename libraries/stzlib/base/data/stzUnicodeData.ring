@@ -71,23 +71,8 @@ $nMaxUnicode = 1_114_112
 
 $nNumberOfLinesInUnicodeDataFile = 34_931
 
-# Engine-side SQLite Unicode data (replaces text file loading)
+# Engine-side SQLite Unicode data (pre-built unicode.db)
 StzEngineUnidataInit()
-
-$cUnicodeData = ""
-$bUnicodeDataLoaded = 0
-
-func _EnsureUnicodeDataLoaded()
-    if $bUnicodeDataLoaded return ok
-    if Haskey($aStzLibConfig, :UnicodeDataPath) and $aStzLibConfig[:UnicodeDataPath] != ""
-        $cUnicodeDataPath = $aStzLibConfig[:UnicodeDataPath]
-    else
-        $cUnicodeDataPath = "../data/unicodedata.txt"
-    ok
-    if fexists($cUnicodeDataPath)
-        $cUnicodeData = read($cUnicodeDataPath)
-    ok
-    $bUnicodeDataLoaded = 1
 
 # Engine-backed Unicode lookups (O(1) via SQLite indexed queries)
 
@@ -478,8 +463,8 @@ func UnicodeBoxChars()
 	return UnicodesToChars($anUnicodesOfBoxCharsdeBlocksXT)
 
 func UnicodeData()
-	_EnsureUnicodeDataLoaded()
-	return $cUnicodeData
+	# Deprecated: use StzCharNameByUnicode() and StzUnicodeFindByName() instead
+	return ""
 	
 	func StzUnicodeDataQ()
 		return new stzUnicodeData()
