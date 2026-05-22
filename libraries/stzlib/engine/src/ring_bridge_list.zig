@@ -203,6 +203,82 @@ fn ring_FindW(p: *anyopaque) callconv(.c) void {
     const result = list.stz_list_find_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)));
     rn(p, if (result >= 0) @as(f64, @floatFromInt(result + 1)) else 0);
 }
+fn ring_FindAllCS(p: *anyopaque) callconv(.c) void {
+    var positions: [65536]i64 = undefined;
+    const count = list.stz_list_find_all_cs(getLC(p, 1), getV(p, 2), @intFromFloat(g(p, 3)), &positions, 65536);
+    if (count == 0) {
+        rs(p, "");
+        return;
+    }
+    var buf: [65536 * 12]u8 = undefined;
+    var pos: usize = 0;
+    for (0..count) |ci| {
+        const val_1based = positions[ci] + 1;
+        const slice = std.fmt.bufPrint(buf[pos..], "{d}", .{val_1based}) catch break;
+        pos += slice.len;
+        if (ci + 1 < count) {
+            buf[pos] = ',';
+            pos += 1;
+        }
+    }
+    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+}
+fn ring_FindAllStringCS(p: *anyopaque) callconv(.c) void {
+    const l = getLC(p, 1) orelse {
+        rcp(p, @as(?*anyopaque, null), HL);
+        return;
+    };
+    const needle_ptr = gs(p, 2);
+    const needle_len: usize = @intCast(gss(p, 2));
+    const cs: i32 = @intFromFloat(g(p, 3));
+    const needle_val = value.stz_value_new_string(needle_ptr, needle_len) orelse {
+        rcp(p, @as(?*anyopaque, null), HL);
+        return;
+    };
+    defer value.stz_value_free(needle_val);
+    var positions: [65536]i64 = undefined;
+    const count = list.stz_list_find_all_cs(l, needle_val, cs, &positions, 65536);
+    const result = list.StzList.init() catch {
+        rcp(p, @as(?*anyopaque, null), HL);
+        return;
+    };
+    for (0..count) |ci| {
+        _ = list.stz_list_append_int(result, positions[ci] + 1);
+    }
+    rcp(p, @ptrCast(result), HL);
+}
+
+fn ring_CountStringCS(p: *anyopaque) callconv(.c) void {
+    const l = getLC(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    const needle_ptr = gs(p, 2);
+    const needle_len: usize = @intCast(gss(p, 2));
+    const cs: i32 = @intFromFloat(g(p, 3));
+    const needle_val = value.stz_value_new_string(needle_ptr, needle_len) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer value.stz_value_free(needle_val);
+    rn(p, @floatFromInt(list.stz_list_count_cs(l, needle_val, cs)));
+}
+fn ring_ContainsStringCS(p: *anyopaque) callconv(.c) void {
+    const l = getLC(p, 1) orelse {
+        rn(p, 0);
+        return;
+    };
+    const needle_ptr = gs(p, 2);
+    const needle_len: usize = @intCast(gss(p, 2));
+    const cs: i32 = @intFromFloat(g(p, 3));
+    const needle_val = value.stz_value_new_string(needle_ptr, needle_len) orelse {
+        rn(p, 0);
+        return;
+    };
+    defer value.stz_value_free(needle_val);
+    rn(p, @floatFromInt(list.stz_list_contains_cs(l, needle_val, cs)));
+}
+
 fn ring_FindAllW(p: *anyopaque) callconv(.c) void {
     var positions: [65536]i64 = undefined;
     const count = list.stz_list_find_all_w(getLC(p, 1), gs(p, 2), @intCast(gss(p, 2)), &positions, 65536);
@@ -455,6 +531,10 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginelistfilterexpr", .func = &ring_FilterExpr },
     .{ .name = "stzenginelistreduceexpr", .func = &ring_ReduceExpr },
     .{ .name = "stzenginelistreduceexprnoinit", .func = &ring_ReduceExprNoInit },
+    .{ .name = "stzenginelistfindallcs", .func = &ring_FindAllCS },
+    .{ .name = "stzenginelistfindallstringcs", .func = &ring_FindAllStringCS },
+    .{ .name = "stzenginelistcountstringcs", .func = &ring_CountStringCS },
+    .{ .name = "stzenginelistcontainsstringcs", .func = &ring_ContainsStringCS },
     .{ .name = "stzenginelistfindw", .func = &ring_FindW },
     .{ .name = "stzenginelistfindallw", .func = &ring_FindAllW },
     .{ .name = "stzenginelistcountw", .func = &ring_CountW },

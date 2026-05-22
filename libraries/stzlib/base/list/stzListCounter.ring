@@ -187,6 +187,15 @@ class stzListCounter from stzList
 	#======================================================#
 
 	def CountCS(pItem, pCaseSensitive)
+		if isString(pItem)
+			_pCntList = This._EngineListFromContent()
+			if _pCntList != NULL
+				_nCntResult = StzEngineListCountStringCS(_pCntList, pItem, pCaseSensitive)
+				StzEngineListFree(_pCntList)
+				return _nCntResult
+			ok
+		ok
+
 		aContent = This.Content()
 		nLen = len(aContent)
 		nCount = 0
