@@ -22,7 +22,7 @@ pf()
 # Executed in almost 0 second(s) in Ring 1.24
 
 /*---
-*
+
 pr()
 
 # Test case
@@ -5272,7 +5272,7 @@ pf()
 # Executed in 0.24 second(s) in Ring 1.17
 
 /*----------------- #narration #perf #ring
-*/
+
 pr()
 
 # Constructing the large list
@@ -5439,7 +5439,7 @@ pf()
 # Executed in 0.04 second(s) in Ring 1.20
 
 /*------------ #perf
-
+*/
 StartProfiler()
 
 # Fabricating a large list of strings (more then 150K items)
