@@ -1,4 +1,4 @@
-# Test stzTable data access (Col, Row, Cell, Section) via core methods
+# Test stzTable column/row/cell access submodules
 # Run from base/table/test/: D:\Ring126\bin\ring.exe test_table_access.ring
 
 load "../../stzBase.ring"
@@ -114,17 +114,17 @@ else
 	? "  FAIL: expected 9"
 ok
 
-# --- Rows ---
+# --- Section ---
 ? ""
-? "=== Rows ==="
+? "=== Section ==="
 
-aRows = o1.Rows()
-? "  Rows() count: " + len(aRows)
-if len(aRows) = 3
+aSection = o1.Section([1, 1], [2, 2])
+? "  Section([1,1],[2,2]): " + @@(aSection)
+if len(aSection) = 4
 	nPass++
 else
 	nFail++
-	? "  FAIL: expected 3"
+	? "  FAIL: expected 4 cells"
 ok
 
 # --- Summary ---

@@ -29,6 +29,7 @@ pub const list = @import("list.zig");
 pub const hashmap = @import("hashmap.zig");
 pub const unicode_data = @import("unicode_data.zig");
 pub const ref_data = @import("ref_data.zig");
+pub const table = @import("table.zig");
 
 // Re-export C ABI symbols
 comptime {
@@ -468,4 +469,5 @@ test {
     _ = hashmap;
     _ = unicode_data;
     _ = ref_data;
+    _ = table;
 }
