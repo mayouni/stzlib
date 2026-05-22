@@ -113,8 +113,25 @@ class stzTableSearch from stzTable
 	#--------------------------------------------------#
 
 	def FindCellCS(pCellValue, pCaseSensitive)
+		if isString(pCellValue)
+			This._EnsureEngine()
+			_cPairs = StzEngineTableFindCellStringCS(@pEngine, pCellValue, pCaseSensitive)
+			if _cPairs != ""
+				_aFcResult = []
+				_aParts = StzSplit(_cPairs, ";")
+				_nFcLen = len(_aParts)
+				for _iFc = 1 to _nFcLen
+					_aColRow = StzSplit(_aParts[_iFc], ",")
+					_aFcResult + [0 + _aColRow[1], 0 + _aColRow[2]]
+				next
+				return _aFcResult
+			else
+				return []
+			ok
+		ok
+
 		aResult = StzListOfListsQ( This.Cols() ).FindInListsCS(pCellValue, pCaseSensitive)
-		return aResult	
+		return aResult
 
 		#< @FunctionAlternativeForms
 			

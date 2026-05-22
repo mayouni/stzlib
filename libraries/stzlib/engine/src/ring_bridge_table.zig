@@ -161,6 +161,76 @@ fn ring_FilterRows(p: *anyopaque) callconv(.c) void {
     rcp(p, @ptrCast(table.stz_table_filter_rows(getTC(p, 1), @intFromFloat(g(p, 2)), getV(p, 3))), HT);
 }
 
+// Find cell: returns comma-separated "col,row;col,row;..." (1-based) positions
+fn ring_FindCellStringCS(p: *anyopaque) callconv(.c) void {
+    const t = getTC(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    const needle_ptr = gs(p, 2);
+    const needle_len: usize = @intCast(gss(p, 2));
+    const cs: i32 = @intFromFloat(g(p, 3));
+    const needle_val = value.stz_value_new_string(needle_ptr, needle_len) orelse {
+        rs(p, "");
+        return;
+    };
+    defer value.stz_value_free(needle_val);
+    var positions: [32768]i64 = undefined;
+    const count = table.stz_table_find_cell_cs(t, needle_val, cs, &positions, 16384);
+    if (count == 0) {
+        rs(p, "");
+        return;
+    }
+    var buf: [32768 * 12]u8 = undefined;
+    var pos: usize = 0;
+    for (0..count) |ci| {
+        const col_1 = positions[ci * 2] + 1;
+        const row_1 = positions[ci * 2 + 1] + 1;
+        const slice = std.fmt.bufPrint(buf[pos..], "{d},{d}", .{ col_1, row_1 }) catch break;
+        pos += slice.len;
+        if (ci + 1 < count) {
+            buf[pos] = ';';
+            pos += 1;
+        }
+    }
+    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+}
+
+// Find in column: returns comma-separated 1-based row positions
+fn ring_FindInColStringCS(p: *anyopaque) callconv(.c) void {
+    const t = getTC(p, 1) orelse {
+        rs(p, "");
+        return;
+    };
+    const col: i64 = @intFromFloat(g(p, 2));
+    const needle_ptr = gs(p, 3);
+    const needle_len: usize = @intCast(gss(p, 3));
+    const cs: i32 = @intFromFloat(g(p, 4));
+    const needle_val = value.stz_value_new_string(needle_ptr, needle_len) orelse {
+        rs(p, "");
+        return;
+    };
+    defer value.stz_value_free(needle_val);
+    var positions: [65536]i64 = undefined;
+    const count = table.stz_table_find_in_col_cs(t, col, needle_val, cs, &positions, 65536);
+    if (count == 0) {
+        rs(p, "");
+        return;
+    }
+    var buf: [65536 * 12]u8 = undefined;
+    var pos: usize = 0;
+    for (0..count) |ci| {
+        const row_1 = positions[ci] + 1;
+        const slice = std.fmt.bufPrint(buf[pos..], "{d}", .{row_1}) catch break;
+        pos += slice.len;
+        if (ci + 1 < count) {
+            buf[pos] = ',';
+            pos += 1;
+        }
+    }
+    if (pos > 0) rs2(p, &buf, @intCast(pos)) else rs(p, "");
+}
+
 // Pivot: multi group by (table, col1, col2, value_col, agg_func)
 // Supports up to 4 group columns via overloaded ring functions
 fn ring_PivotGroupBy1(p: *anyopaque) callconv(.c) void {
@@ -230,6 +300,8 @@ pub const regs = [_]R.Reg{
     .{ .name = "stzenginetableclone",         .func = &ring_Clone },
     .{ .name = "stzenginetablegroupby",       .func = &ring_GroupBy },
     .{ .name = "stzenginetablefilterrows",    .func = &ring_FilterRows },
+    .{ .name = "stzenginetablefindcellstringcs", .func = &ring_FindCellStringCS },
+    .{ .name = "stzenginetablefindincolstringcs", .func = &ring_FindInColStringCS },
     // Pivot
     .{ .name = "stzenginepivotgroupby1",     .func = &ring_PivotGroupBy1 },
     .{ .name = "stzenginepivotgroupby2",     .func = &ring_PivotGroupBy2 },
